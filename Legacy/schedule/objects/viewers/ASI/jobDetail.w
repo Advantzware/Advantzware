@@ -65,7 +65,7 @@ DEFINE VARIABLE ttblJobRowID AS ROWID NO-UNDO.
 
 &Scoped-define ADM-SUPPORTED-LINKS Record-Source
 
-/* Name of first Frame and/or Browse and/or first Query                 */
+/* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME F-Main
 
 /* External Tables                                                      */
@@ -220,7 +220,7 @@ IF NOT W-Win:LOAD-ICON("schedule/images/scheduler.ico":U) THEN
 /* SETTINGS FOR WINDOW W-Win
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME F-Main
-                                                                        */
+   FRAME-NAME                                                           */
 ASSIGN 
        btnComplete:PRIVATE-DATA IN FRAME F-Main     = 
                 "Complete Job".
@@ -363,8 +363,10 @@ PROCEDURE adm-create-objects :
        /* Links to SmartQuery h_job. */
        RUN add-link IN adm-broker-hdl ( h_job , 'Record':U , THIS-PROCEDURE ).
 
+       /* Adjust the tab order of the smart objects. */
+       RUN adjust-tab-order IN adm-broker-hdl ( h_folder ,
+             btnComplete:HANDLE IN FRAME F-Main , 'BEFORE':U ).
     END. /* Page 0 */
-
     WHEN 1 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
            &IF DEFINED(UIB_is_Running) ne 0 &THEN
@@ -400,8 +402,12 @@ PROCEDURE adm-create-objects :
        /* Links to SmartQuery h_cust. */
        RUN add-link IN adm-broker-hdl ( h_job , 'Record':U , h_cust ).
 
+       /* Adjust the tab order of the smart objects. */
+       RUN adjust-tab-order IN adm-broker-hdl ( h_jobdetail ,
+             btnDataCollection:HANDLE IN FRAME F-Main , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_cust-2 ,
+             h_jobdetail , 'AFTER':U ).
     END. /* Page 1 */
-
     WHEN 2 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'schedule/objects/viewers/asi/browsers/item.w':U ,
@@ -451,8 +457,16 @@ PROCEDURE adm-create-objects :
        /* Links to SmartViewer h_folding. */
        RUN add-link IN adm-broker-hdl ( h_item , 'Record':U , h_folding ).
 
+       /* Adjust the tab order of the smart objects. */
+       RUN adjust-tab-order IN adm-broker-hdl ( h_item ,
+             btnDataCollection:HANDLE IN FRAME F-Main , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_item-2 ,
+             h_item , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_itempanel ,
+             h_item-2 , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_folding ,
+             h_itempanel , 'AFTER':U ).
     END. /* Page 2 */
-
     WHEN 3 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'schedule/objects/viewers/asi/browsers/job-mat.w':U ,
@@ -465,8 +479,10 @@ PROCEDURE adm-create-objects :
        /* Links to SmartBrowser h_job-mat. */
        RUN add-link IN adm-broker-hdl ( h_job , 'Record':U , h_job-mat ).
 
+       /* Adjust the tab order of the smart objects. */
+       RUN adjust-tab-order IN adm-broker-hdl ( h_job-mat ,
+             btnDataCollection:HANDLE IN FRAME F-Main , 'AFTER':U ).
     END. /* Page 3 */
-
     WHEN 4 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'schedule/objects/viewers/asi/viewers/machine.w':U ,
@@ -479,8 +495,10 @@ PROCEDURE adm-create-objects :
        /* Links to SmartViewer h_machine. */
        RUN add-link IN adm-broker-hdl ( h_job , 'Record':U , h_machine ).
 
+       /* Adjust the tab order of the smart objects. */
+       RUN adjust-tab-order IN adm-broker-hdl ( h_machine ,
+             btnDataCollection:HANDLE IN FRAME F-Main , 'AFTER':U ).
     END. /* Page 4 */
-
     WHEN 5 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'schedule/objects/viewers/asi/browsers/notes.w':U ,
@@ -493,8 +511,10 @@ PROCEDURE adm-create-objects :
        /* Links to SmartBrowser h_notes. */
        RUN add-link IN adm-broker-hdl ( h_job , 'Record':U , h_notes ).
 
+       /* Adjust the tab order of the smart objects. */
+       RUN adjust-tab-order IN adm-broker-hdl ( h_notes ,
+             btnDataCollection:HANDLE IN FRAME F-Main , 'AFTER':U ).
     END. /* Page 5 */
-
     WHEN 6 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'schedule/objects/viewers/asi/browsers/job.w':U ,
@@ -519,6 +539,10 @@ PROCEDURE adm-create-objects :
        RUN add-link IN adm-broker-hdl ( h_job-2 , 'Record':U , h_job-mch ).
 
        /* Adjust the tab order of the smart objects. */
+       RUN adjust-tab-order IN adm-broker-hdl ( h_job-2 ,
+             btnDataCollection:HANDLE IN FRAME F-Main , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_job-mch ,
+             h_job-2 , 'AFTER':U ).
     END. /* Page 6 */
 
   END CASE.
@@ -626,22 +650,30 @@ PROCEDURE job :
   DEFINE INPUT PARAMETER ipHandle AS HANDLE NO-UNDO.
   DEFINE INPUT PARAMETER ipYCoord AS INTEGER NO-UNDO.
 
+  DEFINE VARIABLE autoMonitor AS LOGICAL NO-UNDO.
+  
   IF ipYCoord NE ? AND {&WINDOW-NAME}:WINDOW-STATE NE 2 THEN
   {&WINDOW-NAME}:Y = ipYCoord.
   RUN displayFields IN h_jobDetail (ipRowID).
   RUN dispatch IN h_job ('initialize':U).
   ASSIGN
     ttblJobRowID = ipRowID
-    boardHandle = ipHandle.
+    boardHandle = ipHandle
+    .
   RUN boardType IN boardHandle (OUTPUT boardType).
-  IF boardType NE '{&Board}' THEN
-  DO:
-    ASSIGN
-      btnComplete:HIDDEN IN FRAME {&FRAME-NAME} = YES
-      /*btnJobNotes:HIDDEN = YES*/ .
-    RUN disableUpdateButtons IN h_cust-2.
-  END.
-  
+  IF boardType NE '{&Board}' THEN DO:
+    btnComplete:HIDDEN IN FRAME {&FRAME-NAME} = YES.
+    RUN setUpdateButtons IN h_cust-2 (NO).
+  END. /* if not pro */
+  ELSE DO:
+    RUN autoMonitorFlag IN boardHandle (OUTPUT autoMonitor).
+    IF autoMonitor THEN
+    DISABLE btnComplete btnJobNotes WITH FRAME {&FRAME-NAME}.
+    ELSE
+    ENABLE btnComplete btnJobNotes WITH FRAME {&FRAME-NAME}.
+    RUN setUpdateButtons IN h_cust-2 (autoMonitor).
+  END. /* else */
+    
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

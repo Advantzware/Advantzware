@@ -4,12 +4,12 @@
   currentPage = INTEGER(RETURN-VALUE).
   IF currentPage EQ 1 THEN
   DO:
-    ENABLE {&boardButtons} WITH FRAME {&FRAME-NAME}.
+    ENABLE btnAutoMonitor {&boardButtons} WITH FRAME {&FRAME-NAME}.
     RUN setMenuItems (YES).
     btnDataCollection:HIDDEN = NOT CONNECTED('emptrack').
   END.
   ELSE
   DO:
-    HIDE {&boardButtons} NO-PAUSE.
+    HIDE btnAutoMonitor {&boardButtons} NO-PAUSE.
     RUN setMenuItems (NO).
   END.
