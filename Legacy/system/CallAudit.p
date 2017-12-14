@@ -18,7 +18,7 @@ IF NOT VALID-HANDLE(iphTable) THEN DO:
         "Called from " ipcType ipcProgramName
     VIEW-AS ALERT-BOX.
     RETURN.
-END.
+END. /* not valid-handle */
 
 RUN nosweat/primflds.p (ipcTable, OUTPUT cIdxFlds).
 

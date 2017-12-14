@@ -605,6 +605,7 @@ spooler. system est
 splchkdn. system est
 config. system est
 setaudit. system est
+audit. system est
 access. system est
 miscflds. system est
 prgrms. system est
