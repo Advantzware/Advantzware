@@ -335,7 +335,7 @@ RUN pHTMLPages.
 PUT UNFORMATTED '  End Save: ' STRING(TODAY,'99.99.9999') ' @ ' STRING(TIME,'hh:mm:ss') ' for ' ID ' by ' USERID('nosweat') SKIP(1).
 OUTPUT CLOSE.
 
-MESSAGE 'Schedule Board Save (upload) Complete.' VIEW-AS ALERT-BOX.
+/*MESSAGE 'Schedule Board Save (upload) Complete.' VIEW-AS ALERT-BOX.*/
 
 PROCEDURE setLiveUpdate:
   DEFINE INPUT PARAMETER ipCompany AS CHARACTER NO-UNDO.
@@ -561,91 +561,21 @@ PROCEDURE pHTMLPages:
     DEFINE VARIABLE dtDate         AS DATE      NO-UNDO.
     DEFINE VARIABLE lUsed          AS LOGICAL   NO-UNDO EXTENT 1440.
     DEFINE VARIABLE cBookedTime    AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE iBookedTime    AS INTEGER   NO-UNDO EXTENT 31.
+    DEFINE VARIABLE iBookedTime    AS INTEGER   NO-UNDO EXTENT 30.
     DEFINE VARIABLE cUsedTime      AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE iUsedTime      AS INTEGER   NO-UNDO EXTENT 31.
+    DEFINE VARIABLE iUsedTime      AS INTEGER   NO-UNDO EXTENT 30.
     DEFINE VARIABLE cAvailTime     AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE iAvailTime     AS INTEGER   NO-UNDO EXTENT 31.
+    DEFINE VARIABLE iAvailTime     AS INTEGER   NO-UNDO EXTENT 30.
     DEFINE VARIABLE iStartTime     AS INTEGER   NO-UNDO.
     DEFINE VARIABLE iEndTime       AS INTEGER   NO-UNDO.
     DEFINE VARIABLE cDays          AS CHARACTER NO-UNDO INITIAL "Sun,Mon,Tue,Wed,Thu,Fri,Sat".
-    DEFINE VARIABLE dStartDateTime AS DECIMAL NO-UNDO.
-    DEFINE VARIABLE dEndDateTime   AS DECIMAL NO-UNDO.
-    DEFINE VARIABLE idx            AS INTEGER NO-UNDO.
-    DEFINE VARIABLE jdx            AS INTEGER NO-UNDO.
+    DEFINE VARIABLE dStartDateTime AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dEndDateTime   AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE idx            AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE jdx            AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iShowDays      AS INTEGER   NO-UNDO INITIAL 6.
     
     DEFINE BUFFER bTtblJob FOR ttblJob.
-    
-    FOR EACH ttblJob NO-LOCK
-        BREAK BY ttblJob.resource
-              BY ttblJob.jobSequence
-              BY ttblJob.jobSort
-        :
-        IF FIRST-OF(ttblJob.resource) THEN DO:
-            FIND FIRST mach NO-LOCK 
-                 WHERE mach.company EQ ENTRY(1,ttblJob.keyValue)
-                   AND mach.m-code  EQ ttblJob.resource
-                 NO-ERROR.
-            OUTPUT TO VALUE(htmlPageLocation + '\' + ttblJob.resource + '.htm').
-            PUT UNFORMATTED
-                '<html>' SKIP
-                '<head>' SKIP
-                '<title>Operation: ' ttblJob.resource (IF AVAILABLE mach THEN ' - ' + mach.m-dscr ELSE '') '</title>' SKIP
-                '<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">' SKIP
-                '<meta http-equiv="Refresh" content="120">' SKIP
-                '</head>' SKIP
-                '<a name="Top"></a>' SKIP
-                '<form>' SKIP
-                '<fieldset>' SKIP
-                '<legend>Operation: <b><font color="DC143C">' ttblJob.resource (IF AVAILABLE mach THEN ' - ' + mach.m-dscr ELSE '')
-                '</font></b> (updated ' STRING(TODAY,'99.99.9999') ' @ ' STRING(TIME,'hh:mm:ss am') ')'
-                '~&nbsp;</legend>' SKIP
-                '  <table border="1" cellspacing="0" cellpadding="1" width="100%">' SKIP
-                '    <tr>' SKIP
-                '      <td bgcolor="#CCCCCC" align="center" nowrap><b>Seq</b></td>' SKIP
-                '      <td bgcolor="#CCCCCC" nowrap><b>Job</b></td>' SKIP
-                '      <td bgcolor="#CCCCCC" nowrap><b>Customer</b></td>' SKIP
-                '      <td bgcolor="#CCCCCC" nowrap><b>Item</b></td>' SKIP
-                '      <td bgcolor="#CCCCCC" align="right" nowrap><b>Run Qty</b></td>' SKIP
-                '      <td bgcolor="#CCCCCC" align="center" nowrap><b>Due Date</b></td>' SKIP
-                '      <td bgcolor="#CCCCCC" align="center" nowrap><b>Start Date</b></td>' SKIP
-                '      <td bgcolor="#CCCCCC" align="right" nowrap><b>Time</b></td>' SKIP
-                '      <td bgcolor="#CCCCCC" align="center" nowrap><b>End Date</b></td>' SKIP 
-                '      <td bgcolor="#CCCCCC" align="right" nowrap><b>Time</b></td>' SKIP 
-                '    </tr>' SKIP
-                .
-            lAltLine = YES.
-        END. /* if first-of */
-        ASSIGN 
-            lAltLine = NOT lAltLine
-            cBGColor = IF lAltLine THEN ' bgcolor="D1FCC5"' ELSE ''
-            .
-        PUT UNFORMATTED
-            '    <tr>' SKIP
-            '      <td' cBGColor ' align="center" nowrap>' ttblJob.jobSequence '</td>' SKIP
-            '      <td' cBGColor ' nowrap><b>' ttblJob.jobSort '</b></td>' SKIP
-            '      <td' cBGColor ' nowrap>' ttblJob.userField02 '</td>' SKIP
-            '      <td' cBGColor ' nowrap>' ttblJob.userField09 '</td>' SKIP
-            '      <td' cBGColor ' align="right" nowrap>' ttblJob.userField15 '</td>' SKIP
-            '      <td' cBGColor ' align="center" nowrap>' STRING(ttblJob.dueDate,'99.99.9999') '</td>' SKIP
-            '      <td' cBGColor ' align="center" nowrap>' STRING(ttblJob.startDate,'99.99.9999') '</td>' SKIP
-            '      <td' cBGColor ' align="right" nowrap>' STRING(ttblJob.startTime,"hh:mm:ss am") '</td>' SKIP
-            '      <td' cBGColor ' align="center" nowrap>' STRING(ttblJob.endDate,'99.99.9999') '</td>' SKIP 
-            '      <td' cBGColor ' align="right" nowrap>' STRING(ttblJob.endTime,"hh:mm:ss am") '</td>' SKIP 
-            '    </tr>' SKIP
-            .
-        IF LAST-OF(ttblJob.resource) THEN DO:
-            PUT UNFORMATTED
-                '  </table>' SKIP
-                '  <div align="left"><a href="#Top">Top</a>' SKIP
-                '  <div align="right">~&copy; Advantzware, Inc., All Rights Reserved</div>' SKIP
-                '</fieldset>' SKIP
-                '</form>' SKIP
-                '</html>' SKIP
-                .
-            OUTPUT CLOSE.
-        END. /* if last-of */
-    END. /* each ttbljob */
     
     OUTPUT TO VALUE(htmlPageLocation + '\sbResources.htm').
     PUT UNFORMATTED
@@ -658,26 +588,28 @@ PROCEDURE pHTMLPages:
         '<a name="Top"></a>' SKIP
         '<form>' SKIP
         '<fieldset>' SKIP
-        '<legend>Schedule Board Resource Capacity View (updated ' STRING(TODAY,'99.99.9999') ' @ ' STRING(TIME,'hh:mm:ss am') ')'
+        '<legend><font face="Arial, Helvetica, sans-serif">Schedule Board Resource Capacity View (updated '
+        STRING(TODAY,'99.99.9999') ' @ ' STRING(TIME,'hh:mm:ss am') ')</font>'
         '~&nbsp;</legend>' SKIP
-        '  <table cellspacing="3" cellpadding="3">' SKIP
+        '  <table align="right" cellspacing="2" cellpadding="8">' SKIP
         '    <tr>' SKIP 
-        '      <td>Legend:</td>' SKIP 
-        '      <td bgcolor="#000000"><font color="#FFFFFF">Downtime</font></td>' SKIP 
-        '      <td bgcolor="#0000FF"><font color="#FFFFFF">Booked (#Jobs)</font></td>' SKIP 
-        '      <td bgcolor="#009900"><font color="#FFFFFF">Available</font></td>' SKIP 
+        '      <td><font face="Arial, Helvetica, sans-serif">Legend:</font></td>' SKIP 
+        '      <td bgcolor="#C0BEBE"><font face="Arial, Helvetica, sans-serif"><b>Downtime</b></font></td>' SKIP 
+        '      <td bgcolor="#AAD5B9"><font face="Arial, Helvetica, sans-serif"><b>Booked (#Jobs)</b></font></td>' SKIP 
+        '      <td bgcolor="#F1FE98"><font face="Arial, Helvetica, sans-serif"><b>Available</b></font></td>' SKIP 
         '    </tr>' SKIP  
         '  </table>' SKIP 
-        '  <table border="1" cellspacing="0" cellpadding="3" width="100%">' SKIP
+        '  <table border="1" cellspacing="0" cellpadding="12" width="100%">' SKIP
         '    <tr>' SKIP
-        '      <td bgcolor="#CCCCCC" nowrap><b>Resource</b></td>' SKIP
-        '      <td bgcolor="#CCCCCC" nowrap><b>Name</b></td>' SKIP
-        '      <td bgcolor="#CCCCCC" nowrap><b>Pending</b></td>' SKIP
+        '      <td bgcolor="#F4F4F4" align="center" nowrap><font face="Arial, Helvetica, sans-serif"><b>Resource</b></font></td>' SKIP
+        '      <td bgcolor="#F4F4F4" align="center" nowrap><font face="Arial, Helvetica, sans-serif"><b>Name</b></font></td>' SKIP
+        '      <td bgcolor="#F4F4F4" align="center" nowrap><font face="Arial, Helvetica, sans-serif"><b>Pending</b></font></td>' SKIP
         .
-    DO dtDate = TODAY TO TODAY + 30:
-        cBGColor = IF WEEKDAY(dtDate) EQ 1 OR WEEKDAY(dtDate) EQ 7 THEN 'bgcolor="#CCCCFF"' ELSE 'bgcolor="#CCCCCC"'.
+    DO dtDate = TODAY TO TODAY + iShowDays:
+        cBGColor = IF WEEKDAY(dtDate) EQ 1 OR WEEKDAY(dtDate) EQ 7 THEN 'bgcolor="#DBDEF2"' ELSE 'bgcolor="#F4F4F4"'.
         PUT UNFORMATTED
-            '      <td ' cBGColor 'nowrap><b>' ENTRY(WEEKDAY(dtDate),cDays) ' ' MONTH(dtDate) '/' DAY(dtDate) '</b></td>' SKIP
+            '      <td ' cBGColor ' align="center" nowrap><font face="Arial, Helvetica, sans-serif"><b>'
+            ENTRY(WEEKDAY(dtDate),cDays) ' ' MONTH(dtDate) '/' DAY(dtDate) '</b></font></td>' SKIP
             .
     END. /* do dtdate */ 
     PUT UNFORMATTED
@@ -712,20 +644,26 @@ PROCEDURE pHTMLPages:
                 .
             PUT UNFORMATTED
                 '    <tr>' SKIP
-                '      <td' cBGColor ' nowrap rowspan="3"><b><a href="' htmlPageLocation + '\' + ttblJob.resource + '.htm" target="_blank">'
-                ttblJob.resource '</a></b></td>' SKIP
-                '      <td' cBGColor ' nowrap rowspan="3"><b><a href="' htmlPageLocation + '\' + ttblJob.resource + '.htm" target="_blank">'
-                (IF AVAILABLE mach THEN mach.m-dscr ELSE '') '</a></b></td>' SKIP
-                '      <td' cBGColor ' nowrap rowspan="3" align="center">'
+                '      <td' cBGColor ' align="center" nowrap rowspan="3"><font face="Arial, Helvetica, sans-serif">'
+                '<img src="'
+                (IF SEARCH("Graphics/48x48/" + ttblJob.resource + ".png") NE ? THEN
+                    SEARCH("Graphics/48x48/" + ttblJob.resource + ".png") ELSE
+                    SEARCH("Graphics/48x48/gearwheels.png"))
+                '" align="middle">~&nbsp~&nbsp~&nbsp~&nbsp<b>'
+                ttblJob.resource '</a></b></font></td>' SKIP
+                '      <td' cBGColor ' align="center" nowrap rowspan="3"><font face="Arial, Helvetica, sans-serif"><b>'
+                '<a href="' htmlPageLocation + '\' + ttblJob.resource + '.htm" target="_blank">'
+                (IF AVAILABLE mach THEN mach.m-dscr ELSE ttblJob.resource) '</a></b></font></td>' SKIP
+                '      <td' cBGColor ' align="center" nowrap rowspan="3" align="center"><font face="Arial, Helvetica, sans-serif">'
                 .
             IF iJobs NE 0 THEN
             PUT UNFORMATTED
                 'Jobs: <b>' iJobs '<br>' specialTime(iTime) '</b>'
                 .
             PUT UNFORMATTED
-                '</td>' SKIP.
+                '</font></td>' SKIP
                 .
-            DO dtDate = TODAY TO TODAY + 30:
+            DO dtDate = TODAY TO TODAY + iShowDays:
                 ASSIGN 
                     idx            = dtDate - TODAY + 1
                     iUsedTime[idx] = 0
@@ -740,14 +678,14 @@ PROCEDURE pHTMLPages:
                        ELSE IF iUsedTime[idx] EQ 0 THEN ""
                        ELSE STRING(iUsedTime[idx],"hh:mm").
                 PUT UNFORMATTED 
-                    '      <td bgcolor="#000000" nowrap><font color="#FFFFFF">' cUsedTime '</font></td>'
+                    '      <td bgcolor="#C0BEBE" align="center" nowrap><font face="Arial, Helvetica, sans-serif"><b>' cUsedTime '</b></font></td>'
                     .
             END. /* do dtdate */
             PUT UNFORMATTED 
                 '    </tr>' SKIP
                 '    <tr>' SKIP
                 .
-            DO dtDate = TODAY TO TODAY + 30:
+            DO dtDate = TODAY TO TODAY + iShowDays:
                 ASSIGN
                     lUsed            = NO
                     idx              = dtDate - TODAY + 1
@@ -787,14 +725,14 @@ PROCEDURE pHTMLPages:
                 IF cBookedTime NE "" THEN
                 cBookedTime = cBookedTime + " (" + STRING(iJobs) + ")".
                 PUT UNFORMATTED 
-                    '      <td bgcolor="#0000FF" nowrap><font color="#FFFFFF">' cBookedTime '</font></td>'
+                    '      <td bgcolor="#AAD5B9" align="center" nowrap><font face="Arial, Helvetica, sans-serif"><b>' cBookedTime '</b></font></td>'
                     .
             END. /* do dtdate */
             PUT UNFORMATTED 
                 '    </tr>' SKIP
                 '    <tr>' SKIP
                 .
-            DO dtDate = TODAY TO TODAY + 30:
+            DO dtDate = TODAY TO TODAY + iShowDays:
                 ASSIGN
                     idx = dtDate - TODAY + 1
                     iAvailTime[idx] = 86400 - iUsedTime[idx] - iBookedTime[idx]
@@ -803,24 +741,96 @@ PROCEDURE pHTMLPages:
                         ELSE IF iAvailTime[idx] EQ 0 THEN ""
                         ELSE STRING(iAvailTime[idx],"hh:mm").
                 PUT UNFORMATTED 
-                    '      <td bgcolor="#009900" nowrap><font color="#FFFFFF">' cAvailTime '</font></td>'
+                    '      <td bgcolor="#F1FE98" align="center" nowrap><font face="Arial, Helvetica, sans-serif"><b>' cAvailTime '</b></font></td>'
                     .
             END. /* do dtdate */
             PUT UNFORMATTED 
                 '    </tr>' SKIP
                 '    <tr>' SKIP
-                '      <td colspan="34" bgcolor="#000000"><hr></td>' SKIP 
+                '      <td colspan="34" bgcolor="#F4F4F4"></td>' SKIP 
                 '    </tr>' SKIP
                 .
         END. /* if first-of */
     END. /* each ttbljob */
     PUT UNFORMATTED
         '  </table>' SKIP
-        '  <div align="left"><a href="#Top">Top</a>' SKIP
-        '  <div align="right">~&copy; Advantzware, Inc., All Rights Reserved</div>' SKIP
+        '  <div align="left"><font face="Arial, Helvetica, sans-serif"><a href="#Top">Top</a></font>' SKIP
+        '  <div align="right"><font face="Arial, Helvetica, sans-serif">~&copy; Advantzware, Inc., All Rights Reserved</font></div>' SKIP
         '</fieldset>' SKIP
         '</form>' SKIP
         '</html>' SKIP
         .
     OUTPUT CLOSE.
+
+    FOR EACH ttblJob NO-LOCK
+        BREAK BY ttblJob.resource
+              BY ttblJob.jobSequence
+              BY ttblJob.jobSort
+        :
+        IF FIRST-OF(ttblJob.resource) THEN DO:
+            FIND FIRST mach NO-LOCK 
+                 WHERE mach.company EQ ENTRY(1,ttblJob.keyValue)
+                   AND mach.m-code  EQ ttblJob.resource
+                 NO-ERROR.
+            OUTPUT TO VALUE(htmlPageLocation + '\' + ttblJob.resource + '.htm').
+            PUT UNFORMATTED
+                '<html>' SKIP
+                '<head>' SKIP
+                '<title>Operation: ' ttblJob.resource (IF AVAILABLE mach THEN ' - ' + mach.m-dscr ELSE '') '</title>' SKIP
+                '<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">' SKIP
+                '<meta http-equiv="Refresh" content="120">' SKIP
+                '</head>' SKIP
+                '<a name="Top"></a>' SKIP
+                '<form>' SKIP
+                '<fieldset>' SKIP
+                '<legend><font face="Arial, Helvetica, sans-serif">Operation: <b><font color="DC143C">' ttblJob.resource
+                (IF AVAILABLE mach THEN ' - ' + mach.m-dscr ELSE '')
+                '</font></b> (updated ' STRING(TODAY,'99.99.9999') ' @ ' STRING(TIME,'hh:mm:ss am') ')'
+                '~&nbsp;</legend>' SKIP
+                '  <table border="1" cellspacing="0" cellpadding="14" width="100%">' SKIP
+                '    <tr>' SKIP
+                '      <td bgcolor="#C5EBD8" align="center" nowrap><font face="Arial, Helvetica, sans-serif"><b>Seq</b></font></td>' SKIP
+                '      <td bgcolor="#C5EBD8" align="center" nowrap><font face="Arial, Helvetica, sans-serif"><b>Job</b></font></td>' SKIP
+                '      <td bgcolor="#C5EBD8" align="center" nowrap><font face="Arial, Helvetica, sans-serif"><b>Customer</b></font></td>' SKIP
+                '      <td bgcolor="#C5EBD8" align="center" nowrap><font face="Arial, Helvetica, sans-serif"><b>Item</b></font></td>' SKIP
+                '      <td bgcolor="#C5EBD8" align="center" nowrap><font face="Arial, Helvetica, sans-serif"><b>Run Qty</b></font></td>' SKIP
+                '      <td bgcolor="#C5EBD8" align="center" nowrap><font face="Arial, Helvetica, sans-serif"><b>Due Date</b></font></td>' SKIP
+                '      <td bgcolor="#C5EBD8" align="center" nowrap><font face="Arial, Helvetica, sans-serif"><b>Start Date</b></font></td>' SKIP
+                '      <td bgcolor="#C5EBD8" align="center" nowrap><font face="Arial, Helvetica, sans-serif"><b>Time</b></font></td>' SKIP
+                '      <td bgcolor="#C5EBD8" align="center" nowrap><font face="Arial, Helvetica, sans-serif"><b>End Date</b></font></td>' SKIP 
+                '      <td bgcolor="#C5EBD8" align="center" nowrap><font face="Arial, Helvetica, sans-serif"><b>Time</b></font></td>' SKIP 
+                '    </tr>' SKIP
+                .
+            lAltLine = YES.
+        END. /* if first-of */
+        ASSIGN 
+            lAltLine = NOT lAltLine
+            cBGColor = IF lAltLine THEN ' bgcolor="EEDFD2"' ELSE ''
+            .
+        PUT UNFORMATTED
+            '    <tr>' SKIP
+            '      <td' cBGColor ' align="center" nowrap><font face="Arial, Helvetica, sans-serif">' ttblJob.jobSequence '</font></td>' SKIP
+            '      <td' cBGColor ' align="center" nowrap><font face="Arial, Helvetica, sans-serif"><b>' ttblJob.jobSort '</b></font></td>' SKIP
+            '      <td' cBGColor ' align="center" nowrap><font face="Arial, Helvetica, sans-serif">' ttblJob.userField02 '</font></td>' SKIP
+            '      <td' cBGColor ' align="center" nowrap><font face="Arial, Helvetica, sans-serif">' ttblJob.userField09 '</font></td>' SKIP
+            '      <td' cBGColor ' align="center" nowrap><font face="Arial, Helvetica, sans-serif">' ttblJob.userField15 '</font></td>' SKIP
+            '      <td' cBGColor ' align="center" nowrap><font face="Arial, Helvetica, sans-serif">' STRING(ttblJob.dueDate,'99.99.9999') '</font></td>' SKIP
+            '      <td' cBGColor ' align="center" nowrap><font face="Arial, Helvetica, sans-serif">' STRING(ttblJob.startDate,'99.99.9999') '</font></td>' SKIP
+            '      <td' cBGColor ' align="center" nowrap><font face="Arial, Helvetica, sans-serif">' STRING(ttblJob.startTime,"hh:mm:ss am") '</font></td>' SKIP
+            '      <td' cBGColor ' align="center" nowrap><font face="Arial, Helvetica, sans-serif">' STRING(ttblJob.endDate,'99.99.9999') '</font></td>' SKIP 
+            '      <td' cBGColor ' align="center" nowrap><font face="Arial, Helvetica, sans-serif">' STRING(ttblJob.endTime,"hh:mm:ss am") '</font></td>' SKIP 
+            '    </tr>' SKIP
+            .
+        IF LAST-OF(ttblJob.resource) THEN DO:
+            PUT UNFORMATTED
+                '  </table>' SKIP
+                '  <div align="left"><font face="Arial, Helvetica, sans-serif"><a href="#Top">Top</a></font>' SKIP
+                '  <div align="right"><font face="Arial, Helvetica, sans-serif">~&copy; Advantzware, Inc., All Rights Reserved</font></div>' SKIP
+                '</fieldset>' SKIP
+                '</form>' SKIP
+                '</html>' SKIP
+                .
+            OUTPUT CLOSE.
+        END. /* if last-of */
+    END. /* each ttbljob */
 END PROCEDURE.

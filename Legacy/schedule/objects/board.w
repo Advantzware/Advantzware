@@ -62,7 +62,7 @@ DEFINE VARIABLE saveDowntimeTop AS LOGICAL NO-UNDO.
 DEFINE VARIABLE schdChanged AS LOGICAL NO-UNDO.
 DEFINE VARIABLE jobSequencerHandle AS HANDLE NO-UNDO.
 DEFINE VARIABLE startTimeOK AS LOGICAL NO-UNDO.
-DEFINE VARIABLE viewRefreshInterval AS INTEGER NO-UNDO.
+DEFINE VARIABLE viewRefreshInterval AS DECIMAL NO-UNDO.
 DEFINE VARIABLE iMsg AS INTEGER NO-UNDO.
 DEFINE VARIABLE hMsgImage AS HANDLE NO-UNDO EXTENT 23.
 DEFINE VARIABLE hMsgText AS HANDLE NO-UNDO EXTENT 23.
@@ -2238,6 +2238,50 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE autoMonitor s-object 
+PROCEDURE autoMonitor :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  &Scoped-define autoMonitorObjects ~
+scenario btnSave btnRemove btnReset btnPending btnPendingJobs btnComplete ~
+btnJobNotes btnDatePrompt
+
+  DEFINE INPUT PARAMETER ipAutoMonitor AS LOGICAL NO-UNDO.
+  
+  IF ipAutoMonitor THEN
+  DISABLE {&autoMonitorObjects} WITH FRAME {&FRAME-NAME}.
+  ELSE
+  ENABLE {&autoMonitorObjects} WITH FRAME {&FRAME-NAME}.
+  /*
+  IF VALID-HANDLE(currentJob) THEN
+  RUN jobDeselection (currentJob).
+  */
+  viewRefreshInterval = 0.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE autoMonitorFlag s-object 
+PROCEDURE autoMonitorFlag :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEFINE OUTPUT PARAMETER oplAutoMonitor AS LOGICAL NO-UNDO.
+  
+  oplAutoMonitor = NOT btnSave:SENSITIVE IN FRAME {&FRAME-NAME}.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE boardType s-object 
 PROCEDURE boardType :
 /*------------------------------------------------------------------------------
@@ -3294,9 +3338,8 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE initMsgFrame s-object
-PROCEDURE initMsgFrame:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE initMsgFrame s-object 
+PROCEDURE initMsgFrame :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -3361,11 +3404,9 @@ PROCEDURE initMsgFrame:
     END.
 
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE jobMoving s-object 
 PROCEDURE jobMoving :
@@ -4104,6 +4145,8 @@ PROCEDURE resourceClick :
 ------------------------------------------------------------------------------*/
   DEFINE INPUT PARAMETER ipWidget AS WIDGET-HANDLE NO-UNDO.
 
+  IF btnSave:SENSITIVE IN FRAME {&FRAME-NAME} EQ NO THEN RETURN.
+  
   RUN detailResource (ipWidget:NAME,ipWidget:TOOLTIP).
   currentResource = ipWidget:NAME.
 
@@ -4428,6 +4471,7 @@ PROCEDURE timeLine :
   DEFINE VARIABLE lvDateTime AS DECIMAL NO-UNDO.
   DEFINE VARIABLE lvPixel AS DECIMAL NO-UNDO.
   DEFINE VARIABLE minPixel AS DECIMAL NO-UNDO.
+  DEFINE VARIABLE packOptionPromptSave AS LOGICAL NO-UNDO.
 
   IF NOT startTimeOK THEN RETURN.
   DO WITH FRAME {&FRAME-NAME}:
@@ -4442,7 +4486,8 @@ PROCEDURE timeLine :
       timeLine:BGCOLOR = timeLineColor
       timeLine:HIDDEN = IF flashTimeLine THEN NOT timeLine:HIDDEN ELSE NO
       gridLine:BGCOLOR = gridLineColor
-      gridLine:HIDDEN = IF flashGridLine THEN NOT gridLine:HIDDEN ELSE NO.
+      gridLine:HIDDEN = IF flashGridLine THEN NOT gridLine:HIDDEN ELSE NO
+      .
     &IF '{&Board}' EQ 'Pro' &THEN
     IF saveInterval NE 0 AND saveTimeInterval GT saveInterval THEN DO:
       MESSAGE 'Save Scheduler Pro?' VIEW-AS ALERT-BOX
@@ -4454,16 +4499,32 @@ PROCEDURE timeLine :
     END. /* if saveinterval */
     ASSIGN
       accumTimeInterval = ETIME / 1000
-      saveTimeInterval = saveTimeInterval + .5.
+      saveTimeInterval = saveTimeInterval + .5
+      .
     RUN displayLastSave IN containerHandle (accumTimeInterval).
-    &ELSEIF '{&Board}' EQ 'View' &THEN
+    &ENDIF
     IF viewRefresh NE 0 AND viewRefreshInterval GT viewRefresh * 60 THEN DO:
+      &IF '{&Board}' EQ 'Pro' &THEN
+      IF btnSave:SENSITIVE EQ NO THEN DO:
+        viewRefreshInterval = 0.
+        RUN setAutoMonitorImage IN containerHandle.
+        RUN asiDC.
+        ASSIGN
+          packOptionPromptSave = packOptionPrompt
+          packOptionPrompt     = NO
+          .
+        RUN packBoard.
+        packOptionPrompt = packOptionPromptSave.
+        APPLY 'CHOOSE':U TO btnSave.
+        viewRefreshInterval = 0.
+      END. /* if automonitor */
+      &ELSEIF '{&Board}' EQ 'View' &THEN
       APPLY 'CHOOSE':U TO btnTimeLine.
       RUN viewRefresh.
+      &ENDIF
     END.
     ELSE
-    viewRefreshInterval = viewRefreshInterval + 1.
-    &ENDIF
+    viewRefreshInterval = viewRefreshInterval + .5.
   END. /* with frame */
 
 END PROCEDURE.
