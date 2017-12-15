@@ -12,8 +12,8 @@ put "<FCourier New>"
      "<P10>"
      "<C4>It is hereby certified that all articles in the shipment below and in the quantity given " SKIP
      "<C4>are in conformance with the requirements, specifications and drawings applicable to the " SKIP
-     "<C4>above purchase order. substantiated evidence is in our files that the accompanying   " SKIP
-     "<C4>shipment with material and process specifications." 
+     "<C4>above Purchase Order. Substantiated evidence is in our files that the accompanying " SKIP
+     "<C4>shipment complies with material and process specifications." 
       skip(2) 
   .
      
