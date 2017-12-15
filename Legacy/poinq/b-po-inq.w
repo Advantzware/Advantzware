@@ -2039,16 +2039,6 @@ PROCEDURE record-added :
    ll-first      = YES
    ll-new-record = YES.
 
-  DO WITH FRAME {&FRAME-NAME}:
-    IF fi_due-date GT TODAY - 365 THEN DO:
-    END.
-    ELSE do:
-        fi_due-date:SCREEN-VALUE  = string(TODAY - 180) .
-        ASSIGN fi_due-date = TODAY - 180 .
-        RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
-    END.
-  END.
-
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
