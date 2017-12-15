@@ -1329,11 +1329,7 @@ PROCEDURE local-delete-record :
         usrx.uid = users.user_id:
         DELETE usrx.
     END.
-    FOR EACH reftable EXCLUSIVE WHERE 
-        reftable.reftable EQ "users.user-docs" AND
-        reftable.company EQ users.user_id:
-        DELETE reftable.
-    END.
+   
     FOR EACH reftable EXCLUSIVE WHERE
         reftable.reftable EQ "users.phone-no" AND
         reftable.company EQ users.user_id:
