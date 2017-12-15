@@ -4064,7 +4064,8 @@ PROCEDURE create-w-ord :
                 w-ord.test = itemfg.test
                 w-ord.pcs = itemfg.case-count
                 w-ord.bundle = IF itemfg.case-pall NE 0 THEN itemfg.case-pall ELSE 1
-                w-ord.style = itemfg.style.
+                w-ord.style = itemfg.style
+                w-ord.cust-part-no = itemfg.part-no .
 
          IF w-ord.style NE "" THEN
          DO:
@@ -5213,7 +5214,8 @@ PROCEDURE from-po :
         w-ord.test = itemfg.test
         w-ord.pcs = itemfg.case-count
         w-ord.bundle = IF itemfg.case-pall NE 0 THEN itemfg.case-pall ELSE 1
-        w-ord.style   = itemfg.style.
+        w-ord.style   = itemfg.style
+        w-ord.cust-part-no = itemfg.part-no .
 
       IF w-ord.style NE "" THEN
       DO:
