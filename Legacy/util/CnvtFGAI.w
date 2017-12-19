@@ -435,17 +435,10 @@ FOR EACH bf-company NO-LOCK,
     STATUS DEFAULT "Processing Customer#/FG#: " +
                  TRIM(bf-itemfg.cust-no) + "/" + TRIM(bf-itemfg.i-no).
     cStat = "".
-    FOR EACH bf-reftable
-        WHERE bf-reftable.reftable EQ "FGSTATUS"
-          AND bf-reftable.company  EQ bf-itemfg.company
-          AND bf-reftable.loc      EQ ""   
-          AND bf-reftable.CODE     EQ bf-itemfg.i-no
-         EXCLUSIVE-LOCK:
-        IF cStat NE "A" THEN 
-            cStat = IF bf-reftable.code2 NE "" THEN bf-reftable.code2 ELSE "A".
-        IF lPurgeReftable THEN
-             DELETE bf-reftable.
-    END.
+
+      IF cStat NE "A" THEN 
+            cStat = IF itemfg.stat NE "" THEN itemfg.stat ELSE "A".
+
     IF cStat EQ "" THEN
         cStat = "A".
     IF (lUpdateOnlyIfBlank AND bf-itemfg.stat EQ "") OR NOT lUpdateOnlyIfBlank THEN DO:

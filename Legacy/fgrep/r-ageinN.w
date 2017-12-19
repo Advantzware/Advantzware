@@ -4404,16 +4404,8 @@ FUNCTION itemStatus RETURNS CHARACTER
   Purpose:  
     Notes:  
 ------------------------------------------------------------------------------*/
-FIND FIRST reftable     WHERE reftable.reftable EQ "FGSTATUS"     
-  AND reftable.company  EQ ipcCompany
-  AND reftable.loc      EQ ""             
-  AND reftable.code     EQ ipcIno NO-ERROR.
 
-IF AVAIL reftable THEN 
-    RETURN reftable.code2.
-ELSE
-  RETURN "".   /* Function return value. */
-
+  RETURN "".
 END FUNCTION.
 
 /* _UIB-CODE-BLOCK-END */

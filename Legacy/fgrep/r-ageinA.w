@@ -3872,20 +3872,14 @@ END PROCEDURE.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION itemStatus C-Win 
 FUNCTION itemStatus RETURNS CHARACTER
   (ipcCompany AS CHAR, ipcIno AS CHAR ) :
+   
 /*------------------------------------------------------------------------------
   Purpose:  
     Notes:  
 ------------------------------------------------------------------------------*/
-FIND FIRST reftable     WHERE reftable.reftable EQ "FGSTATUS"     
-  AND reftable.company  EQ ipcCompany
-  AND reftable.loc      EQ ""             
-  AND reftable.code     EQ ipcIno NO-ERROR.
 
-IF AVAIL reftable THEN 
-    RETURN reftable.code2.
-ELSE
-  RETURN "".   /* Function return value. */
-
+  
+  RETURN "".
 END FUNCTION.
 
 /* _UIB-CODE-BLOCK-END */
