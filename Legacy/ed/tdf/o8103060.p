@@ -45,13 +45,32 @@ ASSIGN
   trailer_segment_list =
   "TDS,025,CAD,026,SAC,027,TXI,028,ISS,029"
   ctt_count_segment_list = "IT1".
-CASE ws_partner:
-WHEN "AMAZ" OR WHEN "SEARS" THEN
-ASSIGN
-  partner_segment_list = "000,ST,BIG,CUR,N1,N3,N4,IT1,SAC,TDS,SAC,TXI,SE".
-OTHERWISE ASSIGN
+/*CASE ws_partner:                                                          */
+/*WHEN "AMAZ" OR WHEN "SEARS" THEN                                          */
+/*ASSIGN                                                                    */
+/*  partner_segment_list = "000,ST,BIG,CUR,N1,N3,N4,IT1,SAC,TDS,SAC,TXI,SE".*/
+/*OTHERWISE ASSIGN                                                          */
+/*  partner_segment_list = "*".                                             */
+/*END CASE.                                                
+                 */
+                
+FIND FIRST EDMast NO-LOCK WHERE EDMast.Partner EQ ws_partner NO-ERROR.
+IF NOT AVAILABLE EDMast THEN 
+    RETURN. 
+FIND first ediPartnerSegment NO-LOCK  
+     WHERE ediPartnerSegment.partnerGrp EQ EDMast.partnerGrp
+     NO-ERROR.
+IF NOT AVAILABLE ediPartnerSegment THEN 
   partner_segment_list = "*".
-END CASE.
+ELSE DO:
+    partner_segment_list = "000". 
+    FOR EACH ediPartnerSegment NO-LOCK  
+         WHERE ediPartnerSegment.partnerGrp EQ EDMast.partnerGrp 
+         BREAK BY ediPartnerSegment.segmentCode  :
+         IF FIRST-OF(ediPartnerSegment.segmentCode) THEN 
+           partner_segment_list = partner_segment_list + "," + ediPartnerSegment.segmentCode.  
+    END.
+END. 
 
 {ed/getpath.i}
 ASSIGN
@@ -90,7 +109,7 @@ ASSIGN
   hdg_text = "".
 FORM
   WITH FRAME f-det DOWN WIDTH 144.
-OUTPUT STREAM s-edi TO VALUE(ws_edi_path) APPEND.
+OUTPUT STREAM s-edi TO VALUE(ws_edi_path).
 START = TIME.
 FOR EACH eddoc EXCLUSIVE
     WHERE eddoc.setid = edcode.setid
@@ -98,8 +117,9 @@ FOR EACH eddoc EXCLUSIVE
     AND eddoc.error-count = 0
     AND eddoc.posted = FALSE
     AND eddoc.direction = edcode.direction
-AND NOT eddoc.status-flag = "DEL"   /* 9809 CAH */:
+    AND NOT eddoc.status-flag = "DEL"   /* 9809 CAH */:
   ws_section = 10.
+  /*
   DISPLAY
     eddoc.partner
     eddoc.setid
@@ -108,6 +128,8 @@ AND NOT eddoc.status-flag = "DEL"   /* 9809 CAH */:
     eddoc.docid     FORMAT "x(22)"
     eddoc.userref   FORMAT "x(22)"
     WITH FRAME f-current.
+    */
+  PUBLISH "EDIEVENT" ( eddoc.partner + "   " + eddoc.setid + "   " + eddoc.direction + "   " +    string(eddoc.seq)) .
   {rc/incr.i ws_recs_read}.
   FIND edivtran OF eddoc
     EXCLUSIVE-LOCK NO-ERROR.
@@ -144,6 +166,7 @@ AND NOT eddoc.status-flag = "DEL"   /* 9809 CAH */:
     END CASE.
   END.    /* avail edpotran */
 END.  /* lookup po */
+
  ASSIGN
   /* BIG */
   invoice_number                  = edivtran.invoice-no
@@ -178,8 +201,10 @@ END.  /* lookup po */
   /* N3 */
   address1 = IF AVAILABLE EDShipto THEN EDShipto.Addr1 ELSE ""
   address2 = IF AVAILABLE EDShipto THEN EDShipto.Addr2 ELSE ""
+  
   /* N4 */
   city = IF AVAILABLE EDShipto THEN EDShipto.City ELSE ""
+  state = IF AVAILABLE EDShipto THEN EDShipto.State ELSE ""    
   country = IF AVAILABLE EDShipto THEN EDShipto.Country ELSE ""
   zip = IF AVAILABLE EDShipto THEN EDShipto.Zip ELSE ""
   
@@ -236,6 +261,13 @@ DO:
     id_code                         = remit_number
     company_name                    = 'PREMIER PACKAGING'
     .
+    
+    IF edshipto.siteID GT "" THEN 
+      ASSIGN 
+      id_code_qualifier =          "92"
+      id_code      = edshipto.siteID
+        .
+    
     ASSIGN 
     name2 = 'PREMIER PACKAGING'
     
@@ -251,7 +283,7 @@ DO:
     IF id_code EQ "" THEN 
       id_code_qualifier = "".
     ws_section = 21.
-  RUN write_segments.ip ("N1,006").
+    RUN write_segments.ip ("N1,006").
     RUN write_segments.ip ("N3,008").
     RUN write_segments.ip ("N4,009").
     
@@ -259,12 +291,21 @@ DO:
         AND EDShipto.Partner EQ EDIVTran.partner
         AND EDShipto.ship-to EQ EDIVTran.By-code 
         NO-ERROR.
-/*    ASSIGN                                               */
-/*        entity_id         = "PE"                         */
-/*        id_code_qualifier = "92"                         */
-/*        id_code           = edIVtran.by-code             */
-/*    company_name                    = 'PREMIER PACKAGING'*/
-/*        .                                                */
+    /*    ASSIGN                                               */
+    /*        entity_id         = "PE"                         */
+    /*        id_code_qualifier = "92"                         */
+    /*        id_code           = edIVtran.by-code             */
+    /*    company_name                    = 'PREMIER PACKAGING'*/
+    /*        .                                                */
+    
+    /* Should only be in 'RI' */
+    ASSIGN 
+        entity_relationship_code = ""
+        entity_identifier_code   = ""
+        id_code_qualifier        = ""
+        id_code                  = ""        
+        .
+        
     /* N1 */
     ASSIGN 
        entity_id                       = "PE"
@@ -496,5 +537,9 @@ END.
 VIEW STREAM s-out FRAME f-stats.
 HIDE FRAME f-stats NO-PAUSE.
 PAGE STREAM s-out.
+
+IF ws_filetype EQ "EDI" THEN 
+  RUN ed/postProcessEDI.p (INPUT "810", ws_edi_path, ws_partner, ws_edi_path + ".edi").
+  
 RETURN.
 {ed/tdf/writeseg.i}

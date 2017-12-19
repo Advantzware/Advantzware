@@ -34,7 +34,7 @@ CREATE WIDGET-POOL.
 /* ***************************  Definitions  ************************** */
 
 &SCOPED-DEFINE winReSize
-&SCOPED-DEFINE h_Browse01 h_edcode
+&SCOPED-DEFINE h_Browse01 h_edcat
 
 /* Parameters Definitions ---                                           */
 
@@ -52,8 +52,6 @@ CREATE WIDGET-POOL.
 &Scoped-define DB-AWARE no
 
 &Scoped-define ADM-CONTAINER WINDOW
-
-&Scoped-define ADM-SUPPORTED-LINKS Record-Source
 
 /* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME F-Main
@@ -79,8 +77,8 @@ DEFINE QUERY external_tables FOR edcode.
 DEFINE VAR W-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of handles for SmartObjects                              */
-DEFINE VARIABLE h_edcode AS HANDLE NO-UNDO.
-DEFINE VARIABLE h_edcode-2 AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_edcat AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_edcat-2 AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_exit AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_f-add AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_folder AS HANDLE NO-UNDO.
@@ -98,18 +96,18 @@ DEFINE FRAME F-Main
          SIZE 150 BY 24
          BGCOLOR 15 .
 
-DEFINE FRAME OPTIONS-FRAME
-    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 2 ROW 1
-         SIZE 148 BY 1.91
-         BGCOLOR 15 .
-
 DEFINE FRAME message-frame
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 46 ROW 2.91
          SIZE 105 BY 1.43
+         BGCOLOR 15 .
+
+DEFINE FRAME OPTIONS-FRAME
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 2 ROW 1
+         SIZE 148 BY 1.91
          BGCOLOR 15 .
 
 
@@ -120,7 +118,7 @@ DEFINE FRAME message-frame
    Type: SmartWindow
    External Tables: ASI.edcode
    Allow: Basic,Browse,DB-Fields,Query,Smart,Window
-   Design Page: 2
+   Design Page: 1
    Other Settings: COMPILE
  */
 &ANALYZE-RESUME _END-PROCEDURE-SETTINGS
@@ -334,31 +332,30 @@ PROCEDURE adm-create-objects :
     END. /* Page 0 */
     WHEN 1 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
-             INPUT  'browsers/edcode.w':U ,
+             INPUT  'browsers/edcat.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
-             OUTPUT h_edcode ).
-       RUN set-position IN h_edcode ( 5.05 , 4.00 ) NO-ERROR.
-       RUN set-size IN h_edcode ( 19.52 , 145.00 ) NO-ERROR.
+             OUTPUT h_edcat ).
+       RUN set-position IN h_edcat ( 5.48 , 6.00 ) NO-ERROR.
+       RUN set-size IN h_edcat ( 19.52 , 145.00 ) NO-ERROR.
 
        /* Initialize other pages that this page requires. */
        RUN init-pages IN THIS-PROCEDURE ('2':U) NO-ERROR.
 
-       /* Links to SmartNavBrowser h_edcode. */
-       RUN add-link IN adm-broker-hdl ( h_p-navico , 'Navigation':U , h_edcode ).
-       RUN add-link IN adm-broker-hdl ( h_edcode , 'Record':U , THIS-PROCEDURE ).
+       /* Links to SmartNavBrowser h_edcat. */
+       RUN add-link IN adm-broker-hdl ( h_p-navico , 'Navigation':U , h_edcat ).
 
        /* Adjust the tab order of the smart objects. */
-       RUN adjust-tab-order IN adm-broker-hdl ( h_edcode ,
+       RUN adjust-tab-order IN adm-broker-hdl ( h_edcat ,
              h_folder , 'AFTER':U ).
     END. /* Page 1 */
     WHEN 2 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
-             INPUT  'viewers/edcode.w':U ,
+             INPUT  'viewers/edcat.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
-             OUTPUT h_edcode-2 ).
-       RUN set-position IN h_edcode-2 ( 5.29 , 3.80 ) NO-ERROR.
+             OUTPUT h_edcat-2 ).
+       RUN set-position IN h_edcat-2 ( 4.86 , 4.20 ) NO-ERROR.
        /* Size in UIB:  ( 17.14 , 144.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
@@ -384,16 +381,15 @@ PROCEDURE adm-create-objects :
        /* Initialize other pages that this page requires. */
        RUN init-pages IN THIS-PROCEDURE ('1':U) NO-ERROR.
 
-       /* Links to SmartViewer h_edcode-2. */
-       RUN add-link IN adm-broker-hdl ( h_edcode , 'Record':U , h_edcode-2 ).
-       RUN add-link IN adm-broker-hdl ( h_p-updsav , 'TableIO':U , h_edcode-2 ).
-       RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'add-item':U , h_edcode-2 ).
+       /* Links to SmartViewer h_edcat-2. */
+       RUN add-link IN adm-broker-hdl ( h_edcat , 'Record':U , h_edcat-2 ).
+       RUN add-link IN adm-broker-hdl ( h_p-updsav , 'TableIO':U , h_edcat-2 ).
 
        /* Adjust the tab order of the smart objects. */
-       RUN adjust-tab-order IN adm-broker-hdl ( h_edcode-2 ,
+       RUN adjust-tab-order IN adm-broker-hdl ( h_edcat-2 ,
              h_folder , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_p-navico ,
-             h_edcode-2 , 'AFTER':U ).
+             h_edcat-2 , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_p-updsav ,
              h_p-navico , 'AFTER':U ).
     END. /* Page 2 */
@@ -531,6 +527,19 @@ PROCEDURE send-records :
 
   /* Deal with any unexpected table requests before closing.           */
   {src/adm/template/snd-end.i}
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE setBrowseFocus W-Win 
+PROCEDURE setBrowseFocus :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
 
 END PROCEDURE.
 

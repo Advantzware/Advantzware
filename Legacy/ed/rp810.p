@@ -32,6 +32,7 @@ DEF VAR hi_adddate AS DATE NO-UNDO LABEL "Thru".
 view_partner = IF ws_partner > "" THEN
 ws_partner ELSE "*"
 .
+printdest = "CLIPBOARD".
 DO WITH FRAME f-view:
   UPDATE
     view_partner
@@ -47,7 +48,7 @@ END.
 {rc/hdg-noco.i}
 VIEW FRAME hdg-std.
 FOR EACH eddoc NO-LOCK
-    WHERE eddoc.fgid = "IV"
+    WHERE eddoc.fgid = "IN"
     AND eddoc.partner MATCHES view_partner
     AND (IF lo_adddate = ? THEN TRUE ELSE eddoc.adddate >= lo_adddate)
     AND (IF hi_adddate = ? THEN TRUE ELSE eddoc.adddate <= hi_adddate)

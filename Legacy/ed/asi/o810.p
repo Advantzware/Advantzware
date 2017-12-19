@@ -491,6 +491,8 @@ END.
       billto.zip        = ar-inv.zip
       billto.attention  = ar-inv.contact
       .
+    IF billto.country EQ "" THEN 
+      billto.country = "US".
   END.
 
   IF top-debug THEN
@@ -507,7 +509,12 @@ END.
       AND bystore.cust = pCust
       AND bystore.ship-to = pStore
       EXCLUSIVE-LOCK NO-ERROR.
-
+    IF NOT AVAIL bystore THEN 
+    FIND FIRST bystore
+      WHERE bystore.partner = ws_partner
+      AND bystore.ref-type = "BY"
+      AND bystore.BY-CODE = ""
+      EXCLUSIVE-LOCK NO-ERROR.
     IF NOT AVAIL bystore THEN
     DO:
       CREATE bystore.
@@ -516,7 +523,12 @@ END.
         bystore.ref-type = "BY"
         bystore.by-code = ""    /* partner must assign this */
         bystore.cust = pCust
-        bystore.ship-to = pStore.
+        bystore.ship-to = pStore
+        .
+        IF ws_partner EQ "AMAZ" THEN
+          ASSIGN bystore.siteID = "2855507686"
+                 .
+           
     END.
 
     IF bystore.name = '' THEN
@@ -548,6 +560,8 @@ END.
           bystore.state      = v-shipto-state   
           bystore.zip        = v-shipto-zip     
           .      
+      IF bystore.country EQ "" THEN 
+        bystore.country = "US".
     END.
     
     ASSIGN by_code = bystore.ship-to.
@@ -1029,33 +1043,46 @@ def input param pItem as char no-undo.   /* i-No */
     edivline.ship-stat        = inv-line.stat
     .
 
-  IF inv-line.pr-uom = "CS"
-    AND inv-line.cas-cnt > 0 THEN
-  DO:  /* scale qty by case count */
-    edivline.qty-shipped = inv-line.inv-qty / inv-line.cas-cnt.
-    edivline.uom-code = "CT".   /* carton is correct code for EDI */
-  END.
-  ELSE
-  DO:
-    /* quantity unit */
-    edivline.uom-code =
-    (IF inv-line.pr-qty-uom > "" THEN
-    inv-line.pr-qty-uom
-    ELSE "EA"
-    ).
+        IF inv-line.pr-uom = "CS"
+            AND inv-line.cas-cnt > 0 THEN
+        DO:  /* scale qty by case count */
+            edivline.qty-shipped = inv-line.inv-qty / inv-line.cas-cnt.
+            edivline.uom-code = "CT".   /* carton is correct code for EDI */
+        END.
+        ELSE
+        DO:
+            /* quantity unit */
+            edivline.uom-code =
+                (IF inv-line.pr-qty-uom > "" THEN
+                inv-line.pr-qty-uom
+                ELSE "EA"
+                ).
 
-    IF edivline.uom-code = "CS"
-      THEN
-    edivline.uom-code = "CT".    /* 9705 CAH */
+            IF edivline.uom-code = "CS"
+                THEN
+                edivline.uom-code = "CT".    /* 9705 CAH */
 
-  END.
-
-  /* pricing unit */
-  edivline.price-basis = inv-line.pr-Uom.
-  IF edivline.price-basis = "CS"
-    THEN
-  edivline.price-basis = "CT".    /* 9705 CAH */
-
+        END.
+        
+        CASE inv-line.pr-uom :
+            WHEN 'CS' THEN 
+                DO:
+                    edivline.uom-code = "CT". 
+                    IF inv-line.cas-cnt > 0 THEN
+                        edivline.qty-shipped = inv-line.inv-qty / inv-line.cas-cnt.
+                END.
+            WHEN "M" THEN 
+                DO:
+                    ASSIGN 
+                        edivline.uom-code      = "EA"
+                        EDIVLine.Selling-price = EDIVLine.Selling-price / 1000
+                        EDIVLine.unit-price = EDIVLine.unit-price / 1000
+                        .
+                END.
+            OTHERWISE 
+            DO:
+            END. 
+        END CASE.        
   IF edivline.price-basis = "M" AND ws_partner BEGINS "3m"
     THEN
   edivline.price-basis = "TP".
@@ -1110,15 +1137,25 @@ def input param pItem as char no-undo.   /* i-No */
 
   END.
 
-  /* pricing unit */
-  edivline.price-basis = ar-invl.pr-Uom.
-  IF edivline.price-basis = "CS"
-    THEN
-  edivline.price-basis = "CT".    /* 9705 CAH */
-
-  IF edivline.price-basis = "M" AND ws_partner BEGINS "3m"
-    THEN
-  edivline.price-basis = "TP".
+    CASE ar-invl.pr-uom :
+        WHEN 'CS' THEN 
+            DO:
+                edivline.uom-code = "CT". 
+                IF ar-invl.cas-cnt > 0 THEN
+                    edivline.qty-shipped = ar-invl.inv-qty / ar-invl.cas-cnt.
+            END.
+        WHEN "M" THEN 
+            DO:
+                ASSIGN 
+                    edivline.uom-code        = "EA"
+                    EDIVLine.Selling-price = EDIVLine.Selling-price / 1000
+                    EDIVLine.unit-price = EDIVLine.unit-price / 1000                     
+                    .
+            END.
+        OTHERWISE 
+        DO:
+        END. 
+    END CASE.
     
   end.
 

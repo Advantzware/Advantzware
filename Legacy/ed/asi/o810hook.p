@@ -115,8 +115,10 @@ DO:
         ws_erc = -1.
       END.
     END.    /* search i loop */
+	message "runok" run_ok " pgm " next_program view-as alert-box.
     IF run_ok THEN
     DO:
+	
       ASSIGN ws_edcode_rec = RECID(edcode).
       STATUS DEFAULT "Creating EDI Invoice ...".
       IF top-debug THEN

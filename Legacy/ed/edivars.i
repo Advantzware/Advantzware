@@ -252,7 +252,7 @@ def {1} var transportation_method_code          AS CHAR NO-UNDO FORMAT "x(02)".
 def {1} var ucc128_mark                         AS CHAR NO-UNDO FORMAT "x(20)".
 def {1} var unique_order_number                 AS INT NO-UNDO FORMAT '999999'.
 def {1} var unit_of_measure                     AS CHAR NO-UNDO FORMAT 'x(02)'.
-def {1} var unit_price                  AS DEC NO-UNDO FORMAT '-999999999.9999'.
+def {1} var unit_price                  AS DEC DECIMALS 6 NO-UNDO FORMAT '-999999999.9999'.
 def {1} var upc_case_code                       AS CHAR NO-UNDO FORMAT "x(30)".
 def {1} var upc_code                            AS CHAR NO-UNDO FORMAT 'x(12)'.
 def {1} var vendor_duns_suffix                  AS CHAR NO-UNDO FORMAT "x(13)".

@@ -6,7 +6,7 @@ DEF INPUT PARAM ip-print-s AS LOG NO-UNDO. /* for PremierS */
 {sys/inc/var.i shared}
 
 {oe/rep/invoice.i}
-
+MESSAGE "in premierx" VIEW-AS ALERT-BOX.
 def var v-salesman as char format "x(14)" NO-UNDO.
 def var v-salesname as char format "x(30)" NO-UNDO.
 def var v-fob as char format "x(27)" NO-UNDO.
@@ -317,7 +317,7 @@ END.
                 v-tot-pallets = 0
                 v-pc = "C". /* complete*/
          FOR EACH oe-bolh NO-LOCK WHERE oe-bolh.b-no = xinv-line.b-no 
-                /*oe-bolh.ord-no = xinv-line.ord-no*/ :
+              /*oe-bolh.ord-no = xinv-line.ord-no*/ :
            v-pc = "P". /* partial*/ 
            FOR EACH oe-boll fields(cases partial p-c) NO-LOCK WHERE
               oe-boll.company = oe-bolh.company AND
@@ -333,8 +333,8 @@ END.
               
            END. /* each oe-boll */
            assign v-date-ship = oe-bolh.bol-date
-                        /* v-tot-pallets = v-tot-pallets + v-bol-cases +
-                                         (if oe-boll.partial gt 0 then 1 else 0) */.
+                      /* v-tot-pallets = v-tot-pallets + v-bol-cases +
+                                       (if oe-boll.partial gt 0 then 1 else 0) */.
          END. /* each oe-bolh */
          
          if last-of(xinv-line.i-no) then do:
@@ -440,6 +440,9 @@ END.
             assign v-price-head = inv-line.pr-uom.
         end.
         
+        /* Create eddoc for invoice if required */
+        RUN ed/asi/o810hook.p (recid(inv-head), no, no).     
+                    
         /* rstark 05181205 */
         XMLLineNumber = 0.
         RUN XMLOutput (lXMLOutput,'InvoiceHeader','','Row').
@@ -612,7 +615,7 @@ END.
           END.
 
             assign v-line = v-line + 1
-                    /* v-printline = v-printline + 2 */.  
+                  /* v-printline = v-printline + 2 */.  
             find first oe-ordl where oe-ordl.company = cocode and
                                      oe-ordl.ord-no = inv-line.ord-no and
                                      oe-ordl.i-no = inv-line.i-no

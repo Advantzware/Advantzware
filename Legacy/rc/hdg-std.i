@@ -19,6 +19,6 @@ FORM HEADER
   ' BY:' USERID('dictdb') AT 5 hdg_desc FORMAT 'x(30)' AT 25
   'PRG:' AT 58 hdg_rpt_code AT 62 SKIP
   hdg_text FORMAT 'x(30)' AT 25 SKIP
-  WITH PAGE-TOP NO-BOX NO-LABELS NO-ATTR-SPACE WIDTH 80 FRAME hdg-std.
+  WITH PAGE-TOP NO-BOX NO-LABELS NO-ATTR-SPACE WIDTH 144 FRAME hdg-std.
 
 assign hdg_rpt_code = "{1}" hdg_desc = "{2}".
