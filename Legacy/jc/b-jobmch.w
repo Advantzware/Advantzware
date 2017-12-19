@@ -1249,7 +1249,7 @@ PROCEDURE run-schedule :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-   RUN jcsch/w-jobsc2.w (job-mch.m-code).
+    RUN schedule/sbHTML.p ("Job", ROWID(job)).
 
 END PROCEDURE.
 
