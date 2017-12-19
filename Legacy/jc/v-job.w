@@ -1019,6 +1019,19 @@ PROCEDURE local-delete-record :
     END.
 
     IF lv-msg EQ "" THEN DO:
+        FIND FIRST po-ordl NO-LOCK
+             WHERE po-ordl.company EQ job.company
+               AND po-ordl.job-no  EQ job.job-no
+               AND po-ordl.job-no2 EQ job.job-no2
+               AND po-ordl.opened NO-ERROR .
+        IF AVAILABLE po-ordl THEN DO:
+            MESSAGE "There is an open Purchase Order that must be deleted before job can be deleted.. "
+                VIEW-AS ALERT-BOX INFO .
+            RETURN ERROR .
+        END.
+    END.
+
+    IF lv-msg EQ "" THEN DO:
         {custom/askdel.i}
      END.
 
