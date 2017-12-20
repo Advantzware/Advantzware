@@ -551,8 +551,9 @@ FOR EACH tt-pol,
         WHERE rm-rdtlh.r-no      EQ rm-rcpth.r-no
           AND rm-rdtlh.rita-code EQ rm-rcpth.rita-code
           AND (rm-rdtlh.s-num    EQ po-ordl.s-num OR po-ordl.s-num EQ 0)
-          AND NOT CAN-FIND(FIRST b-ap-invl WHERE b-ap-invl.i-no  EQ INT(SUBSTR(rm-rdtlh.receiver-no,1,10))
-                                             AND b-ap-invl.line  EQ (po-ordl.po-no * 1000) + po-ordl.line)
+          AND rm-rdtlh.receiver-no EQ ''  /*24963 - Do not show *any* receipt that has already been linked*/
+/*          AND NOT CAN-FIND(FIRST b-ap-invl WHERE b-ap-invl.i-no  EQ INT(SUBSTR(rm-rdtlh.receiver-no,1,10))*/
+/*                                             AND b-ap-invl.line  EQ (po-ordl.po-no * 1000) + po-ordl.line)*/
         NO-LOCK:        
 
      lv-uom = po-ordl.pr-qty-uom.
@@ -590,27 +591,30 @@ FOR EACH tt-pol,
 
       /* gdm - 05200908 end */  
       
-      CREATE tt-rec.
-      ASSIGN
-       tt-rec.rec-id     = RECID(rm-rcpth)
-       tt-rec.selekt     = SUBSTR(rm-rdtlh.receiver-no,1,10) EQ
-                           STRING(ap-inv.i-no,"9999999999")
-       tt-rec.po-date   = po-ord.po-date
-       tt-rec.rcpt-date = rm-rcpth.trans-date
-       tt-rec.r-no       = rm-rcpth.r-no
-       /* gdm - 05200908  */ 
-       tt-rec.qty-rec    = IF rd_qty EQ 1 THEN v-pur-qty
-                                          ELSE v-rec-qty
-       tt-rec.qty-rec-uom = IF rd_qty EQ 1 THEN lv-uom
-                            ELSE rm-rcpth.pur-uom
-       tt-rec.qty-inv    =  IF tt-rec.selekt THEN
-                               DEC(SUBSTR(rm-rdtlh.receiver-no,11,17))
-                             ELSE 
-                                v-qty
-       tt-rec.qty-inv-uom = lv-uom
-       /* gdm - 05200908 end */ 
-       tt-rec.s-len      = v-len
-       tt-rec.row-id     = ROWID(tt-pol).
+      /*24963 - Prevent the re-use of the same receipt, multiple times*/
+      IF NOT CAN-FIND(FIRST tt-rec WHERE tt-rec.rec-id EQ RECID(rm-rcpth) ) THEN DO:
+          CREATE tt-rec.
+          ASSIGN
+           tt-rec.rec-id     = RECID(rm-rcpth)
+           tt-rec.selekt     = SUBSTR(rm-rdtlh.receiver-no,1,10) EQ
+                               STRING(ap-inv.i-no,"9999999999")
+           tt-rec.po-date   = po-ord.po-date
+           tt-rec.rcpt-date = rm-rcpth.trans-date
+           tt-rec.r-no       = rm-rcpth.r-no
+           /* gdm - 05200908  */ 
+           tt-rec.qty-rec    = IF rd_qty EQ 1 THEN v-pur-qty
+                                              ELSE v-rec-qty
+           tt-rec.qty-rec-uom = IF rd_qty EQ 1 THEN lv-uom
+                                ELSE rm-rcpth.pur-uom
+           tt-rec.qty-inv    =  IF tt-rec.selekt THEN
+                                   DEC(SUBSTR(rm-rdtlh.receiver-no,11,17))
+                                 ELSE 
+                                    v-qty
+           tt-rec.qty-inv-uom = lv-uom
+           /* gdm - 05200908 end */ 
+           tt-rec.s-len      = v-len
+           tt-rec.row-id     = ROWID(tt-pol).
+       END.
     END.
   END.
 

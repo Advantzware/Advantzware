@@ -1329,11 +1329,8 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
           end_comp = lv-default-comp.
     APPLY "entry" TO begin_cust-no.
   END.
-  RUN sys/ref/CustList.p (INPUT cocode,
-                          INPUT 'AR5',
-                          INPUT NO,
-                          OUTPUT glCustListActive).
-
+  
+  {sys/inc/chblankcust.i ""AR5""}
   IF ou-log THEN DO:
       ASSIGN 
         tb_cust-list:SENSITIVE IN FRAME {&FRAME-NAME} = NO
