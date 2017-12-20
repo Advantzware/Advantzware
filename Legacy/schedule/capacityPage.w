@@ -1,32 +1,50 @@
-&ANALYZE-SUSPEND _VERSION-NUMBER UIB_v9r12
+&ANALYZE-SUSPEND _VERSION-NUMBER AB_v10r12 GUI
 &ANALYZE-RESUME
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS Procedure 
+/* Connected Databases 
+*/
+&Scoped-define WINDOW-NAME CURRENT-WINDOW
+&Scoped-define FRAME-NAME Dialog-Frame
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS Dialog-Frame 
 /*------------------------------------------------------------------------
-    File        : sbHTML.p
-    Purpose     : web page generation of job potential starting date/time
 
-    Syntax      : RUN schedule/sbHTML.p (ROWID(job)).
+  File: capacityPage.w
 
-    Description : 
+  Description: Capacity Schedule Web Page Generation
 
-    Author(s)   : Ron Stark
-    Created     : 12.17.2017
-    Notes       :
-  ----------------------------------------------------------------------*/
-/*          This .W file was created with the Progress AppBuilder.      */
+  Input Parameters: Type: Est or Job -- Rowid: Est, Job or ?
+
+  Output Parameters: <none>
+
+  Author: Ron Stark
+
+  Created: 12.20.2017
+------------------------------------------------------------------------*/
+/*          This .W file was created with the Progress AppBuilder.       */
 /*----------------------------------------------------------------------*/
 
 /* ***************************  Definitions  ************************** */
 
+/* Parameters Definitions ---                                           */
+
+&IF DEFINED(UIB_is_Running) EQ 0 &THEN
 DEFINE INPUT PARAMETER ipcType    AS CHARACTER NO-UNDO.
 DEFINE INPUT PARAMETER iprRowID   AS ROWID     NO-UNDO.
 DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+&ELSE
+DEFINE VARIABLE ipcType    AS CHARACTER NO-UNDO INITIAL "Job".
+DEFINE VARIABLE iprRowID   AS ROWID     NO-UNDO.
+DEFINE VARIABLE ipcCompany AS CHARACTER NO-UNDO INITIAL "001".
+iprRowID = TO-ROWID("0x00000000005a4047").
+&ENDIF
+
+/* Local Variable Definitions ---                                       */
 
 DEFINE TEMP-TABLE ttJob NO-UNDO LIKE job-mch 
-  FIELD jobMchRowID   AS ROWID 
-  FIELD d-seq         AS INTEGER
-  FIELD m-seq         AS INTEGER
-    INDEX ttJob IS PRIMARY job frm blank-no d-seq m-seq pass m-code
+  FIELD jobMchRowID AS ROWID 
+  FIELD d-seq       AS INTEGER
+  FIELD m-seq       AS INTEGER
+  FIELD m-dscr      AS CHARACTER
+    INDEX ttJob IS PRIMARY frm blank-no d-seq m-seq pass m-code
     .
 DEFINE TEMP-TABLE ttblJob NO-UNDO
   FIELD m-code        AS CHARACTER 
@@ -55,6 +73,14 @@ DEFINE TEMP-TABLE ttTime NO-UNDO
   FIELD newJob    AS LOGICAL 
     INDEX ttTime IS PRIMARY timeSlice
     .
+DEFINE TEMP-TABLE ttMachine NO-UNDO
+  FIELD m-code AS CHARACTER LABEL "Machine" FORMAT "x(10)"
+  FIELD m-dscr AS CHARACTER LABEL "Description" FORMAT "x(24)"
+  FIELD d-seq  LIKE mach.d-seq
+  FIELD m-seq  LIKE mach.m-seq
+    INDEX ttMachine IS PRIMARY m-code
+    .
+SESSION:SET-WAIT-STATE ("").
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -64,10 +90,50 @@ DEFINE TEMP-TABLE ttTime NO-UNDO
 
 /* ********************  Preprocessor Definitions  ******************** */
 
-&Scoped-define PROCEDURE-TYPE Procedure
+&Scoped-define PROCEDURE-TYPE Dialog-Box
 &Scoped-define DB-AWARE no
 
+/* Name of designated FRAME-NAME and/or first browse and/or first query */
+&Scoped-define FRAME-NAME Dialog-Frame
+&Scoped-define BROWSE-NAME ttJob
 
+/* Internal Tables (found by Frame, Query & Browse Queries)             */
+&Scoped-define INTERNAL-TABLES ttJob ttMachine
+
+/* Definitions for BROWSE ttJob                                         */
+&Scoped-define FIELDS-IN-QUERY-ttJob ttJob.m-code ttJob.m-dscr ttJob.frm ttJob.blank-no ttJob.pass ttJob.mr-hr ttJob.run-hr   
+&Scoped-define ENABLED-FIELDS-IN-QUERY-ttJob ttJob.frm ttJob.blank-no ttJob.pass ttJob.mr-hr ttJob.run-hr   
+&Scoped-define ENABLED-TABLES-IN-QUERY-ttJob ttJob
+&Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-ttJob ttJob
+&Scoped-define SELF-NAME ttJob
+&Scoped-define QUERY-STRING-ttJob FOR EACH ttJob
+&Scoped-define OPEN-QUERY-ttJob OPEN QUERY {&SELF-NAME} FOR EACH ttJob.
+&Scoped-define TABLES-IN-QUERY-ttJob ttJob
+&Scoped-define FIRST-TABLE-IN-QUERY-ttJob ttJob
+
+
+/* Definitions for BROWSE ttMachine                                     */
+&Scoped-define FIELDS-IN-QUERY-ttMachine ttMachine.m-code ttMachine.m-dscr   
+&Scoped-define ENABLED-FIELDS-IN-QUERY-ttMachine   
+&Scoped-define SELF-NAME ttMachine
+&Scoped-define QUERY-STRING-ttMachine FOR EACH ttMachine
+&Scoped-define OPEN-QUERY-ttMachine OPEN QUERY {&SELF-NAME} FOR EACH ttMachine.
+&Scoped-define TABLES-IN-QUERY-ttMachine ttMachine
+&Scoped-define FIRST-TABLE-IN-QUERY-ttMachine ttMachine
+
+
+/* Definitions for DIALOG-BOX Dialog-Frame                              */
+&Scoped-define OPEN-BROWSERS-IN-QUERY-Dialog-Frame ~
+    ~{&OPEN-QUERY-ttJob}~
+    ~{&OPEN-QUERY-ttMachine}
+
+/* Standard List Definitions                                            */
+&Scoped-Define ENABLED-OBJECTS btnClear btnExit btnOK btnRemove btnReset ~
+btnSort ttMachine ttJob 
+&Scoped-Define DISPLAYED-OBJECTS baseOnText 
+
+/* Custom List Definitions                                              */
+/* List-1,List-2,List-3,List-4,List-5,List-6                            */
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
@@ -75,99 +141,322 @@ DEFINE TEMP-TABLE ttTime NO-UNDO
 
 /* ************************  Function Prototypes ********************** */
 
-&IF DEFINED(EXCLUDE-checkJobConflict) = 0 &THEN
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD checkJobConflict Procedure 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD checkJobConflict Dialog-Frame 
 FUNCTION checkJobConflict RETURNS LOGICAL
   (ipStartDateTime AS DECIMAL,ipEndDateTime AS DECIMAL)  FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ENDIF
-
-&IF DEFINED(EXCLUDE-fixTime) = 0 &THEN
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fixTime Procedure 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fixTime Dialog-Frame 
 FUNCTION fixTime RETURNS INTEGER
   (ipTime AS INTEGER)  FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ENDIF
-
-&IF DEFINED(EXCLUDE-fTimeSlice) = 0 &THEN
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fTimeSlice Procedure
-FUNCTION fTimeSlice RETURNS LOGICAL 
-  (ipiTimeSlice AS INTEGER, ipcTimeType AS CHARACTER, ipcTimeType2 AS CHARACTER, iplNewJob AS LOGICAL) FORWARD.
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fTimeSlice Dialog-Frame 
+FUNCTION fTimeSlice RETURNS LOGICAL
+  (ipiTimeSlice AS INTEGER, ipcTimeType1 AS CHARACTER, ipcTimeType2 AS CHARACTER, iplNewJob AS LOGICAL) FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ENDIF
-
-
-&IF DEFINED(EXCLUDE-numericDateTime) = 0 &THEN
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD numericDateTime Procedure 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD numericDateTime Dialog-Frame 
 FUNCTION numericDateTime RETURNS DECIMAL
   (ipDate AS DATE,ipTime AS INTEGER)  FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ENDIF
-
-&IF DEFINED(EXCLUDE-timeSpan) = 0 &THEN
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD timeSpan Procedure 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD timeSpan Dialog-Frame 
 FUNCTION timeSpan RETURNS INTEGER
   (ipStartDate AS DATE,ipStartTime AS INTEGER,ipEndDate AS DATE,ipEndTime AS INTEGER)  FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ENDIF
+
+/* ***********************  Control Definitions  ********************** */
+
+/* Define a dialog box                                                  */
+
+/* Definitions of the field level widgets                               */
+DEFINE BUTTON btnClear 
+     IMAGE-UP FILE "Graphics/32x32/error.ico":U NO-FOCUS FLAT-BUTTON
+     LABEL "Clear" 
+     SIZE 8 BY 1.91 TOOLTIP "Clear".
+
+DEFINE BUTTON btnExit AUTO-END-KEY 
+     IMAGE-UP FILE "Graphics/32x32/door_exit.ico":U NO-FOCUS FLAT-BUTTON
+     LABEL "Exit" 
+     SIZE 8 BY 1.91 TOOLTIP "Exit".
+
+DEFINE BUTTON btnOK 
+     IMAGE-UP FILE "Graphics/32x32/html_tag.png":U NO-FOCUS FLAT-BUTTON
+     LABEL "OK" 
+     SIZE 8 BY 1.91 TOOLTIP "Generate Page".
+
+DEFINE BUTTON btnRemove 
+     IMAGE-UP FILE "Graphics/32x32/delete.ico":U NO-FOCUS FLAT-BUTTON
+     LABEL "Remove" 
+     SIZE 8 BY 1.91 TOOLTIP "Remove".
+
+DEFINE BUTTON btnReset 
+     IMAGE-UP FILE "Graphics/32x32/nav_refresh.ico":U NO-FOCUS FLAT-BUTTON
+     LABEL "Reset" 
+     SIZE 8 BY 1.91 TOOLTIP "Reset".
+
+DEFINE BUTTON btnSort 
+     IMAGE-UP FILE "Graphics/32x32/sort_up_down.ico":U NO-FOCUS FLAT-BUTTON
+     LABEL "Sort" 
+     SIZE 8 BY 1.91 TOOLTIP "Sort".
+
+DEFINE VARIABLE baseOnText AS CHARACTER FORMAT "X(256)":U 
+     VIEW-AS FILL-IN 
+     SIZE 81 BY 1
+     BGCOLOR 14  NO-UNDO.
+
+/* Query definitions                                                    */
+&ANALYZE-SUSPEND
+DEFINE QUERY ttJob FOR 
+      ttJob SCROLLING.
+
+DEFINE QUERY ttMachine FOR 
+      ttMachine SCROLLING.
+&ANALYZE-RESUME
+
+/* Browse definitions                                                   */
+DEFINE BROWSE ttJob
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS ttJob Dialog-Frame _FREEFORM
+  QUERY ttJob DISPLAY
+      ttJob.m-code LABEL "Machine" FORMAT "x(10)"
+ttJob.m-dscr LABEL "Description" FORMAT "x(30)"
+ttJob.frm
+ttJob.blank-no LABEL "Blank"
+ttJob.pass
+ttJob.mr-hr LABEL "MR Hour"
+ttJob.run-hr LABEL "Run Hour"
+ENABLE
+ttJob.frm
+ttJob.blank-no
+ttJob.pass
+ttJob.mr-hr
+ttJob.run-hr
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+    WITH NO-ROW-MARKERS SEPARATORS SIZE 81 BY 32.14
+         FGCOLOR 1  ROW-HEIGHT-CHARS .67.
+
+DEFINE BROWSE ttMachine
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS ttMachine Dialog-Frame _FREEFORM
+  QUERY ttMachine DISPLAY
+      ttMachine.m-code
+ttMachine.m-dscr
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+    WITH NO-ROW-MARKERS SEPARATORS SIZE 40 BY 33.1
+         FGCOLOR 1 .
+
+
+/* ************************  Frame Definitions  *********************** */
+
+DEFINE FRAME Dialog-Frame
+     btnClear AT ROW 15.52 COL 129 WIDGET-ID 22
+     btnExit AT ROW 32.43 COL 129 WIDGET-ID 6
+     btnOK AT ROW 2.91 COL 129 WIDGET-ID 4
+     btnRemove AT ROW 9.1 COL 129 WIDGET-ID 16
+     btnReset AT ROW 12.19 COL 129 WIDGET-ID 18
+     btnSort AT ROW 6 COL 129 WIDGET-ID 20
+     baseOnText AT ROW 1 COL 47 NO-LABEL WIDGET-ID 10
+     ttMachine AT ROW 1.24 COL 2 WIDGET-ID 300
+     ttJob AT ROW 2.19 COL 47 WIDGET-ID 200
+     SPACE(8.99) SKIP(0.00)
+    WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
+         SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
+         TITLE "Capacity Schedule Page Generation" WIDGET-ID 100.
 
 
 /* *********************** Procedure Settings ************************ */
 
 &ANALYZE-SUSPEND _PROCEDURE-SETTINGS
 /* Settings for THIS-PROCEDURE
-   Type: Procedure
-   Allow: 
-   Frames: 0
-   Add Fields to: Neither
-   Other Settings: CODE-ONLY COMPILE
+   Type: Dialog-Box
+   Allow: Basic,Browse,DB-Fields,Query
+   Other Settings: COMPILE
  */
 &ANALYZE-RESUME _END-PROCEDURE-SETTINGS
 
-/* *************************  Create Window  ************************** */
 
-&ANALYZE-SUSPEND _CREATE-WINDOW
-/* DESIGN Window definition (used by the UIB) 
-  CREATE WINDOW Procedure ASSIGN
-         HEIGHT             = 15
-         WIDTH              = 60.
-/* END WINDOW DEFINITION */
-                                                                        */
+
+/* ***********  Runtime Attributes and AppBuilder Settings  *********** */
+
+&ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
+/* SETTINGS FOR DIALOG-BOX Dialog-Frame
+   FRAME-NAME                                                           */
+/* BROWSE-TAB ttMachine baseOnText Dialog-Frame */
+/* BROWSE-TAB ttJob ttMachine Dialog-Frame */
+ASSIGN 
+       FRAME Dialog-Frame:SCROLLABLE       = FALSE
+       FRAME Dialog-Frame:HIDDEN           = TRUE.
+
+/* SETTINGS FOR FILL-IN baseOnText IN FRAME Dialog-Frame
+   NO-ENABLE ALIGN-L                                                    */
+ASSIGN 
+       baseOnText:READ-ONLY IN FRAME Dialog-Frame        = TRUE.
+
+/* _RUN-TIME-ATTRIBUTES-END */
+&ANALYZE-RESUME
+
+
+/* Setting information for Queries and Browse Widgets fields            */
+
+&ANALYZE-SUSPEND _QUERY-BLOCK BROWSE ttJob
+/* Query rebuild information for BROWSE ttJob
+     _START_FREEFORM
+OPEN QUERY {&SELF-NAME} FOR EACH ttJob.
+     _END_FREEFORM
+     _Query            is OPENED
+*/  /* BROWSE ttJob */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _QUERY-BLOCK BROWSE ttMachine
+/* Query rebuild information for BROWSE ttMachine
+     _START_FREEFORM
+OPEN QUERY {&SELF-NAME} FOR EACH ttMachine.
+     _END_FREEFORM
+     _Query            is OPENED
+*/  /* BROWSE ttMachine */
 &ANALYZE-RESUME
 
  
 
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK Procedure 
+
+/* ************************  Control Triggers  ************************ */
+
+&Scoped-define SELF-NAME Dialog-Frame
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Dialog-Frame Dialog-Frame
+ON WINDOW-CLOSE OF FRAME Dialog-Frame /* Capacity Schedule Page Generation */
+DO:
+  APPLY "END-ERROR":U TO SELF.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnClear
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnClear Dialog-Frame
+ON CHOOSE OF btnClear IN FRAME Dialog-Frame /* Clear */
+DO:
+    EMPTY TEMP-TABLE ttJob.
+    {&OPEN-QUERY-ttJob}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnOK
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnOK Dialog-Frame
+ON CHOOSE OF btnOK IN FRAME Dialog-Frame /* OK */
+DO:
+    SESSION:SET-WAIT-STATE ("General").
+    RUN pScheduleJob (iprRowID).
+    RUN pHTMLPage.
+    SESSION:SET-WAIT-STATE ("").
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnRemove
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnRemove Dialog-Frame
+ON CHOOSE OF btnRemove IN FRAME Dialog-Frame /* Remove */
+DO:
+    APPLY "DEFAULT-ACTION":U TO BROWSE ttJob.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnReset
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnReset Dialog-Frame
+ON CHOOSE OF btnReset IN FRAME Dialog-Frame /* Reset */
+DO:
+    RUN pBuildTTJob (ipcType, iprRowID).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnSort
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnSort Dialog-Frame
+ON CHOOSE OF btnSort IN FRAME Dialog-Frame /* Sort */
+DO:
+    {&OPEN-QUERY-ttJob}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define BROWSE-NAME ttJob
+&Scoped-define SELF-NAME ttJob
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ttJob Dialog-Frame
+ON DEFAULT-ACTION OF ttJob IN FRAME Dialog-Frame /* Browse 1 */
+DO:
+    IF AVAILABLE ttJob THEN DO:
+        DELETE ttJob.
+        {&OPEN-QUERY-ttJob}
+    END. /* if avail */
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define BROWSE-NAME ttMachine
+&Scoped-define SELF-NAME ttMachine
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ttMachine Dialog-Frame
+ON DEFAULT-ACTION OF ttMachine IN FRAME Dialog-Frame /* Browse 2 */
+DO:
+    RUN pAddMachine.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define BROWSE-NAME ttJob
+&UNDEFINE SELF-NAME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK Dialog-Frame 
 
 
 /* ***************************  Main Block  *************************** */
 
-SESSION:SET-WAIT-STATE ("General").
-RUN pScheduleJob (iprRowID).
-RUN pHTMLPage.
-SESSION:SET-WAIT-STATE ("").
+/* Parent the dialog-box to the ACTIVE-WINDOW, if there is no parent.   */
+IF VALID-HANDLE(ACTIVE-WINDOW) AND FRAME {&FRAME-NAME}:PARENT eq ?
+THEN FRAME {&FRAME-NAME}:PARENT = ACTIVE-WINDOW.
+
+
+/* Now enable the interface and wait for the exit condition.            */
+/* (NOTE: handle ERROR and END-KEY so cleanup code will always fire.    */
+MAIN-BLOCK:
+DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
+   ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
+  RUN enable_UI.
+  RUN pBuildTTMachine.
+  RUN pBuildTTJob (ipcType, iprRowID).
+  DISPLAY baseOnText WITH FRAME {&FRAME-NAME}.
+  WAIT-FOR GO OF FRAME {&FRAME-NAME}.
+END.
+RUN disable_UI.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -175,9 +464,7 @@ SESSION:SET-WAIT-STATE ("").
 
 /* **********************  Internal Procedures  *********************** */
 
-&IF DEFINED(EXCLUDE-calcEnd) = 0 &THEN
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE calcEnd Procedure 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE calcEnd Dialog-Frame 
 PROCEDURE calcEnd :
 /*------------------------------------------------------------------------------
   Purpose:     calculate ending date/time based on start date/time & mr/run hrs
@@ -212,11 +499,41 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ENDIF
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI Dialog-Frame  _DEFAULT-DISABLE
+PROCEDURE disable_UI :
+/*------------------------------------------------------------------------------
+  Purpose:     DISABLE the User Interface
+  Parameters:  <none>
+  Notes:       Here we clean-up the user-interface by deleting
+               dynamic widgets we have created and/or hide 
+               frames.  This procedure is usually called when
+               we are ready to "clean-up" after running.
+------------------------------------------------------------------------------*/
+  /* Hide all frames. */
+  HIDE FRAME Dialog-Frame.
+END PROCEDURE.
 
-&IF DEFINED(EXCLUDE-downtimeSpan) = 0 &THEN
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE downtimeSpan Procedure 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI-1 Dialog-Frame  _DEFAULT-DISABLE
+PROCEDURE disable_UI-1 :
+/*------------------------------------------------------------------------------
+  Purpose:     DISABLE the User Interface
+  Parameters:  <none>
+  Notes:       Here we clean-up the user-interface by deleting
+               dynamic widgets we have created and/or hide 
+               frames.  This procedure is usually called when
+               we are ready to "clean-up" after running.
+------------------------------------------------------------------------------*/
+  /* Hide all frames. */
+  HIDE FRAME Dialog-Frame.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE downtimeSpan Dialog-Frame 
 PROCEDURE downtimeSpan :
 /*------------------------------------------------------------------------------
   Purpose:     calculate new ending date & time and downtime span value
@@ -263,11 +580,51 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ENDIF
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE enable_UI Dialog-Frame  _DEFAULT-ENABLE
+PROCEDURE enable_UI :
+/*------------------------------------------------------------------------------
+  Purpose:     ENABLE the User Interface
+  Parameters:  <none>
+  Notes:       Here we display/view/enable the widgets in the
+               user-interface.  In addition, OPEN all queries
+               associated with each FRAME and BROWSE.
+               These statements here are based on the "Other 
+               Settings" section of the widget Property Sheets.
+------------------------------------------------------------------------------*/
+  DISPLAY baseOnText 
+      WITH FRAME Dialog-Frame.
+  ENABLE btnClear btnExit btnOK btnRemove btnReset btnSort ttMachine ttJob 
+      WITH FRAME Dialog-Frame.
+  VIEW FRAME Dialog-Frame.
+  {&OPEN-BROWSERS-IN-QUERY-Dialog-Frame}
+END PROCEDURE.
 
-&IF DEFINED(EXCLUDE-firstAvailable) = 0 &THEN
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE firstAvailable Procedure 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE enable_UI-1 Dialog-Frame  _DEFAULT-ENABLE
+PROCEDURE enable_UI-1 :
+/*------------------------------------------------------------------------------
+  Purpose:     ENABLE the User Interface
+  Parameters:  <none>
+  Notes:       Here we display/view/enable the widgets in the
+               user-interface.  In addition, OPEN all queries
+               associated with each FRAME and BROWSE.
+               These statements here are based on the "Other 
+               Settings" section of the widget Property Sheets.
+------------------------------------------------------------------------------*/
+  DISPLAY baseOnText 
+      WITH FRAME Dialog-Frame.
+  ENABLE btnClear btnExit btnOK btnRemove btnReset btnSort ttMachine ttJob 
+      WITH FRAME Dialog-Frame.
+  VIEW FRAME Dialog-Frame.
+  {&OPEN-BROWSERS-IN-QUERY-Dialog-Frame}
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE firstAvailable Dialog-Frame 
 PROCEDURE firstAvailable :
 /*------------------------------------------------------------------------------
   Purpose:     find first available time slot for job
@@ -321,11 +678,7 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ENDIF
-
-&IF DEFINED(EXCLUDE-getStartCapacity) = 0 &THEN
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE getStartCapacity Procedure 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE getStartCapacity Dialog-Frame 
 PROCEDURE getStartCapacity :
 /*------------------------------------------------------------------------------
   Purpose:     find first avail capacity record to set start date & time
@@ -379,11 +732,7 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ENDIF
-
-&IF DEFINED(EXCLUDE-newEnd) = 0 &THEN
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE newEnd Procedure 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE newEnd Dialog-Frame 
 PROCEDURE newEnd :
 /*------------------------------------------------------------------------------
   Purpose:     calculate new ending date & time
@@ -411,11 +760,7 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ENDIF
-
-&IF DEFINED(EXCLUDE-newStart) = 0 &THEN
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE newStart Procedure 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE newStart Dialog-Frame 
 PROCEDURE newStart :
 /*------------------------------------------------------------------------------
   Purpose:     calculate new starting date & time
@@ -450,12 +795,140 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ENDIF
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pAddMachine Dialog-Frame 
+PROCEDURE pAddMachine :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE rRowID AS ROWID NO-UNDO.
+    
+    CREATE ttJob.
+    ASSIGN
+        ttJob.m-code   = ttMachine.m-code
+        ttJob.m-dscr   = ttMachine.m-dscr
+        ttJob.d-seq    = ttMachine.d-seq
+        ttJob.m-seq    = ttMachine.m-seq
+        rRowID         = ROWID(ttJob)
+        .
+    {&OPEN-QUERY-ttJob}
+    QUERY ttJob:REPOSITION-TO-ROWID(rRowID).
 
-&IF DEFINED(EXCLUDE-pHTMLPage) = 0 &THEN
+END PROCEDURE.
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pHTMLPage Procedure
-PROCEDURE pHTMLPage:
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pBuildTTJob Dialog-Frame 
+PROCEDURE pBuildTTJob :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcType  AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER iprRowID AS ROWID     NO-UNDO.
+    
+    DEFINE VARIABLE cMachine AS CHARACTER NO-UNDO.
+    
+    EMPTY TEMP-TABLE ttJob.
+    
+    IF ipcType EQ "Order" THEN DO:
+        FIND FIRST oe-ord NO-LOCK 
+             WHERE ROWID(oe-ord) EQ iprRowID
+             NO-ERROR.
+        IF NOT AVAILABLE oe-ord OR oe-ord.job-no EQ "" THEN DO:
+            MESSAGE 
+                "No Job Exists for this Order."
+            VIEW-AS ALERT-BOX ERROR.
+            APPLY "GO":U TO FRAME {&FRAME-NAME}.
+        END. /* no order or no job on order */
+        FIND FIRST job NO-LOCK
+             WHERE job.company EQ oe-ord.company
+               AND job.job     EQ oe-ord.j-no
+             NO-ERROR.
+        IF NOT AVAILABLE job THEN DO:
+            MESSAGE 
+                "Unable to locate Job for this Order."
+            VIEW-AS ALERT-BOX ERROR.
+            APPLY "GO":U TO FRAME {&FRAME-NAME}.
+        END. /* not avail */
+        ASSIGN
+            iprRowID = ROWID(job)
+            ipcType  = "Job"
+            .
+    END. /* type eq order */
+    
+    IF ipcType EQ "Job" AND iprRowID NE ? THEN DO: 
+        FIND job NO-LOCK WHERE ROWID(job) EQ iprRowID NO-ERROR.
+        IF NOT AVAILABLE job THEN DO:
+            MESSAGE
+                "Job Record Missing."
+            VIEW-AS ALERT-BOX ERROR.
+            APPLY "GO":U TO FRAME {&FRAME-NAME}.
+        END. /* not avail */
+        baseOnText = "Based on Job #" + job.job-no + "-" + STRING(job.job-no2).
+        FOR EACH job-mch NO-LOCK
+            WHERE job-mch.company      EQ job.company
+              AND job-mch.job          EQ job.job
+              AND job-mch.run-complete EQ NO
+            :
+            FIND FIRST mach NO-LOCK
+                 WHERE mach.company EQ job-mch.company
+                   AND mach.loc     EQ job.loc
+                   AND mach.m-code  EQ job-mch.m-code
+                 NO-ERROR.
+            IF NOT AVAILABLE mach THEN NEXT.
+            cMachine = IF mach.sch-m-code NE "" THEN mach.sch-m-code ELSE mach.m-code.
+            CREATE ttJob.
+            BUFFER-COPY job-mch TO ttJob
+                ASSIGN 
+                  ttJob.jobMchRowID = ROWID(job-mch)
+                  ttJob.d-seq       = mach.d-seq
+                  ttJob.m-seq       = mach.m-seq
+                  ttJob.m-code      = cMachine
+                  ttJob.m-dscr      = mach.m-dscr
+                  . 
+        END. /* each job-mch */
+        {&OPEN-QUERY-ttJob}
+    END. /* iprrowid ne ? */
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pBuildTTMachine Dialog-Frame 
+PROCEDURE pBuildTTMachine :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    FOR EACH mach NO-LOCK
+        WHERE mach.company EQ ipcCompany
+        BREAK BY mach.sch-m-code
+        :
+        IF FIRST-OF(mach.sch-m-code) THEN DO:
+            CREATE ttMachine.
+            ASSIGN
+                ttMachine.m-code = mach.m-code
+                ttMachine.m-dscr = mach.m-dscr
+                ttMachine.d-seq  = mach.d-seq
+                ttMachine.m-seq  = mach.m-seq
+                .
+        END. /* first-of */
+    END. /* each mach */
+    {&OPEN-QUERY-ttMachine}
+    
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pHTMLPage Dialog-Frame 
+PROCEDURE pHTMLPage :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -625,17 +1098,11 @@ PROCEDURE pHTMLPage:
     OS-COMMAND NO-WAIT START "c:\tmp\sbHTML.htm".
 
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ENDIF
-
-
-&IF DEFINED(EXCLUDE-scheduleJob) = 0 &THEN
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pScheduleJob Procedure 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pScheduleJob Dialog-Frame 
 PROCEDURE pScheduleJob :
 /*------------------------------------------------------------------------------
   Purpose:     
@@ -659,37 +1126,7 @@ PROCEDURE pScheduleJob :
     lvStartDate = TODAY
     lvStartTime = TIME
     .
-  IF iprRowID NE ? THEN DO: 
-      FIND job NO-LOCK WHERE ROWID(job) EQ iprRowID NO-ERROR.
-      IF NOT AVAILABLE job THEN RETURN.
-    
-      ASSIGN
-        lvStartDate = IF job.start-date GE TODAY AND job.start-date NE ? THEN job.start-date ELSE TODAY
-        lvStartTime = IF lvStartDate EQ TODAY THEN TIME ELSE 0
-        .
-      FOR EACH job-mch NO-LOCK
-          WHERE job-mch.company      EQ job.company
-            AND job-mch.job          EQ job.job
-            AND job-mch.run-complete EQ NO
-          :
-          FIND FIRST mach NO-LOCK
-               WHERE mach.company EQ job-mch.company
-                 AND mach.loc     EQ job.loc
-                 AND mach.m-code  EQ job-mch.m-code
-               NO-ERROR.
-          IF NOT AVAILABLE mach THEN NEXT.
-          lvMachine = IF mach.sch-m-code NE "" THEN mach.sch-m-code ELSE mach.m-code.
-          CREATE ttJob.
-          BUFFER-COPY job-mch TO ttJob
-              ASSIGN 
-                ttJob.jobMchRowID = ROWID(job-mch)
-                ttJob.d-seq       = mach.d-seq
-                ttJob.m-seq       = mach.m-seq
-                ttJob.m-code      = lvMachine
-                . 
-      END. /* each job-mch */
-  END. /* iprrowid ne ? */
-
+  EMPTY TEMP-TABLE ttblJob.
   FOR EACH ttJob USE-INDEX ttJob:
     RUN ttblJobCreate (ttJob.company,ttJob.m-code,ROWID(ttJob)).
     RUN calcEnd (lvStartDate,lvStartTime,ttJob.mr-hr,ttJob.run-hr,
@@ -731,11 +1168,7 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ENDIF
-
-&IF DEFINED(EXCLUDE-ttblJobCreate) = 0 &THEN
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ttblJobCreate Procedure 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ttblJobCreate Dialog-Frame 
 PROCEDURE ttblJobCreate :
 /*------------------------------------------------------------------------------
   Purpose:     
@@ -800,13 +1233,9 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ENDIF
-
 /* ************************  Function Implementations ***************** */
 
-&IF DEFINED(EXCLUDE-checkJobConflict) = 0 &THEN
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION checkJobConflict Procedure 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION checkJobConflict Dialog-Frame 
 FUNCTION checkJobConflict RETURNS LOGICAL
   (ipStartDateTime AS DECIMAL,ipEndDateTime AS DECIMAL) :
 /*------------------------------------------------------------------------------
@@ -826,11 +1255,7 @@ END FUNCTION.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ENDIF
-
-&IF DEFINED(EXCLUDE-fixTime) = 0 &THEN
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fixTime Procedure 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fixTime Dialog-Frame 
 FUNCTION fixTime RETURNS INTEGER
   (ipTime AS INTEGER) :
 /*------------------------------------------------------------------------------
@@ -845,19 +1270,15 @@ END FUNCTION.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ENDIF
-
-&IF DEFINED(EXCLUDE-fTimeSlice) = 0 &THEN
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fTimeSlice Procedure
-FUNCTION fTimeSlice RETURNS LOGICAL 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fTimeSlice Dialog-Frame 
+FUNCTION fTimeSlice RETURNS LOGICAL
   (ipiTimeSlice AS INTEGER, ipcTimeType1 AS CHARACTER, ipcTimeType2 AS CHARACTER, iplNewJob AS LOGICAL):
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-		IF NOT CAN-FIND(FIRST ttTime
-		                WHERE ttTime.timeSlice EQ ipiTimeSlice) THEN DO: 
+                IF NOT CAN-FIND(FIRST ttTime
+                                WHERE ttTime.timeSlice EQ ipiTimeSlice) THEN DO: 
             CREATE ttTime.
             ASSIGN
                 ttTime.timeSlice = ipiTimeSlice
@@ -865,21 +1286,15 @@ FUNCTION fTimeSlice RETURNS LOGICAL
                 ttTime.timeType2 = ipcTimeType2
                 ttTime.newJob    = iplNewJob
                 .
-		END. /* not avail */
-		RETURN TRUE.
+                END. /* not avail */
+                RETURN TRUE.
 
 END FUNCTION.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ENDIF
-
-
-&IF DEFINED(EXCLUDE-numericDateTime) = 0 &THEN
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION numericDateTime Procedure 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION numericDateTime Dialog-Frame 
 FUNCTION numericDateTime RETURNS DECIMAL
   (ipDate AS DATE,ipTime AS INTEGER) :
 /*------------------------------------------------------------------------------
@@ -905,11 +1320,7 @@ END FUNCTION.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ENDIF
-
-&IF DEFINED(EXCLUDE-timeSpan) = 0 &THEN
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION timeSpan Procedure 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION timeSpan Dialog-Frame 
 FUNCTION timeSpan RETURNS INTEGER
   (ipStartDate AS DATE,ipStartTime AS INTEGER,ipEndDate AS DATE,ipEndTime AS INTEGER) :
 /*------------------------------------------------------------------------------
@@ -924,4 +1335,3 @@ END FUNCTION.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ENDIF
