@@ -30,7 +30,7 @@
 &IF DEFINED(UIB_is_Running) = 0 &THEN
 DEFINE INPUT PARAMETER callingprgm AS CHARACTER NO-UNDO.
 &ELSE
-DEFINE VARIABLE callingprgm AS CHARACTER INITIAL "prgrms." NO-UNDO.
+DEFINE VARIABLE callingprgm AS CHARACTER INITIAL "windows/prgrms.w" NO-UNDO.
 &ENDIF
 
 /* Local Variable Definitions ---                                       */
@@ -41,7 +41,7 @@ DEFINE VARIABLE sizeRatio    AS DECIMAL   NO-UNDO.
 DEFINE VARIABLE cWorkDir     AS CHARACTER NO-UNDO.
 
 {system/sysconst.i}
-{custom/globdefs.i}
+{methods/defines/globdefs.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -62,8 +62,8 @@ DEFINE VARIABLE cWorkDir     AS CHARACTER NO-UNDO.
 userControl.maxSessionsPerUser 
 &Scoped-define ENABLED-TABLES userControl
 &Scoped-define FIRST-ENABLED-TABLE userControl
-&Scoped-Define ENABLED-OBJECTS btnProperties btnSave userScreen screenImage ~
-properties autoMaximize winSize currentUsers 
+&Scoped-Define ENABLED-OBJECTS btnProperties userScreen screenImage ~
+properties autoMaximize winSize btnSave currentUsers 
 &Scoped-Define DISPLAYED-FIELDS userControl.maxAllowedUsers ~
 userControl.maxSessionsPerUser 
 &Scoped-define DISPLAYED-TABLES userControl
@@ -177,10 +177,10 @@ DEFINE VARIABLE autoMaximize AS LOGICAL INITIAL no
 
 DEFINE FRAME Dialog-Frame
      btnProperties AT ROW 1.24 COL 69 WIDGET-ID 42
-     btnSave AT ROW 23.38 COL 61
      properties AT ROW 1 COL 77 NO-LABEL WIDGET-ID 38
      autoMaximize AT ROW 8.86 COL 9 WIDGET-ID 2
      winSize AT ROW 21 COL 9 NO-LABEL WIDGET-ID 8
+     btnSave AT ROW 23.38 COL 61
      physical_file AT ROW 1.24 COL 23 COLON-ALIGNED
      prgmTitle AT ROW 2.19 COL 14 COLON-ALIGNED
      copyrite AT ROW 3.14 COL 7 COLON-ALIGNED NO-LABEL
@@ -509,8 +509,8 @@ PROCEDURE enable_UI :
   IF AVAILABLE userControl THEN 
     DISPLAY userControl.maxAllowedUsers userControl.maxSessionsPerUser 
       WITH FRAME Dialog-Frame.
-  ENABLE btnProperties btnSave userScreen screenImage properties autoMaximize 
-         winSize userControl.maxAllowedUsers userControl.maxSessionsPerUser 
+  ENABLE btnProperties userScreen screenImage properties autoMaximize winSize 
+         btnSave userControl.maxAllowedUsers userControl.maxSessionsPerUser 
          currentUsers 
       WITH FRAME Dialog-Frame.
   VIEW FRAME Dialog-Frame.
@@ -748,6 +748,18 @@ PROCEDURE pProperties :
                                     + FILL(" ",5) + ENTRY(idx,SESSION:STARTUP-PARAMETERS)
                                     .
         END. /* do idx */
+        /* show program security and groups */
+        properties:SCREEN-VALUE = properties:SCREEN-VALUE + CHR(10) + CHR(10)
+                                + "[Program Security]" + CHR(10)
+                                + FILL(" ",5) + "Groups:     " + g_groups
+                                .
+        IF AVAILABLE prgrms THEN
+        properties:SCREEN-VALUE = properties:SCREEN-VALUE + CHR(10)
+                                + FILL(" ",5) + "Can View:   " + prgrms.can_run    + CHR(10)
+                                + FILL(" ",5) + "Can Add:    " + prgrms.can_create + CHR(10)
+                                + FILL(" ",5) + "Can Update: " + prgrms.can_update + CHR(10)
+                                + FILL(" ",5) + "Can Delete: " + prgrms.can_delete
+                                .
         /* show current users logged in */
         properties:SCREEN-VALUE = properties:SCREEN-VALUE + CHR(10) + CHR(10)
                                 + "[Current Users Logged In]"

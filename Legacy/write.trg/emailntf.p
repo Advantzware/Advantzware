@@ -1,5 +1,5 @@
 &Scoped-define ACTION UPDATE
-&Scoped-define DBNAME LDBNAME('tmp')
+&Scoped-define DBNAME ASI
 &Scoped-define TABLENAME emailntf
 
 TRIGGER PROCEDURE FOR WRITE OF {&TABLENAME} OLD BUFFER old-{&TABLENAME}.

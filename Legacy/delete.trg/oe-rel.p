@@ -29,12 +29,7 @@ FOR EACH reftable
   DELETE reftable.
 END.
 
-FOR EACH reftable
-    WHERE reftable.reftable EQ "oe-rel.sell-price"
-      AND reftable.company  EQ STRING({&TABLENAME}.r-no,"9999999999")
-    USE-INDEX reftable:
-  DELETE reftable.
-END.
+
 
 
 

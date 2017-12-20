@@ -1,7 +1,7 @@
 &ANALYZE-SUSPEND _VERSION-NUMBER UIB_v8r12 GUI ADM1
 &ANALYZE-RESUME
 /* Connected Databases 
-          emptrack         PROGRESS
+          asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS B-table-Win 
@@ -361,7 +361,7 @@ END.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK B-table-Win 
 
-IF NOT v-can-update THEN
+
 ASSIGN
       tt-tran.start_date:READ-ONLY IN BROWSE {&browse-name} = YES
       tt-tran.startx:READ-ONLY IN BROWSE {&browse-name} = YES
@@ -644,6 +644,12 @@ PROCEDURE local-enable-fields :
 ------------------------------------------------------------------------------*/
 
   /* Code placed here will execute PRIOR to standard behavior. */
+  DEFINE VARIABLE allow-update AS LOGICAL NO-UNDO.
+
+  {methods/run_link.i "CONTAINER-SOURCE" "Allow-Update" "(OUTPUT allow-update)"}
+  IF NOT allow-update THEN
+  RETURN "ADM-ERROR":U.
+
   IF tt-tran.posted THEN DO:
      MESSAGE "It's already Posted. Can't Update." VIEW-AS ALERT-BOX ERROR.
      RETURN.

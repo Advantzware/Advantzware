@@ -13,8 +13,7 @@
   &IF '{&Board}' EQ 'Pro' &THEN
   IF NOT detailWindow THEN RETURN.
   &ENDIF
-  /* IF NOT proOpts[4] THEN
-  DO:
+  /* IF NOT proOpts[4] THEN DO:
     MESSAGE proOptsMsg(4) VIEW-AS ALERT-BOX.
     RETURN.
   END. */

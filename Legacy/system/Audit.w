@@ -7,7 +7,7 @@
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS C-Win 
 /*------------------------------------------------------------------------
 
-  File: Audit.w
+  File: Audit.w (also used as include in system/callAudit.p)
 
   Description: Audit History
 
@@ -32,6 +32,10 @@
 CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
+
+&Scoped-define MAX-ROWS MAX-ROWS maxRows
+&Scoped-define SORTBY-PHRASE {&MAX-ROWS}
+&Scoped-define maxRows 2500
 
 /* Parameters Definitions ---                                           */
 
@@ -58,6 +62,8 @@ DEFINE VARIABLE cAfterValueFilter  AS CHARACTER NO-UNDO.
 
 /* include when using AOA date option objects */
 {AOA/includes/dateOptionDef.i}
+
+SESSION:SET-WAIT-STATE("").
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -184,7 +190,9 @@ svSortByHdr svSortByDtl
 &Scoped-Define DISPLAYED-OBJECTS svSortByHdr svSortByDtl 
 
 /* Custom List Definitions                                              */
-/* List-1,List-2,List-3,List-4,List-5,List-6                            */
+/* userPrintFields,List-2,List-3,List-4,List-5,List-6                   */
+&Scoped-define userPrintFields svType svStartDate svStartDateOption svDB ~
+maxRows svUser svEndDate svEndDateOption svTable svField 
 &Scoped-define List-3 btnCalendar-1 btnCalendar-2 
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
@@ -259,7 +267,7 @@ DEFINE VARIABLE svDB AS CHARACTER FORMAT "X(256)":U INITIAL "All"
      VIEW-AS COMBO-BOX INNER-LINES 4
      LIST-ITEMS "All" 
      DROP-DOWN-LIST
-     SIZE 16 BY 1 TOOLTIP "Select Audit DB Filter" NO-UNDO.
+     SIZE 26 BY 1 TOOLTIP "Select Audit DB Filter" NO-UNDO.
 
 DEFINE VARIABLE svEndDateOption AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS COMBO-BOX INNER-LINES 5
@@ -272,7 +280,7 @@ DEFINE VARIABLE svField AS CHARACTER FORMAT "X(256)":U INITIAL "All"
      VIEW-AS COMBO-BOX INNER-LINES 4
      LIST-ITEMS "All" 
      DROP-DOWN-LIST
-     SIZE 16 BY 1 TOOLTIP "Select Audit Field Filter" NO-UNDO.
+     SIZE 26 BY 1 TOOLTIP "Select Audit Field Filter" NO-UNDO.
 
 DEFINE VARIABLE svStartDateOption AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS COMBO-BOX INNER-LINES 5
@@ -285,7 +293,7 @@ DEFINE VARIABLE svTable AS CHARACTER FORMAT "X(256)":U INITIAL "All"
      VIEW-AS COMBO-BOX INNER-LINES 4
      LIST-ITEMS "All" 
      DROP-DOWN-LIST
-     SIZE 16 BY 1 TOOLTIP "Select Audit Table Filter" NO-UNDO.
+     SIZE 26 BY 1 TOOLTIP "Select Audit Table Filter" NO-UNDO.
 
 DEFINE VARIABLE svType AS CHARACTER FORMAT "X(256)":U INITIAL "All" 
      LABEL "Type" 
@@ -300,6 +308,11 @@ DEFINE VARIABLE svUser AS CHARACTER FORMAT "X(256)":U INITIAL "All"
      LIST-ITEMS "All" 
      DROP-DOWN-LIST
      SIZE 16 BY 1 TOOLTIP "Select User Filter" NO-UNDO.
+
+DEFINE VARIABLE maxRows AS INTEGER FORMAT ">,>>>,>>9":U INITIAL 2500 
+     LABEL "Max Rows" 
+     VIEW-AS FILL-IN 
+     SIZE 14 BY 1 NO-UNDO.
 
 DEFINE VARIABLE svAfterValueFilter AS CHARACTER FORMAT "X(256)":U 
      LABEL "After Value" 
@@ -398,48 +411,49 @@ DEFINE BROWSE AuditHeader
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME DEFAULT-FRAME
-     btnStack AT ROW 6 COL 136 HELP
+     btnStack AT ROW 6.24 COL 136 HELP
           "Click to View Program Stack Trace" WIDGET-ID 282
      AuditHeader AT ROW 6.48 COL 1 WIDGET-ID 200
-     AuditDetail AT ROW 6.48 COL 145 WIDGET-ID 300
-     btnPrint AT ROW 6 COL 127 HELP
+     AuditDetail AT ROW 6.48 COL 146 WIDGET-ID 300
+     btnPrint AT ROW 6.24 COL 127 HELP
           "Print" WIDGET-ID 280
      svSortByHdr AT ROW 5.76 COL 96 COLON-ALIGNED WIDGET-ID 2
      svSortByDtl AT ROW 5.76 COL 238 COLON-ALIGNED WIDGET-ID 4
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 269 BY 36 WIDGET-ID 100.
+         SIZE 269 BY 36.05 WIDGET-ID 100.
 
 DEFINE FRAME AuditSearch
      btnAuditTables AT ROW 2.67 COL 118 HELP
           "Click to Access Tables to Audit" WIDGET-ID 288
-     svType AT ROW 1.24 COL 11 COLON-ALIGNED HELP
+     svType AT ROW 1.24 COL 8 COLON-ALIGNED HELP
           "Select Audit Type Filter" WIDGET-ID 6
-     svStartDate AT ROW 1.24 COL 42 COLON-ALIGNED HELP
+     svStartDate AT ROW 1.24 COL 36 COLON-ALIGNED HELP
           "Enter From Date" WIDGET-ID 20
-     btnCalendar-1 AT ROW 1.24 COL 60 WIDGET-ID 272
-     svStartDateOption AT ROW 1.24 COL 65 HELP
+     btnCalendar-1 AT ROW 1.24 COL 54 WIDGET-ID 272
+     svStartDateOption AT ROW 1.24 COL 59 HELP
           "Select Start Date Option" NO-LABEL WIDGET-ID 74
-     svDB AT ROW 1.24 COL 99 COLON-ALIGNED HELP
+     svDB AT ROW 1.24 COL 89 COLON-ALIGNED HELP
           "Select Audit DB Filter" WIDGET-ID 14
+     maxRows AT ROW 1.24 COL 128 COLON-ALIGNED WIDGET-ID 290
      AuditHdr.AuditKey AT ROW 1.24 COL 161.6 COLON-ALIGNED WIDGET-ID 26
           LABEL "Audit Key" FORMAT "x(256)"
           VIEW-AS FILL-IN 
           SIZE 101.4 BY 1
           BGCOLOR 15 
-     svUser AT ROW 2.43 COL 11 COLON-ALIGNED HELP
+     svUser AT ROW 2.43 COL 8 COLON-ALIGNED HELP
           "Select User Filter" WIDGET-ID 12
-     svEndDate AT ROW 2.43 COL 42 COLON-ALIGNED HELP
+     svEndDate AT ROW 2.43 COL 36 COLON-ALIGNED HELP
           "Enter To Date" WIDGET-ID 22
-     btnCalendar-2 AT ROW 2.43 COL 60 WIDGET-ID 274
-     svEndDateOption AT ROW 2.43 COL 65 HELP
+     btnCalendar-2 AT ROW 2.43 COL 54 WIDGET-ID 274
+     svEndDateOption AT ROW 2.43 COL 59 HELP
           "Select End Date Option" NO-LABEL WIDGET-ID 70
-     svTable AT ROW 2.43 COL 99 COLON-ALIGNED HELP
+     svTable AT ROW 2.43 COL 89 COLON-ALIGNED HELP
           "Select Audit Table Filter" WIDGET-ID 16
      svBeforeValueFilter AT ROW 2.43 COL 161.6 COLON-ALIGNED HELP
           "Enter Before Value to Filter" WIDGET-ID 36
-     svField AT ROW 3.62 COL 99 COLON-ALIGNED HELP
+     svField AT ROW 3.62 COL 89 COLON-ALIGNED HELP
           "Select Audit Field Filter" WIDGET-ID 18
      svAfterValueFilter AT ROW 3.62 COL 161.6 COLON-ALIGNED HELP
           "Enter After Value to Filter" WIDGET-ID 38
@@ -543,7 +557,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW C-Win ASSIGN
          HIDDEN             = YES
          TITLE              = "Audit History"
-         HEIGHT             = 36
+         HEIGHT             = 36.05
          WIDTH              = 269
          MAX-HEIGHT         = 320
          MAX-WIDTH          = 269
@@ -584,10 +598,30 @@ ASSIGN
    3                                                                    */
 /* SETTINGS FOR BUTTON btnCalendar-2 IN FRAME AuditSearch
    3                                                                    */
+/* SETTINGS FOR FILL-IN maxRows IN FRAME AuditSearch
+   1                                                                    */
+ASSIGN 
+       maxRows:PRIVATE-DATA IN FRAME AuditSearch     = 
+                "NoUserPrint".
+
+/* SETTINGS FOR COMBO-BOX svDB IN FRAME AuditSearch
+   1                                                                    */
+/* SETTINGS FOR FILL-IN svEndDate IN FRAME AuditSearch
+   1                                                                    */
 /* SETTINGS FOR COMBO-BOX svEndDateOption IN FRAME AuditSearch
-   ALIGN-L                                                              */
+   ALIGN-L 1                                                            */
+/* SETTINGS FOR COMBO-BOX svField IN FRAME AuditSearch
+   1                                                                    */
+/* SETTINGS FOR FILL-IN svStartDate IN FRAME AuditSearch
+   1                                                                    */
 /* SETTINGS FOR COMBO-BOX svStartDateOption IN FRAME AuditSearch
-   ALIGN-L                                                              */
+   ALIGN-L 1                                                            */
+/* SETTINGS FOR COMBO-BOX svTable IN FRAME AuditSearch
+   1                                                                    */
+/* SETTINGS FOR COMBO-BOX svType IN FRAME AuditSearch
+   1                                                                    */
+/* SETTINGS FOR COMBO-BOX svUser IN FRAME AuditSearch
+   1                                                                    */
 /* SETTINGS FOR FRAME AuditView
                                                                         */
 /* SETTINGS FOR FILL-IN AuditDtl.AuditAfterValue IN FRAME AuditView
@@ -627,6 +661,8 @@ ASSIGN
        AuditDetail:ALLOW-COLUMN-SEARCHING IN FRAME DEFAULT-FRAME = TRUE.
 
 ASSIGN 
+       AuditHeader:NUM-LOCKED-COLUMNS IN FRAME DEFAULT-FRAME     = 5
+       AuditHeader:MAX-DATA-GUESS IN FRAME DEFAULT-FRAME         = 2500
        AuditHeader:ALLOW-COLUMN-SEARCHING IN FRAME DEFAULT-FRAME = TRUE.
 
 ASSIGN 
@@ -745,6 +781,9 @@ END.
 ON WINDOW-CLOSE OF C-Win /* Audit History */
 DO:
   /* This event will close the window and terminate the procedure.  */
+  &IF DEFINED(AuditHistory) EQ 0 &THEN
+  RUN pSaveSettings.
+  &ENDIF
   APPLY "CLOSE":U TO THIS-PROCEDURE.
   RETURN NO-APPLY.
 END.
@@ -1071,6 +1110,22 @@ END.
 
 
 &Scoped-define FRAME-NAME AuditSearch
+&Scoped-define SELF-NAME maxRows
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL maxRows C-Win
+ON VALUE-CHANGED OF maxRows IN FRAME AuditSearch /* Max Rows */
+DO:
+  ASSIGN {&SELF-NAME}.
+  IF {&SELF-NAME} GT {&maxRows} THEN
+  ASSIGN
+    {&SELF-NAME}:SCREEN-VALUE = "{&maxRows}"
+    {&SELF-NAME}
+    .
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME svAfterValueFilter
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svAfterValueFilter C-Win
 ON RETURN OF svAfterValueFilter IN FRAME AuditSearch /* After Value */
@@ -1290,6 +1345,8 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
                              + ipcType + ": "
                              + ipcProgramName
                              .
+    &ELSE
+    RUN pGetSettings.
     &ENDIF
     {&OPEN-QUERY-AuditHeader}
     APPLY 'VALUE-CHANGED':U TO BROWSE AuditHeader.
@@ -1339,14 +1396,14 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY svType svStartDate svStartDateOption svDB svUser svEndDate 
+  DISPLAY svType svStartDate svStartDateOption svDB maxRows svUser svEndDate 
           svEndDateOption svTable svBeforeValueFilter svField svAfterValueFilter 
       WITH FRAME AuditSearch IN WINDOW C-Win.
   IF AVAILABLE AuditHdr THEN 
     DISPLAY AuditHdr.AuditKey 
       WITH FRAME AuditSearch IN WINDOW C-Win.
   ENABLE btnAuditTables svType svStartDate btnCalendar-1 svStartDateOption svDB 
-         svUser svEndDate btnCalendar-2 svEndDateOption svTable 
+         maxRows svUser svEndDate btnCalendar-2 svEndDateOption svTable 
          svBeforeValueFilter svField svAfterValueFilter btnClear 
          btnAfterValueFilterClear btnSearch btnBeforeValueFilterClear 
          btnFilterAfterValue btnFilterAuditKey btnFilterBeforeValue btnHistory 
@@ -1397,6 +1454,7 @@ PROCEDURE pAuditKeyFilter :
               AND (AuditDtl.AuditAfterValue  BEGINS cAfterValueFilter
                OR cAfterValueFilter EQ "")
             INDEXED-REPOSITION
+            {&MAX-ROWS}
             .
     APPLY 'VALUE-CHANGED':U TO BROWSE AuditHeader.
     
@@ -1413,10 +1471,10 @@ PROCEDURE pByAuditAfterValue :
   Notes:       
 ------------------------------------------------------------------------------*/
     IF lAscending THEN
-    &SCOPED-DEFINE SORTBY-PHRASE BY AuditDtl.AuditAfterValue
+    &SCOPED-DEFINE SORTBY-PHRASE BY AuditDtl.AuditAfterValue {&MAX-ROWS}
     {&OPEN-QUERY-AuditDetail}
     ELSE
-    &SCOPED-DEFINE SORTBY-PHRASE BY AuditDtl.AuditAfterValue DESCENDING
+    &SCOPED-DEFINE SORTBY-PHRASE BY AuditDtl.AuditAfterValue DESCENDING {&MAX-ROWS}
     {&OPEN-QUERY-AuditDetail}
 
 END PROCEDURE.
@@ -1432,10 +1490,10 @@ PROCEDURE pByAuditBeforeValue :
   Notes:       
 ------------------------------------------------------------------------------*/
     IF lAscending THEN
-    &SCOPED-DEFINE SORTBY-PHRASE BY AuditDtl.AuditBeforeValue
+    &SCOPED-DEFINE SORTBY-PHRASE BY AuditDtl.AuditBeforeValue {&MAX-ROWS}
     {&OPEN-QUERY-AuditDetail}
     ELSE
-    &SCOPED-DEFINE SORTBY-PHRASE BY AuditDtl.AuditBeforeValue DESCENDING
+    &SCOPED-DEFINE SORTBY-PHRASE BY AuditDtl.AuditBeforeValue DESCENDING {&MAX-ROWS}
     {&OPEN-QUERY-AuditDetail}
 
 END PROCEDURE.
@@ -1451,10 +1509,10 @@ PROCEDURE pByAuditDateTime :
   Notes:       
 ------------------------------------------------------------------------------*/
     IF lAscending THEN
-    &SCOPED-DEFINE SORTBY-PHRASE BY AuditHdr.AuditDateTime
+    &SCOPED-DEFINE SORTBY-PHRASE BY AuditHdr.AuditDateTime {&MAX-ROWS}
     {&OPEN-QUERY-AuditHeader}
     ELSE
-    &SCOPED-DEFINE SORTBY-PHRASE BY AuditHdr.AuditDateTime DESCENDING
+    &SCOPED-DEFINE SORTBY-PHRASE BY AuditHdr.AuditDateTime DESCENDING {&MAX-ROWS}
     {&OPEN-QUERY-AuditHeader}
 
 END PROCEDURE.
@@ -1470,10 +1528,10 @@ PROCEDURE pByAuditDB :
   Notes:       
 ------------------------------------------------------------------------------*/
     IF lAscending THEN
-    &SCOPED-DEFINE SORTBY-PHRASE BY AuditHdr.AuditDB
+    &SCOPED-DEFINE SORTBY-PHRASE BY AuditHdr.AuditDB {&MAX-ROWS}
     {&OPEN-QUERY-AuditHeader}
     ELSE
-    &SCOPED-DEFINE SORTBY-PHRASE BY AuditHdr.AuditDB DESCENDING
+    &SCOPED-DEFINE SORTBY-PHRASE BY AuditHdr.AuditDB DESCENDING {&MAX-ROWS}
     {&OPEN-QUERY-AuditHeader}
 
 END PROCEDURE.
@@ -1489,10 +1547,10 @@ PROCEDURE pByAuditExtent :
   Notes:       
 ------------------------------------------------------------------------------*/
     IF lAscending THEN
-    &SCOPED-DEFINE SORTBY-PHRASE BY AuditDtl.AuditExtent
+    &SCOPED-DEFINE SORTBY-PHRASE BY AuditDtl.AuditExtent {&MAX-ROWS}
     {&OPEN-QUERY-AuditDetail}
     ELSE
-    &SCOPED-DEFINE SORTBY-PHRASE BY AuditDtl.AuditExtent DESCENDING
+    &SCOPED-DEFINE SORTBY-PHRASE BY AuditDtl.AuditExtent DESCENDING {&MAX-ROWS}
     {&OPEN-QUERY-AuditDetail}
 
 END PROCEDURE.
@@ -1508,10 +1566,10 @@ PROCEDURE pByAuditField :
   Notes:       
 ------------------------------------------------------------------------------*/
     IF lAscending THEN
-    &SCOPED-DEFINE SORTBY-PHRASE BY AuditDtl.AuditField BY AuditDtl.AuditExtent
+    &SCOPED-DEFINE SORTBY-PHRASE BY AuditDtl.AuditField BY AuditDtl.AuditExtent {&MAX-ROWS}
     {&OPEN-QUERY-AuditDetail}
     ELSE
-    &SCOPED-DEFINE SORTBY-PHRASE BY AuditDtl.AuditField DESCENDING BY AuditDtl.AuditExtent DESCENDING
+    &SCOPED-DEFINE SORTBY-PHRASE BY AuditDtl.AuditField DESCENDING BY AuditDtl.AuditExtent DESCENDING {&MAX-ROWS}
     {&OPEN-QUERY-AuditDetail}
 
 END PROCEDURE.
@@ -1527,10 +1585,10 @@ PROCEDURE pByAuditID :
   Notes:       
 ------------------------------------------------------------------------------*/
     IF lAscending THEN
-    &SCOPED-DEFINE SORTBY-PHRASE BY AuditHdr.AuditID
+    &SCOPED-DEFINE SORTBY-PHRASE BY AuditHdr.AuditID {&MAX-ROWS}
     {&OPEN-QUERY-AuditHeader}
     ELSE
-    &SCOPED-DEFINE SORTBY-PHRASE BY AuditHdr.AuditID DESCENDING
+    &SCOPED-DEFINE SORTBY-PHRASE BY AuditHdr.AuditID DESCENDING {&MAX-ROWS}
     {&OPEN-QUERY-AuditHeader}
 
 END PROCEDURE.
@@ -1546,10 +1604,10 @@ PROCEDURE pByAuditIdxField :
   Notes:       
 ------------------------------------------------------------------------------*/
     IF lAscending THEN
-    &SCOPED-DEFINE SORTBY-PHRASE BY AuditDtl.AuditIdxField
+    &SCOPED-DEFINE SORTBY-PHRASE BY AuditDtl.AuditIdxField {&MAX-ROWS}
     {&OPEN-QUERY-AuditDetail}
     ELSE
-    &SCOPED-DEFINE SORTBY-PHRASE BY AuditDtl.AuditIdxField DESCENDING
+    &SCOPED-DEFINE SORTBY-PHRASE BY AuditDtl.AuditIdxField DESCENDING {&MAX-ROWS}
     {&OPEN-QUERY-AuditDetail}
 
 END PROCEDURE.
@@ -1565,10 +1623,10 @@ PROCEDURE pByAuditKey :
   Notes:       
 ------------------------------------------------------------------------------*/
     IF lAscending THEN
-    &SCOPED-DEFINE SORTBY-PHRASE BY AuditHdr.AuditKey
+    &SCOPED-DEFINE SORTBY-PHRASE BY AuditHdr.AuditKey {&MAX-ROWS}
     {&OPEN-QUERY-AuditHeader}
     ELSE
-    &SCOPED-DEFINE SORTBY-PHRASE BY AuditHdr.AuditKey DESCENDING
+    &SCOPED-DEFINE SORTBY-PHRASE BY AuditHdr.AuditKey DESCENDING {&MAX-ROWS}
     {&OPEN-QUERY-AuditHeader}
 
 END PROCEDURE.
@@ -1584,10 +1642,10 @@ PROCEDURE pByAuditTable :
   Notes:       
 ------------------------------------------------------------------------------*/
     IF lAscending THEN
-    &SCOPED-DEFINE SORTBY-PHRASE BY AuditHdr.AuditTable
+    &SCOPED-DEFINE SORTBY-PHRASE BY AuditHdr.AuditTable {&MAX-ROWS}
     {&OPEN-QUERY-AuditHeader}
     ELSE
-    &SCOPED-DEFINE SORTBY-PHRASE BY AuditHdr.AuditTable DESCENDING
+    &SCOPED-DEFINE SORTBY-PHRASE BY AuditHdr.AuditTable DESCENDING {&MAX-ROWS}
     {&OPEN-QUERY-AuditHeader}
 
 END PROCEDURE.
@@ -1603,10 +1661,10 @@ PROCEDURE pByAuditType :
   Notes:       
 ------------------------------------------------------------------------------*/
     IF lAscending THEN
-    &SCOPED-DEFINE SORTBY-PHRASE BY AuditHdr.AuditType
+    &SCOPED-DEFINE SORTBY-PHRASE BY AuditHdr.AuditType {&MAX-ROWS}
     {&OPEN-QUERY-AuditHeader}
     ELSE
-    &SCOPED-DEFINE SORTBY-PHRASE BY AuditHdr.AuditType DESCENDING
+    &SCOPED-DEFINE SORTBY-PHRASE BY AuditHdr.AuditType DESCENDING {&MAX-ROWS}
     {&OPEN-QUERY-AuditHeader}
 
 END PROCEDURE.
@@ -1622,11 +1680,64 @@ PROCEDURE pByAuditUser :
   Notes:       
 ------------------------------------------------------------------------------*/
     IF lAscending THEN
-    &SCOPED-DEFINE SORTBY-PHRASE BY AuditHdr.AuditUser
+    &SCOPED-DEFINE SORTBY-PHRASE BY AuditHdr.AuditUser {&MAX-ROWS}
     {&OPEN-QUERY-AuditHeader}
     ELSE
-    &SCOPED-DEFINE SORTBY-PHRASE BY AuditHdr.AuditUser DESCENDING
+    &SCOPED-DEFINE SORTBY-PHRASE BY AuditHdr.AuditUser DESCENDING {&MAX-ROWS}
     {&OPEN-QUERY-AuditHeader}
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetSettings C-Win 
+PROCEDURE pGetSettings :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE hChild AS HANDLE  NO-UNDO.
+    DEFINE VARIABLE idx    AS INTEGER NO-UNDO.
+    
+    FIND FIRST user-print NO-LOCK
+         WHERE user-print.company    EQ g_company
+           AND user-print.program-id EQ "Audit."
+           AND user-print.user-id    EQ USERID("ASI")
+         NO-ERROR.
+    IF NOT AVAILABLE user-print THEN RETURN.
+    ASSIGN
+        hChild = FRAME AuditSearch:FIRST-CHILD
+        hChild = hChild:FIRST-CHILD
+        .
+    DO WHILE VALID-HANDLE(hChild):
+        IF hChild:NAME NE ? AND (hChild:SENSITIVE OR hChild:TYPE EQ "COMBO-BOX") THEN DO:
+            DO idx = 1 TO EXTENT(user-print.field-name):
+                IF TRIM(user-print.field-name[idx]) EQ hChild:NAME THEN DO:
+                    IF hChild:PRIVATE-DATA EQ "NoUserPrint" THEN LEAVE.
+                    hChild:SCREEN-VALUE = user-print.field-value[idx].
+                    LEAVE.
+                END. /* found screen object */
+            END. /* do idx */
+        END. /* name <> ? */
+        hChild = hChild:NEXT-SIBLING.
+    END. /* do while */
+    DO idx = 1 TO EXTENT(user-print.field-name):
+        IF user-print.field-name[idx] EQ "" THEN
+        CASE user-print.field-label[idx]:
+            WHEN "Column" THEN
+            {&WINDOW-NAME}:COLUMN = INTEGER(user-print.field-value[idx]).
+            WHEN "Row" THEN
+            {&WINDOW-NAME}:ROW    = INTEGER(user-print.field-value[idx]).
+            WHEN "Width" THEN
+            {&WINDOW-NAME}:WIDTH  = INTEGER(user-print.field-value[idx]).
+            WHEN "Height" THEN
+            {&WINDOW-NAME}:HEIGHT = INTEGER(user-print.field-value[idx]).
+        END CASE.
+    END. /* do idx */
+    RUN pWinReSize.
+    ASSIGN {&userPrintFields}.
 
 END PROCEDURE.
 
@@ -1776,6 +1887,73 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSaveSettings C-Win 
+PROCEDURE pSaveSettings :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE hChild AS HANDLE  NO-UNDO.
+    DEFINE VARIABLE idx    AS INTEGER NO-UNDO.
+    
+    FIND FIRST user-print EXCLUSIVE-LOCK
+         WHERE user-print.company    EQ g_company
+           AND user-print.program-id EQ "Audit."
+           AND user-print.user-id    EQ USERID("ASI")
+         NO-ERROR.
+    IF NOT AVAILABLE user-print THEN DO:
+        CREATE user-print.
+        ASSIGN
+            user-print.company    = g_company
+            user-print.program-id = "Audit."
+            user-print.user-id    = USERID("ASI")
+            .
+    END. /* not avail */
+    ASSIGN
+        user-print.field-name  = ""
+        user-print.field-value = ""
+        user-print.field-label = ""
+        hChild = FRAME AuditSearch:FIRST-CHILD
+        hChild = hChild:FIRST-CHILD
+        .
+    DO WHILE VALID-HANDLE(hChild):
+        IF hChild:NAME NE ? AND
+          (hChild:SENSITIVE OR
+           hChild:TYPE EQ "COMBO-BOX") AND
+           hChild:TYPE NE "Button" THEN
+        ASSIGN
+            idx = idx + 1
+            user-print.field-name[idx]  = hChild:NAME
+            user-print.field-label[idx] = hChild:LABEL
+            user-print.field-value[idx] = hChild:SCREEN-VALUE
+            .
+        hChild = hChild:NEXT-SIBLING.
+    END. /* do while */
+    ASSIGN
+        idx = idx + 1
+        user-print.field-name[idx]  = ""
+        user-print.field-label[idx] = "Column"
+        user-print.field-value[idx] = STRING({&WINDOW-NAME}:COLUMN)
+        idx = idx + 1
+        user-print.field-name[idx]  = ""
+        user-print.field-label[idx] = "Row"
+        user-print.field-value[idx] = STRING({&WINDOW-NAME}:ROW)
+        idx = idx + 1
+        user-print.field-name[idx]  = ""
+        user-print.field-label[idx] = "Width"
+        user-print.field-value[idx] = STRING({&WINDOW-NAME}:WIDTH)
+        idx = idx + 1
+        user-print.field-name[idx]  = ""
+        user-print.field-label[idx] = "Height"
+        user-print.field-value[idx] = STRING({&WINDOW-NAME}:HEIGHT)
+        .
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pWinReSize C-Win 
 PROCEDURE pWinReSize :
 /*------------------------------------------------------------------------------
@@ -1796,7 +1974,7 @@ PROCEDURE pWinReSize :
         {&WINDOW-NAME}:WIDTH  = 269.
         ASSIGN
             iHeight = {&WINDOW-NAME}:HEIGHT - FRAME {&FRAME-NAME}:HEIGHT
-            iWidth = {&WINDOW-NAME}:WIDTH - FRAME {&FRAME-NAME}:WIDTH
+            iWidth  = {&WINDOW-NAME}:WIDTH  - FRAME {&FRAME-NAME}:WIDTH
             FRAME {&FRAME-NAME}:VIRTUAL-HEIGHT = {&WINDOW-NAME}:HEIGHT
             FRAME {&FRAME-NAME}:VIRTUAL-WIDTH  = {&WINDOW-NAME}:WIDTH
             FRAME {&FRAME-NAME}:HEIGHT = {&WINDOW-NAME}:HEIGHT

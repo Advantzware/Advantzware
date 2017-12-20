@@ -261,7 +261,8 @@ DEF VAR vitemreckey   LIKE itemfg.rec_key NO-UNDO.
 DEFINE VARIABLE dlayerDepth AS DECIMAL NO-UNDO .
 DEFINE VARIABLE ddivider AS DECIMAL NO-UNDO .
 DEF VAR v-die-no  LIKE eb.die-no NO-UNDO.
-
+DEFINE VARIABLE droll-len LIKE ef.gsh-len NO-UNDO.
+DEFINE VARIABLE lWindowShow AS LOGICAL NO-UNDO .
 format HEADER 
        "<OLANDSCAPE><P10>" skip
         "JOB NUMBER:<B>" v-job-no space(0) "-" space(0) v-job-no2 format "99" "</B>"
@@ -1278,9 +1279,12 @@ END FUNCTION.
             SKIP.
 
         IF lMachSheeter THEN DO:
+            IF ef.roll THEN
+                droll-len = ef.gsh-len .
+            ELSE droll-len = 0 .
             PUT "<b>Sheeter </b>" SKIP
-             "Board #:" cBoardCode FORMAT "x(15)" "Width:" ef.roll-wid  SKIP 
-             "Sheeter Checklist Complete:  <FROM><R+1><C+2><RECT><||3>" SKIP
+             "Board #:" cBoardCode FORMAT "x(15)" "Width:" ef.roll-wid SPACE(5) " Repeat Size:" droll-len   SKIP 
+             "Approval & In-Process Inspection Checklist Complete :  <FROM><R+1><C+2><RECT><||3>" SKIP
              "Sheeter Department Notes:  " SKIP .
 
            ASSIGN v-text = FNformat(FNdeptnotes(vjobreckey,"RS",job-hdr.frm),80).
@@ -1381,7 +1385,7 @@ END FUNCTION.
         PUT v-thick   /*RDR*/
             "<C1><B>DIE CUTTING</B>"  SKIP
             "<C1>Die #: " v-die-no FORMAT "x(30)" SKIP
-            "<C1>Cutting Checklist Complete : <FROM><R+1><C+2><RECT><||3> "  SKIP. 
+            "<C1>Approval & In-Process Inspection Checklist Complete : <FROM><R+1><C+2><RECT><||3> "  SKIP. 
 
        /* rdb 02/16/07  02140714 
         RUN PRpage (2).
@@ -1415,7 +1419,7 @@ END FUNCTION.
 
        /* rdb 02/16/07  02140714 */
         intLnCount = 6. /* number of other lines static in set */
-
+        ASSIGN lWindowShow = NO .
         FOR EACH xjob-mat NO-LOCK
             WHERE xjob-mat.company EQ job-hdr.company
               AND xjob-mat.job     EQ job-hdr.job
@@ -1429,12 +1433,12 @@ END FUNCTION.
             BREAK BY xjob-mat.rm-i-no
                   BY xjob-mat.wid
                   BY xjob-mat.len:
-
+          ASSIGN lWindowShow = TRUE .
           IF LAST-OF(xjob-mat.len) THEN intLnCount = intLnCount + 1.
         END. 
-
+      IF lWindowShow THEN do:
         RUN PRpage (intLnCount).
-
+        
         PUT v-thick 
             "<C1><B>WINDOWING</B>"  SKIP            /*RDR*/                     
             "<C1><u>RM Item #</u> <u>Name                          </u> <u>Width  </u> <u>Length </u> <u>Linear Feet Needed</u>" SKIP.
@@ -1475,9 +1479,9 @@ END FUNCTION.
                 SKIP.
           END.
         END. /* xjob-mat */      
-
-        PUT " "
-            "<C1>Window Checklist Complete : <FROM><R+1><C+2><RECT><||3>"
+        
+            PUT " "
+            "<C1>Approval & In-Process Inspection Checklist Complete : <FROM><R+1><C+2><RECT><||3>"
             " "  SKIP.
 
        /* rdb 02/16/07  02140714 */
@@ -1493,17 +1497,12 @@ END FUNCTION.
 
        /* PUT " "  SKIP.  rdb 01/26/07 rq 01250707 */      
         PUT "<C1>Window Department Notes:"  SKIP. 
-
-       /* moved up
-        ASSIGN v-text = FNformat(FNdeptnotes(vjobreckey,"WN",job-hdr.frm),80).
-        */
-       /* PUT " "  SKIP.  rdb 01/26/07 rq 01250707 */      
-
+       
         DO i = 1 TO NUM-ENTRIES(v-text,"`"):        
             PUT "<C1>" 
                 ENTRY(i,v-text,"`") FORMAT "X(80)"  SKIP. 
-        END.              
-
+        END.     
+      
         FOR EACH x-hdr WHERE x-hdr.company = job-hdr.company
                     AND x-hdr.job     = job-hdr.job
                     AND x-hdr.job-no  = job-hdr.job-no
@@ -1520,7 +1519,7 @@ END FUNCTION.
            
         PUT "<C1>Window Spec. Notes:"  SKIP. 
         RUN PRprintfg2 ("WD").    
-
+     END.  /* lWindowShow  */
        /* FINISHING	*/
         intLnCount = 4.
         FOR EACH xjob-mat NO-LOCK
@@ -1702,7 +1701,7 @@ END FUNCTION.
         */
 
         RUN PRpage (2).
-        PUT "<C1>Finishing Checklist Complete : <FROM><R+1><C+2><RECT><||3> " SKIP.
+        PUT "<C1>Approval & In-Process Inspection Checklist Complete : <FROM><R+1><C+2><RECT><||3> " SKIP.
 
         ASSIGN 
           v-text = FNformat(FNdeptnotes(vjobreckey,"GL",job-hdr.frm),80)

@@ -1250,7 +1250,7 @@ FOR EACH job-hdr NO-LOCK
 
           IF FIRST-OF(bff-eb.form-no) THEN
              PUT 
-                "<P9><B> F/B             Tray #          Qty per tray        Case #                Qty   Qty per case        Pallet          Packing Specs </B>" SKIP.
+                "<P9><B> F/B             Tray #          Qty per tray        Case #                Qty   Qty per case   Divider      Pallet      Packing Specs </B>" SKIP.
 
           IF bff-eb.lp-up NE 0 THEN
           DO:
@@ -1317,8 +1317,9 @@ FOR EACH job-hdr NO-LOCK
               bff-eb.cas-no FORMAT "X(15)" AT 54 /* cases# */
               (IF AVAILABLE bf-job-mat THEN STRING(bf-job-mat.qty,"->>>>>>9.9<") ELSE "") FORMAT "x(11)"
               bff-eb.cas-cnt FORMAT "->>>>>9" AT 87  /* qty per case */
-              bff-eb.tr-no   AT 102 /* Pallet */ 
-              (IF AVAILABLE itemfg THEN itemfg.prod-not ELSE "") FORMAT "X(20)" AT 118 /* packing spacs*/ SKIP .
+              bff-eb.divider FORMAT "x(10)" AT 96
+              bff-eb.tr-no   AT 110  /* Pallet */ 
+              (IF AVAILABLE itemfg THEN itemfg.prod-not ELSE "") FORMAT "X(20)" AT 122 /* packing spacs*/ SKIP .
                
               RELEASE itemfg.
          /* PUT " Flat" "Finished"  AT 22 "Tray#" AT 33 eb.layer-pad FORMAT "x(10)"
