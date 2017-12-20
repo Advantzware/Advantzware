@@ -39,6 +39,7 @@ CREATE WIDGET-POOL.
 {{&includes}/filterVars.i NEW}
 
 DEFINE VARIABLE accumTimeInterval AS INTEGER NO-UNDO.
+DEFINE VARIABLE autoMonitorInterval AS INTEGER NO-UNDO.
 DEFINE VARIABLE capacityViewHandle AS HANDLE NO-UNDO.
 DEFINE VARIABLE containerHandle AS HANDLE NO-UNDO.
 DEFINE VARIABLE currentOrder AS INTEGER NO-UNDO.
@@ -2255,11 +2256,7 @@ btnJobNotes btnDatePrompt
   DISABLE {&autoMonitorObjects} WITH FRAME {&FRAME-NAME}.
   ELSE
   ENABLE {&autoMonitorObjects} WITH FRAME {&FRAME-NAME}.
-  /*
-  IF VALID-HANDLE(currentJob) THEN
-  RUN jobDeselection (currentJob).
-  */
-  viewRefreshInterval = 0.
+  autoMonitorInterval = 0.
 
 END PROCEDURE.
 
@@ -4489,42 +4486,49 @@ PROCEDURE timeLine :
       gridLine:HIDDEN = IF flashGridLine THEN NOT gridLine:HIDDEN ELSE NO
       .
     &IF '{&Board}' EQ 'Pro' &THEN
-    IF saveInterval NE 0 AND saveTimeInterval GT saveInterval THEN DO:
-      MESSAGE 'Save Scheduler Pro?' VIEW-AS ALERT-BOX
-        QUESTION BUTTONS YES-NO TITLE 'Auto Save Prompt'
-        UPDATE saveNow AS LOGICAL.
-      IF saveNow THEN
-      APPLY 'CHOOSE':U TO btnSave.
-      saveTimeInterval = 0.
-    END. /* if saveinterval */
-    ASSIGN
-      accumTimeInterval = ETIME / 1000
-      saveTimeInterval = saveTimeInterval + .5
-      .
-    RUN displayLastSave IN containerHandle (accumTimeInterval).
-    &ENDIF
-    IF viewRefresh NE 0 AND viewRefreshInterval GT viewRefresh * 60 THEN DO:
-      &IF '{&Board}' EQ 'Pro' &THEN
-      IF btnSave:SENSITIVE EQ NO THEN DO:
-        viewRefreshInterval = 0.
-        RUN setAutoMonitorImage IN containerHandle.
-        RUN asiDC.
-        ASSIGN
-          packOptionPromptSave = packOptionPrompt
-          packOptionPrompt     = NO
-          .
-        RUN packBoard.
-        packOptionPrompt = packOptionPromptSave.
+    IF saveInterval NE 0 THEN DO: 
+      IF saveTimeInterval GT saveInterval THEN DO:
+        MESSAGE 'Save Scheduler Pro?' VIEW-AS ALERT-BOX
+          QUESTION BUTTONS YES-NO TITLE 'Auto Save Prompt'
+          UPDATE saveNow AS LOGICAL.
+        IF saveNow THEN
         APPLY 'CHOOSE':U TO btnSave.
-        viewRefreshInterval = 0.
-      END. /* if automonitor */
-      &ELSEIF '{&Board}' EQ 'View' &THEN
-      APPLY 'CHOOSE':U TO btnTimeLine.
-      RUN viewRefresh.
-      &ENDIF
-    END.
-    ELSE
-    viewRefreshInterval = viewRefreshInterval + .5.
+        saveTimeInterval = 0.
+      END. /* if saveinterval */
+      ELSE
+      saveTimeInterval = saveTimeInterval + .5.
+    END. /* saveinterval ne 0 */
+    accumTimeInterval = ETIME / 1000.
+    RUN displayLastSave IN containerHandle (accumTimeInterval).    
+    IF monitorInterval NE 0 THEN DO:
+      IF autoMonitorInterval GT monitorInterval * 60 THEN DO:
+        IF btnSave:SENSITIVE EQ NO THEN DO:
+          autoMonitorInterval = 0.
+          RUN setAutoMonitorImage IN containerHandle.
+          RUN asiDC.
+          ASSIGN
+            packOptionPromptSave = packOptionPrompt
+            packOptionPrompt     = NO
+            .
+          RUN packBoard.
+          packOptionPrompt = packOptionPromptSave.
+          APPLY 'CHOOSE':U TO btnSave.
+          autoMonitorInterval = 0.
+        END. /* if btnsave */
+      END. /* if gt monirotinterval */
+      ELSE
+      autoMonitorInterval = autoMonitorInterval + .5.
+    END. /* monitorinterval ne 0 */
+    &ELSEIF '{&Board}' EQ 'View' &THEN
+    IF viewRefresh NE 0 THEN DO:
+      IF viewRefreshInterval GT viewRefresh * 60 THEN DO:
+        APPLY 'CHOOSE':U TO btnTimeLine.
+        RUN viewRefresh.
+      END. /* if gt viewrefresh */
+      ELSE 
+      viewRefreshInterval = viewRefreshInterval + .5.
+    END. /* viewrefresh ne 0 */
+    &ENDIF
   END. /* with frame */
 
 END PROCEDURE.

@@ -166,11 +166,6 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL W-Win W-Win
 ON WINDOW-CLOSE OF W-Win /* AdvantzWare Touch Screen */
 DO:
-    message
-        program-name(1) skip
-        program-name(1) skip
-        program-name(1) skip
-        program-name(1) view-as alert-box.
     RUN system/userLogOut.p.
   /* This ADM code must be left here in order for the SmartWindow
      and its descendents to terminate properly on exit. */
