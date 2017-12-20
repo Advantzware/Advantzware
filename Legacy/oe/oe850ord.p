@@ -257,7 +257,7 @@ FOR EACH EDPOTran NO-LOCK WHERE recid(edpotran) = ipEdpotranRecid:
 /*          FIND FIRST xrel USE-INDEX seq-no EXCLUSIVE-LOCK NO-ERROR.*/
 /*          ws_int = IF AVAIL xrel THEN                              */
 /*          xrel.r-no + 1 ELSE   1.                                  */
-          RUN oe/get-r-no.p (INPUT "oe-rel", OUTPUT iNextRelNo).
+          RUN oe/getNextRelNo.p (INPUT "oe-rel", OUTPUT iNextRelNo).
           CREATE oe-rel.
           ASSIGN
             oe-rel.r-no         = iNextRelNo

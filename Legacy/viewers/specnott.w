@@ -329,13 +329,10 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL notes.note_code V-table-Win
 ON ENTRY OF notes.note_code IN FRAME F-Main /* Dept */
 DO:
-
-    ENABLE btn-dept WITH FRAME {&FRAME-NAME}.
-
-   /* IF NOT v-got-dept AND v-new-record THEN */   
-
-  IF PROGRAM-NAME(9) MATCHES "*add-record*" THEN      APPLY "choose" TO  btn-dept .
-
+  ENABLE btn-dept WITH FRAME {&FRAME-NAME}.
+/*  IF NOT v-got-dept AND v-new-record THEN       */
+/*  IF PROGRAM-NAME(9) MATCHES "*add-record*" THEN*/
+/*  APPLY "choose" TO  btn-dept.                  */
 END.
 
 /* _UIB-CODE-BLOCK-END */

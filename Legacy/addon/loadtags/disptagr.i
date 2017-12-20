@@ -1,6 +1,6 @@
 /* loadtag/disptagr.i  get tag# and display tag information for RM item */
 
-IF "{1}" = "RMItem" THEN DO:
+&IF "{1}" EQ "RMItem" &THEN
   FIND FIRST loadtag NO-LOCK WHERE loadtag.company EQ g_company
                                AND loadtag.item-type EQ YES
                                AND loadtag.tag-no EQ {2} NO-ERROR.
@@ -27,4 +27,4 @@ IF "{1}" = "RMItem" THEN DO:
   &IF DEFINED(checkNewRecord) &THEN
   END. /* if adm-new-record */
   &ENDIF
-END.
+&ENDIF

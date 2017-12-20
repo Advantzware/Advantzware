@@ -30,7 +30,7 @@
 &IF DEFINED(UIB_is_Running) = 0 &THEN
 DEFINE INPUT PARAMETER callingprgm AS CHARACTER NO-UNDO.
 &ELSE
-DEFINE VARIABLE callingprgm AS CHARACTER INITIAL "prgrms." NO-UNDO.
+DEFINE VARIABLE callingprgm AS CHARACTER INITIAL "windows/prgrms.w" NO-UNDO.
 &ENDIF
 
 /* Local Variable Definitions ---                                       */
@@ -41,7 +41,7 @@ DEFINE VARIABLE sizeRatio    AS DECIMAL   NO-UNDO.
 DEFINE VARIABLE cWorkDir     AS CHARACTER NO-UNDO.
 
 {system/sysconst.i}
-{custom/globdefs.i}
+{methods/defines/globdefs.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -63,7 +63,7 @@ userControl.maxSessionsPerUser
 &Scoped-define ENABLED-TABLES userControl
 &Scoped-define FIRST-ENABLED-TABLE userControl
 &Scoped-Define ENABLED-OBJECTS btnProperties userScreen screenImage ~
-properties btnSave autoMaximize winSize currentUsers 
+properties autoMaximize winSize btnSave currentUsers 
 &Scoped-Define DISPLAYED-FIELDS userControl.maxAllowedUsers ~
 userControl.maxSessionsPerUser 
 &Scoped-define DISPLAYED-TABLES userControl
@@ -178,9 +178,9 @@ DEFINE VARIABLE autoMaximize AS LOGICAL INITIAL no
 DEFINE FRAME Dialog-Frame
      btnProperties AT ROW 1.24 COL 69 WIDGET-ID 42
      properties AT ROW 1 COL 77 NO-LABEL WIDGET-ID 38
-     btnSave AT ROW 23.38 COL 61
      autoMaximize AT ROW 8.86 COL 9 WIDGET-ID 2
      winSize AT ROW 21 COL 9 NO-LABEL WIDGET-ID 8
+     btnSave AT ROW 23.38 COL 61
      physical_file AT ROW 1.24 COL 23 COLON-ALIGNED
      prgmTitle AT ROW 2.19 COL 14 COLON-ALIGNED
      copyrite AT ROW 3.14 COL 7 COLON-ALIGNED NO-LABEL
@@ -189,7 +189,8 @@ DEFINE FRAME Dialog-Frame
            VIEW-AS TEXT 
           SIZE 9.2 BY .62
           FGCOLOR 2 
-     userControl.maxSessionsPerUser AT ROW 6.48 COL 35 COLON-ALIGNED WIDGET-ID 34
+     userControl.maxSessionsPerUser AT ROW 6.48 COL 34.6 COLON-ALIGNED WIDGET-ID 34
+          LABEL "Max Sessions Per User"
            VIEW-AS TEXT 
           SIZE 5.6 BY .62
           FGCOLOR 2 
@@ -260,6 +261,8 @@ ASSIGN
 ASSIGN 
        userControl.maxAllowedUsers:READ-ONLY IN FRAME Dialog-Frame        = TRUE.
 
+/* SETTINGS FOR FILL-IN userControl.maxSessionsPerUser IN FRAME Dialog-Frame
+   EXP-LABEL                                                            */
 ASSIGN 
        userControl.maxSessionsPerUser:READ-ONLY IN FRAME Dialog-Frame        = TRUE.
 
@@ -388,7 +391,7 @@ END.
 /* ***************************  Main Block  *************************** */
 
 /* Parent the dialog-box to the ACTIVE-WINDOW, if there is no parent.   */
-IF VALID-HANDLE(ACTIVE-WINDOW) AND FRAME {&FRAME-NAME}:PARENT eq ?
+IF VALID-HANDLE(ACTIVE-WINDOW) AND FRAME {&FRAME-NAME}:PARENT EQ ?
 THEN FRAME {&FRAME-NAME}:PARENT = ACTIVE-WINDOW.
 
 DELETE WIDGET-POOL "linkPool" NO-ERROR.
@@ -403,15 +406,14 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     DO WITH FRAME {&FRAME-NAME}:
         ASSIGN
             callingprgm = ENTRY(NUM-ENTRIES(callingprgm,' '),callingprgm,' ')
-            physical_file:SCREEN-VALUE = callingprgm
+            physical_file = callingprgm
             callingprgm = SUBSTR(callingprgm,R-INDEX(callingprgm,'/') + 1)
             callingprgm = SUBSTR(callingprgm,1,LENGTH(callingprgm) - 1)
             winReSize = 'users/' + USERID('NOSWEAT') + '/' + callingprgm + 'winReSize'
             winReSizeDat = 'users/' + USERID('NOSWEAT') + '/winReSize.dat'
-            copyrite:SCREEN-VALUE = '{copyrite}'
-            asiVersion:SCREEN-VALUE = '{&awversion}'
-            autoMaximize:SCREEN-VALUE = STRING(SEARCH(winReSize) NE ?)
-            autoMaximize
+            copyrite = '{copyrite}'
+            asiVersion = '{&awversion}'
+            autoMaximize = SEARCH(winReSize) NE ?
             .
         FIND FIRST prgrms NO-LOCK
              WHERE prgrms.prgmname EQ callingprgm
@@ -419,7 +421,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         IF AVAILABLE prgrms THEN
         ASSIGN
             FRAME {&FRAME-NAME}:TITLE = FRAME {&FRAME-NAME}:TITLE + ' ' + prgrms.prgtitle
-            prgmTitle:SCREEN-VALUE = prgrms.prgtitle
+            prgmTitle = prgrms.prgtitle
             .
         FIND FIRST userControl NO-LOCK NO-ERROR.
         IF AVAILABLE userControl THEN
@@ -441,19 +443,26 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     
         ASSIGN
             FILE-INFO:FILE-NAME = '.'
-            cWorkDir = file-info:FULL-PATHNAME
+            cWorkDir = FILE-INFO:FULL-PATHNAME
             .        
         FILE-INFO:FILE-NAME = cWorkDir + '/' + 'users' .
         IF FILE-INFO:FULL-PATHNAME EQ ? THEN
-            OS-CREATE-DIR VALUE(string(cWorkDir) + '/' + 'users' ).
+            OS-CREATE-DIR VALUE(STRING(cWorkDir) + '/' + 'users' ).
     
-        FILE-INFO:FILE-NAME = cWorkDir + '/' + 'users' + USERID('NOSWEAT') .
+        FILE-INFO:FILE-NAME = cWorkDir + '/' + 'users' + USERID('NOSWEAT').
         IF FILE-INFO:FULL-PATHNAME EQ ? THEN
-            OS-CREATE-DIR VALUE(string(cWorkDir) + '/' + 'users/' + USERID('NOSWEAT') ).
+            OS-CREATE-DIR VALUE(STRING(cWorkDir) + '/' + 'users/' + USERID('NOSWEAT') ).
        
         winSize:SCREEN-VALUE = STRING(winSize).
         APPLY 'VALUE-CHANGED':U TO winSize.
         RUN pProperties.
+        DISPLAY
+            prgmTitle
+            physical_file
+            copyrite
+            asiVersion
+            autoMaximize
+            .
     END.
     WAIT-FOR GO OF FRAME {&FRAME-NAME}.
 END.
@@ -500,8 +509,8 @@ PROCEDURE enable_UI :
   IF AVAILABLE userControl THEN 
     DISPLAY userControl.maxAllowedUsers userControl.maxSessionsPerUser 
       WITH FRAME Dialog-Frame.
-  ENABLE btnProperties userScreen screenImage properties btnSave autoMaximize 
-         winSize userControl.maxAllowedUsers userControl.maxSessionsPerUser 
+  ENABLE btnProperties userScreen screenImage properties autoMaximize winSize 
+         btnSave userControl.maxAllowedUsers userControl.maxSessionsPerUser 
          currentUsers 
       WITH FRAME Dialog-Frame.
   VIEW FRAME Dialog-Frame.
@@ -739,6 +748,18 @@ PROCEDURE pProperties :
                                     + FILL(" ",5) + ENTRY(idx,SESSION:STARTUP-PARAMETERS)
                                     .
         END. /* do idx */
+        /* show program security and groups */
+        properties:SCREEN-VALUE = properties:SCREEN-VALUE + CHR(10) + CHR(10)
+                                + "[Program Security]" + CHR(10)
+                                + FILL(" ",5) + "Groups:     " + g_groups
+                                .
+        IF AVAILABLE prgrms THEN
+        properties:SCREEN-VALUE = properties:SCREEN-VALUE + CHR(10)
+                                + FILL(" ",5) + "Can View:   " + prgrms.can_run    + CHR(10)
+                                + FILL(" ",5) + "Can Add:    " + prgrms.can_create + CHR(10)
+                                + FILL(" ",5) + "Can Update: " + prgrms.can_update + CHR(10)
+                                + FILL(" ",5) + "Can Delete: " + prgrms.can_delete
+                                .
         /* show current users logged in */
         properties:SCREEN-VALUE = properties:SCREEN-VALUE + CHR(10) + CHR(10)
                                 + "[Current Users Logged In]"

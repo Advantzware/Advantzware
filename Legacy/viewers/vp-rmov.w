@@ -269,6 +269,14 @@ PROCEDURE local-initialize :
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'initialize':U ) .
 
+  FIND FIRST users NO-LOCK WHERE 
+      users.user_id EQ USERID(LDBNAME(1)) 
+      NO-ERROR.
+  IF AVAIL users AND users.securityLevel LE 999 THEN ASSIGN
+      btn-override:VISIBLE IN FRAME {&FRAME-NAME} = FALSE. 
+  ELSE ASSIGN
+      btn-override:VISIBLE IN FRAME {&FRAME-NAME} = TRUE. 
+
   /* Code placed here will execute AFTER standard behavior.    */
 
   /*

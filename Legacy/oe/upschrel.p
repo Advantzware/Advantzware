@@ -125,7 +125,7 @@ IF AVAIL oe-relh THEN DO:
 /*     10051225 */
 /*     FIND FIRST oe-rel USE-INDEX seq-no NO-LOCK NO-ERROR.      */
 /*     v-nxt-r-no = IF AVAIL oe-rel THEN oe-rel.r-no + 1 ELSE 1. */
-    RUN oe/get-r-no.p (INPUT "oe-rel", OUTPUT v-nxt-r-no).
+    RUN oe/getNextRelNo.p (INPUT "oe-rel", OUTPUT v-nxt-r-no).
     CREATE oe-rel.
     ASSIGN
      oe-rel.company   = oe-relh.company
@@ -180,22 +180,10 @@ IF AVAIL oe-relh THEN DO:
 
     IF lv-sell-price-found THEN
     DO:
-       FIND FIRST reftable WHERE
-            reftable.reftable EQ "oe-rel.sell-price" AND
-            reftable.company  EQ STRING(oe-rel.r-no,"9999999999")
-            NO-LOCK NO-ERROR.
-      
-       IF NOT AVAIL reftable THEN
-       DO:
-          CREATE reftable.
-          ASSIGN reftable.reftable = "oe-rel.sell-price"
-                reftable.company  = STRING(oe-rel.r-no,"9999999999").
-       END.
-                 
+                        
        ASSIGN
-          reftable.val[1] = lv-sell-price
-          reftable.val[2] = DECIMAL(lv-zero-price).
-       RELEASE reftable.
+          oe-rel.sell-price = lv-sell-price
+          oe-rel.zeroPrice = DECIMAL(lv-zero-price).       
     END.
   END.
 

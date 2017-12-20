@@ -1048,7 +1048,7 @@ PROCEDURE CreateRelease :
     find first bf-oe-rel use-index seq-no no-lock no-error.
 /*      10051225 */
 /*      iNextRelNo = (if avail bf-oe-rel then bf-oe-rel.r-no else 0) + 1. */
-    RUN oe/get-r-no.p (INPUT "oe-rel", OUTPUT iNextRelNo).
+    RUN oe/getNextRelNo.p (INPUT "oe-rel", OUTPUT iNextRelNo).
     create oe-rel.
     assign oe-rel.company   = cocode
            oe-rel.loc       = locode

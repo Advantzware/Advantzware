@@ -79,6 +79,9 @@ DEFINE            VARIABLE v-per-ord                AS CHARACTER NO-UNDO.
 DEFINE            VARIABLE v-upc-no                 LIKE eb.upc-no NO-UNDO.
 DEFINE            VARIABLE v-pricnt-id              AS CHARACTER NO-UNDO .
 
+DEFINE VARIABLE ddivider AS DECIMAL NO-UNDO .
+DEF VAR lv-rowid AS ROWID NO-UNDO.
+
 DEFINE BUFFER b-est     FOR est.
 DEFINE BUFFER b-oe-ordl FOR oe-ordl.
 DEFINE BUFFER b-oe-rel  FOR oe-rel.
@@ -1391,6 +1394,14 @@ FOR  EACH job-hdr NO-LOCK
          NO-ERROR .
      ASSIGN
         v-cases-qty = IF AVAILABLE bf-job-mat THEN bf-job-mat.qty ELSE 0 .
+    ASSIGN ddivider = 0.
+  IF AVAIL eb THEN DO:
+     RUN find-depth-reftable(ROWID(eb), OUTPUT lv-rowid).
+            FIND reftable WHERE ROWID(reftable) EQ lv-rowid NO-ERROR.
+            IF AVAIL reftable THEN
+                ASSIGN
+                ddivider = reftable.val[2].
+  END.
 
     PUT "<P9><B> UNIT SIZE   Flat:</B>"  STRING(eb.t-len) + " x " + STRING(eb.t-wid * v-dc-only-out)  FORMAT "x(19)"
         "<B>Finished:</B> "  STRING(eb.len) + " x " + STRING(eb.wid) FORMAT "X(19)"
@@ -1409,6 +1420,11 @@ FOR  EACH job-hdr NO-LOCK
         "<C39><B> Qty per case:</B>"   eb.cas-cnt FORMAT "->>>>>>>9"
         "<C60><B># of Cases:</B>" STRING(v-cases-qty,"->,>>>,>>9")  /*v-job-qty-boxes-code-int*/  FORMAT "x(10)"  
         "<C79><B>Case Wt:</B>" STRING(v-cas-wt,">>>>9.99") SKIP
+
+        "<B> Divider: </B>"   eb.divider FORMAT "x(10)"
+        "<C20><B>Size: </B>"    STRING(eb.div-len) + "x" + STRING(eb.div-wid) + "x" + STRING(ddivider) FORMAT "x(27)"
+        "<C39><B> Qty per case:</B>"   eb.div-up FORMAT "->>>>>>>9" SKIP
+        
 
         "<B> Pallet:</B> " eb.tr-no
         "<C20><B>Shrink Wrap: </B>" STRING(v-shrink-wrap,"Y/N")  
@@ -2077,7 +2093,61 @@ END.
       
 v-first = NO.
 
-END. /* for first job-hdr */  
+END. /* for first job-hdr */ 
+
+PROCEDURE find-depth-reftable :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEF INPUT PARAM ip-rowid AS ROWID NO-UNDO.
+  DEF OUTPUT PARAM op-rowid AS ROWID NO-UNDO.
+
+  DEF BUFFER b-eb FOR eb.
+  DEF BUFFER b-rt FOR reftable.
+  DEF BUFFER b-item FOR ITEM.
+
+  FIND b-eb WHERE ROWID(b-eb) EQ ip-rowid NO-LOCK NO-ERROR.
+
+  IF AVAIL b-eb THEN DO TRANSACTION:
+     FIND FIRST b-rt
+          WHERE b-rt.reftable EQ "cedepth"
+            AND b-rt.company  EQ b-eb.company
+            AND b-rt.loc      EQ b-eb.est-no
+            AND b-rt.code     EQ STRING(b-eb.form-no,"9999999999")
+            AND b-rt.code2    EQ STRING(b-eb.blank-no,"9999999999")
+          NO-LOCK NO-ERROR.
+     IF NOT AVAIL b-rt THEN DO:
+        CREATE b-rt.
+        ASSIGN
+           b-rt.reftable = "cedepth"
+           b-rt.company  = b-eb.company
+           b-rt.loc      = b-eb.est-no
+           b-rt.code     = STRING(b-eb.form-no,"9999999999")
+           b-rt.code2    = STRING(b-eb.blank-no,"9999999999").
+
+        IF eb.layer-pad NE "" THEN
+        DO:
+           find FIRST b-item where
+                b-item.company = b-eb.company and
+                b-item.i-no = b-eb.layer-pad and
+                b-item.mat-type = "5"
+                no-lock no-error.
+
+           IF AVAIL b-item THEN
+           DO:
+              ASSIGN
+                 b-rt.val[1] = b-item.case-d
+                 b-rt.val[2] = b-item.case-d.
+              RELEASE b-item.
+           END.
+        END.
+    END.
+
+    op-rowid = ROWID(b-rt).
+  END.
+END PROCEDURE.
     
 /*     if v-format eq "Fibre" then page. */
 

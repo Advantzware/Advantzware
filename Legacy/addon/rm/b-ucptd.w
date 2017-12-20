@@ -45,6 +45,7 @@ DEF VAR ll-help-run AS LOG NO-UNDO.
 
 DEF VAR lv-prev-job2 AS cha NO-UNDO.
 DEF VAR lv-new-job-ran AS LOG NO-UNDO.
+
 ASSIGN cocode = g_company
        locode = g_loc.
 

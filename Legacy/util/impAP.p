@@ -1,11 +1,11 @@
 
 /*------------------------------------------------------------------------
-    File        : impShipTo.p
+    File        : impAP.p
     Purpose     : 
 
     Syntax      :
 
-    Description : Runs Importer only for ShipTo
+    Description : Runs Importer only for Accounts Payable Invoices
 
     Author(s)   : BV
     Created     : Wed Nov 22 15:05:07 EST 2017

@@ -427,7 +427,7 @@ PROCEDURE BatchMail :
         AND ((b2-cust.inv-meth EQ ? AND b1-{&head}2.{&multiinvoice}) OR
         (b2-cust.inv-meth NE ? AND NOT b1-{&head}2.{&multiinvoice}) OR
         "{&head}" EQ "ar-inv"
-        ) 
+        ) AND ( (b2-cust.log-field[1]) OR tb_override-email)
         NO-LOCK break BY b2-cust.cust-no :
                     
             
@@ -465,7 +465,7 @@ PROCEDURE BatchMail :
         END.
     END.
 
-    IF NOT lEmailed AND NOT tb_override-email THEN 
+   /* IF NOT lEmailed AND NOT tb_override-email THEN 
     DO:
         FIND FIRST b2-cust WHERE b2-cust.company EQ cocode
             AND b2-cust.cust-no GE begin_cust
@@ -485,7 +485,7 @@ PROCEDURE BatchMail :
     /*          MESSAGE "Customer is Mail Only because Email Only toggle box in customer file is unchecked." */
     /*              VIEW-AS ALERT-BOX WARNING BUTTONS OK.                                                    */
 
-    END.
+    END.*/
 
 END PROCEDURE.
 
@@ -1288,7 +1288,9 @@ PROCEDURE run-report :
             AND buf-{&line}.bol-no GE fbol
             AND buf-{&line}.bol-no LE tbol 
             NO-ERROR. 
-*/
+*/      IF rd-dest EQ 1 THEN
+           IF cust.log-field[1] AND NOT tb_override-email THEN NEXT .
+
         FIND FIRST buf-{&line} NO-LOCK 
             WHERE buf-{&line}.{&rno} EQ {&head}.{&rno}
             NO-ERROR.

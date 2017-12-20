@@ -145,6 +145,8 @@ PROCEDURE pInitializeType:
     CASE ipcTypeToInit:
         WHEN "ShipTo" THEN
         RUN util/ImportShipTo.p PERSISTENT SET ghdImportProcForType.
+        WHEN "Cash" THEN
+        RUN util/ImportCash.p PERSISTENT SET ghdImportProcForType.
         WHEN "Cust" THEN
         RUN util/ImportCust.p PERSISTENT SET ghdImportProcForType.
         WHEN "Vend" THEN
