@@ -46,7 +46,7 @@ IF AVAIL sys-ctrl AND sys-ctrl.log-fld
 
 /* FIND LAST oe-relh USE-INDEX r-no NO-LOCK NO-ERROR.      */
 /* v-nxt-r-no = IF AVAIL oe-relh THEN oe-relh.r-no ELSE 0. */
-RUN oe/get-r-no.p (INPUT "oe-relh", OUTPUT v-nxt-r-no).
+RUN oe/getNextRelNo.p (INPUT "oe-relh", OUTPUT v-nxt-r-no).
 
 RUN oe/release#.p (cocode, OUTPUT v-nxt-release).
 

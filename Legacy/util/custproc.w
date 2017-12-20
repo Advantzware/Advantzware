@@ -107,7 +107,8 @@ DEFINE FRAME F-Main
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
          SIZE 97.6 BY 17
-         FONT 6.
+         FONT 6
+         DEFAULT-BUTTON Btn_OK.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -272,6 +273,16 @@ END.
 &ANALYZE-RESUME
 
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ls-proc W-Win
+ON RETURN OF ls-proc IN FRAME F-Main /* Procedure Name */
+DO:
+    APPLY 'choose' to Btn_OK IN FRAME F-Main.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &UNDEFINE SELF-NAME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK W-Win 
@@ -399,10 +410,8 @@ PROCEDURE local-initialize :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'initialize':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-/*
+
   APPLY "entry" TO ls-proc IN FRAME {&FRAME-NAME}.
-  RETURN NO-APPLY.
-*/
   {methods/nowait.i}
 
 END PROCEDURE.

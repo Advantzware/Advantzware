@@ -8,7 +8,10 @@
   IF flashLight THEN
   RUN showFlashLight (ttblJob.job).
   &IF '{&Board}' NE 'Basic' &THEN
+  IF btnSave:SENSITIVE IN FRAME {&FRAME-NAME} THEN 
   ENABLE btnToolTip btnComplete btnJobNotes WITH FRAME {&FRAME-NAME}.
+  ELSE 
+  DISABLE btnToolTip btnComplete btnJobNotes WITH FRAME {&FRAME-NAME}.
   ASSIGN
     btnComplete:PRIVATE-DATA = STRING(ROWID(ttblJob))
     btnJobNotes:PRIVATE-DATA = STRING(ROWID(ttblJob))

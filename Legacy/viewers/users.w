@@ -385,15 +385,6 @@ DEFINE FRAME F-Main
      "Environments:" VIEW-AS TEXT
           SIZE 16 BY .62 AT ROW 11.24 COL 91 WIDGET-ID 58
           FONT 4
-     "(Use CTRL-click to select multiple items)" VIEW-AS TEXT
-          SIZE 39 BY .62 AT ROW 16.48 COL 98 WIDGET-ID 76
-          FONT 1
-     "Phone: (Country)" VIEW-AS TEXT
-          SIZE 20 BY 1 AT ROW 4.1 COL 10 WIDGET-ID 92
-     "FAX: (Country)" VIEW-AS TEXT
-          SIZE 16 BY 1 AT ROW 5.29 COL 13 WIDGET-ID 94
-     "(Area)" VIEW-AS TEXT
-          SIZE 8 BY 1 AT ROW 4.1 COL 38 WIDGET-ID 96
      " At Login User Can Select:" VIEW-AS TEXT
           SIZE 26 BY .62 AT ROW 4.81 COL 91 WIDGET-ID 56
           FONT 4
@@ -413,6 +404,15 @@ DEFINE FRAME F-Main
           SIZE 4 BY 1 AT ROW 5.29 COL 54 WIDGET-ID 110
      "Phone/Fax Appear on:" VIEW-AS TEXT
           SIZE 27 BY .62 AT ROW 11.71 COL 51 WIDGET-ID 24
+     "(Use CTRL-click to select multiple items)" VIEW-AS TEXT
+          SIZE 39 BY .62 AT ROW 16.48 COL 98 WIDGET-ID 76
+          FONT 1
+     "Phone: (Country)" VIEW-AS TEXT
+          SIZE 20 BY 1 AT ROW 4.1 COL 10 WIDGET-ID 92
+     "FAX: (Country)" VIEW-AS TEXT
+          SIZE 16 BY 1 AT ROW 5.29 COL 13 WIDGET-ID 94
+     "(Area)" VIEW-AS TEXT
+          SIZE 8 BY 1 AT ROW 4.1 COL 38 WIDGET-ID 96
      RECT-5 AT ROW 5.05 COL 88 WIDGET-ID 78
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -1502,6 +1502,8 @@ PROCEDURE local-update-record :
     DEF VAR v-new-pass AS cha FORM "x(30)" NO-UNDO.
     DEF VAR cNewPwd AS CHAR NO-UNDO.
     DEF VAR lPwdOK AS LOG NO-UNDO.
+    DEF VAR cCurrentDir AS CHAR NO-UNDO.
+    DEF VAR iStat AS INT NO-UNDO.
   
     ASSIGN 
         cOldUserID = users.user_id
@@ -1667,6 +1669,22 @@ PROCEDURE local-update-record :
                     prgrms.can_delete = prgrms.can_delete + "," + users.user_id:SCREEN-VALUE.
             END.
         END. /* lCopy */
+        
+        /* Ensure folder available for custom menus */
+        ASSIGN
+            FILE-INFO:FILE-NAME = ".".
+            cCurrentDir = FILE-INFO:FULL-PATHNAME.
+            cCurrentDir = cCurrentDir + "\UserMenu\" + users.user_id:SCREEN-VALUE.
+        OS-CREATE-DIR VALUE(cCurrentDir).
+        ASSIGN
+            iStat = OS-ERROR.
+        IF iStat NE 0 THEN DO:
+            MESSAGE
+                "Unable to create directory " + cCurrentDir + "." SKIP
+                "Be sure to create this directory before customizing menus."
+                VIEW-AS ALERT-BOX ERROR.
+        END.
+        
     END. /* lAdd */
 
         /* Add usr record for new user */
@@ -1686,23 +1704,6 @@ PROCEDURE local-update-record :
                 usr.last-chg = today.
         END.
 
-        FIND ttUsers EXCLUSIVE WHERE
-            ttUsers.ttfPdbname = PDBNAME(1) AND
-            ttUsers.ttfUserID = users.user_id:SCREEN-VALUE
-            NO-ERROR.
-        IF NOT AVAIL ttUsers THEN DO:
-            CREATE ttUsers.
-            ASSIGN
-                ttUsers.ttfPdbname = PDBNAME(1)
-                ttUsers.ttfUserID = users.user_id:SCREEN-VALUE.
-        END.
-        ASSIGN
-            ttUsers.ttfUserAlias = users.userAlias:SCREEN-VALUE
-            ttUsers.ttfEnvList = if users.envList <> slEnvironments:list-items then users.envList else ""
-            ttUsers.ttfDbList = if users.dbList <> slDatabases:list-items then users.dbList else ""
-            ttUsers.ttfModeList = if users.modeList <> slModes:list-items then users.modeList else "".
-        RUN ipWriteUsrFile.
-   
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
 
@@ -1724,6 +1725,24 @@ PROCEDURE local-update-record :
             users.fax = fi_fax-area:screen-value + lv-fax-num
             rThisUser = ROWID(users).
     END.
+
+    FIND ttUsers EXCLUSIVE WHERE
+        ttUsers.ttfPdbname = PDBNAME(1) AND
+        ttUsers.ttfUserID = users.user_id:SCREEN-VALUE
+        NO-ERROR.
+    IF NOT AVAIL ttUsers THEN DO:
+        CREATE ttUsers.
+        ASSIGN
+            ttUsers.ttfPdbname = PDBNAME(1)
+            ttUsers.ttfUserID = users.user_id:SCREEN-VALUE.
+    END.
+    ASSIGN
+        ttUsers.ttfUserAlias = users.userAlias:SCREEN-VALUE
+        ttUsers.ttfEnvList = if users.envList <> slEnvironments:list-items then users.envList else ""
+        ttUsers.ttfDbList = if users.dbList <> slDatabases:list-items then users.dbList else ""
+        ttUsers.ttfModeList = if users.modeList <> slModes:list-items then users.modeList else "".
+    RUN ipWriteUsrFile.
+   
 
     DISABLE 
         fiPassword
@@ -1803,7 +1822,7 @@ PROCEDURE proc-enable :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    IF zUsers.securityLevel > 899 THEN ASSIGN 
+    IF zUsers.securityLevel > 999 THEN ASSIGN 
         users.track_usage:SENSITIVE IN FRAME {&FRAME-NAME} = YES 
         users.use_colors:SENSITIVE = YES
         users.use_fonts:SENSITIVE = YES
@@ -1816,10 +1835,27 @@ PROCEDURE proc-enable :
         slEnvironments:SENSITIVE = TRUE
         slDatabases:SENSITIVE = TRUE
         slModes:SENSITIVE = TRUE
-        cbUserType:screen-value = ""
-        slEnvironments:screen-value = ""
-        slDatabases:screen-value = ""
-        slModes:screen-value = ""
+        bAll1:SENSITIVE = TRUE
+        bNone1:SENSITIVE = TRUE
+        bAll2:SENSITIVE = TRUE
+        bNone2:SENSITIVE = TRUE
+        bAll3:SENSITIVE = TRUE
+        bNone3:SENSITIVE = TRUE
+        bDefaults:SENSITIVE = TRUE
+        .
+    ELSE IF zUsers.securityLevel > 899 THEN ASSIGN 
+        users.track_usage:SENSITIVE IN FRAME {&FRAME-NAME} = YES 
+        users.use_colors:SENSITIVE = YES
+        users.use_fonts:SENSITIVE = YES
+        users.use_ctrl_keys:SENSITIVE = YES
+        users.developer:SENSITIVE = NO
+        users.userAlias:SENSITIVE = TRUE
+        users.securityLevel:SENSITIVE = TRUE
+        users.isLocked:SENSITIVE = TRUE
+        cbUserType:SENSITIVE = TRUE
+        slEnvironments:SENSITIVE = TRUE
+        slDatabases:SENSITIVE = TRUE
+        slModes:SENSITIVE = TRUE
         bAll1:SENSITIVE = TRUE
         bNone1:SENSITIVE = TRUE
         bAll2:SENSITIVE = TRUE

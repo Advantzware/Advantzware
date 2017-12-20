@@ -372,7 +372,7 @@ DEF BUFFER b-oe-rel  FOR oe-rel.
 
       ELSE DO:
 /*
-        RUN oe/get-r-no.p (INPUT "oe-rel", OUTPUT v-nxt-r-no).
+        RUN oe/getNextRelNo.p (INPUT "oe-rel", OUTPUT v-nxt-r-no).
         CREATE oe-rel.
         ASSIGN
          oe-rel.company   = oe-relh.company
@@ -516,7 +516,7 @@ DEF BUFFER b-oe-rel  FOR oe-rel.
 /*           10051225 */
 /*           FIND FIRST oe-rel USE-INDEX seq-no NO-LOCK NO-ERROR.      */
 /*           v-nxt-r-no = IF AVAIL oe-rel THEN oe-rel.r-no + 1 ELSE 1. */
-          RUN oe/get-r-no.p (INPUT "oe-rel", OUTPUT v-nxt-r-no).
+          RUN oe/getNextRelNo.p (INPUT "oe-rel", OUTPUT v-nxt-r-no).
           CREATE oe-rel.
           ASSIGN
            oe-rel.company   = oe-relh.company
@@ -745,17 +745,11 @@ PROCEDURE create-report-record-1 :
           tt-report.freight-pay = oe-rel.frt-pay
           tt-report.fob         = oe-rel.fob-code.
 
-    FIND FIRST ref-sell-price WHERE
-         ref-sell-price.reftable EQ "oe-rel.sell-price" AND
-         ref-sell-price.company  EQ STRING(oe-rel.r-no,"9999999999")
-         NO-LOCK NO-ERROR.
-
-    IF AVAIL ref-sell-price THEN
-    DO:
-       ASSIGN tt-report.sell-price = ref-sell-price.val[1]
-              tt-report.zero-sprice = ref-sell-price.val[2] > 0.
-       RELEASE ref-sell-price.
-    END.
+    
+   ASSIGN 
+          tt-report.sell-price  = oe-rel.sell-price
+          tt-report.zero-sprice = oe-rel.zeroPrice > 0.
+       
 
     IF oeinq THEN 
       tt-report.key-01 = STRING(9999999999 - INT(tt-report.key-01),"9999999999").

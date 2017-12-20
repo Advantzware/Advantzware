@@ -99,6 +99,7 @@ DEFINE VARIABLE intPageNum     AS INTEGER    NO-UNDO.
 DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
 DEFINE VARIABLE ls-full-img1 AS CHAR FORMAT "x(200)" NO-UNDO.
+DEFINE VARIABLE lPrintSecDscr AS LOGICAL NO-UNDO .
 {sys/inc/f16to32.i}
 {cecrep/jobtick2.i "new shared"}
 
@@ -242,7 +243,7 @@ if (not ch-multi) then do:
 
   {cec/quote/quoxpnt10.i}
 
-  {cec/quote/quoxprnt.i 1}
+  {cec/quote/quoxprnt10.i 1}
   v-quo-total = v-line-total + v-t-tax[1] + v-t-tax[2] + v-t-tax[3].
         
   IF LINE-COUNTER > PAGE-SIZE - 1 THEN DO:      
@@ -428,7 +429,7 @@ else do:
        v-last = last-of(report.key-01)
        v-line-total = 0.
 
-    {cec/quote/quoxprnt.i 2}  
+    {cec/quote/quoxprnt10.i 2}  
     v-quo-total = v-line-total + v-t-tax[1] + v-t-tax[2] + v-t-tax[3].
 
    IF LINE-COUNTER > PAGE-SIZE - 1 THEN DO:      
@@ -483,6 +484,7 @@ PROCEDURE printHeader:
     PAGE.
     {cec/quote/quoxpnt10.i}
     opInitVar = 0.
+    PUT SKIP .
   END.
 END PROCEDURE.
 /* end ---------------------------------- copr. 2000  advanced software, inc. */

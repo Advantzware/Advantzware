@@ -40,7 +40,6 @@ CREATE WIDGET-POOL.
 {methods/prgsecur.i}
 
 DEFINE VARIABLE i AS INTEGER NO-UNDO.
-DEFINE VARIABLE ldummy AS LOGICAL NO-UNDO.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -57,8 +56,8 @@ DEFINE VARIABLE ldummy AS LOGICAL NO-UNDO.
 &Scoped-define FRAME-NAME DEFAULT-FRAME
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS Btn_Add Btn_Audit_All Btn_Cancel Btn_OK ~
-Btn_Remove Btn_Tables_All audit-tables db-names table-names 
+&Scoped-Define ENABLED-OBJECTS Btn_Add audit-tables db-names table-names ~
+Btn_Audit_All Btn_Cancel Btn_OK Btn_Remove Btn_Tables_All 
 &Scoped-Define DISPLAYED-OBJECTS audit-tables db-names table-names 
 
 /* Custom List Definitions                                              */
@@ -112,40 +111,40 @@ DEFINE VARIABLE audit-tables AS CHARACTER
      SIZE 24 BY 32.14 NO-UNDO.
 
 DEFINE VARIABLE db-names AS CHARACTER 
-     VIEW-AS SELECTION-LIST SINGLE SCROLLBAR-VERTICAL 
+     VIEW-AS SELECTION-LIST SINGLE SORT SCROLLBAR-VERTICAL 
      SIZE 24 BY 3.05 NO-UNDO.
 
 DEFINE VARIABLE table-names AS CHARACTER 
-     VIEW-AS SELECTION-LIST MULTIPLE SCROLLBAR-VERTICAL 
+     VIEW-AS SELECTION-LIST MULTIPLE SORT SCROLLBAR-VERTICAL 
      SIZE 24 BY 27.62 NO-UNDO.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME DEFAULT-FRAME
-     Btn_Add AT ROW 7.91 COL 26 HELP
+     Btn_Add AT ROW 7.67 COL 35 HELP
           "Add Selected Table to Tables to Audit"
-     Btn_Audit_All AT ROW 16.95 COL 26 HELP
-          "Select All Tables to Audit"
-     Btn_Cancel AT ROW 32.43 COL 26 HELP
-          "Use this function to CANCEL field selecition"
-     Btn_OK AT ROW 2.67 COL 26 HELP
-          "Use this function to ACCEPT selected field"
-     Btn_Remove AT ROW 19.33 COL 26 HELP
-          "Remove Selected Table from Tables to Audit"
-     Btn_Tables_All AT ROW 10.05 COL 26 HELP
-          "Select All Tables"
-     audit-tables AT ROW 2.19 COL 35 HELP
+     audit-tables AT ROW 2.19 COL 44 HELP
           "Select Table Name" NO-LABEL
      db-names AT ROW 2.24 COL 1 HELP
           "Select Database Name" NO-LABEL
      table-names AT ROW 6.71 COL 1 HELP
           "Select Table Name" NO-LABEL
+     Btn_Audit_All AT ROW 12.43 COL 35 HELP
+          "Select All Tables to Audit"
+     Btn_Cancel AT ROW 32.43 COL 35 HELP
+          "Use this function to CANCEL field selecition"
+     Btn_OK AT ROW 32.43 COL 26 HELP
+          "Use this function to ACCEPT selected field"
+     Btn_Remove AT ROW 12.43 COL 26 HELP
+          "Remove Selected Table from Tables to Audit"
+     Btn_Tables_All AT ROW 7.67 COL 26 HELP
+          "Select All Tables"
      "Table Names" VIEW-AS TEXT
           SIZE 15.6 BY 1 AT ROW 5.52 COL 4
           FONT 6
      "Tables to Audit" VIEW-AS TEXT
-          SIZE 18 BY 1 AT ROW 1 COL 37
+          SIZE 18 BY 1 AT ROW 1 COL 46
           FONT 6
      "Database Names" VIEW-AS TEXT
           SIZE 20 BY 1 AT ROW 1 COL 3
@@ -153,7 +152,7 @@ DEFINE FRAME DEFAULT-FRAME
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 58.2 BY 33.33.
+         SIZE 67.2 BY 33.33.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -174,11 +173,11 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          HIDDEN             = YES
          TITLE              = "Audit Table Selections"
          HEIGHT             = 33.33
-         WIDTH              = 58.2
+         WIDTH              = 67.2
          MAX-HEIGHT         = 33.33
-         MAX-WIDTH          = 58.2
+         MAX-WIDTH          = 67.2
          VIRTUAL-HEIGHT     = 33.33
-         VIRTUAL-WIDTH      = 58.2
+         VIRTUAL-WIDTH      = 67.2
          RESIZE             = yes
          SCROLL-BARS        = no
          STATUS-AREA        = yes
@@ -243,7 +242,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL audit-tables C-Win
 ON DEFAULT-ACTION OF audit-tables IN FRAME DEFAULT-FRAME
 DO:
-    APPLY 'CHOOSE':U TO Btn_Remove.
+  table-names:ADD-LAST(audit-tables:SCREEN-VALUE).
+  audit-tables:DELETE(audit-tables:SCREEN-VALUE).
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -258,9 +258,9 @@ DO:
     IF table-names:IS-SELECTED(i) AND
       (NOT CAN-DO(audit-tables:LIST-ITEMS,table-names:ENTRY(i)) OR
        audit-tables:NUM-ITEMS = 0) THEN
-    ldummy = audit-tables:ADD-LAST(table-names:ENTRY(i)).
+    audit-tables:ADD-LAST(table-names:ENTRY(i)).
   END.
-  table-names:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "".
+  RUN Get_Tables.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -308,8 +308,9 @@ ON CHOOSE OF Btn_Remove IN FRAME DEFAULT-FRAME /* << Remove */
 DO:
   DO i = audit-tables:NUM-ITEMS TO 1 BY -1 WITH FRAME {&FRAME-NAME}:
     IF audit-tables:IS-SELECTED(i) THEN
-    ldummy = audit-tables:DELETE(i).
+    audit-tables:DELETE(i).
   END.
+  RUN Get_Tables.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -333,7 +334,6 @@ ON VALUE-CHANGED OF db-names IN FRAME DEFAULT-FRAME
 DO:
   RUN Get_Tables.
   table-names:SCREEN-VALUE = ENTRY(1,table-names:LIST-ITEMS).
-  APPLY "VALUE-CHANGED" TO table-names.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -344,7 +344,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL table-names C-Win
 ON DEFAULT-ACTION OF table-names IN FRAME DEFAULT-FRAME
 DO:
-    APPLY 'CHOOSE':U TO Btn_Add.
+  audit-tables:ADD-LAST(table-names:SCREEN-VALUE).
+  table-names:DELETE(table-names:SCREEN-VALUE).
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -376,14 +377,14 @@ MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
   RUN enable_UI.
-  RUN Get_DBs.
-  db-names:SCREEN-VALUE IN FRAME {&FRAME-NAME} =
-      db-names:ENTRY(1) IN FRAME {&FRAME-NAME}.
-  APPLY "VALUE-CHANGED" TO db-names.
   FIND FIRST config NO-LOCK NO-ERROR.
   IF NOT AVAILABLE config THEN
   RETURN.
   audit-tables:LIST-ITEMS IN FRAME {&FRAME-NAME} = config.audit_tables.
+  RUN Get_DBs.
+  db-names:SCREEN-VALUE IN FRAME {&FRAME-NAME} =
+      db-names:ENTRY(1) IN FRAME {&FRAME-NAME}.
+  APPLY "VALUE-CHANGED" TO db-names.
   {methods/nowait.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
@@ -427,8 +428,8 @@ PROCEDURE enable_UI :
 ------------------------------------------------------------------------------*/
   DISPLAY audit-tables db-names table-names 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
-  ENABLE Btn_Add Btn_Audit_All Btn_Cancel Btn_OK Btn_Remove Btn_Tables_All 
-         audit-tables db-names table-names 
+  ENABLE Btn_Add audit-tables db-names table-names Btn_Audit_All Btn_Cancel 
+         Btn_OK Btn_Remove Btn_Tables_All 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
   VIEW C-Win.
@@ -464,12 +465,17 @@ PROCEDURE Get_Tables :
   Notes:       
 -------------------------------------------------------------*/
   DEFINE VARIABLE list-items AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE idx        AS INTEGER   NO-UNDO.
   
   CREATE ALIAS dictdb FOR DATABASE VALUE(db-names:SCREEN-VALUE IN FRAME {&FRAME-NAME}).
   RUN Get_Procedure IN Persistent-Handle (INPUT "filelist.",OUTPUT run-proc,no) NO-ERROR.
   IF run-proc NE "" THEN
   RUN VALUE(run-proc) (OUTPUT list-items).
-  table-names:LIST-ITEMS IN FRAME {&FRAME-NAME} = list-items.
+  table-names:LIST-ITEMS IN FRAME {&FRAME-NAME} = ?.
+  DO idx = 1 TO NUM-ENTRIES(list-items):
+    IF CAN-DO(audit-tables:LIST-ITEMS,ENTRY(idx,list-items)) THEN NEXT.
+    table-names:ADD-LAST(ENTRY(idx,list-items)).
+  END.
 
 END PROCEDURE.
 

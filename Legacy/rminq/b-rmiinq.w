@@ -1109,9 +1109,16 @@ END.
 {methods/browsers/setCellColumns.i}    
 SESSION:DATA-ENTRY-RETURN = YES.
 
+
+
 &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
 RUN dispatch IN THIS-PROCEDURE ('initialize':U).
 &ENDIF
+
+DO WITH FRAME {&FRAME-NAME}:
+    fi_date:SCREEN-VALUE = STRING(TODAY - 180) .
+    fi_date = TODAY - 180 .
+  END.
 
 {methods/winReSize.i}
 /*

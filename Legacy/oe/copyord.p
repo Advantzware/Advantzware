@@ -102,8 +102,9 @@ PROCEDURE copyOrder:
         AND oe-rel.ord-no    EQ oe-ord.ord-no
       NO-LOCK:
 
-      FIND FIRST b-oe-rel USE-INDEX seq-no NO-LOCK NO-ERROR.
-      lv-r-no = (IF AVAIL b-oe-rel THEN b-oe-rel.r-no ELSE 0) + 1. 
+      /* FIND FIRST b-oe-rel USE-INDEX seq-no NO-LOCK NO-ERROR. */
+      /* lv-r-no = (IF AVAIL b-oe-rel THEN b-oe-rel.r-no ELSE 0) + 1.  */
+      RUN oe/getNextRelNo.p (INPUT "oe-rel", OUTPUT lv-r-no).
       CREATE b-oe-rel.
       BUFFER-COPY oe-rel EXCEPT rec_key TO b-oe-rel
 
@@ -119,19 +120,7 @@ PROCEDURE copyOrder:
           
       
 
-      FIND FIRST reftable WHERE
-           reftable.reftable EQ "oe-rel.sell-price" AND
-           reftable.company  EQ STRING(oe-rel.r-no,"9999999999")
-           NO-LOCK NO-ERROR.
-
-      IF AVAIL reftable THEN
-      DO:
-         CREATE b-reftable.
-         BUFFER-COPY reftable EXCEPT company TO b-reftable
-            ASSIGN b-reftable.company = STRING(b-oe-rel.r-no,"9999999999").
-         RELEASE b-reftable.
-         RELEASE reftable.
-      END.
+      
   END.
 
   FOR EACH notes WHERE notes.rec_key EQ oe-ord.rec_key NO-LOCK:

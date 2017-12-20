@@ -32,6 +32,8 @@ CREATE WIDGET-POOL.
 DEFINE VARIABLE dtStartDateTime AS DATETIME  NO-UNDO.
 DEFINE VARIABLE dtEndDateTime   AS DATETIME  NO-UNDO.
 
+{AOA/tempTable/ttAudit.i}
+
 {AOA/includes/aoaParamVars.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -79,12 +81,12 @@ DEFINE BUTTON btnCalendar-2
      LABEL "" 
      SIZE 4.6 BY 1.05 TOOLTIP "PopUp Calendar".
 
-DEFINE VARIABLE svDB AS CHARACTER FORMAT "X(256)":U INITIAL "ALL" 
+DEFINE VARIABLE svDB AS CHARACTER FORMAT "X(256)":U INITIAL "All" 
      LABEL "DB" 
      VIEW-AS COMBO-BOX INNER-LINES 4
-     LIST-ITEMS "ALL" 
+     LIST-ITEMS "All" 
      DROP-DOWN-LIST
-     SIZE 16 BY 1 TOOLTIP "Select Audit DB Filter" NO-UNDO.
+     SIZE 26 BY 1 TOOLTIP "Select Audit DB Filter" NO-UNDO.
 
 DEFINE VARIABLE svEndDateOption AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS COMBO-BOX INNER-LINES 5
@@ -92,12 +94,12 @@ DEFINE VARIABLE svEndDateOption AS CHARACTER FORMAT "X(256)":U
      DROP-DOWN-LIST
      SIZE 25 BY 1 NO-UNDO.
 
-DEFINE VARIABLE svField AS CHARACTER FORMAT "X(256)":U INITIAL "ALL" 
+DEFINE VARIABLE svField AS CHARACTER FORMAT "X(256)":U INITIAL "All" 
      LABEL "Field" 
      VIEW-AS COMBO-BOX INNER-LINES 4
-     LIST-ITEMS "ALL" 
+     LIST-ITEMS "All" 
      DROP-DOWN-LIST
-     SIZE 16 BY 1 TOOLTIP "Select Audit Field Filter" NO-UNDO.
+     SIZE 26 BY 1 TOOLTIP "Select Audit Field Filter" NO-UNDO.
 
 DEFINE VARIABLE svStartDateOption AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS COMBO-BOX INNER-LINES 5
@@ -105,24 +107,24 @@ DEFINE VARIABLE svStartDateOption AS CHARACTER FORMAT "X(256)":U
      DROP-DOWN-LIST
      SIZE 25 BY 1 NO-UNDO.
 
-DEFINE VARIABLE svTable AS CHARACTER FORMAT "X(256)":U INITIAL "ALL" 
+DEFINE VARIABLE svTable AS CHARACTER FORMAT "X(256)":U INITIAL "All" 
      LABEL "Table" 
      VIEW-AS COMBO-BOX INNER-LINES 4
-     LIST-ITEMS "ALL" 
+     LIST-ITEMS "All" 
      DROP-DOWN-LIST
-     SIZE 16 BY 1 TOOLTIP "Select Audit Table Filter" NO-UNDO.
+     SIZE 26 BY 1 TOOLTIP "Select Audit Table Filter" NO-UNDO.
 
-DEFINE VARIABLE svType AS CHARACTER FORMAT "X(256)":U INITIAL "ALL" 
+DEFINE VARIABLE svType AS CHARACTER FORMAT "X(256)":U INITIAL "All" 
      LABEL "Type" 
      VIEW-AS COMBO-BOX INNER-LINES 4
-     LIST-ITEMS "ALL","CREATE","DELETE","UPDATE" 
+     LIST-ITEMS "All","CREATE","DELETE","UPDATE" 
      DROP-DOWN-LIST
      SIZE 16 BY 1 TOOLTIP "Select Audit Type Filter" NO-UNDO.
 
-DEFINE VARIABLE svUser AS CHARACTER FORMAT "X(256)":U INITIAL "ALL" 
+DEFINE VARIABLE svUser AS CHARACTER FORMAT "X(256)":U INITIAL "All" 
      LABEL "User ID" 
      VIEW-AS COMBO-BOX INNER-LINES 5
-     LIST-ITEMS "ALL" 
+     LIST-ITEMS "All" 
      DROP-DOWN-LIST
      SIZE 16 BY 1 TOOLTIP "Select User Filter" NO-UNDO.
 
@@ -313,9 +315,9 @@ ON VALUE-CHANGED OF svDB IN FRAME F-Main /* DB */
 DO:
   ASSIGN
     {&SELF-NAME}
-    svTable:SCREEN-VALUE = "ALL"
+    svTable:SCREEN-VALUE = "All"
     svTable
-    svField:SCREEN-VALUE = "ALL"
+    svField:SCREEN-VALUE = "All"
     svField
     .
     RUN pGetFilterValues ("TABLE").
@@ -387,7 +389,7 @@ ON VALUE-CHANGED OF svTable IN FRAME F-Main /* Table */
 DO:
   ASSIGN
     {&SELF-NAME}
-    svField:SCREEN-VALUE = "ALL"
+    svField:SCREEN-VALUE = "All"
     svField
     .
     RUN pGetFilterValues ("FIELD").
@@ -473,8 +475,7 @@ PROCEDURE pInitialize :
             svCompany
             .
         APPLY "VALUE-CHANGED":U TO svStartDateOption.
-        APPLY "VALUE-CHANGED":U TO svEndDateOption.
-                
+        APPLY "VALUE-CHANGED":U TO svEndDateOption.                
     END.
 
 END PROCEDURE.
@@ -511,12 +512,12 @@ PROCEDURE pPopulateOptions :
         DYNAMIC-FUNCTION('fDateOptions' IN hContainer,svStartDateOption:HANDLE).
         DYNAMIC-FUNCTION('fDateOptions' IN hContainer,svEndDateOption:HANDLE).
 
-        svType:SCREEN-VALUE = "ALL".
-
+        svType:SCREEN-VALUE = "All".
+        
+        RUN pGetFilterValues ("INIT").
         RUN pGetFilterValues ("ALL").
         RUN pGetFilterValues ("TABLE").
-        RUN pGetFilterValues ("FIELD").
-        
+        RUN pGetFilterValues ("FIELD").        
     END.
 
 END PROCEDURE.
