@@ -178,7 +178,7 @@ DEFINE VARIABLE setupStart AS CHARACTER FORMAT "X(256)":U
      BGCOLOR 15  NO-UNDO.
 
 DEFINE RECTANGLE RECT-2
-     EDGE-PIXELS 1 GRAPHIC-EDGE  
+     EDGE-PIXELS 1 GRAPHIC-EDGE    
      SIZE 18.6 BY 1.24
      BGCOLOR 0 .
 
@@ -746,20 +746,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disableUpdateButtons V-table-Win 
-PROCEDURE disableUpdateButtons :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  DISABLE {&updateButtons} WITH FRAME {&FRAME-NAME}.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI V-table-Win  _DEFAULT-DISABLE
 PROCEDURE disable_UI :
 /*------------------------------------------------------------------------------
@@ -846,6 +832,25 @@ PROCEDURE send-records :
 
   /* Deal with any unexpected table requests before closing.           */
   {src/adm/template/snd-end.i}
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE setUpdateButtons V-table-Win 
+PROCEDURE setUpdateButtons :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEFINE INPUT PARAMETER iplSetUpdateButtons AS LOGICAL NO-UNDO.
+  
+  IF iplSetUpdateButtons THEN
+  DISABLE {&updateButtons} WITH FRAME {&FRAME-NAME}.
+  ELSE
+  ENABLE btnSave WITH FRAME {&FRAME-NAME}.
 
 END PROCEDURE.
 

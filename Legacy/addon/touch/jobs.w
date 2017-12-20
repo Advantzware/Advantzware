@@ -741,8 +741,6 @@ END.
 
 /* ***************************  Main Block  *************************** */
  
-RUN pSetSensitive ("EnterJob",v-autopo-sec).
-
 /* If testing in the UIB, initialize the SmartObject. */ 
 &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
   RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
@@ -1004,6 +1002,8 @@ PROCEDURE local-initialize :
   DISPLAY sortBy WITH FRAME {&FRAME-NAME}.
   RUN pCreateINIObjects
     ("First,Last,HomeSmall,JobList,EnterJob,PageUpSmall,PageDownSmall,Schedule,Sort,BackSmall").
+  
+  RUN pSetSensitive ("EnterJob",v-autopo-sec).
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'initialize':U ) .

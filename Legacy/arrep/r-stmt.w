@@ -1624,7 +1624,7 @@ form
   with frame no-stmt-total no-box no-labels stream-io width 80.
 
 DEF VAR ls-image1 AS cha NO-UNDO.
-DEF VAR ls-full-img1 AS cha FORM "x(100)" NO-UNDO.
+DEF VAR ls-full-img1 AS cha FORM "x(200)" NO-UNDO.
 
 find first company where company.company eq cocode no-lock no-error.
 
@@ -2445,8 +2445,8 @@ form
 
       DEF VAR ls-image1 AS cha NO-UNDO.
       DEF VAR ls-image2 AS cha NO-UNDO.
-      DEF VAR ls-full-img1 AS cha FORM "x(100)" NO-UNDO.
-      DEF VAR ls-full-img2 AS cha FORM "x(100)" NO-UNDO.
+      DEF VAR ls-full-img1 AS cha FORM "x(200)" NO-UNDO.
+      DEF VAR ls-full-img2 AS cha FORM "x(200)" NO-UNDO.
 
       find first company where company.company eq cocode no-lock no-error.
 
@@ -3168,9 +3168,9 @@ form
   with frame no-stmt-total no-box no-labels stream-io width 80.
 
 DEF VAR ls-image1 AS cha NO-UNDO.
-DEF VAR ls-full-img1 AS cha FORM "x(150)" NO-UNDO.
+DEF VAR ls-full-img1 AS cha FORM "x(200)" NO-UNDO.
 DEF VAR ls-image2 AS cha NO-UNDO.
-DEF VAR ls-full-img2 AS cha FORM "x(150)" NO-UNDO.
+DEF VAR ls-full-img2 AS cha FORM "x(200)" NO-UNDO.
 ASSIGN ls-image1 = (IF v-stmt-char = "Protagon" THEN "images\protinv.jpg"
                    ELSE IF v-stmt-char = "SouleMed" THEN "images\Soulemedical.jpg" 
                    ELSE IF v-stmt-char =  "StdStatement10" THEN cRtnChar 
@@ -3612,7 +3612,7 @@ FIRST cust no-lock
            "<=1><R+18><FROM><C+80><LINE>"
             .
        
-       IF v-stmt-char = "StdStatement10" THEN
+       IF v-stmt-char = "StdStatement10" THEN DO:
            PUT "<C2><R2><#1><R+8><C+47><IMAGE#1=" ls-full-img1 SKIP
            "<P11><R4><C50><#3><FROM><R7><C80><RECT><||3>" SKIP
            "<R5><C50><FROM><R5><C80><LINE><||3>" SKIP
@@ -3635,6 +3635,7 @@ FIRST cust no-lock
            "<=1><R+17>Date       Ref# Desc.      Customer PO           Invoice<C60>Balance        Balance" SKIP
            "<=1><R+18><FROM><C+80><LINE>"
             .
+       END.
 
        v-first = NO.
     end.

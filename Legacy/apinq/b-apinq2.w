@@ -1109,8 +1109,8 @@ PROCEDURE set-defaults :
      tb_unposted = YES
      fi_finv     = ""
      fi_vend     = ""
-     fi_date     = 01/01/0001
-     fi_date-to  = 12/31/9999
+     fi_date     = TODAY - 180
+     fi_date-to  = TODAY
      .
 
     DISPLAY tb_posted tb_unposted fi_finv fi_vend fi_date fi_date-to.

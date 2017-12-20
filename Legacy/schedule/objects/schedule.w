@@ -54,6 +54,8 @@ CREATE WIDGET-POOL.
 
 DEFINE VARIABLE accumLastSave AS INTEGER NO-UNDO.
 DEFINE VARIABLE asOfTime AS CHARACTER NO-UNDO.
+DEFINE VARIABLE autoMonitor AS LOGICAL NO-UNDO.
+DEFINE VARIABLE autoMonitorImage AS INTEGER NO-UNDO.
 DEFINE VARIABLE boardObject AS CHARACTER NO-UNDO INITIAL '{&objects}/board{&Board}.w'.
 DEFINE VARIABLE boardSize AS CHARACTER NO-UNDO.
 DEFINE VARIABLE closeBoard AS LOGICAL NO-UNDO INITIAL YES.
@@ -66,6 +68,7 @@ DEFINE VARIABLE lvLoginID AS CHARACTER NO-UNDO.
 DEFINE VARIABLE pHandle AS HANDLE NO-UNDO.
 DEFINE VARIABLE popup AS HANDLE NO-UNDO EXTENT 13.
 DEFINE VARIABLE reSized AS LOGICAL NO-UNDO.
+DEFINE VARIABLE turnOff AS LOGICAL NO-UNDO.
 DEFINE VARIABLE updatesPending AS CHARACTER NO-UNDO.
 DEFINE VARIABLE useSequence AS LOGICAL NO-UNDO INITIAL YES.
 DEFINE VARIABLE winTitle AS CHARACTER NO-UNDO.
@@ -93,20 +96,23 @@ SESSION:TIME-SOURCE = LDBNAME(1).
 &Scoped-define FRAME-NAME schedulerFrame
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS btnColumns btnSequencer btnMoveResource ~
-btnPrint btnReLoad btnPackResource btnPackBoard btnUseSequence ~
+&Scoped-Define ENABLED-OBJECTS btnAutoMonitor btnColumns btnSequencer ~
+btnMoveResource btnPrint btnReLoad btnPackResource btnPackBoard ~
 btnBringForward btnAbout btnHelp 
 &Scoped-Define DISPLAYED-OBJECTS packText lastSave 
 
 /* Custom List Definitions                                              */
-/* boardButtons,buttonList,List-3,List-4,List-5,List-6                  */
+/* boardButtons,buttonList,autoMonitorObjects,List-4,List-5,List-6      */
 &Scoped-define boardButtons btnUpdates btnColumns btnSequencer ~
 btnMoveResource btnPrint btnReLoad btnDataCollection btnPackResource ~
-btnPackBoard btnUseSequence btnBringForward packText 
+btnPackBoard btnBringForward packText 
 &Scoped-define buttonList btnUpdates btnColumns btnSequencer ~
 btnMoveResource btnPrint btnReLoad btnDataCollection btnPackResource ~
-btnPackBoard btnUseSequence btnBringForward btnCapacityView btnLegend ~
-btnAbout btnHelp packText 
+btnPackBoard btnBringForward btnCapacityView btnLegend btnAbout btnHelp ~
+packText 
+&Scoped-define autoMonitorObjects btnUpdates btnColumns btnSequencer ~
+btnMoveResource btnPrint btnReLoad btnDataCollection btnPackResource ~
+btnPackBoard btnBringForward 
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
@@ -209,6 +215,11 @@ DEFINE BUTTON btnAbout
      LABEL "" 
      SIZE 5 BY 1.1 TOOLTIP "About (Support Contact Information)".
 
+DEFINE BUTTON btnAutoMonitor 
+     IMAGE-UP FILE "schedule/images/media_play.gif":U NO-FOCUS FLAT-BUTTON
+     LABEL "" 
+     SIZE 5.2 BY 1.1 TOOLTIP "Turn Auto Monitor ON".
+
 DEFINE BUTTON btnBringForward 
      IMAGE-UP FILE "schedule/images/bringforward.bmp":U
      LABEL "" 
@@ -276,12 +287,6 @@ DEFINE BUTTON btnUpdates
      LABEL "" 
      SIZE 5 BY 1.1 TOOLTIP "Updates Pending".
 
-DEFINE BUTTON btnUseSequence 
-     IMAGE-UP FILE "schedule/images/usesequenceon.bmp":U
-     LABEL "" 
-     SIZE 5 BY 1.1 TOOLTIP "Use Job Sequence Values when Packing"
-     FONT 6.
-
 DEFINE VARIABLE lastSave AS CHARACTER FORMAT "X(256)":U INITIAL "99:99:99" 
       VIEW-AS TEXT 
      SIZE 9 BY 1
@@ -295,26 +300,26 @@ DEFINE VARIABLE packText AS CHARACTER FORMAT "X(256)":U INITIAL "Pack:"
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME schedulerFrame
-     btnUpdates AT ROW 1.05 COL 68 HELP
+     btnAutoMonitor AT ROW 1 COL 68 HELP
+          "Click to Turn Auto Monitor On/Off" WIDGET-ID 2
+     btnUpdates AT ROW 1 COL 73 HELP
           "Click to Process Updates Pending"
-     btnColumns AT ROW 1.05 COL 73 HELP
+     btnColumns AT ROW 1 COL 78 HELP
           "Click to Access Browser Column Order and Report Layouts"
-     btnSequencer AT ROW 1.05 COL 78 HELP
+     btnSequencer AT ROW 1 COL 83 HELP
           "Click to Access Sequencer"
-     btnMoveResource AT ROW 1.05 COL 83 HELP
+     btnMoveResource AT ROW 1 COL 88 HELP
           "Click to Access Move Resource"
-     btnPrint AT ROW 1.05 COL 88 HELP
+     btnPrint AT ROW 1 COL 93 HELP
           "Click to Access Print Utility"
-     btnReLoad AT ROW 1.05 COL 93 HELP
+     btnReLoad AT ROW 1 COL 98 HELP
           "Click to Reload Board Jobs from Source"
-     btnDataCollection AT ROW 1.05 COL 98 HELP
+     btnDataCollection AT ROW 1 COL 103 HELP
           "Click to Import Data Collection"
-     btnPackResource AT ROW 1.05 COL 110 HELP
+     btnPackResource AT ROW 1 COL 115 HELP
           "Click to Pack Select Job"
-     btnPackBoard AT ROW 1.05 COL 126 HELP
+     btnPackBoard AT ROW 1 COL 131 HELP
           "Click to Pack All Jobs"
-     btnUseSequence AT ROW 1.05 COL 131 HELP
-          "Set Use Job Sequence Values when Packing On/Off"
      btnBringForward AT ROW 1.05 COL 136 HELP
           "Click to Bring Past Jobs Forward"
      btnCapacityView AT ROW 1.05 COL 141 HELP
@@ -325,7 +330,7 @@ DEFINE FRAME schedulerFrame
           "Click to Access About Information"
      btnHelp AT ROW 1.05 COL 156 HELP
           "Click to Access Help"
-     packText AT ROW 1 COL 102 COLON-ALIGNED NO-LABEL
+     packText AT ROW 1 COL 107 COLON-ALIGNED NO-LABEL
      lastSave AT ROW 1.1 COL 57 COLON-ALIGNED NO-LABEL
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -407,8 +412,12 @@ ASSIGN
        btnAbout:PRIVATE-DATA IN FRAME schedulerFrame     = 
                 "boardObject".
 
+ASSIGN 
+       btnAutoMonitor:PRIVATE-DATA IN FRAME schedulerFrame     = 
+                "Turn Auto Monitor".
+
 /* SETTINGS FOR BUTTON btnBringForward IN FRAME schedulerFrame
-   1 2                                                                  */
+   1 2 3                                                                */
 /* SETTINGS FOR BUTTON btnCapacityView IN FRAME schedulerFrame
    NO-ENABLE 2                                                          */
 ASSIGN 
@@ -417,9 +426,9 @@ ASSIGN
                 "boardObject".
 
 /* SETTINGS FOR BUTTON btnColumns IN FRAME schedulerFrame
-   1 2                                                                  */
+   1 2 3                                                                */
 /* SETTINGS FOR BUTTON btnDataCollection IN FRAME schedulerFrame
-   NO-ENABLE 1 2                                                        */
+   NO-ENABLE 1 2 3                                                      */
 ASSIGN 
        btnDataCollection:HIDDEN IN FRAME schedulerFrame           = TRUE.
 
@@ -436,21 +445,19 @@ ASSIGN
                 "boardObject".
 
 /* SETTINGS FOR BUTTON btnMoveResource IN FRAME schedulerFrame
-   1 2                                                                  */
+   1 2 3                                                                */
 /* SETTINGS FOR BUTTON btnPackBoard IN FRAME schedulerFrame
-   1 2                                                                  */
+   1 2 3                                                                */
 /* SETTINGS FOR BUTTON btnPackResource IN FRAME schedulerFrame
-   1 2                                                                  */
+   1 2 3                                                                */
 /* SETTINGS FOR BUTTON btnPrint IN FRAME schedulerFrame
-   1 2                                                                  */
+   1 2 3                                                                */
 /* SETTINGS FOR BUTTON btnReLoad IN FRAME schedulerFrame
-   1 2                                                                  */
+   1 2 3                                                                */
 /* SETTINGS FOR BUTTON btnSequencer IN FRAME schedulerFrame
-   1 2                                                                  */
+   1 2 3                                                                */
 /* SETTINGS FOR BUTTON btnUpdates IN FRAME schedulerFrame
-   NO-ENABLE 1 2                                                        */
-/* SETTINGS FOR BUTTON btnUseSequence IN FRAME schedulerFrame
-   1 2                                                                  */
+   NO-ENABLE 1 2 3                                                      */
 /* SETTINGS FOR FILL-IN lastSave IN FRAME schedulerFrame
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN packText IN FRAME schedulerFrame
@@ -561,6 +568,17 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME btnAutoMonitor
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnAutoMonitor W-Win
+ON CHOOSE OF btnAutoMonitor IN FRAME schedulerFrame
+DO:
+  {{&includes}/{&Board}/btnAutoMonitor.i}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME btnBringForward
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnBringForward W-Win
 ON CHOOSE OF btnBringForward IN FRAME schedulerFrame
@@ -599,8 +617,10 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnDataCollection W-Win
 ON CHOOSE OF btnDataCollection IN FRAME schedulerFrame
 DO:
-  MESSAGE 'Import Job Data Collection?' VIEW-AS ALERT-BOX
-    QUESTION BUTTONS YES-NO UPDATE asiDC AS LOGICAL.
+  MESSAGE
+    'Import Job Data Collection?'
+    VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO
+    UPDATE asiDC AS LOGICAL.
   IF asiDC THEN
   RUN asiDC IN h_board.
 END.
@@ -722,23 +742,6 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME btnUseSequence
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnUseSequence W-Win
-ON CHOOSE OF btnUseSequence IN FRAME schedulerFrame
-DO:
-  ASSIGN
-    useSequence = NOT useSequence
-    SELF:TOOLTIP = LEFT-TRIM(STRING(NOT useSequence,'Do Not /') +
-                   'Use Job Sequence Values when Packing')
-    ldummy = SELF:LOAD-IMAGE('{&images}/useSequence' +
-                             TRIM(STRING(useSequence,'On/Off')) + '.bmp').
-  RUN useSequence IN h_board (useSequence).
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
 &Scoped-define SELF-NAME CtrlFrame
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL CtrlFrame W-Win OCX.Tick
 PROCEDURE CtrlFrame.PSTimer.Tick .
@@ -763,8 +766,8 @@ PROCEDURE CtrlFrame-2.PSTimer.Tick .
   Parameters:  None required for OCX.
   Notes:       
 ------------------------------------------------------------------------------*/
-  RUN jobMoving IN h_board.
-
+    RUN jobMoving IN h_board.
+    
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1127,7 +1130,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL m_btnUseSequence W-Win
 ON CHOOSE OF MENU-ITEM m_btnUseSequence /* (Don't) Use Job Sequence */
 DO:
-  APPLY 'CHOOSE' TO btnUseSequence IN FRAME {&FRAME-NAME}.
+/*  APPLY 'CHOOSE' TO btnUseSequence IN FRAME {&FRAME-NAME}.*/
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1255,7 +1258,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME schedulerFrame:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_board ).
-       RUN set-position IN h_board ( 2.43 , 3.00 ) NO-ERROR.
+       RUN set-position IN h_board ( 2.43 , 2.00 ) NO-ERROR.
        /* Size in UIB:  ( 26.76 , 157.40 ) */
 
        /* Adjust the tab order of the smart objects. */
@@ -1476,8 +1479,8 @@ PROCEDURE enable_UI :
 ------------------------------------------------------------------------------*/
   DISPLAY packText lastSave 
       WITH FRAME schedulerFrame IN WINDOW W-Win.
-  ENABLE btnColumns btnSequencer btnMoveResource btnPrint btnReLoad 
-         btnPackResource btnPackBoard btnUseSequence btnBringForward btnAbout 
+  ENABLE btnAutoMonitor btnColumns btnSequencer btnMoveResource btnPrint 
+         btnReLoad btnPackResource btnPackBoard btnBringForward btnAbout 
          btnHelp 
       WITH FRAME schedulerFrame IN WINDOW W-Win.
   {&OPEN-BROWSERS-IN-QUERY-schedulerFrame}
@@ -1656,7 +1659,7 @@ PROCEDURE local-initialize :
   RUN set-position IN h_config (configH,configW) NO-ERROR.
   IF '{&Board}' NE 'Pro' THEN
   DO WITH FRAME {&FRAME-NAME}:
-    HIDE {&boardButtons} lastSave NO-PAUSE.
+    HIDE btnAutoMonitor {&boardButtons} lastSave NO-PAUSE.
     RUN setMenuItems (NO).
   END.
   ELSE
@@ -1812,6 +1815,21 @@ PROCEDURE send-records :
      Tables specified for this SmartWindow, and there are no
      tables specified in any contained Browse, Query, or Frame. */
 
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE setAutoMonitorImage W-Win 
+PROCEDURE setAutoMonitorImage :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    btnAutoMonitor:LOAD-IMAGE('{&images}/sign_forbidden.gif') IN FRAME {&FRAME-NAME}.
+    autoMonitorImage = 0.
+    
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

@@ -128,6 +128,7 @@ spooler. system
 splchkdn. system
 config. system
 setaudit. system
+audit. system
 access. system
 miscflds. system
 prgrms. system
