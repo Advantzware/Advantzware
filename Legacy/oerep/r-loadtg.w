@@ -3963,6 +3963,15 @@ PROCEDURE create-w-ord :
                 w-ord.box-wid      = itemfg.w-score[50]
                 w-ord.box-dep      = itemfg.d-score[50].
 
+             FOR EACH cust-part NO-LOCK 
+             WHERE cust-part.company EQ job-hdr.company   
+               AND cust-part.i-no EQ loadtag.i-no 
+               AND cust-part.cust-no EQ job-hdr.cust-no
+               AND cust-part.part-no NE "" :
+             ASSIGN  w-ord.cust-part-no = cust-part.part-no .
+             LEAVE.
+             END.
+
           IF w-ord.style NE "" THEN
           DO:
              FIND FIRST style WHERE
@@ -4066,6 +4075,16 @@ PROCEDURE create-w-ord :
                 w-ord.bundle = IF itemfg.case-pall NE 0 THEN itemfg.case-pall ELSE 1
                 w-ord.style = itemfg.style
                 w-ord.cust-part-no = itemfg.part-no .
+          
+         FOR EACH cust-part NO-LOCK 
+             WHERE cust-part.company EQ po-ord.company   
+               AND cust-part.i-no EQ po-ordl.i-no 
+               AND cust-part.cust-no EQ po-ord.cust-no
+               AND cust-part.part-no NE "" :
+             ASSIGN  w-ord.cust-part-no = cust-part.part-no .
+             LEAVE.
+         END.
+          
 
          IF w-ord.style NE "" THEN
          DO:
@@ -4151,6 +4170,15 @@ PROCEDURE create-w-ord :
                  w-ord.style        = itemfg.style
                  w-ord.lot          = loadtag.misc-char[2].
 
+          FOR EACH cust-part NO-LOCK 
+             WHERE cust-part.company EQ cocode   
+               AND cust-part.i-no EQ itemfg.i-no 
+               AND cust-part.cust-no EQ itemfg.cust-no
+               AND cust-part.part-no NE "" :
+             ASSIGN  w-ord.cust-part-no = cust-part.part-no .
+             LEAVE.
+             END.
+
           IF w-ord.style NE "" THEN
           DO:
              FIND FIRST style WHERE
@@ -4222,7 +4250,15 @@ PROCEDURE CreateWOrdFromItem :
       w-ord.pcs = itemfg.case-count
       w-ord.bundle = itemfg.case-pall
       w-ord.style   = itemfg.style.
-
+     
+      FOR EACH cust-part NO-LOCK 
+          WHERE cust-part.company EQ cocode   
+          AND cust-part.i-no EQ itemfg.i-no 
+          AND cust-part.cust-no EQ itemfg.cust-no
+          AND cust-part.part-no NE "" :
+          ASSIGN  w-ord.cust-part-no = cust-part.part-no .
+          LEAVE.
+      END.
 
    /* task 02081202 */
    IF tb_reprint-tag THEN DO:
@@ -4538,6 +4574,14 @@ PROCEDURE from-job :
             num-rec            = num-rec + 1
             w-ord.due-date-job = IF job.due-date <> ? THEN STRING(job.due-date, "99/99/9999") ELSE "".
             w-ord.due-date-jobhdr = IF job-hdr.due-date <> ? THEN STRING(job-hdr.due-date, "99/99/9999") ELSE "".
+            FOR EACH cust-part NO-LOCK 
+             WHERE cust-part.company EQ cocode   
+               AND cust-part.i-no EQ itemfg.i-no 
+               AND cust-part.cust-no EQ cust.cust-no
+               AND cust-part.part-no NE "" :
+             ASSIGN  w-ord.cust-part-no = cust-part.part-no .
+             LEAVE.
+             END.
 
 
           IF w-ord.style NE "" THEN
@@ -5216,6 +5260,16 @@ PROCEDURE from-po :
         w-ord.bundle = IF itemfg.case-pall NE 0 THEN itemfg.case-pall ELSE 1
         w-ord.style   = itemfg.style
         w-ord.cust-part-no = itemfg.part-no .
+
+       FOR EACH cust-part NO-LOCK 
+             WHERE cust-part.company EQ po-ord.company   
+               AND cust-part.i-no EQ po-ordl.i-no 
+               AND cust-part.cust-no EQ po-ordl.cust-no 
+               AND cust-part.part-no NE "":
+             ASSIGN  w-ord.cust-part-no = cust-part.part-no .
+             LEAVE.
+         END.
+
 
       IF w-ord.style NE "" THEN
       DO:
