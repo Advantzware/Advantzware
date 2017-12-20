@@ -1025,7 +1025,8 @@ PROCEDURE local-delete-record :
                AND po-ordl.job-no2 EQ job.job-no2
                AND po-ordl.opened NO-ERROR .
         IF AVAILABLE po-ordl THEN DO:
-            MESSAGE "There is an open Purchase Order that must be deleted before job can be deleted.. "
+            MESSAGE "There is an open Purchase Order for this job. This PO" SKIP
+                    "must be closed or deleted before the job can be deleted."
                 VIEW-AS ALERT-BOX INFO .
             RETURN ERROR .
         END.
