@@ -549,6 +549,10 @@ FOR EACH company NO-LOCK,
                     ttBOLLineProblems.company = oe-bolh.company
                     ttBOLLineProblems.ord-no  = oe-boll.ord-no
                     ttBOLLineProblems.errorType = "No Inv"
+                    ttBOLLineProblems.CalcQty  = dTotQty
+                    ttBOLLineProblems.ActQty   = dInvQty         
+                    ttBOLLineProblems.PostedInvoice = iArFound
+                    ttBOLLineProblems.UnPostedInvoice = iInvFound                        
                     .
             END.
         END. /* invoice was not found */
