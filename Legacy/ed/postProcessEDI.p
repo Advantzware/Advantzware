@@ -1,3 +1,4 @@
+/* Convert delimited file to valid EDI format */
 DEFINE INPUT  PARAMETER ipcSetId AS CHARACTER NO-UNDO.
 DEFINE INPUT  PARAMETER ipcInPath AS CHARACTER NO-UNDO.
 DEFINE INPUT  PARAMETER ipcPartner AS CHARACTER NO-UNDO.
@@ -22,8 +23,9 @@ DEFINE VARIABLE iSTControl     AS INTEGER.
 DEFINE VARIABLE iSegmentcount  AS INTEGER.
 DEFINE VARIABLE iCurrentElem   AS INTEGER.
 DEFINE VARIABLE cSegment       AS CHARACTER.
-DEFINE VARIABLE cSetID AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cQualifier AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cSetID         AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cQualifier     AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cPartnerName   AS CHARACTER NO-UNDO.
 
 lISASent = NO.
 iISAControlNum = 1.
@@ -32,11 +34,14 @@ iSTControl = 1.
 FIND FIRST EDMast NO-LOCK WHERE EDMast.Partner EQ ipcPartner NO-ERROR.
 IF NOT AVAILABLE EDMast THEN 
   RETURN.
+  
 FIND FIRST edPartnerGrp EXCLUSIVE-LOCK  
    WHERE edPartnerGrp.PartnerGrp EQ EDMast.partnerGrp
    NO-ERROR.
+   
 IF NOT AVAILABLE edPartnerGrp THEN  
   RETURN. 
+  
 ASSIGN iIsaControlNum = edPartnerGrp.isa + 1
        edPartnerGrp.isa = iISAControlNum
        edPartnerGrp.gs = iISAControlNum
@@ -48,6 +53,7 @@ FIND LAST eddoc EXCLUSIVE-LOCK
     AND eddoc.isa NE ?
     AND eddoc.gs NE ?
     USE-INDEX bySAIStat NO-ERROR.
+    
 IF AVAILABLE eddoc THEN 
     ASSIGN     
         eddoc.isa      = iISAControlNum
@@ -56,24 +62,29 @@ IF AVAILABLE eddoc THEN
         .
 RELEASE eddoc.
 
-/*DEFINE VARIABLE cOutFileName AS CHARACTER NO-UNDO.
-cOutFileName = "c:\temp\o810-" + string(time) + ".edi". */
+
 DEFINE STREAM sOutput.
-OUTPUT stream sOutput to value(ipcOutPath). /* c:\temp\o810-clean.txt. */
+OUTPUT stream sOutput to value(ipcOutPath).
+ 
 FIND FIRST EDMast NO-LOCK WHERE EDMast.Partner EQ ipcPartner NO-ERROR.
 IF NOT AVAILABLE EDMast THEN 
     RETURN. 
     
 GET-NEXT-LINE:
 REPEAT:
-    inln = "".
-    cOutLine = "".
+    ASSIGN
+      inln     = ""
+      cOutLine = ""
+      .
     IMPORT DELIMITER "|" inln.
   
-    cSegment = "".
-    iCurrentElem = 0.
-    cQualifier = "".
+    ASSIGN 
+      cSegment     = ""
+      iCurrentElem = 0
+      cQualifier   = ""
+      .
     DO iDelimPos = 1 TO NUM-ENTRIES(inln, "*"):
+        
         cElem = "".
     
         IF iDelimPos = 1 OR
@@ -106,8 +117,8 @@ REPEAT:
             /* Convert from implied decimal to decimal format */    
             IF cSegment EQ "IT1" AND iCurrentElem EQ 4 THEN 
                 ASSIGN
-                    cElem = SUBSTRING(cElem, 2, 13) + "." + 
-                  substring(cElem, 15, 4)
+                    cElem = SUBSTRING(cElem, 2, 11) + "." + 
+                  substring(cElem, 13, 6)
                     cElem = STRING(DECIMAL(cElem)).
             IF cSegment EQ "N1" AND iCurrentElem EQ 1 THEN 
               cQualifier = cElem.
@@ -124,7 +135,8 @@ REPEAT:
                 NO-ERROR.
             IF NOT AVAILABLE ediPartnerSegment THEN 
                 NEXT GET-NEXT-LINE.
-                
+            RELEASE ediPartnerSegment.
+            
             IF cQualifier GT "" THEN 
                 FIND FIRST ediPartnerSegment NO-LOCK  
                     WHERE ediPartnerSegment.partnerGrp  EQ EDMast.partnerGrp             
@@ -157,9 +169,6 @@ REPEAT:
     END. /* examine each element of segment */
 
 
-        
-
-    
     cOutLine = TRIM(cOutLine, "*") + "~~".
  
     IF NOT lISASEnt THEN 
@@ -172,7 +181,7 @@ REPEAT:
             "ZZ"  + cEleDelim + 
             cSenderDuns + cEleDelim + 
             "ZZ"  + cEleDelim + 
-            "AMAZON         " + cEleDelim +               
+            TRIM(cPartnerName) + "         " + cEleDelim +               
             substring(STRING(YEAR(TODAY), "9999"),3, 2) + 
             string(MONTH(TODAY), "99") + 
             string(DAY(TODAY), "99") + cEleDelim +               

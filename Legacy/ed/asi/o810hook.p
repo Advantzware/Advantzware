@@ -11,12 +11,13 @@
 DEF INPUT PARAM i_rec               AS RECID NO-UNDO.
 DEF INPUT PARAM original_print      AS LOGICAL NO-UNDO.
 DEF INPUT PARAM force_asn           AS LOGICAL INITIAL FALSE.
-DEF VAR run_ok              AS LOGICAL NO-UNDO.
-DEF var searchx             AS int NO-UNDO.
-DEF VAR inv_or_credit       AS LOGICAL INITIAL TRUE NO-UNDO.
-DEF var did_some            AS logical NO-UNDO.
-def var ws_billto           as char no-undo.
-def var vlAR-OE             as logical no-undo.
+
+DEF VAR run_ok        AS LOGICAL NO-UNDO.
+DEF var searchx       AS int     NO-UNDO.
+DEF VAR inv_or_credit AS LOGICAL INITIAL TRUE NO-UNDO.
+DEF var did_some      AS logical NO-UNDO.
+def var ws_billto     as char    no-undo.
+def var vlAR-OE       as logical no-undo.
 
 IF dirsep = "" OR dirsep = ? THEN
 dirsep = "~\".    /* 03.26.2004 CAH */
@@ -115,7 +116,7 @@ DO:
         ws_erc = -1.
       END.
     END.    /* search i loop */
-	message "runok" run_ok " pgm " next_program view-as alert-box.
+	
     IF run_ok THEN
     DO:
 	

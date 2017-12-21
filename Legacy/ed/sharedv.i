@@ -2,6 +2,7 @@
 /*  RPro EDI Shared Variables */
 def {1} shared var ws_company   like edco.company   no-undo label "Company".
 def {1} shared var ws_partner   like edmast.partner no-undo.
+def {1} shared var ws_partner_grp like edmast.partnerGrp no-undo.
 def {1} shared var ws_docid     like eddoc.docid    no-undo
     label "DocID".
 def {1} shared var ws_setid     like edcode.setid   no-undo

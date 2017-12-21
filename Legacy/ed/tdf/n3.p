@@ -38,6 +38,10 @@ IF command matches "*O*" THEN
 DO:
   IF address1 = "" AND address2 = "" THEN
   RETURN error.
+  IF address1 EQ "" AND address2 GT "" THEN 
+    ASSIGN address1 = address2
+           address2 = ""
+           . 
   CASE ws_version:
   WHEN "4010" THEN
   DO:

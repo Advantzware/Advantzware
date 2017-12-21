@@ -6,7 +6,7 @@ DEF INPUT PARAM ip-print-s AS LOG NO-UNDO. /* for PremierS */
 {sys/inc/var.i shared}
 
 {oe/rep/invoice.i}
-MESSAGE "in premierx" VIEW-AS ALERT-BOX.
+
 def var v-salesman as char format "x(14)" NO-UNDO.
 def var v-salesname as char format "x(30)" NO-UNDO.
 def var v-fob as char format "x(27)" NO-UNDO.
@@ -442,7 +442,8 @@ END.
         
         /* Create eddoc for invoice if required */
         RUN ed/asi/o810hook.p (recid(inv-head), no, no).     
-                    
+        RUN ed/asi/write810.p (INPUT cocode).
+        
         /* rstark 05181205 */
         XMLLineNumber = 0.
         RUN XMLOutput (lXMLOutput,'InvoiceHeader','','Row').
