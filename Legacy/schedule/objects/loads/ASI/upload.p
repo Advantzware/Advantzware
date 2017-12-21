@@ -670,7 +670,7 @@ PROCEDURE pHTMLPages:
                 (IF SEARCH("Graphics/48x48/" + ttblJob.resource + ".png") NE ? THEN
                     SEARCH("Graphics/48x48/" + ttblJob.resource + ".png") ELSE
                     SEARCH("Graphics/48x48/gearwheels.png"))
-                '" align="middle">~&nbsp~&nbsp~&nbsp~&nbsp<b>'
+                '" width="48" height="48" align="center">~&nbsp~&nbsp~&nbsp~&nbsp<b>'
                 ttblJob.resource '</a></b></font></td>' SKIP
                 '      <td' cBGColor ' align="center" nowrap rowspan="3"><font face="{&fontFace}"><b>'
                 '<a href="' htmlPageLocation + '\' + ttblJob.resource + '.htm" target="_blank">'
