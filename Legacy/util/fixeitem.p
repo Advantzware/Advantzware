@@ -1,3 +1,4 @@
+DEF VAR i AS INT NO-UNDO.
 
 FOR EACH company:
   FOR EACH item NO-LOCK WHERE item.company EQ company.company,
@@ -13,10 +14,15 @@ FOR EACH company:
                       AND e-item-vend.vend-no   EQ "") THEN DO:
 
       CREATE e-item-vend.
-      BUFFER-COPY e-item EXCEPT rec_key TO e-item-vend
-      ASSIGN
-       e-item-vend.item-type = YES
-       e-item-vend.vend-no   = "".
+        BUFFER-COPY e-item EXCEPT rec_key run-qty run-cost TO e-item-vend
+          ASSIGN
+           e-item-vend.item-type = YES
+           e-item-vend.vend-no   = "".
+        DO i = 1 TO 10:
+            ASSIGN
+                e-item-vend.run-qty[i] = e-item.run-qty[i]
+                e-item-vend.run-cost[i] = e-item.run-cost[i].
+        END.
     END.
   END.
 
