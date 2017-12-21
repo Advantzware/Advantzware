@@ -1319,10 +1319,11 @@ ON LEAVE OF po-ordl.cust-no IN FRAME Dialog-Frame /* Customer# */
                 WHERE e-itemfg-vend.company EQ e-itemfg.company
                 AND e-itemfg-vend.i-no    EQ e-itemfg.i-no
                 AND e-itemfg-vend.vend-no EQ po-ord.vend-no
-                AND e-itemfg-vend.cust-no EQ po-ordl.cust-no:SCREEN-VALUE NO-ERROR.
+                AND e-itemfg-vend.cust-no EQ po-ordl.cust-no:SCREEN-VALUE
+                AND e-itemfg-vend.est-no eq ""  NO-ERROR.
         IF AVAILABLE e-itemfg-vend THEN 
         DO:
-
+           IF e-itemfg-vend.vend-item NE "" THEN po-ordl.vend-i-no:SCREEN-VALUE = e-itemfg-vend.vend-item.
             MESSAGE 
                 "Import Customer Cost?"
                 VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO
@@ -1782,6 +1783,7 @@ DO:
                 AND e-itemfg-vend.i-no    EQ e-itemfg.i-no
                 AND e-itemfg-vend.vend-no EQ po-ord.vend-no
                 AND e-itemfg-vend.cust-no EQ po-ordl.cust-no:SCREEN-VALUE
+                AND e-itemfg-vend.est-no eq "" 
                 NO-ERROR.
 
         /* gdm - 06040918 - check for vendor */
@@ -1790,6 +1792,7 @@ DO:
                 WHERE e-itemfg-vend.company EQ e-itemfg.company
                 AND e-itemfg-vend.i-no    EQ e-itemfg.i-no
                 AND e-itemfg-vend.vend-no EQ po-ord.vend-no
+                AND  e-itemfg-vend.est-no eq ""
                 NO-ERROR.
 
         /* gdm - check for blank vendor */
@@ -1797,7 +1800,8 @@ DO:
             FIND FIRST e-itemfg-vend NO-LOCK
                 WHERE e-itemfg-vend.company EQ e-itemfg.company
                 AND e-itemfg-vend.i-no    EQ e-itemfg.i-no 
-                AND e-itemfg-vend.vend-no EQ "" NO-ERROR.
+                AND e-itemfg-vend.vend-no EQ ""
+                AND e-itemfg-vend.est-no eq "" NO-ERROR.
 
 
     END.
@@ -3025,7 +3029,8 @@ PROCEDURE display-fgitem :
 
         IF AVAILABLE e-itemfg THEN
             FIND FIRST e-itemfg-vend OF e-itemfg NO-LOCK
-                WHERE e-itemfg-vend.vend-no EQ po-ord.vend-no NO-ERROR.
+                WHERE e-itemfg-vend.vend-no EQ po-ord.vend-no
+                  AND e-itemfg-vend.est-no eq "" NO-ERROR.
 
         IF AVAILABLE e-itemfg-vend AND e-itemfg-vend.vend-item NE "" THEN po-ordl.vend-i-no:SCREEN-VALUE = e-itemfg-vend.vend-item.
         ELSE IF itemfg.vend-no EQ po-ord.vend-no THEN po-ordl.vend-i-no:SCREEN-VALUE = itemfg.vend-item.
@@ -6304,6 +6309,7 @@ PROCEDURE vend-cost :
                         WHERE e-itemfg-vend.company EQ e-itemfg.company
                         AND e-itemfg-vend.i-no    EQ e-itemfg.i-no 
                         AND e-itemfg-vend.vend-no EQ "" 
+                        AND e-itemfg-vend.est-no eq ""
                         NO-ERROR.
                 IF AVAILABLE e-itemfg-vend THEN 
                 DO:            
