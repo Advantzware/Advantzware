@@ -52,7 +52,7 @@ DO TRANSACTION:
 END.
 
 {ce/print42.i "new SHARED"}
-   
+
 DEFINE TEMP-TABLE work-ord NO-UNDO
     FIELD cust-no LIKE job-hdr.cust-no
     FIELD ord-no  LIKE job-hdr.ord-no.
@@ -700,6 +700,7 @@ DO:
   
     FIND CURRENT job NO-LOCK.
 
+    /* calc-est.p calls print4.p or print42.p to create op temp-table */
     RUN jc/calc-est.p (RECID(job)).
 
     FIND FIRST sys-ctrl WHERE sys-ctrl.company EQ cocode
