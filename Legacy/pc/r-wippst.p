@@ -510,7 +510,31 @@ END.
 ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
 DO:
   DEF VAR lv-post AS LOG NO-UNDO.
-
+  ASSIGN  
+    begin_date  
+    end_date      
+    begin_mach    
+    end_mach      
+    begin_job-no  
+    begin_job-no2 
+    end_job-no    
+    end_job-no2   
+    begin_shift   
+    end_shift     
+    tb_tot-hrs    
+    tb_pg-brk     
+    lv-ornt       
+    lines-per-page
+    rd-dest       
+    lv-font-no    
+    lv-font-name  
+    td-show-parm   
+    tb_excel      
+    tb_runExcel   
+    fi_file
+    .       
+  
+ 
 
   find first sys-ctrl
       where sys-ctrl.company eq cocode
@@ -2265,10 +2289,9 @@ form v-disp-actnum  label "G/L ACCOUNT NUMBER"
     with down STREAM-IO width 130 frame gldetail.
 
 
-assign
- str-tit2 = c-win:title
- {sys/inc/ctrtext.i str-tit2 112}
-
+    assign
+        str-tit2      = c-win:title
+        {sys/inc/ctrtext.i str-tit2 112}
  v-m-code[1]   = begin_mach
  v-m-code[2]   = end_mach
  v-date[1]     = begin_date
