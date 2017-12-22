@@ -821,8 +821,21 @@ PROCEDURE local-delete-record :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-
   /* Code placed here will execute PRIOR to standard behavior. */
+  {&methods/lValidateError.i YES}
+   FIND FIRST po-ordl NO-LOCK
+             WHERE po-ordl.company EQ job.company
+               AND po-ordl.job-no  EQ job.job-no
+               AND po-ordl.job-no2 EQ job.job-no2
+               AND po-ordl.opened NO-ERROR .
+        IF AVAILABLE po-ordl THEN DO:
+            MESSAGE "There is an open Purchase Order for this job. This PO" SKIP
+                    "must be closed or deleted before the job can be deleted."
+                VIEW-AS ALERT-BOX INFO .
+            RETURN ERROR .
+        END.
+       {&methods/lValidateError.i NO}
+
   {custom/askdel.i}
   FOR EACH job-farm
       WHERE job-farm.company EQ job-hdr.company
