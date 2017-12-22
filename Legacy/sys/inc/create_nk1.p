@@ -589,4 +589,5 @@ CASE ip-nk1-value:
     WHEN "webroot" THEN DO: {sys\inc\webroot.i} END.
     WHEN "xmlorder" THEN DO: {sys\inc\xmlorder.i} END.
     WHEN "OverwriteJobPlan" THEN DO: {sys\inc\overwriteJobPlan.i} END.
+    WHEN "CapacityPage" THEN DO: {sys\inc\capacityPage.i} END.
 END CASE.
