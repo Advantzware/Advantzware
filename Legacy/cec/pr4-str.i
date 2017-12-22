@@ -1,7 +1,7 @@
 /* -------------------------------------------------- cec/pr4-str.i 06/97 JLF */
 
 def buffer strap for reftable.
-
+def buffer stackPattern for stackPattern.
 def var v-numstacks as int.
 def var v-stackcode as char.
 def var v-est-id as recid.
@@ -37,15 +37,22 @@ def var strap-cst as dec.
                        output v-error).
 
    if not v-error then do:
-     find first strap
-         where strap.reftable eq "STACKSTRAP"
-           and strap.company  eq ""
-           and strap.loc      eq ""
-           and strap.code     eq v-stackcode
+/*     find first strap                        */
+/*         where strap.reftable eq "STACKSTRAP"*/
+/*           and strap.company  eq ""          */
+/*           and strap.loc      eq ""          */
+/*           and strap.code     eq v-stackcode */
+/*         no-lock no-error.                   */
+/*                                             */
+/*     if avail strap then do:                 */
+/*       tmpstore = strap.dscr.                */
+     find first stackPattern
+         where stackPattern.stackCode     eq v-stackcode
          no-lock no-error.
 
-     if avail strap then do:
-       tmpstore = strap.dscr.
+     if avail stackPattern then do:
+       tmpstore = stackPattern.strapFormula.
+     
        {cec/kstyle.i &for=1 &l=xeb.tr-len &w=xeb.tr-wid &d=xeb.tr-dep
                      &k=0 &t=0 &g=0 &b=0 &f=0 &o=0 &i=0}
 

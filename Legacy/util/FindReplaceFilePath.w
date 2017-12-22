@@ -469,25 +469,14 @@ IF tb_box THEN DO:  /*Include Box Images*/
 END. /* if tb_box - "Include Box Images checked*/
 
 IF tb_pattern THEN DO:
- FOR EACH reftable NO-LOCK
-    WHERE reftable.reftable = "STACK"
-      AND ASI.reftable.company = "" 
-      AND reftable.loc = "" , 
-    FIRST bf-strap  WHERE bf-strap.reftable = "STACKSTRAP"
-      AND bf-strap.company = ""
-      AND bf-strap.loc = ""
-      AND bf-strap.code = reftable.code NO-LOCK, 
-    FIRST bf-pattern WHERE bf-pattern.reftable = "STACKPAT"
-                               AND bf-pattern.company = "" 
-                               AND bf-pattern.loc = ""    
-                               AND bf-pattern.dscr <> "" 
-                               AND bf-pattern.code = reftable.code EXCLUSIVE-LOCK :
 
-    {custom/statusMsg.i "'Processing Pattern # ' + string(bf-strap.code)"}
+   FOR EACH stackPattern EXCLUSIVE-LOCK:    
 
-    EXPORT STREAM pattern-bak bf-pattern .
+    {custom/statusMsg.i "'Processing Pattern # ' + string(stackPattern.stackCode)"}
 
-    cFilePath = bf-pattern.dscr .
+    EXPORT STREAM pattern-bak stackPattern .
+
+    cFilePath = stackPattern.stackImage.
         IF cFilePath <> "" THEN DO: 
             IF tb_drive-only THEN 
                 IF SUBSTRING(cFilePath,1,1) EQ fi_find THEN
@@ -497,7 +486,7 @@ IF tb_pattern THEN DO:
                 cNewFilePath = REPLACE(cFilePath, fi_find, fi_replace).
             IF cFilePath NE cNewFilePath THEN DO:
                 PUT STREAM log-out "Pattern DESIGN: " cFilePath FORMAT "x(100)" " to " cNewFilePath FORMAT "x(100)" SKIP.        
-                bf-pattern.dscr = cNewFilePath.
+                stackPattern.stackImage = cNewFilePath.
             END.
         END.
  END. /* for each reftable*/

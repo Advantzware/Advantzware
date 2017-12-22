@@ -1541,16 +1541,13 @@ END PROCEDURE.
 
 PROCEDURE stackImage:
   DEFINE BUFFER pattern FOR reftable.
-
+  DEFINE BUFFER stackPattern FOR stackPattern.
   IF eb.stack-code EQ '' THEN RETURN.
  
-  FIND FIRST pattern NO-LOCK
-       WHERE pattern.reftable EQ 'STACKPAT'
-         AND pattern.company EQ ''
-         AND pattern.loc EQ ''
-         AND pattern.code EQ  eb.stack-code NO-ERROR.
-  IF AVAILABLE pattern AND SEARCH(pattern.dscr) NE ? THEN
-  PUT UNFORMATTED "<#12><R+1><C90><#21><R+9><C+99><IMAGE#21=" pattern.dscr ">"  
+  FIND FIRST stackPattern NO-LOCK
+       WHERE stackPattern.stackCode EQ  eb.stack-code NO-ERROR.
+  IF AVAILABLE stackPattern AND SEARCH(stackPattern.stackImage) NE ? THEN
+  PUT UNFORMATTED "<#12><R+1><C90><#21><R+9><C+99><IMAGE#21=" stackPattern.stackImage ">"  
    v-fill SKIP.
    
 END PROCEDURE.

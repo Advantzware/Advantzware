@@ -42,16 +42,15 @@ FOR EACH stack-flute NO-LOCK
 END.
 
 FOR EACH w-test:
-  FOR EACH stack NO-LOCK
-      WHERE stack.reftable EQ "STACK"
-        AND stack.company  EQ ""
-        AND stack.loc      EQ ""
-      BY stack.code:
+
+  FOR EACH stackPattern NO-LOCK
+      BY stackPattern.stackCode:
     CREATE tt-stack.
     ASSIGN
      tt-test = w-test
-     tt-stak = stack.code.
+     tt-stak = stackPattern.stackCode.
   END.
+
 END.
 
 ASSIGN
