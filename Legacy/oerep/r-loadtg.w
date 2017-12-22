@@ -4075,15 +4075,15 @@ PROCEDURE create-w-ord :
                 w-ord.bundle = IF itemfg.case-pall NE 0 THEN itemfg.case-pall ELSE 1
                 w-ord.style = itemfg.style
                 w-ord.cust-part-no = itemfg.part-no .
-          
-         FOR EACH cust-part NO-LOCK 
-             WHERE cust-part.company EQ po-ord.company   
-               AND cust-part.i-no EQ po-ordl.i-no 
-               AND cust-part.cust-no EQ po-ord.cust-no
-               AND cust-part.part-no NE "" :
-             ASSIGN  w-ord.cust-part-no = cust-part.part-no .
-             LEAVE.
-         END.
+         IF po-ordl.ord-no > 0 THEN  
+             FOR EACH cust-part NO-LOCK 
+                 WHERE cust-part.company EQ po-ord.company   
+                   AND cust-part.i-no EQ po-ordl.i-no 
+                   AND cust-part.cust-no EQ po-ord.cust-no
+                   AND cust-part.part-no NE "" :
+                 ASSIGN  w-ord.cust-part-no = cust-part.part-no .
+                 LEAVE.
+             END.
           
 
          IF w-ord.style NE "" THEN
@@ -5260,7 +5260,8 @@ PROCEDURE from-po :
         w-ord.bundle = IF itemfg.case-pall NE 0 THEN itemfg.case-pall ELSE 1
         w-ord.style   = itemfg.style
         w-ord.cust-part-no = itemfg.part-no .
-
+      
+    IF w-ord.ord-no > 0 THEN
        FOR EACH cust-part NO-LOCK 
              WHERE cust-part.company EQ po-ord.company   
                AND cust-part.i-no EQ po-ordl.i-no 
