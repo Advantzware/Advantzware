@@ -551,9 +551,9 @@ END FUNCTION.
                         NO-LOCK NO-ERROR.
 
         ASSIGN
-          v-bar-no = /*IF AVAIL eb 
+          v-bar-no = /* IF AVAIL eb 
                      THEN eb.spc-no 
-                     ELSE*/ trim(job-hdr.job-no) + "-" + STRING(job-hdr.job-no2,"99")
+                     ELSE*/ trim(job-hdr.job-no) + "-" + STRING(job-hdr.job-no2,"99") + "-" + STRING(job-hdr.frm,"99")
           v-bar-no = barCode(v-bar-no).
         
         PUT "<R-1><#1><C91>Date/Time Generated:" SKIP
