@@ -105,16 +105,10 @@ IF AVAIL {&e-item}                              AND
                 WHERE b-{1}-edit.item-type EQ YES
                   AND b-{1}-edit.vend-no   EQ "") THEN DO:
   CREATE b-{1}-edit.
-    BUFFER-COPY {&e-item} EXCEPT rec_key run-qty run-cost setups TO b-{1}-edit
-      ASSIGN
-        b-{1}-edit.item-type = YES
-        b-{1}-edit.vend-no   = "". 
-    DO i = 1 TO 10:
-        ASSIGN
-            b-{1}-edit.run-qty[i] = {&e-item}.run-qty[i]
-            b-{1}-edit.run-cost[i] = {&e-item}.run-cost[i]
-            b-{1}-edit.setups[i] = {&e-item}.setups[i].
-    END.
+  BUFFER-COPY {&e-item} EXCEPT rec_key TO b-{1}-edit
+  ASSIGN
+   b-{1}-edit.item-type = YES
+   b-{1}-edit.vend-no   = "". 
 
   /* gdm - 06040918 */
   {custom/rec_key.i b-{1}-edit}
