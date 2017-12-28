@@ -153,6 +153,7 @@ ASSIGN
  str-init[70] = "Std,Std & Paper1/2" /* efbrowse */  
  str-init[71] = ",ByItem,POPUP,RMTAG" /* rmrecpt */
  str-init[72] = ",Bronze/Maroon" /* fgbrowse */
+ str-init[73] = ",User Entered" /* fgbrowse */
  str-init[74] = ",REALONLY,ALLITEMS" /* rmpostgl */
  str-init[75] = "ItemFle,Pallet" /* SSTRANSF character value was ",Pallet,Case" */
  str-init[76] = "ASI,MAS90,WestInd" /* payvend */
