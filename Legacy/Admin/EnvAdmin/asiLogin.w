@@ -97,6 +97,7 @@ DEF VAR jCtr AS INT NO-UNDO.
 DEF VAR iNumUsers AS INT NO-UNDO.
 DEF VAR cIniLine AS CHAR NO-UNDO.
 DEF VAR cUsrLine AS CHAR NO-UNDO.
+DEF VAR lConnectAudit AS LOG NO-UNDO.
 DEF VAR lFoundIni AS LOG NO-UNDO.
 DEF VAR lFoundUsr AS LOG NO-UNDO.
 DEF VAR lCorrupt AS LOG NO-UNDO.
@@ -116,9 +117,14 @@ DEF VAR iLockoutTries AS INT NO-UNDO.
 /* Advantzware.ini variables */
 DEF VAR cAdminDir AS CHAR INITIAL "Admin" NO-UNDO.
 DEF VAR cAdminport AS CHAR INITIAL "20952" NO-UNDO.
+DEF VAR cAuditDbName AS CHAR INITIAL "asiAudit" NO-UNDO.
+DEF VAR cAuditDbPort AS CHAR INITIAL "2828" NO-UNDO.
+DEF VAR cAuditDbStFile AS CHAR INITIAL "asiAudit.st" NO-UNDO.
 DEF VAR cBackupDir AS CHAR INITIAL "Backups" NO-UNDO.
+DEF VAR cConnectAudit AS CHAR INITIAL "YES" NO-UNDO.
 DEF VAR cCurrVer AS CHAR INITIAL "10.6.0" NO-UNDO.
 DEF VAR cDbAdmin AS CHAR INITIAL "DbAdmin" NO-UNDO.
+DEF VAR cDbAuditDir AS CHAR INITIAL "Audit" NO-UNDO.
 DEF VAR cDbBackup AS CHAR INITIAL "Databases" NO-UNDO.
 DEF VAR cDbDataDir AS CHAR INITIAL "Data" NO-UNDO.
 DEF VAR cDbDir AS CHAR INITIAL "Databases" NO-UNDO.
@@ -483,9 +489,15 @@ DO:
                                                ttUsers.ttfUserID,
                                                fiPassword:{&SV},
                                                OUTPUT lError).
+
             IF CONNECTED(LDBNAME(1)) THEN DO:
                 IF INDEX(PDBNAME(1),"165") <> 0 THEN
                     RUN preRun165.p PERSISTENT SET hPreRun.
+                ELSE IF INDEX(PDBNAME(1),"166") <> 0 
+                OR INDEX(PDBNAME(1),"PremTest") <> 0 THEN
+                    RUN preRun166.p PERSISTENT SET hPreRun.
+                ELSE IF INDEX(PDBNAME(1),"167") <> 0 THEN
+                    RUN preRun167.p PERSISTENT SET hPreRun.
                 ELSE
                     RUN preRun.p PERSISTENT SET hPreRun.
             END.
@@ -894,9 +906,42 @@ PROCEDURE ipConnectDb :
             QUIT.
         END.
     END.
-    
+
     ASSIGN
         lError = NOT CONNECTED(LDBNAME(1)).
+    IF lError THEN
+        RETURN.
+        
+    IF CONNECTED(LDBNAME(1))
+    AND lConnectAudit THEN DO:
+        IF INDEX(PDBNAME(1),"165") <> 0 
+        OR INDEX(PDBNAME(1),"ship") <> 0 THEN ASSIGN
+            connectStatement = "".
+        ELSE IF INDEX(PDBNAME(1),"166") <> 0 THEN ASSIGN
+            connectStatement = "-db asiAudit166" + 
+                               " -H " + chostName +
+                               " -S 2861" + 
+                               " -N tcp -ld AUDIT".
+        ELSE IF INDEX(PDBNAME(1),"167") <> 0 THEN ASSIGN
+            connectStatement = "-db asiAudit167" + 
+                               " -H " + chostName +
+                               " -S 2862" + 
+                               " -N tcp -ld AUDIT".
+        ELSE IF INDEX(PDBNAME(1),"PremTest") <> 0 THEN ASSIGN
+            connectStatement = "-db asiAuditPrm" + 
+                               " -H " + chostName +
+                               " -S 2863" + 
+                               " -N tcp -ld AUDIT".
+        ELSE ASSIGN
+            connectStatement = "-db " + cauditDbName + 
+                               " -H " + chostName +
+                               " -S " + cAuditDbPort +
+                               " -N tcp -ld AUDIT".
+
+        IF connectStatement NE "" THEN
+            CONNECT VALUE(connectStatement).
+    END.
+    
         
 END PROCEDURE.
 
@@ -1053,9 +1098,14 @@ PROCEDURE ipReadIniFile :
         CASE cVarName[jCtr]:
             WHEN "adminDir" THEN ASSIGN cAdminDir = cVarValue[jCtr].
             WHEN "adminport" THEN ASSIGN cadminport = cVarValue[jCtr]. 
-            WHEN "backupDir" THEN ASSIGN cBackupDir = cVarValue[jCtr]. 
+            WHEN "auditDbName" THEN ASSIGN cauditDbName = cVarValue[jCtr]. 
+            WHEN "auditDbPort" THEN ASSIGN cauditDbPort = cVarValue[jCtr]. 
+            WHEN "auditDbStFile" THEN ASSIGN cauditDbStFile = cVarValue[jCtr]. 
+            WHEN "backupDir" THEN ASSIGN cBackupDir = cVarValue[jCtr].
+            WHEN "connectAudit" THEN ASSIGN cConnectAudit = cVarValue[jCtr]. 
             WHEN "currVer" THEN ASSIGN cCurrVer = cVarValue[jCtr].
             WHEN "dbAdmin" THEN ASSIGN cDbAdmin = cVarValue[jCtr]. 
+            WHEN "dbAuditDir" THEN ASSIGN cDbAuditDir = cVarValue[jCtr].
             WHEN "dbBackup" THEN ASSIGN cDbBackup = cVarValue[jCtr]. 
             WHEN "dbDataDir" THEN ASSIGN cDbDataDir = cVarValue[jCtr]. 
             WHEN "dbDir" THEN ASSIGN cDbDir = cVarValue[jCtr]. 
@@ -1123,7 +1173,8 @@ PROCEDURE ipReadIniFile :
     END.
 
     ASSIGN
-        lmakeBackup = IF cMakeBackup = "Y" THEN TRUE ELSE FALSE
+        lconnectAudit = IF CAN-DO("Y,YES,TRUE",cConnectAudit) THEN TRUE ELSE FALSE
+        lmakeBackup = IF CAN-DO("Y,YES,TRUE",cMakeBackup) THEN TRUE ELSE FALSE
         cLockoutTries = SUBSTRING(cLockoutTries,1,1)
         iLockoutTries = IF cLockoutTries NE "" 
                         AND ASC(cLockoutTries) GE 48
