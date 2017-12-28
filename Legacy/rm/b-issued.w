@@ -75,6 +75,7 @@ DEF VAR ll-is-copy-record AS LOG NO-UNDO.
 DEF VAR lAllowRmAdd AS LOG NO-UNDO.
 DEF VAR lcReturn   AS CHAR NO-UNDO.
 DEF VAR llRecFound AS LOG  NO-UNDO.
+DEFINE VARIABLE v-bin   AS CHARACTER     NO-UNDO.
 DO TRANSACTION:
   {sys/inc/rmrecpt.i}
 END.
@@ -1178,6 +1179,23 @@ END.
 lv-rmissue = v-rmissue.
 jobreopn-log = rmissue-int EQ 1.
 
+FIND FIRST sys-ctrl WHERE
+    sys-ctrl.company EQ cocode AND
+    sys-ctrl.name    EQ "RMWHSBIN"
+    NO-LOCK NO-ERROR.
+
+IF NOT AVAILABLE sys-ctrl THEN
+DO TRANSACTION:
+    CREATE sys-ctrl.
+    ASSIGN
+        sys-ctrl.company  = cocode
+        sys-ctrl.name     = "RMWHSBIN"
+        sys-ctrl.descrip  = "Default Location for RM Warehouse / Bin?"
+        sys-ctrl.char-fld = "RMITEM".
+    FIND CURRENT sys-ctrl NO-LOCK.
+END.
+v-bin = sys-ctrl.char-fld.
+
 &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
 RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
 &ENDIF
@@ -2123,16 +2141,19 @@ PROCEDURE local-create-record :
 
   /* Code placed here will execute AFTER standard behavior.    */
   ASSIGN rm-rctd.company = cocode
-         rm-rctd.loc = locode
          rm-rctd.r-no = li 
          rm-rctd.rita-code = "I".
 
-  IF adm-adding-record THEN
+  IF adm-adding-record THEN DO:
+      IF v-bin NE "user entered" THEN
+      ASSIGN rm-rctd.loc = SUBSTR(v-bin,1,5).
+
     ASSIGN
      rm-rctd.s-num  = 1
      rm-rctd.b-num = 0
      rm-rctd.rct-date = TODAY
      rm-rctd.user-id = USERID("nosweat").
+  END.
 
 END PROCEDURE.
 
