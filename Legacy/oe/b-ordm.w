@@ -1400,7 +1400,23 @@ PROCEDURE local-create-record :
   FIND FIRST ar-ctrl WHERE ar-ctrl.company = oe-ord.company NO-LOCK NO-ERROR.
   IF AVAIL ar-ctrl THEN oe-ordm.actnum = ar-ctrl.sales.
   FIND FIRST cust OF oe-ord NO-LOCK.
+
   oe-ordm.tax = cust.sort = "Y" AND oe-ord.tax-gr <> "".
+  
+  FIND FIRST oe-ctrl NO-LOCK
+       WHERE oe-ctrl.company = oe-ord.company
+      NO-ERROR.
+  FIND FIRST shipto NO-LOCK
+       WHERE shipto.company EQ cocode
+         AND shipto.cust-no EQ oe-ord.cust-no
+         NO-ERROR.
+   
+  IF AVAIL oe-ctrl AND oe-ctrl.prep-chrg THEN
+      ASSIGN oe-ordm.spare-char-1 = IF AVAIL shipto AND shipto.tax-code NE "" THEN shipto.tax-code
+                                    ELSE IF AVAIL cust AND cust.spare-char-1 <> "" THEN cust.spare-char-1 
+                                    ELSE oe-ord.tax-gr
+                oe-ordm.tax = TRUE .
+
   
   i = 0 .
   FOR EACH bf-ordl OF oe-ord NO-LOCK:
@@ -1600,10 +1616,19 @@ PROCEDURE new-charge :
         oe-ordm.amt:SCREEN-VALUE = STRING(markUp).
 
       FIND cust OF oe-ord NO-LOCK.
-      IF PrepTax-log THEN 
-         ASSIGN oe-ordm.spare-char-1:SCREEN-VALUE = IF cust.spare-char-1 <> "" THEN cust.spare-char-1 ELSE oe-ord.tax-gr
-                oe-ordm.tax:SCREEN-VALUE = STRING(TRUE)
-                .
+
+      FIND FIRST oe-ctrl NO-LOCK
+       WHERE oe-ctrl.company = oe-ord.company
+      NO-ERROR.
+      FIND FIRST shipto NO-LOCK
+          WHERE shipto.company EQ cocode
+          AND shipto.cust-no EQ oe-ord.cust-no
+         NO-ERROR.
+      IF AVAIL oe-ctrl AND oe-ctrl.prep-chrg THEN
+         ASSIGN oe-ordm.spare-char-1:SCREEN-VALUE = IF AVAIL shipto AND shipto.tax-code NE "" THEN shipto.tax-code
+                                                    ELSE IF AVAIL cust AND cust.spare-char-1 <> "" THEN cust.spare-char-1 
+                                                    ELSE oe-ord.tax-gr
+                oe-ordm.tax:SCREEN-VALUE = STRING(TRUE) .
 
       FIND FIRST account
           WHERE account.company EQ oe-ord.company
