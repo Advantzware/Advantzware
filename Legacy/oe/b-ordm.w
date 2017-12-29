@@ -1412,8 +1412,9 @@ PROCEDURE local-create-record :
          NO-ERROR.
    
   IF AVAIL oe-ctrl AND oe-ctrl.prep-chrg THEN
-      ASSIGN oe-ordm.spare-char-1 = IF AVAIL cust AND cust.spare-char-1 <> "" THEN cust.spare-char-1 
-                                    ELSE IF AVAIL shipto AND shipto.tax-code NE "" THEN shipto.tax-code  ELSE oe-ord.tax-gr
+      ASSIGN oe-ordm.spare-char-1 = IF AVAIL shipto AND shipto.tax-code NE "" THEN shipto.tax-code
+                                    ELSE IF AVAIL cust AND cust.spare-char-1 <> "" THEN cust.spare-char-1 
+                                    ELSE oe-ord.tax-gr
                 oe-ordm.tax = TRUE .
 
   
@@ -1624,8 +1625,8 @@ PROCEDURE new-charge :
           AND shipto.cust-no EQ oe-ord.cust-no
          NO-ERROR.
       IF AVAIL oe-ctrl AND oe-ctrl.prep-chrg THEN
-         ASSIGN oe-ordm.spare-char-1:SCREEN-VALUE = IF AVAIL cust AND cust.spare-char-1 <> "" THEN cust.spare-char-1 
-                                                    ELSE IF AVAIL shipto AND shipto.tax-code NE "" THEN shipto.tax-code 
+         ASSIGN oe-ordm.spare-char-1:SCREEN-VALUE = IF AVAIL shipto AND shipto.tax-code NE "" THEN shipto.tax-code
+                                                    ELSE IF AVAIL cust AND cust.spare-char-1 <> "" THEN cust.spare-char-1 
                                                     ELSE oe-ord.tax-gr
                 oe-ordm.tax:SCREEN-VALUE = STRING(TRUE) .
 
