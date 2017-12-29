@@ -260,7 +260,7 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 14 BY 1
           BGCOLOR 15 FONT 4
-     prep.mkup AT ROW 2.43 COL 73 COLON-ALIGNED FORMAT ">>9.99<<"
+     prep.mkup AT ROW 2.43 COL 73 COLON-ALIGNED FORMAT "->>9.99<<"
           VIEW-AS FILL-IN 
           SIZE 11 BY 1
           BGCOLOR 15 FONT 4
