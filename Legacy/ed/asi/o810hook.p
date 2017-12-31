@@ -82,7 +82,8 @@ DO:
   DO:
     ws_setid = "810".
     FIND FIRST edcode WHERE
-      edcode.partner   EQ edmast.partner AND
+    ( edcode.partner   EQ edmast.partner or
+    edcode.partner   eq edmast.partnerGrp)  AND
       edcode.setid EQ ws_setid AND
       edcode.direction EQ "O"
       NO-LOCK NO-ERROR.
@@ -146,7 +147,8 @@ DO:
     DO:
       ws_setid = "856".
       FIND FIRST edcode WHERE
-        edcode.partner   EQ edmast.partner AND
+      ( edcode.partner   EQ edmast.partner or
+      edcode.partner   eq edmast.partnerGrp) AND
         edcode.setid EQ ws_setid AND
         edcode.direction EQ "O"
         NO-LOCK NO-ERROR.

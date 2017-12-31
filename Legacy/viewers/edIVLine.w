@@ -61,34 +61,34 @@ DEFINE QUERY external_tables FOR EDIVLine.
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-FIELDS EDIVLine.Line EDIVLine.Company ~
 EDIVLine.Partner EDIVLine.Invoice-no EDIVLine.Item-no EDIVLine.By-code ~
-EDIVLine.Seq EDIVLine.Description[1] EDIVLine.SF-Code ~
+EDIVLine.Description[1] EDIVLine.Seq EDIVLine.SF-Code ~
 EDIVLine.Description[2] EDIVLine.ship-stat EDIVLine.Uom-code ~
 EDIVLine.Cust-item-no EDIVLine.Price-basis EDIVLine.Size-desc ~
 EDIVLine.Color-desc EDIVLine.Cust-po-line EDIVLine.UPC EDIVLine.Pack-size ~
-EDIVLine.Config-code EDIVLine.Product-type EDIVLine.Qty-ord-orig ~
+EDIVLine.Product-type EDIVLine.Config-code EDIVLine.Qty-ord-orig ~
 EDIVLine.Unit-price EDIVLine.Item-disc-amount EDIVLine.Qty-shipped ~
 EDIVLine.Selling-price EDIVLine.Item-wght-each EDIVLine.Item-net ~
 EDIVLine.Size-qual[1] EDIVLine.Dimension[1] EDIVLine.Item-ctn-wght ~
 EDIVLine.Item-gross EDIVLine.Size-qual[2] EDIVLine.Dimension[2] ~
-EDIVLine.Size-qual[3] EDIVLine.Dimension[3] EDIVLine.Bo-flag ~
-EDIVLine.Qty-var EDIVLine.Item-ctn-cube EDIVLine.Item-each-cube ~
-EDIVLine.rec_key EDIVLine.Special-svc-code EDIVLine.Taxable 
+EDIVLine.Size-qual[3] EDIVLine.Dimension[3] EDIVLine.Qty-var ~
+EDIVLine.Bo-flag EDIVLine.Item-ctn-cube EDIVLine.Item-each-cube ~
+EDIVLine.Special-svc-code EDIVLine.Taxable 
 &Scoped-define ENABLED-TABLES EDIVLine
 &Scoped-define FIRST-ENABLED-TABLE EDIVLine
 &Scoped-Define ENABLED-OBJECTS RECT-1 RECT-2 RECT-3 RECT-4 
 &Scoped-Define DISPLAYED-FIELDS EDIVLine.Line EDIVLine.Company ~
 EDIVLine.Partner EDIVLine.Invoice-no EDIVLine.Item-no EDIVLine.By-code ~
-EDIVLine.Seq EDIVLine.Description[1] EDIVLine.SF-Code ~
+EDIVLine.Description[1] EDIVLine.Seq EDIVLine.SF-Code ~
 EDIVLine.Description[2] EDIVLine.ship-stat EDIVLine.Uom-code ~
 EDIVLine.Cust-item-no EDIVLine.Price-basis EDIVLine.Size-desc ~
 EDIVLine.Color-desc EDIVLine.Cust-po-line EDIVLine.UPC EDIVLine.Pack-size ~
-EDIVLine.Config-code EDIVLine.Product-type EDIVLine.Qty-ord-orig ~
+EDIVLine.Product-type EDIVLine.Config-code EDIVLine.Qty-ord-orig ~
 EDIVLine.Unit-price EDIVLine.Item-disc-amount EDIVLine.Qty-shipped ~
 EDIVLine.Selling-price EDIVLine.Item-wght-each EDIVLine.Item-net ~
 EDIVLine.Size-qual[1] EDIVLine.Dimension[1] EDIVLine.Item-ctn-wght ~
 EDIVLine.Item-gross EDIVLine.Size-qual[2] EDIVLine.Dimension[2] ~
-EDIVLine.Size-qual[3] EDIVLine.Dimension[3] EDIVLine.Bo-flag ~
-EDIVLine.Qty-var EDIVLine.Item-ctn-cube EDIVLine.Item-each-cube ~
+EDIVLine.Size-qual[3] EDIVLine.Dimension[3] EDIVLine.Qty-var ~
+EDIVLine.Bo-flag EDIVLine.Item-ctn-cube EDIVLine.Item-each-cube ~
 EDIVLine.rec_key EDIVLine.Special-svc-code EDIVLine.Taxable 
 &Scoped-define DISPLAYED-TABLES EDIVLine
 &Scoped-define FIRST-DISPLAYED-TABLE EDIVLine
@@ -135,7 +135,7 @@ DEFINE RECTANGLE RECT-1
 
 DEFINE RECTANGLE RECT-2
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 122 BY 3.1.
+     SIZE 141 BY 3.1.
 
 DEFINE RECTANGLE RECT-3
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
@@ -143,7 +143,7 @@ DEFINE RECTANGLE RECT-3
 
 DEFINE RECTANGLE RECT-4
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 67 BY 4.76.
+     SIZE 70 BY 4.76.
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -167,35 +167,36 @@ DEFINE FRAME F-Main
      EDIVLine.By-code AT ROW 2.52 COL 88 COLON-ALIGNED WIDGET-ID 4
           VIEW-AS FILL-IN 
           SIZE 16.4 BY 1
-     EDIVLine.Seq AT ROW 2.57 COL 116 COLON-ALIGNED WIDGET-ID 64
-          VIEW-AS FILL-IN 
-          SIZE 10.4 BY 1
      EDIVLine.Description[1] AT ROW 2.67 COL 18 COLON-ALIGNED WIDGET-ID 16
           LABEL "Description"
           VIEW-AS FILL-IN 
           SIZE 38 BY 1
+     EDIVLine.Seq AT ROW 2.67 COL 118 COLON-ALIGNED WIDGET-ID 64
+          VIEW-AS FILL-IN 
+          SIZE 10.4 BY 1
      EDIVLine.SF-Code AT ROW 3.52 COL 88 COLON-ALIGNED WIDGET-ID 66
           VIEW-AS FILL-IN 
           SIZE 16.4 BY 1
-     EDIVLine.Description[2] AT ROW 3.62 COL 18 COLON-ALIGNED NO-LABEL WIDGET-ID 18
+     EDIVLine.Description[2] AT ROW 3.67 COL 18 COLON-ALIGNED NO-LABEL WIDGET-ID 18
           VIEW-AS FILL-IN 
           SIZE 38 BY 1
-     EDIVLine.ship-stat AT ROW 3.62 COL 116 COLON-ALIGNED WIDGET-ID 68
+     EDIVLine.ship-stat AT ROW 3.67 COL 118 COLON-ALIGNED WIDGET-ID 68
+          LABEL "Ship Stat"
           VIEW-AS FILL-IN 
           SIZE 4.4 BY 1
-     EDIVLine.Uom-code AT ROW 4.57 COL 88 COLON-ALIGNED WIDGET-ID 84
+     EDIVLine.Uom-code AT ROW 4.52 COL 88 COLON-ALIGNED WIDGET-ID 84
           LABEL "Uom"
           VIEW-AS FILL-IN 
           SIZE 4.4 BY 1
-     EDIVLine.Cust-item-no AT ROW 4.62 COL 18 COLON-ALIGNED WIDGET-ID 12
+     EDIVLine.Cust-item-no AT ROW 4.67 COL 18 COLON-ALIGNED WIDGET-ID 12
           LABEL "Cust Item No"
           VIEW-AS FILL-IN 
           SIZE 38 BY 1
-     EDIVLine.Price-basis AT ROW 4.81 COL 116 COLON-ALIGNED WIDGET-ID 50
+     EDIVLine.Price-basis AT ROW 4.67 COL 118 COLON-ALIGNED WIDGET-ID 50
           LABEL "Price Basis"
           VIEW-AS FILL-IN 
           SIZE 4.4 BY 1
-     EDIVLine.Size-desc AT ROW 5.62 COL 18 COLON-ALIGNED WIDGET-ID 70
+     EDIVLine.Size-desc AT ROW 5.67 COL 18 COLON-ALIGNED WIDGET-ID 70
           LABEL "Size Desc"
           VIEW-AS FILL-IN 
           SIZE 26 BY 1
@@ -207,33 +208,29 @@ DEFINE FRAME F-Main
           LABEL "Cust Po line"
           VIEW-AS FILL-IN 
           SIZE 14 BY 1
-     EDIVLine.UPC AT ROW 6.62 COL 18.2 COLON-ALIGNED WIDGET-ID 86
+     EDIVLine.UPC AT ROW 6.67 COL 18.2 COLON-ALIGNED WIDGET-ID 86
           VIEW-AS FILL-IN 
           SIZE 17.6 BY 1
      EDIVLine.Pack-size AT ROW 6.67 COL 59 COLON-ALIGNED WIDGET-ID 46
           LABEL "Pack Size"
           VIEW-AS FILL-IN 
           SIZE 10.4 BY 1
-     EDIVLine.Config-code AT ROW 6.71 COL 129 COLON-ALIGNED WIDGET-ID 10
-          LABEL "Config Code"
-          VIEW-AS FILL-IN 
-          SIZE 3.2 BY 1
      EDIVLine.Product-type AT ROW 6.76 COL 101 COLON-ALIGNED WIDGET-ID 52
           LABEL "Product type"
           VIEW-AS FILL-IN 
           SIZE 5.6 BY 1
+     EDIVLine.Config-code AT ROW 6.81 COL 129.2 COLON-ALIGNED WIDGET-ID 10
+          LABEL "Config Code"
+          VIEW-AS FILL-IN 
+          SIZE 3.2 BY 1
      EDIVLine.Qty-ord-orig AT ROW 8.52 COL 20 COLON-ALIGNED WIDGET-ID 54
           LABEL "Qty Orig Ord"
           VIEW-AS FILL-IN 
-          SIZE 17.6 BY 1
+          SIZE 20 BY 1
      EDIVLine.Unit-price AT ROW 8.62 COL 56.4 COLON-ALIGNED WIDGET-ID 82
-          LABEL "Unit Price"
+          LABEL "Unit Price" FORMAT "->>,>>>,>>9.999999"
           VIEW-AS FILL-IN 
-          SIZE 18.8 BY 1
-     EDIVLine.Item-disc-amount AT ROW 8.62 COL 100 COLON-ALIGNED WIDGET-ID 32
-          LABEL "Discount Amount"
-          VIEW-AS FILL-IN 
-          SIZE 17.6 BY 1
+          SIZE 20.6 BY 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -241,6 +238,10 @@ DEFINE FRAME F-Main
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME F-Main
+     EDIVLine.Item-disc-amount AT ROW 8.62 COL 100 COLON-ALIGNED WIDGET-ID 32
+          LABEL "Discount Amount"
+          VIEW-AS FILL-IN 
+          SIZE 17.6 BY 1
      EDIVLine.Qty-shipped AT ROW 9.52 COL 20 COLON-ALIGNED WIDGET-ID 56
           LABEL "Qty Shipped"
           VIEW-AS FILL-IN 
@@ -248,7 +249,7 @@ DEFINE FRAME F-Main
      EDIVLine.Selling-price AT ROW 9.57 COL 56.4 COLON-ALIGNED WIDGET-ID 62
           LABEL "Selling Price"
           VIEW-AS FILL-IN 
-          SIZE 20 BY 1
+          SIZE 20.6 BY 1
      EDIVLine.Item-wght-each AT ROW 11.81 COL 17 COLON-ALIGNED WIDGET-ID 42
           LABEL "Each"
           VIEW-AS FILL-IN 
@@ -285,14 +286,14 @@ DEFINE FRAME F-Main
      EDIVLine.Dimension[3] AT ROW 14 COL 91 COLON-ALIGNED NO-LABEL WIDGET-ID 24
           VIEW-AS FILL-IN 
           SIZE 14 BY 1
-     EDIVLine.Bo-flag AT ROW 14.24 COL 54.4 COLON-ALIGNED WIDGET-ID 2
-          LABEL "Back Order"
-          VIEW-AS FILL-IN 
-          SIZE 4.4 BY 1
-     EDIVLine.Qty-var AT ROW 14.33 COL 19 COLON-ALIGNED WIDGET-ID 58
+     EDIVLine.Qty-var AT ROW 14.33 COL 17.4 COLON-ALIGNED WIDGET-ID 58
           LABEL "Qty Var"
           VIEW-AS FILL-IN 
           SIZE 17.6 BY 1
+     EDIVLine.Bo-flag AT ROW 14.43 COL 56 COLON-ALIGNED WIDGET-ID 2
+          LABEL "Back Order"
+          VIEW-AS FILL-IN 
+          SIZE 4.4 BY 1
      EDIVLine.Item-ctn-cube AT ROW 14.95 COL 124.4 COLON-ALIGNED WIDGET-ID 28
           LABEL "Ctn Cube"
           VIEW-AS FILL-IN 
@@ -301,21 +302,16 @@ DEFINE FRAME F-Main
           LABEL "Cube EA"
           VIEW-AS FILL-IN 
           SIZE 16.4 BY 1
-     EDIVLine.rec_key AT ROW 16.71 COL 30 COLON-ALIGNED WIDGET-ID 60
+     EDIVLine.rec_key AT ROW 16.48 COL 12 COLON-ALIGNED WIDGET-ID 60
           VIEW-AS FILL-IN 
           SIZE 26 BY 1
-     EDIVLine.Special-svc-code AT ROW 16.95 COL 64 COLON-ALIGNED WIDGET-ID 78
+     EDIVLine.Special-svc-code AT ROW 16.71 COL 64 COLON-ALIGNED WIDGET-ID 78
           LABEL "Special Svc Code"
           VIEW-AS FILL-IN 
           SIZE 6.8 BY 1
-     EDIVLine.Taxable AT ROW 16.95 COL 89 COLON-ALIGNED WIDGET-ID 80
-          VIEW-AS FILL-IN 
-          SIZE 5.6 BY 1
+     EDIVLine.Taxable AT ROW 16.71 COL 89 COLON-ALIGNED WIDGET-ID 80
      "Dimensions" VIEW-AS TEXT
           SIZE 15 BY .62 AT ROW 11.24 COL 78 WIDGET-ID 96
-          FGCOLOR 9 
-     "Weights" VIEW-AS TEXT
-          SIZE 10 BY .62 AT ROW 11.24 COL 5 WIDGET-ID 94
           FGCOLOR 9 
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -324,10 +320,13 @@ DEFINE FRAME F-Main
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME F-Main
-     RECT-1 AT ROW 1 COL 1
+     "Weights" VIEW-AS TEXT
+          SIZE 10 BY .62 AT ROW 11.24 COL 5 WIDGET-ID 94
+          FGCOLOR 9 
+     RECT-1 AT ROW 1 COL 1.2
      RECT-2 AT ROW 8.05 COL 3 WIDGET-ID 88
      RECT-3 AT ROW 11.48 COL 3 WIDGET-ID 90
-     RECT-4 AT ROW 11.48 COL 77 WIDGET-ID 92
+     RECT-4 AT ROW 11.48 COL 74 WIDGET-ID 92
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -430,7 +429,11 @@ ASSIGN
    EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN EDIVLine.Qty-var IN FRAME F-Main
    EXP-LABEL                                                            */
+/* SETTINGS FOR FILL-IN EDIVLine.rec_key IN FRAME F-Main
+   NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN EDIVLine.Selling-price IN FRAME F-Main
+   EXP-LABEL                                                            */
+/* SETTINGS FOR FILL-IN EDIVLine.ship-stat IN FRAME F-Main
    EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN EDIVLine.Size-desc IN FRAME F-Main
    EXP-LABEL                                                            */
@@ -438,8 +441,10 @@ ASSIGN
    EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN EDIVLine.Special-svc-code IN FRAME F-Main
    EXP-LABEL                                                            */
+/* SETTINGS FOR TOGGLE-BOX EDIVLine.Taxable IN FRAME F-Main
+   ALIGN-C VIEW-AS                                                      */
 /* SETTINGS FOR FILL-IN EDIVLine.Unit-price IN FRAME F-Main
-   EXP-LABEL                                                            */
+   EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN EDIVLine.Uom-code IN FRAME F-Main
    EXP-LABEL                                                            */
 /* _RUN-TIME-ATTRIBUTES-END */

@@ -59,16 +59,16 @@ CREATE WIDGET-POOL.
 /* Need to scope the external tables to this procedure                  */
 DEFINE QUERY external_tables FOR EDIVTran.
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-FIELDS EDIVTran.BOL-No EDIVTran.Invoice-no ~
-EDIVTran.Partner EDIVTran.Cust EDIVTran.Cust-po EDIVTran.Invoice-date ~
-EDIVTran.Ship-Date EDIVTran.Contact-name EDIVTran.FOB-Text EDIVTran.Company ~
-EDIVTran.Contact-phone EDIVTran.Contact-phone-qual EDIVTran.Terms ~
-EDIVTran.Terms-type EDIVTran.Tot-volume EDIVTran.Volume-uom ~
+&Scoped-Define ENABLED-FIELDS EDIVTran.Partner EDIVTran.BOL-No ~
+EDIVTran.Invoice-no EDIVTran.Cust EDIVTran.Cust-po EDIVTran.Invoice-date ~
+EDIVTran.Ship-Date EDIVTran.Contact-name EDIVTran.Company ~
+EDIVTran.Contact-phone EDIVTran.Contact-phone-qual EDIVTran.FOB-Text ~
+EDIVTran.Terms EDIVTran.Terms-type EDIVTran.Tot-volume EDIVTran.Volume-uom ~
 EDIVTran.Tot-disc EDIVTran.Terms-net-days EDIVTran.Terms-basis ~
 EDIVTran.Tot-net EDIVTran.Tot-Gross EDIVTran.Terms-desc[1] EDIVTran.Tot-frt ~
 EDIVTran.Tot-cartons EDIVTran.Carton-uom-code EDIVTran.Terms-desc[2] ~
 EDIVTran.Tot-wght EDIVTran.Tot-qty EDIVTran.Wght-uom ~
-EDIVTran.Terms-disc-date EDIVTran.Terms-disc-days EDIVTran.Lines ~
+EDIVTran.Terms-disc-days EDIVTran.Terms-disc-date EDIVTran.Lines ~
 EDIVTran.Last-line EDIVTran.Terms-disc-pct EDIVTran.Terms-disc-amt ~
 EDIVTran.Terms-net-date EDIVTran.Terms-day-of-month EDIVTran.Cust-po-date ~
 EDIVTran.Ship-date-code EDIVTran.Del-date EDIVTran.Del-date-qual ~
@@ -79,16 +79,16 @@ EDIVTran.Routing[1] EDIVTran.Release-no
 &Scoped-define ENABLED-TABLES EDIVTran
 &Scoped-define FIRST-ENABLED-TABLE EDIVTran
 &Scoped-Define ENABLED-OBJECTS RECT-1 RECT-5 RECT-6 RECT-7 
-&Scoped-Define DISPLAYED-FIELDS EDIVTran.BOL-No EDIVTran.Invoice-no ~
-EDIVTran.Partner EDIVTran.Cust EDIVTran.Cust-po EDIVTran.Invoice-date ~
-EDIVTran.Ship-Date EDIVTran.Contact-name EDIVTran.FOB-Text EDIVTran.Company ~
-EDIVTran.Contact-phone EDIVTran.Contact-phone-qual EDIVTran.Terms ~
-EDIVTran.Terms-type EDIVTran.Tot-volume EDIVTran.Volume-uom ~
+&Scoped-Define DISPLAYED-FIELDS EDIVTran.Partner EDIVTran.BOL-No ~
+EDIVTran.Invoice-no EDIVTran.Cust EDIVTran.Cust-po EDIVTran.Invoice-date ~
+EDIVTran.Ship-Date EDIVTran.Contact-name EDIVTran.Company ~
+EDIVTran.Contact-phone EDIVTran.Contact-phone-qual EDIVTran.FOB-Text ~
+EDIVTran.Terms EDIVTran.Terms-type EDIVTran.Tot-volume EDIVTran.Volume-uom ~
 EDIVTran.Tot-disc EDIVTran.Terms-net-days EDIVTran.Terms-basis ~
 EDIVTran.Tot-net EDIVTran.Tot-Gross EDIVTran.Terms-desc[1] EDIVTran.Tot-frt ~
 EDIVTran.Tot-cartons EDIVTran.Carton-uom-code EDIVTran.Terms-desc[2] ~
 EDIVTran.Tot-wght EDIVTran.Tot-qty EDIVTran.Wght-uom ~
-EDIVTran.Terms-disc-date EDIVTran.Terms-disc-days EDIVTran.Lines ~
+EDIVTran.Terms-disc-days EDIVTran.Terms-disc-date EDIVTran.Lines ~
 EDIVTran.Last-line EDIVTran.Terms-disc-pct EDIVTran.Terms-disc-amt ~
 EDIVTran.Terms-net-date EDIVTran.Terms-day-of-month EDIVTran.Cust-po-date ~
 EDIVTran.Ship-date-code EDIVTran.Del-date EDIVTran.Del-date-qual ~
@@ -156,50 +156,50 @@ DEFINE RECTANGLE RECT-7
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     EDIVTran.BOL-No AT ROW 1.81 COL 81 COLON-ALIGNED WIDGET-ID 2
+     EDIVTran.Partner AT ROW 1.19 COL 56 COLON-ALIGNED WIDGET-ID 66
+          VIEW-AS FILL-IN 
+          SIZE 8 BY 1
+     EDIVTran.BOL-No AT ROW 1.19 COL 85.2 COLON-ALIGNED WIDGET-ID 2
           LABEL "BOL No"
           VIEW-AS FILL-IN 
           SIZE 20 BY 1
-     EDIVTran.Invoice-no AT ROW 1.91 COL 16 COLON-ALIGNED WIDGET-ID 56
+     EDIVTran.Invoice-no AT ROW 1.24 COL 16 COLON-ALIGNED WIDGET-ID 56
           LABEL "Invoice No"
           VIEW-AS FILL-IN 
           SIZE 28.4 BY 1
-     EDIVTran.Partner AT ROW 1.95 COL 56 COLON-ALIGNED WIDGET-ID 66
-          VIEW-AS FILL-IN 
-          SIZE 8 BY 1
-     EDIVTran.Cust AT ROW 2.91 COL 19 COLON-ALIGNED WIDGET-ID 34
+     EDIVTran.Cust AT ROW 2.91 COL 19.6 COLON-ALIGNED WIDGET-ID 34
           VIEW-AS FILL-IN 
           SIZE 14 BY 1
-     EDIVTran.Cust-po AT ROW 2.91 COL 56 COLON-ALIGNED WIDGET-ID 40
+     EDIVTran.Cust-po AT ROW 2.91 COL 85 COLON-ALIGNED WIDGET-ID 40
           LABEL "Cust PO"
           VIEW-AS FILL-IN 
           SIZE 28.4 BY 1
-     EDIVTran.Invoice-date AT ROW 3.81 COL 56 COLON-ALIGNED WIDGET-ID 54
+     EDIVTran.Invoice-date AT ROW 3.81 COL 85 COLON-ALIGNED WIDGET-ID 54
           LABEL "Invoice Date"
           VIEW-AS FILL-IN 
           SIZE 18 BY 1
-     EDIVTran.Ship-Date AT ROW 3.86 COL 19 COLON-ALIGNED WIDGET-ID 98
+     EDIVTran.Ship-Date AT ROW 3.86 COL 19.6 COLON-ALIGNED WIDGET-ID 98
           LABEL "Ship Date"
           VIEW-AS FILL-IN 
           SIZE 18 BY 1
-     EDIVTran.Contact-name AT ROW 4.81 COL 19 COLON-ALIGNED WIDGET-ID 18
+     EDIVTran.Contact-name AT ROW 4.81 COL 19.6 COLON-ALIGNED WIDGET-ID 18
           VIEW-AS FILL-IN 
           SIZE 44 BY 1
-     EDIVTran.FOB-Text AT ROW 5.76 COL 19 COLON-ALIGNED WIDGET-ID 52
-          LABEL "FOB Text"
-          VIEW-AS FILL-IN 
-          SIZE 74 BY 1
-     EDIVTran.Company AT ROW 5.76 COL 107 COLON-ALIGNED WIDGET-ID 14
+     EDIVTran.Company AT ROW 4.81 COL 85 COLON-ALIGNED WIDGET-ID 14
           VIEW-AS FILL-IN 
           SIZE 11.6 BY 1
-     EDIVTran.Contact-phone AT ROW 6.71 COL 19 COLON-ALIGNED WIDGET-ID 20
+     EDIVTran.Contact-phone AT ROW 5.81 COL 19.4 COLON-ALIGNED WIDGET-ID 20
           LABEL "Contact Phone"
           VIEW-AS FILL-IN 
           SIZE 27.2 BY 1
-     EDIVTran.Contact-phone-qual AT ROW 6.76 COL 54 COLON-ALIGNED WIDGET-ID 22
+     EDIVTran.Contact-phone-qual AT ROW 5.81 COL 54.4 COLON-ALIGNED WIDGET-ID 22
           LABEL "Qual"
           VIEW-AS FILL-IN 
           SIZE 4.4 BY 1
+     EDIVTran.FOB-Text AT ROW 7.38 COL 19.6 COLON-ALIGNED WIDGET-ID 52
+          LABEL "FOB Text"
+          VIEW-AS FILL-IN 
+          SIZE 74 BY 1
      EDIVTran.Terms AT ROW 9 COL 101 COLON-ALIGNED WIDGET-ID 110
           VIEW-AS FILL-IN 
           SIZE 6.8 BY 1
@@ -273,14 +273,14 @@ DEFINE FRAME F-Main
           LABEL "Uom"
           VIEW-AS FILL-IN 
           SIZE 4.4 BY 1
-     EDIVTran.Terms-disc-date AT ROW 12.86 COL 128 COLON-ALIGNED WIDGET-ID 122
-          LABEL "Discount Date"
-          VIEW-AS FILL-IN 
-          SIZE 16 BY 1
      EDIVTran.Terms-disc-days AT ROW 12.91 COL 101.2 COLON-ALIGNED WIDGET-ID 124
           LABEL "Disc Days"
           VIEW-AS FILL-IN 
           SIZE 5.6 BY 1
+     EDIVTran.Terms-disc-date AT ROW 12.91 COL 128 COLON-ALIGNED WIDGET-ID 122
+          LABEL "Discount Date"
+          VIEW-AS FILL-IN 
+          SIZE 16 BY 1
      EDIVTran.Lines AT ROW 13.05 COL 19 COLON-ALIGNED WIDGET-ID 60
           VIEW-AS FILL-IN 
           SIZE 5.6 BY 1
@@ -309,7 +309,7 @@ DEFINE FRAME F-Main
      EDIVTran.Ship-date-code AT ROW 17 COL 59.6 COLON-ALIGNED WIDGET-ID 100
           LABEL "Ship Date Code"
           VIEW-AS FILL-IN 
-          SIZE 5.6 BY 1
+          SIZE 7.4 BY 1
      EDIVTran.Del-date AT ROW 17.95 COL 21 COLON-ALIGNED WIDGET-ID 44
           LABEL "Del Date"
           VIEW-AS FILL-IN 
@@ -317,7 +317,7 @@ DEFINE FRAME F-Main
      EDIVTran.Del-date-qual AT ROW 17.95 COL 59.6 COLON-ALIGNED WIDGET-ID 46
           LABEL "Qual"
           VIEW-AS FILL-IN 
-          SIZE 7 BY 1
+          SIZE 7.4 BY 1
      EDIVTran.Misc-date1 AT ROW 18.91 COL 21 COLON-ALIGNED WIDGET-ID 62
           LABEL "Misc Date"
           VIEW-AS FILL-IN 
@@ -325,10 +325,7 @@ DEFINE FRAME F-Main
      EDIVTran.Misc-date1-code AT ROW 18.91 COL 59.6 COLON-ALIGNED WIDGET-ID 64
           LABEL "Qual"
           VIEW-AS FILL-IN 
-          SIZE 7 BY .95
-     EDIVTran.Pro-Number AT ROW 21 COL 21.2 COLON-ALIGNED WIDGET-ID 68
-          VIEW-AS FILL-IN 
-          SIZE 38 BY 1
+          SIZE 7.4 BY .95
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -336,6 +333,9 @@ DEFINE FRAME F-Main
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME F-Main
+     EDIVTran.Pro-Number AT ROW 21 COL 21.2 COLON-ALIGNED WIDGET-ID 68
+          VIEW-AS FILL-IN 
+          SIZE 38 BY 1
      EDIVTran.Sf-code AT ROW 21 COL 81.6 COLON-ALIGNED WIDGET-ID 96
           LABEL "Ship From"
           VIEW-AS FILL-IN 
@@ -373,11 +373,11 @@ DEFINE FRAME F-Main
      "Shipping Info" VIEW-AS TEXT
           SIZE 18 BY .62 AT ROW 20.29 COL 6.2 WIDGET-ID 170
           FGCOLOR 9 
-     "Totals" VIEW-AS TEXT
-          SIZE 8 BY .62 AT ROW 8.38 COL 5 WIDGET-ID 166
-          FGCOLOR 9 
      "Terms" VIEW-AS TEXT
           SIZE 8 BY .62 AT ROW 8.38 COL 89 WIDGET-ID 162
+          FGCOLOR 9 
+     "Totals" VIEW-AS TEXT
+          SIZE 8 BY .62 AT ROW 8.38 COL 5 WIDGET-ID 166
           FGCOLOR 9 
      RECT-1 AT ROW 1 COL 1
      RECT-5 AT ROW 8.67 COL 87 WIDGET-ID 160

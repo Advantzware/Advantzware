@@ -67,12 +67,12 @@ CREATE WIDGET-POOL.
 &Scoped-define KEY-PHRASE TRUE
 
 /* Definitions for BROWSE Browser-Table                                 */
-&Scoped-define FIELDS-IN-QUERY-Browser-Table EDMast.Seq EDMast.Sf-code ~
-EDMast.RE-code EDMast.Ship-to-mask EDMast.Path-out EDMast.Path-in ~
-EDMast.Order-no-mask EDMast.Item-Length EDMast.Item-suffix ~
-EDMast.Item-Prefix EDMast.Id-trim EDMast.ID-Out EDMast.ID-Len ~
-EDMast.Del-Days EDMast.ASN-on-DS EDMast.User-name EDMast.Vendor EDMast.Cust ~
-EDMast.Partner 
+&Scoped-define FIELDS-IN-QUERY-Browser-Table EDMast.Partner EDMast.Cust ~
+EDMast.PartnerGrp EDMast.Seq EDMast.Sf-code EDMast.RE-code ~
+EDMast.Ship-to-mask EDMast.Path-out EDMast.Path-in EDMast.Order-no-mask ~
+EDMast.Item-Length EDMast.Item-suffix EDMast.Item-Prefix EDMast.Id-trim ~
+EDMast.ID-Out EDMast.ID-Len EDMast.Del-Days EDMast.ASN-on-DS ~
+EDMast.User-name EDMast.Vendor 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table 
 &Scoped-define QUERY-STRING-Browser-Table FOR EACH EDMast WHERE ~{&KEY-PHRASE} NO-LOCK ~
     ~{&SORTBY-PHRASE}
@@ -125,7 +125,10 @@ DEFINE RECTANGLE RECT-4
 &ANALYZE-SUSPEND
 DEFINE QUERY Browser-Table FOR 
       EDMast
-    FIELDS(EDMast.Seq
+    FIELDS(EDMast.Partner
+      EDMast.Cust
+      EDMast.PartnerGrp
+      EDMast.Seq
       EDMast.Sf-code
       EDMast.RE-code
       EDMast.Ship-to-mask
@@ -141,15 +144,16 @@ DEFINE QUERY Browser-Table FOR
       EDMast.Del-Days
       EDMast.ASN-on-DS
       EDMast.User-name
-      EDMast.Vendor
-      EDMast.Cust
-      EDMast.Partner) SCROLLING.
+      EDMast.Vendor) SCROLLING.
 &ANALYZE-RESUME
 
 /* Browse definitions                                                   */
 DEFINE BROWSE Browser-Table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS Browser-Table B-table-Win _STRUCTURED
   QUERY Browser-Table NO-LOCK DISPLAY
+      EDMast.Partner FORMAT "x(15)":U
+      EDMast.Cust FORMAT "x(10)":U
+      EDMast.PartnerGrp FORMAT "x(12)":U WIDTH 19.6
       EDMast.Seq COLUMN-LABEL "Sequence" FORMAT ">>>>>>9":U
       EDMast.Sf-code COLUMN-LABEL "Ship From Whse" FORMAT "x(12)":U
       EDMast.RE-code FORMAT "x(12)":U
@@ -167,8 +171,6 @@ DEFINE BROWSE Browser-Table
       EDMast.ASN-on-DS COLUMN-LABEL "ASN On Direct Ship" FORMAT "yes/no":U
       EDMast.User-name COLUMN-LABEL "User Name" FORMAT "x(15)":U
       EDMast.Vendor FORMAT "x(10)":U
-      EDMast.Cust FORMAT "x(10)":U
-      EDMast.Partner FORMAT "x(05)":U
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ASSIGN SEPARATORS SIZE 145 BY 18.1
@@ -247,7 +249,7 @@ END.
   NOT-VISIBLE,,RUN-PERSISTENT                                           */
 /* SETTINGS FOR FRAME F-Main
    NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
-/* BROWSE-TAB Browser-Table 1 F-Main */
+/* BROWSE-TAB Browser-Table TEXT-1 F-Main */
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
@@ -263,36 +265,38 @@ ASSIGN
      _TblList          = "asi.EDMast"
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
      _TblOptList       = "USED"
-     _FldNameList[1]   > asi.EDMast.Seq
+     _FldNameList[1]   = asi.EDMast.Partner
+     _FldNameList[2]   = asi.EDMast.Cust
+     _FldNameList[3]   > asi.EDMast.PartnerGrp
+"PartnerGrp" ? ? "character" ? ? ? ? ? ? no ? no no "19.6" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[4]   > asi.EDMast.Seq
 "Seq" "Sequence" ? "integer" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[2]   > asi.EDMast.Sf-code
+     _FldNameList[5]   > asi.EDMast.Sf-code
 "Sf-code" "Ship From Whse" ? "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[3]   = asi.EDMast.RE-code
-     _FldNameList[4]   > asi.EDMast.Ship-to-mask
+     _FldNameList[6]   = asi.EDMast.RE-code
+     _FldNameList[7]   > asi.EDMast.Ship-to-mask
 "Ship-to-mask" "Ship To Mask" ? "integer" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[5]   > asi.EDMast.Path-out
+     _FldNameList[8]   > asi.EDMast.Path-out
 "Path-out" "Outbound Path" ? "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[6]   > asi.EDMast.Path-in
+     _FldNameList[9]   > asi.EDMast.Path-in
 "Path-in" "Inbound Path" ? "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[7]   > asi.EDMast.Order-no-mask
+     _FldNameList[10]   > asi.EDMast.Order-no-mask
 "Order-no-mask" "Order # mask" ? "integer" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[8]   > asi.EDMast.Item-Length
+     _FldNameList[11]   > asi.EDMast.Item-Length
 "Item-Length" "Item Length" ? "integer" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[9]   > asi.EDMast.Item-suffix
+     _FldNameList[12]   > asi.EDMast.Item-suffix
 "Item-suffix" "Item Suffix" ? "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[10]   > asi.EDMast.Item-Prefix
+     _FldNameList[13]   > asi.EDMast.Item-Prefix
 "Item-Prefix" "Item Prefix" ? "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[11]   = asi.EDMast.Id-trim
-     _FldNameList[12]   = asi.EDMast.ID-Out
-     _FldNameList[13]   = asi.EDMast.ID-Len
-     _FldNameList[14]   = asi.EDMast.Del-Days
-     _FldNameList[15]   > asi.EDMast.ASN-on-DS
+     _FldNameList[14]   = asi.EDMast.Id-trim
+     _FldNameList[15]   = asi.EDMast.ID-Out
+     _FldNameList[16]   = asi.EDMast.ID-Len
+     _FldNameList[17]   = asi.EDMast.Del-Days
+     _FldNameList[18]   > asi.EDMast.ASN-on-DS
 "ASN-on-DS" "ASN On Direct Ship" ? "logical" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[16]   > asi.EDMast.User-name
+     _FldNameList[19]   > asi.EDMast.User-name
 "User-name" "User Name" ? "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[17]   = asi.EDMast.Vendor
-     _FldNameList[18]   = asi.EDMast.Cust
-     _FldNameList[19]   = asi.EDMast.Partner
+     _FldNameList[20]   = asi.EDMast.Vendor
      _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */
 &ANALYZE-RESUME

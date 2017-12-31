@@ -56,7 +56,7 @@ CREATE WIDGET-POOL.
 
 &Scoped-define ADM-SUPPORTED-LINKS Record-Source,Record-Target,TableIO-Target,Navigation-Target
 
-/* Name of first Frame and/or Browse and/or first Query                 */
+/* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME F-Main
 &Scoped-define BROWSE-NAME Browser-Table
 
@@ -74,10 +74,10 @@ DEFINE QUERY external_tables FOR EDIVLine.
 &Scoped-define KEY-PHRASE TRUE
 
 /* Definitions for BROWSE Browser-Table                                 */
-&Scoped-define FIELDS-IN-QUERY-Browser-Table EDIVAddon.Uom-code ~
-EDIVAddon.Special-svc-code EDIVAddon.Seq EDIVAddon.Ref-Num ~
-EDIVAddon.rec_key EDIVAddon.Rate EDIVAddon.Qty EDIVAddon.Percent ~
-EDIVAddon.Partner EDIVAddon.Option-code EDIVAddon.Note[9] EDIVAddon.Note[8] ~
+&Scoped-define FIELDS-IN-QUERY-Browser-Table EDIVAddon.Partner ~
+EDIVAddon.Seq EDIVAddon.Ref-Num EDIVAddon.Uom-code EDIVAddon.Percent ~
+EDIVAddon.Rate EDIVAddon.Qty EDIVAddon.Special-svc-code ~
+EDIVAddon.Option-code EDIVAddon.rec_key EDIVAddon.Note[9] EDIVAddon.Note[8] ~
 EDIVAddon.Note[7] EDIVAddon.Note[6] EDIVAddon.Note[5] EDIVAddon.Note[4] ~
 EDIVAddon.Note[3] EDIVAddon.Note[2] EDIVAddon.Note[1] EDIVAddon.Line ~
 EDIVAddon.Invoice-no EDIVAddon.Hand-meth EDIVAddon.Description[2] ~
@@ -136,16 +136,16 @@ DEFINE RECTANGLE RECT-4
 &ANALYZE-SUSPEND
 DEFINE QUERY Browser-Table FOR 
       EDIVAddon
-    FIELDS(EDIVAddon.Uom-code
-      EDIVAddon.Special-svc-code
+    FIELDS(EDIVAddon.Partner
       EDIVAddon.Seq
       EDIVAddon.Ref-Num
-      EDIVAddon.rec_key
+      EDIVAddon.Uom-code
+      EDIVAddon.Percent
       EDIVAddon.Rate
       EDIVAddon.Qty
-      EDIVAddon.Percent
-      EDIVAddon.Partner
+      EDIVAddon.Special-svc-code
       EDIVAddon.Option-code
+      EDIVAddon.rec_key
       EDIVAddon.Note[9]
       EDIVAddon.Note[8]
       EDIVAddon.Note[7]
@@ -173,16 +173,16 @@ DEFINE QUERY Browser-Table FOR
 DEFINE BROWSE Browser-Table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS Browser-Table B-table-Win _STRUCTURED
   QUERY Browser-Table NO-LOCK DISPLAY
-      EDIVAddon.Uom-code FORMAT "x(2)":U
-      EDIVAddon.Special-svc-code FORMAT "x(4)":U
+      EDIVAddon.Partner FORMAT "x(15)":U
       EDIVAddon.Seq FORMAT ">>>>>>9":U
-      EDIVAddon.Ref-Num FORMAT "x(30)":U
-      EDIVAddon.rec_key FORMAT "X(20)":U
+      EDIVAddon.Ref-Num COLUMN-LABEL "Ref Num" FORMAT "x(30)":U
+      EDIVAddon.Uom-code COLUMN-LABEL "Uom" FORMAT "x(2)":U
+      EDIVAddon.Percent FORMAT "->>>>>.999":U
       EDIVAddon.Rate FORMAT "->>>>>.99<<":U
       EDIVAddon.Qty FORMAT "->,>>>,>>>.99":U
-      EDIVAddon.Percent FORMAT "->>>>>.999":U
-      EDIVAddon.Partner FORMAT "x(05)":U
-      EDIVAddon.Option-code FORMAT "x(20)":U
+      EDIVAddon.Special-svc-code COLUMN-LABEL "Special Svc Code" FORMAT "x(4)":U
+      EDIVAddon.Option-code COLUMN-LABEL "Option Code" FORMAT "x(20)":U
+      EDIVAddon.rec_key FORMAT "X(20)":U
       EDIVAddon.Note[9] FORMAT "x(60)":U
       EDIVAddon.Note[8] FORMAT "x(60)":U
       EDIVAddon.Note[7] FORMAT "x(60)":U
@@ -282,8 +282,8 @@ END.
 /* SETTINGS FOR WINDOW B-table-Win
   NOT-VISIBLE,,RUN-PERSISTENT                                           */
 /* SETTINGS FOR FRAME F-Main
-   NOT-VISIBLE Size-to-Fit                                              */
-/* BROWSE-TAB Browser-Table 1 F-Main */
+   NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
+/* BROWSE-TAB Browser-Table TEXT-1 F-Main */
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
@@ -299,16 +299,20 @@ ASSIGN
      _TblList          = "asi.EDIVAddon OF asi.EDIVLine"
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
      _TblOptList       = "USED,"
-     _FldNameList[1]   = asi.EDIVAddon.Uom-code
-     _FldNameList[2]   = asi.EDIVAddon.Special-svc-code
-     _FldNameList[3]   = asi.EDIVAddon.Seq
-     _FldNameList[4]   = asi.EDIVAddon.Ref-Num
-     _FldNameList[5]   = asi.EDIVAddon.rec_key
+     _FldNameList[1]   = asi.EDIVAddon.Partner
+     _FldNameList[2]   = asi.EDIVAddon.Seq
+     _FldNameList[3]   > asi.EDIVAddon.Ref-Num
+"EDIVAddon.Ref-Num" "Ref Num" ? "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[4]   > asi.EDIVAddon.Uom-code
+"EDIVAddon.Uom-code" "Uom" ? "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[5]   = asi.EDIVAddon.Percent
      _FldNameList[6]   = asi.EDIVAddon.Rate
      _FldNameList[7]   = asi.EDIVAddon.Qty
-     _FldNameList[8]   = asi.EDIVAddon.Percent
-     _FldNameList[9]   = asi.EDIVAddon.Partner
-     _FldNameList[10]   = asi.EDIVAddon.Option-code
+     _FldNameList[8]   > asi.EDIVAddon.Special-svc-code
+"EDIVAddon.Special-svc-code" "Special Svc Code" ? "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[9]   > asi.EDIVAddon.Option-code
+"EDIVAddon.Option-code" "Option Code" ? "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[10]   = asi.EDIVAddon.rec_key
      _FldNameList[11]   = asi.EDIVAddon.Note[9]
      _FldNameList[12]   = asi.EDIVAddon.Note[8]
      _FldNameList[13]   = asi.EDIVAddon.Note[7]

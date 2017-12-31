@@ -42,6 +42,7 @@ CREATE WIDGET-POOL.
 {custom/globdefs.i}
 {sys/inc/var.i NEW SHARED}
 {sys/inc/varasgn.i}
+DEFINE BUFFER bf-eddoc FOR eddoc.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -113,7 +114,7 @@ DEFINE BUTTON Btn_Clear_Find
 DEFINE VARIABLE auto_find AS CHARACTER FORMAT "X(256)":U 
      LABEL "Auto Find" 
      VIEW-AS FILL-IN 
-     SIZE 60 BY 1 NO-UNDO.
+     SIZE 59 BY 1 NO-UNDO.
 
 DEFINE VARIABLE browse-order AS INTEGER 
      VIEW-AS RADIO-SET HORIZONTAL
@@ -177,11 +178,11 @@ DEFINE QUERY Browser-Table FOR
 DEFINE BROWSE Browser-Table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS Browser-Table B-table-Win _STRUCTURED
   QUERY Browser-Table NO-LOCK DISPLAY
-      EDDoc.Partner FORMAT "x(05)":U
+      EDDoc.Partner FORMAT "x(15)":U
       EDDoc.DocID FORMAT "x(35)":U
       EDDoc.SetID FORMAT "x(6)":U
       EDDoc.Version FORMAT "x(12)":U
-      EDDoc.Posted FORMAT "Y/N":U
+      EDDoc.Posted FORMAT "yes/no":U
       EDDoc.Direction FORMAT "x(01)":U
       EDDoc.Status-Flag FORMAT "x(3)":U
       EDDoc.UserRef FORMAT "x(22)":U
@@ -271,7 +272,7 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW B-table-Win ASSIGN
-         HEIGHT             = 19.52
+         HEIGHT             = 19.67
          WIDTH              = 145.
 /* END WINDOW DEFINITION */
                                                                         */
@@ -297,7 +298,7 @@ END.
   NOT-VISIBLE,,RUN-PERSISTENT                                           */
 /* SETTINGS FOR FRAME F-Main
    NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
-/* BROWSE-TAB Browser-Table TEXT-1 F-Main */
+/* BROWSE-TAB Browser-Table 1 F-Main */
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
@@ -470,6 +471,50 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE RepoQuery B-table-Win
+PROCEDURE RepoQuery:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEF INPUT PARAM ip-rowid AS ROWID NO-UNDO.
+
+
+    DO WITH FRAME {&FRAME-NAME}:
+        REPOSITION {&browse-name} TO ROWID ip-rowid NO-ERROR.
+        IF NOT ERROR-STATUS:ERROR THEN RUN dispatch ('row-changed').
+    END.
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE resend-doc B-table-Win 
+PROCEDURE resend-doc :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+DEFINE VARIABLE rSaveQueryPosition AS ROWID NO-UNDO.
+IF AVAILABLE eddoc THEN DO:
+    rSaveQueryPosition = ROWID(eddoc).
+  FIND bf-eddoc WHERE ROWID(bf-eddoc) EQ ROWID(eddoc) NO-ERROR.
+  IF AVAIL bf-eddoc THEN
+    bf-eddoc.posted = NOT bf-eddoc.posted.
+  run dispatch in this-procedure ("open-query").
+  RUN RepoQuery(INPUT rSaveQueryPosition).
+  
+END.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE send-records B-table-Win  _ADM-SEND-RECORDS
 PROCEDURE send-records :
 /*------------------------------------------------------------------------------
@@ -520,6 +565,27 @@ PROCEDURE state-changed :
          or add new cases. */
       {src/adm/template/bstates.i}
   END CASE.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE toggleResendDoc B-table-Win 
+PROCEDURE toggleResendDoc :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+IF AVAILABLE eddoc THEN DO:
+  FIND bf-eddoc EXCLUSIVE-LOCK WHERE ROWID(bf-eddoc) EQ ROWID(eddoc)
+    NO-ERROR.
+  /* Toggle to resend */
+  bf-eddoc.posted = NOT bf-eddoc.posted.
+  RELEASE bf-eddoc.
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'open-query':U ) .
+
+END.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

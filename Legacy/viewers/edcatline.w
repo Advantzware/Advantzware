@@ -59,29 +59,31 @@ CREATE WIDGET-POOL.
 /* Need to scope the external tables to this procedure                  */
 DEFINE QUERY external_tables FOR EDCatline.
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-FIELDS EDCatline.Color-ID EDCatline.Pack-wght ~
-EDCatline.Commodity-code EDCatline.Partner EDCatline.Commodity-Grouping ~
-EDCatline.PID-Code EDCatline.Commodity-qual EDCatline.Price ~
-EDCatline.Config-code EDCatline.Qty EDCatline.Description[1] ~
-EDCatline.Qty-Max EDCatline.Description[2] EDCatline.Qty-Min ~
-EDCatline.Dim-uom EDCatline.rec_key EDCatline.Dimensions[1] EDCatline.Seq ~
+&Scoped-Define ENABLED-FIELDS EDCatline.Commodity-code EDCatline.Pack-wght ~
+EDCatline.Commodity-Grouping EDCatline.Partner EDCatline.Commodity-qual ~
+EDCatline.Price EDCatline.Config-code EDCatline.Qty ~
+EDCatline.Description[1] EDCatline.Qty-Max EDCatline.Description[2] ~
+EDCatline.Qty-Min EDCatline.Dim-uom EDCatline.rec_key ~
+EDCatline.Dimensions[1] EDCatline.Color-ID EDCatline.Seq ~
 EDCatline.Dimensions[2] EDCatline.Size-ID EDCatline.Dimensions[3] ~
 EDCatline.Uom-code EDCatline.Inner-units EDCatline.UPC EDCatline.Last-line ~
 EDCatline.Vendor-Item EDCatline.Line EDCatline.Volume-uom EDCatline.Lines ~
-EDCatline.Wght-uom EDCatline.Pack-size EDCatline.Pack-Volume 
+EDCatline.Wght-uom EDCatline.Pack-size EDCatline.PID-Code ~
+EDCatline.Pack-Volume 
 &Scoped-define ENABLED-TABLES EDCatline
 &Scoped-define FIRST-ENABLED-TABLE EDCatline
 &Scoped-Define ENABLED-OBJECTS RECT-1 
-&Scoped-Define DISPLAYED-FIELDS EDCatline.Color-ID EDCatline.Pack-wght ~
-EDCatline.Commodity-code EDCatline.Partner EDCatline.Commodity-Grouping ~
-EDCatline.PID-Code EDCatline.Commodity-qual EDCatline.Price ~
-EDCatline.Config-code EDCatline.Qty EDCatline.Description[1] ~
-EDCatline.Qty-Max EDCatline.Description[2] EDCatline.Qty-Min ~
-EDCatline.Dim-uom EDCatline.rec_key EDCatline.Dimensions[1] EDCatline.Seq ~
+&Scoped-Define DISPLAYED-FIELDS EDCatline.Commodity-code ~
+EDCatline.Pack-wght EDCatline.Commodity-Grouping EDCatline.Partner ~
+EDCatline.Commodity-qual EDCatline.Price EDCatline.Config-code ~
+EDCatline.Qty EDCatline.Description[1] EDCatline.Qty-Max ~
+EDCatline.Description[2] EDCatline.Qty-Min EDCatline.Dim-uom ~
+EDCatline.rec_key EDCatline.Dimensions[1] EDCatline.Color-ID EDCatline.Seq ~
 EDCatline.Dimensions[2] EDCatline.Size-ID EDCatline.Dimensions[3] ~
 EDCatline.Uom-code EDCatline.Inner-units EDCatline.UPC EDCatline.Last-line ~
 EDCatline.Vendor-Item EDCatline.Line EDCatline.Volume-uom EDCatline.Lines ~
-EDCatline.Wght-uom EDCatline.Pack-size EDCatline.Pack-Volume 
+EDCatline.Wght-uom EDCatline.Pack-size EDCatline.PID-Code ~
+EDCatline.Pack-Volume 
 &Scoped-define DISPLAYED-TABLES EDCatline
 &Scoped-define FIRST-DISPLAYED-TABLE EDCatline
 
@@ -130,87 +132,87 @@ DEFINE RECTANGLE RECT-1
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     EDCatline.Color-ID AT ROW 1 COL 15 COLON-ALIGNED WIDGET-ID 2
-          VIEW-AS FILL-IN 
-          SIZE 5.6 BY 1
-     EDCatline.Pack-wght AT ROW 1 COL 58 COLON-ALIGNED WIDGET-ID 36
-          VIEW-AS FILL-IN 
-          SIZE 14 BY 1
-     EDCatline.Commodity-code AT ROW 2 COL 19.2 COLON-ALIGNED WIDGET-ID 4
+     EDCatline.Commodity-code AT ROW 1.71 COL 27 COLON-ALIGNED WIDGET-ID 4
           VIEW-AS FILL-IN 
           SIZE 21.2 BY 1
-     EDCatline.Partner AT ROW 2 COL 58 COLON-ALIGNED WIDGET-ID 38
-          VIEW-AS FILL-IN 
-          SIZE 8 BY 1
-     EDCatline.Commodity-Grouping AT ROW 3 COL 23.8 COLON-ALIGNED WIDGET-ID 6
-          VIEW-AS FILL-IN 
-          SIZE 38 BY 1
-     EDCatline.PID-Code AT ROW 3.14 COL 79 COLON-ALIGNED WIDGET-ID 40
-          VIEW-AS FILL-IN 
-          SIZE 4.4 BY 1
-     EDCatline.Commodity-qual AT ROW 4 COL 18.4 COLON-ALIGNED WIDGET-ID 8
-          VIEW-AS FILL-IN 
-          SIZE 4.4 BY 1
-     EDCatline.Price AT ROW 4 COL 58 COLON-ALIGNED WIDGET-ID 42
+     EDCatline.Pack-wght AT ROW 2.19 COL 90 COLON-ALIGNED WIDGET-ID 36
           VIEW-AS FILL-IN 
           SIZE 14 BY 1
-     EDCatline.Config-code AT ROW 5 COL 15 COLON-ALIGNED WIDGET-ID 10
+     EDCatline.Commodity-Grouping AT ROW 2.76 COL 27 COLON-ALIGNED WIDGET-ID 6
+          VIEW-AS FILL-IN 
+          SIZE 38 BY 1
+     EDCatline.Partner AT ROW 3.29 COL 90 COLON-ALIGNED WIDGET-ID 38
+          VIEW-AS FILL-IN 
+          SIZE 8 BY 1
+     EDCatline.Commodity-qual AT ROW 3.76 COL 27 COLON-ALIGNED WIDGET-ID 8
+          VIEW-AS FILL-IN 
+          SIZE 4.4 BY 1
+     EDCatline.Price AT ROW 4.33 COL 90 COLON-ALIGNED WIDGET-ID 42
+          VIEW-AS FILL-IN 
+          SIZE 14 BY 1
+     EDCatline.Config-code AT ROW 4.76 COL 27 COLON-ALIGNED WIDGET-ID 10
           VIEW-AS FILL-IN 
           SIZE 3.2 BY 1
-     EDCatline.Qty AT ROW 5 COL 58 COLON-ALIGNED WIDGET-ID 44
+     EDCatline.Qty AT ROW 5.29 COL 90 COLON-ALIGNED WIDGET-ID 44
           VIEW-AS FILL-IN 
           SIZE 17.6 BY 1
-     EDCatline.Description[1] AT ROW 6 COL 16.6 COLON-ALIGNED WIDGET-ID 12
+     EDCatline.Description[1] AT ROW 5.76 COL 27 COLON-ALIGNED WIDGET-ID 12
           VIEW-AS FILL-IN 
           SIZE 50 BY 1
-     EDCatline.Qty-Max AT ROW 6 COL 58 COLON-ALIGNED WIDGET-ID 46
+     EDCatline.Qty-Max AT ROW 6.33 COL 90 COLON-ALIGNED WIDGET-ID 46
           VIEW-AS FILL-IN 
           SIZE 14 BY 1
-     EDCatline.Description[2] AT ROW 7 COL 16.6 COLON-ALIGNED WIDGET-ID 14
+     EDCatline.Description[2] AT ROW 6.76 COL 27 COLON-ALIGNED WIDGET-ID 14
           VIEW-AS FILL-IN 
           SIZE 50 BY 1
-     EDCatline.Qty-Min AT ROW 7 COL 58 COLON-ALIGNED WIDGET-ID 48
+     EDCatline.Qty-Min AT ROW 7.43 COL 90 COLON-ALIGNED WIDGET-ID 48
           VIEW-AS FILL-IN 
           SIZE 14 BY 1
-     EDCatline.Dim-uom AT ROW 8 COL 15 COLON-ALIGNED WIDGET-ID 16
+     EDCatline.Dim-uom AT ROW 7.76 COL 27 COLON-ALIGNED WIDGET-ID 16
           VIEW-AS FILL-IN 
           SIZE 4.4 BY 1
-     EDCatline.rec_key AT ROW 8 COL 58 COLON-ALIGNED WIDGET-ID 50
+     EDCatline.rec_key AT ROW 8.38 COL 90 COLON-ALIGNED WIDGET-ID 50
           VIEW-AS FILL-IN 
           SIZE 26 BY 1
-     EDCatline.Dimensions[1] AT ROW 9 COL 16.6 COLON-ALIGNED WIDGET-ID 18
+     EDCatline.Dimensions[1] AT ROW 8.76 COL 27 COLON-ALIGNED WIDGET-ID 18
           VIEW-AS FILL-IN 
           SIZE 14 BY 1
-     EDCatline.Seq AT ROW 9 COL 58 COLON-ALIGNED WIDGET-ID 52
-          VIEW-AS FILL-IN 
-          SIZE 10.4 BY 1
-     EDCatline.Dimensions[2] AT ROW 10 COL 16.6 COLON-ALIGNED WIDGET-ID 20
-          VIEW-AS FILL-IN 
-          SIZE 14 BY 1
-     EDCatline.Size-ID AT ROW 10 COL 58 COLON-ALIGNED WIDGET-ID 54
-          VIEW-AS FILL-IN 
-          SIZE 8 BY 1
-     EDCatline.Dimensions[3] AT ROW 11 COL 16.6 COLON-ALIGNED WIDGET-ID 22
-          VIEW-AS FILL-IN 
-          SIZE 14 BY 1
-     EDCatline.Uom-code AT ROW 11 COL 58 COLON-ALIGNED WIDGET-ID 56
-          VIEW-AS FILL-IN 
-          SIZE 4.4 BY 1
-     EDCatline.Inner-units AT ROW 12 COL 15 COLON-ALIGNED WIDGET-ID 24
-          VIEW-AS FILL-IN 
-          SIZE 14 BY 1
-     EDCatline.UPC AT ROW 12 COL 58 COLON-ALIGNED WIDGET-ID 58
-          VIEW-AS FILL-IN 
-          SIZE 17.6 BY 1
-     EDCatline.Last-line AT ROW 13 COL 15 COLON-ALIGNED WIDGET-ID 26
+     EDCatline.Color-ID AT ROW 8.86 COL 49 COLON-ALIGNED WIDGET-ID 2
           VIEW-AS FILL-IN 
           SIZE 5.6 BY 1
-     EDCatline.Vendor-Item AT ROW 13 COL 58 COLON-ALIGNED WIDGET-ID 60
+     EDCatline.Seq AT ROW 9.38 COL 90 COLON-ALIGNED WIDGET-ID 52
+          VIEW-AS FILL-IN 
+          SIZE 10.4 BY 1
+     EDCatline.Dimensions[2] AT ROW 9.76 COL 27 COLON-ALIGNED WIDGET-ID 20
+          VIEW-AS FILL-IN 
+          SIZE 14 BY 1
+     EDCatline.Size-ID AT ROW 10.38 COL 90 COLON-ALIGNED WIDGET-ID 54
+          VIEW-AS FILL-IN 
+          SIZE 8 BY 1
+     EDCatline.Dimensions[3] AT ROW 10.76 COL 27 COLON-ALIGNED WIDGET-ID 22
+          VIEW-AS FILL-IN 
+          SIZE 14 BY 1
+     EDCatline.Uom-code AT ROW 11.38 COL 90 COLON-ALIGNED WIDGET-ID 56
+          VIEW-AS FILL-IN 
+          SIZE 4.4 BY 1
+     EDCatline.Inner-units AT ROW 11.76 COL 27 COLON-ALIGNED WIDGET-ID 24
+          VIEW-AS FILL-IN 
+          SIZE 14 BY 1
+     EDCatline.UPC AT ROW 12.38 COL 90 COLON-ALIGNED WIDGET-ID 58
+          VIEW-AS FILL-IN 
+          SIZE 17.6 BY 1
+     EDCatline.Last-line AT ROW 12.76 COL 27 COLON-ALIGNED WIDGET-ID 26
+          VIEW-AS FILL-IN 
+          SIZE 5.6 BY 1
+     EDCatline.Vendor-Item AT ROW 13.38 COL 90 COLON-ALIGNED WIDGET-ID 60
           VIEW-AS FILL-IN 
           SIZE 38 BY 1
-     EDCatline.Line AT ROW 14 COL 15 COLON-ALIGNED WIDGET-ID 28
+     EDCatline.Line AT ROW 13.76 COL 27 COLON-ALIGNED WIDGET-ID 28
           VIEW-AS FILL-IN 
           SIZE 9.2 BY 1
+     EDCatline.Volume-uom AT ROW 14.38 COL 90 COLON-ALIGNED WIDGET-ID 62
+          VIEW-AS FILL-IN 
+          SIZE 4.4 BY 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -218,19 +220,19 @@ DEFINE FRAME F-Main
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME F-Main
-     EDCatline.Volume-uom AT ROW 14 COL 58 COLON-ALIGNED WIDGET-ID 62
-          VIEW-AS FILL-IN 
-          SIZE 4.4 BY 1
-     EDCatline.Lines AT ROW 15 COL 15 COLON-ALIGNED WIDGET-ID 30
+     EDCatline.Lines AT ROW 14.76 COL 27 COLON-ALIGNED WIDGET-ID 30
           VIEW-AS FILL-IN 
           SIZE 5.6 BY 1
-     EDCatline.Wght-uom AT ROW 15 COL 58 COLON-ALIGNED WIDGET-ID 64
+     EDCatline.Wght-uom AT ROW 15.38 COL 90 COLON-ALIGNED WIDGET-ID 64
           VIEW-AS FILL-IN 
           SIZE 4.4 BY 1
-     EDCatline.Pack-size AT ROW 16 COL 15 COLON-ALIGNED WIDGET-ID 32
+     EDCatline.Pack-size AT ROW 15.76 COL 27 COLON-ALIGNED WIDGET-ID 32
           VIEW-AS FILL-IN 
           SIZE 10.4 BY 1
-     EDCatline.Pack-Volume AT ROW 17 COL 15.6 COLON-ALIGNED WIDGET-ID 34
+     EDCatline.PID-Code AT ROW 16.48 COL 90 COLON-ALIGNED WIDGET-ID 40
+          VIEW-AS FILL-IN 
+          SIZE 4.4 BY 1
+     EDCatline.Pack-Volume AT ROW 16.76 COL 27 COLON-ALIGNED WIDGET-ID 34
           VIEW-AS FILL-IN 
           SIZE 14 BY 1
      RECT-1 AT ROW 1 COL 1
@@ -310,13 +312,6 @@ ASSIGN
 &ANALYZE-RESUME
 
  
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _XFTR "SmartViewerCues" V-table-Win _INLINE
-/* Actions: adecomm/_so-cue.w ? adecomm/_so-cued.p ? adecomm/_so-cuew.p */
-/* SmartViewer,uib,49270
-Destroy on next read */
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK V-table-Win 

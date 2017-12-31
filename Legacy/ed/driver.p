@@ -128,7 +128,6 @@ HIDE FRAME f-top NO-PAUSE.
 VIEW FRAME f-current.
 FOR EACH edmast NO-LOCK
     WHERE CAN-DO(partner_list, edmast.partner):
-    MESSAGE "TEST  each edmast" edmast.partner view-as alert-box .
   DISPLAY edmast.partner WITH FRAME f-current.
   ws_partner = edmast.partner.
   IF top-debug THEN
@@ -139,9 +138,7 @@ FOR EACH edmast NO-LOCK
       AND edcode.direction = ws_direction
       /* 9809 CAH: Added proc-order to sorting sequence */
       BREAK BY edcode.partner /* BY edcode.proc-order */BY edcode.setid:
-      
-    MESSAGE "TEST  each edcode" edcode.setid view-as alert-box .
-      
+            
     IF top-debug THEN
     RUN rc/debugmsg.p
       ("Processing Code: "

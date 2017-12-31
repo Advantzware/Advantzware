@@ -229,8 +229,8 @@ DEFINE QUERY Browser-Table FOR
 DEFINE BROWSE Browser-Table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS Browser-Table B-table-Win _STRUCTURED
   QUERY Browser-Table NO-LOCK DISPLAY
-      EDIVTran.Invoice-no FORMAT "x(22)":U
-      EDIVTran.Partner FORMAT "x(05)":U
+      EDIVTran.Invoice-no COLUMN-LABEL "Invoice No" FORMAT "x(22)":U
+      EDIVTran.Partner FORMAT "x(15)":U
       EDIVTran.Vendor FORMAT "x(10)":U
       EDIVTran.Cust FORMAT "x(10)":U
       EDIVTran.Tot-net COLUMN-LABEL "Total Net Amt" FORMAT "->,>>>,>>>.99":U
@@ -402,7 +402,8 @@ ASSIGN
      _TblList          = "asi.EDIVTran"
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
      _TblOptList       = "USED"
-     _FldNameList[1]   = asi.EDIVTran.Invoice-no
+     _FldNameList[1]   > asi.EDIVTran.Invoice-no
+"Invoice-no" "Invoice No" ? "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   = asi.EDIVTran.Partner
      _FldNameList[3]   = asi.EDIVTran.Vendor
      _FldNameList[4]   = asi.EDIVTran.Cust

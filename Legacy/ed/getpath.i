@@ -27,8 +27,8 @@ do:
     RETURN.
 end.
 
-find edmast
-where edmast.partner = edcode.partner no-lock no-error.
+/*find edmast                                            */
+/*where edmast.partner = edcode.partner no-lock no-error.*/
 find edco where edco.company = ws_company no-lock no-error.
 IF NOT AVAIL edmast THEN
 do: ws_erc = -2. RETURN. end.
@@ -41,7 +41,7 @@ if not avail edco then do:
 assign
     ws_edmast_rec   = recid(edmast)
     ws_edco_rec     = recid(edco)
-    ws_partner      = edcode.partner
+    ws_partner      = edmast.partner
     ws_setid        = edcode.setid
     ws_version      = string(edcode.version,"9999")
     ws_direction    = edcode.direction

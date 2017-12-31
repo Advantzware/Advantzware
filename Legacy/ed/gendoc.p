@@ -24,7 +24,7 @@ END.
 CREATE eddoc.
 ASSIGN
   eddoc.setid         = edcode.setid
-  eddoc.partner       = edcode.partner
+  eddoc.partner       = ws_partner
   eddoc.docid         = p_docid
   eddoc.docseq        = ?
   eddoc.st-code       = ""

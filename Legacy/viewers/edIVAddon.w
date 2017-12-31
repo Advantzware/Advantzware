@@ -48,7 +48,7 @@ CREATE WIDGET-POOL.
 
 &Scoped-define ADM-SUPPORTED-LINKS Record-Source,Record-Target,TableIO-Target
 
-/* Name of first Frame and/or Browse and/or first Query                 */
+/* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME F-Main
 
 /* External Tables                                                      */
@@ -59,23 +59,23 @@ CREATE WIDGET-POOL.
 /* Need to scope the external tables to this procedure                  */
 DEFINE QUERY external_tables FOR EDIVAddon.
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-FIELDS EDIVAddon.Addon-line EDIVAddon.Option-code ~
-EDIVAddon.Agency-code EDIVAddon.Agency-qual EDIVAddon.Special-svc-code ~
-EDIVAddon.Allow-charge EDIVAddon.Uom-code EDIVAddon.Amount ~
-EDIVAddon.Partner EDIVAddon.Percent EDIVAddon.Hand-meth ~
-EDIVAddon.Basis-qual EDIVAddon.Qty EDIVAddon.Line EDIVAddon.Description[1] ~
-EDIVAddon.Rate EDIVAddon.Description[2] EDIVAddon.Ref-Num ~
-EDIVAddon.Invoice-no EDIVAddon.Seq 
+&Scoped-Define ENABLED-FIELDS EDIVAddon.Line EDIVAddon.Addon-line ~
+EDIVAddon.Option-code EDIVAddon.Agency-code EDIVAddon.Partner ~
+EDIVAddon.Agency-qual EDIVAddon.Basis-qual EDIVAddon.Percent ~
+EDIVAddon.Special-svc-code EDIVAddon.Allow-charge EDIVAddon.Uom-code ~
+EDIVAddon.Qty EDIVAddon.Amount EDIVAddon.Rate EDIVAddon.Description[1] ~
+EDIVAddon.Ref-Num EDIVAddon.Description[2] EDIVAddon.Seq ~
+EDIVAddon.Invoice-no EDIVAddon.Hand-meth 
 &Scoped-define ENABLED-TABLES EDIVAddon
 &Scoped-define FIRST-ENABLED-TABLE EDIVAddon
 &Scoped-Define ENABLED-OBJECTS RECT-1 
-&Scoped-Define DISPLAYED-FIELDS EDIVAddon.Addon-line EDIVAddon.Option-code ~
-EDIVAddon.Agency-code EDIVAddon.Agency-qual EDIVAddon.Special-svc-code ~
-EDIVAddon.Allow-charge EDIVAddon.Uom-code EDIVAddon.Amount ~
-EDIVAddon.Partner EDIVAddon.Percent EDIVAddon.Hand-meth ~
-EDIVAddon.Basis-qual EDIVAddon.Qty EDIVAddon.Line EDIVAddon.Description[1] ~
-EDIVAddon.Rate EDIVAddon.Description[2] EDIVAddon.Ref-Num ~
-EDIVAddon.Invoice-no EDIVAddon.Seq 
+&Scoped-Define DISPLAYED-FIELDS EDIVAddon.Line EDIVAddon.Addon-line ~
+EDIVAddon.Option-code EDIVAddon.Agency-code EDIVAddon.Partner ~
+EDIVAddon.Agency-qual EDIVAddon.Basis-qual EDIVAddon.Percent ~
+EDIVAddon.Special-svc-code EDIVAddon.Allow-charge EDIVAddon.Uom-code ~
+EDIVAddon.Qty EDIVAddon.Amount EDIVAddon.Rate EDIVAddon.Description[1] ~
+EDIVAddon.Ref-Num EDIVAddon.Description[2] EDIVAddon.Seq ~
+EDIVAddon.Invoice-no EDIVAddon.Hand-meth 
 &Scoped-define DISPLAYED-TABLES EDIVAddon
 &Scoped-define FIRST-DISPLAYED-TABLE EDIVAddon
 
@@ -123,67 +123,68 @@ DEFINE RECTANGLE RECT-1
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     EDIVAddon.Addon-line AT ROW 1 COL 15 COLON-ALIGNED WIDGET-ID 2
+     EDIVAddon.Line AT ROW 1.52 COL 76 COLON-ALIGNED WIDGET-ID 24
           VIEW-AS FILL-IN 
           SIZE 5.6 BY 1
-     EDIVAddon.Option-code AT ROW 1.95 COL 46 COLON-ALIGNED WIDGET-ID 44
+     EDIVAddon.Addon-line AT ROW 1.67 COL 16 COLON-ALIGNED WIDGET-ID 2
+          VIEW-AS FILL-IN 
+          SIZE 5.6 BY 1
+     EDIVAddon.Option-code AT ROW 2.48 COL 76 COLON-ALIGNED WIDGET-ID 44
           VIEW-AS FILL-IN 
           SIZE 26 BY 1
-     EDIVAddon.Agency-code AT ROW 2 COL 15.6 COLON-ALIGNED WIDGET-ID 4
+     EDIVAddon.Agency-code AT ROW 2.67 COL 16 COLON-ALIGNED WIDGET-ID 4
           VIEW-AS FILL-IN 
           SIZE 14 BY 1
-     EDIVAddon.Agency-qual AT ROW 3 COL 15 COLON-ALIGNED WIDGET-ID 6
+     EDIVAddon.Partner AT ROW 3.43 COL 76 COLON-ALIGNED WIDGET-ID 46
+          VIEW-AS FILL-IN 
+          SIZE 8 BY 1
+     EDIVAddon.Agency-qual AT ROW 3.67 COL 16 COLON-ALIGNED WIDGET-ID 6
           VIEW-AS FILL-IN 
           SIZE 4.4 BY 1
-     EDIVAddon.Special-svc-code AT ROW 3.95 COL 40.4 COLON-ALIGNED WIDGET-ID 60
+     EDIVAddon.Basis-qual AT ROW 3.86 COL 110.2 COLON-ALIGNED WIDGET-ID 12
+          VIEW-AS FILL-IN 
+          SIZE 3.2 BY 1
+     EDIVAddon.Percent AT ROW 4.38 COL 76 COLON-ALIGNED WIDGET-ID 48
+          VIEW-AS FILL-IN 
+          SIZE 14 BY 1
+     EDIVAddon.Special-svc-code AT ROW 4.62 COL 41.8 COLON-ALIGNED WIDGET-ID 60
           VIEW-AS FILL-IN 
           SIZE 6.8 BY 1
-     EDIVAddon.Allow-charge AT ROW 4 COL 15 COLON-ALIGNED WIDGET-ID 8
+     EDIVAddon.Allow-charge AT ROW 4.67 COL 16 COLON-ALIGNED WIDGET-ID 8
           VIEW-AS FILL-IN 
           SIZE 3.2 BY 1
      EDIVAddon.Uom-code AT ROW 4.81 COL 110 COLON-ALIGNED WIDGET-ID 62
           VIEW-AS FILL-IN 
           SIZE 4.4 BY 1
-     EDIVAddon.Amount AT ROW 5 COL 15 COLON-ALIGNED WIDGET-ID 10
-          VIEW-AS FILL-IN 
-          SIZE 15.2 BY 1
-     EDIVAddon.Partner AT ROW 5.05 COL 46 COLON-ALIGNED WIDGET-ID 46
-          VIEW-AS FILL-IN 
-          SIZE 8 BY 1
-     EDIVAddon.Percent AT ROW 5.05 COL 63 COLON-ALIGNED WIDGET-ID 48
-          VIEW-AS FILL-IN 
-          SIZE 14 BY 1
-     EDIVAddon.Hand-meth AT ROW 5.91 COL 120 COLON-ALIGNED WIDGET-ID 20
-          VIEW-AS FILL-IN 
-          SIZE 4.4 BY 1
-     EDIVAddon.Basis-qual AT ROW 6 COL 15 COLON-ALIGNED WIDGET-ID 12
-          VIEW-AS FILL-IN 
-          SIZE 3.2 BY 1
-     EDIVAddon.Qty AT ROW 6 COL 76 COLON-ALIGNED WIDGET-ID 50
+     EDIVAddon.Qty AT ROW 5.33 COL 76 COLON-ALIGNED WIDGET-ID 50
           VIEW-AS FILL-IN 
           SIZE 17.6 BY 1
-     EDIVAddon.Line AT ROW 6 COL 101 COLON-ALIGNED WIDGET-ID 24
+     EDIVAddon.Amount AT ROW 5.67 COL 16 COLON-ALIGNED WIDGET-ID 10
           VIEW-AS FILL-IN 
-          SIZE 5.6 BY 1
-     EDIVAddon.Description[1] AT ROW 6.95 COL 16.6 COLON-ALIGNED WIDGET-ID 16
-          VIEW-AS FILL-IN 
-          SIZE 38 BY 1
-     EDIVAddon.Rate AT ROW 6.95 COL 76 COLON-ALIGNED WIDGET-ID 52
+          SIZE 15.2 BY 1
+     EDIVAddon.Rate AT ROW 6.29 COL 76 COLON-ALIGNED WIDGET-ID 52
           VIEW-AS FILL-IN 
           SIZE 12.8 BY 1
-     EDIVAddon.Description[2] AT ROW 7.91 COL 16.6 COLON-ALIGNED WIDGET-ID 18
+     EDIVAddon.Description[1] AT ROW 6.86 COL 16 COLON-ALIGNED WIDGET-ID 16
+          LABEL "Description"
           VIEW-AS FILL-IN 
           SIZE 38 BY 1
-     EDIVAddon.Ref-Num AT ROW 7.91 COL 76 COLON-ALIGNED WIDGET-ID 56
+     EDIVAddon.Ref-Num AT ROW 7.24 COL 76 COLON-ALIGNED WIDGET-ID 56
           VIEW-AS FILL-IN 
           SIZE 38 BY 1
-     EDIVAddon.Invoice-no AT ROW 8.86 COL 17 COLON-ALIGNED WIDGET-ID 22
+     EDIVAddon.Description[2] AT ROW 7.86 COL 16 COLON-ALIGNED NO-LABEL WIDGET-ID 18
           VIEW-AS FILL-IN 
-          SIZE 28.4 BY 1
-     EDIVAddon.Seq AT ROW 8.86 COL 76 COLON-ALIGNED WIDGET-ID 58
+          SIZE 38 BY 1
+     EDIVAddon.Seq AT ROW 8.19 COL 76 COLON-ALIGNED WIDGET-ID 58
           VIEW-AS FILL-IN 
           SIZE 10.4 BY 1
-     RECT-1 AT ROW 1 COL 1
+     EDIVAddon.Invoice-no AT ROW 8.86 COL 16 COLON-ALIGNED WIDGET-ID 22
+          VIEW-AS FILL-IN 
+          SIZE 28.4 BY 1
+     EDIVAddon.Hand-meth AT ROW 9.19 COL 76 COLON-ALIGNED WIDGET-ID 20
+          VIEW-AS FILL-IN 
+          SIZE 4.4 BY 1
+     RECT-1 AT ROW 1.24 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -241,11 +242,13 @@ END.
 /* SETTINGS FOR WINDOW V-table-Win
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME F-Main
-   NOT-VISIBLE Size-to-Fit                                              */
+   NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
 
+/* SETTINGS FOR FILL-IN EDIVAddon.Description[1] IN FRAME F-Main
+   EXP-LABEL                                                            */
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 

@@ -317,7 +317,7 @@ END.
                 v-tot-pallets = 0
                 v-pc = "C". /* complete*/
          FOR EACH oe-bolh NO-LOCK WHERE oe-bolh.b-no = xinv-line.b-no 
-              /*oe-bolh.ord-no = xinv-line.ord-no*/ :
+                /*oe-bolh.ord-no = xinv-line.ord-no*/ :
            v-pc = "P". /* partial*/ 
            FOR EACH oe-boll fields(cases partial p-c) NO-LOCK WHERE
               oe-boll.company = oe-bolh.company AND
@@ -333,8 +333,8 @@ END.
               
            END. /* each oe-boll */
            assign v-date-ship = oe-bolh.bol-date
-                      /* v-tot-pallets = v-tot-pallets + v-bol-cases +
-                                       (if oe-boll.partial gt 0 then 1 else 0) */.
+                        /* v-tot-pallets = v-tot-pallets + v-bol-cases +
+                                         (if oe-boll.partial gt 0 then 1 else 0) */.
          END. /* each oe-bolh */
          
          if last-of(xinv-line.i-no) then do:
@@ -440,9 +440,7 @@ END.
             assign v-price-head = inv-line.pr-uom.
         end.
         
-        /* Create eddoc for invoice if required */
-        RUN ed/asi/o810hook.p (recid(inv-head), no, no).     
-        RUN ed/asi/write810.p (INPUT cocode).
+
         
         /* rstark 05181205 */
         XMLLineNumber = 0.
@@ -616,7 +614,7 @@ END.
           END.
 
             assign v-line = v-line + 1
-                  /* v-printline = v-printline + 2 */.  
+                    /* v-printline = v-printline + 2 */.  
             find first oe-ordl where oe-ordl.company = cocode and
                                      oe-ordl.ord-no = inv-line.ord-no and
                                      oe-ordl.i-no = inv-line.i-no
@@ -1041,6 +1039,22 @@ END.
     IF v-printline <= 66 THEN page.
     
     {XMLOutput/XMLOutput.i &c=c &XMLClose} /* rstark 05291402 */
+    /* Create eddoc for invoice if required */
+    RUN ed/asi/o810hook.p (recid(inv-head), no, no).     
+    FIND FIRST edmast NO-LOCK
+          WHERE edmast.cust EQ inv-head.cust-no
+          NO-ERROR.
+   IF AVAIL edmast THEN DO: 
+     FIND FIRST edcode NO-LOCK
+       WHERE edcode.partner EQ edmast.partner
+     NO-ERROR.
+     IF NOT AVAIL edcode THEN 
+       FIND FIRST edcode NO-LOCK
+            WHERE edcode.partner EQ edmast.partnerGrp
+            NO-ERROR.
+   END.  
+   IF AVAIL edcode AND edcode.sendFileOnPrint THEN    
+    RUN ed/asi/write810.p (INPUT cocode).    
   end. /* each xinv-head */
 
 {XMLOutput/XMLOutput.i &XMLClose} /* rstark 05181205 */

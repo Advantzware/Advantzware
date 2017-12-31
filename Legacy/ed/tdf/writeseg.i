@@ -52,9 +52,7 @@ DO segx = 1 TO NUM-ENTRIES(segment_list)
     IF SEARCH(next_program) <> ? THEN
     DO:
       error-status:error = FALSE.
-      /* MESSAGE "test in writeseg.i run next program" next_program VIEW-AS ALERT-BOX. */
       RUN VALUE(next_program) ("O", INPUT-OUTPUT str_buffa, OUTPUT ws_erc).
-       /* MESSAGE "test in writeseg.i DONE next program" next_program VIEW-AS ALERT-BOX. */
       IF ws_erc <> 0 OR error-status:error THEN
       DO:
         RUN rc/debugmsg.p ("Run of " + next_program 

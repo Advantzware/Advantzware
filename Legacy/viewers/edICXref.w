@@ -59,13 +59,13 @@ CREATE WIDGET-POOL.
 /* Need to scope the external tables to this procedure                  */
 DEFINE QUERY external_tables FOR EDICXref.
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-FIELDS EDICXref.Partner EDICXref.Item-no ~
-EDICXref.Cust-item-no EDICXref.Company 
+&Scoped-Define ENABLED-FIELDS EDICXref.Company EDICXref.Partner ~
+EDICXref.Item-no EDICXref.Cust-item-no 
 &Scoped-define ENABLED-TABLES EDICXref
 &Scoped-define FIRST-ENABLED-TABLE EDICXref
 &Scoped-Define ENABLED-OBJECTS RECT-1 
-&Scoped-Define DISPLAYED-FIELDS EDICXref.Partner EDICXref.Item-no ~
-EDICXref.Cust-item-no EDICXref.Company 
+&Scoped-Define DISPLAYED-FIELDS EDICXref.Company EDICXref.Partner ~
+EDICXref.Item-no EDICXref.Cust-item-no 
 &Scoped-define DISPLAYED-TABLES EDICXref
 &Scoped-define FIRST-DISPLAYED-TABLE EDICXref
 
@@ -111,6 +111,9 @@ DEFINE RECTANGLE RECT-1
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
+     EDICXref.Company AT ROW 3.14 COL 21 COLON-ALIGNED WIDGET-ID 2
+          VIEW-AS FILL-IN 
+          SIZE 11.6 BY 1
      EDICXref.Partner AT ROW 4.1 COL 21 COLON-ALIGNED WIDGET-ID 8
           VIEW-AS FILL-IN 
           SIZE 8 BY 1
@@ -122,9 +125,6 @@ DEFINE FRAME F-Main
           LABEL "Cust Item No"
           VIEW-AS FILL-IN 
           SIZE 38 BY 1
-     EDICXref.Company AT ROW 7.1 COL 21 COLON-ALIGNED WIDGET-ID 2
-          VIEW-AS FILL-IN 
-          SIZE 11.6 BY 1
      RECT-1 AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -206,13 +206,6 @@ ASSIGN
 &ANALYZE-RESUME
 
  
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _XFTR "SmartViewerCues" V-table-Win _INLINE
-/* Actions: adecomm/_so-cue.w ? adecomm/_so-cued.p ? adecomm/_so-cuew.p */
-/* SmartViewer,uib,49270
-Destroy on next read */
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK V-table-Win 

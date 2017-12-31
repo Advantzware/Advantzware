@@ -32,15 +32,18 @@ DEFINE VARIABLE detail_segment_list    AS CHARACTER    NO-UNDO.
 DEFINE VARIABLE trailer_segment_list   AS CHARACTER    NO-UNDO.
 DEFINE VARIABLE partner_segment_list   AS CHARACTER    NO-UNDO.
 DEFINE VARIABLE ctt_count_segment_list AS CHARACTER    NO-UNDO.
+DEFINE VARIABLE lPathIsGood AS LOGICAL NO-UNDO.
 
-/* wfk for testing */
 ws_filetype = "EDI".
 
 
 ASSIGN
-    header_segment_list    = "000,000,BIG,002,CUR,003,REF,004,PER,005,N1,006,N2,007,N3,008,N4,009,ITD,010,DTM,011,FOB,012,PID,017"
-    detail_segment_list    = "IT1,013,PID,014,IT3,015,CTP,016,MEA,017,MEA,019,PO4,020,REF,021,SDQ,022,SAC,023,SLN,024,TC2,025"
-    trailer_segment_list   = "TDS,025,CAD,026,SAC,027,TXI,028,ISS,029"
+  header_segment_list =
+  "000,000,BIG,002,CUR,003,REF,004,PER,005,N1,006,N2,007,N3,008,N4,009,ITD,010,DTM,011,FOB,012,PID,017"
+  detail_segment_list =
+  "IT1,013,PID,014,IT3,015,CTP,016,MEA,017,MEA,019,PO4,020,REF,021,SDQ,022,SAC,023,SLN,024,TC2,025"
+  trailer_segment_list =
+  "TDS,025,CAD,026,SAC,027,TXI,028,ISS,029"
     ctt_count_segment_list = "IT1".
 /*CASE ws_partner:                                                          */
 /*WHEN "AMAZ" OR WHEN "SEARS" THEN                                          */
@@ -106,15 +109,21 @@ ASSIGN
     hdg_text = "".
 FORM
     WITH FRAME f-det DOWN WIDTH 144.
-OUTPUT STREAM s-edi TO VALUE(ws_edi_path).
+    
+ws_edi_path = ws_edi_path +  fOutputFileName().
+lPathIsGood = fCheckFolderOfPath(ws_edi_path).
+IF NOT lPathIsGood THEN 
+    RETURN.
+OUTPUT STREAM s-edi TO VALUE(ws_edi_path).    
+
 START = TIME.
 FOR EACH eddoc EXCLUSIVE
     WHERE eddoc.setid = edcode.setid
-      AND eddoc.partner = edcode.partner
+      AND eddoc.partner = ws_partner
       AND eddoc.error-count = 0
       AND eddoc.posted = FALSE
       AND eddoc.direction = edcode.direction
-      AND NOT eddoc.status-flag = "DEL"   /* 9809 CAH */:
+AND NOT eddoc.status-flag = "DEL"   /* 9809 CAH */:
     ws_section = 10.
     /*
     DISPLAY
@@ -128,7 +137,8 @@ FOR EACH eddoc EXCLUSIVE
       */
      
     /* Notify UI to display current being processed */
-    PUBLISH "EDIEVENT" ( eddoc.partner + "   " + eddoc.setid + "   " + eddoc.direction + "   " +    string(eddoc.seq)) .
+    PUBLISH "EDIEVENT" ( "Partner: " + eddoc.partner + " SetID:  " + eddoc.setid 
+           + " Direction:  " + eddoc.direction + " Seq:  " +    string(eddoc.seq)) .
     
   {rc/incr.i ws_recs_read}.
     FIND edivtran OF eddoc
@@ -462,7 +472,7 @@ FOR EACH eddoc EXCLUSIVE
         ASSIGN     
             tax_type          = "ST"
             total_tax_dollars = EDIVAddon.amount
-            tax_pct           = 7.75
+            tax_pct           = EDIVAddon.rate
             .              
         RUN write_segments.ip ("TXI,028").
     END.
@@ -536,9 +546,9 @@ DO:
     DOWN STREAM s-out WITH FRAME f-det.
     PAGE.
 END.
-{rc/statsdis.i}
+/*{rc/statsdis.i} */
 VIEW STREAM s-out FRAME f-stats.
-HIDE FRAME f-stats NO-PAUSE.
+HIDE STREAM s-out FRAME f-stats NO-PAUSE.
 PAGE STREAM s-out.
 
 IF ws_filetype EQ "EDI" THEN 

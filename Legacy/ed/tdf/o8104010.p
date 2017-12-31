@@ -20,20 +20,20 @@ then detail area.
 {rc/stringv.i       "new shared"}
 {rc/fcurrent.i}
 {rc/stats.i}
-DEF SHARED STREAM s-out.
-DEF SHARED STREAM s-err.
-DEF STREAM s-edi.
-DEF VAR n_recs AS INT NO-UNDO.
-DEF VAR ws_tax  AS DECIMAL NO-UNDO.
-DEF VAR ws_misc AS DECIMAL NO-UNDO.
-DEF var ws_line AS int NO-UNDO.
-DEF VAR header_segment_list AS CHAR NO-UNDO.
-DEF VAR detail_segment_list AS CHAR NO-UNDO.
-DEF VAR trailer_segment_list AS CHAR NO-UNDO.
-DEF VAR partner_segment_list AS CHAR NO-UNDO.
-DEF var ctt_count_segment_list      AS char NO-UNDO.
+DEFINE SHARED STREAM s-out.
+DEFINE SHARED STREAM s-err.
+DEFINE STREAM s-edi.
+DEFINE VARIABLE n_recs                 AS INTEGER     NO-UNDO.
+DEFINE VARIABLE ws_tax                 AS DECIMAL NO-UNDO.
+DEFINE VARIABLE ws_misc                AS DECIMAL NO-UNDO.
+DEFINE VARIABLE ws_line                AS INTEGER     NO-UNDO.
+DEFINE VARIABLE header_segment_list    AS CHARACTER    NO-UNDO.
+DEFINE VARIABLE detail_segment_list    AS CHARACTER    NO-UNDO.
+DEFINE VARIABLE trailer_segment_list   AS CHARACTER    NO-UNDO.
+DEFINE VARIABLE partner_segment_list   AS CHARACTER    NO-UNDO.
+DEFINE VARIABLE ctt_count_segment_list AS CHARACTER    NO-UNDO.
+DEFINE VARIABLE lPathIsGood            AS LOGICAL      NO-UNDO.
 
-/* wfk for testing */
 ws_filetype = "EDI".
 
 
@@ -94,7 +94,7 @@ ASSIGN
 /* 9808 CAH: To prevent superfluous page headings */
 FIND FIRST eddoc NO-LOCK
   WHERE eddoc.setid = edcode.setid
-  AND eddoc.partner = edcode.partner
+    AND eddoc.partner = ws_partner
   AND eddoc.error-count = 0
   AND eddoc.posted = FALSE
   AND NOT eddoc.status-flag = "DEL"   /* 9809 CAH */
@@ -109,15 +109,21 @@ ASSIGN
   hdg_text = "".
 FORM
   WITH FRAME f-det DOWN WIDTH 144.
+  
+ws_edi_path = ws_edi_path +  fOutputFileName().
+lPathIsGood = fCheckFolderOfPath(ws_edi_path).
+IF NOT lPathIsGood THEN 
+  RETURN.
 OUTPUT STREAM s-edi TO VALUE(ws_edi_path).
+
 START = TIME.
 FOR EACH eddoc EXCLUSIVE
     WHERE eddoc.setid = edcode.setid
-    AND eddoc.partner = edcode.partner
+      AND eddoc.partner = ws_partner
     AND eddoc.error-count = 0
     AND eddoc.posted = FALSE
     AND eddoc.direction = edcode.direction
-    AND NOT eddoc.status-flag = "DEL"   /* 9809 CAH */:
+AND NOT eddoc.status-flag = "DEL"   /* 9809 CAH */:
   ws_section = 10.
   /*
   DISPLAY
@@ -129,11 +135,15 @@ FOR EACH eddoc EXCLUSIVE
     eddoc.userref   FORMAT "x(22)"
     WITH FRAME f-current.
     */
-  PUBLISH "EDIEVENT" ( eddoc.partner + "   " + eddoc.setid + "   " + eddoc.direction + "   " +    string(eddoc.seq)) .
+     
+    /* Notify UI to display current being processed */
+    PUBLISH "EDIEVENT" ( "Partner: " + eddoc.partner + " SetID:  " + eddoc.setid 
+           + " Direction:  " + eddoc.direction + " Seq:  " +    string(eddoc.seq)) .
+    
   {rc/incr.i ws_recs_read}.
   FIND edivtran OF eddoc
     EXCLUSIVE-LOCK NO-ERROR.
-  IF NOT AVAIL edivtran THEN
+    IF NOT AVAILABLE edivtran THEN
   DO:
     ws_erc = 3001.
     ws_erc_desc = ",,,,," + string(eddoc.seq).
@@ -243,12 +253,12 @@ DO:
     .
 END.  /* SEARS */
 END CASE.
-top-debug = true.
+    /* top-debug = TRUE. */
 {rc/incr.i ws_recs_selected}.
 error-status:error = FALSE.
 
 RUN write_segments.ip (header_segment_list).
-CASE ws_partner:
+    CASE ws_partner_grp:
 WHEN "AMAZ" THEN
 DO:
   FIND FIRST EDShipto NO-LOCK WHERE EDShipto.cust EQ EDIVTran.cust
@@ -416,8 +426,9 @@ FOR EACH edivline OF edivtran EXCLUSIVE
     .
     
   /* 9810 CAH ... */
-  CASE ws_partner:
-  when "SEARS" then do:
+        CASE ws_partner_grp:
+            WHEN "SEARS" THEN 
+                DO:
     if unit_of_measure = "" 
     or unit_of_measure = "CT" 
     or unit_of_measure = "CS"
@@ -461,7 +472,7 @@ FOR EACH edivaddon OF edivtran EXCLUSIVE WHERE EDIVAddon.Agency-code EQ "TAX":
    ASSIGN     
         tax_type = "ST"
         total_tax_dollars = EDIVAddon.amount
-        tax_pct = 7.75
+        tax_pct = EDIVAddon.rate
         .              
     RUN write_segments.ip ("TXI,028").
 END.
@@ -535,9 +546,9 @@ DO:
   DOWN STREAM s-out WITH FRAME f-det.
   PAGE.
 END.
-{rc/statsdis.i}
+/*{rc/statsdis.i} */
 VIEW STREAM s-out FRAME f-stats.
-HIDE FRAME f-stats NO-PAUSE.
+HIDE STREAM s-out FRAME f-stats NO-PAUSE.
 PAGE STREAM s-out.
 
 IF ws_filetype EQ "EDI" THEN 

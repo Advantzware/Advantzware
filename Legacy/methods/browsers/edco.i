@@ -19,7 +19,7 @@
 
 &Global-define FLDNAME1 edco.System
 &Global-define FORMAT-1 X(5)
-&Global-define SORTBY-1 BY edco.System BY edco.loc BY edco.loc-bin
+&Global-define SORTBY-1 BY edco.company BY edco.system
 &Global-define IDXNAME1 
 &Global-define DESCRIP1 System
 &Global-define FLDNAME2 edco.company

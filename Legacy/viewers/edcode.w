@@ -60,14 +60,16 @@ CREATE WIDGET-POOL.
 DEFINE QUERY external_tables FOR EDCode.
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-FIELDS EDCode.Partner EDCode.SetID EDCode.Agency ~
-EDCode.Version EDCode.Test-prod EDCode.Direction EDCode.Customized ~
-EDCode.Custom-proc EDCode.Path-in EDCode.Path-out 
+EDCode.Version EDCode.Test-prod EDCode.Direction EDCode.Custom-proc ~
+EDCode.Customized EDCode.Path-in EDCode.Path-out EDCode.outputType ~
+EDCode.sendFileOnPrint 
 &Scoped-define ENABLED-TABLES EDCode
 &Scoped-define FIRST-ENABLED-TABLE EDCode
 &Scoped-Define ENABLED-OBJECTS RECT-1 
 &Scoped-Define DISPLAYED-FIELDS EDCode.Partner EDCode.SetID EDCode.Agency ~
-EDCode.Version EDCode.Test-prod EDCode.Direction EDCode.Customized ~
-EDCode.Custom-proc EDCode.Path-in EDCode.Path-out 
+EDCode.Version EDCode.Test-prod EDCode.Direction EDCode.Custom-proc ~
+EDCode.Customized EDCode.Path-in EDCode.Path-out EDCode.outputType ~
+EDCode.sendFileOnPrint 
 &Scoped-define DISPLAYED-TABLES EDCode
 &Scoped-define FIRST-DISPLAYED-TABLE EDCode
 
@@ -107,7 +109,7 @@ RUN set-attribute-list (
 /* Definitions of the field level widgets                               */
 DEFINE RECTANGLE RECT-1
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 144 BY 17.14.
+     SIZE 144 BY 18.1.
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -116,36 +118,55 @@ DEFINE FRAME F-Main
      EDCode.Partner AT ROW 1.71 COL 16 COLON-ALIGNED WIDGET-ID 10
           VIEW-AS FILL-IN 
           SIZE 8 BY 1
-     EDCode.SetID AT ROW 1.71 COL 33 COLON-ALIGNED WIDGET-ID 18
+     EDCode.SetID AT ROW 1.71 COL 33.6 COLON-ALIGNED WIDGET-ID 18
           VIEW-AS FILL-IN 
           SIZE 9.2 BY 1
-     EDCode.Agency AT ROW 3.05 COL 50 COLON-ALIGNED WIDGET-ID 2
+     EDCode.Agency AT ROW 1.71 COL 54 COLON-ALIGNED WIDGET-ID 2
           VIEW-AS FILL-IN 
           SIZE 3.2 BY 1
-     EDCode.Version AT ROW 3.05 COL 60.4 COLON-ALIGNED WIDGET-ID 22
+     EDCode.Version AT ROW 1.71 COL 65 COLON-ALIGNED WIDGET-ID 22
           VIEW-AS FILL-IN 
           SIZE 6.8 BY 1
-     EDCode.Test-prod AT ROW 3.1 COL 33 COLON-ALIGNED WIDGET-ID 20
+     EDCode.Test-prod AT ROW 3.1 COL 35.6 WIDGET-ID 30
+          LABEL "Test Mode?"
+          VIEW-AS TOGGLE-BOX
+          SIZE 17.4 BY .81
+     EDCode.Direction AT ROW 3.14 COL 16.2 COLON-ALIGNED WIDGET-ID 26
+          VIEW-AS COMBO-BOX INNER-LINES 2
+          LIST-ITEM-PAIRS "In","I",
+                     "Out","O"
+          DROP-DOWN-LIST
+          SIZE 9 BY 1
+     EDCode.Custom-proc AT ROW 5.29 COL 39 COLON-ALIGNED WIDGET-ID 4 FORMAT "x(30)"
           VIEW-AS FILL-IN 
-          SIZE 6.8 BY 1
-     EDCode.Direction AT ROW 3.14 COL 16 COLON-ALIGNED WIDGET-ID 8
-          VIEW-AS FILL-IN 
-          SIZE 3.2 BY 1
-     EDCode.Customized AT ROW 5.29 COL 16.4 COLON-ALIGNED WIDGET-ID 6
-          VIEW-AS FILL-IN 
-          SIZE 5.6 BY 1
-     EDCode.Custom-proc AT ROW 5.29 COL 43 COLON-ALIGNED WIDGET-ID 4
-          VIEW-AS FILL-IN 
-          SIZE 26 BY 1
+          SIZE 51 BY 1
+     EDCode.Customized AT ROW 5.38 COL 18.4 WIDGET-ID 24
+          VIEW-AS TOGGLE-BOX
+          SIZE 14.8 BY .81
      EDCode.Path-in AT ROW 6.24 COL 16.4 COLON-ALIGNED WIDGET-ID 12
           LABEL "Path In"
           VIEW-AS FILL-IN 
-          SIZE 74 BY 1
+          SIZE 73.6 BY 1
      EDCode.Path-out AT ROW 7.24 COL 16.4 COLON-ALIGNED WIDGET-ID 14
           LABEL "Path Out"
           VIEW-AS FILL-IN 
-          SIZE 74 BY 1
-     RECT-1 AT ROW 1 COL 1
+          SIZE 73.6 BY 1
+     EDCode.outputType AT ROW 8.62 COL 17 COLON-ALIGNED WIDGET-ID 36
+          VIEW-AS COMBO-BOX INNER-LINES 6
+          LIST-ITEMS "EDI","XML","Fixed","Delimited","CSV" 
+          DROP-DOWN-LIST
+          SIZE 16 BY 1
+     EDCode.sendFileOnPrint AT ROW 10.05 COL 19 WIDGET-ID 38
+          LABEL "Send File on Print?"
+          VIEW-AS TOGGLE-BOX
+          SIZE 29 BY .81
+     "(Include file prefix)" VIEW-AS TEXT
+          SIZE 24 BY .62 AT ROW 7.43 COL 95 WIDGET-ID 34
+          FGCOLOR 1 
+     "(Include file prefix)" VIEW-AS TEXT
+          SIZE 24 BY .62 AT ROW 6.48 COL 95 WIDGET-ID 32
+          FGCOLOR 1 
+     RECT-1 AT ROW 1.19 COL 1.4
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -208,9 +229,15 @@ ASSIGN
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
 
+/* SETTINGS FOR FILL-IN EDCode.Custom-proc IN FRAME F-Main
+   EXP-FORMAT                                                           */
 /* SETTINGS FOR FILL-IN EDCode.Path-in IN FRAME F-Main
    EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN EDCode.Path-out IN FRAME F-Main
+   EXP-LABEL                                                            */
+/* SETTINGS FOR TOGGLE-BOX EDCode.sendFileOnPrint IN FRAME F-Main
+   EXP-LABEL                                                            */
+/* SETTINGS FOR TOGGLE-BOX EDCode.Test-prod IN FRAME F-Main
    EXP-LABEL                                                            */
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -227,6 +254,39 @@ ASSIGN
 
  
 
+
+
+/* ************************  Control Triggers  ************************ */
+
+&Scoped-define SELF-NAME EDCode.Partner
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL EDCode.Partner V-table-Win
+ON LEAVE OF EDCode.Partner IN FRAME F-Main /* Partner */
+DO:
+    IF LASTKEY NE -1 THEN DO:
+      RUN valid-partner NO-ERROR.
+      IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+    END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME EDCode.SetID
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL EDCode.SetID V-table-Win
+ON LEAVE OF EDCode.SetID IN FRAME F-Main /* SetID */
+DO:
+    IF LASTKEY NE -1 THEN DO:
+      RUN valid-setid NO-ERROR.
+      IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+    END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&UNDEFINE SELF-NAME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK V-table-Win 
 
@@ -331,6 +391,54 @@ PROCEDURE state-changed :
          or add new cases. */
       {src/adm/template/vstates.i}
   END CASE.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-partner V-table-Win 
+PROCEDURE valid-partner :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  {methods/lValidateError.i YES}
+
+  DEF VAR v-avail AS LOG INIT YES NO-UNDO.
+
+  IF NOT CAN-FIND(FIRST edmast NO-LOCK 
+    WHERE edmast.partner EQ edcode.partner:SCREEN-VALUE IN FRAME {&FRAME-NAME}) THEN
+      v-avail = FALSE.
+  
+  IF NOT v-avail THEN RETURN ERROR.
+
+  {methods/lValidateError.i NO}
+  
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-setid V-table-Win 
+PROCEDURE valid-setid :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  {methods/lValidateError.i YES}
+
+  DEF VAR v-avail AS LOG INIT YES NO-UNDO.
+
+  IF NOT CAN-FIND(FIRST edsetid NO-LOCK 
+    WHERE edsetid.setid EQ edcode.setid:SCREEN-VALUE IN FRAME {&FRAME-NAME}) THEN
+      v-avail = FALSE.
+  
+  IF NOT v-avail THEN RETURN ERROR.
+
+  {methods/lValidateError.i NO}
+  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

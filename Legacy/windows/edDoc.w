@@ -83,6 +83,7 @@ DEFINE VARIABLE h_exit AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_f-add AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_folder AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_options AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_p-edsend AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_p-navico AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_p-updsav AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_smartmsg AS HANDLE NO-UNDO.
@@ -339,15 +340,28 @@ PROCEDURE adm-create-objects :
        RUN set-position IN h_eddoc ( 4.81 , 3.40 ) NO-ERROR.
        RUN set-size IN h_eddoc ( 19.52 , 145.00 ) NO-ERROR.
 
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'panels/p-edsend.w':U ,
+             INPUT  FRAME OPTIONS-FRAME:HANDLE ,
+             INPUT  'Edge-Pixels = 2,
+                     SmartPanelType = Save,
+                     AddFunction = One-Record':U ,
+             OUTPUT h_p-edsend ).
+       RUN set-position IN h_p-edsend ( 1.05 , 68.20 ) NO-ERROR.
+       RUN set-size IN h_p-edsend ( 1.86 , 9.00 ) NO-ERROR.
+
        /* Initialize other pages that this page requires. */
        RUN init-pages IN THIS-PROCEDURE ('2':U) NO-ERROR.
 
        /* Links to SmartNavBrowser h_eddoc. */
+       RUN add-link IN adm-broker-hdl ( h_p-edsend , 'resend':U , h_eddoc ).
        RUN add-link IN adm-broker-hdl ( h_p-navico , 'Navigation':U , h_eddoc ).
 
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_eddoc ,
              h_folder , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_p-edsend ,
+             h_exit , 'AFTER':U ).
     END. /* Page 1 */
     WHEN 2 THEN DO:
        RUN init-object IN THIS-PROCEDURE (

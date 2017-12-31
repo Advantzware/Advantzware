@@ -66,25 +66,25 @@ CREATE WIDGET-POOL.
 DEFINE QUERY external_tables FOR EDDoc.
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-FIELDS EDDoc.Partner EDDoc.SetID EDDoc.Direction ~
-EDDoc.Posted EDDoc.Set-Test-Prod EDDoc.DocID EDDoc.ST EDDoc.ISA EDDoc.GS ~
+EDDoc.Set-Test-Prod EDDoc.Posted EDDoc.DocID EDDoc.ST EDDoc.ISA EDDoc.GS ~
 EDDoc.DocSeq EDDoc.Version EDDoc.FGAgency EDDoc.FGDate EDDoc.Recv-Test-Prod ~
 EDDoc.OpenItem EDDoc.EDI_Agency EDDoc.ST-Code EDDoc.C-FADate EDDoc.Stat ~
 EDDoc.InterpDate EDDoc.C-FATime EDDoc.Seq EDDoc.Status-Flag ~
 EDDoc.InterpTime EDDoc.Unique-Order-No EDDoc.EDI_Standard EDDoc.Error-count ~
 EDDoc.Unique-SDQ-No EDDoc.UserRef EDDoc.AddOp EDDoc.AddDate EDDoc.AddTime ~
 EDDoc.FGTime EDDoc.ChgOp EDDoc.ChgDate EDDoc.ChgTime EDDoc.FGSender ~
-EDDoc.P-FADate EDDoc.FGID EDDoc.FGRecvID EDDoc.P-FATime EDDoc.rec_key 
+EDDoc.P-FADate EDDoc.FGID EDDoc.FGRecvID EDDoc.P-FATime 
 &Scoped-define ENABLED-TABLES EDDoc
 &Scoped-define FIRST-ENABLED-TABLE EDDoc
 &Scoped-Define DISPLAYED-FIELDS EDDoc.Partner EDDoc.SetID EDDoc.Direction ~
-EDDoc.Posted EDDoc.Set-Test-Prod EDDoc.DocID EDDoc.ST EDDoc.ISA EDDoc.GS ~
+EDDoc.Set-Test-Prod EDDoc.Posted EDDoc.DocID EDDoc.ST EDDoc.ISA EDDoc.GS ~
 EDDoc.DocSeq EDDoc.Version EDDoc.FGAgency EDDoc.FGDate EDDoc.Recv-Test-Prod ~
 EDDoc.OpenItem EDDoc.EDI_Agency EDDoc.ST-Code EDDoc.C-FADate EDDoc.Stat ~
 EDDoc.InterpDate EDDoc.C-FATime EDDoc.Seq EDDoc.Status-Flag ~
 EDDoc.InterpTime EDDoc.Unique-Order-No EDDoc.EDI_Standard EDDoc.Error-count ~
 EDDoc.Unique-SDQ-No EDDoc.UserRef EDDoc.AddOp EDDoc.AddDate EDDoc.AddTime ~
 EDDoc.FGTime EDDoc.ChgOp EDDoc.ChgDate EDDoc.ChgTime EDDoc.FGSender ~
-EDDoc.P-FADate EDDoc.FGID EDDoc.FGRecvID EDDoc.P-FATime EDDoc.rec_key 
+EDDoc.P-FADate EDDoc.FGID EDDoc.FGRecvID EDDoc.P-FATime 
 &Scoped-define DISPLAYED-TABLES EDDoc
 &Scoped-define FIRST-DISPLAYED-TABLE EDDoc
 
@@ -135,12 +135,12 @@ DEFINE FRAME hF-Main
      EDDoc.Direction AT ROW 1 COL 53 COLON-ALIGNED WIDGET-ID 18
           VIEW-AS FILL-IN 
           SIZE 4.2 BY 1
-     EDDoc.Posted AT ROW 1 COL 68 COLON-ALIGNED WIDGET-ID 58
-          VIEW-AS FILL-IN 
-          SIZE 4.2 BY 1
      EDDoc.Set-Test-Prod AT ROW 1 COL 88 COLON-ALIGNED WIDGET-ID 66
           VIEW-AS FILL-IN 
           SIZE 4.2 BY 1
+     EDDoc.Posted AT ROW 1.1 COL 62 WIDGET-ID 86
+          VIEW-AS TOGGLE-BOX
+          SIZE 12.8 BY .81
      EDDoc.DocID AT ROW 2 COL 13.2 COLON-ALIGNED WIDGET-ID 20
           VIEW-AS FILL-IN 
           SIZE 37 BY 1
@@ -156,7 +156,7 @@ DEFINE FRAME hF-Main
      EDDoc.DocSeq AT ROW 4 COL 13.2 COLON-ALIGNED WIDGET-ID 22
           VIEW-AS FILL-IN 
           SIZE 9 BY 1
-     EDDoc.Version AT ROW 4.05 COL 42 COLON-ALIGNED WIDGET-ID 84
+     EDDoc.Version AT ROW 4 COL 42 COLON-ALIGNED WIDGET-ID 84
           VIEW-AS FILL-IN 
           SIZE 17.6 BY 1
      EDDoc.FGAgency AT ROW 6.48 COL 13.6 COLON-ALIGNED WIDGET-ID 30
@@ -255,9 +255,6 @@ DEFINE FRAME hF-Main
      EDDoc.P-FATime AT ROW 16.48 COL 13.6 COLON-ALIGNED WIDGET-ID 54
           VIEW-AS FILL-IN 
           SIZE 10.4 BY 1
-     EDDoc.rec_key AT ROW 16.71 COL 84 COLON-ALIGNED WIDGET-ID 62
-          VIEW-AS FILL-IN 
-          SIZE 22 BY 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE  WIDGET-ID 100.
@@ -333,13 +330,25 @@ ASSIGN
 
  
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _XFTR "SmartViewerCues" V-table-Win _INLINE
-/* Actions: adecomm/_so-cue.w ? adecomm/_so-cued.p ? adecomm/_so-cuew.p */
-/* SmartViewer,ab,49270
-Destroy on next read */
+
+
+/* ************************  Control Triggers  ************************ */
+
+&Scoped-define SELF-NAME EDDoc.Partner
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL EDDoc.Partner V-table-Win
+ON LEAVE OF EDDoc.Partner IN FRAME hF-Main /* Partner */
+DO:
+    IF LASTKEY NE -1 THEN DO:
+      RUN valid-partner NO-ERROR.
+      IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+    END.
+END.
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&UNDEFINE SELF-NAME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK V-table-Win 
 
@@ -444,6 +453,30 @@ PROCEDURE state-changed :
          or add new cases. */
       {src/adm/template/vstates.i}
   END CASE.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-partner V-table-Win 
+PROCEDURE valid-partner :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  {methods/lValidateError.i YES}
+
+  DEF VAR v-avail AS LOG INIT YES NO-UNDO.
+
+  IF NOT CAN-FIND(FIRST edmast NO-LOCK 
+    WHERE edmast.partner EQ eddoc.partner:SCREEN-VALUE IN FRAME {&FRAME-NAME}) THEN
+      v-avail = FALSE.
+  
+  IF NOT v-avail THEN RETURN ERROR.
+
+  {methods/lValidateError.i NO}
+  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

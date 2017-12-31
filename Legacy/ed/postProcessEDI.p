@@ -3,9 +3,7 @@ DEFINE INPUT  PARAMETER ipcSetId AS CHARACTER NO-UNDO.
 DEFINE INPUT  PARAMETER ipcInPath AS CHARACTER NO-UNDO.
 DEFINE INPUT  PARAMETER ipcPartner AS CHARACTER NO-UNDO.
 DEFINE INPUT  PARAMETER ipcOutPath AS CHARACTER NO-UNDO.
-
-
-INPUT from VALUE(ipcInPath).
+{ed/sharedv.i}
 
 DEFINE VARIABLE inln           AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cOutLine       AS CHARACTER NO-UNDO.
@@ -26,6 +24,16 @@ DEFINE VARIABLE cSegment       AS CHARACTER.
 DEFINE VARIABLE cSetID         AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cQualifier     AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cPartnerName   AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lFolderIsGood  AS LOGICAL NO-UNDO.
+
+lFolderIsGood = fCheckFolderOfPath(ipcOutPath).
+IF NOT lFolderIsGood THEN 
+  RETURN.
+IF SEARCH(ipcOutPath) NE ? THEN 
+    RETURN.  /* File already exists */
+IF SEARCH(ipcInPath) EQ ? THEN 
+  RETURN.
+INPUT from VALUE(ipcInPath).
 
 lISASent = NO.
 iISAControlNum = 1.
@@ -62,14 +70,18 @@ IF AVAILABLE eddoc THEN
         .
 RELEASE eddoc.
 
-
 DEFINE STREAM sOutput.
 OUTPUT stream sOutput to value(ipcOutPath).
  
 FIND FIRST EDMast NO-LOCK WHERE EDMast.Partner EQ ipcPartner NO-ERROR.
 IF NOT AVAILABLE EDMast THEN 
     RETURN. 
-    
+FIND FIRST edPartnerGrp NO-LOCK WHERE edPartnerGrp.PartnerGrp EQ EDMast.partnerGrp
+  NO-ERROR.
+IF AVAILABLE edPartnerGrp THEN 
+  cPartnerName = edPartnerGrp.PartnerGrpName.
+else
+  cPartnerName = "AMAZON".
 GET-NEXT-LINE:
 REPEAT:
     ASSIGN
@@ -181,7 +193,7 @@ REPEAT:
             "ZZ"  + cEleDelim + 
             cSenderDuns + cEleDelim + 
             "ZZ"  + cEleDelim + 
-            TRIM(cPartnerName) + "         " + cEleDelim +               
+            TRIM(cPartnerName) + FILL(" ", 15 - length(TRIM(cPartnerName))) + cEleDelim +               
             substring(STRING(YEAR(TODAY), "9999"),3, 2) + 
             string(MONTH(TODAY), "99") + 
             string(DAY(TODAY), "99") + cEleDelim +               
@@ -200,7 +212,7 @@ REPEAT:
         cGsSeg = "GS" + cEleDelim + 
             "IN" + cEleDelim + 
             trim(cSenderDuns) + cEleDelim + 
-            "AMAZON" + cEleDelim + 
+            trim(cPartnerName) + cEleDelim + 
             substring(STRING(YEAR(TODAY), "9999"),1, 4) + 
             string(MONTH(TODAY), "99") + 
             string(DAY(TODAY), "99") + cEleDelim +               
@@ -259,4 +271,4 @@ DO:
         .                         
 END.
 OUTPUT stream sOutput close.
-DOS SILENT notepad value(ipcOutPath /* cOutFileName */). 
+/* DOS SILENT notepad value(ipcOutPath). */ 

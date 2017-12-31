@@ -34,7 +34,7 @@ CREATE WIDGET-POOL.
 /* ***************************  Definitions  ************************** */
 
 &SCOPED-DEFINE winReSize
-&SCOPED-DEFINE h_Browse01 h_edcat
+&SCOPED-DEFINE h_Browse01 h_edco
 
 /* Parameters Definitions ---                                           */
 
@@ -77,8 +77,8 @@ DEFINE QUERY external_tables FOR edcode.
 DEFINE VAR W-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of handles for SmartObjects                              */
-DEFINE VARIABLE h_edcat AS HANDLE NO-UNDO.
-DEFINE VARIABLE h_edcat-2 AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_edco AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_edco-2 AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_exit AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_f-add AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_folder AS HANDLE NO-UNDO.
@@ -332,30 +332,30 @@ PROCEDURE adm-create-objects :
     END. /* Page 0 */
     WHEN 1 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
-             INPUT  'browsers/edcat.w':U ,
+             INPUT  'browsers/edco.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
-             OUTPUT h_edcat ).
-       RUN set-position IN h_edcat ( 5.48 , 6.00 ) NO-ERROR.
-       RUN set-size IN h_edcat ( 19.52 , 145.00 ) NO-ERROR.
+             OUTPUT h_edco ).
+       RUN set-position IN h_edco ( 4.81 , 4.00 ) NO-ERROR.
+       RUN set-size IN h_edco ( 19.52 , 145.00 ) NO-ERROR.
 
        /* Initialize other pages that this page requires. */
        RUN init-pages IN THIS-PROCEDURE ('2':U) NO-ERROR.
 
-       /* Links to SmartNavBrowser h_edcat. */
-       RUN add-link IN adm-broker-hdl ( h_p-navico , 'Navigation':U , h_edcat ).
+       /* Links to SmartNavBrowser h_edco. */
+       RUN add-link IN adm-broker-hdl ( h_p-navico , 'Navigation':U , h_edco ).
 
        /* Adjust the tab order of the smart objects. */
-       RUN adjust-tab-order IN adm-broker-hdl ( h_edcat ,
+       RUN adjust-tab-order IN adm-broker-hdl ( h_edco ,
              h_folder , 'AFTER':U ).
     END. /* Page 1 */
     WHEN 2 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
-             INPUT  'viewers/edcat.w':U ,
+             INPUT  'viewers/edco.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
-             OUTPUT h_edcat-2 ).
-       RUN set-position IN h_edcat-2 ( 4.86 , 4.20 ) NO-ERROR.
+             OUTPUT h_edco-2 ).
+       RUN set-position IN h_edco-2 ( 4.86 , 3.80 ) NO-ERROR.
        /* Size in UIB:  ( 17.14 , 144.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
@@ -381,15 +381,15 @@ PROCEDURE adm-create-objects :
        /* Initialize other pages that this page requires. */
        RUN init-pages IN THIS-PROCEDURE ('1':U) NO-ERROR.
 
-       /* Links to SmartViewer h_edcat-2. */
-       RUN add-link IN adm-broker-hdl ( h_edcat , 'Record':U , h_edcat-2 ).
-       RUN add-link IN adm-broker-hdl ( h_p-updsav , 'TableIO':U , h_edcat-2 ).
+       /* Links to SmartViewer h_edco-2. */
+       RUN add-link IN adm-broker-hdl ( h_edco , 'Record':U , h_edco-2 ).
+       RUN add-link IN adm-broker-hdl ( h_p-updsav , 'TableIO':U , h_edco-2 ).
 
        /* Adjust the tab order of the smart objects. */
-       RUN adjust-tab-order IN adm-broker-hdl ( h_edcat-2 ,
+       RUN adjust-tab-order IN adm-broker-hdl ( h_edco-2 ,
              h_folder , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_p-navico ,
-             h_edcat-2 , 'AFTER':U ).
+             h_edco-2 , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_p-updsav ,
              h_p-navico , 'AFTER':U ).
     END. /* Page 2 */

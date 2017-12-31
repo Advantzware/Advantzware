@@ -59,21 +59,21 @@ CREATE WIDGET-POOL.
 /* Need to scope the external tables to this procedure                  */
 DEFINE QUERY external_tables FOR EDMast.
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-FIELDS EDMast.Partner EDMast.Sf-code EDMast.Cust ~
-EDMast.Ship-to-mask EDMast.Vendor EDMast.User-name EDMast.ASN-on-DS ~
-EDMast.We-cust EDMast.Del-Days EDMast.We-vend-no EDMast.ID-Len ~
-EDMast.ID-Out EDMast.Id-trim EDMast.Item-Length EDMast.Item-Prefix ~
-EDMast.Item-suffix EDMast.Order-no-mask EDMast.Path-in EDMast.Path-out ~
-EDMast.RE-code EDMast.rec_key EDMast.Seq 
+&Scoped-Define ENABLED-FIELDS EDMast.Partner EDMast.PartnerGrp EDMast.Cust ~
+EDMast.We-cust EDMast.Vendor EDMast.We-vend-no EDMast.Sf-code ~
+EDMast.Ship-to-mask EDMast.RE-code EDMast.Path-in EDMast.Path-out ~
+EDMast.Item-Prefix EDMast.ID-Out EDMast.Item-suffix EDMast.Id-trim ~
+EDMast.Order-no-mask EDMast.Item-Length EDMast.ID-Len EDMast.Seq ~
+EDMast.ASN-on-DS EDMast.Del-Days 
 &Scoped-define ENABLED-TABLES EDMast
 &Scoped-define FIRST-ENABLED-TABLE EDMast
 &Scoped-Define ENABLED-OBJECTS RECT-1 
-&Scoped-Define DISPLAYED-FIELDS EDMast.Partner EDMast.Sf-code EDMast.Cust ~
-EDMast.Ship-to-mask EDMast.Vendor EDMast.User-name EDMast.ASN-on-DS ~
-EDMast.We-cust EDMast.Del-Days EDMast.We-vend-no EDMast.ID-Len ~
-EDMast.ID-Out EDMast.Id-trim EDMast.Item-Length EDMast.Item-Prefix ~
-EDMast.Item-suffix EDMast.Order-no-mask EDMast.Path-in EDMast.Path-out ~
-EDMast.RE-code EDMast.rec_key EDMast.Seq 
+&Scoped-Define DISPLAYED-FIELDS EDMast.Partner EDMast.PartnerGrp ~
+EDMast.Cust EDMast.We-cust EDMast.Vendor EDMast.We-vend-no EDMast.Sf-code ~
+EDMast.Ship-to-mask EDMast.RE-code EDMast.Path-in EDMast.Path-out ~
+EDMast.Item-Prefix EDMast.ID-Out EDMast.Item-suffix EDMast.Id-trim ~
+EDMast.Order-no-mask EDMast.Item-Length EDMast.ID-Len EDMast.Seq ~
+EDMast.ASN-on-DS EDMast.Del-Days 
 &Scoped-define DISPLAYED-TABLES EDMast
 &Scoped-define FIRST-DISPLAYED-TABLE EDMast
 
@@ -119,72 +119,73 @@ DEFINE RECTANGLE RECT-1
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     EDMast.Partner AT ROW 1 COL 16 COLON-ALIGNED WIDGET-ID 22
+     EDMast.Partner AT ROW 1.48 COL 16 COLON-ALIGNED WIDGET-ID 22
           VIEW-AS FILL-IN 
           SIZE 8 BY 1
-     EDMast.Sf-code AT ROW 1 COL 81 COLON-ALIGNED WIDGET-ID 34
+     EDMast.PartnerGrp AT ROW 1.48 COL 81 COLON-ALIGNED WIDGET-ID 46
           VIEW-AS FILL-IN 
           SIZE 16.4 BY 1
-     EDMast.Cust AT ROW 2 COL 16 COLON-ALIGNED WIDGET-ID 4
+     EDMast.Cust AT ROW 2.43 COL 16 COLON-ALIGNED WIDGET-ID 4
           VIEW-AS FILL-IN 
           SIZE 14 BY 1
-     EDMast.Ship-to-mask AT ROW 2 COL 81 COLON-ALIGNED WIDGET-ID 36
-          VIEW-AS FILL-IN 
-          SIZE 10.4 BY 1
-     EDMast.Vendor AT ROW 3 COL 16 COLON-ALIGNED WIDGET-ID 40
+     EDMast.We-cust AT ROW 2.43 COL 81 COLON-ALIGNED WIDGET-ID 42
           VIEW-AS FILL-IN 
           SIZE 14 BY 1
-     EDMast.User-name AT ROW 3 COL 81 COLON-ALIGNED WIDGET-ID 38
-          VIEW-AS FILL-IN 
-          SIZE 20 BY 1
-     EDMast.ASN-on-DS AT ROW 4 COL 16 COLON-ALIGNED WIDGET-ID 2
-          VIEW-AS FILL-IN 
-          SIZE 5.6 BY 1
-     EDMast.We-cust AT ROW 4 COL 81 COLON-ALIGNED WIDGET-ID 42
+     EDMast.Vendor AT ROW 3.38 COL 16 COLON-ALIGNED WIDGET-ID 40
           VIEW-AS FILL-IN 
           SIZE 14 BY 1
-     EDMast.Del-Days AT ROW 5 COL 22.8 COLON-ALIGNED WIDGET-ID 6
-          VIEW-AS FILL-IN 
-          SIZE 10.4 BY 1
-     EDMast.We-vend-no AT ROW 5 COL 81 COLON-ALIGNED WIDGET-ID 44
+     EDMast.We-vend-no AT ROW 3.38 COL 81 COLON-ALIGNED WIDGET-ID 44
           VIEW-AS FILL-IN 
           SIZE 14 BY 1
-     EDMast.ID-Len AT ROW 6 COL 16 COLON-ALIGNED WIDGET-ID 8
-          VIEW-AS FILL-IN 
-          SIZE 4.4 BY 1
-     EDMast.ID-Out AT ROW 7 COL 23.8 COLON-ALIGNED WIDGET-ID 10
-          VIEW-AS FILL-IN 
-          SIZE 4.4 BY 1
-     EDMast.Id-trim AT ROW 8 COL 16 COLON-ALIGNED WIDGET-ID 12
-          VIEW-AS FILL-IN 
-          SIZE 5.6 BY 1
-     EDMast.Item-Length AT ROW 9 COL 16 COLON-ALIGNED WIDGET-ID 14
-          VIEW-AS FILL-IN 
-          SIZE 4.4 BY 1
-     EDMast.Item-Prefix AT ROW 10 COL 16 COLON-ALIGNED WIDGET-ID 16
-          VIEW-AS FILL-IN 
-          SIZE 11.6 BY 1
-     EDMast.Item-suffix AT ROW 11 COL 16 COLON-ALIGNED WIDGET-ID 18
-          VIEW-AS FILL-IN 
-          SIZE 11.6 BY 1
-     EDMast.Order-no-mask AT ROW 12 COL 17.2 COLON-ALIGNED WIDGET-ID 20
-          VIEW-AS FILL-IN 
-          SIZE 11.6 BY 1
-     EDMast.Path-in AT ROW 13 COL 16 COLON-ALIGNED WIDGET-ID 24
-          VIEW-AS FILL-IN 
-          SIZE 74 BY 1
-     EDMast.Path-out AT ROW 14 COL 16 COLON-ALIGNED WIDGET-ID 26
-          VIEW-AS FILL-IN 
-          SIZE 74 BY 1
-     EDMast.RE-code AT ROW 15 COL 16 COLON-ALIGNED WIDGET-ID 28
+     EDMast.Sf-code AT ROW 4.33 COL 16 COLON-ALIGNED WIDGET-ID 34
+          LABEL "Ship From"
           VIEW-AS FILL-IN 
           SIZE 16.4 BY 1
-     EDMast.rec_key AT ROW 16 COL 16 COLON-ALIGNED WIDGET-ID 30
-          VIEW-AS FILL-IN 
-          SIZE 26 BY 1
-     EDMast.Seq AT ROW 17 COL 16 COLON-ALIGNED WIDGET-ID 32
+     EDMast.Ship-to-mask AT ROW 4.33 COL 81 COLON-ALIGNED WIDGET-ID 36
+          LABEL "Ship To Mask"
           VIEW-AS FILL-IN 
           SIZE 10.4 BY 1
+     EDMast.RE-code AT ROW 5.29 COL 16 COLON-ALIGNED WIDGET-ID 28
+          VIEW-AS FILL-IN 
+          SIZE 16.4 BY 1
+     EDMast.Path-in AT ROW 7.71 COL 15.8 COLON-ALIGNED WIDGET-ID 24
+          LABEL "Path In"
+          VIEW-AS FILL-IN 
+          SIZE 74 BY 1
+     EDMast.Path-out AT ROW 8.71 COL 15.8 COLON-ALIGNED WIDGET-ID 26
+          LABEL "Path Out"
+          VIEW-AS FILL-IN 
+          SIZE 74 BY 1
+     EDMast.Item-Prefix AT ROW 10.52 COL 81 COLON-ALIGNED WIDGET-ID 16
+          VIEW-AS FILL-IN 
+          SIZE 11.6 BY 1
+     EDMast.ID-Out AT ROW 10.71 COL 27 COLON-ALIGNED WIDGET-ID 10
+          VIEW-AS FILL-IN 
+          SIZE 4.4 BY 1
+     EDMast.Item-suffix AT ROW 11.52 COL 81 COLON-ALIGNED WIDGET-ID 18
+          VIEW-AS FILL-IN 
+          SIZE 11.6 BY 1
+     EDMast.Id-trim AT ROW 11.71 COL 27 COLON-ALIGNED WIDGET-ID 12
+          VIEW-AS FILL-IN 
+          SIZE 5.6 BY 1
+     EDMast.Order-no-mask AT ROW 12.52 COL 81 COLON-ALIGNED WIDGET-ID 20
+          VIEW-AS FILL-IN 
+          SIZE 11.6 BY 1
+     EDMast.Item-Length AT ROW 12.67 COL 27 COLON-ALIGNED WIDGET-ID 14
+          VIEW-AS FILL-IN 
+          SIZE 4.4 BY 1
+     EDMast.ID-Len AT ROW 13.48 COL 81 COLON-ALIGNED WIDGET-ID 8
+          VIEW-AS FILL-IN 
+          SIZE 4.4 BY 1
+     EDMast.Seq AT ROW 13.62 COL 27 COLON-ALIGNED WIDGET-ID 32
+          VIEW-AS FILL-IN 
+          SIZE 10.4 BY 1
+     EDMast.ASN-on-DS AT ROW 14.48 COL 83 WIDGET-ID 48
+          VIEW-AS TOGGLE-BOX
+          SIZE 18 BY .81
+     EDMast.Del-Days AT ROW 14.57 COL 27 COLON-ALIGNED WIDGET-ID 6
+          VIEW-AS FILL-IN 
+          SIZE 14 BY 1
      RECT-1 AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -248,6 +249,14 @@ ASSIGN
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
 
+/* SETTINGS FOR FILL-IN EDMast.Path-in IN FRAME F-Main
+   EXP-LABEL                                                            */
+/* SETTINGS FOR FILL-IN EDMast.Path-out IN FRAME F-Main
+   EXP-LABEL                                                            */
+/* SETTINGS FOR FILL-IN EDMast.Sf-code IN FRAME F-Main
+   EXP-LABEL                                                            */
+/* SETTINGS FOR FILL-IN EDMast.Ship-to-mask IN FRAME F-Main
+   EXP-LABEL                                                            */
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
@@ -263,13 +272,25 @@ ASSIGN
 
  
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _XFTR "SmartViewerCues" V-table-Win _INLINE
-/* Actions: adecomm/_so-cue.w ? adecomm/_so-cued.p ? adecomm/_so-cuew.p */
-/* SmartViewer,uib,49270
-Destroy on next read */
+
+
+/* ************************  Control Triggers  ************************ */
+
+&Scoped-define SELF-NAME EDMast.Cust
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL EDMast.Cust V-table-Win
+ON LEAVE OF EDMast.Cust IN FRAME F-Main /* Cust */
+DO:
+  if lastkey ne -1 then do:
+    run valid-cust NO-ERROR.
+    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+  end.
+END.
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&UNDEFINE SELF-NAME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK V-table-Win 
 
@@ -374,6 +395,32 @@ PROCEDURE state-changed :
          or add new cases. */
       {src/adm/template/vstates.i}
   END CASE.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-cust V-table-Win 
+PROCEDURE valid-cust :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  {methods/lValidateError.i YES}
+
+
+  DEF VAR v-avail AS LOG INIT YES NO-UNDO.
+
+
+  IF NOT CAN-FIND(FIRST cust NO-LOCK 
+    WHERE cust.cust-no EQ edmast.cust:SCREEN-VALUE IN FRAME {&FRAME-NAME}) THEN
+      v-avail = FALSE.
+  
+  IF NOT v-avail THEN RETURN ERROR.
+
+  {methods/lValidateError.i NO}
+  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

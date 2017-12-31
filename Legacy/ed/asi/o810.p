@@ -35,6 +35,7 @@ DEFINE    VARIABLE      price_fact      LIKE conv_fact NO-UNDO.
 DEFINE    VARIABLE      bt_code         AS CHARACTER      NO-UNDO.    /* billto code */
 DEFINE    VARIABLE      st_code         AS CHARACTER      NO-UNDO.    /* optional distribution center */
 DEFINE    VARIABLE      by_code         AS CHARACTER      NO-UNDO.    /* ultimate destination */
+DEFINE    VARIABLE      cCustCountry    AS CHARACTER      NO-UNDO.    /* cusomter country */
 DEFINE    VARIABLE      vcCustPOLine    AS CHARACTER      NO-UNDO.
 DEFINE VARIABLE dTaxRate        AS DECIMAL   NO-UNDO.
 DEFINE VARIABLE dTaxRateFreight AS DECIMAL   NO-UNDO.
@@ -135,6 +136,12 @@ PROCEDURE edi-ar.ip:
         v-shipto-state   = ar-inv.sold-state
         v-shipto-zip     = ar-inv.sold-zip
         v-ShipTo-code    = ar-inv.sold-id.
+    FIND FIRST cust NO-LOCK 
+        WHERE cust.company EQ ar-inv.company
+          AND cust.cust-no EQ ar-inv.cust-no
+        NO-ERROR.
+    IF AVAILABLE cust THEN 
+        cCustCountry = cust.country.        
     FIND FIRST shipto NO-LOCK WHERE shipto.company EQ ar-inv.company
         AND shipto.cust-no EQ ar-inv.cust-no
         AND shipto.ship-id EQ ar-inv.sold-id
@@ -501,8 +508,12 @@ PROCEDURE edi-010.ip:
                     billto.zip       = ar-inv.zip
                     billto.attention = ar-inv.contact
                     .
-        IF billto.country EQ "" THEN 
-            billto.country = "US".
+        IF billto.country EQ "" THEN DO:
+            IF cCustCountry GT "" THEN 
+              billto.country = cCustCountry.
+            ELSE 
+              billto.country = "US".
+        END.
     END.
 
     IF top-debug THEN
@@ -570,8 +581,13 @@ PROCEDURE edi-010.ip:
                     bystore.state = v-shipto-state   
                     bystore.zip   = v-shipto-zip     
                     .      
-            IF bystore.country EQ "" THEN 
-                bystore.country = "US".
+            
+            IF bystore.country EQ "" THEN DO:
+                IF cCustCountry GT "" THEN
+                    bystore.country = cCustCountry.
+                ELSE   
+                   bystore.country = "US".
+            END.
         END.
     
         ASSIGN 
@@ -734,9 +750,10 @@ PROCEDURE edi-040.ip:
     IF NOT AVAILABLE edivtran THEN
     DO:
         FIND FIRST edcode NO-LOCK
-            WHERE edcode.partner = edmast.partner
-              AND edcode.setid = "810"
-              AND edcode.direction = "o" 
+            WHERE ( edcode.partner   EQ edmast.partner or
+                    edcode.partner   eq edmast.partnerGrp) 
+            AND edcode.setid = "810"
+            AND edcode.direction = "o" 
             NO-ERROR.
         IF NOT AVAILABLE edcode THEN
         DO:
@@ -1204,6 +1221,12 @@ PROCEDURE edi-oe.ip:
         v-shipto-state   = inv-head.sold-state
         v-shipto-zip     = inv-head.sold-zip
         v-ShipTo-code    = inv-head.sold-no.
+    FIND FIRST cust NO-LOCK 
+      WHERE cust.company EQ inv-head.company
+        AND cust.cust-no EQ inv-head.cust-no
+      NO-ERROR.
+    IF AVAILABLE cust THEN 
+      cCustCountry = cust.country.
     FIND FIRST shipto NO-LOCK WHERE shipto.company EQ inv-head.company
         AND shipto.cust-no EQ inv-head.cust-no
         AND shipto.ship-id EQ inv-head.sold-no
