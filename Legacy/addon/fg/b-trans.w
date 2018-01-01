@@ -2201,7 +2201,7 @@ PROCEDURE valid-qty :
 ------------------------------------------------------------------------------*/
     IF {&BROWSE-NAME}:NUM-SELECTED-ROWS   IN FRAME {&FRAME-NAME} = 0 THEN 
       RETURN.
-  (fg-rctd.cases * fg-rctd.qty-case) + fg-rctd.partial.
+  /* (fg-rctd.cases * fg-rctd.qty-case) + fg-rctd.partial. */
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
