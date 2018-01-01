@@ -1131,13 +1131,13 @@ DO WITH FRAME {&FRAME-NAME}:
     ASSIGN 
         dCost =  DEC(est-prep.cost:SCREEN-VALUE IN BROWSE {&browse-name})
         dPrice =  DEC(est-prep.spare-dec-1:SCREEN-VALUE IN BROWSE {&browse-name}).
-    
+   
     IF ceprepprice-chr EQ "Profit" THEN
         dMkup = (1 - dCost / dPrice) * 100. 
     ELSE
         dMkup = (dPrice / dCost - 1) * 100.
     
-    IF dMkup GE 0 AND dMkup LT 1000 THEN
+    IF dMkup LT 1000 AND dMkup GT -1000  THEN
         est-prep.mkup:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(dMkup).
 END.
 
