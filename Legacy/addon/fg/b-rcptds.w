@@ -3178,8 +3178,8 @@ PROCEDURE valid-job-no :
     END.
 
     ELSE DO:
-      IF fg-rctd.po-no:SCREEN-VALUE IN BROWSE {&browse-name} NE "" THEN DO:
-        fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name} <> "".
+      IF fg-rctd.po-no:SCREEN-VALUE IN BROWSE {&browse-name} NE ""
+      AND fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name} NE "" THEN DO:
         RUN custom/d-msg.w ("Error","","You may only enter a Job or a PO. Job# will be erased...","",1,"OK", OUTPUT v-msgreturn).         
         fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name} = "".
         fg-rctd.job-no2:SCREEN-VALUE IN BROWSE {&browse-name} = "".

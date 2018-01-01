@@ -285,7 +285,7 @@ DO:
 
   IF NOT CAN-FIND(FIRST bank WHERE
      bank.company EQ cocode AND
-     bank.bank EQ begin_bank) THEN
+     bank.bank-code EQ begin_bank) THEN
      DO:
         MESSAGE "Invalid Bank Code."
            VIEW-AS ALERT-BOX INFO BUTTONS OK.
