@@ -999,7 +999,7 @@ END.
 ON LEAVE OF rm-rctd.loc IN BROWSE Browser-Table /* Whse */
 DO:
   IF LASTKEY NE -1 THEN DO:
-    RUN valid-loc-bin-tag (1) NO-ERROR.
+    RUN valid-loc (FOCUS) NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
   END.
 END.
@@ -1023,7 +1023,7 @@ END.
 ON LEAVE OF rm-rctd.loc-bin IN BROWSE Browser-Table /* Bin */
 DO:
   IF LASTKEY NE -1 THEN DO:
-    RUN valid-loc-bin-tag (2) NO-ERROR.
+    RUN valid-loc-bin (FOCUS) NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
   END.
 END.
@@ -1127,9 +1127,7 @@ DO:
   IF LASTKEY NE -1 THEN DO:
     RUN valid-uom NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-
     RUN get-matrix (NO).
-
     RUN valid-qty2 NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
   END.
@@ -2682,9 +2680,10 @@ PROCEDURE new-i-no :
             AND rm-bin.i-no    EQ rm-rctd.i-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}
           NO-LOCK
           BY rm-bin.qty DESC BY rm-bin.loc BY rm-bin.loc-bin BY rm-bin.tag:
-        ASSIGN
-         rm-rctd.loc:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}     = rm-bin.loc
-         rm-rctd.loc-bin:SCREEN-VALUE IN BROWSE {&BROWSE-NAME} = rm-bin.loc-bin
+          IF v-bin NE "user entered" THEN
+          ASSIGN
+           rm-rctd.loc:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}     = rm-bin.loc
+           rm-rctd.loc-bin:SCREEN-VALUE IN BROWSE {&BROWSE-NAME} = rm-bin.loc-bin.
          rm-rctd.tag:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}     = rm-bin.tag.
 
         RUN new-bin.
@@ -2826,10 +2825,11 @@ PROCEDURE rmbin-help :
                  FIRST rm-bin FIELDS(loc loc-bin tag cost ) WHERE
                        ROWID(rm-bin) EQ tt-tag.tt-rowid
                  NO-LOCK:
-
+              IF v-bin NE "user entered" THEN
                  ASSIGN
                     rm-rctd.loc:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}     = rm-bin.loc
-                    rm-rctd.loc-bin:SCREEN-VALUE IN BROWSE {&BROWSE-NAME} = rm-bin.loc-bin
+                    rm-rctd.loc-bin:SCREEN-VALUE IN BROWSE {&BROWSE-NAME} = rm-bin.loc-bin.
+                 ASSIGN
                     rm-rctd.tag:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}     = rm-bin.tag
                     rm-rctd.cost:SCREEN-VALUE IN BROWSE {&BROWSE-NAME} = STRING(rm-bin.cost).
        
@@ -2867,10 +2867,11 @@ PROCEDURE rmbin-help :
          IF rm-rctd.loc:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}     NE rm-bin.loc     OR
             rm-rctd.loc-bin:SCREEN-VALUE IN BROWSE {&BROWSE-NAME} NE rm-bin.loc-bin OR
             rm-rctd.tag:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}     NE rm-bin.tag     THEN DO:
-           ASSIGN
-            rm-rctd.loc:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}     = rm-bin.loc
-            rm-rctd.loc-bin:SCREEN-VALUE IN BROWSE {&BROWSE-NAME} = rm-bin.loc-bin
-            rm-rctd.tag:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}     = rm-bin.tag.
+           IF v-bin NE "user entered" THEN
+             ASSIGN
+               rm-rctd.loc:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}     = rm-bin.loc
+               rm-rctd.loc-bin:SCREEN-VALUE IN BROWSE {&BROWSE-NAME} = rm-bin.loc-bin.
+               rm-rctd.tag:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}     = rm-bin.tag.
        
            RUN new-bin.
          END.
@@ -3373,6 +3374,64 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-loc B-table-Win 
+PROCEDURE valid-loc :
+    /*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ip-focus AS WIDGET-HANDLE NO-UNDO.
+
+
+    DO WITH FRAME {&FRAME-NAME}:
+        IF NOT CAN-FIND(FIRST loc
+            WHERE loc.company EQ cocode
+            AND loc.loc     EQ ip-focus:SCREEN-VALUE)
+            THEN 
+        DO:
+            MESSAGE "Invalid Warehouse, try help..."
+                VIEW-AS ALERT-BOX ERROR.
+            APPLY "entry" TO ip-focus.
+            RETURN ERROR.
+        END.
+    END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-loc-bin B-table-Win 
+PROCEDURE valid-loc-bin :
+    /*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ip-focus AS WIDGET-HANDLE NO-UNDO.
+
+
+    DO WITH FRAME {&FRAME-NAME}:
+        IF NOT CAN-FIND(FIRST rm-bin
+            WHERE rm-bin.company EQ cocode
+            AND rm-bin.i-no    EQ ""
+            AND rm-bin.loc     EQ rm-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}
+            AND rm-bin.loc-bin EQ ip-focus:SCREEN-VALUE)
+            THEN 
+        DO:
+            MESSAGE "Invalid Bin, try help..."
+                VIEW-AS ALERT-BOX ERROR.
+            APPLY "entry" TO ip-focus.
+            RETURN ERROR.
+        END.
+    END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-loc-bin-tag B-table-Win 
 PROCEDURE valid-loc-bin-tag :
 /*------------------------------------------------------------------------------
@@ -3529,7 +3588,7 @@ DEFINE VARIABLE dTotalI AS DEC     NO-UNDO.
           AND rm-bin.loc-bin EQ rm-rctd.loc-bin:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}
           AND rm-bin.tag     EQ rm-rctd.tag:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}
         NO-ERROR.
-     IF NOT AVAIL rm-bin AND INTEGER(rm-rctd.tag:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}) GE 0  THEN DO:
+     IF NOT AVAIL rm-bin AND integer(rm-rctd.tag:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}) GE 0  THEN DO:
          /* ticket 22650 - Tag does not have to exist for a negative issue */
          MESSAGE "Tag # does not exist in the Bin File..."
              VIEW-AS ALERT-BOX ERROR.

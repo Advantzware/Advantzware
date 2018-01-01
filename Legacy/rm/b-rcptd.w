@@ -564,8 +564,8 @@ ON HELP OF Browser-Table IN FRAME F-Main
                         IF NOT AVAILABLE item THEN FIND FIRST item WHERE item.company = rm-rctd.company AND
                                 item.i-no = entry(2,char-val)
                                 NO-LOCK NO-ERROR.
-             
-                        ASSIGN 
+                        IF v-bin NE "user entered" THEN
+                          ASSIGN 
                             rm-rctd.loc:screen-value IN BROWSE {&browse-name}     = item.loc
                             rm-rctd.loc-bin:screen-value IN BROWSE {&browse-name} = item.loc-bin.
                         IF rm-rctd.loc-bin:screen-value IN BROWSE {&browse-name} EQ "" THEN 
@@ -1819,9 +1819,11 @@ PROCEDURE display-item :
         DO:
             ASSIGN
                 rm-rctd.i-name:SCREEN-VALUE IN BROWSE {&browse-name}  = item.i-name
-                rm-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}     = item.loc
-                rm-rctd.loc-bin:SCREEN-VALUE IN BROWSE {&browse-name} = item.loc-bin
                 rm-rctd.pur-uom:SCREEN-VALUE IN BROWSE {&browse-name} = item.cons-uom.
+            IF v-bin NE "user entered" THEN
+            ASSIGN
+                rm-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}     = item.loc
+                rm-rctd.loc-bin:SCREEN-VALUE IN BROWSE {&browse-name} = item.loc-bin.
 
             IF INT(rm-rctd.po-no:SCREEN-VALUE IN BROWSE {&browse-name}) NE 0 THEN
                 RUN update-from-po-line.
@@ -1841,8 +1843,8 @@ PROCEDURE display-item :
                 END.
         END.
 
-        IF rm-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}     EQ "" OR
-            rm-rctd.loc-bin:SCREEN-VALUE IN BROWSE {&browse-name} EQ "" THEN 
+        IF (rm-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}     EQ "" OR
+            rm-rctd.loc-bin:SCREEN-VALUE IN BROWSE {&browse-name} EQ "") AND v-bin NE "user entered" THEN 
         DO:
             FIND FIRST cust
                 WHERE cust.company EQ cocode
@@ -3359,7 +3361,7 @@ PROCEDURE create-rcptd :
             item.i-no = po-ordl.i-no
             NO-LOCK NO-ERROR.
 
-        IF AVAILABLE ITEM THEN
+        IF AVAILABLE ITEM  THEN
             ASSIGN rm-rctd.loc     = item.loc
                 rm-rctd.loc-bin = item.loc-bin.
 
