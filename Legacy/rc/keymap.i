@@ -1,0 +1,13 @@
+on f5 GET.
+on f6 PUT.
+on F11 help.
+on F12 help.
+on F13 help.
+on f14 help.
+on f21 help.
+on f22 help.
+on f23 help.
+on f24 help.
+on cursor-up cursor-up.
+on cursor-down cursor-down.
+on CTRL-BREAK stop.
