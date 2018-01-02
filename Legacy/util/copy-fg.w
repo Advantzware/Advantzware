@@ -695,16 +695,7 @@ PROCEDURE run-process :
      b-itemfg-ink.company = b-itemfg.company
      b-itemfg-ink.i-no    = b-itemfg.i-no.
 
-    FOR EACH reftable
-        WHERE reftable.rec_key  EQ itemfg-ink.rec_key
-          AND reftable.reftable EQ "itemfg-ink.occurs"
-        USE-INDEX rec_key:
 
-      CREATE b-ref.
-      BUFFER-COPY reftable TO b-ref
-      ASSIGN
-       b-ref.rec_key = b-itemfg-ink.rec_key.
-    END.
   END.
 
   FOR EACH itemfg-bom

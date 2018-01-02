@@ -24,13 +24,10 @@ IF AVAIL eb THEN DO:
         AND itemfg-ink.i-no    EQ eb.stock-no
       NO-LOCK:
 
-    FIND FIRST reftable
-        WHERE reftable.rec_key  EQ itemfg-ink.rec_key
-          AND reftable.reftable EQ "itemfg-ink.occurs"
-        USE-INDEX rec_key NO-ERROR.
 
-    DO li = 1 TO (IF NOT AVAIL reftable OR reftable.val[1] LE 0 THEN 1
-                  ELSE reftable.val[1]):
+  
+      DO li = 1 TO (IF itemfg-ink.occurs LE 0 THEN 1
+                  ELSE itemfg-ink.occurs):
       CREATE w-ink.
       BUFFER-COPY itemfg-ink TO w-ink.
       ASSIGN
