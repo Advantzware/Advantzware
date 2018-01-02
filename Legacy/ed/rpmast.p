@@ -25,7 +25,7 @@ DEF var byzone AS logical NO-UNDO LABEL "By DC?".
  details
     help 'Enter YES to print shipto details, NO for summary listing'
  byzone
-    help 'Enter YES to print by distribution center' }
+    help 'Enter YES to print by distribution center' "}
 save_partner = ws_partner.
 DO WITH FRAME f-view:
   UPDATE ws_partner view_shiptos.

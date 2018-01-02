@@ -11,6 +11,7 @@ DEF INPUT PARAM p_rec  AS RECID NO-UNDO.
 DEF STREAM s-export.
 /* include files */
 {rc/stringv.i}
+{ed/tdf/sharedv.i   "new shared"}
 /* contants and literals */
 DEF VAR FILLER          AS char NO-UNDO     INITIAL "".
 DEF var ws_plant        AS char NO-UNDO     INITIAL "A720".

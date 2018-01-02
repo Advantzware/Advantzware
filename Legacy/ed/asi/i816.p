@@ -75,7 +75,7 @@ FOR EACH edshipto OF edmast EXCLUSIVE-LOCK
       NO-ERROR.
     IF NOT AVAIL shipto THEN
     DO:
-      {sys/ref/shipto.a}
+      CREATE shipto.
       ASSIGN
         shipto.ship-name    = cust.name
         shipto.ship-addr[1] = cust.addr[1]

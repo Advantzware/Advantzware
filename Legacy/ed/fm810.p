@@ -116,7 +116,7 @@ with frame f-details side-labels.
   EDIVTran.Curr-rate-buyer
   EDIVTran.Curr-seller
   EDIVTran.Curr-rate-seller
-    with frame f-currency overlay 1 column.
+    with frame f-currency overlay 1 column width 85.
  end.
  else if strip-sel[1] = 'Misc' then do:
     update

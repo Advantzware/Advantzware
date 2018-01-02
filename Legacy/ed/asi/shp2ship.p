@@ -76,7 +76,7 @@ DO:
     NO-ERROR.
   IF NOT AVAIL shipto THEN
   DO:
-    {sys/ref/shipto.a}
+    CREATE shipto.
     {rc/incr.i ws_recs_added}.
   END.
   ASSIGN

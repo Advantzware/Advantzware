@@ -9,6 +9,7 @@
 DEF STREAM s-export.
 DEF INPUT PARAM p_action    AS char     NO-UNDO.    /* write,delete,create */
 DEF INPUT PARAM p_cust      AS RECID    NO-UNDO.
+{ed/tdf/sharedv.i   "new shared"}
 IF p_action = 'create' THEN
 RETURN.
 FIND cust WHERE RECID(cust) = p_cust NO-LOCK NO-ERROR.

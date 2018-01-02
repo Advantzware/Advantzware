@@ -11,10 +11,12 @@ DEF INPUT PARAM p_rec  AS RECID NO-UNDO.
 DEF STREAM s-export.
 /* include files */
 {rc/stringv.i}
+{ed/sharedv.i}
+{ed/tdf/sharedv.i   "new shared"}
 /* contants and literals */
 DEF VAR FILLER          AS char NO-UNDO     INITIAL "".
 DEF var ws_plant        AS char NO-UNDO     INITIAL "A720".
-DEF VAR export_fid      AS char NO-UNDO     initial "SONO_INV.TXT".
+
 /* local variables */
 DEF var tax_basis       AS decimal NO-UNDO  FORMAT '-99999999.99999999'.
 DEF var line_tax        AS decimal NO-UNDO  FORMAT '-99999999.99999999'.
@@ -26,6 +28,7 @@ DEF var ws_salesacct    AS char NO-UNDO.
 DEF var ws_sman         AS char NO-UNDO.    /* misc has no sman, take 1st */
 DEF var ws_po-no        AS char NO-UNDO.
 DEF var xx              AS int NO-UNDO.
+export_fid = "SONO_INV.TXT".
 IF NOT CAN-DO("ar-inv,inv-head", p_file) THEN
 RETURN error.
 IF p_file = "ar-inv" THEN
