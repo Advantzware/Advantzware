@@ -634,10 +634,7 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
                     tt-inv-line-item.amount = inv-line.t-price.
             END.
         
-            FIND FIRST reftable 
-                WHERE reftable.reftable EQ "inv-line.lot-no" 
-                AND reftable.rec_key EQ inv-line.rec_key
-                USE-INDEX rec_key NO-LOCK NO-ERROR.
+
             /*BUILD BOL LIST*/
             FIND FIRST tt-bols WHERE tt-bols.bolno = lv-bolno NO-LOCK NO-ERROR.
             IF NOT AVAIL tt-bols THEN
