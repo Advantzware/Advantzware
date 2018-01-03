@@ -7,6 +7,7 @@
 *****************************************************************************
 \***************************************************************************/
 DEF STREAM s-export.
+{ed/tdf/sharedv.i   "new shared"}
 DEF INPUT PARAM p_cust      AS RECID    NO-UNDO.
 DEF INPUT PARAM p_action    AS char     NO-UNDO.    /* write,delete,create */
 IF p_action = 'create' THEN

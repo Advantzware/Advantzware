@@ -13,7 +13,7 @@ DEF OUTPUT PARAM erc AS int NO-UNDO.
 {ed/tdf/sharedv.i   "shared"}
 IF ws_segment <> "SLN" THEN
 RETURN error.
-RETURN error.   /* not yet implemented */
+/*
 IF command matches "*I*" THEN
 DO:
   ASSIGN
@@ -29,3 +29,4 @@ DO:
   CASE ws_version:
 END CASE.
 END.    /* O */
+*/

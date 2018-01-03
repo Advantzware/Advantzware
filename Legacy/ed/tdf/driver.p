@@ -164,7 +164,7 @@ DO n = 1 TO 1:
         DO:
           skip_doc = TRUE.
           NEXT _main.
-          error-status:error = FALSE.
+
         END.
         IF top-debug THEN
         RUN rc/debugmsg.p ("after ed/tdf/000").
