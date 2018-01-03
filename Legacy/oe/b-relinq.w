@@ -1293,6 +1293,7 @@ PROCEDURE query-proc :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEFINE BUFFER bf-oe-rell FOR oe-rell.
+ browse {&browse-name}:sensitive = false.
   IF ll-first THEN RUN first-query.
   ELSE IF lv-show-prev OR lv-show-next THEN RUN show-all.
   ELSE DO:
@@ -1314,6 +1315,7 @@ PROCEDURE query-proc :
       ASSIGN lv-frst-rowid = ROWID({&first-table-in-query-{&browse-name}})
              lv-first-show-rel-no = oe-relh.release#.
   END.
+  browse {&browse-name}:sensitive = true.
   APPLY "VALUE-CHANGED" TO BROWSE {&browse-name}.
   ASSIGN
      lv-show-prev = NO
