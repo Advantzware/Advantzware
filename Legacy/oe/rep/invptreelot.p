@@ -447,11 +447,7 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
        
         IF inv-line.inv-qty EQ 0 AND inv-line.ship-qty EQ 0 THEN NEXT .
 
-        FIND FIRST reftable NO-LOCK
-          WHERE reftable.reftable EQ "inv-line.lot-no" 
-            AND reftable.rec_key  EQ inv-line.rec_key
-            USE-INDEX rec_key NO-ERROR.
-
+        
         FOR EACH oe-boll NO-LOCK 
           WHERE oe-boll.company EQ inv-line.company
             AND oe-boll.bol-no  EQ inv-head.bol-no
@@ -464,11 +460,9 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
 
         END. /* each oe-boll */
 
-        IF AVAIL reftable 
-          THEN v-case-cnt[1] = v-case-cnt[1] + 
+        v-case-cnt[1] = v-case-cnt[1] + 
                                FILL(" ",32 - LENGTH(v-case-cnt[1])) 
-                               /*+ 
-                               reftable.CODE*/ .
+                                .
 
         IF v-printline > 62 THEN DO:
           PAGE.
