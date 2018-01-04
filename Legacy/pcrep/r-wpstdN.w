@@ -75,7 +75,7 @@ ASSIGN cTextListToSelect = "Machine#,DP,S,B,P,Charge Code,Charge Cat,Date,Job#,S
                            "Blank Sq In.,Board,Board Cal,MSF,Wgt/MSF,Roll Width," +  /*6*/     
                            "Gross S Wid,Gross S Len,Net Sht Wid,Net Sht Len," +  /*4*/     
                            "Film Wid,Film Len,# Colors,Die Inches,Number Up,Number Out,Glue Inches,Tot Job Run Qty," + /*8*/     
-                           "Cust#,Cust Name,Price,UOM,Sales Value" /* 5 */
+                           "Cust#,Cust Name,Price,UOM,Sales Value,User ID" /* 6 */
 
 
            cFieldListToSelect = "mch-act.m-code,deprt,mch-act.frm,mch-act.blank-no,pass,mch-act.code,job-code,mch-act.op-date,job-no,mch-act.shift,mch-act.hours,start,stop,crew,mch-act.qty," +
@@ -83,19 +83,19 @@ ASSIGN cTextListToSelect = "Machine#,DP,S,B,P,Charge Code,Charge Cat,Date,Job#,S
                                 "t-sqin,board,cal,ld-msf,weight,roll-wid," +
                                 "gsh-wid,gsh-len,nsh-wid,nsh-len," +
                                 "flm-len,flm-wid,inkc,die-in,li-up,n-out,lin-in,tot-job-qty," +
-                                "cust-no,name,price,uom,sale-value"
+                                "cust-no,name,price,uom,sale-value,user-id"
            cFieldLength = "8,2,3,2,3,11,10,8,10,5,8,5,5,2,10,"
                         + "6,1,15,8,7,7,7,9,9,"
                         + "12,8,9,9,9,10,"
                         + "11,11,11,11,"
                         + "9,9,8,10,9,10,11,15,"
-                        + "8,30,17,4,20"
+                        + "8,30,17,4,20,10"
            cFieldType = "c,c,i,i,i,c,c,c,c,i,i,c,c,i,i,"
                       + "i,c,c,c,i,i,i,i,i,"
                       + "i,c,i,i,i,i,"
                       + "i,i,i,i,"
                       + "i,i,i,i,i,i,i,i,"
-                      + "c,c,i,c,i"
+                      + "c,c,i,c,i,c"
            .
 
 {sys/inc/ttRptSel.i}
@@ -1536,7 +1536,8 @@ IF tb_excel THEN DO:
          END.
          ELSE DO: 
 
-            CASE cTmpField: 
+            CASE cTmpField:
+                 WHEN "user-id" THEN cVarValue = IF AVAILABLE mch-act THEN mch-act.user-id ELSE "". 
                  WHEN "job-code" THEN cVarValue = IF AVAIL job-code THEN string(job-code.cat,"x(10)") ELSE "". 
                  WHEN "job-no" THEN cVarValue = string(TRIM(job.job-no) + "-" + STRING(job.job-no2,"99")) .
                  WHEN "stock-no" THEN cVarValue = IF AVAIL eb THEN string(eb.stock-no) ELSE "".
