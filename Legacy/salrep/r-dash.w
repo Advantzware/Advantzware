@@ -118,6 +118,8 @@ DEF VAR cp-rowid AS ROWID NO-UNDO.
 DEF VAR fsman AS CHAR NO-UNDO.
 DEF VAR tsman AS CHAR INIT "zzz" NO-UNDO.
 DEF VAR v-dso AS DEC NO-UNDO.
+DEFINE VARIABLE iMach AS INTEGER INIT 100 NO-UNDO .
+DEFINE VARIABLE iSales AS INTEGER INIT 4 NO-UNDO .
 DEFINE BUFFER bf-user-print FOR user-print .
 assign
  cocode = gcompany
@@ -763,7 +765,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
           AND bf-user-print.user-id EQ USERID(LDBNAME(1)) NO-ERROR.
 
       IF AVAIL bf-user-print THEN DO:
-          DO i = 1 TO 4:
+          DO i = 1 TO iSales:
               FIND FIRST company NO-LOCK
                   WHERE company.company = bf-user-print.field-value[i]  NO-ERROR.
 
@@ -792,7 +794,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
           AND bf-user-print.user-id EQ USERID(LDBNAME(1)) NO-ERROR.
 
       IF AVAIL bf-user-print THEN DO:
-          DO i = 1 TO 100:
+          DO i = 1 TO iMach:
               IF bf-user-print.field-value[i] EQ "" THEN LEAVE .
               FIND FIRST mach NO-LOCK
                   WHERE mach.company = fi_company:SCREEN-VALUE AND
@@ -827,7 +829,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
           AND bf-user-print.user-id EQ USERID(LDBNAME(1)) NO-ERROR.
 
       IF AVAIL bf-user-print THEN DO:
-          DO i = 1 TO 100:
+          DO i = 1 TO iMach:
               IF bf-user-print.field-value[i] EQ "" THEN LEAVE .
               FIND FIRST account NO-LOCK
                   WHERE account.company EQ fi_company:SCREEN-VALUE 
