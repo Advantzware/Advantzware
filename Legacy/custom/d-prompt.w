@@ -433,7 +433,8 @@ ELSE
 ENABLE btn-import btn-cancel WITH FRAME xyz.
 IF lhFirstWid NE ? AND VALID-HANDLE(lhFirstWid) THEN
     APPLY 'entry' TO lhFirstWid.
-FOR EACH bf-tt-wid WHERE bf-tt-wid.wid-depends-on GT "":
+FOR EACH bf-tt-wid WHERE bf-tt-wid.wid-depends-on GT "" 
+            AND bf-tt-wid.wid-depends-on NE  "tb_addinv":
     IF VALID-HANDLE(bf-tt-wid.wid-hand) THEN
         bf-tt-wid.wid-hand:SENSITIVE = FALSE.
 END.
