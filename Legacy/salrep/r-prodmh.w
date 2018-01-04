@@ -75,7 +75,7 @@ def TEMP-TABLE w-data no-undo
 DEF BUFFER b-mach FOR mach.
 DEFINE BUFFER bf-user-print FOR user-print .
 DEF VAR counter AS INT NO-UNDO.
-
+DEFINE VARIABLE iMach AS INTEGER INIT 15 NO-UNDO .
 assign
  cocode = gcompany
  locode = gloc.
@@ -522,7 +522,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
       AND bf-user-print.user-id EQ USERID(LDBNAME(1)) NO-ERROR.
   
   IF AVAIL bf-user-print THEN DO:
-     DO i = 1 TO 15:
+     DO i = 1 TO iMach:
          FIND FIRST mach NO-LOCK
           WHERE mach.company = fi_company:SCREEN-VALUE AND
                 mach.loc = locode AND
