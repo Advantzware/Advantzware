@@ -965,26 +965,28 @@ PROCEDURE valid-procat-margin :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
- DEFINE BUFFER bf-smanmtrx  FOR smanmtrx .
- DEFINE  VARIABLE ll-ans AS LOGICAL NO-UNDO.
- FOR EACH bf-smanmtrx OF sman WHERE bf-smanmtrx.custype EQ custTypes
-       AND bf-smanmtrx.commbasis EQ "M" AND bf-smanmtrx.procat NE "" 
-        exclusive-LOCK BREAK BY bf-smanmtrx.procat:
-      IF FIRST(bf-smanmtrx.procat) THEN do:
-          MESSAGE "You cannot pay commission on margin based on categories -" SKIP 
-              " so either change type or remove lines ." VIEW-AS ALERT-BOX INFO .
-           MESSAGE "Deleting all lines based on category?" VIEW-AS ALERT-BOX 
-                              QUESTION BUTTON yes-no UPDATE ll-ans .
-      END.
-      IF ll-ans  THEN
-          DELETE bf-smanmtrx .
-      ELSE DO: 
-        ASSIGN bf-smanmtrx.commbasis = "S" .
-      END.
- END.
-  IF ll-ans THEN DO:
-      RUN dispatch ('open-query':U).
-  END.
+    DEFINE BUFFER bf-smanmtrx  FOR smanmtrx .
+    DEFINE  VARIABLE ll-ans AS LOGICAL NO-UNDO.
+    FOR EACH bf-smanmtrx OF sman EXCLUSIVE WHERE 
+        bf-smanmtrx.custype EQ custTypes AND 
+        bf-smanmtrx.commbasis EQ "M" AND 
+        bf-smanmtrx.procat NE "" 
+        BREAK BY bf-smanmtrx.procat:
+        IF FIRST(bf-smanmtrx.procat) THEN do:
+            MESSAGE 
+                "You cannot pay commission on margin based on categories." SKIP 
+                "You must change type or remove this line." SKIP
+                "Enter 'YES' to remove the line, or 'NO' to change the type." 
+                VIEW-AS ALERT-BOX QUESTION BUTTON yes-no UPDATE ll-ans .
+        END.
+        IF ll-ans  THEN
+            DELETE bf-smanmtrx .
+        ELSE ASSIGN 
+            bf-smanmtrx.commbasis = "S" .
+    END.
+    IF ll-ans THEN DO:
+        RUN dispatch ('open-query':U).
+    END.
 
 END PROCEDURE.
 
