@@ -83,7 +83,7 @@ DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO .
 
 ASSIGN cTextListToSelect = "CUSTOMER,NAME,CHECK #,DATE,CASH RECVD,INVOICE#,ORIGINAL AMT,AMT APPLIED,DISCOUNT,ON ACT PYMTS"
        cFieldListToSelect = "cust,name,chk,date,chs-rec,inv,org-amt,amt-app,disc,on-act"
-       cFieldLength = "8,30,10,10,11,8,14,11,10,12"
+       cFieldLength = "8,30,10,10,11,8,14,13,10,12"
        cFieldType = "c,c,c,c,i,c,i,i,i,i" 
     .
 

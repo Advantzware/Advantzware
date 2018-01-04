@@ -198,6 +198,16 @@ FOR EACH ar-cash
                                      skip(1)
                 with frame vtot{2} no-box no-labels width 200 STREAM-IO.
 
+         IF tb_excel THEN
+             PUT STREAM excel UNFORMATTED
+                "," + "***** CUSTOMER TOTALS:" + ",,,"
+                "" + STRING(v2 ) + ",,"
+                "" + STRING(v-amt-due-sub ) + ","
+                 "" + STRING(v-amt-paid-sub ) + ","
+                 "" + STRING(v-disc-sub ) + ","
+                 "" + STRING(v-on-act-sub ) + ","  SKIP.
+
+
          assign
           g1             = g1 + v1
           g2             = g2 + v2
@@ -223,6 +233,15 @@ FOR EACH ar-cash
           v-on-act-tot   to 131
           skip(1)
           with frame gtot{2} no-box no-labels width 200 STREAM-IO.
+
+  IF tb_excel THEN
+             PUT STREAM excel UNFORMATTED
+                "," + "***** GRAND TOTALS:" + ",,,"
+                "" + STRING(g2 ) + ",,"
+                "" + STRING(v-amt-due-tot ) + ","
+                 "" + STRING(v-amt-paid-tot ) + ","
+                 "" + STRING(v-disc-tot ) + ","
+                 "" + STRING(v-on-act-tot ) + ","  SKIP.
 
 /* end ----------------------------------- Copr. 1997  Advanced Software Inc. */
 
