@@ -2023,7 +2023,7 @@ PROCEDURE set-teal-bgcolor :
 
 IF AVAIL itemfg THEN DO:
     ASSIGN 
-        itemfg.i-no:BGCOLOR IN BROWSE {&BROWSE-NAME}      = 16
+        itemfg.i-no:BGCOLOR IN BROWSE {&BROWSE-NAME}      = 3
               .
      /*   END.*/
  END.
