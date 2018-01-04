@@ -36,10 +36,7 @@ DEF VAR lv-cover% AS INT NO-UNDO.
 
 &SCOPED-DEFINE enable-itemfg-ink enable-itemfg-ink
 
-&SCOPED-DEFINE where-occurs                        ~
-    WHERE reftable.rec_key  EQ itemfg-ink.rec_key  ~
-      AND reftable.reftable EQ "itemfg-ink.occurs" ~
-    USE-INDEX rec_key
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -696,21 +693,28 @@ PROCEDURE reftable-values :
 
 
   IF AVAIL itemfg-ink THEN DO:
-    FIND FIRST reftable {&where-occurs} NO-ERROR.
-    IF NOT AVAIL reftable THEN DO:
-      CREATE reftable.
-      ASSIGN
-       reftable.rec_key  = itemfg-ink.rec_key
-       reftable.reftable = "itemfg-ink.occurs"
-       reftable.company  = itemfg-ink.company
-       reftable.val[1]   = 1.
-    END.
+/*    FIND FIRST reftable {&where-occurs} NO-ERROR.*/
+/*    IF NOT AVAIL reftable THEN DO:               */
+/*      CREATE reftable.                           */
+/*      ASSIGN                                     */
+/*       reftable.rec_key  = itemfg-ink.rec_key    */
+/*       reftable.reftable = "itemfg-ink.occurs"   */
+/*       reftable.company  = itemfg-ink.company    */
+/*       reftable.val[1]   = 1.                    */
+/*    END.                                         */
+/*    IF ip-display THEN                           */
+/*      fi_occurs = reftable.val[1].               */
+/*    ELSE                                         */
+/*      reftable.val[1] = fi_occurs.               */
+/*                                                 */
+/*    FIND CURRENT reftable NO-LOCK.               */
     IF ip-display THEN
-      fi_occurs = reftable.val[1].
+      fi_occurs = itemfg-ink.occurs.
     ELSE
-      reftable.val[1] = fi_occurs.
+      itemfg-ink.occurs = fi_occurs.
 
-    FIND CURRENT reftable NO-LOCK.
+    FIND CURRENT itemfg-ink NO-LOCK.
+
   END.
 
 END PROCEDURE.

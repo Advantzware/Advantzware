@@ -516,26 +516,15 @@ IF cocode NE "" THEN DO:
 
         RUN update-itemfg-ink.
 
-        FIND FIRST reftable
-            WHERE reftable.rec_key  EQ itemfg-ink.rec_key
-              AND reftable.reftable EQ "itemfg-ink.occurs"
-            USE-INDEX rec_key NO-ERROR.
-        IF NOT AVAIL reftable THEN DO:
-          CREATE reftable.
-          ASSIGN
-           reftable.rec_key  = itemfg-ink.rec_key
-           reftable.reftable = "itemfg-ink.occurs"
-           reftable.company  = itemfg-ink.company.
-        END.
-
+        
         IF NOT CAN-DO(rec-list,itemfg-ink.rec_key) THEN
           ASSIGN
            rec-list        = TRIM(rec-list)                       +
                              (IF rec-list EQ "" THEN "" ELSE ",") +
                              itemfg-ink.rec_key
-           reftable.val[1] = 0.
+           itemfg-ink.occurs = 0.
 
-        reftable.val[1] = reftable.val[1] + 1.
+        itemfg-ink.occurs = itemfg-ink.occurs + 1.
       END.
     END.
   END.
