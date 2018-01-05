@@ -2870,7 +2870,7 @@ IF v-none THEN DO TRANSACTION:
  
      ASSIGN
        oe-rell.newSellPrice = oe-rel.sell-price
-       oe-rell.newZeroPrice = oe-rel.zeroPrice.
+       /*oe-rell.newZeroPrice = oe-rel.zeroPrice*/ .
   IF v-whse EQ "SHIPTO" THEN DO:
     FIND FIRST shipto
       WHERE shipto.company EQ cocode
@@ -3184,7 +3184,7 @@ PROCEDURE create-report-record-1 :
           tt-report.flute   = oe-rel.fob-code.
 
      ASSIGN tt-report.price = oe-rel.sell-price
-            tt-report.whsed = oe-rel.zeroPrice > 0.
+            /*tt-report.whsed = oe-rel.zeroPrice > 0*/ .
       
 
     IF oeinq THEN 
@@ -3554,7 +3554,7 @@ PROCEDURE local-assign-record :
  
 
   ASSIGN oe-rel.sell-price = DEC(tt-report.price:SCREEN-VALUE IN BROWSE {&browse-name})
-         oe-rel.zeroPrice = (IF tt-report.whsed:SCREEN-VALUE IN BROWSE {&browse-name} BEGINS "Y" THEN 1 ELSE 0) .
+         /*oe-rel.zeroPrice = (IF tt-report.whsed:SCREEN-VALUE IN BROWSE {&browse-name} BEGINS "Y" THEN 1 ELSE 0)*/ .
 
   FIND CURRENT ref-lot-no NO-LOCK NO-ERROR.
   FIND CURRENT ref-sell-price NO-LOCK NO-ERROR.
@@ -5726,12 +5726,7 @@ PROCEDURE valid-po-no :
     FIND FIRST cust NO-LOCK
         WHERE cust.company EQ oe-ord.company
           AND cust.cust-no EQ oe-ord.cust-no
-          AND CAN-FIND(FIRST cust-po-mand
-                       WHERE cust-po-mand.reftable EQ "cust.po-mand"
-                         AND cust-po-mand.company  EQ cust.company
-                         AND cust-po-mand.loc      EQ ""
-                         AND cust-po-mand.code     EQ cust.cust-no
-                         AND cust-po-mand.val[1]   EQ 1)
+          AND cust.po-mandatory
         NO-ERROR.
     
     IF AVAIL cust AND TRIM(tt-report.po-no:SCREEN-VALUE IN BROWSE {&browse-name}) EQ "" THEN DO:
