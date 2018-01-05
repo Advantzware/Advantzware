@@ -487,7 +487,7 @@ FOR EACH company NO-LOCK,
         WHERE oe-boll.company EQ oe-bolh.company
           AND oe-boll.b-no    EQ oe-bolh.b-no                    
           AND oe-boll.qty NE 0
-          AND oe-boll.posted
+          /* AND oe-boll.posted */
           AND /* oe-boll.s-code NE "T" */ LOOKUP(oe-boll.s-code, "T,S,I") EQ 0
         NO-LOCK /*,
                    
