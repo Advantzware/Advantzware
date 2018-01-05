@@ -564,11 +564,10 @@ ON HELP OF Browser-Table IN FRAME F-Main
                         IF NOT AVAILABLE item THEN FIND FIRST item WHERE item.company = rm-rctd.company AND
                                 item.i-no = entry(2,char-val)
                                 NO-LOCK NO-ERROR.
-             
-                        ASSIGN 
+                        IF v-bin NE "user entered" THEN
+                          ASSIGN 
                             rm-rctd.loc:screen-value IN BROWSE {&browse-name}     = item.loc
                             rm-rctd.loc-bin:screen-value IN BROWSE {&browse-name} = item.loc-bin.
-
                         IF rm-rctd.loc-bin:screen-value IN BROWSE {&browse-name} EQ "" THEN 
                         DO:
                             /*FIND FIRST sys-ctrl WHERE sys-ctrl.company EQ gcompany
@@ -581,6 +580,7 @@ ON HELP OF Browser-Table IN FRAME F-Main
                                  sys-ctrl.descrip  = "Default Location for RM Warehouse / Bin?"
                                  sys-ctrl.char-fld = "RMITEM".
                             END.*/
+                            IF v-bin NE "user entered" THEN
                             ASSIGN 
                                 rm-rctd.loc-bin:screen-value IN BROWSE {&browse-name} = SUBSTR(v-bin,6).
                         END.
@@ -593,7 +593,7 @@ ON HELP OF Browser-Table IN FRAME F-Main
                         END.
                         ext-cost = 0.
                         DISPLAY ext-cost WITH BROWSE {&browse-name}.
-                        IF v-bin NE "" AND v-bin NE 'RMITEM' THEN
+                        IF v-bin NE "" AND v-bin NE 'RMITEM' AND v-bin NE "user entered" THEN
                             ASSIGN
                                 rm-rctd.loc:screen-value IN BROWSE {&browse-name}     = SUBSTR(v-bin,1,5)
                                 rm-rctd.loc-bin:screen-value IN BROWSE {&browse-name} = SUBSTR(v-bin,6).
@@ -1809,7 +1809,6 @@ PROCEDURE display-item :
       Parameters:  <none>
       Notes:       
     ------------------------------------------------------------------------------*/
-
     DEFINE INPUT PARAMETER ip-recid AS RECID NO-UNDO.
 
 
@@ -1820,9 +1819,11 @@ PROCEDURE display-item :
         DO:
             ASSIGN
                 rm-rctd.i-name:SCREEN-VALUE IN BROWSE {&browse-name}  = item.i-name
-                rm-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}     = item.loc
-                rm-rctd.loc-bin:SCREEN-VALUE IN BROWSE {&browse-name} = item.loc-bin
                 rm-rctd.pur-uom:SCREEN-VALUE IN BROWSE {&browse-name} = item.cons-uom.
+            IF v-bin NE "user entered" THEN
+            ASSIGN
+                rm-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}     = item.loc
+                rm-rctd.loc-bin:SCREEN-VALUE IN BROWSE {&browse-name} = item.loc-bin.
 
             IF INT(rm-rctd.po-no:SCREEN-VALUE IN BROWSE {&browse-name}) NE 0 THEN
                 RUN update-from-po-line.
@@ -1842,8 +1843,8 @@ PROCEDURE display-item :
                 END.
         END.
 
-        IF rm-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}     EQ "" OR
-            rm-rctd.loc-bin:SCREEN-VALUE IN BROWSE {&browse-name} EQ "" THEN 
+        IF (rm-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}     EQ "" OR
+            rm-rctd.loc-bin:SCREEN-VALUE IN BROWSE {&browse-name} EQ "") AND v-bin NE "user entered" THEN 
         DO:
             FIND FIRST cust
                 WHERE cust.company EQ cocode
@@ -1862,7 +1863,7 @@ PROCEDURE display-item :
             END.
         END.
 
-        IF v-bin NE "" AND v-bin NE 'RMITEM' THEN
+        IF v-bin NE "" AND v-bin NE 'RMITEM' AND v-bin NE "user entered" THEN
             ASSIGN
                 rm-rctd.loc:screen-value IN BROWSE {&browse-name}     = SUBSTR(v-bin,1,5)
                 rm-rctd.loc-bin:screen-value IN BROWSE {&browse-name} = SUBSTR(v-bin,6).
@@ -2576,7 +2577,7 @@ PROCEDURE local-create-record :
     IF adm-adding-record THEN 
     DO:
         ASSIGN
-            rm-rctd.loc                                         = gloc
+           /* rm-rctd.loc                                         = gloc*/
             rm-rctd.s-num                                       = 0
             rm-rctd.s-num:screen-value IN BROWSE {&browse-name} = "0"
             rm-rctd.b-num                                       = 0
@@ -2595,7 +2596,10 @@ PROCEDURE local-create-record :
           sys-ctrl.char-fld = "RMITEM".
         END.*/
 
-        rm-rctd.loc-bin = SUBSTR(v-bin,6).
+  IF v-bin NE "user entered" THEN
+    ASSIGN
+        rm-rctd.loc-bin = SUBSTR(v-bin,6)
+        rm-rctd.loc = SUBSTR(v-bin,1,5).
     
         FIND FIRST b-rm-rctd WHERE b-rm-rctd.company = cocode
             AND b-rm-rctd.rita-code = "R"
@@ -3357,7 +3361,7 @@ PROCEDURE create-rcptd :
             item.i-no = po-ordl.i-no
             NO-LOCK NO-ERROR.
 
-        IF AVAILABLE ITEM THEN
+        IF AVAILABLE ITEM  THEN
             ASSIGN rm-rctd.loc     = item.loc
                 rm-rctd.loc-bin = item.loc-bin.
 

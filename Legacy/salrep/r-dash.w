@@ -118,7 +118,9 @@ DEF VAR cp-rowid AS ROWID NO-UNDO.
 DEF VAR fsman AS CHAR NO-UNDO.
 DEF VAR tsman AS CHAR INIT "zzz" NO-UNDO.
 DEF VAR v-dso AS DEC NO-UNDO.
-
+DEFINE VARIABLE iMach AS INTEGER INIT 100 NO-UNDO .
+DEFINE VARIABLE iSales AS INTEGER INIT 4 NO-UNDO .
+DEFINE BUFFER bf-user-print FOR user-print .
 assign
  cocode = gcompany
  locode = gloc.
@@ -756,17 +758,23 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
          RELEASE company.
      END.
 
-     FOR EACH reftable WHERE
-         reftable.reftable EQ "HM1SF" AND
-         reftable.company EQ USERID("NOSWEAT")
-         NO-LOCK,
-         FIRST company WHERE
-               company.company = reftable.loc
-               NO-LOCK:
 
-         REPOSITION browse-sales-forecast TO ROWID ROWID(company).
-         IF browse-sales-forecast:SELECT-FOCUSED-ROW() THEN.
-     END.
+      FIND FIRST bf-user-print NO-LOCK
+          WHERE (bf-user-print.company  EQ cocode  OR bf-user-print.company EQ "")       
+          AND bf-user-print.program-id EQ "HM1SF" 
+          AND bf-user-print.user-id EQ USERID(LDBNAME(1)) NO-ERROR.
+
+      IF AVAIL bf-user-print THEN DO:
+          DO i = 1 TO iSales:
+              FIND FIRST company NO-LOCK
+                  WHERE company.company = bf-user-print.field-value[i]  NO-ERROR.
+
+              IF AVAIL company AND bf-user-print.field-value[i] NE ""  THEN
+                   REPOSITION browse-sales-forecast TO ROWID ROWID(company).
+                   IF browse-sales-forecast:SELECT-FOCUSED-ROW() THEN.
+           END.
+      END.    /*avail user-print */ 
+      RELEASE bf-user-print .
 
      FIND FIRST company NO-LOCK NO-ERROR.
 
@@ -779,21 +787,24 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
           mach.company = fi_company:SCREEN-VALUE AND
           mach.loc = locode
           NO-LOCK BY mach.m-code.
+     
+      FIND FIRST bf-user-print NO-LOCK
+          WHERE bf-user-print.company    EQ cocode        
+          AND bf-user-print.program-id EQ "HM1" 
+          AND bf-user-print.user-id EQ USERID(LDBNAME(1)) NO-ERROR.
 
-     FOR EACH reftable WHERE
-         reftable.reftable EQ "HM1" AND
-         reftable.company EQ USERID("NOSWEAT") AND
-         reftable.loc = fi_company:SCREEN-VALUE
-         NO-LOCK,
-         FIRST mach WHERE
-               mach.company = fi_company:SCREEN-VALUE AND
-               mach.loc = locode AND
-               mach.m-code = reftable.CODE
-               NO-LOCK:
-
-         REPOSITION browse-machine TO ROWID ROWID(mach).
-         IF browse-machine:SELECT-FOCUSED-ROW() THEN.
-     END.
+      IF AVAIL bf-user-print THEN DO:
+          DO i = 1 TO iMach:
+              IF bf-user-print.field-value[i] EQ "" THEN LEAVE .
+              FIND FIRST mach NO-LOCK
+                  WHERE mach.company = fi_company:SCREEN-VALUE AND
+                  mach.loc = locode AND
+                  mach.m-code = bf-user-print.field-value[i] NO-ERROR.
+              IF AVAIL mach AND bf-user-print.field-value[i] NE ""  THEN
+                  REPOSITION browse-machine TO ROWID ROWID(mach).
+                  IF browse-machine:SELECT-FOCUSED-ROW() THEN.
+          END.
+       END.    /*avail user-print */ 
 
      FOR EACH b-mach WHERE
          b-mach.company EQ fi_company:SCREEN-VALUE AND
@@ -811,20 +822,24 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
      OPEN QUERY browse-ar FOR EACH account WHERE
           account.company = fi_company:SCREEN-VALUE NO-LOCK.
+     
+      FIND FIRST bf-user-print NO-LOCK
+          WHERE bf-user-print.company    EQ cocode        
+          AND bf-user-print.program-id EQ "HM1Acct" 
+          AND bf-user-print.user-id EQ USERID(LDBNAME(1)) NO-ERROR.
 
-     FOR EACH reftable WHERE
-         reftable.reftable EQ "HM1Acct" AND
-         reftable.company EQ USERID("NOSWEAT") AND
-         reftable.loc = fi_company:SCREEN-VALUE
-         NO-LOCK,
-         FIRST account WHERE
-               account.company = fi_company:SCREEN-VALUE AND
-               account.actnum = reftable.CODE
-               NO-LOCK:
+      IF AVAIL bf-user-print THEN DO:
+          DO i = 1 TO iMach:
+              IF bf-user-print.field-value[i] EQ "" THEN LEAVE .
+              FIND FIRST account NO-LOCK
+                  WHERE account.company EQ fi_company:SCREEN-VALUE 
+                  AND account.actnum EQ bf-user-print.field-value[i] NO-ERROR.
 
-         REPOSITION browse-ar TO ROWID ROWID(account).
-         IF browse-ar:SELECT-FOCUSED-ROW() THEN.
-     END.
+              IF AVAIL account AND bf-user-print.field-value[i] NE ""  THEN
+                REPOSITION browse-ar TO ROWID ROWID(account).
+                IF browse-ar:SELECT-FOCUSED-ROW() THEN.
+          END.
+  END.    /*avail user-print */ 
 
      FIND FIRST account WHERE
           account.company = fi_company:SCREEN-VALUE
@@ -3543,85 +3558,67 @@ PROCEDURE saveparameters :
    v-user = USERID("NOSWEAT").
 
    DO TRANSACTION:
-
+      ASSIGN i = 0 .
       FOR EACH tt-raw-prod:
-
-          IF NOT CAN-FIND(FIRST reftable WHERE
-             reftable.reftable = "HM1" AND
-             reftable.company = v-user AND
-             reftable.loc = fi_company AND
-             reftable.CODE = tt-raw-prod.m-code) THEN
-          DO:
-             CREATE reftable.
-             ASSIGN reftable.reftable = "HM1"
-                    reftable.company = v-user
-                    reftable.loc = fi_company
-                    reftable.CODE = tt-raw-prod.m-code.
-             RELEASE reftable.
+          
+          FIND FIRST user-print EXCLUSIVE-LOCK
+              WHERE user-print.company    EQ cocode        
+              AND user-print.program-id EQ "HM1" 
+              AND user-print.user-id EQ USERID(LDBNAME(1)) NO-ERROR.
+          IF NOT AVAIL user-print THEN DO:
+              CREATE user-print .
+              ASSIGN
+                  user-print.company     = cocode            
+                  user-print.program-id  = "HM1"     
+                  user-print.user-id     = USERID(LDBNAME(1)) .
           END.
-      END.
+          i = i + 1 .
+          ASSIGN user-print.field-value[i] =  tt-raw-prod.m-code  .
 
-      FOR EACH reftable WHERE
-          reftable.reftable EQ "HM1" AND
-          reftable.company EQ v-user AND
-          reftable.loc = fi_company AND
-          NOT CAN-FIND(FIRST tt-raw-prod WHERE
-                       tt-raw-prod.m-code EQ reftable.CODE):
 
-          DELETE reftable.
-      END.
+      END.  /* FOR EACH tt-raw-prod */
 
+      
+      i = 0 .
       FOR EACH tt-ar-dso:
-
-          IF NOT CAN-FIND(FIRST reftable WHERE
-             reftable.reftable = "HM1Acct" AND
-             reftable.company = v-user AND
-             reftable.loc = fi_company AND
-             reftable.CODE = tt-ar-dso.actnum) THEN
-          DO:
-             CREATE reftable.
-             ASSIGN reftable.reftable = "HM1Acct"
-                    reftable.company = v-user
-                    reftable.loc = fi_company
-                    reftable.CODE = tt-ar-dso.actnum.
-
-             RELEASE reftable.
+          
+          FIND FIRST user-print EXCLUSIVE-LOCK
+              WHERE user-print.company    EQ cocode        
+              AND user-print.program-id EQ "HM1Acct" 
+              AND user-print.user-id EQ USERID(LDBNAME(1)) NO-ERROR.
+          IF NOT AVAIL user-print THEN DO:
+              CREATE user-print .
+              ASSIGN
+                  user-print.company     = cocode            
+                  user-print.program-id  = "HM1Acct"     
+                  user-print.user-id     = USERID(LDBNAME(1)) .
           END.
-      END.
+          i = i + 1 .
+          ASSIGN user-print.field-value[i] =  tt-ar-dso.actnum  .
 
-      FOR EACH reftable WHERE
-          reftable.reftable EQ "HM1Acct" AND
-          reftable.company EQ v-user AND
-          reftable.loc = fi_company AND
-          NOT CAN-FIND(FIRST tt-ar-dso WHERE
-              tt-ar-dso.actnum EQ reftable.CODE):
-          DELETE reftable.
-      END.
+      END.  /* FOR EACH tt-ar-dso */
 
+      
+      i = 0.
       FOR EACH tt-sales-forecast:
+        
+          FIND FIRST user-print EXCLUSIVE-LOCK
+              WHERE user-print.company    EQ cocode        
+              AND user-print.program-id EQ "HM1SF" 
+              AND user-print.user-id EQ USERID(LDBNAME(1)) NO-ERROR.
+          IF NOT AVAIL user-print THEN DO:
+              CREATE user-print .
+              ASSIGN
+                  user-print.company     = cocode            
+                  user-print.program-id  = "HM1SF"     
+                  user-print.user-id     = USERID(LDBNAME(1)) .
+          END.
+          i = i + 1 .
+          ASSIGN user-print.field-value[i] =  tt-sales-forecast.company  .
 
-         IF NOT CAN-FIND(FIRST reftable WHERE
-            reftable.reftable = "HM1SF" AND
-            reftable.company = v-user AND
-            reftable.loc = tt-sales-forecast.company) THEN
-            DO:
-               CREATE reftable.
-               ASSIGN reftable.reftable = "HM1SF"
-                      reftable.company = v-user
-                      reftable.loc = tt-sales-forecast.company.
+      END.  /* tt-sales-forecast */
 
-               RELEASE reftable.
-            END.
-      END.
-
-      FOR EACH reftable WHERE
-          reftable.reftable EQ "HM1SF" AND
-          reftable.company EQ v-user AND
-          NOT CAN-FIND(FIRST tt-sales-forecast WHERE
-                       tt-sales-forecast.company EQ reftable.loc):
-
-          DELETE reftable.
-      END.
+      
    END.
 END PROCEDURE.
 

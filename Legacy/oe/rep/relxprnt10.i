@@ -143,6 +143,8 @@ OUTPUT cRtnChar, OUTPUT lRecFound).
 
 ASSIGN ls-full-img1 = cRtnChar + ">" .
 
+{sys/inc/oescreen.i}
+
 ASSIGN tmpstore = fill("-",130).
 
 find first sys-ctrl where sys-ctrl.company eq cocode
@@ -723,9 +725,10 @@ if v-zone-p then v-zone-hdr = "Route No.:".
               ASSIGN lv-tot-cust-qty = w-bin.w-units * w-bin.w-unit-count.
               IF w-bin.w-uom NE "" THEN
                 lv-save-cust-uom = caps(trim(w-bin.w-uom)).
+
               IF NOT swm THEN
-                      ASSIGN lv-tot-cust-qty = oe-ordl.qty 
-                             lv-save-cust-uom = CAPS("EA") .
+                      ASSIGN lv-tot-cust-qty = IF oescreen-log AND oe-ordl.spare-dec-1 NE 0 THEN oe-ordl.spare-dec-1 else oe-ordl.qty 
+                             lv-save-cust-uom = IF oescreen-log AND oe-ordl.spare-char-2 NE "" THEN CAPS(oe-ordl.spare-char-2) ELSE "EA" .
              IF lv-tot-cust-qty GT 0 AND sw = YES /*AND v-cq = NO*/ THEN DO:
                   
                   RUN right-just (INPUT 11, 

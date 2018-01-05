@@ -169,7 +169,7 @@ DEFINE BROWSE br_table
       est-prep.dscr FORMAT "x(20)":U
       est-prep.simon FORMAT "X":U
       est-prep.cost FORMAT "->>,>>9.99":U
-      est-prep.mkup FORMAT ">>9.99<<":U WIDTH 11
+      est-prep.mkup FORMAT "->>9.99<<":U WIDTH 11
       est-prep.spare-dec-1 COLUMN-LABEL "Price" FORMAT "->>,>>9.99":U
       est-prep.ml FORMAT "M/L":U
       est-prep.amtz COLUMN-LABEL "Amort" FORMAT ">>9.99":U
@@ -286,7 +286,7 @@ ASSIGN
      _FldNameList[7]   > ASI.est-prep.cost
 "est-prep.cost" ? ? "decimal" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[8]   > ASI.est-prep.mkup
-"est-prep.mkup" ? ">>9.99<<" "decimal" ? ? ? ? ? ? yes ? no no "11" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"est-prep.mkup" ? "->>9.99<<" "decimal" ? ? ? ? ? ? yes ? no no "11" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[9]   > ASI.est-prep.spare-dec-1
 "est-prep.spare-dec-1" "Price" ? "decimal" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[10]   > ASI.est-prep.ml
@@ -1131,13 +1131,13 @@ DO WITH FRAME {&FRAME-NAME}:
     ASSIGN 
         dCost =  DEC(est-prep.cost:SCREEN-VALUE IN BROWSE {&browse-name})
         dPrice =  DEC(est-prep.spare-dec-1:SCREEN-VALUE IN BROWSE {&browse-name}).
-    
+   
     IF ceprepprice-chr EQ "Profit" THEN
         dMkup = (1 - dCost / dPrice) * 100. 
     ELSE
         dMkup = (dPrice / dCost - 1) * 100.
     
-    IF dMkup GE 0 AND dMkup LT 1000 THEN
+    IF dMkup LT 1000 AND dMkup GT -1000  THEN
         est-prep.mkup:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(dMkup).
 END.
 

@@ -485,7 +485,7 @@
         ELSE DO:
             assign
              v-inv-no    = ar-cashl.inv-no
-             v-inv-date    = ar-cashl.inv-date
+             v-inv-date  =  ar-cashl.inv-date
              v-procat    = "CRMEM"
              v-slsp[1]   = 100
              v-qty       = 0
@@ -672,6 +672,9 @@
                  WHEN "v-camt" THEN cVarValue = string(v-camt,"->>>>>9.99").
                  WHEN "v-comm" THEN cVarValue = string(v-comm,"->>>9.99") .
                  WHEN "grp" THEN cVarValue = IF AVAIL cust THEN string(cust.spare-char-2,"x(8)") ELSE "" .
+                 WHEN "curr" THEN cVarValue = IF AVAIL cust THEN string(cust.curr-code) ELSE "".
+                 WHEN "inv-date" THEN cVarValue = string(v-inv-date,"99/99/9999") .
+                 WHEN "ware-house" THEN cVarValue = IF cWhse NE "" THEN cWhse ELSE "".
             END CASE.
             
             cExcelVarValue = cVarValue.
@@ -785,6 +788,9 @@
                  WHEN "v-camt" THEN cVarValue = string(v-tot-camt[1],"->>>>>9.99").
                  WHEN "v-comm" THEN cVarValue = string(v-comm,"->>>9.99") .
                  WHEN "grp" THEN cVarValue = "" .
+                 WHEN "curr" THEN cVarValue = "".
+                 WHEN "inv-date" THEN cVarValue = "".
+                 WHEN "ware-house" THEN cVarValue = "".
               END CASE.
               
               cExcelVarValue = cVarValue.
@@ -945,6 +951,9 @@
                  WHEN "v-camt" THEN cVarValue = string(tt-slsrp.camt,"->>>>>9.99").
                  WHEN "v-comm" THEN cVarValue = string(v-srs-comm,"->>>9.99") .
                  WHEN "grp" THEN cVarValue = "" .
+                 WHEN "curr" THEN cVarValue = "".
+                 WHEN "inv-date" THEN cVarValue = "".
+                 WHEN "ware-house" THEN cVarValue = "".
               END CASE.
               
               cExcelVarValue = cVarValue.
@@ -1030,6 +1039,9 @@
                  WHEN "v-camt" THEN cVarValue = string(v-tot-camt[2],"->>>>>9.99").
                  WHEN "v-comm" THEN cVarValue = string(v-comm,"->>>9.99") .
                  WHEN "grp" THEN cVarValue = "" .
+                 WHEN "curr" THEN cVarValue = "".
+                 WHEN "inv-date" THEN cVarValue = "".
+                 WHEN "ware-house" THEN cVarValue = "".
               END CASE.
               
               cExcelVarValue = cVarValue.
@@ -1163,6 +1175,9 @@
                  WHEN "v-camt" THEN cVarValue = string(v-tot-camt[3],"->>>>>9.99").
                  WHEN "v-comm" THEN cVarValue = string(v-comm,"->>>9.99") .
                  WHEN "grp" THEN cVarValue = "" .
+                 WHEN "curr" THEN cVarValue = "".
+                 WHEN "inv-date" THEN cVarValue = "".
+                 WHEN "ware-house" THEN cVarValue = "".
               END CASE.
               
               cExcelVarValue = cVarValue.

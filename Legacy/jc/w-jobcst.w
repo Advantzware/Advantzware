@@ -368,8 +368,8 @@ PROCEDURE adm-create-objects :
              INPUT  'panels/p-capacityPage.w':U ,
              INPUT  FRAME OPTIONS-FRAME:HANDLE ,
              INPUT  'Layout = ':U ,
-             OUTPUT h_expxls ).
-       RUN set-position IN h_expxls ( 1.00 , 17.00 ) NO-ERROR.
+             OUTPUT h_capacityPage ).
+       RUN set-position IN h_capacityPage ( 1.00 , 17.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.81 , 7.80 ) */
 
        RUN init-object IN THIS-PROCEDURE (

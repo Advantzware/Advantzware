@@ -673,10 +673,7 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
                               oe-bolh.b-no = inv-line.b-no NO-LOCK NO-ERROR.
           IF AVAIL oe-bolh THEN lv-bolno = oe-bolh.bol-no.
 
-          FIND FIRST reftable 
-            WHERE reftable.reftable EQ "inv-line.lot-no" 
-              AND reftable.rec_key EQ inv-line.rec_key
-              USE-INDEX rec_key NO-LOCK NO-ERROR.
+          
           IF v-printline GE 62 THEN DO:             
             PAGE.
             {oe/rep/invprot.i}

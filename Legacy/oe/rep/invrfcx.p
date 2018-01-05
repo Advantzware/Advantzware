@@ -715,11 +715,7 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
         ELSE
             ASSIGN v-net2 = v-net2 + inv-line.t-price.   /*Task # 11061302 */
           
-          FIND FIRST reftable 
-            WHERE reftable.reftable EQ "inv-line.lot-no" 
-              AND reftable.rec_key EQ inv-line.rec_key
-              USE-INDEX rec_key NO-LOCK NO-ERROR.
-
+          
           IF v-printline GE 63 THEN DO:             
             PAGE.
             {oe/rep/rfcx_tc.i}
@@ -749,7 +745,7 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
             SPACE(1) 
            SKIP
             SPACE(1)
-             IF AVAIL reftable THEN reftable.CODE ELSE ""  FORMAT "x(15)" 
+             inv-line.lot-no FORMAT "x(15)" 
             SPACE(1)
              inv-line.part-dscr1 FORMAT "x(30)" 
             SPACE(1)

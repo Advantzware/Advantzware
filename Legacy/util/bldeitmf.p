@@ -1,4 +1,4 @@
-DEF VAR i AS INT NO-UNDO.
+
 FOR EACH e-item:
   DISPLAY e-item.company
           e-item.i-no.
@@ -31,16 +31,9 @@ FOR EACH e-item-vend:
                     AND e-itemfg-vend.i-no    EQ e-item-vend.i-no
                     AND e-itemfg-vend.vend-no EQ e-item-vend.vend-no) THEN DO:
     CREATE e-itemfg-vend.
-    BUFFER-COPY e-item-vend EXCEPT rec_key run-qty run-cost setups TO e-itemfg-vend
+    BUFFER-COPY e-item-vend EXCEPT rec_key TO e-itemfg-vend
     ASSIGN
      e-itemfg-vend.item-type = NO.
-    DO i = 1 TO 10:
-        ASSIGN
-            e-itemfg-vend.run-qty[i] = e-item-vend.run-qty[i]
-            e-itemfg-vend.run-cost[i] = e-item-vend.run-cost[i]
-            e-itemfg-vend.setups[i] = e-item-vend.setups[i]
-            .
-    END.
   END.
 
   IF NOT CAN-FIND(FIRST ITEM

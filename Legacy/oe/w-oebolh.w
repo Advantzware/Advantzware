@@ -97,6 +97,7 @@ DEFINE VARIABLE h_v-navest AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_v-oebolh AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_vi-oeboh AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_vp-selbin AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_export AS HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON BUTTON-1 
@@ -372,6 +373,14 @@ PROCEDURE adm-create-objects :
     END. /* Page 0 */
     WHEN 1 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
+             INPUT  'viewers/export.w':U ,
+             INPUT  FRAME OPTIONS-FRAME:HANDLE ,
+             INPUT  'Layout = ':U ,
+             OUTPUT h_export ).
+       RUN set-position IN h_export ( 1.00 , 69.00 ) NO-ERROR.
+       /* Size in UIB:  ( 1.81 , 7.80 ) */
+
+       RUN init-object IN THIS-PROCEDURE (
              INPUT  'viewers/movecol.w':U ,
              INPUT  FRAME OPTIONS-FRAME:HANDLE ,
              INPUT  'Layout = ':U ,
@@ -392,6 +401,9 @@ PROCEDURE adm-create-objects :
 
        /* Links to SmartNavBrowser h_b-oebolq. */
        RUN add-link IN adm-broker-hdl ( h_b-oebolq , 'Record':U , THIS-PROCEDURE ).
+
+       /* Links to SmartViewer h_export. */
+       RUN add-link IN adm-broker-hdl ( h_b-oebolq , 'export-xl':U , h_export ).
 
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_b-oebolq ,

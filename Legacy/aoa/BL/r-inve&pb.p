@@ -507,17 +507,9 @@ PROCEDURE get-lot-no :
       Parameters:  <none>
       Notes:       THIS IS TO ASSIGN THE LOT NUMBER FROM THE REFTABLE TO 
     ------------------------------------------------------------------------------*/
-    FIND FIRST reftable NO-LOCK WHERE
-        reftable.reftable EQ "inv-line.lot-no" AND
-        reftable.rec_key  EQ inv-line.rec_key
-        USE-INDEX rec_key NO-ERROR.
 
-    IF AVAILABLE reftable THEN 
-    DO:
-        ASSIGN 
-            ar-invl.lot-no = TRIM(reftable.CODE)
-            .
-    END.
+      ASSIGN 
+            ar-invl.lot-no = TRIM(inv-line.lot-no).
 
 END PROCEDURE.
 

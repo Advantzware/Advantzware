@@ -6296,7 +6296,7 @@ PROCEDURE vend-cost :
                         AND e-itemfg-vend.cust-no EQ po-ordl.cust-no:SCREEN-VALUE
                         AND e-itemfg-vend.est-no EQ "" /*23592 avoid farm Tab costs from estimating*/
                         NO-ERROR.
-                ELSE 
+                IF NOT AVAILABLE e-itemfg-vend THEN 
                     FIND FIRST e-itemfg-vend NO-LOCK
                         WHERE e-itemfg-vend.company EQ e-itemfg.company
                         AND e-itemfg-vend.i-no    EQ e-itemfg.i-no

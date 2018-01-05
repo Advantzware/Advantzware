@@ -315,11 +315,7 @@ DEF VAR v-comp-add4 AS cha FORM "x(30)" NO-UNDO.
                  i = 0.
           IF inv-line.ship-qty = 0 AND inv-line.t-price = 0 THEN NEXT .
 
-          FIND FIRST reftable WHERE
-               reftable.reftable EQ "inv-line.lot-no" AND
-               reftable.rec_key  EQ inv-line.rec_key
-               USE-INDEX rec_key
-               NO-LOCK NO-ERROR.
+
 
           for each oe-boll no-lock where oe-boll.company = inv-line.company
                         and oe-boll.bol-no = inv-head.bol-no
@@ -332,9 +328,9 @@ DEF VAR v-comp-add4 AS cha FORM "x(30)" NO-UNDO.
             
           end. /* each oe-boll */
 
-          IF AVAIL reftable THEN
+            
              v-case-cnt[1] = v-case-cnt[1] + FILL(" ",32 - LENGTH(v-case-cnt[1]))
-                           + reftable.CODE.
+                           + inv-line.lot-no.
 
           IF v-printline > 62 THEN do:           
              PAGE.

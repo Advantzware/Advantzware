@@ -1769,6 +1769,10 @@ PROCEDURE Init_Job :
       ASSIGN
         Btn_Quantity:HIDDEN = TRUE
         run-qty:HIDDEN = TRUE
+        Btn_Waste:HIDDEN = TRUE
+        Btn_complete:HIDDEN = TRUE
+        waste-qty:HIDDEN = TRUE 
+        v-completed:HIDDEN = TRUE 
         .
       APPLY 'CHOOSE' TO Btn_Hour.
     END.
