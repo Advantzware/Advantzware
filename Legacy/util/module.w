@@ -211,7 +211,13 @@ IF AVAIL users AND users.securityLevel GE 1000 THEN DO:
     APPLY 'CLOSE' TO THIS-PROCEDURE. /*task 10020703*/
     RETURN.
 END.
-
+ELSE DO:
+    MESSAGE
+        "This function is not available to local users/customers."
+        VIEW-AS ALERT-BOX INFO.
+    APPLY 'CLOSE' TO THIS-PROCEDURE.
+    RETURN.
+END.
 
 {src/adm/template/dialogmn.i}
 
