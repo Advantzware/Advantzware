@@ -127,16 +127,9 @@ ASSIGN ls-image1 = "images\packrite.jpg"
 
        break by ar-inv.cust-no
              by ar-inv.inv-no:
+       
 
-       FIND FIRST reftable WHERE
-           reftable.reftable EQ "cust.show-set" AND
-           reftable.company  EQ cust.company AND
-           reftable.loc      EQ "" AND            
-           reftable.code     EQ cust.cust-no
-           NO-LOCK NO-ERROR.
-
-      IF NOT AVAIL reftable OR
-         (AVAIL reftable AND reftable.val[1] = 1) THEN
+      IF cust.show-set THEN
          v-show-parts = YES.
       ELSE
          v-show-parts = NO.
