@@ -73,9 +73,9 @@ def TEMP-TABLE w-data no-undo
   FIELD w-msf       AS DEC EXTENT 3.
 
 DEF BUFFER b-mach FOR mach.
-
+DEFINE BUFFER bf-user-print FOR user-print .
 DEF VAR counter AS INT NO-UNDO.
-
+DEFINE VARIABLE iMach AS INTEGER INIT 15 NO-UNDO .
 assign
  cocode = gcompany
  locode = gloc.
@@ -357,15 +357,22 @@ DO:
        APPLY "ENTRY:U" TO BROWSE browse-machine.
        LEAVE.
     END.
+    
+    FIND FIRST user-print EXCLUSIVE-LOCK
+     WHERE user-print.company    EQ cocode        
+      AND user-print.program-id EQ "HM5" 
+      AND user-print.user-id EQ USERID(LDBNAME(1)) NO-ERROR.
 
-    FOR EACH reftable WHERE
-        reftable.reftable EQ "HM5" AND
-        reftable.company EQ USERID("NOSWEAT") AND
-        reftable.loc = fi_company
-        EXCLUSIVE-LOCK:
-
-        DELETE reftable.
+    IF NOT AVAIL user-print THEN DO:
+        CREATE user-print .
+        ASSIGN
+            user-print.company     = cocode            
+            user-print.program-id  = "HM5"     
+            user-print.user-id     = USERID(LDBNAME(1)) 
+              .
     END.
+    
+    ASSIGN user-print.field-value = "" .
 
     do counter = 1 to BROWSE browse-machine:NUM-SELECTED-ROWS:
        BROWSE browse-machine:FETCH-SELECTED-ROW(counter).
@@ -374,15 +381,10 @@ DO:
        ASSIGN tt-raw-prod.m-code = mach.m-code
               tt-raw-prod.DATE   = fi_as-of-date.
        RELEASE tt-raw-prod.
-
-       CREATE reftable.
-       ASSIGN reftable.reftable = "HM5"
-              reftable.company = USERID("NOSWEAT")
-              reftable.loc = fi_company
-              reftable.CODE = mach.m-code.
-
-       RELEASE reftable.
+      
+       ASSIGN user-print.field-value[counter] =  mach.m-code  .
     end.
+    FIND CURRENT user-print NO-LOCK NO-ERROR .
 
     RUN run-report.
 
@@ -514,20 +516,22 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
        mach.loc = locode
        NO-LOCK BY mach.m-code.
 
-  FOR EACH reftable WHERE
-      reftable.reftable EQ "HM5" AND
-      reftable.company EQ USERID("NOSWEAT") AND
-      reftable.loc = fi_company:SCREEN-VALUE
-      NO-LOCK,
-      FIRST mach WHERE
-            mach.company = fi_company:SCREEN-VALUE AND
-            mach.loc = locode AND
-            mach.m-code = reftable.CODE
-            NO-LOCK:
-
-      REPOSITION browse-machine TO ROWID ROWID(mach).
-      IF browse-machine:SELECT-FOCUSED-ROW() THEN.
-  END.
+  FIND FIRST bf-user-print NO-LOCK
+     WHERE bf-user-print.company    EQ cocode        
+      AND bf-user-print.program-id EQ "HM5" 
+      AND bf-user-print.user-id EQ USERID(LDBNAME(1)) NO-ERROR.
+  
+  IF AVAIL bf-user-print THEN DO:
+     DO i = 1 TO iMach:
+         FIND FIRST mach NO-LOCK
+          WHERE mach.company = fi_company:SCREEN-VALUE AND
+                mach.loc = locode AND
+                mach.m-code = bf-user-print.field-value[i] NO-ERROR.
+          IF AVAIL mach AND bf-user-print.field-value[i] NE ""  THEN
+              REPOSITION browse-machine TO ROWID ROWID(mach).
+              IF browse-machine:SELECT-FOCUSED-ROW() THEN.
+      END.
+  END.    /*avail user-print */ 
 
   FOR EACH b-mach WHERE
       b-mach.company EQ fi_company:SCREEN-VALUE AND
