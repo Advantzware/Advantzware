@@ -1259,12 +1259,12 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE run-report C-Win 
 PROCEDURE run-report PRIVATE :
-/*{sys/form/r-top3w.f}*/
+
   DEF VAR str-tit4 AS cha NO-UNDO.
 DEF VAR str-tit5 AS cha NO-UNDO.
 DEF VAR str-line AS cha FORM "x(300)" NO-UNDO.  
- {sys/form/r-top5DL3.f}
-
+ /*{sys/form/r-top5DL3.f}*/
+   {sys/form/r-top3w.f}
 DEF VAR str_buffa   AS   CHAR NO-UNDO.
 DEF VAR v-hdr       AS   CHAR NO-UNDO.
 DEF VAR lv-rc-seq   LIKE dept.fc NO-UNDO.
@@ -1288,6 +1288,7 @@ DEF VAR tot-job-qty AS INT NO-UNDO.
 DEF VAR cUOM AS CHARACTER NO-UNDO.
 DEF VAR dPrice AS DECIMAL NO-UNDO.
 DEF VAR dSaleValue AS DECIMAL NO-UNDO.
+DEFINE VARIABLE iPrint-line AS INTEGER NO-UNDO .
 DEF BUFFER b-mch-act FOR mch-act.
 DEF BUFFER bf-mch-act FOR mch-act.
 
@@ -1340,6 +1341,8 @@ IF td-show-parm THEN RUN show-param.
 RUN est/rc-seq.p (OUTPUT lv-rc-seq).
 
 DISPLAY "" WITH FRAME r-top.
+PUT str-tit4 FORMAT "x(485)" SKIP
+    str-tit5 FORMAT "x(485)" SKIP .
 
 IF tb_excel THEN DO:
     OUTPUT STREAM st-excell TO VALUE(fi_file).
@@ -1511,7 +1514,7 @@ IF tb_excel THEN DO:
                  IF hField <> ? THEN DO:                 
                      cTmpField = substring(GetFieldValue(hField),1,int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength))).
                      IF ENTRY(i,cSelectedList) = "Date" THEN  
-                        cTmpField =  IF cTmpField <> "" THEN  string(mch-act.op-date,"99/99/99") ELSE "".   
+                        cTmpField =  IF cTmpField <> ? THEN  string(mch-act.op-date,"99/99/99") ELSE "".   
                      IF ENTRY(i,cSelectedList) = "Hours" THEN  
                         cTmpField =  IF cTmpField <> "" THEN  string(mch-act.hours,"->>>9.9<<") ELSE "". 
                      IF ENTRY(i,cSelectedList) = "Qty" THEN  
@@ -1521,8 +1524,8 @@ IF tb_excel THEN DO:
                      IF ENTRY(i,cSelectedList) = "S" THEN  
                         cTmpField =  IF cTmpField <> "" THEN  string(mch-act.frm,">>9") ELSE "".
                      IF ENTRY(i,cSelectedList) = "B" THEN  
-                        cTmpField =  IF cTmpField <> "" THEN  string(mch-act.blank-no,">9") ELSE "".
-
+                        cTmpField =  IF cTmpField <> "" THEN  string(mch-act.blank-no,">9") ELSE "".  
+                     
                      cDisplay = cDisplay + cTmpField + 
                                FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cTmpField))
                                .
@@ -1600,6 +1603,14 @@ IF tb_excel THEN DO:
                        FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
             cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
          END. 
+      END.
+      
+      iPrint-line = iPrint-line + 1 .
+      IF iPrint-line GE lines-per-page - 12 THEN DO:
+          PAGE.
+          iPrint-line = 0 .
+          PUT str-tit4 FORMAT "x(485)" SKIP
+              str-tit5 FORMAT "x(485)" SKIP .
       END.
       PUT UNFORMATTED cDisplay SKIP.
       IF tb_excel THEN DO:
