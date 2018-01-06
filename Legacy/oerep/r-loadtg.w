@@ -3552,7 +3552,7 @@ PROCEDURE create-text-file :
 
       PUT UNFORMATTED ",DUEDATEJOBLINE,DUEDATEJOB,LINE#,UnitWt,PalletWt,FGdesc1,FGdesc2,FGdesc3,FG Lot#,"
                        "PalletCode,PalletID,TagCounter,TagCountTotal,"
-                       "RN1,RN2,RN3,RN4".
+                       "RN1,RN2,RN3,RN4,WareHouse,Bin".
 
       /* rstark - */
       IF lSSCC THEN PUT UNFORMATTED ",SSCC".
@@ -7693,7 +7693,9 @@ PROCEDURE write-loadtag-line :
      "~"" replace(w-ord.ship-notes[1],'"', '') "~","
      "~"" replace(w-ord.ship-notes[2],'"', '') "~","
      "~"" replace(w-ord.ship-notes[3],'"', '') "~","
-     "~"" replace(w-ord.ship-notes[4],'"', '') "~""
+     "~"" replace(w-ord.ship-notes[4],'"', '') "~","
+     "~"" loadtag.loc "~","
+     "~"" loadtag.loc-bin "~""
       .
  /* rstark - zoho13731 */
  IF lSSCC THEN PUT UNFORMATTED ",~"" w-ord.sscc "~"".
