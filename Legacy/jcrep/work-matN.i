@@ -32,9 +32,9 @@
    IF AVAIL ITEM AND ITEM.mat-TYPE = "D" THEN DO:
        IF work-mat.act-qty GT 0 THEN DO:
            FOR EACH bf-work-mat WHERE rowid(bf-work-mat) NE ROWID(work-mat)
-               AND work-mat.est-cost GT 0,
+               AND bf-work-mat.est-cost GT 0,
                FIRST bf-item WHERE bf-item.company eq cocode
-                     and bf-item.i-no    eq bf-work-mat.i-no
+                     AND bf-item.i-no    eq bf-work-mat.i-no
                      AND bf-item.mat-type = "D"
                    use-index i-no no-lock .
                LEAVE.

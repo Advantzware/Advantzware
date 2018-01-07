@@ -16,17 +16,21 @@ DEFINE OUTPUT PARAMETER TABLE FOR ttCostOutReport.
 DEFINE NEW SHARED VARIABLE cocode AS CHARACTER NO-UNDO.
 DEFINE NEW SHARED VARIABLE locode AS CHARACTER NO-UNDO.
 
-DEFINE VARIABLE cUOM        AS CHARACTER NO-UNDO.
-DEFINE VARIABLE dEstMatCost AS DECIMAL   NO-UNDO.
-DEFINE VARIABLE dActMatCost AS DECIMAL   NO-UNDO.
-DEFINE VARIABLE dEstLabCost AS DECIMAL   NO-UNDO.
-DEFINE VARIABLE dActLabCost AS DECIMAL   NO-UNDO.
-DEFINE VARIABLE dEstCost    AS DECIMAL   NO-UNDO.
-DEFINE VARIABLE dActCost    AS DECIMAL   NO-UNDO.
-DEFINE VARIABLE dDifference AS DECIMAL   NO-UNDO.
+DEFINE VARIABLE cUOM             AS CHARACTER NO-UNDO.
+DEFINE VARIABLE dEstMatCost      AS DECIMAL   NO-UNDO.
+DEFINE VARIABLE dActMatCost      AS DECIMAL   NO-UNDO.
+DEFINE VARIABLE dEstLabCost      AS DECIMAL   NO-UNDO.
+DEFINE VARIABLE dActLabCost      AS DECIMAL   NO-UNDO.
+DEFINE VARIABLE dEstCost         AS DECIMAL   NO-UNDO.
+DEFINE VARIABLE dActCost         AS DECIMAL   NO-UNDO.
+DEFINE VARIABLE dDifference      AS DECIMAL   NO-UNDO.
+DEFINE VARIABLE lSuppressEstCost AS LOGICAL   NO-UNDO.
 
 /* subject business logic */
 {jc/rep/job-sum.i NEW}
+
+DEFINE BUFFER bWorkMat FOR work-mat.
+DEFINE BUFFER bItem    FOR item.
 
 ASSIGN
     cocode      = ipcCompany
@@ -60,10 +64,17 @@ FOR EACH job NO-LOCK
     BREAK BY job.job-no
           BY job.job-no2
     :
+    /* build work-mat for material costs */
+    EMPTY TEMP-TABLE work-mat.    
+    RUN pEstMatCost.
+    RUN pActMatCost.
     /* build work-mch for labor costs */
     EMPTY TEMP-TABLE work-mch.
-    RUN jc/rep/job-sumr.p (
-        ROWID(job),
+    RUN jc/rep/job-sumi.p (RECID(job)).
+    RUN pMatPrdQty.
+    FIND FIRST work-item NO-ERROR.
+    IF NOT AVAILABLE work-item THEN NEXT.
+    RUN jc/rep/job-sumr.p (ROWID(job),
         ipcCompany,
         cLocation,
         NO,  /* exclude run if no production */
@@ -76,6 +87,14 @@ FOR EACH job NO-LOCK
         dActLabCost   = 0
         .
     FOR EACH work-mch:
+        IF work-mch.est-mr-cost  EQ ? THEN work-mch.est-mr-cost  = 0.
+        IF work-mch.est-run-cost EQ ? THEN work-mch.est-run-cost = 0.
+        IF work-mch.mr-cost1     EQ ? THEN work-mch.mr-cost1     = 0.
+        IF work-mch.mr-cost2     EQ ? THEN work-mch.mr-cost2     = 0.
+        IF work-mch.mr-cost3     EQ ? THEN work-mch.mr-cost3     = 0.
+        IF work-mch.run-cost1    EQ ? THEN work-mch.run-cost1    = 0.
+        IF work-mch.run-cost2    EQ ? THEN work-mch.run-cost2    = 0.
+        IF work-mch.run-cost3    EQ ? THEN work-mch.run-cost3    = 0.
         ASSIGN
             dEstLabCost = dEstLabCost
                         + work-mch.est-mr-cost
@@ -91,8 +110,58 @@ FOR EACH job NO-LOCK
         IF dEstLabCost EQ ? THEN dEstLabCost = 0.
         IF dActLabCost EQ ? THEN dActLabCost = 0.
     END. /* each work-mch */
-    RUN pEstMatCost (OUTPUT dEstMatCost).
-    RUN pActMatCost (OUTPUT dActMatCost).
+    ASSIGN
+        dEstMatCost = 0
+        dActMatCost = 0
+        .
+    FOR EACH work-mat:
+        lSuppressEstCost = NO.
+        FIND FIRST item NO-LOCK 
+             WHERE item.company EQ job.company
+               AND item.i-no    EQ work-mat.i-no
+             NO-ERROR.
+        IF AVAILABLE item THEN DO: 
+            IF work-mat.prd-qty NE 0 AND 
+               work-mat.act-qty NE 0 AND 
+               work-mat.est-qty NE 0 THEN DO:
+                IF work-mat.act-qty-uom NE "EA" THEN
+                RUN sys/ref/convquom.p (
+                    "EA",
+                    work-mat.act-qty-uom,
+                    work-mat.basis-w,
+                    work-mat.len,
+                    work-mat.wid,
+                    item.s-dep,
+                    work-mat.prd-qty,
+                    OUTPUT work-mat.prd-qty
+                    ).
+                work-mat.est-cost = work-mat.est-cost / work-mat.est-qty * work-mat.prd-qty.
+            END. /* qty's ne ea */
+            IF item.mat-type EQ "D" THEN DO:
+                IF work-mat.act-qty GT 0 THEN DO:
+                    FOR EACH bWorkMat
+                        WHERE ROWID(bWorkMat)   NE ROWID(work-mat) 
+                          AND bWorkMat.est-cost GT 0,
+                        FIRST bItem NO-LOCK 
+                        WHERE bItem.company  EQ job.company
+                          AND bItem.i-no     EQ bWorkMat.i-no
+                          AND bItem.mat-type EQ "D"
+                        USE-INDEX i-no
+                        :
+                        LEAVE.
+                    END. /* each bworkmat */
+                    lSuppressEstCost =  AVAILABLE bWorkMat.                                                
+                END. /* act-qty gt 0 */
+            END. /* avail item */
+        END. /* avail item */
+        IF lSuppressEstCost EQ NO THEN
+        dEstMatCost = dEstMatCost + work-mat.est-cost.
+        dActMatCost = dActMatCost + work-mat.act-cost.
+    END. /* each work-mat */
+
+    IF dEstMatCost EQ ? THEN dEstMatCost = 0.
+    IF dActMatCost EQ ? THEN dActMatCost = 0.
+    
     ASSIGN
         dEstCost    = dEstLabCost + dEstMatCost
         dActCost    = dActLabCost + dActMatCost
@@ -111,6 +180,129 @@ FOR EACH job NO-LOCK
         .
     RUN pJobDetail (ROWID(job)).
 END. /* each job, each jo-hdr */
+
+/* **********************  Internal Procedures  *********************** */
+
+PROCEDURE pActMatCost:
+    DEFINE VARIABLE dCost AS DECIMAL NO-UNDO.
+    
+    FOR EACH mat-act NO-LOCK
+        WHERE mat-act.company EQ job.company
+          AND mat-act.job     EQ job.job,
+        FIRST item FIELDS(r-wid basis-w s-wid s-len s-dep mat-type) NO-LOCK
+        WHERE item.company EQ mat-act.company
+          AND item.i-no    EQ mat-act.i-no
+        USE-INDEX i-no
+        :    
+        FIND FIRST work-mat
+             WHERE work-mat.i-no    EQ mat-act.i-no
+               AND work-mat.form-no EQ mat-act.s-num
+             NO-ERROR.    
+        IF NOT AVAILABLE work-mat THEN DO:    
+            CREATE work-mat.
+            ASSIGN
+                work-mat.i-no     = mat-act.i-no
+                work-mat.form-no  = mat-act.s-num
+                work-mat.board    = item.mat-type EQ "B"
+                work-mat.mat-type = item.mat-type
+                .
+        END. /* not avail work-mat */
+        IF item.r-wid EQ 0 THEN
+            RUN sys/ref/convcuom.p (
+               (IF work-mat.sc-uom GT "" THEN work-mat.sc-uom
+                ELSE mat-act.qty-uom),
+                mat-act.qty-uom,
+               (IF work-mat.basis-w NE 0 THEN work-mat.basis-w
+                ELSE item.basis-w),
+               (IF work-mat.len     NE 0 THEN work-mat.len
+                ELSE item.s-len),
+               (IF work-mat.wid     NE 0 THEN work-mat.wid
+                ELSE item.s-wid),
+                item.s-dep, 
+                mat-act.cost,
+                OUTPUT dCost
+                ).    
+        ELSE
+            RUN sys/ref/convcuom.p (
+               (IF work-mat.sc-uom GT "" THEN work-mat.sc-uom
+                ELSE mat-act.qty-uom),
+                mat-act.qty-uom,
+               (IF work-mat.basis-w NE 0 THEN work-mat.basis-w
+                ELSE item.basis-w),
+                work-mat.len,
+               (IF work-mat.wid     NE 0 THEN work-mat.wid
+                ELSE item.r-wid),
+                item.s-dep, 
+                mat-act.cost,
+                OUTPUT dCost
+                ).
+        IF mat-act.ext-cost EQ 0 OR mat-act.ext-cost EQ ? THEN
+            work-mat.act-cost = work-mat.act-cost + mat-act.qty * dCost.
+        ELSE
+            work-mat.act-cost = work-mat.act-cost + mat-act.ext-cost.
+
+        ASSIGN
+            work-mat.act-qty     = work-mat.act-qty + mat-act.qty
+            work-mat.act-qty-uom = mat-act.qty-uom
+            .    
+        IF work-mat.act-cost EQ ? THEN work-mat.act-cost = 0.
+    END. /* each mat-act */
+END PROCEDURE.
+
+PROCEDURE pEstMatCost:
+    DEFINE VARIABLE dCost AS DECIMAL NO-UNDO.
+    
+    FOR EACH job-mat NO-LOCK
+        WHERE job-mat.company EQ job.company
+          AND job-mat.job     EQ job.job
+        USE-INDEX seq-idx,        
+        FIRST item FIELDS(mat-type s-dep) NO-LOCK
+        WHERE item.company EQ job-mat.company
+          AND item.i-no    EQ job-mat.i-no
+        USE-INDEX i-no        
+        BREAK BY job-mat.frm
+              BY item.mat-type
+              BY job-mat.j-no
+              BY job-mat.rec_key
+        :    
+        FIND FIRST work-mat
+             WHERE work-mat.i-no    EQ job-mat.i-no
+               AND work-mat.form-no EQ job-mat.frm
+               AND work-mat.len     EQ job-mat.len
+               AND work-mat.wid     EQ job-mat.wid
+               AND work-mat.n-up    EQ job-mat.n-up
+             NO-ERROR.    
+        IF NOT AVAILABLE work-mat THEN DO:
+            CREATE work-mat.
+            ASSIGN
+                work-mat.i-no     = job-mat.i-no
+                work-mat.form-no  = job-mat.frm
+                work-mat.sc-uom   = job-mat.sc-uom
+                work-mat.basis-w  = job-mat.basis-w
+                work-mat.len      = job-mat.len
+                work-mat.wid      = job-mat.wid
+                work-mat.n-up     = job-mat.n-up
+                work-mat.board    = item.mat-type EQ "B"
+                work-mat.mat-type = item.mat-type
+                .
+        END. /* not avail work-mat */
+        RUN sys/ref/convcuom.p (
+            job-mat.sc-uom,
+            job-mat.qty-uom,
+            job-mat.basis-w,
+            job-mat.len,
+            job-mat.wid,
+            item.s-dep,
+            job-mat.std-cost,
+            OUTPUT dCost
+            ).    
+        ASSIGN
+            work-mat.est-qty     = work-mat.est-qty  + job-mat.qty
+            work-mat.est-qty-uom = job-mat.qty-uom
+            work-mat.est-cost    = work-mat.est-cost + job-mat.qty * dCost
+            .
+    END. /* each job-mat */
+END PROCEDURE.
 
 PROCEDURE pJobDetail:
     DEFINE INPUT PARAMETER iprJobRowID AS ROWID NO-UNDO.
@@ -271,129 +463,127 @@ PROCEDURE pJobDetail:
     END. /* each job-hdr */
 END PROCEDURE.
 
-PROCEDURE pActMatCost:
-    DEFINE OUTPUT PARAMETER opdCost AS DECIMAL NO-UNDO.
+PROCEDURE pMatPrdQty:
+    DEFINE VARIABLE lMultiForms AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE iNumForms   AS INTEGER NO-UNDO.
+    DEFINE VARIABLE iMostSheets AS INTEGER NO-UNDO.
+    DEFINE VARIABLE iNumUp      AS INTEGER NO-UNDO.
+    DEFINE VARIABLE iNumOut     AS INTEGER NO-UNDO.
+    DEFINE VARIABLE dAvgQty   AS DECIMAL NO-UNDO.
     
-    DEFINE VARIABLE dCost             AS DECIMAL NO-UNDO.
+    DEFINE BUFFER bWorkMat  FOR work-mat.
+    DEFINE BUFFER bWorkItem FOR work-item.
     
-    FOR EACH mat-act NO-LOCK
-        WHERE mat-act.company EQ job.company
-          AND mat-act.job     EQ job.job,
-        FIRST item FIELDS(r-wid basis-w s-wid s-len s-dep mat-type) NO-LOCK
-        WHERE item.company EQ mat-act.company
-          AND item.i-no    EQ mat-act.i-no
-        USE-INDEX i-no
-        :    
-        FIND FIRST work-mat
-             WHERE work-mat.i-no    EQ mat-act.i-no
-               AND work-mat.form-no EQ mat-act.s-num
-             NO-ERROR.    
-        IF NOT AVAILABLE work-mat THEN DO:    
-            CREATE work-mat.
-            ASSIGN
-                work-mat.i-no     = mat-act.i-no
-                work-mat.form-no  = mat-act.s-num
-                work-mat.board    = item.mat-type EQ "B"
-                work-mat.mat-type = item.mat-type
-                .
-        END. /* not avail work-mat */
-        IF item.r-wid EQ 0 THEN
-            RUN sys/ref/convcuom.p (
-               (IF work-mat.sc-uom GT "" THEN work-mat.sc-uom
-                ELSE mat-act.qty-uom),
-                mat-act.qty-uom,
-               (IF work-mat.basis-w NE 0 THEN work-mat.basis-w
-                ELSE item.basis-w),
-               (IF work-mat.len     NE 0 THEN work-mat.len
-                ELSE item.s-len),
-               (IF work-mat.wid     NE 0 THEN work-mat.wid
-                ELSE item.s-wid),
-                item.s-dep, 
-                mat-act.cost,
-                OUTPUT dCost
-                ).    
-        ELSE
-            RUN sys/ref/convcuom.p (
-               (IF work-mat.sc-uom GT "" THEN work-mat.sc-uom
-                ELSE mat-act.qty-uom),
-                mat-act.qty-uom,
-               (IF work-mat.basis-w NE 0 THEN work-mat.basis-w
-                ELSE item.basis-w),
-                work-mat.len,
-               (IF work-mat.wid     NE 0 THEN work-mat.wid
-                ELSE item.r-wid),
-                item.s-dep, 
-                mat-act.cost,
-                OUTPUT dCost
-                ).
-        IF mat-act.ext-cost EQ 0 OR mat-act.ext-cost EQ ? THEN
-            opdCost = opdCost + mat-act.qty * dCost.
-        ELSE
-            opdCost = opdCost + mat-act.ext-cost.    
-        IF opdCost EQ ? THEN opdCost = 0.
-    END. /* each mat-act */
-END PROCEDURE.
+    FOR EACH work-item:
+        IF CAN-FIND(FIRST bWorkItem
+           WHERE bWorkItem.i-no EQ bWorkItem.i-no
+             AND bWorkItem.form-no NE bWorkItem.form-no) THEN DO:
+              lMultiForms = YES.
+              LEAVE.
+        END. /* if can-find */
+    END. /* each work-item */
 
-PROCEDURE pEstMatCost:
-    DEFINE OUTPUT PARAMETER opdCost AS DECIMAL NO-UNDO.
-    
-    DEFINE VARIABLE lNonZeroCostFound AS LOGICAL NO-UNDO.
-    DEFINE VARIABLE dCost             AS DECIMAL NO-UNDO.
-    
-    EMPTY TEMP-TABLE work-mat.
-    
-    FOR EACH job-mat NO-LOCK
-        WHERE job-mat.company EQ job.company
-          AND job-mat.job     EQ job.job
-        USE-INDEX seq-idx,        
-        FIRST item FIELDS(mat-type s-dep) NO-LOCK
-        WHERE item.company EQ job-mat.company
-          AND item.i-no    EQ job-mat.i-no
-        USE-INDEX i-no        
-        BREAK BY job-mat.frm
-              BY item.mat-type
-              BY job-mat.j-no
-              BY job-mat.rec_key
-        :    
-        FIND FIRST work-mat
-             WHERE work-mat.i-no    EQ job-mat.i-no
-               AND work-mat.form-no EQ job-mat.frm
-               AND work-mat.len     EQ job-mat.len
-               AND work-mat.wid     EQ job-mat.wid
-               AND work-mat.n-up    EQ job-mat.n-up
-             NO-ERROR.    
-        IF NOT AVAILABLE work-mat THEN DO:
-            CREATE work-mat.
-            ASSIGN
-                work-mat.i-no     = job-mat.i-no
-                work-mat.form-no  = job-mat.frm
-                work-mat.sc-uom   = job-mat.sc-uom
-                work-mat.basis-w  = job-mat.basis-w
-                work-mat.len      = job-mat.len
-                work-mat.wid      = job-mat.wid
-                work-mat.n-up     = job-mat.n-up
-                work-mat.board    = item.mat-type EQ "B"
-                work-mat.mat-type = item.mat-type
-                .
-        END. /* not avail work-mat */
-        
-        RUN sys/ref/convcuom.p (
-            job-mat.sc-uom,
-            job-mat.qty-uom,
-            job-mat.basis-w,
-            job-mat.len,
-            job-mat.wid,
-            item.s-dep,
-            job-mat.std-cost,
-            OUTPUT dCost
-            ).    
-        opdCost = opdCost + job-mat.qty * dCost.
-        IF FIRST-OF(item.mat-type) THEN
-            lNonZeroCostFound = FALSE.    
-        IF INDEX("1234BR",item.mat-type) GT 0 AND lNonZeroCostFound EQ TRUE THEN 
-            opdCost = 0.
-        IF lNonZeroCostFound EQ FALSE AND opdCost GT 0 THEN
-            lNonZeroCostFound = TRUE.    
-        IF opdCost EQ ? THEN opdCost = 0.    
-    END. /* each job-mat */
+    IF lMultiForms EQ YES AND
+       CAN-FIND(FIRST work-item
+                WHERE work-item.qty-prod GT 0) THEN
+    FOR EACH work-item
+          BY work-item.form-no
+        :      
+        iNumForms = 1.
+        FOR EACH bWorkItem
+            WHERE bWorkItem.i-no    EQ work-item.i-no
+              AND bWorkItem.form-no NE work-item.form-no
+            :
+            iNumForms = iNumForms + 1.
+        END. /* each bworkitem */
+        ASSIGN
+            dAvgQty = (work-item.qty-prod + work-item.est-spo) / iNumForms
+            iNumUp  = 1
+            .       
+        FIND FIRST eb NO-LOCK
+             WHERE eb.company EQ job.company
+               AND eb.est-no EQ job.est-no
+               AND eb.form-no EQ work-item.form-no
+               AND eb.stock-no EQ work-item.i-no
+             NO-ERROR.
+        IF AVAILABLE eb THEN
+        iNumUp = eb.num-up.
+        dAvgQty = dAvgQty / iNumUp.
+        {sys/inc/roundup.i dAvgQty}
+        work-item.avg-qty = dAvgQty.
+    END. /* each work-item */
+
+    FOR EACH work-mat
+        BREAK BY work-mat.i-no
+        :
+        FIND FIRST item NO-LOCK
+             WHERE item.company EQ job.company
+               AND item.i-no    EQ work-mat.i-no
+             USE-INDEX i-no
+             NO-ERROR.
+        IF FIRST-OF(work-mat.i-no) THEN
+        FOR EACH bWorkMat
+            WHERE bWorkMat.i-no    EQ work-mat.i-no
+              AND bWorkMat.est-qty NE 0
+            :
+            IF AVAILABLE item AND item.mat-type EQ "B" THEN DO:
+                IF lMultiForms EQ NO THEN DO:
+                    IF work-mat.n-up EQ 0 THEN DO:
+                        iNumUp = 1.
+                        FIND FIRST ef NO-LOCK
+                             WHERE ef.company EQ job.company
+                               AND ef.est-no  EQ job.est-no
+                               AND ef.form-no EQ bWorkMat.form-no
+                             NO-ERROR.
+                        IF AVAILABLE ef THEN DO:
+                            RUN sys/inc/numup.p (job.company, job.est-no, bWorkMat.form-no, OUTPUT iNumUp).
+                            RUN est/ef-#out.p (ROWID(ef), OUTPUT iNumOut).
+                            iNumUp = iNumUp * iNumOut.
+                        END. /* avail ef */
+                    END. /* n-up eq 0 */
+                    ELSE iNumUp = work-mat.n-up.         
+                    IF CAN-FIND(FIRST work-item
+                                WHERE work-item.form-no  EQ bWorkMat.form-no
+                                  AND work-item.qty-prod GT 0) THEN DO:          
+                        FOR EACH work-item
+                            WHERE work-item.form-no EQ bWorkMat.form-no
+                            :                 
+                            work-mat.prd-qty = work-mat.prd-qty
+                                             + ((work-item.qty-prod
+                                             + work-item.est-spo)
+                                             / iNumUp).
+                        END. /* each work-item */
+                    END. /* if can-find */
+                END.
+                ELSE /*item on multiple forms*/ DO:
+                    IF CAN-FIND(FIRST work-item 
+                                WHERE work-item.qty-prod GT 0) THEN DO:
+                        FOR EACH work-item
+                            BREAK BY work-item.form-no
+                            :
+                            IF FIRST-OF(work-item.form-no) THEN DO:
+                                iMostSheets = -1.                   
+                                FOR EACH bWorkItem
+                                    WHERE bWorkItem.form-no EQ work-item.form-no
+                                    :                   
+                                    IF bWorkItem.avg-qty GT iMostSheets THEN
+                                    iMostSheets = bWorkItem.avg-qty.
+                                END. /* each bWorkItem */
+                                work-mat.prd-qty = work-mat.prd-qty + iMostSheets.
+                            END. /* if first-of */
+                        END. /* each work-item */
+                    END. /* if can-find */
+                END. /* else */
+            END. /* avail item */
+            IF RECID(bWorkMat) NE recid(work-mat) THEN DO:     
+                ASSIGN
+                    work-mat.est-qty  = work-mat.est-qty  + bWorkMat.est-qty
+                    work-mat.est-cost = work-mat.est-cost + bWorkMat.est-cost
+                    work-mat.act-qty  = work-mat.act-qty  + bWorkMat.act-qty
+                    work-mat.act-cost = work-mat.act-cost + bWorkMat.act-cost
+                    .
+                DELETE bWorkMat.
+            END. /* if recid */
+        END. /* each bWorkMat */
+    END. /* each work-mat */
 END PROCEDURE.
