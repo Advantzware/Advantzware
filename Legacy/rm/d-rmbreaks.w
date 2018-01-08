@@ -18,9 +18,7 @@ DEFINE INPUT PARAMETER ip-e-item AS ROWID NO-UNDO.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
-DEF BUFFER b-qty FOR reftable.
-DEF BUFFER b-cost FOR reftable.
-DEF BUFFER b-setup FOR reftable.
+
 
 DEF BUFFER b-blank-vend-qty FOR reftable.
 DEF BUFFER b-blank-vend-cost FOR reftable.
@@ -514,28 +512,9 @@ DO:
             fi-setups-9
             fi-setups-10.
 
-         FIND FIRST b-qty WHERE
-              b-qty.reftable = "vend-qty" AND
-              b-qty.company = e-item-vend.company AND
-              b-qty.CODE    = e-item-vend.i-no AND
-              b-qty.code2   = e-item-vend.vend-no
-              NO-ERROR.
+         
 
-         FIND FIRST b-cost WHERE
-              b-cost.reftable = "vend-cost" AND
-              b-cost.company = e-item-vend.company AND
-              b-cost.CODE    = e-item-vend.i-no AND
-              b-cost.code2   = e-item-vend.vend-no
-              NO-ERROR.
-
-         FIND FIRST b-setup WHERE
-              b-setup.reftable = "vend-setup" AND
-              b-setup.company = e-item-vend.company AND
-              b-setup.CODE    = e-item-vend.i-no AND
-              b-setup.code2   = e-item-vend.vend-no
-              NO-ERROR.
-
-         IF AVAIL b-qty AND AVAIL b-cost AND AVAIL b-setup THEN
+         IF AVAIL e-item-vend THEN
          DO:
             do i = 1 to 10:
                create tmpfile.
@@ -603,9 +582,9 @@ DO:
                RELEASE tmpfile.
            
                ASSIGN
-                  b-qty.val[i] = 0
-                  b-cost.val[i] = 0
-                  b-setup.val[i] = 0.
+                  e-item-vend.runQtyXtra[i] = 0
+                  e-item-vend.runCostXtra[i] = 0
+                  e-item-vend.setupsXtra[i] = 0.
             end.
            
             i = 1.
@@ -613,9 +592,9 @@ DO:
             FOR EACH tmpfile WHERE tmpfile.qty GT 0 BREAK BY tmpfile.qty:
             
                ASSIGN
-                  b-qty.val[i] = tmpfile.qty
-                  b-cost.val[i] = tmpfile.cost
-                  b-setup.val[i] = tmpfile.setups.
+                  e-item-vend.runQtyXtra[i] = tmpfile.qty
+                  e-item-vend.runCostXtra[i] = tmpfile.cost
+                  e-item-vend.setupsXtra[i] = tmpfile.setups.
 
                IF LAST(tmpfile.qty) THEN
                DO:
@@ -628,7 +607,7 @@ DO:
                   END.
 
                   IF v-update-9 THEN
-                     b-qty.val[i] = 9999999.9.
+                     e-item-vend.runQtyXtra[i] = 9999999.9.
                END.
 
                i = i + 1.
@@ -675,9 +654,7 @@ DO:
             e-item-vend.updated-date[1] = TODAY.
             FIND CURRENT e-item-vend NO-LOCK.
 
-            RELEASE b-setup.
-            RELEASE b-qty.
-            RELEASE b-cost.
+            
             RELEASE b-blank-vend-qty.
             RELEASE b-blank-vend-cost.
             
@@ -780,90 +757,41 @@ PROCEDURE init-proc :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-   FIND FIRST b-qty WHERE
-        b-qty.reftable = "vend-qty" AND
-        b-qty.company = e-item-vend.company AND
-        b-qty.CODE    = e-item-vend.i-no AND
-        b-qty.code2   = e-item-vend.vend-no
-        NO-LOCK NO-ERROR.
-
-   IF NOT AVAIL b-qty THEN
-   DO:
-      CREATE b-qty.
-      ASSIGN
-         b-qty.reftable = "vend-qty"
-         b-qty.company = e-item-vend.company
-         b-qty.CODE    = e-item-vend.i-no
-         b-qty.code2   = e-item-vend.vend-no.
-   END.
-
-   FIND FIRST b-cost WHERE
-        b-cost.reftable = "vend-cost" AND
-        b-cost.company = e-item-vend.company AND
-        b-cost.CODE    = e-item-vend.i-no AND
-        b-cost.code2   = e-item-vend.vend-no
-        NO-LOCK NO-ERROR.
-
-   IF NOT AVAIL b-cost THEN
-   DO:
-      CREATE b-cost.
-      ASSIGN
-         b-cost.reftable = "vend-cost"
-         b-cost.company = e-item-vend.company
-         b-cost.CODE    = e-item-vend.i-no
-         b-cost.code2   = e-item-vend.vend-no.
-   END.
-
-   FIND FIRST b-setup WHERE
-        b-setup.reftable = "vend-setup" AND
-        b-setup.company = e-item-vend.company AND
-        b-setup.CODE    = e-item-vend.i-no AND
-        b-setup.code2   = e-item-vend.vend-no
-        NO-LOCK NO-ERROR.
-
-   IF NOT AVAIL b-setup THEN
-   DO:
-      CREATE b-setup.
-      ASSIGN
-         b-setup.reftable = "vend-setup"
-         b-setup.company = e-item-vend.company
-         b-setup.CODE    = e-item-vend.i-no
-         b-setup.code2   = e-item-vend.vend-no.
-   END.
-
+   
+   
    DO WITH FRAME {&FRAME-NAME}:
    
       ASSIGN
-         fi-run-qty-1 = b-qty.val[1]
-         fi-run-qty-2 = b-qty.val[2]
-         fi-run-qty-3 = b-qty.val[3]
-         fi-run-qty-4 = b-qty.val[4]
-         fi-run-qty-5 = b-qty.val[5]
-         fi-run-qty-6 = b-qty.val[6]
-         fi-run-qty-7 = b-qty.val[7]
-         fi-run-qty-8 = b-qty.val[8]
-         fi-run-qty-9 = b-qty.val[9]
-         fi-run-qty-10 = b-qty.val[10]
-         fi-run-cost-1 = b-cost.val[1]
-         fi-run-cost-2 = b-cost.val[2]
-         fi-run-cost-3 = b-cost.val[3]
-         fi-run-cost-4 = b-cost.val[4]
-         fi-run-cost-5 = b-cost.val[5]
-         fi-run-cost-6 = b-cost.val[6]
-         fi-run-cost-7 = b-cost.val[7]
-         fi-run-cost-8 = b-cost.val[8]
-         fi-run-cost-9 = b-cost.val[9]
-         fi-run-cost-10 = b-cost.val[10]
-         fi-setups-1 = b-setup.val[1]
-         fi-setups-2 = b-setup.val[2]
-         fi-setups-3 = b-setup.val[3]
-         fi-setups-4 = b-setup.val[4]
-         fi-setups-5 = b-setup.val[5]
-         fi-setups-6 = b-setup.val[6]
-         fi-setups-7 = b-setup.val[7]
-         fi-setups-8 = b-setup.val[8]
-         fi-setups-9 = b-setup.val[9]
-         fi-setups-10 = b-setup.val[10].
+         fi-run-qty-1 = e-item-vend.runQtyXtra[1]
+         fi-run-qty-2 = e-item-vend.runQtyXtra[2]
+         fi-run-qty-3 = e-item-vend.runQtyXtra[3]
+         fi-run-qty-4 = e-item-vend.runQtyXtra[4]
+         fi-run-qty-5 = e-item-vend.runQtyXtra[5]
+         fi-run-qty-6 = e-item-vend.runQtyXtra[6]
+         fi-run-qty-7 = e-item-vend.runQtyXtra[7]
+         fi-run-qty-8 = e-item-vend.runQtyXtra[8]
+         fi-run-qty-9 = e-item-vend.runQtyXtra[9]
+         fi-run-qty-10 = e-item-vend.runQtyXtra[10]
+         fi-run-cost-1 = e-item-vend.runCostXtra[1]
+         fi-run-cost-2 = e-item-vend.runCostXtra[2]
+         fi-run-cost-3 = e-item-vend.runCostXtra[3]
+         fi-run-cost-4 = e-item-vend.runCostXtra[4]
+         fi-run-cost-5 = e-item-vend.runCostXtra[5]
+         fi-run-cost-6 = e-item-vend.runCostXtra[6]
+         fi-run-cost-7 = e-item-vend.runCostXtra[7]
+         fi-run-cost-8 = e-item-vend.runCostXtra[8]
+         fi-run-cost-9 = e-item-vend.runCostXtra[9]
+         fi-run-cost-10 = e-item-vend.runCostXtra[10]
+         fi-setups-1 = e-item-vend.setupsXtra[1]
+         fi-setups-2 = e-item-vend.setupsXtra[2]
+         fi-setups-3 = e-item-vend.setupsXtra[3]
+         fi-setups-4 = e-item-vend.setupsXtra[4]
+         fi-setups-5 = e-item-vend.setupsXtra[5]
+         fi-setups-6 = e-item-vend.setupsXtra[6]
+         fi-setups-7 = e-item-vend.setupsXtra[7]
+         fi-setups-8 = e-item-vend.setupsXtra[8]
+         fi-setups-9 = e-item-vend.setupsXtra[9]
+         fi-setups-10 = e-item-vend.setupsXtra[10].
 
      DISPLAY fi-run-qty-1 fi-run-qty-2 fi-run-qty-3 fi-run-qty-4 fi-run-qty-5
             fi-run-qty-6 fi-run-qty-7 fi-run-qty-8 fi-run-qty-9 fi-run-qty-10
@@ -873,10 +801,7 @@ PROCEDURE init-proc :
             fi-setups-7 fi-setups-8 fi-setups-9 fi-setups-10 WITH FRAME {&FRAME-NAME}.
   END.
 
-  RELEASE b-qty.
-  RELEASE b-cost.
-  RELEASE b-setup.
-
+ 
   IF e-item-vend.vend-no EQ "" THEN
   DO:
      IF NOT CAN-FIND(FIRST b-blank-vend-qty WHERE

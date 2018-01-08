@@ -43,9 +43,6 @@ DEF VAR ld AS DEC DECIMALS 10 NO-UNDO.
 DEF VAR li AS INT NO-UNDO.
 DEF VAR lv-uom LIKE job-mat.sc-uom NO-UNDO.
 
-DEF BUFFER b-qty FOR reftable.
-DEF BUFFER b-setup FOR reftable.
-DEF BUFFER b-cost FOR reftable.
 
 DEF TEMP-TABLE tt-eiv NO-UNDO
     FIELD run-qty AS DEC DECIMALS 3 EXTENT 20
@@ -242,34 +239,17 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
                   tt-eiv.setups[li] = e-item-vend.setups[li].
             END.
             
-            FIND FIRST b-qty WHERE
-                 b-qty.reftable = "vend-qty" AND
-                 b-qty.company = e-item-vend.company AND
-		         b-qty.CODE    = e-item-vend.i-no AND
-                 b-qty.code2   = e-item-vend.vend-no
-                 NO-LOCK NO-ERROR.
             
-            IF AVAIL b-qty THEN
+            
+            IF AVAIL e-item-vend THEN
             DO:
-               FIND FIRST b-cost WHERE
-                    b-cost.reftable = "vend-cost" AND
-                    b-cost.company = e-item-vend.company AND
-		            b-cost.CODE    = e-item-vend.i-no AND
-                    b-cost.code2   = e-item-vend.vend-no
-                    NO-LOCK NO-ERROR.
-            
-               FIND FIRST b-setup WHERE
-                    b-setup.reftable = "vend-setup" AND
-                    b-setup.company = e-item-vend.company AND
-		            b-setup.CODE    = e-item-vend.i-no AND
-                    b-setup.code2   = e-item-vend.vend-no
-                    NO-LOCK NO-ERROR.
+               
             
                DO li = 1 TO 10:
                   ASSIGN
-                     tt-eiv.run-qty[li + 10] = b-qty.val[li]
-                     tt-eiv.run-cost[li + 10] = b-cost.val[li]
-                     tt-eiv.setups[li + 10] = b-setup.val[li].
+                     tt-eiv.run-qty[li + 10] = e-item-vend.runQtyXtra[li]
+                     tt-eiv.run-cost[li + 10] = e-item-vend.runCostXtra[li]
+                     tt-eiv.setups[li + 10] = e-item-vend.setupsXtra[li].
                END.
             END.
         
@@ -333,34 +313,16 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
             tt-eiv.setups[li] = e-item-vend.setups[li].
       END.
       
-      FIND FIRST b-qty WHERE
-           b-qty.reftable = "vend-qty" AND
-           b-qty.company = e-item-vend.company AND
-	       b-qty.CODE    = e-item-vend.i-no AND
-           b-qty.code2   = e-item-vend.vend-no
-           NO-LOCK NO-ERROR.
-      
-      IF AVAIL b-qty THEN
+            
+      IF AVAIL e-item-vend THEN
       DO:
-         FIND FIRST b-cost WHERE
-              b-cost.reftable = "vend-cost" AND
-              b-cost.company = e-item-vend.company AND
-	          b-cost.CODE    = e-item-vend.i-no AND
-              b-cost.code2   = e-item-vend.vend-no
-              NO-LOCK NO-ERROR.
-      
-         FIND FIRST b-setup WHERE
-              b-setup.reftable = "vend-setup" AND
-              b-setup.company = e-item-vend.company AND
-	          b-setup.CODE    = e-item-vend.i-no AND
-              b-setup.code2   = e-item-vend.vend-no
-              NO-LOCK NO-ERROR.
+         
       
          DO li = 1 TO 10:
             ASSIGN
-               tt-eiv.run-qty[li + 10] = b-qty.val[li]
-               tt-eiv.run-cost[li + 10] = b-cost.val[li]
-               tt-eiv.setups[li + 10] = b-setup.val[li].
+               tt-eiv.run-qty[li + 10] = e-item-vend.runQtyXtra[li]
+               tt-eiv.run-cost[li + 10] = e-item-vend.runCostXtra[li]
+               tt-eiv.setups[li + 10] = e-item-vend.setupsXtra[li].
          END.
       END.
         

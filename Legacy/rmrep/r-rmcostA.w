@@ -55,8 +55,7 @@ def var head21 as ch format "x(76)" NO-UNDO.
 DEF VAR v-print-fmt AS CHARACTER NO-UNDO.
 DEF VAR is-xprint-form AS LOGICAL.
 
-DEF BUFFER b-cost FOR reftable.
-DEF BUFFER b-qty FOR reftable.
+
 DEF BUFFER b-blank-vend-qty FOR reftable.
 DEF BUFFER b-blank-vend-cost FOR reftable.
 
@@ -1065,26 +1064,15 @@ IF AVAIL e-item THEN DO:
           tt-e-i-v.roll-w[v-index] = e-item-vend.roll-w[v-index].
     END.
 
-    FIND FIRST b-qty WHERE
-         b-qty.reftable = "vend-qty" AND
-         b-qty.company = e-item-vend.company AND
-	     b-qty.CODE    = e-item-vend.i-no AND
-         b-qty.code2   = e-item-vend.vend-no
-         NO-LOCK NO-ERROR.
-
-    IF AVAIL b-qty THEN
+    
+    IF AVAIL e-item-vend THEN
     DO:
-       FIND FIRST b-cost WHERE
-            b-cost.reftable = "vend-cost" AND
-            b-cost.company = e-item-vend.company AND
-	        b-cost.CODE    = e-item-vend.i-no AND
-            b-cost.code2   = e-item-vend.vend-no
-            NO-LOCK NO-ERROR.
+       
 
        DO v-index = 1 TO 10:
           ASSIGN
-             tt-e-i-v.run-qty[v-index + 10] = b-qty.val[v-index]
-             tt-e-i-v.run-cost[v-index + 10] = b-cost.val[v-index].
+             tt-e-i-v.run-qty[v-index + 10] = e-item-vend.runQtyXtra[v-index]
+             tt-e-i-v.run-cost[v-index + 10] = e-item-vend.runCostXtra[v-index].
        END.
     END.
 

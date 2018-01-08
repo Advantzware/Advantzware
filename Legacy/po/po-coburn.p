@@ -44,9 +44,7 @@ def var v-hdr as char format "x(15)" initial "" no-undo.
 def var v-ino-job as char format "x(15)" initial "" no-undo.
 def var v-change-ord as char format "x(35)" initial "" no-undo.
 DEF VAR lv-got-return AS int NO-UNDO.
-DEF BUFFER b-cost FOR reftable.
-DEF BUFFER b-qty FOR reftable.
-DEF BUFFER b-setup FOR reftable.
+
 DEF VAR v-signature AS cha NO-UNDO.
 DEF VAR v-sig-image AS cha NO-UNDO.
 DEF VAR v-username AS cha NO-UNDO.

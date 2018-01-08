@@ -62,8 +62,7 @@ DEF TEMP-TABLE temp-adder NO-UNDO
     INDEX temp-adder-index adder-index ASC.
 
 DEFINE BUFFER xjob-mat FOR job-mat.
-DEF BUFFER b-cost FOR reftable.
-DEF BUFFER b-qty FOR reftable.
+
 DEFINE STREAM st-excel.
 
 DEF VAR ldummy AS LOG NO-UNDO.
@@ -1869,26 +1868,16 @@ IF rd_vend-cost BEGINS "Vend" THEN DO:
                tt-eiv.run-cost[pr-ct] = e-item-vend.run-cost[pr-ct].
          END.
 
-         FIND FIRST b-qty WHERE
-              b-qty.reftable = "vend-qty" AND
-              b-qty.company = e-item-vend.company AND
-                  b-qty.CODE    = e-item-vend.i-no AND
-              b-qty.code2   = e-item-vend.vend-no
-              NO-LOCK NO-ERROR.
+         
 
-         IF AVAIL b-qty THEN
+         IF AVAIL e-item-vend THEN
          DO:
-            FIND FIRST b-cost WHERE
-                 b-cost.reftable = "vend-cost" AND
-                 b-cost.company = e-item-vend.company AND
-                         b-cost.CODE    = e-item-vend.i-no AND
-                 b-cost.code2   = e-item-vend.vend-no
-                 NO-LOCK NO-ERROR.
+            
 
             DO pr-ct = 1 TO 10:
                ASSIGN
-                  tt-eiv.run-qty[pr-ct + 10] = b-qty.val[pr-ct]
-                  tt-eiv.run-cost[pr-ct + 10] = b-cost.val[pr-ct].
+                  tt-eiv.run-qty[pr-ct + 10] = e-item-vend.runQtyXtra[pr-ct]
+                  tt-eiv.run-cost[pr-ct + 10] = e-item-vend.runCostXtra[pr-ct].
             END.
          END.
       END.

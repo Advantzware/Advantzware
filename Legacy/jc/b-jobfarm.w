@@ -1378,26 +1378,16 @@ PROCEDURE new-i-no PRIVATE :
                    tt-eiv.run-cost[j] = e-itemfg-vend.run-cost[j].
              END.
             
-             FIND FIRST b-qty WHERE
-                  b-qty.reftable = "vend-qty" AND
-                  b-qty.company = e-itemfg-vend.company AND
-                          b-qty.CODE    = e-itemfg-vend.i-no AND
-                  b-qty.code2   = e-itemfg-vend.vend-no
-                  NO-LOCK NO-ERROR.
+
             
              IF AVAIL b-qty THEN
              DO:
-                FIND FIRST b-cost WHERE
-                     b-cost.reftable = "vend-cost" AND
-                     b-cost.company = e-itemfg-vend.company AND
-                             b-cost.CODE    = e-itemfg-vend.i-no AND
-                     b-cost.code2   = e-itemfg-vend.vend-no
-                     NO-LOCK NO-ERROR.
+
             
                 DO j = 1 TO 10:
                    ASSIGN
-                      tt-eiv.run-qty[j + 10] = b-qty.val[j]
-                      tt-eiv.run-cost[j + 10] = b-cost.val[j].
+                      tt-eiv.run-qty[j + 10] = e-item-vend.runQtyXtra[j]
+                      tt-eiv.run-cost[j + 10] = e-item-vend.runCostXtra[j].
                 END.
              END.
 
