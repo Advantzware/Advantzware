@@ -2626,8 +2626,8 @@ PROCEDURE final-steps2 :
       fil_id = RECID(oe-ordl).
     END.
     IF lv-q-no NE 0 THEN DO:
-      RUN oe/ordlq-no.p (ROWID(oe-ordl), lv-q-no).
-      FIND CURRENT oe-ordl.
+     FIND CURRENT oe-ordl.
+      ASSIGN oe-ordl.q-no = lv-q-no.
     END.
   END.
 

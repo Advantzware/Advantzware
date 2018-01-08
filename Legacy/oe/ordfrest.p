@@ -868,8 +868,8 @@ PROCEDURE create-order-lines.
                           INPUT-OUTPUT oe-ordl.qty).
 
        IF lv-q-no NE 0 THEN DO:
-          RUN oe/ordlq-no.p (ROWID(oe-ordl), lv-q-no).
-          FIND CURRENT oe-ordl NO-ERROR.
+        FIND CURRENT oe-ordl.
+        ASSIGN oe-ordl.q-no = lv-q-no.
        END. /* lv-q-no ne 0 */
     END. /* avail xest and quo price log ... */
 
