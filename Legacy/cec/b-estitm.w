@@ -4905,13 +4905,11 @@ DEF VAR li AS INT NO-UNDO.
              BY est-op.d-seq
              BY est-op.op-pass
              BY est-op.rec_key:
-        
-           {sys/inc/machposw.i est-op SHARE}  
+                   
            ASSIGN
             li          = li + 1
-            est-op.line = li.
-        
-           IF AVAIL reftable THEN reftable.loc = STRING(est-op.line,"9999999999"). 
+            est-op.line = li.        
+           
          END.
       END.
    END.
