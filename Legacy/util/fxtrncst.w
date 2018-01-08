@@ -394,10 +394,10 @@ FOR EACH itemfg NO-LOCK
       EACH fg-rdtlh
       WHERE fg-rdtlh.r-no EQ fg-rcpth.r-no
         AND fg-rdtlh.rita-code EQ fg-rcpth.rita-code
-        AND  ((tb_0    AND
-             (fg-rdtlh.cost EQ 0     OR
-             fg-rdtlh.cost EQ ? )     OR
-             (INDEX("CRT",fg-rdtlh.rita-code) GT 0 OR
+        AND (fg-rdtlh.cost EQ 0                           OR
+             fg-rdtlh.cost EQ ?                           OR
+             (NOT tb_0                                AND
+              (INDEX("CRT",fg-rdtlh.rita-code) GT 0 OR
                fg-rcpth.job-no NE "")))
       USE-INDEX rm-rdtl
 
