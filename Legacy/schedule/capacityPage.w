@@ -34,6 +34,7 @@ DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
 DEFINE VARIABLE ipcType    AS CHARACTER NO-UNDO.
 DEFINE VARIABLE iprRowID   AS ROWID     NO-UNDO.
 DEFINE VARIABLE ipcCompany AS CHARACTER NO-UNDO INITIAL "001".
+
 ASSIGN
     ipcType  = "Job"
     iprRowID = TO-ROWID("0x00000000005a4047")
@@ -47,7 +48,7 @@ ASSIGN
 /* Local Variable Definitions ---                                       */
 
 DEFINE VARIABLE cocode AS CHARACTER NO-UNDO.
-
+DEFINE VARIABLE lAccess    AS LOGICAL   NO-UNDO.
 {schedule/scopDir.i}
 {{&includes}/ttblDowntime.i NEW}
 
@@ -95,9 +96,8 @@ DEFINE TEMP-TABLE ttMachine NO-UNDO
 SESSION:SET-WAIT-STATE ("").
 
 /* check for valid license */
-RUN util/chk-mod.p ("ASI", "sbHTML").
-IF ERROR-STATUS:ERROR THEN
-RETURN.
+RUN util/CheckModule.p ("ASI", "sbHTML", YES, OUTPUT lAccess).
+IF NOT lAccess THEN RETURN.
 
 /* get nk1 setting */
 cocode = ipcCompany.

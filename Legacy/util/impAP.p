@@ -20,11 +20,14 @@
 {custom/gloc.i}
 {custom/getloc.i}
 
+DEFINE VARIABLE lAccess AS LOGICAL NO-UNDO.
+
 /* ********************  Preprocessor Definitions  ******************** */
 
 
 /* ***************************  Main Block  *************************** */
-RUN util/chk-mod.p ("ASI","impAP.") NO-ERROR.
-IF ERROR-STATUS:ERROR THEN RETURN.
 
-RUN util\Importer.w (gcompany,'AP').
+
+RUN util/CheckModule.p ("ASI","impAP.", YES, OUTPUT lAccess).
+IF lAccess THEN 
+    RUN util\Importer.w (gcompany,'AP', ?).
