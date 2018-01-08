@@ -31,28 +31,28 @@ DEFINE TEMP-TABLE ttImportShipTo
     FIELD Fax                 AS CHARACTER FORMAT "x(20)" COLUMN-LABEL "Fax"
     FIELD SalesRep            AS CHARACTER FORMAT "x(3)" COLUMN-LABEL "Sales Rep Code"
     FIELD TaxCode             AS CHARACTER FORMAT "x(3)" COLUMN-LABEL "Tax Group"
-    FIELD Note1               AS CHARACTER 
-    FIELD Note2               AS CHARACTER 
-    FIELD Note3               AS CHARACTER 
-    FIELD Note4               AS CHARACTER
-    FIELD Warehouse           AS CHARACTER 
-    FIELD Bin                 AS CHARACTER 
-    FIELD Carrier             AS CHARACTER 
+    FIELD Note1               AS CHARACTER FORMAT "x(50)" COLUMN-LABEL "Note 1"
+    FIELD Note2               AS CHARACTER FORMAT "x(50)" COLUMN-LABEL "Note 2"
+    FIELD Note3               AS CHARACTER FORMAT "x(50)" COLUMN-LABEL "Note 3"
+    FIELD Note4               AS CHARACTER FORMAT "x(50)" COLUMN-LABEL "Note 4"
+    FIELD Warehouse           AS CHARACTER FORMAT "x(5)" COLUMN-LABEL "Warehouse"
+    FIELD Bin                 AS CHARACTER FORMAT "x(10)" COLUMN-LABEL "Bin"
+    FIELD Carrier             AS CHARACTER FORMAT "x(10)" COLUMN-LABEL "Carrier"
     FIELD Zone                AS CHARACTER FORMAT "x(10)" COLUMN-LABEL "Zone"
-    FIELD Pallet              AS CHARACTER
-    FIELD ShipperID           AS CHARACTER 
-    FIELD MemberID            AS CHARACTER
-    FIELD DockID              AS CHARACTER 
-    FIELD DockHours           AS CHARACTER 
-    FIELD Charge              AS DECIMAL 
-    FIELD DaysTransit         AS DECIMAL 
-    FIELD DaysSamples         AS INTEGER 
-    FIELD DaysDockAppt        AS INTEGER 
-    FIELD DaysEarliestAllowed AS INTEGER
-    FIELD DaysLatestAllowed   AS INTEGER
-    FIELD ShipByCaseAllowed   AS LOGICAL 
-    FIELD Broker              AS LOGICAL 
-    FIELD Billable            AS LOGICAL 
+    FIELD Pallet              AS CHARACTER FORMAT "x(10)" COLUMN-LABEL "Pallet Code"
+    FIELD ShipperID           AS CHARACTER FORMAT "x(20)" COLUMN-LABEL "Shipper ID"
+    FIELD MemberID            AS CHARACTER FORMAT "x(20)" COLUMN-LABEL "Member ID"
+    FIELD DockID              AS CHARACTER FORMAT "x(20)" COLUMN-LABEL "Dock ID"
+    FIELD DockHours           AS CHARACTER FORMAT "x(20)" COLUMN-LABEL "Dock Hours"
+    FIELD Charge              AS DECIMAL FORMAT ">,>>9.99<<" COLUMN-LABEL "Charge"
+    FIELD DaysTransit         AS DECIMAL FORMAT ">>9" COLUMN-LABEL "Days Transit"
+    FIELD DaysSamples         AS INTEGER FORMAT ">>9" COLUMN-LABEL "Days Samples"
+    FIELD DaysDockAppt        AS INTEGER FORMAT ">>9" COLUMN-LABEL "Days Dock Appointment"
+    FIELD DaysEarliestAllowed AS INTEGER FORMAT ">>9" COLUMN-LABEL "Days Earliest Allowed"
+    FIELD DaysLatestAllowed   AS INTEGER FORMAT ">>9" COLUMN-LABEL "Days Latest Allowed"
+    FIELD ShipByCaseAllowed   AS LOGICAL FORMAT "Yes/No" COLUMN-LABEL "Ship By Case Allowed"
+    FIELD Broker              AS LOGICAL FORMAT "Yes/No" COLUMN-LABEL "Broker"
+    FIELD Billable            AS LOGICAL FORMAT "Yes/No" COLUMN-LABEL "Billable"
     .
 
 DEFINE VARIABLE giIndexOffset AS INTEGER NO-UNDO INIT 1. /*Set to 1 if there is a Company field in temp-table since this will not be part of the import data*/
@@ -271,6 +271,8 @@ PROCEDURE pExportData:
  Purpose:  Runs the Export Data Program for ShipTo
  Notes:
 ------------------------------------------------------------------------------*/
+DEFINE INPUT PARAMETER ipriContext AS ROWID NO-UNDO.
+DEFINE INPUT PARAMETER iopcFile AS CHARACTER NO-UNDO.
 
 
 END PROCEDURE.

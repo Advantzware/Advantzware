@@ -19,6 +19,7 @@ DEFINE VARIABLE ghdImportProcForType AS HANDLE    NO-UNDO.
 {util\ttImport.i SHARED}
 
 DEFINE STREAM sImport.
+DEFINE STREAM sTemplate.
 DEFINE STREAM sLog.
 
 /* ********************  Preprocessor Definitions  ******************** */
@@ -49,7 +50,8 @@ PROCEDURE pConvertExceltoCSV:
     DEFINE VARIABLE chWorkBook  AS COMPONENT-HANDLE NO-UNDO.
     DEFINE VARIABLE chWorkSheet AS COMPONENT-HANDLE NO-UNDO.
 
-    IF NOT fIsExcel(ipcInputFile) THEN DO:
+    IF NOT fIsExcel(ipcInputFile) THEN 
+    DO:
         opcOutputFile = ipcInputFile.
         RETURN.
     END.
@@ -99,38 +101,50 @@ PROCEDURE pConvertExceltoCSV:
 END PROCEDURE.
 
 PROCEDURE pGenerateLog:
-/*------------------------------------------------------------------------------
- Purpose: Generates Log for Active Import Data Set
- Notes:
-------------------------------------------------------------------------------*/
-DEFINE INPUT PARAMETER ipcLogFile AS CHARACTER NO-UNDO.
+    /*------------------------------------------------------------------------------
+     Purpose: Generates Log for Active Import Data Set
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcLogFile AS CHARACTER NO-UNDO.
 
-OUTPUT STREAM sLog TO VALUE(ipcLogFile).
+    OUTPUT STREAM sLog TO VALUE(ipcLogFile).
 
-FOR EACH ttImportData:
-   EXPORT STREAM sLog DELIMITER "," 
-                ttImportData.lValid
-                ttImportData.cImportNote
-                ttImportData.cData
-                .
-END.
-OUTPUT STREAM sLog CLOSE.
+    FOR EACH ttImportData:
+        EXPORT STREAM sLog DELIMITER "," 
+            ttImportData.lValid
+            ttImportData.cImportNote
+            ttImportData.cData
+            .
+    END.
+    OUTPUT STREAM sLog CLOSE.
 
 END PROCEDURE.
 
 PROCEDURE pGenerateTemplate:
-/*------------------------------------------------------------------------------
- Purpose:
- Notes:
-------------------------------------------------------------------------------*/
-DEFINE INPUT PARAMETER iplShellOnly AS LOGICAL NO-UNDO.
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER iplShellOnly AS LOGICAL NO-UNDO.
+    DEFINE INPUT PARAMETER ipriContext AS ROWID NO-UNDO.
+    DEFINE INPUT-OUTPUT PARAMETER iopcFile AS CHARACTER NO-UNDO.
 
-IF iplShellOnly THEN DO:
-    /*Generate Code to Create Template Only*/
-END.
-ELSE 
-    RUN pExportData IN ghdImportProcForType. 
 
+
+    IF iplShellOnly THEN 
+    DO:
+        OUTPUT STREAM sTemplate TO VALUE(iopcFile). 
+        FOR EACH ttImportMap:
+            PUT STREAM sTemplate UNFORMATTED ttImportMap.cColumnLabel ',' .
+        END.
+        PUT STREAM sTemplate SKIP.
+        OUTPUT STREAM sTemplate CLOSE.
+    END.
+    ELSE 
+    DO:   
+        RUN pExportData IN ghdImportProcForType  (INPUT ipriContext, INPUT-OUTPUT iopcFile). 
+    END.
+    
 
 
 END PROCEDURE.
@@ -203,7 +217,8 @@ PROCEDURE pLoad:
                     ttImportData.lValid      = NO 
                     ttImportData.cImportNote = 'No Data in First Column'
                     .
-            ELSE DO:
+            ELSE 
+            DO:
                 IF (iplHeader AND iCount GT 1) OR NOT iplHeader THEN 
                     RUN pAddRecord IN ghdImportProcForType(ipcCompany,
                         ttImportData.cData, 
@@ -236,15 +251,15 @@ PROCEDURE pLoad:
 END PROCEDURE.
 
 PROCEDURE pProcessImport:
-/*------------------------------------------------------------------------------
- Purpose: Processes the Import Data TempTable for the active type
- Notes:
-------------------------------------------------------------------------------*/
-DEFINE OUTPUT PARAMETER opiUpdateCount AS INTEGER NO-UNDO.
-DEFINE OUTPUT PARAMETER opiAddCount AS INTEGER NO-UNDO.
+    /*------------------------------------------------------------------------------
+     Purpose: Processes the Import Data TempTable for the active type
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER opiUpdateCount AS INTEGER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opiAddCount AS INTEGER NO-UNDO.
 
 
-RUN pProcessImport IN ghdImportProcForType (OUTPUT opiUpdateCount, OUTPUT opiAddCount).
+    RUN pProcessImport IN ghdImportProcForType (OUTPUT opiUpdateCount, OUTPUT opiAddCount).
 
 END PROCEDURE.
 
