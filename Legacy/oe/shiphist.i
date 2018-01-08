@@ -53,7 +53,15 @@ ASSIGN
  fg-rdtlh.qty          = {3}
  fg-rdtlh.partial      = li-stupid
  fg-rdtlh.cases        = TRUNC((fg-rdtlh.qty - fg-rdtlh.partial) /
-                               fg-rdtlh.qty-case,0) .
+                               fg-rdtlh.qty-case,0) 
+ fg-rdtlh.avg-cost     = fg-bin.avg-cost 
+ fg-rdtlh.last-cost    = fg-bin.last-cost
+ fg-rdtlh.std-fix-cost = fg-bin.std-fix-cost 
+ fg-rdtlh.std-lab-cost = fg-bin.std-lab-cost 
+ fg-rdtlh.std-mat-cost = fg-bin.std-mat-cost 
+ fg-rdtlh.std-tot-cost = fg-bin.std-tot-cost 
+ fg-rdtlh.std-var-cost = fg-bin.std-var-cost.                              
+ .
  IF fg-rcpth.rita-code EQ "S" THEN
    ASSIGN fg-rdtlh.tag = tt-boll.tag
           fg-rdtlh.loc-bin = tt-boll.loc-bin
@@ -64,31 +72,7 @@ ASSIGN
  IF fg-rcpth.rita-code EQ "T" THEN
      ASSIGN fg-rdtlh.loc-bin = ""
             fg-rdtlh.tag  = "".
-
-  FIND FIRST reftable NO-LOCK
-      WHERE reftable.reftable EQ "fg-bin.cost"
-        AND reftable.company  EQ tt-bolh.company
-        AND reftable.rec_key  = fg-rdtlh.rec_key
-      USE-INDEX rec_key
-      NO-ERROR.
   
-  IF NOT AVAIL reftable THEN DO:
-    CREATE reftable.
-    ASSIGN
-     reftable.reftable = "fg-bin.cost"
-     reftable.company  = tt-bolh.company
-     reftable.rec_key  = fg-rdtlh.rec_key
-     reftable.val[1]   = fg-bin.avg-cost 
-     reftable.val[2]   = fg-bin.last-cost
-     reftable.val[3]   = fg-bin.std-fix-cost 
-     reftable.val[4]   = fg-bin.std-lab-cost 
-     reftable.val[5]   = fg-bin.std-mat-cost 
-     reftable.val[6]   = fg-bin.std-tot-cost 
-     reftable.val[7]   = fg-bin.std-var-cost.
-     
-    RELEASE reftable.
-  END.
-
  /* gdm - 10260912 */
 find first sys-ctrl
       where sys-ctrl.company eq tt-bolh.company
