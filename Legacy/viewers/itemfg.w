@@ -62,11 +62,7 @@ DEF VAR v-shpmet        LIKE itemfg.ship-meth NO-UNDO.
 &SCOPED-DEFINE itemfg-maint itemfg-maint
 
 
-&SCOPED-DEFINE where-fgstatus                 ~
-    WHERE reftable.reftable EQ "FGSTATUS"     ~
-      AND reftable.company  EQ itemfg.company ~
-      AND reftable.loc      EQ ""             ~
-      AND reftable.code     EQ itemfg.i-no
+
 
 &SCOPED-DEFINE where-exempt-disc                    ~
     WHERE reftable.reftable EQ "itemfg.exempt-disc" ~
@@ -1551,7 +1547,7 @@ PROCEDURE local-assign-record :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-record':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-  RUN reftable-values (NO).
+  
 
   IF tg-freeze-weight THEN
       itemfg.spare-int-1 = 1.
@@ -1750,11 +1746,7 @@ PROCEDURE local-display-fields :
   IF AVAIL itemfg AND NOT adm-new-record THEN DO:
     tb_taxable = itemfg.taxable.
 
-/*     ASSIGN                                               */
-/*      rd_status      = "A"                                */
-/*      tb_exempt-disc = NO.                                */
-/*                                                          */
-/*     IF itemfg.i-no NE "" THEN RUN reftable-values (YES). */
+
   END.
 
   /* Dispatch standard ADM method.                             */
@@ -2246,55 +2238,6 @@ PROCEDURE recalc-cost :
   RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE, "record-source", OUTPUT char-hdl).
 
   RUN repo-query IN WIDGET-HANDLE(char-hdl) (ROWID(itemfg)).
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE reftable-values V-table-Win 
-PROCEDURE reftable-values :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  DEF INPUT PARAM ip-display AS LOG NO-UNDO.
-
-  IF AVAIL itemfg THEN DO:
-
-/*     FIND FIRST reftable {&where-fgstatus} NO-ERROR. */
-/*     IF NOT AVAIL reftable THEN DO:                  */
-/*       CREATE reftable.                              */
-/*       ASSIGN                                        */
-/*        reftable.reftable = "FGSTATUS"               */
-/*        reftable.company  = itemfg.company           */
-/*        reftable.loc      = ""                       */
-/*        reftable.code     = itemfg.i-no              */
-/*        reftable.code2    = rd_status.               */
-/*     END.                                            */
-/*     IF ip-display THEN                                 */
-/*       rd_status = reftable.code2.                      */
-/*     ELSE                                               */
-/*       reftable.code2 = rd_status.                      */
-/*                                                        */
-/*     FIND FIRST reftable {&where-exempt-disc} NO-ERROR. */
-/*     IF NOT AVAIL reftable THEN DO:                     */
-/*       CREATE reftable.                                 */
-/*       ASSIGN                                           */
-/*        reftable.reftable = "itemfg.exempt-disc"        */
-/*        reftable.company  = itemfg.company              */
-/*        reftable.loc      = ""                          */
-/*        reftable.code     = itemfg.i-no.                */
-/*     END.                                               */
-/*                                                        */
-/*     IF ip-display THEN                                 */
-/*       tb_exempt-disc = reftable.val[1] EQ 1.           */
-/*     ELSE                                               */
-/*       reftable.val[1] = INT(tb_exempt-disc).           */
-/*                                                        */
-/*     FIND CURRENT reftable NO-LOCK.                     */
-  END.
-
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

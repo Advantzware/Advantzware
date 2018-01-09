@@ -273,13 +273,6 @@ td-show-parm tb_excel tb_runExcel fi_file tb_include_old_items
 
 /* ************************  Function Prototypes ********************** */
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD itemStatus C-Win 
-FUNCTION itemStatus RETURNS CHARACTER
-  (ipcCompany AS CHAR, ipcIno AS CHAR )  FORWARD.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD removeChars C-Win 
 FUNCTION removeChars RETURNS CHARACTER
   (ipField AS CHARACTER)  FORWARD.
@@ -3164,11 +3157,7 @@ PROCEDURE produce-report :
               AND itemfg.i-no           LE titm
               AND (itemfg.stat EQ "A" OR lvlIncludeOld)
               USE-INDEX i-no.
-
-              /*         /* Check for active status */                                                */
-              /*         IF NOT lvlIncludeOld AND itemStatus(itemfg.company, itemfg.i-no) NE "A" THEN */
-              /*             NEXT.                                                                    */
-              /*                                                                                      */
+            
               {custom/statusMsg.i "'Building Report: Item ' + itemfg.i-no"}
               CREATE tt-items.
               ASSIGN 
@@ -3196,9 +3185,6 @@ PROCEDURE produce-report :
             AND (itemfg.stat EQ "A" OR lvlIncludeOld)
             USE-INDEX customer:
 
-/*           /* Check for active status */                                                */
-/*           IF NOT lvlIncludeOld AND itemStatus(itemfg.company, itemfg.i-no) NE "A" THEN */
-/*               NEXT.                                                                    */
           {custom/statusMsg.i "'Building Report: Item ' + itemfg.i-no"}
           CREATE tt-items.
           ASSIGN tt-items.i-no = itemfg.i-no.
@@ -3868,28 +3854,6 @@ END PROCEDURE.
 &ANALYZE-RESUME
 
 /* ************************  Function Implementations ***************** */
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION itemStatus C-Win 
-FUNCTION itemStatus RETURNS CHARACTER
-  (ipcCompany AS CHAR, ipcIno AS CHAR ) :
-/*------------------------------------------------------------------------------
-  Purpose:  
-    Notes:  
-------------------------------------------------------------------------------*/
-FIND FIRST reftable     WHERE reftable.reftable EQ "FGSTATUS"     
-  AND reftable.company  EQ ipcCompany
-  AND reftable.loc      EQ ""             
-  AND reftable.code     EQ ipcIno NO-ERROR.
-
-IF AVAIL reftable THEN 
-    RETURN reftable.code2.
-ELSE
-  RETURN "".   /* Function return value. */
-
-END FUNCTION.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION removeChars C-Win 
 FUNCTION removeChars RETURNS CHARACTER

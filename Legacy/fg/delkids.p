@@ -21,13 +21,6 @@
        DELETE e-itemfg-vend.
      END.
     
-     FOR EACH reftable
-         WHERE reftable.reftable EQ "FGSTATUS"
-           AND reftable.company  EQ b-itemfg.company
-           AND reftable.loc      EQ ""
-           AND reftable.code     EQ b-itemfg.i-no:
-       DELETE reftable.
-     END.
 
      IF CAN-FIND(FIRST asi._file WHERE asi._file._FILE-NAME = "item-comm") THEN
         RUN fg\delitemcomm.p(INPUT b-itemfg.company,

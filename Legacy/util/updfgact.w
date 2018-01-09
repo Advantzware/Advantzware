@@ -399,41 +399,7 @@ message "Are you sure you fix FG Item Active Status?"
 if v-process then do:
   session:set-wait-state("General").
 
-  for each itemfg
-      where itemfg.company eq cocode
-        and itemfg.i-no GE begin_i-no
-        AND itemfg.i-no LE end_i-no
-      no-lock:
-
-    STATUS DEFAULT "Processing FG Item#: " + TRIM(itemfg.i-no).
-
-    FOR EACH reftable WHERE
-        reftable.reftable EQ "FGSTATUS" AND
-        reftable.company EQ cocode AND
-        reftable.CODE EQ itemfg.i-no:
-
-        /*get rid of duplicates or I if both A and I*/
-        FIND FIRST b-reftable WHERE
-             b-reftable.reftable EQ "FGSTATUS" AND
-             b-reftable.company EQ reftable.company AND
-             b-reftable.CODE EQ reftable.CODE AND
-             ROWID(b-reftable) NE ROWID(reftable)
-             NO-ERROR.
-
-        IF AVAIL b-reftable THEN
-        DO:
-           IF b-reftable.code2 EQ reftable.code2 OR
-              b-reftable.code2 EQ "I" OR
-              b-reftable.code2 EQ "" THEN
-              DELETE b-reftable.
-           ELSE
-              IF reftable.code2 EQ "I" OR reftable.code2 = "" THEN
-                 DELETE reftable.
-        END.
-
-    END.
-  end.
-
+ 
   STATUS DEFAULT "".
 
   session:set-wait-state("").

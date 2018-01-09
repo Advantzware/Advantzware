@@ -110,11 +110,6 @@ ASSIGN cTextListToDefault  = "CUSTOMER,CUST NAME,ITEM #,FULL TAG#,FG LOT#,REC DA
 
 {sys/inc/oereordr.i}
 
-&SCOPED-DEFINE where-fgstatus                 ~
-    WHERE reftable.reftable EQ "FGSTATUS"     ~
-      AND reftable.company  EQ itemfg.company ~
-      AND reftable.loc      EQ ""             ~
-      AND reftable.code     EQ itemfg.i-no
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -2379,10 +2374,7 @@ display "" with frame r-top.
                         WHERE fg-set.company EQ itemfg.company
                           AND fg-set.part-no EQ itemfg.i-no))
         USE-INDEX customer
-/*         , */
-/*         FIRST reftable NO-LOCK                              */
-/*             {&where-fgstatus}                               */
-/*             AND (reftable.code2 EQ "A" OR lIncludeInactive) */
+
          :
 
       RUN fg/rep/tt-fgbin.p (BUFFER itemfg, vdat, "", "zzzzzzzzzz",
