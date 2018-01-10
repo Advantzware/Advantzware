@@ -53,11 +53,11 @@ IF {&TABLENAME}.company NE "" AND {&TABLENAME}.r-no NE 0 THEN DO:
   IF AVAIL po-ord THEN {&TABLENAME}.vend-no = po-ord.vend-no.
 
 
-     IF fg-rctd.created-by = "" THEN DO:
-         ASSIGN fg-rctd.created-by = USERID("nosweat").
+     IF {&TABLENAME}.create-by = "" THEN DO:
+         ASSIGN {&TABLENAME}.create-by = USERID("nosweat").
     END.
     ASSIGN
-      fg-rctd.updated-by = USERID("nosweat")         
+      {&TABLENAME}.update-by = USERID("nosweat")         
      {&TABLENAME}.upd-date = TODAY
      {&TABLENAME}.upd-time = TIME.
 END.
