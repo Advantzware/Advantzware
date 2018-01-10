@@ -381,24 +381,7 @@ FOR EACH itemfg EXCLUSIVE-LOCK
 
     STATUS INPUT " Processing." + play.
 
-  FIND FIRST reftable EXCLUSIVE-LOCK
-      WHERE reftable.reftable EQ "FGTAXABLE"
-        AND reftable.company  EQ itemfg.company
-        AND reftable.loc      EQ ""
-        AND reftable.code     EQ itemfg.i-no
-      NO-ERROR.
-  IF NOT AVAIL reftable THEN DO:
-   CREATE reftable.
-    ASSIGN
-     reftable.reftable = "FGTAXABLE"
-     reftable.company  = itemfg.company
-     reftable.loc      = ""
-     reftable.code     = itemfg.i-no.
-
-  END.
-
-  ASSIGN reftable.val[1] = INT(tb_taxable).
-
+  
   /* gdm - 02110911 */
   ASSIGN itemfg.taxable = tb_taxable.
 
