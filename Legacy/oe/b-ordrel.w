@@ -2482,7 +2482,7 @@ PROCEDURE create-job :
      
      FIND FIRST job NO-LOCK
          WHERE job.company EQ oe-rel.company
-           AND job.job     EQ INT(oe-rel.job)
+           AND job.job     EQ oe-rel.job
          NO-ERROR.
     
      IF AVAIL job THEN DO:
@@ -2605,7 +2605,7 @@ PROCEDURE create-job :
          job.job-no2    = li.      
         
         
-        ASSIGN oe-rel.job = INT(job.job).
+        ASSIGN oe-rel.job = job.job.
      END.
     
      IF AVAIL job THEN DO:
