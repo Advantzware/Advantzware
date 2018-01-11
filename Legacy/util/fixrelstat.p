@@ -279,8 +279,7 @@ IF v-none THEN DO TRANSACTION:
                      if avail oe-ctrl and oe-ctrl.ship-from then "B" else "I".
    FIND bf-oe-rel WHERE RECID(bf-oe-rel) = RECID(oe-rel) EXCLUSIVE-LOCK.
    bf-oe-rel.link-no = oe-rell.r-no.
-   RELEASE bf-oe-rel.
-  RELEASE reftable.  
+   RELEASE bf-oe-rel.  
 
     ASSIGN
        oe-rell.newSellPrice = oe-rel.sell-price
