@@ -171,7 +171,7 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
     ELSE
     IF i EQ 5 THEN DO:   
      IF  xqitm.i-coldscr NE "" THEN
-       PUT "<C21>" lv-i-coldscr   FORM "x(30)".
+       PUT "<C21>" xqitm.i-coldscr   FORM "x(30)".
      ELSE NEXT .
     END.
 
