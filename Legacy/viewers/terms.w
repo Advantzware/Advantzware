@@ -355,22 +355,11 @@ PROCEDURE local-assign-record :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-record':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-  FIND FIRST reftable EXCLUSIVE-LOCK
-       WHERE reftable.reftable EQ 'terms.cod'
-         AND reftable.company EQ terms.company
-         AND reftable.loc EQ ''
-         AND reftable.code EQ terms.t-code NO-ERROR.
-  IF NOT AVAILABLE reftable THEN DO:
-    CREATE reftable.
-    ASSIGN
-      reftable.reftable = 'terms.cod'
-      reftable.company = terms.company
-      reftable.code = terms.t-code.
-  END.
+
   ASSIGN
     termsCOD = saveTermsCOD
-    reftable.val[1] = INT(termsCOD).
-  FIND CURRENT reftable NO-LOCK.
+    terms.cod = termsCOD.
+  FIND CURRENT terms NO-LOCK.
   DISABLE termsCOD WITH FRAME {&FRAME-NAME}.
   DISPLAY termsCOD WITH FRAME {&FRAME-NAME}.
 
@@ -414,12 +403,7 @@ PROCEDURE local-display-fields :
   /* Code placed here will execute AFTER standard behavior.    */
   DO WITH FRAME {&FRAME-NAME}:
     {custom/getcmpny.i}
-    FIND reftable NO-LOCK
-         WHERE reftable.reftable EQ 'terms.cod'
-           AND reftable.company EQ gcompany
-           AND reftable.loc EQ ''
-           AND reftable.code EQ terms.t-code:SCREEN-VALUE NO-ERROR.
-    termsCOD = AVAILABLE reftable AND reftable.val[1] EQ 1.
+      termsCOD = IF AVAILABLE terms THEN terms.cod ELSE FALSE.
     DISPLAY termsCOD.
   END.
 

@@ -620,11 +620,7 @@ PROCEDURE createUPS:
                         AND ttblUPS.sold-to EQ ipSoldTo) THEN RETURN.
   FIND terms NO-LOCK WHERE terms.company EQ ipCompany
                        AND terms.t-code EQ ipTerms NO-ERROR.
-  IF AVAILABLE terms THEN
-  FIND reftable NO-LOCK WHERE reftable.reftable EQ 'terms.cod'
-                          AND reftable.company EQ terms.company
-                          AND reftable.loc EQ ''
-                          AND reftable.code EQ terms.t-code NO-ERROR.
+
   CREATE ttblUPS.
   ASSIGN
     ttblUPS.company = ipCompany
@@ -632,8 +628,7 @@ PROCEDURE createUPS:
     ttblUPS.bol-no = ipBolNo
     ttblUPS.sold-to = ipSoldTo
     ttblUPS.invHeadRowID = ipRowID
-    ttblUPS.cod = AVAILABLE reftable AND reftable.val[1] EQ 1.
-  RELEASE reftable.
+    ttblUPS.cod = IF AVAILABLE terms THEN terms.cod ELSE FALSE.     
 END PROCEDURE.
 
 PROCEDURE upsFile:
