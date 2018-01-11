@@ -204,7 +204,6 @@ END.
 
 
 
-
 {src/adm/template/dialogmn.i}
 
 /* _UIB-CODE-BLOCK-END */
