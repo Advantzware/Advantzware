@@ -363,7 +363,7 @@ CLASS RefTableMigration:
           else do: 
               iHmAcctCount = iHmAcctCount + 1 . 
               IF iHmAcctCount LT 100 THEN
-                  user-print.field-value[iHmCount] = reftable.CODE .
+                  user-print.field-value[iHmAcctCount] = reftable.CODE .
           end.
           iCnt = iCnt + 1. 
        end.
@@ -514,4 +514,26 @@ CLASS RefTableMigration:
         END.  /*FOR EACH reftable*/         
         RETURN iCnt.
     END METHOD. /*itemfg-ink*/
+    METHOD PUBLIC INTEGER MachinePosition():
+        DEFINE VARIABLE iCnt AS INTEGER NO-UNDO.
+        FOR EACH reftable WHERE reftable.reftable = "MachinePosition"
+            NO-LOCK:
+            FIND FIRST est-op WHERE est-op.company = substring(reftable.company,1,10)
+                               AND est-op.est-no  = substring(reftable.company,11,10)  
+                               AND est-op.LINE = integer(reftable.loc)
+                EXCLUSIVE-LOCK NO-ERROR.
+            IF AVAILABLE est-op THEN    
+            ASSIGN 
+                est-op.len-pos = int(reftable.val[1])
+                est-op.len = DECIMAL(reftable.val[4])
+                est-op.wid-pos = INTEGER(reftable.val[2])
+                est-op.wid = DECIMAL(reftable.val[5])
+                est-op.dep-pos = integer(reftable.val[3])
+                est-op.dep = DECIMAL(reftable.val[6])               
+                . 
+            RELEASE est-op.      
+            iCnt = iCnt + 1.                 
+        END.  /*FOR EACH reftable*/         
+        RETURN iCnt.
+    END METHOD. /*est-op*/
 END CLASS.
