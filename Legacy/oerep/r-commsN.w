@@ -187,7 +187,7 @@ DEFINE VARIABLE begin_cust-type AS CHARACTER FORMAT "X(8)"
      SIZE 19 BY 1.
 
 DEFINE VARIABLE begin_date AS DATE FORMAT "99/99/9999":U INITIAL 01/01/001 
-     LABEL "Beginning Date" 
+     LABEL "From Invoice Date" 
      VIEW-AS FILL-IN 
      SIZE 19 BY 1 NO-UNDO.
 
@@ -217,7 +217,7 @@ DEFINE VARIABLE end_cust-type AS CHARACTER FORMAT "X(8)"
      SIZE 19 BY 1.
 
 DEFINE VARIABLE end_date AS DATE FORMAT "99/99/9999":U INITIAL 12/31/9999 
-     LABEL "Ending Date" 
+     LABEL "To Invoice Date" 
      VIEW-AS FILL-IN 
      SIZE 17 BY 1 NO-UNDO.
 
