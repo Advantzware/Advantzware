@@ -50,143 +50,6 @@ FOR EACH tt-cust,
          v-tot-ext  = 0
          v-print    = NO.
 
-     /* if not v-rec-dat then do:
-        if line-counter ge 56 then page.
-           for each oe-ordl
-            where oe-ordl.company eq cocode
-              and oe-ordl.cust-no eq cust.cust-no
-              and oe-ordl.po-no   ge fpo#
-              and oe-ordl.po-no   le tpo#
-            no-lock,
-
-            first itemfg
-            where itemfg.company eq cocode
-              and itemfg.i-no    eq oe-ordl.i-no
-              and itemfg.cust-no eq cust.cust-no
-              and (itemfg.i-code eq type or type eq "A")
-            no-lock
-
-            break by oe-ordl.i-no
-                  by oe-ordl.job-no
-                  by oe-ordl.job-no2:
-
-          v-frst-ord = yes.
-
-          for each fg-bin
-              where fg-bin.company      eq cocode
-                and fg-bin.i-no         eq itemfg.i-no
-                and fg-bin.job-no       eq oe-ordl.job-no
-                and fg-bin.job-no2      eq oe-ordl.job-no2
-                and (v-custown or (fg-bin.loc ne "CUST" and trim(fg-bin.cust-no) eq ""))
-
-              use-index co-ino no-lock
-
-              break by fg-bin.loc:
-
-            v-qty-onh = v-qty-onh + fg-bin.qty.
-
-            if last-of(fg-bin.loc)      and
-               (v-qty-onh ne 0 or zbal) then do:
-
-              if itemfg.sell-uom   eq "CS" and
-                 itemfg.case-count ne 0    then
-                v-ext = (v-qty-onh * oe-ordl.price) / itemfg.case-count.
-
-              else
-              if itemfg.sell-uom eq "L" then v-ext = oe-ordl.price.
-
-              else do:
-                find first uom
-                    where uom.uom  eq itemfg.sell-uom
-                      and uom.mult ne 0
-                    no-lock no-error.
-
-                v-ext = v-qty-onh * oe-ordl.price /
-                        (if avail uom then uom.mult else 1000).
-              end.
-  
-        IF tb_excel THEN  
-         EXPORT STREAM excel DELIMITER ","
-               (IF v-frst     THEN cust.cust-no    ELSE "")
-               (IF v-frst-ord THEN oe-ordl.po-no   ELSE "")
-               (IF v-frst     THEN cust.sman       ELSE "") 
-               (IF v-frst-ord THEN oe-ordl.i-no    ELSE "")
-               (IF v-frst-ord THEN oe-ordl.part-no ELSE "") WHEN v-prt-cpn /* btr */
-               (IF v-frst-ord THEN oe-ordl.i-name  ELSE "")
-               fg-bin.loc
-               (IF v-frst-ord THEN oe-ordl.qty     ELSE 0)
-               (IF v-frst-ord THEN oe-ordl.ship-qty ELSE 0)
-               (IF first-of(oe-ordl.job-no) or first-of(oe-ordl.job-no2) THEN v-qty-onh ELSE 0)
-               oe-ordl.price
-               (IF first-of(oe-ordl.job-no) or first-of(oe-ordl.job-no2) then v-ext else 0)
-               SKIP.
-
-              if v-prt-cpn then do:
-                display cust.cust-no        when v-frst
-                        oe-ordl.po-no       when v-frst-ord
-                        cust.sman           when v-frst
-                        oe-ordl.i-no        when v-frst-ord
-                        oe-ordl.part-no     when v-frst-ord
-                        oe-ordl.i-name      when v-frst-ord
-                        fg-bin.loc
-                        oe-ordl.qty         when v-frst-ord
-                        oe-ordl.ship-qty    when v-frst-ord
-                        v-qty-onh           when first-of(oe-ordl.job-no) or
-                                                 first-of(oe-ordl.job-no2)
-                        oe-ordl.price
-                        v-ext               when first-of(oe-ordl.job-no) or
-                                                 first-of(oe-ordl.job-no2)
-                     with frame itemx1.
-
-                down with frame itemx1.
-              end.
-
-              else do:
-                display cust.cust-no        when v-frst
-                        oe-ordl.po-no       when v-frst-ord
-                        cust.sman           when v-frst
-                        oe-ordl.i-no        when v-frst-ord
-                        oe-ordl.i-name      when v-frst-ord
-                        fg-bin.loc
-                        oe-ordl.qty         when v-frst-ord
-                        oe-ordl.ship-qty    when v-frst-ord
-                        v-qty-onh           when first-of(oe-ordl.job-no) or
-                                                 first-of(oe-ordl.job-no2)
-                        oe-ordl.price
-                        v-ext               when first-of(oe-ordl.job-no) or
-                                                 first-of(oe-ordl.job-no2)
-                     with frame itemx3.
-
-                down with frame itemx3.
-              end.
-
-              if first-of(oe-ordl.job-no) or first-of(oe-ordl.job-no2) then
-                assign
-                 v-tot-onh        = v-tot-onh       + v-qty-onh
-                 v-tot-ext        = v-tot-ext       + v-ext
-
-                 v-grand-tot-onh  = v-grand-tot-onh + v-qty-onh
-                 v-grand-tot-ext  = v-grand-tot-ext + v-ext.
-
-              if v-frst-ord then
-                assign
-                 v-tot-ord        = v-tot-ord        + oe-ordl.qty
-                 v-tot-ship       = v-tot-ship       + oe-ordl.ship-qty
-
-                 v-grand-tot-ord  = v-grand-tot-ord  + oe-ordl.qty
-                 v-grand-tot-ship = v-grand-tot-ship + oe-ordl.ship-qty.
-
-              assign
-               v-qty-onh   = 0
-               v-frst      = no
-               v-frst-ord  = no
-               v-print     = yes.
-            end.  /* last of fg bin */
-          end.  /* for each fg bin */
-        end.  /* for each oe-ordl */
-      end.  /* not rec date */
-
-      else do: */
       v-sell-price = 0 .
 
         FOR EACH itemfg WHERE itemfg.company = cocode
@@ -342,66 +205,7 @@ FOR EACH tt-cust,
 
                      IF AVAIL oe-ordl THEN
                        v-ext-job = (oe-ordl.t-price / oe-ordl.qty) * v-qty-job.
-
-
-       /* IF tb_excel THEN  
-           EXPORT STREAM excel DELIMITER ","
-                 (IF v-frst THEN cust.cust-no ELSE "")                 
-                 (IF avail oe-ordl THEN oe-ordl.po-no ELSE itemfg.cust-po-no)
-                 (IF v-frst     THEN cust.sman       ELSE "")
- 					  itemfg.i-no
-                 itemfg.part-no WHEN v-prt-cpn
-                 itemfg.i-name
-                 v-job
-                 v-qty-job
-                 (IF not(zbal and v-qty-onh = 0) AND not(v-qty-job = 0) THEN STRING(trans-date) ELSE "")
-                 (IF avail oe-ordl THEN (oe-ordl.t-price / oe-ordl.qty * 1000) ELSE itemfg.sell-price)
-                  v-ext-job
-               SKIP.
-
-                     if v-prt-cpn then do:
-                       display cust.cust-no when v-frst
-                               itemfg.cust-po-no
-                               oe-ordl.po-no
-                                 when avail oe-ordl @ itemfg.cust-po-no
-                               cust.sman when v-frst
-                               itemfg.i-no
-                               itemfg.part-no
-                               itemfg.i-name
-                               v-job
-                               v-qty-job
-                               trans-date when not(zbal and v-qty-onh = 0) and
-                                               not(v-qty-job = 0)
-                               itemfg.sell-price
-                                          (oe-ordl.t-price / oe-ordl.qty * 1000)
-                                 when avail oe-ordl @ itemfg.sell-price
-                               v-ext-job
-                           with frame itemx2.
-
-                       down with frame itemx2.
-                     end.
-
-                     else do:
-                       display cust.cust-no when v-frst
-                               itemfg.cust-po-no
-                               oe-ordl.po-no
-                                 when avail oe-ordl @ itemfg.cust-po-no
-                               cust.sman when v-frst
-                               itemfg.i-no
-                                /* itemfg.part-no btr */
-                               itemfg.i-name
-                               v-job
-                               v-qty-job
-                               trans-date when not(zbal and v-qty-onh = 0) and
-                                               not(v-qty-job = 0)
-                               itemfg.sell-price
-                                          (oe-ordl.t-price / oe-ordl.qty * 1000)
-                                 when avail oe-ordl @ itemfg.sell-price
-                               v-ext-job
-                           with frame itemx4.
-
-                       down with frame itemx4.
-                     end.*/
+       
 
                      v-sales-rep = "" .
 
@@ -416,12 +220,15 @@ FOR EACH tt-cust,
                          ASSIGN v-sell-price = (oe-ordl.t-price / oe-ordl.qty * 1000) .
                      ELSE 
                          ASSIGN v-sell-price = itemfg.sell-price .
-                
-                     FIND  oe-rel WHERE oe-rel.company EQ cocode 
-                           AND oe-rel.ord-no  EQ oe-ordl.ord-no 
-                           AND oe-rel.i-no    EQ oe-ordl.i-no 
-                           AND oe-rel.line    EQ oe-ordl.LINE NO-LOCK NO-ERROR.
-                     IF AVAILABLE oe-rel THEN iCommited = oe-rel.tot-qty.
+
+                     ASSIGN iCommited = 0.
+                     FOR EACH oe-rel NO-LOCK WHERE oe-rel.company EQ oe-ordl.company
+                         AND oe-rel.ord-no EQ oe-ordl.ord-no
+                         AND oe-rel.i-no EQ oe-ordl.i-no 
+                         AND oe-rel.LINE EQ oe-ordl.LINE 
+                         AND oe-rel.link-no EQ 0 :
+                         iCommited = iCommited + oe-rel.tot-qty .
+                     END.
                        
 
              ASSIGN cDisplay = ""
@@ -492,43 +299,6 @@ FOR EACH tt-cust,
       IF v-print                      AND
          fcst NE tcst                 AND
          (v-tot-onh NE 0 OR zbal)     THEN DO:
-        /*IF NOT v-rec-dat THEN
-          IF v-prt-cpn THEN
-            PUT "------------"      TO 94
-                "----------"        TO 105
-                "------------"      TO 118
-                "--------------"    TO 148 SKIP
-                "CUSTOMER TOTALS:"  TO 77
-                v-tot-ord           TO 94
-                v-tot-ship          TO 105
-                v-tot-onh           TO 118
-                v-tot-ext           TO 148 SKIP(1).
-
-          ELSE
-            PUT "------------"      TO 78
-                "----------"        TO 89
-                "------------"      TO 102
-                "--------------"    TO 132 SKIP
-                "CUSTOMER TOTALS:"  TO 61
-                v-tot-ord           TO 78
-                v-tot-ship          TO 89
-                v-tot-onh           TO 102
-                v-tot-ext           TO 132 SKIP(1).
-
-        ELSE 
-          IF v-prt-cpn THEN
-            PUT "-----------"       TO 94
-                "--------------"    TO 132 SKIP
-                "CUSTOMER TOTALS:"  TO 77
-                v-tot-onh           TO 94
-                v-tot-ext           TO 132 SKIP(1).
-
-          ELSE
-            PUT "-----------"       TO 78
-                "--------------"    TO 116 SKIP
-                "CUSTOMER TOTALS:"  TO 61
-                v-tot-onh           TO 78
-                v-tot-ext           TO 116 SKIP(1). */
 
           PUT SKIP str-line SKIP .
           ASSIGN cDisplay = ""
@@ -566,43 +336,7 @@ FOR EACH tt-cust,
 
     END.  /* for each cust */
 
-   /* IF NOT v-rec-dat THEN
-      IF v-prt-cpn THEN
-        PUT "------------"      TO 94
-            "----------"        TO 105
-            "------------"      TO 118
-            "--------------"    TO 148 SKIP
-            "GRAND TOTALS:"     TO 77
-            v-grand-tot-ord     TO 94
-            v-grand-tot-ship    TO 105
-            v-grand-tot-onh     TO 118
-            v-grand-tot-ext     TO 148 SKIP(1).
-
-      ELSE
-        PUT "------------"      TO 78
-            "----------"        TO 89
-            "------------"      TO 102
-            "--------------"    TO 132 SKIP
-            "GRAND TOTALS:"     TO 61
-            v-grand-tot-ord     TO 78
-            v-grand-tot-ship    TO 89
-            v-grand-tot-onh     TO 102
-            v-grand-tot-ext     TO 132 SKIP(1).
-
-    ELSE
-      IF v-prt-cpn THEN
-        PUT "-----------"       TO 94
-            "--------------"    TO 132 SKIP
-            "GRAND TOTALS:"     TO 76
-            v-grand-tot-onh     TO 94
-            v-grand-tot-ext     TO 132 SKIP(1).
-
-      ELSE
-        PUT "-----------"       TO 78
-            "--------------"    TO 116 SKIP
-            "GRAND TOTALS:"     TO 61
-            v-grand-tot-onh     TO 78
-            v-grand-tot-ext     TO 116 SKIP(1). */
+   
     PUT SKIP str-line SKIP .
      ASSIGN cDisplay = ""
                     cTmpField = ""
