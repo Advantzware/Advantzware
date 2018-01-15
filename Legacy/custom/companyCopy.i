@@ -8,92 +8,176 @@ DISABLE TRIGGERS FOR LOAD OF itemfg.
 DISABLE TRIGGERS FOR LOAD OF itemfg-ink.
 DISABLE TRIGGERS FOR LOAD OF eb.
 PROCEDURE startCopy:
-   
-  RUN accountCopy.
-  RUN ap-buyCopy.
-  RUN ap-ctrlCopy.
-  RUN ap-ledgerCopy.
-  RUN ar-ctrlCopy.
-  RUN bankCopy.
-  RUN buyerCopy.
-  RUN carr-mtxCopy.
-  RUN carrierCopy.
-  RUN ce-ctrlCopy.
-  RUN costtypeCopy.
-  RUN crewCopy.
-  RUN currencyCopy.
-  RUN custCopy.
-  RUN cust-markupCopy.
-  RUN cust-partCopy.
-  RUN cust-prod-salesCopy.
-  RUN custypeCopy.
-  RUN db-ctrlCopy.
-  RUN e-itemCopy.
-  RUN e-item-custCopy.
-  RUN e-item-vendCopy.
-  RUN e-itemfgCopy.
-  RUN e-itemfg-vendCopy.
-  RUN empCopy.
-  RUN fg-actCopy.
-  RUN fg-binCopy.
-  RUN fg-ctrlCopy.
-  RUN fg-setCopy.
-  RUN fgcatCopy.
-  RUN fluteCopy.
-  RUN gl-ctrlCopy.
-  RUN gl-rptCopy.
-  RUN gl-rptdCopy.
-  RUN itemCopy.
-  RUN item-bomCopy.
-  RUN item-specCopy.
-  RUN itemfgCopy.
-  RUN itemfg-bomCopy.
-  RUN itemfg-inkCopy.
-  RUN itemfg-locCopy.
-  RUN itemfgdtlCopy.
-  RUN jc-ctrlCopy.
-  RUN loadtagCopy.
-  RUN locCopy.
-  RUN machCopy.
-  RUN mach-adderCopy.
-  RUN mach-calendarCopy.
-  RUN mat-actCopy.
-  RUN matprepCopy.
-  RUN mmtxCopy.
-  RUN mmtyCopy.
-  RUN mstdCopy.
-  RUN oe-ctrlCopy.
-  RUN oe-prmtxCopy.
-  RUN periodCopy.
-  RUN po-ctrlCopy.
-  RUN prepCopy.
-  RUN procatCopy.
-  RUN prodCopy.
-  RUN prodlCopy.
-  RUN reftableCopy.
-  RUN rm-binCopy.
-  RUN rm-ctrlCopy.
-  RUN routingCopy.
-  RUN routing-mtxCopy.
-  RUN shiftCopy.
-  RUN shiptoCopy.
-  RUN smanCopy.
-  RUN sman-mtxCopy.
+  IF tg_account THEN
+      RUN accountCopy.
+  IF tg_ap-buy THEN
+      RUN ap-buyCopy.
+  IF tg_ap-ctrl THEN
+      RUN ap-ctrlCopy.
+  IF tg_ap-ledger THEN
+      RUN ap-ledgerCopy.
+  IF tg_ar-ctrl THEN
+      RUN ar-ctrlCopy.
+  IF tg_bank THEN
+      RUN bankCopy.
+  IF tg_buyer THEN
+      RUN buyerCopy.
+  IF tg_carr-mtx THEN
+      RUN carr-mtxCopy.
+  IF tg_carrier THEN
+      RUN carrierCopy.
+  IF tg_ce-ctrl THEN
+      RUN ce-ctrlCopy.
+  IF tg_costtype THEN
+      RUN costtypeCopy.
+  IF tg_crew THEN
+      RUN crewCopy.
+  IF tg_currency THEN
+      RUN currencyCopy.
+  IF tg_cust THEN
+      RUN custCopy.
+  IF tg_cust-markup THEN
+      RUN cust-markupCopy.
+  IF tg_cust-part THEN
+      RUN cust-partCopy.
+  IF tg_cust-prod-sales THEN
+      RUN cust-prod-salesCopy.
+  IF tg_custype THEN
+      RUN custypeCopy.
+  IF tg_db-ctrl THEN
+      RUN db-ctrlCopy.
+  IF tg_e-item THEN
+      RUN e-itemCopy.
+  IF tg_e-item-cust THEN
+      RUN e-item-custCopy.
+  IF tg_e-item-vend THEN
+      RUN e-item-vendCopy.
+  IF tg_e-itemfg THEN
+      RUN e-itemfgCopy.
+  IF tg_e-itemfg-vend THEN
+      RUN e-itemfg-vendCopy.
+  IF tg_emp THEN
+      RUN empCopy.
+  IF tg_fg-act THEN
+      RUN fg-actCopy.
+  IF tg_fg-bin THEN
+      RUN fg-binCopy.
+  IF tg_fg-ctrl THEN
+      RUN fg-ctrlCopy.
+  IF tg_fg-set THEN
+      RUN fg-setCopy.
+  IF tg_fgcat THEN
+      RUN fgcatCopy.
+  IF tg_flute THEN
+      RUN fluteCopy.
+  IF tg_gl-ctrl THEN
+      RUN gl-ctrlCopy.
+  IF tg_gl-rpt THEN
+      RUN gl-rptCopy.
+  IF tg_gl-rptd THEN
+      RUN gl-rptdCopy.
+  IF tg_item THEN
+      RUN itemCopy.
+  IF tg_item-bom THEN
+      RUN item-bomCopy.
+  IF tg_item-spec THEN
+      RUN item-specCopy.
+  IF tg_itemfg THEN
+      RUN itemfgCopy.
+  IF tg_itemfg-bom THEN
+      RUN itemfg-bomCopy.
+  IF tg_itemfg-ink THEN
+      RUN itemfg-inkCopy.
+  IF tg_itemfg-loc THEN
+      RUN itemfg-locCopy.
+  IF tg_itemfgdtl THEN
+      RUN itemfgdtlCopy.
+  IF tg_jc-ctrl THEN
+      RUN jc-ctrlCopy.
+  IF tg_loadtag THEN
+      RUN loadtagCopy.
+  IF tg_loc THEN
+      RUN locCopy.
+  IF tg_mach THEN
+      RUN machCopy.
+  IF tg_mach-adder THEN
+      RUN mach-adderCopy.
+  IF tg_mach-calendar THEN
+      RUN mach-calendarCopy.
+  IF tg_mat-act THEN
+      RUN mat-actCopy.
+  IF tg_matprep THEN
+      RUN matprepCopy.
+  IF tg_mmtx THEN
+      RUN mmtxCopy.
+  IF tg_mmty THEN
+      RUN mmtyCopy.
+  IF tg_mstd THEN
+      RUN mstdCopy.
+  IF tg_oe-ctrl THEN
+      RUN oe-ctrlCopy.
+  IF tg_oe-prmtx THEN
+      RUN oe-prmtxCopy.
+  IF tg_period THEN
+      RUN periodCopy.
+  IF tg_po-ctrl THEN
+      RUN po-ctrlCopy.
+  IF tg_prep THEN
+      RUN prepCopy.
+  IF tg_procat THEN
+      RUN procatCopy.
+  IF tg_prod THEN
+      RUN prodCopy.
+  IF tg_prodl THEN
+      RUN prodlCopy.
+  IF tg_reftable THEN
+      RUN reftableCopy.
+  IF tg_rm-bin THEN
+      RUN rm-binCopy.
+  IF tg_rm-ctrl THEN
+      RUN rm-ctrlCopy.
+  IF tg_routing THEN
+      RUN routingCopy.
+  IF tg_routing-mtx THEN
+      RUN routing-mtxCopy.
+  IF tg_shift THEN
+      RUN shiftCopy.
+  IF tg_shipto THEN
+      RUN shiptoCopy.
+  IF tg_sman THEN
+      RUN smanCopy.
+  IF tg_sman-mtx THEN
+      RUN sman-mtxCopy.
   /*RUN smanmtrxCopy.*/
-  RUN soldtoCopy.
-  RUN stack-fluteCopy.
-  RUN stack-sizeCopy.
-  RUN staxCopy.
-  RUN stax-groupCopy.
-  RUN std-codeCopy.
-  RUN styleCopy.
-  RUN sys-ctrlCopy.
-  RUN termsCopy.
-  RUN terrCopy.
-  RUN test-redCopy.
-  RUN usercompCopy.
-  RUN vendCopy.
-  RUN ventypeCopy.
+  IF tg_soldto THEN
+      RUN soldtoCopy.
+  IF tg_stack-flute THEN
+      RUN stack-fluteCopy.
+  IF tg_stack-size THEN
+      RUN stack-sizeCopy.
+  IF tg_stax THEN
+      RUN staxCopy.
+  IF tg_stax-group THEN
+      RUN stax-groupCopy.
+  IF tg_std-code THEN
+      RUN std-codeCopy.
+  IF tg_style THEN
+      RUN styleCopy.
+  IF tg_sys-ctrl THEN
+      RUN sys-ctrlCopy.
+  IF tg_terms THEN
+      RUN termsCopy.
+  IF tg_terr THEN
+      RUN terrCopy.
+  IF tg_test-red THEN
+      RUN test-redCopy.
+  IF tg_usercomp THEN
+      RUN usercompCopy.
+  IF tg_vend THEN
+      RUN vendCopy.
+  IF tg_ventype THEN
+      RUN ventypeCopy.
+  
   IF tg_copy-transaction THEN DO:
     /* 1: Assign new rec_key for copy by excepting from BUFFER-COPY
        2: Make to check for tables with sequence index that does include company.
@@ -189,7 +273,10 @@ PROCEDURE startCopy:
      RUN user-print   .
      */
   END.
-  RUN mach-partCopy. 
+  IF tg_mach-part THEN
+      RUN mach-partCopy. 
+  IF tg_box-design THEN
+      RUN box-design .
 END PROCEDURE.
 
 PROCEDURE accountCopy:
@@ -3834,4 +3921,24 @@ PROCEDURE mach-partCopy:
   END.
   RUN showMsg ('',YES).
 
+END PROCEDURE.
+
+PROCEDURE box-design:
+  DEFINE BUFFER bbox-design-hdr FOR box-design-hdr.
+
+  RUN showMsg ('box-design-hdr',NO).
+  IF CAN-FIND(FIRST box-design-hdr WHERE box-design-hdr.company EQ ipCompanyTo) THEN
+  FOR EACH box-design-hdr EXCLUSIVE-LOCK WHERE box-design-hdr.company EQ ipCompanyTo:
+    DELETE box-design-hdr.
+  END.
+  FOR EACH box-design-hdr NO-LOCK WHERE box-design-hdr.company EQ ipCompanyFrom
+                                    AND box-design-hdr.design-no <> 0 :
+    CREATE bbox-design-hdr.
+    BUFFER-COPY box-design-hdr EXCEPT company rec_key TO bbox-design-hdr
+      ASSIGN bbox-design-hdr.company = ipCompanyTo.
+
+    {custom\rec_key.i bbox-design-hdr}
+
+  END.
+  RUN showMsg ('',YES).
 END PROCEDURE.
