@@ -1010,11 +1010,29 @@ ASSIGN
 
         IF print-box AND AVAILABLE xest THEN DO:
             /*PAGE. */
-            v-out1-id = RECID(xeb).
-            RUN cec/desprnL2.p (RECID(xef),
-                               INPUT-OUTPUT v-lines,
-                               RECID(xest)).            
+            IF xest.metric THEN do:
+             v-out1-id = RECID(xeb).
+               run cec/desprnptree.p (recid(xef),
+                           ROWID(xeb),
+                           INPUT v-coldscr,
+                           "",
+                           "",
+                           "",
+                           "",
+                           "",
+                           input-output v-lines,
+                           recid(xest),
+                           "").         
             PAGE.
+            END.
+            ELSE DO:
+                v-out1-id = RECID(xeb).
+             RUN cec/desprnL2.p (RECID(xef),
+                                INPUT-OUTPUT v-lines,
+                                RECID(xest)).            
+             PAGE.
+
+            END.
         END.
         ELSE PAGE.
         /* print fgitem's image */
