@@ -6,6 +6,7 @@
 FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
 
   numfit = 0.
+  ll-prt-dscr2 = s-print-2nd-dscr AND xqitm.part-dscr2 NE "".
 
   FOR EACH xqqty OF xqitm NO-LOCK:
     numfit = numfit + 1.
@@ -48,7 +49,7 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
        (eb.cad-no NE "" OR eb.plate-no ne "") THEN numfit = 5. 
      numfit = 5. */
   END.
-  IF numfit < 8 THEN numfit = 8.
+  IF numfit < 9 THEN numfit = 9.
 
   FIND FIRST xqqty OF xqitm NO-LOCK NO-ERROR.
   FIND FIRST itemfg WHERE itemfg.company = xqitm.company
@@ -64,7 +65,6 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
           xqitm.part-no space(1) lv-part-dscr1.  
          
     END.
-
     ELSE
     IF i EQ 2 THEN DO:
       trim-size = "".
@@ -89,8 +89,14 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
       PUT "<C26>" style-dscr  FORM "x(30)" .
      
     END.
+    ELSE IF i EQ 3 THEN DO:  
+      IF ll-prt-dscr2 AND xqitm.part-dscr2 NE "" THEN do:
+           PUT "<C26>" xqitm.part-dscr2  .
+      END.
+       ELSE NEXT .
+    END.
      ELSE
-    IF i EQ 3 THEN DO:
+    IF i EQ 4 THEN DO:
       trim-size = "".
       IF AVAIL est AND est.est-type = 6 THEN DO: /* set header */
          IF LENGTH(TRIM(xqitm.size)) GT 24 THEN
@@ -118,30 +124,30 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
                  
     END.
     ELSE
-    IF i EQ 4 THEN do:
+    IF i EQ 5 THEN do:
          IF xqitm.i-coldscr NE "" THEN
          PUT "<C26>" xqitm.i-coldscr   FORM "x(30)".
          ELSE NEXT .
     END.
     ELSE
-    IF i EQ 5 THEN DO:
+    IF i EQ 6 THEN DO:
         IF xqitm.i-dscr NE "" THEN
         PUT "<C26>" IF xqitm.i-dscr NE "" THEN xqitm.i-dscr ELSE IF AVAIL ef THEN ef.brd-dscr ELSE ""   FORMAT "x(30)".
         ELSE NEXT .
     END.
 
     ELSE
-    IF i EQ 6 /* AND numfit GE 6 */ THEN DO:
+    IF i EQ 7 /* AND numfit GE 6 */ THEN DO:
        lv-fg# = IF AVAIL eb THEN eb.stock-no ELSE xqitm.part-no .
        put "<C26>FG#: " + lv-fg#  FORM "x(30)" .
     END.
     ELSE
-    IF i EQ 7 /* AND numfit GE 7 */ THEN DO:
+    IF i EQ 8 /* AND numfit GE 7 */ THEN DO:
        PUT     "<C26>DIE#: " + IF AVAIL eb THEN eb.die-no ELSE ""  FORM "x(30)" .
 
     END.
     ELSE
-    IF i EQ 8 /* AND numfit GE 8 */ THEN DO:
+    IF i EQ 9 /* AND numfit GE 8 */ THEN DO:
        v-board = IF AVAIL ef THEN
                   ef.adder[1] + " " + ef.adder[2] + " " + ef.adder[3] + " " +
                   ef.adder[4] + " " + ef.adder[5] + " " + ef.adder[6]
@@ -152,7 +158,7 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
                PUT "<C26>" v-board  FORM "x(30)" /*SKIP(1)*/  .  
 
     END.
-    IF i > 8 THEN PUT SPACE(58) .
+    IF i > 9 THEN PUT SPACE(58) .
 
     IF AVAIL xqqty THEN DO:
        xxx    = IF xqqty.uom EQ "L" THEN xqqty.price    ELSE
