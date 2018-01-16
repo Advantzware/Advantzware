@@ -536,4 +536,54 @@ CLASS RefTableMigration:
         END.  /*FOR EACH reftable*/         
         RETURN iCnt.
     END METHOD. /*est-op*/
+    METHOD PUBLIC INTEGER GlAcctDisc():
+        DEFINE VARIABLE iCnt AS INTEGER NO-UNDO.
+        FOR EACH reftable WHERE reftable.reftable = "GLACCTDISC"
+            NO-LOCK:
+            FIND FIRST account WHERE account.company = reftable.company
+                             AND account.actnum     = reftable.code
+                EXCLUSIVE-LOCK NO-ERROR.
+            IF AVAILABLE account THEN    
+            ASSIGN 
+                account.terms-discount = IF reftable.val[1] = 1 THEN YES ELSE NO                
+                . 
+            RELEASE account.      
+            iCnt = iCnt + 1.                 
+        END.  /*FOR EACH reftable*/         
+        RETURN iCnt.
+    END METHOD. /*account*/
+    METHOD PUBLIC INTEGER CustFlatComm():
+        DEFINE VARIABLE iCnt AS INTEGER NO-UNDO.
+        FOR EACH reftable WHERE reftable.reftable = "cust.flat-comm"
+            NO-LOCK:
+            FIND FIRST cust WHERE cust.company = reftable.company
+                              AND cust.cust-no = reftable.code
+                EXCLUSIVE-LOCK NO-ERROR.
+            IF AVAILABLE cust THEN    
+            ASSIGN 
+                cust.flatCommPct = DEC(reftable.val[1])                
+                . 
+            RELEASE cust.      
+            iCnt = iCnt + 1.                 
+        END.  /*FOR EACH reftable*/         
+        RETURN iCnt.
+    END METHOD. /*cust*/
+    METHOD PUBLIC INTEGER StylePerMsf():
+        DEFINE VARIABLE iCnt AS INTEGER NO-UNDO.
+        FOR EACH reftable WHERE reftable.reftable = "style.per-msf"
+            NO-LOCK:
+            FIND FIRST style WHERE style.company = reftable.company
+                               AND style.style   = reftable.code
+                EXCLUSIVE-LOCK NO-ERROR.
+            IF AVAILABLE style THEN DO:
+                IF style.sqft-len-trim = 0 THEN   
+                    ASSIGN style.sqft-len-trim = reftable.val[1].
+                IF style.sqft-wid-trim = 0 THEN    
+                    ASSIGN style.sqft-wid-trim = reftable.val[2]. 
+            END.    
+            RELEASE style.      
+            iCnt = iCnt + 1.                 
+        END.  /*FOR EACH reftable*/         
+        RETURN iCnt.
+    END METHOD. /*style*/
 END CLASS.
