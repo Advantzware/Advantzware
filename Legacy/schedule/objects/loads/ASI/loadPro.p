@@ -1059,8 +1059,8 @@ FOR EACH job-hdr NO-LOCK
       userField[57] = setUserField(57,prodQty(job-mch.company,job-mch.m-code,job-mch.job-no,
                                               job-mch.job-no2,job-mch.frm,job-mch.blank-no,
                                               job-mch.pass,prodQtyProgram)) WHEN prodQtyProgram NE ?
-      userField[58] = setUserField(58,IF AVAILABLE ef THEN STRING(ef.gsh-len,'>>9.9999') ELSE '')
-      userField[59] = setUserField(59,IF AVAILABLE ef THEN STRING(ef.gsh-wid,'>>9.9999') ELSE '')
+      userField[58] = setUserField(58,IF AVAILABLE ef THEN STRING(ef.gsh-len,'>>,>>9.9999') ELSE '')
+      userField[59] = setUserField(59,IF AVAILABLE ef THEN STRING(ef.gsh-wid,'>>,>>9.9999') ELSE '')
       userField[60] = setUserField(60,IF AVAILABLE eb THEN eb.cas-no ELSE '')
       userField[64] = setUserField(64,IF AVAILABLE itemfg THEN itemfg.part-no ELSE '')
       userField[83] = setUserField(83,job.stat)
