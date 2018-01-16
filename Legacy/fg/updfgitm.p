@@ -392,14 +392,7 @@ FOR EACH reftable
     reftable.CODE = v-new-item.
 END.
 
-FOR EACH reftable
-    WHERE reftable.reftable EQ "itemfg.exempt-disc"
-      AND reftable.company  EQ itemfg.company
-      AND reftable.loc      EQ ""
-      AND reftable.CODE     EQ itemfg.i-no:
 
-    reftable.CODE = v-new-item.
-END.
 
 
 IF CAN-FIND(FIRST asi._file WHERE asi._file._file-name EQ "cust-part") THEN

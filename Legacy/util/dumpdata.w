@@ -858,12 +858,7 @@ PROCEDURE dump-itemfg :
 /*       v-status = IF AVAILABLE reftable THEN reftable.code2 ELSE "A".      */
       v-status = itemfg.stat.
 
-/*       FIND FIRST reftable  WHERE reftable.reftable EQ "itemfg.exempt-disc" */
-/*                  AND reftable.company  EQ itemfg.company                   */
-/*                  AND reftable.loc      EQ ""                               */
-/*                  AND reftable.code     EQ itemfg.i-no NO-LOCK NO-ERROR.    */
-/*       v-exempt-disc = IF AVAIL reftable THEN reftable.val[1] EQ 1 */
-/*                       ELSE NO.                                    */
+
         v-exempt-disc = itemfg.exempt-disc.
 
 
