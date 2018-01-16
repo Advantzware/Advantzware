@@ -1328,22 +1328,9 @@ FUNCTION getValue-itemfg RETURNS CHARACTER
                     reftable.val[1] = INT(ipb-itemfg.show-set) .*/
            
         END.
-        WHEN "flat-comm" THEN DO:
-                FIND FIRST reftable WHERE reftable.reftable EQ "cust.flat-comm"
-                    AND reftable.company  EQ ipb-itemfg.company
-                    AND reftable.loc      EQ ""          
-                    AND reftable.code     EQ ipb-itemfg.cust-no
-                      NO-ERROR.     
-                IF NOT AVAIL reftable THEN DO:
-                    CREATE reftable.
-                    ASSIGN
-                        reftable.reftable = "cust5.flat-comm"
-                        reftable.company  = ipb-itemfg.company
-                        reftable.loc      = ""
-                        reftable.code     = ipb-itemfg.cust-no.
-                END.                                                                         
+        WHEN "flat-comm" THEN DO:                                                                     
                 IF ipb-itemfg.cust-no NE "" THEN
-                    lc-return = string(reftable.val[1]).
+                    lc-return = string(ipb-itemfg.flatCommPct).
               /*  ELSE 
                     reftable.val[1] = INT(ipb-itemfg.flat-comm) . */
         END.

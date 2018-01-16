@@ -70,11 +70,6 @@ DEF VAR v-inv-fmt2 AS CHAR NO-UNDO.
       AND reftable.loc      EQ ""             ~
       AND reftable.code     EQ cust.cust-no
 
-&SCOPED-DEFINE where-flat-comm                  ~
-    WHERE reftable.reftable EQ "cust.flat-comm" ~
-      AND reftable.company  EQ cust.company     ~
-      AND reftable.loc      EQ ""               ~
-      AND reftable.code     EQ cust.cust-no
 
 DO TRANSACTION:
    {sys/inc/custpass.i}
@@ -2496,21 +2491,11 @@ PROCEDURE reftable-values :
       tb_show-set = reftable.val[1] EQ 1.
     ELSE
       reftable.val[1] = INT(tb_show-set).
-
-    FIND FIRST reftable {&where-flat-comm} NO-ERROR.
-    IF NOT AVAIL reftable THEN DO:
-      CREATE reftable.
-      ASSIGN
-       reftable.reftable = "cust.flat-comm"
-       reftable.company  = cust.company
-       reftable.loc      = ""
-       reftable.code     = cust.cust-no.
-    END.
-
+   
     IF ip-display THEN
-      fi_flat-comm = reftable.val[1].
+      fi_flat-comm = cust.flatCommPct.
     ELSE
-      reftable.val[1] = fi_flat-comm.
+      cust.flatCommPct = fi_flat-comm.
 
     FIND CURRENT reftable NO-LOCK.
   END.

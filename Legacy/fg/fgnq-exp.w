@@ -1293,23 +1293,7 @@ FUNCTION getValue-itemfg RETURNS CHARACTER
            
         END.
         WHEN "flat-comm" THEN DO:
-                FIND FIRST reftable WHERE reftable.reftable EQ "cust.flat-comm"
-                    AND reftable.company  EQ ipb-itemfg.company
-                    AND reftable.loc      EQ ""          
-                    AND reftable.code     EQ ipb-itemfg.cust-no
-                      NO-ERROR.     
-                IF NOT AVAIL reftable THEN DO:
-                    CREATE reftable.
-                    ASSIGN
-                        reftable.reftable = "cust5.flat-comm"
-                        reftable.company  = ipb-itemfg.company
-                        reftable.loc      = ""
-                        reftable.code     = ipb-itemfg.cust-no.
-                END.                                                                         
                 IF ipb-itemfg.cust-no NE "" THEN
-                    lc-return = string(reftable.val[1]).
-              /*  ELSE 
-                    reftable.val[1] = INT(ipb-itemfg.flat-comm) . */
         END.
         WHEN "inv-meth"  THEN DO:
             CASE ipb-itemfg.inv-meth :
