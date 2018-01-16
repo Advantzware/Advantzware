@@ -673,7 +673,7 @@ PROCEDURE pHTMLPages:
                 '" width="48" height="48" align="center">~&nbsp~&nbsp~&nbsp~&nbsp<b>'
                 ttblJob.resource '</a></b></font></td>' SKIP
                 '      <td' cBGColor ' align="center" nowrap rowspan="3"><font face="{&fontFace}"><b>'
-                '<a href="' htmlPageLocation + '\' + ttblJob.resource + '.htm" target="_blank">'
+                '<a href="' htmlPageLocation + '\' + REPLACE(ttblJob.resource,"/","") + '.htm" target="_blank">'
                 (IF AVAILABLE mach THEN mach.m-dscr ELSE ttblJob.resource) '</a></b></font></td>' SKIP
                 '      <td' cBGColor ' align="center" nowrap rowspan="3" align="center"><font face="{&fontFace}">'
                 .
@@ -683,6 +683,7 @@ PROCEDURE pHTMLPages:
                 REPLACE(htmlPageLocation + '\' + ttblJob.resource,"\","/")
                 'Pending.htm~');">Jobs: <b>' iJobs '</a><br>' specialTime(iTime) '</b>'
                 .
+            ELSE PUT UNFORMATTED "~&nbsp".
             PUT UNFORMATTED
                 '</font></td>' SKIP
                 .
@@ -799,7 +800,7 @@ PROCEDURE pHTMLPages:
                             + "</font></b>"
                 lScript     = NO
                 .
-            OUTPUT TO VALUE(htmlPageLocation + '\' + ttblJob.resource + '.htm').
+            OUTPUT TO VALUE(htmlPageLocation + '\' + REPLACE(ttblJob.resource,"/","") + '.htm').
             RUN pHTMLHeader (cHTMLTitle,cHTMLLegend,lScript).
             RUN pHTMLBranding.
             PUT UNFORMATTED
