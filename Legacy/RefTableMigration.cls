@@ -536,4 +536,99 @@ CLASS RefTableMigration:
         END.  /*FOR EACH reftable*/         
         RETURN iCnt.
     END METHOD. /*est-op*/
+    METHOD PUBLIC INTEGER GlAcctDisc():
+        DEFINE VARIABLE iCnt AS INTEGER NO-UNDO.
+        FOR EACH reftable WHERE reftable.reftable = "GLACCTDISC"
+            NO-LOCK:
+            FIND FIRST account WHERE account.company = reftable.company
+                             AND account.actnum     = reftable.code
+                EXCLUSIVE-LOCK NO-ERROR.
+            IF AVAILABLE account THEN    
+            ASSIGN 
+                account.terms-discount = IF reftable.val[1] = 1 THEN YES ELSE NO                
+                . 
+            RELEASE account.      
+            iCnt = iCnt + 1.                 
+        END.  /*FOR EACH reftable*/         
+        RETURN iCnt.
+    END METHOD. /*account*/
+    METHOD PUBLIC INTEGER CustFlatComm():
+        DEFINE VARIABLE iCnt AS INTEGER NO-UNDO.
+        FOR EACH reftable WHERE reftable.reftable = "cust.flat-comm"
+            NO-LOCK:
+            FIND FIRST cust WHERE cust.company = reftable.company
+                              AND cust.cust-no = reftable.code
+                EXCLUSIVE-LOCK NO-ERROR.
+            IF AVAILABLE cust THEN    
+            ASSIGN 
+                cust.flatCommPct = DEC(reftable.val[1])                
+                . 
+            RELEASE cust.      
+            iCnt = iCnt + 1.                 
+        END.  /*FOR EACH reftable*/         
+        RETURN iCnt.
+    END METHOD. /*cust*/
+    METHOD PUBLIC INTEGER StylePerMsf():
+        DEFINE VARIABLE iCnt AS INTEGER NO-UNDO.
+        FOR EACH reftable WHERE reftable.reftable = "style.per-msf"
+            NO-LOCK:
+            FIND FIRST style WHERE style.company = reftable.company
+                               AND style.style   = reftable.code
+                EXCLUSIVE-LOCK NO-ERROR.
+            IF AVAILABLE style THEN DO:
+                IF style.sqft-len-trim = 0 THEN   
+                    ASSIGN style.sqft-len-trim = reftable.val[1].
+                IF style.sqft-wid-trim = 0 THEN    
+                    ASSIGN style.sqft-wid-trim = reftable.val[2]. 
+            END.    
+            RELEASE style.      
+            iCnt = iCnt + 1.                 
+        END.  /*FOR EACH reftable*/         
+        RETURN iCnt.
+    END METHOD. /*style*/
+    METHOD PUBLIC INTEGER FreezeNote():
+        DEFINE VARIABLE iCnt AS INTEGER NO-UNDO.
+        FOR EACH reftable WHERE reftable.reftable = "FREEZENOTE"
+            NO-LOCK:
+            FIND FIRST job-hdr WHERE job-hdr.company = reftable.company
+                                 AND job-hdr.job-no  = reftable.loc
+                                 AND job-hdr.job-no2 = int(reftable.code)
+                EXCLUSIVE-LOCK NO-ERROR.
+            IF AVAILABLE job-hdr THEN    
+            ASSIGN 
+                job-hdr.freezeNote = YES                
+                . 
+            RELEASE job-hdr.      
+            iCnt = iCnt + 1.                 
+        END.  /*FOR EACH reftable*/         
+        RETURN iCnt.
+    END METHOD. /*job-hdr*/
+    METHOD PUBLIC INTEGER DropslitToHighlight():
+        DEFINE VARIABLE iCnt AS INTEGER NO-UNDO.
+        FOR EACH est EXCLUSIVE-LOCK:
+            ASSIGN 
+                est.highlight = est.dropslit                
+                est.dropslit = no
+                .                 
+            RELEASE est.      
+            iCnt = iCnt + 1.                 
+        END.  /*FOR EACH reftable*/         
+        RETURN iCnt.
+    END METHOD. /*est*/
+    METHOD PUBLIC INTEGER Dropslit():
+        DEFINE VARIABLE iCnt AS INTEGER NO-UNDO.
+        FOR EACH reftable WHERE reftable.reftable = "dropslit"
+            NO-LOCK:
+            FIND FIRST est WHERE est.company = reftable.company
+                             AND est.est-no  = reftable.code
+                EXCLUSIVE-LOCK NO-ERROR.
+            IF AVAILABLE est THEN    
+            ASSIGN 
+                est.dropslit = reftable.loc eq "yes"                
+                . 
+            RELEASE est.      
+            iCnt = iCnt + 1.                 
+        END.  /*FOR EACH reftable*/         
+        RETURN iCnt.
+    END METHOD. /*est*/
 END CLASS.
