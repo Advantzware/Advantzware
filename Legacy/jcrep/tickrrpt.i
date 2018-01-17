@@ -61,22 +61,11 @@ IF tb_freeze-note THEN
         EXCLUSIVE-LOCK:
         RUN jc\jobnotes.p(BUFFER job).
 
-        IF NOT CAN-FIND(FIRST b-reftable-freeze WHERE
-           b-reftable-freeze.reftable EQ "FREEZENOTE" AND
-           b-reftable-freeze.company  EQ cocode AND
-           b-reftable-freeze.loc      EQ job-hdr.job-no AND
-           b-reftable-freeze.CODE     EQ STRING(job-hdr.job-no2,"99")) THEN
-           DO:
-              CREATE b-reftable-freeze.
-              ASSIGN
-                b-reftable-freeze.reftable = "FREEZENOTE"
-                b-reftable-freeze.company  = cocode
-                b-reftable-freeze.loc      = job-hdr.job-no
-                b-reftable-freeze.CODE     = STRING(job-hdr.job-no2,"99").
-              
-              RELEASE b-reftable-freeze.
-           END.
-   END.
+
+        FIND CURRENT job-hdr EXCLUSIVE-LOCK NO-ERROR. 
+        ASSIGN job-hdr.freezeNote = YES .
+        FIND CURRENT job-hdr NO-LOCK NO-ERROR.     
+  END.
 
 FIND CURRENT job NO-LOCK NO-ERROR.
 
