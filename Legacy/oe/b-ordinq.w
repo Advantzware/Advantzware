@@ -141,11 +141,7 @@ ll-sort-asc = NO /*oeinq*/.
     FIRST itemfg ~{&joinScop} NO-LOCK ~
     WHERE itemfg.company EQ oe-ordl.company ~
       AND itemfg.i-no EQ oe-ordl.i-no ~
-      AND itemfg.cad-no BEGINS fi_cad-no, ~
-    FIRST ttRelease ~
-    WHERE ttRelease.ordlRecID EQ RECID(oe-ordl) ~
-      AND (INDEX(ttRelease.lot-no,fi_lot-no) GT 0 OR fi_lot-no EQ '') ~
-      AND (INDEX(ttRelease.po-no,fi_po-no1) GT 0 OR fi_po-no1 EQ '')
+      AND itemfg.cad-no BEGINS fi_cad-no
 
 &SCOPED-DEFINE for-each3 FIRST oe-ord OF oe-ordl WHERE oe-ord.stat NE 'W' USE-INDEX ord-no NO-LOCK
 
@@ -203,7 +199,7 @@ ll-initial = browser-log.
 &Scoped-define BROWSE-NAME Browser-Table
 
 /* Internal Tables (found by Frame, Query & Browse Queries)             */
-&Scoped-define INTERNAL-TABLES oe-ordl oe-ord itemfg ttRelease
+&Scoped-define INTERNAL-TABLES oe-ordl oe-ord itemfg
 
 /* Definitions for BROWSE Browser-Table                                 */
 &Scoped-define FIELDS-IN-QUERY-Browser-Table oe-ordl.ord-no oe-ordl.cust-no ~
@@ -232,9 +228,7 @@ AND oe-ordl.ord-no EQ 999999 NO-LOCK, ~
       EACH oe-ord OF oe-ordl NO-LOCK, ~
       FIRST itemfg OF oe-ordl ~
       WHERE itemfg.company EQ oe-ordl.company ~
-AND itemfg.i-no EQ oe-ordl.i-no OUTER-JOIN NO-LOCK, ~
-      FIRST ttRelease WHERE TRUE /* Join to oe-ordl incomplete */ ~
-      AND ttRelease.ordlRecID EQ RECID(oe-ordl) NO-LOCK ~
+AND itemfg.i-no EQ oe-ordl.i-no OUTER-JOIN NO-LOCK ~
     ~{&SORTBY-PHRASE}
 &Scoped-define OPEN-QUERY-Browser-Table OPEN QUERY Browser-Table FOR EACH oe-ordl ~
       WHERE oe-ordl.company EQ g_company ~
@@ -242,16 +236,12 @@ AND oe-ordl.ord-no EQ 999999 NO-LOCK, ~
       EACH oe-ord OF oe-ordl NO-LOCK, ~
       FIRST itemfg OF oe-ordl ~
       WHERE itemfg.company EQ oe-ordl.company ~
-AND itemfg.i-no EQ oe-ordl.i-no OUTER-JOIN NO-LOCK, ~
-      FIRST ttRelease WHERE TRUE /* Join to oe-ordl incomplete */ ~
-      AND ttRelease.ordlRecID EQ RECID(oe-ordl) NO-LOCK ~
+AND itemfg.i-no EQ oe-ordl.i-no OUTER-JOIN NO-LOCK ~
     ~{&SORTBY-PHRASE}.
-&Scoped-define TABLES-IN-QUERY-Browser-Table oe-ordl oe-ord itemfg ~
-ttRelease
+&Scoped-define TABLES-IN-QUERY-Browser-Table oe-ordl oe-ord itemfg
 &Scoped-define FIRST-TABLE-IN-QUERY-Browser-Table oe-ordl
 &Scoped-define SECOND-TABLE-IN-QUERY-Browser-Table oe-ord
 &Scoped-define THIRD-TABLE-IN-QUERY-Browser-Table itemfg
-&Scoped-define FOURTH-TABLE-IN-QUERY-Browser-Table ttRelease
 
 
 /* Definitions for FRAME F-Main                                         */
@@ -262,7 +252,7 @@ fi_part-no fi_po-no1 fi_est-no fi_job-no fi_job-no2 fi_cad-no fi_sman ~
 btn_go btn_prev Browser-Table fi_i-name RECT-1 
 &Scoped-Define DISPLAYED-OBJECTS tb_web fi_ord-no fi_cust-no fi_i-no ~
 fi_part-no fi_po-no1 fi_est-no fi_job-no fi_job-no2 fi_cad-no fi_sman ~
-fi_sort-by FI_moveCol fi_i-name fi_lot-no 
+fi_sort-by FI_moveCol fi_i-name 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -408,7 +398,7 @@ DEFINE VARIABLE fi_est-no AS CHARACTER FORMAT "X(8)":U
 
 DEFINE VARIABLE fi_i-name AS CHARACTER FORMAT "X(30)":U 
      VIEW-AS FILL-IN 
-     SIZE 40 BY 1
+     SIZE 41 BY 1
      BGCOLOR 15  NO-UNDO.
 
 DEFINE VARIABLE fi_i-no AS CHARACTER FORMAT "X(15)":U 
@@ -424,11 +414,6 @@ DEFINE VARIABLE fi_job-no AS CHARACTER FORMAT "X(6)":U
 DEFINE VARIABLE fi_job-no2 AS INTEGER FORMAT "99":U INITIAL 0 
      VIEW-AS FILL-IN 
      SIZE 4 BY 1
-     BGCOLOR 15  NO-UNDO.
-
-DEFINE VARIABLE fi_lot-no AS CHARACTER FORMAT "X(256)":U 
-     VIEW-AS FILL-IN 
-     SIZE 20 BY 1
      BGCOLOR 15  NO-UNDO.
 
 DEFINE VARIABLE FI_moveCol AS CHARACTER FORMAT "X(4)":U 
@@ -495,8 +480,7 @@ DEFINE QUERY Browser-Table FOR
       oe-ordl.s-man[1]
       oe-ordl.managed), 
       oe-ord, 
-      itemfg, 
-      ttRelease SCROLLING.
+      itemfg SCROLLING.
 &ANALYZE-RESUME
 
 /* Browse definitions                                                   */
@@ -563,7 +547,7 @@ DEFINE BROWSE Browser-Table
       oe-ordl.job-no2
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ASSIGN SEPARATORS SIZE 155 BY 16.5
+    WITH NO-ASSIGN SEPARATORS SIZE 155 BY 16.52
          FONT 2.
 
 
@@ -584,15 +568,20 @@ DEFINE FRAME F-Main
      btn_go AT ROW 3.14 COL 2
      btn_prev AT ROW 3.14 COL 8
      btn_next AT ROW 3.14 COL 20
-     fi_sort-by AT ROW 3.14 COL 88 COLON-ALIGNED NO-LABEL
+     fi_sort-by AT ROW 3.14 COL 87.2 COLON-ALIGNED NO-LABEL
      FI_moveCol AT ROW 3.14 COL 130 COLON-ALIGNED NO-LABEL WIDGET-ID 4
      Browser-Table AT ROW 4.33 COL 1 HELP
           "Use Home, End, Page-Up, Page-Down, & Arrow Keys to Navigate"
      fi_i-name AT ROW 3.14 COL 28 COLON-ALIGNED NO-LABEL WIDGET-ID 8
-     fi_lot-no AT ROW 3.14 COL 68 COLON-ALIGNED NO-LABEL WIDGET-ID 16
      "Job#" VIEW-AS TEXT
           SIZE 8 BY .71 AT ROW 1.24 COL 104
           FGCOLOR 9 FONT 6
+     "CAD#" VIEW-AS TEXT
+          SIZE 8 BY .71 AT ROW 1.24 COL 119
+          FGCOLOR 9 FONT 6
+     "Sorted By:" VIEW-AS TEXT
+          SIZE 13 BY 1 AT ROW 3.14 COL 76 WIDGET-ID 18
+          FONT 6
      "Order#" VIEW-AS TEXT
           SIZE 10 BY .71 AT ROW 1.24 COL 2
           FGCOLOR 9 FONT 6
@@ -617,9 +606,6 @@ DEFINE FRAME F-Main
      "BrwsrColMode:" VIEW-AS TEXT
           SIZE 16.6 BY 1 AT ROW 3.14 COL 115 WIDGET-ID 6
           FONT 6
-     "CAD#" VIEW-AS TEXT
-          SIZE 8 BY .71 AT ROW 1.24 COL 119
-          FGCOLOR 9 FONT 6
      RECT-1 AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -693,11 +679,6 @@ ASSIGN
 
 /* SETTINGS FOR BUTTON btn_next IN FRAME F-Main
    NO-ENABLE                                                            */
-/* SETTINGS FOR FILL-IN fi_lot-no IN FRAME F-Main
-   NO-ENABLE                                                            */
-ASSIGN 
-       fi_lot-no:HIDDEN IN FRAME F-Main           = TRUE.
-
 /* SETTINGS FOR FILL-IN FI_moveCol IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN fi_ord-no IN FRAME F-Main
@@ -712,14 +693,13 @@ ASSIGN
 
 &ANALYZE-SUSPEND _QUERY-BLOCK BROWSE Browser-Table
 /* Query rebuild information for BROWSE Browser-Table
-     _TblList          = "ASI.oe-ordl,ASI.oe-ord OF ASI.oe-ordl,ASI.itemfg OF ASI.oe-ordl,Temp-Tables.ttRelease WHERE ASI.oe-ordl ..."
+     _TblList          = "ASI.oe-ordl,ASI.oe-ord OF ASI.oe-ordl,ASI.itemfg OF ASI.oe-ordl"
      _Options          = "NO-LOCK SORTBY-PHRASE"
      _TblOptList       = "USED,, FIRST OUTER, FIRST"
      _Where[1]         = "oe-ordl.company EQ g_company
 AND oe-ordl.ord-no EQ 999999"
      _Where[3]         = "itemfg.company EQ oe-ordl.company
 AND itemfg.i-no EQ oe-ordl.i-no"
-     _Where[4]         = "ttRelease.ordlRecID EQ RECID(oe-ordl)"
      _FldNameList[1]   > ASI.oe-ordl.ord-no
 "oe-ordl.ord-no" ? ? "integer" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > ASI.oe-ordl.cust-no
@@ -973,7 +953,6 @@ DO:
       fi_cust-no
       fi_ord-no
       fi_po-no1
-      fi_lot-no
       fi_est-no
       fi_job-no
       fi_job-no2
@@ -1667,7 +1646,7 @@ PROCEDURE local-open-query :
 ------------------------------------------------------------------------------*/
 
   /* Code placed here will execute PRIOR to standard behavior. */
-  RUN pReleaseTT.
+
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'open-query':U ) .
@@ -1873,51 +1852,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pReleaseTT B-table-Win 
-PROCEDURE pReleaseTT :
-/*------------------------------------------------------------------------------
- Purpose:
- Notes:
-------------------------------------------------------------------------------*/
-  {&for-eachblank}
-      USE-INDEX opened NO-LOCK,
-      FIRST oe-ord OF oe-ordl USE-INDEX ord-no NO-LOCK
-      :
-      FIND FIRST ttRelease
-           WHERE ttRelease.ordlRecID EQ RECID(oe-ordl)
-           NO-ERROR.
-      IF NOT AVAILABLE ttRelease THEN DO:
-          CREATE ttRelease.
-          ttRelease.ordlRecID = RECID(oe-ordl).
-      END. /* not avail */
-      IF oe-ordl.lot-no NE "" AND NOT CAN-DO(ttRelease.lot-no,oe-ordl.lot-no) THEN 
-      ttRelease.lot-no = ttRelease.lot-no + oe-ordl.lot-no + ",".
-      IF oe-ordl.po-no NE "" AND NOT CAN-DO(ttRelease.po-no,oe-ordl.po-no) THEN 
-      ttRelease.po-no = ttRelease.po-no + oe-ordl.po-no + ",".
-      IF CAN-FIND(FIRST oe-rel
-             WHERE oe-rel.company EQ oe-ordl.company
-               AND oe-rel.ord-no  EQ oe-ordl.ord-no
-               AND oe-rel.i-no    EQ oe-ordl.i-no
-               AND oe-rel.line    EQ oe-ordl.line) THEN
-      FOR EACH oe-rel NO-LOCK
-          WHERE oe-rel.company EQ oe-ordl.company
-            AND oe-rel.ord-no  EQ oe-ordl.ord-no
-            AND oe-rel.i-no    EQ oe-ordl.i-no
-            AND oe-rel.line    EQ oe-ordl.line
-          :
-
-          IF oe-rel.lot-no NE "" AND NOT CAN-DO(ttRelease.lot-no,oe-rel.lot-no) THEN
-          ttRelease.lot-no = ttRelease.lot-no + oe-rel.lot-no + ",".
-          IF oe-rel.po-no NE "" AND NOT CAN-DO(ttRelease.po-no,oe-rel.po-no) THEN 
-          ttRelease.po-no = ttRelease.po-no + oe-rel.po-no + ",".
-      END. /* each oe-rel */
-  END. /* for-eachblank */
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pushpin-image-proc B-table-Win 
 PROCEDURE pushpin-image-proc :
 /*------------------------------------------------------------------------------
@@ -1963,7 +1897,6 @@ PROCEDURE record-added :
      fi_cust-no
      fi_ord-no
      fi_po-no1
-     fi_lot-no
      fi_est-no
      fi_job-no
      fi_job-no2
@@ -2170,7 +2103,6 @@ PROCEDURE send-records :
   {src/adm/template/snd-list.i "oe-ordl"}
   {src/adm/template/snd-list.i "oe-ord"}
   {src/adm/template/snd-list.i "itemfg"}
-  {src/adm/template/snd-list.i "ttRelease"}
 
   /* Deal with any unexpected table requests before closing.           */
   {src/adm/template/snd-end.i}
@@ -2195,7 +2127,6 @@ PROCEDURE set-defaults :
       fi_part-no:SCREEN-VALUE = ""
       fi_ord-no:SCREEN-VALUE  = ""
       fi_po-no1:SCREEN-VALUE  = ""
-      fi_lot-no:SCREEN-VALUE  = ""
       fi_est-no:SCREEN-VALUE  = ""
       fi_job-no:SCREEN-VALUE  = ""
       fi_job-no2:SCREEN-VALUE = "" 
