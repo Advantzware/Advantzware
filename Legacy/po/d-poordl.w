@@ -6558,10 +6558,13 @@ PROCEDURE vend-cost :
                 OUTPUT lv-added-cost,
                 OUTPUT lv-added-cons-cost,
                 OUTPUT lv-adder-setup).
-            IF ip-calc-cost THEN
+            IF ip-calc-cost THEN do:
                 ASSIGN
                     po-ordl.cost:SCREEN-VALUE      = STRING(lv-added-cost)
-                    po-ordl.cons-cost:SCREEN-VALUE = STRING(lv-added-cons-cost).
+                    po-ordl.cons-cost:SCREEN-VALUE = STRING(lv-added-cons-cost ) .
+                    IF lv-adder-setup GT 0 THEN
+                    po-ordl.setup:SCREEN-VALUE  = STRING( DEC(po-ordl.setup:SCREEN-VALUE) + ( IF lv-adder-setup NE ? THEN lv-adder-setup ELSE 0) ) .
+            END.
         END.
         IF poqty-log THEN 
         DO:
