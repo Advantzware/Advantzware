@@ -536,4 +536,21 @@ CLASS RefTableMigration:
         END.  /*FOR EACH reftable*/         
         RETURN iCnt.
     END METHOD. /*est-op*/
+    METHOD PUBLIC INTEGER ExportCustId():
+        DEFINE VARIABLE iCnt AS INTEGER NO-UNDO.
+        FOR EACH reftable WHERE reftable.reftable = "JDEDWARDCUST#"
+            NO-LOCK:
+            FIND FIRST shipto WHERE shipto.company = reftable.company
+                                AND shipto.cust-no = reftable.code 
+                                AND shipto.ship-id = reftable.code2                           
+                EXCLUSIVE-LOCK NO-ERROR.
+            IF AVAILABLE shipto THEN    
+            ASSIGN 
+                shipto.exportCustID =  reftable.dscr                
+                . 
+            RELEASE shipto.      
+            iCnt = iCnt + 1.                 
+        END.  /*FOR EACH reftable*/         
+        RETURN iCnt.
+    END METHOD. /*shipto*/
 END CLASS.
