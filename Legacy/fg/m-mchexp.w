@@ -995,21 +995,7 @@ FUNCTION getValue-itemfg RETURNS CHARACTER
 
     CASE ipc-field :
         WHEN "plan-job"  THEN DO:
-           
-                FIND FIRST reftable WHERE reftable.reftable EQ "mach.plain-jobs"
-                    AND reftable.company  EQ ipb-mach.company     
-                    AND reftable.loc      EQ ipb-mach.loc          
-                    AND reftable.code     EQ ipb-mach.m-code NO-LOCK NO-ERROR .
-                IF NOT AVAIL reftable THEN DO:
-                    CREATE reftable.
-                    ASSIGN
-                        reftable.reftable = "mach.plain-jobs"
-                        reftable.company  = ipb-mach.company
-                        reftable.loc      = ipb-mach.loc
-                        reftable.code     = ipb-mach.m-code.
-                    END.
-
-                    lc-return = string(reftable.val[1] EQ 1) .
+                    lc-return = string(ipb-mach.plain-job) .
             
         END.
         WHEN "Obsolete"  THEN DO:
