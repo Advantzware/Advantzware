@@ -785,22 +785,13 @@ PROCEDURE local-assign-record :
 
      RUN fg/comp-upd.p (RECID(itemfg), li-old-qty * -1, "q-ono", job.est-no).
      RUN fg/comp-upd.p (RECID(itemfg), job-hdr.qty, "q-ono", job.est-no).
-    
-     FIND FIRST job-qty-changed
-         WHERE job-qty-changed.reftable EQ "job.qty-changed"
-           AND job-qty-changed.company  EQ job.company
-           AND job-qty-changed.loc      EQ ""
-           AND job-qty-changed.code     EQ STRING(job.job,"9999999999")
-         NO-ERROR.
-     IF NOT AVAIL job-qty-changed THEN DO:
-       CREATE job-qty-changed.
-       ASSIGN
-        job-qty-changed.reftable = "job.qty-changed"
-        job-qty-changed.company  = job.company
-        job-qty-changed.loc      = ""
-        job-qty-changed.code     = STRING(job.job,"9999999999").
-       RELEASE job-qty-changed.
-     END.
+
+       FIND CURRENT job EXCLUSIVE-LOCK NO-ERROR.
+           ASSIGN
+               job.qty-changed = YES.
+       FIND CURRENT job NO-LOCK.        
+               
+
      /* lv-qty-changed needed for correct parameter passed to jc-calc.p */
      lv-qty-changed = TRUE.
      RUN rebuild-stds.

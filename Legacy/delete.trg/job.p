@@ -114,16 +114,6 @@ FOR EACH reftable
 END.
 
 
-
-FOR EACH reftable
-    WHERE reftable.reftable EQ "job.qty-changed"
-      AND reftable.company  EQ {&TABLENAME}.company
-      AND reftable.loc      EQ ""
-      AND reftable.code     EQ STRING({&TABLENAME}.job,"9999999999")
-    EXCLUSIVE-LOCK:
-  DELETE reftable.
-END.
-
 FOR EACH reftable
     WHERE reftable.reftable EQ "job.create-time"
       AND reftable.company  EQ {&TABLENAME}.company
