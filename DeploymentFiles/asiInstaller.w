@@ -2662,11 +2662,6 @@ PROCEDURE ipExpandFiles :
     ASSIGN
         lTestExists = FILE-INFO:FULL-PATHNAME NE ?
         cCmdLine1 = cUpdCompressDir + "\7z.exe x ".
-    RUN ipStatus ("ProdFolder " + cEnvProddir).
-    RUN ipStatus ("Update Program Dir " + cUpdProgramDir).
-    RUN ipStatus ("Admin Folder " + cAdminDir).
-    RUN ipStatus ("Prod Exists " + string(lProdExists)).
-    RUN ipStatus ("Text Exists " + string(lTestExists)).
         
     IF SEARCH(cUpdProgramDir + "\programs.7z") NE ? THEN DO:
         RUN ipStatus ("Installing new program files").
@@ -2679,10 +2674,7 @@ PROCEDURE ipExpandFiles :
             OS-CREATE-DIR VALUE(cEnvProdDir + "\Programs").
             ASSIGN
                 cCmdLine3 = cCmdLine2 + cEnvProdDir + "\" + cFileType.
-            RUN ipStatus ("cCmdLine1" + cCmdLine1).            
-            RUN ipStatus ("cCmdLine2" + cCmdLine2).
-            RUN ipStatus ("cCmdLine3" + cCmdLine3).
-            RUN ipStatus ("cFileType" + cFileType).                 
+             
             OS-COMMAND SILENT VALUE(cCmdLine3).
         END.
         IF lTestExists THEN DO:
