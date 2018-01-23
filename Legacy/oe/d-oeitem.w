@@ -72,7 +72,6 @@ DEF VAR lv-ordl-recid AS RECID NO-UNDO.
 DEF VAR lv-change-prom-date AS LOG NO-UNDO.  /* flag for updating oe-ordl.prom-date*/
 DEF VAR lv-change-cst-po AS LOG NO-UNDO.    /* flag for updateing oe-ordl.po-no */
 DEF VAR lv-uom-list AS cha INIT "M,EA,L,CS,C,LB,DRM,ROL,PLT,PKG,SET,DOZ,BDL" NO-UNDO.
-DEF VAR lv-ea-list AS CHAR NO-UNDO.
 DEF VAR lv-valid-uom AS CHAR NO-UNDO.
 DEF VAR v-valtype AS cha INIT "O,R,C" NO-UNDO.
 DEF VAR v-duelist AS cha INIT "AM,ASAP,BY,CPU,CR,HFR,HOLD,HOT,INK,MH,MUST,NB4,NCUST,NITEM,NCNI,OE,ON,PPR,RWRK,RUSH,TOOL,WO,$$$" NO-UNDO.
@@ -293,15 +292,6 @@ DO TRANSACTION:
   
 RUN sys/ref/ordtypes.p (OUTPUT lv-type-codes, OUTPUT lv-type-dscrs).
 
-/* RUN sys/ref/uom-ea.p (OUTPUT lv-ea-list). */
-FOR EACH uom WHERE
-    uom.other EQ "EA" AND
-    uom.mult EQ 1:
-    ASSIGN
-        lv-ea-list = lv-ea-list + uom.uom + ",".
-END.
-ASSIGN
-    lv-ea-list = TRIM(lv-ea-list,",").
 
 {sys/inc/schedule.i}
  v-run-schedule = NOT (AVAIL sys-ctrl AND sys-ctrl.char-fld EQ 'NoDate' AND sys-ctrl.log-fld).
@@ -445,6 +435,16 @@ oe-ordl.cost oe-ordl.type-code fi_sname-1 fi_sname-2 fi_sname-3
 
 
 /* ************************  Function Prototypes ********************** */
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fOEScreenUOMConvert d-oeitem
+FUNCTION fOEScreenUOMConvert RETURNS DECIMAL 
+  (  ipdStartQuantity AS DECIMAL , ipcUOM AS CHARACTER, ipdCount AS DECIMAL ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD get-colonial-rel-date d-oeitem 
 FUNCTION get-colonial-rel-date RETURNS DATE
@@ -8943,34 +8943,14 @@ PROCEDURE valid-uom :
     IF NOT CAN-FIND(FIRST uom
                     WHERE uom.uom EQ lv-uom
                       AND CAN-DO(lv-valid-uom,uom.uom)) THEN DO:
-      MESSAGE TRIM(ip-focus:LABEL) + " is invalid, try help..."
+      MESSAGE "UOM is invalid, try help..."
           VIEW-AS ALERT-BOX ERROR.
       RETURN ERROR.
     END.
-    find first uom where
-        uom.uom = lv-uom
-        no-lock no-error.
-    if ip-focus:NAME EQ "fi_qty-uom"
-    and avail uom 
-    and uom.mult NE 1
-    and NOT CAN-DO("," + TRIM(lv-ea-list),lv-uom) then do:
-        assign
-           ld = DEC(oe-ordl.qty:SCREEN-VALUE)
-           ld = ld * uom.mult
-           oe-ordl.qty:SCREEN-VALUE = STRING(ld)
-           ip-focus:screen-value = "EA".
-        run leave-qty.
-    end.        
-    else IF ip-focus:NAME EQ "fi_qty-uom"             AND
-       NOT CAN-DO("," + TRIM(lv-ea-list),lv-uom) AND
-       ((lv-uom NE "CS" AND lv-uom NE "PLT") OR
-        DEC(oe-ordl.cas-cnt:SCREEN-VALUE) NE 0)  THEN DO:
-
+    IF ip-focus:NAME EQ "fi_qty-uom" THEN DO:
+        
       ASSIGN
-       ld = DEC(oe-ordl.qty:SCREEN-VALUE)
-       ld = ld * (IF lv-uom EQ "CS" OR lv-uom EQ "PLT" THEN DEC(oe-ordl.cas-cnt:SCREEN-VALUE) ELSE
-                  IF lv-uom EQ "C"  THEN 100 ELSE 1000)
-
+       ld = fOEScreenUOMConvert(DEC(oe-ordl.qty:SCREEN-VALUE), lv-uom, DEC(oe-ordl.cas-cnt:SCREEN-VALUE))
        oe-ordl.qty:SCREEN-VALUE = STRING(ld)
        ip-focus:SCREEN-VALUE    = "EA".
 
@@ -9519,6 +9499,41 @@ END PROCEDURE.
 &ANALYZE-RESUME
 
 /* ************************  Function Implementations ***************** */
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fOEScreenUOMConvert d-oeitem
+FUNCTION fOEScreenUOMConvert RETURNS DECIMAL 
+  ( ipdStartQuantity AS DECIMAL , ipcUOM AS CHARACTER, ipdCount AS DECIMAL ):
+/*---------------------------------------------------       ---------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+DEFINE VARIABLE dMultiplier AS DECIMAL NO-UNDO.
+
+CASE ipcUOM:
+    WHEN "CS" THEN 
+        dMultiplier = ipdCount. 
+    WHEN "PLT" THEN 
+        dMultiplier = ipdCount. /*refactor?*/
+    WHEN "C" THEN 
+        dMultiplier = 100.  /*vestige of old logic. refactor to not hardcode?*/
+    OTHERWISE DO:
+        FIND FIRST uom NO-LOCK 
+        WHERE uom.uom EQ ipcUOM NO-ERROR.
+        IF AVAILABLE uom AND uom.mult NE 0 AND uom.Other EQ "EA" THEN
+            dMultiplier = uom.mult.
+        ELSE 
+            dMultiplier = 1.
+    END.
+END CASE.
+RETURN ipdStartQuantity * dMultiplier.
+
+END FUNCTION.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION get-colonial-rel-date d-oeitem 
 FUNCTION get-colonial-rel-date RETURNS DATE
