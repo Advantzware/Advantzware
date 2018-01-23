@@ -58,11 +58,6 @@ DEF BUFFER bf-cust FOR cust.
 /* gdm - 08240904 */
 DEF VAR v-inv-fmt2 AS CHAR NO-UNDO.
 
-&SCOPED-DEFINE where-po-mand                  ~
-    WHERE reftable.reftable EQ "cust.po-mand" ~
-      AND reftable.company  EQ cust.company   ~
-      AND reftable.loc      EQ ""             ~
-      AND reftable.code     EQ cust.cust-no
 
 &SCOPED-DEFINE where-show-set                 ~
     WHERE reftable.reftable EQ "cust.show-set" ~
@@ -160,7 +155,7 @@ cust.area-code cust.phone cust.scomm cust.fax-prefix cust.fax-country ~
 cust.frt-pay cust.fob-code cust.ship-part cust.loc cust.carrier ~
 cust.del-zone cust.terr cust.under-pct cust.over-pct cust.markup ~
 cust.ship-days cust.manf-day cust.spare-int-1 cust.pallet cust.case-bundle ~
-cust.int-field[1] 
+cust.int-field[1] cust.po-mandatory 
 &Scoped-define ENABLED-TABLES cust
 &Scoped-define FIRST-ENABLED-TABLE cust
 &Scoped-Define ENABLED-OBJECTS RECT-2 RECT-3 RECT-4 
@@ -175,21 +170,21 @@ cust.area-code cust.phone cust.scomm cust.fax-prefix cust.fax-country ~
 cust.frt-pay cust.fob-code cust.ship-part cust.loc cust.carrier ~
 cust.del-zone cust.terr cust.under-pct cust.over-pct cust.markup ~
 cust.ship-days cust.manf-day cust.spare-int-1 cust.pallet cust.case-bundle ~
-cust.int-field[1] 
+cust.int-field[1] cust.po-mandatory 
 &Scoped-define DISPLAYED-TABLES cust
 &Scoped-define FIRST-DISPLAYED-TABLE cust
 &Scoped-Define DISPLAYED-OBJECTS fl_custemail terms_dscr rd_inv-meth ~
 stax_tax-dscr custype_dscr sman_sname fi_flat-comm faxAreaCode faxNumber ~
-loc_dscr carrier_dscr carr-mtx_del-dscr terr_dscr tb_po-mand tb_show-set 
+loc_dscr carrier_dscr carr-mtx_del-dscr terr_dscr tb_show-set 
 
 /* Custom List Definitions                                              */
 /* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,ROW-AVAILABLE,DISPLAY-FIELD,faxFields,F1 */
 &Scoped-define ADM-CREATE-FIELDS cust.cust-no 
 &Scoped-define ADM-ASSIGN-FIELDS fl_custemail rd_inv-meth fi_flat-comm ~
-tb_po-mand tb_show-set 
+cust.po-mandatory tb_show-set 
 &Scoped-define DISPLAY-FIELD cust.state fl_custemail cust.terms cust.tax-gr ~
 cust.type cust.sman cust.loc cust.carrier cust.del-zone cust.terr ~
-tb_po-mand tb_show-set 
+cust.po-mandatory tb_show-set 
 &Scoped-define faxFields faxAreaCode faxNumber 
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
@@ -303,11 +298,6 @@ DEFINE RECTANGLE RECT-3
 DEFINE RECTANGLE RECT-4
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 74.4 BY 11.91.
-
-DEFINE VARIABLE tb_po-mand AS LOGICAL INITIAL no 
-     LABEL "PO# Mandatory?" 
-     VIEW-AS TOGGLE-BOX
-     SIZE 24 BY .81 NO-UNDO.
 
 DEFINE VARIABLE tb_show-set AS LOGICAL INITIAL no 
      LABEL "Show Set Parts?" 
@@ -482,7 +472,6 @@ DEFINE FRAME F-Main
           SIZE 44 BY 1
           BGCOLOR 15 FONT 4
      cust.sman AT ROW 3.86 COL 73 COLON-ALIGNED
-          LABEL "Sales Rep"
           VIEW-AS FILL-IN 
           SIZE 8 BY 1
           BGCOLOR 15 FONT 4
@@ -602,7 +591,9 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 13.6 BY 1
           BGCOLOR 15 FONT 4
-     tb_po-mand AT ROW 16.62 COL 114.6
+     cust.po-mandatory AT ROW 16.62 COL 114.6
+          VIEW-AS TOGGLE-BOX
+          SIZE 24 BY .81
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -765,6 +756,8 @@ ASSIGN
    EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN cust.phone IN FRAME F-Main
    EXP-FORMAT                                                           */
+/* SETTINGS FOR TOGGLE-BOX cust.po-mandatory IN FRAME F-Main
+   2 4                                                                  */
 /* SETTINGS FOR RADIO-SET rd_inv-meth IN FRAME F-Main
    NO-ENABLE 2                                                          */
 ASSIGN 
@@ -795,8 +788,6 @@ ASSIGN
    4 EXP-LABEL                                                          */
 /* SETTINGS FOR FILL-IN cust.tax-id IN FRAME F-Main
    EXP-LABEL                                                            */
-/* SETTINGS FOR TOGGLE-BOX tb_po-mand IN FRAME F-Main
-   NO-ENABLE 2 4                                                        */
 /* SETTINGS FOR TOGGLE-BOX tb_show-set IN FRAME F-Main
    NO-ENABLE 2 4                                                        */
 /* SETTINGS FOR FILL-IN cust.terms IN FRAME F-Main
@@ -824,7 +815,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -903,7 +894,7 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&Scoped-define SELF-NAME cust.active
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cust.active V-table-Win
 ON VALUE-CHANGED OF cust.active IN FRAME F-Main /* Status */
 DO:
@@ -967,7 +958,6 @@ DO:
    {&methods/lValidateError.i NO}
 END.
 
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -987,7 +977,6 @@ DO:
      {&methods/lValidateError.i NO}
 
 END.
-
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1105,7 +1094,6 @@ DO:
     {&methods/lValidateError.i NO}
 END.
 
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -1125,7 +1113,6 @@ DO:
    END.
    {&methods/lValidateError.i NO}
 END.
-
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1161,7 +1148,6 @@ DO:
   {methods/dispflds.i}
    {&methods/lValidateError.i NO}
 END.
-
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1282,7 +1268,6 @@ DO:
   {&methods/lValidateError.i NO}
 END.
 
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -1330,7 +1315,6 @@ DO:
      {&methods/lValidateError.i NO}
 END.
 
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -1349,7 +1333,7 @@ END.
 
 &Scoped-define SELF-NAME cust.sman
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cust.sman V-table-Win
-ON LEAVE OF cust.sman IN FRAME F-Main /* Salesman */
+ON LEAVE OF cust.sman IN FRAME F-Main /* Sales Rep */
 DO:
  IF LASTKEY = -1 THEN RETURN.
   RUN valid-sman NO-ERROR. 
@@ -1394,7 +1378,6 @@ DO:
   {&methods/lValidateError.i NO}                    
 END.
 
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -1412,7 +1395,6 @@ DO:
     end.                                     
     {&methods/lValidateError.i NO}
 END.
-
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1442,7 +1424,6 @@ DO:
   {methods/dispflds.i}
   {&methods/lValidateError.i NO}
 END.
-
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1480,7 +1461,6 @@ DO:
   {methods/dispflds.i}
    {&methods/lValidateError.i NO}
 END.
-
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1670,6 +1650,63 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE check-cr-bal V-table-Win 
+PROCEDURE check-cr-bal :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  {methods/lValidateError.i YES}
+IF AVAIL cust AND cust.active:SCREEN-VALUE IN FRAME {&FRAME-NAME} BEGINS "(I)" 
+  THEN do: 
+    IF AVAIL cust AND cust.acc-bal GT 0 THEN DO:
+      MESSAGE 
+        "Customer " + cust.cust-no + " - " + cust.NAME 
+        " has a non-zero Account Balance ." SKIP 
+        "You can not make it Inactive. Please select another status."
+       VIEW-AS ALERT-BOX ERROR.
+
+        APPLY "entry" TO cust.active .
+      RETURN ERROR.
+    END.
+    FIND FIRST ar-inv NO-LOCK 
+        WHERE ar-inv.company EQ cust.company
+          AND ar-inv.cust-no EQ cust.cust-no 
+          AND ar-inv.posted EQ NO NO-ERROR .
+    IF AVAIL ar-inv THEN DO:
+        MESSAGE 
+        "Customer " + cust.cust-no + " - " + cust.NAME 
+        " has at least one Open Invoice ." SKIP 
+        "You can not make it Inactive. Please select another status."
+       VIEW-AS ALERT-BOX ERROR.
+
+        APPLY "entry" TO cust.active .
+      RETURN ERROR.
+    END.      
+    FIND FIRST oe-ord NO-LOCK
+        WHERE oe-ord.company EQ cust.company
+          AND oe-ord.cust-no EQ cust.cust-no
+          AND INDEX("CZ",oe-ord.stat) EQ 0 NO-ERROR.
+    IF AVAIL oe-ord THEN DO:
+        MESSAGE 
+        "Customer " + cust.cust-no + " - " + cust.NAME 
+        " has at least one Open Order ." SKIP 
+        "You can not make it Inactive. Please select another status."
+       VIEW-AS ALERT-BOX ERROR.
+
+        APPLY "entry" TO cust.active .
+      RETURN ERROR.
+    END.
+END.
+
+
+  {methods/lValidateError.i NO}
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE cust-city V-table-Win 
 PROCEDURE cust-city :
 /*------------------------------------------------------------------------------
@@ -1821,7 +1858,7 @@ PROCEDURE disable-fields :
 ------------------------------------------------------------------------------*/
 
    DO WITH FRAME {&FRAME-NAME}.
-     DISABLE {&faxFields} rd_inv-meth tb_po-mand fi_flat-comm tb_show-set fl_custemail.
+     DISABLE {&faxFields} rd_inv-meth fi_flat-comm tb_show-set fl_custemail.
    END.
 
 END PROCEDURE.
@@ -2100,7 +2137,6 @@ PROCEDURE local-create-record :
         faxnumber:SCREEN-VALUE = ""
         faxnumber = ""
         rd_inv-meth:SCREEN-VALUE  = STRING(cust.inv-meth)
-        tb_po-mand:SCREEN-VALUE   = "no"
         tb_show-set:SCREEN-VALUE  = "yes"
         fi_flat-comm:SCREEN-VALUE = "" 
         fl_custemail:SCREEN-VALUE = "".
@@ -2160,7 +2196,6 @@ PROCEDURE local-display-fields :
   IF AVAIL cust AND NOT adm-new-record THEN DO:
     ASSIGN
      rd_inv-meth  = cust.inv-meth
-     tb_po-mand   = NO
      tb_show-set = YES
      fi_flat-comm = 0.
 
@@ -2176,7 +2211,7 @@ PROCEDURE local-display-fields :
 
   /* Code placed here will execute AFTER standard behavior.    */
   DO WITH FRAME {&FRAME-NAME}:
-    DISABLE tb_po-mand tb_show-set fi_flat-comm.
+    DISABLE tb_show-set fi_flat-comm.
 
     cust.cust-no:BGCOLOR = 3.
 
@@ -2451,7 +2486,6 @@ PROCEDURE local-update-record :
 
 END PROCEDURE.
 
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -2465,21 +2499,7 @@ PROCEDURE reftable-values :
   DEF INPUT PARAM ip-display AS LOG NO-UNDO.
 
   IF AVAIL cust THEN DO:
-    FIND FIRST reftable {&where-po-mand} NO-ERROR.
-    IF NOT AVAIL reftable THEN DO:
-      CREATE reftable.
-      ASSIGN
-       reftable.reftable = "cust.po-mand"
-       reftable.company  = cust.company
-       reftable.loc      = ""
-       reftable.code     = cust.cust-no.
-    END.
-
-    IF ip-display THEN
-      tb_po-mand = reftable.val[1] EQ 1.
-    ELSE
-      reftable.val[1] = INT(tb_po-mand).
-
+    
 
     FIND FIRST reftable {&where-show-set} NO-ERROR.
     IF NOT AVAIL reftable THEN DO:
@@ -3058,64 +3078,6 @@ PROCEDURE zip-carrier :
                                      ELSE cust.del-zone:SCREEN-VALUE.
       /* gdm - 10010913 end*/
    END.
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE check-cr-bal V-table-Win 
-PROCEDURE check-cr-bal :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  {methods/lValidateError.i YES}
-IF AVAIL cust AND cust.active:SCREEN-VALUE IN FRAME {&FRAME-NAME} BEGINS "(I)" 
-  THEN do: 
-    IF AVAIL cust AND cust.acc-bal GT 0 THEN DO:
-      MESSAGE 
-        "Customer " + cust.cust-no + " - " + cust.NAME 
-        " has a non-zero Account Balance ." SKIP 
-        "You can not make it Inactive. Please select another status."
-       VIEW-AS ALERT-BOX ERROR.
-
-        APPLY "entry" TO cust.active .
-      RETURN ERROR.
-    END.
-    FIND FIRST ar-inv NO-LOCK 
-        WHERE ar-inv.company EQ cust.company
-          AND ar-inv.cust-no EQ cust.cust-no 
-          AND ar-inv.posted EQ NO NO-ERROR .
-    IF AVAIL ar-inv THEN DO:
-        MESSAGE 
-        "Customer " + cust.cust-no + " - " + cust.NAME 
-        " has at least one Open Invoice ." SKIP 
-        "You can not make it Inactive. Please select another status."
-       VIEW-AS ALERT-BOX ERROR.
-
-        APPLY "entry" TO cust.active .
-      RETURN ERROR.
-    END.      
-    FIND FIRST oe-ord NO-LOCK
-        WHERE oe-ord.company EQ cust.company
-          AND oe-ord.cust-no EQ cust.cust-no
-          AND INDEX("CZ",oe-ord.stat) EQ 0 NO-ERROR.
-    IF AVAIL oe-ord THEN DO:
-        MESSAGE 
-        "Customer " + cust.cust-no + " - " + cust.NAME 
-        " has at least one Open Order ." SKIP 
-        "You can not make it Inactive. Please select another status."
-       VIEW-AS ALERT-BOX ERROR.
-
-        APPLY "entry" TO cust.active .
-      RETURN ERROR.
-    END.
-END.
-
-
-  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
