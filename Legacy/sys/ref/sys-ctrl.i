@@ -131,7 +131,7 @@ ASSIGN
  .
 ASSIGN
  str-init[51] = "None,CorrTrim,Alliance,HRMS,CorSuply,Corr-U-KraftII,GP," +
-                "Vendor,Kiwi,Smurfit,CorrChoice,Pratt,AlliFlutes,iPaper,KiwiT"  
+                "Vendor,Kiwi,Smurfit,CorrChoice,Pratt,AlliFlutes,iPaper,KiwiT,Liberty"  
  str-init[52] = "Percent,$/Pallet,$/MSF"
  str-init[53] = "AllItems,POOnly,None" 
  str-init[54] = "Sheet,Blank" 

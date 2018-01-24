@@ -59,8 +59,9 @@ DEFINE VARIABLE ls-fax-file       AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lv-multi-faxout   AS LOG  NO-UNDO.
 DEFINE VARIABLE lv-fax-image      AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lv-pdf-file       AS CHARACTER NO-UNDO.
-DEFINE VARIABLE lv-exp-form-list  AS CHARACTER NO-UNDO INIT "CorrTrim,Alliance,HRMS,CorSuply,Corr-U-KraftII,GP,Kiwi,Smurfit,CorrChoice,Pratt,AlliFlutes,iPaper,Kiwit".
-DEFINE VARIABLE lv-exp-prog-list  AS CHARACTER NO-UNDO INIT "po-ctexp,po-alexp,po-hrexp,po-csexp,po-ckexp,po-gpexp,po-kwexp,po-smurfi,po-ccexp,po-prexp,po-alnceexp,po-ipaper,po-ktexp".
+DEFINE VARIABLE lv-exp-form-list  AS CHARACTER NO-UNDO INIT "CorrTrim,Alliance,HRMS,CorSuply,Corr-U-KraftII,GP,Kiwi,Smurfit,CorrChoice,Pratt,AlliFlutes,iPaper,Kiwit,Liberty".
+DEFINE VARIABLE lv-exp-prog-list  AS CHARACTER NO-UNDO INIT "po-ctexp,po-alexp,po-hrexp,po-csexp,po-ckexp,po-gpexp,po-kwexp,po-smurfi,po-ccexp,po-prexp,~
+po-alnceexp,po-ipaper,po-ktexp,po-librt".
 DEFINE VARIABLE vcDefaultForm     AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lv-fax-type       AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lv-attachments    AS LOG  NO-UNDO.
