@@ -111,6 +111,7 @@ ll-sort-asc = NO /*oeinq*/.
           AND oe-ordl.cust-no BEGINS fi_cust-no ~
           AND oe-ordl.i-no BEGINS fi_i-no ~
           AND oe-ordl.part-no BEGINS fi_part-no ~
+          AND oe-ordl.po-no   BEGINS fi_po-no1 ~
           AND oe-ordl.est-no BEGINS fi_est-no ~
           AND oe-ordl.s-man[1] BEGINS fi_sman ~
           AND oe-ordl.job-no BEGINS fi_job-no ~
@@ -126,6 +127,7 @@ ll-sort-asc = NO /*oeinq*/.
           AND oe-ordl.cust-no BEGINS fi_cust-no ~
           AND oe-ordl.i-no MATCHES (IF INDEX(fi_i-no, '*') EQ 0 THEN '*' ELSE fi_i-no) ~
           AND oe-ordl.part-no MATCHES (IF INDEX(fi_part-no, '*') EQ 0 THEN '*' ELSE fi_part-no) ~
+          AND oe-ordl.po-no     MATCHES (IF index(fi_po-no1, "*") EQ 0 THEN "*" ELSE fi_po-no1) ~
           AND oe-ordl.est-no BEGINS fi_est-no ~
           AND oe-ordl.s-man[1] BEGINS fi_sman ~
           AND oe-ordl.job-no BEGINS fi_job-no ~
@@ -576,6 +578,12 @@ DEFINE FRAME F-Main
      "Job#" VIEW-AS TEXT
           SIZE 8 BY .71 AT ROW 1.24 COL 104
           FGCOLOR 9 FONT 6
+     "Estimate#" VIEW-AS TEXT
+          SIZE 12 BY .71 AT ROW 1.24 COL 90
+          FGCOLOR 9 FONT 6
+     "BrwsrColMode:" VIEW-AS TEXT
+          SIZE 16.6 BY 1 AT ROW 3.14 COL 115 WIDGET-ID 6
+          FONT 6
      "CAD#" VIEW-AS TEXT
           SIZE 8 BY .71 AT ROW 1.24 COL 119
           FGCOLOR 9 FONT 6
@@ -600,12 +608,6 @@ DEFINE FRAME F-Main
      "Cust PO#" VIEW-AS TEXT
           SIZE 18 BY .71 AT ROW 1.24 COL 70
           FGCOLOR 9 FONT 6
-     "Estimate#" VIEW-AS TEXT
-          SIZE 12 BY .71 AT ROW 1.24 COL 90
-          FGCOLOR 9 FONT 6
-     "BrwsrColMode:" VIEW-AS TEXT
-          SIZE 16.6 BY 1 AT ROW 3.14 COL 115 WIDGET-ID 6
-          FONT 6
      RECT-1 AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -979,6 +981,7 @@ DO:
                     AND (bf-oe-ordl.ord-no EQ fi_ord-no OR fi_ord-no EQ 0)
                     AND (bf-oe-ordl.est-no BEGINS fi_est-no OR fi_est-no EQ "")
                     AND (bf-oe-ordl.job-no BEGINS fi_job-no OR fi_job-no EQ "")
+                    AND (bf-oe-ordl.po-no BEGINS fi_po-no1 OR fi_po-no1 = "")
                     AND (bf-oe-ordl.s-man[1] BEGINS fi_sman OR fi_sman EQ "")
                   NO-ERROR.
              IF AVAILABLE bf-oe-ordl THEN DO:
@@ -1768,6 +1771,7 @@ PROCEDURE one-row-query :
   IF fi_cust-no EQ "" AND
      fi_i-no    EQ "" AND
      fi_part-no EQ "" AND
+     fi_po-no1  EQ "" AND
      fi_est-no  EQ "" AND
      fi_job-no  EQ "" THEN DO:
         &SCOPED-DEFINE joinScop OUTER-JOIN
