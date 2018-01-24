@@ -111,6 +111,7 @@ ll-sort-asc = NO /*oeinq*/.
           AND oe-ordl.cust-no BEGINS fi_cust-no ~
           AND oe-ordl.i-no BEGINS fi_i-no ~
           AND oe-ordl.part-no BEGINS fi_part-no ~
+          AND oe-ordl.po-no   BEGINS fi_po-no1 ~
           AND oe-ordl.est-no BEGINS fi_est-no ~
           AND oe-ordl.s-man[1] BEGINS fi_sman ~
           AND oe-ordl.job-no BEGINS fi_job-no ~
@@ -126,6 +127,7 @@ ll-sort-asc = NO /*oeinq*/.
           AND oe-ordl.cust-no BEGINS fi_cust-no ~
           AND oe-ordl.i-no MATCHES (IF INDEX(fi_i-no, '*') EQ 0 THEN '*' ELSE fi_i-no) ~
           AND oe-ordl.part-no MATCHES (IF INDEX(fi_part-no, '*') EQ 0 THEN '*' ELSE fi_part-no) ~
+          AND oe-ordl.po-no     MATCHES (IF index(fi_po-no1, "*") EQ 0 THEN "*" ELSE fi_po-no1) ~
           AND oe-ordl.est-no BEGINS fi_est-no ~
           AND oe-ordl.s-man[1] BEGINS fi_sman ~
           AND oe-ordl.job-no BEGINS fi_job-no ~
@@ -248,11 +250,11 @@ AND itemfg.i-no EQ oe-ordl.i-no OUTER-JOIN NO-LOCK ~
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS tb_web fi_ord-no fi_cust-no fi_i-no ~
-fi_part-no fi_est-no fi_job-no fi_job-no2 fi_cad-no fi_sman btn_go btn_prev ~
-Browser-Table fi_i-name RECT-1 
+fi_part-no fi_po-no1 fi_est-no fi_job-no fi_job-no2 fi_cad-no fi_sman ~
+btn_go btn_prev Browser-Table fi_i-name RECT-1 
 &Scoped-Define DISPLAYED-OBJECTS tb_web fi_ord-no fi_cust-no fi_i-no ~
-fi_part-no fi_est-no fi_job-no fi_job-no2 fi_cad-no fi_sman fi_sort-by ~
-FI_moveCol fi_i-name 
+fi_part-no fi_po-no1 fi_est-no fi_job-no fi_job-no2 fi_cad-no fi_sman ~
+fi_sort-by FI_moveCol fi_i-name 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -403,7 +405,7 @@ DEFINE VARIABLE fi_i-name AS CHARACTER FORMAT "X(30)":U
 
 DEFINE VARIABLE fi_i-no AS CHARACTER FORMAT "X(15)":U 
      VIEW-AS FILL-IN 
-     SIZE 30 BY 1
+     SIZE 20 BY 1
      BGCOLOR 15  NO-UNDO.
 
 DEFINE VARIABLE fi_job-no AS CHARACTER FORMAT "X(6)":U 
@@ -428,7 +430,12 @@ DEFINE VARIABLE fi_ord-no AS INTEGER FORMAT ">>>>>>>>":U INITIAL 0
 
 DEFINE VARIABLE fi_part-no AS CHARACTER FORMAT "X(15)":U 
      VIEW-AS FILL-IN 
-     SIZE 30 BY 1
+     SIZE 20 BY 1
+     BGCOLOR 15  NO-UNDO.
+
+DEFINE VARIABLE fi_po-no1 AS CHARACTER FORMAT "X(15)":U 
+     VIEW-AS FILL-IN 
+     SIZE 20 BY 1
      BGCOLOR 15  NO-UNDO.
 
 DEFINE VARIABLE fi_sman AS CHARACTER FORMAT "X(3)":U 
@@ -553,7 +560,8 @@ DEFINE FRAME F-Main
      fi_ord-no AT ROW 1.95 COL 2 NO-LABEL
      fi_cust-no AT ROW 1.95 COL 14 COLON-ALIGNED NO-LABEL
      fi_i-no AT ROW 1.95 COL 28 COLON-ALIGNED NO-LABEL
-     fi_part-no AT ROW 1.95 COL 58 COLON-ALIGNED NO-LABEL
+     fi_part-no AT ROW 1.95 COL 48 COLON-ALIGNED NO-LABEL
+     fi_po-no1 AT ROW 1.95 COL 68 COLON-ALIGNED NO-LABEL
      fi_est-no AT ROW 1.95 COL 88 COLON-ALIGNED NO-LABEL
      fi_job-no AT ROW 1.95 COL 102 COLON-ALIGNED NO-LABEL
      fi_job-no2 AT ROW 1.95 COL 113 COLON-ALIGNED NO-LABEL
@@ -589,13 +597,16 @@ DEFINE FRAME F-Main
           SIZE 13 BY .71 AT ROW 1.24 COL 16
           FGCOLOR 9 FONT 6
      "FG Item#/Name" VIEW-AS TEXT
-          SIZE 19 BY .71 AT ROW 1.24 COL 30.8
+          SIZE 19 BY .71 AT ROW 1.24 COL 30
           FGCOLOR 9 FONT 6
      "Cust Part#" VIEW-AS TEXT
-          SIZE 13 BY .71 AT ROW 1.24 COL 62
+          SIZE 13 BY .71 AT ROW 1.24 COL 50
           FGCOLOR 9 FONT 6
      "REP#" VIEW-AS TEXT
           SIZE 6.6 BY .71 AT ROW 1.24 COL 140.2 WIDGET-ID 12
+          FGCOLOR 9 FONT 6
+     "Cust PO#" VIEW-AS TEXT
+          SIZE 18 BY .71 AT ROW 1.24 COL 70
           FGCOLOR 9 FONT 6
      RECT-1 AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
@@ -943,6 +954,7 @@ DO:
       fi_part-no
       fi_cust-no
       fi_ord-no
+      fi_po-no1
       fi_est-no
       fi_job-no
       fi_job-no2
@@ -969,6 +981,7 @@ DO:
                     AND (bf-oe-ordl.ord-no EQ fi_ord-no OR fi_ord-no EQ 0)
                     AND (bf-oe-ordl.est-no BEGINS fi_est-no OR fi_est-no EQ "")
                     AND (bf-oe-ordl.job-no BEGINS fi_job-no OR fi_job-no EQ "")
+                    AND (bf-oe-ordl.po-no BEGINS fi_po-no1 OR fi_po-no1 = "")
                     AND (bf-oe-ordl.s-man[1] BEGINS fi_sman OR fi_sman EQ "")
                   NO-ERROR.
              IF AVAILABLE bf-oe-ordl THEN DO:
@@ -1758,6 +1771,7 @@ PROCEDURE one-row-query :
   IF fi_cust-no EQ "" AND
      fi_i-no    EQ "" AND
      fi_part-no EQ "" AND
+     fi_po-no1  EQ "" AND
      fi_est-no  EQ "" AND
      fi_job-no  EQ "" THEN DO:
         &SCOPED-DEFINE joinScop OUTER-JOIN
@@ -1886,6 +1900,7 @@ PROCEDURE record-added :
      fi_part-no
      fi_cust-no
      fi_ord-no
+     fi_po-no1
      fi_est-no
      fi_job-no
      fi_job-no2
@@ -2115,6 +2130,7 @@ PROCEDURE set-defaults :
       fi_i-no:SCREEN-VALUE    = ""
       fi_part-no:SCREEN-VALUE = ""
       fi_ord-no:SCREEN-VALUE  = ""
+      fi_po-no1:SCREEN-VALUE  = ""
       fi_est-no:SCREEN-VALUE  = ""
       fi_job-no:SCREEN-VALUE  = ""
       fi_job-no2:SCREEN-VALUE = "" 
