@@ -248,11 +248,11 @@ AND itemfg.i-no EQ oe-ordl.i-no OUTER-JOIN NO-LOCK ~
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS tb_web fi_ord-no fi_cust-no fi_i-no ~
-fi_part-no fi_po-no1 fi_est-no fi_job-no fi_job-no2 fi_cad-no fi_sman ~
-btn_go btn_prev Browser-Table fi_i-name RECT-1 
+fi_part-no fi_est-no fi_job-no fi_job-no2 fi_cad-no fi_sman btn_go btn_prev ~
+Browser-Table fi_i-name RECT-1 
 &Scoped-Define DISPLAYED-OBJECTS tb_web fi_ord-no fi_cust-no fi_i-no ~
-fi_part-no fi_po-no1 fi_est-no fi_job-no fi_job-no2 fi_cad-no fi_sman ~
-fi_sort-by FI_moveCol fi_i-name 
+fi_part-no fi_est-no fi_job-no fi_job-no2 fi_cad-no fi_sman fi_sort-by ~
+FI_moveCol fi_i-name 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -403,7 +403,7 @@ DEFINE VARIABLE fi_i-name AS CHARACTER FORMAT "X(30)":U
 
 DEFINE VARIABLE fi_i-no AS CHARACTER FORMAT "X(15)":U 
      VIEW-AS FILL-IN 
-     SIZE 20 BY 1
+     SIZE 30 BY 1
      BGCOLOR 15  NO-UNDO.
 
 DEFINE VARIABLE fi_job-no AS CHARACTER FORMAT "X(6)":U 
@@ -428,12 +428,7 @@ DEFINE VARIABLE fi_ord-no AS INTEGER FORMAT ">>>>>>>>":U INITIAL 0
 
 DEFINE VARIABLE fi_part-no AS CHARACTER FORMAT "X(15)":U 
      VIEW-AS FILL-IN 
-     SIZE 20 BY 1
-     BGCOLOR 15  NO-UNDO.
-
-DEFINE VARIABLE fi_po-no1 AS CHARACTER FORMAT "X(15)":U 
-     VIEW-AS FILL-IN 
-     SIZE 20 BY 1
+     SIZE 30 BY 1
      BGCOLOR 15  NO-UNDO.
 
 DEFINE VARIABLE fi_sman AS CHARACTER FORMAT "X(3)":U 
@@ -558,8 +553,7 @@ DEFINE FRAME F-Main
      fi_ord-no AT ROW 1.95 COL 2 NO-LABEL
      fi_cust-no AT ROW 1.95 COL 14 COLON-ALIGNED NO-LABEL
      fi_i-no AT ROW 1.95 COL 28 COLON-ALIGNED NO-LABEL
-     fi_part-no AT ROW 1.95 COL 48 COLON-ALIGNED NO-LABEL
-     fi_po-no1 AT ROW 1.95 COL 68 COLON-ALIGNED NO-LABEL
+     fi_part-no AT ROW 1.95 COL 58 COLON-ALIGNED NO-LABEL
      fi_est-no AT ROW 1.95 COL 88 COLON-ALIGNED NO-LABEL
      fi_job-no AT ROW 1.95 COL 102 COLON-ALIGNED NO-LABEL
      fi_job-no2 AT ROW 1.95 COL 113 COLON-ALIGNED NO-LABEL
@@ -576,6 +570,12 @@ DEFINE FRAME F-Main
      "Job#" VIEW-AS TEXT
           SIZE 8 BY .71 AT ROW 1.24 COL 104
           FGCOLOR 9 FONT 6
+     "Estimate#" VIEW-AS TEXT
+          SIZE 12 BY .71 AT ROW 1.24 COL 90
+          FGCOLOR 9 FONT 6
+     "BrwsrColMode:" VIEW-AS TEXT
+          SIZE 16.6 BY 1 AT ROW 3.14 COL 115 WIDGET-ID 6
+          FONT 6
      "CAD#" VIEW-AS TEXT
           SIZE 8 BY .71 AT ROW 1.24 COL 119
           FGCOLOR 9 FONT 6
@@ -589,23 +589,14 @@ DEFINE FRAME F-Main
           SIZE 13 BY .71 AT ROW 1.24 COL 16
           FGCOLOR 9 FONT 6
      "FG Item#/Name" VIEW-AS TEXT
-          SIZE 19 BY .71 AT ROW 1.24 COL 30
+          SIZE 19 BY .71 AT ROW 1.24 COL 30.8
           FGCOLOR 9 FONT 6
      "Cust Part#" VIEW-AS TEXT
-          SIZE 13 BY .71 AT ROW 1.24 COL 50
+          SIZE 13 BY .71 AT ROW 1.24 COL 62
           FGCOLOR 9 FONT 6
      "REP#" VIEW-AS TEXT
           SIZE 6.6 BY .71 AT ROW 1.24 COL 140.2 WIDGET-ID 12
           FGCOLOR 9 FONT 6
-     "Cust PO#" VIEW-AS TEXT
-          SIZE 18 BY .71 AT ROW 1.24 COL 70
-          FGCOLOR 9 FONT 6
-     "Estimate#" VIEW-AS TEXT
-          SIZE 12 BY .71 AT ROW 1.24 COL 90
-          FGCOLOR 9 FONT 6
-     "BrwsrColMode:" VIEW-AS TEXT
-          SIZE 16.6 BY 1 AT ROW 3.14 COL 115 WIDGET-ID 6
-          FONT 6
      RECT-1 AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -952,7 +943,6 @@ DO:
       fi_part-no
       fi_cust-no
       fi_ord-no
-      fi_po-no1
       fi_est-no
       fi_job-no
       fi_job-no2
@@ -1896,7 +1886,6 @@ PROCEDURE record-added :
      fi_part-no
      fi_cust-no
      fi_ord-no
-     fi_po-no1
      fi_est-no
      fi_job-no
      fi_job-no2
@@ -2126,7 +2115,6 @@ PROCEDURE set-defaults :
       fi_i-no:SCREEN-VALUE    = ""
       fi_part-no:SCREEN-VALUE = ""
       fi_ord-no:SCREEN-VALUE  = ""
-      fi_po-no1:SCREEN-VALUE  = ""
       fi_est-no:SCREEN-VALUE  = ""
       fi_job-no:SCREEN-VALUE  = ""
       fi_job-no2:SCREEN-VALUE = "" 
