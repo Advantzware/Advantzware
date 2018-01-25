@@ -1068,7 +1068,6 @@ PROCEDURE create-export :
 ------------------------------------------------------------------------------*/
   DEFINE INPUT PARAMETER ip-export AS CHARACTER NO-UNDO.
 
-
   CREATE w-export.
   w-exp-prog = ENTRY(LOOKUP(ip-export,lv-exp-form-list),lv-exp-prog-list).
 

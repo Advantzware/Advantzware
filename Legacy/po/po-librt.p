@@ -75,7 +75,7 @@ end.
 assign
     liberty-dir = sys-ctrl.descrip
     liberty-log = sys-ctrl.log-fld.
-
+RELEASE sys-ctrl.
 /* ************************  Function Prototypes ********************** */
 FUNCTION fInsText RETURNS LOGICAL 
     (INPUT ipiStartPos AS INTEGER,
@@ -120,8 +120,8 @@ IF AVAILABLE cust AND liberty-log AND liberty-dir NE "" THEN
         FIRST vend
            WHERE vend.company EQ po-ord.company
              AND vend.vend-no EQ po-ord.vend-no
-             AND (vend.po-export EQ "HRMS" OR
-               (poexport-cha  EQ "HRMS" AND vend.an-edi-vend))
+             AND (vend.po-export EQ "Liberty" OR
+               (poexport-cha  EQ "Liberty" AND vend.an-edi-vend))
         NO-LOCK
         BY po-ord.po-no.
 
@@ -145,7 +145,7 @@ IF AVAILABLE cust AND liberty-log AND liberty-dir NE "" THEN
         ASSIGN
             v-outfile[1] = TRIM(liberty-dir) + v-slash + "dataxfer" +
                   v-slash + "in" + v-slash
-            v-outfile[2] = "EDIPOH" + "44" /* Edi Sender ID */
+            v-outfile[2] = "EDIPOH" + "1244073" /* Edi Sender ID */ + USERID("asi")
             v-outfile[3] = 
                   substr(STRING(YEAR(TODAY),"9999"),3,2) +
                   string(MONTH(TODAY),"99") +
@@ -158,11 +158,11 @@ IF AVAILABLE cust AND liberty-log AND liberty-dir NE "" THEN
        
         OUTPUT STREAM sEDIPOH to value(v-outfile[4]).
         
-        v-outfile[2] = "EDIPOD" + "44".
+        v-outfile[2] = "EDIPOD" + "1244073" /* Edi Sender ID */ + USERID("asi").
         v-outfile[4] = v-outfile[1] + v-outfile[2] + v-outfile[3].
         OUTPUT STREAM sEDIPOD to value(v-outfile[4]).
         
-        v-outfile[2] = "EDIPOITEM" + "44".
+        v-outfile[2] = "EDIPOITEM" + "1244073" /* Edi Sender ID */ + USERID("asi").
         v-outfile[4] = v-outfile[1] + v-outfile[2] + v-outfile[3].
         OUTPUT STREAM sEDIPOITEM to value(v-outfile[4]).
         
@@ -230,10 +230,10 @@ IF AVAILABLE cust AND liberty-log AND liberty-dir NE "" THEN
         fInsText(  467,   30, ""              ) . /* not used */
         fInsText(  498,   35, ""              ). /* not used */
         fInsText(  534,   10, STRING(po-ord.due-date, "99/99/9999")).
-        fInsText(  545,    2, v-freight-dscr  ). /* freight terms */
+        fInsText(  545,    2, ""              ). /* freight terms - can be blank */
         fInsText(  548,   35, v-saddr[1]      ).
         fInsText(  584,   35, v-saddr[2]      ).
-        fInsText(  620,   30, po-ord.contact              ). /* ship to contact */
+        fInsText(  620,   30, po-ord.contact  ). /* ship to contact */
         fInsText(  651,   19, v-scity         ).
         fInsText(  671,   17, ""              ). /* not used */
         fInsText(  689,   35, cust.name       ). /* ship to company name */
@@ -245,7 +245,7 @@ IF AVAILABLE cust AND liberty-log AND liberty-dir NE "" THEN
         fInsText(  761,    1, "P"             ). /* test or prod */
         fInsText(  763,    1, ""              ). /* not used */
         fInsText(  765,   20, ""              ). /* not used */
-        fInsText(  786,   30, po-ord.contact). /* user */
+        fInsText(  786,   30, po-ord.contact  ). /* user */
         fInsText(  817,   10, STRING(po-ord.t-cost)).
         fInsText(  828,   10, STRING(po-ord.po-date, "99/99/9999")).
         cOutLine = TRIM(cOutLine, ",").
@@ -591,10 +591,10 @@ IF AVAILABLE cust AND liberty-log AND liberty-dir NE "" THEN
             /* Check this ! */
             fInsText( 11, 8,STRING({sys/inc/k16.i po-ordl.s-wid})). 
             fInsText( 20, 8,STRING({sys/inc/k16.i po-ordl.s-len})).
-            fInsText( 29, 12, "po-ordl.i-no"         ). /* base board grade */
-            fInsText( 42, 1,  ""         ).  /* adhesive code */
-            fInsText( 44, 3,  "1"        ).  /* plant number */
-            fInsText( 48, 254, ""        ). /* mil score */
+            fInsText( 29, 12, po-ordl.i-no  ). /* base board grade */
+            fInsText( 42, 1,  ""            ).  /* adhesive code */
+            fInsText( 44, 3,  "1"           ).  /* plant number */
+            fInsText( 48, 254, ""           ). /* mil score */
             fInsText( 303, 3, v-adder[1]    ). /* first board adder */
             fInsText( 307, 3, v-adder[2]    ). /* 2nd board adder */
             fInsText( 311, 3, v-adder[3]    ). /* 3rd board adder */
@@ -617,7 +617,7 @@ IF AVAILABLE cust AND liberty-log AND liberty-dir NE "" THEN
             
         END. /* for each po-ordl record */      
 
-            RUN po/ftppo.p (v-outfile[4],"HRMS"). 
+            RUN po/ftppo.p (v-outfile[4],"Liberty"). 
             MESSAGE "Liberty file:" TRIM(v-outfile[3]) "has been created" 
                 VIEW-AS ALERT-BOX.
       
