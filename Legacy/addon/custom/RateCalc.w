@@ -26,7 +26,8 @@
      by this procedure. This is a good default which assures
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
-     cleanup will occur on deletion of the procedure. */
+     cleanup will occur on deletion of the procedure.  */ 
+     
 
 CREATE WIDGET-POOL.
 
