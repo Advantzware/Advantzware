@@ -1465,7 +1465,6 @@ PROCEDURE valid-entry :
         AND bf-oe-prmtx.i-no EQ oe-prmtx.i-no:SCREEN-VALUE IN FRAME {&FRAME-NAME}
         AND bf-oe-prmtx.procat EQ oe-prmtx.procat:SCREEN-VALUE IN FRAME {&FRAME-NAME}
         AND bf-oe-prmtx.custype EQ oe-prmtx.custype:SCREEN-VALUE IN FRAME {&FRAME-NAME}
-        AND bf-oe-prmtx.eff-date EQ date(oe-prmtx.eff-date:SCREEN-VALUE IN FRAME {&FRAME-NAME})
       AND rowid(bf-oe-prmtx) NE rowid(oe-prmtx) NO-ERROR .
 
   IF AVAIL bf-oe-prmtx THEN DO:
