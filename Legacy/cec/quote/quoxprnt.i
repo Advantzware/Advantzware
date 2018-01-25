@@ -203,9 +203,9 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
 
        ELSE
        IF NOT logSetPrinting AND AVAIL ef THEN DO:
-           DO i = 1 TO 6:
-               IF ef.adder[i] NE "" THEN
-                  v-board = v-board + ef.adder[i] + ",".
+           DO j = 1 TO 6:
+               IF ef.adder[j] NE "" THEN
+                  v-board = v-board + ef.adder[j] + ",".
            END.
            v-board = SUBSTRING(v-board,1,LENGTH(v-board) - 1).
          adder-print = YES.
@@ -249,10 +249,10 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
          IF v-board EQ chrX THEN DO:
             v-board = "".
             IF AVAIL ef THEN DO:
-                DO i = 1 TO 6:
-                    IF ef.adder[i] NE "" THEN
+                DO j = 1 TO 6:
+                    IF ef.adder[j] NE "" THEN
                         ASSIGN
-                        v-board = v-board + ef.adder[i] + ",".
+                        v-board = v-board + ef.adder[j] + ",".
                 END.
                 v-board = SUBSTRING(v-board,1,LENGTH(v-board) - 1).
                 adder-print = YES.
@@ -268,9 +268,9 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
         
        v-board = "".
        IF NOT adder-print AND NOT logSetPrinting AND AVAIL ef THEN DO:
-           DO i = 1 TO 6:
-               IF ef.adder[i] NE "" THEN
-                   v-board = v-board + ef.adder[i] + ",".
+           DO j = 1 TO 6:
+               IF ef.adder[j] NE "" THEN
+                   v-board = v-board + ef.adder[j] + ",".
            END.
            v-board = SUBSTRING(v-board,1,LENGTH(v-board) - 1).
        END.
@@ -314,7 +314,6 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
            {cec/quote/quoxpnt2.i}
        PUT SKIP(1).
        END.
-
        
        PUT "<C48>" xqqty.qty FORMAT ">>>>>>>9"  SPACE(1)
            xqqty.rels space(5)
