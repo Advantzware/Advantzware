@@ -56,7 +56,7 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
   END.
 
   
-  IF numfit < 8  THEN numfit = 8.
+  IF numfit < 10  THEN numfit = 10.
   
 
 
@@ -91,7 +91,10 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
            PUT xquo.q-no "<C21>" xqitm.part-dscr2  .
            lPrintSecDscr = YES .
       END.
-       ELSE NEXT .
+       ELSE do:
+            numfit = numfit + 1 .
+            NEXT .
+       END.
     END.
 
     ELSE
@@ -117,7 +120,10 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
       IF lPrintSecDscr THEN do: 
           IF style-dscr NE "" THEN
               PUT "<C21>" style-dscr FORM "x(30)" .
-          ELSE NEXT .
+          ELSE do:
+            numfit = numfit + 1 .
+            NEXT .
+          END.
       END.
       ELSE 
           PUT  xquo.q-no   "<C21>" style-dscr  FORM "x(30)" .
@@ -165,14 +171,20 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
       END.
       IF trim-size NE "" THEN
           PUT  "<C21>" trim-size  FORM "x(30)" .
-      ELSE NEXT .
+      ELSE do:
+            numfit = numfit + 1 .
+            NEXT .
+      END.
     END.
 
     ELSE
     IF i EQ 5 THEN DO:   
      IF  xqitm.i-coldscr NE "" THEN
        PUT "<C21>" xqitm.i-coldscr   FORM "x(30)".
-     ELSE NEXT .
+     ELSE do:
+            numfit = numfit + 1 .
+            NEXT .
+     END.
     END.
 
     ELSE
@@ -180,7 +192,10 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
        IF xqitm.i-dscr NE "" THEN  DO:
          PUT "<C21>" xqitm.i-dscr  FORMAT "x(30)".
        END.
-       ELSE NEXT .
+       ELSE do:
+            numfit = numfit + 1 .
+            NEXT .
+       END.
     END.
 
     ELSE
@@ -206,6 +221,14 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
 
     ELSE
     IF i EQ 8  THEN DO:  
+       PUT "<C21>DIE#: " + (IF AVAIL eb THEN eb.die-no ELSE "") FORM "x(30)"  .
+    END.
+    ELSE
+    IF i EQ 9  THEN DO: 
+       PUT "<C21>CAD#: " + (IF AVAIL eb THEN eb.cad-no ELSE "")  FORM "x(30)" .
+    END.
+    ELSE
+    IF i EQ 10  THEN DO:  
         
        v-board = "".
        
@@ -214,16 +237,13 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
                    v-board = v-board + ef.adder[j] + ",".
            END.
            v-board = SUBSTRING(v-board,1,LENGTH(v-board) - 1).
-      
-
-       PUT "<C21>DIE#: " + (IF AVAIL eb THEN eb.die-no ELSE "") FORM "x(30)" SKIP .
-       PUT "<C21>CAD#: " + (IF AVAIL eb THEN eb.cad-no ELSE "")  FORM "x(30)" SKIP.
+       
        IF v-board NE "" THEN 
            PUT "<C21>" v-board FORMAT "x(72)".
       
     END.
 
-    IF i GT 8 THEN PUT SPACE(58) .
+    IF i GT 10 THEN PUT SPACE(58) .
 
    IF AVAIL xqqty THEN DO:
        xxx    = IF xqqty.uom EQ "L" THEN xqqty.price    ELSE
