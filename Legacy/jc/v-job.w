@@ -1454,7 +1454,7 @@ PROCEDURE Rebuild-Stds :
              WHERE eb.company EQ cocode
                AND eb.est-no EQ job.est-no 
                AND eb.stock EQ job-hdr.i-no  NO-ERROR.
-         IF AVAIL eb AND eb.pur-man NE itemfg.pur-man THEN DO:
+         IF AVAIL eb AND eb.pur-man NE itemfg.pur-man AND NOT itemfg.isaset  THEN DO:
              MESSAGE "FG Item file indicates item is (x) (which would be either purchased " SKIP
                 "or manufactured) while estimate indicates it is (y) - These should be" SKIP
                 " set the same." VIEW-AS ALERT-BOX WARNING . 

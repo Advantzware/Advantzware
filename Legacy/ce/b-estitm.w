@@ -1570,7 +1570,7 @@ DO:
    
     lChackLog = IF eb.pur-man:SCREEN-VALUE IN BROWSE br-estitm EQ "P" THEN TRUE ELSE FALSE .
     IF AVAIL bf-itemfg AND eb.pur-man:SCREEN-VALUE IN BROWSE br-estitm NE ""
-        AND bf-itemfg.pur-man NE lChackLog  THEN do:
+        AND bf-itemfg.pur-man NE lChackLog AND NOT bf-itemfg.isaset   THEN do:
         MESSAGE "FG Item file indicates item is (x) (which would be either purchased " SKIP
                 "or manufactured) while estimate indicates it is (y) - These should be" SKIP
                 " set the same." VIEW-AS ALERT-BOX WARNING .  
