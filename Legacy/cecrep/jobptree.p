@@ -446,7 +446,7 @@ ASSIGN
        PUT "<P10></PROGRESS>" SKIP(0.5) "<FCourier New><C2><B>" lv-au "<C33>" lv-est-type "</B>".
        PUT "<P12><B><C95>JOB TICKET" SKIP. /*AT 140*/  /*caps(SUBSTRING(v-fg,1,1)) FORM "x" AT 40*/       
       
-       PUT UNFORMATTED "<r-2.7><UNITS=INCHES><C71><FROM><c95.8><r+2.7><BARCODE,TYPE=39,CHECKSUM=NONE,VALUE="
+       PUT UNFORMATTED "<r-2.7><UNITS=INCHES><C68><FROM><c95.8><r+2.7><BARCODE,TYPE=39,CHECKSUM=NONE,VALUE="
               cJobNumber ">" SKIP "<r-1>".
        PUT
        "<#1><C1><FROM><C106><R+45><RECT><||3><C80><P10></B>" v-qa-text "<B>"
