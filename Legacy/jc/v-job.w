@@ -1442,6 +1442,29 @@ PROCEDURE Rebuild-Stds :
          UNDO, RETURN.
      END.
 
+     FOR EACH job-hdr FIELDS(company est-no i-no) 
+         where job-hdr.company EQ job.company
+           and job-hdr.job     EQ job.job
+           and job-hdr.job-no  EQ job.job-no
+         and job-hdr.job-no2 EQ job.job-no2 NO-LOCK ,
+         FIRST itemfg FIELDS(pur-man) WHERE
+               itemfg.company EQ job-hdr.company AND
+               itemfg.i-no EQ job-hdr.i-no NO-LOCK:
+         FIND FIRST eb NO-LOCK
+             WHERE eb.company EQ cocode
+               AND eb.est-no EQ job.est-no 
+               AND eb.stock EQ job-hdr.i-no  NO-ERROR.
+         IF AVAIL eb AND eb.pur-man NE itemfg.pur-man THEN DO:
+             MESSAGE "FG Item file indicates item is (x) (which would be either purchased " SKIP
+                "or manufactured) while estimate indicates it is (y) - These should be" SKIP
+                " set the same." VIEW-AS ALERT-BOX WARNING . 
+             LEAVE .
+         END.
+
+     END.
+          
+
+
      FOR EACH job-mat FIELDS(company all-flg rm-i-no) WHERE
          job-mat.company = job.company AND
          job-mat.job = job.job AND
