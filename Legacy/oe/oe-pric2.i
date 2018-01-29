@@ -114,7 +114,7 @@ if avail itemfg and itemfg.i-code eq "S" then do:
         AND oe-prmtx.procat              EQ itemfg.procat
         AND oe-prmtx.i-no                BEGINS v-i-item
         AND SUBSTR(oe-prmtx.i-no,01,100) EQ v-i-item
-        AND oe-prmtx.eff-date LE        TODAY
+        AND (oe-prmtx.exp-date GE        TODAY OR oe-prmtx.exp-date EQ ?)
       BY oe-prmtx.eff-date DESC:
 /*         AND SUBSTR(oe-prmtx.i-no,101,8)  LE lv-date  */
 /*       BY SUBSTR(oe-prmtx.i-no,101,8) DESC:         */
@@ -130,7 +130,7 @@ if avail itemfg and itemfg.i-code eq "S" then do:
           AND oe-prmtx.procat              EQ itemfg.procat
           AND oe-prmtx.i-no                BEGINS v-i-item
           AND SUBSTR(oe-prmtx.i-no,01,100) EQ v-i-item
-        AND oe-prmtx.eff-date LE        TODAY
+        AND (oe-prmtx.exp-date GE        TODAY OR oe-prmtx.exp-date EQ ?)
       BY oe-prmtx.eff-date DESC:
 /*         AND SUBSTR(oe-prmtx.i-no,101,8)  LE lv-date  */
 /*       BY SUBSTR(oe-prmtx.i-no,101,8) DESC:         */
@@ -144,7 +144,7 @@ if avail itemfg and itemfg.i-code eq "S" then do:
           AND oe-prmtx.cust-no             EQ ""
           AND oe-prmtx.procat              EQ itemfg.procat
           AND SUBSTR(oe-prmtx.i-no,01,100) EQ ""
-        AND oe-prmtx.eff-date LE        TODAY
+        AND (oe-prmtx.exp-date GE        TODAY OR oe-prmtx.exp-date EQ ?)
       BY oe-prmtx.eff-date DESC:
 /*         AND SUBSTR(oe-prmtx.i-no,101,8)  LE lv-date  */
 /*       BY SUBSTR(oe-prmtx.i-no,101,8) DESC:         */
@@ -159,7 +159,7 @@ if avail itemfg and itemfg.i-code eq "S" then do:
           AND oe-prmtx.procat              EQ itemfg.procat
           AND oe-prmtx.i-no                BEGINS v-i-item
           AND SUBSTR(oe-prmtx.i-no,01,100) EQ v-i-item
-        AND oe-prmtx.eff-date LE        TODAY
+        AND (oe-prmtx.exp-date GE        TODAY OR oe-prmtx.exp-date EQ ?)
       BY oe-prmtx.eff-date DESC:
 /*         AND SUBSTR(oe-prmtx.i-no,101,8)  LE lv-date  */
 /*       BY SUBSTR(oe-prmtx.i-no,101,8) DESC:         */
@@ -174,7 +174,7 @@ if avail itemfg and itemfg.i-code eq "S" then do:
           AND oe-prmtx.procat              EQ ""
           AND oe-prmtx.i-no                BEGINS v-i-item
           AND SUBSTR(oe-prmtx.i-no,01,100) EQ v-i-item
-        AND oe-prmtx.eff-date LE        TODAY
+        AND (oe-prmtx.exp-date GE        TODAY OR oe-prmtx.exp-date EQ ?)
       BY oe-prmtx.eff-date DESC:
 /*         AND SUBSTR(oe-prmtx.i-no,101,8)  LE lv-date  */
 /*       BY SUBSTR(oe-prmtx.i-no,101,8) DESC:         */
