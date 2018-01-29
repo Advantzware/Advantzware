@@ -1673,11 +1673,14 @@ PROCEDURE calc-fields :
 
     DO WITH FRAME {&FRAME-NAME}:
       voverall:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(voverall (0)).
+      dMatPctSellPrice:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(fDirectMatPctSellPrice()).
       IF lv-changed2 NE "S" THEN 
         probe.gross-profit:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(display-gp (0)).
     END.
     RUN recalc-multicell.
+     
     RUN save-fields.
+
   END.
 
 END PROCEDURE.
@@ -4467,9 +4470,11 @@ FUNCTION fDirectMatPctSellPrice RETURNS DECIMAL
  Notes: Ticket 24941 
 ------------------------------------------------------------------------------*/
         DEFINE VARIABLE dMatPct AS DECIMAL NO-UNDO.
+        DEFINE VARIABLE dPrice AS DECIMAL NO-UNDO.
     
-    IF AVAILABLE probe AND probe.sell-price GT 0 THEN 
-        dMatPct = probe.spare-dec-1 / probe.sell-price * 100.
+    dPrice = DEC(probe.sell-price:SCREEN-VALUE IN BROWSE {&browse-name}).
+    IF AVAILABLE probe AND dPrice GT 0 THEN 
+        dMatPct = probe.spare-dec-1 / dPrice * 100.
     
         RETURN dMatPct.
 
