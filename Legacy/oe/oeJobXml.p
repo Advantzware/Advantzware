@@ -21,7 +21,8 @@ DEFINE VARIABLE lFormatted      AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cEncoding       AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cSchemaLocation AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cItemOnOrder    AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cCustPart AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cCustPart       AS CHARACTER NO-UNDO.
+DEFINE VARIABLE rItemfgRow      AS ROWID NO-UNDO.
 DEFINE VARIABLE lWriteSchema    AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lMinSchema      AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lRetOK          AS LOGICAL   NO-UNDO.
@@ -126,7 +127,11 @@ FOR EACH EDDoc EXCLUSIVE-LOCK WHERE ROWID(EDDoc) EQ iprEdDoc,
             FIND FIRST cust NO-LOCK WHERE cust.company EQ job-hdr.company
                 AND cust.cust-no EQ job-hdr.cust-no
                 NO-ERROR.
-    
+            
+            rItemfgRow = ROWID(itemfg).
+            cCustPart = itemfg.part-no.
+            RUN custom/getcpart.p (INPUT cust.company, INPUT cust.cust-no, 
+                                   INPUT-OUTPUT cCustPart, INPUT-OUTPUT rItemfgRow).
     
             cSheetBlank = STRING(job-hdr.frm, "9") + string(job-hdr.blank-no, "9") .
     
@@ -149,15 +154,7 @@ FOR EACH EDDoc EXCLUSIVE-LOCK WHERE ROWID(EDDoc) EQ iprEdDoc,
                     ttTempjob.ItemStatus = (IF itemfg.stat EQ "A" THEN "Active" ELSE "Inactive") 
                     ttTempjob.FgCategory = itemfg.procat-desc
                     .
-                FIND FIRST oe-ordl NO-LOCK
-                    WHERE oe-ordl.company EQ job-hdr.company
-                    AND oe-ordl.ord-no EQ job-hdr.ord-no
-                    AND oe-ordl.job-no EQ job-hdr.job-no
-                    AND oe-ordl.job-no2 EQ job-hdr.job-no2
-                    AND oe-ordl.i-no   EQ cItemOnOrder /*job-hdr.i-no*/
-                    NO-ERROR.
-                cCustPart = (IF AVAILABLE oe-ordl THEN oe-ordl.part-no ELSE IF AVAILABLE itemfg THEN itemfg.part-no ELSE "").
-                
+
                 /* Override of itemfg.procat-desc to match logic in viewers/itemfg.w */    
                 FIND FIRST fgcat NO-LOCK WHERE fgcat.company = job-hdr.company 
                                            AND fgcat.procat = itemfg.procat
