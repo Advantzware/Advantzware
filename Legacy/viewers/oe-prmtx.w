@@ -1107,6 +1107,8 @@ PROCEDURE local-create-record :
   IF adm-adding-record THEN
   DO WITH FRAME {&FRAME-NAME}:
     eff-date:SCREEN-VALUE = STRING(TODAY,"99/99/9999").
+    oe-prmtx.exp-date:SCREEN-VALUE =  "12/31/2099"  .
+    oe-prmtx.exp-date = 12/31/2099 .
   END.
 
 END PROCEDURE.
