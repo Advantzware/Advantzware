@@ -104,7 +104,9 @@ FOR EACH ipbf-oe-prmtx
            OR SUBSTR(ipbf-oe-prmtx.i-no,01,100) NE "")
       AND ipbf-oe-prmtx.i-no BEGINS bf-itemfg.i-no
       AND SUBSTR(ipbf-oe-prmtx.i-no,01,100) EQ bf-itemfg.i-no
-      AND (ipbf-oe-prmtx.exp-date GE TODAY OR ipbf-oe-prmtx.exp-date EQ ?)
+      AND ipbf-oe-prmtx.eff-date LE TODAY
+      AND (ipbf-oe-prmtx.exp-date GE TODAY OR ipbf-oe-prmtx.exp-date EQ ?
+            OR ipbf-oe-prmtx.exp-date EQ 01/01/0001 )
     BY ipbf-oe-prmtx.eff-date DESC:
     LEAVE.
 END.
@@ -119,7 +121,9 @@ IF NOT iplInitialCheckOnly THEN DO:
                 OR bf-itemfg.i-no NE "")
               AND ipbf-oe-prmtx.i-no BEGINS bf-itemfg.i-no
               AND SUBSTR(ipbf-oe-prmtx.i-no,01,100) EQ bf-itemfg.i-no
-              AND (ipbf-oe-prmtx.exp-date GE TODAY OR ipbf-oe-prmtx.exp-date EQ ?)
+              AND ipbf-oe-prmtx.eff-date LE TODAY
+              AND (ipbf-oe-prmtx.exp-date GE TODAY OR ipbf-oe-prmtx.exp-date EQ ?
+                    OR ipbf-oe-prmtx.exp-date EQ 01/01/0001 )
             BY ipbf-oe-prmtx.eff-date DESC:            
             LEAVE.
         END.
@@ -131,7 +135,9 @@ IF NOT iplInitialCheckOnly THEN DO:
               AND ipbf-oe-prmtx.cust-no EQ ""
               AND ipbf-oe-prmtx.procat EQ bf-itemfg.procat
               AND SUBSTR(ipbf-oe-prmtx.i-no,01,100) EQ ""
-              AND (ipbf-oe-prmtx.exp-date GE TODAY OR ipbf-oe-prmtx.exp-date EQ ?)
+              AND ipbf-oe-prmtx.eff-date LE TODAY
+              AND (ipbf-oe-prmtx.exp-date GE TODAY OR ipbf-oe-prmtx.exp-date EQ ?
+                    OR ipbf-oe-prmtx.exp-date EQ 01/01/0001 )
             BY ipbf-oe-prmtx.eff-date DESC:            
             LEAVE.
         END.
@@ -145,7 +151,9 @@ IF NOT iplInitialCheckOnly THEN DO:
                 OR SUBSTR(ipbf-oe-prmtx.i-no,01,100) NE "")
               AND ipbf-oe-prmtx.i-no BEGINS bf-itemfg.i-no
               AND SUBSTR(ipbf-oe-prmtx.i-no,01,100) EQ bf-itemfg.i-no
-              AND (ipbf-oe-prmtx.exp-date GE TODAY OR ipbf-oe-prmtx.exp-date EQ ?)
+              AND ipbf-oe-prmtx.eff-date LE TODAY
+              AND (ipbf-oe-prmtx.exp-date GE TODAY OR ipbf-oe-prmtx.exp-date EQ ?
+                   OR ipbf-oe-prmtx.exp-date EQ 01/01/0001 )
             BY ipbf-oe-prmtx.eff-date DESC:            
             LEAVE.
         END.
@@ -158,7 +166,9 @@ IF NOT iplInitialCheckOnly THEN DO:
               AND ipbf-oe-prmtx.procat EQ ""
               AND ipbf-oe-prmtx.i-no BEGINS bf-itemfg.i-no
               AND SUBSTR(ipbf-oe-prmtx.i-no,01,100) EQ bf-itemfg.i-no
-              AND (ipbf-oe-prmtx.exp-date GE TODAY OR ipbf-oe-prmtx.exp-date EQ ?)
+              AND ipbf-oe-prmtx.eff-date LE TODAY
+              AND (ipbf-oe-prmtx.exp-date GE TODAY OR ipbf-oe-prmtx.exp-date EQ ?
+                    OR ipbf-oe-prmtx.exp-date EQ 01/01/0001 )
             BY ipbf-oe-prmtx.eff-date DESC:            
             LEAVE.
         END.
