@@ -89,7 +89,7 @@
                                FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
                     cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
             END.
-          
+            IF (LINE-COUNTER + 10) GT lines-per-page THEN PAGE.
             PUT UNFORMATTED cDisplay SKIP.
             IF tb_excel2 THEN DO:
                  PUT STREAM excel2 UNFORMATTED  
@@ -168,7 +168,7 @@ IF work-mat.mat-type = "B" THEN
                                FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
                     cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
             END.
-          
+            IF (LINE-COUNTER + 10) GT lines-per-page THEN PAGE.
             PUT UNFORMATTED cDisplay SKIP.
             IF tb_excel2 THEN DO:
                  PUT STREAM excel2 UNFORMATTED  
@@ -228,6 +228,7 @@ IF work-mat.mat-type = "B" THEN
                                FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
                     cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
             END.
+            IF (LINE-COUNTER + 10) GT lines-per-page THEN PAGE.
             PUT item-str-line SKIP .
             PUT UNFORMATTED  "   TOTAL MATERIAL   (DIRECT) :"  + substring(cDisplay,31,250)  SKIP(1).
 

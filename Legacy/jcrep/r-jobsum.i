@@ -92,7 +92,7 @@ DEF  VAR acl-lbr AS DEC INIT 0 NO-UNDO.
 
       find first work-item no-error.
       if not avail work-item then next.
-
+      IF (LINE-COUNTER + 10) GT lines-per-page THEN PAGE.
       put "Job Number: "
           trim(job.job-no) + "-" + string(job.job-no2,"99") +
           "     Closing Date: " +
@@ -101,7 +101,7 @@ DEF  VAR acl-lbr AS DEC INIT 0 NO-UNDO.
           FORMAT "X(36)" skip
           "Customer:   "
           v-cust.
-
+     IF (LINE-COUNTER + 10) GT lines-per-page THEN PAGE.
      if not v-mch then do:
       put skip(1)
           "                                                SELLING <--------"
@@ -184,7 +184,7 @@ DEF  VAR acl-lbr AS DEC INIT 0 NO-UNDO.
           if v-a-spo-p = ? then v-a-spo-p = 0.
           if v-e-spo-p = ? then v-e-spo-p = 0.
           if v-over-pct = ? or v-over-pct lt 0 then v-over-pct = 0.    
-                  
+           IF (LINE-COUNTER + 10) GT lines-per-page THEN PAGE.       
           display work-item.i-no
                   itemfg.i-name         FORMAT "x(29)"
                   work-item.price       format ">>>>>9.99"   when v-tot
@@ -253,11 +253,11 @@ DEF  VAR acl-lbr AS DEC INIT 0 NO-UNDO.
       if v-e-spo-p = ? then v-e-spo-p = 0.
       if v-over-pct = ? or v-over-pct lt 0 then v-over-pct = 0.
       
-                     
+       IF (LINE-COUNTER + 10) GT lines-per-page THEN PAGE.              
       put fill("-",90) format "x(90)" at 48 skip.
 
       if v-tot then put "ORDER TOTALS" at 5 v-avg-prc at 47.
-
+      IF (LINE-COUNTER + 10) GT lines-per-page THEN PAGE.
       put v-t-ord at 57 v-t-prs at 68
           v-t-prod at 79 v-t-all at 90
           v-act-spo at 101 v-a-spo-p at 110
@@ -267,10 +267,10 @@ DEF  VAR acl-lbr AS DEC INIT 0 NO-UNDO.
       if v-tot then
       put "SALES VALUE "
           v-sale format "$>>>>>>>>9.99" skip.
-
+ 
       else put skip(1).
      end.
-
+  
      /* This procedure utilizes the shared temp-table work-mch */
      RUN jc/rep/job-sumr.p (INPUT ROWID(job),
                             INPUT cocode,
@@ -281,7 +281,7 @@ DEF  VAR acl-lbr AS DEC INIT 0 NO-UNDO.
                             INPUT tb_curr-crew).
 
       /* {jc/rep/job-sumr.i} */   /***  Get the Routing Information  ***/
-
+      IF (LINE-COUNTER + 10) GT lines-per-page THEN PAGE.
       find first work-mch no-error.
       if avail work-mch then
         put skip(1)
@@ -328,7 +328,7 @@ DEF  VAR acl-lbr AS DEC INIT 0 NO-UNDO.
          v-run-prod-p   = if v-run-prod-p   ne ? then v-run-prod-p else 0
          v-mr-wst-var   = if v-mr-wst-var   ne ? then v-mr-wst-var else 0
          v-run-wst-var  = if v-run-wst-var  ne ? then v-run-wst-var else 0.
-         
+         IF (LINE-COUNTER + 10) GT lines-per-page THEN PAGE.
         display work-mch.m-code
                 mach.m-dscr format "x(16)"
                 "M"
@@ -367,28 +367,28 @@ DEF  VAR acl-lbr AS DEC INIT 0 NO-UNDO.
            (work-mch.est-mr-cost1 NE 0 OR work-mch.mr-cost1 NE 0) THEN do:
 
             acl-lbr =  acl-lbr + ROUND(work-mch.mr-cost1,0) .
-
+          IF (LINE-COUNTER + 10) GT lines-per-page THEN PAGE.
           DISPLAY "Direct Labor"                                       AT 8
                   ROUND(work-mch.est-mr-cost1,0)    FORMAT "zzzz,zzz-" AT 51
                   ROUND(work-mch.mr-cost1,0)        FORMAT "zzzz,zzz-" AT 77
               WITH FRAME det-r1a NO-BOX NO-LABELS STREAM-IO WIDTH 87.
         END.
         
-            
+         IF (LINE-COUNTER + 10) GT lines-per-page THEN PAGE.   
         IF v-foh                                                  AND
            (work-mch.est-mr-cost2 NE 0 OR work-mch.mr-cost2 NE 0) THEN
           DISPLAY "Fixed Overhead"                                     AT 8
                   ROUND(work-mch.est-mr-cost2,0)    FORMAT "zzzz,zzz-" AT 51
                   ROUND(work-mch.mr-cost2,0)        FORMAT "zzzz,zzz-" AT 77
               WITH FRAME det-r1b NO-BOX NO-LABELS STREAM-IO WIDTH 87.
-            
+        IF (LINE-COUNTER + 10) GT lines-per-page THEN PAGE.    
         IF v-voh                                                  AND
            (work-mch.est-mr-cost3 NE 0 OR work-mch.mr-cost3 NE 0) THEN
           DISPLAY "Variable Overhead"                                  AT 8
                   ROUND(work-mch.est-mr-cost3,0)    FORMAT "zzzz,zzz-" AT 51
                   ROUND(work-mch.mr-cost3,0)        FORMAT "zzzz,zzz-" AT 75
               WITH FRAME det-r1c NO-BOX NO-LABELS STREAM-IO WIDTH 87.
-
+        IF (LINE-COUNTER + 10) GT lines-per-page THEN PAGE.
         display "R" at 25
                 work-mch.run-qty AT 26 format ">>>>>>>9-"
                 round(work-mch.est-run-hr,2) at 35 format ">>>9.99-"
@@ -432,20 +432,20 @@ DEF  VAR acl-lbr AS DEC INIT 0 NO-UNDO.
            (work-mch.est-run-cost1 NE 0 OR work-mch.run-cost1 NE 0) THEN do:
 
             acl-lbr =  acl-lbr + ROUND(work-mch.run-cost1,0) .
-
+          IF (LINE-COUNTER + 10) GT lines-per-page THEN PAGE.
           DISPLAY "Direct Labor"                                       AT 8
                   ROUND(work-mch.est-run-cost1,0)   FORMAT "zzzz,zzz-" AT 51
                   ROUND(work-mch.run-cost1,0)       FORMAT "zzzz,zzz-" AT 77
               WITH FRAME det-r2a NO-BOX NO-LABELS STREAM-IO WIDTH 87.
         END.
-            
+         IF (LINE-COUNTER + 10) GT lines-per-page THEN PAGE.   
         IF v-foh                                                    AND
            (work-mch.est-run-cost2 NE 0 OR work-mch.run-cost2 NE 0) THEN
           DISPLAY "Fixed Overhead"                                     AT 8
                   ROUND(work-mch.est-run-cost2,0)   FORMAT "zzzz,zzz-" AT 51
                   ROUND(work-mch.run-cost2,0)       FORMAT "zzzz,zzz-" AT 77
               WITH FRAME det-r2b NO-BOX NO-LABELS STREAM-IO WIDTH 87.
-            
+         IF (LINE-COUNTER + 10) GT lines-per-page THEN PAGE.   
         IF v-voh                                                    AND
            (work-mch.est-run-cost3 NE 0 OR work-mch.run-cost3 NE 0) THEN
           DISPLAY "Variable Overhead"                                  AT 8
@@ -499,7 +499,7 @@ DEF  VAR acl-lbr AS DEC INIT 0 NO-UNDO.
            v-t-act-hrs  = round(v-t-act-hrs,1).
 
           if v-prod-p = ? then v-prod-p = 0.
-
+         IF (LINE-COUNTER + 10) GT lines-per-page THEN PAGE.
           put "------" at 37 "--------  ------" at 51
               "--------  --------  ------" AT 78
               "        --------------------------" skip
@@ -522,11 +522,11 @@ DEF  VAR acl-lbr AS DEC INIT 0 NO-UNDO.
             '"' STRING(v-t-act-cost)                              '",' .
 
       v-labor = v-t-act-cost.
-
+     IF (LINE-COUNTER + 10) GT lines-per-page THEN PAGE.
      if v-mch then put skip(2).  
 
      else do:
-      
+      IF (LINE-COUNTER + 10) GT lines-per-page THEN PAGE.
       if can-find(FIRST work-mat) then
          put skip(1)
              "                                     <-----ESTIMATED------>"
@@ -601,7 +601,7 @@ DEF  VAR acl-lbr AS DEC INIT 0 NO-UNDO.
       v-mater = v-t-act-cost.
 
       {jc/rep/job-sump.i}   /***  Get the Prep/Misc Information ***/
-
+      IF (LINE-COUNTER + 10) GT lines-per-page THEN PAGE.
       find first work-prep no-error.
       if avail work-prep then
         put skip(1)
@@ -631,7 +631,7 @@ DEF  VAR acl-lbr AS DEC INIT 0 NO-UNDO.
          v-prod-p  = (v-cst-var / work-prep.est-cost) * 100.00.
 
         if v-prod-p = ? then v-prod-p = 0.
-        
+        IF (LINE-COUNTER + 10) GT lines-per-page THEN PAGE.
         display work-prep.CODE format "x(11)"
                 work-prep.dscr at 13
                 work-prep.est-cost format ">,>>>,>>9-" to 48
@@ -649,7 +649,7 @@ DEF  VAR acl-lbr AS DEC INIT 0 NO-UNDO.
         
     IF v-tot-mchg THEN do: /* task 04291401 */
         IF LAST-OF(work-prep.work-ml) AND work-prep.work-ml = "no" THEN DO:
-
+           IF (LINE-COUNTER + 10) GT lines-per-page THEN PAGE.
             put "--------" to 47
               "--------" to 58
               "--------" to 69
@@ -662,7 +662,7 @@ DEF  VAR acl-lbr AS DEC INIT 0 NO-UNDO.
               skip(1).
         END.
         IF LAST-OF(work-prep.work-ml) AND work-prep.work-ml = "yes" THEN DO:
-
+             IF (LINE-COUNTER + 10) GT lines-per-page THEN PAGE.
             put "--------" to 47
               "--------" to 58
               "--------" to 69
@@ -686,7 +686,7 @@ DEF  VAR acl-lbr AS DEC INIT 0 NO-UNDO.
            v-prod-p  = (v-cst-var / v-t-est-cost) * 100.00.
 
           if v-prod-p eq ? then v-prod-p = 0.
-
+         IF (LINE-COUNTER + 10) GT lines-per-page THEN PAGE.
           put "--------" to 47
               "--------" to 58
               "--------" to 69
@@ -700,7 +700,7 @@ DEF  VAR acl-lbr AS DEC INIT 0 NO-UNDO.
         end.
       end.
 
-      if line-counter + 13 gt 58 then page.
+      IF (LINE-COUNTER + 10) GT lines-per-page THEN PAGE.
       IF v-inv-tot-only THEN
         ASSIGN v-sale = getInvoiceTotal(job-hdr.ord-no, job-hdr.job-no, job-hdr.job-no2, "Price").
       ELSE
@@ -717,7 +717,7 @@ DEF  VAR acl-lbr AS DEC INIT 0 NO-UNDO.
           run jc/rep/job-sumt.p (v-t-prod, recid(job)).
       END.
         
-      
+      IF (LINE-COUNTER + 10) GT lines-per-page THEN PAGE.
       PUT skip(1)
           "Job Number: "
           trim(job.job-no) + "-" + string(job.job-no2,"99") +
@@ -745,7 +745,7 @@ DEF  VAR acl-lbr AS DEC INIT 0 NO-UNDO.
         v-t-act-hrs  = round(v-gt-act-hrs,1).
 
        if v-prod-p = ? then v-prod-p = 0.
-
+        IF (LINE-COUNTER + 10) GT lines-per-page THEN PAGE.
        put skip(3)
            "------" at 37 "--------  ------" at 51
            "--------  --------  ------" at 76 skip
