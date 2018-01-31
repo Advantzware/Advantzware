@@ -1378,7 +1378,7 @@ PROCEDURE run-report :
                     AND b-{&head}1.{&multiinvoice} EQ NO            
                     AND INDEX(vcHoldStats, b-{&head}1.stat) EQ 0:
                     FIND FIRST inv-misc NO-LOCK 
-                       WHERE inv-misc.{&rno} EQ b-{&head}1.{&rno}
+                       WHERE inv-misc.{&miscrno} EQ b-{&head}1.{&rno}
                        NO-ERROR.
 
                     IF AVAILABLE inv-misc THEN DO:
