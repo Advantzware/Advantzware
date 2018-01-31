@@ -210,11 +210,11 @@ for each report where report.term-id eq v-term-id NO-LOCK,
            "<c5>Customer Part Number:" "<C25>" itemfg.part-no  SKIP(1)
            "<C14>Item Name:" "<C25>" v-part-desc SKIP(1)
            "<c11.5>Order Number:" "<C25>" v-job-no SKIP(1)
-           "<C8>Quantity Shipped:" "<C25>"  v-bol-qty FORMAT "->>,>>>,>>9" SKIP(1)
+           "<C8>Quantity Shipped:" "<C25>" STRING(v-bol-qty) FORMAT "x(10)" SKIP(1)
            "<C7>Manufactured Date:" "<C25>" (IF v-manuf-date NE 12/31/2999 THEN
                                                      STRING(v-manuf-date,"99/99/99")
                                                   ELSE "") SKIP(1)
-           "<C13.5>Ship Date:" "<C25>" (IF AVAIL oe-bolh AND oe-bolh.bol-date NE 12/31/2999 THEN
+           "<C13.5>Ship Date:" "<C25>" (IF AVAIL oe-bolh AND oe-bolh.bol-date NE 12/31/2999 THEN 
                                                      STRING(oe-bolh.bol-date,"99/99/99")
                                                   ELSE "") SKIP(1).
           IF v-style NE "" OR v-test NE "" THEN
