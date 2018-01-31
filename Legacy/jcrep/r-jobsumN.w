@@ -1927,7 +1927,7 @@ ASSIGN cDisplay = ""
                                FILL(" ",int(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
                     cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
             END.
-
+            IF (LINE-COUNTER + 10) GT lines-per-page THEN PAGE.
             PUT UNFORMATTED "        " + string(v-header,"x(27)")  + substring(cDisplay,36,250) SKIP .
             IF tb_excel2 THEN DO:
                  PUT STREAM excel2 UNFORMATTED ','  v-header 
