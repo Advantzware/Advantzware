@@ -1446,25 +1446,25 @@ DEFINE VARIABLE cVarValue AS cha NO-UNDO.
 DEFINE VARIABLE cExcelVarValue AS cha NO-UNDO.
 DEFINE VARIABLE cSelectedList AS cha NO-UNDO.
 DEFINE VARIABLE cFieldName AS cha NO-UNDO.
-DEFINE VARIABLE fg-str-tit AS cha FORM "x(200)" NO-UNDO.
-DEFINE VARIABLE fg-str-tit2 AS cha FORM "x(200)" NO-UNDO.
-DEFINE VARIABLE fg-str-tit3 AS cha FORM "x(200)" NO-UNDO.
-DEFINE VARIABLE fg-str-line AS cha FORM "x(300)" NO-UNDO.
+DEFINE VARIABLE fg-str-tit AS cha FORM "x(150)" NO-UNDO.
+DEFINE VARIABLE fg-str-tit2 AS cha FORM "x(150)" NO-UNDO.
+DEFINE VARIABLE fg-str-tit3 AS cha FORM "x(150)" NO-UNDO.
+DEFINE VARIABLE fg-str-line AS cha FORM "x(150)" NO-UNDO.
 
-DEFINE VARIABLE mach-str-tit AS cha FORM "x(200)" NO-UNDO.
-DEFINE VARIABLE mach-str-tit2 AS cha FORM "x(200)" NO-UNDO.
-DEFINE VARIABLE mach-str-tit3 AS cha FORM "x(200)" NO-UNDO.
-DEFINE VARIABLE mach-str-line AS cha FORM "x(300)" NO-UNDO.
+DEFINE VARIABLE mach-str-tit AS cha FORM "x(150)" NO-UNDO.
+DEFINE VARIABLE mach-str-tit2 AS cha FORM "x(150)" NO-UNDO.
+DEFINE VARIABLE mach-str-tit3 AS cha FORM "x(150)" NO-UNDO.
+DEFINE VARIABLE mach-str-line AS cha FORM "x(150)" NO-UNDO.
 
-DEFINE VARIABLE item-str-tit AS cha FORM "x(200)" NO-UNDO.
-DEFINE VARIABLE item-str-tit2 AS cha FORM "x(200)" NO-UNDO.
-DEFINE VARIABLE item-str-tit3 AS cha FORM "x(200)" NO-UNDO.
-DEFINE VARIABLE item-str-line AS cha FORM "x(300)" NO-UNDO.
+DEFINE VARIABLE item-str-tit AS cha FORM "x(150)" NO-UNDO.
+DEFINE VARIABLE item-str-tit2 AS cha FORM "x(150)" NO-UNDO.
+DEFINE VARIABLE item-str-tit3 AS cha FORM "x(150)" NO-UNDO.
+DEFINE VARIABLE item-str-line AS cha FORM "x(150)" NO-UNDO.
 
-DEFINE VARIABLE misc-str-tit AS cha FORM "x(200)" NO-UNDO.
-DEFINE VARIABLE misc-str-tit2 AS cha FORM "x(200)" NO-UNDO.
-DEFINE VARIABLE misc-str-tit3 AS cha FORM "x(200)" NO-UNDO.
-DEFINE VARIABLE misc-str-line AS cha FORM "x(300)" NO-UNDO.
+DEFINE VARIABLE misc-str-tit AS cha FORM "x(150)" NO-UNDO.
+DEFINE VARIABLE misc-str-tit2 AS cha FORM "x(150)" NO-UNDO.
+DEFINE VARIABLE misc-str-tit3 AS cha FORM "x(150)" NO-UNDO.
+DEFINE VARIABLE misc-str-line AS cha FORM "x(150)" NO-UNDO.
 
 /*{sys/form/r-top5DL3.f} */
 cSelectedList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
@@ -1928,7 +1928,7 @@ ASSIGN cDisplay = ""
                     cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
             END.
             IF (LINE-COUNTER + 10) GT lines-per-page THEN PAGE.
-            PUT UNFORMATTED "        " + string(v-header,"x(27)")  + substring(cDisplay,36,250) SKIP .
+            PUT UNFORMATTED "        " + string(v-header,"x(27)")  + substring(cDisplay,36,150) SKIP .
             IF tb_excel2 THEN DO:
                  PUT STREAM excel2 UNFORMATTED ','  v-header 
                      SUBSTRING(cExcelDisplay,6,300) SKIP.
