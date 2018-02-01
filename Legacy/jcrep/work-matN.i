@@ -230,6 +230,6 @@ IF work-mat.mat-type = "B" THEN
             END.
             IF (LINE-COUNTER + 10) GT lines-per-page THEN PAGE.
             PUT item-str-line SKIP .
-            PUT UNFORMATTED  "   TOTAL MATERIAL   (DIRECT) :"  + substring(cDisplay,31,250)  SKIP(1).
+            PUT UNFORMATTED  "   TOTAL MATERIAL   (DIRECT) :"  + substring(cDisplay,31,150)  SKIP(1).
 
    end.

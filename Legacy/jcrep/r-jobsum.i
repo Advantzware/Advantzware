@@ -718,7 +718,7 @@ DEF  VAR acl-lbr AS DEC INIT 0 NO-UNDO.
       END.
         
       IF (LINE-COUNTER + 10) GT lines-per-page THEN PAGE.
-      PUT skip(1)
+      /*PUT skip(1)
           "Job Number: "
           trim(job.job-no) + "-" + string(job.job-no2,"99") +
           "     Closing Date: " +
@@ -728,7 +728,7 @@ DEF  VAR acl-lbr AS DEC INIT 0 NO-UNDO.
          "Customer:   "
          v-cust.
 
-      page.
+      page.*/ /* Ticket 26126 */
      end.
 
      if v-mch and last(job.job-no) then do:
