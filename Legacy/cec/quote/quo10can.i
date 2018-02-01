@@ -168,7 +168,7 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
                   ((xqqty.qty / 1000) * xqqty.price)    ELSE
                   (xqqty.qty * xqqty.price).
 
-       put xqqty.qty /* xqqty.rels*/ space(9)
+       PUT "<C51>" xqqty.qty /* xqqty.rels*/ space(9)
                xqqty.price FORM "->>,>>9.99" space(6)
                xqqty.uom  .
               
