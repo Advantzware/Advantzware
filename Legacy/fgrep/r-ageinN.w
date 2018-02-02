@@ -3065,6 +3065,7 @@ FOR EACH tt-file WHERE
      END.
      
      PUT UNFORMATTED  "       Customer Subtotal:" SUBSTRING(cDisplay,26,300) SKIP.
+     IF NOT LAST-OF(tt-sman) THEN
      IF v-break  THEN  PAGE .
      IF tb_excel THEN DO:
          PUT STREAM excel UNFORMATTED  
@@ -3139,8 +3140,8 @@ FOR EACH tt-file WHERE
      END.
      
      PUT UNFORMATTED  "       Salesperson Subtotal:" SUBSTRING(cDisplay,29,300) SKIP.
-     IF v-break THEN 
-         PAGE.
+     IF NOT LAST(tt-sman) THEN
+         IF v-break THEN PAGE.
      IF tb_excel THEN DO:
          PUT STREAM excel UNFORMATTED  
               "Salesperson Subtotal: " + substring(cExcelDisplay,3,300) SKIP.

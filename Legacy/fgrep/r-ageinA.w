@@ -2843,7 +2843,8 @@ END.
 
           WITH FRAME detail.
       DOWN WITH FRAME detail.
-
+      
+      IF NOT LAST-OF(tt-sman) THEN
       IF v-break  THEN  PAGE .
 
       IF tb_excel THEN 
@@ -2894,7 +2895,8 @@ END.
 
         WITH FRAME detail.
     DOWN WITH FRAME detail.
-IF v-break  THEN  PAGE .
+    IF NOT LAST(tt-sman) THEN
+        IF v-break  THEN  PAGE .
     IF tb_excel THEN 
        PUT STREAM excel UNFORMATTED
            SKIP(1)
