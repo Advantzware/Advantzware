@@ -4325,6 +4325,7 @@ DEFINE INPUT  PARAMETER ipiJobNo2 AS INTEGER     NO-UNDO.
 DEFINE INPUT  PARAMETER ipiForm AS INTEGER     NO-UNDO.
 DEFINE INPUT  PARAMETER ipiBlank AS INTEGER     NO-UNDO.
 DEFINE INPUT  PARAMETER iplCheckBar AS LOGICAL     NO-UNDO.
+DEFINE OUTPUT PARAMETER oplCheckBar AS LOGICAL     NO-UNDO.
 
 DEF BUFFER bf-job FOR job.
 DEF BUFFER bf-job-hdr-2 FOR job-hdr.
@@ -4384,7 +4385,8 @@ DO WITH FRAME {&FRAME-NAME}:
          end_i-no:SCREEN-VALUE   = v-lastitem.           
 
       APPLY "LEAVE" TO end_i-no.
-
+      IF v-lncnt EQ 1 THEN
+          oplCheckBar = YES . 
       IF v-lncnt GT 1 THEN
          MESSAGE "There are multiple FG Items on this order." skip
                  "Please select an FG Item."
@@ -5546,6 +5548,7 @@ DEF VAR lcForm AS CHAR NO-UNDO.
 DEFINE VARIABLE iForm AS CHARACTER NO-UNDO .
 DEFINE VARIABLE iBlank-no AS CHARACTER NO-UNDO .
 DEFINE VARIABLE lCheckForm AS LOGICAL INIT YES NO-UNDO .
+DEFINE VARIABLE oplCheckForm AS LOGICAL INIT NO NO-UNDO .
 
 DEF BUFFER bf-job FOR job.
 DEF BUFFER bf-job-hdr-2 FOR job-hdr.
@@ -5580,7 +5583,13 @@ DEF BUFFER bf-job-hdr-2 FOR job-hdr.
    ASSIGN
       lv-job-no = FILL(" ",6 - LENGTH(TRIM(lv-job-no))) + lv-job-no
       v-job2 = INT(lv-job-no2).
-   RUN dispJobInfo (INPUT cocode, INPUT lv-job-no, INPUT v-job2,INPUT iForm, INPUT iBlank-no, INPUT lCheckForm ).
+   RUN dispJobInfo (INPUT cocode, INPUT lv-job-no, INPUT v-job2,INPUT iForm, INPUT iBlank-no, INPUT lCheckForm, OUTPUT oplCheckForm ).
+  IF lCheckForm AND oplCheckForm THEN
+      APPLY "choose" TO btn-ok.
+  IF NOT oplCheckForm THEN do:
+      MESSAGE "Please enter correct data..." skip
+                VIEW-AS ALERT-BOX INFO BUTTONS OK.
+  END.
    /*
    FIND FIRST bf-job WHERE
         bf-job.company EQ cocode AND
@@ -6283,6 +6292,7 @@ PROCEDURE leave-job-label :
    DEF VAR v-job-no-end AS CHAR NO-UNDO.
    DEF VAR v-cust-no AS CHAR NO-UNDO.
    DEF BUFFER b-job-hdr-2 FOR job-hdr.
+   DEFINE VARIABLE oplCheckForm AS LOGICAL INIT NO NO-UNDO .
    DO WITH FRAME {&FRAME-NAME}:
       IF scr-label-file:SCREEN-VALUE EQ "" AND
       begin_job:SCREEN-VALUE NE "" AND 
@@ -6329,7 +6339,7 @@ PROCEDURE leave-job-label :
          IF AVAIL job-hdr THEN DO:
            v-cust-no = job-hdr.cust-no.
            IF begin_i-no:SCREEN-VALUE EQ "" THEN
-             RUN dispJobInfo (INPUT cocode, INPUT v-job-no, INPUT INT(begin_job2:SCREEN-VALUE), 0,0, NO).
+             RUN dispJobInfo (INPUT cocode, INPUT v-job-no, INPUT INT(begin_job2:SCREEN-VALUE), 0,0, NO, OUTPUT oplCheckForm).
          END.
 
 
@@ -6466,7 +6476,7 @@ PROCEDURE leave-job-label :
    v-job-no = FILL(" ",6 - LENGTH(TRIM(begin_job:SCREEN-VALUE)))
          + TRIM(begin_job:SCREEN-VALUE).
    IF begin_i-no:SCREEN-VALUE EQ "" THEN
-     RUN dispJobInfo (INPUT cocode, INPUT v-job-no, INPUT INT(begin_job2:SCREEN-VALUE)).
+     RUN dispJobInfo (INPUT cocode, INPUT v-job-no, INPUT INT(begin_job2:SCREEN-VALUE),0,0,NO,OUTPUT oplCheckForm).
 
 
    v-job-no = FILL(" ",6 - LENGTH(TRIM(begin_job:SCREEN-VALUE)))
