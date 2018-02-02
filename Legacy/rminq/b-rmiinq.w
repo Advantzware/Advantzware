@@ -1399,7 +1399,7 @@ PROCEDURE local-display-fields :
       users.user_id EQ USERID(LDBNAME(1)) 
       NO-ERROR.
   
-  IF AVAIL users AND users.securityLevel LE 900 THEN
+  IF AVAIL users AND users.securityLevel LT 900 THEN
      ASSIGN btCopy:HIDDEN = YES
             btCopy:SENSITIVE = NO
             btDelete:HIDDEN = YES
