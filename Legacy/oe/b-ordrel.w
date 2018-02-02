@@ -43,7 +43,6 @@ CREATE WIDGET-POOL.
 ASSIGN cocode = g_company
        locode = g_loc.
 
-DEF BUFFER s-code FOR reftable.
 DEF BUFFER ref-lot-no FOR reftable.
 DEF BUFFER ref-sell-price FOR reftable.
 
@@ -342,13 +341,6 @@ FUNCTION get-rel-qty RETURNS DECIMAL
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD get-rel-stat B-table-Win 
 FUNCTION get-rel-stat RETURNS CHARACTER
   ( /* parameter-definitions */ )  FORWARD.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD get-rel-type B-table-Win 
-FUNCTION get-rel-type RETURNS CHARACTER
-  ( ip-rel-row AS ROWID )  FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1475,10 +1467,6 @@ FOR EACH fg-set WHERE fg-set.set-no = oe-ordl.i-no
     
   END. /* avail shipto */
 
-  CREATE s-code.
-  ASSIGN s-code.reftable = "oe-rel.s-code"
-         s-code.company  = STRING(oe-rel.r-no,"9999999999")
-         s-code.CODE     = "S".
 
   oe-rel.s-code          = "S".     
 
@@ -1926,44 +1914,7 @@ DEF BUFFER b-oe-rel  FOR oe-rel.
     END.
   END.
 
-  /*FOR EACH oe-rel NO-LOCK
-      WHERE oe-rel.company EQ oe-ordl.company
-        AND oe-rel.ord-no  EQ oe-ordl.ord-no
-        AND oe-rel.i-no    EQ oe-ordl.i-no
-        AND oe-rel.line    EQ oe-ordl.line
-        AND oe-rel.link-no EQ 0
-      USE-INDEX ord-item
-      TRANSACTION:
-
-    FIND FIRST s-code
-        WHERE s-code.reftable EQ "oe-rel.s-code"
-          AND s-code.company  EQ STRING(oe-rel.r-no,"9999999999")
-        NO-LOCK NO-ERROR.
-    lv-s-code[1] = IF AVAIL s-code THEN s-code.code ELSE "B".
-
-    FOR EACH b-oe-rel
-        WHERE b-oe-rel.company  EQ oe-rel.company
-          AND b-oe-rel.ord-no   EQ oe-rel.ord-no
-          AND b-oe-rel.i-no     EQ oe-rel.i-no
-          AND b-oe-rel.line     EQ oe-rel.line
-          AND b-oe-rel.po-no    EQ oe-rel.po-no
-          AND b-oe-rel.ship-id  EQ oe-rel.ship-id
-          AND b-oe-rel.rel-date EQ oe-rel.rel-date
-          AND b-oe-rel.carrier  EQ oe-rel.carrier
-          AND b-oe-rel.qty      EQ oe-rel.qty
-          AND b-oe-rel.link-no  EQ 0
-          AND ROWID(b-oe-rel)   NE ROWID(oe-rel)
-        USE-INDEX ord-item:
-
-      FIND FIRST s-code
-          WHERE s-code.reftable EQ "oe-rel.s-code"
-            AND s-code.company  EQ STRING(b-oe-rel.r-no,"9999999999")
-          NO-LOCK NO-ERROR.
-      lv-s-code[2] = IF AVAIL s-code THEN s-code.code ELSE "B".
-
-      IF lv-s-code[1] EQ lv-s-code[2] THEN DELETE b-oe-rel.
-    END.
-  END.*/
+  
 
   FOR EACH oe-rel NO-LOCK
       WHERE oe-rel.company EQ oe-ordl.company
@@ -2184,23 +2135,14 @@ SESSION:SET-WAIT-STATE("general").
 
           IF addxfer-log THEN
           DO:
-             FIND FIRST s-code WHERE
-                  s-code.reftable EQ "oe-rel.s-code" AND
-                  s-code.company  EQ STRING(oe-rel.r-no,"9999999999")
-                  NO-LOCK NO-ERROR.
 
-             IF AVAIL s-code THEN
-             DO:
-                IF s-code.CODE EQ 'T' AND lv-cust-x NE "" AND
+               IF oe-rel.s-code EQ 'T' AND lv-cust-x NE "" AND
                    CAN-FIND(FIRST shipto WHERE
                    shipto.company EQ cocode AND
                    shipto.cust-no EQ lv-cust-x AND
                    shipto.ship-no EQ oe-rel.ship-no AND
                    shipto.ship-id EQ oe-rel.ship-id) THEN
                    v-cust-no = lv-cust-x.
-
-                RELEASE s-code.
-             END.
           END.
       
           /* wfk {oe/findrelh.i oe-rel v-cust-no} */
@@ -2303,7 +2245,7 @@ FOR EACH bf-rel
         AND bf-rel.ord-no  EQ xoe-ord.ord-no
         AND bf-rel.link-no EQ 0
       NO-LOCK:
-    v-rel-type = get-rel-type(ROWID(bf-rel)).
+    v-rel-type = bf-rel.s-code.
     IF v-rel-type NE "I" THEN
         v-all-i = NO.    
 END.
@@ -2395,23 +2337,14 @@ FOR EACH bf-rel
 
             IF addxfer-log THEN
             DO:
-               FIND FIRST s-code WHERE
-                    s-code.reftable EQ "oe-rel.s-code" AND
-                    s-code.company  EQ STRING(bf-rel.r-no,"9999999999")
-                    NO-LOCK NO-ERROR.
 
-               IF AVAIL s-code THEN
-               DO:
-                  IF s-code.CODE EQ 'T' AND lv-cust-x NE "" AND
+                 IF bf-rel.s-code EQ 'T' AND lv-cust-x NE "" AND
                     CAN-FIND(FIRST shipto WHERE
                     shipto.company EQ cocode AND
                     shipto.cust-no EQ lv-cust-x AND
                     shipto.ship-no EQ bf-rel.ship-no AND
                     shipto.ship-id EQ bf-rel.ship-id) THEN
                     v-cust-no = lv-cust-x.
-
-                  RELEASE s-code.
-               END.
             END.
             /*  07011402   {oe/findrelh.i bf-rel v-cust-no} */
             RUN oe/actrelmerg.p (INPUT ROWID(bf-rel), INPUT "FINDRELH", INPUT-OUTPUT iocPrompt, OUTPUT vrRelh).
@@ -2800,13 +2733,10 @@ IF ll-bin-tag THEN DO:
 
   IF lv-job-no EQ "-00" THEN lv-job-no = "".
 
-  FIND FIRST reftable
-      WHERE reftable.reftable EQ "oe-rel.s-code"
-        AND reftable.company  EQ STRING(oe-rel.r-no,"9999999999")
-      NO-LOCK NO-ERROR.
-  v-s-code  = IF AVAIL reftable THEN reftable.code ELSE
-                    IF oe-ordl.is-a-component THEN "S" ELSE
-                    IF AVAIL oe-ctrl AND oe-ctrl.ship-from THEN "B" ELSE "I".
+
+ v-s-code  = IF oe-rel.s-code <> "" THEN oe-rel.s-code ELSE
+                   IF oe-ordl.is-a-component THEN "S" ELSE
+                   IF AVAIL oe-ctrl AND oe-ctrl.ship-from THEN "B" ELSE "I".
  lv-selected-value = "NoTag".
   
   ASSIGN
@@ -2821,10 +2751,7 @@ IF ll-bin-tag THEN DO:
 END.
   
 IF v-none THEN DO TRANSACTION:
-  FIND FIRST reftable
-      WHERE reftable.reftable EQ "oe-rel.s-code"
-        AND reftable.company  EQ STRING(oe-rel.r-no,"9999999999")
-      NO-LOCK NO-ERROR.
+
   
   CREATE oe-rell.
   ASSIGN
@@ -2849,13 +2776,13 @@ IF v-none THEN DO TRANSACTION:
    oe-rell.fob-code = oe-rel.fob-code
    /** Set link to the planned releases **/
    oe-rell.link-no = oe-rel.r-no
-   oe-rell.s-code  = IF AVAIL reftable THEN reftable.code ELSE
+   oe-rell.s-code  = IF oe-rel.s-code <> "" THEN oe-rel.s-code ELSE
                      IF oe-ordl.is-a-component THEN "S" ELSE
                      IF AVAIL oe-ctrl AND oe-ctrl.ship-from THEN "B" ELSE "I".
    FIND bf-oe-rel WHERE RECID(bf-oe-rel) = RECID(oe-rel) EXCLUSIVE-LOCK.
    bf-oe-rel.link-no = oe-rell.r-no.
    RELEASE bf-oe-rel.
-  RELEASE reftable.
+  
 
   FIND FIRST b-reftable NO-LOCK
       WHERE b-reftable.reftable EQ "oe-rel.lot-no"
@@ -3131,16 +3058,7 @@ PROCEDURE create-report-record-1 :
      IF AVAIL sys-ctrl-shipto AND sys-ctrl-shipto.log-fld THEN v-reltype = sys-ctrl-shipto.char-fld.
      ELSE IF AVAIL sys-ctrl AND sys-ctrl.log-fld THEN v-reltype = sys-ctrl.char-fld.
      IF v-relType <> "" THEN DO:
-        FIND FIRST reftable
-        WHERE reftable.reftable EQ "oe-rel.s-code"
-          AND reftable.company  EQ STRING(oe-rel.r-no,"9999999999") NO-LOCK NO-ERROR.
-        IF NOT AVAIL reftable THEN DO:
-           CREATE reftable.
-           ASSIGN reftable.reftable = "oe-rel.s-code"
-                  reftable.company = STRING(oe-rel.r-no,"9999999999")
-                  reftable.CODE = IF ll-transfer THEN "T"
-                                    ELSE IF oe-ordl.is-a-component THEN "S"
-                                    ELSE SUBSTRING(v-relType,1,1).
+
            FIND bf-oe-rel WHERE ROWID(bf-oe-rel) EQ ROWID(oe-rel)
               EXCLUSIVE-LOCK.
            bf-oe-rel.s-code = IF ll-transfer THEN "T"
@@ -3148,22 +3066,17 @@ PROCEDURE create-report-record-1 :
                                     ELSE SUBSTRING(v-relType,1,1).
            FIND CURRENT bf-oe-rel NO-LOCK.
            RELEASE bf-oe-rel.
-        END.
      END.
 
-    FIND FIRST s-code
-        WHERE s-code.reftable EQ "oe-rel.s-code"
-          AND s-code.company  EQ STRING(oe-rel.r-no,"9999999999")
-        NO-LOCK NO-ERROR.
 
-    tt-report.s-basis[1] = IF v-reltype <> "" THEN reftable.CODE
+     tt-report.s-basis[1] = IF v-reltype <> "" THEN oe-rel.s-code
                        ELSE IF ll-transfer            THEN "T"
                        ELSE
                        IF oe-ordl.is-a-component AND
-                          (NOT AVAIL s-code OR
-                           s-code.code NE "T")   THEN "S"
+                       (oe-rel.s-code = "" OR
+                           oe-rel.s-code NE "T")   THEN "S"
                        ELSE
-                       IF AVAIL s-code           THEN s-code.code
+                       IF oe-rel.s-code <> ""      THEN oe-rel.s-code
                        ELSE
                        IF AVAIL oe-rell          THEN oe-rell.s-code
                                                  ELSE "B".
@@ -3526,19 +3439,11 @@ PROCEDURE local-assign-record :
   /* Code placed here will execute AFTER standard behavior.    */
   oe-rel.po-no = tt-report.po-no.
 
-  FIND FIRST s-code
-      WHERE s-code.reftable EQ "oe-rel.s-code"
-        AND s-code.company  EQ STRING(oe-rel.r-no,"9999999999")
-      NO-ERROR.
-  IF NOT AVAIL s-code THEN DO:
-    CREATE s-code.
-    ASSIGN
-     s-code.reftable = "oe-rel.s-code"
-     s-code.company  = STRING(oe-rel.r-no,"9999999999").
-  END.
-  s-code.code = tt-report.s-basis[1].
 
-  IF oe-ordl.is-a-component AND CAN-DO("B,I",s-code.code) THEN s-code.code = "S".
+   oe-rel.s-code = tt-report.s-basis[1].
+
+
+  IF oe-ordl.is-a-component AND CAN-DO("B,I",oe-rel.s-code) THEN oe-rel.s-code = "S".
   
   /* Storing due date, due date change reason, due date change user */
   oe-rel.spare-char-4 = (IF tt-report.prom-date EQ ? THEN "" ELSE STRING(tt-report.prom-date)) + ","
@@ -3573,11 +3478,8 @@ PROCEDURE local-assign-record :
                        AND bf-rel.LINE = oe-ordl.LINE    /* 01/20/03 YSK TASK 01170303*/
                        AND bf-rel.i-no = oe-ordl.i-no NO-LOCK :
       RUN oe/rel-stat.p (ROWID(bf-rel), OUTPUT lv-stat).
-      FIND FIRST s-code
-          WHERE s-code.reftable EQ "oe-rel.s-code"
-            AND s-code.company  EQ STRING(bf-rel.r-no,"9999999999")
-          NO-LOCK NO-ERROR.
-      IF (NOT AVAIL s-code OR INDEX("BS",s-code.code) GT 0) AND
+
+      IF (bf-rel.s-code = "" OR INDEX("BS",bf-rel.s-code) GT 0) AND
          NOT CAN-DO("C,Z",lv-stat)                          THEN
         v-qty-sum = v-qty-sum + bf-rel.qty. 
   END.
@@ -3770,12 +3672,8 @@ PROCEDURE local-create-record :
             AND bf-rel.i-no = oe-ordl.i-no 
             AND bf-rel.LINE = oe-ordl.LINE
             NO-LOCK:
-            FIND FIRST s-code
-                WHERE s-code.reftable EQ "oe-rel.s-code"
-                AND s-code.company  EQ STRING(bf-rel.r-no,"9999999999")
-                NO-LOCK NO-ERROR.
 
-            IF NOT AVAIL s-code OR CAN-DO("B,S",s-code.code) THEN 
+            IF bf-rel.s-code = "" OR CAN-DO("B,S",bf-rel.s-code) THEN 
             DO:
                 v-qty-sum = v-qty-sum + bf-rel.qty.
                 IF LOOKUP(bf-rel.stat, "C,Z,P,A,B") GT 0 THEN
@@ -4394,15 +4292,11 @@ PROCEDURE local-update-record :
                        AND bf-rel.i-no = oe-ordl.i-no 
                        AND bf-rel.LINE = oe-ordl.LINE
                        NO-LOCK:
-         FIND FIRST s-code
-             WHERE s-code.reftable EQ "oe-rel.s-code"
-               AND s-code.company  EQ STRING(bf-rel.r-no,"9999999999")
-             NO-LOCK NO-ERROR.
-           
-         IF NOT AVAIL s-code OR CAN-DO("I",s-code.code) THEN
+
+          IF bf-rel.s-code = "" OR CAN-DO("I",bf-rel.s-code) THEN
              ASSIGN
              v-qty-inv = v-qty-inv + bf-rel.qty .
-          IF NOT AVAIL s-code OR CAN-DO("S",s-code.code) THEN
+          IF bf-rel.s-code = "" OR CAN-DO("S",bf-rel.s-code) THEN
              ASSIGN
              v-qty-ship = v-qty-ship + bf-rel.qty .
      END.
@@ -4548,11 +4442,8 @@ PROCEDURE local-update-record :
          AND bf-add-oe-rel.ord-no EQ oe-rel.ord-no
          AND bf-add-oe-rel.LINE   EQ oe-rel.LINE
          AND bf-add-oe-rel.i-no   EQ oe-rel.i-no
-         NO-LOCK,
-        FIRST reftable WHERE reftable.reftable EQ "oe-rel.s-code"
-          AND reftable.company EQ STRING(bf-add-oe-rel.r-no,"9999999999")
-          AND reftable.CODE EQ "S"
-          NO-LOCK:
+         AND bf-add-oe-rel.s-code EQ "S"
+         NO-LOCK:
         lMatchingSRecordFound = YES.
          
      END.
@@ -4568,13 +4459,10 @@ PROCEDURE local-update-record :
        
        CREATE bf-add-oe-rel.
        BUFFER-COPY oe-rel EXCEPT r-no rec_key TO bf-add-oe-rel.
-       bf-add-oe-rel.r-no = v-nxt-r-no.
+       ASSIGN bf-add-oe-rel.s-code = "S"
+              bf-add-oe-rel.r-no = v-nxt-r-no.
   
-       /* Set the new oe-rel to Ship Only to match the invoice only */
-       CREATE reftable.
-       ASSIGN reftable.reftable = "oe-rel.s-code"
-              reftable.company = STRING(bf-add-oe-rel.r-no,"9999999999")
-              reftable.CODE = "S".
+
   
        /* Reset everything */
        RUN build-report-file.
@@ -5916,32 +5804,6 @@ FUNCTION get-rel-stat RETURNS CHARACTER
 
   RETURN lv-stat.
   
-END FUNCTION.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION get-rel-type B-table-Win 
-FUNCTION get-rel-type RETURNS CHARACTER
-  ( ip-rel-row AS ROWID ) :
-/*------------------------------------------------------------------------------
-  Purpose:  
-    Notes:  
-------------------------------------------------------------------------------*/
-
-
- FIND FIRST oe-rel WHERE ROWID(oe-rel) EQ ip-rel-row
-                   NO-LOCK NO-ERROR.
- IF AVAIL oe-rel THEN
-   FIND FIRST s-code
-      WHERE s-code.reftable EQ "oe-rel.s-code"
-        AND s-code.company  EQ STRING(oe-rel.r-no,"9999999999")
-      NO-LOCK NO-ERROR.
- IF AVAIL s-code THEN
-    RETURN s-code.CODE.
- ELSE
-    RETURN "".   /* Function return value. */
-
 END FUNCTION.
 
 /* _UIB-CODE-BLOCK-END */

@@ -1782,27 +1782,15 @@ IF v-relflg2 THEN DO:
       ELSE IF AVAIL sys-ctrl AND sys-ctrl.log-fld THEN v-reltype = sys-ctrl.char-fld.
   
   IF v-relType <> "" THEN DO:
-    FIND FIRST reftable
-    WHERE reftable.reftable EQ "oe-rel.s-code"
-        AND reftable.company  EQ STRING(oe-rel.r-no,"9999999999") 
-      NO-LOCK NO-ERROR.
-    IF NOT AVAIL reftable THEN DO:
-      CREATE reftable.
-      ASSIGN reftable.reftable = "oe-rel.s-code"
-             reftable.company = STRING(oe-rel.r-no,"9999999999")
-             reftable.CODE = IF b-oe-ordl.is-a-component THEN "S"
-                                ELSE SUBSTRING(v-relType,1,1).
-      IF b-oe-ord.TYPE = "T" THEN
-        ASSIGN reftable.CODE = "T".
+    
       FIND bf-oe-rel WHERE ROWID(bf-oe-rel) EQ ROWID(oe-rel)
         EXCLUSIVE-LOCK.
       bf-oe-rel.s-code = IF b-oe-ordl.is-a-component THEN "S"
                                 ELSE SUBSTRING(v-relType,1,1).
       IF b-oe-ord.TYPE = "T" THEN
         ASSIGN bf-oe-rel.s-code = "T".      
-      RELEASE bf-oe-rel.
-      
-    END. /* not avail reftable */
+      RELEASE bf-oe-rel.      
+    
   END. /* v-reltype <> "" */
 END. /* if v-relflg2 */
 
@@ -1810,7 +1798,6 @@ END. /* if v-relflg2 */
 RUN fg/fgitmloc.p (INPUT b-oe-ordl.i-no, INPUT ROWID(b-oe-ordl)).
 
 RELEASE oe-rel.
-RELEASE reftable.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

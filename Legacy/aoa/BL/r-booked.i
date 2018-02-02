@@ -49,12 +49,9 @@ FOR EACH oe-ord NO-LOCK
         IF oe-ord.TYPE EQ "T" THEN NEXT.
         cCode = "".
         FOR EACH oe-rel FIELDS(r-no) NO-LOCK 
-            WHERE oe-rel.company EQ oe-ord.company 
-              AND oe-rel.ord-no  EQ oe-ord.ord-no,
-            FIRST reftable NO-LOCK 
-            WHERE reftable.reftable EQ "oe-rel.s-code" 
-              AND reftable.company  EQ STRING(oe-rel.r-no,"9999999999") 
-              AND reftable.code     EQ "T"
+           WHERE oe-rel.company EQ oe-ord.company 
+             AND oe-rel.ord-no  EQ oe-ord.ord-no
+             AND oe-rel.s-code EQ "T"
             :
             cCode = "T".
             LEAVE.

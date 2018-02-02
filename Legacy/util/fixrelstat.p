@@ -225,11 +225,8 @@ IF ll-bin-tag THEN DO:
 
   IF lv-job-no EQ "-00" THEN lv-job-no = "".
 
-  FIND FIRST reftable
-      WHERE reftable.reftable EQ "oe-rel.s-code"
-        AND reftable.company  EQ STRING(oe-rel.r-no,"9999999999")
-      NO-LOCK NO-ERROR.
-  v-s-code  = IF AVAIL reftable THEN reftable.code ELSE
+  
+  v-s-code  = IF oe-rel.s-code <> "" THEN oe-rel.s-code ELSE
                     IF oe-ordl.is-a-component THEN "S" ELSE
                     if avail oe-ctrl and oe-ctrl.ship-from then "B" else "I".
  lv-selected-value = "NoTag".
@@ -246,10 +243,7 @@ IF ll-bin-tag THEN DO:
 END.
    
 IF v-none THEN DO TRANSACTION:
-  FIND FIRST reftable
-      WHERE reftable.reftable EQ "oe-rel.s-code"
-        AND reftable.company  EQ STRING(oe-rel.r-no,"9999999999")
-      NO-LOCK NO-ERROR.
+  
   v-correction = YES.
   CREATE oe-rell.
   ASSIGN
@@ -274,13 +268,13 @@ IF v-none THEN DO TRANSACTION:
    oe-rell.loc     = oe-rel.spare-char-1
    /** Set link to the planned releases **/
    oe-rell.link-no = oe-rel.r-no
-   oe-rell.s-code  = IF AVAIL reftable THEN reftable.code ELSE
+   oe-rell.s-code  = IF oe-rel.s-code <> "" THEN oe-rel.s-code ELSE
                      IF oe-ordl.is-a-component THEN "S" ELSE
                      if avail oe-ctrl and oe-ctrl.ship-from then "B" else "I".
    FIND bf-oe-rel WHERE RECID(bf-oe-rel) = RECID(oe-rel) EXCLUSIVE-LOCK.
    bf-oe-rel.link-no = oe-rell.r-no.
    RELEASE bf-oe-rel.
-  RELEASE reftable.  
+  
 
     ASSIGN
        oe-rell.newSellPrice = oe-rel.sell-price

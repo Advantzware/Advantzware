@@ -615,7 +615,6 @@ DEFINE INPUT  PARAMETER iprOeRelRow AS ROWID       NO-UNDO.
 DEFINE OUTPUT PARAMETER opcS-code AS CHARACTER   NO-UNDO.
 DEF BUFFER bf-oe-rel FOR oe-rel.
 DEF VAR v-reltype AS CHAR NO-UNDO.
-DEF BUFFER s-code FOR reftable.
 DEF VAR ll-transfer AS LOG NO-UNDO.
 
   FIND bf-oe-rel WHERE ROWID(bf-oe-rel) EQ iprOeRelRow NO-LOCK NO-ERROR.
@@ -632,18 +631,14 @@ DEF VAR ll-transfer AS LOG NO-UNDO.
    IF AVAIL sys-ctrl-shipto AND sys-ctrl-shipto.log-fld THEN v-reltype = sys-ctrl-shipto.char-fld.
    ELSE IF AVAIL sys-ctrl AND sys-ctrl.log-fld THEN v-reltype = sys-ctrl.char-fld.
 
-  FIND FIRST s-code
-      WHERE s-code.reftable EQ "oe-rel.s-code"
-        AND s-code.company  EQ STRING(bf-oe-rel.r-no,"9999999999")
-      NO-LOCK NO-ERROR.
-
+  
   opcS-code = /*IF v-reltype <> "" THEN reftable.CODE
                      ELSE */ IF ll-transfer            THEN "T"
                      ELSE
                      IF oe-ordl.is-a-component AND
-                        (NOT AVAIL s-code OR
-                         s-code.code NE "T")   THEN "S"
+                        (bf-oe-rel.s-code = "" OR
+                         bf-oe-rel.s-code NE "T")   THEN "S"
                      ELSE
-                     IF AVAIL s-code           THEN s-code.code
+                     IF bf-oe-rel.s-code <> ""      THEN bf-oe-rel.s-code
                      ELSE "B".
 END.

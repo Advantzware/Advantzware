@@ -725,8 +725,7 @@ PROCEDURE local-display-fields :
   DEF VAR lAccessClose AS LOG NO-UNDO.
   DEF VAR cAccessList AS CHAR NO-UNDO.
 
-  DEF BUFFER s-code FOR reftable.
-
+  
 
   /* Code placed here will execute PRIOR to standard behavior. */
 
@@ -754,12 +753,8 @@ PROCEDURE local-display-fields :
         RUN oe/rel-stat.p (ROWID(oe-rel), OUTPUT lv-stat).
 
         IF CAN-DO("S,L,I",lv-stat) THEN DO:
-          FIND FIRST s-code NO-LOCK
-              WHERE s-code.reftable EQ "oe-rel.s-code"
-                AND s-code.company  EQ STRING(oe-rel.r-no,"9999999999")
-              USE-INDEX reftable NO-ERROR.
-
-          IF AVAIL s-code AND s-code.code EQ "I" THEN ll-inv = YES.
+          
+          IF oe-rel.s-code EQ "I" THEN ll-inv = YES.
                                                  ELSE ll-bol = YES.
 
           IF ll-bol AND ll-inv THEN LEAVE.

@@ -4431,18 +4431,7 @@ IF v-relflg2 THEN DO:
       ELSE IF AVAIL sys-ctrl AND sys-ctrl.log-fld THEN v-reltype = sys-ctrl.char-fld.
   
   IF v-relType <> "" THEN DO:
-    FIND FIRST reftable
-    WHERE reftable.reftable EQ "oe-rel.s-code"
-        AND reftable.company  EQ STRING(oe-rel.r-no,"9999999999") 
-      NO-LOCK NO-ERROR.
-    IF NOT AVAIL reftable THEN DO:
-      CREATE reftable.
-      ASSIGN reftable.reftable = "oe-rel.s-code"
-             reftable.company = STRING(oe-rel.r-no,"9999999999")
-             reftable.CODE = IF oe-ordl.is-a-component THEN "S"
-                                ELSE SUBSTRING(v-relType,1,1).
-      IF oe-ord.TYPE = "T" THEN
-        ASSIGN reftable.CODE = "T".
+    
       FIND bf-oe-rel WHERE ROWID(bf-oe-rel) EQ ROWID(oe-rel)
         EXCLUSIVE-LOCK.
       bf-oe-rel.s-code = IF oe-ordl.is-a-component THEN "S"
@@ -4450,7 +4439,6 @@ IF v-relflg2 THEN DO:
       IF oe-ord.TYPE = "T" THEN
         ASSIGN bf-oe-rel.s-code = "T".      
       RELEASE bf-oe-rel.
-    END. /* not avail reftable */
   END. /* v-reltype <> "" */
 END. /* if v-relflg2 */
 
