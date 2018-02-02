@@ -76,7 +76,7 @@ DEFINE BUFFER bf-ordl FOR oe-ordl.
 &Scoped-define FIELDS-IN-QUERY-Dialog-Frame rm-rcpth.i-no rm-rcpth.po-no ~
 rm-rcpth.job-no rm-rcpth.job-no2 rm-rdtlh.s-num rm-rcpth.trans-date ~
 rm-rcpth.rita-code rm-rdtlh.loc rm-rdtlh.loc-bin rm-rdtlh.tag rm-rdtlh.qty ~
-rm-rcpth.pur-uom rm-rdtlh.cost rm-rcpth.loc ~
+rm-rcpth.pur-uom rm-rdtlh.cost  ~
 rm-rdtlh.tag2 rm-rdtlh.user-id rm-rdtlh.receiver-no 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Dialog-Frame rm-rcpth.i-no ~
 rm-rcpth.po-no rm-rcpth.job-no rm-rcpth.job-no2 rm-rdtlh.s-num ~
@@ -99,22 +99,22 @@ rm-rdtlh.user-id rm-rdtlh.receiver-no
 &Scoped-Define ENABLED-FIELDS rm-rcpth.i-no rm-rcpth.po-no ~
 rm-rcpth.job-no rm-rcpth.job-no2 rm-rdtlh.s-num rm-rcpth.trans-date ~
 rm-rcpth.rita-code rm-rdtlh.loc rm-rdtlh.loc-bin rm-rdtlh.tag rm-rdtlh.qty ~
-rm-rcpth.pur-uom rm-rdtlh.cost rm-rcpth.loc ~
+rm-rcpth.pur-uom rm-rdtlh.cost  ~
 rm-rdtlh.tag2 rm-rdtlh.user-id rm-rdtlh.receiver-no 
 &Scoped-define ENABLED-TABLES rm-rcpth rm-rdtlh
 &Scoped-define FIRST-ENABLED-TABLE rm-rcpth
 &Scoped-define second-ENABLED-TABLE rm-rcpth
-&Scoped-Define ENABLED-OBJECTS fi_ext-cost Btn_OK Btn_Done Btn_Cancel ~
+&Scoped-Define ENABLED-OBJECTS fi_ext-cost fi_cost-uom Btn_OK Btn_Done Btn_Cancel ~
 RECT-21 RECT-38 
 &Scoped-Define DISPLAYED-FIELDS rm-rcpth.i-no rm-rcpth.po-no ~
 rm-rcpth.job-no rm-rcpth.job-no2 rm-rdtlh.s-num rm-rcpth.trans-date ~
 rm-rcpth.rita-code rm-rdtlh.loc rm-rdtlh.loc-bin rm-rdtlh.tag rm-rdtlh.qty ~
-rm-rcpth.pur-uom rm-rdtlh.cost rm-rcpth.loc ~
+rm-rcpth.pur-uom rm-rdtlh.cost  ~
 rm-rdtlh.tag2 rm-rdtlh.user-id rm-rdtlh.receiver-no 
 &Scoped-define DISPLAYED-TABLES rm-rcpth rm-rdtlh
 &Scoped-define FIRST-DISPLAYED-TABLE rm-rcpth
 &Scoped-define SECOND-DISPLAYED-TABLE rm-rdtlh
-&Scoped-Define DISPLAYED-OBJECTS fi_ext-cost 
+&Scoped-Define DISPLAYED-OBJECTS fi_ext-cost fi_cost-uom
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -146,6 +146,11 @@ DEFINE BUTTON Btn_OK
 
 DEFINE VARIABLE fi_ext-cost AS DECIMAL FORMAT "->>,>>>,>>9.99":U 
      LABEL "Ext Cost" 
+     VIEW-AS FILL-IN 
+     SIZE 17 BY 1 NO-UNDO.
+
+DEFINE VARIABLE fi_cost-uom AS CHARACTER FORMAT "x(10)":U 
+     LABEL "Cost/UOM" 
      VIEW-AS FILL-IN 
      SIZE 17 BY 1 NO-UNDO.
 
@@ -219,10 +224,8 @@ DEFINE FRAME Dialog-Frame
           LABEL "Cost" FORMAT "->>>,>>9.99<<<<"
           VIEW-AS FILL-IN 
           SIZE 25 BY 1
-     rm-rcpth.loc AT ROW 7.19 COL 20 COLON-ALIGNED
-          LABEL "Cost/UOM" FORMAT "x(3)"
-          VIEW-AS FILL-IN 
-          SIZE 12 BY 1
+     fi_cost-uom AT ROW 7.19 COL 20 COLON-ALIGNED
+          
      fi_ext-cost AT ROW 7.19 COL 63 COLON-ALIGNED
      rm-rdtlh.tag2 AT ROW 7.19 COL 105 COLON-ALIGNED 
           LABEL "Cert/Lot/Mill#" FORMAT "x(30)"
@@ -306,7 +309,7 @@ ASSIGN
    EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN rm-rdtlh.cost IN FRAME Dialog-Frame
    EXP-LABEL                                                            */
-/* SETTINGS FOR FILL-IN rm-rcpth.loc IN FRAME Dialog-Frame
+/* SETTINGS FOR FILL-IN fi_cost-uom IN FRAME Dialog-Frame
    EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN fi_ext-cost IN FRAME Dialog-Frame
    EXP-LABEL EXP-FORMAT                                                 */
@@ -508,9 +511,9 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME rm-rcpth.loc
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rm-rcpth.loc Dialog-Frame
-ON LEAVE OF rm-rcpth.loc IN FRAME Dialog-Frame /* Cost/UOM */
+&Scoped-define SELF-NAME fi_cost-uom
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_cost-uom Dialog-Frame
+ON LEAVE OF fi_cost-uom IN FRAME Dialog-Frame /* Cost/UOM */
 DO:
   IF LASTKEY NE -1 THEN RUN convert-uoms.
 END.
@@ -567,7 +570,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     END.
 
     DO WITH FRAME {&FRAME-NAME}:
-        IF ip-type EQ "update" THEN DISABLE fi_ext-cost rm-rcpth.loc.
+        IF ip-type EQ "update" THEN DISABLE fi_ext-cost fi_cost-uom.
     END.
 
     WAIT-FOR GO OF FRAME {&FRAME-NAME}.
@@ -610,11 +613,11 @@ PROCEDURE display-item :
     DO:
         
         fi_ext-cost = DEC(rm-rdtlh.qty ) * DEC(rm-rdtlh.cost ) .
-
+        fi_cost-uom = rm-rcpth.pur-uom .
         DISPLAY  rm-rcpth.i-no rm-rcpth.po-no 
             rm-rcpth.job-no rm-rcpth.job-no2 rm-rdtlh.s-num rm-rcpth.trans-date 
             rm-rcpth.rita-code rm-rdtlh.loc rm-rdtlh.loc-bin rm-rdtlh.tag rm-rdtlh.qty 
-            rm-rcpth.pur-uom rm-rdtlh.cost  rm-rcpth.loc 
+            rm-rcpth.pur-uom rm-rdtlh.cost  fi_cost-uom 
             rm-rdtlh.tag2 rm-rdtlh.user-id rm-rdtlh.receiver-no fi_ext-cost 
             WITH FRAME Dialog-Frame.
     END.
@@ -644,21 +647,21 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY fi_ext-cost 
+  DISPLAY fi_ext-cost fi_cost-uom
       WITH FRAME Dialog-Frame.
   IF AVAILABLE rm-rcpth THEN 
     DISPLAY rm-rcpth.i-no rm-rcpth.po-no 
       rm-rcpth.job-no rm-rcpth.job-no2 rm-rdtlh.s-num rm-rcpth.trans-date 
       rm-rcpth.rita-code rm-rdtlh.loc rm-rdtlh.loc-bin rm-rdtlh.tag rm-rdtlh.qty 
-      rm-rcpth.pur-uom rm-rdtlh.cost rm-rcpth.loc 
+      rm-rcpth.pur-uom rm-rdtlh.cost  
       rm-rdtlh.tag2 rm-rdtlh.user-id rm-rdtlh.receiver-no
       WITH FRAME Dialog-Frame.
   ENABLE rm-rcpth.i-no rm-rcpth.po-no 
       rm-rcpth.job-no rm-rcpth.job-no2 rm-rdtlh.s-num rm-rcpth.trans-date 
       rm-rcpth.rita-code rm-rdtlh.loc rm-rdtlh.loc-bin rm-rdtlh.tag rm-rdtlh.qty 
-      rm-rcpth.pur-uom rm-rdtlh.cost rm-rcpth.loc 
+      rm-rcpth.pur-uom rm-rdtlh.cost  
       rm-rdtlh.tag2 rm-rdtlh.user-id rm-rdtlh.receiver-no 
-         fi_ext-cost Btn_OK Btn_Done Btn_Cancel RECT-21 RECT-38 
+      fi_cost-uom fi_ext-cost Btn_OK Btn_Done Btn_Cancel RECT-21 RECT-38 
       WITH FRAME Dialog-Frame.
   VIEW FRAME Dialog-Frame.
   {&OPEN-BROWSERS-IN-QUERY-Dialog-Frame}
@@ -888,11 +891,11 @@ PROCEDURE convert-uoms :
                             OUTPUT lv-out-qty).
 
     /* convert cost */
-    IF rm-rcpth.loc:SCREEN-VALUE  EQ "L" THEN
+    IF fi_cost-uom:SCREEN-VALUE  EQ "L" THEN
       lv-out-cost = DEC(rm-rdtlh.cost:SCREEN-VALUE ) / lv-out-qty.
     ELSE
       RUN custom/convcuom.p(b-rcpth.company,
-                            rm-rcpth.loc:SCREEN-VALUE ,
+                            fi_cost-uom:SCREEN-VALUE ,
                             lv-cost-uom,
                             v-bwt, v-len, v-wid, v-dep,
                             DEC(rm-rdtlh.cost:SCREEN-VALUE ),
@@ -902,7 +905,7 @@ PROCEDURE convert-uoms :
      rm-rdtlh.qty:SCREEN-VALUE      = STRING(lv-out-qty)
      rm-rcpth.pur-uom:SCREEN-VALUE  = lv-qty-uom
      rm-rdtlh.cost:SCREEN-VALUE     = STRING(lv-out-cost)
-     rm-rcpth.loc:SCREEN-VALUE      = lv-cost-uom.
+     fi_cost-uom:SCREEN-VALUE      = lv-cost-uom.
      fi_ext-cost:SCREEN-VALUE       = STRING(DEC(rm-rdtlh.qty:SCREEN-VALUE ) *
                                              DEC(rm-rdtlh.cost:SCREEN-VALUE ) ) .
 
@@ -978,7 +981,7 @@ PROCEDURE update-mat-act-cost :
                                   v-bwt, v-len, v-wid, v-dep,
                                   b-rm-rdtlh.cost, OUTPUT v-cost).    
 
-         FIND FIRST mat-act NO-LOCK
+         FIND FIRST mat-act 
              WHERE mat-act.company   EQ job-mat.company
                AND mat-act.mat-date  EQ b-rm-rcpth.post-date
                AND mat-act.job       EQ job.job
