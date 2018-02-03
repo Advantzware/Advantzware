@@ -1037,8 +1037,8 @@ PROCEDURE valid-i-no :
     IF NOT CAN-FIND(FIRST item
                     WHERE item.company EQ cocode
                       AND item.i-no    EQ rm-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name}
-                      AND item.i-code  EQ "R") THEN DO:
-      MESSAGE "Invalid entry, try help..." VIEW-AS ALERT-BOX ERROR.
+                      ) THEN DO:
+      MESSAGE "Invalid Raw Material Item" VIEW-AS ALERT-BOX ERROR.
       APPLY "entry" TO rm-rctd.i-no IN BROWSE {&browse-name}.
       RETURN ERROR.
     END.
