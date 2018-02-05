@@ -619,7 +619,7 @@ ASSIGN
                       AND xoe-rel.i-no    EQ v-fg
                       NO-ERROR.
           END.
-
+           IF AVAIL xoe-rel THEN
            ASSIGN cCustpo-name = xoe-rel.lot-no.
         
          IF AVAILABLE xoe-rel AND cCustpo-name = "" THEN
@@ -1012,17 +1012,9 @@ ASSIGN
             /*PAGE. */
             IF xest.metric THEN do:
              v-out1-id = RECID(xeb).
-               run cec/desprnptree.p (recid(xef),
-                           ROWID(xeb),
-                           INPUT v-coldscr,
-                           "",
-                           "",
-                           "",
-                           "",
-                           "",
-                           input-output v-lines,
-                           recid(xest),
-                           "").         
+               run cec/desprnptree.p (RECID(xef),
+                                INPUT-OUTPUT v-lines,
+                                RECID(xest)).         
             PAGE.
             END.
             ELSE DO:
