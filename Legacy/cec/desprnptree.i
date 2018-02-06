@@ -117,61 +117,6 @@ for each ef
      v-lscore-c     = box-design-hdr.lscore
      v-lcum-score-c = box-design-hdr.lcum-score.
     
-    IF est.metric THEN DO:
-           ASSIGN lv-tmp = ""
-                  lv-tmp-val = ""
-                  lv-met-lsc = ""
-                  lv-met-lcum = "".
-
-           DO i = 1 TO LENGTH(box-design-hdr.lscore):
-              lv-tmp-val = SUBSTRING(box-design-hdr.lscore,i,1).
-              IF lv-tmp-val <> " " THEN lv-tmp = lv-tmp + lv-tmp-val.
-              ELSE do:
-                   IF lv-tmp <> "" THEN DO:
-                     ld-tmp-scr = ({sys/inc/k16bv.i dec(lv-tmp)}) * 25.4.
-                     lv-tmp = "".
-                     li-num-space = 0.
-                   END.
-                   li-num-space = li-num-space + 1.
-                   lv-met-lsc = lv-met-lsc + (IF li-num-space <= 7 THEN lv-tmp-val ELSE "") +
-                                IF ld-tmp-scr = 0 THEN "" ELSE trim(string(ld-tmp-scr)).
-                   ld-tmp-scr = 0.
-              END.                                    
-           END. 
-           IF lv-tmp <> "" THEN do:
-               ld-tmp-scr = ({sys/inc/k16bv.i dec(lv-tmp)}) * 25.4.
-               lv-met-lsc = lv-met-lsc + string(ld-tmp-scr).
-           END.
-           ASSIGN lv-tmp = ""
-               lv-tmp-val = ""
-               lv-met-lcum = ""
-               ld-tmp-scr = 0
-               li-num-space = 0.
-
-           DO i = 1 TO LENGTH(box-design-hdr.lcum-score):
-              lv-tmp-val = SUBSTRING(box-design-hdr.lcum-score,i,1).
-              IF lv-tmp-val <> " " THEN lv-tmp = lv-tmp + lv-tmp-val.
-              ELSE do:
-                   IF lv-tmp <> "" THEN DO:
-                     ld-tmp-scr = ({sys/inc/k16bv.i dec(lv-tmp)}) * 25.4.
-                     lv-tmp = "".
-                     li-num-space = 0.
-                   END.
-                   li-num-space = li-num-space + 1.
-                   lv-met-lcum = lv-met-lcum + (IF li-num-space <= 7 THEN lv-tmp-val ELSE "") +
-                                  IF ld-tmp-scr = 0 THEN "" ELSE trim(string(ld-tmp-scr)).
-                   ld-tmp-scr = 0.
-              END.                   
-           END.
-           IF lv-tmp <> "" THEN do:
-               ld-tmp-scr = ({sys/inc/k16bv.i dec(lv-tmp)}) * 25.4.
-               lv-met-lcum = lv-met-lcum + string(ld-tmp-scr).
-           END.
-
-           ASSIGN v-lscore-c     = lv-met-lsc
-                  v-lcum-score-c = lv-met-lcum.
-    END. /* for metric display */
-
     i = 0.
     for each box-design-line of box-design-hdr
         where box-design-line.wcum-score ne ""
@@ -181,8 +126,8 @@ for each ef
       create w-box-design-line.
       assign
        w-box-design-line.line-no       = box-design-line.line-no
-       w-box-design-line.wscore-c      = IF est.metric THEN string(({sys/inc/k16bv.i dec(box-design-line.wscore)}) * 25.4) ELSE box-design-line.wscore
-       w-box-design-line.wcum-score-c  = IF est.metric THEN string(({sys/inc/k16bv.i dec(box-design-line.wscore)}) * 25.4) ELSE box-design-line.wcum-score.
+       w-box-design-line.wscore-c      =  box-design-line.wscore
+       w-box-design-line.wcum-score-c  =  box-design-line.wcum-score.
     end.
   end.
 
@@ -232,24 +177,7 @@ for each ef
 
   if v-triad then
        put {1} space(6) v-lcum-score-c space(2) "Totals" skip.
-
-  IF est.metric THEN DO:
-     IF LENGTH(v-lscore-c) <= 90 THEN DO:
-       if v-triad then
-          put {1} /*"Score"*/ "         "  v-lscore-c    skip.
-       else
-         put {1} space(7) "           "  v-lscore-c  FORM "x(100)"  skip
-              space(7) "           " v-lcum-score-c FORM "x(100)"  skip.
-     END.
-     ELSE DO:
-         if v-triad then
-             put {1} /*"Score"*/ "         "  v-lscore-c    skip.
-          else
-            put {1} "<P9>" space(7) "           "  v-lscore-c  FORM "x(135)"  skip
-                 space(7) "           " v-lcum-score-c FORM "x(135)"  "<P12>" skip.
-     END.
-  END.
-  ELSE DO:
+ 
      IF LENGTH(v-lscore-c) <= 90 THEN DO:
         IF v-triad then
            put {1} /*space(13) "     " */ v-lscore-c    skip.
@@ -263,7 +191,7 @@ for each ef
           put {1} "<P9>" space(3) /* "     " */  v-lscore-c  FORM "x(135)"  skip
                space(3) /*"      " */ v-lcum-score-c FORM "x(135)" "<P12>" skip.
      END.
-  END.
+  /*END.*/
   
   v-lines = v-lines + 4.
   v-wscore-metric = 0  .
@@ -324,84 +252,18 @@ for each ef
      
      PUT unformatted "<C3><#30><R+40><C+85><IMAGE#30=" FILE-INFO:FULL-PATHNAME ">" .
      PUT UNFORMATTED "<=30>" SKIP.
-     v-image = YES .
-     v-lscore-c-metric-new  = box-design-hdr.lscore.
-     v-lcum-score-c-metric-new = box-design-hdr.lcum-score.
-
+    
      FOR EACH box-design-line OF box-design-hdr NO-LOCK:
-
-         IF box-design-line.wscore <> "" AND v-count LE 20 THEN
-            ASSIGN
-               v-count = v-count + 1
-               v-wscore-metric[v-count] = IF NOT est.metric THEN ({sys/inc/k16bv.i dec(box-design-line.wscore)}) * 25.4
-                                          ELSE dec(box-design-line.wscore)
-               v-wcum-metric[v-count]   = IF NOT est.metric THEN ({sys/inc/k16bv.i dec(box-design-line.wcum-score)}) * 25.4
-                                       ELSE dec(box-design-line.wcum-score)                              .
-
-
-
+ 
          PUT  /*space(6)  */
               "<C87>"
-              IF est.metric AND box-design-line.wscore <> "" THEN string( ({sys/inc/k16bv.i dec(box-design-line.wscore)}) * 25.4) ELSE box-design-line.wscore " " 
-              IF est.metric AND box-design-line.wcum-score <> "" THEN string( ({sys/inc/k16bv.i dec(box-design-line.wcum-score)}) * 25.4) ELSE box-design-line.wcum-score SKIP.
+               box-design-line.wscore " " 
+               box-design-line.wcum-score SKIP.
      END.
    .
   END. /* else box image */
 
-
-  IF v-image THEN
-     ASSIGN
-       v-lscore-c-metric-new = "<=30><R+23>" + v-lscore-c-metric-new
-       v-lcum-score-c-metric-new = "<=30><R+24>" + v-lcum-score-c-metric-new.
-  
-  if v-triad then
-     put {1} space(6) v-lscore-c-metric-new space(2) "Totals" skip.
-
-  IF est.metric THEN DO:
-     IF LENGTH(v-lscore-c-metric-new) <= 90 THEN DO:
-       if v-triad then
-          put {1} "         "  v-lscore-c-metric-new    skip.
-       else
-         put {1} space(7) "           "  v-lscore-c-metric-new  FORM "x(100)"  skip
-              space(7) "           " v-lcum-score-c-metric-new FORM "x(100)"  skip.
-     END.
-     ELSE DO:
-         if v-triad then
-             put {1} "         "  v-lscore-c-metric-new    skip.
-          else
-            put {1} "<P12>" space(7) "           "  v-lscore-c-metric-new  FORM "x(135)"  skip
-                 space(7) "           " v-lcum-score-c-metric-new FORM "x(135)"  "<P12>" skip.
-     END.
-  END.
-  ELSE DO:
-
-     IF LENGTH(v-lscore-c-metric-new) <= 90 THEN DO:
-        IF v-triad then
-           put {1} v-lscore-c-metric-new    skip.
-        else
-          put {1} space(3) v-lscore-c-metric-new  FORM "x(90)"  skip
-               space(3) v-lcum-score-c-metric-new FORM "x(90)"  skip.
-     END.
-     ELSE DO:
-         IF v-triad THEN put {1} v-lscore-c-metric-new    skip.
-        else
-          put {1} "<P12>" space(3) v-lscore-c-metric-new  FORM "x(135)"  skip
-               space(3) v-lcum-score-c-metric-new FORM "x(135)" "<P12>" skip.
-     END.
-  END.
-
-  /*print metric width*/
-
-  PUT SKIP(1).
-
-  DO i = 1 TO v-count:
-     PUT SPACE(82) ROUND(v-wscore-metric[i],0) " " ROUND(v-wcum-metric[i],0) SKIP(3).
-  END.
-
-
-
-
-  /*PUT "<P10>" .*/
+  PUT "<P10>" .
   PAGE.
   end.
 /* end ---------------------------------- copr. 1997  advanced software, inc. */
