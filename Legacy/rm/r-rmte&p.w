@@ -644,7 +644,7 @@ DO:
                 (IF t-trans   THEN "T" ELSE "") +
                 (IF t-adj     THEN "A" ELSE "")
    v-pr-tots  = t-showtotal.
-MESSAGE "test" STRING(v-from-job) "   " STRING(v-to-job) VIEW-AS ALERT-BOX ERROR.
+
   FOR EACH work-gl:
     DELETE work-gl.
   END.
