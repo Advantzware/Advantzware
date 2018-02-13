@@ -1249,7 +1249,7 @@ PROCEDURE run-schedule :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    RUN schedule/sbHTML.p ("Job", ROWID(job)).
+    RUN schedule/capacityPage.p ("Job", ROWID(job), job.company).
 
 END PROCEDURE.
 

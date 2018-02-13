@@ -826,7 +826,7 @@ for each job-hdr NO-LOCK
             v-upc-lbl = "    QC#".
             IF FIRST-OF(eb.form-no) THEN
               PUT  /*"<R-1>" "Case" AT 97 SKIP */
-                "<P10><B>F/B <C5>DESCRIPTION <C21>O/U%<C26>JOB QTY<C36>PO#<C43>FG ITEM#<C56>STYLE<C61>CARTON SIZE<C75>COUNT<C81>CASE CODE<C93.5>#UP" "<C98>" v-upc-lbl "</B>" SKIP.
+                "<P10><B>F/B <C5>FG ITEM# <C21>O/U%<C29>JOB QTY<C38>PO#<C49>STYLE<C55>CARTON SIZE<C69>COUNT<C77>CASE CODE<C93.5>#UP" "<C98>" v-upc-lbl "</B>" SKIP.
             /*else
               put fill("-",132) format "x(132)". */
             v-job-qty = 0.
@@ -866,20 +866,19 @@ for each job-hdr NO-LOCK
 
             PUT  trim(string(eb.form-no,">>9")) + "-" +
                     trim(string(eb.blank-no,">>9")) FORM "x(5)" 
-                    "<C5>" v-dsc[1] FORMAT "x(19)" /* was 19, b4 that 21*/
+                    "<C5>" eb.stock-no FORM "x(15)" /* was 19, b4 that 21*/
                     "<C21>"  v-ovund FORMAT "x(7)"  
-                    "<C26>"  v-job-qty FORMAT "->>>>>>>>9" 
-                    "<C36>"  v-po-no  FORMat "x(8)" 
-                    "<C43>"  eb.stock-no FORM "x(15)" /*@ job-hdr.i-no */ 
-                    "<C56>"  eb.style FORMAT "x(6)" /*v-stypart */
-                    "<C61>"  v-size[1] FORM "x(19)"
-                    "<C75>"  dCasCnt FORM ">>>>>9" 
-                    "<C81>" eb.cas-no /*v-case-size*/  FORM "x(19)" /* was 15 */ 
+                    "<C29>"  v-job-qty FORMAT "->>>>>>>>9" 
+                    "<C38>"  v-po-no  FORMat "x(10)" 
+                    "<C49>"  eb.style FORMAT "x(6)" /*v-stypart */
+                    "<C55>"  v-size[1] FORM "x(19)"
+                    "<C69>"  dCasCnt FORM ">>>>>9" 
+                    "<C77>" eb.cas-no /*v-case-size*/  FORM "x(19)" /* was 15 */ 
                     "<C92.5>" v-up   
                     
                     "<C98>" v-upc-no FORM "x(15)"
-                    skip
-                .
+                    skip.
+             PUT "<C5>" v-dsc[1] FORMAT "x(30)" SKIP.
              v-itm-printed = v-itm-printed + 1.    
 
             find first item

@@ -1221,7 +1221,19 @@ FOR EACH ap-pay
       and ((ap-ledger.tr-date GE begin_date AND ap-ledger.tr-date le end_date) OR NOT tb_post-date)
       /*use-index ap-ledger */NO-LOCK NO-ERROR.
 
-    IF NOT AVAIL ap-ledger THEN NEXT.
+    IF NOT AVAIL ap-ledger THEN DO:
+         FIND FIRST bank NO-LOCK
+           WHERE bank.company   EQ cocode
+            AND bank.bank-code EQ ap-pay.bank-code
+        NO-ERROR.
+        FIND first ap-ledger
+            where ap-ledger.company  eq ap-pay.company
+            and ap-ledger.vend-no  eq ap-pay.vend-no      
+            and ap-ledger.refnum   eq ("CHK# " + string(ap-pay.check-no) +
+                                           " CD#" + bank.bank-code)      
+            and ((ap-ledger.tr-date GE begin_date AND ap-ledger.tr-date le end_date) OR NOT tb_post-date)
+            /*use-index ap-ledger */NO-LOCK NO-ERROR.
+    END.
 
 
   ASSIGN

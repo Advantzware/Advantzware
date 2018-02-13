@@ -169,7 +169,9 @@ END.
 ASSIGN
  probe.net-profit    = ROUND((1 - (probe.full-cost / probe.sell-price)) * 100,2)
  probe.gross-profit  = ROUND((1 - (probe.fact-cost / probe.sell-price)) * 100,2)
- probe.sell-price-wo = probe.sell-price.
+ probe.sell-price-wo = probe.sell-price
+ probe.spare-dec-1 = dm-tot[5] / qm
+ .
     
 IF NOT ll-use-margin THEN probe.market-price = probe.net-profit.
       

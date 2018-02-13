@@ -29,7 +29,7 @@ v-std-list = "LoadTagSSCC,IR12,OEDateChange,FGRecptPassWord,InvStatus,BOLQtyPopu
             + "OEBOLPrompt,SHTCALCWarn,BOLFMTTran,BOLMaster,SalesBudget,CEMarkupMatrixInterpolate,CEMarkupMatrixLookup,"
             + "KiwiT,BusinessFormModal,LoadTagXprintImage,AsiHelpClientID,CEGotoCalc,FGKEEPZEROBIN,RMKEEPZEROBIN,PrePressHotFolderIn,"
             + "PrePressHotFolderOut,METRIC,CEImportForm,CEImportFormFolder,BusinessFormLogo,CalcBtnImage,CalcBtnLink,DCClosedJobs,"
-            + "ImportFolder,ImportLog,TagFormat,FgItemHideCalcFields,VendCostMatrix,RelSkipRecalc,AllowRMAdd" .
+            + "ImportFolder,ImportLog,TagFormat,FgItemHideCalcFields,VendCostMatrix,RelSkipRecalc,RMAllowAdd" .
 
 IF CAN-DO(v-std-list,ip-nk1-value) THEN
 CASE ip-nk1-value:
@@ -385,7 +385,7 @@ CASE ip-nk1-value:
         INPUT "Vendor Cost Matrix - Form or To",
         INPUT "" /* Char Value */, INPUT 0 /* Int value */,
         INPUT NO /* Logical value */).
-    WHEN "AllowRMAdd" THEN   
+    WHEN "RMAllowAdd" THEN   
     RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
         INPUT "allow auto creation of new Raw material item",
         INPUT "" /* Char Value */, INPUT 0 /* Int value */,
@@ -589,4 +589,5 @@ CASE ip-nk1-value:
     WHEN "webroot" THEN DO: {sys\inc\webroot.i} END.
     WHEN "xmlorder" THEN DO: {sys\inc\xmlorder.i} END.
     WHEN "OverwriteJobPlan" THEN DO: {sys\inc\overwriteJobPlan.i} END.
+    WHEN "CapacityPage" THEN DO: {sys\inc\capacityPage.i} END.
 END CASE.

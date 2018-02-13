@@ -72,6 +72,7 @@ Reset Time,Reajuste la Hora
 Run,Transcurso
 Run Quantity,Cantidad
 Schedule,Horario
+Search,Búsqueda
 Select Company,Seleccione a Compania
 Select Employee,Seleccione a Empleado
 Select Job,Seleccione de Trabajo

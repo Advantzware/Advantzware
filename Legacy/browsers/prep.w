@@ -146,7 +146,7 @@ DEFINE BROWSE Browser-Table
       prep.code FORMAT "x(15)":U WIDTH 28.2
       prep.dscr COLUMN-LABEL "Description" FORMAT "x(20)":U WIDTH 24.2
       prep.mat-type COLUMN-LABEL "Mat'l !Type" FORMAT "X":U WIDTH 7.2
-      prep.mkup FORMAT ">>9.99":U WIDTH 9.8
+      prep.mkup FORMAT "->>9.99":U WIDTH 9.8
       prep.cost FORMAT "->>,>>9.99":U
       prep.dfault COLUMN-LABEL "Use in all!Estimates" FORMAT "Y/N":U
             WIDTH 14.6

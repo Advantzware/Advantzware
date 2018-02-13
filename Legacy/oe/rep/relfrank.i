@@ -42,18 +42,7 @@
              w-qty[1] = fg-bin.qty
              w-qty[2] = fg-bin.qty 
              w-c-c    = fg-bin.case-count
-             w-x      = CAN-FIND(FIRST reftable
-                                 WHERE reftable.reftable EQ "oe-rell.selected"
-                                   AND reftable.company  EQ fg-bin.company
-                                   AND reftable.loc      EQ fg-bin.i-no
-                                   AND reftable.code     EQ STRING(fg-bin.job-no,"x(10)") +
-                                                            STRING(fg-bin.job-no2,"9999999999")
-                                   AND reftable.code2    EQ STRING(fg-bin.loc,"x(10)")     +
-                                                            STRING(fg-bin.loc-bin,"x(10)") +
-                                                            STRING(fg-bin.tag,"x(40)")     +
-                                                            STRING(fg-bin.cust-no,"x(10)")
-                                   AND LOOKUP(reftable.rec_key,lv-key-list) GT 0
-                                   AND reftable.val[1]   EQ 1)
+             w-x      = NO
              w-job-no = fg-bin.job-no
              w-job-no2 = fg-bin.job-no2
              i        = i + 1.

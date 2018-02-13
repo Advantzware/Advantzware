@@ -52,7 +52,7 @@ DO TRANSACTION:
 END.
 
 {ce/print42.i "new SHARED"}
-   
+
 DEFINE TEMP-TABLE work-ord NO-UNDO
     FIELD cust-no LIKE job-hdr.cust-no
     FIELD ord-no  LIKE job-hdr.ord-no.
@@ -670,36 +670,15 @@ DO:
         ASSIGN
             job.est-no      = xest.est-no
             job.create-date = TODAY
-            job.rec_key     = IF job.rec_key = "" THEN xest.rec_key ELSE job.rec_key.
-        job.stat          = "R".
-    END.
-
-
-    DO TRANSACTION:
-        FIND FIRST reftable
-            WHERE reftable.reftable EQ "job.create-time"
-            AND reftable.company  EQ job.company
-            AND reftable.loc      EQ ""
-            AND reftable.code     EQ STRING(job.job,"9999999999")
-            USE-INDEX reftable NO-ERROR.
-        IF NOT AVAILABLE reftable THEN 
-        DO:
-            CREATE reftable.
-            ASSIGN
-                reftable.reftable = "job.create-time"
-                reftable.company  = job.company
-                reftable.loc      = ""
-                reftable.code     = STRING(job.job,"9999999999").
-        END.
-        reftable.val[1] = TIME.
-
-        FIND CURRENT reftable NO-LOCK.
-        RELEASE reftable.
-    END.
+            job.rec_key     = IF job.rec_key = "" THEN xest.rec_key ELSE job.rec_key
+            job.stat          = "R"
+            job.create-time = TIME.
+    END.  
   
   
     FIND CURRENT job NO-LOCK.
 
+    /* calc-est.p calls print4.p or print42.p to create op temp-table */
     RUN jc/calc-est.p (RECID(job)).
 
     FIND FIRST sys-ctrl WHERE sys-ctrl.company EQ cocode
