@@ -218,11 +218,9 @@
              EACH item WHERE item.company eq itemfg-ink.company and 
                   item.i-no eq itemfg-ink.rm-i-no 
                 NO-LOCK: 
-             FIND FIRST reftable WHERE reftable.rec_key  EQ itemfg-ink.rec_key
-                AND reftable.reftable EQ "itemfg-ink.occurs" 
-                USE-INDEX rec_key NO-LOCK NO-ERROR.
-             IF AVAILABLE (reftable) THEN DO:
-               v-color   = v-color + reftable.val[1].
+
+               IF AVAILABLE (itemfg-ink) THEN DO:
+                 v-color   = v-color + itemfg-ink.occurs.
               END.
           END.
 

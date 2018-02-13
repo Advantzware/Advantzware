@@ -87,16 +87,16 @@ DEF VAR iColumnLength AS INT NO-UNDO.
 DEF VAR cTextListToDefault AS cha NO-UNDO.
 
 ASSIGN cTextListToSelect  = "Rep,Customer,Name,Type,FG Item#,Cust Part#,Order#,Inv#,Cat,Quantity,Sell Price,Total Cost," +
-                            "GP %,Comm Amt,Comm %,Group"  
+                            "GP %,Comm Amt,Comm %,Group,Currency,Invoice Date,Warehouse," + "Invoice Cost,Order Cost,Full Cost"  
        cFieldListToSelect = "sman,cust-no,cust-nam,type,i-no,part-no,ord,inv,cat,qty,sel-pric,totl-cst," +
-                            "v-gp,v-camt,v-comm,grp"
+                            "v-gp,v-camt,v-comm,grp,curr,inv-date,ware-house," + "inv-cost,ord-cost,full-cost"
 
-       cFieldLength = "4,8,19,8,15,15,6,6,8,10,12,12," + "9,9,8,8"
+       cFieldLength = "4,8,19,8,15,15,6,6,8,10,12,12," + "9,9,8,8,8,12,9," + "12,12,12"
        .
 
 {sys/inc/ttRptSel.i}
  ASSIGN cTextListToDefault  = "Rep,Customer,Name,Type,FG Item#,Cust Part#,Order#,Inv#,Cat,Quantity,Sell Price,Total Cost," +
-                            "GP %,Comm Amt,Comm %"  .
+                            "GP %,Comm Amt,Comm %,Currency,Invoice Date,Warehouse"  .
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -122,8 +122,8 @@ fi_file btn-ok btn-cancel
 &Scoped-Define DISPLAYED-OBJECTS lbl_ptd rd_ptd begin_period begin_date ~
 end_date begin_slsmn end_slsmn tgChooseSalesReps begin_cust-no end_cust-no ~
 begin_cust-type end_cust-type begin_group end_group fg-cat tb_prep tgCatSum ~
-sl_avail sl_selected lines-per-page lv-ornt rd-dest lv-font-no lv-font-name ~
-td-show-parm tb_excel tb_runExcel fi_file 
+sl_avail sl_selected lines-per-page lv-ornt rd-dest lv-font-no ~
+lv-font-name td-show-parm tb_excel tb_runExcel fi_file 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -187,7 +187,7 @@ DEFINE VARIABLE begin_cust-type AS CHARACTER FORMAT "X(8)"
      SIZE 19 BY 1.
 
 DEFINE VARIABLE begin_date AS DATE FORMAT "99/99/9999":U INITIAL 01/01/001 
-     LABEL "Beginning Date" 
+     LABEL "From Invoice Date" 
      VIEW-AS FILL-IN 
      SIZE 19 BY 1 NO-UNDO.
 
@@ -217,11 +217,11 @@ DEFINE VARIABLE end_cust-type AS CHARACTER FORMAT "X(8)"
      SIZE 19 BY 1.
 
 DEFINE VARIABLE end_date AS DATE FORMAT "99/99/9999":U INITIAL 12/31/9999 
-     LABEL "Ending Date" 
+     LABEL "To Invoice Date" 
      VIEW-AS FILL-IN 
      SIZE 17 BY 1 NO-UNDO.
 
-DEFINE VARIABLE end_group AS CHARACTER FORMAT "X(8)" INITIAL "zzzzzzzz"
+DEFINE VARIABLE end_group AS CHARACTER FORMAT "X(8)" INITIAL "zzzzzzzz" 
      LABEL "To Group" 
      VIEW-AS FILL-IN 
      SIZE 19 BY 1.
@@ -363,8 +363,8 @@ DEFINE FRAME FRAME-A
           "Enter Beginning Customer Number" WIDGET-ID 62
      fg-cat AT ROW 10.38 COL 24 COLON-ALIGNED HELP
           "Enter Category, or leave blank for all"
-     tb_prep AT ROW 11.52 COL 21
-     tgCatSum AT ROW 11.52 COL 55.6 WIDGET-ID 4
+     tb_prep AT ROW 11.52 COL 13.6
+     tgCatSum AT ROW 11.52 COL 45 WIDGET-ID 4
      sl_avail AT ROW 13.1 COL 2 NO-LABEL WIDGET-ID 26
      sl_selected AT ROW 13.1 COL 58.8 NO-LABEL WIDGET-ID 28
      Btn_Def AT ROW 13.24 COL 39.4 HELP
@@ -390,11 +390,11 @@ DEFINE FRAME FRAME-A
      "Selection Parameters" VIEW-AS TEXT
           SIZE 21 BY .71 AT ROW 1.24 COL 5
           BGCOLOR 2 
+     "Output Destination" VIEW-AS TEXT
+          SIZE 18 BY .62 AT ROW 19.1 COL 4
      "(Leave Blank For all Categories)" VIEW-AS TEXT
           SIZE 31 BY .71 AT ROW 10.67 COL 46
           FGCOLOR 1 
-     "Output Destination" VIEW-AS TEXT
-          SIZE 18 BY .62 AT ROW 19.1 COL 4
      RECT-6 AT ROW 18.81 COL 1
      RECT-7 AT ROW 1 COL 1
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
@@ -454,16 +454,6 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME                                                           */
-ASSIGN
-       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "ribbon-button".
-
-
-ASSIGN
-       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "ribbon-button".
-
-
 ASSIGN 
        begin_cust-no:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
@@ -487,6 +477,14 @@ ASSIGN
 ASSIGN 
        begin_slsmn:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
+
+ASSIGN 
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+ASSIGN 
+       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
 
 ASSIGN 
        end_cust-no:PRIVATE-DATA IN FRAME FRAME-A     = 
@@ -554,7 +552,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -1200,16 +1198,16 @@ PROCEDURE enable_UI :
 ------------------------------------------------------------------------------*/
   DISPLAY lbl_ptd rd_ptd begin_period begin_date end_date begin_slsmn end_slsmn 
           tgChooseSalesReps begin_cust-no end_cust-no begin_cust-type 
-          end_cust-type begin_group end_group fg-cat tb_prep tgCatSum sl_avail 
-          sl_selected lines-per-page lv-ornt rd-dest lv-font-no lv-font-name 
-          td-show-parm tb_excel tb_runExcel fi_file 
+          end_cust-type begin_group end_group fg-cat tb_prep tgCatSum  
+          sl_avail sl_selected lines-per-page lv-ornt rd-dest lv-font-no 
+          lv-font-name td-show-parm tb_excel tb_runExcel fi_file 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   ENABLE RECT-6 RECT-7 rd_ptd begin_period begin_date end_date begin_slsmn 
          end_slsmn tgChooseSalesReps begin_cust-no end_cust-no begin_cust-type 
-         end_cust-type begin_group end_group fg-cat tb_prep tgCatSum sl_avail 
-         sl_selected Btn_Def Btn_Add Btn_Remove btn_Up btn_down lines-per-page 
-         lv-ornt rd-dest lv-font-no td-show-parm tb_excel tb_runExcel fi_file 
-         btn-ok btn-cancel 
+         end_cust-type begin_group end_group fg-cat tb_prep tgCatSum  
+         sl_avail sl_selected Btn_Def Btn_Add Btn_Remove btn_Up btn_down 
+         lines-per-page lv-ornt rd-dest lv-font-no td-show-parm tb_excel 
+         tb_runExcel fi_file btn-ok btn-cancel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.
@@ -1372,7 +1370,6 @@ def var v-procat    like itemfg.procat NO-UNDO.
 def var v-qty       as   DEC NO-UNDO.
 def var v-amt       like ar-invl.amt NO-UNDO.
 def var v-cost      like ar-invl.t-cost NO-UNDO.
-DEF VAR v-full-cost AS LOGICAL NO-UNDO.
 def var v-cust-part like ar-invl.part-no no-undo.
 def var v-ord-no    like ar-invl.ord-no NO-UNDO.
 def var v-job-no    like job.job-no NO-UNDO.
@@ -1410,6 +1407,9 @@ DEF VAR cVarValue AS cha NO-UNDO.
 DEF VAR cExcelVarValue AS cha NO-UNDO.
 DEF VAR cFieldName AS cha NO-UNDO.
 DEF VAR cSelectedList AS cha NO-UNDO.
+DEFINE VARIABLE dFullCost AS DECIMAL NO-UNDO .
+DEFINE VARIABLE dOrdCost AS DECIMAL NO-UNDO .
+DEFINE VARIABLE dInvCost AS DECIMAL NO-UNDO .
 cSelectedList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
 DEF BUFFER bar-inv FOR ar-inv.
 
@@ -1438,14 +1438,16 @@ ASSIGN
  v-cust-typ[2]  = end_cust-type
  v-sumdet    = NOT 
  v-cost1     = ""
- v-print-cost = NO
- v-full-cost  = YES
+ v-print-cost = YES
  v-show-sls-cat = tgCatSum.
 
-IF v-print-cost THEN DO: 
-  IF NOT ll-secure THEN RUN sys/ref/d-passwd.w (3, OUTPUT ll-secure).
-  v-print-cost = ll-secure. 
+FOR EACH ttRptSelected BY ttRptSelected.DisplayOrder:
+  IF LOOKUP(ttRptSelected.TextList, "Sell Price,Total Cost,Invoice Cost,Order Cost,Full Cost") <> 0    THEN do:
+      IF NOT ll-secure THEN RUN sys/ref/d-passwd.w (3, OUTPUT ll-secure).
+      v-print-cost = ll-secure. 
+  END.
 END.
+
 
 FOR EACH ttRptSelected BY ttRptSelected.DisplayOrder:
 

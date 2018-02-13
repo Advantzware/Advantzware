@@ -556,11 +556,7 @@ FOR EACH oe-boll WHERE oe-boll.company EQ cocode
                 and inv-line.i-no   eq oe-boll.i-no
                 and inv-line.line   eq oe-boll.line
                 and inv-line.po-no  eq oe-boll.po-no
-                AND CAN-FIND(FIRST reftable WHERE
-                    reftable.reftable = "inv-line.lot-no" AND
-                    reftable.rec_key  = inv-line.rec_key AND
-                    reftable.CODE     = oe-boll.lot-no
-                    USE-INDEX rec_key)
+                AND inv-line.lot-no = oe-boll.lot-no                    
               use-index r-no no-error.
           ELSE
               find first inv-line
@@ -856,11 +852,7 @@ DEF VAR v-index AS INT NO-UNDO.
                 and inv-line.i-no   eq oe-boll.i-no
                 and inv-line.line   eq oe-boll.line
                 and inv-line.po-no  eq oe-boll.po-no
-                AND CAN-FIND(FIRST reftable WHERE
-                    reftable.reftable = "inv-line.lot-no" AND
-                    reftable.rec_key  = inv-line.rec_key AND
-                    reftable.CODE     = oe-boll.lot-no
-                    USE-INDEX rec_key)
+                AND inv-line.lot-no = oe-boll.lot-no                    
               use-index r-no no-error.
           ELSE
               find first inv-line
@@ -925,29 +917,17 @@ DEF VAR v-index AS INT NO-UNDO.
           inv-line.p-c        = oe-boll.p-c
           inv-line.po-no      = oe-boll.po-no.
          
-          FIND FIRST reftable WHERE
-               reftable.reftable EQ "oe-boll.sell-price" AND
-               reftable.rec_key  EQ STRING(RECID(oe-boll))
-               USE-INDEX rec_key
-               NO-LOCK NO-ERROR.
          
-          IF AVAIL reftable THEN
-          DO:
-             IF reftable.val[2] EQ 1 THEN
+             IF oe-boll.zeroPrice EQ 1 THEN
                 inv-line.price = 0.
-             ELSE IF reftable.val[1] NE 0 THEN
-                inv-line.price = reftable.val[1].
-             RELEASE reftable.
-          END.
+             ELSE IF oe-boll.sell-price NE 0 THEN
+                inv-line.price = oe-boll.sell-price.
+             
          
           
           IF oe-boll.lot-no <> "" THEN
           DO:
-             CREATE b-reftable.
-             ASSIGN b-reftable.reftable = "inv-line.lot-no"
-                    b-reftable.rec_key  = inv-line.rec_key
-                    b-reftable.CODE     = oe-boll.lot-no.
-             RELEASE b-reftable.             
+             ASSIGN inv-line.lot-no  = oe-boll.lot-no.                          
           END.
       END.
 

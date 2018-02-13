@@ -384,6 +384,27 @@ DEFINE FRAME F-Main
      mach.max-pan-w AT ROW 13.62 COL 40 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 14 BY .81
+     mach.min_pan_lw AT ROW 14.43 COL 22 COLON-ALIGNED WIDGET-ID 12
+          LABEL "Box L + W"
+          VIEW-AS FILL-IN 
+          SIZE 14 BY .81
+     mach.max_pan_lw AT ROW 14.43 COL 40 COLON-ALIGNED NO-LABEL WIDGET-ID 6
+          VIEW-AS FILL-IN 
+          SIZE 14 BY .81
+     mach.min_slot_score AT ROW 15.24 COL 22 COLON-ALIGNED WIDGET-ID 14
+          LABEL "Slot/Score Panel"
+          VIEW-AS FILL-IN 
+          SIZE 14 BY .81
+     mach.max_slot_score AT ROW 15.24 COL 40 COLON-ALIGNED NO-LABEL WIDGET-ID 8
+          VIEW-AS FILL-IN 
+          SIZE 14 BY .81
+    mach.min_hd_hd AT ROW 16.05 COL 22 COLON-ALIGNED WIDGET-ID 10
+          LABEL "Panel (Hd-Hd)"
+          VIEW-AS FILL-IN 
+          SIZE 14 BY .81
+     mach.max_hd_hd AT ROW 16.05 COL 40 COLON-ALIGNED NO-LABEL WIDGET-ID 4
+          VIEW-AS FILL-IN 
+          SIZE 14 BY .81
      mach.min-dep AT ROW 16.86 COL 22 COLON-ALIGNED
           LABEL "Slot Size"
           VIEW-AS FILL-IN 
@@ -454,27 +475,6 @@ DEFINE FRAME F-Main
           LABEL "Kicks/Hr" FORMAT ">>,>>9"
           VIEW-AS FILL-IN 
           SIZE 13 BY 1
-     mach.max_hd_hd AT ROW 16.05 COL 40 COLON-ALIGNED NO-LABEL WIDGET-ID 4
-          VIEW-AS FILL-IN 
-          SIZE 14 BY .81
-     mach.max_pan_lw AT ROW 14.43 COL 40 COLON-ALIGNED NO-LABEL WIDGET-ID 6
-          VIEW-AS FILL-IN 
-          SIZE 14 BY .81
-     mach.max_slot_score AT ROW 15.24 COL 40 COLON-ALIGNED NO-LABEL WIDGET-ID 8
-          VIEW-AS FILL-IN 
-          SIZE 14 BY .81
-     mach.min_hd_hd AT ROW 16.05 COL 22 COLON-ALIGNED WIDGET-ID 10
-          LABEL "Panel (Hd-Hd)"
-          VIEW-AS FILL-IN 
-          SIZE 14 BY .81
-     mach.min_pan_lw AT ROW 14.43 COL 22 COLON-ALIGNED WIDGET-ID 12
-          LABEL "Box L + W"
-          VIEW-AS FILL-IN 
-          SIZE 14 BY .81
-     mach.min_slot_score AT ROW 15.24 COL 22 COLON-ALIGNED WIDGET-ID 14
-          LABEL "Slot/Score Panel"
-          VIEW-AS FILL-IN 
-          SIZE 14 BY .81
      "Printing Press" VIEW-AS TEXT
           SIZE 17 BY .62 AT ROW 9.81 COL 84
           FGCOLOR 9 
@@ -614,6 +614,12 @@ ASSIGN
    EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN mach.min-pan-w IN FRAME F-Main
    EXP-LABEL                                                            */
+/* SETTINGS FOR FILL-IN mach.min_pan_lw IN FRAME F-Main
+   EXP-LABEL                                                            */
+/* SETTINGS FOR FILL-IN mach.min_slot_score IN FRAME F-Main
+   EXP-LABEL                                                            */
+/* SETTINGS FOR FILL-IN mach.min_hd_hd IN FRAME F-Main
+   EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN mach.min-run IN FRAME F-Main
    EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN mach.min-triml IN FRAME F-Main
@@ -621,12 +627,6 @@ ASSIGN
 /* SETTINGS FOR FILL-IN mach.min-trimw IN FRAME F-Main
    EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN mach.min-wid IN FRAME F-Main
-   EXP-LABEL                                                            */
-/* SETTINGS FOR FILL-IN mach.min_hd_hd IN FRAME F-Main
-   EXP-LABEL                                                            */
-/* SETTINGS FOR FILL-IN mach.min_pan_lw IN FRAME F-Main
-   EXP-LABEL                                                            */
-/* SETTINGS FOR FILL-IN mach.min_slot_score IN FRAME F-Main
    EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN mach.mr-crusiz IN FRAME F-Main
    EXP-LABEL                                                            */

@@ -1312,8 +1312,7 @@ ON CLOSE OF THIS-PROCEDURE
 PAUSE 0 BEFORE-HIDE.
 
 &IF DEFINED(UIB_is_Running) EQ 0 &THEN
-RUN util/chk-mod.p ("ASI","Audit") NO-ERROR.
-lContinue = NOT ERROR-STATUS:ERROR.
+RUN util/CheckModule.p ("ASI","Audit", YES, OUTPUT lContinue).
 &ELSE
 lContinue = YES.
 &ENDIF

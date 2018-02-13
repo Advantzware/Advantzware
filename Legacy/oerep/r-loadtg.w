@@ -3552,7 +3552,7 @@ PROCEDURE create-text-file :
 
       PUT UNFORMATTED ",DUEDATEJOBLINE,DUEDATEJOB,LINE#,UnitWt,PalletWt,FGdesc1,FGdesc2,FGdesc3,FG Lot#,"
                        "PalletCode,PalletID,TagCounter,TagCountTotal,"
-                       "RN1,RN2,RN3,RN4".
+                       "RN1,RN2,RN3,RN4,WareHouse,Bin".
 
       /* rstark - */
       IF lSSCC THEN PUT UNFORMATTED ",SSCC".
@@ -4075,15 +4075,15 @@ PROCEDURE create-w-ord :
                 w-ord.bundle = IF itemfg.case-pall NE 0 THEN itemfg.case-pall ELSE 1
                 w-ord.style = itemfg.style
                 w-ord.cust-part-no = itemfg.part-no .
-          
-         FOR EACH cust-part NO-LOCK 
-             WHERE cust-part.company EQ po-ord.company   
-               AND cust-part.i-no EQ po-ordl.i-no 
-               AND cust-part.cust-no EQ po-ord.cust-no
-               AND cust-part.part-no NE "" :
-             ASSIGN  w-ord.cust-part-no = cust-part.part-no .
-             LEAVE.
-         END.
+         IF po-ordl.ord-no > 0 THEN  
+             FOR EACH cust-part NO-LOCK 
+                 WHERE cust-part.company EQ po-ord.company   
+                   AND cust-part.i-no EQ po-ordl.i-no 
+                   AND cust-part.cust-no EQ po-ord.cust-no
+                   AND cust-part.part-no NE "" :
+                 ASSIGN  w-ord.cust-part-no = cust-part.part-no .
+                 LEAVE.
+             END.
           
 
          IF w-ord.style NE "" THEN
@@ -4322,6 +4322,10 @@ PROCEDURE dispJobInfo :
 DEF INPUT PARAMETER ipcCompany    AS CHAR NO-UNDO.
 DEFINE INPUT  PARAMETER ipcJobNo  AS CHARACTER   NO-UNDO.
 DEFINE INPUT  PARAMETER ipiJobNo2 AS INTEGER     NO-UNDO.
+DEFINE INPUT  PARAMETER ipiForm AS INTEGER     NO-UNDO.
+DEFINE INPUT  PARAMETER ipiBlank AS INTEGER     NO-UNDO.
+DEFINE INPUT  PARAMETER iplCheckBar AS LOGICAL     NO-UNDO.
+DEFINE OUTPUT PARAMETER oplCheckBar AS LOGICAL     NO-UNDO.
 
 DEF BUFFER bf-job FOR job.
 DEF BUFFER bf-job-hdr-2 FOR job-hdr.
@@ -4340,10 +4344,12 @@ DO WITH FRAME {&FRAME-NAME}:
 
    IF AVAIL bf-job THEN
    DO:
-      FOR EACH bf-job-hdr-2 FIELDS(i-no) NO-LOCK
+      FOR EACH bf-job-hdr-2 FIELDS(i-no frm blank-no) NO-LOCK
           WHERE bf-job-hdr-2.company EQ bf-job.company
             AND bf-job-hdr-2.job-no  EQ bf-job.job-no
             AND bf-job-hdr-2.job-no2 EQ bf-job.job-no2
+            AND ( bf-job-hdr-2.frm EQ ipiForm OR NOT iplCheckBar )
+            AND ( bf-job-hdr-2.blank-no EQ ipiBlank OR NOT iplCheckBar )
            BREAK BY bf-job-hdr-2.i-no:
 
            v-lncnt = v-lncnt + 1.
@@ -4354,10 +4360,12 @@ DO WITH FRAME {&FRAME-NAME}:
               v-lastitem = bf-job-hdr-2.i-no.
       END.
 
-      FOR EACH bf-job-hdr-2 FIELDS(ord-no) NO-LOCK
+      FOR EACH bf-job-hdr-2 FIELDS(ord-no frm blank-no) NO-LOCK
           WHERE bf-job-hdr-2.company EQ bf-job.company
             AND bf-job-hdr-2.job-no  EQ bf-job.job-no
             AND bf-job-hdr-2.job-no2 EQ bf-job.job-no2
+            AND ( bf-job-hdr-2.frm EQ ipiForm OR NOT iplCheckBar )
+            AND ( bf-job-hdr-2.blank-no EQ ipiBlank OR NOT iplCheckBar )
            BREAK BY bf-job-hdr-2.ord-no:
 
            IF FIRST-OF(bf-job-hdr-2.ord-no) THEN
@@ -4377,7 +4385,8 @@ DO WITH FRAME {&FRAME-NAME}:
          end_i-no:SCREEN-VALUE   = v-lastitem.           
 
       APPLY "LEAVE" TO end_i-no.
-
+      IF v-lncnt EQ 1 THEN
+          oplCheckBar = YES . 
       IF v-lncnt GT 1 THEN
          MESSAGE "There are multiple FG Items on this order." skip
                  "Please select an FG Item."
@@ -5260,7 +5269,8 @@ PROCEDURE from-po :
         w-ord.bundle = IF itemfg.case-pall NE 0 THEN itemfg.case-pall ELSE 1
         w-ord.style   = itemfg.style
         w-ord.cust-part-no = itemfg.part-no .
-
+      
+    IF w-ord.ord-no > 0 THEN
        FOR EACH cust-part NO-LOCK 
              WHERE cust-part.company EQ po-ord.company   
                AND cust-part.i-no EQ po-ordl.i-no 
@@ -5528,13 +5538,17 @@ DEF VAR v-lastitem LIKE oe-ordl.i-no NO-UNDO.
 DEF VAR v-first-order AS INT NO-UNDO.
 DEF VAR v-last-order AS INT NO-UNDO.
 
-DEF VAR ll AS LOG INIT YES NO-UNDO.
+DEF VAR ll AS INTEGER INIT 1 NO-UNDO.
 DEF VAR lv-job-no AS CHAR NO-UNDO.
 DEF VAR lv-job-no2 AS CHAR NO-UNDO.
 DEF VAR v-job AS CHAR NO-UNDO.
 DEF VAR v-job2 AS INT NO-UNDO.
 DEF VAR li AS INT NO-UNDO.
 DEF VAR lcForm AS CHAR NO-UNDO.
+DEFINE VARIABLE iForm AS CHARACTER NO-UNDO .
+DEFINE VARIABLE iBlank-no AS CHARACTER NO-UNDO .
+DEFINE VARIABLE lCheckForm AS LOGICAL INIT YES NO-UNDO .
+DEFINE VARIABLE oplCheckForm AS LOGICAL INIT NO NO-UNDO .
 
 DEF BUFFER bf-job FOR job.
 DEF BUFFER bf-job-hdr-2 FOR job-hdr.
@@ -5554,17 +5568,28 @@ DEF BUFFER bf-job-hdr-2 FOR job-hdr.
 /*        VIEW-AS ALERT-BOX INFO BUTTONS OK.                             */
    DO li = 1 TO LENGTH(v-job):
       IF INDEX("/:-",SUBSTR(v-job,li,1)) GT 0 THEN
-         IF ll THEN ll = NO.
-         ELSE LEAVE.
-      ELSE
-         IF ll THEN lv-job-no = lv-job-no + SUBSTR(v-job,li,1).
-         ELSE lv-job-no2 = lv-job-no2 + SUBSTR(v-job,li,1).
+        ll = ll + 1.
+         /*ELSE LEAVE.*/
+      ELSE do:
+         IF ll EQ 1 THEN lv-job-no = lv-job-no + SUBSTR(v-job,li,1).
+         ELSE IF ll EQ 2 THEN lv-job-no2 = lv-job-no2 + SUBSTR(v-job,li,1).
+         ELSE IF ll EQ 3 THEN iForm = iForm + SUBSTR(v-job,li,1) NO-ERROR .
+         ELSE IF ll EQ 4 THEN iBlank-no = iBlank-no + SUBSTR(v-job,li,1) NO-ERROR .
+      END.
    END.
+   IF iForm EQ "" THEN
+       lCheckForm = NO .
 
    ASSIGN
       lv-job-no = FILL(" ",6 - LENGTH(TRIM(lv-job-no))) + lv-job-no
       v-job2 = INT(lv-job-no2).
-   RUN dispJobInfo (INPUT cocode, INPUT lv-job-no, INPUT v-job2).
+   RUN dispJobInfo (INPUT cocode, INPUT lv-job-no, INPUT v-job2,INPUT iForm, INPUT iBlank-no, INPUT lCheckForm, OUTPUT oplCheckForm ).
+  IF lCheckForm AND oplCheckForm THEN
+      APPLY "choose" TO btn-ok.
+  IF NOT oplCheckForm THEN do:
+      MESSAGE "Please enter correct data..." skip
+                VIEW-AS ALERT-BOX INFO BUTTONS OK.
+  END.
    /*
    FIND FIRST bf-job WHERE
         bf-job.company EQ cocode AND
@@ -6267,6 +6292,7 @@ PROCEDURE leave-job-label :
    DEF VAR v-job-no-end AS CHAR NO-UNDO.
    DEF VAR v-cust-no AS CHAR NO-UNDO.
    DEF BUFFER b-job-hdr-2 FOR job-hdr.
+   DEFINE VARIABLE oplCheckForm AS LOGICAL INIT NO NO-UNDO .
    DO WITH FRAME {&FRAME-NAME}:
       IF scr-label-file:SCREEN-VALUE EQ "" AND
       begin_job:SCREEN-VALUE NE "" AND 
@@ -6313,7 +6339,7 @@ PROCEDURE leave-job-label :
          IF AVAIL job-hdr THEN DO:
            v-cust-no = job-hdr.cust-no.
            IF begin_i-no:SCREEN-VALUE EQ "" THEN
-             RUN dispJobInfo (INPUT cocode, INPUT v-job-no, INPUT INT(begin_job2:SCREEN-VALUE)).
+             RUN dispJobInfo (INPUT cocode, INPUT v-job-no, INPUT INT(begin_job2:SCREEN-VALUE), 0,0, NO, OUTPUT oplCheckForm).
          END.
 
 
@@ -6450,7 +6476,7 @@ PROCEDURE leave-job-label :
    v-job-no = FILL(" ",6 - LENGTH(TRIM(begin_job:SCREEN-VALUE)))
          + TRIM(begin_job:SCREEN-VALUE).
    IF begin_i-no:SCREEN-VALUE EQ "" THEN
-     RUN dispJobInfo (INPUT cocode, INPUT v-job-no, INPUT INT(begin_job2:SCREEN-VALUE)).
+     RUN dispJobInfo (INPUT cocode, INPUT v-job-no, INPUT INT(begin_job2:SCREEN-VALUE),0,0,NO,OUTPUT oplCheckForm).
 
 
    v-job-no = FILL(" ",6 - LENGTH(TRIM(begin_job:SCREEN-VALUE)))
@@ -7692,7 +7718,9 @@ PROCEDURE write-loadtag-line :
      "~"" replace(w-ord.ship-notes[1],'"', '') "~","
      "~"" replace(w-ord.ship-notes[2],'"', '') "~","
      "~"" replace(w-ord.ship-notes[3],'"', '') "~","
-     "~"" replace(w-ord.ship-notes[4],'"', '') "~""
+     "~"" replace(w-ord.ship-notes[4],'"', '') "~","
+     "~"" loadtag.loc "~","
+     "~"" loadtag.loc-bin "~""
       .
  /* rstark - zoho13731 */
  IF lSSCC THEN PUT UNFORMATTED ",~"" w-ord.sscc "~"".

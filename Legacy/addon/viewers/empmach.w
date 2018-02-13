@@ -34,7 +34,7 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
-
+DEF NEW GLOBAL SHARED VAR g_lookup-var AS cha NO-UNDO.
 {custom/gcompany.i}
 {custom/format.i}
 
@@ -280,6 +280,38 @@ DO:
    {&methods/lValidateError.i NO}
 END.
 
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME empmach.machine
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL empmach.machine V-table-Win
+ON HELP OF empmach.machine IN FRAME F-Main /* Rate */
+DO:
+  RUN lookups/machine.p.
+  IF g_lookup-var NE ""                                AND
+         TRIM(g_lookup-var) NE TRIM(empmach.machine:SCREEN-VALUE) THEN DO:
+        empmach.machine:SCREEN-VALUE = g_lookup-var.
+         APPLY "entry" TO empmach.machine .
+      END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME empmach.gl_account
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL empmach.gl_account V-table-Win
+ON HELP OF empmach.gl_account IN FRAME F-Main /* Rate */
+DO:
+  RUN lookups/account.p.
+  IF g_lookup-var NE ""                                AND
+         TRIM(g_lookup-var) NE TRIM(empmach.gl_account:SCREEN-VALUE) THEN DO:
+        empmach.gl_account:SCREEN-VALUE = g_lookup-var.
+         APPLY "entry" TO empmach.gl_account .
+      END.
+END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

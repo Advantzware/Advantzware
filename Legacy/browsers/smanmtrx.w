@@ -209,7 +209,7 @@ DEFINE BROWSE br_table
       smanmtrx.commbasis FORMAT "X":U LABEL-BGCOLOR 14
       basisDscr(smanmtrx.commbasis) @ basisDscr COLUMN-LABEL "Description" FORMAT "X(15)":U
             WIDTH 16 LABEL-BGCOLOR 8
-      smanmtrx.netpct COLUMN-LABEL "Margin%" FORMAT ">>9.99":U
+      smanmtrx.netpct COLUMN-LABEL "Margin%" FORMAT "->>9.99":U
             WIDTH 9.8 LABEL-BGCOLOR 14
       smanmtrx.comm COLUMN-LABEL "Comm%" FORMAT ">>9.99":U LABEL-BGCOLOR 14
   ENABLE
@@ -490,8 +490,11 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL custTypes B-table-Win
 ON VALUE-CHANGED OF custTypes IN FRAME F-Main
 DO:
+    
   ASSIGN {&SELF-NAME}.
   RUN dispatch ('open-query':U).
+  RUN valid-procat-margin .
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -862,7 +865,7 @@ PROCEDURE valid-procat :
   DO WITH FRAME {&FRAME-NAME}:
     smanmtrx.procat:SCREEN-VALUE IN BROWSE {&BROWSE-NAME} = CAPS(smanmtrx.procat:SCREEN-VALUE).
 
-    IF smanmtrx.commbasis NE 'M' THEN
+    IF smanmtrx.commbasis:SCREEN-VALUE IN BROWSE {&BROWSE-NAME} NE 'M' THEN
     DO:
        IF smanmtrx.procat:SCREEN-VALUE NE '' AND 
           NOT CAN-FIND(fgcat WHERE fgcat.company EQ smanmtrx.company
@@ -949,6 +952,41 @@ IF sman.sman NE "" THEN
 RUN fg/m-smnexp.w (lcSmanFrom,
                        lcSmanTo).
 
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-procat-margin B-table-Win 
+PROCEDURE valid-procat-margin :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE BUFFER bf-smanmtrx  FOR smanmtrx .
+    DEFINE  VARIABLE ll-ans AS LOGICAL NO-UNDO.
+    FOR EACH bf-smanmtrx OF sman EXCLUSIVE WHERE 
+        bf-smanmtrx.custype EQ custTypes AND 
+        bf-smanmtrx.commbasis EQ "M" AND 
+        bf-smanmtrx.procat NE "" 
+        BREAK BY bf-smanmtrx.procat:
+        IF FIRST(bf-smanmtrx.procat) THEN do:
+            MESSAGE 
+                "You cannot pay commission on margin based on categories." SKIP 
+                "You must change type or remove this line." SKIP
+                "Enter 'YES' to remove the line, or 'NO' to change the type." 
+                VIEW-AS ALERT-BOX QUESTION BUTTON yes-no UPDATE ll-ans .
+        END.
+        IF ll-ans  THEN
+            DELETE bf-smanmtrx .
+        ELSE ASSIGN 
+            bf-smanmtrx.commbasis = "S" .
+    END.
+    IF ll-ans THEN DO:
+        RUN dispatch ('open-query':U).
+    END.
 
 END PROCEDURE.
 

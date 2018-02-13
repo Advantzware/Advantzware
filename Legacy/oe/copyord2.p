@@ -706,16 +706,7 @@ PROCEDURE copyFG :
             b-itemfg-ink.company = b-itemfg.company
             b-itemfg-ink.i-no    = b-itemfg.i-no.
 
-           FOR EACH reftable
-               WHERE reftable.rec_key  EQ itemfg-ink.rec_key
-                 AND reftable.reftable EQ "itemfg-ink.occurs"
-                 USE-INDEX rec_key:
-      
-              CREATE b-ref.
-              BUFFER-COPY reftable TO b-ref
-              ASSIGN
-                  b-ref.rec_key = b-itemfg-ink.rec_key.
-           END.
+
         END.
     
         FOR EACH itemfg-bom
@@ -776,18 +767,7 @@ PROCEDURE copyFG :
             b-itemfgdtl.est-no  = ipEstno.
         END.
 
-        FOR EACH reftable
-            WHERE reftable.reftable EQ "FGSTATUS"
-              AND reftable.company  EQ itemfg.company
-              AND reftable.loc      EQ ""
-              AND reftable.code     EQ itemfg.i-no
-            NO-LOCK:
-           CREATE b-ref.
-           BUFFER-COPY reftable EXCEPT rec_key TO b-ref
-           ASSIGN
-            b-ref.company = b-itemfg.company
-            b-ref.code    = b-itemfg.i-no.
-        END.
+
 
         FOR EACH reftable
             WHERE reftable.reftable EQ "itemfg.exempt-disc"

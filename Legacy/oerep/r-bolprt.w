@@ -3679,7 +3679,7 @@ PROCEDURE run-packing-list :
   IF IS-xprint-form THEN DO:
 
       CASE rd-dest:
-          WHEN 1 THEN PUT "<PRINTER?>".
+          WHEN 1 THEN PUT "<PRINTER?><LEFT=4mm>".
           WHEN 2 THEN do:
            IF NOT lBussFormModle THEN
             PUT "<PREVIEW><LEFT=4mm><MODAL=NO>". 
@@ -3688,7 +3688,7 @@ PROCEDURE run-packing-list :
           END.
           WHEN 4 THEN do:
                 ls-fax-file = "c:\tmp\fax" + STRING(TIME) + ".tif".
-                PUT UNFORMATTED "<PRINTER?><EXPORT=" Ls-fax-file ",BW>".
+                PUT UNFORMATTED "<PRINTER?><LEFT=4mm><EXPORT=" Ls-fax-file ",BW>".
           END.
           WHEN 5 THEN do:
               IF v-print-fmt = "Century" THEN /*<PDF-LEFT=5mm><PDF-TOP=10mm>*/
@@ -3815,7 +3815,7 @@ PROCEDURE run-report :
   IF IS-xprint-form THEN DO:
 
       CASE rd-dest:
-          WHEN 1 THEN PUT "<PRINTER?>".
+          WHEN 1 THEN PUT "<PRINTER?><LEFT=4mm>".
           WHEN 2 THEN do:
            IF NOT lBussFormModle THEN
             PUT "<PREVIEW><LEFT=4mm><MODAL=NO>". 
@@ -3824,7 +3824,7 @@ PROCEDURE run-report :
           END.
           WHEN 4 THEN do:
                 ls-fax-file = "c:\tmp\fax" + STRING(TIME) + ".tif".
-                PUT UNFORMATTED "<PRINTER?><EXPORT=" Ls-fax-file ",BW>".
+                PUT UNFORMATTED "<PRINTER?><LEFT=4mm><EXPORT=" Ls-fax-file ",BW>".
           END.
           WHEN 5 THEN do:
               IF v-print-fmt = "Century" THEN /*<PDF-LEFT=5mm><PDF-TOP=10mm>*/
@@ -4018,7 +4018,7 @@ ELSE IF is-xprint-form AND rd-dest = 1 THEN PUT "<PRINTER?>".
 */
 /*IF IS-xprint-form THEN */  DO:
     CASE rd-dest:
-        WHEN 1 THEN PUT  "<PRINTER?>".
+        WHEN 1 THEN PUT  "<PRINTER?><LEFT=4mm>".
         WHEN 2 THEN do:
            IF NOT lBussFormModle THEN
             PUT "<PREVIEW><LEFT=4mm><MODAL=NO>". 
@@ -4027,7 +4027,7 @@ ELSE IF is-xprint-form AND rd-dest = 1 THEN PUT "<PRINTER?>".
         END.
         WHEN  4 THEN do:
               ls-fax-file = "c:\tmp\fax" + STRING(TIME) + ".tif".
-              PUT UNFORMATTED "<PRINTER?><EXPORT=" Ls-fax-file ",BW>".
+              PUT UNFORMATTED "<PRINTER?><LEFT=4mm><EXPORT=" Ls-fax-file ",BW>".
         END.
         WHEN 5 THEN do:
             IF v-print-fmt = "Century" THEN /*<PDF-LEFT=5mm><PDF-TOP=10mm>*/

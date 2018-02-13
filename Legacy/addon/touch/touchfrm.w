@@ -105,7 +105,7 @@ DEFINE FRAME F-Main
 /* Settings for THIS-PROCEDURE
    Type: SmartFrame
    Allow: Basic,Browse,DB-Fields,Query,Smart
-   Design Page: 7
+   Design Page: 3
    Other Settings: PERSISTENT-ONLY COMPILE
  */
 
@@ -477,9 +477,9 @@ PROCEDURE Change_Page :
                   translate('Company',NO) + ': ' + company_name + ' (' + company_code + ')').
     WHEN 3 THEN /* employee */
     DO:
+      RUN Display_Keyboard ('numeric.',h_employee).
       RUN Set_Title(translate('Employee',NO) + ' - ' +
                     translate('Company',NO) + ': ' + company_name + ' (' + company_code + ')').
-      /*
       FIND employee WHERE employee.company EQ company_code
                       AND employee.employee EQ employee_code
                     NO-LOCK NO-ERROR.
@@ -488,7 +488,6 @@ PROCEDURE Change_Page :
       ELSE
       RUN Display_Keyboard ('sortpad.',h_employee).
       RELEASE employee.
-      */
       IF activity_status EQ 'login' THEN
       RUN Get_Employees IN h_employee.
       ELSE

@@ -1053,27 +1053,36 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE import-data V-table-Win 
 PROCEDURE import-data :
-/*------------------------------------------------------------------------------
-  Purpose:     Run excel import program.
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
- Define variable hBrowse   as handle  no-undo.
-
-  IF AVAIL shipto THEN
-      RUN util/xlship2.w (INPUT shipto.company,
-                          INPUT shipto.cust-no,
-                          INPUT shipto.carrier,
-                          INPUT shipto.loc,
-                          INPUT shipto.loc-bin,
-                          INPUT shipto.dest-code).
+    /*------------------------------------------------------------------------------
+      Purpose:     Run excel import program.
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE hBrowse AS HANDLE  NO-UNDO.
+    DEFINE VARIABLE lAccess AS LOGICAL NO-UNDO.
 
 
+    IF AVAILABLE shipto THEN 
+    DO:
+        RUN util/CheckModule.p ("ASI","impShipTo.", NO, OUTPUT lAccess).
+        IF lAccess THEN 
+            RUN util/Importer.w (INPUT shipto.company, 
+                INPUT "ShipTo", 
+                INPUT ROWID(shipto)).
+        ELSE 
+            RUN util/xlship2.w (INPUT shipto.company,
+                INPUT shipto.cust-no,
+                INPUT shipto.carrier,
+                INPUT shipto.loc,
+                INPUT shipto.loc-bin,
+                INPUT shipto.dest-code).
 
-  RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"record-source",OUTPUT hBrowse).
 
-  IF VALID-HANDLE(hBrowse) THEN
-      RUN dispatch IN hBrowse  ('open-query':U).
+    END.
+    RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"record-source",OUTPUT hBrowse).
+
+    IF VALID-HANDLE(hBrowse) THEN
+        RUN dispatch IN hBrowse  ('open-query':U).
 
 
 END PROCEDURE.
