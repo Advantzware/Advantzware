@@ -35,8 +35,7 @@
     FIND LAST oe-relh
         WHERE oe-relh.company EQ cocode
         USE-INDEX release# NO-LOCK NO-ERROR.
-    v-last-r-no = IF AVAIL oe-relh THEN oe-relh.release# + 1 ELSE 1.
-   
+    v-last-r-no = IF AVAIL oe-relh THEN oe-relh.release# + 1 ELSE 1.   
   END.
   ELSE DO:
       v-ref-value = "NextRelH".
@@ -56,52 +55,20 @@
         v-error = YES.
         LEAVE test-r-no.
     END.
-
-    /* Try to find a reftable with this r-no */
-    FIND FIRST reftable  WHERE reftable.reftable EQ v-ref-value
-                          AND reftable.company EQ cocode
-                          AND reftable.loc     EQ STRING(v-nxt-r-no)
-                        NO-LOCK NO-ERROR.
-
-    /* If the reftable record exists, try with the next number up */
-    IF AVAIL reftable THEN DO:       
-        NEXT test-r-no.
-    END.
-
-    /* If it doesn't exist, create it */
-    IF NOT AVAIL reftable THEN DO:
-        CREATE reftable.
-        ASSIGN reftable.reftable = v-Ref-value
-               reftable.company = (IF v-ref-value EQ "NextRelease#" THEN cocode ELSE "")
-               reftable.loc     = STRING(v-nxt-r-no).
+    
+    IF ip-mode = "release#" THEN DO:
+        FIND FIRST oe-relh WHERE oe-relh.company EQ cocode
+            AND oe-relh.release# = v-nxt-r-no
+            NO-LOCK NO-ERROR.
+        IF AVAILABLE oe-relh THEN NEXT test-r-no.    
     END.
     
-    /* Make sure someone isn't creating at the same time */
-    iCnt = 0. v-all-locked = TRUE.
-    FOR EACH reftable FIELDS(company reftable loc) WHERE reftable.reftable EQ v-ref-value
-                        AND reftable.company EQ (IF v-ref-value EQ "NextRelease#" THEN cocode ELSE "")
-                        AND reftable.loc     EQ STRING(v-nxt-r-no)
-                     NO-LOCK.
-        iCnt = iCnt + 1.
-        /* Try to get an exclusive-lock on any created reftable records */
-        FIND bf-reftable WHERE rowid(bf-reftable) = ROWID(reftable)
-                         EXCLUSIVE-LOCK NO-WAIT NO-ERROR.
-        IF AVAIL bf-reftable AND bf-reftable.val[1] EQ 0 THEN DO:
-            bf-reftable.val[1] = 1.
-            RELEASE bf-reftable.
-        END.
-        ELSE
-            v-all-locked = FALSE.
+    IF ip-mode = "r-no" THEN DO:
+        FIND FIRST oe-relh 
+            WHERE oe-relh.r-no = v-nxt-r-no
+            NO-LOCK NO-ERROR.
+        IF AVAILABLE oe-relh THEN NEXT test-r-no.    
     END.
-
-
-    IF v-all-locked THEN
-        LEAVE test-r-no.
-    ELSE DO:
-        /* Could not lock each records, so try next number */    
-        NEXT test-r-no.
-    END.
-
 
   END.
 
