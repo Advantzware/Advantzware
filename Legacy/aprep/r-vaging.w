@@ -15,8 +15,9 @@ assign
  locode = gloc.
 
 DO TRANSACTION:
-   {sys/inc/selrptcol.i "VR1" }
+   {sys/inc/runAOAVer.i "VR1" }
 END.
 
-IF SelectRptColumn-log THEN RUN aprep/r-vagingN.w PERSISTENT.
-ELSE RUN aprep/r-vagingA.w PERSISTENT.
+cAOAFile = SEARCH("AOA/r-vaging.p").
+IF RunAOAVersion-log AND cAOAFile NE ? THEN RUN AOA/r-vaging.p.
+ELSE RUN aprep/r-vagingN.w PERSISTENT.

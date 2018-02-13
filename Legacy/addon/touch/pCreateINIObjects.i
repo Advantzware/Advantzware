@@ -17,8 +17,7 @@ PROCEDURE pCreateINIObjects:
     DEFINE VARIABLE hWidget  AS HANDLE    NO-UNDO.
     
     ASSIGN
-        tsINI = SEARCH("touch\touchscr.ini")
-        FILE-INFO:FILE-NAME = tsINI
+        FILE-INFO:FILE-NAME = SEARCH("touch\touchscr.ini")
         tsINI = FILE-INFO:FULL-PATHNAME
         .
     LOAD tsINI.
