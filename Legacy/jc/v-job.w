@@ -1223,6 +1223,9 @@ PROCEDURE local-update-record :
   RUN valid-whse.
   IF NOT ll-valid THEN RETURN NO-APPLY.
 
+  RUN valid-job-est .
+  IF NOT ll-valid THEN RETURN NO-APPLY.
+
   ASSIGN
      ll-new = adm-new-record
      lv-new-job-hdr-rowid = ?.
@@ -1334,7 +1337,7 @@ PROCEDURE local-update-record :
           AND job-hdr.job-no  EQ job.job-no
           AND job-hdr.job-no2 EQ job.job-no2 NO-ERROR.
 
-    IF job-hdr.est-no GT "" THEN DO:
+    IF AVAIL job-hdr AND job-hdr.est-no GT "" THEN DO:
          FIND FIRST xeb WHERE xeb.company EQ job-hdr.company
              AND xeb.est-no EQ job-hdr.est-no
              AND xeb.pur-man
@@ -1438,6 +1441,29 @@ PROCEDURE Rebuild-Stds :
              VIEW-AS ALERT-BOX ERROR.
          UNDO, RETURN.
      END.
+
+     FOR EACH job-hdr FIELDS(company est-no i-no) 
+         where job-hdr.company EQ job.company
+           and job-hdr.job     EQ job.job
+           and job-hdr.job-no  EQ job.job-no
+         and job-hdr.job-no2 EQ job.job-no2 NO-LOCK ,
+         FIRST itemfg FIELDS(pur-man) WHERE
+               itemfg.company EQ job-hdr.company AND
+               itemfg.i-no EQ job-hdr.i-no NO-LOCK:
+         FIND FIRST eb NO-LOCK
+             WHERE eb.company EQ cocode
+               AND eb.est-no EQ job.est-no 
+               AND eb.stock EQ job-hdr.i-no  NO-ERROR.
+         IF AVAIL eb AND eb.pur-man NE itemfg.pur-man AND NOT itemfg.isaset  THEN DO:
+             MESSAGE "FG Item file indicates item is (x) (which would be either purchased " SKIP
+                "or manufactured) while estimate indicates it is (y) - These should be" SKIP
+                " set the same." VIEW-AS ALERT-BOX WARNING . 
+             LEAVE .
+         END.
+
+     END.
+          
+
 
      FOR EACH job-mat FIELDS(company all-flg rm-i-no) WHERE
          job-mat.company = job.company AND
@@ -2325,6 +2351,33 @@ PROCEDURE view-user-id :
 
       DISPLAY job.user-id.
    END.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-job-est V-table-Win 
+PROCEDURE valid-job-est :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  {methods/lValidateError.i YES}
+  ll-valid = YES.
+
+  DO WITH FRAME {&frame-name}:
+   IF adm-new-record THEN DO: 
+    IF TRIM(job.est-no:SCREEN-VALUE) EQ "" THEN DO:
+      MESSAGE "Job# is not allowed  to create with  blank line..."
+              VIEW-AS ALERT-BOX ERROR.
+      APPLY "entry" TO job.job-no.
+      ll-valid = NO.
+    END.
+   END.
+  END.
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

@@ -2017,8 +2017,7 @@ ON ESC OF {&WINDOW-NAME} ANYWHERE DO:
 END.
 
 &IF DEFINED(UIB_is_Running) EQ 0 &THEN
-RUN util/chk-mod.p ("ASI","UDFB") NO-ERROR.
-continue = NOT ERROR-STATUS:ERROR.
+RUN util/CheckModule.p ("ASI","UDFB", YES, OUTPUT continue ).
 &ELSE
 continue = YES.
 &ENDIF

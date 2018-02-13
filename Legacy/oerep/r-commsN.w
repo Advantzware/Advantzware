@@ -87,11 +87,11 @@ DEF VAR iColumnLength AS INT NO-UNDO.
 DEF VAR cTextListToDefault AS cha NO-UNDO.
 
 ASSIGN cTextListToSelect  = "Rep,Customer,Name,Type,FG Item#,Cust Part#,Order#,Inv#,Cat,Quantity,Sell Price,Total Cost," +
-                            "GP %,Comm Amt,Comm %,Group,Currency,Invoice Date,Warehouse"  
+                            "GP %,Comm Amt,Comm %,Group,Currency,Invoice Date,Warehouse," + "Invoice Cost,Order Cost,Full Cost"  
        cFieldListToSelect = "sman,cust-no,cust-nam,type,i-no,part-no,ord,inv,cat,qty,sel-pric,totl-cst," +
-                            "v-gp,v-camt,v-comm,grp,curr,inv-date,ware-house"
+                            "v-gp,v-camt,v-comm,grp,curr,inv-date,ware-house," + "inv-cost,ord-cost,full-cost"
 
-       cFieldLength = "4,8,19,8,15,15,6,6,8,10,12,12," + "9,9,8,8,8,12,9"
+       cFieldLength = "4,8,19,8,15,15,6,6,8,10,12,12," + "9,9,8,8,8,12,9," + "12,12,12"
        .
 
 {sys/inc/ttRptSel.i}
@@ -116,13 +116,13 @@ ASSIGN cTextListToSelect  = "Rep,Customer,Name,Type,FG Item#,Cust Part#,Order#,I
 &Scoped-Define ENABLED-OBJECTS RECT-6 RECT-7 rd_ptd begin_period begin_date ~
 end_date begin_slsmn end_slsmn tgChooseSalesReps begin_cust-no end_cust-no ~
 begin_cust-type end_cust-type begin_group end_group fg-cat tb_prep tgCatSum ~
-tgFullCost sl_avail sl_selected Btn_Def Btn_Add Btn_Remove btn_Up btn_down ~
+sl_avail sl_selected Btn_Def Btn_Add Btn_Remove btn_Up btn_down ~
 lines-per-page lv-ornt rd-dest lv-font-no td-show-parm tb_excel tb_runExcel ~
 fi_file btn-ok btn-cancel 
 &Scoped-Define DISPLAYED-OBJECTS lbl_ptd rd_ptd begin_period begin_date ~
 end_date begin_slsmn end_slsmn tgChooseSalesReps begin_cust-no end_cust-no ~
 begin_cust-type end_cust-type begin_group end_group fg-cat tb_prep tgCatSum ~
-tgFullCost sl_avail sl_selected lines-per-page lv-ornt rd-dest lv-font-no ~
+sl_avail sl_selected lines-per-page lv-ornt rd-dest lv-font-no ~
 lv-font-name td-show-parm tb_excel tb_runExcel fi_file 
 
 /* Custom List Definitions                                              */
@@ -187,7 +187,7 @@ DEFINE VARIABLE begin_cust-type AS CHARACTER FORMAT "X(8)"
      SIZE 19 BY 1.
 
 DEFINE VARIABLE begin_date AS DATE FORMAT "99/99/9999":U INITIAL 01/01/001 
-     LABEL "Beginning Date" 
+     LABEL "From Invoice Date" 
      VIEW-AS FILL-IN 
      SIZE 19 BY 1 NO-UNDO.
 
@@ -217,7 +217,7 @@ DEFINE VARIABLE end_cust-type AS CHARACTER FORMAT "X(8)"
      SIZE 19 BY 1.
 
 DEFINE VARIABLE end_date AS DATE FORMAT "99/99/9999":U INITIAL 12/31/9999 
-     LABEL "Ending Date" 
+     LABEL "To Invoice Date" 
      VIEW-AS FILL-IN 
      SIZE 17 BY 1 NO-UNDO.
 
@@ -333,11 +333,6 @@ DEFINE VARIABLE tgChooseSalesReps AS LOGICAL INITIAL no
      VIEW-AS TOGGLE-BOX
      SIZE 23 BY .81 NO-UNDO.
 
-DEFINE VARIABLE tgFullCost AS LOGICAL INITIAL no 
-     LABEL "Use Full Cost?" 
-     VIEW-AS TOGGLE-BOX
-     SIZE 21 BY .81 NO-UNDO.
-
 
 /* ************************  Frame Definitions  *********************** */
 
@@ -370,7 +365,6 @@ DEFINE FRAME FRAME-A
           "Enter Category, or leave blank for all"
      tb_prep AT ROW 11.52 COL 13.6
      tgCatSum AT ROW 11.52 COL 45 WIDGET-ID 4
-     tgFullCost AT ROW 11.57 COL 68.8 WIDGET-ID 10
      sl_avail AT ROW 13.1 COL 2 NO-LABEL WIDGET-ID 26
      sl_selected AT ROW 13.1 COL 58.8 NO-LABEL WIDGET-ID 28
      Btn_Def AT ROW 13.24 COL 39.4 HELP
@@ -1204,13 +1198,13 @@ PROCEDURE enable_UI :
 ------------------------------------------------------------------------------*/
   DISPLAY lbl_ptd rd_ptd begin_period begin_date end_date begin_slsmn end_slsmn 
           tgChooseSalesReps begin_cust-no end_cust-no begin_cust-type 
-          end_cust-type begin_group end_group fg-cat tb_prep tgCatSum tgFullCost 
+          end_cust-type begin_group end_group fg-cat tb_prep tgCatSum  
           sl_avail sl_selected lines-per-page lv-ornt rd-dest lv-font-no 
           lv-font-name td-show-parm tb_excel tb_runExcel fi_file 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   ENABLE RECT-6 RECT-7 rd_ptd begin_period begin_date end_date begin_slsmn 
          end_slsmn tgChooseSalesReps begin_cust-no end_cust-no begin_cust-type 
-         end_cust-type begin_group end_group fg-cat tb_prep tgCatSum tgFullCost 
+         end_cust-type begin_group end_group fg-cat tb_prep tgCatSum  
          sl_avail sl_selected Btn_Def Btn_Add Btn_Remove btn_Up btn_down 
          lines-per-page lv-ornt rd-dest lv-font-no td-show-parm tb_excel 
          tb_runExcel fi_file btn-ok btn-cancel 
@@ -1376,7 +1370,6 @@ def var v-procat    like itemfg.procat NO-UNDO.
 def var v-qty       as   DEC NO-UNDO.
 def var v-amt       like ar-invl.amt NO-UNDO.
 def var v-cost      like ar-invl.t-cost NO-UNDO.
-DEF VAR v-full-cost AS LOGICAL NO-UNDO.
 def var v-cust-part like ar-invl.part-no no-undo.
 def var v-ord-no    like ar-invl.ord-no NO-UNDO.
 def var v-job-no    like job.job-no NO-UNDO.
@@ -1414,6 +1407,9 @@ DEF VAR cVarValue AS cha NO-UNDO.
 DEF VAR cExcelVarValue AS cha NO-UNDO.
 DEF VAR cFieldName AS cha NO-UNDO.
 DEF VAR cSelectedList AS cha NO-UNDO.
+DEFINE VARIABLE dFullCost AS DECIMAL NO-UNDO .
+DEFINE VARIABLE dOrdCost AS DECIMAL NO-UNDO .
+DEFINE VARIABLE dInvCost AS DECIMAL NO-UNDO .
 cSelectedList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
 DEF BUFFER bar-inv FOR ar-inv.
 
@@ -1443,13 +1439,15 @@ ASSIGN
  v-sumdet    = NOT 
  v-cost1     = ""
  v-print-cost = YES
- v-full-cost  = tgFullCost
  v-show-sls-cat = tgCatSum.
 
-IF v-print-cost THEN DO: 
-  IF NOT ll-secure THEN RUN sys/ref/d-passwd.w (3, OUTPUT ll-secure).
-  v-print-cost = ll-secure. 
+FOR EACH ttRptSelected BY ttRptSelected.DisplayOrder:
+  IF LOOKUP(ttRptSelected.TextList, "Sell Price,Total Cost,Invoice Cost,Order Cost,Full Cost") <> 0    THEN do:
+      IF NOT ll-secure THEN RUN sys/ref/d-passwd.w (3, OUTPUT ll-secure).
+      v-print-cost = ll-secure. 
+  END.
 END.
+
 
 FOR EACH ttRptSelected BY ttRptSelected.DisplayOrder:
 

@@ -375,7 +375,7 @@ FOR EACH cust NO-LOCK
             AND ar-cashl.cust-no    EQ cust.cust-no
             AND ar-cashl.on-account EQ YES
           USE-INDEX inv-no:
-        ld-paid = ld-paid - ar-cashl.amt-paid.
+        ld-paid = ld-paid + ar-cashl.amt-paid.
       END.
     
       RUN ar/updcust1.p (YES, BUFFER cust, OUTPUT ld-ord-bal).
@@ -387,7 +387,7 @@ FOR EACH cust NO-LOCK
         IF AVAIL b-cust THEN
           ASSIGN
            b-cust.on-account = ld-paid
-           b-cust.acc-bal    = ld-due - cust.on-account
+           b-cust.acc-bal    = ld-due - ld-paid
            b-cust.ord-bal    = ld-ord-bal.
       END.
     END. /*if tb_acct-bal*/
