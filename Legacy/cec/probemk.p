@@ -213,6 +213,7 @@ DO:
         probe.bsf           = (IF v-corr THEN (xeb.t-sqin * .007) ELSE (xeb.t-sqin / 144))
                           / v-sqft-fac
         probe.mat-cost      = (dm-tot[5] + mis-tot[1] + v-prep-mat) / (qtty[k] / 1000)
+        probe.spare-dec-1   = dm-tot[5] / (qtty[k] / 1000)  /*24941 - Mat % Ex Mis and Prep*/
         probe.lab-cost      = (opsplit$[1] + mis-tot[3] + v-prep-lab + ctrl2[2] + ctrl2[3]) /
                          (qtty[k] / 1000)
         probe.vo-cost       = opsplit$[2] / (qtty[k] / 1000)

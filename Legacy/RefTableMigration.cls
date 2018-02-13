@@ -1,4 +1,3 @@
- 
  /*------------------------------------------------------------------------
     File        : RefTableMigration
     Purpose     : 
@@ -250,6 +249,126 @@ CLASS RefTableMigration:
         END.  /*FOR EACH reftable*/         
         RETURN iCnt.
     END METHOD. /*oe-rel*/
+    METHOD PUBLIC INTEGER ReftoUserPrintHM5():
+        DEFINE VARIABLE iCnt AS INTEGER NO-UNDO.
+        DEFINE VARIABLE iHmCount as integer NO-UNDO .
+        FOR EACH reftable WHERE
+            reftable.reftable EQ "HM5" NO-LOCK:
+            
+            FIND FIRST user-print exclusive-LOCK
+                WHERE user-print.company EQ reftable.loc
+                AND user-print.program-id EQ "HM5" 
+                AND user-print.user-id EQ reftable.company NO-ERROR.
+            
+            if not avail user-print then do:
+                CREATE user-print .
+                ASSIGN
+                    user-print.company = reftable.loc 
+                    user-print.program-id = "HM5" 
+                    user-print.user-id = reftable.company 
+                    user-print.field-value[1] = reftable.CODE
+                    . 
+                iHmCount = 1 . 
+            end. 
+            else do: 
+                iHmCount = iHmCount + 1 . 
+                user-print.field-value[iHmCount] = reftable.CODE .
+            end.
+            iCnt = iCnt + 1. 
+        end.
+        RETURN iCnt.
+    END METHOD. /*User-print*/
+    METHOD PUBLIC INTEGER ReftoUserPrintHM1SF():
+      DEFINE VARIABLE iCnt AS INTEGER NO-UNDO.
+      DEFINE VARIABLE iHm1SFCount as integer NO-UNDO .
+
+      FOR EACH reftable WHERE
+          reftable.reftable EQ "HM1SF" NO-LOCK:
+
+          FIND FIRST user-print exclusive-LOCK
+              WHERE user-print.program-id EQ "HM1SF" 
+              AND user-print.user-id EQ reftable.company NO-ERROR.
+
+          if not avail user-print then do:
+              CREATE user-print .
+              ASSIGN
+                  user-print.program-id = "HM1SF" 
+                  user-print.user-id = reftable.company 
+                  user-print.field-value[1] = reftable.loc
+                  . 
+              iHm1SFCount = 1 . 
+         end. 
+         else do: 
+             iHm1SFCount = iHm1SFCount + 1 .
+             IF iHm1SFCount LT 100 THEN
+                 user-print.field-value[iHm1SFCount] = reftable.loc .
+         end.
+         iCnt = iCnt + 1. 
+       end.
+        RETURN iCnt.
+    END METHOD. /*User-print*/
+    METHOD PUBLIC INTEGER ReftoUserPrintHM1():
+      DEFINE VARIABLE iCnt AS INTEGER NO-UNDO.
+      DEFINE VARIABLE iHm1Count as integer NO-UNDO .
+
+      FOR EACH reftable WHERE
+          reftable.reftable EQ "HM1" NO-LOCK:
+          
+          FIND FIRST user-print exclusive-LOCK
+              WHERE user-print.company EQ reftable.loc
+              AND user-print.program-id EQ "HM1" 
+              AND user-print.user-id EQ reftable.company NO-ERROR.
+
+          if not avail user-print then do:
+              CREATE user-print .
+              ASSIGN
+                  user-print.company = reftable.loc 
+                  user-print.program-id = "HM1" 
+                  user-print.user-id = reftable.company 
+                  user-print.field-value[1] = reftable.CODE
+                  . 
+              iHm1Count = 1 . 
+          end. 
+          else do: 
+              iHm1Count = iHm1Count + 1 . 
+              IF iHm1Count LT 100 THEN
+                  user-print.field-value[iHm1Count] = reftable.CODE .
+          end.
+         iCnt = iCnt + 1. 
+       end.
+        RETURN iCnt.
+    END METHOD. /*User-print*/
+    METHOD PUBLIC INTEGER ReftoUserPrintHM1Acct():
+      DEFINE VARIABLE iCnt AS INTEGER NO-UNDO.
+      DEFINE VARIABLE iHmAcctCount as integer NO-UNDO .
+
+      FOR EACH reftable WHERE
+          reftable.reftable EQ "HM1Acct" NO-LOCK:
+
+          FIND FIRST user-print exclusive-LOCK
+              WHERE user-print.company EQ reftable.loc
+              AND user-print.program-id EQ "HM1Acct" 
+              AND user-print.user-id EQ reftable.company NO-ERROR.
+
+          if not avail user-print then do:
+              CREATE user-print .
+              ASSIGN
+                  user-print.company = reftable.loc 
+                  user-print.program-id = "HM1Acct" 
+                  user-print.user-id = reftable.company 
+                  user-print.field-value[1] = reftable.CODE
+                  . 
+              iHmAcctCount = 1 . 
+          end. 
+          else do: 
+              iHmAcctCount = iHmAcctCount + 1 . 
+              IF iHmAcctCount LT 100 THEN
+                  user-print.field-value[iHmAcctCount] = reftable.CODE .
+          end.
+          iCnt = iCnt + 1. 
+       end.
+        RETURN iCnt.
+    END METHOD. /*User-print*/
     METHOD PUBLIC INTEGER OeBollSellPrice():
         DEFINE VARIABLE iCnt AS INTEGER NO-UNDO.
         FOR EACH reftable WHERE reftable.reftable = "oe-boll.sell-price"
@@ -261,9 +380,160 @@ CLASS RefTableMigration:
                 oe-boll.sell-price = reftable.val[1]
                 oe-boll.zeroPrice  = reftable.val[2]
                 . 
-            RELEASE oe-rel.      
+            RELEASE oe-boll.      
             iCnt = iCnt + 1.                 
         END.  /*FOR EACH reftable*/         
         RETURN iCnt.
     END METHOD. /*oe-boll*/
+    METHOD PUBLIC INTEGER JobCreateTime():
+        DEFINE VARIABLE iCnt AS INTEGER NO-UNDO.
+        FOR EACH reftable WHERE reftable.reftable = "job.create-time"
+            NO-LOCK:
+            FIND FIRST job WHERE job.company = reftable.company
+                             AND job.loc     = ""
+                             AND job.job     = INT(reftable.code)
+                EXCLUSIVE-LOCK NO-ERROR.
+            IF AVAILABLE job THEN    
+            ASSIGN 
+                job.create-time = reftable.val[1]                
+                . 
+            RELEASE job.      
+            iCnt = iCnt + 1.                 
+        END.  /*FOR EACH reftable*/         
+        RETURN iCnt.
+    END METHOD. /*job*/
+    METHOD PUBLIC INTEGER OeOrdlMisc():
+        DEFINE VARIABLE iCnt AS INTEGER NO-UNDO.
+        FOR EACH reftable WHERE reftable.reftable = "oe/ordlmisc.p"
+            NO-LOCK:
+            FIND FIRST oe-ordm WHERE oe-ordm.company = reftable.company
+                              AND oe-ordm.ord-no     = INT(reftable.loc)
+                              AND oe-ordm.line       = INT(reftable.code)
+                              AND oe-ordm.charge     = reftable.code2
+                EXCLUSIVE-LOCK NO-ERROR.
+            IF AVAILABLE oe-ordm THEN    
+            ASSIGN 
+                oe-ordm.miscType = INT(reftable.val[1])
+                oe-ordm.estPrepEqty = reftable.val[2]
+                oe-ordm.estPrepLine = INT(reftable.val[3])
+                oe-ordm.miscInd = STRING(reftable.val[4])
+                oe-ordm.est-no = reftable.dscr                
+                . 
+            RELEASE oe-ordm.      
+            iCnt = iCnt + 1.                 
+        END.  /*FOR EACH reftable*/         
+        RETURN iCnt.
+    END METHOD. /*oe-ordm*/
+    METHOD PUBLIC INTEGER Factored():
+        DEFINE VARIABLE iCnt AS INTEGER NO-UNDO.
+        FOR EACH reftable WHERE reftable.reftable = "FACTORED"
+            NO-LOCK:
+            FIND FIRST itemfg WHERE itemfg.company = reftable.company
+                             AND itemfg.i-no     = reftable.code                             
+                EXCLUSIVE-LOCK NO-ERROR.
+            IF AVAILABLE itemfg THEN    
+            ASSIGN 
+                itemfg.factored = IF reftable.code2 = "YES" THEN YES ELSE NO                
+                . 
+            RELEASE itemfg.      
+            iCnt = iCnt + 1.                 
+        END.  /*FOR EACH reftable*/         
+        RETURN iCnt.
+    END METHOD. /*itemfg*/
+    METHOD PUBLIC INTEGER Termscod():
+        DEFINE VARIABLE iCnt AS INTEGER NO-UNDO.
+        FOR EACH reftable WHERE reftable.reftable = "terms.cod"
+            NO-LOCK:
+            FIND FIRST terms WHERE terms.company = reftable.company
+                               AND terms.t-code  = reftable.code                             
+                EXCLUSIVE-LOCK NO-ERROR.
+            IF AVAILABLE terms THEN    
+            ASSIGN 
+                terms.cod = IF reftable.val[1] = 1 THEN TRUE ELSE FALSE                
+                . 
+            RELEASE terms.      
+            iCnt = iCnt + 1.                 
+        END.  /*FOR EACH reftable*/         
+        RETURN iCnt.
+    END METHOD. /*terms*/
+    METHOD PUBLIC INTEGER Stack():
+        DEFINE VARIABLE iCnt AS INTEGER NO-UNDO.
+        FOR EACH reftable WHERE reftable.reftable = "STACK"
+            NO-LOCK:
+            FIND FIRST stackPattern WHERE stackPattern.stackCode  = reftable.code                             
+                EXCLUSIVE-LOCK NO-ERROR.
+            IF NOT AVAILABLE stackPattern THEN CREATE stackPattern.   
+            ASSIGN 
+                stackPattern.stackCode        = reftable.code
+                stackPattern.rec_key          = reftable.rec_key
+                stackPattern.stackDescription = reftable.dscr
+                stackPattern.stackCount       = reftable.val[1]                           
+                . 
+            RELEASE stackPattern.      
+            iCnt = iCnt + 1.                 
+        END.  /*FOR EACH reftable*/
+        FOR EACH reftable WHERE reftable.reftable = "STACKSTRAP"
+            NO-LOCK:
+            FIND FIRST stackPattern WHERE stackPattern.stackCode  = reftable.code                             
+                EXCLUSIVE-LOCK NO-ERROR.
+            IF NOT AVAILABLE stackPattern THEN CREATE stackPattern.   
+            ASSIGN                   
+                stackPattern.strapCode    = reftable.code2
+                stackPattern.strapCount   = reftable.val[1] 
+                stackPattern.strapFormula = reftable.dscr        
+                . 
+            RELEASE stackPattern.      
+            iCnt = iCnt + 1.                 
+        END.  /*FOR EACH reftable*/
+        FOR EACH reftable WHERE reftable.reftable = "STACKPAT"
+            NO-LOCK:
+            FIND FIRST stackPattern WHERE stackPattern.stackCode  = reftable.code                             
+                EXCLUSIVE-LOCK NO-ERROR.
+            IF NOT AVAILABLE stackPattern THEN CREATE stackPattern.   
+            ASSIGN                 
+                stackPattern.stackImage = reftable.dscr            
+                . 
+            RELEASE stackPattern.      
+            iCnt = iCnt + 1.                 
+        END.  /*FOR EACH reftable*/         
+        RETURN iCnt.
+    END METHOD. /*stackPattern*/
+    METHOD PUBLIC INTEGER ItemfgInkOccurs():
+        DEFINE VARIABLE iCnt AS INTEGER NO-UNDO.
+        FOR EACH reftable WHERE reftable.reftable = "itemfg-ink.occurs"
+            NO-LOCK:
+            FIND FIRST itemfg-ink WHERE itemfg-ink.company = reftable.company
+                                    AND itemfg-ink.rec_key = reftable.rec_key
+                EXCLUSIVE-LOCK NO-ERROR.
+            IF AVAILABLE itemfg-ink THEN    
+            ASSIGN 
+                itemfg-ink.occurs = reftable.val[1]                
+                . 
+            RELEASE itemfg-ink.      
+            iCnt = iCnt + 1.                 
+        END.  /*FOR EACH reftable*/         
+        RETURN iCnt.
+    END METHOD. /*itemfg-ink*/
+    METHOD PUBLIC INTEGER MachinePosition():
+        DEFINE VARIABLE iCnt AS INTEGER NO-UNDO.
+        FOR EACH reftable WHERE reftable.reftable = "MachinePosition"
+            NO-LOCK:
+            FIND FIRST est-op WHERE est-op.company = substring(reftable.company,1,10)
+                               AND est-op.est-no  = substring(reftable.company,11,10)  
+                               AND est-op.LINE = integer(reftable.loc)
+                EXCLUSIVE-LOCK NO-ERROR.
+            IF AVAILABLE est-op THEN    
+            ASSIGN 
+                est-op.len-pos = int(reftable.val[1])
+                est-op.len = DECIMAL(reftable.val[4])
+                est-op.wid-pos = INTEGER(reftable.val[2])
+                est-op.wid = DECIMAL(reftable.val[5])
+                est-op.dep-pos = integer(reftable.val[3])
+                est-op.dep = DECIMAL(reftable.val[6])               
+                . 
+            RELEASE est-op.      
+            iCnt = iCnt + 1.                 
+        END.  /*FOR EACH reftable*/         
+        RETURN iCnt.
+    END METHOD. /*est-op*/
 END CLASS.

@@ -31,21 +31,6 @@ DEFINE {1} SHARED TEMP-TABLE ttblResource NO-UNDO
     INDEX priority priority
     INDEX resource resource.
 
-DEFINE {1} SHARED TEMP-TABLE ttblDowntime NO-UNDO
-  FIELD dayID AS INTEGER
-  FIELD resource AS CHARACTER
-  FIELD startDate AS DATE
-  FIELD startTime AS INTEGER
-  FIELD endTime AS INTEGER
-  FIELD startDateTime AS DECIMAL
-  FIELD endDateTime AS DECIMAL
-    INDEX ttblDowntime IS PRIMARY UNIQUE
-          resource startDate dayID startTime endTime
-    INDEX dateTimeIdx
-          resource startDateTime endDateTime dayID.
-
-DEFINE BUFFER buffDowntime FOR ttblDowntime.
-
 DEFINE {1} SHARED TEMP-TABLE boardDowntime NO-UNDO
   FIELD resource AS CHARACTER
   FIELD startDate AS DATE
@@ -61,8 +46,6 @@ DEFINE {1} SHARED TEMP-TABLE boardDowntime NO-UNDO
           resource startDateTime DESCENDING endDateTime DESCENDING
     INDEX startDate resource startDate.
 
-/* one time dummy record for reading in downtime data */
-DEFINE TEMP-TABLE tempDowntime LIKE ttblDowntime.
-CREATE tempDowntime.
+{{&includes}/ttblDowntime.i {1}}
 
 {{&includes}/{&Board}/ttblJob.i {1}}

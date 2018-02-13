@@ -523,37 +523,43 @@ DO:
     case focus:name :
         when "cons-uom"  then do:
              run sys/ref/uom-rm2.p  (item.mat-type, output uom-list-con).
-             run windows/l-stduom.w (gcompany,uom-list-con, focus:screen-value, output char-val).
+             run windows/l-stduom.w (gcompany,uom-list-con, item.cons-uom:SCREEN-VALUE in frame {&frame-name}, output char-val).
          /*    run windows/l-uom.w (focus:screen-value, output char-val).     display all Uom */
              if char-val <> "" then 
-                assign focus:screen-value in frame {&frame-name} = entry(1,char-val)
+                assign item.cons-uom:screen-value in frame {&frame-name} = entry(1,char-val)
                        .
         end.
         when  "pur-uom" then do:
              run sys/ref/uom-rm.p  (item.mat-type, output uom-list).
-             run windows/l-stduom.w (gcompany,uom-list, focus:screen-value, output char-val).
+             run windows/l-stduom.w (gcompany,uom-list, ITEM.pur-uom:SCREEN-VALUE in frame {&frame-name}, output char-val).
          /*    run windows/l-uom.w (focus:screen-value, output char-val).     display all Uom */
              if char-val <> "" then 
-                assign focus:screen-value in frame {&frame-name} = entry(1,char-val)
+                assign ITEM.pur-uom:screen-value in frame {&frame-name} = entry(1,char-val)
                        .
         end.
-        when "vend-no" or when "vend2-no" then do:
-             run windows/l-vendno.w (gcompany, "", focus:screen-value, output char-val).
+        when "vend-no" then do:
+             run windows/l-vendno.w (gcompany, "", ITEM.vend-no:SCREEN-VALUE in frame {&frame-name}, output char-val).
              if char-val <> "" then 
-                assign focus:screen-value in frame {&frame-name} = entry(1,char-val)
+                assign ITEM.vend-no:screen-value in frame {&frame-name} = entry(1,char-val)
+                       .
+        end.
+        when "vend2-no" then do:
+             run windows/l-vendno.w (gcompany, "", ITEM.vend2-no:SCREEN-VALUE in frame {&frame-name}, output char-val).
+             if char-val <> "" then 
+                assign ITEM.vend2-no:screen-value in frame {&frame-name} = entry(1,char-val)
                        .
         end.
         when "loc" then do:
-             run windows/l-loc.w (gcompany,focus:screen-value, output char-val).
+             run windows/l-loc.w (gcompany,ITEM.loc:SCREEN-VALUE in frame {&frame-name}, output char-val).
              if char-val <> "" then 
-                assign focus:screen-value in frame {&frame-name} = entry(1,char-val)
+                assign ITEM.loc:screen-value in frame {&frame-name} = entry(1,char-val)
                        .
         end.
         when "loc-bin" then do:
 
-             run windows/l-locbin.w (gcompany,item.loc:screen-value,focus:screen-value, output char-val).
+             run windows/l-locbin.w (gcompany,item.loc:SCREEN-VALUE in frame {&frame-name},ITEM.loc-bin:SCREEN-VALUE in frame {&frame-name}, output char-val).
              if char-val <> "" then 
-                assign focus:screen-value in frame {&frame-name} = entry(1,char-val)
+                assign ITEM.loc-bin:screen-value in frame {&frame-name} = entry(1,char-val)
                        .
         end.
 

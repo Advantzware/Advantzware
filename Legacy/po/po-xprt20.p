@@ -530,7 +530,7 @@ v-printline = 0.
                    lv-reg-no = "".
        ASSIGN cFlueTest = string(lv-flute,"x(11)") + string(lv-reg-no,"x(10)").
        IF lv-flute EQ "" AND lv-reg-no EQ "" THEN
-              ASSIGN cFlueTest = IF dCoreDia GT 0 THEN " Core Dia: " + STRING(dCoreDia,">,>>9.99<<") ELSE ""
+              ASSIGN cFlueTest = IF dCoreDia GT 0 AND ITEM.mat-type EQ "P" THEN " Core Dia: " + STRING(dCoreDia,">,>>9.99<<") ELSE ""
                      dCoreDia = 0.
 
        /* check whether i-no is roll */
@@ -618,7 +618,7 @@ v-printline = 0.
                  v-printline = v-printline + 1.
         END.
 
-        IF dCoreDia GT 0 THEN DO:
+        IF dCoreDia GT 0 AND ITEM.mat-type EQ "P" THEN DO:
             put "Core Dia: " AT 25 dCoreDia FORMAT ">,>>9.9<<<" SKIP.
             ASSIGN
                 v-line-number = v-line-number + 1

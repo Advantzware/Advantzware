@@ -736,14 +736,8 @@ FUNCTION get-lot-no RETURNS CHARACTER
 ------------------------------------------------------------------------------*/
   DEF VAR v-lot-no AS CHAR NO-UNDO.
 
-  FIND FIRST reftable WHERE
-       reftable.reftable EQ "inv-line.lot-no" AND
-       reftable.rec_key EQ inv-line.rec_key
-       USE-INDEX rec_key
-       NO-LOCK NO-ERROR.
-
-  IF AVAIL reftable THEN
-     v-lot-no = reftable.CODE.
+    IF AVAIL inv-line THEN 
+     v-lot-no = inv-line.lot-no.
 
   RETURN v-lot-no.   /* Function return value. */
 

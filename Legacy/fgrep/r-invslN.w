@@ -50,6 +50,7 @@ DEFINE VARIABLE glCustListActive AS LOGICAL     NO-UNDO.
 
 DEF VAR is-xprint-form AS LOG NO-UNDO.
 DEF VAR ls-fax-file AS cha NO-UNDO.
+DEFINE VARIABLE security-flag AS LOG NO-UNDO.
 
 DEF TEMP-TABLE tt-itemfg NO-UNDO
     FIELD row-id      AS   ROWID
@@ -1563,6 +1564,12 @@ ASSIGN
  v-custown    = tb_inc-cust
  sort-opt     = SUBSTR(rd_sort,1,1)
  lSelected    = tb_cust-list.
+
+FOR EACH ttRptSelected BY ttRptSelected.DisplayOrder:
+     IF LOOKUP(ttRptSelected.TextList, "Total Cost") <> 0    THEN do:
+      IF NOT security-flag THEN RUN sys/ref/d-passwd.w (3, OUTPUT security-flag).
+    end.
+END.
 
 {sys/inc/print1.i}
 

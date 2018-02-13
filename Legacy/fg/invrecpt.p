@@ -593,7 +593,7 @@ DEFINE VARIABLE lvErrMsg     AS CHARACTER   NO-UNDO.
    
     /* Create an Invoice? */
     /*+ "|type=literal,name=label10,row=2.2,col=26,enable=false,width=38,font=5,scrval=" + "Create Invoice for Drop Shipped Purchase Order?" + ",FORMAT=X(58)" */
-    + "|type=toggle,name=tb_addinv,row=2.2,col=23,enable=true,width=42,font=5,data-type=logical,label=Create Invoice for Drop Shipped Purchase Order?"
+    + "|type=toggle,name=tb_addinv,row=2.2,col=23,enable=true,width=42,font=5,data-type=logical,scrval=yes,label=Create Invoice for Drop Shipped Purchase Order?"
 
    
 
@@ -601,7 +601,7 @@ DEFINE VARIABLE lvErrMsg     AS CHARACTER   NO-UNDO.
 /*    + "|type=literal,name=label9,row=5.7,col=26,enable=false,width=38,font=5,scrval=" + "INVOICE Freight? " + ",FORMAT=X(58)" */
     + "|type=toggle,name=tb_invfrt,row=5.7,col=23,enable=true,width=25,font=5,data-type=logical,label=INVOICE Freight?,depfield=tb_addinv"
 
-    + "|type=literal,name=label7,row=5.7,col=50,enable=false,width=58,font=5,scrval=" + "Billable Freight:" + ",FORMAT=X(58)" 
+    + "|type=literal,name=label7,row=5.7,col=50,enable=true,width=58,font=5,scrval=" + "Billable Freight:" + ",FORMAT=X(58)" 
     + "|type=fill-in,name=fi_BillAmt,row=5.6,col=69,enable=true,width=15,font=5,data-type=decimal,depfield=tb_invfrt" 
 
     /* Email BOL toggle box */

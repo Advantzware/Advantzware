@@ -62,6 +62,7 @@ DEFINE VARIABLE glCustListActive AS LOGICAL     NO-UNDO.
 DEF VAR ll-secure AS LOG NO-UNDO.
 DEF VAR is-xprint-form AS LOG NO-UNDO.
 DEF VAR ls-fax-file AS cha NO-UNDO.
+DEFINE VARIABLE security-flag AS LOGICAL NO-UNDO.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1093,6 +1094,9 @@ ASSIGN
  lSelected      = tb_cust-list.
 
 /*IF NOT ll-secure THEN RUN sys/ref/d-passwd.w (3, OUTPUT ll-secure).*/
+IF NOT security-flag THEN DO:
+  RUN sys/ref/d-passwd.w (3, OUTPUT security-flag).
+END.
 
 SESSION:SET-WAIT-STATE ("general").
 

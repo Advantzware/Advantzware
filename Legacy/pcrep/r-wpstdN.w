@@ -75,7 +75,7 @@ ASSIGN cTextListToSelect = "Machine#,DP,S,B,P,Charge Code,Charge Cat,Date,Job#,S
                            "Blank Sq In.,Board,Board Cal,MSF,Wgt/MSF,Roll Width," +  /*6*/     
                            "Gross S Wid,Gross S Len,Net Sht Wid,Net Sht Len," +  /*4*/     
                            "Film Wid,Film Len,# Colors,Die Inches,Number Up,Number Out,Glue Inches,Tot Job Run Qty," + /*8*/     
-                           "Cust#,Cust Name,Price,UOM,Sales Value" /* 5 */
+                           "Cust#,Cust Name,Price,UOM,Sales Value,User ID" /* 6 */
 
 
            cFieldListToSelect = "mch-act.m-code,deprt,mch-act.frm,mch-act.blank-no,pass,mch-act.code,job-code,mch-act.op-date,job-no,mch-act.shift,mch-act.hours,start,stop,crew,mch-act.qty," +
@@ -83,19 +83,19 @@ ASSIGN cTextListToSelect = "Machine#,DP,S,B,P,Charge Code,Charge Cat,Date,Job#,S
                                 "t-sqin,board,cal,ld-msf,weight,roll-wid," +
                                 "gsh-wid,gsh-len,nsh-wid,nsh-len," +
                                 "flm-len,flm-wid,inkc,die-in,li-up,n-out,lin-in,tot-job-qty," +
-                                "cust-no,name,price,uom,sale-value"
+                                "cust-no,name,price,uom,sale-value,user-id"
            cFieldLength = "8,2,3,2,3,11,10,8,10,5,8,5,5,2,10,"
                         + "6,1,15,8,7,7,7,9,9,"
                         + "12,8,9,9,9,10,"
                         + "11,11,11,11,"
                         + "9,9,8,10,9,10,11,15,"
-                        + "8,30,17,4,20"
+                        + "8,30,17,4,20,10"
            cFieldType = "c,c,i,i,i,c,c,c,c,i,i,c,c,i,i,"
                       + "i,c,c,c,i,i,i,i,i,"
                       + "i,c,i,i,i,i,"
                       + "i,i,i,i,"
                       + "i,i,i,i,i,i,i,i,"
-                      + "c,c,i,c,i"
+                      + "c,c,i,c,i,c"
            .
 
 {sys/inc/ttRptSel.i}
@@ -1259,12 +1259,12 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE run-report C-Win 
 PROCEDURE run-report PRIVATE :
-/*{sys/form/r-top3w.f}*/
+
   DEF VAR str-tit4 AS cha NO-UNDO.
 DEF VAR str-tit5 AS cha NO-UNDO.
 DEF VAR str-line AS cha FORM "x(300)" NO-UNDO.  
- {sys/form/r-top5DL3.f}
-
+ /*{sys/form/r-top5DL3.f}*/
+   {sys/form/r-top3w.f}
 DEF VAR str_buffa   AS   CHAR NO-UNDO.
 DEF VAR v-hdr       AS   CHAR NO-UNDO.
 DEF VAR lv-rc-seq   LIKE dept.fc NO-UNDO.
@@ -1288,6 +1288,7 @@ DEF VAR tot-job-qty AS INT NO-UNDO.
 DEF VAR cUOM AS CHARACTER NO-UNDO.
 DEF VAR dPrice AS DECIMAL NO-UNDO.
 DEF VAR dSaleValue AS DECIMAL NO-UNDO.
+DEFINE VARIABLE iPrint-line AS INTEGER NO-UNDO .
 DEF BUFFER b-mch-act FOR mch-act.
 DEF BUFFER bf-mch-act FOR mch-act.
 
@@ -1340,6 +1341,8 @@ IF td-show-parm THEN RUN show-param.
 RUN est/rc-seq.p (OUTPUT lv-rc-seq).
 
 DISPLAY "" WITH FRAME r-top.
+PUT str-tit4 FORMAT "x(485)" SKIP
+    str-tit5 FORMAT "x(485)" SKIP .
 
 IF tb_excel THEN DO:
     OUTPUT STREAM st-excell TO VALUE(fi_file).
@@ -1511,7 +1514,7 @@ IF tb_excel THEN DO:
                  IF hField <> ? THEN DO:                 
                      cTmpField = substring(GetFieldValue(hField),1,int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength))).
                      IF ENTRY(i,cSelectedList) = "Date" THEN  
-                        cTmpField =  IF cTmpField <> "" THEN  string(mch-act.op-date,"99/99/99") ELSE "".   
+                        cTmpField =  IF cTmpField <> ? THEN  string(mch-act.op-date,"99/99/99") ELSE "".   
                      IF ENTRY(i,cSelectedList) = "Hours" THEN  
                         cTmpField =  IF cTmpField <> "" THEN  string(mch-act.hours,"->>>9.9<<") ELSE "". 
                      IF ENTRY(i,cSelectedList) = "Qty" THEN  
@@ -1521,8 +1524,8 @@ IF tb_excel THEN DO:
                      IF ENTRY(i,cSelectedList) = "S" THEN  
                         cTmpField =  IF cTmpField <> "" THEN  string(mch-act.frm,">>9") ELSE "".
                      IF ENTRY(i,cSelectedList) = "B" THEN  
-                        cTmpField =  IF cTmpField <> "" THEN  string(mch-act.blank-no,">9") ELSE "".
-
+                        cTmpField =  IF cTmpField <> "" THEN  string(mch-act.blank-no,">9") ELSE "".  
+                     
                      cDisplay = cDisplay + cTmpField + 
                                FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cTmpField))
                                .
@@ -1536,7 +1539,8 @@ IF tb_excel THEN DO:
          END.
          ELSE DO: 
 
-            CASE cTmpField: 
+            CASE cTmpField:
+                 WHEN "user-id" THEN cVarValue = IF AVAILABLE mch-act THEN mch-act.user-id ELSE "". 
                  WHEN "job-code" THEN cVarValue = IF AVAIL job-code THEN string(job-code.cat,"x(10)") ELSE "". 
                  WHEN "job-no" THEN cVarValue = string(TRIM(job.job-no) + "-" + STRING(job.job-no2,"99")) .
                  WHEN "stock-no" THEN cVarValue = IF AVAIL eb THEN string(eb.stock-no) ELSE "".
@@ -1599,6 +1603,14 @@ IF tb_excel THEN DO:
                        FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
             cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
          END. 
+      END.
+      
+      iPrint-line = iPrint-line + 1 .
+      IF iPrint-line GE lines-per-page - 12 THEN DO:
+          PAGE.
+          iPrint-line = 0 .
+          PUT str-tit4 FORMAT "x(485)" SKIP
+              str-tit5 FORMAT "x(485)" SKIP .
       END.
       PUT UNFORMATTED cDisplay SKIP.
       IF tb_excel THEN DO:

@@ -651,14 +651,8 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
                 END.
             END.
 
-            FIND FIRST reftable WHERE
-                reftable.reftable EQ "inv-line.lot-no" AND
-                reftable.rec_key EQ inv-line.rec_key
-                USE-INDEX rec_key
-                NO-LOCK NO-ERROR.
-
-            IF AVAILABLE reftable THEN
-                v-lot-no = reftable.CODE.
+            
+            ASSIGN v-lot-no = inv-line.lot-no.
 
             IF v-t-price NE inv-line.t-price THEN 
             DO:

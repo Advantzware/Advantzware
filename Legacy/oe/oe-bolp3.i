@@ -340,23 +340,7 @@ fLogMsg("Begin create inv-line in oe-bolp3.i: " + " BOL#: " + STRING(oe-bolh.bol
          inv-line.price = oe-boll.sell-price.
       
 
-/*    FIND FIRST reftable WHERE                        */
-/*         reftable.reftable EQ "oe-boll.lot-no" AND   */
-/*         reftable.rec_key  EQ STRING(RECID(oe-boll)) */
-/*         USE-INDEX rec_key                           */
-/*         NO-LOCK NO-ERROR.                           */
-/*                                                     */
-/*    IF AVAIL reftable THEN                           */
-   IF oe-boll.lot-no NE "" THEN
-   DO:
-      CREATE b-reftable.
-      ASSIGN b-reftable.reftable = "inv-line.lot-no"
-             b-reftable.rec_key  = inv-line.rec_key
-/*              b-reftable.CODE     = reftable.CODE. */
-            b-reftable.CODE     = oe-boll.lot-no.
-      RELEASE b-reftable.
-      RELEASE reftable.
-   END.
+
    fLogMsg("Done create inv-line avail in oe-bolp3.i: " + " BOL#: " + STRING(oe-bolh.bol-no) + " Key03: " + report.key-03 + " ino: " + oe-boll.i-no + " avail inv-line: " + STRING(AVAILABLE(inv-line))).        
 END. /* Create inv-line */
 fLogMsg("Begin inv-line calculated values in oe-bolp3.i: " + " BOL#: " + STRING(oe-bolh.bol-no) + " Key03: " + report.key-03 + " ino: " + oe-boll.i-no + " avail inv-line: " + STRING(AVAILABLE(inv-line))).

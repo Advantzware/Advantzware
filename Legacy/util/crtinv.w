@@ -556,11 +556,7 @@ FOR EACH oe-boll WHERE oe-boll.company EQ cocode
                 and inv-line.i-no   eq oe-boll.i-no
                 and inv-line.line   eq oe-boll.line
                 and inv-line.po-no  eq oe-boll.po-no
-                AND CAN-FIND(FIRST reftable WHERE
-                    reftable.reftable = "inv-line.lot-no" AND
-                    reftable.rec_key  = inv-line.rec_key AND
-                    reftable.CODE     = oe-boll.lot-no
-                    USE-INDEX rec_key)
+                AND inv-line.lot-no = oe-boll.lot-no                    
               use-index r-no no-error.
           ELSE
               find first inv-line
@@ -856,11 +852,7 @@ DEF VAR v-index AS INT NO-UNDO.
                 and inv-line.i-no   eq oe-boll.i-no
                 and inv-line.line   eq oe-boll.line
                 and inv-line.po-no  eq oe-boll.po-no
-                AND CAN-FIND(FIRST reftable WHERE
-                    reftable.reftable = "inv-line.lot-no" AND
-                    reftable.rec_key  = inv-line.rec_key AND
-                    reftable.CODE     = oe-boll.lot-no
-                    USE-INDEX rec_key)
+                AND inv-line.lot-no = oe-boll.lot-no                    
               use-index r-no no-error.
           ELSE
               find first inv-line
@@ -935,11 +927,7 @@ DEF VAR v-index AS INT NO-UNDO.
           
           IF oe-boll.lot-no <> "" THEN
           DO:
-             CREATE b-reftable.
-             ASSIGN b-reftable.reftable = "inv-line.lot-no"
-                    b-reftable.rec_key  = inv-line.rec_key
-                    b-reftable.CODE     = oe-boll.lot-no.
-             RELEASE b-reftable.             
+             ASSIGN inv-line.lot-no  = oe-boll.lot-no.                          
           END.
       END.
 

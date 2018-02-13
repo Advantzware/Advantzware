@@ -1,7 +1,7 @@
 &ANALYZE-SUSPEND _VERSION-NUMBER UIB_v9r12 GUI
 &ANALYZE-RESUME
 /* Connected Databases 
-          emptrack         PROGRESS
+          asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME C-Win
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS C-Win 
@@ -66,12 +66,12 @@ DEFINE VARIABLE ldummy AS LOGICAL NO-UNDO.
 &Scoped-define PROCEDURE-TYPE Window
 &Scoped-define DB-AWARE no
 
-/* Name of first Frame and/or Browse and/or first Query                 */
+/* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME DEFAULT-FRAME
 &Scoped-define BROWSE-NAME BROWSE-1
 
 /* Internal Tables (found by Frame, Query & Browse Queries)             */
-&Scoped-define INTERNAL-TABLES machtran
+&Scoped-define INTERNAL-TABLES mach machtran
 
 /* Definitions for BROWSE BROWSE-1                                      */
 &Scoped-define FIELDS-IN-QUERY-BROWSE-1 machtran.jobseq ~
@@ -81,30 +81,31 @@ STRING(machtran.start_time,'HH:MM am') @ lvStartTime machtran.end_date ~
 STRING(machtran.end_time,'HH:MM am') @ lvEndTime machtran.shift ~
 machtran.completed machtran.posted machtran.run_qty machtran.waste_qty 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-BROWSE-1 
-&Scoped-define QUERY-STRING-BROWSE-1 FOR EACH machtran ~
-      WHERE machtran.company EQ lvCompany AND ~
-(machtran.machine EQ resources OR ~
-resources EQ '<Select ...>') AND ~
+&Scoped-define QUERY-STRING-BROWSE-1 FOR EACH mach ~
+      WHERE mach.company EQ lvCompany AND ~
+(mach.sch-m-code EQ resources OR ~
+resources EQ '<Select ...>') NO-LOCK, ~
+      EACH machtran WHERE TRUE /* Join to mach incomplete */ ~
+      AND machtran.company EQ mach.company AND ~
+machtran.machine EQ mach.m-code AND ~
 machtran.job_number EQ lvJobNo AND ~
-machtran.job_sub EQ lvJobNo2 ~
-USE-INDEX pi-machtran NO-LOCK ~
-    BY machtran.machine ~
-       BY machtran.start_date ~
-        BY machtran.start_time ~
-         BY machtran.jobseq INDEXED-REPOSITION
-&Scoped-define OPEN-QUERY-BROWSE-1 OPEN QUERY BROWSE-1 FOR EACH machtran ~
-      WHERE machtran.company EQ lvCompany AND ~
-(machtran.machine EQ resources OR ~
-resources EQ '<Select ...>') AND ~
+machtran.job_sub EQ lvJobNo2 NO-LOCK ~
+    BY machtran.start_date ~
+       BY machtran.start_time INDEXED-REPOSITION
+&Scoped-define OPEN-QUERY-BROWSE-1 OPEN QUERY BROWSE-1 FOR EACH mach ~
+      WHERE mach.company EQ lvCompany AND ~
+(mach.sch-m-code EQ resources OR ~
+resources EQ '<Select ...>') NO-LOCK, ~
+      EACH machtran WHERE TRUE /* Join to mach incomplete */ ~
+      AND machtran.company EQ mach.company AND ~
+machtran.machine EQ mach.m-code AND ~
 machtran.job_number EQ lvJobNo AND ~
-machtran.job_sub EQ lvJobNo2 ~
-USE-INDEX pi-machtran NO-LOCK ~
-    BY machtran.machine ~
-       BY machtran.start_date ~
-        BY machtran.start_time ~
-         BY machtran.jobseq INDEXED-REPOSITION.
-&Scoped-define TABLES-IN-QUERY-BROWSE-1 machtran
-&Scoped-define FIRST-TABLE-IN-QUERY-BROWSE-1 machtran
+machtran.job_sub EQ lvJobNo2 NO-LOCK ~
+    BY machtran.start_date ~
+       BY machtran.start_time INDEXED-REPOSITION.
+&Scoped-define TABLES-IN-QUERY-BROWSE-1 mach machtran
+&Scoped-define FIRST-TABLE-IN-QUERY-BROWSE-1 mach
+&Scoped-define SECOND-TABLE-IN-QUERY-BROWSE-1 machtran
 
 
 /* Definitions for FRAME DEFAULT-FRAME                                  */
@@ -140,6 +141,8 @@ DEFINE VARIABLE resources AS CHARACTER FORMAT "X(256)":U INITIAL "<Select ...>"
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
 DEFINE QUERY BROWSE-1 FOR 
+      mach
+    FIELDS(), 
       machtran SCROLLING.
 &ANALYZE-RESUME
 
@@ -147,23 +150,23 @@ DEFINE QUERY BROWSE-1 FOR
 DEFINE BROWSE BROWSE-1
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS BROWSE-1 C-Win _STRUCTURED
   QUERY BROWSE-1 NO-LOCK DISPLAY
-      machtran.jobseq FORMAT ">9":U
-      machtran.charge_code FORMAT "X(5)":U
-      machtran.machine COLUMN-LABEL "Resource" FORMAT "x(6)":U
-      machtran.form_number FORMAT ">>9":U
-      machtran.blank_number FORMAT ">9":U
-      machtran.pass_sequence FORMAT ">>9":U
-      machtran.start_date FORMAT "99/99/9999":U
+      machtran.jobseq
+      machtran.charge_code
+      machtran.machine COLUMN-LABEL "Resource"
+      machtran.form_number
+      machtran.blank_number
+      machtran.pass_sequence
+      machtran.start_date
       STRING(machtran.start_time,'HH:MM am') @ lvStartTime COLUMN-LABEL "Start" FORMAT "X(8)":U
             WIDTH 10
-      machtran.end_date FORMAT "99/99/9999":U
+      machtran.end_date
       STRING(machtran.end_time,'HH:MM am') @ lvEndTime COLUMN-LABEL "End" FORMAT "X(8)":U
             WIDTH 10
-      machtran.shift FORMAT "X":U
-      machtran.completed FORMAT "yes/no":U
-      machtran.posted FORMAT "yes/no":U
-      machtran.run_qty FORMAT "->>,>>>,>>9":U
-      machtran.waste_qty FORMAT "->>>>9":U
+      machtran.shift
+      machtran.completed
+      machtran.posted
+      machtran.run_qty
+      machtran.waste_qty
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ROW-MARKERS SEPARATORS SIZE 134 BY 21.52.
@@ -172,7 +175,7 @@ DEFINE BROWSE BROWSE-1
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME DEFAULT-FRAME
-     resources AT ROW 1 COL 92.2 HELP
+     resources AT ROW 1 COL 93.4 HELP
           "Select Resource"
      BROWSE-1 AT ROW 2 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
@@ -233,7 +236,7 @@ IF NOT C-Win:LOAD-ICON("schedule/images/scheduler.ico":U) THEN
 /* SETTINGS FOR WINDOW C-Win
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME DEFAULT-FRAME
-                                                                        */
+   FRAME-NAME                                                           */
 /* BROWSE-TAB BROWSE-1 resources DEFAULT-FRAME */
 /* SETTINGS FOR COMBO-BOX resources IN FRAME DEFAULT-FRAME
    ALIGN-L                                                              */
@@ -248,33 +251,47 @@ THEN C-Win:HIDDEN = no.
 
 &ANALYZE-SUSPEND _QUERY-BLOCK BROWSE BROWSE-1
 /* Query rebuild information for BROWSE BROWSE-1
-     _TblList          = "machtran"
+     _TblList          = "ASI.mach,ASI.machtran WHERE ASI.mach ..."
      _Options          = "NO-LOCK INDEXED-REPOSITION"
-     _OrdList          = "machtran.machine|yes,machtran.start_date|yes,machtran.start_time|yes,machtran.jobseq|yes"
-     _Where[1]         = "machtran.company EQ lvCompany AND
-(machtran.machine EQ resources OR
-resources EQ '<Select ...>') AND
+     _TblOptList       = "USED,"
+     _OrdList          = "ASI.machtran.start_date|yes,ASI.machtran.start_time|yes"
+     _Where[1]         = "mach.company EQ lvCompany AND
+(mach.sch-m-code EQ resources OR
+resources EQ '<Select ...>')"
+     _Where[2]         = "machtran.company EQ mach.company AND
+machtran.machine EQ mach.m-code AND
 machtran.job_number EQ lvJobNo AND
-machtran.job_sub EQ lvJobNo2
-USE-INDEX pi-machtran"
-     _FldNameList[1]   = machtran.jobseq
-     _FldNameList[2]   = machtran.charge_code
-     _FldNameList[3]   > machtran.machine
-"machtran.machine" "Resource" ? "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" ""
-     _FldNameList[4]   = machtran.form_number
-     _FldNameList[5]   = machtran.blank_number
-     _FldNameList[6]   = machtran.pass_sequence
-     _FldNameList[7]   = machtran.start_date
+machtran.job_sub EQ lvJobNo2"
+     _FldNameList[1]   > "_<CALC>"
+"machtran.jobseq" ? ? ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[2]   > "_<CALC>"
+"machtran.charge_code" ? ? ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[3]   > "_<CALC>"
+"machtran.machine" "Resource" ? "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[4]   > "_<CALC>"
+"machtran.form_number" ? ? ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[5]   > "_<CALC>"
+"machtran.blank_number" ? ? ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[6]   > "_<CALC>"
+"machtran.pass_sequence" ? ? ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[7]   > "_<CALC>"
+"machtran.start_date" ? ? ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[8]   > "_<CALC>"
-"STRING(machtran.start_time,'HH:MM am') @ lvStartTime" "Start" "X(8)" ? ? ? ? ? ? ? no ? no no "10" yes no no "U" "" ""
-     _FldNameList[9]   = machtran.end_date
+"STRING(machtran.start_time,'HH:MM am') @ lvStartTime" "Start" "X(8)" ? ? ? ? ? ? ? no ? no no "10" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[9]   > "_<CALC>"
+"machtran.end_date" ? ? ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[10]   > "_<CALC>"
-"STRING(machtran.end_time,'HH:MM am') @ lvEndTime" "End" "X(8)" ? ? ? ? ? ? ? no ? no no "10" yes no no "U" "" ""
-     _FldNameList[11]   = machtran.shift
-     _FldNameList[12]   = machtran.completed
-     _FldNameList[13]   = machtran.posted
-     _FldNameList[14]   = machtran.run_qty
-     _FldNameList[15]   = machtran.waste_qty
+"STRING(machtran.end_time,'HH:MM am') @ lvEndTime" "End" "X(8)" ? ? ? ? ? ? ? no ? no no "10" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[11]   > "_<CALC>"
+"machtran.shift" ? ? ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[12]   > "_<CALC>"
+"machtran.completed" ? ? ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[13]   > "_<CALC>"
+"machtran.posted" ? ? ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[14]   > "_<CALC>"
+"machtran.run_qty" ? ? ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[15]   > "_<CALC>"
+"machtran.waste_qty" ? ? ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is OPENED
 */  /* BROWSE BROWSE-1 */
 &ANALYZE-RESUME
