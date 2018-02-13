@@ -2029,13 +2029,18 @@ PROCEDURE pSaveParamValues :
             IF hChild:NAME NE ? AND
               (hChild:SENSITIVE OR
                hChild:TYPE EQ "COMBO-BOX") AND
-               hChild:TYPE NE "Button" THEN
-            ASSIGN
-                idx = idx + 1
-                user-print.field-name[idx]  = hChild:NAME
-                user-print.field-label[idx] = hChild:LABEL
-                user-print.field-value[idx] = hChild:SCREEN-VALUE
-                .
+               hChild:TYPE NE "Button" THEN DO:
+                ASSIGN
+                    idx = idx + 1
+                    user-print.field-name[idx]  = hChild:NAME
+                    user-print.field-label[idx] = hChild:LABEL
+                    user-print.field-value[idx] = hChild:SCREEN-VALUE
+                    .
+                /* if a date field and not fixed date, clear value so doesn't show wrong dates */
+                /* values when showing parameter values in report header, especially batch run */
+                IF hChild:PRIVATE-DATA NE ? AND hChild:PRIVATE-DATA NE "Fixed Date" THEN
+                user-print.field-value[idx] = "".
+            END. /* enabled field */
             hChild = hChild:NEXT-SIBLING.
             IF idx EQ EXTENT(user-print.field-name) - {&reserved} THEN LEAVE.
         END. /* do while */
