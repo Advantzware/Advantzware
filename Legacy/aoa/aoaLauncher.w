@@ -45,6 +45,7 @@ DEFINE VARIABLE ipcLaunchType AS CHARACTER NO-UNDO INITIAL "Report".
 DEFINE VARIABLE cColumnLabel       AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cSaveLabel         AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lAscending         AS LOGICAL   NO-UNDO INITIAL YES.
+DEFINE VARIABLE lAccess            AS LOGICAL   NO-UNDO.
 
 DEFINE TEMP-TABLE ttModule NO-UNDO
     FIELD module   AS CHARACTER LABEL "Module"      FORMAT "x(5)"
@@ -58,10 +59,12 @@ DEFINE TEMP-TABLE ttAOA NO-UNDO
     FIELD menuID  AS CHARACTER LABEL "Menu ID"  FORMAT "x(4)"
         INDEX aoa IS PRIMARY UNIQUE aoaFile.
 
-RUN util/chk-mod.p ("ASI",
+RUN util/CheckModule.p ("ASI",
                     IF ipcLaunchType EQ "Report" THEN "aoaReport"
-                    ELSE "aoaDashboard") NO-ERROR.
-IF ERROR-STATUS:ERROR THEN RETURN.
+                    ELSE "aoaDashboard", 
+                    YES, 
+                    OUTPUT lAccess).
+IF NOT lAccess THEN RETURN.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

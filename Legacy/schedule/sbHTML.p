@@ -18,21 +18,14 @@
 
 /* ***************************  Definitions  ************************** */
 
-DEFINE INPUT PARAMETER ipcType     AS CHARACTER NO-UNDO.
-DEFINE INPUT PARAMETER iprJobRowID AS ROWID     NO-UNDO.
+DEFINE INPUT PARAMETER ipcType    AS CHARACTER NO-UNDO.
+DEFINE INPUT PARAMETER iprRowID   AS ROWID     NO-UNDO.
+DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
 
-DEFINE BUFFER bJob    FOR job.
-DEFINE BUFFER bJobMch FOR job-mch.
-
-DEFINE TEMP-TABLE ttJob   NO-UNDO 
+DEFINE TEMP-TABLE ttJob NO-UNDO LIKE job-mch 
   FIELD jobMchRowID   AS ROWID 
-  FIELD job           AS INTEGER 
-  FIELD frm           AS INTEGER 
-  FIELD blank-no      AS INTEGER 
-  FIELD d-seq         AS INTEGER 
-  FIELD m-seq         AS INTEGER 
-  FIELD pass          AS INTEGER 
-  FIELD m-code        AS CHARACTER 
+  FIELD d-seq         AS INTEGER
+  FIELD m-seq         AS INTEGER
     INDEX ttJob IS PRIMARY job frm blank-no d-seq m-seq pass m-code
     .
 DEFINE TEMP-TABLE ttblJob NO-UNDO
@@ -53,6 +46,7 @@ DEFINE TEMP-TABLE ttblJob NO-UNDO
     INDEX endDate endDate
     .
 DEFINE BUFFER bTtblJob FOR ttblJob.
+DEFINE BUFFER bJobMch  FOR ttJob.
 
 DEFINE TEMP-TABLE ttTime NO-UNDO 
   FIELD timeSlice AS INTEGER 
@@ -171,7 +165,7 @@ FUNCTION timeSpan RETURNS INTEGER
 /* ***************************  Main Block  *************************** */
 
 SESSION:SET-WAIT-STATE ("General").
-RUN pScheduleJob (iprJobRowID).
+RUN pScheduleJob (iprRowID).
 RUN pHTMLPage.
 SESSION:SET-WAIT-STATE ("").
 
@@ -508,6 +502,9 @@ PROCEDURE pHTMLPage:
         '  <img src="' SEARCH("Graphics/asiicon.ico")
         '" align="middle">~&nbsp;<b><a href="http://www.advantzware.com" target="_blank">'
         '<font face="{&fontFace}">Advantzware, Inc.</a>~&nbsp;~&copy;</b></font>' SKIP
+        '~&nbsp;~&nbsp;~&nbsp;~&nbsp;~&nbsp;<font face="{&fontFace}"><font color="#FF0000"><b>Projected Completion: </font>'
+        ttblJob.endDate ' - ' STRING(ttblJob.endTime,"hh:mm:ss am")
+        '</font></b>' SKIP 
         '  <table align="right" cellspacing="2" cellpadding="8">' SKIP
         '    <tr>' SKIP 
         '      <td><font face="{&fontFace}">Legend:</font></td>' SKIP 
@@ -542,10 +539,10 @@ PROCEDURE pHTMLPage:
             (IF SEARCH("Graphics/48x48/" + ttblJob.m-code + ".png") NE ? THEN
                 SEARCH("Graphics/48x48/" + ttblJob.m-code + ".png") ELSE
                 SEARCH("Graphics/48x48/gearwheels.png"))
-            '" align="left">~&nbsp~&nbsp~&nbsp~&nbsp<b>'
-            ttblJob.m-code '</b> (<b>f:</b>' ttblJob.frm
-            ' <b>b:</b>' ttblJob.blank-no
-            ' <b>p:</b>' ttblJob.pass ')<br>'
+            '" width="48" height="48" align="left">~&nbsp~&nbsp~&nbsp~&nbsp<b>'
+            ttblJob.m-code '</b> (f:<b>' ttblJob.frm
+            '</b> b:<b>' ttblJob.blank-no
+            '</b> p:<b>' ttblJob.pass ')</b><br>'
             ttblJob.startDate ' - ' STRING(ttblJob.startTime,"hh:mm:ss am") '<br>'
             ttblJob.endDate ' - ' STRING(ttblJob.endTime,"hh:mm:ss am") '</font></td>' SKIP
             .
@@ -645,7 +642,7 @@ PROCEDURE pScheduleJob :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEFINE INPUT PARAMETER ipRowID AS ROWID NO-UNDO.
+  DEFINE INPUT PARAMETER iprRowID AS ROWID     NO-UNDO.
 
   DEFINE VARIABLE lvStartDate     AS DATE      NO-UNDO.
   DEFINE VARIABLE lvStartTime     AS INTEGER   NO-UNDO.
@@ -658,64 +655,63 @@ PROCEDURE pScheduleJob :
   DEFINE VARIABLE lvEndTimeMR     AS INTEGER   NO-UNDO.
   DEFINE VARIABLE lvMachine       AS CHARACTER NO-UNDO.
 
-  FIND job NO-LOCK WHERE ROWID(job) EQ ipRowID NO-ERROR.
-  IF NOT AVAILABLE job THEN RETURN.
-
   ASSIGN
-    lvStartDate = IF job.start-date GE TODAY AND job.start-date NE ? THEN job.start-date ELSE TODAY
-    lvStartTime = IF lvStartDate EQ TODAY THEN TIME ELSE 0
+    lvStartDate = TODAY
+    lvStartTime = TIME
     .
-  FOR EACH job-mch NO-LOCK
-      WHERE job-mch.company      EQ job.company
-        AND job-mch.job          EQ job.job
-        AND job-mch.run-complete EQ NO
-      :
-      FIND FIRST mach NO-LOCK
-           WHERE mach.company EQ job-mch.company
-             AND mach.loc     EQ job.loc
-             AND mach.m-code  EQ job-mch.m-code
-           NO-ERROR.
-      IF NOT AVAILABLE mach THEN NEXT.
-      lvMachine = IF mach.sch-m-code NE "" THEN mach.sch-m-code ELSE mach.m-code.
-      CREATE ttJob.
-      ASSIGN 
-        ttJob.jobMchRowID = ROWID(job-mch)
-        ttJob.job         = job-mch.job
-        ttJob.frm         = job-mch.frm
-        ttJob.blank-no    = job-mch.blank-no
-        ttJob.d-seq       = mach.d-seq
-        ttJob.m-seq       = mach.m-seq
-        ttJob.pass        = job-mch.pass
-        ttJob.m-code      = lvMachine
-        . 
-  END. /* each job-mch */
-  
-  FOR EACH ttJob:
-    FIND FIRST job-mch NO-LOCK 
-         WHERE ROWID(job-mch) EQ ttJob.jobMchRowID
-         NO-ERROR.
-    IF NOT AVAILABLE job-mch THEN NEXT.           
-    RUN ttblJobCreate (job-mch.company,ttJob.m-code,ROWID(job-mch)).
-    RUN calcEnd (lvStartDate,lvStartTime,job-mch.mr-hr,job-mch.run-hr,
+  IF iprRowID NE ? THEN DO: 
+      FIND job NO-LOCK WHERE ROWID(job) EQ iprRowID NO-ERROR.
+      IF NOT AVAILABLE job THEN RETURN.
+    
+      ASSIGN
+        lvStartDate = IF job.start-date GE TODAY AND job.start-date NE ? THEN job.start-date ELSE TODAY
+        lvStartTime = IF lvStartDate EQ TODAY THEN TIME ELSE 0
+        .
+      FOR EACH job-mch NO-LOCK
+          WHERE job-mch.company      EQ job.company
+            AND job-mch.job          EQ job.job
+            AND job-mch.run-complete EQ NO
+          :
+          FIND FIRST mach NO-LOCK
+               WHERE mach.company EQ job-mch.company
+                 AND mach.loc     EQ job.loc
+                 AND mach.m-code  EQ job-mch.m-code
+               NO-ERROR.
+          IF NOT AVAILABLE mach THEN NEXT.
+          lvMachine = IF mach.sch-m-code NE "" THEN mach.sch-m-code ELSE mach.m-code.
+          CREATE ttJob.
+          BUFFER-COPY job-mch TO ttJob
+              ASSIGN 
+                ttJob.jobMchRowID = ROWID(job-mch)
+                ttJob.d-seq       = mach.d-seq
+                ttJob.m-seq       = mach.m-seq
+                ttJob.m-code      = lvMachine
+                . 
+      END. /* each job-mch */
+  END. /* iprrowid ne ? */
+
+  FOR EACH ttJob USE-INDEX ttJob:
+    RUN ttblJobCreate (ttJob.company,ttJob.m-code,ROWID(ttJob)).
+    RUN calcEnd (lvStartDate,lvStartTime,ttJob.mr-hr,ttJob.run-hr,
                  OUTPUT lvEndDate,OUTPUT lvEndTime).
     ASSIGN
       lvStartDateTime = numericDateTime(lvStartDate,lvStartTime)
       lvEndDateTime   = numericDateTime(lvEndDate,lvEndTime)
       lvTimeSpan      = timeSpan(lvStartDate,lvStartTime,lvEndDate,lvEndTime)
       .
-    RUN firstAvailable (job-mch.company,job-mch.m-code,
+    RUN firstAvailable (ttJob.company,ttJob.m-code,
                         lvTimeSpan,lvStartDateTime,lvEndDateTime,
                         INPUT-OUTPUT lvStartDate,INPUT-OUTPUT lvStartTime,
                         INPUT-OUTPUT lvEndDate,INPUT-OUTPUT lvEndTime).
-    RUN calcEnd (lvStartDate,lvStartTime,job-mch.mr-hr,0,
+    RUN calcEnd (lvStartDate,lvStartTime,ttJob.mr-hr,0,
                  OUTPUT lvEndDateMR,OUTPUT lvEndTimeMR).
     CREATE ttblJob.
     ASSIGN
       ttblJob.m-code        = ttJob.m-code
-      ttblJob.job           = job-mch.job-no + '-' + STRING(job-mch.job-no2) + '.' + STRING(job-mch.frm)
-      ttblJob.frm           = job-mch.frm
-      ttblJob.blank-no      = job-mch.blank-no
-      ttblJob.pass          = job-mch.pass
+      ttblJob.job           = ttJob.job-no + '-' + STRING(ttJob.job-no2) + '.' + STRING(ttJob.frm)
+      ttblJob.frm           = ttJob.frm
+      ttblJob.blank-no      = ttJob.blank-no
+      ttblJob.pass          = ttJob.pass
       ttblJob.startDate     = lvStartDate
       ttblJob.startTime     = lvStartTime
       ttblJob.endDate       = lvEndDate
@@ -759,7 +755,6 @@ PROCEDURE ttblJobCreate :
   DEFINE VARIABLE lvDowntimeSpan  AS INTEGER NO-UNDO.
   DEFINE VARIABLE lvTimeSpan      AS INTEGER NO-UNDO.
 
-/*  EMPTY TEMP-TABLE ttblJob.*/
   lvStartDateTime = numericDateTime(TODAY,TIME).
   FOR EACH bJobMch NO-LOCK
       WHERE bJobMch.company      EQ ipCompany

@@ -457,12 +457,7 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
 
         IF inv-line.inv-qty EQ 0 AND inv-line.ship-qty EQ 0 THEN NEXT .
 
-        FIND FIRST reftable NO-LOCK
-          WHERE reftable.reftable EQ "inv-line.lot-no"
-            AND reftable.rec_key  EQ inv-line.rec_key
-            USE-INDEX rec_key NO-ERROR.
-        IF AVAIL reftable THEN
-           ASSIGN v-po-no =  reftable.CODE.
+        ASSIGN v-po-no =  inv-line.lot-no.
 /*         v-po-no = inv-line.lot-no. */
         FOR EACH oe-boll NO-LOCK 
           WHERE oe-boll.company EQ inv-line.company

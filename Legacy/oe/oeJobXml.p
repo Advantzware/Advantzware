@@ -20,6 +20,9 @@ DEFINE VARIABLE cFile           AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lFormatted      AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cEncoding       AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cSchemaLocation AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cItemOnOrder    AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cCustPart       AS CHARACTER NO-UNDO.
+DEFINE VARIABLE rItemfgRow      AS ROWID NO-UNDO.
 DEFINE VARIABLE lWriteSchema    AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lMinSchema      AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lRetOK          AS LOGICAL   NO-UNDO.
@@ -69,8 +72,70 @@ cocode = ipcCompany.
 {UDF/fUDFGroup.i "itemfg."}                         
 /* ********************  Preprocessor Definitions  ******************** */
 
+/* ************************  Function Prototypes ********************** */
+
+
+FUNCTION fnStripInvalidChar RETURNS CHARACTER 
+	(ipcInput AS CHARACTER  ) FORWARD.
+
 
 /* ***************************  Main Block  *************************** */
+
+/* ************************  Function Implementations ***************** */
+
+
+FUNCTION fnStripInvalidChar RETURNS CHARACTER 
+	(ipcInput AS CHARACTER  ):
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/	
+
+    DEFINE VARIABLE cResult AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iPos          AS INTEGER NO-UNDO. 
+    DEFINE VARIABLE lBadCharFound AS LOGICAL NO-UNDO.  
+    DEFINE VARIABLE iNumTries     AS INTEGER NO-UNDO.  
+
+    iNumTries = 0.   
+
+    DO WHILE TRUE:   
+        lBadCharFound = FALSE.
+        
+        iPos = INDEX(ipcInput, '"'). 
+        IF iPos GT 0 THEN 
+        DO:  
+            lBadCharFound = TRUE. 
+            ipcInput = REPLACE(ipcInput, '"', '&quot;').            
+        END.  
+        
+        iPos = INDEX(ipcInput, "'"). 
+        IF iPos GT 0 THEN 
+        DO:  
+            lBadCharFound = TRUE. 
+            ipcInput = REPLACE(ipcInput, "'", '&apos;').            
+        END.  
+        
+        iPos = INDEX(ipcInput, "<"). 
+        IF iPos GT 0 THEN 
+        DO:  
+            lBadCharFound = TRUE. 
+            ipcInput = REPLACE(ipcInput, "<", '&lt;').            
+        END. 
+        
+        iPos = INDEX(ipcInput, ">"). 
+        IF iPos GT 0 THEN 
+        DO:  
+            lBadCharFound = TRUE. 
+            ipcInput = REPLACE(ipcInput, ">", '&gt;').            
+        END. 
+        iNumTries = iNumTries + 1.
+        IF lBadCharFound EQ FALSE OR iNumTries GT 200 THEN
+            LEAVE.  
+    END. 
+    cResult = ipcInput.
+    RETURN cResult.
+		
+END FUNCTION.
 
 EMPTY TEMP-TABLE ttTempjob.
 FOR EACH EDDoc EXCLUSIVE-LOCK WHERE ROWID(EDDoc) EQ iprEdDoc,
@@ -85,7 +150,7 @@ FOR EACH EDDoc EXCLUSIVE-LOCK WHERE ROWID(EDDoc) EQ iprEdDoc,
             FIRST itemfg NO-LOCK WHERE itemfg.company EQ job-hdr.company
             AND itemfg.i-no    EQ job-hdr.i-no
             :
-
+            cItemOnOrder = itemfg.i-no.
             FIND FIRST eb NO-LOCK 
               WHERE eb.company EQ job-hdr.company
                 AND eb.est-no  EQ job-hdr.est-no
@@ -110,7 +175,9 @@ FOR EACH EDDoc EXCLUSIVE-LOCK WHERE ROWID(EDDoc) EQ iprEdDoc,
                 FIND style NO-LOCK 
                            WHERE style.company = eb.company 
                              AND style.style = eb.style
-                           NO-ERROR.   
+                           NO-ERROR.
+                /* stock-no overrides item number for sales order lookup as jobcard does */
+                cItemOnOrder = eb.stock-no.
             END.
             
             cocode = job-hdr.company.
@@ -122,7 +189,11 @@ FOR EACH EDDoc EXCLUSIVE-LOCK WHERE ROWID(EDDoc) EQ iprEdDoc,
             FIND FIRST cust NO-LOCK WHERE cust.company EQ job-hdr.company
                 AND cust.cust-no EQ job-hdr.cust-no
                 NO-ERROR.
-    
+            
+            rItemfgRow = ROWID(itemfg).
+            cCustPart = itemfg.part-no.
+            RUN custom/getcpart.p (INPUT cust.company, INPUT cust.cust-no, 
+                                   INPUT-OUTPUT cCustPart, INPUT-OUTPUT rItemfgRow).
     
             cSheetBlank = STRING(job-hdr.frm, "9") + string(job-hdr.blank-no, "9") .
     
@@ -141,11 +212,11 @@ FOR EACH EDDoc EXCLUSIVE-LOCK WHERE ROWID(EDDoc) EQ iprEdDoc,
                     ttTempjob.itemRecKey = itemfg.rec_key
                     ttTempjob.FGItemCode = itemfg.i-no
                     ttTempjob.FGName     = itemfg.i-name
-                    ttTempjob.CustPart   = itemfg.part-no
+                    ttTempjob.CustPart   = cCustPart
                     ttTempjob.ItemStatus = (IF itemfg.stat EQ "A" THEN "Active" ELSE "Inactive") 
                     ttTempjob.FgCategory = itemfg.procat-desc
                     .
-                
+
                 /* Override of itemfg.procat-desc to match logic in viewers/itemfg.w */    
                 FIND FIRST fgcat NO-LOCK WHERE fgcat.company = job-hdr.company 
                                            AND fgcat.procat = itemfg.procat
@@ -169,7 +240,7 @@ FOR EACH EDDoc EXCLUSIVE-LOCK WHERE ROWID(EDDoc) EQ iprEdDoc,
                 IF AVAILABLE ef THEN 
                   ASSIGN  ttTempJob.Weight       = STRING(ef.weight)
                           ttTempJob.Caliper      = STRING(ef.cal)                    
-                          ttTempJob.Board        = ef.brd-dscr
+                          ttTempJob.Board        = fnStripInvalidChar(ef.brd-dscr)
                           .
                 IF AVAILABLE oe-ord THEN 
                  ASSIGN 
@@ -259,11 +330,11 @@ DO:
                 RUN XMLOutput (lXMLOutput,cUDFString,'','Row').
                 cUDFSTring = "SmartName " + 'Name="Style Code" Value="' + ttTempJob.Structure  + '"/'.
                 RUN XMLOutput (lXMLOutput,cUDFString,'','Row').
-                cUDFSTring = "SmartName " + 'Name="Board" Value="' + ttTempJob.Board      + '"/'.
+                cUDFSTring = "SmartName " + 'Name="Board" Value=' + "'" + ttTempJob.Board      + "'/".
                 RUN XMLOutput (lXMLOutput,cUDFString,'','Row').
        
             RUN XMLOutput (lXMLOutput,'/Product','','Row').     
-                                
+                               
         RUN XMLOutput (lXMLOutput,'/ResourcePool','','Row').
             
         IF LAST-OF(ttTempJob.jobID) THEN

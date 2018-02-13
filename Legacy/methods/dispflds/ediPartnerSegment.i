@@ -1,0 +1,2 @@
+/* ediPartnersegment.i */
+

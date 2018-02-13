@@ -38,8 +38,8 @@ DEF var v-adders1        as   char format "x(31)"                    no-undo.
 DEF VAR v-adder-dscr     LIKE ITEM.est-dscr NO-UNDO.
 DEF VAR ls-image1 AS cha NO-UNDO.
 DEF VAR ls-image2 AS cha NO-UNDO.
-DEF VAR ls-full-img1 AS cha FORM "x(60)" NO-UNDO.
-DEF VAR ls-full-img2 AS cha FORM "x(60)" NO-UNDO.
+DEF VAR ls-full-img1 AS cha FORM "x(200)" NO-UNDO.
+DEF VAR ls-full-img2 AS cha FORM "x(200)" NO-UNDO.
 ASSIGN ls-image1 = "images\Protagon.jpg"
        ls-image2 = "".
 
@@ -1049,7 +1049,7 @@ do v-local-loop = 1 to v-local-copies:
           FOR EACH bf-eb WHERE bf-eb.company = est.company
                             AND bf-eb.est-no = est.est-no
                             AND bf-eb.form-no > 0 NO-LOCK:
-               i = i + 1.               
+               i = i + 1.
           END.
           FOR EACH xeb NO-LOCK 
                  WHERE xeb.company = est.company
@@ -1074,7 +1074,6 @@ do v-local-loop = 1 to v-local-copies:
                    /* vDesignerName = "Designer: " + xeb.spare-char-1*/ .
 
           END.
-          
           /*IF i > 1 THEN DO:              */
           IF i GE 1 THEN DO:
              DEF VAR v-set-qty AS INT NO-UNDO.
@@ -1110,7 +1109,7 @@ do v-local-loop = 1 to v-local-copies:
                                            ELSE 0 ). 
             ASSIGN vProjectManager = "Project Manager: " + IF AVAIL xoe-ord THEN xoe-ord.USER-ID ELSE job.USER-ID.
             PUT "<R1><C1><#1>"   /*SKIP         */
-                 "<C1><R+5><C+40>" "<IMAGE#2=" + ls-full-img1 FORM "x(60)"  /*SKIP                  */
+                 "<C1><R+5><C+40>" "<IMAGE#2=" + ls-full-img1 FORM "x(200)"  /*SKIP                  */
                  /*"<P10><=1><R+8>"*/ .
              
              PUT "<R1><C1><#15><C35><P16><B> BILL OF MATERIALS<P7>" SKIP(4)
@@ -1189,9 +1188,9 @@ do v-local-loop = 1 to v-local-copies:
                      /*v-sampreq      AT 44*/.
 
                  IF xeb.yld-qty LT 0 THEN
-                   PUT -1 / xeb.yld-qty FORMAT ">>>>9.9<<<" AT 60.
+                   PUT -1 / xeb.yld-qty FORMAT ">>>>9" AT 60.
                  ELSE
-                   PUT xeb.yld-qty FORMAT ">>>>9.9<<<" AT 60.
+                   PUT xeb.yld-qty FORMAT ">>>>>>>9" AT 60.
 
                  FIND FIRST xstyle NO-LOCK
                     WHERE xstyle.company  EQ xeb.company
@@ -1225,7 +1224,7 @@ do v-local-loop = 1 to v-local-copies:
                    v-tmp-line = 0.
                    
                    PUT "<R1><C1><#1>"   
-                        "<C1><R+6><C+40>" "<IMAGE#2=" + ls-full-img1 FORM "x(60)" .
+                        "<C1><R+6><C+40>" "<IMAGE#2=" + ls-full-img1 FORM "x(200)" .
                    PUT "<R1><C1><#15><C35><P16><B> BILL OF MATERIALS<P7>" SKIP(4)
                          "<P13><B><C2>" v-cus[1] "<C44>Our Order #: " v-ord-no "</B>"
                         "<P12><B><C75>" lv-fg-name FORMAT "x(30)" SKIP "</B>"
@@ -1382,7 +1381,7 @@ do v-local-loop = 1 to v-local-copies:
                 PAGE.
                 v-tmp-line = 15.
                 /* put header */
-                PUT "<R1><C1><#1>"   "<C1><R+6><C+40>" "<IMAGE#2=" + ls-full-img1 FORM "x(60)" .
+                PUT "<R1><C1><#1>"   "<C1><R+6><C+40>" "<IMAGE#2=" + ls-full-img1 FORM "x(200)" .
                 PUT "<R1><C1><#15><C35><P16><B> BILL OF MATERIALS<P7>" SKIP(4)
                         "<P13><B><C2>" v-cus[1] "<C44>Our Order #: " v-ord-no "</B>"
                         "<P12><B><C75>" lv-fg-name FORMAT "x(30)" SKIP "</B>"
@@ -1430,7 +1429,7 @@ do v-local-loop = 1 to v-local-copies:
                    PAGE.
                    iNotePrtLine = 23 + (30 * iNotePage).  /* 30 lines per page + 2 blanks */
                    iNotePage = iNotePage + 1.
-                   PUT "<R1><C1><#1>"   "<C1><R+6><C+40>" "<IMAGE#2=" + ls-full-img1 FORM "x(60)" .
+                   PUT "<R1><C1><#1>"   "<C1><R+6><C+40>" "<IMAGE#2=" + ls-full-img1 FORM "x(200)" .
                    PUT "<R1><C1><#15><C35><P16><B> BILL OF MATERIALS<P7>" SKIP(4)
                         "<P13><B><C2>" v-cus[1] "<C44>Our Order #: " v-ord-no "</B>"
                         "<P12><B><C75>" lv-fg-name FORMAT "x(30)" SKIP "</B>"

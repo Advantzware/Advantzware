@@ -38,6 +38,7 @@ CREATE WIDGET-POOL.
 DEFINE VARIABLE copy-employee_company AS CHARACTER NO-UNDO.
 DEFINE VARIABLE copy-employee_employee AS CHARACTER NO-UNDO.
 def var is-password-changed as log no-undo.
+DEF NEW GLOBAL SHARED VAR g_lookup-var AS cha NO-UNDO.
 {custom/gcompany.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -211,7 +212,7 @@ DEFINE FRAME F-Main
           SIZE 5.6 BY 1
           BGCOLOR 15 
      pass-word AT ROW 10.76 COL 23 COLON-ALIGNED HELP
-          "Enter Employee Password" BLANK 
+          "Enter Employee Password"  PASSWORD-FIELD
      employee.lunch_paid AT ROW 10.76 COL 62
           VIEW-AS TOGGLE-BOX
           SIZE 21 BY .81
@@ -401,6 +402,21 @@ END.
 ON HELP OF employee.start_date IN FRAME F-Main /* Start Date */
 DO:
   {methods/calendar.i}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME employee.emp_type
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL employee.emp_type V-table-Win
+ON HELP OF employee.emp_type IN FRAME F-Main /* Start Date */
+DO:
+  RUN lookups/emp_type.p.
+  IF g_lookup-var NE ""                                AND
+         TRIM(g_lookup-var) NE TRIM(employee.emp_type:SCREEN-VALUE) THEN DO:
+        employee.emp_type:SCREEN-VALUE = g_lookup-var.
+         APPLY "entry" TO employee.emp_type .
+      END.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -601,6 +617,11 @@ PROCEDURE local-update-record :
         RETURN NO-APPLY.
      end.
   end.
+  IF pass-word EQ "" THEN DO:
+    MESSAGE 'PLEASE ENTER PASSWORD...' VIEW-AS ALERT-BOX.
+        APPLY 'ENTRY' TO pass-word.
+        RETURN NO-APPLY.
+  END.
   {&methods/lValidateError.i NO} 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
@@ -609,6 +630,32 @@ PROCEDURE local-update-record :
 
 END PROCEDURE.
 
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-display-fields V-table-Win 
+PROCEDURE local-display-fields :
+/*------------------------------------------------------------------------------
+  Purpose:     Override standard ADM method
+  Notes:       
+------------------------------------------------------------------------------*/
+
+  /* Code placed here will execute PRIOR to standard behavior. */
+  IF AVAIL employee AND NOT adm-new-record THEN DO:
+    ASSIGN
+     pass-word  = employee.passwd .
+  END.
+
+    /* Dispatch standard ADM method.                             */
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'display-fields':U ) .
+
+  /* Code placed here will execute AFTER standard behavior.    */
+  
+
+ 
+END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

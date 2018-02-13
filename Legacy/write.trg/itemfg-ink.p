@@ -67,14 +67,6 @@ IF cocode NE ""                  AND
   END.
 END.
 
-IF TRIM({&TABLENAME}.rec_key) NE ""     AND
-   TRIM(old-{&TABLENAME}.rec_key) NE "" THEN
-FOR EACH reftable
-    WHERE reftable.rec_key  EQ old-{&TABLENAME}.rec_key
-      AND reftable.reftable EQ "itemfg-ink.occurs"
-    USE-INDEX rec_key:
-  reftable.rec_key = {&TABLENAME}.rec_key.
-END.
 
 /* Clear out any error-status from find with no-error that is false */
 DEF VAR ll-error AS LOG NO-UNDO.

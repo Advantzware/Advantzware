@@ -4,9 +4,10 @@
   DEFINE VARIABLE resource AS CHARACTER NO-UNDO.
 
   resources:LIST-ITEMS IN FRAME {&FRAME-NAME} = resources:ENTRY(1).
-  INPUT FROM VALUE(SEARCH('{&data}/' + ID + '/resources.dat')) NO-ECHO.
+  INPUT FROM VALUE(SEARCH('{&data}/' + ID + '/resourceList.dat')) NO-ECHO.
+  IMPORT ^.
   REPEAT WITH FRAME {&FRAME-NAME}:
-    IMPORT ^ resource.
+    IMPORT resource.
     IF CAN-DO(resources:LIST-ITEMS,resource) THEN NEXT.
     resources:ADD-LAST(resource).
   END.
