@@ -32,6 +32,7 @@ DEF VAR v-job-rec-key AS CHAR NO-UNDO.
 DEF VAR v-job-header AS CHAR NO-UNDO.
 def var phandle as widget-handle no-undo.
 def var char-hdl as cha no-undo.
+DEFINE VARIABLE ld-total-cost AS DECIMAL NO-UNDO.
 
 &SCOPED-DEFINE yellowColumnsName b-jhdrin
 &SCOPED-DEFINE noSortByField
@@ -76,7 +77,7 @@ DEFINE QUERY external_tables FOR job.
 &Scoped-define FIELDS-IN-QUERY-br_table job-hdr.frm job-hdr.blank-no ~
 job-hdr.cust-no job-hdr.i-no job-hdr.qty job-hdr.sq-in job-hdr.ord-no ~
 job-hdr.std-mat-cost job-hdr.std-lab-cost job-hdr.std-var-cost ~
-job-hdr.std-fix-cost 
+job-hdr.std-fix-cost get-total-cost () @ ld-total-cost 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-br_table 
 &Scoped-define QUERY-STRING-br_table FOR EACH job-hdr OF job WHERE ~{&KEY-PHRASE} NO-LOCK ~
     ~{&SORTBY-PHRASE}
@@ -97,6 +98,15 @@ job-hdr.std-fix-cost
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
 
+/* ************************  Function Prototypes ********************** */
+
+
+ &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD get-total-cost B-table-Win 
+FUNCTION get-total-cost RETURNS DECIMAL
+  ( /* parameter-definitions */ )  FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _XFTR "Foreign Keys" B-table-Win _INLINE
 /* Actions: ? adm/support/keyedit.w ? ? ? */
@@ -175,6 +185,7 @@ DEFINE BROWSE br_table
             LABEL-BGCOLOR 14
       job-hdr.std-fix-cost COLUMN-LABEL "Fixed OH" FORMAT "->>,>>9.99":U
             LABEL-BGCOLOR 14
+      get-total-cost () @ ld-total-cost COLUMN-LABEL "Total Cost" FORMAT "->,>>>,>>>,>>9.99<<":U
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ASSIGN SEPARATORS SIZE 144 BY 11.43
@@ -284,6 +295,9 @@ ASSIGN
 "job-hdr.std-var-cost" "Var OH" "->>,>>9.99" "decimal" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[11]   > ASI.job-hdr.std-fix-cost
 "job-hdr.std-fix-cost" "Fixed OH" "->>,>>9.99" "decimal" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+ _FldNameList[12]   > "_<CALC>" 
+"get-total-cost () @ ld-total-cost" "Total Cost" ? "decimal" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     
      _Query            is NOT OPENED
 */  /* BROWSE br_table */
 &ANALYZE-RESUME
@@ -585,3 +599,21 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION get-total-cost B-table-Win 
+FUNCTION get-total-cost RETURNS DECIMAL
+  ( /* parameter-definitions */ ) :
+/*------------------------------------------------------------------------------
+  Purpose:  
+    Notes:  
+------------------------------------------------------------------------------*/
+  DEFINE VARIABLE dTotalCost AS DECIMAL FORMAT "->,>>>,>>>,>>>.99<<" NO-UNDO INIT 0.
+
+  IF AVAIL job-hdr THEN
+    ASSIGN dTotalCost = job-hdr.std-mat-cost + job-hdr.std-lab-cost + job-hdr.std-fix-cost + job-hdr.std-var-cost.
+
+  RETURN dTotalCost.   /* Function return value. */
+
+END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
