@@ -1559,6 +1559,29 @@ END.
 &ANALYZE-RESUME
 
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL eb.pur-man br-estitm _BROWSE-COLUMN B-table-Win
+ON VALUE-CHANGED OF eb.pur-man IN BROWSE br-estitm /* Set? */
+DO:
+   DEFINE VARIABLE lChackLog AS LOGICAL NO-UNDO .
+   DEFINE BUFFER bf-itemfg FOR itemfg .
+    FIND FIRST bf-itemfg NO-LOCK
+        WHERE bf-itemfg.company EQ cocode
+          AND bf-itemfg.i-no EQ eb.stock:SCREEN-VALUE IN BROWSE br-estitm NO-ERROR .
+   
+    lChackLog = IF eb.pur-man:SCREEN-VALUE IN BROWSE br-estitm EQ "P" THEN TRUE ELSE FALSE .
+    IF AVAIL bf-itemfg AND eb.pur-man:SCREEN-VALUE IN BROWSE br-estitm NE ""
+        AND bf-itemfg.pur-man NE lChackLog AND NOT bf-itemfg.isaset   THEN do:
+        MESSAGE "FG Item file indicates item is (x) (which would be either purchased " SKIP
+                "or manufactured) while estimate indicates it is (y) - These should be" SKIP
+                " set the same." VIEW-AS ALERT-BOX WARNING .  
+    END.
+
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &UNDEFINE SELF-NAME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK B-table-Win 

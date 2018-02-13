@@ -65,14 +65,16 @@ DEF STREAM excel.
 &Scoped-define FRAME-NAME FRAME-A
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-16 RECT-6 btnCustList tb_cust-list begin_cust end_cust ~
-begin_cust-po end_cust-po begin_slm end_slm rd_itm-code tb_inc-zer ~
-tb_inc-cust tb_rcpt-dat tb_part lv-ornt lines-per-page rd-dest lv-font-no ~
-td-show-parm tb_excel tb_runExcel fi_file btn-ok btn-cancel 
-&Scoped-Define DISPLAYED-OBJECTS tb_cust-list begin_cust end_cust begin_cust-po ~
-end_cust-po begin_slm end_slm lbl_itm-code rd_itm-code tb_inc-zer ~
-tb_inc-cust tb_rcpt-dat tb_part lv-ornt lines-per-page rd-dest lv-font-no ~
-lv-font-name td-show-parm tb_excel tb_runExcel fi_file 
+&Scoped-Define ENABLED-OBJECTS RECT-16 RECT-6 btnCustList tb_cust-list ~
+begin_cust end_cust begin_cust-po end_cust-po begin_slm end_slm rd_itm-code ~
+tb_inc-zer tb_inc-cust tb_rcpt-dat tb_part tb_cust-lot lv-ornt ~
+lines-per-page rd-dest lv-font-no td-show-parm tb_excel tb_runExcel fi_file ~
+btn-ok btn-cancel 
+&Scoped-Define DISPLAYED-OBJECTS tb_cust-list begin_cust end_cust ~
+begin_cust-po end_cust-po begin_slm end_slm lbl_itm-code rd_itm-code ~
+tb_inc-zer tb_inc-cust tb_rcpt-dat tb_part tb_cust-lot lv-ornt ~
+lines-per-page rd-dest lv-font-no lv-font-name td-show-parm tb_excel ~
+tb_runExcel fi_file 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -88,7 +90,7 @@ lv-font-name td-show-parm tb_excel tb_runExcel fi_file
 DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON btn-cancel /*AUTO-END-KEY */
+DEFINE BUTTON btn-cancel 
      LABEL "&Cancel" 
      SIZE 15 BY 1.14.
 
@@ -181,7 +183,7 @@ DEFINE VARIABLE rd_itm-code AS CHARACTER INITIAL "All"
 
 DEFINE RECTANGLE RECT-16
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 93 BY 11.43.
+     SIZE 93 BY 11.67.
 
 DEFINE RECTANGLE RECT-6
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
@@ -191,6 +193,11 @@ DEFINE VARIABLE tb_cust-list AS LOGICAL INITIAL no
      LABEL "Use Defined Customer List" 
      VIEW-AS TOGGLE-BOX
      SIZE 30.4 BY .91 NO-UNDO.
+
+DEFINE VARIABLE tb_cust-lot AS LOGICAL INITIAL no 
+     LABEL "Print Customer Lot#?" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 43 BY 1 NO-UNDO.
 
 DEFINE VARIABLE tb_excel AS LOGICAL INITIAL yes 
      LABEL "Export To Excel?" 
@@ -249,10 +256,11 @@ DEFINE FRAME FRAME-A
           "Enter Ending Sales Rep Number"
      lbl_itm-code AT ROW 6.48 COL 28 COLON-ALIGNED NO-LABEL
      rd_itm-code AT ROW 6.48 COL 44 NO-LABEL
-     tb_inc-zer AT ROW 7.91 COL 39
-     tb_inc-cust AT ROW 8.86 COL 84 RIGHT-ALIGNED
-     tb_rcpt-dat AT ROW 9.81 COL 81 RIGHT-ALIGNED
-     tb_part AT ROW 10.76 COL 39
+     tb_inc-zer AT ROW 7.76 COL 39
+     tb_inc-cust AT ROW 8.71 COL 84 RIGHT-ALIGNED
+     tb_rcpt-dat AT ROW 9.67 COL 81 RIGHT-ALIGNED
+     tb_part AT ROW 10.62 COL 39
+     tb_cust-lot AT ROW 11.48 COL 39 WIDGET-ID 62
      lv-ornt AT ROW 13.14 COL 32 NO-LABEL
      lines-per-page AT ROW 13.14 COL 85 COLON-ALIGNED
      rd-dest AT ROW 13.62 COL 6 NO-LABEL
@@ -329,16 +337,6 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME                                                           */
-ASSIGN
-       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "ribbon-button".
-
-
-ASSIGN
-       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "ribbon-button".
-
-
 ASSIGN 
        begin_cust:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
@@ -350,6 +348,14 @@ ASSIGN
 ASSIGN 
        begin_slm:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
+
+ASSIGN 
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+ASSIGN 
+       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
 
 ASSIGN 
        end_cust:PRIVATE-DATA IN FRAME FRAME-A     = 
@@ -377,6 +383,10 @@ ASSIGN
    NO-ENABLE                                                            */
 ASSIGN 
        rd_itm-code:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
+
+ASSIGN 
+       tb_cust-lot:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
 /* SETTINGS FOR TOGGLE-BOX tb_excel IN FRAME FRAME-A
@@ -417,7 +427,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -556,6 +566,7 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
 &Scoped-define SELF-NAME btnCustList
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnCustList C-Win
 ON CHOOSE OF btnCustList IN FRAME FRAME-A /* Preview */
@@ -565,6 +576,7 @@ END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
 
 &Scoped-define SELF-NAME end_cust
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_cust C-Win
@@ -690,6 +702,30 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME tb_cust-list
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_cust-list C-Win
+ON VALUE-CHANGED OF tb_cust-list IN FRAME FRAME-A /* Use Defined Customer List */
+DO:
+  assign {&self-name}.
+  EMPTY TEMP-TABLE ttCustList.
+  RUN SetCustRange(INPUT tb_cust-list).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME tb_cust-lot
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_cust-lot C-Win
+ON VALUE-CHANGED OF tb_cust-lot IN FRAME FRAME-A /* Print Customer Lot#? */
+DO:
+  assign {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME tb_excel
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_excel C-Win
 ON VALUE-CHANGED OF tb_excel IN FRAME FRAME-A /* Export To Excel? */
@@ -744,18 +780,6 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&Scoped-define SELF-NAME tb_cust-list
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_cust-list C-Win
-ON VALUE-CHANGED OF tb_cust-list IN FRAME FRAME-A /* Use Defined Customer List */
-DO:
-  assign {&self-name}.
-  EMPTY TEMP-TABLE ttCustList.
-  RUN SetCustRange(INPUT tb_cust-list).
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
 
 &Scoped-define SELF-NAME tb_runExcel
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_runExcel C-Win
@@ -863,6 +887,7 @@ END.
 
 
 /* **********************  Internal Procedures  *********************** */
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE BuildCustList C-Win 
 PROCEDURE BuildCustList :
 /*------------------------------------------------------------------------------
@@ -951,15 +976,16 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY tb_cust-list begin_cust end_cust begin_cust-po end_cust-po begin_slm end_slm 
-          lbl_itm-code rd_itm-code tb_inc-zer tb_inc-cust tb_rcpt-dat tb_part 
-          lv-ornt lines-per-page rd-dest lv-font-no lv-font-name td-show-parm 
-          tb_excel tb_runExcel fi_file 
+  DISPLAY tb_cust-list begin_cust end_cust begin_cust-po end_cust-po begin_slm 
+          end_slm lbl_itm-code rd_itm-code tb_inc-zer tb_inc-cust tb_rcpt-dat 
+          tb_part tb_cust-lot lv-ornt lines-per-page rd-dest lv-font-no 
+          lv-font-name td-show-parm tb_excel tb_runExcel fi_file 
       WITH FRAME FRAME-A IN WINDOW C-Win.
-  ENABLE RECT-16 RECT-6 btnCustList tb_cust-list begin_cust end_cust begin_cust-po end_cust-po begin_slm 
-         end_slm rd_itm-code tb_inc-zer tb_inc-cust tb_rcpt-dat tb_part lv-ornt 
-         lines-per-page rd-dest lv-font-no td-show-parm tb_excel tb_runExcel 
-         fi_file btn-ok btn-cancel 
+  ENABLE RECT-16 RECT-6 btnCustList tb_cust-list begin_cust end_cust 
+         begin_cust-po end_cust-po begin_slm end_slm rd_itm-code tb_inc-zer 
+         tb_inc-cust tb_rcpt-dat tb_part tb_cust-lot lv-ornt lines-per-page 
+         rd-dest lv-font-no td-show-parm tb_excel tb_runExcel fi_file btn-ok 
+         btn-cancel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.
@@ -1072,6 +1098,7 @@ def var tslm like cust.sman init "zzz" NO-UNDO.
 def var zbal as log format "Y/N" NO-UNDO.
 def var v-rec-dat as log format "Y/N" init NO NO-UNDO.
 def var v-prt-cpn like v-rec-dat NO-UNDO.
+def var lCustLot like v-rec-dat NO-UNDO.
 def var v-qty-onh as dec format "->>>,>>>,>>9" NO-UNDO.
 def var v-frst as LOG NO-UNDO.
 def var v-frst-ord as LOG NO-UNDO.
@@ -1099,6 +1126,8 @@ DEF BUFFER b-rcpth FOR fg-rcpth.
 DEF BUFFER b-rdtlh FOR fg-rdtlh.
 DEF VAR v-sales-rep AS CHAR NO-UNDO.
 DEF VAR lSelected AS LOG INIT YES NO-UNDO.
+DEFINE VARIABLE cLotLabel AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cCust-lot AS CHARACTER COLUMN-LABEL "CUSTOMER LOT#" NO-UNDO.
 
 form
     cust.cust-no label "CUSTOMER"
@@ -1113,7 +1142,8 @@ form
     v-qty-onh  column-label "QUANTITY! ON HAND"
     oe-ordl.price format ">>,>>>,>>9.99" column-label "SELLING! PRICE"
     v-ext format "->>>,>>>,>>9.99"  column-label "TOTAL!VALUE"
-    with frame itemx1 no-box down STREAM-IO width 150.
+    cCust-lot FORMAT "x(15)" 
+    with frame itemx1 no-box down STREAM-IO width 170.
 
 form
     cust.cust-no label "CUSTOMER"
@@ -1127,7 +1157,8 @@ form
     trans-date column-label "RECEIPT!DATE"
     itemfg.sell-price format ">>>,>>9.99" column-label "SELLING! PRICE"
     v-ext-job format "->>>,>>>,>>9.99"  column-label "TOTAL!VALUE"
-    with frame itemx2 no-box down STREAM-IO width 150.
+    cCust-lot FORMAT "x(15)" 
+    with frame itemx2 no-box down STREAM-IO width 170.
 
 form
     cust.cust-no label "CUSTOMER"
@@ -1141,7 +1172,8 @@ form
     v-qty-onh  column-label "QUANTITY! ON HAND"
     oe-ordl.price format ">>,>>>,>>9.99" column-label "SELLING! PRICE"
     v-ext format "->>>,>>>,>>9.99"  column-label "TOTAL!VALUE"
-    with frame itemx3 no-box down STREAM-IO width 132.
+    cCust-lot FORMAT "x(15)" 
+    with frame itemx3 no-box down STREAM-IO width 150.
 
 form
     cust.cust-no label "CUSTOMER"
@@ -1154,7 +1186,8 @@ form
     trans-date column-label "RECEIPT!DATE"
     itemfg.sell-price format ">>>,>>9.99" column-label "SELLING! PRICE"
     v-ext-job format "->>>,>>>,>>9.99"  column-label "TOTAL!VALUE"
-    with frame itemx4 no-box down STREAM-IO width 132.
+    cCust-lot FORMAT "x(15)" 
+    with frame itemx4 no-box down STREAM-IO width 150.
 
 assign
  str-tit2 = c-win:title
@@ -1171,7 +1204,11 @@ assign
  v-custown  = tb_inc-cust
  v-rec-dat  = tb_rcpt-dat
  v-prt-cpn  = tb_part
+ lCustLot   = tb_cust-lot
  lSelected  = tb_cust-list.
+IF lCustLot THEN
+    ASSIGN cLotLabel = "Customer Lot #".
+ELSE ASSIGN cLotLabel = "".
 
  {sys/inc/print1.i}
 
@@ -1197,6 +1234,7 @@ IF tb_excel THEN DO:
                "RECEIPT DATE"
                "SELLING PRICE"
                "TOTAL VALUE"
+               cLotLabel
            SKIP.
    ELSE IF tb_rcpt-dat AND tb_part THEN
       EXPORT STREAM excel DELIMITER ","
@@ -1211,6 +1249,7 @@ IF tb_excel THEN DO:
            "RECEIPT DATE"
            "SELLING PRICE"
            "TOTAL VALUE"
+           cLotLabel
        SKIP.
    ELSE
        EXPORT STREAM excel DELIMITER ","
@@ -1226,6 +1265,7 @@ IF tb_excel THEN DO:
            "QUANTITY ON HAND"
            "SELLING PRICE"
            "TOTAL VALUE"
+           cLotLabel
             SKIP.
 END. 
 
@@ -1255,7 +1295,6 @@ end procedure.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE SetCustRange C-Win 
 PROCEDURE SetCustRange :
 /*------------------------------------------------------------------------------
@@ -1279,7 +1318,6 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE show-param C-Win 
 PROCEDURE show-param :

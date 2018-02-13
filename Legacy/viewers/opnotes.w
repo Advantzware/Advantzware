@@ -316,8 +316,8 @@ ON ENTRY OF notes.createDate IN FRAME F-Main /* Created Date */
 DO:
     IF v-machine <> "" THEN do:
         ENABLE btn-dept WITH FRAME {&FRAME-NAME}.
-        IF /*PROGRAM-NAME(9) MATCHES "*add-record*"*/ v-got-dept = YES
-            THEN      APPLY "choose" TO  btn-dept .
+/*        IF /*PROGRAM-NAME(9) MATCHES "*add-record*"*/ v-got-dept = YES*/
+/*            THEN      APPLY "choose" TO  btn-dept .                   */
     END.
 END.
 
