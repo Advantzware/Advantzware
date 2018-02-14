@@ -1290,7 +1290,7 @@ IF NOT AVAIL bf-fg-rcpth THEN
           AND po-ordl.po-no   EQ INT(bf-fg-rcpth.po-no)
           AND po-ordl.i-no    EQ bf-fg-rcpth.i-no
           AND po-ordl.ord-no  NE 0
-        USE-INDEX job-no NO-LOCK,
+        USE-INDEX jitem-ordno NO-LOCK,
         FIRST oe-ordl FIELDS(price pr-uom)
         WHERE oe-ordl.company EQ po-ordl.company
           AND oe-ordl.ord-no  EQ po-ordl.ord-no
