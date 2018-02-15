@@ -770,7 +770,56 @@ CLASS RefTableMigration:
             iCnt = iCnt + 1.                 
         END.  /*FOR EACH reftable*/         
         RETURN iCnt.
-    END METHOD. /*est*/        
+    END METHOD. /*est*/  
+    METHOD PUBLIC INTEGER OeRelScode():
+        DEFINE VARIABLE iCnt AS INTEGER NO-UNDO.
+        FOR EACH reftable WHERE reftable.reftable = "oe-rel.s-code"
+            NO-LOCK:
+            FIND FIRST oe-rel WHERE oe-rel.r-no = int(reftable.company)
+                EXCLUSIVE-LOCK NO-ERROR.
+            IF AVAILABLE oe-rel THEN    
+            ASSIGN 
+                oe-rel.s-code    = reftable.code        
+                . 
+            RELEASE oe-rel.      
+            iCnt = iCnt + 1.                 
+        END.  /*FOR EACH reftable*/         
+        RETURN iCnt.
+    END METHOD. /*oe-rel*/   
+    METHOD PUBLIC INTEGER Splitship():
+        DEFINE VARIABLE iCnt AS INTEGER NO-UNDO.
+        FOR EACH reftable WHERE reftable.reftable = "SPLITSHIP"
+            NO-LOCK:
+            FIND FIRST job-hdr WHERE job-hdr.company = reftable.company
+                              AND job-hdr.job-no     = reftable.loc
+                              AND job-hdr.job-no2    = int(reftable.code)
+                EXCLUSIVE-LOCK NO-ERROR.
+            IF AVAILABLE job-hdr THEN    
+            ASSIGN 
+                job-hdr.splitShip = YES                
+                . 
+            RELEASE job-hdr.      
+            iCnt = iCnt + 1.                 
+        END.  /*FOR EACH reftable*/         
+        RETURN iCnt.
+    END METHOD. /*job-hdr*/   
+    METHOD PUBLIC INTEGER Splitshp():
+        DEFINE VARIABLE iCnt AS INTEGER NO-UNDO.
+        FOR EACH reftable WHERE reftable.reftable = "splitshp"
+            NO-LOCK:
+            FIND FIRST job-hdr WHERE job-hdr.company = reftable.company
+                              AND job-hdr.job-no     = reftable.loc
+                              AND job-hdr.job-no2    = int(reftable.code)
+                EXCLUSIVE-LOCK NO-ERROR.
+            IF AVAILABLE job-hdr THEN    
+            ASSIGN 
+                job-hdr.splitShip = YES                
+                . 
+            RELEASE job-hdr.      
+            iCnt = iCnt + 1.                 
+        END.  /*FOR EACH reftable*/         
+        RETURN iCnt.
+    END METHOD. /*job-hdr*/     
 END CLASS.
 
 
