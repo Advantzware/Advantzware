@@ -505,6 +505,9 @@ PROCEDURE calc-cost :
   DEF VAR lv-rowid AS ROWID NO-UNDO.
   DEF VAR lv-qty LIKE rm-bin.qty NO-UNDO.
   DEF VAR lv-cost LIKE rm-bin.cost NO-UNDO.
+  DEFINE VARIABLE hProcedureHandle AS HANDLE NO-UNDO.
+  DEFINE VARIABLE cProgramName     AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE lAccess          AS LOGICAL NO-UNDO.
 
   DEF BUFFER bf-rm-bin FOR rm-bin.
   DEF BUFFER bf-item FOR item.
@@ -512,10 +515,13 @@ PROCEDURE calc-cost :
 
   v-override = NO.
 
-  FIND FIRST users NO-LOCK
-     WHERE users.user_id EQ USERID(LDBNAME(1)) NO-ERROR.
-
-IF AVAIL users AND users.securityLevel GE 900 THEN
+  ASSIGN lAccess = NO
+         cProgramName = "Legacy/ProgramMasterSecurity.p"
+           .
+    RUN VALUE(cProgramName) PERSISTENT SET hProcedureHandle.
+    RUN getSecurity IN hProcedureHandle("browsers/rm-ibin.w", USERID(LDBNAME(1)), "",
+                                        OUTPUT lAccess).
+    IF lAccess THEN
     ASSIGN v-override = YES.
 IF not(v-override) THEN DO:
   /*IF v-acs-code NE "YORKIE" THEN RUN windows/chkcode.w (OUTPUT v-acs-code).*/
@@ -580,6 +586,7 @@ END.
       RUN repo-query (lv-rowid).
     END.
   END.
+delete object hProcedureHandle.
 
 END PROCEDURE.
 

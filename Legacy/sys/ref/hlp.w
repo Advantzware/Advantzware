@@ -297,14 +297,20 @@ DO:
     /* need security check */
     DEF VAR lv-password AS cha NO-UNDO.
     DEF VAR op-ed-text AS cha NO-UNDO.
-
+    DEFINE VARIABLE hProcedureHandle AS HANDLE NO-UNDO.
+    DEFINE VARIABLE cProgramName     AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lAccess          AS LOGICAL NO-UNDO.
+    
     ASSIGN ll-secure = NO
-           op-ed-text = ed-text.
+           op-ed-text = ed-text
+           lAccess = NO
+           cProgramName = "Legacy/ProgramMasterSecurity.p"
+           .
 
-    FIND FIRST users NO-LOCK
-     WHERE users.user_id EQ USERID(LDBNAME(1)) NO-ERROR.
-
-    IF AVAIL users AND users.securityLevel GE 900 THEN
+    RUN VALUE(cProgramName) PERSISTENT SET hProcedureHandle.
+    RUN getSecurity IN hProcedureHandle("sys/ref/hlp.w", USERID(LDBNAME(1)), "Access1",
+                                        OUTPUT lAccess).
+    IF lAccess THEN
     ASSIGN ll-secure = YES.
 
     IF NOT ll-secure THEN RUN sys/ref/uphlp-pass.w (3, OUTPUT ll-secure).
@@ -335,6 +341,8 @@ DO:
 
   ed-text = op-ed-text .
         DISPLAY ed-text WITH FRAME {&frame-name}.   
+
+  delete object hProcedureHandle.
 
 END.
 
@@ -591,6 +599,9 @@ PROCEDURE local-enable :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
+DEFINE VARIABLE hProcedureHandle AS HANDLE NO-UNDO.
+DEFINE VARIABLE cProgramName     AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lAccess          AS LOGICAL NO-UNDO.
 
   /* Code placed here will execute PRIOR to standard behavior. */
 
@@ -599,13 +610,18 @@ PROCEDURE local-enable :
 
   /* Code placed here will execute AFTER standard behavior.    */
     IF USERID("nosweat") NE "ASI" THEN
-        btDataDigger:VISIBLE IN FRAME f-main = NO.
-    
-    FIND FIRST users NO-LOCK
-     WHERE users.user_id EQ USERID(LDBNAME(1)) NO-ERROR.
-
-    IF AVAIL users AND users.securityLevel LE 999 THEN
+        btDataDigger:VISIBLE IN FRAME f-main = NO.    
+   
+    ASSIGN lAccess = NO
+           cProgramName = "Legacy/ProgramMasterSecurity.p"
+           .
+    RUN VALUE(cProgramName) PERSISTENT SET hProcedureHandle.
+    RUN getSecurity IN hProcedureHandle("sys/ref/hlp.w", USERID(LDBNAME(1)), "Access2",
+                                        OUTPUT lAccess).
+    IF lAccess THEN 
      btn-update:VISIBLE IN FRAME f-main = NO.
+    
+    delete object hProcedureHandle. 
 
 END PROCEDURE.
 
