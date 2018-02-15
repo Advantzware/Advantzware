@@ -98,33 +98,15 @@ for each job-hdr NO-LOCK
 
     IF tb_prompt-ship THEN
     DO:
-       IF NOT CAN-FIND(FIRST b-reftable-split WHERE
-          b-reftable-split.reftable EQ "splitshp" AND
-          b-reftable-split.company  EQ cocode AND
-          b-reftable-split.loc      EQ TRIM(job-hdr.job-no) AND
-          b-reftable-split.code     EQ STRING(job-hdr.job-no2,"9999999999")) THEN
-          DO:
-             CREATE b-reftable-split.
-             ASSIGN
-                b-reftable-split.reftable = "splitshp"
-                b-reftable-split.company  = cocode
-                b-reftable-split.loc      = TRIM(job-hdr.job-no)
-                b-reftable-split.code     = STRING(job-hdr.job-no2,"9999999999").
-             RELEASE b-reftable-split.
-          END.
+      FIND CURRENT job-hdr EXCLUSIVE-LOCK NO-ERROR.      
+      ASSIGN job-hdr.splitShip = YES.
+      FIND CURRENT job-hdr NO-LOCK NO-ERROR.
     END.
     ELSE
-    DO:
-       FIND FIRST b-reftable-split WHERE
-            b-reftable-split.reftable EQ "splitshp" AND
-            b-reftable-split.company  EQ cocode AND
-            b-reftable-split.loc      EQ TRIM(job-hdr.job-no) AND
-            b-reftable-split.code     EQ STRING(job-hdr.job-no2,"9999999999")
-            NO-ERROR.
-
-       IF AVAIL b-reftable-split THEN
-          DELETE b-reftable-split.
-    END.
+      FIND CURRENT job-hdr EXCLUSIVE-LOCK NO-ERROR.      
+      ASSIGN job-hdr.splitShip = NO.
+      FIND CURRENT job-hdr NO-LOCK NO-ERROR.
+     
 END.
 
 IF tb_fold  AND lv-format-f = "FibreFC" THEN 

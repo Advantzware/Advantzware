@@ -15,10 +15,9 @@ assign
  locode = gloc.
 
 DO TRANSACTION:
-   {sys/inc/selrptcol.i "JL6" }
+   {sys/inc/runAOAVer.i "JL6" }
 END.
 
-/*IF SelectRptColumn-log THEN - Only new selectable column  report exists */
-    RUN jcrep/r-jcostN.w PERSISTENT.
-
-        
+cAOAFile = SEARCH("AOA/r-jcost.p").
+IF RunAOAVersion-log AND cAOAFile NE ? THEN RUN AOA/r-jcost.p.
+ELSE RUN jcrep/r-jcostN.w PERSISTENT.

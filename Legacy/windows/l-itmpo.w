@@ -37,6 +37,10 @@ def input parameter ip-cur-val LIKE po-ord.po-no no-undo.
 def output parameter op-char-val as cha no-undo. /* string i-code + i-name */
 DEF OUTPUT PARAM op-rec-val AS RECID NO-UNDO.
 
+DEFINE TEMP-TABLE ttItemLine 
+    FIELD i-no AS CHARACTER 
+    FIELD line-no AS CHARACTER LABEL "Line" INIT "" . 
+
 DEFINE VARIABLE cCheckItem AS CHARACTER NO-UNDO .
 def var lv-type-dscr as cha no-undo.
 def var lv-first-time as log init yes no-undo.
@@ -73,20 +77,20 @@ def var lv-first-time as log init yes no-undo.
 &Scoped-define KEY-PHRASE TRUE
 
 /* Definitions for BROWSE BROWSE-1                                      */
-&Scoped-define FIELDS-IN-QUERY-BROWSE-1 item.i-no item.i-name item.i-dscr ~
+&Scoped-define FIELDS-IN-QUERY-BROWSE-1 item.i-no item.i-name item.i-dscr ttItemLine.line-no ~
 /*item.mat-type item.procat */
 &Scoped-define ENABLED-FIELDS-IN-QUERY-BROWSE-1 
 &Scoped-define QUERY-STRING-BROWSE-1 FOR EACH item WHERE ~{&KEY-PHRASE} ~
       AND item.company = ip-company and ~
 (item.industry = ip-industry or ip-industry = "") AND ~
 ( LOOKUP(ITEM.i-no,cCheckItem ) NE 0 OR cCheckItem = "") ~
- NO-LOCK ~
+ NO-LOCK, FIRST ttItemLine WHERE ttItemLine.i-no EQ ITEM.i-no OUTER-JOIN NO-LOCK ~
     ~{&SORTBY-PHRASE}
 &Scoped-define OPEN-QUERY-BROWSE-1 OPEN QUERY BROWSE-1 FOR EACH item WHERE ~{&KEY-PHRASE} ~
       AND item.company = ip-company and ~
 (item.industry = ip-industry or ip-industry = "") AND ~
 ( LOOKUP(ITEM.i-no,cCheckItem ) NE 0 OR cCheckItem = "") ~
- NO-LOCK ~
+ NO-LOCK, FIRST ttItemLine WHERE ttItemLine.i-no EQ ITEM.i-no OUTER-JOIN NO-LOCK  ~
     ~{&SORTBY-PHRASE}.
 &Scoped-define TABLES-IN-QUERY-BROWSE-1 item
 &Scoped-define FIRST-TABLE-IN-QUERY-BROWSE-1 item
@@ -145,7 +149,8 @@ DEFINE RECTANGLE RECT-1
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
 DEFINE QUERY BROWSE-1 FOR 
-      item SCROLLING.
+      item,
+      ttItemLine SCROLLING.
 &ANALYZE-RESUME
 
 /* Browse definitions                                                   */
@@ -155,11 +160,12 @@ DEFINE BROWSE BROWSE-1
       item.i-no FORMAT "x(10)":U COLUMN-FONT 0
       item.i-name FORMAT "x(30)":U COLUMN-FONT 0
       item.i-dscr FORMAT "x(30)":U COLUMN-FONT 0
+      ttItemLine.line-no FORMAT "x(3)":U
       /*item.mat-type FORMAT "X":U
       item.procat FORMAT "x(5)":U*/
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ROW-MARKERS SEPARATORS SIZE 100 BY 11.19
+    WITH NO-ROW-MARKERS SEPARATORS SIZE 110 BY 11.19
          BGCOLOR 8 FONT 0.
 
 
@@ -373,6 +379,9 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         AND  po-ordl.po-no GE ip-po-no
         AND  po-ordl.po-no LE ip-cur-val :
          cCheckItem = cCheckItem + po-ordl.i-no + "," .
+         CREATE ttItemLine .
+          ASSIGN ttItemLine.i-no = po-ordl.i-no 
+                 ttItemLine.line-no = STRING(po-ordl.LINE)  .
   END.
   IF cCheckItem = "," THEN cCheckItem = "" .
   

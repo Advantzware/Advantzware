@@ -44,25 +44,16 @@ IF AVAIL sman THEN DO:
     END.
   END.
   ELSE
-  DO:
-     FIND FIRST reftable WHERE
-          reftable.reftable EQ "cust.flat-comm" AND
-          reftable.company  EQ ip-company AND
-          reftable.loc      EQ "" AND
-          reftable.code     EQ ip-cust-no
-          NO-LOCK NO-ERROR.
+  DO:     
+    FIND FIRST cust WHERE
+         cust.company EQ ip-company AND
+         cust.cust-no EQ ip-cust-no
+         NO-LOCK NO-ERROR.
 
-     IF AVAIL reftable AND reftable.val[1] NE 0 THEN
-        lv = STRING(reftable.val[1]).
-     ELSE
-     DO:
-        FIND FIRST cust WHERE
-             cust.company EQ ip-company AND
-             cust.cust-no EQ ip-cust-no
-             NO-LOCK NO-ERROR.
-
-        IF AVAIL cust THEN
-        DO:
+    IF AVAIL cust THEN
+    DO:
+       ASSIGN lv = STRING(cust.flatCommPct).
+       IF DEC(lv) = 0 THEN DO: 
            FIND FIRST smanmtrx WHERE
                 smanmtrx.company EQ ip-company AND
                 smanmtrx.sman    EQ ip-sman AND
@@ -88,7 +79,7 @@ IF AVAIL sman THEN DO:
               IF AVAIL smanmtrx THEN
                  lv = STRING(smanmtrx.comm).
            END.
-        END.
-     END.
+       END.
+    END.     
   END.
 END.

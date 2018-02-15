@@ -1673,11 +1673,14 @@ PROCEDURE calc-fields :
 
     DO WITH FRAME {&FRAME-NAME}:
       voverall:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(voverall (0)).
+      dMatPctSellPrice:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(fDirectMatPctSellPrice()).
       IF lv-changed2 NE "S" THEN 
         probe.gross-profit:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(display-gp (0)).
     END.
     RUN recalc-multicell.
+     
     RUN save-fields.
+
   END.
 
 END PROCEDURE.
@@ -3755,17 +3758,13 @@ PROCEDURE run-screen-calc :
         AND est-op.line    LT 500,
       FIRST mach NO-LOCK
       {sys/look/machW.i}
-        AND mach.m-code EQ est-op.m-code,
-      FIRST reftable NO-LOCK
-      WHERE reftable.reftable EQ "mach.obsolete"
-        AND reftable.company  EQ mach.company
-        AND reftable.loc      EQ mach.loc
-        AND reftable.code     EQ mach.m-code
-        AND reftable.val[1]   EQ 1:
-    MESSAGE "Machine: " + TRIM(mach.m-code) +
-            " is obsolete, please replace to complete calculation..."
-        VIEW-AS ALERT-BOX ERROR.
-    RETURN.
+        AND mach.m-code EQ est-op.m-code:
+    IF mach.obsolete THEN DO:
+        MESSAGE "Machine: " + TRIM(mach.m-code) +
+                " is obsolete, please replace to complete calculation..."
+            VIEW-AS ALERT-BOX ERROR.
+        RETURN.
+    END.
   END.
 
   IF est.est-type EQ 8 THEN RUN cec/com/print4.p NO-ERROR.
@@ -3863,17 +3862,13 @@ PROCEDURE run-whatif :
         AND est-op.line    LT 500,
       FIRST mach NO-LOCK
       {sys/look/machW.i}
-        AND mach.m-code EQ est-op.m-code,
-      FIRST reftable NO-LOCK
-      WHERE reftable.reftable EQ "mach.obsolete"
-        AND reftable.company  EQ mach.company
-        AND reftable.loc      EQ mach.loc
-        AND reftable.code     EQ mach.m-code
-        AND reftable.val[1]   EQ 1:
+        AND mach.m-code EQ est-op.m-code:
+   IF mach.obsolete THEN DO:
     MESSAGE "Machine: " + TRIM(mach.m-code) +
             " is obsolete, please replace to complete calculation..."
         VIEW-AS ALERT-BOX ERROR.
     RETURN.
+   END.
   END.
 
   IF est.est-type EQ 8 THEN RUN cec/com/print4.p NO-ERROR.
@@ -4467,9 +4462,11 @@ FUNCTION fDirectMatPctSellPrice RETURNS DECIMAL
  Notes: Ticket 24941 
 ------------------------------------------------------------------------------*/
         DEFINE VARIABLE dMatPct AS DECIMAL NO-UNDO.
+        DEFINE VARIABLE dPrice AS DECIMAL NO-UNDO.
     
-    IF AVAILABLE probe AND probe.sell-price GT 0 THEN 
-        dMatPct = probe.spare-dec-1 / probe.sell-price * 100.
+    dPrice = DEC(probe.sell-price:SCREEN-VALUE IN BROWSE {&browse-name}).
+    IF AVAILABLE probe AND dPrice GT 0 THEN 
+        dMatPct = probe.spare-dec-1 / dPrice * 100.
     
         RETURN dMatPct.
 
