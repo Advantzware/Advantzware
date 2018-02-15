@@ -91,10 +91,13 @@ for each xef where xef.company = xest.company
                AND xef.est-no = xest.est-no
                AND (xef.form-no = ip-form-no OR ip-form-no = 0):
    xef.op-lock = no.
-   {est/op-lock.i xest}
-   ASSIGN
-    op-lock.val[1] = 1
-    op-lock.val[2] = 1.
+
+     FIND CURRENT xest EXCLUSIVE-LOCK NO-ERROR.
+         ASSIGN
+             xest.recalc    = YES
+             xest.recalc-mr = YES.
+     FIND CURRENT xest NO-LOCK.  
+ 
    run ce/com/localk.p (0, ?).
 end.
 
