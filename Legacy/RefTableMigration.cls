@@ -852,6 +852,23 @@ CLASS RefTableMigration:
         END.  /*FOR EACH reftable*/         
         RETURN iCnt.
     END METHOD. /*job-hdr*/     
+    METHOD PUBLIC INTEGER MachObsolete():
+        DEFINE VARIABLE iCnt AS INTEGER NO-UNDO.
+        FOR EACH reftable WHERE reftable.reftable = "mach.obsolete"
+            NO-LOCK:
+            FIND FIRST mach WHERE mach.company = reftable.company
+                              AND mach.loc     = reftable.loc
+                              AND mach.m-code = reftable.code
+                EXCLUSIVE-LOCK NO-ERROR.
+            IF AVAILABLE mach THEN    
+            ASSIGN 
+                mach.obsolete = reftable.val[1] EQ 1                
+                . 
+            RELEASE mach.      
+            iCnt = iCnt + 1.                 
+        END.  /*FOR EACH reftable*/         
+        RETURN iCnt.
+    END METHOD. /*mach*/
 END CLASS.
 
 
