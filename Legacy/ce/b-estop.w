@@ -1654,13 +1654,13 @@ PROCEDURE set-lock :
      /*task 020050908*/
      IF ip-op-lock EQ ef.op-lock THEN
      DO:
-        {est/op-lock.i xest}
-        
-        ASSIGN
-           op-lock.val[1] = INTEGER(NOT ip-op-lock)
-           op-lock.val[2] = op-lock.val[1].
 
-        RELEASE op-lock.
+        FIND CURRENT xest EXCLUSIVE-LOCK NO-ERROR.
+         ASSIGN
+          xest.recalc    = NOT ip-op-lock
+          xest.recalc-mr = NOT ip-op-lock.
+        FIND CURRENT xest NO-LOCK.           
+        
      END.
 
      ef.op-lock = ip-op-lock.

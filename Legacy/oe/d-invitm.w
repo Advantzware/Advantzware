@@ -675,8 +675,7 @@ DO :
                              INPUT-OUTPUT cp-part-no, INPUT-OUTPUT cp-rowid).
       IF cp-part-no NE "" THEN inv-line.part-no:SCREEN-VALUE = cp-part-no.
       IF itemfg.CLASS EQ "*" OR itemfg.exempt-disc THEN inv-line.disc:SCREEN-VALUE = "0".
-  /*     {custom/fgexempt.i itemfg inv-line.disc:SCREEN-VALUE} */
-  
+    
       inv-line.price:SCREEN-VALUE = STRING(itemfg.sell-price).
   
       IF itemfg.i-code EQ "S"          AND
@@ -720,55 +719,7 @@ DO:
   DEF VAR ll-tax LIKE inv-line.tax NO-UNDO.
 
 
-/*   FIND itemfg                                                                              */
-/*       {sys/look/itemfgrlW.i}                                                                */
-/*         AND itemfg.i-no EQ {&self-name}:SCREEN-VALUE                                       */
-/*       NO-LOCK NO-ERROR.                                                                    */
-/*   IF AVAIL itemfg THEN DO:                                                                 */
-/*     ASSIGN                                                                                 */
-/*      {&self-name}:SCREEN-VALUE        = CAPS(itemfg.i-no)                                  */
-/*      inv-line.i-name:SCREEN-VALUE     = itemfg.i-name                                      */
-/*      inv-line.pr-uom:SCREEN-VALUE     = itemfg.sell-uom                                    */
-/*      inv-line.part-dscr1:SCREEN-VALUE = itemfg.part-dscr1                                  */
-/*      inv-line.part-dscr2:SCREEN-VALUE = itemfg.part-dscr2                                  */
-/*      inv-line.part-no:SCREEN-VALUE    = itemfg.part-no.                                    */
-/*                                                                                            */
-/*     RUN enable-cost.                                                                       */
-/*                                                                                            */
-/*     ASSIGN                                                                                 */
-/*      cp-part-no = ""                                                                       */
-/*      cp-rowid   = ROWID(itemfg).                                                           */
-/*     RUN custom/getcpart.p (cocode, inv-head.cust-no,                                       */
-/*                            INPUT-OUTPUT cp-part-no, INPUT-OUTPUT cp-rowid).                */
-/*     IF cp-part-no NE "" THEN inv-line.part-no:SCREEN-VALUE = cp-part-no.                   */
-/*     IF itemfg.CLASS EQ "*" OR itemfg.exempt-disc THEN inv-line.disc:SCREEN-VALUE = "0".    */
-/* /*     {custom/fgexempt.i itemfg inv-line.disc:SCREEN-VALUE} */                            */
-/*                                                                                            */
-/*     inv-line.price:SCREEN-VALUE = STRING(itemfg.sell-price).                               */
-/*                                                                                            */
-/*     IF itemfg.i-code EQ "S"          AND                                                   */
-/*        inv-line.cost:SENSITIVE EQ NO THEN                                                  */
-/*       inv-line.cost:SCREEN-VALUE = STRING(itemfg.total-std-cost).                          */
-/*                                                                                            */
-/*     FIND FIRST cust                                                                        */
-/*         {sys/ref/custW.i}                                                                   */
-/*           AND cust.cust-no EQ inv-head.cust-no                                             */
-/*         USE-INDEX cust                                                                     */
-/*         NO-LOCK NO-ERROR.                                                                  */
-/*                                                                                            */
-/*     ll-tax = AVAIL cust AND cust.sort EQ "Y" AND inv-head.tax-gr NE "" AND itemfg.taxable. */
-/*                                                                                            */
-/*     IF NOT ll-tax THEN DO:                                                                 */
-/*      {custom/shptotax.i inv-head.cust-no inv-head.sold-no ll-tax}                          */
-/*     END.                                                                                   */
-/*                                                                                            */
-/*     inv-line.tax:SCREEN-VALUE = STRING(ll-tax,"Y/N").                                      */
-/*     APPLY "value-changed" TO inv-line.ship-qty.                                            */
-/* /*     DO li = 1 TO LENGTH(TRIM({&self-name}:SCREEN-VALUE)): */                            */
-/*       APPLY "cursor-right" TO {&self-name}.               */
-/*     END.                                                  */
-/*     RUN display-item. */
-/*   END.                */
+
 END.
 
 /* _UIB-CODE-BLOCK-END */

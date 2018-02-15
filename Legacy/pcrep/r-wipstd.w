@@ -15,8 +15,9 @@ assign
  locode = gloc.
 
 DO TRANSACTION:
-   {sys/inc/selrptcol.i "DR14" }
+   {sys/inc/runAOAVer.i "DR14" }
 END.
 
-IF SelectRptColumn-log THEN RUN pcrep/r-wpstdN.w PERSISTENT.
-ELSE RUN pcrep/r-wpstdA.w PERSISTENT.
+cAOAFile = SEARCH("AOA/r-wipstd.p").
+IF RunAOAVersion-log AND cAOAFile NE ? THEN RUN AOA/r-wipstd.p.
+ELSE RUN pcrep/r-wpstdN.w PERSISTENT.

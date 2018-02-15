@@ -7,7 +7,7 @@
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS B-table-Win 
 /*------------------------------------------------------------------------
 
-  File:  browsers/reftable.w
+  File:  browsers/scores.w
 
   Description: from BROWSER.W - Basic SmartBrowser Object Template
 
@@ -33,18 +33,17 @@ CREATE WIDGET-POOL.
 
 &SCOPED-DEFINE winReSize
 &SCOPED-DEFINE sizeOption HEIGHT
+&SCOPED-DEFINE useMatches
 {methods/defines/winReSize.i}
 
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
+
+{custom/gcompany.i}
 {custom/globdefs.i}
-
-{sys/inc/var.i NEW SHARED}
-
-ASSIGN
- cocode = g_company
- locode = g_loc.
+{sys/inc/var.i new shared}
+{sys/inc/varasgn.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -59,26 +58,28 @@ ASSIGN
 
 &Scoped-define ADM-SUPPORTED-LINKS Record-Source,Record-Target,TableIO-Target,Navigation-Target
 
-/* Name of first Frame and/or Browse and/or first Query                 */
+/* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME F-Main
 &Scoped-define BROWSE-NAME Browser-Table
 
 /* Internal Tables (found by Frame, Query & Browse Queries)             */
-&Scoped-define INTERNAL-TABLES reftable
+&Scoped-define INTERNAL-TABLES scores
 
 /* Define KEY-PHRASE in case it is used by any query. */
 &Scoped-define KEY-PHRASE TRUE
 
 /* Definitions for BROWSE Browser-Table                                 */
-&Scoped-define FIELDS-IN-QUERY-Browser-Table reftable.code reftable.dscr   
-&Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table reftable.code reftable.dscr   
-&Scoped-define ENABLED-TABLES-IN-QUERY-Browser-Table reftable
-&Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-Browser-Table reftable
-&Scoped-define SELF-NAME Browser-Table
-&Scoped-define QUERY-STRING-Browser-Table FOR EACH reftable         WHERE ~{&KEY-PHRASE}           AND reftable.reftable EQ "score-type"           AND reftable.company  EQ cocode           AND reftable.loc      EQ ""         NO-LOCK         ~{&SORTBY-PHRASE}
-&Scoped-define OPEN-QUERY-Browser-Table OPEN QUERY {&SELF-NAME}     FOR EACH reftable         WHERE ~{&KEY-PHRASE}           AND reftable.reftable EQ "score-type"           AND reftable.company  EQ cocode           AND reftable.loc      EQ ""         NO-LOCK         ~{&SORTBY-PHRASE}.
-&Scoped-define TABLES-IN-QUERY-Browser-Table reftable
-&Scoped-define FIRST-TABLE-IN-QUERY-Browser-Table reftable
+&Scoped-define FIELDS-IN-QUERY-Browser-Table scores.type scores.dscr 
+&Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table scores.type ~
+scores.dscr 
+&Scoped-define ENABLED-TABLES-IN-QUERY-Browser-Table scores
+&Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-Browser-Table scores
+&Scoped-define QUERY-STRING-Browser-Table FOR EACH scores WHERE ~{&KEY-PHRASE} NO-LOCK ~
+    ~{&SORTBY-PHRASE}
+&Scoped-define OPEN-QUERY-Browser-Table OPEN QUERY Browser-Table FOR EACH scores WHERE ~{&KEY-PHRASE} NO-LOCK ~
+    ~{&SORTBY-PHRASE}.
+&Scoped-define TABLES-IN-QUERY-Browser-Table scores
+&Scoped-define FIRST-TABLE-IN-QUERY-Browser-Table scores
 
 
 /* Definitions for FRAME F-Main                                         */
@@ -108,34 +109,43 @@ DEFINE BUTTON Btn_Clear_Find
 DEFINE VARIABLE auto_find AS CHARACTER FORMAT "X(256)":U 
      LABEL "Auto Find" 
      VIEW-AS FILL-IN 
-     SIZE 36 BY 1 NO-UNDO.
+     SIZE 35 BY 1 NO-UNDO.
+
+DEFINE VARIABLE fi_sortby AS CHARACTER FORMAT "X(256)":U 
+     VIEW-AS FILL-IN 
+     SIZE 15 BY .71
+     BGCOLOR 14 FONT 6 NO-UNDO.
 
 DEFINE VARIABLE browse-order AS INTEGER 
      VIEW-AS RADIO-SET HORIZONTAL
      RADIO-BUTTONS 
           "N/A", 1
-     SIZE 33 BY 1 NO-UNDO.
+     SIZE 45 BY 1 NO-UNDO.
 
 DEFINE RECTANGLE RECT-4
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 126 BY 1.43.
+     SIZE 110 BY 1.43.
 
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
-DEFINE QUERY Browser-Table FOR reftable.
-
+DEFINE QUERY Browser-Table FOR 
+      scores
+    FIELDS(scores.type
+      scores.dscr) SCROLLING.
 &ANALYZE-RESUME
 
 /* Browse definitions                                                   */
 DEFINE BROWSE Browser-Table
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS Browser-Table B-table-Win _FREEFORM
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS Browser-Table B-table-Win _STRUCTURED
   QUERY Browser-Table NO-LOCK DISPLAY
-      reftable.code FORMAT "!"
-      reftable.dscr
-      ENABLE reftable.code reftable.dscr
+      scores.type FORMAT "x":U
+      scores.dscr FORMAT "x(30)":U
+  ENABLE
+      scores.type
+      scores.dscr
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ASSIGN SEPARATORS SIZE 126 BY 18.1
+    WITH NO-ASSIGN SEPARATORS SIZE 110 BY 18.1
          FONT 2.
 
 
@@ -144,11 +154,12 @@ DEFINE BROWSE Browser-Table
 DEFINE FRAME F-Main
      Browser-Table AT ROW 1 COL 1 HELP
           "Use Home, End, Page-Up, Page-Down, & Arrow Keys to Navigate"
+     fi_sortby AT ROW 18.62 COL 28 COLON-ALIGNED NO-LABEL WIDGET-ID 2
      browse-order AT ROW 19.33 COL 6 HELP
           "Select Browser Sort Order" NO-LABEL
-     auto_find AT ROW 19.33 COL 74 COLON-ALIGNED HELP
+     auto_find AT ROW 19.33 COL 60 COLON-ALIGNED HELP
           "Enter Auto Find Value"
-     Btn_Clear_Find AT ROW 19.33 COL 113 HELP
+     Btn_Clear_Find AT ROW 19.33 COL 97 HELP
           "CLEAR AUTO FIND Value"
      "By:" VIEW-AS TEXT
           SIZE 4 BY 1 AT ROW 19.33 COL 2
@@ -186,7 +197,7 @@ END.
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW B-table-Win ASSIGN
          HEIGHT             = 19.52
-         WIDTH              = 146.4.
+         WIDTH              = 110.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -210,15 +221,22 @@ END.
 /* SETTINGS FOR WINDOW B-table-Win
   NOT-VISIBLE,,RUN-PERSISTENT                                           */
 /* SETTINGS FOR FRAME F-Main
-   NOT-VISIBLE Size-to-Fit                                              */
-/* BROWSE-TAB Browser-Table TEXT-1 F-Main */
+   NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
+/* BROWSE-TAB Browser-Table 1 F-Main */
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
 
 ASSIGN 
        Browser-Table:PRIVATE-DATA IN FRAME F-Main           = 
-                "1".
+                "2"
+       Browser-Table:ALLOW-COLUMN-SEARCHING IN FRAME F-Main = TRUE.
+
+/* SETTINGS FOR FILL-IN fi_sortby IN FRAME F-Main
+   NO-DISPLAY NO-ENABLE                                                 */
+ASSIGN 
+       fi_sortby:HIDDEN IN FRAME F-Main           = TRUE
+       fi_sortby:READ-ONLY IN FRAME F-Main        = TRUE.
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -228,20 +246,13 @@ ASSIGN
 
 &ANALYZE-SUSPEND _QUERY-BLOCK BROWSE Browser-Table
 /* Query rebuild information for BROWSE Browser-Table
-     _START_FREEFORM
-OPEN QUERY {&SELF-NAME}
-    FOR EACH reftable
-        WHERE ~{&KEY-PHRASE}
-          AND reftable.reftable EQ "score-type"
-          AND reftable.company  EQ cocode
-          AND reftable.loc      EQ ""
-        NO-LOCK
-        ~{&SORTBY-PHRASE}.
-     _END_FREEFORM
-     _START_FREEFORM_DEFINE
-DEFINE QUERY Browser-Table FOR reftable.
-     _END_FREEFORM_DEFINE
+     _TblList          = "ASI.scores"
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
+     _TblOptList       = "USED"
+     _FldNameList[1]   > ASI.scores.type
+"type" ? ? "character" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[2]   > ASI.scores.dscr
+"dscr" ? ? "character" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */
 &ANALYZE-RESUME
@@ -262,24 +273,6 @@ DEFINE QUERY Browser-Table FOR reftable.
 &Scoped-define BROWSE-NAME Browser-Table
 &Scoped-define SELF-NAME Browser-Table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Browser-Table B-table-Win
-ON HELP OF Browser-Table IN FRAME F-Main
-DO:
-  DEF VAR char-val AS cha NO-UNDO.
-
-
-  CASE FOCUS:NAME:
-    WHEN "code" THEN DO:
-    END.
-  END.
-
-  RETURN NO-APPLY.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Browser-Table B-table-Win
 ON ROW-ENTRY OF Browser-Table IN FRAME F-Main
 DO:
   /* This code displays initial values for newly added or copied rows. */
@@ -295,8 +288,17 @@ ON ROW-LEAVE OF Browser-Table IN FRAME F-Main
 DO:
     /* Do not disable this code or no updates will take place except
      by pressing the Save button on an Update SmartPanel. */
-   /*{src/adm/template/brsleave.i} */
-    {brsleave.i}
+   {src/adm/template/brsleave.i}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Browser-Table B-table-Win
+ON START-SEARCH OF Browser-Table IN FRAME F-Main
+DO:
+    RUN StartSearch.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -321,16 +323,11 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK B-table-Win 
 
 
-/* ************************  Control Triggers  ************************ */
-ON LEAVE OF reftable.code IN BROWSE Browser-Table
-DO:
-  IF LASTKEY NE -1 THEN DO:
-    RUN valid-code NO-ERROR.
-    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-  END.
-END.
-
 /* ***************************  Main Block  *************************** */
+{sys/inc/f3help.i}
+    
+{custom/YellowColumns.i}
+
 &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
 RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
 &ENDIF
@@ -342,19 +339,6 @@ RUN dispatch IN THIS-PROCEDURE ('initialize':U).
 
 
 /* **********************  Internal Procedures  *********************** */
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE add-item B-table-Win 
-PROCEDURE add-item :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-   RUN dispatch ('add-record').
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE adm-row-available B-table-Win  _ADM-ROW-AVAILABLE
 PROCEDURE adm-row-available :
@@ -396,65 +380,24 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-create-record B-table-Win 
-PROCEDURE local-create-record :
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE export-xl B-table-Win 
+PROCEDURE export-xl :
 /*------------------------------------------------------------------------------
-  Purpose:     Override standard ADM method
+  Purpose:     
+  Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+DEFINE VARIABLE lcAccFrom AS CHAR NO-UNDO.
+DEFINE VARIABLE lcAccTo   AS CHAR NO-UNDO.
 
-  /* Code placed here will execute PRIOR to standard behavior. */
+IF account.actnum NE "" THEN
+    ASSIGN
+        lcAccFrom = account.actnum
+        lcAccTo = account.actnum .
 
-  /* Dispatch standard ADM method.                             */
-  RUN dispatch IN THIS-PROCEDURE ( INPUT 'create-record':U ) .
+RUN fg/acc-exp.w (lcAccFrom,
+                       lcAccTo).
 
-  /* Code placed here will execute AFTER standard behavior.    */
-  ASSIGN
-   reftable.reftable = "score-type"
-   reftable.company  = cocode
-   reftable.loc      = "".
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-delete-record B-table-Win 
-PROCEDURE local-delete-record :
-/*------------------------------------------------------------------------------
-  Purpose:     Override standard ADM method
-  Notes:       
-------------------------------------------------------------------------------*/
-
-  /* Code placed here will execute PRIOR to standard behavior. */
-  IF NOT adm-new-record THEN DO:
-    {custom/askdel.i}
-  END.
-
-  /* Dispatch standard ADM method.                             */
-  RUN dispatch IN THIS-PROCEDURE ( INPUT 'delete-record':U ) .
-
-  /* Code placed here will execute AFTER standard behavior.    */
- 
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-enable-fields B-table-Win 
-PROCEDURE local-enable-fields :
-/*------------------------------------------------------------------------------
-  Purpose:     Override standard ADM method
-  Notes:       
-------------------------------------------------------------------------------*/
-
-  /* Code placed here will execute PRIOR to standard behavior. */
-
-  /* Dispatch standard ADM method.                             */
-  RUN dispatch IN THIS-PROCEDURE ( INPUT 'enable-fields':U ) .
-
-  /* Code placed here will execute AFTER standard behavior.    */
-  APPLY "entry" TO reftable.CODE IN BROWSE {&browse-name} .
 
 END PROCEDURE.
 
@@ -481,28 +424,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-update-record B-table-Win 
-PROCEDURE local-update-record :
-/*------------------------------------------------------------------------------
-  Purpose:     Override standard ADM method
-  Notes:       
-------------------------------------------------------------------------------*/
-
-  /* Code placed here will execute PRIOR to standard behavior. */     
-  RUN valid-code NO-ERROR.
-  IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-
-  /* Dispatch standard ADM method.                             */
-  RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
-
-  /* Code placed here will execute AFTER standard behavior.    */
-  adm-new-record = NO.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE send-records B-table-Win  _ADM-SEND-RECORDS
 PROCEDURE send-records :
 /*------------------------------------------------------------------------------
@@ -515,7 +436,7 @@ PROCEDURE send-records :
   {src/adm/template/snd-head.i}
 
   /* For each requested table, put it's ROWID in the output list.      */
-  {src/adm/template/snd-list.i "reftable"}
+  {src/adm/template/snd-list.i "scores"}
 
   /* Deal with any unexpected table requests before closing.           */
   {src/adm/template/snd-end.i}
@@ -540,40 +461,6 @@ PROCEDURE state-changed :
          or add new cases. */
       {src/adm/template/bstates.i}
   END CASE.
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-code B-table-Win 
-PROCEDURE valid-code :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  DEF BUFFER b-reft FOR reftable.
-
-       
-  DO WITH FRAME {&FRAME-NAME}:
-    reftable.code:SCREEN-VALUE IN BROWSE {&browse-name} =
-        CAPS(reftable.code:SCREEN-VALUE IN BROWSE {&browse-name}).
-
-    IF reftable.code:SCREEN-VALUE IN BROWSE {&browse-name} EQ "" OR
-       CAN-FIND(FIRST b-reft WHERE b-reft.reftable EQ "score-type"
-                               AND b-reft.company  EQ cocode
-                               AND b-reft.loc      EQ ""
-                               AND b-reft.code     EQ reftable.code:SCREEN-VALUE IN BROWSE {&browse-name}
-                               AND ROWID(b-reft)   NE ROWID(reftable))
-    THEN DO:
-      MESSAGE TRIM(reftable.code:LABEL IN BROWSE {&browse-name}) +
-              " is spaces or already exists, please re-enter..."
-          VIEW-AS ALERT-BOX ERROR.
-      APPLY "entry" TO reftable.code IN BROWSE {&browse-name}.
-      RETURN ERROR.
-    END.
-  END.
-
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

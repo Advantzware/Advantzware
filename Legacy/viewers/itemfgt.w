@@ -526,20 +526,8 @@ PROCEDURE local-assign-record :
   itemfg.t-sqft = if v-corr then itemfg.t-sqin * .007
                             else itemfg.t-sqin / 144 .
 
-  FIND FIRST reftable WHERE reftable.reftable EQ "FACTORED"
-                        AND reftable.company  EQ itemfg.company
-                        AND reftable.loc      EQ ""
-                        AND reftable.code     EQ itemfg.i-no
-                        NO-ERROR.
-   IF NOT AVAILABLE reftable THEN DO:
-      CREATE reftable.
-      ASSIGN reftable.reftable = "FACTORED"
-             reftable.company = ITEMFG.company
-             reftable.loc = ""
-             reftable.CODE = itemfg.i-no
-             .
-   END.
-   reftable.code2 = IF v-factor-item THEN "YES" ELSE "NO".
+  
+   ASSIGN itemfg.factored = v-factor-item.
 
    FIND CURRENT reftable NO-LOCK.
 END PROCEDURE.
@@ -568,11 +556,11 @@ PROCEDURE local-display-fields :
 
   /* Code placed here will execute AFTER standard behavior.    */
   IF AVAIL itemfg THEN DO:
-    FIND FIRST reftable WHERE reftable.reftable EQ "FACTORED"
-                        AND reftable.company  EQ itemfg.company
-                        AND reftable.loc      EQ ""
-                        AND reftable.code     EQ itemfg.i-no
-                        NO-LOCK NO-ERROR.          
+/*    FIND FIRST reftable WHERE reftable.reftable EQ "FACTORED"  */
+/*                        AND reftable.company  EQ itemfg.company*/
+/*                        AND reftable.loc      EQ ""            */
+/*                        AND reftable.code     EQ itemfg.i-no   */
+/*                        NO-LOCK NO-ERROR.                      */
     IF itemfg.est-no NE "" THEN
         FIND FIRST bf-eb 
             WHERE bf-eb.company EQ itemfg.company
@@ -587,7 +575,8 @@ PROCEDURE local-display-fields :
   ASSIGN 
       fi_blank-len:SCREEN-VALUE IN FRAME {&FRAME-NAME} = cLength.
       fi_blank-wid:SCREEN-VALUE IN FRAME {&FRAME-NAME} = cWidth.
-      v-factor-item:SCREEN-VALUE IN FRAME {&FRAME-NAME} = IF AVAIL reftable THEN reftable.code2 ELSE "NO".
+/*      v-factor-item:SCREEN-VALUE IN FRAME {&FRAME-NAME} = IF AVAIL reftable THEN reftable.code2 ELSE "NO".*/
+      v-factor-item:SCREEN-VALUE IN FRAME {&FRAME-NAME} = IF AVAIL itemfg THEN STRING(itemfg.factored) ELSE "NO".
 
   IF v-cecscrn-char = "Decimal" THEN
      ASSIGN

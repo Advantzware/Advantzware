@@ -311,96 +311,96 @@ DEFINE FRAME F-Main
      svCompany AT ROW 1.24 COL 23 COLON-ALIGNED WIDGET-ID 60
      svShowQOHOlderThanDays AT ROW 1.24 COL 63 COLON-ALIGNED HELP
           "Enter Only Show QOH Older Than Days" WIDGET-ID 266
-     svAsOfDate AT ROW 2.91 COL 23 COLON-ALIGNED HELP
+     svAsOfDate AT ROW 2.43 COL 23 COLON-ALIGNED HELP
           "Enter As Of Date" WIDGET-ID 72
-     btnCalendar-1 AT ROW 2.91 COL 41 WIDGET-ID 76
-     svAsOfDateOption AT ROW 2.91 COL 44 COLON-ALIGNED HELP
+     btnCalendar-1 AT ROW 2.43 COL 41 WIDGET-ID 76
+     svAsOfDateOption AT ROW 2.43 COL 44 COLON-ALIGNED HELP
           "Select Start Date Option" NO-LABEL WIDGET-ID 74
-     svCustList AT ROW 4.57 COL 25 WIDGET-ID 48
-     btnCustList AT ROW 4.57 COL 55 WIDGET-ID 46
-     svAllCustNo AT ROW 5.76 COL 25 HELP
+     svCustList AT ROW 3.62 COL 25 WIDGET-ID 48
+     btnCustList AT ROW 3.62 COL 55 WIDGET-ID 46
+     svAllCustNo AT ROW 4.81 COL 25 HELP
           "All Customers?" WIDGET-ID 56
-     svStartCustNo AT ROW 6.95 COL 23 COLON-ALIGNED HELP
+     svStartCustNo AT ROW 6 COL 23 COLON-ALIGNED HELP
           "Enter Start Customer" WIDGET-ID 2
-     startCustName AT ROW 6.95 COL 39 COLON-ALIGNED NO-LABEL WIDGET-ID 4
-     svEndCustNo AT ROW 8.14 COL 23 COLON-ALIGNED HELP
+     startCustName AT ROW 6 COL 39 COLON-ALIGNED NO-LABEL WIDGET-ID 4
+     svEndCustNo AT ROW 7.19 COL 23 COLON-ALIGNED HELP
           "Enter End Customer" WIDGET-ID 6
-     endCustName AT ROW 8.14 COL 39 COLON-ALIGNED NO-LABEL WIDGET-ID 8
-     svAllLoc AT ROW 9.81 COL 25 HELP
+     endCustName AT ROW 7.19 COL 39 COLON-ALIGNED NO-LABEL WIDGET-ID 8
+     svAllLoc AT ROW 8.38 COL 25 HELP
           "All Warehouses?" WIDGET-ID 158
-     svStartLoc AT ROW 11 COL 23 COLON-ALIGNED HELP
+     svStartLoc AT ROW 9.57 COL 23 COLON-ALIGNED HELP
           "Enter State Warehouse" WIDGET-ID 162
-     startLocName AT ROW 11 COL 39 COLON-ALIGNED NO-LABEL WIDGET-ID 156
-     svEndLoc AT ROW 12.19 COL 23 COLON-ALIGNED HELP
+     startLocName AT ROW 9.57 COL 39 COLON-ALIGNED NO-LABEL WIDGET-ID 156
+     svEndLoc AT ROW 10.76 COL 23 COLON-ALIGNED HELP
           "Enter End Warehouse" WIDGET-ID 160
-     endLocName AT ROW 12.19 COL 39 COLON-ALIGNED NO-LABEL WIDGET-ID 154
-     svAllLocBin AT ROW 13.86 COL 25 HELP
+     endLocName AT ROW 10.76 COL 39 COLON-ALIGNED NO-LABEL WIDGET-ID 154
+     svAllLocBin AT ROW 11.95 COL 25 HELP
           "All Bins?" WIDGET-ID 226
-     svStartLocBin AT ROW 15.05 COL 23 COLON-ALIGNED HELP
+     svStartLocBin AT ROW 13.14 COL 23 COLON-ALIGNED HELP
           "Enter Start Bin" WIDGET-ID 230
-     svEndLocBin AT ROW 16.24 COL 23 COLON-ALIGNED HELP
+     svEndLocBin AT ROW 14.33 COL 23 COLON-ALIGNED HELP
           "Enter End Bin" WIDGET-ID 228
-     svAllItemNo AT ROW 17.91 COL 25 HELP
+     svAllItemNo AT ROW 15.52 COL 25 HELP
           "All Items?" WIDGET-ID 164
-     svStartItemNo AT ROW 19.1 COL 23 COLON-ALIGNED HELP
+     svStartItemNo AT ROW 16.71 COL 23 COLON-ALIGNED HELP
           "Enter Start Item" WIDGET-ID 168
-     startItemName AT ROW 19.1 COL 46 COLON-ALIGNED NO-LABEL WIDGET-ID 172
-     svEndItemNo AT ROW 20.29 COL 23 COLON-ALIGNED HELP
+     startItemName AT ROW 16.71 COL 46 COLON-ALIGNED NO-LABEL WIDGET-ID 172
+     svEndItemNo AT ROW 17.91 COL 23 COLON-ALIGNED HELP
           "Enter End Item" WIDGET-ID 166
-     endItemName AT ROW 20.29 COL 46 COLON-ALIGNED NO-LABEL WIDGET-ID 170
-     svAllProdCategory AT ROW 21.95 COL 25 HELP
+     endItemName AT ROW 17.91 COL 46 COLON-ALIGNED NO-LABEL WIDGET-ID 170
+     svAllProdCategory AT ROW 19.1 COL 25 HELP
           "All Sales Reps?" WIDGET-ID 202
-     svStartProdCategory AT ROW 23.14 COL 23 COLON-ALIGNED HELP
+     svStartProdCategory AT ROW 20.29 COL 23 COLON-ALIGNED HELP
           "Enter Start Product Category" WIDGET-ID 206
-     startProdCategoryName AT ROW 23.14 COL 39 COLON-ALIGNED NO-LABEL WIDGET-ID 210
-     svEndProdCategory AT ROW 24.33 COL 23 COLON-ALIGNED HELP
+     startProdCategoryName AT ROW 20.29 COL 39 COLON-ALIGNED NO-LABEL WIDGET-ID 210
+     svEndProdCategory AT ROW 21.48 COL 23 COLON-ALIGNED HELP
           "Enter End Product Category" WIDGET-ID 204
-     endProdCategoryName AT ROW 24.33 COL 39 COLON-ALIGNED NO-LABEL WIDGET-ID 208
-     svAllSalesRep AT ROW 26 COL 25 HELP
+     endProdCategoryName AT ROW 21.48 COL 39 COLON-ALIGNED NO-LABEL WIDGET-ID 208
+     svAllSalesRep AT ROW 22.67 COL 25 HELP
           "All Sales Reps?" WIDGET-ID 108
-     svStartSalesRep AT ROW 27.19 COL 23 COLON-ALIGNED HELP
+     svStartSalesRep AT ROW 23.86 COL 23 COLON-ALIGNED HELP
           "Enter Beginning Sales Rep#" WIDGET-ID 112
-     startSalesRepName AT ROW 27.19 COL 32 COLON-ALIGNED NO-LABEL WIDGET-ID 106
-     svEndSalesRep AT ROW 28.38 COL 23 COLON-ALIGNED HELP
+     startSalesRepName AT ROW 23.86 COL 32 COLON-ALIGNED NO-LABEL WIDGET-ID 106
+     svEndSalesRep AT ROW 25.05 COL 23 COLON-ALIGNED HELP
           "Enter Ending Sales Rep" WIDGET-ID 110
-     endSalesRepName AT ROW 28.38 COL 32 COLON-ALIGNED NO-LABEL WIDGET-ID 104
-     svSort AT ROW 30.05 COL 25 HELP
+     endSalesRepName AT ROW 25.05 COL 32 COLON-ALIGNED NO-LABEL WIDGET-ID 104
+     svSort AT ROW 26.24 COL 25 HELP
           "Select Sort Option" NO-LABEL WIDGET-ID 84
-     svItemCode AT ROW 31.24 COL 25 HELP
+     svItemCode AT ROW 27.43 COL 25 HELP
           "Select Sort Option" NO-LABEL WIDGET-ID 270
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 94.8 BY 37.38.
+         SIZE 94.6 BY 33.67.
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME F-Main
-     svPrintSetAndComponentsOnly AT ROW 32.67 COL 25 HELP
+     svPrintSetAndComponentsOnly AT ROW 28.86 COL 25 HELP
           "Select to Print Set and Components Only" WIDGET-ID 88
-     svIncludeZeroBalance AT ROW 32.67 COL 66 HELP
+     svIncludeZeroBalance AT ROW 28.86 COL 66 HELP
           "Select to Include Zero Balance" WIDGET-ID 256
-     svIncludeCustomerOwnerdWarehouse AT ROW 33.86 COL 25 HELP
+     svIncludeCustomerOwnerdWarehouse AT ROW 30.05 COL 25 HELP
           "Select to Include Customer Ownerd Warehouse" WIDGET-ID 252
-     svPrintSummaryByBinQty AT ROW 33.86 COL 66 HELP
+     svPrintSummaryByBinQty AT ROW 30.05 COL 66 HELP
           "Select to Print Summary By Bin Qty" WIDGET-ID 258
-     svOnlyCustomerOwnedWarehouse AT ROW 35.05 COL 25 HELP
+     svOnlyCustomerOwnedWarehouse AT ROW 31.24 COL 25 HELP
           "Select to Only Customer Owned Warehouse" WIDGET-ID 254
-     svIncludeInactiveItems AT ROW 35.05 COL 66 HELP
+     svIncludeInactiveItems AT ROW 31.24 COL 66 HELP
           "Select to Include Inactive Items" WIDGET-ID 260
-     svPrintCost AT ROW 36.24 COL 25 HELP
+     svPrintCost AT ROW 32.43 COL 25 HELP
           "Select to Print Cost" WIDGET-ID 262
-     svDLMATOnly AT ROW 36.24 COL 66 HELP
+     svDLMATOnly AT ROW 32.43 COL 66 HELP
           "Select to If Yes - DL/MAT Only" WIDGET-ID 264
-     "Days" VIEW-AS TEXT
-          SIZE 8 BY 1 AT ROW 1.24 COL 72 WIDGET-ID 268
-     "Sort By:" VIEW-AS TEXT
-          SIZE 8 BY 1 AT ROW 30.05 COL 16 WIDGET-ID 90
      "Item Code:" VIEW-AS TEXT
           SIZE 10 BY 1 AT ROW 31.24 COL 14 WIDGET-ID 274
+     "Sort By:" VIEW-AS TEXT
+          SIZE 8 BY 1 AT ROW 30.05 COL 16 WIDGET-ID 90
+     "Days" VIEW-AS TEXT
+          SIZE 8 BY 1 AT ROW 1.24 COL 72 WIDGET-ID 268
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 94.8 BY 37.38
+         SIZE 94.6 BY 33.67
          TITLE "Report Parameters".
 
 
@@ -430,8 +430,8 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW sObject ASSIGN
-         HEIGHT             = 37.38
-         WIDTH              = 94.8.
+         HEIGHT             = 33.67
+         WIDTH              = 94.6.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME

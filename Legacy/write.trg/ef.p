@@ -370,13 +370,13 @@ FIND FIRST est
     NO-ERROR.
 
 IF AVAIL est THEN DO:
-  {est/op-lock.i est}
+  
   IF NEW op-lock                                      OR
      {&TABLENAME}.company NE old-{&TABLENAME}.company OR
      {&TABLENAME}.op-lock NE old-{&TABLENAME}.op-lock THEN
     ASSIGN
-     op-lock.val[1] = INT(NOT {&TABLENAME}.op-lock)
-     op-lock.val[2] = op-lock.val[1].
+     est.recalc    = NOT {&TABLENAME}.op-lock
+     est.recalc-mr = NOT {&TABLENAME}.op-lock.
 
   ASSIGN
    est.updated-date = TODAY

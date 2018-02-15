@@ -15,8 +15,9 @@ assign
  locode = gloc.
 
 DO TRANSACTION:
-   {sys/inc/selrptcol.i "HR9" }
+   {sys/inc/runAOAVer.i "HR9" }
 END.
 
-IF SelectRptColumn-log THEN RUN salrep/r-cuzipN.w PERSISTENT.
-ELSE RUN salrep/r-cuzipA.w PERSISTENT.
+cAOAFile = SEARCH("AOA/r-cuszip.p").
+IF RunAOAVersion-log AND cAOAFile NE ? THEN RUN AOA/r-cuszip.p.
+ELSE RUN salrep/r-cuzipN.w PERSISTENT.
