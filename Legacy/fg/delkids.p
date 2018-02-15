@@ -28,13 +28,7 @@
                              INPUT b-itemfg.i-no).
   END.
 
-  FOR EACH reftable
-      WHERE reftable.reftable EQ "itemfg.exempt-disc"
-        AND reftable.company  EQ b-itemfg.company
-        AND reftable.loc      EQ ""
-        AND reftable.code     EQ b-itemfg.i-no:
-      DELETE reftable.
-  END.
+  
 
   IF CAN-FIND(FIRST asi._file WHERE asi._file._file-name EQ "cust-part") THEN
     RUN custom/delcpart.p (b-itemfg.company,

@@ -5270,7 +5270,7 @@ DO WITH FRAME {&FRAME-NAME}:
   IF NOT AVAIL oe-ord THEN FIND oe-ord WHERE oe-ord.company = g_company AND
                                 oe-ord.ord-no = oe-ordl.ord-no NO-LOCK. 
   IF itemfg.CLASS EQ "*" OR itemfg.exempt-disc THEN oe-ordl.disc:SCREEN-VALUE = "0".
-/*   {custom/fgexempt.i itemfg oe-ordl.disc:SCREEN-VALUE} */
+
 
   IF oe-ordl.type-code:SCREEN-VALUE EQ "O" AND oe-ordl.est-no NE "" THEN
      ASSIGN oe-ordl.i-name:screen-value     = IF itemfg.i-name <> "" THEN itemfg.i-name ELSE oe-ordl.i-name:screen-value 
@@ -5456,7 +5456,7 @@ IF ERROR-STATUS:ERROR THEN RETURN ERROR.
 DO WITH FRAME {&frame-name}:  
   FIND itemfg WHERE RECID(itemfg) = ip-recid NO-LOCK.
    IF itemfg.CLASS EQ "*" OR itemfg.exempt-disc THEN oe-ordl.disc:SCREEN-VALUE = "0".
-/*   {custom/fgexempt.i itemfg oe-ordl.disc:SCREEN-VALUE} */
+
 
   RUN default-type (BUFFER itemfg).
 

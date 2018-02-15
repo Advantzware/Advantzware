@@ -769,18 +769,7 @@ PROCEDURE copyFG :
 
 
 
-        FOR EACH reftable
-            WHERE reftable.reftable EQ "itemfg.exempt-disc"
-              AND reftable.company  EQ itemfg.company
-              AND reftable.loc      EQ ""
-              AND reftable.code     EQ itemfg.i-no
-            NO-LOCK:
-           CREATE b-ref.
-           BUFFER-COPY reftable EXCEPT rec_key TO b-ref
-           ASSIGN
-            b-ref.company = b-itemfg.company
-            b-ref.code    = b-itemfg.i-no.
-        END.
+        
 
         FOR EACH notes WHERE notes.rec_key EQ itemfg.rec_key NO-LOCK:
           CREATE b-notes.
