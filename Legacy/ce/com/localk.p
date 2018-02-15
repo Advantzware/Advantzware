@@ -80,9 +80,8 @@ save-qty = qty.
 
 FIND b-ef WHERE ROWID(b-ef) EQ ROWID(xef) NO-LOCK.
 
-{est/op-lock.i xest}
 
-IF op-lock.val[1] EQ 1 OR op-lock.val[2] EQ 1 THEN DO:
+IF xest.recalc EQ YES OR xest.recalc-mr EQ YES THEN DO:
   RUN mach-loop (1).
 
   FOR EACH est-op
@@ -106,13 +105,13 @@ RUN mach-loop (2).
 
 FIND xef WHERE ROWID(xef) EQ ROWID(b-ef) NO-LOCK.
 
-IF op-lock.val[1] EQ 1 OR op-lock.val[2] EQ 1 /*AND ip-rowid EQ ?*/ THEN DO:
 
+IF xest.recalc EQ YES OR xest.recalc-mr EQ YES THEN DO:
   FOR EACH tt-est-op:
     FIND FIRST est-op WHERE ROWID(est-op) EQ tt-est-op.row-id NO-ERROR.
     IF AVAIL est-op THEN DO:
-      IF op-lock.val[1] EQ 1 THEN
-      
+
+        IF xest.recalc EQ YES THEN      
         ASSIGN
          est-op.op-waste   = tt-est-op.op-waste
          est-op.op-speed   = tt-est-op.op-speed
@@ -123,7 +122,8 @@ IF op-lock.val[1] EQ 1 OR op-lock.val[2] EQ 1 /*AND ip-rowid EQ ?*/ THEN DO:
          est-op.op-rate[2] = tt-est-op.op-rate[2].
       
 
-      IF op-lock.val[2] EQ 1 THEN DO:
+
+        IF xest.recalc-mr EQ YES THEN DO:
         IF LOOKUP(est-op.dept,"PR,CT") GT 0 THEN ERROR-STATUS:ERROR = YES.
         ELSE RUN est/gluer-mr.p (BUFFER est-op) NO-ERROR.
 
@@ -133,7 +133,8 @@ IF op-lock.val[1] EQ 1 OR op-lock.val[2] EQ 1 /*AND ip-rowid EQ ?*/ THEN DO:
           est-op.op-mr = tt-est-op.op-mr.
       END.
 
-      IF op-lock.val[1] EQ 1 THEN RUN est/diewaste.p (BUFFER est-op).
+
+        IF xest.recalc EQ YES THEN RUN est/diewaste.p (BUFFER est-op).
     END.
 
     RELEASE est-op.
@@ -171,21 +172,25 @@ IF op-lock.val[1] EQ 1 OR op-lock.val[2] EQ 1 /*AND ip-rowid EQ ?*/ THEN DO:
               BY est-op.b-num:
 
       IF NOT FIRST(est-op.s-num) THEN DO:
-        IF op-lock.val[2] EQ 1 THEN
+
+          IF xest.recalc-mr EQ YES THEN
           IF LOOKUP(est-op.dept,"PR,CT") GT 0 THEN ERROR-STATUS:ERROR = YES.
           ELSE RUN est/gluer-mr.p (BUFFER est-op) NO-ERROR.
 
         IF ERROR-STATUS:ERROR THEN DO:
-          IF op-lock.val[2] EQ 1 THEN
+
+            IF xest.recalc-mr EQ YES THEN
             IF LOOKUP(est-op.dept,"PR,CT") LE 0      OR
                est-op.plates + est-op.fountains EQ 0 THEN est-op.op-mr = 0.
 
-          IF op-lock.val[1] EQ 1 THEN
+
+            IF xest.recalc EQ YES THEN
             IF LOOKUP(est-op.dept,"PR,CT") LE 0      OR
               est-op.op-mr EQ 0                      THEN est-op.op-waste = 0.
         END.
 
-        IF op-lock.val[1] EQ 1 THEN RUN est/diewaste.p (BUFFER est-op).
+
+          IF xest.recalc EQ YES THEN RUN est/diewaste.p.
       END.
     END.
   END.
@@ -201,9 +206,13 @@ IF op-lock.val[1] EQ 1 OR op-lock.val[2] EQ 1 /*AND ip-rowid EQ ?*/ THEN DO:
     LEAVE.
   END.
 
-  ASSIGN
-   op-lock.val[1] = 0
-   op-lock.val[2] = 0.
+
+   FIND CURRENT xest EXCLUSIVE-LOCK NO-ERROR.
+           ASSIGN
+             xest.recalc    = NO
+             xest.recalc-mr = NO.
+   FIND CURRENT xest NO-LOCK. 
+
 
   IF b-ef.form-no EQ xef.form-no THEN
   FOR EACH b-ef
@@ -355,10 +364,13 @@ FOR EACH est-op
        INDEX(PROGRAM-NAME(6),"order-from-est oe/v-ord") GT 0 AND
        est-op.LINE LT 500 THEN
        DO:
-          {est/op-lock.i xest}
-          ASSIGN
-             op-lock.val[1] = 1
-             op-lock.val[2] = 1.
+
+            FIND CURRENT xest EXCLUSIVE-LOCK NO-ERROR.
+             ASSIGN
+               xest.recalc    = YES
+               xest.recalc-mr = YES.
+          FIND CURRENT xest NO-LOCK. 
+
        END.
 
     {ce/box/prokalk.i}

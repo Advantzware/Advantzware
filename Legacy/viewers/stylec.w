@@ -370,13 +370,13 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 14 BY 1
           BGCOLOR 15 
-     "DEFAULT MATERIAL CODES" VIEW-AS TEXT
+     "Default Material Codes" VIEW-AS TEXT
           SIZE 35 BY .62 AT ROW 2.91 COL 47
           FGCOLOR 9 
-     "DEFAULT FLUTE DIMENSIONS" VIEW-AS TEXT
+     "Default Flute Dimensions" VIEW-AS TEXT
           SIZE 36 BY .62 AT ROW 2.91 COL 4
           FGCOLOR 9 
-     "DEFAULT MACHINE ROUTING" VIEW-AS TEXT
+     "Default Machine Routing" VIEW-AS TEXT
           SIZE 36 BY .62 AT ROW 2.91 COL 93
           FGCOLOR 9 
      RECT-19 AT ROW 1 COL 1

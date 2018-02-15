@@ -200,11 +200,11 @@ DEFINE STREAM excel.
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-18 RECT-6 fiAutoIssue v-post-date ~
-v-from-job v-to-job ldt-from ldt-to begin_userid end_userid t-receipt ~
+v-from-job begin_job-no2 v-to-job end_job-no2 ldt-from ldt-to begin_userid end_userid t-receipt ~
 t-issue t-trans t-adj t-showtotal lv-ornt lines-per-page rd-dest lv-font-no ~
 td-show-parm tb_excel tb_runExcel fi_file Btn_OK Btn_Cancel 
-&Scoped-Define DISPLAYED-OBJECTS fiAutoIssue v-post-date v-from-job ~
-v-to-job ldt-from ldt-to begin_userid end_userid t-receipt t-issue t-trans ~
+&Scoped-Define DISPLAYED-OBJECTS fiAutoIssue v-post-date v-from-job begin_job-no2 ~
+v-to-job end_job-no2 ldt-from ldt-to begin_userid end_userid t-receipt t-issue t-trans ~
 t-adj t-showtotal lv-ornt lines-per-page rd-dest lv-font-no td-show-parm ~
 lv-font-name tb_excel tb_runExcel fi_file 
 
@@ -296,6 +296,11 @@ DEFINE VARIABLE v-from-job AS CHARACTER FORMAT "X(256)":U
      VIEW-AS FILL-IN 
      SIZE 20 BY 1 NO-UNDO.
 
+DEFINE VARIABLE begin_job-no2 AS CHARACTER FORMAT "-99":U INITIAL "00" 
+     LABEL "" 
+     VIEW-AS FILL-IN 
+     SIZE 4.4 BY 1 NO-UNDO.
+
 DEFINE VARIABLE v-post-date AS DATE FORMAT "99/99/9999":U INITIAL 01/01/001 
      LABEL "Post Date" 
      VIEW-AS FILL-IN 
@@ -305,6 +310,11 @@ DEFINE VARIABLE v-to-job AS CHARACTER FORMAT "X(256)":U INITIAL "zzzzzz"
      LABEL "Ending Job#" 
      VIEW-AS FILL-IN 
      SIZE 20 BY 1 NO-UNDO.
+
+DEFINE VARIABLE end_job-no2 AS CHARACTER FORMAT "-99":U INITIAL "99" 
+     LABEL "" 
+     VIEW-AS FILL-IN 
+     SIZE 4.6 BY 1 NO-UNDO.
 
 DEFINE VARIABLE lv-ornt AS CHARACTER INITIAL "P" 
      VIEW-AS RADIO-SET HORIZONTAL
@@ -382,7 +392,9 @@ DEFINE FRAME FRAME-F
      v-post-date AT ROW 3.14 COL 20 COLON-ALIGNED
      tran-period AT ROW 3.14 COL 63 COLON-ALIGNED
      v-from-job AT ROW 4.33 COL 20 COLON-ALIGNED
+     begin_job-no2 AT ROW 4.33 COL 37 COLON-ALIGNED
      v-to-job AT ROW 4.33 COL 63 COLON-ALIGNED
+     end_job-no2 AT ROW 4.33 COL 80 COLON-ALIGNED
      ldt-from AT ROW 5.52 COL 20 COLON-ALIGNED HELP
           "Enter the Beginning Date"
      ldt-to AT ROW 5.52 COL 63 COLON-ALIGNED HELP
@@ -524,6 +536,9 @@ ASSIGN
 ASSIGN 
        v-from-job:PRIVATE-DATA IN FRAME FRAME-F     = 
                 "parm".
+ASSIGN 
+       begin_job-no2:PRIVATE-DATA IN FRAME FRAME-F     = 
+                "parm".
 
 ASSIGN 
        v-post-date:PRIVATE-DATA IN FRAME FRAME-F     = 
@@ -531,6 +546,9 @@ ASSIGN
 
 ASSIGN 
        v-to-job:PRIVATE-DATA IN FRAME FRAME-F     = 
+                "parm".
+ASSIGN 
+       end_job-no2:PRIVATE-DATA IN FRAME FRAME-F     = 
                 "parm".
 
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
@@ -618,9 +636,9 @@ DO:
 
   ASSIGN
    v-from-job = FILL(" ",6 - length(TRIM(INPUT v-from-job))) +
-                trim(INPUT v-from-job)
+                trim(INPUT v-from-job) + string(int(begin_job-no2),"99")
    v-to-job   = FILL(" ",6 - length(TRIM(INPUT v-to-job))) +
-                trim(INPUT v-to-job)
+                trim(INPUT v-to-job) + string(int(end_job-no2),"99")
    v-types    = (IF t-receipt THEN "R" ELSE "") +
                 (IF t-issue   THEN "I" ELSE "") +
                 (IF t-trans   THEN "T" ELSE "") +
@@ -905,6 +923,26 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&Scoped-define SELF-NAME begin_job-no2
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_job-no2 C-Win
+ON LEAVE OF begin_job-no2 IN FRAME FRAME-F
+DO:
+  assign {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME end_job-no2
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_job-no2 C-Win
+ON LEAVE OF end_job-no2 IN FRAME FRAME-F
+DO:
+  assign {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 &Scoped-define SELF-NAME v-post-date
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL v-post-date C-Win
@@ -1042,7 +1080,9 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
       ldt-from:SCREEN-VALUE = STRING(dFirstDate)
         ldt-to:SCREEN-VALUE = STRING(dLastDate)
         v-from-job:SCREEN-VALUE =  cFirstJob
-        v-to-job:SCREEN-VALUE =  cLastJob.
+        v-to-job:SCREEN-VALUE =  cLastJob
+        begin_job-no2:SCREEN-VALUE =  string(iFirstJob2)
+        end_job-no2:SCREEN-VALUE =  string(iLastJob2) .
     END.
     IF NOT ip-post THEN
        v-post-date:SCREEN-VALUE = STRING(TODAY).
@@ -1286,12 +1326,12 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY fiAutoIssue v-post-date v-from-job v-to-job ldt-from ldt-to 
+  DISPLAY fiAutoIssue v-post-date v-from-job begin_job-no2 v-to-job end_job-no2 ldt-from ldt-to 
           begin_userid end_userid t-receipt t-issue t-trans t-adj t-showtotal 
           lv-ornt lines-per-page rd-dest lv-font-no td-show-parm lv-font-name 
           tb_excel tb_runExcel fi_file 
       WITH FRAME FRAME-F IN WINDOW C-Win.
-  ENABLE RECT-18 RECT-6 fiAutoIssue v-post-date v-from-job v-to-job ldt-from 
+  ENABLE RECT-18 RECT-6 fiAutoIssue v-post-date v-from-job begin_job-no2 v-to-job end_job-no2 ldt-from 
          ldt-to begin_userid end_userid t-receipt t-issue t-trans t-adj 
          t-showtotal lv-ornt lines-per-page rd-dest lv-font-no td-show-parm 
          tb_excel tb_runExcel fi_file Btn_OK Btn_Cancel 

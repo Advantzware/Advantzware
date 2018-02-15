@@ -93,12 +93,6 @@ DEFINE {&NEW} SHARED VARIABLE g_lookup-var AS CHARACTER NO-UNDO.
                                AND reftable.code     EQ shipto.cust-no  ~
                                AND reftable.code2    EQ shipto.ship-id
 
-&SCOPED-DEFINE where-mand-tax WHERE reftable.reftable EQ "shipto.mandatory-tax" ~
-                                AND reftable.company  EQ shipto.company         ~
-                                AND reftable.loc      EQ ""                     ~
-                                AND reftable.code     EQ shipto.cust-no         ~
-                                AND reftable.code2    EQ shipto.ship-id
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -1446,22 +1440,11 @@ PROCEDURE reftable-values :
       fi_jded-id = reftable.dscr.
     ELSE
       reftable.dscr = fi_jded-id.
-
-    FIND FIRST reftable {&where-mand-tax} NO-ERROR.
-    IF NOT AVAIL reftable THEN DO:
-      CREATE reftable.
-      ASSIGN
-       reftable.reftable = "shipto.mandatory-tax"
-       reftable.company  = shipto.company
-       reftable.loc      = ""
-       reftable.code     = shipto.cust-no
-       reftable.code2    = shipto.ship-id.
-    END.
-
+   
     IF ip-display THEN
-      tb_mandatory-tax = reftable.val[1] EQ 1.
+      tb_mandatory-tax = shipto.tax-mandatory .
     ELSE
-      reftable.val[1] = INT(tb_mandatory-tax).
+      shipto.tax-mandatory = tb_mandatory-tax .
 
     FIND CURRENT reftable NO-LOCK.
   END.
