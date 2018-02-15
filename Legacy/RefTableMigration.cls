@@ -636,6 +636,17 @@ CLASS RefTableMigration:
         END.  /*FOR EACH reftable*/         
         RETURN iCnt.
     END METHOD. /*style*/
+    METHOD PUBLIC INTEGER FreezeNote():
+        DEFINE VARIABLE iCnt AS INTEGER NO-UNDO.
+        FOR EACH reftable WHERE reftable.reftable = "FREEZENOTE"
+            NO-LOCK:
+            FIND FIRST job-hdr WHERE job-hdr.company = reftable.company
+                                 AND job-hdr.job-no  = reftable.loc
+                                 AND job-hdr.job-no2 = int(reftable.code)
+                EXCLUSIVE-LOCK NO-ERROR.
+            IF AVAILABLE job-hdr THEN    
+            ASSIGN 
+                job-hdr.freezeNote = YES                
     METHOD PUBLIC INTEGER MachPlainJob():
         DEFINE VARIABLE iCnt AS INTEGER NO-UNDO.
         FOR EACH reftable WHERE reftable.reftable = "mach.plain-job"

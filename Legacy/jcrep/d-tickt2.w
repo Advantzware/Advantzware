@@ -1093,12 +1093,15 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
         tb_freeze-note:SCREEN-VALUE = "NO".
 
-        IF can-find(FIRST b-reftable-freeze WHERE
-           b-reftable-freeze.reftable EQ "FREEZENOTE" AND
-           b-reftable-freeze.company  EQ g_company AND
-           b-reftable-freeze.loc      EQ ip-job-no AND
-           b-reftable-freeze.CODE     EQ STRING(ip-job-no2,"99")) THEN
-           tb_freeze-note:SCREEN-VALUE = "YES".
+         FIND FIRST job-hdr NO-LOCK
+              WHERE job-hdr.company EQ g_company
+                AND job-hdr.job-no  EQ ip-job-no 
+                AND job-hdr.job-no2 EQ ip-job-no2
+                AND job-hdr.job     EQ job.job               
+           NO-ERROR.
+           IF AVAIL job-hdr and job-hdr.freezeNote EQ YES THEN
+              tb_freeze-note:SCREEN-VALUE = "YES".
+
      END.
 
      TB_sample_req:HIDDEN = TRUE.

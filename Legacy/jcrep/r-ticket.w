@@ -1855,12 +1855,8 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
                            tb_approve:SENSITIVE =  YES .
 
            END.
-
-           IF can-find(FIRST b-reftable-freeze WHERE
-              b-reftable-freeze.reftable EQ "FREEZENOTE" AND
-              b-reftable-freeze.company  EQ cocode AND
-              b-reftable-freeze.loc      EQ job-hdr.job-no AND
-              b-reftable-freeze.CODE     EQ STRING(job-hdr.job-no2,"99")) THEN
+           
+           IF job-hdr.freezeNote EQ YES THEN
               tb_freeze-note:SCREEN-VALUE = "YES".
             IF job-hdr.splitShip EQ YES THEN              
               tb_prompt-ship:SCREEN-VALUE = "YES".
