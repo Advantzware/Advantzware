@@ -1037,8 +1037,8 @@ PROCEDURE valid-i-no :
     IF NOT CAN-FIND(FIRST item
                     WHERE item.company EQ cocode
                       AND item.i-no    EQ rm-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name}
-                      AND item.i-code  EQ "R") THEN DO:
-      MESSAGE "Invalid entry, try help..." VIEW-AS ALERT-BOX ERROR.
+                      ) THEN DO:
+      MESSAGE "Invalid Raw Material Item" VIEW-AS ALERT-BOX ERROR.
       APPLY "entry" TO rm-rctd.i-no IN BROWSE {&browse-name}.
       RETURN ERROR.
     END.
@@ -1068,19 +1068,27 @@ PROCEDURE valid-loc-bin-tag :
         NO-ERROR.
     IF ip-int LE 3 AND adm-new-record THEN
     rm-rctd.qty:SCREEN-VALUE = '0'.
-    IF NOT AVAILABLE rm-bin THEN DO:
-      MESSAGE "Invalid entry, try help..." VIEW-AS ALERT-BOX.
-      IF ip-int EQ 3 THEN
-        APPLY "entry" TO rm-rctd.tag IN BROWSE {&browse-name}.
-      ELSE
-      IF ip-int EQ 2 THEN
-        APPLY "entry" TO rm-rctd.loc-bin IN BROWSE {&browse-name}.
-      ELSE
-        APPLY "entry" TO rm-rctd.loc IN BROWSE {&browse-name}.
-      RETURN ERROR.
-    END.
-    IF ip-int LE 3 AND adm-new-record THEN
+    IF ip-int LE 3 AND adm-new-record AND AVAILABLE rm-bin THEN
     rm-rctd.qty:SCREEN-VALUE = STRING(rm-bin.qty).
+/*    IF NOT AVAILABLE rm-bin THEN DO:                                               */
+/*      IF rm-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name} NE "" THEN              */
+/*        FIND FIRST loadtag NO-LOCK                                                 */
+/*            WHERE loadtag.company EQ cocode                                        */
+/*            AND loadtag.tag-no EQ rm-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name}*/
+/*        NO-ERROR.                                                                  */
+/*      IF NOT AVAILABLE loadtag THEN DO:                                            */
+/*          MESSAGE "Raw material bin and loadtag does not exist" VIEW-AS ALERT-BOX. */
+/*          IF ip-int EQ 3 THEN                                                      */
+/*            APPLY "entry" TO rm-rctd.tag IN BROWSE {&browse-name}.                 */
+/*          ELSE                                                                     */
+/*          IF ip-int EQ 2 THEN                                                      */
+/*            APPLY "entry" TO rm-rctd.loc-bin IN BROWSE {&browse-name}.             */
+/*          ELSE                                                                     */
+/*            APPLY "entry" TO rm-rctd.loc IN BROWSE {&browse-name}.                 */
+/*        RETURN ERROR.                                                              */
+/*        END.                                                                       */
+/*    END.                                                                           */
+
   END.
 
 END PROCEDURE.

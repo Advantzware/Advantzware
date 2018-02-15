@@ -54,9 +54,10 @@ END.
 &Scoped-define FRAME-NAME F-Main
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-1 Btn_Button-1 Btn_Button-6 ~
+&Scoped-Define ENABLED-OBJECTS RECT-1 keystroke Btn_Button-1 Btn_Button-6 ~
 Btn_Button-2 Btn_Button-7 Btn_Button-3 Btn_Button-8 Btn_Button-4 ~
 Btn_Button-9 Btn_Button-5 Btn_Button-10 
+&Scoped-Define DISPLAYED-OBJECTS keystroke 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -113,6 +114,12 @@ DEFINE BUTTON Btn_Button-9
      LABEL "BUTTON 9" 
      SIZE 40 BY 2.38.
 
+DEFINE VARIABLE keystroke AS CHARACTER FORMAT "X(256)":U 
+     LABEL "Search" 
+     VIEW-AS FILL-IN 
+     SIZE 40 BY .9 TOOLTIP "Password"
+     BGCOLOR 0 FGCOLOR 15  NO-UNDO.
+
 DEFINE RECTANGLE RECT-1
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 124 BY 12.95.
@@ -121,16 +128,17 @@ DEFINE RECTANGLE RECT-1
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     Btn_Button-1 AT ROW 1.71 COL 2 WIDGET-ID 6
-     Btn_Button-6 AT ROW 1.71 COL 43 WIDGET-ID 18
-     Btn_Button-2 AT ROW 4.1 COL 2 WIDGET-ID 10
-     Btn_Button-7 AT ROW 4.1 COL 43 WIDGET-ID 20
-     Btn_Button-3 AT ROW 6.48 COL 2 WIDGET-ID 12
-     Btn_Button-8 AT ROW 6.48 COL 43 WIDGET-ID 22
-     Btn_Button-4 AT ROW 8.86 COL 2 WIDGET-ID 14
-     Btn_Button-9 AT ROW 8.86 COL 43 WIDGET-ID 24
-     Btn_Button-5 AT ROW 11.24 COL 2 WIDGET-ID 16
-     Btn_Button-10 AT ROW 11.24 COL 43 WIDGET-ID 8
+     keystroke AT ROW 1.1 COL 41 COLON-ALIGNED WIDGET-ID 26
+     Btn_Button-1 AT ROW 1.95 COL 2 WIDGET-ID 6
+     Btn_Button-6 AT ROW 1.95 COL 43 WIDGET-ID 18
+     Btn_Button-2 AT ROW 4.33 COL 2 WIDGET-ID 10
+     Btn_Button-7 AT ROW 4.33 COL 43 WIDGET-ID 20
+     Btn_Button-3 AT ROW 6.71 COL 2 WIDGET-ID 12
+     Btn_Button-8 AT ROW 6.71 COL 43 WIDGET-ID 22
+     Btn_Button-4 AT ROW 9.1 COL 2 WIDGET-ID 14
+     Btn_Button-9 AT ROW 9.1 COL 43 WIDGET-ID 24
+     Btn_Button-5 AT ROW 11.48 COL 2 WIDGET-ID 16
+     Btn_Button-10 AT ROW 11.48 COL 43 WIDGET-ID 8
      "EMPLOYEES" VIEW-AS TEXT
           SIZE 13 BY .52 AT ROW 1.24 COL 3 WIDGET-ID 2
      RECT-1 AT ROW 1 COL 1
@@ -214,6 +222,10 @@ ASSIGN
    1                                                                    */
 /* SETTINGS FOR BUTTON Btn_Button-9 IN FRAME F-Main
    1                                                                    */
+ASSIGN 
+       keystroke:PRIVATE-DATA IN FRAME F-Main     = 
+                "Search".
+
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
@@ -343,6 +355,28 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME keystroke
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL keystroke s-object
+ON ANY-PRINTABLE OF keystroke IN FRAME F-Main /* Search */
+DO:
+    RUN Key_Stroke (KEYLABEL(LASTKEY)). 
+    RETURN NO-APPLY.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL keystroke s-object
+ON RETURN OF keystroke IN FRAME F-Main /* Search */
+DO:
+    RUN pClick ("AcceptPassword").
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &UNDEFINE SELF-NAME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK s-object 
@@ -422,20 +456,43 @@ PROCEDURE Get_Employees :
     itemlist = ''
     button_item = 1
     .
-  FOR EACH employee NO-LOCK
-      WHERE employee.company EQ company_code
-         BY employee.last_name
-         BY employee.first_name
-         BY employee.employee:
-    itemlist = itemlist 
-             + employee.last_name + ', '
-             + employee.first_name + ' ('
-             + employee.employee + ')'
-             + '@'
-             .
-  END.
+  DO WITH FRAME {&FRAME-NAME}:
+    FOR EACH employee NO-LOCK
+        WHERE employee.company EQ company_code
+          AND employee.last_name + ' ' +
+              employee.first_name MATCHES('*' + keystroke:SCREEN-VALUE + '*')
+           BY employee.last_name
+           BY employee.first_name
+           BY employee.employee
+        :
+      itemlist = itemlist 
+               + employee.last_name + ', '
+               + employee.first_name + ' ('
+               + employee.employee + ')'
+               + '@'
+               .
+    END. /* each employee */
+  END. /* with frame */
   itemlist = TRIM(itemlist,'@').
   RUN Button_Labels (INPUT-OUTPUT button_item).
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Key_Stroke s-object 
+PROCEDURE Key_Stroke :
+/*------------------------------------------------------------------------------
+  Purpose:     Apply keystroke to field with focus
+  Parameters:  Input Keystroke
+  Notes:       
+------------------------------------------------------------------------------*/
+  &Scoped-define KEYSTROKE EMPLOYEE
+
+  {touch/keystrok.i}
+
+  RUN Get_Employees.
 
 END PROCEDURE.
 
@@ -456,6 +513,7 @@ PROCEDURE local-initialize :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'initialize':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
+  h_field = keystroke:HANDLE IN FRAME {&FRAME-NAME}.
 
 END PROCEDURE.
 

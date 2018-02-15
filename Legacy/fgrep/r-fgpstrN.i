@@ -260,7 +260,7 @@ for each tt-report where tt-report.term-id eq "" no-lock,
             AND fg-bin.loc     eq fg-rdtlh.loc
             AND fg-bin.loc-bin eq fg-rdtlh.loc-bin
             AND fg-bin.tag     eq fg-rdtlh.tag
-          use-index job no-lock no-error.
+          use-index po-no no-lock no-error.
 
     IF NOT AVAIL fg-bin THEN 
          find first fg-bin
@@ -269,7 +269,7 @@ for each tt-report where tt-report.term-id eq "" no-lock,
             AND fg-bin.loc     eq fg-rdtlh.loc
             AND fg-bin.loc-bin eq fg-rdtlh.loc-bin
             AND fg-bin.tag     eq fg-rdtlh.tag
-          use-index job no-lock no-error.
+          use-index co-ino no-lock no-error.
 
         IF AVAIL fg-bin THEN
             ASSIGN v-stnd-cost = fg-bin.std-tot-cost.

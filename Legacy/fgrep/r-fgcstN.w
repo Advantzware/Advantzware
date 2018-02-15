@@ -84,6 +84,7 @@ DEF  NEW SHARED VAR str-tit5 AS cha FORM "x(200)" NO-UNDO.
 DEF  NEW SHARED VAR str-line AS cha FORM "x(300)" NO-UNDO.
 DEF  NEW SHARED VAR v-row-id AS ROWID NO-UNDO.
 DEF NEW SHARED VAR cslist AS cha NO-UNDO.
+DEFINE VARIABLE security-flag AS LOG NO-UNDO.
 
 
 ASSIGN cTextListToSelect = "Customer,FG Item#,Cust Part#,Whse,Total Qty,Total MSF," +
@@ -1511,6 +1512,11 @@ ASSIGN
  lSelected      = tb_cust-list.
 
 /*IF NOT ll-secure THEN RUN sys/ref/d-passwd.w (3, OUTPUT ll-secure).*/
+FOR EACH ttRptSelected BY ttRptSelected.DisplayOrder:
+     IF LOOKUP(ttRptSelected.TextList, "Total Cost") <> 0    THEN do:
+      IF NOT security-flag THEN RUN sys/ref/d-passwd.w (3, OUTPUT security-flag).
+    end.
+END.
 
 SESSION:SET-WAIT-STATE ("general").
 

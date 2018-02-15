@@ -16,8 +16,9 @@ assign
 
 
 DO TRANSACTION:
-   {sys/inc/selrptcol.i "ER3" }
+   {sys/inc/runAOAVer.i "ER3" }
 END.
 
-IF SelectRptColumn-log THEN RUN cerep/r-styleN.w PERSISTENT.
-ELSE RUN cerep/r-styleA.w PERSISTENT.
+cAOAFile = SEARCH("AOA/r-style.p").
+IF RunAOAVersion-log AND cAOAFile NE ? THEN RUN AOA/r-style.p.
+ELSE RUN cerep/r-styleN.w PERSISTENT.

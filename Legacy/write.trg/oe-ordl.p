@@ -243,29 +243,8 @@ FOR EACH eb NO-LOCK
     /* gdm - 06170905 */
     IF AVAIL b-prep THEN DO:      
 
-      ASSIGN b-prep.last-order = {&TABLENAME}.ord-no.
-
-      /*FIND FIRST reftable EXCLUSIVE-LOCK
-        WHERE reftable.reftable EQ "PREPLASTJOB"
-          AND reftable.company  EQ b-prep.company 
-          AND reftable.loc      EQ b-prep.loc     
-          AND reftable.code     EQ b-prep.CODE NO-ERROR.
-      IF NOT AVAIL reftable THEN DO:
-          CREATE reftable.
-          ASSIGN reftable.reftable = "PREPLASTJOB"
-                 reftable.company  = b-prep.company
-                 reftable.loc      = b-prep.loc
-                 reftable.code     = b-prep.CODE 
-                 reftable.code2    = {&TABLENAME}.job-no
-                 reftable.val[1]   = {&TABLENAME}.job-no2.
-      END.
-      ELSE
-      IF AVAIL reftable THEN DO:
-
-          ASSIGN reftable.code2    = {&TABLENAME}.job-no
-                 reftable.val[1]   = {&TABLENAME}.job-no2.
-      END.
-      RELEASE reftable.*/
+      ASSIGN b-prep.last-order = {&TABLENAME}.ord-no
+      .
       RELEASE b-prep.
     END. /* if avail b-prep */
     /* gdm - 06170905 end. */
@@ -279,31 +258,11 @@ FOR EACH eb NO-LOCK
         AND prep.last-order LT {&TABLENAME}.ord-no:
     FIND b-prep WHERE ROWID(b-prep) EQ ROWID(prep) EXCLUSIVE NO-ERROR NO-WAIT.
     /* gdm - 06170905 */
-    IF AVAIL b-prep THEN DO:      
-
-      ASSIGN b-prep.last-order = {&TABLENAME}.ord-no.
-
-      FIND FIRST reftable EXCLUSIVE-LOCK
-        WHERE reftable.reftable EQ "PREPLASTJOB"
-          AND reftable.company  EQ b-prep.company 
-          AND reftable.loc      EQ b-prep.loc     
-          AND reftable.code     EQ b-prep.CODE NO-ERROR.
-      IF NOT AVAIL reftable THEN DO:
-          CREATE reftable.
-          ASSIGN reftable.reftable = "PREPLASTJOB"
-                 reftable.company  = b-prep.company
-                 reftable.loc      = b-prep.loc
-                 reftable.code     = b-prep.CODE 
-                 reftable.code2    = {&TABLENAME}.job-no
-                 reftable.val[1]   = {&TABLENAME}.job-no2.
-      END.
-      ELSE
-      IF AVAIL reftable THEN DO:
-
-          ASSIGN reftable.code2    = {&TABLENAME}.job-no
-                 reftable.val[1]   = {&TABLENAME}.job-no2.
-      END.
-      RELEASE reftable.
+    IF AVAIL b-prep THEN DO:   
+      ASSIGN b-prep.last-order = {&TABLENAME}.ord-no
+             b-prep.last-job-no    = {&TABLENAME}.job-no
+             b-prep.last-job-no2   = {&TABLENAME}.job-no2
+             . 
       RELEASE b-prep.
     END. /* if avail b-prep */
     /* gdm - 06170905 end. */
@@ -318,7 +277,7 @@ FOR EACH oe-ord
 
   IF oeuserid-log                        AND
      oe-ord.user-id NE USERID("nosweat") THEN
-    oe-ord.user-id = USERID("nosweat").
+     oe-ord.user-id = USERID("nosweat").
 
   LEAVE.
 END.

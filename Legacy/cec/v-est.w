@@ -423,7 +423,7 @@ DEFINE FRAME Corr
      btnDieLookup AT ROW 6.95 COL 75
      eb.die-no AT ROW 6.95 COL 90 COLON-ALIGNED HELP
           ""
-          LABEL "Die #" FORMAT "x(15)"
+          LABEL "Die #" FORMAT "x(20)"
           VIEW-AS FILL-IN 
           SIZE 23 BY 1
           FONT 6

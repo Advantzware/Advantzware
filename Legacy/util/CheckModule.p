@@ -37,8 +37,21 @@ FIND FIRST module NO-LOCK
        AND module.module  EQ ipcModule
      NO-ERROR.
 IF NOT AVAILABLE module THEN 
+    FIND FIRST module NO-LOCK 
+        WHERE module.module EQ ipcModule
+        NO-ERROR.
+IF NOT AVAILABLE module THEN DO:
+    FIND FIRST prgrms NO-LOCK 
+        WHERE prgrms.prgmname EQ ipcModule
+        NO-ERROR.
+    IF AVAILABLE prgrms THEN 
+        FIND FIRST module NO-LOCK 
+            WHERE module.module EQ prgrms.prgm_ver  /*note this should be changed to use a new module linker field*/
+            NO-ERROR.
+END.
+IF NOT AVAILABLE module THEN 
     ASSIGN 
-        oplAccess = NO
+        oplAccess = YES  /*Set to yes until we get Product List Organized*/
         cMessage = 'Module "' + ipcModule + '" does not exist'
         .
 IF AVAILABLE module THEN  DO:

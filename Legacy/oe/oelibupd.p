@@ -2911,12 +2911,7 @@ PROCEDURE valid-po-no :
     FIND FIRST cust NO-LOCK
         WHERE cust.company EQ oe-ord.company
           AND cust.cust-no EQ get-sv("oe-ord.cust-no")
-          AND CAN-FIND(FIRST cust-po-mand
-                       WHERE cust-po-mand.reftable EQ "cust.po-mand"
-                         AND cust-po-mand.company  EQ cust.company
-                         AND cust-po-mand.loc      EQ ""
-                         AND cust-po-mand.code     EQ cust.cust-no
-                         AND cust-po-mand.val[1]   EQ 1)
+          AND cust.po-mandatory
         NO-ERROR.
     
     IF AVAIL cust AND TRIM(get-sv("oe-ord.po-no")) EQ "" THEN DO:
