@@ -174,8 +174,8 @@ FIND FIRST xeb
       if ctrl[13] ne 0 then fac-tot = fac-tot + ctrl2[4].
       if ctrl[14] ne 0 then fac-tot = fac-tot + ctrl2[11].
       if ctrl[15] ne 0 then fac-tot = fac-tot + ctrl2[12].
-      if ctrl[18] ne 0 and ce-ctrl.sell-by ne "B" then
-                            fac-tot = fac-tot + ctrl2[18].
+/*      if ctrl[18] ne 0 and ce-ctrl.sell-by ne "B" then    26340 - double counted since done below */
+/*                            fac-tot = fac-tot + ctrl2[18].*/
 
       if ctrl[13] = 1 and ctrl[4] ne 0 then do:
          if ctrl[4] > 0 then put ce-ctrl.spec-l[1].
@@ -515,7 +515,7 @@ FIND FIRST xeb
        else vmcl-cost = ctrl2[18].
 
        assign
-        fac-tot2  = fac-tot2 + vmcl-cost
+        /*fac-tot2  = fac-tot2 + vmcl-cost - 26340 - double counted since already included above*/
         vmcl-cost = vmcl-cost / qm.
 
        {cec/pr4-mcln.i vmcl-desc vmcl vmcl-cost 19}

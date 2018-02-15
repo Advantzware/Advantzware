@@ -100,7 +100,8 @@ DEF NEW SHARED TEMP-TABLE tt-file NO-UNDO
                        FIELD tt-cst AS DEC EXTENT 4
                        FIELD tt-val AS DEC EXTENT 4
                        FIELD tt-sell-price AS DEC EXTENT 5
-                       FIELD tt-days AS INT.
+                       FIELD tt-days AS INT 
+                       FIELD tt-loc AS CHARACTER .
 DEF TEMP-TABLE tt-items 
     FIELD i-no LIKE itemfg.i-no
     FIELD job-no LIKE job.job-no
@@ -530,8 +531,9 @@ DEFINE VARIABLE rd_sort AS CHARACTER INITIAL "Item#"
      VIEW-AS RADIO-SET HORIZONTAL
      RADIO-BUTTONS 
           "Item#", "Item#",
-"Customer Part#", "Customer Part#"
-     SIZE 36 BY 1 NO-UNDO.
+"Customer Part#", "Customer Part#",
+"Warehouse","Warehouse"
+     SIZE 50 BY 1 NO-UNDO.
 
 DEFINE RECTANGLE RECT-6
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
@@ -542,7 +544,7 @@ DEFINE RECTANGLE RECT-7
      SIZE 94 BY 19.71.
 
 DEFINE VARIABLE tb_break AS LOGICAL INITIAL YES 
-     LABEL "Page Break By Customer?" 
+     LABEL "Page Break ?" 
      VIEW-AS TOGGLE-BOX
      SIZE 37 BY 1 NO-UNDO.
 
@@ -1659,12 +1661,8 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
        THIS-PROCEDURE:CURRENT-WINDOW = {&WINDOW-NAME}.
 
 v-custom = YES.
-IF ir12-log THEN DO:
-   THIS-PROCEDURE:CURRENT-WINDOW:VISIBLE = NO.
-   v-custom = ?.
-   RUN fgrep/d-custom.w (OUTPUT v-custom). 
+v-custom = YES .
 
-END.
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
@@ -2711,26 +2709,7 @@ DO WITH FRAME {&FRAME-NAME}:
   DISPLAY list_class.
   ASSIGN list_class.
 END.
-/*
-IF v-cpart AND v-sdate THEN
-    ASSIGN
-     v-label2[01] = "Cust Part # "
-     v-label2[02] = "------------" 
-     v-label2[03] = "Last Ship " 
-     v-label2[04] = "----------".
-ELSE IF v-cpart AND NOT(v-sdate) THEN
-    ASSIGN
-     v-label2[01] = "Cust Part # "      
-     v-label2[02] = "------------" 
-     v-label2[03] = ""      
-     v-label2[04] = "" .
-ELSE IF v-sdate AND NOT(v-cpart) THEN
-    ASSIGN
-     v-label2[01] = "Last Ship   "      
-     v-label2[02] = "------------" 
-     v-label2[03] = ""      
-     v-label2[04] = "" .
-ELSE*/
+
     ASSIGN
      v-label2[01] = ""      
      v-label2[02] = ""
@@ -2753,27 +2732,7 @@ ELSE*/
    v-label1[11] = v-label2[02] 
    v-label1[12] = v-label2[03]
    v-label1[13] = v-label2[04] .
-   
-/*ELSE
-  ASSIGN
-   v-label1[1]  = "      Selling"
-   v-label1[2]  = "             "
-   v-label1[3]  = "      Value $"
-   v-label1[4]  = IF rd_show2 BEGINS "Com" THEN "Comm"
-                                          ELSE "Days"
-   v-label1[5]  = "-------------"
-   v-label1[6]  = IF rd_show2 BEGINS "Com" THEN "--------     " ELSE "----"
-   v-label1[7]  = ""
-   v-label1[8]  = v-label2[01]
-   v-label1[9]  = v-label2[02]
-   v-label1[10] = v-label2[03]
-   v-label1[11] = v-label2[04]
-   v-label1[12] = ""
-   v-label1[13] = "".
-
-ASSIGN v-label3[1]  = IF rd_show2 BEGINS "Com" THEN "Comm" ELSE "Days"          /*Task# 02041406*/
-   v-label3[2]  = "----" .
-*/
+  
 
 ASSIGN
  v-label[06] = "00-" + TRIM(STRING(aged-days-1 - 1,">,>99"))
@@ -2814,122 +2773,6 @@ ELSE
    v-label[13] = "        "
    v-label[14] = "--------"
    v-label[15] = "--------".
-/*
-/*IF v-cost THEN do:*/
-form header
-     "As of:"
-     vdat
-     skip(1)
-
-    /* "Salesperson:"
-     tt-sman 
-     lv-sname */                           skip
-
-     "Sls"
-     "            "
-     "               "
-     "                              "     
-     v-label[01]
-     v-label[02]
-     v-label[03]
-     v-label[04]
-     v-label[05]
-     v-label1[1]
-     v-label1[2]
-     v-label1[7]                        skip
-
-     "Rep"
-     "Customer    "
-     "Item #         "
-     "Description                   "     
-     v-label[06]
-     v-label[07]
-     v-label[08]
-     v-label[09]
-     v-label[10]
-     v-label1[3]
-     v-label1[4]
-     v-label3[1]  
-     v-label1[10]
-     v-label1[12]                       skip
-
-     "---"
-     "------------"
-     "---------------"
-     "------------------------------"     
-     v-label[11]
-     v-label[12]
-     v-label[13]
-     v-label[14]
-     v-label[15]          
-     v-label1[5]
-     v-label1[6]
-     v-label3[2]
-     v-label1[11]
-     v-label1[13]                       skip
-
-     skip(1)
-
-    with frame r-top WIDTH 400.*/
-/*END.
-ELSE DO:                                                /*Task# 02041406*/
-    form header
-     "As of:"
-     vdat
-     skip(1)
-
-    /* "Salesperson:"
-     tt-sman 
-     lv-sname */                           skip
-
-     "Sls"
-     "            "
-     "               "
-     "                              "     
-     v-label[01]
-     v-label[02]
-     v-label[03]
-     v-label[04]
-     v-label[05]
-     v-label1[1]
-     v-label1[2]
-     v-label1[7]                        skip
-
-     "Rep"
-     "Customer    "
-     "Item #         "
-     "Description                   "     
-     v-label[06]
-     v-label[07]
-     v-label[08]
-     v-label[09]
-     v-label[10]
-     v-label1[3]
-     v-label3[1] 
-     v-label1[8]  
-     v-label1[10]
-     v-label1[12]                       skip
-
-     "---"
-     "------------"
-     "---------------"
-     "------------------------------"     
-     v-label[11]
-     v-label[12]
-     v-label[13]
-     v-label[14]
-     v-label[15]          
-     v-label1[5]
-     v-label3[2]
-     v-label1[9]
-     v-label1[11]
-     v-label1[13]                       skip
-
-     skip(1)
-
-    with frame r-top2 WIDTH 400.
-END. */
-
 
 {sys/inc/print1.i}
 
@@ -2946,24 +2789,6 @@ READKEY PAUSE 0.
      
 SESSION:SET-WAIT-STATE ("general").
 
-/*FOR EACH ttRptSelected BY ttRptSelected.DisplayOrder:
-
-    IF ttRptSelected.TextList EQ "qty1"  THEN
-         ASSIGN
-            ttRptSelected.TextList = v-label[06] .
-        ELSE IF ttRptSelected.TextList EQ "qty2"  THEN
-         ASSIGN
-            ttRptSelected.TextList = v-label[07] .
-        ELSE IF ttRptSelected.TextList EQ "qty3"  THEN
-         ASSIGN
-            ttRptSelected.TextList = v-label[08] .
-        ELSE IF ttRptSelected.TextList EQ "qty4"  THEN
-         ASSIGN
-            ttRptSelected.TextList = v-label[09] .
-        ELSE IF ttRptSelected.TextList EQ "qty5"  THEN
-         ASSIGN
-            ttRptSelected.TextList = v-label[10] .
-END.*/
 
 
 DEF VAR cslist AS cha NO-UNDO.
@@ -2977,14 +2802,7 @@ DEF VAR cslist AS cha NO-UNDO.
                 str-line = str-line + FILL(" ",ttRptSelected.FieldLength) + " " . 
         /*END.*/
 
-       /* IF NOT v-q-or-v THEN DO:
-            IF LOOKUP(ttRptSelected.TextList, "Cost,Sell Value $,Value1,Value2,Value3,Value4,Value5") <> 0    THEN
-                ASSIGN
-                str-line = str-line + FILL("-",ttRptSelected.FieldLength) + " " .
-            ELSE
-                str-line = str-line + FILL(" ",ttRptSelected.FieldLength) + " " .
-        END.*/
-
+      
 
      IF ttRptSelected.TextList EQ "qty1" THEN
          ASSIGN
@@ -3052,17 +2870,6 @@ DEF VAR cslist AS cha NO-UNDO.
  END.
 
 
-
-/*FOR EACH tt-file.
-    IF tt-file.tt-cust = "" THEN DO:
-        FIND FIRST cust WHERE cust.company = cocode NO-LOCK NO-ERROR.
-        IF AVAIL cust THEN
-            ASSIGN tt-file.tt-cust = cust.cust-no .
-        IF AVAIL cust AND tt-file.tt-sman EQ "" THEN
-            ASSIGN tt-file.tt-sman = s-man[1].
-    END.
-END.*/
-
 FOR EACH tt-file WHERE
     (tt-qohi[1] NE 0 OR
     tt-qohi[2] NE 0 OR
@@ -3082,7 +2889,7 @@ FOR EACH tt-file WHERE
     BREAK BY tt-sman
           BY tt-cust-no
           /*by tt-i-no*/
-          BY (IF sort-opt EQ "I" THEN itemfg.i-no ELSE  itemfg.part-no ):
+          BY (IF sort-opt EQ "I" THEN itemfg.i-no ELSE IF sort-opt EQ "C" THEN  itemfg.part-no ELSE tt-file.tt-loc):
 
   {custom/statusMsg.i "'Printing Report: Item ' + itemfg.i-no"}
 
@@ -3258,6 +3065,8 @@ FOR EACH tt-file WHERE
      END.
      
      PUT UNFORMATTED  "       Customer Subtotal:" SUBSTRING(cDisplay,26,300) SKIP.
+     IF NOT LAST-OF(tt-sman) THEN
+     IF v-break  THEN  PAGE .
      IF tb_excel THEN DO:
          PUT STREAM excel UNFORMATTED  
               "Customer Subtotal: " + substring(cExcelDisplay,3,300) SKIP.
@@ -3288,37 +3097,7 @@ FOR EACH tt-file WHERE
 
   IF LAST-OF(tt-sman) THEN DO:
     IF  v-print-sls-tots THEN DO:
-    /* 11091201 - option to supress sales rep totals */
-   /* display "         Salesperson Subtotal:"    @ itemfg.i-name
-            v-qohs[1] when v-sub-t and v-curr   @ v-qohi[1]
-            v-qohs[2] when v-sub-t and v-curr   @ v-qohi[2]
-            v-qohs[3] when v-sub-t and v-curr   @ v-qohi[3]
-            v-qohs[4] when v-sub-t              @ v-qohi[4]
-            v-qohs[5] when v-sub-t              @ v-qohi[5]
-            v-cst[3]  when v-cost               @ v-cst[1]
-            v-val[3] when not v-cost        @ v-cst[1]
-            lv-last-fld[1]
-            v-val[3] when v-cost            @ lv-last-fld[1]
-
-        with frame detail.
-    down with frame detail.
-
-    IF tb_excel THEN 
-       PUT STREAM excel UNFORMATTED
-           SKIP(1)
-           '"' ""                          '",'
-           '"' ""                          '",'
-           '"' ""                          '",'
-           '"' "         Salesperson Subtotal:"                      '",'
-           '"' (IF v-sub-t AND v-curr THEN STRING(v-qohs[1],"->>>>>>9") ELSE "") '",'
-           '"' (IF v-sub-t AND v-curr THEN STRING(v-qohs[2],"->>>>>>9") ELSE "") '",'
-           '"' (IF v-sub-t AND v-curr THEN STRING(v-qohs[3],"->>>>>>9") ELSE "") '",'
-           '"' (IF v-sub-t THEN STRING(v-qohs[4],"->>>>>>9") ELSE "")                         '",'
-           '"' (IF v-sub-t THEN STRING(v-qohs[5],"->>>>>>9") ELSE "")                         '",'
-           '"' (IF v-cost THEN STRING(v-cst[3],"->,>>>,>>9.99")
-                ELSE STRING(v-val[3],"->,>>>,>>9.99"))               '",'
-           '"' (IF v-cost THEN STRING(v-val[3],"->,>>>,>>9.99") ELSE lv-last-fld[1]) '",'
-           SKIP(1). */
+   
         PUT str-line SKIP .
         ASSIGN cDisplay = ""
             cTmpField = ""
@@ -3361,6 +3140,8 @@ FOR EACH tt-file WHERE
      END.
      
      PUT UNFORMATTED  "       Salesperson Subtotal:" SUBSTRING(cDisplay,29,300) SKIP.
+     IF NOT LAST(tt-sman) THEN
+         IF v-break THEN PAGE.
      IF tb_excel THEN DO:
          PUT STREAM excel UNFORMATTED  
               "Salesperson Subtotal: " + substring(cExcelDisplay,3,300) SKIP.
@@ -3391,20 +3172,7 @@ FOR EACH tt-file WHERE
              DEF VAR v-all-tot-val AS DEC.
   /* 11091201 */
   IF LAST(tt-sman) AND v-print-grand-tots THEN DO:
-    /*display "                  Grand Total:"    @ itemfg.i-name
-            v-qohg[1]  @ v-qohi[1]
-            v-qohg[2]  @ v-qohi[2]
-            v-qohg[3]  @ v-qohi[3]
-            v-qohg[4]  @ v-qohi[4]
-            v-qohg[5]  @ v-qohi[5]
-            v-cst[4]  when v-cost           @ v-cst[1]
-            v-val[4] when not v-cost        @ v-cst[1]
-            lv-last-fld[1]
-            v-val[4] when v-cost            @ lv-last-fld[1]
-
-        with frame detail.
-    down with frame detail. */
-
+    
       PUT str-line SKIP .
        ASSIGN cDisplay = ""
             cTmpField = ""
@@ -3458,16 +3226,7 @@ FOR EACH tt-file WHERE
         v-all-tot = 1.
     IF v-all-tot-val EQ 0 THEN
         v-all-tot-val = 1.
-    /* DISPLAY
-     "             % of Grand Total:"    @ itemfg.i-name 
-            string(v-qohg[1] / v-all-tot * 100, "->>9.99%")  @ v-qohi[1] 
-            string(v-qohg[2] / v-all-tot * 100, "->>9.99%")  @ v-qohi[2]
-            string(v-qohg[3] / v-all-tot * 100, "->>9.99%")  @ v-qohi[3]
-            string(v-qohg[4] / v-all-tot * 100, "->>9.99%")  @ v-qohi[4]
-            string(v-qohg[5] / v-all-tot * 100, "->>9.99%")  @ v-qohi[5]
-
-        with frame detail.
-    down with frame detail. */
+    
     PUT str-line SKIP .
     ASSIGN cDisplay = ""
             cTmpField = ""
@@ -4021,6 +3780,7 @@ END.
             tt-file.tt-sman    = (IF v-ord-slsmn GT "" THEN v-ord-slsmn ELSE v-sales-rep)
             tt-file.tt-cust-no = IF AVAIL cust THEN cust.cust-no ELSE ""
             tt-file.tt-i-no    = itemfg.i-no
+            tt-file.tt-loc     = tt-itemfg.loc
             tt-file.tt-cst[1]  = v-cst[1]
             tt-file.tt-val[1]  = (IF v-qohi[1] NE 0 OR v-qohi[2] NE 0 OR v-qohi[3] NE 0 OR v-qohi[4] NE 0 OR v-qohi[5] NE 0 THEN v-val[1] ELSE 0)
             tt-file.tt-qohi[1] = v-qohi[1]
@@ -4404,16 +4164,8 @@ FUNCTION itemStatus RETURNS CHARACTER
   Purpose:  
     Notes:  
 ------------------------------------------------------------------------------*/
-FIND FIRST reftable     WHERE reftable.reftable EQ "FGSTATUS"     
-  AND reftable.company  EQ ipcCompany
-  AND reftable.loc      EQ ""             
-  AND reftable.code     EQ ipcIno NO-ERROR.
 
-IF AVAIL reftable THEN 
-    RETURN reftable.code2.
-ELSE
-  RETURN "".   /* Function return value. */
-
+  RETURN "".
 END FUNCTION.
 
 /* _UIB-CODE-BLOCK-END */

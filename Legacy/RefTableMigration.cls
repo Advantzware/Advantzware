@@ -514,6 +514,56 @@ CLASS RefTableMigration:
         END.  /*FOR EACH reftable*/         
         RETURN iCnt.
     END METHOD. /*itemfg-ink*/
+    METHOD PUBLIC INTEGER ShiptoMandatoryTax():
+        DEFINE VARIABLE iCnt AS INTEGER NO-UNDO.
+        FOR EACH reftable WHERE reftable.reftable = "shipto.mandatory-tax"
+            NO-LOCK:
+            FIND FIRST shipto WHERE shipto.company = reftable.company
+                               AND shipto.cust-no  = reftable.code
+                               AND shipto.ship-id  = reftable.code2
+                EXCLUSIVE-LOCK NO-ERROR.
+            IF AVAILABLE shipto THEN    
+            ASSIGN 
+                shipto.tax-mandatory = IF reftable.val[1] = 1 THEN TRUE ELSE FALSE                
+                . 
+            RELEASE shipto.      
+            iCnt = iCnt + 1.                 
+        END.  /*FOR EACH reftable*/         
+        RETURN iCnt.
+    END METHOD. /*shipto*/
+=======
+    METHOD PUBLIC INTEGER CustPoMand():
+        DEFINE VARIABLE iCnt AS INTEGER NO-UNDO.
+        FOR EACH reftable WHERE reftable.reftable = "cust.po-mand"
+            NO-LOCK:
+            FIND FIRST cust WHERE cust.company = reftable.company
+                               AND cust.cust-no  = reftable.code                             
+                EXCLUSIVE-LOCK NO-ERROR.
+            IF AVAILABLE cust THEN    
+            ASSIGN 
+                cust.po-mandatory = IF reftable.val[1] = 1 THEN TRUE ELSE FALSE                
+                . 
+            RELEASE cust.      
+            iCnt = iCnt + 1.                 
+        END.  /*FOR EACH reftable*/         
+        RETURN iCnt.
+    END METHOD. /*customer*/
+    METHOD PUBLIC INTEGER CustShowSet():
+        DEFINE VARIABLE iCnt AS INTEGER NO-UNDO.
+        FOR EACH reftable WHERE reftable.reftable = "cust.show-set"
+            NO-LOCK:
+            FIND FIRST cust WHERE cust.company = reftable.company
+                               AND cust.cust-no  = reftable.code                             
+                EXCLUSIVE-LOCK NO-ERROR.
+            IF AVAILABLE cust THEN    
+            ASSIGN 
+                cust.show-set = IF reftable.val[1] = 1 THEN TRUE ELSE FALSE                
+                . 
+            RELEASE cust.      
+            iCnt = iCnt + 1.                 
+        END.  /*FOR EACH reftable*/         
+        RETURN iCnt.
+    END METHOD. /*customer*/
     METHOD PUBLIC INTEGER MachinePosition():
         DEFINE VARIABLE iCnt AS INTEGER NO-UNDO.
         FOR EACH reftable WHERE reftable.reftable = "MachinePosition"
@@ -771,3 +821,5 @@ CLASS RefTableMigration:
         RETURN iCnt.
     END METHOD. /*job-hdr*/     
 END CLASS.
+
+

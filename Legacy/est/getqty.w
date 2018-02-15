@@ -1081,11 +1081,12 @@ DO:
   END.
   reftable.val[1] = io-v-match-up.
 
-  {est/op-lock.i xest}
+  FIND CURRENT xest EXCLUSIVE-LOCK NO-ERROR.
+     ASSIGN
+        xest.recalc    = io-do-speed
+        xest.recalc-mr = io-do-mr.
+  FIND CURRENT xest NO-LOCK. 
 
-  ASSIGN
-   op-lock.val[1] = INT(io-do-speed)
-   op-lock.val[2] = INT(io-do-mr).
 END.
 
 /* _UIB-CODE-BLOCK-END */

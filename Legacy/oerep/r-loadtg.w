@@ -1059,11 +1059,11 @@ DO:
     END.
     WHEN "begin_i-no" THEN DO:
       RUN windows/l-itemf3.w (g_company,begin_ord-no,begin_job,begin_job2,begin_i-no, OUTPUT char-val, OUTPUT rec-val).
-      IF char-val <> "" THEN FOCUS:SCREEN-VALUE = ENTRY(1,char-val).
+      IF char-val <> "" THEN begin_i-no:SCREEN-VALUE = ENTRY(1,char-val).
     END.
     WHEN "end_i-no" THEN DO:
       RUN windows/l-itemf3.w (g_company,end_ord-no,end_job,end_job2,end_i-no, OUTPUT char-val, OUTPUT rec-val).
-      IF char-val <> "" THEN FOCUS:SCREEN-VALUE = ENTRY(1,char-val).
+      IF char-val <> "" THEN end_i-no:SCREEN-VALUE = ENTRY(1,char-val).
     END.
     WHEN "begin_ship-to" THEN DO:
       FIND FIRST oe-ord NO-LOCK
