@@ -618,6 +618,24 @@ CLASS RefTableMigration:
         END.  /*FOR EACH reftable*/         
         RETURN iCnt.
     END METHOD. /*cust*/
+    METHOD PUBLIC INTEGER StylePerMsf():
+        DEFINE VARIABLE iCnt AS INTEGER NO-UNDO.
+        FOR EACH reftable WHERE reftable.reftable = "style.per-msf"
+            NO-LOCK:
+            FIND FIRST style WHERE style.company = reftable.company
+                               AND style.style   = reftable.code
+                EXCLUSIVE-LOCK NO-ERROR.
+            IF AVAILABLE style THEN DO:
+                IF style.sqft-len-trim = 0 THEN   
+                    ASSIGN style.sqft-len-trim = reftable.val[1].
+                IF style.sqft-wid-trim = 0 THEN    
+                    ASSIGN style.sqft-wid-trim = reftable.val[2]. 
+            END.    
+            RELEASE style.      
+            iCnt = iCnt + 1.                 
+        END.  /*FOR EACH reftable*/         
+        RETURN iCnt.
+    END METHOD. /*style*/
     METHOD PUBLIC INTEGER MachPlainJob():
         DEFINE VARIABLE iCnt AS INTEGER NO-UNDO.
         FOR EACH reftable WHERE reftable.reftable = "mach.plain-job"
