@@ -45,26 +45,12 @@
 
      ctrl[19] = ce-ctrl.broker-pct.
 
-  FIND FIRST reftable NO-LOCK
-      WHERE reftable.reftable EQ "ce-ctrl.fg-rate-farm"
-        AND reftable.company  EQ ce-ctrl.company
-        AND reftable.loc      EQ ce-ctrl.loc
-      NO-ERROR.  
-  fg-rate-f = IF AVAIL reftable THEN reftable.val[1] ELSE 0.
+  fg-rate-f = ce-ctrl.fg-rate-farm.
+ 
+  rm-rate-f = ce-ctrl.rm-rate-farm.
 
-  FIND FIRST reftable NO-LOCK
-      WHERE reftable.reftable EQ "ce-ctrl.rm-rate-farm"
-        AND reftable.company  EQ ce-ctrl.company
-        AND reftable.loc      EQ ce-ctrl.loc
-      NO-ERROR.  
-  rm-rate-f = IF AVAIL reftable THEN reftable.val[1] ELSE 0.
-
-  FIND FIRST reftable NO-LOCK
-      WHERE reftable.reftable EQ "ce-ctrl.hand-pct-farm"
-        AND reftable.company  EQ ce-ctrl.company
-        AND reftable.loc      EQ ce-ctrl.loc
-      NO-ERROR.    
-  hand-pct-f = (IF AVAIL reftable THEN reftable.val[1] ELSE 0) / 100.
+  
+  hand-pct-f = ce-ctrl.hand-pct-farm / 100.
 
   find first xop where xop.company = xest.company and
                        xop.est-no = xest.est-no and

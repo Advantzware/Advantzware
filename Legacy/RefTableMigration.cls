@@ -802,7 +802,7 @@ CLASS RefTableMigration:
             iCnt = iCnt + 1.                 
         END.  /*FOR EACH reftable*/         
         RETURN iCnt.
-    END METHOD. /*ce-ctrl*/  
+    END METHOD. /*ce-ctrl*/        
     METHOD PUBLIC INTEGER EstOpLock():
         DEFINE VARIABLE iCnt AS INTEGER NO-UNDO.
         FOR EACH reftable WHERE reftable.reftable = "est.op-lock"

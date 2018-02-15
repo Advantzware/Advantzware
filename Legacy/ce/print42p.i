@@ -57,35 +57,14 @@ assign
  ctrl[18] = integer(ce-ctrl.spec-add[8])
  ctrl2    = 0.
 
-FIND FIRST reftable
-     WHERE reftable.reftable EQ "ce-ctrl.fold-pct"
-       AND reftable.company  EQ ce-ctrl.company
-       AND reftable.loc      EQ ce-ctrl.loc
-     NO-LOCK NO-ERROR.
 
-IF AVAIL reftable THEN
-   ctrl[19] = reftable.val[1].
+   ctrl[19] = ce-ctrl.fold-pct.
 
-FIND FIRST reftable NO-LOCK
-    WHERE reftable.reftable EQ "ce-ctrl.fg-rate-farm"
-      AND reftable.company  EQ ce-ctrl.company
-      AND reftable.loc      EQ ce-ctrl.loc
-    NO-ERROR.  
-fg-rate-f = IF AVAIL reftable THEN reftable.val[1] ELSE 0.
-
-FIND FIRST reftable NO-LOCK
-    WHERE reftable.reftable EQ "ce-ctrl.rm-rate-farm"
-      AND reftable.company  EQ ce-ctrl.company
-      AND reftable.loc      EQ ce-ctrl.loc
-    NO-ERROR.  
-rm-rate-f = IF AVAIL reftable THEN reftable.val[1] ELSE 0.
-
-FIND FIRST reftable NO-LOCK
-    WHERE reftable.reftable EQ "ce-ctrl.hand-pct-farm"
-      AND reftable.company  EQ ce-ctrl.company
-      AND reftable.loc      EQ ce-ctrl.loc
-    NO-ERROR.    
-hand-pct-f = (IF AVAIL reftable THEN reftable.val[1] ELSE 0) / 100.
+fg-rate-f = ce-ctrl.fg-rate-farm.
+ 
+rm-rate-f = ce-ctrl.rm-rate-farm.
+  
+hand-pct-f = ce-ctrl.hand-pct-farm / 100.
 
 find first xef where xef.company = xest.company 
                  AND xef.est-no eq xest.est-no.
