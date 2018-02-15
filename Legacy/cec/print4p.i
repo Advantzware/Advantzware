@@ -42,14 +42,8 @@
      ctrl[18] = int(ce-ctrl.spec-add[8])
      v-gsa    = index("SB",ce-ctrl.sell-by) eq 0.
      
-  FIND FIRST reftable-broker-pct
-       WHERE reftable-broker-pct.reftable EQ "ce-ctrl.broker-pct"
-         AND reftable-broker-pct.company  EQ ce-ctrl.company
-         AND reftable-broker-pct.loc      EQ ce-ctrl.loc
-       NO-LOCK NO-ERROR.
 
-  IF AVAIL reftable-broker-pct THEN
-     ctrl[19] = reftable-broker-pct.val[1].
+     ctrl[19] = ce-ctrl.broker-pct.
 
   FIND FIRST reftable NO-LOCK
       WHERE reftable.reftable EQ "ce-ctrl.fg-rate-farm"

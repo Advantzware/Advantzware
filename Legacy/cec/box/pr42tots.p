@@ -352,14 +352,9 @@ ELSE
         gsa-fm = cust.scomm.
     ELSE
     DO:
-        FIND FIRST reftable-broker-pct
-            WHERE reftable-broker-pct.reftable EQ "ce-ctrl.broker-pct"
-            AND reftable-broker-pct.company  EQ ce-ctrl.company
-            AND reftable-broker-pct.loc      EQ ce-ctrl.loc
-            NO-LOCK NO-ERROR.
+         
+          gsa-fm = ce-ctrl.broker-pct.
 
-        IF AVAILABLE reftable-broker-pct THEN
-            gsa-fm = reftable-broker-pct.val[1].
     END.
 
 OUTPUT close.
