@@ -750,6 +750,7 @@ DO:
   IF tb_page:CHECKED AND
      (v-print-fmt EQ "CSC-EXCEL"     OR
       v-print-fmt EQ "PREMIER-EXCEL" OR
+      v-print-fmt EQ "PREMIER-EXCEL-MCI" OR
       v-print-fmt EQ "BELL-EXCEL" OR
       v-print-fmt EQ "CCC-EXCEL" OR
       v-print-fmt EQ "TRILAKE-EXCEL" OR
@@ -1484,7 +1485,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
              tb_terms:SENSITIVE    = NO
              lv-termFile:SENSITIVE = NO.
 
-    IF v-print-fmt EQ "Premier-Excel" 
+    IF v-print-fmt EQ "Premier-Excel" OR v-print-fmt EQ "Premier-Excel-Mci" 
         OR v-print-fmt EQ "CCC-Excel" 
         /*OR v-print-fmt EQ "Bell-Excel"*/
       THEN 
@@ -1753,6 +1754,7 @@ PROCEDURE batchmail-2-proc :
    IF tb_page:CHECKED AND
       (v-print-fmt EQ "CSC-EXCEL" OR
       v-print-fmt EQ "PREMIER-EXCEL" OR
+      v-print-fmt EQ "PREMIER-EXCEL-MCI" OR
       v-print-fmt EQ "BELL-EXCEL" OR
       v-print-fmt EQ "CCC-EXCEL" OR
       v-print-fmt EQ "TRILAKE-EXCEL" OR
@@ -1770,6 +1772,7 @@ PROCEDURE batchmail-2-proc :
 
    IF v-print-fmt <> "CSC-EXCEL" AND v-print-fmt <> "TRILAKE-EXCEL" AND
       v-print-fmt <> "PREMIER-EXCEL" AND
+      v-print-fmt <> "PREMIER-EXCEL-MCI" AND
       v-print-fmt <> "BELL-EXCEL" AND
       v-print-fmt <> "CCC-EXCEL" AND
        v-print-fmt <> "FIBRE-EXCEL"  AND
@@ -1862,6 +1865,7 @@ PROCEDURE GenerateMail :
 
         IF not(v-print-fmt EQ "CSC-EXCEL" OR
                v-print-fmt EQ "PREMIER-EXCEL" OR
+               v-print-fmt EQ "PREMIER-EXCEL-MCI" OR
                v-print-fmt EQ "BELL-EXCEL" OR
                v-print-fmt EQ "CCC-EXCEL" OR
                v-print-fmt EQ "TRILAKE-EXCEL" OR
@@ -1898,6 +1902,7 @@ PROCEDURE GenerateReport :
    DO WITH FRAME {&FRAME-NAME}:
       IF v-print-fmt <> "CSC-EXCEL" AND v-print-fmt <> "TRILAKE-EXCEL" AND
          v-print-fmt <> "PREMIER-EXCEL" AND
+         v-print-fmt <> "PREMIER-EXCEL-MCI" AND
          v-print-fmt <> "BELL-EXCEL" AND
          v-print-fmt <> "CCC-EXCEL" AND
          v-print-fmt <> "FIBRE-EXCEL" AND 
@@ -2286,7 +2291,7 @@ ASSIGN
 
 /* Check for XL also */
 IF v-print-fmt = "CSC-EXCEL" OR v-print-fmt = "TRILAKE-EXCEL" OR v-print-fmt = "FIBRE-EXCEL" OR v-print-fmt = "NOSCO-EXCEL" 
-    OR v-print-fmt = "MSPACK-EXCEL" OR v-print-fmt = "PREMIER-EXCEL" 
+    OR v-print-fmt = "MSPACK-EXCEL" OR v-print-fmt = "PREMIER-EXCEL" OR v-print-fmt = "PREMIER-EXCEL-MCI" 
     OR v-print-fmt = "CCC-EXCEL" OR v-print-fmt = "BELL-EXCEL" THEN.
 ELSE
 IF IS-xprint-form THEN DO:
@@ -2476,7 +2481,7 @@ ASSIGN
 
 /* Check for XL also */
 IF v-print-fmt = "CSC-EXCEL" OR v-print-fmt = "TRILAKE-EXCEL" OR v-print-fmt = "FIBRE-EXCEL" OR v-print-fmt = "NOSCO-EXCEL" 
-   OR v-print-fmt = "MSPACK-EXCEL" OR v-print-fmt = "PREMIER-EXCEL" 
+   OR v-print-fmt = "MSPACK-EXCEL" OR v-print-fmt = "PREMIER-EXCEL" OR v-print-fmt = "PREMIER-EXCEL-MCI" 
    OR v-print-fmt = "CCC-EXCEL" OR v-print-fmt = "BELL-EXCEL" THEN.
 ELSE
 IF IS-xprint-form THEN DO:
@@ -2610,6 +2615,7 @@ PROCEDURE SetQuoForm :
        WHEN "Elite" THEN ASSIGN v-program = "cec/quote/quoelite.p" lines-per-page = 66.
        WHEN "premierX" THEN ASSIGN v-program = "cec/quote/quoxprem.p" lines-per-page = 66.
        WHEN "Premier-Excel" THEN ASSIGN v-program = "cec/quote/quoprm-xl.p" lines-per-page = 66.
+       WHEN "Premier-Excel-Mci" THEN ASSIGN v-program = "cec/quote/quoprm-mci.p" lines-per-page = 66.
        WHEN "Bell-Excel" THEN ASSIGN v-program = "cec/quote/quobell-xl.p" lines-per-page = 66.
        WHEN "CCC-Excel" THEN ASSIGN v-program = "cec/quote/quoccc-xl.p" lines-per-page = 66.
        WHEN "SouthPak" THEN ASSIGN v-program = "cec/quote/quosthpk.p" lines-per-page = 66.   
@@ -2686,6 +2692,7 @@ PROCEDURE show-param :
   IF v-print-fmt <> "CSC-EXCEL" AND v-print-fmt <> "TRILAKE-EXCEL" AND
      v-print-fmt <> "FIBRE-EXCEL" AND
      v-print-fmt <> "PREMIER-EXCEL" AND
+     v-print-fmt <> "PREMIER-EXCEL-MCI" AND
      v-print-fmt <> "BELL-EXCEL" AND
      v-print-fmt <> "CCC-EXCEL" AND
      v-print-fmt <> "NOSCO-EXCEL" THEN.
