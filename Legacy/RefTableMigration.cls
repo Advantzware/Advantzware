@@ -514,6 +514,56 @@ CLASS RefTableMigration:
         END.  /*FOR EACH reftable*/         
         RETURN iCnt.
     END METHOD. /*itemfg-ink*/
+    METHOD PUBLIC INTEGER ShiptoMandatoryTax():
+        DEFINE VARIABLE iCnt AS INTEGER NO-UNDO.
+        FOR EACH reftable WHERE reftable.reftable = "shipto.mandatory-tax"
+            NO-LOCK:
+            FIND FIRST shipto WHERE shipto.company = reftable.company
+                               AND shipto.cust-no  = reftable.code
+                               AND shipto.ship-id  = reftable.code2
+                EXCLUSIVE-LOCK NO-ERROR.
+            IF AVAILABLE shipto THEN    
+            ASSIGN 
+                shipto.tax-mandatory = IF reftable.val[1] = 1 THEN TRUE ELSE FALSE                
+                . 
+            RELEASE shipto.      
+            iCnt = iCnt + 1.                 
+        END.  /*FOR EACH reftable*/         
+        RETURN iCnt.
+    END METHOD. /*shipto*/
+=======
+    METHOD PUBLIC INTEGER CustPoMand():
+        DEFINE VARIABLE iCnt AS INTEGER NO-UNDO.
+        FOR EACH reftable WHERE reftable.reftable = "cust.po-mand"
+            NO-LOCK:
+            FIND FIRST cust WHERE cust.company = reftable.company
+                               AND cust.cust-no  = reftable.code                             
+                EXCLUSIVE-LOCK NO-ERROR.
+            IF AVAILABLE cust THEN    
+            ASSIGN 
+                cust.po-mandatory = IF reftable.val[1] = 1 THEN TRUE ELSE FALSE                
+                . 
+            RELEASE cust.      
+            iCnt = iCnt + 1.                 
+        END.  /*FOR EACH reftable*/         
+        RETURN iCnt.
+    END METHOD. /*customer*/
+    METHOD PUBLIC INTEGER CustShowSet():
+        DEFINE VARIABLE iCnt AS INTEGER NO-UNDO.
+        FOR EACH reftable WHERE reftable.reftable = "cust.show-set"
+            NO-LOCK:
+            FIND FIRST cust WHERE cust.company = reftable.company
+                               AND cust.cust-no  = reftable.code                             
+                EXCLUSIVE-LOCK NO-ERROR.
+            IF AVAILABLE cust THEN    
+            ASSIGN 
+                cust.show-set = IF reftable.val[1] = 1 THEN TRUE ELSE FALSE                
+                . 
+            RELEASE cust.      
+            iCnt = iCnt + 1.                 
+        END.  /*FOR EACH reftable*/         
+        RETURN iCnt.
+    END METHOD. /*customer*/
     METHOD PUBLIC INTEGER MachinePosition():
         DEFINE VARIABLE iCnt AS INTEGER NO-UNDO.
         FOR EACH reftable WHERE reftable.reftable = "MachinePosition"
@@ -536,6 +586,38 @@ CLASS RefTableMigration:
         END.  /*FOR EACH reftable*/         
         RETURN iCnt.
     END METHOD. /*est-op*/
+    METHOD PUBLIC INTEGER GlAcctDisc():
+        DEFINE VARIABLE iCnt AS INTEGER NO-UNDO.
+        FOR EACH reftable WHERE reftable.reftable = "GLACCTDISC"
+            NO-LOCK:
+            FIND FIRST account WHERE account.company = reftable.company
+                             AND account.actnum     = reftable.code
+                EXCLUSIVE-LOCK NO-ERROR.
+            IF AVAILABLE account THEN    
+            ASSIGN 
+                account.terms-discount = IF reftable.val[1] = 1 THEN YES ELSE NO                
+                . 
+            RELEASE account.      
+            iCnt = iCnt + 1.                 
+        END.  /*FOR EACH reftable*/         
+        RETURN iCnt.
+    END METHOD. /*account*/
+    METHOD PUBLIC INTEGER CustFlatComm():
+        DEFINE VARIABLE iCnt AS INTEGER NO-UNDO.
+        FOR EACH reftable WHERE reftable.reftable = "cust.flat-comm"
+            NO-LOCK:
+            FIND FIRST cust WHERE cust.company = reftable.company
+                              AND cust.cust-no = reftable.code
+                EXCLUSIVE-LOCK NO-ERROR.
+            IF AVAILABLE cust THEN    
+            ASSIGN 
+                cust.flatCommPct = DEC(reftable.val[1])                
+                . 
+            RELEASE cust.      
+            iCnt = iCnt + 1.                 
+        END.  /*FOR EACH reftable*/         
+        RETURN iCnt.
+    END METHOD. /*cust*/
     METHOD PUBLIC INTEGER MachPlainJob():
         DEFINE VARIABLE iCnt AS INTEGER NO-UNDO.
         FOR EACH reftable WHERE reftable.reftable = "mach.plain-job"
@@ -587,4 +669,189 @@ CLASS RefTableMigration:
         END.  /*FOR EACH reftable*/         
         RETURN iCnt.
     END METHOD. /*job*/
+    METHOD PUBLIC INTEGER GlRptPctSubtotal():
+        DEFINE VARIABLE iCnt AS INTEGER NO-UNDO.
+        FOR EACH reftable WHERE reftable.reftable = "gl-rpt.pct-subtotal"
+            NO-LOCK:
+            FIND FIRST gl-rpt WHERE gl-rpt.company = reftable.company
+                                AND gl-rpt.rp      = reftable.code
+                                AND gl-rpt.line    = int(reftable.code2)
+                EXCLUSIVE-LOCK NO-ERROR.
+            IF AVAILABLE gl-rpt THEN    
+            ASSIGN 
+                gl-rpt.pct-subtotal = reftable.val[1] EQ 1              
+                . 
+            RELEASE gl-rpt.      
+            iCnt = iCnt + 1.                 
+        END.  /*FOR EACH reftable*/         
+        RETURN iCnt.
+    END METHOD. /*gl-rpt*/
+    METHOD PUBLIC INTEGER CeCtrlBrokerPct():
+        DEFINE VARIABLE iCnt AS INTEGER NO-UNDO.
+        FOR EACH reftable WHERE reftable.reftable = "ce-ctrl.broker-pct"
+            NO-LOCK:
+            FIND FIRST ce-ctrl WHERE ce-ctrl.company = reftable.company
+                                AND ce-ctrl.loc      = reftable.loc
+                EXCLUSIVE-LOCK NO-ERROR.
+            IF AVAILABLE ce-ctrl THEN    
+            ASSIGN 
+                ce-ctrl.broker-pct = reftable.val[1]             
+                . 
+            RELEASE ce-ctrl.      
+            iCnt = iCnt + 1.                 
+        END.  /*FOR EACH reftable*/         
+        RETURN iCnt.
+    END METHOD. /*ce-ctrl*/
+    METHOD PUBLIC INTEGER RmBinAgingDate():
+        DEFINE VARIABLE iCnt AS INTEGER NO-UNDO.
+        FOR EACH reftable WHERE reftable.reftable = "rm-bin.aging-date"
+            NO-LOCK:
+            FIND FIRST rm-bin WHERE rm-bin.company = reftable.company
+                                AND rm-bin.loc     = SUBSTRING(reftable.code, 1, 50)
+                                AND rm-bin.i-no    = reftable.loc
+                                AND rm-bin.loc-bin   = SUBSTRING(reftable.code, 51, 50)
+                                AND rm-bin.tag      = reftable.code2
+                EXCLUSIVE-LOCK NO-ERROR.
+            IF AVAILABLE rm-bin THEN    
+            ASSIGN 
+                rm-bin.aging-date = DATE(INT(reftable.val[1]))             
+                . 
+            RELEASE rm-bin.      
+            iCnt = iCnt + 1.                 
+        END.  /*FOR EACH reftable*/         
+        RETURN iCnt.
+    END METHOD. /*rm-bin*/
+    METHOD PUBLIC INTEGER CeCtrlFoldPct():
+        DEFINE VARIABLE iCnt AS INTEGER NO-UNDO.
+        FOR EACH reftable WHERE reftable.reftable = "ce-ctrl.fold-pct"
+            NO-LOCK:
+            FIND FIRST ce-ctrl WHERE ce-ctrl.company = reftable.company
+                                 AND ce-ctrl.loc     = reftable.loc
+                EXCLUSIVE-LOCK NO-ERROR.
+            IF AVAILABLE ce-ctrl THEN    
+            ASSIGN 
+                ce-ctrl.fold-pct = reftable.val[1]             
+                . 
+            RELEASE ce-ctrl.      
+            iCnt = iCnt + 1.                 
+        END.  /*FOR EACH reftable*/         
+        RETURN iCnt.
+    END METHOD. /*ce-ctrl*/
+    METHOD PUBLIC INTEGER CeCtrlFgRateFarm():
+        DEFINE VARIABLE iCnt AS INTEGER NO-UNDO.
+        FOR EACH reftable WHERE reftable.reftable = "ce-ctrl.fg-rate-farm"
+            NO-LOCK:
+            FIND FIRST ce-ctrl WHERE ce-ctrl.company = reftable.company
+                                 AND ce-ctrl.loc     = reftable.loc
+                EXCLUSIVE-LOCK NO-ERROR.
+            IF AVAILABLE ce-ctrl THEN    
+            ASSIGN 
+                ce-ctrl.fg-rate-farm = reftable.val[1]             
+                . 
+            RELEASE ce-ctrl.      
+            iCnt = iCnt + 1.                 
+        END.  /*FOR EACH reftable*/         
+        RETURN iCnt.
+    END METHOD. /*ce-ctrl*/  
+    METHOD PUBLIC INTEGER CeCtrlRmRateFarm():
+        DEFINE VARIABLE iCnt AS INTEGER NO-UNDO.
+        FOR EACH reftable WHERE reftable.reftable = "ce-ctrl.rm-rate-farm"
+            NO-LOCK:
+            FIND FIRST ce-ctrl WHERE ce-ctrl.company = reftable.company
+                                 AND ce-ctrl.loc     = reftable.loc
+                EXCLUSIVE-LOCK NO-ERROR.
+            IF AVAILABLE ce-ctrl THEN    
+            ASSIGN 
+                ce-ctrl.fg-rate-farm = reftable.val[1]             
+                . 
+            RELEASE ce-ctrl.      
+            iCnt = iCnt + 1.                 
+        END.  /*FOR EACH reftable*/         
+        RETURN iCnt.
+    END METHOD. /*ce-ctrl*/
+    METHOD PUBLIC INTEGER CeCtrlHandPctFarm():
+        DEFINE VARIABLE iCnt AS INTEGER NO-UNDO.
+        FOR EACH reftable WHERE reftable.reftable = "ce-ctrl.hand-pct-farm"
+            NO-LOCK:
+            FIND FIRST ce-ctrl WHERE ce-ctrl.company = reftable.company
+                                 AND ce-ctrl.loc     = reftable.loc
+                EXCLUSIVE-LOCK NO-ERROR.
+            IF AVAILABLE ce-ctrl THEN    
+            ASSIGN 
+                ce-ctrl.hand-pct-farm = reftable.val[1]          
+                . 
+            RELEASE ce-ctrl.      
+            iCnt = iCnt + 1.                 
+        END.  /*FOR EACH reftable*/         
+        RETURN iCnt.
+    END METHOD. /*ce-ctrl*/  
+    METHOD PUBLIC INTEGER EstOpLock():
+        DEFINE VARIABLE iCnt AS INTEGER NO-UNDO.
+        FOR EACH reftable WHERE reftable.reftable = "est.op-lock"
+            NO-LOCK:
+            FIND FIRST est WHERE est.company = reftable.company
+                             AND est.loc     = reftable.loc
+                             AND est.est-no  = reftable.code
+                EXCLUSIVE-LOCK NO-ERROR.
+            IF AVAILABLE est THEN    
+            ASSIGN 
+                est.recalc    = logical(reftable.val[1]) 
+                est.recalc-mr = logical(reftable.val[2])         
+                . 
+            RELEASE est.      
+            iCnt = iCnt + 1.                 
+        END.  /*FOR EACH reftable*/         
+        RETURN iCnt.
+    END METHOD. /*est*/  
+    METHOD PUBLIC INTEGER OeRelScode():
+        DEFINE VARIABLE iCnt AS INTEGER NO-UNDO.
+        FOR EACH reftable WHERE reftable.reftable = "oe-rel.s-code"
+            NO-LOCK:
+            FIND FIRST oe-rel WHERE oe-rel.r-no = int(reftable.company)
+                EXCLUSIVE-LOCK NO-ERROR.
+            IF AVAILABLE oe-rel THEN    
+            ASSIGN 
+                oe-rel.s-code    = reftable.code        
+                . 
+            RELEASE oe-rel.      
+            iCnt = iCnt + 1.                 
+        END.  /*FOR EACH reftable*/         
+        RETURN iCnt.
+    END METHOD. /*oe-rel*/   
+    METHOD PUBLIC INTEGER Splitship():
+        DEFINE VARIABLE iCnt AS INTEGER NO-UNDO.
+        FOR EACH reftable WHERE reftable.reftable = "SPLITSHIP"
+            NO-LOCK:
+            FIND FIRST job-hdr WHERE job-hdr.company = reftable.company
+                              AND job-hdr.job-no     = reftable.loc
+                              AND job-hdr.job-no2    = int(reftable.code)
+                EXCLUSIVE-LOCK NO-ERROR.
+            IF AVAILABLE job-hdr THEN    
+            ASSIGN 
+                job-hdr.splitShip = YES                
+                . 
+            RELEASE job-hdr.      
+            iCnt = iCnt + 1.                 
+        END.  /*FOR EACH reftable*/         
+        RETURN iCnt.
+    END METHOD. /*job-hdr*/   
+    METHOD PUBLIC INTEGER Splitshp():
+        DEFINE VARIABLE iCnt AS INTEGER NO-UNDO.
+        FOR EACH reftable WHERE reftable.reftable = "splitshp"
+            NO-LOCK:
+            FIND FIRST job-hdr WHERE job-hdr.company = reftable.company
+                              AND job-hdr.job-no     = reftable.loc
+                              AND job-hdr.job-no2    = int(reftable.code)
+                EXCLUSIVE-LOCK NO-ERROR.
+            IF AVAILABLE job-hdr THEN    
+            ASSIGN 
+                job-hdr.splitShip = YES                
+                . 
+            RELEASE job-hdr.      
+            iCnt = iCnt + 1.                 
+        END.  /*FOR EACH reftable*/         
+        RETURN iCnt.
+    END METHOD. /*job-hdr*/     
 END CLASS.
+
+

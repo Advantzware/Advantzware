@@ -1,4 +1,5 @@
 DEFINE VARIABLE iCommited AS INTEGER.
+DEFINE VARIABLE cLotNum AS CHARACTER NO-UNDO.
 EMPTY TEMP-TABLE tt-cust.
 
 FOR EACH cust
@@ -221,13 +222,16 @@ FOR EACH tt-cust,
                      ELSE 
                          ASSIGN v-sell-price = itemfg.sell-price .
 
-                     ASSIGN iCommited = 0.
+                     ASSIGN iCommited = 0
+                            cLotNum   = "" .
                      FOR EACH oe-rel NO-LOCK WHERE oe-rel.company EQ oe-ordl.company
                          AND oe-rel.ord-no EQ oe-ordl.ord-no
                          AND oe-rel.i-no EQ oe-ordl.i-no 
                          AND oe-rel.LINE EQ oe-ordl.LINE 
                          AND oe-rel.link-no EQ 0 :
                          iCommited = iCommited + oe-rel.tot-qty .
+                         IF oe-rel.lot-no NE "" AND cLotNum EQ "" THEN
+                           cLotNum  =  string(oe-rel.lot-no,"x(15)") . 
                      END.
                        
 
@@ -253,7 +257,7 @@ FOR EACH tt-cust,
                           WHEN "ttl-val"    THEN cVarValue = STRING(v-ext-job,"->>>,>>>,>>9.99") .
                           WHEN "commtd"     THEN cVarValue = STRING(iCommited,"->>,>>>,>>9") .  
                           WHEN "qty-case"   THEN cVarValue = STRING(itemfg.case-count,"->>,>>9") . 
-                          WHEN "cust-lot"   THEN cVarValue = IF AVAIL oe-rel THEN STRING(oe-rel.lot-no,"x(15)") ELSE "" . 
+                          WHEN "cust-lot"   THEN cVarValue = cLotNum . 
 
                      END CASE.
                        

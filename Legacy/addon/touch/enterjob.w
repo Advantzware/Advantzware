@@ -783,7 +783,10 @@ DEF VAR cAction AS CHAR NO-UNDO.
       job-mch.m-code = machine_code
       job-mch.i-name = itemfg.i-name WHEN AVAILABLE itemfg
       job-mch.dept = mach.dept[1]
-      job-mch.wst-prct = mach.run-spoil.
+      job-mch.wst-prct = mach.run-spoil
+      /* this let's SB know touch screen data collection made changes */
+      job-mch.est-op_rec_key = 'TS ' + STRING(TODAY) + ' ' + STRING(TIME,'HH:MM:SS')
+      .
      
     FIND CURRENT job-mch NO-LOCK.
 

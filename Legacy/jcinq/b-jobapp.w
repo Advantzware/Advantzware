@@ -666,7 +666,6 @@ DO:
 
   IF AVAIL job THEN DO:
 
-
       li-time = job.create-time.     
 
     IF job.create-date  GT job.pr-print-date      OR

@@ -330,104 +330,104 @@ DEFINE VARIABLE svSeparateFinanceCharges AS LOGICAL INITIAL no
 
 DEFINE FRAME F-Main
      svCompany AT ROW 1.24 COL 19 COLON-ALIGNED WIDGET-ID 60
-     svAllCompany AT ROW 2.67 COL 21 HELP
+     svAllCompany AT ROW 2.43 COL 21 HELP
           "All Sales Reps?" WIDGET-ID 292
-     svStartCompany AT ROW 3.86 COL 19 COLON-ALIGNED HELP
+     svStartCompany AT ROW 3.62 COL 19 COLON-ALIGNED HELP
           "Enter Start Company" WIDGET-ID 296
-     startCompanyName AT ROW 3.86 COL 28 COLON-ALIGNED NO-LABEL WIDGET-ID 290
-     svEndCompany AT ROW 5.05 COL 19 COLON-ALIGNED HELP
+     startCompanyName AT ROW 3.62 COL 28 COLON-ALIGNED NO-LABEL WIDGET-ID 290
+     svEndCompany AT ROW 4.81 COL 19 COLON-ALIGNED HELP
           "Enter End Company" WIDGET-ID 294
-     endCompanyName AT ROW 5.05 COL 28 COLON-ALIGNED NO-LABEL WIDGET-ID 288
-     svCustList AT ROW 6.71 COL 21 WIDGET-ID 48
-     btnCustList AT ROW 6.71 COL 51 WIDGET-ID 46
-     svAllCustNo AT ROW 7.91 COL 21 HELP
+     endCompanyName AT ROW 4.81 COL 28 COLON-ALIGNED NO-LABEL WIDGET-ID 288
+     svCustList AT ROW 6 COL 21 WIDGET-ID 48
+     btnCustList AT ROW 6 COL 51 WIDGET-ID 46
+     svAllCustNo AT ROW 7.19 COL 21 HELP
           "All Customers?" WIDGET-ID 56
-     svStartCustNo AT ROW 9.1 COL 19 COLON-ALIGNED HELP
+     svStartCustNo AT ROW 8.38 COL 19 COLON-ALIGNED HELP
           "Enter Start Customer" WIDGET-ID 2
-     startCustName AT ROW 9.1 COL 35 COLON-ALIGNED NO-LABEL WIDGET-ID 4
-     svEndCustNo AT ROW 10.29 COL 19 COLON-ALIGNED HELP
+     startCustName AT ROW 8.38 COL 35 COLON-ALIGNED NO-LABEL WIDGET-ID 4
+     svEndCustNo AT ROW 9.57 COL 19 COLON-ALIGNED HELP
           "Enter End Customer" WIDGET-ID 6
-     endCustName AT ROW 10.29 COL 35 COLON-ALIGNED NO-LABEL WIDGET-ID 8
-     svAllSalesRep AT ROW 11.95 COL 21 HELP
+     endCustName AT ROW 9.57 COL 35 COLON-ALIGNED NO-LABEL WIDGET-ID 8
+     svAllSalesRep AT ROW 11 COL 21 HELP
           "All Sales Reps?" WIDGET-ID 108
-     svStartSalesRep AT ROW 13.14 COL 19 COLON-ALIGNED HELP
+     svStartSalesRep AT ROW 12.19 COL 19 COLON-ALIGNED HELP
           "Enter Start Sales Rep" WIDGET-ID 112
-     startSalesRepName AT ROW 13.14 COL 28 COLON-ALIGNED NO-LABEL WIDGET-ID 106
-     svEndSalesRep AT ROW 14.33 COL 19 COLON-ALIGNED HELP
+     startSalesRepName AT ROW 12.19 COL 28 COLON-ALIGNED NO-LABEL WIDGET-ID 106
+     svEndSalesRep AT ROW 13.38 COL 19 COLON-ALIGNED HELP
           "Enter End Sales Rep" WIDGET-ID 110
-     endSalesRepName AT ROW 14.33 COL 28 COLON-ALIGNED NO-LABEL WIDGET-ID 104
-     svAllCurrency AT ROW 16 COL 21 HELP
+     endSalesRepName AT ROW 13.38 COL 28 COLON-ALIGNED NO-LABEL WIDGET-ID 104
+     svAllCurrency AT ROW 14.57 COL 21 HELP
           "All Currency?" WIDGET-ID 302
-     svStartCurrency AT ROW 17.19 COL 19 COLON-ALIGNED HELP
+     svStartCurrency AT ROW 15.76 COL 19 COLON-ALIGNED HELP
           "Enter Start Currency" WIDGET-ID 306
-     startCurrencyName AT ROW 17.19 COL 28 COLON-ALIGNED NO-LABEL WIDGET-ID 300
-     svEndCurrency AT ROW 18.38 COL 19 COLON-ALIGNED HELP
+     startCurrencyName AT ROW 15.76 COL 28 COLON-ALIGNED NO-LABEL WIDGET-ID 300
+     svEndCurrency AT ROW 16.95 COL 19 COLON-ALIGNED HELP
           "Enter End Currency" WIDGET-ID 304
-     endCurrencyName AT ROW 18.38 COL 28 COLON-ALIGNED NO-LABEL WIDGET-ID 298
-     svAllTerms AT ROW 20.05 COL 21 HELP
+     endCurrencyName AT ROW 16.95 COL 28 COLON-ALIGNED NO-LABEL WIDGET-ID 298
+     svAllTerms AT ROW 18.14 COL 21 HELP
           "All Terms?" WIDGET-ID 312
-     svStartTerms AT ROW 21.24 COL 19 COLON-ALIGNED HELP
+     svStartTerms AT ROW 19.33 COL 19 COLON-ALIGNED HELP
           "Enter Start Terms" WIDGET-ID 316
-     startTermsName AT ROW 21.24 COL 28 COLON-ALIGNED NO-LABEL WIDGET-ID 310
-     svEndTerms AT ROW 22.43 COL 19 COLON-ALIGNED HELP
+     startTermsName AT ROW 19.33 COL 28 COLON-ALIGNED NO-LABEL WIDGET-ID 310
+     svEndTerms AT ROW 20.52 COL 19 COLON-ALIGNED HELP
           "Enter End Terms" WIDGET-ID 314
-     endTermsName AT ROW 22.43 COL 28 COLON-ALIGNED NO-LABEL WIDGET-ID 308
-     svAsOfDate AT ROW 24.1 COL 19 COLON-ALIGNED HELP
+     endTermsName AT ROW 20.52 COL 28 COLON-ALIGNED NO-LABEL WIDGET-ID 308
+     svAsOfDate AT ROW 21.71 COL 19 COLON-ALIGNED HELP
           "Enter As Of Date" WIDGET-ID 274
-     btnCalendar-3 AT ROW 24.1 COL 37 WIDGET-ID 272
-     svAsOfDateOption AT ROW 24.1 COL 40 COLON-ALIGNED HELP
+     btnCalendar-3 AT ROW 21.71 COL 37 WIDGET-ID 272
+     svAsOfDateOption AT ROW 21.71 COL 40 COLON-ALIGNED HELP
           "Select Start Date Option" NO-LABEL WIDGET-ID 276
-     svPeriodDays1 AT ROW 25.76 COL 19 COLON-ALIGNED HELP
+     svPeriodDays1 AT ROW 23.38 COL 19 COLON-ALIGNED HELP
           "Enter Days for Period 1" WIDGET-ID 338
-     svPeriodDays2 AT ROW 25.76 COL 30 COLON-ALIGNED HELP
+     svPeriodDays2 AT ROW 23.38 COL 30 COLON-ALIGNED HELP
           "Enter Days for Period 2" WIDGET-ID 340
-     svPeriodDays3 AT ROW 25.76 COL 41 COLON-ALIGNED HELP
+     svPeriodDays3 AT ROW 23.38 COL 41 COLON-ALIGNED HELP
           "Enter Days for Period 3" WIDGET-ID 342
-     svRecenTrendDays AT ROW 25.76 COL 74 COLON-ALIGNED HELP
+     svRecenTrendDays AT ROW 23.38 COL 74 COLON-ALIGNED HELP
           "Enter Days for Recent Trend" WIDGET-ID 344
-     svType AT ROW 27.43 COL 21 HELP
+     svType AT ROW 24.81 COL 21 HELP
           "Select Sort Option" NO-LABEL WIDGET-ID 324
-     svSort1 AT ROW 28.62 COL 21 HELP
+     svSort1 AT ROW 26 COL 21 HELP
           "Select Sort Option" NO-LABEL WIDGET-ID 84
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 82 BY 37.48.
+         SIZE 81.8 BY 34.67.
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME F-Main
-     svSort2 AT ROW 29.81 COL 21 HELP
+     svSort2 AT ROW 27.19 COL 21 HELP
           "Select Sort Option" NO-LABEL WIDGET-ID 320
-     svIncludePaidInvoices AT ROW 31.24 COL 20 HELP
+     svIncludePaidInvoices AT ROW 28.62 COL 20 HELP
           "Select to Include Paid Invoices" WIDGET-ID 88
-     svIncludeFactoredFGItems AT ROW 31.24 COL 47 HELP
+     svIncludeFactoredFGItems AT ROW 28.62 COL 47 HELP
           "Select to Include Factored FG Items" WIDGET-ID 332
-     svIncludeFuelSurchages AT ROW 32.43 COL 20 HELP
+     svIncludeFuelSurchages AT ROW 29.81 COL 20 HELP
           "Select to Include Fuel Surchages" WIDGET-ID 330
-     svSeparateFinanceCharges AT ROW 32.43 COL 47 HELP
+     svSeparateFinanceCharges AT ROW 29.81 COL 47 HELP
           "Select to Separate Finance Charges" WIDGET-ID 334
-     svStartInvoiceDate AT ROW 33.86 COL 18 COLON-ALIGNED HELP
+     svStartInvoiceDate AT ROW 31.24 COL 18 COLON-ALIGNED HELP
           "Enter Start Invoice Date" WIDGET-ID 26
-     btnCalendar-1 AT ROW 33.86 COL 36 WIDGET-ID 80
-     svStartInvoiceDateOption AT ROW 33.86 COL 39 COLON-ALIGNED HELP
+     btnCalendar-1 AT ROW 31.24 COL 36 WIDGET-ID 80
+     svStartInvoiceDateOption AT ROW 31.24 COL 39 COLON-ALIGNED HELP
           "Select Start Invoice Date Option" NO-LABEL WIDGET-ID 64
-     svEndInvoiceDate AT ROW 35.05 COL 18 COLON-ALIGNED HELP
+     svEndInvoiceDate AT ROW 32.43 COL 18 COLON-ALIGNED HELP
           "Enter End Invoice Date" WIDGET-ID 24
-     btnCalendar-2 AT ROW 35.05 COL 36 WIDGET-ID 82
-     svEndInvoiceDateOption AT ROW 35.05 COL 39 COLON-ALIGNED HELP
+     btnCalendar-2 AT ROW 32.43 COL 36 WIDGET-ID 82
+     svEndInvoiceDateOption AT ROW 32.43 COL 39 COLON-ALIGNED HELP
           "Select End Invoice Date Option" NO-LABEL WIDGET-ID 66
-     svInactiveCustomers AT ROW 36.48 COL 20 HELP
+     svInactiveCustomers AT ROW 33.67 COL 20 HELP
           "Select to Include Inactive Customers" WIDGET-ID 336
-     "Sort By 2:" VIEW-AS TEXT
-          SIZE 10 BY 1 AT ROW 29.81 COL 10 WIDGET-ID 318
-     "Type:" VIEW-AS TEXT
-          SIZE 7 BY 1 AT ROW 27.43 COL 13 WIDGET-ID 328
      "Sort By 1:" VIEW-AS TEXT
-          SIZE 10 BY 1 AT ROW 28.62 COL 10 WIDGET-ID 90
+          SIZE 10 BY 1 AT ROW 26 COL 10 WIDGET-ID 90
+     "Type:" VIEW-AS TEXT
+          SIZE 7 BY 1 AT ROW 24.81 COL 13 WIDGET-ID 328
+     "Sort By 2:" VIEW-AS TEXT
+          SIZE 10 BY 1 AT ROW 27.19 COL 10 WIDGET-ID 318
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 82 BY 37.48
+         SIZE 81.8 BY 34.67
          TITLE "Report Parameters".
 
 
@@ -457,8 +457,8 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW sObject ASSIGN
-         HEIGHT             = 37.48
-         WIDTH              = 82.
+         HEIGHT             = 34.67
+         WIDTH              = 81.8.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
