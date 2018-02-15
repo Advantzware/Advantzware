@@ -161,6 +161,7 @@ DEFINE VARIABLE OEPO#Xfer-log AS LOGICAL     NO-UNDO.
 DEFINE VARIABLE oeDateChange-log AS LOGICAL     NO-UNDO.
 DEFINE VARIABLE oeDateChange-chr AS CHARACTER   NO-UNDO.
 DEFINE VARIABLE gcLastDateChange AS CHARACTER   NO-UNDO.
+DEFINE VARIABLE cOEPriceMatrixCheck AS CHARACTER     NO-UNDO.
 cocode = g_company.
 
 {oe/oe-sysct1.i NEW} 
@@ -237,6 +238,15 @@ RUN sys/ref/nk1look.p (INPUT cocode, "OEPriceMatrixCheck", "I" /* Logical */,
                        OUTPUT v-rtn-char, 
                        OUTPUT v-rec-found).
 glOEPriceMatrixCheckAllowMax = INT(v-rtn-char) EQ 1 NO-ERROR.
+
+RUN sys/ref/nk1look.p (INPUT cocode, "OEPriceMatrixCheck", "C" /* Logical */, 
+                       INPUT NO /* check by cust */, 
+                       INPUT YES /* use cust not vendor */,
+                       INPUT "" /* cust */, 
+                       INPUT "" /* ship-to*/,
+                       OUTPUT v-rtn-char, 
+                       OUTPUT v-rec-found).
+cOEPriceMatrixCheck = v-rtn-char  .
 
 RUN sys/ref/nk1look.p (cocode, "oeDateChange", "L", NO, NO, "", "", 
                           OUTPUT v-rtn-char, OUTPUT v-rec-found).
@@ -1481,13 +1491,15 @@ DO:
        ASSIGN asi.oe-ordl.whsed:SCREEN-VALUE = "YES".
 
 
-  IF glOEPriceMatrixCheck 
-      AND oe-ordl.est-no:SCREEN-VALUE EQ "" THEN
+  IF /*glOEPriceMatrixCheck 
+      AND*/ oe-ordl.est-no:SCREEN-VALUE EQ "" THEN
       RUN PriceMatrixQtyCheck(INPUT cocode,
                               INPUT oe-ord.cust-no,
                               INPUT oe-ordl.i-no:SCREEN-VALUE,
                               INPUT DEC(oe-ordl.qty:SCREEN-VALUE),
-                              INPUT glOEPriceMatrixCheckAllowMax).
+                              INPUT glOEPriceMatrixCheckAllowMax,
+                              INPUT DEC(oe-ordl.price:SCREEN-VALUE)) NO-ERROR.
+   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
   IF oepricecheck-log AND oe-ordl.est-no:SCREEN-VALUE EQ "" AND
      ll-new-record THEN
@@ -5258,7 +5270,7 @@ DO WITH FRAME {&FRAME-NAME}:
   IF NOT AVAIL oe-ord THEN FIND oe-ord WHERE oe-ord.company = g_company AND
                                 oe-ord.ord-no = oe-ordl.ord-no NO-LOCK. 
   IF itemfg.CLASS EQ "*" OR itemfg.exempt-disc THEN oe-ordl.disc:SCREEN-VALUE = "0".
-/*   {custom/fgexempt.i itemfg oe-ordl.disc:SCREEN-VALUE} */
+
 
   IF oe-ordl.type-code:SCREEN-VALUE EQ "O" AND oe-ordl.est-no NE "" THEN
      ASSIGN oe-ordl.i-name:screen-value     = IF itemfg.i-name <> "" THEN itemfg.i-name ELSE oe-ordl.i-name:screen-value 
@@ -5444,7 +5456,7 @@ IF ERROR-STATUS:ERROR THEN RETURN ERROR.
 DO WITH FRAME {&frame-name}:  
   FIND itemfg WHERE RECID(itemfg) = ip-recid NO-LOCK.
    IF itemfg.CLASS EQ "*" OR itemfg.exempt-disc THEN oe-ordl.disc:SCREEN-VALUE = "0".
-/*   {custom/fgexempt.i itemfg oe-ordl.disc:SCREEN-VALUE} */
+
 
   RUN default-type (BUFFER itemfg).
 
@@ -7190,6 +7202,7 @@ DEFINE INPUT PARAMETER ipcCust AS CHARACTER NO-UNDO.
 DEFINE INPUT PARAMETER ipcINo AS CHARACTER NO-UNDO.
 DEFINE INPUT PARAMETER ipdQty AS DECIMAL NO-UNDO.
 DEFINE INPUT PARAMETER iplAllowMax AS LOGICAL NO-UNDO.
+DEFINE INPUT PARAMETER ipdPrice AS DECIMAL NO-UNDO.
 
 DEFINE BUFFER bf-oe-prmtx FOR oe-prmtx.
 DEFINE BUFFER bf-cust FOR cust.
@@ -7198,7 +7211,7 @@ DEFINE BUFFER bf-itemfg FOR itemfg.
 DEFINE VARIABLE lFound AS LOGICAL     NO-UNDO.
 DEFINE VARIABLE iLevel AS INTEGER     NO-UNDO.
 DEFINE VARIABLE lLessThanMax AS LOGICAL     NO-UNDO.
-
+DEFINE VARIABLE dPriceMtx AS DECIMAL NO-UNDO .
 FIND FIRST bf-cust 
     WHERE bf-cust.company EQ ipcCompany
       AND bf-cust.cust-no EQ ipcCust
@@ -7212,35 +7225,83 @@ IF AVAIL bf-cust AND AVAIL bf-itemfg AND ipdQty NE 0 THEN DO:
                              INPUT ROWID(bf-itemfg),
                              INPUT ROWID(bf-cust),
                              INPUT NO,
-                             OUTPUT lFound).
-    IF lFound AND AVAIL bf-oe-prmtx THEN DO:
-        ASSIGN 
-            lFound = NO
-            lLessThanMax = YES.
-        IF iplAllowMax THEN 
-            DO iLevel = 1 TO 10:  /*don't fail match if qty is at the max*/
-                IF ipdQty LE bf-oe-prmtx.qty[iLevel] THEN DO:
-                    lLessThanMax = NOT (bf-oe-prmtx.qty[iLevel] EQ 99999999).
-                    iLevel = 99.
-                    LEAVE.
+                             OUTPUT lFound).   
+
+    IF  cOEPriceMatrixCheck EQ "Block Entry"  THEN DO:
+        
+         ASSIGN dPriceMtx = 0 .
+         IF lFound AND AVAIL bf-oe-prmtx THEN DO:
+            ASSIGN 
+                lFound = NO
+                lLessThanMax = YES.
+                iplAllowMax = YES .
+            IF iplAllowMax THEN 
+                DO iLevel = 1 TO 10:  /*don't fail match if qty is at the max*/
+                    IF ipdQty LE bf-oe-prmtx.qty[iLevel] THEN DO:
+                        dPriceMtx = bf-oe-prmtx.price[iLevel] .
+                        lLessThanMax = NOT (bf-oe-prmtx.qty[iLevel] EQ 99999999).
+                        iLevel = 99.
+                        LEAVE.
+                    END.
                 END.
-            END.
-        IF NOT iplAllowMax OR lLessThanMax THEN
-            DO iLevel = 1 TO 10:
-                IF ipdQty EQ bf-oe-prmtx.qty[iLevel] THEN
-                    lFound = YES.
-            END.
-        IF NOT lFound AND NOT lLessThanMax AND iplAllowMax THEN
-            lFound = YES.
+            IF NOT iplAllowMax OR lLessThanMax THEN
+                DO iLevel = 1 TO 10:
+                    IF ipdQty EQ bf-oe-prmtx.qty[iLevel] THEN
+                        ASSIGN dPriceMtx = bf-oe-prmtx.price[iLevel]
+                        lFound = YES.
+                END.
+            IF NOT lFound AND NOT lLessThanMax AND iplAllowMax THEN
+                lFound = YES.
+        END.
+      /*  MESSAGE "dPriceMtx " STRING(dPriceMtx) VIEW-AS ALERT-BOX ERROR .*/
+        IF lFound AND int(ipdPrice) NE dPriceMtx  THEN DO:
+            MESSAGE 'According to Price Matrix price will be: ' STRING(dPriceMtx)  SKIP
+                    ' for Quantity: ' STRING(ipdQty)   
+                VIEW-AS ALERT-BOX INFO BUTTONS OK.
+            RETURN ERROR  .
+        END.
+        IF NOT lFound AND cOEPriceMatrixCheck EQ "Block Entry"  THEN DO:
+            MESSAGE 'Price Matrix not found for:' SKIP
+                '  Customer ' ipcCust SKIP
+                '  Item ' ipcINo SKIP 
+                '  Quantity of ' STRING(ipdQty) SKIP 
+                'Please Enter price in Price Matrix before save Item Line.'
+                VIEW-AS ALERT-BOX INFO BUTTONS OK.
+            RETURN ERROR  .
+        END.
+    
+    END. /* cOEPriceMatrixCheck EQ "Block Entry" */
+    ELSE IF glOEPriceMatrixCheck THEN DO:
+        IF lFound AND AVAIL bf-oe-prmtx THEN DO:
+            ASSIGN 
+                lFound = NO
+                lLessThanMax = YES.
+            IF iplAllowMax THEN 
+                DO iLevel = 1 TO 10:  /*don't fail match if qty is at the max*/
+                    IF ipdQty LE bf-oe-prmtx.qty[iLevel] THEN DO:
+                        lLessThanMax = NOT (bf-oe-prmtx.qty[iLevel] EQ 99999999).
+                        iLevel = 99.
+                        LEAVE.
+                    END.
+                END.
+            IF NOT iplAllowMax OR lLessThanMax THEN
+                DO iLevel = 1 TO 10:
+                    IF ipdQty EQ bf-oe-prmtx.qty[iLevel] THEN
+                        lFound = YES.
+                END.
+            IF NOT lFound AND NOT lLessThanMax AND iplAllowMax THEN
+                lFound = YES.
+        END.
+
+    IF NOT lFound THEN
+        MESSAGE 'Price Matrix not found for:' SKIP
+        '  Customer ' ipcCust SKIP
+        '  Item ' ipcINo SKIP 
+        '  Quantity of ' STRING(ipdQty) SKIP 
+        'Please review Matrix tab to confirm price levels.'
+            VIEW-AS ALERT-BOX INFO BUTTONS OK.
     END.
 END.
-IF NOT lFound THEN
-    MESSAGE 'Price Matrix not found for:' SKIP
-    '  Customer ' ipcCust SKIP
-    '  Item ' ipcINo SKIP 
-    '  Quantity of ' STRING(ipdQty) SKIP 
-    'Please review Matrix tab to confirm price levels.'
-        VIEW-AS ALERT-BOX INFO BUTTONS OK.
 
 END PROCEDURE.
 
@@ -8637,12 +8698,7 @@ PROCEDURE valid-po-no :
     FIND FIRST cust NO-LOCK
         WHERE cust.company EQ oe-ord.company
           AND cust.cust-no EQ oe-ord.cust-no
-          AND CAN-FIND(FIRST cust-po-mand
-                       WHERE cust-po-mand.reftable EQ "cust.po-mand"
-                         AND cust-po-mand.company  EQ cust.company
-                         AND cust-po-mand.loc      EQ ""
-                         AND cust-po-mand.code     EQ cust.cust-no
-                         AND cust-po-mand.val[1]   EQ 1)
+          AND cust.po-mandatory
         NO-ERROR.
     
     IF AVAIL cust AND TRIM(oe-ordl.po-no:SCREEN-VALUE) EQ "" THEN DO:

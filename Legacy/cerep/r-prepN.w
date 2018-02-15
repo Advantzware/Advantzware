@@ -1233,25 +1233,17 @@ FOR EACH prep WHERE prep.company = g_company
                  AND prep.CODE >= begin_prep
                  AND prep.CODE <= END_prep NO-LOCK BY prep.CODE:
 
-     FIND FIRST notes WHERE notes.rec_key EQ prep.rec_key NO-LOCK NO-ERROR .
+   FIND FIRST notes WHERE notes.rec_key EQ prep.rec_key NO-LOCK NO-ERROR .
 
    FIND FIRST reftable NO-LOCK
         WHERE reftable.reftable EQ "PREPCADFILE"
           AND reftable.rec_key  EQ prep.rec_key
          USE-INDEX rec_key NO-ERROR.
 
-   FIND FIRST bf-reftable
-            WHERE bf-reftable.reftable EQ "PREPLASTJOB"    
-            AND bf-reftable.company  EQ prep.company
-            AND bf-reftable.loc      EQ prep.loc          
-            AND bf-reftable.code     EQ prep.CODE  NO-LOCK NO-ERROR .
-
     ASSIGN v_ML     = IF prep.ml = TRUE THEN "M" ELSE "L"
            v_dfault = IF prep.dfault = TRUE THEN "Y" ELSE "N" .
-        IF AVAILABLE bf-reftable THEN
-            v-lst-job = TRIM(STRING(bf-reftable.code2)  + "-" + string(bf-reftable.val[1],"99"))    .
-        ELSE
-            v-lst-job = "" .
+           v-lst-job = TRIM(STRING(prep.last-job-no)  + "-" + string(prep.last-job-no2,"99"))    .
+        
 
     ASSIGN cDisplay = ""
                    cTmpField = ""

@@ -737,12 +737,11 @@ PROCEDURE setUserPrint :
 ------------------------------------------------------------------------------*/
   IF AVAILABLE oe-boll AND AVAILABLE oe-bolh THEN
   RUN custom/setUserPrint.p (g_company,'oe-boll_.',
-                             'begin_cust,end_cust,begin_bol#,end_bol#,begin_ord#,end_ord#,tb_reprint,tb_posted,rd_bolcert',
+                             'begin_cust,end_cust,begin_bol#,end_bol#,begin_ord#,end_ord#,tb_reprint,tb_posted,rd_bolcert,begin_date,end_date',
                              oe-bolh.cust-no + ',' + oe-bolh.cust-no + ',' +
                              STRING(oe-boll.bol-no) + ',' + STRING(oe-boll.bol-no) +
-                             ',,99999999,' + STRING(oe-bolh.printed) + ',' +
-                             STRING(oe-bolh.posted) + ',BOL').
-
+                             ',' + string(oe-boll.ord-no) + ',' + string(oe-boll.ord-no) + ',' + STRING(oe-bolh.printed) + ',' +
+                             STRING(oe-bolh.posted) + ',' + 'BOL' + ',' + string(oe-bolh.bol-date) + ',' + string(oe-bolh.bol-date)).
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
