@@ -44,7 +44,8 @@ DEF TEMP-TABLE tt-itg FIELD i-no LIKE itemfg.i-no
                       FIELD cust-no LIKE itemfg.cust-no
                       FIELD i-desc LIKE itemfg.i-dscr
                       FIELD table-source AS cha
-                      FIELD table-recid AS RECID.
+                      FIELD table-recid AS RECID
+                      FIELD item-line AS INTEGER LABEL "Line" .
 
 &scoped-define fld-name-1 tt-itg.i-no
 &scoped-define fld-name-2 tt-itg.i-name
@@ -75,7 +76,7 @@ DEF TEMP-TABLE tt-itg FIELD i-no LIKE itemfg.i-no
 &Scoped-define KEY-PHRASE TRUE
 
 /* Definitions for BROWSE BROWSE-1                                      */
-&Scoped-define FIELDS-IN-QUERY-BROWSE-1 tt-itg.i-no tt-itg.i-name tt-itg.cust-no tt-itg.i-desc   
+&Scoped-define FIELDS-IN-QUERY-BROWSE-1 tt-itg.i-no tt-itg.i-name tt-itg.cust-no tt-itg.i-desc item-line  
 &Scoped-define ENABLED-FIELDS-IN-QUERY-BROWSE-1   
 &Scoped-define SELF-NAME BROWSE-1
 &Scoped-define QUERY-STRING-BROWSE-1 FOR EACH tt-itg NO-LOCK     ~{&SORTBY-PHRASE}
@@ -147,10 +148,11 @@ DEFINE BROWSE BROWSE-1
       tt-itg.i-no FORMAT "x(15)":U WIDTH 23
       tt-itg.i-name FORMAT "x(30)":U
       tt-itg.cust-no FORMAT "x(8)":U WIDTH 10
-      tt-itg.i-desc FORMAT "x(30)":U
+      tt-itg.i-desc FORMAT "x(30)":U 
+      tt-itg.item-line FORMAT ">9":U 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ROW-MARKERS SEPARATORS SIZE 118 BY 11.19
+    WITH NO-ROW-MARKERS SEPARATORS SIZE 132 BY 11.19
          BGCOLOR 8 FONT 0.
 
 
@@ -406,7 +408,8 @@ PROCEDURE build-table :
                 tt-itg.i-desc = oe-ordl.part-dscr1
                 tt-itg.cust-no = oe-ord.cust-no
                 tt-itg.table-source = "Oe-ordl"
-                tt-itg.table-recid = RECID(oe-ordl).
+                tt-itg.table-recid = RECID(oe-ordl)
+                tt-itg.item-line   = oe-ordl.LINE .
        END.
      END.
      ELSE 
@@ -425,7 +428,8 @@ PROCEDURE build-table :
                    tt-itg.i-desc       = ""
                    tt-itg.cust-no      = po-ord.vend-no
                    tt-itg.table-source = "PO-ordl"
-                   tt-itg.table-recid  = RECID(PO-ordl).
+                   tt-itg.table-recid  = RECID(PO-ordl)
+                   tt-itg.item-line    = po-ordl.LINE .
         END.
       END.
     /* gdm - 08260916 end */

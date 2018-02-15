@@ -446,7 +446,7 @@ ASSIGN
        PUT "<P10></PROGRESS>" SKIP(0.5) "<FCourier New><C2><B>" lv-au "<C33>" lv-est-type "</B>".
        PUT "<P12><B><C95>JOB TICKET" SKIP. /*AT 140*/  /*caps(SUBSTRING(v-fg,1,1)) FORM "x" AT 40*/       
       
-       PUT UNFORMATTED "<r-2.7><UNITS=INCHES><C71><FROM><c95.8><r+2.7><BARCODE,TYPE=39,CHECKSUM=NONE,VALUE="
+       PUT UNFORMATTED "<r-2.7><UNITS=INCHES><C68><FROM><c95.8><r+2.7><BARCODE,TYPE=39,CHECKSUM=NONE,VALUE="
               cJobNumber ">" SKIP "<r-1>".
        PUT
        "<#1><C1><FROM><C106><R+45><RECT><||3><C80><P10></B>" v-qa-text "<B>"
@@ -619,7 +619,7 @@ ASSIGN
                       AND xoe-rel.i-no    EQ v-fg
                       NO-ERROR.
           END.
-
+           IF AVAIL xoe-rel THEN
            ASSIGN cCustpo-name = xoe-rel.lot-no.
         
          IF AVAILABLE xoe-rel AND cCustpo-name = "" THEN
@@ -1012,17 +1012,9 @@ ASSIGN
             /*PAGE. */
             IF xest.metric THEN do:
              v-out1-id = RECID(xeb).
-               run cec/desprnptree.p (recid(xef),
-                           ROWID(xeb),
-                           INPUT v-coldscr,
-                           "",
-                           "",
-                           "",
-                           "",
-                           "",
-                           input-output v-lines,
-                           recid(xest),
-                           "").         
+               run cec/desprnptree.p (RECID(xef),
+                                INPUT-OUTPUT v-lines,
+                                RECID(xest)).         
             PAGE.
             END.
             ELSE DO:

@@ -15,8 +15,9 @@ assign
  locode = gloc.
 
 DO TRANSACTION:
-   {sys/inc/selrptcol.i "OR14" }
+   {sys/inc/runAOAVer.i "OR14" }
 END.
 
-IF SelectRptColumn-log THEN RUN oerep/r-ontimN.w PERSISTENT.
-ELSE RUN oerep/r-ontimA.w PERSISTENT.
+cAOAFile = SEARCH("AOA/r-ontime.p").
+IF RunAOAVersion-log AND cAOAFile NE ? THEN RUN AOA/r-ontime.p.
+ELSE RUN oerep/r-ontimN.w PERSISTENT.

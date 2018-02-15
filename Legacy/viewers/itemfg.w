@@ -62,11 +62,7 @@ DEF VAR v-shpmet        LIKE itemfg.ship-meth NO-UNDO.
 &SCOPED-DEFINE itemfg-maint itemfg-maint
 
 
-&SCOPED-DEFINE where-fgstatus                 ~
-    WHERE reftable.reftable EQ "FGSTATUS"     ~
-      AND reftable.company  EQ itemfg.company ~
-      AND reftable.loc      EQ ""             ~
-      AND reftable.code     EQ itemfg.i-no
+
 
 &SCOPED-DEFINE where-exempt-disc                    ~
     WHERE reftable.reftable EQ "itemfg.exempt-disc" ~
