@@ -1236,33 +1236,12 @@ PROCEDURE reftable-values :
     IF AVAILABLE ce-ctrl THEN 
     DO: 
 
-        IF ip-display THEN
-            FIND FIRST reftable NO-LOCK
-                WHERE reftable.reftable EQ "ce-ctrl.broker-pct"
-                AND reftable.company  EQ ce-ctrl.company
-                AND reftable.loc      EQ ce-ctrl.loc
-                NO-ERROR.
-        ELSE
-            FIND FIRST reftable EXCLUSIVE-LOCK
-            WHERE reftable.reftable EQ "ce-ctrl.broker-pct"
-            AND reftable.company  EQ ce-ctrl.company
-            AND reftable.loc      EQ ce-ctrl.loc
-            NO-ERROR.
 
-        IF NOT AVAILABLE reftable THEN 
-        DO:
-            CREATE reftable.
-            ASSIGN
-                reftable.reftable = "ce-ctrl.broker-pct"
-                reftable.company  = ce-ctrl.company
-                reftable.loc      = ce-ctrl.loc.
-        END.
+          IF ip-display THEN
+            fi_broker-pct = ce-ctrl.broker-pct.
+          ELSE
+            ce-ctrl.broker-pct = fi_broker-pct.
 
-        IF ip-display THEN
-            fi_broker-pct = reftable.val[1].
-        ELSE
-            reftable.val[1] = fi_broker-pct.
-        FIND CURRENT reftable NO-LOCK NO-ERROR.
     END.
 
 END PROCEDURE.

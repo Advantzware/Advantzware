@@ -48,7 +48,7 @@ if avail mstd then do:
    xxx      = xef.cal
    tmpstore = "". /* kxy-run.p checks this variable! */
 
-  IF op-lock.val[2] EQ 1 THEN
+    IF xest.recalc-mr = YES THEN
     if mstd.mr-x ne 0 and mstd.mr-y ne 0 then do:
       call_id  = recid(mstd).
       run ce/kxy-mr.p(INPUT {&fil2}.n-out, INPUT {&fil2}.dept).
@@ -59,7 +59,8 @@ if avail mstd then do:
     end.
     else {&fil}.{&fld} = 0.
 
-  IF op-lock.val[1] EQ 1 THEN DO:
+
+    IF xest.recalc = YES THEN DO:
     if mstd.rs-x ne 0 and mstd.rs-y ne 0 then do:
       call_id  = recid(mstd).
 

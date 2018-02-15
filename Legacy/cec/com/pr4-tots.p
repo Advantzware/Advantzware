@@ -270,7 +270,7 @@ if ctrl[13] ne 0 then fac-tot2 = fac-tot2 + ctrl2[4].
 if ctrl[14] ne 0 then fac-tot2 = fac-tot2 + ctrl2[11].
 if ctrl[15] ne 0 then fac-tot2 = fac-tot2 + ctrl2[12].
 /* if ctrl[17] ne 0 then fac-tot2 = fac-tot2 + ctrl2[5]. */
-if ctrl[18] ne 0 then fac-tot2 = fac-tot2 + ctrl2[18].
+/*if ctrl[18] ne 0 then fac-tot2 = fac-tot2 + ctrl2[18]. double counted in fac-tot2 ticket 26340*/
 /*
 if ctrl[17] eq 1 and ctrl2[5] gt 1 then
   put "Commission" ctrl2[5] / qm to 48 ctrl2[5] to 80 skip.

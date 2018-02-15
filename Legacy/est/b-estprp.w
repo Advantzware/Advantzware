@@ -164,7 +164,7 @@ DEFINE BROWSE br_table
   QUERY br_table NO-LOCK DISPLAY
       est-prep.s-num COLUMN-LABEL "Sht #" FORMAT ">>>":U
       est-prep.b-num COLUMN-LABEL "B #" FORMAT ">>>":U
-      est-prep.code FORMAT "x(15)":U WIDTH 20
+      est-prep.code FORMAT "x(20)":U WIDTH 20
       est-prep.qty FORMAT "->>,>>9.9":U
       est-prep.dscr FORMAT "x(20)":U
       est-prep.simon FORMAT "X":U
@@ -276,7 +276,7 @@ ASSIGN
      _FldNameList[2]   > ASI.est-prep.b-num
 "est-prep.b-num" "B #" ">>>" "integer" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   > ASI.est-prep.code
-"est-prep.code" ? "x(15)" "character" ? ? ? ? ? ? yes ? no no "20" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"est-prep.code" ? "x(20)" "character" ? ? ? ? ? ? yes ? no no "20" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[4]   > ASI.est-prep.qty
 "est-prep.qty" ? "->>,>>9.9" "decimal" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[5]   > ASI.est-prep.dscr

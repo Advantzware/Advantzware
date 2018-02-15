@@ -1887,18 +1887,15 @@ PROCEDURE set-import-stds :
         AND (NOT AVAILABLE est-op OR ROWID(xop) NE ROWID(est-op)),
       FIRST mach NO-LOCK
       {sys/look/machW.i}
-        AND mach.m-code EQ xop.m-code,
-      FIRST reftable NO-LOCK
-      WHERE reftable.reftable EQ "mach.obsolete"
-        AND reftable.company  EQ mach.company
-        AND reftable.loc      EQ mach.loc
-        AND reftable.code     EQ mach.m-code
-        AND reftable.val[1]   EQ 1:
+        AND mach.m-code EQ xop.m-code:
+   
+   IF mach.obsolete THEN DO: 
     MESSAGE "Machine: " + TRIM(mach.m-code) +
             " is obsolete, please replace or standards will not be imported"
         VIEW-AS ALERT-BOX ERROR.
     ip-import-stds = NO.
     LEAVE.
+   END.
   END.
 
   ASSIGN
@@ -2091,12 +2088,8 @@ PROCEDURE valid-mach :
       RETURN ERROR.
     END.
 
-    IF CAN-FIND(FIRST reftable
-                WHERE reftable.reftable EQ "mach.obsolete"
-                  AND reftable.company  EQ mach.company
-                  AND reftable.loc      EQ mach.loc
-                  AND reftable.code     EQ mach.m-code
-                  AND reftable.val[1]   EQ 1) THEN DO:
+
+     IF mach.obsolete THEN DO:
       MESSAGE "Machine is obsolete, please choose a different machine"
           VIEW-AS ALERT-BOX ERROR.
       APPLY "entry" TO est-op.m-code IN BROWSE {&browse-name}.
