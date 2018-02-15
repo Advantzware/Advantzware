@@ -666,16 +666,6 @@ DO:
 
   IF AVAIL job THEN DO:
 
-/*    FIND FIRST reftable                                         */
-/*         WHERE reftable.reftable EQ "job.create-time"           */
-/*           AND reftable.company  EQ job.company                 */
-/*           AND reftable.loc      EQ ""                          */
-/*           AND reftable.code     EQ STRING(job.job,"9999999999")*/
-/*           USE-INDEX reftable                                   */
-/*         NO-LOCK NO-ERROR.                                      */
-/*                                                                */
-/*    IF AVAIL reftable THEN li-time = reftable.val[1].           */
-     
       li-time = job.create-time.     
 
     IF job.create-date  GT job.pr-print-date      OR
