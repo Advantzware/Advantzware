@@ -26,14 +26,13 @@ DEF VAR ll-style AS LOG NO-UNDO.
 
 DEF NEW SHARED VAR qty AS INT NO-UNDO.
 
+
 &SCOPED-DEFINE where-machine                                                     ~
-               WHERE (mach.company EQ cocode                                  ~
-                 AND  NOT CAN-FIND(FIRST reftable                             ~
-                                   WHERE reftable.reftable EQ "mach.obsolete" ~
-                                     AND reftable.company  EQ mach.company    ~
-                                     AND reftable.loc      EQ mach.loc        ~
-                                     AND reftable.code     EQ mach.m-code     ~
-                                     AND reftable.val[1]   EQ 1)) 
+               WHERE mach.company EQ cocode                                  ~
+                 AND mach.obsolete EQ YES                                       
+
+
+
 
 {ce/mach-lst.i new}
 

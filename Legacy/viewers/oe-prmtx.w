@@ -88,7 +88,7 @@ oe-prmtx.qty[10] oe-prmtx.uom[10]
 &Scoped-define FIRST-ENABLED-TABLE oe-prmtx
 &Scoped-Define ENABLED-OBJECTS RECT-1 RECT-5 
 &Scoped-Define DISPLAYED-FIELDS oe-prmtx.cust-no oe-prmtx.custype ~
-oe-prmtx.i-no oe-prmtx.procat oe-prmtx.eff-date oe-prmtx.meth ~
+oe-prmtx.i-no oe-prmtx.procat oe-prmtx.eff-date oe-prmtx.exp-date oe-prmtx.meth ~
 oe-prmtx.qty[1] oe-prmtx.price[1] oe-prmtx.discount[1] oe-prmtx.uom[1] ~
 oe-prmtx.qty[2] oe-prmtx.price[2] oe-prmtx.discount[2] oe-prmtx.uom[2] ~
 oe-prmtx.qty[3] oe-prmtx.price[3] oe-prmtx.discount[3] oe-prmtx.uom[3] ~
@@ -108,7 +108,7 @@ oe-prmtx.qty[10] oe-prmtx.price[10] oe-prmtx.discount[10] oe-prmtx.uom[10]
 &Scoped-define ADM-CREATE-FIELDS oe-prmtx.cust-no oe-prmtx.custype ~
 oe-prmtx.i-no oe-prmtx.procat 
 &Scoped-define ADM-ASSIGN-FIELDS oe-prmtx.cust-no oe-prmtx.custype ~
-oe-prmtx.i-no oe-prmtx.procat oe-prmtx.eff-date oe-prmtx.price[1] ~
+oe-prmtx.i-no oe-prmtx.procat oe-prmtx.eff-date oe-prmtx.exp-date oe-prmtx.price[1] ~
 oe-prmtx.discount[1] oe-prmtx.price[2] oe-prmtx.discount[2] ~
 oe-prmtx.price[3] oe-prmtx.discount[3] oe-prmtx.price[4] ~
 oe-prmtx.discount[4] oe-prmtx.price[5] oe-prmtx.discount[5] ~
@@ -198,8 +198,12 @@ DEFINE FRAME F-Main
      oe-prmtx.procat AT ROW 1.24 COL 115 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 13 BY 1
-     oe-prmtx.eff-date AT ROW 2.43 COL 104 COLON-ALIGNED
+     oe-prmtx.eff-date AT ROW 2.43 COL 78 COLON-ALIGNED
           LABEL "Effective Date"
+          VIEW-AS FILL-IN 
+          SIZE 19.6 BY 1
+     oe-prmtx.exp-date AT ROW 2.43 COL 119 COLON-ALIGNED
+          LABEL "Expiration Date"
           VIEW-AS FILL-IN 
           SIZE 19.6 BY 1
      oe-prmtx.meth AT ROW 2.67 COL 32 NO-LABEL
@@ -207,7 +211,7 @@ DEFINE FRAME F-Main
           RADIO-BUTTONS 
                     "Price", yes,
 "Discount", no
-          SIZE 48 BY .71
+          SIZE 28 BY .71
      oe-prmtx.qty[1] AT ROW 4.57 COL 33 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 14 BY 1
@@ -469,6 +473,8 @@ ASSIGN
    NO-ENABLE 2                                                          */
 /* SETTINGS FOR FILL-IN oe-prmtx.eff-date IN FRAME F-Main
    NO-ENABLE 2 EXP-LABEL                                                */
+/* SETTINGS FOR FILL-IN oe-prmtx.exp-date IN FRAME F-Main
+   NO-ENABLE 2 EXP-LABEL                                                */
 /* SETTINGS FOR FILL-IN F-2 IN FRAME F-Main
    NO-ENABLE ALIGN-L 6                                                  */
 ASSIGN 
@@ -608,6 +614,23 @@ DO:
   {&methods/lValidateError.i NO}
 END.
 
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-prmtx.exp-date V-table-Win
+ON LEAVE OF oe-prmtx.exp-date IN FRAME F-Main /* Item No */
+DO:
+   IF LASTKEY <> -1 THEN DO:
+     RUN valid-expdate NO-ERROR.
+     IF ERROR-STATUS:ERROR THEN DO:
+        RETURN NO-APPLY.
+     END.
+  END.
+    
+  
+  
+END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1084,6 +1107,8 @@ PROCEDURE local-create-record :
   IF adm-adding-record THEN
   DO WITH FRAME {&FRAME-NAME}:
     eff-date:SCREEN-VALUE = STRING(TODAY,"99/99/9999").
+    oe-prmtx.exp-date:SCREEN-VALUE =  "12/31/2099"  .
+    oe-prmtx.exp-date = 12/31/2099 .
   END.
 
 END PROCEDURE.
@@ -1184,6 +1209,11 @@ PROCEDURE local-update-record :
   IF ERROR-STATUS:ERROR THEN DO:
      RETURN NO-APPLY.
   END.
+  RUN valid-expdate NO-ERROR.
+  IF ERROR-STATUS:ERROR THEN DO:
+     RETURN NO-APPLY.
+  END.
+  
  
 
   run valid-uom-01.
@@ -1368,6 +1398,27 @@ PROCEDURE valid-custtype :
   END.
 
 
+
+  {methods/lValidateError.i NO}
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+  &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-expdate V-table-Win 
+PROCEDURE valid-expdate :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+
+  {methods/lValidateError.i YES}
+  IF DATE(oe-prmtx.exp-date:SCREEN-VALUE in frame {&frame-name}) LT DATE(oe-prmtx.eff-date:SCREEN-VALUE in frame {&frame-name}) THEN DO:
+          MESSAGE "Expiration date should be greater than Effective Date." VIEW-AS ALERT-BOX ERROR.
+          APPLY "entry" TO oe-prmtx.exp-date.
+          RETURN ERROR.
+      END.
 
   {methods/lValidateError.i NO}
 END PROCEDURE.

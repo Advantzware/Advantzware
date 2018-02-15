@@ -885,7 +885,7 @@ DO:
         ELSE vmcl-cost = ctrl2[18].
 
         ASSIGN
-            fac-tot2  = fac-tot2 + vmcl-cost
+/*            fac-tot2  = fac-tot2 + vmcl-cost - double counted above 26340*/
             vmcl-cost = vmcl-cost / qm.
 
         {cec/pr4-mcln.i vmcl-desc vmcl vmcl-cost 19}

@@ -1442,6 +1442,29 @@ PROCEDURE Rebuild-Stds :
          UNDO, RETURN.
      END.
 
+     FOR EACH job-hdr FIELDS(company est-no i-no) 
+         where job-hdr.company EQ job.company
+           and job-hdr.job     EQ job.job
+           and job-hdr.job-no  EQ job.job-no
+         and job-hdr.job-no2 EQ job.job-no2 NO-LOCK ,
+         FIRST itemfg FIELDS(pur-man) WHERE
+               itemfg.company EQ job-hdr.company AND
+               itemfg.i-no EQ job-hdr.i-no NO-LOCK:
+         FIND FIRST eb NO-LOCK
+             WHERE eb.company EQ cocode
+               AND eb.est-no EQ job.est-no 
+               AND eb.stock EQ job-hdr.i-no  NO-ERROR.
+         IF AVAIL eb AND eb.pur-man NE itemfg.pur-man AND NOT itemfg.isaset  THEN DO:
+             MESSAGE "FG Item file indicates item is (x) (which would be either purchased " SKIP
+                "or manufactured) while estimate indicates it is (y) - These should be" SKIP
+                " set the same." VIEW-AS ALERT-BOX WARNING . 
+             LEAVE .
+         END.
+
+     END.
+          
+
+
      FOR EACH job-mat FIELDS(company all-flg rm-i-no) WHERE
          job-mat.company = job.company AND
          job-mat.job = job.job AND
@@ -2173,18 +2196,14 @@ PROCEDURE validate-est :
             AND est-op.line    LT 500,
           FIRST mach NO-LOCK
           {sys/look/machW.i}
-            AND mach.m-code EQ est-op.m-code,
-          FIRST reftable NO-LOCK
-          WHERE reftable.reftable EQ "mach.obsolete"
-            AND reftable.company  EQ mach.company
-            AND reftable.loc      EQ mach.loc
-            AND reftable.code     EQ mach.m-code
-            AND reftable.val[1]   EQ 1:
+            AND mach.m-code EQ est-op.m-code:
+       IF mach.obsolete THEN DO:
         MESSAGE "Machine: " + TRIM(mach.m-code) +
                 " is obsolete, please replace to create job..."
             VIEW-AS ALERT-BOX ERROR.
         APPLY "entry" TO job.est-no.
         RETURN NO-APPLY.
+       END.
       END.
 
       ll-valid = YES.

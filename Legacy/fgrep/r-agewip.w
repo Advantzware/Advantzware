@@ -15,10 +15,9 @@ assign
  locode = gloc.
 
 DO TRANSACTION:
-   {sys/inc/selrptcol.i "IL15" }
+   {sys/inc/runAOAVer.i "IL15" }
 END.
 
-/*IF SelectRptColumn-log THEN RUN fgrep/r-agewipN.w.
-ELSE RUN fgrep/r-ageinvA.w.     
-*/
-RUN fgrep/r-agewipN.w PERSISTENT.
+cAOAFile = SEARCH("AOA/r-agewip.p").
+IF RunAOAVersion-log AND cAOAFile NE ? THEN RUN AOA/r-agewip.p.
+ELSE RUN fgrep/r-agewipN.w.

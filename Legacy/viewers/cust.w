@@ -2465,38 +2465,21 @@ PROCEDURE reftable-values :
   DEF INPUT PARAM ip-display AS LOG NO-UNDO.
 
   IF AVAIL cust THEN DO:
-    FIND FIRST reftable {&where-po-mand} NO-ERROR.
-    IF NOT AVAIL reftable THEN DO:
-      CREATE reftable.
-      ASSIGN
-       reftable.reftable = "cust.po-mand"
-       reftable.company  = cust.company
-       reftable.loc      = ""
-       reftable.code     = cust.cust-no.
-    END.
-
-    IF ip-display THEN
-      tb_po-mand = reftable.val[1] EQ 1.
+   
+    IF ip-display THEN 
+        ASSIGN
+        tb_po-mand = cust.po-mandatory 
+        tb_show-set = cust.show-set .
     ELSE
-      reftable.val[1] = INT(tb_po-mand).
-
-
-    FIND FIRST reftable {&where-show-set} NO-ERROR.
-    IF NOT AVAIL reftable THEN DO:
-      CREATE reftable.
-      ASSIGN
-       reftable.reftable = "cust.show-set"
-       reftable.company  = cust.company
-       reftable.loc      = ""
-       reftable.code     = cust.cust-no
-       reftable.val[1]   = 1.
-    END.
+        ASSIGN
+            cust.po-mandatory = (tb_po-mand)
+            cust.show-set = tb_show-set .
 
     IF ip-display THEN
       tb_show-set = reftable.val[1] EQ 1.
     ELSE
       reftable.val[1] = INT(tb_show-set).
-
+   
     FIND FIRST reftable {&where-flat-comm} NO-ERROR.
     IF NOT AVAIL reftable THEN DO:
       CREATE reftable.
@@ -2508,9 +2491,9 @@ PROCEDURE reftable-values :
     END.
 
     IF ip-display THEN
-      fi_flat-comm = reftable.val[1].
+      fi_flat-comm = cust.flatCommPct.
     ELSE
-      reftable.val[1] = fi_flat-comm.
+      cust.flatCommPct = fi_flat-comm.
 
     FIND CURRENT reftable NO-LOCK.
   END.

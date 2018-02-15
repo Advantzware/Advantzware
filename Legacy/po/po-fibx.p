@@ -164,16 +164,8 @@ RUN sys/ref/uom-fg.p (?, OUTPUT fg-uom-list).
 print-po-blok:
 FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
     FIRST po-ord WHERE RECID(po-ord) EQ report.rec-id
-    break by po-ord.po-no:
-
-  FIND FIRST reftable WHERE
-       reftable.reftable EQ "users.user-docs" AND
-       reftable.company EQ po-ord.buyer
-       NO-LOCK NO-ERROR.
-
-  IF AVAIL reftable AND
-     reftable.val[1] EQ 1 THEN
-     DO:
+    break by po-ord.po-no:  
+  
         FIND FIRST b-ref1 WHERE
              b-ref1.reftable EQ "users.phone-no" AND
              b-ref1.company EQ po-ord.buyer
@@ -210,14 +202,7 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
 
         IF AVAIL users AND users.image_filename <> "" THEN
            lv-email = "Email:  " + users.image_filename.
-     END.
-  ELSE
-     IF AVAIL cust THEN
-        ASSIGN
-           v-comp-add4 = "Phone:  " + string(cust.area-code,"(999)") + string(cust.phone,"999-9999") 
-           v-comp-add5 = "Fax  :  " + string(cust.fax,"(999)999-9999").
-
-  RELEASE reftable NO-ERROR.
+    
 
   assign
    v-contact      = po-ord.contact
