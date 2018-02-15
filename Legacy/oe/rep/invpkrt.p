@@ -126,15 +126,7 @@ ASSIGN ls-image1 = "images\packrite.jpg"
       FIND FIRST cust WHERE cust.company = xinv-head.company
                         AND cust.cust-no = xinv-head.cust-no NO-LOCK NO-ERROR.
 
-      FIND FIRST reftable WHERE
-           reftable.reftable EQ "cust.show-set" AND
-           reftable.company  EQ xinv-head.company AND
-           reftable.loc      EQ "" AND            
-           reftable.code     EQ xinv-head.cust-no
-           NO-LOCK NO-ERROR.
-
-      IF NOT AVAIL reftable OR
-         (AVAIL reftable AND reftable.val[1] = 1) THEN
+      if avail cust and cust.show-set then
          v-show-parts = YES.
       ELSE
          v-show-parts = NO.

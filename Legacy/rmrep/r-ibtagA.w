@@ -1235,6 +1235,8 @@ DEFINE VARIABLE ctype AS CHARACTER FORMAT "!"   NO-UNDO INITIAL "B".
 /* rdb 02/06/07 02050701 */
 DEFINE VARIABLE chrTotCostVal AS CHARACTER  NO-UNDO.
 DEFINE VARIABLE chrRmBinTag AS CHARACTER FORMAT "x(22)" NO-UNDO.
+DEFINE VARIABLE cShtSize AS CHARACTER FORMAT "x(30)" NO-UNDO.
+DEFINE VARIABLE cJobNo LIKE po-ordl.job-no NO-UNDO.
 
 {custom/statusMsg.i "'Processing...'"} 
 
@@ -1266,7 +1268,7 @@ ASSIGN
 IF tb_excel THEN DO:
 
     excelheader = "Whse,Item,Item Name,Bin,Tag,Rct Date," +
-                  "Quantity,Unit Cost,Total Cost Value".
+                  "Quantity,Unit Cost,Total Cost Value,Job#,Sheet Size".
 
     OUTPUT STREAM excel TO VALUE(fi_file).
     PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
@@ -1346,6 +1348,28 @@ SESSION:SET-WAIT-STATE ("general").
 
     IF tagask AND tt-rm-bin.tag NE "" THEN
       tt-rm-bin.tag = "*" + tt-rm-bin.tag + "*".
+    ASSIGN cJobNo = ""
+           cShtSize = "" .
+
+    FIND FIRST po-ord NO-LOCK WHERE po-ord.company EQ tt-rm-bin.company 
+        AND po-ord.po-no EQ tt-rm-bin.po-no NO-ERROR.
+
+    IF tt-rm-bin.po-no NE 0 AND AVAILABLE po-ord THEN DO:
+        FIND FIRST po-ordl  NO-LOCK WHERE po-ordl.company EQ tt-rm-bin.company 
+            AND po-ordl.po-no EQ po-ord.po-no
+            AND po-ordl.i-no EQ tt-rm-bin.i-no NO-ERROR.
+        
+        IF AVAILABLE po-ordl THEN
+            ASSIGN cJobNo     = string(po-ordl.job-no).
+        ELSE
+            ASSIGN cJobNo = ""  .
+    END.
+    ELSE
+            ASSIGN 
+                   cJobNo = "" .
+
+   ASSIGN cShtSize = IF ITEM.r-wid GT 0 THEN trim(STRING(ITEM.r-wid,">,>>9.99"))
+                   ELSE (trim(string(ITEM.s-len,">,>>9.99")) + " X " + trim(string(ITEM.s-wid,">,>>9.99")) ).
 
     DISPLAY tt-rm-bin.loc          /*WHEN FIRST-OF(tt-rm-bin.loc)
                                      OR v-prnt-line EQ 0*/
@@ -1370,7 +1394,11 @@ SESSION:SET-WAIT-STATE ("general").
             v-cost                 FORMAT ">,>>>,>>9.99<<<<"
                                    LABEL "Unit Cost"
             tt-rm-bin.qty * v-cost FORMAT  "->,>>>,>>9.99"
-                                   COLUMN-LABEL "Total!Cost Value" SKIP 
+                                   COLUMN-LABEL "Total!Cost Value"
+            STRING(cJobNo)         FORMAT "x(8)"
+                                   LABEL "Job#"
+            STRING(cShtSize)       FORMAT "x(20)"
+                                   LABEL "Sheet Size" SKIP 
 
          WITH FRAME itemx NO-BOX NO-ATTR-SPACE DOWN STREAM-IO WIDTH 164.
 
@@ -1384,7 +1412,7 @@ SESSION:SET-WAIT-STATE ("general").
         EXPORT STREAM excel DELIMITER ","
           tt-rm-bin.loc tt-rm-bin.i-no ITEM.i-name tt-rm-bin.loc-bin
           chrRmBinTag tt-rm-bin.trans-date tt-rm-bin.qty v-cost 
-          chrTotCostVal.
+          chrTotCostVal STRING(cJobNo,"x(8)") STRING(cShtSize,"x(20)") .
 
     END.
 

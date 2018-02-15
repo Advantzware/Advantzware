@@ -16,8 +16,9 @@ assign
 
 
 DO TRANSACTION:
-   {sys/inc/selrptcol.i "ER9" }
+   {sys/inc/runAOAVer.i "ER9" }
 END.
 
-IF SelectRptColumn-log THEN RUN cerep/r-quolstN.w PERSISTENT.
-ELSE RUN cerep/r-quolstA.w PERSISTENT.
+cAOAFile = SEARCH("AOA/r-quolst.p").
+IF RunAOAVersion-log AND cAOAFile NE ? THEN RUN AOA/r-quolst.p.
+ELSE RUN cerep/r-quolstN.w PERSISTENT.

@@ -887,10 +887,11 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL est-op.spare-char-1 br_table _BROWSE-COLUMN B-table-Win
 ON ENTRY OF est-op.spare-char-1 IN BROWSE br_table /* Spare char 1 Changes */
 DO:
-  DO WITH FRAME {&FRAME-NAME}:
+    
+  /*DO WITH FRAME {&FRAME-NAME}:
     APPLY "tab" TO {&self-name} IN BROWSE {&browse-name}.
     RETURN NO-APPLY.
-  END.
+  END.*/
    
 END.
 
@@ -1154,7 +1155,6 @@ PROCEDURE get-stds :
 ------------------------------------------------------------------------------*/
   DEFINE VARIABLE chr-handle AS CHARACTER NO-UNDO.
   
-
   ll-import-stds = NO.
 
   RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE, "tableio-source", OUTPUT chr-handle).
@@ -2174,7 +2174,6 @@ PROCEDURE valid-mach :
                dMachMaxLen = IF AVAILABLE mach THEN mach.max-len ELSE 0 
                dMachMaxWid = IF AVAILABLE mach THEN mach.max-wid ELSE 0
                qty = lv-eqty. /*20108 - qty variable needed for mach-seq.i->mach-qty.p setting equal to selected routing qty*/
-                 
 
         IF lv-dept EQ "RC" THEN DO:
           xcal = sh-dep.
@@ -2215,10 +2214,9 @@ PROCEDURE valid-mach :
                     RETURN ERROR.
                 END.
 
-            END.  /* cMachType = "S" */
-            ELSE IF cMachType = "B" AND est-op.spare-char-1:screen-value IN BROWSE {&browse-name} NE "R" THEN DO:
-                  RUN custom/d-msg-mach.w ("Warning","","Estimate specifications outside machine limits ","",2,"Add Machine Anyway,OK", OUTPUT v-msgreturn).         
-                     
+            END.  /* cMachType = "S" */   
+            ELSE IF cMachType = "B" AND est-op.spare-char-1:screen-value IN BROWSE {&browse-name} NE "R" THEN DO: 
+                  RUN custom/d-msg-mach.w ("Warning","","Estimate specifications outside machine limits ","",2,"Add Machine Anyway,OK", OUTPUT v-msgreturn).        
                  IF v-msgreturn = 1  THEN DO:
                     est-op.spare-char-1:screen-value IN BROWSE {&browse-name} = "R" .
                     FIND FIRST mach

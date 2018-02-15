@@ -78,19 +78,18 @@ FOR EACH cust
 
         /* task 09200521 include factored fg items*/
         IF NOT v-include-factored THEN 
-        DO:
+          
+           DO:
             FIND FIRST ar-invl NO-LOCK
                 WHERE ar-invl.x-no EQ ar-inv.x-no
-                AND CAN-FIND(FIRST reftable
-                WHERE reftable.reftable EQ "FACTORED"
-                AND reftable.company  EQ ar-inv.company
-                AND reftable.loc      EQ ""
-                AND reftable.code     EQ ar-invl.i-no
-                AND reftable.code2    EQ "YES")
+                AND CAN-FIND(FIRST itemfg
+                WHERE itemfg.company  EQ ar-inv.company
+                AND itemfg.i-no     EQ ar-invl.i-no
+                AND itemfg.factored    EQ YES)
                 NO-ERROR.
             IF AVAILABLE ar-invl THEN NEXT.
         END.
-
+          
         /* Inserted because AR stores gross wrong */
         IF ar-inv.net EQ ar-inv.gross + ar-inv.freight + ar-inv.tax-amt THEN
             amt = ar-inv.net.

@@ -3,21 +3,14 @@
 &Scoped-define WINDOW-NAME C-Win
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS C-Win 
 /*------------------------------------------------------------------------
-
   File: this is a test
-
   Description: 
-
   Input Parameters:
       <none>
-
   Output Parameters:
       <none>
-
   Author: 
-
   Created: 
-
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress AppBuilder.      */
 /*----------------------------------------------------------------------*/
@@ -171,6 +164,7 @@ DEF VAR cTopDir AS CHAR INITIAL "asigui" NO-UNDO.
 DEF VAR cUpdAdminDir AS CHAR INITIAL "Admin" NO-UNDO.
 DEF VAR cUpdatesDir AS CHAR INITIAL "Updates" NO-UNDO.
 DEF VAR cUpdCompressDir AS CHAR INITIAL "Compress" NO-UNDO.
+DEFINE VARIABLE cInitCompressUpdDir AS CHARACTER NO-UNDO.
 DEF VAR cUpdDataDir AS CHAR INITIAL "DataFiles" NO-UNDO.
 DEF VAR cUpdDataUpdateDir AS CHAR INITIAL "DataFiles" NO-UNDO.
 DEF VAR cUpdDeskDir AS CHAR INITIAL "Desktop" NO-UNDO.
@@ -1160,7 +1154,8 @@ END.
 &Scoped-define SELF-NAME bProcess
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL bProcess C-Win
 ON CHOOSE OF bProcess IN FRAME DEFAULT-FRAME /* Start  Update */
-DO:
+    DO:
+  RUN ipExpandPatchVars.
     RUN ipStatus ("Beginning Patch Application").
     IF tbBackupDBs:CHECKED IN FRAME {&FRAME-NAME} THEN DO:
         RUN ipBackupDBs.
@@ -1299,7 +1294,7 @@ ON LEAVE OF fiNewVer IN FRAME DEFAULT-FRAME /* New Version */
 DO:
     ASSIGN
         fiPatchDir:{&SV} = "PATCH" + fiNewVer:{&SV}
-        cUpdProgramDir = fiPatchDir:{&SV}.
+        /* cUpdProgramDir = fiPatchDir:{&SV} */.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1380,12 +1375,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE
         END.
     END.
     
-    RUN ipCreateTTiniFile.
-    RUN ipFindIniFile.
-    IF cIniLoc NE "" THEN 
-        RUN ipReadIniFile.
-    RUN ipSetDispVars.
-    RUN ipExpandVarNames.
+
 /*
     RUN ipAmICurrent IN THIS-PROCEDURE.
 */        
@@ -1407,12 +1397,20 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE
     ASSIGN
         cThisPatch = SUBSTRING(cThisPatch,6).
     IF cThisPatch NE "" 
-    AND cThisPatch NE ? THEN DO:
+        AND cThisPatch NE ? THEN 
+    DO:
         ASSIGN
             fiNewVer:{&SV} = cThisPatch.
         APPLY 'leave' TO fiNewVer.
     END.
     
+    RUN ipCreateTTiniFile.
+    RUN ipFindIniFile.
+    IF cIniLoc NE "" THEN 
+        RUN ipReadIniFile.
+    RUN ipSetDispVars.
+    RUN ipExpandVarNames.   
+     
     IF NOT THIS-PROCEDURE:PERSISTENT THEN
         WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -1662,6 +1660,7 @@ PROCEDURE ipArchiveFiles :
     DEF VAR cCmdZip AS CHAR NO-UNDO.
     DEF VAR lProdExists AS LOG NO-UNDO.
     DEF VAR lProdOverExists AS LOG NO-UNDO.
+    DEFINE VARIABLE lAdminExists AS LOG NO-UNDO.
     
     RUN ipStatus ("Archiving ASI System Files").
 
@@ -1752,6 +1751,22 @@ PROCEDURE ipArchiveFiles :
                       STRING(MONTH(TODAY),"99") +
                       STRING(DAY(TODAY),"99") + ".7z " +
                       cEnvProdDir + "\Override\*".
+        OS-COMMAND SILENT VALUE(cCmdZip).
+    END.
+
+    FILE-INFO:FILE-NAME = cEnvProdDir + "\Admin".
+    ASSIGN
+        lAdminExists = FILE-INFO:FULL-PATHNAME NE ?.
+    IF lAdminExists THEN 
+    DO:
+        RUN ipStatus ("Archiving old admin files").
+        ASSIGN
+            cCmdZip = cUpdCompressDir + "\7z.exe a " + 
+                      cPgmBackup + "\Admin" + 
+                      STRING(YEAR(TODAY)) +
+                      STRING(MONTH(TODAY),"99") +
+                      STRING(DAY(TODAY),"99") + ".7z " +
+                      cAdminDir + "\Admin\*".
         OS-COMMAND SILENT VALUE(cCmdZip).
     END.
 
@@ -2292,8 +2307,8 @@ PROCEDURE ipCopyStartup :
     IF NOT lDesktopExists 
     OR SEARCH(cDeskDir + "\advantzware.ico") = ? THEN
         OS-COPY VALUE(cUpdDeskDir) VALUE(cDeskDir).
-
-    OS-COMMAND SILENT VALUE("COPY " + cUpdAdminDir + " " + cAdminDir).
+    /* Overwriting advantzware.usr?                                       */
+    /* OS-COMMAND SILENT VALUE("COPY " + cUpdAdminDir + " " + cAdminDir). */
     IF SEARCH(cAdminDir + "\advantzware.usr") = ? THEN
         OS-COMMAND SILENT VALUE("COPY " + cUpdDataDir + "\advantzware.usr " + cAdminDir). 
 
@@ -2639,7 +2654,7 @@ PROCEDURE ipExpandFiles :
     DEF VAR lTestExists AS LOG NO-UNDO.
     
     RUN ipStatus ("Installing New ASI System Files").
-
+    
     FILE-INFO:FILE-NAME = cEnvProdDir.
     ASSIGN
         lProdExists = FILE-INFO:FULL-PATHNAME NE ?.
@@ -2659,6 +2674,7 @@ PROCEDURE ipExpandFiles :
             OS-CREATE-DIR VALUE(cEnvProdDir + "\Programs").
             ASSIGN
                 cCmdLine3 = cCmdLine2 + cEnvProdDir + "\" + cFileType.
+             
             OS-COMMAND SILENT VALUE(cCmdLine3).
         END.
         IF lTestExists THEN DO:
@@ -2723,10 +2739,52 @@ PROCEDURE ipExpandFiles :
         END.
     END.
 
+    IF SEARCH(cUpdProgramDir + "\admin.7z") NE ? THEN DO:
+        RUN ipStatus ("Installing new Admin files").
+
+        ASSIGN
+            cFileType = "admin"
+            cCmdLine2 = cCmdLine1 + cUpdProgramDir + "\" + cFileType + ".7z -y -o".
+        IF lProdExists THEN DO:
+            IF SEARCH(cAdminDir + "\admin") EQ ? THEN 
+              OS-CREATE-DIR VALUE(cAdminDir + "\admin").
+            ASSIGN
+                cCmdLine3 = cCmdLine2 + cAdminDir + "\" + cFileType.
+            OS-COMMAND SILENT VALUE(cCmdLine3).
+        END.
+
+    END.
+    RUN ipStatus ("Install of New ASI System Files Complete").
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipExpandPatchVars C-Win
+PROCEDURE ipExpandPatchVars:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    ASSIGN 
+    cPatchNo = fiNewVer:{&SV}
+    cUpdDataDir = cUpdatesDir + "\" + "Patch" + cPatchNo + "\" + cUpdDataDir
+    cUpdProgramDir = cUpdatesDir + "\" + "Patch" + cPatchNo + "\" + cUpdProgramDir
+    cUpdAdminDir = cUpdatesDir + "\" + "Patch" + cPatchNo + "\" + cUpdAdminDir
+    cUpdDeskDir = cUpdatesDir + "\" + "Patch" + cPatchNo + "\" + cUpdDeskDir
+    cUpdMenuDir = cUpdatesDir + "\" + "Patch" + cPatchNo + "\" + cUpdMenuDir
+    cUpdRelNotesDir = cUpdatesDir + "\" + "Patch" + cPatchNo + "\" + cUpdRelNotesDir
+    cUpdStructureDir = cUpdatesDir + "\" + "Patch" + cPatchNo + "\" + cUpdStructureDir
+    cUpdCompressDir = cUpdatesDir + "\" + "Patch" + cPatchNo + "\" + cUpdCompressDir
+    .
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipExpandVarNames C-Win 
 PROCEDURE ipExpandVarNames :
@@ -2794,6 +2852,7 @@ PROCEDURE ipExpandVarNames :
         END.
     /* Modify variables for ease of use */
     ASSIGN
+        cInitCompressUpdDir = cUpdCompressDir
         cAdminDir = cMapDir + "\" + cAdminDir
         cBackupDir = cMapDir + "\" + cBackupDir
         cDBDir = cMapDir + "\" + cDbDir
@@ -2816,15 +2875,7 @@ PROCEDURE ipExpandVarNames :
         cEnvProdDir = cEnvDir + "\" + cEnvProdDir
         cEnvTestDir = cEnvDir + "\" + cEnvTestDir
         
-        cPatchNo = fiNewVer:{&SV}
-        cUpdDataDir = cUpdatesDir + "\" + "Patch" + cPatchNo + "\" + cUpdDataDir
-        cUpdProgramDir = cUpdatesDir + "\" + "Patch" + cPatchNo + "\" + cUpdProgramDir
-        cUpdAdminDir = cUpdatesDir + "\" + "Patch" + cPatchNo + "\" + cUpdAdminDir
-        cUpdDeskDir = cUpdatesDir + "\" + "Patch" + cPatchNo + "\" + cUpdDeskDir
-        cUpdMenuDir = cUpdatesDir + "\" + "Patch" + cPatchNo + "\" + cUpdMenuDir
-        cUpdRelNotesDir = cUpdatesDir + "\" + "Patch" + cPatchNo + "\" + cUpdRelNotesDir
-        cUpdStructureDir = cUpdatesDir + "\" + "Patch" + cPatchNo + "\" + cUpdStructureDir
-        cUpdCompressDir = cUpdatesDir + "\" + "Patch" + cPatchNo + "\" + cUpdCompressDir
+
         lmakeBackup = IF cMakeBackup = "Y" THEN TRUE ELSE FALSE
         cLockoutTries = SUBSTRING(cLockoutTries,1,1)
         iLockoutTries = IF cLockoutTries NE "" 
@@ -4572,4 +4623,3 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-

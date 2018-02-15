@@ -75,16 +75,16 @@ DEF VAR cTextListToDefault AS cha NO-UNDO.
 
 
 ASSIGN cTextListToSelect = "Customer,Customer Name,Order#,FG Item#,Description,Order Qty, " +
-                           "Shipped Qty,On Hand Qty,Date,PO #,Job Number"
+                           "Shipped Qty,On Hand Qty,Date,PO #,Job Number,Customer Part#"
        cFieldListToSelect = "cust,cust-name,ord,fg-itm,dscr,ort-qty," +
-                            "ship-qty,oh-qty,date,po,job"
-       cFieldLength = "8,30,8,15,30,11," + "12,11,10,15,10"
-       cFieldType = "c,c,c,c,c,i," + "i,i,c,c,c" 
+                            "ship-qty,oh-qty,date,po,job,part-no"
+       cFieldLength = "8,30,8,15,30,11," + "12,11,10,15,10,15"
+       cFieldType = "c,c,c,c,c,i," + "i,i,c,c,c,c" 
     .
 
 {sys/inc/ttRptSel.i}
 ASSIGN cTextListToDefault  = "Customer,Customer Name,Order#,FG Item#,Description,Order Qty, " +
-                           "Shipped Qty,On Hand Qty,Date,PO #,Job Number" .
+                           "Shipped Qty,On Hand Qty,Date,PO #,Job Number,Customer Part#" .
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1552,7 +1552,7 @@ display "" with frame r-top.
                                  WHEN "date"      THEN cVarValue = IF oe-ord.ord-date <> ? THEN STRING(oe-ord.ord-date,"99/99/9999") ELSE "".
                                  WHEN "po"        THEN cVarValue = string(oe-ord.po-no,"x(15)")  .
                                  WHEN "job"       THEN cVarValue = STRING(v-job-no).
-
+                                 WHEN "part-no"   THEN cVarValue = STRING(oe-ordl.part-no,"x(15)").
                             END CASE.
 
                             cExcelVarValue = cVarValue.
