@@ -2030,20 +2030,11 @@ PROCEDURE reftable-values :
 
 
   IF AVAIL mach THEN DO:
-    FIND FIRST reftable {&where-plain-jobs} NO-ERROR.
-    IF NOT AVAIL reftable THEN DO:
-      CREATE reftable.
-      ASSIGN
-       reftable.reftable = "mach.plain-jobs"
-       reftable.company  = mach.company
-       reftable.loc      = mach.loc
-       reftable.code     = mach.m-code.
-    END.
-
     IF ip-display THEN
-      tb_plain-jobs = reftable.val[1] EQ 1.
+      tb_plain-jobs = mach.plain-job.
     ELSE
-      reftable.val[1] = INT(tb_plain-jobs).
+      mach.plain-job = tb_plain-jobs.
+
 
    FIND CURRENT mach EXCLUSIVE-LOCK NO-ERROR. 
     IF ip-display THEN
