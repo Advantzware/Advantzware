@@ -1360,7 +1360,7 @@ SESSION:SET-WAIT-STATE ("general").
             AND po-ordl.i-no EQ tt-rm-bin.i-no NO-ERROR.
         
         IF AVAILABLE po-ordl THEN
-            ASSIGN cJobNo     = string(po-ordl.job-no).
+            ASSIGN cJobNo     = IF po-ordl.job-no NE "" THEN string(po-ordl.job-no) + "-" + STRING(po-ordl.job-no2) ELSE "".
         ELSE
             ASSIGN cJobNo = ""  .
     END.
@@ -1395,7 +1395,7 @@ SESSION:SET-WAIT-STATE ("general").
                                    LABEL "Unit Cost"
             tt-rm-bin.qty * v-cost FORMAT  "->,>>>,>>9.99"
                                    COLUMN-LABEL "Total!Cost Value"
-            STRING(cJobNo)         FORMAT "x(8)"
+            STRING(cJobNo)         FORMAT "x(10)"
                                    LABEL "Job#"
             STRING(cShtSize)       FORMAT "x(20)"
                                    LABEL "Sheet Size" SKIP 
@@ -1412,7 +1412,7 @@ SESSION:SET-WAIT-STATE ("general").
         EXPORT STREAM excel DELIMITER ","
           tt-rm-bin.loc tt-rm-bin.i-no ITEM.i-name tt-rm-bin.loc-bin
           chrRmBinTag tt-rm-bin.trans-date tt-rm-bin.qty v-cost 
-          chrTotCostVal STRING(cJobNo,"x(8)") STRING(cShtSize,"x(20)") .
+          chrTotCostVal STRING(cJobNo,"x(10)") STRING(cShtSize,"x(20)") .
 
     END.
 
