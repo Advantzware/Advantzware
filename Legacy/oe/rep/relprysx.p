@@ -2,6 +2,11 @@
 /* Print oe Release/Picking tickets for Prystup Xprint              */
 /* ------------------------------------------------------------------*/
 
+DEFINE TEMP-TABLE ttReleasesToPrint NO-UNDO
+    FIELD OeRelHRowID AS ROWID 
+    FIELD SessionID   AS CHARACTER
+        .
+
 {oe/rep/relprysx.i "oe-relh.r-no"}
 PROCEDURE right-just:
 DEFINE INPUT  PARAMETER ip-total-len AS INTEGER     NO-UNDO.

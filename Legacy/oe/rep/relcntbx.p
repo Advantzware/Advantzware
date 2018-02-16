@@ -16,6 +16,11 @@ def var v-rel-qty like v-qty.
 DEF VAR lv-key-list AS CHAR NO-UNDO.
 DEF SHARED VAR v-print-components AS LOG NO-UNDO.
 
+DEFINE TEMP-TABLE ttReleasesToPrint NO-UNDO
+    FIELD OeRelHRowID AS ROWID 
+    FIELD SessionID   AS CHARACTER
+        .
+
 def workfile w-oe-rell like oe-rell
    field seq    as   int
    field set-no like fg-set.set-no.

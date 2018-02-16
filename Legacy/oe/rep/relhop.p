@@ -9,6 +9,11 @@
 def stream last-page.
 DEF VAR v-ord-no LIKE oe-rell.ord-no NO-UNDO.
 
+DEFINE TEMP-TABLE ttReleasesToPrint NO-UNDO
+    FIELD OeRelHRowID AS ROWID 
+    FIELD SessionID   AS CHARACTER
+        .
+
 IF tmp-dir = "" THEN tmp-dir = "c:\tmp\".
 
 find first company where company.company eq cocode no-lock no-error.
