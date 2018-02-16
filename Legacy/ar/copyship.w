@@ -579,13 +579,18 @@ PROCEDURE run-process :
 
   DEF BUFFER b-reft FOR reftable.
 
+  &SCOPED-DEFINE where-mand-tax WHERE reftable.reftable EQ "shipto.mandatory-tax" ~
+                                  AND reftable.company  EQ shipto.company         ~
+                                  AND reftable.loc      EQ ""                     ~
+                                  AND reftable.code     EQ shipto.cust-no         ~
+                                  AND reftable.code2    EQ shipto.ship-id
+
   &SCOPED-DEFINE where-jded-id WHERE reftable.reftable EQ "JDEDWARDCUST#" ~
                                  AND reftable.company  EQ cocode          ~
                                  AND reftable.loc      EQ ""              ~
                                  AND reftable.code     EQ shipto.cust-no  ~
                                  AND reftable.code2    EQ shipto.ship-id
   
-
   SESSION:SET-WAIT-STATE("general").
 
   DO WITH FRAME {&FRAME-NAME}:
@@ -615,6 +620,15 @@ PROCEDURE run-process :
          b-shipto.cust-no = end_cust
          b-shipto.ship-id = new-ship.
 
+
+        FOR EACH reftable NO-LOCK {&where-mand-tax}:
+          CREATE b-reft.
+          BUFFER-COPY reftable EXCEPT rec_key TO b-reft
+          ASSIGN
+           b-reft.code  = end_cust
+           b-reft.code2 = new-ship.
+        END.
+
         FOR EACH reftable NO-LOCK {&where-jded-id}:
           CREATE b-reft.
           BUFFER-COPY reftable EXCEPT rec_key TO b-reft
@@ -622,7 +636,6 @@ PROCEDURE run-process :
            b-reft.code  = end_cust
            b-reft.code2 = new-ship.
         END.
-        
       END.
     END.
   END.

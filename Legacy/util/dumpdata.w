@@ -573,7 +573,7 @@ PROCEDURE dump-cust :
   END.
   OUTPUT CLOSE.
 
-  v-heading = "Company,Customer#,Shipto id,Name,Address,Address2,City,State,Zip,Contact,Phone,Fax,JD Edw#," +
+  v-heading = "Company,Customer#,Shipto id,Name,Address,Address2,City,State,Zip,Contact,Phone,Fax,Export ID#," +
                      "Tax Code,Mandatory Tax?,Broker?,Billable?,Dock#,Dock Hours,Warehouse,Bin,Carrier,Zone,Pallet," +
                      "Notes1,Notes2,Notes3,notes4".
 
@@ -581,13 +581,7 @@ PROCEDURE dump-cust :
   PUT UNFORMATTED v-heading SKIP.
 
   FOR EACH shipto NO-LOCK:
-      FIND FIRST reftable WHERE reftable.reftable EQ "JDEDWARDCUST#" 
-                      AND reftable.company  EQ shipto.company       
-                      AND reftable.loc      EQ ""              
-                      AND reftable.code     EQ shipto.cust-no  
-                      AND reftable.code2    EQ shipto.ship-id
-                      NO-LOCK NO-ERROR. 
-      v-jdedw = IF AVAIL reftable THEN reftable.dscr ELSE "".
+      v-jdedw = shipto.exportCustID.
 
       
       v-man-tax = IF shipto.tax-mandatory then yes ELSE NO.
