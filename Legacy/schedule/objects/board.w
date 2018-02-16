@@ -2173,12 +2173,14 @@ PROCEDURE asiDC :
   DEFINE VARIABLE lvMRCompleted AS LOGICAL NO-UNDO.
   DEFINE VARIABLE lvRunCompleted AS LOGICAL NO-UNDO.
   DEFINE VARIABLE lvContinue AS LOGICAL NO-UNDO.
+  DEFINE VARIABLE lvAutoMonitor AS LOGICAL NO-UNDO.
 
   SESSION:SET-WAIT-STATE('General').
 
   lvProdAce = findProgram('{&data}/',ID,'/ProdAce.dat').
   IF lvProdAce NE ? THEN DO:
-      RUN {&loads}/ASI/prodAce.w (lvProdAce,OUTPUT lvContinue).
+      RUN autoMonitorFlag (OUTPUT lvAutoMonitor).
+      RUN {&loads}/ASI/prodAce.w (lvProdAce,containerHandle,lvAutoMonitor,OUTPUT lvContinue).
       IF NOT lvContinue THEN RETURN.
   END. /* production ace */
   ELSE DO:
@@ -2752,8 +2754,6 @@ PROCEDURE createResource :
   DEFINE INPUT PARAMETER ipResourceDescription AS CHARACTER NO-UNDO.
   DEFINE INPUT PARAMETER ipIdx AS INTEGER NO-UNDO.
   DEFINE INPUT PARAMETER ipDmiID AS INTEGER NO-UNDO.
-
-  ipDmiID = ipIdx.
 
   DEFINE VARIABLE pWidget AS WIDGET-HANDLE NO-UNDO.
 
