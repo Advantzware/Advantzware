@@ -2,7 +2,6 @@
 DEF INPUT  PARAM ip-rowid AS   ROWID NO-UNDO.
 DEF OUTPUT PARAM op-amt   AS   DEC   NO-UNDO.
 
-DEF BUFFER account-disc FOR reftable.
 
 DEF VAR cocode AS CHAR NO-UNDO.
 
@@ -82,8 +81,7 @@ PROCEDURE calc-net.
   DEF INPUT PARAM ip-amt    AS   DEC            NO-UNDO.
 
 
-  RELEASE account.
-  RELEASE account-disc.
+  RELEASE account.  
 
   IF ip-actnum NE "" THEN
   FIND FIRST account NO-LOCK
@@ -91,16 +89,8 @@ PROCEDURE calc-net.
         AND account.actnum  EQ ip-actnum
       NO-ERROR.
 
-  IF AVAIL account THEN
-  FIND FIRST account-disc
-      WHERE account-disc.reftable EQ "GLACCTDISC"
-        AND account-disc.company  EQ account.company
-        AND account-disc.loc      EQ ""
-        AND account-disc.code     EQ account.actnum
-      NO-ERROR.
-
-  IF NOT AVAIL account-disc OR
-     account-disc.val[1]    EQ 0 THEN
+  IF AVAIL account THEN  
+  IF account.terms-discount EQ NO THEN
     op-amt = op-amt + ip-amt.
 
 END PROCEDURE.

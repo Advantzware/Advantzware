@@ -427,7 +427,7 @@ PROCEDURE pOrdersBooked2:
                     dQM           = oe-ordl.qty / 1000
                     w-data.proCat = IF AVAILABLE itemfg THEN itemfg.proCat ELSE ""
                     w-data.item-n = IF AVAILABLE itemfg THEN itemfg.i-name ELSE ""
-                    w-data.qty    = dPriceAmount
+                    w-data.qty    = dOrdQty
                     w-data.margin = oe-ordl.q-qty
                     .
                 IF NOT oe-ordl.is-a-component THEN

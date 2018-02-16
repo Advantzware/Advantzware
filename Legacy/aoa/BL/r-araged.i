@@ -115,21 +115,20 @@ IF NOT lIncludeFactoredFGItems AND ~
             WHERE tt-factored.x-no EQ ar-inv.x-no) THEN ~
    NEXT.
 
-FOR EACH reftable NO-LOCK
-    WHERE reftable.reftable EQ "FACTORED"
-      AND reftable.code2    EQ "YES"
+FOR EACH itemfg NO-LOCK
+    WHERE itemfg.factored    EQ YES
     :
     /* Note: code2 index exists on reftable */
-    FIND FIRST tt-factored NO-LOCK WHERE tt-factored.i-no EQ reftable.code NO-ERROR.
+    FIND FIRST tt-factored NO-LOCK WHERE tt-factored.i-no EQ itemfg.i-no NO-ERROR.
     IF NOT AVAILABLE tt-factored THEN
     FOR EACH ar-invl NO-LOCK
         WHERE ar-invl.company EQ ipcCompany
-          AND ar-invl.i-no    EQ reftable.code
+          AND ar-invl.i-no    EQ itemfg.i-no
         :
         CREATE tt-factored.
         ASSIGN
-            tt-factored.company = reftable.company
-            tt-factored.i-no    = reftable.code
+            tt-factored.company = itemfg.company
+            tt-factored.i-no    = itemfg.i-no
             .
     END. /* END FOR-EACH ar-inv1 */
 END. /* END FOR EACH reftable */

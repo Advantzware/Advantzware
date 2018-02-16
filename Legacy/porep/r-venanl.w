@@ -15,8 +15,9 @@ assign
  locode = gloc.
 
 DO TRANSACTION:
-   {sys/inc/selrptcol.i "PR6" }
+   {sys/inc/runAOAVer.i "PR6" }
 END.
 
-IF SelectRptColumn-log THEN RUN porep/r-venanlN.w PERSISTENT.
-ELSE RUN porep/r-venanlA.w PERSISTENT.
+cAOAFile = SEARCH("AOA/r-venanl.p").
+IF RunAOAVersion-log AND cAOAFile NE ? THEN RUN AOA/r-venanl.p.
+ELSE RUN porep/r-venanlN.w PERSISTENT.

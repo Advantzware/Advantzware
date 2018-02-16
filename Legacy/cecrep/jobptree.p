@@ -75,6 +75,7 @@ ls-full-img1 = FILE-INFO:FULL-PATHNAME + ">".
 
 
 DEFINE BUFFER b-itemfg FOR itemfg.
+DEF BUFFER b-job-hdr FOR job-hdr.
 
 RUN sys/ref/ordtypes.p (OUTPUT lv-sts-code, OUTPUT lv-sts-desc).
 
@@ -232,21 +233,9 @@ ASSIGN
       
        IF s-prt-ship-split THEN
        DO:
-          FIND FIRST reftable WHERE
-               reftable.reftable EQ "SPLITSHIP" AND
-               reftable.company  EQ cocode AND
-               reftable.loc      EQ job-hdr.job-no AND
-               reftable.CODE     EQ STRING(job-hdr.job-no2,"99")
-               NO-LOCK NO-ERROR.
-         
-          IF NOT AVAILABLE reftable THEN DO:
-             CREATE reftable.
-             ASSIGN
-                reftable.reftable = "SPLITSHIP"
-                reftable.company  = cocode
-                reftable.loc      = job-hdr.job-no
-                reftable.CODE     = STRING(job-hdr.job-no2,"99").
-          END.
+          FIND FIRST b-job-hdr where ROWID(b-job-hdr) = ROWID(job-hdr) EXCLUSIVE-LOCK NO-ERROR.
+             ASSIGN b-job-hdr.splitShip = YES.
+          Release b-job-hdr. 
        END.
 
        /* get whether warehous item or not */
@@ -619,7 +608,7 @@ ASSIGN
                       AND xoe-rel.i-no    EQ v-fg
                       NO-ERROR.
           END.
-
+           IF AVAIL xoe-rel THEN
            ASSIGN cCustpo-name = xoe-rel.lot-no.
         
          IF AVAILABLE xoe-rel AND cCustpo-name = "" THEN
@@ -1012,17 +1001,9 @@ ASSIGN
             /*PAGE. */
             IF xest.metric THEN do:
              v-out1-id = RECID(xeb).
-               run cec/desprnptree.p (recid(xef),
-                           ROWID(xeb),
-                           INPUT v-coldscr,
-                           "",
-                           "",
-                           "",
-                           "",
-                           "",
-                           input-output v-lines,
-                           recid(xest),
-                           "").         
+               run cec/desprnptree.p (RECID(xef),
+                                INPUT-OUTPUT v-lines,
+                                RECID(xest)).         
             PAGE.
             END.
             ELSE DO:

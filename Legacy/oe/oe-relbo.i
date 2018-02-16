@@ -399,19 +399,11 @@ DO bo-try = 1 TO 2:
        IF v-new-lot-code EQ '' AND oe-boll.lot-no NE '' THEN
            v-new-lot-code = oe-boll.lot-no.
 
-    FIND FIRST b-reftable2 WHERE
-         b-reftable2.reftable EQ "oe-boll.sell-price" AND
-         b-reftable2.rec_key  EQ oe-boll.rec_key
-         USE-INDEX rec_key
-         NO-LOCK NO-ERROR.
-
-    IF AVAIL b-reftable2 THEN
-    DO:
-       ASSIGN
-           v-new-sell-price = b-reftable2.val[1]
-           v-new-zero-price  = LOGICAL(b-reftable2.val[2]).
-       RELEASE b-reftable2.
-    END.
+   
+    ASSIGN
+           v-new-sell-price = oe-boll.sell-price
+           v-new-zero-price  = LOGICAL(oe-boll.zeroPrice).
+       
             
     ASSIGN
        oe-rel.lot-no = v-new-lot-code

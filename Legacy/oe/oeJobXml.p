@@ -72,8 +72,70 @@ cocode = ipcCompany.
 {UDF/fUDFGroup.i "itemfg."}                         
 /* ********************  Preprocessor Definitions  ******************** */
 
+/* ************************  Function Prototypes ********************** */
+
+
+FUNCTION fnStripInvalidChar RETURNS CHARACTER 
+	(ipcInput AS CHARACTER  ) FORWARD.
+
 
 /* ***************************  Main Block  *************************** */
+
+/* ************************  Function Implementations ***************** */
+
+
+FUNCTION fnStripInvalidChar RETURNS CHARACTER 
+	(ipcInput AS CHARACTER  ):
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/	
+
+    DEFINE VARIABLE cResult AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iPos          AS INTEGER NO-UNDO. 
+    DEFINE VARIABLE lBadCharFound AS LOGICAL NO-UNDO.  
+    DEFINE VARIABLE iNumTries     AS INTEGER NO-UNDO.  
+
+    iNumTries = 0.   
+
+    DO WHILE TRUE:   
+        lBadCharFound = FALSE.
+        
+        iPos = INDEX(ipcInput, '"'). 
+        IF iPos GT 0 THEN 
+        DO:  
+            lBadCharFound = TRUE. 
+            ipcInput = REPLACE(ipcInput, '"', '&quot;').            
+        END.  
+        
+        iPos = INDEX(ipcInput, "'"). 
+        IF iPos GT 0 THEN 
+        DO:  
+            lBadCharFound = TRUE. 
+            ipcInput = REPLACE(ipcInput, "'", '&apos;').            
+        END.  
+        
+        iPos = INDEX(ipcInput, "<"). 
+        IF iPos GT 0 THEN 
+        DO:  
+            lBadCharFound = TRUE. 
+            ipcInput = REPLACE(ipcInput, "<", '&lt;').            
+        END. 
+        
+        iPos = INDEX(ipcInput, ">"). 
+        IF iPos GT 0 THEN 
+        DO:  
+            lBadCharFound = TRUE. 
+            ipcInput = REPLACE(ipcInput, ">", '&gt;').            
+        END. 
+        iNumTries = iNumTries + 1.
+        IF lBadCharFound EQ FALSE OR iNumTries GT 200 THEN
+            LEAVE.  
+    END. 
+    cResult = ipcInput.
+    RETURN cResult.
+		
+END FUNCTION.
 
 EMPTY TEMP-TABLE ttTempjob.
 FOR EACH EDDoc EXCLUSIVE-LOCK WHERE ROWID(EDDoc) EQ iprEdDoc,
@@ -178,7 +240,7 @@ FOR EACH EDDoc EXCLUSIVE-LOCK WHERE ROWID(EDDoc) EQ iprEdDoc,
                 IF AVAILABLE ef THEN 
                   ASSIGN  ttTempJob.Weight       = STRING(ef.weight)
                           ttTempJob.Caliper      = STRING(ef.cal)                    
-                          ttTempJob.Board        = ef.brd-dscr
+                          ttTempJob.Board        = fnStripInvalidChar(ef.brd-dscr)
                           .
                 IF AVAILABLE oe-ord THEN 
                  ASSIGN 
@@ -272,7 +334,7 @@ DO:
                 RUN XMLOutput (lXMLOutput,cUDFString,'','Row').
        
             RUN XMLOutput (lXMLOutput,'/Product','','Row').     
-                                
+                               
         RUN XMLOutput (lXMLOutput,'/ResourcePool','','Row').
             
         IF LAST-OF(ttTempJob.jobID) THEN

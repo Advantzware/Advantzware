@@ -3758,17 +3758,13 @@ PROCEDURE run-screen-calc :
         AND est-op.line    LT 500,
       FIRST mach NO-LOCK
       {sys/look/machW.i}
-        AND mach.m-code EQ est-op.m-code,
-      FIRST reftable NO-LOCK
-      WHERE reftable.reftable EQ "mach.obsolete"
-        AND reftable.company  EQ mach.company
-        AND reftable.loc      EQ mach.loc
-        AND reftable.code     EQ mach.m-code
-        AND reftable.val[1]   EQ 1:
-    MESSAGE "Machine: " + TRIM(mach.m-code) +
-            " is obsolete, please replace to complete calculation..."
-        VIEW-AS ALERT-BOX ERROR.
-    RETURN.
+        AND mach.m-code EQ est-op.m-code:
+    IF mach.obsolete THEN DO:
+        MESSAGE "Machine: " + TRIM(mach.m-code) +
+                " is obsolete, please replace to complete calculation..."
+            VIEW-AS ALERT-BOX ERROR.
+        RETURN.
+    END.
   END.
 
   IF est.est-type EQ 8 THEN RUN cec/com/print4.p NO-ERROR.
@@ -3866,17 +3862,13 @@ PROCEDURE run-whatif :
         AND est-op.line    LT 500,
       FIRST mach NO-LOCK
       {sys/look/machW.i}
-        AND mach.m-code EQ est-op.m-code,
-      FIRST reftable NO-LOCK
-      WHERE reftable.reftable EQ "mach.obsolete"
-        AND reftable.company  EQ mach.company
-        AND reftable.loc      EQ mach.loc
-        AND reftable.code     EQ mach.m-code
-        AND reftable.val[1]   EQ 1:
+        AND mach.m-code EQ est-op.m-code:
+   IF mach.obsolete THEN DO:
     MESSAGE "Machine: " + TRIM(mach.m-code) +
             " is obsolete, please replace to complete calculation..."
         VIEW-AS ALERT-BOX ERROR.
     RETURN.
+   END.
   END.
 
   IF est.est-type EQ 8 THEN RUN cec/com/print4.p NO-ERROR.

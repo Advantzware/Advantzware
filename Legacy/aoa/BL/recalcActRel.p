@@ -647,7 +647,8 @@ PROCEDURE create-report-record-1 :
 /*  END.                                                               */
     ASSIGN
         tt-report.sell-price = oe-rel.sell-price              
-        tt-report.zero-sprice = oe-rel.zeroPrice > 0. 
+        tt-report.zero-sprice = oe-rel.zeroPrice GT 0
+        . 
   IF oeinq THEN
   tt-report.key-01 = STRING(9999999999 - INT(tt-report.key-01),"9999999999").
 

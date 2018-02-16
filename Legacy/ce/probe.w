@@ -3242,17 +3242,13 @@ PROCEDURE run-whatif :
         AND est-op.line    LT 500,
       FIRST mach NO-LOCK
       {sys/look/machW.i}
-        AND mach.m-code EQ est-op.m-code,
-      FIRST reftable NO-LOCK
-      WHERE reftable.reftable EQ "mach.obsolete"
-        AND reftable.company  EQ mach.company
-        AND reftable.loc      EQ mach.loc
-        AND reftable.code     EQ mach.m-code
-        AND reftable.val[1]   EQ 1:
+        AND mach.m-code EQ est-op.m-code:
+   IF mach.obsolete THEN DO:
     MESSAGE "Machine: " + TRIM(mach.m-code) +
             " is obsolete, please replace to complete calculation..."
         VIEW-AS ALERT-BOX ERROR.
     RETURN.
+   END.
   END.
   IF est.est-type >= 3 AND est.est-type <= 4 AND cerunf = "HOP" THEN RUN ce/dAskSum.w (OUTPUT gEstSummaryOnly).
   IF est.est-type EQ 4 THEN RUN ce/com/print4.p NO-ERROR.

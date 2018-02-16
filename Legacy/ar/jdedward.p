@@ -98,16 +98,15 @@ for first ar-invl where recid(ar-invl) eq v-recid no-lock,
         and cust.cust-no eq ar-inv.cust-no
       no-lock no-error.
   if avail cust then
-  find first reftable
-      where reftable.reftable eq "JDEDWARDCUST#"
-        and reftable.company  eq cocode
-        and reftable.loc      eq ""
-        and reftable.code     eq cust.cust-no
-        and reftable.code2    eq cust.cust-no
+  find first shipto
+      where shipto.company eq cocode
+        and shipto.cust-no eq ar-inv.cust-no
+        and shipto.ship-id eq ar-inv.ship-id
       no-lock no-error.
+   if avail shipto then
   
   /* Customer number */
-  v-jded = v-jded + string(if avail reftable then reftable.dscr
+  v-jded = v-jded + string(if shipto.exportCustID <> "" then shipto.exportCustID
                                              else ar-inv.cust-no,"x(8)").
   
   /* START DATE */
@@ -148,16 +147,8 @@ for first ar-invl where recid(ar-invl) eq v-recid no-lock,
         and shipto.ship-id eq ar-inv.ship-id
       no-lock no-error.
   if avail shipto then
-  find first reftable
-      where reftable.reftable eq "JDEDWARDCUST#"
-        and reftable.company  eq cocode
-        and reftable.loc      eq ""
-        and reftable.code     eq cust.cust-no
-        and reftable.code2    eq shipto.ship-id
-      no-lock no-error.
-      
-  /* Customer number */
-  v-jded = v-jded + string(if avail reftable then reftable.dscr
+  
+  v-jded = v-jded + string(if shipto.exportCustID <> "" then shipto.exportCustID
                                              else ar-inv.ship-id,"x(8)").
   
   /* START DATE */

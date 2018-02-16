@@ -5258,7 +5258,7 @@ DO WITH FRAME {&FRAME-NAME}:
   IF NOT AVAIL oe-ord THEN FIND oe-ord WHERE oe-ord.company = g_company AND
                                 oe-ord.ord-no = oe-ordl.ord-no NO-LOCK. 
   IF itemfg.CLASS EQ "*" OR itemfg.exempt-disc THEN oe-ordl.disc:SCREEN-VALUE = "0".
-/*   {custom/fgexempt.i itemfg oe-ordl.disc:SCREEN-VALUE} */
+
 
   IF oe-ordl.type-code:SCREEN-VALUE EQ "O" AND oe-ordl.est-no NE "" THEN
      ASSIGN oe-ordl.i-name:screen-value     = IF itemfg.i-name <> "" THEN itemfg.i-name ELSE oe-ordl.i-name:screen-value 
@@ -5444,7 +5444,7 @@ IF ERROR-STATUS:ERROR THEN RETURN ERROR.
 DO WITH FRAME {&frame-name}:  
   FIND itemfg WHERE RECID(itemfg) = ip-recid NO-LOCK.
    IF itemfg.CLASS EQ "*" OR itemfg.exempt-disc THEN oe-ordl.disc:SCREEN-VALUE = "0".
-/*   {custom/fgexempt.i itemfg oe-ordl.disc:SCREEN-VALUE} */
+
 
   RUN default-type (BUFFER itemfg).
 
@@ -8686,12 +8686,7 @@ PROCEDURE valid-po-no :
     FIND FIRST cust NO-LOCK
         WHERE cust.company EQ oe-ord.company
           AND cust.cust-no EQ oe-ord.cust-no
-          AND CAN-FIND(FIRST cust-po-mand
-                       WHERE cust-po-mand.reftable EQ "cust.po-mand"
-                         AND cust-po-mand.company  EQ cust.company
-                         AND cust-po-mand.loc      EQ ""
-                         AND cust-po-mand.code     EQ cust.cust-no
-                         AND cust-po-mand.val[1]   EQ 1)
+          AND cust.po-mandatory
         NO-ERROR.
     
     IF AVAIL cust AND TRIM(oe-ordl.po-no:SCREEN-VALUE) EQ "" THEN DO:

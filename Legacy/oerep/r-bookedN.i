@@ -608,6 +608,7 @@ FORMAT wkrecap.procat
        BUFFER boe-ord:FIND-BY-ROWID(ROWID(oe-ord), NO-LOCK) .
        IF AVAILABLE oe-ordl THEN
        BUFFER boe-ordl:FIND-BY-ROWID(ROWID(oe-ordl), NO-LOCK) .
+       IF AVAILABLE cust THEN
        BUFFER bcust:FIND-BY-ROWID(ROWID(cust), NO-LOCK) .
        BUFFER bw-data:FIND-BY-ROWID(ROWID(w-data), NO-LOCK) .
        ASSIGN cDisplay = ""
@@ -624,7 +625,7 @@ FORMAT wkrecap.procat
                  cTmpField = SUBSTRING(cTmpField,INDEX(cTmpField,".") + 1).
                  IF cFieldName BEGINS "oe-ordl" THEN hField = IF AVAILABLE boe-ordl THEN BUFFER boe-ordl:BUFFER-FIELD(cTmpField) ELSE ?.
                  ELSE IF cFieldName BEGINS "oe-ord" THEN hField = BUFFER boe-ord:BUFFER-FIELD(cTmpField).
-                 ELSE IF cFieldName BEGINS "cust" THEN hField = BUFFER bcust:BUFFER-FIELD(cTmpField).
+                 ELSE IF cFieldName BEGINS "cust" THEN hField = IF AVAILABLE bcust THEN BUFFER bcust:BUFFER-FIELD(cTmpField) ELSE ?.
                  ELSE hField = BUFFER bw-data:BUFFER-FIELD(cTmpField).
                  IF hField <> ? THEN DO:                 
                      cTmpField = SUBSTRING(GetFieldValue(hField),1,INTEGER(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength))).
@@ -709,6 +710,7 @@ FORMAT wkrecap.procat
               CASE cTmpField:
                    WHEN "oe-ord.due-date" THEN cVarValue = "" .
                    WHEN "w-data.ord-no" THEN cVarValue = "" .
+                   WHEN "cust.cust-no" THEN cVarValue = "" .
                    WHEN "cust.name" THEN cVarValue = "" .
                    WHEN "w-data.comm" THEN cVarValue = "" .
                    WHEN "w-data.procat" THEN cVarValue = "" .
@@ -776,6 +778,7 @@ FORMAT wkrecap.procat
               CASE cTmpField:
                    WHEN "oe-ord.due-date" THEN cVarValue = "" .
                    WHEN "w-data.ord-no" THEN cVarValue = "" .
+                   WHEN "cust.cust-no" THEN cVarValue = "" .
                    WHEN "cust.name" THEN cVarValue = "" .
                    WHEN "w-data.comm" THEN cVarValue = "" .
                    WHEN "w-data.procat" THEN cVarValue = "" .
@@ -817,7 +820,7 @@ FORMAT wkrecap.procat
        BUFFER boe-ord:FIND-BY-ROWID(ROWID(oe-ord), NO-LOCK) .
        IF AVAILABLE oe-ordl THEN
        BUFFER boe-ordl:FIND-BY-ROWID(ROWID(oe-ordl), NO-LOCK) .
-
+       IF AVAILABLE cust THEN
        BUFFER bcust:FIND-BY-ROWID(ROWID(cust), NO-LOCK) .
        BUFFER bw-data:FIND-BY-ROWID(ROWID(w-data), NO-LOCK) .
        ASSIGN cDisplay = ""
@@ -833,7 +836,7 @@ FORMAT wkrecap.procat
                  cTmpField = SUBSTRING(cTmpField,INDEX(cTmpField,".") + 1).
                  IF cFieldName BEGINS "oe-ordl" THEN hField = IF AVAILABLE boe-ordl THEN BUFFER boe-ordl:BUFFER-FIELD(cTmpField) ELSE ?.
                  ELSE IF cFieldName BEGINS "oe-ord" THEN hField = BUFFER boe-ord:BUFFER-FIELD(cTmpField).
-                 ELSE IF cFieldName BEGINS "cust" THEN hField = BUFFER bcust:BUFFER-FIELD(cTmpField).
+                 ELSE IF cFieldName BEGINS "cust" THEN hField = IF AVAILABLE bcust THEN BUFFER bcust:BUFFER-FIELD(cTmpField) ELSE ?.
                  ELSE hField = BUFFER bw-data:BUFFER-FIELD(cTmpField).
                  IF hField NE ? THEN DO:                 
                      cTmpField = SUBSTRING(GetFieldValue(hField),1,INTEGER(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength))).
@@ -852,7 +855,7 @@ FORMAT wkrecap.procat
                  END.
          END.
          ELSE DO:       
-            CASE cTmpField:  
+            CASE cTmpField: 
                 WHEN "price"  THEN cVarValue = STRING(w-data.price,"->>,>>>.99") .
                 WHEN "t-sqft" THEN cVarValue = STRING(w-data.t-sqft,"->,>>>.999").
                 WHEN "v-price-per-m" THEN cVarValue = STRING(v-price-per-m,"->>,>>9.99").
@@ -916,6 +919,7 @@ FORMAT wkrecap.procat
               CASE cTmpField:
                    WHEN "oe-ord.due-date" THEN cVarValue = "" .
                    WHEN "w-data.ord-no" THEN cVarValue = "" .
+                   WHEN "cust.cust-no" THEN cVarValue = "" .
                    WHEN "cust.name" THEN cVarValue = "" .
                    WHEN "w-data.comm" THEN cVarValue = "" .
                    WHEN "w-data.procat" THEN cVarValue = "" .
@@ -982,6 +986,7 @@ FORMAT wkrecap.procat
               CASE cTmpField:
                    WHEN "oe-ord.due-date" THEN cVarValue = "" .
                    WHEN "w-data.ord-no" THEN cVarValue = "" .
+                   WHEN "cust.cust-no" THEN cVarValue = "" .
                    WHEN "cust.name" THEN cVarValue = "" .
                    WHEN "w-data.comm" THEN cVarValue = "" .
                    WHEN "w-data.procat" THEN cVarValue = "" .
