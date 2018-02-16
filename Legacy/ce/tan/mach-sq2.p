@@ -80,11 +80,13 @@ for each est-op where est-op.company = xest.company
   est-op.line = i.
 end.
     
-{est/op-lock.i xest}
 
-ASSIGN
- op-lock.val[1] = 1
- op-lock.val[2] = 1.
+  FIND CURRENT xest EXCLUSIVE-LOCK NO-ERROR.
+      ASSIGN
+         xest.recalc    = YES
+         xest.recalc-mr = YES.
+  FIND CURRENT xest NO-LOCK. 
+
 
 cumul = xest.est-qty[1] / xeb.num-up.
 for each est-op where est-op.company = xest.company 

@@ -999,19 +999,7 @@ FUNCTION getValue-itemfg RETURNS CHARACTER
             
         END.
         WHEN "Obsolete"  THEN DO:
-           FIND FIRST reftable WHERE reftable.reftable EQ "mach.obsolete" 
-               AND reftable.company  EQ ipb-mach.company    
-               AND reftable.loc      EQ ipb-mach.loc        
-               AND reftable.code     EQ ipb-mach.m-code NO-ERROR.
-           IF NOT AVAIL reftable THEN DO:
-               CREATE reftable.
-               ASSIGN
-                   reftable.reftable = "mach.obsolete"
-                   reftable.company  = ipb-mach.company
-                   reftable.loc      = ipb-mach.loc
-                   reftable.code     = ipb-mach.m-code.
-           END.
-            lc-return = string(reftable.val[1] EQ 1) .
+             ASSIGN lc-return = string(ipb-mach.obsolete) .
         END.
         WHEN "dfuncTotMSFPTD"  THEN DO:
             /*IF g_period NE 0 THEN lc-return = STRING(ipb-mach.ptd-msf[g_period]).*/

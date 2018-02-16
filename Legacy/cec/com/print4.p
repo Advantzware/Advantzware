@@ -395,35 +395,14 @@ ctrl[16] = int(ce-ctrl.spec-add[6])
 ctrl[17] = int(ce-ctrl.spec-add[7])
 ctrl[18] = int(ce-ctrl.spec-add[8]).
 
-FIND FIRST reftable-broker-pct
-     WHERE reftable-broker-pct.reftable EQ "ce-ctrl.broker-pct"
-       AND reftable-broker-pct.company  EQ ce-ctrl.company
-       AND reftable-broker-pct.loc      EQ ce-ctrl.loc
-     NO-LOCK NO-ERROR.
+     ctrl[19] = ce-ctrl.broker-pct.
 
-IF AVAIL reftable-broker-pct THEN
-   ctrl[19] = reftable-broker-pct.val[1].
-
-FIND FIRST reftable NO-LOCK
-    WHERE reftable.reftable EQ "ce-ctrl.fg-rate-farm"
-      AND reftable.company  EQ ce-ctrl.company
-      AND reftable.loc      EQ ce-ctrl.loc
-    NO-ERROR.  
-fg-rate-f = IF AVAIL reftable THEN reftable.val[1] ELSE 0.
-
-FIND FIRST reftable NO-LOCK
-    WHERE reftable.reftable EQ "ce-ctrl.rm-rate-farm"
-      AND reftable.company  EQ ce-ctrl.company
-      AND reftable.loc      EQ ce-ctrl.loc
-    NO-ERROR.  
-rm-rate-f = IF AVAIL reftable THEN reftable.val[1] ELSE 0.
-
-FIND FIRST reftable NO-LOCK
-    WHERE reftable.reftable EQ "ce-ctrl.hand-pct-farm"
-      AND reftable.company  EQ ce-ctrl.company
-      AND reftable.loc      EQ ce-ctrl.loc
-    NO-ERROR.  
-hand-pct-f = (IF AVAIL reftable THEN reftable.val[1] ELSE 0) / 100.
+ 
+fg-rate-f = ce-ctrl.fg-rate-farm.
+ 
+rm-rate-f = ce-ctrl.rm-rate-farm.
+ 
+hand-pct-f = ce-ctrl.hand-pct-farm / 100.
 
 DO TRANSACTION:
   FOR each est-op

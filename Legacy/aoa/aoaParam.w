@@ -355,7 +355,7 @@ DEFINE BROWSE browseUserPrint
       STRING(ttUserPrint.last-time,"hh:mm:ss am") LABEL "Time" FORMAT "x(12)"
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ROW-MARKERS SEPARATORS SIZE 40 BY 7.14
+    WITH NO-ROW-MARKERS SEPARATORS SIZE 41 BY 7.14
          TITLE "Batch Parameter".
 
 
@@ -387,24 +387,7 @@ DEFINE FRAME paramFrame
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 149 BY 18.05.
-
-DEFINE FRAME frameShow
-     svShowAll AT ROW 1.24 COL 2 WIDGET-ID 18
-     svShowReportHeader AT ROW 2.19 COL 5 WIDGET-ID 2
-     svShowParameters AT ROW 3.14 COL 8 WIDGET-ID 16
-     svShowPageHeader AT ROW 4.1 COL 5 WIDGET-ID 6
-     svShowGroupHeader AT ROW 5.05 COL 5 WIDGET-ID 10
-     svShowGroupFooter AT ROW 6 COL 5 WIDGET-ID 12
-     svShowPageFooter AT ROW 6.95 COL 5 WIDGET-ID 8
-     svShowReportFooter AT ROW 7.91 COL 5 WIDGET-ID 4
-     svExcelTable AT ROW 9.33 COL 3 WIDGET-ID 20
-     RECT-1 AT ROW 9.1 COL 2 WIDGET-ID 22
-    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 41 ROW 1
-         SIZE 40 BY 10.48
-         TITLE "Show/Hide Sections" WIDGET-ID 300.
+         SIZE 148.2 BY 18.05.
 
 DEFINE FRAME frameColumns
      svAvailableColumns AT ROW 1.71 COL 1 NO-LABEL WIDGET-ID 68
@@ -429,6 +412,23 @@ DEFINE FRAME frameColumns
          SIZE 67 BY 10.48
          TITLE "Report Columns" WIDGET-ID 200.
 
+DEFINE FRAME frameShow
+     svShowAll AT ROW 1.24 COL 2 WIDGET-ID 18
+     svShowReportHeader AT ROW 2.19 COL 5 WIDGET-ID 2
+     svShowParameters AT ROW 3.14 COL 8 WIDGET-ID 16
+     svShowPageHeader AT ROW 4.1 COL 5 WIDGET-ID 6
+     svShowGroupHeader AT ROW 5.05 COL 5 WIDGET-ID 10
+     svShowGroupFooter AT ROW 6 COL 5 WIDGET-ID 12
+     svShowPageFooter AT ROW 6.95 COL 5 WIDGET-ID 8
+     svShowReportFooter AT ROW 7.91 COL 5 WIDGET-ID 4
+     svExcelTable AT ROW 9.33 COL 3 WIDGET-ID 20
+     RECT-1 AT ROW 9.1 COL 2 WIDGET-ID 22
+    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 41 ROW 1
+         SIZE 40 BY 10.48
+         TITLE "Show/Hide Sections" WIDGET-ID 300.
+
 
 /* *********************** Procedure Settings ************************ */
 
@@ -448,11 +448,11 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          HIDDEN             = YES
          TITLE              = "AdvantzwareOA"
          HEIGHT             = 18.05
-         WIDTH              = 149
+         WIDTH              = 148.2
          MAX-HEIGHT         = 18.05
-         MAX-WIDTH          = 149
+         MAX-WIDTH          = 148.2
          VIRTUAL-HEIGHT     = 18.05
-         VIRTUAL-WIDTH      = 149
+         VIRTUAL-WIDTH      = 148.2
          MAX-BUTTON         = no
          RESIZE             = no
          SCROLL-BARS        = no
@@ -2029,13 +2029,18 @@ PROCEDURE pSaveParamValues :
             IF hChild:NAME NE ? AND
               (hChild:SENSITIVE OR
                hChild:TYPE EQ "COMBO-BOX") AND
-               hChild:TYPE NE "Button" THEN
-            ASSIGN
-                idx = idx + 1
-                user-print.field-name[idx]  = hChild:NAME
-                user-print.field-label[idx] = hChild:LABEL
-                user-print.field-value[idx] = hChild:SCREEN-VALUE
-                .
+               hChild:TYPE NE "Button" THEN DO:
+                ASSIGN
+                    idx = idx + 1
+                    user-print.field-name[idx]  = hChild:NAME
+                    user-print.field-label[idx] = hChild:LABEL
+                    user-print.field-value[idx] = hChild:SCREEN-VALUE
+                    .
+                /* if a date field and not fixed date, clear value so doesn't show wrong dates */
+                /* values when showing parameter values in report header, especially batch run */
+                IF hChild:PRIVATE-DATA NE ? AND hChild:PRIVATE-DATA NE "Fixed Date" THEN
+                user-print.field-value[idx] = "".
+            END. /* enabled field */
             hChild = hChild:NEXT-SIBLING.
             IF idx EQ EXTENT(user-print.field-name) - {&reserved} THEN LEAVE.
         END. /* do while */
@@ -2229,7 +2234,7 @@ PROCEDURE pSetWinSize :
                                                          - iHeight - 5
                 BROWSE browseUserPrint:HIDDEN            = FALSE
                 BROWSE browseParamValue:X                = BROWSE browseUserPrint:X
-                                                         + BROWSE browseUserPrint:WIDTH-PIXELS + 5
+                                                         + BROWSE browseUserPrint:WIDTH-PIXELS
                 BROWSE browseParamValue:Y                = BROWSE browseUserPrint:Y
                 BROWSE browseParamValue:HEIGHT-PIXELS    = hParamFrame:HEIGHT-PIXELS
                                                          - iHeight
@@ -2248,6 +2253,15 @@ PROCEDURE pSetWinSize :
         END. /* report */
         ELSE btnExcel:X = btnScheduler:X.
     END. /* with frame  */
+    IF 1024 - {&WINDOW-NAME}:WIDTH-PIXELS  LT 0 OR
+        768 - {&WINDOW-NAME}:HEIGHT-PIXELS LT 0 THEN
+    MESSAGE
+        "Width:" {&WINDOW-NAME}:WIDTH-PIXELS
+        "(" 1024 - {&WINDOW-NAME}:WIDTH-PIXELS ")"
+        SKIP 
+        "Height:" {&WINDOW-NAME}:HEIGHT-PIXELS
+        "(" 768 - {&WINDOW-NAME}:HEIGHT-PIXELS ")"    
+    VIEW-AS ALERT-BOX.
 
 END PROCEDURE.
 

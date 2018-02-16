@@ -33,7 +33,6 @@ DEF VAR ll-transfer AS LOG NO-UNDO.
 def var lv-stat as cha no-undo.
 DEF VAR ld-date as DATE NO-UNDO.
 
-DEF BUFFER s-code FOR reftable.
 DEF BUFFER ref-lot-no FOR reftable.
 DEF BUFFER ref-sell-price FOR reftable.
 
@@ -760,45 +759,7 @@ DEF BUFFER b-oe-rel  FOR oe-rel.
       END.
     END.
   END.
-
-  /*FOR EACH oe-rel NO-LOCK
-      WHERE oe-rel.company EQ oe-ordl.company
-        AND oe-rel.ord-no  EQ oe-ordl.ord-no
-        AND oe-rel.i-no    EQ oe-ordl.i-no
-        AND oe-rel.line    EQ oe-ordl.line
-        AND oe-rel.link-no EQ 0
-      USE-INDEX ord-item
-      TRANSACTION:
-
-    FIND FIRST s-code
-        WHERE s-code.reftable EQ "oe-rel.s-code"
-          AND s-code.company  EQ STRING(oe-rel.r-no,"9999999999")
-        NO-LOCK NO-ERROR.
-    lv-s-code[1] = IF AVAIL s-code THEN s-code.code ELSE "B".
-
-    FOR EACH b-oe-rel
-        WHERE b-oe-rel.company  EQ oe-rel.company
-          AND b-oe-rel.ord-no   EQ oe-rel.ord-no
-          AND b-oe-rel.i-no     EQ oe-rel.i-no
-          AND b-oe-rel.line     EQ oe-rel.line
-          AND b-oe-rel.po-no    EQ oe-rel.po-no
-          AND b-oe-rel.ship-id  EQ oe-rel.ship-id
-          AND b-oe-rel.rel-date EQ oe-rel.rel-date
-          AND b-oe-rel.carrier  EQ oe-rel.carrier
-          AND b-oe-rel.qty      EQ oe-rel.qty
-          AND b-oe-rel.link-no  EQ 0
-          AND ROWID(b-oe-rel)   NE ROWID(oe-rel)
-        USE-INDEX ord-item:
-
-      FIND FIRST s-code
-          WHERE s-code.reftable EQ "oe-rel.s-code"
-            AND s-code.company  EQ STRING(b-oe-rel.r-no,"9999999999")
-          NO-LOCK NO-ERROR.
-      lv-s-code[2] = IF AVAIL s-code THEN s-code.code ELSE "B".
-
-      IF lv-s-code[1] EQ lv-s-code[2] THEN DELETE b-oe-rel.
-    END.
-  END.*/
+ 
 
   FOR EACH oe-rel NO-LOCK
       WHERE oe-rel.company EQ oe-ordl.company
@@ -906,18 +867,13 @@ PROCEDURE create-report-record-1 :
      tt-report.qty     = oe-rel.qty
      tt-report.printed = (AVAIL oe-relh AND oe-relh.printed) OR
                          INDEX("PCZ",lv-stat) GT 0.
-
-    FIND FIRST s-code
-        WHERE s-code.reftable EQ "oe-rel.s-code"
-          AND s-code.company  EQ STRING(oe-rel.r-no,"9999999999")
-        NO-LOCK NO-ERROR.
     tt-report.s-code = IF ll-transfer            THEN "T"
                        ELSE
                        IF oe-ordl.is-a-component AND
-                          (NOT AVAIL s-code OR
-                           s-code.code NE "T")   THEN "S"
+                          (oe-rel.s-code = "" OR
+                           oe-rel.s-code NE "T")   THEN "S"
                        ELSE
-                       IF AVAIL s-code           THEN s-code.code
+                       IF oe-rel.s-code <> ""      THEN oe-rel.s-code
                        ELSE
                        IF AVAIL oe-rell          THEN oe-rell.s-code
                                                  ELSE "B".

@@ -19,6 +19,11 @@ DEF SHARED VAR v-exc-bin AS LOGICAL NO-UNDO.
 DEF VAR v_blanksz AS CHAR NO-UNDO.
 DEF VAR v_styledc AS CHAR NO-UNDO.
 
+DEFINE TEMP-TABLE ttReleasesToPrint NO-UNDO
+    FIELD OeRelHRowID AS ROWID 
+    FIELD SessionID   AS CHARACTER
+        .
+
 def TEMP-TABLE w-oe-rell like oe-rell
    field seq    as   int
    field set-no like fg-set.set-no.

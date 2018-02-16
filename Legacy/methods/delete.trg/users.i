@@ -13,12 +13,6 @@ FOR EACH uservend WHERE uservend.user_id = users.user_id:
 END.
 
 FOR EACH reftable WHERE
-    reftable.reftable EQ "users.user-docs" AND
-    reftable.company EQ users.user_id:
-    DELETE reftable.
-END.
-
-FOR EACH reftable WHERE
     reftable.reftable EQ "users.phone-no" AND
     reftable.company EQ users.user_id:
     DELETE reftable.
