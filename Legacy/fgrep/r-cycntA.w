@@ -76,7 +76,7 @@ FORM
    itemfg.cust-no  LABEL "CUSTOMER"
    fg-bin.loc      LABEL "WHSE"
    fg-bin.loc-bin  LABEL "BIN"
-   fg-bin.tag      LABEL "TAG" FORMAT "x(8)"
+   fg-bin.tag      LABEL "TAG" FORMAT "x(20)"
    lv-job-no       LABEL "JOB#"
    lv-date         FORMAT "99/99/99" LABEL "RCT DATE"
    fg-bin.qty      FORMAT "->>,>>>,>>9" LABEL "ON HAND"
@@ -91,7 +91,7 @@ FORM
    itemfg.cust-no  LABEL "CUSTOMER"
    fg-bin.loc      LABEL "WHSE"
    fg-bin.loc-bin  LABEL "BIN"
-   fg-bin.tag      LABEL "TAG" FORMAT "x(8)"
+   fg-bin.tag      LABEL "TAG" FORMAT "x(20)"
    lv-job-no       LABEL "JOB#"
    lv-date         FORMAT "99/99/99" LABEL "RCT DATE"
    fg-bin.qty      FORMAT "->>,>>>,>>9" LABEL "ON HAND"
@@ -1359,10 +1359,7 @@ ELSE DO:
 
    v-cnt = v-cnt + 1.
 
-   IF SUBSTR(fg-bin.tag,1,15) EQ fg-bin.i-no THEN
-      v-tag = SUBSTR(fg-bin.tag,16,8).
-   ELSE
-      v-tag = fg-bin.tag.
+      ASSIGN v-tag = fg-bin.tag.
 
    IF v-prnt-onh = TRUE THEN
       ASSIGN
@@ -1383,7 +1380,7 @@ ELSE DO:
          fg-bin.loc
          fg-bin.loc-bin
          fg-bin.tag
-         SUBSTR(fg-bin.tag,16,8) WHEN SUBSTR(fg-bin.tag,1,15) EQ fg-bin.i-no @ fg-bin.tag
+        /* string(fg-bin.tag,"x(20)") @ fg-bin.tag*/
          lv-date
          fg-bin.qty     WHEN v-prnt-onh
          li-palls       WHEN v-prnt-onh
@@ -1404,7 +1401,7 @@ ELSE DO:
              '"' (IF fg-bin.cust-no NE "" THEN fg-bin.cust-no ELSE IF first-of(tt-report.key-02) THEN itemfg.cust-no ELSE "")  '",'
              '"' fg-bin.loc       '",'
              '"' fg-bin.loc-bin   '",'
-             '"' (IF SUBSTR(fg-bin.tag,1,15) EQ fg-bin.i-no THEN SUBSTR(fg-bin.tag,16,8) ELSE fg-bin.tag) '",'
+             '"'  string(fg-bin.tag,"x(20)") '",'
              '"' lv-job-no '",'
              '"' lv-date   '",'
              '"' (IF v-prnt-onh THEN STRING(fg-bin.qty) ELSE "") '",'
@@ -1426,7 +1423,7 @@ ELSE DO:
          fg-bin.loc
          fg-bin.loc-bin
          fg-bin.tag
-         SUBSTR(fg-bin.tag,16,8) WHEN SUBSTR(fg-bin.tag,1,15) EQ fg-bin.i-no @ fg-bin.tag
+         /*string(fg-bin.tag,"x(20)") @ fg-bin.tag*/
          lv-date
          fg-bin.qty     WHEN v-prnt-onh
          /* li-palls       WHEN v-prnt-onh*/
@@ -1445,7 +1442,7 @@ ELSE DO:
              '"' (IF fg-bin.cust-no NE "" THEN fg-bin.cust-no ELSE IF first-of(tt-report.key-02) THEN itemfg.cust-no ELSE "")  '",'
              '"' fg-bin.loc       '",'
              '"' fg-bin.loc-bin   '",'
-             '"' (IF SUBSTR(fg-bin.tag,1,15) EQ fg-bin.i-no THEN SUBSTR(fg-bin.tag,16,8) ELSE fg-bin.tag) '",'
+             '"' string(fg-bin.tag,"x(20)") '",'
              '"' lv-job-no '",'
              '"' lv-date          '",'
              '"' (IF v-prnt-onh THEN STRING(fg-bin.qty) ELSE "") '",'
@@ -1532,9 +1529,6 @@ FOR EACH tt-report
 
   ASSIGN v-cnt = v-cnt + 1.
 
-  IF SUBSTR(fg-bin.tag,1,15) EQ fg-bin.i-no THEN
-     ASSIGN v-tag = SUBSTR(fg-bin.tag,16,8).
-  ELSE
      ASSIGN v-tag = fg-bin.tag.
 
   IF v-prnt-onh = TRUE THEN
@@ -1554,7 +1548,7 @@ FOR EACH tt-report
         fg-bin.loc
         fg-bin.loc-bin
         fg-bin.tag
-        SUBSTR(fg-bin.tag,16,8) WHEN SUBSTR(fg-bin.tag,1,15) EQ fg-bin.i-no @ fg-bin.tag
+        /*string(fg-bin.tag,"x(20)") @ fg-bin.tag*/
         lv-date
         fg-bin.qty     WHEN v-prnt-onh
         li-palls       WHEN v-prnt-onh
@@ -1574,7 +1568,7 @@ FOR EACH tt-report
             '"' (IF fg-bin.cust-no NE "" THEN v-itemfg ELSE IF FIRST-OF(tt-report.key-03) THEN itemfg.cust-no ELSE "")  '",'
             '"' fg-bin.loc       '",'
             '"' fg-bin.loc-bin   '",'
-            '"' (IF SUBSTR(fg-bin.tag,1,15) EQ fg-bin.i-no THEN SUBSTR(fg-bin.tag,16,8) ELSE fg-bin.tag) '",'
+            '"' string(fg-bin.tag,"x(20)") '",'
             '"' lv-job-no '",'
             '"' lv-date   '",'
             '"' (IF v-prnt-onh THEN STRING(fg-bin.qty) ELSE "") '",'
@@ -1595,7 +1589,7 @@ FOR EACH tt-report
          fg-bin.loc
          fg-bin.loc-bin
          fg-bin.tag
-         SUBSTR(fg-bin.tag,16,8) WHEN SUBSTR(fg-bin.tag,1,15) EQ fg-bin.i-no @ fg-bin.tag
+        /* string(fg-bin.tag,"x(20)") @ fg-bin.tag*/
          lv-date
          fg-bin.qty     WHEN v-prnt-onh
          /* li-palls       WHEN v-prnt-onh*/
@@ -1614,7 +1608,7 @@ FOR EACH tt-report
             '"' (IF fg-bin.cust-no NE "" THEN fg-bin.cust-no ELSE IF FIRST-OF(tt-report.key-03) THEN itemfg.cust-no ELSE "")  '",'
             '"' fg-bin.loc       '",'
             '"' fg-bin.loc-bin   '",'
-            '"' (IF SUBSTR(fg-bin.tag,1,15) EQ fg-bin.i-no THEN SUBSTR(fg-bin.tag,16,8) ELSE fg-bin.tag) '",'
+            '"' string(fg-bin.tag,"x(20)") '",'
             '"' lv-job-no '",'
             '"' lv-date   '",'
             '"' (IF v-prnt-onh THEN STRING(fg-bin.qty) ELSE "") '",'

@@ -352,14 +352,9 @@ ELSE
         gsa-fm = cust.scomm.
     ELSE
     DO:
-        FIND FIRST reftable-broker-pct
-            WHERE reftable-broker-pct.reftable EQ "ce-ctrl.broker-pct"
-            AND reftable-broker-pct.company  EQ ce-ctrl.company
-            AND reftable-broker-pct.loc      EQ ce-ctrl.loc
-            NO-LOCK NO-ERROR.
+         
+          gsa-fm = ce-ctrl.broker-pct.
 
-        IF AVAILABLE reftable-broker-pct THEN
-            gsa-fm = reftable-broker-pct.val[1].
     END.
 
 OUTPUT close.
@@ -890,7 +885,7 @@ DO:
         ELSE vmcl-cost = ctrl2[18].
 
         ASSIGN
-            fac-tot2  = fac-tot2 + vmcl-cost
+/*            fac-tot2  = fac-tot2 + vmcl-cost - double counted above 26340*/
             vmcl-cost = vmcl-cost / qm.
 
         {cec/pr4-mcln.i vmcl-desc vmcl vmcl-cost 19}

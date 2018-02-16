@@ -754,7 +754,7 @@ DO WITH FRAME {&FRAME-NAME}:
           DELETE tt-raw-salesmen.
       END.
 
-   RUN salrep\dashrep.p(INPUT fi_company,
+   RUN salrep\dashrephm.p(INPUT fi_company,
                         INPUT fi_as-of-date).
 END.
 

@@ -583,13 +583,8 @@ PROCEDURE dump-cust :
   FOR EACH shipto NO-LOCK:
       v-jdedw = shipto.exportCustID.
 
-      FIND FIRST reftable WHERE reftable.reftable EQ "shipto.mandatory-tax" 
-                      AND reftable.company  EQ shipto.company         
-                      AND reftable.loc      EQ ""                     
-                      AND reftable.code     EQ shipto.cust-no         
-                      AND reftable.code2    EQ shipto.ship-id
-                      NO-LOCK NO-ERROR.
-      v-man-tax = IF AVAIL reftable THEN reftable.val[1] EQ 1 ELSE NO.
+      
+      v-man-tax = IF shipto.tax-mandatory then yes ELSE NO.
 
       PUT UNFORMATTED
           v-quote shipto.company v-quote v-delimiter
@@ -852,12 +847,7 @@ PROCEDURE dump-itemfg :
 /*       v-status = IF AVAILABLE reftable THEN reftable.code2 ELSE "A".      */
       v-status = itemfg.stat.
 
-/*       FIND FIRST reftable  WHERE reftable.reftable EQ "itemfg.exempt-disc" */
-/*                  AND reftable.company  EQ itemfg.company                   */
-/*                  AND reftable.loc      EQ ""                               */
-/*                  AND reftable.code     EQ itemfg.i-no NO-LOCK NO-ERROR.    */
-/*       v-exempt-disc = IF AVAIL reftable THEN reftable.val[1] EQ 1 */
-/*                       ELSE NO.                                    */
+
         v-exempt-disc = itemfg.exempt-disc.
 
 

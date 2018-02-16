@@ -1571,63 +1571,19 @@ FUNCTION getValue-itemfg RETURNS CHARACTER
             ELSE
                 lc-return = "".
         END.
-        WHEN "po-mand" THEN DO:
-                FIND FIRST reftable WHERE reftable.reftable EQ "cust.po-mand" 
-                    AND reftable.company  EQ ipb-itemfg.company
-                    AND reftable.loc      EQ ""          
-                    AND reftable.code     EQ ipb-itemfg.cust-no NO-ERROR.
-                IF NOT AVAIL reftable THEN DO:
-                    CREATE reftable.
-                    ASSIGN
-                        reftable.reftable = "cust.po-mand"
-                        reftable.company  = ipb-itemfg.company
-                        reftable.loc      = ""
-                        reftable.code     = ipb-itemfg.cust-no.
-                END.
+        WHEN "po-mand" THEN DO:                
                 IF ipb-itemfg.cust-no NE "" THEN
-                    lc-return = string(reftable.val[1] EQ 1).
-                ELSE 
-                    reftable.val[1] = INT(ipb-itemfg.po-mand) .
-
+                    lc-return = string(ipb-itemfg.po-mandatory).   
         END.
         WHEN "show-set" THEN DO:
-                FIND FIRST reftable WHERE reftable.reftable EQ "cust.show-set" 
-                    AND reftable.company  EQ ipb-itemfg.company
-                    AND reftable.loc      EQ ""          
-                    AND reftable.code     EQ ipb-itemfg.cust-no NO-ERROR .
-                IF NOT AVAIL reftable THEN DO:
-                    CREATE reftable.
-                    ASSIGN
-                        reftable.reftable = "cust.show-set"
-                        reftable.company  = ipb-itemfg.company
-                        reftable.loc      = ""
-                        reftable.code     = ipb-itemfg.cust-no
-                        reftable.val[1]   = 1.
-                END.
-                 IF ipb-itemfg.cust-no NE "" THEN
-                    lc-return = string(reftable.val[1] EQ 1).
-              /*  ELSE 
-                    reftable.val[1] = INT(ipb-itemfg.show-set) .*/
+                IF ipb-itemfg.cust-no NE "" THEN
+                    lc-return = string(ipb-itemfg.show-set). 
            
         END.
         WHEN "flat-comm" THEN DO:
-                FIND FIRST reftable WHERE reftable.reftable EQ "cust.flat-comm"
-                    AND reftable.company  EQ ipb-itemfg.company
-                    AND reftable.loc      EQ ""          
-                    AND reftable.code     EQ ipb-itemfg.cust-no
-                      NO-ERROR.     
-                IF NOT AVAIL reftable THEN DO:
-                    CREATE reftable.
-                    ASSIGN
-                        reftable.reftable = "cust5.flat-comm"
-                        reftable.company  = ipb-itemfg.company
-                        reftable.loc      = ""
-                        reftable.code     = ipb-itemfg.cust-no.
-                END.                                                                         
-                IF ipb-itemfg.cust-no NE "" THEN
-                    lc-return = string(reftable.val[1]).
-              /*  ELSE 
-                    reftable.val[1] = INT(ipb-itemfg.flat-comm) . */
+                  IF ipb-itemfg.cust-no NE "" THEN
+                    lc-return = string(ipb-itemfg.flatCommPct).
+             
         END.
         WHEN "inv-meth"  THEN DO:
             CASE ipb-itemfg.inv-meth :

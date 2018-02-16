@@ -16,8 +16,9 @@ assign
 
 
 DO TRANSACTION:
-   {sys/inc/selrptcol.i "DR4" }
+   {sys/inc/runAOAVer.i "DR4" }
 END.
 
-IF SelectRptColumn-log THEN RUN pcrep/r-promacN.w PERSISTENT.
-ELSE RUN pcrep/r-promacA.w PERSISTENT.
+cAOAFile = SEARCH("AOA/r-promac.p").
+IF RunAOAVersion-log AND cAOAFile NE ? THEN RUN AOA/r-promac.p.
+ELSE RUN pcrep/r-promacN.w PERSISTENT.

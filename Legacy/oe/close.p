@@ -42,6 +42,7 @@ FIND oe-ord WHERE RECID(oe-ord) EQ ip-recid NO-ERROR.
 IF NOT AVAIL oe-ord OR oe-ord.stat EQ "D" THEN RETURN.
 
 {oe/closeaud.i oe-ord}
+reftable.val[3] = 2.
 v-factor = IF ip-close THEN -1 ELSE 1.
 
 FIND FIRST cust
