@@ -246,11 +246,9 @@ FORMAT wkrecap.procat
         
        FOR EACH oe-rel FIELDS(r-no) NO-LOCK WHERE
            oe-rel.company = oe-ord.company AND 
-           oe-rel.ord-no  = oe-ord.ord-no  ,
-           FIRST reftable NO-LOCK WHERE
-                 reftable.reftable EQ "oe-rel.s-code" AND 
-                 reftable.company  EQ STRING(oe-rel.r-no,"9999999999") AND
-                 reftable.CODE EQ "T" :
+           oe-rel.ord-no  = oe-ord.ord-no AND 
+             oe-rel.s-code  = "T"
+                     :
       
                  v-code = "T".
                  LEAVE.
