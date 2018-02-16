@@ -264,10 +264,7 @@
        v-bol-no    = 0
        v-amt       = 0
        v-cost      = 0
-       v-qty       = 0
-       dOrdCost    = 0 
-       dInvCost    = 0
-       dFullCost   = 0 .
+       v-qty       = 0.
 
       RUN custom/combasis.p (cocode, tt-report.key-01, cust.type, "", 0,
                              cust.cust-no,
@@ -516,7 +513,6 @@
              
         END.
 
-
       if v-cost    eq ? then v-cost    = 0.
       if v-slsc[1] eq ? then v-slsc[1] = 0.
 
@@ -575,7 +571,7 @@
 
      /* If 'full cost' selected and history full cost > zero, 
         then print history full cost. */
-     IF  ar-invl.spare-dec-1 > 0 THEN DO:
+     IF v-full-cost = YES AND ar-invl.spare-dec-1 > 0 THEN DO:
 /*          ASSIGN v-cost = ar-invl.spare-dec-1. */
          IF ar-invl.dscr[1] EQ "M" OR
             ar-invl.dscr[1] EQ "" THEN
@@ -583,24 +579,51 @@
          ELSE /*EA*/
              v-cost = ar-invl.spare-dec-1 * ar-invl.inv-qty * v-slsp[1] / 100.
      END.
-     IF v-ord-no NE 0 THEN DO:
-          FIND FIRST oe-ordl
-              WHERE oe-ordl.company eq cocode
-                AND oe-ordl.ord-no  eq v-ord-no
-                AND oe-ordl.i-no    eq v-i-no
-              NO-LOCK NO-ERROR.
-          IF AVAIL oe-ordl THEN
-              ASSIGN
-              dOrdCost = oe-ordl.cost  .
-         FIND FIRST itemfg NO-LOCK
-              WHERE itemfg.company EQ cocode
-                AND itemfg.i-no EQ v-i-no NO-ERROR .
-         dFullCost =  IF AVAIL itemfg THEN itemfg.spare-dec-1 ELSE 0 .
-     END.
-      
-     dInvCost = IF AVAIL ar-invl THEN ar-invl.cost ELSE 0 .
+        
 
-    ASSIGN cDisplay = ""
+     /* if not v-sumdet then DO:
+         display tt-report.key-01       when first-of(tt-report.key-01)
+                                        format "x(3)"
+/*                 space(1)                                                               */
+/*                 tt-report.key-02        when first-of(tt-report.key-02) FORMAT "x(8)"  */
+               SPACE(1)
+                cust.name               when first-of(tt-report.key-02)
+                                        format "x(19)" 
+                cust.TYPE               when first-of(tt-report.key-02) format "x(8)"
+                v-part-fg
+                v-ord-no
+                v-inv-no
+                v-procat
+                v-qty                   format "->>>>>>>9"
+                v-amt                   format "->>>>>>>9.99"
+                v-cost  WHEN v-print-cost  format "->>>>>>>9.99"
+                v-gp    WHEN v-print-cost  format "->>>>9.99"
+                v-camt                  format "->>>>>9.99"
+                v-comm                  format "->>>9.99"
+            with frame detail no-box no-labels stream-io width 200.
+
+          IF tb_excel THEN 
+             PUT STREAM st-excell tt-report.key-01 FORM "x(3)" v-comma
+                        tt-report.key-02   v-comma
+                REPLACE(cust.NAME,',','') FORM "x(30)" v-comma
+                cust.TYPE FORMAT "x(8)" v-comma
+                v-part-fg v-comma
+                v-ord-no  v-comma
+                v-inv-no  v-comma
+                v-procat  v-comma
+                v-qty     format "->>>>>>>9"        v-comma
+                v-amt     format "->>>>>>>9.99"     v-comma
+                (IF v-print-cost THEN string(v-cost,"->>>>>>>9.99") ELSE "")  FORM "x(20)"   v-comma
+                (IF v-print-cost THEN STRING(v-gp,"->>>>9.99") ELSE "")       FORM "x(20)"   v-comma
+                v-camt    format "->>>>>9.99"       v-comma
+                v-comm    format "->>>9.99"         v-comma
+                cust.curr-code                      v-comma
+                v-inv-date                          v-comma
+                cWhse                               
+               SKIP.
+      END. */
+
+            ASSIGN cDisplay = ""
            cTmpField = ""
            cVarValue = ""
            cExcelDisplay = ""
@@ -652,9 +675,6 @@
                  WHEN "curr" THEN cVarValue = IF AVAIL cust THEN string(cust.curr-code) ELSE "".
                  WHEN "inv-date" THEN cVarValue = string(v-inv-date,"99/99/9999") .
                  WHEN "ware-house" THEN cVarValue = IF cWhse NE "" THEN cWhse ELSE "".
-                 WHEN "inv-cost" THEN cVarValue = string(dInvCost,"->>>>>>>9.99").
-                 WHEN "ord-cost" THEN cVarValue = string(dOrdCost,"->>>>>>>9.99").
-                 WHEN "full-cost" THEN cVarValue = string(dFullCost,"->>>>>>>9.99").
             END CASE.
             
             cExcelVarValue = cVarValue.
@@ -680,7 +700,37 @@
         if v-cost = ? then v-cost = 0.
         if v-gp   = ? then v-gp   = 0.
 
-     
+     /*   if v-sumdet THEN DO:
+
+          display p-sman                format "x(10)"
+/*                   tt-report.key-02  */
+                  cust.NAME    FORM "x(30)"
+                  space(2)
+                  v-tot-samt[1]
+                  space(2)
+                  v-tot-camt[1]
+                  space(2)
+                  v-comm                format "->>>9.99"
+                  space(2)
+                  v-tot-cost[1] WHEN v-print-cost
+                  space(2)
+                  v-cost        WHEN v-print-cost        format "->>>9.99"
+              with frame summary no-box no-labels stream-io width 200.
+
+          IF tb_excel THEN
+            PUT STREAM st-excell
+                p-sman  format "x(3)" v-comma
+                tt-report.key-02 v-comma
+                cust.NAME  FORM "x(30)" v-comma
+                v-tot-samt[1] v-comma
+                v-tot-camt[1] v-comma
+                v-comm      format "->>>9.99" v-comma
+                (IF v-print-cost THEN string(v-tot-cost[1],"->>>>>>>9.99") ELSE "") FORM "x(20)" v-comma
+                (IF v-print-cost THEN string(v-cost,"->>>9.99") ELSE "")            FORM "x(20)"
+                SKIP.
+        END. */
+        
+        /*else do:*/
           find first w-comm
               where w-comm.sman eq tt-report.key-01
               no-error.
@@ -701,6 +751,15 @@
             down with frame detail.
             
             put skip(1). 
+            
+          /*  display "Customer Totals:"    @ cust.name
+                    v-tot-samt[1]               @ v-amt
+                    v-tot-cost[1]   WHEN v-print-cost            @ v-cost      
+                    v-gp            WHEN v-print-cost
+                    v-tot-camt[1]               @ v-camt
+                    v-comm
+
+                with frame detail. */
                 
           PUT    SKIP  str-line SKIP .
           ASSIGN cDisplay = ""
@@ -732,9 +791,6 @@
                  WHEN "curr" THEN cVarValue = "".
                  WHEN "inv-date" THEN cVarValue = "".
                  WHEN "ware-house" THEN cVarValue = "".
-                 WHEN "inv-cost" THEN cVarValue = "".
-                 WHEN "ord-cost" THEN cVarValue = "".
-                 WHEN "full-cost" THEN cVarValue = "".
               END CASE.
               
               cExcelVarValue = cVarValue.
@@ -786,9 +842,89 @@
               v-srs-cost = tt-slsrp.cost.
               v-srs-gp   = round((tt-slsrp.samt - tt-slsrp.cost) / tt-slsrp.samt * 100,2).
 
-             
+              /*  if v-sumdet THEN DO:
+                   IF FIRST(tt-slsrp.sman) THEN
+                       PUT SKIP(1).
+                   DISPLAY
+                          space(5)
+                          "Category  Totals for" WHEN FIRST(tt-slsrp.sman)
+                          SPACE(1)
+                          tt-slsrp.sman WHEN FIRST(tt-slsrp.sman)
+                          space(1)
+                          tt-slsrp.scat
+                          SPACE(7)
+                          tt-slsrp.samt
+                          /* space(2) */
+                          tt-slsrp.camt FORMAT "->>>>>>>>>>>>"
+                          space(2)
+                          v-srs-comm              format "->>>9.99"
+                          space(4)
+                          v-srs-cost WHEN v-print-cost
+                          space(2)
+                          v-srs-gp   WHEN v-print-cost      format "->>>9.99"
+                          SKIP
+                      with frame Salesman-cat-sum no-box no-labels stream-io width 200.
 
-       PUT    SKIP  str-line SKIP .
+                  IF tb_excel THEN
+                      IF v-print-cost THEN
+                        PUT STREAM st-excell
+                           ",,,,,,,,"
+                           tt-slsrp.scat  format "x(8)" v-comma
+                           tt-slsrp.samt FORMAT "->>>>>>>>.99" v-comma
+                           tt-slsrp.camt   v-comma
+                           v-srs-comm v-comma
+                           v-srs-cost    FORMAT "->>>>>>>>.99" v-comma
+                           v-srs-gp      format "->>>9.99" v-comma
+                           SKIP.
+                      ELSE
+                         PUT STREAM st-excell
+                             ",,,,,,,,"
+                             tt-slsrp.scat  format "x(8)" v-comma
+                             tt-slsrp.samt FORMAT "->>>>>>>>.99" v-comma
+                             tt-slsrp.camt   v-comma
+                             v-srs-comm v-comma
+                             SKIP.
+                END. /* if v-sumdet */
+                else do:
+                   down with frame detail.
+                   IF FIRST(tt-slsrp.sman) THEN
+                       PUT SKIP(1).
+
+
+                     display " Category Totals" WHEN FIRST(tt-slsrp.sman) @ cust.name
+                          "For " + tt-slsrp.sman WHEN FIRST(tt-slsrp.sman) @ v-part-fg
+                          tt-slsrp.scat                @ v-procat
+                          tt-slsrp.samt                @ v-amt
+                          v-srs-cost WHEN v-print-cost @ v-cost      
+                          v-srs-gp   WHEN v-print-cost @ v-gp
+                          tt-slsrp.camt                @ v-camt
+                          v-srs-comm                   @ v-comm
+                      with frame detail.
+
+                  IF tb_excel THEN DO:
+                      IF  v-print-cost THEN
+                        PUT STREAM st-excell
+                           ",,,,,,,,,,,,,,,,,"
+                           tt-slsrp.scat   v-comma
+                           tt-slsrp.samt   FORMAT "->>>>>>>>.99" v-comma
+                           tt-slsrp.camt   FORMAT "->>>>>>>.99" v-comma
+                           v-srs-comm      v-comma
+                           v-srs-cost      FORMAT "->>>>>>>>.99" v-comma
+                           v-srs-gp      format "->>>9.99" v-comma
+                           SKIP.
+                      ELSE
+                          PUT STREAM st-excell
+                             ",,,,,,,,,,,,,,,,,"
+                             tt-slsrp.scat   v-comma
+                             tt-slsrp.samt   FORMAT "->>>>>>>>.99" v-comma
+                             tt-slsrp.camt   FORMAT "->>>>>>>.99" v-comma
+                             v-srs-comm      v-comma
+                             SKIP.
+
+                  END. /* tb_excel */
+                END. /* not v-sumdet */  */
+
+                PUT    SKIP  str-line SKIP .
           ASSIGN cDisplay = ""
            cTmpField = ""
            cVarValue = ""
@@ -818,9 +954,6 @@
                  WHEN "curr" THEN cVarValue = "".
                  WHEN "inv-date" THEN cVarValue = "".
                  WHEN "ware-house" THEN cVarValue = "".
-                 WHEN "inv-cost" THEN cVarValue = "".
-                 WHEN "ord-cost" THEN cVarValue = "".
-                 WHEN "full-cost" THEN cVarValue = "".
               END CASE.
               
               cExcelVarValue = cVarValue.
@@ -830,8 +963,14 @@
           
          END.
          PUT UNFORMATTED "       * Category  Totals *" substring(cDisplay,28,300) SKIP.
-        
-         DELETE tt-slsrp.
+/*          IF tb_excel THEN DO:                                               */
+/*              cExcelDisplay = cExcelDisplay.                                 */
+/*              PUT STREAM st-excell UNFORMATTED                               */
+/*                  "Category  Totals " + substring(cExcelDisplay,3,300) SKIP. */
+/*          END.                                                               */
+          
+
+                DELETE tt-slsrp.
             end. /* for each */
         END.
         
@@ -839,6 +978,40 @@
            ((not v-frst[1]) and last(tt-report.key-01))       THEN DO:
         
            
+           /* if v-sumdet THEN DO:
+
+             display skip(1)
+                    space(5)
+                    "Sales Rep Totals:"
+                    space(30)
+                    v-tot-samt[2]
+                    space(2)
+                    v-tot-camt[2]
+                    space(2)
+                    v-comm              format "->>>9.99"
+                    space(2)
+                    v-tot-cost[2] WHEN v-print-cost
+                    space(2)
+                    v-cost        WHEN v-print-cost      format "->>>9.99"
+                    skip(1)
+                with frame Salesman-sum no-box no-labels stream-io width 200.
+             
+                   
+            END.
+            ELSE do:
+              down with frame detail.
+              put skip(1).
+            
+              display "Sales Rep Totals:"    @ cust.name
+                      v-tot-samt[2]               @ v-amt
+                      v-tot-cost[2] WHEN v-print-cost              @ v-cost      
+                      v-gp          WHEN v-print-cost
+                      v-tot-camt[2]               @ v-camt
+                      v-comm
+                      with frame detail.
+
+            end. */
+
          PUT    SKIP  str-line SKIP .
           ASSIGN cDisplay = ""
            cTmpField = ""
@@ -869,9 +1042,6 @@
                  WHEN "curr" THEN cVarValue = "".
                  WHEN "inv-date" THEN cVarValue = "".
                  WHEN "ware-house" THEN cVarValue = "".
-                 WHEN "inv-cost" THEN cVarValue = "".
-                 WHEN "ord-cost" THEN cVarValue = "".
-                 WHEN "full-cost" THEN cVarValue = "".
               END CASE.
               
               cExcelVarValue = cVarValue.
@@ -881,7 +1051,11 @@
           
          END.
          PUT UNFORMATTED "       * Sales Rep Totals: *" substring(cDisplay,29,300) SKIP.
-
+/*          IF tb_excel THEN DO:                                                */
+/*              cExcelDisplay = cExcelDisplay.                                  */
+/*              PUT STREAM st-excell UNFORMATTED                                */
+/*                  "Sales Rep Totals: " + substring(cExcelDisplay,3,300) SKIP. */
+/*          END.                                                                */
 
         END. /* sales rep totals */
         assign
@@ -899,7 +1073,21 @@
       delete tt-report.
     end.  /* input-work */
 
-  
+  /*  if not v-sumdet then do:
+      assign
+       str-tit3 = (if v-per-rpt then "P" else "Y") +
+                  "TD (" + string(v-date[1]) + "-" + string(v-date[2]) +
+                  ") - By Sales Rep"
+       {sys/inc/ctrtext.i str-tit3 132}
+
+       v-head[2] =
+                 "Sales Rep                                           Total Sa" +
+                 "les $        Comm $    Comm %        Cost $      GP %"
+       v-head[3] = fill("-",112).
+
+
+      page. */
+
       assign
        v-tot-samt[3] = 0
        v-tot-camt[3] = 0
@@ -921,7 +1109,19 @@
         if v-comm = ? then v-comm = 0.
         if v-cost = ? then v-cost = 0.
 
-    
+    /*    display w-comm.sman         format "x(3)"
+                space(49)
+                w-comm.samt         format "->>>>>>>9.99"
+                space(2)
+                w-comm.camt         format "->>>>>>>9.99"
+                space(2)
+                v-comm              format "->>>9.99"
+                space(2)
+                w-comm.cost  WHEN v-print-cost       format "->>>>>>>9.99"
+                space(2)
+                v-cost       WHEN v-print-cost       format "->>>9.99"
+
+            with frame Salesman-det no-box no-labels stream-io width 200. */
 
       end.  /* recap-work */
   /*  end.   */
@@ -932,7 +1132,21 @@
 
     if v-comm = ? then v-comm = 0.
     if v-cost = ? then v-cost = 0.
- 
+
+  /*  display skip(1)
+            "Grand Totals:"
+            space(39)
+            v-tot-samt[3]
+            space(2)
+            v-tot-camt[3]
+            space(2)
+            v-comm                format "->>>9.99"
+            space(2)
+            v-tot-cost[3] WHEN v-print-cost
+            space(2)
+            v-cost        WHEN v-print-cost        format "->>>9.99"
+
+        with frame grand-tot no-box no-labels stream-io width 200.  */
 
     PUT    SKIP  str-line SKIP .
           ASSIGN cDisplay = ""
@@ -964,9 +1178,6 @@
                  WHEN "curr" THEN cVarValue = "".
                  WHEN "inv-date" THEN cVarValue = "".
                  WHEN "ware-house" THEN cVarValue = "".
-                 WHEN "inv-cost" THEN cVarValue = "".
-                 WHEN "ord-cost" THEN cVarValue = "".
-                 WHEN "full-cost" THEN cVarValue = "".
               END CASE.
               
               cExcelVarValue = cVarValue.
@@ -976,6 +1187,11 @@
           
          END.
          PUT UNFORMATTED "       * Grand Totals: *" substring(cDisplay,25,300) SKIP.
-
+/*          IF tb_excel THEN DO:                                            */
+/*              cExcelDisplay = cExcelDisplay.                              */
+/*              PUT STREAM st-excell UNFORMATTED                            */
+/*                  "Grand Totals: " + substring(cExcelDisplay,3,300) SKIP. */
+/*          END.                                                            */
+    
         
    
