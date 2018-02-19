@@ -1,4 +1,6 @@
 
+{sys/inc/bolstatus.i oe-relh.cust-no}
+
 RUN oe/oe-bolno.p (cocode, OUTPUT v-n-bol).
 
   /* check if more than 1 oe-rell and multiple frt pay/fob */
@@ -112,7 +114,7 @@ end.*/
    oe-bolh.ship-no  = oe-relh.ship-no
    oe-bolh.ship-id  = oe-relh.ship-id
    oe-bolh.carrier  = oe-relh.carrier
-   oe-bolh.stat     = STRING(relpost-log AND relpost-chr BEGINS "BOL","H/R")
+   oe-bolh.stat     = STRING(cbolstatus BEGINS "Hold","H/R")
    oe-bolh.b-ord-no = oe-relh.b-ord-no
    oe-bolh.rel-date = oe-relh.rel-date
    oe-bolh.r-no     = oe-relh.r-no
