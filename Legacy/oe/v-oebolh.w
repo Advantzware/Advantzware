@@ -1192,6 +1192,9 @@ PROCEDURE display-cust-detail :
 ------------------------------------------------------------------------------*/
   DEF INPUT PARAMETER ip-recid AS RECID NO-UNDO.
   FIND cust WHERE RECID(cust) = ip-recid NO-LOCK NO-ERROR.
+
+  {sys/inc/bolstatus.i cust.cust-no}
+
   IF AVAIL cust THEN DO WITH FRAME {&frame-name} :
 
        ASSIGN oe-bolh.cust-no:screen-value   = cust.cust-no
@@ -1201,6 +1204,7 @@ PROCEDURE display-cust-detail :
               cust_city:screen-value      = cust.city
               cust_state:screen-value     = cust.state
               cust_zip:screen-value       = cust.zip.
+              oe-bolh.stat:screen-value     = STRING(cbolstatus BEGINS "Hold","(H)OLD/(R)eleased") .
 
   END.
 END PROCEDURE.
