@@ -1364,6 +1364,10 @@ PROCEDURE update-fgitem-img :
       FIND FIRST itemfg WHERE itemfg.company = g_company
                           AND itemfg.i-no = lv-fgitem NO-LOCK NO-ERROR.
       lv-fgimg = IF AVAIL itemfg then itemfg.box-IMAGE ELSE "".
+      FILE-INFO:FILE-NAME = lv-fgimg NO-ERROR .
+       IF FILE-INFO:FILE-type EQ ? THEN
+        lv-fgimg = "" .
+
       IF lv-fgimg <> "" THEN
       DO:
           RUN ShellExecuteA(0, "open", lv-fgimg, "", "", 0, OUTPUT tInt).
