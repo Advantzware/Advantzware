@@ -3878,10 +3878,11 @@ PROCEDURE run-whatif :
         VIEW-AS ALERT-BOX ERROR.
     RETURN.
   END.
-
-  IF est.est-type EQ 8 THEN RUN cec/com/print4.p NO-ERROR.
-
-  ELSE DO:
+  
+  RUN est\CostResetHeaders.p(?,?).
+  IF est.est-type EQ 8 THEN
+    RUN cec/com/print4.p NO-ERROR.
+   ELSE DO:
     FIND FIRST probe NO-LOCK WHERE probe.company EQ est.company
                        AND probe.est-no EQ est.est-no
                       NO-ERROR.

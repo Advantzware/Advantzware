@@ -207,12 +207,13 @@ if vprint then do:
 
   if lv-error then return error.
 
-  IF lv-override THEN
-  for each probe where probe.company = xest.company and
+  IF lv-override THEN DO:
+      RUN est\CostResetHeaders.p(ROWID(xest), ROWID(job)).
+      for each probe where probe.company = xest.company and
                        probe.est-no = xest.est-no:
      delete probe.                 
-  end.
-
+    end.
+  END.
   do i = 1 to 28:
      ASSIGN
         qtty[i] = tt-qtty.qtty[i]
@@ -340,6 +341,7 @@ IF NOT AVAIL xeb THEN /* task 04091012*/
 
 do vmcl = 1 to 28:   /* ??? 28 not 4*/
   if qtty[vmcl] eq 0 then next.
+  iMasterQuantity = qtty[vmcl].  /*Assign the master estimate quantity*/
 
   IF v-do-all-forms-ink AND xest.est-type EQ 6 AND
      INDEX(PROGRAM-NAME(1),"all-inks") EQ 0 AND
@@ -964,7 +966,8 @@ do vmcl = 1 to 28:   /* ??? 28 not 4*/
              ord-cost = ord-cost + v-ord-cost[j].
   end.
 
-  if vprint then run cec/box/probemk.p (ROWID(probe)).
+/*  if vprint then - Need this to run for Job BUild to get Prices and Commissions in CostHeader table*/
+    run cec/box/probemk.p (ROWID(probe)).
    dTotalManHrs = 0. /*20305 - need to reset Total Man Hrs calc per Quantity*/
    
   FOR EACH xjob:

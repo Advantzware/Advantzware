@@ -220,11 +220,13 @@
                        input-output v-match-up, INPUT-OUTPUT v-do-all-forms-ink, INPUT-OUTPUT v-board-cost-from-blank, input no, output lv-error). 
      if lv-error then return error.
 
-     IF lv-override THEN
-     for each probe where probe.company = xest.company and
-                       probe.est-no = xest.est-no:
-        delete probe.                 
-     end.
+     IF lv-override THEN DO:
+         for each probe where probe.company = xest.company and
+                           probe.est-no = xest.est-no:
+            delete probe.                 
+         end.
+         RUN est\CostResetHeaders.p(ROWID(xest), ROWID(job)).
+     END.
   
      DO i = 1 TO EXTENT(qtty):
         ASSIGN
@@ -451,7 +453,7 @@
     qty = qtty[k] * IF xeb.yld-qty EQ 0 THEN 1 ELSE xeb.yld-qty.
     if qty = 0 then leave loupe.
     vmcl = k.
-
+    iMasterQuantity = qtty[k].
     {est/probeset.i qtty[k] v-match-up}
 
     maxpage = k.
