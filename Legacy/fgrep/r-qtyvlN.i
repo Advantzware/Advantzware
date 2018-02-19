@@ -159,7 +159,9 @@ FOR EACH tt-cust,
 /* /*                        if last-of(fg-rcpth.trans-date) then */             */
 /*                       if FIRST-OF(fg-rcpth.trans-date) then                   */
 /*                           trans-date = fg-rcpth.trans-date.                   */
-/*                     end.                                                      */
+/*                     end.  
+                                                    */
+                      cLotNum   = "".
                       IF AVAIL xbin THEN
                          IF TRIM(xbin.tag) NE "" THEN
                             FOR EACH b-rdtlh NO-LOCK WHERE b-rdtlh.company   EQ xbin.company
@@ -190,6 +192,8 @@ FOR EACH tt-cust,
                                   END.
 
                          IF AVAIL b-rcpth THEN trans-date = b-rcpth.trans-date.
+                         IF AVAIL b-rdtlh AND b-rdtlh.stack-code NE "" AND cLotNum EQ "" THEN
+                           cLotNum  =  string(b-rdtlh.stack-code,"x(20)") .
 
                     IF LINE-COUNTER >= 56 THEN PAGE.
                     IF xbin.job-no = "" AND xbin.job-no2 = 0 THEN
@@ -223,15 +227,15 @@ FOR EACH tt-cust,
                          ASSIGN v-sell-price = itemfg.sell-price .
 
                      ASSIGN iCommited = 0
-                            cLotNum   = "" .
+                           /* cLotNum   = "" */.
                      FOR EACH oe-rel NO-LOCK WHERE oe-rel.company EQ oe-ordl.company
                          AND oe-rel.ord-no EQ oe-ordl.ord-no
                          AND oe-rel.i-no EQ oe-ordl.i-no 
                          AND oe-rel.LINE EQ oe-ordl.LINE 
                          AND oe-rel.link-no EQ 0 :
                          iCommited = iCommited + oe-rel.tot-qty .
-                         IF oe-rel.lot-no NE "" AND cLotNum EQ "" THEN
-                           cLotNum  =  string(oe-rel.lot-no,"x(15)") . 
+                       /*  IF oe-rel.lot-no NE "" AND cLotNum EQ "" THEN
+                           cLotNum  =  string(oe-rel.lot-no,"x(15)") . */
                      END.
                        
 
