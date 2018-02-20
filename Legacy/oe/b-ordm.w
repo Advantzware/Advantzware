@@ -1428,12 +1428,21 @@ PROCEDURE local-create-record :
           FIND FIRST bf-ordl OF oe-ord NO-LOCK NO-ERROR.
       IF AVAIL bf-ordl THEN
           ASSIGN
-          oe-ordm.spare-char-2 = bf-ordl.i-no .
+          oe-ordm.spare-char-2 = bf-ordl.i-no 
+          oe-ordm.ord-i-no  = bf-ordl.job-no
+          oe-ordm.ord-line  = bf-ordl.job-no2 .
   END.
   ELSE DO:
-      RUN cec/mis-ordfg.p (RECID(oe-ord),OUTPUT v-fgitem,OUTPUT lv-error ) NO-ERROR.
+      RUN cec/mis-ordfg.w (RECID(oe-ord),OUTPUT v-fgitem,OUTPUT lv-error ) NO-ERROR.
       ASSIGN
-          oe-ordm.spare-char-2 = v-fgitem  .
+          oe-ordm.spare-char-2 = v-fgitem .
+      IF AVAIL oe-ord THEN
+          FIND FIRST bf-ordl OF oe-ord 
+          WHERE bf-ordl.i-no EQ v-fgitem NO-LOCK NO-ERROR.
+        IF AVAIL bf-ordl THEN
+            ASSIGN
+            oe-ordm.ord-i-no  = bf-ordl.job-no
+            oe-ordm.ord-line  = bf-ordl.job-no2 .
   END.
 
 END PROCEDURE.
