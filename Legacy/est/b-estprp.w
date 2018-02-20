@@ -654,7 +654,8 @@ PROCEDURE create-reft4plate :
              oe-ordm.miscType = 1
              oe-ordm.estPrepEqty   = est-prep.eqty
              oe-ordm.estPrepLine   = est-prep.line
-             oe-ordm.est-no  = est-prep.est-no.    
+             oe-ordm.est-no  = est-prep.est-no.  
+    RELEASE oe-ordm.
   END.
 END PROCEDURE.
 
