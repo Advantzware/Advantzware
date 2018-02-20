@@ -531,7 +531,6 @@ CLASS RefTableMigration:
         END.  /*FOR EACH reftable*/         
         RETURN iCnt.
     END METHOD. /*shipto*/
-=======
     METHOD PUBLIC INTEGER CustPoMand():
         DEFINE VARIABLE iCnt AS INTEGER NO-UNDO.
         FOR EACH reftable WHERE reftable.reftable = "cust.po-mand"
@@ -916,5 +915,3 @@ CLASS RefTableMigration:
         RETURN iCnt.
     END METHOD. /*mach*/
 END CLASS.
-
-
