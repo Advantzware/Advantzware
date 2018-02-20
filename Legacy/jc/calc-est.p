@@ -109,6 +109,8 @@ for first job where recid(job) eq v-recid no-lock:
     .
   RUN est\CostResetHeaders.p(ROWID(xest),riJob).
   run value(chcs[xest.est-type]).
+  RUN est\CostExportHeaders.p(job.company,TRIM(xest.est-no) + "JC").
+  
   find first xest
       where xest.company eq job.company
         and xest.est-no  eq job.est-no.
