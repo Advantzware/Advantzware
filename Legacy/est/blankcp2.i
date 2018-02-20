@@ -255,6 +255,7 @@ IF lv-copied NE ? THEN DO:
                          oe-ordm.estPrepEqty   = xest-prep.eqty
                          oe-ordm.estPrepLine   = xest-prep.line
                          oe-ordm.est-no  = xest-prep.est-no.    
+                     RELEASE oe-ordm.
                   END.
               END.
 
