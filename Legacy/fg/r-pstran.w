@@ -741,7 +741,7 @@ IF NOT AVAILABLE bf-oe-ord THEN
   DEFINE VARIABLE v-first-ship-id AS cha NO-UNDO.
   
 
-  RUN oe/get-r-no.p (INPUT "oe-rel", OUTPUT v-nxt-r-no).
+  RUN oe/getNextRelNo.p (INPUT "oe-rel", OUTPUT v-nxt-r-no).
   FIND FIRST bf-cust WHERE bf-cust.cust-no EQ bf-oe-ord.cust-no NO-LOCK NO-ERROR.
   ASSIGN
     v-ship-id = IF AVAILABLE oe-rel THEN oe-rel.ship-id ELSE ""
