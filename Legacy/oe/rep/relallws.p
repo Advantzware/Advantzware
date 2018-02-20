@@ -53,6 +53,11 @@ DEF VAR lv-email        AS CHAR FORMAT "x(40)" NO-UNDO.
 
 DEF VAR v-UntCnt        AS CHAR FORMAT "x(10)" NO-UNDO.
 
+DEFINE TEMP-TABLE ttReleasesToPrint NO-UNDO
+    FIELD OeRelHRowID AS ROWID 
+    FIELD SessionID   AS CHARACTER
+        .
+
 DEF VAR lv-comp-color  AS CHAR              NO-UNDO.
 DEF VAR lv-other-color AS CHAR INIT "BLACK" NO-UNDO.
 DEF VAR lv-comp-unit   AS INT               NO-UNDO.

@@ -221,23 +221,14 @@ for each m-lst by m-lst.f-no by m-lst.seq by m-lst.b-no by m-lst.pass-no:
                        mach.mr-varoh  + mach.mr-fixoh
    est-op.op-rate[2] = (mach.lab-rate[mach.lab-drate] * est-op.op-crew[2]) + 
                        mach.run-varoh + mach.run-fixoh.
-   
-  {sys/inc/machposw.i est-op share}
-         
-  if not avail reftable then do:
-    create reftable.
-    assign
-     reftable.reftable = "MachinePosition"
-     reftable.company  = string(est-op.company,"x(10)") +
-                         string(est-op.est-no,"x(10)")
-     reftable.loc      = string(est-op.line,"9999999999").
-  end.   
-
-  do i = 1 to 3:
-    assign
-     reftable.val[i]     = index("LWD",substr(m-lst.dim-pos,i,1))
-     reftable.val[i + 3] = m-lst.dim[i].
-  end.
+  
+  ASSIGN
+      est-op.len-pos = integer(index("LWD",substr(m-lst.dim-pos,1,1))) .
+      est-op.len     =  m-lst.dim[1] .
+      est-op.wid-pos =  index("LWD",substr(m-lst.dim-pos,2,1)) .
+      est-op.wid     =  m-lst.dim[2] .
+      est-op.dep-pos =   index("LWD",substr(m-lst.dim-pos,3,1)) .
+      est-op.dep     =  m-lst.dim[3].
   
   if mach.p-type eq "B" then est-op.op-sb = no.
   j = j + 1.
@@ -282,17 +273,12 @@ for each est-op
     by est-op.d-seq
     by est-op.op-pass
     by est-op.rec_key:
-      
-  {sys/inc/machposW.i est-op share}  
+  
   assign
    j           = j + 1
    est-op.line = j.
-     
-  if avail reftable then reftable.loc = string(est-op.line,"9999999999"). 
+  
 end.
-
-FIND CURRENT reftable NO-LOCK NO-ERROR.
-RELEASE reftable.
 
 maxco = 0.
 for each xef
@@ -306,20 +292,12 @@ for each xef
     RUN cec/com/localk.p (0, ?,ip-build-combo).
     IF ip-build-combo AND LAST(xef.est-no) THEN
      DO:
-        FIND FIRST op-lock WHERE
-             op-lock.reftable EQ "est.op-lock" AND
-             op-lock.company  EQ xest.company AND
-             op-lock.loc      EQ xest.loc AND
-             op-lock.code     EQ TRIM(xest.est-no)
-             NO-ERROR.
 
-        IF AVAIL op-lock THEN
-        DO:
-           ASSIGN
-              op-lock.val[1] = 0
-              op-lock.val[2] = 0.
-           RELEASE op-lock.
-        END.
+          FIND CURRENT xest EXCLUSIVE-LOCK NO-ERROR.
+             ASSIGN
+               xest.recalc    = NO
+               xest.recalc-mr = NO.
+          FIND CURRENT xest NO-LOCK.     
      END.
   END.
   ELSE

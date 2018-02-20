@@ -234,6 +234,7 @@ END.
 ON CHOOSE OF btn_ok IN FRAME D-Dialog /* OK */
 DO:
   DEF VAR v-process AS LOG INIT NO NO-UNDO.
+  DEFINE BUFFER bf-oe-ordl FOR oe-ordl.
       
 
   FOR EACH w-file,
@@ -256,20 +257,21 @@ DO:
   END.
 
   IF NOT v-process THEN DO:
-    MESSAGE "Are you sure you want to close all the selected orders?"
+    MESSAGE "Are you sure you want to keep the selected orders open?"
         VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
         UPDATE v-process.
 
     SESSION:SET-WAIT-STATE("general").
 
-    FOR EACH w-file WHERE w-file.cloze EQ YES,
+    FOR EACH w-file WHERE w-file.cloze EQ NO,
         FIRST oe-ordl WHERE RECID(oe-ordl) EQ w-file.rec-id NO-LOCK,
         FIRST oe-ord OF oe-ordl NO-LOCK:
 
       {oe/closeaud.i oe-ord}
       reftable.val[2] = INT(v-process) + 1.
 
-      IF v-process THEN RUN oe/close.p (RECID(oe-ord), YES).  
+      IF v-process THEN 
+            RUN oe/close.p (RECID(oe-ord), NO).  
     END.
 
     SESSION:SET-WAIT-STATE("").
@@ -528,6 +530,7 @@ PROCEDURE local-initialize :
 
       IF AVAIL oe-ord THEN
       FOR EACH oe-ordl OF oe-ord NO-LOCK
+        WHERE oe-ordl.stat EQ 'C'
           BREAK BY oe-ordl.ord-no
                 BY oe-ordl.line:
 

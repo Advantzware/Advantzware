@@ -507,17 +507,9 @@ PROCEDURE get-lot-no :
       Parameters:  <none>
       Notes:       THIS IS TO ASSIGN THE LOT NUMBER FROM THE REFTABLE TO 
     ------------------------------------------------------------------------------*/
-    FIND FIRST reftable NO-LOCK WHERE
-        reftable.reftable EQ "inv-line.lot-no" AND
-        reftable.rec_key  EQ inv-line.rec_key
-        USE-INDEX rec_key NO-ERROR.
 
-    IF AVAILABLE reftable THEN 
-    DO:
-        ASSIGN 
-            ar-invl.lot-no = TRIM(reftable.CODE)
-            .
-    END.
+      ASSIGN 
+            ar-invl.lot-no = TRIM(inv-line.lot-no).
 
 END PROCEDURE.
 
@@ -2273,33 +2265,31 @@ PROCEDURE pPrintPost:
 
                 RELEASE cust.
 
-                IF NOT oeclose-log  THEN DO:
-                    FOR EACH oe-ordl NO-LOCK WHERE
-                        oe-ordl.company EQ oe-ord.company AND
-                        oe-ordl.ord-no  EQ oe-ord.ord-no AND
-                        oe-ordl.stat    NE "C"
-                        :
-                        /* No UI */
-                        RUN oe/CloseOrder.p(INPUT ROWID(oe-ordl),
-                            INPUT NO,
-                            OUTPUT cStatus,
-                            OUTPUT cReason).
-                        /* No UI */
-                        IF cStatus EQ 'C' THEN
-                            RUN oe/closelin.p (INPUT ROWID(oe-ordl),YES).
-                    END.
-
-                    RUN close-order.
+                FOR EACH oe-ordl NO-LOCK WHERE
+                    oe-ordl.company EQ oe-ord.company AND
+                    oe-ordl.ord-no  EQ oe-ord.ord-no AND
+                    oe-ordl.stat    NE "C"
+                    :
+                    /* No UI */
+                    RUN oe/CloseOrder.p(INPUT ROWID(oe-ordl),
+                        INPUT NO,
+                        OUTPUT cStatus,
+                        OUTPUT cReason).
+                    /* No UI */
+                    IF cStatus EQ 'C' THEN
+                        RUN oe/closelin.p (INPUT ROWID(oe-ordl),YES).
                 END.
+
+                RUN close-order.
             END. /* Each w-ord */
             
 
-            IF oeclose-log THEN DO:
-                RUN oe/closchkinv.p (0).
-            /* Contains UI, so taken out for batch mode  */
-            /*                IF CAN-FIND (FIRST w-ord) THEN*/
-            /*                    RUN oe/d-close.w.         */
-            END.
+/*            IF oeclose-log THEN DO:                           */
+/*                RUN oe/closchkinv.p (0).                      */
+/*            /* Contains UI, so taken out for batch mode  */   */
+/*            /*                IF CAN-FIND (FIRST w-ord) THEN*/*/
+/*            /*                    RUN oe/d-close.w.         */*/
+/*            END.                                              */
         END.
     END.
 
@@ -2405,14 +2395,14 @@ PROCEDURE run-report :
                     DELETE xinv-head.
                     NEXT.
                 END.
-
-            IF cust.factored THEN
+                                
+              IF cust.factored THEN
                 FOR EACH inv-line NO-LOCK WHERE inv-line.r-no = inv-head.r-no:
-                    IF CAN-FIND(FIRST reftable WHERE reftable.reftable EQ "FACTORED"
-                        AND reftable.company  EQ inv-head.company
-                        AND reftable.loc      EQ ""
-                        AND reftable.code     EQ inv-line.i-no)
+                    IF CAN-FIND(FIRST itemfg WHERE itemfg.company  EQ inv-head.company
+                        AND itemfg.i-no     EQ inv-line.i-no
+                        AND itemfg.factored = yes)
                      THEN DO:
+           
                         tt-report.key-02 = "Factored".  /* for oe/rep/expfrank.p task#  09200521*/
                         LEAVE.
                     END.

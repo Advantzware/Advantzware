@@ -587,7 +587,7 @@ v-printline = 0.
           IF AVAIL ITEM AND ITEM.mat-type EQ "B" AND ITEM.industry = "2" AND  ITEM.flute NE "" AND ITEM.reg-no NE "" THEN
           ASSIGN cFlueTest = string(lv-flute,"x(13)") + string(lv-reg-no,"x(10)").
           ELSE
-              ASSIGN cFlueTest = IF dCoreDia GT 0 THEN "Core Dia: " + string(dCoreDia,">,>>9.99<<") ELSE ""
+              ASSIGN cFlueTest = IF dCoreDia GT 0 AND ITEM.mat-type EQ "P" THEN "Core Dia: " + string(dCoreDia,">,>>9.99<<") ELSE ""
                      dCoreDia = 0.
 
 
@@ -610,7 +610,7 @@ v-printline = 0.
         ELSE
            PUT SKIP.
       /* IF ITEM.flute NE "" AND ITEM.reg-no NE "" THEN DO:*/
-        IF dCoreDia GT 0 THEN DO:
+        IF dCoreDia GT 0 AND ITEM.mat-type EQ "P" THEN DO:
             put "Core Dia: " AT 25 dCoreDia FORMAT ">,>>9.99<<" SKIP.
             ASSIGN
                 v-line-number = v-line-number + 1

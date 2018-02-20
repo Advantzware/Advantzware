@@ -1,0 +1,49 @@
+/* 05/08/97 FORM LIKE file EDIVLine */
+
+FORM
+  EDIVLine.Partner
+  EDIVLine.Seq
+  EDIVLine.Line
+  EDIVLine.Item-no
+  EDIVLine.Description[1]
+  EDIVLine.Description[2]
+  EDIVLine.Uom-code
+  EDIVLine.Unit-price
+  EDIVLine.Whs-order
+  EDIVLine.Edi-prod-id
+  EDIVLine.Ememo[1]
+  EDIVLine.Ememo[2]
+  EDIVLine.UPC
+  EDIVLine.Cust-item-no
+  EDIVLine.Cust-po-line
+  EDIVLine.Price-basis
+  EDIVLine.Pack-size
+  EDIVLine.Product-type
+  EDIVLine.Special-svc-code
+  EDIVLine.Taxable
+  EDIVLine.Bo-flag
+  EDIVLine.Qty-shipped
+  EDIVLine.Selling-price
+  EDIVLine.Color-desc
+  EDIVLine.Size-desc
+  EDIVLine.Size-qual[1]
+  EDIVLine.Size-qual[2]
+  EDIVLine.Size-qual[3]
+  EDIVLine.Dimension[1]
+  EDIVLine.Dimension[2]
+  EDIVLine.Dimension[3]
+  EDIVLine.Invoice-no
+  EDIVLine.Item-gross
+  EDIVLine.Item-disc-amount
+  EDIVLine.Item-net
+  EDIVLine.Item-wght-each
+  EDIVLine.Item-each-cube
+  EDIVLine.Item-ctn-wght
+  EDIVLine.Item-ctn-cube
+  EDIVLine.Item-ship-stat
+  EDIVLine.Qty-ord-orig
+  EDIVLine.Qty-var
+  EDIVLine.Config-code
+  EDIVLine.By-code
+  EDIVLine.Company
+  WITH FRAME edivline NO-LABELS.

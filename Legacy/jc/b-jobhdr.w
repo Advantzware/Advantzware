@@ -42,6 +42,7 @@ DEF BUFFER b-job-hdr FOR job-hdr.
 DEF VAR OEJobHold-log AS LOG  NO-UNDO.
 DEF VAR lcReturn      AS CHAR NO-UNDO.
 DEF VAR llRecFound    AS LOG  NO-UNDO.
+DEFINE VARIABLE ld-total-cost AS DECIMAL NO-UNDO.
 RUN sys/ref/nk1look.p (g_company, "OEJobHold", "L", NO, NO, "", "", 
     OUTPUT lcReturn, OUTPUT llRecFound).
 
@@ -87,7 +88,7 @@ DEFINE QUERY external_tables FOR job.
 &Scoped-define FIELDS-IN-QUERY-Browser-Table job-hdr.frm job-hdr.blank-no ~
 job-hdr.cust-no job-hdr.i-no job-hdr.qty job-hdr.sq-in job-hdr.ord-no ~
 job-hdr.po-no job-hdr.due-date job-hdr.std-mat-cost job-hdr.std-lab-cost ~
-job-hdr.std-fix-cost job-hdr.std-var-cost job-hdr.j-no job-hdr.job-no ~
+job-hdr.std-fix-cost job-hdr.std-var-cost get-total-cost () @ ld-total-cost job-hdr.j-no job-hdr.job-no ~
 job-hdr.job-no2 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table job-hdr.frm ~
 job-hdr.blank-no job-hdr.cust-no job-hdr.i-no job-hdr.qty job-hdr.ord-no ~
@@ -116,6 +117,15 @@ auto_find Btn_Clear_Find
 &ANALYZE-RESUME
 
 
+/* ************************  Function Prototypes ********************** */
+
+
+ &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD get-total-cost B-table-Win 
+FUNCTION get-total-cost RETURNS DECIMAL
+  ( /* parameter-definitions */ )  FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 /* ***********************  Control Definitions  ********************** */
 
@@ -184,6 +194,7 @@ DEFINE BROWSE Browser-Table
       job-hdr.std-lab-cost COLUMN-LABEL "D.L." FORMAT "->>>,>>9.99<<":U
       job-hdr.std-fix-cost COLUMN-LABEL "Fix OH" FORMAT "->>>,>>9.99<<":U
       job-hdr.std-var-cost COLUMN-LABEL "Var OH" FORMAT "->>>,>>9.99<<":U
+      get-total-cost () @ ld-total-cost COLUMN-LABEL "Total Cost" FORMAT "->,>>>,>>>,>>9.99<<":U
       job-hdr.j-no COLUMN-LABEL "" FORMAT ">>>>>>9":U
       job-hdr.job-no COLUMN-LABEL "" FORMAT "x(6)":U
       job-hdr.job-no2 COLUMN-LABEL "" FORMAT ">9":U
@@ -326,10 +337,12 @@ ASSIGN
      _FldNameList[13]   > ASI.job-hdr.std-var-cost
 "job-hdr.std-var-cost" "Var OH" ? "decimal" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[14]   > ASI.job-hdr.j-no
-"job-hdr.j-no" "" ? "integer" ? ? ? ? ? ? no ? no no ? no no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[15]   > ASI.job-hdr.job-no
+"get-total-cost () @ ld-total-cost" "Total Cost" ? "decimal" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[15]   > "_<CALC>"  
+ "job-hdr.j-no" "" ? "integer" ? ? ? ? ? ? no ? no no ? no no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[16]   > ASI.job-hdr.job-no
 "job-hdr.job-no" "" ? "character" ? ? ? ? ? ? no ? no no ? no no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[16]   > ASI.job-hdr.job-no2
+     _FldNameList[17]   > ASI.job-hdr.job-no2
 "job-hdr.job-no2" "" ? "integer" ? ? ? ? ? ? no ? no no ? no no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */
@@ -785,22 +798,13 @@ PROCEDURE local-assign-record :
 
      RUN fg/comp-upd.p (RECID(itemfg), li-old-qty * -1, "q-ono", job.est-no).
      RUN fg/comp-upd.p (RECID(itemfg), job-hdr.qty, "q-ono", job.est-no).
-    
-     FIND FIRST job-qty-changed
-         WHERE job-qty-changed.reftable EQ "job.qty-changed"
-           AND job-qty-changed.company  EQ job.company
-           AND job-qty-changed.loc      EQ ""
-           AND job-qty-changed.code     EQ STRING(job.job,"9999999999")
-         NO-ERROR.
-     IF NOT AVAIL job-qty-changed THEN DO:
-       CREATE job-qty-changed.
-       ASSIGN
-        job-qty-changed.reftable = "job.qty-changed"
-        job-qty-changed.company  = job.company
-        job-qty-changed.loc      = ""
-        job-qty-changed.code     = STRING(job.job,"9999999999").
-       RELEASE job-qty-changed.
-     END.
+
+       FIND CURRENT job EXCLUSIVE-LOCK NO-ERROR.
+           ASSIGN
+               job.qty-changed = YES.
+       FIND CURRENT job NO-LOCK.        
+               
+
      /* lv-qty-changed needed for correct parameter passed to jc-calc.p */
      lv-qty-changed = TRUE.
      RUN rebuild-stds.
@@ -821,8 +825,21 @@ PROCEDURE local-delete-record :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-
   /* Code placed here will execute PRIOR to standard behavior. */
+  {&methods/lValidateError.i YES}
+   FIND FIRST po-ordl NO-LOCK
+             WHERE po-ordl.company EQ job.company
+               AND po-ordl.job-no  EQ job.job-no
+               AND po-ordl.job-no2 EQ job.job-no2
+               AND po-ordl.opened NO-ERROR .
+        IF AVAILABLE po-ordl THEN DO:
+            MESSAGE "There is an open Purchase Order for this job. This PO" SKIP
+                    "must be closed or deleted before the job can be deleted."
+                VIEW-AS ALERT-BOX INFO .
+            RETURN ERROR .
+        END.
+       {&methods/lValidateError.i NO}
+
   {custom/askdel.i}
   FOR EACH job-farm
       WHERE job-farm.company EQ job-hdr.company
@@ -1302,6 +1319,25 @@ PROCEDURE value-changed-proc :
 ------------------------------------------------------------------------------*/
    APPLY "VALUE-CHANGED" TO BROWSE {&browse-name}.
 END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION get-total-cost B-table-Win 
+FUNCTION get-total-cost RETURNS DECIMAL
+  ( /* parameter-definitions */ ) :
+/*------------------------------------------------------------------------------
+  Purpose:  
+    Notes:  
+------------------------------------------------------------------------------*/
+  DEFINE VARIABLE dTotalCost AS DECIMAL FORMAT "->,>>>,>>>,>>>.99<<" NO-UNDO INIT 0.
+
+  IF AVAIL job-hdr THEN
+    ASSIGN dTotalCost = job-hdr.std-mat-cost + job-hdr.std-lab-cost + job-hdr.std-fix-cost + job-hdr.std-var-cost.
+
+  RETURN dTotalCost.   /* Function return value. */
+
+END FUNCTION.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

@@ -101,20 +101,20 @@ DEF VAR lv-i-% LIKE eb.i-% NO-UNDO.
              AND alt-item.i-no     EQ ce-ctrl.def-coat
            NO-LOCK NO-ERROR.
      END.
-
-     IF NOT AVAIL item AND ef.m-code NE "" THEN DO:
-       FIND FIRST mach
-           WHERE mach.company  EQ cocode
-             AND mach.loc      EQ locode
-             AND mach.m-code   EQ ef.m-code
-             AND mach.dept[1]  EQ "PR"
-           NO-LOCK NO-ERROR.
-       IF AVAIL mach THEN
-       FIND FIRST item
-           {sys/look/itemivW.i}
-             AND item.press-type EQ mach.pr-type
-           NO-LOCK NO-ERROR.
-     END.
+/*removing this code because the ef buffer is not valid*/
+/*     IF NOT AVAIL item AND ef.m-code NE "" THEN DO:*/
+/*       FIND FIRST mach                             */
+/*           WHERE mach.company  EQ cocode           */
+/*             AND mach.loc      EQ locode           */
+/*             AND mach.m-code   EQ ef.m-code        */
+/*             AND mach.dept[1]  EQ "PR"             */
+/*           NO-LOCK NO-ERROR.                       */
+/*       IF AVAIL mach THEN                          */
+/*       FIND FIRST item                             */
+/*           {sys/look/itemivW.i}                    */
+/*             AND item.press-type EQ mach.pr-type   */
+/*           NO-LOCK NO-ERROR.                       */
+/*     END.                                          */
 
      IF NOT AVAIL item THEN
      FIND FIRST item {sys/look/itemiW.i} NO-LOCK NO-ERROR.

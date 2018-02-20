@@ -58,11 +58,11 @@ DEF VAR cTextListToDefault AS cha NO-UNDO.
 
 
 ASSIGN cTextListToSelect = "JOB #,CUSTOMER,RM ITEM#,RM QTY RECD,FG ITEM#,FG QTY INVCD," + 
-                           "DIFFERENCE,FG QTY RECD,DIFFERENCE2,WASTE%,BOARD COST,FG MSF,RM MSF,INVOICE DATE"
+                           "DIFFERENCE,FG QTY RECD,DIFFERENCE2,WASTE%,BOARD COST,FG MSF,RM MSF,INVOICE DATE,BASIS WEIGHT,CATEGORY"
        cFieldListToSelect = "job,cust,rm-itm,rm-qty,fg-itm,fg-qty-in," +
-                            "diff,fg-qty-re,diff2,wast,brd-cst,t-msf,t-msf-rm,inv-date"
-       cFieldLength = "9,25,15,12,15,12," + "12,12,12,11,10,11,11,12"
-       cFieldType = "c,c,c,i,c,i," + "i,i,i,i,i,i,i,c" 
+                            "diff,fg-qty-re,diff2,wast,brd-cst,t-msf,t-msf-rm,inv-date,basis-wht,cat"
+       cFieldLength = "9,25,15,12,15,12," + "12,12,12,11,10,11,11,12,12,8"
+       cFieldType = "c,c,c,i,c,i," + "i,i,i,i,i,i,i,c,c,c" 
     .
 
 {sys/inc/ttRptSel.i}
@@ -1852,6 +1852,9 @@ IF tb_excel THEN
                  WHEN "t-msf"     THEN cVarValue = string(v-msf,"->>>,>>9.99") .
                  WHEN "t-msf-rm"  THEN cVarValue = string(v-msf-rm,"->>>,>>9.99") .
                  WHEN "inv-date"  THEN cVarValue = IF dInvdt <> ? THEN STRING(dInvdt,"99/99/9999") ELSE ""      .
+                 WHEN "basis-wht"    THEN cVarValue = IF AVAIL ITEM AND item.basis-w NE 0 THEN STRING(ITEM.basis-w,">>9.99") ELSE "".
+                 WHEN "cat"    THEN cVarValue = IF AVAIL ITEM THEN STRING(ITEM.procat,"x(5)") ELSE "".
+
 
 
             END CASE.
@@ -1942,6 +1945,8 @@ IF tb_excel THEN
                            WHEN "t-msf"     THEN cVarValue = "" .
                            WHEN "t-msf-rm"  THEN cVarValue = "" .
                            WHEN "inv-date"  THEN cVarValue = "" .
+                           WHEN "basis-wht"    THEN cVarValue = "".
+                           WHEN "cat"    THEN cVarValue = "".
 
                       END CASE.
 
@@ -2018,6 +2023,8 @@ IF tb_excel THEN
                            WHEN "t-msf"     THEN cVarValue = "" .
                            WHEN "t-msf-rm"  THEN cVarValue = "" .
                            WHEN "inv-date"  THEN cVarValue = "" .
+                           WHEN "basis-wht"    THEN cVarValue = "".
+                           WHEN "cat"    THEN cVarValue = "".
 
                       END CASE.
 
@@ -2091,6 +2098,8 @@ IF tb_excel THEN
                            WHEN "t-msf"     THEN cVarValue = "" .
                            WHEN "t-msf-rm"  THEN cVarValue = "" .
                            WHEN "inv-date"  THEN cVarValue = "" .
+                           WHEN "basis-wht"    THEN cVarValue = "".
+                           WHEN "cat"    THEN cVarValue = "".
 
                       END CASE.
 

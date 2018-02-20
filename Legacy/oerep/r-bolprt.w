@@ -112,7 +112,7 @@ DEFINE VARIABLE retcode AS INTEGER   NO-UNDO.
 DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
 DEFINE VARIABLE lBussFormModle AS LOGICAL NO-UNDO.
-
+DEFINE NEW SHARED VAR v-print-unassembled AS LOG NO-UNDO.
  RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormModal", "L" /* Logical */, NO /* check by cust */, 
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
 OUTPUT cRtnChar, OUTPUT lRecFound).
@@ -237,17 +237,17 @@ DEFINE TEMP-TABLE ediOutFile NO-UNDO
 &Scoped-Define ENABLED-OBJECTS RECT-6 begin_cust end_cust begin_bol# ~
 begin_ord# end_ord# begin_date end_date tb_reprint tb_pallet tb_posted ~
 tb_print-component tb_print-shipnote tb_barcode tb_print_ship ~
-tb_print-barcode tb_print-binstags rd_bol-sort fi_specs tb_print-spec ~
-rd_bolcert tb_EMailAdvNotice rd-dest tb_MailBatchMode tb_ComInvoice ~
-tb_freight-bill lv-ornt lines-per-page lv-font-no tb_post-bol td-show-parm ~
-btn-ok btn-cancel 
+tb_print-barcode tb_print-unassemble-component tb_print-binstags ~
+rd_bol-sort fi_specs tb_print-spec rd_bolcert tb_EMailAdvNotice rd-dest ~
+tb_MailBatchMode tb_ComInvoice tb_freight-bill lv-ornt lines-per-page ~
+lv-font-no tb_post-bol td-show-parm btn-ok btn-cancel 
 &Scoped-Define DISPLAYED-OBJECTS begin_cust end_cust begin_bol# begin_ord# ~
 end_ord# begin_date end_date tb_reprint tb_pallet tb_posted ~
 tb_print-component tb_print-shipnote tb_barcode tb_print_ship ~
-tb_print-barcode tb_print-binstags lbl_bolsort rd_bol-sort fi_specs ~
-tb_print-spec lbl_bolcert rd_bolcert tb_EMailAdvNotice rd-dest ~
-tb_MailBatchMode tb_ComInvoice tb_freight-bill lv-ornt lines-per-page ~
-lv-font-no lv-font-name tb_post-bol td-show-parm 
+tb_print-barcode tb_print-unassemble-component tb_print-binstags ~
+lbl_bolsort rd_bol-sort fi_specs tb_print-spec lbl_bolcert rd_bolcert ~
+tb_EMailAdvNotice rd-dest tb_MailBatchMode tb_ComInvoice tb_freight-bill ~
+lv-ornt lines-per-page lv-font-no lv-font-name tb_post-bol td-show-parm 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -457,6 +457,11 @@ DEFINE VARIABLE tb_print-spec AS LOGICAL INITIAL no
      VIEW-AS TOGGLE-BOX
      SIZE 21 BY .81 NO-UNDO.
 
+DEFINE VARIABLE tb_print-unassemble-component AS LOGICAL INITIAL no 
+     LABEL "Print Unassembled Set?" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 33 BY .81 NO-UNDO.
+
 DEFINE VARIABLE tb_print_ship AS LOGICAL INITIAL no 
      LABEL "Print Shipping Inst?" 
      VIEW-AS TOGGLE-BOX
@@ -503,6 +508,7 @@ DEFINE FRAME FRAME-A
      tb_print-dept AT ROW 11.43 COL 34
      tb_print_ship AT ROW 11.43 COL 34 WIDGET-ID 4
      tb_print-barcode AT ROW 12.29 COL 34 WIDGET-ID 2
+     tb_print-unassemble-component AT ROW 13.1 COL 34 WIDGET-ID 18
      tb_print-binstags AT ROW 13.24 COL 34 WIDGET-ID 6
      lbl_bolsort AT ROW 13.86 COL 21.6 COLON-ALIGNED NO-LABEL WIDGET-ID 12
      rd_bol-sort AT ROW 13.86 COL 34.6 NO-LABEL WIDGET-ID 14
@@ -587,16 +593,6 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME                                                           */
-ASSIGN
-       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "ribbon-button".
-
-
-ASSIGN
-       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "ribbon-button".
-
-
 ASSIGN 
        begin_bol#:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
@@ -612,6 +608,14 @@ ASSIGN
 ASSIGN 
        begin_ord#:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
+
+ASSIGN 
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+ASSIGN 
+       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
 
 /* SETTINGS FOR FILL-IN end_bol# IN FRAME FRAME-A
    NO-DISPLAY NO-ENABLE                                                 */
@@ -741,6 +745,10 @@ ASSIGN
                 "parm".
 
 ASSIGN 
+       tb_print-unassemble-component:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
+
+ASSIGN 
        tb_print_ship:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
@@ -754,7 +762,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -1747,6 +1755,9 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     IF LOOKUP(v-print-fmt,"SouthPak,Xprint,bolfmt 1,bolfmt 10,bolfmt10-CAN,Lakeside,Soule,SouleMed,Accordbc,Protagon,Xprint2,bolfmt 2,bolfmt 20,Chillicothe,NSTOCK,Frankstn,Fibre,Ottpkg,Consbox,CapitolBC,ContSrvc,CapCityIN,Axis,Allwest,COLOR,AllPkg2,Loylang,Printers,Printers2,PEACHTREE,PeachTreeBC,Multicell") LE 0 THEN DO:
       tb_print-component:SCREEN-VALUE = "no".
       DISABLE tb_print-component.
+      tb_print-unassemble-component:SCREEN-VALUE = "no".
+      DISABLE tb_print-unassemble-component.
+      
     END.
 
 
@@ -1790,6 +1801,13 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
       ASSIGN 
         tb_print-spec:HIDDEN = YES
         fi_specs:HIDDEN = YES.
+
+    IF v-print-fmt = "bolfmt10-can" THEN
+      ASSIGN 
+        tb_print-unassemble-component:HIDDEN = NO.
+    ELSE
+      ASSIGN 
+        tb_print-unassemble-component:HIDDEN = YES.
 
    IF v-print-fmt = "XPrint2" OR v-print-fmt = "bolfmt 2" OR v-print-fmt = "bolfmt 20" THEN  /* task 01121601 */
        ASSIGN
@@ -1874,7 +1892,8 @@ PROCEDURE AdvancedNotice :
     v-print-components  = tb_print-component
     v-print-shipnotes   = tb_print-shipnote
     lv-run-bol          = ""
-    lv-run-commercial   = "".
+    lv-run-commercial   = ""
+    v-print-unassembled = tb_print-unassemble-component.
 
   IF ip-sys-ctrl-ship-to THEN
      ASSIGN
@@ -2801,8 +2820,9 @@ PROCEDURE enable_UI :
 ------------------------------------------------------------------------------*/
   DISPLAY begin_cust end_cust begin_bol# begin_ord# end_ord# begin_date end_date 
           tb_reprint tb_pallet tb_posted tb_print-component tb_print-shipnote 
-          tb_barcode tb_print_ship tb_print-barcode tb_print-binstags 
-          lbl_bolsort rd_bol-sort fi_specs tb_print-spec lbl_bolcert rd_bolcert 
+          tb_barcode tb_print_ship tb_print-barcode 
+          tb_print-unassemble-component tb_print-binstags lbl_bolsort 
+          rd_bol-sort fi_specs tb_print-spec lbl_bolcert rd_bolcert 
           tb_EMailAdvNotice rd-dest tb_MailBatchMode tb_ComInvoice 
           tb_freight-bill lv-ornt lines-per-page lv-font-no lv-font-name 
           tb_post-bol td-show-parm 
@@ -2810,10 +2830,10 @@ PROCEDURE enable_UI :
   ENABLE RECT-6 begin_cust end_cust begin_bol# begin_ord# end_ord# begin_date 
          end_date tb_reprint tb_pallet tb_posted tb_print-component 
          tb_print-shipnote tb_barcode tb_print_ship tb_print-barcode 
-         tb_print-binstags rd_bol-sort fi_specs tb_print-spec rd_bolcert 
-         tb_EMailAdvNotice rd-dest tb_MailBatchMode tb_ComInvoice 
-         tb_freight-bill lv-ornt lines-per-page lv-font-no tb_post-bol 
-         td-show-parm btn-ok btn-cancel 
+         tb_print-unassemble-component tb_print-binstags rd_bol-sort fi_specs 
+         tb_print-spec rd_bolcert tb_EMailAdvNotice rd-dest tb_MailBatchMode 
+         tb_ComInvoice tb_freight-bill lv-ornt lines-per-page lv-font-no 
+         tb_post-bol td-show-parm btn-ok btn-cancel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.
@@ -3238,7 +3258,8 @@ PROCEDURE output-to-mail :
     v-print-shipnotes   = tb_print-shipnote
     v-print-dept        = tb_print-dept
     lv-run-bol          = ""
-    lv-run-commercial   = "".
+    lv-run-commercial   = ""
+    v-print-unassembled = tb_print-unassemble-component.
 
   IF ip-sys-ctrl-shipto THEN
      ASSIGN
@@ -3641,7 +3662,8 @@ PROCEDURE run-packing-list :
     v-print-dept        = tb_print-dept
     v-ship-inst         = tb_print_ship    
     lv-run-bol          = ""
-    lv-run-commercial   = "".
+    lv-run-commercial   = ""
+    v-print-unassembled = tb_print-unassemble-component.
 
   IF ip-sys-ctrl-ship-to THEN
      ASSIGN
@@ -3679,7 +3701,7 @@ PROCEDURE run-packing-list :
   IF IS-xprint-form THEN DO:
 
       CASE rd-dest:
-          WHEN 1 THEN PUT "<PRINTER?>".
+          WHEN 1 THEN PUT "<PRINTER?><LEFT=4mm>".
           WHEN 2 THEN do:
            IF NOT lBussFormModle THEN
             PUT "<PREVIEW><LEFT=4mm><MODAL=NO>". 
@@ -3688,7 +3710,7 @@ PROCEDURE run-packing-list :
           END.
           WHEN 4 THEN do:
                 ls-fax-file = "c:\tmp\fax" + STRING(TIME) + ".tif".
-                PUT UNFORMATTED "<PRINTER?><EXPORT=" Ls-fax-file ",BW>".
+                PUT UNFORMATTED "<PRINTER?><LEFT=4mm><EXPORT=" Ls-fax-file ",BW>".
           END.
           WHEN 5 THEN do:
               IF v-print-fmt = "Century" THEN /*<PDF-LEFT=5mm><PDF-TOP=10mm>*/
@@ -3777,7 +3799,8 @@ PROCEDURE run-report :
     v-ship-inst         = tb_print_ship    
     lv-run-bol          = ""
     lv-run-commercial   = ""
-    v-sort              = rd_bol-sort EQ "Item #" .
+    v-sort              = rd_bol-sort EQ "Item #"
+    v-print-unassembled = tb_print-unassemble-component .
 
   IF ip-sys-ctrl-ship-to THEN
      ASSIGN
@@ -3815,7 +3838,7 @@ PROCEDURE run-report :
   IF IS-xprint-form THEN DO:
 
       CASE rd-dest:
-          WHEN 1 THEN PUT "<PRINTER?>".
+          WHEN 1 THEN PUT "<PRINTER?><LEFT=4mm>".
           WHEN 2 THEN do:
            IF NOT lBussFormModle THEN
             PUT "<PREVIEW><LEFT=4mm><MODAL=NO>". 
@@ -3824,7 +3847,7 @@ PROCEDURE run-report :
           END.
           WHEN 4 THEN do:
                 ls-fax-file = "c:\tmp\fax" + STRING(TIME) + ".tif".
-                PUT UNFORMATTED "<PRINTER?><EXPORT=" Ls-fax-file ",BW>".
+                PUT UNFORMATTED "<PRINTER?><LEFT=4mm><EXPORT=" Ls-fax-file ",BW>".
           END.
           WHEN 5 THEN do:
               IF v-print-fmt = "Century" THEN /*<PDF-LEFT=5mm><PDF-TOP=10mm>*/
@@ -3916,7 +3939,8 @@ assign
   lv-run-bol          = ""
   lv-run-commercial   = ""
   v-tmp-is-xprint     = IS-xprint-form
-  is-xprint-form      = YES.
+  is-xprint-form      = YES
+  v-print-unassembled = tb_print-unassemble-component.
 
 IF fi_depts:HIDDEN IN FRAME {&FRAME-NAME} = NO THEN
    ASSIGN
@@ -4018,7 +4042,7 @@ ELSE IF is-xprint-form AND rd-dest = 1 THEN PUT "<PRINTER?>".
 */
 /*IF IS-xprint-form THEN */  DO:
     CASE rd-dest:
-        WHEN 1 THEN PUT  "<PRINTER?>".
+        WHEN 1 THEN PUT  "<PRINTER?><LEFT=4mm>".
         WHEN 2 THEN do:
            IF NOT lBussFormModle THEN
             PUT "<PREVIEW><LEFT=4mm><MODAL=NO>". 
@@ -4027,7 +4051,7 @@ ELSE IF is-xprint-form AND rd-dest = 1 THEN PUT "<PRINTER?>".
         END.
         WHEN  4 THEN do:
               ls-fax-file = "c:\tmp\fax" + STRING(TIME) + ".tif".
-              PUT UNFORMATTED "<PRINTER?><EXPORT=" Ls-fax-file ",BW>".
+              PUT UNFORMATTED "<PRINTER?><LEFT=4mm><EXPORT=" Ls-fax-file ",BW>".
         END.
         WHEN 5 THEN do:
             IF v-print-fmt = "Century" THEN /*<PDF-LEFT=5mm><PDF-TOP=10mm>*/
@@ -4127,7 +4151,8 @@ PROCEDURE run-report-mail :
     v-print-shipnotes   = tb_print-shipnote
     v-print-dept        = tb_print-dept
     lv-run-bol          = ""
-    lv-run-commercial   = "".
+    lv-run-commercial   = ""
+    v-print-unassembled = tb_print-unassemble-component.
 
   IF fi_depts:HIDDEN IN FRAME {&FRAME-NAME} = NO THEN
      ASSIGN

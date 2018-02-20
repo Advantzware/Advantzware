@@ -1216,7 +1216,7 @@ IF tb_excel THEN
 
 IF tb_last-year THEN
 DO:
-   as-of-date-ly = DATE(12,31,YEAR(as-of-date) - 1).
+   as-of-date-ly = DATE(MONTH(as-of-date),DAY(as-of-date),YEAR(as-of-date) - 1).
 
    FIND LAST period WHERE
         period.company EQ cocode AND

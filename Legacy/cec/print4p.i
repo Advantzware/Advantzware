@@ -42,35 +42,15 @@
      ctrl[18] = int(ce-ctrl.spec-add[8])
      v-gsa    = index("SB",ce-ctrl.sell-by) eq 0.
      
-  FIND FIRST reftable-broker-pct
-       WHERE reftable-broker-pct.reftable EQ "ce-ctrl.broker-pct"
-         AND reftable-broker-pct.company  EQ ce-ctrl.company
-         AND reftable-broker-pct.loc      EQ ce-ctrl.loc
-       NO-LOCK NO-ERROR.
 
-  IF AVAIL reftable-broker-pct THEN
-     ctrl[19] = reftable-broker-pct.val[1].
+     ctrl[19] = ce-ctrl.broker-pct.
 
-  FIND FIRST reftable NO-LOCK
-      WHERE reftable.reftable EQ "ce-ctrl.fg-rate-farm"
-        AND reftable.company  EQ ce-ctrl.company
-        AND reftable.loc      EQ ce-ctrl.loc
-      NO-ERROR.  
-  fg-rate-f = IF AVAIL reftable THEN reftable.val[1] ELSE 0.
+  fg-rate-f = ce-ctrl.fg-rate-farm.
+ 
+  rm-rate-f = ce-ctrl.rm-rate-farm.
 
-  FIND FIRST reftable NO-LOCK
-      WHERE reftable.reftable EQ "ce-ctrl.rm-rate-farm"
-        AND reftable.company  EQ ce-ctrl.company
-        AND reftable.loc      EQ ce-ctrl.loc
-      NO-ERROR.  
-  rm-rate-f = IF AVAIL reftable THEN reftable.val[1] ELSE 0.
-
-  FIND FIRST reftable NO-LOCK
-      WHERE reftable.reftable EQ "ce-ctrl.hand-pct-farm"
-        AND reftable.company  EQ ce-ctrl.company
-        AND reftable.loc      EQ ce-ctrl.loc
-      NO-ERROR.    
-  hand-pct-f = (IF AVAIL reftable THEN reftable.val[1] ELSE 0) / 100.
+  
+  hand-pct-f = ce-ctrl.hand-pct-farm / 100.
 
   find first xop where xop.company = xest.company and
                        xop.est-no = xest.est-no and
@@ -277,7 +257,7 @@
   end.  /* else vprint  */
 
   DO TRANSACTION:
-    {est/op-lock.i xest}
+
     FIND xef WHERE RECID(xef) EQ lv-ef-recid .
     FIND xef WHERE RECID(xef) EQ lv-ef-recid NO-LOCK.
     FIND est WHERE RECID(est) EQ RECID(xest).
@@ -287,12 +267,12 @@
      recalc-mr.val[1] = INT(do-mr)
      recalc-mr.val[3] = INT(v-board-cost-from-blank)
      est.override     = do-gsa
-     op-lock.val[1]   = INT(est.recalc)
-     op-lock.val[2]   = recalc-mr.val[1].
+     est.recalc-mr    = do-mr
+     .
     FIND est WHERE RECID(est) EQ RECID(xest) NO-LOCK.
     FIND xest WHERE RECID(xest) EQ RECID(est) NO-LOCK.
     FIND CURRENT recalc-mr NO-LOCK.
-    FIND CURRENT op-lock NO-LOCK.  
+     
   END.
 
   session:set-wait-state("General").

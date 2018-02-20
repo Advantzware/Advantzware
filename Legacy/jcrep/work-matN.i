@@ -32,9 +32,9 @@
    IF AVAIL ITEM AND ITEM.mat-TYPE = "D" THEN DO:
        IF work-mat.act-qty GT 0 THEN DO:
            FOR EACH bf-work-mat WHERE rowid(bf-work-mat) NE ROWID(work-mat)
-               AND work-mat.est-cost GT 0,
+               AND bf-work-mat.est-cost GT 0,
                FIRST bf-item WHERE bf-item.company eq cocode
-                     and bf-item.i-no    eq bf-work-mat.i-no
+                     AND bf-item.i-no    eq bf-work-mat.i-no
                      AND bf-item.mat-type = "D"
                    use-index i-no no-lock .
                LEAVE.
@@ -89,7 +89,7 @@
                                FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
                     cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
             END.
-          
+            IF (LINE-COUNTER + 10) GT lines-per-page THEN PAGE.
             PUT UNFORMATTED cDisplay SKIP.
             IF tb_excel2 THEN DO:
                  PUT STREAM excel2 UNFORMATTED  
@@ -168,7 +168,7 @@ IF work-mat.mat-type = "B" THEN
                                FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
                     cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
             END.
-          
+            IF (LINE-COUNTER + 10) GT lines-per-page THEN PAGE.
             PUT UNFORMATTED cDisplay SKIP.
             IF tb_excel2 THEN DO:
                  PUT STREAM excel2 UNFORMATTED  
@@ -228,7 +228,8 @@ IF work-mat.mat-type = "B" THEN
                                FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
                     cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
             END.
+            IF (LINE-COUNTER + 10) GT lines-per-page THEN PAGE.
             PUT item-str-line SKIP .
-            PUT UNFORMATTED  "   TOTAL MATERIAL   (DIRECT) :"  + substring(cDisplay,31,250)  SKIP(1).
+            PUT UNFORMATTED  "   TOTAL MATERIAL   (DIRECT) :"  + substring(cDisplay,31,150)  SKIP(1).
 
    end.

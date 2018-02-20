@@ -1,5 +1,7 @@
 &ANALYZE-SUSPEND _VERSION-NUMBER UIB_v8r12 GUI
 &ANALYZE-RESUME
+/* Connected Databases 
+*/
 &Scoped-define WINDOW-NAME C-Win
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS C-Win 
 /*----------------------------------------------------------------------*/
@@ -19,6 +21,7 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
 DEFINE INPUT PARAMETER ipcTypes AS CHARACTER NO-UNDO.
+DEFINE INPUT PARAMETER ipriContext AS ROWID NO-UNDO.
 
 {util\ttImport.i NEW SHARED}
 DEFINE VARIABLE ghdImportProcs AS HANDLE NO-UNDO.
@@ -58,9 +61,9 @@ DEFINE VARIABLE ghdImportProcs AS HANDLE NO-UNDO.
     ~{&OPEN-QUERY-brPreview}
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-19 cbType fiFileName btnBrowse ~
-lHeaderRow lFieldValidation rdDuplicates btnLoad brPreview fiLogFolder ~
-btnBrowseFolder lLogOnly btnProcess btnCancel 
+&Scoped-Define ENABLED-OBJECTS RECT-19 cbType btnTemplate fiFileName ~
+btnBrowse lHeaderRow lFieldValidation rdDuplicates btnLoad brPreview ~
+fiLogFolder btnBrowseFolder lLogOnly btnProcess btnCancel 
 &Scoped-Define DISPLAYED-OBJECTS cbType fiFileName lHeaderRow ~
 lFieldValidation rdDuplicates fiLogFolder lLogOnly 
 
@@ -80,9 +83,9 @@ FUNCTION fGetDefaultImportFolder RETURNS CHARACTER
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fGetLogFile C-Win 
-FUNCTION fGetLogFile RETURNS CHARACTER
-    ( ipcFolder AS CHARACTER, ipcBase AS CHARACTER ) FORWARD.
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fGetFile C-Win 
+FUNCTION fGetFile RETURNS CHARACTER
+    ( ipcFolder AS CHARACTER, ipcBase AS CHARACTER, ipcFileType AS CHARACTER) FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -120,6 +123,10 @@ DEFINE BUTTON btnLoad
 DEFINE BUTTON btnProcess 
      LABEL "2. Process &Import" 
      SIZE 30 BY 2.
+
+DEFINE BUTTON btnTemplate 
+     LABEL "Generate Template" 
+     SIZE 30 BY 1.
 
 DEFINE VARIABLE cbType AS CHARACTER FORMAT "X(256)":U 
      LABEL "Import Type" 
@@ -236,6 +243,7 @@ DEFINE BROWSE brPreview
 
 DEFINE FRAME FRAME-A
      cbType AT ROW 1.95 COL 19 COLON-ALIGNED WIDGET-ID 6
+     btnTemplate AT ROW 1.95 COL 90 WIDGET-ID 36
      fiFileName AT ROW 3.38 COL 19 COLON-ALIGNED HELP
           "Enter file name to import order"
      btnBrowse AT ROW 3.38 COL 90 WIDGET-ID 20
@@ -404,13 +412,10 @@ DO:
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnLoad C-Win
 ON CHOOSE OF btnLoad IN FRAME FRAME-A /* 1. Load Import File */
 DO:
-        DEFINE VARIABLE lProcess AS LOGICAL INIT NO NO-UNDO.
-   
         
         DO WITH FRAME {&FRAME-NAME}:
             ASSIGN {&DISPLAYED-OBJECTS}.
-        END.
-        
+        END.      
         RUN pLoad (fiFileName:HANDLE, cbType).
    
     END.
@@ -427,6 +432,20 @@ DO:
             ASSIGN {&DISPLAYED-OBJECTS}.
         END.
         RUN pRunProcess(lLogOnly).
+    END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnTemplate
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnTemplate C-Win
+ON CHOOSE OF btnTemplate IN FRAME FRAME-A /* Generate Template */
+DO:
+        DO WITH FRAME {&FRAME-NAME}:
+            ASSIGN {&DISPLAYED-OBJECTS}.
+        END.      
+        RUN pExportTemplate(cbType).  
     END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -528,9 +547,9 @@ PROCEDURE enable_UI :
   DISPLAY cbType fiFileName lHeaderRow lFieldValidation rdDuplicates fiLogFolder 
           lLogOnly 
       WITH FRAME FRAME-A IN WINDOW C-Win.
-  ENABLE RECT-19 cbType fiFileName btnBrowse lHeaderRow lFieldValidation 
-         rdDuplicates btnLoad brPreview fiLogFolder btnBrowseFolder lLogOnly 
-         btnProcess btnCancel 
+  ENABLE RECT-19 cbType btnTemplate fiFileName btnBrowse lHeaderRow 
+         lFieldValidation rdDuplicates btnLoad brPreview fiLogFolder 
+         btnBrowseFolder lLogOnly btnProcess btnCancel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.
@@ -551,6 +570,28 @@ PROCEDURE pCheckContinue :
     MESSAGE "Are you sure you want to " ipcMessage "?"
         VIEW-AS ALERT-BOX  QUESTION BUTTON YES-NO UPDATE iplGo.
 
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pExportTemplate C-Win 
+PROCEDURE pExportTemplate :
+/*------------------------------------------------------------------------------
+ Purpose: Generates a template in the required format for input
+ Notes:
+------------------------------------------------------------------------------*/
+DEFINE INPUT PARAMETER ipcType AS CHARACTER NO-UNDO.
+
+DEFINE VARIABLE cFile AS CHARACTER NO-UNDO.
+
+cFile = fGetDefaultImportFolder (ipcCompany).
+cFile = fGetFile (cFile, ipcType, ".csv").
+RUN pGenerateTemplate IN ghdImportProcs (INPUT YES, INPUT ipriContext, INPUT-OUTPUT cFile).
+IF cFile NE "" THEN DO:
+    fiFileName:SCREEN-VALUE IN FRAME {&FRAME-NAME} = cFile.
+    OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFile)).
+END.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -716,7 +757,7 @@ PROCEDURE pRunProcess :
                 VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
                 UPDATE lProcess.
         IF lProcess THEN DO:
-            cLogFile = fGetLogFile(fiLogFolder, cbType).
+            cLogFile = fGetFile(fiLogFolder, cbType,".log").
             RUN pGenerateLog IN ghdImportProcs (cLogFile).
             IF NOT iplGenerateLogOnly THEN DO:
                 RUN pProcessImport IN ghdImportProcs(OUTPUT iUpdated, OUTPUT iAdded).
@@ -846,7 +887,15 @@ FUNCTION fGetDefaultImportFolder RETURNS CHARACTER
         OUTPUT lFound).
     
     IF lFound THEN 
-        RETURN cReturn.
+    DO:
+        IF cReturn EQ ''THEN 
+            cReturn = 'C:'.
+        ASSIGN 
+            cReturn = TRIM(cReturn)
+            cReturn = RIGHT-TRIM(cReturn, '\')
+            . 
+        RETURN cReturn .
+    END.
 
 
 END FUNCTION.
@@ -854,16 +903,16 @@ END FUNCTION.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fGetLogFile C-Win 
-FUNCTION fGetLogFile RETURNS CHARACTER
-    ( ipcFolder AS CHARACTER, ipcBase AS CHARACTER ):
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fGetFile C-Win 
+FUNCTION fGetFile RETURNS CHARACTER
+    ( ipcFolder AS CHARACTER, ipcBase AS CHARACTER, ipcFileType AS CHARACTER):
     /*------------------------------------------------------------------------------
      Purpose:
      Notes:
     ------------------------------------------------------------------------------*/
     DEFINE VARIABLE cLogFile AS CHARACTER NO-UNDO.
 
-    cLogFile = ipcFolder + "\" + ipcBase + STRING(YEAR(TODAY)) + STRING(MONTH(TODAY)) + STRING(DAY(TODAY)) + STRING(TIME) + '.log'.
+    cLogFile = ipcFolder + "\" + ipcBase + STRING(YEAR(TODAY)) + STRING(MONTH(TODAY)) + STRING(DAY(TODAY)) + STRING(TIME) + ipcFileType.
     
     RETURN cLogFile.
 

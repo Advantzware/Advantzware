@@ -41,13 +41,7 @@ IF cocode NE "" AND TRIM({&TABLENAME}.i-no) NE "" THEN DO:
   END.
 END.
 
-IF TRIM({&TABLENAME}.rec_key) NE "" THEN
-FOR EACH reftable
-    WHERE reftable.rec_key  EQ {&TABLENAME}.rec_key
-      AND reftable.reftable EQ "itemfg-ink.occurs"
-    USE-INDEX rec_key:
-  DELETE reftable.
-END.
+
 
 /* Clear out any error-status from find with no-error that is false */
 DEF VAR ll-error AS LOG NO-UNDO.

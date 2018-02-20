@@ -174,15 +174,18 @@ FOR EACH pendingJob NO-LOCK:
   /* only change if not already run-complete */
   IF job-mch.run-complete EQ NO THEN
   job-mch.run-complete = pendingJob.jobCompleted.
-  IF job-mch.m-code NE pendingJob.altResource THEN
+  /* change machine only if not already done by DC or TS */
+  IF NOT job-mch.est-op_rec_key BEGINS 'DC' AND
+     NOT job-mch.est-op_rec_key BEGINS 'TS' AND
+     job-mch.m-code NE pendingJob.altResource THEN
   job-mch.m-code = pendingJob.altResource.
   RUN updateJobStartDate (job-mch.company,job-mch.job,job-mch.start-date-su).
-/*  DO i = 2 TO NUM-ENTRIES(customValueList):                */
-/*    IF NOT pendingJob.jobStatus[i - 1] THEN                */
-/*    statusStr = statusStr + ',' + ENTRY(i,customValueList).*/
-/*  END.                                                     */
-  RUN setLiveUpdate (job-mch.company,job-mch.job-no,job-mch.job-no2,
-                     job-mch.frm,pendingJob.resource,pendingJob.liveUpdate).
+/*  DO i = 2 TO NUM-ENTRIES(customValueList):                                 */
+/*    IF NOT pendingJob.jobStatus[i - 1] THEN                                 */
+/*    statusStr = statusStr + ',' + ENTRY(i,customValueList).                 */
+/*  END.                                                                      */
+/*  RUN setLiveUpdate (job-mch.company,job-mch.job-no,job-mch.job-no2,        */
+/*                     job-mch.frm,pendingJob.resource,pendingJob.liveUpdate).*/
   RUN statusNote (jobMchRowID,job-mch.company,pendingJob.resource,job-mch.job,job-mch.job-no,job-mch.job-no2,job-mch.frm,
                   pendingJob.jobStatus[1],
                   pendingJob.jobStatus[2],
@@ -352,7 +355,10 @@ FOR EACH ttblJob NO-LOCK BREAK BY ttblJob.jobSort BY ttblJob.resourceSequence:
           ' SB Run?: ' ttblJob.jobCompleted SKIP.
       job-mch.run-complete = ttblJob.jobCompleted.
   END.
-  IF job-mch.m-code NE ttblJob.altResource THEN DO:
+  /* change machine only if not already done by DC or TS */
+  IF NOT job-mch.est-op_rec_key BEGINS 'DC' AND
+     NOT job-mch.est-op_rec_key BEGINS 'TS' AND
+     job-mch.m-code NE ttblJob.altResource THEN DO:
       PUT UNFORMATTED 'ttblJob:' AT 5
           ' RowIDs: ' ttblJob.rowIDs ' - RowID: ' STRING(ROWID(job-mch))
           ' KeyValue: ' ttblJob.keyValue
@@ -361,8 +367,8 @@ FOR EACH ttblJob NO-LOCK BREAK BY ttblJob.jobSort BY ttblJob.resourceSequence:
           ' New: ' ttblJob.altResource SKIP.
       job-mch.m-code = ttblJob.altResource.
   END.
-  RUN setLiveUpdate (job-mch.company,job-mch.job-no,job-mch.job-no2,
-                     job-mch.frm,ttblJob.resource,ttblJob.liveUpdate).
+/*  RUN setLiveUpdate (job-mch.company,job-mch.job-no,job-mch.job-no2,  */
+/*                     job-mch.frm,ttblJob.resource,ttblJob.liveUpdate).*/
   /* set job-hdr start date based on earliest job-mch start date */
   IF FIRST-OF(ttblJob.jobSort) THEN DO:
     FIND FIRST job-hdr OF job-mch EXCLUSIVE-LOCK NO-ERROR.
@@ -670,10 +676,10 @@ PROCEDURE pHTMLPages:
                 (IF SEARCH("Graphics/48x48/" + ttblJob.resource + ".png") NE ? THEN
                     SEARCH("Graphics/48x48/" + ttblJob.resource + ".png") ELSE
                     SEARCH("Graphics/48x48/gearwheels.png"))
-                '" align="middle">~&nbsp~&nbsp~&nbsp~&nbsp<b>'
+                '" width="48" height="48" align="center">~&nbsp~&nbsp~&nbsp~&nbsp<b>'
                 ttblJob.resource '</a></b></font></td>' SKIP
                 '      <td' cBGColor ' align="center" nowrap rowspan="3"><font face="{&fontFace}"><b>'
-                '<a href="' htmlPageLocation + '\' + ttblJob.resource + '.htm" target="_blank">'
+                '<a href="' htmlPageLocation + '\' + REPLACE(ttblJob.resource,"/","") + '.htm" target="_blank">'
                 (IF AVAILABLE mach THEN mach.m-dscr ELSE ttblJob.resource) '</a></b></font></td>' SKIP
                 '      <td' cBGColor ' align="center" nowrap rowspan="3" align="center"><font face="{&fontFace}">'
                 .
@@ -683,6 +689,7 @@ PROCEDURE pHTMLPages:
                 REPLACE(htmlPageLocation + '\' + ttblJob.resource,"\","/")
                 'Pending.htm~');">Jobs: <b>' iJobs '</a><br>' specialTime(iTime) '</b>'
                 .
+            ELSE PUT UNFORMATTED "~&nbsp".
             PUT UNFORMATTED
                 '</font></td>' SKIP
                 .
@@ -799,7 +806,7 @@ PROCEDURE pHTMLPages:
                             + "</font></b>"
                 lScript     = NO
                 .
-            OUTPUT TO VALUE(htmlPageLocation + '\' + ttblJob.resource + '.htm').
+            OUTPUT TO VALUE(htmlPageLocation + '\' + REPLACE(ttblJob.resource,"/","") + '.htm').
             RUN pHTMLHeader (cHTMLTitle,cHTMLLegend,lScript).
             RUN pHTMLBranding.
             PUT UNFORMATTED
@@ -881,33 +888,33 @@ PROCEDURE pttHTMLFields:
     END. /* if ne ? */
 END PROCEDURE.
 
-PROCEDURE setLiveUpdate:
-  DEFINE INPUT PARAMETER ipCompany AS CHARACTER NO-UNDO.
-  DEFINE INPUT PARAMETER ipJobNo AS CHARACTER NO-UNDO.
-  DEFINE INPUT PARAMETER ipJobNo2 AS INTEGER NO-UNDO.
-  DEFINE INPUT PARAMETER ipForm AS INTEGER NO-UNDO.
-  DEFINE INPUT PARAMETER ipMCode AS CHARACTER NO-UNDO.
-  DEFINE INPUT PARAMETER ipLiveUpdate AS LOGICAL NO-UNDO.
-
-  DEFINE VARIABLE lvCode AS CHARACTER NO-UNDO.
-
-  lvCode = ipJobNo + ',' + STRING(ipJobNo2) + ',' + STRING(ipForm) + ',' + ipMCode.
-  FIND FIRST reftable EXCLUSIVE-LOCK
-       WHERE reftable.reftable EQ 'sbLiveUpdate'
-         AND reftable.company EQ ipCompany
-         AND reftable.loc EQ ''
-         AND reftable.code EQ lvCode NO-ERROR.
-  IF AVAILABLE reftable THEN
-  DELETE reftable.
-/*  IF NOT AVAILABLE reftable THEN DO:                   */
-/*    CREATE reftable.                                   */
-/*    ASSIGN                                             */
-/*      reftable.reftable = 'sbLiveUpdate'               */
-/*      reftable.company = ipCompany                     */
-/*      reftable.code = lvCode.                          */
-/*  END.                                                 */
-/*  reftable.code2 = TRIM(STRING(ipLiveUpdate,'Yes/No')).*/
-END PROCEDURE.
+/*PROCEDURE setLiveUpdate:                                                           */
+/*  DEFINE INPUT PARAMETER ipCompany AS CHARACTER NO-UNDO.                           */
+/*  DEFINE INPUT PARAMETER ipJobNo AS CHARACTER NO-UNDO.                             */
+/*  DEFINE INPUT PARAMETER ipJobNo2 AS INTEGER NO-UNDO.                              */
+/*  DEFINE INPUT PARAMETER ipForm AS INTEGER NO-UNDO.                                */
+/*  DEFINE INPUT PARAMETER ipMCode AS CHARACTER NO-UNDO.                             */
+/*  DEFINE INPUT PARAMETER ipLiveUpdate AS LOGICAL NO-UNDO.                          */
+/*                                                                                   */
+/*  DEFINE VARIABLE lvCode AS CHARACTER NO-UNDO.                                     */
+/*                                                                                   */
+/*  lvCode = ipJobNo + ',' + STRING(ipJobNo2) + ',' + STRING(ipForm) + ',' + ipMCode.*/
+/*  FIND FIRST reftable EXCLUSIVE-LOCK                                               */
+/*       WHERE reftable.reftable EQ 'sbLiveUpdate'                                   */
+/*         AND reftable.company EQ ipCompany                                         */
+/*         AND reftable.loc EQ ''                                                    */
+/*         AND reftable.code EQ lvCode NO-ERROR.                                     */
+/*  IF AVAILABLE reftable THEN                                                       */
+/*  DELETE reftable.                                                                 */
+/*/*  IF NOT AVAILABLE reftable THEN DO:                   */                        */
+/*/*    CREATE reftable.                                   */                        */
+/*/*    ASSIGN                                             */                        */
+/*/*      reftable.reftable = 'sbLiveUpdate'               */                        */
+/*/*      reftable.company = ipCompany                     */                        */
+/*/*      reftable.code = lvCode.                          */                        */
+/*/*  END.                                                 */                        */
+/*/*  reftable.code2 = TRIM(STRING(ipLiveUpdate,'Yes/No')).*/                        */
+/*END PROCEDURE.                                                                     */
 
 PROCEDURE statusNote:
   DEFINE INPUT PARAMETER ipRowID AS ROWID NO-UNDO.

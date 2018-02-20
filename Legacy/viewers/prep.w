@@ -58,11 +58,6 @@ DEFINE {&NEW} SHARED VARIABLE g_lookup-var AS CHARACTER NO-UNDO.
 
 &SCOPED-DEFINE enable-prep enable-prep
 
-&SCOPED-DEFINE where-preplastjob                 ~
-    WHERE reftable.reftable EQ "PREPLASTJOB"     ~
-      AND reftable.company  EQ prep.company ~
-      AND reftable.loc      EQ prep.loc             ~
-      AND reftable.code     EQ prep.CODE
 
 DO TRANSACTION:
   {sys/inc/addprep.i}
@@ -260,7 +255,7 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 14 BY 1
           BGCOLOR 15 FONT 4
-     prep.mkup AT ROW 2.43 COL 73 COLON-ALIGNED FORMAT ">>9.99<<"
+     prep.mkup AT ROW 2.43 COL 73 COLON-ALIGNED FORMAT "->>9.99<<"
           VIEW-AS FILL-IN 
           SIZE 11 BY 1
           BGCOLOR 15 FONT 4
@@ -1817,28 +1812,13 @@ PROCEDURE reftable-values :
 
   /* gdm - */
   DEF BUFFER bf-reftable FOR reftable.
-
-  IF AVAIL prep THEN DO:
-    FIND FIRST reftable {&where-preplastjob}
-         NO-LOCK NO-ERROR.
-
-    IF NOT AVAIL reftable THEN DO:
-      CREATE reftable.
-      ASSIGN
-       reftable.reftable = "PREPLASTJOB"
-       reftable.company  = prep.company
-       reftable.loc      = prep.loc
-       reftable.code     = prep.CODE
-       reftable.code2    = fi_job-no
-       reftable.val[1]   = fi_job-no2. 
-    END.
-
+ IF AVAIL prep THEN DO:
+    
     IF ip-display THEN DO:
       ASSIGN
-        fi_job-no = reftable.code2
-        fi_job-no2 = reftable.val[1]
+        fi_job-no = prep.last-job-no
+        fi_job-no2 = prep.last-job-no2
          .
-
         FIND FIRST bf-reftable NO-LOCK
                WHERE bf-reftable.reftable EQ "PREPCADFILE"
                  AND bf-reftable.rec_key  EQ prep.rec_key NO-ERROR.  
@@ -1846,24 +1826,18 @@ PROCEDURE reftable-values :
            ASSIGN fi_cad# =  bf-reftable.CODE
                   fi_fil# = bf-reftable.code2.
         END.
-
         RELEASE bf-reftable.
     END.
     ELSE
     DO:
-       IF fi_job-no NE reftable.code2 OR
-          fi_job-no2 NE reftable.val[1] THEN
+       IF fi_job-no NE prep.last-job-no OR
+          fi_job-no2 NE prep.last-job-no2 THEN
           DO:
              REPEAT:
-                FIND CURRENT reftable EXCLUSIVE-LOCK NO-ERROR NO-WAIT.
-
-                IF AVAILABLE reftable THEN
                 DO:
                    ASSIGN
-                      reftable.code2 = fi_job-no
-                      reftable.val[1] = fi_job-no2.
-
-                   FIND CURRENT reftable NO-LOCK.
+                      prep.last-job-no = fi_job-no
+                      prep.last-job-no2 = fi_job-no2.
                    LEAVE.
                 END.
              END.
@@ -1888,6 +1862,8 @@ PROCEDURE reftable-values :
        /*END.*/
     END. /* else */
   END.
+  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

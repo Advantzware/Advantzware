@@ -307,7 +307,7 @@ DEFINE VARIABLE svSecondarySort AS CHARACTER INITIAL "PO"
 "Order", "Order",
 "Due Date", "Due Date",
 "CAD", "CAD"
-     SIZE 77 BY 1 NO-UNDO.
+     SIZE 75.6 BY 1 NO-UNDO.
 
 DEFINE VARIABLE svWIPQty AS CHARACTER INITIAL "Order" 
      VIEW-AS RADIO-SET HORIZONTAL
@@ -400,123 +400,123 @@ DEFINE FRAME F-Main
           "All Customers?" WIDGET-ID 56
      svCustList AT ROW 1.24 COL 43 WIDGET-ID 48
      btnCustList AT ROW 1.24 COL 73 WIDGET-ID 46
-     svStartCustNo AT ROW 2.43 COL 20 COLON-ALIGNED HELP
+     svStartCustNo AT ROW 2.43 COL 17 COLON-ALIGNED HELP
           "Enter Start Customer" WIDGET-ID 2
-     startCustName AT ROW 2.43 COL 36 COLON-ALIGNED NO-LABEL WIDGET-ID 4
-     svEndCustNo AT ROW 3.62 COL 20 COLON-ALIGNED HELP
+     startCustName AT ROW 2.43 COL 33 COLON-ALIGNED NO-LABEL WIDGET-ID 4
+     svEndCustNo AT ROW 3.62 COL 17 COLON-ALIGNED HELP
           "Enter End Customer" WIDGET-ID 6
-     endCustName AT ROW 3.62 COL 36 COLON-ALIGNED NO-LABEL WIDGET-ID 8
-     svStartOrderDate AT ROW 4.81 COL 20 COLON-ALIGNED HELP
+     endCustName AT ROW 3.62 COL 33 COLON-ALIGNED NO-LABEL WIDGET-ID 8
+     svStartOrderDate AT ROW 4.81 COL 17 COLON-ALIGNED HELP
           "Enter Start Order Date" WIDGET-ID 122
-     btnCalendar-1 AT ROW 4.81 COL 38 WIDGET-ID 114
-     svStartOrderDateOption AT ROW 4.81 COL 41 COLON-ALIGNED HELP
+     btnCalendar-1 AT ROW 4.81 COL 35 WIDGET-ID 114
+     svStartOrderDateOption AT ROW 4.81 COL 38 COLON-ALIGNED HELP
           "Select Start Order Date Option" NO-LABEL WIDGET-ID 124
-     svEndOrderDate AT ROW 6 COL 20 COLON-ALIGNED HELP
+     svEndOrderDate AT ROW 6 COL 17 COLON-ALIGNED HELP
           "Enter End Order Date" WIDGET-ID 118
-     btnCalendar-2 AT ROW 6 COL 38 WIDGET-ID 116
-     svEndOrderDateOption AT ROW 6 COL 41 COLON-ALIGNED HELP
+     btnCalendar-2 AT ROW 6 COL 35 WIDGET-ID 116
+     svEndOrderDateOption AT ROW 6 COL 38 COLON-ALIGNED HELP
           "Select End Order Date Option" NO-LABEL WIDGET-ID 120
-     svAllPONumber AT ROW 7.19 COL 22 HELP
+     svAllPONumber AT ROW 7.19 COL 19 HELP
           "All PO Numbers?" WIDGET-ID 142
-     svStartPONumber AT ROW 8.14 COL 20 COLON-ALIGNED HELP
+     svStartPONumber AT ROW 8.14 COL 17 COLON-ALIGNED HELP
           "Enter Start PO Number" WIDGET-ID 146
-     svEndPONumber AT ROW 8.14 COL 59 COLON-ALIGNED HELP
+     svEndPONumber AT ROW 8.14 COL 56 COLON-ALIGNED HELP
           "Enter End PO Number" WIDGET-ID 144
-     svAllJobNo AT ROW 9.33 COL 22 HELP
+     svAllJobNo AT ROW 9.33 COL 19 HELP
           "All Jobs?" WIDGET-ID 174
-     svStartJobNo AT ROW 9.33 COL 41 COLON-ALIGNED HELP
+     svStartJobNo AT ROW 9.33 COL 38 COLON-ALIGNED HELP
           "Enter Start Job" WIDGET-ID 178
-     svStartJobNo2 AT ROW 9.33 COL 52 COLON-ALIGNED HELP
+     svStartJobNo2 AT ROW 9.33 COL 49 COLON-ALIGNED HELP
           "Enter Start Job Run" WIDGET-ID 180
-     svEndJobNo AT ROW 9.33 COL 66 COLON-ALIGNED HELP
+     svEndJobNo AT ROW 9.33 COL 63 COLON-ALIGNED HELP
           "Enter End Job" WIDGET-ID 176
-     svEndJobNo2 AT ROW 9.33 COL 77 COLON-ALIGNED HELP
+     svEndJobNo2 AT ROW 9.33 COL 74 COLON-ALIGNED HELP
           "Enter End Job Run" WIDGET-ID 182
-     svAllItemNo AT ROW 10.52 COL 22 HELP
+     svAllItemNo AT ROW 10.29 COL 19 HELP
           "All Items?" WIDGET-ID 164
-     svStartItemNo AT ROW 11.71 COL 20 COLON-ALIGNED HELP
+     svStartItemNo AT ROW 11.48 COL 17 COLON-ALIGNED HELP
           "Enter Start Item" WIDGET-ID 168
-     startItemName AT ROW 11.71 COL 43 COLON-ALIGNED NO-LABEL WIDGET-ID 172
-     svEndItemNo AT ROW 12.91 COL 20 COLON-ALIGNED HELP
+     startItemName AT ROW 11.48 COL 40 COLON-ALIGNED NO-LABEL WIDGET-ID 172
+     svEndItemNo AT ROW 12.67 COL 17 COLON-ALIGNED HELP
           "Enter End Item" WIDGET-ID 166
-     endItemName AT ROW 12.91 COL 43 COLON-ALIGNED NO-LABEL WIDGET-ID 170
-     svAllCAD AT ROW 14.1 COL 22 HELP
+     endItemName AT ROW 12.67 COL 40 COLON-ALIGNED NO-LABEL WIDGET-ID 170
+     svAllCAD AT ROW 13.86 COL 19 HELP
           "All PO Numbers?" WIDGET-ID 148
-     svStartCAD AT ROW 15.29 COL 20 COLON-ALIGNED HELP
+     svStartCAD AT ROW 15.05 COL 17 COLON-ALIGNED HELP
           "Enter Start CAD" WIDGET-ID 152
-     svEndCAD AT ROW 15.29 COL 53 COLON-ALIGNED HELP
+     svEndCAD AT ROW 15.05 COL 50 COLON-ALIGNED HELP
           "Enter End CAD" WIDGET-ID 150
-     svStartDueDate AT ROW 16.48 COL 20 COLON-ALIGNED HELP
+     svStartDueDate AT ROW 16.24 COL 17 COLON-ALIGNED HELP
           "Enter Start Due Date" WIDGET-ID 134
-     btnCalendar-3 AT ROW 16.48 COL 38 WIDGET-ID 126
-     svStartDueDateOption AT ROW 16.48 COL 41 COLON-ALIGNED HELP
+     btnCalendar-3 AT ROW 16.24 COL 35 WIDGET-ID 126
+     svStartDueDateOption AT ROW 16.24 COL 38 COLON-ALIGNED HELP
           "Select Start Due Date Option" NO-LABEL WIDGET-ID 136
-     svEndDueDate AT ROW 17.67 COL 20 COLON-ALIGNED HELP
+     svEndDueDate AT ROW 17.43 COL 17 COLON-ALIGNED HELP
           "Enter End Due Date" WIDGET-ID 130
-     btnCalendar-4 AT ROW 17.67 COL 38 WIDGET-ID 128
-     svEndDueDateOption AT ROW 17.67 COL 41 COLON-ALIGNED HELP
+     btnCalendar-4 AT ROW 17.43 COL 35 WIDGET-ID 128
+     svEndDueDateOption AT ROW 17.43 COL 38 COLON-ALIGNED HELP
           "Select End Due Date Option" NO-LABEL WIDGET-ID 132
-     svAllUserID AT ROW 18.86 COL 22 HELP
+     svAllUserID AT ROW 18.62 COL 19 HELP
           "All User IDs?" WIDGET-ID 158
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 98.4 BY 36.62.
+         SIZE 94.8 BY 35.1.
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME F-Main
-     svStartUserID AT ROW 20.05 COL 20 COLON-ALIGNED HELP
+     svStartUserID AT ROW 19.81 COL 17 COLON-ALIGNED HELP
           "Enter Start User ID" WIDGET-ID 162
-     startUserIDName AT ROW 20.05 COL 36 COLON-ALIGNED NO-LABEL WIDGET-ID 156
-     svEndUserID AT ROW 21.24 COL 20 COLON-ALIGNED HELP
+     startUserIDName AT ROW 19.81 COL 33 COLON-ALIGNED NO-LABEL WIDGET-ID 156
+     svEndUserID AT ROW 21 COL 17 COLON-ALIGNED HELP
           "Enter End User ID" WIDGET-ID 160
-     endUserIDName AT ROW 21.24 COL 36 COLON-ALIGNED NO-LABEL WIDGET-ID 154
-     svAllSalesRep AT ROW 22.43 COL 22 HELP
+     endUserIDName AT ROW 21 COL 33 COLON-ALIGNED NO-LABEL WIDGET-ID 154
+     svAllSalesRep AT ROW 22.19 COL 19 HELP
           "All Sales Reps?" WIDGET-ID 108
-     svStartSalesRep AT ROW 23.62 COL 20 COLON-ALIGNED HELP
+     svStartSalesRep AT ROW 23.38 COL 17 COLON-ALIGNED HELP
           "Enter Beginning Sales Rep" WIDGET-ID 112
-     startSalesRepName AT ROW 23.62 COL 29 COLON-ALIGNED NO-LABEL WIDGET-ID 106
-     svEndSalesRep AT ROW 24.81 COL 20 COLON-ALIGNED HELP
+     startSalesRepName AT ROW 23.38 COL 26 COLON-ALIGNED NO-LABEL WIDGET-ID 106
+     svEndSalesRep AT ROW 24.57 COL 17 COLON-ALIGNED HELP
           "Enter Ending Sales Rep" WIDGET-ID 110
-     endSalesRepName AT ROW 24.81 COL 29 COLON-ALIGNED NO-LABEL WIDGET-ID 104
-     svPrimarySort AT ROW 26 COL 22 HELP
+     endSalesRepName AT ROW 24.57 COL 26 COLON-ALIGNED NO-LABEL WIDGET-ID 104
+     svPrimarySort AT ROW 25.76 COL 18.4 HELP
           "Select Primary Sort Option" NO-LABEL WIDGET-ID 84
-     svSecondarySort AT ROW 27.19 COL 22 HELP
+     svSecondarySort AT ROW 26.95 COL 19 HELP
           "Select Secondary Sort Option" NO-LABEL WIDGET-ID 202
-     svJobStatus AT ROW 28.38 COL 22 HELP
+     svJobStatus AT ROW 28.14 COL 19 HELP
           "Select Job Status" NO-LABEL WIDGET-ID 210
-     svOrderStatus AT ROW 29.57 COL 22 HELP
+     svOrderStatus AT ROW 28.14 COL 63 HELP
           "Select Order Status" NO-LABEL WIDGET-ID 214
-     svWIPQty AT ROW 30.76 COL 22 HELP
+     svWIPQty AT ROW 29.33 COL 19 HELP
           "Select QIP Qty" NO-LABEL WIDGET-ID 218
-     svSubRpt_PrintJobQtyDetails AT ROW 31.95 COL 22 HELP
+     svSubRpt_PrintJobQtyDetails AT ROW 30.52 COL 19 HELP
           "Select to Print Job Qty Details" WIDGET-ID 88
-     svDropOrderUnderrun AT ROW 33.14 COL 22 HELP
+     svDropOrderUnderrun AT ROW 31.71 COL 19 HELP
           "Select to Drop Order Underrun%" WIDGET-ID 234
-     svIncludeZeroQtyActReleaseQty AT ROW 33.14 COL 56 HELP
+     svIncludeZeroQtyActReleaseQty AT ROW 31.71 COL 53 HELP
           "Select to Include 0 Qty / Act. Release Qty = 0" WIDGET-ID 222
-     svIncludeZeroOrderBalanceItems AT ROW 34.33 COL 22 HELP
+     svIncludeZeroOrderBalanceItems AT ROW 32.91 COL 19 HELP
           "Select to Include 0 Order Balance Items" WIDGET-ID 224
-     svIncludeJobsQOH AT ROW 34.33 COL 56 HELP
+     svIncludeJobsQOH AT ROW 32.91 COL 53 HELP
           "Select to Include Jobs with QOH" WIDGET-ID 230
-     svIncludeZeroQtyWIPItems AT ROW 35.52 COL 22 HELP
+     svIncludeZeroQtyWIPItems AT ROW 34.1 COL 19 HELP
           "Select to Include 0 Qty WIP Items" WIDGET-ID 226
-     svIncludeInactiveItems AT ROW 35.52 COL 56 HELP
+     svIncludeInactiveItems AT ROW 34.1 COL 53 HELP
           "Select to Include Inactive Items" WIDGET-ID 228
      "Order Status:" VIEW-AS TEXT
-          SIZE 13 BY 1 AT ROW 29.57 COL 8 WIDGET-ID 244
-     "Job Status:" VIEW-AS TEXT
-          SIZE 11 BY 1 AT ROW 28.38 COL 10 WIDGET-ID 242
-     "Secondary Sort By:" VIEW-AS TEXT
-          SIZE 18 BY 1 AT ROW 27.19 COL 3 WIDGET-ID 208
-     "WIP Qty:" VIEW-AS TEXT
-          SIZE 9 BY 1 AT ROW 30.76 COL 12 WIDGET-ID 246
+          SIZE 13 BY 1 AT ROW 28.14 COL 49 WIDGET-ID 244
      "Primary Sort By:" VIEW-AS TEXT
-          SIZE 15 BY 1 AT ROW 26 COL 6 WIDGET-ID 90
+          SIZE 15 BY 1 AT ROW 25.76 COL 3 WIDGET-ID 90
+     "WIP Qty:" VIEW-AS TEXT
+          SIZE 9 BY 1 AT ROW 29.33 COL 9 WIDGET-ID 246
+     "2ndary Sort By:" VIEW-AS TEXT
+          SIZE 16 BY 1 AT ROW 26.95 COL 2 WIDGET-ID 208
+     "Job Status:" VIEW-AS TEXT
+          SIZE 11 BY 1 AT ROW 28.14 COL 7 WIDGET-ID 242
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 98.4 BY 36.62
+         SIZE 94.8 BY 35.1
          TITLE "Report Parameters".
 
 
@@ -546,8 +546,8 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW sObject ASSIGN
-         HEIGHT             = 36.62
-         WIDTH              = 98.4.
+         HEIGHT             = 35.1
+         WIDTH              = 94.8.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME

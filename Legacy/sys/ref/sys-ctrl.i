@@ -14,10 +14,10 @@ name-fld-list =
 /* 46     47        48      49      50       51       52        53       54        55      56      57       58      59      60     61       62       63       64      65     66      67     68      69      70      71      72       73        74       75      76       77       78       79      80      81       82      83     84      85     86      87      88  */
 /*  89       90       91     92      93      94       95    96   97     98      99       100       101      102     103    104      105       106    107   108       109       110       111      112       113       114      115       116       117    118      119      120       121     122        123        124         125     126     127     128        129  */
 "stmtprint,TSFinish,appaper,cecunit,fgpost,corsuply,fgitemsf,GP,oeprep,celayout,1099misc,RFQPrint,oecredit,maxbreak,aptax,rmemails,sspostfg,bolfmtx,schdcard,TSTIME,FGReOrder,ARMEMO,APCheckFile,OEPrompt,SSBOLSCAN,INVCOPYS,CORRCHOICE,BORELDATE,OEINQ,ECBROWSE,VENDXFER,CUSTXFER,ORDERXFER,MISCJOBCL,RMUnderOver,CEPREPPRICE,RELTYPE,SSMoveFG,CEMISC,BolPostTime,CEDeliveryZone," +
-/* 130         131      132     133           134        135      136      137      138      139    140      141           142       143           144      145         146      147        148        149       150          151        152    153               154               155       */
-"BOLFreight,CESAMPLE,SSRMISSUE,CorrTrim,CustShipToImp,OEScreen,fgoecost,runship,InvStatus,AGEDAYS,FGPostCmp,AckMaster,ChkFmtACH,OeDateChange,SSBOLEMAIL,FGRecptUnit,FGBrowseIA,AlliFlutes,SSBOLPRINT,POScreen,SSScanVendor,BOLFMTTran,POStatus,BOLMaster,CEMarkupMatrixLookup,overwriteJobPlan".
+/* 130         131      132     133           134        135      136      137      138      139    140      141           142       143           144      145         146      147        148        149       150          151        152    153               154               155            156        157                 158 */
+"BOLFreight,CESAMPLE,SSRMISSUE,CorrTrim,CustShipToImp,OEScreen,fgoecost,runship,InvStatus,AGEDAYS,FGPostCmp,AckMaster,ChkFmtACH,OeDateChange,SSBOLEMAIL,FGRecptUnit,FGBrowseIA,AlliFlutes,SSBOLPRINT,POScreen,SSScanVendor,BOLFMTTran,POStatus,BOLMaster,CEMarkupMatrixLookup,overwriteJobPlan,capacityPage,OEPriceMatrixCheck,BolStatus".
 
-DEFINE VARIABLE str-init AS CHARACTER EXTENT 155 NO-UNDO.
+DEFINE VARIABLE str-init AS CHARACTER EXTENT 158 NO-UNDO.
     
 ASSIGN
  str-init[1]  = "ABox,10 Pitch,ContSrvc,CSC-EXCEL,TRILAKE-EXCEL,HOP," +
@@ -26,7 +26,7 @@ ASSIGN
                 "Frankstn,Mirpkg,APC,FibreX,PPI,Fibre-Excel,Packrite,Nosco-Excel," + 
                 "MSPACK-Excel,AllWest,Simkins,CCC,Soule,SouleMed,MWFIBRE,Loylang,Protagon," +
                 "PeachTree,LoylangBSF,Premier-Excel,Oklahoma,Accord,Hughes,Sultana,CCC-Excel,Axis,Boss,Bell-Excel,Perform," +
-                "Printers,quoprint 1,quoprint 2,quoprint 10,quoprint 20,quoprint10-CAN"
+                "Printers,quoprint 1,quoprint 2,quoprint 10,quoprint 20,quoprint10-CAN,Premier-excel-mci"
  str-init[2]  = "Capitol,ASI,Beeler,Argrov,ILWalker,1/2 Page,Phoenix,Color,Interpac,Royal,Keystone," +
                 "Livngstn,ContSrvc,Rudd,Premier,MultiWll,Imperial,PAC 1/2," +
                 "Colonial,Clev 1/2,Triad,Danbury,TriState,Blueridg,Sonoco," +  
@@ -153,6 +153,7 @@ ASSIGN
  str-init[70] = "Std,Std & Paper1/2" /* efbrowse */  
  str-init[71] = ",ByItem,POPUP,RMTAG" /* rmrecpt */
  str-init[72] = ",Bronze/Maroon" /* fgbrowse */
+ str-init[73] = ",User Entered" /* fgbrowse */
  str-init[74] = ",REALONLY,ALLITEMS" /* rmpostgl */
  str-init[75] = "ItemFle,Pallet" /* SSTRANSF character value was ",Pallet,Case" */
  str-init[76] = "ASI,MAS90,WestInd" /* payvend */
@@ -237,9 +238,12 @@ ASSIGN str-init[125] = "Ship Only,Invoice Only,Bill and Ship,Transfer Only"
        str-init[153] = "Trailer#,ShipTo,Indiana"
        str-init[154] = "Square Feet,Board Cost,Factory Cost,Full Cost"
        str-init[155] = "Yes,No,Ask"
+       str-init[156] = "Yes,No,Ask"
+       str-init[157] = ",Block Entry"
+       str-init[158] = ",Released,Hold"	
        .
 	
-IF PROGRAM-NAME(1) MATCHES "*windows/l-syschr.w*" then do:
+IF PROGRAM-NAME(1) MATCHES "*windows/l-syschr.w*" THEN DO:
      ASSIGN
 	   str-init[1]  = "quoprint 1,quoprint 2,quoprint 10,quoprint 20,quoprint10-CAN"
        str-init[2]  = "invprint 1,invprint 2,invprint 10,invprint 20,invprint10-CAN"
@@ -248,7 +252,7 @@ IF PROGRAM-NAME(1) MATCHES "*windows/l-syschr.w*" then do:
        str-init[10] = "bolfmt 1,bolfmt 2,bolfmt 10,bolfmt 20,bolfmt10-CAN"
        str-init[11] = "chkfmt 1,chkfmt 2,APChkFmt1"
        str-init[13] = "ackhead 1,ackhead 2,ackhead 10,ackhead 20,ackhead10-CAN,Shamrock-Ack"
-       str-init[29] = "bolcert 1,bolcert 2"
+       str-init[29] = "bolcert 1,bolcert 2,BOLCERT10"
        str-init[30] = "cerunc 1,cerunc 2,cerunc 3"
        str-init[31] = "cerunf 1,cerunf 2"
        str-init[32] = "jobcardc 1,jobcardc 2"
@@ -257,8 +261,7 @@ IF PROGRAM-NAME(1) MATCHES "*windows/l-syschr.w*" then do:
        str-init[141] = "AckMaster 1,AckMaster 2" /*"3CPack"*/
        str-init[151] = "bolfmt1"
        .
-
-end.
+END.
 
 FOR EACH ASI.item-spec FIELDS(CODE) WHERE
     ASI.item-spec.company = g_company AND

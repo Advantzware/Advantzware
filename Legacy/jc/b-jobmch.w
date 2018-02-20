@@ -1249,7 +1249,7 @@ PROCEDURE run-schedule :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    RUN schedule/sbHTML.p ("Job", ROWID(job)).
+    RUN schedule/capacityPage.p ("Job", ROWID(job), job.company).
 
 END PROCEDURE.
 
@@ -1443,12 +1443,7 @@ PROCEDURE valid-m-code :
           NO-LOCK NO-ERROR.
 
     IF AVAIL mach                             AND
-       CAN-FIND(FIRST reftable NO-LOCK
-                WHERE reftable.reftable EQ "mach.obsolete"
-                  AND reftable.company  EQ mach.company
-                  AND reftable.loc      EQ mach.loc
-                  AND reftable.code     EQ mach.m-code
-                  AND reftable.val[1]   EQ 1) THEN DO:
+      mach.obsolete THEN DO:
       MESSAGE "Machine is obsolete, please enter new machine..."
           VIEW-AS ALERT-BOX ERROR.
       APPLY "entry" TO job-mch.m-code IN BROWSE {&browse-name}.

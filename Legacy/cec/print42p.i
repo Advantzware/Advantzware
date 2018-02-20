@@ -141,35 +141,15 @@ ctrl[17] = int(ce-ctrl.spec-add[7])
 ctrl[18] = int(ce-ctrl.spec-add[8])
 v-gsa    = index("SB",ce-ctrl.sell-by) eq 0.
 
-FIND FIRST reftable
-     WHERE reftable.reftable EQ "ce-ctrl.broker-pct"
-       AND reftable.company  EQ ce-ctrl.company
-       AND reftable.loc      EQ ce-ctrl.loc
-     NO-LOCK NO-ERROR.
 
-IF AVAIL reftable THEN
-   ctrl[19] = reftable.val[1].
+   ctrl[19] = ce-ctrl.broker-pct.
 
-FIND FIRST reftable NO-LOCK
-    WHERE reftable.reftable EQ "ce-ctrl.fg-rate-farm"
-      AND reftable.company  EQ ce-ctrl.company
-      AND reftable.loc      EQ ce-ctrl.loc
-    NO-ERROR.  
-fg-rate-f = IF AVAIL reftable THEN reftable.val[1] ELSE 0.
 
-FIND FIRST reftable NO-LOCK
-    WHERE reftable.reftable EQ "ce-ctrl.rm-rate-farm"
-      AND reftable.company  EQ ce-ctrl.company
-      AND reftable.loc      EQ ce-ctrl.loc
-    NO-ERROR.  
-rm-rate-f = IF AVAIL reftable THEN reftable.val[1] ELSE 0.
+fg-rate-f = ce-ctrl.fg-rate-farm.
 
-FIND FIRST reftable NO-LOCK
-    WHERE reftable.reftable EQ "ce-ctrl.hand-pct-farm"
-      AND reftable.company  EQ ce-ctrl.company
-      AND reftable.loc      EQ ce-ctrl.loc
-    NO-ERROR.    
-hand-pct-f = (IF AVAIL reftable THEN reftable.val[1] ELSE 0) / 100.
+rm-rate-f = ce-ctrl.rm-rate-farm.
+
+hand-pct-f = ce-ctrl.hand-pct-farm / 100.
 
 if not v-gsa then do-gsa = no.
 
@@ -269,10 +249,10 @@ else do:
 end.
 
 DO TRANSACTION:
-  {est/op-lock.i xest}
+  
   FIND est WHERE RECID(est) EQ RECID(xest).
   FIND CURRENT recalc-mr.
-  FIND CURRENT op-lock.
+  
 
   ASSIGN
    est.recalc       = do-speed
@@ -280,12 +260,10 @@ DO TRANSACTION:
    recalc-mr.val[2] = INT(v-do-all-forms-ink)
    recalc-mr.val[3] = INT(v-board-cost-from-blank)
    est.override     = do-gsa
-   op-lock.val[1]   = INT(est.recalc)
-   op-lock.val[2]   = recalc-mr.val[1].
+   est.recalc-mr    = do-mr.
   FIND est WHERE RECID(est) EQ RECID(xest) NO-LOCK.
   FIND xest WHERE RECID(xest) EQ RECID(est) NO-LOCK.
   FIND CURRENT recalc-mr NO-LOCK.
-  FIND CURRENT op-lock NO-LOCK.  
 END.
 
 session:set-wait-state("General").

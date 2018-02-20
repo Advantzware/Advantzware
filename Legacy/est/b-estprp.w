@@ -164,12 +164,12 @@ DEFINE BROWSE br_table
   QUERY br_table NO-LOCK DISPLAY
       est-prep.s-num COLUMN-LABEL "Sht #" FORMAT ">>>":U
       est-prep.b-num COLUMN-LABEL "B #" FORMAT ">>>":U
-      est-prep.code FORMAT "x(15)":U WIDTH 20
+      est-prep.code FORMAT "x(20)":U WIDTH 20
       est-prep.qty FORMAT "->>,>>9.9":U
       est-prep.dscr FORMAT "x(20)":U
       est-prep.simon FORMAT "X":U
       est-prep.cost FORMAT "->>,>>9.99":U
-      est-prep.mkup FORMAT ">>9.99<<":U WIDTH 11
+      est-prep.mkup FORMAT "->>9.99<<":U WIDTH 11
       est-prep.spare-dec-1 COLUMN-LABEL "Price" FORMAT "->>,>>9.99":U
       est-prep.ml FORMAT "M/L":U
       est-prep.amtz COLUMN-LABEL "Amort" FORMAT ">>9.99":U
@@ -276,7 +276,7 @@ ASSIGN
      _FldNameList[2]   > ASI.est-prep.b-num
 "est-prep.b-num" "B #" ">>>" "integer" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   > ASI.est-prep.code
-"est-prep.code" ? "x(15)" "character" ? ? ? ? ? ? yes ? no no "20" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"est-prep.code" ? "x(20)" "character" ? ? ? ? ? ? yes ? no no "20" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[4]   > ASI.est-prep.qty
 "est-prep.qty" ? "->>,>>9.9" "decimal" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[5]   > ASI.est-prep.dscr
@@ -286,7 +286,7 @@ ASSIGN
      _FldNameList[7]   > ASI.est-prep.cost
 "est-prep.cost" ? ? "decimal" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[8]   > ASI.est-prep.mkup
-"est-prep.mkup" ? ">>9.99<<" "decimal" ? ? ? ? ? ? yes ? no no "11" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"est-prep.mkup" ? "->>9.99<<" "decimal" ? ? ? ? ? ? yes ? no no "11" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[9]   > ASI.est-prep.spare-dec-1
 "est-prep.spare-dec-1" "Price" ? "decimal" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[10]   > ASI.est-prep.ml
@@ -466,7 +466,7 @@ END.
 ON LEAVE OF est-prep.code IN BROWSE br_table /* Code */
 DO:
   IF LASTKEY NE -1 THEN DO:
-    RUN valid-code NO-ERROR.
+    RUN valid-code(1) NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
   END.
 END.
@@ -962,7 +962,7 @@ PROCEDURE local-update-record :
   RUN valid-b-num NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.  
 
-  RUN valid-code NO-ERROR.
+  RUN valid-code(0) NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN error.
   
   RUN valid-simon NO-ERROR.
@@ -1120,13 +1120,13 @@ DO WITH FRAME {&FRAME-NAME}:
     ASSIGN 
         dCost =  DEC(est-prep.cost:SCREEN-VALUE IN BROWSE {&browse-name})
         dPrice =  DEC(est-prep.spare-dec-1:SCREEN-VALUE IN BROWSE {&browse-name}).
-    
+   
     IF ceprepprice-chr EQ "Profit" THEN
         dMkup = (1 - dCost / dPrice) * 100. 
     ELSE
         dMkup = (dPrice / dCost - 1) * 100.
     
-    IF dMkup GE 0 AND dMkup LT 1000 THEN
+    IF dMkup LT 1000 AND dMkup GT -1000  THEN
         est-prep.mkup:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(dMkup).
 END.
 
@@ -1197,16 +1197,25 @@ PROCEDURE valid-code :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-
+DEFINE INPUT PARAMETER ip-count AS INTEGER NO-UNDO.
   DO WITH FRAME {&FRAME-NAME}:
     IF NOT CAN-FIND(FIRST prep
                     WHERE prep.company EQ est.company
-                      AND prep.loc     EQ est.loc
                       AND prep.code    EQ est-prep.code:SCREEN-VALUE IN BROWSE {&browse-name})
     THEN DO:
-      MESSAGE "Invalid entry, try help..." VIEW-AS ALERT-BOX.
+      MESSAGE "Code not found - Reenter valid code" VIEW-AS ALERT-BOX.
       APPLY "entry" TO est-prep.code.
       RETURN ERROR.
+    END.
+    IF ip-count EQ 1 THEN DO:
+        IF NOT CAN-FIND(FIRST prep
+                        WHERE prep.company EQ est.company
+                          AND prep.loc     EQ est.loc
+                          AND prep.code    EQ est-prep.code:SCREEN-VALUE IN BROWSE {&browse-name})
+        THEN DO:
+          MESSAGE "Code is at a different location than the estimate" VIEW-AS ALERT-BOX WARNING.
+          APPLY "entry" TO est-prep.code.
+        END.
     END.
     /* validate # inks and coat for Plate*/
     IF CAN-FIND(FIRST prep WHERE prep.company EQ est.company
