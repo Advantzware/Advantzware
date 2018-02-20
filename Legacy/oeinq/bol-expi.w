@@ -94,13 +94,13 @@ DEF VAR cTextListToDefault AS cha NO-UNDO.
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-6 RECT-7 RECT-8 begin_bol-no end_bol-no ~
 begin_ord-no end_ord-no begin_cust-no end_cust-no begin_i-no end_i-no ~
-begin_cust-po end_cust-po tb_posted tb_unposted sl_avail sl_selected ~
-Btn_Def Btn_Add Btn_Remove btn_Up btn_down tb_runExcel fi_file btn-ok ~
-btn-cancel 
+begin_cust-po end_cust-po begin_date end_date tb_posted tb_unposted ~
+sl_avail sl_selected Btn_Def Btn_Add Btn_Remove btn_Up btn_down tb_runExcel ~
+fi_file btn-ok btn-cancel 
 &Scoped-Define DISPLAYED-OBJECTS begin_bol-no end_bol-no begin_ord-no ~
 end_ord-no begin_cust-no end_cust-no begin_i-no end_i-no begin_cust-po ~
-end_cust-po tb_posted tb_unposted sl_avail sl_selected tb_excel tb_runExcel ~
-fi_file 
+end_cust-po begin_date end_date tb_posted tb_unposted sl_avail sl_selected ~
+tb_excel tb_runExcel fi_file 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -173,6 +173,11 @@ DEFINE BUTTON btn_Up
      LABEL "Move Up" 
      SIZE 16 BY 1.
 
+DEFINE VARIABLE begin_bol-no AS INTEGER FORMAT ">>>>>>>>" INITIAL 0 
+     LABEL "From Bol#" 
+     VIEW-AS FILL-IN 
+     SIZE 20 BY 1 NO-UNDO.
+
 DEFINE VARIABLE begin_cust-no AS CHARACTER FORMAT "x(8)" 
      LABEL "From Customer#" 
      VIEW-AS FILL-IN 
@@ -180,6 +185,11 @@ DEFINE VARIABLE begin_cust-no AS CHARACTER FORMAT "x(8)"
 
 DEFINE VARIABLE begin_cust-po AS CHARACTER FORMAT "x(15)" 
      LABEL "From Customer PO#" 
+     VIEW-AS FILL-IN 
+     SIZE 20 BY 1.
+
+DEFINE VARIABLE begin_date AS DATE FORMAT "99/99/9999" 
+     LABEL "From Bol Date" 
      VIEW-AS FILL-IN 
      SIZE 20 BY 1.
 
@@ -193,10 +203,10 @@ DEFINE VARIABLE begin_ord-no AS INTEGER FORMAT ">>>>>>>>" INITIAL 0
      VIEW-AS FILL-IN 
      SIZE 20 BY 1.
 
-DEFINE VARIABLE begin_bol-no AS INTEGER FORMAT ">>>>>>>>" INITIAL 0 
-     LABEL "From Bol#" 
+DEFINE VARIABLE end_bol-no AS INTEGER FORMAT ">>>>>>>>" INITIAL 99999999 
+     LABEL "To Bol#" 
      VIEW-AS FILL-IN 
-     SIZE 20 BY 1 NO-UNDO.
+     SIZE 21 BY 1.
 
 DEFINE VARIABLE end_cust-no AS CHARACTER FORMAT "X(8)" INITIAL "zzzzzzzz" 
      LABEL "To Customer#" 
@@ -208,6 +218,11 @@ DEFINE VARIABLE end_cust-po AS CHARACTER FORMAT "X(15)" INITIAL "zzzzzzzzzzzzzzz
      VIEW-AS FILL-IN 
      SIZE 21 BY 1.
 
+DEFINE VARIABLE end_date AS DATE FORMAT "99/99/9999" 
+     LABEL "To Bol Date" 
+     VIEW-AS FILL-IN 
+     SIZE 21 BY 1.
+
 DEFINE VARIABLE end_i-no AS CHARACTER FORMAT "X(15)" INITIAL "zzzzzzzzzzzzzzz" 
      LABEL "To FG Item#" 
      VIEW-AS FILL-IN 
@@ -215,11 +230,6 @@ DEFINE VARIABLE end_i-no AS CHARACTER FORMAT "X(15)" INITIAL "zzzzzzzzzzzzzzz"
 
 DEFINE VARIABLE end_ord-no AS INTEGER FORMAT ">>>>>>>>" INITIAL 99999999 
      LABEL "To Order#" 
-     VIEW-AS FILL-IN 
-     SIZE 21 BY 1.
-
-DEFINE VARIABLE end_bol-no AS INTEGER FORMAT ">>>>>>>>" INITIAL 99999999 
-     LABEL "To Bol#" 
      VIEW-AS FILL-IN 
      SIZE 21 BY 1.
 
@@ -275,28 +285,32 @@ DEFINE VARIABLE tb_unposted AS LOGICAL INITIAL yes
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME rd-bolexp
-     begin_bol-no AT ROW 3.48 COL 28 COLON-ALIGNED HELP
+     begin_bol-no AT ROW 3.19 COL 28 COLON-ALIGNED HELP
           "Enter Beginning Release#" WIDGET-ID 142
-     end_bol-no AT ROW 3.48 COL 71 COLON-ALIGNED HELP
+     end_bol-no AT ROW 3.19 COL 71 COLON-ALIGNED HELP
           "Enter Ending Release#" WIDGET-ID 144
-     begin_ord-no AT ROW 4.43 COL 28 COLON-ALIGNED HELP
+     begin_ord-no AT ROW 4.14 COL 28 COLON-ALIGNED HELP
           "Enter Beginning Order Number" WIDGET-ID 146
-     end_ord-no AT ROW 4.43 COL 71 COLON-ALIGNED HELP
+     end_ord-no AT ROW 4.14 COL 71 COLON-ALIGNED HELP
           "Enter Ending Order #" WIDGET-ID 154
-     begin_cust-no AT ROW 5.38 COL 28 COLON-ALIGNED HELP
+     begin_cust-no AT ROW 5.1 COL 28 COLON-ALIGNED HELP
           "Enter Beginning Customer Number" WIDGET-ID 148
-     end_cust-no AT ROW 5.38 COL 71 COLON-ALIGNED HELP
+     end_cust-no AT ROW 5.1 COL 71 COLON-ALIGNED HELP
           "Enter Ending Cust #" WIDGET-ID 156
-     begin_i-no AT ROW 6.33 COL 28 COLON-ALIGNED HELP
+     begin_i-no AT ROW 6.05 COL 28 COLON-ALIGNED HELP
           "Enter Beginning FG Item Number" WIDGET-ID 150
-     end_i-no AT ROW 6.33 COL 71 COLON-ALIGNED HELP
+     end_i-no AT ROW 6.05 COL 71 COLON-ALIGNED HELP
           "Enter Ending FG Item #" WIDGET-ID 158
-     begin_cust-po AT ROW 7.29 COL 28 COLON-ALIGNED HELP
+     begin_cust-po AT ROW 7 COL 28 COLON-ALIGNED HELP
           "Enter Beginning Customer PO #" WIDGET-ID 152
-     end_cust-po AT ROW 7.29 COL 71 COLON-ALIGNED HELP
+     end_cust-po AT ROW 7 COL 71 COLON-ALIGNED HELP
           "Enter Ending Customer PO#" WIDGET-ID 160
-     tb_posted AT ROW 9 COL 53.6 RIGHT-ALIGNED WIDGET-ID 162
-     tb_unposted AT ROW 9 COL 71.6 RIGHT-ALIGNED WIDGET-ID 164
+     begin_date AT ROW 7.95 COL 28 COLON-ALIGNED HELP
+          "Enter Beginning Date Number" WIDGET-ID 112
+     end_date AT ROW 7.95 COL 71 COLON-ALIGNED HELP
+          "Enter Beginning Date Number" WIDGET-ID 114
+     tb_posted AT ROW 9.33 COL 53.6 RIGHT-ALIGNED WIDGET-ID 162
+     tb_unposted AT ROW 9.33 COL 71.6 RIGHT-ALIGNED WIDGET-ID 164
      sl_avail AT ROW 12.24 COL 9 NO-LABEL WIDGET-ID 26
      sl_selected AT ROW 12.24 COL 64 NO-LABEL WIDGET-ID 28
      Btn_Def AT ROW 12.38 COL 44.2 HELP
@@ -315,13 +329,13 @@ DEFINE FRAME rd-bolexp
      btn-cancel AT ROW 21.71 COL 60.2 WIDGET-ID 12
      "Available Columns" VIEW-AS TEXT
           SIZE 29 BY .62 AT ROW 11.52 COL 9.4 WIDGET-ID 140
-     "Selected Columns" VIEW-AS TEXT
-          SIZE 34 BY .62 AT ROW 11.52 COL 64.4 WIDGET-ID 138
+     "Export Selection" VIEW-AS TEXT
+          SIZE 17 BY .62 AT ROW 10.52 COL 3 WIDGET-ID 86
      "Selection Parameters" VIEW-AS TEXT
           SIZE 21 BY .71 AT ROW 1.24 COL 5 WIDGET-ID 36
           BGCOLOR 2 
-     "Export Selection" VIEW-AS TEXT
-          SIZE 17 BY .62 AT ROW 10.52 COL 3 WIDGET-ID 86
+     "Selected Columns" VIEW-AS TEXT
+          SIZE 34 BY .62 AT ROW 11.52 COL 64.4 WIDGET-ID 138
      RECT-6 AT ROW 10.76 COL 2 WIDGET-ID 30
      RECT-7 AT ROW 1.24 COL 2 WIDGET-ID 38
      RECT-8 AT ROW 18.62 COL 2 WIDGET-ID 84
@@ -353,11 +367,19 @@ ASSIGN
        FRAME rd-bolexp:HIDDEN           = TRUE.
 
 ASSIGN 
+       begin_bol-no:PRIVATE-DATA IN FRAME rd-bolexp     = 
+                "parm".
+
+ASSIGN 
        begin_cust-no:PRIVATE-DATA IN FRAME rd-bolexp     = 
                 "parm".
 
 ASSIGN 
        begin_cust-po:PRIVATE-DATA IN FRAME rd-bolexp     = 
+                "parm".
+
+ASSIGN 
+       begin_date:PRIVATE-DATA IN FRAME rd-bolexp     = 
                 "parm".
 
 ASSIGN 
@@ -369,7 +391,7 @@ ASSIGN
                 "parm".
 
 ASSIGN 
-       begin_bol-no:PRIVATE-DATA IN FRAME rd-bolexp     = 
+       end_bol-no:PRIVATE-DATA IN FRAME rd-bolexp     = 
                 "parm".
 
 ASSIGN 
@@ -381,15 +403,15 @@ ASSIGN
                 "parm".
 
 ASSIGN 
+       end_date:PRIVATE-DATA IN FRAME rd-bolexp     = 
+                "parm".
+
+ASSIGN 
        end_i-no:PRIVATE-DATA IN FRAME rd-bolexp     = 
                 "parm".
 
 ASSIGN 
        end_ord-no:PRIVATE-DATA IN FRAME rd-bolexp     = 
-                "parm".
-
-ASSIGN 
-       end_bol-no:PRIVATE-DATA IN FRAME rd-bolexp     = 
                 "parm".
 
 ASSIGN 
@@ -431,7 +453,7 @@ ASSIGN
 
 &Scoped-define SELF-NAME rd-bolexp
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rd-bolexp rd-bolexp
-ON HELP OF FRAME rd-bolexp /* Export Raw Materials Inventory to Excel */
+ON HELP OF FRAME rd-bolexp /* Export Order Bol to Excel */
 DO:
 DEF VAR lw-focus AS WIDGET-HANDLE NO-UNDO.
 DEF VAR ls-cur-val AS CHAR NO-UNDO.
@@ -466,9 +488,20 @@ END.
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rd-bolexp rd-bolexp
-ON WINDOW-CLOSE OF FRAME rd-bolexp /* Export Raw Materials Inventory to Excel */
+ON WINDOW-CLOSE OF FRAME rd-bolexp /* Export Order Bol to Excel */
 DO:
   APPLY "END-ERROR":U TO SELF.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME begin_bol-no
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_bol-no rd-bolexp
+ON LEAVE OF begin_bol-no IN FRAME rd-bolexp /* From Bol# */
+DO:
+   assign {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -497,6 +530,17 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME begin_date
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_date rd-bolexp
+ON LEAVE OF begin_date IN FRAME rd-bolexp /* From Bol Date */
+DO:
+   assign {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME begin_i-no
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_i-no rd-bolexp
 ON LEAVE OF begin_i-no IN FRAME rd-bolexp /* From FG Item# */
@@ -511,17 +555,6 @@ END.
 &Scoped-define SELF-NAME begin_ord-no
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_ord-no rd-bolexp
 ON LEAVE OF begin_ord-no IN FRAME rd-bolexp /* From Order# */
-DO:
-   assign {&self-name}.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME begin_bol-no
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_bol-no rd-bolexp
-ON LEAVE OF begin_bol-no IN FRAME rd-bolexp /* From Release# */
 DO:
    assign {&self-name}.
 END.
@@ -636,6 +669,17 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME end_bol-no
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_bol-no rd-bolexp
+ON LEAVE OF end_bol-no IN FRAME rd-bolexp /* To Bol# */
+DO:
+     assign {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME end_cust-no
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_cust-no rd-bolexp
 ON LEAVE OF end_cust-no IN FRAME rd-bolexp /* To Customer# */
@@ -658,6 +702,17 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME end_date
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_date rd-bolexp
+ON LEAVE OF end_date IN FRAME rd-bolexp /* To Bol Date */
+DO:
+   assign {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME end_i-no
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_i-no rd-bolexp
 ON LEAVE OF end_i-no IN FRAME rd-bolexp /* To FG Item# */
@@ -672,17 +727,6 @@ END.
 &Scoped-define SELF-NAME end_ord-no
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_ord-no rd-bolexp
 ON LEAVE OF end_ord-no IN FRAME rd-bolexp /* To Order# */
-DO:
-     assign {&self-name}.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME end_bol-no
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_bol-no rd-bolexp
-ON LEAVE OF end_bol-no IN FRAME rd-bolexp /* To Release# */
 DO:
      assign {&self-name}.
 END.
@@ -992,13 +1036,15 @@ PROCEDURE enable_UI :
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
   DISPLAY begin_bol-no end_bol-no begin_ord-no end_ord-no begin_cust-no 
-          end_cust-no begin_i-no end_i-no begin_cust-po end_cust-po tb_posted 
-          tb_unposted sl_avail sl_selected tb_excel tb_runExcel fi_file 
+          end_cust-no begin_i-no end_i-no begin_cust-po end_cust-po begin_date 
+          end_date tb_posted tb_unposted sl_avail sl_selected tb_excel 
+          tb_runExcel fi_file 
       WITH FRAME rd-bolexp.
   ENABLE RECT-6 RECT-7 RECT-8 begin_bol-no end_bol-no begin_ord-no end_ord-no 
          begin_cust-no end_cust-no begin_i-no end_i-no begin_cust-po 
-         end_cust-po tb_posted tb_unposted sl_avail sl_selected Btn_Def Btn_Add 
-         Btn_Remove btn_Up btn_down tb_runExcel fi_file btn-ok btn-cancel 
+         end_cust-po begin_date end_date tb_posted tb_unposted sl_avail 
+         sl_selected Btn_Def Btn_Add Btn_Remove btn_Up btn_down tb_runExcel 
+         fi_file btn-ok btn-cancel 
       WITH FRAME rd-bolexp.
   VIEW FRAME rd-bolexp.
   {&OPEN-BROWSERS-IN-QUERY-rd-bolexp}
@@ -1085,7 +1131,7 @@ SESSION:SET-WAIT-STATE ("general").
 IF tb_excel THEN OUTPUT STREAM excel TO VALUE(fi_file).
 IF v-excelheader NE "" THEN PUT STREAM excel UNFORMATTED v-excelheader SKIP.
 
-
+MESSAGE "begin_date" STRING(begin_date) "    " STRING(end_date) VIEW-AS ALERT-BOX ERROR.
 FOR EACH  oe-bolh WHERE oe-bolh.company EQ cocode 
           AND oe-bolh.deleted EQ NO             
           AND( (oe-bolh.posted  EQ NO  AND tb_unposted = TRUE) 
@@ -1093,7 +1139,8 @@ FOR EACH  oe-bolh WHERE oe-bolh.company EQ cocode
           AND oe-bolh.bol-no GE begin_bol-no
           AND oe-bolh.bol-no LE end_bol-no
           AND oe-bolh.cust-no GE begin_cust-no
-          AND oe-bolh.cust-no LE end_cust-no NO-LOCK,
+          AND oe-bolh.cust-no LE end_cust-no
+          AND (oe-bolh.bol-date GE date(begin_date) AND oe-bolh.bol-date LE date(end_date))  NO-LOCK,
     EACH oe-boll USE-INDEX b-no NO-LOCK     
     WHERE oe-boll.company   EQ oe-bolh.company  
     AND oe-boll.b-no        EQ oe-bolh.b-no    
