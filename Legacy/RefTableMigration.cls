@@ -13,6 +13,20 @@ USING Progress.Lang.*.
 BLOCK-LEVEL ON ERROR UNDO, THROW.
 
 CLASS RefTableMigration: 
+    DEFINE PRIVATE BUFFER Breftable FOR reftable. 
+    
+    METHOD PRIVATE VOID ReftableCopyDelete(INPUT ipType AS CHARACTER):
+        FOR EACH reftable WHERE reftable.reftable = ipType
+            NO-LOCK:
+            CREATE reftable1.
+            BUFFER-COPY reftable TO reftable1.
+            FIND Breftable WHERE ROWID(Breftable) = ROWID(reftable)
+                 EXCLUSIVE-LOCK NO-ERROR.
+            IF AVAILABLE Breftable THEN DELETE Breftable. 
+            RELEASE Breftable.                
+        END.  /*FOR EACH reftable*/  
+    END METHOD.
+    
     METHOD PUBLIC INTEGER STYFLU():
         DEFINE VARIABLE iCnt AS INTEGER NO-UNDO.
         FOR EACH styleFluteXref:
@@ -28,7 +42,8 @@ CLASS RefTableMigration:
                 styleFluteXref.description = reftable.dscr
                 .   
             iCnt = iCnt + 1.                 
-        END.  /*FOR EACH reftable*/         
+        END.  /*FOR EACH reftable*/       
+        ReftableCopyDelete("STYFLU").  
         RETURN iCnt.
     END METHOD. /*STYFLU*/
     
@@ -47,7 +62,8 @@ CLASS RefTableMigration:
                 styleScoreXref.description = reftable.dscr
                 .   
             iCnt = iCnt + 1.                 
-        END.  /*FOR EACH reftable*/         
+        END.  /*FOR EACH reftable*/ 
+        ReftableCopyDelete("STYSCORE").        
         RETURN iCnt.
     END METHOD. /*STYSCORE*/
     METHOD PUBLIC INTEGER OeBollLotNo():
@@ -64,7 +80,8 @@ CLASS RefTableMigration:
                 . 
             RELEASE oe-boll.      
             iCnt = iCnt + 1.                 
-        END.  /*FOR EACH reftable*/         
+        END.  /*FOR EACH reftable*/  
+        ReftableCopyDelete("oe-boll.lot-no").       
         RETURN iCnt.
     END METHOD. /*oe-boll*/
     METHOD PUBLIC INTEGER OeRellLotNo():
@@ -81,7 +98,8 @@ CLASS RefTableMigration:
                 . 
             RELEASE oe-rell.      
             iCnt = iCnt + 1.                 
-        END.  /*FOR EACH reftable*/         
+        END.  /*FOR EACH reftable*/ 
+        ReftableCopyDelete("oe-rell.lot-no").        
         RETURN iCnt.
     END METHOD. /*oe-rell*/
     METHOD PUBLIC INTEGER OeRelLotNo():
@@ -98,7 +116,8 @@ CLASS RefTableMigration:
                 . 
             RELEASE oe-rel.      
             iCnt = iCnt + 1.                 
-        END.  /*FOR EACH reftable*/         
+        END.  /*FOR EACH reftable*/
+        ReftableCopyDelete("oe-rel.lot-no").         
         RETURN iCnt.
     END METHOD. /*oe-rel*/
     METHOD PUBLIC INTEGER OeRellSellPrice():
@@ -114,7 +133,8 @@ CLASS RefTableMigration:
                 . 
             RELEASE oe-rell.      
             iCnt = iCnt + 1.                 
-        END.  /*FOR EACH reftable*/         
+        END.  /*FOR EACH reftable*/ 
+        ReftableCopyDelete("oe-rell.sell-price").        
         RETURN iCnt.
     END METHOD. /*oe-rell*/
     METHOD PUBLIC INTEGER FgRctdUseJob():
@@ -129,7 +149,8 @@ CLASS RefTableMigration:
                 . 
             RELEASE fg-rctd.      
             iCnt = iCnt + 1.                 
-        END.  /*FOR EACH reftable*/         
+        END.  /*FOR EACH reftable*/ 
+        ReftableCopyDelete("fg-rctd.use-job").        
         RETURN iCnt.
     END METHOD. /*fg-rctd*/
     METHOD PUBLIC INTEGER OeOrdlWhsItem():
@@ -147,7 +168,8 @@ CLASS RefTableMigration:
                 . 
             RELEASE oe-ordl.      
             iCnt = iCnt + 1.                 
-        END.  /*FOR EACH reftable*/         
+        END.  /*FOR EACH reftable*/ 
+        ReftableCopyDelete("oe-ordl.whs-item").        
         RETURN iCnt.
     END METHOD. /*oe-ordl*/
     METHOD PUBLIC INTEGER OeOrdWhsOrder():
@@ -163,7 +185,8 @@ CLASS RefTableMigration:
                 . 
             RELEASE oe-ord.      
             iCnt = iCnt + 1.                 
-        END.  /*FOR EACH reftable*/         
+        END.  /*FOR EACH reftable*/  
+        ReftableCopyDelete("oe-ord.whs-order").        
         RETURN iCnt.
     END METHOD. /*oe-ord*/
     METHOD PUBLIC INTEGER OeOrdlQNo():
@@ -181,7 +204,8 @@ CLASS RefTableMigration:
                 . 
             RELEASE oe-ordl.      
             iCnt = iCnt + 1.                 
-        END.  /*FOR EACH reftable*/         
+        END.  /*FOR EACH reftable*/ 
+        ReftableCopyDelete("oe-ordl.q-no").        
         RETURN iCnt.
     END METHOD. /*oe-ordl*/
     METHOD PUBLIC INTEGER OeRelJob():
@@ -197,7 +221,8 @@ CLASS RefTableMigration:
                 . 
             RELEASE oe-rel.      
             iCnt = iCnt + 1.                 
-        END.  /*FOR EACH reftable*/         
+        END.  /*FOR EACH reftable*/ 
+        ReftableCopyDelete("oe-rel.job").        
         RETURN iCnt.
     END METHOD. /*oe-rel*/
     METHOD PUBLIC INTEGER FgRctdUserId():
@@ -211,7 +236,8 @@ CLASS RefTableMigration:
               fg-rctd.created-by = reftable.code
               fg-rctd.updated-by = reftable.code2.
           END.
-         END.       
+         END.   
+         ReftableCopyDelete("fg-rctd.user-id").    
         RETURN iCnt.
     END METHOD. /*fg-rctd*/
     METHOD PUBLIC INTEGER FgBinCost():
@@ -231,6 +257,7 @@ CLASS RefTableMigration:
                       fg-rdtlh.std-var-cost = reftable.val[7].
                END.
           END. 
+          ReftableCopyDelete("fg-bin.cost").
         RETURN iCnt.
     END METHOD. /*fg-bin*/
     METHOD PUBLIC INTEGER OeRelSellPrice():
@@ -246,7 +273,8 @@ CLASS RefTableMigration:
                 . 
             RELEASE oe-rel.      
             iCnt = iCnt + 1.                 
-        END.  /*FOR EACH reftable*/         
+        END.  /*FOR EACH reftable*/     
+        ReftableCopyDelete("oe-rel.sell-price").    
         RETURN iCnt.
     END METHOD. /*oe-rel*/
     METHOD PUBLIC INTEGER ReftoUserPrintHM5():
@@ -276,6 +304,7 @@ CLASS RefTableMigration:
             end.
             iCnt = iCnt + 1. 
         end.
+        ReftableCopyDelete("HM5").
         RETURN iCnt.
     END METHOD. /*User-print*/
     METHOD PUBLIC INTEGER ReftoUserPrintHM1SF():
@@ -305,6 +334,7 @@ CLASS RefTableMigration:
          end.
          iCnt = iCnt + 1. 
        end.
+        ReftableCopyDelete("HM1SF").
         RETURN iCnt.
     END METHOD. /*User-print*/
     METHOD PUBLIC INTEGER ReftoUserPrintHM1():
@@ -336,6 +366,7 @@ CLASS RefTableMigration:
           end.
          iCnt = iCnt + 1. 
        end.
+        ReftableCopyDelete("HM1").
         RETURN iCnt.
     END METHOD. /*User-print*/
     METHOD PUBLIC INTEGER ReftoUserPrintHM1Acct():
@@ -367,6 +398,7 @@ CLASS RefTableMigration:
           end.
           iCnt = iCnt + 1. 
        end.
+        ReftableCopyDelete("HM1Acct").
         RETURN iCnt.
     END METHOD. /*User-print*/
     METHOD PUBLIC INTEGER OeBollSellPrice():
@@ -382,7 +414,8 @@ CLASS RefTableMigration:
                 . 
             RELEASE oe-boll.      
             iCnt = iCnt + 1.                 
-        END.  /*FOR EACH reftable*/         
+        END.  /*FOR EACH reftable*/ 
+        ReftableCopyDelete("oe-boll.sell-price").        
         RETURN iCnt.
     END METHOD. /*oe-boll*/
     METHOD PUBLIC INTEGER JobCreateTime():
@@ -399,7 +432,8 @@ CLASS RefTableMigration:
                 . 
             RELEASE job.      
             iCnt = iCnt + 1.                 
-        END.  /*FOR EACH reftable*/         
+        END.  /*FOR EACH reftable*/ 
+        ReftableCopyDelete("job.create-time").        
         RETURN iCnt.
     END METHOD. /*job*/
     METHOD PUBLIC INTEGER OeOrdlMisc():
@@ -421,7 +455,8 @@ CLASS RefTableMigration:
                 . 
             RELEASE oe-ordm.      
             iCnt = iCnt + 1.                 
-        END.  /*FOR EACH reftable*/         
+        END.  /*FOR EACH reftable*/ 
+        ReftableCopyDelete("oe/ordlmisc.p").                
         RETURN iCnt.
     END METHOD. /*oe-ordm*/
     METHOD PUBLIC INTEGER Factored():
@@ -437,7 +472,8 @@ CLASS RefTableMigration:
                 . 
             RELEASE itemfg.      
             iCnt = iCnt + 1.                 
-        END.  /*FOR EACH reftable*/         
+        END.  /*FOR EACH reftable*/ 
+        ReftableCopyDelete("FACTORED").        
         RETURN iCnt.
     END METHOD. /*itemfg*/
     METHOD PUBLIC INTEGER Termscod():
@@ -453,7 +489,8 @@ CLASS RefTableMigration:
                 . 
             RELEASE terms.      
             iCnt = iCnt + 1.                 
-        END.  /*FOR EACH reftable*/         
+        END.  /*FOR EACH reftable*/ 
+        ReftableCopyDelete("terms.cod").        
         RETURN iCnt.
     END METHOD. /*terms*/
     METHOD PUBLIC INTEGER Stack():
@@ -495,7 +532,10 @@ CLASS RefTableMigration:
                 . 
             RELEASE stackPattern.      
             iCnt = iCnt + 1.                 
-        END.  /*FOR EACH reftable*/         
+        END.  /*FOR EACH reftable*/   
+        ReftableCopyDelete("STACK").
+        ReftableCopyDelete("STACKSTRAP").
+        ReftableCopyDelete("STACKPAT").      
         RETURN iCnt.
     END METHOD. /*stackPattern*/
     METHOD PUBLIC INTEGER ItemfgInkOccurs():
@@ -511,7 +551,8 @@ CLASS RefTableMigration:
                 . 
             RELEASE itemfg-ink.      
             iCnt = iCnt + 1.                 
-        END.  /*FOR EACH reftable*/         
+        END.  /*FOR EACH reftable*/
+        ReftableCopyDelete("itemfg-ink.occurs").         
         RETURN iCnt.
     END METHOD. /*itemfg-ink*/
     METHOD PUBLIC INTEGER ShiptoMandatoryTax():
@@ -528,7 +569,8 @@ CLASS RefTableMigration:
                 . 
             RELEASE shipto.      
             iCnt = iCnt + 1.                 
-        END.  /*FOR EACH reftable*/         
+        END.  /*FOR EACH reftable*/ 
+        ReftableCopyDelete("shipto.mandatory-tax").        
         RETURN iCnt.
     END METHOD. /*shipto*/
     METHOD PUBLIC INTEGER CustPoMand():
@@ -544,7 +586,8 @@ CLASS RefTableMigration:
                 . 
             RELEASE cust.      
             iCnt = iCnt + 1.                 
-        END.  /*FOR EACH reftable*/         
+        END.  /*FOR EACH reftable*/   
+        ReftableCopyDelete("cust.po-mand").      
         RETURN iCnt.
     END METHOD. /*customer*/
     METHOD PUBLIC INTEGER CustShowSet():
@@ -560,7 +603,8 @@ CLASS RefTableMigration:
                 . 
             RELEASE cust.      
             iCnt = iCnt + 1.                 
-        END.  /*FOR EACH reftable*/         
+        END.  /*FOR EACH reftable*/    
+        ReftableCopyDelete("cust.show-set").     
         RETURN iCnt.
     END METHOD. /*customer*/
     METHOD PUBLIC INTEGER MachinePosition():
@@ -582,26 +626,10 @@ CLASS RefTableMigration:
                 . 
             RELEASE est-op.      
             iCnt = iCnt + 1.                 
-        END.  /*FOR EACH reftable*/         
+        END.  /*FOR EACH reftable*/ 
+        ReftableCopyDelete("MachinePosition").        
         RETURN iCnt.
     END METHOD. /*est-op*/
-    METHOD PUBLIC INTEGER ExportCustId():
-        DEFINE VARIABLE iCnt AS INTEGER NO-UNDO.
-        FOR EACH reftable WHERE reftable.reftable = "JDEDWARDCUST#"
-            NO-LOCK:
-            FIND FIRST shipto WHERE shipto.company = reftable.company
-                                AND shipto.cust-no = reftable.code 
-                                AND shipto.ship-id = reftable.code2                           
-                EXCLUSIVE-LOCK NO-ERROR.
-            IF AVAILABLE shipto THEN    
-            ASSIGN 
-                shipto.exportCustID =  reftable.dscr                
-                . 
-            RELEASE shipto.      
-            iCnt = iCnt + 1.                 
-        END.  /*FOR EACH reftable*/         
-        RETURN iCnt.
-    END METHOD. /*shipto*/
     METHOD PUBLIC INTEGER GlAcctDisc():
         DEFINE VARIABLE iCnt AS INTEGER NO-UNDO.
         FOR EACH reftable WHERE reftable.reftable = "GLACCTDISC"
@@ -615,7 +643,8 @@ CLASS RefTableMigration:
                 . 
             RELEASE account.      
             iCnt = iCnt + 1.                 
-        END.  /*FOR EACH reftable*/         
+        END.  /*FOR EACH reftable*/    
+        ReftableCopyDelete("GLACCTDISC").     
         RETURN iCnt.
     END METHOD. /*account*/
     METHOD PUBLIC INTEGER CustFlatComm():
@@ -631,7 +660,8 @@ CLASS RefTableMigration:
                 . 
             RELEASE cust.      
             iCnt = iCnt + 1.                 
-        END.  /*FOR EACH reftable*/         
+        END.  /*FOR EACH reftable*/  
+        ReftableCopyDelete("cust.flat-comm").       
         RETURN iCnt.
     END METHOD. /*cust*/
     METHOD PUBLIC INTEGER StylePerMsf():
@@ -649,7 +679,8 @@ CLASS RefTableMigration:
             END.    
             RELEASE style.      
             iCnt = iCnt + 1.                 
-        END.  /*FOR EACH reftable*/         
+        END.  /*FOR EACH reftable*/   
+        ReftableCopyDelete("style.per-msf").      
         RETURN iCnt.
     END METHOD. /*style*/
     METHOD PUBLIC INTEGER FreezeNote():
@@ -662,7 +693,14 @@ CLASS RefTableMigration:
                 EXCLUSIVE-LOCK NO-ERROR.
             IF AVAILABLE job-hdr THEN    
             ASSIGN 
-                job-hdr.freezeNote = YES                
+                job-hdr.freezeNote = YES
+                .                 
+            RELEASE job-hdr.      
+            iCnt = iCnt + 1.                 
+        END.  /*FOR EACH reftable*/   
+        ReftableCopyDelete("FREEZENOTE").      
+        RETURN iCnt.
+    END METHOD. /*job-hdr*/                   
     METHOD PUBLIC INTEGER MachPlainJob():
         DEFINE VARIABLE iCnt AS INTEGER NO-UNDO.
         FOR EACH reftable WHERE reftable.reftable = "mach.plain-job"
@@ -677,7 +715,8 @@ CLASS RefTableMigration:
                 . 
             RELEASE mach.      
             iCnt = iCnt + 1.                 
-        END.  /*FOR EACH reftable*/         
+        END.  /*FOR EACH reftable*/ 
+        ReftableCopyDelete("mach.plain-job").        
         RETURN iCnt.
     END METHOD. /*mach*/
     METHOD PUBLIC INTEGER PrePlastJob():
@@ -695,7 +734,8 @@ CLASS RefTableMigration:
                 . 
             RELEASE prep.      
             iCnt = iCnt + 1.                 
-        END.  /*FOR EACH reftable*/         
+        END.  /*FOR EACH reftable*/ 
+        ReftableCopyDelete("PREPLASTJOB").        
         RETURN iCnt.
     END METHOD. /*prep*/
     METHOD PUBLIC INTEGER JobQtyChanged():
@@ -711,7 +751,8 @@ CLASS RefTableMigration:
                 . 
             RELEASE job.      
             iCnt = iCnt + 1.                 
-        END.  /*FOR EACH reftable*/         
+        END.  /*FOR EACH reftable*/  
+        ReftableCopyDelete("job.qty-changed").       
         RETURN iCnt.
     END METHOD. /*job*/
     METHOD PUBLIC INTEGER GlRptPctSubtotal():
@@ -728,7 +769,8 @@ CLASS RefTableMigration:
                 . 
             RELEASE gl-rpt.      
             iCnt = iCnt + 1.                 
-        END.  /*FOR EACH reftable*/         
+        END.  /*FOR EACH reftable*/ 
+        ReftableCopyDelete("gl-rpt.pct-subtotal").        
         RETURN iCnt.
     END METHOD. /*gl-rpt*/
     METHOD PUBLIC INTEGER CeCtrlBrokerPct():
@@ -744,7 +786,8 @@ CLASS RefTableMigration:
                 . 
             RELEASE ce-ctrl.      
             iCnt = iCnt + 1.                 
-        END.  /*FOR EACH reftable*/         
+        END.  /*FOR EACH reftable*/       
+        ReftableCopyDelete("ce-ctrl.broker-pct").  
         RETURN iCnt.
     END METHOD. /*ce-ctrl*/
     METHOD PUBLIC INTEGER RmBinAgingDate():
@@ -763,7 +806,8 @@ CLASS RefTableMigration:
                 . 
             RELEASE rm-bin.      
             iCnt = iCnt + 1.                 
-        END.  /*FOR EACH reftable*/         
+        END.  /*FOR EACH reftable*/    
+        ReftableCopyDelete("rm-bin.aging-date").       
         RETURN iCnt.
     END METHOD. /*rm-bin*/
     METHOD PUBLIC INTEGER CeCtrlFoldPct():
@@ -779,7 +823,8 @@ CLASS RefTableMigration:
                 . 
             RELEASE ce-ctrl.      
             iCnt = iCnt + 1.                 
-        END.  /*FOR EACH reftable*/         
+        END.  /*FOR EACH reftable*/     
+        ReftableCopyDelete("ce-ctrl.fold-pct").    
         RETURN iCnt.
     END METHOD. /*ce-ctrl*/
     METHOD PUBLIC INTEGER CeCtrlFgRateFarm():
@@ -795,7 +840,8 @@ CLASS RefTableMigration:
                 . 
             RELEASE ce-ctrl.      
             iCnt = iCnt + 1.                 
-        END.  /*FOR EACH reftable*/         
+        END.  /*FOR EACH reftable*/     
+        ReftableCopyDelete("ce-ctrl.fg-rate-farm").    
         RETURN iCnt.
     END METHOD. /*ce-ctrl*/  
     METHOD PUBLIC INTEGER CeCtrlRmRateFarm():
@@ -811,7 +857,8 @@ CLASS RefTableMigration:
                 . 
             RELEASE ce-ctrl.      
             iCnt = iCnt + 1.                 
-        END.  /*FOR EACH reftable*/         
+        END.  /*FOR EACH reftable*/  
+        ReftableCopyDelete("ce-ctrl.rm-rate-farm").       
         RETURN iCnt.
     END METHOD. /*ce-ctrl*/
     METHOD PUBLIC INTEGER CeCtrlHandPctFarm():
@@ -827,7 +874,8 @@ CLASS RefTableMigration:
                 . 
             RELEASE ce-ctrl.      
             iCnt = iCnt + 1.                 
-        END.  /*FOR EACH reftable*/         
+        END.  /*FOR EACH reftable*/   
+        ReftableCopyDelete("ce-ctrl.hand-pct-farm").       
         RETURN iCnt.
     END METHOD. /*ce-ctrl*/        
     METHOD PUBLIC INTEGER EstOpLock():
@@ -845,7 +893,8 @@ CLASS RefTableMigration:
                 . 
             RELEASE est.      
             iCnt = iCnt + 1.                 
-        END.  /*FOR EACH reftable*/         
+        END.  /*FOR EACH reftable*/  
+        ReftableCopyDelete("est.op-lock").        
         RETURN iCnt.
     END METHOD. /*est*/  
     METHOD PUBLIC INTEGER OeRelScode():
@@ -860,7 +909,8 @@ CLASS RefTableMigration:
                 . 
             RELEASE oe-rel.      
             iCnt = iCnt + 1.                 
-        END.  /*FOR EACH reftable*/         
+        END.  /*FOR EACH reftable*/ 
+        ReftableCopyDelete("oe-rel.s-code").        
         RETURN iCnt.
     END METHOD. /*oe-rel*/   
     METHOD PUBLIC INTEGER Splitship():
@@ -877,7 +927,8 @@ CLASS RefTableMigration:
                 . 
             RELEASE job-hdr.      
             iCnt = iCnt + 1.                 
-        END.  /*FOR EACH reftable*/         
+        END.  /*FOR EACH reftable*/
+        ReftableCopyDelete("SPLITSHIP").
         RETURN iCnt.
     END METHOD. /*job-hdr*/   
     METHOD PUBLIC INTEGER Splitshp():
@@ -894,7 +945,8 @@ CLASS RefTableMigration:
                 . 
             RELEASE job-hdr.      
             iCnt = iCnt + 1.                 
-        END.  /*FOR EACH reftable*/         
+        END.  /*FOR EACH reftable*/   
+        ReftableCopyDelete("splitshp").      
         RETURN iCnt.
     END METHOD. /*job-hdr*/     
     METHOD PUBLIC INTEGER MachObsolete():
@@ -911,7 +963,100 @@ CLASS RefTableMigration:
                 . 
             RELEASE mach.      
             iCnt = iCnt + 1.                 
-        END.  /*FOR EACH reftable*/         
+        END.  /*FOR EACH reftable*/ 
+        ReftableCopyDelete("mach.obsolete").         
         RETURN iCnt.
     END METHOD. /*mach*/
+    METHOD PUBLIC INTEGER ExportCustId():
+        DEFINE VARIABLE iCnt AS INTEGER NO-UNDO.
+        FOR EACH reftable WHERE reftable.reftable = "JDEDWARDCUST#"
+            NO-LOCK:
+            FIND FIRST shipto WHERE shipto.company = reftable.company
+                                AND shipto.cust-no = reftable.code 
+                                AND shipto.ship-id = reftable.code2                           
+                EXCLUSIVE-LOCK NO-ERROR.
+            IF AVAILABLE shipto THEN    
+            ASSIGN 
+                shipto.exportCustID =  reftable.dscr                
+                . 
+            RELEASE shipto.      
+            iCnt = iCnt + 1.                 
+        END.  /*FOR EACH reftable*/   
+        ReftableCopyDelete("JDEDWARDCUST#").      
+        RETURN iCnt.
+    END METHOD. /*shipto*/    
+    METHOD PUBLIC INTEGER UserDocs():
+        DEFINE VARIABLE iCnt AS INTEGER NO-UNDO.
+        FOR EACH users EXCLUSIVE:
+            FOR EACH reftable EXCLUSIVE WHERE 
+                reftable.reftable EQ "users.user-docs" AND
+                reftable.company EQ users.user_id:
+                ASSIGN
+                    users.showOnPO = IF users.showOnPO = TRUE OR reftable.val[1] = 1 THEN TRUE ELSE FALSE
+                    users.showOnBOL = IF users.showOnBOL = TRUE OR reftable.val[2] = 1 THEN TRUE ELSE FALSE
+                    users.showOnInv = IF users.showOnInv = TRUE OR reftable.val[3] = 1 THEN TRUE ELSE FALSE
+                    users.showOnAck = IF users.showOnAck = TRUE OR reftable.val[4] = 1 THEN TRUE ELSE FALSE
+                    users.showOnQuote = IF users.showOnQuote = TRUE OR reftable.val[5] = 1 THEN TRUE ELSE FALSE
+                    .
+            END.
+            FOR EACH reftable EXCLUSIVE WHERE
+                reftable.reftable EQ "users.phone-no" AND
+                reftable.company EQ users.user_id:
+                ASSIGN
+                    users.phone = IF users.phone = "" AND reftable.CODE = "" THEN reftable.CODE ELSE users.phone
+                    .
+            END.
+            FOR EACH reftable EXCLUSIVE WHERE
+                reftable.reftable EQ "users.fax-no" AND
+                reftable.company EQ users.user_id:
+                ASSIGN
+                    users.fax = IF users.fax = "" AND reftable.CODE NE "" THEN reftable.CODE ELSE users.fax
+                    .
+            END.
+            FOR EACH reftable EXCLUSIVE WHERE
+                reftable.reftable EQ "users.phone-cnty" AND
+                reftable.company EQ users.user_id:
+                ASSIGN
+                    users.phone-cnty = IF users.phone-cnty = "" AND reftable.CODE NE "" THEN reftable.CODE ELSE users.phone-cnty
+                    .
+            END.
+            FOR EACH reftable EXCLUSIVE WHERE
+                reftable.reftable EQ "users.fax-cnty" AND
+                reftable.company EQ users.user_id:
+                ASSIGN
+                    users.fax-cnty = IF users.fax-cnty = "" AND reftable.CODE NE "" THEN reftable.CODE ELSE users.fax-cnty
+                    .            
+            END.            
+            RELEASE users.      
+            iCnt = iCnt + 1.  
+        END.
+        ReftableCopyDelete("users.user-docs").
+        ReftableCopyDelete("users.phone-no").
+        ReftableCopyDelete("users.fax-no").
+        ReftableCopyDelete("users.phone-cnty").
+        ReftableCopyDelete("users.fax-cnty").
+        return iCnt.
+     END METHOD. /*UserDocs*/ 
+     METHOD PUBLIC INTEGER EstRecalcMr():
+        DEFINE VARIABLE iCnt AS INTEGER NO-UNDO.
+        FOR EACH reftable WHERE reftable.reftable = "est.recalc-mr"
+            NO-LOCK:
+            FIND FIRST est WHERE est.company = reftable.company
+                             AND est.loc     = reftable.loc
+                             AND est.est-no  = reftable.code
+                EXCLUSIVE-LOCK NO-ERROR.
+            IF AVAILABLE est THEN    
+            ASSIGN 
+                est.recalc-mr    = logical(reftable.val[1]) 
+                est.allFormsInk  = logical(reftable.val[2])
+                est.calcBoardCostFromBlank = logical(reftable.val[3])         
+                . 
+            RELEASE est.      
+            iCnt = iCnt + 1.                 
+        END.  /*FOR EACH reftable*/  
+        ReftableCopyDelete("est.recalc-mr").        
+        RETURN iCnt.
+    END METHOD. /*est*/
 END CLASS.
+
+

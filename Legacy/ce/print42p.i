@@ -78,12 +78,10 @@ save-lock = xef.op-lock.
 pause 0.
 
 DO TRANSACTION:
-  {est/recalc-mr.i xest}
-  FIND CURRENT recalc-mr NO-LOCK.
 
   ASSIGN
    do-speed = xest.recalc
-   do-mr    = recalc-mr.val[1] EQ 1
+   do-mr    = xest.recalc-mr
    do-gsa   = xest.override.
 
   {sys/inc/cerun.i F}
@@ -150,18 +148,12 @@ end.
 else qtty[1] = qty.
 
 DO TRANSACTION:
-  {est/op-lock.i xest}
   FIND bf-est WHERE RECID(bf-est) EQ RECID(xest).
-  FIND CURRENT recalc-mr.
   ASSIGN
    bf-est.recalc    = do-speed
-   recalc-mr.val[1] = INT(do-mr)
-   bf-est.override  = do-gsa
-   op-lock.val[1]   = INT(bf-est.recalc)
-   op-lock.val[2]   = recalc-mr.val[1].
+   bf-est.recalc-mr = do-mr
+   bf-est.override  = do-gsa.
   FIND CURRENT bf-est NO-LOCK.
-  FIND CURRENT recalc-mr NO-LOCK.
-  FIND CURRENT op-lock NO-LOCK.   
 END.
 
 session:set-wait-state("General").

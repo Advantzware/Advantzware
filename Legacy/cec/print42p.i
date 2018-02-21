@@ -52,15 +52,12 @@ do transaction:
   end.
   ll-use-defaults = sys-ctrl.log-fld.
 
-  {est/recalc-mr.i xest}
-  FIND CURRENT recalc-mr NO-LOCK.
-
   {sys/inc/cerun.i C}
   assign
    do-speed  = IF ll-use-defaults THEN sys-ctrl.log-fld ELSE xest.recalc
-   do-mr     = IF ll-use-defaults THEN sys-ctrl.log-fld ELSE (recalc-mr.val[1] EQ 1)
-   v-do-all-forms-ink = recalc-mr.val[2] EQ 1
-   v-board-cost-from-blank = recalc-mr.val[3] EQ 1
+   do-mr     = IF ll-use-defaults THEN sys-ctrl.log-fld ELSE xest.recalc-mr
+   v-do-all-forms-ink = xest.allFormsInk
+   v-board-cost-from-blank = xest.calcBoardCostFromBlank
    vmclean   = sys-ctrl.char-fld ne ""
    vsuthrlnd = lookup(sys-ctrl.char-fld,"Suthrlnd,Clevelnd,Brick") ne 0
    v-module = module.
@@ -251,19 +248,16 @@ end.
 DO TRANSACTION:
   
   FIND est WHERE RECID(est) EQ RECID(xest).
-  FIND CURRENT recalc-mr.
   
 
   ASSIGN
    est.recalc       = do-speed
-   recalc-mr.val[1] = INT(do-mr)
-   recalc-mr.val[2] = INT(v-do-all-forms-ink)
-   recalc-mr.val[3] = INT(v-board-cost-from-blank)
+   est.calcBoardCostFromBlank = v-board-cost-from-blank
+   est.allFormsInk  = v-do-all-forms-ink
    est.override     = do-gsa
    est.recalc-mr    = do-mr.
   FIND est WHERE RECID(est) EQ RECID(xest) NO-LOCK.
   FIND xest WHERE RECID(xest) EQ RECID(est) NO-LOCK.
-  FIND CURRENT recalc-mr NO-LOCK.
 END.
 
 session:set-wait-state("General").

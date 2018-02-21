@@ -186,13 +186,10 @@ do transaction:
   end.
   ll-use-defaults = sys-ctrl.log-fld.
 
-  {est/recalc-mr.i xest}
-  FIND CURRENT recalc-mr NO-LOCK.
-
   {sys/inc/cerun.i C}
   ASSIGN
    do-speed  = IF ll-use-defaults THEN sys-ctrl.log-fld ELSE xest.recalc
-   do-mr     = IF ll-use-defaults THEN sys-ctrl.log-fld ELSE (recalc-mr.val[1] EQ 1)
+   do-mr     = IF ll-use-defaults THEN sys-ctrl.log-fld ELSE xest.recalc-mr
    vmclean   = sys-ctrl.char-fld NE ""
    vmclean2  = NO
    vsuthrlnd = LOOKUP(sys-ctrl.char-fld,"Suthrlnd,Clevelnd,Brick") NE 0
@@ -307,18 +304,12 @@ FOR EACH eb fields(company est-no form-no blank-no) NO-LOCK
   END.
 
 DO TRANSACTION:
-  {est/op-lock.i xest}
   FIND bf-est WHERE RECID(bf-est) EQ RECID(xest).
-  FIND CURRENT recalc-mr.
   ASSIGN
    bf-est.recalc    = do-speed
-   recalc-mr.val[1] = INT(do-mr)
-   bf-est.override  = do-gsa
-   op-lock.val[1]   = INT(bf-est.recalc)
-   op-lock.val[2]   = recalc-mr.val[1].
+   bf-est.recalc-mr = do-mr
+   bf-est.override  = do-gsa.
   FIND CURRENT bf-est NO-LOCK.
-  FIND CURRENT recalc-mr NO-LOCK.
-  FIND CURRENT op-lock NO-LOCK.
   FIND xest WHERE RECID(xest) EQ RECID(bf-est).   
 END.
 

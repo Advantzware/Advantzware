@@ -338,12 +338,10 @@ DEF BUFFER bf-est FOR est.
             FIND xeb  NO-LOCK WHERE RECID(xeb) = recid(eb)  NO-ERROR.
 
             save-lock = xef.op-lock.
-            {est/recalc-mr.i xest}
-            FIND CURRENT recalc-mr NO-LOCK.
 
             ASSIGN
                 do-speed = xest.recalc
-                do-mr    = recalc-mr.val[1] EQ 1
+                do-mr    = xest.recalc-mr
                 do-gsa   = xest.override.
 
             {sys/inc/cerun.i F}
@@ -354,14 +352,11 @@ DEF BUFFER bf-est FOR est.
             DO:
             
                 FIND bf-est WHERE RECID(bf-est) EQ RECID(xest).
-                FIND CURRENT recalc-mr.
                 ASSIGN
                     bf-est.recalc    = do-speed
-                    recalc-mr.val[1] = INT(do-mr)
                     bf-est.override  = do-gsa
                     bf-est.recalc-mr = do-mr.
                 FIND CURRENT bf-est NO-LOCK.
-                FIND CURRENT recalc-mr NO-LOCK.
             /*FIND xest WHERE RECID(xest) EQ RECID(bf-est).   */
             END.
     
