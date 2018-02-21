@@ -145,8 +145,7 @@ SESSION:SET-WAIT-STATE('').
 &Scoped-Define ENABLED-OBJECTS btnExportMachines btnExportJobs ~
 btnExportEmployees btnExportShifts btnImport selectedShift ~
 selectedStartDate selectedEndDate btnPost btnNonPost btnCancel lvProdAceDir ~
-lvProdAceType lvProdAceBlankEmployee lvImportDir lvResourceList btnSave ~
-btnReset btnExit 
+lvProdAceBlankEmployee lvImportDir lvResourceList btnSave btnReset btnExit 
 &Scoped-Define DISPLAYED-OBJECTS selectedShift selectedStartDate ~
 selectedEndDate lvProdAceDir lvProdAceType lvEmpLogin ~
 lvProdAceBlankEmployee lvImportDir lvResourceList 
@@ -333,23 +332,23 @@ DEFINE FRAME DEFAULT-FRAME
           "Click to Cancel and Exit"
      "Jobs" VIEW-AS TEXT
           SIZE 5 BY .62 AT ROW 2.91 COL 57 WIDGET-ID 28
-     "Import" VIEW-AS TEXT
-          SIZE 7 BY .62 AT ROW 14.81 COL 57 WIDGET-ID 24
+     "Shifts" VIEW-AS TEXT
+          SIZE 6 BY .62 AT ROW 12.19 COL 57 WIDGET-ID 20
+     "Employees" VIEW-AS TEXT
+          SIZE 11 BY .62 AT ROW 9.33 COL 55 WIDGET-ID 16
+     "Charge Codes" VIEW-AS TEXT
+          SIZE 14 BY .62 AT ROW 6.48 COL 53 WIDGET-ID 12
+     "Machines &&" VIEW-AS TEXT
+          SIZE 11 BY .62 AT ROW 5.76 COL 54 WIDGET-ID 8
+     "Type:" VIEW-AS TEXT
+          SIZE 6 BY .81 AT ROW 7.91 COL 12
+     "Employee Login:" VIEW-AS TEXT
+          SIZE 16 BY .81 AT ROW 9.1 COL 2
      "Select Shift to Post ... Enter Date Range" VIEW-AS TEXT
           SIZE 49 BY .62 AT ROW 1.24 COL 2
           FONT 6
-     "Employee Login:" VIEW-AS TEXT
-          SIZE 16 BY .81 AT ROW 9.1 COL 2
-     "Type:" VIEW-AS TEXT
-          SIZE 6 BY .81 AT ROW 7.91 COL 12
-     "Machines &&" VIEW-AS TEXT
-          SIZE 11 BY .62 AT ROW 5.76 COL 54 WIDGET-ID 8
-     "Charge Codes" VIEW-AS TEXT
-          SIZE 14 BY .62 AT ROW 6.48 COL 53 WIDGET-ID 12
-     "Employees" VIEW-AS TEXT
-          SIZE 11 BY .62 AT ROW 9.33 COL 55 WIDGET-ID 16
-     "Shifts" VIEW-AS TEXT
-          SIZE 6 BY .62 AT ROW 12.19 COL 57 WIDGET-ID 20
+     "Import" VIEW-AS TEXT
+          SIZE 7 BY .62 AT ROW 14.81 COL 57 WIDGET-ID 24
      RECT-1 AT ROW 6.24 COL 1
      RECT-2 AT ROW 1 COL 52 WIDGET-ID 2
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
@@ -415,7 +414,7 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 /* SETTINGS FOR FILL-IN lvProdAceDir IN FRAME DEFAULT-FRAME
    ALIGN-L 1                                                            */
 /* SETTINGS FOR RADIO-SET lvProdAceType IN FRAME DEFAULT-FRAME
-   1                                                                    */
+   NO-ENABLE 1                                                          */
 /* SETTINGS FOR FILL-IN lvResourceList IN FRAME DEFAULT-FRAME
    1                                                                    */
 /* SETTINGS FOR RECTANGLE RECT-1 IN FRAME DEFAULT-FRAME
@@ -1037,8 +1036,8 @@ PROCEDURE enable_UI :
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   ENABLE btnExportMachines btnExportJobs btnExportEmployees btnExportShifts 
          btnImport selectedShift selectedStartDate selectedEndDate btnPost 
-         btnNonPost btnCancel lvProdAceDir lvProdAceType lvProdAceBlankEmployee 
-         lvImportDir lvResourceList btnSave btnReset btnExit 
+         btnNonPost btnCancel lvProdAceDir lvProdAceBlankEmployee lvImportDir 
+         lvResourceList btnSave btnReset btnExit 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
   VIEW C-Win.

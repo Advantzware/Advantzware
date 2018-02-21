@@ -18,6 +18,11 @@
 
 /* ***************************  Definitions  ************************** */
 
+/* Customer Item By Month.rpa */
+{aoa/tempTable/ttCustomerItemByMonth.i}
+{aoa/tempTable/ttCustomerItemByMonthDetail.i}
+{aoa/tempTable/ttCustomerItemByMonthSummary.i}
+
 /* Invoice Highlights.edp */
 {aoa/tempTable/ttInvoiceHighlights.i}
 
@@ -39,6 +44,18 @@
 
 
 /* ************************  Function Prototypes ********************** */
+
+&IF DEFINED(EXCLUDE-fCustomerItemByMonth) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fCustomerItemByMonth Procedure
+FUNCTION fCustomerItemByMonth RETURNS HANDLE ( {aoa/includes/fInputVars.i} )  FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
 
 &IF DEFINED(EXCLUDE-fGetTableHandle) = 0 &THEN
 
@@ -99,6 +116,32 @@ FUNCTION fInvoiceHighlights RETURNS HANDLE ( {aoa/includes/fInputVars.i} )  FORW
 
 /* ************************  Function Implementations ***************** */
 
+&IF DEFINED(EXCLUDE-fCustomerItemByMonth) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fCustomerItemByMonth Procedure
+FUNCTION fCustomerItemByMonth RETURNS HANDLE ( {aoa/includes/fInputVars.i} ) :
+/*------------------------------------------------------------------------------
+  Purpose:  Customer Item By Month.rpa
+    Notes:  
+------------------------------------------------------------------------------*/
+    EMPTY TEMP-TABLE ttCustomerItemByMonth.
+    EMPTY TEMP-TABLE ttCustomerItemByMonthDetail.
+    EMPTY TEMP-TABLE ttCustomerItemByMonthSummary.
+
+    /* subject business logic */
+    RUN aoa/BL/custitem.p (OUTPUT TABLE ttCustomerItemByMonth, ipcCompany, ipiBatch, ipcUserID).
+    
+    RETURN TEMP-TABLE ttCustomerItemByMonth:HANDLE .
+
+END FUNCTION.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
+
 &IF DEFINED(EXCLUDE-fGetTableHandle) = 0 &THEN
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fGetTableHandle Procedure 
@@ -109,6 +152,9 @@ FUNCTION fGetTableHandle RETURNS HANDLE
     Notes:  
 ------------------------------------------------------------------------------*/
     CASE ipcProgramID:
+        /* Customer Item By Month.rpa */
+        WHEN "custitem." THEN 
+        RETURN TEMP-TABLE ttCustomerItemByMonth:HANDLE.
         /* Invoice Highlights.edp */
         WHEN "dbinvmh." THEN
         RETURN TEMP-TABLE ttInvoiceHighlights:HANDLE.
