@@ -1192,10 +1192,25 @@ PROCEDURE display-cust-detail :
 ------------------------------------------------------------------------------*/
   DEF INPUT PARAMETER ip-recid AS RECID NO-UNDO.
   FIND cust WHERE RECID(cust) = ip-recid NO-LOCK NO-ERROR.
-
-  {sys/inc/bolstatus.i cust.cust-no}
+  DEF VAR cRtnChar AS CHAR NO-UNDO.
+  DEFINE VARIABLE lRecFound AS LOGICAL     NO-UNDO.
+  DEFINE VARIABLE relpost-chr LIKE sys-ctrl.char-fld NO-UNDO.
+  DEFINE VARIABLE relpost-log LIKE sys-ctrl.log-fld  NO-UNDO.
+ 
 
   IF AVAIL cust THEN DO WITH FRAME {&frame-name} :
+       RUN sys/ref/nk1look.p (INPUT cocode, "RELPOST", "L" /* Logical */, YES /* check by cust */, 
+       INPUT YES /* use cust not vendor */, cust.cust-no /* cust */, "" /* ship-to*/,
+       OUTPUT cRtnChar, OUTPUT lRecFound).
+       IF lRecFound THEN
+       relpost-log = LOGICAL(cRtnChar) NO-ERROR.
+
+     RUN sys/ref/nk1look.p (INPUT cocode, "RELPOST", "C" /* Logical */, YES /* check by cust */, 
+     INPUT YES /* use cust not vendor */, cust.cust-no  /* cust */, "" /* ship-to*/,
+     OUTPUT cRtnChar, OUTPUT lRecFound).
+     IF lRecFound THEN
+      relpost-chr = cRtnChar NO-ERROR. 
+
 
        ASSIGN oe-bolh.cust-no:screen-value   = cust.cust-no
               cust_name:screen-value = cust.name
@@ -1204,8 +1219,7 @@ PROCEDURE display-cust-detail :
               cust_city:screen-value      = cust.city
               cust_state:screen-value     = cust.state
               cust_zip:screen-value       = cust.zip.
-              oe-bolh.stat:screen-value     = STRING(cbolstatus BEGINS "Hold","(H)OLD/(R)eleased") .
-
+              oe-bolh.stat:screen-value     = STRING(relpost-log AND relpost-chr BEGINS "BOL","(H)OLD/(R)eleased") .
   END.
 END PROCEDURE.
 
