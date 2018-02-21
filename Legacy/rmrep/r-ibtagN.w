@@ -1771,7 +1771,6 @@ SESSION:SET-WAIT-STATE ("general").
             BY tt-rm-bin.tag
 
       WITH FRAME itemx:
-
        {custom/statusMsg.i "'Processing Item # ' + string(tt-rm-bin.i-no)"} 
 
     IF FIRST-OF(tt-rm-bin.loc) OR
@@ -1792,6 +1791,8 @@ SESSION:SET-WAIT-STATE ("general").
            AND rm-rcpth.i-no         EQ tt-rm-bin.i-no
            AND rm-rcpth.rita-code    NE "S"
            AND (rm-rcpth.po-no       EQ STRING(tt-rm-bin.po-no)  )
+           AND rm-rcpth.trans-date   GE begin_date
+           AND rm-rcpth.trans-date   LE end_date
          USE-INDEX i-no                                                                                  
          BREAK BY rm-rcpth.trans-date DESCENDING:
   
@@ -1800,7 +1801,6 @@ SESSION:SET-WAIT-STATE ("general").
   
        IF LAST(rm-rcpth.trans-date) THEN 
          lv-fistdt = STRING(rm-rcpth.trans-date).
-      
      END.
    END.
    ELSE IF tt-rm-bin.tag NE "" THEN  DO:
@@ -1821,6 +1821,8 @@ SESSION:SET-WAIT-STATE ("general").
         WHERE rm-rcpth.r-no         EQ rm-rdtlh.r-no
           AND rm-rcpth.rita-code    EQ rm-rdtlh.rita-code
           AND rm-rcpth.i-no         EQ tt-rm-bin.i-no
+          AND rm-rcpth.trans-date   GE begin_date
+          AND rm-rcpth.trans-date   LE end_date
         USE-INDEX r-no
         BREAK BY rm-rcpth.trans-date DESC:
          IF FIRST(rm-rcpth.trans-date) THEN
@@ -1843,6 +1845,8 @@ SESSION:SET-WAIT-STATE ("general").
           WHERE rm-rcpth.r-no         EQ rm-rdtlh.r-no
             AND rm-rcpth.rita-code    EQ rm-rdtlh.rita-code
             AND rm-rcpth.i-no         EQ tt-rm-bin.i-no
+            AND rm-rcpth.trans-date   GE begin_date
+            AND rm-rcpth.trans-date   LE end_date
           USE-INDEX r-no
           BREAK BY rm-rcpth.trans-date DESCENDING:
                    IF FIRST(rm-rcpth.trans-date) THEN
@@ -1868,6 +1872,8 @@ SESSION:SET-WAIT-STATE ("general").
           WHERE rm-rcpth.r-no         EQ rm-rdtlh.r-no
             AND rm-rcpth.rita-code    EQ rm-rdtlh.rita-code
             AND rm-rcpth.i-no         EQ tt-rm-bin.i-no
+            AND rm-rcpth.trans-date   GE begin_date
+            AND rm-rcpth.trans-date   LE end_date
           USE-INDEX r-no
           BREAK BY rm-rcpth.trans-date DESCENDING:
 
@@ -1884,7 +1890,9 @@ SESSION:SET-WAIT-STATE ("general").
       FOR EACH rm-rcpth 
         WHERE rm-rcpth.company      EQ tt-rm-bin.company
           AND rm-rcpth.i-no         EQ tt-rm-bin.i-no
-          AND rm-rcpth.rita-code    NE "S" NO-LOCK
+          AND rm-rcpth.rita-code    NE "S" 
+          AND rm-rcpth.trans-date   GE begin_date
+          AND rm-rcpth.trans-date   LE end_date NO-LOCK
         USE-INDEX i-no                                                                                  
         BREAK BY rm-rcpth.trans-date DESCENDING:
 
