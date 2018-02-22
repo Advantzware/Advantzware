@@ -2031,17 +2031,16 @@ PROCEDURE reftable-values :
 
   IF AVAIL mach THEN DO:
     IF ip-display THEN
-      tb_plain-jobs = mach.plain-job.
+        ASSIGN 
+            tb_plain-jobs = mach.plain-job
+            tb_obsolete = mach.obsolete
+            .
     ELSE
-      mach.plain-job = tb_plain-jobs.
-
-
-   FIND CURRENT mach EXCLUSIVE-LOCK NO-ERROR. 
-    IF ip-display THEN
-      tb_obsolete = mach.obsolete.
-    ELSE
-      mach.obsolete = tb_obsolete.
-   FIND CURRENT mach NO-LOCK NO-ERROR.   
+        ASSIGN 
+            mach.plain-job = tb_plain-jobs
+            mach.obsolete = tb_obsolete
+            .
+   
   END.
 
 END PROCEDURE.
