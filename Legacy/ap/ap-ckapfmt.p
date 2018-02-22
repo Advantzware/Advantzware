@@ -127,8 +127,7 @@ if v-print-mode ne "ALIGN" then do:         /* production mode */
     ap-inv.pay-date = wdate.
 
     if ll eq 0 then do:
-      page.
-      
+            
       display skip(1)
               "Vendor ID: "
               v-vend-no
@@ -275,7 +274,7 @@ if v-print-mode ne "ALIGN" then do:         /* production mode */
          dol    = "".
       end. 
       ELSE IF ll-void THEN PUT SKIP(13 - lv-line-cnt) /* no total frame b3 */.
-
+      PUT UNFORMATTED CHR(12).
       ll = 0.
     end.
   end.
