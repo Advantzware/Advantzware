@@ -2294,25 +2294,19 @@ PROCEDURE get-matrix :
                
                  IF lRMOverrunCost AND NOT AVAIL po-ordl THEN
                     dConsumQty = lv-out-qty . 
+
+                 IF ll-add-setup AND lv-out-qty NE 0 THEN
+                           lv-out-cost = lv-out-cost + (lv-setup / lv-out-qty).
            
                 IF lRMOverrunCost THEN do:
                    IF lv-out-qty GT dConsumQty   THEN DO:
-                       IF ll-add-setup AND lv-out-qty NE 0 THEN
-                           lv-out-cost = lv-out-cost + (lv-setup / lv-out-qty).
-                       
                        ext-cost = ROUND(dConsumQty * lv-out-cost,2).
                    END.
                    ELSE DO:
-                       IF ll-add-setup AND lv-out-qty NE 0 THEN
-                    lv-out-cost = lv-out-cost + (lv-setup / lv-out-qty).
-                    
                     ext-cost = ROUND(lv-out-qty * lv-out-cost,2).
                    END.
                 END.
                 ELSE do:
-                    IF ll-add-setup AND lv-out-qty NE 0 THEN
-                    lv-out-cost = lv-out-cost + (lv-setup / lv-out-qty).
-
                      ext-cost = ROUND(lv-out-qty * lv-out-cost,2).
                 END.   
         END.
@@ -2453,27 +2447,21 @@ PROCEDURE get-matrix :
 
                 IF lRMOverrunCost AND NOT AVAIL po-ordl THEN
                     dConsumQty = lv-out-qty .
-
+        
+                 IF ll-add-setup AND lv-out-qty NE 0 THEN
+                           lv-out-cost = lv-out-cost + (lv-setup / lv-out-qty).
                
-                /*MESSAGE "dConsumQty " STRING(dConsumQty)  "en  " STRING(lv-out-qty) VIEW-AS ALERT-BOX ERROR .*/
+                
                 IF lRMOverrunCost THEN do:
                    IF lv-out-qty GT dConsumQty   THEN DO:
-                       IF ll-add-setup AND lv-out-qty NE 0 THEN
-                           lv-out-cost = lv-out-cost + (lv-setup / lv-out-qty).
                       
                        ext-cost = ROUND(dConsumQty * lv-out-cost,2).
                    END.
                    ELSE DO:
-                       IF ll-add-setup AND lv-out-qty NE 0 THEN
-                    lv-out-cost = lv-out-cost + (lv-setup / lv-out-qty).
-                    
                     ext-cost = ROUND(lv-out-qty * lv-out-cost,2).
                    END.
                 END.
                 ELSE do:
-                    IF ll-add-setup AND lv-out-qty NE 0 THEN
-                    lv-out-cost = lv-out-cost + (lv-setup / lv-out-qty).
-
                      ext-cost = ROUND(lv-out-qty * lv-out-cost,2).
                 END.   
 
