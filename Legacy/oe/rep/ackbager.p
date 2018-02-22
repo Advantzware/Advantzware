@@ -593,13 +593,13 @@ PUT "<FCourier New>"          .
         if oe-ordm.bill ne "N" THEN assign v-totord = v-totord + oe-ordm.amt.
       end. /* each oe-ordm */
        IF oe-ord.frt-pay EQ "B" THEN DO:
-           PUT "<C7>Plus Freight..." .
+           PUT "<C7>Plus Freight Charges" .
            PUT SKIP.
            v-printline = v-printline + 1.
        END.
 
        IF AVAIL shipto AND shipto.tax-code NE "" THEN DO:
-           PUT "<C7>Plus Tax ..." FORMAT "x(30)" .
+           PUT "<C7>Plus Tax" FORMAT "x(30)" .
            v-printline = v-printline + 1.
         END.
        
