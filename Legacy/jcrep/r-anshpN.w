@@ -4,7 +4,7 @@
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS C-Win 
 /*------------------------------------------------------------------------
 
-  File: jcrep\r-brdreN.w
+  File: jcrep\r-anshpN.w
 
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
@@ -58,11 +58,11 @@ DEF VAR cTextListToDefault AS cha NO-UNDO.
 
 
 ASSIGN cTextListToSelect = "JOB #,CUSTOMER,RM ITEM#,RM QTY RECD,FG ITEM#,FG QTY INVCD," + 
-                           "DIFFERENCE,FG QTY RECD,DIFFERENCE2,WASTE%,BOARD COST,FG MSF,RM MSF,INVOICE DATE"
+                           "DIFFERENCE,FG QTY RECD,DIFFERENCE2,WASTE%,BOARD COST,FG MSF,RM MSF,INVOICE DATE,BASIS WEIGHT,CATEGORY"
        cFieldListToSelect = "job,cust,rm-itm,rm-qty,fg-itm,fg-qty-in," +
-                            "diff,fg-qty-re,diff2,wast,brd-cst,t-msf,t-msf-rm,inv-date"
-       cFieldLength = "9,25,15,12,15,12," + "12,12,12,11,10,11,11,12"
-       cFieldType = "c,c,c,i,c,i," + "i,i,i,i,i,i,i,c" 
+                            "diff,fg-qty-re,diff2,wast,brd-cst,t-msf,t-msf-rm,inv-date,basis-wht,cat"
+       cFieldLength = "9,25,15,12,15,12," + "12,12,12,11,10,11,11,12,12,8"
+       cFieldType = "c,c,c,i,c,i," + "i,i,i,i,i,i,i,c,c,c" 
     .
 
 {sys/inc/ttRptSel.i}
@@ -373,7 +373,7 @@ DEFINE FRAME FRAME-A
 IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW C-Win ASSIGN
          HIDDEN             = YES
-         TITLE              = "Board Reconcilation"
+         TITLE              = "Annual Shipments"
          HEIGHT             = 26.1
          WIDTH              = 94.6
          MAX-HEIGHT         = 33.29
