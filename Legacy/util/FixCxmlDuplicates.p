@@ -21,6 +21,7 @@ DEFINE TEMP-TABLE ttOrdersToDelete
     FIELD iOrdNo  AS INTEGER 
     .
 DEFINE VARIABLE lDelete AS LOGICAL NO-UNDO.
+DEFINE BUFFER bf-oe-ord FOR oe-ord.
 
 /* ********************  Preprocessor Definitions  ******************** */
 
@@ -81,6 +82,26 @@ PROCEDURE pBuildList:
             ttOrdersToDelete.riOrder = ROWID(oe-ord)
             ttOrdersToDelete.cPONo   = oe-ord.po-no
             ttOrdersToDelete.iOrdNo  = oe-ord.ord-no
+            .
+    END.
+    
+    /* Found a case where an order with stat 'A' and same Po was found */
+    /* with no line items                                              */
+    FOR EACH company NO-LOCK,
+        EACH oe-ord NO-LOCK 
+        WHERE oe-ord.company      EQ company.company
+        AND oe-ord.stat         EQ 'W'
+        AND oe-ord.spare-char-3 NE '',
+        EACH bf-oe-ord NO-LOCK 
+           WHERE bf-oe-ord.company EQ company.company 
+             AND bf-oe-ord.po-no EQ oe-ord.po-no             
+             AND NOT CAN-FIND(FIRST oe-ordl OF bf-oe-ord)
+        :        
+        CREATE ttOrdersToDelete.
+        ASSIGN 
+            ttOrdersToDelete.riOrder = ROWID(bf-oe-ord)
+            ttOrdersToDelete.cPONo   = bf-oe-ord.po-no
+            ttOrdersToDelete.iOrdNo  = bf-oe-ord.ord-no
             .
     END.
 
