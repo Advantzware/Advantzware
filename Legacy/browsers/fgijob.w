@@ -1219,13 +1219,14 @@ PROCEDURE update-record :
         RELEASE bf-fg-bin.
     END.
     IF w-job.tot-wt:MODIFIED THEN DO:
-       FIND FIRST loadtag
+       FIND FIRST loadtag EXCLUSIVE-LOCK
           WHERE loadtag.company EQ cocode
-          AND loadtag.i-no    EQ b-w-job.i-no
-          AND loadtag.job-no  EQ b-w-job.job-no
-          AND loadtag.job-no2 EQ b-w-job.job-no2 
-          AND loadtag.tag-no EQ b-w-job.tag
-          EXCLUSIVE-LOCK NO-ERROR.
+          AND loadtag.i-no      EQ b-w-job.i-no
+          AND loadtag.job-no    EQ b-w-job.job-no
+          AND loadtag.job-no2   EQ b-w-job.job-no2 
+          AND loadtag.tag-no    EQ b-w-job.tag 
+       NO-ERROR.
+
        IF AVAIL loadtag THEN DO:
            ASSIGN loadtag.misc-dec[1] = (b-w-job.case-count * b-w-job.tot-wt) / 100
                   loadtag.misc-dec[2] = loadtag.misc-dec[1] * loadtag.qty-case. 
