@@ -222,7 +222,7 @@ if v-print-mode ne "ALIGN" then do:         /* production mode */
                 with frame u no-box no-labels stream-io no-attr-space.
             ll-void = YES.
       END.
-      display skip(2)
+      display skip(1)
               "Vendor ID: "
               v-vend-no
               space(8)
