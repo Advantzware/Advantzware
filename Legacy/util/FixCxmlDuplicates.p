@@ -92,11 +92,14 @@ PROCEDURE pBuildList:
         WHERE oe-ord.company      EQ company.company
         AND oe-ord.stat         EQ 'W'
         AND oe-ord.spare-char-3 NE '',
-        EACH bf-oe-ord NO-LOCK 
-           WHERE bf-oe-ord.company EQ company.company 
-             AND bf-oe-ord.po-no EQ oe-ord.po-no             
-             AND NOT CAN-FIND(FIRST oe-ordl OF bf-oe-ord)
-        :        
+        
+        FIRST bf-oe-ord NO-LOCK 
+           WHERE bf-oe-ord.company EQ company.company             
+             AND bf-oe-ord.po-no EQ oe-ord.po-no    
+              AND ROWID(bf-oe-ord) NE ROWID(oe-ord)
+              AND NOT CAN-FIND(FIRST oe-ordl OF bf-oe-ord)        
+             USE-INDEX po-no  
+    :          
         CREATE ttOrdersToDelete.
         ASSIGN 
             ttOrdersToDelete.riOrder = ROWID(bf-oe-ord)
