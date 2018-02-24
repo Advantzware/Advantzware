@@ -242,7 +242,13 @@ DO:
            AND fg-rcpth.trans-date GE scr-date-from 
            AND fg-rcpth.trans-date LE scr-date-to NO-LOCK, 
          EACH fg-rdtlh WHERE fg-rdtlh.r-no EQ fg-rcpth.r-no 
-         AND fg-rdtlh.rita-code EQ fg-rcpth.rita-code NO-LOCK:
+         AND fg-rdtlh.rita-code EQ fg-rcpth.rita-code NO-LOCK :
+
+        FIND FIRST oe-bolh NO-LOCK
+          WHERE oe-bolh.company EQ cocode
+            AND oe-bolh.b-no    EQ fg-rcpth.b-no NO-ERROR .
+        
+        IF AVAIL oe-bolh THEN NEXT .
 
          PUT STREAM excel UNFORMATTED
              SKIP
