@@ -10,7 +10,7 @@ PUT
   "<C1><R-1><#1><R+5><C+25>".
 
 IF (AVAIL tt-bolx AND tt-bolx.print-logo) OR NOT AVAIL tt-bolx THEN
-   PUT "<IMAGE#1=" + ls-full-img1 FORM "x(180)".
+   PUT "<IMAGE#1=" + ls-full-img1 FORM "x(200)".
 
   PUT SKIP 
   "<=1><R+2>" "<FGCOLOR=" + TRIM(lv-comp-color) + ">" FORM "x(15)"

@@ -44,7 +44,7 @@ def var v-part-line as char NO-UNDO.
 
 
 DEF VAR ls-image1      AS CHAR                NO-UNDO.
-DEF VAR ls-full-img1   AS CHAR FORMAT "x(150)" NO-UNDO.
+DEF VAR ls-full-img1   AS CHAR FORMAT "x(200)" NO-UNDO.
 
 DEF VAR lv-bol-no LIKE oe-bolh.bol-no NO-UNDO.
 DEF BUFFER xar-inv FOR ar-inv.

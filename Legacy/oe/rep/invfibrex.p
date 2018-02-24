@@ -38,7 +38,7 @@ def var v-price-head as char format "x(4)" no-undo.
 DEF VAR v-subtot-lines AS DEC NO-UNDO.
 DEF VAR v-inv-freight LIKE inv-head.t-inv-freight NO-UNDO.
 DEF VAR ls-image1 AS cha NO-UNDO.
-DEF VAR ls-full-img1 AS cha FORM "x(150)" NO-UNDO.
+DEF VAR ls-full-img1 AS cha FORM "x(200)" NO-UNDO.
 DEF VAR v-terms AS CHAR NO-UNDO.
 
 /* gdm - 04160924 */

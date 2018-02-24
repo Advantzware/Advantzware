@@ -109,7 +109,7 @@ DEF BUFFER b-inv-misc FOR inv-misc.
 DEF SHARED VAR nsv_setcomp AS LOGICAL NO-UNDO.
 
 DEF VAR ls-image1 AS cha NO-UNDO.
-DEF VAR ls-full-img1 AS cha FORM "x(150)" NO-UNDO.
+DEF VAR ls-full-img1 AS cha FORM "x(200)" NO-UNDO.
 
 ASSIGN ls-image1 = "images\packrite.jpg"
        FILE-INFO:FILE-NAME = ls-image1

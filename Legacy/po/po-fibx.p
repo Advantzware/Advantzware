@@ -72,7 +72,7 @@ DEF VAR li-page AS INT NO-UNDO.
 
 /* === with xprint ====*/
 DEF VAR ls-image1 AS cha NO-UNDO.
-DEF VAR ls-full-img1 AS cha FORM "x(80)" NO-UNDO.
+DEF VAR ls-full-img1 AS cha FORM "x(200)" NO-UNDO.
 ASSIGN
    ls-image1 = "images\fibrelog.bmp"
    FILE-INFO:FILE-NAME = ls-image1

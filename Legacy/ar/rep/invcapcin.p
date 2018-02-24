@@ -87,7 +87,7 @@ DEF VAR v-tot-tax AS DEC NO-UNDO.
 
 FIND FIRST ar-inv NO-LOCK NO-ERROR.
 DEF VAR ls-image1    AS CHAR NO-UNDO.
-DEF VAR ls-full-img1 AS CHAR FORMAT "x(150)" NO-UNDO.
+DEF VAR ls-full-img1 AS CHAR FORMAT "x(200)" NO-UNDO.
 
 ASSIGN 
     ls-image1 = "images\capcity.jpg"
