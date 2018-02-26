@@ -117,7 +117,7 @@ DEFINE BUTTON Btn_Button-9
 DEFINE VARIABLE keystroke AS CHARACTER FORMAT "X(256)":U 
      LABEL "Search" 
      VIEW-AS FILL-IN 
-     SIZE 40 BY .9 TOOLTIP "Password"
+     SIZE 40 BY .91 TOOLTIP "Password"
      BGCOLOR 0 FGCOLOR 15  NO-UNDO.
 
 DEFINE RECTANGLE RECT-1
@@ -359,7 +359,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL keystroke s-object
 ON ANY-PRINTABLE OF keystroke IN FRAME F-Main /* Search */
 DO:
-    RUN Key_Stroke (KEYLABEL(LASTKEY)). 
+    RUN Key_Stroke (KEYLABEL(LASTKEY)).    
     RETURN NO-APPLY.
 END.
 
@@ -371,6 +371,18 @@ END.
 ON RETURN OF keystroke IN FRAME F-Main /* Search */
 DO:
     RUN pClick ("AcceptPassword").
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL keystroke s-object
+ON VALUE-CHANGED OF keystroke IN FRAME F-Main /* Search */
+DO:
+    field_value = SELF:SCREEN-VALUE.
+    RUN Get_Employees.
+    RETURN NO-APPLY.
 END.
 
 /* _UIB-CODE-BLOCK-END */
