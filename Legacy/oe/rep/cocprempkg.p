@@ -11,7 +11,7 @@ DEFINE INPUT PARAMETER ip-bol-recid AS RECID NO-UNDO.
 
 def var v-cust-addr3 as char format "x(30)".
 DEF VAR ls-image1 AS cha NO-UNDO.
-DEF VAR ls-full-img1 AS cha FORM "x(50)" NO-UNDO.
+DEF VAR ls-full-img1 AS cha FORM "x(200)" NO-UNDO.
 DEF VAR v-manuf-date AS DATE INIT 12/31/2999 NO-UNDO.
 def var v-bol-qty    like oe-boll.qty NO-UNDO.
 DEF VAR v-type AS CHAR NO-UNDO.

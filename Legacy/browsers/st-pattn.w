@@ -153,7 +153,7 @@ DEFINE BROWSE Browser-Table
              strap.val[1] strap.code2 strap.dscr pattern.dscr
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ASSIGN SEPARATORS SIZE 196 BY 18.1
+    WITH NO-ASSIGN SEPARATORS SIZE 146 BY 18.1
          FONT 2.
 
 
@@ -203,8 +203,8 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW B-table-Win ASSIGN
-         HEIGHT             = 19.52
-         WIDTH              = 146.4.
+         HEIGHT             = 19.57
+         WIDTH              = 148.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -229,7 +229,7 @@ END.
   NOT-VISIBLE,,RUN-PERSISTENT                                           */
 /* SETTINGS FOR FRAME F-Main
    NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
-/* BROWSE-TAB Browser-Table TEXT-1 F-Main */
+/* BROWSE-TAB Browser-Table 1 F-Main */
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.

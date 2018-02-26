@@ -72,7 +72,6 @@ DEFINE OUTPUT PARAMETER opdtAgeDate AS DATE NO-UNDO.
 DEFINE BUFFER bf-rm-bin FOR rm-bin.
 DEFINE BUFFER bf-rm-rdtlh FOR rm-rdtlh.
 DEFINE BUFFER bf-rm-rcpth FOR rm-rcpth.
-DEFINE BUFFER bf-reftable FOR reftable.
 
 FIND FIRST bf-rm-bin 
     WHERE ROWID(bf-rm-bin) EQ ipriRmBin
@@ -80,19 +79,10 @@ FIND FIRST bf-rm-bin
 
 IF NOT AVAIL bf-rm-bin THEN RETURN.
 
-FIND FIRST bf-reftable NO-LOCK
-    WHERE bf-reftable.reftable EQ "rm-bin.age-date"
-      AND bf-reftable.company  EQ bf-rm-bin.company
-      AND bf-reftable.loc      EQ bf-rm-bin.i-no
-      AND bf-reftable.code     EQ STRING(bf-rm-bin.loc,"x(50)") +
-                                  STRING(bf-rm-bin.loc-bin,"x(50)")
-      AND bf-reftable.code2    EQ bf-rm-bin.tag
-    NO-ERROR.
+    IF bf-rm-bin.aging-date <> ? THEN
+        opdtAgeDate = bf-rm-bin.aging-date.
+    ELSE IF TRIM(bf-rm-bin.tag) EQ "" THEN DO:
 
-IF AVAIL bf-reftable THEN 
-    opdtAgeDate = DATE(INT(bf-reftable.val[1])).
-ELSE
-    IF TRIM(bf-rm-bin.tag) EQ "" THEN DO:
     
         /* Match loc, loc-bin, PO and blank tag */      
         FOR EACH bf-rm-rcpth NO-LOCK

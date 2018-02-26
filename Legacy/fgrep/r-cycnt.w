@@ -15,8 +15,9 @@ assign
  locode = gloc.
 
 DO TRANSACTION:
-   {sys/inc/selrptcol.i "IC1" }
+   {sys/inc/runAOAVer.i "IC1" }
 END.
 
-IF SelectRptColumn-log THEN RUN fgrep/r-cycntN.w PERSISTENT.
-ELSE RUN fgrep/r-cycntA.w PERSISTENT.
+cAOAFile = SEARCH("AOA/r-cycnt.p").
+IF RunAOAVersion-log AND cAOAFile NE ? THEN RUN AOA/r-cycnt.p.
+ELSE RUN fgrep/r-cycntN.w PERSISTENT.

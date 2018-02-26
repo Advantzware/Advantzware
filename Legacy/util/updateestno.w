@@ -774,22 +774,7 @@ PROCEDURE replace-est-proc :
        reftable.loc = NEW_est.
    END.
 
-   FOR EACH reftable WHERE
-       reftable.reftable EQ "dropslit" AND
-       reftable.company  EQ cocode AND
-       reftable.CODE      EQ new_est:
-
-       DELETE reftable.
-   END.
-
-   FOR EACH reftable WHERE
-       reftable.reftable EQ "dropslit" AND
-       reftable.company  EQ cocode AND
-       reftable.CODE     EQ begin_est:
-
-       reftable.CODE = NEW_est.
-   END.
-
+  
    FOR EACH reftable WHERE
        reftable.reftable EQ "est/getqty.w" AND
        reftable.company  EQ cocode AND

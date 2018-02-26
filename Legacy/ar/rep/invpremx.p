@@ -86,7 +86,7 @@ DEF SHARED VAR s-print-zero-qty AS LOG NO-UNDO.
 
 /* === with xprint ====*/
 DEF VAR ls-image1 AS cha NO-UNDO.
-DEF VAR ls-full-img1 AS cha FORM "x(150)" NO-UNDO.
+DEF VAR ls-full-img1 AS cha FORM "x(200)" NO-UNDO.
 /*ASSIGN                                          */
 /*   ls-image1 = "images\premiercan.jpg"          */
 /*   FILE-INFO:FILE-NAME = ls-image1              */
@@ -516,7 +516,24 @@ END.
        ASSIGN xar-inv.printed = yes.
               xar-inv.stat = "X".
     END. /* DO TRANSACTION avail ar-inv */ 
- 
-    end. /* each ar-inv */
+    /* Create eddoc for invoice if required */
+    RUN ed/asi/o810hook.p (recid(ar-inv), no, no).  
+    FIND FIRST edmast NO-LOCK
+          WHERE edmast.cust EQ ar-inv.cust-no
+          NO-ERROR.
+    IF AVAIL edmast THEN 
+    DO: 
+        FIND FIRST edcode NO-LOCK
+            WHERE edcode.partner EQ edmast.partner
+            NO-ERROR.
+        IF NOT AVAIL edcode THEN 
+            FIND FIRST edcode NO-LOCK
+                WHERE edcode.partner EQ edmast.partnerGrp
+                NO-ERROR.
+    END.  
+
+   IF AVAIL edcode AND edcode.sendFileOnPrint THEN
+    RUN ed/asi/write810.p (INPUT cocode).
+  end. /* each ar-inv */
 
 /* END ---------------------------------- copr. 1996 Advanced Software, Inc. */

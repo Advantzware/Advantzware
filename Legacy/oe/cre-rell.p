@@ -358,10 +358,6 @@ PROCEDURE create-oe-rell :
 ------------------------------------------------------------------------------*/
 DEF OUTPUT PARAMETER opr-oerell AS ROWID NO-UNDO.
 
-  FIND FIRST reftable
-      WHERE reftable.reftable EQ "oe-rel.s-code"
-        AND reftable.company  EQ STRING(oe-rel.r-no,"9999999999")
-      NO-LOCK NO-ERROR.
   
   CREATE oe-rell.
   ASSIGN
@@ -385,15 +381,14 @@ DEF OUTPUT PARAMETER opr-oerell AS ROWID NO-UNDO.
    oe-rell.deleted = NO
    /** Set link to the planned releases **/
    oe-rell.link-no = oe-rel.r-no
-   oe-rell.s-code  = IF AVAIL reftable THEN reftable.code ELSE
+   oe-rell.s-code  = IF oe-rel.s-code <> "" THEN oe-rel.s-code ELSE
                      IF oe-ordl.is-a-component THEN "S" ELSE
                      IF AVAIL oe-ctrl AND oe-ctrl.ship-from THEN "B" ELSE "I".
   opr-oerell = ROWID(oe-rell).
 
   IF oe-rell.s-code EQ "I" THEN 
       oe-rell.partial = oe-ordl.partial.
-  
-  RELEASE reftable.
+   
 
   FIND FIRST b-reftable NO-LOCK
       WHERE b-reftable.reftable EQ "oe-rel.lot-no"
@@ -408,14 +403,9 @@ DEF OUTPUT PARAMETER opr-oerell AS ROWID NO-UNDO.
     RELEASE b-reftable.
   END.
 
-FIND FIRST b-reftable NO-LOCK
-      WHERE b-reftable.reftable EQ "oe-rel.sell-price"
-        AND b-reftable.company  EQ STRING(oe-rel.r-no,"9999999999")
-      NO-ERROR.
-
-    ASSIGN
-       oe-rell.newSellPrice = b-reftable.val[1]
-       oe-rell.newZeroPrice = b-reftable.val[2].
+  ASSIGN
+       oe-rell.newSellPrice = oe-rel.sell-price
+       oe-rell.newZeroPrice = oe-rel.zeroPrice.
 
   IF oe-rell.qty-case EQ 0 THEN
     oe-rell.qty-case = IF AVAIL itemfg AND itemfg.case-count GT 0
@@ -802,11 +792,8 @@ PROCEDURE rel-bin-process :
 
   IF lv-job-no EQ "-00" THEN lv-job-no = "".
 
-  FIND FIRST reftable
-      WHERE reftable.reftable EQ "oe-rel.s-code"
-        AND reftable.company  EQ STRING(oe-rel.r-no,"9999999999")
-      NO-LOCK NO-ERROR.
-  v-s-code  = IF AVAIL reftable THEN reftable.code ELSE
+  
+  v-s-code  = IF oe-rel.s-code <> "" THEN oe-rel.s-code ELSE
                     IF oe-ordl.is-a-component THEN "S" ELSE
                     IF AVAIL oe-ctrl AND oe-ctrl.ship-from THEN "B" ELSE "I".
   IF addrelse-cha EQ "Bin/Tag" AND oe-rel.tot-qty > 0 AND v-s-code NE "I" THEN  /*task# 09200502*/

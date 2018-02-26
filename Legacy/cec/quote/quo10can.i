@@ -6,6 +6,7 @@
 FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
 
   numfit = 0.
+  ll-prt-dscr2 = s-print-2nd-dscr AND xqitm.part-dscr2 NE "".
 
   FOR EACH xqqty OF xqitm NO-LOCK:
     numfit = numfit + 1.
@@ -48,7 +49,7 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
        (eb.cad-no NE "" OR eb.plate-no ne "") THEN numfit = 5. 
      numfit = 5. */
   END.
-  IF numfit < 5 THEN numfit = 5.
+  IF numfit < 9 THEN numfit = 9.
 
   FIND FIRST xqqty OF xqitm NO-LOCK NO-ERROR.
   FIND FIRST itemfg WHERE itemfg.company = xqitm.company
@@ -60,22 +61,14 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
       lv-est-no = IF AVAIL eb THEN xquo.est-no ELSE "".
       lv-part-dscr1 = IF AVAIL est AND est.est-type EQ 6 AND AVAIL itemfg THEN itemfg.i-name
                       ELSE xqitm.part-dscr1.
-      put trim(lv-est-no) FORM "x(6)" SPACE(1) 
+      PUT SPACE(2) trim(lv-est-no) FORM "x(6)" SPACE(1) 
           xqitm.part-no space(1) lv-part-dscr1.  
          
     END.
-
     ELSE
     IF i EQ 2 THEN DO:
       trim-size = "".
       IF AVAIL est AND est.est-type = 6 THEN DO: /* set header */
-         IF LENGTH(TRIM(xqitm.size)) GT 24 THEN
-         DO cc = 1 TO LENGTH(xqitm.size):
-            IF SUBSTR(xqitm.size,cc,1) NE "" THEN
-               trim-size = trim-size + SUBSTR(xqitm.size,cc,1).
-         end.
-
-         ELSE trim-size = xqitm.size.
          IF AVAIL eb THEN FIND FIRST bf-eb WHERE bf-eb.company = xquo.company
                             AND bf-eb.est-no = xquo.est-no
                             AND bf-eb.form-no > 0
@@ -91,48 +84,81 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
            FIND FIRST style WHERE style.company = xqitm.company
                          AND xqitm.style = style.style NO-LOCK NO-ERROR.
            style-dscr = IF AVAIL style THEN style.dscr ELSE xqitm.style.
+           
+      END.
+      PUT "<C26>" style-dscr  FORM "x(30)" .
+     
+    END.
+    ELSE IF i EQ 3 THEN DO:  
+      IF ll-prt-dscr2 AND xqitm.part-dscr2 NE "" THEN do:
+           PUT "<C26>" xqitm.part-dscr2  .
+      END.
+       ELSE NEXT .
+    END.
+     ELSE
+    IF i EQ 4 THEN DO:
+      trim-size = "".
+      IF AVAIL est AND est.est-type = 6 THEN DO: /* set header */
+         IF LENGTH(TRIM(xqitm.size)) GT 24 THEN
+         DO cc = 1 TO LENGTH(xqitm.size):
+            IF SUBSTR(xqitm.size,cc,1) NE "" THEN
+               trim-size = trim-size + SUBSTR(xqitm.size,cc,1).
+         end.
 
+         ELSE trim-size = xqitm.size.
+      END.
+      ELSE DO:
+           
            IF AVAIL eb AND AVAIL style AND int(style.industry) > 1 THEN
-             trim-size = STRING({sys/inc/k16v.i eb.len},">>9.99") + "x" + STRING({sys/inc/k16v.i eb.wid},">>9.99")
-                  + "x" + STRING({sys/inc/k16v.i eb.dep},">>9.99").
+             trim-size = STRING({sys/inc/k16v.i eb.len},">>9.99") + " x " + STRING({sys/inc/k16v.i eb.wid},">>9.99")
+                  + " x " + STRING({sys/inc/k16v.i eb.dep},">>9.99").
 
-           ELSE IF AVAIL eb THEN trim-size = STRING(eb.len) + "x" + STRING(eb.wid)
-                  + "x" + STRING(eb.dep).
+           ELSE IF AVAIL eb THEN trim-size = STRING(eb.len) + " x " + STRING(eb.wid)
+                  + " x " + STRING(eb.dep).
 
            ELSE trim-size = "".
       END.
-
-      PUT  /*xquo.q-no*/  trim-size AT 8 FORM "x(21)"
-              /*xqitm.style*/  style-dscr   .
+     IF trim-size NE "" THEN
+         PUT  "<C26>" trim-size  FORM "x(30)" .
+     ELSE NEXT .
+                 
     END.
     ELSE
-    IF i EQ 3 THEN
-      PUT     "DIE#: " + IF AVAIL eb THEN eb.die-no ELSE "" AT 8 FORM "x(21)"
-              xqitm.i-coldscr  AT 29 FORM "x(30)".
+    IF i EQ 5 THEN do:
+         IF xqitm.i-coldscr NE "" THEN
+         PUT "<C26>" xqitm.i-coldscr   FORM "x(30)".
+         ELSE NEXT .
+    END.
     ELSE
-    IF i EQ 4 THEN DO:
-      
-       PUT "CAD#: " + (IF AVAIL eb THEN eb.cad-no ELSE "") AT 8  FORM "x(21)"         
-           IF AVAIL ef THEN ef.brd-dscr /*xqitm.i-dscr*/ ELSE ""  AT 29 FORMAT "x(30)".
+    IF i EQ 6 THEN DO:
+        IF xqitm.i-dscr NE "" THEN
+        PUT "<C26>" IF xqitm.i-dscr NE "" THEN xqitm.i-dscr ELSE IF AVAIL ef THEN ef.brd-dscr ELSE ""   FORMAT "x(30)".
+        ELSE NEXT .
     END.
 
     ELSE
-    IF i EQ 5 /* AND numfit GE 5 */ THEN DO:
+    IF i EQ 7 /* AND numfit GE 6 */ THEN DO:
+       lv-fg# = IF AVAIL eb THEN eb.stock-no ELSE xqitm.part-no .
+       put "<C26>FG#: " + lv-fg#  FORM "x(30)" .
+    END.
+    ELSE
+    IF i EQ 8 /* AND numfit GE 7 */ THEN DO:
+       PUT     "<C26>DIE#: " + IF AVAIL eb THEN eb.die-no ELSE ""  FORM "x(30)" .
+
+    END.
+    ELSE
+    IF i EQ 9 /* AND numfit GE 8 */ THEN DO:
        v-board = IF AVAIL ef THEN
                   ef.adder[1] + " " + ef.adder[2] + " " + ef.adder[3] + " " +
                   ef.adder[4] + " " + ef.adder[5] + " " + ef.adder[6]
                 ELSE "".
-
-       lv-fg# = /*IF est.est-type EQ 6 THEN xqitm.part-no 
-                ELSE IF AVAIL eb THEN*/ IF AVAIL eb THEN eb.stock-no ELSE xqitm.part-no
-                /*ELSE ""*/ .
-       put "FG#: " + lv-fg# AT 8 FORM "x(21)"
-           /*"PLATE#: " + (IF AVAIL eb THEN eb.plate-no  ELSE "")*/
-            v-board FORM "x(30)" /*SKIP(1)*/  .                                           
-
+      
+       PUT "<C26>CAD#: " + (IF AVAIL eb THEN eb.cad-no ELSE "")  FORM "x(30)" .
+           IF v-board NE "" THEN
+               PUT "<C26>" v-board  FORM "x(30)" /*SKIP(1)*/  .  
 
     END.
-    IF i > 5 THEN PUT SPACE(58) .
+    IF i > 9 THEN PUT SPACE(58) .
 
     IF AVAIL xqqty THEN DO:
        xxx    = IF xqqty.uom EQ "L" THEN xqqty.price    ELSE
@@ -142,15 +168,7 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
                   ((xqqty.qty / 1000) * xqqty.price)    ELSE
                   (xqqty.qty * xqqty.price).
 
-    /*  IF i EQ 3 THEN
-        PUT xqqty.qty           TO 70   FORMAT ">>>>>>9"
-            xqqty.rels          TO 85   FORMAT ">>9"   
-            xqqty.price         TO 95   FORMAT ">>,>>9.99" 
-            xqqty.uom           TO 100  .
- 
-      ELSE*/ 
-
-       put xqqty.qty /* xqqty.rels*/ space(9)
+       PUT "<C51>" xqqty.qty /* xqqty.rels*/ space(9)
                xqqty.price FORM "->>,>>9.99" space(6)
                xqqty.uom  .
               
@@ -210,7 +228,7 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
       END.
       ELSE temp-trim-size = trim-size.
     
-      put eb.part-no AT 8 FORM "x(21)" temp-trim-size   SKIP.
+      put eb.part-no AT 10 FORM "x(21)" temp-trim-size   SKIP.
       IF LINE-COUNTER GT PAGE-SIZE - 2 THEN DO: 
            page.  
            {cec/quote/quo10can2.i}
@@ -222,7 +240,7 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
             AND style.style   EQ eb.style
           NO-LOCK NO-ERROR.
       style-dscr = IF AVAIL style THEN style.dscr ELSE eb.style.      
-      PUT eb.part-dscr1 AT 8 FORM "x(21)"
+      PUT eb.part-dscr1 AT 10 FORM "x(21)"
           style-dscr SKIP.
       IF LINE-COUNTER GT PAGE-SIZE - 2 THEN DO: 
            page.  
@@ -255,7 +273,7 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
             v-printline = 0.
       END.
 
-      PUT eb.part-dscr2  AT 8  FORM "x(21)"
+      PUT eb.part-dscr2  AT 10  FORM "x(21)"
           v-board     SKIP .
 
       IF LINE-COUNTER GT PAGE-SIZE - 2 THEN DO: 

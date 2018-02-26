@@ -543,10 +543,15 @@ ASSIGN
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Browser-Table B-table-Win
 ON MOUSE-SELECT-DBLCLICK OF Browser-Table IN FRAME F-Main
 DO:
-  IF USERID("nosweat") EQ "asi" THEN DO:
-    RUN set-read-only (NO).
-
-    APPLY "entry" TO rm-rcpth.i-no IN BROWSE {&browse-name}.
+    DEFINE VARIABLE ll       AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lv-rowid AS ROWID   NO-UNDO. 
+ 
+  IF USERID("nosweat") EQ "asi" OR AVAIL users AND users.securityLevel GT 899 THEN DO:
+     
+    RUN rminq/d-rmiinq.w (ROWID(rm-rcpth),ROWID(rm-rdtlh), "update", OUTPUT lv-rowid) .
+    
+    RUN repo-query (ROWID(rm-rcpth)).
+    
   END.
 END.
 
@@ -1109,9 +1114,16 @@ END.
 {methods/browsers/setCellColumns.i}    
 SESSION:DATA-ENTRY-RETURN = YES.
 
+
+
 &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
 RUN dispatch IN THIS-PROCEDURE ('initialize':U).
 &ENDIF
+
+DO WITH FRAME {&FRAME-NAME}:
+    fi_date:SCREEN-VALUE = STRING(TODAY - 180) .
+    fi_date = TODAY - 180 .
+  END.
 
 {methods/winReSize.i}
 /*
@@ -1391,7 +1403,7 @@ PROCEDURE local-display-fields :
       users.user_id EQ USERID(LDBNAME(1)) 
       NO-ERROR.
   
-  IF AVAIL users AND users.securityLevel LE 900 THEN
+  IF AVAIL users AND users.securityLevel LT 900 THEN
      ASSIGN btCopy:HIDDEN = YES
             btCopy:SENSITIVE = NO
             btDelete:HIDDEN = YES

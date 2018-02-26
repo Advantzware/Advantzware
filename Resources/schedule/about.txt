@@ -14,8 +14,13 @@
 
  History:
 
- r4.004 (updated 12.5.2017)
- * licensed ability to generate resource html pages
+ r4.004 (updated 1.15.2018)
+ * expanded format for gross length & width fields
+ * data collection view adjusted for scheduled machines
+
+ r4.004 (updated 12.15.2017)
+ * ability to generate html pages (licensed feature)
+ * ability for board to run unattended
 
  r4.003 (updated 11.3.2017)
  * added field "sb status"

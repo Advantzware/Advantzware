@@ -32,7 +32,7 @@ DEF VAR v-ship-i       AS CHAR FORMAT "x(25)" NO-UNDO.
 DEF VAR v-price-head   AS CHAR FORMAT "x(5)"  NO-UNDO.
 DEF VAR v-bot-lab      AS CHAR FORMAT "x(63)" NO-UNDO EXTENT 3.
 DEF VAR ls-image1      AS CHAR                NO-UNDO.
-DEF VAR ls-full-img1   AS CHAR FORMAT "x(150)" NO-UNDO.
+DEF VAR ls-full-img1   AS CHAR FORMAT "x(200)" NO-UNDO.
 DEF VAR v-tel          AS CHAR FORMAT "x(30)" NO-UNDO.
 DEF VAR v-fax          AS CHAR FORMAT "x(30)" NO-UNDO.
 DEF VAR v-contact      AS CHAR FORMAT "x(20)" NO-UNDO.
@@ -386,10 +386,6 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
                v-pc       = "P" /* partial*/ 
                i          = 0.
 
-        FIND FIRST reftable NO-LOCK
-          WHERE reftable.reftable EQ "inv-line.lot-no" 
-            AND reftable.rec_key  EQ inv-line.rec_key
-            USE-INDEX rec_key NO-ERROR.
 
         FOR EACH oe-boll NO-LOCK 
           WHERE oe-boll.company EQ inv-line.company
@@ -403,11 +399,10 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
 
         END. /* each oe-boll */
 
-        IF AVAIL reftable 
-          THEN v-case-cnt[1] = v-case-cnt[1] + 
+
+          v-case-cnt[1] = v-case-cnt[1] + 
                                FILL(" ",32 - LENGTH(v-case-cnt[1])) 
-                               /*+ 
-                               reftable.CODE*/ .
+                                .
 
         IF v-printline > 50 THEN DO:
           PAGE.

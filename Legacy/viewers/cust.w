@@ -58,24 +58,6 @@ DEF BUFFER bf-cust FOR cust.
 /* gdm - 08240904 */
 DEF VAR v-inv-fmt2 AS CHAR NO-UNDO.
 
-&SCOPED-DEFINE where-po-mand                  ~
-    WHERE reftable.reftable EQ "cust.po-mand" ~
-      AND reftable.company  EQ cust.company   ~
-      AND reftable.loc      EQ ""             ~
-      AND reftable.code     EQ cust.cust-no
-
-&SCOPED-DEFINE where-show-set                 ~
-    WHERE reftable.reftable EQ "cust.show-set" ~
-      AND reftable.company  EQ cust.company   ~
-      AND reftable.loc      EQ ""             ~
-      AND reftable.code     EQ cust.cust-no
-
-&SCOPED-DEFINE where-flat-comm                  ~
-    WHERE reftable.reftable EQ "cust.flat-comm" ~
-      AND reftable.company  EQ cust.company     ~
-      AND reftable.loc      EQ ""               ~
-      AND reftable.code     EQ cust.cust-no
-
 DO TRANSACTION:
    {sys/inc/custpass.i}
 
@@ -2465,54 +2447,21 @@ PROCEDURE reftable-values :
   DEF INPUT PARAM ip-display AS LOG NO-UNDO.
 
   IF AVAIL cust THEN DO:
-    FIND FIRST reftable {&where-po-mand} NO-ERROR.
-    IF NOT AVAIL reftable THEN DO:
-      CREATE reftable.
-      ASSIGN
-       reftable.reftable = "cust.po-mand"
-       reftable.company  = cust.company
-       reftable.loc      = ""
-       reftable.code     = cust.cust-no.
-    END.
+   
+    IF ip-display THEN 
+        ASSIGN
+        tb_po-mand = cust.po-mandatory 
+        tb_show-set = cust.show-set .
+    ELSE
+        ASSIGN
+            cust.po-mandatory = (tb_po-mand)
+            cust.show-set = tb_show-set .
 
     IF ip-display THEN
-      tb_po-mand = reftable.val[1] EQ 1.
+      fi_flat-comm = cust.flatCommPct.
     ELSE
-      reftable.val[1] = INT(tb_po-mand).
+      cust.flatCommPct = fi_flat-comm.
 
-
-    FIND FIRST reftable {&where-show-set} NO-ERROR.
-    IF NOT AVAIL reftable THEN DO:
-      CREATE reftable.
-      ASSIGN
-       reftable.reftable = "cust.show-set"
-       reftable.company  = cust.company
-       reftable.loc      = ""
-       reftable.code     = cust.cust-no
-       reftable.val[1]   = 1.
-    END.
-
-    IF ip-display THEN
-      tb_show-set = reftable.val[1] EQ 1.
-    ELSE
-      reftable.val[1] = INT(tb_show-set).
-
-    FIND FIRST reftable {&where-flat-comm} NO-ERROR.
-    IF NOT AVAIL reftable THEN DO:
-      CREATE reftable.
-      ASSIGN
-       reftable.reftable = "cust.flat-comm"
-       reftable.company  = cust.company
-       reftable.loc      = ""
-       reftable.code     = cust.cust-no.
-    END.
-
-    IF ip-display THEN
-      fi_flat-comm = reftable.val[1].
-    ELSE
-      reftable.val[1] = fi_flat-comm.
-
-    FIND CURRENT reftable NO-LOCK.
   END.
 
 END PROCEDURE.

@@ -21,6 +21,53 @@ DEFINE VARIABLE lvDowntimeSpan AS INTEGER NO-UNDO.
 DEFINE VARIABLE lvResSeq AS INTEGER NO-UNDO.
 DEFINE VARIABLE lvJob AS CHARACTER NO-UNDO.
 DEFINE VARIABLE statusStr AS CHARACTER NO-UNDO.
+DEFINE VARIABLE hTtblJob AS HANDLE NO-UNDO.
+DEFINE VARIABLE hPendingJob AS HANDLE NO-UNDO.
+
+DEFINE TEMP-TABLE ttHTMLFields NO-UNDO
+    FIELD fieldType   AS CHARACTER 
+    FIELD fieldLabel  AS CHARACTER
+    FIELD fieldName   AS CHARACTER
+    FIELD fieldFormat AS CHARACTER
+        INDEX ttHTMLFields IS PRIMARY fieldType
+        .
+
+FUNCTION fHTMLFieldValue RETURNS CHARACTER
+    (ipcTable       AS CHARACTER,
+     ipcFieldLabel  AS CHARACTER,
+     ipcFieldName   AS CHARACTER,
+     ipcFieldFormat AS CHARACTER
+     ):
+        
+    DEFINE VARIABLE cFieldValue AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE hTable      AS HANDLE    NO-UNDO.
+    
+    CASE ipcTable:
+        WHEN "Job" THEN hTable = hTtblJob.
+        WHEN "Pending" THEN hTable = hPendingJob.
+    END CASE.
+
+    /* special case fields */
+    CASE ipcFieldLabel:
+        WHEN 'Downtime' THEN
+        cFieldValue = STRING(specialTime(hTable:BUFFER-FIELD("downtimeSpan"):BUFFER-VALUE()),ipcFieldFormat).
+        WHEN 'Due Time' THEN
+        cFieldValue = STRING(hTable:BUFFER-FIELD("dueTime"):BUFFER-VALUE(),ipcFieldFormat).
+        WHEN 'End Time' THEN
+        cFieldValue = STRING(hTable:BUFFER-FIELD("endTime"):BUFFER-VALUE(),ipcFieldFormat).
+        WHEN 'Job Time' THEN
+        cFieldValue = STRING(specialTime(hTable:BUFFER-FIELD("timeSpan"):BUFFER-VALUE()),ipcFieldFormat).
+        WHEN 'Start Time' THEN
+        cFieldValue = STRING(hTable:BUFFER-FIELD("startTime"):BUFFER-VALUE(),ipcFieldFormat).
+        WHEN 'Total Time' THEN
+        cFieldValue = STRING(specialTime(INTEGER(hTable:BUFFER-FIELD("timeSpan"):BUFFER-VALUE())
+                    + INTEGER(hTable:BUFFER-FIELD("downtimeSpan"):BUFFER-VALUE())),ipcFieldFormat).
+        OTHERWISE
+        cFieldValue = STRING(hTable:BUFFER-FIELD(ipcFieldName):BUFFER-VALUE(),ipcFieldFormat).
+    END CASE.
+
+    RETURN cFieldValue.
+END FUNCTION.
 
 FUNCTION numericDateTime RETURNS DECIMAL (ipDate AS DATE,ipTime AS INTEGER):
   {{&includes}/numericDateTime.i}
@@ -34,6 +81,10 @@ DISABLE TRIGGERS FOR LOAD OF reftable.
 OUTPUT TO 'schedule/load.log' APPEND.
 PUT UNFORMATTED 'Start Save: ' STRING(TODAY,'99.99.9999') ' @ ' STRING(TIME,'hh:mm:ss') ' for ' ID ' by ' USERID('nosweat') SKIP.
 
+ASSIGN 
+    hTtblJob    = BUFFER ttblJob:HANDLE
+    hPendingJob = BUFFER pendingJob:HANDLE
+    .
 RUN getConfiguration.
 
 FOR EACH pendingJob NO-LOCK:
@@ -123,15 +174,18 @@ FOR EACH pendingJob NO-LOCK:
   /* only change if not already run-complete */
   IF job-mch.run-complete EQ NO THEN
   job-mch.run-complete = pendingJob.jobCompleted.
-  IF job-mch.m-code NE pendingJob.altResource THEN
+  /* change machine only if not already done by DC or TS */
+  IF NOT job-mch.est-op_rec_key BEGINS 'DC' AND
+     NOT job-mch.est-op_rec_key BEGINS 'TS' AND
+     job-mch.m-code NE pendingJob.altResource THEN
   job-mch.m-code = pendingJob.altResource.
   RUN updateJobStartDate (job-mch.company,job-mch.job,job-mch.start-date-su).
-/*  DO i = 2 TO NUM-ENTRIES(customValueList):                */
-/*    IF NOT pendingJob.jobStatus[i - 1] THEN                */
-/*    statusStr = statusStr + ',' + ENTRY(i,customValueList).*/
-/*  END.                                                     */
-  RUN setLiveUpdate (job-mch.company,job-mch.job-no,job-mch.job-no2,
-                     job-mch.frm,pendingJob.resource,pendingJob.liveUpdate).
+/*  DO i = 2 TO NUM-ENTRIES(customValueList):                                 */
+/*    IF NOT pendingJob.jobStatus[i - 1] THEN                                 */
+/*    statusStr = statusStr + ',' + ENTRY(i,customValueList).                 */
+/*  END.                                                                      */
+/*  RUN setLiveUpdate (job-mch.company,job-mch.job-no,job-mch.job-no2,        */
+/*                     job-mch.frm,pendingJob.resource,pendingJob.liveUpdate).*/
   RUN statusNote (jobMchRowID,job-mch.company,pendingJob.resource,job-mch.job,job-mch.job-no,job-mch.job-no2,job-mch.frm,
                   pendingJob.jobStatus[1],
                   pendingJob.jobStatus[2],
@@ -301,7 +355,10 @@ FOR EACH ttblJob NO-LOCK BREAK BY ttblJob.jobSort BY ttblJob.resourceSequence:
           ' SB Run?: ' ttblJob.jobCompleted SKIP.
       job-mch.run-complete = ttblJob.jobCompleted.
   END.
-  IF job-mch.m-code NE ttblJob.altResource THEN DO:
+  /* change machine only if not already done by DC or TS */
+  IF NOT job-mch.est-op_rec_key BEGINS 'DC' AND
+     NOT job-mch.est-op_rec_key BEGINS 'TS' AND
+     job-mch.m-code NE ttblJob.altResource THEN DO:
       PUT UNFORMATTED 'ttblJob:' AT 5
           ' RowIDs: ' ttblJob.rowIDs ' - RowID: ' STRING(ROWID(job-mch))
           ' KeyValue: ' ttblJob.keyValue
@@ -310,8 +367,8 @@ FOR EACH ttblJob NO-LOCK BREAK BY ttblJob.jobSort BY ttblJob.resourceSequence:
           ' New: ' ttblJob.altResource SKIP.
       job-mch.m-code = ttblJob.altResource.
   END.
-  RUN setLiveUpdate (job-mch.company,job-mch.job-no,job-mch.job-no2,
-                     job-mch.frm,ttblJob.resource,ttblJob.liveUpdate).
+/*  RUN setLiveUpdate (job-mch.company,job-mch.job-no,job-mch.job-no2,  */
+/*                     job-mch.frm,ttblJob.resource,ttblJob.liveUpdate).*/
   /* set job-hdr start date based on earliest job-mch start date */
   IF FIRST-OF(ttblJob.jobSort) THEN DO:
     FIND FIRST job-hdr OF job-mch EXCLUSIVE-LOCK NO-ERROR.
@@ -329,7 +386,14 @@ FOR EACH ttblJob NO-LOCK BREAK BY ttblJob.jobSort BY ttblJob.resourceSequence:
   END. /* first-of */
 END. /* each ttbljob */
 
-IF htmlPageLocation NE "" THEN
+FIND FIRST module NO-LOCK
+     WHERE module.db-name EQ "ASI"
+       AND module.module  EQ "sbHTML"
+     NO-ERROR.
+IF AVAILABLE module AND
+   module.is-used EQ YES AND
+   module.expire-date GE TODAY AND 
+   htmlPageLocation NE "" THEN
 RUN pHTMLPages.
 
 PUT UNFORMATTED '  End Save: ' STRING(TODAY,'99.99.9999') ' @ ' STRING(TIME,'hh:mm:ss') ' for ' ID ' by ' USERID('nosweat') SKIP(1).
@@ -337,33 +401,520 @@ OUTPUT CLOSE.
 
 /*MESSAGE 'Schedule Board Save (upload) Complete.' VIEW-AS ALERT-BOX.*/
 
-PROCEDURE setLiveUpdate:
+PROCEDURE check4Notes:
+  DEFINE INPUT PARAMETER ipRowID AS ROWID NO-UNDO.
   DEFINE INPUT PARAMETER ipCompany AS CHARACTER NO-UNDO.
+  DEFINE INPUT PARAMETER ipMCode AS CHARACTER NO-UNDO.
+  DEFINE INPUT PARAMETER ipJob AS INTEGER NO-UNDO.
   DEFINE INPUT PARAMETER ipJobNo AS CHARACTER NO-UNDO.
   DEFINE INPUT PARAMETER ipJobNo2 AS INTEGER NO-UNDO.
   DEFINE INPUT PARAMETER ipForm AS INTEGER NO-UNDO.
-  DEFINE INPUT PARAMETER ipMCode AS CHARACTER NO-UNDO.
-  DEFINE INPUT PARAMETER ipLiveUpdate AS LOGICAL NO-UNDO.
 
   DEFINE VARIABLE lvCode AS CHARACTER NO-UNDO.
-
-  lvCode = ipJobNo + ',' + STRING(ipJobNo2) + ',' + STRING(ipForm) + ',' + ipMCode.
-  FIND FIRST reftable EXCLUSIVE-LOCK
-       WHERE reftable.reftable EQ 'sbLiveUpdate'
-         AND reftable.company EQ ipCompany
-         AND reftable.loc EQ ''
-         AND reftable.code EQ lvCode NO-ERROR.
-  IF AVAILABLE reftable THEN
-  DELETE reftable.
-/*  IF NOT AVAILABLE reftable THEN DO:                   */
-/*    CREATE reftable.                                   */
-/*    ASSIGN                                             */
-/*      reftable.reftable = 'sbLiveUpdate'               */
-/*      reftable.company = ipCompany                     */
-/*      reftable.code = lvCode.                          */
-/*  END.                                                 */
-/*  reftable.code2 = TRIM(STRING(ipLiveUpdate,'Yes/No')).*/
+  DEFINE VARIABLE lvCode2 AS CHARACTER NO-UNDO.
+  
+  FOR EACH jobNotes EXCLUSIVE-LOCK WHERE jobNotes.jobRowID EQ ipRowID:
+    IF jobNotes.noteText NE '' THEN DO:
+      FIND FIRST sbNote EXCLUSIVE-LOCK 
+           WHERE sbNote.company EQ ipCompany
+             AND sbNote.m-code  EQ ipMCode
+             AND sbNote.job-no  EQ ipJobNo
+             AND sbNote.job-no2 EQ ipJobNo2
+             AND sbNote.frm     EQ ipForm
+           NO-ERROR.
+      IF NOT AVAILABLE sbNote OR (jobnotes.noteKey EQ "" AND jobnotes.deleteNote EQ NO) THEN DO:
+        CREATE sbNote.
+        ASSIGN
+          sbNote.company  = ipCompany
+          sbNote.m-code   = ipMCode
+          sbNote.job-no   = ipJobNo
+          sbNote.job-no2  = ipJobNo2
+          sbNote.frm      = ipForm
+          sbNote.noteDate = jobNotes.noteDate
+          sbNote.noteTime = jobNotes.noteTime
+          .
+      END. /* if not avail */
+      IF AVAILABLE sbNote THEN DO:
+        IF jobNotes.deleteNote THEN
+        DELETE sbNote.
+        ELSE
+        sbNote.jobNote = jobNotes.noteText.
+      END.
+      RELEASE sbNote.
+    
+      ASSIGN
+        lvCode = ipMCode + ',' + STRING(ipJob) + ',' + ipJobNo + ',' + STRING(ipJobNo2) + ',' + STRING(ipForm)
+        lvCode2 = STRING(jobNotes.noteDate) + ',' + STRING(jobNotes.noteTime).
+      FIND FIRST reftable EXCLUSIVE-LOCK
+           WHERE reftable.reftable EQ 'SB: Note'
+             AND reftable.company EQ ipCompany
+             AND reftable.loc EQ ''
+             AND reftable.code EQ lvCode
+             AND reftable.code2 EQ lvCode2
+           NO-ERROR.
+      IF AVAILABLE reftable THEN 
+      DELETE reftable.
+/*      IF (jobNotes.noteKey EQ '' AND NOT jobNotes.deleteNote) OR NOT AVAILABLE reftable THEN DO:*/
+/*        CREATE reftable.                                                                        */
+/*        ASSIGN                                                                                  */
+/*          reftable.reftable = 'SB: Note'                                                        */
+/*          reftable.company = ipCompany                                                          */
+/*          reftable.loc = ''                                                                     */
+/*          reftable.code = lvCode                                                                */
+/*          reftable.code2 = lvCode2                                                              */
+/*          jobNotes.noteKey = 'Added'                                                            */
+/*          .                                                                                     */
+/*      END.                                                                                      */
+    END. /* noteText ne '' */
+/*    IF AVAILABLE reftable THEN DO:                                                              */
+/*      IF jobNotes.deleteNote THEN                                                               */
+/*      DELETE reftable.                                                                          */
+/*      ELSE                                                                                      */
+/*      reftable.dscr = jobNotes.noteText.                                                        */
+/*    END.                                                                                        */
+/*    RELEASE reftable.                                                                           */
+  END. /* each jobNotes */
 END PROCEDURE.
+
+PROCEDURE downtimeSpan:
+  {{&includes}/{&Board}/downtimeSpan.i}
+END PROCEDURE.
+
+PROCEDURE getConfiguration:
+  {{&includes}/{&Board}/getConfiguration.i}
+  INPUT FROM VALUE(SEARCH('{&data}/' + ID + '/config.dat')) NO-ECHO.
+  IMPORT version.
+  INPUT CLOSE.
+  RUN VALUE('get' + version).
+END PROCEDURE.
+
+PROCEDURE newEnd:
+  {{&includes}/{&Board}/newEnd.i}
+END PROCEDURE.
+
+PROCEDURE pHTMLBranding:
+    PUT UNFORMATTED
+        '  <img src="' SEARCH("Graphics/asiicon.ico")
+        '" align="middle">~&nbsp;<b><a href="http://www.advantzware.com" target="_blank">'
+        '<font face="{&fontFace}">Advantzware, Inc.</a>~&nbsp;~&copy;</b></font>' SKIP
+        . 
+END PROCEDURE.
+
+PROCEDURE pHTMLData:
+    DEFINE INPUT PARAMETER ipcTable   AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcBGColor AS CHARACTER NO-UNDO.
+    
+    PUT UNFORMATTED '    <tr>' SKIP.
+    FOR EACH ttHTMLFields
+        WHERE ttHTMLFields.fieldType EQ ipcTable
+        :
+        PUT UNFORMATTED
+            '      <td' ipcBGColor ' align="center" nowrap><font face="{&fontFace}">'
+            fHTMLFieldValue(ipcTable,ttHTMLFields.fieldLabel,ttHTMLFields.fieldName,ttHTMLFields.fieldFormat)
+            '</font></td>' SKIP
+            .
+    END. /* each tthtmlfields */
+    PUT UNFORMATTED '    </tr>' SKIP.
+END PROCEDURE. 
+
+PROCEDURE pHTMLFooter:
+    PUT UNFORMATTED
+        '  </table>' SKIP
+        '  <div align="left"><font face="{&fontFace}"><a href="#Top">Top</a></font>' SKIP
+        '  <div align="right"><font face="{&fontFace}">~&copy; Advantzware, Inc., All Rights Reserved</font></div>' SKIP
+        '</fieldset>' SKIP
+        '</form>' SKIP
+        '</html>' SKIP
+        .
+END PROCEDURE.
+
+PROCEDURE pHTMLHeader:
+    DEFINE INPUT PARAMETER ipcHTMLTitle  AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcHTMLLegend AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER iplScript     AS LOGICAL   NO-UNDO.
+    
+    PUT UNFORMATTED
+        '<html>' SKIP
+        '<head>' SKIP
+        '<title>' ipcHTMLTitle '</title>' SKIP
+        '<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">' SKIP
+        '<meta http-equiv="Refresh" content="120">' SKIP
+        .
+    IF iplScript THEN 
+    PUT UNFORMATTED
+        '<script type="text/javascript">' SKIP
+        '// Popup window code' SKIP
+        'function newPopup(url) ~{' SKIP
+        '  popupWindow = window.open(' SKIP
+        '    url,"popUpWindow","height=' htmlPopupHeight
+        ',width=' htmlPopupWidth ',left=10,top=10,resizable=yes,'
+        'scrollbars=yes,toolbar=yes,menubar=no,location=no,directories=no,status=yes")' SKIP
+        '}' SKIP
+        '</script>' SKIP
+        .
+    PUT UNFORMATTED
+        '</head>' SKIP
+        '<a name="Top"></a>' SKIP
+        '<form>' SKIP
+        '<fieldset>' SKIP
+        '  <legend><font face="{&fontFace}">' ipcHTMLLegend ' (updated '
+        STRING(TODAY,'99.99.9999') ' @ ' STRING(TIME,'hh:mm:ss am') ')</font>'
+        '~&nbsp;</legend>' SKIP
+        .
+END PROCEDURE.
+
+PROCEDURE pHTMLLabel:
+    DEFINE INPUT PARAMETER ipcTable   AS CHARACTER NO-UNDO.
+    
+    PUT UNFORMATTED '    <tr>' SKIP.
+    FOR EACH ttHTMLFields
+        WHERE ttHTMLFields.fieldType EQ ipcTable
+        :
+        PUT UNFORMATTED 
+            '      <td bgcolor="#C5EBD8" align="center" nowrap><font face="{&fontFace}"><b>'
+            ttHTMLFields.fieldLabel
+            '</b></font></td>' SKIP
+            .
+    END. /* each tthtmlfields */
+    PUT UNFORMATTED '    </tr>' SKIP.
+END PROCEDURE.
+
+PROCEDURE pHTMLPages:
+    &Scoped-define fontFace Arial, Helvetica, sans-serif
+    
+    DEFINE VARIABLE lAltLine       AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cBGColor       AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iJobs          AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iTime          AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE dtDate         AS DATE      NO-UNDO.
+    DEFINE VARIABLE lUsed          AS LOGICAL   NO-UNDO EXTENT 1440.
+    DEFINE VARIABLE cBookedTime    AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iBookedTime    AS INTEGER   NO-UNDO EXTENT 999.
+    DEFINE VARIABLE cUsedTime      AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iUsedTime      AS INTEGER   NO-UNDO EXTENT 999.
+    DEFINE VARIABLE cAvailTime     AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iAvailTime     AS INTEGER   NO-UNDO EXTENT 999.
+    DEFINE VARIABLE iStartTime     AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iEndTime       AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE cDays          AS CHARACTER NO-UNDO INITIAL "Sun,Mon,Tue,Wed,Thu,Fri,Sat".
+    DEFINE VARIABLE dStartDateTime AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dEndDateTime   AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE idx            AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE jdx            AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE cHTMLTitle     AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cHTMLLegend    AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lScript        AS LOGICAL   NO-UNDO.
+    
+    DEFINE BUFFER bTtblJob FOR ttblJob.
+    
+    RUN pttHTMLFields.
+    
+    ASSIGN 
+        cHTMLTitle  = "Schedule Board Resources"
+        cHTMLLegend = "Schedule Board Resource Capacity View"
+        lScript     = YES
+        .
+    OUTPUT TO VALUE(htmlPageLocation + '\sbResources.htm').
+    RUN pHTMLHeader (cHTMLTitle,cHTMLLegend,lScript).
+    RUN pHTMLBranding.
+    PUT UNFORMATTED
+        '  <table align="right" cellspacing="2" cellpadding="8">' SKIP
+        '    <tr>' SKIP 
+        '      <td><font face="{&fontFace}">Legend:</font></td>' SKIP 
+        '      <td bgcolor="#C0BEBE"><font face="{&fontFace}"><b>Downtime</b></font></td>' SKIP 
+        '      <td bgcolor="#AAD5B9"><font face="{&fontFace}"><b>Booked (#Jobs)</b></font></td>' SKIP 
+        '      <td bgcolor="#F1FE98"><font face="{&fontFace}"><b>Available</b></font></td>' SKIP 
+        '    </tr>' SKIP  
+        '  </table>' SKIP 
+        '  <table border="1" cellspacing="0" cellpadding="12" width="100%">' SKIP
+        '    <tr>' SKIP
+        '      <td bgcolor="#F4F4F4" align="center" nowrap><font face="{&fontFace}"><b>Resource</b></font></td>' SKIP
+        '      <td bgcolor="#F4F4F4" align="center" nowrap><font face="{&fontFace}"><b>Name</b></font></td>' SKIP
+        '      <td bgcolor="#F4F4F4" align="center" nowrap><font face="{&fontFace}"><b>Pending</b></font></td>' SKIP
+        .
+    DO dtDate = TODAY TO TODAY + htmlCapacityDays - 1:
+        cBGColor = IF WEEKDAY(dtDate) EQ 1 OR WEEKDAY(dtDate) EQ 7 THEN 'bgcolor="#DBDEF2"' ELSE 'bgcolor="#F4F4F4"'.
+        PUT UNFORMATTED
+            '      <td ' cBGColor ' align="center" nowrap><font face="{&fontFace}"><b>'
+            ENTRY(WEEKDAY(dtDate),cDays) ' ' MONTH(dtDate) '/' DAY(dtDate) '</b></font></td>' SKIP
+            .
+    END. /* do dtdate */ 
+    PUT UNFORMATTED
+        '    </tr>' SKIP
+        .
+    lAltLine = YES.
+    FOR EACH ttblJob NO-LOCK
+        BREAK BY ttblJob.resource
+              BY ttblJob.jobSequence
+              BY ttblJob.jobSort
+        :
+        IF FIRST-OF(ttblJob.resource) THEN DO:
+            FIND FIRST mach NO-LOCK 
+                 WHERE mach.company EQ ENTRY(1,ttblJob.keyValue)
+                   AND mach.m-code  EQ ttblJob.resource
+                 NO-ERROR.
+            ASSIGN 
+                iJobs = 0
+                iTime = 0
+                .
+            FOR EACH pendingJob
+                WHERE pendingJob.resource EQ ttblJob.resource
+                :
+                ASSIGN 
+                    iJobs = iJobs + 1
+                    iTime = iTime + pendingJob.timeSpan
+                    .
+            END. /* each pendingjob */
+            ASSIGN 
+                lAltLine = NOT lAltLine
+                cBGColor = IF lAltLine THEN ' bgcolor="D1FCC5"' ELSE ''
+                .
+            PUT UNFORMATTED
+                '    <tr>' SKIP
+                '      <td' cBGColor ' align="center" nowrap rowspan="3"><font face="{&fontFace}">'
+                '<img src="'
+                (IF SEARCH("Graphics/48x48/" + ttblJob.resource + ".png") NE ? THEN
+                    SEARCH("Graphics/48x48/" + ttblJob.resource + ".png") ELSE
+                    SEARCH("Graphics/48x48/gearwheels.png"))
+                '" width="48" height="48" align="center">~&nbsp~&nbsp~&nbsp~&nbsp<b>'
+                ttblJob.resource '</a></b></font></td>' SKIP
+                '      <td' cBGColor ' align="center" nowrap rowspan="3"><font face="{&fontFace}"><b>'
+                '<a href="' htmlPageLocation + '\' + REPLACE(ttblJob.resource,"/","") + '.htm" target="_blank">'
+                (IF AVAILABLE mach THEN mach.m-dscr ELSE ttblJob.resource) '</a></b></font></td>' SKIP
+                '      <td' cBGColor ' align="center" nowrap rowspan="3" align="center"><font face="{&fontFace}">'
+                .
+            IF iJobs NE 0 THEN
+            PUT UNFORMATTED
+                '<a href="JavaScript:newPopup(~''
+                REPLACE(htmlPageLocation + '\' + ttblJob.resource,"\","/")
+                'Pending.htm~');">Jobs: <b>' iJobs '</a><br>' specialTime(iTime) '</b>'
+                .
+            ELSE PUT UNFORMATTED "~&nbsp".
+            PUT UNFORMATTED
+                '</font></td>' SKIP
+                .
+            DO dtDate = TODAY TO TODAY + htmlCapacityDays - 1:
+                ASSIGN 
+                    idx            = dtDate - TODAY + 1
+                    iUsedTime[idx] = 0
+                    .
+                FOR EACH boardDowntime
+                    WHERE boardDowntime.resource  EQ ttblJob.resource
+                      AND boardDowntime.startDate EQ dtDate
+                    :
+                    iUsedTime[idx] = iUsedTime[idx] + boardDowntime.downtimeSpan.
+                END. /* each boarddowntime */
+                cUsedTime = IF iUsedTime[idx] EQ 86400 THEN "24:00"
+                       ELSE IF iUsedTime[idx] EQ 0 THEN ""
+                       ELSE STRING(iUsedTime[idx],"hh:mm").
+                PUT UNFORMATTED 
+                    '      <td bgcolor="#C0BEBE" align="center" nowrap><font face="{&fontFace}"><b>'
+                    cUsedTime '</b></font></td>' SKIP 
+                    .
+            END. /* do dtdate */
+            PUT UNFORMATTED 
+                '    </tr>' SKIP
+                '    <tr>' SKIP
+                .
+            DO dtDate = TODAY TO TODAY + htmlCapacityDays - 1:
+                ASSIGN
+                    lUsed            = NO
+                    idx              = dtDate - TODAY + 1
+                    iBookedTime[idx] = 0
+                    dStartDateTime   = numericDateTime(dtDate,0)
+                    dEndDateTime     = numericDateTime(dtDate,86400)
+                    iJobs            = 0
+                    .
+                FOR EACH bTtblJob
+                    WHERE bTtblJob.resource      EQ ttblJob.resource
+                      AND bTtblJob.startDateTime LE dEndDateTime
+                      AND bTtblJob.endDateTime   GE dStartDateTime
+                    :
+                    ASSIGN
+                        iStartTime = IF bTtblJob.startDateTime LT dStartDateTime THEN 0
+                                     ELSE INTEGER(bTtblJob.startTime / 60)
+                        iEndTime   = IF bTtblJob.endDateTime   GT dEndDateTime   THEN 1440
+                                     ELSE INTEGER(bTtblJob.endTime   / 60)
+                        iJobs      = iJobs + 1
+                        .
+                    IF iStartTime EQ 0 THEN iStartTime = 1.
+                    DO jdx = iStartTime TO iEndTime:
+                        IF jdx LE EXTENT(lUsed) THEN
+                        lUsed[jdx] = YES.
+                    END. /* do jdx */
+                END. /* each bTtblJob */
+                DO jdx = 1 TO EXTENT(lUsed):
+                  IF lUsed[jdx] THEN iBookedTime[idx] = iBookedTime[idx] + 1.
+                END. /* do jdx */
+                ASSIGN 
+                    iBookedTime[idx] = iBookedTime[idx] * 60
+                    iBookedTime[idx] = iBookedTime[idx] - IF iBookedTime[idx] NE 0 THEN iUsedTime[idx] ELSE 0
+                    cBookedTime = IF iBookedTime[idx] EQ 86400 THEN "24:00"
+                             ELSE IF iBookedTime[idx] EQ 0 THEN ""
+                             ELSE STRING(iBookedTime[idx],"hh:mm")
+                    .
+                IF cBookedTime NE "" THEN
+                cBookedTime = cBookedTime + " (" + STRING(iJobs) + ")".
+                PUT UNFORMATTED 
+                    '      <td bgcolor="#AAD5B9" align="center" nowrap><font face="{&fontFace}"><b>'
+                    cBookedTime '</b></font></td>' SKIP
+                    .
+            END. /* do dtdate */
+            PUT UNFORMATTED 
+                '    </tr>' SKIP
+                '    <tr>' SKIP
+                .
+            DO dtDate = TODAY TO TODAY + htmlCapacityDays - 1:
+                ASSIGN
+                    idx = dtDate - TODAY + 1
+                    iAvailTime[idx] = 86400 - iUsedTime[idx] - iBookedTime[idx]
+                    .
+                cAvailTime = IF iAvailTime[idx] EQ 86400 THEN "24:00"
+                        ELSE IF iAvailTime[idx] EQ 0 THEN ""
+                        ELSE STRING(iAvailTime[idx],"hh:mm").
+                PUT UNFORMATTED 
+                    '      <td bgcolor="#F1FE98" align="center" nowrap><font face="{&fontFace}"><b>'
+                    cAvailTime '</b></font></td>' SKIP
+                    .
+            END. /* do dtdate */
+            PUT UNFORMATTED 
+                '    </tr>' SKIP
+                '    <tr>' SKIP
+                '      <td colspan="34" bgcolor="#F4F4F4"></td>' SKIP 
+                '    </tr>' SKIP
+                .
+        END. /* if first-of */
+    END. /* each ttbljob */
+    RUN pHTMLFooter.
+    OUTPUT CLOSE.
+
+    FOR EACH ttblJob NO-LOCK
+        BREAK BY ttblJob.resource
+              BY ttblJob.jobSequence
+              BY ttblJob.jobSort
+        :
+        IF FIRST-OF(ttblJob.resource) THEN DO:
+            FIND FIRST mach NO-LOCK 
+                 WHERE mach.company EQ ENTRY(1,ttblJob.keyValue)
+                   AND mach.m-code  EQ ttblJob.resource
+                 NO-ERROR.
+            ASSIGN 
+                cHTMLTitle  = "Operation: " + ttblJob.resource
+                            + (IF AVAILABLE mach THEN " - " + mach.m-dscr ELSE "")
+                cHTMLLegend = "Operation: <b><font color=~"DC143C~">" + ttblJob.resource
+                            + (IF AVAILABLE mach THEN " - " + mach.m-dscr ELSE "")
+                            + "</font></b>"
+                lScript     = NO
+                .
+            OUTPUT TO VALUE(htmlPageLocation + '\' + REPLACE(ttblJob.resource,"/","") + '.htm').
+            RUN pHTMLHeader (cHTMLTitle,cHTMLLegend,lScript).
+            RUN pHTMLBranding.
+            PUT UNFORMATTED
+                '  <table border="1" cellspacing="0" cellpadding="14" width="100%">' SKIP
+                .
+            RUN pHTMLLabel ("Job").
+            lAltLine = YES.
+        END. /* if first-of */
+        ASSIGN 
+            lAltLine = NOT lAltLine
+            cBGColor = IF lAltLine THEN ' bgcolor="EEDFD2"' ELSE ''
+            .
+        RUN pHTMLData ("Job",cBGColor).
+        IF LAST-OF(ttblJob.resource) THEN DO:
+            RUN pHTMLFooter.
+            OUTPUT CLOSE.
+        END. /* if last-of */
+    END. /* each ttbljob */
+    
+    FOR EACH pendingJob
+        BREAK BY pendingJob.resource
+              BY pendingJob.jobSort
+        :
+        IF FIRST-OF(pendingJob.resource) THEN DO: 
+            FIND FIRST mach NO-LOCK 
+                 WHERE mach.company EQ ENTRY(1,ttblJob.keyValue)
+                   AND mach.m-code  EQ pendingJob.resource
+                 NO-ERROR.
+            ASSIGN 
+                cHTMLTitle  = "Pending Operation: " + pendingJob.resource
+                            + (IF AVAILABLE mach THEN " - " + mach.m-dscr ELSE "")
+                cHTMLLegend = "Pending Operation: <b><font color=~"DC143C~">" + pendingJob.resource
+                            + (IF AVAILABLE mach THEN " - " + mach.m-dscr ELSE "")
+                            + "</font></b>"
+                lScript     = NO
+                .
+            OUTPUT TO VALUE(htmlPageLocation + '\' + pendingJob.resource + 'Pending.htm').
+            RUN pHTMLHeader (cHTMLTitle,cHTMLLegend,lScript).
+            RUN pHTMLBranding.
+            PUT UNFORMATTED
+                '  <table border="1" cellspacing="0" cellpadding="14" width="100%">' SKIP
+                .
+            RUN pHTMLLabel ("Pending").
+            lAltLine = YES.
+        END. /* if first-of */
+        ASSIGN 
+            lAltLine = NOT lAltLine
+            cBGColor = IF lAltLine THEN ' bgcolor="EEDFD2"' ELSE ''
+            .
+        RUN pHTMLData ("Pending",cBGColor).
+        IF LAST-OF(pendingJob.resource) THEN DO:
+            RUN pHTMLFooter.
+            OUTPUT CLOSE.
+        END. /* if first-of */
+    END.
+END PROCEDURE.
+
+PROCEDURE pttHTMLFields:
+    DEFINE VARIABLE cFieldType   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cFieldLabel  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cFieldName   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cFieldFormat AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cHTMLFields  AS CHARACTER NO-UNDO.
+
+    cHTMLFields = SEARCH("{&data}/" + ID + "/htmlFields.dat").
+    IF cHTMLFields NE ? THEN DO:
+        INPUT FROM VALUE(cHTMLFields) NO-ECHO.
+        REPEAT:
+            IMPORT cFieldType cFieldLabel cFieldName cFieldFormat.
+            CREATE ttHTMLFields.
+            ASSIGN
+                ttHTMLFields.fieldType   = cFieldType
+                ttHTMLFields.fieldLabel  = cFieldLabel
+                ttHTMLFields.fieldName   = cFieldName
+                ttHTMLFields.fieldFormat = cFieldFormat
+                .
+        END. /* repeat */
+        INPUT CLOSE.
+    END. /* if ne ? */
+END PROCEDURE.
+
+/*PROCEDURE setLiveUpdate:                                                           */
+/*  DEFINE INPUT PARAMETER ipCompany AS CHARACTER NO-UNDO.                           */
+/*  DEFINE INPUT PARAMETER ipJobNo AS CHARACTER NO-UNDO.                             */
+/*  DEFINE INPUT PARAMETER ipJobNo2 AS INTEGER NO-UNDO.                              */
+/*  DEFINE INPUT PARAMETER ipForm AS INTEGER NO-UNDO.                                */
+/*  DEFINE INPUT PARAMETER ipMCode AS CHARACTER NO-UNDO.                             */
+/*  DEFINE INPUT PARAMETER ipLiveUpdate AS LOGICAL NO-UNDO.                          */
+/*                                                                                   */
+/*  DEFINE VARIABLE lvCode AS CHARACTER NO-UNDO.                                     */
+/*                                                                                   */
+/*  lvCode = ipJobNo + ',' + STRING(ipJobNo2) + ',' + STRING(ipForm) + ',' + ipMCode.*/
+/*  FIND FIRST reftable EXCLUSIVE-LOCK                                               */
+/*       WHERE reftable.reftable EQ 'sbLiveUpdate'                                   */
+/*         AND reftable.company EQ ipCompany                                         */
+/*         AND reftable.loc EQ ''                                                    */
+/*         AND reftable.code EQ lvCode NO-ERROR.                                     */
+/*  IF AVAILABLE reftable THEN                                                       */
+/*  DELETE reftable.                                                                 */
+/*/*  IF NOT AVAILABLE reftable THEN DO:                   */                        */
+/*/*    CREATE reftable.                                   */                        */
+/*/*    ASSIGN                                             */                        */
+/*/*      reftable.reftable = 'sbLiveUpdate'               */                        */
+/*/*      reftable.company = ipCompany                     */                        */
+/*/*      reftable.code = lvCode.                          */                        */
+/*/*  END.                                                 */                        */
+/*/*  reftable.code2 = TRIM(STRING(ipLiveUpdate,'Yes/No')).*/                        */
+/*END PROCEDURE.                                                                     */
 
 PROCEDURE statusNote:
   DEFINE INPUT PARAMETER ipRowID AS ROWID NO-UNDO.
@@ -450,89 +1001,6 @@ PROCEDURE statusNote:
 /*  reftable.dscr = ipStatusStr.                                             */
 END PROCEDURE.
 
-PROCEDURE check4Notes:
-  DEFINE INPUT PARAMETER ipRowID AS ROWID NO-UNDO.
-  DEFINE INPUT PARAMETER ipCompany AS CHARACTER NO-UNDO.
-  DEFINE INPUT PARAMETER ipMCode AS CHARACTER NO-UNDO.
-  DEFINE INPUT PARAMETER ipJob AS INTEGER NO-UNDO.
-  DEFINE INPUT PARAMETER ipJobNo AS CHARACTER NO-UNDO.
-  DEFINE INPUT PARAMETER ipJobNo2 AS INTEGER NO-UNDO.
-  DEFINE INPUT PARAMETER ipForm AS INTEGER NO-UNDO.
-
-  DEFINE VARIABLE lvCode AS CHARACTER NO-UNDO.
-  DEFINE VARIABLE lvCode2 AS CHARACTER NO-UNDO.
-  
-  FOR EACH jobNotes EXCLUSIVE-LOCK WHERE jobNotes.jobRowID EQ ipRowID:
-    IF jobNotes.noteText NE '' THEN DO:
-      FIND FIRST sbNote EXCLUSIVE-LOCK 
-           WHERE sbNote.company EQ ipCompany
-             AND sbNote.m-code  EQ ipMCode
-             AND sbNote.job-no  EQ ipJobNo
-             AND sbNote.job-no2 EQ ipJobNo2
-             AND sbNote.frm     EQ ipForm
-           NO-ERROR.
-      IF NOT AVAILABLE sbNote OR (jobnotes.noteKey EQ "" AND jobnotes.deleteNote EQ NO) THEN DO:
-        CREATE sbNote.
-        ASSIGN
-          sbNote.company  = ipCompany
-          sbNote.m-code   = ipMCode
-          sbNote.job-no   = ipJobNo
-          sbNote.job-no2  = ipJobNo2
-          sbNote.frm      = ipForm
-          sbNote.noteDate = jobNotes.noteDate
-          sbNote.noteTime = jobNotes.noteTime
-          .
-      END. /* if not avail */
-      IF AVAILABLE sbNote THEN DO:
-        IF jobNotes.deleteNote THEN
-        DELETE sbNote.
-        ELSE
-        sbNote.jobNote = jobNotes.noteText.
-      END.
-      RELEASE sbNote.
-    
-      ASSIGN
-        lvCode = ipMCode + ',' + STRING(ipJob) + ',' + ipJobNo + ',' + STRING(ipJobNo2) + ',' + STRING(ipForm)
-        lvCode2 = STRING(jobNotes.noteDate) + ',' + STRING(jobNotes.noteTime).
-      FIND FIRST reftable EXCLUSIVE-LOCK
-           WHERE reftable.reftable EQ 'SB: Note'
-             AND reftable.company EQ ipCompany
-             AND reftable.loc EQ ''
-             AND reftable.code EQ lvCode
-             AND reftable.code2 EQ lvCode2
-           NO-ERROR.
-      IF AVAILABLE reftable THEN 
-      DELETE reftable.
-/*      IF (jobNotes.noteKey EQ '' AND NOT jobNotes.deleteNote) OR NOT AVAILABLE reftable THEN DO:*/
-/*        CREATE reftable.                                                                        */
-/*        ASSIGN                                                                                  */
-/*          reftable.reftable = 'SB: Note'                                                        */
-/*          reftable.company = ipCompany                                                          */
-/*          reftable.loc = ''                                                                     */
-/*          reftable.code = lvCode                                                                */
-/*          reftable.code2 = lvCode2                                                              */
-/*          jobNotes.noteKey = 'Added'                                                            */
-/*          .                                                                                     */
-/*      END.                                                                                      */
-    END. /* noteText ne '' */
-/*    IF AVAILABLE reftable THEN DO:                                                              */
-/*      IF jobNotes.deleteNote THEN                                                               */
-/*      DELETE reftable.                                                                          */
-/*      ELSE                                                                                      */
-/*      reftable.dscr = jobNotes.noteText.                                                        */
-/*    END.                                                                                        */
-/*    RELEASE reftable.                                                                           */
-  END. /* each jobNotes */
-END PROCEDURE.
-
-PROCEDURE downtimeSpan:
-  {{&includes}/{&Board}/downtimeSpan.i}
-END PROCEDURE.
-
-PROCEDURE newEnd:
-  {{&includes}/{&Board}/newEnd.i}
-END PROCEDURE.
-
 PROCEDURE updateJobStartDate:
   DEFINE INPUT PARAMETER ipCompany AS CHARACTER NO-UNDO.
   DEFINE INPUT PARAMETER ipJob AS INTEGER NO-UNDO.
@@ -543,294 +1011,4 @@ PROCEDURE updateJobStartDate:
          AND job.job EQ ipJob NO-ERROR.
   IF AVAILABLE job THEN
   job.start-date = ipStartDate.
-END PROCEDURE.
-
-PROCEDURE getConfiguration:
-  {{&includes}/{&Board}/getConfiguration.i}
-  INPUT FROM VALUE(SEARCH('{&data}/' + ID + '/config.dat')) NO-ECHO.
-  IMPORT version.
-  INPUT CLOSE.
-  RUN VALUE('get' + version).
-END PROCEDURE.
-
-PROCEDURE pHTMLPages:
-    DEFINE VARIABLE lAltLine       AS LOGICAL   NO-UNDO.
-    DEFINE VARIABLE cBGColor       AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE iJobs          AS INTEGER   NO-UNDO.
-    DEFINE VARIABLE iTime          AS INTEGER   NO-UNDO.
-    DEFINE VARIABLE dtDate         AS DATE      NO-UNDO.
-    DEFINE VARIABLE lUsed          AS LOGICAL   NO-UNDO EXTENT 1440.
-    DEFINE VARIABLE cBookedTime    AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE iBookedTime    AS INTEGER   NO-UNDO EXTENT 30.
-    DEFINE VARIABLE cUsedTime      AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE iUsedTime      AS INTEGER   NO-UNDO EXTENT 30.
-    DEFINE VARIABLE cAvailTime     AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE iAvailTime     AS INTEGER   NO-UNDO EXTENT 30.
-    DEFINE VARIABLE iStartTime     AS INTEGER   NO-UNDO.
-    DEFINE VARIABLE iEndTime       AS INTEGER   NO-UNDO.
-    DEFINE VARIABLE cDays          AS CHARACTER NO-UNDO INITIAL "Sun,Mon,Tue,Wed,Thu,Fri,Sat".
-    DEFINE VARIABLE dStartDateTime AS DECIMAL   NO-UNDO.
-    DEFINE VARIABLE dEndDateTime   AS DECIMAL   NO-UNDO.
-    DEFINE VARIABLE idx            AS INTEGER   NO-UNDO.
-    DEFINE VARIABLE jdx            AS INTEGER   NO-UNDO.
-    DEFINE VARIABLE iShowDays      AS INTEGER   NO-UNDO INITIAL 6.
-    
-    DEFINE BUFFER bTtblJob FOR ttblJob.
-    
-    OUTPUT TO VALUE(htmlPageLocation + '\sbResources.htm').
-    PUT UNFORMATTED
-        '<html>' SKIP
-        '<head>' SKIP
-        '<title>Schedule Board Resources</title>' SKIP
-        '<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">' SKIP
-        '<meta http-equiv="Refresh" content="120">' SKIP
-        '</head>' SKIP
-        '<a name="Top"></a>' SKIP
-        '<form>' SKIP
-        '<fieldset>' SKIP
-        '<legend><font face="Arial, Helvetica, sans-serif">Schedule Board Resource Capacity View (updated '
-        STRING(TODAY,'99.99.9999') ' @ ' STRING(TIME,'hh:mm:ss am') ')</font>'
-        '~&nbsp;</legend>' SKIP
-        '  <table align="right" cellspacing="2" cellpadding="8">' SKIP
-        '    <tr>' SKIP 
-        '      <td><font face="Arial, Helvetica, sans-serif">Legend:</font></td>' SKIP 
-        '      <td bgcolor="#C0BEBE"><font face="Arial, Helvetica, sans-serif"><b>Downtime</b></font></td>' SKIP 
-        '      <td bgcolor="#AAD5B9"><font face="Arial, Helvetica, sans-serif"><b>Booked (#Jobs)</b></font></td>' SKIP 
-        '      <td bgcolor="#F1FE98"><font face="Arial, Helvetica, sans-serif"><b>Available</b></font></td>' SKIP 
-        '    </tr>' SKIP  
-        '  </table>' SKIP 
-        '  <table border="1" cellspacing="0" cellpadding="12" width="100%">' SKIP
-        '    <tr>' SKIP
-        '      <td bgcolor="#F4F4F4" align="center" nowrap><font face="Arial, Helvetica, sans-serif"><b>Resource</b></font></td>' SKIP
-        '      <td bgcolor="#F4F4F4" align="center" nowrap><font face="Arial, Helvetica, sans-serif"><b>Name</b></font></td>' SKIP
-        '      <td bgcolor="#F4F4F4" align="center" nowrap><font face="Arial, Helvetica, sans-serif"><b>Pending</b></font></td>' SKIP
-        .
-    DO dtDate = TODAY TO TODAY + iShowDays:
-        cBGColor = IF WEEKDAY(dtDate) EQ 1 OR WEEKDAY(dtDate) EQ 7 THEN 'bgcolor="#DBDEF2"' ELSE 'bgcolor="#F4F4F4"'.
-        PUT UNFORMATTED
-            '      <td ' cBGColor ' align="center" nowrap><font face="Arial, Helvetica, sans-serif"><b>'
-            ENTRY(WEEKDAY(dtDate),cDays) ' ' MONTH(dtDate) '/' DAY(dtDate) '</b></font></td>' SKIP
-            .
-    END. /* do dtdate */ 
-    PUT UNFORMATTED
-        '    </tr>' SKIP
-        .
-    lAltLine = YES.
-    FOR EACH ttblJob NO-LOCK
-        BREAK BY ttblJob.resource
-              BY ttblJob.jobSequence
-              BY ttblJob.jobSort
-        :
-        IF FIRST-OF(ttblJob.resource) THEN DO:
-            FIND FIRST mach NO-LOCK 
-                 WHERE mach.company EQ ENTRY(1,ttblJob.keyValue)
-                   AND mach.m-code  EQ ttblJob.resource
-                 NO-ERROR.
-            ASSIGN 
-                iJobs = 0
-                iTime = 0
-                .
-            FOR EACH pendingJob
-                WHERE pendingJob.resource EQ ttblJob.resource
-                :
-                ASSIGN 
-                    iJobs = iJobs + 1
-                    iTime = iTime + pendingJob.timeSpan
-                    .
-            END. /* each pendingjob */
-            ASSIGN 
-                lAltLine = NOT lAltLine
-                cBGColor = IF lAltLine THEN ' bgcolor="D1FCC5"' ELSE ''
-                .
-            PUT UNFORMATTED
-                '    <tr>' SKIP
-                '      <td' cBGColor ' align="center" nowrap rowspan="3"><font face="Arial, Helvetica, sans-serif">'
-                '<img src="'
-                (IF SEARCH("Graphics/48x48/" + ttblJob.resource + ".png") NE ? THEN
-                    SEARCH("Graphics/48x48/" + ttblJob.resource + ".png") ELSE
-                    SEARCH("Graphics/48x48/gearwheels.png"))
-                '" align="middle">~&nbsp~&nbsp~&nbsp~&nbsp<b>'
-                ttblJob.resource '</a></b></font></td>' SKIP
-                '      <td' cBGColor ' align="center" nowrap rowspan="3"><font face="Arial, Helvetica, sans-serif"><b>'
-                '<a href="' htmlPageLocation + '\' + ttblJob.resource + '.htm" target="_blank">'
-                (IF AVAILABLE mach THEN mach.m-dscr ELSE ttblJob.resource) '</a></b></font></td>' SKIP
-                '      <td' cBGColor ' align="center" nowrap rowspan="3" align="center"><font face="Arial, Helvetica, sans-serif">'
-                .
-            IF iJobs NE 0 THEN
-            PUT UNFORMATTED
-                'Jobs: <b>' iJobs '<br>' specialTime(iTime) '</b>'
-                .
-            PUT UNFORMATTED
-                '</font></td>' SKIP
-                .
-            DO dtDate = TODAY TO TODAY + iShowDays:
-                ASSIGN 
-                    idx            = dtDate - TODAY + 1
-                    iUsedTime[idx] = 0
-                    .
-                FOR EACH boardDowntime
-                    WHERE boardDowntime.resource  EQ ttblJob.resource
-                      AND boardDowntime.startDate EQ dtDate
-                    :
-                    iUsedTime[idx] = iUsedTime[idx] + boardDowntime.downtimeSpan.
-                END. /* each boarddowntime */
-                cUsedTime = IF iUsedTime[idx] EQ 86400 THEN "24:00"
-                       ELSE IF iUsedTime[idx] EQ 0 THEN ""
-                       ELSE STRING(iUsedTime[idx],"hh:mm").
-                PUT UNFORMATTED 
-                    '      <td bgcolor="#C0BEBE" align="center" nowrap><font face="Arial, Helvetica, sans-serif"><b>' cUsedTime '</b></font></td>'
-                    .
-            END. /* do dtdate */
-            PUT UNFORMATTED 
-                '    </tr>' SKIP
-                '    <tr>' SKIP
-                .
-            DO dtDate = TODAY TO TODAY + iShowDays:
-                ASSIGN
-                    lUsed            = NO
-                    idx              = dtDate - TODAY + 1
-                    iBookedTime[idx] = 0
-                    dStartDateTime   = numericDateTime(dtDate,0)
-                    dEndDateTime     = numericDateTime(dtDate,86400)
-                    iJobs            = 0
-                    .
-                FOR EACH bTtblJob
-                    WHERE bTtblJob.resource      EQ ttblJob.resource
-                      AND bTtblJob.startDateTime LE dEndDateTime
-                      AND bTtblJob.endDateTime   GE dStartDateTime
-                    :
-                    ASSIGN
-                        iStartTime = IF bTtblJob.startDateTime LT dStartDateTime THEN 0
-                                     ELSE INTEGER(bTtblJob.startTime / 60)
-                        iEndTime   = IF bTtblJob.endDateTime   GT dEndDateTime   THEN 1440
-                                     ELSE INTEGER(bTtblJob.endTime   / 60)
-                        iJobs      = iJobs + 1
-                        .
-                    IF iStartTime EQ 0 THEN iStartTime = 1.
-                    DO jdx = iStartTime TO iEndTime:
-                        IF jdx LE EXTENT(lUsed) THEN
-                        lUsed[jdx] = YES.
-                    END. /* do jdx */
-                END. /* each bTtblJob */
-                DO jdx = 1 TO EXTENT(lUsed):
-                  IF lUsed[jdx] THEN iBookedTime[idx] = iBookedTime[idx] + 1.
-                END. /* do jdx */
-                ASSIGN 
-                    iBookedTime[idx] = iBookedTime[idx] * 60
-                    iBookedTime[idx] = iBookedTime[idx] - IF iBookedTime[idx] NE 0 THEN iUsedTime[idx] ELSE 0
-                    cBookedTime = IF iBookedTime[idx] EQ 86400 THEN "24:00"
-                             ELSE IF iBookedTime[idx] EQ 0 THEN ""
-                             ELSE STRING(iBookedTime[idx],"hh:mm")
-                    .
-                IF cBookedTime NE "" THEN
-                cBookedTime = cBookedTime + " (" + STRING(iJobs) + ")".
-                PUT UNFORMATTED 
-                    '      <td bgcolor="#AAD5B9" align="center" nowrap><font face="Arial, Helvetica, sans-serif"><b>' cBookedTime '</b></font></td>'
-                    .
-            END. /* do dtdate */
-            PUT UNFORMATTED 
-                '    </tr>' SKIP
-                '    <tr>' SKIP
-                .
-            DO dtDate = TODAY TO TODAY + iShowDays:
-                ASSIGN
-                    idx = dtDate - TODAY + 1
-                    iAvailTime[idx] = 86400 - iUsedTime[idx] - iBookedTime[idx]
-                    .
-                cAvailTime = IF iAvailTime[idx] EQ 86400 THEN "24:00"
-                        ELSE IF iAvailTime[idx] EQ 0 THEN ""
-                        ELSE STRING(iAvailTime[idx],"hh:mm").
-                PUT UNFORMATTED 
-                    '      <td bgcolor="#F1FE98" align="center" nowrap><font face="Arial, Helvetica, sans-serif"><b>' cAvailTime '</b></font></td>'
-                    .
-            END. /* do dtdate */
-            PUT UNFORMATTED 
-                '    </tr>' SKIP
-                '    <tr>' SKIP
-                '      <td colspan="34" bgcolor="#F4F4F4"></td>' SKIP 
-                '    </tr>' SKIP
-                .
-        END. /* if first-of */
-    END. /* each ttbljob */
-    PUT UNFORMATTED
-        '  </table>' SKIP
-        '  <div align="left"><font face="Arial, Helvetica, sans-serif"><a href="#Top">Top</a></font>' SKIP
-        '  <div align="right"><font face="Arial, Helvetica, sans-serif">~&copy; Advantzware, Inc., All Rights Reserved</font></div>' SKIP
-        '</fieldset>' SKIP
-        '</form>' SKIP
-        '</html>' SKIP
-        .
-    OUTPUT CLOSE.
-
-    FOR EACH ttblJob NO-LOCK
-        BREAK BY ttblJob.resource
-              BY ttblJob.jobSequence
-              BY ttblJob.jobSort
-        :
-        IF FIRST-OF(ttblJob.resource) THEN DO:
-            FIND FIRST mach NO-LOCK 
-                 WHERE mach.company EQ ENTRY(1,ttblJob.keyValue)
-                   AND mach.m-code  EQ ttblJob.resource
-                 NO-ERROR.
-            OUTPUT TO VALUE(htmlPageLocation + '\' + ttblJob.resource + '.htm').
-            PUT UNFORMATTED
-                '<html>' SKIP
-                '<head>' SKIP
-                '<title>Operation: ' ttblJob.resource (IF AVAILABLE mach THEN ' - ' + mach.m-dscr ELSE '') '</title>' SKIP
-                '<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">' SKIP
-                '<meta http-equiv="Refresh" content="120">' SKIP
-                '</head>' SKIP
-                '<a name="Top"></a>' SKIP
-                '<form>' SKIP
-                '<fieldset>' SKIP
-                '<legend><font face="Arial, Helvetica, sans-serif">Operation: <b><font color="DC143C">' ttblJob.resource
-                (IF AVAILABLE mach THEN ' - ' + mach.m-dscr ELSE '')
-                '</font></b> (updated ' STRING(TODAY,'99.99.9999') ' @ ' STRING(TIME,'hh:mm:ss am') ')'
-                '~&nbsp;</legend>' SKIP
-                '  <table border="1" cellspacing="0" cellpadding="14" width="100%">' SKIP
-                '    <tr>' SKIP
-                '      <td bgcolor="#C5EBD8" align="center" nowrap><font face="Arial, Helvetica, sans-serif"><b>Seq</b></font></td>' SKIP
-                '      <td bgcolor="#C5EBD8" align="center" nowrap><font face="Arial, Helvetica, sans-serif"><b>Job</b></font></td>' SKIP
-                '      <td bgcolor="#C5EBD8" align="center" nowrap><font face="Arial, Helvetica, sans-serif"><b>Customer</b></font></td>' SKIP
-                '      <td bgcolor="#C5EBD8" align="center" nowrap><font face="Arial, Helvetica, sans-serif"><b>Item</b></font></td>' SKIP
-                '      <td bgcolor="#C5EBD8" align="center" nowrap><font face="Arial, Helvetica, sans-serif"><b>Run Qty</b></font></td>' SKIP
-                '      <td bgcolor="#C5EBD8" align="center" nowrap><font face="Arial, Helvetica, sans-serif"><b>Due Date</b></font></td>' SKIP
-                '      <td bgcolor="#C5EBD8" align="center" nowrap><font face="Arial, Helvetica, sans-serif"><b>Start Date</b></font></td>' SKIP
-                '      <td bgcolor="#C5EBD8" align="center" nowrap><font face="Arial, Helvetica, sans-serif"><b>Time</b></font></td>' SKIP
-                '      <td bgcolor="#C5EBD8" align="center" nowrap><font face="Arial, Helvetica, sans-serif"><b>End Date</b></font></td>' SKIP 
-                '      <td bgcolor="#C5EBD8" align="center" nowrap><font face="Arial, Helvetica, sans-serif"><b>Time</b></font></td>' SKIP 
-                '    </tr>' SKIP
-                .
-            lAltLine = YES.
-        END. /* if first-of */
-        ASSIGN 
-            lAltLine = NOT lAltLine
-            cBGColor = IF lAltLine THEN ' bgcolor="EEDFD2"' ELSE ''
-            .
-        PUT UNFORMATTED
-            '    <tr>' SKIP
-            '      <td' cBGColor ' align="center" nowrap><font face="Arial, Helvetica, sans-serif">' ttblJob.jobSequence '</font></td>' SKIP
-            '      <td' cBGColor ' align="center" nowrap><font face="Arial, Helvetica, sans-serif"><b>' ttblJob.jobSort '</b></font></td>' SKIP
-            '      <td' cBGColor ' align="center" nowrap><font face="Arial, Helvetica, sans-serif">' ttblJob.userField02 '</font></td>' SKIP
-            '      <td' cBGColor ' align="center" nowrap><font face="Arial, Helvetica, sans-serif">' ttblJob.userField09 '</font></td>' SKIP
-            '      <td' cBGColor ' align="center" nowrap><font face="Arial, Helvetica, sans-serif">' ttblJob.userField15 '</font></td>' SKIP
-            '      <td' cBGColor ' align="center" nowrap><font face="Arial, Helvetica, sans-serif">' STRING(ttblJob.dueDate,'99.99.9999') '</font></td>' SKIP
-            '      <td' cBGColor ' align="center" nowrap><font face="Arial, Helvetica, sans-serif">' STRING(ttblJob.startDate,'99.99.9999') '</font></td>' SKIP
-            '      <td' cBGColor ' align="center" nowrap><font face="Arial, Helvetica, sans-serif">' STRING(ttblJob.startTime,"hh:mm:ss am") '</font></td>' SKIP
-            '      <td' cBGColor ' align="center" nowrap><font face="Arial, Helvetica, sans-serif">' STRING(ttblJob.endDate,'99.99.9999') '</font></td>' SKIP 
-            '      <td' cBGColor ' align="center" nowrap><font face="Arial, Helvetica, sans-serif">' STRING(ttblJob.endTime,"hh:mm:ss am") '</font></td>' SKIP 
-            '    </tr>' SKIP
-            .
-        IF LAST-OF(ttblJob.resource) THEN DO:
-            PUT UNFORMATTED
-                '  </table>' SKIP
-                '  <div align="left"><font face="Arial, Helvetica, sans-serif"><a href="#Top">Top</a></font>' SKIP
-                '  <div align="right"><font face="Arial, Helvetica, sans-serif">~&copy; Advantzware, Inc., All Rights Reserved</font></div>' SKIP
-                '</fieldset>' SKIP
-                '</form>' SKIP
-                '</html>' SKIP
-                .
-            OUTPUT CLOSE.
-        END. /* if last-of */
-    END. /* each ttbljob */
 END PROCEDURE.

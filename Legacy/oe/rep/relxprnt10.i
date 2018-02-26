@@ -133,7 +133,7 @@ DEFINE VARIABLE iOrdQtyCust AS INTEGER NO-UNDO.
 DEFINE BUFFER bf-oe-ordl FOR oe-ordl .
 
 DEF VAR ls-image1 AS cha NO-UNDO.
-DEF VAR ls-full-img1 AS cha FORM "x(150)" NO-UNDO.
+DEF VAR ls-full-img1 AS cha FORM "x(200)" NO-UNDO.
 DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
 
@@ -142,6 +142,8 @@ RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormLogo", "C" /* Logical */, NO /
 OUTPUT cRtnChar, OUTPUT lRecFound).
 
 ASSIGN ls-full-img1 = cRtnChar + ">" .
+
+{sys/inc/oescreen.i}
 
 ASSIGN tmpstore = fill("-",130).
 
@@ -723,9 +725,10 @@ if v-zone-p then v-zone-hdr = "Route No.:".
               ASSIGN lv-tot-cust-qty = w-bin.w-units * w-bin.w-unit-count.
               IF w-bin.w-uom NE "" THEN
                 lv-save-cust-uom = caps(trim(w-bin.w-uom)).
+
               IF NOT swm THEN
-                      ASSIGN lv-tot-cust-qty = oe-ordl.qty 
-                             lv-save-cust-uom = CAPS("EA") .
+                      ASSIGN lv-tot-cust-qty = IF oescreen-log AND oe-ordl.spare-dec-1 NE 0 THEN oe-ordl.spare-dec-1 else oe-ordl.qty 
+                             lv-save-cust-uom = IF oescreen-log AND oe-ordl.spare-char-2 NE "" THEN CAPS(oe-ordl.spare-char-2) ELSE "EA" .
              IF lv-tot-cust-qty GT 0 AND sw = YES /*AND v-cq = NO*/ THEN DO:
                   
                   RUN right-just (INPUT 11, 

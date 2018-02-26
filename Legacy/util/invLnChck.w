@@ -487,7 +487,7 @@ FOR EACH company NO-LOCK,
         WHERE oe-boll.company EQ oe-bolh.company
           AND oe-boll.b-no    EQ oe-bolh.b-no                    
           AND oe-boll.qty NE 0
-          AND oe-boll.posted
+          /* AND oe-boll.posted */
           AND /* oe-boll.s-code NE "T" */ LOOKUP(oe-boll.s-code, "T,S,I") EQ 0
         NO-LOCK /*,
                    
@@ -549,6 +549,10 @@ FOR EACH company NO-LOCK,
                     ttBOLLineProblems.company = oe-bolh.company
                     ttBOLLineProblems.ord-no  = oe-boll.ord-no
                     ttBOLLineProblems.errorType = "No Inv"
+                    ttBOLLineProblems.CalcQty  = dTotQty
+                    ttBOLLineProblems.ActQty   = dInvQty         
+                    ttBOLLineProblems.PostedInvoice = iArFound
+                    ttBOLLineProblems.UnPostedInvoice = iInvFound                        
                     .
             END.
         END. /* invoice was not found */

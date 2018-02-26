@@ -158,44 +158,17 @@ IF AVAIL oe-relh THEN DO:
     IF lv-loc GT "" THEN
         oe-rel.spare-char-1 = lv-loc.
      
-    FIND FIRST reftable
-        WHERE reftable.reftable EQ "oe-rel.s-code"
-          AND reftable.company  EQ STRING(oe-rel.r-no,"9999999999")
-        NO-ERROR.
-
-    IF NOT AVAIL reftable THEN DO:
-      CREATE reftable.
-      ASSIGN
-       reftable.reftable = "oe-rel.s-code"
-       reftable.company  = STRING(oe-rel.r-no,"9999999999").
-    END.
-    reftable.code = oe-rell.s-code.
-
-    RELEASE reftable.
-    
+        
     ASSIGN
        oe-rel.lot-no = lv-lot-no
        oe-rel.frt-pay = lv-frt-pay
        oe-rel.fob-code  = lv-fob-code.
 
     IF lv-sell-price-found THEN
-    DO:
-       FIND FIRST reftable WHERE
-            reftable.reftable EQ "oe-rel.sell-price" AND
-            reftable.company  EQ STRING(oe-rel.r-no,"9999999999")
-            NO-LOCK NO-ERROR.
-      
-       IF NOT AVAIL reftable THEN
-       DO:
-          CREATE reftable.
-          ASSIGN reftable.reftable = "oe-rel.sell-price"
-                reftable.company  = STRING(oe-rel.r-no,"9999999999").
-       END.
-                 
+    DO:                        
        ASSIGN
-          reftable.val[1] = lv-sell-price
-          reftable.val[2] = DECIMAL(lv-zero-price).
-       RELEASE reftable.
+          oe-rel.sell-price = lv-sell-price
+          oe-rel.zeroPrice = DECIMAL(lv-zero-price).       
     END.
   END.
 

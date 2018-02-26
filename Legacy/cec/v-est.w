@@ -141,7 +141,7 @@ END.
 /* Need to scope the external tables to this procedure                  */
 DEFINE QUERY external_tables FOR est, eb, est-qty, ef.
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-FIELDS est.dropslit eb.cust-no eb.ship-id eb.part-no ~
+&Scoped-Define ENABLED-FIELDS est.highlight eb.cust-no eb.ship-id eb.part-no ~
 eb.stock-no eb.part-dscr1 eb.part-dscr2 eb.die-no ef.cad-image eb.sman ~
 eb.comm eb.cad-no eb.plate-no eb.procat eb.spc-no eb.upc-no eb.style ~
 eb.flute eb.test est.metric ef.board ef.brd-dscr eb.len eb.wid eb.dep ~
@@ -154,7 +154,7 @@ eb.lin-in eb.t-wid eb.t-len eb.t-sqin eb.loc
 &Scoped-Define ENABLED-OBJECTS tb-set bt-new-die btn_qty-msf bt-new-plate ~
 btn_fgitem btn_style btn_board btn_cust RECT-18 RECT-19 RECT-23 RECT-24 
 &Scoped-Define DISPLAYED-FIELDS est.est-no eb.form-no est.form-qty ~
-eb.blank-no est.mod-date eb.ord-no est.ord-date est.dropslit eb.cust-no ~
+eb.blank-no est.mod-date eb.ord-no est.ord-date est.highlight eb.cust-no ~
 eb.ship-id eb.ship-name eb.ship-addr[1] eb.ship-addr[2] eb.ship-city ~
 eb.ship-state eb.ship-zip est-qty.eqty eb.part-no eb.stock-no eb.part-dscr1 ~
 eb.part-dscr2 eb.die-no ef.cad-image eb.sman eb.comm eb.cad-no eb.plate-no ~
@@ -352,7 +352,7 @@ DEFINE FRAME Corr
           LABEL "Date"
           VIEW-AS FILL-IN 
           SIZE 15 BY 1
-     est.dropslit AT ROW 2.81 COL 2.4 HELP
+     est.highlight AT ROW 2.81 COL 2.4 HELP
           "Enter whether to drop slitter if MSF > minimum" WIDGET-ID 6
           LABEL "Yellow?"
           VIEW-AS TOGGLE-BOX
@@ -423,7 +423,7 @@ DEFINE FRAME Corr
      btnDieLookup AT ROW 6.95 COL 75
      eb.die-no AT ROW 6.95 COL 90 COLON-ALIGNED HELP
           ""
-          LABEL "Die #" FORMAT "x(15)"
+          LABEL "Die #" FORMAT "x(20)"
           VIEW-AS FILL-IN 
           SIZE 23 BY 1
           FONT 6
@@ -655,7 +655,7 @@ ASSIGN
    5 EXP-LABEL EXP-FORMAT                                               */
 /* SETTINGS FOR FILL-IN eb.die-no IN FRAME Corr
    EXP-LABEL EXP-FORMAT EXP-HELP                                        */
-/* SETTINGS FOR TOGGLE-BOX est.dropslit IN FRAME Corr
+/* SETTINGS FOR TOGGLE-BOX est.highlight IN FRAME Corr
    EXP-LABEL EXP-HELP                                                   */
 /* SETTINGS FOR FILL-IN eb.dust IN FRAME Corr
    5 EXP-LABEL EXP-FORMAT                                               */

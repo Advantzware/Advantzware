@@ -86,8 +86,8 @@ DEF VAR v-inv-total AS DECI NO-UNDO.
 /* === with xprint ====*/
 DEF VAR ls-image1    AS CHAR NO-UNDO.
 DEF VAR ls-image2    AS CHAR NO-UNDO.
-DEF VAR ls-full-img1 AS CHAR FORMAT "x(150)" NO-UNDO.
-DEF VAR ls-full-img2 AS CHAR FORMAT "x(150)" NO-UNDO.
+DEF VAR ls-full-img1 AS CHAR FORMAT "x(200)" NO-UNDO.
+DEF VAR ls-full-img2 AS CHAR FORMAT "x(200)" NO-UNDO.
 ASSIGN ls-image1 = "images\protinv.jpg"
        FILE-INFO:FILE-NAME = ls-image1
        ls-full-img1 = FILE-INFO:FULL-PATHNAME + ">".
@@ -634,10 +634,7 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
                     tt-inv-line-item.amount = inv-line.t-price.
             END.
         
-            FIND FIRST reftable 
-                WHERE reftable.reftable EQ "inv-line.lot-no" 
-                AND reftable.rec_key EQ inv-line.rec_key
-                USE-INDEX rec_key NO-LOCK NO-ERROR.
+
             /*BUILD BOL LIST*/
             FIND FIRST tt-bols WHERE tt-bols.bolno = lv-bolno NO-LOCK NO-ERROR.
             IF NOT AVAIL tt-bols THEN

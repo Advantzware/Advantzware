@@ -19,6 +19,7 @@ def var v-ackhead as char format "x(32)" init
   "A C K N O W L E D G E M E N T" NO-UNDO.
 def var v-len as int NO-UNDO.
 def var v-totord as dec format "->>,>>>,>>9.99" NO-UNDO.
+def var dSubtotord as dec format "->>,>>>,>>9.99" NO-UNDO.
 def var v-totlin as dec format "->>,>>>,>>9.99" NO-UNDO.
 def var v-ans as log init no NO-UNDO.
 def var lcnt as int init 1 NO-UNDO.
@@ -31,8 +32,8 @@ DEF VAR ll-calc-disc-first AS LOG NO-UNDO.
 /* === with xprint ====*/
 DEF VAR ls-image1 AS cha NO-UNDO.
 DEF VAR ls-image2 AS cha NO-UNDO.
-DEF VAR ls-full-img1 AS cha FORM "x(150)" NO-UNDO.
-DEF VAR ls-full-img2 AS cha FORM "x(150)" NO-UNDO.
+DEF VAR ls-full-img1 AS cha FORM "x(200)" NO-UNDO.
+DEF VAR ls-full-img2 AS cha FORM "x(200)" NO-UNDO.
 /*ASSIGN ls-image1 = "images\pacific1.bmp"
        ls-image2 = "images\pacific2.bmp".
 
@@ -72,6 +73,7 @@ DEF VAR v-ship-add2 AS CHAR FORMAT "x(30)" NO-UNDO.
 DEF VAR v-ship-add3 AS CHAR FORMAT "x(30)" NO-UNDO.
 DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
+DEF VAR v-ext-price AS DEC NO-UNDO.
 
 RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormLogo", "C" /* Logical */, NO /* check by cust */, 
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
@@ -283,13 +285,15 @@ find first company where company.company eq cocode no-lock no-error.
             {oe/rep/ackshamrock.i}
             assign v-printline = 20.          
         end.
+    ASSIGN v-ext-price = oe-ordl.t-price.
 
-        put v-line FORM ">>>9" SPACE(3)
-                oe-ordl.i-no  SPACE(2)             
-                oe-ordl.i-name SPACE(2)
-                oe-ordl.qty SPACE(2)
-                oe-ordl.price  FORM "->,>>>,>>9.99<<<<" SPACE(5)
-                oe-ordl.pr-uom  SKIP
+        put "<P9>" v-line FORM ">>>9" SPACE(3)
+                oe-ordl.i-no  SPACE(4)             
+                oe-ordl.i-name SPACE(1)
+                oe-ordl.qty SPACE(1)
+                oe-ordl.price  FORM "->,>>>,>>9.99<<<<" SPACE(2)
+                oe-ordl.pr-uom SPACE(2)
+                v-ext-price FORM "->,>>>,>>9.99" SKIP
             .
         v-printline = v-printline + 1.
        if v-printline ge lv-line-print then
@@ -303,7 +307,7 @@ find first company where company.company eq cocode no-lock no-error.
           v-part = if oe-ordl.i-no ne oe-ordl.part-no then oe-ordl.part-no
                    else "".
           put v-part             at 8
-              oe-ordl.part-dscr1  at 25  skip.
+              oe-ordl.part-dscr1  at 27  skip.
           v-printline = v-printline + 1.
         end. 
         if v-printline ge lv-line-print then
@@ -313,7 +317,7 @@ find first company where company.company eq cocode no-lock no-error.
             assign v-printline = 20.          
         end.
         if oe-ordl.part-dscr2 ne "" then do:
-          put oe-ordl.part-dscr2 at 25  skip.
+          put oe-ordl.part-dscr2 at 27  skip.
           v-printline = v-printline + 1.
         end.
         if v-printline ge lv-line-print then
@@ -482,8 +486,8 @@ find first company where company.company eq cocode no-lock no-error.
       
           v-billinst[i] = oe-ord.bill-i[i].
       END.      
-     
-      
+       dSubtotord = v-totord.
+      v-totord = v-totord + oe-ord.tax.
 
 /*
       if oe-ctrl.p-ack then do:
@@ -503,8 +507,13 @@ find first company where company.company eq cocode no-lock no-error.
             {oe/rep/ackshamrock.i}
             assign v-printline = 20.          
       end.*/
-
-      assign
+      PUT "<|10><R50><C52><#15><FROM><R55><C80><RECT>" SKIP  .
+      PUT "<=15><R+1><P10><C55><B>Order sub-total: </B>" dSubtotord FORM ">>>>,>>9.99" .
+      PUT  "<=15><R+2><P10><C60><B>Sales Tax:   </B>" oe-ord.tax FORM "->,>>9.99"
+           "<=15><R+3><C58.2><B>Order Total: </B>" v-totord FORM ">>>>,>>9.99" SKIP(2).
+      PUT "<R53><C70><FROM><R53><C78><LINE>" .
+    assign
+        dSubtotord = 0
        v-totord        = 0
        oe-ord.ack-prnt = yes.
 /*       
@@ -517,7 +526,7 @@ find first company where company.company eq cocode no-lock no-error.
         "<=10><R-3>" SPACE(32) "<P9><B>THIS IS A CONFIRMATION OF YOUR ORDER,NOT AN INVOICE.</B>" .
 */      
       PUT "<FArial><R55><C1><#10><P12> " 
-        "<=10><R+1>" SPACE(32) "<P10><B>* This is a confirmation of receipt of order. if the requested delivery date cannot be met,a</B>" 
+        "<=10><R+1>" SPACE(32) "<P10><B>* This is a confirmation of receipt of order. If the requested delivery date cannot be met, a</B>" 
         "<=10><R+2>" SPACE(32) "<P10><B> notification will be sent. The seller does not agree to furnish the exact quantity ordered and shall</B>"
         "<=10><R+3>" SPACE(32) "<P10><B>                                            be allowed a variation of 10% over/underrun.</B>" 
         "<=10><R+5>" SPACE(32) "<P12><B>                                                   Thank You</B>"      .

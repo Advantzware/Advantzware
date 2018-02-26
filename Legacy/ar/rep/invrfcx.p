@@ -111,7 +111,7 @@ DEF VAR v-custno      LIKE cust.cust-no NO-UNDO.
 
 /* === with xprint ====*/
 DEF VAR ls-image1    AS CHAR NO-UNDO.
-DEF VAR ls-full-img1 AS CHAR FORMAT "x(150)" NO-UNDO.
+DEF VAR ls-full-img1 AS CHAR FORMAT "x(200)" NO-UNDO.
 
 ASSIGN ls-image1 = "images\RFC.JPG"
        FILE-INFO:FILE-NAME = ls-image1
@@ -620,20 +620,15 @@ FOR each report
                              USE-INDEX ord-item NO-ERROR.
 
                        IF AVAIL b-oe-rel THEN DO:
-                          FIND FIRST ref-sell-price WHERE
-                               ref-sell-price.reftable EQ "oe-rel.sell-price" AND
-                               ref-sell-price.company  EQ STRING(b-oe-rel.r-no,"9999999999")
-                               NO-LOCK NO-ERROR.
-
-                          IF AVAIL ref-sell-price THEN DO:
-                             ASSIGN v-price-head = string(ref-sell-price.val[1],">>>9.9999")
-                                    v-tail-price = string((ref-sell-price.val[1] * fg-rdtlh.qty),">>,>>9.99").
-                          END.
-                          ELSE
+                          
+                             ASSIGN v-price-head = string(b-oe-rel.sell-price,">>>9.9999")
+                                    v-tail-price = string((b-oe-rel.sell-price * fg-rdtlh.qty),">>,>>9.99").
+                         
+                          
                              ASSIGN v-price-head = string(0,">>>9.9999")
                                     v-tail-price = string(0,">>,>>9.99").
 
-                          RELEASE ref-sell-price.
+                          
         
                           ASSIGN v-ship-qty1 = STRING(fg-rdtlh.qty,">>>>>>>9")
                                  v-ship-qty1i = fg-rdtlh.qty.

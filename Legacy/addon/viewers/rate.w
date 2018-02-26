@@ -36,7 +36,7 @@ CREATE WIDGET-POOL.
 /* Local Variable Definitions ---                                       */
 
 {custom/gcompany.i}
-
+DEF NEW GLOBAL SHARED VAR g_lookup-var AS cha NO-UNDO.
 &Scoped-define ENHANCE no
 
 DEFINE BUFFER buf-rate FOR rate.
@@ -349,6 +349,37 @@ DO:
   RUN custom/ratecalc.w (OUTPUT rate-amt).
   IF rate-amt NE '' THEN
   SELF:SCREEN-VALUE = rate-amt.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME rate.shift
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rate.shift V-table-Win
+ON HELP OF rate.shift IN FRAME F-Main /* Rate */
+DO:
+  RUN lookups/shifts.p.
+  IF g_lookup-var NE ""                                AND
+         TRIM(g_lookup-var) NE TRIM(rate.shift:SCREEN-VALUE) THEN DO:
+        rate.shift:SCREEN-VALUE = g_lookup-var.
+         APPLY "entry" TO rate.shift .
+      END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME rate.machine
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rate.machine V-table-Win
+ON HELP OF rate.machine IN FRAME F-Main /* Rate */
+DO:
+  RUN lookups/machine.p.
+  IF g_lookup-var NE ""                                AND
+         TRIM(g_lookup-var) NE TRIM(rate.machine:SCREEN-VALUE) THEN DO:
+        rate.machine:SCREEN-VALUE = g_lookup-var.
+         APPLY "entry" TO rate.machine .
+      END.
 END.
 
 /* _UIB-CODE-BLOCK-END */

@@ -150,11 +150,7 @@ DO v-fifo-loop = 1 TO 2.
     END.
     IF AVAIL b-oe-ord THEN NEXT.*/
 
-    FIND FIRST reftable
-        WHERE reftable.reftable EQ "oe-rel.s-code"
-          AND reftable.company  EQ STRING(oe-rel.r-no,"9999999999")
-        NO-LOCK NO-ERROR.
-      
+          
     create oe-rell.
     assign 
      out-recid       = recid(oe-rell)
@@ -179,7 +175,7 @@ DO v-fifo-loop = 1 TO 2.
      oe-rell.deleted = no
      /** Set link to the planned releases **/
      oe-rell.link-no = v-r-no
-     oe-rell.s-code  = IF AVAIL reftable THEN reftable.code   ELSE
+     oe-rell.s-code  = IF oe-rel.s-code <> "" THEN oe-rel.s-code ELSE
                        if fg-bin.cust-no gt ""                then "S"
                                                               else
                        if avail oe-ctrl and oe-ctrl.ship-from then "B" 
@@ -193,8 +189,7 @@ DO v-fifo-loop = 1 TO 2.
                            oe-ordl.cas-cnt   gt 0 then oe-ordl.cas-cnt
                         else 1.
 
-    RELEASE reftable.
-
+    
     FIND FIRST b-reftable NO-LOCK
          WHERE b-reftable.reftable EQ "oe-rel.lot-no"
          AND b-reftable.company  EQ STRING(oe-rel.r-no,"9999999999")
@@ -207,14 +202,11 @@ DO v-fifo-loop = 1 TO 2.
         RELEASE b-reftable. 
     END.
 
-    FIND FIRST b-reftable NO-LOCK
-        WHERE b-reftable.reftable EQ "oe-rel.sell-price"
-          AND b-reftable.company  EQ STRING(oe-rel.r-no,"9999999999")
-        NO-ERROR.
+    
    
     ASSIGN
-       oe-rell.newSellPrice = b-reftable.val[1]
-       oe-rell.newZeroPrice = b-reftable.val[2].
+       oe-rell.newSellPrice = oe-rel.sell-price
+       oe-rell.newZeroPrice = oe-rel.zeroPrice.
 
     IF fg-bin.qty LE v-rel-qty THEN
       ASSIGN

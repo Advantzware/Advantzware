@@ -20,6 +20,11 @@ def var v-frt-pay-dscr as character no-undo.
 def var v-qty-uom as character no-undo.
 def var v-to-ship as integer no-undo.
 
+DEFINE TEMP-TABLE ttReleasesToPrint NO-UNDO
+    FIELD OeRelHRowID AS ROWID 
+    FIELD SessionID   AS CHARACTER
+        .
+
 def stream last-page.
 
 

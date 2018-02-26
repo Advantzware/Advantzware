@@ -6,11 +6,11 @@ downtimeConflictFGColor downtimePrompt downtimeSize downtimeTop downtimeWarning 
 endDateBuffer
 flashGridLine flashLightColor flashLight flashTimeLine fullBoard
 gap gridBGColor gridLineColor
-hpixels htmlPageLocation
+hpixels htmlCapacityDays htmlPageLocation htmlPopupHeight htmlPopupWidth
 intervalInit
 jobBlock jobConflictBGColor jobConflictFGColor jobPrompt jobWarning
 lightBulbColor lockButtons loadCapacity
-moveUndoRedo
+monitorInterval moveUndoRedo
 noteButtons
 packOption packOptionPrompt pendingDays pendingLastDay pendingOver popupBottom priority1 priority2 priority3
 reloadReport reloadStatus resourceBGColor resourceBrowseAction resourceJobDetail

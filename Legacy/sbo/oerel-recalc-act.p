@@ -26,7 +26,6 @@
 ASSIGN cocode = g_company
        locode = g_loc.
 
-DEF BUFFER s-code FOR reftable.
 DEF BUFFER ref-lot-no FOR reftable.
 DEF BUFFER ref-sell-price FOR reftable.
 
@@ -612,29 +611,15 @@ PROCEDURE create-report-record-1 :
 
   ELSE IF AVAIL sys-ctrl AND sys-ctrl.log-fld THEN v-reltype = sys-ctrl.char-fld.
 
-  IF v-relType <> "" THEN DO:
-    FIND FIRST reftable
-      WHERE reftable.reftable EQ "oe-rel.s-code"
-        AND reftable.company  EQ STRING(oe-rel.r-no,"9999999999") 
-      NO-LOCK NO-ERROR.
-    IF NOT AVAIL reftable THEN DO:
-    END.
 
-  END.
-  
-  FIND FIRST s-code
-    WHERE s-code.reftable EQ "oe-rel.s-code"
-      AND s-code.company  EQ STRING(oe-rel.r-no,"9999999999")
-    NO-LOCK NO-ERROR.
-
-  IF AVAIL reftable THEN
-    tt-report.s-code = IF v-reltype <> "" THEN reftable.CODE
+  IF oe-rel.s-code <> "" THEN
+    tt-report.s-code = IF v-reltype <> "" THEN oe-rel.s-code
   ELSE IF ll-transfer            THEN "T"
        ELSE
         IF oe-ordl.is-a-component AND
-         (NOT AVAIL s-code OR s-code.CODE NE "T")   THEN "S"
+         (oe-rel.s-code = "" OR oe-rel.s-code NE "T")   THEN "S"
         ELSE
-          IF AVAIL s-code           THEN s-code.CODE
+          IF oe-rel.s-code <> ""    THEN oe-rel.s-code
             ELSE
           IF AVAIL oe-rell          THEN oe-rell.s-code
             ELSE "B".
@@ -644,17 +629,11 @@ PROCEDURE create-report-record-1 :
         tt-report.freight-pay = oe-rel.frt-pay
         tt-report.fob         = oe-rel.fob-code.
   
-  FIND FIRST ref-sell-price 
-    WHERE ref-sell-price.reftable EQ "oe-rel.sell-price" 
-      AND ref-sell-price.company  EQ STRING(oe-rel.r-no,"9999999999")
-    NO-LOCK NO-ERROR.
   
-  IF AVAIL ref-sell-price THEN
-  DO:
-    ASSIGN tt-report.sell-price = ref-sell-price.val[1]
-           tt-report.zero-sprice = ref-sell-price.val[2] > 0.
-    RELEASE ref-sell-price.
-  END.
+  ASSIGN 
+        tt-report.sell-price = oe-rel.sell-price
+        tt-report.zero-sprice = oe-rel.zeroPrice > 0.
+   
   
   IF oeinq THEN
   tt-report.key-01 = STRING(9999999999 - INT(tt-report.key-01),"9999999999").

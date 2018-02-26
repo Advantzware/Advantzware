@@ -912,7 +912,7 @@ END.
 ON ROW-DISPLAY OF Browser-Table IN FRAME F-Main
 DO:
    DEFINE VARIABLE lActive AS LOGICAL     NO-UNDO.
-   IF AVAIL est AND est.dropslit THEN
+   IF AVAIL est AND est.highlight THEN
       est.est-no:BGCOLOR IN BROWSE {&browse-name} = 14.
    ELSE
    IF AVAIL est AND est.mod-date = 01/01/1900 THEN

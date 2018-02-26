@@ -2115,6 +2115,28 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL eb.pur-man br-estitm _BROWSE-COLUMN B-table-Win
+ON VALUE-CHANGED OF eb.pur-man IN BROWSE br-estitm /* Set? */
+DO:
+   DEFINE VARIABLE lChackLog AS LOGICAL NO-UNDO .
+   DEFINE BUFFER bf-itemfg FOR itemfg .
+    FIND FIRST bf-itemfg NO-LOCK
+        WHERE bf-itemfg.company EQ cocode
+          AND bf-itemfg.i-no EQ eb.stock:SCREEN-VALUE IN BROWSE br-estitm NO-ERROR .
+   
+    lChackLog = IF eb.pur-man:SCREEN-VALUE IN BROWSE br-estitm EQ "P" THEN TRUE ELSE FALSE .
+    IF AVAIL bf-itemfg AND eb.pur-man:SCREEN-VALUE IN BROWSE br-estitm NE ""
+        AND bf-itemfg.pur-man NE lChackLog AND NOT bf-itemfg.isaset THEN do:
+        MESSAGE "FG Item file indicates item is (x) (which would be either purchased " SKIP
+                "or manufactured) while estimate indicates it is (y) - These should be" SKIP
+                " set the same." VIEW-AS ALERT-BOX WARNING .  
+    END.
+
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 &UNDEFINE SELF-NAME
 
@@ -4905,13 +4927,11 @@ DEF VAR li AS INT NO-UNDO.
              BY est-op.d-seq
              BY est-op.op-pass
              BY est-op.rec_key:
-        
-           {sys/inc/machposw.i est-op SHARE}  
+                   
            ASSIGN
             li          = li + 1
-            est-op.line = li.
-        
-           IF AVAIL reftable THEN reftable.loc = STRING(est-op.line,"9999999999"). 
+            est-op.line = li.        
+           
          END.
       END.
    END.
@@ -8070,14 +8090,28 @@ PROCEDURE valid-part-no :
      lv-part-no = eb.part-no:SCREEN-VALUE IN BROWSE {&browse-name}
      lv-msg     = "".
 
-    IF lv-part-no EQ ""                                                     OR
-       (CAN-FIND(FIRST b-eb OF ef
-                 WHERE b-eb.part-no EQ lv-part-no
-                   AND (ROWID(b-eb) NE ROWID(eb) OR ll-is-copy-record)) AND
-        (lv-copy-what NE "form" OR NOT ll-is-copy-record))                  THEN
-      lv-msg = IF lv-part-no EQ "" THEN "may not be blank"
+    IF est.est-type EQ 5 THEN do: 
+        IF lv-part-no EQ ""                                                     OR
+           (CAN-FIND(FIRST b-eb OF ef
+                     WHERE b-eb.part-no EQ lv-part-no
+                       AND (ROWID(b-eb) NE ROWID(eb) OR ll-is-copy-record)) AND
+            (lv-copy-what NE "form" OR NOT ll-is-copy-record))                  THEN
+          lv-msg = IF lv-part-no EQ "" THEN "may not be blank"
+                                       ELSE "already exists on Form #" +
+                                            TRIM(STRING(ef.form-no,">>>")).
+    END.
+    ELSE DO:
+       FIND FIRST b-eb NO-LOCK 
+           WHERE  b-eb.est-no EQ eb.est-no 
+             AND  b-eb.company EQ eb.company
+             AND  b-eb.part-no EQ lv-part-no
+             AND ROWID(b-eb) NE ROWID(eb) NO-ERROR  .
+       IF lv-part-no EQ ""                    OR
+           (AVAIL b-eb AND (lv-copy-what NE "form" OR NOT ll-is-copy-record) ) THEN
+           lv-msg = IF lv-part-no EQ "" THEN "may not be blank"
                                    ELSE "already exists on Form #" +
-                                        TRIM(STRING(ef.form-no,">>>")).
+                                        TRIM(STRING(b-eb.form-no,">>>")).
+    END.
 
     IF lv-msg NE "" THEN DO:
       MESSAGE TRIM(eb.part-no:LABEL IN BROWSE {&browse-name}) + " " +

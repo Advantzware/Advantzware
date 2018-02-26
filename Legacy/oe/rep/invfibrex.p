@@ -38,7 +38,7 @@ def var v-price-head as char format "x(4)" no-undo.
 DEF VAR v-subtot-lines AS DEC NO-UNDO.
 DEF VAR v-inv-freight LIKE inv-head.t-inv-freight NO-UNDO.
 DEF VAR ls-image1 AS cha NO-UNDO.
-DEF VAR ls-full-img1 AS cha FORM "x(150)" NO-UNDO.
+DEF VAR ls-full-img1 AS cha FORM "x(200)" NO-UNDO.
 DEF VAR v-terms AS CHAR NO-UNDO.
 
 /* gdm - 04160924 */
@@ -219,14 +219,9 @@ DEF VAR v-sold-addr3a  AS CHAR FORMAT "x(30)"                 NO-UNDO.
           
           IF v-lot-no EQ "" THEN
           DO:
-             FIND FIRST reftable WHERE
-                  reftable.reftable EQ "inv-line.lot-no" AND
-                  reftable.rec_key EQ inv-line.rec_key
-                  USE-INDEX rec_key
-                  NO-LOCK NO-ERROR.          
-             IF AVAIL reftable THEN
-                v-lot-no = reftable.CODE.
-             RELEASE reftable.
+
+               v-lot-no = inv-line.lot-no.
+
           END.
 
           PUT "<C8>"    STRING(inv-line.inv-qty,"->,>>>,>>9") FORMAT "X(10)"

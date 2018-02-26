@@ -108,6 +108,7 @@ DEFINE VARIABLE h_b-jobinq AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_b-jobmat AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_b-jobmch AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_b-jobprp AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_capacityPage AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_exit AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_expxls AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_f-add AS HANDLE NO-UNDO.
@@ -157,14 +158,14 @@ DEFINE FRAME message-frame
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 2 ROW 1.24
-         SIZE 44 BY 1.43
+         SIZE 31 BY 1.43
          BGCOLOR 15 .
 
 DEFINE FRAME OPTIONS-FRAME
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 47.2 ROW 1
-         SIZE 103.8 BY 1.91
+         AT COL 39 ROW 1
+         SIZE 111.8 BY 1.91
          BGCOLOR 15 .
 
 
@@ -360,15 +361,23 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME message-frame:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_smartmsg ).
-       RUN set-position IN h_smartmsg ( 1.00 , 8.00 ) NO-ERROR.
+       RUN set-position IN h_smartmsg ( 1.00 , 1.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.14 , 32.00 ) */
+
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'panels/p-capacityPage.w':U ,
+             INPUT  FRAME OPTIONS-FRAME:HANDLE ,
+             INPUT  'Layout = ':U ,
+             OUTPUT h_capacityPage ).
+       RUN set-position IN h_capacityPage ( 1.00 , 17.00 ) NO-ERROR.
+       /* Size in UIB:  ( 1.81 , 7.80 ) */
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'viewers/expxls.w':U ,
              INPUT  FRAME OPTIONS-FRAME:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_expxls ).
-       RUN set-position IN h_expxls ( 1.00 , 17.00 ) NO-ERROR.
+       RUN set-position IN h_expxls ( 1.00 , 25.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.81 , 7.80 ) */
 
        RUN init-object IN THIS-PROCEDURE (
@@ -376,7 +385,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME OPTIONS-FRAME:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_miscflds ).
-       RUN set-position IN h_miscflds ( 1.00 , 25.00 ) NO-ERROR.
+       RUN set-position IN h_miscflds ( 1.00 , 33.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.81 , 7.80 ) */
 
        RUN init-object IN THIS-PROCEDURE (
@@ -393,7 +402,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME OPTIONS-FRAME:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_f-add ).
-       RUN set-position IN h_f-add ( 1.00 , 33.00 ) NO-ERROR.
+       RUN set-position IN h_f-add ( 1.00 , 41.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.81 , 7.80 ) */
 
        RUN init-object IN THIS-PROCEDURE (
@@ -401,7 +410,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME OPTIONS-FRAME:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_options2 ).
-       RUN set-position IN h_options2 ( 1.00 , 41.00 ) NO-ERROR.
+       RUN set-position IN h_options2 ( 1.00 , 49.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.81 , 55.80 ) */
 
        RUN init-object IN THIS-PROCEDURE (
@@ -409,7 +418,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME OPTIONS-FRAME:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_exit ).
-       RUN set-position IN h_exit ( 1.00 , 97.00 ) NO-ERROR.
+       RUN set-position IN h_exit ( 1.00 , 105.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.81 , 7.80 ) */
 
        /* Initialize other pages that this page requires. */
@@ -892,6 +901,23 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE capacityPage W-Win
+PROCEDURE capacityPage:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    RUN schedule/capacityPage.p ("Job", ROWID(job), job.company).
+/*    RUN schedule/sbHTML.p ("Job", ROWID(job), job.company).*/
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE check-flag W-Win 
 PROCEDURE check-flag :

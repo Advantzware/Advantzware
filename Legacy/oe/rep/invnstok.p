@@ -20,9 +20,9 @@ def var v-line as int NO-UNDO.
 def var v-printline as INT NO-UNDO.
 def var v-invhead as char format "x(13)" initial
   "I N V O I C E".
-def var v-pitch like asi.printer.pitch NO-UNDO.
+def var v-pitch like printer.pitch NO-UNDO.
 def var v-len as int NO-UNDO.
-def var v-hldpitch like asi.printer.pitch NO-UNDO.
+def var v-hldpitch like printer.pitch NO-UNDO.
 def var v-t-weight like inv-line.t-weight NO-UNDO.
 def var v-tot-cas as dec format "->>>9.9999" NO-UNDO.
 def var v-tot-pallets as int NO-UNDO.
@@ -113,15 +113,7 @@ DEF VAR v-show-parts AS LOG NO-UNDO.
       FIND FIRST cust WHERE cust.company = xinv-head.company
                         AND cust.cust-no = xinv-head.cust-no NO-LOCK NO-ERROR.
 
-      FIND FIRST reftable WHERE
-           reftable.reftable EQ "cust.show-set" AND
-           reftable.company  EQ xinv-head.company AND
-           reftable.loc      EQ "" AND            
-           reftable.code     EQ xinv-head.cust-no
-           NO-LOCK NO-ERROR.
-
-      IF NOT AVAIL reftable OR
-         (AVAIL reftable AND reftable.val[1] = 1) THEN
+      if avail cust and cust.show-set then
          v-show-parts = YES.
       ELSE
          v-show-parts = NO.

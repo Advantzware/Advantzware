@@ -98,7 +98,7 @@ FIND FIRST inv-head NO-LOCK NO-ERROR.
 /* === with xprint ====*/
 DEF VAR ls-image1    AS CHAR NO-UNDO.
 DEF VAR ls-image2    AS CHAR NO-UNDO.
-DEF VAR ls-full-img1 AS CHAR FORMAT "x(150)" NO-UNDO.
+DEF VAR ls-full-img1 AS CHAR FORMAT "x(200)" NO-UNDO.
 
 ASSIGN 
     ls-image1 = "images\Soule.jpg"
@@ -486,12 +486,7 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
             v-ord-no = inv-line.ord-no
             v-price-head = inv-line.pr-uom.
 
-          FIND FIRST reftable 
-            WHERE reftable.reftable EQ "inv-line.lot-no" 
-              AND reftable.rec_key EQ inv-line.rec_key
-              USE-INDEX rec_key
-              NO-LOCK NO-ERROR.
-
+          
           IF v-printline GE 63 THEN DO:             
             PAGE.
             {oe/rep/invsoule.i}
@@ -521,7 +516,7 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
             SPACE(1) 
            SKIP
             SPACE(1)
-             IF AVAIL reftable THEN reftable.CODE ELSE ""  FORMAT "x(15)" 
+             inv-line.lot-no FORMAT "x(15)" 
             SPACE(1)
              inv-line.part-dscr1 FORMAT "x(30)" 
             SPACE(1)

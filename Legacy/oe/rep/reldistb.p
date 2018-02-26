@@ -2,6 +2,11 @@
 /* Print oe Release/Picking tickets for PremierX Xprint              */
 /* ------------------------------------------------------------------*/
 
+DEFINE TEMP-TABLE ttReleasesToPrint NO-UNDO
+    FIELD OeRelHRowID AS ROWID 
+    FIELD SessionID   AS CHARACTER
+        .
+
 {oe/rep/reldistb.i "oe-relh.r-no"}
 PROCEDURE right-just:
 DEFINE INPUT  PARAMETER ip-total-len AS INTEGER     NO-UNDO.
@@ -9,6 +14,8 @@ DEFINE INPUT  PARAMETER ip-first-len AS INTEGER     NO-UNDO.
 DEFINE INPUT  PARAMETER ip-first-value AS CHARACTER   NO-UNDO.
 DEFINE INPUT  PARAMETER ip-2nd-value AS CHARACTER   NO-UNDO.
 DEFINE OUTPUT PARAMETER op-final-result AS CHARACTER   NO-UNDO.
+
+
 
 DEF VAR i AS INT.
 DEF VAR j AS INT.

@@ -120,19 +120,7 @@ PROCEDURE copyOrder:
           
       
 
-      FIND FIRST reftable WHERE
-           reftable.reftable EQ "oe-rel.sell-price" AND
-           reftable.company  EQ STRING(oe-rel.r-no,"9999999999")
-           NO-LOCK NO-ERROR.
-
-      IF AVAIL reftable THEN
-      DO:
-         CREATE b-reftable.
-         BUFFER-COPY reftable EXCEPT company TO b-reftable
-            ASSIGN b-reftable.company = STRING(b-oe-rel.r-no,"9999999999").
-         RELEASE b-reftable.
-         RELEASE reftable.
-      END.
+      
   END.
 
   FOR EACH notes WHERE notes.rec_key EQ oe-ord.rec_key NO-LOCK:

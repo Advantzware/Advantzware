@@ -327,25 +327,25 @@ FUNCTION fixTime RETURNS INTEGER (ipTime AS INTEGER):
   RETURN INTEGER(ipTime - TRUNCATE(ipTime / 86400,0) * 86400).
 END FUNCTION.
 
-FUNCTION getLiveUpdate RETURNS LOGICAL
-        (ipCompany AS CHARACTER, ipJobNo AS CHARACTER, ipJobNo2 AS INTEGER,
-         ipForm AS INTEGER, ipMCode AS CHARACTER, ipSBLiveUpdate AS LOGICAL):
-
-  DEFINE VARIABLE lvCode AS CHARACTER NO-UNDO.
-
-  IF traceON THEN
-  PUT UNFORMATTED 'Function getLiveUpdate @ ' AT 15 STRING(TIME,'hh:mm:ss') ' ' ETIME SKIP.  
-  lvCode = ipJobNo + ',' + STRING(ipJobNo2) + ',' + STRING(ipForm) + ',' + ipMCode.
-  FIND FIRST reftable NO-LOCK
-       WHERE reftable.reftable EQ 'sbLiveUpdate'
-         AND reftable.company EQ ipCompany
-         AND reftable.loc EQ ''
-         AND reftable.code EQ lvCode
-       NO-ERROR.
-  IF AVAILABLE reftable THEN
-  RETURN reftable.code2 EQ 'Yes'.
-  ELSE RETURN ipSBLiveUpdate.
-END FUNCTION.
+/*FUNCTION getLiveUpdate RETURNS LOGICAL                                                     */
+/*        (ipCompany AS CHARACTER, ipJobNo AS CHARACTER, ipJobNo2 AS INTEGER,                */
+/*         ipForm AS INTEGER, ipMCode AS CHARACTER, ipSBLiveUpdate AS LOGICAL):              */
+/*                                                                                           */
+/*  DEFINE VARIABLE lvCode AS CHARACTER NO-UNDO.                                             */
+/*                                                                                           */
+/*  IF traceON THEN                                                                          */
+/*  PUT UNFORMATTED 'Function getLiveUpdate @ ' AT 15 STRING(TIME,'hh:mm:ss') ' ' ETIME SKIP.*/
+/*  lvCode = ipJobNo + ',' + STRING(ipJobNo2) + ',' + STRING(ipForm) + ',' + ipMCode.        */
+/*  FIND FIRST reftable NO-LOCK                                                              */
+/*       WHERE reftable.reftable EQ 'sbLiveUpdate'                                           */
+/*         AND reftable.company EQ ipCompany                                                 */
+/*         AND reftable.loc EQ ''                                                            */
+/*         AND reftable.code EQ lvCode                                                       */
+/*       NO-ERROR.                                                                           */
+/*  IF AVAILABLE reftable THEN                                                               */
+/*  RETURN reftable.code2 EQ 'Yes'.                                                          */
+/*  ELSE RETURN ipSBLiveUpdate.                                                              */
+/*END FUNCTION.                                                                              */
 
 FUNCTION getEmpAlert RETURNS CHARACTER
         (ipRecKey AS CHARACTER):
@@ -712,11 +712,11 @@ FOR EACH job-hdr NO-LOCK
               AND oe-rel.line EQ oe-ordl.line
             BREAK BY oe-rel.rel-no:
           IF FIRST(oe-rel.rel-no) THEN
-          userField[91] = setUserField(91,STRING(oe-rel.rel-date,'99.99.9999')).
+          userField[91] = setUserField(91,STRING(oe-rel.rel-date,'99/99/9999')).
           IF LAST(oe-rel.rel-no) THEN
           ASSIGN
             userField[37] = setUserField(37,STRING(oe-rel.qty,'->>,>>>,>>9'))
-            userField[38] = setUserField(38,STRING(oe-rel.rel-date,'99.99.9999'))
+            userField[38] = setUserField(38,STRING(oe-rel.rel-date,'99/99/9999'))
             userField[39] = setUserField(39,oe-rel.ship-addr[1])
             userField[40] = setUserField(40,oe-rel.ship-city + ', '
                           + oe-rel.ship-state + ' '
@@ -731,7 +731,7 @@ FOR EACH job-hdr NO-LOCK
               AND oe-rel.ord-no EQ oe-ordl.ord-no
             BREAK BY oe-rel.rel-date:
             IF FIRST-OF(oe-rel.rel-date) THEN DO:  
-                userField[91] = setUserField(91,STRING(oe-rel.rel-date,'99.99.9999')).
+                userField[91] = setUserField(91,STRING(oe-rel.rel-date,'99/99/9999')).
                 LEAVE.
             END. /* first-of */
         END. /* each oe0rel */
@@ -1010,11 +1010,12 @@ FOR EACH job-hdr NO-LOCK
     END. /* each mch-act */
 
     ASSIGN
-      customVal = SUBSTR(customValueList,2)
       statusTimeStamp = ''
-      lagTime = job-mch.lag-time
-      liveUpdate = getLiveUpdate(job-mch.company,job-mch.job-no,job-mch.job-no2,
-                                 job-mch.frm,job-mch.m-code,job-mch.sbLiveUpdate)
+      customVal    = SUBSTR(customValueList,2)
+      lagTime      = job-mch.lag-time
+      liveUpdate   = job-mch.sbLiveUpdate
+/*      liveUpdate = getLiveUpdate(job-mch.company,job-mch.job-no,job-mch.job-no2, */
+/*                                 job-mch.frm,job-mch.m-code,job-mch.sbLiveUpdate)*/
       userField[1] = setUserField(1,custNo)
       userField[2] = setUserField(2,custName)
       userField[5] = setUserField(5,IF AVAILABLE eb THEN eb.die-no ELSE '')
@@ -1058,14 +1059,14 @@ FOR EACH job-hdr NO-LOCK
       userField[57] = setUserField(57,prodQty(job-mch.company,job-mch.m-code,job-mch.job-no,
                                               job-mch.job-no2,job-mch.frm,job-mch.blank-no,
                                               job-mch.pass,prodQtyProgram)) WHEN prodQtyProgram NE ?
-      userField[58] = setUserField(58,IF AVAILABLE ef THEN STRING(ef.gsh-len,'>>9.9999') ELSE '')
-      userField[59] = setUserField(59,IF AVAILABLE ef THEN STRING(ef.gsh-wid,'>>9.9999') ELSE '')
+      userField[58] = setUserField(58,IF AVAILABLE ef THEN STRING(ef.gsh-len,'>>,>>9.9999') ELSE '')
+      userField[59] = setUserField(59,IF AVAILABLE ef THEN STRING(ef.gsh-wid,'>>,>>9.9999') ELSE '')
       userField[60] = setUserField(60,IF AVAILABLE eb THEN eb.cas-no ELSE '')
       userField[64] = setUserField(64,IF AVAILABLE itemfg THEN itemfg.part-no ELSE '')
       userField[83] = setUserField(83,job.stat)
       userField[85] = setUserField(85,fDueQty(INT(userField[15]),INT(userField[57]),DEC(userField[86]),DEC(userField[87])))
       userField[88] = setUserField(88,IF job-mch.speed EQ ? THEN '' ELSE LEFT-TRIM(STRING(job-mch.speed,'z,zzz,zz9')))
-      userField[89] = setUserField(89,STRING(job.create-date,'99.99.9999'))
+      userField[89] = setUserField(89,STRING(job.create-date,'99/99/9999'))
       userfield[96] = setUserField(96,STRING(job-mch.mr-hr,'>,>>9.99'))
       userfield[97] = setUserField(97,STRING(job-mch.run-hr,'>,>>9.99'))
       jobDescription = jobText

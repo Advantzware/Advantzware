@@ -32,7 +32,7 @@ DEF VAR v-ship-i       AS CHAR FORMAT "x(25)" NO-UNDO.
 DEF VAR v-price-head   AS CHAR FORMAT "x(5)"  NO-UNDO.
 DEF VAR v-bot-lab      AS CHAR FORMAT "x(63)" NO-UNDO EXTENT 3.
 DEF VAR ls-image1      AS CHAR                NO-UNDO.
-DEF VAR ls-full-img1   AS CHAR FORMAT "x(150)" NO-UNDO.
+DEF VAR ls-full-img1   AS CHAR FORMAT "x(200)" NO-UNDO.
 DEF VAR v-tel          AS CHAR FORMAT "x(30)" NO-UNDO.
 DEF VAR v-fax          AS CHAR FORMAT "x(30)" NO-UNDO.
 DEF VAR v-contact      AS CHAR FORMAT "x(20)" NO-UNDO.
@@ -389,10 +389,6 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
                v-pc       = "P" /* partial*/ 
                i          = 0.
 
-        FIND FIRST reftable NO-LOCK
-          WHERE reftable.reftable EQ "inv-line.lot-no" 
-            AND reftable.rec_key  EQ inv-line.rec_key
-            USE-INDEX rec_key NO-ERROR.
 
         FOR EACH oe-boll NO-LOCK 
           WHERE oe-boll.company EQ inv-line.company
@@ -406,11 +402,10 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
 
         END. /* each oe-boll */
 
-        IF AVAIL reftable 
-          THEN v-case-cnt[1] = v-case-cnt[1] + 
+
+           v-case-cnt[1] = v-case-cnt[1] + 
                                FILL(" ",32 - LENGTH(v-case-cnt[1])) 
-                               /*+ 
-                               reftable.CODE*/ .
+                                .
 
         IF v-printline > 62 THEN DO:
           PAGE.
@@ -533,18 +528,13 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
                                   AND b-oe-rel.po-no    EQ b-oe-rell.po-no
                                 USE-INDEX ord-item NO-ERROR.
                           IF AVAIL b-oe-rel THEN DO:
-                             FIND FIRST ref-sell-price WHERE
-                                        ref-sell-price.reftable EQ "oe-rel.sell-price" AND
-                                        ref-sell-price.company  EQ STRING(b-oe-rel.r-no,"9999999999")
-                             NO-LOCK NO-ERROR.
-                             IF AVAIL ref-sell-price THEN
-                                ASSIGN v-price-head = string(ref-sell-price.val[1],">>>9.9999")
-                                       v-tail-price = string((ref-sell-price.val[1] * fg-rdtlh.qty),">>,>>9.99").
-                             ELSE
-                                ASSIGN v-price-head = string(0,">>>9.9999")
-                                       v-tail-price = string(0,">>,>>9.99").
                              
-                             RELEASE ref-sell-price.
+                                ASSIGN v-price-head = string(b-oe-rel.sell-price,">>>9.9999")
+                                       v-tail-price = string((b-oe-rel.sell-price * fg-rdtlh.qty),">>,>>9.99").
+                             
+                                ASSIGN v-price-head = string(0,">>>9.9999")
+                                       v-tail-price = string(0,">>,>>9.99").                           
+                             
         
                              ASSIGN v-ship-qty1 = STRING(fg-rdtlh.qty,">>>>>>>9")
                                     v-ship-qty1i = fg-rdtlh.qty.

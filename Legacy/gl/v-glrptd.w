@@ -50,12 +50,6 @@ ASSIGN cocode = g_company
 DEF VAR lv-gl-type AS INT NO-UNDO.
 DEF VAR lv-rowid AS ROWID NO-UNDO.
 
-&SCOPED-DEFINE where-pct-subtotal                               ~
-    WHERE reftable.reftable EQ "gl-rpt.pct-subtotal"            ~
-      AND reftable.company  EQ gl-rpt.company                   ~
-      AND reftable.loc      EQ ""                               ~
-      AND reftable.code     EQ gl-rpt.rpt                       ~
-      AND reftable.code2    EQ STRING(gl-rpt.line,"9999999999")
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1248,20 +1242,10 @@ PROCEDURE reftable-values :
 
 
   IF AVAIL gl-rpt THEN DO:
-    FIND FIRST reftable {&where-pct-subtotal} NO-ERROR.
-    IF NOT AVAIL reftable THEN DO:
-      CREATE reftable.
-      ASSIGN
-       reftable.reftable = "gl-rpt.pct-subtotal"
-       reftable.company  = gl-rpt.company
-       reftable.loc      = ""
-       reftable.code     = gl-rpt.rpt
-       reftable.code2    = STRING(gl-rpt.line,"9999999999").
-    END.
-    IF ip-display THEN
-      lv-pct-subtotal = reftable.val[1] GT 0.
-    ELSE
-      reftable.val[1] = INT(lv-pct-subtotal).
+      IF ip-display THEN
+        lv-pct-subtotal = gl-rpt.pct-subtotal.
+      ELSE
+        gl-rpt.pct-subtotal = lv-pct-subtotal.
   END.
 
 END PROCEDURE.

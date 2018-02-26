@@ -114,11 +114,11 @@ FOR EACH ar-cash
                   WHEN "name"    THEN cVarValue = IF AVAIL cust THEN string(cust.NAME,"x(30)") ELSE "" . 
                   WHEN "chk"    THEN cVarValue = IF v-header-chk = YES THEN STRING(ar-cash.check-no,">>>>>>>>>>") ELSE "".
                   WHEN "date"     THEN cVarValue = IF ar-cash.check-date <> ? AND v-header-chk = YES THEN STRING(ar-cash.check-date) ELSE "" .
-                  WHEN "chs-rec"    THEN cVarValue = IF v-header-chk = YES THEN  STRING(tt-post.curr-amt,"->>>>>9.99") ELSE "" .
+                  WHEN "chs-rec"    THEN cVarValue = IF v-header-chk = YES THEN  STRING(tt-post.curr-amt,"->>>>>>9.99") ELSE "" .
                   WHEN "inv"     THEN cVarValue = STRING(ar-cashl.inv-no,">>>>>9") .
                   WHEN "org-amt"    THEN cVarValue = IF AVAIL ar-inv THEN string(ar-inv.net,"->>,>>>,>>9.99") ELSE "".
                   WHEN "amt-app"     THEN cVarValue = STRING((ar-cashl.amt-paid * tt-post.ex-rate )
-                                                             + (ar-cashl.amt-disc * tt-post.ex-rate),"->>>,>>9.99" )  .
+                                                             + (ar-cashl.amt-disc * tt-post.ex-rate),"->,>>>,>>9.99" )  .
                   WHEN "disc"     THEN cVarValue = string(ar-cashl.amt-disc * tt-post.ex-rate,"->>,>>9.99")   .
                   WHEN "on-act"     THEN cVarValue =  STRING(v-on-act-amt, "->>>>>9.99")   .
                   
@@ -169,10 +169,10 @@ FOR EACH ar-cash
                   WHEN "name"    THEN cVarValue =  "" . 
                   WHEN "chk"    THEN cVarValue = "" .
                   WHEN "date"     THEN cVarValue =  "" .
-                  WHEN "chs-rec"    THEN cVarValue = STRING(v2,"->>>>>9.99") .
+                  WHEN "chs-rec"    THEN cVarValue = STRING(v2,"->>>>>>9.99") .
                   WHEN "inv"     THEN cVarValue = "" .
                   WHEN "org-amt"    THEN cVarValue = string(v-amt-due-sub,"->>,>>>,>>9.99").
-                  WHEN "amt-app"     THEN cVarValue = STRING(v-amt-paid-sub,"->>>,>>9.99" )  .
+                  WHEN "amt-app"     THEN cVarValue = STRING(v-amt-paid-sub,"->,>>>,>>9.99" )  .
                   WHEN "disc"     THEN cVarValue = string(v-disc-sub,"->>,>>9.99")   .
                   WHEN "on-act"     THEN cVarValue =  STRING(v-on-act-sub, "->>>>>9.99")   .
                   
@@ -187,7 +187,7 @@ FOR EACH ar-cash
      PUT UNFORMATTED  "      ***** CUSTOMER TOTALS:" substring(cDisplay,29,300) SKIP(1).
      IF tb_excel THEN DO:
           PUT STREAM excel UNFORMATTED '***** CUSTOMER TOTALS:' + 
-                substring(cExcelDisplay,4,300) SKIP(1).
+                substring(cExcelDisplay,3,300) SKIP(1).
       END.
 
             /*display skip(1)
@@ -231,10 +231,10 @@ FOR EACH ar-cash
                   WHEN "name"    THEN cVarValue =  "" . 
                   WHEN "chk"    THEN cVarValue = "" .
                   WHEN "date"     THEN cVarValue =  "" .
-                  WHEN "chs-rec"    THEN cVarValue = STRING(g2,"->>>>>9.99") .
+                  WHEN "chs-rec"    THEN cVarValue = STRING(g2,"->>>>>>9.99") .
                   WHEN "inv"     THEN cVarValue = "" .
                   WHEN "org-amt"    THEN cVarValue = string(v-amt-due-tot,"->>,>>>,>>9.99").
-                  WHEN "amt-app"     THEN cVarValue = STRING(v-amt-paid-tot,"->>>,>>9.99" )  .
+                  WHEN "amt-app"     THEN cVarValue = STRING(v-amt-paid-tot,"->,>>>,>>9.99" )  .
                   WHEN "disc"     THEN cVarValue = string(v-disc-tot,"->>,>>9.99")   .
                   WHEN "on-act"     THEN cVarValue =  STRING(v-on-act-tot, "->>>>>9.99")   .
                   
@@ -249,7 +249,7 @@ FOR EACH ar-cash
      PUT UNFORMATTED  "      ***** GRAND TOTALS:" substring(cDisplay,26,300) SKIP.
      IF tb_excel THEN DO:
           PUT STREAM excel UNFORMATTED '***** GRAND TOTALS:' + 
-                substring(cExcelDisplay,4,300) SKIP.
+                substring(cExcelDisplay,3,300) SKIP.
       END.
 
   /*display skip(1)

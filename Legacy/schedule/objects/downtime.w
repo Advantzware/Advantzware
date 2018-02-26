@@ -1492,11 +1492,25 @@ PROCEDURE saveDowntime :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  OUTPUT TO VALUE(SEARCH('{&data}/' + ID + '/downtimes.' + scenario + '.dat')).
+  DEFINE VARIABLE cDowntimeFile AS CHARACTER NO-UNDO EXTENT 2.
+  
+  cDowntimeFile[1] = SEARCH('{&data}/' + ID + '/downtimes.' + scenario + '.dat'). 
+  OUTPUT TO VALUE(cDowntimeFile[1]).
   FOR EACH ttbl NO-LOCK:
     EXPORT ttbl.
   END.
   OUTPUT CLOSE.
+  /* place copy of downtime in start in directory for use by */
+  /* Schedule Capacity Page Generation                       */
+  IF scenario EQ 'Actual' THEN DO:
+      ASSIGN 
+        cDowntimeFile[2] = SEARCH('schedule/load.log')
+        cDowntimeFile[2] = REPLACE(cDowntimeFile[2],'load.log','downtimes.'
+                         + REPLACE(ID,'/','.')
+                         + '.dat')
+                         .
+      OS-COPY VALUE(cDowntimeFile[1]) VALUE(cDowntimeFile[2]).
+  END. /* if actual */
 
 END PROCEDURE.
 

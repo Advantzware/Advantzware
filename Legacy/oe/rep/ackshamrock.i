@@ -64,14 +64,15 @@ oe-ord.terms-d /*terms.dscr*/ FORM "x(15)" space(3) v-salesman FORMAT "X(20)" sp
 
 PUT "<|10><R24><C1><#5><FROM><R26><C80><RECT>" SKIP    
        "<R24><C6><FROM><R26><C6><LINE>" SKIP
-       "<R24><C20><FROM><R26><C20><LINE>" SKIP
-     /*"<R26><C30><FROM><R28><C30><LINE>" SKIP */
-       "<R24><C49><FROM><R26><C49><LINE>" SKIP
-       "<R24><C61><FROM><R26><C61><LINE>" SKIP
-       "<R24><C72><FROM><R26><C72><LINE>" SKIP
+       "<R24><C20><FROM><R26><C20><LINE>" SKIP     
+       "<R24><C46><FROM><R26><C46><LINE>" SKIP
+       "<R24><C56><FROM><R26><C56><LINE>" SKIP
+       "<R24><C65><FROM><R26><C65><LINE>" SKIP
+       "<R24><C69><FROM><R26><C69><LINE>" SKIP
        .
 
-PUT "<FArial><=5><R+1> Line        Customer Part#           Description                                                             Ordered                             Price          UOM" SKIP(1).
-PUT "<FCourier New>"          .
+
+PUT "<FArial><=5><R+1> Line        Customer Part#           Description                                                       Ordered                Price      UOM       Amount" SKIP(1).
+PUT "<FCourier New>"         .
 v-printline = v-printline + 6.
 

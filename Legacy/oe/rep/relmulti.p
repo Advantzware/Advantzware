@@ -8,6 +8,11 @@
 
 def stream last-page.
 
+DEFINE TEMP-TABLE ttReleasesToPrint NO-UNDO
+    FIELD OeRelHRowID AS ROWID 
+    FIELD SessionID   AS CHARACTER
+        .
+
 
 find first company where company.company eq cocode no-lock no-error.
 

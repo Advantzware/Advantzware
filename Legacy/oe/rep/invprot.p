@@ -89,8 +89,8 @@ FIND FIRST inv-head NO-LOCK NO-ERROR.
 /* === with xprint ====*/
 DEF VAR ls-image1    AS CHAR NO-UNDO.
 DEF VAR ls-image2    AS CHAR NO-UNDO.
-DEF VAR ls-full-img1 AS CHAR FORMAT "x(150)" NO-UNDO.
-DEF VAR ls-full-img2 AS CHAR FORMAT "x(150)" NO-UNDO.
+DEF VAR ls-full-img1 AS CHAR FORMAT "x(200)" NO-UNDO.
+DEF VAR ls-full-img2 AS CHAR FORMAT "x(200)" NO-UNDO.
 ASSIGN ls-image1 = "images\protinv.jpg"
        FILE-INFO:FILE-NAME = ls-image1
        ls-full-img1 = FILE-INFO:FULL-PATHNAME + ">".
@@ -673,10 +673,7 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
                               oe-bolh.b-no = inv-line.b-no NO-LOCK NO-ERROR.
           IF AVAIL oe-bolh THEN lv-bolno = oe-bolh.bol-no.
 
-          FIND FIRST reftable 
-            WHERE reftable.reftable EQ "inv-line.lot-no" 
-              AND reftable.rec_key EQ inv-line.rec_key
-              USE-INDEX rec_key NO-LOCK NO-ERROR.
+          
           IF v-printline GE 62 THEN DO:             
             PAGE.
             {oe/rep/invprot.i}

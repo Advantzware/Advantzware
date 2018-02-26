@@ -45,11 +45,6 @@ assign
 
 /* Local Variable Definitions ---                                       */
 
-FIND FIRST sys-ctrl
-    WHERE sys-ctrl.company EQ cocode
-      AND sys-ctrl.NAME    EQ "SECURITY"
-    NO-LOCK NO-ERROR.
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -67,8 +62,8 @@ FIND FIRST sys-ctrl
 &Scoped-define FRAME-NAME D-Dialog
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS v-password Btn_OK Btn_Cancel 
-&Scoped-Define DISPLAYED-OBJECTS v-password 
+&Scoped-Define ENABLED-OBJECTS EDITOR-1 Btn_OK Btn_Cancel 
+&Scoped-Define DISPLAYED-OBJECTS EDITOR-1 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -85,32 +80,32 @@ FIND FIRST sys-ctrl
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON Btn_Cancel AUTO-END-KEY 
      LABEL "Cancel" 
-     SIZE 15 BY 1.14
+     SIZE 22 BY 1.14
      BGCOLOR 8 .
 
 DEFINE BUTTON Btn_OK AUTO-GO 
      LABEL "OK" 
-     SIZE 15 BY 1.14
+     SIZE 24 BY 1.14
      BGCOLOR 8 .
 
-DEFINE VARIABLE v-password AS CHARACTER FORMAT "X(256)":U 
-     LABEL "Password" 
-     VIEW-AS FILL-IN 
-     SIZE 34 BY 1
-     FONT 6 NO-UNDO.
+DEFINE VARIABLE EDITOR-1 AS CHARACTER INITIAL "IMPORTANT:  Access to this application is restricted to Advantzware personnel only.  If you are logged in with super-admin access rights, and you are not an Advantzware employee, you must click Cancel below.   This session is being audited." 
+     VIEW-AS EDITOR NO-BOX
+     SIZE 59 BY 3.81
+     BGCOLOR 12 FONT 6.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME D-Dialog
-     v-password AT ROW 3.62 COL 19 COLON-ALIGNED BLANK 
+     EDITOR-1 AT ROW 2.43 COL 6 NO-LABEL WIDGET-ID 4 NO-TAB-STOP 
      Btn_OK AT ROW 8.1 COL 10
-     Btn_Cancel AT ROW 8.1 COL 42
-     SPACE(10.19) SKIP(3.32)
+     Btn_Cancel AT ROW 8.1 COL 35
+     SPACE(10.19) SKIP(0.85)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
+         BGCOLOR 12 
          TITLE "Module Maintenance"
-         DEFAULT-BUTTON Btn_OK CANCEL-BUTTON Btn_Cancel.
+         DEFAULT-BUTTON Btn_Cancel CANCEL-BUTTON Btn_Cancel.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -142,6 +137,9 @@ DEFINE FRAME D-Dialog
 ASSIGN 
        FRAME D-Dialog:SCROLLABLE       = FALSE
        FRAME D-Dialog:HIDDEN           = TRUE.
+
+ASSIGN 
+       EDITOR-1:READ-ONLY IN FRAME D-Dialog        = TRUE.
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -178,18 +176,19 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_OK D-Dialog
 ON CHOOSE OF Btn_OK IN FRAME D-Dialog /* OK */
 DO:
-    DEF VAR lv-override AS LOG LABEL " Enter Password " NO-UNDO.
+    FIND FIRST users NO-LOCK
+        WHERE users.user_id EQ USERID(LDBNAME(1)) NO-ERROR.
 
-    ASSIGN v-password  .
-
-    lv-override = v-password EQ sys-ctrl.char-fld.
-    
-    IF lv-override THEN RUN util/module2.w ("ASI")  .
-    ELSE DO:
-        MESSAGE "Invalid Password!" VIEW-AS ALERT-BOX.
-        RETURN NO-APPLY.
+    IF AVAIL users AND users.securityLevel GE 1000 THEN DO:
+        RUN util/module2.w ("ASI").
+        APPLY 'CLOSE' TO THIS-PROCEDURE. 
+        RETURN.
     END.
-
+    ELSE DO: 
+        MESSAGE "You are not authorized to access this application." VIEW-AS ALERT-BOX.
+        APPLY 'CLOSE' TO THIS-PROCEDURE. 
+        RETURN.
+    END.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -203,14 +202,6 @@ END.
 
 /* ***************************  Main Block  *************************** */
 
-FIND FIRST users NO-LOCK
-     WHERE users.user_id EQ USERID(LDBNAME(1)) NO-ERROR.
-
-IF AVAIL users AND users.securityLevel GE 1000 THEN DO:
-    RUN util/module2.w ("ASI").
-    APPLY 'CLOSE' TO THIS-PROCEDURE. /*task 10020703*/
-    RETURN.
-END.
 
 
 {src/adm/template/dialogmn.i}
@@ -284,9 +275,9 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY v-password 
+  DISPLAY EDITOR-1 
       WITH FRAME D-Dialog.
-  ENABLE v-password Btn_OK Btn_Cancel 
+  ENABLE EDITOR-1 Btn_OK Btn_Cancel 
       WITH FRAME D-Dialog.
   VIEW FRAME D-Dialog.
   {&OPEN-BROWSERS-IN-QUERY-D-Dialog}

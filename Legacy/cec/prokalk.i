@@ -1,13 +1,15 @@
 /* -------------------------------------------------- cec/prokalk.i 07/96 JLF */
 /* recalculate values of sequenced machines.                                  */
 /* -------------------------------------------------------------------------- */
-   
-   {est/op-lock.i xest}
+ 
 
-   IF NEW op-lock AND NOT xef.op-lock THEN
-     ASSIGN
-      op-lock.val[1] = 1
-      op-lock.val[2] = 1.
+   IF NOT xef.op-lock THEN   
+     FIND CURRENT xest EXCLUSIVE-LOCK NO-ERROR.
+         ASSIGN
+             xest.recalc    = YES
+             xest.recalc-mr = YES.
+     FIND CURRENT xest NO-LOCK.
+      
 
    find first mach
        {sys/look/machW.i}
@@ -49,7 +51,7 @@
    end.
    
    else do:
-     IF op-lock.val[1] EQ 1                          AND
+     IF xest.recalc = YES                         AND
         (ip-rowid EQ ? OR ip-rowid EQ ROWID(est-op)) THEN DO:
         est-op.op-waste = mach.mr-waste.
 
@@ -132,7 +134,8 @@
      qty = est-op.num-sh * v-num-up * vn-out.
    END.
 
-   IF (op-lock.val[1] EQ 1 OR op-lock.val[2] EQ 1) AND 
+    
+   IF (xest.recalc = YES OR xest.recalc-mr = YES) AND
       (ip-rowid EQ ? OR ip-rowid EQ ROWID(est-op)) THEN DO:
      /* flip dimensions if corr. xgrain */
      if est-op.dept = "LM" and
@@ -214,10 +217,10 @@
        find xef where recid(xef) eq fil_id no-lock.
      end.
 
-     IF op-lock.val[1] EQ 1 THEN
+     IF xest.recalc = YES THEN
        est-op.op-waste = mach.mr-waste + (mach.col-wastesh * maxco).
 
-     IF op-lock.val[2] EQ 1 THEN DO:
+     IF xest.recalc-mr = YES THEN DO:
        assign
         j             = 0
         v-pass-colors = 0.

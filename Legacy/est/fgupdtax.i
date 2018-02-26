@@ -5,6 +5,5 @@
  IF AVAIL cust AND cust.SORT = "Y" THEN DO:
       IF AVAIL itemfg AND itemfg.i-no NE "" THEN DO:
           ASSIGN itemfg.taxable = TRUE.
-/* Removed FGTAXABLE */
       END.
  END.

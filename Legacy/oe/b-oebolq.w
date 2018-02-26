@@ -842,6 +842,29 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE export-xl B-table-Win 
+PROCEDURE export-xl :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+DEF VAR v-bol-no AS INT NO-UNDO.
+DEF VAR v-bol-cust AS CHAR NO-UNDO.
+FIND CURRENT oe-bolh NO-LOCK NO-ERROR .
+
+IF AVAIL oe-bolh THEN ASSIGN
+    v-bol-no = oe-bolh.bol-no
+    v-bol-cust = oe-bolh.cust-no .
+RUN oeinq/bol-expi.w (INPUT v-bol-no,
+                        INPUT v-bol-cust,
+                        INPUT "").
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE first-query B-table-Win 
 PROCEDURE first-query :
 /*------------------------------------------------------------------------------
