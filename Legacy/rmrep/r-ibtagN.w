@@ -80,12 +80,12 @@ DEFINE VARIABLE lTagFormat AS LOGICAL NO-UNDO .
 
 ASSIGN cTextListToSelect = "Whse,Item,Description,Bin,Tag,Rolls," +
                            "Last Trans Date,Quantity,Unit Cost,Cost Value,MSF,Tons,Cost/MSF,Vendor Tag,Vendor Po#,Cert/Lot/Mill#,Vendor,Last Recd,Caliper," +
-                           "Wt/Msf,PO GL Account,Item Name"
+                           "Wt/Msf,PO GL Account,Item Name,Job#,Sheet Size"
        cFieldListToSelect = "tt-rm-bin.loc,tt-rm-bin.i-no,v-itemname,loc-bin,tag,rolls," +
                             "trans-date,qty,v-cost,v-total,v-msf,v-tons,v-costMSF,cVendTag,cVendPo,crtlot,cVendCode,cLstRcd,cali," +
-                            "wt-msf,po-gl-act,cItemName"
-       cFieldLength = "5,10,30,8,22,5," + "15,16,10,13,11,11,11,30,10,30,8,9,7," + "6,25,30"
-       cFieldType = "c,c,c,c,c,i," + "c,i,i,i,i,i,i,c,i,c,c,c,i," + "i,c,c"
+                            "wt-msf,po-gl-act,cItemName,job-no,sht-size"
+       cFieldLength = "5,10,30,8,22,5," + "15,16,10,13,11,11,11,30,10,30,8,9,7," + "6,25,30,10,20"
+       cFieldType = "c,c,c,c,c,i," + "c,i,i,i,i,i,i,c,i,c,c,c,i," + "i,c,c,c,c"
        .
 
 {sys/inc/ttRptSel.i}
@@ -1642,6 +1642,8 @@ DEFINE VARIABLE v-CostMSF AS DECIMAL NO-UNDO.
 DEFINE VARIABLE cVendTag AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cVendPo AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cVendor AS CHARACTER FORMAT "x(8)" NO-UNDO.
+DEFINE VARIABLE cShtSize AS CHARACTER FORMAT "x(30)" NO-UNDO.
+DEFINE VARIABLE cJobNo LIKE po-ordl.job-no NO-UNDO.
 
 DEF BUFFER bf-loadtag FOR loadtag.
 
@@ -1957,7 +1959,9 @@ SESSION:SET-WAIT-STATE ("general").
           END.
        END.
     END.
-    cVendor = "" .
+   ASSIGN cVendor = ""
+    cJobNo = ""
+    cShtSize = "" .
     FIND FIRST po-ord NO-LOCK WHERE po-ord.company EQ tt-rm-bin.company 
         AND po-ord.po-no EQ tt-rm-bin.po-no NO-ERROR.
 
@@ -1969,13 +1973,18 @@ SESSION:SET-WAIT-STATE ("general").
             AND po-ordl.po-no EQ po-ord.po-no
             AND po-ordl.i-no EQ tt-rm-bin.i-no NO-ERROR.
         
-        IF AVAILABLE po-ordl THEN
-            ASSIGN vpo-gl-act = po-ordl.actnum .
+        IF AVAILABLE po-ordl THEN DO:
+            ASSIGN vpo-gl-act = po-ordl.actnum
+                    cJobNo     = IF po-ordl.job-no NE "" THEN string(po-ordl.job-no) + "-" + STRING(po-ordl.job-no2) ELSE "".
+
+        END.
         ELSE
-            ASSIGN vpo-gl-act = "" .
+            ASSIGN vpo-gl-act = ""
+                   cJobNo = ""  .
     END.
     ELSE
-            ASSIGN vpo-gl-act = "" .
+            ASSIGN vpo-gl-act = ""
+                   cJobNo = "" .
 
 
     ASSIGN 
@@ -1984,7 +1993,9 @@ SESSION:SET-WAIT-STATE ("general").
         v-tons = v-MSF * ITEM.basis-w / 2000 /*Lbs*/
         v-CostMsf = tt-rm-bin.qty * v-cost / v-msf 
         v-cum-tons = v-cum-tons + v-tons
-        v-cum-MSF = v-cum-MSF + v-msf .
+        v-cum-MSF = v-cum-MSF + v-msf
+        cShtSize = IF ITEM.r-wid GT 0 THEN trim(STRING(ITEM.r-wid,">,>>9.99"))
+                   ELSE (trim(string(ITEM.s-len,">,>>9.99")) + " X " + trim(string(ITEM.s-wid,">,>>9.99")) ).
      IF v-CostMsf EQ ? THEN
          ASSIGN v-CostMsf = 0.   /* task 10251310  */
 
@@ -2036,6 +2047,8 @@ SESSION:SET-WAIT-STATE ("general").
                 WHEN "wt-msf" THEN cVarValue = STRING(item.basis-w,">>9.99").
                 WHEN "po-gl-act" THEN cVarValue = STRING(vpo-gl-act) .
                 WHEN "cItemName" THEN cVarValue = /*IF FIRST-OF(tt-rm-bin.i-no) THEN*/ string(ITEM.i-name,"x(30)") /*ELSE ""*/ .
+                WHEN "job-no" THEN cVarValue = STRING(cJobNo,"x(10)") .
+                WHEN "sht-size" THEN cVarValue = STRING(cShtSize,"x(20)"). 
           END CASE.
           cExcelVarValue = cVarValue.  
           IF cTmpField = "tag" THEN do:
@@ -2091,6 +2104,8 @@ SESSION:SET-WAIT-STATE ("general").
                  WHEN "wt-msf" THEN cVarValue = "".
                  WHEN "po-gl-act" THEN cVarValue = "" .
                  WHEN "cItemName" THEN cVarValue = string(ITEM.i-name,"x(30)") .
+                 WHEN "job-no" THEN cVarValue = "" .
+                 WHEN "sht-size" THEN cVarValue = "". 
                      
            END CASE.
 
@@ -2144,6 +2159,8 @@ SESSION:SET-WAIT-STATE ("general").
                  WHEN "wt-msf" THEN cVarValue = "".
                  WHEN "po-gl-act" THEN cVarValue = "" .
                  WHEN "cItemName" THEN cVarValue = "" .
+                 WHEN "job-no" THEN cVarValue = "" .
+                 WHEN "sht-size" THEN cVarValue = "". 
            END CASE.
            cExcelVarValue = cVarValue.  
            cDisplay = cDisplay + cVarValue +
@@ -2215,6 +2232,8 @@ SESSION:SET-WAIT-STATE ("general").
                  WHEN "wt-msf" THEN cVarValue = "".
                  WHEN "po-gl-act" THEN cVarValue = "" .
                  WHEN "cItemName" THEN cVarValue = "" .
+                 WHEN "job-no" THEN cVarValue = "".
+                 WHEN "sht-size" THEN cVarValue = "". 
            END CASE.
            cExcelVarValue = cVarValue.  
            cDisplay = cDisplay + cVarValue +
@@ -2267,6 +2286,8 @@ SESSION:SET-WAIT-STATE ("general").
                  WHEN "wt-msf" THEN cVarValue = "".
                  WHEN "po-gl-act" THEN cVarValue = "" .
                  WHEN "cItemName" THEN cVarValue = "" .
+                 WHEN "job-no" THEN cVarValue = "" .
+                 WHEN "sht-size" THEN cVarValue = "".
            END CASE.
         
            cExcelVarValue = cVarValue.  
@@ -2338,6 +2359,8 @@ SESSION:SET-WAIT-STATE ("general").
                  WHEN "wt-msf" THEN cVarValue = "".
                  WHEN "po-gl-act" THEN cVarValue = "" .
                  WHEN "cItemName" THEN cVarValue = "" .
+                 WHEN "job-no" THEN cVarValue = "" .
+                 WHEN "sht-size" THEN cVarValue = "".
            END CASE.
         
            cExcelVarValue = cVarValue.  
@@ -2392,6 +2415,8 @@ SESSION:SET-WAIT-STATE ("general").
                  WHEN "wt-msf" THEN cVarValue = "".
                  WHEN "po-gl-act" THEN cVarValue = "" .
                  WHEN "cItemName" THEN cVarValue = "" .
+                 WHEN "job-no" THEN cVarValue = "" .
+                 WHEN "sht-size" THEN cVarValue = "". 
            END CASE.
         
            cExcelVarValue = cVarValue.  
@@ -2500,6 +2525,8 @@ DEFINE VARIABLE v-tot-ton AS DECIMAL NO-UNDO.
 DEFINE VARIABLE v-CostMSF AS DECIMAL NO-UNDO.
 DEFINE VARIABLE cVendor AS CHARACTER FORMAT "x(8)" NO-UNDO.
 DEFINE VARIABLE vpo-gl-act AS CHARACTER NO-UNDO. 
+DEFINE VARIABLE cShtSize AS CHARACTER FORMAT "x(30)" NO-UNDO.
+DEFINE VARIABLE cJobNo LIKE po-ordl.job-no NO-UNDO.
 
 /* rdb 02/06/07 02050701 */
 DEFINE VARIABLE chrTotCostVal AS CHARACTER NO-UNDO.
@@ -2636,11 +2663,14 @@ ASSIGN
           END.
        END.
     END. 
+    ASSIGN cShtSize = "".
 
     ASSIGN 
         v-msf = IF item.r-wid GT 0 THEN v-lf-qty * ITEM.r-wid / 12 / 1000
                 ELSE tt-rm-bin.qty * ITEM.s-wid * ITEM.s-len / 144 / 1000
-        v-tons = v-MSF * ITEM.basis-w / 2000 /*Lbs*/ .
+        v-tons = v-MSF * ITEM.basis-w / 2000 /*Lbs*/ 
+        cShtSize = IF ITEM.r-wid GT 0 THEN trim(STRING(ITEM.r-wid,">,>>9.99"))
+                   ELSE (trim(string(ITEM.s-len,">,>>9.99")) + " X " + trim(string(ITEM.s-wid,">,>>9.99")) )     .
 
     /*if last-of(tt-rm-bin.loc-bin) then do:  */
        
@@ -2682,7 +2712,8 @@ ASSIGN
 
 IF LAST-OF(tt-rm-bin.i-no) THEN DO:
 
-    cVendor = "" .
+    ASSIGN cVendor = ""
+    cJobNo = "" .
     FIND FIRST po-ord NO-LOCK WHERE po-ord.company EQ tt-rm-bin.company 
         AND po-ord.po-no EQ tt-rm-bin.po-no NO-ERROR.
 
@@ -2695,12 +2726,15 @@ IF LAST-OF(tt-rm-bin.i-no) THEN DO:
             AND po-ordl.i-no EQ tt-rm-bin.i-no NO-ERROR.
         
         IF AVAILABLE po-ordl THEN
-            ASSIGN vpo-gl-act = po-ordl.actnum .
+            ASSIGN vpo-gl-act = po-ordl.actnum
+                   cJobNo     = IF po-ordl.job-no NE "" THEN string(po-ordl.job-no) + "-" + STRING(po-ordl.job-no2) ELSE "" .
         ELSE
-            ASSIGN vpo-gl-act = "" .
+            ASSIGN vpo-gl-act = ""
+                   cJobNo     = "" .
     END.
     ELSE
-            ASSIGN vpo-gl-act = "" .
+            ASSIGN vpo-gl-act = ""
+                   cJobNo     = "" .
     
     ASSIGN cDisplay = ""
            cTmpField = ""
@@ -2744,6 +2778,8 @@ IF LAST-OF(tt-rm-bin.i-no) THEN DO:
                 WHEN "wt-msf" THEN cVarValue = "".
                 WHEN "po-gl-act" THEN cVarValue = STRING(vpo-gl-act) .
                 WHEN "cItemName" THEN cVarValue = string(ITEM.i-name,"x(30)") .
+                WHEN "job-no" THEN cVarValue = STRING(cJobNo,"x(10)") .
+                WHEN "sht-size" THEN cVarValue = STRING(cShtSize,"x(20)"). 
           END CASE.
           cExcelVarValue = cVarValue.  
           cDisplay = cDisplay + cVarValue +
@@ -2857,6 +2893,8 @@ END.
                  WHEN "wt-msf" THEN cVarValue = "".
                  WHEN "po-gl-act" THEN cVarValue = "" .
                  WHEN "cItemName" THEN cVarValue = "" .
+                 WHEN "job-no" THEN cVarValue = "" .
+                 WHEN "sht-size" THEN cVarValue = "".
            END CASE.
         
            cExcelVarValue = cVarValue.  
@@ -2950,6 +2988,8 @@ END.
                  WHEN "wt-msf" THEN cVarValue = "".
                  WHEN "po-gl-act" THEN cVarValue = "" .
                  WHEN "cItemName" THEN cVarValue = "" .
+                 WHEN "job-no" THEN cVarValue = "" .
+                 WHEN "sht-size" THEN cVarValue = "".
            END CASE.
         
            cExcelVarValue = cVarValue.  

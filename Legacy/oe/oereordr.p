@@ -4,7 +4,7 @@ DEF OUTPUT PARAM op-alloc AS INT NO-UNDO.
      
 DEF VAR v-type AS CHAR NO-UNDO.
 
-DEF BUFFER s-code FOR reftable.
+
 
 IF AVAIL io-itemfg THEN
 FIND FIRST oe-ctrl WHERE oe-ctrl.company EQ io-itemfg.company NO-LOCK NO-ERROR.
@@ -27,21 +27,17 @@ FOR EACH oe-ordl NO-LOCK
         AND oe-rel.line    EQ oe-ordl.line
       USE-INDEX ord-item:
 
-      FIND FIRST s-code WHERE
-                 s-code.reftable EQ "oe-rel.s-code" AND
-                 s-code.company  EQ STRING(oe-rel.r-no,"9999999999")
-                 NO-LOCK NO-ERROR.
-        
+              
     {oe/rel-stat.i v-type}.
     
     IF v-type EQ "P" AND ip-oereordr THEN do:
         /* 04-16-10 AH add alloc qty only when code is not "I"nvoice */
-        IF AVAIL s-code AND s-code.CODE <> "I" THEN /*assuming ip-oereordr only yes and ?*/
+        IF oe-rel.s-code <> "I" THEN /*assuming ip-oereordr only yes and ?*/
            op-alloc = op-alloc + (IF ip-oereordr THEN oe-rel.qty ELSE oe-rel.tot-qty).
     END.
     ELSE IF ip-oereordr EQ ? AND lookup(v-type,"S,L,I,A,B") > 0 THEN
     DO:
-       IF (AVAIL s-code AND s-code.CODE <> "I") OR NOT AVAIL s-code THEN
+       IF (oe-rel.s-code <> "I") OR oe-rel.s-code = "" THEN
           op-alloc = op-alloc + oe-rel.tot-qty.
     END.
     

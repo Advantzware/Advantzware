@@ -1218,6 +1218,22 @@ PROCEDURE update-record :
             bf-fg-bin.tot-wt = b-w-job.tot-wt.
         RELEASE bf-fg-bin.
     END.
+    IF w-job.tot-wt:MODIFIED THEN DO:
+       FIND FIRST loadtag EXCLUSIVE-LOCK
+          WHERE loadtag.company EQ cocode
+          AND loadtag.i-no      EQ b-w-job.i-no
+          AND loadtag.job-no    EQ b-w-job.job-no
+          AND loadtag.job-no2   EQ b-w-job.job-no2 
+          AND loadtag.tag-no    EQ b-w-job.tag 
+       NO-ERROR.
+
+       IF AVAIL loadtag THEN DO:
+           ASSIGN loadtag.misc-dec[1] = (b-w-job.case-count * b-w-job.tot-wt) / 100
+                  loadtag.misc-dec[2] = loadtag.misc-dec[1] * loadtag.qty-case. 
+       END.
+       FIND CURRENT loadtag NO-LOCK NO-ERROR.
+    END.
+
     IF iplResort THEN DO:
         RUN set-read-only (YES).
         RUN resort-query.

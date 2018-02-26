@@ -7,11 +7,7 @@ IF tt-boll.s-code EQ "S"  THEN DO:
    FOR EACH  oe-rel WHERE oe-rel.company EQ tt-boll.company
       AND oe-rel.ord-no EQ tt-boll.ord-no
       AND oe-rel.i-no   EQ tt-boll.i-no 
-      NO-LOCK,
-      FIRST reftable
-        WHERE reftable.reftable EQ "oe-rel.s-code"
-          AND reftable.company  EQ STRING(oe-rel.r-no,"9999999999")
-          AND reftable.CODE EQ "I"
+      AND oe-rel.s-code EQ "I"
         NO-LOCK:
          FIND FIRST oe-rell
             WHERE oe-rell.company  EQ oe-rel.company

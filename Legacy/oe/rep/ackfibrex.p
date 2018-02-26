@@ -107,14 +107,6 @@ find first company where company.company eq cocode no-lock no-error.
       IF lv-display-comp THEN
       DO:
          IF oe-ord.USER-ID NE "" THEN
-            FIND FIRST reftable WHERE
-                 reftable.reftable EQ "users.user-docs" AND
-                 reftable.company EQ oe-ord.USER-ID
-                 NO-LOCK NO-ERROR.
-        
-         IF AVAIL reftable AND
-            reftable.val[4] EQ 1 THEN
-            DO:
                FIND FIRST b-ref1 WHERE
                     b-ref1.reftable EQ "users.phone-no" AND
                     b-ref1.company EQ oe-ord.USER-ID
@@ -144,14 +136,6 @@ find first company where company.company eq cocode no-lock no-error.
               
                   RELEASE b-ref1.
                END.
-            END.
-         ELSE
-            IF AVAIL b-custx THEN
-               ASSIGN
-                  v-comp-add4 = "Phone:  " + string(b-custx.area-code,"(999)") + string(b-custx.phone,"999-9999")
-                  v-comp-add5 = "Fax  :  " + string(b-custx.fax,"(999)999-9999").
-        
-         RELEASE reftable NO-ERROR.
       END.
 
       IF oe-ord.sman[1] <> "" THEN DO:

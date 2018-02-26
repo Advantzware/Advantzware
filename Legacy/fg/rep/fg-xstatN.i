@@ -177,10 +177,10 @@ FOR EACH ttCustList
                AND oe-rel.line    EQ oe-ordl.line
                NO-LOCK:
 
-               FIND FIRST reftable
-                   WHERE reftable.reftable EQ "oe-rel.s-code"
-                   AND reftable.company  EQ STRING(oe-rel.r-no,"9999999999")
-                   NO-LOCK NO-ERROR.
+/*               FIND FIRST reftable                                          */
+/*                   WHERE reftable.reftable EQ "oe-rel.s-code"               */
+/*                   AND reftable.company  EQ STRING(oe-rel.r-no,"9999999999")*/
+/*                   NO-LOCK NO-ERROR.                                        */
                
                FIND FIRST oe-rell NO-LOCK
                    WHERE oe-rell.company  EQ cocode
@@ -223,14 +223,14 @@ FOR EACH ttCustList
                   IF AVAILABLE oe-relh  THEN 
                       ASSIGN  tt-oe-rel.rel-no   = oe-relh.release#.
 
-                  IF AVAILABLE reftable THEN DO:                                /*Task# 12021301*/
-                      IF LOOKUP(reftable.code, "S,I,L") GT 0 THEN
+
+                      IF LOOKUP(oe-rel.s-code, "S,I,L") GT 0 THEN
                           tt-oe-rel.link-no = tt-oe-rel.link-no.
                       ELSE DO:
-                          IF LOOKUP(reftable.code, "B,A,P,C,Z") GT 0 THEN
+                          IF LOOKUP(oe-rel.s-code, "B,A,P,C,Z") GT 0 THEN
                           tt-oe-rel.link-no = tt-oe-rel.rel-no.
                       END.
-                  END.
+                  
            END.
            v-qty-allo = 0.
            IF oereordr-log OR oereordr-log EQ ? THEN

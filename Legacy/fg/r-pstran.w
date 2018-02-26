@@ -631,7 +631,7 @@ DEFINE BUFFER bf-oe-ord FOR oe-ord.
 DEFINE BUFFER bf-oe-rel FOR oe-rel.
 
 /* custom code */
-DEFINE BUFFER s-code FOR reftable.
+
 DEFINE VARIABLE lv-stat AS CHARACTER NO-UNDO.
 FIND bf-oe-rel WHERE ROWID(bf-oe-rel) EQ ipr-rel-row
                     NO-LOCK NO-ERROR.
@@ -691,7 +691,6 @@ DEFINE BUFFER bf-orig-oe-rel FOR oe-rel.
 /* Code added to implement the procedure below */
 DEFINE VARIABLE v-last-shipto AS CHARACTER.
 DEFINE VARIABLE lv-rel-recid AS RECID.
-DEFINE BUFFER s-code FOR reftable.
 DEFINE VARIABLE lv-cust-x AS CHARACTER.
 
 DEFINE VARIABLE oereleas-log LIKE sys-ctrl.log-fld NO-UNDO.
@@ -742,7 +741,7 @@ IF NOT AVAILABLE bf-oe-ord THEN
   DEFINE VARIABLE v-first-ship-id AS cha NO-UNDO.
   
 
-  RUN oe/get-r-no.p (INPUT "oe-rel", OUTPUT v-nxt-r-no).
+  RUN oe/getNextRelNo.p (INPUT "oe-rel", OUTPUT v-nxt-r-no).
   FIND FIRST bf-cust WHERE bf-cust.cust-no EQ bf-oe-ord.cust-no NO-LOCK NO-ERROR.
   ASSIGN
     v-ship-id = IF AVAILABLE oe-rel THEN oe-rel.ship-id ELSE ""
@@ -771,11 +770,8 @@ IF NOT AVAILABLE bf-oe-ord THEN
                        AND bf-rel.i-no = bf-oe-ordl.i-no 
                        AND bf-rel.LINE = bf-oe-ordl.LINE
                        NO-LOCK:
-         FIND FIRST s-code
-             WHERE s-code.reftable EQ "oe-rel.s-code"
-               AND s-code.company  EQ STRING(bf-rel.r-no,"9999999999")
-             NO-LOCK NO-ERROR.
-         IF NOT AVAILABLE s-code OR CAN-DO("B,S",s-code.code) THEN
+         
+         IF bf-rel.s-code <> "" OR CAN-DO("B,S",bf-rel.s-code) THEN
            v-qty-sum = v-qty-sum + bf-rel.qty. 
      END.
      

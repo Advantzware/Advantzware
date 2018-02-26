@@ -547,15 +547,8 @@ PROCEDURE display-line.
 
     IF tt-rpt.type NE {gl/gl-type.i 60} AND
        tt-rpt.type NE {gl/gl-type.i 61} THEN
-    FIND FIRST reftable
-        WHERE reftable.reftable EQ "gl-rpt.pct-subtotal"
-          AND reftable.company  EQ tt-rpt.company
-          AND reftable.loc      EQ ""
-          AND reftable.code     EQ tt-rpt.rpt
-          AND reftable.code2    EQ STRING(tt-rpt.line,"9999999999")
-        NO-LOCK NO-ERROR.
 
-    IF AVAIL reftable AND reftable.val[1] EQ 1 THEN
+      IF tt-rpt.pct-subtotal = yes THEN
     DO jj = 1 TO 12:
       IF SUBSTR(tt-rpt.flag,jj,1) EQ "Y" THEN DO:
         ASSIGN

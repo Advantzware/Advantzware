@@ -292,20 +292,12 @@ for each xef
     RUN cec/com/localk.p (0, ?,ip-build-combo).
     IF ip-build-combo AND LAST(xef.est-no) THEN
      DO:
-        FIND FIRST op-lock WHERE
-             op-lock.reftable EQ "est.op-lock" AND
-             op-lock.company  EQ xest.company AND
-             op-lock.loc      EQ xest.loc AND
-             op-lock.code     EQ TRIM(xest.est-no)
-             NO-ERROR.
 
-        IF AVAIL op-lock THEN
-        DO:
-           ASSIGN
-              op-lock.val[1] = 0
-              op-lock.val[2] = 0.
-           RELEASE op-lock.
-        END.
+          FIND CURRENT xest EXCLUSIVE-LOCK NO-ERROR.
+             ASSIGN
+               xest.recalc    = NO
+               xest.recalc-mr = NO.
+          FIND CURRENT xest NO-LOCK.     
      END.
   END.
   ELSE

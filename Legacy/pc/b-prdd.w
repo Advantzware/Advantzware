@@ -1225,7 +1225,6 @@ PROCEDURE local-assign-record :
   DEF VAR ls-name AS cha NO-UNDO.
   DEF VAR ll-job-mch AS LOG NO-UNDO.
   DEF VAR li AS INT NO-UNDO.
-  DEFINE VARIABLE lNewJobMch AS LOGICAL NO-UNDO.
 
   /* Code placed here will execute PRIOR to standard behavior. */
   ls-name = pc-prdd.i-name:SCREEN-VALUE IN BROWSE {&browse-name}.
@@ -1261,9 +1260,10 @@ PROCEDURE local-assign-record :
   ll-job-mch = NO.
   FOR EACH tt-job-mch:
     FIND FIRST job-mch WHERE ROWID(job-mch) EQ tt-job-mch.row-id NO-ERROR.
-    lNewJobMch = NOT AVAILABLE job-mch.
     IF NOT AVAIL job-mch THEN CREATE job-mch.
     BUFFER-COPY tt-job-mch TO job-mch NO-ERROR.
+    /* this let's SB know data collection made changes */
+    job-mch.est-op_rec_key = "DC " + STRING(TODAY) + " " + STRING(TIME,"HH:MM:SS").
 
     IF tt-job-mch.row-id EQ ? THEN DO:
       IF ERROR-STATUS:ERROR THEN DELETE job-mch.
@@ -1280,8 +1280,6 @@ PROCEDURE local-assign-record :
          job-mch.wst-prct = mach.run-spoil.
         IF pc-prdd.speed GT 0 THEN
           job-mch.speed    = pc-prdd.speed.
-        IF lNewJobMch THEN 
-          job-mch.est-op_rec_key = "".
       END.
 
     END.
