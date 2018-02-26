@@ -332,11 +332,18 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL BROWSE-2 D-Dialog
 ON MOUSE-SELECT-DBLCLICK OF BROWSE-2 IN FRAME D-Dialog
 DO:
-  FIND FIRST users NO-LOCK WHERE 
-         users.user_id EQ USERID(LDBNAME(1)) 
-         NO-ERROR.
-  IF AVAIL users AND users.securityLevel GT 899  AND
-    AVAILABLE tt-mat-tran THEN DO:
+
+DEFINE VARIABLE hProcedureHandle AS HANDLE NO-UNDO.
+DEFINE VARIABLE cProgramName     AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lAccess          AS LOGICAL NO-UNDO.
+
+    ASSIGN lAccess = NO
+           cProgramName = "Legacy/ProgramMasterSecurity.p"
+           .
+    RUN VALUE(cProgramName) PERSISTENT SET hProcedureHandle.
+    RUN getSecurity IN hProcedureHandle("jcinq/b-updmat.w", USERID(LDBNAME(1)), "",
+                                        OUTPUT lAccess).
+ IF lAccess AND  AVAILABLE tt-mat-tran THEN DO:
 
     /*  RUN windows/ITEM.w .*/
 
@@ -344,6 +351,7 @@ DO:
 
    APPLY "entry" TO tt-mat-tran.tran-date IN BROWSE {&browse-name}.
  END.
+delete object hProcedureHandle.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -545,10 +553,17 @@ FRAME {&FRAME-NAME}:TITLE = "Job #: " + ip-job-no + "-" + STRING(ip-job-no2)
 
 btn_dril-dwn:SENSITIVE = YES .
 
-FIND FIRST users NO-LOCK WHERE 
-         users.user_id EQ USERID(LDBNAME(1)) 
-         NO-ERROR.
-IF AVAIL users AND users.securityLevel GT 899 THEN
+DEFINE VARIABLE hProcedureHandle AS HANDLE NO-UNDO.
+DEFINE VARIABLE cProgramName     AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lAccess          AS LOGICAL NO-UNDO.
+
+  assign lAccess      = NO
+         cProgramName = "Legacy/ProgramMasterSecurity.p".
+         
+  RUN VALUE(cProgramName) PERSISTENT SET hProcedureHandle.
+  RUN getSecurity IN hProcedureHandle("jcinq/b-updmat.w", USERID(LDBNAME(1)), "",
+                                        OUTPUT lAccess).
+   IF lAccess THEN
    ASSIGN
       btn_add:SENSITIVE = YES
       btn_add:HIDDEN = NO

@@ -487,25 +487,31 @@ PROCEDURE local-change-page :
   Notes:       
 ------------------------------------------------------------------------------*/
 DEFINE VARIABLE il-cur-page AS INTEGER INIT 1 NO-UNDO.
+DEFINE VARIABLE hProcedureHandle AS HANDLE NO-UNDO.
+DEFINE VARIABLE cProgramName     AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lAccess          AS LOGICAL NO-UNDO.
   /* Code placed here will execute PRIOR to standard behavior. */
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'change-page':U ) .
 
   run get-attribute ("current-page").
-   assign il-cur-page = int(return-value).
+   assign il-cur-page = int(return-value)
+          lAccess      = NO
+          cProgramName = "Legacy/ProgramMasterSecurity.p"
+   .
 
    IF il-cur-page = 2 THEN DO:
-     FIND FIRST users NO-LOCK WHERE 
-         users.user_id EQ USERID(LDBNAME(1)) 
-         NO-ERROR.
-     IF AVAIL users AND users.securityLevel LE 899 THEN
+     RUN VALUE(cProgramName) PERSISTENT SET hProcedureHandle.
+     RUN getSecurity IN hProcedureHandle("windows/prgrms.w", USERID(LDBNAME(1)), "",
+                                        OUTPUT lAccess).
+     IF lAccess THEN
          RUN set-buttons IN h_p-updsav ('disable-all').
    END.
 
   /* Code placed here will execute AFTER standard behavior.    */
   {methods/winReSizePgChg.i}
-
+ delete object hProcedureHandle.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

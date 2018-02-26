@@ -183,14 +183,23 @@ PROCEDURE local-enable-fields :
 ------------------------------------------------------------------------------*/
 
   /* Code placed here will execute PRIOR to standard behavior. */
+DEFINE VARIABLE hProcedureHandle AS HANDLE NO-UNDO.
+DEFINE VARIABLE cProgramName     AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lAccess          AS LOGICAL NO-UNDO.
+  
   DEFINE VARIABLE ll-secure-check AS LOGICAL NO-UNDO.
   {methods/template/local/update.i}
+  
+   ASSIGN lAccess = NO
+           cProgramName = "Legacy/ProgramMasterSecurity.p"
+           .
 
 IF PROGRAM-NAME(3) MATCHES "*help/v-head.w*"  THEN DO:
-  FIND FIRST users NO-LOCK
-     WHERE users.user_id EQ USERID(LDBNAME(1)) NO-ERROR.
-
-IF AVAIL users AND users.securityLevel GE 1000 THEN
+ 
+    RUN VALUE(cProgramName) PERSISTENT SET hProcedureHandle.
+    RUN getSecurity IN hProcedureHandle("methods/template/viewer4.i", USERID(LDBNAME(1)), "",
+                                        OUTPUT lAccess).
+    IF lAccess THEN 
     ASSIGN ll-secure-check = YES.
 
   IF NOT ll-secure-check THEN RUN sys/ref/uphlp-pass.w (3, OUTPUT ll-secure-check).
@@ -203,6 +212,7 @@ end.
   /* Code placed here will execute AFTER standard behavior.    */
   {methods/template/local/enable.i}
 
+delete object hProcedureHandle.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
