@@ -662,7 +662,38 @@ CLASS RefTableMigration:
                 EXCLUSIVE-LOCK NO-ERROR.
             IF AVAILABLE job-hdr THEN    
             ASSIGN 
-                job-hdr.freezeNote = YES                
+                job-hdr.freezeNote = YES   
+                . 
+            RELEASE job-hdr.      
+            iCnt = iCnt + 1.                 
+        END.  /*FOR EACH reftable*/         
+        RETURN iCnt.
+    END METHOD. /*job-hdr*/
+    METHOD PUBLIC INTEGER DropslitToHighlight():
+        DEFINE VARIABLE iCnt AS INTEGER NO-UNDO.
+        FOR EACH est EXCLUSIVE-LOCK:
+            ASSIGN 
+                est.highlight = est.dropslit                
+                est.dropslit = no
+                .                 
+            RELEASE est.      
+            iCnt = iCnt + 1.                 
+        END.  /*FOR EACH reftable*/         
+        RETURN iCnt.
+    END METHOD. /*est*/
+    METHOD PUBLIC INTEGER Dropslit():
+        DEFINE VARIABLE iCnt AS INTEGER NO-UNDO.
+        FOR EACH reftable WHERE reftable.reftable = "dropslit"
+            NO-LOCK:
+            FIND FIRST est WHERE est.company = reftable.company
+                est.dropslit = reftable.loc eq "yes"                
+                             AND est.est-no  = reftable.code
+                EXCLUSIVE-LOCK NO-ERROR.
+            IF AVAILABLE est THEN    
+            ASSIGN 
+                est.recalc    = logical(reftable.val[1]) 
+                est.recalc-mr = logical(reftable.val[2])         
+    END METHOD. /*est*/
     METHOD PUBLIC INTEGER MachPlainJob():
         DEFINE VARIABLE iCnt AS INTEGER NO-UNDO.
         FOR EACH reftable WHERE reftable.reftable = "mach.plain-job"
@@ -840,8 +871,6 @@ CLASS RefTableMigration:
                 EXCLUSIVE-LOCK NO-ERROR.
             IF AVAILABLE est THEN    
             ASSIGN 
-                est.recalc    = logical(reftable.val[1]) 
-                est.recalc-mr = logical(reftable.val[2])         
                 . 
             RELEASE est.      
             iCnt = iCnt + 1.                 
