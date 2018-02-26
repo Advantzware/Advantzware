@@ -6099,7 +6099,8 @@ PROCEDURE get-rel-info :
     LEAVE.
   END.
   
-  ASSIGN op-lot# = oe-rel.lot-no.
+  IF AVAILABLE oe-rel THEN 
+    ASSIGN op-lot# = oe-rel.lot-no.
   IF v-po-no-source EQ "J" THEN
       FIND FIRST b-job-hdr WHERE ROWID(b-job-hdr) EQ ip-job NO-LOCK NO-ERROR .
 
