@@ -4,7 +4,7 @@ PUT
      "<FArial>"  SKIP
        "<P14><C+35> <B>Purchase Order</B> <P10>" v-change-ord SKIP 
        "<C1><#1><R+5><C+25>" SKIP 
-       "<C3><R2><#2><R+16><C+29><IMAGE#2=" + ls-full-img1 FORM "x(100)"
+       "<C3><R2><#2><R+16><C+29><IMAGE#2=" + ls-full-img1 FORM "x(200)"
 /*       "<=1><R+2>" "<FGCOLOR=" + trim(lv-comp-color) + ">" FORM "x(15)" */
       "<P10><=1><R+10>"
 /*       " "  AT 8 SKIP                                                      */

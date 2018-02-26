@@ -1,7 +1,7 @@
 /* ar/rep/invpremx.i  */
 PUT "<FTimes New Roman>".
     IF lChkImage THEN
-         PUT  "<C3><#1><R+8><C+45>" "<IMAGE#1=" + ls-full-img1 FORM "x(160)" SKIP .
+         PUT  "<C3><#1><R+8><C+45>" "<IMAGE#1=" + ls-full-img1 FORM "x(200)" SKIP .
 /*         PUT "<C3><R2><#1>"                                         */
 /*             "<R+8><C+45><IMAGE#1=" ls-full-img1 SKIP. /* image */ .*/
         PUT "<=1>" SKIP.

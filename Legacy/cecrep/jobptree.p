@@ -62,7 +62,7 @@ DEFINE NEW SHARED VARIABLE v-adder-4 AS CHARACTER FORMAT "X(10)" NO-UNDO.
 DEFINE NEW SHARED VARIABLE v-adder-5 AS CHARACTER FORMAT "X(10)" NO-UNDO.
 DEFINE NEW SHARED VARIABLE v-adder-6 AS CHARACTER FORMAT "X(10)" NO-UNDO.
 DEFINE VARIABLE ls-image1 AS cha NO-UNDO.
-DEFINE VARIABLE ls-full-img1 AS cha FORM "x(150)" NO-UNDO.
+DEFINE VARIABLE ls-full-img1 AS cha FORM "x(200)" NO-UNDO.
 
 DEFINE VARIABLE cStdHours AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cRunHours AS CHARACTER NO-UNDO.
@@ -461,7 +461,7 @@ ASSIGN
        "<=1><R+40><C71><P8><U>Sheets Ordered:</U>          <U>Due Date:</U>      <U>Supplier:</U>"
        "<=1><R+40><C86><FROM><R+5><LINE><||3>"   
        "<=1><R+40><C96><FROM><R+5><LINE><||3>"
-       "<=1><R+0.2><C56><#22><R+7.5><C+17.6><IMAGE#22=" ls-full-img1 /*+ ">"*/ FORM "x(170)"
+       "<=1><R+0.2><C56><#22><R+7.5><C+17.6><IMAGE#22=" ls-full-img1 /*+ ">"*/ FORM "x(200)"
        "<=1><R+27.2><C23><#22><R+5><C+9.7><IMAGE#22=" lv-spattern-img + ">" FORM "x(70)".  /*Stack pattern image*/
 
        VIEW FRAME head.  /* factory header display  */  

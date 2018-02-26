@@ -28,8 +28,8 @@ DEF VAR ll-calc-disc-first AS LOG NO-UNDO.
 /* === with xprint ====*/
 DEF VAR ls-image1 AS cha NO-UNDO.
 DEF VAR ls-image2 AS cha NO-UNDO.
-DEF VAR ls-full-img1 AS cha FORM "x(50)" NO-UNDO.
-DEF VAR ls-full-img2 AS cha FORM "x(50)" NO-UNDO.
+DEF VAR ls-full-img1 AS cha FORM "x(200)" NO-UNDO.
+DEF VAR ls-full-img2 AS cha FORM "x(200)" NO-UNDO.
 DEF VAR v-first AS LOG NO-UNDO.
 
 IF cocode = "002" THEN ls-image1 = "images\pyxisale.jpg".

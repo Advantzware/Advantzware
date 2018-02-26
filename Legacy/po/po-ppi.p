@@ -59,7 +59,7 @@ DEFINE VARIABLE lv-Ord-Qty LIKE po-ordl.ord-qty NO-UNDO.
 
 /* === with xprint ====*/
 DEF VAR ls-image1 AS cha NO-UNDO.
-DEF VAR ls-full-img1 AS cha FORM "x(60)" NO-UNDO.
+DEF VAR ls-full-img1 AS cha FORM "x(200)" NO-UNDO.
 
 ASSIGN ls-image1 = "images\ppitop.jpg"
        FILE-INFO:FILE-NAME = ls-image1
