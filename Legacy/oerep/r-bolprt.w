@@ -3701,23 +3701,40 @@ PROCEDURE run-packing-list :
   IF IS-xprint-form THEN DO:
 
       CASE rd-dest:
-          WHEN 1 THEN PUT "<PRINTER?><LEFT=4mm>".
-          WHEN 2 THEN do:
-           IF NOT lBussFormModle THEN
-            PUT "<PREVIEW><LEFT=4mm><MODAL=NO>". 
-           ELSE
-            PUT "<PREVIEW><LEFT=4mm>".        
+          WHEN 1 THEN DO: 
+            IF v-print-fmt = "CCC" OR v-print-fmt EQ "CCCWPP" THEN
+              PUT "<PRINTER?><LEFT=4mm>".
+            ELSE
+              PUT "<PRINTER?>".
           END.
+          WHEN 2 THEN do:
+           IF NOT lBussFormModle THEN do:
+               IF v-print-fmt = "CCC" OR v-print-fmt EQ "CCCWPP" THEN
+                   PUT "<PREVIEW><LEFT=4mm><MODAL=NO>". 
+               ELSE
+                   PUT "<PREVIEW><MODAL=NO>". 
+           END.
+           ELSE DO:
+             IF v-print-fmt = "CCC" OR v-print-fmt EQ "CCCWPP" THEN
+                 PUT "<PREVIEW><LEFT=4mm>". 
+             ELSE
+                 PUT "<PREVIEW>". 
+           END.
+          END.  /* when 2*/
           WHEN 4 THEN do:
                 ls-fax-file = "c:\tmp\fax" + STRING(TIME) + ".tif".
+                IF v-print-fmt = "CCC" OR v-print-fmt EQ "CCCWPP" THEN
                 PUT UNFORMATTED "<PRINTER?><LEFT=4mm><EXPORT=" Ls-fax-file ",BW>".
+                ELSE
+                PUT UNFORMATTED "<PRINTER?><EXPORT=" Ls-fax-file ",BW>".
           END.
           WHEN 5 THEN do:
               IF v-print-fmt = "Century" THEN /*<PDF-LEFT=5mm><PDF-TOP=10mm>*/
                    PUT "<PREVIEW><PDF-EXCLUDE=MS Mincho><PDF-LEFT=2.5mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
               ELSE IF v-print-fmt EQ "PremierX" OR v-print-fmt EQ "RFCX"  OR v-print-fmt = "PremierCX" OR v-print-fmt = "PremierPX" THEN
                    PUT "<PREVIEW><FORMAT=LETTER><PDF-EXCLUDE=MS Mincho><PDF-LEFT=5mm><PDF-TOP=7mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
-              ELSE PUT "<PREVIEW><LEFT=4mm><PDF-LEFT=2mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
+              ELSE IF v-print-fmt EQ "CCC" OR v-print-fmt EQ "CCCWPP" THEN PUT "<PREVIEW><LEFT=4mm><PDF-LEFT=2mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
+              ELSE  PUT "<PREVIEW><PDF-LEFT=2mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
           END.
       END CASE.
   END.
@@ -3838,23 +3855,37 @@ PROCEDURE run-report :
   IF IS-xprint-form THEN DO:
 
       CASE rd-dest:
-          WHEN 1 THEN PUT "<PRINTER?><LEFT=4mm>".
-          WHEN 2 THEN do:
-           IF NOT lBussFormModle THEN
-            PUT "<PREVIEW><LEFT=4mm><MODAL=NO>". 
-           ELSE
-            PUT "<PREVIEW><LEFT=4mm>".        
+          WHEN 1 THEN do: 
+              IF v-print-fmt = "CCC" OR v-print-fmt EQ "CCCWPP" THEN
+                  PUT "<PRINTER?><LEFT=4mm>".
+              ELSE  PUT "<PRINTER?>".
           END.
+          WHEN 2 THEN do:
+           IF NOT lBussFormModle THEN do:
+               IF v-print-fmt = "CCC" OR v-print-fmt EQ "CCCWPP" THEN
+                   PUT "<PREVIEW><LEFT=4mm><MODAL=NO>". 
+               ELSE PUT "<PREVIEW><MODAL=NO>".
+           END.
+           ELSE do:
+               IF v-print-fmt = "CCC" OR  v-print-fmt EQ "CCCWPP" THEN
+                   PUT "<PREVIEW><LEFT=4mm>".        
+               ELSE
+                   PUT "<PREVIEW><LEFT=4mm>".  
+           END.
+          END. /*when 2*/
           WHEN 4 THEN do:
                 ls-fax-file = "c:\tmp\fax" + STRING(TIME) + ".tif".
-                PUT UNFORMATTED "<PRINTER?><LEFT=4mm><EXPORT=" Ls-fax-file ",BW>".
+                IF v-print-fmt = "CCC" OR  v-print-fmt EQ "CCCWPP" THEN
+                    PUT UNFORMATTED "<PRINTER?><LEFT=4mm><EXPORT=" Ls-fax-file ",BW>".
+                ELSE PUT UNFORMATTED "<PRINTER?><EXPORT=" Ls-fax-file ",BW>".
           END.
           WHEN 5 THEN do:
               IF v-print-fmt = "Century" THEN /*<PDF-LEFT=5mm><PDF-TOP=10mm>*/
                    PUT "<PREVIEW><PDF-EXCLUDE=MS Mincho><PDF-LEFT=2.5mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
               ELSE IF v-print-fmt EQ "PremierX" OR v-print-fmt EQ "RFCX"  OR v-print-fmt = "PremierCX" OR v-print-fmt = "PremierPX" THEN
                    PUT "<PREVIEW><FORMAT=LETTER><PDF-EXCLUDE=MS Mincho><PDF-LEFT=5mm><PDF-TOP=7mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
-              ELSE PUT "<PREVIEW><LEFT=4mm><PDF-LEFT=2mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
+              ELSE IF v-print-fmt EQ "CCC" OR  v-print-fmt EQ "CCCWPP" THEN PUT "<PREVIEW><LEFT=4mm><PDF-LEFT=2mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
+              ELSE PUT "<PREVIEW><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
           END.
       END CASE.
   END.
@@ -4042,23 +4073,39 @@ ELSE IF is-xprint-form AND rd-dest = 1 THEN PUT "<PRINTER?>".
 */
 /*IF IS-xprint-form THEN */  DO:
     CASE rd-dest:
-        WHEN 1 THEN PUT  "<PRINTER?><LEFT=4mm>".
-        WHEN 2 THEN do:
-           IF NOT lBussFormModle THEN
-            PUT "<PREVIEW><LEFT=4mm><MODAL=NO>". 
-           ELSE
-            PUT "<PREVIEW><LEFT=4mm>".        
+        WHEN 1 THEN do:
+             IF v-print-fmt EQ "CCC" OR  v-print-fmt EQ "CCCWPP" THEN
+                 PUT  "<PRINTER?><LEFT=4mm>".
+             ELSE
+                PUT  "<PRINTER?>".
         END.
+        WHEN 2 THEN do:
+           IF NOT lBussFormModle THEN do:
+               IF v-print-fmt EQ "CCC" OR  v-print-fmt EQ "CCCWPP" THEN
+                   PUT "<PREVIEW><LEFT=4mm><MODAL=NO>". 
+               ELSE
+                   PUT "<PREVIEW><MODAL=NO>".  
+           END.
+           ELSE do:
+               IF v-print-fmt EQ "CCC" OR  v-print-fmt EQ "CCCWPP" THEN
+                   PUT "<PREVIEW><LEFT=4mm>".        
+               ELSE
+                   PUT "<PREVIEW>".
+           END.
+        END. /* when 2 */
         WHEN  4 THEN do:
               ls-fax-file = "c:\tmp\fax" + STRING(TIME) + ".tif".
-              PUT UNFORMATTED "<PRINTER?><LEFT=4mm><EXPORT=" Ls-fax-file ",BW>".
+              IF v-print-fmt EQ "CCC" OR  v-print-fmt EQ "CCCWPP" THEN
+                  PUT UNFORMATTED "<PRINTER?><LEFT=4mm><EXPORT=" Ls-fax-file ",BW>".
+              ELSE PUT UNFORMATTED "<PRINTER?><EXPORT=" Ls-fax-file ",BW>".
         END.
         WHEN 5 THEN do:
             IF v-print-fmt = "Century" THEN /*<PDF-LEFT=5mm><PDF-TOP=10mm>*/
                  PUT "<PREVIEW><PDF-EXCLUDE=MS Mincho><PDF-LEFT=2.5mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
                  ELSE IF v-print-fmt EQ "PremierX" OR v-print-fmt EQ "RFCX"  OR v-print-fmt = "PremierCX" OR v-print-fmt = "PremierPX" THEN
                    PUT "<PREVIEW><FORMAT=LETTER><PDF-EXCLUDE=MS Mincho><PDF-LEFT=5mm><PDF-TOP=7mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
-            ELSE PUT "<PREVIEW><LEFT=4mm><PDF-LEFT=2mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
+            ELSE IF v-print-fmt EQ "CCC" OR v-print-fmt EQ "CCCWPP" THEN PUT "<PREVIEW><LEFT=4mm><PDF-LEFT=2mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
+            ELSE PUT "<PREVIEW><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
         END.
     END CASE.
 END.
@@ -4190,7 +4237,8 @@ PROCEDURE run-report-mail :
         ELSE IF v-print-fmt EQ "PremierX" OR v-print-fmt EQ "RFCX"  OR v-print-fmt = "PremierCX" OR v-print-fmt = "PremierPX" THEN
                    PUT "<PREVIEW><FORMAT=LETTER><PDF-EXCLUDE=MS Mincho><PDF-LEFT=5mm><PDF-TOP=7mm><PDF-OUTPUT=" + lv-pdf-file + vcBOLNums + ".pdf>" FORM "x(180)".
         ELSE IF v-print-fmt EQ "Prystup-Excel" THEN PUT "<PDF-OUTPUT=" + lv-pdf-file + vcBOLNums + ".pdf>" FORM "x(180)".
-        ELSE PUT "<PREVIEW><LEFT=4mm><PDF-LEFT=2mm><PDF-OUTPUT=" + lv-pdf-file + vcBOLNums + ".pdf>" FORM "x(180)".
+        ELSE IF v-print-fmt EQ "CCC" OR v-print-fmt EQ "CCCWPP" THEN PUT "<PREVIEW><LEFT=4mm><PDF-LEFT=2mm><PDF-OUTPUT=" + lv-pdf-file + vcBOLNums + ".pdf>" FORM "x(180)".
+        ELSE PUT "<PREVIEW><PDF-OUTPUT=" + lv-pdf-file + vcBOLNums + ".pdf>" FORM "x(180)".
     END.
 
     IF lv-run-bol = "YES" THEN DO:
