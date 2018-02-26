@@ -33,6 +33,9 @@ CREATE WIDGET-POOL.
 ASSIGN
  cocode = g_company
  locode = g_loc.
+DEF VAR v-po-no   AS INT NO-UNDO.
+DEF VAR v-po-line AS INT NO-UNDO.
+DEF VAR v-qty     AS INT NO-UNDO.
 
 DEF TEMP-TABLE tt-mat NO-UNDO
     FIELD frm LIKE job-mat.frm
@@ -88,7 +91,7 @@ find first loc where
 
 DEF VAR v-bin AS CHAR NO-UNDO.
 DEF VAR v-loadtag AS CHAR NO-UNDO INIT "ASI". /* sys ctrl option */
-
+DEFINE VARIABLE iPalletMark AS INTEGER NO-UNDO.
 FIND FIRST sys-ctrl NO-LOCK
      WHERE sys-ctrl.company EQ g_company
        AND sys-ctrl.name    EQ "RMWHSBIN" NO-ERROR.
@@ -695,10 +698,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL scr-vend-tag V-table-Win
 ON LEAVE OF scr-vend-tag IN FRAME F-Main /* Vendor Tag# */
 DO:
-   DEF VAR v-po-no AS INT NO-UNDO.
-   DEF VAR v-po-line AS INT NO-UNDO.
-   DEF VAR v-qty AS INT NO-UNDO.
-
+   DEFINE VARIABLE lEdDocFound AS LOGICAL NO-UNDO.
+   
    DO WITH FRAME {&FRAME-NAME}:
 
       IF LASTKEY NE -1 THEN
@@ -725,68 +726,38 @@ DO:
                   VIEW-AS ALERT-BOX ERROR.
                RETURN NO-APPLY.
             END.
-     
-         v-po-no = INT(SUBSTR(scr-vend-tag,1,6)) NO-ERROR.
-         
-         IF NOT ERROR-STATUS:ERROR THEN
-         DO:
-            IF NOT CAN-FIND(FIRST po-ord WHERE
-               po-ord.company EQ cocode AND
-               po-ord.po-no EQ v-po-no) THEN
-               LEAVE.
-        
-            begin_po-no:SCREEN-VALUE = STRING(v-po-no).
-         END.
-         ELSE
-            LEAVE.
             
-         v-po-line = INT(SUBSTR(scr-vend-tag,7,3)) NO-ERROR.
-         
-         IF NOT ERROR-STATUS:ERROR THEN
-            scr-po-line:SCREEN-VALUE = STRING(v-po-line).
-         
-         v-qty = INT(SUBSTR(scr-vend-tag,10,5)) NO-ERROR.
-         
-         IF NOT ERROR-STATUS:ERROR THEN
-            scr-qty:SCREEN-VALUE = STRING(v-qty).
-        
-         IF begin_po-no:SCREEN-VALUE NE "0" AND
-            scr-po-line:SCREEN-VALUE NE "0" THEN
-            DO:
-               ASSIGN begin_po-no scr-po-line.
-        
-               FIND FIRST po-ordl WHERE
-                    po-ordl.company EQ cocode AND
-                    po-ordl.po-no EQ begin_po-no AND
-                    po-ordl.LINE EQ scr-po-line
-                    NO-LOCK NO-ERROR.
-        
-               IF AVAIL po-ordl THEN
-               DO:
-                  FIND FIRST ITEM WHERE ITEM.company = cocode AND
-                       ITEM.i-no = po-ordl.i-no
-                       NO-LOCK NO-ERROR.
-                  IF AVAIL ITEM THEN
-                      scr-uom:SCREEN-VALUE = ITEM.cons-uom.
-                  ASSIGN
-                     scr-item-no:SCREEN-VALUE = po-ordl.i-no
-                     scr-item-name:SCREEN-VALUE = po-ordl.i-name
-                     .
-        
-                  RELEASE po-ordl.
-     
-                  IF NOT ERROR-STATUS:ERROR THEN
-                  DO:
-                     IF SSPostFGVT-log OR SSPostFGVT-log EQ ? THEN DO:
-                        APPLY "CHOOSE" TO btn_receive IN FRAME {&FRAME-NAME}.
-                        /*ASSIGN scr-vend-tag:SCREEN-VALUE = */
-                     END.
-                     ELSE APPLY "ENTRY" TO btn_receive IN FRAME {&FRAME-NAME}.
-                     
-                     RETURN NO-APPLY.
-                  END.
-               END.
-            END.
+         RUN edDocSearch (OUTPUT lEdDocFound).
+         IF lEdDocFound THEN DO:
+             RUN poSearch.
+         END. 
+         ELSE DO:              
+             v-po-no = INT(SUBSTR(scr-vend-tag,1,6)) NO-ERROR.
+             
+             IF NOT ERROR-STATUS:ERROR THEN
+             DO:
+                IF NOT CAN-FIND(FIRST po-ord WHERE
+                   po-ord.company EQ cocode AND
+                   po-ord.po-no EQ v-po-no) THEN
+                   LEAVE.
+            
+                begin_po-no:SCREEN-VALUE = STRING(v-po-no).
+             END.
+             ELSE
+                LEAVE.
+                
+             v-po-line = INT(SUBSTR(scr-vend-tag,7,3)) NO-ERROR.
+             
+             IF NOT ERROR-STATUS:ERROR THEN
+                scr-po-line:SCREEN-VALUE = STRING(v-po-line).
+             
+             v-qty = INT(SUBSTR(scr-vend-tag,10,5)) NO-ERROR.
+             
+             IF NOT ERROR-STATUS:ERROR THEN
+                scr-qty:SCREEN-VALUE = STRING(v-qty).
+            
+                RUN poSearch.
+         END.
       END.
    END.
 END.
@@ -1036,6 +1007,52 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE edDocSearch V-table-Win
+PROCEDURE edDocSearch:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+DEFINE OUTPUT PARAMETER oplFound AS LOGICAL NO-UNDO.
+IF CAN-FIND (FIRST EDCode NO-LOCK WHERE edcode.setid = "856"
+    AND edcode.direction EQ "I") THEN 
+DO WITH FRAME {&FRAME-NAME}:
+    iPalletMark = INTEGER(scr-vend-tag) NO-ERROR.
+    IF NOT ERROR-STATUS:ERROR THEN 
+        FIND FIRST edShLine NO-LOCK 
+            WHERE edShLine.pallet-mark = int(scr-vend-tag)  
+            NO-ERROR.
+    IF AVAILABLE  edShLine THEN 
+    DO: 
+        ASSIGN  v-po-no = INTEGER(edShLine.Cust-po) NO-ERROR. 
+        IF NOT ERROR-STATUS:ERROR THEN 
+        DO:
+            IF NOT CAN-FIND(FIRST po-ord WHERE
+                po-ord.company EQ cocode AND
+                po-ord.po-no EQ v-po-no) THEN 
+            DO:
+                ASSIGN 
+                    begin_po-no:SCREEN-VALUE = STRING(v-po-no)                       
+                    scr-qty:SCREEN-VALUE     = STRING(edShLine.Tot-cartons)
+                    scr-po-line:SCREEN-VALUE = EDSHLine.cust-po-line
+                    v-po-line                = integer(EDSHLine.cust-po-line)
+                    .
+            END.
+        END.
+    END.                      
+END.
+IF AVAILABLE EDSHLine THEN 
+  oplFound = TRUE.
+
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE entry-vend-tag-proc V-table-Win 
 PROCEDURE entry-vend-tag-proc :
 /*------------------------------------------------------------------------------
@@ -1048,6 +1065,59 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE poSearch V-table-Win
+PROCEDURE poSearch:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    IF begin_po-no:SCREEN-VALUE in frame {&frame-name} NE "0" AND
+        scr-po-line:SCREEN-VALUE in frame {&frame-name} NE "0" THEN
+    DO with frame {&frame-name}:
+        ASSIGN begin_po-no scr-po-line.
+        
+        FIND FIRST po-ordl WHERE
+            po-ordl.company EQ cocode AND
+            po-ordl.po-no EQ begin_po-no AND
+            po-ordl.LINE EQ scr-po-line
+            NO-LOCK NO-ERROR.
+        
+        IF AVAIL po-ordl THEN
+        DO:
+            FIND FIRST ITEM WHERE ITEM.company = cocode AND
+                ITEM.i-no = po-ordl.i-no
+                NO-LOCK NO-ERROR.
+            IF AVAIL ITEM THEN
+                scr-uom:SCREEN-VALUE = ITEM.cons-uom.
+            ASSIGN
+                scr-item-no:SCREEN-VALUE   = po-ordl.i-no
+                scr-item-name:SCREEN-VALUE = po-ordl.i-name
+                .
+        
+            RELEASE po-ordl.
+     
+            IF NOT ERROR-STATUS:ERROR THEN
+            DO:
+                IF SSPostFGVT-log OR SSPostFGVT-log EQ ? THEN 
+                DO:
+                    APPLY "CHOOSE" TO btn_receive IN FRAME {&FRAME-NAME}.
+                /*ASSIGN scr-vend-tag:SCREEN-VALUE = */
+                END.
+                ELSE APPLY "ENTRY" TO btn_receive IN FRAME {&FRAME-NAME}.
+                     
+                RETURN NO-APPLY.
+            END.
+        END.
+    END. /* Do */
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE process-tag-proc V-table-Win 
 PROCEDURE process-tag-proc :
