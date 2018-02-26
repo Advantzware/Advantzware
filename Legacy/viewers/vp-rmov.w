@@ -263,21 +263,16 @@ PROCEDURE local-initialize :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-   DEFINE VARIABLE hProcedureHandle AS HANDLE NO-UNDO.
-   DEFINE VARIABLE cProgramName     AS CHARACTER NO-UNDO.
-   DEFINE VARIABLE lAccess          AS LOGICAL NO-UNDO.
+
   /* Code placed here will execute PRIOR to standard behavior. */
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'initialize':U ) .
 
-  ASSIGN lAccess = NO
-         cProgramName = "Legacy/ProgramMasterSecurity.p"
-           .
-    RUN VALUE(cProgramName) PERSISTENT SET hProcedureHandle.
-    RUN getSecurity IN hProcedureHandle("viewers/vp-rmov.w", USERID(LDBNAME(1)), "",
-                                        OUTPUT lAccess).
-  IF lAccess THEN ASSIGN
+  FIND FIRST users NO-LOCK WHERE 
+      users.user_id EQ USERID(LDBNAME(1)) 
+      NO-ERROR.
+  IF AVAIL users AND users.securityLevel LE 999 THEN ASSIGN
       btn-override:VISIBLE IN FRAME {&FRAME-NAME} = FALSE. 
   ELSE ASSIGN
       btn-override:VISIBLE IN FRAME {&FRAME-NAME} = TRUE. 
@@ -293,7 +288,6 @@ PROCEDURE local-initialize :
 
   IF NOT v-can-update THEN ASSIGN btn-override:SENSITIVE IN FRAME {&FRAME-NAME} = NO.
   
-delete object hProcedureHandle.  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

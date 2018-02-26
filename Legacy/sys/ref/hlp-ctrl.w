@@ -246,22 +246,13 @@ DO:
     end.
   */  
 
-    DEFINE VARIABLE hProcedureHandle AS HANDLE NO-UNDO.
-    DEFINE VARIABLE cProgramName     AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE lAccess          AS LOGICAL NO-UNDO.
-
-
-
     ASSIGN ll-secure = NO
-           op-ed-text = ed-text
-           lAccess = NO
-           cProgramName = "Legacy/ProgramMasterSecurity.p"
-           .
-    RUN VALUE(cProgramName) PERSISTENT SET hProcedureHandle.
-    RUN getSecurity IN hProcedureHandle("sys/ref/hlp-ctrl.w", USERID(LDBNAME(1)), "EnableUpdateButton",
-                                        OUTPUT lAccess).
-    IF lAccess THEN
-    
+           op-ed-text = ed-text.
+
+    FIND FIRST users NO-LOCK
+     WHERE users.user_id EQ USERID(LDBNAME(1)) NO-ERROR.
+
+IF AVAIL users AND users.securityLevel GE 900 THEN
     ASSIGN ll-secure = YES.
 
     IF NOT ll-secure THEN RUN sys/ref/uphlp-pass.w (3, OUTPUT ll-secure).
@@ -287,8 +278,6 @@ DO:
 
     ed-text = op-ed-text.
         display ed-text with frame {&frame-name}. 
-
-   delete object hProcedureHandle.
 
 END.
 
@@ -555,26 +544,18 @@ PROCEDURE local-enable :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-DEFINE VARIABLE hProcedureHandle AS HANDLE NO-UNDO.
-DEFINE VARIABLE cProgramName     AS CHARACTER NO-UNDO.
-DEFINE VARIABLE lAccess          AS LOGICAL NO-UNDO.
 
   /* Code placed here will execute PRIOR to standard behavior. */
 
   /* Dispatch standard ADM method.                             */
-  RUN dispatch IN THIS-PROCEDURE ( INPUT 'enable':U ) .      
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'enable':U ) .
+  
+    FIND FIRST users NO-LOCK
+     WHERE users.user_id EQ USERID(LDBNAME(1)) NO-ERROR.
 
-    ASSIGN lAccess = NO
-           cProgramName = "Legacy/ProgramMasterSecurity.p"
-           .
-    RUN VALUE(cProgramName) PERSISTENT SET hProcedureHandle.
-    RUN getSecurity IN hProcedureHandle("sys/ref/hlp-ctrl.w", USERID(LDBNAME(1)), "EnableHelpUpdate",
-                                        OUTPUT lAccess).
-    IF lAccess THEN 
-
+    IF AVAIL users AND users.securityLevel LE 999 THEN
      btn-update:VISIBLE IN FRAME f-main = NO.
 
-    delete object hProcedureHandle.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

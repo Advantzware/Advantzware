@@ -305,39 +305,24 @@ PROCEDURE proc-enable :
   Notes:       
 ------------------------------------------------------------------------------*/
 
-  
-    DEFINE VARIABLE hProcedureHandle AS HANDLE NO-UNDO.
-    DEFINE VARIABLE cProgramName     AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE lAccess          AS LOGICAL NO-UNDO.
+    FIND FIRST users NO-LOCK
+     WHERE users.user_id EQ USERID(LDBNAME(1)) NO-ERROR.
 
-    ASSIGN
-        cProgramName = "Legacy/ProgramMasterSecurity.p"
-        lAccess = NO.
-        
-    RUN VALUE(cProgramName) PERSISTENT SET hProcedureHandle.
-    RUN getSecurity IN hProcedureHandle("viewers/userControl.w", USERID(LDBNAME(1)), "Access1",
-                                        OUTPUT lAccess).
-    IF lAccess THEN
+IF AVAIL users AND users.securityLevel GE 1000 THEN
      ASSIGN 
         userControl.maxAllowedUsers:SENSITIVE IN FRAME {&FRAME-NAME} = YES 
         userControl.numUsersOverLimit:SENSITIVE IN FRAME {&FRAME-NAME} = YES .
-    ELSE 
+   ELSE 
        ASSIGN 
         userControl.maxAllowedUsers:SENSITIVE IN FRAME {&FRAME-NAME} = NO 
         userControl.numUsersOverLimit:SENSITIVE IN FRAME {&FRAME-NAME} = NO
        .
 
- ASSIGN lAccess = NO.
- RUN getSecurity IN hProcedureHandle("viewers/userControl.w", USERID(LDBNAME(1)), "Access2",
-                                      OUTPUT lAccess).
-                                        
-    IF lAccess THEN
+    IF AVAIL users AND users.securityLevel GT 900 THEN
          ASSIGN 
              userControl.maxSessionsPerUser:SENSITIVE IN FRAME {&FRAME-NAME} = YES  .
     ELSE 
         userControl.maxSessionsPerUser:SENSITIVE IN FRAME {&FRAME-NAME} = NO  .
-        
-  delete object hProcedureHandle.      
     
 END PROCEDURE.
 

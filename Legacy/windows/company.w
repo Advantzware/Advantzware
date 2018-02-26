@@ -636,25 +636,21 @@ PROCEDURE local-view :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-DEFINE VARIABLE hProcedureHandle AS HANDLE NO-UNDO.
-DEFINE VARIABLE cProgramName     AS CHARACTER NO-UNDO.
-DEFINE VARIABLE lAccess          AS LOGICAL NO-UNDO.
+
   /* Code placed here will execute PRIOR to standard behavior. */
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'view':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-     ASSIGN lAccess = NO
-            cProgramName = "Legacy/ProgramMasterSecurity.p"
-           .
-    RUN VALUE(cProgramName) PERSISTENT SET hProcedureHandle.
-    RUN getSecurity IN hProcedureHandle("windows/company.w", USERID(LDBNAME(1)), "",
-                                        OUTPUT lAccess).
-     IF lAccess THEN DO:
+   FIND FIRST users NO-LOCK WHERE 
+         users.user_id EQ USERID(LDBNAME(1)) 
+         NO-ERROR.  
+  
+     IF AVAIL users AND users.securityLevel LE 999 THEN DO:
          RUN disable-add-button IN h_f-add .
      END.
-  delete object hProcedureHandle.  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

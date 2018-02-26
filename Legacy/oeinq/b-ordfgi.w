@@ -1761,9 +1761,7 @@ PROCEDURE local-display-fields :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-DEFINE VARIABLE hProcedureHandle AS HANDLE NO-UNDO.
-DEFINE VARIABLE cProgramName     AS CHARACTER NO-UNDO.
-DEFINE VARIABLE lAccess          AS LOGICAL NO-UNDO.
+
   /* Code placed here will execute PRIOR to standard behavior. */
 
   /* Dispatch standard ADM method.                             */
@@ -1776,13 +1774,12 @@ DEFINE VARIABLE lAccess          AS LOGICAL NO-UNDO.
     fi_sort-by:SCREEN-VALUE = TRIM(lv-sort-by-lab)               + " " +
                               TRIM(STRING(ll-sort-asc,"As/Des")) + "cending".
 
-    ASSIGN lAccess = NO
-           cProgramName = "Legacy/ProgramMasterSecurity.p"
-           .
-    RUN VALUE(cProgramName) PERSISTENT SET hProcedureHandle.
-    RUN getSecurity IN hProcedureHandle("oeinq/b-ordfgi.w", USERID(LDBNAME(1)), "",
-                                        OUTPUT lAccess).
-    IF lAccess THEN 
+
+  FIND FIRST users NO-LOCK WHERE 
+      users.user_id EQ USERID(LDBNAME(1)) 
+      NO-ERROR.
+ 
+  IF AVAIL users AND users.securityLevel LE 900 THEN
        ASSIGN btn_del:HIDDEN = YES
               btn_del:SENSITIVE = NO
               btn_copy:HIDDEN = YES
@@ -1798,8 +1795,6 @@ DEFINE VARIABLE lAccess          AS LOGICAL NO-UNDO.
               btCompress:SENSITIVE = YES.
 
   END.
-
-  delete object hProcedureHandle.
 
 END PROCEDURE.
 

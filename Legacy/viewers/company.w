@@ -978,19 +978,12 @@ PROCEDURE valid-buttons :
 
    DEF OUTPUT PARAMETER op-add-valid AS LOG NO-UNDO.
    DEF OUTPUT PARAMETER op-delete-valid AS LOG INIT YES NO-UNDO.
-   DEFINE VARIABLE hProcedureHandle AS HANDLE NO-UNDO.
-   DEFINE VARIABLE cProgramName     AS CHARACTER NO-UNDO.
-   DEFINE VARIABLE lAccess          AS LOGICAL NO-UNDO.
-   ASSIGN lAccess = NO
-           cProgramName = "Legacy/ProgramMasterSecurity.p"
-           .
-    RUN VALUE(cProgramName) PERSISTENT SET hProcedureHandle.
-    RUN getSecurity IN hProcedureHandle("viewers/company.w", USERID(LDBNAME(1)), "",
-                                        OUTPUT lAccess).
-     IF lAccess THEN 
+   FIND FIRST users NO-LOCK WHERE 
+         users.user_id EQ USERID(LDBNAME(1)) 
+         NO-ERROR.
+     IF AVAIL users AND users.securityLevel LE 999 THEN
         ASSIGN op-add-valid = NO.
      ELSE op-add-valid = YES .
-   delete object hProcedureHandle.  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

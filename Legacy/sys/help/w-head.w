@@ -458,9 +458,7 @@ PROCEDURE local-change-page :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-DEFINE VARIABLE hProcedureHandle AS HANDLE NO-UNDO.
-DEFINE VARIABLE cProgramName     AS CHARACTER NO-UNDO.
-DEFINE VARIABLE lAccess          AS LOGICAL NO-UNDO.
+
   /* Code placed here will execute PRIOR to standard behavior. */
 
   run get-attribute ("current-page").
@@ -470,18 +468,15 @@ DEFINE VARIABLE lAccess          AS LOGICAL NO-UNDO.
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'change-page':U ) .
 
    IF il-cur-page = 2 THEN DO:
-     ASSIGN lAccess = NO
-           cProgramName = "Legacy/ProgramMasterSecurity.p"
-           .
-    RUN VALUE(cProgramName) PERSISTENT SET hProcedureHandle.
-    RUN getSecurity IN hProcedureHandle("sys/help/w-head.w", USERID(LDBNAME(1)), "",
-                                        OUTPUT lAccess).
-    IF lAccess THEN 
+     FIND FIRST users NO-LOCK WHERE 
+         users.user_id EQ USERID(LDBNAME(1)) 
+         NO-ERROR.
+     IF AVAIL users AND users.securityLevel LE 999 THEN
          RUN set-buttons IN h_p-updsav ('disable-all').
    END.
   
   /* Code placed here will execute AFTER standard behavior.    */
-delete object hProcedureHandle.  
+  
 
 END PROCEDURE.
 
