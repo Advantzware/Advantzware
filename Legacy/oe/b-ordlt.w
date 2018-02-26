@@ -656,7 +656,7 @@ FOR EACH bf-rel
         AND bf-rel.ord-no  EQ xoe-ord.ord-no
         AND bf-rel.link-no EQ 0
       NO-LOCK:
-    v-rel-type = oe-rel.s-code.
+    v-rel-type = bf-rel.s-code.
     IF v-rel-type NE "I" THEN
         v-all-i = NO.    
 END.
