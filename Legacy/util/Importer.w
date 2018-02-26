@@ -233,6 +233,56 @@ DEFINE BROWSE brPreview
     ttImportData.cData[48] COLUMN-LABEL "" FORMAT "x(100)"
     ttImportData.cData[49] COLUMN-LABEL "" FORMAT "x(100)"
     ttImportData.cData[50] COLUMN-LABEL "" FORMAT "x(100)"
+    ttImportData.cData[51] COLUMN-LABEL "" FORMAT "x(100)"
+    ttImportData.cData[52] COLUMN-LABEL "" FORMAT "x(100)"
+    ttImportData.cData[53] COLUMN-LABEL "" FORMAT "x(100)"
+    ttImportData.cData[54] COLUMN-LABEL "" FORMAT "x(100)"
+    ttImportData.cData[55] COLUMN-LABEL "" FORMAT "x(100)"
+    ttImportData.cData[56] COLUMN-LABEL "" FORMAT "x(100)"
+    ttImportData.cData[57] COLUMN-LABEL "" FORMAT "x(100)"
+    ttImportData.cData[58] COLUMN-LABEL "" FORMAT "x(100)"
+    ttImportData.cData[59] COLUMN-LABEL "" FORMAT "x(100)"
+    ttImportData.cData[60] COLUMN-LABEL "" FORMAT "x(100)"
+    ttImportData.cData[61] COLUMN-LABEL "" FORMAT "x(100)"
+    ttImportData.cData[62] COLUMN-LABEL "" FORMAT "x(100)"
+    ttImportData.cData[63] COLUMN-LABEL "" FORMAT "x(100)"
+    ttImportData.cData[64] COLUMN-LABEL "" FORMAT "x(100)"
+    ttImportData.cData[65] COLUMN-LABEL "" FORMAT "x(100)"
+    ttImportData.cData[66] COLUMN-LABEL "" FORMAT "x(100)"
+    ttImportData.cData[67] COLUMN-LABEL "" FORMAT "x(100)"
+    ttImportData.cData[68] COLUMN-LABEL "" FORMAT "x(100)"
+    ttImportData.cData[69] COLUMN-LABEL "" FORMAT "x(100)"
+    ttImportData.cData[70] COLUMN-LABEL "" FORMAT "x(100)"
+    ttImportData.cData[71] COLUMN-LABEL "" FORMAT "x(100)"
+    ttImportData.cData[72] COLUMN-LABEL "" FORMAT "x(100)"
+    ttImportData.cData[73] COLUMN-LABEL "" FORMAT "x(100)"
+    ttImportData.cData[74] COLUMN-LABEL "" FORMAT "x(100)"
+    ttImportData.cData[75] COLUMN-LABEL "" FORMAT "x(100)"
+    ttImportData.cData[76] COLUMN-LABEL "" FORMAT "x(100)"
+    ttImportData.cData[77] COLUMN-LABEL "" FORMAT "x(100)"
+    ttImportData.cData[78] COLUMN-LABEL "" FORMAT "x(100)"
+    ttImportData.cData[79] COLUMN-LABEL "" FORMAT "x(100)"
+    ttImportData.cData[80] COLUMN-LABEL "" FORMAT "x(100)"
+    ttImportData.cData[81] COLUMN-LABEL "" FORMAT "x(100)"
+    ttImportData.cData[82] COLUMN-LABEL "" FORMAT "x(100)"
+    ttImportData.cData[83] COLUMN-LABEL "" FORMAT "x(100)"
+    ttImportData.cData[84] COLUMN-LABEL "" FORMAT "x(100)"
+    ttImportData.cData[85] COLUMN-LABEL "" FORMAT "x(100)"
+    ttImportData.cData[86] COLUMN-LABEL "" FORMAT "x(100)"
+    ttImportData.cData[87] COLUMN-LABEL "" FORMAT "x(100)"
+    ttImportData.cData[88] COLUMN-LABEL "" FORMAT "x(100)"
+    ttImportData.cData[89] COLUMN-LABEL "" FORMAT "x(100)"
+    ttImportData.cData[90] COLUMN-LABEL "" FORMAT "x(100)"
+    ttImportData.cData[91] COLUMN-LABEL "" FORMAT "x(100)"
+    ttImportData.cData[92] COLUMN-LABEL "" FORMAT "x(100)"
+    ttImportData.cData[93] COLUMN-LABEL "" FORMAT "x(100)"
+    ttImportData.cData[94] COLUMN-LABEL "" FORMAT "x(100)"
+    ttImportData.cData[95] COLUMN-LABEL "" FORMAT "x(100)"
+    ttImportData.cData[96] COLUMN-LABEL "" FORMAT "x(100)"
+    ttImportData.cData[97] COLUMN-LABEL "" FORMAT "x(100)"
+    ttImportData.cData[98] COLUMN-LABEL "" FORMAT "x(100)"
+    ttImportData.cData[99] COLUMN-LABEL "" FORMAT "x(100)"
+    ttImportData.cData[100] COLUMN-LABEL "" FORMAT "x(100)"
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH SEPARATORS SIZE 157 BY 12.62
@@ -667,8 +717,8 @@ PROCEDURE pInitializeTypes :
 
     ASSIGN 
         cLabelList = 'Accounts Payable (VU1),Accounts Receivable (AU1),Cash Receipts (AC1),Customers (AF1),Customer ShipTos (AF1 - ShipTo Tab),' +
-                'Finished Goods (IF1),General Ledger Accounts (GF2),Vendors (VF1)' 
-        cValueList = 'AP,AR,Cash,Cust,ShipTo,FG,GL,Vend'.
+                'Estimates (EC/EF),Finished Goods (IF1),General Ledger Accounts (GF2),Vendors (VF1)' 
+        cValueList = 'AP,AR,Cash,Cust,ShipTo,Est,FG,GL,Vend'.
 
     IF ipcTypesList EQ '' OR ipcTypesList EQ 'ALL' THEN
         ASSIGN 
