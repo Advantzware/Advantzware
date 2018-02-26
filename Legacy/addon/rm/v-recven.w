@@ -1020,10 +1020,16 @@ IF CAN-FIND (FIRST EDCode NO-LOCK WHERE edcode.setid = "856"
 DO WITH FRAME {&FRAME-NAME}:
     iPalletMark = INTEGER(scr-vend-tag) NO-ERROR.
     IF NOT ERROR-STATUS:ERROR THEN 
+        FIND FIRST EDSHTare no-lock
+            WHERE edShTare.pallet-mark EQ int(scr-vend-tag)  
+            USE-INDEX byMark NO-ERROR.
+    IF AVAILABLE EDSHTare THEN 
         FIND FIRST edShLine NO-LOCK 
-            WHERE edShLine.pallet-mark = int(scr-vend-tag)  
+            WHERE EDSHLine.Partner EQ EDSHTare.Partner 
+              AND EDSHLine.Seq EQ EDSHTare.Seq 
+              AND edShLine.pallet-mark EQ int(scr-vend-tag)  
             NO-ERROR.
-    IF AVAILABLE  edShLine THEN 
+    IF AVAILABLE edShLine THEN 
     DO: 
         ASSIGN  v-po-no = INTEGER(edShLine.Cust-po) NO-ERROR. 
         IF NOT ERROR-STATUS:ERROR THEN 
