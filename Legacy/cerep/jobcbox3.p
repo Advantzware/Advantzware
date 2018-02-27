@@ -3,8 +3,6 @@
 
 {jcrep/r-ticket.i "shared"}
 
-
-
 DEF TEMP-TABLE tt-job-hdr LIKE job-hdr
     USE-INDEX job-no.
 
