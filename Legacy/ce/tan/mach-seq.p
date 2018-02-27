@@ -29,7 +29,7 @@ DEF VAR ll-style AS LOG NO-UNDO.
 
 &SCOPED-DEFINE where-machine                                                     ~
                WHERE mach.company EQ cocode                                  ~
-                 AND mach.obsolete EQ YES                                       
+                 AND mach.obsolete EQ NO                                       
 
 
 
