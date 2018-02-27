@@ -382,7 +382,7 @@ DEFINE FRAME fold
           VIEW-AS FILL-IN 
           SIZE 23 BY 1
      eb.upc-no AT ROW 8.86 COL 121.2 COLON-ALIGNED
-          LABEL "UPC#"
+          LABEL "UPC#" FORMAT "x(20)"
           VIEW-AS FILL-IN 
           SIZE 30 BY 1
           FONT 6
