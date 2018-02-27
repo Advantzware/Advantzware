@@ -1,0 +1,11 @@
+Inv. Number,Vendor ID,Invoice Date (Defaults to today),Due Date (Defaults to terms rules),Amount,Line Quantity (Def 1),Line Quantity Uom (def EA),Line Price (Def to Amount),Line Price Uom (Def EA),Taxable (Y or N/Blank),Line Account Override,Tax Code (Defaults to Vendor Tax Code),Discount % (Def 0),Discount Days (defaults from terms of Vendor),LinePONumber Override,Line PO Line Override
+87,SS0001,,,10000,100000,EA,100,M,Y,,,,,,1
+71,INLAND,,,2100,50000,EA,42,M,Y,,,,,,1
+72,INLAND,,,72.72,,,,,N,41100-01,,5,10,,1
+72-1,INLAND,,,72.1,,,,,Y,41150-00,,,,,1
+73,INLAND,,,73,,,,,,41150-00,,,,,1
+74,INLAND,1/1/2017,1/2/2017,74,,,,,,,,,,,1
+75,INLAND,11/15/2017,,75,,,,,,,,,,,1
+76,INLAND,,,100.01,,,,,,,,,,,1
+76,INLAND,,,100.02,,,,,,41150-00,,,,,2
+76,INLAND,,,100.03,,,,,,41100-01,,,,,3
