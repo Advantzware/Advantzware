@@ -280,48 +280,55 @@ procedure processTemptable:
         RUN ed/gendoc.p (RECID(edcode), ttBody.bolNumber, OUTPUT ws_eddoc_rec).
         FIND  eddoc WHERE RECID(eddoc) = ws_eddoc_rec EXCLUSIVE.
         ASSIGN
-          EDDoc.AddDate = TODAY
-          EDDoc.AddTime = TIME
-    /*    EDDoc.Direction = "I" */
-    /*    EDDoc.DocID = STRING(ttBody.bolNumber) */
-          /*
-          EDDoc.Posted 
-          EDDoc.SetID 
-          EDDoc.Stat */
-          EDDoc.Seq = iNextSeq
+          EDDoc.AddDate     = TODAY
+          EDDoc.AddTime     = TIME
+          EDDoc.Direction   = "I" 
+          EDDoc.DocID       = ttBody.poNumber          
+          EDDoc.Posted      = no 
+          EDDoc.SetID       = "856" 
+          EDDoc.Stat        = 0
+          EDDoc.Seq         = iNextSeq
           EDDoc.Status-Flag = "O"
           EDDoc.Version     = STRING(edcode.version)
           EDDOC.partner     = edcode.partner
           .
           CREATE EdShTran.
           ASSIGN
+            EDSHTran.Partner = EDCode.partner
             EDSHTran.BOL-Adddate = TODAY
             EDSHTran.BOL-Addtime = TIME
             EDSHTran.BOL-No      = ttBody.bolnumber
             EDSHTran.Partner     = edcode.partner
             /* EDSHTran.Purpose-code */
             EDSHTran.Trailer-Number = ttBody.trailerID
-            EDSHTran.seq = iNextSeq
+            EDSHTran.seq         = iNextSeq
             .
           CREATE EdShOrd.
           ASSIGN
-            EdShOrd.seq = iNextSeq
-            EdShOrd.Bol-No  = ttBody.bolnumber
-            EdShOrd.Order-no = ttBody.OrderNumber
-            EdShOrd.Partner = edcode.partner
+            EDSHOrd.Partner   = EDCode.partner
+            EdShOrd.seq       = iNextSeq
+            EdShOrd.Bol-No    = ttBody.bolnumber
+            EdShOrd.Order-no  = ttBody.OrderNumber
+            EdShOrd.Partner   = edcode.partner
             
             .
             
       END. /* FIRST OF */
-
+      CREATE EDSHTare.
+      ASSIGN 
+       EDSHTare.Partner     = EDCode.partner
+       EDSHTare.Seq         = iNextSeq
+       EDSHTare.Pallet-mark = int(ttBody.PalletID)
+       .
       CREATE edShLine.
       ASSIGN 
-        edShLine.Seq = iNextSeq
-        edShLine.Bol-No = ttBody.bolNumber
-        edShLine.cust-po = TRIM(ttBody.poNumber)
+        EDSHLine.Partner      = EDCode.partner
+        edShLine.Seq          = iNextSeq
+        edShLine.Bol-No       = ttBody.bolNumber
+        edShLine.cust-po      = TRIM(ttBody.poNumber)
         EDSHLine.Cust-po-line = ttBody.poLineNumber
-        edShLine.pallet-mark = int(ttBody.PalletID)
-        edShLine.tot-Cartons = int(ttBody.QuanityOnPallet)
+        edShLine.pallet-mark  = int(ttBody.PalletID)
+        edShLine.tot-Cartons  = int(ttBody.QuanityOnPallet)
         
         .
       scr-vend-tag = string(edShLine.pallet-mark).

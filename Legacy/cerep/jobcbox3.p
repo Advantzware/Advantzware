@@ -86,8 +86,8 @@ FOR EACH tt-job-hdr BY tt-job-hdr.job:
      lv-over-pct = oe-ordl.over-pct
      lv-undr-pct = oe-ordl.under-pct.
 
-    IF ll-add-overrn                                      AND
-        oe-ordl.managed = false THEN
+    IF ll-add-overrn AND
+       oe-ordl.managed = false THEN
       tt-job-hdr.qty = tt-job-hdr.qty / (1 + (lv-over-pct * .01)).
   END.
 

@@ -129,7 +129,7 @@ form w2.i-no                         format "x(15)"
      w2.job-po                       at 17 format "x(15)"
      w2.dscr                         at 33 format "x(30)"
      w2.cases                        to 70 format "->>>>"
-     w2.cas-cnt                      to 77 format "->>>>>>"
+     icountpallet                      to 77 format "->>>>>>"
      tt-boll.qty                     to 85 format "->>>>>>"
      bf-ttboll.p-c                   at 92
     with frame bol-mid down no-box no-labels stream-io width 110.
@@ -138,7 +138,7 @@ form oe-ordl.i-no                         format "x(15)"
      v-job-po                       at 17 format "x(15)"
      v-part-dscr                    at 33 format "x(30)"
      w2.cases                       to 70 format "->>>9"
-     w2.cas-cnt                     to 77 format "->>>>>9"
+     icountpallet                    to 77 format "->>>>>9"
      tt-boll.qty                    to 85 format "->>>>>9"
      tt-boll.p-c                    at 92
     with frame bol-mid2 down no-box no-labels stream-io width 100.
@@ -531,7 +531,7 @@ PROCEDURE create-tt-boll.
         AND tt-boll.po-no    EQ oe-boll.po-no
         AND tt-boll.ord-no   EQ oe-boll.ord-no
         AND tt-boll.line     EQ oe-boll.LINE 
-        AND (tt-boll.qty-case EQ (ip-qty-case * ip-cases))
+        AND (tt-boll.qty-sum EQ (ip-qty-case * ip-cases))
       NO-LOCK NO-ERROR.
 
   IF NOT AVAIL tt-boll THEN DO:
@@ -542,7 +542,7 @@ PROCEDURE create-tt-boll.
      tt-boll.cases    = 0
      tt-boll.qty      = 0
      tt-boll.weight   = 0
-     tt-boll.rec_id = STRING(RECID(oe-boll))
+    /* tt-boll.rec_id = STRING(RECID(oe-boll))*/
      tt-boll.qty-sum = ip-qty-case * ip-cases
      tt-boll.partial  = 0 .
    

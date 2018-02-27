@@ -56,7 +56,7 @@ DEFINE BUFFER m2-lst FOR m-lst.
 
 &SCOPED-DEFINE where-machine                                                     ~
                WHERE mach.company EQ cocode                                  ~
-                 AND mach.obsolete EQ YES                                       
+                 AND mach.obsolete EQ NO                                       
 
 
 
