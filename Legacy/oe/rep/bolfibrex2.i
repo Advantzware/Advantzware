@@ -3,7 +3,7 @@
 /* -------------------------------------------------------------------------- */
 ASSIGN v-tot-cases = 0.
 
-FOR EACH tt-boll,      
+FOR EACH tt-boll, 
   FIRST itemfg NO-LOCK
    WHERE itemfg.company EQ cocode
      AND itemfg.i-no    EQ tt-boll.i-no
@@ -38,15 +38,15 @@ FOR EACH tt-boll,
              AND oe-ordl.i-no    EQ tt-boll.i-no 
              AND oe-ordl.line    EQ tt-boll.LINE NO-LOCK NO-ERROR.
 
-         ASSIGN v-tot-case-qty = v-tot-case-qty + bf-ttboll.qty
-                i = i + 1.
+         ASSIGN v-tot-case-qty = v-tot-case-qty + bf-ttboll.qty.
+         IF bf-ttboll.partial GT 0 THEN
+            v-tot-case-qty = v-tot-case-qty +   bf-ttboll.partial .
          FIND FIRST oe-ord 
            WHERE oe-ord.company EQ cocode 
              AND oe-ord.ord-no  EQ tt-boll.ord-no NO-LOCK NO-ERROR.
-         
+         i = i + 1.
          FIND FIRST w2 WHERE (w2.cas-cnt * w2.cases) EQ (bf-ttboll.qty-case * bf-ttboll.cases) NO-ERROR.
-         IF NOT AVAIL w2  
-           THEN CREATE w2.
+          IF NOT AVAILABLE w2 THEN CREATE w2.
 
          ASSIGN 
            w2.job-po = ""
@@ -71,8 +71,9 @@ FOR EACH tt-boll,
                           w2.dscr = oe-ordl.i-name
                           w2.i-no = oe-ordl.i-no.
               ELSE 
-               IF i EQ 3 
-                 THEN ASSIGN w2.dscr = oe-ordl.part-dscr1 /*
+               IF i EQ 3 THEN
+                   IF oe-ordl.part-dscr1 NE "" THEN 
+                    ASSIGN w2.dscr = oe-ordl.part-dscr1 /*
                              w2.job-po = v-lot#   gdm 04160923 */.
                  ELSE 
                   IF i EQ 4 
@@ -154,6 +155,7 @@ FOR EACH tt-boll,
 
                        ASSIGN w2.dscr = v-lot#  /* gdm 06120902 */.
                  END. /* ELSE IF i EQ 5 */
+
        END. /* IF w2.rec-id = ? */      
 
        IF w2.qty     EQ 0  AND 
@@ -237,7 +239,7 @@ FOR EACH tt-boll,
                  w2.job-po
                  w2.dscr
                  w2.unitcount @ w2.cases
-                 w2.qty-sum @ w2.cas-cnt
+                 w2.qty-sum @ icountpallet
                  icountpallet + w2.partial /*v-tot-case-qty + w2.partial WHEN FIRST (w2.cases)*/ @ tt-boll.qty
                  bf-ttboll.p-c  WHEN AVAIL bf-ttboll AND FIRST(w2.cases) @ bf-ttboll.p-c
                WITH FRAME bol-mid.
@@ -451,7 +453,7 @@ FOR EACH tt-boll,
              v-job-po
              v-part-dscr
              1 @ w2.cases
-             icountpallet @ w2.cas-cnt
+             icountpallet 
              tt-boll.qty /*+ tt-boll.partial*/ WHEN LAST(w2.cases)  @ tt-boll.qty
              tt-boll.p-c                   WHEN LAST(w2.cases)                
              1  WHEN i = 2 AND tt-boll.partial > 0  @ w2.cases
