@@ -685,7 +685,7 @@ CLASS RefTableMigration:
         DEFINE VARIABLE iCnt AS INTEGER NO-UNDO.
         FOR EACH reftable WHERE reftable.reftable = "dropslit"
             NO-LOCK:
-            FIND FIRST est WHERE est.company = reftable.company
+            FIND FIRST est WHERE est.company = reftable.company AND
                 est.dropslit = reftable.loc eq "yes"                
                              AND est.est-no  = reftable.code
                 EXCLUSIVE-LOCK NO-ERROR.
