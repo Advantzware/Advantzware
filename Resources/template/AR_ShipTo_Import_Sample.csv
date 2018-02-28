@@ -1,3 +1,0 @@
-Customer #,Ship To #,Ship To Name,Address 1,Address 2,City,State,Zip,Contact,Area Code,Phone,Fax,Sales Rep Code (ShipTo),Tax Code,Ship Notes 1,Ship Notes 2,Ship Notes 3,Ship Notes 4,Warehouse,Bin,Carrier,Zone,Pallet,Shipper ID,Member #,JD EDW,Dock #,Dock hours,Charge,Transit Days,Samples,Dock Appt,Earliest Allowed,Latest Allowed,Ship Method,Broker,Billable
-TEST1212,500,ASD-WORLDWIDE FULIFILLMENT WAREHOUSE,1313 S PENNSYLVANIA AVE,,Yardley,PA,19067,STEVE,215,9631926,,JGO,PAT,RECEIVING HOURS 8:00AM TO 3:30PM,,,,GRAY,WHSE,TRUCK,1,,,,,,,0,0,0,0,0,0,no,no,no
-TEST1212,2,Test,Address1,Address2,City,KY,40000,Test,215,3697800,2153697801,JGO,INT,Ship Note,Ship Note2,Ship Note 3,Ship Note 4,SCAL1,DOCK,Truck,1,2,,,,,,,,,,,,,,
