@@ -38,10 +38,10 @@ PUT "<FCourier New><P10>".
 
 DO copy-count = 1 TO s-copies:
 
-   for each tt-1099-m no-lock:
+   for each tt-1099-m NO-LOCK BREAK BY tt-1099-m.vend-no:
        top-flag = NOT top-flag.
       
-       IF top-flag THEN
+       IF top-flag THEN DO:
           PUT "<R5><C5.5>" v-comp-name format "X(30)" 
               "<R6><C5.5>" v-addr1 format "X(30)" 
               "<R7><C5.5>" v-city-line format "X(30)" 
@@ -53,6 +53,13 @@ DO copy-count = 1 TO s-copies:
               "<R20><C5.5>" tt-1099-m.vend-add1 FORMAT "X(30)"
               "<R21><C5.5>" tt-1099-m.vend-add2 FORMAT "X(30)"
               "<R23><C5.5>" tt-1099-m.vend-city-line FORMAT "X(30)".
+             IF NOT LAST(tt-1099-m.vend-no) THEN DO:
+                 IF last-of(tt-1099-m.vend-no) THEN DO:
+                     top-flag = NO.
+                     PAGE.
+                 END.
+             END.
+       END.
        ELSE
        DO:
           PUT "<R39><C5.5>" v-comp-name format "X(30)" 
