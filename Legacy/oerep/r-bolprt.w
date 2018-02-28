@@ -3870,7 +3870,7 @@ PROCEDURE run-report :
                IF v-print-fmt = "CCC" OR  v-print-fmt EQ "CCCWPP" THEN
                    PUT "<PREVIEW><LEFT=4mm>".        
                ELSE
-                   PUT "<PREVIEW><LEFT=4mm>".  
+                   PUT "<PREVIEW>".  
            END.
           END. /*when 2*/
           WHEN 4 THEN do:
