@@ -5314,6 +5314,13 @@ PROCEDURE local-assign-record :
        eb.ship-state   = shipto.ship-state
        eb.ship-zip     = shipto.ship-zip.
   END.
+  IF adm-adding-record THEN DO:
+       FIND FIRST cust NO-LOCK
+            WHERE cust.company = gcompany
+              AND cust.cust-no = eb.cust-no NO-ERROR.
+       IF AVAIL cust THEN
+           est.csrUser_id = cust.csrUser_id .
+  END.
 
   IF NOT ll-is-copy-record THEN DO:
     {ce/uship-id.i ll-new-record}

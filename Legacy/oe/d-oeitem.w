@@ -3984,7 +3984,9 @@ PROCEDURE create-job :
          job.job-no     = oe-ordl.job-no
          job.job-no2    = oe-ordl.job-no2
          job.stat       = "P"
-         op-recid = RECID(job).
+         job.csrUser_id = IF AVAIL oe-ord THEN oe-ord.csrUser_id ELSE ""
+         op-recid = RECID(job) 
+          .
 
    FIND FIRST job-hdr WHERE job-hdr.company EQ cocode
                        AND job-hdr.job-no  EQ oe-ordl.job-no

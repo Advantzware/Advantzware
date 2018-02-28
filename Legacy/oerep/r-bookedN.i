@@ -1,4 +1,5 @@
 DEFINE VARIABLE dNetprct LIKE probe.net-profit.
+DEFINE VARIABLE cUsers-id AS CHARACTER NO-UNDO.
          FORMAT oe-ord.due-date COLUMN-LABEL " !Due!Date"
                                 FORMAT "99/99/99"
                 w-data.ord-no
@@ -579,6 +580,14 @@ FORMAT wkrecap.procat
      v-revenue     (TOTAL BY tt-report.key-01)
      w-data.cost   (TOTAL BY tt-report.key-01).
 
+    cUsers-id = "".
+    IF AVAIL oe-ord THEN  
+     FIND FIRST job NO-LOCK
+          WHERE job.company EQ cocode
+            AND job.job-no EQ oe-ord.job-no
+            AND job.job-no2 EQ oe-ord.job-no2 NO-ERROR.
+
+     cUsers-id = IF AVAIL job AND job.csrUser_id NE "" THEN job.csrUser_id ELSE IF AVAIL oe-ord THEN oe-ord.csrUser_id ELSE "".
      IF AVAILABLE oe-ordl THEN do:
         FIND FIRST itemfg NO-LOCK
             WHERE itemfg.company EQ cocode
@@ -656,6 +665,7 @@ FORMAT wkrecap.procat
                  WHEN "cust-po" THEN cVarValue = IF AVAILABLE oe-ordl AND oe-ordl.cust-no NE "" THEN STRING(oe-ordl.po-no,"x(15)") ELSE STRING(oe-ord.po-no,"x(15)") . /* ticket 14966*/
                  WHEN "die-no" THEN cVarValue = IF AVAILABLE itemfg AND itemfg.die-no NE "" THEN STRING(itemfg.die-no,"x(15)") ELSE IF AVAILABLE eb THEN STRING(eb.die-no,"x(15)") ELSE "" . /* ticket 16188*/
                  WHEN "v-net-prct" THEN cVarValue = STRING(dNetprct,"->>9.99"). 
+                 WHEN "csrUser_id" THEN cVarValue = STRING(cUsers-id,"X(8)"). 
             END CASE.
             IF cTmpField = "v-profit" AND NOT prt-profit THEN NEXT.
             cExcelVarValue = cVarValue.
@@ -731,6 +741,7 @@ FORMAT wkrecap.procat
                    WHEN "v-price-per-t" THEN cVarValue = STRING(v-price-per-t,"->>,>>9.99").
                    WHEN "v-net-prct" THEN cVarValue = "". 
                    WHEN "w-data.shp-qty" THEN cVarValue = "" .
+                   WHEN "csrUser_id" THEN cVarValue = "" .
               END CASE.
               IF cTmpField = "v-profit" AND NOT prt-profit THEN NEXT.
               cExcelVarValue = cVarValue.
@@ -799,6 +810,7 @@ FORMAT wkrecap.procat
                    WHEN "v-price-per-t" THEN cVarValue = STRING(v-price-per-t,"->>,>>9.99").
                    WHEN "v-net-prct" THEN cVarValue = "". 
                    WHEN "w-data.shp-qty" THEN cVarValue = "" .
+                   WHEN "csrUser_id" THEN cVarValue = "" .
               END CASE.
               IF cTmpField = "v-profit" AND NOT prt-profit THEN NEXT.
               cExcelVarValue = cVarValue.
@@ -867,6 +879,7 @@ FORMAT wkrecap.procat
                 WHEN "cust-po" THEN cVarValue = IF AVAILABLE oe-ordl AND oe-ordl.cust-no NE "" THEN STRING(oe-ordl.po-no,"x(15)") ELSE STRING(oe-ord.po-no,"x(15)") . /* ticket 14966*/
                 WHEN "die-no" THEN cVarValue = IF AVAILABLE itemfg AND itemfg.die-no NE "" THEN STRING(itemfg.die-no,"x(15)") ELSE IF AVAILABLE eb THEN STRING(eb.die-no,"x(15)") ELSE "" . /* ticket 16188*/
                 WHEN "v-net-prct" THEN cVarValue = STRING(dNetprct,"->>9.99").
+                WHEN "csrUser_id" THEN cVarValue = STRING(cUsers-id,"X(8)"). 
             END CASE.
             IF cTmpField = "v-profit" AND NOT prt-profit THEN NEXT.  
             cExcelVarValue = cVarValue.
@@ -939,6 +952,7 @@ FORMAT wkrecap.procat
                    WHEN "v-price-per-t" THEN cVarValue = STRING(v-price-per-t,"->>,>>9.99").
                    WHEN "v-net-prct" THEN cVarValue = "" .
                    WHEN "w-data.shp-qty" THEN cVarValue = "" .
+                   WHEN "csrUser_id" THEN cVarValue = "" .
               END CASE.
               IF cTmpField = "v-profit" AND NOT prt-profit THEN NEXT.
               cExcelVarValue = cVarValue.
@@ -1006,6 +1020,7 @@ FORMAT wkrecap.procat
                    WHEN "v-price-per-t" THEN cVarValue = STRING(v-price-per-t,"->>,>>9.99").
                    WHEN "v-net-prct" THEN cVarValue = "" .
                    WHEN "w-data.shp-qty" THEN cVarValue = "" .
+                   WHEN "csrUser_id" THEN cVarValue = "" .
               END CASE.
               IF cTmpField = "v-profit" AND NOT prt-profit THEN NEXT.
               cExcelVarValue = cVarValue.

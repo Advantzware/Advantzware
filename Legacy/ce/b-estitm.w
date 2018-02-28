@@ -3800,6 +3800,13 @@ PROCEDURE local-assign-record :
      bf-eb.sman         = eb.sman
      bf-eb.comm         = eb.comm.
   END. 
+  IF adm-adding-record THEN DO:
+       FIND FIRST cust NO-LOCK
+            WHERE cust.company = gcompany
+              AND cust.cust-no = eb.cust-no NO-ERROR.
+       IF AVAIL cust THEN
+           est.csrUser_id = cust.csrUser_id .
+  END.
 
   IF cestyle-log                                     AND
      (adm-adding-record OR lv-hld-style NE eb.style) THEN DO:

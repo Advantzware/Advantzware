@@ -141,7 +141,7 @@ END.
 /* Need to scope the external tables to this procedure                  */
 DEFINE QUERY external_tables FOR est, eb, est-qty, ef.
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-FIELDS est.highlight eb.cust-no eb.ship-id eb.part-no ~
+&Scoped-Define ENABLED-FIELDS est.highlight eb.cust-no eb.ship-id est.csrUser eb.part-no ~
 eb.stock-no eb.part-dscr1 eb.part-dscr2 eb.die-no ef.cad-image eb.sman ~
 eb.comm eb.cad-no eb.plate-no eb.procat eb.spc-no eb.upc-no eb.style ~
 eb.flute eb.test est.metric ef.board ef.brd-dscr eb.len eb.wid eb.dep ~
@@ -157,7 +157,7 @@ btn_fgitem btn_style btn_board btn_cust RECT-18 RECT-19 RECT-23 RECT-24
 eb.blank-no est.mod-date eb.ord-no est.ord-date est.highlight eb.cust-no ~
 eb.ship-id eb.ship-name eb.ship-addr[1] eb.ship-addr[2] eb.ship-city ~
 eb.ship-state eb.ship-zip est-qty.eqty eb.part-no eb.stock-no eb.part-dscr1 ~
-eb.part-dscr2 eb.die-no ef.cad-image eb.sman eb.comm eb.cad-no eb.plate-no ~
+eb.part-dscr2 eb.die-no ef.cad-image est.csrUser eb.sman eb.comm eb.cad-no eb.plate-no ~
 eb.procat eb.spc-no eb.upc-no eb.style eb.flute eb.test est.metric ef.board ~
 ef.brd-dscr eb.len eb.wid eb.dep eb.adhesive eb.dust eb.fpanel eb.lock ~
 eb.gluelap eb.k-wid eb.k-len eb.tuck eb.lin-in eb.t-wid eb.t-len eb.t-sqin ~
@@ -368,28 +368,32 @@ DEFINE FRAME Corr
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
           FONT 6
-     eb.ship-name AT ROW 3.86 COL 22.2 COLON-ALIGNED
+     eb.ship-name AT ROW 3.80 COL 22.2 COLON-ALIGNED
           LABEL "Company"
           VIEW-AS FILL-IN 
           SIZE 45.8 BY 1
           FONT 6
-     eb.ship-addr[1] AT ROW 4.81 COL 22.2 COLON-ALIGNED
+     eb.ship-addr[1] AT ROW 4.70 COL 22.2 COLON-ALIGNED
           LABEL "Address"
           VIEW-AS FILL-IN 
           SIZE 45.8 BY 1
-     eb.ship-addr[2] AT ROW 5.76 COL 22.2 COLON-ALIGNED NO-LABEL
+     eb.ship-addr[2] AT ROW 5.55 COL 22.2 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 45.8 BY 1
-     eb.ship-city AT ROW 6.71 COL 22.2 COLON-ALIGNED
+     eb.ship-city AT ROW 6.45 COL 22.2 COLON-ALIGNED
           LABEL "City/State/Zip"
           VIEW-AS FILL-IN 
           SIZE 23 BY 1
-     eb.ship-state AT ROW 6.71 COL 45.6 COLON-ALIGNED NO-LABEL
+     eb.ship-state AT ROW 6.45 COL 45.6 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 6 BY 1
-     eb.ship-zip AT ROW 6.71 COL 52.2 COLON-ALIGNED NO-LABEL
+     eb.ship-zip AT ROW 6.45 COL 52.2 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 15.8 BY 1
+     est.csrUser_id AT ROW 7.30 COL 22 COLON-ALIGNED
+          LABEL "CSR"
+          VIEW-AS FILL-IN 
+          SIZE 16 BY 1
      est-qty.eqty AT ROW 2.67 COL 90 COLON-ALIGNED
           LABEL "Quantity" FORMAT ">>>>>>>"
           VIEW-AS FILL-IN 
@@ -659,6 +663,8 @@ ASSIGN
    EXP-LABEL EXP-HELP                                                   */
 /* SETTINGS FOR FILL-IN eb.dust IN FRAME Corr
    5 EXP-LABEL EXP-FORMAT                                               */
+/* SETTINGS FOR FILL-IN est.csrUser_id IN FRAME Corr
+   EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN est-qty.eqty IN FRAME Corr
    NO-ENABLE EXP-LABEL EXP-FORMAT                                       */
 ASSIGN 
@@ -978,6 +984,12 @@ DO:
          if char-val <> "" then 
             assign lw-focus:SCREEN-VALUE = entry(1,char-val).
        END.
+       when "csrUser_id" then do:
+         run windows/l-users.w (est.csrUser_id:SCREEN-VALUE in frame {&frame-name}, output char-val).
+           if char-val <> "" then 
+              assign est.csrUser_id:screen-value in frame {&frame-name} = entry(1,char-val).
+           return no-apply.
+       END.
   end case.
   return no-apply.  
 END.
@@ -1008,6 +1020,21 @@ ON ENTRY OF ef.board IN FRAME Corr /* Board */
 DO:
   IF NOT lv-foam THEN
       RUN check-flute-test-change.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME est.csrUser_id
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL est.csrUser_id V-table-Win
+ON LEAVE OF est.csrUser_id IN FRAME Corr /* Type */
+DO:
+  
+  IF LASTKEY <> -1 THEN DO:
+     RUN valid-custcsr NO-ERROR.
+     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+  END.
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -3841,6 +3868,9 @@ PROCEDURE local-update-record :
      RUN valid-dec(eb.k-wid:HANDLE) NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
+    RUN valid-custcsr NO-ERROR.
+    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+
     IF eb.ord-no NE 0 AND eb.cust-no:SCREEN-VALUE NE eb.cust-no AND
        eb.cust-no NE "" THEN
     DO:
@@ -4532,6 +4562,29 @@ PROCEDURE valid-board :
 
     IF ef.brd-dscr:SCREEN-VALUE EQ "" THEN RUN new-board.
   END.
+
+  {methods/lValidateError.i NO}
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-custcsr V-table-Win 
+PROCEDURE valid-custcsr :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  {methods/lValidateError.i YES}
+
+   IF est.csrUser_id:SCREEN-VALUE IN FRAME {&FRAME-NAME} NE "" THEN DO:
+       IF NOT CAN-FIND(FIRST users WHERE users.USER_ID EQ est.csrUser_id:SCREEN-VALUE IN FRAME {&FRAME-NAME})
+       THEN DO:
+           MESSAGE "Invalid customer CSR. Try help." VIEW-AS ALERT-BOX ERROR.
+           RETURN ERROR.
+       END.
+   END.
 
   {methods/lValidateError.i NO}
 END PROCEDURE.

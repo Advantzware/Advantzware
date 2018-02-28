@@ -138,7 +138,7 @@ DEFINE QUERY external_tables FOR job.
 &Scoped-define FIRST-ENABLED-TABLE job
 &Scoped-Define ENABLED-OBJECTS RECT-1 
 &Scoped-Define DISPLAYED-FIELDS job.job-no job.job-no2 job.est-no job.stat ~
-job.start-date job.close-date job.user-id job.loc job.due-date 
+job.start-date job.close-date job.user-id job.loc job.due-date job.csrUser_id 
 &Scoped-define DISPLAYED-TABLES job
 &Scoped-define FIRST-DISPLAYED-TABLE job
 
@@ -210,6 +210,10 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 16 BY 1
      vHoldReason AT ROW 2.43 COL 79 COLON-ALIGNED WIDGET-ID 4
+     job.csrUser_id AT ROW 2.43 COL 101 COLON-ALIGNED
+          LABEL "CSR"
+          VIEW-AS FILL-IN 
+          SIZE 11.6 BY 1
      job.close-date AT ROW 2.43 COL 127 COLON-ALIGNED
           LABEL "Close"
           VIEW-AS FILL-IN 
@@ -302,6 +306,8 @@ ASSIGN
 /* SETTINGS FOR FILL-IN job.stat IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN job.user-id IN FRAME F-Main
+   NO-ENABLE EXP-LABEL                                                  */
+/* SETTINGS FOR FILL-IN job.csrUser_id IN FRAME F-Main
    NO-ENABLE EXP-LABEL                                                  */
 /* SETTINGS FOR FILL-IN vHoldReason IN FRAME F-Main
    NO-DISPLAY NO-ENABLE                                                 */
@@ -835,7 +841,7 @@ PROCEDURE local-assign-record :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEFINE VARIABLE lv-start-date AS DATE NO-UNDO.
-
+  DEFINE BUFFER bf-est FOR est.
   /* Code placed here will execute PRIOR to standard behavior. */
 
   lv-start-date = IF AVAILABLE job THEN job.start-date ELSE ?.
@@ -854,6 +860,15 @@ PROCEDURE local-assign-record :
     ASSIGN job-hdr.due-date = job.due-date
            job-hdr.loc      = job.loc.
   END. /* each job-hdr */
+
+   IF adm-new-record THEN DO:
+    FIND FIRST bf-est NO-LOCK
+        WHERE bf-est.company EQ job.company
+          AND bf-est.est-no = job.est-no:SCREEN-VALUE IN FRAME {&FRAME-NAME}
+       NO-ERROR.
+     job.csrUser_id:SCREEN-VALUE IN FRAME {&FRAME-NAME} = IF AVAIL bf-est THEN bf-est.csrUser_id ELSE "" .
+
+   END.
 
   IF job.start-date NE lv-start-date AND NOT adm-new-record THEN DO:
     RUN update-schedule.    

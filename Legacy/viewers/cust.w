@@ -137,7 +137,7 @@ cust.cr-use cust.cr-rating cust.cr-lim cust.ord-lim cust.disc ~
 cust.curr-code cust.cr-hold-invdays cust.cr-hold-invdue cust.cust-level ~
 cust.cr-hold cust.fin-chg cust.auto-reprice cust.an-edi-cust cust.factored ~
 cust.sort cust.spare-char-1 cust.tax-gr cust.tax-id cust.date-field[2] ~
-cust.spare-char-2 cust.date-field[1] cust.type cust.contact cust.sman ~
+cust.spare-char-2 cust.date-field[1] cust.TYPE cust.csrUser_id cust.contact cust.sman ~
 cust.area-code cust.phone cust.scomm cust.fax-prefix cust.fax-country ~
 cust.frt-pay cust.fob-code cust.ship-part cust.loc cust.carrier ~
 cust.del-zone cust.terr cust.under-pct cust.over-pct cust.markup ~
@@ -152,7 +152,7 @@ cust.terms cust.cr-use cust.cr-rating cust.cr-lim cust.ord-lim cust.disc ~
 cust.curr-code cust.cr-hold-invdays cust.cr-hold-invdue cust.cust-level ~
 cust.cr-hold cust.fin-chg cust.auto-reprice cust.an-edi-cust cust.factored ~
 cust.sort cust.spare-char-1 cust.tax-gr cust.tax-id cust.date-field[2] ~
-cust.spare-char-2 cust.date-field[1] cust.type cust.contact cust.sman ~
+cust.spare-char-2 cust.date-field[1] cust.TYPE cust.csrUser_id cust.contact cust.sman ~
 cust.area-code cust.phone cust.scomm cust.fax-prefix cust.fax-country ~
 cust.frt-pay cust.fob-code cust.ship-part cust.loc cust.carrier ~
 cust.del-zone cust.terr cust.under-pct cust.over-pct cust.markup ~
@@ -170,7 +170,7 @@ loc_dscr carrier_dscr carr-mtx_del-dscr terr_dscr tb_po-mand tb_show-set
 &Scoped-define ADM-ASSIGN-FIELDS fl_custemail rd_inv-meth fi_flat-comm ~
 tb_po-mand tb_show-set 
 &Scoped-define DISPLAY-FIELD cust.state fl_custemail cust.terms cust.tax-gr ~
-cust.type cust.sman cust.loc cust.carrier cust.del-zone cust.terr ~
+cust.TYPE cust.csrUser_id cust.sman cust.loc cust.carrier cust.del-zone cust.terr ~
 tb_po-mand tb_show-set 
 &Scoped-define faxFields faxAreaCode faxNumber 
 
@@ -454,6 +454,11 @@ DEFINE FRAME F-Main
           BGCOLOR 15 FONT 4
      cust.type AT ROW 1.95 COL 73 COLON-ALIGNED
           LABEL "Type"
+          VIEW-AS FILL-IN 
+          SIZE 17 BY 1
+          BGCOLOR 15 FONT 4
+     cust.csrUser_id AT ROW 1.95 COL 127 COLON-ALIGNED
+          LABEL "CSR"
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
           BGCOLOR 15 FONT 4
@@ -791,6 +796,8 @@ ASSIGN
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN cust.type IN FRAME F-Main
    4 EXP-LABEL                                                          */
+/* SETTINGS FOR FILL-IN cust.csrUser_id IN FRAME F-Main
+   4 EXP-LABEL                                                          */
 /* SETTINGS FOR FILL-IN cust.zip IN FRAME F-Main
    EXP-LABEL                                                            */
 /* _RUN-TIME-ATTRIBUTES-END */
@@ -855,6 +862,13 @@ DO:
                      terms_dscr:SCREEN-VALUE = ENTRY(2,char-val).
            return no-apply.  
      end.
+     when "csrUser_id" then do:
+         run windows/l-users.w (cust.csrUser_id:SCREEN-VALUE in frame {&frame-name}, output char-val).
+           if char-val <> "" then 
+              assign cust.csrUser_id:screen-value in frame {&frame-name} = entry(1,char-val).
+           return no-apply.
+     end.
+
      otherwise do:
            lv-handle = focus:handle.
            run applhelp.p.
@@ -1475,6 +1489,21 @@ DO:
   {methods/dispflds.i}
   IF LASTKEY <> -1 THEN DO:
      RUN valid-custtype NO-ERROR.
+     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+  END.
+
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME cust.csrUser_id
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cust.csrUser_id V-table-Win
+ON LEAVE OF cust.csrUser_id IN FRAME F-Main /* Type */
+DO:
+  
+  IF LASTKEY <> -1 THEN DO:
+     RUN valid-custcsr NO-ERROR.
      IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
   END.
 
@@ -2243,6 +2272,9 @@ PROCEDURE local-update-record :
      RUN valid-custtype NO-ERROR.
      IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
+     RUN valid-custcsr NO-ERROR.
+     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+
      RUN valid-sman NO-ERROR. 
      IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
@@ -2695,6 +2727,29 @@ PROCEDURE valid-custtype :
      MESSAGE "Invalid customer type. Try help." VIEW-AS ALERT-BOX ERROR.
      RETURN ERROR.
   END.
+  {methods/lValidateError.i NO}
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-custcsr V-table-Win 
+PROCEDURE valid-custcsr :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  {methods/lValidateError.i YES}
+
+   IF cust.csrUser_id:SCREEN-VALUE IN FRAME {&FRAME-NAME} NE "" THEN DO:
+       IF NOT CAN-FIND(FIRST users WHERE users.USER_ID EQ cust.csrUser_id:SCREEN-VALUE IN FRAME {&FRAME-NAME})
+       THEN DO:
+           MESSAGE "Invalid customer CSR. Try help." VIEW-AS ALERT-BOX ERROR.
+           RETURN ERROR.
+       END.
+   END.
+
   {methods/lValidateError.i NO}
 END PROCEDURE.
 
