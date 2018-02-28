@@ -206,10 +206,10 @@ END.
 &Scoped-define FRAME-NAME boardFrame
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS resourceGrid scenario btnSave btnRemove ~
-btnReset btnPending btnPendingJobs btnDatePrompt btnShowDowntime btnDetail ~
-btnFlashLight btnJobBrowse btnPrevDate btnNextDate boardDate btnCalendar ~
-btnTimeLine intervals timeValue btnPrevInterval btnNextInterval ~
+&Scoped-Define ENABLED-OBJECTS scenario btnSave btnReset btnJobSeqScan ~
+btnPending btnPendingJobs btnDatePrompt btnShowDowntime btnDetail ~
+btnFlashLight btnJobBrowse resourceGrid btnPrevDate btnNextDate boardDate ~
+btnCalendar btnTimeLine intervals timeValue btnPrevInterval btnNextInterval ~
 btnResourceList btnNext btnLast btnSetColorType resourceList 
 &Scoped-Define DISPLAYED-OBJECTS scenario boardDate intervals timeValue ~
 resourceList day-1 day-2 day-3 day-4 day-5 day-6 day-7 day-8 day-9 day-10 ~
@@ -334,6 +334,11 @@ DEFINE BUTTON btnJobNotes
      LABEL "" 
      SIZE 5.2 BY 1.05 TOOLTIP "Job Notes".
 
+DEFINE BUTTON btnJobSeqScan 
+     IMAGE-UP FILE "schedule/images/barcode_scanner.bmp":U
+     LABEL "&Job Seq Scan" 
+     SIZE 5.2 BY 1.05 TOOLTIP "Job Sequence Scan".
+
 DEFINE BUTTON btnLast 
      IMAGE-UP FILE "schedule/images/last.bmp":U
      LABEL "Last" 
@@ -378,11 +383,6 @@ DEFINE BUTTON btnPrevious
      IMAGE-UP FILE "schedule/images/prev.bmp":U
      LABEL "Previous" 
      SIZE 4.4 BY 1.05 TOOLTIP "Previous Resource".
-
-DEFINE BUTTON btnRemove 
-     IMAGE-UP FILE "schedule/images/cancel.bmp":U
-     LABEL "&Remove" 
-     SIZE 5.2 BY 1.05 TOOLTIP "Remove Scenario".
 
 DEFINE BUTTON btnReset 
      IMAGE-UP FILE "schedule/images/rollback.bmp":U
@@ -1021,10 +1021,10 @@ DEFINE FRAME boardFrame
           "Select Working Scenario"
      btnSave AT ROW 1.05 COL 92 HELP
           "Click to Save Scenario"
-     btnRemove AT ROW 1.05 COL 97 HELP
-          "Remove Scenario"
-     btnReset AT ROW 1.05 COL 102 HELP
+     btnReset AT ROW 1.05 COL 97.2 HELP
           "Reset Scenario"
+     btnJobSeqScan AT ROW 1.05 COL 102 HELP
+          "Job Sequence Scan" WIDGET-ID 4
      btnToolTip AT ROW 1.05 COL 107.6 HELP
           "Click to Show ToolTip" WIDGET-ID 2
      btnPending AT ROW 1.05 COL 113 HELP
@@ -1786,6 +1786,17 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME btnJobSeqScan
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnJobSeqScan s-object
+ON CHOOSE OF btnJobSeqScan IN FRAME boardFrame /* Job Seq Scan */
+DO:
+  {{&includes}/{&Board}/btnJobSeqScan.i}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME btnLast
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnLast s-object
 ON CHOOSE OF btnLast IN FRAME boardFrame /* Last */
@@ -1908,27 +1919,6 @@ DO:
   DISABLE {&firstNav} WITH FRAME {&FRAME-NAME}.
   RUN buildResource.
   RUN buildBoard (YES).
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME btnRemove
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnRemove s-object
-ON CHOOSE OF btnRemove IN FRAME boardFrame /* Remove */
-DO:
-  {{&includes}/{&Board}/btnRemove.i}
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnRemove s-object
-ON RIGHT-MOUSE-CLICK OF btnRemove IN FRAME boardFrame /* Remove */
-DO:
-  {{&includes}/{&Board}/btnRemoveRMC.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2249,7 +2239,7 @@ PROCEDURE autoMonitor :
   Notes:       
 ------------------------------------------------------------------------------*/
   &Scoped-define autoMonitorObjects ~
-scenario btnSave btnRemove btnReset btnPending btnPendingJobs btnComplete ~
+scenario btnSave /*btnRemove*/ btnReset btnJobSeqScan btnPending btnPendingJobs btnComplete ~
 btnJobNotes btnDatePrompt
 
   DEFINE INPUT PARAMETER ipAutoMonitor AS LOGICAL NO-UNDO.

@@ -48,7 +48,8 @@ containerHandle = THIS-PROCEDURE:HANDLE.
 PROCESS EVENTS.
 
 RUN getConfiguration.
-reload = IF '{&sbExternal}' EQ 'sbNotes'  THEN reloadStatus
+reload = IF '{&sbExternal}' EQ 'sbJScan'  THEN reloadStatus
+    ELSE IF '{&sbExternal}' EQ 'sbNotes'  THEN reloadStatus
     ELSE IF '{&sbExternal}' EQ 'sbReport' THEN reloadReport
     ELSE IF '{&sbExternal}' EQ 'sbStatus' THEN reloadStatus
     ELSE ?.
@@ -88,7 +89,9 @@ PROCESS EVENTS.
 RUN getScenario.
 HIDE FRAME fMsg2 NO-PAUSE.
 
-&IF '{&sbExternal}' EQ 'sbNotes' &THEN
+&IF '{&sbExternal}' EQ 'sbJScan' &THEN
+RUN {&prompts}/jobSeqScan.w (THIS-PROCEDURE, ENTRY(1,commaList)).
+&ELSEIF '{&sbExternal}' EQ 'sbNotes' &THEN
 RUN {&objects}/sbNotes.w.
 &ELSEIF '{&sbExternal}' EQ 'sbReport' &THEN
 RUN {&prompts}/fieldFilter.w ('{&Board}','','',NO,NO,?,'print').
@@ -102,6 +105,11 @@ PROCEDURE asiCommaList:
   DEFINE OUTPUT PARAMETER opValue AS CHARACTER NO-UNDO.
 
   opValue = g_company.
+END PROCEDURE.
+
+PROCEDURE buildBoard:
+  DEFINE INPUT PARAMETER iplLogical AS LOGICAL NO-UNDO.
+  
 END PROCEDURE.
 
 PROCEDURE getScenario:
