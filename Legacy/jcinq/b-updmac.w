@@ -301,7 +301,7 @@ DO:
     FIND FIRST users NO-LOCK WHERE 
          users.user_id EQ USERID(LDBNAME(1)) NO-ERROR.
     
-  IF (AVAIL users AND users.securityLevel GE 950  OR l-jcMchUpd-sec) AND
+  IF (AVAIL users AND users.securityLevel GE 900  OR l-jcMchUpd-sec) AND
     AVAILABLE tt-mch-tran THEN DO:
     RUN set-read-only (INPUT NO,
                        INPUT tt-mch-tran.tran-type EQ "HRS").
