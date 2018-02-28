@@ -722,7 +722,7 @@ IF tb_excel THEN
         ASSIGN
             pricbas = (IF b-oe-prmtx.meth EQ YES THEN "Price" ELSE "Discount")
 /*             v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(reftable.CODE)) */
-            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(b-oe-prmtx.eff-date))
+            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(b-oe-prmtx.eff-date,"99/99/9999"))
             v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(b-oe-prmtx.cust-no))
             v-excel-detail-lines = v-excel-detail-lines + appendXLLine(b-oe-prmtx.custype)
             v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(b-oe-prmtx.procat))
@@ -771,7 +771,7 @@ IF tb_excel THEN
             v-excel-detail-lines = v-excel-detail-lines + appendXLLine(cCustPart) 
             v-excel-detail-lines = v-excel-detail-lines + appendXLLine(cIName) 
             v-excel-detail-lines = v-excel-detail-lines + appendXLLine(cIDesc1) 
-            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(b-oe-prmtx.exp-date))
+            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(b-oe-prmtx.exp-date,"99/99/9999"))
             .
 
        PUT STREAM excel UNFORMATTED v-excel-detail-lines SKIP.
