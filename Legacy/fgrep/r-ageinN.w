@@ -101,7 +101,9 @@ DEF NEW SHARED TEMP-TABLE tt-file NO-UNDO
                        FIELD tt-val AS DEC EXTENT 4
                        FIELD tt-sell-price AS DEC EXTENT 5
                        FIELD tt-days AS INT 
-                       FIELD tt-loc AS CHARACTER .
+                       FIELD tt-whse AS CHARACTER
+                       FIELD tt-bin AS CHARACTER 
+                       FIELD tt-sort-main AS CHARACTER .
 DEF TEMP-TABLE tt-items 
     FIELD i-no LIKE itemfg.i-no
     FIELD job-no LIKE job.job-no
@@ -203,6 +205,7 @@ DEF VAR excelheader AS   CHAR NO-UNDO.
 DEF VAR alt-days    AS   INT NO-UNDO.
 DEFINE VARIABLE invalidChars AS CHARACTER NO-UNDO INITIAL "~",#".
 DEFINE VARIABLE replaceChars AS CHARACTER NO-UNDO INITIAL "'',".
+DEFINE VARIABLE cPageBreak AS CHARACTER NO-UNDO .
 
 DEF VAR ls-fax-file AS cha NO-UNDO.
     DEF VAR v-qohj-2 /* LIKE v-qohj */ AS DEC EXTENT 6 NO-UNDO.
@@ -248,12 +251,12 @@ DEF VAR cColumnInit AS LOG INIT YES NO-UNDO.
     
 ASSIGN cTextListToSelect = "Rep,Rep Name,Customer Name,Item #,Description,Cost,Sell Value $," +
                            "Days,Cust Part #,Last Ship,Qty1,Qty2,Qty3,Qty4,Qty5," +
-                           "Value1,Value2,Value3,Value4,Value5,Cust#"
+                           "Value1,Value2,Value3,Value4,Value5,Cust#,Whse,Bin"
        cFieldListToSelect = "rep,rep-name,cust,i-no,dscr,cst,sell-val," +
                             "dys,cst-prt,lst-shp,qty1,qty2,qty3,qty4,qty5," +
-                            "val1,val2,val3,val4,val5,cust-no"
-       cFieldLength = "3,25,30,15,30,13,13," +  "4,15,10,9,9,10,10,9," + "11,11,12,12,11,8"  
-       cFieldType = "c,c,c,c,c,i,i," + "i,c,c,i,i,i,i,i," + "i,i,i,i,i,c" 
+                            "val1,val2,val3,val4,val5,cust-no,whse,bin"
+       cFieldLength = "3,25,30,15,30,13,13," +  "4,15,10,9,9,10,10,9," + "11,11,12,12,11,8,6,6"  
+       cFieldType = "c,c,c,c,c,i,i," + "i,c,c,i,i,i,i,i," + "i,i,i,i,i,c,c,c" 
     .
 
 {sys/inc/ttRptSel.i}
@@ -280,7 +283,7 @@ ASSIGN cTextListToDefault  = "Rep,Customer Name,Item #,Description,Cost,Sell Val
 begin_slm end_slm begin_cust-no end_cust-no begin_i-no end_i-no ~
 begin_job-no begin_job-no2 end_job-no end_job-no2 begin_whse end_whse ~
 begin_loc-bin end_loc-bin list_class aged-days-1 aged-days-2 aged-days-3 ~
-aged-days-4 rd_show rd_price rd_sort tb_cust-whse tb_break ~
+aged-days-4 rd_show rd_price rd_sort tb_cust-whse tb_break rd_break ~
 tb_neg-sale tb_curr tb_val-cust rd-dest ~
 lv-ornt lines-per-page lv-font-no td-show-parm tb_excel tb_runExcel fi_file ~
 btn-ok btn-cancel tb_include_old_items RECT-6 RECT-7 btn_SelectColumns tb_cust-list btnCustList
@@ -289,7 +292,7 @@ begin_slm end_slm begin_cust-no end_cust-no begin_i-no end_i-no ~
 begin_job-no begin_job-no2 end_job-no end_job-no2 begin_whse end_whse ~
 begin_loc-bin end_loc-bin list_class aged-days-1 aged-days-2 aged-days-3 ~
 aged-days-4 lbl_show rd_show rd_price lbl_sort rd_sort ~
-tb_cust-whse tb_break tb_neg-sale tb_curr tb_val-cust ~
+tb_cust-whse tb_break rd_break tb_neg-sale tb_curr tb_val-cust ~
 rd-dest lv-ornt lines-per-page lv-font-no lv-font-name ~
 td-show-parm tb_excel tb_runExcel fi_file tb_include_old_items tb_cust-list
 
@@ -531,8 +534,7 @@ DEFINE VARIABLE rd_sort AS CHARACTER INITIAL "Item#"
      VIEW-AS RADIO-SET HORIZONTAL
      RADIO-BUTTONS 
           "Item#", "Item#",
-"Customer Part#", "Customer Part#",
-"Warehouse","Warehouse"
+"Customer Part#", "Customer Part#"
      SIZE 50 BY 1 NO-UNDO.
 
 DEFINE RECTANGLE RECT-6
@@ -547,6 +549,13 @@ DEFINE VARIABLE tb_break AS LOGICAL INITIAL YES
      LABEL "Page Break ?" 
      VIEW-AS TOGGLE-BOX
      SIZE 37 BY 1 NO-UNDO.
+
+DEFINE VARIABLE rd_break AS CHARACTER INITIAL "Cust" 
+     VIEW-AS RADIO-SET HORIZONTAL
+     RADIO-BUTTONS 
+          "Cust#", "Cust",
+"Warehouse", "Whs"
+     SIZE 25 BY 1 NO-UNDO.
 
 DEFINE VARIABLE sl_avail AS CHARACTER 
      VIEW-AS SELECTION-LIST MULTIPLE SCROLLBAR-VERTICAL 
@@ -657,7 +666,8 @@ DEFINE FRAME FRAME-A
      lbl_sort AT ROW 14.29 COL 19 COLON-ALIGNED NO-LABEL
      rd_sort AT ROW 14.29 COL 28 NO-LABEL WIDGET-ID 14
      tb_cust-whse AT ROW 15.43 COL 6
-     tb_break AT ROW 16.40 COL 6
+     tb_break AT ROW 16.40 COL 6    
+     rd_break AT ROW 16.40 COL 21 COLON-ALIGNED NO-LABEL
      tb_neg-sale AT ROW 15.43 COL 49
      tb_curr AT ROW 17.40 COL 6
      tb_val-cust AT ROW 16.40 COL 49
@@ -941,6 +951,10 @@ ASSIGN
 
 ASSIGN 
        tb_val-cust:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
+
+ASSIGN 
+       rd_break:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
@@ -1515,6 +1529,26 @@ END.
 ON VALUE-CHANGED OF tb_break IN FRAME FRAME-A /* Page Break By Customer? */
 DO:
   ASSIGN {&self-name}.
+  
+  IF rd_break EQ "whs" AND tb_break  THEN
+      tb_val-cust:LABEL = "Subtotal Value By Wharehouse?" . 
+  ELSE
+      tb_val-cust:LABEL = "Subtotal Value By Customer?" .
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME rd_break
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rd_break C-Win
+ON VALUE-CHANGED OF rd_break IN FRAME FRAME-A /* Page Break By Customer? */
+DO:
+  ASSIGN {&self-name}.
+  
+  IF rd_break EQ "whs" AND tb_break  THEN
+      tb_val-cust:LABEL = "Subtotal Value By Wharehouse?" . 
+  ELSE
+      tb_val-cust:LABEL = "Subtotal Value By Customer?" .
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1722,6 +1756,11 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   /*  {custom/usrprntc.i "and true" v-custom-user} */
 
       {custom/usrprint.i} 
+
+    IF rd_break:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ "whs" AND tb_break:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ "Yes"  THEN
+      tb_val-cust:LABEL = "Subtotal Value By Wharehouse?" . 
+     ELSE
+      tb_val-cust:LABEL = "Subtotal Value By Customer?" .
 
     IF NOT AVAIL user-print THEN DO:
       FOR EACH itemfg WHERE itemfg.company EQ cocode NO-LOCK BREAK BY itemfg.class:
@@ -2021,10 +2060,13 @@ DEF INPUT PARAMETER tb_runExcel AS LOGICAL INITIAL NO
      LABEL "Auto Run Excel?" NO-UNDO.
 
 DEF INPUT PARAMETER tb_val-cust AS LOGICAL INITIAL NO 
-     LABEL "Subtotal Value By Customer?" NO-UNDO.
+     LABEL " Print Subtotal Value By Customer?" NO-UNDO.
 
 DEF INPUT PARAMETER td-show-parm AS LOGICAL INITIAL YES 
      LABEL "Show Parameters?" NO-UNDO.
+
+DEF INPUT PARAMETER rd_break AS CHARACTER INITIAL "Cust" 
+     NO-UNDO.
 ASSIGN
  v-qohg = 0
  v-cst   = 0
@@ -2286,7 +2328,7 @@ PROCEDURE enable_UI :
           end_job-no2 begin_whse end_whse begin_loc-bin end_loc-bin list_class 
           aged-days-1 aged-days-2 aged-days-3 aged-days-4 lbl_show rd_show 
           rd_price lbl_sort rd_sort tb_cust-whse  
-          tb_break tb_neg-sale tb_curr tb_val-cust  
+          tb_break rd_break tb_neg-sale tb_curr tb_val-cust  
           rd-dest lv-ornt lines-per-page lv-font-no lv-font-name td-show-parm 
           tb_excel tb_runExcel fi_file tb_include_old_items tb_cust-list 
       WITH FRAME FRAME-A IN WINDOW C-Win.
@@ -2294,7 +2336,7 @@ PROCEDURE enable_UI :
          end_cust-no begin_i-no end_i-no begin_job-no begin_job-no2 end_job-no 
          end_job-no2 begin_whse end_whse begin_loc-bin end_loc-bin list_class 
          aged-days-1 aged-days-2 aged-days-3 aged-days-4 rd_show rd_price 
-         rd_sort tb_cust-whse tb_break tb_neg-sale tb_curr 
+         rd_sort tb_cust-whse tb_break rd_break tb_neg-sale tb_curr 
          tb_val-cust rd-dest lv-ornt 
          lines-per-page lv-font-no td-show-parm tb_excel tb_runExcel fi_file 
          btn-ok btn-cancel tb_include_old_items RECT-6 RECT-7 btn_SelectColumns tb_cust-list btnCustList
@@ -2697,7 +2739,8 @@ ASSIGN
  list_class = ""
  sort-opt    = SUBSTR(rd_sort,1,1) 
  v-print-grand-tots = tb_grand_tots
- v-print-sls-tots   = tb_sls_tots.
+ v-print-sls-tots   = tb_sls_tots
+ cPageBreak         = rd_break .
 
 DO li = 1 TO NUM-ENTRIES(v-class):
   list_class = list_class + " " + (IF ENTRY(li,v-class) EQ "" THEN "Spaces"
@@ -2887,9 +2930,9 @@ FOR EACH tt-file WHERE
       AND itemfg.i-no    EQ tt-i-no
     NO-LOCK    
     BREAK BY tt-sman
-          BY tt-cust-no
+          BY tt-sort-main
           /*by tt-i-no*/
-          BY (IF sort-opt EQ "I" THEN itemfg.i-no ELSE IF sort-opt EQ "C" THEN  itemfg.part-no ELSE tt-file.tt-loc):
+          BY (IF sort-opt EQ "I" THEN itemfg.i-no ELSE  itemfg.part-no ):
 
   {custom/statusMsg.i "'Printing Report: Item ' + itemfg.i-no"}
 
@@ -2907,7 +2950,7 @@ FOR EACH tt-file WHERE
 
   
   IF FIRST-OF(tt-sman)                  OR
-     (FIRST-OF(tt-cust-no) AND v-break) THEN DO:
+     (FIRST-OF(tt-sort-main) AND v-break) THEN DO:
     IF FIRST(tt-sman) THEN DO: 
         /*IF v-cost THEN*/ DISPLAY WITH FRAME r-top.
        /* ELSE DISPLAY WITH FRAME r-top2. */
@@ -2982,7 +3025,10 @@ FOR EACH tt-file WHERE
                   WHEN "val2"      THEN cVarValue = /*IF v-curr AND NOT v-q-or-v THEN*/ STRING(tt-sell-price[2],"->>>>>>>>>9") /*ELSE ""*/ .  
                   WHEN "val3"      THEN cVarValue = /*IF v-curr AND NOT v-q-or-v THEN*/ STRING(tt-sell-price[3],"->>>>>>>>>>9") /*ELSE ""*/ .  
                   WHEN "val4"      THEN cVarValue = /*IF NOT v-q-or-v THEN*/ STRING(tt-sell-price[4],"->>>>>>>>>>9") /*ELSE ""*/ .            
-                  WHEN "val5"      THEN cVarValue = /*IF NOT v-q-or-v THEN*/ STRING(tt-sell-price[5],"->>>>>>>>>9") /*ELSE ""*/ .            
+                  WHEN "val5"      THEN cVarValue = /*IF NOT v-q-or-v THEN*/ STRING(tt-sell-price[5],"->>>>>>>>>9") /*ELSE ""*/ . 
+                  WHEN "whse"      THEN cVarValue =  STRING(tt-file.tt-whse)  .            
+                  WHEN "bin"       THEN cVarValue =  STRING(tt-file.tt-bin)  . 
+                      
                   
                   
              END CASE.
@@ -3021,7 +3067,7 @@ FOR EACH tt-file WHERE
    v-qohi           = 0      
    lv-last-fld      = "".
   
-  IF LAST-OF(tt-cust-no) THEN DO:
+  IF LAST-OF(tt-sort-main) THEN DO:
     IF v-sub-t THEN DO:
         PUT str-line SKIP .
         ASSIGN cDisplay = ""
@@ -3054,8 +3100,9 @@ FOR EACH tt-file WHERE
                   WHEN "val3"      THEN cVarValue = /*IF v-curr AND NOT v-q-or-v THEN*/ STRING(v-valc[3],"->>>>>>>>>>9") /*ELSE ""*/ . 
                   WHEN "val4"      THEN cVarValue = /*IF NOT v-q-or-v THEN*/ STRING(v-valc[4],"->>>>>>>>>>9") /*ELSE ""*/  .           
                   WHEN "val5"      THEN cVarValue = /*IF NOT v-q-or-v THEN*/ STRING(v-valc[5],"->>>>>>>>>9") /*ELSE "" */ .            
-                  
-                  
+                  WHEN "whse"      THEN cVarValue =  ""  .            
+                  WHEN "bin"       THEN cVarValue =  ""  . 
+
              END CASE.
                
              cExcelVarValue = cVarValue.
@@ -3063,15 +3110,23 @@ FOR EACH tt-file WHERE
                         FILL(" ",int(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
              cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
      END.
-     
-     PUT UNFORMATTED  "       Customer Subtotal:" SUBSTRING(cDisplay,26,300) SKIP.
-     IF NOT LAST-OF(tt-sman) THEN
+     IF tb_break AND rd_break EQ "whs" THEN
+        PUT UNFORMATTED   "     Wharehouse Subtotal:" SUBSTRING(cDisplay,26,300) SKIP. 
+     ELSE
+        PUT UNFORMATTED  "       Customer Subtotal:" SUBSTRING(cDisplay,26,300) SKIP.
+        
+
+     /*IF NOT LAST-OF(tt-sman) THEN*/
      IF v-break  THEN  PAGE .
+
      IF tb_excel THEN DO:
          PUT STREAM excel UNFORMATTED  
               "Customer Subtotal: " + substring(cExcelDisplay,3,300) SKIP.
      END.
 
+    END.
+    ELSE IF tb_break THEN DO:
+        PAGE .
     END.
     
     ASSIGN
@@ -3129,7 +3184,8 @@ FOR EACH tt-file WHERE
                   WHEN "val3"      THEN cVarValue = STRING(v-vals[3],"->>>>>>>>>>9") . 
                   WHEN "val4"      THEN cVarValue = STRING(v-vals[4],"->>>>>>>>>>9")  .           
                   WHEN "val5"      THEN cVarValue = STRING(v-vals[5],"->>>>>>>>>9") .            
-                  
+                  WHEN "whse"      THEN cVarValue =  ""  .            
+                  WHEN "bin"       THEN cVarValue =  ""  . 
                   
              END CASE.
                
@@ -3204,7 +3260,8 @@ FOR EACH tt-file WHERE
                   WHEN "val3"      THEN cVarValue =  STRING(v-valg[3],"->>>>>>>>>>9")  . 
                   WHEN "val4"      THEN cVarValue =  STRING(v-valg[4],"->>>>>>>>>>9")   .           
                   WHEN "val5"      THEN cVarValue =  STRING(v-valg[5],"->>>>>>>>>9")   .            
-                  
+                  WHEN "whse"      THEN cVarValue =  ""  .            
+                  WHEN "bin"       THEN cVarValue =  ""  . 
                   
              END CASE.
                
@@ -3258,7 +3315,8 @@ FOR EACH tt-file WHERE
                   WHEN "val3"      THEN cVarValue =  STRING(v-valg[3] / v-all-tot-val * 100, "->>>>>>9.99%") . 
                   WHEN "val4"      THEN cVarValue =  STRING(v-valg[4] / v-all-tot-val * 100, "->>>>>>9.99%") . 
                   WHEN "val5"      THEN cVarValue =  STRING(v-valg[5] / v-all-tot-val * 100, "->>>>>9.99%")  . 
-                  
+                  WHEN "whse"      THEN cVarValue =  ""  .            
+                  WHEN "bin"       THEN cVarValue =  ""  . 
                   
              END CASE.
                
@@ -3780,7 +3838,9 @@ END.
             tt-file.tt-sman    = (IF v-ord-slsmn GT "" THEN v-ord-slsmn ELSE v-sales-rep)
             tt-file.tt-cust-no = IF AVAIL cust THEN cust.cust-no ELSE ""
             tt-file.tt-i-no    = itemfg.i-no
-            tt-file.tt-loc     = tt-itemfg.loc
+            tt-file.tt-sort-main = IF rd_break EQ "Cust" AND tb_break THEN tt-file.tt-cust-no ELSE IF rd_break EQ "whs" AND tb_break THEN tt-itemfg.loc ELSE tt-file.tt-cust-no
+            tt-file.tt-whse    = tt-itemfg.loc    
+            tt-file.tt-bin     = tt-itemfg.loc-bin
             tt-file.tt-cst[1]  = v-cst[1]
             tt-file.tt-val[1]  = (IF v-qohi[1] NE 0 OR v-qohi[2] NE 0 OR v-qohi[3] NE 0 OR v-qohi[4] NE 0 OR v-qohi[5] NE 0 THEN v-val[1] ELSE 0)
             tt-file.tt-qohi[1] = v-qohi[1]
@@ -3929,7 +3989,8 @@ FOR EACH tt-items.
         tb_neg-sale,
         tb_runExcel,
         tb_val-cust,
-        td-show-parm).
+        td-show-parm,
+        rd_break).
 
   SESSION:SET-WAIT-STATE ("").
 
