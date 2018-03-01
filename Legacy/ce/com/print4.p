@@ -64,7 +64,6 @@ DEF VAR v-probe-fmt AS CHAR NO-UNDO.
 DEF VAR v-header AS CHAR INIT "   Qty      --- Desc/iption ------ -- Size / Color ----- --- Style / Part No ---" NO-UNDO.
 DEF VAR v-2desc AS LOG NO-UNDO.
 DEF VAR v-i-no LIKE xeb.stock-no.
-DEF VAR cJobNo AS CHAR NO-UNDO.
 DEF BUFFER bf-oe-ord FOR oe-ord.
 DEF BUFFER bf-oe-ordl FOR oe-ordl.
 DEF NEW SHARED TEMP-TABLE tt-rel NO-UNDO LIKE reftable.
