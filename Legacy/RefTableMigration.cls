@@ -1254,6 +1254,45 @@ CLASS RefTableMigration:
         
         FOR EACH reftable WHERE reftable.reftable = "FREEZENOTE"
             NO-LOCK:
+            FIND FIRST job-hdr WHERE job-hdr.company = reftable.company
+                                 AND job-hdr.job-no  = reftable.loc
+                                 AND job-hdr.job-no2 = int(reftable.code)
+                EXCLUSIVE-LOCK NO-ERROR.
+            IF AVAILABLE job-hdr THEN    
+            ASSIGN 
+                job-hdr.freezeNote = YES   
+                . 
+            RELEASE job-hdr.      
+            iCnt = iCnt + 1.                 
+        END.  /*FOR EACH reftable*/         
+        RETURN iCnt.
+    END METHOD. /*job-hdr*/
+    METHOD PUBLIC INTEGER DropslitToHighlight():
+        DEFINE VARIABLE iCnt AS INTEGER NO-UNDO.
+        FOR EACH est EXCLUSIVE-LOCK:
+            ASSIGN 
+                est.highlight = est.dropslit                
+                est.dropslit = no
+                .                 
+            RELEASE est.      
+            iCnt = iCnt + 1.                 
+        END.  /*FOR EACH reftable*/         
+        RETURN iCnt.
+    END METHOD. /*est*/
+    METHOD PUBLIC INTEGER Dropslit():
+        DEFINE VARIABLE iCnt AS INTEGER NO-UNDO.
+        FOR EACH reftable WHERE reftable.reftable = "dropslit"
+            NO-LOCK:
+            FIND FIRST est WHERE est.company = reftable.company AND
+                est.dropslit = reftable.loc eq "yes"                
+                             AND est.est-no  = reftable.code
+                EXCLUSIVE-LOCK NO-ERROR.
+            IF AVAILABLE est THEN    
+            ASSIGN 
+                est.recalc    = logical(reftable.val[1]) 
+                est.recalc-mr = logical(reftable.val[2])         
+    END METHOD. /*est*/
+    METHOD PUBLIC INTEGER MachPlainJob():
             DO TRANSACTION:    
                 FIND FIRST job-hdr WHERE job-hdr.company = reftable.company
                     AND job-hdr.job-no  = reftable.loc

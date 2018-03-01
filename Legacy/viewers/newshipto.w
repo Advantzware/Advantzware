@@ -1138,7 +1138,7 @@ PROCEDURE reftable-values :
     IF ip-display THEN
       tb_mandatory-tax = shipto.tax-mandatory .
     ELSE
-      shipto.tax-mandatory = INT(tb_mandatory-tax).
+      shipto.tax-mandatory = LOG(tb_mandatory-tax).
 
     FIND CURRENT reftable NO-LOCK.
   END.

@@ -23,7 +23,6 @@ DEF VAR lv-format AS CHAR INIT ">>>>9.9<<<<" NO-UNDO.
 DEF VAR ld-wid AS DEC NO-UNDO.
 DEF VAR ld-len AS DEC NO-UNDO.
 DEF VAR ld-dep AS DEC NO-UNDO.
-DEF VAR cJobNo AS CHAR NO-UNDO.
 DEFINE VARIABLE dShrink AS DECIMAL     NO-UNDO.
 DEF BUFFER bf-oe-ord FOR oe-ord.
 DEF BUFFER bf-oe-ordl FOR oe-ordl.
