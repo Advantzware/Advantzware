@@ -3703,20 +3703,20 @@ PROCEDURE run-packing-list :
       CASE rd-dest:
           WHEN 1 THEN DO: 
             IF v-print-fmt = "CCC" OR v-print-fmt EQ "CCCWPP" THEN
-              PUT "<PRINTER?><LEFT=4mm>".
+              PUT "<PRINTER?><LEFT=7mm>".
             ELSE
               PUT "<PRINTER?>".
           END.
           WHEN 2 THEN do:
            IF NOT lBussFormModle THEN do:
                IF v-print-fmt = "CCC" OR v-print-fmt EQ "CCCWPP" THEN
-                   PUT "<PREVIEW><LEFT=4mm><MODAL=NO>". 
+                   PUT "<PREVIEW><LEFT=7mm><MODAL=NO>". 
                ELSE
                    PUT "<PREVIEW><MODAL=NO>". 
            END.
            ELSE DO:
              IF v-print-fmt = "CCC" OR v-print-fmt EQ "CCCWPP" THEN
-                 PUT "<PREVIEW><LEFT=4mm>". 
+                 PUT "<PREVIEW><LEFT=7mm>". 
              ELSE
                  PUT "<PREVIEW>". 
            END.
@@ -3857,18 +3857,18 @@ PROCEDURE run-report :
       CASE rd-dest:
           WHEN 1 THEN do: 
               IF v-print-fmt = "CCC" OR v-print-fmt EQ "CCCWPP" THEN
-                  PUT "<PRINTER?><LEFT=4mm>".
+                  PUT "<PRINTER?><LEFT=7mm>".
               ELSE  PUT "<PRINTER?>".
           END.
           WHEN 2 THEN do:
            IF NOT lBussFormModle THEN do:
                IF v-print-fmt = "CCC" OR v-print-fmt EQ "CCCWPP" THEN
-                   PUT "<PREVIEW><LEFT=4mm><MODAL=NO>". 
+                   PUT "<PREVIEW><LEFT=7mm><MODAL=NO>". 
                ELSE PUT "<PREVIEW><MODAL=NO>".
            END.
            ELSE do:
                IF v-print-fmt = "CCC" OR  v-print-fmt EQ "CCCWPP" THEN
-                   PUT "<PREVIEW><LEFT=4mm>".        
+                   PUT "<PREVIEW><LEFT=7mm>".        
                ELSE
                    PUT "<PREVIEW>".  
            END.
@@ -3876,7 +3876,7 @@ PROCEDURE run-report :
           WHEN 4 THEN do:
                 ls-fax-file = "c:\tmp\fax" + STRING(TIME) + ".tif".
                 IF v-print-fmt = "CCC" OR  v-print-fmt EQ "CCCWPP" THEN
-                    PUT UNFORMATTED "<PRINTER?><LEFT=4mm><EXPORT=" Ls-fax-file ",BW>".
+                    PUT UNFORMATTED "<PRINTER?><LEFT=7mm><EXPORT=" Ls-fax-file ",BW>".
                 ELSE PUT UNFORMATTED "<PRINTER?><EXPORT=" Ls-fax-file ",BW>".
           END.
           WHEN 5 THEN do:
