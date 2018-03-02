@@ -1853,6 +1853,10 @@ PROCEDURE setBolDates:
                     opdEndDate   = STRING({&head}.inv-date).
         END.
     END. 
+    IF opdBeginDate EQ ? THEN 
+        opdBeginDate = "".
+    IF opdEndDate EQ ? THEN 
+        opdEndDate = "".        
 END.
 
 PROCEDURE setBOLRange:
@@ -1959,6 +1963,10 @@ PROCEDURE setBOLRange:
                 IF INT(begin_inv-screen-value) GT 0 AND INT(end_inv-screen-value) GT 0 THEN DO:
                   IF int(begin_bol-SCREEN-VALUE) EQ 0 THEN opbegin_bol-SCREEN-VALUE = "0".
                   IF int(end_bol-SCREEN-VALUE) EQ 0 THEN opend_bol-SCREEN-VALUE = "99999999".
+                  ASSIGN 
+                    opend_date-SCREEN-VALUE   = ""
+                    opBegin_date-screen-value = ""
+                    . 
                 END.
 /*                FOR EACH oe-bolh NO-LOCK                                     */
 /*                    WHERE oe-bolh.company EQ cocode                          */
