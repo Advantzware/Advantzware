@@ -23,6 +23,8 @@ IF AVAIL mach THEN DO:
 
   IF AVAIL ef                                                                           AND
      ef.f-col + ef.f-coat GT 0                                                          AND
+     mach.plain-job = TRUE AND
+     
      CAN-FIND(FIRST b-est-op
               WHERE b-est-op.company EQ io-est-op.company 
                 AND b-est-op.est-no  EQ io-est-op.est-no
