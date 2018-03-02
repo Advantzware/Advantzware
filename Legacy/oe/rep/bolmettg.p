@@ -462,11 +462,11 @@ for each xxreport where xxreport.term-id eq v-term-id,
   PUT "<R43><C40><#7><C-6>Shipper Signature"
       "<=7><C+10><FROM><R+2><C+20><RECT> " 
       "<R45><C50><#8><FROM><R+5><C+30><RECT>" 
-      "<=8><R+0> Total Pieces Shipped :" v-tot-pcs FORM ">,>>>,>>9"
-      "<=8><R+1> Total Pallets        :" v-tot-plt FORM ">,>>>,>>9"
-      "<=8><R+2> Total Cases          :" v-tot-cases FORM ">,>>>,>>9"
-      "<=8><R+3> Net Weight           :" v-tot-wt FORM ">,>>>,>>9.99"
-      "<=8><R+4> Gross Weight         :" v-gross-wt FORM ">,>>>,>>9.99".
+      "<=8><R+0> Total Pieces Shipped :" v-tot-pcs FORM "->,>>>,>>9"
+      "<=8><R+1> Total Pallets        :" v-tot-plt FORM "->,>>>,>>9"
+      "<=8><R+2> Total Cases          :" v-tot-cases FORM "->,>>>,>>9"
+      "<=8><R+3> Net Weight           :" v-tot-wt FORM "->,>>>,>>9.99"
+      "<=8><R+4> Gross Weight         :" v-gross-wt FORM "->,>>>,>>9.99".
   
 
 CASE v-frt-class:
