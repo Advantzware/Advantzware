@@ -2067,7 +2067,8 @@ CLASS RefTableMigration:
             IF AVAILABLE est THEN    
             ASSIGN 
                 est.recalc    = logical(reftable.val[1]) 
-                est.recalc-mr = logical(reftable.val[2])         
+                est.recalc-mr = logical(reftable.val[2]). 
+        END.        
     END METHOD. /*est*/
 END CLASS.
 
