@@ -56,7 +56,7 @@ DEF VAR v-po-cost LIKE po-ordl.cost NO-UNDO.
 
 /* === with xprint ====*/
 DEF VAR ls-image1 AS cha NO-UNDO.
-DEF VAR ls-full-img1 AS cha FORM "x(60)" NO-UNDO.
+DEF VAR ls-full-img1 AS cha FORM "x(200)" NO-UNDO.
 DEF VAR v-print-blank AS LOG NO-UNDO.
 DEF VAR v-line AS INT NO-UNDO.
 DEF VAR vs-ord-qty AS cha NO-UNDO.

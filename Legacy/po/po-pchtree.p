@@ -65,8 +65,8 @@ DEFINE VARIABLE lv-Ord-Qty LIKE po-ordl.ord-qty NO-UNDO.
 
 DEF VAR ls-image1 AS cha NO-UNDO.
 DEF VAR ls-image2 AS cha NO-UNDO.
-DEF VAR ls-full-img1 AS cha FORM "x(60)" NO-UNDO.
-DEF VAR ls-full-img2 AS cha FORM "x(60)" NO-UNDO.
+DEF VAR ls-full-img1 AS cha FORM "x(200)" NO-UNDO.
+DEF VAR ls-full-img2 AS cha FORM "x(200)" NO-UNDO.
 ASSIGN ls-image1 = "images\Peachtree_logo_address.jpg"
        ls-image2 = ""
 

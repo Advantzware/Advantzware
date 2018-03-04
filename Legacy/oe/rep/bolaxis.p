@@ -100,7 +100,7 @@ DEF VAR v-prev-note-rec AS RECID NO-UNDO.
 DEF VAR v-prev-extent AS INT NO-UNDO.
 
 DEF VAR ls-image1 AS cha NO-UNDO.
-DEF VAR ls-full-img1 AS cha FORM "x(100)" NO-UNDO.
+DEF VAR ls-full-img1 AS cha FORM "x(200)" NO-UNDO.
 
 
 DEF VAR lv-print-specs AS LOG NO-UNDO.

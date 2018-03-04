@@ -150,8 +150,7 @@ DEFINE SUB-MENU m_Board_Interval
 
 DEFINE SUB-MENU m_Scenario 
        MENU-ITEM m_btnSave      LABEL "Save"          
-       MENU-ITEM m_btnRemove    LABEL "Remove"        
-       MENU-ITEM m_btnReset     LABEL "Reset"         .
+       MENU-ITEM m_btnReset     LABEL "Reset" .
 
 DEFINE MENU POPUP-MENU-W-Win 
        MENU-ITEM m_Board        LABEL "Board"         
@@ -177,6 +176,8 @@ DEFINE MENU POPUP-MENU-W-Win
        SUB-MENU  m_Board_Interval LABEL "Board Interval"
        RULE
        SUB-MENU  m_Scenario     LABEL "Scenario"      
+       RULE
+       MENU-ITEM m_btnJobSeqScan LABEL "Job Sequence Scan" .        
        RULE
        MENU-ITEM m_btnPending   LABEL "Pending by Job"
        MENU-ITEM m_btnPendingJobs LABEL "Pending by Resource"
@@ -1049,9 +1050,9 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME m_btnRemove
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL m_btnRemove W-Win
-ON CHOOSE OF MENU-ITEM m_btnRemove /* Remove */
+&Scoped-define SELF-NAME m_btnJobSeqScan
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL m_btnJobSeqScan W-Win
+ON CHOOSE OF MENU-ITEM m_btnJobSeqScan /* Job Sequence Scan */
 DO:
   RUN menuItem IN h_board (SELF:NAME).
 END.

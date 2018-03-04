@@ -16,13 +16,6 @@ FOR EACH reftable
   DELETE reftable.
 END.
 
-FOR EACH reftable
-    WHERE reftable.reftable EQ "mach.plain-jobs"
-      AND reftable.company  EQ {&TABLENAME}.company
-      AND reftable.loc      EQ {&TABLENAME}.loc
-      AND reftable.code     EQ {&TABLENAME}.m-code:
-  DELETE reftable.
-END.
 
 
 

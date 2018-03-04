@@ -48,11 +48,6 @@ DEFINE {&NEW} SHARED VARIABLE g_lookup-var AS CHARACTER NO-UNDO.
 
 &SCOPED-DEFINE enable-shipto enable-shipto
 
-&SCOPED-DEFINE where-jded-id WHERE reftable.reftable EQ "JDEDWARDCUST#" ~
-                               AND reftable.company  EQ cocode          ~
-                               AND reftable.loc      EQ ""              ~
-                               AND reftable.code     EQ shipto.cust-no  ~
-                               AND reftable.code2    EQ shipto.ship-id
 
 
 /*DEF VAR char-hdl AS CHAR NO-UNDO.
@@ -134,7 +129,7 @@ DEFINE VARIABLE faxNumber AS CHARACTER FORMAT "xxx-xxxx":U
      SIZE 16 BY 1 NO-UNDO.
 
 DEFINE VARIABLE fi_jded-id AS CHARACTER FORMAT "X(256)":U 
-     LABEL "JD Edw#" 
+     LABEL "Export ID#" 
      VIEW-AS FILL-IN 
      SIZE 22 BY 1 NO-UNDO.
 
@@ -881,6 +876,20 @@ PROCEDURE reftable-values :
   Notes:       
 ------------------------------------------------------------------------------*/
    IF AVAIL shipto THEN DO TRANSACTION:
+      shipto.exportCustID = fi_jded-id.
+ 
+            
+      FIND FIRST reftable {&where-mand-tax} NO-ERROR.
+      IF NOT AVAIL reftable THEN DO:
+         CREATE reftable.
+         ASSIGN
+            reftable.reftable = "shipto.mandatory-tax"
+            reftable.company  = shipto.company
+            reftable.loc      = ""
+            reftable.code     = shipto.cust-no
+            reftable.code2    = shipto.ship-id.
+      END.
+
       FIND FIRST reftable {&where-jded-id} NO-ERROR.
       IF NOT AVAIL reftable THEN DO:
          CREATE reftable.
@@ -891,7 +900,8 @@ PROCEDURE reftable-values :
             reftable.code     = shipto.cust-no
             reftable.code2    = shipto.ship-id.
       END.
-
+      
+      reftable.val[1] = INT(tb_mandatory-tax).
       reftable.dscr = fi_jded-id.
      
       FIND CURRENT reftable NO-LOCK.

@@ -1209,17 +1209,8 @@ FUNCTION getValue-itemfg RETURNS CHARACTER
               ELSE
                 lc-return = "".
         END.  
-         WHEN "jd-edw"  THEN DO:
-                FIND FIRST reftable NO-LOCK
-                    WHERE reftable.reftable EQ "JDEDWARDCUST#" 
-                      AND reftable.company  EQ ipb-itemfg.company          
-                      AND reftable.loc      EQ ""              
-                      AND reftable.code     EQ ipb-itemfg.cust-no  
-                      AND reftable.code2    EQ ipb-itemfg.ship-id NO-ERROR.
-              IF AVAILABLE reftable THEN
-                  lc-return = reftable.dscr .                          
-              ELSE
-                lc-return = "". 
+        WHEN "jd-edw"  THEN DO:
+              ASSIGN lc-return = ipb-itemfg.exportCustID.
         END.
          WHEN "man-tax"  THEN DO:
             

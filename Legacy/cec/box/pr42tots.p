@@ -1113,7 +1113,95 @@ DO:
         mclean.rec-type = "boardm".
     END.
 END.
-
+FIND FIRST ttCostHeader EXCLUSIVE-LOCK 
+        WHERE ttCostHeader.estimateNo EQ xeb.est-no
+        AND ttCostHeader.formNo EQ v-form-no
+        AND ttCostHeader.blankNo EQ 0
+        AND ttCostHeader.quantityMaster EQ qtty[vmcl]
+        AND ttCostHeader.jobNo EQ cJobNo
+        AND ttCostHeader.jobNo2 EQ iJobNo2
+    NO-ERROR.
+IF NOT AVAILABLE ttCostHeader THEN 
+    FIND FIRST ttCostHeader EXCLUSIVE-LOCK 
+        WHERE ttCostHeader.estimateNo EQ xeb.est-no
+        AND ttCostHeader.formNo EQ v-form-no
+        AND ttCostHeader.blankNo EQ xeb.blank-no
+        AND ttCostHeader.quantityMaster EQ qtty[vmcl]
+        AND ttCostHeader.jobNo EQ cJobNo
+        AND ttCostHeader.jobNo2 EQ iJobNo2
+    NO-ERROR.
+    IF AVAILABLE ttCostHeader THEN DO: 
+        ASSIGN 
+            ttCostHeader.stdCostDirectMaterial =  dm-tot[5]
+            ttCostHeader.stdCostDirectLabor =  op-tot[5]
+            ttCostHeader.stdCostVariableOverhead = op-tot[6]
+            ttCostHeader.stdCostPrepLabor = tprep-lab
+            ttCostHeader.stdCostPrepMaterial =  tprep-mat
+            ttCostHeader.stdCostMiscLabor =  mis-tot[3]
+            ttCostHeader.stdCostMiscMaterial = mis-tot[1]
+            ttCostHeader.stdCostDirectFactory = ttCostHeader.stdCostDirectLabor + 
+                                                ttCostHeader.stdCostDirectMaterial + 
+                                                ttCostHeader.stdCostVariableOverhead + 
+                                                ttCostHeader.stdCostPrepLabor + 
+                                                ttCostHeader.stdCostPrepMaterial + 
+                                                ttCostHeader.stdCostMiscLabor +  
+                                                ttCostHeader.stdCostMiscMaterial
+            ttCostHeader.stdCostFixedOverhead =  op-tot[7]
+            ttCostHeader.stdCostTotalFactory =  ttCostHeader.stdCostDirectFactory +
+                                                ttCostHeader.stdCostFixedOverhead
+            ttCostHeader.stdCostFreight = fr-tot
+            ttCostHeader.stdCostGSALabor = ctrl2[10]
+            ttCostHeader.stdCostGSAMaterial = ctrl2[9]
+            ttCostHeader.stdCostWarehousing = ctrl2[1]
+            ttCostHeader.stdCostBrokerComm = ctrl2[13]
+            ttCostHeader.stdCostSpecial1 = ctrl2[4]
+            ttCostHeader.stdCostSpecial2 = ctrl2[11]
+            ttCostHeader.stdCostSpecial3 = ctrl2[12]
+            ttCostHeader.stdCostGSABoard = calcpcts.val[2] 
+            ttCostHeader.stdCostTotalGSA = ttCostHeader.stdCostGSABoard + ttCostHeader.stdCostGSALabor + ttCostHeader.stdCostGSAMaterial
+            ttCostHeader.stdCostTotalOther = ttCostHeader.stdCostFreight +  
+                                      ttCostHeader.stdCostWarehousing +
+                                      ttCostHeader.stdCostBrokerComm +
+                                      ttCostHeader.stdCostSpecial1 +
+                                      ttCostHeader.stdCostSpecial2 +
+                                      ttCostHeader.stdCostSpecial3 +
+                                      ttCostHeader.stdCostTotalGSA + 
+                                      ttCostHeader.stdCostRoyalty
+            .        
+        IF ctrl[13] NE 0 /*include S1 in Factory Costs*/ THEN 
+            ASSIGN 
+                ttCostHeader.stdCostTotalFactory = ttCostHeader.stdCostTotalFactory + ttCostHeader.stdCostSpecial1
+                ttCostHeader.stdCostTotalOther = ttCostHeader.stdCostTotalOther - ttCostHeader.stdCostSpecial1
+                .
+        IF ctrl[14] NE 0 /*include S2 in Factory Costs*/ THEN 
+            ASSIGN 
+                ttCostHeader.stdCostTotalFactory = ttCostHeader.stdCostTotalFactory + ttCostHeader.stdCostSpecial2
+                ttCostHeader.stdCostTotalOther = ttCostHeader.stdCostTotalOther - ttCostHeader.stdCostSpecial2
+                .
+        IF ctrl[15] NE 0 /*include S3 in Factory Costs*/ THEN 
+            ASSIGN 
+                ttCostHeader.stdCostTotalFactory = ttCostHeader.stdCostTotalFactory + ttCostHeader.stdCostSpecial3
+                ttCostHeader.stdCostTotalOther = ttCostHeader.stdCostTotalOther - ttCostHeader.stdCostSpecial3
+                .
+        IF ctrl[16] NE 0 /*include GSA in Factory Costs*/ THEN 
+            ASSIGN 
+                ttCostHeader.stdCostTotalFactory = ttCostHeader.stdCostTotalFactory + ttCostHeader.stdCostTotalGSA
+                ttCostHeader.stdCostTotalOther = ttCostHeader.stdCostTotalOther - ttCostHeader.stdCostTotalGSA
+                .
+        IF ctrl[6] NE 0 /*include Freight in Factory Costs - Should be total but direct right now - 26330*/ THEN 
+            ASSIGN 
+                ttCostHeader.stdCostDirectFactory = ttCostHeader.stdCostDirectFactory + ttCostHeader.stdCostFreight
+                ttCostHeader.stdCostTotalFactory = ttCostHeader.stdCostTotalFactory + ttCostHeader.stdCostFreight
+                ttCostHeader.stdCostTotalOther = ttCostHeader.stdCostTotalOther - ttCostHeader.stdCostFreight
+                .
+        IF ctrl[18] NE 0 /*include Royalty in Factory Costs*/ THEN 
+            ASSIGN 
+                ttCostHeader.stdCostTotalFactory = ttCostHeader.stdCostTotalFactory + ttCostHeader.stdCostRoyalty
+                ttCostHeader.stdCostTotalOther = ttCostHeader.stdCostTotalOther - ttCostHeader.stdCostRoyalty
+                .
+            
+        
+    END.
 OUTPUT close.
 
 /* end ---------------------------------- copr. 1996  advanced software, inc. */

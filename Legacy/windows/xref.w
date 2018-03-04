@@ -468,6 +468,9 @@ PROCEDURE local-change-page :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
+    DEF VAR il-cur-page AS INT NO-UNDO.
+    DEF VAR hPgmSecurity AS HANDLE NO-UNDO.
+    DEF VAR lResult AS LOG NO-UNDO.
   
     run get-attribute ("current-page").
     assign 

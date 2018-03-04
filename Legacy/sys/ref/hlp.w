@@ -584,7 +584,6 @@ PROCEDURE local-enable :
     IF NOT lResult THEN ASSIGN
         btn-update:VISIBLE IN FRAME f-main = NO.
 
-
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

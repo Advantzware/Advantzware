@@ -375,18 +375,7 @@ DO bo-try = 1 TO 2:
 
     IF oe-rel.cases EQ ? THEN oe-rel.cases = 0.
     IF oe-boll.s-code = "T" THEN DO:
-        oe-rel.s-code = oe-boll.s-code.
-        FIND FIRST b-reftable2
-          WHERE b-reftable2.reftable EQ "oe-rel.s-code"
-            AND b-reftable2.company  EQ STRING(oe-rel.r-no,"9999999999")
-          NO-ERROR.
-        IF NOT AVAIL b-reftable2 THEN DO:
-          CREATE b-reftable2.
-          ASSIGN
-           b-reftable2.reftable = "oe-rel.s-code"
-           b-reftable2.company  = STRING(oe-rel.r-no,"9999999999").
-        END.
-        b-reftable2.code = oe-boll.s-code.
+        oe-rel.s-code = oe-boll.s-code.        
     END.
     /** Use ship-no to find customer shipto because ship-no is the
         primary index. **/

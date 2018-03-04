@@ -1623,7 +1623,7 @@ PROCEDURE pExcelCSV :
                 ASSIGN
                     fieldName    = svSelectedColumns:ENTRY(iColumn)
                     cBufferValue = hTable:BUFFER-FIELD(fieldName):BUFFER-VALUE()
-                    cBufferValue = REPLACE(cBufferValue,","," ")
+                    cBufferValue = REPLACE(cBufferValue,",","")
                     cBufferValue = REPLACE(cBufferValue,CHR(10)," ")
                     .
                 PUT UNFORMATTED cBufferValue + ",".

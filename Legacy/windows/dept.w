@@ -484,7 +484,7 @@ PROCEDURE local-change-page :
         il-cur-page = int(return-value)
           lAccess = NO.
 
-  /* Dispatch standard ADM method.                             */
+/* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'change-page':U ) .
 
     IF il-cur-page = 2 THEN DO:

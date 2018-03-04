@@ -3870,10 +3870,11 @@ PROCEDURE run-whatif :
     RETURN.
    END.
   END.
-
-  IF est.est-type EQ 8 THEN RUN cec/com/print4.p NO-ERROR.
-
-  ELSE DO:
+  
+  RUN est\CostResetHeaders.p(?,?).
+  IF est.est-type EQ 8 THEN
+    RUN cec/com/print4.p NO-ERROR.
+   ELSE DO:
     FIND FIRST probe NO-LOCK WHERE probe.company EQ est.company
                        AND probe.est-no EQ est.est-no
                       NO-ERROR.
@@ -3900,7 +3901,8 @@ PROCEDURE run-whatif :
     RUN est-summ.
 
   END.
-
+  RUN est\CostExportHeaders.p(est.company,TRIM(est.est-no) + "Est").
+  
   FOR EACH est-op WHERE est-op.company EQ xest.company AND
                         est-op.est-no EQ xest.est-no AND est-op.line GT 500 
                         EXCLUSIVE-LOCK :

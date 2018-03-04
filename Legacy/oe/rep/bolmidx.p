@@ -93,7 +93,7 @@ DEF VAR v-cusx-email AS cha NO-UNDO.
 DEF VAR v-cusx-name AS cha NO-UNDO.
 
 DEF VAR ls-image1 AS cha NO-UNDO.
-DEF VAR ls-full-img1 AS cha FORM "x(100)" NO-UNDO.
+DEF VAR ls-full-img1 AS cha FORM "x(200)" NO-UNDO.
 ASSIGN ls-image1 = "images\mwfiber.jpg"
        tmpstore = fill("-",130)
        FILE-INFO:FILE-NAME = ls-image1

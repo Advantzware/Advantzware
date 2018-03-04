@@ -40,8 +40,8 @@ DEF VAR v-price-head   AS CHAR FORMAT "x(5)"           NO-UNDO.
 DEF VAR v-bot-lab      AS CHAR FORMAT "x(63)" EXTENT 3 NO-UNDO.
 DEF VAR ls-image1      AS CHAR                         NO-UNDO.
 DEF VAR ls-image2      AS CHAR                         NO-UNDO.
-DEF VAR ls-full-img1   AS CHAR FORMAT "x(150)"          NO-UNDO.
-DEF VAR ls-full-img2   AS CHAR FORMAT "x(150)"          NO-UNDO.
+DEF VAR ls-full-img1   AS CHAR FORMAT "x(200)"          NO-UNDO.
+DEF VAR ls-full-img2   AS CHAR FORMAT "x(200)"          NO-UNDO.
 DEF VAR v-tel          AS CHAR FORMAT "x(30)"          NO-UNDO.
 DEF VAR v-fax          AS CHAR FORMAT "x(30)"          NO-UNDO.
 DEF VAR v-contact      AS CHAR FORMAT "x(20)"          NO-UNDO.

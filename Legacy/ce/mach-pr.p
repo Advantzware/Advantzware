@@ -17,7 +17,7 @@ def shared var v-chk-qty as dec no-undo.
 
 &SCOPED-DEFINE where-machine                                                     ~
                WHERE mach.company EQ cocode                                  ~
-                 AND mach.obsolete EQ YES                                      
+                 AND mach.obsolete EQ NO                                      
 
 
 

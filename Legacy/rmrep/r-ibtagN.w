@@ -84,7 +84,7 @@ ASSIGN cTextListToSelect = "Whse,Item,Description,Bin,Tag,Rolls," +
        cFieldListToSelect = "tt-rm-bin.loc,tt-rm-bin.i-no,v-itemname,loc-bin,tag,rolls," +
                             "trans-date,qty,v-cost,v-total,v-msf,v-tons,v-costMSF,cVendTag,cVendPo,crtlot,cVendCode,cLstRcd,cali," +
                             "wt-msf,po-gl-act,cItemName,job-no,sht-size"
-       cFieldLength = "5,10,30,8,22,5," + "15,16,10,13,11,11,11,30,10,30,8,9,7," + "6,25,30,8,20"
+       cFieldLength = "5,10,30,8,22,5," + "15,16,10,13,11,11,11,30,10,30,8,9,7," + "6,25,30,10,20"
        cFieldType = "c,c,c,c,c,i," + "c,i,i,i,i,i,i,c,i,c,c,c,i," + "i,c,c,c,c"
        .
 
@@ -1771,7 +1771,6 @@ SESSION:SET-WAIT-STATE ("general").
             BY tt-rm-bin.tag
 
       WITH FRAME itemx:
-
        {custom/statusMsg.i "'Processing Item # ' + string(tt-rm-bin.i-no)"} 
 
     IF FIRST-OF(tt-rm-bin.loc) OR
@@ -1792,6 +1791,8 @@ SESSION:SET-WAIT-STATE ("general").
            AND rm-rcpth.i-no         EQ tt-rm-bin.i-no
            AND rm-rcpth.rita-code    NE "S"
            AND (rm-rcpth.po-no       EQ STRING(tt-rm-bin.po-no)  )
+           AND rm-rcpth.trans-date   GE begin_date
+           AND rm-rcpth.trans-date   LE end_date
          USE-INDEX i-no                                                                                  
          BREAK BY rm-rcpth.trans-date DESCENDING:
   
@@ -1800,7 +1801,6 @@ SESSION:SET-WAIT-STATE ("general").
   
        IF LAST(rm-rcpth.trans-date) THEN 
          lv-fistdt = STRING(rm-rcpth.trans-date).
-      
      END.
    END.
    ELSE IF tt-rm-bin.tag NE "" THEN  DO:
@@ -1821,6 +1821,8 @@ SESSION:SET-WAIT-STATE ("general").
         WHERE rm-rcpth.r-no         EQ rm-rdtlh.r-no
           AND rm-rcpth.rita-code    EQ rm-rdtlh.rita-code
           AND rm-rcpth.i-no         EQ tt-rm-bin.i-no
+          AND rm-rcpth.trans-date   GE begin_date
+          AND rm-rcpth.trans-date   LE end_date
         USE-INDEX r-no
         BREAK BY rm-rcpth.trans-date DESC:
          IF FIRST(rm-rcpth.trans-date) THEN
@@ -1843,6 +1845,8 @@ SESSION:SET-WAIT-STATE ("general").
           WHERE rm-rcpth.r-no         EQ rm-rdtlh.r-no
             AND rm-rcpth.rita-code    EQ rm-rdtlh.rita-code
             AND rm-rcpth.i-no         EQ tt-rm-bin.i-no
+            AND rm-rcpth.trans-date   GE begin_date
+            AND rm-rcpth.trans-date   LE end_date
           USE-INDEX r-no
           BREAK BY rm-rcpth.trans-date DESCENDING:
                    IF FIRST(rm-rcpth.trans-date) THEN
@@ -1868,6 +1872,8 @@ SESSION:SET-WAIT-STATE ("general").
           WHERE rm-rcpth.r-no         EQ rm-rdtlh.r-no
             AND rm-rcpth.rita-code    EQ rm-rdtlh.rita-code
             AND rm-rcpth.i-no         EQ tt-rm-bin.i-no
+            AND rm-rcpth.trans-date   GE begin_date
+            AND rm-rcpth.trans-date   LE end_date
           USE-INDEX r-no
           BREAK BY rm-rcpth.trans-date DESCENDING:
 
@@ -1884,7 +1890,9 @@ SESSION:SET-WAIT-STATE ("general").
       FOR EACH rm-rcpth 
         WHERE rm-rcpth.company      EQ tt-rm-bin.company
           AND rm-rcpth.i-no         EQ tt-rm-bin.i-no
-          AND rm-rcpth.rita-code    NE "S" NO-LOCK
+          AND rm-rcpth.rita-code    NE "S" 
+          AND rm-rcpth.trans-date   GE begin_date
+          AND rm-rcpth.trans-date   LE end_date NO-LOCK
         USE-INDEX i-no                                                                                  
         BREAK BY rm-rcpth.trans-date DESCENDING:
 
@@ -1973,9 +1981,11 @@ SESSION:SET-WAIT-STATE ("general").
             AND po-ordl.po-no EQ po-ord.po-no
             AND po-ordl.i-no EQ tt-rm-bin.i-no NO-ERROR.
         
-        IF AVAILABLE po-ordl THEN
+        IF AVAILABLE po-ordl THEN DO:
             ASSIGN vpo-gl-act = po-ordl.actnum
-                    cJobNo     = string(po-ordl.job-no).
+                    cJobNo     = IF po-ordl.job-no NE "" THEN string(po-ordl.job-no) + "-" + STRING(po-ordl.job-no2) ELSE "".
+
+        END.
         ELSE
             ASSIGN vpo-gl-act = ""
                    cJobNo = ""  .
@@ -2045,7 +2055,7 @@ SESSION:SET-WAIT-STATE ("general").
                 WHEN "wt-msf" THEN cVarValue = STRING(item.basis-w,">>9.99").
                 WHEN "po-gl-act" THEN cVarValue = STRING(vpo-gl-act) .
                 WHEN "cItemName" THEN cVarValue = /*IF FIRST-OF(tt-rm-bin.i-no) THEN*/ string(ITEM.i-name,"x(30)") /*ELSE ""*/ .
-                WHEN "job-no" THEN cVarValue = STRING(cJobNo,"x(8)") .
+                WHEN "job-no" THEN cVarValue = STRING(cJobNo,"x(10)") .
                 WHEN "sht-size" THEN cVarValue = STRING(cShtSize,"x(20)"). 
           END CASE.
           cExcelVarValue = cVarValue.  
@@ -2725,7 +2735,7 @@ IF LAST-OF(tt-rm-bin.i-no) THEN DO:
         
         IF AVAILABLE po-ordl THEN
             ASSIGN vpo-gl-act = po-ordl.actnum
-                   cJobNo     = string(po-ordl.job-no) .
+                   cJobNo     = IF po-ordl.job-no NE "" THEN string(po-ordl.job-no) + "-" + STRING(po-ordl.job-no2) ELSE "" .
         ELSE
             ASSIGN vpo-gl-act = ""
                    cJobNo     = "" .
@@ -2776,7 +2786,7 @@ IF LAST-OF(tt-rm-bin.i-no) THEN DO:
                 WHEN "wt-msf" THEN cVarValue = "".
                 WHEN "po-gl-act" THEN cVarValue = STRING(vpo-gl-act) .
                 WHEN "cItemName" THEN cVarValue = string(ITEM.i-name,"x(30)") .
-                WHEN "job-no" THEN cVarValue = STRING(cJobNo,"x(8)") .
+                WHEN "job-no" THEN cVarValue = STRING(cJobNo,"x(10)") .
                 WHEN "sht-size" THEN cVarValue = STRING(cShtSize,"x(20)"). 
           END CASE.
           cExcelVarValue = cVarValue.  

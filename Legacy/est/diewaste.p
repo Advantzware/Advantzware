@@ -23,12 +23,8 @@ IF AVAIL mach THEN DO:
 
   IF AVAIL ef                                                                           AND
      ef.f-col + ef.f-coat GT 0                                                          AND
-     CAN-FIND(FIRST mach-plain-jobs
-              WHERE mach-plain-jobs.reftable EQ "mach.plain-jobs"
-                AND mach-plain-jobs.company  EQ mach.company
-                AND mach-plain-jobs.loc      EQ mach.loc
-                AND mach-plain-jobs.code     EQ mach.m-code
-                AND mach-plain-jobs.val[1]   EQ 1)                                      AND
+     mach.plain-job = TRUE AND
+     
      CAN-FIND(FIRST b-est-op
               WHERE b-est-op.company EQ io-est-op.company 
                 AND b-est-op.est-no  EQ io-est-op.est-no

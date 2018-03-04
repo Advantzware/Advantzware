@@ -643,29 +643,19 @@ PROCEDURE create-reft4plate :
 
   FIND FIRST oe-ordm WHERE oe-ordm.company = est.company
                  AND oe-ordm.ord-no = est.ord-no
-                 AND oe-ordm.charge = est-prep.CODE NO-LOCK NO-ERROR.
+                 AND oe-ordm.charge = est-prep.CODE NO-ERROR.
   IF AVAIL oe-ordm AND 
-     NOT can-find(FIRST reftable
-                  WHERE reftable.reftable EQ "oe/ordlmisc.p"
-                    AND reftable.company  EQ oe-ordm.company
-                    AND reftable.loc      EQ STRING(oe-ordm.ord-no,"9999999999")
-                    AND reftable.code     EQ STRING(oe-ordm.line,"9999999999")
-                    AND reftable.code2    EQ oe-ordm.charge
-                    AND reftable.val[1] = 1
-                    AND reftable.val[2]   = est-prep.eqty
-                    AND reftable.val[3]   = est-prep.line)
-  THEN DO:      
-      CREATE reftable.
-      ASSIGN reftable.reftable = "oe/ordlmisc.p"
-             reftable.company  = oe-ordm.company
-             reftable.loc      = STRING(oe-ordm.ord-no,"9999999999")
-             reftable.code     = STRING(oe-ordm.line,"9999999999")
-             reftable.code2    = oe-ordm.charge
-             reftable.val[1] = 1
-             reftable.val[2]   = est-prep.eqty
-             reftable.val[3]   = est-prep.line
-             reftable.dscr     = est-prep.est-no.    
-
+     (oe-ordm.miscType <> 1 OR
+      oe-ordm.estPrepEqty <> est-prep.eqty OR
+      oe-ordm.estPrepLine <> est-prep.line)      
+     
+  THEN DO:
+      ASSIGN 
+             oe-ordm.miscType = 1
+             oe-ordm.estPrepEqty   = est-prep.eqty
+             oe-ordm.estPrepLine   = est-prep.line
+             oe-ordm.est-no  = est-prep.est-no.  
+    RELEASE oe-ordm.
   END.
 END PROCEDURE.
 

@@ -204,7 +204,6 @@ PROCEDURE local-enable-fields :
   /* Code placed here will execute AFTER standard behavior.    */
   {methods/template/local/enable.i}
 
-delete object hProcedureHandle.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

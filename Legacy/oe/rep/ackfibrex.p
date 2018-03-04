@@ -28,7 +28,7 @@ def var v-frt-tax-rate like v-tax-rate.
 DEF VAR ll-calc-disc-first AS LOG NO-UNDO.
 /* === with xprint ====*/
 DEF VAR ls-image1 AS cha NO-UNDO.
-DEF VAR ls-full-img1 AS cha FORM "x(50)" NO-UNDO.
+DEF VAR ls-full-img1 AS cha FORM "x(200)" NO-UNDO.
 def buffer b-ref1 for reftable.
 def buffer b-ref2 for reftable.
 DEF BUFFER b-custx FOR cust.

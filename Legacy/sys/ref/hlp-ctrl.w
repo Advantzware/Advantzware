@@ -257,7 +257,6 @@ DO:
     assign 
         ed-text = op-ed-text.
     display ed-text with frame {&frame-name}. 
-
 END.
 
 /* _UIB-CODE-BLOCK-END */

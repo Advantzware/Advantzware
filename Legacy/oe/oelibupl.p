@@ -1708,19 +1708,7 @@ PROCEDURE create-release :
       oe-rel.s-code = IF oe-ordl.is-a-component THEN "S" 
                         ELSE SUBSTRING(v-relType,1,1).
       IF oe-ord.TYPE = "T" THEN
-        ASSIGN oe-rel.s-code = "T".
-      FIND FIRST reftable
-      WHERE reftable.reftable EQ "oe-rel.s-code"
-      AND reftable.company  EQ STRING(oe-rel.r-no,"9999999999") NO-LOCK NO-ERROR.
-      IF NOT AVAIL reftable THEN DO:
-        CREATE reftable.
-        ASSIGN reftable.reftable = "oe-rel.s-code"
-        reftable.company = STRING(oe-rel.r-no,"9999999999")
-        reftable.CODE = IF oe-ordl.is-a-component THEN "S" 
-                        ELSE SUBSTRING(v-relType,1,1).
-        IF oe-ord.TYPE = "T" THEN
-        ASSIGN reftable.CODE = "T".
-      END.
+        ASSIGN oe-rel.s-code = "T".      
     END.
   END.
 

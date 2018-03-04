@@ -9,6 +9,11 @@
 
 def buffer b-report for report.
 
+DEFINE TEMP-TABLE ttReleasesToPrint NO-UNDO
+    FIELD OeRelHRowID AS ROWID 
+    FIELD SessionID   AS CHARACTER
+        .
+
 def stream last-page.
 
 form header

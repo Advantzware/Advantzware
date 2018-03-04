@@ -7,8 +7,6 @@ DEF VAR ld-rec AS DEC NO-UNDO.
 DEF VAR li-inv-qty LIKE oe-ordl.inv-qty NO-UNDO.
 DEF VAR li-ship-qty LIKE oe-ordl.ship-qty NO-UNDO.
 
-DEF BUFFER b-oe-rel-s-code FOR reftable.
-
 
 release oe-ordl.
 release job.
@@ -85,11 +83,7 @@ if avail oe-ordl then do:
         and oe-rel.ord-no  eq oe-ordl.ord-no
         and oe-rel.i-no    eq oe-ordl.i-no
         and oe-rel.line    eq oe-ordl.line
-        AND NOT CAN-FIND(FIRST b-oe-rel-s-code
-                         WHERE b-oe-rel-s-code.reftable EQ "oe-rel.s-code"
-                           AND b-oe-rel-s-code.company  EQ STRING(oe-rel.r-no,"9999999999")
-                           AND b-oe-rel-s-code.code     EQ "T"
-                         USE-INDEX reftable)
+        AND oe-rel.s-code  EQ "T"
       no-lock:
       
     {oe/rel-stat.i v-stat}
