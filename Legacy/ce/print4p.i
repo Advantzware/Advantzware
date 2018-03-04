@@ -175,16 +175,19 @@ end.
 else qtty[1] = qty.
 
 DO TRANSACTION:
- 
+   {est/op-lock.i xest}
+
   FIND bf-est WHERE RECID(bf-est) EQ RECID(xest).
   FIND CURRENT recalc-mr.
   ASSIGN
    bf-est.recalc    = do-speed
    recalc-mr.val[1] = INT(do-mr)
    bf-est.override  = do-gsa
-   bf-est.recalc-mr = do-mr.
+   op-lock.val[1]   = INT(bf-est.recalc)
+   op-lock.val[2]   = recalc-mr.val[1].
   FIND CURRENT bf-est NO-LOCK.
   FIND CURRENT recalc-mr NO-LOCK.
+  FIND CURRENT op-lock NO-LOCK.
 END.
 
 session:set-wait-state("General").

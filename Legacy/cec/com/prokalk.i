@@ -3,12 +3,12 @@
 /* -------------------------------------------------------------------------- */
  
 
-   IF NOT xef.op-lock THEN
-       FIND CURRENT xest EXCLUSIVE-LOCK NO-ERROR.
-       ASSIGN 
-          xest.recalc    = YES
-          xest.recalc-mr = YES.
-       FIND CURRENT xest NO-LOCK NO-ERROR.
+   {est/op-lock.i xest}
+   
+   IF NEW op-lock AND NOT xef.op-lock THEN
+     ASSIGN
+      op-lock.val[1] = 1
+      op-lock.val[2] = 1.
 
    find first mach {sys/look/machW.i} and
               mach.m-code  eq est-op.m-code no-lock no-error.
@@ -46,7 +46,7 @@
    
    else do:
 
-       IF xest.recalc EQ YES  AND
+     IF op-lock.val[1] EQ 1                          AND 
         (ip-rowid EQ ? OR ip-rowid EQ ROWID(est-op)) THEN DO:
         est-op.op-waste = mach.mr-waste.
 
@@ -129,7 +129,7 @@
    END.
 
 
-     IF (xest.recalc = YES OR xest.recalc-mr = YES) AND
+   IF (op-lock.val[1] EQ 1 OR op-lock.val[2] EQ 1) AND 
       (ip-rowid EQ ? OR ip-rowid EQ ROWID(est-op)) THEN DO:
    /* flip dimensions if corr. xgrain */
    if est-op.dept = "LM" and
@@ -186,11 +186,11 @@
    end.
        
 
-      IF xest.recalc = YES THEN
+     IF op-lock.val[1] EQ 1 THEN
        est-op.op-waste = mach.mr-waste + (mach.col-wastesh * maxco).
 
 
-      IF xest.recalc-mr = YES THEN DO:
+     IF op-lock.val[2] EQ 1 THEN DO:
        assign
         j             = 0
         v-pass-colors = 0.

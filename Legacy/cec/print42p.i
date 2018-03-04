@@ -250,10 +250,12 @@ else do:
 end.
 
 DO TRANSACTION:
-  
+    {est/op-lock.i xest}
+
   FIND est WHERE RECID(est) EQ RECID(xest).
   FIND CURRENT recalc-mr.
-  
+    FIND CURRENT op-lock.
+
 
   ASSIGN
    est.recalc       = do-speed
@@ -261,10 +263,12 @@ DO TRANSACTION:
    recalc-mr.val[2] = INT(v-do-all-forms-ink)
    recalc-mr.val[3] = INT(v-board-cost-from-blank)
    est.override     = do-gsa
-   est.recalc-mr    = do-mr.
+   op-lock.val[1]   = INT(est.recalc)
+   op-lock.val[2]   = recalc-mr.val[1].
   FIND est WHERE RECID(est) EQ RECID(xest) NO-LOCK.
   FIND xest WHERE RECID(xest) EQ RECID(est) NO-LOCK.
   FIND CURRENT recalc-mr NO-LOCK.
+  FIND CURRENT op-lock NO-LOCK.  
 END.
 
 session:set-wait-state("General").
