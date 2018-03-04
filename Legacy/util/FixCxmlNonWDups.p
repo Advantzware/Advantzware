@@ -1,6 +1,6 @@
 
 /*------------------------------------------------------------------------
-    File        : FixCxmlDuplicates.p
+    File        : FixCxmlNonWDups.p
     Purpose     : remove duplicate cXML Orders with no Order Lines
 
     Syntax      : RUN util/fixcXMLDuplicates.p
@@ -10,7 +10,7 @@
 
     Author(s)   : Brad Vigrass
     Created     : Mon Nov 14 21:10:17 EST 2016
-    Notes       :
+    Notes       : Fixes type 'W' orders conflicting with non-'W' orders
   ----------------------------------------------------------------------*/
 
 /* ***************************  Definitions  ************************** */
@@ -70,18 +70,26 @@ PROCEDURE pBuildList:
     ------------------------------------------------------------------------------*/
     EMPTY TEMP-TABLE ttOrdersToDelete.
 
+    /* Found a case where an order with stat 'A' and same Po was found */
+    /* with no line items                                              */
     FOR EACH company NO-LOCK,
         EACH oe-ord NO-LOCK 
         WHERE oe-ord.company      EQ company.company
-          AND oe-ord.stat         EQ 'W'
-          AND oe-ord.spare-char-3 NE ''
-          AND NOT CAN-FIND(FIRST oe-ordl OF oe-ord)
-        :        
+        AND oe-ord.stat         EQ 'W'
+        AND oe-ord.spare-char-3 NE '',
+        
+        FIRST bf-oe-ord NO-LOCK 
+           WHERE bf-oe-ord.company EQ company.company             
+             AND bf-oe-ord.po-no EQ oe-ord.po-no    
+              AND ROWID(bf-oe-ord) NE ROWID(oe-ord)
+              AND NOT CAN-FIND(FIRST oe-ordl OF bf-oe-ord)        
+             USE-INDEX po-no  
+    :          
         CREATE ttOrdersToDelete.
         ASSIGN 
-            ttOrdersToDelete.riOrder = ROWID(oe-ord)
-            ttOrdersToDelete.cPONo   = oe-ord.po-no
-            ttOrdersToDelete.iOrdNo  = oe-ord.ord-no
+            ttOrdersToDelete.riOrder = ROWID(bf-oe-ord)
+            ttOrdersToDelete.cPONo   = bf-oe-ord.po-no
+            ttOrdersToDelete.iOrdNo  = bf-oe-ord.ord-no
             .
     END.
     
