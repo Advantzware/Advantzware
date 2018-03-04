@@ -305,39 +305,25 @@ PROCEDURE proc-enable :
   Notes:       
 ------------------------------------------------------------------------------*/
 
-  
-    DEFINE VARIABLE hProcedureHandle AS HANDLE NO-UNDO.
-    DEFINE VARIABLE cProgramName     AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE lAccess          AS LOGICAL NO-UNDO.
+    DEF VAR hPgmSecurity AS HANDLE NO-UNDO.
+    DEF VAR lResult AS LOG NO-UNDO.
+    RUN "system/PgmMstrSecur.p" PERSISTENT SET hPgmSecurity.
+    RUN epCanAccess IN hPgmSecurity ("viewers/userControl.w", "Access1", OUTPUT lResult).
 
-    ASSIGN
-        cProgramName = "Legacy/ProgramMasterSecurity.p"
-        lAccess = NO.
-        
-    RUN VALUE(cProgramName) PERSISTENT SET hProcedureHandle.
-    RUN getSecurity IN hProcedureHandle("viewers/userControl.w", USERID(LDBNAME(1)), "Access1",
-                                        OUTPUT lAccess).
-    IF lAccess THEN
-     ASSIGN 
+    IF lResult THEN ASSIGN 
         userControl.maxAllowedUsers:SENSITIVE IN FRAME {&FRAME-NAME} = YES 
-        userControl.numUsersOverLimit:SENSITIVE IN FRAME {&FRAME-NAME} = YES .
-    ELSE 
-       ASSIGN 
+        userControl.numUsersOverLimit:SENSITIVE IN FRAME {&FRAME-NAME} = YES.
+    ELSE ASSIGN 
         userControl.maxAllowedUsers:SENSITIVE IN FRAME {&FRAME-NAME} = NO 
-        userControl.numUsersOverLimit:SENSITIVE IN FRAME {&FRAME-NAME} = NO
-       .
+        userControl.numUsersOverLimit:SENSITIVE IN FRAME {&FRAME-NAME} = NO.
 
- ASSIGN lAccess = NO.
- RUN getSecurity IN hProcedureHandle("viewers/userControl.w", USERID(LDBNAME(1)), "Access2",
-                                      OUTPUT lAccess).
-                                        
-    IF lAccess THEN
-         ASSIGN 
-             userControl.maxSessionsPerUser:SENSITIVE IN FRAME {&FRAME-NAME} = YES  .
-    ELSE 
+    RUN epCanAccess IN hPgmSecurity ("viewers/userControl.w", "Access2", OUTPUT lResult).
+    DELETE OBJECT hPgmSecurity.
+  
+    IF lResult THEN ASSIGN 
+        userControl.maxSessionsPerUser:SENSITIVE IN FRAME {&FRAME-NAME} = YES  .
+    ELSE ASSIGN
         userControl.maxSessionsPerUser:SENSITIVE IN FRAME {&FRAME-NAME} = NO  .
-        
-  delete object hProcedureHandle.      
     
 END PROCEDURE.
 

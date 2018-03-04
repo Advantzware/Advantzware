@@ -333,25 +333,18 @@ END.
 ON MOUSE-SELECT-DBLCLICK OF BROWSE-2 IN FRAME D-Dialog
 DO:
 
-DEFINE VARIABLE hProcedureHandle AS HANDLE NO-UNDO.
-DEFINE VARIABLE cProgramName     AS CHARACTER NO-UNDO.
-DEFINE VARIABLE lAccess          AS LOGICAL NO-UNDO.
-
-    ASSIGN lAccess = NO
-           cProgramName = "Legacy/ProgramMasterSecurity.p"
-           .
-    RUN VALUE(cProgramName) PERSISTENT SET hProcedureHandle.
-    RUN getSecurity IN hProcedureHandle("jcinq/b-updmat.w", USERID(LDBNAME(1)), "",
-                                        OUTPUT lAccess).
- IF lAccess AND  AVAILABLE tt-mat-tran THEN DO:
-
-    /*  RUN windows/ITEM.w .*/
-
-   RUN set-read-only (INPUT NO).
-
-   APPLY "entry" TO tt-mat-tran.tran-date IN BROWSE {&browse-name}.
- END.
-delete object hProcedureHandle.
+    DEF VAR hPgmSecurity AS HANDLE NO-UNDO.
+    DEF VAR lResult AS LOG NO-UNDO.
+    RUN "system/PgmMstrSecur.p" PERSISTENT SET hPgmSecurity.
+    RUN epCanAccess IN hPgmSecurity ("jcinq/b-updmat.w", "", OUTPUT lResult).
+    DELETE OBJECT hPgmSecurity.
+    
+    IF lResult 
+    AND AVAIL tt-mat-tran THEN DO:
+        /*  RUN windows/ITEM.w .*/
+        RUN set-read-only (INPUT NO).
+        APPLY "entry" TO tt-mat-tran.tran-date IN BROWSE {&browse-name}.
+    END.
 END.
 
 /* _UIB-CODE-BLOCK-END */

@@ -636,25 +636,17 @@ PROCEDURE local-view :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-DEFINE VARIABLE hProcedureHandle AS HANDLE NO-UNDO.
-DEFINE VARIABLE cProgramName     AS CHARACTER NO-UNDO.
-DEFINE VARIABLE lAccess          AS LOGICAL NO-UNDO.
-  /* Code placed here will execute PRIOR to standard behavior. */
-
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'view':U ) .
 
-  /* Code placed here will execute AFTER standard behavior.    */
-     ASSIGN lAccess = NO
-            cProgramName = "Legacy/ProgramMasterSecurity.p"
-           .
-    RUN VALUE(cProgramName) PERSISTENT SET hProcedureHandle.
-    RUN getSecurity IN hProcedureHandle("windows/company.w", USERID(LDBNAME(1)), "",
-                                        OUTPUT lAccess).
-     IF lAccess THEN DO:
-         RUN disable-add-button IN h_f-add .
-     END.
-  delete object hProcedureHandle.  
+    DEF VAR hPgmSecurity AS HANDLE NO-UNDO.
+    DEF VAR lResult AS LOG NO-UNDO.
+    RUN "system/PgmMstrSecur.p" PERSISTENT SET hPgmSecurity.
+    RUN epCanAccess IN hPgmSecurity ("windows/company.w", "", OUTPUT lResult).
+    DELETE OBJECT hPgmSecurity.
+    IF NOT lResult THEN 
+        RUN disable-add-button IN h_f-add .
+        
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

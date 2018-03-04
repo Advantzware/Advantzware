@@ -1761,45 +1761,38 @@ PROCEDURE local-display-fields :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-DEFINE VARIABLE hProcedureHandle AS HANDLE NO-UNDO.
-DEFINE VARIABLE cProgramName     AS CHARACTER NO-UNDO.
-DEFINE VARIABLE lAccess          AS LOGICAL NO-UNDO.
-  /* Code placed here will execute PRIOR to standard behavior. */
+    DEF VAR hPgmSecurity AS HANDLE NO-UNDO.
+    DEF VAR lResult AS LOG NO-UNDO.
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'display-fields':U ) .
 
-  /* Code placed here will execute AFTER standard behavior.    */
-  IF AVAIL fg-rcpth THEN RUN display-itemfg (ROWID(fg-rcpth)).
+    IF AVAIL fg-rcpth THEN 
+        RUN display-itemfg (ROWID(fg-rcpth)).
 
-  DO WITH FRAME {&FRAME-NAME}:
-    fi_sort-by:SCREEN-VALUE = TRIM(lv-sort-by-lab)               + " " +
-                              TRIM(STRING(ll-sort-asc,"As/Des")) + "cending".
+    DO WITH FRAME {&FRAME-NAME}:
+        fi_sort-by:SCREEN-VALUE = TRIM(lv-sort-by-lab)               + " " +
+                                  TRIM(STRING(ll-sort-asc,"As/Des")) + "cending".
 
-    ASSIGN lAccess = NO
-           cProgramName = "Legacy/ProgramMasterSecurity.p"
-           .
-    RUN VALUE(cProgramName) PERSISTENT SET hProcedureHandle.
-    RUN getSecurity IN hProcedureHandle("oeinq/b-ordfgi.w", USERID(LDBNAME(1)), "",
-                                        OUTPUT lAccess).
-    IF lAccess THEN 
-       ASSIGN btn_del:HIDDEN = YES
-              btn_del:SENSITIVE = NO
-              btn_copy:HIDDEN = YES
-              btn_copy:SENSITIVE = NO
-              btCompress:HIDDEN = YES
-              btCompress:SENSITIVE = NO.
-    ELSE
-        ASSIGN btn_del:HIDDEN = NO
-              btn_del:SENSITIVE = YES
-              btn_copy:HIDDEN = NO
-              btn_copy:SENSITIVE = YES
-              btCompress:HIDDEN = NO
-              btCompress:SENSITIVE = YES.
+        RUN "system/PgmMstrSecur.p" PERSISTENT SET hPgmSecurity.
+        RUN epCanAccess IN hPgmSecurity ("oeinq/b-ordfgi.w", "", OUTPUT lResult).
+        DELETE OBJECT hPgmSecurity.
+    
+        IF lResult THEN ASSIGN btn_del:HIDDEN = YES
+            btn_del:SENSITIVE = NO
+            btn_copy:HIDDEN = YES
+            btn_copy:SENSITIVE = NO
+            btCompress:HIDDEN = YES
+            btCompress:SENSITIVE = NO.
+        ELSE ASSIGN 
+            btn_del:HIDDEN = NO
+            btn_del:SENSITIVE = YES
+            btn_copy:HIDDEN = NO
+            btn_copy:SENSITIVE = YES
+            btCompress:HIDDEN = NO
+            btCompress:SENSITIVE = YES.
 
-  END.
-
-  delete object hProcedureHandle.
+    END.
 
 END PROCEDURE.
 

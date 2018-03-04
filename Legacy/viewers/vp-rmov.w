@@ -263,37 +263,20 @@ PROCEDURE local-initialize :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-   DEFINE VARIABLE hProcedureHandle AS HANDLE NO-UNDO.
-   DEFINE VARIABLE cProgramName     AS CHARACTER NO-UNDO.
-   DEFINE VARIABLE lAccess          AS LOGICAL NO-UNDO.
-  /* Code placed here will execute PRIOR to standard behavior. */
-
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'initialize':U ) .
 
-  ASSIGN lAccess = NO
-         cProgramName = "Legacy/ProgramMasterSecurity.p"
-           .
-    RUN VALUE(cProgramName) PERSISTENT SET hProcedureHandle.
-    RUN getSecurity IN hProcedureHandle("viewers/vp-rmov.w", USERID(LDBNAME(1)), "",
-                                        OUTPUT lAccess).
-  IF lAccess THEN ASSIGN
-      btn-override:VISIBLE IN FRAME {&FRAME-NAME} = FALSE. 
-  ELSE ASSIGN
-      btn-override:VISIBLE IN FRAME {&FRAME-NAME} = TRUE. 
-
-  /* Code placed here will execute AFTER standard behavior.    */
-
-  /*
-  {methods/prgsecu2.i}  
-  IF access-close THEN DO:
-      DISABLE btn-override WITH FRAME {&FRAME-NAME}.    
-  END.
-  */
-
-  IF NOT v-can-update THEN ASSIGN btn-override:SENSITIVE IN FRAME {&FRAME-NAME} = NO.
+    DEF VAR hPgmSecurity AS HANDLE NO-UNDO.
+    DEF VAR lResult AS LOG NO-UNDO.
+    RUN "system/PgmMstrSecur.p" PERSISTENT SET hPgmSecurity.
+    RUN epCanAccess IN hPgmSecurity ("viewers/vp-rmov.w", "", OUTPUT lResult).
+    DELETE OBJECT hPgmSecurity.
+    ASSIGN
+        btn-override:VISIBLE IN FRAME {&FRAME-NAME} = lResult. 
+    
+    IF NOT v-can-update THEN ASSIGN 
+        btn-override:SENSITIVE IN FRAME {&FRAME-NAME} = NO.
   
-delete object hProcedureHandle.  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

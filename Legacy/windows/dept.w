@@ -475,31 +475,29 @@ PROCEDURE local-change-page :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-DEFINE VARIABLE hProcedureHandle AS HANDLE NO-UNDO.
-DEFINE VARIABLE cProgramName     AS CHARACTER NO-UNDO.
-DEFINE VARIABLE lAccess          AS LOGICAL NO-UNDO.
-  /* Code placed here will execute PRIOR to standard behavior. */
-  
-   run get-attribute ("current-page").
-   assign il-cur-page = int(return-value)
-          lAccess = NO
-          cProgramName = "Legacy/ProgramMasterSecurity.p"
-   .
+    DEF VAR il-cur-page AS INT NO-UNDO.
+    DEF VAR hPgmSecurity AS HANDLE NO-UNDO.
+    DEF VAR lResult AS LOG NO-UNDO.
+
+    run get-attribute ("current-page").
+    assign 
+        il-cur-page = int(return-value)
+          lAccess = NO.
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'change-page':U ) .
 
-  IF il-cur-page = 2 THEN DO:
-     RUN VALUE(cProgramName) PERSISTENT SET hProcedureHandle.
-     RUN getSecurity IN hProcedureHandle("windows/dept.w", USERID(LDBNAME(1)), "",
-                                        OUTPUT lAccess).
-     IF lAccess THEN
-         RUN set-buttons IN h_p-updsav ('disable-all').
-  END.
+    IF il-cur-page = 2 THEN DO:
+        RUN "system/PgmMstrSecur.p" PERSISTENT SET hPgmSecurity.
+        RUN epCanAccess IN hPgmSecurity ("windows/company.w", "", OUTPUT lResult).
+        DELETE OBJECT hPgmSecurity.
+        IF NOT lResult THEN 
+            RUN set-buttons IN h_p-updsav ('disable-all').
+    END.
 
   /* Code placed here will execute AFTER standard behavior.    */
   {methods/winReSizePgChg.i}
- delete object hProcedureHandle.
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

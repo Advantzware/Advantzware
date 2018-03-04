@@ -974,23 +974,19 @@ PROCEDURE valid-buttons :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-   /*add and delete not valid buttons*/
+    /*add and delete not valid buttons*/
+    DEF OUTPUT PARAMETER op-add-valid AS LOG NO-UNDO.
+    DEF OUTPUT PARAMETER op-delete-valid AS LOG INIT YES NO-UNDO.
 
-   DEF OUTPUT PARAMETER op-add-valid AS LOG NO-UNDO.
-   DEF OUTPUT PARAMETER op-delete-valid AS LOG INIT YES NO-UNDO.
-   DEFINE VARIABLE hProcedureHandle AS HANDLE NO-UNDO.
-   DEFINE VARIABLE cProgramName     AS CHARACTER NO-UNDO.
-   DEFINE VARIABLE lAccess          AS LOGICAL NO-UNDO.
-   ASSIGN lAccess = NO
-           cProgramName = "Legacy/ProgramMasterSecurity.p"
-           .
-    RUN VALUE(cProgramName) PERSISTENT SET hProcedureHandle.
-    RUN getSecurity IN hProcedureHandle("viewers/company.w", USERID(LDBNAME(1)), "",
-                                        OUTPUT lAccess).
-     IF lAccess THEN 
-        ASSIGN op-add-valid = NO.
-     ELSE op-add-valid = YES .
-   delete object hProcedureHandle.  
+    DEF VAR hPgmSecurity AS HANDLE NO-UNDO.
+    DEF VAR lResult AS LOG NO-UNDO.
+    RUN "system/PgmMstrSecur.p" PERSISTENT SET hPgmSecurity.
+    RUN epCanAccess IN hPgmSecurity ("viewers/company.w", "", OUTPUT lResult).
+    DELETE OBJECT hPgmSecurity.
+
+    ASSIGN 
+        op-add-valid = lResult.
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

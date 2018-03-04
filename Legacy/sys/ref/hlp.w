@@ -294,55 +294,28 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-update W-Win
 ON CHOOSE OF btn-update IN FRAME F-Main /* Update Help */
 DO:
-    /* need security check */
-    DEF VAR lv-password AS cha NO-UNDO.
     DEF VAR op-ed-text AS cha NO-UNDO.
-    DEFINE VARIABLE hProcedureHandle AS HANDLE NO-UNDO.
-    DEFINE VARIABLE cProgramName     AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE lAccess          AS LOGICAL NO-UNDO.
+    ASSIGN 
+        op-ed-text = ed-text.
+
+    /* need security check */
+    DEF VAR hPgmSecurity AS HANDLE NO-UNDO.
+    DEF VAR lResult AS LOG NO-UNDO.
+    RUN "system/PgmMstrSecur.p" PERSISTENT SET hPgmSecurity.
+    RUN epCanAccess IN hPgmSecurity ("sys/ref/hlp.w", "Access1", OUTPUT lResult).
+    DELETE OBJECT hPgmSecurity.
     
-    ASSIGN ll-secure = NO
-           op-ed-text = ed-text
-           lAccess = NO
-           cProgramName = "Legacy/ProgramMasterSecurity.p"
-           .
+    /* If not automatically cleared by security level, ask for password */
+    IF NOT lResult THEN DO:
+        RUN sys/ref/uphlp-pass.w (3, OUTPUT lResult).
+        IF lResult THEN 
+            RUN sys/ref/hlpupd.p (ip-field,ip-table,ip-db,ip-frame,ip-language,OUTPUT op-ed-text).
+    END.
 
-    RUN VALUE(cProgramName) PERSISTENT SET hProcedureHandle.
-    RUN getSecurity IN hProcedureHandle("sys/ref/hlp.w", USERID(LDBNAME(1)), "Access1",
-                                        OUTPUT lAccess).
-    IF lAccess THEN
-    ASSIGN ll-secure = YES.
-
-    IF NOT ll-secure THEN RUN sys/ref/uphlp-pass.w (3, OUTPUT ll-secure).
-
-    IF ll-secure EQ YES THEN
-        RUN sys/ref/hlpupd.p (ip-field,ip-table,ip-db,ip-frame,ip-language,OUTPUT op-ed-text).
-
-    
-/* === re-display    ==========*/
-  /*find first asihlp.hlp-head where hlp-head.fld-name = ip-field and
-                                 hlp-head.fil-name = ip-table
-                                 no-lock no-error.
-  if not avail hlp-head then do:
-     find first asihlp.hlp-head where hlp-head.fld-name = ip-field NO-LOCK NO-ERROR.
-     IF NOT AVAIL asihlp.hlp-head THEN
-        find first asihlp.hlp-head where asihlp.hlp-head.fld-name matches ("*" +  ip-frame + "*")  no-lock no-error.
-     IF NOT AVAIL asihlp.hlp-head THEN
-        find first asihlp.hlp-head where asihlp.hlp-head.fld-name = ip-field NO-LOCK NO-ERROR.     
-     if avail hlp-head then do:
-        ed-text = asihlp.hlp-head.help-txt.
-        display ed-text with frame {&frame-name}.   
-     end.  
-  end.
-  else do:
-        ed-text = hlp-head.help-txt.
-        display ed-text with frame {&frame-name}.   
-  end.*/
-
-  ed-text = op-ed-text .
-        DISPLAY ed-text WITH FRAME {&frame-name}.   
-
-  delete object hProcedureHandle.
+    /* === re-display    ==========*/
+    assign
+        ed-text = op-ed-text .
+    DISPLAY ed-text WITH FRAME {&frame-name}.   
 
 END.
 
@@ -599,29 +572,18 @@ PROCEDURE local-enable :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-DEFINE VARIABLE hProcedureHandle AS HANDLE NO-UNDO.
-DEFINE VARIABLE cProgramName     AS CHARACTER NO-UNDO.
-DEFINE VARIABLE lAccess          AS LOGICAL NO-UNDO.
-
-  /* Code placed here will execute PRIOR to standard behavior. */
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'enable':U ) .
 
-  /* Code placed here will execute AFTER standard behavior.    */
-    IF USERID("nosweat") NE "ASI" THEN
-        btDataDigger:VISIBLE IN FRAME f-main = NO.    
-   
-    ASSIGN lAccess = NO
-           cProgramName = "Legacy/ProgramMasterSecurity.p"
-           .
-    RUN VALUE(cProgramName) PERSISTENT SET hProcedureHandle.
-    RUN getSecurity IN hProcedureHandle("sys/ref/hlp.w", USERID(LDBNAME(1)), "Access2",
-                                        OUTPUT lAccess).
-    IF lAccess THEN 
-     btn-update:VISIBLE IN FRAME f-main = NO.
-    
-    delete object hProcedureHandle. 
+    DEF VAR hPgmSecurity AS HANDLE NO-UNDO.
+    DEF VAR lResult AS LOG NO-UNDO.
+    RUN "system/PgmMstrSecur.p" PERSISTENT SET hPgmSecurity.
+    RUN epCanAccess IN hPgmSecurity ("sys/ref/hlp.w", "Access2", OUTPUT lResult).
+    DELETE OBJECT hPgmSecurity.
+    IF NOT lResult THEN ASSIGN
+        btn-update:VISIBLE IN FRAME f-main = NO.
+
 
 END PROCEDURE.
 

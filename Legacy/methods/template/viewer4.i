@@ -181,31 +181,23 @@ PROCEDURE local-enable-fields :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
+    {methods/template/local/update.i}
 
-  /* Code placed here will execute PRIOR to standard behavior. */
-DEFINE VARIABLE hProcedureHandle AS HANDLE NO-UNDO.
-DEFINE VARIABLE cProgramName     AS CHARACTER NO-UNDO.
-DEFINE VARIABLE lAccess          AS LOGICAL NO-UNDO.
+    DEF VAR hPgmSecurity AS HANDLE NO-UNDO.
+    DEF VAR lResult AS LOG NO-UNDO.
+
+    IF PROGRAM-NAME(3) MATCHES "*help/v-head.w*"  THEN DO:
+        RUN "system/PgmMstrSecur.p" PERSISTENT SET hPgmSecurity.
+        RUN epCanAccess IN hPgmSecurity ("methods/template/viewer4.i", "", OUTPUT lResult).
+        DELETE OBJECT hPgmSecurity.
+    
+        /* If not automatically cleared by security level, ask for password */
+        IF NOT lResult THEN DO:
+            RUN sys/ref/uphlp-pass.w (3, OUTPUT lResult). 
+            IF NOT lResult THEN RETURN ERROR.
+        END.
+    END.
   
-  DEFINE VARIABLE ll-secure-check AS LOGICAL NO-UNDO.
-  {methods/template/local/update.i}
-  
-   ASSIGN lAccess = NO
-           cProgramName = "Legacy/ProgramMasterSecurity.p"
-           .
-
-IF PROGRAM-NAME(3) MATCHES "*help/v-head.w*"  THEN DO:
- 
-    RUN VALUE(cProgramName) PERSISTENT SET hProcedureHandle.
-    RUN getSecurity IN hProcedureHandle("methods/template/viewer4.i", USERID(LDBNAME(1)), "",
-                                        OUTPUT lAccess).
-    IF lAccess THEN 
-    ASSIGN ll-secure-check = YES.
-
-  IF NOT ll-secure-check THEN RUN sys/ref/uphlp-pass.w (3, OUTPUT ll-secure-check).
-   IF  ll-secure-check EQ No THEN  
-	return error.
-end.
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'enable-fields':U ) .
 
