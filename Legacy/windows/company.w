@@ -636,21 +636,17 @@ PROCEDURE local-view :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-
-  /* Code placed here will execute PRIOR to standard behavior. */
-
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'view':U ) .
 
-  /* Code placed here will execute AFTER standard behavior.    */
-   FIND FIRST users NO-LOCK WHERE 
-         users.user_id EQ USERID(LDBNAME(1)) 
-         NO-ERROR.  
-  
-     IF AVAIL users AND users.securityLevel LE 999 THEN DO:
-         RUN disable-add-button IN h_f-add .
-     END.
-
+    DEF VAR hPgmSecurity AS HANDLE NO-UNDO.
+    DEF VAR lResult AS LOG NO-UNDO.
+    RUN "system/PgmMstrSecur.p" PERSISTENT SET hPgmSecurity.
+    RUN epCanAccess IN hPgmSecurity ("windows/company.w", "", OUTPUT lResult).
+    DELETE OBJECT hPgmSecurity.
+    IF NOT lResult THEN 
+        RUN disable-add-button IN h_f-add .
+        
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

@@ -85,6 +85,28 @@ PROCEDURE pBuildList:
             .
     END.
     
+    /* Found a case where an order with stat 'A' and same Po was found */
+    /* with no line items                                              */
+    FOR EACH company NO-LOCK,
+        EACH oe-ord NO-LOCK 
+        WHERE oe-ord.company      EQ company.company
+        AND oe-ord.stat         EQ 'W'
+        AND oe-ord.spare-char-3 NE '',
+        
+        FIRST bf-oe-ord NO-LOCK 
+           WHERE bf-oe-ord.company EQ company.company             
+             AND bf-oe-ord.po-no EQ oe-ord.po-no    
+              AND ROWID(bf-oe-ord) NE ROWID(oe-ord)
+              AND NOT CAN-FIND(FIRST oe-ordl OF bf-oe-ord)        
+             USE-INDEX po-no  
+    :          
+        CREATE ttOrdersToDelete.
+        ASSIGN 
+            ttOrdersToDelete.riOrder = ROWID(bf-oe-ord)
+            ttOrdersToDelete.cPONo   = bf-oe-ord.po-no
+            ttOrdersToDelete.iOrdNo  = bf-oe-ord.ord-no
+            .
+    END.
 
 END PROCEDURE.
 
