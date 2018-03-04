@@ -11,7 +11,7 @@ PROCEDURE epCanAccess:
             opCanAccess = TRUE.
         
         /* Use this construct when the prgrms table has security definitions */
-        IF <is this a prgrms file?> 0 EQ 1 THEN DO:
+        IF /* is this a prgrms file? */ 0 EQ 1 THEN DO:
         END. /* program master exclusions */
     
         /* Otherwise, depend on hard-coded lists */

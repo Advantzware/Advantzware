@@ -481,8 +481,7 @@ PROCEDURE local-change-page :
 
     run get-attribute ("current-page").
     assign 
-        il-cur-page = int(return-value)
-          lAccess = NO.
+        il-cur-page = int(return-value).
 
 /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'change-page':U ) .
