@@ -96,11 +96,12 @@ for each ef
 
   find xef where recid(xef) eq recid(ef) no-lock.
 
-  FIND CURRENT xest EXCLUSIVE-LOCK NO-ERROR.
+    {est/op-lock.i xest}
   ASSIGN
-    xest.recalc    = YES
-    xest.recalc-mr = YES.
-  FIND CURRENT xest NO-LOCK NO-ERROR.
+    op-lock.val[1] = 1
+    op-lock.val[2] = 1.
+
+  RELEASE op-lock.
   run ce/com/localk.p (0, ?).
   
 end. /* for each ef */

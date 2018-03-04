@@ -259,6 +259,7 @@
   end.  /* else vprint  */
 
   DO TRANSACTION:
+    {est/op-lock.i xest}
 
     FIND xef WHERE RECID(xef) EQ lv-ef-recid .
     FIND xef WHERE RECID(xef) EQ lv-ef-recid NO-LOCK.
@@ -269,11 +270,12 @@
      recalc-mr.val[1] = INT(do-mr)
      recalc-mr.val[3] = INT(v-board-cost-from-blank)
      est.override     = do-gsa
-     est.recalc-mr    = do-mr
-     .
+     op-lock.val[1]   = INT(est.recalc)
+     op-lock.val[2]   = recalc-mr.val[1].
     FIND est WHERE RECID(est) EQ RECID(xest) NO-LOCK.
     FIND xest WHERE RECID(xest) EQ RECID(est) NO-LOCK.
     FIND CURRENT recalc-mr NO-LOCK.
+    FIND CURRENT op-lock NO-LOCK.  
      
   END.
 

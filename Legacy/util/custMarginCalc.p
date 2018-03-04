@@ -352,6 +352,7 @@ DEF BUFFER bf-est FOR est.
   /* {ce/msfcalc.i} */
 
             DO:
+            {est/op-lock.i xest}
             
                 FIND bf-est WHERE RECID(bf-est) EQ RECID(xest).
                 FIND CURRENT recalc-mr.
@@ -359,9 +360,11 @@ DEF BUFFER bf-est FOR est.
                     bf-est.recalc    = do-speed
                     recalc-mr.val[1] = INT(do-mr)
                     bf-est.override  = do-gsa
-                    bf-est.recalc-mr = do-mr.
+                    op-lock.val[1]   = INT(bf-est.recalc)
+                    op-lock.val[2]   = recalc-mr.val[1].
                 FIND CURRENT bf-est NO-LOCK.
                 FIND CURRENT recalc-mr NO-LOCK.
+                FIND CURRENT op-lock NO-LOCK.
             /*FIND xest WHERE RECID(xest) EQ RECID(bf-est).   */
             END.
     

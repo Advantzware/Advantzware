@@ -1,14 +1,12 @@
 /* ----------------------------------------------- ce/box/prokalk.i 07/96 JLF */
 /* recalculate values of sequenced machines.                                  */
 /* -------------------------------------------------------------------------- */
-/*                                       */
+{est/op-lock.i xest}
 
-  IF NOT xef.op-lock THEN  
-          FIND CURRENT xest EXCLUSIVE-LOCK NO-ERROR.
-             ASSIGN
-               xest.recalc    = YES
-               xest.recalc-mr = YES.
-          FIND CURRENT xest NO-LOCK. 
+IF NEW op-lock AND NOT xef.op-lock THEN
+    ASSIGN
+        op-lock.val[1] = 1
+        op-lock.val[2] = 1.
 
 FIND FIRST mach {sys/look/machW.i} AND
               mach.m-code  EQ est-op.m-code NO-LOCK NO-ERROR.
@@ -97,7 +95,7 @@ qty = est-op.num-sh *
     (IF xef.n-out-l EQ 0 THEN 1 ELSE xef.n-out-l).
 
 
-IF xest.recalc EQ YES   AND
+IF op-lock.val[1] EQ 1                          AND 
     (ip-rowid EQ ? OR ip-rowid EQ ROWID(est-op)) THEN 
 DO:
     est-op.op-waste = mach.mr-waste.
@@ -192,7 +190,7 @@ qty = est-op.num-sh *
 /*END.*/
 
 
-IF xest.recalc EQ YES OR xest.recalc-mr = YES AND 
+IF (op-lock.val[1] EQ 1 OR op-lock.val[2] EQ 1) AND 
     (ip-rowid EQ ? OR ip-rowid EQ ROWID(est-op)) THEN 
 DO:
     /* flip dimensions if corr. xgrain */
@@ -244,7 +242,7 @@ DO:
     END.
 
 
-      IF xest.recalc-mr = YES THEN
+    IF op-lock.val[2] EQ 1 THEN
         IF LOOKUP(est-op.dept,"PR,CT") GT 0 THEN 
         DO:
             IF est-op.plates NE 0 OR est-op.fountains NE 0 THEN
