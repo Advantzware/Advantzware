@@ -192,7 +192,7 @@ DO:
 END.
 
 DEF VAR viEQtyPrev AS INT NO-UNDO.
-
+DEFINE VARIABLE lCheckPurMan AS LOGICAL NO-UNDO .
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -2127,10 +2127,13 @@ DO:
     lChackLog = IF eb.pur-man:SCREEN-VALUE IN BROWSE br-estitm EQ "P" THEN TRUE ELSE FALSE .
     IF AVAIL bf-itemfg AND eb.pur-man:SCREEN-VALUE IN BROWSE br-estitm NE ""
         AND bf-itemfg.pur-man NE lChackLog AND NOT bf-itemfg.isaset THEN do:
-        MESSAGE "FG Item file indicates item is (x) (which would be either purchased " SKIP
-                "or manufactured) while estimate indicates it is (y) - These should be" SKIP
-                " set the same." VIEW-AS ALERT-BOX WARNING .  
+        MESSAGE "Purchased / Manufactured Field" SKIP 
+                "Estimate Does Not Match Finished Goods." SKIP
+                "Reset Both? "
+            VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
+            UPDATE lCheckPurMan . 
     END.
+    ELSE lCheckPurMan = NO .
 
 END.
 
@@ -5169,6 +5172,7 @@ PROCEDURE local-assign-record :
   DEF BUFFER b-ef FOR ef.
   DEF BUFFER b-eb FOR eb.
   DEF BUFFER b-ref FOR reftable.
+  DEFINE BUFFER bff-itemfg FOR itemfg .
 
   DEF VAR char-hdl AS cha NO-UNDO.
   DEF VAR i AS INT NO-UNDO.
@@ -5611,6 +5615,15 @@ PROCEDURE local-assign-record :
   END.
 
   IF eb.pur-man THEN ef.nc = NO.
+  IF lCheckPurMan THEN DO:
+      FIND FIRST bff-itemfg EXCLUSIVE-LOCK
+           WHERE bff-itemfg.company EQ cocode
+             AND bff-itemfg.i-no EQ eb.stock-no NO-ERROR .
+      IF AVAIL bff-itemfg THEN
+          ASSIGN bff-itemfg.pur-man = eb.pur-man .
+      FIND CURRENT bff-itemfg NO-LOCK NO-ERROR .
+  END.
+  ASSIGN lCheckPurMan = NO .
 
   ll-new-shipto = NO.
   RUN valid-eb-reckey.
