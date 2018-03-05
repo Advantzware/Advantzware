@@ -2061,7 +2061,7 @@ CLASS RefTableMigration:
             NO-LOCK:
             FIND FIRST est WHERE 
                 est.company = reftable.company AND
-                est.dropslit = reftable.loc AND 
+                est.dropslit = logical(reftable.loc) AND 
                 est.est-no  = reftable.code
                 EXCLUSIVE-LOCK NO-ERROR.
             IF AVAILABLE est THEN    
