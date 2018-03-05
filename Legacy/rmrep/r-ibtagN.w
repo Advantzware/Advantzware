@@ -80,12 +80,12 @@ DEFINE VARIABLE lTagFormat AS LOGICAL NO-UNDO .
 
 ASSIGN cTextListToSelect = "Whse,Item,Description,Bin,Tag,Rolls," +
                            "Last Trans Date,Quantity,Unit Cost,Cost Value,MSF,Tons,Cost/MSF,Vendor Tag,Vendor Po#,Cert/Lot/Mill#,Vendor,Last Recd,Caliper," +
-                           "Wt/Msf,PO GL Account,Item Name,Job#,Sheet Size"
+                           "Wt/Msf,PO GL Account,Item Name,Job#,Width,Length,Depth,Roll Wid"
        cFieldListToSelect = "tt-rm-bin.loc,tt-rm-bin.i-no,v-itemname,loc-bin,tag,rolls," +
                             "trans-date,qty,v-cost,v-total,v-msf,v-tons,v-costMSF,cVendTag,cVendPo,crtlot,cVendCode,cLstRcd,cali," +
-                            "wt-msf,po-gl-act,cItemName,job-no,sht-size"
-       cFieldLength = "5,10,30,8,22,5," + "15,16,10,13,11,11,11,30,10,30,8,9,7," + "6,25,30,10,20"
-       cFieldType = "c,c,c,c,c,i," + "c,i,i,i,i,i,i,c,i,c,c,c,i," + "i,c,c,c,c"
+                            "wt-msf,po-gl-act,cItemName,job-no,wid,len,dep,roll-wid"
+       cFieldLength = "5,10,30,8,22,5," + "15,16,10,13,11,11,11,30,10,30,8,9,7," + "6,25,30,10,10,10,10,10"
+       cFieldType = "c,c,c,c,c,i," + "c,i,i,i,i,i,i,c,i,c,c,c,i," + "i,c,c,c,i,i,i,i"
        .
 
 {sys/inc/ttRptSel.i}
@@ -1643,8 +1643,14 @@ DEFINE VARIABLE cVendTag AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cVendPo AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cVendor AS CHARACTER FORMAT "x(8)" NO-UNDO.
 DEFINE VARIABLE cShtSize AS CHARACTER FORMAT "x(30)" NO-UNDO.
+DEFINE VARIABLE dShtWid AS DECIMAL NO-UNDO .
+DEFINE VARIABLE dShtLen AS DECIMAL NO-UNDO .
+DEFINE VARIABLE dShtDep AS DECIMAL NO-UNDO .
+DEFINE VARIABLE dShtRollWid AS DECIMAL NO-UNDO .
 DEFINE VARIABLE cJobNo LIKE po-ordl.job-no NO-UNDO.
-
+DEFINE VARIABLE cJobNo2 LIKE po-ordl.job-no2 NO-UNDO .
+DEFINE VARIABLE cSNum AS INTEGER NO-UNDO .
+DEFINE VARIABLE cBNum AS INTEGER NO-UNDO .
 DEF BUFFER bf-loadtag FOR loadtag.
 
     {custom/statusMsg.i "'Processing...'"} 
@@ -1976,6 +1982,12 @@ SESSION:SET-WAIT-STATE ("general").
     IF AVAILABLE po-ord THEN
         ASSIGN cVendor = po-ord.vend-no .
 
+    ASSIGN vpo-gl-act = ""
+        cJobNo = "" 
+        cSNum  = 0
+        cBNum  = 0
+        cJobNo2 = 0 .
+
     IF tt-rm-bin.po-no NE 0 AND AVAILABLE po-ord THEN DO:
         FIND FIRST po-ordl  NO-LOCK WHERE po-ordl.company EQ tt-rm-bin.company 
             AND po-ordl.po-no EQ po-ord.po-no
@@ -1983,17 +1995,14 @@ SESSION:SET-WAIT-STATE ("general").
         
         IF AVAILABLE po-ordl THEN DO:
             ASSIGN vpo-gl-act = po-ordl.actnum
-                    cJobNo     = IF po-ordl.job-no NE "" THEN string(po-ordl.job-no) + "-" + STRING(po-ordl.job-no2) ELSE "".
+                    cJobNo     = IF po-ordl.job-no NE "" THEN string(po-ordl.job-no) + "-" + STRING(po-ordl.job-no2) ELSE ""
+                    cJobNo2    =  po-ordl.job-no2
+                    cSNum      = po-ordl.s-num
+                    cBNum      = po-ordl.b-num        .
 
         END.
-        ELSE
-            ASSIGN vpo-gl-act = ""
-                   cJobNo = ""  .
     END.
-    ELSE
-            ASSIGN vpo-gl-act = ""
-                   cJobNo = "" .
-
+    
 
     ASSIGN 
         v-msf = IF ITEM.r-wid GT 0 THEN v-lf-qty * ITEM.r-wid / 12 / 1000
@@ -2004,6 +2013,45 @@ SESSION:SET-WAIT-STATE ("general").
         v-cum-MSF = v-cum-MSF + v-msf
         cShtSize = IF ITEM.r-wid GT 0 THEN trim(STRING(ITEM.r-wid,">,>>9.99"))
                    ELSE (trim(string(ITEM.s-len,">,>>9.99")) + " X " + trim(string(ITEM.s-wid,">,>>9.99")) ).
+
+          dShtWid     = 0  .
+          dShtLen     = 0  .
+          dShtDep     = 0  .
+          dShtRollWid = 0  .
+
+         IF ITEM.i-code EQ "R" THEN do:
+             IF item.industry = "1" THEN
+                 ASSIGN
+                 dShtWid     = ITEM.case-w 
+                 dShtLen     = ITEM.case-l
+                 dShtDep     = ITEM.case-d
+                 dShtRollWid = ITEM.r-wid .
+             ELSE
+                 ASSIGN
+                    dShtWid     = ITEM.s-wid 
+                    dShtLen     = ITEM.s-len
+                    dShtDep     = ITEM.s-dep
+                    dShtRollWid = ITEM.r-wid .
+         END.
+         ELSE DO:
+             
+             FIND FIRST job-mat NO-LOCK
+                 WHERE job-mat.company EQ cocode
+                   AND job-mat.job-no  EQ SUBSTRING(cJobNo,1,6)
+                   AND job-mat.job-no2 EQ cJobNo2
+                   AND job-mat.i-no EQ ITEM.i-no
+                   AND job-mat.frm EQ cSNum
+                   AND job-mat.blank-no EQ cBNum NO-ERROR .
+             IF AVAIL job-mat THEN
+                 ASSIGN
+                 dShtWid     = job-mat.len 
+                 dShtLen     = job-mat.wid
+                 dShtDep     = 0
+                 dShtRollWid = 0 .
+         END.
+
+
+
      IF v-CostMsf EQ ? THEN
          ASSIGN v-CostMsf = 0.   /* task 10251310  */
 
@@ -2056,7 +2104,10 @@ SESSION:SET-WAIT-STATE ("general").
                 WHEN "po-gl-act" THEN cVarValue = STRING(vpo-gl-act) .
                 WHEN "cItemName" THEN cVarValue = /*IF FIRST-OF(tt-rm-bin.i-no) THEN*/ string(ITEM.i-name,"x(30)") /*ELSE ""*/ .
                 WHEN "job-no" THEN cVarValue = STRING(cJobNo,"x(10)") .
-                WHEN "sht-size" THEN cVarValue = STRING(cShtSize,"x(20)"). 
+                WHEN "len" THEN cVarValue = STRING(dShtLen,">,>>99.999"). 
+                WHEN "wid" THEN cVarValue = STRING(dShtWid,">,>>99.999"). 
+                WHEN "dep" THEN cVarValue = STRING(dShtDep,">,>>99.999"). 
+                WHEN "roll-wid" THEN cVarValue = STRING(dShtRollWid,">,>>99.999"). 
           END CASE.
           cExcelVarValue = cVarValue.  
           IF cTmpField = "tag" THEN do:
@@ -2113,7 +2164,10 @@ SESSION:SET-WAIT-STATE ("general").
                  WHEN "po-gl-act" THEN cVarValue = "" .
                  WHEN "cItemName" THEN cVarValue = string(ITEM.i-name,"x(30)") .
                  WHEN "job-no" THEN cVarValue = "" .
-                 WHEN "sht-size" THEN cVarValue = "". 
+                 WHEN "len" THEN cVarValue = "". 
+                 WHEN "wid" THEN cVarValue = "". 
+                 WHEN "dep" THEN cVarValue = "". 
+                 WHEN "roll-wid" THEN cVarValue = "". 
                      
            END CASE.
 
@@ -2168,7 +2222,10 @@ SESSION:SET-WAIT-STATE ("general").
                  WHEN "po-gl-act" THEN cVarValue = "" .
                  WHEN "cItemName" THEN cVarValue = "" .
                  WHEN "job-no" THEN cVarValue = "" .
-                 WHEN "sht-size" THEN cVarValue = "". 
+                 WHEN "len" THEN cVarValue = "". 
+                 WHEN "wid" THEN cVarValue = "". 
+                 WHEN "dep" THEN cVarValue = "". 
+                 WHEN "roll-wid" THEN cVarValue = "". 
            END CASE.
            cExcelVarValue = cVarValue.  
            cDisplay = cDisplay + cVarValue +
@@ -2241,7 +2298,10 @@ SESSION:SET-WAIT-STATE ("general").
                  WHEN "po-gl-act" THEN cVarValue = "" .
                  WHEN "cItemName" THEN cVarValue = "" .
                  WHEN "job-no" THEN cVarValue = "".
-                 WHEN "sht-size" THEN cVarValue = "". 
+                 WHEN "len" THEN cVarValue = "". 
+                 WHEN "wid" THEN cVarValue = "". 
+                 WHEN "dep" THEN cVarValue = "". 
+                 WHEN "roll-wid" THEN cVarValue = "". 
            END CASE.
            cExcelVarValue = cVarValue.  
            cDisplay = cDisplay + cVarValue +
@@ -2295,7 +2355,10 @@ SESSION:SET-WAIT-STATE ("general").
                  WHEN "po-gl-act" THEN cVarValue = "" .
                  WHEN "cItemName" THEN cVarValue = "" .
                  WHEN "job-no" THEN cVarValue = "" .
-                 WHEN "sht-size" THEN cVarValue = "".
+                 WHEN "len" THEN cVarValue = "". 
+                 WHEN "wid" THEN cVarValue = "". 
+                 WHEN "dep" THEN cVarValue = "". 
+                 WHEN "roll-wid" THEN cVarValue = "". 
            END CASE.
         
            cExcelVarValue = cVarValue.  
@@ -2368,7 +2431,10 @@ SESSION:SET-WAIT-STATE ("general").
                  WHEN "po-gl-act" THEN cVarValue = "" .
                  WHEN "cItemName" THEN cVarValue = "" .
                  WHEN "job-no" THEN cVarValue = "" .
-                 WHEN "sht-size" THEN cVarValue = "".
+                 WHEN "len" THEN cVarValue = "". 
+                 WHEN "wid" THEN cVarValue = "". 
+                 WHEN "dep" THEN cVarValue = "". 
+                 WHEN "roll-wid" THEN cVarValue = "". 
            END CASE.
         
            cExcelVarValue = cVarValue.  
@@ -2424,7 +2490,10 @@ SESSION:SET-WAIT-STATE ("general").
                  WHEN "po-gl-act" THEN cVarValue = "" .
                  WHEN "cItemName" THEN cVarValue = "" .
                  WHEN "job-no" THEN cVarValue = "" .
-                 WHEN "sht-size" THEN cVarValue = "". 
+                 WHEN "len" THEN cVarValue = "". 
+                 WHEN "wid" THEN cVarValue = "". 
+                 WHEN "dep" THEN cVarValue = "". 
+                 WHEN "roll-wid" THEN cVarValue = "". 
            END CASE.
         
            cExcelVarValue = cVarValue.  
@@ -2534,7 +2603,14 @@ DEFINE VARIABLE v-CostMSF AS DECIMAL NO-UNDO.
 DEFINE VARIABLE cVendor AS CHARACTER FORMAT "x(8)" NO-UNDO.
 DEFINE VARIABLE vpo-gl-act AS CHARACTER NO-UNDO. 
 DEFINE VARIABLE cShtSize AS CHARACTER FORMAT "x(30)" NO-UNDO.
+DEFINE VARIABLE dShtWid AS DECIMAL NO-UNDO .
+DEFINE VARIABLE dShtLen AS DECIMAL NO-UNDO .
+DEFINE VARIABLE dShtDep AS DECIMAL NO-UNDO .
+DEFINE VARIABLE dShtRollWid AS DECIMAL NO-UNDO .
 DEFINE VARIABLE cJobNo LIKE po-ordl.job-no NO-UNDO.
+DEFINE VARIABLE cJobNo2 LIKE po-ordl.job-no2 NO-UNDO .
+DEFINE VARIABLE cSNum AS INTEGER NO-UNDO .
+DEFINE VARIABLE cBNum AS INTEGER NO-UNDO .
 
 /* rdb 02/06/07 02050701 */
 DEFINE VARIABLE chrTotCostVal AS CHARACTER NO-UNDO.
@@ -2680,29 +2756,7 @@ ASSIGN
         cShtSize = IF ITEM.r-wid GT 0 THEN trim(STRING(ITEM.r-wid,">,>>9.99"))
                    ELSE (trim(string(ITEM.s-len,">,>>9.99")) + " X " + trim(string(ITEM.s-wid,">,>>9.99")) )     .
 
-    /*if last-of(tt-rm-bin.loc-bin) then do:  */
-       
-     /* if not first-of(tt-rm-bin.loc-bin) and psubtot then 
-         DO:                                              
-           IF NOT(tb_total-rolls AND item.r-wid > 0) THEN 
-             put "-----------"          to 100            
-                 "-----------"          to 123 skip       
-                 "Bin Sub-total"        at 61             
-                 v-cum-qty              to 100            
-                 v-cum-price            to 123.           
-           ELSE                                           
-           DO:                                            
-              put "-----------"          to 100           
-                 "-----------"          to 123 skip       
-                 "Total Rolls"          AT 41             
-                 v-cum-rolls            TO 58             
-                 "Bin Sub-total"        at 61             
-                 v-cum-qty              to 100            
-                 v-cum-price            to 123.           
-           END.                                           
-         END.        */                                     
-                                                          
-     /* if not last-of(tt-rm-bin.i-no) then put skip(1).    */
+    
 
       ASSIGN 
        v-cum-qty2   = v-cum-qty2   + v-cum-qty
@@ -2728,6 +2782,16 @@ IF LAST-OF(tt-rm-bin.i-no) THEN DO:
     IF AVAILABLE po-ord THEN
         ASSIGN cVendor = po-ord.vend-no .
 
+    ASSIGN vpo-gl-act = ""
+        cJobNo  = "" 
+        cSNum   = 0
+        cBNum   = 0
+        cJobNo2 = 0
+        dShtWid = 0
+        dShtLen = 0
+        dShtDep = 0
+        dShtRollWid = 0.
+
     IF tt-rm-bin.po-no NE 0 AND AVAILABLE po-ord THEN DO:
         FIND FIRST po-ordl NO-LOCK WHERE po-ordl.company EQ tt-rm-bin.company 
             AND po-ordl.po-no EQ po-ord.po-no
@@ -2735,14 +2799,44 @@ IF LAST-OF(tt-rm-bin.i-no) THEN DO:
         
         IF AVAILABLE po-ordl THEN
             ASSIGN vpo-gl-act = po-ordl.actnum
-                   cJobNo     = IF po-ordl.job-no NE "" THEN string(po-ordl.job-no) + "-" + STRING(po-ordl.job-no2) ELSE "" .
-        ELSE
-            ASSIGN vpo-gl-act = ""
-                   cJobNo     = "" .
+                   cJobNo     = IF po-ordl.job-no NE "" THEN string(po-ordl.job-no) + "-" + STRING(po-ordl.job-no2) ELSE "" 
+                   cJobNo2    =  po-ordl.job-no2
+                   cSNum      = po-ordl.s-num
+                   cBNum      = po-ordl.b-num .
     END.
-    ELSE
-            ASSIGN vpo-gl-act = ""
-                   cJobNo     = "" .
+
+    IF ITEM.i-code EQ "R" THEN do:
+             IF item.industry = "1" THEN
+                 ASSIGN
+                 dShtWid     = ITEM.case-w 
+                 dShtLen     = ITEM.case-l
+                 dShtDep     = ITEM.case-d
+                 dShtRollWid = ITEM.r-wid .
+             ELSE
+                 ASSIGN
+                    dShtWid     = ITEM.s-wid 
+                    dShtLen     = ITEM.s-len
+                    dShtDep     = ITEM.s-dep
+                    dShtRollWid = ITEM.r-wid .
+    END.
+    ELSE DO:
+        
+        FIND FIRST job-mat NO-LOCK
+            WHERE job-mat.company EQ cocode
+            AND job-mat.job-no  EQ SUBSTRING(cJobNo,1,6)
+            AND job-mat.job-no2 EQ cJobNo2
+            AND job-mat.i-no EQ ITEM.i-no
+            AND job-mat.frm EQ cSNum
+            AND job-mat.blank-no EQ cBNum NO-ERROR .
+
+        IF AVAIL job-mat THEN
+            ASSIGN
+            dShtWid     = job-mat.len 
+            dShtLen     = job-mat.wid
+            dShtDep     = 0
+            dShtRollWid = 0 .
+    END.
+    
     
     ASSIGN cDisplay = ""
            cTmpField = ""
@@ -2787,7 +2881,10 @@ IF LAST-OF(tt-rm-bin.i-no) THEN DO:
                 WHEN "po-gl-act" THEN cVarValue = STRING(vpo-gl-act) .
                 WHEN "cItemName" THEN cVarValue = string(ITEM.i-name,"x(30)") .
                 WHEN "job-no" THEN cVarValue = STRING(cJobNo,"x(10)") .
-                WHEN "sht-size" THEN cVarValue = STRING(cShtSize,"x(20)"). 
+                WHEN "len" THEN cVarValue = STRING(dShtLen,">,>>99.999"). 
+                WHEN "wid" THEN cVarValue = STRING(dShtWid,">,>>99.999"). 
+                WHEN "dep" THEN cVarValue = STRING(dShtDep,">,>>99.999"). 
+                WHEN "roll-wid" THEN cVarValue = STRING(dShtRollWid,">,>>99.999"). 
           END CASE.
           cExcelVarValue = cVarValue.  
           cDisplay = cDisplay + cVarValue +
@@ -2804,68 +2901,12 @@ IF LAST-OF(tt-rm-bin.i-no) THEN DO:
 END.
 
 
-
-  /*   if last-of(tt-rm-bin.loc-bin) then do:                
-  /*    if not first-of(tt-rm-bin.loc-bin) and psubtot then 
-         DO:                                              
-           IF NOT(tb_total-rolls AND item.r-wid > 0) THEN 
-             put "-----------"          to 100            
-                 "-----------"          to 123 skip       
-                 "Bin Sub-total"        at 61             
-                 v-cum-qty              to 100            
-                 v-cum-price            to 123.           
-           ELSE                                           
-           DO:                                            
-              put "-----------"          to 100           
-                 "-----------"          to 123 skip       
-                 "Total Rolls"          AT 41             
-                 v-cum-rolls            TO 58             
-                 "Bin Sub-total"        at 61             
-                 v-cum-qty              to 100            
-                 v-cum-price            to 123.           
-           END.                                           
-         END.        */                                     
-                                                          
-      if not last-of(tt-rm-bin.i-no) then put skip(1).    
-
-      assign
-       v-cum-qty2   = v-cum-qty2   + v-cum-qty
-       v-cum-price2 = v-cum-price2 + v-cum-price
-       v-cum-qty    = 0
-       v-cum-price  = 0
-       v-cum-rolls  = 0.
-    end. */
-
    IF LAST-OF(tt-rm-bin.i-no) THEN DO:
     /*  if psubtot then*/
-      DO:        
-
-      /*  IF /*not first-of(tt-rm-bin.i-no) AND*/
-           NOT(tb_total-rolls AND item.r-wid > 0) THEN
-           PUT /* "-----------"          to 100
-               "-----------"          to 123 skip
-               "Item Total"           at 63*/
-               tt-rm-bin.loc
-               tt-rm-bin.i-no
-               ITEM.i-name
-               v-cum-qty2             to 100
-               v-cum-price2           to 123.
-        ELSE*/
+      DO:       
+     
         IF tb_total-rolls AND ITEM.r-wid GT 0 THEN
         DO:
-           /*put /*"------"               TO 58
-               "-----------"          to 100
-               "-----------"          to 123 skip */
-           /*    tt-rm-bin.loc
-               tt-rm-bin.i-no
-               ITEM.i-name */
-               "Item Total Rolls"     AT 36      
-               v-item-rolls           TO 58
-               /*"Item Total"           at 63*/
-               "Item Total Qty"            AT 75
-               v-cum-qty2             to 100
-               "Total Cost"          AT 102
-               v-cum-price2           to 123.*/
 
             PUT   SKIP  str-line SKIP .
      ASSIGN cDisplay = ""
@@ -2902,7 +2943,10 @@ END.
                  WHEN "po-gl-act" THEN cVarValue = "" .
                  WHEN "cItemName" THEN cVarValue = "" .
                  WHEN "job-no" THEN cVarValue = "" .
-                 WHEN "sht-size" THEN cVarValue = "".
+                 WHEN "len" THEN cVarValue = "". 
+                 WHEN "wid" THEN cVarValue = "". 
+                 WHEN "dep" THEN cVarValue = "". 
+                 WHEN "roll-wid" THEN cVarValue = "". 
            END CASE.
         
            cExcelVarValue = cVarValue.  
@@ -2937,30 +2981,6 @@ END.
     IF LAST-OF(tt-rm-bin.loc) THEN DO:
       IF pgtot THEN
       DO:
-        /*IF tb_total-rolls THEN
-           put skip(1)
-               "------"                    TO 58
-               "---------------"           to 100
-               "--------------"            to 123
-               "Grand Totals Rolls"        AT 35
-               v-tot-rolls                 TO 58
-               " Qty"                      TO 84
-               v-gt-qty2                   TO 100
-               "Cost"                      TO 108
-               v-tot-price                 to 123
-               "------"                    TO 58
-               "---------------"           to 100
-               "--------------"            to 123.
-        ELSE
-           put skip(1)
-               "---------------"           to 77
-               "--------------"            to 100
-               "Grand Totals       Qty"          AT 40
-               v-gt-qty2                   TO 77
-               "Cost"                      TO 85
-               v-tot-price                 to 100
-               "---------------"           to 77
-               "--------------"            to 100.*/
 
           PUT   SKIP  str-line SKIP .
      ASSIGN cDisplay = ""
@@ -2997,7 +3017,10 @@ END.
                  WHEN "po-gl-act" THEN cVarValue = "" .
                  WHEN "cItemName" THEN cVarValue = "" .
                  WHEN "job-no" THEN cVarValue = "" .
-                 WHEN "sht-size" THEN cVarValue = "".
+                 WHEN "len" THEN cVarValue = "". 
+                 WHEN "wid" THEN cVarValue = "". 
+                 WHEN "dep" THEN cVarValue = "". 
+                 WHEN "roll-wid" THEN cVarValue = "". 
            END CASE.
         
            cExcelVarValue = cVarValue.  
