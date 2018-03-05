@@ -57,6 +57,7 @@ DEF VAR lv-puruom       LIKE itemfg.pur-uom NO-UNDO.
 
 /* gdm - 11190901 */
 DEF VAR v-shpmet        LIKE itemfg.ship-meth NO-UNDO.
+DEFINE VARIABLE lCheckPurMan AS LOGICAL NO-UNDO .
 
 &scoped-define copy-proc proc-copy
 &SCOPED-DEFINE itemfg-maint itemfg-maint
@@ -1081,7 +1082,23 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL itemfg.pur-man V-table-Win
 ON VALUE-CHANGED OF itemfg.pur-man IN FRAME F-Main /* Purchased or Manf */
 DO:
+    DEFINE BUFFER bf-eb FOR eb .
     IF itemfg.pur-man:screen-value = "no" THEN itemfg.prod-uom:screen-value = "M".
+    
+    FIND FIRST bf-eb NO-LOCK
+        WHERE bf-eb.company EQ cocode 
+          AND bf-eb.stock-no EQ itemfg.i-no:SCREEN-VALUE
+          AND bf-eb.pur-man NE logical(itemfg.pur-man:SCREEN-VALUE) NO-ERROR.
+      MESSAGE "logical(itemfg.pur-man:SCREEN-VALUE) " STRING(bf-eb.pur-man) STRING(logical(itemfg.pur-man:SCREEN-VALUE)) VIEW-AS ALERT-BOX ERROR .
+    IF AVAIL bf-eb THEN DO:
+        MESSAGE "Purchased / Manufactured Field" SKIP 
+                "Estimate Does Not Match Finished Goods." SKIP
+                "Reset Both? "
+            VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
+            UPDATE lCheckPurMan . 
+     END.
+     ELSE lCheckPurMan = NO .
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1594,7 +1611,7 @@ PROCEDURE local-assign-record :
  FIND FIRST fg-set WHERE fg-set.company = itemfg.company 
      AND fg-set.set-no = itemfg.i-no NO-LOCK NO-ERROR.
 
- IF AVAIL itemfg AND AVAIL fg-set THEN
+ IF AVAIL itemfg AND (AVAIL fg-set OR lCheckPurMan) THEN
    FOR EACH eb NO-LOCK      
        WHERE eb.company EQ itemfg.company
          AND eb.cust-no EQ itemfg.cust-no
@@ -1606,6 +1623,7 @@ PROCEDURE local-assign-record :
      END.
      RELEASE bf-eb.
    END. /* each eb */
+   ASSIGN lCheckPurMan = NO .
 
   IF NOT  v-mat AND adm-new-record AND NOT adm-adding-record THEN DO: /* task 06161508 */
 
