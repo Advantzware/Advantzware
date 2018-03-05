@@ -109,7 +109,7 @@ DEFINE VARIABLE cTextListToDefault AS CHARACTER NO-UNDO.
 
     (IF {sys/inc/rptDisp.i "oe-ordl.part-no"}  THEN "Customer Part#" ELSE "" ) +  15    
   */
-ASSIGN cTextListToSelect  = "DUE DATE,ORDER#,CUST#,CUSTOMER NAME,PROD CODE," +
+ASSIGN cTextListToSelect  = "DUE DATE,ORDER#,CUSTOMER,CUSTOMER NAME,PROD CODE," +
                             "FG ITEM NAME,QTY ORDERED/EA,SQ FT,TOTAL Sq Ft/M," +
                             "$/MSF,PRICE,ORDER AMOUNT,% PROFIT,TOTAL TONS,$/TON," +
                             "FG ITEM#,ID,CUSTOMER PART#,CUSTOMER PO#,DIE#,ORDER DATE,COMM %,SHIPPED QTY,CSR"  
