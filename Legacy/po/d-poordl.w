@@ -282,7 +282,7 @@ DEFINE BUTTON Btn_OK
 
 DEFINE VARIABLE adders        AS CHARACTER 
     VIEW-AS EDITOR SCROLLBAR-VERTICAL
-    SIZE 48 BY 6.19
+    SIZE 56 BY 6.19
     BGCOLOR 15 FONT 2 NO-UNDO.
 
 DEFINE VARIABLE fiCount       AS INTEGER   FORMAT "->,>>>,>>9":U INITIAL 0 
@@ -486,7 +486,7 @@ DEFINE FRAME Dialog-Frame
     VIEW-AS FILL-IN 
     SIZE 19 BY 1
     v-tonnage AT ROW 6.38 COL 105 COLON-ALIGNED NO-LABELS
-    adders AT ROW 7.48 COL 86 NO-LABELS
+    adders AT ROW 7.60 COL 78 NO-LABELS
     v-po-wid-frac AT ROW 7.57 COL 3.4 COLON-ALIGNED NO-LABELS
     v-po-len-frac AT ROW 7.57 COL 18 COLON-ALIGNED NO-LABELS
     v-po-dep-frac AT ROW 7.57 COL 36 COLON-ALIGNED NO-LABELS
@@ -2240,7 +2240,8 @@ PROCEDURE adder-text :
             adders:SCREEN-VALUE = 'Adder Charges     '
                          + FILL(" ",12 - LENGTH("Cost/" + po-ordl.pr-uom:SCREEN-VALUE))
                          + "Cost/" + po-ordl.pr-uom:SCREEN-VALUE
-                         + CHR(10) + '=============================='
+                         + '   SU' 
+                         + CHR(10) + '==================================='
                          + CHR(10) + addersText
             adders:HIDDEN       = addersText EQ ''
             adders:SENSITIVE    = addersText NE ''.
@@ -4643,7 +4644,7 @@ PROCEDURE po-adder2 :
                 ASSIGN
                     v-setup        = tt-eiv-2.setups[i]
                     op-adder-setup = op-adder-setup + v-setup
-                    v-cost         = ((tt-eiv-2.run-cost[i] * v-qty-comp) + v-setup) / v-qty-comp.
+                    v-cost         = /*((*/tt-eiv-2.run-cost[i] /** v-qty-comp) + v-setup) / v-qty-comp*/ .
                 /* This adds the Adder cost in */
                 IF e-item.std-uom NE po-ordl.pr-uom:SCREEN-VALUE THEN
                     RUN sys/ref/convcuom.p(e-item.std-uom, po-ordl.pr-uom:SCREEN-VALUE, job-mat.basis-w,
@@ -4664,7 +4665,7 @@ PROCEDURE po-adder2 :
             ASSIGN
                 addersText = addersText + SUBSTR(item.i-name,1,18) +
                   FILL(' ',19 - LENGTH(SUBSTR(item.i-name,1,18))) +
-                  STRING(v-cost,'-z,zz9.9999') + CHR(10)
+                  STRING(v-cost,'-z,zz9.99') + STRING(v-setup,'-zzz9.99') + CHR(10)
                 v-add-cost = v-add-cost + v-cost.
 
             /* gdm - */     
@@ -6558,10 +6559,13 @@ PROCEDURE vend-cost :
                 OUTPUT lv-added-cost,
                 OUTPUT lv-added-cons-cost,
                 OUTPUT lv-adder-setup).
-            IF ip-calc-cost THEN
+            IF ip-calc-cost THEN do:
                 ASSIGN
                     po-ordl.cost:SCREEN-VALUE      = STRING(lv-added-cost)
-                    po-ordl.cons-cost:SCREEN-VALUE = STRING(lv-added-cons-cost).
+                    po-ordl.cons-cost:SCREEN-VALUE = STRING(lv-added-cons-cost ) .
+                    IF lv-adder-setup GT 0 THEN
+                    po-ordl.setup:SCREEN-VALUE  = STRING( DEC(po-ordl.setup:SCREEN-VALUE) + ( IF lv-adder-setup NE ? THEN lv-adder-setup ELSE 0) ) .
+            END.
         END.
         IF poqty-log THEN 
         DO:

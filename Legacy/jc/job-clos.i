@@ -82,8 +82,7 @@ DEF VAR ll-set AS LOG NO-UNDO.
           RUN jc/autopc&p.p (BUFFER job, job-hdr.i-no,
                              job-hdr.frm, job-hdr.blank-no, 1).
 
-      {jc/closeaud.i job}
-      reftable.val[4] = INT(job.opened) + 1.
+
 
       IF job.opened THEN DO:
         IF NOT AVAIL sys-ctrl or sys-ctrl.char-fld NE "FGPost" THEN DO:
@@ -106,12 +105,12 @@ DEF VAR ll-set AS LOG NO-UNDO.
         PAUSE 0.
         RUN jc/jc-dall.p(RECID(job)).
 
-        {jc/closeaud.i job}
+
         ASSIGN
          job.opened      = NO
          job.stat        = "C"
-         job.close-date  = close_date
-         reftable.val[4] = 3.
+         job.close-date  = close_date.
+
 
         RUN jc/jobnotes.p (BUFFER job).
        

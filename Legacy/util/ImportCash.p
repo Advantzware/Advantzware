@@ -299,8 +299,9 @@ PROCEDURE pCreateNewCashLine:
         WHERE ar-ctrl.company EQ ar-cash.company
         NO-ERROR.
 
+    iNextLine = 1.
     FOR EACH bf-ar-cashl OF ar-cash NO-LOCK BY LINE DESCENDING:
-        iNextline = bf-ar-cashl.line + 1.
+        iNextLine = bf-ar-cashl.line + 1.
       LEAVE.
     END.
                     
@@ -421,7 +422,7 @@ PROCEDURE pInitialize:
         DO iIndex = 1 TO NUM-ENTRIES(cFields):
             CREATE ttImportMap.
             ASSIGN 
-                ttImportMap.cType         = "AP"
+                ttImportMap.cType         = "Cash"
                 ttImportMap.cLabel        = ENTRY(iIndex,cFields)
                 ttImportMap.iIndex        = iIndex
                 ttImportMap.iImportIndex  = iIndex
@@ -475,9 +476,11 @@ PROCEDURE pProcessImport:
             /*Override defaults with imported values for header*/
             IF ttImportCash.CheckDate NE ? THEN 
                 ar-cash.check-date =  ttImportCash.CheckDate.
-            IF ttImportCash.BankCode NE "" THEN DO:
+            IF ttImportCash.BankCode NE "" THEN 
                 ar-cash.bank-code = ttImportCash.BankCode. 
-            END.
+            
+            ar-cash.check-amt = ttImportCash.CheckAmount.
+            
         END. /*not available ar-cash*/
         RUN pCreateNewCashLine (ROWID(ar-cash), ttImportCash.InvoiceNo, OUTPUT riCashl).
         FIND ar-cashl EXCLUSIVE-LOCK 
@@ -486,16 +489,16 @@ PROCEDURE pProcessImport:
         IF NOT AVAILABLE ar-cashl THEN NEXT.
                 
         /*Override defaults with imported values for line*/ 
+         ASSIGN 
+            ar-cashl.amt-disc = ttImportCash.InvoiceDiscount
+            .       
         
         IF ttImportCash.InvoiceApplied EQ 0 THEN 
-            ar-cashl.amt-paid = ttImportCash.CheckAmount.
+            ar-cashl.amt-paid = ttImportCash.CheckAmount + ar-cashl.amt-disc.
         ELSE 
             ar-cashl.amt-paid = ttImportCash.InvoiceApplied.
         
-        ASSIGN 
-            ar-cashl.amt-disc = ttImportCash.InvoiceDiscount
-            .
-        
+
         IF ttImportCash.AccountNumber NE "" THEN 
             ar-cashl.actnum = ttImportCash.AccountNumber.
                                                             

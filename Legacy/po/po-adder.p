@@ -13,6 +13,7 @@ def var v-add-cost as dec no-undo.
 def var v-qty-comp as dec no-undo.
 def var v-setup like e-item-vend.setup no-undo.
 DEF VAR fg-uom-list AS CHAR NO-UNDO.
+DEF VARIABLE dadder-setup AS DECIMAL NO-UNDO .
 
 def shared var v-part-dscr1 as char format "x(30)".
 def shared var v-part-dscr2 as char format "x(30)".
@@ -131,7 +132,8 @@ do with frame po-ordlf:
     
       ASSIGN
          v-setup = tt-eiv.setups[i]
-         v-cost = ((tt-eiv.run-cost[i] * v-qty-comp) + v-setup) / v-qty-comp.
+         v-cost = /*((*/ tt-eiv.run-cost[i] /** v-qty-comp) + v-setup ) / v-qty-comp*/
+         dadder-setup = dadder-setup + v-setup .
       /* This adds the Adder cost in */
       IF e-item.std-uom NE po-ordl.pr-uom THEN
         RUN sys/ref/convcuom.p(e-item.std-uom, po-ordl.pr-uom, job-mat.basis-w,
@@ -153,7 +155,8 @@ do with frame po-ordlf:
 
   ASSIGN
    po-ordl.cost      = po-ordl.cost + v-add-cost
-   po-ordl.cons-cost = po-ordl.cost.
+   po-ordl.cons-cost = po-ordl.cost
+   po-ordl.setup     = po-ordl.setup + dadder-setup .
 
   IF po-ordl.pr-uom NE po-ordl.cons-uom THEN
     RUN sys/ref/convcuom.p(po-ordl.pr-uom, po-ordl.cons-uom,

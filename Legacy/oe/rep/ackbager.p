@@ -34,8 +34,8 @@ DEF VAR ll-calc-disc-first AS LOG NO-UNDO.
 /* === with xprint ====*/
 DEF VAR ls-image1 AS cha NO-UNDO.
 DEF VAR ls-image2 AS cha NO-UNDO.
-DEF VAR ls-full-img1 AS cha FORM "x(50)" NO-UNDO.
-DEF VAR ls-full-img2 AS cha FORM "x(50)" NO-UNDO.
+DEF VAR ls-full-img1 AS cha FORM "x(200)" NO-UNDO.
+DEF VAR ls-full-img2 AS cha FORM "x(200)" NO-UNDO.
 DEF VAR v-int-head AS INT INIT 0 NO-UNDO .
 /*ASSIGN ls-image1 = "images\pacific1.bmp"
        ls-image2 = "images\pacific2.bmp".
@@ -592,11 +592,17 @@ PUT "<FCourier New>"          .
         end.
         if oe-ordm.bill ne "N" THEN assign v-totord = v-totord + oe-ordm.amt.
       end. /* each oe-ordm */
-           
        IF oe-ord.frt-pay EQ "B" THEN DO:
-          PUT "<C7>Plus Freight Charges" .
-          v-printline = v-printline + 1.
-      END.
+           PUT "<C7>Plus Freight Charges" .
+           PUT SKIP.
+           v-printline = v-printline + 1.
+       END.
+
+       IF AVAIL shipto AND shipto.tax-code NE "" THEN DO:
+           PUT "<C7>Plus Tax" FORMAT "x(30)" .
+           v-printline = v-printline + 1.
+        END.
+       
       /* print billing notes */
       ASSIGN v-billinst = "".
 

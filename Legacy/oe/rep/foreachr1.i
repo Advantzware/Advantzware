@@ -1,12 +1,15 @@
     
     DEF VAR lv-foreachr AS CHAR NO-UNDO.
+    
+
 
 
     lv-foreachr = STRING(TODAY,"99/99/9999") + STRING(TIME,"999999").
 
     /* gdm - 06220907 - CHECK FOR RELEASE HOLD*/        
     DEF VAR v-crdhld AS LOG NO-UNDO.
-
+    
+    
     FIND FIRST sys-ctrl NO-LOCK
         WHERE sys-ctrl.company EQ cocode
           AND sys-ctrl.name EQ "RELCREDT" NO-ERROR.
@@ -15,7 +18,7 @@
 
     IF NOT AVAIL oe-ctrl THEN
     FIND FIRST oe-ctrl WHERE oe-ctrl.company EQ cocode NO-LOCK.
-   
+    EMPTY TEMP-TABLE ttReleasesToPrint.
     foreachr:
     FOR EACH oe-relh NO-LOCK
         WHERE oe-relh.company  EQ cocode
@@ -46,14 +49,6 @@
         
       /* gdm - 06220907 - CHECK FOR RELEASE HOLD end */ 
 
-
-      FOR EACH reftable
-          WHERE reftable.reftable EQ "oe-relh.can-print"
-            AND reftable.rec_key  EQ oe-relh.rec_key
-          USE-INDEX rec_key:
-        DELETE reftable.
-      END.
-
       IF NOT oe-ctrl.p-pick THEN
       FOR EACH oe-rell
           WHERE oe-rell.company EQ oe-relh.company
@@ -66,11 +61,10 @@
         NEXT foreachr.
       END.
 
-      CREATE reftable.
+      CREATE ttReleasesToPrint.
       ASSIGN
-       reftable.reftable = "oe-relh.can-print"
-       reftable.rec_key  = oe-relh.rec_key
-       reftable.company  = lv-foreachr.
+         ttReleasesToPrint.OeRelHRowID = ROWID(oe-relh)
+         ttReleasesToPrint.SessionID = lv-foreachr.
     END.
 
     RELEASE oe-relh.

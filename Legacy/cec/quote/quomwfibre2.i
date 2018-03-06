@@ -1,7 +1,7 @@
  /* cec/quote/quomwfibre2.i */
  
   PUT "<C1><#1><FArial>"   SKIP         
-       "<C1><R2><#2><R+8><C+40>" "<IMAGE#2=" + ls-full-img1 FORM "x(60)"  SKIP 
+       "<C1><R2><#2><R+8><C+40>" "<IMAGE#2=" + ls-full-img1 FORM "x(200)"  SKIP 
        /*"<=1><R+2>" "<FGCOLOR=" + trim(lv-comp-color) + ">" FORM "x(15)" */
           "<P10><=1><R+8>" SKIP(1) 
 

@@ -76,7 +76,7 @@ DEF VAR v-note-length AS INT INIT 80 NO-UNDO.
 DEF VAR li-cline AS INT NO-UNDO.
 
 DEF VAR ls-image1    AS CHAR NO-UNDO.
-DEF VAR ls-full-img1 AS CHAR FORMAT "x(100)" NO-UNDO.
+DEF VAR ls-full-img1 AS CHAR FORMAT "x(200)" NO-UNDO.
 
 ASSIGN 
     ls-image1 = "images\StClairPkg Logo.jpg"

@@ -687,7 +687,7 @@ if v-zone-p then v-zone-hdr = "Route No.:".
             end.
           end.
          
-          do i = i to 6:
+          do i = i to 7:
             create w-bin.
             FOR EACH bff-w-bin NO-LOCK BY w-count-pro DESC  :
                 w-bin.w-count-pro = bff-w-bin.w-count-pro + 1 .

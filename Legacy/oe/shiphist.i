@@ -71,8 +71,15 @@ ASSIGN
 
  IF fg-rcpth.rita-code EQ "T" THEN
      ASSIGN fg-rdtlh.loc-bin = ""
-            fg-rdtlh.tag  = "".
-  
+            fg-rdtlh.tag  = ""
+            fg-rdtlh.avg-cost      = fg-bin.avg-cost    
+            fg-rdtlh.last-cost     = fg-bin.last-cost    
+            fg-rdtlh.std-fix-cost  = fg-bin.std-fix-cost   
+            fg-rdtlh.std-lab-cost  = fg-bin.std-lab-cost   
+            fg-rdtlh.std-mat-cost  = fg-bin.std-mat-cost    
+            fg-rdtlh.std-tot-cost  = fg-bin.std-tot-cost    
+            fg-rdtlh.std-var-cost  = fg-bin.std-var-cost    .
+     
  /* gdm - 10260912 */
 find first sys-ctrl
       where sys-ctrl.company eq tt-bolh.company

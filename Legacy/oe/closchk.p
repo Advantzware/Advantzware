@@ -53,12 +53,12 @@ FOR EACH w-ord:
         END.
     
     {oe/closeaud.i oe-ord}
-    /* Reftable removed with #22925
+    
     IF lOrdClosed THEN 
         reftable.val[1] = 2.
     ELSE DO:
         reftable.val[1] = 1.
         DELETE w-ord.
     END.
-    */
+    
 END.   /* for each w-ord */

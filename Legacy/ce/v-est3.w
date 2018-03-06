@@ -2600,7 +2600,7 @@ PROCEDURE fgcolors-reset :
 
   DEF BUFFER ink-eb FOR eb.
   DEF BUFFER ink-ef FOR ef.
-  DEF BUFFER b-ref FOR ref.
+  DEF BUFFER b-ref FOR reftable.
 
   DEF VAR lv-valid AS CHAR NO-UNDO.
   DEF VAR lv-type AS CHAR FORMAT "!" NO-UNDO.

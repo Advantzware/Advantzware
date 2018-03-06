@@ -1,7 +1,6 @@
 /* ----------------------------------------------- ce/box/prokalk.i 07/96 JLF */
 /* recalculate values of sequenced machines.                                  */
 /* -------------------------------------------------------------------------- */
-   
 {est/op-lock.i xest}
 
 IF NEW op-lock AND NOT xef.op-lock THEN
@@ -94,6 +93,7 @@ est-op.num-sh = cumul.
 qty = est-op.num-sh *
     v-num-up * (IF xef.n-out   EQ 0 THEN 1 ELSE xef.n-out) *
     (IF xef.n-out-l EQ 0 THEN 1 ELSE xef.n-out-l).
+
 
 IF op-lock.val[1] EQ 1                          AND 
     (ip-rowid EQ ? OR ip-rowid EQ ROWID(est-op)) THEN 
@@ -189,6 +189,7 @@ qty = est-op.num-sh *
     (IF xef.n-out-l EQ 0 THEN 1 ELSE xef.n-out-l).
 /*END.*/
 
+
 IF (op-lock.val[1] EQ 1 OR op-lock.val[2] EQ 1) AND 
     (ip-rowid EQ ? OR ip-rowid EQ ROWID(est-op)) THEN 
 DO:
@@ -239,6 +240,7 @@ DO:
             fil_id      = RECID(xef).
         FIND xef WHERE RECID(xef) EQ fil_id NO-LOCK.
     END.
+
 
     IF op-lock.val[2] EQ 1 THEN
         IF LOOKUP(est-op.dept,"PR,CT") GT 0 THEN 

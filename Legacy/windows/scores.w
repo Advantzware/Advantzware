@@ -7,7 +7,7 @@
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS W-Win 
 /*------------------------------------------------------------------------
 
-  File: windows/reftable.w
+  File: windows/scores.w
 
   Description: from cntnrwin.w - ADM SmartWindow Template
 
@@ -57,12 +57,12 @@ CREATE WIDGET-POOL.
 &Scoped-define FRAME-NAME F-Main
 
 /* External Tables                                                      */
-&Scoped-define EXTERNAL-TABLES reftable
-&Scoped-define FIRST-EXTERNAL-TABLE reftable
+&Scoped-define EXTERNAL-TABLES scores
+&Scoped-define FIRST-EXTERNAL-TABLE scores
 
 
 /* Need to scope the external tables to this procedure                  */
-DEFINE QUERY external_tables FOR reftable.
+DEFINE QUERY external_tables FOR scores.
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
 
@@ -94,18 +94,18 @@ DEFINE FRAME F-Main
          SIZE 150 BY 24
          BGCOLOR 15 .
 
-DEFINE FRAME OPTIONS-FRAME
-    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 2 ROW 1
-         SIZE 148 BY 1.91
-         BGCOLOR 15 .
-
 DEFINE FRAME message-frame
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 24 ROW 2.91
          SIZE 127 BY 1.43
+         BGCOLOR 15 .
+
+DEFINE FRAME OPTIONS-FRAME
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 2 ROW 1
+         SIZE 148 BY 1.91
          BGCOLOR 15 .
 
 
@@ -114,7 +114,7 @@ DEFINE FRAME message-frame
 &ANALYZE-SUSPEND _PROCEDURE-SETTINGS
 /* Settings for THIS-PROCEDURE
    Type: SmartEasyWindow
-   External Tables: ASI.reftable
+   External Tables: ASI.scores
    Allow: Basic,Browse,DB-Fields,Query,Smart,Window
    Container Links: 
    Design Page: 1
@@ -336,7 +336,7 @@ PROCEDURE adm-create-objects :
              INPUT  'Layout = ':U ,
              OUTPUT h_scores ).
        RUN set-position IN h_scores ( 4.57 , 3.00 ) NO-ERROR.
-       RUN set-size IN h_scores ( 19.52 , 126.00 ) NO-ERROR.
+       RUN set-size IN h_scores ( 19.52 , 110.00 ) NO-ERROR.
 
        /* Links to SmartNavBrowser h_scores. */
        RUN add-link IN adm-broker-hdl ( h_p-updsav , 'TableIO':U , h_scores ).
@@ -373,13 +373,13 @@ PROCEDURE adm-row-available :
   {src/adm/template/row-head.i}
 
   /* Create a list of all the tables that we need to get.            */
-  {src/adm/template/row-list.i "reftable"}
+  {src/adm/template/row-list.i "scores"}
 
   /* Get the record ROWID's from the RECORD-SOURCE.                  */
   {src/adm/template/row-get.i}
 
   /* FIND each record specified by the RECORD-SOURCE.                */
-  {src/adm/template/row-find.i "reftable"}
+  {src/adm/template/row-find.i "scores"}
 
   /* Process the newly available records (i.e. display fields,
      open queries, and/or pass records on to any RECORD-TARGETS).    */
@@ -478,7 +478,7 @@ PROCEDURE send-records :
   {src/adm/template/snd-head.i}
 
   /* For each requested table, put it's ROWID in the output list.      */
-  {src/adm/template/snd-list.i "reftable"}
+  {src/adm/template/snd-list.i "scores"}
 
   /* Deal with any unexpected table requests before closing.           */
   {src/adm/template/snd-end.i}

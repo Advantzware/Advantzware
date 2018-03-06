@@ -556,6 +556,7 @@ PROCEDURE Run_Button :
 
   DEFINE VARIABLE current-widget AS WIDGET-HANDLE NO-UNDO.
   DEFINE VARIABLE save-widget AS WIDGET-HANDLE NO-UNDO.
+  DEFINE VARIABLE lAccess AS LOGICAL NO-UNDO.
 
   IF button-handle:NAME = 'Exit' THEN DO:
     RUN system/userLogOut.p.
@@ -596,8 +597,8 @@ PROCEDURE Run_Button :
   IF INDEX(button-handle:NAME,'.') = 0 THEN RUN Create_Buttons(button-handle:NAME).
   ELSE do:
       /* check module liscense first before run it YSK 08/24/04 TASK# 08060406 */
-      RUN util/chk-mod.p ("ADDON", button-handle:name) NO-ERROR.
-      IF NOT ERROR-STATUS:ERROR THEN 
+      RUN util/CheckModule.p ("ADDON", button-handle:name, YES, OUTPUT lAccess).
+      IF lAccess THEN 
          RUN Get_Procedure IN Persistent-Handle(button-handle:NAME,OUTPUT run-proc,yes).
   END.
 

@@ -14,6 +14,11 @@ def var v-part-info like itemfg.i-name no-undo.
 def var v-qty like oe-rell.qty no-undo.
 def var v-rel-qty like v-qty.
 
+DEFINE TEMP-TABLE ttReleasesToPrint NO-UNDO
+    FIELD OeRelHRowID AS ROWID 
+    FIELD SessionID   AS CHARACTER
+        .
+
 def workfile w-bin 
    field w-loc like fg-bin.loc
    field w-bin like fg-bin.loc-bin

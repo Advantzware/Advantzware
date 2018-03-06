@@ -294,16 +294,16 @@ IF AVAIL io-bolh THEN DO:
 
         IF fg-bin.partial-count EQ fg-bin.case-count THEN
           fg-bin.partial-count = 0.
-    
-          ASSIGN
+
+         ASSIGN
             fg-bin.avg-cost      = fg-rdtlh.avg-cost    
-            fg-bin.last-cost     = fg-rdtlh.last-cost   
-            fg-bin.std-fix-cost  = fg-rdtlh.std-fix-cost    
-            fg-bin.std-lab-cost  = fg-rdtlh.std-lab-cost    
+            fg-bin.last-cost     = fg-rdtlh.last-cost    
+            fg-bin.std-fix-cost  = fg-rdtlh.std-fix-cost   
+            fg-bin.std-lab-cost  = fg-rdtlh.std-lab-cost   
             fg-bin.std-mat-cost  = fg-rdtlh.std-mat-cost    
             fg-bin.std-tot-cost  = fg-rdtlh.std-tot-cost    
-            fg-bin.std-var-cost  = fg-rdtlh.std-var-cost.
-              
+            fg-bin.std-var-cost  = fg-rdtlh.std-var-cost    .
+       
         IF op-invoice AND fg-bin.cust-no NE "" AND fg-bin.qty EQ 0 THEN
           DELETE fg-bin.
 

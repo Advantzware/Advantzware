@@ -79,7 +79,7 @@ DEF VAR v-inv-total AS DECI NO-UNDO.
 FIND FIRST inv-head NO-LOCK NO-ERROR.
 
 DEF VAR ls-image1    AS CHAR NO-UNDO.
-DEF VAR ls-full-img1 AS CHAR FORMAT "x(150)" NO-UNDO.
+DEF VAR ls-full-img1 AS CHAR FORMAT "x(200)" NO-UNDO.
 
 ASSIGN ls-image1 = "images\allwestl.jpg"
        FILE-INFO:FILE-NAME = ls-image1

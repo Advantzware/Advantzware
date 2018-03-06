@@ -90,7 +90,7 @@ DEF VAR v-frt-tax AS DEC NO-UNDO.
 FIND FIRST inv-head NO-LOCK NO-ERROR.
 /* === with xprint ====*/
 DEF VAR ls-image1 AS cha NO-UNDO.
-DEF VAR ls-full-img1 AS cha FORM "x(150)" NO-UNDO.
+DEF VAR ls-full-img1 AS cha FORM "x(200)" NO-UNDO.
 DEF VAR lv-pg-num AS INT NO-UNDO.
 DEF VAR lv-tot-pg AS INT NO-UNDO.
 DEF VAR ln-cnt AS INT NO-UNDO.

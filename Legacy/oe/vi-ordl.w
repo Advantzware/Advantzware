@@ -341,7 +341,6 @@ def output param v-alloc as int no-undo.
 def var v-type as cha no-undo.
 
 DEF BUFFER b-oe-ordl FOR oe-ordl.
-DEF BUFFER s-code FOR reftable.
     
 find first itemfg where itemfg.company = cocode and
                         itemfg.i-no = oe-ordl.i-no
@@ -364,15 +363,11 @@ for each b-oe-ordl where b-oe-ordl.company eq cocode
           and oe-rel.line    eq b-oe-ordl.line
           use-index ord-item no-lock:
 
-        FIND FIRST s-code WHERE
-                   s-code.reftable EQ "oe-rel.s-code" AND
-                   s-code.company  EQ STRING(oe-rel.r-no,"9999999999")
-                   NO-LOCK NO-ERROR.
-        
+                
        {oe/rel-stat.i v-type}
 
        if v-type eq "P" then DO:
-          IF AVAIL s-code AND s-code.CODE <> "I" THEN
+          IF oe-rel.s-code <> "I" THEN
              ASSIGN v-alloc = v-alloc + oe-rel.qty.
        END.
        else

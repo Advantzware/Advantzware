@@ -152,15 +152,15 @@ IF AVAIL inv-line OR AVAIL ar-invl THEN DO:
                                  NO-LOCK
                  by b-fg-rcpth.trans-date descending:            
                 
-                      ASSIGN
-                        fgb-avg-cost      = b-fg-rdtlh.avg-cost    
-                        fgb-last-cost     = b-fg-rdtlh.last-cost    
-                        fgb-std-fix-cost  = b-fg-rdtlh.std-fix-cost    
-                        fgb-std-lab-cost  = b-fg-rdtlh.std-lab-cost    
-                        fgb-std-mat-cost  = b-fg-rdtlh.std-mat-cost   
-                        fgb-std-tot-cost  = b-fg-rdtlh.std-tot-cost    
-                        fgb-std-var-cost  = b-fg-rdtlh.std-var-cost    .
-                
+                ASSIGN
+                    fgb-avg-cost       = b-fg-rdtlh.avg-cost    
+                    fgb-last-cost     = b-fg-rdtlh.last-cost    
+                    fgb-std-fix-cost  = b-fg-rdtlh.std-fix-cost   
+                    fgb-std-lab-cost  = b-fg-rdtlh.std-lab-cost   
+                    fgb-std-mat-cost  = b-fg-rdtlh.std-mat-cost    
+                    fgb-std-tot-cost  = b-fg-rdtlh.std-tot-cost    
+                    fgb-std-var-cost  = b-fg-rdtlh.std-var-cost    .
+
                 FIND FIRST tt-itemcost WHERE tt-itemcost.i-no = lv-i-no NO-ERROR.
                 IF NOT AVAIL tt-itemcost THEN
                     CREATE tt-itemcost.                    

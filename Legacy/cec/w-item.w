@@ -907,27 +907,22 @@ PROCEDURE local-change-page :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-  def var lv-current-page as int no-undo.
+    DEF VAR lv-current-page AS INT NO-UNDO.
 
-  /* Code placed here will execute PRIOR to standard behavior. */
-  /* ===
-   not for corrugated item 
-  RUN get-attribute /*IN widget-handle(char-hdl)*/  ('Current-Page':U).
-  lv-current-page = int(return-value).
-
-  if lv-current-page = 5 and avail item and item.i-code = "E" then do:
-        run select-page (6).
-        return no-apply.
-
-  end.   
-  ==== */
-  
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'change-page':U ) .
 
-  /* Code placed here will execute AFTER standard behavior.    */
-  {methods/winReSizePgChg.i}
-
+    RUN get-attribute ('Current-Page':U).
+    ASSIGN 
+        lv-current-page = int(return-value).
+    IF VALID-HANDLE(h_vp-rmov) THEN DO:
+        IF lv-current-page EQ 4 THEN 
+            RUN ipShowBtn IN h_vp-rmov (TRUE).
+        ELSE
+            RUN ipShowBtn IN h_vp-rmov (FALSE).
+    END.
+    
+    {methods/winReSizePgChg.i}
   
 END PROCEDURE.
 
