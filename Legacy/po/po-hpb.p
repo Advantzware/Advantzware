@@ -50,7 +50,7 @@ DEF VAR lv-pg-num AS INT NO-UNDO.
 
 /* === with xprint ====*/
 DEF VAR ls-image1 AS cha NO-UNDO.
-DEF VAR ls-full-img1 AS cha FORM "x(60)" NO-UNDO.
+DEF VAR ls-full-img1 AS cha FORM "x(200)" NO-UNDO.
 DEF VAR v-address-2 AS CHAR FORMAT "X(63)" NO-UNDO.
 
 ASSIGN v-address-2 = "Hamilton 905-561-1611 " + CHR(183)

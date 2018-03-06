@@ -1128,13 +1128,7 @@ DO:
               AND account.actnum  EQ ap-invl.actnum
             NO-LOCK NO-ERROR.
         IF AVAIL account AND ap-invl.actnum NE "" THEN DO:
-          FIND FIRST reftable
-              WHERE reftable.reftable EQ "GLACCTDISC"
-                AND reftable.company  EQ g_company
-                AND reftable.loc      EQ ""
-                AND reftable.code     EQ account.actnum
-              NO-LOCK NO-ERROR.
-          IF AVAIL reftable AND reftable.val[1] EQ 1 THEN
+          IF account.terms-discount EQ YES THEN
             ld-non-disc = ld-non-disc + ap-invl.amt.
         END.
     END.
@@ -1225,13 +1219,7 @@ DO:
               AND account.actnum  EQ ap-invl.actnum
             NO-LOCK NO-ERROR.
         IF AVAIL account AND ap-invl.actnum NE "" THEN DO:
-          FIND FIRST reftable
-              WHERE reftable.reftable EQ "GLACCTDISC"
-                AND reftable.company  EQ g_company
-                AND reftable.loc      EQ ""
-                AND reftable.code     EQ account.actnum
-              NO-LOCK NO-ERROR.
-          IF AVAIL reftable AND reftable.val[1] EQ 1 THEN
+          IF account.terms-discount EQ YES THEN
             ld-non-disc = ld-non-disc + ap-invl.amt.
         END.
     END.
@@ -1463,13 +1451,7 @@ fi_amt = 0.
                   AND account.actnum  EQ ap-invl.actnum
                 NO-LOCK NO-ERROR.
             IF AVAIL account AND ap-invl.actnum NE "" THEN DO:
-              FIND FIRST reftable
-                  WHERE reftable.reftable EQ "GLACCTDISC"
-                    AND reftable.company  EQ cocode
-                    AND reftable.loc      EQ ""
-                    AND reftable.code     EQ account.actnum
-                  NO-LOCK NO-ERROR.
-              IF AVAIL reftable AND reftable.val[1] EQ 1 THEN
+              IF account.terms-discount EQ YES THEN
                 ld-non-disc = ld-non-disc + ap-invl.amt.
             END.
           END.

@@ -118,7 +118,7 @@ ASSIGN cTextListToSelect = "ITEM,DESCRIPTION,CUSTOMER," +
        cFieldListToSelect = "fg-bin.i-no,itemfg.i-name,v-cust-no," +
                             "lv-job-no,fg-bin.loc,fg-bin.loc-bin,v-tag," +
                             "lv-date,fg-bin.qty,li-palls,v-writein,v-counted-date,v-costM,v-sellValue,itemfg.part-no"        
-       cFieldLength = "15,25,8," + "9,5,8,8," + "8,11,7,21,12,10,10,15"
+       cFieldLength = "15,25,8," + "9,5,8,20," + "8,11,7,21,12,10,10,15"
        cFieldType   = "c,c,c," + "c,c,c,c," + "c,i,i,i,c,i,i,c"
        .
 ASSIGN cTextListToDefault  = "ITEM,DESCRIPTION,CUSTOMER," + "WHSE,BIN,TAG,JOB#," +
@@ -1867,10 +1867,8 @@ ELSE DO:
 
    v-cnt = v-cnt + 1.
 
-   IF SUBSTR(fg-bin.tag,1,15) EQ fg-bin.i-no THEN
-      v-tag = SUBSTR(fg-bin.tag,16,8).
-   ELSE
-      v-tag = fg-bin.tag.
+   
+     ASSIGN v-tag = fg-bin.tag.
 
    /*IF v-prnt-onh = TRUE THEN*/
       ASSIGN
@@ -1951,7 +1949,7 @@ ELSE DO:
                  WHEN "lv-date" THEN cVarValue = IF lv-date <> ? THEN string(lv-date) ELSE "".
                  WHEN "li-palls" THEN cVarValue = STRING(li-palls,"->>,>>9").
                  WHEN "v-writein" THEN cVarValue = STRING(v-writein).
-                 WHEN "v-tag" THEN cVarValue = STRING(v-tag,"x(8)").
+                 WHEN "v-tag" THEN cVarValue = STRING(v-tag,"x(20)").
                  WHEN "v-cust-no" THEN cVarValue = string(v-cust-no).
                  WHEN "v-counted-date" THEN cVarValue = IF v-counted-date <> ? THEN STRING(v-counted-date) ELSE "".
                  WHEN "v-costM" THEN cVarValue = STRING(v-CostM,">>>,>>9.99<<").
@@ -2144,7 +2142,7 @@ FOR EACH tt-report
   ASSIGN v-cnt = v-cnt + 1.
 
  /* IF SUBSTR(fg-bin.tag,1,15) EQ fg-bin.i-no THEN */
-     ASSIGN v-tag = SUBSTR(fg-bin.tag,16,8).
+     ASSIGN v-tag = fg-bin.tag.
  /* ELSE
      ASSIGN v-tag = fg-bin.tag. */
 
@@ -2223,7 +2221,7 @@ FOR EACH tt-report
                  WHEN "lv-date" THEN cVarValue = IF lv-date <> ? THEN string(lv-date) ELSE "".
                  WHEN "li-palls" THEN cVarValue = STRING(li-palls,"->>,>>9").
                  WHEN "v-writein" THEN cVarValue = STRING(v-writein).
-                 WHEN "v-tag" THEN cVarValue = STRING(v-tag).
+                 WHEN "v-tag" THEN cVarValue = STRING(v-tag,"x(20)").
                  WHEN "v-cust-no" THEN cVarValue = STRING(v-cust-no).
                  WHEN "v-counted-date" THEN cVarValue = IF v-counted-date <> ? THEN STRING(v-counted-date) ELSE "".
                  WHEN "v-costM" THEN cVarValue = STRING(v-CostM,">>>,>>9.99<<").

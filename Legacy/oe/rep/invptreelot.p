@@ -30,7 +30,7 @@ DEF VAR v-bill-i       AS CHAR FORMAT "x(25)" NO-UNDO.
 DEF VAR v-ship-i       AS CHAR FORMAT "x(25)" NO-UNDO.
 DEF VAR v-price-head   AS CHAR FORMAT "x(5)"  NO-UNDO.
 DEF VAR ls-image1      AS CHAR                NO-UNDO.
-DEF VAR ls-full-img1   AS CHAR FORMAT "x(150)" NO-UNDO.
+DEF VAR ls-full-img1   AS CHAR FORMAT "x(200)" NO-UNDO.
 DEF VAR v-comp-add1    AS CHAR FORM "x(30)"   NO-UNDO.
 DEF VAR v-comp-add2    AS CHAR FORM "x(30)"   NO-UNDO.
 DEF VAR v-comp-add3    AS CHAR FORM "x(30)"   NO-UNDO.

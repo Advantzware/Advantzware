@@ -103,7 +103,6 @@ DEFINE TEMP-TABLE w-rel NO-UNDO
 DEFINE TEMP-TABLE tt-oe-ordl NO-UNDO LIKE oe-ordl.
 
 DEFINE BUFFER b-fob FOR reftable.
-DEFINE BUFFER s-code FOR reftable.
     
 {oe/tt-item-qty-price.i}
 
@@ -218,13 +217,6 @@ FUNCTION get-pr-uom RETURNS CHARACTER
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD get-price-disc B-table-Win 
 FUNCTION get-price-disc RETURNS DECIMAL
   ( /* parameter-definitions */ )  FORWARD.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD get-rel-type B-table-Win 
-FUNCTION get-rel-type RETURNS CHARACTER
-  ( ip-rel-row AS ROWID )  FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -644,7 +636,6 @@ DEFINE VARIABLE v-chkflg AS LOG INIT NO NO-UNDO.
 DEFINE VARIABLE v-all-i AS LOG NO-UNDO.
 DEFINE VARIABLE v-rel-type AS CHARACTER NO-UNDO.
 
-DEFINE BUFFER s-code FOR reftable.
 DEFINE BUFFER bf-notes FOR notes .
 
 FIND xoe-ord WHERE xoe-ord.company = g_company AND
@@ -665,7 +656,7 @@ FOR EACH bf-rel
         AND bf-rel.ord-no  EQ xoe-ord.ord-no
         AND bf-rel.link-no EQ 0
       NO-LOCK:
-    v-rel-type = get-rel-type(ROWID(bf-rel)).
+    v-rel-type = bf-rel.s-code.
     IF v-rel-type NE "I" THEN
         v-all-i = NO.    
 END.
@@ -756,17 +747,19 @@ IF choice THEN DO:
     RUN oe/rel-stat.p (ROWID(bf-rel), OUTPUT v-stat).
 
     IF NOT CAN-DO("A,B",v-stat) THEN DO:
-       FIND FIRST s-code NO-LOCK
-           WHERE s-code.reftable EQ "oe-rel.s-code"
-             AND s-code.company  EQ STRING(bf-rel.r-no,"9999999999")
-           NO-ERROR.
+
        CREATE w-rel.
        ASSIGN
         w-rel.w-rowid = ROWID(bf-rel)
-        w-rel.w-scode = IF AVAILABLE s-code AND s-code.code EQ "I" THEN
-                           s-code.code
+        w-rel.w-scode = IF bf-rel.s-code EQ "I" THEN
+                           bf-rel.s-code
                         ELSE
                            "B".
+
+
+
+
+
 
 /*       FIND FIRST b-fob WHERE                                 */
 /*            b-fob.reftable EQ "oe-rel.lot-no" AND             */
@@ -1732,8 +1725,11 @@ PROCEDURE printTicket :
      RUN Get_Procedure IN Persistent-Handle ('job_.',OUTPUT run-proc,YES).
 
   END.
-  ELSE
+  ELSE DO:
      v-reprint = oe-ordl.ftick-prnt.
+     MESSAGE "No job to print a job ticket." VIEW-AS ALERT-BOX ERROR.
+     RETURN NO-APPLY.
+  END.
   
 
 END PROCEDURE.
@@ -2240,30 +2236,6 @@ FUNCTION get-price-disc RETURNS DECIMAL
      END.
 
   RETURN ld.
-
-END FUNCTION.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION get-rel-type B-table-Win 
-FUNCTION get-rel-type RETURNS CHARACTER
-  ( ip-rel-row AS ROWID ) :
-/*------------------------------------------------------------------------------
-  Purpose:  
-    Notes:  
-------------------------------------------------------------------------------*/
- FIND FIRST oe-rel WHERE ROWID(oe-rel) EQ ip-rel-row
-                   NO-LOCK NO-ERROR.
- IF AVAILABLE oe-rel THEN
-   FIND FIRST s-code
-      WHERE s-code.reftable EQ "oe-rel.s-code"
-        AND s-code.company  EQ STRING(oe-rel.r-no,"9999999999")
-      NO-LOCK NO-ERROR.
- IF AVAILABLE s-code THEN
-    RETURN s-code.CODE.
- ELSE
-    RETURN "".   /* Function return value. */
 
 END FUNCTION.
 

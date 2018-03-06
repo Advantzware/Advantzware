@@ -1331,6 +1331,7 @@ PROCEDURE findRptLayout :
   ASSIGN
     excludeLayout:SCREEN-VALUE IN FRAME {&FRAME-NAME} = STRING(AVAILABLE rptFormat AND rptFormat.exclude)
     reportAltName:SCREEN-VALUE = IF AVAILABLE rptFormat THEN rptFormat.rptAltName ELSE ''
+    alternateName = reportAltName:SCREEN-VALUE
     .
 
 END PROCEDURE.

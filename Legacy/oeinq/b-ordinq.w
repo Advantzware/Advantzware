@@ -3860,14 +3860,10 @@ Regardless of Customer Bill to.
 /*       IF oe-ord.TYPE = "T" AND LOOKUP(buf-oe-rel.stat,"Z,C") = 0  THEN NEXT.  */
 
       /* Get reftable.code */
-      FIND FIRST buf-reftable NO-LOCK WHERE 
-                 buf-reftable.reftable EQ "oe-rel.s-code" AND 
-                 buf-reftable.company  EQ STRING(buf-oe-rel.r-no,"9999999999") NO-ERROR.
-      IF NOT AVAIL(buf-reftable) THEN
-          NEXT.
+      
 
       /* If order type NOT T, skip if S/I code is NOT "T". */
-      IF oe-ord.TYPE <> "T" AND buf-reftable.CODE <> "T" THEN NEXT.
+      IF oe-ord.TYPE <> "T" AND buf-oe-rel.s-code <> "T" THEN NEXT.
 
 
       ASSIGN vTransfer-Qty = (vTransfer-Qty + buf-oe-rel.qty).

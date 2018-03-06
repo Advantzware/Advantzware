@@ -15,6 +15,8 @@ def var v-est-qty as dec no-undo.
 def shared var qty as int NO-UNDO.
 DEF SHARED VAR v-shared-rel AS INT NO-UNDO.
 DEF NEW SHARED VAR gEstSummaryOnly AS LOG NO-UNDO.
+DEFINE NEW SHARED VARIABLE v-prep-mat LIKE tprep-mat NO-UNDO.  /* for probemk cost */
+DEFINE NEW SHARED VARIABLE v-prep-lab LIKE tprep-lab NO-UNDO.
 
 def TEMP-TABLE work-eb NO-UNDO
    field form-no  like job-hdr.frm
@@ -99,9 +101,16 @@ for first job where recid(job) eq v-recid no-lock:
   qty = if xest.est-type eq 3 then xeb.bl-qty  else
         if xest.est-type eq 4 then xeb.yld-qty else
         if xest.est-type eq 8 then xeb.yld-qty else xest.est-qty[1].
-
+  
+  ASSIGN  /*Initialize Shared Variables for CostHeader calc*/
+    cJobNo = job.job-no
+    iJobNo2 = job.job-no2
+    riJob = ROWID(job)
+    .
+  RUN est\CostResetHeaders.p(ROWID(xest),riJob).
   run value(chcs[xest.est-type]).
-
+  RUN est\CostExportHeaders.p(job.company,TRIM(xest.est-no) + "JC").
+  
   find first xest
       where xest.company eq job.company
         and xest.est-no  eq job.est-no.

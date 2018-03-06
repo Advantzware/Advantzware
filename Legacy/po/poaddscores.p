@@ -1,7 +1,7 @@
 /* Add scores data automatically when a PO line is added */  
 DEF INPUT PARAMETER ipr-po-ordl AS ROWID.
-DEF BUFFER b-Ref1 FOR ref.
-DEF BUFFER b-Ref2 FOR ref.
+DEF BUFFER b-Ref1 FOR reftable.
+DEF BUFFER b-Ref2 FOR reftable.
 DEF VAR cocode AS CHAR.
 
 FIND po-ordl WHERE ROWID(po-ordl) = ipr-po-ordl EXCLUSIVE-LOCK NO-ERROR.

@@ -69,8 +69,8 @@ DEFINE TEMP-TABLE w3 NO-UNDO
 /* === with xprint ====*/
 DEFINE VARIABLE ls-image1 AS cha NO-UNDO.
 DEFINE VARIABLE ls-image2 AS cha NO-UNDO.
-DEFINE VARIABLE ls-full-img1 AS cha FORM "x(150)" NO-UNDO.
-DEFINE VARIABLE ls-full-img2 AS cha FORM "x(150)" NO-UNDO.
+DEFINE VARIABLE ls-full-img1 AS cha FORM "x(200)" NO-UNDO.
+DEFINE VARIABLE ls-full-img2 AS cha FORM "x(200)" NO-UNDO.
 ASSIGN ls-image1 = "images\AmericanPoly.jpg"
        ls-image2 = "images\AmericanPoly.jpg"
        FILE-INFO:FILE-NAME = ls-image1

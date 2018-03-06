@@ -87,17 +87,6 @@ DEFINE {&NEW} SHARED VARIABLE g_lookup-var AS CHARACTER NO-UNDO.
 
 &SCOPED-DEFINE enable-shipto enable-shipto
 
-&SCOPED-DEFINE where-jded-id WHERE reftable.reftable EQ "JDEDWARDCUST#" ~
-                               AND reftable.company  EQ cocode          ~
-                               AND reftable.loc      EQ ""              ~
-                               AND reftable.code     EQ shipto.cust-no  ~
-                               AND reftable.code2    EQ shipto.ship-id
-
-&SCOPED-DEFINE where-mand-tax WHERE reftable.reftable EQ "shipto.mandatory-tax" ~
-                                AND reftable.company  EQ shipto.company         ~
-                                AND reftable.loc      EQ ""                     ~
-                                AND reftable.code     EQ shipto.cust-no         ~
-                                AND reftable.code2    EQ shipto.ship-id
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -206,7 +195,7 @@ DEFINE VARIABLE faxNumber AS CHARACTER FORMAT "xxx-xxxx":U
      SIZE 16 BY 1 NO-UNDO.
 
 DEFINE VARIABLE fi_jded-id AS CHARACTER FORMAT "X(256)":U 
-     LABEL "JD Edw#" 
+     LABEL "Export ID#"
      VIEW-AS FILL-IN 
      SIZE 22 BY 1 NO-UNDO.
 
@@ -1053,27 +1042,36 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE import-data V-table-Win 
 PROCEDURE import-data :
-/*------------------------------------------------------------------------------
-  Purpose:     Run excel import program.
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
- Define variable hBrowse   as handle  no-undo.
-
-  IF AVAIL shipto THEN
-      RUN util/xlship2.w (INPUT shipto.company,
-                          INPUT shipto.cust-no,
-                          INPUT shipto.carrier,
-                          INPUT shipto.loc,
-                          INPUT shipto.loc-bin,
-                          INPUT shipto.dest-code).
+    /*------------------------------------------------------------------------------
+      Purpose:     Run excel import program.
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE hBrowse AS HANDLE  NO-UNDO.
+    DEFINE VARIABLE lAccess AS LOGICAL NO-UNDO.
 
 
+    IF AVAILABLE shipto THEN 
+    DO:
+        RUN util/CheckModule.p ("ASI","impShipTo.", NO, OUTPUT lAccess).
+        IF lAccess THEN 
+            RUN util/Importer.w (INPUT shipto.company, 
+                INPUT "ShipTo", 
+                INPUT ROWID(shipto)).
+        ELSE 
+            RUN util/xlship2.w (INPUT shipto.company,
+                INPUT shipto.cust-no,
+                INPUT shipto.carrier,
+                INPUT shipto.loc,
+                INPUT shipto.loc-bin,
+                INPUT shipto.dest-code).
 
-  RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"record-source",OUTPUT hBrowse).
 
-  IF VALID-HANDLE(hBrowse) THEN
-      RUN dispatch IN hBrowse  ('open-query':U).
+    END.
+    RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"record-source",OUTPUT hBrowse).
+
+    IF VALID-HANDLE(hBrowse) THEN
+        RUN dispatch IN hBrowse  ('open-query':U).
 
 
 END PROCEDURE.
@@ -1422,21 +1420,13 @@ PROCEDURE reftable-values :
 
 
   IF AVAIL shipto THEN DO TRANSACTION:
-    FIND FIRST reftable {&where-jded-id} NO-ERROR.
-    IF NOT AVAIL reftable THEN DO:
-      CREATE reftable.
-      ASSIGN
-       reftable.reftable = "JDEDWARDCUST#"
-       reftable.company  = cocode
-       reftable.loc      = ""
-       reftable.code     = shipto.cust-no
-       reftable.code2    = shipto.ship-id.
-    END.
-
+    
     IF ip-display THEN
-      fi_jded-id = reftable.dscr.
+      fi_jded-id = shipto.exportCustID.
     ELSE
       reftable.dscr = fi_jded-id.
+
+      shipto.exportCustID = fi_jded-id.  
 
     FIND FIRST reftable {&where-mand-tax} NO-ERROR.
     IF NOT AVAIL reftable THEN DO:
@@ -1449,10 +1439,12 @@ PROCEDURE reftable-values :
        reftable.code2    = shipto.ship-id.
     END.
 
+      reftable.dscr = fi_jded-id.
+   
     IF ip-display THEN
-      tb_mandatory-tax = reftable.val[1] EQ 1.
+      tb_mandatory-tax = shipto.tax-mandatory .
     ELSE
-      reftable.val[1] = INT(tb_mandatory-tax).
+      shipto.tax-mandatory = tb_mandatory-tax .
 
     FIND CURRENT reftable NO-LOCK.
   END.

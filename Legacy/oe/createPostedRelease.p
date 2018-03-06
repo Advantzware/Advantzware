@@ -26,7 +26,7 @@ DEF BUFFER bf-oe-rel FOR oe-rel.
 FIND oe-ordl WHERE rowid(oe-ordl) EQ iprOeOrdl NO-LOCK NO-ERROR.
 FIND oe-bolh WHERE ROWID(oe-bolh) EQ iprBolh NO-LOCK NO-ERROR.
 
-DEF BUFFER s-code FOR reftable.
+
 /* =-=---- for oe-comm.p ---- */
 def shared var v-misc as log init no no-undo.
 def shared var v-fr-tax like oe-ctrl.f-tax no-undo.
@@ -55,27 +55,6 @@ DEF TEMP-TABLE tt-oe-ordl NO-UNDO LIKE oe-ordl.
 
 DEF BUFFER b-fob FOR reftable.
 
-
-FUNCTION get-rel-type
-  RETURNS CHARACTER
-  ( ip-rel-row AS ROWID ) :
-/*------------------------------------------------------------------------------
-  Purpose:  
-    Notes:  
-------------------------------------------------------------------------------*/
- FIND FIRST oe-rel WHERE ROWID(oe-rel) EQ ip-rel-row
-                   NO-LOCK NO-ERROR.
- IF AVAIL oe-rel THEN
-   FIND FIRST s-code
-      WHERE s-code.reftable EQ "oe-rel.s-code"
-        AND s-code.company  EQ STRING(oe-rel.r-no,"9999999999")
-      NO-LOCK NO-ERROR.
- IF AVAIL s-code THEN
-    RETURN s-code.CODE.
- ELSE
-    RETURN "".   /* Function return value. */
-
-END FUNCTION.
 
 
 /* Main Block */
@@ -134,7 +113,7 @@ FOR EACH bf-rel
         AND bf-rel.ord-no  EQ xoe-ord.ord-no
         AND bf-rel.link-no EQ 0
       NO-LOCK:
-    v-rel-type = get-rel-type(ROWID(bf-rel)).
+    v-rel-type = oe-rel.s-code.
     IF v-rel-type NE "I" THEN
         v-all-i = NO.    
 end.
@@ -196,16 +175,12 @@ if choice then do:
 
     IF NOT CAN-DO("A,B",v-stat) THEN DO:
 
-       FIND FIRST s-code NO-LOCK
-           WHERE s-code.reftable EQ "oe-rel.s-code"
-             AND s-code.company  EQ STRING(bf-rel.r-no,"9999999999")
-           NO-ERROR.
-
+       
        CREATE w-rel.
        ASSIGN
         w-rel.w-rowid = ROWID(bf-rel)
-        w-rel.w-scode = IF AVAIL s-code AND s-code.code EQ "I" THEN
-                           s-code.code
+        w-rel.w-scode = IF bf-rel.s-code <> "" AND bf-rel.s-code EQ "I" THEN
+                           bf-rel.s-code
                         ELSE
                            "B".
       

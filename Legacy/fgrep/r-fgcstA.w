@@ -1093,6 +1093,9 @@ ASSIGN
  lSelected      = tb_cust-list.
 
 /*IF NOT ll-secure THEN RUN sys/ref/d-passwd.w (3, OUTPUT ll-secure).*/
+IF NOT security-flag THEN DO:
+  RUN sys/ref/d-passwd.w (3, OUTPUT security-flag).
+END.
 
 SESSION:SET-WAIT-STATE ("general").
 

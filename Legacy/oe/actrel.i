@@ -6,7 +6,6 @@ DEFINE VARIABLE v-nxt-r-no AS INTEGER   INIT 1 NO-UNDO.
 DEFINE VARIABLE v-dlg-sel  AS INTEGER   NO-UNDO.
 DEFINE VARIABLE v-cust-no  AS CHARACTER NO-UNDO.
 
-DEF BUFFER s-code FOR reftable.
 
 DO TRANSACTION:
   {sys\inc\addxfer.i}
@@ -61,15 +60,10 @@ REPEAT:
   
   IF addxfer-log THEN
   DO:
-    FIND FIRST s-code WHERE
-    s-code.reftable EQ "oe-rel.s-code" AND
-    s-code.company  EQ STRING(oe-rel.r-no,"9999999999")
-    NO-LOCK NO-ERROR.
     
-    IF AVAIL s-code THEN
-    DO:
-      IF s-code.CODE EQ 'T' THEN
+      IF oe-rel.s-code EQ 'T' THEN
       DO:
+
         FIND FIRST cust WHERE
         cust.company EQ cocode AND
         cust.active EQ 'X'
@@ -87,8 +81,6 @@ REPEAT:
           RELEASE cust.
         END. /* Avail Cust */
       END. /* S-code = 'T' */
-      RELEASE s-code.
-    END. /* Avail s-code */
   END. /* If addxfer-log */
   
   
@@ -164,14 +156,7 @@ REPEAT:
       
       IF v-email THEN
       DO:
-        DEF BUFFER b2-reft-findrelh FOR reftable.
-        
-        RELEASE oe-relh.
-        
-        FIND FIRST b2-reft-findrelh
-        WHERE b2-reft-findrelh.reftable EQ "oe-rel.s-code"
-          AND b2-reft-findrelh.company  EQ STRING(oe-rel.r-no,"9999999999")
-        NO-LOCK NO-ERROR.
+       RELEASE oe-relh.        
         
         FOR EACH oe-relh
           WHERE oe-relh.company  EQ oe-rel.company
@@ -181,10 +166,12 @@ REPEAT:
             AND oe-relh.posted   EQ NO
             AND oe-relh.deleted  EQ NO
             AND (oe-relh.printed EQ NO OR relmerge-log)
-            AND (NOT AVAIL b2-reft-findrelh OR
+            AND (IF oe-rel.s-code = "" OR
                 CAN-FIND(FIRST oe-rell
                 WHERE oe-rell.r-no   EQ oe-relh.r-no
-                AND oe-rell.s-code EQ b2-reft-findrelh.CODE))
+                AND oe-rell.s-code EQ oe-rel.s-code))
+
+
                 AND (relmerge-chr NE "SameOrderOnly" OR
                 CAN-FIND(FIRST oe-rell
                   WHERE oe-rell.r-no   EQ oe-relh.r-no

@@ -3567,6 +3567,7 @@ FUNCTION fgBin RETURNS INTEGER
   Purpose:  
     Notes:  
 ------------------------------------------------------------------------------*/
+  DEFINE VARIABLE iUnitPallet AS INTEGER NO-UNDO .
   FIND FIRST fg-bin NO-LOCK WHERE fg-bin.company EQ oe-boll.company
                               AND fg-bin.job-no EQ oe-boll.job-no
                               AND fg-bin.job-no2 EQ oe-boll.job-no2
@@ -3574,7 +3575,18 @@ FUNCTION fgBin RETURNS INTEGER
                               AND fg-bin.loc EQ oe-boll.loc
                               AND fg-bin.loc-bin EQ oe-boll.loc-bin
                               AND fg-bin.tag EQ oe-boll.tag NO-ERROR.
-  RETURN IF AVAILABLE fg-bin THEN fg-bin.cases-unit ELSE 0.
+
+  iUnitPallet = IF AVAILABLE fg-bin THEN fg-bin.cases-unit ELSE 0 .
+  IF iUnitPallet EQ 0 THEN DO:
+     FIND FIRST oe-ordl NO-LOCK
+           WHERE oe-ordl.company EQ oe-boll.company 
+             AND oe-ordl.ord-no EQ oe-boll.ord-no 
+             AND oe-ordl.i-no EQ oe-boll.i-no NO-ERROR.
+      IF AVAIL oe-ordl THEN
+          ASSIGN
+          iUnitPallet = oe-ordl.cases-unit .
+  END.
+  RETURN iUnitPallet.
 
 END FUNCTION.
 
@@ -3588,6 +3600,7 @@ FUNCTION fgBinScreen RETURNS INTEGER
   Purpose:  
     Notes:  
 ------------------------------------------------------------------------------*/
+  DEFINE VARIABLE iUnitPallet AS INTEGER NO-UNDO .
   FIND FIRST fg-bin NO-LOCK WHERE fg-bin.company EQ oe-bolh.company
                               AND fg-bin.job-no EQ oe-boll.job-no:SCREEN-VALUE IN BROWSE {&browse-name}
                               AND fg-bin.job-no2 EQ INT(oe-boll.job-no2:SCREEN-VALUE IN BROWSE {&browse-name})
@@ -3595,7 +3608,18 @@ FUNCTION fgBinScreen RETURNS INTEGER
                               AND fg-bin.loc EQ oe-boll.loc:SCREEN-VALUE IN BROWSE {&browse-name}
                               AND fg-bin.loc-bin EQ oe-boll.loc-bin:SCREEN-VALUE IN BROWSE {&browse-name}
                               AND fg-bin.tag EQ oe-boll.tag:SCREEN-VALUE IN BROWSE {&browse-name} NO-ERROR.
-  RETURN IF AVAILABLE fg-bin THEN fg-bin.cases-unit ELSE 0.
+
+  iUnitPallet = IF AVAILABLE fg-bin THEN fg-bin.cases-unit ELSE 0 .
+  IF iUnitPallet EQ 0 THEN DO:
+      FIND FIRST oe-ordl NO-LOCK
+           WHERE oe-ordl.company EQ oe-boll.company 
+             AND oe-ordl.ord-no EQ int(oe-boll.ord-no:SCREEN-VALUE IN BROWSE {&browse-name}) 
+             AND oe-ordl.i-no EQ oe-boll.i-no:SCREEN-VALUE IN BROWSE {&browse-name} NO-ERROR.
+      IF AVAIL oe-ordl THEN
+          ASSIGN
+          iUnitPallet = oe-ordl.cases-unit .
+  END.
+  RETURN iUnitPallet.
 
 END FUNCTION.
 

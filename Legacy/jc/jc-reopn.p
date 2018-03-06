@@ -116,10 +116,7 @@ assign
  job.opened     = YES
  job.close-date = ?.
 
-{jc/closeaud.i job}
-reftable.val[5] = 1.
- 
-FIND CURRENT reftable NO-LOCK NO-ERROR.
+
 
 run jc/job-cls1.p (recid(job), -1).
 

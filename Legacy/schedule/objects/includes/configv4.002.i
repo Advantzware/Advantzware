@@ -18,4 +18,3 @@ saveInterval showDowntime showStatus
 threeD threeDBottom threeDLeft threeDRight threeDTop timeInit timeLineColor
 viewRefresh
 .
-

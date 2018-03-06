@@ -3,8 +3,6 @@
 
 {jcrep/r-ticket.i "shared"}
 
-DEF BUFFER oe-ordl-whs-item FOR reftable.
-
 DEF TEMP-TABLE tt-job-hdr LIKE job-hdr
     USE-INDEX job-no.
 
@@ -88,9 +86,8 @@ FOR EACH tt-job-hdr BY tt-job-hdr.job:
      lv-over-pct = oe-ordl.over-pct
      lv-undr-pct = oe-ordl.under-pct.
 
-    IF ll-add-overrn                                      AND
-       NOT CAN-FIND(FIRST oe-ordl-whs-item NO-LOCK
-                    WHERE oe-ordl.managed = true) THEN
+    IF ll-add-overrn AND
+       oe-ordl.managed = false THEN
       tt-job-hdr.qty = tt-job-hdr.qty / (1 + (lv-over-pct * .01)).
   END.
 

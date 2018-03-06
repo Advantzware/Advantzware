@@ -164,7 +164,7 @@ DEFINE VARIABLE lFirstLine    AS LOGICAL NO-UNDO.
 FIND FIRST ar-inv NO-LOCK NO-ERROR.
 /* === with xprint ====*/
 DEFINE           VARIABLE      ls-image1    AS cha       NO-UNDO.
-DEFINE           VARIABLE      ls-full-img1 AS cha       FORM "x(150)" NO-UNDO.
+DEFINE           VARIABLE      ls-full-img1 AS cha       FORM "x(200)" NO-UNDO.
 /*ASSIGN ls-image1 = "images\premiercan.jpg"          */
 /*       FILE-INFO:FILE-NAME = ls-image1.             */
 /*       ls-full-img1 = FILE-INFO:FULL-PATHNAME + ">".*/
@@ -980,7 +980,7 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
 
         PUT "<FTimes New Roman>".
         IF lChkImage THEN
-            PUT  "<C3><#1><R+8><C+45>" "<IMAGE#1=" + ls-full-img1 FORM "x(160)" SKIP .
+            PUT  "<C3><#1><R+8><C+45>" "<IMAGE#1=" + ls-full-img1 FORM "x(200)" SKIP .
         /*         PUT "<C3><R2><#1>"                                         */
         /*             "<R+8><C+45><IMAGE#1=" ls-full-img1 SKIP. /* image */ .*/
         PUT "<=1>" SKIP. 
@@ -1150,7 +1150,7 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
 
                 PUT "<FTimes New Roman>".
                 IF lChkImage THEN
-                    PUT  "<C3><#1><R+8><C+45>" "<IMAGE#1=" + ls-full-img1 FORM "x(160)" SKIP .
+                    PUT  "<C3><#1><R+8><C+45>" "<IMAGE#1=" + ls-full-img1 FORM "x(200)" SKIP .
                 /*         PUT "<C3><R2><#1>"                                         */
                 /*             "<R+8><C+45><IMAGE#1=" ls-full-img1 SKIP. /* image */ .*/
                 PUT "<=1>" SKIP. 
@@ -1490,7 +1490,7 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
 
                 PUT "<FTimes New Roman>".
                 IF lChkImage THEN
-                    PUT  "<C3><#1><R+8><C+45>" "<IMAGE#1=" + ls-full-img1 FORM "x(160)" SKIP .
+                    PUT  "<C3><#1><R+8><C+45>" "<IMAGE#1=" + ls-full-img1 FORM "x(200)" SKIP .
                 /*         PUT "<C3><R2><#1>"                                         */
                 /*             "<R+8><C+45><IMAGE#1=" ls-full-img1 SKIP. /* image */ .*/
                 PUT "<=1>" SKIP. 

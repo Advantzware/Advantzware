@@ -4,5 +4,5 @@ RUN buildBoardDowntime.
 RUN jobDowntimeSpan.
 RUN getJobNotes.
 HIDE btnDetail btnPending btnPendingJobs
-     scenario btnSave btnRemove btnReset btnDatePrompt
+     scenario btnSave /*btnRemove*/ btnReset btnJobSeqScan btnDatePrompt
      /* btnRedo btnUndo */ NO-PAUSE.

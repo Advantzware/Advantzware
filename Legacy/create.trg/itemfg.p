@@ -7,8 +7,7 @@ TRIGGER PROCEDURE FOR CREATE OF {&TABLENAME}.
 DEF BUFFER b-{&TABLENAME} FOR {&TABLENAME}.
 DEF BUFFER fg-status FOR reftable.
 DEF BUFFER b-fg-status FOR reftable.
-DEF BUFFER exempt-disc FOR reftable.
-DEF BUFFER b-exempt-disc FOR reftable.
+
 DEF VAR cPgmStack AS CHAR NO-UNDO.
 {custom/globdefs.i}
 
@@ -82,30 +81,7 @@ IF AVAIL b-{&TABLENAME} THEN DO:
    {&TABLENAME}.alloc          = b-{&TABLENAME}.alloc
    {&TABLENAME}.stat           = b-{&TABLENAME}.stat.
 
-  /* {&TABLENAME}.ship-meth      = b-{&TABLENAME}.ship-meth */
-
-/*   FOR FIRST fg-status NO-LOCK                                    */
-/*       WHERE fg-status.reftable EQ "FGSTATUS"                     */
-/*         AND fg-status.company  EQ {&TABLENAME}.company           */
-/*         AND fg-status.loc      EQ ""                             */
-/*         AND fg-status.code     EQ {&TABLENAME}.i-no:             */
-/*                                                                  */
-/*     CREATE b-fg-status.                                          */
-/*     BUFFER-COPY fg-status EXCEPT CODE rec_key TO b-fg-status     */
-/*     ASSIGN                                                       */
-/*      b-fg-status.code = b-{&TABLENAME}.i-no.                     */
-/*   END.                                                           */
-/*                                                                  */
-/*   FOR FIRST exempt-disc NO-LOCK                                  */
-/*       WHERE exempt-disc.reftable EQ "itemfg.exempt-disc"         */
-/*         AND exempt-disc.company  EQ {&TABLENAME}.company         */
-/*         AND exempt-disc.loc      EQ ""                           */
-/*         AND exempt-disc.code     EQ {&TABLENAME}.i-no:           */
-/*     CREATE b-exempt-disc.                                        */
-/*     BUFFER-COPY exempt-disc EXCEPT CODE rec_key TO b-exempt-disc */
-/*     ASSIGN                                                       */
-/*      b-exempt-disc.code = b-{&TABLENAME}.i-no.                   */
-/*   END.                                                           */
+ 
 END.
 
 IF {&TABLENAME}.def-loc EQ ""     AND

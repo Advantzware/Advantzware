@@ -1854,12 +1854,7 @@ DISABLE TRIGGERS FOR LOAD OF usrx.
     FOR EACH {&cFileName} EXCLUSIVE WHERE NOT CAN-FIND (users WHERE users.user_id EQ {&cFileName}.{&cFieldName}):
         DELETE {&cFileName}.
     END. 
-
-    FOR EACH reftable EXCLUSIVE WHERE reftable.reftable EQ "users.user-docs":
-        IF NOT CAN-FIND(users WHERE 
-                        users.user_id EQ reftable.company) THEN
-            DELETE reftable.
-    END.
+    
 
     FOR EACH reftable EXCLUSIVE WHERE reftable.reftable EQ "users.phone-no":
         IF NOT CAN-FIND(users WHERE 
@@ -2838,18 +2833,7 @@ PROCEDURE ipLoadNewUserData :
             ASSIGN
                 usr.usr-lang = IF usr.usr-lang = "" OR usr.usr-lang = "EN" THEN "English" ELSE usr.usr-lang.
         END.
-        FOR EACH reftable EXCLUSIVE WHERE 
-            reftable.reftable EQ "users.user-docs" AND
-            reftable.company EQ users.user_id:
-            ASSIGN
-                users.showOnPO = IF users.showOnPO = TRUE OR reftable.val[1] = 1 THEN TRUE ELSE FALSE
-                users.showOnBOL = IF users.showOnBOL = TRUE OR reftable.val[2] = 1 THEN TRUE ELSE FALSE
-                users.showOnInv = IF users.showOnInv = TRUE OR reftable.val[3] = 1 THEN TRUE ELSE FALSE
-                users.showOnAck = IF users.showOnAck = TRUE OR reftable.val[4] = 1 THEN TRUE ELSE FALSE
-                users.showOnQuote = IF users.showOnQuote = TRUE OR reftable.val[5] = 1 THEN TRUE ELSE FALSE
-                .
-            DELETE reftable.
-        END.
+        
         FOR EACH reftable EXCLUSIVE WHERE
             reftable.reftable EQ "users.phone-no" AND
             reftable.company EQ users.user_id:
@@ -3092,8 +3076,7 @@ PROCEDURE ipLoadUtilNotes :
     END. 
     INPUT CLOSE.
         
-    EMPTY TEMP-TABLE ttNotes.
-    
+    EMPTY TEMP-TABLE ttNotes.    
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

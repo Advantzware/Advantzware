@@ -16,8 +16,9 @@ ASSIGN
     .
 
 DO TRANSACTION:
-    {sys/inc/selrptcol.i "AR11" }
+    {sys/inc/runAOAVer.i "AR11" }
 END.
 
-IF SelectRptColumn-log THEN RUN arrep/r-pstdueN.w PERSISTENT.
-ELSE RUN arrep/r-pstdueA.w PERSISTENT.
+cAOAFile = SEARCH("AOA/r-pstdue.p").
+IF RunAOAVersion-log AND cAOAFile NE ? THEN RUN AOA/r-pstdue.p.
+ELSE RUN arrep/r-pstdueN.w PERSISTENT.
