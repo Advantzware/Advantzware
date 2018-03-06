@@ -123,18 +123,6 @@ FUNCTION get-merge-prompt RETURNS LOGICAL
 &ANALYZE-RESUME
 
 &ENDIF
-
-&IF DEFINED(EXCLUDE-get-s-code-fn) = 0 &THEN
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD get-s-code-fn Procedure 
-FUNCTION get-s-code-fn RETURNS CHARACTER
-  ( INPUT ipr-oe-rel-r-no AS INTEGER )  FORWARD.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ENDIF
-
 &IF DEFINED(EXCLUDE-get-shipto-level-relmerge) = 0 &THEN
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD get-shipto-level-relmerge Procedure 
@@ -242,7 +230,7 @@ IF choice AND llReady THEN DO:
 
     RELEASE oe-relh.
     
-    reft-s-code = get-s-code-fn(oe-rel.r-no).
+    reft-s-code = oe-rel.s-code.
     reft-dscr   = oe-rel.fob-code.
 
     /* ************ Set 'by po' for the particular customer as relmerge value ** */
@@ -910,19 +898,10 @@ PROCEDURE get-s-code :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    FIND FIRST s-code 
-        WHERE s-code.reftable EQ "oe-rel.s-code" 
-          AND s-code.company  EQ STRING(oe-rel.r-no,"9999999999")
-        NO-LOCK NO-ERROR.
-    
-    IF AVAIL s-code THEN
-    DO:
-      IF s-code.CODE EQ 'T' THEN
+
+    IF oe-rel.s-code EQ 'T' THEN
           RUN get-cust-x.
-      DO:
-      END. /* S-code = 'T' */
-      RELEASE s-code.
-    END. /* Avail s-code */
+
 
 END PROCEDURE.
 
@@ -1193,32 +1172,6 @@ END FUNCTION.
 &ANALYZE-RESUME
 
 &ENDIF
-
-&IF DEFINED(EXCLUDE-get-s-code-fn) = 0 &THEN
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION get-s-code-fn Procedure 
-FUNCTION get-s-code-fn RETURNS CHARACTER
-  ( INPUT ipr-oe-rel-r-no AS INTEGER ) :
-/*------------------------------------------------------------------------------
-  Purpose:  
-    Notes:  
-------------------------------------------------------------------------------*/
-  FIND FIRST b-reft-findrelh
-      WHERE b-reft-findrelh.reftable EQ "oe-rel.s-code"
-          AND b-reft-findrelh.company  EQ STRING(ipr-oe-rel-r-no,"9999999999")
-        NO-LOCK NO-ERROR.
-  IF AVAIL b-reft-findrelh THEN
-    RETURN b-reft-findrelh.CODE.
-  ELSE
-    RETURN "".   /* Function return value. */
-
-END FUNCTION.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ENDIF
-
 &IF DEFINED(EXCLUDE-get-shipto-level-relmerge) = 0 &THEN
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION get-shipto-level-relmerge Procedure 

@@ -61,11 +61,6 @@ DEF BUFFER mach-1 FOR mach.
       AND reftable.loc      EQ mach.loc          ~
       AND reftable.code     EQ mach.m-code
 
-&SCOPED-DEFINE where-obsolete                  ~
-    WHERE reftable.reftable EQ "mach.obsolete" ~
-      AND reftable.company  EQ mach.company    ~
-      AND reftable.loc      EQ mach.loc        ~
-      AND reftable.code     EQ mach.m-code
 
 {est/d-sidsid.i}
 
@@ -2035,35 +2030,17 @@ PROCEDURE reftable-values :
 
 
   IF AVAIL mach THEN DO:
-    FIND FIRST reftable {&where-plain-jobs} NO-ERROR.
-    IF NOT AVAIL reftable THEN DO:
-      CREATE reftable.
-      ASSIGN
-       reftable.reftable = "mach.plain-jobs"
-       reftable.company  = mach.company
-       reftable.loc      = mach.loc
-       reftable.code     = mach.m-code.
-    END.
-
     IF ip-display THEN
-      tb_plain-jobs = reftable.val[1] EQ 1.
+        ASSIGN 
+            tb_plain-jobs = mach.plain-job
+            tb_obsolete = mach.obsolete
+            .
     ELSE
-      reftable.val[1] = INT(tb_plain-jobs).
-
-    FIND FIRST reftable {&where-obsolete} NO-ERROR.
-    IF NOT AVAIL reftable THEN DO:
-      CREATE reftable.
-      ASSIGN
-       reftable.reftable = "mach.obsolete"
-       reftable.company  = mach.company
-       reftable.loc      = mach.loc
-       reftable.code     = mach.m-code.
-    END.
-
-    IF ip-display THEN
-      tb_obsolete = reftable.val[1] EQ 1.
-    ELSE
-      reftable.val[1] = INT(tb_obsolete).
+        ASSIGN 
+            mach.plain-job = tb_plain-jobs
+            mach.obsolete = tb_obsolete
+            .
+   
   END.
 
 END PROCEDURE.

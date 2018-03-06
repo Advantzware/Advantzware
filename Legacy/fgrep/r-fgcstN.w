@@ -84,8 +84,6 @@ DEF  NEW SHARED VAR str-tit5 AS cha FORM "x(200)" NO-UNDO.
 DEF  NEW SHARED VAR str-line AS cha FORM "x(300)" NO-UNDO.
 DEF  NEW SHARED VAR v-row-id AS ROWID NO-UNDO.
 DEF NEW SHARED VAR cslist AS cha NO-UNDO.
-DEFINE VARIABLE security-flag AS LOG NO-UNDO.
-
 
 ASSIGN cTextListToSelect = "Customer,FG Item#,Cust Part#,Whse,Total Qty,Total MSF," +
                             "Total Cost,Total Sell Value,$$$/MSF,Customer Name" 

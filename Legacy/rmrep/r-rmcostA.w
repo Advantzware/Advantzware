@@ -42,8 +42,8 @@ assign
 
 def var fco as ch NO-UNDO.
 def var tco like fco NO-UNDO.
-def var floc as ch NO-UNDO.
-def var tloc like floc NO-UNDO.
+def var floc LIKE ITEM.loc NO-UNDO.
+def var tloc like ITEM.loc NO-UNDO.
 def var fcat as ch initial "000000" NO-UNDO.
 def var tcat like fcat initial "ZZZZZZ" NO-UNDO.
 def var doe    as logical initial TRUE NO-UNDO.
@@ -94,7 +94,7 @@ with frame item2 stream-io width 80 overlay no-labels no-underline.
 
 find first ce-ctrl
     where ce-ctrl.company eq cocode
-      and ce-ctrl.loc     eq locode
+      AND ce-ctrl.loc EQ locode
     no-lock no-error.
 
 DEF VAR ls-fax-file AS CHARACTER NO-UNDO.
@@ -133,13 +133,13 @@ DEF VAR v-loc-descr  AS CHAR NO-UNDO.
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-6 RECT-7 rd_mat-type begin_procat ~
-end_procat begin_vend end_vend tb_real tb_est tb_detailed rd-dest lv-ornt ~
-lines-per-page lv-font-no td-show-parm tb_excel tb_runExcel fi_file btn-ok ~
-btn-cancel 
+end_procat begin_vend end_vend begin_whs end_whs tb_real tb_est tb_detailed ~
+rd-dest lv-ornt lines-per-page lv-font-no td-show-parm tb_excel tb_runExcel ~
+fi_file btn-ok btn-cancel 
 &Scoped-Define DISPLAYED-OBJECTS rd_mat-type lbl_mat-type begin_procat ~
-end_procat begin_vend end_vend tb_real tb_est tb_detailed rd-dest lv-ornt ~
-lines-per-page lv-font-no lv-font-name td-show-parm tb_excel tb_runExcel ~
-fi_file 
+end_procat begin_vend end_vend begin_whs end_whs tb_real tb_est tb_detailed ~
+rd-dest lv-ornt lines-per-page lv-font-no lv-font-name td-show-parm ~
+tb_excel tb_runExcel fi_file 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -173,6 +173,11 @@ DEFINE VARIABLE begin_vend AS CHARACTER FORMAT "X(8)":U
      VIEW-AS FILL-IN 
      SIZE 14 BY 1 NO-UNDO.
 
+DEFINE VARIABLE begin_whs AS CHARACTER FORMAT "X(5)":U 
+     LABEL "Beginning Warehouse" 
+     VIEW-AS FILL-IN 
+     SIZE 14 BY 1 NO-UNDO.
+
 DEFINE VARIABLE end_procat AS CHARACTER FORMAT "X(5)":U INITIAL "zzzzz" 
      LABEL "Ending Category" 
      VIEW-AS FILL-IN 
@@ -180,6 +185,11 @@ DEFINE VARIABLE end_procat AS CHARACTER FORMAT "X(5)":U INITIAL "zzzzz"
 
 DEFINE VARIABLE end_vend AS CHARACTER FORMAT "X(8)":U INITIAL "zzzzzzzz" 
      LABEL "Ending Vendor#" 
+     VIEW-AS FILL-IN 
+     SIZE 14 BY 1 NO-UNDO.
+
+DEFINE VARIABLE end_whs AS CHARACTER FORMAT "X(5)":U INITIAL "zzzzz" 
+     LABEL "Ending Warehouse" 
      VIEW-AS FILL-IN 
      SIZE 14 BY 1 NO-UNDO.
 
@@ -242,7 +252,7 @@ DEFINE RECTANGLE RECT-6
 
 DEFINE RECTANGLE RECT-7
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 96 BY 11.43.
+     SIZE 96 BY 12.38.
 
 DEFINE VARIABLE tb_detailed AS LOGICAL INITIAL no 
      LABEL "Detail Real Items?" 
@@ -289,32 +299,36 @@ DEFINE FRAME FRAME-A
           "Enter Beginning Vendor Number"
      end_vend AT ROW 7.81 COL 67 COLON-ALIGNED HELP
           "Enter Ending Vendor Number"
-     tb_real AT ROW 9.24 COL 43
-     tb_est AT ROW 10.19 COL 43
-     tb_detailed AT ROW 11.14 COL 43
-     rd-dest AT ROW 13.91 COL 6 NO-LABEL
-     lv-ornt AT ROW 14.14 COL 30 NO-LABEL
-     lines-per-page AT ROW 14.14 COL 84 COLON-ALIGNED
-     lv-font-no AT ROW 15.86 COL 35 COLON-ALIGNED
-     lv-font-name AT ROW 16.86 COL 28 COLON-ALIGNED NO-LABEL
-     td-show-parm AT ROW 18.1 COL 30
-     tb_excel AT ROW 19.05 COL 30 WIDGET-ID 2
-     tb_runExcel AT ROW 19.1 COL 55.4 WIDGET-ID 4
-     fi_file AT ROW 20.48 COL 28 COLON-ALIGNED HELP
+     begin_whs AT ROW 9 COL 29 COLON-ALIGNED HELP
+          "Enter Beginng Warehouse" WIDGET-ID 62
+     end_whs AT ROW 9 COL 67 COLON-ALIGNED HELP
+          "Enter Ending Warehouse" WIDGET-ID 64
+     tb_real AT ROW 10.24 COL 43
+     tb_est AT ROW 11.19 COL 43
+     tb_detailed AT ROW 12.14 COL 43
+     rd-dest AT ROW 14.91 COL 6 NO-LABEL
+     lv-ornt AT ROW 15.14 COL 30 NO-LABEL
+     lines-per-page AT ROW 15.14 COL 84 COLON-ALIGNED
+     lv-font-no AT ROW 16.86 COL 35 COLON-ALIGNED
+     lv-font-name AT ROW 17.86 COL 28 COLON-ALIGNED NO-LABEL
+     td-show-parm AT ROW 19.1 COL 30
+     tb_excel AT ROW 20.05 COL 30 WIDGET-ID 2
+     tb_runExcel AT ROW 20.1 COL 55.4 WIDGET-ID 4
+     fi_file AT ROW 21.48 COL 28 COLON-ALIGNED HELP
           "Enter File Name" WIDGET-ID 6
-     btn-ok AT ROW 23.38 COL 18
-     btn-cancel AT ROW 23.38 COL 57
+     btn-ok AT ROW 24.38 COL 18
+     btn-cancel AT ROW 24.38 COL 57
      "Output Destination" VIEW-AS TEXT
-          SIZE 18 BY .62 AT ROW 12.71 COL 3
+          SIZE 18 BY .62 AT ROW 13.71 COL 3
      "Selection Parameters" VIEW-AS TEXT
           SIZE 21 BY .71 AT ROW 1.24 COL 5
           BGCOLOR 2 
-     RECT-6 AT ROW 12.33 COL 1
+     RECT-6 AT ROW 13.33 COL 1
      RECT-7 AT ROW 1 COL 1
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 96.8 BY 24.43.
+         SIZE 96.8 BY 25.14.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -334,7 +348,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW C-Win ASSIGN
          HIDDEN             = YES
          TITLE              = "Raw Materials Cost"
-         HEIGHT             = 24.43
+         HEIGHT             = 25.14
          WIDTH              = 96.8
          MAX-HEIGHT         = 33.29
          MAX-WIDTH          = 204.8
@@ -368,16 +382,6 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME                                                           */
-ASSIGN
-       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "ribbon-button".
-
-
-ASSIGN
-       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "ribbon-button".
-
-
 ASSIGN 
        begin_procat:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
@@ -387,11 +391,27 @@ ASSIGN
                 "parm".
 
 ASSIGN 
+       begin_whs:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
+
+ASSIGN 
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+ASSIGN 
+       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+ASSIGN 
        end_procat:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
 ASSIGN 
        end_vend:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
+
+ASSIGN 
+       end_whs:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
 ASSIGN 
@@ -436,7 +456,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -482,6 +502,17 @@ END.
 &Scoped-define SELF-NAME begin_vend
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_vend C-Win
 ON LEAVE OF begin_vend IN FRAME FRAME-A /* Beginning Vendor# */
+DO:
+  assign {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME begin_whs
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_whs C-Win
+ON LEAVE OF begin_whs IN FRAME FRAME-A /* Beginning Warehouse */
 DO:
   assign {&self-name}.
 END.
@@ -569,6 +600,17 @@ END.
 &Scoped-define SELF-NAME end_vend
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_vend C-Win
 ON LEAVE OF end_vend IN FRAME FRAME-A /* Ending Vendor# */
+DO:
+  assign {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME end_whs
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_whs C-Win
+ON LEAVE OF end_whs IN FRAME FRAME-A /* Ending Warehouse */
 DO:
   assign {&self-name}.
 END.
@@ -815,12 +857,14 @@ PROCEDURE enable_UI :
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
   DISPLAY rd_mat-type lbl_mat-type begin_procat end_procat begin_vend end_vend 
-          tb_real tb_est tb_detailed rd-dest lv-ornt lines-per-page lv-font-no 
-          lv-font-name td-show-parm tb_excel tb_runExcel fi_file 
+          begin_whs end_whs tb_real tb_est tb_detailed rd-dest lv-ornt 
+          lines-per-page lv-font-no lv-font-name td-show-parm tb_excel 
+          tb_runExcel fi_file 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   ENABLE RECT-6 RECT-7 rd_mat-type begin_procat end_procat begin_vend end_vend 
-         tb_real tb_est tb_detailed rd-dest lv-ornt lines-per-page lv-font-no 
-         td-show-parm tb_excel tb_runExcel fi_file btn-ok btn-cancel 
+         begin_whs end_whs tb_real tb_est tb_detailed rd-dest lv-ornt 
+         lines-per-page lv-font-no td-show-parm tb_excel tb_runExcel fi_file 
+         btn-ok btn-cancel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.
@@ -1068,7 +1112,7 @@ IF AVAIL e-item THEN DO:
     FIND FIRST b-qty WHERE
          b-qty.reftable = "vend-qty" AND
          b-qty.company = e-item-vend.company AND
-	     b-qty.CODE    = e-item-vend.i-no AND
+             b-qty.CODE    = e-item-vend.i-no AND
          b-qty.code2   = e-item-vend.vend-no
          NO-LOCK NO-ERROR.
 
@@ -1077,7 +1121,7 @@ IF AVAIL e-item THEN DO:
        FIND FIRST b-cost WHERE
             b-cost.reftable = "vend-cost" AND
             b-cost.company = e-item-vend.company AND
-	        b-cost.CODE    = e-item-vend.i-no AND
+                b-cost.CODE    = e-item-vend.i-no AND
             b-cost.code2   = e-item-vend.vend-no
             NO-LOCK NO-ERROR.
 
@@ -1110,7 +1154,7 @@ IF AVAIL e-item THEN DO:
     FIND FIRST b-blank-vend-qty NO-LOCK WHERE
          b-blank-vend-qty.reftable = "blank-vend-qty" AND
          b-blank-vend-qty.company = e-item.company AND
-	     b-blank-vend-qty.CODE    = e-item.i-no
+             b-blank-vend-qty.CODE    = e-item.i-no
          NO-ERROR.
 
     IF AVAIL b-blank-vend-qty THEN
@@ -1118,7 +1162,7 @@ IF AVAIL e-item THEN DO:
        FIND FIRST b-blank-vend-cost NO-LOCK WHERE
             b-blank-vend-cost.reftable = "blank-vend-cost" AND
             b-blank-vend-cost.company = e-item.company AND
-	        b-blank-vend-cost.CODE    = e-item.i-no
+                b-blank-vend-cost.CODE    = e-item.i-no
             NO-ERROR.
 
        DO v-index = 1 TO 10:
@@ -1212,7 +1256,8 @@ IF dor THEN DO:
 
       FOR EACH ITEM NO-LOCK WHERE 
                item.company = cocode 
-           AND item.loc = locode 
+           AND item.loc >= floc
+           AND item.loc <= tloc
            AND (item.i-code = "R") 
            AND LOOKUP(item.mat-type,"B,P") GT 0 
            AND item.procat >= fcat
@@ -1336,7 +1381,8 @@ IF dor THEN DO:
 
       FOR EACH ITEM NO-LOCK WHERE 
                item.company = cocode 
-           AND item.loc = locode  
+           AND item.loc >= floc
+           AND item.loc <= tloc  
            AND (item.i-code = "R") 
            AND LOOKUP(item.mat-type,"B,P") GT 0 
            AND item.procat >= fcat
@@ -1527,7 +1573,8 @@ IF doe THEN DO:
 
     FOR EACH ITEM NO-LOCK WHERE 
              item.company = cocode 
-         AND item.loc = locode
+         AND item.loc >= floc
+         AND item.loc <= tloc
          AND (item.i-code = "E")                             
          AND LOOKUP(item.mat-type,"B,P") GT 0     
          AND item.procat >= fcat
@@ -1632,7 +1679,8 @@ IF dor THEN DO:
 
       FOR EACH item NO-LOCK WHERE 
                item.company = cocode 
-           AND item.loc = locode   
+           AND item.loc >= floc
+           AND item.loc <= tloc   
            AND item.i-code = "R"
            AND item.mat-type = "C"
            AND item.procat >= fcat
@@ -1698,7 +1746,8 @@ IF dor THEN DO:
 
       FOR EACH item NO-LOCK WHERE 
                item.company = cocode 
-           AND item.loc = locode 
+           AND item.loc >= floc
+           AND item.loc <= tloc
            AND item.i-code = "R" 
            AND item.mat-type = "C"
            AND item.procat >= fcat
@@ -1839,7 +1888,8 @@ IF doe THEN DO:
 
    FOR EACH ITEM NO-LOCK WHERE 
             item.company = cocode 
-        AND item.loc = locode   
+        AND item.loc >= floc
+        AND item.loc <= tloc   
         AND item.i-code = "E"
         AND item.mat-type = "C"
         AND item.procat >= fcat
@@ -1932,7 +1982,8 @@ IF dor THEN DO:
 
       FOR EACH ITEM NO-LOCK WHERE
                item.company = cocode 
-           AND item.loc = locode 
+           AND item.loc >= floc
+           AND item.loc <= tloc 
            AND item.i-code = "R"
            AND index("FLW",item.mat-type) > 0
            AND item.procat >= fcat
@@ -1999,7 +2050,8 @@ IF dor THEN DO:
 
       FOR EACH item NO-LOCK WHERE
                item.company = cocode 
-           AND item.loc = locode 
+           AND item.loc >= floc
+           AND item.loc <= tloc 
            AND item.i-code = "R"
            AND index("FLW",item.mat-type) > 0
            AND item.procat >= fcat
@@ -2132,7 +2184,8 @@ IF doe THEN DO:
 
    FOR EACH ITEM NO-LOCK WHERE 
             item.company = cocode 
-        AND item.loc = locode
+        AND item.loc >= floc
+        AND item.loc <= tloc
         AND item.i-code = "E"
         AND index("FLW",item.mat-type) > 0
         AND item.procat >= fcat
@@ -2225,7 +2278,8 @@ IF dor THEN DO:
 
       FOR EACH item NO-LOCK WHERE
                item.company = cocode 
-           AND item.loc = locode 
+           AND item.loc >= floc
+           AND item.loc <= tloc 
            AND item.i-code = "R"
            AND item.mat-type EQ "G" 
            AND item.procat >= fcat
@@ -2292,7 +2346,8 @@ IF dor THEN DO:
             SKIP.
       FOR EACH item NO-LOCK WHERE
                item.company = cocode 
-           AND item.loc = locode 
+           AND item.loc >= floc
+           AND item.loc <= tloc 
            AND item.i-code = "R"
            AND item.mat-type = "G"
            AND item.procat >= fcat
@@ -2426,7 +2481,8 @@ IF doe THEN DO:
 
    FOR EACH ITEM NO-LOCK WHERE
             item.company = cocode 
-        AND item.loc = locode 
+        AND item.loc >= floc
+        AND item.loc <= tloc 
         AND item.i-code = "E"
         AND item.mat-type EQ "G"
         AND item.procat >= fcat
@@ -2519,7 +2575,8 @@ IF dor THEN DO:
 
       FOR EACH ITEM NO-LOCK WHERE
                item.company = cocode 
-          AND item.loc = locode 
+          AND item.loc >= floc
+          AND item.loc <= tloc 
           AND item.i-code = "R"
           AND LOOKUP(ITEM.mat-type,"I,V") GT 0
           AND item.procat >= fcat
@@ -2587,7 +2644,8 @@ IF dor THEN DO:
 
       FOR EACH item NO-LOCK WHERE
                item.company = cocode 
-           AND item.loc = locode 
+           AND item.loc >= floc
+           AND item.loc <= tloc 
            AND item.i-code = "R"
            AND LOOKUP(ITEM.mat-type,"I,V") GT 0      
            AND item.procat >= fcat
@@ -2725,7 +2783,8 @@ IF doe THEN DO:
 
    FOR EACH ITEM NO-LOCK WHERE 
             item.company = cocode 
-       AND  item.loc = locode
+       AND item.loc >= floc
+       AND item.loc <= tloc
        AND  item.i-code = "E"
        AND  LOOKUP(ITEM.mat-type,"I,V") GT 0      
        AND  item.procat >= fcat
@@ -3061,8 +3120,8 @@ PROCEDURE run-report :
 assign
  fco    = cocode
  tco    = cocode
- floc   = locode
- tloc   = locode
+ floc   = begin_whs
+ tloc   = end_whs
  fcat   = begin_procat
  tcat   = end_procat
  doe    = tb_est
@@ -3070,7 +3129,6 @@ assign
  detail = tb_detailed
  v-export = tb_excel
  v-exp-name = fi_file.
-
 
 {sys/inc/print1.i}
 

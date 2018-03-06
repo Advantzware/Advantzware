@@ -87,7 +87,7 @@ DEF VAR v-price2    AS DECI NO-UNDO.
 DEF VAR v-soldto-name   AS CHAR FORMAT "x(30)" NO-UNDO.
 DEF VAR v-soldto-addr   AS CHAR FORMAT "x(30)" extent 2 NO-UNDO.
 DEF VAR ls-image1 AS cha NO-UNDO.
-DEF VAR ls-full-img1 AS cha FORM "x(150)" NO-UNDO.
+DEF VAR ls-full-img1 AS cha FORM "x(200)" NO-UNDO.
 
 ASSIGN
    

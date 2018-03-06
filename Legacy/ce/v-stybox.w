@@ -161,14 +161,14 @@ DEFINE FRAME F-Main
      box-design-hdr.description AT ROW 1.24 COL 21 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 38 BY 1
-     box-design-hdr.box-image AT ROW 1.24 COL 74 COLON-ALIGNED
+     box-design-hdr.box-image AT ROW 1.24 COL 74 COLON-ALIGNED FORMAT "x(200)"
           VIEW-AS FILL-IN 
           SIZE 68 BY 1
      btnFirst AT ROW 2.43 COL 2
      btnPrevious AT ROW 2.43 COL 7
      btnNext AT ROW 2.43 COL 12
      btnLast AT ROW 2.43 COL 17
-     box-design-hdr.box-3d-image AT ROW 2.43 COL 75 COLON-ALIGNED
+     box-design-hdr.box-3d-image AT ROW 2.43 COL 75 COLON-ALIGNED FORMAT "x(200)"
           VIEW-AS FILL-IN 
           SIZE 67 BY 1
      box-image-2 AT ROW 4.57 COL 2

@@ -72,13 +72,16 @@ def TEMP-TABLE w2 no-undo
     FIELD i-no LIKE oe-ordl.i-no
     FIELD job-po AS cha
     FIELD qty AS INT 
-    FIELD dscr LIKE oe-ordl.part-dscr1.
+    FIELD dscr LIKE oe-ordl.part-dscr1
+    FIELD partial          AS INTEGER
+    FIELD unitcount        AS INTEGER 
+    FIELD qty-sum          AS INTEGER .
 
 def TEMP-TABLE w3 no-undo
     field ship-i           as   char format "x(60)".
 
 DEF VAR ls-image1 AS cha NO-UNDO.
-DEF VAR ls-full-img1 AS cha FORM "x(50)" NO-UNDO.
+DEF VAR ls-full-img1 AS cha FORM "x(180)" NO-UNDO.
 
 FIND FIRST tt-bolx NO-ERROR.
 
@@ -89,7 +92,6 @@ ELSE IF NOT AVAIL tt-bolx THEN
       ls-image1 = "images\fibrelog.bmp"
       FILE-INFO:FILE-NAME = ls-image1
       ls-full-img1 = FILE-INFO:FULL-PATHNAME + ">".
-
 DEF VAR v-tel AS cha FORM "x(30)" NO-UNDO.
 DEF VAR v-fax AS cha FORM "x(30)" NO-UNDO.
 DEF VAR v-contact AS cha FORM "x(20)" NO-UNDO .
@@ -118,6 +120,7 @@ DEF VAR v-cusx-add3 AS cha NO-UNDO.
 DEF VAR v-cusx-add4 AS cha NO-UNDO.
 DEF VAR v-cusx-add5 AS cha NO-UNDO.
 DEF VAR v-cusx-name AS cha NO-UNDO.
+DEFINE VARIABLE icountpallet AS INTEGER NO-UNDO .
 
 def buffer b-itemfg     for itemfg.
 DEF BUFFER bf-ttboll FOR tt-boll.
@@ -126,7 +129,7 @@ form w2.i-no                         format "x(15)"
      w2.job-po                       at 17 format "x(15)"
      w2.dscr                         at 33 format "x(30)"
      w2.cases                        to 70 format "->>>>"
-     w2.cas-cnt                      to 77 format "->>>>>>"
+     icountpallet                      to 77 format "->>>>>>"
      tt-boll.qty                     to 85 format "->>>>>>"
      bf-ttboll.p-c                   at 92
     with frame bol-mid down no-box no-labels stream-io width 110.
@@ -135,7 +138,7 @@ form oe-ordl.i-no                         format "x(15)"
      v-job-po                       at 17 format "x(15)"
      v-part-dscr                    at 33 format "x(30)"
      w2.cases                       to 70 format "->>>9"
-     w2.cas-cnt                     to 77 format "->>>>>9"
+     icountpallet                    to 77 format "->>>>>9"
      tt-boll.qty                    to 85 format "->>>>>9"
      tt-boll.p-c                    at 92
     with frame bol-mid2 down no-box no-labels stream-io width 100.
@@ -182,7 +185,6 @@ DO:
           v-cusx-add5 = v-comp-add5
           v-cusx-name = lv-comp-name.
 END.
-
 find first oe-bolh no-lock no-error.
 find first carrier no-lock no-error.
 find first cust no-lock no-error.
@@ -353,15 +355,15 @@ for each xxreport where xxreport.term-id eq v-term-id,
       IF (oe-boll.qty-case * oe-boll.cases) NE 0 THEN
         RUN create-tt-boll (oe-boll.qty-case, oe-boll.cases).
     
-      IF oe-boll.qty - (oe-boll.qty-case * oe-boll.cases) NE 0 THEN
-        RUN create-tt-boll (oe-boll.qty - (oe-boll.qty-case * oe-boll.cases), 1).
+     /* IF oe-boll.qty - (oe-boll.qty-case * oe-boll.cases) NE 0 THEN
+        RUN create-tt-boll (oe-boll.qty - (oe-boll.qty-case * oe-boll.cases), 1).*/
         
     END.
 
     ELSE DO:
       CREATE tt-boll.
       BUFFER-COPY oe-boll EXCEPT rec_key TO tt-boll
-          ASSIGN tt-boll.rec_id = STRING(RECID(oe-boll)).
+         /* ASSIGN tt-boll.rec_id = STRING(RECID(oe-boll))*/.
     END.
 
     oe-boll.printed = YES.
@@ -374,7 +376,6 @@ for each xxreport where xxreport.term-id eq v-term-id,
      IF v-ship-addr[2] = "" THEN
            ASSIGN v-ship-addr[2] = v-ship-addr3
                   v-ship-addr3 = "".
-     
      /* end of dup loop */
 
      {oe/rep/bolfibrex.i}
@@ -530,7 +531,7 @@ PROCEDURE create-tt-boll.
         AND tt-boll.po-no    EQ oe-boll.po-no
         AND tt-boll.ord-no   EQ oe-boll.ord-no
         AND tt-boll.line     EQ oe-boll.LINE 
-        AND tt-boll.qty-case EQ ip-qty-case
+        AND (tt-boll.qty-sum EQ (ip-qty-case * ip-cases))
       NO-LOCK NO-ERROR.
 
   IF NOT AVAIL tt-boll THEN DO:
@@ -541,8 +542,9 @@ PROCEDURE create-tt-boll.
      tt-boll.cases    = 0
      tt-boll.qty      = 0
      tt-boll.weight   = 0
-     tt-boll.partial  = 0
-     tt-boll.rec_id = STRING(RECID(oe-boll)).
+    /* tt-boll.rec_id = STRING(RECID(oe-boll))*/
+     tt-boll.qty-sum = ip-qty-case * ip-cases
+     tt-boll.partial  = 0 .
    
   END.
 
@@ -550,7 +552,9 @@ PROCEDURE create-tt-boll.
    tt-boll.cases  = tt-boll.cases + ip-cases
    tt-boll.qty    = tt-boll.qty + (ip-qty-case * ip-cases)
    tt-boll.weight = tt-boll.weight + 
-                    ((ip-qty-case * ip-cases) / oe-boll.qty * oe-boll.weight).
+                    ((ip-qty-case * ip-cases) / oe-boll.qty * oe-boll.weight)
+   tt-boll.partial = tt-boll.partial + oe-boll.partial 
+   tt-boll.unitCount =  tt-boll.unitCount + 1 .
 
   IF oe-boll.p-c THEN tt-boll.p-c = YES.
 

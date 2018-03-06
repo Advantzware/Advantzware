@@ -155,12 +155,7 @@ RUN est/CalcSellPrice.p (lv-sell-by-ce-ctrl,
     OUTPUT v-comm).
 
  
-ASSIGN 
-    dMCostToExcludeMisc = 0
-    dMCostToExcludePrep = 0
-    dMPriceToAddMisc = 0
-    dMPriceToAddPrep = 0
-    .
+
     
 IF ll-use-margin OR
     (lv-sell-by-ce-ctrl NE "B" AND lv-sell-by EQ "B") THEN v-comm = v-price * v-com / 100.
@@ -189,6 +184,26 @@ ASSIGN
 
 blk.sell = (IF ce-ctrl.sell-by = "G" THEN blk.fact ELSE blk.cost)
     / (1 - (v-pct / 100)).
+
+FIND FIRST ttCostHeader EXCLUSIVE-LOCK 
+    WHERE ttCostHeader.estimateNo EQ xeb.est-no
+    AND ttCostHeader.formNo EQ xeb.form-no
+    AND ttCostHeader.blankNo EQ xeb.blank-no
+    AND ttCostHeader.quantityMaster EQ iMasterQuantity
+    AND ttCostHeader.jobNo EQ cJobNo
+    AND ttCostHeader.jobNo2 EQ iJobNo2
+    NO-ERROR.
+IF AVAILABLE ttCostHeader THEN 
+DO: 
+    ASSIGN 
+        ttCostHeader.stdCostBoard           = board-cst
+        ttCostHeader.stdCostCommission      = v-comm
+        ttCostHeader.stdSellPrice           = v-price 
+        ttCostHeader.stdCostFull            = ttCostHeader.stdCostCommission + ttCostHeader.stdCostTotalFactory + ttCostHeader.stdCostTotalOther
+        ttCostHeader.stdProfitGross         = ttCostHeader.stdSellPrice - ttCostHeader.stdCostTotalFactory
+        ttCostHeader.stdProfitNet           = ttCostHeader.stdSellPrice - ttCostHeader.stdCostFull
+        .        
+END.
 
 IF vprint THEN 
 DO:
@@ -229,7 +244,13 @@ DO:
         {sys/inc/roundup.i probe.sell-price}
         END.
     END.
-
+    
+    ASSIGN 
+        dMCostToExcludeMisc = 0
+        dMCostToExcludePrep = 0
+        dMPriceToAddMisc = 0
+        dMPriceToAddPrep = 0
+    .
     ASSIGN
         probe.net-profit   = ROUND((1 - (probe.full-cost / probe.sell-price)) * 100,2)
         probe.gross-profit = ROUND((1 - (probe.fact-cost / probe.sell-price)) * 100,2)
@@ -238,6 +259,7 @@ DO:
         v-prf-s            = probe.sell-price - probe.fact-cost
         v-pct-s            = ROUND(v-prf-s / probe.fact-cost * 100,2).
 
+    
     IF NOT vmclean THEN 
     DO:
 

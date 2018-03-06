@@ -102,7 +102,7 @@ DEF VAR v-ship-i AS cha EXTENT 4 FORM "x(60)" NO-UNDO.
 DEF VAR v-tmp-lines AS DEC NO-UNDO.
 
 DEF VAR ls-image1    AS CHAR NO-UNDO.
-DEF VAR ls-full-img1 AS CHAR FORMAT "x(100)" NO-UNDO.
+DEF VAR ls-full-img1 AS CHAR FORMAT "x(200)" NO-UNDO.
 
 DEF VAR lv-print-specs AS LOG NO-UNDO.
 DEF VAR lv-spec-list AS CHAR NO-UNDO.

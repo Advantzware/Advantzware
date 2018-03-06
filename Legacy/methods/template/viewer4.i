@@ -181,22 +181,23 @@ PROCEDURE local-enable-fields :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
+    {methods/template/local/update.i}
 
-  /* Code placed here will execute PRIOR to standard behavior. */
-  DEFINE VARIABLE ll-secure-check AS LOGICAL NO-UNDO.
-  {methods/template/local/update.i}
+    DEF VAR hPgmSecurity AS HANDLE NO-UNDO.
+    DEF VAR lResult AS LOG NO-UNDO.
 
-IF PROGRAM-NAME(3) MATCHES "*help/v-head.w*"  THEN DO:
-  FIND FIRST users NO-LOCK
-     WHERE users.user_id EQ USERID(LDBNAME(1)) NO-ERROR.
-
-IF AVAIL users AND users.securityLevel GE 1000 THEN
-    ASSIGN ll-secure-check = YES.
-
-  IF NOT ll-secure-check THEN RUN sys/ref/uphlp-pass.w (3, OUTPUT ll-secure-check).
-   IF  ll-secure-check EQ No THEN  
-	return error.
-end.
+    IF PROGRAM-NAME(3) MATCHES "*help/v-head.w*"  THEN DO:
+        RUN "system/PgmMstrSecur.p" PERSISTENT SET hPgmSecurity.
+        RUN epCanAccess IN hPgmSecurity ("methods/template/viewer4.i", "", OUTPUT lResult).
+        DELETE OBJECT hPgmSecurity.
+    
+        /* If not automatically cleared by security level, ask for password */
+        IF NOT lResult THEN DO:
+            RUN sys/ref/uphlp-pass.w (3, OUTPUT lResult). 
+            IF NOT lResult THEN RETURN ERROR.
+        END.
+    END.
+  
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'enable-fields':U ) .
 

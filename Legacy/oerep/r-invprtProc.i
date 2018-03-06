@@ -1,4 +1,4 @@
-/*------------------------------------------------------------------------
+/* -----------------------------------------------------
     File        : r-invprt.i
     Purpose     : 
 
@@ -1154,9 +1154,12 @@ PROCEDURE build-list1:
         WHERE cust.company EQ cocode
         AND cust.cust-no EQ {&head}.cust-no
         AND ((cust.inv-meth EQ ? AND {&head}.{&multiinvoice}) OR
-        (cust.inv-meth NE ? AND NOT {&head}.{&multiinvoice}) OR
-        "{&head}" EQ "ar-inv"
-        )
+          (cust.inv-meth NE ? AND NOT {&head}.{&multiinvoice}) OR
+          "{&head}" EQ "ar-inv" )
+        AND (    (rd-dest-screen-value EQ "5" AND cust.log-field[1] EQ YES) 
+              OR (rd-dest-screen-value EQ "1" AND cust.log-field[1] EQ NO)
+              OR (rd-dest-screen-value NE "1" AND rd-dest-screen-value NE "5") 
+              OR  tb_override-email) 
         NO-LOCK BY {&head}.{&bolno} :
         
         FIND FIRST buf-{&line} NO-LOCK 
@@ -1378,7 +1381,7 @@ PROCEDURE run-report :
                     AND b-{&head}1.{&multiinvoice} EQ NO            
                     AND INDEX(vcHoldStats, b-{&head}1.stat) EQ 0:
                     FIND FIRST inv-misc NO-LOCK 
-                       WHERE inv-misc.r-no EQ b-{&head}1.r-no
+                       WHERE inv-misc.{&miscrno} EQ b-{&head}1.{&rno}
                        NO-ERROR.
 
                     IF AVAILABLE inv-misc THEN DO:
@@ -1850,6 +1853,10 @@ PROCEDURE setBolDates:
                     opdEndDate   = STRING({&head}.inv-date).
         END.
     END. 
+    IF opdBeginDate EQ ? THEN 
+        opdBeginDate = "".
+    IF opdEndDate EQ ? THEN 
+        opdEndDate = "".        
 END.
 
 PROCEDURE setBOLRange:
@@ -1956,6 +1963,10 @@ PROCEDURE setBOLRange:
                 IF INT(begin_inv-screen-value) GT 0 AND INT(end_inv-screen-value) GT 0 THEN DO:
                   IF int(begin_bol-SCREEN-VALUE) EQ 0 THEN opbegin_bol-SCREEN-VALUE = "0".
                   IF int(end_bol-SCREEN-VALUE) EQ 0 THEN opend_bol-SCREEN-VALUE = "99999999".
+                  ASSIGN 
+                    opend_date-SCREEN-VALUE   = ""
+                    opBegin_date-screen-value = ""
+                    . 
                 END.
 /*                FOR EACH oe-bolh NO-LOCK                                     */
 /*                    WHERE oe-bolh.company EQ cocode                          */

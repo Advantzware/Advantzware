@@ -100,7 +100,8 @@ DEF NEW SHARED TEMP-TABLE tt-file NO-UNDO
                        FIELD tt-cst AS DEC EXTENT 4
                        FIELD tt-val AS DEC EXTENT 4
                        FIELD tt-sell-price AS DEC EXTENT 5
-                       FIELD tt-days AS INT.
+                       FIELD tt-days AS INT
+                       FIELD tt-loc AS CHARACTER .
 DEF TEMP-TABLE tt-items 
     FIELD i-no LIKE itemfg.i-no
     FIELD job-no LIKE job.job-no
@@ -480,8 +481,9 @@ DEFINE VARIABLE rd_sort AS CHARACTER INITIAL "Item#"
      VIEW-AS RADIO-SET HORIZONTAL
      RADIO-BUTTONS 
           "Item#", "Item#",
-"Customer Part#", "Customer Part#"
-     SIZE 36 BY 1 NO-UNDO.
+"Customer Part#", "Customer Part#",
+"Warehouse","Warehouse"
+     SIZE 50 BY 1 NO-UNDO.
 
 DEFINE RECTANGLE RECT-6
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
@@ -492,7 +494,7 @@ DEFINE RECTANGLE RECT-7
      SIZE 94 BY 19.71.
 
 DEFINE VARIABLE tb_break AS LOGICAL INITIAL YES 
-     LABEL "Page Break By Customer?" 
+     LABEL "Page Break ?" 
      VIEW-AS TOGGLE-BOX
      SIZE 37 BY 1 NO-UNDO.
 
@@ -1503,12 +1505,7 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
        THIS-PROCEDURE:CURRENT-WINDOW = {&WINDOW-NAME}.
 
 v-custom = YES.
-IF ir12-log THEN DO:
-   THIS-PROCEDURE:CURRENT-WINDOW:VISIBLE = NO.
-   v-custom = ?.
-   RUN fgrep/d-custom.w (OUTPUT v-custom).
-
-END.
+v-custom = YES .
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
@@ -2683,7 +2680,7 @@ FOR EACH tt-file WHERE
     BREAK BY tt-sman
           BY tt-cust-no
           /*by tt-i-no*/
-          BY (IF sort-opt EQ "I" THEN itemfg.i-no ELSE  itemfg.part-no ):
+          BY (IF sort-opt EQ "I" THEN itemfg.i-no ELSE IF sort-opt EQ "C" THEN  itemfg.part-no ELSE tt-file.tt-loc ):
 
   FIND FIRST cust NO-LOCK
        WHERE cust.company EQ cocode
@@ -2846,6 +2843,9 @@ END.
 
           WITH FRAME detail.
       DOWN WITH FRAME detail.
+      
+      IF NOT LAST-OF(tt-sman) THEN
+      IF v-break  THEN  PAGE .
 
       IF tb_excel THEN 
          PUT STREAM excel UNFORMATTED
@@ -2895,7 +2895,8 @@ END.
 
         WITH FRAME detail.
     DOWN WITH FRAME detail.
-
+    IF NOT LAST(tt-sman) THEN
+        IF v-break  THEN  PAGE .
     IF tb_excel THEN 
        PUT STREAM excel UNFORMATTED
            SKIP(1)
@@ -3872,20 +3873,14 @@ END PROCEDURE.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION itemStatus C-Win 
 FUNCTION itemStatus RETURNS CHARACTER
   (ipcCompany AS CHAR, ipcIno AS CHAR ) :
+   
 /*------------------------------------------------------------------------------
   Purpose:  
     Notes:  
 ------------------------------------------------------------------------------*/
-FIND FIRST reftable     WHERE reftable.reftable EQ "FGSTATUS"     
-  AND reftable.company  EQ ipcCompany
-  AND reftable.loc      EQ ""             
-  AND reftable.code     EQ ipcIno NO-ERROR.
 
-IF AVAIL reftable THEN 
-    RETURN reftable.code2.
-ELSE
-  RETURN "".   /* Function return value. */
-
+  
+  RETURN "".
 END FUNCTION.
 
 /* _UIB-CODE-BLOCK-END */

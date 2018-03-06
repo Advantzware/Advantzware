@@ -3,7 +3,7 @@ ASSIGN
  {1}.case-pall  = {2}.cas-pal.
 
 find first sys-ctrl
-    where sys-ctrl.company eq cocode
+    where sys-ctrl.company eq {2}.company
       and sys-ctrl.name    eq "OECOUNT"
     no-lock no-error.
 if avail sys-ctrl and not sys-ctrl.log-fld then

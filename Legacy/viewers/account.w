@@ -1150,24 +1150,12 @@ PROCEDURE local-assign-record :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-record':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-  FIND FIRST reftable
-      WHERE reftable.reftable EQ "GLACCTDISC"
-        AND reftable.company  EQ gcompany
-        AND reftable.loc      EQ ""
-        AND reftable.code     EQ account.actnum
-      NO-ERROR.
-  IF NOT AVAIL reftable THEN DO:
-    CREATE reftable.
-    ASSIGN
-     reftable.reftable = "GLACCTDISC"
-     reftable.company  = gcompany
-     reftable.loc      = ""
-     reftable.code     = account.actnum.
-  END.
-  ASSIGN
-   reftable.val[1] = INT(ll-not-disc)
-   tb_not-disc     = ll-not-disc. 
 
+FIND CURRENT account EXCLUSIVE.
+ASSIGN
+   account.terms-discount = ll-not-disc
+   tb_not-disc     = ll-not-disc. 
+FIND CURRENT account NO-LOCK.
   /*for each period
       where period.company eq account.company
         and period.pstat   eq yes

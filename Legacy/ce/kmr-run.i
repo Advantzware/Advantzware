@@ -59,6 +59,7 @@ if avail mstd then do:
     end.
     else {&fil}.{&fld} = 0.
 
+
   IF op-lock.val[1] EQ 1 THEN DO:
     if mstd.rs-x ne 0 and mstd.rs-y ne 0 then do:
       call_id  = recid(mstd).

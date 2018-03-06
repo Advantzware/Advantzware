@@ -1128,22 +1128,7 @@ if v-process then do:
 
         delete reftable.
     END.
-
-    FOR EACH reftable WHERE
-        reftable.reftable eq "dropslit" AND
-        reftable.company  eq est.company AND
-        reftable.code     eq est.est-no
-        EXCLUSIVE WITH FRAME f-dropslit:
-
-        if archive then do:
-           output to value(v-file-path + "reftable" + STRING(est.est-no,"X(8)") + ".d") APPEND.
-           export reftable.
-           output close.
-        end.
-
-        delete reftable.
-    END.
-
+    
     FOR EACH reftable WHERE
         reftable.reftable EQ "est/getqty.w" AND
         reftable.company  EQ est.company AND

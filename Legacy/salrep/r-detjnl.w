@@ -16,8 +16,9 @@ assign
 
 
 DO TRANSACTION:
-   {sys/inc/selrptcol.i "HB" }
+   {sys/inc/runAOAVer.i "HB" }
 END.
 
-IF SelectRptColumn-log THEN RUN salrep/r-detjnlN.w PERSISTENT.
-ELSE RUN salrep/r-detjnlA.w PERSISTENT.
+cAOAFile = SEARCH("AOA/r-detjnl.p").
+IF RunAOAVersion-log AND cAOAFile NE ? THEN RUN AOA/r-detjnl.p.
+ELSE RUN salrep/r-detjnlN.w PERSISTENT.

@@ -255,13 +255,9 @@ DO:
         AND job.job-no2 EQ job-hdr.job-no2
       USE-INDEX job:
 
-    {jc/closeaud.i job}
-    ASSIGN
-     reftable.val[2] = INT(w-file.cloze) + 1
-     reftable.code2  = STRING(li-time,"99999").
+
   END.
 
-  FIND CURRENT reftable NO-LOCK NO-ERROR.
 
   v-process = CAN-FIND(FIRST w-file WHERE w-file.cloze EQ YES).
 
@@ -290,17 +286,12 @@ DO:
           USE-INDEX job NO-ERROR.
 
       IF AVAIL job THEN DO TRANSACTION:
-        {jc/closeaud.i job}
-        reftable.val[3] = INT(v-process) + 1.
 
         IF v-process THEN DO:
           FIND CURRENT job EXCLUSIVE.
           {jc/job-clos.i}
         END.
 
-        IF AVAIL reftable THEN reftable.code2 = STRING(li-time,"99999").
-
-        FIND CURRENT reftable NO-LOCK NO-ERROR.
       END.  
     END.
 
