@@ -473,27 +473,27 @@ do k = 1 to 28:
    v-module = IF cerunf EQ "HOP" THEN "FCD-0101" ELSE ""
    v-module = FILL(" ",59 - LENGTH(TRIM(v-module))) + TRIM(v-module).
     IF cerunf = "HOP" THEN DO:
-        cJobNo = "Job #: " .
+        cJobNoPrint = "Job #: " .
         FIND FIRST bf-oe-ordl WHERE bf-oe-ordl.company EQ xeb.company
             AND bf-oe-ordl.ord-no EQ xeb.ord-no
             AND bf-oe-ordl.i-no EQ xeb.stock-no NO-LOCK NO-ERROR.
         IF AVAIL bf-oe-ordl THEN
-            cJobNo = cJobNo + bf-oe-ordl.job-no + "-" + string(bf-oe-ordl.job-no2).
+            cJobNoPrint = cJobNoPrint + bf-oe-ordl.job-no + "-" + string(bf-oe-ordl.job-no2).
         ELSE DO:
             FIND FIRST bf-oe-ord WHERE bf-oe-ord.company EQ xeb.company
                 AND bf-oe-ord.ord-no EQ xeb.ord-no NO-LOCK NO-ERROR.
             IF AVAIL bf-oe-ord THEN
-                cJobNo = cJobNo + bf-oe-ord.job-no + "-" + string(bf-oe-ord.job-no2).
+                cJobNoPrint = cJobNoPrint + bf-oe-ord.job-no + "-" + string(bf-oe-ord.job-no2).
         END.
     END.
-    ELSE cJobNo = "".
+    ELSE cJobNoPrint = "".
 
   display day_str v-module tim_str with frame hdr STREAM-IO.    
   display "Est#" TRIM(xest.est-no) FORMAT "x(8)"
           "SlsRep:" sman.sname when avail sman
           "UserID:" xest.updated-id
           "Prober:" probe.probe-user
-          cJobNo FORMAT "X(20)"
+          cJobNoPrint FORMAT "X(20)"
           skip
           "Cust:" xeb.cust-no
                   cust-ad[1] FORMAT "x(29)" TO 44
