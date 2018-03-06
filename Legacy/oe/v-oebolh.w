@@ -1192,7 +1192,12 @@ PROCEDURE display-cust-detail :
 ------------------------------------------------------------------------------*/
   DEF INPUT PARAMETER ip-recid AS RECID NO-UNDO.
   FIND cust WHERE RECID(cust) = ip-recid NO-LOCK NO-ERROR.
+  DEFINE VARIABLE relpost-chr LIKE sys-ctrl.char-fld NO-UNDO.
+  DEFINE VARIABLE relpost-log LIKE sys-ctrl.log-fld  NO-UNDO.
+
   IF AVAIL cust THEN DO WITH FRAME {&frame-name} :
+      
+       RUN  relpost-values(cust.cust-no,"",OUTPUT relpost-chr ,OUTPUT relpost-log) .
 
        ASSIGN oe-bolh.cust-no:screen-value   = cust.cust-no
               cust_name:screen-value = cust.name
@@ -1201,7 +1206,7 @@ PROCEDURE display-cust-detail :
               cust_city:screen-value      = cust.city
               cust_state:screen-value     = cust.state
               cust_zip:screen-value       = cust.zip.
-
+              oe-bolh.stat:screen-value     = STRING(relpost-log AND relpost-chr BEGINS "BOL","(H)OLD/(R)eleased") .
   END.
 END PROCEDURE.
 
@@ -1217,7 +1222,13 @@ PROCEDURE display-shipto-detail :
 ------------------------------------------------------------------------------*/
   DEF INPUT PARAMETER ip-recid AS RECID NO-UNDO.
   FIND shipto WHERE RECID(ship) = ip-recid NO-LOCK NO-ERROR.
+  DEFINE VARIABLE relpost-chr LIKE sys-ctrl.char-fld NO-UNDO.
+  DEFINE VARIABLE relpost-log LIKE sys-ctrl.log-fld  NO-UNDO.
+
   IF AVAIL shipto THEN DO WITH FRAME {&frame-name} :
+     
+     RUN  relpost-values(oe-bolh.cust-no:screen-value,shipto.ship-id,OUTPUT relpost-chr ,OUTPUT relpost-log) .
+
      ASSIGN oe-bolh.ship-id:screen-value   = shipto.ship-id
             ship_name:screen-value = shipto.ship-name
             ship_addr1:screen-value   = shipto.ship-addr[1]
@@ -1226,8 +1237,43 @@ PROCEDURE display-shipto-detail :
             ship_state:screen-value     = shipto.ship-state
             ship_zip:screen-value       = shipto.ship-zip
             lv-ship-no = shipto.ship-no.
+            oe-bolh.stat:screen-value     = STRING(relpost-log AND relpost-chr BEGINS "BOL","(H)OLD/(R)eleased") .
             
   END.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE relpost-values  V-table-Win 
+PROCEDURE relpost-values :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEF INPUT PARAMETER ip-custno AS CHAR NO-UNDO.
+  DEF INPUT PARAMETER ip-shipto AS CHAR NO-UNDO.
+  DEFINE OUTPUT PARAMETER op-relpost-chr LIKE sys-ctrl.char-fld NO-UNDO.
+  DEFINE OUTPUT PARAMETER op-relpost-log LIKE sys-ctrl.log-fld  NO-UNDO.
+  DEF VAR cRtnChar AS CHAR NO-UNDO.
+  DEFINE VARIABLE lRecFound AS LOGICAL     NO-UNDO.
+
+
+   RUN sys/ref/nk1look.p (INPUT cocode, "RELPOST", "L" /* Logical */, YES /* check by cust */, 
+       INPUT YES /* use cust not vendor */, ip-custno /* cust */, ip-shipto /* ship-to*/,
+       OUTPUT cRtnChar, OUTPUT lRecFound).
+       IF lRecFound THEN
+       op-relpost-log = LOGICAL(cRtnChar) NO-ERROR.
+
+     RUN sys/ref/nk1look.p (INPUT cocode, "RELPOST", "C" /* Logical */, YES /* check by cust */, 
+     INPUT YES /* use cust not vendor */, ip-custno  /* cust */, ip-shipto /* ship-to*/,
+     OUTPUT cRtnChar, OUTPUT lRecFound).
+     IF lRecFound THEN
+      op-relpost-chr = cRtnChar NO-ERROR. 
+ 
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

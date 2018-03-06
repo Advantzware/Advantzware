@@ -259,7 +259,7 @@ lv-ornt lines-per-page lv-font-no lv-font-name td-show-parm
 /* ***********************  Control Definitions  ********************** */
 
 /* Define the widget handle for the window                              */
-DEFINE VARIABLE C-Win AS WIDGET-HANDLE NO-UNDO.
+DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btn-cancel AUTO-END-KEY 
@@ -340,27 +340,27 @@ DEFINE RECTANGLE RECT-7
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 94 BY 11.43.
 
-DEFINE VARIABLE tb_detailed AS LOGICAL INITIAL NO 
+DEFINE VARIABLE tb_detailed AS LOGICAL INITIAL no 
      LABEL "Invoice Report Detailed?" 
      VIEW-AS TOGGLE-BOX
      SIZE 28 BY 1 NO-UNDO.
 
-DEFINE VARIABLE tb_detailed-2 AS LOGICAL INITIAL NO 
+DEFINE VARIABLE tb_detailed-2 AS LOGICAL INITIAL no 
      LABEL "G/L Report Detailed?" 
      VIEW-AS TOGGLE-BOX
      SIZE 28 BY 1 NO-UNDO.
 
-DEFINE VARIABLE tb_export AS LOGICAL INITIAL NO 
+DEFINE VARIABLE tb_export AS LOGICAL INITIAL no 
      LABEL "Export/FTP  Invoices?" 
      VIEW-AS TOGGLE-BOX
      SIZE 23 BY 1 NO-UNDO.
 
-DEFINE VARIABLE tb_ton AS LOGICAL INITIAL NO 
+DEFINE VARIABLE tb_ton AS LOGICAL INITIAL no 
      LABEL "Print $/Ton?" 
      VIEW-AS TOGGLE-BOX
      SIZE 28 BY .95 NO-UNDO.
 
-DEFINE VARIABLE td-show-parm AS LOGICAL INITIAL NO 
+DEFINE VARIABLE td-show-parm AS LOGICAL INITIAL no 
      LABEL "Show Parameters?" 
      VIEW-AS TOGGLE-BOX
      SIZE 24 BY .81 NO-UNDO.
@@ -383,11 +383,11 @@ DEFINE FRAME FRAME-A
      tb_detailed-2 AT ROW 8.86 COL 36
      tb_ton AT ROW 10.05 COL 36
      tb_export AT ROW 11 COL 36
-     rd-dest AT ROW 13.86 COL 5 NO-LABELS
-     lv-ornt AT ROW 14.1 COL 29 NO-LABELS
+     rd-dest AT ROW 13.86 COL 5 NO-LABEL
+     lv-ornt AT ROW 14.1 COL 29 NO-LABEL
      lines-per-page AT ROW 14.1 COL 82 COLON-ALIGNED
      lv-font-no AT ROW 16.48 COL 34 COLON-ALIGNED
-     lv-font-name AT ROW 17.43 COL 28 COLON-ALIGNED NO-LABELS
+     lv-font-name AT ROW 17.43 COL 28 COLON-ALIGNED NO-LABEL
      td-show-parm AT ROW 18.86 COL 30
      btn-ok AT ROW 21.71 COL 23
      btn-cancel AT ROW 21.71 COL 58
@@ -427,15 +427,15 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          MAX-WIDTH          = 204.8
          VIRTUAL-HEIGHT     = 33.29
          VIRTUAL-WIDTH      = 204.8
-         RESIZE             = YES
-         SCROLL-BARS        = NO
-         STATUS-AREA        = YES
+         RESIZE             = yes
+         SCROLL-BARS        = no
+         STATUS-AREA        = yes
          BGCOLOR            = ?
          FGCOLOR            = ?
-         KEEP-FRAME-Z-ORDER = YES
-         THREE-D            = YES
-         MESSAGE-AREA       = NO
-         SENSITIVE          = YES.
+         KEEP-FRAME-Z-ORDER = yes
+         THREE-D            = yes
+         MESSAGE-AREA       = no
+         SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 &IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
@@ -455,16 +455,6 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME                                                           */
-ASSIGN
-       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "ribbon-button".
-
-
-ASSIGN
-       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "ribbon-button".
-
-
 ASSIGN 
        begin_date:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
@@ -472,6 +462,14 @@ ASSIGN
 ASSIGN 
        begin_inv:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
+
+ASSIGN 
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+ASSIGN 
+       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
 
 ASSIGN 
        end_date:PRIVATE-DATA IN FRAME FRAME-A     = 
@@ -506,7 +504,7 @@ ASSIGN
 /* SETTINGS FOR FILL-IN tran-period IN FRAME FRAME-A
    NO-ENABLE                                                            */
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
-THEN C-Win:HIDDEN = NO.
+THEN C-Win:HIDDEN = no.
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -520,7 +518,7 @@ THEN C-Win:HIDDEN = NO.
 */  /* FRAME FRAME-A */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -674,7 +672,6 @@ DO:
        END. 
        WHEN 6 THEN RUN output-to-port.
   END CASE. 
-
   IF v-postable THEN DO:
 
     lv-post = NO.
@@ -751,47 +748,40 @@ DO:
 
       END.
 
-      order-close2:
-      FOR EACH w-ord,
-          FIRST oe-ord NO-LOCK
-          WHERE oe-ord.company EQ cocode
+      order-close2:  /*Close all order lines that pass close criteria, regarless of prompt*/
+        FOR EACH w-ord,
+            FIRST oe-ord NO-LOCK
+            WHERE oe-ord.company EQ cocode
             AND oe-ord.ord-no  EQ w-ord.ord-no
-          BREAK BY oe-ord.cust-no:
-
-        RELEASE cust.
-
-
-
-        IF NOT oeclose-log THEN
-        DO:
-           /*RUN close-order-lines.*/
-           FOR EACH oe-ordl WHERE
-               oe-ordl.company EQ oe-ord.company AND
-               oe-ordl.ord-no  EQ oe-ord.ord-no AND
-               oe-ordl.stat    NE "C"
-               NO-LOCK:
-
-               RUN oe/CloseOrder.p(INPUT ROWID(oe-ordl),
-                                 INPUT NO,
-                                 OUTPUT cStatus,
-                                 OUTPUT cReason).
-/*                RUN oe/clslnchkinv.p (BUFFER oe-ordl, OUTPUT v-close-line). */
-/*                IF v-close-line THEN */
-               IF cStatus EQ 'C' THEN
-                  RUN oe/closelin.p (INPUT ROWID(oe-ordl),YES).
-           END.
-
-           RUN close-order.
-        END.
-      END. /* Each w-ord */
+            BREAK BY oe-ord.cust-no:
+        
+            RELEASE cust.
+        
+            FOR EACH oe-ordl WHERE
+                oe-ordl.company EQ oe-ord.company AND
+                oe-ordl.ord-no  EQ oe-ord.ord-no AND
+                oe-ordl.stat    NE "C"
+                NO-LOCK:
+        
+                RUN oe/CloseOrder.p(INPUT ROWID(oe-ordl),
+                    INPUT NO,
+                    OUTPUT cStatus,
+                    OUTPUT cReason).
+        
+                IF cStatus EQ 'C' THEN
+                    RUN oe/closelin.p (INPUT ROWID(oe-ordl),YES).
+            END.
+        
+            RUN close-order (BUFFER oe-ord).
+        END. /* Each w-ord */
 
 
       MESSAGE "Posting Complete" VIEW-AS ALERT-BOX.
 
       IF oeclose-log THEN
       DO:
-         RUN oe/closchkinv.p (0).
-
+/*         RUN oe/closchkinv.p (0).  - removing this since orderlines already closed based on rules in the close-order2 block*/
+        
          IF CAN-FIND (FIRST w-ord) THEN
             RUN oe/d-close.w.
       END.
@@ -1282,12 +1272,15 @@ PROCEDURE close-order :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+   DEFINE PARAMETER BUFFER ipbf-oe-ord FOR oe-ord.
+   
    IF CAN-FIND(FIRST oe-ordl WHERE 
-                     oe-ordl.company = oe-ord.company AND
-                     oe-ordl.ord-no = oe-ord.ord-no AND 
+                     oe-ordl.company EQ ipbf-oe-ord.company AND
+                     oe-ordl.ord-no EQ ipbf-oe-ord.ord-no AND 
                      oe-ordl.stat NE "C") THEN RETURN.
 
-   RUN oe\close.p(RECID(oe-ord), YES).
+   RUN oe\close.p(RECID(ipbf-oe-ord), YES).
+   
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1994,7 +1987,7 @@ FORM account.actnum
       FIND FIRST tt-report {oe/invpost7.i} NO-LOCK NO-ERROR.
       lv-rowid = IF AVAILABLE tt-report THEN ROWID(tt-report) ELSE ?.
 
-      RUN oe/invpost7.p (ROUND(v-balance,2), INPUT-OUTPUT lv-rowid).
+      RUN oe/invpost7.w (ROUND(v-balance,2), INPUT-OUTPUT lv-rowid).
 
       FIND tt-report WHERE ROWID(tt-report) EQ lv-rowid NO-LOCK NO-ERROR.
 
@@ -2549,17 +2542,16 @@ PROCEDURE run-report :
           NEXT.
         END.
 
-      IF cust.factored THEN
+          IF cust.factored THEN
       FOR EACH inv-line NO-LOCK WHERE inv-line.r-no = inv-head.r-no:
-           IF CAN-FIND(FIRST reftable WHERE reftable.reftable EQ "FACTORED"
-                             AND reftable.company  EQ inv-head.company
-                             AND reftable.loc      EQ ""
-                             AND reftable.code     EQ inv-line.i-no)
+           IF CAN-FIND(FIRST itemfg WHERE itemfg.company  EQ inv-head.company
+                             AND itemfg.i-no     EQ inv-line.i-no
+                             AND itemfg.factored = yes)
             THEN DO:
                 tt-report.key-02 = "Factored".  /* for oe/rep/expfrank.p task#  09200521*/
                 LEAVE.
             END.
-      END.
+      END.       
     END.
   END.
 

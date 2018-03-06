@@ -282,6 +282,9 @@ PROCEDURE pQtyShipped:
         {AOA/BL/shiprpt.i 22}
         {AOA/BL/shiprpt.i 23}
         {AOA/BL/shiprpt.i 24}
+        {AOA/BL/shiprpt.i 25}
+        {AOA/BL/shiprpt.i 26}
+        {AOA/BL/shiprpt.i 27}
     END CASE.
 END PROCEDURE. 
 
@@ -363,15 +366,18 @@ PROCEDURE pShipmentReport:
             ttShipmentReport.xxOrder = 999999.
         END. /* first-of */
         iExtent = iExtent + 1.
-        RUN pQtyShipped (iExtent, STRING(ttShipmentReportSummary.qtyShipped,"->,>>>,>>>,>>>")).
+        RUN pQtyShipped (iExtent,
+            IF ttShipmentReportSummary.qtyShipped NE 0 THEN STRING(ttShipmentReportSummary.qtyShipped,"->,>>>,>>>,>>9")
+            ELSE "").
     END. /* each ttShipmentReport */
 END PROCEDURE.
 
 PROCEDURE pShipmentReportSummary:
-    DEFINE VARIABLE dDate   AS DATE    NO-UNDO.
+    DEFINE VARIABLE dDate AS DATE NO-UNDO.
     
     FOR EACH ttShipmentReportDetail
-        BREAK BY ttShipmentReportDetail.itemNo:
+        BREAK BY ttShipmentReportDetail.itemNo
+        :
         IF FIRST-OF(ttShipmentReportDetail.itemNo) THEN DO:
             /* prebuild all the records needed from 1st month to last month */
             DO dDate = dtEndInvoiceDate TO dtStartInvoiceDate BY -1:
@@ -379,21 +385,21 @@ PROCEDURE pShipmentReportSummary:
                 RUN pCreatettShipmentReportSummary (
                     ttShipmentReportDetail.itemNo,
                     ttShipmentReportDetail.itemDscr,
-                    ttShipmentReportDetail.CustPart,
+                    ttShipmentReportDetail.custPart,
                     YEAR(dDate),MONTH(dDate),0
                     ).
                 /* year total for an item */
                 RUN pCreatettShipmentReportSummary (
                     ttShipmentReportDetail.itemNo,
                     ttShipmentReportDetail.itemDscr,
-                    ttShipmentReportDetail.CustPart,
+                    ttShipmentReportDetail.custPart,
                     YEAR(dDate),99,0
                     ).
                 /* grand total for an item */
                 RUN pCreatettShipmentReportSummary (
                     ttShipmentReportDetail.itemNo,
                     ttShipmentReportDetail.itemDscr,
-                    ttShipmentReportDetail.CustPart,
+                    ttShipmentReportDetail.custPart,
                     0,0,0
                     ).
                 /* grand totals for all items */

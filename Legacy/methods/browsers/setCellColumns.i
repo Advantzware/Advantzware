@@ -40,6 +40,11 @@ PROCEDURE setCellColumns:
               LEAVE.
         END.
 
+        /* 25841 - handle condition where the column def in the .dat file no longer exists in the browser */
+        IF NOT VALID-HANDLE(cellColumn[k]) THEN
+            LEAVE.
+        /* 25841 - end */
+        
         IF columnWidth[i] NE cellColumn[k]:WIDTH-PIXELS THEN
            cellColumn[k]:WIDTH-PIXELS = columnWidth[i].
 

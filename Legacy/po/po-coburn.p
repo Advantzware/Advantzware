@@ -819,7 +819,7 @@ FOR EACH notes WHERE notes.rec_key = po-ord.rec_key NO-LOCK:
      {po/po-coburn.i}
   END.
 
-  {po/pouserid.i} 
+  
 
   v-sig-image = "signature\" + po-ord.buyer + ".jpg". /*RD1*/
   FILE-INFO:FILE-NAME = v-sig-image.

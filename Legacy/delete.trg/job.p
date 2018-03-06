@@ -114,9 +114,8 @@ FOR EACH reftable
 END.
 
 
-
 FOR EACH reftable
-    WHERE reftable.reftable EQ "job.qty-changed"
+    WHERE reftable.reftable EQ "job.create-time"
       AND reftable.company  EQ {&TABLENAME}.company
       AND reftable.loc      EQ ""
       AND reftable.code     EQ STRING({&TABLENAME}.job,"9999999999")
@@ -125,7 +124,7 @@ FOR EACH reftable
 END.
 
 FOR EACH reftable
-    WHERE reftable.reftable EQ "job.create-time"
+    WHERE reftable.reftable EQ "job.qty-changed"
       AND reftable.company  EQ {&TABLENAME}.company
       AND reftable.loc      EQ ""
       AND reftable.code     EQ STRING({&TABLENAME}.job,"9999999999")

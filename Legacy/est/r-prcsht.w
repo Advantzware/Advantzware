@@ -885,7 +885,7 @@ END.
 /*================== report main section ===========*/
 
 DEF VAR ls-image1 AS cha NO-UNDO.
-DEF VAR ls-full-img1 AS cha FORM "x(150)" NO-UNDO.
+DEF VAR ls-full-img1 AS cha FORM "x(200)" NO-UNDO.
 DEF VAR lv-pg-num AS INT INIT 1 FORM ">>9" NO-UNDO.
 DEF VAR lv-tot-pg AS INT INIT 1 FORM ">>9" NO-UNDO.
 DEF VAR lv-tel AS cha FORM "(xxx)xxx-xxxx" NO-UNDO.

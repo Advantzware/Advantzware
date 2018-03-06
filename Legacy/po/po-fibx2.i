@@ -428,7 +428,7 @@ end.
      PUT {1}  " " SKIP.
   END.
   
-  {po/pouserid.i}  
+
   
   v-sig-image = "signature\" + po-ord.buyer + ".jpg". /*RD1*/
   FILE-INFO:FILE-NAME = v-sig-image.

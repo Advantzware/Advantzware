@@ -5,7 +5,7 @@
         "<C1><LEFT=9mm><#1><R+5><C+25>" SKIP
         "<=1>" SKIP       
        "<C1><#1><FArial>"   SKIP         
-       "<C1><R2><#2><R+6><C+40>" "<IMAGE#2=" + ls-full-img1 FORM "x(60)"  SKIP 
+       "<C1><R2><#2><R+6><C+40>" "<IMAGE#2=" + ls-full-img1 FORM "x(200)"  SKIP 
        "<P10></B>"
        "<=1><R+2>" "<FGCOLOR=" + trim(lv-comp-color) + ">" FORM "x(15)"        
        "<P10><=1><R+3>"

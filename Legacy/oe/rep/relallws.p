@@ -17,8 +17,8 @@ DEF VAR v-frt-pay-dscr AS CHAR FORMAT "x(11)" NO-UNDO.
 DEF VAR v-term       AS CHAR                NO-UNDO.
 DEF VAR ls-image1    AS CHAR                NO-UNDO.
 DEF VAR ls-image2    AS CHAR                NO-UNDO.
-DEF VAR ls-full-img1 AS CHAR FORMAT "x(50)" NO-UNDO.
-DEF VAR ls-full-img2 AS CHAR FORMAT "x(50)" NO-UNDO.
+DEF VAR ls-full-img1 AS CHAR FORMAT "x(200)" NO-UNDO.
+DEF VAR ls-full-img2 AS CHAR FORMAT "x(200)" NO-UNDO.
 
 ASSIGN 
  ls-image1 = "images/allwest.jpg"
@@ -52,6 +52,11 @@ DEF VAR lv-comp-name    AS CHAR FORMAT "x(30)" NO-UNDO.
 DEF VAR lv-email        AS CHAR FORMAT "x(40)" NO-UNDO.
 
 DEF VAR v-UntCnt        AS CHAR FORMAT "x(10)" NO-UNDO.
+
+DEFINE TEMP-TABLE ttReleasesToPrint NO-UNDO
+    FIELD OeRelHRowID AS ROWID 
+    FIELD SessionID   AS CHARACTER
+        .
 
 DEF VAR lv-comp-color  AS CHAR              NO-UNDO.
 DEF VAR lv-other-color AS CHAR INIT "BLACK" NO-UNDO.

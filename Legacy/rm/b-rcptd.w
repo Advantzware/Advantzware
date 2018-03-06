@@ -76,6 +76,15 @@ DEFINE BUFFER b-rm-rctd FOR rm-rctd.
 
 
 
+DEF VAR lAllowRmAdd AS LOG NO-UNDO.
+DEF VAR lcReturn   AS CHAR NO-UNDO.
+DEF VAR llRecFound AS LOG  NO-UNDO.
+
+RUN sys/ref/nk1look.p (cocode, "RMAllowAdd", "L", NO, NO, "", "", 
+    OUTPUT lcReturn, OUTPUT llRecFound).
+
+   lAllowRmAdd = LOGICAL(lcReturn) NO-ERROR.
+
 DEFINE TEMP-TABLE tt-eiv NO-UNDO
     FIELD run-qty  AS DECIMAL DECIMALS 3 EXTENT 20
     FIELD run-cost AS DECIMAL DECIMALS 4 EXTENT 20
@@ -1776,6 +1785,26 @@ PROCEDURE delete-tt :
         FIND FIRST tt-rm-rctd WHERE tt-rm-rctd.tt-rowid EQ ROWID(rm-rctd) NO-ERROR.
         IF AVAILABLE tt-rm-rctd THEN DELETE tt-rm-rctd.
     END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE create-item B-table-Win 
+PROCEDURE create-item :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+     CREATE ITEM.
+     ASSIGN ITEM.company = cocode
+            ITEM.loc = locode
+            ITEM.i-no = rm-rctd.i-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}
+            ITEM.i-code = "R".
+
+    /* run rm/item.p */
 
 END PROCEDURE.
 
@@ -3567,6 +3596,26 @@ PROCEDURE valid-i-no :
         
     DO WITH FRAME {&FRAME-NAME}:
         rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name} = FILL(" ",6 - LENGTH(TRIM(rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}))) + TRIM(rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}).
+
+        IF v-msg EQ "" THEN DO:
+            IF NOT CAN-FIND(FIRST item 
+               WHERE item.company EQ cocode
+                 AND item.i-no    EQ rm-rctd.i-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME})/*)*/ THEN DO: 
+               IF lAllowRmAdd EQ YES THEN DO:
+                   MESSAGE " Item does not Exist in Raw Materials File. Create New Item Code? "
+                       VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO UPDATE ll-ans AS LOG.
+                   IF ll-ans THEN DO:
+                       RUN create-item.
+                       NEXT.
+                   END.
+                   ELSE 
+                       v-msg = "Invalid entry, try help".
+               END.
+             ELSE DO:
+                  v-msg = "Invalid entry, try help".
+             END.
+           END.
+        END.
 
         IF INT(rm-rctd.po-no:SCREEN-VALUE IN BROWSE {&browse-name}) NE 0 THEN 
         DO:

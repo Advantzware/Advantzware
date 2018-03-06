@@ -1,7 +1,8 @@
 /* ---------------------------------------------- cec/com/prokalk.i 09/05 JLF */
 /* recalculate values of sequenced machines.                                  */
 /* -------------------------------------------------------------------------- */
-   
+ 
+
    {est/op-lock.i xest}
    
    IF NEW op-lock AND NOT xef.op-lock THEN
@@ -44,6 +45,7 @@
    end.
    
    else do:
+
      IF op-lock.val[1] EQ 1                          AND 
         (ip-rowid EQ ? OR ip-rowid EQ ROWID(est-op)) THEN DO:
         est-op.op-waste = mach.mr-waste.
@@ -126,6 +128,7 @@
      qty = est-op.num-sh * v-num-up * vn-out.
    END.
 
+
    IF (op-lock.val[1] EQ 1 OR op-lock.val[2] EQ 1) AND 
       (ip-rowid EQ ? OR ip-rowid EQ ROWID(est-op)) THEN DO:
    /* flip dimensions if corr. xgrain */
@@ -182,8 +185,10 @@
       find xef where recid(xef) eq fil_id no-lock.
    end.
        
+
      IF op-lock.val[1] EQ 1 THEN
        est-op.op-waste = mach.mr-waste + (mach.col-wastesh * maxco).
+
 
      IF op-lock.val[2] EQ 1 THEN DO:
        assign

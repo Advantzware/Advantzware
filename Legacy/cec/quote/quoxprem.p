@@ -37,7 +37,7 @@ DEF VAR v-quo-date AS DATE FORM "99/99/9999" NO-UNDO.
 DEF VAR v-contact LIKE quotehd.contact NO-UNDO.
 /* === with xprint ====*/
 DEF VAR ls-image1 AS cha NO-UNDO.
-DEF VAR ls-full-img1 AS cha FORM "x(50)" NO-UNDO.
+DEF VAR ls-full-img1 AS cha FORM "x(200)" NO-UNDO.
 
 ASSIGN ls-image1 = "images\premier.jpg"
        FILE-INFO:FILE-NAME = ls-image1

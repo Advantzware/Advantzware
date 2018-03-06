@@ -12,12 +12,18 @@ def var v-zone like shipto.dest-code.
 def var v-part-dscr like oe-ordl.i-name.
 def var v-qty like oe-rell.qty.
 def var v-frt-pay-dscr as char format "x(11)" no-undo.
+
+DEFINE TEMP-TABLE ttReleasesToPrint NO-UNDO
+    FIELD OeRelHRowID AS ROWID 
+    FIELD SessionID   AS CHARACTER
+        .
+
 /* === with xprint ====*/
 DEF VAR v-term AS cha NO-UNDO.
 DEF VAR ls-image1 AS cha NO-UNDO.
 DEF VAR ls-image2 AS cha NO-UNDO.
-DEF VAR ls-full-img1 AS cha FORM "x(50)" NO-UNDO.
-DEF VAR ls-full-img2 AS cha FORM "x(50)" NO-UNDO.
+DEF VAR ls-full-img1 AS cha FORM "x(200)" NO-UNDO.
+DEF VAR ls-full-img2 AS cha FORM "x(200)" NO-UNDO.
 ASSIGN ls-image1 = "".
        ls-image2 = "".
 

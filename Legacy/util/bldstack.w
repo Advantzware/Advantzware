@@ -553,17 +553,15 @@ PROCEDURE update-stack-flute :
         IF stack-flute.col-value[lj]        NE "" AND
            stack-flute.vals[(li * 10) + lj] EQ 0  THEN DO:
 
-          FIND FIRST b-reftable
-              WHERE b-reftable.reftable EQ "STACK"
-                AND b-reftable.company  EQ ""
-                AND b-reftable.code     EQ stack-flute.col-value[lj]
+          FIND FIRST stackPattern
+              WHERE stackPattern.stackCode     EQ stack-flute.col-value[lj]
               NO-LOCK NO-ERROR.
-          IF AVAIL b-reftable THEN
+          IF AVAIL stackPattern THEN
             ASSIGN
              stack-flute.vals[(li * 10) + lj] = (b-item.case-d - v-height) / (item.cal * 2)
              stack-flute.vals[(li * 10) + lj] = (stack-flute.vals[(li * 10) + lj] -
                                                  stack-flute.vals[(li * 10) + lj] MODULO 5) *
-                                                b-reftable.val[1].
+                                                stackPattern.stackCount.
         END.
       END.
 

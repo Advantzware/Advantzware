@@ -141,7 +141,7 @@ END.
 /* Need to scope the external tables to this procedure                  */
 DEFINE QUERY external_tables FOR est, eb, est-qty, ef.
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-FIELDS est.dropslit eb.cust-no eb.ship-id eb.part-no ~
+&Scoped-Define ENABLED-FIELDS est.highlight eb.cust-no eb.ship-id est.csrUser eb.part-no ~
 eb.stock-no eb.part-dscr1 eb.part-dscr2 eb.die-no ef.cad-image eb.sman ~
 eb.comm eb.cad-no eb.plate-no eb.procat eb.spc-no eb.upc-no eb.style ~
 eb.flute eb.test est.metric ef.board ef.brd-dscr eb.len eb.wid eb.dep ~
@@ -154,10 +154,10 @@ eb.lin-in eb.t-wid eb.t-len eb.t-sqin eb.loc
 &Scoped-Define ENABLED-OBJECTS tb-set bt-new-die btn_qty-msf bt-new-plate ~
 btn_fgitem btn_style btn_board btn_cust RECT-18 RECT-19 RECT-23 RECT-24 
 &Scoped-Define DISPLAYED-FIELDS est.est-no eb.form-no est.form-qty ~
-eb.blank-no est.mod-date eb.ord-no est.ord-date est.dropslit eb.cust-no ~
+eb.blank-no est.mod-date eb.ord-no est.ord-date est.highlight eb.cust-no ~
 eb.ship-id eb.ship-name eb.ship-addr[1] eb.ship-addr[2] eb.ship-city ~
 eb.ship-state eb.ship-zip est-qty.eqty eb.part-no eb.stock-no eb.part-dscr1 ~
-eb.part-dscr2 eb.die-no ef.cad-image eb.sman eb.comm eb.cad-no eb.plate-no ~
+eb.part-dscr2 eb.die-no ef.cad-image est.csrUser eb.sman eb.comm eb.cad-no eb.plate-no ~
 eb.procat eb.spc-no eb.upc-no eb.style eb.flute eb.test est.metric ef.board ~
 ef.brd-dscr eb.len eb.wid eb.dep eb.adhesive eb.dust eb.fpanel eb.lock ~
 eb.gluelap eb.k-wid eb.k-len eb.tuck eb.lin-in eb.t-wid eb.t-len eb.t-sqin ~
@@ -352,7 +352,7 @@ DEFINE FRAME Corr
           LABEL "Date"
           VIEW-AS FILL-IN 
           SIZE 15 BY 1
-     est.dropslit AT ROW 2.81 COL 2.4 HELP
+     est.highlight AT ROW 2.81 COL 2.4 HELP
           "Enter whether to drop slitter if MSF > minimum" WIDGET-ID 6
           LABEL "Yellow?"
           VIEW-AS TOGGLE-BOX
@@ -368,28 +368,32 @@ DEFINE FRAME Corr
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
           FONT 6
-     eb.ship-name AT ROW 3.86 COL 22.2 COLON-ALIGNED
+     eb.ship-name AT ROW 3.80 COL 22.2 COLON-ALIGNED
           LABEL "Company"
           VIEW-AS FILL-IN 
           SIZE 45.8 BY 1
           FONT 6
-     eb.ship-addr[1] AT ROW 4.81 COL 22.2 COLON-ALIGNED
+     eb.ship-addr[1] AT ROW 4.70 COL 22.2 COLON-ALIGNED
           LABEL "Address"
           VIEW-AS FILL-IN 
           SIZE 45.8 BY 1
-     eb.ship-addr[2] AT ROW 5.76 COL 22.2 COLON-ALIGNED NO-LABEL
+     eb.ship-addr[2] AT ROW 5.55 COL 22.2 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 45.8 BY 1
-     eb.ship-city AT ROW 6.71 COL 22.2 COLON-ALIGNED
+     eb.ship-city AT ROW 6.45 COL 22.2 COLON-ALIGNED
           LABEL "City/State/Zip"
           VIEW-AS FILL-IN 
           SIZE 23 BY 1
-     eb.ship-state AT ROW 6.71 COL 45.6 COLON-ALIGNED NO-LABEL
+     eb.ship-state AT ROW 6.45 COL 45.6 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 6 BY 1
-     eb.ship-zip AT ROW 6.71 COL 52.2 COLON-ALIGNED NO-LABEL
+     eb.ship-zip AT ROW 6.45 COL 52.2 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 15.8 BY 1
+     est.csrUser_id AT ROW 7.30 COL 22 COLON-ALIGNED
+          LABEL "CSR"
+          VIEW-AS FILL-IN 
+          SIZE 16 BY 1
      est-qty.eqty AT ROW 2.67 COL 90 COLON-ALIGNED
           LABEL "Quantity" FORMAT ">>>>>>>"
           VIEW-AS FILL-IN 
@@ -423,7 +427,7 @@ DEFINE FRAME Corr
      btnDieLookup AT ROW 6.95 COL 75
      eb.die-no AT ROW 6.95 COL 90 COLON-ALIGNED HELP
           ""
-          LABEL "Die #" FORMAT "x(15)"
+          LABEL "Die #" FORMAT "x(20)"
           VIEW-AS FILL-IN 
           SIZE 23 BY 1
           FONT 6
@@ -655,10 +659,12 @@ ASSIGN
    5 EXP-LABEL EXP-FORMAT                                               */
 /* SETTINGS FOR FILL-IN eb.die-no IN FRAME Corr
    EXP-LABEL EXP-FORMAT EXP-HELP                                        */
-/* SETTINGS FOR TOGGLE-BOX est.dropslit IN FRAME Corr
+/* SETTINGS FOR TOGGLE-BOX est.highlight IN FRAME Corr
    EXP-LABEL EXP-HELP                                                   */
 /* SETTINGS FOR FILL-IN eb.dust IN FRAME Corr
    5 EXP-LABEL EXP-FORMAT                                               */
+/* SETTINGS FOR FILL-IN est.csrUser_id IN FRAME Corr
+   EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN est-qty.eqty IN FRAME Corr
    NO-ENABLE EXP-LABEL EXP-FORMAT                                       */
 ASSIGN 
@@ -889,6 +895,7 @@ DO:
            run windows/l-cust.w (cocode,ls-cur-val, output char-val).
            if char-val <> "" then do:
               eb.cust-no:screen-value in frame {&frame-name} =  ENTRY(1,char-val).
+              RUN csr-display .
               find first shipto where shipto.company = cocode
                                   and shipto.cust-no = eb.cust-no:screen-value
                                   no-lock no-error.
@@ -978,6 +985,12 @@ DO:
          if char-val <> "" then 
             assign lw-focus:SCREEN-VALUE = entry(1,char-val).
        END.
+       when "csrUser_id" then do:
+         run windows/l-users.w (est.csrUser_id:SCREEN-VALUE in frame {&frame-name}, output char-val).
+           if char-val <> "" then 
+              assign est.csrUser_id:screen-value in frame {&frame-name} = entry(1,char-val).
+           return no-apply.
+       END.
   end case.
   return no-apply.  
 END.
@@ -1008,6 +1021,21 @@ ON ENTRY OF ef.board IN FRAME Corr /* Board */
 DO:
   IF NOT lv-foam THEN
       RUN check-flute-test-change.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME est.csrUser_id
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL est.csrUser_id V-table-Win
+ON LEAVE OF est.csrUser_id IN FRAME Corr /* Type */
+DO:
+  
+  IF LASTKEY <> -1 THEN DO:
+     RUN valid-custcsr NO-ERROR.
+     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+  END.
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1306,6 +1334,7 @@ END.
 ON VALUE-CHANGED OF eb.cust-no IN FRAME Corr /* Cust# */
 DO:
   RUN shipto-enable.
+  RUN csr-display .
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -3841,6 +3870,9 @@ PROCEDURE local-update-record :
      RUN valid-dec(eb.k-wid:HANDLE) NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
+    RUN valid-custcsr NO-ERROR.
+    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+
     IF eb.ord-no NE 0 AND eb.cust-no:SCREEN-VALUE NE eb.cust-no AND
        eb.cust-no NE "" THEN
     DO:
@@ -4291,6 +4323,32 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+ 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE csr-display V-table-Win 
+PROCEDURE csr-display :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DO WITH FRAME {&frame-name}:
+
+      FIND FIRST cust NO-LOCK
+            WHERE cust.company = cocode
+              AND cust.cust-no = eb.cust-no:SCREEN-VALUE NO-ERROR.
+     
+       IF AVAIL cust THEN
+           est.csrUser_id:SCREEN-VALUE = cust.csrUser_id .
+
+  END.
+
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE shipto-enable V-table-Win 
 PROCEDURE shipto-enable :
 /*------------------------------------------------------------------------------
@@ -4532,6 +4590,29 @@ PROCEDURE valid-board :
 
     IF ef.brd-dscr:SCREEN-VALUE EQ "" THEN RUN new-board.
   END.
+
+  {methods/lValidateError.i NO}
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-custcsr V-table-Win 
+PROCEDURE valid-custcsr :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  {methods/lValidateError.i YES}
+
+   IF est.csrUser_id:SCREEN-VALUE IN FRAME {&FRAME-NAME} NE "" THEN DO:
+       IF NOT CAN-FIND(FIRST users WHERE users.USER_ID EQ est.csrUser_id:SCREEN-VALUE IN FRAME {&FRAME-NAME})
+       THEN DO:
+           MESSAGE "Invalid customer CSR. Try help." VIEW-AS ALERT-BOX ERROR.
+           RETURN ERROR.
+       END.
+   END.
 
   {methods/lValidateError.i NO}
 END PROCEDURE.

@@ -67,7 +67,7 @@ ON 'CTRL-ALT-R':U ANYWHERE
 
 DEFINE TEMP-TABLE ttPersistent NO-UNDO
     FIELD prgmTitle AS CHARACTER
-	INDEX ttPersistent IS PRIMARY prgmTitle.
+        INDEX ttPersistent IS PRIMARY prgmTitle.
 
 DEFINE TEMP-TABLE ttbl NO-UNDO
     FIELD menu-order AS INTEGER
@@ -108,6 +108,7 @@ DO:
     RETURN.
 END.
 cEulaFile = SEARCH("{&EulaFile}").
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -137,61 +138,61 @@ cEulaFile = SEARCH("{&EulaFile}").
 /* ***********************  Control Definitions  ********************** */
 
 /* Define the widget handle for the window                              */
-DEFINE VARIABLE MAINMENU      AS WIDGET-HANDLE NO-UNDO.
+DEFINE VAR MAINMENU AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
-DEFINE VARIABLE company_name  AS CHARACTER     FORMAT "X(256)":U 
-    VIEW-AS TEXT 
-    SIZE 43 BY .71
-    BGCOLOR 15 FGCOLOR 0 FONT 6 NO-UNDO.
+DEFINE VARIABLE company_name AS CHARACTER FORMAT "X(256)":U 
+      VIEW-AS TEXT 
+     SIZE 43 BY .71
+     BGCOLOR 15 FGCOLOR 0 FONT 6 NO-UNDO.
 
-DEFINE VARIABLE loc_loc       AS CHARACTER     FORMAT "X(256)":U 
-    VIEW-AS TEXT 
-    SIZE 9 BY .62
-    BGCOLOR 15 FGCOLOR 0 FONT 6 NO-UNDO.
+DEFINE VARIABLE loc_loc AS CHARACTER FORMAT "X(256)":U 
+      VIEW-AS TEXT 
+     SIZE 9 BY .62
+     BGCOLOR 15 FGCOLOR 0 FONT 6 NO-UNDO.
 
-DEFINE VARIABLE users_user_id AS CHARACTER     FORMAT "X(256)":U 
-    VIEW-AS TEXT 
-    SIZE 13 BY .62
-    BGCOLOR 15 FGCOLOR 0 FONT 6 NO-UNDO.
+DEFINE VARIABLE users_user_id AS CHARACTER FORMAT "X(256)":U 
+      VIEW-AS TEXT 
+     SIZE 13 BY .62
+     BGCOLOR 15 FGCOLOR 0 FONT 6 NO-UNDO.
 
 DEFINE IMAGE boxes
-    FILENAME "Graphics/advantzware_logo.jpg":U
-    SIZE 79 BY 17.38.
+     FILENAME "Graphics/advantzware_logo.jpg":U
+     SIZE 79 BY 17.38.
 
 DEFINE IMAGE menu-image
-    FILENAME "Graphics/logo1.bmp":U CONVERT-3D-COLORS
-    SIZE 79 BY 4.52.
+     FILENAME "Graphics/logo1.bmp":U CONVERT-3D-COLORS
+     SIZE 79 BY 4.52.
 
 DEFINE RECTANGLE RECT-2
-    EDGE-PIXELS 8    
-    SIZE 120 BY 1.91
-    BGCOLOR 0 .
+     EDGE-PIXELS 8    
+     SIZE 120 BY 1.91
+     BGCOLOR 0 .
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME FRAME-USER
-    users_user_id AT ROW 1.95 COL 14 COLON-ALIGNED NO-LABELS
-    company_name AT ROW 1.95 COL 41 COLON-ALIGNED NO-LABELS
-    loc_loc AT ROW 1.95 COL 97 COLON-ALIGNED NO-LABELS
-    "Company:" VIEW-AS TEXT
-    SIZE 11 BY .62 AT ROW 1.95 COL 31
-    BGCOLOR 0 FGCOLOR 15 FONT 6
-    " User ID:" VIEW-AS TEXT
-    SIZE 11 BY .62 AT ROW 1.95 COL 5
-    BGCOLOR 0 FGCOLOR 15 FONT 6
-    "Location:" VIEW-AS TEXT
-    SIZE 11 BY .62 AT ROW 1.95 COL 87
-    BGCOLOR 0 FGCOLOR 15 FONT 6
-    boxes AT ROW 8.14 COL 43
-    menu-image AT ROW 3.38 COL 43
-    RECT-2 AT ROW 1.24 COL 2
+     users_user_id AT ROW 1.95 COL 14 COLON-ALIGNED NO-LABEL
+     company_name AT ROW 1.95 COL 41 COLON-ALIGNED NO-LABEL
+     loc_loc AT ROW 1.95 COL 97 COLON-ALIGNED NO-LABEL
+     "Company:" VIEW-AS TEXT
+          SIZE 11 BY .62 AT ROW 1.95 COL 31
+          BGCOLOR 0 FGCOLOR 15 FONT 6
+     " User ID:" VIEW-AS TEXT
+          SIZE 11 BY .62 AT ROW 1.95 COL 5
+          BGCOLOR 0 FGCOLOR 15 FONT 6
+     "Location:" VIEW-AS TEXT
+          SIZE 11 BY .62 AT ROW 1.95 COL 87
+          BGCOLOR 0 FGCOLOR 15 FONT 6
+     boxes AT ROW 8.14 COL 43
+     menu-image AT ROW 3.38 COL 43
+     RECT-2 AT ROW 1.24 COL 2
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
-    SIDE-LABELS NO-UNDERLINE THREE-D 
-    AT COL 1 ROW 1
-    SIZE 200 BY 40
-    BGCOLOR 7 FGCOLOR 15 .
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 1
+         SIZE 200 BY 40
+         BGCOLOR 7 FGCOLOR 15 .
 
 
 /* *********************** Procedure Settings ************************ */
@@ -207,29 +208,29 @@ DEFINE FRAME FRAME-USER
 
 &ANALYZE-SUSPEND _CREATE-WINDOW
 IF SESSION:DISPLAY-TYPE = "GUI":U THEN
-    CREATE WINDOW MAINMENU ASSIGN
-        HIDDEN             = YES
-        TITLE              = "Main Menu - Advantzware version {&awversion}"
-        HEIGHT             = 24.52
-        WIDTH              = 122.6
-        MAX-HEIGHT         = 40
-        MAX-WIDTH          = 235.6
-        VIRTUAL-HEIGHT     = 40
-        VIRTUAL-WIDTH      = 235.6
-        RESIZE             = NO
-        SCROLL-BARS        = NO
-        STATUS-AREA        = NO
-        BGCOLOR            = ?
-        FGCOLOR            = ?
-        KEEP-FRAME-Z-ORDER = YES
-        MESSAGE-AREA       = NO
-        SENSITIVE          = YES.
+  CREATE WINDOW MAINMENU ASSIGN
+         HIDDEN             = YES
+         TITLE              = "Main Menu - Advantzware version {&awversion}"
+         HEIGHT             = 24.52
+         WIDTH              = 122.6
+         MAX-HEIGHT         = 40
+         MAX-WIDTH          = 235.6
+         VIRTUAL-HEIGHT     = 40
+         VIRTUAL-WIDTH      = 235.6
+         RESIZE             = no
+         SCROLL-BARS        = no
+         STATUS-AREA        = no
+         BGCOLOR            = ?
+         FGCOLOR            = ?
+         KEEP-FRAME-Z-ORDER = yes
+         MESSAGE-AREA       = no
+         SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 &IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
 IF NOT MAINMENU:LOAD-ICON("adeicon/progress.ico":U) THEN
     MESSAGE "Unable to load icon: adeicon/progress.ico"
-        VIEW-AS ALERT-BOX WARNING BUTTONS OK.
+            VIEW-AS ALERT-BOX WARNING BUTTONS OK.
 &ENDIF
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
@@ -250,7 +251,7 @@ IF NOT MAINMENU:LOAD-ICON("adeicon/progress.ico":U) THEN
 /* SETTINGS FOR FILL-IN users_user_id IN FRAME FRAME-USER
    NO-ENABLE                                                            */
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(MAINMENU)
-    THEN MAINMENU:HIDDEN = NO.
+THEN MAINMENU:HIDDEN = no.
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -273,7 +274,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(MAINMENU)
 &Scoped-define SELF-NAME FRAME-USER
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL FRAME-USER MAINMENU
 ON END-ERROR OF FRAME FRAME-USER
-    ANYWHERE
+ANYWHERE
     DO:
         RETURN NO-APPLY.
     END.
@@ -284,7 +285,7 @@ ON END-ERROR OF FRAME FRAME-USER
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL FRAME-USER MAINMENU
 ON HELP OF FRAME FRAME-USER
-    DO:
+DO:
         RUN Get_Procedure IN Persistent-Handle ("popups.",OUTPUT run-proc,YES).
     END.
 
@@ -382,7 +383,7 @@ END.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Create_Buttons MAINMENU 
 PROCEDURE Create_Buttons :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -439,18 +440,18 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI MAINMENU  _DEFAULT-DISABLE
 PROCEDURE disable_UI :
-    /*------------------------------------------------------------------------------
-      Purpose:     DISABLE the User Interface
-      Parameters:  <none>
-      Notes:       Here we clean-up the user-interface by deleting
-                   dynamic widgets we have created and/or hide 
-                   frames.  This procedure is usually called when
-                   we are ready to "clean-up" after running.
-    ------------------------------------------------------------------------------*/
-    /* Delete the WINDOW we created */
-    IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(MAINMENU)
-        THEN DELETE WIDGET MAINMENU.
-    IF THIS-PROCEDURE:PERSISTENT THEN DELETE PROCEDURE THIS-PROCEDURE.
+/*------------------------------------------------------------------------------
+  Purpose:     DISABLE the User Interface
+  Parameters:  <none>
+  Notes:       Here we clean-up the user-interface by deleting
+               dynamic widgets we have created and/or hide 
+               frames.  This procedure is usually called when
+               we are ready to "clean-up" after running.
+------------------------------------------------------------------------------*/
+  /* Delete the WINDOW we created */
+  IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(MAINMENU)
+  THEN DELETE WIDGET MAINMENU.
+  IF THIS-PROCEDURE:PERSISTENT THEN DELETE PROCEDURE THIS-PROCEDURE.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -458,21 +459,21 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE enable_UI MAINMENU  _DEFAULT-ENABLE
 PROCEDURE enable_UI :
-    /*------------------------------------------------------------------------------
-      Purpose:     ENABLE the User Interface
-      Parameters:  <none>
-      Notes:       Here we display/view/enable the widgets in the
-                   user-interface.  In addition, OPEN all queries
-                   associated with each FRAME and BROWSE.
-                   These statements here are based on the "Other 
-                   Settings" section of the widget Property Sheets.
-    ------------------------------------------------------------------------------*/
-    DISPLAY users_user_id company_name loc_loc 
-        WITH FRAME FRAME-USER IN WINDOW MAINMENU.
-    ENABLE boxes menu-image RECT-2 
-        WITH FRAME FRAME-USER IN WINDOW MAINMENU.
-    {&OPEN-BROWSERS-IN-QUERY-FRAME-USER}
-    VIEW MAINMENU.
+/*------------------------------------------------------------------------------
+  Purpose:     ENABLE the User Interface
+  Parameters:  <none>
+  Notes:       Here we display/view/enable the widgets in the
+               user-interface.  In addition, OPEN all queries
+               associated with each FRAME and BROWSE.
+               These statements here are based on the "Other 
+               Settings" section of the widget Property Sheets.
+------------------------------------------------------------------------------*/
+  DISPLAY users_user_id company_name loc_loc 
+      WITH FRAME FRAME-USER IN WINDOW MAINMENU.
+  ENABLE boxes menu-image RECT-2 
+      WITH FRAME FRAME-USER IN WINDOW MAINMENU.
+  {&OPEN-BROWSERS-IN-QUERY-FRAME-USER}
+  VIEW MAINMENU.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -480,7 +481,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Mneumonic MAINMENU 
 PROCEDURE Mneumonic :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -504,7 +505,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Read_Menus MAINMENU 
 PROCEDURE Read_Menus :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -609,7 +610,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Run_Button MAINMENU 
 PROCEDURE Run_Button :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -622,7 +623,8 @@ PROCEDURE Run_Button :
     DEFINE VARIABLE hWidget AS HANDLE  NO-UNDO.
     DEFINE VARIABLE hDelete AS HANDLE  NO-UNDO EXTENT 100.
     DEFINE VARIABLE idx     AS INTEGER NO-UNDO.
-
+    DEFINE VARIABLE lAccess AS LOGICAL NO-UNDO.
+    
     IF button-handle:NAME EQ 'Exit' THEN
     APPLY 'WINDOW-CLOSE':U TO {&WINDOW-NAME}.
 
@@ -655,8 +657,8 @@ PROCEDURE Run_Button :
     IF INDEX(button-handle:NAME,'.') = 0 THEN RUN Create_Buttons(button-handle:NAME).
     ELSE DO:
         /* check module license first before run it YSK 08/24/04 TASK# 08060406 */
-        RUN util/chk-mod.p ("ASI", button-handle:NAME) NO-ERROR.
-        IF NOT ERROR-STATUS:ERROR THEN 
+        RUN util/CheckModule.p ("ASI", button-handle:NAME, YES, OUTPUT lAccess) NO-ERROR.
+        IF lAccess THEN 
         RUN Get_Procedure IN Persistent-Handle(button-handle:NAME,OUTPUT run-proc,YES).
         
     END.
@@ -668,7 +670,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Set-comp_loc MAINMENU 
 PROCEDURE Set-comp_loc :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     Set Global and Screen Company/Location Values.
       Parameters:  INPUT company & location values
       Notes:       

@@ -2666,29 +2666,9 @@ PROCEDURE update-plate-die :
                   prep.last-order  = job-hdr.ord-no
                   prep.last-job-no = job-hdr.job-no
                   prep.last-est-no = job-hdr.est-no
+                  prep.last-job-no    = b-pc-prdd.job-no
+                  prep.last-job-no2   = b-pc-prdd.job-no2
                   .
-    
-           FIND FIRST reftable WHERE
-                reftable.reftable EQ "PREPLASTJOB" AND
-                reftable.company  EQ prep.company AND
-                reftable.loc      EQ prep.loc AND
-                reftable.code     EQ prep.CODE
-                NO-ERROR.
-    
-           IF NOT AVAIL reftable THEN DO:
-             CREATE reftable.
-             ASSIGN
-               reftable.reftable = "PREPLASTJOB"
-               reftable.company  = prep.company
-               reftable.loc      = prep.loc
-               reftable.code     = prep.CODE. 
-           END.
-           
-           ASSIGN
-             reftable.code2    = b-pc-prdd.job-no
-             reftable.val[1]   = b-pc-prdd.job-no2.
-    
-           RELEASE reftable.
            RELEASE prep.
          END.
        END.

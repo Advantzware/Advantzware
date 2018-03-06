@@ -6,7 +6,6 @@ CURRENT-WINDOW:WIDTH-CHARS = 130.
 assign cocode = g_company
        locode = g_loc.
 
-DEF BUFFER s-code FOR reftable.
 DEF BUFFER ref-lot-no FOR reftable.
 DEF BUFFER ref-sell-price FOR reftable.
 
@@ -715,27 +714,15 @@ PROCEDURE create-report-record-1 :
                   AND sys-ctrl-ship.ship-id = "" NO-LOCK NO-ERROR.
      IF AVAIL sys-ctrl-shipto AND sys-ctrl-shipto.log-fld THEN v-reltype = sys-ctrl-shipto.char-fld.
      ELSE IF AVAIL sys-ctrl AND sys-ctrl.log-fld THEN v-reltype = sys-ctrl.char-fld.
-     IF v-relType <> "" THEN DO:
-        FIND FIRST reftable
-        WHERE reftable.reftable EQ "oe-rel.s-code"
-          AND reftable.company  EQ STRING(oe-rel.r-no,"9999999999") NO-LOCK NO-ERROR.
-        IF NOT AVAIL reftable THEN DO:
-        END.
-     END.
      
-    FIND FIRST s-code
-        WHERE s-code.reftable EQ "oe-rel.s-code"
-          AND s-code.company  EQ STRING(oe-rel.r-no,"9999999999")
-        NO-LOCK NO-ERROR.
-    IF AVAIL reftable THEN
-    tt-report.s-code = IF v-reltype <> "" THEN reftable.CODE
+    tt-report.s-code = IF v-reltype <> "" THEN oe-rel.s-code
                        ELSE IF ll-transfer            THEN "T"
                        ELSE
                        IF oe-ordl.is-a-component AND
-                          (NOT AVAIL s-code OR
-                           s-code.code NE "T")   THEN "S"
+                          (oe-rel.s-code = "" OR
+                           oe-rel.s-code NE "T")   THEN "S"
                        ELSE
-                       IF AVAIL s-code           THEN s-code.code
+                       IF oe-rel.s-code <> ""      THEN oe-rel.s-code
                        ELSE
                        IF AVAIL oe-rell          THEN oe-rell.s-code
                                                  ELSE "B".

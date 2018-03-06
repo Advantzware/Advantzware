@@ -395,7 +395,7 @@ for each cas where cas.typ = 3 by cas.snum by cas.bnum with no-labels no-box:
 
          find first item
              where item.company eq cocode
-               and item.i-no    eq strap.code2
+               and item.i-no    eq stackPattern.strapCode
              no-lock no-error.
 
          find first xcas where xcas.typ = 4 and xcas.id = cas.id no-error.

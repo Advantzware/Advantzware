@@ -1,4 +1,5 @@
 DEFINE VARIABLE dNetprct LIKE probe.net-profit.
+DEFINE VARIABLE cUsers-id AS CHARACTER NO-UNDO.
          FORMAT oe-ord.due-date COLUMN-LABEL " !Due!Date"
                                 FORMAT "99/99/99"
                 w-data.ord-no
@@ -246,11 +247,9 @@ FORMAT wkrecap.procat
         
        FOR EACH oe-rel FIELDS(r-no) NO-LOCK WHERE
            oe-rel.company = oe-ord.company AND 
-           oe-rel.ord-no  = oe-ord.ord-no  ,
-           FIRST reftable NO-LOCK WHERE
-                 reftable.reftable EQ "oe-rel.s-code" AND 
-                 reftable.company  EQ STRING(oe-rel.r-no,"9999999999") AND
-                 reftable.CODE EQ "T" :
+           oe-rel.ord-no  = oe-ord.ord-no AND 
+             oe-rel.s-code  = "T"
+                     :
       
                  v-code = "T".
                  LEAVE.
@@ -581,6 +580,14 @@ FORMAT wkrecap.procat
      v-revenue     (TOTAL BY tt-report.key-01)
      w-data.cost   (TOTAL BY tt-report.key-01).
 
+    cUsers-id = "".
+    IF AVAIL oe-ord THEN  
+     FIND FIRST job NO-LOCK
+          WHERE job.company EQ cocode
+            AND job.job-no EQ oe-ord.job-no
+            AND job.job-no2 EQ oe-ord.job-no2 NO-ERROR.
+
+     cUsers-id = IF AVAIL job AND job.csrUser_id NE "" THEN job.csrUser_id ELSE IF AVAIL oe-ord THEN oe-ord.csrUser_id ELSE "".
      IF AVAILABLE oe-ordl THEN do:
         FIND FIRST itemfg NO-LOCK
             WHERE itemfg.company EQ cocode
@@ -610,6 +617,7 @@ FORMAT wkrecap.procat
        BUFFER boe-ord:FIND-BY-ROWID(ROWID(oe-ord), NO-LOCK) .
        IF AVAILABLE oe-ordl THEN
        BUFFER boe-ordl:FIND-BY-ROWID(ROWID(oe-ordl), NO-LOCK) .
+       IF AVAILABLE cust THEN
        BUFFER bcust:FIND-BY-ROWID(ROWID(cust), NO-LOCK) .
        BUFFER bw-data:FIND-BY-ROWID(ROWID(w-data), NO-LOCK) .
        ASSIGN cDisplay = ""
@@ -626,7 +634,7 @@ FORMAT wkrecap.procat
                  cTmpField = SUBSTRING(cTmpField,INDEX(cTmpField,".") + 1).
                  IF cFieldName BEGINS "oe-ordl" THEN hField = IF AVAILABLE boe-ordl THEN BUFFER boe-ordl:BUFFER-FIELD(cTmpField) ELSE ?.
                  ELSE IF cFieldName BEGINS "oe-ord" THEN hField = BUFFER boe-ord:BUFFER-FIELD(cTmpField).
-                 ELSE IF cFieldName BEGINS "cust" THEN hField = BUFFER bcust:BUFFER-FIELD(cTmpField).
+                 ELSE IF cFieldName BEGINS "cust" THEN hField = IF AVAILABLE bcust THEN BUFFER bcust:BUFFER-FIELD(cTmpField) ELSE ?.
                  ELSE hField = BUFFER bw-data:BUFFER-FIELD(cTmpField).
                  IF hField <> ? THEN DO:                 
                      cTmpField = SUBSTRING(GetFieldValue(hField),1,INTEGER(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength))).
@@ -657,6 +665,7 @@ FORMAT wkrecap.procat
                  WHEN "cust-po" THEN cVarValue = IF AVAILABLE oe-ordl AND oe-ordl.cust-no NE "" THEN STRING(oe-ordl.po-no,"x(15)") ELSE STRING(oe-ord.po-no,"x(15)") . /* ticket 14966*/
                  WHEN "die-no" THEN cVarValue = IF AVAILABLE itemfg AND itemfg.die-no NE "" THEN STRING(itemfg.die-no,"x(15)") ELSE IF AVAILABLE eb THEN STRING(eb.die-no,"x(15)") ELSE "" . /* ticket 16188*/
                  WHEN "v-net-prct" THEN cVarValue = STRING(dNetprct,"->>9.99"). 
+                 WHEN "csrUser_id" THEN cVarValue = STRING(cUsers-id,"X(8)"). 
             END CASE.
             IF cTmpField = "v-profit" AND NOT prt-profit THEN NEXT.
             cExcelVarValue = cVarValue.
@@ -711,6 +720,7 @@ FORMAT wkrecap.procat
               CASE cTmpField:
                    WHEN "oe-ord.due-date" THEN cVarValue = "" .
                    WHEN "w-data.ord-no" THEN cVarValue = "" .
+                   WHEN "cust.cust-no" THEN cVarValue = "" .
                    WHEN "cust.name" THEN cVarValue = "" .
                    WHEN "w-data.comm" THEN cVarValue = "" .
                    WHEN "w-data.procat" THEN cVarValue = "" .
@@ -731,6 +741,7 @@ FORMAT wkrecap.procat
                    WHEN "v-price-per-t" THEN cVarValue = STRING(v-price-per-t,"->>,>>9.99").
                    WHEN "v-net-prct" THEN cVarValue = "". 
                    WHEN "w-data.shp-qty" THEN cVarValue = "" .
+                   WHEN "csrUser_id" THEN cVarValue = "" .
               END CASE.
               IF cTmpField = "v-profit" AND NOT prt-profit THEN NEXT.
               cExcelVarValue = cVarValue.
@@ -778,6 +789,7 @@ FORMAT wkrecap.procat
               CASE cTmpField:
                    WHEN "oe-ord.due-date" THEN cVarValue = "" .
                    WHEN "w-data.ord-no" THEN cVarValue = "" .
+                   WHEN "cust.cust-no" THEN cVarValue = "" .
                    WHEN "cust.name" THEN cVarValue = "" .
                    WHEN "w-data.comm" THEN cVarValue = "" .
                    WHEN "w-data.procat" THEN cVarValue = "" .
@@ -798,6 +810,7 @@ FORMAT wkrecap.procat
                    WHEN "v-price-per-t" THEN cVarValue = STRING(v-price-per-t,"->>,>>9.99").
                    WHEN "v-net-prct" THEN cVarValue = "". 
                    WHEN "w-data.shp-qty" THEN cVarValue = "" .
+                   WHEN "csrUser_id" THEN cVarValue = "" .
               END CASE.
               IF cTmpField = "v-profit" AND NOT prt-profit THEN NEXT.
               cExcelVarValue = cVarValue.
@@ -819,7 +832,7 @@ FORMAT wkrecap.procat
        BUFFER boe-ord:FIND-BY-ROWID(ROWID(oe-ord), NO-LOCK) .
        IF AVAILABLE oe-ordl THEN
        BUFFER boe-ordl:FIND-BY-ROWID(ROWID(oe-ordl), NO-LOCK) .
-
+       IF AVAILABLE cust THEN
        BUFFER bcust:FIND-BY-ROWID(ROWID(cust), NO-LOCK) .
        BUFFER bw-data:FIND-BY-ROWID(ROWID(w-data), NO-LOCK) .
        ASSIGN cDisplay = ""
@@ -835,7 +848,7 @@ FORMAT wkrecap.procat
                  cTmpField = SUBSTRING(cTmpField,INDEX(cTmpField,".") + 1).
                  IF cFieldName BEGINS "oe-ordl" THEN hField = IF AVAILABLE boe-ordl THEN BUFFER boe-ordl:BUFFER-FIELD(cTmpField) ELSE ?.
                  ELSE IF cFieldName BEGINS "oe-ord" THEN hField = BUFFER boe-ord:BUFFER-FIELD(cTmpField).
-                 ELSE IF cFieldName BEGINS "cust" THEN hField = BUFFER bcust:BUFFER-FIELD(cTmpField).
+                 ELSE IF cFieldName BEGINS "cust" THEN hField = IF AVAILABLE bcust THEN BUFFER bcust:BUFFER-FIELD(cTmpField) ELSE ?.
                  ELSE hField = BUFFER bw-data:BUFFER-FIELD(cTmpField).
                  IF hField NE ? THEN DO:                 
                      cTmpField = SUBSTRING(GetFieldValue(hField),1,INTEGER(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength))).
@@ -854,7 +867,7 @@ FORMAT wkrecap.procat
                  END.
          END.
          ELSE DO:       
-            CASE cTmpField:  
+            CASE cTmpField: 
                 WHEN "price"  THEN cVarValue = STRING(w-data.price,"->>,>>>.99") .
                 WHEN "t-sqft" THEN cVarValue = STRING(w-data.t-sqft,"->,>>>.999").
                 WHEN "v-price-per-m" THEN cVarValue = STRING(v-price-per-m,"->>,>>9.99").
@@ -866,6 +879,7 @@ FORMAT wkrecap.procat
                 WHEN "cust-po" THEN cVarValue = IF AVAILABLE oe-ordl AND oe-ordl.cust-no NE "" THEN STRING(oe-ordl.po-no,"x(15)") ELSE STRING(oe-ord.po-no,"x(15)") . /* ticket 14966*/
                 WHEN "die-no" THEN cVarValue = IF AVAILABLE itemfg AND itemfg.die-no NE "" THEN STRING(itemfg.die-no,"x(15)") ELSE IF AVAILABLE eb THEN STRING(eb.die-no,"x(15)") ELSE "" . /* ticket 16188*/
                 WHEN "v-net-prct" THEN cVarValue = STRING(dNetprct,"->>9.99").
+                WHEN "csrUser_id" THEN cVarValue = STRING(cUsers-id,"X(8)"). 
             END CASE.
             IF cTmpField = "v-profit" AND NOT prt-profit THEN NEXT.  
             cExcelVarValue = cVarValue.
@@ -918,6 +932,7 @@ FORMAT wkrecap.procat
               CASE cTmpField:
                    WHEN "oe-ord.due-date" THEN cVarValue = "" .
                    WHEN "w-data.ord-no" THEN cVarValue = "" .
+                   WHEN "cust.cust-no" THEN cVarValue = "" .
                    WHEN "cust.name" THEN cVarValue = "" .
                    WHEN "w-data.comm" THEN cVarValue = "" .
                    WHEN "w-data.procat" THEN cVarValue = "" .
@@ -937,6 +952,7 @@ FORMAT wkrecap.procat
                    WHEN "v-price-per-t" THEN cVarValue = STRING(v-price-per-t,"->>,>>9.99").
                    WHEN "v-net-prct" THEN cVarValue = "" .
                    WHEN "w-data.shp-qty" THEN cVarValue = "" .
+                   WHEN "csrUser_id" THEN cVarValue = "" .
               END CASE.
               IF cTmpField = "v-profit" AND NOT prt-profit THEN NEXT.
               cExcelVarValue = cVarValue.
@@ -984,6 +1000,7 @@ FORMAT wkrecap.procat
               CASE cTmpField:
                    WHEN "oe-ord.due-date" THEN cVarValue = "" .
                    WHEN "w-data.ord-no" THEN cVarValue = "" .
+                   WHEN "cust.cust-no" THEN cVarValue = "" .
                    WHEN "cust.name" THEN cVarValue = "" .
                    WHEN "w-data.comm" THEN cVarValue = "" .
                    WHEN "w-data.procat" THEN cVarValue = "" .
@@ -1003,6 +1020,7 @@ FORMAT wkrecap.procat
                    WHEN "v-price-per-t" THEN cVarValue = STRING(v-price-per-t,"->>,>>9.99").
                    WHEN "v-net-prct" THEN cVarValue = "" .
                    WHEN "w-data.shp-qty" THEN cVarValue = "" .
+                   WHEN "csrUser_id" THEN cVarValue = "" .
               END CASE.
               IF cTmpField = "v-profit" AND NOT prt-profit THEN NEXT.
               cExcelVarValue = cVarValue.

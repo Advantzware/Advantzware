@@ -15,8 +15,9 @@ assign
  locode = gloc.
 
 DO TRANSACTION:
-   {sys/inc/selrptcol.i "AL2" }
+   {sys/inc/runAOAVer.i "AL2" }
 END.
 
-IF SelectRptColumn-log THEN RUN ar/r-mishstN.w PERSISTENT.
-ELSE RUN ar/r-mishstA.w PERSISTENT.
+cAOAFile = SEARCH("AOA/r-mishst.p").
+IF RunAOAVersion-log AND cAOAFile NE ? THEN RUN AOA/r-mishst.p.
+ELSE RUN ar/r-mishstN.w PERSISTENT.

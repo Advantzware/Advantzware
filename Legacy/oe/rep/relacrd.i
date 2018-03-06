@@ -229,20 +229,16 @@ if v-zone-p then v-zone-hdr = "Route No.:".
         NO-LOCK NO-ERROR.
  
     IF AVAIL oe-rel THEN do:
-        FIND FIRST bf-reftable
-            WHERE bf-reftable.reftable EQ "oe-rel.s-code"
-            AND bf-reftable.company  EQ STRING(oe-rel.r-no,"9999999999")
-            NO-LOCK NO-ERROR.
-
-        IF AVAIL bf-reftable THEN do:
-            IF bf-reftable.code = "T" OR xoe-rell.s-code = "T" THEN
+       IF oe-rel.s-code <> "" THEN do:
+            IF oe-rel.s-code = "T" OR xoe-rell.s-code = "T" THEN
                 v-transfer = "<P14>TRANSFER<FGCOLOR=BLACK><P10>".
-            ELSE IF bf-reftable.code EQ "S" THEN
+            ELSE IF oe-rel.s-code EQ "S" THEN
                 v-transfer = "<P14>SHIP-ONLY<FGCOLOR=BLACK><P10>".
             ELSE v-transfer = "".
                  LEAVE.
-        END.
-    END.
+       
+        END. 
+    END.      
   END.
 
       /* from relcntbx.p */

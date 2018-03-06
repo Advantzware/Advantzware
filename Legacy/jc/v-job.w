@@ -138,7 +138,7 @@ DEFINE QUERY external_tables FOR job.
 &Scoped-define FIRST-ENABLED-TABLE job
 &Scoped-Define ENABLED-OBJECTS RECT-1 
 &Scoped-Define DISPLAYED-FIELDS job.job-no job.job-no2 job.est-no job.stat ~
-job.start-date job.close-date job.user-id job.loc job.due-date 
+job.start-date job.close-date job.user-id job.loc job.due-date job.csrUser_id 
 &Scoped-define DISPLAYED-TABLES job
 &Scoped-define FIRST-DISPLAYED-TABLE job
 
@@ -210,6 +210,10 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 16 BY 1
      vHoldReason AT ROW 2.43 COL 79 COLON-ALIGNED WIDGET-ID 4
+     job.csrUser_id AT ROW 2.43 COL 101 COLON-ALIGNED
+          LABEL "CSR"
+          VIEW-AS FILL-IN 
+          SIZE 11.6 BY 1
      job.close-date AT ROW 2.43 COL 127 COLON-ALIGNED
           LABEL "Close"
           VIEW-AS FILL-IN 
@@ -302,6 +306,8 @@ ASSIGN
 /* SETTINGS FOR FILL-IN job.stat IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN job.user-id IN FRAME F-Main
+   NO-ENABLE EXP-LABEL                                                  */
+/* SETTINGS FOR FILL-IN job.csrUser_id IN FRAME F-Main
    NO-ENABLE EXP-LABEL                                                  */
 /* SETTINGS FOR FILL-IN vHoldReason IN FRAME F-Main
    NO-DISPLAY NO-ENABLE                                                 */
@@ -835,7 +841,7 @@ PROCEDURE local-assign-record :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEFINE VARIABLE lv-start-date AS DATE NO-UNDO.
-
+  DEFINE BUFFER bf-est FOR est.
   /* Code placed here will execute PRIOR to standard behavior. */
 
   lv-start-date = IF AVAILABLE job THEN job.start-date ELSE ?.
@@ -854,6 +860,15 @@ PROCEDURE local-assign-record :
     ASSIGN job-hdr.due-date = job.due-date
            job-hdr.loc      = job.loc.
   END. /* each job-hdr */
+
+   IF adm-new-record THEN DO:
+    FIND FIRST bf-est NO-LOCK
+        WHERE bf-est.company EQ job.company
+          AND bf-est.est-no = job.est-no:SCREEN-VALUE IN FRAME {&FRAME-NAME}
+       NO-ERROR.
+     job.csrUser_id:SCREEN-VALUE IN FRAME {&FRAME-NAME} = IF AVAIL bf-est THEN bf-est.csrUser_id ELSE "" .
+
+   END.
 
   IF job.start-date NE lv-start-date AND NOT adm-new-record THEN DO:
     RUN update-schedule.    
@@ -1223,6 +1238,9 @@ PROCEDURE local-update-record :
   RUN valid-whse.
   IF NOT ll-valid THEN RETURN NO-APPLY.
 
+  RUN valid-job-est .
+  IF NOT ll-valid THEN RETURN NO-APPLY.
+
   ASSIGN
      ll-new = adm-new-record
      lv-new-job-hdr-rowid = ?.
@@ -1334,7 +1352,7 @@ PROCEDURE local-update-record :
           AND job-hdr.job-no  EQ job.job-no
           AND job-hdr.job-no2 EQ job.job-no2 NO-ERROR.
 
-    IF job-hdr.est-no GT "" THEN DO:
+    IF AVAIL job-hdr AND job-hdr.est-no GT "" THEN DO:
          FIND FIRST xeb WHERE xeb.company EQ job-hdr.company
              AND xeb.est-no EQ job-hdr.est-no
              AND xeb.pur-man
@@ -1438,6 +1456,29 @@ PROCEDURE Rebuild-Stds :
              VIEW-AS ALERT-BOX ERROR.
          UNDO, RETURN.
      END.
+
+     FOR EACH job-hdr FIELDS(company est-no i-no) 
+         where job-hdr.company EQ job.company
+           and job-hdr.job     EQ job.job
+           and job-hdr.job-no  EQ job.job-no
+         and job-hdr.job-no2 EQ job.job-no2 NO-LOCK ,
+         FIRST itemfg FIELDS(pur-man) WHERE
+               itemfg.company EQ job-hdr.company AND
+               itemfg.i-no EQ job-hdr.i-no NO-LOCK:
+         FIND FIRST eb NO-LOCK
+             WHERE eb.company EQ cocode
+               AND eb.est-no EQ job.est-no 
+               AND eb.stock EQ job-hdr.i-no  NO-ERROR.
+         IF AVAIL eb AND eb.pur-man NE itemfg.pur-man AND NOT itemfg.isaset  THEN DO:
+             MESSAGE "FG Item file indicates item is (x) (which would be either purchased " SKIP
+                "or manufactured) while estimate indicates it is (y) - These should be" SKIP
+                " set the same." VIEW-AS ALERT-BOX WARNING . 
+             LEAVE .
+         END.
+
+     END.
+          
+
 
      FOR EACH job-mat FIELDS(company all-flg rm-i-no) WHERE
          job-mat.company = job.company AND
@@ -2170,18 +2211,14 @@ PROCEDURE validate-est :
             AND est-op.line    LT 500,
           FIRST mach NO-LOCK
           {sys/look/machW.i}
-            AND mach.m-code EQ est-op.m-code,
-          FIRST reftable NO-LOCK
-          WHERE reftable.reftable EQ "mach.obsolete"
-            AND reftable.company  EQ mach.company
-            AND reftable.loc      EQ mach.loc
-            AND reftable.code     EQ mach.m-code
-            AND reftable.val[1]   EQ 1:
+            AND mach.m-code EQ est-op.m-code:
+       IF mach.obsolete THEN DO:
         MESSAGE "Machine: " + TRIM(mach.m-code) +
                 " is obsolete, please replace to create job..."
             VIEW-AS ALERT-BOX ERROR.
         APPLY "entry" TO job.est-no.
         RETURN NO-APPLY.
+       END.
       END.
 
       ll-valid = YES.
@@ -2325,6 +2362,33 @@ PROCEDURE view-user-id :
 
       DISPLAY job.user-id.
    END.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-job-est V-table-Win 
+PROCEDURE valid-job-est :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  {methods/lValidateError.i YES}
+  ll-valid = YES.
+
+  DO WITH FRAME {&frame-name}:
+   IF adm-new-record THEN DO: 
+    IF TRIM(job.est-no:SCREEN-VALUE) EQ "" THEN DO:
+      MESSAGE "Job# is not allowed  to create with  blank line..."
+              VIEW-AS ALERT-BOX ERROR.
+      APPLY "entry" TO job.job-no.
+      ll-valid = NO.
+    END.
+   END.
+  END.
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

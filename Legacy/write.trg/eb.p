@@ -592,11 +592,10 @@ FOR EACH b-itemfg NO-LOCK
 END.
 
 IF {&TABLENAME}.stack-code NE "" AND {&TABLENAME}.stacks EQ 0 THEN DO:
-  FIND FIRST reftable NO-LOCK
-      {cec/stackW.i}
-        AND reftable.code EQ {&TABLENAME}.stack-code
+  FIND FIRST stackPattern NO-LOCK
+       WHERE stackPattern.stackCode EQ {&TABLENAME}.stack-code
       NO-ERROR.
-  IF AVAIL reftable THEN {&TABLENAME}.stacks = reftable.val[1].
+  IF AVAIL stackPattern THEN {&TABLENAME}.stacks = stackPattern.stackCount.
 END.
 
 /* Clear out any error-status from find with no-error that is false */

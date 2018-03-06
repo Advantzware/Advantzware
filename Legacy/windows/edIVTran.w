@@ -39,6 +39,7 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
+DEFINE VARIABLE lAccess AS LOGICAL NO-UNDO.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -261,9 +262,9 @@ END.
 
 /* Include custom  Main Block code for SmartWindows. */
 {src/adm/template/windowmn.i}
-
-        RUN util/chk-mod.p ("ASI", "810") NO-ERROR.
-        IF ERROR-STATUS:ERROR THEN 
+        
+        RUN util/CheckModule.p ("ASI", "810", YES, OUTPUT lAccess).
+        IF NOT lAccess THEN 
           run local-exit.
 
 /* _UIB-CODE-BLOCK-END */
