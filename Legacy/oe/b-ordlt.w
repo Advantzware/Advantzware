@@ -1725,8 +1725,11 @@ PROCEDURE printTicket :
      RUN Get_Procedure IN Persistent-Handle ('job_.',OUTPUT run-proc,YES).
 
   END.
-  ELSE
+  ELSE DO:
      v-reprint = oe-ordl.ftick-prnt.
+     MESSAGE "No job to print a job ticket." VIEW-AS ALERT-BOX ERROR.
+     RETURN NO-APPLY.
+  END.
   
 
 END PROCEDURE.
