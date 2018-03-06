@@ -37,9 +37,6 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
-def buffer strap for reftable.
-def buffer pattern for reftable.
-
 {custom/globdefs.i}
 
 {sys/inc/var.i NEW SHARED}
@@ -66,31 +63,22 @@ ASSIGN
 &Scoped-define BROWSE-NAME Browser-Table
 
 /* Internal Tables (found by Frame, Query & Browse Queries)             */
-&Scoped-define INTERNAL-TABLES reftable strap pattern
+&Scoped-define INTERNAL-TABLES stackPattern
 
 /* Define KEY-PHRASE in case it is used by any query. */
 &Scoped-define KEY-PHRASE TRUE
 
 /* Definitions for BROWSE Browser-Table                                 */
-&Scoped-define FIELDS-IN-QUERY-Browser-Table reftable.code reftable.dscr reftable.val[1] strap.val[1] strap.code2 strap.dscr pattern.dscr   
-&Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table reftable.code reftable.dscr reftable.val[1] ~
-   strap.val[1] strap.code2 strap.dscr pattern.dscr   
-&Scoped-define ENABLED-TABLES-IN-QUERY-Browser-Table reftable strap pattern
-&Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-Browser-Table reftable
-&Scoped-define SECOND-ENABLED-TABLE-IN-QUERY-Browser-Table strap
-&Scoped-define THIRD-ENABLED-TABLE-IN-QUERY-Browser-Table pattern
+&Scoped-define FIELDS-IN-QUERY-Browser-Table stackPattern.stackCode stackPattern.stackDescription stackPattern.stackCount stackPattern.strapCount stackPattern.strapCode stackPattern.strapFormula stackPattern.stackImage   
+&Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table stackPattern.stackCode stackPattern.stackDescription stackPattern.stackCount ~
+   stackPattern.strapCount stackPattern.strapCode stackPattern.strapFormula stackPattern.stackImage   
+&Scoped-define ENABLED-TABLES-IN-QUERY-Browser-Table stackPattern
+&Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-Browser-Table stackPattern
 &Scoped-define SELF-NAME Browser-Table
-&Scoped-define QUERY-STRING-Browser-Table FOR EACH reftable WHERE ~{&KEY-PHRASE}       AND reftable.reftable = "STACK" and ASI.reftable.company = "" AND reftable.loc = "" NO-LOCK, ~
-        first strap  where strap.reftable = "STACKSTRAP"                 and strap.company = ""                 and strap.loc = ""                 and strap.code = reftable.code no-lock, ~
-       FIRST pattern OUTER-JOIN where pattern.reftable = "STACKPAT"                 and pattern.company = ""                 and pattern.loc = ""                 and pattern.code = reftable.code NO-LOCK                     ~{&SORTBY-PHRASE}
-&Scoped-define OPEN-QUERY-Browser-Table OPEN QUERY {&SELF-NAME} FOR EACH reftable WHERE ~{&KEY-PHRASE}       AND reftable.reftable = "STACK" and ASI.reftable.company = "" AND reftable.loc = "" NO-LOCK, ~
-        first strap  where strap.reftable = "STACKSTRAP"                 and strap.company = ""                 and strap.loc = ""                 and strap.code = reftable.code no-lock, ~
-       FIRST pattern OUTER-JOIN where pattern.reftable = "STACKPAT"                 and pattern.company = ""                 and pattern.loc = ""                 and pattern.code = reftable.code NO-LOCK                     ~{&SORTBY-PHRASE}.
-&Scoped-define TABLES-IN-QUERY-Browser-Table reftable strap pattern
-&Scoped-define FIRST-TABLE-IN-QUERY-Browser-Table reftable
-&Scoped-define SECOND-TABLE-IN-QUERY-Browser-Table strap
-&Scoped-define THIRD-TABLE-IN-QUERY-Browser-Table pattern
-
+&Scoped-define QUERY-STRING-Browser-Table FOR EACH stackPattern WHERE ~{&KEY-PHRASE}  NO-LOCK                     ~{&SORTBY-PHRASE}
+&Scoped-define OPEN-QUERY-Browser-Table OPEN QUERY {&SELF-NAME} FOR EACH stackPattern WHERE ~{&KEY-PHRASE}    NO-LOCK      ~{&SORTBY-PHRASE}.
+&Scoped-define TABLES-IN-QUERY-Browser-Table stackPattern
+&Scoped-define FIRST-TABLE-IN-QUERY-Browser-Table stackPattern
 
 /* Definitions for FRAME F-Main                                         */
 
@@ -134,7 +122,7 @@ DEFINE RECTANGLE RECT-4
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
 DEFINE QUERY Browser-Table FOR
-reftable ,  strap, pattern.
+stackPattern.
 
 &ANALYZE-RESUME
 
@@ -142,18 +130,18 @@ reftable ,  strap, pattern.
 DEFINE BROWSE Browser-Table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS Browser-Table B-table-Win _FREEFORM
   QUERY Browser-Table NO-LOCK DISPLAY
-      reftable.code
-      reftable.dscr 
-      reftable.val[1] label "Stacks" form ">9"
-      strap.val[1] label "Straps"    form ">9"
-      strap.code2 label "Strap Code" form "x(10)"
-      strap.dscr label "Formula" form "x(20)"
-      pattern.dscr LABEL "Pattern Image" FORM "x(50)"
-      enable reftable.code reftable.dscr reftable.val[1]
-             strap.val[1] strap.code2 strap.dscr pattern.dscr
+      stackPattern.stackCode
+      stackPattern.stackDescription 
+      stackPattern.stackCount label "Stacks" form ">9"
+      stackPattern.strapCount label "Straps"    form ">9"
+      stackPattern.strapCode label "Strap Code" form "x(10)"
+      stackPattern.strapFormula label "Formula" form "x(20)"
+      stackPattern.stackImage LABEL "Pattern Image" FORM "x(50)"
+      enable stackPattern.stackCode stackPattern.stackDescription stackPattern.stackCount
+             stackPattern.strapCount stackPattern.strapCode stackPattern.strapFormula stackPattern.stackImage
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ASSIGN SEPARATORS SIZE 196 BY 18.1
+    WITH NO-ASSIGN SEPARATORS SIZE 146 BY 18.1
          FONT 2.
 
 
@@ -203,8 +191,8 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW B-table-Win ASSIGN
-         HEIGHT             = 19.52
-         WIDTH              = 146.4.
+         HEIGHT             = 19.57
+         WIDTH              = 148.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -229,7 +217,7 @@ END.
   NOT-VISIBLE,,RUN-PERSISTENT                                           */
 /* SETTINGS FOR FRAME F-Main
    NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
-/* BROWSE-TAB Browser-Table TEXT-1 F-Main */
+/* BROWSE-TAB Browser-Table 1 F-Main */
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
@@ -247,23 +235,13 @@ ASSIGN
 &ANALYZE-SUSPEND _QUERY-BLOCK BROWSE Browser-Table
 /* Query rebuild information for BROWSE Browser-Table
      _START_FREEFORM
-OPEN QUERY {&SELF-NAME} FOR EACH reftable WHERE ~{&KEY-PHRASE}
-      AND reftable.reftable = "STACK" and
-ASI.reftable.company = ""
-AND reftable.loc = "" NO-LOCK,
- first strap  where strap.reftable = "STACKSTRAP"
-                and strap.company = ""
-                and strap.loc = ""
-                and strap.code = reftable.code no-lock,
-FIRST pattern OUTER-JOIN where pattern.reftable = "STACKPAT"
-                and pattern.company = ""
-                and pattern.loc = ""
-                and pattern.code = reftable.code NO-LOCK
+OPEN QUERY {&SELF-NAME} FOR EACH stackPattern WHERE ~{&KEY-PHRASE}
+      NO-LOCK
                     ~{&SORTBY-PHRASE}.
      _END_FREEFORM
      _START_FREEFORM_DEFINE
 DEFINE QUERY Browser-Table FOR
-reftable ,  strap, pattern.
+stackPattern.
      _END_FREEFORM_DEFINE
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
      _Query            is NOT OPENED
@@ -349,25 +327,25 @@ END.
 
 
 /* ************************  Control Triggers  ************************ */
-ON LEAVE OF strap.code2 IN BROWSE Browser-Table
+ON LEAVE OF stackPattern.strapCode IN BROWSE Browser-Table
 DO:
   IF LASTKEY NE -1 THEN DO:
     RUN valid-code2 NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
   END.
 END.
-ON LEAVE OF reftable.code IN BROWSE Browser-Table
+ON LEAVE OF stackPattern.stackCode IN BROWSE Browser-Table
 DO:
   IF LASTKEY NE -1 THEN DO:
     IF adm-new-record THEN
-    IF LENGTH(reftable.CODE:SCREEN-VALUE IN BROWSE {&browse-name}) > 1 THEN DO:
+    IF LENGTH(stackPattern.stackCode:SCREEN-VALUE IN BROWSE {&browse-name}) > 1 THEN DO:
         MESSAGE " Two character stacking code cannot be added to the flute's stacking matrix. The stack matrix only supports 1 character stacking pattern. " 
             + "The estimate imports the stacking pattern from the stacking matrix. Please note, you can manaully add a 2 character pattern on the estimate Inks/Pak Tab."
             VIEW-AS ALERT-BOX WARNING.
     END.
   END.
 END.
-ON 'help':U OF pattern.dscr IN BROWSE browser-table
+ON 'help':U OF stackPattern.stackImage IN BROWSE browser-table
 DO:
 
    def var ls-filename as cha no-undo.
@@ -476,8 +454,9 @@ PROCEDURE getValues :
   DEFINE OUTPUT PARAMETER opStackDscr AS CHARACTER NO-UNDO.
 
   ASSIGN
-    opStackCode = pattern.code
-    opStackDscr = pattern.dscr.
+    opStackCode = stackPattern.stackCode
+    opStackDscr = stackPattern.stackImage
+    .
 
 END PROCEDURE.
 
@@ -496,18 +475,6 @@ PROCEDURE local-assign-record :
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-record':U ) .
 
-  /* Code placed here will execute AFTER standard behavior.    */
-  IF NOT AVAIL strap THEN create strap.
-  assign strap.reftable = "STACKSTRAP"
-         strap.company = ""
-         strap.loc = ""
-         strap.code = reftable.code.
-
-  IF NOT AVAIL pattern THEN create pattern.
-  assign pattern.reftable = "STACKPAT"
-         pattern.company = ""
-         pattern.loc = ""
-         pattern.code = reftable.code.
 
 END PROCEDURE.
 
@@ -525,24 +492,6 @@ PROCEDURE local-create-record :
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'create-record':U ) .
-
-  /* Code placed here will execute AFTER standard behavior.    */
-  assign reftable.reftable = "STACK"
-         reftable.company = ""
-         reftable.loc = ""
-         reftable.code = FILL(" ",100) + reftable.rec_key.
-
-  create strap.
-  assign strap.reftable = "STACKSTRAP"
-         strap.company = ""
-         strap.loc = ""
-         strap.code = reftable.code.
-
-  create pattern.
-  assign pattern.reftable = "STACKPAT"
-         pattern.company = ""
-         pattern.loc = ""
-         pattern.code = reftable.code.
 
 END PROCEDURE.
 
@@ -584,7 +533,7 @@ PROCEDURE local-enable-fields :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'enable-fields':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-  APPLY "entry" TO reftable.CODE IN BROWSE {&browse-name} .
+  APPLY "entry" TO stackPattern.stackCode IN BROWSE {&browse-name} .
 
 END PROCEDURE.
 
@@ -617,24 +566,22 @@ PROCEDURE local-update-record :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEF BUFFER bf-ref FOR reftable.
+  DEF BUFFER BstackPattern FOR stackPattern.
 
   /* Code placed here will execute PRIOR to standard behavior. */
-  IF reftable.CODE:SCREEN-VALUE IN BROWSE {&browse-name} = ""  THEN DO:
+  IF stackPattern.stackCode:SCREEN-VALUE IN BROWSE {&browse-name} = ""  THEN DO:
      MESSAGE "Invalid Stacking Pattern Code. " VIEW-AS ALERT-BOX ERROR.
-     APPLY "entry" TO reftable.CODE.
+     APPLY "entry" TO stackPattern.stackCode.
      RETURN.
   END.
   
-  FIND FIRST bf-ref WHERE bf-ref.reftable = "STACK" AND bf-ref.company = ""
-                      AND bf-ref.loc = "" 
-                      AND bf-ref.CODE = reftable.CODE:SCREEN-VALUE
-                      AND RECID(bf-ref) <> RECID(reftable)
+  FIND FIRST BstackPattern WHERE BstackPattern.stackCode = stackPattern.stackCode:SCREEN-VALUE
+                      AND RECID(BstackPattern) <> RECID(stackPattern)
                       NO-LOCK NO-ERROR.
-  IF AVAIL bf-ref THEN DO:
+  IF AVAIL BstackPattern THEN DO:
      MESSAGE "Stacking Pattern Code already exists. Try other code." 
             VIEW-AS ALERT-BOX ERROR.
-     APPLY "entry" TO reftable.CODE.
+     APPLY "entry" TO stackPattern.stackCode.
      RETURN.
   END.
      
@@ -667,10 +614,7 @@ PROCEDURE send-records :
   {src/adm/template/snd-head.i}
 
   /* For each requested table, put it's ROWID in the output list.      */
-  {src/adm/template/snd-list.i "reftable"}
-  {src/adm/template/snd-list.i "strap"}
-  {src/adm/template/snd-list.i "pattern"}
-
+  {src/adm/template/snd-list.i "stackPattern"}
   /* Deal with any unexpected table requests before closing.           */
   {src/adm/template/snd-end.i}
 
@@ -708,19 +652,19 @@ PROCEDURE valid-code2 :
 ------------------------------------------------------------------------------*/
 
   DO WITH FRAME {&FRAME-NAME}:
-    strap.code2:SCREEN-VALUE IN BROWSE {&browse-name} =
-        CAPS(strap.code2:SCREEN-VALUE IN BROWSE {&browse-name}).
+    stackPattern.strapCode:SCREEN-VALUE IN BROWSE {&browse-name} =
+        CAPS(stackPattern.strapCode:SCREEN-VALUE IN BROWSE {&browse-name}).
 
-    IF strap.code2:SCREEN-VALUE IN BROWSE {&browse-name} NE "" THEN DO:
+    IF stackPattern.strapCode:SCREEN-VALUE IN BROWSE {&browse-name} NE "" THEN DO:
           FIND FIRST item
               WHERE item.company EQ cocode
-                AND item.i-no    EQ strap.code2:SCREEN-VALUE IN BROWSE {&browse-name}
+                AND item.i-no    EQ stackPattern.strapCode:SCREEN-VALUE IN BROWSE {&browse-name}
               NO-LOCK NO-ERROR.
           IF NOT AVAIL item OR item.mat-type NE "J" THEN DO:
-        MESSAGE TRIM(strap.code2:LABEL IN BROWSE {&browse-name}) +
+        MESSAGE TRIM(stackPattern.strapCode:LABEL IN BROWSE {&browse-name}) +
                 " is invalid, try help..."
             VIEW-AS ALERT-BOX ERROR.
-        APPLY "entry" TO strap.code2 IN BROWSE {&browse-name}.
+        APPLY "entry" TO stackPattern.strapCode IN BROWSE {&browse-name}.
         RETURN ERROR.
           END.
     END.
@@ -750,9 +694,9 @@ DEF VAR v-chr    AS CHAR FORMAT "x" NO-UNDO.
 DEF VAR v-loop   AS INT             NO-UNDO.
 DEF VAR v-flg    AS LOG             NO-UNDO.
 
-DEF VAR v-forml  LIKE strap.dscr    NO-UNDO.
+DEF VAR v-forml  LIKE stackPattern.strapFormula    NO-UNDO.
 
-ASSIGN  v-forml = TRIM(strap.dscr:SCREEN-VALUE IN BROWSE {&browse-name})
+ASSIGN  v-forml = TRIM(stackPattern.strapFormula:SCREEN-VALUE IN BROWSE {&browse-name})
         v-forml = TRIM(v-forml). 
 
 DO v-loop = 1 TO LENGTH(v-forml):
@@ -773,7 +717,7 @@ IF NOT v-flg THEN DO:
         "Please review the formula and enter a valid character."        
         VIEW-AS ALERT-BOX ERROR.
 
-    APPLY "entry" TO strap.dscr. 
+    APPLY "entry" TO stackPattern.strapFormula. 
 
     RETURN ERROR.
 

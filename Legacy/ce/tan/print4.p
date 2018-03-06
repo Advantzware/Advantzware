@@ -102,35 +102,14 @@ assign
   ctrl[17] = int(ce-ctrl.spec-add[7])
   ctrl[18] = int(ce-ctrl.spec-add[8]).
   
-FIND FIRST reftable-fold-pct
-     WHERE reftable-fold-pct.reftable EQ "ce-ctrl.fold-pct"
-       AND reftable-fold-pct.company  EQ ce-ctrl.company
-       AND reftable-fold-pct.loc      EQ ce-ctrl.loc
-     NO-LOCK NO-ERROR.
 
-IF AVAIL reftable-fold-pct THEN
-   ctrl[19] = reftable-fold-pct.val[1].
+   ctrl[19] = ce-ctrl.fold-pct.
 
-FIND FIRST reftable NO-LOCK
-    WHERE reftable.reftable EQ "ce-ctrl.fg-rate-farm"
-      AND reftable.company  EQ ce-ctrl.company
-      AND reftable.loc      EQ ce-ctrl.loc
-    NO-ERROR.  
-fg-rate-f = IF AVAIL reftable THEN reftable.val[1] ELSE 0.
+fg-rate-f = ce-ctrl.fg-rate-farm.
 
-FIND FIRST reftable NO-LOCK
-    WHERE reftable.reftable EQ "ce-ctrl.rm-rate-farm"
-      AND reftable.company  EQ ce-ctrl.company
-      AND reftable.loc      EQ ce-ctrl.loc
-    NO-ERROR.  
-rm-rate-f = IF AVAIL reftable THEN reftable.val[1] ELSE 0.
+rm-rate-f = ce-ctrl.rm-rate-farm.
 
-FIND FIRST reftable NO-LOCK
-    WHERE reftable.reftable EQ "ce-ctrl.hand-pct-farm"
-      AND reftable.company  EQ ce-ctrl.company
-      AND reftable.loc      EQ ce-ctrl.loc
-    NO-ERROR.  
-hand-pct-f = (IF AVAIL reftable THEN reftable.val[1] ELSE 0) / 100.
+hand-pct-f = ce-ctrl.hand-pct-farm / 100.
 
 if retry then output close.
 
@@ -195,18 +174,20 @@ hide frame ask no-pause.
 */
    
 DO TRANSACTION:
-  {est/op-lock.i xest}
+    /* 26680 - compile error correction */
+/*   {est/op-lock.i xest} */
   FIND bf-est WHERE RECID(bf-est) EQ RECID(xest).
   FIND CURRENT recalc-mr.
   ASSIGN
    bf-est.recalc    = do-speed
    recalc-mr.val[1] = INT(do-mr)
    bf-est.override  = do-gsa
-   op-lock.val[1]   = INT(bf-est.recalc)
-   op-lock.val[2]   = recalc-mr.val[1].
+/*   op-lock.val[1]   = INT(bf-est.recalc) */
+/*   op-lock.val[2]   = recalc-mr.val[1]. */
+   bf-est.recalc-mr = do-mr.
   FIND CURRENT bf-est NO-LOCK.
   FIND CURRENT recalc-mr NO-LOCK.
-  FIND CURRENT op-lock NO-LOCK.
+/*  FIND CURRENT op-lock NO-LOCK. */
   FIND xest WHERE RECID(xest) EQ RECID(bf-est).   
 END.
 /*

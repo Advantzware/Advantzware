@@ -91,7 +91,7 @@ DEF VAR ll-prt-dscr2 AS LOG NO-UNDO.
 DEF VAR adder-print AS LOG NO-UNDO.
 
 DEF VAR ls-image1 AS cha NO-UNDO.
-DEF VAR ls-full-img1 AS cha FORM "x(150)" NO-UNDO.
+DEF VAR ls-full-img1 AS cha FORM "x(200)" NO-UNDO.
 ASSIGN ls-image1 = "images\loyprinters.jpg" .
 FILE-INFO:FILE-NAME = ls-image1.
 ls-full-img1 = FILE-INFO:FULL-PATHNAME + ">".

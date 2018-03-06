@@ -153,6 +153,7 @@ lCEGOTOCALC = LOGICAL(cNK1Value).
 {cec/tt-eb-set-part.i "new"}
 
 DEF VAR viEQtyPrev AS INT NO-UNDO.
+DEFINE VARIABLE lCheckPurMan AS LOGICAL NO-UNDO .
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1553,6 +1554,33 @@ DO:
     APPLY "entry" TO eb.part-no IN BROWSE {&browse-name}.
     RETURN NO-APPLY.
   END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL eb.pur-man br-estitm _BROWSE-COLUMN B-table-Win
+ON VALUE-CHANGED OF eb.pur-man IN BROWSE br-estitm /* Set? */
+DO:
+   DEFINE VARIABLE lChackLog AS LOGICAL NO-UNDO .
+   DEFINE BUFFER bf-itemfg FOR itemfg .
+    FIND FIRST bf-itemfg NO-LOCK
+        WHERE bf-itemfg.company EQ cocode
+          AND bf-itemfg.i-no EQ eb.stock:SCREEN-VALUE IN BROWSE br-estitm NO-ERROR .
+   
+    lChackLog = IF eb.pur-man:SCREEN-VALUE IN BROWSE br-estitm EQ "P" THEN TRUE ELSE FALSE .
+    IF AVAIL bf-itemfg AND eb.pur-man:SCREEN-VALUE IN BROWSE br-estitm NE ""
+        AND bf-itemfg.pur-man NE lChackLog AND NOT bf-itemfg.isaset   THEN do:
+        
+        MESSAGE "Purchased / Manufactured Field" SKIP 
+                "Estimate Does Not Match Finished Goods." SKIP
+                "Reset Both? "
+            VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
+            UPDATE lCheckPurMan .
+    END.
+    ELSE lCheckPurMan = NO .
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -3394,6 +3422,7 @@ PROCEDURE local-assign-record :
   DEF BUFFER b-ef FOR ef.
   DEF BUFFER b-eb FOR eb.
   DEF BUFFER b-ref FOR reftable.
+  DEFINE BUFFER bff-itemfg FOR itemfg .
 
   DEF VAR char-hdl AS cha NO-UNDO.
   DEF VAR i AS INT NO-UNDO.
@@ -3777,6 +3806,13 @@ PROCEDURE local-assign-record :
      bf-eb.sman         = eb.sman
      bf-eb.comm         = eb.comm.
   END. 
+  IF adm-adding-record OR lv-hld-cust NE eb.cust-no THEN DO:
+       FIND FIRST cust NO-LOCK
+            WHERE cust.company = gcompany
+              AND cust.cust-no = eb.cust-no NO-ERROR.
+       IF AVAIL cust THEN
+           est.csrUser_id = cust.csrUser_id .
+  END.
 
   IF cestyle-log                                     AND
      (adm-adding-record OR lv-hld-style NE eb.style) THEN DO:
@@ -3808,7 +3844,15 @@ PROCEDURE local-assign-record :
   END.
 
   IF eb.pur-man THEN ef.nc = NO.
-
+  IF lCheckPurMan THEN DO:
+      FIND FIRST bff-itemfg EXCLUSIVE-LOCK
+           WHERE bff-itemfg.company EQ cocode
+             AND bff-itemfg.i-no EQ eb.stock-no NO-ERROR .
+      IF AVAIL bff-itemfg THEN
+          ASSIGN bff-itemfg.pur-man = eb.pur-man .
+      FIND CURRENT bff-itemfg NO-LOCK NO-ERROR .
+  END.
+  ASSIGN lCheckPurMan = NO .
   IF adm-new-record AND eb.pur-man THEN RUN create-e-itemfg-vend.
   ELSE IF eb.pur-man AND eb.eqty <> viEQtyPrev THEN RUN update-e-itemfg-vend.
 
@@ -5586,15 +5630,28 @@ PROCEDURE valid-part-no :
     ASSIGN
      lv-part-no = eb.part-no:SCREEN-VALUE IN BROWSE {&browse-name}
      lv-msg     = "".
-
-    IF lv-part-no EQ ""                                                     OR
-       (CAN-FIND(FIRST b-eb OF ef
-                 WHERE b-eb.part-no EQ lv-part-no
-                   AND (ROWID(b-eb) NE ROWID(eb) OR ll-is-copy-record)) AND
-        (lv-copy-what NE "form" OR NOT ll-is-copy-record))                  THEN
-      lv-msg = IF lv-part-no EQ "" THEN "may not be blank"
+    IF est.est-type EQ 1 THEN do: 
+        IF lv-part-no EQ ""                                                     OR
+           (CAN-FIND(FIRST b-eb OF ef
+                     WHERE b-eb.part-no EQ lv-part-no
+                       AND (ROWID(b-eb) NE ROWID(eb) OR ll-is-copy-record)) AND
+            (lv-copy-what NE "form" OR NOT ll-is-copy-record))                  THEN
+          lv-msg = IF lv-part-no EQ "" THEN "may not be blank"
+                                       ELSE "already exists on Form #" +
+                                            TRIM(STRING(ef.form-no,">>>")).
+    END.
+    ELSE DO: 
+       FIND FIRST b-eb NO-LOCK 
+           WHERE  b-eb.est-no EQ eb.est-no 
+             AND  b-eb.company EQ eb.company
+             AND  b-eb.part-no EQ lv-part-no
+             AND ROWID(b-eb) NE ROWID(eb) NO-ERROR  .
+       IF lv-part-no EQ ""                    OR
+           (AVAIL b-eb AND (lv-copy-what NE "form" OR NOT ll-is-copy-record) ) THEN
+           lv-msg = IF lv-part-no EQ "" THEN "may not be blank"
                                    ELSE "already exists on Form #" +
-                                        TRIM(STRING(ef.form-no,">>>")).
+                                        TRIM(STRING(b-eb.form-no,">>>")).
+    END.
 
     IF lv-msg NE "" THEN DO:
       MESSAGE TRIM(eb.part-no:LABEL IN BROWSE {&browse-name}) + " " +

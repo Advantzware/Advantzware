@@ -132,7 +132,8 @@
                       WHEN "lod-tag"       THEN cVarValue = string(cust.int-field[1]) . 
                       WHEN "fst-invdt"     THEN cVarValue = IF v-fst-invdt NE ? THEN string(v-fst-invdt) ELSE "" . 
                       WHEN "group"         THEN cVarValue = string(cust.spare-char-2)  .
-                      WHEN "last-ordered"  THEN cVarValue = IF dtLastOrdered = ? THEN "" ELSE string(dtLastOrdered)  . 
+                      WHEN "last-ordered"  THEN cVarValue = IF dtLastOrdered = ? THEN "" ELSE string(dtLastOrdered)  .
+                      WHEN "csr"           THEN cVarValue = IF cust.csrUser_id NE "" THEN string(cust.csrUser_id,"x(8)") ELSE "" .
                  END CASE.                                                          
   
                  cExcelVarValue = cVarValue.

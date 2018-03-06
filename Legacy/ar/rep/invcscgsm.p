@@ -94,7 +94,7 @@ DEF VAR v-frt-tax AS DEC NO-UNDO.
 FIND FIRST ar-inv NO-LOCK NO-ERROR.
 /* === with xprint ====*/
 DEF VAR ls-image1 AS cha NO-UNDO.
-DEF VAR ls-full-img1 AS cha FORM "x(150)" NO-UNDO.
+DEF VAR ls-full-img1 AS cha FORM "x(200)" NO-UNDO.
 
 ASSIGN
    ls-image1 = "images\csc.bmp"

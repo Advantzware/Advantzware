@@ -12,26 +12,48 @@ PROCEDURE pGetFilterValues:
             WHEN "INIT" THEN DO:
                 EMPTY TEMP-TABLE ttAudit.
                 EMPTY TEMP-TABLE ttuser.
-                FOR EACH AuditHdr NO-LOCK,
-                    EACH AuditDtl OF AuditHdr NO-LOCK
+                FOR EACH ASI._file NO-LOCK
                     :
-                    IF NOT CAN-FIND(FIRST ttUser
-                                    WHERE ttUser.AuditUser EQ AuditHdr.AuditUser) THEN DO:
+                    IF CAN-FIND(FIRST AuditHdr
+                                WHERE AuditHdr.AuditDB    EQ "ASI"
+                                  AND AuditHdr.AuditTable EQ ASI._file._file-name) THEN 
+                    FOR EACH ASI._field OF ASI._file NO-LOCK
+                        :
+                        CREATE ttAudit.
+                        ASSIGN
+                            ttAudit.AuditDB    = "ASI"
+                            ttAudit.AuditTable = ASI._file._file-name
+                            ttAudit.AuditField = ASI._field._field-name
+                            .
+                    END. /* each _field */
+                END. /* each _file */
+                FOR EACH users NO-LOCK:
+                    IF CAN-FIND(FIRST AuditHdr
+                                WHERE AuditHdr.AuditUser EQ users.user_id) THEN DO:  
                         CREATE ttUser.
-                        ttUser.AuditUser = AuditHdr.AuditUser.
-                    END. /* if not can-find */
-                    IF CAN-FIND(FIRST ttAudit
-                                WHERE ttAudit.AuditDB    EQ AuditHdr.AuditDB
-                                  AND ttAudit.AuditTable EQ AuditHdr.AuditTable
-                                  AND ttAudit.AuditField EQ AuditDtl.AuditField) THEN 
-                    NEXT.
-                    CREATE ttAudit.
-                    ASSIGN
-                        ttAudit.AuditDB    = AuditHdr.AuditDB
-                        ttAudit.AuditTable = AuditHdr.AuditTable
-                        ttAudit.AuditField = AuditDtl.AuditField
-                        .
-                END. /* each audithdr */
+                        ttUser.AuditUser = users.user_id.
+                    END. /* if can-find */
+                END. /* each users */
+/*                FOR EACH AuditHdr NO-LOCK,                                                */
+/*                    EACH AuditDtl OF AuditHdr NO-LOCK                                     */
+/*                    :                                                                     */
+/*                    IF NOT CAN-FIND(FIRST ttUser                                          */
+/*                                    WHERE ttUser.AuditUser EQ AuditHdr.AuditUser) THEN DO:*/
+/*                        CREATE ttUser.                                                    */
+/*                        ttUser.AuditUser = AuditHdr.AuditUser.                            */
+/*                    END. /* if not can-find */                                            */
+/*                    IF CAN-FIND(FIRST ttAudit                                             */
+/*                                WHERE ttAudit.AuditDB    EQ AuditHdr.AuditDB              */
+/*                                  AND ttAudit.AuditTable EQ AuditHdr.AuditTable           */
+/*                                  AND ttAudit.AuditField EQ AuditDtl.AuditField) THEN     */
+/*                    NEXT.                                                                 */
+/*                    CREATE ttAudit.                                                       */
+/*                    ASSIGN                                                                */
+/*                        ttAudit.AuditDB    = AuditHdr.AuditDB                             */
+/*                        ttAudit.AuditTable = AuditHdr.AuditTable                          */
+/*                        ttAudit.AuditField = AuditDtl.AuditField                          */
+/*                        .                                                                 */
+/*                END. /* each audithdr */                                                  */
             END. /* when init */
             WHEN "ALL" THEN DO:
                 /* From and To Date Range */

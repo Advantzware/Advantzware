@@ -41,7 +41,7 @@ def var v-case-line as char NO-UNDO.
 def var v-part-line as char NO-UNDO.
 
 DEF VAR ls-image1      AS CHAR                NO-UNDO.
-DEF VAR ls-full-img1   AS CHAR FORMAT "x(150)" NO-UNDO.
+DEF VAR ls-full-img1   AS CHAR FORMAT "x(200)" NO-UNDO.
 
 def buffer xinv-head for inv-head .
 def buffer xinv-line for inv-line .

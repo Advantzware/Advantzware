@@ -265,12 +265,13 @@ if vprint then do:
 
   if lv-error then return error.
 
-  IF lv-override THEN
-  for each probe where probe.company = xest.company and
+  IF lv-override THEN DO:
+    RUN est\CostResetHeaders.p(ROWID(xest), ROWID(job)).
+    for each probe where probe.company = xest.company and
                        probe.est-no = xest.est-no:
-     delete probe.                 
-  end.
-  
+        delete probe.                 
+    end.
+  END.
 end.
 
 ELSE DO:
@@ -307,18 +308,20 @@ FOR EACH eb fields(company est-no form-no blank-no) NO-LOCK
   END.
 
 DO TRANSACTION:
-  {est/op-lock.i xest}
+    /* 26680 - compile error correction */
+/*   {est/op-lock.i xest} */
   FIND bf-est WHERE RECID(bf-est) EQ RECID(xest).
   FIND CURRENT recalc-mr.
   ASSIGN
    bf-est.recalc    = do-speed
    recalc-mr.val[1] = INT(do-mr)
    bf-est.override  = do-gsa
-   op-lock.val[1]   = INT(bf-est.recalc)
-   op-lock.val[2]   = recalc-mr.val[1].
+/*   op-lock.val[1]   = INT(bf-est.recalc) */
+/*   op-lock.val[2]   = recalc-mr.val[1]. */
+   bf-est.recalc-mr = do-mr.
   FIND CURRENT bf-est NO-LOCK.
   FIND CURRENT recalc-mr NO-LOCK.
-  FIND CURRENT op-lock NO-LOCK.
+/*  FIND CURRENT op-lock NO-LOCK. */
   FIND xest WHERE RECID(xest) EQ RECID(bf-est).   
 END.
 
@@ -359,7 +362,7 @@ for each xef FIELDS(company est-no form-no)
     no-lock:
   qty = qty + if xeb.yrprice then xeb.yld-qty else xeb.bl-qty.
 end.
-
+iMasterQuantity = qty.
 {est/probeset.i qty 0}
 
 v-probe-fmt = IF probe.LINE LT 100 THEN "99" ELSE "999".
@@ -395,35 +398,14 @@ ctrl[16] = int(ce-ctrl.spec-add[6])
 ctrl[17] = int(ce-ctrl.spec-add[7])
 ctrl[18] = int(ce-ctrl.spec-add[8]).
 
-FIND FIRST reftable-broker-pct
-     WHERE reftable-broker-pct.reftable EQ "ce-ctrl.broker-pct"
-       AND reftable-broker-pct.company  EQ ce-ctrl.company
-       AND reftable-broker-pct.loc      EQ ce-ctrl.loc
-     NO-LOCK NO-ERROR.
+     ctrl[19] = ce-ctrl.broker-pct.
 
-IF AVAIL reftable-broker-pct THEN
-   ctrl[19] = reftable-broker-pct.val[1].
-
-FIND FIRST reftable NO-LOCK
-    WHERE reftable.reftable EQ "ce-ctrl.fg-rate-farm"
-      AND reftable.company  EQ ce-ctrl.company
-      AND reftable.loc      EQ ce-ctrl.loc
-    NO-ERROR.  
-fg-rate-f = IF AVAIL reftable THEN reftable.val[1] ELSE 0.
-
-FIND FIRST reftable NO-LOCK
-    WHERE reftable.reftable EQ "ce-ctrl.rm-rate-farm"
-      AND reftable.company  EQ ce-ctrl.company
-      AND reftable.loc      EQ ce-ctrl.loc
-    NO-ERROR.  
-rm-rate-f = IF AVAIL reftable THEN reftable.val[1] ELSE 0.
-
-FIND FIRST reftable NO-LOCK
-    WHERE reftable.reftable EQ "ce-ctrl.hand-pct-farm"
-      AND reftable.company  EQ ce-ctrl.company
-      AND reftable.loc      EQ ce-ctrl.loc
-    NO-ERROR.  
-hand-pct-f = (IF AVAIL reftable THEN reftable.val[1] ELSE 0) / 100.
+ 
+fg-rate-f = ce-ctrl.fg-rate-farm.
+ 
+rm-rate-f = ce-ctrl.rm-rate-farm.
+ 
+hand-pct-f = ce-ctrl.hand-pct-farm / 100.
 
 DO TRANSACTION:
   FOR each est-op
@@ -879,7 +861,8 @@ for each blk:
     xjob.pct      = blk.pct
     xjob.stock-no = blk.stock-no
     xjob.pur-man  = blk.pur-man.
-end.
+
+end. /*each blk*/
 
 display     "TOTAL  DIRECT  MATERIALS "
             dm-tot[3] format ">>>9.99" to 61
@@ -1145,6 +1128,7 @@ for each car break by car.id:
 
   find first blk where blk.id eq car.id no-error.
   ASSIGN
+  blk.freight = blk.freight + yyy
   blk.sell = blk.sell + yyy  /* use sell for freight costs for now */
   ld-fg-rate = IF blk.pur-man THEN fg-rate-f ELSE ce-ctrl.fg-rate
   blk.lab  = blk.lab  + (car.qty / 100 * ld-fg-rate)
@@ -1261,9 +1245,9 @@ end.
 ASSIGN
    v-probe-fmt = IF probe.LINE LT 100 THEN "99" ELSE "999"
    ls-outfile = tmp-dir + TRIM(xest.est-no) + ".p" + string(probe.line,v-probe-fmt).
-
-if vprint then do:
+  
   run cec/com/probemk.p (ROWID(probe)).
+if vprint then do:
 
   if opsys = "unix" then
     unix silent cat value(outfile2) >> value(outfile3).
@@ -1304,6 +1288,94 @@ for each blk,
       and xjob.form-no  eq blk.snum
       and xjob.blank-no eq blk.bnum
     /*BREAK BY blk.id*/:
+       FIND FIRST probeit NO-LOCK 
+        WHERE probeit.company EQ xest.company
+        AND probeit.est-no EQ xest.est-no
+        AND probeit.part-no EQ xjob.i-no
+        NO-ERROR.  
+       FIND FIRST ttCostHeader EXCLUSIVE-LOCK 
+        WHERE ttCostHeader.company EQ xest.company
+        AND ttCostHeader.estimateNo EQ xest.est-no
+        AND ttCostHeader.formNo EQ blk.snum
+        AND ttCostHeader.blankNo EQ blk.bnum
+        AND ttCostHeader.quantityMaster EQ iMasterQuantity
+        AND ttCostHeader.jobNo EQ cJobNo
+        AND ttCostHeader.jobNo2 EQ iJobNo2
+    NO-ERROR.
+    IF AVAILABLE ttCostHeader THEN DO: 
+        ASSIGN 
+            ttCostHeader.stdCostDirectMaterial =  xjob.mat
+            ttCostHeader.stdCostDirectLabor =  xjob.lab
+            ttCostHeader.stdCostVariableOverhead = xjob.voh
+/*            ttCostHeader.stdCostPrepLabor = tprep-lab    */
+/*            ttCostHeader.stdCostPrepMaterial =  tprep-mat*/
+/*            ttCostHeader.stdCostMiscLabor =  mis-tot[3]  */
+/*            ttCostHeader.stdCostMiscMaterial = mis-tot[1]*/
+            ttCostHeader.stdCostDirectFactory = ttCostHeader.stdCostDirectLabor + 
+                                                ttCostHeader.stdCostDirectMaterial + 
+                                                ttCostHeader.stdCostVariableOverhead + 
+                                                ttCostHeader.stdCostPrepLabor + 
+                                                ttCostHeader.stdCostPrepMaterial + 
+                                                ttCostHeader.stdCostMiscLabor +  
+                                                ttCostHeader.stdCostMiscMaterial
+            ttCostHeader.stdCostFixedOverhead =  xjob.foh
+            ttCostHeader.stdCostTotalFactory =  ttCostHeader.stdCostDirectFactory +
+                                                ttCostHeader.stdCostFixedOverhead
+/*            ttCostHeader.stdCostFreight = blk.freight     */
+/*            ttCostHeader.stdCostGSALabor = ctrl2[10]      */
+/*            ttCostHeader.stdCostGSAMaterial = ctrl2[9]    */
+/*            ttCostHeader.stdCostWarehousing = ctrl2[1]    */
+/*            ttCostHeader.stdCostBrokerComm = ctrl2[13]    */
+/*            ttCostHeader.stdCostSpecial1 = ctrl2[4]       */
+/*            ttCostHeader.stdCostSpecial2 = ctrl2[11]      */
+/*            ttCostHeader.stdCostSpecial3 = ctrl2[12]      */
+/*            ttCostHeader.stdCostGSABoard = calcpcts.val[2]*/
+            ttCostHeader.stdCostTotalGSA = ttCostHeader.stdCostGSABoard + ttCostHeader.stdCostGSALabor + ttCostHeader.stdCostGSAMaterial
+            ttCostHeader.stdCostTotalOther = ttCostHeader.stdCostFreight +
+                                      ttCostHeader.stdCostWarehousing +
+                                      ttCostHeader.stdCostBrokerComm +
+                                      ttCostHeader.stdCostSpecial1 +
+                                      ttCostHeader.stdCostSpecial2 +
+                                      ttCostHeader.stdCostSpecial3 +
+                                      ttCostHeader.stdCostTotalGSA +
+                                      ttCostHeader.stdCostRoyalty
+    .
+        IF ctrl[13] NE 0 /*include S1 in Factory Costs*/ THEN
+            ASSIGN
+                ttCostHeader.stdCostTotalFactory = ttCostHeader.stdCostTotalFactory + ttCostHeader.stdCostSpecial1
+                ttCostHeader.stdCostTotalOther = ttCostHeader.stdCostTotalOther - ttCostHeader.stdCostSpecial1
+                .
+        IF ctrl[14] NE 0 /*include S2 in Factory Costs*/ THEN
+            ASSIGN
+                ttCostHeader.stdCostTotalFactory = ttCostHeader.stdCostTotalFactory + ttCostHeader.stdCostSpecial2
+                ttCostHeader.stdCostTotalOther = ttCostHeader.stdCostTotalOther - ttCostHeader.stdCostSpecial2
+                .
+        IF ctrl[15] NE 0 /*include S3 in Factory Costs*/ THEN
+            ASSIGN
+                ttCostHeader.stdCostTotalFactory = ttCostHeader.stdCostTotalFactory + ttCostHeader.stdCostSpecial3
+                ttCostHeader.stdCostTotalOther = ttCostHeader.stdCostTotalOther - ttCostHeader.stdCostSpecial3
+                .
+        IF ctrl[16] NE 0 /*include GSA in Factory Costs*/ THEN
+            ASSIGN
+                ttCostHeader.stdCostTotalFactory = ttCostHeader.stdCostTotalFactory + ttCostHeader.stdCostTotalGSA
+                ttCostHeader.stdCostTotalOther = ttCostHeader.stdCostTotalOther - ttCostHeader.stdCostTotalGSA
+                .
+        IF ctrl[6] NE 0 /*include Freight in Factory Costs - Should be total but direct right now - 26330*/ THEN
+            ASSIGN
+                ttCostHeader.stdCostDirectFactory = ttCostHeader.stdCostDirectFactory + ttCostHeader.stdCostFreight
+                ttCostHeader.stdCostTotalFactory = ttCostHeader.stdCostTotalFactory + ttCostHeader.stdCostFreight
+                ttCostHeader.stdCostTotalOther = ttCostHeader.stdCostTotalOther - ttCostHeader.stdCostFreight
+                .
+        IF ctrl[18] NE 0 /*include Royalty in Factory Costs*/ THEN
+            ASSIGN
+                ttCostHeader.stdCostTotalFactory = ttCostHeader.stdCostTotalFactory + ttCostHeader.stdCostRoyalty
+                ttCostHeader.stdCostTotalOther = ttCostHeader.stdCostTotalOther - ttCostHeader.stdCostRoyalty
+                .
+        ASSIGN 
+            ttCostHeader.stdProfitGross         = ttCostHeader.stdSellPrice - ttCostHeader.stdCostTotalFactory
+            ttCostHeader.stdProfitNet           = ttCostHeader.stdSellPrice - ttCostHeader.stdCostFull
+            .
+    END.      
   if v-brd-only then do:
     /*if first(blk.id) then
     DO: */

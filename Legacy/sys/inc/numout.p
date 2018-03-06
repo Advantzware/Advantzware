@@ -36,37 +36,38 @@ IF NOT AVAIL ef THEN DO:
   RETURN.
 END.
 
-RUN cec/isitfoam.p (ROWID(ef), OUTPUT ll-foam).
-
-IF ll-foam THEN
-FIND FIRST ef-nsh OF ef NO-LOCK NO-ERROR.
-
-IF AVAIL ef-nsh THEN DO:
-  v-on-f = 0.
-
-  RELEASE ef-nsh.
-
-  FOR EACH ef-nsh OF ef
-      WHERE (ef-nsh.pass-no EQ est-op.op-pass OR
-             LOOKUP(est-op.dept,"CR,RC,DC") LE 0)
-      NO-LOCK
-      BREAK BY ef-nsh.sheet-no:
-
-    IF LAST-OF(ef-nsh.sheet-no) THEN DO:
-      vn-out = 1.
-      FOR EACH b-nsh OF ef
-          WHERE b-nsh.sheet-no EQ ef-nsh.sheet-no 
-            AND (b-nsh.pass-no LT ef-nsh.pass-no OR
-                 LOOKUP(est-op.dept,"CR,RC,DC") LE 0)
-          NO-LOCK:
-        vn-out = vn-out * b-nsh.n-out-l * b-nsh.n-out-w * b-nsh.n-out-d.
-      END.
-      v-on-f = v-on-f + vn-out.
-    END.
-  END.
-END.
-
-ELSE DO:
+/*Foam Logic Commented out Per Joe - 26560 */
+/*RUN cec/isitfoam.p (ROWID(ef), OUTPUT ll-foam).                         */
+/*                                                                        */
+/*IF ll-foam THEN                                                         */
+/*FIND FIRST ef-nsh OF ef NO-LOCK NO-ERROR.                               */
+/*                                                                        */
+/*IF AVAIL ef-nsh  THEN DO:                                               */
+/*  v-on-f = 0.                                                           */
+/*                                                                        */
+/*  RELEASE ef-nsh.                                                       */
+/*                                                                        */
+/*  FOR EACH ef-nsh OF ef                                                 */
+/*      WHERE (ef-nsh.pass-no EQ est-op.op-pass OR                        */
+/*             LOOKUP(est-op.dept,"CR,RC,DC") LE 0)                       */
+/*      NO-LOCK                                                           */
+/*      BREAK BY ef-nsh.sheet-no:                                         */
+/*                                                                        */
+/*    IF LAST-OF(ef-nsh.sheet-no) THEN DO:                                */
+/*      vn-out = 1.                                                       */
+/*      FOR EACH b-nsh OF ef                                              */
+/*          WHERE b-nsh.sheet-no EQ ef-nsh.sheet-no                       */
+/*            AND (b-nsh.pass-no LT ef-nsh.pass-no OR                     */
+/*                 LOOKUP(est-op.dept,"CR,RC,DC") LE 0)                   */
+/*          NO-LOCK:                                                      */
+/*        vn-out = vn-out * b-nsh.n-out-l * b-nsh.n-out-w * b-nsh.n-out-d.*/
+/*      END.                                                              */
+/*      v-on-f = v-on-f + vn-out.                                         */
+/*    END.                                                                */
+/*  END.                                                                  */
+/*END.                                                                    */
+/*                                                                        */
+/*ELSE DO:                                                                */
   assign
    v-outw = if ef.n-out   eq 0 then 1 else ef.n-out
    v-outl = if ef.n-out-l eq 0 then 1 else ef.n-out-l
@@ -132,6 +133,6 @@ ELSE DO:
   end.
 
   v-on-f = if v-on-f lt 1 then 1 else trunc(v-on-f,0).
-END.
+/*END.*/
 
 /* end ---------------------------------- copr. 1996  advanced software, inc. */

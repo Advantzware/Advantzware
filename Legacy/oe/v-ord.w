@@ -223,7 +223,7 @@ RUN sys/ref/ordtypes.p (OUTPUT lv-type-codes, OUTPUT lv-type-dscrs).
 DEFINE QUERY external_tables FOR oe-ord.
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-FIELDS oe-ord.ord-no oe-ord.est-no oe-ord.job-no ~
-oe-ord.job-no2 oe-ord.spare-char-2 oe-ord.sold-id oe-ord.ord-date ~
+oe-ord.job-no2 oe-ord.spare-char-2 oe-ord.sold-id oe-ord.ord-date oe-ord.csrUser_id ~
 oe-ord.due-code oe-ord.due-date oe-ord.last-date oe-ord.prod-date ~
 oe-ord.po-no oe-ord.contact oe-ord.over-pct oe-ord.under-pct oe-ord.terms ~
 oe-ord.tax-gr oe-ord.frt-pay oe-ord.carrier oe-ord.fob-code oe-ord.sman[1] ~
@@ -237,7 +237,7 @@ oe-ord.spare-char-1
 btnCalendar-4 btnCalendar-5 RECT-30 RECT-33 RECT-35 RECT-36 RECT-37 RECT-34 
 &Scoped-Define DISPLAYED-FIELDS oe-ord.ord-no oe-ord.est-no oe-ord.job-no ~
 oe-ord.job-no2 oe-ord.user-id oe-ord.stat oe-ord.spare-char-2 ~
-oe-ord.cust-no oe-ord.sold-id oe-ord.ord-date oe-ord.cust-name ~
+oe-ord.cust-no oe-ord.sold-id oe-ord.csrUser_id oe-ord.ord-date oe-ord.cust-name ~
 oe-ord.sold-name oe-ord.due-code oe-ord.due-date oe-ord.addr[1] ~
 oe-ord.sold-addr[1] oe-ord.last-date oe-ord.addr[2] oe-ord.sold-addr[2] ~
 oe-ord.prod-date oe-ord.city oe-ord.state oe-ord.zip oe-ord.sold-city ~
@@ -431,6 +431,10 @@ DEFINE FRAME F-Main
           LABEL "Sold To"
           VIEW-AS FILL-IN 
           SIZE 15 BY 1
+     oe-ord.csrUser_id AT ROW 2.67 COL 94 COLON-ALIGNED
+          LABEL "CSR"
+          VIEW-AS FILL-IN 
+          SIZE 17 BY 1
      oe-ord.ord-date AT ROW 2.67 COL 128.2 COLON-ALIGNED
           LABEL "Date"
           VIEW-AS FILL-IN 
@@ -773,6 +777,8 @@ ASSIGN
    NO-ENABLE 2                                                          */
 /* SETTINGS FOR FILL-IN oe-ord.sold-id IN FRAME F-Main
    EXP-LABEL                                                            */
+/* SETTINGS FOR FILL-IN oe-ord.csrUser_id IN FRAME F-Main
+   EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN oe-ord.sold-name IN FRAME F-Main
    NO-ENABLE 2                                                          */
 /* SETTINGS FOR FILL-IN oe-ord.sold-state IN FRAME F-Main
@@ -935,6 +941,12 @@ DO:
               RUN windows/l-ordtyp.w (fi_type:SCREEN-VALUE, OUTPUT char-val).
               IF char-val <> "" THEN fi_type:SCREEN-VALUE = ENTRY(1,char-val).
          END.
+         when "csrUser_id" then do:
+         run windows/l-users.w (oe-ord.csrUser_id:SCREEN-VALUE in frame {&frame-name}, output char-val).
+           if char-val <> "" then 
+              assign oe-ord.csrUser_id:screen-value in frame {&frame-name} = entry(1,char-val).
+           return no-apply.
+     end.
     END CASE.
     RETURN NO-APPLY.
 END.
@@ -1162,6 +1174,21 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&Scoped-define SELF-NAME oe-ord.csrUser_id
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-ord.csrUser_id V-table-Win
+ON LEAVE OF oe-ord.csrUser_id IN FRAME F-Main /* Type */
+DO:
+  
+  IF LASTKEY <> -1 THEN DO:
+     RUN valid-custcsr NO-ERROR.
+     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+  END.
+
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-ord.est-no V-table-Win
 ON LEAVE OF oe-ord.est-no IN FRAME F-Main /* Estimate # */
@@ -1173,7 +1200,7 @@ DO:
     RUN valid-est-no NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
-    IF ll-est-no-mod AND TRIM({&self-name}:SCREEN-VALUE) NE "" THEN DO:
+    IF ll-est-no-mod AND TRIM(oe-ord.est-no:SCREEN-VALUE) NE "" THEN DO: 
       RUN get-from-est.
       IF RETURN-VALUE NE "" THEN RETURN NO-APPLY.
     END.
@@ -3232,6 +3259,7 @@ PROCEDURE display-cust-detail :
             ll-f-bill = oe-ord.frt-pay = "B"
             oe-ord.sman[1]:screen-value   = cust.sman
             oe-ord.s-pct[1]:screen-value = "100.00"
+            oe-ord.csrUser_id:SCREEN-VALUE = cust.csrUser_id 
             v-custype         = cust.type
             v-ord-limit       = cust.ord-lim
             v-crd-limit       = cust.cr-lim - (cust.acc-bal + cust.ord-bal).
@@ -3618,6 +3646,7 @@ IF AVAIL xest THEN DO:
              oe-ord.under-pct:screen-value = STRING(cust.under-pct)
              oe-ord.fob-code:screen-value  = cust.fob-code
              oe-ord.tax-gr:screen-value    = cust.tax-gr
+             oe-ord.csrUser_id:SCREEN-VALUE = IF xest.csrUser_id NE "" THEN xest.csrUser_id ELSE cust.csrUser_id
              v-custype         = cust.type.
 
       IF lastship-cha = "Stock/Custom" THEN DO:
@@ -5116,6 +5145,9 @@ PROCEDURE local-update-record :
      RUN valid-tax-gr NO-ERROR.
      IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
+     RUN valid-custcsr NO-ERROR.
+     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+
      RUN valid-due-date.
      IF ERROR-STATUS:ERROR THEN
         RETURN NO-APPLY.
@@ -6206,6 +6238,26 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-custcsr V-table-Win 
+PROCEDURE valid-custcsr :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  {methods/lValidateError.i YES}
+  IF oe-ord.csrUser_id:SCREEN-VALUE IN FRAME {&FRAME-NAME} NE "" AND
+       NOT CAN-FIND(FIRST users WHERE users.USER_ID EQ oe-ord.csrUser_id:SCREEN-VALUE IN FRAME {&FRAME-NAME})
+  THEN DO:
+     MESSAGE "Invalid customer CSR. Try help." VIEW-AS ALERT-BOX ERROR.
+     RETURN ERROR.
+  END.
+  {methods/lValidateError.i NO}
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-due-date V-table-Win 
 PROCEDURE valid-due-date :
 /*------------------------------------------------------------------------------
@@ -6423,12 +6475,7 @@ PROCEDURE valid-po-no :
     FIND FIRST cust NO-LOCK
         WHERE cust.company EQ oe-ord.company
           AND cust.cust-no EQ oe-ord.cust-no:SCREEN-VALUE
-          AND CAN-FIND(FIRST cust-po-mand
-                       WHERE cust-po-mand.reftable EQ "cust.po-mand"
-                         AND cust-po-mand.company  EQ cust.company
-                         AND cust-po-mand.loc      EQ ""
-                         AND cust-po-mand.code     EQ cust.cust-no
-                         AND cust-po-mand.val[1]   EQ 1)
+          AND cust.po-mandatory
         NO-ERROR.
 
     IF AVAIL cust AND TRIM(oe-ord.po-no:SCREEN-VALUE) EQ "" THEN DO:

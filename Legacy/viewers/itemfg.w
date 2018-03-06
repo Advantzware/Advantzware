@@ -57,22 +57,14 @@ DEF VAR lv-puruom       LIKE itemfg.pur-uom NO-UNDO.
 
 /* gdm - 11190901 */
 DEF VAR v-shpmet        LIKE itemfg.ship-meth NO-UNDO.
+DEFINE VARIABLE lCheckPurMan AS LOGICAL NO-UNDO .
 
 &scoped-define copy-proc proc-copy
 &SCOPED-DEFINE itemfg-maint itemfg-maint
 
 
-&SCOPED-DEFINE where-fgstatus                 ~
-    WHERE reftable.reftable EQ "FGSTATUS"     ~
-      AND reftable.company  EQ itemfg.company ~
-      AND reftable.loc      EQ ""             ~
-      AND reftable.code     EQ itemfg.i-no
 
-&SCOPED-DEFINE where-exempt-disc                    ~
-    WHERE reftable.reftable EQ "itemfg.exempt-disc" ~
-      AND reftable.company  EQ itemfg.company       ~
-      AND reftable.loc      EQ ""                   ~
-      AND reftable.code     EQ itemfg.i-no
+
 
 DEF TEMP-TABLE w-est-no
     FIELD w-est-no LIKE itemfg.est-no
@@ -1090,7 +1082,23 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL itemfg.pur-man V-table-Win
 ON VALUE-CHANGED OF itemfg.pur-man IN FRAME F-Main /* Purchased or Manf */
 DO:
+    DEFINE BUFFER bf-eb FOR eb .
     IF itemfg.pur-man:screen-value = "no" THEN itemfg.prod-uom:screen-value = "M".
+    
+    FIND FIRST bf-eb NO-LOCK
+        WHERE bf-eb.company EQ cocode 
+          AND bf-eb.stock-no EQ itemfg.i-no:SCREEN-VALUE
+          AND bf-eb.pur-man NE logical(itemfg.pur-man:SCREEN-VALUE) NO-ERROR.
+      MESSAGE "logical(itemfg.pur-man:SCREEN-VALUE) " STRING(bf-eb.pur-man) STRING(logical(itemfg.pur-man:SCREEN-VALUE)) VIEW-AS ALERT-BOX ERROR .
+    IF AVAIL bf-eb THEN DO:
+        MESSAGE "Purchased / Manufactured Field" SKIP 
+                "Estimate Does Not Match Finished Goods." SKIP
+                "Reset Both? "
+            VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
+            UPDATE lCheckPurMan . 
+     END.
+     ELSE lCheckPurMan = NO .
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1551,7 +1559,7 @@ PROCEDURE local-assign-record :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-record':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-  RUN reftable-values (NO).
+  
 
   IF tg-freeze-weight THEN
       itemfg.spare-int-1 = 1.
@@ -1603,7 +1611,7 @@ PROCEDURE local-assign-record :
  FIND FIRST fg-set WHERE fg-set.company = itemfg.company 
      AND fg-set.set-no = itemfg.i-no NO-LOCK NO-ERROR.
 
- IF AVAIL itemfg AND AVAIL fg-set THEN
+ IF AVAIL itemfg AND (AVAIL fg-set OR lCheckPurMan) THEN
    FOR EACH eb NO-LOCK      
        WHERE eb.company EQ itemfg.company
          AND eb.cust-no EQ itemfg.cust-no
@@ -1615,6 +1623,7 @@ PROCEDURE local-assign-record :
      END.
      RELEASE bf-eb.
    END. /* each eb */
+   ASSIGN lCheckPurMan = NO .
 
   IF NOT  v-mat AND adm-new-record AND NOT adm-adding-record THEN DO: /* task 06161508 */
 
@@ -1750,11 +1759,7 @@ PROCEDURE local-display-fields :
   IF AVAIL itemfg AND NOT adm-new-record THEN DO:
     tb_taxable = itemfg.taxable.
 
-/*     ASSIGN                                               */
-/*      rd_status      = "A"                                */
-/*      tb_exempt-disc = NO.                                */
-/*                                                          */
-/*     IF itemfg.i-no NE "" THEN RUN reftable-values (YES). */
+
   END.
 
   /* Dispatch standard ADM method.                             */
@@ -2246,55 +2251,6 @@ PROCEDURE recalc-cost :
   RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE, "record-source", OUTPUT char-hdl).
 
   RUN repo-query IN WIDGET-HANDLE(char-hdl) (ROWID(itemfg)).
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE reftable-values V-table-Win 
-PROCEDURE reftable-values :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  DEF INPUT PARAM ip-display AS LOG NO-UNDO.
-
-  IF AVAIL itemfg THEN DO:
-
-/*     FIND FIRST reftable {&where-fgstatus} NO-ERROR. */
-/*     IF NOT AVAIL reftable THEN DO:                  */
-/*       CREATE reftable.                              */
-/*       ASSIGN                                        */
-/*        reftable.reftable = "FGSTATUS"               */
-/*        reftable.company  = itemfg.company           */
-/*        reftable.loc      = ""                       */
-/*        reftable.code     = itemfg.i-no              */
-/*        reftable.code2    = rd_status.               */
-/*     END.                                            */
-/*     IF ip-display THEN                                 */
-/*       rd_status = reftable.code2.                      */
-/*     ELSE                                               */
-/*       reftable.code2 = rd_status.                      */
-/*                                                        */
-/*     FIND FIRST reftable {&where-exempt-disc} NO-ERROR. */
-/*     IF NOT AVAIL reftable THEN DO:                     */
-/*       CREATE reftable.                                 */
-/*       ASSIGN                                           */
-/*        reftable.reftable = "itemfg.exempt-disc"        */
-/*        reftable.company  = itemfg.company              */
-/*        reftable.loc      = ""                          */
-/*        reftable.code     = itemfg.i-no.                */
-/*     END.                                               */
-/*                                                        */
-/*     IF ip-display THEN                                 */
-/*       tb_exempt-disc = reftable.val[1] EQ 1.           */
-/*     ELSE                                               */
-/*       reftable.val[1] = INT(tb_exempt-disc).           */
-/*                                                        */
-/*     FIND CURRENT reftable NO-LOCK.                     */
-  END.
-
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

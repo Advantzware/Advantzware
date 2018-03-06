@@ -155,12 +155,13 @@ ON CHOOSE OF btnCRM IN FRAME F-Main /* CRM */
 DO:
     DEFINE VARIABLE cHandle AS CHARACTER NO-UNDO.
     DEFINE VARIABLE crmType AS CHARACTER NO-UNDO.
-
+    DEFINE VARIABLE lAccess AS LOGICAL   NO-UNDO.
+    
     RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,'CRM-source':U,OUTPUT cHandle).
     RUN pCRMType IN WIDGET-HANDLE(cHandle) (OUTPUT crmType).
-    RUN util/chk-mod.p ("ASI", crmType) NO-ERROR.
-    IF NOT ERROR-STATUS:ERROR THEN
-    RUN pCRM IN WIDGET-HANDLE(cHandle).
+    RUN util/CheckModule.p ("ASI", crmType, YES, OUTPUT lAccess).
+    IF lAccess THEN
+        RUN pCRM IN WIDGET-HANDLE(cHandle).
 END.
 
 /* _UIB-CODE-BLOCK-END */

@@ -32,8 +32,8 @@ DEF VAR ll-calc-disc-first AS LOG NO-UNDO.
 /* === with xprint ====*/
 DEF VAR ls-image1 AS cha NO-UNDO.
 DEF VAR ls-image2 AS cha NO-UNDO.
-DEF VAR ls-full-img1 AS cha FORMAT "x(50)" NO-UNDO.
-DEF VAR ls-full-img2 AS cha FORMAT "x(50)" NO-UNDO.
+DEF VAR ls-full-img1 AS cha FORMAT "x(200)" NO-UNDO.
+DEF VAR ls-full-img2 AS cha FORMAT "x(200)" NO-UNDO.
 
 IF cocode = "002" THEN ls-image1 = "images\allwestl.jpg".
 ELSE ASSIGN ls-image1 = "images\allwestl.jpg".

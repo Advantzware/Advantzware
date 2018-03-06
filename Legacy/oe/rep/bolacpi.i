@@ -3,7 +3,7 @@
 PUT
   "<FArial>"  SKIP
   "<P14><C+40><B>Bill Of Lading</B>     Page: " STRING(PAGE-NUM - lv-pg-num,">>9") + " of " + STRING(lv-tot-pg) FORM "x(20)" SKIP
-  "<C1><R-1><#1><R+5><C+25>" "<IMAGE#1=" + ls-full-img1 FORM "x(160)" SKIP 
+  "<C1><R-1><#1><R+5><C+25>" "<IMAGE#1=" + ls-full-img1 FORM "x(200)" SKIP 
   "<=1><R+2>" "<FGCOLOR=" + TRIM(lv-comp-color) + ">" FORM "x(15)"
   "<P10><=1><R+4>"
   v-comp-add1 AT 8 SKIP

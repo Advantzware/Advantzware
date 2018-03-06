@@ -52,16 +52,13 @@ IF {&TABLENAME}.company NE "" AND {&TABLENAME}.r-no NE 0 THEN DO:
       NO-ERROR.
   IF AVAIL po-ord THEN {&TABLENAME}.vend-no = po-ord.vend-no.
 
-
-     IF {&TABLENAME}.create-by = "" THEN DO:
-         ASSIGN {&TABLENAME}.create-by = USERID("nosweat").
-    END.
     ASSIGN
-      {&TABLENAME}.update-by = USERID("nosweat")         
-     {&TABLENAME}.upd-date = TODAY
-     {&TABLENAME}.upd-time = TIME.
+     {&TABLENAME}.user-id    = USERID("asi")
+     {&TABLENAME}.update-by = USERID("asi")         
+     {&TABLENAME}.upd-date   = TODAY
+     {&TABLENAME}.upd-time   = TIME.
 END.
-{&TABLENAME}.update-by = USERID("nosweat").
+{&TABLENAME}.update-by = USERID("asi").
 /* Clear out any error-status from find with no-error that is false */
 DEF VAR ll-error AS LOG NO-UNDO.
 ll-error = YES NO-ERROR.

@@ -371,6 +371,7 @@ FIND FIRST est
 
 IF AVAIL est THEN DO:
   {est/op-lock.i est}
+  
   IF NEW op-lock                                      OR
      {&TABLENAME}.company NE old-{&TABLENAME}.company OR
      {&TABLENAME}.op-lock NE old-{&TABLENAME}.op-lock THEN

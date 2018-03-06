@@ -79,7 +79,7 @@ def TEMP-TABLE w3 no-undo
     field ship-i           as   char format "x(60)".
 /* === with xprint ====*/
 DEF VAR ls-image1 AS cha NO-UNDO.
-DEF VAR ls-full-img1 AS cha FORM "x(100)" NO-UNDO.
+DEF VAR ls-full-img1 AS cha FORM "x(200)" NO-UNDO.
 DEF VAR cSignatureFile AS CHAR FORM "X(100)" NO-UNDO.
 
 ASSIGN ls-image1 = "images/RFC.jpg"

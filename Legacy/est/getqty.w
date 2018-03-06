@@ -1082,10 +1082,10 @@ DO:
   reftable.val[1] = io-v-match-up.
 
   {est/op-lock.i xest}
-
   ASSIGN
    op-lock.val[1] = INT(io-do-speed)
    op-lock.val[2] = INT(io-do-mr).
+
 END.
 
 /* _UIB-CODE-BLOCK-END */

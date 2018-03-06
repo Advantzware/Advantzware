@@ -178,7 +178,7 @@ DEFINE VARIABLE begin_cust-no AS CHARACTER FORMAT "X(8)"
      SIZE 17 BY 1.
 
 DEFINE VARIABLE begin_date AS DATE FORMAT "99/99/9999":U INITIAL 01/01/001 
-     LABEL "From Order Date" 
+     LABEL "From Release Date" 
      VIEW-AS FILL-IN 
      SIZE 17 BY .95 NO-UNDO.
 
@@ -208,7 +208,7 @@ DEFINE VARIABLE end_cust-no AS CHARACTER FORMAT "X(8)" INITIAL "zzzzzzzz"
      SIZE 17 BY 1.
 
 DEFINE VARIABLE end_date AS DATE FORMAT "99/99/9999":U INITIAL 12/31/9999 
-     LABEL "To Order Date" 
+     LABEL "To Release Date" 
      VIEW-AS FILL-IN 
      SIZE 17 BY 1 NO-UNDO.
 
