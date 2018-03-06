@@ -3076,8 +3076,7 @@ PROCEDURE ipLoadUtilNotes :
     END. 
     INPUT CLOSE.
         
-    EMPTY TEMP-TABLE ttNotes.
-    
+    EMPTY TEMP-TABLE ttNotes.    
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

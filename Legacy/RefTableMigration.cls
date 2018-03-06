@@ -2222,6 +2222,53 @@ CLASS RefTableMigration:
         END.  /*FOR EACH reftable*/         
         RETURN iCnt.
     END METHOD. /*itemfg-ink*/
+    METHOD PUBLIC INTEGER UserDocs():
+        DEFINE VARIABLE iCnt AS INTEGER NO-UNDO.
+        FOR EACH users EXCLUSIVE:
+            FOR EACH reftable EXCLUSIVE WHERE 
+                reftable.reftable EQ "users.user-docs" AND
+                reftable.company EQ users.user_id:
+                ASSIGN
+                    users.showOnPO = IF users.showOnPO = TRUE OR reftable.val[1] = 1 THEN TRUE ELSE FALSE
+                    users.showOnBOL = IF users.showOnBOL = TRUE OR reftable.val[2] = 1 THEN TRUE ELSE FALSE
+                    users.showOnInv = IF users.showOnInv = TRUE OR reftable.val[3] = 1 THEN TRUE ELSE FALSE
+                    users.showOnAck = IF users.showOnAck = TRUE OR reftable.val[4] = 1 THEN TRUE ELSE FALSE
+                    users.showOnQuote = IF users.showOnQuote = TRUE OR reftable.val[5] = 1 THEN TRUE ELSE FALSE
+                    .
+            END.
+            FOR EACH reftable EXCLUSIVE WHERE
+                reftable.reftable EQ "users.phone-no" AND
+                reftable.company EQ users.user_id:
+                ASSIGN
+                    users.phone = IF users.phone = "" AND reftable.CODE = "" THEN reftable.CODE ELSE users.phone
+                    .
+            END.
+            FOR EACH reftable EXCLUSIVE WHERE
+                reftable.reftable EQ "users.fax-no" AND
+                reftable.company EQ users.user_id:
+                ASSIGN
+                    users.fax = IF users.fax = "" AND reftable.CODE NE "" THEN reftable.CODE ELSE users.fax
+                    .
+            END.
+            FOR EACH reftable EXCLUSIVE WHERE
+                reftable.reftable EQ "users.phone-cnty" AND
+                reftable.company EQ users.user_id:
+                ASSIGN
+                    users.phone-cnty = IF users.phone-cnty = "" AND reftable.CODE NE "" THEN reftable.CODE ELSE users.phone-cnty
+                    .
+            END.
+            FOR EACH reftable EXCLUSIVE WHERE
+                reftable.reftable EQ "users.fax-cnty" AND
+                reftable.company EQ users.user_id:
+                ASSIGN
+                    users.fax-cnty = IF users.fax-cnty = "" AND reftable.CODE NE "" THEN reftable.CODE ELSE users.fax-cnty
+                    .            
+            END.            
+            RELEASE users.      
+            iCnt = iCnt + 1.  
+        END.
+        return iCnt.
+     END METHOD. /*UserDocs*/     
     METHOD PUBLIC INTEGER VendQty():
         DEFINE VARIABLE iCnt AS INTEGER NO-UNDO.
         DEFINE VARIABLE i AS INTEGER NO-UNDO.
