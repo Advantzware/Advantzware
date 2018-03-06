@@ -268,7 +268,7 @@ DO:
 
      END.
   END.
-     fi_count:SCREEN-VALUE     = string(iCount) + " Records..." .
+     fi_count:SCREEN-VALUE     = "Complete. " + string(iCount) + " records found." .
 
       OUTPUT STREAM excel CLOSE.
   
