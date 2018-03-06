@@ -675,7 +675,6 @@ SESSION:SET-WAIT-STATE("General").
 
 EMPTY TEMP-TABLE tt-rowid.
 
-
 DO li = 1 TO LENGTH(v-mtype):
   FOR EACH item
       {sys/look/itemW.i}   
