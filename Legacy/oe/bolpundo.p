@@ -304,7 +304,6 @@ IF AVAIL io-bolh THEN DO:
             fg-bin.std-tot-cost  = fg-rdtlh.std-tot-cost    
             fg-bin.std-var-cost  = fg-rdtlh.std-var-cost    .
        
-       
         IF op-invoice AND fg-bin.cust-no NE "" AND fg-bin.qty EQ 0 THEN
           DELETE fg-bin.
 

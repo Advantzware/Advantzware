@@ -53,7 +53,15 @@ ASSIGN
  fg-rdtlh.qty          = {3}
  fg-rdtlh.partial      = li-stupid
  fg-rdtlh.cases        = TRUNC((fg-rdtlh.qty - fg-rdtlh.partial) /
-                               fg-rdtlh.qty-case,0) .
+                               fg-rdtlh.qty-case,0) 
+ fg-rdtlh.avg-cost     = fg-bin.avg-cost 
+ fg-rdtlh.last-cost    = fg-bin.last-cost
+ fg-rdtlh.std-fix-cost = fg-bin.std-fix-cost 
+ fg-rdtlh.std-lab-cost = fg-bin.std-lab-cost 
+ fg-rdtlh.std-mat-cost = fg-bin.std-mat-cost 
+ fg-rdtlh.std-tot-cost = fg-bin.std-tot-cost 
+ fg-rdtlh.std-var-cost = fg-bin.std-var-cost.                              
+ .
  IF fg-rcpth.rita-code EQ "S" THEN
    ASSIGN fg-rdtlh.tag = tt-boll.tag
           fg-rdtlh.loc-bin = tt-boll.loc-bin
