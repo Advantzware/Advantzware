@@ -557,9 +557,12 @@ ASSIGN
            v-ink-2 = ""
            v-ink-3 = ""
            v-ink-4 = ""
-           v-ink-5 = "".
+           v-ink-5 = ""
+           v-ink-6 = ""
+           v-ink-7 = ""
+           v-ink-8 = "".
 
-        DO v-i = 1 TO 5:
+        DO v-i = 1 TO 8:
            IF b-eb.i-code[v-i] <> "" THEN DO:
                FIND FIRST w-i WHERE w-i.i-code = b-eb.i-code[v-i] NO-ERROR.
                IF AVAILABLE w-i THEN DO:
@@ -581,6 +584,18 @@ ASSIGN
                                           IF w-i.i-dscr <> "" THEN "LBS" ELSE "".
                   ELSE IF v-ink-5 = "" THEN
                      ASSIGN v-ink-5 =  w-i.i-dscr +
+                                         (IF w-i.i-qty <> 0 THEN STRING(w-i.i-qty,">>>,>>9") ELSE "" ) +
+                                          IF w-i.i-dscr <> "" THEN "LBS" ELSE "".
+                  ELSE IF v-ink-6 = "" THEN
+                     ASSIGN v-ink-6 =  w-i.i-dscr +
+                                         (IF w-i.i-qty <> 0 THEN STRING(w-i.i-qty,">>>,>>9") ELSE "" ) +
+                                          IF w-i.i-dscr <> "" THEN "LBS" ELSE "".
+                  ELSE IF v-ink-7 = "" THEN
+                     ASSIGN v-ink-7 =  w-i.i-dscr +
+                                         (IF w-i.i-qty <> 0 THEN STRING(w-i.i-qty,">>>,>>9") ELSE "" ) +
+                                          IF w-i.i-dscr <> "" THEN "LBS" ELSE "".
+                  ELSE IF v-ink-8 = "" THEN
+                     ASSIGN v-ink-8 =  w-i.i-dscr +
                                          (IF w-i.i-qty <> 0 THEN STRING(w-i.i-qty,">>>,>>9") ELSE "" ) +
                                           IF w-i.i-dscr <> "" THEN "LBS" ELSE "".
                END. /* IF AVAIL w-i THEN DO: */
