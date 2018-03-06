@@ -609,9 +609,8 @@ PROCEDURE calc-total-proc :
 
       iop-vend-tot = iop-vend-tot + (ap-payl.amt-paid - ap-payl.amt-disc).
 
-      if ip-last-of-vend then do:
-        if iop-vend-tot ne 0 or tb_zero-ven:CHECKED then
-        DO:
+     if ip-last-of-vend then do:
+       IF tb_zero-ven:CHECKED THEN DO:
           CREATE tt-1099-m.
           ASSIGN tt-1099-m.vend-no   = vend.vend-no
                  tt-1099-m.vend-name = vend.NAME
@@ -623,11 +622,27 @@ PROCEDURE calc-total-proc :
                                           + " " + vend.zip
                  tt-1099-m.vend-total = iop-vend-tot.
           RELEASE tt-1099-m.
-        END.
+       END.
+       ELSE DO:
+          if iop-vend-tot ne 0 THEN DO:
+             CREATE tt-1099-m.
+             ASSIGN tt-1099-m.vend-no   = vend.vend-no
+                    tt-1099-m.vend-name = vend.NAME
+                    tt-1099-m.vend-tax-id = vend.tax-id
+                    tt-1099-m.vend-add1 = vend.add1
+                    tt-1099-m.vend-add2 = vend.add2
+                    tt-1099-m.vend-city-line = vend.city + ","
+                                          + " " + vend.state
+                                          + " " + vend.zip
+                    tt-1099-m.vend-total = iop-vend-tot.
+            RELEASE tt-1099-m.
+          END.
+       END.
 
         iop-vend-tot  = 0.
-      END.
+     END.
    END.
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

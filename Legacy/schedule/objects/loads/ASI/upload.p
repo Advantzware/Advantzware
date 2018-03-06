@@ -174,7 +174,10 @@ FOR EACH pendingJob NO-LOCK:
   /* only change if not already run-complete */
   IF job-mch.run-complete EQ NO THEN
   job-mch.run-complete = pendingJob.jobCompleted.
-  IF job-mch.m-code NE pendingJob.altResource THEN
+  /* change machine only if not already done by DC or TS */
+  IF NOT job-mch.est-op_rec_key BEGINS 'DC' AND
+     NOT job-mch.est-op_rec_key BEGINS 'TS' AND
+     job-mch.m-code NE pendingJob.altResource THEN
   job-mch.m-code = pendingJob.altResource.
   RUN updateJobStartDate (job-mch.company,job-mch.job,job-mch.start-date-su).
 /*  DO i = 2 TO NUM-ENTRIES(customValueList):                                 */
@@ -352,7 +355,10 @@ FOR EACH ttblJob NO-LOCK BREAK BY ttblJob.jobSort BY ttblJob.resourceSequence:
           ' SB Run?: ' ttblJob.jobCompleted SKIP.
       job-mch.run-complete = ttblJob.jobCompleted.
   END.
-  IF job-mch.m-code NE ttblJob.altResource THEN DO:
+  /* change machine only if not already done by DC or TS */
+  IF NOT job-mch.est-op_rec_key BEGINS 'DC' AND
+     NOT job-mch.est-op_rec_key BEGINS 'TS' AND
+     job-mch.m-code NE ttblJob.altResource THEN DO:
       PUT UNFORMATTED 'ttblJob:' AT 5
           ' RowIDs: ' ttblJob.rowIDs ' - RowID: ' STRING(ROWID(job-mch))
           ' KeyValue: ' ttblJob.keyValue
@@ -673,7 +679,7 @@ PROCEDURE pHTMLPages:
                 '" width="48" height="48" align="center">~&nbsp~&nbsp~&nbsp~&nbsp<b>'
                 ttblJob.resource '</a></b></font></td>' SKIP
                 '      <td' cBGColor ' align="center" nowrap rowspan="3"><font face="{&fontFace}"><b>'
-                '<a href="' htmlPageLocation + '\' + ttblJob.resource + '.htm" target="_blank">'
+                '<a href="' htmlPageLocation + '\' + REPLACE(ttblJob.resource,"/","") + '.htm" target="_blank">'
                 (IF AVAILABLE mach THEN mach.m-dscr ELSE ttblJob.resource) '</a></b></font></td>' SKIP
                 '      <td' cBGColor ' align="center" nowrap rowspan="3" align="center"><font face="{&fontFace}">'
                 .
@@ -683,6 +689,7 @@ PROCEDURE pHTMLPages:
                 REPLACE(htmlPageLocation + '\' + ttblJob.resource,"\","/")
                 'Pending.htm~');">Jobs: <b>' iJobs '</a><br>' specialTime(iTime) '</b>'
                 .
+            ELSE PUT UNFORMATTED "~&nbsp".
             PUT UNFORMATTED
                 '</font></td>' SKIP
                 .
@@ -799,7 +806,7 @@ PROCEDURE pHTMLPages:
                             + "</font></b>"
                 lScript     = NO
                 .
-            OUTPUT TO VALUE(htmlPageLocation + '\' + ttblJob.resource + '.htm').
+            OUTPUT TO VALUE(htmlPageLocation + '\' + REPLACE(ttblJob.resource,"/","") + '.htm').
             RUN pHTMLHeader (cHTMLTitle,cHTMLLegend,lScript).
             RUN pHTMLBranding.
             PUT UNFORMATTED

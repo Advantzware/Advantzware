@@ -48,7 +48,7 @@ DEF VAR lv-got-return AS int NO-UNDO.
 
 /* === with xprint ====*/
 DEF VAR ls-image1 AS cha NO-UNDO.
-DEF VAR ls-full-img1 AS cha FORM "x(60)" NO-UNDO.
+DEF VAR ls-full-img1 AS cha FORM "x(200)" NO-UNDO.
 
 ASSIGN ls-image1 = "images\allwestl.jpg"
        FILE-INFO:FILE-NAME = ls-image1

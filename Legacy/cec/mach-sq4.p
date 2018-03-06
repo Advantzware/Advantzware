@@ -33,14 +33,12 @@ def var v-run as dec no-undo.
 def var v-rc-seq as int init 99 no-undo.
 def var v-dept like dept.code no-undo.
 
+
 &SCOPED-DEFINE where-machine                                                     ~
-               WHERE (mach.company EQ cocode                                  ~
-                 AND  NOT CAN-FIND(FIRST reftable                             ~
-                                   WHERE reftable.reftable EQ "mach.obsolete" ~
-                                     AND reftable.company  EQ mach.company    ~
-                                     AND reftable.loc      EQ mach.loc        ~
-                                     AND reftable.code     EQ mach.m-code     ~
-                                     AND reftable.val[1]   EQ 1)) 
+               WHERE mach.company EQ cocode                                  ~
+                 AND mach.obsolete EQ NO                                       
+
+
 
 {est/d-machex.i}
 

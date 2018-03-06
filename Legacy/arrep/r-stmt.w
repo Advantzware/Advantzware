@@ -79,6 +79,11 @@ DEF NEW SHARED TEMP-TABLE tt-cust-excel NO-UNDO
     FIELD addr    AS CHAR EXTENT 5
     FIELD aged    AS DEC EXTENT 5
     INDEX excel cust-no ASC.
+DEF TEMP-TABLE tt-cust-check NO-UNDO
+    FIELD cust-no AS CHAR
+    FIELD contact AS CHAR
+    FIELD log-fld AS LOGICAL
+    INDEX check1 cust-no ASC.
 
 DEF VAR is-xprint-form  AS LOG NO-UNDO.
 DEF VAR ls-fax-file     AS cha NO-UNDO.
@@ -549,6 +554,15 @@ DO:
                     INPUT begin_cust-no,
                     INPUT END_cust-no).
   END.
+  IF tb_cust-list THEN DO:
+      FOR EACH tt-cust-check WHERE tt-cust-check.log-fld  NO-LOCK:
+          FIND FIRST ttCustList EXCLUSIVE-LOCK
+               WHERE ttCustList.cust-no EQ tt-cust-check.cust-no NO-ERROR .
+          IF AVAIL ttCustList THEN
+              ASSIGN
+              ttCustList.log-fld = YES.
+      END.
+  END.
 
   IF CAN-FIND(FIRST sys-ctrl-shipto WHERE
      sys-ctrl-shipto.company = cocode AND
@@ -568,10 +582,14 @@ DO:
                  sys-ctrl-shipto.char-fld > ''
                  NO-LOCK NO-ERROR.
 
-            IF AVAIL sys-ctrl-shipto THEN
+            IF AVAIL sys-ctrl-shipto THEN do:
                v-stmt-char = sys-ctrl-shipto.char-fld.
-            ELSE
-               v-stmt-char = vcDefaultForm.
+            /*ELSE
+               v-stmt-char = vcDefaultForm.*/
+               FIND FIRST ttCustList NO-LOCK
+                   WHERE ttCustList.cust-no EQ b-cust.cust-no
+                       AND ttCustList.log-fld = YES NO-ERROR .
+               IF NOT AVAIL ttCustList THEN NEXT .
 
             IF v-stmt-char EQ "ASIExcel" THEN
             DO:
@@ -612,18 +630,23 @@ DO:
             IF NOT v-excel THEN
                RUN GenerateReport(b-cust.cust-no,b-cust.cust-no).
             ELSE IF rd-dest EQ 5 THEN /*excel*/
-            DO:
+            DO:   
                v-cust-mode = IF NOT tb_HideDialog:CHECKED THEN "Customer"
                              ELSE "Customer1".
                RUN SendMail-1 (b-cust.cust-no, v-cust-mode,  v-dir + "\stmt.pdf").
             END.
+            FOR EACH ttCustList NO-LOCK
+                    WHERE ttCustList.cust-no EQ b-cust.cust-no :
+                   ASSIGN ttCustList.log-fld = NO  .
+            END.
+           END. /* if avail sys-ctrl-shipto */
         END. /*each b-cust*/
 
      END. /*if sys-ctrl-shipto found*/
   ELSE IF rd-dest = 5 AND tb_BatchMail:CHECKED THEN  /*if no sys-ctrl-shipto found*/
   DO:
   FOR EACH ttCustList NO-LOCK  :
-
+  
           /* find first ar-inv where ar-inv.company eq cocode    and
                             ar-inv.cust-no eq ttCustList.cust-no and
                             ar-inv.posted                and
@@ -633,7 +656,7 @@ DO:
 
            if not avail ar-inv THEN next.*/
 
-
+     v-stmt-char = vcDefaultForm.
      IF v-stmt-char EQ "ASIExcel" THEN
      DO:
         v-excel = YES.
@@ -678,7 +701,9 @@ DO:
      END. /* cust */
   END. /*end sys-ctrl-shipto not found*/
 
-  ELSE  /*if no sys-ctrl-shipto found*/
+
+  IF CAN-FIND(FIRST ttCustList WHERE
+     ttCustList.cust-no NE "" AND ttCustList.log-fld = YES ) AND rd-dest NE 5 THEN
   DO: 
 
      IF v-stmt-char EQ "ASIExcel" THEN
@@ -709,7 +734,7 @@ DO:
             VIEW-AS ALERT-BOX ERROR BUTTONS OK.
         RETURN NO-APPLY.
      END.
-
+     v-stmt-char = vcDefaultForm.
      IF v-excel OR NOT rd-dest = 5 THEN
         run run-report("", FALSE).
 
@@ -1190,6 +1215,12 @@ IF iplList THEN DO:
                             INPUT 'AR4',
                             INPUT YES,
                             OUTPUT lActive).
+    FOR EACH ttCustList NO-LOCK 
+         WHERE ttCustList.log-fld EQ YES :
+         CREATE tt-cust-check .
+        ASSIGN tt-cust-check.cust-no = ttCustList.cust-no 
+           tt-cust-check.log-fld = YES .
+    END.
 END.
 ELSE DO:
     FOR EACH bf-cust
@@ -1220,7 +1251,12 @@ PROCEDURE CustList :
 
     RUN sys/ref/CustListManager.w(INPUT cocode,
                                   INPUT 'AR4').
-
+    FOR EACH ttCustList NO-LOCK 
+         WHERE ttCustList.log-fld EQ YES : 
+         CREATE tt-cust-check .
+        ASSIGN tt-cust-check.cust-no = ttCustList.cust-no 
+           tt-cust-check.log-fld = YES .
+    END.
 
 END PROCEDURE.
 
@@ -2009,7 +2045,7 @@ FOR EACH ttCustList
     end.
   end.
 
-  for each tt-inv
+  for each tt-inv WHERE (tt-inv.amount NE 0 OR tt-inv.DESCRIPTION EQ "No Balance Due")
       break by "1"
             BY tt-inv.cust-no
             by tt-inv.inv-date
@@ -2794,7 +2830,7 @@ FIRST cust no-lock
     end.
   end.  
 
-  for each tt-inv
+  for each tt-inv WHERE (tt-inv.amount NE 0 OR tt-inv.DESCRIPTION EQ "No Balance Due")
       break by "1"
             BY tt-inv.cust-no
             by tt-inv.inv-date
@@ -3550,7 +3586,7 @@ FIRST cust no-lock
     end.
   end.
 
-  for each tt-inv
+  for each tt-inv WHERE (tt-inv.amount NE 0 OR tt-inv.DESCRIPTION EQ "No Balance Due")
       break by "1"
             BY tt-inv.cust-no
             by tt-inv.inv-date
@@ -4180,7 +4216,7 @@ FOR EACH ttCustList
     end.
   end.
 
-  for each tt-inv
+  for each tt-inv WHERE (tt-inv.amount NE 0 OR tt-inv.DESCRIPTION EQ "No Balance Due")
       break by "1"
             by tt-inv.inv-date
             by tt-inv.sort-fld
@@ -4726,7 +4762,7 @@ FOR EACH ttCustList
     end.
   end.
 
-  for each tt-inv
+  for each tt-inv WHERE (tt-inv.amount NE 0 OR tt-inv.DESCRIPTION EQ "No Balance Due")
       break by "1"
             by tt-inv.inv-date
             by tt-inv.sort-fld

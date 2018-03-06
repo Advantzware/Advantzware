@@ -3,7 +3,7 @@
 /* -------------------------------------------------------------------------- */
 ASSIGN v-tot-cases = 0.
 
-FOR EACH tt-boll,      
+FOR EACH tt-boll, 
   FIRST itemfg NO-LOCK
    WHERE itemfg.company EQ cocode
      AND itemfg.i-no    EQ tt-boll.i-no
@@ -38,22 +38,25 @@ FOR EACH tt-boll,
              AND oe-ordl.i-no    EQ tt-boll.i-no 
              AND oe-ordl.line    EQ tt-boll.LINE NO-LOCK NO-ERROR.
 
-         ASSIGN v-tot-case-qty = v-tot-case-qty + bf-ttboll.qty
-                i = i + 1.
+         ASSIGN v-tot-case-qty = v-tot-case-qty + bf-ttboll.qty.
+         IF bf-ttboll.partial GT 0 THEN
+            v-tot-case-qty = v-tot-case-qty +   bf-ttboll.partial .
          FIND FIRST oe-ord 
            WHERE oe-ord.company EQ cocode 
              AND oe-ord.ord-no  EQ tt-boll.ord-no NO-LOCK NO-ERROR.
-         
-         FIND FIRST w2 WHERE w2.cas-cnt EQ bf-ttboll.qty-case NO-ERROR.
-         IF NOT AVAIL w2  
-           THEN CREATE w2.
+         i = i + 1.
+         FIND FIRST w2 WHERE (w2.cas-cnt * w2.cases) EQ (bf-ttboll.qty-case * bf-ttboll.cases) NO-ERROR.
+          IF NOT AVAILABLE w2 THEN CREATE w2.
 
          ASSIGN 
            w2.job-po = ""
            w2.i-no = ""
            w2.cas-cnt = bf-ttboll.qty-case
            w2.cases   = w2.cases + bf-ttboll.cases
-           w2.rec-id = RECID(bf-ttboll).
+           w2.rec-id = RECID(bf-ttboll)
+           w2.partial = w2.partial + bf-ttboll.partial
+           w2.unitCount = bf-ttboll.unitCount
+           w2.qty-sum   = bf-ttboll.qty-sum .
 
          IF i = 1 
            THEN ASSIGN w2.job-po = bf-ttboll.po-no
@@ -68,8 +71,9 @@ FOR EACH tt-boll,
                           w2.dscr = oe-ordl.i-name
                           w2.i-no = oe-ordl.i-no.
               ELSE 
-               IF i EQ 3 
-                 THEN ASSIGN w2.dscr = oe-ordl.part-dscr1 /*
+               IF i EQ 3 THEN
+                   IF oe-ordl.part-dscr1 NE "" THEN 
+                    ASSIGN w2.dscr = oe-ordl.part-dscr1 /*
                              w2.job-po = v-lot#   gdm 04160923 */.
                  ELSE 
                   IF i EQ 4 
@@ -151,6 +155,7 @@ FOR EACH tt-boll,
 
                        ASSIGN w2.dscr = v-lot#  /* gdm 06120902 */.
                  END. /* ELSE IF i EQ 5 */
+
        END. /* IF w2.rec-id = ? */      
 
        IF w2.qty     EQ 0  AND 
@@ -223,19 +228,19 @@ FOR EACH tt-boll,
 
         IF w2.qty  EQ 0  AND 
            w2.i-no EQ "" AND 
-           w2.dscr EQ "" AND 
-            NOT last(w2.cases) 
+           w2.dscr EQ "" AND w2.cases EQ 0
+            /*NOT last(w2.cases) */
           THEN .
-          ELSE DO: 
-
+          ELSE DO:
+              ASSIGN icountpallet  = w2.cas-cnt * w2.cases .
                DISPLAY 
                  w2.i-no                       
                  TRIM(STRING(w2.qty,"->>,>>>,>>>")) WHEN i = 1 @ w2.i-no
                  w2.job-po
                  w2.dscr
-                 w2.cases
-                 w2.cas-cnt
-                 v-tot-case-qty WHEN FIRST (w2.cases) @ tt-boll.qty
+                 w2.unitcount @ w2.cases
+                 w2.qty-sum @ icountpallet
+                 icountpallet + w2.partial /*v-tot-case-qty + w2.partial WHEN FIRST (w2.cases)*/ @ tt-boll.qty
                  bf-ttboll.p-c  WHEN AVAIL bf-ttboll AND FIRST(w2.cases) @ bf-ttboll.p-c
                WITH FRAME bol-mid.
                DOWN WITH FRAME bol-mid.       
@@ -441,14 +446,14 @@ FOR EACH tt-boll,
 
                  ASSIGN v-part-dscr = v-lot#  /* gdm 06120902 */.
                 END. /* IF i EQ 5 */
-
+     ASSIGN icountpallet = w2.cas-cnt *  w2.cases .
      DISPLAY TRIM(STRING(oe-ordl.qty,"->>,>>>,>>>")
                   )                        WHEN i EQ 1          @ oe-ordl.i-no
              oe-ordl.i-no                  WHEN i EQ 2
              v-job-po
              v-part-dscr
-             w2.cases
-             w2.cas-cnt
+             1 @ w2.cases
+             icountpallet 
              tt-boll.qty /*+ tt-boll.partial*/ WHEN LAST(w2.cases)  @ tt-boll.qty
              tt-boll.p-c                   WHEN LAST(w2.cases)                
              1  WHEN i = 2 AND tt-boll.partial > 0  @ w2.cases

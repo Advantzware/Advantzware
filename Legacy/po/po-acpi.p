@@ -56,8 +56,8 @@ DEF BUFFER xitem    FOR item.
 
 DEF VAR ls-image1 AS cha NO-UNDO.
 DEF VAR ls-image2 AS cha EXTENT 50 NO-UNDO.
-DEF VAR ls-full-img1 AS cha FORM "x(60)" NO-UNDO.
-DEF VAR ls-full-img2 AS cha FORM "x(60)" EXTENT 50 NO-UNDO.
+DEF VAR ls-full-img1 AS cha FORM "x(200)" NO-UNDO.
+DEF VAR ls-full-img2 AS cha FORM "x(200)" EXTENT 50 NO-UNDO.
 
 ASSIGN ls-image1 = "images\AMPoly.jpg"
        FILE-INFO:FILE-NAME = ls-image1

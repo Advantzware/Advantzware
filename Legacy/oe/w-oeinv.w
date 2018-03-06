@@ -1050,11 +1050,46 @@ PROCEDURE setUserPrint :
         WHERE oe-bolh.company EQ inv-head.company
           AND oe-bolh.bol-no EQ inv-head.bol-no
           NO-ERROR.
-      IF AVAILABLE oe-bolh THEN 
-      ASSIGN 
-          dtFromBolDate = oe-bolh.bol-date
-          dtToBolDate   = oe-bolh.bol-date
-          .
+      IF AVAILABLE oe-bolh AND inv-head.bol-no NE 0 THEN DO: 
+        ASSIGN 
+            dtFromBolDate = oe-bolh.bol-date
+            dtToBolDate   = oe-bolh.bol-date
+            .  
+      END.
+      ELSE DO:
+          FIND FIRST inv-line NO-LOCK
+               WHERE inv-line.company EQ inv-head.company
+                 AND inv-line.inv-no  EQ inv-head.inv-no 
+               NO-ERROR.
+          IF NOT AVAILABLE inv-line THEN DO:
+              /* Misc Lines only, bol dates not relevant */
+              ASSIGN 
+                  dtFromBolDate = ?
+                  dtToBolDate   = ?
+                  .  
+          END.  
+          ELSE 
+          DO:
+              FOR EACH inv-line NO-LOCK
+                  WHERE inv-line.company EQ inv-head.company
+                    AND inv-line.inv-no  EQ inv-head.inv-no
+                    AND inv-line.bol-no  GT 0:
+                  FIND FIRST oe-bolh NO-LOCK 
+                      WHERE oe-bolh.company EQ inv-line.company
+                      AND oe-bolh.bol-no EQ inv-line.bol-no
+                      NO-ERROR.
+                      
+                  IF AVAILABLE oe-bolh THEN 
+                  DO:
+
+                      IF oe-bolh.bol-date LT dtFromBolDate THEN                          
+                          dtFromBolDate = oe-bolh.bol-date.
+                      IF oe-bolh.bol-date GT dtToBolDate THEN 
+                          dtToBolDate   = oe-bolh.bol-date.                      
+                  END.                        
+              END.
+          END. 
+      END.
 
     FIND FIRST b-inv-head NO-LOCK 
         WHERE b-inv-head.company EQ inv-head.company
@@ -1068,20 +1103,49 @@ PROCEDURE setUserPrint :
               WHERE b-inv-head.company EQ inv-head.company
                 AND b-inv-head.inv-no  EQ inv-head.inv-no
                 AND b-inv-head.multi-invoice EQ NO
+                AND b-inv-head.bol-no  GT 0
               :
               FIND FIRST oe-bolh NO-LOCK 
                   WHERE oe-bolh.company EQ b-inv-head.company
                     AND oe-bolh.bol-no EQ b-inv-head.bol-no
                   NO-ERROR.
-                    
-              IF oe-bolh.bol-date NE ? AND oe-bolh.bol-date LT dtFromBolDate THEN 
-                  dtFromBolDate = oe-bolh.bol-date. 
-              IF oe-bolh.bol-date NE ? AND oe-bolh.bol-date GT dtToBolDate THEN 
-                 dtToBolDate = oe-bolh.bol-date.                
-          END.         
-    END.
+              IF AVAILABLE oe-bolh THEN DO: 
+                  IF oe-bolh.bol-date NE ? AND oe-bolh.bol-date LT dtFromBolDate THEN 
+                      dtFromBolDate = oe-bolh.bol-date. 
+                  IF oe-bolh.bol-date NE ? AND oe-bolh.bol-date GT dtToBolDate THEN 
+                     dtToBolDate = oe-bolh.bol-date.
+              END.
+              ELSE 
+              DO:
+                  /* Check BOl Dates from detail invoices of the multi */
+                  FOR EACH inv-line NO-LOCK
+                      WHERE inv-line.company EQ b-inv-head.company
+                      AND inv-line.inv-no    EQ b-inv-head.inv-no
+                      AND inv-line.bol-no    GT 0:
+                          
+                      FIND FIRST oe-bolh NO-LOCK 
+                          WHERE oe-bolh.company EQ inv-line.company
+                          AND oe-bolh.bol-no EQ inv-line.bol-no
+                          NO-ERROR.
+                      
+                      IF AVAILABLE oe-bolh THEN 
+                      DO:
+                          IF oe-bolh.bol-date LT dtFromBolDate THEN                          
+                              dtFromBolDate = oe-bolh.bol-date.
+                          IF oe-bolh.bol-date GT dtToBolDate THEN 
+                              dtToBolDate   = oe-bolh.bol-date.                      
+                      END.                        
 
-               
+                 END. /* each inv-line */  
+                  
+              END.  /* Not avail oe-bolhh */           
+          END. /*  Each Individual invoice of multi */
+      END. /* If multi */
+      
+    /* Dates default to users last report run if no date is set */
+    IF dtFromBolDate EQ ? THEN dtFromBolDate = 1/1/0001.
+    IF dtToBolDate EQ ? THEN dtToBolDate = 12/31/2999.
+
     RUN custom/setUserPrint.p (inv-head.company,'inv-hea_.',
                              'begin_cust-no,end_cust-no,begin_inv,end_inv,begin_date,end_date,begin_bol,end_bol,tb_reprint,tb_posted',
                              inv-head.cust-no + ',' + inv-head.cust-no + ',' +

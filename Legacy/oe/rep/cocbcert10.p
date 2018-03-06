@@ -12,7 +12,7 @@ DEFINE INPUT PARAMETER ip-bol-recid AS RECID NO-UNDO.
 def var v-cust-addr3 as char format "x(30)".
 DEF VAR ls-image1 AS cha NO-UNDO.
 DEF VAR v-manuf-date AS DATE INIT 12/31/2999 NO-UNDO.
-def var v-bol-qty    like oe-boll.qty NO-UNDO.
+def var v-bol-qty    AS INTEGER NO-UNDO.
 DEF VAR v-type AS CHAR NO-UNDO.
 DEF VAR v-rel-date AS DATE INIT 12/31/2999 NO-UNDO.
 DEF VAR v-part-desc AS CHAR FORMAT "X(30)" NO-UNDO.
@@ -198,25 +198,24 @@ for each report where report.term-id eq v-term-id NO-LOCK,
                  v-flute = ""
                  v-test  = "" .
       
-          IF AVAIL oe-ordl AND oe-ordl.job-no NE "" THEN
+          IF AVAIL oe-ordl AND oe-ordl.ord-no NE 0 THEN
               ASSIGN 
-              v-job-no = (STRING(oe-ordl.job-no) + "-" + STRING(oe-ordl.job-no2,"99")) .
+              v-job-no = STRING(oe-ordl.ord-no).
           ELSE
               ASSIGN 
               v-job-no = "" .
-
        PUT "<FCourier New>"
            "<c11>Customer Name:" "<C25>" cust.NAME SKIP(1)
            "<c6>Customer PO  Number:" "<C25>" oe-boll.po-no  SKIP(1)
            "<c5>Customer Part Number:" "<C25>" itemfg.part-no  SKIP(1)
            "<C14>Item Name:" "<C25>" v-part-desc SKIP(1)
            "<c11.5>Order Number:" "<C25>" v-job-no SKIP(1)
-           "<C8>Quantity Shipped:" "<C25>"  STRING(v-bol-qty) SKIP(1)
+           "<C8>Quantity Shipped:" "<C25>" trim(STRING(v-bol-qty,"->,>>>,>>9")) FORMAT "x(10)" SKIP(1)
            "<C7>Manufactured Date:" "<C25>" (IF v-manuf-date NE 12/31/2999 THEN
-                                                     STRING(v-manuf-date,"99/99/9999")
+                                                     STRING(v-manuf-date,"99/99/99")
                                                   ELSE "") SKIP(1)
-           "<C13.5>Ship Date:" "<C25>" (IF AVAIL oe-bolh AND oe-bolh.bol-date NE 12/31/2999 THEN
-                                                     STRING(oe-bolh.bol-date,"99/99/9999")
+           "<C13.5>Ship Date:" "<C25>" (IF AVAIL oe-bolh AND oe-bolh.bol-date NE 12/31/2999 THEN 
+                                                     STRING(oe-bolh.bol-date,"99/99/99")
                                                   ELSE "") SKIP(1).
           IF v-style NE "" OR v-test NE "" THEN
           PUT "<C12.5>Style/Test:" "<C25>" v-style "  " v-test "  " v-flute .

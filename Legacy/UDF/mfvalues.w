@@ -54,6 +54,7 @@ DEFINE VARIABLE currentTab    AS INTEGER       NO-UNDO.
 DEFINE VARIABLE i             AS INTEGER       NO-UNDO.
 DEFINE VARIABLE folderHeight  AS INTEGER       NO-UNDO INITIAL 50.
 DEFINE VARIABLE folderWidth   AS INTEGER       NO-UNDO INITIAL 500.
+DEFINE VARIABLE lError        AS LOGICAL       NO-UNDO.
 
 DEFINE TEMP-TABLE ttMFValues NO-UNDO LIKE {&dbnm}mfvalues.
 
@@ -84,8 +85,8 @@ END TRIGGERS.
 &Scoped-define FRAME-NAME DEFAULT-FRAME
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS btnDelete btnSave Rect-Top Rect-Left ~
-Rect-Right Rect-Bottom btnExit 
+&Scoped-Define ENABLED-OBJECTS btnDelete Rect-Top Rect-Left Rect-Right ~
+Rect-Bottom btnSave btnExit 
 &Scoped-Define DISPLAYED-OBJECTS mfgroupList mfRecKey mfgroupLabel ~
 mfRecKeyLabel 
 
@@ -171,13 +172,13 @@ DEFINE RECTANGLE Rect-Top
 DEFINE FRAME DEFAULT-FRAME
      btnDelete AT ROW 21.71 COL 68 HELP
           "Delete" WIDGET-ID 4
+     mfgroupList AT ROW 21.48 COL 9 COLON-ALIGNED HELP
+          "Select Group Name" NO-LABEL
+     mfRecKey AT ROW 22.67 COL 9 COLON-ALIGNED NO-LABEL WIDGET-ID 8
      btnSave AT ROW 21.71 COL 76 HELP
           "Save" WIDGET-ID 6
      btnExit AT ROW 21.71 COL 84 HELP
           "Exit Design Layout Window" WIDGET-ID 2
-     mfgroupList AT ROW 21.48 COL 9 COLON-ALIGNED HELP
-          "Select Group Name" NO-LABEL
-     mfRecKey AT ROW 22.67 COL 9 COLON-ALIGNED NO-LABEL WIDGET-ID 8
      mfgroupLabel AT ROW 21.48 COL 3 NO-LABEL
      mfRecKeyLabel AT ROW 22.67 COL 1 NO-LABEL WIDGET-ID 10
      Rect-Main AT ROW 2.05 COL 1.6
@@ -360,6 +361,7 @@ DO:
   END.
   currentTab = 1.
   RUN createTabs.
+  IF lError EQ NO THEN
   RUN createWidgets.
   {methods/nowait.i}
 END.
@@ -406,7 +408,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   RUN loadWidgetData.
   {&WINDOW-NAME}:TITLE = {&WINDOW-NAME}:TITLE + " - " + ipcHeader.
   {methods/nowait.i}
-  IF RETURN-VALUE EQ "EMPTY" THEN
+  IF RETURN-VALUE EQ "EMPTY" OR lError THEN
   DISABLE btnSave btnDelete WITH FRAME {&FRAME-NAME}.
   ELSE
   APPLY "ENTRY" TO btnSave IN FRAME {&FRAME-NAME}.
@@ -483,7 +485,11 @@ PROCEDURE createTabs :
         FRAME {&FRAME-NAME}:WIDTH-PIXELS = {&WINDOW-NAME}:WIDTH-PIXELS
         FRAME {&FRAME-NAME}:VIRTUAL-WIDTH-PIXELS = {&WINDOW-NAME}:WIDTH-PIXELS
         .
-    CREATE IMAGE tabImage[i] IN WIDGET-POOL "widget-pool-tabs"
+      IF (3 + (i - 1) * 72) + 72 GT FRAME {&FRAME-NAME}:WIDTH-PIXELS THEN DO:
+        lError = YES.
+        RETURN.
+      END. /* check if tab will fit */
+      CREATE IMAGE tabImage[i] IN WIDGET-POOL "widget-pool-tabs"
       ASSIGN
         FRAME = FRAME {&FRAME-NAME}:HANDLE
         X = 3 + (i - 1) * 72
@@ -544,19 +550,25 @@ PROCEDURE createWidgets :
   DEFINE VARIABLE i AS INTEGER NO-UNDO.
 
   {methods/wait.i}
-  /* RUN LockWindowUpdate (ACTIVE-WINDOW:HWND,OUTPUT i). */
   DELETE WIDGET-POOL "attr-widget" NO-ERROR.
   CREATE WIDGET-POOL "attr-widget" PERSISTENT.
-  FOR EACH ttAttrb NO-LOCK
-      WHERE ttAttrb.attr_mfgroup EQ mfgroupList:SCREEN-VALUE IN FRAME {&FRAME-NAME}
-        AND ttAttrb.attr_tab EQ currentTab
-      BY ttAttrb.attr_order
-      :
-    RUN dynamicWidget.
-  END.
-  RUN moveObjects.
-  /* RUN LockWindowUpdate (0,OUTPUT i). */
+  IF lError EQ NO THEN DO:
+    FOR EACH ttAttrb NO-LOCK
+        WHERE ttAttrb.attr_mfgroup EQ mfgroupList:SCREEN-VALUE IN FRAME {&FRAME-NAME}
+          AND ttAttrb.attr_tab EQ currentTab
+        BY ttAttrb.attr_order
+        :
+      RUN dynamicWidget.
+      IF lError THEN LEAVE.
+    END.
+    IF lError EQ NO THEN
+    RUN moveObjects.
+  END. /* if error */
   {methods/nowait.i}
+  IF lError THEN
+  MESSAGE
+    "Screen Resolution is too Small for this UDF Layout!"
+  VIEW-AS ALERT-BOX ERROR.
 
 END PROCEDURE.
 
@@ -826,7 +838,7 @@ PROCEDURE enable_UI :
 ------------------------------------------------------------------------------*/
   DISPLAY mfgroupList mfRecKey mfgroupLabel mfRecKeyLabel 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
-  ENABLE btnDelete btnSave Rect-Top Rect-Left Rect-Right Rect-Bottom btnExit 
+  ENABLE btnDelete Rect-Top Rect-Left Rect-Right Rect-Bottom btnSave btnExit 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
   VIEW C-Win.
@@ -879,10 +891,9 @@ PROCEDURE loadWidgetData :
     RETURN "EMPTY".
   END.
   FOR EACH {&dbnm}mfgroup NO-LOCK:
-    mfgrpList = mfgrpList
-              + (IF mfgrpList NE "" THEN "," ELSE "")
-              + ENTRY(1,{&dbnm}mfgroup.mfgroup_data,"|").
+    mfgrpList = mfgrpList + {&dbnm}mfgroup.mfgroup_data + ",".
   END.
+  mfgrpList = TRIM(mfgrpList,",").
   IF NOT CAN-DO(mfgrpList,ipcGroup) THEN DO:
     MESSAGE "No '" + ipcGroup + "' Group Exists!!!" VIEW-AS ALERT-BOX INFORMATION.
     RETURN "EMPTY".

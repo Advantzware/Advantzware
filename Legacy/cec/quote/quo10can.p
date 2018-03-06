@@ -84,6 +84,7 @@ DEF VAR lv-part-dscr1 AS cha FORM "x(30)" NO-UNDO.
 DEF VAR lv-fg# AS cha FORM "x(15)" NO-UNDO.
 DEF VAR v-prep-printed AS LOG NO-UNDO.
 DEF VAR v-prep-prt-list AS cha NO-UNDO.
+DEF VAR ll-prt-dscr2 AS LOG NO-UNDO.
 
 DEFINE VARIABLE cCurCode AS CHARACTER NO-UNDO .
 

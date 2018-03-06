@@ -36,7 +36,7 @@ DEF VAR score-count AS INT NO-UNDO.
 DEF VAR v-see-1st-blank AS LOG NO-UNDO.
 
 DEF VAR ls-image1 AS cha NO-UNDO.
-DEF VAR ls-full-img1 AS cha FORM "x(150)" NO-UNDO.
+DEF VAR ls-full-img1 AS cha FORM "x(200)" NO-UNDO.
 DEF VAR v-sht-qty-string AS cha NO-UNDO.
 DEF VAR v-whs-ship-id AS CHAR NO-UNDO.
 def var v-form-sqft-2 as dec decimals 3 format ">>9.9<<" NO-UNDO.

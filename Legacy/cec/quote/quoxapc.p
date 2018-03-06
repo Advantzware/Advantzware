@@ -39,8 +39,8 @@ DEF VAR lv-format AS CHAR INIT ">>>>>9.9<<<<" NO-UNDO.
 /* === with xprint ====*/
 DEF VAR ls-image1 AS cha NO-UNDO.
 DEF VAR ls-image2 AS cha NO-UNDO.
-DEF VAR ls-full-img1 AS cha FORM "x(50)" NO-UNDO.
-DEF VAR ls-full-img2 AS cha FORM "x(50)" NO-UNDO.
+DEF VAR ls-full-img1 AS cha FORM "x(200)" NO-UNDO.
+DEF VAR ls-full-img2 AS cha FORM "x(200)" NO-UNDO.
 DEF VAR lv-fg# AS cha NO-UNDO.
 DEF VAR li-cline AS INT NO-UNDO.
 

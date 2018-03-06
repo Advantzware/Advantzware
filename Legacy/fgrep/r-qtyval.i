@@ -99,6 +99,20 @@
                 v-ext = v-qty-onh * oe-ordl.price /
                         (if avail uom then uom.mult else 1000).
               end.
+              /*FIND  oe-rel WHERE oe-rel.company EQ cocode 
+                           AND oe-rel.ord-no  EQ oe-ordl.ord-no 
+                           AND oe-rel.i-no    EQ oe-ordl.i-no 
+                           AND oe-rel.line    EQ oe-ordl.LINE NO-LOCK NO-ERROR.
+               ASSIGN cCust-lot = IF AVAIL oe-rel THEN STRING(oe-rel.lot-no,"x(15)") ELSE "".*/
+              ASSIGN cCust-lot   = "" .
+              FOR EACH oe-rel NO-LOCK WHERE oe-rel.company EQ oe-ordl.company
+                   AND oe-rel.ord-no EQ oe-ordl.ord-no
+                   AND oe-rel.i-no EQ oe-ordl.i-no 
+                   AND oe-rel.LINE EQ oe-ordl.LINE 
+                   AND oe-rel.link-no EQ 0 :
+                        IF oe-rel.lot-no NE "" AND cCust-lot EQ "" THEN
+                           cCust-lot  =  string(oe-rel.lot-no,"x(15)") . 
+              END.
   
         IF tb_excel THEN  
          EXPORT STREAM excel DELIMITER ","
@@ -114,6 +128,7 @@
                (IF first-of(oe-ordl.job-no) or first-of(oe-ordl.job-no2) THEN v-qty-onh ELSE 0)
                oe-ordl.price
                (IF first-of(oe-ordl.job-no) or first-of(oe-ordl.job-no2) then v-ext else 0)
+               cCust-lot
                SKIP.
 
               if v-prt-cpn then do:
@@ -131,6 +146,7 @@
                         oe-ordl.price
                         v-ext               when first-of(oe-ordl.job-no) or
                                                  first-of(oe-ordl.job-no2)
+                        cCust-lot           when lCustLot
                      with frame itemx1.
 
                 down with frame itemx1.
@@ -150,6 +166,7 @@
                         oe-ordl.price
                         v-ext               when first-of(oe-ordl.job-no) or
                                                  first-of(oe-ordl.job-no2)
+                        cCust-lot           when lCustLot
                      with frame itemx3.
 
                 down with frame itemx3.
@@ -343,6 +360,21 @@
 
                      if avail oe-ordl then
                        v-ext-job = (oe-ordl.t-price / oe-ordl.qty) * v-qty-job.
+                    ASSIGN cCust-lot   = "" .
+                     IF AVAIL oe-ordl THEN
+                       FOR EACH oe-rel NO-LOCK WHERE oe-rel.company EQ oe-ordl.company
+                         AND oe-rel.ord-no EQ oe-ordl.ord-no
+                         AND oe-rel.i-no EQ oe-ordl.i-no 
+                         AND oe-rel.LINE EQ oe-ordl.LINE 
+                         AND oe-rel.link-no EQ 0 :
+                          IF oe-rel.lot-no NE "" AND cCust-lot EQ "" THEN
+                           cCust-lot  =  string(oe-rel.lot-no,"x(15)") . 
+                     END.
+                    /* FIND  oe-rel WHERE oe-rel.company EQ cocode 
+                           AND oe-rel.ord-no  EQ oe-ordl.ord-no 
+                           AND oe-rel.i-no    EQ oe-ordl.i-no 
+                           AND oe-rel.line    EQ oe-ordl.LINE NO-LOCK NO-ERROR.
+               ASSIGN cCust-lot = IF AVAIL oe-rel THEN STRING(oe-rel.lot-no,"x(15)") ELSE "".*/
 
 
         IF tb_excel THEN  
@@ -358,6 +390,7 @@
                  (IF not(zbal and v-qty-onh = 0) AND not(v-qty-job = 0) THEN STRING(trans-date) ELSE "")
                  (IF avail oe-ordl THEN (oe-ordl.t-price / oe-ordl.qty * 1000) ELSE itemfg.sell-price)
                   v-ext-job
+                  cCust-lot
                SKIP.
 
                      if v-prt-cpn then do:
@@ -377,6 +410,7 @@
                                           (oe-ordl.t-price / oe-ordl.qty * 1000)
                                  when avail oe-ordl @ itemfg.sell-price
                                v-ext-job
+                               cCust-lot WHEN lCustLot
                            with frame itemx2.
 
                        down with frame itemx2.
@@ -399,6 +433,7 @@
                                           (oe-ordl.t-price / oe-ordl.qty * 1000)
                                  when avail oe-ordl @ itemfg.sell-price
                                v-ext-job
+                               cCust-lot WHEN lCustLot
                            with frame itemx4.
 
                        down with frame itemx4.

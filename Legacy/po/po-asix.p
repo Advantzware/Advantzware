@@ -54,7 +54,7 @@ DEF VAR v-inst AS cha FORM "x(80)" EXTENT 4 NO-UNDO.
 
 /* === with xprint ====*/
 DEF VAR ls-image1 AS cha NO-UNDO.
-DEF VAR ls-full-img1 AS cha FORM "x(60)" NO-UNDO.
+DEF VAR ls-full-img1 AS cha FORM "x(200)" NO-UNDO.
 DEF VAR v-signature AS cha FORM "x(100)" NO-UNDO.
 
 ASSIGN ls-image1 = "images\asilogo.jpg"

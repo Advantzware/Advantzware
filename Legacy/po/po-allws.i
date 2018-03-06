@@ -4,7 +4,7 @@
 
 PUT 
    "<FArial>"   "<P14><C+35> <B>Purchase Order</B> <P10>" v-change-ord SKIP(1)       
-   "<C1><#1><R+9><C+48>" "<IMAGE#1=" + ls-full-img1 FORM "x(60)"  SKIP 
+   "<C1><#1><R+9><C+48>" "<IMAGE#1=" + ls-full-img1 FORM "x(200)"  SKIP 
    "<P10><=1><R+4>"    
    SKIP(6)
    "<FCourier New>"

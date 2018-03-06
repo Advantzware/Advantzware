@@ -489,30 +489,18 @@ for each inv-misc
         do:
             IF oe-ordm.bill eq "P" THEN oe-ordm.bill = if inv-misc.bill eq "Y" then "I" else "Y".
 
-            FOR EACH reftable
-                WHERE reftable.reftable EQ "oe/ordlmisc.p"
-                AND reftable.company  EQ oe-ordm.company
-                AND reftable.loc      EQ STRING(oe-ordm.ord-no,"9999999999")
-                AND reftable.code     EQ STRING(oe-ordm.line,"9999999999")
-                AND reftable.code2    EQ oe-ordm.charge
-                NO-LOCK:
-
-                IF reftable.val[1] EQ 1 THEN
-                    FOR EACH est-prep
-                        WHERE est-prep.company EQ oe-ordm.company
-                        AND est-prep.est-no  EQ oe-ordm.est-no
-                        AND est-prep.eqty    EQ reftable.val[2]
-                        AND est-prep.line    EQ INT(reftable.val[3])
-                        AND est-prep.code    EQ oe-ordm.charge
-                        AND est-prep.simon   EQ "S"
-                        AND est-prep.amtz    EQ 100:
-                        IF oeprep-log THEN DELETE est-prep.
-                        ELSE est-prep.simon = "N".
-                    END.
-
-
-                LEAVE.
-            END.
+             IF oe-ordm.miscType EQ 1 THEN
+                            FOR EACH est-prep
+                                WHERE est-prep.company EQ oe-ordm.company
+                                AND est-prep.est-no  EQ oe-ordm.est-no
+                                AND est-prep.eqty    EQ oe-ordm.estPrepEqty
+                                AND est-prep.line    EQ oe-ordm.estPrepLine
+                                AND est-prep.code    EQ oe-ordm.charge
+                                AND est-prep.simon   EQ "S"
+                                AND est-prep.amtz    EQ 100:
+                                IF oeprep-log THEN DELETE est-prep.
+                                ELSE est-prep.simon = "N".
+                            END.
         end.
 
         if inv-misc.bill eq "Y" then 
