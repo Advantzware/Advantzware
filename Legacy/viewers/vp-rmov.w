@@ -257,6 +257,37 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipShowBtn V-table-Win 
+PROCEDURE ipShowBtn :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEF INPUT PARAMETER iplShow AS LOG.
+    
+    DEF VAR hPgmSecurity AS HANDLE NO-UNDO.
+    DEF VAR lResult AS LOG NO-UNDO.
+
+    IF iplShow THEN DO:
+        RUN "system/PgmMstrSecur.p" PERSISTENT SET hPgmSecurity.
+        RUN epCanAccess IN hPgmSecurity ("viewers/vp-rmov.w", "", OUTPUT lResult).
+        DELETE OBJECT hPgmSecurity.
+        ASSIGN
+            FRAME F-Main:VISIBLE  = lResult. 
+        IF NOT v-can-update THEN ASSIGN 
+            btn-override:SENSITIVE IN FRAME {&FRAME-NAME} = NO.
+    END.
+    ELSE DO:
+        ASSIGN
+            FRAME F-Main:VISIBLE = FALSE. 
+    END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-initialize V-table-Win 
 PROCEDURE local-initialize :
 /*------------------------------------------------------------------------------
@@ -266,17 +297,8 @@ PROCEDURE local-initialize :
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'initialize':U ) .
 
-    DEF VAR hPgmSecurity AS HANDLE NO-UNDO.
-    DEF VAR lResult AS LOG NO-UNDO.
-    RUN "system/PgmMstrSecur.p" PERSISTENT SET hPgmSecurity.
-    RUN epCanAccess IN hPgmSecurity ("viewers/vp-rmov.w", "", OUTPUT lResult).
-    DELETE OBJECT hPgmSecurity.
-    ASSIGN
-        btn-override:VISIBLE IN FRAME {&FRAME-NAME} = lResult. 
+    RUN ipShowBtn IN THIS-PROCEDURE (YES).
     
-    IF NOT v-can-update THEN ASSIGN 
-        btn-override:SENSITIVE IN FRAME {&FRAME-NAME} = NO.
-  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
