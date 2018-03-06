@@ -636,9 +636,9 @@ DO:
 
   ASSIGN
    v-from-job = FILL(" ",6 - length(TRIM(INPUT v-from-job))) +
-                trim(INPUT v-from-job) + string(int(begin_job-no2),"99")
+                trim(INPUT v-from-job) 
    v-to-job   = FILL(" ",6 - length(TRIM(INPUT v-to-job))) +
-                trim(INPUT v-to-job) + string(int(end_job-no2),"99")
+                trim(INPUT v-to-job) 
    v-types    = (IF t-receipt THEN "R" ELSE "") +
                 (IF t-issue   THEN "I" ELSE "") +
                 (IF t-trans   THEN "T" ELSE "") +
@@ -2046,6 +2046,8 @@ v-avg-cst = rm-ctrl.avg-lst-cst.
           AND rm-rctd.rita-code EQ "ADDER"
           AND rm-rctd.job-no    GE v-from-job
           AND rm-rctd.job-no    LE v-to-job
+          AND rm-rctd.job-no2    GE INTEGER(begin_job-no2)
+          AND rm-rctd.job-no2    LE INTEGER(end_job-no2)
           AND ((begin_userid    LE "" AND
                 end_userid      GE "") OR
                (rm-rctd.user-id GE begin_userid AND
@@ -2158,6 +2160,8 @@ FORM v-disp-actnum LABEL "G/L ACCOUNT NUMBER"
         WHERE rm-rctd.company   EQ cocode
           AND rm-rctd.job-no    GE v-from-job
           AND rm-rctd.job-no    LE v-to-job
+          AND rm-rctd.job-no2   GE INTEGER(begin_job-no2)
+          AND rm-rctd.job-no2   LE INTEGER(end_job-no2)
           AND rm-rctd.rct-date  GE ldt-from
           AND rm-rctd.rct-date  LE ldt-to
           AND INDEX(v-types,rm-rctd.rita-code) GT 0 
