@@ -271,6 +271,7 @@ PROCEDURE local-initialize :
     RUN "system/PgmMstrSecur.p" PERSISTENT SET hPgmSecurity.
     RUN epCanAccess IN hPgmSecurity ("viewers/vp-rmov.w", "", OUTPUT lResult).
     DELETE OBJECT hPgmSecurity.
+    IF NOT lResult THEN
     ASSIGN
         btn-override:VISIBLE IN FRAME {&FRAME-NAME} = lResult. 
     
