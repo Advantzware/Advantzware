@@ -92,7 +92,7 @@ DEFINE VARIABLE tax-dscr-3    AS CHARACTER NO-UNDO.
 FIND FIRST inv-head NO-LOCK NO-ERROR.
 /* === with xprint ====*/
 DEFINE VARIABLE ls-image1    AS cha NO-UNDO.
-DEFINE VARIABLE ls-full-img1 AS cha FORM "x(150)" NO-UNDO.
+DEFINE VARIABLE ls-full-img1 AS cha FORM "x(200)" NO-UNDO.
 
 ASSIGN 
     ls-image1           = "images\prystup.jpg"

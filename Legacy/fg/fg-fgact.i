@@ -47,30 +47,18 @@ IF AVAIL job THEN DO:
   IF AVAIL job-hdr THEN DO:
     lv-rowid = ROWID(job-hdr).
 
-    {jc/closeaud.i job}
-
-    ASSIGN
-     reftable.val[6] = INT(job.opened)
-     reftable.val[7] = INT(ll-set)
-     reftable.val[8] = INT(CAN-FIND(FIRST b-itemfg
+           
+    IF job.opened                           AND
+       (ll-set OR (CAN-FIND(FIRST b-itemfg
                                     WHERE b-itemfg.company EQ job-hdr.company
                                       AND b-itemfg.i-no    EQ job-hdr.i-no
                                       AND b-itemfg.isaset  EQ YES
-                                      AND b-itemfg.alloc   NE NO)).
-
-
-    IF reftable.val[6] NE 0                           AND
-       (reftable.val[7] EQ 0 OR reftable.val[8] NE 0) THEN DO:
+                                      AND b-itemfg.alloc   NE NO))) THEN DO:       
 
       RUN jc/qty-changed.p (BUFFER job, OUTPUT ll-qty-changed).
 
       {fg/closejob.i}
           
-      ASSIGN
-       reftable.val[9]  = v-close-job
-       reftable.val[10] = v-fin-qty
-       reftable.val[11] = li-t-qty
-       reftable.val[12] = v-underrun-qty.
 
       IF v-close-job GT 0                                            AND
          (job.stat EQ "W"                                OR
@@ -121,7 +109,6 @@ IF AVAIL job THEN DO:
         END.
 
         IF choice THEN DO:
-          reftable.val[1] = 2.
           CREATE w-job.
           ASSIGN
            w-job.job-no = FILL(" ",6 - LENGTH(TRIM(job.job-no))) +
@@ -130,7 +117,6 @@ IF AVAIL job THEN DO:
            w-job.rec-id = RECID(job).
         END.
 
-        ELSE reftable.val[1] = 1.
 
       END.
     END.

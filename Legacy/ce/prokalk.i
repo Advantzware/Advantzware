@@ -5,9 +5,11 @@
    {est/op-lock.i xest}
 
    IF NOT xef.op-lock THEN
+
      ASSIGN
       op-lock.val[1] = 1
       op-lock.val[2] = 1.
+
 
    find first mach {sys/look/machW.i} and
               mach.m-code  eq est-op.m-code no-lock no-error.
@@ -41,6 +43,7 @@
    qty = est-op.num-sh *
          v-num-up * (if xef.n-out   eq 0 then 1 else xef.n-out) *
                     (if xef.n-out-l eq 0 then 1 else xef.n-out-l).
+
 
    IF op-lock.val[1] EQ 1                          AND 
       (ip-rowid EQ ? OR ip-rowid EQ ROWID(est-op)) THEN DO:
@@ -91,6 +94,7 @@
          v-num-up * (if xef.n-out   eq 0 then 1 else xef.n-out) *
                     (if xef.n-out-l eq 0 then 1 else xef.n-out-l).
 
+
    IF (op-lock.val[1] EQ 1 OR op-lock.val[2] EQ 1) AND 
       (ip-rowid EQ ? OR ip-rowid EQ ROWID(est-op)) THEN DO:
       /* flip dimensions if corr. xgrain */
@@ -120,6 +124,7 @@
          fil_id = recid(xef).
          find xef where recid(xef) eq fil_id no-lock.
       end.
+
 
       IF op-lock.val[2] EQ 1 THEN
         IF LOOKUP(est-op.dept,"PR,CT") gt 0 THEN DO:

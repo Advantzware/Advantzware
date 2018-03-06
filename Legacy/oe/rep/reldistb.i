@@ -116,7 +116,7 @@ DEF BUFFER xitemfg FOR itemfg.
 DEF SHARED VAR v-print-components AS LOG NO-UNDO.
 DEF SHARED VAR s-print-part-no AS LOG NO-UNDO.
 DEF VAR ls-image1 AS cha NO-UNDO.
-DEF VAR ls-full-img1 AS cha FORM "x(50)" NO-UNDO.
+DEF VAR ls-full-img1 AS cha FORM "x(200)" NO-UNDO.
 ASSIGN tmpstore = fill("-",130).
 
 find first sys-ctrl where sys-ctrl.company eq cocode

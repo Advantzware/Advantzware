@@ -1,4 +1,21 @@
 
+
+DEF VAR cRtnCharBol AS CHAR NO-UNDO.
+DEFINE VARIABLE lRecFoundBol AS LOGICAL     NO-UNDO.
+
+RUN sys/ref/nk1look.p (INPUT cocode, "RELPOST", "L" /* Logical */, YES /* check by cust */, 
+    INPUT YES /* use cust not vendor */, oe-relh.cust-no /* cust */, oe-relh.ship-id /* ship-to*/,
+OUTPUT cRtnCharBol, OUTPUT lRecFoundBol).
+     IF lRecFoundBol THEN
+       relpost-log = LOGICAL(cRtnCharBol) NO-ERROR.
+     
+
+RUN sys/ref/nk1look.p (INPUT cocode, "RELPOST", "C" /* Logical */, YES /* check by cust */, 
+    INPUT YES /* use cust not vendor */, oe-relh.cust-no  /* cust */, oe-relh.ship-id /* ship-to*/,
+OUTPUT cRtnCharBol, OUTPUT lRecFoundBol).
+ IF lRecFoundBol THEN
+    relpost-chr = cRtnCharBol NO-ERROR. 
+
 RUN oe/oe-bolno.p (cocode, OUTPUT v-n-bol).
 
   /* check if more than 1 oe-rell and multiple frt pay/fob */

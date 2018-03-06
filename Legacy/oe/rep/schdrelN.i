@@ -148,6 +148,11 @@ if chosen eq 2 then DO:
                       cVarValue = STRING(w-ord.due-date) .
                   ELSE cVarValue = "" .
                 END.
+                WHEN "ord-date" THEN DO:
+                  IF w-ord.ord-date NE ? THEN
+                      cVarValue = STRING(w-ord.ord-date) .
+                  ELSE cVarValue = "" .
+                END.
                 WHEN "stat" THEN DO:
                   IF AVAIL shipto THEN
                       cVarValue = STRING(shipto.ship-stat,"x(5)") .

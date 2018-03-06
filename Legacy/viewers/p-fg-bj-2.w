@@ -55,17 +55,9 @@ listname = "p-updinv." .
 /* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME F-Main
 
-/* External Tables                                                      */
-&Scoped-define EXTERNAL-TABLES itemfg
-&Scoped-define FIRST-EXTERNAL-TABLE itemfg
-
-
-/* Need to scope the external tables to this procedure                  */
-DEFINE QUERY external_tables FOR itemfg.
-
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS tg_showzerobins fi_tag# btnPreFix
-&Scoped-Define DISPLAYED-OBJECTS tg_showzerobins fi_tag#
+&Scoped-Define ENABLED-OBJECTS fi_tag# btnPreFix tg_showzerobins 
+&Scoped-Define DISPLAYED-OBJECTS fi_tag# tg_showzerobins 
 
 /* Custom List Definitions                                              */
 /* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,List-3,List-4,List-5,List-6      */
@@ -100,26 +92,20 @@ RUN set-attribute-list (
 
 
 /* Definitions of the field level widgets                               */
-
-/*
-DEFINE RECTANGLE RECT-26
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 36 BY 2.14.*/
-
 DEFINE BUTTON btnPreFix 
      LABEL "<== Prefix FG Item#" 
      SIZE 21 BY 1.
-
-DEFINE VARIABLE tg_showzerobins AS LOGICAL INITIAL no 
-     LABEL "Show Bins with Qty = 0" 
-     VIEW-AS TOGGLE-BOX
-     SIZE 26 BY .81 NO-UNDO.
 
 DEFINE VARIABLE fi_tag# AS CHARACTER FORMAT "X(20)":U 
      LABEL "Tag#" 
      VIEW-AS FILL-IN 
      SIZE 39 BY 1
      BGCOLOR 15  NO-UNDO.
+
+DEFINE VARIABLE tg_showzerobins AS LOGICAL INITIAL no 
+     LABEL "Show Bins with Qty = 0" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 26 BY .81 NO-UNDO.
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -128,7 +114,6 @@ DEFINE FRAME F-Main
      fi_tag# AT ROW 1.43 COL 34 COLON-ALIGNED
      btnPreFix AT ROW 1.43 COL 76
      tg_showzerobins AT ROW 2.71 COL 70 WIDGET-ID 2
-     /*RECT-26 AT ROW 1 COL 1*/
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -161,8 +146,8 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW V-table-Win ASSIGN
-         HEIGHT             = 6.86
-         WIDTH              = 66.
+         HEIGHT             = 2.95
+         WIDTH              = 99.2.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -207,24 +192,20 @@ ASSIGN
 
 
 /* ************************  Control Triggers  ************************ */
-/*
-&Scoped-define SELF-NAME btn-update
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-update V-table-Win
-ON CHOOSE OF btn-update IN FRAME F-Main /* Update Cost/Unit/Count */
+
+&Scoped-define SELF-NAME btnPreFix
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnPreFix V-table-Win
+ON CHOOSE OF btnPreFix IN FRAME F-Main /* <== Prefix FG Item# */
 DO:
-  def var char-hdl as cha no-undo.
-      
-  
-  IF NOT ll-secure THEN do:  
-     RUN sys/ref/d-passwd.w (1, OUTPUT ll-secure). 
-     IF NOT ll-secure THEN RETURN NO-APPLY.
-  END.  
-  run get-link-handle in adm-broker-hdl (this-procedure, "cost-source", output char-hdl).  
-  run update-cost in widget-handle(char-hdl).
+ IF AVAIL itemfg THEN do:
+  fi_tag#:SCREEN-VALUE = itemfg.i-no + FILL(' ',15 - LENGTH(itemfg.i-no)) + '0'.
+  APPLY 'ENTRY':U TO fi_tag#.
+  RETURN NO-APPLY.
+    END.
 END.
 
 /* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME*/
+&ANALYZE-RESUME
 
 
 &Scoped-define SELF-NAME fi_tag#
@@ -241,20 +222,6 @@ DO:
   hContainer = HANDLE(char-hdl).
   IF VALID-HANDLE(hContainer) THEN
     RUN filterTagBins IN hContainer (INPUT tg_showZeroBins, INPUT fi_tag#).
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&Scoped-define SELF-NAME btnPreFix
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnPreFix V-table-Win
-ON CHOOSE OF btnPreFix IN FRAME F-Main /* <== Prefix FG Item# */
-DO:
- IF AVAIL itemfg THEN do:
-  fi_tag#:SCREEN-VALUE = itemfg.i-no + FILL(' ',15 - LENGTH(itemfg.i-no)) + '0'.
-  APPLY 'ENTRY':U TO fi_tag#.
-  RETURN NO-APPLY.
-    END.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -341,9 +308,8 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
 
+/* **********************  Internal Procedures  *********************** */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI V-table-Win  _DEFAULT-DISABLE
 PROCEDURE disable_UI :

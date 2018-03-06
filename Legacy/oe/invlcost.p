@@ -150,26 +150,16 @@ IF AVAIL inv-line OR AVAIL ar-invl THEN DO:
                 FIRST b-fg-rdtlh WHERE b-fg-rdtlh.r-no    EQ b-fg-rcpth.r-no 
                                    AND b-fg-rdtlh.rita-code EQ b-fg-rcpth.rita-code
                                  NO-LOCK
-                 by b-fg-rcpth.trans-date descending:
-            
-                FIND FIRST reftable NO-LOCK
-                      WHERE reftable.reftable EQ "fg-bin.cost"
-                        AND reftable.company  EQ b-fg-rdtlh.company
-                        AND reftable.rec_key  = b-fg-rdtlh.rec_key
-                        USE-INDEX rec_key
-                      NO-ERROR.
+                 by b-fg-rcpth.trans-date descending:            
                 
-                IF AVAIL reftable THEN    DO:
-
-                      ASSIGN
-                        fgb-avg-cost      = reftable.val[1]    
-                        fgb-last-cost     = reftable.val[2]    
-                        fgb-std-fix-cost  = reftable.val[3]    
-                        fgb-std-lab-cost  = reftable.val[4]    
-                        fgb-std-mat-cost  = reftable.val[5]    
-                        fgb-std-tot-cost  = reftable.val[6]    
-                        fgb-std-var-cost  = reftable.val[7]    .
-                END. /* avail reftabl */
+                ASSIGN
+                    fgb-avg-cost       = b-fg-rdtlh.avg-cost    
+                    fgb-last-cost     = b-fg-rdtlh.last-cost    
+                    fgb-std-fix-cost  = b-fg-rdtlh.std-fix-cost   
+                    fgb-std-lab-cost  = b-fg-rdtlh.std-lab-cost   
+                    fgb-std-mat-cost  = b-fg-rdtlh.std-mat-cost    
+                    fgb-std-tot-cost  = b-fg-rdtlh.std-tot-cost    
+                    fgb-std-var-cost  = b-fg-rdtlh.std-var-cost    .
                 FIND FIRST tt-itemcost WHERE tt-itemcost.i-no = lv-i-no NO-ERROR.
                 IF NOT AVAIL tt-itemcost THEN
                     CREATE tt-itemcost.                    

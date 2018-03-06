@@ -498,19 +498,19 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 14 BY 1
           BGCOLOR 15 
-     "DEFAULT DEMENSIONS" VIEW-AS TEXT
+     "Default Dimensions" VIEW-AS TEXT
           SIZE 29 BY .62 AT ROW 2.43 COL 15
           FGCOLOR 9 
-     "DIE && RULE FORMULAS" VIEW-AS TEXT
+     "Die && Rule Formulas" VIEW-AS TEXT
           SIZE 29 BY .62 AT ROW 2.43 COL 104
           FGCOLOR 9 
-     "LAYOUT FORMULAS" VIEW-AS TEXT
+     "Layout Formulas" VIEW-AS TEXT
           SIZE 25 BY .62 AT ROW 7.24 COL 103.4
           FGCOLOR 9 
-     "DEFAULT MACHINE ROUTING" VIEW-AS TEXT
+     "Default Machine Routing" VIEW-AS TEXT
           SIZE 39 BY .62 AT ROW 9.91 COL 9.2
           FGCOLOR 9 
-     "DEFAULT MATERIAL CODES" VIEW-AS TEXT
+     "Default Material Codes" VIEW-AS TEXT
           SIZE 32 BY .62 AT ROW 2.43 COL 52.6
           FGCOLOR 9 
      "6" VIEW-AS TEXT
@@ -746,7 +746,7 @@ DO:
                      style.dim-tk:LABEL = "Tuck" 
                      style.material[7]:LABEL = "Adhesive"
                      style.dim-gl:LABEL = "Glue lap" 
-                     style.dim-dkl:LABEL = "DK Lenght" 
+                     style.dim-dkl:LABEL = "DK Length" 
                      style.dim-dkw:LABEL  = "DK Width" .
              END.
 
@@ -1176,7 +1176,7 @@ DO:
             style.dim-tk:LABEL = "Tuck" 
             style.material[7]:LABEL = "Adhesive"
             style.dim-gl:LABEL = "Glue lap" 
-            style.dim-dkl:LABEL = "DK Lenght" 
+            style.dim-dkl:LABEL = "DK Length" 
             style.dim-dkw:LABEL  = "DK Width" .
     END.
 
@@ -1211,7 +1211,7 @@ DO:
             style.dim-tk:LABEL = "Tuck" 
             style.material[7]:LABEL = "Adhesive"
             style.dim-gl:LABEL = "Glue lap" 
-            style.dim-dkl:LABEL = "DK Lenght" 
+            style.dim-dkl:LABEL = "DK Length" 
             style.dim-dkw:LABEL  = "DK Width" .
     END.
 
@@ -1396,7 +1396,7 @@ IF AVAIL style AND style.TYPE EQ "P" THEN DO:
             style.dim-tk:LABEL IN FRAME {&FRAME-NAME} = "Tuck" 
             style.material[7]:LABEL IN FRAME {&FRAME-NAME} = "Adhesive"
             style.dim-gl:LABEL IN FRAME {&FRAME-NAME}= "Glue lap"
-            style.dim-dkl:LABEL IN FRAME {&FRAME-NAME} = "DK Lenght" 
+            style.dim-dkl:LABEL IN FRAME {&FRAME-NAME} = "DK Length" 
             style.dim-dkw:LABEL IN FRAME {&FRAME-NAME} = "DK Width"   .
     END.
 

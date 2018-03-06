@@ -69,7 +69,7 @@ DEF TEMP-TABLE tt-eiv NO-UNDO
 
 /* === with xprint ====*/
 DEF VAR ls-image1 AS cha NO-UNDO.
-DEF VAR ls-full-img1 AS cha FORM "x(60)" NO-UNDO.
+DEF VAR ls-full-img1 AS cha FORM "x(200)" NO-UNDO.
 
 ASSIGN ls-image1 = "images\Protagonpo.jpg"
        FILE-INFO:FILE-NAME = ls-image1
@@ -823,7 +823,6 @@ FOR EACH notes WHERE notes.rec_key = po-ord.rec_key NO-LOCK:
      {po/po-protg2.i}
   END.
 
-  {po/pouserid.i} 
 
   v-sig-image = "signature\" + po-ord.buyer + ".jpg". /*RD1*/
   FILE-INFO:FILE-NAME = v-sig-image.

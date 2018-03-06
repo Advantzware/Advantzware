@@ -9,7 +9,7 @@
     l-rno
     ll-rell-found
 */
-DEF BUFFER b-reft-findrelh FOR reftable.
+
 DEF BUFFER b-reft-fob FOR reftable.
 DEF BUFFER b2-oe-rell FOR oe-rell.
 DEF BUFFER b2-reftable FOR reftable.
@@ -27,10 +27,6 @@ RELEASE oe-relh.
 
 /* Get reftable record for this r-no for an s-code to match against oe-rell.s-code */
 /* compare the oe-rel.s-code with the oe-rell.s-code                               */
-FIND FIRST b-reft-findrelh
-    WHERE b-reft-findrelh.reftable EQ "oe-rel.s-code"
-      AND b-reft-findrelh.company  EQ STRING({1}.r-no,"9999999999")
-    NO-LOCK NO-ERROR.
 
 /* Get reftable record for this r-no for an dscr to match against another  */
 /* reftable record related to lot# (compare the oe-rel.lot with oe-rell   */
@@ -85,10 +81,10 @@ FOR EACH oe-relh
 	  AND oe-relh.deleted  EQ NO
 	  AND (oe-relh.printed EQ NO OR relmerge-log) 
       /* Check against reftables s-code if one is found */
-      AND (NOT AVAIL b-reft-findrelh OR
+      AND ({1}.s-code = "" OR 
            CAN-FIND(FIRST oe-rell
                     WHERE oe-rell.r-no   EQ oe-relh.r-no
-                      AND oe-rell.s-code EQ b-reft-findrelh.code))
+                      AND oe-rell.s-code EQ {1}.s-code))
       /* same order only logic, ll-by-po must pass this check also */
       AND ((relmerge-chr NE "SameOrderOnly" OR ll-by-po) OR
            CAN-FIND(FIRST oe-rell

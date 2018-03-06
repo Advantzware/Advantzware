@@ -64,7 +64,6 @@ DEF VAR v-probe-fmt AS CHAR NO-UNDO.
 DEF VAR v-header AS CHAR INIT "   Qty      --- Desc/iption ------ -- Size / Color ----- --- Style / Part No ---" NO-UNDO.
 DEF VAR v-2desc AS LOG NO-UNDO.
 DEF VAR v-i-no LIKE xeb.stock-no.
-DEF VAR cJobNo AS CHAR NO-UNDO.
 DEF BUFFER bf-oe-ord FOR oe-ord.
 DEF BUFFER bf-oe-ordl FOR oe-ordl.
 DEF NEW SHARED TEMP-TABLE tt-rel NO-UNDO LIKE reftable.
@@ -345,35 +344,15 @@ ctrl[16] = int(ce-ctrl.spec-add[6])
 ctrl[17] = int(ce-ctrl.spec-add[7])
 ctrl[18] = int(ce-ctrl.spec-add[8]).
 
-FIND FIRST reftable-fold-pct
-     WHERE reftable-fold-pct.reftable EQ "ce-ctrl.fold-pct"
-       AND reftable-fold-pct.company  EQ ce-ctrl.company
-       AND reftable-fold-pct.loc      EQ ce-ctrl.loc
-     NO-LOCK NO-ERROR.
 
-IF AVAIL reftable-fold-pct THEN
-   ctrl[19] = reftable-fold-pct.val[1].
+   ctrl[19] = ce-ctrl.fold-pct.
 
-FIND FIRST reftable NO-LOCK
-    WHERE reftable.reftable EQ "ce-ctrl.fg-rate-farm"
-      AND reftable.company  EQ ce-ctrl.company
-      AND reftable.loc      EQ ce-ctrl.loc
-    NO-ERROR.  
-fg-rate-f = IF AVAIL reftable THEN reftable.val[1] ELSE 0.
 
-FIND FIRST reftable NO-LOCK
-    WHERE reftable.reftable EQ "ce-ctrl.rm-rate-farm"
-      AND reftable.company  EQ ce-ctrl.company
-      AND reftable.loc      EQ ce-ctrl.loc
-    NO-ERROR.  
-rm-rate-f = IF AVAIL reftable THEN reftable.val[1] ELSE 0.
+fg-rate-f = ce-ctrl.fg-rate-farm.
 
-FIND FIRST reftable NO-LOCK
-    WHERE reftable.reftable EQ "ce-ctrl.hand-pct-farm"
-      AND reftable.company  EQ ce-ctrl.company
-      AND reftable.loc      EQ ce-ctrl.loc
-    NO-ERROR.  
-hand-pct-f = (IF AVAIL reftable THEN reftable.val[1] ELSE 0) / 100.
+rm-rate-f = ce-ctrl.rm-rate-farm.
+
+hand-pct-f = ce-ctrl.hand-pct-farm / 100.
 
 DO TRANSACTION:
   FOR each est-op

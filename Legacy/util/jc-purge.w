@@ -481,11 +481,11 @@ assign
  v-job-no[2]  = end_job-no
  v-job-no2[1] = int(begin_job-no2)
  v-job-no2[2] = int(end_job-no2)
- v-status     = (if tb_pending  then "P"  else "") +
-                (if tb_released then "RL" else "") +
-                (if tb_on-hold  then "H"  else "") +
-                (if tb_wip      then "W"  else "") +
-                (if tb_closed   then "CZ" else "").
+ v-status     = (if tb_pending  then "P"   else "") +
+                (if tb_released then "ARL" else "") +
+                (if tb_on-hold  then "H"   else "") +
+                (if tb_wip      then "W"   else "") +
+                (if tb_closed   then "CZ"  else "").
 
 do x = 1 to 2:
   v-job-no[x] = fill(" ", 6 - integer(length(trim(v-job-no[x])))) +

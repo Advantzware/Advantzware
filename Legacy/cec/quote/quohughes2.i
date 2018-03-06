@@ -1,7 +1,7 @@
  /* cec/quote/quohughes2.i */
 
   PUT "<C+25><#1>"
-      "<C3><R1><R+16><C+29>" "<IMAGE#2=" + ls-full-img1 FORM "x(60)"  
+      "<C3><R1><R+16><C+29>" "<IMAGE#2=" + ls-full-img1 FORM "x(200)"  
       "<=1>" SKIP 
       "<C1><#2><Farial>"
       "<=2><R+4>" "<FGCOLOR=" + trim(lv-comp-color) + ">" FORM "x(15)"

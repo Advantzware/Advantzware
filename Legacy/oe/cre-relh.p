@@ -61,11 +61,8 @@ CREATE oe-relh.
 
 ASSIGN oe-relh.cust-no = oe-rel.cust-no.
 
-FIND FIRST reftable 
-  WHERE reftable.reftable EQ "oe-rel.s-code" 
-    AND reftable.company  EQ STRING(oe-rel.r-no,"9999999999") NO-LOCK NO-ERROR.
-IF addxfer-log = YES AND
-   AVAIL reftable AND reftable.code EQ 'T' 
+
+IF addxfer-log = YES  AND oe-rel.s-code EQ 'T' 
   THEN DO:
 
    FIND FIRST cust 

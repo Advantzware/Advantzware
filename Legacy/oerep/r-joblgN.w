@@ -60,11 +60,11 @@ DEF VAR cTextListToDefault AS cha NO-UNDO.
 
 
 ASSIGN cTextListToSelect = "Job#,Order#,Cust#,Cust Name#,Item Number,Item Name,Cust Po#,Qty Ordered,Order Date," +
-    	                   "Due Date,Cust Part#,Est#,Die#,Cad#"
+    	                   "Due Date,Cust Part#,Est#,Die#,Cad#,CSR"
        cFieldListToSelect = "job,ord,cust,cust-name,item,item-name,cust-po,ord-qty,ord-date," +
-                            "due-date,cust-part,est,die,cad"
-       cFieldLength = "10,8,8,30,15,30,15,11,10," + "10,15,8,15,15"
-       cFieldType = "c,c,c,c,c,c,c,i,c," + "c,c,c,c,c" 
+                            "due-date,cust-part,est,die,cad,csr"
+       cFieldLength = "10,8,8,30,15,30,15,11,10," + "10,15,8,15,15,8"
+       cFieldType = "c,c,c,c,c,c,c,i,c," + "c,c,c,c,c,c" 
     .
 
 {sys/inc/ttRptSel.i}
@@ -1589,8 +1589,9 @@ DISPLAY "" WITH FRAME r-top.
                          WHEN "due-date"    THEN cVarValue = IF v-date NE ? THEN STRING(v-date,"99/99/9999") ELSE  "" .
                          WHEN "cust-part"   THEN cVarValue = IF AVAIL oe-ordl THEN string(oe-ordl.part-no,"x(15)") ELSE "".
                          WHEN "est"   THEN cVarValue =  STRING(est-num) .
-                         WHEN "die"  THEN cVarValue = IF AVAIL eb THEN STRING(eb.die-no,"x(15)") ELSE "" .
-                         WHEN "cad"   THEN cVarValue = IF AVAIL eb THEN STRING(eb.cad-no,"x(15)") ELSE "" .
+                         WHEN "die"  THEN cVarValue = IF AVAIL eb AND eb.die-no NE "" THEN STRING(eb.die-no,"x(15)") ELSE "" .
+                         WHEN "cad"   THEN cVarValue = IF AVAIL eb AND eb.cad-no NE "" THEN STRING(eb.cad-no,"x(15)") ELSE "" .
+                         WHEN "csr"   THEN cVarValue = IF AVAIL oe-ord AND oe-ord.csrUser_id NE "" THEN STRING(oe-ord.csrUser_id,"x(8)") ELSE "" .
 
 
                     END CASE.

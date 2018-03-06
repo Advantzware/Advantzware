@@ -164,7 +164,7 @@ DEFINE BROWSE br_table
   QUERY br_table NO-LOCK DISPLAY
       est-prep.s-num COLUMN-LABEL "Sht #" FORMAT ">>>":U
       est-prep.b-num COLUMN-LABEL "B #" FORMAT ">>>":U
-      est-prep.code FORMAT "x(15)":U WIDTH 20
+      est-prep.code FORMAT "x(20)":U WIDTH 20
       est-prep.qty FORMAT "->>,>>9.9":U
       est-prep.dscr FORMAT "x(20)":U
       est-prep.simon FORMAT "X":U
@@ -276,7 +276,7 @@ ASSIGN
      _FldNameList[2]   > ASI.est-prep.b-num
 "est-prep.b-num" "B #" ">>>" "integer" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   > ASI.est-prep.code
-"est-prep.code" ? "x(15)" "character" ? ? ? ? ? ? yes ? no no "20" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"est-prep.code" ? "x(20)" "character" ? ? ? ? ? ? yes ? no no "20" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[4]   > ASI.est-prep.qty
 "est-prep.qty" ? "->>,>>9.9" "decimal" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[5]   > ASI.est-prep.dscr
@@ -466,7 +466,7 @@ END.
 ON LEAVE OF est-prep.code IN BROWSE br_table /* Code */
 DO:
   IF LASTKEY NE -1 THEN DO:
-    RUN valid-code NO-ERROR.
+    RUN valid-code(1) NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
   END.
 END.
@@ -643,29 +643,19 @@ PROCEDURE create-reft4plate :
 
   FIND FIRST oe-ordm WHERE oe-ordm.company = est.company
                  AND oe-ordm.ord-no = est.ord-no
-                 AND oe-ordm.charge = est-prep.CODE NO-LOCK NO-ERROR.
+                 AND oe-ordm.charge = est-prep.CODE NO-ERROR.
   IF AVAIL oe-ordm AND 
-     NOT can-find(FIRST reftable
-                  WHERE reftable.reftable EQ "oe/ordlmisc.p"
-                    AND reftable.company  EQ oe-ordm.company
-                    AND reftable.loc      EQ STRING(oe-ordm.ord-no,"9999999999")
-                    AND reftable.code     EQ STRING(oe-ordm.line,"9999999999")
-                    AND reftable.code2    EQ oe-ordm.charge
-                    AND reftable.val[1] = 1
-                    AND reftable.val[2]   = est-prep.eqty
-                    AND reftable.val[3]   = est-prep.line)
-  THEN DO:      
-      CREATE reftable.
-      ASSIGN reftable.reftable = "oe/ordlmisc.p"
-             reftable.company  = oe-ordm.company
-             reftable.loc      = STRING(oe-ordm.ord-no,"9999999999")
-             reftable.code     = STRING(oe-ordm.line,"9999999999")
-             reftable.code2    = oe-ordm.charge
-             reftable.val[1] = 1
-             reftable.val[2]   = est-prep.eqty
-             reftable.val[3]   = est-prep.line
-             reftable.dscr     = est-prep.est-no.    
-
+     (oe-ordm.miscType <> 1 OR
+      oe-ordm.estPrepEqty <> est-prep.eqty OR
+      oe-ordm.estPrepLine <> est-prep.line)      
+     
+  THEN DO:
+      ASSIGN 
+             oe-ordm.miscType = 1
+             oe-ordm.estPrepEqty   = est-prep.eqty
+             oe-ordm.estPrepLine   = est-prep.line
+             oe-ordm.est-no  = est-prep.est-no.  
+    RELEASE oe-ordm.
   END.
 END PROCEDURE.
 
@@ -973,7 +963,7 @@ PROCEDURE local-update-record :
   RUN valid-b-num NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.  
 
-  RUN valid-code NO-ERROR.
+  RUN valid-code(0) NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN error.
   
   RUN valid-simon NO-ERROR.
@@ -1208,16 +1198,25 @@ PROCEDURE valid-code :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-
+DEFINE INPUT PARAMETER ip-count AS INTEGER NO-UNDO.
   DO WITH FRAME {&FRAME-NAME}:
     IF NOT CAN-FIND(FIRST prep
                     WHERE prep.company EQ est.company
-                      AND prep.loc     EQ est.loc
                       AND prep.code    EQ est-prep.code:SCREEN-VALUE IN BROWSE {&browse-name})
     THEN DO:
-      MESSAGE "Invalid entry, try help..." VIEW-AS ALERT-BOX.
+      MESSAGE "Code not found - Reenter valid code" VIEW-AS ALERT-BOX.
       APPLY "entry" TO est-prep.code.
       RETURN ERROR.
+    END.
+    IF ip-count EQ 1 THEN DO:
+        IF NOT CAN-FIND(FIRST prep
+                        WHERE prep.company EQ est.company
+                          AND prep.loc     EQ est.loc
+                          AND prep.code    EQ est-prep.code:SCREEN-VALUE IN BROWSE {&browse-name})
+        THEN DO:
+          MESSAGE "Code is at a different location than the estimate" VIEW-AS ALERT-BOX WARNING.
+          APPLY "entry" TO est-prep.code.
+        END.
     END.
     /* validate # inks and coat for Plate*/
     IF CAN-FIND(FIRST prep WHERE prep.company EQ est.company

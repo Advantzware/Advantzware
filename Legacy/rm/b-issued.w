@@ -80,7 +80,7 @@ DO TRANSACTION:
   {sys/inc/rmrecpt.i}
 END.
 
-RUN sys/ref/nk1look.p (cocode, "AllowRMAdd", "L", NO, NO, "", "", 
+RUN sys/ref/nk1look.p (cocode, "RMAllowAdd", "L", NO, NO, "", "", 
     OUTPUT lcReturn, OUTPUT llRecFound).
 
    lAllowRmAdd = LOGICAL(lcReturn) NO-ERROR.  

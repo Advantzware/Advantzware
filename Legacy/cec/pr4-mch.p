@@ -234,18 +234,16 @@ FOR EACH est-op WHERE est-op.company = xest.company
 
         IF vmclean THEN oprun$ = oprun$ /
                 (qtty[k] * xeb.yld-qty / 1000 * v-sqft-fac).
-        /* task 09171202 */
-        IF est-op.dept EQ "DC" AND est-op.n-out EQ 0 THEN
-            v-on-s = xeb.num-up.      
+        
+        /* task 09171202 - Reversed with Ticket 26136 */
+/*        IF est-op.dept EQ "DC" AND est-op.n-out EQ 0 THEN*/
+/*            v-on-s = xeb.num-up.                         */
 
         DISPLAY est-op.m-dscr           FORMAT "x(16)"
             est-op.n-out            FORMAT ">>>9"
-            v-on-s / v-on-f 
-            WHEN est-op.n-out EQ 0 @ est-op.n-out
-            1 
-            WHEN NOT est-op.op-sb                @ est-op.n-out
-            1 
-            WHEN mach.p-type = "A"               @ est-op.n-out
+                v-on-s / v-on-f         WHEN est-op.n-out EQ 0 @ est-op.n-out
+                1                       WHEN NOT est-op.op-sb  @ est-op.n-out
+                1                       WHEN mach.p-type = "A" @ est-op.n-out
             opmr                    FORMAT ">>9.99"
             oprun                   FORMAT ">>>9.99"     TO 35
             opsp                    FORMAT ">>>>9"       TO 41
