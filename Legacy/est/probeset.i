@@ -99,4 +99,6 @@ END.
 
 IF vprint AND xest.est-type GE 5 AND xest.est-type LE 6 THEN
   RUN est/upestqty.p (ROWID(xest)).
+  
+RUN est/CostBuildHeaders.p (ROWID(xest), {1}, riJob). 
 

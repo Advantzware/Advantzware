@@ -5,7 +5,7 @@
       "<C1><#2><Farial>"
       "<=2><R+4>" "<FGCOLOR=" + trim(lv-comp-color) + ">" FORM "x(15)"
       "<P10><=2><R+5>" "<C1><R2><FROM><R12><C15><#89><AT=0.53,0.18>" FORM "x(45)"
-      "<IMAGE#89=" ls-full-img1 FORMAT "x(50)" SKIP(5)
+      "<IMAGE#89=" ls-full-img1 FORMAT "x(200)" SKIP(5)
       /* v-comp-add1 AT 8 SKIP
        v-comp-add2 AT 8 SKIP
        v-comp-add3 AT 8 SKIP

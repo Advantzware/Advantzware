@@ -15,8 +15,9 @@ assign
  locode = gloc.
 
 DO TRANSACTION:
-   {sys/inc/selrptcol.i "VR7" }
+   {sys/inc/runAOAVer.i "VR7" }
 END.
 
-IF SelectRptColumn-log THEN RUN aprep/r-taxdisN.w PERSISTENT.
-ELSE RUN aprep/r-taxdisA.w PERSISTENT.
+cAOAFile = SEARCH("AOA/r-taxdis.p").
+IF RunAOAVersion-log AND cAOAFile NE ? THEN RUN AOA/r-taxdis.p.
+ELSE RUN aprep/r-taxdisN.w PERSISTENT.

@@ -91,7 +91,7 @@ define variable CommandString    AS CHAR NO-UNDO.
 define variable WshNetwork as com-handle.
 DEF VAR v-dir AS CHAR FORMAT "X(80)" NO-UNDO.
 DEF VAR ls-image1 AS cha NO-UNDO.
-DEF VAR ls-full-img1 AS cha FORM "x(150)" NO-UNDO.
+DEF VAR ls-full-img1 AS cha FORM "x(200)" NO-UNDO.
 DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
 DEFINE VARIABLE mypict AS COM-HANDLE NO-UNDO.

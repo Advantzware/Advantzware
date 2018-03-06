@@ -4,7 +4,7 @@ PUT
          "<C1><#1><FArial>"  
          "<P10><R1><C70><B>Page #:</B>" string(PAGE-NUM,">9")  SKIP
          "<P14><C+45> <B>Purchase Order</B> <P10>" v-change-ord SKIP       
-       "<C3><R2><#2><R+8><C+40>" "<IMAGE#2=" + ls-full-img1 FORM "x(150)"  SKIP 
+       "<C3><R2><#2><R+8><C+40>" "<IMAGE#2=" + ls-full-img1 FORM "x(200)"  SKIP 
        /*"<=1><R+2>" "<FGCOLOR=" + trim(lv-comp-color) + ">" FORM "x(15)" */
           "<P10><=1><R+9><C3><FCourier New>Purchase Order To:" 
           "<P10><=1><R+11><C3><FCourier New>" vend.name

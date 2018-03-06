@@ -72,7 +72,6 @@ DEF VAR lv-ordl-recid AS RECID NO-UNDO.
 DEF VAR lv-change-prom-date AS LOG NO-UNDO.  /* flag for updating oe-ordl.prom-date*/
 DEF VAR lv-change-cst-po AS LOG NO-UNDO.    /* flag for updateing oe-ordl.po-no */
 DEF VAR lv-uom-list AS cha INIT "M,EA,L,CS,C,LB,DRM,ROL,PLT,PKG,SET,DOZ,BDL" NO-UNDO.
-DEF VAR lv-ea-list AS CHAR NO-UNDO.
 DEF VAR lv-valid-uom AS CHAR NO-UNDO.
 DEF VAR v-valtype AS cha INIT "O,R,C" NO-UNDO.
 DEF VAR v-duelist AS cha INIT "AM,ASAP,BY,CPU,CR,HFR,HOLD,HOT,INK,MH,MUST,NB4,NCUST,NITEM,NCNI,OE,ON,PPR,RWRK,RUSH,TOOL,WO,$$$" NO-UNDO.
@@ -162,6 +161,7 @@ DEFINE VARIABLE OEPO#Xfer-log AS LOGICAL     NO-UNDO.
 DEFINE VARIABLE oeDateChange-log AS LOGICAL     NO-UNDO.
 DEFINE VARIABLE oeDateChange-chr AS CHARACTER   NO-UNDO.
 DEFINE VARIABLE gcLastDateChange AS CHARACTER   NO-UNDO.
+DEFINE VARIABLE cOEPriceMatrixCheck AS CHARACTER     NO-UNDO.
 cocode = g_company.
 
 {oe/oe-sysct1.i NEW} 
@@ -239,6 +239,15 @@ RUN sys/ref/nk1look.p (INPUT cocode, "OEPriceMatrixCheck", "I" /* Logical */,
                        OUTPUT v-rec-found).
 glOEPriceMatrixCheckAllowMax = INT(v-rtn-char) EQ 1 NO-ERROR.
 
+RUN sys/ref/nk1look.p (INPUT cocode, "OEPriceMatrixCheck", "C" /* Logical */, 
+                       INPUT NO /* check by cust */, 
+                       INPUT YES /* use cust not vendor */,
+                       INPUT "" /* cust */, 
+                       INPUT "" /* ship-to*/,
+                       OUTPUT v-rtn-char, 
+                       OUTPUT v-rec-found).
+cOEPriceMatrixCheck = v-rtn-char  .
+
 RUN sys/ref/nk1look.p (cocode, "oeDateChange", "L", NO, NO, "", "", 
                           OUTPUT v-rtn-char, OUTPUT v-rec-found).
 IF v-rec-found THEN
@@ -293,15 +302,6 @@ DO TRANSACTION:
   
 RUN sys/ref/ordtypes.p (OUTPUT lv-type-codes, OUTPUT lv-type-dscrs).
 
-/* RUN sys/ref/uom-ea.p (OUTPUT lv-ea-list). */
-FOR EACH uom WHERE
-    uom.other EQ "EA" AND
-    uom.mult EQ 1:
-    ASSIGN
-        lv-ea-list = lv-ea-list + uom.uom + ",".
-END.
-ASSIGN
-    lv-ea-list = TRIM(lv-ea-list,",").
 
 {sys/inc/schedule.i}
  v-run-schedule = NOT (AVAIL sys-ctrl AND sys-ctrl.char-fld EQ 'NoDate' AND sys-ctrl.log-fld).
@@ -445,6 +445,16 @@ oe-ordl.cost oe-ordl.type-code fi_sname-1 fi_sname-2 fi_sname-3
 
 
 /* ************************  Function Prototypes ********************** */
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fOEScreenUOMConvert d-oeitem
+FUNCTION fOEScreenUOMConvert RETURNS DECIMAL 
+  (  ipdStartQuantity AS DECIMAL , ipcUOM AS CHARACTER, ipdCount AS DECIMAL ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD get-colonial-rel-date d-oeitem 
 FUNCTION get-colonial-rel-date RETURNS DATE
@@ -1481,13 +1491,15 @@ DO:
        ASSIGN asi.oe-ordl.whsed:SCREEN-VALUE = "YES".
 
 
-  IF glOEPriceMatrixCheck 
-      AND oe-ordl.est-no:SCREEN-VALUE EQ "" THEN
+  IF /*glOEPriceMatrixCheck 
+      AND*/ oe-ordl.est-no:SCREEN-VALUE EQ "" THEN
       RUN PriceMatrixQtyCheck(INPUT cocode,
                               INPUT oe-ord.cust-no,
                               INPUT oe-ordl.i-no:SCREEN-VALUE,
                               INPUT DEC(oe-ordl.qty:SCREEN-VALUE),
-                              INPUT glOEPriceMatrixCheckAllowMax).
+                              INPUT glOEPriceMatrixCheckAllowMax,
+                              INPUT DEC(oe-ordl.price:SCREEN-VALUE)) NO-ERROR.
+   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
   IF oepricecheck-log AND oe-ordl.est-no:SCREEN-VALUE EQ "" AND
      ll-new-record THEN
@@ -3972,7 +3984,9 @@ PROCEDURE create-job :
          job.job-no     = oe-ordl.job-no
          job.job-no2    = oe-ordl.job-no2
          job.stat       = "P"
-         op-recid = RECID(job).
+         job.csrUser_id = IF AVAIL oe-ord THEN oe-ord.csrUser_id ELSE ""
+         op-recid = RECID(job) 
+          .
 
    FIND FIRST job-hdr WHERE job-hdr.company EQ cocode
                        AND job-hdr.job-no  EQ oe-ordl.job-no
@@ -4419,18 +4433,7 @@ IF v-relflg2 THEN DO:
       ELSE IF AVAIL sys-ctrl AND sys-ctrl.log-fld THEN v-reltype = sys-ctrl.char-fld.
   
   IF v-relType <> "" THEN DO:
-    FIND FIRST reftable
-    WHERE reftable.reftable EQ "oe-rel.s-code"
-        AND reftable.company  EQ STRING(oe-rel.r-no,"9999999999") 
-      NO-LOCK NO-ERROR.
-    IF NOT AVAIL reftable THEN DO:
-      CREATE reftable.
-      ASSIGN reftable.reftable = "oe-rel.s-code"
-             reftable.company = STRING(oe-rel.r-no,"9999999999")
-             reftable.CODE = IF oe-ordl.is-a-component THEN "S"
-                                ELSE SUBSTRING(v-relType,1,1).
-      IF oe-ord.TYPE = "T" THEN
-        ASSIGN reftable.CODE = "T".
+    
       FIND bf-oe-rel WHERE ROWID(bf-oe-rel) EQ ROWID(oe-rel)
         EXCLUSIVE-LOCK.
       bf-oe-rel.s-code = IF oe-ordl.is-a-component THEN "S"
@@ -4438,7 +4441,6 @@ IF v-relflg2 THEN DO:
       IF oe-ord.TYPE = "T" THEN
         ASSIGN bf-oe-rel.s-code = "T".      
       RELEASE bf-oe-rel.
-    END. /* not avail reftable */
   END. /* v-reltype <> "" */
 END. /* if v-relflg2 */
 
@@ -5258,7 +5260,7 @@ DO WITH FRAME {&FRAME-NAME}:
   IF NOT AVAIL oe-ord THEN FIND oe-ord WHERE oe-ord.company = g_company AND
                                 oe-ord.ord-no = oe-ordl.ord-no NO-LOCK. 
   IF itemfg.CLASS EQ "*" OR itemfg.exempt-disc THEN oe-ordl.disc:SCREEN-VALUE = "0".
-/*   {custom/fgexempt.i itemfg oe-ordl.disc:SCREEN-VALUE} */
+
 
   IF oe-ordl.type-code:SCREEN-VALUE EQ "O" AND oe-ordl.est-no NE "" THEN
      ASSIGN oe-ordl.i-name:screen-value     = IF itemfg.i-name <> "" THEN itemfg.i-name ELSE oe-ordl.i-name:screen-value 
@@ -5444,7 +5446,7 @@ IF ERROR-STATUS:ERROR THEN RETURN ERROR.
 DO WITH FRAME {&frame-name}:  
   FIND itemfg WHERE RECID(itemfg) = ip-recid NO-LOCK.
    IF itemfg.CLASS EQ "*" OR itemfg.exempt-disc THEN oe-ordl.disc:SCREEN-VALUE = "0".
-/*   {custom/fgexempt.i itemfg oe-ordl.disc:SCREEN-VALUE} */
+
 
   RUN default-type (BUFFER itemfg).
 
@@ -7190,6 +7192,7 @@ DEFINE INPUT PARAMETER ipcCust AS CHARACTER NO-UNDO.
 DEFINE INPUT PARAMETER ipcINo AS CHARACTER NO-UNDO.
 DEFINE INPUT PARAMETER ipdQty AS DECIMAL NO-UNDO.
 DEFINE INPUT PARAMETER iplAllowMax AS LOGICAL NO-UNDO.
+DEFINE INPUT PARAMETER ipdPrice AS DECIMAL NO-UNDO.
 
 DEFINE BUFFER bf-oe-prmtx FOR oe-prmtx.
 DEFINE BUFFER bf-cust FOR cust.
@@ -7198,7 +7201,7 @@ DEFINE BUFFER bf-itemfg FOR itemfg.
 DEFINE VARIABLE lFound AS LOGICAL     NO-UNDO.
 DEFINE VARIABLE iLevel AS INTEGER     NO-UNDO.
 DEFINE VARIABLE lLessThanMax AS LOGICAL     NO-UNDO.
-
+DEFINE VARIABLE dPriceMtx AS DECIMAL NO-UNDO .
 FIND FIRST bf-cust 
     WHERE bf-cust.company EQ ipcCompany
       AND bf-cust.cust-no EQ ipcCust
@@ -7212,35 +7215,83 @@ IF AVAIL bf-cust AND AVAIL bf-itemfg AND ipdQty NE 0 THEN DO:
                              INPUT ROWID(bf-itemfg),
                              INPUT ROWID(bf-cust),
                              INPUT NO,
-                             OUTPUT lFound).
-    IF lFound AND AVAIL bf-oe-prmtx THEN DO:
-        ASSIGN 
-            lFound = NO
-            lLessThanMax = YES.
-        IF iplAllowMax THEN 
-            DO iLevel = 1 TO 10:  /*don't fail match if qty is at the max*/
-                IF ipdQty LE bf-oe-prmtx.qty[iLevel] THEN DO:
-                    lLessThanMax = NOT (bf-oe-prmtx.qty[iLevel] EQ 99999999).
-                    iLevel = 99.
-                    LEAVE.
+                             OUTPUT lFound).   
+
+    IF  cOEPriceMatrixCheck EQ "Block Entry"  THEN DO:
+        
+         ASSIGN dPriceMtx = 0 .
+         IF lFound AND AVAIL bf-oe-prmtx THEN DO:
+            ASSIGN 
+                lFound = NO
+                lLessThanMax = YES.
+                iplAllowMax = YES .
+            IF iplAllowMax THEN 
+                DO iLevel = 1 TO 10:  /*don't fail match if qty is at the max*/
+                    IF ipdQty LE bf-oe-prmtx.qty[iLevel] THEN DO:
+                        dPriceMtx = bf-oe-prmtx.price[iLevel] .
+                        lLessThanMax = NOT (bf-oe-prmtx.qty[iLevel] EQ 99999999).
+                        iLevel = 99.
+                        LEAVE.
+                    END.
                 END.
-            END.
-        IF NOT iplAllowMax OR lLessThanMax THEN
-            DO iLevel = 1 TO 10:
-                IF ipdQty EQ bf-oe-prmtx.qty[iLevel] THEN
-                    lFound = YES.
-            END.
-        IF NOT lFound AND NOT lLessThanMax AND iplAllowMax THEN
-            lFound = YES.
+            IF NOT iplAllowMax OR lLessThanMax THEN
+                DO iLevel = 1 TO 10:
+                    IF ipdQty EQ bf-oe-prmtx.qty[iLevel] THEN
+                        ASSIGN dPriceMtx = bf-oe-prmtx.price[iLevel]
+                        lFound = YES.
+                END.
+            IF NOT lFound AND NOT lLessThanMax AND iplAllowMax THEN
+                lFound = YES.
+        END.
+      /*  MESSAGE "dPriceMtx " STRING(dPriceMtx) VIEW-AS ALERT-BOX ERROR .*/
+        IF lFound AND int(ipdPrice) NE dPriceMtx  THEN DO:
+            MESSAGE 'According to Price Matrix price will be: ' STRING(dPriceMtx)  SKIP
+                    ' for Quantity: ' STRING(ipdQty)   
+                VIEW-AS ALERT-BOX INFO BUTTONS OK.
+            RETURN ERROR  .
+        END.
+        IF NOT lFound AND cOEPriceMatrixCheck EQ "Block Entry"  THEN DO:
+            MESSAGE 'Price Matrix not found for:' SKIP
+                '  Customer ' ipcCust SKIP
+                '  Item ' ipcINo SKIP 
+                '  Quantity of ' STRING(ipdQty) SKIP 
+                'Please Enter price in Price Matrix before save Item Line.'
+                VIEW-AS ALERT-BOX INFO BUTTONS OK.
+            RETURN ERROR  .
+        END.
+    
+    END. /* cOEPriceMatrixCheck EQ "Block Entry" */
+    ELSE IF glOEPriceMatrixCheck THEN DO:
+        IF lFound AND AVAIL bf-oe-prmtx THEN DO:
+            ASSIGN 
+                lFound = NO
+                lLessThanMax = YES.
+            IF iplAllowMax THEN 
+                DO iLevel = 1 TO 10:  /*don't fail match if qty is at the max*/
+                    IF ipdQty LE bf-oe-prmtx.qty[iLevel] THEN DO:
+                        lLessThanMax = NOT (bf-oe-prmtx.qty[iLevel] EQ 99999999).
+                        iLevel = 99.
+                        LEAVE.
+                    END.
+                END.
+            IF NOT iplAllowMax OR lLessThanMax THEN
+                DO iLevel = 1 TO 10:
+                    IF ipdQty EQ bf-oe-prmtx.qty[iLevel] THEN
+                        lFound = YES.
+                END.
+            IF NOT lFound AND NOT lLessThanMax AND iplAllowMax THEN
+                lFound = YES.
+        END.
+
+    IF NOT lFound THEN
+        MESSAGE 'Price Matrix not found for:' SKIP
+        '  Customer ' ipcCust SKIP
+        '  Item ' ipcINo SKIP 
+        '  Quantity of ' STRING(ipdQty) SKIP 
+        'Please review Matrix tab to confirm price levels.'
+            VIEW-AS ALERT-BOX INFO BUTTONS OK.
     END.
 END.
-IF NOT lFound THEN
-    MESSAGE 'Price Matrix not found for:' SKIP
-    '  Customer ' ipcCust SKIP
-    '  Item ' ipcINo SKIP 
-    '  Quantity of ' STRING(ipdQty) SKIP 
-    'Please review Matrix tab to confirm price levels.'
-        VIEW-AS ALERT-BOX INFO BUTTONS OK.
 
 END PROCEDURE.
 
@@ -8637,12 +8688,7 @@ PROCEDURE valid-po-no :
     FIND FIRST cust NO-LOCK
         WHERE cust.company EQ oe-ord.company
           AND cust.cust-no EQ oe-ord.cust-no
-          AND CAN-FIND(FIRST cust-po-mand
-                       WHERE cust-po-mand.reftable EQ "cust.po-mand"
-                         AND cust-po-mand.company  EQ cust.company
-                         AND cust-po-mand.loc      EQ ""
-                         AND cust-po-mand.code     EQ cust.cust-no
-                         AND cust-po-mand.val[1]   EQ 1)
+          AND cust.po-mandatory
         NO-ERROR.
     
     IF AVAIL cust AND TRIM(oe-ordl.po-no:SCREEN-VALUE) EQ "" THEN DO:
@@ -8943,34 +8989,14 @@ PROCEDURE valid-uom :
     IF NOT CAN-FIND(FIRST uom
                     WHERE uom.uom EQ lv-uom
                       AND CAN-DO(lv-valid-uom,uom.uom)) THEN DO:
-      MESSAGE TRIM(ip-focus:LABEL) + " is invalid, try help..."
+      MESSAGE "UOM is invalid, try help..."
           VIEW-AS ALERT-BOX ERROR.
       RETURN ERROR.
     END.
-    find first uom where
-        uom.uom = lv-uom
-        no-lock no-error.
-    if ip-focus:NAME EQ "fi_qty-uom"
-    and avail uom 
-    and uom.mult NE 1
-    and NOT CAN-DO("," + TRIM(lv-ea-list),lv-uom) then do:
-        assign
-           ld = DEC(oe-ordl.qty:SCREEN-VALUE)
-           ld = ld * uom.mult
-           oe-ordl.qty:SCREEN-VALUE = STRING(ld)
-           ip-focus:screen-value = "EA".
-        run leave-qty.
-    end.        
-    else IF ip-focus:NAME EQ "fi_qty-uom"             AND
-       NOT CAN-DO("," + TRIM(lv-ea-list),lv-uom) AND
-       ((lv-uom NE "CS" AND lv-uom NE "PLT") OR
-        DEC(oe-ordl.cas-cnt:SCREEN-VALUE) NE 0)  THEN DO:
-
+    IF ip-focus:NAME EQ "fi_qty-uom" THEN DO:
+        
       ASSIGN
-       ld = DEC(oe-ordl.qty:SCREEN-VALUE)
-       ld = ld * (IF lv-uom EQ "CS" OR lv-uom EQ "PLT" THEN DEC(oe-ordl.cas-cnt:SCREEN-VALUE) ELSE
-                  IF lv-uom EQ "C"  THEN 100 ELSE 1000)
-
+       ld = fOEScreenUOMConvert(DEC(oe-ordl.qty:SCREEN-VALUE), lv-uom, DEC(oe-ordl.cas-cnt:SCREEN-VALUE))
        oe-ordl.qty:SCREEN-VALUE = STRING(ld)
        ip-focus:SCREEN-VALUE    = "EA".
 
@@ -9519,6 +9545,41 @@ END PROCEDURE.
 &ANALYZE-RESUME
 
 /* ************************  Function Implementations ***************** */
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fOEScreenUOMConvert d-oeitem
+FUNCTION fOEScreenUOMConvert RETURNS DECIMAL 
+  ( ipdStartQuantity AS DECIMAL , ipcUOM AS CHARACTER, ipdCount AS DECIMAL ):
+/*---------------------------------------------------       ---------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+DEFINE VARIABLE dMultiplier AS DECIMAL NO-UNDO.
+
+CASE ipcUOM:
+    WHEN "CS" THEN 
+        dMultiplier = ipdCount. 
+    WHEN "PLT" THEN 
+        dMultiplier = ipdCount. /*refactor?*/
+    WHEN "C" THEN 
+        dMultiplier = 100.  /*vestige of old logic. refactor to not hardcode?*/
+    OTHERWISE DO:
+        FIND FIRST uom NO-LOCK 
+        WHERE uom.uom EQ ipcUOM NO-ERROR.
+        IF AVAILABLE uom AND uom.mult NE 0 AND uom.Other EQ "EA" THEN
+            dMultiplier = uom.mult.
+        ELSE 
+            dMultiplier = 1.
+    END.
+END CASE.
+RETURN ipdStartQuantity * dMultiplier.
+
+END FUNCTION.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION get-colonial-rel-date d-oeitem 
 FUNCTION get-colonial-rel-date RETURNS DATE

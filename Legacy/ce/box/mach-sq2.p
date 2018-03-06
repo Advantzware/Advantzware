@@ -96,7 +96,7 @@ for each ef
 
   find xef where recid(xef) eq recid(ef) no-lock.
 
-  {est/op-lock.i xest}
+    {est/op-lock.i xest}
   ASSIGN
     op-lock.val[1] = 1
     op-lock.val[2] = 1.

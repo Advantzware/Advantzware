@@ -32,12 +32,8 @@
         
          FOR EACH oe-rel FIELDS(r-no) WHERE
              oe-rel.company = xoe-ord.company AND 
-             oe-rel.ord-no  = xoe-ord.ord-no
-             NO-LOCK,
-             FIRST reftable WHERE
-                   reftable.reftable EQ "oe-rel.s-code" AND 
-                   reftable.company  EQ STRING(oe-rel.r-no,"9999999999") AND
-                   reftable.CODE EQ "T"
+             oe-rel.ord-no  = xoe-ord.ord-no AND 
+             oe-rel.s-code  = "T"
                    NO-LOCK:
         
                    v-code = "T".

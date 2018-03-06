@@ -191,10 +191,7 @@ DO:
                      
                 RUN pCreateTempOeRell (INPUT ROWID(fg-bin), ROWID(fg-rcpth)).
 
-                FIND FIRST reftable
-                    WHERE reftable.reftable EQ "oe-rel.s-code"
-                    AND reftable.company  EQ STRING(oe-rel.r-no,"9999999999")
-                    NO-LOCK NO-ERROR.
+
         
                 RUN pCreateTempOeRell (INPUT ROWID(fg-bin), INPUT ROWID(fg-rcpth)).
  
@@ -306,10 +303,7 @@ DO:
                     fDebugLog("run pcreatetempoerell " + fg-bin.tag).
                     RUN pCreateTempOeRell (INPUT ROWID(fg-bin), ROWID(fg-rcpth)).
     
-                    FIND FIRST reftable
-                        WHERE reftable.reftable EQ "oe-rel.s-code"
-                        AND reftable.company  EQ STRING(oe-rel.r-no,"9999999999")
-                        NO-LOCK NO-ERROR.
+
             
                      /* Record was found, so leave the loop */
                      LEAVE loop-count.
@@ -436,7 +430,7 @@ PROCEDURE pCreateTempOeRell:
         ttoe-rell.deleted  = NO
         /** Set link to the planned releases **/
         ttoe-rell.link-no  = iRNo
-        ttoe-rell.s-code   = IF AVAILABLE reftable THEN reftable.code   ELSE
+        ttoe-rell.s-code   = IF oe-rel.s-code <> "" THEN oe-rel.s-code ELSE
                        IF fg-bin.cust-no GT ""                THEN "S"
                                                               ELSE
                        IF AVAILABLE oe-ctrl AND oe-ctrl.ship-from THEN "B" 
@@ -494,7 +488,7 @@ PROCEDURE pCreateOeRell:
     fDebugLog("pCreateOerell avail oe-rell? " + STRING(avail(oe-rell)) ).
     IF NOT AVAILABLE oe-rell THEN 
       RETURN.
-    RELEASE reftable.
+    
 
     FIND FIRST b-reftable NO-LOCK
         WHERE b-reftable.reftable EQ "oe-rel.lot-no"

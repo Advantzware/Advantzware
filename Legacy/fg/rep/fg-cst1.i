@@ -111,7 +111,7 @@
               tt-fg-bin.loc     WHEN AVAIL tt-fg-bin
               v-tot-qty[1]
               v-tot-msf[1]
-              v-tot-cst[1]
+              v-tot-cst[1]      WHEN security-flag 
               v-tot-ext[1]
               v-tot-per
           WITH FRAME itemx.
@@ -126,7 +126,7 @@
             '"' (IF AVAIL tt-fg-bin THEN tt-fg-bin.loc ELSE "") '",'
             '"' v-tot-qty[1] '",'
             '"' v-tot-msf[1] '",'
-            '"' v-tot-cst[1] '",'
+            '"' (if security-flag then string(v-tot-cst[1]) else "" ) '",'
             '"' v-tot-ext[1] '",'
             '"' v-tot-per '",'
             SKIP.
@@ -152,7 +152,7 @@
       DISPLAY "     Sub Totals" @ itemfg.part-no
               v-tot-qty[2]      @ v-tot-qty[1]
               v-tot-msf[2]      @ v-tot-msf[1]
-              v-tot-cst[2]      @ v-tot-cst[1]
+              v-tot-cst[2]      @ v-tot-cst[1] 
               v-tot-ext[2]      @ v-tot-ext[1]
               v-tot-per
           WITH FRAME itemx.
@@ -176,11 +176,12 @@
       IF v-tot-per EQ ? THEN v-tot-per = 0.
 
       PUT SKIP(2).
+      if not security-flag THEN v-tot-cst[3] = 0 .
 
       DISPLAY "   Grand Totals" @ itemfg.part-no
               v-tot-qty[3]      @ v-tot-qty[1]
               v-tot-msf[3]      @ v-tot-msf[1]
-              v-tot-cst[3]      @ v-tot-cst[1]
+              v-tot-cst[3]      @ v-tot-cst[1] 
               v-tot-ext[3]      @ v-tot-ext[1]
               v-tot-per
           WITH FRAME itemx.

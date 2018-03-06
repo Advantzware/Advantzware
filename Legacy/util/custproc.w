@@ -54,7 +54,7 @@ CREATE WIDGET-POOL.
 &Scoped-define FRAME-NAME F-Main
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-1 ls-proc Btn_OK Btn_Cancel 
+&Scoped-Define ENABLED-OBJECTS ls-proc Btn_OK Btn_Cancel 
 &Scoped-Define DISPLAYED-OBJECTS ls-proc fi_please-wait 
 
 /* Custom List Definitions                                              */
@@ -90,23 +90,18 @@ DEFINE VARIABLE ls-proc AS CHARACTER FORMAT "X(256)":U INITIAL "Util/Utils.r"
      VIEW-AS FILL-IN 
      SIZE 68 BY 1 NO-UNDO.
 
-DEFINE RECTANGLE RECT-1
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 96.4 BY 9.05.
-
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     ls-proc AT ROW 2.91 COL 22 COLON-ALIGNED
-     Btn_OK AT ROW 6.71 COL 27
-     Btn_Cancel AT ROW 6.71 COL 61
-     fi_please-wait AT ROW 8.86 COL 2 NO-LABEL
-     RECT-1 AT ROW 1 COL 1
+     ls-proc AT ROW 1.95 COL 25 COLON-ALIGNED
+     Btn_OK AT ROW 4.57 COL 21
+     Btn_Cancel AT ROW 4.57 COL 63
+     fi_please-wait AT ROW 8.62 COL 2 NO-LABEL
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 97.6 BY 17
+         SIZE 97.6 BY 9
          FONT 6
          DEFAULT-BUTTON Btn_OK.
 
@@ -128,7 +123,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW W-Win ASSIGN
          HIDDEN             = YES
          TITLE              = "Run Custom Procedure"
-         HEIGHT             = 17
+         HEIGHT             = 9
          WIDTH              = 97.6
          MAX-HEIGHT         = 17
          MAX-WIDTH          = 97.6
@@ -276,6 +271,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ls-proc W-Win
 ON RETURN OF ls-proc IN FRAME F-Main /* Procedure Name */
 DO:
+    ASSIGN {&self-name}.
     APPLY 'choose' to Btn_OK IN FRAME F-Main.
 END.
 
@@ -372,7 +368,7 @@ PROCEDURE enable_UI :
 ------------------------------------------------------------------------------*/
   DISPLAY ls-proc fi_please-wait 
       WITH FRAME F-Main IN WINDOW W-Win.
-  ENABLE RECT-1 ls-proc Btn_OK Btn_Cancel 
+  ENABLE ls-proc Btn_OK Btn_Cancel 
       WITH FRAME F-Main IN WINDOW W-Win.
   {&OPEN-BROWSERS-IN-QUERY-F-Main}
   VIEW W-Win.

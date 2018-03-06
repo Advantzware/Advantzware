@@ -112,7 +112,7 @@ DEF VAR adder-print AS LOG NO-UNDO.
 
 DEFINE VARIABLE li-design-count AS INTEGER     NO-UNDO.
 DEF VAR ls-image1 AS cha NO-UNDO.
-DEF VAR ls-full-img1 AS cha FORM "x(50)" NO-UNDO.
+DEF VAR ls-full-img1 AS cha FORM "x(200)" NO-UNDO.
 
 ASSIGN ls-image1 = "images\okinterpak.jpg"
        FILE-INFO:FILE-NAME = ls-image1

@@ -77,10 +77,10 @@ itemfg.q-onh get-cust () @ itemfg.cust-no itemfg.cust-no ~
 get-part () @ itemfg.part-no itemfg.part-no itemfg.part-dscr1 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-BROWSE-1 
 &Scoped-define QUERY-STRING-BROWSE-1 FOR EACH itemfg WHERE ~{&KEY-PHRASE} ~
-      AND itemfg.company = ip-company NO-LOCK ~
+      AND itemfg.company = ip-company AND itemfg.stat EQ "A" NO-LOCK ~
     ~{&SORTBY-PHRASE}
 &Scoped-define OPEN-QUERY-BROWSE-1 OPEN QUERY BROWSE-1 FOR EACH itemfg WHERE ~{&KEY-PHRASE} ~
-      AND itemfg.company = ip-company NO-LOCK ~
+      AND itemfg.company = ip-company AND itemfg.stat EQ "A" NO-LOCK ~
     ~{&SORTBY-PHRASE}.
 &Scoped-define TABLES-IN-QUERY-BROWSE-1 itemfg
 &Scoped-define FIRST-TABLE-IN-QUERY-BROWSE-1 itemfg
@@ -226,7 +226,7 @@ ASSIGN
 /* Query rebuild information for BROWSE BROWSE-1
      _TblList          = "ASI.itemfg"
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
-     _Where[1]         = "ASI.itemfg.company = ip-company"
+     _Where[1]         = "ASI.itemfg.company = ip-company AND itemfg.stat EQ 'A'"
      _FldNameList[1]   > ASI.itemfg.i-no
 "itemfg.i-no" ? ? "character" ? ? ? ? ? ? no ? no no "23" yes no no "U" "" ""
      _FldNameList[2]   = ASI.itemfg.i-name

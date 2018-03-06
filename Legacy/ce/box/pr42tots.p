@@ -172,14 +172,7 @@ END.
      gsa-fm = reftable-fm.val[1].
   ELSE
   DO:
-     FIND FIRST reftable-fold-pct
-          WHERE reftable-fold-pct.reftable EQ "ce-ctrl.fold-pct"
-            AND reftable-fold-pct.company  EQ ce-ctrl.company
-            AND reftable-fold-pct.loc      EQ ce-ctrl.loc
-          NO-LOCK NO-ERROR.
-
-     IF AVAIL reftable-fold-pct THEN
-        gsa-fm = reftable-fold-pct.val[1].
+        gsa-fm = ce-ctrl.fold-pct.
   END.
 
    output close.

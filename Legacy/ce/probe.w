@@ -33,6 +33,7 @@ CREATE WIDGET-POOL.
 def var voverall as dec form ">>>,>>9.99" no-undo.
 def var vtot-msf as dec form ">>>>9.99" no-undo.
 def var vtot-lbs as dec form ">>>>>>>9" no-undo.
+DEFINE VARIABLE dMatPctSellPrice LIKE probe.net-profit. 
 
 def new shared buffer xest for est.
 def new shared buffer xef for ef.
@@ -255,7 +256,8 @@ probe.gross-profit display-gp (1) @ probe.gross-profit probe.comm ~
 probe.net-profit probe.sell-price probe.gsh-qty probe.do-quote ~
 voverall(1) @ voverall probe.probe-date probe.probe-user ~
 vtot-lbs() @ vtot-lbs vtot-msf() @ vtot-msf ~
-cvt-time(probe.probe-time) @ ls-probetime 
+cvt-time(probe.probe-time) @ ls-probetime probe.spare-dec-1 ~
+fDirectMatPctSellPrice() @ dMatPctSellPrice 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-br_table probe.full-cost ~
 probe.market-price probe.gross-profit probe.net-profit probe.sell-price ~
 probe.do-quote 
@@ -267,16 +269,14 @@ ASI.probe.est-no = eb.est-no ~
     BY probe.company ~
        BY probe.est-no ~
         BY probe.probe-date ~
-         BY probe.est-qty  ~
-          BY probe.probe-time
+         BY probe.est-qty
 &Scoped-define OPEN-QUERY-br_table OPEN QUERY br_table FOR EACH probe WHERE probe.company = eb.company and ~
 ASI.probe.est-no = eb.est-no ~
       AND probe.probe-date ne ? NO-LOCK ~
     BY probe.company ~
        BY probe.est-no ~
         BY probe.probe-date ~
-         BY probe.est-qty  ~
-         BY probe.probe-time  .
+         BY probe.est-qty.
 &Scoped-define TABLES-IN-QUERY-br_table probe
 &Scoped-define FIRST-TABLE-IN-QUERY-br_table probe
 
@@ -354,6 +354,13 @@ FUNCTION display-gp RETURNS DECIMAL
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fDirectMatPctSellPrice B-table-Win 
+FUNCTION fDirectMatPctSellPrice RETURNS DECIMAL
+  (  ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD voverall B-table-Win 
 FUNCTION voverall RETURNS DECIMAL
   ( INPUT ip-type AS INT )   FORWARD.
@@ -413,6 +420,9 @@ DEFINE BROWSE br_table
       vtot-lbs() @ vtot-lbs COLUMN-LABEL "Shipping!Weight" WIDTH 12.2
       vtot-msf() @ vtot-msf COLUMN-LABEL "Total!MSF" COLUMN-FONT 0
       cvt-time(probe.probe-time) @ ls-probetime COLUMN-LABEL "Time" FORMAT "x(8)":U
+      probe.spare-dec-1 COLUMN-LABEL "Direct!Material" FORMAT "->>>,>>9.99":U
+            WIDTH 15
+      fDirectMatPctSellPrice() @ dMatPctSellPrice COLUMN-LABEL "Dir. Mat%"
   ENABLE
       probe.full-cost
       probe.market-price HELP "Enter Margin% to get Commission%"
@@ -465,7 +475,7 @@ END.
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW B-table-Win ASSIGN
          HEIGHT             = 13.19
-         WIDTH              = 142.
+         WIDTH              = 143.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -548,6 +558,10 @@ ASI.probe.est-no = ASI.eb.est-no"
 "vtot-msf() @ vtot-msf" "Total!MSF" ? ? ? ? 0 ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[18]   > "_<CALC>"
 "cvt-time(probe.probe-time) @ ls-probetime" "Time" "x(8)" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[19]   > ASI.probe.spare-dec-1
+"probe.spare-dec-1" "Direct!Material" "->>>,>>9.99" "decimal" ? ? ? ? ? ? no ? no no "15" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[20]   > "_<CALC>"
+"fDirectMatPctSellPrice() @ dMatPctSellPrice" "Dir. Mat%" ? ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE br_table */
 &ANALYZE-RESUME
@@ -1113,6 +1127,7 @@ PROCEDURE calc-fields :
 
     DO WITH FRAME {&FRAME-NAME}:
       voverall:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(voverall (0)).
+      dMatPctSellPrice:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(fDirectMatPctSellPrice()).
       IF lv-changed2 NE "S" THEN 
         probe.gross-profit:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(display-gp (0)).
     END.
@@ -3227,17 +3242,13 @@ PROCEDURE run-whatif :
         AND est-op.line    LT 500,
       FIRST mach NO-LOCK
       {sys/look/machW.i}
-        AND mach.m-code EQ est-op.m-code,
-      FIRST reftable NO-LOCK
-      WHERE reftable.reftable EQ "mach.obsolete"
-        AND reftable.company  EQ mach.company
-        AND reftable.loc      EQ mach.loc
-        AND reftable.code     EQ mach.m-code
-        AND reftable.val[1]   EQ 1:
+        AND mach.m-code EQ est-op.m-code:
+   IF mach.obsolete THEN DO:
     MESSAGE "Machine: " + TRIM(mach.m-code) +
             " is obsolete, please replace to complete calculation..."
         VIEW-AS ALERT-BOX ERROR.
     RETURN.
+   END.
   END.
   IF est.est-type >= 3 AND est.est-type <= 4 AND cerunf = "HOP" THEN RUN ce/dAskSum.w (OUTPUT gEstSummaryOnly).
   IF est.est-type EQ 4 THEN RUN ce/com/print4.p NO-ERROR.
@@ -3686,6 +3697,28 @@ FUNCTION display-gp RETURNS DECIMAL
   END.
 
   RETURN lv-gp.   /* Function return value. */
+
+END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fDirectMatPctSellPrice B-table-Win 
+FUNCTION fDirectMatPctSellPrice RETURNS DECIMAL
+  (  ):
+/*------------------------------------------------------------------------------
+ Purpose:  Calculates Mat %
+ Notes: Ticket 24941 
+------------------------------------------------------------------------------*/
+       DEFINE VARIABLE dMatPct AS DECIMAL NO-UNDO.
+        DEFINE VARIABLE dPrice AS DECIMAL NO-UNDO.
+    
+    dPrice = DEC(probe.sell-price:SCREEN-VALUE IN BROWSE {&browse-name}).
+    IF AVAILABLE probe AND dPrice GT 0 THEN 
+        dMatPct = probe.spare-dec-1 / dPrice * 100.
+    
+        RETURN dMatPct.
+
 
 END FUNCTION.
 

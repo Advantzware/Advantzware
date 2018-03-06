@@ -77,7 +77,7 @@ DEF VAR lv-part-dscr2   AS CHAR                          NO-UNDO.
 DEF VAR lv-i-coldscr    AS CHAR                          NO-UNDO. 
 DEF VAR chrX            AS CHAR                          NO-UNDO. 
 DEF VAR ls-image1       AS CHAR                          NO-UNDO.
-DEF VAR ls-full-img1    AS CHAR FORMAT "x(80)"           NO-UNDO.
+DEF VAR ls-full-img1    AS CHAR FORMAT "x(200)"           NO-UNDO.
 
 DEF VAR v-comp-name      LIKE company.name extent 4 NO-UNDO.
 DEF VAR trim-size        LIKE quoteitm.size         NO-UNDO.

@@ -1708,19 +1708,7 @@ PROCEDURE create-release :
       oe-rel.s-code = IF oe-ordl.is-a-component THEN "S" 
                         ELSE SUBSTRING(v-relType,1,1).
       IF oe-ord.TYPE = "T" THEN
-        ASSIGN oe-rel.s-code = "T".
-      FIND FIRST reftable
-      WHERE reftable.reftable EQ "oe-rel.s-code"
-      AND reftable.company  EQ STRING(oe-rel.r-no,"9999999999") NO-LOCK NO-ERROR.
-      IF NOT AVAIL reftable THEN DO:
-        CREATE reftable.
-        ASSIGN reftable.reftable = "oe-rel.s-code"
-        reftable.company = STRING(oe-rel.r-no,"9999999999")
-        reftable.CODE = IF oe-ordl.is-a-component THEN "S" 
-                        ELSE SUBSTRING(v-relType,1,1).
-        IF oe-ord.TYPE = "T" THEN
-        ASSIGN reftable.CODE = "T".
-      END.
+        ASSIGN oe-rel.s-code = "T".      
     END.
   END.
 
@@ -5100,12 +5088,7 @@ PROCEDURE valid-po-no :
     FIND FIRST cust NO-LOCK
     WHERE cust.company EQ oe-ord.company
     AND cust.cust-no EQ oe-ord.cust-no
-    AND CAN-FIND(FIRST cust-po-mand
-    WHERE cust-po-mand.reftable EQ "cust.po-mand"
-    AND cust-po-mand.company  EQ cust.company
-    AND cust-po-mand.loc      EQ ""
-    AND cust-po-mand.CODE     EQ cust.cust-no
-    AND cust-po-mand.val[1]   EQ 1)
+    AND cust.po-mandatory
     NO-ERROR.
     /* If qty is zero at this point, assume it's a transfer */
     IF AVAIL cust AND TRIM(get-sv("oe-ordl.po-no")) EQ "" 

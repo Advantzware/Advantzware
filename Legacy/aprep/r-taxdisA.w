@@ -1156,6 +1156,7 @@ DEFINE VARIABLE dRateTotal AS DECIMAL     NO-UNDO.
 DEFINE VARIABLE dRateFreightTotal AS DECIMAL     NO-UNDO.
 DEFINE VARIABLE cExcelHeader AS CHARACTER   NO-UNDO.
 DEFINE VARIABLE iLevel AS INTEGER     NO-UNDO.
+DEFINE VARIABLE dTexRate AS DECIMAL NO-UNDO .
 
 {sys/form/r-top3w.f}
 FORMAT HEADER
@@ -1301,8 +1302,17 @@ FOR EACH stax
                   AND ar-invl.posted
                 NO-LOCK:
                 dAmountSales = dAmountSales + ar-invl.amt.
-                IF ar-invl.tax THEN
+                IF ar-invl.tax THEN do:
+                     dTexRate = 0 .  
+                    DO i = 1 to 5:
+                        if stax.tax-code1[i] ne "" then do:
+                            assign
+                                dTexRate       = dTexRate +  stax.tax-rate1[i]  .
+                        END.
+                    END.
+                    IF dTexRate GT 0 THEN
                     dAmountSalesTaxable = dAmountSalesTaxable + ar-invl.amt.
+                END.
             END. /*each ar-invl*/
             ASSIGN
                 dAmountFreight = dAmountFreight + 
