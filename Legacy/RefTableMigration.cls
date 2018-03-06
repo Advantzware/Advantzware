@@ -2221,7 +2221,57 @@ CLASS RefTableMigration:
             iCnt = iCnt + 1.                 
         END.  /*FOR EACH reftable*/         
         RETURN iCnt.
-    END METHOD. /*ce-ctrl*/  
+    END METHOD. /*itemfg-ink*/
+    METHOD PUBLIC INTEGER VendQty():
+        DEFINE VARIABLE iCnt AS INTEGER NO-UNDO.
+        DEFINE VARIABLE i AS INTEGER NO-UNDO.
+        FOR EACH reftable WHERE reftable.reftable = "vend-qty"
+            NO-LOCK:
+            FIND FIRST e-item-vend WHERE e-item-vend.i-no  = reftable.code
+                                     AND e-item-vend.company = reftable.company
+                                     AND e-item-vend.vend-no = reftable.code2                            
+                EXCLUSIVE-LOCK NO-ERROR.
+            IF AVAIL e-item-vend THEN   
+            DO i = 1 to 10:
+                ASSIGN 
+                    e-item-vend.runQtyXtra[i]    = reftable.val[i]                          
+                    . 
+            END.    
+            RELEASE e-item-vend.      
+            iCnt = iCnt + 1.                 
+        END.  /*FOR EACH reftable*/        
+        FOR EACH reftable WHERE reftable.reftable = "vend-cost"
+            NO-LOCK:
+            FIND FIRST e-item-vend WHERE e-item-vend.i-no  = reftable.code
+                                     AND e-item-vend.company = reftable.company
+                                     AND e-item-vend.vend-no = reftable.code2                            
+                EXCLUSIVE-LOCK NO-ERROR.
+            IF AVAIL e-item-vend THEN   
+            DO i = 1 to 10:
+                ASSIGN  
+                e-item-vend.runCostXtra[i]    = reftable.val[i]                           
+                . 
+            END.
+            RELEASE e-item-vend.      
+            iCnt = iCnt + 1.            
+        END.  /*FOR EACH reftable*/        
+        FOR EACH reftable WHERE reftable.reftable = "vend-setup"
+            NO-LOCK:
+            FIND FIRST e-item-vend WHERE e-item-vend.i-no  = reftable.code
+                                     AND e-item-vend.company = reftable.company
+                                     AND e-item-vend.vend-no = reftable.code2                            
+                EXCLUSIVE-LOCK NO-ERROR.
+            IF AVAIL e-item-vend THEN   
+            DO i = 1 to 10:
+                ASSIGN  
+                e-item-vend.setupsXtra[i]   = reftable.val[i]                           
+                . 
+            END.
+            RELEASE e-item-vend.      
+            iCnt = iCnt + 1.            
+        END.  /*FOR EACH reftable*/         
+        RETURN iCnt.
+    END METHOD. /*VendQty*/
     METHOD PUBLIC INTEGER PoOrdUserId():
         DEFINE VARIABLE iCnt AS INTEGER NO-UNDO.
         FOR EACH reftable WHERE reftable.reftable = "po-ord.user-id"

@@ -5920,8 +5920,9 @@ DEF VAR v-q-backl AS INT NO-UNDO.
 
     IF lv-q-no NE 0 THEN DO:        
 
-      RUN oe/ordlq-no.p (ROWID(oe-ordl), lv-q-no).
+      
       FIND CURRENT oe-ordl.
+      ASSIGN oe-ordl.q-no = lv-q-no.
     END.
 
   END.
