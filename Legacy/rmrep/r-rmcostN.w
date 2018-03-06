@@ -71,8 +71,7 @@ DEF VAR str-line AS cha FORM "x(300)" NO-UNDO.
 
 {sys/form/r-top5DL3.f} 
 
-DEF BUFFER b-cost FOR reftable.
-DEF BUFFER b-qty FOR reftable.
+
 DEF BUFFER b-blank-vend-qty FOR reftable.
 DEF BUFFER b-blank-vend-cost FOR reftable.
 DEF BUFFER bitem FOR ITEM.
@@ -1577,8 +1576,8 @@ IF AVAIL e-item THEN DO:
 
        DO v-index = 1 TO 10:
           ASSIGN
-             tt-e-i-v.run-qty[v-index + 10] = b-qty.val[v-index]
-             tt-e-i-v.run-cost[v-index + 10] = b-cost.val[v-index].
+             tt-e-i-v.run-qty[v-index + 10] = e-item-vend.runQtyXtra[v-index]
+             tt-e-i-v.run-cost[v-index + 10] = e-item-vend.runCostXtra[v-index].
        END.
     END.
 

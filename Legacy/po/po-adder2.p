@@ -26,9 +26,7 @@ def  var v-gl-desc as char format "x(30)" no-undo.
 def var v-adder as dec extent 2 NO-UNDO.
 
 def buffer xjob-mat for job-mat.
-DEF BUFFER b-cost FOR reftable.
-DEF BUFFER b-qty FOR reftable.
-DEF BUFFER b-setup FOR reftable.
+
 
 DEF TEMP-TABLE tt-eiv NO-UNDO
     FIELD run-qty AS DEC DECIMALS 3 EXTENT 20
@@ -108,34 +106,17 @@ do with frame po-ordlf:
             tt-eiv.setups[i] = e-item-vend.setups[i].
       END.
 
-      FIND FIRST b-qty WHERE
-           b-qty.reftable = "vend-qty" AND
-           b-qty.company = e-item-vend.company AND
-	       b-qty.CODE    = e-item-vend.i-no AND
-           b-qty.code2   = e-item-vend.vend-no
-           NO-LOCK NO-ERROR.
       
-      IF AVAIL b-qty THEN
+      
+      IF AVAIL e-item-vend THEN
       DO:
-         FIND FIRST b-cost WHERE
-              b-cost.reftable = "vend-cost" AND
-              b-cost.company = e-item-vend.company AND
-	          b-cost.CODE    = e-item-vend.i-no AND
-              b-cost.code2   = e-item-vend.vend-no
-              NO-LOCK NO-ERROR.
-
-         FIND FIRST b-setup WHERE
-              b-setup.reftable = "vend-setup" AND
-              b-setup.company = e-item-vend.company AND
-	          b-setup.CODE    = e-item-vend.i-no AND
-              b-setup.code2   = e-item-vend.vend-no
-              NO-LOCK NO-ERROR.
+         
       
          DO i = 1 TO 10:
             ASSIGN
-               tt-eiv.run-qty[i + 10] = b-qty.val[i]
-               tt-eiv.run-cost[i + 10] = b-cost.val[i]
-               tt-eiv.setups[i + 10] = b-setup.val[i].
+               tt-eiv.run-qty[i + 10] = e-item-vend.runQtyXtra[i]
+               tt-eiv.run-cost[i + 10] = e-item-vend.runCostXtra[i]
+               tt-eiv.setups[i + 10] = e-item-vend.setupsXtra[i].
          END.
       END.
 

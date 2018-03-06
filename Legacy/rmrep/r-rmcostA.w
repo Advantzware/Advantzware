@@ -55,8 +55,7 @@ def var head21 as ch format "x(76)" NO-UNDO.
 DEF VAR v-print-fmt AS CHARACTER NO-UNDO.
 DEF VAR is-xprint-form AS LOGICAL.
 
-DEF BUFFER b-cost FOR reftable.
-DEF BUFFER b-qty FOR reftable.
+
 DEF BUFFER b-blank-vend-qty FOR reftable.
 DEF BUFFER b-blank-vend-cost FOR reftable.
 
@@ -1127,8 +1126,8 @@ IF AVAIL e-item THEN DO:
 
        DO v-index = 1 TO 10:
           ASSIGN
-             tt-e-i-v.run-qty[v-index + 10] = b-qty.val[v-index]
-             tt-e-i-v.run-cost[v-index + 10] = b-cost.val[v-index].
+             tt-e-i-v.run-qty[v-index + 10] = e-item-vend.runQtyXtra[v-index]
+             tt-e-i-v.run-cost[v-index + 10] = e-item-vend.runCostXtra[v-index].
        END.
     END.
 

@@ -38,9 +38,7 @@ DEFINE NEW SHARED VARIABLE v-part-dscr2  AS CHARACTER FORMAT "x(30)".
 DEFINE NEW SHARED VARIABLE v-report-cost AS DECIMAL   INIT 0 FORMAT ">>,>>9.9999" NO-UNDO.
 DEFINE NEW SHARED VARIABLE v-cont-upd    AS LOG       INIT YES NO-UNDO.
 
-DEFINE BUFFER b-cost    FOR reftable.
-DEFINE BUFFER b-qty     FOR reftable.
-DEFINE BUFFER b-setup   FOR reftable.
+
 DEFINE BUFFER b-po-ordl FOR po-ordl.
 DEFINE BUFFER bf-itemfg FOR itemfg.
 
@@ -2181,34 +2179,17 @@ PROCEDURE createTtEivVend :
                         tt-eiv.roll-w[v-index] = e-item-vend.roll-w[v-index].
                     END.
             
-                    FIND FIRST b-qty WHERE
-                        b-qty.reftable = "vend-qty" AND
-                        b-qty.company = e-item-vend.company AND
-                        b-qty.CODE    = e-item-vend.i-no AND
-                        b-qty.code2   = e-item-vend.vend-no
-                        NO-LOCK NO-ERROR.
+
             
-                    IF AVAILABLE b-qty THEN
+                    IF AVAILABLE e-item-vend THEN
                     DO:
-                        FIND FIRST b-cost NO-LOCK WHERE
-                            b-cost.reftable = "vend-cost" AND
-                            b-cost.company = e-item-vend.company AND
-                            b-cost.CODE    = e-item-vend.i-no AND
-                            b-cost.code2   = e-item-vend.vend-no
-                            NO-ERROR.
-            
-                        FIND FIRST b-setup NO-LOCK WHERE
-                            b-setup.reftable = "vend-setup" AND
-                            b-setup.company = e-item-vend.company AND
-                            b-setup.CODE    = e-item-vend.i-no AND
-                            b-setup.code2   = e-item-vend.vend-no
-                            NO-ERROR.
+
              
                         DO v-index = 1 TO 10:
                             ASSIGN
-                                tt-eiv.run-qty[v-index + 10]  = b-qty.val[v-index]
-                                tt-eiv.run-cost[v-index + 10] = b-cost.val[v-index]
-                                tt-eiv.setups[v-index + 10]   = b-setup.val[v-index].
+                                tt-eiv.run-qty[v-index + 10]  = e-item-vend.runQtyXtra[v-index]
+                                tt-eiv.run-cost[v-index + 10] = e-item-vend.runCostXtra[v-index]
+                                tt-eiv.setups[v-index + 10]   = e-item-vend.setupsXtra[v-index].
                         END. /* v-index = 1 to 10 */
                     END. /* if avail b-qty */
                 END. /* if tt-eiv doesn't already exist */

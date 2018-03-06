@@ -56,34 +56,17 @@ do i = 1 to 6 with frame adders down no-labels no-box:
                  tt-eiv.setups[j] = xe-item-vend.setups[j].
            END.
 
-           FIND FIRST b-qty WHERE
-                b-qty.reftable = "vend-qty" AND
-                b-qty.company = xe-item-vend.company AND
-		        b-qty.CODE    = xe-item-vend.i-no AND
-                b-qty.code2   = xe-item-vend.vend-no
-                NO-LOCK NO-ERROR.
 
-           IF AVAIL b-qty THEN
+
+           IF AVAIL xe-item-vend THEN
            DO:
-              FIND FIRST b-cost WHERE
-                   b-cost.reftable = "vend-cost" AND
-                   b-cost.company = xe-item-vend.company AND
-		           b-cost.CODE    = xe-item-vend.i-no AND
-                   b-cost.code2   = xe-item-vend.vend-no
-                   NO-LOCK NO-ERROR.
-             
-              FIND FIRST b-setup WHERE
-                   b-setup.reftable = "vend-setup" AND
-                   b-setup.company = xe-item-vend.company AND
-		           b-setup.CODE    = xe-item-vend.i-no AND
-                   b-setup.code2   = xe-item-vend.vend-no
-                   NO-LOCK NO-ERROR.
+
 
               DO j = 1 TO 10:
                  ASSIGN
-                    tt-eiv.run-qty[j + 10] = b-qty.val[j]
-                    tt-eiv.run-cost[j + 10] = b-cost.val[j]
-                    tt-eiv.setups[j + 10] = b-setup.val[j].
+                    tt-eiv.run-qty[j + 10] = xe-item-vend.runQtyXtra[j]
+                    tt-eiv.run-cost[j + 10] = xe-item-vend.runCostXtra[j]
+                    tt-eiv.setups[j + 10] = xe-item-vend.setupsXtra[j].
               END.
            END.
         END.

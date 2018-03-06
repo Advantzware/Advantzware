@@ -33,8 +33,6 @@ DEFINE VARIABLE v-line    AS CHARACTER NO-UNDO.
 DEFINE VARIABLE li-style  AS INTEGER   NO-UNDO.
 DEFINE VARIABLE v-mch-cod AS CHARACTER NO-UNDO.
 
-DEFINE BUFFER b-qty   FOR reftable.
-DEFINE BUFFER b-setup FOR reftable.
 
 DEFINE TEMP-TABLE tt-eiv NO-UNDO
     FIELD run-qty AS DECIMAL DECIMALS 3 EXTENT 20
@@ -479,26 +477,14 @@ IF AVAILABLE cust AND iPaper-log AND iPaper-dir NE "" THEN
                         tt-eiv.setups[i]  = e-item-vend.setups[i].
                 END.
      
-                FIND FIRST b-qty NO-LOCK WHERE
-                    b-qty.reftable = "vend-qty" AND
-                    b-qty.company = e-item-vend.company AND
-                    b-qty.CODE    = e-item-vend.i-no AND
-                    b-qty.code2   = e-item-vend.vend-no
-                    NO-ERROR.
-      
-                IF AVAILABLE b-qty THEN
+                      
+                IF AVAILABLE e-item-vend THEN
                 DO:
-                    FIND FIRST b-setup NO-LOCK WHERE
-                        b-setup.reftable = "vend-setup" AND
-                        b-setup.company = e-item-vend.company AND
-                        b-setup.CODE    = e-item-vend.i-no AND
-                        b-setup.code2   = e-item-vend.vend-no
-                        NO-ERROR.
-      
+                    
                     DO i = 1 TO 10:
                         ASSIGN
-                            tt-eiv.run-qty[i + 10] = b-qty.val[i]
-                            tt-eiv.setups[i + 10]  = b-setup.val[i].
+                            tt-eiv.run-qty[i + 10] = e-item-vend.runQtyXtra[i]
+                            tt-eiv.setups[i + 10]  = e-item-vend.setupsXtra[i].
                     END.
                 END.
                            
