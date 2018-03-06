@@ -1694,8 +1694,9 @@ PROCEDURE local-create-record :
                                  IF WEEKDAY(po-ord.po-date) EQ 6 THEN 3 ELSE 1
          po-ord.last-ship-date = po-ord.due-date
          fil_id                = RECID (po-ord)
+         po-ord.user-id        = USERID('nosweat')
          .
-  {po/pouserid.i}
+  
   DISPLAY po-ord.po-no WITH FRAME {&FRAME-NAME}.
 
   IF trim(v-postatus-cha) = "Hold" THEN DO:
@@ -1743,7 +1744,7 @@ PROCEDURE local-create-record :
  FIND CURRENT po-ord NO-LOCK NO-ERROR.
  FIND CURRENT po-ordl NO-LOCK NO-ERROR.
  FIND CURRENT b-po-ordl NO-LOCK NO-ERROR.
- FIND CURRENT reftable NO-LOCK NO-ERROR.
+ 
 
 END PROCEDURE.
 
