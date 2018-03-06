@@ -2520,11 +2520,11 @@ PROCEDURE reftable-values :
   IF AVAIL cust THEN DO:
     IF ip-display THEN 
         ASSIGN
-        tb_po-mand = cust.po-mandatory 
+        /* tb_po-mand = cust.po-mandatory  */
         tb_show-set = cust.show-set .
     ELSE
         ASSIGN
-            cust.po-mandatory = (tb_po-mand)
+            /* cust.po-mandatory = (tb_po-mand) */
             cust.show-set = tb_show-set .
 
     IF ip-display THEN
