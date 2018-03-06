@@ -50,6 +50,7 @@ DEFINE VARIABLE glCustListActive AS LOGICAL     NO-UNDO.
 
 DEF VAR is-xprint-form AS LOG NO-UNDO.
 DEF VAR ls-fax-file AS cha NO-UNDO.
+DEFINE VARIABLE security-flag AS LOGICAL NO-UNDO.
 
 DEF TEMP-TABLE tt-itemfg NO-UNDO
     FIELD row-id      AS   ROWID
@@ -1121,6 +1122,10 @@ ASSIGN
  v-custown    = tb_inc-cust
  sort-opt     = SUBSTR(rd_sort,1,1)
  lSelected    = tb_cust-list.
+
+IF NOT security-flag THEN DO:
+  RUN sys/ref/d-passwd.w (3, OUTPUT security-flag).
+END.
 
 {sys/inc/print1.i}
 

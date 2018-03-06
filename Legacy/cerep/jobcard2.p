@@ -593,11 +593,11 @@ END FUNCTION.
           v-label-item-no = 1.
 
         PUT "  <B>CUSTOMER NAME:<P18><R-0.3>" v-cust-name  "<P10><R+0.3>"
-            "<B>DUE DATE:         ESTIMATE:        LAYOUT:        CREATED BY: " AT 65 SKIP
-            "  SHIPTO:</B>" v-shipto[1]  v-due-date AT 69  job-hdr.est-no FORMAT "x(8)" AT 85  eb.die-no FORM "x(15)" AT 104   (IF AVAIL oe-ord THEN oe-ord.USER-ID ELSE "")  AT 121
+            "<B>DUE DATE:   ESTIMATE:   LAYOUT:                  CREATED BY: " AT 65 SKIP
+            "  SHIPTO:</B>" v-shipto[1]  v-due-date AT 69  job-hdr.est-no FORMAT "x(8)" AT 79  eb.die-no FORM "x(20)" AT 93   (IF AVAIL oe-ord THEN oe-ord.USER-ID ELSE "")  AT 118
             SKIP
-            v-shipto[2] AT 10             "<B>PROD DATE:</B>" AT 65  "<B>        OVER%:           UNDER%:  </B>" SKIP      
-            v-shipto[4] AT 10              v-prod-date AT 65  v-over% AT 82  v-under% AT 100 SKIP
+            v-shipto[2] AT 10             "<B>PROD DATE:</B>" AT 65  "<B>  OVER%:      UNDER%:  </B>" SKIP      
+            v-shipto[4] AT 10              v-prod-date AT 65  v-over% AT 76  v-under% AT 88 SKIP
             /*v-shipto[4] AT 10 " <B>SHIP VIA:</B>" v-shipvia FORMAT "x(25)"*/   /*"<B>OVERRUN:</B> " AT 87  v-over% "   <B>UNDERRUN:</B> "  v-under% SKIP*/
              v-fill  . 
           /*PUT "<R-1><#1><C91>Date/Time Generated:" SKIP

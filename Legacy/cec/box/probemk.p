@@ -235,6 +235,7 @@ IF AVAIL probe-ref THEN
    
 assign
  probe.mat-cost = (dm-tot[5] + mis-tot[1] + v-prep-mat) / (qty / 1000)
+ probe.spare-dec-1 = dm-tot[5] / (qty / 1000)
  probe.lab-cost = (opsplit$[1] + mis-tot[3] + v-prep-lab + ctrl2[2] + ctrl2[3]) /
                   (qty / 1000)
  probe.vo-cost = opsplit$[2] / (qty / 1000)

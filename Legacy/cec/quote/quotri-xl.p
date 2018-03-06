@@ -41,7 +41,7 @@ def var v-last as log initial no no-undo.
 DEF VAR v-first AS LOG INITIAL YES NO-UNDO.
 /* === with xprint ====*/
 DEF VAR ls-image1 AS cha NO-UNDO.
-DEF VAR ls-full-img1 AS cha FORM "x(50)" NO-UNDO.
+DEF VAR ls-full-img1 AS cha FORM "x(200)" NO-UNDO.
 DEF VAR lv-fg# AS cha FORM "x(15)" NO-UNDO.
 DEF VAR v-dept-inst AS cha FORM "x(80)" EXTENT 20 NO-UNDO.
 /* rdb 01/31/07 12060608 */	

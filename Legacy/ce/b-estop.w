@@ -1610,18 +1610,14 @@ PROCEDURE set-import-stds :
         AND (NOT AVAIL est-op OR ROWID(xop) NE ROWID(est-op)),
       FIRST mach NO-LOCK
       {sys/look/machW.i}
-        AND mach.m-code EQ xop.m-code,
-      FIRST reftable NO-LOCK
-      WHERE reftable.reftable EQ "mach.obsolete"
-        AND reftable.company  EQ mach.company
-        AND reftable.loc      EQ mach.loc
-        AND reftable.code     EQ mach.m-code
-        AND reftable.val[1]   EQ 1:
+        AND mach.m-code EQ xop.m-code:
+   IF mach.obsolete THEN DO:
     MESSAGE "Machine: " + TRIM(mach.m-code) +
             " is obsolete, please replace or standards will not be imported"
         VIEW-AS ALERT-BOX ERROR.
     ip-import-stds = NO.
     LEAVE.
+   END.
   END.
   
   ASSIGN
@@ -1658,6 +1654,7 @@ PROCEDURE set-lock :
      /*task 020050908*/
      IF ip-op-lock EQ ef.op-lock THEN
      DO:
+
         {est/op-lock.i xest}
         
         ASSIGN
@@ -1665,6 +1662,7 @@ PROCEDURE set-lock :
            op-lock.val[2] = op-lock.val[1].
 
         RELEASE op-lock.
+        
      END.
 
      ef.op-lock = ip-op-lock.
@@ -1759,14 +1757,9 @@ PROCEDURE valid-mach :
     IF NOT AVAILABLE mach THEN v-msg = "Must enter a valid Machine Code, try help".
 
     IF v-msg EQ "" THEN
-      IF CAN-FIND(FIRST reftable
-                  WHERE reftable.reftable EQ "mach.obsolete"
-                    AND reftable.company  EQ mach.company
-                    AND reftable.loc      EQ mach.loc
-                    AND reftable.code     EQ mach.m-code
-                    AND reftable.val[1]   EQ 1) THEN
+      IF mach.obsolete THEN DO:  
         v-msg = "Machine is obsolete, please choose a different machine".
-
+      END.
     IF v-msg EQ "" THEN DO:
       FIND FIRST b-ef NO-LOCK
           WHERE b-ef.company EQ est-qty.company

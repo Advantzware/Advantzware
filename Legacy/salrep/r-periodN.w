@@ -595,6 +595,7 @@ DO:
        WHEN 6 THEN RUN OUTPUT-to-port.
 
   end case.
+  SESSION:SET-WAIT-STATE ("").
  END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1370,7 +1371,7 @@ assign
  v-summ      = NOT tb_detailed   
  v-inc-fc    = tb_fin-chg.
 
-
+SESSION:SET-WAIT-STATE ("general").
 DEF VAR cslist AS cha NO-UNDO.
  FOR EACH ttRptSelected BY ttRptSelected.DisplayOrder:
 
@@ -1404,11 +1405,9 @@ if td-show-parm then run show-param.
 
 IF tb_excel THEN DO:
     IF NOT v-summ THEN DO:
+        
           OUTPUT STREAM excel TO VALUE(fi_file).
-          /*excelheader = "Inv Number,Inv Date,Post Date,Cust#,Name," +
-                        "Net,MSF,$/MSF".*/
       PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' skip.
-    END.
 
           OUTPUT STREAM excel-2 TO VALUE(fi_file-2).
           IF tb_ytd THEN
@@ -1416,31 +1415,52 @@ IF tb_excel THEN DO:
           ELSE 
               excelheader = "Customer,Cust#,PTD AMT,MSF,$/MSF,WGT/MSF".
       PUT STREAM excel-2 UNFORMATTED '"' REPLACE(excelheader,',','","') '"' skip.
+    END.
+    ELSE DO:
+         OUTPUT STREAM excel TO VALUE(fi_file).
+          /*excelheader = "Inv Number,Inv Date,Post Date,Cust#,Name," +
+                        "Net,MSF,$/MSF".*/
+      PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' skip.
+
+          OUTPUT STREAM excel-2 TO VALUE(fi_file-2).
+          IF tb_ytd THEN
+          excelheader = "Customer,Cust#,PTD AMT,MSF,$/MSF,WGT/MSF,YTD Amount".
+          ELSE 
+              excelheader = "Customer,Cust#,PTD AMT,MSF,$/MSF,WGT/MSF".
+      PUT STREAM excel-2 UNFORMATTED '"' REPLACE(excelheader,',','","') '"' skip.
+    END.
 END. 
 
 display with frame r-top.
 
-SESSION:SET-WAIT-STATE ("general").
-
 {salrep/r-periodN.i}
-
-RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
-
-SESSION:SET-WAIT-STATE ("").
 
 
  IF tb_excel THEN DO:
    IF NOT v-summ THEN DO:
+       
      OUTPUT STREAM excel CLOSE.
      IF tb_runExcel THEN
          OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
-   END.
-
+   
      OUTPUT STREAM excel-2 CLOSE.
      IF tb_runExcel THEN
          OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file-2)).
- END.
+   END.
+   ELSE DO:
+     OUTPUT STREAM excel CLOSE.
+     IF tb_runExcel THEN
+         OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
+   
+     OUTPUT STREAM excel-2 CLOSE.
+     IF tb_runExcel THEN
+         OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file-2)).
 
+   END.
+   
+ END.
+ RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
+SESSION:SET-WAIT-STATE ("").
 
 /* end ---------------------------------- copr. 2001 Advanced Software, Inc. */
 

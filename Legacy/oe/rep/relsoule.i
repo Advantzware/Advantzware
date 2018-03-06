@@ -102,7 +102,7 @@ DEF VAR ll-display-comp AS LOG NO-UNDO.  /* display company address */
 DEF VAR lv-comp-name AS cha FORM "x(30)" NO-UNDO.
 DEF VAR lv-email AS cha FORM "x(30)" NO-UNDO.
 DEF VAR ls-image1    AS CHAR NO-UNDO.
-DEF VAR ls-full-img1 AS CHAR FORMAT "x(50)" NO-UNDO.
+DEF VAR ls-full-img1 AS CHAR FORMAT "x(200)" NO-UNDO.
 
 ASSIGN 
     ls-image1 = "images\Soule.jpg"

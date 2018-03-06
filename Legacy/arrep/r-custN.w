@@ -91,7 +91,7 @@ ASSIGN cTextListToSelect = "Cust.#,Name,Address 1,Address 2,City,State,Zip,Tel #
                          + "Partial Ship,Fr Pay Meth,Order Lim,Taxable,FOB,Cred Hold,"
                          + "TAX Code,Fin Chrgs,Inv Per PO,TAX Resale ID#,Exp.,"
                          + "Terms,Credit Hold Term,Date Added,Disc,MarkUp,"
-                         + "Underrun,Overrun,E-Mail/Web Address,Load Tags,Fst Inv Dt,Group,Last Ordered"
+                         + "Underrun,Overrun,E-Mail/Web Address,Load Tags,Fst Inv Dt,Group,Last Ordered,CSR"
        cFieldListToSelect = "cust,name,add1,add2,city,stat,zip,phn,fax,typ,actv,"
                           + "cont,rep,rep-nam,ato-rep,cust-prc," 
                           + "edi,bal-mth,mfg-dys,palt,case,stmnt,"
@@ -99,7 +99,7 @@ ASSIGN cTextListToSelect = "Cust.#,Name,Address 1,Address 2,City,State,Zip,Tel #
                           + "partl,fr-pay,ord-lim,taxbl,fob,crd-hld,"
                           + "tax-cd,fin-chrg,inv-po,tax-rsl,exp,"
                           + "trm-cd,crd-hld-trm,date-ad,disc,mark,"
-                          + "undr,ovr,emal,lod-tag,fst-invdt,group,last-ordered"  
+                          + "undr,ovr,emal,lod-tag,fst-invdt,group,last-ordered,csr"  
        cFieldLength = "8,30,30,30,15,5,10,15,15,5,6,"    
                     + "25,3,25,11,14,"   
                     + "3,10,13,10,11,10,"   
@@ -107,7 +107,7 @@ ASSIGN cTextListToSelect = "Cust.#,Name,Address 1,Address 2,City,State,Zip,Tel #
                     + "12,11,13,7,5,9,"   
                     + "8,9,10,14,10,"   
                     + "5,16,10,7,6,"   
-                    + "10,10,40,10,10,8,12"  
+                    + "10,10,40,10,10,8,12,8"  
        cFieldType = "c,c,c,c,c,c,c,c,c,c,c,"   
                   + "c,c,c,c,c,"   
                   + "c,c,c,c,c,c,"   
@@ -115,7 +115,7 @@ ASSIGN cTextListToSelect = "Cust.#,Name,Address 1,Address 2,City,State,Zip,Tel #
                   + "c,c,i,c,c,c,"   
                   + "c,c,c,c,c,"   
                   + "c,c,c,i,c,"   
-                  + "i,i,c,c,c,c,c"   
+                  + "i,i,c,c,c,c,c,c"   
     .
 
 {sys/inc/ttRptSel.i}

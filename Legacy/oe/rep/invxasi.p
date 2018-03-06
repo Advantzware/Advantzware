@@ -98,7 +98,7 @@ END.
 FIND FIRST inv-head NO-LOCK NO-ERROR.
 /* === with xprint ====*/
 DEF VAR ls-image1 AS cha NO-UNDO.
-DEF VAR ls-full-img1 AS cha FORM "x(150)" NO-UNDO.
+DEF VAR ls-full-img1 AS cha FORM "x(200)" NO-UNDO.
 ASSIGN
    ls-image1 = "images\asilogo.jpg"
    FILE-INFO:FILE-NAME = ls-image1

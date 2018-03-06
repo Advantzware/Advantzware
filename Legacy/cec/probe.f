@@ -57,7 +57,6 @@ form
      "        Price           /BSF Sheets     MSF"
      skip*/
      with width 80 stream-io frame probe down no-labels no-underline no-attr-space no-box.
-
 form
      probe.est-qty          format ">>>>>>9"
      probe.freight          format ">9"
@@ -88,13 +87,12 @@ form
      "        Price           /BSF Sheets     MSF"
      skip*/
      with width 130 stream-io frame probe-big down no-labels no-underline no-attr-space no-box.
-
 form
      probe.est-qty          format ">>>>>9"
      probe.freight          format ">9"
      reftable.val[2]        format "->>>>9.99"
      reftable.val[3]        format "->>9.99"
-     reftable.val[5]        format ">>>>9.99"
+     reftable.val[5]        format ">>>>>>9.99"
      dContPerManHR         format ">>>>9.99"
      probe.sell-price       format "->>>>9.99"
      voverall               format "->>>9.99"
@@ -106,8 +104,8 @@ form
      "   A N A L Y S I S   P e r  T h o u s a n d     " format "x(78)" skip
      "                              "
      space(10)
-     "              Board            Total   Contb/      Sell    Price  Total   Total" skip
-     "   Qty  R       $/M Board %    Contb   Man Hr     Price     /MSF Sheets     MSF"
+     "              Board              Total   Contb/      Sell    Price  Total   Total" skip
+     "   Qty  R       $/M Board %      Contb   Man Hr     Price     /MSF Sheets     MSF"
      /*skip*/
      with width 90 stream-io frame probe-peach down no-labels no-underline no-attr-space no-box.
       

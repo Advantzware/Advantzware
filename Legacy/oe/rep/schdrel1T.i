@@ -76,7 +76,8 @@ def temp-table w-ord
   FIELD ship-from  AS CHAR  
   FIELD sman   AS CHAR
   FIELD upd-user AS CHAR
-  FIELD due-date AS CHAR .
+  FIELD due-date AS CHAR
+  FIELD ord-date AS CHARACTER .
 
 def buffer b-w-ord for w-ord.
 

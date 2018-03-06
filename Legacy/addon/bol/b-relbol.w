@@ -993,7 +993,7 @@ DO:
     IF TRIM(tt-relbol.trailer#:SCREEN-VALUE IN BROWSE {&browse-name}) EQ "" OR
        NOT CAN-FIND(FIRST truck WHERE
            truck.company EQ cocode AND
-           truck.truck EQ tt-relbol.trailer#:SCREEN-VALUE IN BROWSE {&browse-name}) THEN
+           truck.truck-code EQ tt-relbol.trailer#:SCREEN-VALUE IN BROWSE {&browse-name}) THEN
        DO:
           IF NOT g-sharpshooter THEN MESSAGE "Invalid Trailer#." VIEW-AS ALERT-BOX ERROR. 
           ELSE RUN custom/d-msg.w ("Error","","Invalid Trailer#.","",1,"OK", OUTPUT v-msgreturn).         

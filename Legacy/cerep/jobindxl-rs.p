@@ -588,22 +588,13 @@ PROCEDURE DieData :
   END.
 
   IF AVAIL b-prep THEN DO:
+      RUN SetCellValue ("F" + STRING (viLine + 3), b-prep.received-date)       NO-ERROR.
+      RUN SetCellVAlue ("H" + STRING (viLine + 3), b-prep.no-of-impressions)   NO-ERROR.
+      RUN SetCellValue ("J" + STRING (viLine + 3), b-prep.last-date)           NO-ERROR. 
+      vcJobNum = b-prep.last-job-no + '-' + STRING (b-prep.last-job-no2, '99').
+      RUN SetCellValue ("M" + STRING (viLIne + 3), vcJobNum)                   NO-ERROR.
+  END. /*IF AVAIL b-prep THEN DO:*/
 
-    FIND FIRST b-reftable NO-LOCK
-         WHERE b-reftable.reftable EQ "PREPLASTJOB"  
-           AND b-reftable.company  EQ b-prep.company 
-           AND b-reftable.loc      EQ b-prep.loc
-           AND b-reftable.code     EQ b-prep.CODE NO-ERROR.
-
-    RUN SetCellValue ("F" + STRING (viLine + 3), b-prep.received-date)       NO-ERROR.
-    RUN SetCellVAlue ("H" + STRING (viLine + 3), b-prep.no-of-impressions)   NO-ERROR.
-    RUN SetCellValue ("J" + STRING (viLine + 3), b-prep.last-date)           NO-ERROR.
-  END.
-
-  IF AVAIL b-reftable THEN DO:
-    vcJobNum = b-reftable.code2 + '-' + STRING (b-reftable.val[1], '99').
-    RUN SetCellValue ("M" + STRING (viLIne + 3), vcJobNum)                   NO-ERROR.
-  END.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

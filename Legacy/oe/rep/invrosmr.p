@@ -90,8 +90,8 @@ FIND FIRST inv-head NO-LOCK NO-ERROR.
 /* === with xprint ====*/
 DEF VAR ls-image1 AS cha NO-UNDO.
 DEF VAR ls-image2 AS cha NO-UNDO.
-DEF VAR ls-full-img1 AS cha FORM "x(150)" NO-UNDO.
-DEF VAR ls-full-img2 AS cha FORM "x(150)" NO-UNDO.
+DEF VAR ls-full-img1 AS cha FORM "x(200)" NO-UNDO.
+DEF VAR ls-full-img2 AS cha FORM "x(200)" NO-UNDO.
 ASSIGN ls-image1 = "images\IPI_2.jpg"
        ls-image2 = "".
 
@@ -357,12 +357,7 @@ def var v-sh-addr3 as char format "x(30)" NO-UNDO.
                  v-pc = "P" /* partial*/ 
                  i = 0.
 
-          FIND FIRST reftable WHERE
-               reftable.reftable EQ "inv-line.lot-no" AND
-               reftable.rec_key  EQ inv-line.rec_key
-               USE-INDEX rec_key
-               NO-LOCK NO-ERROR.
-
+          
           for each oe-boll no-lock where oe-boll.company = inv-line.company
                         and oe-boll.bol-no = inv-head.bol-no
                         and oe-boll.ord-no = inv-line.ord-no
@@ -395,9 +390,9 @@ def var v-sh-addr3 as char format "x(30)" NO-UNDO.
             
           end. /* each oe-boll */
 
-          IF AVAIL reftable THEN
+          
              v-case-cnt[1] = v-case-cnt[1] + FILL(" ",32 - LENGTH(v-case-cnt[1]))
-                           + reftable.CODE.
+                           + inv-line.lot-no.
 
           IF v-printline > 62 THEN do:           
                 PAGE.

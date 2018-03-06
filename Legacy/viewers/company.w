@@ -974,16 +974,19 @@ PROCEDURE valid-buttons :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-   /*add and delete not valid buttons*/
+    /*add and delete not valid buttons*/
+    DEF OUTPUT PARAMETER op-add-valid AS LOG NO-UNDO.
+    DEF OUTPUT PARAMETER op-delete-valid AS LOG INIT YES NO-UNDO.
 
-   DEF OUTPUT PARAMETER op-add-valid AS LOG NO-UNDO.
-   DEF OUTPUT PARAMETER op-delete-valid AS LOG INIT YES NO-UNDO.
-   FIND FIRST users NO-LOCK WHERE 
-         users.user_id EQ USERID(LDBNAME(1)) 
-         NO-ERROR.
-     IF AVAIL users AND users.securityLevel LE 999 THEN
-        ASSIGN op-add-valid = NO.
-     ELSE op-add-valid = YES .
+    DEF VAR hPgmSecurity AS HANDLE NO-UNDO.
+    DEF VAR lResult AS LOG NO-UNDO.
+    RUN "system/PgmMstrSecur.p" PERSISTENT SET hPgmSecurity.
+    RUN epCanAccess IN hPgmSecurity ("viewers/company.w", "", OUTPUT lResult).
+    DELETE OBJECT hPgmSecurity.
+
+    ASSIGN 
+        op-add-valid = lResult.
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

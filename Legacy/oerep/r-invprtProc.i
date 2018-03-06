@@ -1,5 +1,4 @@
-
-/*------------------------------------------------------------------------
+/* -----------------------------------------------------
     File        : r-invprt.i
     Purpose     : 
 
@@ -1155,9 +1154,12 @@ PROCEDURE build-list1:
         WHERE cust.company EQ cocode
         AND cust.cust-no EQ {&head}.cust-no
         AND ((cust.inv-meth EQ ? AND {&head}.{&multiinvoice}) OR
-        (cust.inv-meth NE ? AND NOT {&head}.{&multiinvoice}) OR
-        "{&head}" EQ "ar-inv"
-        )
+          (cust.inv-meth NE ? AND NOT {&head}.{&multiinvoice}) OR
+          "{&head}" EQ "ar-inv" )
+        AND (    (rd-dest-screen-value EQ "5" AND cust.log-field[1] EQ YES) 
+              OR (rd-dest-screen-value EQ "1" AND cust.log-field[1] EQ NO)
+              OR (rd-dest-screen-value NE "1" AND rd-dest-screen-value NE "5") 
+              OR  tb_override-email) 
         NO-LOCK BY {&head}.{&bolno} :
         
         FIND FIRST buf-{&line} NO-LOCK 
@@ -1174,7 +1176,7 @@ PROCEDURE build-list1:
         DO:
             IF "{&head}" EQ "inv-head" AND AVAIL(buf-{&line}) THEN
                 NEXT.            
-        END.
+            END.
         
         CREATE tt-list.
         tt-list.rec-row = ROWID({&head}).
@@ -1335,41 +1337,60 @@ PROCEDURE run-report :
                            ELSE                                         ~
                              NEXT build-report.
                     
-                    
-                RELEASE oe-bolh.
-            IF AVAIL buf-{&line}1 AND "{&head}" EQ "inv-head" THEN DO:
-                IF buf-{&line}1.{&bolno} EQ 0 THEN                       
-                    FOR EACH oe-bolh NO-LOCK 
-                        WHERE  oe-bolh.b-no EQ buf-{&line}1.{&bno}:
 
-                        {&bol-check}
-                    END.                    
-                    ELSE
-                        FOR EACH oe-bolh NO-LOCK
-                            WHERE  oe-bolh.b-no  EQ buf-{&line}1.{&bno}
-                            BREAK BY oe-bolh.b-no:
-                                                        
+                RELEASE oe-bolh.
+                IF AVAIL buf-{&line}1 AND "{&head}" EQ "inv-head" THEN DO:
+                    IF buf-{&line}1.{&bolno} EQ 0 THEN                       
+                        FOR EACH oe-bolh NO-LOCK 
+                            WHERE  oe-bolh.b-no EQ buf-{&line}1.{&bno}:
+    
                             {&bol-check}
-                        END.
-            END.
-            iBol = 0.
-            IF AVAIL buf-{&line}1 AND buf-{&line}1.bol-no GT 0 THEN
-                iBol = buf-{&line}1.bol-no.
-            ELSE 
-                IF AVAIL b-{&head}1 AND b-{&head}1.{&bolno} GT 0 THEN
-                    iBol = b-{&head}1.{&bolno}.
+                        END.                    
+                        ELSE
+                            FOR EACH oe-bolh NO-LOCK
+                                WHERE  oe-bolh.b-no  EQ buf-{&line}1.{&bno}
+                                BREAK BY oe-bolh.b-no:
+                                                            
+                                {&bol-check}
+                            END.
+                END.
+
+                iBol = 0.
+                IF AVAIL buf-{&line}1 AND buf-{&line}1.bol-no GT 0 THEN
+                    iBol = buf-{&line}1.bol-no.
+                ELSE 
+                    IF AVAIL b-{&head}1 AND b-{&head}1.{&bolno} GT 0 THEN
+                        iBol = b-{&head}1.{&bolno}.
             
             
-            IF tb_attachBOL AND SEARCH(vcBOLSignDir + "\" + string(iBol) + ".pdf") NE ? 
-              AND INDEX(vcBolFiles, SEARCH(vcBOLSignDir + "\" + string(iBol) + ".pdf")) EQ 0 THEN 
-                vcBOLFiles = vcBOLFiles + "," + SEARCH(vcBOLSignDir + "\" + string(iBol) + ".pdf").
-            
-            RUN create-save-line.
-                
-            ASSIGN 
-                dtl-ctr = dtl-ctr + 1.
+                IF tb_attachBOL AND SEARCH(vcBOLSignDir + "\" + string(iBol) + ".pdf") NE ? 
+                  AND INDEX(vcBolFiles, SEARCH(vcBOLSignDir + "\" + string(iBol) + ".pdf")) EQ 0 THEN 
+                    vcBOLFiles = vcBOLFiles + "," + SEARCH(vcBOLSignDir + "\" + string(iBol) + ".pdf").
+
+                RUN create-save-line.
+
+                ASSIGN 
+                    dtl-ctr = dtl-ctr + 1.
             END. /* Each b-{&head}1 */
-END. /* If multi-invoice */
+            IF dtl-ctr EQ 0 THEN DO: 
+                /* Make sure invoices with no inv-lines are not missed */
+                FOR EACH b-{&head}1 NO-LOCK
+                    WHERE b-{&head}1.company       EQ {&head}.company
+                    AND b-{&head}1.cust-no       EQ {&head}.cust-no
+                    AND b-{&head}1.inv-no        EQ {&head}.inv-no
+                    AND b-{&head}1.{&multiinvoice} EQ NO            
+                    AND INDEX(vcHoldStats, b-{&head}1.stat) EQ 0:
+                    FIND FIRST inv-misc NO-LOCK 
+                       WHERE inv-misc.{&miscrno} EQ b-{&head}1.{&rno}
+                       NO-ERROR.
+
+                    IF AVAILABLE inv-misc THEN DO:
+                        dtl-ctr = dtl-ctr + 1.
+                      RUN create-save-line. 
+                    END.
+                END.             
+            END.
+        END. /* If multi-invoice */
 
         ELSE 
         DO:
@@ -1415,8 +1436,8 @@ IF cust.inv-meth EQ ?
     AND dtl-ctr LE 0 
     AND NOT "{&head}" EQ "ar-inv" THEN 
 DO:
-    NEXT.
-/* Needs testing */
+    NEXT. 
+
 
 END.
 
@@ -1469,6 +1490,7 @@ FOR EACH save-line WHERE save-line.reftable EQ "save-line" + v-term-id,
     AND NOT CAN-FIND(FIRST report
     WHERE report.term-id EQ v-term-id
     AND report.rec-id  EQ RECID({&head})):
+
     RUN undo-save-line.
 END.
 
@@ -1607,7 +1629,7 @@ ELSE IF v-print-fmt EQ "1/2 Page" AND rd-dest = 6 THEN
                 IF tb_sman-copy  THEN RUN value(v-program) ("Salesman Copy").
             END.
             ELSE IF LOOKUP(v-print-fmt,"PremierX,Coburn,Axis") > 0 THEN 
-                DO: 
+DO: 
                     RUN value(v-program) ("",NO). 
                     v-reprint = YES.
                     IF tb_cust-copy THEN RUN value(v-program) ("Customer Copy",NO).
@@ -1831,6 +1853,10 @@ PROCEDURE setBolDates:
                     opdEndDate   = STRING({&head}.inv-date).
         END.
     END. 
+    IF opdBeginDate EQ ? THEN 
+        opdBeginDate = "".
+    IF opdEndDate EQ ? THEN 
+        opdEndDate = "".        
 END.
 
 PROCEDURE setBOLRange:
@@ -1937,6 +1963,10 @@ PROCEDURE setBOLRange:
                 IF INT(begin_inv-screen-value) GT 0 AND INT(end_inv-screen-value) GT 0 THEN DO:
                   IF int(begin_bol-SCREEN-VALUE) EQ 0 THEN opbegin_bol-SCREEN-VALUE = "0".
                   IF int(end_bol-SCREEN-VALUE) EQ 0 THEN opend_bol-SCREEN-VALUE = "99999999".
+                  ASSIGN 
+                    opend_date-SCREEN-VALUE   = ""
+                    opBegin_date-screen-value = ""
+                    . 
                 END.
 /*                FOR EACH oe-bolh NO-LOCK                                     */
 /*                    WHERE oe-bolh.company EQ cocode                          */

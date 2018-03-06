@@ -588,12 +588,7 @@ PROCEDURE valid-m-code :
     IF NOT AVAIL mach THEN lv-msg = "Invalid entry, try help".
 
     IF lv-msg EQ ""                           AND
-       CAN-FIND(FIRST reftable
-                WHERE reftable.reftable EQ "mach.obsolete"
-                  AND reftable.company  EQ mach.company
-                  AND reftable.loc      EQ mach.loc
-                  AND reftable.code     EQ mach.m-code
-                  AND reftable.val[1]   EQ 1) THEN
+      mach.obsolete THEN 
       lv-msg = "Machine is obsolete, please enter new machine".
 
     IF lv-msg NE "" THEN DO:

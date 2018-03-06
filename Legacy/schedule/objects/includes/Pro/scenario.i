@@ -14,11 +14,11 @@
   
   IF {&SELF-NAME} EQ '<New>' THEN
   DO WITH FRAME {&FRAME-NAME}:
-    DISABLE btnRemove btnReset.
+    DISABLE /*btnRemove*/ btnReset.
     RETURN NO-APPLY.
   END.
   ELSE
-  ENABLE btnRemove btnReset WITH FRAME {&FRAME-NAME}.
+  ENABLE /*btnRemove*/ btnReset WITH FRAME {&FRAME-NAME}.
   
   IF showStatus OR openBoard THEN
   VIEW FRAME msgFrame.

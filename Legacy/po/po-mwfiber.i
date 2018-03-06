@@ -3,7 +3,7 @@
 PUT 
          "<C1><#1><FArial>"   SKIP
          "<P14><C+48> <B>Purchase Order</B> <P10>" SKIP       
-       "<C3><R2><#2><R+8><C+40>" "<IMAGE#2=" + ls-full-img1 FORM "x(60)"  SKIP 
+       "<C3><R2><#2><R+8><C+40>" "<IMAGE#2=" + ls-full-img1 FORM "x(200)"  SKIP 
        /*"<=1><R+2>" "<FGCOLOR=" + trim(lv-comp-color) + ">" FORM "x(15)" */
           "<P10><=1><R+8>"   
       /*    v-comp-add1  AT 8 SKIP

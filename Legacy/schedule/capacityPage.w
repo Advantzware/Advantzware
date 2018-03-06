@@ -34,6 +34,7 @@ DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
 DEFINE VARIABLE ipcType    AS CHARACTER NO-UNDO.
 DEFINE VARIABLE iprRowID   AS ROWID     NO-UNDO.
 DEFINE VARIABLE ipcCompany AS CHARACTER NO-UNDO INITIAL "001".
+
 ASSIGN
     ipcType  = "Job"
     iprRowID = TO-ROWID("0x00000000005a4047")
@@ -47,6 +48,9 @@ ASSIGN
 /* Local Variable Definitions ---                                       */
 
 DEFINE VARIABLE cocode AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lAccess    AS LOGICAL   NO-UNDO.
+{schedule/scopDir.i}
+{{&includes}/ttblDowntime.i NEW}
 
 DEFINE TEMP-TABLE ttJob NO-UNDO LIKE job-mch 
   FIELD rRowID AS ROWID 
@@ -92,9 +96,8 @@ DEFINE TEMP-TABLE ttMachine NO-UNDO
 SESSION:SET-WAIT-STATE ("").
 
 /* check for valid license */
-RUN util/chk-mod.p ("ASI", "sbHTML").
-IF ERROR-STATUS:ERROR THEN
-RETURN.
+RUN util/CheckModule.p ("ASI", "sbHTML", YES, OUTPUT lAccess).
+IF NOT lAccess THEN RETURN.
 
 /* get nk1 setting */
 cocode = ipcCompany.
@@ -477,6 +480,7 @@ THEN FRAME {&FRAME-NAME}:PARENT = ACTIVE-WINDOW.
 MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
+  RUN pLoadDowntime.
   RUN enable_UI.
   RUN pBuildTTMachine.
   RUN pBuildTTJob (ipcType, ipcCompany, iprRowID).
@@ -547,23 +551,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI-1 Dialog-Frame  _DEFAULT-DISABLE
-PROCEDURE disable_UI-1 :
-/*------------------------------------------------------------------------------
-  Purpose:     DISABLE the User Interface
-  Parameters:  <none>
-  Notes:       Here we clean-up the user-interface by deleting
-               dynamic widgets we have created and/or hide 
-               frames.  This procedure is usually called when
-               we are ready to "clean-up" after running.
-------------------------------------------------------------------------------*/
-  /* Hide all frames. */
-  HIDE FRAME Dialog-Frame.
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE downtimeSpan Dialog-Frame 
 PROCEDURE downtimeSpan :
 /*------------------------------------------------------------------------------
@@ -613,28 +600,6 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE enable_UI Dialog-Frame  _DEFAULT-ENABLE
 PROCEDURE enable_UI :
-/*------------------------------------------------------------------------------
-  Purpose:     ENABLE the User Interface
-  Parameters:  <none>
-  Notes:       Here we display/view/enable the widgets in the
-               user-interface.  In addition, OPEN all queries
-               associated with each FRAME and BROWSE.
-               These statements here are based on the "Other 
-               Settings" section of the widget Property Sheets.
-------------------------------------------------------------------------------*/
-  DISPLAY baseOnText 
-      WITH FRAME Dialog-Frame.
-  ENABLE btnClear ttMachine btnExit ttJob btnOK btnRemove btnReset btnSort 
-      WITH FRAME Dialog-Frame.
-  VIEW FRAME Dialog-Frame.
-  {&OPEN-BROWSERS-IN-QUERY-Dialog-Frame}
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE enable_UI-1 Dialog-Frame  _DEFAULT-ENABLE
-PROCEDURE enable_UI-1 :
 /*------------------------------------------------------------------------------
   Purpose:     ENABLE the User Interface
   Parameters:  <none>
@@ -1241,12 +1206,12 @@ PROCEDURE pHTMLPage :
         '  </table>' SKIP 
         '  <table border="1" cellspacing="0" cellpadding="5" width="100%">' SKIP
         '    <tr>' SKIP
-        '      <td bgcolor="#C0BEBE" align="center" nowrap><font face="{&fontFace}"><b>'
+        '      <td bgcolor="#F4F4F4" align="center" nowrap><font face="{&fontFace}"><b>'
         'Operation</b></font></td>' SKIP
         .
         DO dtDate = dtStartDate TO dtEndDate:
             PUT UNFORMATTED
-                '      <td bgcolor="#C0BEBE" align="center" nowrap><font face="{&fontFace}">'
+                '      <td bgcolor="#F4F4F4" align="center" nowrap><font face="{&fontFace}">'
                 ENTRY(WEEKDAY(dtDate),cDays) ' ' MONTH(dtDate) '/' DAY(dtDate) '</font></td>' SKIP
                 .
         END. /* do dtdate */
@@ -1273,6 +1238,16 @@ PROCEDURE pHTMLPage :
             .
         DO dtDate = dtStartDate TO dtEndDate:
             EMPTY TEMP-TABLE ttTime.
+            FOR EACH ttblDowntime
+                WHERE  ttblDowntime.dayID     EQ WEEKDAY(dtDate)
+                  AND (ttblDowntime.resource  EQ "<Calendar>"
+                   OR  ttblDowntime.resource  EQ ttblJob.m-code)
+                  AND (ttblDowntime.startDate EQ dtDate
+                   OR  ttblDowntime.startDate EQ ?)
+                :
+                fTimeSlice (ttblDowntime.startTime,"DT","Start",NO).
+                fTimeSlice (ttblDowntime.endTime,"DT","End",NO).
+            END. /* each ttbldowntime */
             PUT UNFORMATTED
                 '      <td' cBGColor ' align="center" nowrap><font face="{&fontFace}">' SKIP
                 .
@@ -1306,7 +1281,11 @@ PROCEDURE pHTMLPage :
                         .
                     NEXT.
                 END. /* timeslice eq 0 */
-                IF ttTime.timeType2 NE "Start" OR cType2 NE "Start" THEN
+                IF ttTime.timeType1 EQ "DT"   AND 
+                   ttTime.timeType1 NE cType1 AND
+                   ttTime.timeType2 NE cType2 THEN
+                cType1 = "Avail".
+                ELSE IF ttTime.timeType2 NE "Start" OR cType2 NE "Start" THEN
                 cType1 = ttTime.timeType1.
                 PUT UNFORMATTED
                     '            <td bgcolor="#'
@@ -1314,7 +1293,7 @@ PROCEDURE pHTMLPage :
                      IF cType1 EQ "Avail" THEN "F1FE98" ELSE
                      IF cType1 EQ "Job"   THEN "AAD5B9" ELSE "C0BEBE")
                     '" align="center" width="' ROUND((ttTime.timeSlice - iTime) / 86400 * 100,0) '%' '" nowrap>~&nbsp;'
-                .
+                    .
                 PUT UNFORMATTED
                     '</td>' SKIP
                     .
@@ -1353,6 +1332,58 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pLoadDowntime Dialog-Frame
+PROCEDURE pLoadDowntime:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE cSearchDir AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cFileName  AS CHARACTER NO-UNDO FORMAT "X(60)".
+    DEFINE VARIABLE cAttrList  AS CHARACTER NO-UNDO FORMAT "X(4)".
+    DEFINE VARIABLE cListItems AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE idx        AS INTEGER   NO-UNDO.
+    
+    ASSIGN
+        cSearchDir = SEARCH("schedule/load.log")
+        cSearchDir = REPLACE(cSearchDir,"\load.log","")
+        FILE-INFO:FILE-NAME = cSearchDir
+        .
+    INPUT FROM OS-DIR(cSearchDir) NO-ECHO.
+    REPEAT:
+        SET cFileName ^ cAttrList.
+        IF cAttrList NE "f" THEN NEXT.
+        IF INDEX(cFileName,"downtimes.") EQ 0 THEN NEXT.
+        IF INDEX(cFileName,".dat") EQ 0 THEN NEXT.
+        cListItems = cListItems + cFileName + ",".
+    END. /* repeat */
+    INPUT CLOSE.
+    cListItems = TRIM(cListItems,",").
+
+    EMPTY TEMP-TABLE ttblDowntime.
+    DO idx = 1 TO NUM-ENTRIES(cListItems):
+        INPUT FROM "schedule/downtimes.ASI.Folding.dat" NO-ECHO.
+        REPEAT:
+            IMPORT tempDowntime.
+            tempDowntime.dayID = tempDowntime.dayID MODULO 7.
+            IF tempDowntime.dayID EQ 0 THEN
+            tempDowntime.dayID = 7.
+            CREATE ttblDowntime.
+            BUFFER-COPY tempDowntime TO ttblDowntime.
+            ttblDowntime.startDateTime = numericDateTime(ttblDowntime.startDate,ttblDowntime.startTime).
+            ttblDowntime.endDateTime = numericDateTime(ttblDowntime.startDate,ttblDowntime.endTime).
+        END. /* repeat */
+        INPUT CLOSE.
+    END. /* do idx */
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pScheduleJob Dialog-Frame 
 PROCEDURE pScheduleJob :

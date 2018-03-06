@@ -16,7 +16,7 @@ def buffer xxreport     for report.
 
 {oe/rep/oe-lad.i}
 DEF VAR ls-image1       AS CHAR                          NO-UNDO.
-DEF VAR ls-full-img1    AS CHAR FORMAT "x(80)"           NO-UNDO.
+DEF VAR ls-full-img1    AS CHAR FORMAT "x(200)"           NO-UNDO.
 
 def var v-salesman          as   char format "x(26)".
 def var v-fob               as   char format "x(12)".

@@ -458,26 +458,25 @@ PROCEDURE local-change-page :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
+    DEF VAR il-cur-page AS INT NO-UNDO.
+    DEF VAR hPgmSecurity AS HANDLE NO-UNDO.
+    DEF VAR lResult AS LOG NO-UNDO.
 
-  /* Code placed here will execute PRIOR to standard behavior. */
-
-  run get-attribute ("current-page").
-  assign il-cur-page = int(return-value).
+    run get-attribute ("current-page").
+    assign 
+        il-cur-page = int(return-value).
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'change-page':U ) .
 
-   IF il-cur-page = 2 THEN DO:
-     FIND FIRST users NO-LOCK WHERE 
-         users.user_id EQ USERID(LDBNAME(1)) 
-         NO-ERROR.
-     IF AVAIL users AND users.securityLevel LE 999 THEN
-         RUN set-buttons IN h_p-updsav ('disable-all').
-   END.
+    IF il-cur-page = 2 THEN DO:
+        RUN "system/PgmMstrSecur.p" PERSISTENT SET hPgmSecurity.
+        RUN epCanAccess IN hPgmSecurity ("sys/help/w-head.w", "", OUTPUT lResult).
+        DELETE OBJECT hPgmSecurity.
+        IF NOT lResult THEN 
+            RUN set-buttons IN h_p-updsav ('disable-all').
+    END.
   
-  /* Code placed here will execute AFTER standard behavior.    */
-  
-
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

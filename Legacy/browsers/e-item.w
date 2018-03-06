@@ -439,16 +439,10 @@ PROCEDURE local-open-query :
      
     ll-first-rec = YES.
     CREATE e-item-vend.
-    BUFFER-COPY bf-eitem EXCEPT rec_key run-qty run-cost TO e-item-vend
+    BUFFER-COPY bf-eitem EXCEPT rec_key TO e-item-vend
     ASSIGN
      e-item-vend.item-type = YES
      e-item-vend.vend-no   = "".
-    DO i = 1 TO 10:
-        ASSIGN
-            e-item-vend.run-qty[i] = bf-eitem.run-qty[i]
-            e-item-vend.run-cost[i] = bf-eitem.run-cost[i].
-    END.
-            
   END.
 
   FIND bf-item WHERE ROWID(bf-item) = ROWID(item).

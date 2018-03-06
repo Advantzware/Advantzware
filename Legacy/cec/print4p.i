@@ -42,35 +42,15 @@
      ctrl[18] = int(ce-ctrl.spec-add[8])
      v-gsa    = index("SB",ce-ctrl.sell-by) eq 0.
      
-  FIND FIRST reftable-broker-pct
-       WHERE reftable-broker-pct.reftable EQ "ce-ctrl.broker-pct"
-         AND reftable-broker-pct.company  EQ ce-ctrl.company
-         AND reftable-broker-pct.loc      EQ ce-ctrl.loc
-       NO-LOCK NO-ERROR.
 
-  IF AVAIL reftable-broker-pct THEN
-     ctrl[19] = reftable-broker-pct.val[1].
+     ctrl[19] = ce-ctrl.broker-pct.
 
-  FIND FIRST reftable NO-LOCK
-      WHERE reftable.reftable EQ "ce-ctrl.fg-rate-farm"
-        AND reftable.company  EQ ce-ctrl.company
-        AND reftable.loc      EQ ce-ctrl.loc
-      NO-ERROR.  
-  fg-rate-f = IF AVAIL reftable THEN reftable.val[1] ELSE 0.
+  fg-rate-f = ce-ctrl.fg-rate-farm.
+ 
+  rm-rate-f = ce-ctrl.rm-rate-farm.
 
-  FIND FIRST reftable NO-LOCK
-      WHERE reftable.reftable EQ "ce-ctrl.rm-rate-farm"
-        AND reftable.company  EQ ce-ctrl.company
-        AND reftable.loc      EQ ce-ctrl.loc
-      NO-ERROR.  
-  rm-rate-f = IF AVAIL reftable THEN reftable.val[1] ELSE 0.
-
-  FIND FIRST reftable NO-LOCK
-      WHERE reftable.reftable EQ "ce-ctrl.hand-pct-farm"
-        AND reftable.company  EQ ce-ctrl.company
-        AND reftable.loc      EQ ce-ctrl.loc
-      NO-ERROR.    
-  hand-pct-f = (IF AVAIL reftable THEN reftable.val[1] ELSE 0) / 100.
+  
+  hand-pct-f = ce-ctrl.hand-pct-farm / 100.
 
   find first xop where xop.company = xest.company and
                        xop.est-no = xest.est-no and
@@ -220,11 +200,13 @@
                        input-output v-match-up, INPUT-OUTPUT v-do-all-forms-ink, INPUT-OUTPUT v-board-cost-from-blank, input no, output lv-error). 
      if lv-error then return error.
 
-     IF lv-override THEN
-     for each probe where probe.company = xest.company and
-                       probe.est-no = xest.est-no:
-        delete probe.                 
-     end.
+     IF lv-override THEN DO:
+         for each probe where probe.company = xest.company and
+                           probe.est-no = xest.est-no:
+            delete probe.                 
+         end.
+         RUN est\CostResetHeaders.p(ROWID(xest), ROWID(job)).
+     END.
   
      DO i = 1 TO EXTENT(qtty):
         ASSIGN
@@ -278,6 +260,7 @@
 
   DO TRANSACTION:
     {est/op-lock.i xest}
+
     FIND xef WHERE RECID(xef) EQ lv-ef-recid .
     FIND xef WHERE RECID(xef) EQ lv-ef-recid NO-LOCK.
     FIND est WHERE RECID(est) EQ RECID(xest).
@@ -293,6 +276,7 @@
     FIND xest WHERE RECID(xest) EQ RECID(est) NO-LOCK.
     FIND CURRENT recalc-mr NO-LOCK.
     FIND CURRENT op-lock NO-LOCK.  
+     
   END.
 
   session:set-wait-state("General").
@@ -451,7 +435,7 @@
     qty = qtty[k] * IF xeb.yld-qty EQ 0 THEN 1 ELSE xeb.yld-qty.
     if qty = 0 then leave loupe.
     vmcl = k.
-
+    iMasterQuantity = qtty[k].
     {est/probeset.i qtty[k] v-match-up}
 
     maxpage = k.

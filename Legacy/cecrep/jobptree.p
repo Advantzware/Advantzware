@@ -62,7 +62,7 @@ DEFINE NEW SHARED VARIABLE v-adder-4 AS CHARACTER FORMAT "X(10)" NO-UNDO.
 DEFINE NEW SHARED VARIABLE v-adder-5 AS CHARACTER FORMAT "X(10)" NO-UNDO.
 DEFINE NEW SHARED VARIABLE v-adder-6 AS CHARACTER FORMAT "X(10)" NO-UNDO.
 DEFINE VARIABLE ls-image1 AS cha NO-UNDO.
-DEFINE VARIABLE ls-full-img1 AS cha FORM "x(150)" NO-UNDO.
+DEFINE VARIABLE ls-full-img1 AS cha FORM "x(200)" NO-UNDO.
 
 DEFINE VARIABLE cStdHours AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cRunHours AS CHARACTER NO-UNDO.
@@ -75,6 +75,7 @@ ls-full-img1 = FILE-INFO:FULL-PATHNAME + ">".
 
 
 DEFINE BUFFER b-itemfg FOR itemfg.
+DEF BUFFER b-job-hdr FOR job-hdr.
 
 RUN sys/ref/ordtypes.p (OUTPUT lv-sts-code, OUTPUT lv-sts-desc).
 
@@ -232,21 +233,9 @@ ASSIGN
       
        IF s-prt-ship-split THEN
        DO:
-          FIND FIRST reftable WHERE
-               reftable.reftable EQ "SPLITSHIP" AND
-               reftable.company  EQ cocode AND
-               reftable.loc      EQ job-hdr.job-no AND
-               reftable.CODE     EQ STRING(job-hdr.job-no2,"99")
-               NO-LOCK NO-ERROR.
-         
-          IF NOT AVAILABLE reftable THEN DO:
-             CREATE reftable.
-             ASSIGN
-                reftable.reftable = "SPLITSHIP"
-                reftable.company  = cocode
-                reftable.loc      = job-hdr.job-no
-                reftable.CODE     = STRING(job-hdr.job-no2,"99").
-          END.
+          FIND FIRST b-job-hdr where ROWID(b-job-hdr) = ROWID(job-hdr) EXCLUSIVE-LOCK NO-ERROR.
+             ASSIGN b-job-hdr.splitShip = YES.
+          Release b-job-hdr. 
        END.
 
        /* get whether warehous item or not */
@@ -441,9 +430,9 @@ ASSIGN
        IF AVAILABLE stackPattern AND SEARCH(stackPattern.stackImage) NE ? THEN lv-spattern-img =  stackPattern.stackImage.
        
        PUT "<P10></PROGRESS>" SKIP(0.5) "<FCourier New><C2><B>" lv-au "<C33>" lv-est-type "</B>".
-       PUT "<P12><B><C94>JOB TICKET" SKIP. /*AT 140*/  /*caps(SUBSTRING(v-fg,1,1)) FORM "x" AT 40*/       
+       PUT "<P12><B><C95>JOB TICKET" SKIP. /*AT 140*/  /*caps(SUBSTRING(v-fg,1,1)) FORM "x" AT 40*/       
       
-       PUT UNFORMATTED "<r-2.6><UNITS=INCHES><C75><FROM><c93.8><r+2.6><BARCODE,TYPE=39,CHECKSUM=NONE,VALUE="
+       PUT UNFORMATTED "<r-2.7><UNITS=INCHES><C68><FROM><c95.8><r+2.7><BARCODE,TYPE=39,CHECKSUM=NONE,VALUE="
               cJobNumber ">" SKIP "<r-1>".
        PUT
        "<#1><C1><FROM><C106><R+45><RECT><||3><C80><P10></B>" v-qa-text "<B>"
@@ -469,7 +458,7 @@ ASSIGN
        "<=1><R+40><C71><P8><U>Sheets Ordered:</U>          <U>Due Date:</U>      <U>Supplier:</U>"
        "<=1><R+40><C86><FROM><R+5><LINE><||3>"   
        "<=1><R+40><C96><FROM><R+5><LINE><||3>"
-       "<=1><R+0.2><C56><#22><R+7.5><C+17.6><IMAGE#22=" ls-full-img1 /*+ ">"*/ FORM "x(170)"
+       "<=1><R+0.2><C56><#22><R+7.5><C+17.6><IMAGE#22=" ls-full-img1 /*+ ">"*/ FORM "x(200)"
        "<=1><R+27.2><C23><#22><R+5><C+9.7><IMAGE#22=" lv-spattern-img + ">" FORM "x(70)".  /*Stack pattern image*/
 
        VIEW FRAME head.  /* factory header display  */  
@@ -565,9 +554,12 @@ ASSIGN
            v-ink-2 = ""
            v-ink-3 = ""
            v-ink-4 = ""
-           v-ink-5 = "".
+           v-ink-5 = ""
+           v-ink-6 = ""
+           v-ink-7 = ""
+           v-ink-8 = "".
 
-        DO v-i = 1 TO 5:
+        DO v-i = 1 TO 8:
            IF b-eb.i-code[v-i] <> "" THEN DO:
                FIND FIRST w-i WHERE w-i.i-code = b-eb.i-code[v-i] NO-ERROR.
                IF AVAILABLE w-i THEN DO:
@@ -589,6 +581,18 @@ ASSIGN
                                           IF w-i.i-dscr <> "" THEN "LBS" ELSE "".
                   ELSE IF v-ink-5 = "" THEN
                      ASSIGN v-ink-5 =  w-i.i-dscr +
+                                         (IF w-i.i-qty <> 0 THEN STRING(w-i.i-qty,">>>,>>9") ELSE "" ) +
+                                          IF w-i.i-dscr <> "" THEN "LBS" ELSE "".
+                  ELSE IF v-ink-6 = "" THEN
+                     ASSIGN v-ink-6 =  w-i.i-dscr +
+                                         (IF w-i.i-qty <> 0 THEN STRING(w-i.i-qty,">>>,>>9") ELSE "" ) +
+                                          IF w-i.i-dscr <> "" THEN "LBS" ELSE "".
+                  ELSE IF v-ink-7 = "" THEN
+                     ASSIGN v-ink-7 =  w-i.i-dscr +
+                                         (IF w-i.i-qty <> 0 THEN STRING(w-i.i-qty,">>>,>>9") ELSE "" ) +
+                                          IF w-i.i-dscr <> "" THEN "LBS" ELSE "".
+                  ELSE IF v-ink-8 = "" THEN
+                     ASSIGN v-ink-8 =  w-i.i-dscr +
                                          (IF w-i.i-qty <> 0 THEN STRING(w-i.i-qty,">>>,>>9") ELSE "" ) +
                                           IF w-i.i-dscr <> "" THEN "LBS" ELSE "".
                END. /* IF AVAIL w-i THEN DO: */
@@ -616,7 +620,7 @@ ASSIGN
                       AND xoe-rel.i-no    EQ v-fg
                       NO-ERROR.
           END.
-
+           IF AVAIL xoe-rel THEN
            ASSIGN cCustpo-name = xoe-rel.lot-no.
         
          IF AVAILABLE xoe-rel AND cCustpo-name = "" THEN
@@ -1007,11 +1011,21 @@ ASSIGN
 
         IF print-box AND AVAILABLE xest THEN DO:
             /*PAGE. */
-            v-out1-id = RECID(xeb).
-            RUN cec/desprnL2.p (RECID(xef),
-                               INPUT-OUTPUT v-lines,
-                               RECID(xest)).            
+            IF xest.metric THEN do:
+             v-out1-id = RECID(xeb).
+               run cec/desprnptree.p (RECID(xef),
+                                INPUT-OUTPUT v-lines,
+                                RECID(xest)).         
             PAGE.
+            END.
+            ELSE DO:
+                v-out1-id = RECID(xeb).
+             RUN cec/desprnL2.p (RECID(xef),
+                                INPUT-OUTPUT v-lines,
+                                RECID(xest)).            
+             PAGE.
+
+            END.
         END.
         ELSE PAGE.
         /* print fgitem's image */

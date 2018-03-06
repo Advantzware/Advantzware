@@ -22,11 +22,7 @@ DO li = 1 TO EXTENT({&TABLENAME}.att-qty):
 END.
 
 IF {&TABLENAME}.line LT 500 THEN DO:
-  IF {&TABLENAME}.line NE old-{&TABLENAME}.line THEN
-  FOR EACH {sys/inc/machposwW.i reftable {&TABLENAME}}:
-    reftable.loc = STRING({&TABLENAME}.line,"9999999999").
-  END.
-
+  
   FIND FIRST est
       WHERE est.company EQ {&TABLENAME}.company
         AND est.est-no  EQ {&TABLENAME}.est-no

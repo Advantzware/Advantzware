@@ -84,7 +84,7 @@ DEFINE VARIABLE lFirstLine AS LOGICAL     NO-UNDO.
 FIND FIRST inv-head NO-LOCK NO-ERROR.
 /* === with xprint ====*/
 DEF VAR ls-image1 AS cha NO-UNDO.
-DEF VAR ls-full-img1 AS cha FORM "x(150)" NO-UNDO.
+DEF VAR ls-full-img1 AS cha FORM "x(200)" NO-UNDO.
 /*ASSIGN ls-image1 = "images\premiercan.jpg"          */
 /*       FILE-INFO:FILE-NAME = ls-image1.             */
 /*       ls-full-img1 = FILE-INFO:FULL-PATHNAME + ">".*/
@@ -439,6 +439,8 @@ END.
           else
             assign v-price-head = inv-line.pr-uom.
         end.
+        
+
         
         /* rstark 05181205 */
         XMLLineNumber = 0.
@@ -1037,6 +1039,22 @@ END.
     IF v-printline <= 66 THEN page.
     
     {XMLOutput/XMLOutput.i &c=c &XMLClose} /* rstark 05291402 */
+    /* Create eddoc for invoice if required */
+    RUN ed/asi/o810hook.p (recid(inv-head), no, no).     
+    FIND FIRST edmast NO-LOCK
+          WHERE edmast.cust EQ inv-head.cust-no
+          NO-ERROR.
+   IF AVAIL edmast THEN DO: 
+     FIND FIRST edcode NO-LOCK
+       WHERE edcode.partner EQ edmast.partner
+     NO-ERROR.
+     IF NOT AVAIL edcode THEN 
+       FIND FIRST edcode NO-LOCK
+            WHERE edcode.partner EQ edmast.partnerGrp
+            NO-ERROR.
+   END.  
+   IF AVAIL edcode AND edcode.sendFileOnPrint THEN    
+    RUN ed/asi/write810.p (INPUT cocode).    
   end. /* each xinv-head */
 
 {XMLOutput/XMLOutput.i &XMLClose} /* rstark 05181205 */

@@ -1099,11 +1099,8 @@ PROCEDURE leave-tag :
            AND b-fg-rctd.i-no = fg-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name} 
            AND b-fg-rctd.rita-code = "T" 
            AND ROWID(b-fg-rctd) NE ROWID (fg-rctd)
+           AND b-fg-rctd.created-by = USERID("nosweat")
          NO-LOCK:
-
-            IF b-fg-rctd.created-by = "" THEN DO:
-                   ASSIGN b-fg-rctd.created-by = USERID("nosweat").
-            END.    
         
         ASSIGN fg-rctd.loc2:SCREEN-VALUE = b-fg-rctd.loc2
                fg-rctd.loc-bin2:SCREEN-VALUE = b-fg-rctd.loc-bin2.
@@ -2201,7 +2198,7 @@ PROCEDURE valid-qty :
 ------------------------------------------------------------------------------*/
     IF {&BROWSE-NAME}:NUM-SELECTED-ROWS   IN FRAME {&FRAME-NAME} = 0 THEN 
       RETURN.
-  (fg-rctd.cases * fg-rctd.qty-case) + fg-rctd.partial.
+  /* (fg-rctd.cases * fg-rctd.qty-case) + fg-rctd.partial. */
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

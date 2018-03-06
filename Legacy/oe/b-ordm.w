@@ -1147,13 +1147,8 @@ PROCEDURE create-reft4prep :
 
   IF CAN-FIND(FIRST prep WHERE prep.company EQ oe-ord.company 
                    AND prep.code EQ oe-ordm.charge /*AND prep.mat-type = "P"*/) AND
-     NOT CAN-FIND(FIRST reftable
-                  WHERE reftable.reftable EQ "oe/ordlmisc.p"
-                    AND reftable.company  EQ oe-ordm.company
-                    AND reftable.loc      EQ STRING(oe-ordm.ord-no,"9999999999")
-                    AND reftable.code     EQ STRING(oe-ordm.line,"9999999999")
-                    AND reftable.code2    EQ oe-ordm.charge
-                    AND reftable.val[1] = 1)
+                   AVAIL oe-ordm AND 
+                  (oe-ordm.miscType <> 1 )
   THEN DO:
       lv-prep-cnt = 0.
       FOR EACH est-prep NO-LOCK WHERE est-prep.company EQ oe-ordm.company
@@ -1184,18 +1179,14 @@ PROCEDURE create-reft4prep :
                       AND est-prep.code    EQ oe-ordm.charge
                       AND est-prep.simon   EQ "S"
                       AND est-prep.amtz    EQ 100  NO-ERROR.
-      CREATE reftable.
-      ASSIGN reftable.reftable = "oe/ordlmisc.p"
-             reftable.company  = oe-ordm.company
-             reftable.loc      = STRING(oe-ordm.ord-no,"9999999999")
-             reftable.code     = STRING(oe-ordm.line,"9999999999")
-             reftable.code2    = oe-ordm.charge
-             reftable.val[1] = 1.
-      IF AVAIL est-prep THEN
-         ASSIGN reftable.val[2]   = est-prep.eqty
-                reftable.val[3]   = est-prep.line
-                reftable.dscr     = est-prep.est-no.    
 
+      
+        IF AVAIL est-prep THEN
+         ASSIGN 
+             oe-ordm.miscType = 1
+             oe-ordm.estPrepEqty   = est-prep.eqty
+             oe-ordm.estPrepLine   = est-prep.line
+             oe-ordm.est-no  = est-prep.est-no.  
   END.
 
 END PROCEDURE.
@@ -1400,7 +1391,23 @@ PROCEDURE local-create-record :
   FIND FIRST ar-ctrl WHERE ar-ctrl.company = oe-ord.company NO-LOCK NO-ERROR.
   IF AVAIL ar-ctrl THEN oe-ordm.actnum = ar-ctrl.sales.
   FIND FIRST cust OF oe-ord NO-LOCK.
+
   oe-ordm.tax = cust.sort = "Y" AND oe-ord.tax-gr <> "".
+  
+  FIND FIRST oe-ctrl NO-LOCK
+       WHERE oe-ctrl.company = oe-ord.company
+      NO-ERROR.
+  FIND FIRST shipto NO-LOCK
+       WHERE shipto.company EQ cocode
+         AND shipto.cust-no EQ oe-ord.cust-no
+         NO-ERROR.
+   
+  IF AVAIL oe-ctrl AND oe-ctrl.prep-chrg THEN
+      ASSIGN oe-ordm.spare-char-1 = IF AVAIL shipto AND shipto.tax-code NE "" THEN shipto.tax-code
+                                    ELSE IF AVAIL cust AND cust.spare-char-1 <> "" THEN cust.spare-char-1 
+                                    ELSE oe-ord.tax-gr
+                oe-ordm.tax = TRUE .
+
   
   i = 0 .
   FOR EACH bf-ordl OF oe-ord NO-LOCK:
@@ -1412,12 +1419,21 @@ PROCEDURE local-create-record :
           FIND FIRST bf-ordl OF oe-ord NO-LOCK NO-ERROR.
       IF AVAIL bf-ordl THEN
           ASSIGN
-          oe-ordm.spare-char-2 = bf-ordl.i-no .
+          oe-ordm.spare-char-2 = bf-ordl.i-no 
+          oe-ordm.ord-i-no  = bf-ordl.job-no
+          oe-ordm.ord-line  = bf-ordl.job-no2 .
   END.
   ELSE DO:
-      RUN cec/mis-ordfg.p (RECID(oe-ord),OUTPUT v-fgitem,OUTPUT lv-error ) NO-ERROR.
+      RUN cec/mis-ordfg.w (RECID(oe-ord),OUTPUT v-fgitem,OUTPUT lv-error ) NO-ERROR.
       ASSIGN
-          oe-ordm.spare-char-2 = v-fgitem  .
+          oe-ordm.spare-char-2 = v-fgitem .
+      IF AVAIL oe-ord THEN
+          FIND FIRST bf-ordl OF oe-ord 
+          WHERE bf-ordl.i-no EQ v-fgitem NO-LOCK NO-ERROR.
+        IF AVAIL bf-ordl THEN
+            ASSIGN
+            oe-ordm.ord-i-no  = bf-ordl.job-no
+            oe-ordm.ord-line  = bf-ordl.job-no2 .
   END.
 
 END PROCEDURE.
@@ -1600,10 +1616,19 @@ PROCEDURE new-charge :
         oe-ordm.amt:SCREEN-VALUE = STRING(markUp).
 
       FIND cust OF oe-ord NO-LOCK.
-      IF PrepTax-log THEN 
-         ASSIGN oe-ordm.spare-char-1:SCREEN-VALUE = IF cust.spare-char-1 <> "" THEN cust.spare-char-1 ELSE oe-ord.tax-gr
-                oe-ordm.tax:SCREEN-VALUE = STRING(TRUE)
-                .
+
+      FIND FIRST oe-ctrl NO-LOCK
+       WHERE oe-ctrl.company = oe-ord.company
+      NO-ERROR.
+      FIND FIRST shipto NO-LOCK
+          WHERE shipto.company EQ cocode
+          AND shipto.cust-no EQ oe-ord.cust-no
+         NO-ERROR.
+      IF AVAIL oe-ctrl AND oe-ctrl.prep-chrg THEN
+         ASSIGN oe-ordm.spare-char-1:SCREEN-VALUE = IF AVAIL shipto AND shipto.tax-code NE "" THEN shipto.tax-code
+                                                    ELSE IF AVAIL cust AND cust.spare-char-1 <> "" THEN cust.spare-char-1 
+                                                    ELSE oe-ord.tax-gr
+                oe-ordm.tax:SCREEN-VALUE = STRING(TRUE) .
 
       FIND FIRST account
           WHERE account.company EQ oe-ord.company
@@ -1913,24 +1938,15 @@ PROCEDURE valid-charge :
                     AND prep.code    EQ ip-focus:SCREEN-VALUE).
 
     IF NOT ll THEN DO:
-      FIND FIRST reftable NO-LOCK
-          WHERE reftable.reftable EQ "oe/ordlmisc.p"
-            AND reftable.company  EQ oe-ordm.company
-            AND reftable.loc      EQ STRING(oe-ordm.ord-no,"9999999999")
-            AND reftable.code     EQ STRING(oe-ordm.line,"9999999999")
-            AND reftable.code2    EQ ip-focus:SCREEN-VALUE
-            AND reftable.val[1]   EQ 2
-            AND reftable.dscr     NE ""
-          NO-ERROR.
+      
 
-
-      ll = AVAIL reftable and
+      ll = AVAIL oe-ordm and
            CAN-FIND(FIRST ef
-                    WHERE ef.company EQ reftable.company
-                      AND ef.est-no  EQ reftable.dscr
-                      AND ef.eqty    EQ reftable.val[2]
-                      AND ef.form-no EQ INTEGER(reftable.val[3])
-                      AND ef.mis-cost[INTEGER(reftable.val[4])] EQ reftable.code2).
+                    WHERE ef.company EQ oe-ordm.company
+                      AND ef.est-no  EQ oe-ordm.est-no
+                      AND ef.eqty    EQ oe-ordm.estPrepEqty
+                      AND ef.form-no EQ oe-ordm.estPrepLine
+                      AND ef.mis-cost[INTEGER(oe-ordm.miscInd)] EQ oe-ordm.charge).
     END.
 
     IF NOT ll THEN DO:

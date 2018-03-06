@@ -16,6 +16,7 @@ sbName = IF INDEX(PROGRAM-NAME(2),'sbPro.')    NE 0 THEN 'sbPro.'
     ELSE IF INDEX(PROGRAM-NAME(2),'sbHTML.')   NE 0 THEN 'sbHTML.'
     ELSE IF INDEX(PROGRAM-NAME(2),'sbReport.') NE 0 THEN 'sbReport.'
     ELSE IF INDEX(PROGRAM-NAME(2),'sbStatus.') NE 0 THEN 'sbStatus.'
+    ELSE IF INDEX(PROGRAM-NAME(2),'sbJScan.') NE 0 THEN 'sbJScan.'
     ELSE ''
     .
 

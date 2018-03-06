@@ -2690,30 +2690,11 @@ PROCEDURE update-plate-die :
       IF AVAIL prep THEN DO:
         ASSIGN prep.no-of-impressions = prep.no-of-impressions +
                                         tt-prdd.qty +
-                                        tt-prdd.waste.
-               prep.last-date         = tt-prdd.op-date.
-
-        FIND FIRST reftable WHERE
-             reftable.reftable EQ "PREPLASTJOB" AND
-             reftable.company  EQ prep.company AND
-             reftable.loc      EQ prep.loc AND
-             reftable.code     EQ prep.CODE
-             NO-ERROR.
-
-        IF NOT AVAIL reftable THEN DO:
-          CREATE reftable.
-          ASSIGN
-            reftable.reftable = "PREPLASTJOB"
-            reftable.company  = prep.company
-            reftable.loc      = prep.loc
-            reftable.code     = prep.CODE. 
-        END.
-        
-        ASSIGN
-          reftable.code2    = tt-prdd.job-no
-          reftable.val[1]   = tt-prdd.job-no2.
-
-        RELEASE reftable.
+                                        tt-prdd.waste
+               prep.last-date         = tt-prdd.op-date
+               prep.last-job-no       = tt-prdd.job-no
+               prep.last-job-no2      = tt-prdd.job-no2
+               .
         RELEASE prep.
       END.
   END. 
@@ -2900,14 +2881,9 @@ PROCEDURE valid-m-code :
     IF NOT AVAIL mach THEN lv-msg = "Invalid entry, try help".
 
     IF lv-msg EQ ""                           AND
-       CAN-FIND(FIRST reftable
-                WHERE reftable.reftable EQ "mach.obsolete"
-                  AND reftable.company  EQ mach.company
-                  AND reftable.loc      EQ mach.loc
-                  AND reftable.code     EQ mach.m-code
-                  AND reftable.val[1]   EQ 1) THEN
+      mach.obsolete THEN DO:
       lv-msg = "Machine is obsolete, please enter new machine".
-
+    END.
     IF lv-msg NE "" THEN DO:
       MESSAGE TRIM(lv-msg) + "..." VIEW-AS ALERT-BOX ERROR.
       APPLY "entry" TO tt-prdd.m-code IN BROWSE {&browse-name}.
