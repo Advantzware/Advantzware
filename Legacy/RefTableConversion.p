@@ -38,40 +38,40 @@ ASSIGN
 
 
 
-ASSIGN cError = ""
-       startTime = MTIME
-       .
-ASSIGN 
-    iCount = oRefTableMigration:STYFLU(iProcessCount) NO-ERROR.
-IF ERROR-STATUS:ERROR THEN ASSIGN cError = "Error occured while reftable conversion.".
-CREATE ttResults.
-ASSIGN 
-    ttResults.cReftable    = "STYFLU"
-    ttResults.iRecordCount = iCount
-    ttResults.cConvError   = cError
-    ttResults.timetaken    = (MTIME - startTime) / 1000
-    .            
-MESSAGE "STYFLU reftable data migration complete. Record Count:" + STRING(iCount)
-        + " Time Taken: " STRING(ttResults.timetaken).
+/*ASSIGN cError = ""                                                                    */
+/*       startTime = MTIME                                                              */
+/*       .                                                                              */
+/*ASSIGN                                                                                */
+/*    iCount = oRefTableMigration:STYFLU(iProcessCount) NO-ERROR.                       */
+/*IF ERROR-STATUS:ERROR THEN ASSIGN cError = "Error occured while reftable conversion.".*/
+/*CREATE ttResults.                                                                     */
+/*ASSIGN                                                                                */
+/*    ttResults.cReftable    = "STYFLU"                                                 */
+/*    ttResults.iRecordCount = iCount                                                   */
+/*    ttResults.cConvError   = cError                                                   */
+/*    ttResults.timetaken    = (MTIME - startTime) / 1000                               */
+/*    .                                                                                 */
+/*MESSAGE "STYFLU reftable data migration complete. Record Count:" + STRING(iCount)     */
+/*        + " Time Taken: " STRING(ttResults.timetaken).                                */
 
 
 
 
-    ASSIGN cError = ""
-           startTime = MTIME
-           .
-    ASSIGN
-        iCount = oRefTableMigration:STYSCORE(iProcessCount) NO-ERROR.
-    IF ERROR-STATUS:ERROR THEN ASSIGN cError = "Error occured while reftable conversion.".
-    CREATE ttResults.
-    ASSIGN
-        ttResults.cReftable    = "STYSCORE"
-        ttResults.iRecordCount = iCount
-        ttResults.cConvError   = cError
-        ttResults.timetaken    = (MTIME - startTime) / 1000
-        .
-    MESSAGE "STYSCORE reftable data migration complete. Record Count:" + STRING(iCount)
-            + " Time Taken: " STRING(ttResults.timetaken).
+/*    ASSIGN cError = ""                                                                    */
+/*           startTime = MTIME                                                              */
+/*           .                                                                              */
+/*    ASSIGN                                                                                */
+/*        iCount = oRefTableMigration:STYSCORE(iProcessCount) NO-ERROR.                     */
+/*    IF ERROR-STATUS:ERROR THEN ASSIGN cError = "Error occured while reftable conversion.".*/
+/*    CREATE ttResults.                                                                     */
+/*    ASSIGN                                                                                */
+/*        ttResults.cReftable    = "STYSCORE"                                               */
+/*        ttResults.iRecordCount = iCount                                                   */
+/*        ttResults.cConvError   = cError                                                   */
+/*        ttResults.timetaken    = (MTIME - startTime) / 1000                               */
+/*        .                                                                                 */
+/*    MESSAGE "STYSCORE reftable data migration complete. Record Count:" + STRING(iCount)   */
+/*            + " Time Taken: " STRING(ttResults.timetaken).                                */
 
 
 
@@ -183,6 +183,7 @@ MESSAGE "STYFLU reftable data migration complete. Record Count:" + STRING(iCount
 
     ASSIGN cError = ""
            startTime = MTIME
+           iCount = 0
            .
     ASSIGN
         iCount = oRefTableMigration:OeOrdWhsOrder(iProcessCount) NO-ERROR.
@@ -234,21 +235,21 @@ MESSAGE "STYFLU reftable data migration complete. Record Count:" + STRING(iCount
             + " Time Taken: " STRING(ttResults.timetaken).
 
 
-    ASSIGN cError = ""
-           startTime = MTIME
-           .
-    ASSIGN
-        iCount = oRefTableMigration:FgRctdUserId(iProcessCount) NO-ERROR.
-    IF ERROR-STATUS:ERROR THEN ASSIGN cError = "Error occured while reftable conversion.".
-    CREATE ttResults.
-    ASSIGN
-        ttResults.cReftable    = "fg-rctd.user-id"
-        ttResults.iRecordCount = iCount
-        ttResults.cConvError   = cError
-        ttResults.timetaken    = (MTIME - startTime) / 1000
-        .
-    MESSAGE "fg-rctd.user-id reftable data migration complete. Record Count:" + STRING(iCount)
-            + " Time Taken: " STRING(ttResults.timetaken).
+/*    ASSIGN cError = ""                                                                        */
+/*           startTime = MTIME                                                                  */
+/*           .                                                                                  */
+/*    ASSIGN                                                                                    */
+/*        iCount = oRefTableMigration:FgRctdUserId(iProcessCount) NO-ERROR.                     */
+/*    IF ERROR-STATUS:ERROR THEN ASSIGN cError = "Error occured while reftable conversion.".    */
+/*    CREATE ttResults.                                                                         */
+/*    ASSIGN                                                                                    */
+/*        ttResults.cReftable    = "fg-rctd.user-id"                                            */
+/*        ttResults.iRecordCount = iCount                                                       */
+/*        ttResults.cConvError   = cError                                                       */
+/*        ttResults.timetaken    = (MTIME - startTime) / 1000                                   */
+/*        .                                                                                     */
+/*    MESSAGE "fg-rctd.user-id reftable data migration complete. Record Count:" + STRING(iCount)*/
+/*            + " Time Taken: " STRING(ttResults.timetaken).                                    */
             
 
 
@@ -686,21 +687,21 @@ MESSAGE "STYFLU reftable data migration complete. Record Count:" + STRING(iCount
 
 
 
-    ASSIGN cError = ""
-           startTime = MTIME
-           .
-    ASSIGN
-        iCount = oRefTableMigration:EstOpLock(iProcessCount) NO-ERROR.
-    IF ERROR-STATUS:ERROR THEN ASSIGN cError = "Error occured while reftable conversion.".
-    CREATE ttResults.
-    ASSIGN
-        ttResults.cReftable    = "est.op-lock"
-        ttResults.iRecordCount = iCount
-        ttResults.cConvError   = cError
-        ttResults.timetaken    = (MTIME - startTime) / 1000
-        .
-    MESSAGE "est.op-lock reftable data migration complete. Record Count:" + STRING(iCount)
-            + " Time Taken: " STRING(ttResults.timetaken).
+/*    ASSIGN cError = ""                                                                    */
+/*           startTime = MTIME                                                              */
+/*           .                                                                              */
+/*    ASSIGN                                                                                */
+/*        iCount = oRefTableMigration:EstOpLock(iProcessCount) NO-ERROR.                    */
+/*    IF ERROR-STATUS:ERROR THEN ASSIGN cError = "Error occured while reftable conversion.".*/
+/*    CREATE ttResults.                                                                     */
+/*    ASSIGN                                                                                */
+/*        ttResults.cReftable    = "est.op-lock"                                            */
+/*        ttResults.iRecordCount = iCount                                                   */
+/*        ttResults.cConvError   = cError                                                   */
+/*        ttResults.timetaken    = (MTIME - startTime) / 1000                               */
+/*        .                                                                                 */
+/*    MESSAGE "est.op-lock reftable data migration complete. Record Count:" + STRING(iCount)*/
+/*            + " Time Taken: " STRING(ttResults.timetaken).                                */
 
 
 
@@ -877,22 +878,6 @@ MESSAGE "STYFLU reftable data migration complete. Record Count:" + STRING(iCount
         .
     MESSAGE "users.fax-cnty reftable data migration complete. Record Count:" + STRING(iCount)
             + " Time Taken: " STRING(ttResults.timetaken).
-    
-    ASSIGN cError = ""
-           startTime = MTIME
-           .
-    ASSIGN
-        iCount = oRefTableMigration:scoreType(iProcessCount) NO-ERROR.
-    IF ERROR-STATUS:ERROR THEN ASSIGN cError = "Error occured while reftable conversion.".
-    CREATE ttResults.
-    ASSIGN
-        ttResults.cReftable    = "scoreType"
-        ttResults.iRecordCount = iCount
-        ttResults.cConvError   = cError
-        ttResults.timetaken    = (MTIME - startTime) / 1000
-        .
-    MESSAGE "scoreType reftable data migration complete. Record Count:" + STRING(iCount)
-            + " Time Taken: " STRING(ttResults.timetaken).        
                                  
 
 
