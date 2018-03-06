@@ -25,7 +25,7 @@
       ASSIGN scenario.
       RETURN NO-APPLY.
     END.
-    ENABLE btnRemove btnReset WITH FRAME {&FRAME-NAME}.
+    ENABLE /*btnRemove*/ btnReset WITH FRAME {&FRAME-NAME}.
     ASSIGN
       scenario = SUBSTRING(scenario,R-INDEX(scenario,'\') + 1)
       scenario = REPLACE(scenario,'.dat','').

@@ -75,17 +75,8 @@ DEFINE {&NEW} SHARED VARIABLE g_lookup-var AS CHARACTER NO-UNDO.
 
 &SCOPED-DEFINE enable-shipto enable-shipto
 
-&SCOPED-DEFINE where-jded-id WHERE reftable.reftable EQ "JDEDWARDCUST#" ~
-                               AND reftable.company  EQ cocode          ~
-                               AND reftable.loc      EQ ""              ~
-                               AND reftable.code     EQ shipto.cust-no  ~
-                               AND reftable.code2    EQ shipto.ship-id
 
-&SCOPED-DEFINE where-mand-tax WHERE reftable.reftable EQ "shipto.mandatory-tax" ~
-                                AND reftable.company  EQ shipto.company         ~
-                                AND reftable.loc      EQ ""                     ~
-                                AND reftable.code     EQ shipto.cust-no         ~
-                                AND reftable.code2    EQ shipto.ship-id
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -181,7 +172,7 @@ DEFINE VARIABLE faxNumber AS CHARACTER FORMAT "xxx-xxxx":U
      SIZE 16 BY 1 NO-UNDO.
 
 DEFINE VARIABLE fi_jded-id AS CHARACTER FORMAT "X(256)":U 
-     LABEL "JD Edw#" 
+     LABEL "Export ID#" 
      VIEW-AS FILL-IN 
      SIZE 22 BY 1 NO-UNDO.
 
@@ -1136,37 +1127,18 @@ PROCEDURE reftable-values :
 
 
   IF AVAIL shipto THEN DO TRANSACTION:
-    FIND FIRST reftable {&where-jded-id} NO-ERROR.
-    IF NOT AVAIL reftable THEN DO:
-      CREATE reftable.
-      ASSIGN
-       reftable.reftable = "JDEDWARDCUST#"
-       reftable.company  = cocode
-       reftable.loc      = ""
-       reftable.code     = shipto.cust-no
-       reftable.code2    = shipto.ship-id.
-    END.
+      IF ip-display THEN
+        fi_jded-id = shipto.exportCustID.
+      ELSE
+        shipto.exportCustID = fi_jded-id.
+
+
+    
 
     IF ip-display THEN
-      fi_jded-id = reftable.dscr.
+      tb_mandatory-tax = shipto.tax-mandatory .
     ELSE
-      reftable.dscr = fi_jded-id.
-
-    FIND FIRST reftable {&where-mand-tax} NO-ERROR.
-    IF NOT AVAIL reftable THEN DO:
-      CREATE reftable.
-      ASSIGN
-       reftable.reftable = "shipto.mandatory-tax"
-       reftable.company  = shipto.company
-       reftable.loc      = ""
-       reftable.code     = shipto.cust-no
-       reftable.code2    = shipto.ship-id.
-    END.
-
-    IF ip-display THEN
-      tb_mandatory-tax = reftable.val[1] EQ 1.
-    ELSE
-      reftable.val[1] = INT(tb_mandatory-tax).
+      shipto.tax-mandatory = tb_mandatory-tax.
 
     FIND CURRENT reftable NO-LOCK.
   END.

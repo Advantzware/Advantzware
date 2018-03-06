@@ -353,6 +353,7 @@ DEF BUFFER bf-est FOR est.
 
             DO:
             {est/op-lock.i xest}
+            
                 FIND bf-est WHERE RECID(bf-est) EQ RECID(xest).
                 FIND CURRENT recalc-mr.
                 ASSIGN

@@ -75,8 +75,8 @@ save-qty = qty.
 
 FIND b-ef WHERE ROWID(b-ef) EQ ROWID(xef) NO-LOCK.
 
-{est/op-lock.i xest}
 
+{est/op-lock.i xest}
 IF op-lock.val[1] EQ 1 OR op-lock.val[2] EQ 1 THEN DO:
   RUN mach-loop (1).
 
@@ -163,14 +163,17 @@ IF op-lock.val[1] EQ 1 OR op-lock.val[2] EQ 1 /*AND ip-rowid EQ ?*/ THEN DO:
               BY est-op.b-num:
 
       IF NOT FIRST(est-op.s-num) THEN DO:
+
         IF op-lock.val[2] EQ 1 THEN
           IF LOOKUP(est-op.dept,"PR,CT") GT 0 THEN ERROR-STATUS:ERROR = YES.
           ELSE RUN est/gluer-mr.p (BUFFER est-op) NO-ERROR.
 
         IF ERROR-STATUS:ERROR THEN DO:
+
           IF op-lock.val[2] EQ 1 THEN
             IF LOOKUP(est-op.dept,"PR,CT") LE 0      OR
                est-op.plates + est-op.fountains EQ 0 THEN est-op.op-mr = 0.
+
 
           IF op-lock.val[1] EQ 1 THEN
             IF LOOKUP(est-op.dept,"PR,CT") LE 0      OR
@@ -384,6 +387,7 @@ FOR EACH est-op
        INDEX(PROGRAM-NAME(6),"order-from-est oe/v-ord") GT 0 AND
        est-op.LINE LT 500 THEN
        DO:
+
           {est/op-lock.i xest}
           ASSIGN
              op-lock.val[1] = 1

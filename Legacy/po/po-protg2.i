@@ -2,7 +2,7 @@
 
 PUT "<C1><#1><FArial>"   SKIP
     "<P14><C+45> <B>Purchase Order</B> <P10>" "     Page " string(PAGE-NUM,">>9") + " of <#PAGES>" FORM "x(20)" SKIP       
-    "<C3><R2><#2><R+8><C+40>" "<IMAGE#2=" + ls-full-img1 FORM "x(60)"  SKIP 
+    "<C3><R2><#2><R+8><C+40>" "<IMAGE#2=" + ls-full-img1 format "x(200)" SKIP 
     "<P12><=1><R+9>"   
     "<FCourier New>" SKIP(1)
     space(3) "Purchase Order To:"   "Ship To:" AT 50 SKIP

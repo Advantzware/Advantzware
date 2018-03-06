@@ -216,6 +216,8 @@ PROCEDURE ImportExcelData :
             tt-oe-prmtx.price[10]          = chWorkSheet:Range("AR" + STRING(iRowCount)):VALUE NO-ERROR.
             tt-oe-prmtx.discount[10]       = chWorkSheet:Range("AS" + STRING(iRowCount)):VALUE NO-ERROR.
             tt-oe-prmtx.uom[10]            = chWorkSheet:Range("AS" + STRING(iRowCount)):VALUE NO-ERROR.
+            tt-oe-prmtx.exp-date           = chWorkSheet:Range("AX" + STRING(iRowCount)):VALUE NO-ERROR.
+            
             ASSIGN
                 opiTotalCount      = opiTotalCount + 1
                 tt-oe-prmtx.row-no = iRowCount
@@ -484,7 +486,8 @@ PROCEDURE ProcessImportedData :
                     bf-oe-prmtx.price[10]    = tt-oe-prmtx.price[10]    
                     bf-oe-prmtx.discount[10] = tt-oe-prmtx.discount[10] 
                     bf-oe-prmtx.uom[10]      = tt-oe-prmtx.uom[10]  
-                    bf-oe-prmtx.eff-date     = dtEffDate. 
+                    bf-oe-prmtx.eff-date     = dtEffDate
+                    bf-oe-prmtx.exp-date     = tt-oe-prmtx.exp-date . 
             END.  /* avail bf-oe-prmtx*/
         END.   /* tt-item-comm.valid = TRUE*/
         ELSE  opiCountNotOK = opiCountNotOK + 1.

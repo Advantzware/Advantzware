@@ -251,7 +251,8 @@ DEF  VAR acl-lbr AS DEC INIT 0 NO-UNDO.
                                FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
                     cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
             END.
-          
+            
+           if (LINE-COUNTER + 10  )  gt (lines-per-page ) then page.
             PUT UNFORMATTED cDisplay SKIP.
             IF tb_excel2 THEN DO:
                  PUT STREAM excel2 UNFORMATTED  
@@ -353,8 +354,10 @@ DEF  VAR acl-lbr AS DEC INIT 0 NO-UNDO.
                                FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
                     cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
             END.
+            
+            if (LINE-COUNTER + 10  )  gt (lines-per-page ) then page.
            if v-tot THEN
-            PUT UNFORMATTED "     ORDER TOTALS" + SUBSTRING(cDisplay,18,250) SKIP.
+            PUT UNFORMATTED "     ORDER TOTALS" + SUBSTRING(cDisplay,18,150) SKIP.
 
       if v-tot then
       put "SALES VALUE "
@@ -496,7 +499,8 @@ DEF  VAR acl-lbr AS DEC INIT 0 NO-UNDO.
                                FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
                     cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
             END.
-          
+            
+           if (LINE-COUNTER + 10  )  gt (lines-per-page ) then page.
             PUT UNFORMATTED cDisplay SKIP.
             IF tb_excel2 THEN DO:
                  PUT STREAM excel2 UNFORMATTED  
@@ -603,7 +607,8 @@ DEF  VAR acl-lbr AS DEC INIT 0 NO-UNDO.
                                FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
                     cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
             END.
-          
+            
+            if (LINE-COUNTER + 10  )  gt (lines-per-page ) then page.
             PUT UNFORMATTED cDisplay SKIP .
             IF tb_excel2 THEN DO:
                  PUT STREAM excel2 UNFORMATTED  
@@ -868,7 +873,8 @@ DEF  VAR acl-lbr AS DEC INIT 0 NO-UNDO.
                                FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
                     cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
             END.
-           
+            
+            if (LINE-COUNTER + 10  )  gt (lines-per-page ) then page.
             PUT UNFORMATTED cDisplay SKIP.
             IF tb_excel2 THEN DO:
                 PUT STREAM excel2 UNFORMATTED  
@@ -918,8 +924,10 @@ DEF  VAR acl-lbr AS DEC INIT 0 NO-UNDO.
                                FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
                     cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
             END.
+            
+            if (LINE-COUNTER + 10  )  gt (lines-per-page ) then page.
             PUT misc-str-line SKIP.
-            PUT UNFORMATTED  "       TOTAL MISC LABOR  :    " SUBSTRING(cDisplay,31,250) SKIP.
+            PUT UNFORMATTED  "       TOTAL MISC LABOR  :    " SUBSTRING(cDisplay,31,150) SKIP.
         END.
         IF LAST-OF(work-prep.work-ml) AND work-prep.work-ml = "yes" THEN DO:
 
@@ -957,8 +965,10 @@ DEF  VAR acl-lbr AS DEC INIT 0 NO-UNDO.
                                FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
                     cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
             END.
+            
+            if (LINE-COUNTER + 10  )  gt (lines-per-page ) then page.
             PUT misc-str-line SKIP.
-            PUT UNFORMATTED  "     TOTAL MISC MATERIALS  :  " SUBSTRING(cDisplay,31,250) SKIP.
+            PUT UNFORMATTED  "     TOTAL MISC MATERIALS  :  " SUBSTRING(cDisplay,31,150) SKIP.
         END.
     END.
 
@@ -1008,12 +1018,14 @@ DEF  VAR acl-lbr AS DEC INIT 0 NO-UNDO.
                                FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
                     cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
             END.
+            
+            if (LINE-COUNTER + 10  )  gt (lines-per-page ) then page.
             PUT misc-str-line SKIP.
-            PUT UNFORMATTED  "   TOTAL PREP/MISC  (DIRECT) :" SUBSTRING(cDisplay,31,250) SKIP.
+            PUT UNFORMATTED  "   TOTAL PREP/MISC  (DIRECT) :" SUBSTRING(cDisplay,31,150) SKIP.
         end.
       end.
-
-      if line-counter + 13 gt 58 then page.
+      
+      if (LINE-COUNTER + 10  )  gt (lines-per-page ) then page.
       IF v-inv-tot-only THEN
         ASSIGN v-sale = getInvoiceTotal(job-hdr.ord-no, job-hdr.job-no, job-hdr.job-no2, "Price").
       ELSE
@@ -1032,7 +1044,7 @@ DEF  VAR acl-lbr AS DEC INIT 0 NO-UNDO.
       END.
         
       
-      PUT skip(1)
+      /*PUT skip(1)
           "Job Number: "
           trim(job.job-no) + "-" + string(job.job-no2,"99") +
           "     Closing Date: " +
@@ -1042,7 +1054,7 @@ DEF  VAR acl-lbr AS DEC INIT 0 NO-UNDO.
          "Customer:   "
          v-cust.
 
-      page.
+      page.*/ /* ticket 26126 */
      end.
 
      if v-mch and last(job.job-no) then do:

@@ -40,7 +40,7 @@ DEF VAR v-job-no  LIKE oe-ordl.job-no NO-UNDO.
 DEF VAR v-job-no2 LIKE oe-ordl.job-no2 NO-UNDO.
 DEF VAR v-qty     LIKE oe-rell.qty NO-UNDO.
 DEF VAR v-cust    LIKE oe-ordl.cust-no NO-UNDO.
-DEF VAR rel-type  LIKE reftable.code NO-UNDO.
+DEF VAR rel-type  LIKE oe-rel.s-code NO-UNDO.
 
 DEF VAR nufile AS LOG NO-UNDO.
 DEF VAR fil_id AS RECID NO-UNDO.
@@ -1085,14 +1085,8 @@ IF v-cust NE "" THEN DO:                                /*Task# 12231304*/
         AND oe-rel.cust-no EQ v-cust
         AND oe-rel.link-no   EQ v-linkno NO-LOCK NO-ERROR. 
     
-    IF AVAIL oe-rel THEN
-    FIND FIRST reftable
-        WHERE reftable.reftable EQ "oe-rel.s-code"
-        AND reftable.company  EQ STRING(oe-rel.r-no,"9999999999")
-         NO-LOCK NO-ERROR.
-   
-    IF AVAIL reftable THEN
-        ASSIGN rel-type =  reftable.CODE . 
+    IF AVAIL oe-rel THEN    
+        ASSIGN rel-type =  oe-rel.s-code . 
 END.
 
 IF ip-all-one EQ "all" THEN

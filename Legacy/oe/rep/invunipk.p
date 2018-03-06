@@ -88,8 +88,8 @@ FIND FIRST inv-head NO-LOCK NO-ERROR.
 /* === with xprint ====*/
 DEF VAR ls-image1 AS cha NO-UNDO.
 DEF VAR ls-image2 AS cha NO-UNDO.
-DEF VAR ls-full-img1 AS cha FORM "x(150)" NO-UNDO.
-DEF VAR ls-full-img2 AS cha FORM "x(150)" NO-UNDO.
+DEF VAR ls-full-img1 AS cha FORM "x(200)" NO-UNDO.
+DEF VAR ls-full-img2 AS cha FORM "x(200)" NO-UNDO.
 ASSIGN ls-image1 = "images\unipak.jpg"
        ls-image2 = "images\pacific2.bmp".
 
@@ -370,7 +370,7 @@ assign
                                   no-lock no-error.
           if avail oe-ord then
           do:
-            assign v-po-no = oe-ord.po-no
+            assign /*v-po-no = oe-ord.po-no*/
                    v-bill-i = oe-ord.bill-i[1]
                    v-ord-no = oe-ord.ord-no
                    v-ord-date = oe-ord.ord-date.
@@ -460,6 +460,20 @@ assign
               assign v-bo-qty = if ( inv-line.qty - inv-line.ship-qty ) < 0
                                   then 0 else inv-line.qty - inv-line.ship-qty.
 
+            ASSIGN v-po-no = "".
+            if avail oe-ordl then
+             FOR EACH oe-rel NO-LOCK
+                WHERE oe-rel.company = cocode
+                AND oe-rel.ord-no = oe-ordl.ord-no
+                AND oe-rel.i-no = oe-ordl.i-no
+                AND oe-rel.LINE = oe-ordl.LINE :
+
+                IF oe-rel.po-no NE "" THEN DO:
+                  v-po-no = oe-rel.po-no. 
+                  LEAVE.
+                END.
+             END.
+
             assign v-inv-qty = inv-line.qty
                    v-ship-qty = inv-line.ship-qty
                    v-i-no = inv-line.i-no
@@ -544,8 +558,8 @@ assign
               end.
             end.
 
-            IF inv-line.disc NE 0 THEN
-              PUT SPACE(41)
+            IF inv-line.disc NE 0 OR v-po-no NE "" THEN
+              PUT SPACE(25) v-po-no FORMAT "x(15)" SPACE(1)
                   "Less " + TRIM(STRING(inv-line.disc,">>9.99%")) + " Discount" FORMAT "x(21)"
                   v-price - inv-line.t-price FORMAT "->>>,>>9.99" TO 95.
 

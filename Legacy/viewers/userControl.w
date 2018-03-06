@@ -305,23 +305,24 @@ PROCEDURE proc-enable :
   Notes:       
 ------------------------------------------------------------------------------*/
 
-    FIND FIRST users NO-LOCK
-     WHERE users.user_id EQ USERID(LDBNAME(1)) NO-ERROR.
+    DEF VAR hPgmSecurity AS HANDLE NO-UNDO.
+    DEF VAR lResult AS LOG NO-UNDO.
+    RUN "system/PgmMstrSecur.p" PERSISTENT SET hPgmSecurity.
+    RUN epCanAccess IN hPgmSecurity ("viewers/userControl.w", "Access1", OUTPUT lResult).
 
-IF AVAIL users AND users.securityLevel GE 1000 THEN
-     ASSIGN 
+    IF lResult THEN ASSIGN 
         userControl.maxAllowedUsers:SENSITIVE IN FRAME {&FRAME-NAME} = YES 
-        userControl.numUsersOverLimit:SENSITIVE IN FRAME {&FRAME-NAME} = YES .
-   ELSE 
-       ASSIGN 
+        userControl.numUsersOverLimit:SENSITIVE IN FRAME {&FRAME-NAME} = YES.
+    ELSE ASSIGN 
         userControl.maxAllowedUsers:SENSITIVE IN FRAME {&FRAME-NAME} = NO 
-        userControl.numUsersOverLimit:SENSITIVE IN FRAME {&FRAME-NAME} = NO
-       .
+        userControl.numUsersOverLimit:SENSITIVE IN FRAME {&FRAME-NAME} = NO.
 
-    IF AVAIL users AND users.securityLevel GT 900 THEN
-         ASSIGN 
-             userControl.maxSessionsPerUser:SENSITIVE IN FRAME {&FRAME-NAME} = YES  .
-    ELSE 
+    RUN epCanAccess IN hPgmSecurity ("viewers/userControl.w", "Access2", OUTPUT lResult).
+    DELETE OBJECT hPgmSecurity.
+  
+    IF lResult THEN ASSIGN 
+        userControl.maxSessionsPerUser:SENSITIVE IN FRAME {&FRAME-NAME} = YES  .
+    ELSE ASSIGN
         userControl.maxSessionsPerUser:SENSITIVE IN FRAME {&FRAME-NAME} = NO  .
     
 END PROCEDURE.

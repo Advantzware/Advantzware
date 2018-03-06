@@ -20,7 +20,7 @@ DEF VAR ld-wid AS DEC NO-UNDO.
 DEF VAR ld-len AS DEC NO-UNDO.
 DEF VAR ld-dep AS DEC NO-UNDO.
 DEF VAR ld-fg-rate AS DEC NO-UNDO.
-DEF VAR cJobNo AS CHAR NO-UNDO.
+DEF VAR cJobNoPrint AS CHAR NO-UNDO.
 DEFINE VARIABLE dShrink AS DECIMAL     NO-UNDO.
 
 DEF BUFFER bf-est FOR est.
@@ -60,14 +60,8 @@ assign
  ctrl[17] = int(ce-ctrl.spec-add[7])
  ctrl[18] = int(ce-ctrl.spec-add[8]).
 
-FIND FIRST reftable-fold-pct
-     WHERE reftable-fold-pct.reftable EQ "ce-ctrl.fold-pct"
-       AND reftable-fold-pct.company  EQ ce-ctrl.company
-       AND reftable-fold-pct.loc      EQ ce-ctrl.loc
-     NO-LOCK NO-ERROR.
 
-IF AVAIL reftable-fold-pct THEN
-   ctrl[19] = reftable-fold-pct.val[1].
+   ctrl[19] = ce-ctrl.fold-pct.
 
 if retry then output close.
 
@@ -81,26 +75,11 @@ find first xop where xop.company = xest.company
                  and xop.op-speed eq 0
                  no-lock no-error.
 
-FIND FIRST reftable NO-LOCK
-    WHERE reftable.reftable EQ "ce-ctrl.fg-rate-farm"
-      AND reftable.company  EQ ce-ctrl.company
-      AND reftable.loc      EQ ce-ctrl.loc
-    NO-ERROR.  
-fg-rate-f = IF AVAIL reftable THEN reftable.val[1] ELSE 0.
+fg-rate-f = ce-ctrl.fg-rate-farm.
 
-FIND FIRST reftable NO-LOCK
-    WHERE reftable.reftable EQ "ce-ctrl.rm-rate-farm"
-      AND reftable.company  EQ ce-ctrl.company
-      AND reftable.loc      EQ ce-ctrl.loc
-    NO-ERROR.  
-rm-rate-f = IF AVAIL reftable THEN reftable.val[1] ELSE 0.
-
-FIND FIRST reftable NO-LOCK
-    WHERE reftable.reftable EQ "ce-ctrl.hand-pct-farm"
-      AND reftable.company  EQ ce-ctrl.company
-      AND reftable.loc      EQ ce-ctrl.loc
-    NO-ERROR.    
-hand-pct-f = (IF AVAIL reftable THEN reftable.val[1] ELSE 0) / 100.
+rm-rate-f = ce-ctrl.rm-rate-farm.
+  
+hand-pct-f = ce-ctrl.hand-pct-farm / 100.
 
 ld-fg-rate = IF xeb.pur-man THEN fg-rate-f ELSE ce-ctrl.fg-rate.
 
@@ -196,7 +175,8 @@ end.
 else qtty[1] = qty.
 
 DO TRANSACTION:
-  {est/op-lock.i xest}
+   {est/op-lock.i xest}
+
   FIND bf-est WHERE RECID(bf-est) EQ RECID(xest).
   FIND CURRENT recalc-mr.
   ASSIGN
@@ -493,27 +473,27 @@ do k = 1 to 28:
    v-module = IF cerunf EQ "HOP" THEN "FCD-0101" ELSE ""
    v-module = FILL(" ",59 - LENGTH(TRIM(v-module))) + TRIM(v-module).
     IF cerunf = "HOP" THEN DO:
-        cJobNo = "Job #: " .
+        cJobNoPrint = "Job #: " .
         FIND FIRST bf-oe-ordl WHERE bf-oe-ordl.company EQ xeb.company
             AND bf-oe-ordl.ord-no EQ xeb.ord-no
             AND bf-oe-ordl.i-no EQ xeb.stock-no NO-LOCK NO-ERROR.
         IF AVAIL bf-oe-ordl THEN
-            cJobNo = cJobNo + bf-oe-ordl.job-no + "-" + string(bf-oe-ordl.job-no2).
+            cJobNoPrint = cJobNoPrint + bf-oe-ordl.job-no + "-" + string(bf-oe-ordl.job-no2).
         ELSE DO:
             FIND FIRST bf-oe-ord WHERE bf-oe-ord.company EQ xeb.company
                 AND bf-oe-ord.ord-no EQ xeb.ord-no NO-LOCK NO-ERROR.
             IF AVAIL bf-oe-ord THEN
-                cJobNo = cJobNo + bf-oe-ord.job-no + "-" + string(bf-oe-ord.job-no2).
+                cJobNoPrint = cJobNoPrint + bf-oe-ord.job-no + "-" + string(bf-oe-ord.job-no2).
         END.
     END.
-    ELSE cJobNo = "".
+    ELSE cJobNoPrint = "".
 
   display day_str v-module tim_str with frame hdr STREAM-IO.    
   display "Est#" TRIM(xest.est-no) FORMAT "x(8)"
           "SlsRep:" sman.sname when avail sman
           "UserID:" xest.updated-id
           "Prober:" probe.probe-user
-          cJobNo FORMAT "X(20)"
+          cJobNoPrint FORMAT "X(20)"
           skip
           "Cust:" xeb.cust-no
                   cust-ad[1] FORMAT "x(29)" TO 44

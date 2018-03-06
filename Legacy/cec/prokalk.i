@@ -1,9 +1,8 @@
 /* -------------------------------------------------- cec/prokalk.i 07/96 JLF */
 /* recalculate values of sequenced machines.                                  */
 /* -------------------------------------------------------------------------- */
-   
+ 
    {est/op-lock.i xest}
-
    IF NEW op-lock AND NOT xef.op-lock THEN
      ASSIGN
       op-lock.val[1] = 1
@@ -132,6 +131,7 @@
      qty = est-op.num-sh * v-num-up * vn-out.
    END.
 
+    
    IF (op-lock.val[1] EQ 1 OR op-lock.val[2] EQ 1) AND 
       (ip-rowid EQ ? OR ip-rowid EQ ROWID(est-op)) THEN DO:
      /* flip dimensions if corr. xgrain */

@@ -560,17 +560,6 @@ PROCEDURE create-order-lines.
        ELSE 
            lv-disc = cust.disc.
  
-/*        FIND FIRST reftable WHERE reftable.reftable EQ "itemfg.exempt-disc" */
-/*            AND reftable.company  EQ cocode                                 */
-/*            AND reftable.loc      EQ ""                   ~                 */
-/*            AND reftable.CODE     EQ oe-ordl.i-no                           */
-/*            NO-LOCK NO-ERROR.                                               */
-/*         IF AVAIL reftable THEN DO:                                         */
-/*             IF reftable.val[1] = 1 THEN                                    */
-/*                 lv-disc = 0.                                               */
-/*             ELSE                                                           */
-/*                 lv-disc = cust.disc.                                       */
-/*         END.                                                               */
 
        ASSIGN
         oe-ordl.i-name     = IF v-est-type EQ 2 AND avail xeb THEN

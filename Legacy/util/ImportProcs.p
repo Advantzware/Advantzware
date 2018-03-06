@@ -155,7 +155,8 @@ PROCEDURE pInitializeType:
      Notes:
     ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipcTypeToInit AS CHARACTER NO-UNDO.
-
+    
+    EMPTY TEMP-TABLE ttImportMap.
     CASE ipcTypeToInit:
         WHEN "ShipTo" THEN
         RUN util/ImportShipTo.p PERSISTENT SET ghdImportProcForType.
@@ -163,6 +164,8 @@ PROCEDURE pInitializeType:
         RUN util/ImportCash.p PERSISTENT SET ghdImportProcForType.
         WHEN "Cust" THEN
         RUN util/ImportCust.p PERSISTENT SET ghdImportProcForType.
+        WHEN "Est" THEN
+        RUN util/ImportEstimate.p PERSISTENT SET ghdImportProcForType.
         WHEN "Vend" THEN
         RUN util/ImportVend.p PERSISTENT SET ghdImportProcForType.
         WHEN "GL" THEN

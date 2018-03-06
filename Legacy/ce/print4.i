@@ -9,6 +9,12 @@ DEFINE {1} VARIABLE tt-tot                  AS DECIMAL   FORMAT ">>>,>>9.99" NO-
 DEFINE {1} VARIABLE vmclean                 AS LOG       NO-UNDO.
 DEFINE {1} VARIABLE vmcl                    AS INTEGER   NO-UNDO.
 DEFINE {1} VARIABLE vprint                  AS LOG       INIT NO NO-UNDO.
+DEFINE {1} VARIABLE cJobNo                  AS CHARACTER NO-UNDO.
+DEFINE {1} VARIABLE iJobNo2                 AS INTEGER   NO-UNDO.
+DEFINE {1} VARIABLE riJob                   AS ROWID     NO-UNDO.
+DEFINE {1} VARIABLE iMasterQuantity         AS INTEGER   NO-UNDO.
+DEFINE {1} VARIABLE iFormNo                 AS INTEGER   NO-UNDO.
+DEFINE {1} VARIABLE iBlankNo                AS INTEGER   NO-UNDO.
 
 DEFINE {2} VARIABLE qtty                    AS INTEGER   EXTENT 28 FORMAT ">>,>>>,>>>" NO-UNDO.
 DEFINE {2} VARIABLE rels                    AS INTEGER   EXTENT 28 FORMAT ">>" NO-UNDO.
@@ -280,5 +286,7 @@ DEFINE {1} TEMP-TABLE tt-prep-sep NO-UNDO
 DEFINE BUFFER bmclean   FOR mclean.
 DEFINE BUFFER recalc-mr FOR reftable.
 DEFINE BUFFER op-lock   FOR reftable.
+
+{est/CostTempTables.i "{1}"}
 
 /* end ---------------------------------- copr. 1996  advanced software, inc. */

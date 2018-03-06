@@ -961,7 +961,7 @@ FOR EACH job
                       AND misc-act.job     EQ job.job
                       AND misc-act.job-no  EQ job.job-no
                       AND misc-act.job-no2 EQ job.job-no2))
-      AND job.start-date LE v-date 
+      AND (job.start-date LE v-date OR job.start-date EQ ?) 
   {jc/rep/wipbycat.i "use-index opened"}
 
 IF v-clos THEN

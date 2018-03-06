@@ -33,8 +33,8 @@ DEF VAR ll-calc-disc-first AS LOG NO-UNDO.
 /* === with xprint ====*/
 DEF VAR ls-image1    AS CHAR                NO-UNDO.
 DEF VAR ls-image2    AS CHAR                NO-UNDO.
-DEF VAR ls-full-img1 AS CHAR FORMAT "x(50)" NO-UNDO.
-DEF VAR ls-full-img2 AS CHAR FORMAT "x(50)" NO-UNDO.
+DEF VAR ls-full-img1 AS CHAR FORMAT "x(200)" NO-UNDO.
+DEF VAR ls-full-img2 AS CHAR FORMAT "x(200)" NO-UNDO.
 
 /*
 ASSIGN ls-image1 = "images\pacific1.bmp"

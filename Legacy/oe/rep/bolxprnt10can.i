@@ -252,7 +252,7 @@ for each report where report.term-id eq v-term-id,
         v-tot-pkgs  = 0.
   END.
   
-  if v-print-components then
+  if v-print-components OR v-print-unassembled then
   for each fg-set
       where fg-set.company eq cocode
         and fg-set.set-no  eq oe-boll.i-no
@@ -270,12 +270,14 @@ for each report where report.term-id eq v-term-id,
     put {1}
         xitemfg.part-no
         fg-set.part-no                  AT 33
-        xitemfg.i-name                        FORMAT "x(22)"
-        oe-boll.qty * v-part-qty        TO 80 FORMAT "->>>,>>9"
-        skip(1).
+        xitemfg.i-name                        FORMAT "x(22)".
+    IF v-print-components THEN
+       PUT {1} oe-boll.qty * v-part-qty        TO 80 FORMAT "->>>,>>9".
+       PUT skip(1).
 
     v-printline = v-printline + 2.
   end.
+  
 
   v-tot-wt = v-tot-wt + oe-boll.weight.
 

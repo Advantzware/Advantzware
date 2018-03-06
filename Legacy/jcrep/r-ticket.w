@@ -1855,19 +1855,10 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
                            tb_approve:SENSITIVE =  YES .
 
            END.
-
-           IF can-find(FIRST b-reftable-freeze WHERE
-              b-reftable-freeze.reftable EQ "FREEZENOTE" AND
-              b-reftable-freeze.company  EQ cocode AND
-              b-reftable-freeze.loc      EQ job-hdr.job-no AND
-              b-reftable-freeze.CODE     EQ STRING(job-hdr.job-no2,"99")) THEN
+           
+           IF job-hdr.freezeNote EQ YES THEN
               tb_freeze-note:SCREEN-VALUE = "YES".
-
-           IF CAN-FIND(FIRST b-reftable-split WHERE
-              b-reftable-split.reftable EQ "splitshp" AND
-              b-reftable-split.company  EQ cocode AND
-              b-reftable-split.loc      EQ TRIM(job-hdr.job-no) AND
-              b-reftable-split.code     EQ STRING(job-hdr.job-no2,"9999999999")) THEN
+            IF job-hdr.splitShip EQ YES THEN              
               tb_prompt-ship:SCREEN-VALUE = "YES".
 
        END.  /* avail job-hdr */
@@ -3156,19 +3147,15 @@ PROCEDURE split-ship-proc :
 ------------------------------------------------------------------------------*/
    DO WITH FRAME {&FRAME-NAME}:
 
-      FIND FIRST reftable WHERE
-           reftable.reftable EQ "SPLITSHIP" AND
-           reftable.company  EQ cocode AND
-           reftable.loc      EQ FILL(" ",6 - LENGTH(begin_job1:SCREEN-VALUE))
-                                + begin_job1:SCREEN-VALUE AND
-           reftable.CODE     EQ STRING(begin_job2:SCREEN-VALUE,"99")
-           NO-LOCK NO-ERROR.
+      FIND FIRST job-hdr NO-LOCK
+           WHERE job-hdr.company EQ cocode
+             AND job-hdr.job-no  EQ FILL(" ",6 - LENGTH(begin_job1:SCREEN-VALUE)) +
+                                   TRIM(begin_job1:SCREEN-VALUE)
+            AND job-hdr.job-no2 EQ INT(begin_job2:SCREEN-VALUE)
+          NO-ERROR.
+      IF AVAIL job-hdr AND  job-hdr.splitShip EQ YES THEN
+        tb_prompt-ship:CHECKED = YES.
 
-      IF AVAIL reftable THEN
-      DO:
-         tb_prompt-ship:CHECKED = YES.
-         RELEASE reftable.
-      END.
    END.
 
 END PROCEDURE.

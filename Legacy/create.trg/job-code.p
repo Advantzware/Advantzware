@@ -3,3 +3,5 @@
 TRIGGER PROCEDURE FOR CREATE OF {&TABLENAME}.
 
 {methods/triggers/create.i}
+
+job-code.dmiID = NEXT-VALUE(jobCodeDMIseq).
