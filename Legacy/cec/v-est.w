@@ -895,6 +895,7 @@ DO:
            run windows/l-cust.w (cocode,ls-cur-val, output char-val).
            if char-val <> "" then do:
               eb.cust-no:screen-value in frame {&frame-name} =  ENTRY(1,char-val).
+              RUN csr-display .
               find first shipto where shipto.company = cocode
                                   and shipto.cust-no = eb.cust-no:screen-value
                                   no-lock no-error.
@@ -1333,6 +1334,7 @@ END.
 ON VALUE-CHANGED OF eb.cust-no IN FRAME Corr /* Cust# */
 DO:
   RUN shipto-enable.
+  RUN csr-display .
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -4320,6 +4322,32 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+ 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE csr-display V-table-Win 
+PROCEDURE csr-display :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DO WITH FRAME {&frame-name}:
+
+      FIND FIRST cust NO-LOCK
+            WHERE cust.company = cocode
+              AND cust.cust-no = eb.cust-no:SCREEN-VALUE NO-ERROR.
+     
+       IF AVAIL cust THEN
+           est.csrUser_id:SCREEN-VALUE = cust.csrUser_id .
+
+  END.
+
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE shipto-enable V-table-Win 
 PROCEDURE shipto-enable :

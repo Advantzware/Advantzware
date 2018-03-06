@@ -5318,7 +5318,7 @@ PROCEDURE local-assign-record :
        eb.ship-state   = shipto.ship-state
        eb.ship-zip     = shipto.ship-zip.
   END.
-  IF adm-adding-record THEN DO:
+  IF adm-adding-record OR lv-hld-cust NE eb.cust-no THEN DO:
        FIND FIRST cust NO-LOCK
             WHERE cust.company = gcompany
               AND cust.cust-no = eb.cust-no NO-ERROR.
