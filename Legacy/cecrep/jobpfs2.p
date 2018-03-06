@@ -37,24 +37,23 @@
      IF AVAIL notes THEN
         v-bn-note = SUBSTRING(notes.note_text,1,35).
      ELSE
-     DO:
-        FIND FIRST reftable WHERE
-             reftable.reftable = "STACK" and
-             reftable.company = "" AND
-             reftable.loc = "" AND
-             reftable.CODE = xeb.stack-code
-             NO-LOCK NO-ERROR.
 
-        IF AVAIL reftable THEN
         DO:
-           FIND FIRST notes WHERE
-                notes.rec_key = reftable.rec_key
-                NO-LOCK NO-ERROR.
-
-           IF AVAIL notes THEN
-              v-bn-note = SUBSTRING(notes.note_text,1,35).
-        END.
-     END.
+            
+            FIND FIRST stackPattern where
+             stackPattern.stackCode = xeb.stack-code
+             NO-LOCK NO-ERROR.
+             
+            IF AVAIL stackPattern THEN
+            DO:
+               FIND FIRST notes WHERE
+                    notes.rec_key = stackPattern.rec_key
+                    NO-LOCK NO-ERROR.
+    
+               IF AVAIL notes THEN
+                  v-bn-note = SUBSTRING(notes.note_text,1,35).
+            END.
+       END.
   END.
 
 /* gdm - 11180902 */

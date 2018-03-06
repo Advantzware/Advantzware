@@ -2183,12 +2183,11 @@ PROCEDURE new-stack-code :
 
   DO WITH FRAME {&FRAME-NAME}:
     eb.stack-code:SCREEN-VALUE = CAPS(eb.stack-code:SCREEN-VALUE).
-    FIND FIRST reftable 
-        {cec/stackW.i}
-         AND reftable.CODE EQ eb.stack-code:SCREEN-VALUE
+    FIND FIRST stackPattern
+         WHERE stackPattern.stackCode EQ eb.stack-code:SCREEN-VALUE
         NO-LOCK NO-ERROR.
-    IF AVAIL reftable AND INT(eb.stacks:SCREEN-VALUE) NE reftable.val[1] THEN DO:
-      eb.stacks:SCREEN-VALUE = STRING(reftable.val[1]).
+    IF AVAIL stackPattern AND INT(eb.stacks:SCREEN-VALUE) NE stackPattern.stackCount THEN DO:
+      eb.stacks:SCREEN-VALUE = STRING(stackCount).
       RUN new-tr-cas.
     END.
   END.
@@ -2677,29 +2676,41 @@ PROCEDURE stack-pattern :
    DEF VAR lv-return AS INT NO-UNDO.
    DEF VAR tInt As Int No-undo.
 
-   FIND FIRST pattern OUTER-JOIN where pattern.reftable = "STACKPAT"                 
-                   and pattern.company = ""
-                   and pattern.loc = ""
-                   and pattern.code = eb.stack-code NO-LOCK NO-ERROR.
-   IF AVAIL pattern THEN DO:
-      IF pattern.dscr MATCHES "*.pdf*"  THEN DO:
+/*   FIND FIRST pattern OUTER-JOIN where pattern.reftable = "STACKPAT"        */
+/*                   and pattern.company = ""                                 */
+/*                   and pattern.loc = ""                                     */
+/*                   and pattern.code = eb.stack-code NO-LOCK NO-ERROR.       */
+/*   IF AVAIL pattern THEN DO:                                                */
+/*      IF pattern.dscr MATCHES "*.pdf*"  THEN DO:                            */
+/*                                                                            */
+/*         RUN ShellExecuteA(0, "open", pattern.dscr, "", "", 0, OUTPUT tInt).*/
+/*         IF tInt LE 32 THEN                                                 */
+/*         DO:                                                                */
+/*            RUN custom/runapdf.p (OUTPUT lv-cmd).                           */
+/*            lv-cmd = lv-cmd + chr(32) + pattern.Dscr.                       */
+/*            RUN WinExec (INPUT lv-cmd, INPUT 1,OUTPUT lv-return).           */
+/*         END.                                                               */
+/*      END.                                                                  */
 
-         RUN ShellExecuteA(0, "open", pattern.dscr, "", "", 0, OUTPUT tInt).
-         IF tInt LE 32 THEN
-         DO:
-            RUN custom/runapdf.p (OUTPUT lv-cmd).
-            lv-cmd = lv-cmd + chr(32) + pattern.Dscr.      
-            RUN WinExec (INPUT lv-cmd, INPUT 1,OUTPUT lv-return).
+     FIND FIRST stackPattern OUTER-JOIN where stackPattern.stackCode = eb.stack-code NO-LOCK NO-ERROR.
+     IF AVAIL stackPattern THEN DO:
+         IF stackPattern.stackImage MATCHES "*.pdf*"  THEN DO:
+             RUN ShellExecuteA(0, "open", stackPattern.stackImage, "", "", 0, OUTPUT tInt).
+             IF tInt LE 32 THEN
+             DO:
+                RUN custom/runapdf.p (OUTPUT lv-cmd).
+                lv-cmd = lv-cmd + chr(32) + stackPattern.stackImage.      
+                RUN WinExec (INPUT lv-cmd, INPUT 1,OUTPUT lv-return).
+             END.
          END.
-      END.
-      ELSE DO:
-          lv-cmd = ".\custom\mspaint.exe".
-          IF SEARCH("c:\winnt\system32\mspaint.exe") <> ? THEN lv-cmd = "c:\winnt\system32\mspaint.exe".
-          ELSE IF    SEARCH("c:\windows\system32\mspaint.exe") <> ? THEN lv-cmd = "c:\windows\system32\mspaint.exe".
-
-          lv-cmd = lv-cmd + " " + chr(34) + pattern.dscr + CHR(34) .
-          OS-COMMAND SILENT   VALUE(lv-cmd).
-      END.
+         ELSE DO:
+              lv-cmd = ".\custom\mspaint.exe".
+              IF SEARCH("c:\winnt\system32\mspaint.exe") <> ? THEN lv-cmd = "c:\winnt\system32\mspaint.exe".
+              ELSE IF    SEARCH("c:\windows\system32\mspaint.exe") <> ? THEN lv-cmd = "c:\windows\system32\mspaint.exe".
+    
+              lv-cmd = lv-cmd + " " + chr(34) + stackPattern.stackImage + CHR(34) .
+              OS-COMMAND SILENT   VALUE(lv-cmd).
+         END.
    END.
    ELSE DO:
        MESSAGE "No Stack Pattern found..." VIEW-AS ALERT-BOX ERROR.
@@ -3031,9 +3042,8 @@ PROCEDURE valid-stack-code :
   {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     IF NOT ll-foam OR eb.stack-code:SCREEN-VALUE NE "" THEN DO:
-      IF NOT CAN-FIND(FIRST reftable 
-                      {cec/stackW.i}
-                        AND reftable.CODE EQ eb.stack-code:SCREEN-VALUE)
+      IF NOT CAN-FIND(FIRST stackPattern
+                        WHERE stackPattern.stackCode EQ eb.stack-code:SCREEN-VALUE)
       THEN DO:
         MESSAGE "Invalid Stacking Code..."  VIEW-AS ALERT-BOX ERROR.
         APPLY "entry" TO eb.stack-code.

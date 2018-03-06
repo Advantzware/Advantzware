@@ -364,7 +364,7 @@ for each cas where cas.typ eq 3,
 
     find first item
         where item.company eq cocode
-          and item.i-no    eq strap.code2
+          and item.i-no    eq stackPattern.strapCode
         no-lock no-error.
 
     find first xcas 

@@ -1,12 +1,12 @@
-/*------------------------------------------------------------------------
-   File        : RefTableMigration
-   Purpose     : 
-   Syntax      : 
-   Description : 
-   Author(s)   : jitender.gill
-   Created     : Tue Sep 19 14:27:31 EDT 2017
-   Notes       : 
- ----------------------------------------------------------------------*/
+ /*------------------------------------------------------------------------
+    File        : RefTableMigration
+    Purpose     : 
+    Syntax      : 
+    Description : 
+    Author(s)   : jitender.gill
+    Created     : Tue Sep 19 14:27:31 EDT 2017
+    Notes       : 
+  ----------------------------------------------------------------------*/
 
 USING Progress.Lang.*.
 
@@ -2334,7 +2334,134 @@ CLASS RefTableMigration:
             iCnt = iCnt + 1.                 
         END.  /*FOR EACH reftable*/         
         RETURN iCnt.
-    END METHOD. /*po-ord*/        
+    END METHOD. /*oe-rel*/
+    METHOD PUBLIC INTEGER OeBollSellPrice():
+        DEFINE VARIABLE iCnt AS INTEGER NO-UNDO.
+        FOR EACH reftable WHERE reftable.reftable = "oe-boll.sell-price"
+            NO-LOCK:
+            FIND FIRST oe-boll WHERE oe-boll.rec_key = reftable.rec_key
+                EXCLUSIVE-LOCK NO-ERROR.
+            IF AVAILABLE oe-boll THEN    
+            ASSIGN 
+                oe-boll.sell-price = reftable.val[1]
+                oe-boll.zeroPrice  = reftable.val[2]
+                . 
+            RELEASE oe-boll.      
+            iCnt = iCnt + 1.                 
+        END.  /*FOR EACH reftable*/         
+        RETURN iCnt.
+    END METHOD. /*oe-boll*/
+    METHOD PUBLIC INTEGER JobCreateTime():
+        DEFINE VARIABLE iCnt AS INTEGER NO-UNDO.
+        FOR EACH reftable WHERE reftable.reftable = "job.create-time"
+            NO-LOCK:
+            FIND FIRST job WHERE job.company = reftable.company
+                             AND job.loc     = ""
+                             AND job.job     = INT(reftable.code)
+                EXCLUSIVE-LOCK NO-ERROR.
+            IF AVAILABLE job THEN    
+            ASSIGN 
+                job.create-time = reftable.val[1]                
+                . 
+            RELEASE job.      
+            iCnt = iCnt + 1.                 
+        END.  /*FOR EACH reftable*/         
+        RETURN iCnt.
+    END METHOD. /*job*/
+    METHOD PUBLIC INTEGER OeOrdlMisc():
+        DEFINE VARIABLE iCnt AS INTEGER NO-UNDO.
+        FOR EACH reftable WHERE reftable.reftable = "oe/ordlmisc.p"
+            NO-LOCK:
+            FIND FIRST oe-ordm WHERE oe-ordm.company = reftable.company
+                              AND oe-ordm.ord-no     = INT(reftable.loc)
+                              AND oe-ordm.line       = INT(reftable.code)
+                              AND oe-ordm.charge     = reftable.code2
+                EXCLUSIVE-LOCK NO-ERROR.
+            IF AVAILABLE oe-ordm THEN    
+            ASSIGN 
+                oe-ordm.miscType = INT(reftable.val[1])
+                oe-ordm.estPrepEqty = reftable.val[2]
+                oe-ordm.estPrepLine = INT(reftable.val[3])
+                oe-ordm.miscInd = STRING(reftable.val[4])
+                oe-ordm.est-no = reftable.dscr                
+                . 
+            RELEASE oe-ordm.      
+            iCnt = iCnt + 1.                 
+        END.  /*FOR EACH reftable*/         
+        RETURN iCnt.
+    END METHOD. /*oe-ordm*/
+    METHOD PUBLIC INTEGER Factored():
+        DEFINE VARIABLE iCnt AS INTEGER NO-UNDO.
+        FOR EACH reftable WHERE reftable.reftable = "FACTORED"
+            NO-LOCK:
+            FIND FIRST itemfg WHERE itemfg.company = reftable.company
+                             AND itemfg.i-no     = reftable.code                             
+                EXCLUSIVE-LOCK NO-ERROR.
+            IF AVAILABLE itemfg THEN    
+            ASSIGN 
+                itemfg.factored = IF reftable.code2 = "YES" THEN YES ELSE NO                
+                . 
+            RELEASE itemfg.      
+            iCnt = iCnt + 1.                 
+        END.  /*FOR EACH reftable*/         
+        RETURN iCnt.
+    END METHOD. /*itemfg*/
+    METHOD PUBLIC INTEGER Termscod():
+        DEFINE VARIABLE iCnt AS INTEGER NO-UNDO.
+        FOR EACH reftable WHERE reftable.reftable = "terms.cod"
+            NO-LOCK:
+            FIND FIRST terms WHERE terms.company = reftable.company
+                               AND terms.t-code  = reftable.code                             
+                EXCLUSIVE-LOCK NO-ERROR.
+            IF AVAILABLE terms THEN    
+            ASSIGN 
+                terms.cod = IF reftable.val[1] = 1 THEN TRUE ELSE FALSE                
+                . 
+            RELEASE terms.      
+            iCnt = iCnt + 1.                 
+        END.  /*FOR EACH reftable*/         
+        RETURN iCnt.
+    END METHOD. /*terms*/
+    METHOD PUBLIC INTEGER Stack():
+        DEFINE VARIABLE iCnt AS INTEGER NO-UNDO.
+        FOR EACH reftable WHERE reftable.reftable = "STACK"
+            NO-LOCK:
+            FIND FIRST stackPattern WHERE stackPattern.stackCode  = reftable.code                             
+                EXCLUSIVE-LOCK NO-ERROR.
+            IF NOT AVAILABLE stackPattern THEN CREATE stackPattern.   
+            ASSIGN 
+                stackPattern.stackCode        = reftable.code
+                stackPattern.rec_key          = reftable.rec_key
+                stackPattern.stackDescription = reftable.dscr
+                stackPattern.stackCount       = reftable.val[1]                           
+                . 
+            RELEASE stackPattern.      
+            iCnt = iCnt + 1.                 
+        END.  /*FOR EACH reftable*/
+        FOR EACH reftable WHERE reftable.reftable = "STACKSTRAP"
+            NO-LOCK:
+            FIND FIRST stackPattern WHERE stackPattern.stackCode  = reftable.code                             
+                EXCLUSIVE-LOCK NO-ERROR.
+            IF NOT AVAILABLE stackPattern THEN CREATE stackPattern.   
+            ASSIGN                   
+                stackPattern.strapCode    = reftable.code2
+                stackPattern.strapCount   = reftable.val[1] 
+                stackPattern.strapFormula = reftable.dscr        
+                . 
+            RELEASE stackPattern.      
+            iCnt = iCnt + 1.                 
+        END.  /*FOR EACH reftable*/
+        FOR EACH reftable WHERE reftable.reftable = "STACKPAT"
+            NO-LOCK:
+            FIND FIRST stackPattern WHERE stackPattern.stackCode  = reftable.code                             
+                EXCLUSIVE-LOCK NO-ERROR.
+            IF NOT AVAILABLE stackPattern THEN CREATE stackPattern.   
+            ASSIGN                 
+                stackPattern.stackImage = reftable.dscr            
+                . 
+            RELEASE stackPattern.      
+            iCnt = iCnt + 1.                 
+        END.  /*FOR EACH reftable*/         
+        RETURN iCnt.
+    END METHOD. /*stackPattern*/
 END CLASS.
-
-
