@@ -3288,6 +3288,7 @@ PROCEDURE run-whatif :
   FIND CURRENT est NO-LOCK NO-ERROR.
 
   RUN dispatch ("open-query").
+  RUN dispatch ("open-query").
 
 END PROCEDURE.
 
