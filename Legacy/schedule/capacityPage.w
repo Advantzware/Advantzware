@@ -158,7 +158,7 @@ END. /* if no */
     ~{&OPEN-QUERY-ttMachine}
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS btnClear ttMachine btnExit ttJob btnOK ~
+&Scoped-Define ENABLED-OBJECTS btnClear ttMachine ttJob btnExit btnOK ~
 btnRemove btnReset btnSort 
 &Scoped-Define DISPLAYED-OBJECTS baseOnText 
 
@@ -295,8 +295,8 @@ DEFINE FRAME Dialog-Frame
      btnClear AT ROW 15.52 COL 129 WIDGET-ID 22
      baseOnText AT ROW 1 COL 47 NO-LABEL WIDGET-ID 10
      ttMachine AT ROW 1.24 COL 2 WIDGET-ID 300
-     btnExit AT ROW 32.43 COL 129 WIDGET-ID 6
      ttJob AT ROW 2.19 COL 47 WIDGET-ID 200
+     btnExit AT ROW 32.43 COL 129 WIDGET-ID 6
      btnOK AT ROW 2.91 COL 129 WIDGET-ID 4
      btnRemove AT ROW 9.1 COL 129 WIDGET-ID 16
      btnReset AT ROW 12.19 COL 129 WIDGET-ID 18
@@ -325,7 +325,7 @@ DEFINE FRAME Dialog-Frame
 /* SETTINGS FOR DIALOG-BOX Dialog-Frame
    FRAME-NAME                                                           */
 /* BROWSE-TAB ttMachine baseOnText Dialog-Frame */
-/* BROWSE-TAB ttJob btnExit Dialog-Frame */
+/* BROWSE-TAB ttJob ttMachine Dialog-Frame */
 ASSIGN 
        FRAME Dialog-Frame:SCROLLABLE       = FALSE
        FRAME Dialog-Frame:HIDDEN           = TRUE.
@@ -417,7 +417,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnReset Dialog-Frame
 ON CHOOSE OF btnReset IN FRAME Dialog-Frame /* Reset */
 DO:
-    RUN pBuildTTJob (ipcType, iprRowID).
+    RUN pBuildTTJob (ipcType, ipcCompany, iprRowID).
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -611,7 +611,7 @@ PROCEDURE enable_UI :
 ------------------------------------------------------------------------------*/
   DISPLAY baseOnText 
       WITH FRAME Dialog-Frame.
-  ENABLE btnClear ttMachine btnExit ttJob btnOK btnRemove btnReset btnSort 
+  ENABLE btnClear ttMachine ttJob btnExit btnOK btnRemove btnReset btnSort 
       WITH FRAME Dialog-Frame.
   VIEW FRAME Dialog-Frame.
   {&OPEN-BROWSERS-IN-QUERY-Dialog-Frame}
@@ -1333,9 +1333,8 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pLoadDowntime Dialog-Frame
-PROCEDURE pLoadDowntime:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pLoadDowntime Dialog-Frame 
+PROCEDURE pLoadDowntime :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -1379,11 +1378,9 @@ PROCEDURE pLoadDowntime:
     END. /* do idx */
 
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pScheduleJob Dialog-Frame 
 PROCEDURE pScheduleJob :
