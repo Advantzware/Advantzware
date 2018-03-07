@@ -142,7 +142,7 @@ cust.area-code cust.phone cust.scomm cust.fax-prefix cust.fax-country ~
 cust.frt-pay cust.fob-code cust.ship-part cust.loc cust.carrier ~
 cust.del-zone cust.terr cust.under-pct cust.over-pct cust.markup ~
 cust.ship-days cust.manf-day cust.spare-int-1 cust.pallet cust.case-bundle ~
-cust.int-field[1] cust.po-mandatory 
+cust.int-field[1] cust.po-mandatory cust.show-set 
 &Scoped-define ENABLED-TABLES cust
 &Scoped-define FIRST-ENABLED-TABLE cust
 &Scoped-Define ENABLED-OBJECTS RECT-2 RECT-3 RECT-4 
@@ -157,21 +157,21 @@ cust.area-code cust.phone cust.scomm cust.fax-prefix cust.fax-country ~
 cust.frt-pay cust.fob-code cust.ship-part cust.loc cust.carrier ~
 cust.del-zone cust.terr cust.under-pct cust.over-pct cust.markup ~
 cust.ship-days cust.manf-day cust.spare-int-1 cust.pallet cust.case-bundle ~
-cust.int-field[1] cust.po-mandatory 
+cust.int-field[1] cust.po-mandatory cust.show-set 
 &Scoped-define DISPLAYED-TABLES cust
 &Scoped-define FIRST-DISPLAYED-TABLE cust
 &Scoped-Define DISPLAYED-OBJECTS fl_custemail terms_dscr rd_inv-meth ~
 stax_tax-dscr custype_dscr sman_sname fi_flat-comm faxAreaCode faxNumber ~
-loc_dscr carrier_dscr carr-mtx_del-dscr terr_dscr tb_show-set 
+loc_dscr carrier_dscr carr-mtx_del-dscr terr_dscr 
 
 /* Custom List Definitions                                              */
 /* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,ROW-AVAILABLE,DISPLAY-FIELD,faxFields,F1 */
 &Scoped-define ADM-CREATE-FIELDS cust.cust-no 
 &Scoped-define ADM-ASSIGN-FIELDS fl_custemail rd_inv-meth fi_flat-comm ~
-cust.po-mandatory tb_show-set 
+cust.po-mandatory cust.show-set 
 &Scoped-define DISPLAY-FIELD cust.state fl_custemail cust.terms cust.tax-gr ~
 cust.type cust.csrUser_id cust.sman cust.loc cust.carrier cust.del-zone cust.terr ~
-cust.po-mandatory tb_show-set 
+cust.po-mandatory cust.show-set 
 &Scoped-define faxFields faxAreaCode faxNumber 
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
@@ -285,11 +285,6 @@ DEFINE RECTANGLE RECT-3
 DEFINE RECTANGLE RECT-4
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 74.4 BY 11.91.
-
-DEFINE VARIABLE tb_show-set AS LOGICAL INITIAL no 
-     LABEL "Show Set Parts?" 
-     VIEW-AS TOGGLE-BOX
-     SIZE 23 BY .81 NO-UNDO.
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -593,7 +588,9 @@ DEFINE FRAME F-Main
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME F-Main
-     tb_show-set AT ROW 17.38 COL 114.6
+     cust.show-set AT ROW 17.38 COL 114.6
+          VIEW-AS TOGGLE-BOX
+          SIZE 23 BY .81
      "Taxable:" VIEW-AS TEXT
           SIZE 10 BY .62 AT ROW 16.14 COL 11
      "Tax Information" VIEW-AS TEXT
@@ -762,6 +759,8 @@ ASSIGN
    EXP-LABEL                                                            */
 /* SETTINGS FOR TOGGLE-BOX cust.ship-part IN FRAME F-Main
    EXP-LABEL                                                            */
+/* SETTINGS FOR TOGGLE-BOX cust.show-set IN FRAME F-Main
+   2 4                                                                  */
 /* SETTINGS FOR FILL-IN cust.sman IN FRAME F-Main
    4                                                                    */
 /* SETTINGS FOR FILL-IN sman_sname IN FRAME F-Main
@@ -780,8 +779,6 @@ ASSIGN
    4 EXP-LABEL                                                          */
 /* SETTINGS FOR FILL-IN cust.tax-id IN FRAME F-Main
    EXP-LABEL                                                            */
-/* SETTINGS FOR TOGGLE-BOX tb_show-set IN FRAME F-Main
-   NO-ENABLE 2 4                                                        */
 /* SETTINGS FOR FILL-IN cust.terms IN FRAME F-Main
    4 EXP-LABEL                                                          */
 /* SETTINGS FOR FILL-IN terms_dscr IN FRAME F-Main
@@ -1874,7 +1871,7 @@ PROCEDURE disable-fields :
 ------------------------------------------------------------------------------*/
 
    DO WITH FRAME {&FRAME-NAME}.
-     DISABLE {&faxFields} rd_inv-meth fi_flat-comm tb_show-set fl_custemail.
+     DISABLE {&faxFields} rd_inv-meth fi_flat-comm  fl_custemail.
    END.
 
 END PROCEDURE.
@@ -2153,7 +2150,6 @@ PROCEDURE local-create-record :
         faxnumber:SCREEN-VALUE = ""
         faxnumber = ""
         rd_inv-meth:SCREEN-VALUE  = STRING(cust.inv-meth)
-        tb_show-set:SCREEN-VALUE  = "yes"
         fi_flat-comm:SCREEN-VALUE = "" 
         fl_custemail:SCREEN-VALUE = "".
      END.
@@ -2212,7 +2208,6 @@ PROCEDURE local-display-fields :
   IF AVAIL cust AND NOT adm-new-record THEN DO:
     ASSIGN
      rd_inv-meth  = cust.inv-meth
-     tb_show-set = YES
      fi_flat-comm = 0.
 
     IF cust.cust-no NE "" THEN RUN reftable-values (YES).
@@ -2227,7 +2222,7 @@ PROCEDURE local-display-fields :
 
   /* Code placed here will execute AFTER standard behavior.    */
   DO WITH FRAME {&FRAME-NAME}:
-    DISABLE tb_show-set fi_flat-comm.
+    DISABLE  fi_flat-comm.
 
     cust.cust-no:BGCOLOR = 3.
 
@@ -2518,15 +2513,16 @@ PROCEDURE reftable-values :
   DEF INPUT PARAM ip-display AS LOG NO-UNDO.
 
   IF AVAIL cust THEN DO:
-    IF ip-display THEN 
-        ASSIGN
-        /* tb_po-mand = cust.po-mandatory  */
-        tb_show-set = cust.show-set .
-    ELSE
-        ASSIGN
-            /* cust.po-mandatory = (tb_po-mand) */
-            cust.show-set = tb_show-set .
 
+    FIND FIRST reftable {&where-flat-comm} NO-ERROR.
+    IF NOT AVAIL reftable THEN DO:
+      CREATE reftable.
+      ASSIGN
+       reftable.reftable = "cust.flat-comm"
+       reftable.company  = cust.company
+       reftable.loc      = ""
+       reftable.code     = cust.cust-no.
+    END.
     IF ip-display THEN
       fi_flat-comm = cust.flatCommPct.
     ELSE
