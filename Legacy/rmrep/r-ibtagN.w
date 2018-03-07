@@ -2044,8 +2044,8 @@ SESSION:SET-WAIT-STATE ("general").
                    AND job-mat.blank-no EQ cBNum NO-ERROR .
              IF AVAIL job-mat THEN
                  ASSIGN
-                 dShtWid     = job-mat.len 
-                 dShtLen     = job-mat.wid
+                 dShtWid     = job-mat.wid 
+                 dShtLen     = job-mat.len
                  dShtDep     = 0
                  dShtRollWid = 0 .
          END.
@@ -2831,8 +2831,8 @@ IF LAST-OF(tt-rm-bin.i-no) THEN DO:
 
         IF AVAIL job-mat THEN
             ASSIGN
-            dShtWid     = job-mat.len 
-            dShtLen     = job-mat.wid
+            dShtWid     = job-mat.wid 
+            dShtLen     = job-mat.len
             dShtDep     = 0
             dShtRollWid = 0 .
     END.
