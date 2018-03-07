@@ -36,8 +36,10 @@ PROCEDURE setCellColumns:
      DO i = 1 TO j:
      
         DO k = 1 TO j:
-           IF userColumn[i] EQ cellColumn[k]:NAME THEN
-              LEAVE.
+            IF NOT VALID-HANDLE(cellColumn[k]) THEN
+                LEAVE.
+            IF userColumn[i] EQ cellColumn[k]:NAME THEN
+                LEAVE.
         END.
 
         /* 25841 - handle condition where the column def in the .dat file no longer exists in the browser */
