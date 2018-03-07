@@ -3566,7 +3566,7 @@ PROCEDURE printProbe :
                i = i + 1 .
            END.
      END.
-     
+
      IF NOT is-xprint-form AND v-prt-note THEN RUN print-notes(LINE-COUNTER).
     INPUT CLOSE.
     IF PAGE-NUM EQ 1 THEN
@@ -3577,9 +3577,10 @@ PROCEDURE printProbe :
   IF is-xprint-form THEN RUN print-box-est (lv-dest,lv-font,lv-ornt).
   ELSE DO:
      list-name = ls-outfile.
+     OUTPUT CLOSE. /* if output still open, will blowout in scr-rptest.w */
      CASE lv-dest:
           WHEN 1 THEN RUN custom/prntproc.p (list-name,lv-font,lv-ornt).
-          WHEN 2 THEN RUN scr-rptest.w (list-name,"Estimate Analysis",lv-font,lv-ornt). 
+          WHEN 2 THEN RUN scr-rptest.w (list-name,"Estimate Analysis",lv-font,lv-ornt).
           WHEN 3 THEN DO:
               {custom/out2file.i}
           END.
@@ -3954,6 +3955,7 @@ PROCEDURE run-whatif :
       END.
 
   END.
+  RUN dispatch ('open-query').
   RUN dispatch ('open-query').     
 END PROCEDURE.
 
