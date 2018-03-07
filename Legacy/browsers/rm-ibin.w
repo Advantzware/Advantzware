@@ -500,6 +500,7 @@ PROCEDURE calc-cost :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+
   DEF VAR v-override AS LOG LABEL " Enter Password " NO-UNDO.
   DEF VAR choice AS LOG NO-UNDO.
   DEF VAR lv-rowid AS ROWID NO-UNDO.
@@ -509,23 +510,19 @@ PROCEDURE calc-cost :
   DEF BUFFER bf-rm-bin FOR rm-bin.
   DEF BUFFER bf-item FOR item.
     
-
-  v-override = NO.
-
-  FIND FIRST users NO-LOCK
-     WHERE users.user_id EQ USERID(LDBNAME(1)) NO-ERROR.
-
-IF AVAIL users AND users.securityLevel GE 900 THEN
-    ASSIGN v-override = YES.
-IF not(v-override) THEN DO:
-  /*IF v-acs-code NE "YORKIE" THEN RUN windows/chkcode.w (OUTPUT v-acs-code).*/
-   IF NOT v-override THEN do:  
-     RUN sys/ref/d-passwd.w (10, OUTPUT v-override). 
-     IF NOT v-override THEN RETURN NO-APPLY.
-   END.  
-END.
+    DEF VAR hPgmSecurity AS HANDLE NO-UNDO.
+    DEF VAR lResult AS LOG NO-UNDO.
+    RUN "system/PgmMstrSecur.p" PERSISTENT SET hPgmSecurity.
+    RUN epCanAccess IN hPgmSecurity ("browsers/rm-ibin.w", "", OUTPUT lResult).
+    DELETE OBJECT hPgmSecurity.
+    
+    /* If not automatically cleared by security level, ask for password */
+    IF NOT lResult THEN DO:
+        RUN sys/ref/d-passwd.w (10, OUTPUT lResult). 
+        IF NOT lResult THEN RETURN.
+    END.
      
-  IF v-override THEN DO:
+  DO:
     /*find bf-rm-bin where recid(bf-rm-bin) = recid(rm-bin).
     lv-cost = rm-bin.cost.
     DO WHILE TRUE:

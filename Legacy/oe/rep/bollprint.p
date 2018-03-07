@@ -99,7 +99,7 @@ DEF VAR v-ship-i AS cha EXTENT 4 FORM "x(60)" NO-UNDO.
 DEF VAR v-tmp-lines AS DEC NO-UNDO.
 
 DEF VAR ls-image1 AS cha NO-UNDO.
-DEF VAR ls-full-img1 AS cha FORM "x(50)" NO-UNDO.
+DEF VAR ls-full-img1 AS cha FORM "x(200)" NO-UNDO.
 ASSIGN
    ls-image1 = "images/loyprinters.jpg"
    FILE-INFO:FILE-NAME = ls-image1 

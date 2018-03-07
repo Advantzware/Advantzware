@@ -4,7 +4,7 @@
       "<C3><R2><#1><R+8><C+45><IMAGE#1=" ls-full-img1 
       "<P14><R8><C46><B>Bill of lading #:" OE-BOLH.BOL-NO "</B><P10> "
       SKIP
-      "<R12><C1>"
+      "<LEFT=7mm><R12><C1>"
       space(7) "Sold To:" SPACE(49) "Ship To:"  SKIP(1)
       SPACE(7) v-comp-name v-ship-name AT 65 skip
       SPACE(7) v-comp-addr[1] v-ship-addr[1] AT 65 SKIP

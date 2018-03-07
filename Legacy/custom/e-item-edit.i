@@ -2,9 +2,7 @@
 DEF BUFFER b-{1}-edit FOR {1}.
 
 /*assuming only called for item*/
-DEF BUFFER b-qty FOR reftable.
-DEF BUFFER b-cost FOR reftable.
-DEF BUFFER b-setup FOR reftable.
+
 
 DEF VAR li-{1} AS INT NO-UNDO.
     
@@ -26,35 +24,16 @@ DO li-{1} = 1 TO 10:
   RELEASE tt-{1}.
 END.
 
-FIND FIRST b-qty WHERE
-     b-qty.reftable = "vend-qty" AND
-     b-qty.company = e-item-vend.company AND
-     b-qty.CODE    = e-item-vend.i-no AND
-     b-qty.code2   = e-item-vend.vend-no
-     NO-ERROR.
 
-FIND FIRST b-cost WHERE
-     b-cost.reftable = "vend-cost" AND
-     b-cost.company = e-item-vend.company AND
-     b-cost.CODE    = e-item-vend.i-no AND
-     b-cost.code2   = e-item-vend.vend-no
-     NO-ERROR.
 
-FIND FIRST b-setup WHERE
-     b-setup.reftable = "vend-setup" AND
-     b-setup.company = e-item-vend.company AND
-     b-setup.CODE    = e-item-vend.i-no AND
-     b-setup.code2   = e-item-vend.vend-no
-     NO-ERROR.
-
-IF AVAIL b-qty AND AVAIL b-cost AND AVAIL b-setup THEN
+IF AVAIL e-item-vend THEN
 DO:
    DO li-{1} = 1 TO 10:
       CREATE tt-{1}.
       ASSIGN
-         tt-{1}-qty = b-qty.val[li-{1}]
-         tt-{1}-cst = b-cost.val[li-{1}]
-         tt-{1}-stp = b-setup.val[li-{1}].
+         tt-{1}-qty = e-item-vend.runQtyXtra[li-{1}]
+         tt-{1}-cst = e-item-vend.runCostXtra[li-{1}]
+         tt-{1}-stp = e-item-vend.setupsXtra[li-{1}].
       RELEASE tt-{1}.
    END.
 END.
@@ -80,12 +59,12 @@ FOR EACH tt-{1} WHERE tt-{1}-qty GT 0 BREAK BY tt-{1}-qty:
   ELSE
   DO:
      ASSIGN
-        b-qty.val[li-{1} - 10] = tt-{1}-qty
-        b-cost.val[li-{1} - 10] = tt-{1}-cst
-        b-setup.val[li-{1} - 10] = tt-{1}-stp.
+        e-item-vend.runQtyXtra[li-{1} - 10] = tt-{1}-qty
+        e-item-vend.runCostXtra[li-{1} - 10] = tt-{1}-cst
+        e-item-vend.setupsXtra[li-{1} - 10] = tt-{1}-stp.
 
      IF LAST(tt-{1}-qty) OR li-{1} EQ 20 THEN
-        b-qty.val[li-{1} - 10] = 9999999.9.
+        e-item-vend.runQtyXtra[li-{1} - 10] = 9999999.9.
   END.
 END.
 

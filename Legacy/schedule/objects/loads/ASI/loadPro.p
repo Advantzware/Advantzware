@@ -712,11 +712,11 @@ FOR EACH job-hdr NO-LOCK
               AND oe-rel.line EQ oe-ordl.line
             BREAK BY oe-rel.rel-no:
           IF FIRST(oe-rel.rel-no) THEN
-          userField[91] = setUserField(91,STRING(oe-rel.rel-date,'99.99.9999')).
+          userField[91] = setUserField(91,STRING(oe-rel.rel-date,'99/99/9999')).
           IF LAST(oe-rel.rel-no) THEN
           ASSIGN
             userField[37] = setUserField(37,STRING(oe-rel.qty,'->>,>>>,>>9'))
-            userField[38] = setUserField(38,STRING(oe-rel.rel-date,'99.99.9999'))
+            userField[38] = setUserField(38,STRING(oe-rel.rel-date,'99/99/9999'))
             userField[39] = setUserField(39,oe-rel.ship-addr[1])
             userField[40] = setUserField(40,oe-rel.ship-city + ', '
                           + oe-rel.ship-state + ' '
@@ -731,7 +731,7 @@ FOR EACH job-hdr NO-LOCK
               AND oe-rel.ord-no EQ oe-ordl.ord-no
             BREAK BY oe-rel.rel-date:
             IF FIRST-OF(oe-rel.rel-date) THEN DO:  
-                userField[91] = setUserField(91,STRING(oe-rel.rel-date,'99.99.9999')).
+                userField[91] = setUserField(91,STRING(oe-rel.rel-date,'99/99/9999')).
                 LEAVE.
             END. /* first-of */
         END. /* each oe0rel */
@@ -1066,7 +1066,7 @@ FOR EACH job-hdr NO-LOCK
       userField[83] = setUserField(83,job.stat)
       userField[85] = setUserField(85,fDueQty(INT(userField[15]),INT(userField[57]),DEC(userField[86]),DEC(userField[87])))
       userField[88] = setUserField(88,IF job-mch.speed EQ ? THEN '' ELSE LEFT-TRIM(STRING(job-mch.speed,'z,zzz,zz9')))
-      userField[89] = setUserField(89,STRING(job.create-date,'99.99.9999'))
+      userField[89] = setUserField(89,STRING(job.create-date,'99/99/9999'))
       userfield[96] = setUserField(96,STRING(job-mch.mr-hr,'>,>>9.99'))
       userfield[97] = setUserField(97,STRING(job-mch.run-hr,'>,>>9.99'))
       jobDescription = jobText

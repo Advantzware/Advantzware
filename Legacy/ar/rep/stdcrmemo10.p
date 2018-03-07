@@ -63,7 +63,7 @@ DEF VAR note-count   AS INT                           NO-UNDO.
 /* gdm - 04210922 logo */
 DEF VAR ls-cust-img  AS CHAR                         NO-UNDO.
 DEF VAR ls-image1    AS CHAR                         NO-UNDO.
-DEF VAR ls-full-img1 AS CHAR FORMAT "x(150)"          NO-UNDO.
+DEF VAR ls-full-img1 AS CHAR FORMAT "x(200)"          NO-UNDO.
 DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
 DEF VAR v-memo-name  AS CHAR FORMAT "x(30)"          NO-UNDO.

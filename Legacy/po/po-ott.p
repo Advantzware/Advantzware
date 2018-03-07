@@ -44,9 +44,7 @@ def var v-hdr as char format "x(15)" initial "" no-undo.
 def var v-ino-job as char format "x(15)" initial "" no-undo.
 def var v-change-ord as char format "x(35)" initial "" no-undo.
 DEF VAR lv-got-return AS int NO-UNDO.
-DEF BUFFER b-cost FOR reftable.
-DEF BUFFER b-qty FOR reftable.
-DEF BUFFER b-setup FOR reftable.
+
 
 DEF TEMP-TABLE tt-eiv NO-UNDO
     FIELD run-qty AS DEC DECIMALS 3 EXTENT 20
@@ -56,8 +54,8 @@ DEF TEMP-TABLE tt-eiv NO-UNDO
 /* === with xprint ====*/
 DEF VAR ls-image1 AS cha NO-UNDO.
 DEF VAR ls-image2 AS cha NO-UNDO.
-DEF VAR ls-full-img1 AS cha FORM "x(60)" NO-UNDO.
-DEF VAR ls-full-img2 AS cha FORM "x(60)" NO-UNDO.
+DEF VAR ls-full-img1 AS cha FORM "x(200)" NO-UNDO.
+DEF VAR ls-full-img2 AS cha FORM "x(200)" NO-UNDO.
 ASSIGN ls-image1 = "images\ottpkg.jpg"
        ls-image2 = "images\pacific2.bmp"
        FILE-INFO:FILE-NAME = ls-image1
@@ -671,34 +669,17 @@ PROCEDURE calc-cost:
            tt-eiv.setups[li] = e-item-vend.setups[li].
      END.
 
-     FIND FIRST b-qty WHERE
-          b-qty.reftable = "vend-qty" AND
-          b-qty.company = e-item-vend.company AND
-	      b-qty.CODE    = e-item-vend.i-no AND
-          b-qty.code2   = e-item-vend.vend-no
-          NO-LOCK NO-ERROR.
      
-     IF AVAIL b-qty THEN
+     
+     IF AVAIL e-item-vend THEN
      DO:
-        FIND FIRST b-cost WHERE
-             b-cost.reftable = "vend-cost" AND
-             b-cost.company = e-item-vend.company AND
-	         b-cost.CODE    = e-item-vend.i-no AND
-             b-cost.code2   = e-item-vend.vend-no
-             NO-LOCK NO-ERROR.
-
-        FIND FIRST b-setup WHERE
-             b-setup.reftable = "vend-setup" AND
-             b-setup.company = e-item-vend.company AND
-	         b-setup.CODE    = e-item-vend.i-no AND
-             b-setup.code2   = e-item-vend.vend-no
-             NO-LOCK NO-ERROR.
+        
      
         DO li = 1 TO 10:
            ASSIGN
-              tt-eiv.run-qty[li + 10] = b-qty.val[li]
-              tt-eiv.run-cost[li + 10] = b-cost.val[li]
-              tt-eiv.setups[li + 10] = b-setup.val[li].
+              tt-eiv.run-qty[li + 10] = e-item-vend.runQtyXtra[li]
+              tt-eiv.run-cost[li + 10] = e-item-vend.runCostXtra[li]
+              tt-eiv.setups[li + 10] = e-item-vend.setupsXtra[li].
         END.
      END.
 

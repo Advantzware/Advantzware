@@ -389,12 +389,10 @@ do v-local-loop = 1 to v-local-copies:
        lv-est-type = lv-est-type + "   FORM " + string(b-eb.form-no) + " OF " + string(xest.form-qty) 
                     + "  BLANK " + STRING(b-eb.blank-no) + " OF " + STRING(xef.blank-qty).
 
-       FIND FIRST reftable NO-LOCK WHERE reftable.reftable EQ 'stackpat'
-                           AND reftable.company EQ ''
-                           AND reftable.loc EQ ''
-                           AND reftable.code EQ b-eb.stack-code NO-ERROR.
-       IF AVAILABLE reftable AND SEARCH(reftable.dscr) NE ? THEN lv-spattern-img =  reftable.dscr.
 
+       FIND FIRST stackPattern NO-LOCK WHERE stackPattern.stackCode EQ b-eb.stack-code NO-ERROR.
+       IF AVAILABLE stackPattern AND SEARCH(stackPattern.stackImage) NE ? THEN lv-spattern-img =  stackPattern.stackImage.
+       
        PUT "<P10></PROGRESS>" SKIP "<FCourier New><C2><B>" lv-au "<C33>" lv-est-type "</B>"
            "<P12><B><C90>JOB TICKET"       
        SKIP

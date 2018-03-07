@@ -67,7 +67,7 @@ DEF VAR ln-cnt AS INT NO-UNDO.
 DEF VAR v-frt-class AS cha NO-UNDO.
 /* === with xprint ====*/
 DEF VAR ls-image1 AS cha NO-UNDO.
-DEF VAR ls-full-img1 AS cha FORM "x(50)" NO-UNDO.
+DEF VAR ls-full-img1 AS cha FORM "x(200)" NO-UNDO.
 
 find first sys-ctrl
       where sys-ctrl.company eq cocode

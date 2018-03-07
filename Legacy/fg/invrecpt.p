@@ -270,7 +270,7 @@ IF ip-run EQ 2 THEN DO TRANSACTION:
 /* 10051225 */
 /*       FIND FIRST oe-rel USE-INDEX seq-no NO-LOCK NO-ERROR.      */
 /*       v-nxt-r-no = IF AVAIL oe-rel THEN oe-rel.r-no + 1 ELSE 1. */
-      RUN oe/get-r-no.p (INPUT "oe-rel", OUTPUT v-nxt-r-no).
+      RUN oe/getNextRelNo.p (INPUT "oe-rel", OUTPUT v-nxt-r-no).
       CREATE oe-rel.
       ASSIGN
        oe-rel.company   = oe-ordl.company

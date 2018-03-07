@@ -148,6 +148,7 @@ r-tonmsf. cr
 r-inkglu. cr
 r-rmroll. cr
 r-rmbrd. cr
+r-brdrec. cr
 cf c est
 item. cf est
 w-item. cf est
@@ -614,3 +615,5 @@ parmfile. system est
 parmfil_. system est
 help mainmenu est
 about. help est
+aoaRpt. file
+aoaDash. file

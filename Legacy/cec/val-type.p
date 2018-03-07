@@ -21,12 +21,9 @@ DO WHILE VALID-HANDLE(lv-field-hdl):
 
     IF li EQ ip-ext OR ip-ext EQ ? THEN DO:
       IF lv-field-hdl:SCREEN-VALUE NE ""                                    AND
-         NOT CAN-FIND(FIRST reftable
-                      WHERE reftable.reftable EQ "score-type"
-                        AND reftable.company  EQ cocode
-                        AND reftable.loc      EQ ""
-                        AND reftable.code     EQ lv-field-hdl:SCREEN-VALUE) THEN DO:
-
+           NOT CAN-FIND(FIRST scoreType
+                        WHERE scoreType.company   EQ cocode
+                          AND scoreType.scoreType EQ lv-field-hdl:SCREEN-VALUE) THEN DO:
         MESSAGE "Type is invalid, try help..." VIEW-AS ALERT-BOX ERROR.
         APPLY "entry" TO lv-field-hdl.
         RETURN ERROR.

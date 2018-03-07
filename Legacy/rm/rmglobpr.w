@@ -675,20 +675,6 @@ SESSION:SET-WAIT-STATE("General").
 
 EMPTY TEMP-TABLE tt-rowid.
 
-CREATE reftable.
-ASSIGN
- reftable.reftable = "rm/rmglobpr.w"
- reftable.company  = cocode
- reftable.loc      = STRING(YEAR(TODAY),"9999") +
-                     STRING(MONTH(TODAY),"99")  +
-                     STRING(DAY(TODAY),"99")
- reftable.code     = STRING(TIME,"99999")
- reftable.code2    = USERID("nosweat").
-
-RUN get-params (OUTPUT reftable.dscr).
-
-reftable.dscr = TRIM(reftable.dscr) + " " + "Mat Types:" + v-mtype.
-
 DO li = 1 TO LENGTH(v-mtype):
   FOR EACH item
       {sys/look/itemW.i}   

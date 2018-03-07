@@ -15,8 +15,9 @@ assign
  locode = gloc.
 
 DO TRANSACTION:
-   {sys/inc/selrptcol.i "DR7" }
+   {sys/inc/runAOAVer.i "DR7" }
 END.
 
-IF SelectRptColumn-log THEN RUN pcrep/r-labestN.w PERSISTENT.
-ELSE RUN pcrep/r-labestA.w PERSISTENT.
+cAOAFile = SEARCH("AOA/r-labest.p").
+IF RunAOAVersion-log AND cAOAFile NE ? THEN RUN AOA/r-labest.p.
+ELSE RUN pcrep/r-labestN.w PERSISTENT.

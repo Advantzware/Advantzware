@@ -235,50 +235,28 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-update W-Win
 ON CHOOSE OF btn-update IN FRAME F-Main /* Update Help */
 DO:
-    /* need security check */
-    def var lv-password as cha no-undo.
     DEF VAR op-ed-text AS cha NO-UNDO.
-  /*  
-    message "Please Enter Password : " update lv-password.
-    if lv-password <> "yorkie" then do:
-       message "Security Error.  Contact System Administrator!" view-as alert-box error.
-       return .
-    end.
-  */  
 
-    ASSIGN ll-secure = NO
-           op-ed-text = ed-text.
+    ASSIGN
+        op-ed-text = ed-text.
 
-    FIND FIRST users NO-LOCK
-     WHERE users.user_id EQ USERID(LDBNAME(1)) NO-ERROR.
+    DEF VAR hPgmSecurity AS HANDLE NO-UNDO.
+    DEF VAR lResult AS LOG NO-UNDO.
+    RUN "system/PgmMstrSecur.p" PERSISTENT SET hPgmSecurity.
+    RUN epCanAccess IN hPgmSecurity ("sys/ref/hlp-ctrl.w", "EnableUpdateButton", OUTPUT lResult).
+    DELETE OBJECT hPgmSecurity.
+    
+    /* If not automatically cleared by security level, ask for password */
+    IF NOT lResult THEN DO:
+        RUN sys/ref/uphlp-pass.w (3, OUTPUT lResult).
+        IF lResult THEN 
+            RUN sys/ref/hlpupd2.p (ip-field, ip-table, ip-value, ip-frame, ip-language, OUTPUT op-ed-text)..
+    END.
 
-IF AVAIL users AND users.securityLevel GE 900 THEN
-    ASSIGN ll-secure = YES.
-
-    IF NOT ll-secure THEN RUN sys/ref/uphlp-pass.w (3, OUTPUT ll-secure).
-
-    IF ll-secure EQ YES THEN
-    run sys/ref/hlpupd2.p (ip-field,ip-table,ip-value,ip-frame,ip-language,OUTPUT op-ed-text).
-
-/* === re-display    ==========*/
-  /*find first asihlp.hlp-head where hlp-head.fld-name = ip-VALUE  and
-                                 hlp-head.fil-name = ip-table    
-                                 no-lock no-error.
-  if not avail hlp-head then do:
-     find first asihlp.hlp-head where hlp-head.fld-name = ip-VALUE  no-lock no-error.     
-     if avail hlp-head then do:
-        ed-text = hlp-head.help-txt.
-        display ed-text with frame {&frame-name}.   
-     end.  
-  end.
-  else do:
-        ed-text = hlp-head.help-txt.
-        display ed-text with frame {&frame-name}.   
-  end.*/
-
-    ed-text = op-ed-text.
-        display ed-text with frame {&frame-name}. 
-
+    /* === re-display    ==========*/
+    assign 
+        ed-text = op-ed-text.
+    display ed-text with frame {&frame-name}. 
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -545,16 +523,16 @@ PROCEDURE local-enable :
   Notes:       
 ------------------------------------------------------------------------------*/
 
-  /* Code placed here will execute PRIOR to standard behavior. */
-
   /* Dispatch standard ADM method.                             */
-  RUN dispatch IN THIS-PROCEDURE ( INPUT 'enable':U ) .
-  
-    FIND FIRST users NO-LOCK
-     WHERE users.user_id EQ USERID(LDBNAME(1)) NO-ERROR.
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'enable':U ) .      
 
-    IF AVAIL users AND users.securityLevel LE 999 THEN
-     btn-update:VISIBLE IN FRAME f-main = NO.
+    DEF VAR hPgmSecurity AS HANDLE NO-UNDO.
+    DEF VAR lResult AS LOG NO-UNDO.
+    RUN "system/PgmMstrSecur.p" PERSISTENT SET hPgmSecurity.
+    RUN epCanAccess IN hPgmSecurity ("sys/ref/hlp-ctrl.w", "EnableHelpUpdate", OUTPUT lResult).
+    DELETE OBJECT hPgmSecurity.
+    IF NOT lResult THEN ASSIGN
+        btn-update:VISIBLE IN FRAME f-main = NO.
 
 END PROCEDURE.
 

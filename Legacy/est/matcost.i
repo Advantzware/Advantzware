@@ -33,34 +33,17 @@ IF AVAIL e-item THEN DO:
             tt-e-i-v-{3}.setups[j] = e-item-vend.setups[j].
       END.
 
-      FIND FIRST b-qty WHERE
-           b-qty.reftable = "vend-qty" AND
-           b-qty.company = e-item-vend.company AND
-	       b-qty.CODE    = e-item-vend.i-no AND
-           b-qty.code2   = e-item-vend.vend-no
-           NO-LOCK NO-ERROR.
+
       
       IF AVAIL b-qty THEN
       DO:
-         FIND FIRST b-cost WHERE
-              b-cost.reftable = "vend-cost" AND
-              b-cost.company = e-item-vend.company AND
-	          b-cost.CODE    = e-item-vend.i-no AND
-              b-cost.code2   = e-item-vend.vend-no
-              NO-LOCK NO-ERROR.
 
-         FIND FIRST b-setup WHERE
-              b-setup.reftable = "vend-setup" AND
-              b-setup.company = e-item-vend.company AND
-	          b-setup.CODE    = e-item-vend.i-no AND
-              b-setup.code2   = e-item-vend.vend-no
-              NO-LOCK NO-ERROR.
       
          DO j = 1 TO 10:
             ASSIGN
-               tt-e-i-v-{3}.run-qty[j + 10] = b-qty.val[j]
-               tt-e-i-v-{3}.run-cost[j + 10] = b-cost.val[j]
-               tt-e-i-v-{3}.setups[j + 10] = b-setup.val[j].
+               tt-e-i-v-{3}.run-qty[j + 10] = e-item-vend.runQtyXtra[j]
+               tt-e-i-v-{3}.run-cost[j + 10] = e-item-vend.runCostXtra[j]
+               tt-e-i-v-{3}.setups[j + 10] = e-item-vend.setupsXtra[j].
          END.
       END. 
    END.

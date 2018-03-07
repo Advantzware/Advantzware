@@ -850,17 +850,14 @@ hide all no-pause.
 
 PROCEDURE stackImage:
   DEFINE BUFFER pattern FOR reftable.
-
+  DEFINE BUFFER stackPattern FOR stackPattern.
   IF v-stackcode EQ '' THEN RETURN.
-  FIND FIRST pattern NO-LOCK
-       WHERE pattern.reftable EQ 'STACKPAT'
-         AND pattern.company EQ ''
-         AND pattern.loc EQ ''
-         AND pattern.code EQ SUBSTR(v-stackcode,9,1) NO-ERROR.
-  IF AVAILABLE pattern AND SEARCH(pattern.dscr) NE ? THEN
+  FIND FIRST stackPattern NO-LOCK
+       WHERE stackPattern.stackCode EQ SUBSTR(v-stackcode,9,1) NO-ERROR.
+  IF AVAILABLE stackPattern AND SEARCH(stackPattern.stackImage) NE ? THEN
   PUT UNFORMATTED
     "<#71><C27><R+1><FROM><C2><R+12>"
-    "<IMAGE#71=" pattern.dscr ">"
+    "<IMAGE#71=" stackPattern.stackImage ">"
     "<R-13>".
 END PROCEDURE.
 

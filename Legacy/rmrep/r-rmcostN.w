@@ -42,8 +42,8 @@ assign
 
 def var fco as ch NO-UNDO.
 def var tco like fco NO-UNDO.
-def var floc as ch NO-UNDO.
-def var tloc like floc NO-UNDO.
+def var floc LIKE ITEM.loc NO-UNDO.
+def var tloc like ITEM.loc NO-UNDO.
 def var fcat as ch initial "000000" NO-UNDO.
 def var tcat like fcat initial "ZZZZZZ" NO-UNDO.
 def var fmat as ch initial "000000" NO-UNDO.
@@ -71,8 +71,7 @@ DEF VAR str-line AS cha FORM "x(300)" NO-UNDO.
 
 {sys/form/r-top5DL3.f} 
 
-DEF BUFFER b-cost FOR reftable.
-DEF BUFFER b-qty FOR reftable.
+
 DEF BUFFER b-blank-vend-qty FOR reftable.
 DEF BUFFER b-blank-vend-cost FOR reftable.
 DEF BUFFER bitem FOR ITEM.
@@ -112,7 +111,7 @@ with frame item2 stream-io width 80 overlay no-labels no-underline.
 
 find first ce-ctrl
     where ce-ctrl.company eq cocode
-      and ce-ctrl.loc     eq locode
+      AND ce-ctrl.loc EQ locode
     no-lock no-error.
 
 DEF VAR ls-fax-file AS CHARACTER NO-UNDO.
@@ -175,6 +174,7 @@ ASSIGN cTextListToSelect = "Item No,Item Code,Name,Mat'l Type,Desc,Cost Type,Est
 
 {sys/inc/ttRptSel.i}
 ASSIGN cTextListToDefault  = "Category,Item No,Name,Caliper,Basis Wt,Last Cost,UOM,On Hand,On Order,Committed,Available"  .
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -191,20 +191,21 @@ ASSIGN cTextListToDefault  = "Category,Item No,Name,Caliper,Basis Wt,Last Cost,U
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-6 RECT-7 begin_procat end_procat ~
-begin_vend end_vend begin_mat end_mat tb_real tb_est sl_avail Btn_Def ~
-sl_selected Btn_Add Btn_Remove btn_Up btn_down rd-dest lines-per-page ~
-lv-ornt lv-font-no td-show-parm tb_excel tb_runExcel fi_file btn-ok ~
-btn-cancel tb_detailed
+begin_vend end_vend begin_mat end_mat begin_whs end_whs tb_real tb_est ~
+tb_detailed sl_avail Btn_Def sl_selected Btn_Add Btn_Remove btn_Up btn_down ~
+rd-dest lines-per-page lv-ornt lv-font-no td-show-parm tb_excel tb_runExcel ~
+fi_file btn-ok btn-cancel 
 &Scoped-Define DISPLAYED-OBJECTS begin_procat end_procat begin_vend ~
-end_vend begin_mat end_mat tb_real tb_est sl_avail sl_selected rd-dest ~
-lines-per-page lv-ornt lv-font-no lv-font-name td-show-parm tb_excel ~
-tb_runExcel fi_file tb_detailed
+end_vend begin_mat end_mat begin_whs end_whs tb_real tb_est tb_detailed ~
+sl_avail sl_selected rd-dest lines-per-page lv-ornt lv-font-no lv-font-name ~
+td-show-parm tb_excel tb_runExcel fi_file 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
+
 
 /* ************************  Function Prototypes ********************** */
 
@@ -214,6 +215,7 @@ FUNCTION GEtFieldValue RETURNS CHARACTER
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
 
 /* ***********************  Control Definitions  ********************** */
 
@@ -264,6 +266,11 @@ DEFINE VARIABLE begin_vend AS CHARACTER FORMAT "X(8)":U
      VIEW-AS FILL-IN 
      SIZE 14 BY 1 NO-UNDO.
 
+DEFINE VARIABLE begin_whs AS CHARACTER FORMAT "X(5)":U 
+     LABEL "Beginning Warehouse" 
+     VIEW-AS FILL-IN 
+     SIZE 14 BY 1 NO-UNDO.
+
 DEFINE VARIABLE end_mat AS CHARACTER FORMAT "X(8)":U INITIAL "zzzzzzzz" 
      LABEL "Ending Material Type" 
      VIEW-AS FILL-IN 
@@ -276,6 +283,11 @@ DEFINE VARIABLE end_procat AS CHARACTER FORMAT "X(5)":U INITIAL "zzzzz"
 
 DEFINE VARIABLE end_vend AS CHARACTER FORMAT "X(8)":U INITIAL "zzzzzzzz" 
      LABEL "Ending Vendor#" 
+     VIEW-AS FILL-IN 
+     SIZE 14 BY 1 NO-UNDO.
+
+DEFINE VARIABLE end_whs AS CHARACTER FORMAT "X(5)":U INITIAL "zzzzz" 
+     LABEL "Ending Warehouse" 
      VIEW-AS FILL-IN 
      SIZE 14 BY 1 NO-UNDO.
 
@@ -323,12 +335,7 @@ DEFINE RECTANGLE RECT-6
 
 DEFINE RECTANGLE RECT-7
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 96 BY 7.86.
-
-DEFINE VARIABLE tb_detailed AS LOGICAL INITIAL no 
-     LABEL "Detail Real Items?" 
-     VIEW-AS TOGGLE-BOX
-     SIZE 26 BY 1 NO-UNDO.
+     SIZE 96 BY 8.81.
 
 DEFINE VARIABLE sl_avail AS CHARACTER 
      VIEW-AS SELECTION-LIST MULTIPLE SCROLLBAR-VERTICAL 
@@ -337,6 +344,11 @@ DEFINE VARIABLE sl_avail AS CHARACTER
 DEFINE VARIABLE sl_selected AS CHARACTER 
      VIEW-AS SELECTION-LIST MULTIPLE SCROLLBAR-VERTICAL 
      SIZE 33 BY 5.19 NO-UNDO.
+
+DEFINE VARIABLE tb_detailed AS LOGICAL INITIAL no 
+     LABEL "Detail Real Items?" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 26 BY 1 NO-UNDO.
 
 DEFINE VARIABLE tb_est AS LOGICAL INITIAL yes 
      LABEL "Estimated Materials?" 
@@ -380,46 +392,50 @@ DEFINE FRAME FRAME-A
           "Enter Beginning Material Number" WIDGET-ID 58
      end_mat AT ROW 4.33 COL 67 COLON-ALIGNED HELP
           "Enter Ending Material Number" WIDGET-ID 60
-     tb_real AT ROW 5.71 COL 43
-     tb_est AT ROW 6.67 COL 43
-     tb_detailed AT ROW 7.62 COL 43
-     sl_avail AT ROW 9.95 COL 5 NO-LABEL WIDGET-ID 26
-     Btn_Def AT ROW 9.95 COL 41 HELP
+     begin_whs AT ROW 5.43 COL 29 COLON-ALIGNED HELP
+          "Enter Beginng Warehouse" WIDGET-ID 62
+     end_whs AT ROW 5.43 COL 67 COLON-ALIGNED HELP
+          "Enter Ending Warehouse" WIDGET-ID 64
+     tb_real AT ROW 6.71 COL 43
+     tb_est AT ROW 7.67 COL 43
+     tb_detailed AT ROW 8.62 COL 43
+     sl_avail AT ROW 10.67 COL 5 NO-LABEL WIDGET-ID 26
+     Btn_Def AT ROW 10.67 COL 41 HELP
           "Add Selected Table to Tables to Audit" WIDGET-ID 56
-     sl_selected AT ROW 9.95 COL 60.4 NO-LABEL WIDGET-ID 28
-     Btn_Add AT ROW 10.95 COL 41 HELP
+     sl_selected AT ROW 10.67 COL 60.4 NO-LABEL WIDGET-ID 28
+     Btn_Add AT ROW 11.67 COL 41 HELP
           "Add Selected Table to Tables to Audit" WIDGET-ID 32
-     Btn_Remove AT ROW 11.95 COL 41 HELP
+     Btn_Remove AT ROW 12.67 COL 41 HELP
           "Remove Selected Table from Tables to Audit" WIDGET-ID 34
-     btn_Up AT ROW 13 COL 41 WIDGET-ID 40
-     btn_down AT ROW 14.05 COL 41 WIDGET-ID 42
-     rd-dest AT ROW 16.91 COL 6 NO-LABEL
-     lines-per-page AT ROW 17.14 COL 84 COLON-ALIGNED
-     lv-ornt AT ROW 17.24 COL 30 NO-LABEL
-     lv-font-no AT ROW 18.86 COL 35 COLON-ALIGNED
-     lv-font-name AT ROW 19.86 COL 28 COLON-ALIGNED NO-LABEL
-     td-show-parm AT ROW 21.1 COL 30
-     tb_excel AT ROW 22.05 COL 30 WIDGET-ID 2
-     tb_runExcel AT ROW 22.1 COL 55.4 WIDGET-ID 4
-     fi_file AT ROW 23.48 COL 28 COLON-ALIGNED HELP
+     btn_Up AT ROW 13.71 COL 41 WIDGET-ID 40
+     btn_down AT ROW 14.76 COL 41 WIDGET-ID 42
+     rd-dest AT ROW 17.62 COL 6 NO-LABEL
+     lines-per-page AT ROW 17.86 COL 84 COLON-ALIGNED
+     lv-ornt AT ROW 17.95 COL 30 NO-LABEL
+     lv-font-no AT ROW 19.57 COL 35 COLON-ALIGNED
+     lv-font-name AT ROW 20.57 COL 28 COLON-ALIGNED NO-LABEL
+     td-show-parm AT ROW 21.81 COL 30
+     tb_excel AT ROW 22.76 COL 30 WIDGET-ID 2
+     tb_runExcel AT ROW 22.81 COL 55.4 WIDGET-ID 4
+     fi_file AT ROW 24.19 COL 28 COLON-ALIGNED HELP
           "Enter File Name" WIDGET-ID 6
-     btn-ok AT ROW 25.62 COL 18
-     btn-cancel AT ROW 25.62 COL 57
+     btn-ok AT ROW 26.38 COL 18
+     btn-cancel AT ROW 26.38 COL 57
      "Available Columns" VIEW-AS TEXT
-          SIZE 29 BY .62 AT ROW 9.14 COL 6 WIDGET-ID 38
-     "Selected Columns(In Display Order)" VIEW-AS TEXT
-          SIZE 34 BY .62 AT ROW 9.14 COL 60.6 WIDGET-ID 44
-     "Output Destination" VIEW-AS TEXT
-          SIZE 18 BY .62 AT ROW 15.71 COL 3
+          SIZE 29 BY .62 AT ROW 9.86 COL 6 WIDGET-ID 38
      "Selection Parameters" VIEW-AS TEXT
           SIZE 21 BY .71 AT ROW 1.24 COL 5
           BGCOLOR 2 
-     RECT-6 AT ROW 15.29 COL 1
+     "Output Destination" VIEW-AS TEXT
+          SIZE 18 BY .62 AT ROW 16.43 COL 3
+     "Selected Columns(In Display Order)" VIEW-AS TEXT
+          SIZE 34 BY .62 AT ROW 9.86 COL 60.6 WIDGET-ID 44
+     RECT-6 AT ROW 16 COL 1
      RECT-7 AT ROW 1 COL 1
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 96.8 BY 26.05.
+         SIZE 96.8 BY 26.95.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -439,7 +455,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW C-Win ASSIGN
          HIDDEN             = YES
          TITLE              = "Raw Materials Cost"
-         HEIGHT             = 26.05
+         HEIGHT             = 26.95
          WIDTH              = 96.8
          MAX-HEIGHT         = 33.29
          MAX-WIDTH          = 204.8
@@ -473,16 +489,6 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME                                                           */
-ASSIGN
-       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "ribbon-button".
-
-
-ASSIGN
-       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "ribbon-button".
-
-
 ASSIGN 
        begin_mat:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
@@ -494,6 +500,18 @@ ASSIGN
 ASSIGN 
        begin_vend:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
+
+ASSIGN 
+       begin_whs:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
+
+ASSIGN 
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+ASSIGN 
+       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
 
 ASSIGN 
        end_mat:PRIVATE-DATA IN FRAME FRAME-A     = 
@@ -508,12 +526,15 @@ ASSIGN
                 "parm".
 
 ASSIGN 
+       end_whs:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
+
+ASSIGN 
        fi_file:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
 /* SETTINGS FOR FILL-IN lv-font-name IN FRAME FRAME-A
    NO-ENABLE                                                            */
-
 ASSIGN 
        tb_detailed:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
@@ -540,7 +561,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -571,6 +592,7 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
 &Scoped-define SELF-NAME begin_mat
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_mat C-Win
 ON LEAVE OF begin_mat IN FRAME FRAME-A /* Beginning Material Type */
@@ -580,6 +602,7 @@ END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
 
 &Scoped-define SELF-NAME begin_procat
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_procat C-Win
@@ -595,6 +618,17 @@ END.
 &Scoped-define SELF-NAME begin_vend
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_vend C-Win
 ON LEAVE OF begin_vend IN FRAME FRAME-A /* Beginning Vendor# */
+DO:
+  assign {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME begin_whs
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_whs C-Win
+ON LEAVE OF begin_whs IN FRAME FRAME-A /* Beginning Warehouse */
 DO:
   assign {&self-name}.
 END.
@@ -667,6 +701,7 @@ END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
 
 &Scoped-define SELF-NAME Btn_Add
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Add C-Win
@@ -746,6 +781,7 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
 &Scoped-define SELF-NAME end_mat
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_mat C-Win
 ON LEAVE OF end_mat IN FRAME FRAME-A /* Ending Material Type */
@@ -755,6 +791,7 @@ END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
 
 &Scoped-define SELF-NAME end_procat
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_procat C-Win
@@ -770,6 +807,17 @@ END.
 &Scoped-define SELF-NAME end_vend
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_vend C-Win
 ON LEAVE OF end_vend IN FRAME FRAME-A /* Ending Vendor# */
+DO:
+  assign {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME end_whs
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_whs C-Win
+ON LEAVE OF end_whs IN FRAME FRAME-A /* Ending Warehouse */
 DO:
   assign {&self-name}.
 END.
@@ -857,25 +905,6 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&Scoped-define SELF-NAME tb_detailed
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_detailed C-Win
-ON VALUE-CHANGED OF tb_detailed IN FRAME FRAME-A /* Detail Real Items? */
-DO:
-  assign {&self-name}.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&Scoped-define SELF-NAME tb_est
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_est C-Win
-ON VALUE-CHANGED OF tb_est IN FRAME FRAME-A /* Estimated Materials? */
-DO:
-  assign {&self-name}.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
 
 &Scoped-define SELF-NAME sl_avail
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL sl_avail C-Win
@@ -938,6 +967,29 @@ END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME tb_detailed
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_detailed C-Win
+ON VALUE-CHANGED OF tb_detailed IN FRAME FRAME-A /* Detail Real Items? */
+DO:
+  assign {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME tb_est
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_est C-Win
+ON VALUE-CHANGED OF tb_est IN FRAME FRAME-A /* Estimated Materials? */
+DO:
+  assign {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 &Scoped-define SELF-NAME tb_excel
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_excel C-Win
@@ -1183,14 +1235,16 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY begin_procat end_procat begin_vend end_vend begin_mat end_mat tb_real 
-          tb_est sl_avail sl_selected rd-dest lines-per-page lv-ornt lv-font-no 
-          lv-font-name td-show-parm tb_excel tb_runExcel fi_file tb_detailed
+  DISPLAY begin_procat end_procat begin_vend end_vend begin_mat end_mat 
+          begin_whs end_whs tb_real tb_est tb_detailed sl_avail sl_selected 
+          rd-dest lines-per-page lv-ornt lv-font-no lv-font-name td-show-parm 
+          tb_excel tb_runExcel fi_file 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   ENABLE RECT-6 RECT-7 begin_procat end_procat begin_vend end_vend begin_mat 
-         end_mat tb_real tb_est sl_avail Btn_Def sl_selected Btn_Add Btn_Remove 
-         btn_Up btn_down rd-dest lines-per-page lv-ornt lv-font-no td-show-parm 
-         tb_excel tb_runExcel fi_file btn-ok btn-cancel tb_detailed
+         end_mat begin_whs end_whs tb_real tb_est tb_detailed sl_avail Btn_Def 
+         sl_selected Btn_Add Btn_Remove btn_Up btn_down rd-dest lines-per-page 
+         lv-ornt lv-font-no td-show-parm tb_excel tb_runExcel fi_file btn-ok 
+         btn-cancel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.
@@ -1507,7 +1561,7 @@ IF AVAIL e-item THEN DO:
     FIND FIRST b-qty WHERE
          b-qty.reftable = "vend-qty" AND
          b-qty.company = e-item-vend.company AND
-	     b-qty.CODE    = e-item-vend.i-no AND
+             b-qty.CODE    = e-item-vend.i-no AND
          b-qty.code2   = e-item-vend.vend-no
          NO-LOCK NO-ERROR.
 
@@ -1516,14 +1570,14 @@ IF AVAIL e-item THEN DO:
        FIND FIRST b-cost WHERE
             b-cost.reftable = "vend-cost" AND
             b-cost.company = e-item-vend.company AND
-	        b-cost.CODE    = e-item-vend.i-no AND
+                b-cost.CODE    = e-item-vend.i-no AND
             b-cost.code2   = e-item-vend.vend-no
             NO-LOCK NO-ERROR.
 
        DO v-index = 1 TO 10:
           ASSIGN
-             tt-e-i-v.run-qty[v-index + 10] = b-qty.val[v-index]
-             tt-e-i-v.run-cost[v-index + 10] = b-cost.val[v-index].
+             tt-e-i-v.run-qty[v-index + 10] = e-item-vend.runQtyXtra[v-index]
+             tt-e-i-v.run-cost[v-index + 10] = e-item-vend.runCostXtra[v-index].
        END.
     END.
 
@@ -1549,7 +1603,7 @@ IF AVAIL e-item THEN DO:
     FIND FIRST b-blank-vend-qty NO-LOCK WHERE
          b-blank-vend-qty.reftable = "blank-vend-qty" AND
          b-blank-vend-qty.company = e-item.company AND
-	     b-blank-vend-qty.CODE    = e-item.i-no
+             b-blank-vend-qty.CODE    = e-item.i-no
          NO-ERROR.
 
     IF AVAIL b-blank-vend-qty THEN
@@ -1557,7 +1611,7 @@ IF AVAIL e-item THEN DO:
        FIND FIRST b-blank-vend-cost NO-LOCK WHERE
             b-blank-vend-cost.reftable = "blank-vend-cost" AND
             b-blank-vend-cost.company = e-item.company AND
-	        b-blank-vend-cost.CODE    = e-item.i-no
+                b-blank-vend-cost.CODE    = e-item.i-no
             NO-ERROR.
 
        DO v-index = 1 TO 10:
@@ -3507,8 +3561,8 @@ DEFINE VARIABLE excelheader AS CHARACTER  NO-UNDO.
 assign
  fco    = cocode
  tco    = cocode
- floc   = locode
- tloc   = locode
+ floc   = begin_whs
+ tloc   = end_whs
  fcat   = begin_procat
  tcat   = end_procat
  fmat   = begin_mat
@@ -3640,140 +3694,10 @@ END.
 ASSIGN str-tit4 = ""
        str-tit5 = "" .
 
-/*IF dor THEN DO:*/
-   /*IF NOT detail THEN DO:
-      IF v-export THEN
-         PUT STREAM s-temp UNFORMATTED
-            "CAT,ITEM,DESCRIPTION,CALIPER,WEIGHT,COST,UOM,On Hand,On Order,Allocated,Available"
-            SKIP.
-
       FOR EACH ITEM NO-LOCK WHERE 
                item.company = cocode 
-           AND item.loc = locode 
-           AND (item.i-code = "R") 
-           AND LOOKUP(item.mat-type,"B,P") GT 0 
-           AND item.procat >= fcat
-           AND item.procat <= tcat
-         BREAK BY item.company 
-               BY item.loc 
-               BY item.i-code
-               BY item.mat-type 
-               BY item.procat 
-               BY item.i-no WITH FRAME itemx:
-
-         CLEAR FRAME itemx ALL NO-PAUSE.                 
-         v-printed = YES.
-
-         FIND FIRST rm-ctrl WHERE rm-ctrl.company = cocode NO-LOCK.
-
-         IF rm-ctrl.avg-lst-cst = TRUE THEN  
-            rm-cst-amt = item.avg-cost.
-         ELSE
-            rm-cst-amt = item.last-cost.
-
-         DISPLAY 
-            item.procat  WHEN FIRST-OF(item.procat)
-            item.i-no
-            item.i-name
-            item.cal
-            item.basis-w
-            rm-cst-amt @ item.last-cost
-            item.cons-uom
-            item.q-onh
-            item.q-ono
-            item.q-comm
-            item.q-avail.
-
-         DOWN.
-
-         IF v-export THEN DO:
-            ASSIGN v-procat = IF FIRST-OF(item.procat) THEN item.procat ELSE "".
-            PUT STREAM s-temp 
-               '"' v-procat      '",'
-               '"' item.i-no     '",'
-               '"' item.i-name   '",'
-               '"' item.cal      '",'
-               '"' item.basis-w  '",'
-               '"' rm-cst-amt    FORMAT ">>>>>9.9999"       '",'
-               '"' item.cons-uom '",'
-               '"' item.q-onh    FORMAT "->>>>>>>>9.9<<<<<" '",'
-               '"' item.q-ono    FORMAT "->>>>>>>>9.9<<<<<" '",'
-               '"' item.q-comm   FORMAT "->>>>>>>>9.9<<<<<" '",'
-               '"' item.q-avail  FORMAT "->>>>>>>>9.9<<<<<" '"'
-               SKIP. 
-         END.
-      END. /* end for for each */
-
-   END. /* non detail ends here */
-   ELSE DO: */
-
-     /* IF v-export THEN 
-         PUT STREAM s-temp 
-           "Item No,Item Code,Name,Mat'l Type,Desc,Cost Type,Est.Desc,Category,
-            Caliper,Sheet Len,Sheet Wid,Basis Wt,Reg.#,Roll Wid,Shrink %,
-            Dept , % ,Dept , % ,Dept , % ,Dept , % ,
-            Dept , % ,Dept , % ,Dept , % ,Dept , % ,
-            Dept , % ,Dept , % ,
-            Vendor 1,Vend 1 Item #,Auto Alloc,Vendor 2,Vend 2 Item #,
-            Stocked,Re-Ord Pol,Re-Ord Level,Ord Min,Ord MAX,Pur/Manf,
-            Pur UOM,Lead Days,Warehouse,Bin Loc,Cyc CD,Cons Uom,Pur Rpt Cd,
-            Prod Cd,Beg Bal,Beg Date,last Cnt,Cnt Date,Last Cost,Avg Cost,
-            On Hand,On Order,Committed,Backordered,Available,
-            Vend 1,UOM,
-            Run Qty 1,Run Cost 1,Est Roll W,Est Roll W,Est Roll W,Est Roll W,Est Roll W,
-            Run Qty 2,Run Cost 2,Est Roll W,Est Roll W,Est Roll W,Est Roll W,Est Roll W,
-            Run Qty 3,Run Cost 3,Est Roll W,Est Roll W,Est Roll W,Est Roll W,Est Roll W,
-            Run Qty 4,Run Cost 4,Est Roll W,Est Roll W,Est Roll W,Est Roll W,Est Roll W,
-            Run Qty 5,Run Cost 5,Est Roll W,Est Roll W,Est Roll W,Est Roll W,Est Roll W,
-            Run Qty 6,Run Cost 6,Est Roll W,Run Qty 7,Run Cost 7,Run Qty 8,Run Cost 8,
-            Run Qty 9,Run Cost 9,Run Qty 10,Run Cost 10,Run Qty 11,Run Cost 11,Run Qty 12,Run Cost 12,
-            Run Qty 13,Run Cost 13,Run Qty 14,Run Cost 14,Run Qty 15,Run Cost 15,Run Qty 16,Run Cost 16,
-            Run Qty 17,Run Cost 17,Run Qty 18,Run Cost 18,Run Qty 19,Run Cost 19,Run Qty 20,Run Cost 20,
-            Vend 2,UOM,
-            Run Qty 1,Run Cost 1,Est Roll W,Est Roll W,Est Roll W,Est Roll W,Est Roll W,
-            Run Qty 2,Run Cost 2,Est Roll W,Est Roll W,Est Roll W,Est Roll W,Est Roll W,
-            Run Qty 3,Run Cost 3,Est Roll W,Est Roll W,Est Roll W,Est Roll W,Est Roll W,
-            Run Qty 4,Run Cost 4,Est Roll W,Est Roll W,Est Roll W,Est Roll W,Est Roll W,
-            Run Qty 5,Run Cost 5,Est Roll W,Est Roll W,Est Roll W,Est Roll W,Est Roll W,
-            Run Qty 6,Run Cost 6,Est Roll W,Run Qty 7,Run Cost 7,Run Qty 8,Run Cost 8,
-            Run Qty 9,Run Cost 9,Run Qty 10,Run Cost 10,Run Qty 11,Run Cost 11,Run Qty 12,Run Cost 12,
-            Run Qty 13,Run Cost 13,Run Qty 14,Run Cost 14,Run Qty 15,Run Cost 15,Run Qty 16,Run Cost 16,
-            Run Qty 17,Run Cost 17,Run Qty 18,Run Cost 18,Run Qty 19,Run Cost 19,Run Qty 20,Run Cost 20,
-            Vend 3,UOM,
-            Run Qty 1,Run Cost 1,Est Roll W,Est Roll W,Est Roll W,Est Roll W,Est Roll W,
-            Run Qty 2,Run Cost 2,Est Roll W,Est Roll W,Est Roll W,Est Roll W,Est Roll W,
-            Run Qty 3,Run Cost 3,Est Roll W,Est Roll W,Est Roll W,Est Roll W,Est Roll W,
-            Run Qty 4,Run Cost 4,Est Roll W,Est Roll W,Est Roll W,Est Roll W,Est Roll W,
-            Run Qty 5,Run Cost 5,Est Roll W,Est Roll W,Est Roll W,Est Roll W,Est Roll W,
-            Run Qty 6,Run Cost 6,Est Roll W,Run Qty 7,Run Cost 7,Run Qty 8,Run Cost 8,
-            Run Qty 9,Run Cost 9,Run Qty 10,Run Cost 10,Run Qty 11,Run Cost 11,Run Qty 12,Run Cost 12,
-            Run Qty 13,Run Cost 13,Run Qty 14,Run Cost 14,Run Qty 15,Run Cost 15,Run Qty 16,Run Cost 16,
-            Run Qty 17,Run Cost 17,Run Qty 18,Run Cost 18,Run Qty 19,Run Cost 19,Run Qty 20,Run Cost 20,
-            Vend 4,UOM,
-            Run Qty 1,Run Cost 1,Est Roll W,Est Roll W,Est Roll W,Est Roll W,Est Roll W,
-            Run Qty 2,Run Cost 2,Est Roll W,Est Roll W,Est Roll W,Est Roll W,Est Roll W,
-            Run Qty 3,Run Cost 3,Est Roll W,Est Roll W,Est Roll W,Est Roll W,Est Roll W,
-            Run Qty 4,Run Cost 4,Est Roll W,Est Roll W,Est Roll W,Est Roll W,Est Roll W,
-            Run Qty 5,Run Cost 5,Est Roll W,Est Roll W,Est Roll W,Est Roll W,Est Roll W,
-            Run Qty 6,Run Cost 6,Est Roll W,Run Qty 7,Run Cost 7,Run Qty 8,Run Cost 8,
-            Run Qty 9,Run Cost 9,Run Qty 10,Run Cost 10,Run Qty 11,Run Cost 11,Run Qty 12,Run Cost 12,
-            Run Qty 13,Run Cost 13,Run Qty 14,Run Cost 14,Run Qty 15,Run Cost 15,Run Qty 16,Run Cost 16,
-            Run Qty 17,Run Cost 17,Run Qty 18,Run Cost 18,Run Qty 19,Run Cost 19,Run Qty 20,Run Cost 20,
-            Vend 5,UOM,
-            Run Qty 1,Run Cost 1,Est Roll W,Est Roll W,Est Roll W,Est Roll W,Est Roll W,
-            Run Qty 2,Run Cost 2,Est Roll W,Est Roll W,Est Roll W,Est Roll W,Est Roll W,
-            Run Qty 3,Run Cost 3,Est Roll W,Est Roll W,Est Roll W,Est Roll W,Est Roll W,
-            Run Qty 4,Run Cost 4,Est Roll W,Est Roll W,Est Roll W,Est Roll W,Est Roll W,
-            Run Qty 5,Run Cost 5,Est Roll W,Est Roll W,Est Roll W,Est Roll W,Est Roll W,
-            Run Qty 6,Run Cost 6,Est Roll WRun Qty 7,Run Cost 7,Run Qty 8,Run Cost 8,
-            Run Qty 9,Run Cost 9,Run Qty 10,Run Cost 10,Run Qty 11,Run Cost 11,Run Qty 12,Run Cost 12,
-            Run Qty 13,Run Cost 13,Run Qty 14,Run Cost 14,Run Qty 15,Run Cost 15,Run Qty 16,Run Cost 16,
-            Run Qty 17,Run Cost 17,Run Qty 18,Run Cost 18,Run Qty 19,Run Cost 19,Run Qty 20,Run Cost 20," 
-            SKIP. */
-
-      FOR EACH ITEM NO-LOCK WHERE 
-               item.company = cocode 
-           AND item.loc = locode  
+           AND item.loc GE floc
+           AND item.loc LE tloc  
            AND ((item.i-code EQ "R" AND dor EQ YES) OR
                 (item.i-code EQ "E" AND doe EQ YES))
          /*  AND LOOKUP(item.mat-type,"B,P") GT 0 */
@@ -4188,7 +4112,6 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 
 /* ************************  Function Implementations ***************** */
 

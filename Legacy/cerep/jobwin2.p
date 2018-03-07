@@ -64,6 +64,16 @@ DEF VAR v-spec-cnt AS INT NO-UNDO.
 DEF VAR v-prod-code AS cha NO-UNDO.
 DEF VAR li AS INT NO-UNDO.
 DEF VAR ld-qty-disp AS DEC NO-UNDO.
+DEF VARIABLE ipacktot AS INTEGER NO-UNDO .
+DEF VARIABLE ilaytot AS INTEGER NO-UNDO .
+DEF VARIABLE idivtot AS INTEGER NO-UNDO .
+DEFINE VARIABLE b-wt AS DECIMAL NO-UNDO .
+DEFINE VARIABLE c-qty AS DECIMAL NO-UNDO .
+DEF VAR li-qty LIKE c-qty NO-UNDO.
+DEFINE VARIABLE iCaseMult AS INTEGER NO-UNDO.
+DEF VAR v-t-win AS DEC DECIMALS 4 NO-UNDO.
+DEF VAR iv-li AS INT NO-UNDO.
+{ce/msfcalc.i}
 
 def TEMP-TABLE w-lo NO-UNDO
   field layout like v-layout.
@@ -178,6 +188,7 @@ DEF VAR v-fgitm AS cha FORM "x(15)" EXTENT 10 NO-UNDO.
 DEF VAR v-fgdsc LIKE eb.part-dscr1 EXTENT 10 NO-UNDO.
 DEF VAR v-fgqty LIKE job-hdr.qty EXTENT 30 FORM ">>,>>>,>>>" NO-UNDO.
 DEF VAR v-pono LIKE oe-ordl.po-no EXTENT 10 NO-UNDO.
+DEF VAR cpono-b LIKE oe-ordl.po-no EXTENT 10 NO-UNDO.
 DEF VAR v-part-no LIKE eb.part-no EXTENT 10 NO-UNDO.
 DEF VAR v-cas-pal LIKE eb.cas-cnt EXTENT 10 NO-UNDO.
 DEF VAR v-cas-cnt LIKE eb.cas-cnt EXTENT 10 NO-UNDO.
@@ -190,7 +201,7 @@ DEF BUFFER b-oe-ordl FOR oe-ordl.
 DEF BUFFER b-oe-rel FOR oe-rel.
 DEF BUFFER b-shipto FOR shipto.
 DEF BUFFER b-cust FOR cust.
-DEFINE VARIABLE v-last-job AS CHAR NO-UNDO .
+DEFINE VARIABLE cLastOrd AS CHAR NO-UNDO .
 DEFINE VARIABLE lMachSheeter AS LOGICAL NO-UNDO .
 DEF VAR lv-rowid AS ROWID NO-UNDO.
 /* rdb 02/02/07 */
@@ -199,7 +210,7 @@ DEFINE VARIABLE chrDummy   AS CHARACTER  NO-UNDO.
 /* rdb 02/16/07 */
 DEFINE VARIABLE intLnCount AS INTEGER    NO-UNDO.
 DEFINE VARIABLE cInkCoatingLst AS CHARACTER NO-UNDO.
-
+DEFINE VARIABLE lBrokerChk AS LOGICAL NO-UNDO .
 
 DEF VAR v-num-of-fgitm AS INT NO-UNDO.
 DEF TEMP-TABLE tt-fgitm NO-UNDO FIELD i-no AS cha FORM "x(15)"
@@ -207,16 +218,19 @@ DEF TEMP-TABLE tt-fgitm NO-UNDO FIELD i-no AS cha FORM "x(15)"
                         FIELD qty AS INT 
                         FIELD i-dscr AS cha
                         FIELD po-no AS cha
+                        FIELD po-no-b AS cha
                         FIELD part-no AS cha 
                         FIELD cas-cnt LIKE eb.cas-cnt
                         FIELD cas-pal LIKE eb.cas-pal
                         FIELD cust-name AS cha
                         FIELD shipto1 AS CHAR
                         FIELD shipto2 AS CHAR
-                        FIELD shipto4 AS CHAR.
+                        FIELD shipto4 AS CHAR
+                        FIELD borker AS LOGICAL .
 DEF VAR v-board-po LIKE oe-ordl.po-no-po NO-UNDO.
 DEF VAR v-plate-printed AS LOG NO-UNDO.
 DEF BUFFER xoe-ordl FOR oe-ordl.
+DEF BUFFER xoe-ord FOR oe-ord.
 DEF VAR v-cust-name LIKE oe-ord.cust-name NO-UNDO.
 DEF VAR v-cust-name2 LIKE oe-ord.cust-name NO-UNDO.
 DEF VAR v-cust-name3 LIKE oe-ord.cust-name NO-UNDO.
@@ -263,6 +277,7 @@ DEFINE VARIABLE ddivider AS DECIMAL NO-UNDO .
 DEF VAR v-die-no  LIKE eb.die-no NO-UNDO.
 DEFINE VARIABLE droll-len LIKE ef.gsh-len NO-UNDO.
 DEFINE VARIABLE lWindowShow AS LOGICAL NO-UNDO .
+DEFINE VARIABLE cUserName AS CHARACTER EXTENT 2 NO-UNDO .
 format HEADER 
        "<OLANDSCAPE><P10>" skip
         "JOB NUMBER:<B>" v-job-no space(0) "-" space(0) v-job-no2 format "99" "</B>"
@@ -554,18 +569,30 @@ END FUNCTION.
                           and eb.form-no     eq job-hdr.frm
                           AND eb.blank-no > 0 
                         NO-LOCK NO-ERROR.
+        IF AVAIL cust THEN DO:
+            j = 1 .
+            FOR EACH empalert NO-LOCK
+                 WHERE empalert.table_rec_key EQ cust.rec_key 
+                   AND empalert.spare-char-1 EQ "Yes" ,
+                FIRST users WHERE users.user_id = empalert.user-id NO-LOCK:
+                cUserName[j] = users.user_name .
+                IF j EQ 2 THEN LEAVE .
+                j = j + 1.
+            END.
+        END.
 
         ASSIGN
           v-bar-no = /*IF AVAIL eb 
                      THEN eb.spc-no 
                      ELSE*/ trim(job-hdr.job-no) + "-" + STRING(job-hdr.job-no2,"99")
           v-bar-no = barCode(v-bar-no).
+          
         
         PUT "<R-1><#1><C91>Date/Time Generated:" SKIP
-            "<B>CUSTOMER NAME:</B>" v-cust-name "<B> DUE DATE:     ESTIMATE:" lv-prt-date AT 119 SPACE(1) lv-prt-time SKIP
-            "SHIPTO:</B>" v-shipto[1] /*v-req-date AT 49*/ v-due-date AT 49 trim(job-hdr.est-no) FORM "x(8)" AT 66
+            "<B>CUSTOMER NAME:</B>" v-cust-name "<B> DUE DATE:     ESTIMATE:    CSR:" lv-prt-date AT 119 SPACE(1) lv-prt-time SKIP
+            "SHIPTO:</B>" v-shipto[1] /*v-req-date AT 49*/ v-due-date AT 49 trim(job-hdr.est-no) FORM "x(8)" AT 66  cUserName[1] FORMAT "x(12)" 
             "<C91.7>Status" SKIP
-            v-shipto[2] AT 7 "<C91.7>" lv-prt-sts SKIP
+            v-shipto[2] AT 7 "<C58.5>" cUserName[2] FORMAT "x(12)"  "<C91.7>" lv-prt-sts   SKIP
             v-shipto[4] AT 7 SKIP
             v-fill SKIP.     
         /* barcode print */
@@ -864,7 +891,7 @@ END FUNCTION.
 
                 v-upc-lbl = " QC#".
                 IF FIRST-OF(eb.form-no) THEN
-                  PUT "<P9><B>F/B   STATUS DESCRIPTION                  PART#              FORM QTY #UP FG ITEM#        CAD#         STYLE  PREVIOUS JOB#      COUNT CASE    " /*v-upc-lbl */ "</B>" SKIP.
+                  PUT "<P9><B>F/B   STATUS DESCRIPTION                  PART#              FORM QTY #UP FG ITEM#/ UPC#   CAD#         STYLE   Prev Ord #       COUNT CASE    " /*v-upc-lbl */ "</B>" SKIP.
 
                 v-job-qty = 0.
                 v-stock-no = IF est.est-type = 2 
@@ -880,9 +907,9 @@ END FUNCTION.
                                   no-lock:  
                     v-job-qty = v-job-qty + xjob-hdr.qty.
                 end.
-                ASSIGN v-last-job = "".
+                ASSIGN cLastOrd = "".
          
-                FOR EACH vjob-hdr WHERE vjob-hdr.company eq cocode
+                /*FOR EACH vjob-hdr WHERE vjob-hdr.company eq cocode
                     AND vjob-hdr.i-no = v-stock-no NO-LOCK, 
                     EACH vjob OF vjob-hdr WHERE vjob.stat = "C"
                     AND (vjob.close-date LE job.close-date OR (job.close-date) = ?)
@@ -890,7 +917,7 @@ END FUNCTION.
                     NO-LOCK BREAK BY vjob.close-date BY vjob-hdr.job-no BY vjob-hdr.job-no2:
                     ASSIGN
                         v-last-job = vjob.job-no .
-                END.
+                END.*/
 
                 /** PRINT ITEM **/
                 
@@ -909,6 +936,13 @@ END FUNCTION.
                 if avail oe-ordl then do:
                     v-est-qty = oe-ordl.qty.
                     find first oe-ord of oe-ordl no-lock.
+                    IF AVAIL oe-ord THEN do:
+                        ASSIGN
+                        cLastOrd = IF oe-ord.po-no2 NE "" THEN oe-ord.po-no2
+                            ELSE STRING(oe-ord.pord-no) .
+                            IF oe-ord.TYPE EQ "T" AND oe-ord.pord-no GT 0 THEN
+                                cLastOrd = STRING(oe-ord.pord-no).
+                    END.
                     v-ovund = string("Overrun/Underrun %:  " +
                                trim(string(oe-ordl.over-pct,">>9.99")) + "/" +
                                trim(string(oe-ordl.under-pct,">>9.99"))).
@@ -951,7 +985,7 @@ END FUNCTION.
                     eb.stock-no @ job-hdr.i-no 
                     eb.cad-no FORM "x(12)"
                     eb.style /*v-stypart */
-                    /*v-size[1]*/ v-last-job FORM "x(12)"
+                    /*v-size[1]*/ SPACE(3) cLastOrd FORM "x(10)" 
                     oe-ordl.cas-cnt when avail oe-ordl FORM ">>>,>>9"
                     eb.cas-cnt when (not avail oe-ordl) or oe-ordl.cas-cnt eq 0 @ oe-ordl.cas-cnt 
                   /*SPACE(4)*/
@@ -959,6 +993,12 @@ END FUNCTION.
                   /*v-upc-no FORM "x(9)"*/
                     skip
                   with stream-io width 175 no-labels no-box frame line-det1.
+                  
+                 IF AVAIL itemfg  THEN do: 
+                     PUT "<c56.5>" itemfg.upc-no FORMAT "x(20)" SKIP.
+                     v-itm-printed = v-itm-printed + 1.
+                 END.
+
 
                 v-itm-printed = v-itm-printed + 1.    
 
@@ -1016,7 +1056,7 @@ END FUNCTION.
                 */
 
                 PUT "<P10>" v-fill SKIP                 /*REQ'D*/
-                 "<B>BOARD CODE             SHEETS SHEET SIZE              DIE SIZE      BOARD PO# VENDOR#   DUE DATE   DIE# </B>" 
+                 "<B>BOARD CODE             SHEETS SHEET SIZE              BOARD PO# VENDOR#   DUE DATE   DIE# </B>" 
                  SKIP.
             /** PRINT SHEET **/
 
@@ -1049,10 +1089,10 @@ END FUNCTION.
                         wrk-sheet.brd-dscr
                         wrk-sheet.gsh-qty FORMAT ">>>>,>>9"
                         string(wrk-sheet.sh-wid) + "x" + string(wrk-sheet.sh-len) format "x(23)"
-                        string(ef.trim-w) + "x" + string(ef.trim-l) FORM "x(16)"
+                        space(2) /*string(ef.trim-w) + "x" + string(ef.trim-l) FORM "x(16)"*/
                         v-board-po  
-                        v-vend  
-                        v-po-duedate
+                        v-vend  SPACE(1)
+                        v-po-duedate SPACE(4)
                         v-die-no FORM "x(20)"
                       with stream-io width 170 no-labels no-box frame sheet.
                     x = 1.
@@ -1278,6 +1318,69 @@ END FUNCTION.
             "<R-1><C105><FROM><R+1><LINE><||3>" /*RDR*/
             SKIP.
 
+         PUT "Customer Service Department Notes:" SKIP.
+             ASSIGN v-text = FNformat(FNdeptnotes(vjobreckey,"CS",job-hdr.frm),80).
+             DO i = 1 TO NUM-ENTRIES(v-text,"`"):       
+               PUT "<C1>" 
+                ENTRY(i,v-text,"`") FORMAT "X(80)" SKIP. 
+            END.  
+            ASSIGN v-text = FNformat(FNdeptnotes(vjobreckey,"CS",0),80).
+             DO i = 1 TO NUM-ENTRIES(v-text,"`"):       
+               PUT "<C1>" 
+                ENTRY(i,v-text,"`") FORMAT "X(80)" SKIP. 
+            END.  
+
+          PUT   "Quality Control Department Notes: " SKIP .
+          ASSIGN v-text = FNformat(FNdeptnotes(vjobreckey,"QC",job-hdr.frm),80).
+             DO i = 1 TO NUM-ENTRIES(v-text,"`"):       
+               PUT "<C1>" 
+                ENTRY(i,v-text,"`") FORMAT "X(80)" SKIP. 
+            END. 
+            ASSIGN v-text = FNformat(FNdeptnotes(vjobreckey,"QC",0),80).
+             DO i = 1 TO NUM-ENTRIES(v-text,"`"):       
+               PUT "<C1>" 
+                ENTRY(i,v-text,"`") FORMAT "X(80)" SKIP. 
+            END.  
+
+
+          PUT   "Prepress Department Notes: "      SKIP .
+          ASSIGN v-text = FNformat(FNdeptnotes(vjobreckey,"PP",job-hdr.frm),80).
+             DO i = 1 TO NUM-ENTRIES(v-text,"`"):       
+               PUT "<C1>" 
+                ENTRY(i,v-text,"`") FORMAT "X(80)" SKIP. 
+            END.  
+            ASSIGN v-text = FNformat(FNdeptnotes(vjobreckey,"PP",0),80).
+             DO i = 1 TO NUM-ENTRIES(v-text,"`"):       
+               PUT "<C1>" 
+                ENTRY(i,v-text,"`") FORMAT "X(80)" SKIP. 
+            END.  
+
+          PUT   "Farm Out Department Notes:  "     SKIP .
+          ASSIGN v-text = FNformat(FNdeptnotes(vjobreckey,"FO",job-hdr.frm),80).
+             DO i = 1 TO NUM-ENTRIES(v-text,"`"):       
+               PUT "<C1>" 
+                ENTRY(i,v-text,"`") FORMAT "X(80)" SKIP. 
+            END.  
+            ASSIGN v-text = FNformat(FNdeptnotes(vjobreckey,"FO",0),80).
+             DO i = 1 TO NUM-ENTRIES(v-text,"`"):       
+               PUT "<C1>" 
+                ENTRY(i,v-text,"`") FORMAT "X(80)" SKIP. 
+            END.  
+
+          PUT   "Foil Stamp Department Notes: "    SKIP .
+          ASSIGN v-text = FNformat(FNdeptnotes(vjobreckey,"FS",job-hdr.frm),80).
+             DO i = 1 TO NUM-ENTRIES(v-text,"`"):       
+               PUT "<C1>" 
+                ENTRY(i,v-text,"`") FORMAT "X(80)" SKIP. 
+            END.  
+            ASSIGN v-text = FNformat(FNdeptnotes(vjobreckey,"FS",0),80).
+             DO i = 1 TO NUM-ENTRIES(v-text,"`"):       
+               PUT "<C1>" 
+                ENTRY(i,v-text,"`") FORMAT "X(80)" SKIP. 
+            END. 
+          
+
+
         IF lMachSheeter THEN DO:
             IF ef.roll THEN
                 droll-len = ef.gsh-len .
@@ -1414,6 +1517,18 @@ END FUNCTION.
        
         PUT "Cutting Spec. Notes:" SKIP.
         RUN PRprintfg2 ("CC").
+
+        PUT "Hand Stripping Department Notes:" SKIP.
+             ASSIGN v-text = FNformat(FNdeptnotes(vjobreckey,"HS",job-hdr.frm),80).
+             DO i = 1 TO NUM-ENTRIES(v-text,"`"):       
+               PUT "<C1>" 
+                ENTRY(i,v-text,"`") FORMAT "X(80)" SKIP. 
+             END.   
+             ASSIGN v-text = FNformat(FNdeptnotes(vjobreckey,"HS",0),80).
+             DO i = 1 TO NUM-ENTRIES(v-text,"`"):       
+               PUT "<C1>" 
+                ENTRY(i,v-text,"`") FORMAT "X(80)" SKIP. 
+             END.  
         
        /* WINDOWING */
 
@@ -1680,7 +1795,10 @@ END FUNCTION.
                 SKIP.
         END. /* xjob-mat */
         IF AVAIL eb THEN do:
-
+             ASSIGN 
+                ipacktot = 0
+                ilaytot  = 0
+                idivtot  = 0 .
             RUN find-depth-reftable(ROWID(eb), OUTPUT lv-rowid).
             FIND reftable WHERE ROWID(reftable) EQ lv-rowid NO-ERROR.
             IF AVAIL reftable THEN
@@ -1688,10 +1806,93 @@ END FUNCTION.
                 dlayerDepth  = reftable.val[1]
                 ddivider = reftable.val[2].
 
-          PUT "<C1>                       </u> <u>Length  </u> <u>Width  </u>  <u>Depth</u>      <u>Qty</u>" SKIP .
-          PUT "<C1> PackCode:  "  eb.cas-no FORMAT "x(10)" SPACE(2)  eb.cas-len SPACE(2)  eb.cas-wid SPACE(2)  eb.cas-dep SPACE(2) eb.spare-int-3 FORMAT ">>9"  SKIP
-              "<C1> Layer Pad: "  eb.layer-pad FORMAT "x(10)" SPACE(2) eb.lp-len SPACE(2)  eb.lp-wid SPACE(2) dlayerDepth FORMAT ">9.9999" SPACE(2) eb.lp-up  SKIP
-              "<C1> Divider:   "  eb.divider FORMAT "x(10)"  SPACE(2) eb.div-len SPACE(2)  eb.div-wid SPACE(2) ddivider FORMAT ">9.9999" SPACE(2) eb.div-up  SKIP  .
+            IF eb.est-type EQ 1 THEN
+                do iv-li = 1 TO 4:
+                find first item WHERE
+                    item.company EQ ef.company and
+                    item.i-no eq ef.leaf[iv-li]
+                    no-lock no-error.
+                
+                if avail item and item.mat-type eq "W" and
+                    (ef.leaf-l[iv-li] ne 0 and ef.leaf-w[iv-li] ne 0) then
+                    DO:
+                    IF ef.leaf-bnum[iv-li] EQ 0 THEN
+                        v-t-win = v-t-win + (ef.leaf-l[iv-li] * ef.leaf-w[iv-li] / eb.num-up).
+                    ELSE
+                        v-t-win = v-t-win + (ef.leaf-l[iv-li] * ef.leaf-w[iv-li]).
+                   END.
+              end.
+              ELSE
+                  v-t-win = eb.t-win.
+
+            find first item
+                {sys/look/itemW.i}
+                and item.i-no eq ef.board
+                no-lock.
+            IF AVAIL ITEM THEN
+                b-wt   = item.basis-w .
+                ELSE 
+                    b-wt = 0 .
+
+            find first item {sys/look/itemW.i} and item.i-no = eb.cas-no
+                no-lock no-error.
+            
+            if eb.cas-cnt ne 0 then c-qty = v-est-qty / eb.cas-cnt.
+            else
+                c-qty = (v-est-qty * b-wt *
+                         (if v-corr then ((eb.t-sqin - v-t-win) * .000007)
+                             else ((eb.t-sqin - v-t-win) / 144000))) /
+                    (if eb.cas-wt ne 0 then eb.cas-wt else item.avg-w).
+
+            {sys/inc/roundup.i c-qty}
+            /*02031503-set case qty based on multipliers for cost and material calculations*/
+                IF eb.spare-int-3 GT 0 THEN 
+                    iCaseMult = eb.spare-int-3.
+                ELSE
+                    iCaseMult = 1.
+                
+                c-qty = c-qty * iCaseMult.
+                ipacktot = c-qty .
+                IF iCaseMult GT 1 THEN c-qty = c-qty / iCaseMult.
+             /* layer pad */
+                find first item
+                    {sys/look/itemW.i}
+                    and item.i-no eq eb.layer-pad
+                    no-lock no-error.
+                IF eb.spare-char-3 EQ "P" THEN DO:
+                    li-qty = c-qty / eb.cas-pal.
+                    {sys/inc/roundup.i li-qty}
+                        li-qty = li-qty * eb.lp-up.  /*per pallet*/
+                END.
+                ELSE
+                    li-qty = c-qty * eb.lp-up. /*per case - DEFAULT*/
+
+                {sys/inc/roundup.i li-qty}
+                    ilaytot = li-qty .
+
+
+             /* divider pad */
+                find first item
+                    {sys/look/itemW.i}
+                    and item.i-no eq eb.divider
+                    no-lock no-error.
+                IF eb.spare-char-4 EQ "P" THEN DO:
+                    li-qty = c-qty / eb.cas-pal.
+                    {sys/inc/roundup.i li-qty}
+                        li-qty = li-qty * eb.div-up.  /*per pallet*/
+                END.
+                ELSE
+                    li-qty = c-qty * eb.div-up. /*per case - DEFAULT*/
+                    {sys/inc/roundup.i li-qty}
+
+                    ASSIGN idivtot = li-qty .
+
+
+
+          PUT "<C1>                       </u> <u>Length  </u> <u>Width  </u>  <u>Depth</u>      <u>Qty/Per</u>    <u>Total Qty</u>" SKIP .
+          PUT "<C1> PackCode:  "  eb.cas-no FORMAT "x(10)" SPACE(2)  eb.cas-len SPACE(2)  eb.cas-wid SPACE(2)  eb.cas-dep SPACE(4) eb.spare-int-3 FORMAT ">>9" SPACE(10) ipacktot FORMAT ">>>9"   SKIP
+              "<C1> Layer Pad: "  eb.layer-pad FORMAT "x(10)" SPACE(2) eb.lp-len SPACE(2)  eb.lp-wid SPACE(2) dlayerDepth FORMAT ">9.9999" SPACE(4) eb.lp-up SPACE(10) ilaytot FORMAT ">>>9" SKIP
+              "<C1> Divider:   "  eb.divider FORMAT "x(10)"  SPACE(2) eb.div-len SPACE(2)  eb.div-wid SPACE(2) ddivider FORMAT ">9.9999" SPACE(4) eb.div-up SPACE(10) idivtot FORMAT ">>>9" SKIP  .
         END.
         PUT " " SKIP.      
 
@@ -1788,6 +1989,7 @@ END FUNCTION.
                   and xoe-ordl.job-no2 eq xjob-hdr.job-no2
                   and xoe-ordl.i-no    eq xjob-hdr.i-no
                   no-lock no-error.
+            FIND FIRST xoe-ord OF xoe-ordl NO-LOCK NO-ERROR.
 
             IF AVAIL xoe-ordl THEN v-fgqty[i] = xoe-ordl.cas-cnt.
                  /*FIND FIRST itemfg WHERE itemfg.company = xjob-hdr.company AND
@@ -1803,6 +2005,7 @@ END FUNCTION.
                   tt-fgitm.qty = xjob-hdr.qty
                   tt-fgitm.i-dscr = IF AVAIL b-eb THEN b-eb.part-dscr1 ELSE xjob-hdr.i-no
                   tt-fgitm.po-no = IF AVAIL xoe-ordl THEN xoe-ordl.po-no ELSE ""
+                  tt-fgitm.po-no-b = IF AVAIL xoe-ordl THEN xoe-ordl.po-no ELSE ""
                   tt-fgitm.part-no = IF AVAIL b-eb THEN b-eb.part-no ELSE xjob-hdr.i-no
                   tt-fgitm.cas-cnt = /*IF AVAIL b-eb THEN b-eb.cas-cnt ELSE 0*/
                                      IF AVAIL xoe-ordl AND xoe-ordl.cas-cnt <> 0 THEN xoe-ordl.cas-cnt
@@ -1811,13 +2014,14 @@ END FUNCTION.
                   tt-fgitm.cas-pal = IF AVAIL b-eb THEN b-eb.cas-pal ELSE 0
                   tt-fgitm.seq = i
                   i = i + 1.
+                  tt-fgitm.po-no-b = IF AVAIL xoe-ord THEN xoe-ord.po-no ELSE "" .
 
             FIND FIRST b-est WHERE
                  b-est.company  eq xjob-hdr.company AND
                  b-est.est-no   EQ xjob-hdr.est-no
                  NO-LOCK NO-ERROR.
            
-            IF AVAIL b-est AND b-est.est-type EQ 4 THEN /*combo*/
+            IF AVAIL b-est /*AND b-est.est-type EQ 4*/ THEN /*combo*/
             DO:
                FIND FIRST b-cust WHERE
                     b-cust.company EQ xjob-hdr.company AND
@@ -1845,6 +2049,7 @@ END FUNCTION.
                           no-lock no-error.
            
                    if avail b-oe-rel then do:
+                      tt-fgitm.po-no = b-oe-rel.po-no.
                       find first b-shipto WHERE
                            b-shipto.company eq cocode AND
                            b-shipto.cust-no eq b-oe-rel.cust-no AND
@@ -1853,6 +2058,7 @@ END FUNCTION.
                   
                      if avail b-shipto then
                          ASSIGN
+                           tt-fgitm.borker = b-shipto.broker
                            tt-fgitm.shipto1 = b-shipto.ship-name
                            tt-fgitm.shipto2 = b-shipto.ship-addr[1]
                            tt-fgitm.shipto4 = trim(b-oe-rel.ship-city) + ", " +
@@ -1881,12 +2087,13 @@ END FUNCTION.
                j = 0.
          
         FOR EACH tt-fgitm BY tt-fgitm.seq.
-
+  
             ASSIGN i = i + 1
                    v-fgitm[i] = tt-fgitm.i-no
                    v-fgdsc[i] = tt-fgitm.i-dscr
                    v-fgqty[i] = tt-fgitm.qty
                    v-pono[i] = tt-fgitm.po-no
+                   cpono-b[i] = tt-fgitm.po-no-b
                    v-part-no[i] = tt-fgitm.part-no
                    v-cas-cnt[i] = tt-fgitm.cas-cnt
                    v-cas-pal[i] = tt-fgitm.cas-pal
@@ -1894,6 +2101,7 @@ END FUNCTION.
                    v-ship1-extent[i] = tt-fgitm.shipto1
                    v-ship2-extent[i] = tt-fgitm.shipto2
                    v-ship4-extent[i] = tt-fgitm.shipto4
+                   lBrokerChk = tt-fgitm.borker 
                    j = j + 1.
 
             IF i >= 3 THEN DO:
@@ -1910,43 +2118,88 @@ END FUNCTION.
                   v-shipto2[4] = v-ship4-extent[3].
                
                 RUN PRpage (15).
+
+                IF tt-fgitm.borker THEN do:
                 
-                DISPLAY
-               v-thick  SKIP
-               "<B><U>LABEL ITEM" + trim(string(j - 2)) + "</U>"  FORM "x(22)"
-               "<U>LABEL ITEM" + trim(string(j - 1)) + "</U>" FORM "x(20)" WHEN v-fgitm[2] <> "" AT 54
-               "<U>LABEL ITEM" + TRIM(STRING(j)) + "</U></B>" FORM "x(23)" WHEN v-fgitm[3] <> "" AT 104
-               SKIP
-               "<B>FG Item #:</B>" v-fgitm[1]
-               "<B>FG Item #:</B>" WHEN v-fgitm[2] <> "" AT 51 v-fgitm[2] WHEN v-fgitm[2] <> "" 
-               "<B>FG Item #:</B>" WHEN v-fgitm[3] <> "" AT 101 v-fgitm[3] WHEN v-fgitm[3] <> "" 
-               SKIP 
-               "Shipto   :" v-shipto[1]                             
-               "Shipto   :" WHEN v-fgitm[2] <> "" AT 44 v-shipto1[1] WHEN v-fgitm[2] <> ""
-               "Shipto   :" WHEN v-fgitm[3] <> "" AT 87 v-shipto2[1] WHEN v-fgitm[3] <> ""
-               SKIP
-               "PO#      :" v-pono[1]
-               "PO#      :"  WHEN v-fgitm[2] <> "" AT 44 v-pono[2]  WHEN v-fgitm[2] <> "" 
-               "PO#      :" WHEN v-fgitm[3] <> "" AT 87  v-pono[3] WHEN v-fgitm[3] <> "" 
-               SKIP
-               "Cust P/N :" v-part-no[1]      
-               "Cust P/N :" WHEN v-fgitm[2] <> "" AT 44 v-part-no[2]  WHEN v-fgitm[2] <> "" 
-               "Cust P/N :" WHEN v-fgitm[3] <> "" AT 87  v-part-no[3] WHEN v-fgitm[3] <> "" 
-               SKIP
-               "Descriptn:" v-fgdsc[1]
-               "Descriptn:"  WHEN v-fgitm[2] <> "" AT 44 v-fgdsc[2]  WHEN v-fgitm[2] <> "" 
-               "Descriptn:" WHEN v-fgitm[3] <> "" AT 87  v-fgdsc[3] WHEN v-fgitm[3] <> "" 
-               SKIP
-               "Qty/Case :" /*v-fgqty[1]*/ v-cas-cnt[1]
-               "Qty/Case :"  WHEN v-fgitm[2] <> "" AT 44 v-cas-cnt[2]  WHEN v-fgitm[2] <> "" 
-               "Qty/Case :"  WHEN v-fgitm[3] <> "" AT 87  v-cas-cnt[3] WHEN v-fgitm[3] <> ""                               
-               SKIP
-               "Qty/Pal  :" /*v-fgqty[1]*/ v-cas-pal[1]
-               "Qty/Pal  :"  WHEN v-fgitm[2] <> "" AT 44 v-cas-pal[2]  WHEN v-fgitm[2] <> "" 
-               "Qty/Pal  :"  WHEN v-fgitm[3] <> "" AT 87  v-cas-pal[3] WHEN v-fgitm[3] <> "" 
-               SKIP
-                  WITH FRAME itmlbl NO-BOX NO-LABELS STREAM-IO WIDTH 180.
-                DOWN WITH FRAME itmlbl.
+                    DISPLAY
+                   v-thick  SKIP
+                   "<B><U>LABEL ITEM" + trim(string(j - 2)) + "</U>"  FORM "x(22)"
+                   "<U>LABEL ITEM" + trim(string(j - 1)) + "</U>" FORM "x(20)" WHEN v-fgitm[2] <> "" AT 54
+                   "<U>LABEL ITEM" + TRIM(STRING(j)) + "</U></B>" FORM "x(23)" WHEN v-fgitm[3] <> "" AT 104
+                   SKIP
+                   "<B>FG Item #   :</B>" v-fgitm[1]
+                   "<B>FG Item #   :</B>" WHEN v-fgitm[2] <> "" AT 51 v-fgitm[2] WHEN v-fgitm[2] <> "" 
+                   "<B>FG Item #   :</B>" WHEN v-fgitm[3] <> "" AT 101 v-fgitm[3] WHEN v-fgitm[3] <> "" 
+                   SKIP 
+                   "Shipto      :" v-shipto[1]    FORMAT "x(25)"                         
+                   "Shipto      :" WHEN v-fgitm[2] <> "" AT 44 v-shipto1[1] FORMAT "x(25)" WHEN v-fgitm[2] <> ""
+                   "Shipto      :" WHEN v-fgitm[3] <> "" AT 87 v-shipto2[1] WHEN v-fgitm[3] <> ""
+                   SKIP
+                   "Broker PO#  :" cpono-b[1] FORMAT "x(25)"
+                   "Broker PO#  :"  WHEN v-fgitm[2] <> "" AT 44 cpono-b[2] FORMAT "x(25)"  WHEN v-fgitm[2] <> "" 
+                   "Broker PO#  :" WHEN v-fgitm[3] <> "" AT 87  cpono-b[3] WHEN v-fgitm[3] <> "" 
+                   SKIP
+                   "Customer PO#:" v-pono[1] FORMAT "x(25)"
+                   "Customer PO#:"  WHEN v-fgitm[2] <> "" AT 44 v-pono[2] FORMAT "x(25)"  WHEN v-fgitm[2] <> "" 
+                   "Customer PO#:" WHEN v-fgitm[3] <> "" AT 87  v-pono[3] WHEN v-fgitm[3] <> "" 
+                   SKIP
+                   "Cust P/N    :" v-part-no[1]    FORMAT "x(25)"  
+                   "Cust P/N    :" WHEN v-fgitm[2] <> "" AT 44 v-part-no[2]  FORMAT "x(25)" WHEN v-fgitm[2] <> "" 
+                   "Cust P/N    :" WHEN v-fgitm[3] <> "" AT 87  v-part-no[3] WHEN v-fgitm[3] <> "" 
+                   SKIP
+                   "Descriptn   :" v-fgdsc[1] FORMAT "x(25)"
+                   "Descriptn   :"  WHEN v-fgitm[2] <> "" AT 44 v-fgdsc[2] FORMAT "x(25)"  WHEN v-fgitm[2] <> "" 
+                   "Descriptn   :" WHEN v-fgitm[3] <> "" AT 87  v-fgdsc[3] WHEN v-fgitm[3] <> "" 
+                   SKIP
+                   "Qty/Case    :" /*v-fgqty[1]*/ v-cas-cnt[1]
+                   "Qty/Case    :"  WHEN v-fgitm[2] <> "" AT 44 v-cas-cnt[2]  WHEN v-fgitm[2] <> "" 
+                   "Qty/Case    :"  WHEN v-fgitm[3] <> "" AT 87  v-cas-cnt[3] WHEN v-fgitm[3] <> ""                               
+                   SKIP
+                   "Qty/Pal     :" /*v-fgqty[1]*/ v-cas-pal[1]
+                   "Qty/Pal     :"  WHEN v-fgitm[2] <> "" AT 44 v-cas-pal[2]  WHEN v-fgitm[2] <> "" 
+                   "Qty/Pal     :"  WHEN v-fgitm[3] <> "" AT 87  v-cas-pal[3] WHEN v-fgitm[3] <> "" 
+                   SKIP
+                      WITH FRAME itmlblb NO-BOX NO-LABELS STREAM-IO WIDTH 180.
+                    DOWN WITH FRAME itmlblb. 
+                END.
+                ELSE DO:
+                      DISPLAY
+                   v-thick  SKIP
+                   "<B><U>LABEL ITEM" + trim(string(j - 2)) + "</U>"  FORM "x(22)"
+                   "<U>LABEL ITEM" + trim(string(j - 1)) + "</U>" FORM "x(20)" WHEN v-fgitm[2] <> "" AT 54
+                   "<U>LABEL ITEM" + TRIM(STRING(j)) + "</U></B>" FORM "x(23)" WHEN v-fgitm[3] <> "" AT 104
+                   SKIP
+                   "<B>FG Item #   :</B>" v-fgitm[1]
+                   "<B>FG Item #   :</B>" WHEN v-fgitm[2] <> "" AT 51 v-fgitm[2] WHEN v-fgitm[2] <> "" 
+                   "<B>FG Item #   :</B>" WHEN v-fgitm[3] <> "" AT 101 v-fgitm[3] WHEN v-fgitm[3] <> "" 
+                   SKIP 
+                   "Shipto      :" v-shipto[1]    FORMAT "x(25)"                         
+                   "Shipto      :" WHEN v-fgitm[2] <> "" AT 44 v-shipto1[1] FORMAT "x(25)" WHEN v-fgitm[2] <> ""
+                   "Shipto      :" WHEN v-fgitm[3] <> "" AT 87 v-shipto2[1] WHEN v-fgitm[3] <> ""
+                   SKIP
+                   "Customer PO#:" v-pono[1] FORMAT "x(25)"
+                   "Customer PO#:"  WHEN v-fgitm[2] <> "" AT 44 v-pono[2] FORMAT "x(25)"  WHEN v-fgitm[2] <> "" 
+                   "Customer PO#:" WHEN v-fgitm[3] <> "" AT 87  v-pono[3] WHEN v-fgitm[3] <> "" 
+                   SKIP
+                   "Cust P/N    :" v-part-no[1]  FORMAT "x(25)"    
+                   "Cust P/N    :" WHEN v-fgitm[2] <> "" AT 44 v-part-no[2] FORMAT "x(25)"  WHEN v-fgitm[2] <> "" 
+                   "Cust P/N    :" WHEN v-fgitm[3] <> "" AT 87  v-part-no[3] WHEN v-fgitm[3] <> "" 
+                   SKIP
+                   "Descriptn   :" v-fgdsc[1] FORMAT "x(25)"
+                   "Descriptn   :"  WHEN v-fgitm[2] <> "" AT 44 v-fgdsc[2] FORMAT "x(25)"  WHEN v-fgitm[2] <> "" 
+                   "Descriptn   :" WHEN v-fgitm[3] <> "" AT 87  v-fgdsc[3] WHEN v-fgitm[3] <> "" 
+                   SKIP
+                   "Qty/Case    :" /*v-fgqty[1]*/ v-cas-cnt[1]
+                   "Qty/Case    :"  WHEN v-fgitm[2] <> "" AT 44 v-cas-cnt[2]  WHEN v-fgitm[2] <> "" 
+                   "Qty/Case    :"  WHEN v-fgitm[3] <> "" AT 87  v-cas-cnt[3] WHEN v-fgitm[3] <> ""                               
+                   SKIP
+                   "Qty/Pal     :" /*v-fgqty[1]*/ v-cas-pal[1]
+                   "Qty/Pal     :"  WHEN v-fgitm[2] <> "" AT 44 v-cas-pal[2]  WHEN v-fgitm[2] <> "" 
+                   "Qty/Pal     :"  WHEN v-fgitm[3] <> "" AT 87  v-cas-pal[3] WHEN v-fgitm[3] <> "" 
+                   SKIP
+                      WITH FRAME itmlbl NO-BOX NO-LABELS STREAM-IO WIDTH 180.
+                    DOWN WITH FRAME itmlbl. 
+                END.  /* not broker */
                
                 PUT " " SKIP.
 
@@ -2002,6 +2255,18 @@ END FUNCTION.
                 "<AT=,4.6>" chrBarcode[2] 
                 "<AT=,8.2>" chrBarcode[3].
 
+               PUT SKIP "Shipping Department Notes:" SKIP.
+               ASSIGN v-text = FNformat(FNdeptnotes(vjobreckey,"SN",job-hdr.frm),80).
+               DO k = 1 TO NUM-ENTRIES(v-text,"`"):       
+                   PUT  "<C1>" 
+                       ENTRY(k,v-text,"`") FORMAT "X(80)" SKIP. 
+               END.
+               ASSIGN v-text = FNformat(FNdeptnotes(vjobreckey,"SN",0),80).
+               DO k = 1 TO NUM-ENTRIES(v-text,"`"):       
+                   PUT  "<C1>" 
+                       ENTRY(k,v-text,"`") FORMAT "X(80)" SKIP. 
+               END.
+
                 ASSIGN i = 0
                        v-fgitm[1] = ""
                        v-fgdsc[1] = ""
@@ -2015,6 +2280,9 @@ END FUNCTION.
                        v-pono[1] = ""
                        v-pono[2] = ""
                        v-pono[3] = ""
+                       cpono-b[1] = ""
+                       cpono-b[2] = ""
+                       cpono-b[3] = ""
                        v-part-no[1] = ""
                        v-part-no[2] = ""
                        v-part-no[3] = ""
@@ -2060,7 +2328,9 @@ END FUNCTION.
                v-shipto2[2] = v-ship2-extent[3]
                v-shipto1[4] = v-ship4-extent[2]
                v-shipto2[4] = v-ship4-extent[3].
+            
 
+          IF lBrokerChk THEN
             DISPLAY
                v-thick  SKIP
                "<B><U>LABEL ITEM" + trim(string(j - 2)) + "</U>"  FORM "x(22)"
@@ -2071,35 +2341,83 @@ END FUNCTION.
                "<B>FG Item #:</B>"  WHEN v-fgitm[2] <> "" AT 51 v-fgitm[2] WHEN v-fgitm[2] <> "" 
                "<B>FG Item #:</B>" WHEN v-fgitm[3] <> "" AT 101 v-fgitm[3] WHEN v-fgitm[3] <> ""
                SKIP 
-               "Cust Name:" v-cust-name 
-               "Cust Name:"  WHEN v-fgitm[2] <> ""  AT 44 v-cust-name2  WHEN v-fgitm[2] <> "" 
-               "Cust Name:" WHEN v-fgitm[3] <> "" AT 87  v-cust-name3 WHEN v-fgitm[3] <> "" 
+               "Cust Name   :" v-cust-name  FORMAT "x(25)"
+               "Cust Name   :" WHEN trim(v-fgitm[2]) <> ""  AT 44 v-cust-name2 FORMAT "x(25)" WHEN trim(v-fgitm[2]) <> "" 
+               "Cust Name   :" WHEN trim(v-fgitm[3]) <> "" AT 87  v-cust-name3 WHEN trim(v-fgitm[3]) <> "" 
                SKIP
-               "Shipto   :" v-shipto[1] 
-               "Shipto   :" WHEN v-fgitm[2] <> "" AT 44 v-shipto1[1] WHEN v-fgitm[2] <> ""
-               "Shipto   :" WHEN v-fgitm[3] <> "" AT 87 v-shipto2[1] WHEN v-fgitm[3] <> ""
+               "Shipto      :" v-shipto[1] FORMAT "x(25)"
+               "Shipto      :" WHEN v-fgitm[2] <> "" AT 44 v-shipto1[1] FORMAT "x(25)" WHEN v-fgitm[2] <> ""
+               "Shipto      :" WHEN v-fgitm[3] <> "" AT 87 v-shipto2[1] WHEN v-fgitm[3] <> ""
                SKIP
-               "PO#      :" v-pono[1]
-               "PO#      :"  WHEN v-fgitm[2] <> "" AT 44 v-pono[2]  WHEN v-fgitm[2] <> "" 
-               "PO#      :" WHEN v-fgitm[3] <> "" AT 87  v-pono[3] WHEN v-fgitm[3] <> "" 
+               "Broker PO#  :" cpono-b[1]
+               "Broker PO#  :"  WHEN v-fgitm[2] <> "" AT 44 cpono-b[2]  WHEN v-fgitm[2] <> "" 
+               "Broker PO#  :" WHEN v-fgitm[3] <> "" AT 87  cpono-b[3] WHEN v-fgitm[3] <> "" 
                SKIP
-               "Cust P/N :" v-part-no[1]      
-               "Cust P/N :" WHEN v-fgitm[2] <> "" AT 44 v-part-no[2]  WHEN v-fgitm[2] <> "" 
-               "Cust P/N :" WHEN v-fgitm[3] <> "" AT 87  v-part-no[3] WHEN v-fgitm[3] <> "" 
+               "Customer PO#:" v-pono[1]
+               "Customer PO#:"  WHEN v-fgitm[2] <> "" AT 44 v-pono[2]  WHEN v-fgitm[2] <> "" 
+               "Customer PO#:" WHEN v-fgitm[3] <> "" AT 87  v-pono[3] WHEN v-fgitm[3] <> "" 
                SKIP
-               "Descriptn:" v-fgdsc[1]
-               "Descriptn:"  WHEN v-fgitm[2] <> "" AT 44 v-fgdsc[2]  WHEN v-fgitm[2] <> "" 
-               "Descriptn:" WHEN v-fgitm[3] <> "" AT 87  v-fgdsc[3] WHEN v-fgitm[3] <> "" 
+               "Cust P/N    :" v-part-no[1]    FORMAT "x(25)"   
+               "Cust P/N    :" WHEN v-fgitm[2] <> "" AT 44 v-part-no[2] FORMAT "x(25)"  WHEN v-fgitm[2] <> "" 
+               "Cust P/N    :" WHEN v-fgitm[3] <> "" AT 87  v-part-no[3] WHEN v-fgitm[3] <> "" 
                SKIP
-               "Qty/Case :" /*v-fgqty[1]*/ v-cas-cnt[1]
-               "Qty/Case :"  WHEN v-fgitm[2] <> "" AT 44 v-cas-cnt[2]  WHEN v-fgitm[2] <> "" 
-               "Qty/Case :"  WHEN v-fgitm[3] <> "" AT 87  v-cas-cnt[3] WHEN v-fgitm[3] <> ""                               
+               "Descriptn   :" v-fgdsc[1] FORMAT "x(25)"
+               "Descriptn   :"  WHEN v-fgitm[2] <> "" AT 44 v-fgdsc[2] FORMAT "x(25)"  WHEN v-fgitm[2] <> "" 
+               "Descriptn   :" WHEN v-fgitm[3] <> "" AT 87  v-fgdsc[3] WHEN v-fgitm[3] <> "" 
                SKIP
-               "Qty/Pal  :" /*v-fgqty[1]*/ v-cas-pal[1]
-               "Qty/Pal  :"  WHEN v-fgitm[2] <> "" AT 44 v-cas-pal[2]  WHEN v-fgitm[2] <> "" 
-               "Qty/Pal  :"  WHEN v-fgitm[3] <> "" AT 87  v-cas-pal[3] WHEN v-fgitm[3] <> ""                               
+               "Qty/Case    :" /*v-fgqty[1]*/ v-cas-cnt[1]
+               "Qty/Case    :"  WHEN v-fgitm[2] <> "" AT 44 v-cas-cnt[2]  WHEN v-fgitm[2] <> "" 
+               "Qty/Case    :"  WHEN v-fgitm[3] <> "" AT 87  v-cas-cnt[3] WHEN v-fgitm[3] <> ""                               
+               SKIP
+               "Qty/Pal     :" /*v-fgqty[1]*/ v-cas-pal[1]
+               "Qty/Pal     :"  WHEN v-fgitm[2] <> "" AT 44 v-cas-pal[2]  WHEN v-fgitm[2] <> "" 
+               "Qty/Pal     :"  WHEN v-fgitm[3] <> "" AT 87  v-cas-pal[3] WHEN v-fgitm[3] <> ""                               
                SKIP
                WITH FRAME itmlbl2 NO-BOX NO-LABELS STREAM-IO WIDTH 180.
+            ELSE DO:
+
+                DISPLAY
+               v-thick  SKIP
+               "<B><U>LABEL ITEM" + trim(string(j - 2)) + "</U>"  FORM "x(22)"
+               "<U>LABEL ITEM" + trim(string(j - 1)) + "</U>" FORM "x(20)" WHEN v-fgitm[2] <> "" AT 54
+               "<U>LABEL ITEM" + TRIM(STRING(j)) + "</U></B>" FORM "x(23)" WHEN v-fgitm[3] <> "" AT 104
+               SKIP
+               "<B>FG Item #   :</B>" v-fgitm[1]
+               "<B>FG Item #   :</B>"  WHEN v-fgitm[2] <> "" AT 51 v-fgitm[2] WHEN v-fgitm[2] <> "" 
+               "<B>FG Item #   :</B>" WHEN v-fgitm[3] <> "" AT 101 v-fgitm[3] WHEN v-fgitm[3] <> ""
+               SKIP 
+               "Cust Name   :" v-cust-name FORMAT "x(25)"
+               "Cust Name   :" WHEN v-fgitm[2] <> ""  AT 44 v-cust-name2 FORMAT "x(25)" WHEN v-fgitm[2] <> "" 
+               "Cust Name   :" WHEN v-fgitm[3] <> ""  AT 87 v-cust-name3  WHEN v-fgitm[3] <> "" 
+               SKIP
+               "Shipto      :" v-shipto[1] FORMAT "x(25)"
+               "Shipto      :" WHEN v-fgitm[2] <> "" AT 44 v-shipto1[1] FORMAT "x(25)" WHEN v-fgitm[2] <> ""
+               "Shipto      :" WHEN v-fgitm[3] <> "" AT 87 v-shipto2[1] WHEN v-fgitm[3] <> ""
+               SKIP
+               "Customer PO#:" v-pono[1] FORMAT "x(25)"
+               "Customer PO#:"  WHEN v-fgitm[2] <> "" AT 44 v-pono[2] FORMAT "x(25)" WHEN v-fgitm[2] <> "" 
+               "Customer PO#:" WHEN v-fgitm[3] <> "" AT 87  v-pono[3] WHEN v-fgitm[3] <> "" 
+               SKIP
+               "Cust P/N    :" v-part-no[1]   FORMAT "x(25)"   
+               "Cust P/N    :" WHEN v-fgitm[2] <> "" AT 44 v-part-no[2] FORMAT "x(25)"  WHEN v-fgitm[2] <> "" 
+               "Cust P/N    :" WHEN v-fgitm[3] <> "" AT 87  v-part-no[3] WHEN v-fgitm[3] <> "" 
+               SKIP
+               "Descriptn   :" v-fgdsc[1] FORMAT "x(25)"
+               "Descriptn   :"  WHEN v-fgitm[2] <> "" AT 44 v-fgdsc[2] FORMAT "x(25)"  WHEN v-fgitm[2] <> "" 
+               "Descriptn   :" WHEN v-fgitm[3] <> "" AT 87  v-fgdsc[3] WHEN v-fgitm[3] <> "" 
+               SKIP
+               "Qty/Case    :" /*v-fgqty[1]*/ v-cas-cnt[1]
+               "Qty/Case    :"  WHEN v-fgitm[2] <> "" AT 44 v-cas-cnt[2]  WHEN v-fgitm[2] <> "" 
+               "Qty/Case    :"  WHEN v-fgitm[3] <> "" AT 87  v-cas-cnt[3] WHEN v-fgitm[3] <> ""                               
+               SKIP
+               "Qty/Pal     :" /*v-fgqty[1]*/ v-cas-pal[1]
+               "Qty/Pal     :"  WHEN v-fgitm[2] <> "" AT 44 v-cas-pal[2]  WHEN v-fgitm[2] <> "" 
+               "Qty/Pal     :"  WHEN v-fgitm[3] <> "" AT 87  v-cas-pal[3] WHEN v-fgitm[3] <> ""                               
+               SKIP
+               WITH FRAME itmlbl4 NO-BOX NO-LABELS STREAM-IO WIDTH 180.
+
+
+            END.
             i = 0.
 
             PUT " " SKIP.
@@ -2157,7 +2475,19 @@ END FUNCTION.
             PUT UNFORMATTED
            "<#=200><AT=,1>" chrBarcode[1]
                   "<AT=,4.6>" chrBarcode[2]
-                  "<AT=,8.2>" chrBarcode[3].             
+                  "<AT=,8.2>" chrBarcode[3].    
+
+            PUT SKIP "Shipping Department Notes:" SKIP.
+               ASSIGN v-text = FNformat(FNdeptnotes(vjobreckey,"SN",job-hdr.frm),80).
+               DO k = 1 TO NUM-ENTRIES(v-text,"`"):       
+                   PUT  "<C1>" 
+                       ENTRY(k,v-text,"`") FORMAT "X(80)" SKIP. 
+               END.
+               ASSIGN v-text = FNformat(FNdeptnotes(vjobreckey,"SN",0),80).
+               DO k = 1 TO NUM-ENTRIES(v-text,"`"):       
+                   PUT  "<C1>" 
+                       ENTRY(k,v-text,"`") FORMAT "X(80)" SKIP. 
+               END.
 
           END. /* i <= 3 */
 

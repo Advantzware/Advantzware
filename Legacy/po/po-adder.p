@@ -13,6 +13,7 @@ def var v-add-cost as dec no-undo.
 def var v-qty-comp as dec no-undo.
 def var v-setup like e-item-vend.setup no-undo.
 DEF VAR fg-uom-list AS CHAR NO-UNDO.
+DEF VARIABLE dadder-setup AS DECIMAL NO-UNDO .
 
 def shared var v-part-dscr1 as char format "x(30)".
 def shared var v-part-dscr2 as char format "x(30)".
@@ -26,9 +27,7 @@ def shared var v-adder as dec extent 2.
 def shared var v-po-qty as log initial true no-undo.
 
 def buffer xjob-mat for job-mat.
-DEF BUFFER b-cost FOR reftable.
-DEF BUFFER b-qty FOR reftable.
-DEF BUFFER b-setup FOR reftable.
+
 
 DEF TEMP-TABLE tt-eiv NO-UNDO
     FIELD run-qty AS DEC DECIMALS 3 EXTENT 20
@@ -93,34 +92,17 @@ do with frame po-ordlf:
             tt-eiv.setups[i] = e-item-vend.setups[i].
       END.
 
-      FIND FIRST b-qty WHERE
-           b-qty.reftable = "vend-qty" AND
-           b-qty.company = e-item-vend.company AND
-	       b-qty.CODE    = e-item-vend.i-no AND
-           b-qty.code2   = e-item-vend.vend-no
-           NO-LOCK NO-ERROR.
-      
-      IF AVAIL b-qty THEN
-      DO:
-         FIND FIRST b-cost WHERE
-              b-cost.reftable = "vend-cost" AND
-              b-cost.company = e-item-vend.company AND
-	          b-cost.CODE    = e-item-vend.i-no AND
-              b-cost.code2   = e-item-vend.vend-no
-              NO-LOCK NO-ERROR.
 
-         FIND FIRST b-setup WHERE
-              b-setup.reftable = "vend-setup" AND
-              b-setup.company = e-item-vend.company AND
-	          b-setup.CODE    = e-item-vend.i-no AND
-              b-setup.code2   = e-item-vend.vend-no
-              NO-LOCK NO-ERROR.
+      
+      IF AVAIL e-item-vend THEN
+      DO:
+
       
          DO i = 1 TO 10:
             ASSIGN
-               tt-eiv.run-qty[i + 10] = b-qty.val[i]
-               tt-eiv.run-cost[i + 10] = b-cost.val[i]
-               tt-eiv.setups[i + 10] = b-setup.val[i].
+               tt-eiv.run-qty[i + 10] = e-item-vend.runQtyXtra[i]
+               tt-eiv.run-cost[i + 10] = e-item-vend.runCostXtra[i]
+               tt-eiv.setups[i + 10] = e-item-vend.setupsXtra[i].
          END.
       END.
 
@@ -131,7 +113,8 @@ do with frame po-ordlf:
     
       ASSIGN
          v-setup = tt-eiv.setups[i]
-         v-cost = ((tt-eiv.run-cost[i] * v-qty-comp) + v-setup) / v-qty-comp.
+         v-cost = /*((*/ tt-eiv.run-cost[i] /** v-qty-comp) + v-setup ) / v-qty-comp*/
+         dadder-setup = dadder-setup + v-setup .
       /* This adds the Adder cost in */
       IF e-item.std-uom NE po-ordl.pr-uom THEN
         RUN sys/ref/convcuom.p(e-item.std-uom, po-ordl.pr-uom, job-mat.basis-w,
@@ -153,7 +136,8 @@ do with frame po-ordlf:
 
   ASSIGN
    po-ordl.cost      = po-ordl.cost + v-add-cost
-   po-ordl.cons-cost = po-ordl.cost.
+   po-ordl.cons-cost = po-ordl.cost
+   po-ordl.setup     = po-ordl.setup + dadder-setup .
 
   IF po-ordl.pr-uom NE po-ordl.cons-uom THEN
     RUN sys/ref/convcuom.p(po-ordl.pr-uom, po-ordl.cons-uom,
