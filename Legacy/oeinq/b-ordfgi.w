@@ -1778,7 +1778,7 @@ PROCEDURE local-display-fields :
         RUN epCanAccess IN hPgmSecurity ("oeinq/b-ordfgi.w", "", OUTPUT lResult).
         DELETE OBJECT hPgmSecurity.
     
-        IF lResult THEN ASSIGN btn_del:HIDDEN = YES
+        IF NOT lResult THEN ASSIGN btn_del:HIDDEN = YES
             btn_del:SENSITIVE = NO
             btn_copy:HIDDEN = YES
             btn_copy:SENSITIVE = NO
