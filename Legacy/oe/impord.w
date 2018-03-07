@@ -563,8 +563,8 @@ PROCEDURE BuildImpTable :
 
             IF NUM-ENTRIES(cInput) >= 11 THEN
                          ttDetail.ShipTo = ENTRY(11,cInput).
-            IF NUM-ENTRIES(cInput) > 12  THEN
-                             ttDetail.ItemQuote# = int(ENTRY(12,cInput)).
+            IF NUM-ENTRIES(cInput) >= 12  THEN
+                             ttDetail.ItemQuote# = int(ENTRY(12,cInput)) NO-ERROR.
             IF NUM-ENTRIES(cInput) >= 13 THEN
                          ttDetail.ShipFrom = ENTRY(13,cInput).
             IF NUM-ENTRIES(cInput) >= 14 THEN
