@@ -1319,10 +1319,17 @@ DEFINE VARIABLE userColumn AS CHARACTER NO-UNDO EXTENT 200.
      DO i = 1 TO j:
      
         DO k = 1 TO j:
-           IF userColumn[i] EQ cellColumn[k]:NAME THEN
-              LEAVE.
+            IF NOT VALID-HANDLE(cellColumn[k]) THEN
+                LEAVE.
+            IF userColumn[i] EQ cellColumn[k]:NAME THEN
+                LEAVE.
         END.
 
+        /* 25841 - handle condition where the column def in the .dat file no longer exists in the browser */
+        IF NOT VALID-HANDLE(cellColumn[k]) THEN
+            LEAVE.
+        /* 25841 - end */
+        
         IF columnWidth[i] NE cellColumn[k]:WIDTH-PIXELS THEN
            cellColumn[k]:WIDTH-PIXELS = columnWidth[i].
 
