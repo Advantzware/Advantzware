@@ -133,7 +133,10 @@ IF AVAIL itemfg                     AND
         b-fg-rctd.qty-case   = fg-rctd.qty-case * tt-fg-set.part-qty-dec
         b-fg-rctd.partial    = fg-rctd.partial  * tt-fg-set.part-qty-dec
         b-fg-rctd.t-qty      = fg-rctd.t-qty    * tt-fg-set.part-qty-dec
-        b-fg-rctd.std-cost   = 0.
+        b-fg-rctd.std-cost   = 0
+        b-fg-rctd.SetHeaderRno = fg-rctd.r-no
+        .
+        
        
        IF b-fg-rctd.job-no NE "" THEN DO:
          FIND FIRST job

@@ -334,7 +334,7 @@ END.
   NOT-VISIBLE,,RUN-PERSISTENT                                           */
 /* SETTINGS FOR FRAME F-Main
    NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
-/* BROWSE-TAB Browser-Table TEXT-1 F-Main */
+/* BROWSE-TAB Browser-Table 1 F-Main */
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
@@ -363,51 +363,51 @@ fg-rctd.r-no ge lv-frst-rno and
 (fg-rctd.rita-code eq ""R"" or fg-rctd.rita-code eq ""E"")
 use-index fg-rctd"
      _FldNameList[1]   > ASI.fg-rctd.r-no
-"r-no" "Seq#" ">>>>>>>>" "integer" ? ? ? 14 ? ? no ? no no "12" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"fg-rctd.r-no" "Seq#" ">>>>>>>>" "integer" ? ? ? 14 ? ? no ? no no "12" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > ASI.fg-rctd.rct-date
-"rct-date" "Receipt!Date" ? "date" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"fg-rctd.rct-date" "Receipt!Date" ? "date" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   > "_<CALC>"
 "STRING(fg-rctd.trans-time,'HH:MM') @ trans-time" "Receipt!Time" ? ? ? ? ? ? ? ? no ? no no "10" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[4]   > ASI.fg-rctd.tag
-"tag" "Tag#" "x(20)" "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"fg-rctd.tag" "Tag#" "x(20)" "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[5]   > ASI.fg-rctd.po-no
-"po-no" ? ? "character" ? ? ? 14 ? ? yes ? no no "14" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"fg-rctd.po-no" ? ? "character" ? ? ? 14 ? ? yes ? no no "14" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[6]   > ASI.fg-rctd.job-no
-"job-no" "Job#" ? "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"fg-rctd.job-no" "Job#" ? "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[7]   > ASI.fg-rctd.job-no2
-"job-no2" ? ? "integer" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"fg-rctd.job-no2" ? ? "integer" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[8]   > ASI.fg-rctd.i-no
-"i-no" "Item" "X(15)" "character" ? ? ? 14 ? ? yes "FG Item Number" no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"fg-rctd.i-no" "Item" "X(15)" "character" ? ? ? 14 ? ? yes "FG Item Number" no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[9]   > ASI.fg-rctd.i-name
-"i-name" "Name/Desc" ? "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"fg-rctd.i-name" "Name/Desc" ? "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[10]   > ASI.fg-rctd.loc
-"loc" "Whse" ? "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"fg-rctd.loc" "Whse" ? "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[11]   > ASI.fg-rctd.loc-bin
-"loc-bin" "Bin" ? "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"fg-rctd.loc-bin" "Bin" ? "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[12]   > ASI.fg-rctd.cases
-"cases" "Units" "->>>,>>9" "integer" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"fg-rctd.cases" "Units" "->>>,>>9" "integer" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[13]   > ASI.fg-rctd.qty-case
-"qty-case" "Unit!Count" ? "integer" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"fg-rctd.qty-case" "Unit!Count" ? "integer" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[14]   > ASI.fg-rctd.cases-unit
-"cases-unit" "Unit!per Pallet" ? "integer" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"fg-rctd.cases-unit" "Unit!per Pallet" ? "integer" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[15]   > ASI.fg-rctd.partial
-"partial" "Partial" "->>>,>>9" "integer" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"fg-rctd.partial" "Partial" "->>>,>>9" "integer" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[16]   > ASI.fg-rctd.std-cost
-"std-cost" "Cost/UOM" ">,>>>,>>9.99<<<<" "decimal" ? ? ? 14 ? ? yes ? no no "18" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"fg-rctd.std-cost" "Cost/UOM" ">,>>>,>>9.99<<<<" "decimal" ? ? ? 14 ? ? yes ? no no "18" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[17]   > ASI.fg-rctd.cost-uom
-"cost-uom" "UOM" ? "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"fg-rctd.cost-uom" "UOM" ? "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[18]   > ASI.fg-rctd.t-qty
-"t-qty" "Total!Qty" ? "decimal" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"fg-rctd.t-qty" "Total!Qty" ? "decimal" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[19]   > ASI.fg-rctd.frt-cost
-"frt-cost" "Freight Cost" ? "decimal" ? ? ? 14 ? ? yes ? no no "18" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"fg-rctd.frt-cost" "Freight Cost" ? "decimal" ? ? ? 14 ? ? yes ? no no "18" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[20]   > ASI.fg-rctd.ext-cost
-"ext-cost" "Extended Cost" "->,>>>,>>9.99" "decimal" ? ? ? 14 ? ? no ? no no "18" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"fg-rctd.ext-cost" "Extended Cost" "->,>>>,>>9.99" "decimal" ? ? ? 14 ? ? no ? no no "18" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[21]   > ASI.fg-rctd.stack-code
-"stack-code" "FG Lot#" "X(20)" "character" ? ? ? 14 ? ? yes ? no no "21.8" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"fg-rctd.stack-code" "FG Lot#" "X(20)" "character" ? ? ? 14 ? ? yes ? no no "21.8" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[22]   > ASI.fg-rctd.created-by
-"created-by" "Created By" ? "character" ? ? ? 14 ? ? no ? no no "15" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"fg-rctd.created-by" "Created By" ? "character" ? ? ? 14 ? ? no ? no no "15" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[23]   > ASI.fg-rctd.updated-by
-"updated-by" "Last Updated By" ? "character" ? ? ? 14 ? ? no ? no no "15" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"fg-rctd.updated-by" "Last Updated By" ? "character" ? ? ? 14 ? ? no ? no no "15" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[24]   = ASI.fg-rctd.tot-wt
      _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */
@@ -2340,7 +2340,16 @@ PROCEDURE local-create-record :
      fg-rctd.cases-unit   = 1
      fg-rctd.ext-cost     = 0.
 
-
+    FOR EACH b-fg-rctd NO-LOCK
+        WHERE b-fg-rctd.company   EQ g_company
+          AND b-fg-rctd.rita-code EQ "R"
+          AND ROWID(b-fg-rctd)    NE ROWID(fg-rctd)
+          AND (b-fg-rctd.SetHeaderRno EQ INTEGER(SUBSTRING(lv-linker, 10, 10))  OR
+               (NOT ll-set-parts AND b-fg-rctd.SetHeaderRno EQ 0))
+        BY b-fg-rctd.rct-date:
+      fg-rctd.rct-date = b-fg-rctd.rct-date.
+      LEAVE.
+    END.
   END.  
 
   ASSIGN

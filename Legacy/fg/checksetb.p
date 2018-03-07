@@ -194,11 +194,11 @@ PROCEDURE checkset :
 
 
 
-          IF fg-rctd.created-by NE "" THEN
+          IF fg-rctd.SetHeaderRno GT 0 THEN
           DO:
-           v-int = b-fg-rctd.r-no.
+
            IF NOT CAN-FIND(FIRST b2-fg-rctd WHERE
-             b2-fg-rctd.r-no EQ v-int AND
+             b2-fg-rctd.r-no EQ b-fg-rctd.SetHeaderRno AND
              b2-fg-rctd.rita-code NE "P"
              AND ROWID(b2-fg-rctd)    NE ip-rowid2) THEN
              NEXT.

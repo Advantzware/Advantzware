@@ -177,7 +177,7 @@ LOOKUP(fg-rctd.rita-code,"R,E") > 0 and ~
 ((lv-do-what = "delete" and fg-rctd.t-qty < 0) ~
 or ~
 (lv-do-what <> "delete" and fg-rctd.t-qty >= 0) ~
-) use-index fg-rctd NO-LOCK ~
+) AND fg-rctd.SetHeaderRno EQ 0 use-index fg-rctd NO-LOCK ~
     ~{&SORTBY-PHRASE}
 &Scoped-define OPEN-QUERY-br_table OPEN QUERY br_table FOR EACH fg-rctd WHERE ~{&KEY-PHRASE} ~
       AND fg-rctd.company = g_company and ~
@@ -186,7 +186,7 @@ LOOKUP(fg-rctd.rita-code,"R,E") > 0 and ~
 ((lv-do-what = "delete" and fg-rctd.t-qty < 0) ~
 or ~
 (lv-do-what <> "delete" and fg-rctd.t-qty >= 0) ~
-) use-index fg-rctd NO-LOCK ~
+) AND fg-rctd.SetHeaderRno EQ 0 use-index fg-rctd NO-LOCK ~
     ~{&SORTBY-PHRASE}.
 &Scoped-define TABLES-IN-QUERY-br_table fg-rctd
 &Scoped-define FIRST-TABLE-IN-QUERY-br_table fg-rctd
@@ -395,7 +395,7 @@ LOOKUP(fg-rctd.rita-code,""R,E"") > 0 and
 ((lv-do-what = ""delete"" and fg-rctd.t-qty < 0)
 or
 (lv-do-what <> ""delete"" and fg-rctd.t-qty >= 0)
-) use-index fg-rctd"
+) AND fg-rctd.SetHeaderRno EQ 0 use-index fg-rctd"
      _FldNameList[1]   > ASI.fg-rctd.tag
 "fg-rctd.tag" "Tag#" "x(23)" "character" ? ? ? 14 ? ? yes ? no no "29" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > ASI.fg-rctd.loc

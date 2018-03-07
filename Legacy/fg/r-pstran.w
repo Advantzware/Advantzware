@@ -278,7 +278,7 @@ FUNCTION removeChars RETURNS CHARACTER
 /* ***********************  Control Definitions  ********************** */
 
 /* Define the widget handle for the window                              */
-DEFINE VARIABLE C-Win AS WIDGET-HANDLE NO-UNDO.
+DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON Btn_Cancel AUTO-END-KEY 
@@ -312,7 +312,7 @@ DEFINE RECTANGLE RECT-6
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 71 BY 6.43.
 
-DEFINE VARIABLE td-post-trans AS LOGICAL INITIAL YES 
+DEFINE VARIABLE td-post-trans AS LOGICAL INITIAL yes 
      LABEL "Post Transfer?" 
      VIEW-AS TOGGLE-BOX
      SIZE 24 BY .81 NO-UNDO.
@@ -322,10 +322,10 @@ DEFINE VARIABLE td-post-trans AS LOGICAL INITIAL YES
 
 DEFINE FRAME FRAME-A
      trans_panding AT ROW 3.38 COL 12.2 COLON-ALIGNED HELP
-          "Enter the From FG Item Number" NO-LABELS WIDGET-ID 38
+          "Enter the From FG Item Number" NO-LABEL WIDGET-ID 38
      begins_ship-no AT ROW 5.29 COL 32.8 COLON-ALIGNED HELP
           "Enter the From FG Item Number"
-     rd-dest AT ROW 7.91 COL 10.2 NO-LABELS
+     rd-dest AT ROW 7.91 COL 10.2 NO-LABEL
      td-post-trans AT ROW 9.86 COL 38
      Btn_OK AT ROW 14.76 COL 18.4
      Btn_Cancel AT ROW 14.81 COL 53.4
@@ -366,15 +366,15 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          MAX-WIDTH          = 256
          VIRTUAL-HEIGHT     = 45.05
          VIRTUAL-WIDTH      = 256
-         RESIZE             = YES
-         SCROLL-BARS        = NO
-         STATUS-AREA        = YES
+         RESIZE             = yes
+         SCROLL-BARS        = no
+         STATUS-AREA        = yes
          BGCOLOR            = ?
          FGCOLOR            = ?
-         KEEP-FRAME-Z-ORDER = YES
-         THREE-D            = YES
-         MESSAGE-AREA       = NO
-         SENSITIVE          = YES.
+         KEEP-FRAME-Z-ORDER = yes
+         THREE-D            = yes
+         MESSAGE-AREA       = no
+         SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 &IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
@@ -402,7 +402,7 @@ ASSIGN
 ASSIGN  trans_panding:SENSITIVE IN FRAME FRAME-A =  FALSE.
 
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
-THEN C-Win:HIDDEN = NO.
+THEN C-Win:HIDDEN = no.
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -447,6 +447,35 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&Scoped-define SELF-NAME begins_ship-no
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begins_ship-no C-Win
+ON HELP OF begins_ship-no IN FRAME FRAME-A /* Create Bol To Ship To */
+DO:
+    DEFINE VARIABLE char-val AS cha NO-UNDO.
+    FIND FIRST cust WHERE cust.company = cocode AND
+                     cust.active = "X" NO-LOCK NO-ERROR.
+
+    RUN WINDOWS/l-shipto.w (cocode,"",cust.cust-no, begins_ship-no:SCREEN-VALUE, OUTPUT char-val).
+    IF char-val <> "" THEN ASSIGN begins_ship-no:SCREEN-VALUE = ENTRY(1,char-val) .
+
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begins_ship-no C-Win
+ON LEAVE OF begins_ship-no IN FRAME FRAME-A /* Create Bol To Ship To */
+DO:
+   ASSIGN {&self-name}.
+
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME Btn_Cancel
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Cancel C-Win
 ON CHOOSE OF Btn_Cancel IN FRAME FRAME-A /* Cancel */
@@ -485,23 +514,6 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME begins_ship-no
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begins_ship-no C-Win
-ON HELP OF begins_ship-no IN FRAME FRAME-A /* Font */
-DO:
-    DEFINE VARIABLE char-val AS cha NO-UNDO.
-    FIND FIRST cust WHERE cust.company = cocode AND
-                     cust.active = "X" NO-LOCK NO-ERROR.
-
-    RUN WINDOWS/l-shipto.w (cocode,"",cust.cust-no, begins_ship-no:SCREEN-VALUE, OUTPUT char-val).
-    IF char-val <> "" THEN ASSIGN begins_ship-no:SCREEN-VALUE = ENTRY(1,char-val) .
-
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
 &Scoped-define SELF-NAME rd-dest
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rd-dest C-Win
 ON VALUE-CHANGED OF rd-dest IN FRAME FRAME-A
@@ -518,18 +530,6 @@ END.
 ON VALUE-CHANGED OF td-post-trans IN FRAME FRAME-A /* Post Transfer? */
 DO:
     ASSIGN {&self-name}.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME begins_ship-no
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begins_ship-no C-Win
-ON LEAVE OF begins_ship-no IN FRAME FRAME-A /* Beginning shipto */
-DO:
-   ASSIGN {&self-name}.
-
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2520,7 +2520,8 @@ PROCEDURE fg-post :
   /* #pn# Setting rita-code to A since the negative R was causing problems */
   /* #pn# task 08211305                                                    */   
   FOR EACH w-fg-rctd:
-      FOR EACH b-w-fg-rctd WHERE b-w-fg-rctd.qty LT 0.
+      FOR EACH b-w-fg-rctd WHERE b-w-fg-rctd.qty LT 0
+        AND b-w-fg-rctd.SetHeaderRno GT 0 .
           
 
         FIND fg-rctd WHERE ROWID(fg-rctd) = b-w-fg-rctd.row-id EXCLUSIVE-LOCK NO-ERROR.
@@ -2618,80 +2619,14 @@ PROCEDURE fg-post :
     IF fgPostLog THEN RUN fgPostLog ('End loop'). 
   END.  /* for each w-fg-rctd */
 
-
-  IF fgPostLog THEN RUN fgPostLog ('End fg/fgemails.i - Start loadtag').
-  FOR EACH w-fg-rctd
-      BREAK BY w-fg-rctd.i-no
-            BY w-fg-rctd.job-no
-            BY w-fg-rctd.job-no2
-            BY w-fg-rctd.loc
-            BY w-fg-rctd.loc-bin
-            BY w-fg-rctd.tag:
-
-    IF FIRST-OF(w-fg-rctd.i-no) THEN DO:
-        FIND FIRST tt-posted-items WHERE tt-posted-items.i-no = w-fg-rctd.i-no
-                                   NO-LOCK NO-ERROR.
-        IF NOT AVAILABLE tt-posted-items THEN DO:
-            CREATE tt-posted-items.
-            ASSIGN tt-posted-items.i-no = w-fg-rctd.i-no.
-        END.
-    END.
-
-    IF LAST-OF(w-fg-rctd.tag) THEN DO:
-       IF TRIM(w-fg-rctd.tag) NE "" THEN 
-       /* Ensure Bin/Tags Qty is correct.  Task 01270602 */
-       FOR EACH fg-bin NO-LOCK
-           WHERE fg-bin.company EQ g_company
-             AND fg-bin.i-no    EQ w-fg-rctd.i-no
-             AND fg-bin.tag     EQ w-fg-rctd.tag
-           USE-INDEX tag:
-
-         RUN fg/calcbinq.p (ROWID(fg-bin)).
-       END.
-      
-       FIND FIRST loadtag
-           WHERE loadtag.company   EQ g_company
-             AND loadtag.item-type EQ NO
-             AND loadtag.tag-no    EQ w-fg-rctd.tag
-             AND loadtag.i-no      EQ w-fg-rctd.i-no
-             AND loadtag.job-no    EQ w-fg-rctd.job-no
-           USE-INDEX tag EXCLUSIVE-LOCK NO-ERROR.
-
-       IF fgPostLog THEN RUN fgPostLog ('End loadtag - Start fg-bin').
-      
-       IF AVAILABLE loadtag THEN DO:
-         FIND FIRST fg-bin
-             WHERE fg-bin.company EQ g_company
-               AND fg-bin.i-no    EQ loadtag.i-no
-               AND fg-bin.tag     EQ loadtag.tag-no
-               AND fg-bin.qty     GT 0
-             USE-INDEX tag NO-LOCK NO-ERROR.
-         IF AVAILABLE fg-bin AND w-fg-rctd.rita-code = "T" AND
-            TRUNC((fg-bin.qty - fg-bin.partial-count) / fg-bin.case-count,0) = w-fg-rctd.cases THEN /* full qty transfer*/ 
-
-           ASSIGN
-            loadtag.loc          = w-fg-rctd.loc2   
-            loadtag.loc-bin      = w-fg-rctd.loc-bin2
-            loadtag.qty          = fg-bin.qty
-            loadtag.pallet-count = fg-bin.qty
-            loadtag.partial      = fg-bin.partial-count
-            loadtag.tot-cases    = (loadtag.qty - loadtag.partial) / loadtag.qty-case.
-
-         ELSE /*partial transfer */
-           ASSIGN
-            loadtag.loc     = w-fg-rctd.loc
-            loadtag.loc-bin = w-fg-rctd.loc-bin.
-      
-         FIND CURRENT loadtag NO-LOCK.
-       END.
-    END.
+  RUN processLoadtags (INPUT fgPostLog).
           
 /*  task 04041203 - cycle count record was not necessary per Joe */
 /*     IF ip-run-what EQ "SETUP" AND ssfgretc-log AND                 */
 /*        ( (w-fg-rctd.rita-code EQ "T" AND w-fg-rctd.inv-no NE 0) OR */
 /*           w-fg-rctd.rita-code EQ "I" ) THEN                        */
 /*        RUN create-phy-count-proc.                                  */
-  END.
+ 
 
   FOR EACH w-inv:
       /* Save w-inv data to send email bol's */
@@ -3982,6 +3917,86 @@ PROCEDURE process-releases :
     END. /* last i-no */
   END. /* each w-fg-rctd */
 
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE processLoadtags C-Win 
+PROCEDURE processLoadtags :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEFINE INPUT PARAMETER fgPostLog AS LOGICAL NO-UNDO.
+  IF fgPostLog THEN RUN fgPostLog ('End fg/fgemails.i - Start loadtag').
+  FOR EACH w-fg-rctd
+      BREAK BY w-fg-rctd.i-no
+            BY w-fg-rctd.job-no
+            BY w-fg-rctd.job-no2
+            BY w-fg-rctd.loc
+            BY w-fg-rctd.loc-bin
+            BY w-fg-rctd.tag:
+
+    IF FIRST-OF(w-fg-rctd.i-no) THEN DO:
+        FIND FIRST tt-posted-items WHERE tt-posted-items.i-no = w-fg-rctd.i-no
+                                   NO-LOCK NO-ERROR.
+        IF NOT AVAILABLE tt-posted-items THEN DO:
+            CREATE tt-posted-items.
+            ASSIGN tt-posted-items.i-no = w-fg-rctd.i-no.
+        END.
+    END.
+
+    IF LAST-OF(w-fg-rctd.tag) THEN DO:
+       IF TRIM(w-fg-rctd.tag) NE "" THEN 
+       /* Ensure Bin/Tags Qty is correct.  Task 01270602 */
+       FOR EACH fg-bin NO-LOCK
+           WHERE fg-bin.company EQ g_company
+             AND fg-bin.i-no    EQ w-fg-rctd.i-no
+             AND fg-bin.tag     EQ w-fg-rctd.tag
+           USE-INDEX tag:
+
+         RUN fg/calcbinq.p (ROWID(fg-bin)).
+       END.
+      
+       FIND FIRST loadtag
+           WHERE loadtag.company   EQ g_company
+             AND loadtag.item-type EQ NO
+             AND loadtag.tag-no    EQ w-fg-rctd.tag
+             AND loadtag.i-no      EQ w-fg-rctd.i-no
+             AND loadtag.job-no    EQ w-fg-rctd.job-no
+           USE-INDEX tag EXCLUSIVE-LOCK NO-ERROR.
+
+       IF fgPostLog THEN RUN fgPostLog ('End loadtag - Start fg-bin').
+      
+       IF AVAILABLE loadtag THEN DO:
+         FIND FIRST fg-bin
+             WHERE fg-bin.company EQ g_company
+               AND fg-bin.i-no    EQ loadtag.i-no
+               AND fg-bin.tag     EQ loadtag.tag-no
+               AND fg-bin.qty     GT 0
+             USE-INDEX tag NO-LOCK NO-ERROR.
+         IF AVAILABLE fg-bin AND w-fg-rctd.rita-code = "T" AND
+            TRUNC((fg-bin.qty - fg-bin.partial-count) / fg-bin.case-count,0) = w-fg-rctd.cases THEN /* full qty transfer*/ 
+
+           ASSIGN
+            loadtag.loc          = w-fg-rctd.loc2   
+            loadtag.loc-bin      = w-fg-rctd.loc-bin2
+            loadtag.qty          = fg-bin.qty
+            loadtag.pallet-count = fg-bin.qty
+            loadtag.partial      = fg-bin.partial-count
+            loadtag.tot-cases    = (loadtag.qty - loadtag.partial) / loadtag.qty-case.
+
+         ELSE /*partial transfer */
+           ASSIGN
+            loadtag.loc     = w-fg-rctd.loc
+            loadtag.loc-bin = w-fg-rctd.loc-bin.
+      
+         FIND CURRENT loadtag NO-LOCK.
+       END.
+    END.
+END.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
