@@ -34,7 +34,7 @@ DEFINE VARIABLE cExec          AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cWinScpIniFile AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cWinScpXmlLog AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lConfigBased AS LOG NO-UNDO.
-
+DEFINE VARIABLE lConfigIdentified AS LOGICAL NO-UNDO.
 DEF TEMP-TABLE ttConfig FIELD exportFormat  AS CHAR
                       FIELD destName AS CHAR FORMAT "x(20)"
                       FIELD ftp-site AS CHAR FORMAT "x(30)"
@@ -117,9 +117,12 @@ IF poexport-int EQ 2 AND USERID("nosweat") EQ "ASI" THEN
 ELSE
   lSendTheFile = YES. /* Production */
 
+/* Keep track of whether hard-coded config was used */
+lConfigIdentified = NO.
 
 
 IF ip-ftp-where EQ "Corr-U-KraftII" THEN DO:
+  lConfigIdentified = TRUE. 
   OUTPUT TO VALUE(".\customer\po\ftpcmd2.txt").    /* ftp text file */
 
   PUT UNFORMATTED 
@@ -138,20 +141,24 @@ ELSE
 IF ip-ftp-where EQ "kiwi" THEN DO:
   OUTPUT TO VALUE(".\customer\po\ftpkiwi.txt").    /* ftp text file */
 
-  IF INDEX(ip-exp-file,"TL_kiwi") > 0 THEN
+  IF INDEX(ip-exp-file,"TL_kiwi") > 0 THEN DO:
+     lConfigIdentified = TRUE.
      PUT UNFORMATTED 
          "open ftp2.fivestarsheets.com" SKIP   /* ftp server ip address */
          "customer"          SKIP   /* userid */
          "custom3r"          SKIP   /* password */
          "put " ip-exp-file  SKIP   /* file to transfer */
          "quit" .
-  ELSE
+  END.
+  ELSE DO:
+     lConfigIdentified = TRUE.
      PUT UNFORMATTED 
          "open ftp.fivestarsheets.com" SKIP   /* ftp server ip address */
          "customer"                    SKIP   /* userid */
          "custom3r"                    SKIP   /* password */
          "put " ip-exp-file            SKIP   /* file to transfer */
          "quit" .
+  END.
   OUTPUT CLOSE.
 
   OS-COMMAND VALUE("ftp -v -i -s:.\customer\po\ftpkiwi.txt").
@@ -181,16 +188,18 @@ IF AVAIL sys-ctrl THEN DO:
   IF ip-ftp-where EQ "CorSuply" THEN DO:
     OUTPUT TO VALUE(".\customer\po\ftpcorr.txt").    /* ftp text file */
 
-    IF sys-ctrl.char-fld EQ "Southpak" THEN /* South Pak */
+    IF sys-ctrl.char-fld EQ "Southpak" THEN DO: /* South Pak */
+      lConfigIdentified = TRUE.
       PUT UNFORMATTED                       
           "open cscftp1.corrsupp.com" SKIP  /* ftp server ip address */
           "southpak"                  SKIP  /* userid*/
           "s0uthru5"                  SKIP  /* password */
           "put " ip-exp-file          SKIP  /* file to transfer */
           "quit".
-
-    ELSE
-    IF sys-ctrl.char-fld EQ "TrePaper" THEN /* Tre Paper */
+    END.
+    ELSE 
+    IF sys-ctrl.char-fld EQ "TrePaper" THEN DO: /* Tre Paper */
+      lConfigIdentified = TRUE.
       PUT UNFORMATTED                       
           "open cscftp1.corrsupp.com" SKIP  /* ftp server ip address */
           "trepaper"                  SKIP  /* userid*/
@@ -199,15 +208,16 @@ IF AVAIL sys-ctrl THEN DO:
           "prompt"                    SKIP  /* turns off interactive mode */
           "put " ip-exp-file          SKIP  /* file to transfer */
           "quit".
-
-    ELSE                                    /*CSC*/
+    END.
+    ELSE DO:                                /*CSC*/
+      lConfigIdentified = TRUE.
       PUT UNFORMATTED 
           "open cscftp1.corrsupp.com" SKIP  /* ftp server ip address */
           "container"                 SKIP  /* userid*/
           "c0nt4ns3r"                 SKIP  /* password */
           "put " ip-exp-file          SKIP  /* file to transfer */
           "quit".
-
+    END.
     OUTPUT CLOSE.
   END. /* CorSuply */
 
@@ -236,7 +246,7 @@ IF AVAIL sys-ctrl THEN DO:
     OS-COPY VALUE(ip-exp-file) VALUE(v-ftp-file).
 
     OUTPUT TO VALUE(".\customer\po\ftppratt.txt").    /* ftp text file */
-
+    lConfigIdentified = TRUE.
     PUT UNFORMATTED 
         "open ftp.lovebox.com"       SKIP   /* ftp server ip address */
         "mc8mtb0xhf"                    SKIP   /* userid*/
@@ -250,7 +260,7 @@ IF AVAIL sys-ctrl THEN DO:
   ELSE
   IF ip-ftp-where EQ "GP" THEN DO:
     IF LOOKUP(sys-ctrl.char-fld, "PremierPkg,Woodland,Trilakes,Michcor,ST.Clair,NStock") GT 0 THEN DO:
-
+        lConfigIdentified = TRUE.
       OUTPUT TO VALUE(".\customer\po\ftpcmdgp.txt").   /* ftp text file */
   
   
@@ -310,7 +320,7 @@ IF AVAIL sys-ctrl THEN DO:
   ELSE
      IF ip-ftp-where EQ "Smurfit" THEN DO:
         OUTPUT TO VALUE(".\customer\po\ftpsmur.txt").    /* ftp text file */
-    
+        lConfigIdentified = TRUE.
         PUT UNFORMATTED 
             "open gwftpe.smurfit.com" SKIP  /* ftp server ip address */
             "ContainerServices"       SKIP  /* userid*/
@@ -327,6 +337,7 @@ IF AVAIL sys-ctrl THEN DO:
         OUTPUT TO VALUE(".\customer\po\ftpcc.txt").    /* ftp text file */
 
         IF sys-ctrl.char-fld EQ "PremierPkg" THEN DO: /* PremierPkg */
+            lConfigIdentified = TRUE.
            cExec = getWinScpFile().
            IF cExec NE ? AND cExec GT "" THEN DO:
              
@@ -351,7 +362,8 @@ IF AVAIL sys-ctrl THEN DO:
                "put " ip-exp-file     SKIP     /*file to transfer */
                "quit".
         END.
-        ELSE IF sys-ctrl.char-fld EQ "NStock" THEN  /* NStock */
+        ELSE IF sys-ctrl.char-fld EQ "NStock" THEN DO: /* NStock */
+           lConfigIdentified = TRUE.
            PUT UNFORMATTED 
                "open corrchoiceb2b.greif.com" SKIP  /* ftp server ip address */
                "nstockbownoh"         SKIP     /* userid */
@@ -359,8 +371,9 @@ IF AVAIL sys-ctrl THEN DO:
                "cd cci"  SKIP
                "put " ip-exp-file     SKIP     /*file to transfer */
                "quit".       
-
-        ELSE IF sys-ctrl.char-fld EQ "McElroy" THEN  /* McElroy */
+        END. 
+        ELSE IF sys-ctrl.char-fld EQ "McElroy" THEN DO: /* McElroy */
+           lConfigIdentified = TRUE.
            PUT UNFORMATTED 
                "open corrchoiceb2b.greif.com" SKIP  /* ftp server ip address */
                "mcelroyperoh"         SKIP     /* userid */
@@ -368,8 +381,9 @@ IF AVAIL sys-ctrl THEN DO:
                "cd opc"  SKIP
                "put " ip-exp-file     SKIP     /*file to transfer */
                "quit".       
-   
-        ELSE IF sys-ctrl.char-fld EQ "PkgSpec" THEN  /* Packaging Specialties */
+        END.
+        ELSE IF sys-ctrl.char-fld EQ "PkgSpec" THEN DO: /* Packaging Specialties */
+           lConfigIdentified = TRUE.
            PUT UNFORMATTED 
                "open corrchoiceb2b.greif.com" SKIP  /* ftp server ip address */
                "packaginorse"         SKIP     /* userid */
@@ -377,7 +391,7 @@ IF AVAIL sys-ctrl THEN DO:
                "cd mpm"  SKIP
                "put " ip-exp-file     SKIP     /*file to transfer */
                "quit".
-
+        END. 
         OUTPUT CLOSE.
      END. /* Corrchoice */
    ELSE
@@ -386,6 +400,7 @@ IF AVAIL sys-ctrl THEN DO:
          OUTPUT TO VALUE(".\customer\po\ftpaf.txt").    /* ftp text file */
          IF sys-ctrl.char-fld EQ "PremierPkg" THEN 
          DO: /* PremierPkg */
+             lConfigIdentified = TRUE.
              cExec = getWinScpFile().
              IF cExec NE ? AND cExec GT "" THEN 
              DO:
@@ -411,14 +426,17 @@ IF AVAIL sys-ctrl THEN DO:
                      "put " ip-exp-file     SKIP     /*file to transfer */
                      "quit".
          END.        
-         ELSE IF sys-ctrl.char-fld EQ "McElroy" THEN  /* McElroy */       
+         ELSE IF sys-ctrl.char-fld EQ "McElroy" THEN DO: /* McElroy */     
+           lConfigIdentified = TRUE.  
            PUT UNFORMATTED 
                "open edi.schwarzdata.com" SKIP  /* ftp server ip address */
                "AlsMep850"         SKIP     /* userid */
                "7k6uQVf48m"           SKIP     /* password */              
                "put " ip-exp-file     SKIP     /*file to transfer */
                "quit".       
-         ELSE IF sys-ctrl.char-fld EQ "Bell" THEN  /* Bell */
+         END.
+         ELSE IF sys-ctrl.char-fld EQ "Bell" THEN DO:  /* Bell */
+                 lConfigIdentified = TRUE.
                  PUT UNFORMATTED 
                      "open edi.schwarzdata.com" SKIP  /* ftp server ip address */
                      "FrdmBell850"         SKIP     /* userid */
@@ -426,7 +444,9 @@ IF AVAIL sys-ctrl THEN DO:
                      /* "cd opc"  SKIP */
                      "put " ip-exp-file     SKIP     /*file to transfer */
                      "quit".     
+         END. 
          ELSE IF sys-ctrl.char-fld EQ "Capitol" THEN  DO: /* Capitol Specialties */
+             lConfigIdentified = TRUE.
              cExec = getWinScpFile().
              
              IF cExec NE ? AND cExec GT "" THEN 
@@ -454,6 +474,7 @@ IF AVAIL sys-ctrl THEN DO:
                      "quit".     
          END.
          ELSE IF lConfigBased THEN DO:
+             lConfigIdentified = TRUE.
             FIND FIRST ttConfig 
               WHERE ttConfig.exportFormat EQ ip-ftp-where
                 AND ttConfig.destName EQ sys-ctrl.char-fld
@@ -466,24 +487,30 @@ IF AVAIL sys-ctrl THEN DO:
          END.
         OUTPUT CLOSE.
      END. /* AlliFlutes */
-  ELSE /* ip-ftp-where was not listed */
-     IF lConfigBased THEN DO:
-            FIND FIRST ttConfig 
-              WHERE ttConfig.exportFormat EQ ip-ftp-where
-                AND ttConfig.destName EQ sys-ctrl.char-fld
-              NO-LOCK NO-ERROR.
-            
-            IF AVAIL ttconfig THEN DO:     
-               OUTPUT CLOSE.
-               RUN config-based-script.
-            END.
+   
+    /* ip-ftp-where was not listed */
+    IF NOT lConfigIdentified THEN DO:
         
-        OUTPUT CLOSE.
-     END.
-     ELSE 
-       OS-COPY VALUE(ip-exp-file) VALUE("c:\tmp\ftpexppo.txt").
-
-
+         IF lConfigBased THEN DO:
+                lConfigIdentified = TRUE.
+                FIND FIRST ttConfig 
+                  WHERE ttConfig.exportFormat EQ ip-ftp-where
+                    AND ttConfig.destName EQ sys-ctrl.char-fld
+                  NO-LOCK NO-ERROR.
+                
+                IF AVAIL ttconfig THEN DO:     
+                   OUTPUT CLOSE.
+                   RUN config-based-script.
+                END.
+            
+            OUTPUT CLOSE.
+         END.
+         ELSE 
+           OS-COPY VALUE(ip-exp-file) VALUE("c:\tmp\ftpexppo.txt").
+           
+    END.
+    IF NOT lConfigIdentified THEN DO:
+    END.
 
   OS-COMMAND SILENT VALUE("@echo off").
 
