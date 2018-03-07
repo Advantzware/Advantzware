@@ -1438,8 +1438,8 @@ PROCEDURE get-lot-no :
   Parameters:  <none>
   Notes:       THIS IS TO ASSIGN THE LOT NUMBER FROM THE REFTABLE TO 
 ------------------------------------------------------------------------------*/
- 
-   ASSIGN ar-invl.lot-no = TRIM(inv-line.lot-no).
+   IF AVAILABLE ar-invl AND AVAILABLE inv-line THEN 
+     ASSIGN ar-invl.lot-no = TRIM(inv-line.lot-no).
  
 END PROCEDURE.
 
