@@ -1761,40 +1761,38 @@ PROCEDURE local-display-fields :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-
-  /* Code placed here will execute PRIOR to standard behavior. */
+    DEF VAR hPgmSecurity AS HANDLE NO-UNDO.
+    DEF VAR lResult AS LOG NO-UNDO.
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'display-fields':U ) .
 
-  /* Code placed here will execute AFTER standard behavior.    */
-  IF AVAIL fg-rcpth THEN RUN display-itemfg (ROWID(fg-rcpth)).
+    IF AVAIL fg-rcpth THEN 
+        RUN display-itemfg (ROWID(fg-rcpth)).
 
-  DO WITH FRAME {&FRAME-NAME}:
-    fi_sort-by:SCREEN-VALUE = TRIM(lv-sort-by-lab)               + " " +
-                              TRIM(STRING(ll-sort-asc,"As/Des")) + "cending".
+    DO WITH FRAME {&FRAME-NAME}:
+        fi_sort-by:SCREEN-VALUE = TRIM(lv-sort-by-lab)               + " " +
+                                  TRIM(STRING(ll-sort-asc,"As/Des")) + "cending".
 
+        RUN "system/PgmMstrSecur.p" PERSISTENT SET hPgmSecurity.
+        RUN epCanAccess IN hPgmSecurity ("oeinq/b-ordfgi.w", "", OUTPUT lResult).
+        DELETE OBJECT hPgmSecurity.
+    
+        IF NOT lResult THEN ASSIGN btn_del:HIDDEN = YES
+            btn_del:SENSITIVE = NO
+            btn_copy:HIDDEN = YES
+            btn_copy:SENSITIVE = NO
+            btCompress:HIDDEN = YES
+            btCompress:SENSITIVE = NO.
+        ELSE ASSIGN 
+            btn_del:HIDDEN = NO
+            btn_del:SENSITIVE = YES
+            btn_copy:HIDDEN = NO
+            btn_copy:SENSITIVE = YES
+            btCompress:HIDDEN = NO
+            btCompress:SENSITIVE = YES.
 
-  FIND FIRST users NO-LOCK WHERE 
-      users.user_id EQ USERID(LDBNAME(1)) 
-      NO-ERROR.
- 
-  IF AVAIL users AND users.securityLevel LE 900 THEN
-       ASSIGN btn_del:HIDDEN = YES
-              btn_del:SENSITIVE = NO
-              btn_copy:HIDDEN = YES
-              btn_copy:SENSITIVE = NO
-              btCompress:HIDDEN = YES
-              btCompress:SENSITIVE = NO.
-    ELSE
-        ASSIGN btn_del:HIDDEN = NO
-              btn_del:SENSITIVE = YES
-              btn_copy:HIDDEN = NO
-              btn_copy:SENSITIVE = YES
-              btCompress:HIDDEN = NO
-              btCompress:SENSITIVE = YES.
-
-  END.
+    END.
 
 END PROCEDURE.
 

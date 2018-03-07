@@ -295,9 +295,8 @@ DO:
   /* RUN valid-stack-code .*/
     pattern:SCREEN-VALUE = CAPS(pattern:SCREEN-VALUE).
     IF  pattern:SCREEN-VALUE NE "" THEN DO:
-      IF NOT CAN-FIND(FIRST reftable 
-                      {cec/stackW.i}
-                        AND reftable.CODE EQ pattern:SCREEN-VALUE )
+      IF NOT CAN-FIND(FIRST stackPattern
+                        WHERE stackPattern.stackCode EQ pattern:SCREEN-VALUE )
       THEN DO:
         MESSAGE "Invalid Stacking Code..."  VIEW-AS ALERT-BOX ERROR.
         APPLY "entry" TO pattern.

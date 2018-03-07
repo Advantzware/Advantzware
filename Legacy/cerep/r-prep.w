@@ -16,8 +16,9 @@ assign
 
 
 DO TRANSACTION:
-   {sys/inc/selrptcol.i "ER4" }
+   {sys/inc/runAOAVer.i "ER4" }
 END.
 
-IF SelectRptColumn-log THEN RUN cerep/r-prepN.w PERSISTENT.
-ELSE RUN cerep/r-prepA.w PERSISTENT.
+cAOAFile = SEARCH("AOA/r-prep.p").
+IF RunAOAVersion-log AND cAOAFile NE ? THEN RUN AOA/r-prep.p.
+ELSE RUN cerep/r-prepN.w PERSISTENT.

@@ -304,11 +304,8 @@ DO v-local-loop = 1 TO v-local-copies:
            v-rel-date = IF AVAIL xoe-rel THEN xoe-rel.rel-date ELSE ?
            v-rel-qty = IF AVAIL xoe-rel THEN xoe-rel.tot-qty ELSE 0.
 
-         FIND FIRST reftable NO-LOCK WHERE reftable.reftable EQ 'stackpat'
-                                       AND reftable.company EQ ''
-                                       AND reftable.loc EQ ''
-                                       AND reftable.code EQ b-eb.stack-code NO-ERROR.
-         IF AVAILABLE reftable AND SEARCH(reftable.dscr) NE ? THEN lv-spattern-img =  reftable.dscr.
+         FIND FIRST stackPattern NO-LOCK WHERE stackPattern.stackCode EQ b-eb.stack-code NO-ERROR.
+         IF AVAILABLE stackPattern AND SEARCH(stackPattern.stackImage) NE ? THEN lv-spattern-img =  stackPattern.stackImage.
 
          PUT    
             "</PROGRESS><P12><B>"

@@ -1248,12 +1248,8 @@ PROCEDURE local-create-record :
 
     ctsloop:
       do cts-count = 1 to extent(stack-flute.col-value):
-        find next alt-reftable where  alt-reftable.company = "" /* KLUDGE stack-flute.company ***/ and
-                                      alt-reftable.loc     = "" /* KLUDGE stack-flute.loc ***/ and
-                                      alt-reftable.reftable = "STACK" 
-                                      no-lock no-error.
-        if avail(alt-reftable) then
-          assign stack-flute.col-value[cts-count] = alt-reftable.code.
+        if avail stackPattern then
+          assign stack-flute.col-value[cts-count] = stackPattern.stackCode.
         else leave ctsloop.
     end.
 

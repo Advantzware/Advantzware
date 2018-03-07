@@ -292,6 +292,7 @@ for each xef
     RUN cec/com/localk.p (0, ?,ip-build-combo).
     IF ip-build-combo AND LAST(xef.est-no) THEN
      DO:
+
         FIND FIRST op-lock WHERE
              op-lock.reftable EQ "est.op-lock" AND
              op-lock.company  EQ xest.company AND

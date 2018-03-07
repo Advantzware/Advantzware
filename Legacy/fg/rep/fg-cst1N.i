@@ -121,7 +121,7 @@
               WHEN "whse"     THEN cVarValue = IF AVAIL tt-fg-bin THEN tt-fg-bin.loc ELSE "" .
               WHEN "tot-qty"     THEN cVarValue = string(v-tot-qty[1],"->,>>>,>>>,>>9") .
               WHEN "tot-msf" THEN cVarValue = string(v-tot-msf[1],"->>>,>>9.999")  .
-              WHEN "tot-cost"  THEN cVarValue = string(v-tot-cst[1],"->>,>>>,>>9.99").
+              WHEN "tot-cost"  THEN cVarValue = if security-flag then string(v-tot-cst[1],"->>,>>>,>>9.99") else "".
               WHEN "tot-sal" THEN cVarValue = string(v-tot-ext[1],"->>>>,>>>,>>9.99").
               WHEN "msf"  THEN cVarValue = string(v-tot-per,"->>>9.99<<<")  .
               WHEN "cust-name"  THEN cVarValue = IF AVAIL cust THEN string(cust.NAME,"x(30)") ELSE ""  .
@@ -212,7 +212,7 @@
               WHEN "whse"     THEN cVarValue =  "" .
               WHEN "tot-qty"     THEN cVarValue = string(v-tot-qty[3],"->,>>>,>>>,>>9") .
               WHEN "tot-msf" THEN cVarValue = string(v-tot-msf[3],"->>>,>>9.999")  .
-              WHEN "tot-cost"  THEN cVarValue = string(v-tot-cst[3],"->>,>>>,>>9.99").
+              WHEN "tot-cost"  THEN cVarValue = if security-flag then string(v-tot-cst[3],"->>,>>>,>>9.99") else "".
               WHEN "tot-sal" THEN cVarValue = string(v-tot-ext[3],"->>>>,>>>,>>9.99").
               WHEN "msf"  THEN cVarValue = string(v-tot-per,"->>>9.99<<<")  .
               WHEN "cust-name"  THEN cVarValue =  ""  .

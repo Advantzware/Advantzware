@@ -2045,7 +2045,7 @@ FOR EACH ttCustList
     end.
   end.
 
-  for each tt-inv
+  for each tt-inv WHERE (tt-inv.amount NE 0 OR tt-inv.DESCRIPTION EQ "No Balance Due")
       break by "1"
             BY tt-inv.cust-no
             by tt-inv.inv-date
@@ -2830,7 +2830,7 @@ FIRST cust no-lock
     end.
   end.  
 
-  for each tt-inv
+  for each tt-inv WHERE (tt-inv.amount NE 0 OR tt-inv.DESCRIPTION EQ "No Balance Due")
       break by "1"
             BY tt-inv.cust-no
             by tt-inv.inv-date
@@ -3586,7 +3586,7 @@ FIRST cust no-lock
     end.
   end.
 
-  for each tt-inv
+  for each tt-inv WHERE (tt-inv.amount NE 0 OR tt-inv.DESCRIPTION EQ "No Balance Due")
       break by "1"
             BY tt-inv.cust-no
             by tt-inv.inv-date
@@ -4216,7 +4216,7 @@ FOR EACH ttCustList
     end.
   end.
 
-  for each tt-inv
+  for each tt-inv WHERE (tt-inv.amount NE 0 OR tt-inv.DESCRIPTION EQ "No Balance Due")
       break by "1"
             by tt-inv.inv-date
             by tt-inv.sort-fld
@@ -4762,7 +4762,7 @@ FOR EACH ttCustList
     end.
   end.
 
-  for each tt-inv
+  for each tt-inv WHERE (tt-inv.amount NE 0 OR tt-inv.DESCRIPTION EQ "No Balance Due")
       break by "1"
             by tt-inv.inv-date
             by tt-inv.sort-fld

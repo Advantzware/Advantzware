@@ -43,6 +43,16 @@ PROCEDURE postMonitor:
     RUN monitorActivity (labelLine,NO,'').
     INPUT STREAM monitorStrm FROM VALUE(monitorImportDir + '/' + monitorFile + '.tmp') NO-ECHO.
     REPEAT:
+      ASSIGN 
+        rfidData.rfidTag      = ""
+        rfidData.transType    = ""
+        rfidData.fromLocation = ""
+        rfidData.toLocation   = ""
+        rfidData.loadNumber   = ""
+        rfidData.transDate    = ?
+        rfidData.transTime    = ""
+        rfidData.toWarehouse  = ""
+        .
       IMPORT STREAM monitorStrm DELIMITER '~t' rfidData.
       ASSIGN
         dataLine            = FILL(' ',1000)

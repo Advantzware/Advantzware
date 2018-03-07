@@ -16,32 +16,9 @@ IF TRIM({&TABLENAME}.rec_key) NE "" THEN
      DELETE reftable.
    END.
 
-FOR EACH reftable WHERE
-    reftable.reftable = "vend-qty" AND
-    reftable.company = e-item-vend.company and
-    reftable.CODE    = e-item-vend.i-no AND
-    reftable.code2   = e-item-vend.vend-no:
 
-    DELETE reftable.
-END.
 
-FOR EACH reftable WHERE
-    reftable.reftable = "vend-cost" AND
-    reftable.company = e-item-vend.company and
-    reftable.CODE    = e-item-vend.i-no AND
-    reftable.code2   = e-item-vend.vend-no:
 
-    DELETE reftable.
-END.
-
-FOR EACH reftable WHERE
-    reftable.reftable = "vend-setup" AND
-    reftable.company = e-item-vend.company and
-    reftable.CODE    = e-item-vend.i-no AND
-    reftable.code2   = e-item-vend.vend-no:
-   
-    DELETE reftable.
-END.
 
    
    

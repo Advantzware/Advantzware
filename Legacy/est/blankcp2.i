@@ -241,32 +241,22 @@ IF lv-copied NE ? THEN DO:
                       oe-ordm.company = est.company AND
                       oe-ordm.ord-no = est.ord-no AND
                       oe-ordm.charge = xest-prep.CODE
-                      NO-LOCK NO-ERROR.
+                       NO-ERROR.
                 
                  IF AVAIL oe-ordm AND 
-                    NOT can-find(FIRST reftable WHERE
-                        reftable.reftable EQ "oe/ordlmisc.p" AND
-                        reftable.company  EQ oe-ordm.company AND
-                        reftable.loc      EQ STRING(oe-ordm.ord-no,"9999999999") AND
-                        reftable.code     EQ STRING(oe-ordm.line,"9999999999") AND
-                        reftable.code2    EQ oe-ordm.charge AND
-                        reftable.val[1] = 1 AND
-                        reftable.val[2]   = xest-prep.eqty AND
-                        reftable.val[3]   = xest-prep.line) THEN DO:
+                     (oe-ordm.miscType <> 1 OR
+                      oe-ordm.estPrepEqty <> xest-prep.eqty OR
+                      oe-ordm.estPrepLine <> xest-prep.line)      
+                     
+                  THEN DO:
                 
-                    CREATE reftable.
-                    ASSIGN
-                       reftable.reftable = "oe/ordlmisc.p"
-                       reftable.company  = oe-ordm.company
-                       reftable.loc      = STRING(oe-ordm.ord-no,"9999999999")
-                       reftable.code     = STRING(oe-ordm.line,"9999999999")
-                       reftable.code2    = oe-ordm.charge
-                       reftable.val[1] = 1
-                       reftable.val[2]   = xest-prep.eqty
-                       reftable.val[3]   = xest-prep.line
-                       reftable.dscr     = xest-prep.est-no.
-                    RELEASE reftable.
-                 END.
+                    ASSIGN 
+                         oe-ordm.miscType = 1
+                         oe-ordm.estPrepEqty   = xest-prep.eqty
+                         oe-ordm.estPrepLine   = xest-prep.line
+                         oe-ordm.est-no  = xest-prep.est-no.    
+                     RELEASE oe-ordm.
+                  END.
               END.
 
               RELEASE xest-prep.

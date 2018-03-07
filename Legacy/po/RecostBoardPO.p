@@ -77,9 +77,6 @@ PROCEDURE GetNewCosts :
 ------------------------------------------------------------------------------*/
 
 
-DEF BUFFER bf-reftableCost FOR reftable.
-DEF BUFFER bf-reftableQty FOR reftable.
-DEF BUFFER bf-reftableSetup FOR reftable.
 
 DEFINE VARIABLE i AS INTEGER NO-UNDO.
 DEFINE VARIABLE dCost AS DECIMAL NO-UNDO.
@@ -116,33 +113,14 @@ FOR EACH ttPOGroups
                tt-e-item-vend.run-qty[i] = e-item-vend.run-qty[i]
                tt-e-item-vend.run-cost[i] = e-item-vend.run-cost[i]
                tt-e-item-vend.setups[i] = e-item-vend.setups[i].
-         END.
-
-         FIND FIRST bf-reftableQty 
-             WHERE bf-reftableQty.reftable = "vend-qty" 
-               AND bf-reftableQty.company = e-item-vend.company 
-               AND bf-reftableQty.CODE    = e-item-vend.i-no 
-               AND bf-reftableQty.code2   = e-item-vend.vend-no
-             NO-LOCK NO-ERROR.
+         END.         
      
-         IF AVAIL bf-reftableQty THEN DO:
-            FIND FIRST bf-reftableCost 
-                WHERE bf-reftableCost.reftable = "vend-cost" 
-                  AND bf-reftableCost.company = e-item-vend.company 
-                  AND bf-reftableCost.CODE    = e-item-vend.i-no 
-                  AND bf-reftableCost.code2   = e-item-vend.vend-no
-                NO-LOCK NO-ERROR.
-                FIND FIRST bf-reftableSetup 
-                    WHERE bf-reftableSetup.reftable = "vend-setup" 
-                      AND bf-reftableSetup.company = e-item-vend.company 
-                      AND bf-reftableSetup.CODE    = e-item-vend.i-no 
-                      AND bf-reftableSetup.code2   = e-item-vend.vend-no
-                    NO-LOCK NO-ERROR.
+         IF AVAIL e-item-vend THEN DO:            
                 DO i = 1 TO 10:
                     ASSIGN
-                        tt-e-item-vend.run-qty[i + 10] = bf-reftableQty.val[i]
-                        tt-e-item-vend.run-cost[i + 10] = bf-reftableCost.val[i]
-                        tt-e-item-vend.setups[i + 10] = bf-reftableSetup.val[i].
+                        tt-e-item-vend.run-qty[i + 10] = e-item-vend.runQtyXtra[i]
+                        tt-e-item-vend.run-cost[i + 10] = e-item-vend.runCostXtra[i]
+                        tt-e-item-vend.setups[i + 10] = e-item-vend.setupsXtra[i].
                 END. /*Do i 1 to 10*/
             END. /*avail bf-reftableQty*/
         END. /* avail e-item-vend*/

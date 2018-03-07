@@ -998,86 +998,22 @@ PROCEDURE local-assign-record :
 
   IF v-copy-record THEN
   DO:
-     FIND FIRST b2-qty WHERE
-          b2-qty.reftable = "vend-qty" AND
-          b2-qty.company = e-item-vend.company AND
-          b2-qty.CODE    = e-item-vend.i-no AND
-          b2-qty.code2   = v-old-vend-no
-          NO-ERROR.
-
-     FIND FIRST b2-cost WHERE
-          b2-cost.reftable = "vend-cost" AND
-          b2-cost.company = e-item-vend.company AND
-          b2-cost.CODE    = e-item-vend.i-no AND
-          b2-cost.code2   = v-old-vend-no
-          NO-ERROR.
-
-     FIND FIRST b2-setup WHERE
-          b2-setup.reftable = "vend-setup" AND
-          b2-setup.company = e-item-vend.company AND
-          b2-setup.CODE    = e-item-vend.i-no AND
-          b2-setup.code2   = v-old-vend-no
-          NO-ERROR.
-
-     IF AVAIL b2-qty AND AVAIL b2-cost AND AVAIL b2-setup THEN
-     DO:
-        FIND FIRST b-qty WHERE
-             b-qty.reftable = "vend-qty" AND
-             b-qty.company = e-item-vend.company AND
-             b-qty.CODE    = e-item-vend.i-no AND
-             b-qty.code2   = e-item-vend.vend-no
-             NO-ERROR.
-
-        FIND FIRST b-cost WHERE
-             b-cost.reftable = "vend-cost" AND
-             b-cost.company = e-item-vend.company AND
-             b-cost.CODE    = e-item-vend.i-no AND
-             b-cost.code2   = e-item-vend.vend-no
-             NO-ERROR.
-
-        FIND FIRST b-setup WHERE
-             b-setup.reftable = "vend-setup" AND
-             b-setup.company = e-item-vend.company AND
-             b-setup.CODE    = e-item-vend.i-no AND
-             b-setup.code2   = e-item-vend.vend-no
-             NO-ERROR.
-
-        IF NOT AVAIL b-qty THEN
-        DO:
-           CREATE b-qty.
-           BUFFER-COPY b2-qty EXCEPT code2 TO b-qty
-              ASSIGN b-qty.code2 = e-item-vend.vend-no.
-           RELEASE b-qty.
-        END.
-        ELSE
-           DO v-count = 1 TO 10:
-              b-qty.val[v-count] = b2-qty.val[v-count].
-           END.
-
-        IF NOT AVAIL b-cost THEN
-        DO:
-           CREATE b-cost.
-           BUFFER-COPY b2-cost EXCEPT code2 TO b-cost
-              ASSIGN b-cost.code2 = e-item-vend.vend-no.
-           RELEASE b-cost.
-        END.
-        ELSE
-           DO v-count = 1 TO 10:
-              b-cost.val[v-count] = b2-cost.val[v-count].
-           END.
-
-        IF NOT AVAIL b-setup THEN
-        DO:
-           CREATE b-setup.
-           BUFFER-COPY b2-setup EXCEPT code2 TO b-setup
-              ASSIGN b-setup.code2 = e-item-vend.vend-no.
-           RELEASE b-setup.
-        END.
-        ELSE
+     FIND FIRST bf-evend
+      WHERE bf-evend.company   EQ e-item.company
+        AND bf-evend.i-no      EQ e-item.i-no
+        AND bf-evend.vend-no   EQ v-old-vend-no
+        AND ROWID(bf-evend)    NE ROWID(e-item-vend)
+        NO-ERROR.
+     
+     IF AVAIL bf-evend THEN
+     DO: 
         DO v-count = 1 TO 10:
-           b-setup.val[v-count] = b2-setup.val[v-count].
+           e-item-vend.runQtyXtra[v-count] = bf-evend.runQtyXtra[v-count].
+           e-item-vend.runCostXtra[v-count] = bf-evend.runCostXtra[v-count].
+           e-item-vend.setupsXtra[v-count] = bf-evend.setupsXtra[v-count].
         END.
 
+        
         IF e-item-vend.vend-no EQ "" THEN
         DO:
            FIND FIRST b-blank-vend-qty WHERE
@@ -1096,7 +1032,7 @@ PROCEDURE local-assign-record :
            END.
 
            DO v-count = 1 TO 10:
-              b-blank-vend-qty.val[v-count] = b-qty.val[v-count].
+                b-blank-vend-qty.val[v-count] = e-item-vend.runQtyXtra[v-count].
            END.
 
            FIND FIRST b-blank-vend-cost WHERE
@@ -1115,34 +1051,14 @@ PROCEDURE local-assign-record :
            END.
 
            DO v-count = 1 TO 10:
-              b-blank-vend-cost.val[v-count] = b-cost.val[v-count].
+                b-blank-vend-cost.val[v-count] = e-item-vend.runCostXtra[v-count].
            END.
         END.
      END.
   END.
 
-  FIND FIRST b-qty WHERE
-       b-qty.reftable = "vend-qty" AND
-       b-qty.company = e-item-vend.company AND
-       b-qty.CODE    = e-item-vend.i-no AND
-       b-qty.code2   = e-item-vend.vend-no
-       NO-ERROR.
 
-  FIND FIRST b-cost WHERE
-       b-cost.reftable = "vend-cost" AND
-       b-cost.company = e-item-vend.company AND
-       b-cost.CODE    = e-item-vend.i-no AND
-       b-cost.code2   = e-item-vend.vend-no
-       NO-ERROR.
-
-  FIND FIRST b-setup WHERE
-       b-setup.reftable = "vend-setup" AND
-       b-setup.company = e-item-vend.company AND
-       b-setup.CODE    = e-item-vend.i-no AND
-       b-setup.code2   = e-item-vend.vend-no
-       NO-ERROR.
-
-  IF AVAIL b-qty AND AVAIL b-cost AND AVAIL b-setup THEN
+  IF AVAIL e-item-vend THEN
      v-count = 20.
   ELSE
      v-count = 10.
@@ -1158,12 +1074,12 @@ PROCEDURE local-assign-record :
                e-item-vend.run-cost[i] = 0
                e-item-vend.setups[i] = 0.
      ELSE
-        assign tmpfile.qty = b-qty.val[i - 10]
-               tmpfile.siz = b-cost.val[i - 10]
-               tmpfile.setups = b-setup.val[i - 10]
-               b-qty.val[i - 10] = 0
-               b-cost.val[i - 10] = 0
-               b-setup.val[i - 10] = 0.
+        assign tmpfile.qty = e-item-vend.runQtyXtra[i - 10]
+               tmpfile.siz = e-item-vend.runCostXtra[i - 10]
+               tmpfile.setups = e-item-vend.setupsXtra[i - 10]
+               e-item-vend.runQtyXtra[i - 10] = 0
+               e-item-vend.runCostXtra[i - 10] = 0
+               e-item-vend.setupsXtra[i - 10] = 0.
   end.
   i = 1.
 
@@ -1191,9 +1107,9 @@ PROCEDURE local-assign-record :
                 e-item-vend.setups[i] = tmpfile.setups.
       ELSE
          ASSIGN
-            b-qty.val[i - 10] = tmpfile.qty
-            b-cost.val[i - 10] = tmpfile.siz
-            b-setup.val[i - 10] = tmpfile.setups.
+            e-item-vend.runQtyXtra[i - 10] = tmpfile.qty
+            e-item-vend.runCostXtra[i - 10] = tmpfile.siz
+            e-item-vend.setupsXtra[i - 10] = tmpfile.setups.
 
       IF i GT 10 AND AVAIL b-blank-vend-qty AND AVAIL b-blank-vend-cost THEN
          ASSIGN

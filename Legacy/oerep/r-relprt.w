@@ -51,6 +51,11 @@ DEF VAR v-ddate AS DATE NO-UNDO.
 DEF VAR lv-program AS CHAR NO-UNDO.
 DEF VAR is-xprint-form AS LOG NO-UNDO.
 
+DEFINE TEMP-TABLE ttReleasesToPrint NO-UNDO
+    FIELD OeRelHRowID AS ROWID 
+    FIELD SessionID   AS CHARACTER
+        .
+
 {custom/xprint.i}
 DEF NEW SHARED VAR vPrinted AS LOG NO-UNDO.
 DEF NEW SHARED VAR v-exc-bin AS LOG NO-UNDO.

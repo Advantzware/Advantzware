@@ -1127,6 +1127,7 @@ PROCEDURE calc-fields :
 
     DO WITH FRAME {&FRAME-NAME}:
       voverall:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(voverall (0)).
+      dMatPctSellPrice:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(fDirectMatPctSellPrice()).
       IF lv-changed2 NE "S" THEN 
         probe.gross-profit:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(display-gp (0)).
     END.
@@ -3241,17 +3242,13 @@ PROCEDURE run-whatif :
         AND est-op.line    LT 500,
       FIRST mach NO-LOCK
       {sys/look/machW.i}
-        AND mach.m-code EQ est-op.m-code,
-      FIRST reftable NO-LOCK
-      WHERE reftable.reftable EQ "mach.obsolete"
-        AND reftable.company  EQ mach.company
-        AND reftable.loc      EQ mach.loc
-        AND reftable.code     EQ mach.m-code
-        AND reftable.val[1]   EQ 1:
+        AND mach.m-code EQ est-op.m-code:
+   IF mach.obsolete THEN DO:
     MESSAGE "Machine: " + TRIM(mach.m-code) +
             " is obsolete, please replace to complete calculation..."
         VIEW-AS ALERT-BOX ERROR.
     RETURN.
+   END.
   END.
   IF est.est-type >= 3 AND est.est-type <= 4 AND cerunf = "HOP" THEN RUN ce/dAskSum.w (OUTPUT gEstSummaryOnly).
   IF est.est-type EQ 4 THEN RUN ce/com/print4.p NO-ERROR.
@@ -3290,6 +3287,7 @@ PROCEDURE run-whatif :
   find ef where recid(ef) = lv-ef-recid no-lock.
   FIND CURRENT est NO-LOCK NO-ERROR.
 
+  RUN dispatch ("open-query").
   RUN dispatch ("open-query").
 
 END PROCEDURE.
@@ -3713,12 +3711,15 @@ FUNCTION fDirectMatPctSellPrice RETURNS DECIMAL
  Purpose:  Calculates Mat %
  Notes: Ticket 24941 
 ------------------------------------------------------------------------------*/
-        DEFINE VARIABLE dMatPct AS DECIMAL NO-UNDO.
+       DEFINE VARIABLE dMatPct AS DECIMAL NO-UNDO.
+        DEFINE VARIABLE dPrice AS DECIMAL NO-UNDO.
     
-    IF AVAILABLE probe AND probe.sell-price GT 0 THEN 
-        dMatPct = probe.spare-dec-1 / probe.sell-price * 100.
+    dPrice = DEC(probe.sell-price:SCREEN-VALUE IN BROWSE {&browse-name}).
+    IF AVAILABLE probe AND dPrice GT 0 THEN 
+        dMatPct = probe.spare-dec-1 / dPrice * 100.
     
         RETURN dMatPct.
+
 
 END FUNCTION.
 

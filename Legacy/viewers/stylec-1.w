@@ -555,19 +555,7 @@ END.
 /* ***************************  Main Block  *************************** */
 SESSION:DATA-ENTRY-RETURN = YES.
 
-FOR EACH reftable EXCLUSIVE-LOCK
-    WHERE reftable.reftable EQ "style.per-msf",
-    FIRST style
-    WHERE style.company EQ reftable.company
-      AND style.style   EQ reftable.code
-    EXCLUSIVE-LOCK:
 
-  ASSIGN
-   style.sqft-len-trim = reftable.val[1]
-   style.sqft-wid-trim = reftable.val[2].
-
-  DELETE reftable.
-END.
 
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        

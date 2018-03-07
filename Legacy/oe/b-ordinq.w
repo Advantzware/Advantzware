@@ -549,7 +549,7 @@ DEFINE BROWSE Browser-Table
       oe-ordl.job-no2
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ASSIGN SEPARATORS SIZE 155 BY 16.52
+    WITH NO-ASSIGN SEPARATORS SIZE 155 BY 16.5
          FONT 2.
 
 
@@ -2633,14 +2633,9 @@ Regardless of Customer Bill to.
       /* If Order Type = T, Skip release when status is NOT Z or C. */
 /*       IF oe-ord.TYPE = "T" AND LOOKUP(buf-oe-rel.stat,"Z,C") = 0  THEN NEXT.  */
 
-      /* Get reftable.code */
-      FIND FIRST buf-reftable NO-LOCK WHERE 
-                 buf-reftable.reftable EQ "oe-rel.s-code" AND 
-                 buf-reftable.company  EQ STRING(buf-oe-rel.r-no,"9999999999") NO-ERROR.
-      IF NOT AVAIL(buf-reftable) THEN NEXT.
-      /* If order type NOT T, skip if S/I code is NOT "T". */
-      IF oe-ord.TYPE <> "T" AND buf-reftable.CODE <> "T" THEN NEXT.
-
+        IF buf-oe-rel.s-code = "" THEN
+          NEXT.
+        IF oe-ord.TYPE <> "T" AND buf-oe-rel.s-code <> "T" THEN NEXT.  
 
       ASSIGN vTransfer-Qty = (vTransfer-Qty + buf-oe-rel.qty).
   END.

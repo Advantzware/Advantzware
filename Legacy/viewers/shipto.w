@@ -87,12 +87,6 @@ DEFINE {&NEW} SHARED VARIABLE g_lookup-var AS CHARACTER NO-UNDO.
 
 &SCOPED-DEFINE enable-shipto enable-shipto
 
-&SCOPED-DEFINE where-jded-id WHERE reftable.reftable EQ "JDEDWARDCUST#" ~
-                               AND reftable.company  EQ cocode          ~
-                               AND reftable.loc      EQ ""              ~
-                               AND reftable.code     EQ shipto.cust-no  ~
-                               AND reftable.code2    EQ shipto.ship-id
-
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -200,7 +194,7 @@ DEFINE VARIABLE faxNumber AS CHARACTER FORMAT "xxx-xxxx":U
      SIZE 16 BY 1 NO-UNDO.
 
 DEFINE VARIABLE fi_jded-id AS CHARACTER FORMAT "X(256)":U 
-     LABEL "JD Edw#" 
+     LABEL "Export ID#"
      VIEW-AS FILL-IN 
      SIZE 22 BY 1 NO-UNDO.
 
@@ -1419,19 +1413,9 @@ PROCEDURE reftable-values :
 
 
   IF AVAIL shipto THEN DO TRANSACTION:
-    FIND FIRST reftable {&where-jded-id} NO-ERROR.
-    IF NOT AVAIL reftable THEN DO:
-      CREATE reftable.
-      ASSIGN
-       reftable.reftable = "JDEDWARDCUST#"
-       reftable.company  = cocode
-       reftable.loc      = ""
-       reftable.code     = shipto.cust-no
-       reftable.code2    = shipto.ship-id.
-    END.
-
+    
     IF ip-display THEN
-      fi_jded-id = reftable.dscr.
+      fi_jded-id = shipto.exportCustID.
     ELSE
       reftable.dscr = fi_jded-id.    
 

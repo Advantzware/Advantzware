@@ -217,19 +217,18 @@ if v-code eq "" then do:
   return.
 end.
 
-find reftable
-    {cec/stackW.i}
-      and reftable.code eq v-code
+FIND stackPattern
+     where stackPattern.stackCode eq v-code
     no-lock no-error.
-if not avail reftable then do:
+if not avail stackPattern then do:
   v-op-error = yes.
   message "ERROR: Reference table record not found for stacking type:"
     v-code + "!" view-as alert-box error.
   return.
 end.
 assign
- v-op-numstacks = reftable.val[1]
- v-op-stackcode = reftable.code.
+ v-op-numstacks = stackPattern.stackCount
+ v-op-stackcode = stackPattern.stackCode.
 
 IF cecunit-chr EQ "FluteMtx" AND NOT ll-assem-part THEN DO:
   /* STEP 3
@@ -271,7 +270,7 @@ IF cecunit-chr EQ "FluteMtx" AND NOT ll-assem-part THEN DO:
     if v-row ne ? then
     findstackloop:
     repeat v-counter = 1 TO EXTENT(stack-flute.col-value):
-      if stack-flute.col-value[v-counter] = reftable.code then do:
+      if stack-flute.col-value[v-counter] = stackPattern.stackCode then do:
         v-col = v-counter.
         leave findstackloop.
       end.
@@ -296,7 +295,7 @@ IF cecunit-chr EQ "FluteMtx" AND NOT ll-assem-part THEN DO:
   do:
     v-op-error = yes.
     message "ERROR: Stacking Flute Stacking code value:"
-      reftable.code "NOT found!" view-as alert-box error.
+      stackPattern.stackCode "NOT found!" view-as alert-box error.
     return.
   end.
 

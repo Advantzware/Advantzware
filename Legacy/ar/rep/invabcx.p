@@ -95,8 +95,8 @@ DEF VAR v-notes-line AS INT NO-UNDO.
 DEF VAR v-inv-total AS DEC NO-UNDO.
 
 /* === with xprint ====*/
-DEF VAR ls-full-img1 AS cha FORM "x(150)" NO-UNDO.
-DEF VAR ls-full-img2 AS cha FORM "x(150)" NO-UNDO.
+DEF VAR ls-full-img1 AS cha FORM "x(200)" NO-UNDO.
+DEF VAR ls-full-img2 AS cha FORM "x(200)" NO-UNDO.
 
 ASSIGN
   FILE-INFO:FILE-NAME = "images\ABCAdd.jpg"

@@ -145,34 +145,15 @@ FOR EACH tt-ei NO-LOCK,
                 tt-b-e-itemv.setups[lj] = b-e-itemv.setups[lj].
           END.
 
-          FIND FIRST b-qty WHERE
-               b-qty.reftable = "vend-qty" AND
-               b-qty.company = b-e-itemv.company AND
-	           b-qty.CODE    = b-e-itemv.i-no AND
-               b-qty.code2   = b-e-itemv.vend-no
-               NO-LOCK NO-ERROR.
-
-          IF AVAIL b-qty THEN
+          
+          IF AVAIL b-e-itemv THEN
           DO:
-             FIND FIRST b-cost WHERE
-                  b-cost.reftable = "vend-cost" AND
-                  b-cost.company = b-e-itemv.company AND
-		          b-cost.CODE    = b-e-itemv.i-no AND
-                  b-cost.code2   = b-e-itemv.vend-no
-                  NO-LOCK NO-ERROR.
-            
-             FIND FIRST b-setup WHERE
-                  b-setup.reftable = "vend-setup" AND
-                  b-setup.company = b-e-itemv.company AND
-		          b-setup.CODE    = b-e-itemv.i-no AND
-                  b-setup.code2   = b-e-itemv.vend-no
-                  NO-LOCK NO-ERROR.
-         
+                      
              DO lj = 1 TO 10:
                 ASSIGN
-                   tt-b-e-itemv.run-qty[lj + 10] = b-qty.val[lj]
-                   tt-b-e-itemv.run-cost[lj + 10] = b-cost.val[lj]
-                   tt-b-e-itemv.setups[lj + 10] = b-setup.val[lj].
+                   tt-b-e-itemv.run-qty[lj + 10] = b-e-itemv.runQtyXtra[lj]
+                   tt-b-e-itemv.run-cost[lj + 10] = b-e-itemv.runCostXtra[lj]
+                   tt-b-e-itemv.setups[lj + 10] = b-e-itemv.setupsXtra[lj].
              END.
           END.
 

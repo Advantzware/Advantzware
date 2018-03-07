@@ -96,36 +96,7 @@ END.
 
 {sys/inc/oeuserid.i}
 
-/*IF old-{&TABLENAME}.r-no NE 0 AND {&TABLENAME}.link-no EQ 0 THEN DO:
-  FIND FIRST reftable
-      WHERE reftable.reftable EQ "oe-rel.s-code"
-        AND reftable.company  EQ STRING(oe-rel.r-no,"9999999999")
-      NO-LOCK NO-ERROR.
-  lv-s-code[1] = IF AVAIL reftable THEN reftable.code ELSE "B".
 
-  FOR EACH b-{&TABLENAME}
-      WHERE b-{&TABLENAME}.company  EQ {&TABLENAME}.company
-        AND b-{&TABLENAME}.ord-no   EQ {&TABLENAME}.ord-no
-        AND b-{&TABLENAME}.i-no     EQ {&TABLENAME}.i-no
-        AND b-{&TABLENAME}.line     EQ {&TABLENAME}.line
-        AND b-{&TABLENAME}.po-no    EQ {&TABLENAME}.po-no
-        AND b-{&TABLENAME}.ship-id  EQ {&TABLENAME}.ship-id
-        AND b-{&TABLENAME}.rel-date EQ {&TABLENAME}.rel-date
-        AND b-{&TABLENAME}.carrier  EQ {&TABLENAME}.carrier
-        AND b-{&TABLENAME}.qty      EQ {&TABLENAME}.qty
-        AND b-{&TABLENAME}.link-no  EQ 0
-        AND ROWID(b-{&TABLENAME})   NE ROWID({&TABLENAME})
-      USE-INDEX ord-item:
-
-    FIND FIRST reftable
-        WHERE reftable.reftable EQ "oe-rel.s-code"
-          AND reftable.company  EQ STRING(b-oe-rel.r-no,"9999999999")
-        NO-LOCK NO-ERROR.
-    lv-s-code[2] = IF AVAIL reftable THEN reftable.code ELSE "B".
-
-    IF lv-s-code[1] EQ lv-s-code[2] THEN DELETE b-{&TABLENAME}.
-  END.
-END.*/
 
     /* Per Joe, don't calculate if it's on this list */
 IF NOT INDEX("CZPAB",{&TABLENAME}.stat) GT 0 THEN

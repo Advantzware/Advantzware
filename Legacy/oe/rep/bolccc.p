@@ -66,14 +66,14 @@ DEFINE VARIABLE dReqDate AS DATE FORMAT "99/99/9999" NO-UNDO.
 
 /* === with xprint ====*/
 DEF VAR ls-image1 AS cha NO-UNDO.
-DEF VAR ls-full-img1 AS cha FORM "x(150)" NO-UNDO.
+DEF VAR ls-full-img1 AS cha FORM "x(200)" NO-UNDO.
 ASSIGN ls-image1 = "images\cccw.jpg".
 
 FILE-INFO:FILE-NAME = ls-image1. 
 ls-full-img1 = FILE-INFO:FULL-PATHNAME + ">".
 
 DEF VAR ls-image2 AS cha NO-UNDO.
-DEF VAR ls-full-img2 AS cha FORM "x(180)" NO-UNDO.
+DEF VAR ls-full-img2 AS cha FORM "x(200)" NO-UNDO.
 ASSIGN ls-image2 = "images\worldpaclogo9.jpg".
 
 FILE-INFO:FILE-NAME = ls-image2. 

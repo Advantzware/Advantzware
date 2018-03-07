@@ -1438,8 +1438,8 @@ PROCEDURE get-lot-no :
   Parameters:  <none>
   Notes:       THIS IS TO ASSIGN THE LOT NUMBER FROM THE REFTABLE TO 
 ------------------------------------------------------------------------------*/
- 
-   ASSIGN ar-invl.lot-no = TRIM(inv-line.lot-no).
+   IF AVAILABLE ar-invl AND AVAILABLE inv-line THEN 
+     ASSIGN ar-invl.lot-no = TRIM(inv-line.lot-no).
  
 END PROCEDURE.
 
@@ -2542,17 +2542,16 @@ PROCEDURE run-report :
           NEXT.
         END.
 
-      IF cust.factored THEN
+          IF cust.factored THEN
       FOR EACH inv-line NO-LOCK WHERE inv-line.r-no = inv-head.r-no:
-           IF CAN-FIND(FIRST reftable WHERE reftable.reftable EQ "FACTORED"
-                             AND reftable.company  EQ inv-head.company
-                             AND reftable.loc      EQ ""
-                             AND reftable.code     EQ inv-line.i-no)
+           IF CAN-FIND(FIRST itemfg WHERE itemfg.company  EQ inv-head.company
+                             AND itemfg.i-no     EQ inv-line.i-no
+                             AND itemfg.factored = yes)
             THEN DO:
                 tt-report.key-02 = "Factored".  /* for oe/rep/expfrank.p task#  09200521*/
                 LEAVE.
             END.
-      END.
+      END.       
     END.
   END.
 

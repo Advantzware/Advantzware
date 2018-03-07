@@ -126,6 +126,7 @@ DEF VAR ls-full-img2 AS cha FORM "x(200)" NO-UNDO.
 DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
 DEFINE BUFFER bf-item FOR ITEM.
+DEFINE VARIABLE cTabInOut AS CHARACTER NO-UNDO.
 
 RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormLogo", "C" /* Logical */, NO /* check by cust */, 
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
@@ -543,8 +544,15 @@ v-printline = 0.
                  FIND FIRST bf-item NO-LOCK 
                      WHERE bf-item.company EQ cocode
                      AND bf-item.i-no EQ eb.adhesive NO-ERROR.
-                 cJointGlue =  (IF AVAIL eb THEN eb.adhesive ELSE "") + " " + (IF AVAIL bf-item AND bf-item.mat-type EQ "G" THEN "In"
-                                                                          ELSE IF AVAIL bf-item AND bf-item.mat-type EQ "S" THEN "Out" ELSE "") .
+                 IF AVAIL bf-item AND (bf-item.mat-type EQ "G" OR bf-item.mat-type EQ "S") THEN DO:
+                     IF AVAIL eb AND eb.tab-in EQ YES THEN
+                        ASSIGN cTabInOut = "In" .
+                     ELSE ASSIGN cTabInOut = "Out" .
+                 END.
+                 ELSE DO:
+                     cTabInOut = "".
+                 END.
+                 cJointGlue =  (IF AVAIL eb THEN eb.adhesive ELSE "") + " " + string(cTabInOut,"x(3)").
                  cBoardName = IF AVAIL ef THEN ef.brd-dscr ELSE "" .
                  cColorDscr = IF AVAIL eb THEN eb.i-coldscr ELSE "" .
                  cCadName  = IF AVAIL eb AND eb.cad-no NE "" THEN "Design#: " + eb.cad-no ELSE "" .

@@ -2585,29 +2585,10 @@ PROCEDURE update-plate-die :
          
            ASSIGN prep.no-of-impressions = prep.no-of-impressions +
                                            b-pc-prdd.qty + b-pc-prdd.waste
-                  prep.last-date         = b-pc-prdd.op-date.
-    
-           FIND FIRST reftable WHERE
-                reftable.reftable EQ "PREPLASTJOB" AND
-                reftable.company  EQ prep.company AND
-                reftable.loc      EQ prep.loc AND
-                reftable.code     EQ prep.CODE
-                NO-ERROR.
-    
-           IF NOT AVAIL reftable THEN DO:
-             CREATE reftable.
-             ASSIGN
-               reftable.reftable = "PREPLASTJOB"
-               reftable.company  = prep.company
-               reftable.loc      = prep.loc
-               reftable.code     = prep.CODE. 
-           END.
-           
-           ASSIGN
-             reftable.code2    = b-pc-prdd.job-no
-             reftable.val[1]   = b-pc-prdd.job-no2.
-    
-           RELEASE reftable.
+                  prep.last-date         = b-pc-prdd.op-date
+                  prep.last-job-no    = b-pc-prdd.job-no
+                  prep.last-job-no2   = b-pc-prdd.job-no2
+                  .
            RELEASE prep.
          END.
        END.

@@ -268,22 +268,8 @@ IF AVAIL probe THEN DO:
         AND eb.form-no EQ ef.form-no,
       FIRST style NO-LOCK
       WHERE style.company EQ eb.company
-        AND style.style   EQ eb.style:
-    
-    FIND FIRST reftable NO-LOCK
-        WHERE reftable.reftable EQ "style.per-msf"
-          AND reftable.company  EQ style.company
-          AND reftable.loc      EQ ""
-          AND reftable.code     EQ style.style
-        NO-ERROR.
-
-    IF AVAIL reftable THEN
-      ASSIGN
-       ld-len = ((reftable.val[1] - TRUNC(reftable.val[1],0)) * 6.25) +
-                TRUNC(reftable.val[1],0)
-       ld-wid = ((reftable.val[2] - TRUNC(reftable.val[2],0)) * 6.25) +
-                TRUNC(reftable.val[2],0).
-    ELSE
+        AND style.style   EQ eb.style: 
+     
       ASSIGN
        ld-len = ((style.sqft-len-trim - TRUNC(style.sqft-len-trim,0)) * 6.25) +
                 TRUNC(style.sqft-len-trim,0)
