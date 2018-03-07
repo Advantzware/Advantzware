@@ -1,6 +1,9 @@
 /* ---------------------------------------------- oe/rep/bolempir.i 12/99 FWK */
 /* PRINT Empire BOL                                                           */
 /* -------------------------------------------------------------------------- */
+DEF BUFFER bf-oe-ord FOR  oe-ord.
+DEF BUFFER bf-oe-ordl FOR  oe-ordl.
+DEF BUFFER bf-itemfg FOR itemfg.
 
 assign
  v-tot-wt    = 0
@@ -72,11 +75,12 @@ for each report where report.term-id eq v-term-id,
      w2.cases   = w2.cases + 1.
   end.
     
+  
   find first oe-ordl where oe-ordl.company eq cocode
        and oe-ordl.ord-no  eq int(report.key-02)
        and oe-ordl.i-no    eq report.key-01
        no-lock no-error.
-
+  
   IF LAST(report.key-01) THEN do:
       IF v-printline >= 40 THEN DO:
           v-printline = 0.
@@ -126,6 +130,31 @@ for each report where report.term-id eq v-term-id,
           v-printline = 0.
           PAGE {1}.
           {oe/rep/bolxprn10can.i}
+        END.
+        IF FIRST(report.key-01) THEN
+        IF v-print-unassembled THEN DO:
+            FIND first bf-oe-ord NO-LOCK
+                where bf-oe-ord.company eq oe-boll.company
+                and bf-oe-ord.ord-no  eq oe-boll.ord-no NO-ERROR.
+          IF AVAIL bf-oe-ord THEN 
+            FOR EACH  bf-oe-ordl NO-LOCK 
+                where bf-oe-ordl.company eq cocode
+                AND bf-oe-ordl.ord-no EQ bf-oe-ord.ord-no :
+                
+                FIND FIRST bf-itemfg NO-LOCK
+                    WHERE bf-itemfg.company EQ cocode
+                    AND bf-itemfg.i-no EQ bf-oe-ordl.i-no  NO-ERROR.
+                IF AVAIL bf-itemfg AND bf-itemfg.isaset AND bf-itemfg.alloc EQ YES THEN DO:
+                    IF  bf-itemfg.i-no EQ oe-boll.i-no THEN LEAVE.
+                        put {1}
+                            bf-itemfg.part-no
+                            bf-itemfg.i-no                  AT 33
+                            bf-itemfg.i-name                        FORMAT "x(22)".
+                        PUT skip(1).
+                        v-printline = v-printline + 1.
+                        LEAVE.
+                END.
+            END.
         END.
 
         IF FIRST(w2.cases * w2.cas-cnt) THEN 
