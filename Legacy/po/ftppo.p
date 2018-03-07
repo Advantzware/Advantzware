@@ -515,101 +515,132 @@ IF AVAIL sys-ctrl THEN DO:
   OS-COMMAND SILENT VALUE("@echo off").
 
   IF lSendTheFile THEN DO:
-  
-    CASE ip-ftp-where:    
-      WHEN "HRMS" THEN DO:
-          
-        /* OS-COMMAND VALUE("ftp -v -i -s:.\customer\po\ftphrms.txt"). */ 
-        IF AVAIL(sys-ctrl) /* AND sys-ctrl.int-fld EQ 1 */ 
-            AND  getWinScpFile() NE ?
-            THEN 
-        DO:
-            
-            cExec = getWinScpFile().
-            IF cWinScpIniFile GT "" THEN 
-                cExec = cExec + " " + "/ini=" + cWinScpIniFile + " " + "/xmllog=" + cWinScpXmlLog.  
-            
-            OS-COMMAND VALUE(cExec + " /script=.\customer\po\ftphrms.txt").
-        END.
-        ELSE
-            OS-COMMAND VALUE("ftp -v -i -s:.\customer\po\ftphrms.txt").
-      END.
-      WHEN "Pratt" THEN
-        OS-COMMAND VALUE("ftp -v -i -s:.\customer\po\ftppratt.txt").
-  
-      WHEN "CorSuply" THEN
-        OS-COMMAND VALUE("ftp -v -i -s:.\customer\po\ftpcorr.txt").
-  
-      WHEN "Smurfit" THEN
-        OS-COMMAND VALUE("ftp -v -i -s:.\customer\po\ftpsmur.txt").
-  
-      WHEN "GP" THEN DO:     
-        
-        IF AVAIL(sys-ctrl) AND sys-ctrl.int-fld EQ 1 
-           AND  getWinScpFile() NE ?
-           THEN 
-        DO:
-            cExec = getWinScpFile().
-            IF cWinScpIniFile GT "" THEN 
-              cExec = cExec + " " + "/ini=" + cWinScpIniFile + " " + "/xmllog=" + cWinScpXmlLog.  
-            
-            OS-COMMAND VALUE(cExec + " /script=.\customer\po\ftpcmdgp.txt").
-        END.
-        ELSE
-          OS-COMMAND VALUE("ftp -v -i -s:.\customer\po\ftpcmdgp.txt").
-      END.
-      WHEN "CorrChoice" THEN DO:
-        IF sys-ctrl.char-fld EQ "PremierPkg" AND cExec NE ? AND cExec NE "" THEN DO:      
-          cExec = getWinScpFile().
-          IF cWinScpIniFile GT "" THEN 
-              cExec = cExec + " " + "/ini=" + cWinScpIniFile + " " + "/xmllog=" + cWinScpXmlLog.          
-          OS-COMMAND SILENT VALUE(cExec + " /script=.\customer\po\ftpcc.txt").
-        END.
-        ELSE
-          OS-COMMAND VALUE("ftp -v -i -s:.\customer\po\ftpcc.txt").
-      END.
-      WHEN "AlliFlutes" THEN 
-        DO:
-        
-            IF (sys-ctrl.char-fld EQ "PremierPkg" OR sys-ctrl.char-fld EQ "Capitol" OR (lConfigBased AND cWinScpIniFile NE "" AND cWinScpIniFile NE ?)) AND cExec NE ? AND cExec NE "" THEN 
-            DO:      
-                cExec = getWinScpFile().
+      IF lConfigBased AND lConfigIdentified THEN 
+      DO:
+          /* Preferred method - Based on poexport.dat */
+          IF SEARCH(".\customer\po\" + ttConfig.ftp-script) EQ ? THEN 
+          DO:
+              MESSAGE "File to transfer was not found: " ".\customer\po\" + ttConfig.ftp-script 
+                  VIEW-AS ALERT-BOX. 
+              RETURN.
+          END. 
+          IF getWinScpFile() EQ ? OR getWinScpFile() EQ "" THEN DO:
+              MESSAGE "PO was not transfered - file transfer software 'WinScp' was not found."
+              VIEW-AS ALERT-BOX.
+              RETURN. 
+          END.
+          FIND FIRST ttConfig 
+              WHERE ttConfig.exportFormat EQ ip-ftp-where
+              AND ttConfig.destName EQ sys-ctrl.char-fld
+              NO-LOCK NO-ERROR.
+          IF AVAILABLE ttConfig THEN 
+          DO:
+              cExec = getWinScpFile().
+              IF cWinScpIniFile GT "" THEN 
+                  cExec = cExec + " " + "/ini=" + cWinScpIniFile + " " + "/xmllog=" + cWinScpXmlLog.  
                 
+              OS-COMMAND VALUE(cExec + " /script=.\customer\po\" + ttConfig.ftp-script).
+               
+          END. 
+      END.
+      ELSE 
+      DO:
+          CASE ip-ftp-where:    
+
+          /* Original method - hard-coded */
+          WHEN "HRMS" THEN DO:
+              
+            /* OS-COMMAND VALUE("ftp -v -i -s:.\customer\po\ftphrms.txt"). */ 
+            IF AVAIL(sys-ctrl) /* AND sys-ctrl.int-fld EQ 1 */ 
+                AND  getWinScpFile() NE ?
+                THEN 
+            DO:
+                
+                cExec = getWinScpFile().
                 IF cWinScpIniFile GT "" THEN 
-                    cExec = cExec + " " + "/ini=" + cWinScpIniFile + " " + "/xmllog=" + cWinScpXmlLog.          
-                OS-COMMAND SILENT VALUE(cExec + " /script=.\customer\po\ftpaf.txt").
+                    cExec = cExec + " " + "/ini=" + cWinScpIniFile + " " + "/xmllog=" + cWinScpXmlLog.  
+                
+                OS-COMMAND VALUE(cExec + " /script=.\customer\po\ftphrms.txt").
             END.
             ELSE
-                OS-COMMAND VALUE("ftp -v -i -s:.\customer\po\ftpaf.txt").
-        END.
-      WHEN "ipaper" THEN DO:     
-        
-        IF   getWinScpFile() NE ?
-           THEN 
-        DO:
-            cExec = getWinScpFile().
-            IF cWinScpIniFile GT "" THEN 
-              cExec = cExec + " " + "/ini=" + cWinScpIniFile + " " + "/xmllog=" + cWinScpXmlLog.  
+                OS-COMMAND VALUE("ftp -v -i -s:.\customer\po\ftphrms.txt").
+          END.
+          WHEN "Pratt" THEN
+            OS-COMMAND VALUE("ftp -v -i -s:.\customer\po\ftppratt.txt").
+      
+          WHEN "CorSuply" THEN
+            OS-COMMAND VALUE("ftp -v -i -s:.\customer\po\ftpcorr.txt").
+      
+          WHEN "Smurfit" THEN
+            OS-COMMAND VALUE("ftp -v -i -s:.\customer\po\ftpsmur.txt").
+      
+          WHEN "GP" THEN DO:     
             
-            OS-COMMAND VALUE(cExec + " /script=.\customer\po\ftpip.txt").
-        END.
-        ELSE
-          OS-COMMAND VALUE("ftp -v -i -s:.\customer\po\ftpcmdip.txt").
-      END.        
-      WHEN "Welsh" THEN DO:
-   
-        IF cExec NE ? AND cExec NE "" THEN DO:      
-          cExec = getWinScpFile().
-          IF cWinScpIniFile GT "" THEN 
-              cExec = cExec + " " + "/ini=" + cWinScpIniFile + " " + "/xmllog=" + cWinScpXmlLog.    
-             
-          OS-COMMAND SILENT VALUE(cExec + " /script=.\customer\po\ftpct.txt").
-        END.
-        ELSE
-          OS-COMMAND VALUE("ftp -v -i -s:.\customer\po\ftpcc.txt").
-      END.      
-    END CASE.
-    
+            IF AVAIL(sys-ctrl) AND sys-ctrl.int-fld EQ 1 
+               AND  getWinScpFile() NE ?
+               THEN 
+            DO:
+                cExec = getWinScpFile().
+                IF cWinScpIniFile GT "" THEN 
+                  cExec = cExec + " " + "/ini=" + cWinScpIniFile + " " + "/xmllog=" + cWinScpXmlLog.  
+                
+                OS-COMMAND VALUE(cExec + " /script=.\customer\po\ftpcmdgp.txt").
+            END.
+            ELSE
+              OS-COMMAND VALUE("ftp -v -i -s:.\customer\po\ftpcmdgp.txt").
+          END.
+          WHEN "CorrChoice" THEN DO:
+            IF sys-ctrl.char-fld EQ "PremierPkg" AND cExec NE ? AND cExec NE "" THEN DO:      
+              cExec = getWinScpFile().
+              IF cWinScpIniFile GT "" THEN 
+                  cExec = cExec + " " + "/ini=" + cWinScpIniFile + " " + "/xmllog=" + cWinScpXmlLog.          
+              OS-COMMAND SILENT VALUE(cExec + " /script=.\customer\po\ftpcc.txt").
+            END.
+            ELSE
+              OS-COMMAND VALUE("ftp -v -i -s:.\customer\po\ftpcc.txt").
+          END.
+          WHEN "AlliFlutes" THEN 
+            DO:
+            
+                IF (sys-ctrl.char-fld EQ "PremierPkg" OR sys-ctrl.char-fld EQ "Capitol" OR (lConfigBased AND cWinScpIniFile NE "" AND cWinScpIniFile NE ?)) AND cExec NE ? AND cExec NE "" THEN 
+                DO:      
+                    cExec = getWinScpFile().
+                    
+                    IF cWinScpIniFile GT "" THEN 
+                        cExec = cExec + " " + "/ini=" + cWinScpIniFile + " " + "/xmllog=" + cWinScpXmlLog.          
+                    OS-COMMAND SILENT VALUE(cExec + " /script=.\customer\po\ftpaf.txt").
+                END.
+                ELSE
+                    OS-COMMAND VALUE("ftp -v -i -s:.\customer\po\ftpaf.txt").
+            END.
+          WHEN "ipaper" THEN DO:     
+            
+            IF   getWinScpFile() NE ?
+               THEN 
+            DO:
+                cExec = getWinScpFile().
+                IF cWinScpIniFile GT "" THEN 
+                  cExec = cExec + " " + "/ini=" + cWinScpIniFile + " " + "/xmllog=" + cWinScpXmlLog.  
+                
+                OS-COMMAND VALUE(cExec + " /script=.\customer\po\ftpip.txt").
+            END.
+            ELSE
+              OS-COMMAND VALUE("ftp -v -i -s:.\customer\po\ftpcmdip.txt").
+          END.        
+          WHEN "Welsh" THEN DO:
+       
+            IF cExec NE ? AND cExec NE "" THEN DO:      
+              cExec = getWinScpFile().
+              IF cWinScpIniFile GT "" THEN 
+                  cExec = cExec + " " + "/ini=" + cWinScpIniFile + " " + "/xmllog=" + cWinScpXmlLog.    
+                 
+              OS-COMMAND SILENT VALUE(cExec + " /script=.\customer\po\ftpct.txt").
+            END.
+            ELSE
+              OS-COMMAND VALUE("ftp -v -i -s:.\customer\po\ftpcc.txt").
+          END.      
+        END CASE.
+    END.
     
     RUN checkXmlLogResult.
   END. /* If lSendTheFile */
