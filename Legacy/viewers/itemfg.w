@@ -261,20 +261,20 @@ DEFINE FRAME F-Main
      itemfg.style-desc AT ROW 11 COL 27.4 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 38 BY 1
-     itemfg.die-no AT ROW 12.1 COL 11 COLON-ALIGNED
+     itemfg.die-no AT ROW 12.1 COL 11 COLON-ALIGNED FORMAT "x(20)"
           VIEW-AS FILL-IN 
-          SIZE 27 BY 1
-     itemfg.plate-no AT ROW 13.05 COL 11 COLON-ALIGNED
+          SIZE 30 BY 1
+     itemfg.plate-no AT ROW 13.05 COL 11 COLON-ALIGNED FORMAT "x(20)"
           VIEW-AS FILL-IN 
-          SIZE 27 BY 1
+          SIZE 30 BY 1
      itemfg.cad-no AT ROW 14 COL 11 COLON-ALIGNED
-          LABEL "CAD#"
+          LABEL "CAD#" FORMAT "x(20)"
           VIEW-AS FILL-IN 
-          SIZE 27 BY 1.05
+          SIZE 30 BY 1.05
      itemfg.spc-no AT ROW 14.95 COL 11 COLON-ALIGNED
-          LABEL "QC #"
+          LABEL "QC #" FORMAT "x(20)"
           VIEW-AS FILL-IN 
-          SIZE 27 BY 1
+          SIZE 30 BY 1
      itemfg.upc-no AT ROW 15.91 COL 11 COLON-ALIGNED
           LABEL "UPC #" FORMAT "x(20)"
           VIEW-AS FILL-IN 
@@ -301,12 +301,6 @@ DEFINE FRAME F-Main
                     "Purchased", yes,
 "Manufactured", no
           SIZE 38.2 BY .95
-     itemfg.ship-meth AT ROW 4 COL 85.4 NO-LABEL
-          VIEW-AS RADIO-SET HORIZONTAL
-          RADIO-BUTTONS 
-                    "Case", yes,
-"Pallet", no
-          SIZE 22 BY .95
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -314,6 +308,12 @@ DEFINE FRAME F-Main
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME F-Main
+     itemfg.ship-meth AT ROW 4 COL 85.4 NO-LABEL
+          VIEW-AS RADIO-SET HORIZONTAL
+          RADIO-BUTTONS 
+                    "Case", yes,
+"Pallet", no
+          SIZE 22 BY .95
      itemfg.i-code AT ROW 4 COL 108.2 NO-LABEL
           VIEW-AS RADIO-SET HORIZONTAL
           RADIO-BUTTONS 
@@ -390,6 +390,13 @@ DEFINE FRAME F-Main
           LABEL "Std Mat'l Cost" FORMAT "->>>>>>>9.99"
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 1 SCROLLABLE 
+         FONT 6.
+
+/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
+DEFINE FRAME F-Main
      itemfg.std-lab-cost AT ROW 14.05 COL 88.6 COLON-ALIGNED
           LABEL "Std Labor Cost" FORMAT "->>>>>>>9.99"
           VIEW-AS FILL-IN 
@@ -398,13 +405,6 @@ DEFINE FRAME F-Main
           LABEL "Std Var OH Cost" FORMAT "->>>>>>>9.99"
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
-    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1 SCROLLABLE 
-         FONT 6.
-
-/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
-DEFINE FRAME F-Main
      itemfg.std-fix-cost AT ROW 15.95 COL 88.6 COLON-ALIGNED
           LABEL "Std Fix OH Cost" FORMAT "->>>>>>>9.99"
           VIEW-AS FILL-IN 
@@ -504,7 +504,7 @@ ASSIGN
 /* SETTINGS FOR FILL-IN itemfg.avg-cost IN FRAME F-Main
    EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN itemfg.cad-no IN FRAME F-Main
-   EXP-LABEL                                                            */
+   EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN itemfg.case-count IN FRAME F-Main
    EXP-LABEL EXP-FORMAT EXP-HELP                                        */
 /* SETTINGS FOR FILL-IN itemfg.case-pall IN FRAME F-Main
@@ -515,6 +515,8 @@ ASSIGN
    EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN itemfg.def-loc IN FRAME F-Main
    EXP-LABEL                                                            */
+/* SETTINGS FOR FILL-IN itemfg.die-no IN FRAME F-Main
+   EXP-FORMAT                                                           */
 /* SETTINGS FOR FILL-IN itemfg.est-no IN FRAME F-Main
    EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR TOGGLE-BOX itemfg.exempt-disc IN FRAME F-Main
@@ -539,6 +541,8 @@ ASSIGN
    EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN itemfg.part-no IN FRAME F-Main
    EXP-LABEL EXP-FORMAT                                                 */
+/* SETTINGS FOR FILL-IN itemfg.plate-no IN FRAME F-Main
+   EXP-FORMAT                                                           */
 /* SETTINGS FOR FILL-IN itemfg.procat IN FRAME F-Main
    EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN itemfg.prod-code IN FRAME F-Main
@@ -560,7 +564,7 @@ ASSIGN
 /* SETTINGS FOR FILL-IN itemfg.spare-int-2 IN FRAME F-Main
    EXP-LABEL EXP-FORMAT EXP-HELP                                        */
 /* SETTINGS FOR FILL-IN itemfg.spc-no IN FRAME F-Main
-   EXP-LABEL                                                            */
+   EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR RADIO-SET itemfg.stat IN FRAME F-Main
    2 4                                                                  */
 /* SETTINGS FOR FILL-IN itemfg.std-fix-cost IN FRAME F-Main
