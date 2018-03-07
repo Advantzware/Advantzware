@@ -115,33 +115,32 @@ DEFINE QUERY external_tables FOR shipto, cust.
 &Scoped-Define ENABLED-FIELDS shipto.ship-name shipto.ship-addr[1] ~
 shipto.ship-addr[2] shipto.ship-city shipto.ship-state shipto.ship-zip ~
 shipto.contact shipto.area-code shipto.phone shipto.spare-char-1 ~
-shipto.tax-code shipto.notes[1] shipto.notes[2] shipto.notes[3] ~
-shipto.notes[4] shipto.loc shipto.loc-bin shipto.carrier shipto.dest-code ~
-shipto.pallet shipto.spare-char-4 shipto.spare-char-5 shipto.dock-loc ~
-shipto.dock-hour shipto.del-chg shipto.del-time shipto.spare-int-1 ~
-shipto.spare-int-2 shipto.spare-int-3 shipto.spare-int-4 shipto.ship-meth ~
-shipto.broker shipto.bill 
+shipto.tax-code shipto.tax-mandatory shipto.notes[1] shipto.notes[2] ~
+shipto.notes[3] shipto.notes[4] shipto.loc shipto.loc-bin shipto.carrier ~
+shipto.dest-code shipto.pallet shipto.spare-char-4 shipto.spare-char-5 ~
+shipto.dock-loc shipto.dock-hour shipto.del-chg shipto.del-time ~
+shipto.spare-int-1 shipto.spare-int-2 shipto.spare-int-3 shipto.spare-int-4 ~
+shipto.ship-meth shipto.broker shipto.bill 
 &Scoped-define ENABLED-TABLES shipto
 &Scoped-define FIRST-ENABLED-TABLE shipto
 &Scoped-Define ENABLED-OBJECTS RECT-1 RECT-2 RECT-3 
 &Scoped-Define DISPLAYED-FIELDS shipto.ship-id shipto.ship-name ~
 shipto.ship-addr[1] shipto.ship-addr[2] shipto.ship-city shipto.ship-state ~
 shipto.ship-zip shipto.contact shipto.area-code shipto.phone ~
-shipto.spare-char-1 shipto.tax-code shipto.notes[1] shipto.notes[2] ~
-shipto.notes[3] shipto.notes[4] shipto.loc shipto.loc-bin shipto.carrier ~
-shipto.dest-code shipto.pallet shipto.spare-char-4 shipto.spare-char-5 ~
-shipto.dock-loc shipto.dock-hour shipto.del-chg shipto.del-time ~
-shipto.spare-int-1 shipto.spare-int-2 shipto.spare-int-3 shipto.spare-int-4 ~
-shipto.ship-meth shipto.broker shipto.bill 
+shipto.spare-char-1 shipto.tax-code shipto.tax-mandatory shipto.notes[1] ~
+shipto.notes[2] shipto.notes[3] shipto.notes[4] shipto.loc shipto.loc-bin ~
+shipto.carrier shipto.dest-code shipto.pallet shipto.spare-char-4 ~
+shipto.spare-char-5 shipto.dock-loc shipto.dock-hour shipto.del-chg ~
+shipto.del-time shipto.spare-int-1 shipto.spare-int-2 shipto.spare-int-3 ~
+shipto.spare-int-4 shipto.ship-meth shipto.broker shipto.bill 
 &Scoped-define DISPLAYED-TABLES shipto
 &Scoped-define FIRST-DISPLAYED-TABLE shipto
-&Scoped-Define DISPLAYED-OBJECTS fi_sname faxAreaCode faxNumber ~
-tb_mandatory-tax fi_jded-id 
+&Scoped-Define DISPLAYED-OBJECTS fi_sname faxAreaCode faxNumber fi_jded-id 
 
 /* Custom List Definitions                                              */
 /* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,ROW-AVAILABLE,DISPLAY-FIELD,List-5,F1 */
 &Scoped-define ADM-CREATE-FIELDS shipto.ship-id 
-&Scoped-define ADM-ASSIGN-FIELDS tb_mandatory-tax fi_jded-id 
+&Scoped-define ADM-ASSIGN-FIELDS shipto.tax-mandatory fi_jded-id 
 &Scoped-define DISPLAY-FIELD shipto.ship-state shipto.tax-code shipto.loc ~
 shipto.carrier shipto.dest-code 
 &Scoped-define List-5 faxAreaCode faxNumber 
@@ -215,11 +214,6 @@ DEFINE RECTANGLE RECT-3
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 35.2 BY 5.29.
 
-DEFINE VARIABLE tb_mandatory-tax AS LOGICAL INITIAL no 
-     LABEL "Mandatory Tax?" 
-     VIEW-AS TOGGLE-BOX
-     SIZE 21.8 BY .81 NO-UNDO.
-
 
 /* ************************  Frame Definitions  *********************** */
 
@@ -276,7 +270,9 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 15 BY 1
           FONT 4
-     tb_mandatory-tax AT ROW 14.19 COL 87.8
+     shipto.tax-mandatory AT ROW 14.19 COL 87.8
+          VIEW-AS TOGGLE-BOX
+          SIZE 21.8 BY .81
      shipto.notes[1] AT ROW 15.67 COL 5 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 100.6 BY 1
@@ -526,8 +522,8 @@ ASSIGN
    EXP-LABEL EXP-HELP                                                   */
 /* SETTINGS FOR FILL-IN shipto.tax-code IN FRAME F-Main
    4 EXP-LABEL                                                          */
-/* SETTINGS FOR TOGGLE-BOX tb_mandatory-tax IN FRAME F-Main
-   NO-ENABLE 2                                                          */
+/* SETTINGS FOR TOGGLE-BOX shipto.tax-mandatory IN FRAME F-Main
+   2                                                                    */
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
@@ -541,7 +537,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -788,7 +784,6 @@ DO:
      {&methods/lValidateError.i NO}
 END.
 
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -855,7 +850,7 @@ END.
 
 &Scoped-define SELF-NAME shipto.spare-char-1
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL shipto.spare-char-1 V-table-Win
-ON LEAVE OF shipto.spare-char-1 IN FRAME F-Main /* Salesman */
+ON LEAVE OF shipto.spare-char-1 IN FRAME F-Main /* Sales Rep */
 DO:
    IF LASTKEY NE -1 THEN DO:
     RUN valid-sman NO-ERROR.
@@ -947,7 +942,7 @@ PROCEDURE disable-shipto :
 ------------------------------------------------------------------------------*/
 
   DO WITH FRAME {&FRAME-NAME}:
-    DISABLE fi_jded-id tb_mandatory-tax.
+    DISABLE fi_jded-id .
   END.
 
 END PROCEDURE.
@@ -1016,7 +1011,7 @@ PROCEDURE enable-shipto :
 ------------------------------------------------------------------------------*/
 
   DO WITH FRAME {&FRAME-NAME}:
-    ENABLE fi_jded-id tb_mandatory-tax.
+    ENABLE fi_jded-id .
 
     IF TRIM(shipto.ship-id:SCREEN-VALUE) EQ TRIM(cust.cust-no) THEN DO:
       ASSIGN
@@ -1042,7 +1037,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE import-data V-table-Win 
 PROCEDURE import-data :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     Run excel import program.
       Parameters:  <none>
       Notes:       
@@ -1275,7 +1270,6 @@ PROCEDURE local-delete-record :
 
 END PROCEDURE.
 
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -1376,7 +1370,6 @@ DEF VAR ip-shipnotes AS CHAR NO-UNDO.
 
 END PROCEDURE.
 
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -1424,27 +1417,7 @@ PROCEDURE reftable-values :
     IF ip-display THEN
       fi_jded-id = shipto.exportCustID.
     ELSE
-      reftable.dscr = fi_jded-id.
-
-      shipto.exportCustID = fi_jded-id.  
-
-    FIND FIRST reftable {&where-mand-tax} NO-ERROR.
-    IF NOT AVAIL reftable THEN DO:
-      CREATE reftable.
-      ASSIGN
-       reftable.reftable = "shipto.mandatory-tax"
-       reftable.company  = shipto.company
-       reftable.loc      = ""
-       reftable.code     = shipto.cust-no
-       reftable.code2    = shipto.ship-id.
-    END.
-
-      reftable.dscr = fi_jded-id.
-   
-    IF ip-display THEN
-      tb_mandatory-tax = shipto.tax-mandatory .
-    ELSE
-      shipto.tax-mandatory = tb_mandatory-tax .
+      reftable.dscr = fi_jded-id.    
 
     FIND CURRENT reftable NO-LOCK.
   END.
