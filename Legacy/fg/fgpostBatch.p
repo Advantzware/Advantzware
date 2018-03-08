@@ -382,16 +382,8 @@ PROCEDURE add-rel-for-qty:
             oe-rel.ship-i[1]    = bf-orig-oe-rel.ship-i[1]
             oe-rel.ship-i[2]    = bf-orig-oe-rel.ship-i[2]
             oe-rel.ship-i[3]    = bf-orig-oe-rel.ship-i[3]
-            oe-rel.ship-i[4]    = bf-orig-oe-rel.ship-i[4].
-
-        FIND FIRST ref-lot-no WHERE 
-            ref-lot-no.reftable EQ "oe-rel.lot-no" AND
-            ref-lot-no.company  EQ STRING(oe-rel.r-no,"9999999999")
-            NO-ERROR.
-
-        IF AVAIL ref-lot-no THEN
-            ASSIGN
-                oe-rel.lot-no = ref-lot-no.CODE.
+            oe-rel.ship-i[4]    = bf-orig-oe-rel.ship-i[4]
+            oe-rel.lot-no       = bf-orig-oe-rel.lot-no.
 
 
         IF oe-rel.qty LT 0 THEN oe-rel.qty = 0.

@@ -553,15 +553,7 @@ FOR EACH job-hdr NO-LOCK
         IF AVAILABLE oe-rel THEN 
         DO:
             v-po-no = oe-rel.po-no .
-
-            FIND FIRST reftable NO-LOCK WHERE
-                reftable.reftable EQ "oe-rel.lot-no" AND
-                reftable.company  EQ STRING(oe-rel.r-no,"9999999999")
-                NO-ERROR.
-            IF AVAILABLE reftable THEN 
-                ASSIGN v-cust-lot# = reftable.CODE.
-            ELSE
-                ASSIGN v-cust-lot# = "".
+            v-cust-lot# = oe-rel.lot-no.
 
             FIND FIRST shipto NO-LOCK
                 WHERE shipto.company EQ cocode

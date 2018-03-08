@@ -27,14 +27,6 @@ FOR EACH reftable WHERE reftable.rec_key EQ {&TABLENAME}.rec_key
   DELETE reftable.
 END.
 
-FOR EACH reftable WHERE
-    reftable.reftable EQ "oe-boll.lot-no" AND
-    reftable.rec_key EQ oe-boll.rec_key
-    EXCLUSIVE-LOCK:
-
-    DELETE reftable.
-END.
-
 
 IF {&TABLENAME}.ord-no NE 0 THEN
 FOR EACH oe-rel

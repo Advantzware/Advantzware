@@ -585,17 +585,10 @@ if v-zone-p then v-zone-hdr = "Route No.:".
                BY w-bin.w-date-time
                by w-bin.w-qty[2] desc
                by w-bin.w-qty[1] desc:
-             
-               FIND FIRST ref-lot-no WHERE
-                    ref-lot-no.reftable EQ "oe-rell.lot-no" AND
-                    ref-lot-no.rec_key  EQ w-oe-rell.rec_key
-                    USE-INDEX rec_key
-                    NO-LOCK NO-ERROR.
-          
-               IF AVAILABLE ref-lot-no THEN
+              
+               IF AVAILABLE oe-rell THEN
                DO:
-                  w-bin.w-par = ref-lot-no.CODE.
-                  RELEASE ref-lot-no.
+                  w-bin.w-par = oe-rell.lot-no               
                END.
           
                leave.
