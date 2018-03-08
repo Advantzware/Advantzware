@@ -163,9 +163,6 @@ DO v-fifo-loop = 1 TO 2.
      oe-rell.job-no  = fg-bin.job-no
      oe-rell.job-no2 = fg-bin.job-no2
      oe-rell.cust-no = fg-bin.cust-no
-     oe-rell.lot-no  = oe-rel.lot-no
-     oe-rell.frt-pay = oe-rel.frt-pay
-     oe-rell.fob-code = oe-rel.fob-code
      oe-rell.i-no    = v-i-no
      oe-rell.po-no   = v-po-no
      oe-rell.ord-no  = v-ord-no
@@ -175,11 +172,6 @@ DO v-fifo-loop = 1 TO 2.
      oe-rell.deleted = no
      /** Set link to the planned releases **/
      oe-rell.link-no = v-r-no
-     oe-rell.s-code  = IF oe-rel.s-code <> "" THEN oe-rel.s-code ELSE
-                       if fg-bin.cust-no gt ""                then "S"
-                                                              else
-                       if avail oe-ctrl and oe-ctrl.ship-from then "B" 
-                                                              else "I"
      oe-rell.qty-case = if fg-bin.case-count gt 0 then fg-bin.case-count
                         else
                         if avail itemfg           and
@@ -188,25 +180,22 @@ DO v-fifo-loop = 1 TO 2.
                         if avail oe-ordl          and
                            oe-ordl.cas-cnt   gt 0 then oe-ordl.cas-cnt
                         else 1.
-
     
-    FIND FIRST b-reftable NO-LOCK
-         WHERE b-reftable.reftable EQ "oe-rel.lot-no"
-         AND b-reftable.company  EQ STRING(oe-rel.r-no,"9999999999")
-         NO-ERROR.
-    IF AVAIL b-reftable THEN DO:
-        ASSIGN
-             oe-rell.lot-no     = b-reftable.code
-             oe-rell.frt-pay    = b-reftable.code2
-             oe-rell.fob-code   = b-reftable.dscr.
-        RELEASE b-reftable. 
-    END.
-
-    
-   
-    ASSIGN
-       oe-rell.newSellPrice = oe-rel.sell-price
-       oe-rell.newZeroPrice = oe-rel.zeroPrice.
+    IF AVAILABLE oe-rel THEN 
+        ASSIGN 
+            oe-rell.lot-no  = oe-rel.lot-no
+            oe-rell.frt-pay = oe-rel.frt-pay
+            oe-rell.fob-code = oe-rel.fob-code
+            oe-rell.sell-price = oe-rel.sell-price
+            oe-rell.zeroPrice = oe-rel.zeroPrice
+            oe-rell.s-code  = oe-rel.s-code
+            .
+    IF oe-rell.s-code EQ "" THEN 
+        oe-rell.s-code  =  if fg-bin.cust-no gt ""                then "S"
+                                                                else
+                           if avail oe-ctrl and oe-ctrl.ship-from then "B" 
+                                                                  else "I"
+       .
 
     IF fg-bin.qty LE v-rel-qty THEN
       ASSIGN

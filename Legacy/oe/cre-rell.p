@@ -376,6 +376,7 @@ DEF OUTPUT PARAMETER opr-oerell AS ROWID NO-UNDO.
    oe-rell.lot-no  = oe-rel.lot-no
    oe-rell.frt-pay = oe-rel.frt-pay
    oe-rell.fob-code = oe-rel.fob-code
+   oe-rell.sell-price = oe-rel.sell-price
    oe-rell.printed = NO
    oe-rell.posted  = NO
    oe-rell.deleted = NO
@@ -389,23 +390,6 @@ DEF OUTPUT PARAMETER opr-oerell AS ROWID NO-UNDO.
   IF oe-rell.s-code EQ "I" THEN 
       oe-rell.partial = oe-ordl.partial.
    
-
-  FIND FIRST b-reftable NO-LOCK
-      WHERE b-reftable.reftable EQ "oe-rel.lot-no"
-        AND b-reftable.company  EQ STRING(oe-rel.r-no,"9999999999")
-      NO-ERROR.
-
-  IF AVAIL b-reftable THEN DO:
-    ASSIGN
-     oe-rell.lot-no     = b-reftable.code
-     oe-rell.frt-pay    = b-reftable.code2
-     oe-rell.fob-code   = b-reftable.dscr.    
-    RELEASE b-reftable.
-  END.
-
-  ASSIGN
-       oe-rell.newSellPrice = oe-rel.sell-price
-       oe-rell.newZeroPrice = oe-rel.zeroPrice.
 
   IF oe-rell.qty-case EQ 0 THEN
     oe-rell.qty-case = IF AVAIL itemfg AND itemfg.case-count GT 0

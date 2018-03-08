@@ -375,6 +375,12 @@ IF ip-run EQ 2 THEN DO TRANSACTION:
      oe-rell.i-no     = oe-rel.i-no
      oe-rell.po-no    = oe-rel.po-no
      oe-rell.line     = oe-rel.line
+     oe-rell.lot-no   = oe-rel.lot-no
+     oe-rell.lot-no  = oe-rel.lot-no
+     oe-rell.frt-pay = oe-rel.frt-pay
+     oe-rell.fob-code = oe-rel.fob-code
+     oe-rell.sell-price = oe-rel.sell-price
+     oe-rell.zeroPrice = oe-rel.zeroPrice
      oe-rell.printed  = YES
      oe-relh.printed  = NO
      oe-rell.posted   = NO
