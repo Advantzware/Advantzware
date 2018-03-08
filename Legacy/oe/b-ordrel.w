@@ -2774,6 +2774,8 @@ IF v-none THEN DO TRANSACTION:
    oe-rell.lot-no  = oe-rel.lot-no
    oe-rell.frt-pay = oe-rel.frt-pay 
    oe-rell.fob-code = oe-rel.fob-code
+   oe-rell.sell-price = oe-rel.sell-price
+   oe-rell.zeroPrice = oe-rel.zeroPrice
    /** Set link to the planned releases **/
    oe-rell.link-no = oe-rel.r-no
    oe-rell.s-code  = IF oe-rel.s-code <> "" THEN oe-rel.s-code ELSE
@@ -2783,21 +2785,8 @@ IF v-none THEN DO TRANSACTION:
    bf-oe-rel.link-no = oe-rell.r-no.
    RELEASE bf-oe-rel.
   
-
-  FIND FIRST b-reftable NO-LOCK
-      WHERE b-reftable.reftable EQ "oe-rel.lot-no"
-        AND b-reftable.company  EQ STRING(oe-rel.r-no,"9999999999")
-      NO-ERROR.
-    
-   ASSIGN
-     oe-rell.lot-no     = b-reftable.code
-     oe-rell.frt-pay    = b-reftable.code2
-     oe-rell.fob-code   = b-reftable.dscr. 
-    RELEASE b-reftable.
- 
-     ASSIGN
-       oe-rell.newSellPrice = oe-rel.sell-price
-       /*oe-rell.newZeroPrice = oe-rel.zeroPrice*/ .
+     
+       
   IF v-whse EQ "SHIPTO" THEN DO:
     FIND FIRST shipto
       WHERE shipto.company EQ cocode
