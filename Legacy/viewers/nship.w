@@ -575,9 +575,9 @@ DO:
       shipto.notes[4] = v-notes-4
       shipto.del-chg = v-del-chg
       shipto.del-time = v-del-time
+      shipto.exportCustID = fi_jded-id
       shipto.tax-mandatory = tb_mandatory-tax.
-  
-   RUN reftable-values.
+
 
    RELEASE shipto.
 
@@ -868,49 +868,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE reftable-values Dialog-Frame 
-PROCEDURE reftable-values :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-   IF AVAIL shipto THEN DO TRANSACTION:
-      shipto.exportCustID = fi_jded-id.
- 
-            
-      FIND FIRST reftable {&where-mand-tax} NO-ERROR.
-      IF NOT AVAIL reftable THEN DO:
-         CREATE reftable.
-         ASSIGN
-            reftable.reftable = "shipto.mandatory-tax"
-            reftable.company  = shipto.company
-            reftable.loc      = ""
-            reftable.code     = shipto.cust-no
-            reftable.code2    = shipto.ship-id.
-      END.
-
-      FIND FIRST reftable {&where-jded-id} NO-ERROR.
-      IF NOT AVAIL reftable THEN DO:
-         CREATE reftable.
-         ASSIGN
-            reftable.reftable = "JDEDWARDCUST#"
-            reftable.company  = cocode
-            reftable.loc      = ""
-            reftable.code     = shipto.cust-no
-            reftable.code2    = shipto.ship-id.
-      END.
-      
-      reftable.val[1] = INT(tb_mandatory-tax).
-      reftable.dscr = fi_jded-id.
-     
-      FIND CURRENT reftable NO-LOCK.
-   END.
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ship-zip Dialog-Frame 
 PROCEDURE ship-zip :
 /*------------------------------------------------------------------------------
@@ -920,14 +877,14 @@ PROCEDURE ship-zip :
 ------------------------------------------------------------------------------*/
    DO WITH FRAME {&FRAME-NAME}:
       IF v-ship-zip:SCREEN-VALUE NE "" THEN
-         FIND FIRST nosweat.zipcode WHERE
-              nosweat.zipcode.zipcode EQ v-ship-zip:SCREEN-VALUE
+         FIND FIRST zipcode WHERE
+              zipcode.zipcode EQ v-ship-zip:SCREEN-VALUE
               NO-LOCK NO-ERROR.
 
-      IF AVAIL nosweat.zipcode THEN do:
-         v-ship-state:SCREEN-VALUE = nosweat.zipcode.state.
+      IF AVAIL zipcode THEN do:
+         v-ship-state:SCREEN-VALUE = zipcode.state.
          IF v-ship-city:SCREEN-VALUE EQ "" THEN
-            v-ship-city:SCREEN-VALUE = nosweat.zipcode.city.
+            v-ship-city:SCREEN-VALUE = zipcode.city.
       END.
   END. 
 END PROCEDURE.

@@ -87,7 +87,6 @@ DEFINE {&NEW} SHARED VARIABLE g_lookup-var AS CHARACTER NO-UNDO.
 
 &SCOPED-DEFINE enable-shipto enable-shipto
 
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -118,9 +117,9 @@ shipto.contact shipto.area-code shipto.phone shipto.spare-char-1 ~
 shipto.tax-code shipto.tax-mandatory shipto.notes[1] shipto.notes[2] ~
 shipto.notes[3] shipto.notes[4] shipto.loc shipto.loc-bin shipto.carrier ~
 shipto.dest-code shipto.pallet shipto.spare-char-4 shipto.spare-char-5 ~
-shipto.dock-loc shipto.dock-hour shipto.del-chg shipto.del-time ~
-shipto.spare-int-1 shipto.spare-int-2 shipto.spare-int-3 shipto.spare-int-4 ~
-shipto.ship-meth shipto.broker shipto.bill 
+shipto.exportCustID shipto.dock-loc shipto.dock-hour shipto.del-chg ~
+shipto.del-time shipto.spare-int-1 shipto.spare-int-2 shipto.spare-int-3 ~
+shipto.spare-int-4 shipto.ship-meth shipto.broker shipto.bill 
 &Scoped-define ENABLED-TABLES shipto
 &Scoped-define FIRST-ENABLED-TABLE shipto
 &Scoped-Define ENABLED-OBJECTS RECT-1 RECT-2 RECT-3 
@@ -130,17 +129,18 @@ shipto.ship-zip shipto.contact shipto.area-code shipto.phone ~
 shipto.spare-char-1 shipto.tax-code shipto.tax-mandatory shipto.notes[1] ~
 shipto.notes[2] shipto.notes[3] shipto.notes[4] shipto.loc shipto.loc-bin ~
 shipto.carrier shipto.dest-code shipto.pallet shipto.spare-char-4 ~
-shipto.spare-char-5 shipto.dock-loc shipto.dock-hour shipto.del-chg ~
-shipto.del-time shipto.spare-int-1 shipto.spare-int-2 shipto.spare-int-3 ~
-shipto.spare-int-4 shipto.ship-meth shipto.broker shipto.bill 
+shipto.spare-char-5 shipto.exportCustID shipto.dock-loc shipto.dock-hour ~
+shipto.del-chg shipto.del-time shipto.spare-int-1 shipto.spare-int-2 ~
+shipto.spare-int-3 shipto.spare-int-4 shipto.ship-meth shipto.broker ~
+shipto.bill 
 &Scoped-define DISPLAYED-TABLES shipto
 &Scoped-define FIRST-DISPLAYED-TABLE shipto
-&Scoped-Define DISPLAYED-OBJECTS fi_sname faxAreaCode faxNumber fi_jded-id 
+&Scoped-Define DISPLAYED-OBJECTS fi_sname faxAreaCode faxNumber 
 
 /* Custom List Definitions                                              */
 /* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,ROW-AVAILABLE,DISPLAY-FIELD,List-5,F1 */
 &Scoped-define ADM-CREATE-FIELDS shipto.ship-id 
-&Scoped-define ADM-ASSIGN-FIELDS shipto.tax-mandatory fi_jded-id 
+&Scoped-define ADM-ASSIGN-FIELDS shipto.tax-mandatory shipto.exportCustID 
 &Scoped-define DISPLAY-FIELD shipto.ship-state shipto.tax-code shipto.loc ~
 shipto.carrier shipto.dest-code 
 &Scoped-define List-5 faxAreaCode faxNumber 
@@ -192,11 +192,6 @@ DEFINE VARIABLE faxAreaCode AS CHARACTER FORMAT "(xxx)":U
 DEFINE VARIABLE faxNumber AS CHARACTER FORMAT "xxx-xxxx":U 
      VIEW-AS FILL-IN 
      SIZE 16 BY 1 NO-UNDO.
-
-DEFINE VARIABLE fi_jded-id AS CHARACTER FORMAT "X(256)":U 
-     LABEL "Export ID#"
-     VIEW-AS FILL-IN 
-     SIZE 22 BY 1 NO-UNDO.
 
 DEFINE VARIABLE fi_sname AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS FILL-IN 
@@ -271,6 +266,7 @@ DEFINE FRAME F-Main
           SIZE 15 BY 1
           FONT 4
      shipto.tax-mandatory AT ROW 14.19 COL 87.8
+          LABEL "Mandatory Tax?"
           VIEW-AS TOGGLE-BOX
           SIZE 21.8 BY .81
      shipto.notes[1] AT ROW 15.67 COL 5 COLON-ALIGNED NO-LABEL
@@ -323,7 +319,9 @@ DEFINE FRAME F-Main
           LABEL "Member #"
           VIEW-AS FILL-IN 
           SIZE 20 BY 1
-     fi_jded-id AT ROW 8.43 COL 124.8 COLON-ALIGNED
+     shipto.exportCustID AT ROW 8.43 COL 124.8 COLON-ALIGNED
+          VIEW-AS FILL-IN 
+          SIZE 22 BY 1
      shipto.dock-loc AT ROW 9.43 COL 124.8 COLON-ALIGNED
           LABEL "Dock#" FORMAT "x(20)"
           VIEW-AS FILL-IN 
@@ -478,12 +476,12 @@ ASSIGN
    EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN shipto.dock-loc IN FRAME F-Main
    EXP-LABEL EXP-FORMAT                                                 */
+/* SETTINGS FOR FILL-IN shipto.exportCustID IN FRAME F-Main
+   2                                                                    */
 /* SETTINGS FOR FILL-IN faxAreaCode IN FRAME F-Main
    NO-ENABLE 5                                                          */
 /* SETTINGS FOR FILL-IN faxNumber IN FRAME F-Main
    NO-ENABLE 5                                                          */
-/* SETTINGS FOR FILL-IN fi_jded-id IN FRAME F-Main
-   NO-ENABLE 2                                                          */
 /* SETTINGS FOR FILL-IN fi_sname IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN shipto.loc IN FRAME F-Main
@@ -523,7 +521,7 @@ ASSIGN
 /* SETTINGS FOR FILL-IN shipto.tax-code IN FRAME F-Main
    4 EXP-LABEL                                                          */
 /* SETTINGS FOR TOGGLE-BOX shipto.tax-mandatory IN FRAME F-Main
-   2                                                                    */
+   2 EXP-LABEL                                                          */
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
@@ -933,22 +931,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable-shipto V-table-Win 
-PROCEDURE disable-shipto :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-
-  DO WITH FRAME {&FRAME-NAME}:
-    DISABLE fi_jded-id .
-  END.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI V-table-Win  _DEFAULT-DISABLE
 PROCEDURE disable_UI :
@@ -1011,7 +993,6 @@ PROCEDURE enable-shipto :
 ------------------------------------------------------------------------------*/
 
   DO WITH FRAME {&FRAME-NAME}:
-    ENABLE fi_jded-id .
 
     IF TRIM(shipto.ship-id:SCREEN-VALUE) EQ TRIM(cust.cust-no) THEN DO:
       ASSIGN
@@ -1100,8 +1081,6 @@ PROCEDURE local-assign-record :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-record':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-  RUN reftable-values (INPUT NO).
-
 
   IF cust.active EQ "X" THEN DO: 
     SESSION:SET-WAIT-STATE ("general").
@@ -1150,7 +1129,7 @@ PROCEDURE local-cancel-record :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'cancel-record':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-  RUN disable-shipto.
+
   disable faxareacode faxnumber WITH FRAME {&FRAME-NAME}.
 
 END PROCEDURE.
@@ -1281,7 +1260,6 @@ PROCEDURE local-display-fields :
 ------------------------------------------------------------------------------*/
 
   /* Code placed here will execute PRIOR to standard behavior. */
-  RUN reftable-values (INPUT YES).
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'display-fields':U ) .
@@ -1366,7 +1344,6 @@ DEF VAR ip-shipnotes AS CHAR NO-UNDO.
                     INPUT shipto.ship-id,
                     INPUT ip-shipnotes).
 
-  RUN disable-shipto.
 
 END PROCEDURE.
 
@@ -1395,31 +1372,6 @@ PROCEDURE proc-copy :
     FOCUS:SCREEN-VALUE = ls-focus.
 
     IF ll-copied THEN RUN dispatch ("cancel-record").
-  END.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE reftable-values V-table-Win 
-PROCEDURE reftable-values :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  DEF INPUT PARAM ip-display AS LOG NO-UNDO.
-
-
-  IF AVAIL shipto THEN DO TRANSACTION:
-    
-    IF ip-display THEN
-      fi_jded-id = shipto.exportCustID.
-    ELSE
-      reftable.dscr = fi_jded-id.    
-
-    FIND CURRENT reftable NO-LOCK.
   END.
 
 END PROCEDURE.
@@ -1471,16 +1423,16 @@ PROCEDURE ship-zip :
 /*   END.                                                                */
   DO WITH FRAME {&FRAME-NAME}:
     IF shipto.ship-zip:SCREEN-VALUE NE "" THEN
-    FIND FIRST nosweat.zipcode
-        WHERE nosweat.zipcode.zipcode EQ shipto.ship-zip:SCREEN-VALUE
+    FIND FIRST zipcode
+        WHERE zipcode.zipcode EQ shipto.ship-zip:SCREEN-VALUE
         NO-LOCK NO-ERROR.
-    IF AVAIL nosweat.zipcode THEN DO:
-      shipto.ship-state:SCREEN-VALUE = nosweat.zipcode.state.
+    IF AVAIL zipcode THEN DO:
+      shipto.ship-state:SCREEN-VALUE = zipcode.state.
 /*       IF shipto.ship-city:SCREEN-VALUE EQ "" THEN */
-        shipto.ship-city:SCREEN-VALUE = nosweat.zipcode.city.
+        shipto.ship-city:SCREEN-VALUE = zipcode.city.
       ASSIGN
-         shipto.carrier:SCREEN-VALUE = nosweat.zipcode.carrier 
-         shipto.dest-code:SCREEN-VALUE = nosweat.zipcode.del-zone.
+         shipto.carrier:SCREEN-VALUE = zipcode.carrier 
+         shipto.dest-code:SCREEN-VALUE = zipcode.del-zone.
 /*       DISPLAY shipto.ship-state:SCREEN-VALUE shipto.ship-city:SCREEN-VALUE shipto.carrier:SCREEN-VALUE shipto.dest-code:SCREEN-VALUE WITH FRAME {&FRAME-NAME}. */
     END.
   END. 
@@ -1496,20 +1448,20 @@ PROCEDURE ship-zip-lookup :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-DEF BUFFER b-zipcode FOR nosweat.zipcode.
+DEF BUFFER b-zipcode FOR zipcode.
 
   DO WITH FRAME {&FRAME-NAME}:
     IF shipto.ship-zip:SCREEN-VALUE NE "" THEN
-    FIND FIRST nosweat.b-zipcode
-        WHERE nosweat.b-zipcode.zipcode EQ shipto.ship-zip:SCREEN-VALUE
+    FIND FIRST b-zipcode
+        WHERE b-zipcode.zipcode EQ shipto.ship-zip:SCREEN-VALUE
         NO-LOCK NO-ERROR.
-    IF AVAIL nosweat.b-zipcode THEN DO:
-      shipto.ship-state:SCREEN-VALUE = nosweat.b-zipcode.state.
+    IF AVAIL b-zipcode THEN DO:
+      shipto.ship-state:SCREEN-VALUE = b-zipcode.state.
 /*       IF shipto.ship-city:SCREEN-VALUE EQ "" THEN */
-        shipto.ship-city:SCREEN-VALUE = nosweat.b-zipcode.city.
+        shipto.ship-city:SCREEN-VALUE = b-zipcode.city.
       ASSIGN
-         shipto.carrier:SCREEN-VALUE = nosweat.b-zipcode.carrier 
-         shipto.dest-code:SCREEN-VALUE = nosweat.b-zipcode.del-zone.
+         shipto.carrier:SCREEN-VALUE = b-zipcode.carrier 
+         shipto.dest-code:SCREEN-VALUE = b-zipcode.del-zone.
 /*       DISPLAY shipto.ship-state:SCREEN-VALUE shipto.ship-city:SCREEN-VALUE shipto.carrier:SCREEN-VALUE shipto.dest-code:SCREEN-VALUE WITH FRAME {&FRAME-NAME}. */
     END.
   END. 
