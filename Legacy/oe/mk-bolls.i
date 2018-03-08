@@ -58,7 +58,10 @@ FOR EACH oe-rell
      oe-boll.partial  = oe-rell.partial
      oe-boll.s-code   = oe-rell.s-code
      oe-boll.qty      = oe-rell.qty
-     oe-boll.lot-no   = oe-rell.lot-no.
+     oe-boll.lot-no   = oe-rell.lot-no
+     oe-boll.sell-price = oe-rell.sell-price
+     oe-boll.zeroPrice = oe-rell.zeroPrice
+     .
 
     /*task 01121106 disable trigger oe-bolh preventing this from happening*/
   IF oe-boll.rec_key EQ "" THEN
@@ -70,17 +73,7 @@ FOR EACH oe-rell
         rec_key.table_name = "oe-boll".
      RELEASE rec_key.
   END.
-    /* Reftable removed
-    IF AVAIL oe-rell THEN
-    DO:
-       CREATE reftable.               
-       ASSIGN reftable.reftable = "oe-boll.sell-price"
-              reftable.rec_key  = oe-boll.rec_key
-              oe-rell.newSellPrice   = b-reftable.val[1]
-              oe-rell.newZeroPrice   = b-reftable.val[2].
-       RELEASE reftable.
-    END.
-    */
+
 
     if oe-boll.loc-bin eq "" then do:
       find first sys-ctrl
