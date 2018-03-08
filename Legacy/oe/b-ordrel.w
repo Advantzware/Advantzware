@@ -3086,7 +3086,7 @@ PROCEDURE create-report-record-1 :
           tt-report.flute   = oe-rel.fob-code.
 
      ASSIGN tt-report.price = oe-rel.sell-price
-            /*tt-report.whsed = oe-rel.zeroPrice > 0*/ .
+            tt-report.whsed = oe-rel.zeroPrice > 0 .
       
 
     IF oeinq THEN 
@@ -3448,7 +3448,7 @@ PROCEDURE local-assign-record :
  
 
   ASSIGN oe-rel.sell-price = DEC(tt-report.price:SCREEN-VALUE IN BROWSE {&browse-name})
-         /*oe-rel.zeroPrice = (IF tt-report.whsed:SCREEN-VALUE IN BROWSE {&browse-name} BEGINS "Y" THEN 1 ELSE 0)*/ .
+         oe-rel.zeroPrice = (IF tt-report.whsed:SCREEN-VALUE IN BROWSE {&browse-name} BEGINS "Y" THEN 1 ELSE 0) .
 
   FIND CURRENT ref-lot-no NO-LOCK NO-ERROR.
   FIND CURRENT ref-sell-price NO-LOCK NO-ERROR.
