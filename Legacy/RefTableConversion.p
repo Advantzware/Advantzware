@@ -17,16 +17,18 @@
 BLOCK-LEVEL ON ERROR UNDO, THROW.
 DEFINE VARIABLE oRefTableMigration AS RefTableMigration.
 DEFINE VARIABLE iCount             AS INTEGER           NO-UNDO.
-DEFINE VARIABLE iProcessCount      AS INTEGER           NO-UNDO INITIAL 90000.
+DEFINE VARIABLE iRecordLimit       AS INTEGER           NO-UNDO INITIAL 90000.
+DEFINE VARIABLE iProcessCount      AS INTEGER           NO-UNDO.
 DEFINE VARIABLE cOutputFile        AS CHARACTER         NO-UNDO.
 DEFINE VARIABLE cError             AS CHARACTER         NO-UNDO.
 DEFINE VARIABLE startTime          AS INTEGER           NO-UNDO.
 
 DEFINE TEMP-TABLE ttResults NO-UNDO
-    FIELD cReftable    AS CHARACTER
-    FIELD iRecordCount AS INTEGER
-    FIELD cConvError   AS CHARACTER
-    FIELD timetaken    AS INTEGER
+    FIELD cReftable      AS CHARACTER
+    FIELD iTotalCount    AS INTEGER
+    FIELD iChangeCount   AS INTEGER
+    FIELD cConvError     AS CHARACTER
+    FIELD timetaken      AS INTEGER
     .
 disable triggers for load of reftable.
 /* ********************  Preprocessor Definitions  ******************** */
@@ -42,12 +44,12 @@ ASSIGN
 /*       startTime = MTIME                                                              */
 /*       .                                                                              */
 /*ASSIGN                                                                                */
-/*    iCount = oRefTableMigration:STYFLU(iProcessCount) NO-ERROR.                       */
+/*    iCount = oRefTableMigration:STYFLU(iRecordLimit) NO-ERROR.                       */
 /*IF ERROR-STATUS:ERROR THEN ASSIGN cError = "Error occured while reftable conversion.".*/
 /*CREATE ttResults.                                                                     */
 /*ASSIGN                                                                                */
 /*    ttResults.cReftable    = "STYFLU"                                                 */
-/*    ttResults.iRecordCount = iCount                                                   */
+/*    ttResults.iTotalCount = iCount                                                   */
 /*    ttResults.cConvError   = cError                                                   */
 /*    ttResults.timetaken    = (MTIME - startTime) / 1000                               */
 /*    .                                                                                 */
@@ -61,12 +63,12 @@ ASSIGN
 /*           startTime = MTIME                                                              */
 /*           .                                                                              */
 /*    ASSIGN                                                                                */
-/*        iCount = oRefTableMigration:STYSCORE(iProcessCount) NO-ERROR.                     */
+/*        iCount = oRefTableMigration:STYSCORE(iRecordLimit) NO-ERROR.                     */
 /*    IF ERROR-STATUS:ERROR THEN ASSIGN cError = "Error occured while reftable conversion.".*/
 /*    CREATE ttResults.                                                                     */
 /*    ASSIGN                                                                                */
 /*        ttResults.cReftable    = "STYSCORE"                                               */
-/*        ttResults.iRecordCount = iCount                                                   */
+/*        ttResults.iTotalCount = iCount                                                   */
 /*        ttResults.cConvError   = cError                                                   */
 /*        ttResults.timetaken    = (MTIME - startTime) / 1000                               */
 /*        .                                                                                 */
@@ -77,106 +79,209 @@ ASSIGN
 
     ASSIGN cError = ""
            startTime = MTIME
+           iCount = 0
+           iProcessCount = 0
            .
     ASSIGN
-        iCount = oRefTableMigration:OeBollLotNo(iProcessCount) NO-ERROR.
+        iCount = oRefTableMigration:OeBollLotNo(iRecordLimit) 
+        iProcessCount = oRefTableMigration:iProcessCount
+        NO-ERROR.
     IF ERROR-STATUS:ERROR THEN ASSIGN cError = "Error occured while reftable conversion.".
     CREATE ttResults.
     ASSIGN
         ttResults.cReftable    = "oe-boll.lot-no"
-        ttResults.iRecordCount = iCount
+        ttResults.iTotalCount  = iCount
+        ttResults.iChangeCount = iProcessCount
         ttResults.cConvError   = cError
         ttResults.timetaken    = (MTIME - startTime) / 1000
         .
-    MESSAGE "oe-boll.lot-no reftable data migration complete. Record Count:" + STRING(iCount)
-            + " Time Taken: " STRING(ttResults.timetaken).
+    
 
 
 
     ASSIGN cError = ""
            startTime = MTIME
+           iCount = 0
+           iProcessCount = 0
            .
     ASSIGN
-        iCount = oRefTableMigration:OeRellLotNo(iProcessCount) NO-ERROR.
+        iCount = oRefTableMigration:OeRellLotNo(iRecordLimit)
+        iProcessCount = oRefTableMigration:iProcessCount NO-ERROR.
     IF ERROR-STATUS:ERROR THEN ASSIGN cError = "Error occured while reftable conversion.".
     CREATE ttResults.
     ASSIGN
         ttResults.cReftable    = "oe-rell.lot-no"
-        ttResults.iRecordCount = iCount
+        ttResults.iTotalCount  = iCount
+        ttResults.iChangeCount = iProcessCount
         ttResults.cConvError   = cError
         ttResults.timetaken    = (MTIME - startTime) / 1000
         .
-    MESSAGE "oe-rell.lot-no reftable data migration complete. Record Count:" + STRING(iCount)
-            + " Time Taken: " STRING(ttResults.timetaken).
+    
 
 
 
     ASSIGN cError = ""
            startTime = MTIME
+           iCount = 0
+           iProcessCount = 0
            .
     ASSIGN
-        iCount = oRefTableMigration:OeRelLotNo(iProcessCount) NO-ERROR.
+        iCount = oRefTableMigration:OeRelLotNo(iRecordLimit)
+        iProcessCount = oRefTableMigration:iProcessCount NO-ERROR.
     IF ERROR-STATUS:ERROR THEN ASSIGN cError = "Error occured while reftable conversion.".
     CREATE ttResults.
     ASSIGN
         ttResults.cReftable    = "oe-rel.lot-no"
-        ttResults.iRecordCount = iCount
+        ttResults.iTotalCount  = iCount
+        ttResults.iChangeCount = iProcessCount
         ttResults.cConvError   = cError
         ttResults.timetaken    = (MTIME - startTime) / 1000
         .
-    MESSAGE "oe-rel.lot-no reftable data migration complete. Record Count:" + STRING(iCount)
-            + " Time Taken: " STRING(ttResults.timetaken).
+    
             
 
     ASSIGN cError = ""
            startTime = MTIME
+           iCount = 0
+           iProcessCount = 0
            .
     ASSIGN
-        iCount = oRefTableMigration:OeRellSellPrice(iProcessCount) NO-ERROR.
+        iCount = oRefTableMigration:OeRellSellPrice(iRecordLimit)
+        iProcessCount = oRefTableMigration:iProcessCount NO-ERROR.
     IF ERROR-STATUS:ERROR THEN ASSIGN cError = "Error occured while reftable conversion.".
     CREATE ttResults.
     ASSIGN
         ttResults.cReftable    = "oe-rell.sell-price"
-        ttResults.iRecordCount = iCount
+        ttResults.iTotalCount  = iCount
+        ttResults.iChangeCount = iProcessCount
         ttResults.cConvError   = cError
         ttResults.timetaken    = (MTIME - startTime) / 1000
         .
-    MESSAGE "oe-rell.sell-price reftable data migration complete. Record Count:" + STRING(iCount)
-            + " Time Taken: " STRING(ttResults.timetaken).
+    
             
 
 
     ASSIGN cError = ""
            startTime = MTIME
+           iCount = 0
+           iProcessCount = 0
            .
     ASSIGN
-        iCount = oRefTableMigration:FgRctdUseJob(iProcessCount) NO-ERROR.
+        iCount = oRefTableMigration:FgRctdUseJob(iRecordLimit)
+        iProcessCount = oRefTableMigration:iProcessCount NO-ERROR.
     IF ERROR-STATUS:ERROR THEN ASSIGN cError = "Error occured while reftable conversion.".
     CREATE ttResults.
     ASSIGN
         ttResults.cReftable    = "fg-rctd.use-job"
-        ttResults.iRecordCount = iCount
+        ttResults.iTotalCount  = iCount
+        ttResults.iChangeCount = iProcessCount
         ttResults.cConvError   = cError
         ttResults.timetaken    = (MTIME - startTime) / 1000
         .
-    MESSAGE "fg-rctd.use-job reftable data migration complete. Record Count:" + STRING(iCount)
-            + " Time Taken: " STRING(ttResults.timetaken).
+    
 
 
     ASSIGN cError = ""
            startTime = MTIME
+           iCount = 0
+           iProcessCount = 0
            .
     ASSIGN
-        iCount = oRefTableMigration:OeOrdlWhsItem(iProcessCount) NO-ERROR.
+        iCount = oRefTableMigration:OeOrdlWhsItem(iRecordLimit)
+        iProcessCount = oRefTableMigration:iProcessCount NO-ERROR.
     IF ERROR-STATUS:ERROR THEN ASSIGN cError = "Error occured while reftable conversion.".
     CREATE ttResults.
     ASSIGN
         ttResults.cReftable    = "oe-ordl.whs-item"
-        ttResults.iRecordCount = iCount
+        ttResults.iTotalCount  = iCount
+        ttResults.iChangeCount = iProcessCount
         ttResults.cConvError   = cError
         ttResults.timetaken    = (MTIME - startTime) / 1000
         .
-    MESSAGE "oe-ordl.whs-item reftable data migration complete. Record Count:" + STRING(iCount)
+    
+            
+
+
+    ASSIGN cError = ""
+           startTime = MTIME
+           iCount = 0
+           iProcessCount = 0
+           .
+    ASSIGN
+        iCount = oRefTableMigration:OeOrdWhsOrder(iRecordLimit)
+        iProcessCount = oRefTableMigration:iProcessCount NO-ERROR.
+    IF ERROR-STATUS:ERROR THEN ASSIGN cError = "Error occured while reftable conversion.".
+    CREATE ttResults.
+    ASSIGN
+        ttResults.cReftable    = "oe-ord.whs-order"
+        ttResults.iTotalCount  = iCount
+        ttResults.iChangeCount = iProcessCount
+        ttResults.cConvError   = cError
+        ttResults.timetaken    = (MTIME - startTime) / 1000
+        .
+    
+
+
+
+    ASSIGN cError = ""
+           startTime = MTIME
+           iCount = 0
+           iProcessCount = 0
+           .
+    ASSIGN
+        iCount = oRefTableMigration:OeOrdlQNo(iRecordLimit)
+        iProcessCount = oRefTableMigration:iProcessCount NO-ERROR.
+    IF ERROR-STATUS:ERROR THEN ASSIGN cError = "Error occured while reftable conversion.".
+    CREATE ttResults.
+    ASSIGN
+        ttResults.cReftable    = "oe-ordl.q-no"
+        ttResults.iTotalCount  = iCount
+        ttResults.iChangeCount = iProcessCount
+        ttResults.cConvError   = cError
+        ttResults.timetaken    = (MTIME - startTime) / 1000
+        .
+    
+            
+
+
+    ASSIGN cError = ""
+           startTime = MTIME
+           iCount = 0
+           iProcessCount = 0
+           .
+    ASSIGN
+        iCount = oRefTableMigration:OeRelJob(iRecordLimit)
+        iProcessCount = oRefTableMigration:iProcessCount NO-ERROR.
+    IF ERROR-STATUS:ERROR THEN ASSIGN cError = "Error occured while reftable conversion.".
+    CREATE ttResults.
+    ASSIGN
+        ttResults.cReftable    = "oe-rel.job"
+        ttResults.iTotalCount  = iCount
+        ttResults.iChangeCount = iProcessCount
+        ttResults.cConvError   = cError
+        ttResults.timetaken    = (MTIME - startTime) / 1000
+        .
+    
+
+
+    ASSIGN cError = ""
+           startTime = MTIME
+           iCount = 0
+           iProcessCount = 0
+           .
+    ASSIGN
+        iCount = oRefTableMigration:FgRctdUserId(iRecordLimit) NO-ERROR.
+        iProcessCount = oRefTableMigration:iProcessCount NO-ERROR.
+    IF ERROR-STATUS:ERROR THEN ASSIGN cError = "Error occured while reftable conversion.".
+    CREATE ttResults.
+    ASSIGN
+        ttResults.cReftable    = "fg-rctd.user-id"
+        ttResults.iTotalCount  = iCount
+        ttResults.iChangeCount = iProcessCount
+        ttResults.cConvError   = cError
+        ttResults.timetaken    = (MTIME - startTime) / 1000
+        .
+    MESSAGE "fg-rctd.user-id reftable data migration complete. Record Count:" + STRING(iCount)
             + " Time Taken: " STRING(ttResults.timetaken).
             
 
@@ -184,506 +289,644 @@ ASSIGN
     ASSIGN cError = ""
            startTime = MTIME
            iCount = 0
+           iProcessCount = 0
            .
     ASSIGN
-        iCount = oRefTableMigration:OeOrdWhsOrder(iProcessCount) NO-ERROR.
-    IF ERROR-STATUS:ERROR THEN ASSIGN cError = "Error occured while reftable conversion.".
-    CREATE ttResults.
-    ASSIGN
-        ttResults.cReftable    = "oe-ord.whs-order"
-        ttResults.iRecordCount = iCount
-        ttResults.cConvError   = cError
-        ttResults.timetaken    = (MTIME - startTime) / 1000
-        .
-    MESSAGE "oe-ord.whs-order reftable data migration complete. Record Count:" + STRING(iCount)
-            + " Time Taken: " STRING(ttResults.timetaken).
-
-
-
-    ASSIGN cError = ""
-           startTime = MTIME
-           .
-    ASSIGN
-        iCount = oRefTableMigration:OeOrdlQNo(iProcessCount) NO-ERROR.
-    IF ERROR-STATUS:ERROR THEN ASSIGN cError = "Error occured while reftable conversion.".
-    CREATE ttResults.
-    ASSIGN
-        ttResults.cReftable    = "oe-ordl.q-no"
-        ttResults.iRecordCount = iCount
-        ttResults.cConvError   = cError
-        ttResults.timetaken    = (MTIME - startTime) / 1000
-        .
-    MESSAGE "oe-ordl.q-no reftable data migration complete. Record Count:" + STRING(iCount)
-            + " Time Taken: " STRING(ttResults.timetaken).
-            
-
-
-    ASSIGN cError = ""
-           startTime = MTIME
-           .
-    ASSIGN
-        iCount = oRefTableMigration:OeRelJob(iProcessCount) NO-ERROR.
-    IF ERROR-STATUS:ERROR THEN ASSIGN cError = "Error occured while reftable conversion.".
-    CREATE ttResults.
-    ASSIGN
-        ttResults.cReftable    = "oe-rel.job"
-        ttResults.iRecordCount = iCount
-        ttResults.cConvError   = cError
-        ttResults.timetaken    = (MTIME - startTime) / 1000
-        .
-    MESSAGE "oe-rel.job reftable data migration complete. Record Count:" + STRING(iCount)
-            + " Time Taken: " STRING(ttResults.timetaken).
-
-
-/*    ASSIGN cError = ""                                                                        */
-/*           startTime = MTIME                                                                  */
-/*           .                                                                                  */
-/*    ASSIGN                                                                                    */
-/*        iCount = oRefTableMigration:FgRctdUserId(iProcessCount) NO-ERROR.                     */
-/*    IF ERROR-STATUS:ERROR THEN ASSIGN cError = "Error occured while reftable conversion.".    */
-/*    CREATE ttResults.                                                                         */
-/*    ASSIGN                                                                                    */
-/*        ttResults.cReftable    = "fg-rctd.user-id"                                            */
-/*        ttResults.iRecordCount = iCount                                                       */
-/*        ttResults.cConvError   = cError                                                       */
-/*        ttResults.timetaken    = (MTIME - startTime) / 1000                                   */
-/*        .                                                                                     */
-/*    MESSAGE "fg-rctd.user-id reftable data migration complete. Record Count:" + STRING(iCount)*/
-/*            + " Time Taken: " STRING(ttResults.timetaken).                                    */
-            
-
-
-    ASSIGN cError = ""
-           startTime = MTIME
-           .
-    ASSIGN
-        iCount = oRefTableMigration:FgBinCost(iProcessCount) NO-ERROR.
+        iCount = oRefTableMigration:FgBinCost(iRecordLimit)
+        iProcessCount = oRefTableMigration:iProcessCount NO-ERROR.
     IF ERROR-STATUS:ERROR THEN ASSIGN cError = "Error occured while reftable conversion.".
     CREATE ttResults.
     ASSIGN
         ttResults.cReftable    = "fg-bin.cost"
-        ttResults.iRecordCount = iCount
+        ttResults.iTotalCount  = iCount
+        ttResults.iChangeCount = iProcessCount
         ttResults.cConvError   = cError
         ttResults.timetaken    = (MTIME - startTime) / 1000
         .
-    MESSAGE "fg-bin.cost reftable data migration complete. Record Count:" + STRING(iCount)
-            + " Time Taken: " STRING(ttResults.timetaken).
+    
             
 
 
     ASSIGN cError = ""
            startTime = MTIME
+           iCount = 0
+           iProcessCount = 0
            .
     ASSIGN
-        iCount = oRefTableMigration:OeRelSellPrice(iProcessCount) NO-ERROR.
+        iCount = oRefTableMigration:OeRelSellPrice(iRecordLimit)
+        iProcessCount = oRefTableMigration:iProcessCount NO-ERROR.
     IF ERROR-STATUS:ERROR THEN ASSIGN cError = "Error occured while reftable conversion.".
     CREATE ttResults.
     ASSIGN
         ttResults.cReftable    = "oe-rel.sell-price"
-        ttResults.iRecordCount = iCount
+        ttResults.iTotalCount  = iCount
+        ttResults.iChangeCount = iProcessCount
         ttResults.cConvError   = cError
         ttResults.timetaken    = (MTIME - startTime) / 1000
         .
-    MESSAGE "oe-rel.sell-price reftable data migration complete. Record Count:" + STRING(iCount)
-            + " Time Taken: " STRING(ttResults.timetaken).
+    
 
 
 
     ASSIGN cError = ""
            startTime = MTIME
+           iCount = 0
+           iProcessCount = 0
            .
     ASSIGN
-        iCount = oRefTableMigration:ReftoUserPrintHM5(iProcessCount) NO-ERROR.
+        iCount = oRefTableMigration:ReftoUserPrintHM5(iRecordLimit)
+        iProcessCount = oRefTableMigration:iProcessCount NO-ERROR.
     IF ERROR-STATUS:ERROR THEN ASSIGN cError = "Error occured while reftable conversion.".
     CREATE ttResults.
     ASSIGN
         ttResults.cReftable    = "HM5"
-        ttResults.iRecordCount = iCount
+        ttResults.iTotalCount  = iCount
+        ttResults.iChangeCount = iProcessCount
         ttResults.cConvError   = cError
         ttResults.timetaken    = (MTIME - startTime) / 1000
         .
-    MESSAGE "HM5 reftable data migration complete. Record Count:" + STRING(iCount)
-            + " Time Taken: " STRING(ttResults.timetaken).
+    
 
 
 
     ASSIGN cError = ""
            startTime = MTIME
+           iCount = 0
+           iProcessCount = 0
            .
     ASSIGN
-        iCount = oRefTableMigration:ReftoUserPrintHM1SF(iProcessCount) NO-ERROR.
+        iCount = oRefTableMigration:ReftoUserPrintHM1SF(iRecordLimit)
+        iProcessCount = oRefTableMigration:iProcessCount NO-ERROR.
     IF ERROR-STATUS:ERROR THEN ASSIGN cError = "Error occured while reftable conversion.".
     CREATE ttResults.
     ASSIGN
         ttResults.cReftable    = "HM1SF"
-        ttResults.iRecordCount = iCount
+        ttResults.iTotalCount  = iCount
+        ttResults.iChangeCount = iProcessCount
         ttResults.cConvError   = cError
         ttResults.timetaken    = (MTIME - startTime) / 1000
         .
-    MESSAGE "HM1SF reftable data migration complete. Record Count:" + STRING(iCount)
-            + " Time Taken: " STRING(ttResults.timetaken).
+    
 
 
 
     ASSIGN cError = ""
            startTime = MTIME
+           iCount = 0
+           iProcessCount = 0
            .
     ASSIGN
-        iCount = oRefTableMigration:ReftoUserPrintHM1(iProcessCount) NO-ERROR.
+        iCount = oRefTableMigration:ReftoUserPrintHM1(iRecordLimit)
+        iProcessCount = oRefTableMigration:iProcessCount NO-ERROR.
     IF ERROR-STATUS:ERROR THEN ASSIGN cError = "Error occured while reftable conversion.".
     CREATE ttResults.
     ASSIGN
         ttResults.cReftable    = "HM1"
-        ttResults.iRecordCount = iCount
+        ttResults.iTotalCount  = iCount
+        ttResults.iChangeCount = iProcessCount
         ttResults.cConvError   = cError
         ttResults.timetaken    = (MTIME - startTime) / 1000
         .
-    MESSAGE "HM1 reftable data migration complete. Record Count:" + STRING(iCount)
-            + " Time Taken: " STRING(ttResults.timetaken).
+    
 
 
 
     ASSIGN cError = ""
            startTime = MTIME
+           iCount = 0
+           iProcessCount = 0
            .
     ASSIGN
-        iCount = oRefTableMigration:ReftoUserPrintHM1Acct(iProcessCount) NO-ERROR.
+        iCount = oRefTableMigration:ReftoUserPrintHM1Acct(iRecordLimit)
+        iProcessCount = oRefTableMigration:iProcessCount NO-ERROR.
     IF ERROR-STATUS:ERROR THEN ASSIGN cError = "Error occured while reftable conversion.".
     CREATE ttResults.
     ASSIGN
         ttResults.cReftable    = "HM1Acct"
-        ttResults.iRecordCount = iCount
+        ttResults.iTotalCount  = iCount
+        ttResults.iChangeCount = iProcessCount
         ttResults.cConvError   = cError
         ttResults.timetaken    = (MTIME - startTime) / 1000
         .
-    MESSAGE "HM1Acct reftable data migration complete. Record Count:" + STRING(iCount)
-            + " Time Taken: " STRING(ttResults.timetaken).
+    
 
 
 
     ASSIGN cError = ""
            startTime = MTIME
+           iCount = 0
+           iProcessCount = 0
            .
     ASSIGN
-        iCount = oRefTableMigration:OeBollSellPrice(iProcessCount) NO-ERROR.
+        iCount = oRefTableMigration:OeBollSellPrice(iRecordLimit)
+        iProcessCount = oRefTableMigration:iProcessCount NO-ERROR.
     IF ERROR-STATUS:ERROR THEN ASSIGN cError = "Error occured while reftable conversion.".
     CREATE ttResults.
     ASSIGN
         ttResults.cReftable    = "oe-boll.sell-price"
-        ttResults.iRecordCount = iCount
+        ttResults.iTotalCount  = iCount
+        ttResults.iChangeCount = iProcessCount
         ttResults.cConvError   = cError
         ttResults.timetaken    = (MTIME - startTime) / 1000
         .
-    MESSAGE "oe-boll.sell-price reftable data migration complete. Record Count:" + STRING(iCount)
-            + " Time Taken: " STRING(ttResults.timetaken).
+    
 
 
 
     ASSIGN cError = ""
            startTime = MTIME
+           iCount = 0
+           iProcessCount = 0
            .
     ASSIGN
-        iCount = oRefTableMigration:JobCreateTime(iProcessCount) NO-ERROR.
+        iCount = oRefTableMigration:JobCreateTime(iRecordLimit)
+        iProcessCount = oRefTableMigration:iProcessCount NO-ERROR.
     IF ERROR-STATUS:ERROR THEN ASSIGN cError = "Error occured while reftable conversion.".
     CREATE ttResults.
     ASSIGN
         ttResults.cReftable    = "job.create-time"
-        ttResults.iRecordCount = iCount
+        ttResults.iTotalCount  = iCount
+        ttResults.iChangeCount = iProcessCount
         ttResults.cConvError   = cError
         ttResults.timetaken    = (MTIME - startTime) / 1000
         .
-    MESSAGE "job.create-time reftable data migration complete. Record Count:" + STRING(iCount)
-            + " Time Taken: " STRING(ttResults.timetaken).
+    
 
 
 
     ASSIGN cError = ""
            startTime = MTIME
+           iCount = 0
+           iProcessCount = 0
            .
     ASSIGN
-        iCount = oRefTableMigration:OeOrdlMisc(iProcessCount) NO-ERROR.
+        iCount = oRefTableMigration:OeOrdlMisc(iRecordLimit)
+        iProcessCount = oRefTableMigration:iProcessCount NO-ERROR.
     IF ERROR-STATUS:ERROR THEN ASSIGN cError = "Error occured while reftable conversion.".
     CREATE ttResults.
     ASSIGN
         ttResults.cReftable    = "oe/ordlmisc.p"
-        ttResults.iRecordCount = iCount
+        ttResults.iTotalCount  = iCount
+        ttResults.iChangeCount = iProcessCount
         ttResults.cConvError   = cError
         ttResults.timetaken    = (MTIME - startTime) / 1000
         .
-    MESSAGE "oe/ordlmisc.p reftable data migration complete. Record Count:" + STRING(iCount)
-            + " Time Taken: " STRING(ttResults.timetaken).
+    
 
 
 
     ASSIGN cError = ""
            startTime = MTIME
+           iCount = 0
+           iProcessCount = 0
            .
     ASSIGN
-        iCount = oRefTableMigration:Factored(iProcessCount) NO-ERROR.
+        iCount = oRefTableMigration:Factored(iRecordLimit)
+        iProcessCount = oRefTableMigration:iProcessCount NO-ERROR.
     IF ERROR-STATUS:ERROR THEN ASSIGN cError = "Error occured while reftable conversion.".
     CREATE ttResults.
     ASSIGN
         ttResults.cReftable    = "FACTORED"
-        ttResults.iRecordCount = iCount
+        ttResults.iTotalCount  = iCount
+        ttResults.iChangeCount = iProcessCount
         ttResults.cConvError   = cError
         ttResults.timetaken    = (MTIME - startTime) / 1000
         .
-    MESSAGE "FACTORED reftable data migration complete. Record Count:" + STRING(iCount)
-            + " Time Taken: " STRING(ttResults.timetaken).
+    
 
 
 
     ASSIGN cError = ""
            startTime = MTIME
+           iCount = 0
+           iProcessCount = 0
            .
     ASSIGN
-        iCount = oRefTableMigration:Termscod(iProcessCount) NO-ERROR.
+        iCount = oRefTableMigration:Termscod(iRecordLimit)
+        iProcessCount = oRefTableMigration:iProcessCount NO-ERROR.
     IF ERROR-STATUS:ERROR THEN ASSIGN cError = "Error occured while reftable conversion.".
     CREATE ttResults.
     ASSIGN
         ttResults.cReftable    = "terms.cod"
-        ttResults.iRecordCount = iCount
+        ttResults.iTotalCount  = iCount
+        ttResults.iChangeCount = iProcessCount
         ttResults.cConvError   = cError
         ttResults.timetaken    = (MTIME - startTime) / 1000
         .
-    MESSAGE "terms.cod reftable data migration complete. Record Count:" + STRING(iCount)
-            + " Time Taken: " STRING(ttResults.timetaken).
+    
 
 
 
     ASSIGN cError = ""
            startTime = MTIME
+           iCount = 0
+           iProcessCount = 0
            .
     ASSIGN
-        iCount = oRefTableMigration:Stack(iProcessCount) NO-ERROR.
+        iCount = oRefTableMigration:Stack(iRecordLimit)
+        iProcessCount = oRefTableMigration:iProcessCount NO-ERROR.
     IF ERROR-STATUS:ERROR THEN ASSIGN cError = "Error occured while reftable conversion.".
     CREATE ttResults.
     ASSIGN
         ttResults.cReftable    = "STACK"
-        ttResults.iRecordCount = iCount
+        ttResults.iTotalCount  = iCount
+        ttResults.iChangeCount = iProcessCount
         ttResults.cConvError   = cError
         ttResults.timetaken    = (MTIME - startTime) / 1000
         .
-    MESSAGE "STACK reftable data migration complete. Record Count:" + STRING(iCount)
-            + " Time Taken: " STRING(ttResults.timetaken).
+    
 
 
 
 
     ASSIGN cError = ""
            startTime = MTIME
+           iCount = 0
+           iProcessCount = 0
            .
     ASSIGN
-        iCount = oRefTableMigration:ItemfgInkOccurs(iProcessCount) NO-ERROR.
+        iCount = oRefTableMigration:ItemfgInkOccurs(iRecordLimit)
+        iProcessCount = oRefTableMigration:iProcessCount NO-ERROR.
     IF ERROR-STATUS:ERROR THEN ASSIGN cError = "Error occured while reftable conversion.".
     CREATE ttResults.
     ASSIGN
         ttResults.cReftable    = "itemfg-ink.occurs"
-        ttResults.iRecordCount = iCount
+        ttResults.iTotalCount  = iCount
+        ttResults.iChangeCount = iProcessCount
         ttResults.cConvError   = cError
         ttResults.timetaken    = (MTIME - startTime) / 1000
         .
-    MESSAGE "itemfg-ink.occurs reftable data migration complete. Record Count:" + STRING(iCount)
-            + " Time Taken: " STRING(ttResults.timetaken).
+    
+
+    
+    ASSIGN cError = ""
+           startTime = MTIME
+           iCount = 0
+           iProcessCount = 0
+           .
+    ASSIGN
+        iCount = oRefTableMigration:ShiptoMandatoryTax(iRecordLimit)
+        iProcessCount = oRefTableMigration:iProcessCount NO-ERROR.
+    IF ERROR-STATUS:ERROR THEN ASSIGN cError = "Error occured while reftable conversion.".
+    CREATE ttResults.
+    ASSIGN
+        ttResults.cReftable    = "shipto.mandatory-tax"
+        ttResults.iTotalCount  = iCount
+        ttResults.iChangeCount = iProcessCount
+        ttResults.cConvError   = cError
+        ttResults.timetaken    = (MTIME - startTime) / 1000
+        .
+
+    
+    
+    ASSIGN cError = ""
+           startTime = MTIME
+           iCount = 0
+           iProcessCount = 0
+           .
+    ASSIGN
+        iCount = oRefTableMigration:CustPoMand(iRecordLimit)
+        iProcessCount = oRefTableMigration:iProcessCount NO-ERROR.
+    IF ERROR-STATUS:ERROR THEN ASSIGN cError = "Error occured while reftable conversion.".
+    CREATE ttResults.
+    ASSIGN
+        ttResults.cReftable    = "cust.po-mand"
+        ttResults.iTotalCount  = iCount
+        ttResults.iChangeCount = iProcessCount
+        ttResults.cConvError   = cError
+        ttResults.timetaken    = (MTIME - startTime) / 1000
+        .
+    
+
+
+    ASSIGN cError = ""
+           startTime = MTIME
+           iCount = 0
+           iProcessCount = 0
+           .
+    ASSIGN
+        iCount = oRefTableMigration:CustShowSet(iRecordLimit)
+        iProcessCount = oRefTableMigration:iProcessCount NO-ERROR.
+    IF ERROR-STATUS:ERROR THEN ASSIGN cError = "Error occured while reftable conversion.".
+    CREATE ttResults.
+    ASSIGN
+        ttResults.cReftable    = "cust.show-set"
+        ttResults.iTotalCount  = iCount
+        ttResults.iChangeCount = iProcessCount
+        ttResults.cConvError   = cError
+        ttResults.timetaken    = (MTIME - startTime) / 1000
+        .
 
 
 
 
     ASSIGN cError = ""
            startTime = MTIME
+           iCount = 0
+           iProcessCount = 0
            .
     ASSIGN
-        iCount = oRefTableMigration:MachinePosition(iProcessCount) NO-ERROR.
+        iCount = oRefTableMigration:MachinePosition(iRecordLimit)
+        iProcessCount = oRefTableMigration:iProcessCount NO-ERROR.
     IF ERROR-STATUS:ERROR THEN ASSIGN cError = "Error occured while reftable conversion.".
     CREATE ttResults.
     ASSIGN
         ttResults.cReftable    = "MachinePosition"
-        ttResults.iRecordCount = iCount
+        ttResults.iTotalCount  = iCount
+        ttResults.iChangeCount = iProcessCount
         ttResults.cConvError   = cError
         ttResults.timetaken    = (MTIME - startTime) / 1000
         .
-    MESSAGE "MachinePosition reftable data migration complete. Record Count:" + STRING(iCount)
-            + " Time Taken: " STRING(ttResults.timetaken).
-
+    
 
 
     ASSIGN cError = ""
            startTime = MTIME
+           iCount = 0
+           iProcessCount = 0
            .
     ASSIGN
-        iCount = oRefTableMigration:MachPlainJob(iProcessCount) NO-ERROR.
+        iCount = oRefTableMigration:GlAcctDisc(iRecordLimit)
+        iProcessCount = oRefTableMigration:iProcessCount NO-ERROR.
     IF ERROR-STATUS:ERROR THEN ASSIGN cError = "Error occured while reftable conversion.".
     CREATE ttResults.
     ASSIGN
-        ttResults.cReftable    = "mach.plain-job"
-        ttResults.iRecordCount = iCount
+        ttResults.cReftable    = "GLACCTDISC"
+        ttResults.iTotalCount  = iCount
+        ttResults.iChangeCount = iProcessCount
         ttResults.cConvError   = cError
         ttResults.timetaken    = (MTIME - startTime) / 1000
         .
-    MESSAGE "mach.plain-job reftable data migration complete. Record Count:" + STRING(iCount)
-            + " Time Taken: " STRING(ttResults.timetaken).
 
 
 
     ASSIGN cError = ""
            startTime = MTIME
+           iCount = 0
+           iProcessCount = 0
            .
     ASSIGN
-        iCount = oRefTableMigration:PrePlastJob(iProcessCount) NO-ERROR.
+        iCount = oRefTableMigration:CustFlatComm(iRecordLimit)
+        iProcessCount = oRefTableMigration:iProcessCount NO-ERROR.
+    IF ERROR-STATUS:ERROR THEN ASSIGN cError = "Error occured while reftable conversion.".
+    CREATE ttResults.
+    ASSIGN
+        ttResults.cReftable    = "cust.flat-comm"
+        ttResults.iTotalCount  = iCount
+        ttResults.iChangeCount = iProcessCount
+        ttResults.cConvError   = cError
+        ttResults.timetaken    = (MTIME - startTime) / 1000
+        .
+
+
+
+    ASSIGN cError = ""
+           startTime = MTIME
+           iCount = 0
+           iProcessCount = 0
+           .
+    ASSIGN
+        iCount = oRefTableMigration:StylePerMsf(iRecordLimit)
+        iProcessCount = oRefTableMigration:iProcessCount NO-ERROR.
+    IF ERROR-STATUS:ERROR THEN ASSIGN cError = "Error occured while reftable conversion.".
+    CREATE ttResults.
+    ASSIGN
+        ttResults.cReftable    = "style.per-msf"
+        ttResults.iTotalCount  = iCount
+        ttResults.iChangeCount = iProcessCount
+        ttResults.cConvError   = cError
+        ttResults.timetaken    = (MTIME - startTime) / 1000
+        .
+
+
+
+    ASSIGN cError = ""
+           startTime = MTIME
+           iCount = 0
+           iProcessCount = 0
+           .
+    ASSIGN
+        iCount = oRefTableMigration:FreezeNote(iRecordLimit)
+        iProcessCount = oRefTableMigration:iProcessCount NO-ERROR.
+    IF ERROR-STATUS:ERROR THEN ASSIGN cError = "Error occured while reftable conversion.".
+    CREATE ttResults.
+    ASSIGN
+        ttResults.cReftable    = "FREEZENOTE"
+        ttResults.iTotalCount  = iCount
+        ttResults.iChangeCount = iProcessCount
+        ttResults.cConvError   = cError
+        ttResults.timetaken    = (MTIME - startTime) / 1000
+        .
+
+
+
+
+    ASSIGN cError = ""
+           startTime = MTIME
+           iCount = 0
+           iProcessCount = 0
+           .
+    ASSIGN
+        iCount = oRefTableMigration:MachPlainJobs(iRecordLimit)
+        iProcessCount = oRefTableMigration:iProcessCount NO-ERROR.
+    IF ERROR-STATUS:ERROR THEN ASSIGN cError = "Error occured while reftable conversion.".
+    CREATE ttResults.
+    ASSIGN
+        ttResults.cReftable    = "mach.plain-jobs"
+        ttResults.iTotalCount  = iCount
+        ttResults.iChangeCount = iProcessCount
+        ttResults.cConvError   = cError
+        ttResults.timetaken    = (MTIME - startTime) / 1000
+        .
+        
+
+
+    ASSIGN cError = ""
+           startTime = MTIME
+           iCount = 0
+           iProcessCount = 0
+           .
+    ASSIGN
+        iCount = oRefTableMigration:PrePlastJob(iRecordLimit)
+        iProcessCount = oRefTableMigration:iProcessCount NO-ERROR.
     IF ERROR-STATUS:ERROR THEN ASSIGN cError = "Error occured while reftable conversion.".
     CREATE ttResults.
     ASSIGN
         ttResults.cReftable    = "PREPLASTJOB"
-        ttResults.iRecordCount = iCount
+        ttResults.iTotalCount  = iCount
+        ttResults.iChangeCount = iProcessCount
         ttResults.cConvError   = cError
         ttResults.timetaken    = (MTIME - startTime) / 1000
         .
-    MESSAGE "PREPLASTJOB reftable data migration complete. Record Count:" + STRING(iCount)
-            + " Time Taken: " STRING(ttResults.timetaken).
+    
 
 
 
     ASSIGN cError = ""
            startTime = MTIME
+           iCount = 0
+           iProcessCount = 0
            .
     ASSIGN
-        iCount = oRefTableMigration:JobQtyChanged(iProcessCount) NO-ERROR.
+        iCount = oRefTableMigration:JobQtyChanged(iRecordLimit)
+        iProcessCount = oRefTableMigration:iProcessCount NO-ERROR.
     IF ERROR-STATUS:ERROR THEN ASSIGN cError = "Error occured while reftable conversion.".
     CREATE ttResults.
     ASSIGN
         ttResults.cReftable    = "job.qty-changed"
-        ttResults.iRecordCount = iCount
+        ttResults.iTotalCount  = iCount
+        ttResults.iChangeCount = iProcessCount
         ttResults.cConvError   = cError
         ttResults.timetaken    = (MTIME - startTime) / 1000
         .
-    MESSAGE "job.qty-changed reftable data migration complete. Record Count:" + STRING(iCount)
-            + " Time Taken: " STRING(ttResults.timetaken).
+    
 
 
 
     ASSIGN cError = ""
            startTime = MTIME
+           iCount = 0
+           iProcessCount = 0
            .
     ASSIGN
-        iCount = oRefTableMigration:GlRptPctSubtotal(iProcessCount) NO-ERROR.
+        iCount = oRefTableMigration:GlRptPctSubtotal(iRecordLimit)
+        iProcessCount = oRefTableMigration:iProcessCount NO-ERROR.
     IF ERROR-STATUS:ERROR THEN ASSIGN cError = "Error occured while reftable conversion.".
     CREATE ttResults.
     ASSIGN
         ttResults.cReftable    = "gl-rpt.pct-subtotal"
-        ttResults.iRecordCount = iCount
+        ttResults.iTotalCount  = iCount
+        ttResults.iChangeCount = iProcessCount
         ttResults.cConvError   = cError
         ttResults.timetaken    = (MTIME - startTime) / 1000
         .
-    MESSAGE "gl-rpt.pct-subtotal reftable data migration complete. Record Count:" + STRING(iCount)
-            + " Time Taken: " STRING(ttResults.timetaken).
+    
 
 
 
     ASSIGN cError = ""
            startTime = MTIME
+           iCount = 0
+           iProcessCount = 0
            .
     ASSIGN
-        iCount = oRefTableMigration:CeCtrlBrokerPct(iProcessCount) NO-ERROR.
+        iCount = oRefTableMigration:CeCtrlBrokerPct(iRecordLimit)
+        iProcessCount = oRefTableMigration:iProcessCount NO-ERROR.
     IF ERROR-STATUS:ERROR THEN ASSIGN cError = "Error occured while reftable conversion.".
     CREATE ttResults.
     ASSIGN
         ttResults.cReftable    = "ce-ctrl.broker-pct"
-        ttResults.iRecordCount = iCount
+        ttResults.iTotalCount  = iCount
+        ttResults.iChangeCount = iProcessCount
         ttResults.cConvError   = cError
         ttResults.timetaken    = (MTIME - startTime) / 1000
         .
-    MESSAGE "ce-ctrl.broker-pct reftable data migration complete. Record Count:" + STRING(iCount)
-            + " Time Taken: " STRING(ttResults.timetaken).
+    
 
 
 
     ASSIGN cError = ""
            startTime = MTIME
+           iCount = 0
+           iProcessCount = 0
            .
     ASSIGN
-        iCount = oRefTableMigration:RmBinAgingDate(iProcessCount) NO-ERROR.
+        iCount = oRefTableMigration:RmBinAgeDate(iRecordLimit)
+        iProcessCount = oRefTableMigration:iProcessCount NO-ERROR.
     IF ERROR-STATUS:ERROR THEN ASSIGN cError = "Error occured while reftable conversion.".
     CREATE ttResults.
     ASSIGN
-        ttResults.cReftable    = "rm-bin.aging-date"
-        ttResults.iRecordCount = iCount
+        ttResults.cReftable    = "rm-bin.age-date"
+        ttResults.iTotalCount  = iCount
+        ttResults.iChangeCount = iProcessCount
         ttResults.cConvError   = cError
         ttResults.timetaken    = (MTIME - startTime) / 1000
         .
-    MESSAGE "rm-bin.aging-date reftable data migration complete. Record Count:" + STRING(iCount)
-            + " Time Taken: " STRING(ttResults.timetaken).
+    
 
 
 
     ASSIGN cError = ""
            startTime = MTIME
+           iCount = 0
+           iProcessCount = 0
            .
     ASSIGN
-        iCount = oRefTableMigration:CeCtrlFoldPct(iProcessCount) NO-ERROR.
+        iCount = oRefTableMigration:CeCtrlFoldPct(iRecordLimit)
+        iProcessCount = oRefTableMigration:iProcessCount NO-ERROR.
     IF ERROR-STATUS:ERROR THEN ASSIGN cError = "Error occured while reftable conversion.".
     CREATE ttResults.
     ASSIGN
         ttResults.cReftable    = "ce-ctrl.fold-pct"
-        ttResults.iRecordCount = iCount
+        ttResults.iTotalCount  = iCount
+        ttResults.iChangeCount = iProcessCount
         ttResults.cConvError   = cError
         ttResults.timetaken    = (MTIME - startTime) / 1000
         .
-    MESSAGE "ce-ctrl.fold-pct reftable data migration complete. Record Count:" + STRING(iCount)
-            + " Time Taken: " STRING(ttResults.timetaken).
+    
 
 
 
     ASSIGN cError = ""
            startTime = MTIME
+           iCount = 0
+           iProcessCount = 0
            .
     ASSIGN
-        iCount = oRefTableMigration:CeCtrlFgRateFarm(iProcessCount) NO-ERROR.
+        iCount = oRefTableMigration:CeCtrlFgRateFarm(iRecordLimit)
+        iProcessCount = oRefTableMigration:iProcessCount NO-ERROR.
     IF ERROR-STATUS:ERROR THEN ASSIGN cError = "Error occured while reftable conversion.".
     CREATE ttResults.
     ASSIGN
         ttResults.cReftable    = "ce-ctrl.fg-rate-farm"
-        ttResults.iRecordCount = iCount
+        ttResults.iTotalCount  = iCount
+        ttResults.iChangeCount = iProcessCount
         ttResults.cConvError   = cError
         ttResults.timetaken    = (MTIME - startTime) / 1000
         .
-    MESSAGE "ce-ctrl.fg-rate-farm reftable data migration complete. Record Count:" + STRING(iCount)
-            + " Time Taken: " STRING(ttResults.timetaken).
+    
 
 
 
     ASSIGN cError = ""
            startTime = MTIME
+           iCount = 0
+           iProcessCount = 0
            .
     ASSIGN
-        iCount = oRefTableMigration:CeCtrlRmRateFarm(iProcessCount) NO-ERROR.
+        iCount = oRefTableMigration:CeCtrlRmRateFarm(iRecordLimit)
+        iProcessCount = oRefTableMigration:iProcessCount NO-ERROR.
     IF ERROR-STATUS:ERROR THEN ASSIGN cError = "Error occured while reftable conversion.".
     CREATE ttResults.
     ASSIGN
         ttResults.cReftable    = "ce-ctrl.rm-rate-farm"
-        ttResults.iRecordCount = iCount
+        ttResults.iTotalCount  = iCount
+        ttResults.iChangeCount = iProcessCount
         ttResults.cConvError   = cError
         ttResults.timetaken    = (MTIME - startTime) / 1000
         .
-    MESSAGE "ce-ctrl.rm-rate-farm reftable data migration complete. Record Count:" + STRING(iCount)
-            + " Time Taken: " STRING(ttResults.timetaken).
+    
 
 
 
     ASSIGN cError = ""
            startTime = MTIME
+           iCount = 0
+           iProcessCount = 0
            .
     ASSIGN
-        iCount = oRefTableMigration:CeCtrlHandPctFarm(iProcessCount) NO-ERROR.
+        iCount = oRefTableMigration:CeCtrlHandPctFarm(iRecordLimit)
+        iProcessCount = oRefTableMigration:iProcessCount NO-ERROR.
     IF ERROR-STATUS:ERROR THEN ASSIGN cError = "Error occured while reftable conversion.".
     CREATE ttResults.
     ASSIGN
         ttResults.cReftable    = "ce-ctrl.hand-pct-farm"
-        ttResults.iRecordCount = iCount
+        ttResults.iTotalCount  = iCount
+        ttResults.iChangeCount = iProcessCount
         ttResults.cConvError   = cError
         ttResults.timetaken    = (MTIME - startTime) / 1000
         .
-    MESSAGE "ce-ctrl.hand-pct-farm reftable data migration complete. Record Count:" + STRING(iCount)
-            + " Time Taken: " STRING(ttResults.timetaken).
+    
 
 
 
@@ -691,12 +934,12 @@ ASSIGN
 /*           startTime = MTIME                                                              */
 /*           .                                                                              */
 /*    ASSIGN                                                                                */
-/*        iCount = oRefTableMigration:EstOpLock(iProcessCount) NO-ERROR.                    */
+/*        iCount = oRefTableMigration:EstOpLock(iRecordLimit) NO-ERROR.                    */
 /*    IF ERROR-STATUS:ERROR THEN ASSIGN cError = "Error occured while reftable conversion.".*/
 /*    CREATE ttResults.                                                                     */
 /*    ASSIGN                                                                                */
 /*        ttResults.cReftable    = "est.op-lock"                                            */
-/*        ttResults.iRecordCount = iCount                                                   */
+/*        ttResults.iTotalCount = iCount                                                   */
 /*        ttResults.cConvError   = cError                                                   */
 /*        ttResults.timetaken    = (MTIME - startTime) / 1000                               */
 /*        .                                                                                 */
@@ -707,177 +950,520 @@ ASSIGN
 
     ASSIGN cError = ""
            startTime = MTIME
+           iCount = 0
+           iProcessCount = 0
            .
     ASSIGN
-        iCount = oRefTableMigration:OeRelScode(iProcessCount) NO-ERROR.
+        iCount = oRefTableMigration:OeRelScode(iRecordLimit)
+        iProcessCount = oRefTableMigration:iProcessCount NO-ERROR.
     IF ERROR-STATUS:ERROR THEN ASSIGN cError = "Error occured while reftable conversion.".
     CREATE ttResults.
     ASSIGN
         ttResults.cReftable    = "oe-rel.s-code"
-        ttResults.iRecordCount = iCount
+        ttResults.iTotalCount  = iCount
+        ttResults.iChangeCount = iProcessCount
         ttResults.cConvError   = cError
         ttResults.timetaken    = (MTIME - startTime) / 1000
         .
-    MESSAGE "oe-rel.s-code reftable data migration complete. Record Count:" + STRING(iCount)
-            + " Time Taken: " STRING(ttResults.timetaken).
+    
 
 
 
     ASSIGN cError = ""
            startTime = MTIME
+           iCount = 0
+           iProcessCount = 0
            .
     ASSIGN
-        iCount = oRefTableMigration:Splitship(iProcessCount) NO-ERROR.
+        iCount = oRefTableMigration:Splitship(iRecordLimit)
+        iProcessCount = oRefTableMigration:iProcessCount NO-ERROR.
     IF ERROR-STATUS:ERROR THEN ASSIGN cError = "Error occured while reftable conversion.".
     CREATE ttResults.
     ASSIGN
         ttResults.cReftable    = "SPLITSHIP"
-        ttResults.iRecordCount = iCount
+        ttResults.iTotalCount  = iCount
+        ttResults.iChangeCount = iProcessCount
         ttResults.cConvError   = cError
         ttResults.timetaken    = (MTIME - startTime) / 1000
         .
-    MESSAGE "SPLITSHIP reftable data migration complete. Record Count:" + STRING(iCount)
-            + " Time Taken: " STRING(ttResults.timetaken).
+    
 
 
 
     ASSIGN cError = ""
            startTime = MTIME
+           iCount = 0
+           iProcessCount = 0
            .
     ASSIGN
-        iCount = oRefTableMigration:Splitshp(iProcessCount) NO-ERROR.
+        iCount = oRefTableMigration:Splitshp(iRecordLimit)
+        iProcessCount = oRefTableMigration:iProcessCount NO-ERROR.
     IF ERROR-STATUS:ERROR THEN ASSIGN cError = "Error occured while reftable conversion.".
     CREATE ttResults.
     ASSIGN
         ttResults.cReftable    = "splitshp"
-        ttResults.iRecordCount = iCount
+        ttResults.iTotalCount  = iCount
+        ttResults.iChangeCount = iProcessCount
         ttResults.cConvError   = cError
         ttResults.timetaken    = (MTIME - startTime) / 1000
         .
-    MESSAGE "splitshp reftable data migration complete. Record Count:" + STRING(iCount)
-            + " Time Taken: " STRING(ttResults.timetaken).
+   
 
 
 
     ASSIGN cError = ""
            startTime = MTIME
+           iCount = 0
+           iProcessCount = 0
            .
     ASSIGN
-        iCount = oRefTableMigration:MachObsolete(iProcessCount) NO-ERROR.
+        iCount = oRefTableMigration:MachObsolete(iRecordLimit)
+        iProcessCount = oRefTableMigration:iProcessCount NO-ERROR.
     IF ERROR-STATUS:ERROR THEN ASSIGN cError = "Error occured while reftable conversion.".
     CREATE ttResults.
     ASSIGN
         ttResults.cReftable    = "mach.obsolete"
-        ttResults.iRecordCount = iCount
+        ttResults.iTotalCount  = iCount
+        ttResults.iChangeCount = iProcessCount
         ttResults.cConvError   = cError
         ttResults.timetaken    = (MTIME - startTime) / 1000
         .
-    MESSAGE "mach.obsolete reftable data migration complete. Record Count:" + STRING(iCount)
-            + " Time Taken: " STRING(ttResults.timetaken).
+    
 
 
 
     ASSIGN cError = ""
            startTime = MTIME
+           iCount = 0
+           iProcessCount = 0
            .
     ASSIGN
-        iCount = oRefTableMigration:ExportCustId(iProcessCount) NO-ERROR.
+        iCount = oRefTableMigration:ExportCustId(iRecordLimit)
+        iProcessCount = oRefTableMigration:iProcessCount NO-ERROR.
     IF ERROR-STATUS:ERROR THEN ASSIGN cError = "Error occured while reftable conversion.".
     CREATE ttResults.
     ASSIGN
         ttResults.cReftable    = "JDEDWARDCUST#"
-        ttResults.iRecordCount = iCount
+        ttResults.iTotalCount  = iCount
+        ttResults.iChangeCount = iProcessCount
         ttResults.cConvError   = cError
         ttResults.timetaken    = (MTIME - startTime) / 1000
         .
-    MESSAGE "JDEDWARDCUST# reftable data migration complete. Record Count:" + STRING(iCount)
-            + " Time Taken: " STRING(ttResults.timetaken).
+    
 
 
 
     ASSIGN cError = ""
            startTime = MTIME
+           iCount = 0
+           iProcessCount = 0
            .
     ASSIGN
-        iCount = oRefTableMigration:UserDocs(iProcessCount) NO-ERROR.
+        iCount = oRefTableMigration:UserDocs(iRecordLimit)
+        iProcessCount = oRefTableMigration:iProcessCount NO-ERROR.
     IF ERROR-STATUS:ERROR THEN ASSIGN cError = "Error occured while reftable conversion.".
     CREATE ttResults.
     ASSIGN
         ttResults.cReftable    = "users.user-docs"
-        ttResults.iRecordCount = iCount
+        ttResults.iTotalCount  = iCount
+        ttResults.iChangeCount = iProcessCount
         ttResults.cConvError   = cError
         ttResults.timetaken    = (MTIME - startTime) / 1000
         .
-    MESSAGE "users.user-docs reftable data migration complete. Record Count:" + STRING(iCount)
-            + " Time Taken: " STRING(ttResults.timetaken).
+    
             
             
     ASSIGN cError = ""
            startTime = MTIME
+           iCount = 0
+           iProcessCount = 0
            .
     ASSIGN
-        iCount = oRefTableMigration:UserPhoneNo(iProcessCount) NO-ERROR.
+        iCount = oRefTableMigration:UserPhoneNo(iRecordLimit)
+        iProcessCount = oRefTableMigration:iProcessCount NO-ERROR.
     IF ERROR-STATUS:ERROR THEN ASSIGN cError = "Error occured while reftable conversion.".
     CREATE ttResults.
     ASSIGN
         ttResults.cReftable    = "users.phone-no"
-        ttResults.iRecordCount = iCount
+        ttResults.iTotalCount  = iCount
+        ttResults.iChangeCount = iProcessCount
         ttResults.cConvError   = cError
         ttResults.timetaken    = (MTIME - startTime) / 1000
         .
-    MESSAGE "users.phone-no reftable data migration complete. Record Count:" + STRING(iCount)
-            + " Time Taken: " STRING(ttResults.timetaken).
+    
             
     
     ASSIGN cError = ""
            startTime = MTIME
+           iCount = 0
+           iProcessCount = 0
            .
     ASSIGN
-        iCount = oRefTableMigration:UserFaxNo(iProcessCount) NO-ERROR.
+        iCount = oRefTableMigration:UserFaxNo(iRecordLimit)
+        iProcessCount = oRefTableMigration:iProcessCount NO-ERROR.
     IF ERROR-STATUS:ERROR THEN ASSIGN cError = "Error occured while reftable conversion.".
     CREATE ttResults.
     ASSIGN
         ttResults.cReftable    = "users.fax-no"
-        ttResults.iRecordCount = iCount
+        ttResults.iTotalCount  = iCount
+        ttResults.iChangeCount = iProcessCount
         ttResults.cConvError   = cError
         ttResults.timetaken    = (MTIME - startTime) / 1000
         .
-    MESSAGE "users.fax-no reftable data migration complete. Record Count:" + STRING(iCount)
-            + " Time Taken: " STRING(ttResults.timetaken).
+    
     
     
     ASSIGN cError = ""
            startTime = MTIME
+           iCount = 0
+           iProcessCount = 0
            .
     ASSIGN
-        iCount = oRefTableMigration:UsersPhoneCnty(iProcessCount) NO-ERROR.
+        iCount = oRefTableMigration:UsersPhoneCnty(iRecordLimit)
+        iProcessCount = oRefTableMigration:iProcessCount NO-ERROR.
     IF ERROR-STATUS:ERROR THEN ASSIGN cError = "Error occured while reftable conversion.".
     CREATE ttResults.
     ASSIGN
         ttResults.cReftable    = "users.phone-cnty"
-        ttResults.iRecordCount = iCount
+        ttResults.iTotalCount  = iCount
+        ttResults.iChangeCount = iProcessCount
         ttResults.cConvError   = cError
         ttResults.timetaken    = (MTIME - startTime) / 1000
         .
-    MESSAGE "users.phone-cnty reftable data migration complete. Record Count:" + STRING(iCount)
-            + " Time Taken: " STRING(ttResults.timetaken).
+    
     
     
     ASSIGN cError = ""
            startTime = MTIME
+           iCount = 0
+           iProcessCount = 0
            .
     ASSIGN
-        iCount = oRefTableMigration:UserFaxCnty(iProcessCount) NO-ERROR.
+        iCount = oRefTableMigration:UserFaxCnty(iRecordLimit)
+        iProcessCount = oRefTableMigration:iProcessCount NO-ERROR.
     IF ERROR-STATUS:ERROR THEN ASSIGN cError = "Error occured while reftable conversion.".
     CREATE ttResults.
     ASSIGN
         ttResults.cReftable    = "users.fax-cnty"
-        ttResults.iRecordCount = iCount
+        ttResults.iTotalCount  = iCount
+        ttResults.iChangeCount = iProcessCount
         ttResults.cConvError   = cError
         ttResults.timetaken    = (MTIME - startTime) / 1000
-        .
-    MESSAGE "users.fax-cnty reftable data migration complete. Record Count:" + STRING(iCount)
-            + " Time Taken: " STRING(ttResults.timetaken).
+        .   
+
+
+
+    ASSIGN cError = ""
+           startTime = MTIME
+           iCount = 0
+           iProcessCount = 0
+           .
+    ASSIGN
+        iCount = oRefTableMigration:InvLineLotNo(iRecordLimit)
+        iProcessCount = oRefTableMigration:iProcessCount NO-ERROR.
+    IF ERROR-STATUS:ERROR THEN ASSIGN cError = "Error occured while reftable conversion.".
+    CREATE ttResults.
+    ASSIGN
+        ttResults.cReftable    = "inv-line.lot-no"
+        ttResults.iTotalCount  = iCount
+        ttResults.iChangeCount = iProcessCount
+        ttResults.cConvError   = cError
+        ttResults.timetaken    = (MTIME - startTime) / 1000
+        .   
+
+
+
+    ASSIGN cError = ""
+           startTime = MTIME
+           iCount = 0
+           iProcessCount = 0
+           .
+    ASSIGN
+        iCount = oRefTableMigration:OeRelhCanPrint(iRecordLimit)
+        iProcessCount = oRefTableMigration:iProcessCount NO-ERROR.
+    IF ERROR-STATUS:ERROR THEN ASSIGN cError = "Error occured while reftable conversion.".
+    CREATE ttResults.
+    ASSIGN
+        ttResults.cReftable    = "oe-relh.can-print"
+        ttResults.iTotalCount  = iCount
+        ttResults.iChangeCount = iProcessCount
+        ttResults.cConvError   = cError
+        ttResults.timetaken    = (MTIME - startTime) / 1000
+        .   
+
+
+
+    ASSIGN cError = ""
+           startTime = MTIME
+           iCount = 0
+           iProcessCount = 0
+           .
+    ASSIGN
+        iCount = oRefTableMigration:Dropslit(iRecordLimit)
+        iProcessCount = oRefTableMigration:iProcessCount NO-ERROR.
+    IF ERROR-STATUS:ERROR THEN ASSIGN cError = "Error occured while reftable conversion.".
+    CREATE ttResults.
+    ASSIGN
+        ttResults.cReftable    = "dropslit"
+        ttResults.iTotalCount  = iCount
+        ttResults.iChangeCount = iProcessCount
+        ttResults.cConvError   = cError
+        ttResults.timetaken    = (MTIME - startTime) / 1000
+        .   
+
+
+
+    ASSIGN cError = ""
+           startTime = MTIME
+           iCount = 0
+           iProcessCount = 0
+           .
+    ASSIGN
+        iCount = oRefTableMigration:NextRelh(iRecordLimit)
+        iProcessCount = oRefTableMigration:iProcessCount NO-ERROR.
+    IF ERROR-STATUS:ERROR THEN ASSIGN cError = "Error occured while reftable conversion.".
+    CREATE ttResults.
+    ASSIGN
+        ttResults.cReftable    = "NextRelh"
+        ttResults.iTotalCount  = iCount
+        ttResults.iChangeCount = iProcessCount
+        ttResults.cConvError   = cError
+        ttResults.timetaken    = (MTIME - startTime) / 1000
+        .   
+
+
+
+    ASSIGN cError = ""
+           startTime = MTIME
+           iCount = 0
+           iProcessCount = 0
+           .
+    ASSIGN
+        iCount = oRefTableMigration:PoUserId(iRecordLimit)
+        iProcessCount = oRefTableMigration:iProcessCount NO-ERROR.
+    IF ERROR-STATUS:ERROR THEN ASSIGN cError = "Error occured while reftable conversion.".
+    CREATE ttResults.
+    ASSIGN
+        ttResults.cReftable    = "POUserid"
+        ttResults.iTotalCount  = iCount
+        ttResults.iChangeCount = iProcessCount
+        ttResults.cConvError   = cError
+        ttResults.timetaken    = (MTIME - startTime) / 1000
+        .   
+
+
+
+    ASSIGN cError = ""
+           startTime = MTIME
+           iCount = 0
+           iProcessCount = 0
+           .
+    ASSIGN
+        iCount = oRefTableMigration:OeOrdCloseChecked(iRecordLimit)
+        iProcessCount = oRefTableMigration:iProcessCount NO-ERROR.
+    IF ERROR-STATUS:ERROR THEN ASSIGN cError = "Error occured while reftable conversion.".
+    CREATE ttResults.
+    ASSIGN
+        ttResults.cReftable    = "oe-ord.close-checked"
+        ttResults.iTotalCount  = iCount
+        ttResults.iChangeCount = iProcessCount
+        ttResults.cConvError   = cError
+        ttResults.timetaken    = (MTIME - startTime) / 1000
+        .   
+
+
+
+    ASSIGN cError = ""
+           startTime = MTIME
+           iCount = 0
+           iProcessCount = 0
+           .
+    ASSIGN
+        iCount = oRefTableMigration:RmRctdUserId(iRecordLimit)
+        iProcessCount = oRefTableMigration:iProcessCount NO-ERROR.
+    IF ERROR-STATUS:ERROR THEN ASSIGN cError = "Error occured while reftable conversion.".
+    CREATE ttResults.
+    ASSIGN
+        ttResults.cReftable    = "rm-rctd.user-id"
+        ttResults.iTotalCount  = iCount
+        ttResults.iChangeCount = iProcessCount
+        ttResults.cConvError   = cError
+        ttResults.timetaken    = (MTIME - startTime) / 1000
+        .   
+
+
+
+    ASSIGN cError = ""
+           startTime = MTIME
+           iCount = 0
+           iProcessCount = 0
+           .
+    ASSIGN
+        iCount = oRefTableMigration:ItemfgExemptDisc(iRecordLimit)
+        iProcessCount = oRefTableMigration:iProcessCount NO-ERROR.
+    IF ERROR-STATUS:ERROR THEN ASSIGN cError = "Error occured while reftable conversion.".
+    CREATE ttResults.
+    ASSIGN
+        ttResults.cReftable    = "itemfg.exempt-disc"
+        ttResults.iTotalCount  = iCount
+        ttResults.iChangeCount = iProcessCount
+        ttResults.cConvError   = cError
+        ttResults.timetaken    = (MTIME - startTime) / 1000
+        .   
+
+
+
+    ASSIGN cError = ""
+           startTime = MTIME
+           iCount = 0
+           iProcessCount = 0
+           .
+    ASSIGN
+        iCount = oRefTableMigration:FGStatus(iRecordLimit)
+        iProcessCount = oRefTableMigration:iProcessCount NO-ERROR.
+    IF ERROR-STATUS:ERROR THEN ASSIGN cError = "Error occured while reftable conversion.".
+    CREATE ttResults.
+    ASSIGN
+        ttResults.cReftable    = "FGSTATUS"
+        ttResults.iTotalCount  = iCount
+        ttResults.iChangeCount = iProcessCount
+        ttResults.cConvError   = cError
+        ttResults.timetaken    = (MTIME - startTime) / 1000
+        .   
+
+
+
+    ASSIGN cError = ""
+           startTime = MTIME
+           iCount = 0
+           iProcessCount = 0
+           .
+    ASSIGN
+        iCount = oRefTableMigration:JobCloseChecked(iRecordLimit)
+        iProcessCount = oRefTableMigration:iProcessCount NO-ERROR.
+    IF ERROR-STATUS:ERROR THEN ASSIGN cError = "Error occured while reftable conversion.".
+    CREATE ttResults.
+    ASSIGN
+        ttResults.cReftable    = "job.close-checked"
+        ttResults.iTotalCount  = iCount
+        ttResults.iChangeCount = iProcessCount
+        ttResults.cConvError   = cError
+        ttResults.timetaken    = (MTIME - startTime) / 1000
+        .   
+
+
+
+
+    ASSIGN cError = ""
+           startTime = MTIME
+           iCount = 0
+           iProcessCount = 0
+           .
+    ASSIGN
+        iCount = oRefTableMigration:NextRelease(iRecordLimit)
+        iProcessCount = oRefTableMigration:iProcessCount NO-ERROR.
+    IF ERROR-STATUS:ERROR THEN ASSIGN cError = "Error occured while reftable conversion.".
+    CREATE ttResults.
+    ASSIGN
+        ttResults.cReftable    = "NextRelease#"
+        ttResults.iTotalCount  = iCount
+        ttResults.iChangeCount = iProcessCount
+        ttResults.cConvError   = cError
+        ttResults.timetaken    = (MTIME - startTime) / 1000
+        .   
+
+
+
+
+    ASSIGN cError = ""
+           startTime = MTIME
+           iCount = 0
+           iProcessCount = 0
+           .
+    ASSIGN
+        iCount = oRefTableMigration:Rmglobpr(iRecordLimit)
+        iProcessCount = oRefTableMigration:iProcessCount NO-ERROR.
+    IF ERROR-STATUS:ERROR THEN ASSIGN cError = "Error occured while reftable conversion.".
+    CREATE ttResults.
+    ASSIGN
+        ttResults.cReftable    = "rm/rmglobpr.w"
+        ttResults.iTotalCount  = iCount
+        ttResults.iChangeCount = iProcessCount
+        ttResults.cConvError   = cError
+        ttResults.timetaken    = (MTIME - startTime) / 1000
+        .   
+
+
+
+
+    ASSIGN cError = ""
+           startTime = MTIME
+           iCount = 0
+           iProcessCount = 0
+           .
+    ASSIGN
+        iCount = oRefTableMigration:OeRellSelected(iRecordLimit)
+        iProcessCount = oRefTableMigration:iProcessCount NO-ERROR.
+    IF ERROR-STATUS:ERROR THEN ASSIGN cError = "Error occured while reftable conversion.".
+    CREATE ttResults.
+    ASSIGN
+        ttResults.cReftable    = "oe-rell.selected"
+        ttResults.iTotalCount  = iCount
+        ttResults.iChangeCount = iProcessCount
+        ttResults.cConvError   = cError
+        ttResults.timetaken    = (MTIME - startTime) / 1000
+        . 
+
+
+
+    ASSIGN cError = ""
+           startTime = MTIME
+           iCount = 0
+           iProcessCount = 0
+           .
+    ASSIGN
+        iCount = oRefTableMigration:Fgtaxable(iRecordLimit)
+        iProcessCount = oRefTableMigration:iProcessCount NO-ERROR.
+    IF ERROR-STATUS:ERROR THEN ASSIGN cError = "Error occured while reftable conversion.".
+    CREATE ttResults.
+    ASSIGN
+        ttResults.cReftable    = "FGTAXABLE"
+        ttResults.iTotalCount  = iCount
+        ttResults.iChangeCount = iProcessCount
+        ttResults.cConvError   = cError
+        ttResults.timetaken    = (MTIME - startTime) / 1000
+        . 
+         
+
+
+
+     ASSIGN cError = ""
+           startTime = MTIME
+           iCount = 0
+           iProcessCount = 0
+           .
+    ASSIGN
+        iCount = oRefTableMigration:ScoreType(iRecordLimit)
+        iProcessCount = oRefTableMigration:iProcessCount NO-ERROR.
+    IF ERROR-STATUS:ERROR THEN ASSIGN cError = "Error occured while reftable conversion.".
+    CREATE ttResults.
+    ASSIGN
+        ttResults.cReftable    = "score-type"
+        ttResults.iTotalCount  = iCount
+        ttResults.iChangeCount = iProcessCount
+        ttResults.cConvError   = cError
+        ttResults.timetaken    = (MTIME - startTime) / 1000
+        . 
+
+
+
+
+
+
+
+    
+    
+    MESSAGE "Reftable data migration complete". 
                                  
 
 
@@ -890,7 +1476,7 @@ ASSIGN
                    + STRING(TIME)
                    + ".csv".
 OUTPUT TO VALUE(cOutputFile).
-PUT "RefTable,Records Converted,Error,Time Taken (Secs)" SKIP.
+PUT "RefTable,Total Records,Records Converted,Error,Time Taken (Secs)" SKIP.
 FOR EACH ttResults: 
     EXPORT DELIMITER "," ttResults.
 END.
