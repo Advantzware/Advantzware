@@ -131,7 +131,7 @@ IF {&TABLENAME}.company NE "" AND {&TABLENAME}.r-no NE 0 THEN DO:
     END. /* each fg-rcpts */
     FOR EACH b-{&TABLENAME} EXCLUSIVE-LOCK
       WHERE b-{&TABLENAME}.SetHeaderRno EQ lv-r-no:
-      b-{&TABLENAME}.SetHeaderRno = TABLENAME}.r-no.
+      b-{&TABLENAME}.SetHeaderRno = {&TABLENAME}.r-no.
     END.
   END.
 
