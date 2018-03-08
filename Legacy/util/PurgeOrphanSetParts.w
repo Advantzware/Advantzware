@@ -203,20 +203,17 @@ ASSIGN FRAME FRAME-B:FRAME = FRAME FRAME-A:HANDLE.
 
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME                                                           */
-ASSIGN
+ASSIGN 
        btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "ribbon-button".
 
-
-ASSIGN
+ASSIGN 
        btn-process:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "ribbon-button".
 
-
-ASSIGN
+ASSIGN 
        btn-process-report:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "ribbon-button".
-
 
 /* SETTINGS FOR FRAME FRAME-B
                                                                         */
@@ -226,7 +223,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -452,7 +449,7 @@ FOR EACH bf-fg-rctd
           FIND FIRST bf-fg-rctd-SH
                   WHERE bf-fg-rctd-SH.company EQ bf-fg-rctd.company
                     AND bf-fg-rctd-SH.rita-code EQ "R"
-                    AND bf-fg-rctd-SH.r-no EQ bf-fg-rctd.r-no
+                    AND bf-fg-rctd-SH.r-no EQ bf-fg-rctd.SetHeaderRno
                   USE-INDEX fg-rctd
                   NO-LOCK NO-ERROR.
           IF NOT AVAIL bf-fg-rctd-sh OR bf-fg-rctd-sh.rita-code EQ "P" THEN DO:

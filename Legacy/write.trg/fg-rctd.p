@@ -127,8 +127,12 @@ IF {&TABLENAME}.company NE "" AND {&TABLENAME}.r-no NE 0 THEN DO:
        EXCLUSIVE-LOCK:
   
       fg-rcpts.linker = "fg-rctd: " + STRING({&TABLENAME}.r-no,"9999999999").
-
+      
     END. /* each fg-rcpts */
+    FOR EACH b-{&TABLENAME} EXCLUSIVE-LOCK
+      WHERE b-{&TABLENAME}.SetHeaderRno EQ lv-r-no:
+      b-{&TABLENAME}.SetHeaderRno = TABLENAME}.r-no.
+    END.
   END.
 
 

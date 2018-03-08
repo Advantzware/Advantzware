@@ -574,9 +574,10 @@ RUN disable_UI.
 
 
 /* **********************  Internal Procedures  *********************** */
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE change-to-bol-label Dialog-Frame 
-PROCEDURE change-to-bol-label:
-  DEF VAR hColumn AS HANDLE NO-UNDO.
+PROCEDURE change-to-bol-label :
+DEF VAR hColumn AS HANDLE NO-UNDO.
   DEF VAR iNumCols AS INT NO-UNDO.
   DEF VAR i AS INT NO-UNDO.
   iNumCols = {&BROWSE-NAME}:NUM-COLUMNS IN FRAME {&FRAME-NAME}.
@@ -668,6 +669,7 @@ DEF VAR dTo-Bol AS DEC NO-UNDO.
          AND fg-rctd.loc-bin EQ fg-bin.loc-bin
          AND fg-rctd.rita-code EQ "R"
          AND fg-rctd.t-qty LT 0
+         AND fg-rctd.SetHeaderRno GT 0
        NO-LOCK.
 
       dTo-bol = dTo-bol - fg-rctd.t-qty.    
@@ -1135,5 +1137,4 @@ END FUNCTION.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 

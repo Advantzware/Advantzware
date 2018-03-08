@@ -192,12 +192,14 @@ fg-rctd.frt-cost fg-rctd.stack-code
       AND fg-rctd.company eq cocode and ~
 fg-rctd.r-no ge lv-frst-rno and ~
 (fg-rctd.rita-code eq "R" or fg-rctd.rita-code eq "E") ~
+AND (fg-rctd.SetHeaderRno EQ INTEGER(SUBSTRING(lv-linker, 10, 10)) OR (NOT ll-set-parts AND fg-rctd.SetHeaderRno EQ 0)) ~
 use-index fg-rctd NO-LOCK ~
     ~{&SORTBY-PHRASE}
 &Scoped-define OPEN-QUERY-Browser-Table OPEN QUERY Browser-Table FOR EACH fg-rctd WHERE ~{&KEY-PHRASE} ~
       AND fg-rctd.company eq cocode and ~
 fg-rctd.r-no ge lv-frst-rno and ~
 (fg-rctd.rita-code eq "R" or fg-rctd.rita-code eq "E") ~
+AND (fg-rctd.SetHeaderRno EQ INTEGER(SUBSTRING(lv-linker, 10, 10)) OR (NOT ll-set-parts AND fg-rctd.SetHeaderRno EQ 0)) ~
 use-index fg-rctd NO-LOCK ~
     ~{&SORTBY-PHRASE}.
 &Scoped-define TABLES-IN-QUERY-Browser-Table fg-rctd
@@ -407,7 +409,7 @@ END.
   NOT-VISIBLE,,RUN-PERSISTENT                                           */
 /* SETTINGS FOR FRAME F-Main
    NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
-/* BROWSE-TAB Browser-Table TEXT-1 F-Main */
+/* BROWSE-TAB Browser-Table 1 F-Main */
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
@@ -434,6 +436,7 @@ ASSIGN
      _Where[1]         = "fg-rctd.company eq cocode and
 fg-rctd.r-no ge lv-frst-rno and
 (fg-rctd.rita-code eq ""R"" or fg-rctd.rita-code eq ""E"")
+AND (fg-rctd.SetHeaderRno EQ INTEGER(SUBSTRING(lv-linker, 10, 10)) OR (NOT ll-set-parts AND fg-rctd.SetHeaderRno EQ 0))
 use-index fg-rctd"
      _FldNameList[1]   > ASI.fg-rctd.r-no
 "fg-rctd.r-no" "Seq#" ">>>>>>>>" "integer" ? ? ? 14 ? ? no ? no no "12" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
@@ -2822,6 +2825,7 @@ FOR EACH b-fg-rctd WHERE b-fg-rctd.company EQ g_company
     AND b-fg-rctd.i-no = fg-rctd.i-no
     AND (RECID(b-fg-rctd) <> RECID(fg-rctd)
          OR (adm-new-record AND NOT adm-adding-record))
+    AND b-fg-rctd.SetHeaderRno EQ INTEGER(SUBSTRING(lv-linker, 10, 10))
   NO-LOCK:
 
 
@@ -3433,6 +3437,21 @@ PROCEDURE local-create-record :
     was identified as causing slowness at Hughes, however we found a bunch of "orphaned" set parts receipts 
     that should be handled separately (04181326)*/
 
+    /*BV - This code sets the new receipt date to the latest existing receipt date. This code
+    was identified as causing slowness at Hughes, however we found a bunch of "orphaned" set parts receipts 
+    that should be handled separately (04181326)*/
+    FOR EACH b-fg-rctd NO-LOCK
+        WHERE b-fg-rctd.company   EQ g_company
+          AND b-fg-rctd.rita-code EQ "R"
+          AND ROWID(b-fg-rctd)    NE ROWID(fg-rctd)
+          AND b-fg-rctd.SetHeaderRno EQ 0
+        BY b-fg-rctd.r-no DESC:  /*Last one added, not necessarily the last date*/
+        
+      fg-rctd.rct-date = b-fg-rctd.rct-date.
+      
+      LEAVE.
+    END.
+  
   END.  
 
   ASSIGN
@@ -4169,6 +4188,15 @@ gvcCurrentItem = fg-rctd.i-no.
      was identified as causing slowness at Hughes, however we found a bunch of "orphaned" set parts receipts 
      that should be handled separately (04181326)*/
 
+     FOR EACH b-fg-rctd NO-LOCK
+         WHERE b-fg-rctd.company   EQ g_company
+           AND b-fg-rctd.rita-code EQ "R"
+           AND ROWID(b-fg-rctd)    NE ROWID(bfFgRctd)         
+           AND b-fg-rctd.setHeaderRno EQ 0 /*not a set part receipt*/           
+         BY b-fg-rctd.r-no DESC:  /*Last one added, not necessarily the last date*/
+       bfFgRctd.rct-date = b-fg-rctd.rct-date.
+       LEAVE.
+     END.
    
 
      ASSIGN

@@ -180,6 +180,7 @@ fg-rctd.r-no ge lv-frst-rno and ~
 LOOKUP(fg-rctd.rita-code,"R,E") > 0 ~
 and ((lv-do-what = "delete" and fg-rctd.t-qty < 0) or  ~
      (lv-do-what <> "delete" and fg-rctd.t-qty >= 0)) ~
+AND fg-rctd.SetHeaderRno EQ 0 ~
 use-index fg-rctd NO-LOCK ~
     ~{&SORTBY-PHRASE}
 &Scoped-define OPEN-QUERY-Browser-Table OPEN QUERY Browser-Table FOR EACH fg-rctd WHERE ~{&KEY-PHRASE} ~
@@ -188,6 +189,7 @@ fg-rctd.r-no ge lv-frst-rno and ~
 LOOKUP(fg-rctd.rita-code,"R,E") > 0 ~
 and ((lv-do-what = "delete" and fg-rctd.t-qty < 0) or  ~
      (lv-do-what <> "delete" and fg-rctd.t-qty >= 0)) ~
+AND fg-rctd.SetHeaderRno EQ 0 ~
 use-index fg-rctd NO-LOCK ~
     ~{&SORTBY-PHRASE}.
 &Scoped-define TABLES-IN-QUERY-Browser-Table fg-rctd
@@ -356,7 +358,7 @@ END.
   NOT-VISIBLE,,RUN-PERSISTENT                                           */
 /* SETTINGS FOR FRAME F-Main
    NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
-/* BROWSE-TAB Browser-Table TEXT-1 F-Main */
+/* BROWSE-TAB Browser-Table 1 F-Main */
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
@@ -377,6 +379,7 @@ fg-rctd.r-no ge lv-frst-rno and
 LOOKUP(fg-rctd.rita-code,""R,E"") > 0
 and ((lv-do-what = ""delete"" and fg-rctd.t-qty < 0) or 
      (lv-do-what <> ""delete"" and fg-rctd.t-qty >= 0))
+AND fg-rctd.SetHeaderRno EQ 0
 use-index fg-rctd"
      _FldNameList[1]   > ASI.fg-rctd.tag
 "fg-rctd.tag" "Tag#" "x(20)" "character" ? ? ? ? ? ? yes ? no no "29" yes no no "U" "" "" "" "" "" "" 0 no 0 no no

@@ -600,19 +600,13 @@ PROCEDURE fg-post:
     /* #pn# task 08211305                                                    */   
     /* b-w-fg-rctd are components with negative qty, w-fg-rctd are sets */
     FOR EACH b-w-fg-rctd WHERE b-w-fg-rctd.qty LT 0,
-        EACH reftable NO-LOCK WHERE reftable.reftable EQ "fg-rctd.user-id" 
-        AND reftable.company  EQ b-w-fg-rctd.company 
-        AND reftable.loc      EQ STRING(b-w-fg-rctd.r-no,"9999999999")        
-        /* AND (reftable.dscr EQ "fg-rctd: " + STRING(w-fg-rctd.r-no, "9999999999") AND reftable.dscr BEGINS "fg-rctd: ") */  
-        USE-INDEX loc    .
+        FIRST fg-rctd EXCLUSIVE-LOCK WHERE ROWID(fg-rctd) = b-w-fg-rctd.row-id  
+          AND fg-rctd.SetHeaderRno GT 0:
       
-        iRNo = INTEGER(SUBSTRING(reftable.dscr, 9, 11)) NO-ERROR.
-        IF ERROR-STATUS:ERROR = NO THEN 
-            FIND FIRST w-fg-rctd NO-LOCK WHERE w-fg-rctd.r-no EQ iRNo NO-ERROR. 
+        FIND FIRST w-fg-rctd NO-LOCK WHERE w-fg-rctd.r-no EQ fg-rctd.SetHeaderRno NO-ERROR. 
         IF NOT AVAILABLE w-fg-rctd THEN 
             NEXT. 
       
-        FIND fg-rctd EXCLUSIVE-LOCK WHERE ROWID(fg-rctd) = b-w-fg-rctd.row-id  NO-ERROR.
         FIND FIRST itemfg NO-LOCK WHERE itemfg.company EQ cocode 
             AND itemfg.i-no    EQ w-fg-rctd.i-no
             NO-ERROR.

@@ -642,6 +642,7 @@ DEF VAR lItemType AS LOG NO-UNDO.
        AND fg-rctd.loc-bin EQ fg-bin.loc-bin
        AND fg-rctd.rita-code EQ "R"
        AND fg-rctd.t-qty LT 0
+       AND fg-rctd.SetHeaderRno GT 0 /* Set Parts */
      NO-LOCK:
 
     dTo-Rel = dTo-Rel - fg-rctd.t-qty.

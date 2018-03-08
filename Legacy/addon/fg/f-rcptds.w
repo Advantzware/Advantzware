@@ -2357,7 +2357,16 @@ PROCEDURE local-create-record :
      fg-rctd.cases-unit   = 1
      fg-rctd.ext-cost     = 0.
 
-    
+    FOR EACH b-fg-rctd NO-LOCK
+        WHERE b-fg-rctd.company   EQ g_company
+          AND b-fg-rctd.rita-code EQ "R"
+          AND ROWID(b-fg-rctd)    NE ROWID(fg-rctd)
+          AND (b-fg-rctd.SetHeaderRno EQ INTEGER(SUBSTRING(lv-linker, 10, 10))  OR
+               (NOT ll-set-parts AND b-fg-rctd.SetHeaderRno EQ 0))
+        BY b-fg-rctd.rct-date:
+      fg-rctd.rct-date = b-fg-rctd.rct-date.
+      LEAVE.
+    END.
   END.  
 
   ASSIGN
