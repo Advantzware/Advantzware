@@ -90,6 +90,7 @@ DEF VAR lv-save-spec AS CHAR NO-UNDO.
 DEF VAR v-freezenotes-log AS LOG NO-UNDO.
 DEF VAR v-freezenote-log AS LOG NO-UNDO.
 DEF VAR v-freezenotes-pass AS CHAR NO-UNDO.
+DEF VAR lFreezeNoteVal AS LOG NO-UNDO.
 DEF VAR v-oe-ctrl AS LOG INIT  YES.
 
 {cerep/jc-keyst.i "NEW"}
@@ -1324,19 +1325,17 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_freeze-note C-Win
 ON VALUE-CHANGED OF tb_freeze-note IN FRAME FRAME-A /* Freeze Job Notes? */
 DO:
-  DEF VAR v-password AS CHAR.
-  IF v-freezenote-log AND tb_freeze-note:SCREEN-VALUE = "YES" THEN DO:
-    IF v-freezenotes-pass > "" THEN DO:
-        /*
-        MESSAGE "Please enter the password to check 'Freeze Job Notes':"
-          UPDATE v-password .
-          */
+    DEF VAR v-password AS CHAR.
+  
+    /* Is a password required to change, and is the screen value now different from the "stored" value? */
+    IF v-freezenote-log 
+    AND lFreezeNoteVal NE tb_freeze-note:CHECKED THEN DO:
         RUN custom/d-passwd.w (OUTPUT v-password).
-        IF v-password <> v-freezenotes-pass THEN
-            tb_freeze-note:SCREEN-VALUE = "NO".
+        /* If the password matches the value in NK1, allow the screen value to change, and set the "stored" value */
+        IF v-password EQ v-freezenotes-pass THEN ASSIGN 
+            tb_freeze-note:CHECKED = NOT lFreezeNoteVal
+            lFreezeNoteVal = tb_freeze-note:CHECKED.
     END.
-  END.
-
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1753,7 +1752,9 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
        tb_prompt-ship:SCREEN-VALUE = "no".
 
     IF v-freezenotes-log = NO THEN
-       tb_freeze-note:SCREEN-VALUE = "no".
+        tb_freeze-note:SENSITIVE = FALSE
+       tb_freeze-note:CHECKED = FALSE
+       lFreezeNoteVal = FALSE.
 
     IF lv-format-c = "pacific" OR lv-format-c = "Allwest" THEN
        ASSIGN
@@ -1857,16 +1858,23 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
            END.
            
            IF job-hdr.freezeNote EQ YES THEN
-              tb_freeze-note:SCREEN-VALUE = "YES".
+              tb_freeze-note:CHECKED = TRUE
+              lFreezeNoteVal = TRUE.
             IF job-hdr.splitShip EQ YES THEN              
-              tb_prompt-ship:SCREEN-VALUE = "YES".
+              tb_prompt-ship:CHECKED = TRUE.
 
        END.  /* avail job-hdr */
     END.
 
-    IF lv-format-f EQ "Accord" OR lv-format-f EQ "Knight***" OR lv-format-f EQ "Carded" OR lv-format-f EQ "Carded2" OR lv-format-f EQ "Coburn" THEN
-       ASSIGN tb_freeze-note:SCREEN-VALUE = "NO"
-              tb_freeze-note:SENSITIVE = NO.
+    IF lv-format-f EQ "Accord" 
+    OR lv-format-f EQ "Knight***" 
+    OR lv-format-f EQ "Carded" 
+    OR lv-format-f EQ "Carded2" 
+    OR lv-format-f EQ "Coburn" THEN ASSIGN 
+        tb_freeze-note:SCREEN-VALUE = "NO"
+        lFreezeNoteVal = FALSE
+        tb_freeze-note:SENSITIVE = NO.
+    
     IF lv-format-f EQ "Prystup" THEN
         tb_show-rel:HIDDEN IN FRAME FRAME-A = NO.
     ELSE
@@ -2762,18 +2770,21 @@ PROCEDURE new-job-no :
      tb_fold:SCREEN-VALUE = STRING(ll-fold)
      tb_corr:SCREEN-VALUE = STRING(ll-corr).
 
-    IF v-freezenotes-log EQ NO THEN
-    DO:
-       IF (lv-format-f NE "Accord" OR lv-format-f NE "Carded2" OR lv-format-f NE "Coburn" OR lv-format-f NE "Knight***") AND AVAIL job-hdr AND
+    IF v-freezenotes-log EQ NO THEN DO:
+        IF (lv-format-f NE "Accord" OR 
+            lv-format-f NE "Carded2" OR 
+            lv-format-f NE "Coburn" OR 
+            lv-format-f NE "Knight***") AND AVAIL job-hdr AND
           can-find(FIRST b-reftable-freeze WHERE
-          b-reftable-freeze.reftable EQ "FREEZENOTE" AND
-          b-reftable-freeze.company  EQ cocode AND
-          b-reftable-freeze.loc      EQ job-hdr.job-no AND
-          b-reftable-freeze.CODE     EQ STRING(job-hdr.job-no2,"99")) THEN DO:
-          tb_freeze-note:SCREEN-VALUE = "YES".
-       END.
-       ELSE 
-           tb_freeze-note:SCREEN-VALUE = "NO".
+            b-reftable-freeze.reftable EQ "FREEZENOTE" AND
+            b-reftable-freeze.company  EQ cocode AND
+            b-reftable-freeze.loc      EQ job-hdr.job-no AND
+            b-reftable-freeze.CODE     EQ STRING(job-hdr.job-no2,"99")) THEN ASSIGN
+            tb_freeze-note:CHECKED = TRUE
+            lFreezeNoteVal = TRUE.
+        ELSE ASSIGN
+            tb_freeze-note:CHECKED = FALSE
+            lFreezeNoteVal = FALSE.
     END.
   END.
 
