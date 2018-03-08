@@ -1751,8 +1751,8 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
        tb_app-unprinted:HIDDEN = TRUE
        tb_prompt-ship:SCREEN-VALUE = "no".
 
-    IF v-freezenotes-log = NO THEN
-        tb_freeze-note:SENSITIVE = FALSE
+    IF v-freezenotes-log = NO THEN ASSIGN
+       tb_freeze-note:SENSITIVE = FALSE
        tb_freeze-note:CHECKED = FALSE
        lFreezeNoteVal = FALSE.
 
@@ -1857,7 +1857,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
            END.
            
-           IF job-hdr.freezeNote EQ YES THEN
+           IF job-hdr.freezeNote EQ YES THEN ASSIGN
               tb_freeze-note:CHECKED = TRUE
               lFreezeNoteVal = TRUE.
             IF job-hdr.splitShip EQ YES THEN              
