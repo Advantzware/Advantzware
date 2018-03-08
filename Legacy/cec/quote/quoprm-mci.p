@@ -167,8 +167,13 @@ if (xquo.shipto[1] eq xquo.soldto[1] and
 
 
 RUN UTIL/CurrDir.p (output CurrDir).
+
+
+FILE-INFO:FILE-NAME = "Template\QuoteMCI.xlt".
+
 ASSIGN
-   chFile = CurrDir + "\Template\QuoteMCI.xlt" NO-ERROR.
+   /*chFile = CurrDir + "\Template\QuoteMCI.xlt" NO-ERROR.*/
+    chFile = SEARCH (FILE-INFO:FULL-PATHNAME) no-error.
 
    chExcelApplication:VISIBLE = TRUE.
 
