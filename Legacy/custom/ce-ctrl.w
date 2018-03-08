@@ -76,10 +76,6 @@ ce-ctrl.mat-pct[5] ce-ctrl.lab-cost[5] ce-ctrl.lab-pct[5] ~
 ce-ctrl.spec-add[1] ce-ctrl.spec-add[2] ce-ctrl.spec-add[3] ~
 ce-ctrl.mat-cost[6] ce-ctrl.mat-pct[6] ce-ctrl.lab-cost[6] ~
 ce-ctrl.lab-pct[6] ce-ctrl.shp-add ce-ctrl.spec-add[6] ce-ctrl.spec-add[8] 
-&Scoped-define ENABLED-FIELDS-IN-QUERY-DEFAULT-FRAME ce-ctrl.fg-rate-farm ~
-ce-ctrl.rm-rate-farm ce-ctrl.hand-pct-farm ce-ctrl.fold-pct 
-&Scoped-define ENABLED-TABLES-IN-QUERY-DEFAULT-FRAME ce-ctrl
-&Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-DEFAULT-FRAME ce-ctrl
 &Scoped-define QUERY-STRING-DEFAULT-FRAME FOR EACH ce-ctrl SHARE-LOCK
 &Scoped-define OPEN-QUERY-DEFAULT-FRAME OPEN QUERY DEFAULT-FRAME FOR EACH ce-ctrl SHARE-LOCK.
 &Scoped-define TABLES-IN-QUERY-DEFAULT-FRAME ce-ctrl
@@ -87,10 +83,6 @@ ce-ctrl.rm-rate-farm ce-ctrl.hand-pct-farm ce-ctrl.fold-pct
 
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-FIELDS ce-ctrl.fg-rate-farm ce-ctrl.rm-rate-farm ~
-ce-ctrl.hand-pct-farm ce-ctrl.fold-pct 
-&Scoped-define ENABLED-TABLES ce-ctrl
-&Scoped-define FIRST-ENABLED-TABLE ce-ctrl
 &Scoped-Define ENABLED-OBJECTS RECT-15 RECT-20 RECT-21 RECT-22 RECT-23 ~
 Btn_Update Btn_Close 
 &Scoped-Define DISPLAYED-FIELDS ce-ctrl.e-num ce-ctrl.e-range[1] ~
@@ -567,17 +559,6 @@ DEFINE FRAME DEFAULT-FRAME
      ls-title2 AT ROW 15.38 COL 15 COLON-ALIGNED NO-LABEL
      ls-title3 AT ROW 15.38 COL 34 COLON-ALIGNED NO-LABEL
      ls-title4 AT ROW 15.38 COL 44 COLON-ALIGNED NO-LABEL
-     "What If/Print Options" VIEW-AS TEXT
-          SIZE 25 BY .62 AT ROW 14.67 COL 59
-          FONT 6
-     "Estimating Defaults" VIEW-AS TEXT
-          SIZE 22 BY .62 AT ROW 3.62 COL 4
-          FONT 6
-     "Add to Fact. Costs" VIEW-AS TEXT
-          SIZE 18 BY .81 AT ROW 21.33 COL 58
-     "MFG" VIEW-AS TEXT
-          SIZE 6 BY .62 AT ROW 3.62 COL 91
-          FONT 6
      "Farm" VIEW-AS TEXT
           SIZE 6 BY .62 AT ROW 3.62 COL 103
           FONT 6
@@ -586,6 +567,17 @@ DEFINE FRAME DEFAULT-FRAME
           FONT 6
      "Press Feed Type:" VIEW-AS TEXT
           SIZE 16.6 BY 1 AT ROW 6.71 COL 7
+     "What If/Print Options" VIEW-AS TEXT
+          SIZE 25 BY .62 AT ROW 14.67 COL 59
+          FONT 6
+     "MFG" VIEW-AS TEXT
+          SIZE 6 BY .62 AT ROW 3.62 COL 91
+          FONT 6
+     "Add to Fact. Costs" VIEW-AS TEXT
+          SIZE 18 BY .81 AT ROW 21.33 COL 58
+     "Estimating Defaults" VIEW-AS TEXT
+          SIZE 22 BY .62 AT ROW 3.62 COL 4
+          FONT 6
      RECT-15 AT ROW 23.71 COL 68
      RECT-20 AT ROW 3.86 COL 2
      RECT-21 AT ROW 14.91 COL 2
@@ -681,15 +673,15 @@ ASSIGN
 /* SETTINGS FOR FILL-IN ce-ctrl.fg-rate IN FRAME DEFAULT-FRAME
    NO-ENABLE 1                                                          */
 /* SETTINGS FOR FILL-IN ce-ctrl.fg-rate-farm IN FRAME DEFAULT-FRAME
-   1                                                                    */
+   NO-ENABLE 1                                                          */
 /* SETTINGS FOR FILL-IN fi_broker-pct IN FRAME DEFAULT-FRAME
    NO-ENABLE 1                                                          */
 /* SETTINGS FOR FILL-IN ce-ctrl.fold-pct IN FRAME DEFAULT-FRAME
-   1                                                                    */
+   NO-ENABLE 1                                                          */
 /* SETTINGS FOR FILL-IN ce-ctrl.hand-pct IN FRAME DEFAULT-FRAME
    NO-ENABLE 1                                                          */
 /* SETTINGS FOR FILL-IN ce-ctrl.hand-pct-farm IN FRAME DEFAULT-FRAME
-   1                                                                    */
+   NO-ENABLE 1                                                          */
 /* SETTINGS FOR FILL-IN ce-ctrl.hd-gross IN FRAME DEFAULT-FRAME
    NO-ENABLE 1                                                          */
 /* SETTINGS FOR FILL-IN ce-ctrl.hd-net IN FRAME DEFAULT-FRAME
@@ -779,7 +771,7 @@ ASSIGN
 /* SETTINGS FOR FILL-IN ce-ctrl.rm-rate IN FRAME DEFAULT-FRAME
    NO-ENABLE 1                                                          */
 /* SETTINGS FOR FILL-IN ce-ctrl.rm-rate-farm IN FRAME DEFAULT-FRAME
-   1                                                                    */
+   NO-ENABLE 1                                                          */
 /* SETTINGS FOR FILL-IN ce-ctrl.sell-by IN FRAME DEFAULT-FRAME
    NO-ENABLE 1 EXP-LABEL                                                */
 /* SETTINGS FOR TOGGLE-BOX ce-ctrl.sho-labor IN FRAME DEFAULT-FRAME
@@ -1212,9 +1204,7 @@ PROCEDURE enable_UI :
           ce-ctrl.lab-cost[6] ce-ctrl.lab-pct[6] ce-ctrl.shp-add 
           ce-ctrl.spec-add[6] ce-ctrl.spec-add[8] 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
-  ENABLE RECT-15 RECT-20 RECT-21 RECT-22 RECT-23 ce-ctrl.fg-rate-farm 
-         ce-ctrl.rm-rate-farm ce-ctrl.hand-pct-farm ce-ctrl.fold-pct Btn_Update 
-         Btn_Close 
+  ENABLE RECT-15 RECT-20 RECT-21 RECT-22 RECT-23 Btn_Update Btn_Close 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
   VIEW C-Win.
