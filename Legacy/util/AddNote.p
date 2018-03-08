@@ -5,7 +5,7 @@
 
     Syntax      :
 
-    Description : Adds a note given rec_key and parameters
+    Description : Adds a note given rec_key and parameters and returns the rowid
 
     Author(s)   : BV
     Created     : Sun Feb 25 16:38:07 EST 2018
@@ -18,6 +18,7 @@
     DEFINE INPUT PARAMETER ipcTitle AS CHARACTER.
     DEFINE INPUT PARAMETER ipcCode AS CHARACTER.
     DEFINE INPUT PARAMETER ipcType AS CHARACTER.
+    DEFINE OUTPUT PARAMETER opriNotes AS ROWID. 
 
 
 /* ********************  Preprocessor Definitions  ******************** */
@@ -37,5 +38,7 @@
             notes.note_code  = ipcCode
             notes.user_id    = USERID("NOSWEAT")
             notes.note_type  = ipcType
-            .                    
+            .
+        opriNotes = ROWID(notes).                    
     END.      
+    

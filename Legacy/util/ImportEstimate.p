@@ -53,7 +53,7 @@ DEFINE TEMP-TABLE ttImportEstimate
     FIELD Quantity        AS INTEGER   FORMAT ">>>>>>>" COLUMN-LABEL "Quantity"/*Required*/
     FIELD DieInches       AS DECIMAL   FORMAT ">>>>>.99" COLUMN-LABEL "Die Inches" /*Optional - defaults to 0*/
     FIELD SalesManID      AS CHARACTER FORMAT "x(10)" COLUMN-LABEL "Salesman" /*Defaults to Customer SalesmanID*/
-    FIELD QuantityYield   AS INTEGER   FORMAT ">>>>>>>" COLUMN-LABEL "Yield Quantity" /*Defaults to iQuantity*/
+    FIELD QuantityYield   AS INTEGER   FORMAT ">>>>>>>" COLUMN-LABEL "Yield Quantity" /*Defaults to 1*/
     FIELD Designer        AS CHARACTER FORMAT "x(20)" COLUMN-LABEL "Designer"   /*Optional*/    
     FIELD WidthDie        AS DECIMAL   FORMAT ">>>>>.99" COLUMN-LABEL "Die W" /*Defaults to WidthBlank*/  
     FIELD LengthDie       AS DECIMAL   FORMAT ">>>>>.99" COLUMN-LABEL "Die L" /*Defaults to LengthBlank*/
@@ -123,7 +123,6 @@ DEFINE VARIABLE gcWidths      AS CHARACTER NO-UNDO INIT "60,60,40,40,60,60, 100,
 
 
 /* **********************  Internal Procedures  *********************** */
-
 PROCEDURE pAddFarm:
 /*------------------------------------------------------------------------------
  Purpose: Builds the Farm tab for a Finished Good Item and Estimate
@@ -221,25 +220,32 @@ PROCEDURE pAddNotes:
     DEFINE INPUT PARAMETER ipcRecKey AS CHARACTER NO-UNDO.
     
     DEFINE VARIABLE cNoteType AS CHARACTER NO-UNDO.
-
+    DEFINE VARIABLE riNote AS ROWID NO-UNDO.
+    
     IF ipcType EQ "Estimate" THEN 
     DO:
         cNoteType = "D".
         IF ipbf-ttImportEstimate.EstNote1Note NE "" THEN 
-            RUN util/AddNote.p (ipcRecKey, ipbf-ttImportEstimate.EstNote1Note, ipbf-ttImportEstimate.EstNote1Title, ipbf-ttImportEstimate.EstNote1Group, cNoteType).
+            RUN util/AddNote.p (ipcRecKey, ipbf-ttImportEstimate.EstNote1Note, ipbf-ttImportEstimate.EstNote1Title, ipbf-ttImportEstimate.EstNote1Group, cNoteType, OUTPUT riNote).
         IF ipbf-ttImportEstimate.EstNote2Note NE "" THEN 
-            RUN util/AddNote.p (ipcRecKey, ipbf-ttImportEstimate.EstNote2Note, ipbf-ttImportEstimate.EstNote2Title, ipbf-ttImportEstimate.EstNote2Group, cNoteType).
+            RUN util/AddNote.p (ipcRecKey, ipbf-ttImportEstimate.EstNote2Note, ipbf-ttImportEstimate.EstNote2Title, ipbf-ttImportEstimate.EstNote2Group, cNoteType, OUTPUT riNote).
         IF ipbf-ttImportEstimate.EstNote3Note NE "" THEN 
-            RUN util/AddNote.p (ipcRecKey, ipbf-ttImportEstimate.EstNote3Note, ipbf-ttImportEstimate.EstNote3Title, ipbf-ttImportEstimate.EstNote3Group, cNoteType).                               
+            RUN util/AddNote.p (ipcRecKey, ipbf-ttImportEstimate.EstNote3Note, ipbf-ttImportEstimate.EstNote3Title, ipbf-ttImportEstimate.EstNote3Group, cNoteType, OUTPUT riNote).
+        
+        FIND FIRST notes EXCLUSIVE-LOCK 
+            WHERE ROWID(notes) EQ riNote
+            NO-ERROR.
+            IF AVAILABLE notes THEN notes.note_form_no = 1.     
+                                       
     END.    
     ELSE DO:
         cNoteType = "S".
         IF ipbf-ttImportEstimate.SpecNote1Note NE "" THEN 
-            RUN util/AddNote.p (ipcRecKey, ipbf-ttImportEstimate.SpecNote1Note, ipbf-ttImportEstimate.SpecNote1Title, ipbf-ttImportEstimate.SpecNote1Group, cNoteType).
+            RUN util/AddNote.p (ipcRecKey, ipbf-ttImportEstimate.SpecNote1Note, ipbf-ttImportEstimate.SpecNote1Title, ipbf-ttImportEstimate.SpecNote1Group, cNoteType, OUTPUT riNote).
         IF ipbf-ttImportEstimate.SpecNote2Note NE "" THEN 
-            RUN util/AddNote.p (ipcRecKey, ipbf-ttImportEstimate.SpecNote2Note, ipbf-ttImportEstimate.SpecNote2Title, ipbf-ttImportEstimate.SpecNote2Group, cNoteType).
+            RUN util/AddNote.p (ipcRecKey, ipbf-ttImportEstimate.SpecNote2Note, ipbf-ttImportEstimate.SpecNote2Title, ipbf-ttImportEstimate.SpecNote2Group, cNoteType, OUTPUT riNote).
         IF ipbf-ttImportEstimate.SpecNote3Note NE "" THEN 
-            RUN util/AddNote.p (ipcRecKey, ipbf-ttImportEstimate.SpecNote3Note, ipbf-ttImportEstimate.SpecNote3Title, ipbf-ttImportEstimate.SpecNote3Group, cNoteType).
+            RUN util/AddNote.p (ipcRecKey, ipbf-ttImportEstimate.SpecNote3Note, ipbf-ttImportEstimate.SpecNote3Title, ipbf-ttImportEstimate.SpecNote3Group, cNoteType, OUTPUT riNote).
     END.
      
 
@@ -748,14 +754,9 @@ PROCEDURE pProcessImport:
         FIND eb 
             WHERE ROWID(eb) EQ riEb  
             NO-ERROR.
-        FIND FIRST ef 
-            WHERE ef.company EQ eb.company
-            AND ef.est-no EQ eb.est-no
-            AND ef.form-no EQ eb.form-no  
+        FIND FIRST ef OF eb
             NO-ERROR.
-        FIND FIRST est 
-            WHERE est.company EQ ef.company
-            AND ef.est-no EQ eb.est-no  
+        FIND FIRST est OF eb  
             NO-ERROR.
         FIND est-qty 
             WHERE est-qty.company EQ ef.company
@@ -770,7 +771,7 @@ PROCEDURE pProcessImport:
             est.est-qty[1] = eb.eqty
             ef.eqty        = eb.eqty
             .
-        
+
         ASSIGN 
             eb.part-no      = ttImportEstimate.PartID
             eb.part-dscr1   = ttImportEstimate.PartName
@@ -801,7 +802,7 @@ PROCEDURE pProcessImport:
         IF ttImportEstimate.QuantityYield GT 0 THEN 
             eb.yld-qty      = ttImportEstimate.QuantityYield.
         ELSE 
-            eb.yld-qty      = eb.eqty.
+            eb.yld-qty      = 1.
         
         FIND FIRST cust NO-LOCK 
             WHERE cust.company EQ  eb.company 
@@ -829,8 +830,11 @@ PROCEDURE pProcessImport:
                 eb.ship-id = shipto.ship-id.
             ELSE 
                 eb.ship-id = cust.cust-no.
+            eb.sman = cust.sman.
         END.
-    
+        IF ttImportEstimate.SalesManID NE '' THEN 
+            eb.sman = ttImportEstimate.SalesManID.
+            
         IF ttImportEstimate.TabInOut EQ '' THEN 
             eb.tab-in = YES.
         ELSE 
@@ -880,11 +884,10 @@ PROCEDURE pProcessImport:
             BUFFER ef,
             INPUT eb.form-no,
             INPUT 0).
-
+  
+        RUN pAddNotes(BUFFER ttImportEstimate, "Estimate", est.rec_key).
 
         RUN est/CalcPacking.p(ROWID(eb)).
-        
-        RUN pAddNotes(BUFFER ttImportEstimate, "Estimate", est.rec_key).
                
         IF ttImportEstimate.FGItemID NE "" THEN 
         DO:

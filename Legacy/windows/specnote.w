@@ -356,7 +356,7 @@ PROCEDURE adm-create-objects :
        /* Size in UIB:  ( 13.33 , 122.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
-             INPUT  'adm/objects/p-navico.r':U ,
+             INPUT  'adm/objects/p-navico.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Edge-Pixels = 2,
                      SmartPanelType = NAV-ICON,
@@ -366,7 +366,7 @@ PROCEDURE adm-create-objects :
        RUN set-size IN h_p-navico ( 2.14 , 38.00 ) NO-ERROR.
 
        RUN init-object IN THIS-PROCEDURE (
-             INPUT  'panels/p-pennote.r':U ,
+             INPUT  'panels/p-pennote.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Edge-Pixels = 2,
                      SmartPanelType = Update,
