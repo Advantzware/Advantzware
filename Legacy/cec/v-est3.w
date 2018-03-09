@@ -2735,15 +2735,13 @@ PROCEDURE stackImage :
   stackImage:HIDDEN IN FRAME {&FRAME-NAME} = YES.
   IF ipStackCode NE '' THEN
   DO:
-    FIND FIRST reftable NO-LOCK
-         WHERE reftable.reftable EQ 'stackpat'
-           AND reftable.company EQ ''
-           AND reftable.loc EQ ''
-           AND reftable.code EQ ipStackCode NO-ERROR.
-    IF AVAILABLE reftable AND SEARCH(reftable.dscr) NE ? THEN
-    ASSIGN
-      stackImage:HIDDEN = NO
-      ldummy = stackImage:LOAD-IMAGE(reftable.dscr).
+    FIND FIRST stackPattern NO-LOCK 
+        WHERE stackPattern.stackCode EQ ipStackCode
+        NO-ERROR.
+    IF AVAILABLE stackPattern AND SEARCH(stackPattern.stackImage) NE ? THEN
+        ASSIGN
+            stackImage:HIDDEN = NO
+            ldummy = stackImage:LOAD-IMAGE(stackPattern.stackImage).
   END.
 
 END PROCEDURE.
