@@ -931,7 +931,7 @@ PROCEDURE getNotesNew:
   
     DEFINE VARIABLE li AS INTEGER.
     DEFINE VARIABLE l-width AS INTEGER.
-    DEFINE VARIABLE l-rec LIKE note.rec_key.
+    DEFINE VARIABLE l-rec LIKE notes.rec_key.
 
     IF ipcNoteType = "Pen" THEN l-rec = job.rec_key.
     ELSE IF ipcNoteType = "Spec" THEN l-rec = itemfg.rec_key.
@@ -949,7 +949,7 @@ PROCEDURE getNotesNew:
     AND LOOKUP(notes.note_code,ipcTypeList) GT 0
     NO-LOCK:
     lv-text = lv-text /*+ " <B>" + TRIM(notes.note_title) + "</B>" + CHR(10)*/
-    + " " + note.note_text + CHR(10).
+    + " " + notes.note_text + CHR(10).
   END.
   
   IF lv-text NE "" THEN DO:

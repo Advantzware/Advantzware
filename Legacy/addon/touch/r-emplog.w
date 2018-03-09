@@ -50,9 +50,9 @@ ASSIGN
 
 DEFINE TEMP-TABLE tt-note NO-UNDO
   FIELD employee LIKE emplogin.employee
-  FIELD rec_key LIKE nosweat.notes.rec_key
-  FIELD note_date LIKE nosweat.notes.note_date
-  FIELD note_title LIKE nosweat.notes.note_title
+  FIELD rec_key LIKE notes.rec_key
+  FIELD note_date LIKE notes.note_date
+  FIELD note_title LIKE notes.note_title
   FIELD note_src AS CHARACTER
   INDEX noteindex employee note_date.
 
@@ -1236,18 +1236,18 @@ PROCEDURE run-report :
        for each bf-employee FIELDS(rec_key employee) where
           bf-employee.company EQ cocode AND
           bf-employee.employee = tt-emp.emp and
-          CAN-FIND(FIRST nosweat.note WHERE nosweat.note.rec_key = bf-employee.rec_key) NO-LOCK:
+          CAN-FIND(FIRST notes WHERE notes.rec_key = bf-employee.rec_key) NO-LOCK:
 
           DO v-date-2 = begin_note-date TO end_note-date:
-             FOR each nosweat.note FIELDS(rec_key note_date note_title) where
-                 nosweat.note.rec_key = bf-employee.rec_key and
-                 nosweat.note.note_date = v-date-2 NO-LOCK:
+             FOR each notes FIELDS(rec_key note_date note_title) where
+                 notes.rec_key = bf-employee.rec_key and
+                 notes.note_date = v-date-2 NO-LOCK:
 
                 create tt-note.
                 assign tt-note.employee = bf-employee.employee
-                       tt-note.rec_key = nosweat.note.rec_key
-                       tt-note.note_date = nosweat.note.note_date
-                       tt-note.note_title = nosweat.note.note_title
+                       tt-note.rec_key = notes.rec_key
+                       tt-note.note_date = notes.note_date
+                       tt-note.note_title = notes.note_title
                        tt-note.note_src = "Employee".                
              END.
           END.
@@ -1255,19 +1255,19 @@ PROCEDURE run-report :
        FOR each emplogin FIELDS(rec_key employee) where
               emplogin.company EQ cocode AND
               emplogin.employee = tt-emp.emp and
-              can-find(FIRST nosweat.note WHERE nosweat.note.rec_key = emplogin.rec_key
-                       AND nosweat.note.note_date >= begin_note-date 
-                       AND nosweat.note.note_date <= END_note-date) NO-LOCK:
+              can-find(FIRST notes WHERE notes.rec_key = emplogin.rec_key
+                       AND notes.note_date >= begin_note-date 
+                       AND notes.note_date <= END_note-date) NO-LOCK:
            DO v-date-2 = begin_note-date TO end_note-date:
-              FOR each nosweat.note FIELDS(rec_key note_date note_title) where
-                     nosweat.note.rec_key = emplogin.rec_key and 
-                     nosweat.note.note_date = v-date-2 no-lock:
+              FOR each notes FIELDS(rec_key note_date note_title) where
+                     notes.rec_key = emplogin.rec_key and 
+                     notes.note_date = v-date-2 no-lock:
 
                      create tt-note.
                      assign tt-note.employee = emplogin.employee
-                            tt-note.rec_key = nosweat.note.rec_key
-                            tt-note.note_date = nosweat.note.note_date
-                            tt-note.note_title = nosweat.note.note_title
+                            tt-note.rec_key = notes.rec_key
+                            tt-note.note_date = notes.note_date
+                            tt-note.note_title = notes.note_title
                             tt-note.note_src = "Log In/Out".
 
               END.              
@@ -1276,18 +1276,18 @@ PROCEDURE run-report :
 
        for each bf-machemp FIELDS(rec_key employee) where
               bf-machemp.employee = tt-emp.emp and
-              can-find(FIRST nosweat.note WHERE nosweat.note.rec_key = bf-machemp.rec_key
-                       AND nosweat.note.note_date >= begin_note-date
-                       AND nosweat.note.note_date <= END_note-date) NO-LOCK:
+              can-find(FIRST notes WHERE notes.rec_key = bf-machemp.rec_key
+                       AND notes.note_date >= begin_note-date
+                       AND notes.note_date <= END_note-date) NO-LOCK:
            DO v-date-2 = begin_note-date TO end_note-date:
-              FOR each nosweat.note FIELDS(rec_key note_date note_title) where
-                     nosweat.note.rec_key = bf-machemp.rec_key and
-                     nosweat.note.note_date = v-date-2 NO-LOCK:
+              FOR each notes FIELDS(rec_key note_date note_title) where
+                     notes.rec_key = bf-machemp.rec_key and
+                     notes.note_date = v-date-2 NO-LOCK:
                      create tt-note.
                      assign tt-note.employee = bf-machemp.employee
-                            tt-note.rec_key = nosweat.note.rec_key
-                            tt-note.note_date = nosweat.note.note_date
-                            tt-note.note_title = nosweat.note.note_title
+                            tt-note.rec_key = notes.rec_key
+                            tt-note.note_date = notes.note_date
+                            tt-note.note_title = notes.note_title
                             tt-note.note_src = "Emp. Transaction".
 
               END.

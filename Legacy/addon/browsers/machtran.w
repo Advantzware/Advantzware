@@ -436,7 +436,7 @@ DO:
      IF AVAIL b-job THEN
      DO:
         {methods/run_link.i "CONTAINER-SOURCE" "Notes-Message"
-          "(CAN-FIND(FIRST nosweat.note WHERE nosweat.note.rec_key = b-job.rec_key))"}
+          "(CAN-FIND(FIRST notes WHERE notes.rec_key = b-job.rec_key))"}
      END.
     
      {methods/run_link.i "CONTAINER-SOURCE" "Set-Rec-Key_Header"

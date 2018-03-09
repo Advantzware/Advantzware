@@ -58,12 +58,12 @@ CREATE WIDGET-POOL.
 &Scoped-define FRAME-NAME F-Main
 
 /* External Tables                                                      */
-&Scoped-define EXTERNAL-TABLES note
-&Scoped-define FIRST-EXTERNAL-TABLE note
+&Scoped-define EXTERNAL-TABLES notes
+&Scoped-define FIRST-EXTERNAL-TABLE notes
 
 
 /* Need to scope the external tables to this procedure                  */
-DEFINE QUERY external_tables FOR note.
+DEFINE QUERY external_tables FOR notes.
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
 
@@ -115,7 +115,7 @@ DEFINE FRAME message-frame
 &ANALYZE-SUSPEND _PROCEDURE-SETTINGS
 /* Settings for THIS-PROCEDURE
    Type: SmartWindow
-   External Tables: NOSWEAT.note
+   External Tables: notes
    Allow: Basic,Browse,DB-Fields,Query,Smart,Window
    Design Page: 1
    Other Settings: COMPILE
@@ -385,13 +385,13 @@ PROCEDURE adm-row-available :
   {src/adm/template/row-head.i}
 
   /* Create a list of all the tables that we need to get.            */
-  {src/adm/template/row-list.i "note"}
+  {src/adm/template/row-list.i "notes"}
 
   /* Get the record ROWID's from the RECORD-SOURCE.                  */
   {src/adm/template/row-get.i}
 
   /* FIND each record specified by the RECORD-SOURCE.                */
-  {src/adm/template/row-find.i "note"}
+  {src/adm/template/row-find.i "notes"}
 
   /* Process the newly available records (i.e. display fields,
      open queries, and/or pass records on to any RECORD-TARGETS).    */
@@ -472,7 +472,7 @@ PROCEDURE send-records :
   {src/adm/template/snd-head.i}
 
   /* For each requested table, put it's ROWID in the output list.      */
-  {src/adm/template/snd-list.i "note"}
+  {src/adm/template/snd-list.i "notes"}
 
   /* Deal with any unexpected table requests before closing.           */
   {src/adm/template/snd-end.i}

@@ -19,10 +19,10 @@ DEFINE SHARED TEMP-TABLE tt-tsrep
 
 DEFINE SHARED TEMP-TABLE tt-note NO-UNDO
   FIELD employee LIKE emplogin.employee
-  FIELD rec_key LIKE nosweat.notes.rec_key
-  FIELD note_date LIKE nosweat.notes.note_date
-  FIELD note_title LIKE nosweat.notes.note_title
-  FIELD note_text LIKE nosweat.notes.note_text
+  FIELD rec_key LIKE notes.rec_key
+  FIELD note_date LIKE notes.note_date
+  FIELD note_title LIKE notes.note_title
+  FIELD note_text LIKE notes.note_text
   FIELD note_src AS CHARACTER.
 
   DEFINE VARIABLE li-overtime AS INTEGER LABEL "OT @x1.5" NO-UNDO.
@@ -63,18 +63,18 @@ DEFINE SHARED TEMP-TABLE tt-note NO-UNDO
   for each emplogin FIELDS(rec_key employee) no-lock where
       emplogin.company = gcompany AND
       emplogin.employee = LvEmpNum ,
-      each nosweat.note where
-           nosweat.note.rec_key = emplogin.rec_key and 
-           nosweat.note.note_date >= ( LvWeekEnding - 6 ) and
-           nosweat.note.note_date <= LvWeekEnding
+      each notes where
+           notes.rec_key = emplogin.rec_key and 
+           notes.note_date >= ( LvWeekEnding - 6 ) and
+           notes.note_date <= LvWeekEnding
            no-lock:     
 
        create tt-note.
        assign tt-note.employee = emplogin.employee
-              tt-note.rec_key = nosweat.note.rec_key
-              tt-note.note_date = nosweat.note.note_date
-              tt-note.note_title = nosweat.note.note_title
-              tt-note.note_text = nosweat.note.note_text 
+              tt-note.rec_key = notes.rec_key
+              tt-note.note_date = notes.note_date
+              tt-note.note_title = notes.note_title
+              tt-note.note_text = notes.note_text 
               tt-note.note_src = "Log In/Out".
        RELEASE tt-note.
    end.
@@ -83,36 +83,36 @@ DEFINE SHARED TEMP-TABLE tt-note NO-UNDO
        bf-employee.company EQ gcompany AND
        bf-employee.employee = LvEmpNum
        no-lock,
-       each nosweat.note where
-            nosweat.note.rec_key = bf-employee.rec_key and
-            nosweat.note.note_date >= ( LvWeekEnding - 6 ) and
-            nosweat.note.note_date <= LvWeekEnding
+       each notes where
+            notes.rec_key = bf-employee.rec_key and
+            notes.note_date >= ( LvWeekEnding - 6 ) and
+            notes.note_date <= LvWeekEnding
             NO-LOCK:
 
          CREATE tt-note.
          assign tt-note.employee = bf-employee.employee
-              tt-note.rec_key = nosweat.note.rec_key
-              tt-note.note_date = nosweat.note.note_date
-              tt-note.note_title = nosweat.note.note_title
-              tt-note.note_text = nosweat.note.note_text
+              tt-note.rec_key = notes.rec_key
+              tt-note.note_date = notes.note_date
+              tt-note.note_title = notes.note_title
+              tt-note.note_text = notes.note_text
               tt-note.note_src = "Employee".
          RELEASE tt-note.
    end.    
    for each bf-machemp FIELDS(rec_key employee) where
        bf-machemp.employee = LvEmpNum
        no-lock,
-       each nosweat.note where
-            nosweat.note.rec_key = bf-machemp.rec_key and
-            nosweat.note.note_date >= ( LvWeekEnding - 6 ) and
-            nosweat.note.note_date <= LvWeekEnding
+       each notes where
+            notes.rec_key = bf-machemp.rec_key and
+            notes.note_date >= ( LvWeekEnding - 6 ) and
+            notes.note_date <= LvWeekEnding
             NO-LOCK:
 
             create tt-note.
             assign tt-note.employee = bf-machemp.employee
-                   tt-note.rec_key = nosweat.note.rec_key
-                   tt-note.note_date = nosweat.note.note_date
-                   tt-note.note_title = nosweat.note.note_title
-                   tt-note.note_text = nosweat.note.note_text
+                   tt-note.rec_key = notes.rec_key
+                   tt-note.note_date = notes.note_date
+                   tt-note.note_title = notes.note_title
+                   tt-note.note_text = notes.note_text
                    tt-note.note_src = "Emp. Transaction".
             RELEASE tt-note.
    end.    

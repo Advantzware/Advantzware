@@ -34,7 +34,7 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
-def new shared temp-table tt-note like note
+def new shared temp-table tt-note like notes
                fields note-src as cha .
 
 /* _UIB-CODE-BLOCK-END */
@@ -262,26 +262,26 @@ PROCEDURE build-table :
   def buffer bf-emplogin for emplogin.
   
   for each bf-employee where bf-employee.employee = machemp.employee no-lock:
-      find first note where note.rec_key = bf-employee.rec_key no-lock no-error.
-      if avail note then do:
+      find first notes where notes.rec_key = bf-employee.rec_key no-lock no-error.
+      if avail notes then do:
          create tt-note.
-         buffer-copy note to tt-note.
+         buffer-copy notes to tt-note.
          tt-note.note-src = "Employee".
       end.
   end.    
   for each bf-emplogin where bf-emplogin.employee = machemp.employee no-lock:
-      find first note where note.rec_key = bf-emplogin.rec_key no-lock no-error.
-      if avail note then do:
+      find first notes where notes.rec_key = bf-emplogin.rec_key no-lock no-error.
+      if avail notes then do:
          create tt-note.
-         buffer-copy note to tt-note.
+         buffer-copy notes to tt-note.
          tt-note.note-src = "Log In/Out".
       end.
   end.    
   for each bf-machemp where bf-machemp.employee = machemp.employee no-lock:
-      find first note where note.rec_key = bf-machemp.rec_key no-lock no-error.
-      if avail note then do:
+      find first notes where notes.rec_key = bf-machemp.rec_key no-lock no-error.
+      if avail notes then do:
          create tt-note.
-         buffer-copy note to tt-note.
+         buffer-copy notes to tt-note.
          tt-note.note-src = "Emp. Transaction".
       end.
   end.    

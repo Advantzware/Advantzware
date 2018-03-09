@@ -32,7 +32,7 @@ CREATE WIDGET-POOL.
 {sys/inc/varasgn.i}
 {custom/gcompany.i}
 
-def temp-table tt-note NO-UNDO like note 
+def temp-table tt-note NO-UNDO like notes 
     field note-src as cha form "x(20)" label "Note From" .
 
 /* _UIB-CODE-BLOCK-END */
@@ -378,31 +378,31 @@ PROCEDURE build-table :
   for each bf-employee FIELDS(rec_key) where
       bf-employee.company EQ g_company AND
       bf-employee.employee = machemp.employee NO-LOCK,
-      each note where note.rec_key = bf-employee.rec_key /*and
-                          note.note_date = machemp.start_date */
+      each notes where notes.rec_key = bf-employee.rec_key /*and
+                          notes.note_date = machemp.start_date */
                              NO-LOCK:
          create tt-note.
-         buffer-copy note to tt-note.
+         buffer-copy notes to tt-note.
          tt-note.note-src = "Employee".
       
   end.    
   for each bf-emplogin FIELDS(rec_key) where
       bf-emplogin.company EQ g_company AND
       bf-emplogin.employee = machemp.employee NO-LOCK,
-      each note where note.rec_key = bf-emplogin.rec_key /*and
-                          note.note_date = machemp.start_date */
+      each notes where notes.rec_key = bf-emplogin.rec_key /*and
+                          notes.note_date = machemp.start_date */
                        NO-LOCK:
          create tt-note.
-         buffer-copy note to tt-note.
+         buffer-copy notes to tt-note.
          tt-note.note-src = "Log In/Out".
   end.    
   for each bf-machemp FIELDS(rec_key) where
       bf-machemp.employee = machemp.employee NO-LOCK,
-      each note where note.rec_key = bf-machemp.rec_key /*and
-                          note.note_date = machemp.start_date */
+      each notes where notes.rec_key = bf-machemp.rec_key /*and
+                          notes.note_date = machemp.start_date */
                       NO-LOCK:
          create tt-note.
-         buffer-copy note to tt-note.
+         buffer-copy notes to tt-note.
          tt-note.note-src = "Emp. Transaction".
   end.
       

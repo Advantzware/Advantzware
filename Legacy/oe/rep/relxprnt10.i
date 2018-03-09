@@ -588,7 +588,7 @@ if v-zone-p then v-zone-hdr = "Route No.:".
               
                IF AVAILABLE oe-rell THEN
                DO:
-                  w-bin.w-par = oe-rell.lot-no               
+                  w-bin.w-par = oe-rell.lot-no.              
                END.
           
                leave.
