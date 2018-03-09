@@ -770,6 +770,7 @@ PROCEDURE pProcessImport:
             est-qty.eqty   = eb.eqty
             est.est-qty[1] = eb.eqty
             ef.eqty        = eb.eqty
+            est-qty.qty[1] = eb.eqty
             .
 
         ASSIGN 
