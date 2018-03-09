@@ -87,6 +87,9 @@ FUNCTION fInsText RETURNS LOGICAL
     (INPUT ipiStartPos AS INTEGER,
     INPUT ipiLen AS INTEGER, INPUT ipcText AS CHARACTER) FORWARD.
 
+FUNCTION fnRJust RETURNS CHARACTER 
+    (INPUT ipcText AS CHARACTER, INPUT ipiLen AS INTEGER) FORWARD.
+
 FUNCTION fTime RETURNS CHARACTER 
     (INPUT ipiTime AS INTEGER  ) FORWARD.
     
@@ -151,7 +154,7 @@ IF AVAILABLE cust AND liberty-log AND liberty-dir NE "" THEN
         ASSIGN
             v-outfile[1] = TRIM(liberty-dir) + v-slash + "dataxfer" +
                   v-slash + "in" + v-slash
-            v-outfile[2] = "EDIPOH" + "1244037" /* Edi Sender ID */ + USERID("asi")
+            v-outfile[2] = "EDIPOH" + "1244037" /* Edi Sender ID */ + USERID("asi") + "_"
             v-outfile[3] = 
                   substr(STRING(YEAR(TODAY),"9999"),3,2) +
                   string(MONTH(TODAY),"99") +
@@ -221,10 +224,10 @@ IF AVAILABLE cust AND liberty-log AND liberty-dir NE "" THEN
         fInsText(  283,   15, ""              ). /* not used */
         fInsText(  299,   15, "1244037"           ). /* assigned ID */
         fInsText(  315,    2, ""              ). /* not used */
-        fInsText(  318,    7, STRING(iSequence)). /* sequential number */
+        fInsText(  318,    7, fnRJust(STRING(iSequence), 7)). /* sequential number */
         fInsText(  326,   10, STRING(po-ord.due-date, "99/99/9999")). /* due date */
         fInsText(  337,   10, STRING(TODAY, "99/99/9999")   ).
-        fInsText(  348,   10, fTime(TIME)     ).
+        fInsText(  348,   10, fTime(TIME) + "    ").
         fInsText(  359,    1, ""              ). /* not used */
         fInsText(  361,   25, "NW"            ). /* po status */
         fInsText(  387,   25, "N"             ). /* po type */
@@ -252,7 +255,7 @@ IF AVAILABLE cust AND liberty-log AND liberty-dir NE "" THEN
         fInsText(  763,    1, ""              ). /* not used */
         fInsText(  765,   20, ""              ). /* not used */
         fInsText(  786,   30, po-ord.contact  ). /* user */
-        fInsText(  817,   10, STRING(po-ord.t-cost)).
+        fInsText(  817,   10, fnRJust(STRING(po-ord.t-cost), 10)).
         fInsText(  828,   10, STRING(po-ord.po-date, "99/99/9999")).
         cOutLine = TRIM(cOutLine, ",").
         PUT STREAM sEDIPOH UNFORMATTED cOutLine SKIP.
@@ -385,11 +388,18 @@ IF AVAILABLE cust AND liberty-log AND liberty-dir NE "" THEN
             v-ord-cst = po-ordl.cost.
 
             /* Formatted Dimensions */
-            cDimensions = TRIM(STRING(ITEM.s-len, ">>>>.99")) + " x " + TRIM(STRING(ITEM.s-wid, ">>>>.99")) + " x " + TRIM(STRING(ITEM.s-dep, ">>>>.99")).
-            cFormattedScore = fFormScore(ITEM.s-len) + fFormScore(ITEM.s-wid).
             IF ITEM.s-dep GT 0 THEN 
-                cFormattedScore = cFormattedScore + fFormScore(ITEM.s-dep).
-                
+              cDimensions = TRIM(STRING(ITEM.s-len, ">>>>.99")) + " x " + TRIM(STRING(ITEM.s-wid, ">>>>.99")) + " x " + TRIM(STRING(ITEM.s-dep, ">>>>.99")).
+            ELSE
+              cDimensions = TRIM(STRING(ITEM.s-wid, ">>>>.99")).
+            IF ITEM.s-dep GT 0 THEN DO:
+                cFormattedScore = fFormScore(ITEM.s-len) + fFormScore(ITEM.s-wid).
+                IF ITEM.s-dep GT 0 THEN 
+                    cFormattedScore =  cFormattedScore + fFormScore(ITEM.s-dep).
+            END.
+            ELSE
+                    cFormattedScore =  fFormScore(ITEM.s-wid).
+            
             IF po-ordl.pr-uom NE "MSF" THEN
                 RUN sys/ref/convcuom.p(po-ordl.pr-uom, "MSF",
                     item.basis-w, po-ordl.s-len,
@@ -559,9 +569,9 @@ IF AVAILABLE cust AND liberty-log AND liberty-dir NE "" THEN
             fInsText(  322,    1, ""         ). /* not used */
             fInsText(  324,   15, ""         ). /* not used */
             fInsText(  340,   30, po-ordl.i-no ). /* base board grade */
-            fInsText(  371,   15, ""         ). /* sheet plant's cusotmer no. in corrugators's database */
+            fInsText(  371,   15, "1244037"  ). /* sheet plant's cusotmer no. in corrugators's database */
             fInsText(  387,    2, ""         ). /* EDI Interchange qualifier */
-            fInsText(  390,    7, STRING(iSequence)). /* Unique Sequential number */
+            fInsText(  390,    7, fnRJust(STRING(iSequence), 7)). /* Unique Sequential number */
             fInsText(  398,   11, STRING(po-ordl.line)). 
             fInsText(  410,    9, " "        ) . /* not used */
             fInsText(  420,    9, ""         ). /* not used */
@@ -573,9 +583,9 @@ IF AVAILABLE cust AND liberty-log AND liberty-dir NE "" THEN
             fInsText(  459,    2, ""         ). /* not used */
             fInsText(  462,   60, ""         ). /* not used */
             fInsText(  523,    1, ""         ). /* not used */
-            fInsText(  525,   11, STRING(v-ord-qty[1])).
+            fInsText(  525,   11, fnRJust(STRING(v-ord-qty[1]), 11)).
             fInsText(  537,    9, STRING(po-ordl.ord-no) ). /* Order # for associated sales ord */
-            fInsText(  547,    6, "1"         ). /* sheet plant abbreviation */
+            fInsText(  547,    6, "AMC"         ). /* sheet plant abbreviation */
             fInsText(  554,   22,  STRING(po-ordl.po-no, "999999")).
             fInsText(  577,   30, ""         ). /* not used */
             fInsText(  608,    2, "EA"       ). /* Price UOM */
@@ -592,7 +602,7 @@ IF AVAILABLE cust AND liberty-log AND liberty-dir NE "" THEN
             fInsText(  807,   20, ""         ). /* not used */
             fInsText(  828,    2, "EA"       ).
             fInsText(  831,   12, ""         ). /* not used */
-            fInsText(  844,   13, STRING(po-ord.t-cost)).
+            fInsText(  844,   13, fnRJust(STRING(po-ord.t-cost), 13)).
             fInsText(  858,   30, ""         ). /* not used */
             fInsText(  889,   10, string(po-ord.due-date, "99/99/9999")). /* not used */
             cOutLine = TRIM(cOutLine, ",").
@@ -600,30 +610,29 @@ IF AVAILABLE cust AND liberty-log AND liberty-dir NE "" THEN
                 
             cOutLine = "".
             /* Order Download Specification */
-            fInsText( 1, 9,"<EDIPOITEM>").
-            /* Check this ! */
-            fInsText( 11, 8,STRING({sys/inc/k16.i po-ordl.s-wid}, ">>>>.9999")). 
-            fInsText( 20, 8,STRING({sys/inc/k16.i po-ordl.s-len}, ">>>>.9999")).
-            fInsText( 29, 12, po-ordl.i-no  ). /* base board grade */
-            fInsText( 42, 1,  ""            ).  /* adhesive code */
-            fInsText( 44, 3,  "1"           ).  /* plant number */
-            fInsText( 48, 254, cDimensions  ). /* mil score */
-            fInsText( 303, 3, v-adder[1]    ). /* first board adder */
-            fInsText( 307, 3, v-adder[2]    ). /* 2nd board adder */
-            fInsText( 311, 3, v-adder[3]    ). /* 3rd board adder */
-            fInsText( 315, 3, v-adder[4]    ). /* 4th board adder */
-            fInsText( 319, 3, v-adder[5]    ). /* 5th board adder */
-            fInsText( 323, 3, v-adder[6]    ). /* 6th board adder */
-            fInsText( 327, 3, v-adder[7]    ). /* 7th board adder */
-            fInsText( 331, 3, ""            ). /* 8th board adder */    
-            fInsText( 335, 22, STRING(po-ord.po-no, "999999") ). /* po # */
-            fInsText( 358, 11, STRING(po-ordl.line) ). /* po line # */
-            fInsText( 370, 10, "0"        ). /* combo msf 3 decimals */
-            fInsText( 381, 11, STRING(po-ordl.ord-qty - (po-ord.under-pct * po-ordl.ord-qty / 100)    )). /* PO min qty */
-            fInsText( 393, 11, STRING(po-ordl.ord-qty + (po-ord.over-pct * po-ordl.ord-qty / 100)   )). /* po max qty */
-            fInsText( 405, 15, v-mch-cod    ). /* first machine from routing */
-            fInsText( 421, 252, ""       ). /* formatted scoring */
-            fInsText( 674, 254, v-instr  ). /* po comments */
+            fInsText( 1, 11,"<EDIPOITEM>").
+            fInsText( 13, 8,STRING({sys/inc/k16.i po-ordl.s-wid}, ">>>>.9999")). 
+            fInsText( 22, 8,STRING({sys/inc/k16.i po-ordl.s-len}, ">>>>.9999")).
+            fInsText( 31, 12, po-ordl.i-no  ). /* base board grade */
+            fInsText( 44, 1,  "R"           ).  /* adhesive code */
+            fInsText( 46, 3,  "1"           ).  /* plant number */
+            fInsText( 50, 254, cDimensions  ). /* mil score */
+            fInsText( 305, 3, v-adder[1]    ). /* first board adder */
+            fInsText( 309, 3, v-adder[2]    ). /* 2nd board adder */
+            fInsText( 313, 3, v-adder[3]    ). /* 3rd board adder */
+            fInsText( 318, 3, v-adder[4]    ). /* 4th board adder */
+            fInsText( 321, 3, v-adder[5]    ). /* 5th board adder */
+            fInsText( 325, 3, v-adder[6]    ). /* 6th board adder */
+            fInsText( 329, 3, v-adder[7]    ). /* 7th board adder */
+            fInsText( 333, 3, ""            ). /* 8th board adder */    
+            fInsText( 336, 22, STRING(po-ord.po-no, "999999") ). /* po # */
+            fInsText( 360, 11, STRING(po-ordl.line) ). /* po line # */
+            fInsText( 372, 10, "0"        ). /* combo msf 3 decimals */
+            fInsText( 383, 11, STRING(po-ordl.ord-qty - (po-ord.under-pct * po-ordl.ord-qty / 100)    )). /* PO min qty */
+            fInsText( 395, 11, STRING(po-ordl.ord-qty + (po-ord.over-pct * po-ordl.ord-qty / 100)   )). /* po max qty */
+            fInsText( 407, 15, v-mch-cod    ). /* first machine from routing */
+            fInsText( 423, 252, ""       ). /* formatted scoring */
+            fInsText( 676, 254, v-instr  ). /* po comments */
             cOutLine = TRIM(cOutLine, ",").
             PUT STREAM sEDIPOITEM UNFORMATTED cOutLine SKIP.
             iSequence = iSequence + 1.
@@ -685,6 +694,21 @@ FUNCTION fInsText RETURNS LOGICAL
     END.
     lResult = ERROR-STATUS:ERROR. 
     RETURN lResult.
+
+
+		
+END FUNCTION.
+
+FUNCTION fnRJust RETURNS CHARACTER 
+	(INPUT ipcText AS CHARACTER, INPUT ipiLen AS INTEGER):
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/	
+
+		DEFINE VARIABLE cResult AS CHARACTER NO-UNDO.
+        cResult = FILL(" ", ipiLen - LENGTH(ipcText)) + ipcText.
+		RETURN cResult.
 
 
 		
