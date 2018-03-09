@@ -467,6 +467,7 @@ PROCEDURE create-order-lines.
            oe-ordl.prom-code  = xoe-ord.due-code
            oe-ordl.req-date   = xoe-ord.due-date
            oe-ordl.prom-date  = xoe-ord.due-date
+           oe-ordl.managed    = xoe-ord.managed
            oe-ordl.i-no       = IF v-est-type EQ 2 AND avail xeb THEN
                                   xeb.stock-no ELSE eb.stock-no
            oe-ordl.qty        = IF v-est-type EQ 3 OR v-est-type EQ 4 THEN eb.bl-qty ELSE lv-qty
@@ -867,7 +868,6 @@ PROCEDURE create-order-lines.
                        IF oe-ordl.pr-uom EQ "M" THEN 1000 ELSE 
                        IF oe-ordl.pr-uom = "L" THEN oe-ordl.qty ELSE 1).
 
-    {oe/defwhsed.i oe-ordl}
 
     FIND FIRST tt-oe-ordl WHERE tt-oe-ordl.row-id EQ ROWID(oe-ordl) NO-ERROR.
     IF AVAIL tt-oe-ordl THEN tt-oe-ordl.to-be-deleted = NO.

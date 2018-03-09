@@ -93,8 +93,6 @@ DEF NEW SHARED BUFFER xest FOR est.
 DEF NEW SHARED BUFFER xeb FOR eb.
 DEF NEW SHARED BUFFER xef FOR ef.
 
-DEF BUFFER oe-ord-whs-order FOR reftable.
-DEF BUFFER oe-ordl-whs-item FOR reftable.
 
 &Scoped-define sman-fields oe-ord.sman oe-ord.s-pct oe-ord.s-comm
 
@@ -1413,12 +1411,7 @@ IF AVAIL xest THEN DO:
         RUN fg/GetItemfgActInact.p (INPUT g_company,
                                     INPUT eb.stock-no,
                                     OUTPUT lActive).
-/*        FIND FIRST reftable WHERE reftable.reftable EQ "FGSTATUS"  */
-/*                              AND reftable.company  EQ g_company   */
-/*                              AND reftable.loc      EQ ""          */
-/*                              AND reftable.code     EQ eb.stock-no */
-/*                              NO-LOCK NO-ERROR.                    */
-/*        IF AVAIL reftable AND reftable.code2 = "I" THEN DO:        */
+
         IF NOT lActive THEN DO:
           MESSAGE eb.stock-no "has InActive Status. Order cannot be placed for the Inactive Item."
                   VIEW-AS ALERT-BOX ERROR. 
@@ -2085,7 +2078,6 @@ PROCEDURE lib-post-assign-record :
   IF oe-ord.pord-no EQ 0 THEN
     oe-ord.pord-no = INT(get-val("fi_prev_order")) NO-ERROR.
 
-  RUN whs-order (1).
 
   FOR EACH oe-ordl OF oe-ord:
     IF ll-new-po THEN DO:
@@ -2904,7 +2896,6 @@ PROCEDURE valid-po-no :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEF BUFFER b-oe-ordl FOR oe-ordl.
-  DEF BUFFER cust-po-mand FOR reftable.
 
   
   DO:
@@ -3027,39 +3018,6 @@ END PROCEDURE.
 
 &ENDIF
 
-&IF DEFINED(EXCLUDE-whs-order) = 0 &THEN
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE whs-order Procedure 
-PROCEDURE whs-order :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  DEF INPUT PARAM ip-int AS INT NO-UNDO.
-
-
-  RELEASE oe-ord-whs-order.
-
-  
-  IF ip-int EQ 0 THEN DO:
-    set-sv("tb_whs-order", STRING(AVAIL oe-ord-whs-order AND
-                                       oe-ord.managed = true,"yes/no")).
-  END.
-
-  ELSE
-  IF AVAIL oe-ord-whs-order THEN DO /*  */:
-    FIND CURRENT oe-ord-whs-order.
-    oe-ord.managed = LOGICAL(get-val("tb_whs-order")).
-    FIND CURRENT oe-ord-whs-order NO-LOCK.
-  END.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ENDIF
 
 /* ************************  Function Implementations ***************** */
 

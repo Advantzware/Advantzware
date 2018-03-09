@@ -18,9 +18,11 @@
         RUN jc/jobhordl.p (BUFFER job-hdr, BUFFER oe-rel, BUFFER oe-ordl).
 
         IF AVAIL oe-ordl THEN DO:
-          v-underrun-qty = job-hdr.qty.
+          ASSIGN 
+            v-underrun-qty = job-hdr.qty
+            ll-whs-item = oe-ordl.managed
+            .
 
-          RUN oe/whs-item.p (BUFFER oe-ordl, OUTPUT ll-whs-item).
 
           IF NOT ll-whs-item                         AND
              CAN-FIND(FIRST sys-ctrl
