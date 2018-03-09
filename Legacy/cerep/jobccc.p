@@ -1012,7 +1012,7 @@ for each job-hdr NO-LOCK
                        DELETE tt-formtext.
                    END.
                    FIND FIRST dept WHERE dept.CODE = notes.note_code NO-LOCK NO-ERROR.
-                   lv-text = (IF AVAIL dept THEN dept.dscr ELSE note.note_code) + "     " + 
+                   lv-text = (IF AVAIL dept THEN dept.dscr ELSE notes.note_code) + "     " + 
                              notes.note_title + " " + notes.note_text + CHR(10).
                    DO li = 1 TO 4:
                       CREATE tt-formtext.

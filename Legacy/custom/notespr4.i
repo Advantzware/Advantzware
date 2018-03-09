@@ -17,7 +17,7 @@ FOR EACH notes WHERE {4} NO-LOCK:
     lv-form-note = /*IF notes.note_FORM_no > 0 
                    THEN ("Form: " + STRING(notes.note_FORM_no) + " " + notes.note_title + " " + notes.note_text)
                    ELSE*/
-                   (IF AVAIL dept THEN dept.dscr ELSE note.note_code) + "     " + 
+                   (IF AVAIL dept THEN dept.dscr ELSE notes.note_code) + "     " + 
                     notes.note_title + " " + notes.note_text .
 
     DO i = 1 TO LENGTH(lv-form-note) :        

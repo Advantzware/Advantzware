@@ -77,7 +77,7 @@ IF v-prt-inst AND (AVAIL io-ordl OR AVAIL io-qqty OR AVAIL io-invl) THEN DO:
             IF ll THEN li[1] = 3.
           END.
 
-          note.note_title = TRIM(notes.note_title) + " - " +
+          notes.note_title = TRIM(notes.note_title) + " - " +
                             TRIM(ENTRY(li[1],"Single,Set,Tandem,Combo")).
 
           FOR EACH oe-ordl NO-LOCK
@@ -89,7 +89,7 @@ IF v-prt-inst AND (AVAIL io-ordl OR AVAIL io-qqty OR AVAIL io-invl) THEN DO:
              li[3] = li[3] + oe-ordl.qty.
           END.
 
-          note.note_title = TRIM(notes.note_title) + " - " +
+          notes.note_title = TRIM(notes.note_title) + " - " +
                             TRIM(STRING(li[2],"->>>,>>>")) + " Items/Ttl " +
                             TRIM(STRING(li[3],"->>>,>>>,>>>")).        
         END.
@@ -128,7 +128,7 @@ IF v-prt-inst AND (AVAIL io-ordl OR AVAIL io-qqty OR AVAIL io-invl) THEN DO:
           IF ll THEN li[1] = 3.
         END.
 
-        note.note_title = TRIM(notes.note_title) + " - " +
+        notes.note_title = TRIM(notes.note_title) + " - " +
                           TRIM(ENTRY(li[1],"Single,Set,Tandem,Combo")).
 
         FOR EACH quoteqty NO-LOCK
@@ -141,7 +141,7 @@ IF v-prt-inst AND (AVAIL io-ordl OR AVAIL io-qqty OR AVAIL io-invl) THEN DO:
            li[3] = li[3] + quoteqty.qty.
         END.
 
-        note.note_title = TRIM(notes.note_title) + " - " +
+        notes.note_title = TRIM(notes.note_title) + " - " +
                           TRIM(STRING(li[2],"->>>,>>>")) + " Items/Ttl " +
                           TRIM(STRING(li[3],"->>>,>>>,>>>")).        
       END.

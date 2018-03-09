@@ -1495,28 +1495,28 @@ FOR EACH job-hdr NO-LOCK
                IF v-dept-inst[1] NE "" THEN 
                  PUT 
                    (IF AVAILABLE dept THEN (dept.CODE + " " + dept.dscr) 
-                                  ELSE (note.note_code + " " + note_title)) 
+                                  ELSE (notes.note_code + " " + note_title)) 
                                   FORMAT "x(28)" AT 1
                    v-dept-inst[1] FORMAT "x(90)" AT 29 SKIP.
 
                IF v-dept-inst[2] NE "" THEN 
                  PUT 
                    (IF AVAILABLE dept THEN (dept.CODE + " " + dept.dscr) 
-                                  ELSE (note.note_code + " " + note_title)) 
+                                  ELSE (notes.note_code + " " + note_title)) 
                                   FORMAT "x(28)" AT 1
                    v-dept-inst[2] FORMAT "x(90)" AT 29 SKIP.
 
                IF v-dept-inst[3] NE "" THEN 
                  PUT 
                    (IF AVAILABLE dept THEN (dept.CODE + " " + dept.dscr) 
-                                  ELSE (note.note_code + " " + note_title))
+                                  ELSE (notes.note_code + " " + note_title))
                                   FORMAT "x(28)" AT 1
                    v-dept-inst[3] FORMAT "x(90)" AT 29 SKIP.
 
                IF v-dept-inst[4] NE "" THEN 
                  PUT 
                    (IF AVAILABLE dept THEN (dept.CODE + " " + dept.dscr) 
-                                  ELSE (note.note_code + " " + note_title)) 
+                                  ELSE (notes.note_code + " " + note_title)) 
                                   FORMAT "x(28)" AT 1
                    v-dept-inst[4] FORMAT "x(90)" AT 29 SKIP.
                

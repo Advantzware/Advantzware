@@ -1572,7 +1572,7 @@ DO:
                 DELETE tt-formtext.
             END.
             FIND FIRST dept NO-LOCK WHERE dept.CODE EQ notes.note_code NO-ERROR.
-            lv-text = (IF AVAILABLE dept THEN dept.dscr ELSE note.note_code) + "     " + 
+            lv-text = (IF AVAILABLE dept THEN dept.dscr ELSE notes.note_code) + "     " + 
                 notes.note_title + " " + notes.note_text + CHR(10).
             DO li = 1 TO 4:
                 CREATE tt-formtext.
