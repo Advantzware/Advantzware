@@ -1645,7 +1645,7 @@ for each job-hdr NO-LOCK
            
            lv-text = lv-text + 
                      STRING(bf-jobhdr.frm,">9") + "     " +
-                     "<B>" + CAPS(note.note_code) + ":</B>" + "   " + 
+                     "<B>" + CAPS(notes.note_code) + ":</B>" + "   " + 
                      notes.note_text + CHR(10) .
        END.
 
