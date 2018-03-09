@@ -1259,9 +1259,10 @@ PROCEDURE create-item :
       bf-oe-ordl.s-comm[i] = oe-ord.s-comm[i].
     END.
     ASSIGN
-    bf-oe-ordl.q-qty = oe-ord.t-fuel.
+    bf-oe-ordl.q-qty = oe-ord.t-fuel
+    bf-oe-ordl.managed = oe-ord.managed.
     v-margin = oe-ord.t-fuel.
-    {oe/defwhsed.i bf-oe-ordl}
+    
     IF bf-oe-ordl.LINE EQ 1 OR NOT AVAIL oe-ordl THEN
     FIND oe-ordl WHERE ROWID(oe-ordl) = ROWID(bf-oe-ordl) NO-ERROR.
   END. /* avail oe-ord */

@@ -842,6 +842,7 @@ PROCEDURE CreateOrder :
                             oe-ordl.est-no = IF ttDetail.ItemEst# <> "" THEN ttDetail.ItemEst# ELSE oe-ord.est-no
                             oe-ordl.q-qty = oe-ord.t-fuel
                             oe-ordl.whsed = IF oe-ordl.est-no <> "" THEN YES ELSE NO
+                            oe-ordl.managed = oe-ord.managed
                             oe-ordl.q-no = IF ttDetail.ItemQuote# <> 0 THEN ttDetail.ItemQuote# ELSE oe-ord.q-no
                             .
                   IF oe-ordl.price = 0 THEN DO:
@@ -865,7 +866,7 @@ PROCEDURE CreateOrder :
                             .
 
                    {oe/ordltot3.i oe-ordl qty oe-ordl  }
-                   {oe/defwhsed.i oe-ordl}
+
                   RUN pAutoCreateShipTo (INPUT cocode, 
                         INPUT oe-ord.cust-no, 
                         INPUT ttDetail.ShipTo, 

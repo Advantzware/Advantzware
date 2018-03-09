@@ -573,7 +573,7 @@ DO:
                         END.
            
                         IF NOT AVAILABLE oe-rel THEN job-hdr.ord-no = oe-ordl.ord-no.
-                        RUN oe/whs-item.p (BUFFER oe-ordl, OUTPUT ll-whs-item).
+                        ll-whs-item = oe-ordl.managed.
                         IF NOT ll-whs-item AND ll-add-over THEN
                             RUN oe/overundr.p ("O", "+", oe-ordl.over-pct, job-hdr.qty,
                                 OUTPUT job-hdr.qty).
