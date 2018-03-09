@@ -957,9 +957,6 @@ PROCEDURE po-adder2 :
 
     DEFINE BUFFER xjob-mat FOR job-mat.
     DEFINE BUFFER bff-job-mat FOR job-mat .
-    DEFINE BUFFER b-cost  FOR reftable.
-    DEFINE BUFFER b-qty   FOR reftable.
-    DEFINE BUFFER b-setup FOR reftable.
     DEFINE BUFFER bff-item FOR ITEM .
     FIND xjob-mat WHERE RECID(xjob-mat) EQ ip-recid1 NO-LOCK.
                       
@@ -1047,36 +1044,13 @@ PROCEDURE po-adder2 :
                         tt-eiv-2.setups[v-index]   = e-item-vend.setups[v-index].
                 END.
 
-                FIND FIRST b-qty WHERE
-                    b-qty.reftable = "vend-qty" AND
-                    b-qty.company = e-item-vend.company AND
-                    b-qty.CODE    = e-item-vend.i-no AND
-                    b-qty.code2   = e-item-vend.vend-no
-                    NO-LOCK NO-ERROR.
-      
-                IF AVAILABLE b-qty THEN
-                DO:
-                    FIND FIRST b-cost NO-LOCK WHERE
-                        b-cost.reftable = "vend-cost" AND
-                        b-cost.company = e-item-vend.company AND
-                        b-cost.CODE    = e-item-vend.i-no AND
-                        b-cost.code2   = e-item-vend.vend-no
-                        NO-ERROR.
-
-                    FIND FIRST b-setup NO-LOCK WHERE
-                        b-setup.reftable = "vend-setup" AND
-                        b-setup.company = e-item-vend.company AND
-                        b-setup.CODE    = e-item-vend.i-no AND
-                        b-setup.code2   = e-item-vend.vend-no
-                        NO-ERROR.
-      
-                    DO v-index = 1 TO 10:
-                        ASSIGN
-                            tt-eiv-2.run-qty[v-index + 10]  = b-qty.val[v-index]
-                            tt-eiv-2.run-cost[v-index + 10] = b-cost.val[v-index]
-                            tt-eiv-2.setups[v-index + 10]   = b-setup.val[v-index].
-                    END.
-                END.
+                IF AVAILABLE e-item-vend THEN
+                DO v-index = 1 TO 10:
+                    ASSIGN
+                        tt-eiv-2.run-qty[v-index + 10]  = e-item-vend.runQtyXtra[v-index]
+                        tt-eiv-2.run-cost[v-index + 10] = e-item-vend.runCostXtra[v-index]
+                        tt-eiv-2.setups[v-index + 10]   = e-item-vend.setupsXtra[v-index].
+                END. /* do v-index */
 
                 DO i = 1 TO EXTENT(tt-eiv-2.run-qty):
                     IF v-qty-comp LE tt-eiv-2.run-qty[i] THEN
