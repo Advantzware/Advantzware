@@ -377,6 +377,7 @@ DEF OUTPUT PARAMETER opr-oerell AS ROWID NO-UNDO.
    oe-rell.frt-pay = oe-rel.frt-pay
    oe-rell.fob-code = oe-rel.fob-code
    oe-rell.sell-price = oe-rel.sell-price
+   oe-rell.zeroPrice = oe-rel.zeroPrice
    oe-rell.printed = NO
    oe-rell.posted  = NO
    oe-rell.deleted = NO
