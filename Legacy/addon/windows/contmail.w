@@ -624,15 +624,15 @@ assign v-start-compress = ""
               trim(contact.state) v-delim
               trim(contact.zip) v-delim
               trim(contact.country) v-delim skip.
-          create nosweat.note.
-          assign nosweat.note.rec_key = contact.rec_key
-               nosweat.note.note_date = TODAY
-               nosweat.note.note_time = TIME
-               nosweat.note.user_id = USERID("NOSWEAT")
-               nosweat.note.note_title = FILL-IN-Title
-               nosweat.note.note_text = "Automatic Note Generation from Mail Merge Report. " +
-                                        string(note.note_date,"99/99/9999") + " " +
-                                        string(note.note_time,"HH:MM:SS AM").
+          create notes.
+          assign notes.rec_key = contact.rec_key
+               notes.note_date = TODAY
+               notes.note_time = TIME
+               notes.user_id = USERID("NOSWEAT")
+               notes.note_title = FILL-IN-Title
+               notes.note_text = "Automatic Note Generation from Mail Merge Report. " +
+                                        string(notes.note_date,"99/99/9999") + " " +
+                                        string(notes.note_time,"HH:MM:SS AM").
       end.  /* for each */
 
    end.  /* tbmailmrge */

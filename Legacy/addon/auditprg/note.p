@@ -10,8 +10,8 @@ DEFINE VARIABLE i AS INTEGER NO-UNDO.
 {methods/defines/audit.i}
 FIND FIRST ttbl_header.
 
-DEFINE WORK-TABLE ttbl_note1 NO-UNDO LIKE note.
-DEFINE WORK-TABLE ttbl_note2 NO-UNDO LIKE note.
+DEFINE WORK-TABLE ttbl_note1 NO-UNDO LIKE notes.
+DEFINE WORK-TABLE ttbl_note2 NO-UNDO LIKE notes.
 
 CREATE ttbl_note1.
 IMPORT STREAM s_audit_file ttbl_note1.

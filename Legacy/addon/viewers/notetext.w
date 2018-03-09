@@ -242,7 +242,7 @@ PROCEDURE disp-text :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    def input param ip-text like note.note_text.
+    def input param ip-text like notes.note_text.
     lv_note_text:screen-value in frame {&frame-name} = ip-text.
     
 END PROCEDURE.

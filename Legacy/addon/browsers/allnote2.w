@@ -35,7 +35,7 @@ CREATE WIDGET-POOL.
 
 /* Local Variable Definitions ---                                       */
 
-def temp-table tt-note  like note
+def temp-table tt-note  like notes
                field note-src as cha form "x(20)" label "Note From" .
 def var lv-first as log init yes no-undo.
 &scoped-define SORTBY-1 BY tt-note.note_date
@@ -391,33 +391,33 @@ PROCEDURE build-table :
   for each bf-employee where
       bf-employee.company EQ employee.company AND
       bf-employee.employee = employee.employee no-lock:
-      for each note where note.rec_key = bf-employee.rec_key /*and
-                          note.note_date = machemp.start_date */
+      for each notes where notes.rec_key = bf-employee.rec_key /*and
+                          notes.note_date = machemp.start_date */
                              no-lock .
          create tt-note.
-         buffer-copy note to tt-note.
+         buffer-copy notes to tt-note.
          tt-note.note-src = "Employee".
       end.
   end.    
   for each bf-emplogin where
       bf-emplogin.company EQ employee.company AND
       bf-emplogin.employee = employee.employee no-lock:
-      for each note where note.rec_key = bf-emplogin.rec_key /*and
-                            note.note_date = machemp.start_date */
+      for each notes where notes.rec_key = bf-emplogin.rec_key /*and
+                            notes.note_date = machemp.start_date */
                        no-lock .
          create tt-note.
-         buffer-copy note to tt-note.
+         buffer-copy notes to tt-note.
          tt-note.note-src = "Log In/Out".
       end.
   end.    
   for each bf-machemp where
 
       bf-machemp.employee = employee.employee no-lock:
-      for each note where note.rec_key = bf-machemp.rec_key /*and
-                          note.note_date = machemp.start_date */
+      for each notes where notes.rec_key = bf-machemp.rec_key /*and
+                          notes.note_date = machemp.start_date */
                       no-lock .
          create tt-note.
-         buffer-copy note to tt-note.
+         buffer-copy notes to tt-note.
          tt-note.note-src = "Emp. Transaction".
       end.
   end.    

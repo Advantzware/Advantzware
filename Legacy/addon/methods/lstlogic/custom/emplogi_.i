@@ -24,9 +24,9 @@
 ---------------------------------------------------------------------------*/
 /*  defined in emplogi_.p
 def temp-table tt-note field employee like emplogin.employee
-                       field rec_key like note.rec_key
-                       field note_date like note.note_date
-                       field note_title like note.note_title
+                       field rec_key like notes.rec_key
+                       field note_date like notes.note_date
+                       field note_title like notes.note_title
                        .
                        
 */   
@@ -53,44 +53,44 @@ def buffer bf-machemp for machemp.
 if lv-note-only then do:
    for each emplogin no-lock where emplogin.employee >= begin_employee and
                                   emplogin.employee <= end_employee,
-       each note where note.rec_key = emplogin.rec_key and 
-                        note.note_date >= begin_note-date and
-                        note.note_date <= end_note-date
+       each notes where notes.rec_key = emplogin.rec_key and 
+                        notes.note_date >= begin_note-date and
+                        notes.note_date <= end_note-date
                         no-lock:     
         create tt-note.
         assign tt-note.employee = emplogin.employee
-               tt-note.rec_key = note.rec_key
-               tt-note.note_date = note.note_date
-               tt-note.note_title = note.note_title
+               tt-note.rec_key = notes.rec_key
+               tt-note.note_date = notes.note_date
+               tt-note.note_title = notes.note_title
                tt-note.note_src = "Log In/Out".
                .
     end.
     for each bf-employee where bf-employee.employee >= begin_employee 
                            and bf-employee.employee <= end_employee 
                             no-lock,
-        each note where note.rec_key = bf-employee.rec_key and
-                          note.note_date >= begin_note-date and
-                          note.note_date <= end_note-date
+        each notes where notes.rec_key = bf-employee.rec_key and
+                          notes.note_date >= begin_note-date and
+                          notes.note_date <= end_note-date
                           no-lock .
           create tt-note.
           assign tt-note.employee = bf-employee.employee
-               tt-note.rec_key = note.rec_key
-               tt-note.note_date = note.note_date
-               tt-note.note_title = note.note_title
+               tt-note.rec_key = notes.rec_key
+               tt-note.note_date = notes.note_date
+               tt-note.note_title = notes.note_title
                tt-note.note_src = "Employee".
     end.    
     for each bf-machemp where bf-machemp.employee >= begin_employee
                           and bf-machemp.employee <= end_employee
                             no-lock,
-        each note where note.rec_key = bf-machemp.rec_key and
-                          note.note_date >= begin_note-date and
-                          note.note_date <= end_note-date
+        each notes where notes.rec_key = bf-machemp.rec_key and
+                          notes.note_date >= begin_note-date and
+                          notes.note_date <= end_note-date
                       no-lock .
              create tt-note.
              assign tt-note.employee = bf-machemp.employee
-                    tt-note.rec_key = note.rec_key
-                    tt-note.note_date = note.note_date
-                    tt-note.note_title = note.note_title
+                    tt-note.rec_key = notes.rec_key
+                    tt-note.note_date = notes.note_date
+                    tt-note.note_title = notes.note_title
                     tt-note.note_src = "Emp. Transaction".
     end.    
 
@@ -120,15 +120,15 @@ for each emplogin no-lock where emplogin.employee >= begin_employee and
     end.                      
     /*
     if lv-note-only then 
-    for each note where note.rec_key = emplogin.rec_key and 
-                        note.note_date >= begin_note-date and
-                        note.note_date <= end_note-date
+    for each notes where notes.rec_key = emplogin.rec_key and 
+                        notes.note_date >= begin_note-date and
+                        notes.note_date <= end_note-date
                         no-lock:     
         create tt-note.
         assign tt-note.employee = emplogin.employee
-               tt-note.rec_key = note.rec_key
-               tt-note.note_date = note.note_date
-               tt-note.note_title = note.note_title
+               tt-note.rec_key = notes.rec_key
+               tt-note.note_date = notes.note_date
+               tt-note.note_title = notes.note_title
                .
     end.
     */

@@ -68,28 +68,28 @@ FOR EACH empmach OF employee NO-LOCK WITH STREAM-IO TITLE '---- Assigned Machine
     empmach.gl_account.
 END.
 IF show-emp-notes THEN do :    
-FOR EACH note where note.rec_key = employee.rec_key  NO-LOCK WITH down STREAM-IO TITLE '---- Notes ----' COL 5
-          by note.note_date:
+FOR EACH notes where notes.rec_key = employee.rec_key  NO-LOCK WITH down STREAM-IO TITLE '---- Notes ----' COL 5
+          by notes.note_date:
   DISPLAY "Employee   " label "Note Type"
-    note.note_date 
-    note.note_title with width 132.
+    notes.note_date 
+    notes.note_title with width 132.
 END.
 for each emplogin where emplogin.employee = employee.employee no-lock:
-    for each note where note.rec_key = emplogin.rec_key /*and
-                            note.note_date = machemp.start_date */
-                       no-lock           by note.note_date :
+    for each notes where notes.rec_key = emplogin.rec_key /*and
+                            notes.note_date = machemp.start_date */
+                       no-lock           by notes.note_date :
         DISPLAY   "Login      " at 5
-                  note.note_date
-                  note.note_title with stream-io width 132 no-box no-label.
+                  notes.note_date
+                  notes.note_title with stream-io width 132 no-box no-label.
       end.
 end.    
 for each machemp where machemp.employee = employee.employee no-lock:
-    for each note where note.rec_key = machemp.rec_key /*and
-                          note.note_date = machemp.start_date */
-                      no-lock           by note.note_date :
+    for each notes where notes.rec_key = machemp.rec_key /*and
+                          notes.note_date = machemp.start_date */
+                      no-lock           by notes.note_date :
         DISPLAY  "Transaction" at 5 
-                  note.note_date
-                 note.note_title with stream-io width 132 no-box no-labels .
+                  notes.note_date
+                 notes.note_title with stream-io width 132 no-box no-labels .
     end.
 end.    
       

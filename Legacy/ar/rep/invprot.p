@@ -813,7 +813,7 @@ PROCEDURE printNotes:
         AND LOOKUP(notes.note_code,ipcTypeList) GT 0
         NO-LOCK NO-ERROR.
             IF AVAIL notes THEN do:
-                lc-text = lc-text + " " + note.note_text + CHR(10).
+                lc-text = lc-text + " " + notes.note_text + CHR(10).
                 LEAVE.
             END.
     END.

@@ -190,7 +190,7 @@ END.
 IF NOT sys-ctrl.log-fld THEN RETURN.
 
 IF AVAIL itemfg AND sys-ctrl.log-fld THEN
-   FIND FIRST notes WHERE note.rec_key = itemfg.rec_key AND note.note_code = sys-ctrl.char-fld NO-LOCK NO-ERROR.
+   FIND FIRST notes WHERE notes.rec_key = itemfg.rec_key AND notes.note_code = sys-ctrl.char-fld NO-LOCK NO-ERROR.
 IF NOT AVAIL notes THEN DO:
    /* MESSAGE "No Notes created..." VIEW-AS ALERT-BOX . */
     RETURN.

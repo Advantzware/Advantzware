@@ -856,7 +856,7 @@ do v-local-loop = 1 to v-local-copies:
            
            lv-text = lv-text + 
                      STRING(job-hdr.frm,">9") + "     " +
-                     "<B>" + CAPS(note.note_code) + ":</B>" + "   " + 
+                     "<B>" + CAPS(notes.note_code) + ":</B>" + "   " + 
                      notes.note_text + CHR(10) .
        END.
     END.
