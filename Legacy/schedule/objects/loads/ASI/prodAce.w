@@ -42,8 +42,10 @@ DEFINE VARIABLE lvProdAceFile AS CHARACTER NO-UNDO FORMAT 'x(50)'.
 DEFINE VARIABLE lvProdAceData AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lvProdAceResource AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lvProdAceJob AS CHARACTER NO-UNDO.
-DEFINE VARIABLE lvProdAceRun AS CHARACTER NO-UNDO.
-DEFINE VARIABLE lvProdAceForm AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lvProdAceBlank AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lvProdAcePass AS CHARACTER NO-UNDO.
+/*DEFINE VARIABLE lvProdAceRun AS CHARACTER NO-UNDO.*/
+/*DEFINE VARIABLE lvProdAceForm AS CHARACTER NO-UNDO.*/
 /*DEFINE VARIABLE lvProdAceStart AS CHARACTER NO-UNDO.      */
 /*DEFINE VARIABLE lvProdAceStartDate AS DATE NO-UNDO.       */
 /*DEFINE VARIABLE lvProdAceStartTime AS INTEGER NO-UNDO.    */
@@ -85,6 +87,8 @@ DEFINE TEMP-TABLE ttblProductID NO-UNDO
 DEFINE TEMP-TABLE ttblStatus NO-UNDO 
     FIELD dmiID AS INTEGER
     FIELD job AS CHARACTER 
+    FIELD blank-no AS INTEGER 
+    FIELD pass AS INTEGER 
     FIELD productID AS CHARACTER 
     FIELD runID AS INTEGER 
     FIELD runComplete AS LOGICAL
@@ -145,15 +149,15 @@ SESSION:SET-WAIT-STATE('').
 &Scoped-Define ENABLED-OBJECTS btnExportMachines btnExportJobs ~
 btnExportEmployees btnExportShifts btnImport selectedShift ~
 selectedStartDate selectedEndDate btnPost btnNonPost btnCancel lvProdAceDir ~
-lvProdAceBlankEmployee lvImportDir lvResourceList btnSave btnReset btnExit 
+lvImportDir lvProdAceBlankEmployee lvResourceList btnSave btnReset btnExit 
 &Scoped-Define DISPLAYED-OBJECTS selectedShift selectedStartDate ~
-selectedEndDate lvProdAceDir lvProdAceType lvEmpLogin ~
-lvProdAceBlankEmployee lvImportDir lvResourceList 
+selectedEndDate lvProdAceDir lvImportDir lvProdAceType lvEmpLogin ~
+lvProdAceBlankEmployee lvResourceList 
 
 /* Custom List Definitions                                              */
 /* ProdAceDatValues,List-2,List-3,List-4,List-5,List-6                  */
-&Scoped-define ProdAceDatValues lvProdAceDir lvProdAceType lvEmpLogin ~
-lvProdAceBlankEmployee lvImportDir lvResourceList 
+&Scoped-define ProdAceDatValues lvProdAceDir lvImportDir lvProdAceType ~
+lvEmpLogin lvProdAceBlankEmployee lvResourceList 
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
@@ -319,10 +323,10 @@ DEFINE FRAME DEFAULT-FRAME
      btnCancel AT ROW 4.33 COL 45 HELP
           "Click to Cancel and Exit"
      lvProdAceDir AT ROW 6.71 COL 5.8
-     lvProdAceType AT ROW 7.91 COL 19 NO-LABEL
-     lvEmpLogin AT ROW 9.1 COL 19 NO-LABEL
-     lvProdAceBlankEmployee AT ROW 10.29 COL 16 COLON-ALIGNED
-     lvImportDir AT ROW 11.48 COL 16 COLON-ALIGNED
+     lvImportDir AT ROW 7.91 COL 16 COLON-ALIGNED
+     lvProdAceType AT ROW 9.1 COL 19 NO-LABEL
+     lvEmpLogin AT ROW 10.29 COL 19 NO-LABEL
+     lvProdAceBlankEmployee AT ROW 11.48 COL 16 COLON-ALIGNED
      lvResourceList AT ROW 12.67 COL 16 COLON-ALIGNED
      btnSave AT ROW 14.1 COL 33 HELP
           "Click to Save"
@@ -332,23 +336,23 @@ DEFINE FRAME DEFAULT-FRAME
           "Click to Cancel and Exit"
      "Jobs" VIEW-AS TEXT
           SIZE 5 BY .62 AT ROW 2.91 COL 57 WIDGET-ID 28
-     "Shifts" VIEW-AS TEXT
-          SIZE 6 BY .62 AT ROW 12.19 COL 57 WIDGET-ID 20
-     "Employees" VIEW-AS TEXT
-          SIZE 11 BY .62 AT ROW 9.33 COL 55 WIDGET-ID 16
-     "Charge Codes" VIEW-AS TEXT
-          SIZE 14 BY .62 AT ROW 6.48 COL 53 WIDGET-ID 12
-     "Machines &&" VIEW-AS TEXT
-          SIZE 11 BY .62 AT ROW 5.76 COL 54 WIDGET-ID 8
-     "Type:" VIEW-AS TEXT
-          SIZE 6 BY .81 AT ROW 7.91 COL 12
-     "Employee Login:" VIEW-AS TEXT
-          SIZE 16 BY .81 AT ROW 9.1 COL 2
+     "Import" VIEW-AS TEXT
+          SIZE 7 BY .62 AT ROW 14.81 COL 57 WIDGET-ID 24
      "Select Shift to Post ... Enter Date Range" VIEW-AS TEXT
           SIZE 49 BY .62 AT ROW 1.24 COL 2
           FONT 6
-     "Import" VIEW-AS TEXT
-          SIZE 7 BY .62 AT ROW 14.81 COL 57 WIDGET-ID 24
+     "Employee Login:" VIEW-AS TEXT
+          SIZE 16 BY .81 AT ROW 10.29 COL 2
+     "Type:" VIEW-AS TEXT
+          SIZE 6 BY .81 AT ROW 9.1 COL 12
+     "Machines &&" VIEW-AS TEXT
+          SIZE 11 BY .62 AT ROW 5.76 COL 54 WIDGET-ID 8
+     "Charge Codes" VIEW-AS TEXT
+          SIZE 14 BY .62 AT ROW 6.48 COL 53 WIDGET-ID 12
+     "Employees" VIEW-AS TEXT
+          SIZE 11 BY .62 AT ROW 9.33 COL 55 WIDGET-ID 16
+     "Shifts" VIEW-AS TEXT
+          SIZE 6 BY .62 AT ROW 12.19 COL 57 WIDGET-ID 20
      RECT-1 AT ROW 6.24 COL 1
      RECT-2 AT ROW 1 COL 52 WIDGET-ID 2
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
@@ -520,7 +524,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnExportShifts C-Win
 ON CHOOSE OF btnExportShifts IN FRAME DEFAULT-FRAME /* Export */
 DO:
-    RUN pExport ('Employees').
+    RUN pExport ('Shifts').
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -825,6 +829,9 @@ PROCEDURE createTtblProdAce :
       ASSIGN 
         ttblStatus.dmiID = INT(ENTRY(1,lvProdAceData))
         ttblStatus.job = ENTRY(2,lvProdAceData)
+        ttblStatus.blank-no = INT(ENTRY(2,ttblStatus.job,' '))
+        ttblStatus.pass = INT(ENTRY(3,ttblStatus.job,' '))
+        ttblStatus.job = ENTRY(1,ttblStatus.job,' ')
         ttblStatus.productID = ENTRY(3,lvProdAceData)
         ttblStatus.runID = INT(ENTRY(6,lvProdAceData))
         ttblStatus.runComplete = ENTRY(10,lvProdAceData) EQ 'C'
@@ -863,14 +870,11 @@ PROCEDURE createTtblProdAce :
     END. /* if prodAceshift ne */
     ASSIGN
       lvProdAceResource = ttblResource.resource
-      lvProdAceJob  = LEFT-TRIM(ENTRY(2,lvProdAceData))
-      lvProdAceRun  = ENTRY(2,lvProdAceJob,'-')
-      lvProdAceForm = ENTRY(3,lvProdAceJob,'-')
-      lvProdAceJob  = ENTRY(1,lvProdAceJob,'-')
-      lvProdAceJob  = lvProdAceJob + '-'
-                    + STRING(INT(lvProdAceRun)) + '.'
-                    + STRING(INT(lvProdAceForm))
-                    .
+      lvProdAceJob      = ENTRY(2,lvProdAceData)
+      lvProdAceBlank    = ENTRY(2,lvProdAceJob,' ')
+      lvProdAcePass     = ENTRY(3,lvProdAceJob,' ')
+      lvProdAceJob      = ENTRY(1,lvProdAceJob,' ')
+      .
     IF NOT CAN-FIND(FIRST ttblJob
                     WHERE ttblJob.resource EQ lvProdAceResource
                       AND ttblJob.job EQ lvProdAceJob) AND
@@ -1031,12 +1035,12 @@ PROCEDURE enable_UI :
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
   DISPLAY selectedShift selectedStartDate selectedEndDate lvProdAceDir 
-          lvProdAceType lvEmpLogin lvProdAceBlankEmployee lvImportDir 
+          lvImportDir lvProdAceType lvEmpLogin lvProdAceBlankEmployee 
           lvResourceList 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   ENABLE btnExportMachines btnExportJobs btnExportEmployees btnExportShifts 
          btnImport selectedShift selectedStartDate selectedEndDate btnPost 
-         btnNonPost btnCancel lvProdAceDir lvProdAceBlankEmployee lvImportDir 
+         btnNonPost btnCancel lvProdAceDir lvImportDir lvProdAceBlankEmployee 
          lvResourceList btnSave btnReset btnExit 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
@@ -1109,6 +1113,9 @@ PROCEDURE pExport :
     DEFINE VARIABLE cProductID     AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cProdIDFile    AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cFile          AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cFile1         AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE firstJobsList  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE idx            AS INTEGER   NO-UNDO.
     
     IF ipcType EQ 'Jobs' THEN DO:
         EMPTY TEMP-TABLE ttblProductID.
@@ -1120,9 +1127,18 @@ PROCEDURE pExport :
             WHERE ttblJob.resource     EQ ttblResource.resource
               AND ttblJob.jobCompleted EQ NO
               AND ttblJob.liveUpdate   EQ YES
-            BY ttblResource.dmiID
-            BY ttblJob.jobSequence
+            BREAK BY ttblResource.dmiID
+                  BY ttblJob.jobSequence
             :
+            IF FIRST-OF(ttblResource.dmiID) THEN DO:
+                firstJobsList = firstJobsList
+                              + STRING(ttblResource.dmiID,'999') + '|'
+                              + ttblJob.job + ' '
+                              + STRING(INT(ttblJob.userField19)) + ' '
+                              + STRING(INT(ttblJob.userField20))
+                              + ','
+                              .
+            END. /* if first-of */
             ASSIGN
                 cProductID = REPLACE(ttblJob.userField08,'<Multi Item>',
                                      ttblJob.job + '.' + ttblResource.resource)
@@ -1133,10 +1149,12 @@ PROCEDURE pExport :
             PUT UNFORMATTED 
                 ttblJob.jobSequence ','
                 STRING(ttblResource.dmiID,'999') ',"'
-                ttblJob.job '","'
+                ttblJob.job ' '
+                INT(ttblJob.userField19) ' '
+                INT(ttblJob.userField20) '","'
                 cProductID '",'
                 REPLACE(ttblJob.userField15,',','') ',"",'
-                ttblJob.dueDate ',""'
+                YEAR(ttblJob.dueDate) STRING(MONTH(ttblJob.dueDate),'99') STRING(DAY(ttblJob.dueDate),'99') ',""'
                 SKIP 
                 .
             IF NOT CAN-FIND(FIRST ttblProductID
@@ -1152,6 +1170,13 @@ PROCEDURE pExport :
             END. /* if not can-find */
         END. /* each ttblresource */
         OUTPUT CLOSE.
+        firstJobsList = TRIM(firstJobsList,',').
+        DO idx = 1 TO NUM-ENTRIES(firstJobsList):
+            cFile1 = lvProdAceDir + '\JC' + ENTRY(1,ENTRY(idx,firstJobsList),'|') + '.dat'.
+            OUTPUT TO VALUE(cFile1).
+            EXPORT ENTRY(2,ENTRY(idx,firstJobsList),'|').
+            OUTPUT CLOSE.
+        END. /* do idx */
         OS-COPY VALUE(SEARCH(cFile)) VALUE(REPLACE(SEARCH(cFile),'.tmp','.dat')).
         OS-DELETE VALUE(SEARCH(cFile)).
         cFile = lvProdAceDir + '\wmsprods.tmp'.
