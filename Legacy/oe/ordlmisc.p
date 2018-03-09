@@ -142,18 +142,15 @@ for each ef OF xeb no-lock:
        oe-ordm.ord-line = oe-ordl.line
        oe-ordm.dscr     = "".
 
-      CREATE reftable.
-      ASSIGN
-       reftable.reftable = "oe/ordlmisc.p"
-       reftable.company  = cocode
-       reftable.loc      = STRING(oe-ordm.ord-no,"9999999999")
-       reftable.code     = STRING(oe-ordm.line,"9999999999")
-       reftable.code2    = oe-ordm.charge
-       reftable.val[1]   = 2
-       reftable.val[2]   = ef.eqty
-       reftable.val[3]   = ef.form-no
-       reftable.val[4]   = i
-       reftable.dscr     = ef.est-no.
+      
+      ASSIGN 
+             oe-ordm.miscType      = 2
+             oe-ordm.estPrepEqty   = ef.eqty
+             oe-ordm.estPrepLine   = ef.form-no
+             oe-ordm.miscInd       = string(i)
+             oe-ordm.est-no        = est-prep.est-no. 
+      
+      
 
       if taxit then oe-ordm.tax = true.
       IF PrepTax-log THEN 
