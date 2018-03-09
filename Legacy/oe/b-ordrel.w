@@ -228,23 +228,22 @@ DEFINE QUERY external_tables FOR oe-ordl.
 &Scoped-define KEY-PHRASE TRUE
 
 /* Definitions for BROWSE br_table                                      */
-&Scoped-define FIELDS-IN-QUERY-br_table tt-report.opened ~
-tt-report.s-basis[1] oe-rel.ship-id oe-rel.stat oe-rel.carrier ~
-oe-rel.tot-qty oe-rel.qty tt-report.po-no tt-report.lot-no ~
-tt-report.prom-date tt-report.stat oe-rel.ship-addr[1] oe-rel.ship-city ~
-oe-rel.ship-state tt-report.price tt-report.whsed oe-ordl.disc ~
-oe-ordl.t-price tt-report.frt-pay tt-report.flute oe-rel.spare-char-1 ~
-oe-rel.spare-char-2 oe-rel.spare-char-3 tt-report.q-rel oe-rel.r-no ~
-oe-rel.link-no tt-report.job-start-date tt-report.qty tt-report.prom-code ~
-tt-report.pr-uom 
-&Scoped-define ENABLED-FIELDS-IN-QUERY-br_table tt-report.s-basis[1] ~
+&Scoped-define FIELDS-IN-QUERY-br_table tt-report.opened oe-rel.s-code ~
+oe-rel.ship-id oe-rel.stat oe-rel.carrier oe-rel.tot-qty oe-rel.qty ~
+tt-report.po-no tt-report.lot-no tt-report.prom-date tt-report.stat ~
+oe-rel.ship-addr[1] oe-rel.ship-city oe-rel.ship-state tt-report.price ~
+tt-report.whsed oe-ordl.disc oe-ordl.t-price tt-report.frt-pay ~
+tt-report.flute oe-rel.spare-char-1 oe-rel.spare-char-2 oe-rel.spare-char-3 ~
+tt-report.q-rel oe-rel.r-no oe-rel.link-no tt-report.job-start-date ~
+tt-report.qty tt-report.prom-code tt-report.pr-uom 
+&Scoped-define ENABLED-FIELDS-IN-QUERY-br_table oe-rel.s-code ~
 oe-rel.ship-id oe-rel.stat oe-rel.carrier oe-rel.tot-qty oe-rel.qty ~
 tt-report.po-no tt-report.lot-no tt-report.prom-date tt-report.stat ~
 oe-rel.ship-addr[1] tt-report.price tt-report.whsed tt-report.frt-pay ~
 tt-report.flute oe-rel.spare-char-1 oe-rel.spare-char-2 tt-report.q-rel 
-&Scoped-define ENABLED-TABLES-IN-QUERY-br_table tt-report oe-rel
-&Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-br_table tt-report
-&Scoped-define SECOND-ENABLED-TABLE-IN-QUERY-br_table oe-rel
+&Scoped-define ENABLED-TABLES-IN-QUERY-br_table oe-rel tt-report
+&Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-br_table oe-rel
+&Scoped-define SECOND-ENABLED-TABLE-IN-QUERY-br_table tt-report
 &Scoped-define QUERY-STRING-br_table FOR EACH oe-rel WHERE oe-rel.company = oe-ordl.company ~
   AND oe-rel.ord-no = oe-ordl.ord-no ~
   AND oe-rel.i-no = oe-ordl.i-no ~
@@ -375,7 +374,7 @@ DEFINE BROWSE br_table
   QUERY br_table NO-LOCK DISPLAY
       tt-report.opened COLUMN-LABEL "Prt" FORMAT "Y/N":U WIDTH 5.4
             COLUMN-FONT 0
-      tt-report.s-basis[1] COLUMN-LABEL "S/I" FORMAT "!":U COLUMN-FONT 0
+      oe-rel.s-code COLUMN-LABEL "S/I" FORMAT "!":U
       oe-rel.ship-id COLUMN-LABEL "Ship To" FORMAT "x(8)":U COLUMN-FONT 0
       oe-rel.stat COLUMN-LABEL "S" FORMAT "X":U WIDTH 2
       oe-rel.carrier COLUMN-LABEL "Via" FORMAT "x(5)":U COLUMN-FONT 0
@@ -416,7 +415,7 @@ DEFINE BROWSE br_table
       tt-report.prom-code COLUMN-LABEL "Due Dt Chg Usr" FORMAT "x(5)":U
       tt-report.pr-uom COLUMN-LABEL "Due Dt Chg Rsn" FORMAT "x(4)":U
   ENABLE
-      tt-report.s-basis[1] HELP "B=Bill and Ship, I=Invoice Only, S=Ship Only, T=Transfer"
+      oe-rel.s-code HELP "B=Bill and Ship, I=Invoice Only, S=Ship Only, T=Transfer"
       oe-rel.ship-id
       oe-rel.stat
       oe-rel.carrier
@@ -536,63 +535,63 @@ ASSIGN
   AND ASI.oe-rel.line = ASI.oe-ordl.line"
      _JoinCode[2]      = "Temp-Tables.tt-report.rec-id = recid(oe-rel)"
      _FldNameList[1]   > Temp-Tables.tt-report.opened
-"tt-report.opened" "Prt" "Y/N" "logical" ? ? 0 ? ? ? no ? no no "5.4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[2]   > Temp-Tables.tt-report.s-basis[1]
-"tt-report.s-basis[1]" "S/I" "!" "character" ? ? 0 ? ? ? yes "B=Bill and Ship, I=Invoice Only, S=Ship Only, T=Transfer" no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"Temp-Tables.tt-report.opened" "Prt" "Y/N" "logical" ? ? 0 ? ? ? no ? no no "5.4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[2]   > asi.oe-rel.s-code
+"asi.oe-rel.s-code" "S/I" "!" "character" ? ? ? ? ? ? yes "B=Bill and Ship, I=Invoice Only, S=Ship Only, T=Transfer" no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   > ASI.oe-rel.ship-id
-"oe-rel.ship-id" "Ship To" ? "character" ? ? 0 ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"ASI.oe-rel.ship-id" "Ship To" ? "character" ? ? 0 ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[4]   > ASI.oe-rel.stat
-"oe-rel.stat" "S" ? "character" ? ? ? ? ? ? yes ? no no "2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"ASI.oe-rel.stat" "S" ? "character" ? ? ? ? ? ? yes ? no no "2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[5]   > ASI.oe-rel.carrier
-"oe-rel.carrier" "Via" ? "character" ? ? 0 ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"ASI.oe-rel.carrier" "Via" ? "character" ? ? 0 ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[6]   > ASI.oe-rel.tot-qty
-"oe-rel.tot-qty" "Sched Qty" ? "decimal" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"ASI.oe-rel.tot-qty" "Sched Qty" ? "decimal" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[7]   > ASI.oe-rel.qty
-"oe-rel.qty" "Actual Qty" ? "decimal" ? ? 0 ? ? ? yes ? no no "16" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"ASI.oe-rel.qty" "Actual Qty" ? "decimal" ? ? 0 ? ? ? yes ? no no "16" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[8]   > Temp-Tables.tt-report.po-no
-"tt-report.po-no" "Customer PO#" ? "character" ? ? 0 ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"Temp-Tables.tt-report.po-no" "Customer PO#" ? "character" ? ? 0 ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[9]   > Temp-Tables.tt-report.lot-no
-"tt-report.lot-no" "Customer Lot #" ? "character" ? ? 0 ? ? ? yes ? no no "21.8" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"Temp-Tables.tt-report.lot-no" "Customer Lot #" ? "character" ? ? 0 ? ? ? yes ? no no "21.8" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[10]   > Temp-Tables.tt-report.prom-date
-"tt-report.prom-date" "Due Date" ? "date" ? ? ? ? ? ? yes "Enter the Due Date." no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"Temp-Tables.tt-report.prom-date" "Due Date" ? "date" ? ? ? ? ? ? yes "Enter the Due Date." no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[11]   > Temp-Tables.tt-report.stat
-"tt-report.stat" "Rel Date" "99/99/9999" "character" ? ? 0 ? ? ? yes ? no no "18.4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"Temp-Tables.tt-report.stat" "Rel Date" "99/99/9999" "character" ? ? 0 ? ? ? yes ? no no "18.4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[12]   > ASI.oe-rel.ship-addr[1]
-"oe-rel.ship-addr[1]" "Ship To Address" "x(26)" "character" ? ? 0 ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"ASI.oe-rel.ship-addr[1]" "Ship To Address" "x(26)" "character" ? ? 0 ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[13]   > ASI.oe-rel.ship-city
-"oe-rel.ship-city" ? ? "character" ? ? 0 ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"ASI.oe-rel.ship-city" ? ? "character" ? ? 0 ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[14]   > ASI.oe-rel.ship-state
-"oe-rel.ship-state" ? ? "character" ? ? 0 ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"ASI.oe-rel.ship-state" ? ? "character" ? ? 0 ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[15]   > Temp-Tables.tt-report.price
-"tt-report.price" "Sell Price" ? "decimal" ? ? 0 ? ? ? yes "Enter Sell Price" no no "16" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"Temp-Tables.tt-report.price" "Sell Price" ? "decimal" ? ? 0 ? ? ? yes "Enter Sell Price" no no "16" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[16]   > Temp-Tables.tt-report.whsed
-"tt-report.whsed" "$0" "Y/N" "logical" ? ? 0 ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"Temp-Tables.tt-report.whsed" "$0" "Y/N" "logical" ? ? 0 ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[17]   = ASI.oe-ordl.disc
      _FldNameList[18]   > ASI.oe-ordl.t-price
-"oe-ordl.t-price" "Ext Order Price" ? "decimal" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"ASI.oe-ordl.t-price" "Ext Order Price" ? "decimal" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[19]   > Temp-Tables.tt-report.frt-pay
-"tt-report.frt-pay" "Frt Pay" "x(8)" "character" ? ? 0 ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"Temp-Tables.tt-report.frt-pay" "Frt Pay" "x(8)" "character" ? ? 0 ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[20]   > Temp-Tables.tt-report.flute
-"tt-report.flute" "FOB" "x(1)" "character" ? ? 0 ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"Temp-Tables.tt-report.flute" "FOB" "x(1)" "character" ? ? 0 ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[21]   > ASI.oe-rel.spare-char-1
-"oe-rel.spare-char-1" "Ship From" "x(5)" "character" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"ASI.oe-rel.spare-char-1" "Ship From" "x(5)" "character" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[22]   > ASI.oe-rel.spare-char-2
-"oe-rel.spare-char-2" "Dt Chg Reason" "x(30)" "character" ? ? ? ? ? ? yes ? no no "23" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"ASI.oe-rel.spare-char-2" "Dt Chg Reason" "x(30)" "character" ? ? ? ? ? ? yes ? no no "23" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[23]   > ASI.oe-rel.spare-char-3
-"oe-rel.spare-char-3" "Dt Chg User" ? "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"ASI.oe-rel.spare-char-3" "Dt Chg User" ? "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[24]   > Temp-Tables.tt-report.q-rel
-"tt-report.q-rel" "Release #" ">>>>>>9" "integer" ? ? 0 ? ? ? yes ? no no "13.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"Temp-Tables.tt-report.q-rel" "Release #" ">>>>>>9" "integer" ? ? 0 ? ? ? yes ? no no "13.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[25]   > ASI.oe-rel.r-no
-"oe-rel.r-no" "Seq. #" ">>>>>>>>9" "integer" ? ? ? ? ? ? no ? no no "15" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"ASI.oe-rel.r-no" "Seq. #" ">>>>>>>>9" "integer" ? ? ? ? ? ? no ? no no "15" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[26]   > ASI.oe-rel.link-no
-"oe-rel.link-no" "Int. Release" ? "integer" ? ? ? ? ? ? no ? no no "16.6" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"ASI.oe-rel.link-no" "Int. Release" ? "integer" ? ? ? ? ? ? no ? no no "16.6" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[27]   > Temp-Tables.tt-report.job-start-date
-"tt-report.job-start-date" "Shp Date" ? "date" ? ? ? ? ? ? no "Enter the Ship Date" no no "14.4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"Temp-Tables.tt-report.job-start-date" "Shp Date" ? "date" ? ? ? ? ? ? no "Enter the Ship Date" no no "14.4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[28]   = Temp-Tables.tt-report.qty
      _FldNameList[29]   > Temp-Tables.tt-report.prom-code
-"tt-report.prom-code" "Due Dt Chg Usr" "x(5)" "character" ? ? ? ? ? ? no "Enter code the Due Date Reason Code" no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"Temp-Tables.tt-report.prom-code" "Due Dt Chg Usr" "x(5)" "character" ? ? ? ? ? ? no "Enter code the Due Date Reason Code" no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[30]   > Temp-Tables.tt-report.pr-uom
-"tt-report.pr-uom" "Due Dt Chg Rsn" ? "character" ? ? ? ? ? ? no "Enter the Due Date Change Reason" no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"Temp-Tables.tt-report.pr-uom" "Due Dt Chg Rsn" ? "character" ? ? ? ? ? ? no "Enter the Due Date Change Reason" no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is OPENED
 */  /* BROWSE br_table */
 &ANALYZE-RESUME
@@ -645,7 +644,7 @@ DO:
               FIND oe-ord NO-LOCK
                   WHERE oe-ord.company EQ oe-rel.company 
                     AND oe-ord.ord-no  EQ oe-rel.ord-no.
-              IF tt-report.s-basis[1]:SCREEN-VALUE IN BROWSE {&browse-name} EQ "T" AND lv-cust-x NE "" THEN
+              IF oe-rel.s-code:SCREEN-VALUE IN BROWSE {&browse-name} EQ "T" AND lv-cust-x NE "" THEN
                 RUN windows/l-shipt3.w (g_company, g_loc, oe-ord.cust-no, lw-focus:SCREEN-VALUE, OUTPUT char-val, OUTPUT rec-val).
               ELSE
                 RUN windows/l-shipt2.w (g_company, g_loc, oe-ord.cust-no, lw-focus:SCREEN-VALUE, OUTPUT char-val, OUTPUT rec-val).
@@ -660,7 +659,7 @@ DO:
               IF char-val <> "" THEN lw-focus:SCREEN-VALUE = ENTRY(1,char-val).
               RETURN NO-APPLY.
          END.
-         WHEN "s-basis" THEN DO:
+         WHEN "s-code" THEN DO:
               RUN windows/l-cddscr.w ("Release Types", lv-s-codes, lv-s-dscrs, lw-focus:SCREEN-VALUE, OUTPUT char-val).
               IF char-val NE "" THEN lw-focus:SCREEN-VALUE = ENTRY(1,char-val).
          END.
@@ -823,9 +822,9 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME tt-report.s-basis[1]
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tt-report.s-basis[1] br_table _BROWSE-COLUMN B-table-Win
-ON ENTRY OF tt-report.s-basis[1] IN BROWSE br_table /* S/I */
+&Scoped-define SELF-NAME oe-rel.s-code
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-rel.s-code br_table _BROWSE-COLUMN B-table-Win
+ON ENTRY OF oe-rel.s-code IN BROWSE br_table /* S/I */
 DO:
   IF INDEX("AB",get-rel-stat()) GT 0 OR ll-transfer THEN DO:
     APPLY "tab" TO {&self-name} IN BROWSE {&browse-name}.
@@ -839,8 +838,8 @@ END.
 &ANALYZE-RESUME
 
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tt-report.s-basis[1] br_table _BROWSE-COLUMN B-table-Win
-ON LEAVE OF tt-report.s-basis[1] IN BROWSE br_table /* S/I */
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-rel.s-code br_table _BROWSE-COLUMN B-table-Win
+ON LEAVE OF oe-rel.s-code IN BROWSE br_table /* S/I */
 DO:
   IF LASTKEY NE -1 THEN DO:
     RUN valid-s-code NO-ERROR.
@@ -2049,7 +2048,7 @@ FIND FIRST oe-ctrl WHERE oe-ctrl.company = xoe-ord.company NO-LOCK .
 {sys/inc/addrelse.i}
 {sys/inc/oereordr.i}
 
-v-scr-s-code = tt-report.s-basis[1]:SCREEN-VALUE IN BROWSE {&browse-name}.
+v-scr-s-code = oe-rel.s-code:SCREEN-VALUE IN BROWSE {&browse-name}.
 
 FIND FIRST cust NO-LOCK 
         WHERE cust.company EQ xoe-ord.company
@@ -2099,9 +2098,9 @@ SESSION:SET-WAIT-STATE("general").
     IF v-first THEN DO ON ENDKEY UNDO, RETRY:
          ASSIGN  v-first = NO
                  choice  = YES
-                 v-invoice = AVAIL tt-report AND tt-report.s-basis[1] EQ "I".
+                 v-invoice = AVAIL tt-report AND oe-rel.s-code EQ "I".
         MESSAGE "Create " +
-                TRIM(STRING(AVAIL tt-report AND tt-report.s-basis[1] EQ "I","Invoice/BOL")) +
+                TRIM(STRING(AVAIL tt-report AND oe-rel.s-code EQ "I","Invoice/BOL")) +
                 " for Release Date-" + trim(STRING(oe-rel.rel-date)) +
                 " and ShipID-" +  trim(oe-rel.ship-id) +
                 " and FOB-" + TRIM(tt-report.flute) + " ?"
@@ -3047,7 +3046,7 @@ PROCEDURE create-report-record-1 :
      IF AVAIL sys-ctrl-shipto AND sys-ctrl-shipto.log-fld THEN v-reltype = sys-ctrl-shipto.char-fld.
      ELSE IF AVAIL sys-ctrl AND sys-ctrl.log-fld THEN v-reltype = sys-ctrl.char-fld.
      IF v-relType <> "" THEN DO:
-
+          IF oe-rel.s-code EQ '' THEN DO:
            FIND bf-oe-rel WHERE ROWID(bf-oe-rel) EQ ROWID(oe-rel)
               EXCLUSIVE-LOCK.
            bf-oe-rel.s-code = IF ll-transfer THEN "T"
@@ -3055,6 +3054,7 @@ PROCEDURE create-report-record-1 :
                                     ELSE SUBSTRING(v-relType,1,1).
            FIND CURRENT bf-oe-rel NO-LOCK.
            RELEASE bf-oe-rel.
+         END.
      END.
 
 
@@ -3153,7 +3153,7 @@ PROCEDURE custom-panel-state :
     IF io-panel-state EQ "add-only" OR io-panel-state EQ "disable-all" THEN
       io-panel-state = "initial".
     ELSE DO:
-      IF AVAIL tt-report AND tt-report.s-basis[1] EQ "I" THEN
+      IF AVAIL tt-report AND oe-rel.s-code EQ "I" THEN
         io-panel-state = "NoBOL".
 
       FIND FIRST itemfg NO-LOCK
@@ -3428,10 +3428,7 @@ PROCEDURE local-assign-record :
   /* Code placed here will execute AFTER standard behavior.    */
   oe-rel.po-no = tt-report.po-no.
 
-
-   oe-rel.s-code = tt-report.s-basis[1].
-
-
+  
   IF oe-ordl.is-a-component AND CAN-DO("B,I",oe-rel.s-code) THEN oe-rel.s-code = "S".
   
   /* Storing due date, due date change reason, due date change user */
@@ -3713,7 +3710,7 @@ PROCEDURE local-create-record :
             FOR EACH shipto
                 WHERE shipto.company  EQ cocode
                 AND shipto.cust-no EQ (IF lv-cust-x NE ""         AND
-                tt-report.s-basis[1] EQ "T" THEN lv-cust-x
+                oe-rel.s-code EQ "T" THEN lv-cust-x
                 ELSE oe-ord.cust-no)
                 NO-LOCK
                 BREAK BY shipto.ship-no DESC:
@@ -4130,7 +4127,7 @@ PROCEDURE local-enable-fields :
       IF INDEX("AB",lv-stat) GT 0 OR ll-transfer THEN
         APPLY "entry" TO tt-report.opened IN BROWSE {&browse-name}.
       ELSE
-        APPLY "entry" TO tt-report.s-basis[1] IN BROWSE {&browse-name}.
+        APPLY "entry" TO oe-rel.s-code IN BROWSE {&browse-name}.
     END.
       
   v-browse-in-update = YES.
@@ -4290,19 +4287,19 @@ PROCEDURE local-update-record :
              v-qty-ship = v-qty-ship + bf-rel.qty .
      END.
 
-      IF  tt-report.s-basis[1]:SCREEN-VALUE IN BROWSE {&browse-name} EQ "B"  THEN DO:
+      IF  oe-rel.s-code:SCREEN-VALUE IN BROWSE {&browse-name} EQ "B"  THEN DO:
         IF  v-qty-inv > (v-qty-ship ) THEN DO:
           MESSAGE "Invoice Only Quantity Exceeds Ship Only Quantity." +
               "Ship Only Release should be added to Offset Invoice Only Quantity." +
               "Please Change Release Type to S for Ship Only."
              VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO UPDATE ll-ansp AS LOG.
             IF ll-ansp THEN DO:
-                APPLY "entry" TO tt-report.s-basis[1] IN BROWSE {&browse-name}.
+                APPLY "entry" TO oe-rel.s-code IN BROWSE {&browse-name}.
                 RETURN NO-APPLY.
             END.   
         END.
     END.
-    IF  tt-report.s-basis[1]:SCREEN-VALUE IN BROWSE {&browse-name} EQ "I"  THEN DO:
+    IF  oe-rel.s-code:SCREEN-VALUE IN BROWSE {&browse-name} EQ "I"  THEN DO:
         IF  (v-qty-inv + INT(oe-rel.qty:SCREEN-VALUE IN BROWSE {&browse-name})) > oe-ordl.qty THEN DO:
           MESSAGE "Invoice Only Quantity Exceeds Order Quantity." +
                   " Do you want continue.."
@@ -4328,7 +4325,7 @@ PROCEDURE local-update-record :
      MESSAGE "Shipto already exists for this date. Continue with unique PO#?"
              VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO UPDATE ll-ans AS LOG.
      IF NOT ll-ans THEN DO:
-        APPLY "entry" TO tt-report.s-basis[1].
+        APPLY "entry" TO oe-rel.s-code.
         RETURN NO-APPLY.
      END.   
   END.
@@ -4423,7 +4420,7 @@ PROCEDURE local-update-record :
   IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
   RUN reset-button IN WIDGET-HANDLE(char-hdl) (YES).
 
-  IF RelType-int = 1 AND AVAIL tt-report AND tt-report.s-basis[1] EQ "I" THEN DO:
+  IF RelType-int = 1 AND AVAIL tt-report AND oe-rel.s-code EQ "I" THEN DO:
 
      /* Check if a matching 'S' record already exists */
      lMatchingSRecordFound = NO.
@@ -4811,7 +4808,7 @@ DEF BUFFER bf-oe-rel FOR oe-rel.
 DEF VAR lrCurrentRel AS ROWID NO-UNDO.
 SESSION:SET-WAIT-STATE ('general').
 
- /*IF tt-report.s-basis[1] = "I"  THEN DO: 
+ /*IF oe-rel.s-code = "I"  THEN DO: 
      MESSAGE "Invoice only record can not Release..." VIEW-AS ALERT-BOX ERROR.
      RETURN.
  END.*/ /* Ticket - 22911 */
@@ -4833,7 +4830,7 @@ end.
   
   FIND xoe-ord WHERE xoe-ord.company = g_company AND
                      xoe-ord.ord-no = oe-ordl.ord-no NO-LOCK.
-  v-scr-s-code = tt-report.s-basis[1]:SCREEN-VALUE IN BROWSE {&browse-name}.
+  v-scr-s-code = oe-rel.s-code:SCREEN-VALUE IN BROWSE {&browse-name}.
   IF v-scr-s-code NE "I" THEN DO:
     RUN check-release NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN.  
@@ -4906,7 +4903,7 @@ end.
   FIND xoe-ord WHERE xoe-ord.company = g_company AND
                      xoe-ord.ord-no = oe-ordl.ord-no NO-LOCK.
 
-  v-scr-s-code = tt-report.s-basis[1]:SCREEN-VALUE IN BROWSE {&browse-name}.
+  v-scr-s-code = oe-rel.s-code:SCREEN-VALUE IN BROWSE {&browse-name}.
   IF v-scr-s-code NE "I" THEN DO:
     RUN check-release NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN.    
@@ -5628,10 +5625,10 @@ PROCEDURE valid-s-code :
 ------------------------------------------------------------------------------*/
   
   DO WITH FRAME {&FRAME-NAME}:
-    IF LOOKUP(tt-report.s-basis[1]:SCREEN-VALUE IN BROWSE {&browse-name},lv-s-codes) LE 0 THEN DO:
-      MESSAGE "Invalid " + TRIM(tt-report.s-basis[1]:LABEL IN BROWSE {&browse-name}) +
+    IF LOOKUP(oe-rel.s-code:SCREEN-VALUE IN BROWSE {&browse-name},lv-s-codes) LE 0 THEN DO:
+      MESSAGE "Invalid " + TRIM(oe-rel.s-code:LABEL IN BROWSE {&browse-name}) +
               ", try help..." VIEW-AS ALERT-BOX.
-      APPLY "entry" TO tt-report.s-basis[1] IN BROWSE {&browse-name}.
+      APPLY "entry" TO oe-rel.s-code IN BROWSE {&browse-name}.
       RETURN ERROR.
     END.
   END.
@@ -5688,7 +5685,7 @@ PROCEDURE valid-ship-id :
         AND shipto.ship-id EQ oe-rel.ship-id:SCREEN-VALUE IN BROWSE {&browse-name}
         USE-INDEX ship-id NO-ERROR.
 
-    IF NOT AVAIL shipto AND tt-report.s-basis[1]:SCREEN-VALUE IN BROWSE {&browse-name} EQ "T" THEN DO:
+    IF NOT AVAIL shipto AND oe-rel.s-code:SCREEN-VALUE IN BROWSE {&browse-name} EQ "T" THEN DO:
         FOR EACH cust NO-LOCK
         WHERE cust.company EQ oe-rel.company
         AND cust.active  EQ "X",
@@ -5708,7 +5705,7 @@ PROCEDURE valid-ship-id :
 
     IF AVAIL shipto THEN li-ship-no = shipto.ship-no.
     ELSE
-      IF NOT AVAIL shipto AND LOOKUP(tt-report.s-basis[1]:SCREEN-VALUE IN BROWSE {&browse-name},"B,I,S")  <> 0 THEN DO:
+      IF NOT AVAIL shipto AND LOOKUP(oe-rel.s-code:SCREEN-VALUE IN BROWSE {&browse-name},"B,I,S")  <> 0 THEN DO:
             FOR EACH cust NO-LOCK
                 WHERE cust.company EQ oe-rel.company
                 AND cust.active  EQ "X",
