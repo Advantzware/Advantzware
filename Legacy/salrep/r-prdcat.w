@@ -20,5 +20,6 @@ DO TRANSACTION:
 END.
 
 cAOAFile = SEARCH("AOA/r-prdcat.p").
-IF RunAOAVersion-log AND cAOAFile NE ? THEN RUN AOA/r-prdcat.p.
-ELSE RUN salrep/r-prdcatN.w PERSISTENT.
+IF RunAOAVersion1-log EQ ? AND cAOAFile NE ? THEN RUN AOA/r-prdcat.p.
+ELSE IF RunAOAVersion1-log NE NO AND RunAOAVersion2-log THEN RUN salrep/r-prdcatN.w PERSISTENT.
+ELSE RUN salrep/r-prdcatA.w PERSISTENT.

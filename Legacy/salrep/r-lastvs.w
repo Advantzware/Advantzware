@@ -19,5 +19,6 @@ DO TRANSACTION:
 END.
 
 cAOAFile = SEARCH("AOA/r-lastvs.p").
-IF RunAOAVersion-log AND cAOAFile NE ? THEN RUN AOA/r-lastvs.p.
-ELSE RUN salrep/r-lastvsN.w PERSISTENT.
+IF RunAOAVersion1-log EQ ? AND cAOAFile NE ? THEN RUN AOA/r-lastvs.p.
+ELSE IF RunAOAVersion1-log NE NO AND RunAOAVersion2-log THEN RUN salrep/r-lastvsN.w PERSISTENT.
+ELSE RUN salrep/r-lastvsA.w PERSISTENT.

@@ -19,5 +19,6 @@ DO TRANSACTION:
 END.
 
 cAOAFile = SEARCH("AOA/r-pstchk.p").
-IF RunAOAVersion-log AND cAOAFile NE ? THEN RUN AOA/r-pstchk.p.
-ELSE RUN glrep/r-pstchN.w PERSISTENT.
+IF RunAOAVersion1-log EQ ? AND cAOAFile NE ? THEN RUN AOA/r-pstchk.p.
+ELSE IF RunAOAVersion1-log NE NO AND RunAOAVersion2-log THEN RUN glrep/r-pstchN.w PERSISTENT.
+ELSE RUN glrep/r-pstchA.w PERSISTENT.

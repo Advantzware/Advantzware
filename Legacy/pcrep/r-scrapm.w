@@ -19,5 +19,6 @@ DO TRANSACTION:
 END.
 
 cAOAFile = SEARCH("AOA/r-scrapm.p").
-IF RunAOAVersion-log AND cAOAFile NE ? THEN RUN AOA/r-scrapm.p.
-ELSE RUN pcrep/r-scrapmN.w PERSISTENT.
+IF RunAOAVersion1-log EQ ? AND cAOAFile NE ? THEN RUN AOA/r-scrapm.p.
+ELSE IF RunAOAVersion1-log NE NO AND RunAOAVersion2-log THEN RUN pcrep/r-scrapmN.w PERSISTENT.
+ELSE RUN pcrep/r-scrapmA.w PERSISTENT.

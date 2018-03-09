@@ -19,5 +19,6 @@ DO TRANSACTION:
 END.
 
 cAOAFile = SEARCH("AOA/r-joblog.p").
-IF RunAOAVersion-log AND cAOAFile NE ? THEN RUN AOA/r-joblog.p.
-ELSE RUN oerep/r-joblgN.w PERSISTENT.
+IF RunAOAVersion1-log EQ ? AND cAOAFile NE ? THEN RUN AOA/r-joblog.p.
+ELSE IF RunAOAVersion1-log NE NO AND RunAOAVersion2-log THEN RUN oerep/r-joblgN.w PERSISTENT.
+ELSE RUN oerep/r-joblgA.w PERSISTENT.

@@ -19,5 +19,6 @@ DO TRANSACTION:
 END.
 
 cAOAFile = SEARCH("AOA/r-carr.p").
-IF RunAOAVersion-log AND cAOAFile NE ? THEN RUN AOA/r-carr.p.
-ELSE RUN arrep/r-carrN.w PERSISTENT.
+IF RunAOAVersion1-log EQ ? AND cAOAFile NE ? THEN RUN AOA/r-carr.p.
+ELSE IF RunAOAVersion1-log NE NO AND RunAOAVersion2-log THEN RUN arrep/r-carrN.w PERSISTENT.
+ELSE RUN arrep/r-carrA.w PERSISTENT.

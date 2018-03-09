@@ -19,5 +19,6 @@ DO TRANSACTION:
 END.
 
 cAOAFile = SEARCH("AOA/r-qtytot.p").
-IF RunAOAVersion-log AND cAOAFile NE ? THEN RUN AOA/r-qtytot.p.
-ELSE RUN fgrep/r-qtytotN.w PERSISTENT.
+IF RunAOAVersion1-log EQ ? AND cAOAFile NE ? THEN RUN AOA/r-qtytot.p.
+ELSE IF RunAOAVersion1-log NE NO AND RunAOAVersion2-log THEN RUN fgrep/r-qtytotN.w PERSISTENT.
+ELSE RUN fgrep/r-qtytotA.w PERSISTENT.

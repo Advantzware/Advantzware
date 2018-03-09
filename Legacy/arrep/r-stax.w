@@ -19,5 +19,6 @@ DO TRANSACTION:
 END.
 
 cAOAFile = SEARCH("AOA/r-stax.p").
-IF RunAOAVersion-log AND cAOAFile NE ? THEN RUN AOA/r-stax.p.
-ELSE RUN arrep/r-staxN.w PERSISTENT.
+IF RunAOAVersion1-log EQ ? AND cAOAFile NE ? THEN RUN AOA/r-stax.p.
+ELSE IF RunAOAVersion1-log NE NO AND RunAOAVersion2-log THEN RUN arrep/r-staxN.w PERSISTENT.
+ELSE RUN arrep/r-staxA.w PERSISTENT.

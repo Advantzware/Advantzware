@@ -19,5 +19,6 @@ DO TRANSACTION:
 END.
 
 cAOAFile = SEARCH("AOA/r-wipbct.p").
-IF RunAOAVersion-log AND cAOAFile NE ? THEN RUN AOA/r-wipbct.p.
-ELSE RUN jcrep/r-wipbctN.w PERSISTENT.
+IF RunAOAVersion1-log EQ ? AND cAOAFile NE ? THEN RUN AOA/r-wipbct.p.
+ELSE IF RunAOAVersion1-log NE NO AND RunAOAVersion2-log THEN RUN jcrep/r-wipbctN.w PERSISTENT.
+ELSE RUN jcrep/r-wipbctA.w PERSISTENT.

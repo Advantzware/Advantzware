@@ -19,5 +19,6 @@ DO TRANSACTION:
 END.
 
 cAOAFile = SEARCH("AOA/r-curdet.p").
-IF RunAOAVersion-log AND cAOAFile NE ? THEN RUN AOA/r-curdet.p.
-ELSE RUN glrep/r-curdetN.w PERSISTENT.
+IF RunAOAVersion1-log EQ ? AND cAOAFile NE ? THEN RUN AOA/r-curdet.p.
+ELSE IF RunAOAVersion1-log NE NO AND RunAOAVersion2-log THEN RUN glrep/r-curdetN.w PERSISTENT.
+ELSE RUN glrep/r-curdetA.w PERSISTENT.

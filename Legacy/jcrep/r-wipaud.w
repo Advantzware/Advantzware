@@ -19,5 +19,6 @@ DO TRANSACTION:
 END.
 
 cAOAFile = SEARCH("AOA/r-wipaud.p").
-IF RunAOAVersion-log AND cAOAFile NE ? THEN RUN AOA/r-wipaud.p.
-ELSE RUN jcrep/r-wipaudN.w PERSISTENT.
+IF RunAOAVersion1-log EQ ? AND cAOAFile NE ? THEN RUN AOA/r-wipaud.p.
+ELSE IF RunAOAVersion1-log NE NO AND RunAOAVersion2-log THEN RUN jcrep/r-wipaudN.w PERSISTENT.
+ELSE RUN jcrep/r-wipaudA.w PERSISTENT.

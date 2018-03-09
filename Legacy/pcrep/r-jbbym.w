@@ -19,5 +19,6 @@ DO TRANSACTION:
 END.
 
 cAOAFile = SEARCH("AOA/r-jbbym.p").
-IF RunAOAVersion-log AND cAOAFile NE ? THEN RUN AOA/r-jbbym.p.
-ELSE RUN pcrep/r-jbbymN.w PERSISTENT.
+IF RunAOAVersion1-log EQ ? AND cAOAFile NE ? THEN RUN AOA/r-jbbym.p.
+ELSE IF RunAOAVersion1-log NE NO AND RunAOAVersion2-log THEN RUN pcrep/r-jbbymN.w PERSISTENT.
+ELSE RUN pcrep/r-jbbymA.w PERSISTENT.

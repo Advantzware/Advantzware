@@ -19,5 +19,6 @@ DO TRANSACTION:
 END.
 
 cAOAFile = SEARCH("AOA/r-notvou.p").
-IF RunAOAVersion-log AND cAOAFile NE ? THEN RUN AOA/r-notvou.p.
-ELSE RUN porep/r-notvouN.w PERSISTENT.
+IF RunAOAVersion1-log EQ ? AND cAOAFile NE ? THEN RUN AOA/r-notvou.p.
+ELSE IF RunAOAVersion1-log NE NO AND RunAOAVersion2-log THEN RUN porep/r-notvouN.w PERSISTENT.
+ELSE RUN porep/r-notvouA.w PERSISTENT.

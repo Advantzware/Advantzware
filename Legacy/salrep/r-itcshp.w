@@ -21,5 +21,6 @@ DO TRANSACTION:
 END.
 
 cAOAFile = SEARCH("AOA/r-itcshp.p").
-IF RunAOAVersion-log AND cAOAFile NE ? THEN RUN AOA/r-itcshp.p.
-ELSE RUN salrep/r-itcshN.w PERSISTENT.
+IF RunAOAVersion1-log EQ ? AND cAOAFile NE ? THEN RUN AOA/r-itcshp.p.
+ELSE IF RunAOAVersion1-log NE NO AND RunAOAVersion2-log THEN RUN salrep/r-itcshN.w PERSISTENT.
+ELSE RUN salrep/r-itcshA.w PERSISTENT.

@@ -19,5 +19,6 @@ DO TRANSACTION:
 END.
 
 cAOAFile = SEARCH("AOA/r-cshreq.p").
-IF RunAOAVersion-log AND cAOAFile NE ? THEN RUN AOA/r-cshreq.p.
-ELSE RUN arrep/r-cshreqN.w PERSISTENT.
+IF RunAOAVersion1-log EQ ? AND cAOAFile NE ? THEN RUN AOA/r-cshreq.p.
+ELSE IF RunAOAVersion1-log NE NO AND RunAOAVersion2-log THEN RUN arrep/r-cshreqN.w PERSISTENT.
+ELSE RUN arrep/r-cshreqA.w PERSISTENT.

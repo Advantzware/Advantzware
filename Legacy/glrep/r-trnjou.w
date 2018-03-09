@@ -19,5 +19,6 @@ DO TRANSACTION:
 END.
 
 cAOAFile = SEARCH("AOA/r-trnjou.p").
-IF RunAOAVersion-log AND cAOAFile NE ? THEN RUN AOA/r-trnjou.p.
-ELSE RUN glrep/r-trnjoN.w PERSISTENT.
+IF RunAOAVersion1-log EQ ? AND cAOAFile NE ? THEN RUN AOA/r-trnjou.p.
+ELSE IF RunAOAVersion1-log NE NO AND RunAOAVersion2-log THEN RUN glrep/r-trnjoN.w PERSISTENT.
+ELSE RUN glrep/r-trnjoA.w PERSISTENT.

@@ -19,5 +19,6 @@ DO TRANSACTION:
 END.
 
 cAOAFile = SEARCH("AOA/r-mtdsub.p").
-IF RunAOAVersion-log AND cAOAFile NE ? THEN RUN AOA/r-mtdsub.p.
-ELSE RUN aprep/r-mtdsubN.w PERSISTENT.
+IF RunAOAVersion1-log EQ ? AND cAOAFile NE ? THEN RUN AOA/r-mtdsub.p.
+ELSE IF RunAOAVersion1-log NE NO AND RunAOAVersion2-log THEN RUN aprep/r-mtdsubN.w PERSISTENT.
+ELSE RUN aprep/r-mtdsubA.w PERSISTENT.

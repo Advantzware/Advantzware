@@ -19,5 +19,6 @@ DO TRANSACTION:
 END.
 
 cAOAFile = SEARCH("AOA/r-hotsII.p").
-IF RunAOAVersion-log AND cAOAFile NE ? THEN RUN AOA/r-hotsII.p.
-ELSE RUN oerep/r-hotIIN.w PERSISTENT.
+IF RunAOAVersion1-log EQ ? AND cAOAFile NE ? THEN RUN AOA/r-hotsII.p.
+ELSE IF RunAOAVersion1-log NE NO AND RunAOAVersion2-log THEN RUN oerep/r-hotIIN.w PERSISTENT.
+ELSE RUN oerep/r-hotIIA.w PERSISTENT.

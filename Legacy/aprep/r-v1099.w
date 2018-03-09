@@ -19,5 +19,6 @@ DO TRANSACTION:
 END.
 
 cAOAFile = SEARCH("AOA/r-v1099.p").
-IF RunAOAVersion-log AND cAOAFile NE ? THEN RUN AOA/r-v1099.p.
-ELSE RUN aprep/r-v1099N.w PERSISTENT.
+IF RunAOAVersion1-log EQ ? AND cAOAFile NE ? THEN RUN AOA/r-v1099.p.
+ELSE IF RunAOAVersion1-log NE NO AND RunAOAVersion2-log THEN RUN aprep/r-v1099N.w PERSISTENT.
+ELSE RUN aprep/r-v1099A.w PERSISTENT.

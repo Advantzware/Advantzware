@@ -20,5 +20,6 @@ DO TRANSACTION:
 END.
 
 cAOAFile = SEARCH("AOA/r-promac.p").
-IF RunAOAVersion-log AND cAOAFile NE ? THEN RUN AOA/r-promac.p.
-ELSE RUN pcrep/r-promacN.w PERSISTENT.
+IF RunAOAVersion1-log EQ ? AND cAOAFile NE ? THEN RUN AOA/r-promac.p.
+ELSE IF RunAOAVersion1-log NE NO AND RunAOAVersion2-log THEN RUN pcrep/r-promacN.w PERSISTENT.
+ELSE RUN pcrep/r-promacA.w PERSISTENT.
