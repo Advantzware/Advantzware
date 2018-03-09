@@ -19,5 +19,6 @@ DO TRANSACTION:
 END.
 
 cAOAFile = SEARCH("AOA/r-msfkic.p").
-IF RunAOAVersion-log AND cAOAFile NE ? THEN RUN AOA/r-msfkic.p.
-ELSE RUN jcrep/r-msfkicN.w PERSISTENT.
+IF RunAOAVersion1-log EQ ? AND cAOAFile NE ? THEN RUN AOA/r-msfkic.p.
+ELSE IF RunAOAVersion1-log NE NO AND RunAOAVersion2-log THEN RUN jcrep/r-msfkicN.w PERSISTENT.
+ELSE RUN jcrep/r-msfkicA.w PERSISTENT.

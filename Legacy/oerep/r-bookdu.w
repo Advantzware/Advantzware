@@ -19,5 +19,6 @@ DO TRANSACTION:
 END.
 
 cAOAFile = SEARCH("AOA/r-bookdu.p").
-IF RunAOAVersion-log AND cAOAFile NE ? THEN RUN AOA/r-bookdu.p.
-ELSE RUN oerep/r-bokduN.w PERSISTENT.
+IF RunAOAVersion1-log EQ ? AND cAOAFile NE ? THEN RUN AOA/r-bookdu.p.
+ELSE IF RunAOAVersion1-log NE NO AND RunAOAVersion2-log THEN RUN oerep/r-bokduN.w PERSISTENT.
+ELSE RUN oerep/r-bokduA.w PERSISTENT.

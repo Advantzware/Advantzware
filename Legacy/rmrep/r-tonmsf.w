@@ -19,5 +19,6 @@ DO TRANSACTION:
 END.
 
 cAOAFile = SEARCH("AOA/r-tonmsf.p").
-IF RunAOAVersion-log AND cAOAFile NE ? THEN RUN AOA/r-tonmsf.p.
-ELSE RUN rmrep/r-tonmsfN.w PERSISTENT.
+IF RunAOAVersion1-log EQ ? AND cAOAFile NE ? THEN RUN AOA/r-tonmsf.p.
+ELSE IF RunAOAVersion1-log NE NO AND RunAOAVersion2-log THEN RUN rmrep/r-tonmsfN.w PERSISTENT.
+ELSE RUN rmrep/r-tonmsfA.w PERSISTENT.

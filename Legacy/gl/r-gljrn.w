@@ -20,5 +20,6 @@ DO TRANSACTION:
 END.
 
 cAOAFile = SEARCH("AOA/r-gljrn.p").
-IF RunAOAVersion-log AND cAOAFile NE ? THEN RUN AOA/r-gljrn.p.
-ELSE RUN gl/r-gljrnN.w PERSISTENT (ip-post).
+IF RunAOAVersion1-log EQ ? AND cAOAFile NE ? THEN RUN AOA/r-gljrn.p.
+ELSE IF RunAOAVersion1-log NE NO AND RunAOAVersion2-log THEN RUN gl/r-gljrnN.w PERSISTENT (ip-post).
+ELSE RUN gl/r-gljrnA.w PERSISTENT.

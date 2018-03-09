@@ -19,5 +19,6 @@ DO TRANSACTION:
 END.
 
 cAOAFile = SEARCH("AOA/r-ibtag.p").
-IF RunAOAVersion-log AND cAOAFile NE ? THEN RUN AOA/r-ibtag.p.
-ELSE RUN rmrep/r-ibtagN.w PERSISTENT.
+IF RunAOAVersion1-log EQ ? AND cAOAFile NE ? THEN RUN AOA/r-ibtag.p.
+ELSE IF RunAOAVersion1-log NE NO AND RunAOAVersion2-log THEN RUN rmrep/r-ibtagN.w PERSISTENT.
+ELSE RUN rmrep/r-ibtagA.w PERSISTENT.

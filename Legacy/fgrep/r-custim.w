@@ -19,5 +19,6 @@ DO TRANSACTION:
 END.
 
 cAOAFile = SEARCH("AOA/r-custim.p").
-IF RunAOAVersion-log AND cAOAFile NE ? THEN RUN AOA/r-custim.p.
-ELSE RUN fgrep/r-custmN.w PERSISTENT.
+IF RunAOAVersion1-log EQ ? AND cAOAFile NE ? THEN RUN AOA/r-custim.p.
+ELSE IF RunAOAVersion1-log NE NO AND RunAOAVersion2-log THEN RUN fgrep/r-custmN.w PERSISTENT.
+ELSE RUN fgrep/r-custmA.w PERSISTENT.

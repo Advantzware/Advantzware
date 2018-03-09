@@ -19,5 +19,6 @@ DO TRANSACTION:
 END.
 
 cAOAFile = SEARCH("AOA/r-unfgdt.p").
-IF RunAOAVersion-log AND cAOAFile NE ? THEN RUN AOA/r-unfgdt.p.
-ELSE RUN fgrep/r-unfgdtN.w PERSISTENT.
+IF RunAOAVersion1-log EQ ? AND cAOAFile NE ? THEN RUN AOA/r-unfgdt.p.
+ELSE IF RunAOAVersion1-log NE NO AND RunAOAVersion2-log THEN RUN fgrep/r-unfgdtN.w PERSISTENT.
+ELSE RUN fgrep/r-unfgdtA.w PERSISTENT.

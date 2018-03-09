@@ -19,5 +19,6 @@ DO TRANSACTION:
 END.
 
 cAOAFile = SEARCH("AOA/r-invcst.p").
-IF RunAOAVersion-log AND cAOAFile NE ? THEN RUN AOA/r-invcst.p.
-ELSE RUN oerep/r-invcsN.w PERSISTENT.
+IF RunAOAVersion1-log EQ ? AND cAOAFile NE ? THEN RUN AOA/r-invcst.p.
+ELSE IF RunAOAVersion1-log NE NO AND RunAOAVersion2-log THEN RUN oerep/r-invcsN.w PERSISTENT.
+ELSE RUN oerep/r-invcsA.w PERSISTENT.

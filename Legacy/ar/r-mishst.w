@@ -19,5 +19,6 @@ DO TRANSACTION:
 END.
 
 cAOAFile = SEARCH("AOA/r-mishst.p").
-IF RunAOAVersion-log AND cAOAFile NE ? THEN RUN AOA/r-mishst.p.
-ELSE RUN ar/r-mishstN.w PERSISTENT.
+IF RunAOAVersion1-log EQ ? AND cAOAFile NE ? THEN RUN AOA/r-mishst.p.
+ELSE IF RunAOAVersion1-log NE NO AND RunAOAVersion2-log THEN RUN ar/r-mishstN.w PERSISTENT.
+ELSE RUN ar/r-mishstA.w PERSISTENT.

@@ -19,5 +19,6 @@ DO TRANSACTION:
 END.
 
 cAOAFile = SEARCH("AOA/r-rmroll.p").
-IF RunAOAVersion-log AND cAOAFile NE ? THEN RUN AOA/r-rmroll.p.
-ELSE RUN rmrep/r-rmrolN.w PERSISTENT.
+IF RunAOAVersion1-log EQ ? AND cAOAFile NE ? THEN RUN AOA/r-rmroll.p.
+ELSE IF RunAOAVersion1-log NE NO AND RunAOAVersion2-log THEN RUN rmrep/r-rmrolN.w PERSISTENT.
+ELSE RUN rmrep/r-rmrolA.w PERSISTENT.

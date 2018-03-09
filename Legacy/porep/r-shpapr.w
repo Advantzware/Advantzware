@@ -19,5 +19,6 @@ DO TRANSACTION:
 END.
 
 cAOAFile = SEARCH("AOA/r-shpapr.p").
-IF RunAOAVersion-log AND cAOAFile NE ? THEN RUN AOA/r-shpapr.p.
-ELSE RUN porep/r-shpaprN.w PERSISTENT.
+IF RunAOAVersion1-log EQ ? AND cAOAFile NE ? THEN RUN AOA/r-shpapr.p.
+ELSE IF RunAOAVersion1-log NE NO AND RunAOAVersion2-log THEN RUN porep/r-shpaprN.w PERSISTENT.
+ELSE RUN porep/r-shpaprA.w PERSISTENT.

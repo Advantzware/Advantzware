@@ -19,5 +19,6 @@ DO TRANSACTION:
 END.
 
 cAOAFile = SEARCH("AOA/r-prodep.p").
-IF RunAOAVersion-log AND cAOAFile NE ? THEN RUN AOA/r-prodep.p.
-ELSE RUN pcrep/r-prodepN.w PERSISTENT.
+IF RunAOAVersion1-log EQ ? AND cAOAFile NE ? THEN RUN AOA/r-prodep.p.
+ELSE IF RunAOAVersion1-log NE NO AND RunAOAVersion2-log THEN RUN pcrep/r-prodepN.w PERSISTENT.
+ELSE RUN pcrep/r-prodepA.w PERSISTENT.

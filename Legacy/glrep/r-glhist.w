@@ -19,5 +19,6 @@ DO TRANSACTION:
 END.
 
 cAOAFile = SEARCH("AOA/r-glhist.p").
-IF RunAOAVersion-log AND cAOAFile NE ? THEN RUN AOA/r-glhist.p.
-ELSE RUN glrep/r-glhstN.w PERSISTENT.
+IF RunAOAVersion1-log EQ ? AND cAOAFile NE ? THEN RUN AOA/r-glhist.p.
+ELSE IF RunAOAVersion1-log NE NO AND RunAOAVersion2-log THEN RUN glrep/r-glhstN.w PERSISTENT.
+ELSE RUN glrep/r-glhstA.w PERSISTENT.

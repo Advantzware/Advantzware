@@ -19,5 +19,5 @@ DO TRANSACTION:
 END.
 
 cAOAFile = SEARCH("AOA/r-wipjob.p").
-IF RunAOAVersion-log AND cAOAFile NE ? THEN RUN AOA/r-wipjob.p.
+IF RunAOAVersion1-log EQ ? AND cAOAFile NE ? THEN RUN AOA/r-wipjob.p.
 /*ELSE - Only new selectable column  report exists */

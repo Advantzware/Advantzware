@@ -20,5 +20,6 @@ DO TRANSACTION:
 END.
 
 cAOAFile = SEARCH("AOA/r-period.p").
-IF RunAOAVersion-log AND cAOAFile NE ? THEN RUN AOA/r-period.p.
-ELSE RUN salrep/r-periodN.w PERSISTENT.
+IF RunAOAVersion1-log EQ ? AND cAOAFile NE ? THEN RUN AOA/r-period.p.
+ELSE IF RunAOAVersion1-log NE NO AND RunAOAVersion2-log THEN RUN salrep/r-periodN.w PERSISTENT.
+ELSE RUN salrep/r-periodA.w PERSISTENT.

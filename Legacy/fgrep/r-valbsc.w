@@ -19,5 +19,6 @@ DO TRANSACTION:
 END.
 
 cAOAFile = SEARCH("AOA/r-valbsc.p").
-IF RunAOAVersion-log AND cAOAFile NE ? THEN RUN AOA/r-valbsc.p.
-ELSE RUN fgrep/r-valbscN.w PERSISTENT.
+IF RunAOAVersion1-log EQ ? AND cAOAFile NE ? THEN RUN AOA/r-valbsc.p.
+ELSE IF RunAOAVersion1-log NE NO AND RunAOAVersion2-log THEN RUN fgrep/r-valbscN.w PERSISTENT.
+ELSE RUN fgrep/r-valbscA.w PERSISTENT.

@@ -19,5 +19,6 @@ DO TRANSACTION:
 END.
 
 cAOAFile = SEARCH("AOA/r-ageinv.p").
-IF RunAOAVersion-log AND cAOAFile NE ? THEN RUN AOA/r-ageinv.p.
-ELSE RUN fgrep/r-ageinN.w PERSISTENT.
+IF RunAOAVersion1-log EQ ? AND cAOAFile NE ? THEN RUN AOA/r-ageinv.p.
+ELSE IF RunAOAVersion1-log NE NO AND RunAOAVersion2-log THEN RUN fgrep/r-ageinN.w PERSISTENT.
+ELSE RUN fgrep/r-ageinA.w PERSISTENT.

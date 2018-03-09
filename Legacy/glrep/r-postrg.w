@@ -19,5 +19,6 @@ DO TRANSACTION:
 END.
 
 cAOAFile = SEARCH("AOA/r-postrg.p").
-IF RunAOAVersion-log AND cAOAFile NE ? THEN RUN AOA/r-postrg.p.
-ELSE RUN glrep/r-postrgN.w PERSISTENT.
+IF RunAOAVersion1-log EQ ? AND cAOAFile NE ? THEN RUN AOA/r-postrg.p.
+ELSE IF RunAOAVersion1-log NE NO AND RunAOAVersion2-log THEN RUN glrep/r-postrgN.w PERSISTENT.
+ELSE RUN glrep/r-postrgA.w PERSISTENT.

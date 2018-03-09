@@ -19,5 +19,6 @@ DO TRANSACTION:
 END.
 
 cAOAFile = SEARCH("AOA/r-vprice.p").
-IF RunAOAVersion-log AND cAOAFile NE ? THEN RUN AOA/r-vprice.p.
-ELSE RUN rmrep/r-vpriceN.w PERSISTENT.
+IF RunAOAVersion1-log EQ ? AND cAOAFile NE ? THEN RUN AOA/r-vprice.p.
+ELSE IF RunAOAVersion1-log NE NO AND RunAOAVersion2-log THEN RUN rmrep/r-vpriceN.w PERSISTENT.
+ELSE RUN rmrep/r-vpriceA.w PERSISTENT.
