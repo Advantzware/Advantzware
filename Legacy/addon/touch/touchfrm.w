@@ -492,6 +492,7 @@ PROCEDURE Change_Page :
       RUN Get_Employees IN h_employee.
       ELSE
       RUN Get_Active_Employees IN h_employee.
+      RUN setFocus IN h_employee.
     END.
     WHEN 4 THEN /* password */
     DO:
