@@ -4,7 +4,6 @@
 
 TRIGGER PROCEDURE FOR DELETE OF {&TABLENAME}.
 
-DEF BUFFER oe-ord-whs-order FOR reftable.
 DEFINE BUFFER bf-oe-ord FOR oe-ord .
 
 

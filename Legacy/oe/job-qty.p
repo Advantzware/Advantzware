@@ -2,7 +2,6 @@
 DEF INPUT  PARAM ip-rowid AS ROWID NO-UNDO.
 DEF OUTPUT PARAM op-qty-mod AS LOG NO-UNDO.
 
-DEF BUFFER job-qty-changed FOR reftable.
 
 DEF VAR ll-add-overrun AS LOG NO-UNDO.
 DEF VAR lv-job-no LIKE oe-ordl.job-no NO-UNDO.
@@ -41,17 +40,15 @@ IF AVAIL oe-ord AND AVAIL oe-ordl THEN DO:
 
   RELEASE oe-ordl.
 
-  FOR EACH job-hdr
+  FOR EACH job-hdr NO-LOCK 
       WHERE job-hdr.company EQ oe-ord.company
         AND job-hdr.job-no  EQ lv-job-no
         AND job-hdr.job-no2 EQ lv-job-no2
         AND job-hdr.ord-no  EQ oe-ord.ord-no
-        AND NOT CAN-FIND(FIRST job-qty-changed
-                         WHERE job-qty-changed.reftable EQ "job.qty-changed"
-                           AND job-qty-changed.company  EQ job-hdr.company
-                           AND job-qty-changed.loc      EQ ""
-                           AND job-qty-changed.code     EQ STRING(job-hdr.job,"9999999999"))
-      NO-LOCK
+        AND NOT CAN-FIND(FIRST job WHERE job.company EQ job-hdr.company
+                            AND job.job-no EQ job-hdr.job-no
+                            AND job.job-no2 EQ job-hdr.job-no2
+                            AND job.qty-changed )
       BREAK BY job-hdr.i-no:
 
     li-job-qty = li-job-qty + job-hdr.qty.
