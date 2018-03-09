@@ -191,7 +191,7 @@ IF op-lock.val[1] EQ 1 OR op-lock.val[2] EQ 1 /*AND ip-rowid EQ ?*/ THEN DO:
         END.
 
 
-          IF xest.recalc EQ YES THEN RUN est/diewaste.p.
+        IF op-lock.val[1] EQ 1 THEN RUN est/diewaste.p (BUFFER est-op).
       END.
     END.
   END.
