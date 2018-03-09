@@ -59,7 +59,7 @@ DEF VAR li AS INT NO-UNDO.
 
 &Scoped-define ADM-SUPPORTED-LINKS Record-Source,Record-Target,TableIO-Target
 
-/* Name of first Frame and/or Browse and/or first Query                 */
+/* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME F-Main
 
 /* External Tables                                                      */
@@ -74,10 +74,11 @@ DEFINE QUERY external_tables FOR account.
 account.lyr-open account.type account.bud[1] account.ly-bud[1] ~
 account.bud[2] account.ly-bud[2] account.bud[3] account.ly-bud[3] ~
 account.bud[4] account.ly-bud[4] account.bud[5] account.ly-bud[5] ~
-account.bud[6] account.ly-bud[6] account.bud[7] account.ly-bud[7] ~
-account.bud[8] account.ly-bud[8] account.bud[9] account.ly-bud[9] ~
-account.bud[10] account.ly-bud[10] account.bud[11] account.ly-bud[11] ~
-account.bud[12] account.ly-bud[12] account.bud[13] account.ly-bud[13] 
+account.terms-discount account.bud[6] account.ly-bud[6] account.bud[7] ~
+account.ly-bud[7] account.bud[8] account.ly-bud[8] account.bud[9] ~
+account.ly-bud[9] account.bud[10] account.ly-bud[10] account.bud[11] ~
+account.ly-bud[11] account.bud[12] account.ly-bud[12] account.bud[13] ~
+account.ly-bud[13] 
 &Scoped-define ENABLED-TABLES account
 &Scoped-define FIRST-ENABLED-TABLE account
 &Scoped-Define ENABLED-OBJECTS RECT-1 
@@ -87,23 +88,23 @@ account.lyr[1] account.bud[1] account.ly-bud[1] account.cyr[2] ~
 account.lyr[2] account.bud[2] account.ly-bud[2] account.cyr[3] ~
 account.lyr[3] account.bud[3] account.ly-bud[3] account.cyr[4] ~
 account.lyr[4] account.bud[4] account.ly-bud[4] account.cyr[5] ~
-account.lyr[5] account.bud[5] account.ly-bud[5] account.cyr[6] ~
-account.lyr[6] account.bud[6] account.ly-bud[6] account.cyr[7] ~
-account.lyr[7] account.bud[7] account.ly-bud[7] account.cyr[8] ~
-account.lyr[8] account.bud[8] account.ly-bud[8] account.cyr[9] ~
-account.lyr[9] account.bud[9] account.ly-bud[9] account.cyr[10] ~
-account.lyr[10] account.bud[10] account.ly-bud[10] account.cyr[11] ~
-account.lyr[11] account.bud[11] account.ly-bud[11] account.cyr[12] ~
-account.lyr[12] account.bud[12] account.ly-bud[12] account.cyr[13] ~
-account.lyr[13] account.bud[13] account.ly-bud[13] 
+account.lyr[5] account.bud[5] account.ly-bud[5] account.terms-discount ~
+account.cyr[6] account.lyr[6] account.bud[6] account.ly-bud[6] ~
+account.cyr[7] account.lyr[7] account.bud[7] account.ly-bud[7] ~
+account.cyr[8] account.lyr[8] account.bud[8] account.ly-bud[8] ~
+account.cyr[9] account.lyr[9] account.bud[9] account.ly-bud[9] ~
+account.cyr[10] account.lyr[10] account.bud[10] account.ly-bud[10] ~
+account.cyr[11] account.lyr[11] account.bud[11] account.ly-bud[11] ~
+account.cyr[12] account.lyr[12] account.bud[12] account.ly-bud[12] ~
+account.cyr[13] account.lyr[13] account.bud[13] account.ly-bud[13] 
 &Scoped-define DISPLAYED-TABLES account
 &Scoped-define FIRST-DISPLAYED-TABLE account
-&Scoped-Define DISPLAYED-OBJECTS tb_not-disc 
+
 
 /* Custom List Definitions                                              */
 /* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,ROW-AVAILABLE,DISPLAY-FIELD,List-5,F1 */
 &Scoped-define ADM-CREATE-FIELDS account.actnum 
-&Scoped-define ADM-ASSIGN-FIELDS tb_not-disc 
+&Scoped-define ADM-ASSIGN-FIELDS account.terms-discount 
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
@@ -136,19 +137,14 @@ RUN set-attribute-list (
 
 /* Definitions of the field level widgets                               */
 DEFINE RECTANGLE RECT-1
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL 
-     SIZE 143 BY 19.29
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
+     SIZE 95.4 BY 12.86
      BGCOLOR 9 FGCOLOR 9 .
 
 DEFINE RECTANGLE RECT-2
-     EDGE-PIXELS 2 GRAPHIC-EDGE  
-     SIZE 1 BY 15.24
+     EDGE-PIXELS 2 GRAPHIC-EDGE    
+     SIZE .6 BY 10.14
      BGCOLOR 0 .
-
-DEFINE VARIABLE tb_not-disc AS LOGICAL INITIAL no 
-     LABEL "" 
-     VIEW-AS TOGGLE-BOX
-     SIZE 3 BY .76 NO-UNDO.
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -156,19 +152,19 @@ DEFINE VARIABLE tb_not-disc AS LOGICAL INITIAL no
 DEFINE FRAME F-Main
      account.actnum AT ROW 1.24 COL 26 COLON-ALIGNED
           VIEW-AS FILL-IN 
-          SIZE 32 BY 1
+          SIZE 21.4 BY .67
           BGCOLOR 15 FONT 4
      account.dscr AT ROW 1.24 COL 67 COLON-ALIGNED
           VIEW-AS FILL-IN 
-          SIZE 56 BY 1
+          SIZE 37.4 BY .67
           BGCOLOR 15 FONT 4
      account.cyr-open AT ROW 2.43 COL 26 COLON-ALIGNED
           VIEW-AS FILL-IN 
-          SIZE 24.8 BY 1
+          SIZE 16.6 BY .67
           BGCOLOR 15 FONT 4
      account.lyr-open AT ROW 2.43 COL 98 COLON-ALIGNED
           VIEW-AS FILL-IN 
-          SIZE 24.8 BY 1
+          SIZE 16.6 BY .67
           BGCOLOR 15 FONT 4
      account.type AT ROW 2.43 COL 127 NO-LABEL
           VIEW-AS RADIO-SET VERTICAL
@@ -183,70 +179,70 @@ DEFINE FRAME F-Main
      account.cyr[1] AT ROW 4.81 COL 7 COLON-ALIGNED
           LABEL "01"
           VIEW-AS FILL-IN 
-          SIZE 24.8 BY 1
+          SIZE 16.6 BY .67
           BGCOLOR 7 FGCOLOR 15 FONT 4
      account.lyr[1] AT ROW 4.81 COL 37 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
-          SIZE 24.8 BY 1
+          SIZE 16.6 BY .67
           BGCOLOR 7 FGCOLOR 15 FONT 4
      account.bud[1] AT ROW 4.81 COL 67 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
-          SIZE 24.8 BY 1
+          SIZE 16.6 BY .67
           BGCOLOR 15 FONT 4
      account.ly-bud[1] AT ROW 4.81 COL 99 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
-          SIZE 24.8 BY 1
+          SIZE 16.6 BY .67
           BGCOLOR 15 FONT 4
      account.cyr[2] AT ROW 6 COL 7 COLON-ALIGNED
           LABEL "02"
           VIEW-AS FILL-IN 
-          SIZE 24.8 BY 1
+          SIZE 16.6 BY .67
           BGCOLOR 7 FGCOLOR 15 FONT 4
      account.lyr[2] AT ROW 6 COL 37 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
-          SIZE 24.8 BY 1
+          SIZE 16.6 BY .67
           BGCOLOR 7 FGCOLOR 15 FONT 4
      account.bud[2] AT ROW 6 COL 67 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
-          SIZE 24.8 BY 1
+          SIZE 16.6 BY .67
           BGCOLOR 15 FONT 4
      account.ly-bud[2] AT ROW 6 COL 99 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
-          SIZE 24.8 BY 1
+          SIZE 16.6 BY .67
           BGCOLOR 15 FONT 4
      account.cyr[3] AT ROW 7.19 COL 7 COLON-ALIGNED
           LABEL "03"
           VIEW-AS FILL-IN 
-          SIZE 24.8 BY 1
+          SIZE 16.6 BY .67
           BGCOLOR 7 FGCOLOR 15 FONT 4
      account.lyr[3] AT ROW 7.19 COL 37 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
-          SIZE 24.8 BY 1
+          SIZE 16.6 BY .67
           BGCOLOR 7 FGCOLOR 15 FONT 4
      account.bud[3] AT ROW 7.19 COL 67 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
-          SIZE 24.8 BY 1
+          SIZE 16.6 BY .67
           BGCOLOR 15 FONT 4
      account.ly-bud[3] AT ROW 7.19 COL 99 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
-          SIZE 24.8 BY 1
+          SIZE 16.6 BY .67
           BGCOLOR 15 FONT 4
      account.cyr[4] AT ROW 8.38 COL 7 COLON-ALIGNED
           LABEL "04"
           VIEW-AS FILL-IN 
-          SIZE 24.8 BY 1
+          SIZE 16.6 BY .67
           BGCOLOR 7 FGCOLOR 15 FONT 4
      account.lyr[4] AT ROW 8.38 COL 37 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
-          SIZE 24.8 BY 1
+          SIZE 16.6 BY .67
           BGCOLOR 7 FGCOLOR 15 FONT 4
      account.bud[4] AT ROW 8.38 COL 67 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
-          SIZE 24.8 BY 1
+          SIZE 16.6 BY .67
           BGCOLOR 15 FONT 4
      account.ly-bud[4] AT ROW 8.38 COL 99 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
-          SIZE 24.8 BY 1
+          SIZE 16.6 BY .67
           BGCOLOR 15 FONT 4
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -258,85 +254,86 @@ DEFINE FRAME F-Main
      account.cyr[5] AT ROW 9.57 COL 7 COLON-ALIGNED
           LABEL "05"
           VIEW-AS FILL-IN 
-          SIZE 24.8 BY 1
+          SIZE 16.6 BY .67
           BGCOLOR 7 FGCOLOR 15 FONT 4
      account.lyr[5] AT ROW 9.57 COL 37 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
-          SIZE 24.8 BY 1
+          SIZE 16.6 BY .67
           BGCOLOR 7 FGCOLOR 15 FONT 4
      account.bud[5] AT ROW 9.57 COL 67 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
-          SIZE 24.8 BY 1
+          SIZE 16.6 BY .67
           BGCOLOR 15 FONT 4
      account.ly-bud[5] AT ROW 9.57 COL 99 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
-          SIZE 24.8 BY 1
+          SIZE 16.6 BY .67
           BGCOLOR 15 FONT 4
-     tb_not-disc AT ROW 10.29 COL 127 HELP
-          "Check box if this Acct# receives no terms discount"
+     account.terms-discount AT ROW 10.29 COL 127
+          VIEW-AS TOGGLE-BOX
+          SIZE 2 BY .52
      account.cyr[6] AT ROW 10.76 COL 7 COLON-ALIGNED
           LABEL "06"
           VIEW-AS FILL-IN 
-          SIZE 24.8 BY 1
+          SIZE 16.6 BY .67
           BGCOLOR 7 FGCOLOR 15 FONT 4
      account.lyr[6] AT ROW 10.76 COL 37 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
-          SIZE 24.8 BY 1
+          SIZE 16.6 BY .67
           BGCOLOR 7 FGCOLOR 15 FONT 4
      account.bud[6] AT ROW 10.76 COL 67 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
-          SIZE 24.8 BY 1
+          SIZE 16.6 BY .67
           BGCOLOR 15 FONT 4
      account.ly-bud[6] AT ROW 10.76 COL 99 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
-          SIZE 24.8 BY 1
+          SIZE 16.6 BY .67
           BGCOLOR 15 FONT 4
      account.cyr[7] AT ROW 11.95 COL 7 COLON-ALIGNED
           LABEL "07"
           VIEW-AS FILL-IN 
-          SIZE 24.8 BY 1
+          SIZE 16.6 BY .67
           BGCOLOR 7 FGCOLOR 15 FONT 4
      account.lyr[7] AT ROW 11.95 COL 37 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
-          SIZE 24.8 BY 1
+          SIZE 16.6 BY .67
           BGCOLOR 7 FGCOLOR 15 FONT 4
      account.bud[7] AT ROW 11.95 COL 67 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
-          SIZE 24.8 BY 1
+          SIZE 16.6 BY .67
           BGCOLOR 15 FONT 4
      account.ly-bud[7] AT ROW 11.95 COL 99 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
-          SIZE 24.8 BY 1
+          SIZE 16.6 BY .67
           BGCOLOR 15 FONT 4
      account.cyr[8] AT ROW 13.14 COL 7 COLON-ALIGNED
           LABEL "08"
           VIEW-AS FILL-IN 
-          SIZE 24.8 BY 1
+          SIZE 16.6 BY .67
           BGCOLOR 7 FGCOLOR 15 FONT 4
      account.lyr[8] AT ROW 13.14 COL 37 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
-          SIZE 24.8 BY 1
+          SIZE 16.6 BY .67
           BGCOLOR 7 FGCOLOR 15 FONT 4
      account.bud[8] AT ROW 13.14 COL 67 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
-          SIZE 24.8 BY 1
+          SIZE 16.6 BY .67
           BGCOLOR 15 FONT 4
      account.ly-bud[8] AT ROW 13.14 COL 99 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
-          SIZE 24.8 BY 1
+          SIZE 16.6 BY .67
           BGCOLOR 15 FONT 4
      account.cyr[9] AT ROW 14.33 COL 7 COLON-ALIGNED
           LABEL "09"
           VIEW-AS FILL-IN 
-          SIZE 24.8 BY 1
+          SIZE 16.6 BY .67
           BGCOLOR 7 FGCOLOR 15 FONT 4
      account.lyr[9] AT ROW 14.33 COL 37 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
-          SIZE 24.8 BY 1
+          SIZE 16.6 BY .67
           BGCOLOR 7 FGCOLOR 15 FONT 4
      account.bud[9] AT ROW 14.33 COL 67 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
-          SIZE 24.8 BY 1
+          SIZE 16.6 BY .67
           BGCOLOR 15 FONT 4
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -347,89 +344,87 @@ DEFINE FRAME F-Main
 DEFINE FRAME F-Main
      account.ly-bud[9] AT ROW 14.33 COL 99 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
-          SIZE 24.8 BY 1
+          SIZE 16.6 BY .67
           BGCOLOR 15 FONT 4
      account.cyr[10] AT ROW 15.52 COL 7 COLON-ALIGNED
           LABEL "10"
           VIEW-AS FILL-IN 
-          SIZE 24.8 BY 1
+          SIZE 16.6 BY .67
           BGCOLOR 7 FGCOLOR 15 FONT 4
      account.lyr[10] AT ROW 15.52 COL 37 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
-          SIZE 24.8 BY 1
+          SIZE 16.6 BY .67
           BGCOLOR 7 FGCOLOR 15 FONT 4
      account.bud[10] AT ROW 15.52 COL 67 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
-          SIZE 24.8 BY 1
+          SIZE 16.6 BY .67
           BGCOLOR 15 FONT 4
      account.ly-bud[10] AT ROW 15.52 COL 99 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
-          SIZE 24.8 BY 1
+          SIZE 16.6 BY .67
           BGCOLOR 15 FONT 4
      account.cyr[11] AT ROW 16.71 COL 7 COLON-ALIGNED
           LABEL "11"
           VIEW-AS FILL-IN 
-          SIZE 24.8 BY 1
+          SIZE 16.6 BY .67
           BGCOLOR 7 FGCOLOR 15 FONT 4
      account.lyr[11] AT ROW 16.71 COL 37 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
-          SIZE 24.8 BY 1
+          SIZE 16.6 BY .67
           BGCOLOR 7 FGCOLOR 15 FONT 4
      account.bud[11] AT ROW 16.71 COL 67 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
-          SIZE 24.8 BY 1
+          SIZE 16.6 BY .67
           BGCOLOR 15 FONT 4
      account.ly-bud[11] AT ROW 16.71 COL 99 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
-          SIZE 24.8 BY 1
+          SIZE 16.6 BY .67
           BGCOLOR 15 FONT 4
      account.cyr[12] AT ROW 17.91 COL 7 COLON-ALIGNED
           LABEL "12"
           VIEW-AS FILL-IN 
-          SIZE 24.8 BY 1
+          SIZE 16.6 BY .67
           BGCOLOR 7 FGCOLOR 15 FONT 4
      account.lyr[12] AT ROW 17.91 COL 37 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
-          SIZE 24.8 BY 1
+          SIZE 16.6 BY .67
           BGCOLOR 7 FGCOLOR 15 FONT 4
      account.bud[12] AT ROW 17.91 COL 67 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
-          SIZE 24.8 BY 1
+          SIZE 16.6 BY .67
           BGCOLOR 15 FONT 4
      account.ly-bud[12] AT ROW 17.91 COL 99 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
-          SIZE 24.8 BY 1
+          SIZE 16.6 BY .67
           BGCOLOR 15 FONT 4
      account.cyr[13] AT ROW 19.1 COL 7 COLON-ALIGNED
           LABEL "13"
           VIEW-AS FILL-IN 
-          SIZE 24.8 BY 1
+          SIZE 16.6 BY .67
           BGCOLOR 7 FGCOLOR 15 FONT 4
      account.lyr[13] AT ROW 19.1 COL 37 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
-          SIZE 24.8 BY 1
+          SIZE 16.6 BY .67
           BGCOLOR 7 FGCOLOR 15 FONT 4
      account.bud[13] AT ROW 19.1 COL 67 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
-          SIZE 24.8 BY 1
+          SIZE 16.6 BY .67
           BGCOLOR 15 FONT 4
      account.ly-bud[13] AT ROW 19.1 COL 99 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
-          SIZE 24.8 BY 1
+          SIZE 16.6 BY .67
           BGCOLOR 15 FONT 4
-     RECT-2 AT ROW 4.81 COL 65
-     RECT-1 AT ROW 1 COL 1
-     "Period" VIEW-AS TEXT
-          SIZE 8 BY .52 AT ROW 4 COL 3
+     "Last Year" VIEW-AS TEXT
+          SIZE 10 BY .33 AT ROW 4 COL 45
           FGCOLOR 9 
-     "Last Year Budget" VIEW-AS TEXT
-          SIZE 21 BY .52 AT ROW 4 COL 104
-          FGCOLOR 9 
-     "Current Year" VIEW-AS TEXT
-          SIZE 18 BY .52 AT ROW 4 COL 14
-          FGCOLOR 9 
+     "No Terms" VIEW-AS TEXT
+          SIZE 7.4 BY .43 AT ROW 10.05 COL 131
+     "Discount" VIEW-AS TEXT
+          SIZE 7.4 BY .43 AT ROW 10.76 COL 131
+     "Type:" VIEW-AS TEXT
+          SIZE 4.4 BY .52 AT ROW 1.48 COL 127
      "Current Year Budget" VIEW-AS TEXT
-          SIZE 25 BY .52 AT ROW 4 COL 70
+          SIZE 16.6 BY .33 AT ROW 4 COL 70
           FGCOLOR 9 
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -438,15 +433,17 @@ DEFINE FRAME F-Main
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME F-Main
-     "Type:" VIEW-AS TEXT
-          SIZE 6.6 BY .81 AT ROW 1.48 COL 127
-     "Discount" VIEW-AS TEXT
-          SIZE 11 BY .62 AT ROW 10.76 COL 131
-     "No Terms" VIEW-AS TEXT
-          SIZE 11 BY .62 AT ROW 10.05 COL 131
-     "Last Year" VIEW-AS TEXT
-          SIZE 15 BY .52 AT ROW 4 COL 45
+     "Current Year" VIEW-AS TEXT
+          SIZE 12 BY .33 AT ROW 4 COL 14
           FGCOLOR 9 
+     "Last Year Budget" VIEW-AS TEXT
+          SIZE 14 BY .33 AT ROW 4 COL 104
+          FGCOLOR 9 
+     "Period" VIEW-AS TEXT
+          SIZE 5.4 BY .33 AT ROW 4 COL 3
+          FGCOLOR 9 
+     RECT-2 AT ROW 4.81 COL 65
+     RECT-1 AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -504,7 +501,7 @@ END.
 /* SETTINGS FOR WINDOW V-table-Win
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME F-Main
-   NOT-VISIBLE Size-to-Fit                                              */
+   NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
@@ -567,8 +564,8 @@ ASSIGN
    NO-ENABLE                                                            */
 /* SETTINGS FOR RECTANGLE RECT-2 IN FRAME F-Main
    NO-ENABLE                                                            */
-/* SETTINGS FOR TOGGLE-BOX tb_not-disc IN FRAME F-Main
-   NO-ENABLE 2                                                          */
+/* SETTINGS FOR TOGGLE-BOX account.terms-discount IN FRAME F-Main
+   2                                                                    */
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
@@ -1099,9 +1096,9 @@ PROCEDURE enable-account :
 ------------------------------------------------------------------------------*/
   
   DO WITH FRAME {&FRAME-NAME}:
-    ENABLE tb_not-disc.
+    ENABLE account.terms-discount.
 
-    IF adm-adding-record THEN tb_not-disc:SCREEN-VALUE = "No".
+    IF adm-adding-record THEN account.terms-discount:SCREEN-VALUE = "No".
 
     RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"record-target",OUTPUT char-hdl).
 
@@ -1141,7 +1138,7 @@ PROCEDURE local-assign-record :
   
   /* Code placed here will execute PRIOR to standard behavior. */
   DO WITH FRAME {&FRAME-NAME}:
-    ll-not-disc = tb_not-disc:SCREEN-VALUE EQ "yes".
+   ll-not-disc = account.terms-discount:SCREEN-VALUE EQ "yes".
   END.
 
   RUN assign-ctrl-o.
@@ -1151,11 +1148,7 @@ PROCEDURE local-assign-record :
 
   /* Code placed here will execute AFTER standard behavior.    */
 
-FIND CURRENT account EXCLUSIVE.
-ASSIGN
-   account.terms-discount = ll-not-disc
-   tb_not-disc     = ll-not-disc. 
-FIND CURRENT account NO-LOCK.
+
   /*for each period
       where period.company eq account.company
         and period.pstat   eq yes
@@ -1186,7 +1179,7 @@ PROCEDURE local-cancel-record :
 
   /* Code placed here will execute PRIOR to standard behavior. */
   DO WITH FRAME {&frame-name}:
-    DISABLE tb_not-disc.
+   DISABLE account.terms-discount.
   END.
 
   /* Dispatch standard ADM method.                             */
@@ -1232,14 +1225,7 @@ PROCEDURE local-display-fields :
 
 
   /* Code placed here will execute PRIOR to standard behavior. */
-  IF AVAIL account AND account.actnum NE "" THEN
-  FIND FIRST reftable
-      WHERE reftable.reftable EQ "GLACCTDISC"
-        AND reftable.company  EQ gcompany
-        AND reftable.loc      EQ ""
-        AND reftable.code     EQ account.actnum
-      NO-LOCK NO-ERROR.
-  tb_not-disc = AVAIL reftable AND reftable.val[1] EQ 1.
+  
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'display-fields':U ) .
@@ -1303,7 +1289,7 @@ PROCEDURE local-update-record :
 
   /* Code placed here will execute AFTER standard behavior.    */
   DO WITH FRAME {&frame-name}:
-    DISABLE tb_not-disc.
+    DISABLE account.terms-discount.
   END.
 
   RUN disable-ctrl-o. 
