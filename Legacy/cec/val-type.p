@@ -20,7 +20,8 @@ DO WHILE VALID-HANDLE(lv-field-hdl):
     lv-field-hdl:SCREEN-VALUE = CAPS(lv-field-hdl:SCREEN-VALUE).
 
     IF li EQ ip-ext OR ip-ext EQ ? THEN DO:
-      IF lv-field-hdl:SCREEN-VALUE NE ""                                    AND
+      IF lv-field-hdl:SCREEN-VALUE NE "" AND
+         lv-field-hdl:SCREEN-VALUE NE ?  AND 
            NOT CAN-FIND(FIRST scoreType
                         WHERE scoreType.company   EQ cocode
                           AND scoreType.scoreType EQ lv-field-hdl:SCREEN-VALUE) THEN DO:
