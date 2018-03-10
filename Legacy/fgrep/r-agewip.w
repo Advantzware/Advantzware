@@ -21,4 +21,4 @@ END.
 cAOAFile = SEARCH("AOA/r-agewip.r").
 IF RunAOAVersion1-log EQ ? AND cAOAFile NE ? THEN RUN AOA/r-agewip.p.
 ELSE IF RunAOAVersion1-log NE NO AND RunAOAVersion2-log THEN RUN fgrep/r-agewipN.w.
-ELSE RUN fgrep/r-agewipA.w. PERSISTENT.
+ELSE RUN fgrep/r-agewipA.w PERSISTENT.
