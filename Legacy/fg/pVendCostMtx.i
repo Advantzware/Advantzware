@@ -43,14 +43,16 @@ DO WITH FRAME {&FRAME-NAME}:
                     dSetups[jdx + 1] = dSetups[jdx]
                     .
             END. /* if lvendcostmtx */
-            IF AVAILABLE e-itemfg-vend THEN
-            DO idx = 1 TO EXTENT(dRunQty):
-                ASSIGN
-                    e-itemfg-vend.run-qty[idx]  = dRunQty[idx]
-                    e-itemfg-vend.run-cost[idx] = dRunCost[idx]
-                    e-itemfg-vend.setups[idx]   = dSetups[idx]
-                    .
-            END. /* do idx */
+            IF AVAILABLE e-itemfg-vend THEN DO:
+                FIND CURRENT e-itemfg-vend EXCLUSIVE-LOCK.
+                DO idx = 1 TO EXTENT(dRunQty):
+                    ASSIGN
+                        e-itemfg-vend.run-qty[idx]  = dRunQty[idx]
+                        e-itemfg-vend.run-cost[idx] = dRunCost[idx]
+                        e-itemfg-vend.setups[idx]   = dSetups[idx]
+                        .
+                END. /* do idx */
+            END. /* if avail */
         END. /* assign */
         WHEN "DISPLAY" THEN DO:
             IF AVAILABLE e-itemfg-vend THEN

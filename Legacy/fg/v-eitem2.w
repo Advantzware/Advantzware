@@ -1019,13 +1019,12 @@ PROCEDURE local-assign-record :
   DEF VAR char-hdl AS cha NO-UNDO.
 
   /* Code placed here will execute PRIOR to standard behavior. */
+  RUN pVendCostMtx ("ASSIGN").
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-record':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-
-  RUN pVendCostMtx ("ASSIGN").
 
   RUN reftable-values (NO).
   for each tmpfile: delete tmpfile .  end.

@@ -1073,13 +1073,12 @@ PROCEDURE local-assign-record :
   /*IF NOT AVAIL e-itemfg then*/
   find first e-itemfg where recid(e-itemfg) = lv-recid NO-ERROR.
 
+  RUN pVendCostMtx ("ASSIGN").
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-record':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-
-  RUN pVendCostMtx ("ASSIGN").
 
   for each tmpfile: delete tmpfile .  end.
 
