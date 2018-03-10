@@ -94,7 +94,7 @@ DO:
     FILE-INFO:FILE-NAME = cWinScpIniFile.
     cWinScpIniFile = " /ini=" + FILE-INFO:FULL-PATHNAME.
 END.
-cWinScpXmlLog = ip-exp-file + ".xmllog".
+cWinScpXmlLog = ip-exp-file + ".xml".
  
 RUN load-config.
 
@@ -539,7 +539,7 @@ IF AVAIL sys-ctrl THEN DO:
               IF cWinScpIniFile GT "" THEN 
                   cExec = cExec + " " + "/ini=" + cWinScpIniFile + " " + "/xmllog=" + cWinScpXmlLog.  
                 
-              OS-COMMAND VALUE(cExec + " /script=.\customer\po\" + ttConfig.ftp-script).
+              OS-COMMAND NO-WAIT VALUE(cExec + " /script=.\customer\po\" + ttConfig.ftp-script).
                
           END. 
       END.
