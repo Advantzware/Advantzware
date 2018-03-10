@@ -1524,7 +1524,7 @@ CLASS RefTableMigration:
         DISABLE TRIGGERS FOR LOAD OF reftable.        
         DISABLE TRIGGERS FOR LOAD OF rm-bin.
         ASSIGN iProcessCount = 0.
-        FOR EACH reftable WHERE reftable.reftable = "rm-bin.age-date"
+        FOR EACH reftable WHERE reftable.reftable = "rm-bin.aging-date"
             NO-LOCK:
             DO TRANSACTION:    
                 FIND FIRST rm-bin WHERE rm-bin.company = reftable.company
