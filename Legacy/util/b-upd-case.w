@@ -446,14 +446,11 @@ ASSIGN
 
 &ANALYZE-SUSPEND _QUERY-BLOCK BROWSE Browser-Table
 /* Query rebuild information for BROWSE Browser-Table
-     _TblList          = "ASI.itemfg OF ASI.cust ,ASI.itemfg WHERE ASI.itemfg ...,ASI.reftable WHERE ASI.itemfg ..."
+     _TblList          = "ASI.itemfg OF ASI.cust ,ASI.itemfg WHERE ASI.itemfg ..."
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
      _TblOptList       = "USED,, FIRST OUTER"
      _JoinCode[2]      = "itemfg.company EQ itemfg.company
 AND itemfg.part-dscr1 EQ itemfg.part-dscr1"
-     _Where[3]         = "reftable.reftable EQ ""fg-rctd.user-id"" AND
-reftable.company  EQ itemfg.company AND
-reftable.loc      EQ STRING(itemfg.company,""9999999999"")"
      _FldNameList[1]   > ASI.itemfg.i-no
 "itemfg.i-no" "FG Item#" "x(15)" "character" ? ? ? 14 ? ? yes "" no no "21" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > ASI.itemfg.i-name
@@ -487,7 +484,6 @@ reftable.loc      EQ STRING(itemfg.company,""9999999999"")"
      _FldNameList[17]   > ASI.itemfg.w-score
 "itemfg.w-score" "Units/Pallet" ? "integer" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[18]   > "_<CALC>"
-"reftable.code" "UserID" ? "character" ? ? ? ? ? ? yes ? no no "12" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */
 &ANALYZE-RESUME
@@ -1221,7 +1217,6 @@ PROCEDURE send-records :
 
   /* For each requested table, put it's ROWID in the output list.      */
   {src/adm/template/snd-list.i "itemfg"}
-  /* {src/adm/template/snd-list.i "reftable"} */
 
   /* Deal with any unexpected table requests before closing.           */
   {src/adm/template/snd-end.i}
