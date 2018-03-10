@@ -18,7 +18,7 @@ DO TRANSACTION:
    {sys/inc/runAOAVer.i "IR4" }
 END.
 
-cAOAFile = SEARCH("AOA/r-qtyval.p").
+cAOAFile = SEARCH("AOA/r-qtyval.r").
 IF RunAOAVersion1-log EQ ? AND cAOAFile NE ? THEN RUN AOA/r-qtyval.p.
 ELSE IF RunAOAVersion1-log NE NO AND RunAOAVersion2-log THEN RUN fgrep/r-qtyvlN.w PERSISTENT.
 ELSE RUN fgrep/r-qtyvlA.w PERSISTENT.

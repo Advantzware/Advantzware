@@ -18,7 +18,7 @@ DO TRANSACTION:
    {sys/inc/runAOAVer.i "JR5" }
 END.
 
-cAOAFile = SEARCH("AOA/r-clsjob.p").
+cAOAFile = SEARCH("AOA/r-clsjob.r").
 IF RunAOAVersion1-log EQ ? AND cAOAFile NE ? THEN RUN AOA/r-clsjob.p.
 ELSE IF RunAOAVersion1-log NE NO AND RunAOAVersion2-log THEN RUN jcrep/r-clsjobN.w PERSISTENT.
 ELSE RUN jcrep/r-clsjobA.w PERSISTENT.

@@ -18,7 +18,7 @@ DO TRANSACTION:
    {sys/inc/runAOAVer.i "IL3" }
 END.
 
-cAOAFile = SEARCH("AOA/r-unfgdt.p").
+cAOAFile = SEARCH("AOA/r-unfgdt.r").
 IF RunAOAVersion1-log EQ ? AND cAOAFile NE ? THEN RUN AOA/r-unfgdt.p.
 ELSE IF RunAOAVersion1-log NE NO AND RunAOAVersion2-log THEN RUN fgrep/r-unfgdtN.w PERSISTENT.
 ELSE RUN fgrep/r-unfgdtA.w PERSISTENT.

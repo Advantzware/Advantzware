@@ -19,7 +19,7 @@ DO TRANSACTION:
    {sys/inc/runAOAVer.i "ER9" }
 END.
 
-cAOAFile = SEARCH("AOA/r-quolst.p").
+cAOAFile = SEARCH("AOA/r-quolst.r").
 IF RunAOAVersion1-log EQ ? AND cAOAFile NE ? THEN RUN AOA/r-quolst.p.
 ELSE IF RunAOAVersion1-log NE NO AND RunAOAVersion2-log THEN RUN cerep/r-quolstN.w PERSISTENT.
 ELSE RUN cerep/r-quolstA.w PERSISTENT.

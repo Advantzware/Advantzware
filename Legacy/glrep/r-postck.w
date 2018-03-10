@@ -18,7 +18,7 @@ DO TRANSACTION:
    {sys/inc/runAOAVer.i "GR7" }
 END.
 
-cAOAFile = SEARCH("AOA/r-postck.p").
+cAOAFile = SEARCH("AOA/r-postck.r").
 IF RunAOAVersion1-log EQ ? AND cAOAFile NE ? THEN RUN AOA/r-postck.p.
 ELSE IF RunAOAVersion1-log NE NO AND RunAOAVersion2-log THEN RUN glrep/r-postckN.w PERSISTENT.
 ELSE RUN glrep/r-postckA.w PERSISTENT.

@@ -19,7 +19,7 @@ DO TRANSACTION:
    {sys/inc/runAOAVer.i "HT" }
 END.
 
-cAOAFile = SEARCH("AOA/r-slmpef.p").
+cAOAFile = SEARCH("AOA/r-slmpef.r").
 IF RunAOAVersion1-log EQ ? AND cAOAFile NE ? THEN RUN AOA/r-slmpef.p.
 ELSE IF RunAOAVersion1-log NE NO AND RunAOAVersion2-log THEN RUN salrep/r-slmpefN.w PERSISTENT.
 ELSE RUN salrep/r-slmpefA.w PERSISTENT.

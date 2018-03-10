@@ -18,7 +18,7 @@ DO TRANSACTION:
    {sys/inc/runAOAVer.i "IR9" }
 END.
 
-cAOAFile = SEARCH("AOA/r-itmlst.p").
+cAOAFile = SEARCH("AOA/r-itmlst.r").
 IF RunAOAVersion1-log EQ ? AND cAOAFile NE ? THEN RUN AOA/r-itmlst.p.
 ELSE IF RunAOAVersion1-log NE NO AND RunAOAVersion2-log THEN RUN fgrep/r-itmltN.w PERSISTENT.
 ELSE RUN fgrep/r-itmltA.w PERSISTENT.

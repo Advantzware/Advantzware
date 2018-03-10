@@ -18,7 +18,7 @@ DO TRANSACTION:
    {sys/inc/runAOAVer.i "JR8" }
 END.
 
-cAOAFile = SEARCH("AOA/r-brdrec.p").
+cAOAFile = SEARCH("AOA/r-brdrec.r").
 IF RunAOAVersion1-log EQ ? AND cAOAFile NE ? THEN RUN AOA/r-brdrec.p.
 ELSE IF RunAOAVersion1-log NE NO AND RunAOAVersion2-log THEN RUN jcrep/r-brdreN.w PERSISTENT.
 ELSE RUN jcrep/r-brdreA.w PERSISTENT.

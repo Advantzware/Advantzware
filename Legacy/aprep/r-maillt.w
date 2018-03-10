@@ -18,7 +18,7 @@ DO TRANSACTION:
    {sys/inc/runAOAVer.i "VR5" }
 END.
 
-cAOAFile = SEARCH("AOA/r-maillt.p").
+cAOAFile = SEARCH("AOA/r-maillt.r").
 IF RunAOAVersion1-log EQ ? AND cAOAFile NE ? THEN RUN AOA/r-maillt.p.
 ELSE IF RunAOAVersion1-log NE NO AND RunAOAVersion2-log THEN RUN aprep/r-mailltN.w PERSISTENT.
 ELSE RUN aprep/r-mailltA.w PERSISTENT.

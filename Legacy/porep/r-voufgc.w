@@ -18,7 +18,7 @@ DO TRANSACTION:
    {sys/inc/runAOAVer.i "PR11" }
 END.
 
-cAOAFile = SEARCH("AOA/r-voufgc.p").
+cAOAFile = SEARCH("AOA/r-voufgc.r").
 IF RunAOAVersion1-log EQ ? AND cAOAFile NE ? THEN RUN AOA/r-voufgc.p.
 ELSE IF RunAOAVersion1-log NE NO AND RunAOAVersion2-log THEN RUN porep/r-voufgcN.w PERSISTENT.
 ELSE RUN porep/r-voufgcA.w PERSISTENT.

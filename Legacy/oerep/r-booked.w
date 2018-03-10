@@ -18,7 +18,7 @@ DO TRANSACTION:
    {sys/inc/runAOAVer.i "OR5" }
 END.
 
-cAOAFile = SEARCH("AOA/r-booked.p").
+cAOAFile = SEARCH("AOA/r-booked.r").
 IF RunAOAVersion1-log EQ ? AND cAOAFile NE ? THEN RUN AOA/r-booked.p.
 ELSE IF RunAOAVersion1-log NE NO AND RunAOAVersion2-log THEN RUN oerep/r-bookedN.w PERSISTENT.
 ELSE RUN oerep/r-bookedA.w PERSISTENT.

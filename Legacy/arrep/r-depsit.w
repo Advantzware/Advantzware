@@ -18,7 +18,7 @@ DO TRANSACTION:
    {sys/inc/runAOAVer.i "AR8" }
 END.
 
-cAOAFile = SEARCH("AOA/r-depsit.p").
+cAOAFile = SEARCH("AOA/r-depsit.r").
 IF RunAOAVersion1-log EQ ? AND cAOAFile NE ? THEN RUN AOA/r-depsit.p.
 ELSE IF RunAOAVersion1-log NE NO AND RunAOAVersion2-log THEN RUN arrep/r-depsitN.w PERSISTENT.
 ELSE RUN arrep/r-depsitA.w PERSISTENT.

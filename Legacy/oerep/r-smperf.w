@@ -18,7 +18,7 @@ DO TRANSACTION:
    {sys/inc/runAOAVer.i "OR4" }
 END.
 
-cAOAFile = SEARCH("AOA/r-smperf.p").
+cAOAFile = SEARCH("AOA/r-smperf.r").
 IF RunAOAVersion1-log EQ ? AND cAOAFile NE ? THEN RUN AOA/r-smperf.p.
 ELSE IF RunAOAVersion1-log NE NO AND RunAOAVersion2-log THEN RUN oerep/r-smperN.w PERSISTENT.
 ELSE RUN oerep/r-smperA.w PERSISTENT.

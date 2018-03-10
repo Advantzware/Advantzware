@@ -18,7 +18,7 @@ DO TRANSACTION:
    {sys/inc/runAOAVer.i "HL" }
 END.
 
-cAOAFile = SEARCH("AOA/r-lastvs.p").
+cAOAFile = SEARCH("AOA/r-lastvs.r").
 IF RunAOAVersion1-log EQ ? AND cAOAFile NE ? THEN RUN AOA/r-lastvs.p.
 ELSE IF RunAOAVersion1-log NE NO AND RunAOAVersion2-log THEN RUN salrep/r-lastvsN.w PERSISTENT.
 ELSE RUN salrep/r-lastvsA.w PERSISTENT.

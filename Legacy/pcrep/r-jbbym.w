@@ -18,7 +18,7 @@ DO TRANSACTION:
    {sys/inc/runAOAVer.i "DR13" }
 END.
 
-cAOAFile = SEARCH("AOA/r-jbbym.p").
+cAOAFile = SEARCH("AOA/r-jbbym.r").
 IF RunAOAVersion1-log EQ ? AND cAOAFile NE ? THEN RUN AOA/r-jbbym.p.
 ELSE IF RunAOAVersion1-log NE NO AND RunAOAVersion2-log THEN RUN pcrep/r-jbbymN.w PERSISTENT.
 ELSE RUN pcrep/r-jbbymA.w PERSISTENT.

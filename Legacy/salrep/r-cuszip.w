@@ -18,7 +18,7 @@ DO TRANSACTION:
    {sys/inc/runAOAVer.i "HR9" }
 END.
 
-cAOAFile = SEARCH("AOA/r-cuszip.p").
+cAOAFile = SEARCH("AOA/r-cuszip.r").
 IF RunAOAVersion1-log EQ ? AND cAOAFile NE ? THEN RUN AOA/r-cuszip.p.
 ELSE IF RunAOAVersion1-log NE NO AND RunAOAVersion2-log THEN RUN salrep/r-cuzipN.w PERSISTENT.
 ELSE RUN salrep/r-cuzipA.w PERSISTENT.
