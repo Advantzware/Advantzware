@@ -387,8 +387,8 @@ END PROCEDURE.
 
 &IF DEFINED(EXCLUDE-epSetUpEDI) = 0 &THEN
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE epSetUpEDI Procedure 
-PROCEDURE epSetUpEDI :
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE epSetUpEDI Procedure
+PROCEDURE epSetUpEDI:
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -398,15 +398,15 @@ FIND FIRST module NO-LOCK
         AND module.is-used EQ TRUE
         AND module.expire-date GE TODAY
   NO-ERROR.
-IF AVAILABLE module 
-AND SEARCH("rc/genrcvar.r") NE  ? THEN 
+IF AVAILABLE module THEN 
   RUN rc/genrcvar.p. 
      
 
 END PROCEDURE.
-
+	
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
 
 &ENDIF
 
