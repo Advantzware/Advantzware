@@ -9,8 +9,9 @@
 DEFINE VARIABLE iWaitCount AS INTEGER NO-UNDO.
 DEFINE VARIABLE iWaitSeconds AS INTEGER INIT 30 NO-UNDO.
 DEFINE STREAM sInputStream.
-{ed/sharedv.i}
-{ed/edivars.i}
+{ed/sharedv.i "new"}
+{rc/callvar.i "new"} 
+{ed/edivars.i "new shared"}
 {custom/monitor.w "tagMon" "tagMon"}
 
 def var scr-vend-tag as char.
