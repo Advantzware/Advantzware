@@ -18,7 +18,7 @@ DO TRANSACTION:
    {sys/inc/runAOAVer.i "OR16" }
 END.
 
-cAOAFile = SEARCH("AOA/r-ordopn.p").
+cAOAFile = SEARCH("AOA/r-ordopn.r").
 IF RunAOAVersion1-log EQ ? AND cAOAFile NE ? THEN RUN AOA/r-ordopn.p.
 ELSE IF RunAOAVersion1-log NE NO AND RunAOAVersion2-log THEN RUN oerep/r-ordonN.w PERSISTENT.
 ELSE RUN oerep/r-ordonA.w PERSISTENT.

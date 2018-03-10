@@ -18,7 +18,7 @@ DO TRANSACTION:
    {sys/inc/runAOAVer.i "OR13" }
 END.
 
-cAOAFile = SEARCH("AOA/r-backl1.p").
+cAOAFile = SEARCH("AOA/r-backl1.r").
 IF RunAOAVersion1-log EQ ? AND cAOAFile NE ? THEN RUN AOA/r-backl1.p.
 ELSE IF RunAOAVersion1-log NE NO AND RunAOAVersion2-log THEN RUN oerep/r-back1N.w PERSISTENT.
 ELSE RUN oerep/r-back1A.w PERSISTENT.

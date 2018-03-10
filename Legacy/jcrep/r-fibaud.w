@@ -18,7 +18,7 @@ DO TRANSACTION:
    {sys/inc/runAOAVer.i "JR14" }
 END.
 
-cAOAFile = SEARCH("AOA/r-fibaud.p").
+cAOAFile = SEARCH("AOA/r-fibaud.r").
 IF RunAOAVersion1-log EQ ? AND cAOAFile NE ? THEN RUN AOA/r-fibaud.p.
 ELSE IF RunAOAVersion1-log NE NO AND RunAOAVersion2-log THEN RUN jcrep/r-fibaudN.w PERSISTENT.
 ELSE RUN jcrep/r-fibaudA.w PERSISTENT.

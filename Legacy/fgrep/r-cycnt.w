@@ -18,7 +18,7 @@ DO TRANSACTION:
    {sys/inc/runAOAVer.i "IC1" }
 END.
 
-cAOAFile = SEARCH("AOA/r-cycnt.p").
+cAOAFile = SEARCH("AOA/r-cycnt.r").
 IF RunAOAVersion1-log EQ ? AND cAOAFile NE ? THEN RUN AOA/r-cycnt.p.
 ELSE IF RunAOAVersion1-log NE NO AND RunAOAVersion2-log THEN RUN fgrep/r-cycntN.w PERSISTENT.
 ELSE RUN fgrep/r-cycntA.w PERSISTENT.

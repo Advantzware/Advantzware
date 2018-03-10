@@ -18,7 +18,7 @@ DO TRANSACTION:
    {sys/inc/runAOAVer.i "AR12" }
 END.
 
-cAOAFile = SEARCH("AOA/r-custt.p").
+cAOAFile = SEARCH("AOA/r-custt.r").
 IF RunAOAVersion1-log EQ ? AND cAOAFile NE ? THEN RUN AOA/r-custt.p.
 ELSE IF RunAOAVersion1-log NE NO AND RunAOAVersion2-log THEN RUN arrep/r-custtN.w PERSISTENT.
 ELSE RUN arrep/r-custtA.w PERSISTENT.

@@ -18,7 +18,7 @@ DO TRANSACTION:
    {sys/inc/runAOAVer.i "AR9" }
 END.
 
-cAOAFile = SEARCH("AOA/r-cashsm.p").
+cAOAFile = SEARCH("AOA/r-cashsm.r").
 IF RunAOAVersion1-log EQ ? AND cAOAFile NE ? THEN RUN AOA/r-cashsm.p.
 ELSE IF RunAOAVersion1-log NE NO AND RunAOAVersion2-log THEN RUN arrep/r-cashsmN.w PERSISTENT.
 ELSE RUN arrep/r-cashsmA.w PERSISTENT.
