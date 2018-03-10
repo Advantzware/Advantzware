@@ -2937,6 +2937,8 @@ PROCEDURE get-set-full-qty :
            AND b-fg-rctd.i-no = fg-rctd.i-no:SCREEN-VALUE 
            AND (RECID(b-fg-rctd) <> recid(fg-rctd) 
                 OR (adm-new-record AND NOT adm-adding-record))
+           AND b-fg-rctd.SetHeaderRno EQ INTEGER(SUBSTRING(lv-linker, 10, 10))
+           AND b-fg-rctd.SetHeaderRno GT 0
            NO-LOCK:     
 
 
@@ -4206,7 +4208,8 @@ gvcCurrentItem = fg-rctd.i-no.
       bfFgRctd.trans-time   = TIME
       .   
 
-        ASSIGN bfFgRctd.created-by = USERID("nosweat").
+        ASSIGN bfFgRctd.created-by   = USERID("nosweat")
+               bfFgRctd.SetHeaderRno = INTEGER(SUBSTRING(lv-linker, 10, 10)).
 
       /* as in local-assign logic */
       IF ll-set-parts THEN DO:

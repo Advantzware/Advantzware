@@ -168,19 +168,9 @@
          ASSIGN
             fg-rctd.rita-code = "P"  /* posted */
             fg-rctd.post-date = TODAY
-            fg-rctd.tag2      = w-fg-rctd.tag2.
-
-         FIND FIRST reftable WHERE reftable.reftable EQ "fg-rctd.user-id"
-              AND reftable.company  EQ fg-rctd.company
-              AND reftable.loc      EQ STRING(fg-rctd.r-no,"9999999999") 
-              NO-LOCK NO-ERROR.
-         IF NOT AVAIL reftable THEN DO:
-           CREATE  reftable.
-           ASSIGN  reftable.reftable = "fg-rctd.user-id"
-                 reftable.company  = fg-rctd.company
-                 reftable.loc      = STRING(fg-rctd.r-no,"9999999999")
-                 reftable.code     = USERID("nosweat").
-         END.
+            fg-rctd.tag2      = w-fg-rctd.tag2
+            fg-rctd.created-by =  USERID("nosweat")
+            .
 
          FOR EACH fg-rcpts
              WHERE fg-rcpts.company EQ fg-rctd.company

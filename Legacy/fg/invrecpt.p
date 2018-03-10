@@ -14,7 +14,6 @@ DEF BUFFER bf-po-ordl FOR po-ordl.
 DEF BUFFER bf-po-ord  FOR po-ord.
 DEF BUFFER bf-oe-ordl FOR oe-ordl.
 DEF BUFFER bf-oe-ord  FOR oe-ord.
-DEF BUFFER bf-ref     FOR reftable.
 
 DEF NEW SHARED VAR out-recid AS RECID NO-UNDO.
 DEF NEW SHARED VAR relh-recid AS RECID NO-UNDO.
@@ -97,7 +96,7 @@ IF AVAIL fg-rctd THEN
 
 IF AVAIL reftable THEN DO TRANSACTION:
   ASSIGN
-   ll       = reftable.val[1] NE 0
+   ll       = fg-rctd.CreateInvoice
    ll-first = ROWID(fg-rctd).
 
   FOR EACH bf-fg-rctd
@@ -110,24 +109,23 @@ IF AVAIL reftable THEN DO TRANSACTION:
                       BUFFER bf-po-ordl,
                       BUFFER bf-po-ord,
                       BUFFER bf-oe-ordl,
-                      BUFFER bf-oe-ord,
-                      BUFFER bf-ref).
-    ASSIGN
-     ll       = bf-ref.val[1] NE 0
-     ll-first = ROWID(bf-fg-rctd)
-     dBillAmt = bf-ref.val[2]
-     lEmailBol = bf-ref.val[3] EQ 1
-     lInvFrt  = bf-ref.val[2] NE 0.
+                      BUFFER bf-oe-ord).
 
+      ASSIGN 
+          ll-first  = ROWID(bf-fg-rctd)
+          ll        = fg-rctd.CreateInvoice
+          dBillAmt  = fg-rctd.BillableFreightAmt
+          lEmailBol = fg-rctd.EmailBOL
+          lInvFrt   = fg-rctd.InvoiceFreight
+          .
     LEAVE.
   END.
 
   IF ROWID(fg-rctd) EQ ll-first THEN DO:
 
-  
-
-      /* Prompt for other information for invoice */    
-      RUN prompt-for-invoice (OUTPUT ll, OUTPUT lInvFrt, OUTPUT dBillAmt, OUTPUT lEmailBol).
+      IF NOT fg-rctd.CreateInvoice AND NOT fg-rctd.EmailBOL THEN 
+        /* Prompt for other information for invoice */    
+        RUN prompt-for-invoice (OUTPUT ll, OUTPUT lInvFrt, OUTPUT dBillAmt, OUTPUT lEmailBol).
 
   END.
 
@@ -141,17 +139,16 @@ IF AVAIL reftable THEN DO TRANSACTION:
                       BUFFER bf-po-ordl,
                       BUFFER bf-po-ord,
                       BUFFER bf-oe-ordl,
-                      BUFFER bf-oe-ord,
-                      BUFFER bf-ref).
+                      BUFFER bf-oe-ord).
 
-    FIND CURRENT bf-ref.
- 
-    bf-ref.val[1] = INT(ll).
-    bf-ref.val[3] = INT(lEmailBol).
-    IF lInvFrt THEN
-      bf-ref.val[2] = dBillAmt.
-
-    IF ll AND bf-ref.dscr EQ "" THEN DO:
+      ASSIGN 
+        bf-fg-rctd.CreateInvoice      = ll 
+        bf-fg-rctd.BillableFreightAmt = dBillAmt
+        .  
+      IF lInvFrt THEN 
+        bf-fg-rctd.EmailBOL           = lEmailBol .
+        
+    IF ll AND bf-fg-rctd.spare-char-1 EQ "" THEN DO:
       li-tag-no = 0.
 
       FOR EACH loadtag
@@ -169,7 +166,7 @@ IF AVAIL reftable THEN DO TRANSACTION:
        loadtag.company      = bf-oe-ordl.company
        loadtag.tag-no       = STRING(CAPS(bf-oe-ordl.i-no),"x(15)") +
                               STRING(li-tag-no + 1,"99999")
-       bf-ref.dscr          = loadtag.tag-no
+       bf-fg-rctd.spare-char-1 = loadtag.tag-no
        loadtag.item-type    = NO /*FGitem*/
        loadtag.po-no        = bf-po-ord.po-no
        loadtag.job-no       = bf-fg-rctd.job-no
@@ -185,23 +182,23 @@ IF AVAIL reftable THEN DO TRANSACTION:
        loadtag.sts          = "Printed"
        loadtag.tag-date     = TODAY
        loadtag.tag-time     = TIME
-       bf-fg-rctd.tag       = bf-ref.dscr.
+       bf-fg-rctd.tag       = bf-fg-rctd.spare-char-1.
     END.
-
     ELSE
-    IF NOT ll AND bf-ref.dscr NE "" THEN DO:
+    IF NOT ll AND bf-fg-rctd.spare-char-1 NE "" THEN DO:
       FIND FIRST loadtag
           WHERE loadtag.company   EQ bf-oe-ordl.company
             AND loadtag.item-type EQ NO
-            AND loadtag.tag-no    EQ bf-ref.dscr
+            AND loadtag.tag-no    EQ bf-fg-rctd.spare-char-1
           NO-ERROR.
       IF AVAIL loadtag THEN DELETE loadtag.
       ASSIGN
-       bf-ref.dscr    = ""
-       bf-fg-rctd.tag = bf-ref.dscr.
+       bf-fg-rctd.spare-char-1    = ""
+       bf-fg-rctd.tag = bf-fg-rctd.spare-char-1
+       .
     END.
 
-    FIND CURRENT bf-ref NO-LOCK NO-ERROR.
+    /* FIND CURRENT bf-ref NO-LOCK NO-ERROR. */
     FIND itemfg WHERE itemfg.company = bf-oe-ordl.company
                   AND itemfg.i-no    = bf-oe-ordl.i-no
                 NO-LOCK NO-ERROR.
@@ -226,7 +223,7 @@ IF ip-run EQ 2 THEN DO TRANSACTION:
                       BUFFER oe-ord,
                       BUFFER reftable).
     
-    IF NOT AVAIL reftable OR reftable.val[1] EQ 0 THEN DELETE w-inv.
+    IF fg-rctd.CreateInvoice EQ NO THEN DELETE w-inv.
   END.
 
   FOR EACH w-inv,
@@ -240,11 +237,12 @@ IF ip-run EQ 2 THEN DO TRANSACTION:
                       BUFFER oe-ordl,
                       BUFFER oe-ord,
                       BUFFER reftable).
-    IF AVAIL(reftable) AND (reftable.val[2] GT 0 OR reftable.val[3] EQ 1) THEN
-    ASSIGN dBillAmt = reftable.val[2]
-           lEmailBol = reftable.val[3] EQ 1
-           lInvFrt  = reftable.val[2] GT 0. /* if bill amt gt 0, then assign freight flag */
-    
+      IF fg-rctd.BillableFreightAmt GT 0 OR fg-rctd.EmailBOL THEN
+      ASSIGN    
+          dBillAmt  = fg-rctd.BillableFreightAmt 
+          lInvFrt   = fg-rctd.BillableFreightAmt GT 0 /* if bill amt gt 0, then assign freight flag */
+          lEmailBol = fg-rctd.EmailBOL          
+          .    
     lv-rowid = ?.
     FOR EACH oe-rel
         WHERE oe-rel.company EQ oe-ordl.company
@@ -431,11 +429,13 @@ IF ip-run EQ 2 THEN DO TRANSACTION:
                       BUFFER oe-ordl,
                       BUFFER oe-ord,
                       BUFFER reftable).
-    IF AVAIL(reftable) AND (reftable.val[2] GT 0 OR reftable.val[3] EQ 1) THEN
-    ASSIGN dBillAmt = reftable.val[2]
-           lEmailBol = reftable.val[3] EQ 1
-           lInvFrt  = reftable.val[2] GT 0.
-    
+  
+    IF fg-rctd.BillableFreightAmt GT 0 OR fg-rctd.EmailBOL THEN 
+        ASSIGN    
+            dBillAmt = fg-rctd.BillableFreightAmt 
+            lInvFrt  = fg-rctd.BillableFreightAmt GT 0 /* if bill amt gt 0, then assign freight flag */
+            lEmailBol = fg-rctd.EmailBOL          
+            .       
     IF FIRST-OF(w-inv.r-no) THEN DO:
       headblok:
       FOR EACH oe-relh WHERE oe-relh.r-no EQ w-inv.r-no
@@ -520,16 +520,14 @@ PROCEDURE get-ord-recs:
   DEF PARAM BUFFER b-po-ordl FOR po-ordl.
   DEF PARAM BUFFER b-po-ord  FOR po-ord.
   DEF PARAM BUFFER b-oe-ordl FOR oe-ordl.
-  DEF PARAM BUFFER b-oe-ord  FOR oe-ord.
-  DEF PARAM BUFFER b-ref     FOR reftable.
+  DEF PARAM BUFFER b-oe-ord  FOR oe-ord.  
 
   DEF BUFFER b-fg-rctd FOR fg-rctd.
 
   RELEASE b-po-ordl.
   RELEASE b-po-ord.
   RELEASE b-oe-ordl.
-  RELEASE b-oe-ord.
-  RELEASE b-ref.
+  RELEASE b-oe-ord.  
 
 
   FIND b-fg-rctd WHERE ROWID(b-fg-rctd) EQ ip-rowid1 NO-LOCK NO-ERROR.

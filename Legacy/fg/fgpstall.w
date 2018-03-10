@@ -250,26 +250,35 @@ lv-font-no lines-per-page lv-font-name tb_excel tb_runExcel fi_file
 
 /* ************************  Function Prototypes ********************** */
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fnCheckSys C-Win 
-FUNCTION fnCheckSys RETURNS LOGICAL
-    (INPUT cNK1 AS CHARACTER   ) FORWARD.
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fnCheckSys C-Win
+FUNCTION fnCheckSys RETURNS LOGICAL 
+    (INPUT cNK1 AS CHARACTER  ) FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fnValidateFgAssembly C-Win 
-FUNCTION fnValidateFgAssembly RETURNS LOGICAL
-    (  ) FORWARD.
 
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fnValidateTransfers C-Win 
-FUNCTION fnValidateTransfers RETURNS LOGICAL
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fnValidateFgAssembly C-Win
+FUNCTION fnValidateFgAssembly RETURNS LOGICAL 
   (  ) FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fnValidateTransfers C-Win
+FUNCTION fnValidateTransfers RETURNS LOGICAL 
+  (  ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD get-act-rel-qty C-Win 
 FUNCTION get-act-rel-qty RETURNS INTEGER
@@ -479,74 +488,74 @@ DEFINE RECTANGLE RECT-7
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 96 BY 17.38.
 
-DEFINE VARIABLE t-adj AS LOGICAL INITIAL no 
+DEFINE VARIABLE t-adj AS LOGICAL INITIAL NO 
      LABEL "Adjustments" 
      VIEW-AS TOGGLE-BOX
      SIZE 23 BY .91 NO-UNDO.
 
-DEFINE VARIABLE t-receipt AS LOGICAL INITIAL no 
+DEFINE VARIABLE t-receipt AS LOGICAL INITIAL NO 
      LABEL "Receipts" 
      VIEW-AS TOGGLE-BOX
      SIZE 23 BY .91 NO-UNDO.
 
-DEFINE VARIABLE t-ret AS LOGICAL INITIAL no 
+DEFINE VARIABLE t-ret AS LOGICAL INITIAL NO 
      LABEL "Credit Returns" 
      VIEW-AS TOGGLE-BOX
      SIZE 23 BY .91 NO-UNDO.
 
-DEFINE VARIABLE t-ship AS LOGICAL INITIAL no 
+DEFINE VARIABLE t-ship AS LOGICAL INITIAL NO 
      LABEL "Shipments" 
      VIEW-AS TOGGLE-BOX
      SIZE 23 BY .91 NO-UNDO.
 
-DEFINE VARIABLE t-trans AS LOGICAL INITIAL no 
+DEFINE VARIABLE t-trans AS LOGICAL INITIAL NO 
      LABEL "Transfers" 
      VIEW-AS TOGGLE-BOX
      SIZE 23 BY .91 NO-UNDO.
 
-DEFINE VARIABLE tb_excel AS LOGICAL INITIAL yes 
+DEFINE VARIABLE tb_excel AS LOGICAL INITIAL YES 
      LABEL "Export To Excel?" 
      VIEW-AS TOGGLE-BOX
      SIZE 21 BY .81
      BGCOLOR 3  NO-UNDO.
 
-DEFINE VARIABLE tb_glnum AS LOGICAL INITIAL no 
+DEFINE VARIABLE tb_glnum AS LOGICAL INITIAL NO 
      LABEL "Print GL Account Numbers?" 
      VIEW-AS TOGGLE-BOX
      SIZE 32 BY .81 NO-UNDO.
 
-DEFINE VARIABLE tb_grndtotal AS LOGICAL INITIAL no 
+DEFINE VARIABLE tb_grndtotal AS LOGICAL INITIAL NO 
      LABEL "Grand Total" 
      VIEW-AS TOGGLE-BOX
      SIZE 17 BY .81 NO-UNDO.
 
-DEFINE VARIABLE tb_runExcel AS LOGICAL INITIAL no 
+DEFINE VARIABLE tb_runExcel AS LOGICAL INITIAL NO 
      LABEL "Auto Run Excel?" 
      VIEW-AS TOGGLE-BOX
      SIZE 21 BY .81
      BGCOLOR 3  NO-UNDO.
 
-DEFINE VARIABLE tb_totCstVal AS LOGICAL INITIAL no 
+DEFINE VARIABLE tb_totCstVal AS LOGICAL INITIAL NO 
      LABEL "Total Cost/Value" 
      VIEW-AS TOGGLE-BOX
      SIZE 21 BY .71 NO-UNDO.
 
-DEFINE VARIABLE td-show-parm AS LOGICAL INITIAL yes 
+DEFINE VARIABLE td-show-parm AS LOGICAL INITIAL YES 
      LABEL "Show Parameters?" 
      VIEW-AS TOGGLE-BOX
      SIZE 24 BY .81 NO-UNDO.
 
-DEFINE VARIABLE tg-recalc-cost AS LOGICAL INITIAL no 
+DEFINE VARIABLE tg-recalc-cost AS LOGICAL INITIAL NO 
      LABEL "Recalc Cost From History?" 
      VIEW-AS TOGGLE-BOX
      SIZE 30 BY .81 NO-UNDO.
 
-DEFINE VARIABLE tgIssue AS LOGICAL INITIAL no 
+DEFINE VARIABLE tgIssue AS LOGICAL INITIAL NO 
      LABEL "Issue Farm Outs" 
      VIEW-AS TOGGLE-BOX
      SIZE 23 BY .91 NO-UNDO.
 
-DEFINE VARIABLE tgl-itemCD AS LOGICAL INITIAL no 
+DEFINE VARIABLE tgl-itemCD AS LOGICAL INITIAL NO 
      LABEL "Item Code" 
      VIEW-AS TOGGLE-BOX
      SIZE 13.4 BY .81 NO-UNDO.
@@ -656,15 +665,15 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          MAX-WIDTH          = 256
          VIRTUAL-HEIGHT     = 45.05
          VIRTUAL-WIDTH      = 256
-         RESIZE             = yes
-         SCROLL-BARS        = no
-         STATUS-AREA        = yes
+         RESIZE             = YES
+         SCROLL-BARS        = NO
+         STATUS-AREA        = YES
          BGCOLOR            = ?
          FGCOLOR            = ?
-         KEEP-FRAME-Z-ORDER = yes
-         THREE-D            = yes
-         MESSAGE-AREA       = no
-         SENSITIVE          = yes.
+         KEEP-FRAME-Z-ORDER = YES
+         THREE-D            = YES
+         MESSAGE-AREA       = NO
+         SENSITIVE          = YES.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 &IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
@@ -682,7 +691,7 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME                                                           */
-ASSIGN 
+ASSIGN
        begin_fg-r-no:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
@@ -806,7 +815,7 @@ ASSIGN
        v-trans-lbl:HIDDEN IN FRAME FRAME-A           = TRUE.
 
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
-THEN C-Win:HIDDEN = no.
+THEN C-Win:HIDDEN = NO.
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -820,7 +829,7 @@ THEN C-Win:HIDDEN = no.
 */  /* FRAME FRAME-A */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -1296,6 +1305,7 @@ FOR EACH w-fg-rctd WHERE w-fg-rctd.rita-code EQ "R":
          NO-LOCK:
 
 
+
             FOR EACH bf-fg-rctd 
                   WHERE bf-fg-rctd.company EQ w-fg-rctd.company
                     AND bf-fg-rctd.i-no EQ fg-set.part-no
@@ -1313,9 +1323,7 @@ FOR EACH w-fg-rctd WHERE w-fg-rctd.rita-code EQ "R":
                         RUN build-tables.
                   END.
 
-/*                END. /* each reftable */*/
-/*            END. /* each bf-fg-rctd */  */
-        END. /* avail reftable for header item */
+        END. /* each fg-rctd */
     END. /* each fg-set */
 
 END. /* each w-fg-rctd, check for set components */
@@ -2795,13 +2803,13 @@ PROCEDURE fg-post :
             BUFFER po-ordl,
             BUFFER po-ord,
             BUFFER oe-ordl,
-            BUFFER oe-ord,
-            BUFFER reftable).
-        IF AVAIL(reftable) AND (reftable.val[2] GT 0 OR reftable.val[3] EQ 1) THEN
-            ASSIGN ll        = reftable.val[1] NE 0
-                dBillAmt  = reftable.val[2]
-                lEmailBol = reftable.val[3] EQ 1
-                lInvFrt   = reftable.val[1] GT 0.
+            BUFFER oe-ord).
+        
+        ASSIGN ll        = fg-rctd.CreateInvoice
+               dBillAmt  = fg-rctd.BillableFreightAmt
+               lEmailBol = fg-rctd.EmailBOL
+               lInvFrt   = fg-rctd.InvoiceFreight
+               .
         IF lEmailBol AND last-of(tt-inv.bol-no) THEN 
         DO:
             FIND FIRST oe-bolh WHERE oe-bolh.company EQ g_company
@@ -2930,7 +2938,7 @@ PROCEDURE get-ord-recs :
   DEF PARAM BUFFER b-po-ord  FOR po-ord.
   DEF PARAM BUFFER b-oe-ordl FOR oe-ordl.
   DEF PARAM BUFFER b-oe-ord  FOR oe-ord.
-  DEF PARAM BUFFER b-ref     FOR reftable.
+
 
   DEF BUFFER b-fg-rctd FOR fg-rctd.
 
@@ -2938,7 +2946,7 @@ PROCEDURE get-ord-recs :
   RELEASE b-po-ord.
   RELEASE b-oe-ordl.
   RELEASE b-oe-ord.
-  RELEASE b-ref.
+  
 
 
   FIND b-fg-rctd WHERE ROWID(b-fg-rctd) EQ ip-rowid1 NO-LOCK NO-ERROR.
@@ -3331,8 +3339,7 @@ PROCEDURE print-and-post :
 ------------------------------------------------------------------------------*/
   DEF VAR lv-r-no LIKE rm-rctd.r-no NO-UNDO.
   DEF VAR lContinue AS LOGICAL NO-UNDO.
-  DEF BUFFER bf-fg-rctd FOR fg-rctd.
-  
+  DEFINE BUFFER bf-fg-rctd for fg-rctd.
   /* 11111302 - Automatically include set components instead of this validate*/
   /* RUN ValidateFGItemRange(OUTPUT lContinue). */
 /*   IF NOT lContinue THEN DO:                               */
@@ -3396,11 +3403,12 @@ PROCEDURE print-and-post :
                EXCLUSIVE-LOCK:
 
               fg-rcpts.linker = "fg-rctd: " + STRING(fg-rctd.r-no,"9999999999").
-              FIND FIRST bf-fg-rctd EXCLUSIVE-LOCK WHERE bf-fg-rctd.SetHeaderRno EQ lv-r-no
-                 NO-ERROR.
-              IF AVAIL bf-fg-rctd THEN
-                bf-fg-rctd.SetHeaderRno = fg-rctd.r-no.
+
             END. /* each fg-rcpts */
+            FOR EACH bf-fg-rctd EXCLUSIVE-LOCK
+               WHERE bf-fg-rctd.SetHeaderRno EQ lv-r-no:
+               bf-fg-rctd.SetHeaderRno = fg-rctd.r-no.
+            END.
         END. /* If r-no was changed by trigger */
       END. /* do trans */
       w-fg-rctd.r-no = fg-rctd.r-no.
@@ -4130,6 +4138,9 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ValidateFGItemRange C-Win 
 PROCEDURE ValidateFGItemRange :
 /*------------------------------------------------------------------------------
@@ -4173,10 +4184,12 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
 /* ************************  Function Implementations ***************** */
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fnCheckSys C-Win 
-FUNCTION fnCheckSys RETURNS LOGICAL
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fnCheckSys C-Win
+FUNCTION fnCheckSys RETURNS LOGICAL  
     (INPUT cNK1 AS CHARACTER   ):
     /*------------------------------------------------------------------------------
      Purpose:
@@ -4194,12 +4207,15 @@ FUNCTION fnCheckSys RETURNS LOGICAL
     RETURN result.
 
 END FUNCTION.
-
+	
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fnValidateFgAssembly C-Win 
-FUNCTION fnValidateFgAssembly RETURNS LOGICAL
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fnValidateFgAssembly C-Win
+FUNCTION fnValidateFgAssembly RETURNS LOGICAL 
     (  ):
     /*------------------------------------------------------------------------------
      Purpose:
@@ -4212,19 +4228,21 @@ FUNCTION fnValidateFgAssembly RETURNS LOGICAL
     DEFINE VARIABLE lSucceeded AS LOGICAL NO-UNDO.
     
     lSucceeded = YES.
-    FOR EACH b-w-fg-rctd WHERE b-w-fg-rctd.qty LT 0
-                           AND b-w-fg-rctd.SetHeaderRno GT 0.
+    FOR EACH b-w-fg-rctd 
+       WHERE b-w-fg-rctd.qty LT 0
+         AND b-w-fg-rctd.SetHeaderRno GT 0
+       .
 
+       FIND FIRST w-fg-rctd NO-LOCK WHERE w-fg-rctd.r-no EQ b-w-fg-rctd.SetHeaderRno  NO-ERROR. 
+        
+       IF NOT AVAILABLE w-fg-rctd THEN 
+           NEXT. 
       
         FIND fg-rctd EXCLUSIVE-LOCK WHERE ROWID(fg-rctd) = w-fg-rctd.row-id  NO-ERROR.
         FIND FIRST itemfg NO-LOCK WHERE itemfg.company EQ cocode 
             AND itemfg.i-no    EQ w-fg-rctd.i-no
             NO-ERROR.
 
-        FIND FIRST w-fg-rctd NO-LOCK WHERE w-fg-rctd.r-no EQ fg-rctd.SetHeaderRno NO-ERROR.    
-        IF NOT AVAILABLE w-fg-rctd THEN 
-            NEXT. 
-      
         IF AVAIL fg-rctd  THEN 
         DO:
             /*##BL - FGSetAssembly requires the bin to match that of the character*/
@@ -4243,12 +4261,15 @@ FUNCTION fnValidateFgAssembly RETURNS LOGICAL
     RETURN lSucceeded.
     
 END FUNCTION.
-
+	
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fnValidateTransfers C-Win 
-FUNCTION fnValidateTransfers RETURNS LOGICAL
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fnValidateTransfers C-Win
+FUNCTION fnValidateTransfers RETURNS LOGICAL 
   (  ):
 /*------------------------------------------------------------------------------
  Purpose:
@@ -4313,12 +4334,14 @@ FUNCTION fnValidateTransfers RETURNS LOGICAL
                 END.
     END.
 
-        RETURN lTransferResult.
+	RETURN lTransferResult.
 
 END FUNCTION.
-
+	
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION get-act-rel-qty C-Win 
 FUNCTION get-act-rel-qty RETURNS INTEGER

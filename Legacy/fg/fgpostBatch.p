@@ -1095,12 +1095,7 @@ PROCEDURE get-ord-recs:
                 AND b-oe-ord.ord-no  EQ b-oe-ordl.ord-no
                 NO-LOCK NO-ERROR.
 
-        IF AVAIL oe-ord THEN
-            FIND FIRST b-ref
-                WHERE b-ref.reftable EQ "fg-rctd.user-id"
-                AND b-ref.company  EQ b-fg-rctd.company
-                AND b-ref.loc      EQ STRING(b-fg-rctd.r-no,"9999999999")
-                NO-LOCK NO-ERROR.
+
     END.
 
 

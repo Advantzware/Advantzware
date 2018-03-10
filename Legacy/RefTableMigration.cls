@@ -419,6 +419,7 @@ CLASS RefTableMigration:
     END METHOD. /*oe-rel*/
         METHOD PUBLIC INTEGER FgRctdUserId(INPUT ipCount AS INTEGER):
             DEFINE VARIABLE iCnt AS INTEGER NO-UNDO.
+            DEFINE VARIABLE iTmpRno AS INTEGER NO-UNDO.
             DEFINE BUFFER reftable1 FOR reftable1.
             DEFINE BUFFER Breftable FOR reftable.
             DEFINE BUFFER fg-rctd   FOR fg-rctd.
@@ -432,7 +433,22 @@ CLASS RefTableMigration:
                     FIND FIRST fg-rctd WHERE fg-rctd.r-no EQ INT(reftable.loc) EXCLUSIVE-LOCK NO-ERROR.
                     IF AVAILABLE fg-rctd THEN
                     DO:
-                        
+                        IF reftable.dscr BEGINS "fg-rctd:" THEN 
+                        DO:
+                            iTmpRno = INTEGER(SUBSTRING(reftable.dscr, 10, 10)) NO-ERROR.
+                            IF NOT ERROR-STATUS:ERROR THEN 
+                                fg-rctd.SetHeaderRno = iTmpRno.
+                        END.
+                        ELSE
+                            fg-rctd.SetHeaderRno = 0.
+                        IF NOT reftable.dscr BEGINS "fg-rctd:" THEN 
+                            ASSIGN
+                                fg-rctd.CreateInvoice      = reftable.val[1] NE 0
+                                fg-rctd.BillableFreightAmt = reftable.val[2]
+                                fg-rctd.EmailBOL           = reftable.val[3] EQ 1
+                                fg-rctd.InvoiceFreight     = reftable.val[2] NE 0
+                                fg-rctd.spare-char-1       = reftable.dscr /* tag # */
+                                .                        
                             IF fg-rctd.created-by EQ "" THEN ASSIGN fg-rctd.created-by = reftable.code.
                             IF fg-rctd.updated-by EQ "" THEN ASSIGN fg-rctd.updated-by = reftable.code2.
                         ASSIGN iProcessCount = iProcessCount + 1.    
