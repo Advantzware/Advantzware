@@ -179,7 +179,7 @@ DEFINE BROWSE br_table
       job-mat.qty FORMAT ">>>,>>>,>>9.9<<<<<":U
       job-mat.qty-uom FORMAT "x(4)":U
       job-mat.wid FORMAT ">>9.99<<":U
-      job-mat.len FORMAT ">>9.99<<":U
+      job-mat.len FORMAT ">,>>9.99<<":U
       job-mat.n-up FORMAT ">>9":U
       job-mat.basis-w FORMAT ">>9.99":U
       po-ordl.po-no COLUMN-LABEL "PO" FORMAT ">>>>>9":U
@@ -278,14 +278,15 @@ AND po-ordl.i-no EQ job-mat.i-no"
      _FldNameList[2]   = asi.item.i-name
      _FldNameList[3]   = asi.item.mat-type
      _FldNameList[4]   > asi.job-mat.qty
-"job-mat.qty" ? ">>>,>>>,>>9.9<<<<<" "decimal" ? ? ? ? ? ? no ? no no ? yes no no "U" "" ""
+"job-mat.qty" ? ">>>,>>>,>>9.9<<<<<" "decimal" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[5]   = asi.job-mat.qty-uom
      _FldNameList[6]   = asi.job-mat.wid
-     _FldNameList[7]   = asi.job-mat.len
+     _FldNameList[7]   > asi.job-mat.len
+"job-mat.len" ? ">,>>9.99<<" "decimal" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[8]   = asi.job-mat.n-up
      _FldNameList[9]   = asi.job-mat.basis-w
      _FldNameList[10]   > asi.po-ordl.po-no
-"po-ordl.po-no" "PO" ? "integer" ? ? ? ? ? ? no ? no no ? yes no no "U" "" ""
+"po-ordl.po-no" "PO" ? "integer" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[11]   = asi.po-ordl.t-rec-qty
      _Query            is NOT OPENED
 */  /* BROWSE br_table */
