@@ -18,6 +18,10 @@ DEF NEW SHARED VAR DAY_str AS cha FORM "x(10)" NO-UNDO.
 DEF NEW SHARED VAR tim_str AS cha FORM "x(8)" NO-UNDO.
 DEF NEW SHARED VAR tmp-dir AS cha NO-UNDO.
 def new shared var v-drop-rc as log no-undo.
+/* TEST */
+def new shared var v-prep-mat AS DEC no-undo.
+def new shared var v-prep-lab AS DEC no-undo.
+
 DEF VAR CALL_id AS RECID NO-UNDO.
 DEF SHARED VAR qty AS INT NO-UNDO.
 def var v-vend-no like e-item-vend.vend-no init "" NO-UNDO.
