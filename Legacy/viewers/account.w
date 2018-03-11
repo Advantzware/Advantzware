@@ -104,7 +104,6 @@ account.cyr[13] account.lyr[13] account.bud[13] account.ly-bud[13]
 /* Custom List Definitions                                              */
 /* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,ROW-AVAILABLE,DISPLAY-FIELD,List-5,F1 */
 &Scoped-define ADM-CREATE-FIELDS account.actnum 
-&Scoped-define ADM-ASSIGN-FIELDS account.terms-discount 
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
@@ -137,19 +136,14 @@ RUN set-attribute-list (
 
 /* Definitions of the field level widgets                               */
 DEFINE RECTANGLE RECT-1
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL 
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 143 BY 19.29
      BGCOLOR 9 FGCOLOR 9 .
 
 DEFINE RECTANGLE RECT-2
-     EDGE-PIXELS 2 GRAPHIC-EDGE  
+     EDGE-PIXELS 2 GRAPHIC-EDGE    
      SIZE 1 BY 15.24
      BGCOLOR 0 .
-
-DEFINE VARIABLE tb_not-disc AS LOGICAL INITIAL no 
-     LABEL "" 
-     VIEW-AS TOGGLE-BOX
-     SIZE 3 BY .76 NO-UNDO.
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -273,8 +267,10 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 24.8 BY 1
           BGCOLOR 15 FONT 4
-     tb_not-disc AT ROW 10.29 COL 127 HELP
-          "Check box if this Acct# receives no terms discount"
+     account.terms-discount AT ROW 10.29 COL 127
+          LABEL "No Terms Discount?"
+          VIEW-AS TOGGLE-BOX
+          SIZE 3 BY .76
      account.cyr[6] AT ROW 10.76 COL 7 COLON-ALIGNED
           LABEL "06"
           VIEW-AS FILL-IN 
@@ -418,20 +414,19 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 24.8 BY 1
           BGCOLOR 15 FONT 4
-     RECT-2 AT ROW 4.81 COL 65
-     RECT-1 AT ROW 1 COL 1
-     "Period" VIEW-AS TEXT
-          SIZE 8 BY .52 AT ROW 4 COL 3
+     "Type:" VIEW-AS TEXT
+          SIZE 6.6 BY .81 AT ROW 1.48 COL 127
+     "Current Year" VIEW-AS TEXT
+          SIZE 18 BY .52 AT ROW 4 COL 14
           FGCOLOR 9 
      "Last Year Budget" VIEW-AS TEXT
           SIZE 21 BY .52 AT ROW 4 COL 104
           FGCOLOR 9 
-     "Current Year" VIEW-AS TEXT
-          SIZE 18 BY .52 AT ROW 4 COL 14
+     "Period" VIEW-AS TEXT
+          SIZE 8 BY .52 AT ROW 4 COL 3
           FGCOLOR 9 
-     "Current Year Budget" VIEW-AS TEXT
-          SIZE 25 BY .52 AT ROW 4 COL 70
-          FGCOLOR 9 
+     "Discount" VIEW-AS TEXT
+          SIZE 11 BY .62 AT ROW 10.76 COL 131
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -439,15 +434,16 @@ DEFINE FRAME F-Main
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME F-Main
-     "Type:" VIEW-AS TEXT
-          SIZE 6.6 BY .81 AT ROW 1.48 COL 127
-     "Discount" VIEW-AS TEXT
-          SIZE 11 BY .62 AT ROW 10.76 COL 131
      "No Terms" VIEW-AS TEXT
           SIZE 11 BY .62 AT ROW 10.05 COL 131
      "Last Year" VIEW-AS TEXT
           SIZE 15 BY .52 AT ROW 4 COL 45
           FGCOLOR 9 
+     "Current Year Budget" VIEW-AS TEXT
+          SIZE 25 BY .52 AT ROW 4 COL 70
+          FGCOLOR 9 
+     RECT-2 AT ROW 4.81 COL 65
+     RECT-1 AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -569,7 +565,7 @@ ASSIGN
 /* SETTINGS FOR RECTANGLE RECT-2 IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR TOGGLE-BOX account.terms-discount IN FRAME F-Main
-   2                                                                    */
+   EXP-LABEL                                                            */
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
