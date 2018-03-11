@@ -514,6 +514,8 @@ DO:
 
          
 
+         FIND current e-item-vend EXCLUSIVE NO-ERROR.
+         
          IF AVAIL e-item-vend THEN
          DO:
             do i = 1 to 10:
@@ -648,7 +650,6 @@ DO:
                END.
             END.
            
-            FIND CURRENT e-item-vend.
             ASSIGN
             e-item-vend.updated-id[1] = USERID("NOSWEAT")
             e-item-vend.updated-date[1] = TODAY.
