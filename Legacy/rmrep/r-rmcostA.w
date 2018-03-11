@@ -1118,12 +1118,6 @@ IF AVAIL e-item THEN DO:
 
     IF AVAIL b-qty THEN
     DO:
-       FIND FIRST b-cost WHERE
-            b-cost.reftable = "vend-cost" AND
-            b-cost.company = e-item-vend.company AND
-                b-cost.CODE    = e-item-vend.i-no AND
-            b-cost.code2   = e-item-vend.vend-no
-            NO-LOCK NO-ERROR.
 
        DO v-index = 1 TO 10:
           ASSIGN
