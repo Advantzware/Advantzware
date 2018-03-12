@@ -281,8 +281,6 @@ ASSIGN
         ttResults.cConvError   = cError
         ttResults.timetaken    = (MTIME - startTime) / 1000
         .
-    
-            
 
 
     ASSIGN cError = ""
