@@ -526,7 +526,7 @@ PROCEDURE checkset :
 
 
 
-       IF fg-rctd.created-by NE "" THEN
+       IF fg-rctd.SetHeaderRno NE 0 THEN
           DO:
            v-int = b-fg-rctd.r-no.
            IF NOT CAN-FIND(FIRST b2-fg-rctd WHERE

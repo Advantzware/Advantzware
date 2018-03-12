@@ -948,6 +948,7 @@ FOR EACH w-fg-rctd WHERE w-fg-rctd.rita-code EQ "R":
                   WHERE bf-fg-rctd.company EQ w-fg-rctd.company
                     AND bf-fg-rctd.i-no EQ fg-set.part-no
                     AND bf-fg-rctd.rita-code EQ "R" 
+                    AND bf-fg-rctd.SetHeaderRno EQ w-fg-rctd.r-no
                   NO-LOCK:
                                   
   
@@ -2521,7 +2522,7 @@ PROCEDURE fg-post :
   /* #pn# task 08211305                                                    */   
   FOR EACH w-fg-rctd:
       FOR EACH b-w-fg-rctd WHERE b-w-fg-rctd.qty LT 0
-        AND b-w-fg-rctd.SetHeaderRno GT 0 .
+        AND b-w-fg-rctd.SetHeaderRno EQ w-fg-rctd.r-no.
           
 
         FIND fg-rctd WHERE ROWID(fg-rctd) = b-w-fg-rctd.row-id EXCLUSIVE-LOCK NO-ERROR.
@@ -3517,6 +3518,7 @@ PROCEDURE print-and-post :
 ------------------------------------------------------------------------------*/
   DEFINE VARIABLE lv-r-no LIKE rm-rctd.r-no NO-UNDO.
   DEFINE VARIABLE lContinue AS LOGICAL NO-UNDO.
+  DEFINE BUFFER bf-fg-rctd FOR fg-rctd.
   /* 11111302 - Automatically include set components instead of this validate*/
   /* RUN ValidateFGItemRange(OUTPUT lContinue). */
 /*   IF NOT lContinue THEN DO:                               */
@@ -3594,7 +3596,10 @@ PROCEDURE print-and-post :
                EXCLUSIVE-LOCK:
     
               fg-rcpts.linker = "fg-rctd: " + STRING(fg-rctd.r-no,"9999999999").
-
+              FOR EACH bf-fg-rctd EXCLUSIVE-LOCK  
+                WHERE bf-fg-rctd.setHeaderRno EQ lv-r-no:
+                    bf-fg-rctd.setHeaderRno = fg-rctd.r-no.
+              END. 
             END. /* each fg-rcpts */
         END. /* If r-no was changed by trigger */
       END. /* do trans */

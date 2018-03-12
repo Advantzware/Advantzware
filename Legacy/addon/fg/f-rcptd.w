@@ -2208,7 +2208,7 @@ PROCEDURE local-assign-record :
   DEF VAR ls-tmp-qty AS cha NO-UNDO.
   DEF VAR ls-tmp-uom AS cha NO-UNDO.
   DEF VAR ls-tmp-cst AS cha NO-UNDO.
-
+  DEFINE VARIABLE iLinker AS INTEGER NO-UNDO.
   /* Code placed here will execute PRIOR to standard behavior. */
   DO WITH FRAME {&FRAME-NAME}:
     ASSIGN
@@ -2235,6 +2235,10 @@ PROCEDURE local-assign-record :
       CREATE fg-rcpts.
       fg-rcpts.r-no       = fg-rctd.r-no.
     END.
+    iLinker = INTEGER(SUBSTRING(lv-linker, 10, 10)) NO-ERROR.
+    IF NOT ERROR-STATUS:ERROR THEN 
+        fg-rctd.setHeaderRno = iLinker. 
+    
     ASSIGN
      fg-rcpts.company    = cocode
      fg-rcpts.i-no       = fg-rctd.i-no
