@@ -18,6 +18,6 @@ DO TRANSACTION:
    {sys/inc/runAOAVer.i "OS5"}
 END.
 
-cAOAFile = SEARCH("AOA/r-bolpst.p").
+cAOAFile = SEARCH("AOA/r-bolpst.r").
 IF RunAOAVersion1-log EQ ? AND cAOAFile NE ? THEN RUN AOA/r-bolpst.p.
 ELSE RUN oe/r-bolpstN.p PERSISTENT.

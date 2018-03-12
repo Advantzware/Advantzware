@@ -33,7 +33,7 @@ DO TRANSACTION:
    {sys/inc/runAOAVer.i "IF1" }
 END.
 
-cAOAFile = SEARCH("AOA/rd-fgexp.p").
+cAOAFile = SEARCH("AOA/rd-fgexp.r").
 IF RunAOAVersion1-log EQ ? AND cAOAFile NE ? THEN RUN AOA/rd-fgexp.p.
 ELSE RUN fg/rd-fgexpN.w PERSISTENT
         (ipcItemFrom,
