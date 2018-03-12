@@ -26,3 +26,15 @@
 "R-Stmt." "A-R-4 Statements" "1230200501419684" "Customer,Cust"
 "RFQ" "Request for Quote" "1004201005808923" "None"
 "sbPro." "S-3 Scheduler Pro" "0927200501083202" "Customer,Cust,Vendor,Vend,SoldTo,ShipTo,SalesRep,Employee,Emp"
+.
+PSC
+filename=emailcod
+records=0000000000028
+ldbname=asitest167
+timestamp=2018/03/11-10:39:48
+numformat=44,46
+dateformat=mdy-1950
+map=NO-MAP
+cpstream=ISO8859-1
+.
+0000001950
