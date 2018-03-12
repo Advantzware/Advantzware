@@ -17,7 +17,7 @@
 BLOCK-LEVEL ON ERROR UNDO, THROW.
 DEFINE VARIABLE oRefTableMigration AS RefTableMigration.
 DEFINE VARIABLE iCount             AS INTEGER           NO-UNDO.
-DEFINE VARIABLE iRecordLimit       AS INTEGER           NO-UNDO INITIAL 90000.
+DEFINE VARIABLE iRecordLimit       AS INTEGER           NO-UNDO INITIAL 7500000.
 DEFINE VARIABLE iProcessCount      AS INTEGER           NO-UNDO.
 DEFINE VARIABLE cOutputFile        AS CHARACTER         NO-UNDO.
 DEFINE VARIABLE cError             AS CHARACTER         NO-UNDO.
@@ -281,9 +281,6 @@ ASSIGN
         ttResults.cConvError   = cError
         ttResults.timetaken    = (MTIME - startTime) / 1000
         .
-    /* MESSAGE "fg-rctd.user-id reftable data migration complete. Record Count:" + STRING(iCount)
-            + " Time Taken: " STRING(ttResults.timetaken). */
-            
 
 
     ASSIGN cError = ""
@@ -1455,6 +1452,65 @@ ASSIGN
         ttResults.timetaken    = (MTIME - startTime) / 1000
         . 
 
+
+
+    ASSIGN cError = ""
+           startTime = MTIME
+           iCount = 0
+           iProcessCount = 0
+           .
+    ASSIGN
+        iCount = oRefTableMigration:VendQty(iRecordLimit)
+        iProcessCount = oRefTableMigration:iProcessCount NO-ERROR.
+    IF ERROR-STATUS:ERROR THEN ASSIGN cError = "Error occured while reftable conversion.".
+    CREATE ttResults.
+    ASSIGN
+        ttResults.cReftable    = "vend-qty"
+        ttResults.iTotalCount  = iCount
+        ttResults.iChangeCount = iProcessCount
+        ttResults.cConvError   = cError
+        ttResults.timetaken    = (MTIME - startTime) / 1000
+        .
+        
+    
+    ASSIGN cError = ""
+           startTime = MTIME
+           iCount = 0
+           iProcessCount = 0
+           .
+    ASSIGN
+        iCount = oRefTableMigration:VendCost(iRecordLimit)
+        iProcessCount = oRefTableMigration:iProcessCount NO-ERROR.
+    IF ERROR-STATUS:ERROR THEN ASSIGN cError = "Error occured while reftable conversion.".
+    CREATE ttResults.
+    ASSIGN
+        ttResults.cReftable    = "vend-cost"
+        ttResults.iTotalCount  = iCount
+        ttResults.iChangeCount = iProcessCount
+        ttResults.cConvError   = cError
+        ttResults.timetaken    = (MTIME - startTime) / 1000
+        .
+    
+    
+    ASSIGN cError = ""
+           startTime = MTIME
+           iCount = 0
+           iProcessCount = 0
+           .
+    ASSIGN
+        iCount = oRefTableMigration:VendSetup(iRecordLimit)
+        iProcessCount = oRefTableMigration:iProcessCount NO-ERROR.
+    IF ERROR-STATUS:ERROR THEN ASSIGN cError = "Error occured while reftable conversion.".
+    CREATE ttResults.
+    ASSIGN
+        ttResults.cReftable    = "vend-setup"
+        ttResults.iTotalCount  = iCount
+        ttResults.iChangeCount = iProcessCount
+        ttResults.cConvError   = cError
+        ttResults.timetaken    = (MTIME - startTime) / 1000
+        .
+    
+            
 
 
 
