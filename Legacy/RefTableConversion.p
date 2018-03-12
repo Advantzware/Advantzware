@@ -281,8 +281,8 @@ ASSIGN
         ttResults.cConvError   = cError
         ttResults.timetaken    = (MTIME - startTime) / 1000
         .
-    MESSAGE "fg-rctd.user-id reftable data migration complete. Record Count:" + STRING(iCount)
-            + " Time Taken: " STRING(ttResults.timetaken).
+    /* MESSAGE "fg-rctd.user-id reftable data migration complete. Record Count:" + STRING(iCount)
+            + " Time Taken: " STRING(ttResults.timetaken). */
             
 
 
