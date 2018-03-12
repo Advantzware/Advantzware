@@ -203,7 +203,12 @@ PROCEDURE processResultFlatFile:
     
     cFullFilePath = cInputDir + "\" + cInputFile.
     cNewFilePath = cInputDir + "\" + "processed" + "\" + cInputFile.
-        
+    
+    /* In case last line has no eol character */
+    OUTPUT STREAM sInputStream TO VALUE(cFullFilePath) APPEND.
+    PUT STREAM sInputStream UNFORMATTED CHR(10).
+    OUTPUT STREAM sInputStream CLOSE.
+            
     INPUT STREAM sInputStream FROM VALUE(cFullFilePath).
     REPEAT:
         cInput = "".
