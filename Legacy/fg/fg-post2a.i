@@ -46,7 +46,9 @@
          {1}w-fg-rctd.cases-unit   = bf-fg-rctd.cases-unit
          {1}w-fg-rctd.cases        = bf-fg-rctd.cases
          {1}w-fg-rctd.partial      = {1}w-fg-rctd.t-qty -
-                                     ({1}w-fg-rctd.cases * {1}w-fg-rctd.qty-case).
+                                     ({1}w-fg-rctd.cases * {1}w-fg-rctd.qty-case)
+        {1}w-fg-rctd.setHeaderRno  = bf-fg-rctd.r-no
+        .
         
         IF {1}w-fg-rctd.cost-uom EQ "EA" THEN
           v-cost = {1}w-fg-rctd.std-cost.

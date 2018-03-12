@@ -85,16 +85,18 @@ FIND FIRST oe-ctrl WHERE oe-ctrl.company EQ cocode NO-LOCK NO-ERROR.
 
 IF ip-run EQ 1 AND fginvrec-log THEN
   FIND fg-rctd WHERE ROWID(fg-rctd) EQ ip-rowid NO-LOCK NO-ERROR.
+/* was getting passed in with invalid fg-rctd reowid */
+IF NOT AVAILABLE fg-rctd THEN 
+    RETURN. 
 
 IF AVAIL fg-rctd THEN
   RUN get-ord-recs (ROWID(fg-rctd),
                     BUFFER po-ordl,
                     BUFFER po-ord,
                     BUFFER oe-ordl,
-                    BUFFER oe-ord,
-                    BUFFER reftable).
+                    BUFFER oe-ord).
+IF fg-rctd.SetHeaderRno EQ 0 THEN DO TRANSACTION:
 
-IF AVAIL reftable THEN DO TRANSACTION:
   ASSIGN
    ll       = fg-rctd.CreateInvoice
    ll-first = ROWID(fg-rctd).
@@ -113,10 +115,10 @@ IF AVAIL reftable THEN DO TRANSACTION:
 
       ASSIGN 
           ll-first  = ROWID(bf-fg-rctd)
-          ll        = fg-rctd.CreateInvoice
-          dBillAmt  = fg-rctd.BillableFreightAmt
-          lEmailBol = fg-rctd.EmailBOL
-          lInvFrt   = fg-rctd.InvoiceFreight
+          ll        = bf-fg-rctd.CreateInvoice
+          dBillAmt  = bf-fg-rctd.BillableFreightAmt
+          lEmailBol = bf-fg-rctd.EmailBOL
+          lInvFrt   = bf-fg-rctd.InvoiceFreight
           .
     LEAVE.
   END.
@@ -140,64 +142,64 @@ IF AVAIL reftable THEN DO TRANSACTION:
                       BUFFER bf-po-ord,
                       BUFFER bf-oe-ordl,
                       BUFFER bf-oe-ord).
-
-      ASSIGN 
-        bf-fg-rctd.CreateInvoice      = ll 
-        bf-fg-rctd.BillableFreightAmt = dBillAmt
-        .  
-      IF lInvFrt THEN 
-        bf-fg-rctd.EmailBOL           = lEmailBol .
-        
-    IF ll AND bf-fg-rctd.spare-char-1 EQ "" THEN DO:
-      li-tag-no = 0.
-
-      FOR EACH loadtag
-          WHERE loadtag.company   EQ bf-oe-ordl.company
-            AND loadtag.item-type EQ NO
-            AND loadtag.tag-no    BEGINS STRING(CAPS(bf-oe-ordl.i-no),"x(15)")      
-          NO-LOCK
-          BY loadtag.tag-no DESC:
-        li-tag-no = INT(SUBSTR(loadtag.tag-no,16,5)).
-        LEAVE.
-      END. /* repeat*/
-  
-      CREATE loadtag.
-      ASSIGN
-       loadtag.company      = bf-oe-ordl.company
-       loadtag.tag-no       = STRING(CAPS(bf-oe-ordl.i-no),"x(15)") +
-                              STRING(li-tag-no + 1,"99999")
-       bf-fg-rctd.spare-char-1 = loadtag.tag-no
-       loadtag.item-type    = NO /*FGitem*/
-       loadtag.po-no        = bf-po-ord.po-no
-       loadtag.job-no       = bf-fg-rctd.job-no
-       loadtag.job-no2      = bf-fg-rctd.job-no2
-       loadtag.ord-no       = bf-oe-ordl.ord-no
-       loadtag.i-no         = CAPS(bf-oe-ordl.i-no)
-       loadtag.i-name       = bf-oe-ordl.i-name
-       loadtag.qty          = bf-fg-rctd.t-qty
-       loadtag.qty-case     = bf-fg-rctd.qty-case
-       loadtag.case-bundle  = bf-fg-rctd.cases-unit
-       loadtag.pallet-count = loadtag.qty-case * loadtag.case-bundle
-       loadtag.partial      = bf-fg-rctd.partial
-       loadtag.sts          = "Printed"
-       loadtag.tag-date     = TODAY
-       loadtag.tag-time     = TIME
-       bf-fg-rctd.tag       = bf-fg-rctd.spare-char-1.
+    IF AVAILABLE bf-oe-ordl AND AVAILABLE bf-po-ord THEN DO:
+          ASSIGN 
+            bf-fg-rctd.CreateInvoice      = ll 
+            bf-fg-rctd.BillableFreightAmt = dBillAmt
+            .  
+          IF lInvFrt THEN 
+            bf-fg-rctd.EmailBOL           = lEmailBol .
+            
+        IF ll AND bf-fg-rctd.spare-char-1 EQ "" THEN DO:
+          li-tag-no = 0.
+    
+          FOR EACH loadtag
+              WHERE loadtag.company   EQ bf-oe-ordl.company
+                AND loadtag.item-type EQ NO
+                AND loadtag.tag-no    BEGINS STRING(CAPS(bf-oe-ordl.i-no),"x(15)")      
+              NO-LOCK
+              BY loadtag.tag-no DESC:
+            li-tag-no = INT(SUBSTR(loadtag.tag-no,16,5)).
+            LEAVE.
+          END. /* repeat*/
+      
+          CREATE loadtag.
+          ASSIGN
+           loadtag.company      = bf-oe-ordl.company
+           loadtag.tag-no       = STRING(CAPS(bf-oe-ordl.i-no),"x(15)") +
+                                  STRING(li-tag-no + 1,"99999")
+           bf-fg-rctd.spare-char-1 = loadtag.tag-no
+           loadtag.item-type    = NO /*FGitem*/
+           loadtag.po-no        = bf-po-ord.po-no
+           loadtag.job-no       = bf-fg-rctd.job-no
+           loadtag.job-no2      = bf-fg-rctd.job-no2
+           loadtag.ord-no       = bf-oe-ordl.ord-no
+           loadtag.i-no         = CAPS(bf-oe-ordl.i-no)
+           loadtag.i-name       = bf-oe-ordl.i-name
+           loadtag.qty          = bf-fg-rctd.t-qty
+           loadtag.qty-case     = bf-fg-rctd.qty-case
+           loadtag.case-bundle  = bf-fg-rctd.cases-unit
+           loadtag.pallet-count = loadtag.qty-case * loadtag.case-bundle
+           loadtag.partial      = bf-fg-rctd.partial
+           loadtag.sts          = "Printed"
+           loadtag.tag-date     = TODAY
+           loadtag.tag-time     = TIME
+           bf-fg-rctd.tag       = bf-fg-rctd.spare-char-1.
+        END.
+        ELSE
+        IF NOT ll AND bf-fg-rctd.spare-char-1 NE "" THEN DO:
+          FIND FIRST loadtag
+              WHERE loadtag.company   EQ bf-oe-ordl.company
+                AND loadtag.item-type EQ NO
+                AND loadtag.tag-no    EQ bf-fg-rctd.spare-char-1
+              NO-ERROR.
+          IF AVAIL loadtag THEN DELETE loadtag.
+          ASSIGN
+           bf-fg-rctd.spare-char-1    = ""
+           bf-fg-rctd.tag = bf-fg-rctd.spare-char-1
+           .
+        END.
     END.
-    ELSE
-    IF NOT ll AND bf-fg-rctd.spare-char-1 NE "" THEN DO:
-      FIND FIRST loadtag
-          WHERE loadtag.company   EQ bf-oe-ordl.company
-            AND loadtag.item-type EQ NO
-            AND loadtag.tag-no    EQ bf-fg-rctd.spare-char-1
-          NO-ERROR.
-      IF AVAIL loadtag THEN DELETE loadtag.
-      ASSIGN
-       bf-fg-rctd.spare-char-1    = ""
-       bf-fg-rctd.tag = bf-fg-rctd.spare-char-1
-       .
-    END.
-
     /* FIND CURRENT bf-ref NO-LOCK NO-ERROR. */
     FIND itemfg WHERE itemfg.company = bf-oe-ordl.company
                   AND itemfg.i-no    = bf-oe-ordl.i-no
@@ -220,8 +222,7 @@ IF ip-run EQ 2 THEN DO TRANSACTION:
                       BUFFER po-ordl,
                       BUFFER po-ord,
                       BUFFER oe-ordl,
-                      BUFFER oe-ord,
-                      BUFFER reftable).
+                      BUFFER oe-ord).
     
     IF fg-rctd.CreateInvoice EQ NO THEN DELETE w-inv.
   END.
@@ -235,8 +236,7 @@ IF ip-run EQ 2 THEN DO TRANSACTION:
                       BUFFER po-ordl,
                       BUFFER po-ord,
                       BUFFER oe-ordl,
-                      BUFFER oe-ord,
-                      BUFFER reftable).
+                      BUFFER oe-ord).
       IF fg-rctd.BillableFreightAmt GT 0 OR fg-rctd.EmailBOL THEN
       ASSIGN    
           dBillAmt  = fg-rctd.BillableFreightAmt 
@@ -427,8 +427,7 @@ IF ip-run EQ 2 THEN DO TRANSACTION:
                       BUFFER po-ordl,
                       BUFFER po-ord,
                       BUFFER oe-ordl,
-                      BUFFER oe-ord,
-                      BUFFER reftable).
+                      BUFFER oe-ord).
   
     IF fg-rctd.BillableFreightAmt GT 0 OR fg-rctd.EmailBOL THEN 
         ASSIGN    

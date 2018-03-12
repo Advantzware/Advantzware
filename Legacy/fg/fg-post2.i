@@ -46,7 +46,9 @@
          {1}w-fg-rctd.cases-unit   = fg-bin.cases-unit
          {1}w-fg-rctd.cases        = TRUNC({1}w-fg-rctd.t-qty / {1}w-fg-rctd.qty-case,0)
          {1}w-fg-rctd.partial      = {1}w-fg-rctd.t-qty -
-                                     ({1}w-fg-rctd.cases * {1}w-fg-rctd.qty-case).
+                                     ({1}w-fg-rctd.cases * {1}w-fg-rctd.qty-case)
+         {1}w-fg-rctd.SetHeaderRno = fg-rctd.r-no
+        .
         /* Instead of 0 at 500 with -300 partial, make it */
         /* 1 at -500 with 0 partial 12101418 */
         IF {1}w-fg-rctd.cases EQ 0 AND {1}w-fg-rctd.partial NE 0 THEN

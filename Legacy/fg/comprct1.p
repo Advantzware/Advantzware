@@ -86,7 +86,7 @@ DO:
     IF li-max-qty GE fg-rctd.t-qty THEN 
     DO:
       
-        IF itemfg.alloc EQ ?  /*assembled w/part receipts*/                                                                   AND
+        IF itemfg.alloc EQ ?  /*assembled w/part receipts*/    AND
             CAN-FIND(FIRST fg-rcpts
             WHERE fg-rcpts.company EQ fg-rctd.company
             AND fg-rcpts.linker  EQ "fg-rctd: " + STRING(fg-rctd.r-no,"9999999999")) THEN 
@@ -126,7 +126,7 @@ DO:
                         ASSIGN
                         b-fg-rcpts.r-no      = li + 1
                         b-fg-rcpts.rita-code = "set".
-        
+
                     RELEASE b-fg-rcpts.
              
                     CREATE b-w-fg-rctd.
@@ -136,7 +136,9 @@ DO:
                         b-w-fg-rctd.cases    = bf2-fg-rctd.cases * -1
                         b-w-fg-rctd.partial  = bf2-fg-rctd.partial * -1
                         b-w-fg-rctd.t-qty    = bf2-fg-rctd.t-qty * -1
-                        b-w-fg-rctd.ext-cost = bf2-fg-rctd.ext-cost * -1.
+                        b-w-fg-rctd.ext-cost = bf2-fg-rctd.ext-cost * -1
+                        b-w-fg-rctd.SetHeaderRno = bf2-fg-rctd.r-no
+                        .
 
                         
                 END. /* If pur-man eq NO i.e manufactured */

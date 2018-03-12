@@ -707,6 +707,7 @@ PROCEDURE postMonitor:
   DEFINE VARIABLE cFile       AS CHARACTER NO-UNDO.
   DEFINE VARIABLE cErrorMsg   AS CHARACTER NO-UNDO.
   DEFINE VARIABLE iNextRNo    AS INTEGER   NO-UNDO.
+  DEFINE VARIABLE iLinker     AS INTEGER NO-UNDO.
   
   find first sys-ctrl where sys-ctrl.company eq cocode
                         and sys-ctrl.name    eq "RFIDTag" no-lock no-error. 
@@ -836,6 +837,10 @@ PROCEDURE postMonitor:
              END.
              DEF VAR lv-linker AS CHAR NO-UNDO.
              RUN get-linker (OUTPUT lv-linker).
+             iLinker = INTEGER(SUBSTRING(lv-linker, 10, 10)) NO-ERROR.
+             IF NOT ERROR-STATUS:ERROR THEN 
+                fg-rctd.setHeaderRno = iLinker. 
+             
              ASSIGN fg-rcpts.company    = cocode
                     fg-rcpts.i-no       = fg-rctd.i-no
                     fg-rcpts.i-name     = fg-rctd.i-name

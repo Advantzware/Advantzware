@@ -3223,6 +3223,7 @@ PROCEDURE local-assign-record :
   DEF VAR v-full-qty AS DEC NO-UNDO.
   DEF VAR lQtyChanged AS LOG NO-UNDO.
   DEF VAR lOK AS LOG NO-UNDO.
+  DEFINE VARIABLE iLinker AS INTEGER NO-UNDO. 
   /* Code placed here will execute PRIOR to standard behavior. */
   
   /* Needed since the newly created row can become unavailable for some reason */
@@ -3277,6 +3278,9 @@ PROCEDURE local-assign-record :
   IF ll-set-parts THEN DO:
     FIND FIRST fg-rcpts WHERE fg-rcpts.r-no EQ fg-rctd.r-no NO-ERROR.
     IF NOT AVAIL fg-rcpts THEN DO:
+      iLinker = INTEGER(SUBSTRING(lv-linker, 10, 10)) NO-ERROR.
+      IF NOT ERROR-STATUS:ERROR THEN 
+        fg-rctd.setHeaderRno = iLinker. 
       CREATE fg-rcpts.
       fg-rcpts.r-no       = fg-rctd.r-no.
     END.
@@ -3758,6 +3762,7 @@ PROCEDURE local-update-record :
   ASSIGN lv-new-job-ran = NO
          lv-prev-job2 = "".
 
+
   IF NOT ll-set-parts THEN RUN fg/invrecpt.p (ROWID(fg-rctd), 1).
   
 /*   IF v-tag-change NE  v-tag-change2 AND fg-rctd.tag NE "" THEN                                                */
@@ -4064,7 +4069,7 @@ DEFINE VARIABLE full-qty       AS INTEGER      NO-UNDO.
 DEFINE VARIABLE rPrevRec       AS ROWID        NO-UNDO.
 DEFINE VARIABLE cSelectionItem AS CHARACTER    NO-UNDO.
 DEFINE VARIABLE dMaxQty        AS DECIMAL      NO-UNDO.
-
+DEFINE VARIABLE iLinker        AS INTEGER NO-UNDO.
 
 DEF BUFFER bfFgRctd FOR fg-rctd.
 DEF BUFFER b-fg-rctd FOR fg-rctd.
@@ -4218,6 +4223,10 @@ gvcCurrentItem = fg-rctd.i-no.
           CREATE fg-rcpts.
           fg-rcpts.r-no       = bfFgRctd.r-no.
         END.
+        iLinker = INTEGER(SUBSTRING(lv-linker, 10, 10)) NO-ERROR.
+        IF NOT ERROR-STATUS:ERROR THEN 
+          fg-rctd.setHeaderRno = iLinker. 
+        
         ASSIGN
          fg-rcpts.company    = cocode
          fg-rcpts.i-no       = bfFgRctd.i-no

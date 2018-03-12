@@ -604,6 +604,7 @@ PROCEDURE create-w-bin :
 ------------------------------------------------------------------------------*/
 DEF VAR lItemType AS LOG NO-UNDO.
 DEF VAR dTo-Bol AS DEC NO-UNDO.
+DEFINE VARIABLE iLinker AS INTEGER NO-UNDO. 
   CREATE w-bin.
   BUFFER-COPY fg-bin TO w-bin
   ASSIGN
@@ -658,23 +659,26 @@ DEF VAR dTo-Bol AS DEC NO-UNDO.
         w-bin.to-bol = w-bin.to-bol + oe-boll.qty.
     END.
   IF ip-lv-linker GT "" THEN DO:
-    /* Set w-bin.to-bin here for b-rcptd.w */
-    w-bin.to-bol = 0.
-    dTo-bol = 0.
-    FOR EACH fg-rctd
-       WHERE fg-rctd.company EQ fg-bin.company
-         AND fg-rctd.i-no EQ fg-bin.i-no
-         AND fg-rctd.tag  EQ fg-bin.tag
-         AND fg-rctd.loc  EQ fg-bin.loc
-         AND fg-rctd.loc-bin EQ fg-bin.loc-bin
-         AND fg-rctd.rita-code EQ "R"
-         AND fg-rctd.t-qty LT 0
-         AND fg-rctd.SetHeaderRno GT 0
-       NO-LOCK.
-
-      dTo-bol = dTo-bol - fg-rctd.t-qty.    
+      /* Set w-bin.to-bin here for b-rcptd.w */
+      iLinker = INTEGER(SUBSTRING(ip-lv-linker, 10, 10)) NO-ERROR.
+      IF NOT ERROR-STATUS:ERROR THEN DO:               
+        w-bin.to-bol = 0.
+        dTo-bol = 0.
+        FOR EACH fg-rctd
+           WHERE fg-rctd.company EQ fg-bin.company
+             AND fg-rctd.i-no EQ fg-bin.i-no
+             AND fg-rctd.tag  EQ fg-bin.tag
+             AND fg-rctd.loc  EQ fg-bin.loc
+             AND fg-rctd.loc-bin EQ fg-bin.loc-bin
+             AND fg-rctd.rita-code EQ "R"
+             AND fg-rctd.t-qty LT 0
+             AND fg-rctd.SetHeaderRno EQ iLinker
+           NO-LOCK.
+    
+          dTo-bol = dTo-bol - fg-rctd.t-qty.    
+        END.
+        w-bin.to-bol = dTo-Bol.
     END.
-    w-bin.to-bol = dTo-Bol.
   END.
 
   IF NOT oe-ctrl.u-inv THEN
