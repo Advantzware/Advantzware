@@ -1346,7 +1346,8 @@ assign
  itemfg.isaset     = (xest.est-type eq 2 or xest.est-type eq 6) and
                      xeb.form-no eq 0
  itemfg.pur-man    = xeb.pur-man      
- itemfg.alloc      = v-alloc.
+ itemfg.alloc      = v-alloc
+ itemfg.setupDate  = TODAY.
 
  /* Create an itemfg-loc for the default warehouse */
  RUN fg/chkfgloc.p (INPUT itemfg.i-no, INPUT "").

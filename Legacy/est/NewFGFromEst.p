@@ -104,7 +104,8 @@ PROCEDURE pCreateFGItem:
         itemfg.isaset     = (ipiEstType EQ 2 OR ipiEstType EQ 6) AND
                      ipbf-eb.form-no EQ 0
         itemfg.pur-man    = ipbf-eb.pur-man 
-        itemfg.alloc      = ipbf-eb.set-is-assembled.
+        itemfg.alloc      = ipbf-eb.set-is-assembled
+        itemfg.setupDate  = TODAY.
     
     RUN fg/chkfgloc.p (INPUT itemfg.i-no, INPUT "").
     
