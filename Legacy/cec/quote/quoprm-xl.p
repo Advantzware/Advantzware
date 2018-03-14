@@ -335,7 +335,7 @@ else do: /* ch-multi is yes*/
      	DO:
            WshNetwork:SetDefaultPrinter(AdobePrinter). 
        	   chExcelApplication:ActiveSheet:SaveAs(v-dir + "quote.xls") no-error. 	   
-       	   NO-RETURN-VALUE chWorkbook:PrintOut(,,,,,False,).
+       	   NO-RETURN-VALUE  chWorkbook:ExportAsFixedFormat(0, v-dir + "quote.pdf").
        	   chWorkbook:Close(no) no-error.   
        	   chExcelApplication:Quit() no-error.
        	   
@@ -343,7 +343,7 @@ else do: /* ch-multi is yes*/
        	   
        	   OS-DELETE VALUE(v-dir + "quote.xls").
        	   
-       	   OS-RENAME VALUE(v-dir + "asi.pdf") value(v-dir + "quote.pdf").
+       	   /*OS-RENAME VALUE(v-dir + "asi.pdf") value(v-dir + "quote.pdf").*/
        	   
        	   CREATE tt-filelist.
        	   ASSIGN LvCtr = LvCtr + 1
