@@ -591,12 +591,11 @@ new-item: DO ON ENDKEY UNDO, RETRY.
 
       IF item.basis-w EQ ? THEN item.basis-w = 0.
 
-      FIND FIRST reftable WHERE reftable.reftable EQ "FLUTE"
-                            AND reftable.company  EQ ""
-                            AND reftable.loc      EQ ""
-                            AND reftable.code     EQ item.flute NO-LOCK NO-ERROR.
-      IF AVAIL reftable THEN 
-         item.cal = reftable.val[1].
+
+      FIND FIRST flute WHERE flute.company EQ item.company
+                         AND flute.code EQ item.flute NO-LOCK NO-ERROR.
+      IF AVAIL flute THEN
+         item.cal = flute.thickness.                  
 
       IF NOT v-board THEN DO:
          ASSIGN
