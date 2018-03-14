@@ -92,6 +92,15 @@ DEF BUFFER b2-oe-ord FOR oe-ord.
 FIND FIRST users WHERE
      users.user_id EQ USERID("NOSWEAT")
      NO-LOCK NO-ERROR.
+
+DEF VAR hPgmSecurity AS HANDLE NO-UNDO.
+DEF VAR lResult AS LOG NO-UNDO.
+RUN "system/ProgramMasterSecurity.p" PERSISTENT SET hPgmSecurity.
+RUN getSecurity IN hPgmSecurity ("oerep/r-acknow.w", USERID(LDBNAME(1)), "", OUTPUT lResult).
+DELETE OBJECT hPgmSecurity.
+
+IF lResult THEN ASSIGN lAsiUser = YES .
+
 IF AVAIL users AND users.USER_id EQ "ASI" THEN
     ASSIGN lAsiUser = YES .
 
