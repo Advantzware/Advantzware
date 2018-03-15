@@ -17,7 +17,7 @@
 BLOCK-LEVEL ON ERROR UNDO, THROW.
 DEFINE VARIABLE oRefTableMigration AS RefTableMigration.
 DEFINE VARIABLE iCount             AS INTEGER           NO-UNDO.
-DEFINE VARIABLE iRecordLimit       AS INTEGER           NO-UNDO INITIAL 7500000.
+DEFINE VARIABLE iRecordLimit       AS INTEGER           NO-UNDO INITIAL 10,000,000.
 DEFINE VARIABLE iProcessCount      AS INTEGER           NO-UNDO.
 DEFINE VARIABLE cOutputFile        AS CHARACTER         NO-UNDO.
 DEFINE VARIABLE cError             AS CHARACTER         NO-UNDO.
@@ -35,6 +35,19 @@ disable triggers for load of reftable.
 
 
 /* ***************************  Main Block  *************************** */
+ASSIGN 
+    cOutputFile = "c:\tmp\reftableconversion" 
+                   + STRING(YEAR(TODAY)) 
+                   + STRING(MONTH(TODAY)) 
+                   + STRING(DAY(TODAY))
+                   + "_"
+                   + STRING(TIME)
+                   + ".csv".
+OUTPUT TO VALUE(cOutputFile).
+PUT company.company SPACE(5)
+    company.name SPACE(5)
+    pdbname(1) SKIP(2).
+
 ASSIGN 
     oRefTableMigration = NEW RefTableMigration().
 
@@ -1523,15 +1536,6 @@ ASSIGN
                                  
 
 
-ASSIGN 
-    cOutputFile = "c:\temp\reftableconversion" 
-                   + STRING(YEAR(TODAY)) 
-                   + STRING(MONTH(TODAY)) 
-                   + STRING(DAY(TODAY))
-                   + "_"
-                   + STRING(TIME)
-                   + ".csv".
-OUTPUT TO VALUE(cOutputFile).
 PUT "RefTable,Total Records,Records Converted,Error,Time Taken (Secs)" SKIP.
 FOR EACH ttResults: 
     EXPORT DELIMITER "," ttResults.
