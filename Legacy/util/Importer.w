@@ -966,7 +966,7 @@ FUNCTION fGetFile RETURNS CHARACTER
     ------------------------------------------------------------------------------*/
     DEFINE VARIABLE cLogFile AS CHARACTER NO-UNDO.
     
-    ipcBase = TRIM(ipcBase,"ttImport").
+    ipcBase = REPLACE(ipcBase,"ttImport","").
     cLogFile = ipcFolder + "\" + ipcBase + "_" + STRING(YEAR(TODAY)) + "_" + STRING(MONTH(TODAY)) + "_" + STRING(DAY(TODAY)) + "_" + STRING(TIME) + ipcFileType.
   
     
