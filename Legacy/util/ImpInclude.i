@@ -34,4 +34,4 @@ ASSIGN
 
 RUN util/CheckModule.p ("ASI",{1}, YES, OUTPUT lAccess).
 IF lAccess THEN 
-    RUN util\Importer.w (gcompany,{2}, ?).
+    RUN util\Importer.w (gcompany, gloc, {2}, ?).

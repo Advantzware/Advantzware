@@ -20,6 +20,7 @@ CREATE WIDGET-POOL.
 
 /* Parameters Definitions ---                                           */
 DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+DEFINE INPUT PARAMETER ipcLocation AS CHARACTER NO-UNDO. 
 DEFINE INPUT PARAMETER ipcTypes AS CHARACTER NO-UNDO.
 DEFINE INPUT PARAMETER ipriContext AS ROWID NO-UNDO.
 
@@ -47,7 +48,7 @@ DEFINE VARIABLE ghdImportProcs AS HANDLE NO-UNDO.
 &Scoped-define INTERNAL-TABLES ttImportData
 
 /* Definitions for BROWSE brPreview                                     */
-&Scoped-define FIELDS-IN-QUERY-brPreview ttImportData.lValid ttImportData.cImportNote ttImportData.cData[1] ttImportData.cData[2] ttImportData.cData[3] ttImportData.cData[4] ttImportData.cData[5] ttImportData.cData[6] ttImportData.cData[7] ttImportData.cData[8] ttImportData.cData[9] ttImportData.cData[10] ttImportData.cData[11] ttImportData.cData[12] ttImportData.cData[13] ttImportData.cData[14] ttImportData.cData[15] ttImportData.cData[16] ttImportData.cData[17] ttImportData.cData[18] ttImportData.cData[19] ttImportData.cData[20] ttImportData.cData[21] ttImportData.cData[22] ttImportData.cData[23] ttImportData.cData[24] ttImportData.cData[25] ttImportData.cData[26] ttImportData.cData[27] ttImportData.cData[28] ttImportData.cData[29] ttImportData.cData[30] ttImportData.cData[31] ttImportData.cData[32] ttImportData.cData[33] ttImportData.cData[34] ttImportData.cData[35] ttImportData.cData[36] ttImportData.cData[37] ttImportData.cData[38] ttImportData.cData[39] ttImportData.cData[40] ttImportData.cData[41] ttImportData.cData[42] ttImportData.cData[43] ttImportData.cData[44] ttImportData.cData[45] ttImportData.cData[46] ttImportData.cData[47] ttImportData.cData[48] ttImportData.cData[49] ttImportData.cData[50]   
+&Scoped-define FIELDS-IN-QUERY-brPreview ttImportData.lValid ttImportData.cImportNote ttImportData.cData[1] ttImportData.cData[2] ttImportData.cData[3] ttImportData.cData[4] ttImportData.cData[5] ttImportData.cData[6] ttImportData.cData[7] ttImportData.cData[8] ttImportData.cData[9] ttImportData.cData[10] ttImportData.cData[11] ttImportData.cData[12] ttImportData.cData[13] ttImportData.cData[14] ttImportData.cData[15] ttImportData.cData[16] ttImportData.cData[17] ttImportData.cData[18] ttImportData.cData[19] ttImportData.cData[20] ttImportData.cData[21] ttImportData.cData[22] ttImportData.cData[23] ttImportData.cData[24] ttImportData.cData[25] ttImportData.cData[26] ttImportData.cData[27] ttImportData.cData[28] ttImportData.cData[29] ttImportData.cData[30] ttImportData.cData[31] ttImportData.cData[32] ttImportData.cData[33] ttImportData.cData[34] ttImportData.cData[35] ttImportData.cData[36] ttImportData.cData[37] ttImportData.cData[38] ttImportData.cData[39] ttImportData.cData[40] ttImportData.cData[41] ttImportData.cData[42] ttImportData.cData[43] ttImportData.cData[44] ttImportData.cData[45] ttImportData.cData[46] ttImportData.cData[47] ttImportData.cData[48] ttImportData.cData[49] ttImportData.cData[50] ttImportData.cData[51] ttImportData.cData[52] ttImportData.cData[53] ttImportData.cData[54] ttImportData.cData[55] ttImportData.cData[56] ttImportData.cData[57] ttImportData.cData[58] ttImportData.cData[59] ttImportData.cData[60] ttImportData.cData[61] ttImportData.cData[62] ttImportData.cData[63] ttImportData.cData[64] ttImportData.cData[65] ttImportData.cData[66] ttImportData.cData[67] ttImportData.cData[68] ttImportData.cData[69] ttImportData.cData[70] ttImportData.cData[71] ttImportData.cData[72] ttImportData.cData[73] ttImportData.cData[74] ttImportData.cData[75] ttImportData.cData[76] ttImportData.cData[77] ttImportData.cData[78] ttImportData.cData[79] ttImportData.cData[80] ttImportData.cData[81] ttImportData.cData[82] ttImportData.cData[83] ttImportData.cData[84] ttImportData.cData[85] ttImportData.cData[86] ttImportData.cData[87] ttImportData.cData[88] ttImportData.cData[89] ttImportData.cData[90] ttImportData.cData[91] ttImportData.cData[92] ttImportData.cData[93] ttImportData.cData[94] ttImportData.cData[95] ttImportData.cData[96] ttImportData.cData[97] ttImportData.cData[98] ttImportData.cData[99] ttImportData.cData[100]   
 &Scoped-define ENABLED-FIELDS-IN-QUERY-brPreview   
 &Scoped-define SELF-NAME brPreview
 &Scoped-define QUERY-STRING-brPreview FOR EACH ttImportData WHERE NOT ttImportData.lHeader
@@ -61,11 +62,13 @@ DEFINE VARIABLE ghdImportProcs AS HANDLE NO-UNDO.
     ~{&OPEN-QUERY-brPreview}
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-19 cbType btnTemplate fiFileName ~
-btnBrowse lHeaderRow lFieldValidation rdDuplicates btnLoad brPreview ~
-fiLogFolder btnBrowseFolder lLogOnly btnProcess btnCancel 
-&Scoped-Define DISPLAYED-OBJECTS cbType fiFileName lHeaderRow ~
-lFieldValidation rdDuplicates fiLogFolder lLogOnly 
+&Scoped-Define ENABLED-OBJECTS RECT-19 cbType btnTemplate ~
+lIncludeHelpInTemplate fiFileName btnBrowse lHeaderRow lFieldValidation ~
+rdDuplicates btnLoad brPreview fiLogFolder btnBrowseFolder lLogOnly ~
+lLogOnlyErrors btnProcess btnCancel 
+&Scoped-Define DISPLAYED-OBJECTS cbType lIncludeHelpInTemplate fiFileName ~
+lHeaderRow lFieldValidation rdDuplicates fiLogFolder lLogOnly ~
+lLogOnlyErrors 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -166,8 +169,18 @@ DEFINE VARIABLE lHeaderRow AS LOGICAL INITIAL yes
      VIEW-AS TOGGLE-BOX
      SIZE 30 BY .81 NO-UNDO.
 
+DEFINE VARIABLE lIncludeHelpInTemplate AS LOGICAL INITIAL no 
+     LABEL "Include Help Row in Template" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 39 BY .81 NO-UNDO.
+
 DEFINE VARIABLE lLogOnly AS LOGICAL INITIAL no 
      LABEL "Generate Log Only" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 30 BY .81 NO-UNDO.
+
+DEFINE VARIABLE lLogOnlyErrors AS LOGICAL INITIAL no 
+     LABEL "Only Log Errors" 
      VIEW-AS TOGGLE-BOX
      SIZE 30 BY .81 NO-UNDO.
 
@@ -182,7 +195,7 @@ DEFINE BROWSE brPreview
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS brPreview C-Win _FREEFORM
   QUERY brPreview DISPLAY
       ttImportData.lValid    FORMAT "Yes/No" COLUMN-LABEL "Valid" 
-    ttImportData.cImportNote    FORMAT "x(30)" COLUMN-LABEL "Reason"
+    ttImportData.cImportNote    FORMAT "x(50)" COLUMN-LABEL "Reason"
     ttImportData.cData[1] COLUMN-LABEL "" FORMAT "x(100)"
     ttImportData.cData[2] COLUMN-LABEL "" FORMAT "x(100)"
     ttImportData.cData[3] COLUMN-LABEL "" FORMAT "x(100)"
@@ -286,7 +299,7 @@ DEFINE BROWSE brPreview
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH SEPARATORS SIZE 157 BY 12.62
-         FONT 6 ROW-HEIGHT-CHARS .7 FIT-LAST-COLUMN.
+         FGCOLOR 0 FONT 6 ROW-HEIGHT-CHARS .71 FIT-LAST-COLUMN.
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -294,6 +307,7 @@ DEFINE BROWSE brPreview
 DEFINE FRAME FRAME-A
      cbType AT ROW 1.95 COL 19 COLON-ALIGNED WIDGET-ID 6
      btnTemplate AT ROW 1.95 COL 90 WIDGET-ID 36
+     lIncludeHelpInTemplate AT ROW 2.05 COL 121 WIDGET-ID 38
      fiFileName AT ROW 3.38 COL 19 COLON-ALIGNED HELP
           "Enter file name to import order"
      btnBrowse AT ROW 3.38 COL 90 WIDGET-ID 20
@@ -305,6 +319,7 @@ DEFINE FRAME FRAME-A
      fiLogFolder AT ROW 23.86 COL 26 COLON-ALIGNED WIDGET-ID 14
      btnBrowseFolder AT ROW 23.86 COL 97 WIDGET-ID 22
      lLogOnly AT ROW 25.05 COL 7 WIDGET-ID 12
+     lLogOnlyErrors AT ROW 25.05 COL 39 WIDGET-ID 40
      btnProcess AT ROW 26.71 COL 5
      btnCancel AT ROW 26.71 COL 131
      "Duplicates:" VIEW-AS TEXT
@@ -370,6 +385,9 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME                                                           */
 /* BROWSE-TAB brPreview btnLoad FRAME-A */
+ASSIGN 
+       brPreview:SEPARATOR-FGCOLOR IN FRAME FRAME-A      = 8.
+
 ASSIGN 
        fiFileName:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
@@ -481,7 +499,7 @@ DO:
         DO WITH FRAME {&FRAME-NAME}:
             ASSIGN {&DISPLAYED-OBJECTS}.
         END.
-        RUN pRunProcess(lLogOnly).
+        RUN pRunProcess(lLogOnly, lLogOnlyErrors).
     END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -495,7 +513,7 @@ DO:
         DO WITH FRAME {&FRAME-NAME}:
             ASSIGN {&DISPLAYED-OBJECTS}.
         END.      
-        RUN pExportTemplate(cbType).  
+        RUN pExportTemplate(cbType, lIncludeHelpInTemplate).  
     END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -594,12 +612,12 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY cbType fiFileName lHeaderRow lFieldValidation rdDuplicates fiLogFolder 
-          lLogOnly 
+  DISPLAY cbType lIncludeHelpInTemplate fiFileName lHeaderRow lFieldValidation 
+          rdDuplicates fiLogFolder lLogOnly lLogOnlyErrors 
       WITH FRAME FRAME-A IN WINDOW C-Win.
-  ENABLE RECT-19 cbType btnTemplate fiFileName btnBrowse lHeaderRow 
-         lFieldValidation rdDuplicates btnLoad brPreview fiLogFolder 
-         btnBrowseFolder lLogOnly btnProcess btnCancel 
+  ENABLE RECT-19 cbType btnTemplate lIncludeHelpInTemplate fiFileName btnBrowse 
+         lHeaderRow lFieldValidation rdDuplicates btnLoad brPreview fiLogFolder 
+         btnBrowseFolder lLogOnly lLogOnlyErrors btnProcess btnCancel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.
@@ -611,9 +629,9 @@ END PROCEDURE.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCheckContinue C-Win 
 PROCEDURE pCheckContinue :
 /*------------------------------------------------------------------------------
-         Purpose: Prompts to continue and returns logical
-         Notes:
-        ------------------------------------------------------------------------------*/
+             Purpose: Prompts to continue and returns logical
+             Notes:
+            ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipcMessage AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER iplGo AS LOGICAL NO-UNDO.
 
@@ -628,20 +646,22 @@ END PROCEDURE.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pExportTemplate C-Win 
 PROCEDURE pExportTemplate :
 /*------------------------------------------------------------------------------
- Purpose: Generates a template in the required format for input
- Notes:
-------------------------------------------------------------------------------*/
-DEFINE INPUT PARAMETER ipcType AS CHARACTER NO-UNDO.
+     Purpose: Generates a template in the required format for input
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcType AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER iplIncludeHelp AS LOGICAL NO-UNDO.
 
-DEFINE VARIABLE cFile AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cFile AS CHARACTER NO-UNDO.
 
-cFile = fGetDefaultImportFolder (ipcCompany).
-cFile = fGetFile (cFile, ipcType, ".csv").
-RUN pGenerateTemplate IN ghdImportProcs (INPUT YES, INPUT ipriContext, INPUT-OUTPUT cFile).
-IF cFile NE "" THEN DO:
-    fiFileName:SCREEN-VALUE IN FRAME {&FRAME-NAME} = cFile.
-    OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFile)).
-END.
+    cFile = fGetDefaultImportFolder (ipcCompany).
+    cFile = fGetFile (cFile, ipcType, ".csv").
+    RUN pGenerateTemplate IN ghdImportProcs (INPUT YES, INPUT iplIncludeHelp, INPUT ipriContext, INPUT-OUTPUT cFile).
+    IF cFile NE "" THEN 
+    DO:
+        fiFileName:SCREEN-VALUE IN FRAME {&FRAME-NAME} = cFile.
+        OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFile)).
+    END.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -650,9 +670,9 @@ END PROCEDURE.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pFileBrowse C-Win 
 PROCEDURE pFileBrowse :
 /*------------------------------------------------------------------------------
-                 Purpose: Launches window lookup file browser and sets screen value of passed object
-                 Notes:
-                ------------------------------------------------------------------------------*/
+                     Purpose: Launches window lookup file browser and sets screen value of passed object
+                     Notes:
+                    ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER iphdFileEntry AS HANDLE.
 
     DEFINE VARIABLE cFileName AS CHARACTER NO-UNDO.
@@ -681,9 +701,9 @@ END PROCEDURE.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pFolderBrowse C-Win 
 PROCEDURE pFolderBrowse :
 /*------------------------------------------------------------------------------
-         Purpose: Launches Windows Lookup for folder browser and sets creen value of passed object
-         Notes:
-        ------------------------------------------------------------------------------*/
+             Purpose: Launches Windows Lookup for folder browser and sets creen value of passed object
+             Notes:
+            ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER iphdFolderEntry AS HANDLE.
     
     DEFINE VARIABLE cFolder AS CHARACTER NO-UNDO.
@@ -703,33 +723,26 @@ END PROCEDURE.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pInitializeTypes C-Win 
 PROCEDURE pInitializeTypes :
 /*------------------------------------------------------------------------------
-                     Purpose: Initializes the Type Option Selection
-                     Notes:
-                    ------------------------------------------------------------------------------*/
+                         Purpose: Initializes the Type Option Selection
+                         Notes:
+                        ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER iphdCombo AS HANDLE NO-UNDO.
     DEFINE INPUT PARAMETER ipcTypesList AS CHARACTER NO-UNDO.
 
-    DEFINE VARIABLE cLabelList AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cValueList AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE iIndex     AS INTEGER   NO-UNDO.
-    DEFINE VARIABLE jIndex     AS INTEGER   NO-UNDO.
-    DEFINE VARIABLE cInitial   AS CHARACTER NO-UNDO.
-
-    ASSIGN 
-        cLabelList = 'Accounts Payable (VU1),Accounts Receivable (AU1),Cash Receipts (AC1),Customers (AF1),Customer ShipTos (AF1 - ShipTo Tab),' +
-                'Estimates (EC/EF),Finished Goods (IF1),General Ledger Accounts (GF2),Vendors (VF1)' 
-        cValueList = 'AP,AR,Cash,Cust,ShipTo,Est,FG,GL,Vend'.
+    DEFINE VARIABLE iIndex   AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE jIndex   AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE cInitial AS CHARACTER NO-UNDO.
 
     IF ipcTypesList EQ '' OR ipcTypesList EQ 'ALL' THEN
         ASSIGN 
-            ipcTypesList = cValueList.
+            ipcTypesList = gcTypeList.
 
     iphdCombo:LIST-ITEM-PAIRS = ?.
 
     DO iIndex = 1 TO NUM-ENTRIES(ipcTypesList):
-        jIndex = LOOKUP(ENTRY(iIndex,ipcTypesList),cValueList).
+        jIndex = LOOKUP(ENTRY(iIndex,ipcTypesList),gcTypeList).
         IF jIndex GT 0 THEN 
-            iphdCombo:ADD-LAST (ENTRY(jIndex,cLabelList),ENTRY(jIndex,cValueList)).
+            iphdCombo:ADD-LAST (ENTRY(jIndex,gcTypeLabels),ENTRY(jIndex,gcTypeList)).
     END. 
 
     ASSIGN 
@@ -746,9 +759,9 @@ END PROCEDURE.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pLoad C-Win 
 PROCEDURE pLoad :
 /*------------------------------------------------------------------------------
-         Purpose: Loads the contents of the import file into temp-table
-         Notes: Validates file first
-        ------------------------------------------------------------------------------*/
+             Purpose: Loads the contents of the import file into temp-table
+             Notes: Validates file first
+            ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER iphdImportFileName AS HANDLE.
     DEFINE INPUT PARAMETER cType AS CHARACTER.
     
@@ -767,7 +780,7 @@ PROCEDURE pLoad :
         RUN pConvertExceltoCSV IN ghdImportProcs (cFile, OUTPUT cFile).
         RUN pCheckContinue("load import data from " + cFile, OUTPUT lGo).
         IF lGo THEN 
-            RUN pLoad IN ghdImportProcs (ipcCompany, cFile, lHeaderRow, lUpdateDuplicates, lFieldValidation, OUTPUT lGo).
+            RUN pLoad IN ghdImportProcs (ipcCompany, ipcLocation, cFile, lHeaderRow, lUpdateDuplicates, lFieldValidation, OUTPUT lGo).
         IF lGo THEN 
         DO:
             RUN pShowPreview.
@@ -789,27 +802,31 @@ END PROCEDURE.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pRunProcess C-Win 
 PROCEDURE pRunProcess :
 /*------------------------------------------------------------------------------
-     Purpose:  Executes the Load of the Data in Preview
-     Notes:
-    ------------------------------------------------------------------------------*/ 
+         Purpose:  Executes the Load of the Data in Preview
+         Notes:
+        ------------------------------------------------------------------------------*/ 
     DEFINE INPUT PARAMETER iplGenerateLogOnly AS LOGICAL NO-UNDO.
+    DEFINE INPUT PARAMETER iplLogErrorsOnly AS LOGICAL NO-UNDO.
     
     DEFINE VARIABLE cLogFile AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE lProcess AS LOGICAL NO-UNDO.
-    DEFINE VARIABLE iUpdated AS INTEGER NO-UNDO.
-    DEFINE VARIABLE iAdded AS INTEGER NO-UNDO.
+    DEFINE VARIABLE lProcess AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE iUpdated AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iAdded   AS INTEGER   NO-UNDO.
     
     SESSION:SET-WAIT-STATE("general").   
     IF NOT CAN-FIND(FIRST ttImportData WHERE ttImportData.lValid) THEN 
         MESSAGE "No valid data to import" VIEW-AS ALERT-BOX.       
-    ELSE DO:
+    ELSE 
+    DO:
         MESSAGE "Are you ready to process the import file and update or add records in the system?"
-                VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
-                UPDATE lProcess.
-        IF lProcess THEN DO:
+            VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
+            UPDATE lProcess.
+        IF lProcess THEN 
+        DO:
             cLogFile = fGetFile(fiLogFolder, cbType,".log").
-            RUN pGenerateLog IN ghdImportProcs (cLogFile).
-            IF NOT iplGenerateLogOnly THEN DO:
+            RUN pGenerateLog IN ghdImportProcs (cLogFile, iplLogErrorsOnly).
+            IF NOT iplGenerateLogOnly THEN 
+            DO:
                 RUN pProcessImport IN ghdImportProcs(OUTPUT iUpdated, OUTPUT iAdded).
             END.
             MESSAGE "Import process completed." SKIP 
@@ -831,16 +848,16 @@ END PROCEDURE.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSetType C-Win 
 PROCEDURE pSetType :
 /*------------------------------------------------------------------------------
-     Purpose:  Sets the type of the Import
-     Notes:
-    ------------------------------------------------------------------------------*/
+         Purpose:  Sets the type of the Import
+         Notes:
+        ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipcTypeToSet AS CHARACTER NO-UNDO.
 
-    DEFINE VARIABLE hdBrowse AS HANDLE.
-    DEFINE VARIABLE hdColumn AS HANDLE.
-    DEFINE VARIABLE iWidth   AS INTEGER   NO-UNDO.
-    DEFINE VARIABLE cFormat  AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE iColumnIndex AS INTEGER NO-UNDO.
+    DEFINE VARIABLE hdBrowse     AS HANDLE.
+    DEFINE VARIABLE hdColumn     AS HANDLE.
+    DEFINE VARIABLE iWidth       AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE cFormat      AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iColumnIndex AS INTEGER   NO-UNDO.
 
     RUN pSetType IN ghdImportProcs (ipcTypeToSet).
     hdBrowse = brPreview:HANDLE IN FRAME {&FRAME-NAME}.
@@ -853,19 +870,6 @@ PROCEDURE pSetType :
         WHERE ttImportMap.cType EQ ipcTypeToSet:
         hdColumn = hdBrowse:GET-BROWSE-COLUMN (ttImportMap.iImportIndex + 2).
         iWidth = ttImportMap.iColumnWidth.
-        IF iWidth EQ 0 THEN 
-        DO:
-            ASSIGN 
-                cFormat = TRIM(ttImportMap.cColumnFormat,"x")
-                cFormat = TRIM(cFormat,"(")
-                cFormat = TRIM(cFormat,")")
-                .
-            iWidth = INT(cFormat) NO-ERROR.
-            IF iWidth EQ 0 OR iWidth EQ ? OR iWidth GT 200 THEN 
-                iWidth = 20.
-            ELSE 
-                iWidth = iWidth * 3.
-        END.
         
         ASSIGN 
             hdColumn:LABEL        = ttImportMap.cColumnLabel
@@ -880,9 +884,9 @@ END PROCEDURE.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pShowPreview C-Win 
 PROCEDURE pShowPreview :
 /*------------------------------------------------------------------------------
-     Purpose:
-     Notes:
-    ------------------------------------------------------------------------------*/
+         Purpose:
+         Notes:
+        ------------------------------------------------------------------------------*/
     DO WITH FRAME {&FRAME-NAME}:
         {&OPEN-QUERY-brPreview}
 
@@ -896,9 +900,9 @@ END PROCEDURE.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pValidFile C-Win 
 PROCEDURE pValidFile :
 /*------------------------------------------------------------------------------
-         Purpose: Returns logical if file or folder is available
-         Notes:
-        ------------------------------------------------------------------------------*/
+             Purpose: Returns logical if file or folder is available
+             Notes:
+            ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipcTestFile AS CHARACTER.
     DEFINE OUTPUT PARAMETER oplValid AS LOGICAL.
     
@@ -961,8 +965,10 @@ FUNCTION fGetFile RETURNS CHARACTER
      Notes:
     ------------------------------------------------------------------------------*/
     DEFINE VARIABLE cLogFile AS CHARACTER NO-UNDO.
-
-    cLogFile = ipcFolder + "\" + ipcBase + STRING(YEAR(TODAY)) + STRING(MONTH(TODAY)) + STRING(DAY(TODAY)) + STRING(TIME) + ipcFileType.
+    
+    ipcBase = TRIM(ipcBase,"ttImport").
+    cLogFile = ipcFolder + "\" + ipcBase + "_" + STRING(YEAR(TODAY)) + "_" + STRING(MONTH(TODAY)) + "_" + STRING(DAY(TODAY)) + "_" + STRING(TIME) + ipcFileType.
+  
     
     RETURN cLogFile.
 
