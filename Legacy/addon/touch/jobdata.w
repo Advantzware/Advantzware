@@ -1765,14 +1765,11 @@ PROCEDURE Init_Job :
 
     IF job_sequence BEGINS 'START' OR
        NOT CAN-FIND(jobseq WHERE jobseq.charge_code = charge_code) THEN
-    DO:
+    DO: 
       ASSIGN
         Btn_Quantity:HIDDEN = TRUE
         run-qty:HIDDEN = TRUE
-        Btn_Waste:HIDDEN = TRUE
-        Btn_complete:HIDDEN = TRUE
-        waste-qty:HIDDEN = TRUE 
-        v-completed:HIDDEN = TRUE 
+        v-completed:SCREEN-VALUE = "No" 
         .
       APPLY 'CHOOSE' TO Btn_Hour.
     END.
