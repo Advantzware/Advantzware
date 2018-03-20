@@ -771,6 +771,7 @@ PROCEDURE pProcessImport:
             est.est-qty[1] = eb.eqty
             ef.eqty        = eb.eqty
             est-qty.qty[1] = eb.eqty
+            eb.bl-qty = eb.eqty
             .
 
         ASSIGN 
@@ -800,6 +801,8 @@ PROCEDURE pProcessImport:
             
         IF ttImportEstimate.Category NE '' THEN 
             eb.procat       = ttImportEstimate.Category.
+        
+        eb.quantityPerSet = 1.
         IF ttImportEstimate.QuantityYield GT 0 THEN 
             eb.yld-qty      = ttImportEstimate.QuantityYield.
         ELSE 

@@ -219,7 +219,7 @@ for each ink WHERE
         NO-LOCK NO-ERROR.
 
    IF AVAIL b-eb2 THEN
-      v-yld = if b-eb2.yld-qty lt 0 then -1 / b-eb2.yld-qty else b-eb2.yld-qty.
+      v-yld = if b-eb2.quantityPerSet lt 0 then -1 / b-eb2.quantityPerSet else b-eb2.quantityPerSet.
 
    display "*" space(4)
            ink.i-dscr
@@ -312,7 +312,7 @@ for each glu break by glu.i-code /*BY glu.snum*/ with frame abc  stream-io down 
         NO-LOCK NO-ERROR.
 
    IF AVAIL b-eb2 THEN
-      v-yld = if b-eb2.yld-qty lt 0 then -1 / b-eb2.yld-qty else b-eb2.yld-qty.
+      v-yld = if b-eb2.quantityPerSet lt 0 then -1 / b-eb2.quantityPerSet else b-eb2.quantityPerSet.
 
    display "*" space(4)
            item.i-name

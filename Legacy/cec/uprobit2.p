@@ -116,7 +116,7 @@ if avail probeit then do:
           and eb.form-no  eq blk.snum
           and eb.blank-no eq blk.bnum
         no-lock no-error.
-    v-yld = if eb.yld-qty lt 0 then -1 / eb.yld-qty else eb.yld-qty.
+    v-yld = if eb.quantityPerSet lt 0 then -1 / eb.quantityPerSet else eb.quantityPerSet.
     
     if vmclean2 then
       assign
@@ -149,7 +149,7 @@ for each blk:
         and eb.form-no  eq blk.snum
         and eb.blank-no eq blk.bnum
       no-lock no-error.
-  v-yld = if eb.yld-qty lt 0 then -1 / eb.yld-qty else eb.yld-qty.
+  v-yld = if eb.quantityPerSet lt 0 then -1 / eb.quantityPerSet else eb.quantityPerSet.
 
   find first probeit
       where probeit.company eq probe.company

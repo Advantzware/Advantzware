@@ -300,7 +300,7 @@ if avail itemfg and itemfg.isaset then do transaction:
        b-eb.form-no      = b-est.form-qty
        b-eb.blank-no     = 1
        b-eb.part-no      = lv-part-no
-       b-eb.yld-qty      = tt-fg-set.part-qty.
+       b-eb.quantityPerSet      = tt-fg-set.part-qty.
      
       IF v-first-blank THEN
       DO:

@@ -1576,8 +1576,8 @@ end.
             NO-LOCK NO-ERROR.
         IF AVAIL bf-eb AND bf-eb.cust-% > 0 THEN
             v-sheetup =  v-sheetup / bf-eb.cust-%.
-        ELSE IF AVAIL bf-eb AND bf-eb.yld-qty > 0 THEN
-            v-sheetup =  v-sheetup / bf-eb.yld-qty.
+        ELSE IF AVAIL bf-eb AND bf-eb.quantityPerSet > 0 THEN
+            v-sheetup =  v-sheetup / bf-eb.quantityPerSet.
       END. /*2 pc box test*/
 
       assign

@@ -239,7 +239,7 @@ PROCEDURE pCreateHeader:
             .
     IF AVAILABLE ipbf-eb THEN 
         ASSIGN      
-            ttCostHeader.quantityPerSet  = ipbf-eb.yld-qty
+            ttCostHeader.quantityPerSet  = ipbf-eb.quantityPerSet
             ttCostHeader.quantityYield   = ipbf-eb.yld-qty
             ttCostHeader.quantityRequest = ipbf-eb.bl-qty 
             ttCostHeader.lengthBlank     = ipbf-eb.t-len

@@ -46,7 +46,7 @@ FOR EACH mch-act WHERE mch-act.company EQ cocode,
         AND eb.est-no  EQ job.est-no
         AND eb.form-no NE 0:
     v-parts = v-parts +
-              (IF eb.yld-qty LT 0 THEN (-1 / eb.yld-qty) ELSE eb.yld-qty).
+              (IF eb.quantityPerSet LT 0 THEN (-1 / eb.quantityPerSet) ELSE eb.quantityPerSet).
   END.
 
   IF v-parts GT 0 THEN DO:

@@ -3402,7 +3402,7 @@ PROCEDURE local-assign-statement :
 
     /* task 12011101 - to update this even on an update */
     IF avail(style) AND style.qty-per-set NE 0 THEN
-      eb.yld-qty = style.qty-per-set.
+      eb.quantityPerSet = style.qty-per-set.
   END.
 
 END PROCEDURE.
@@ -3539,7 +3539,7 @@ PROCEDURE local-display-fields :
                    IF eb.tab-in EQ NO  THEN "Out" ELSE ""
        fi_per-set = IF eb.est-type GE 7 THEN 1
                     ELSE
-                    IF eb.yld-qty LT 0 THEN -1 / eb.yld-qty ELSE eb.yld-qty
+                    IF eb.quantityPerSet LT 0 THEN -1 / eb.quantityPerSet ELSE eb.quantityPerSet
        fi_msf     = (IF eb.est-type GE 7 THEN eb.bl-qty
                      ELSE (est-qty.eqty * fi_per-set)) *
                     (IF v-corr THEN (eb.t-sqin * .007)

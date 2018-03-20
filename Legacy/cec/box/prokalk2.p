@@ -108,7 +108,7 @@ FOR EACH eb NO-LOCK
       AND eb.form-no EQ xef.form-no:
 
   ASSIGN
-   v-yld    = IF eb.yld-qty LT 0 THEN -1 / eb.yld-qty ELSE eb.yld-qty
+   v-yld    = IF eb.quantityPerSet LT 0 THEN -1 / eb.quantityPerSet ELSE eb.quantityPerSet
    v-eb-qty = qty * v-yld.
 
   i = 1.

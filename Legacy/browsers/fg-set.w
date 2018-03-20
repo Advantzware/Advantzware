@@ -552,7 +552,7 @@ PROCEDURE local-assign-record :
      FIND eb WHERE eb.company = itemfg.company
                      AND eb.est-no = itemfg.est-no
                      AND eb.stock-no = fg-set.part-no NO-ERROR.
-     IF AVAIL eb AND eb.yld-qty <> fg-set.part-qty THEN eb.yld-qty = fg-set.part-qty.
+     IF AVAIL eb AND eb.quantityPerSet <> DEC(fg-set.part-qty) THEN eb.quantityPerSet = fg-set.part-qty.
 
                     
   END.

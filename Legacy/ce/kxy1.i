@@ -21,7 +21,7 @@ def var li as int no-undo.
 def var v-across as int no-undo.
 def var v-up as int no-undo.
 def var v-qty as dec no-undo.
-def var ld-parts like eb.yld-qty no-undo.
+def var ld-parts like eb.cust-% no-undo.
 def var ld-ink-blk as dec no-undo.
 def var ld-ink-frm as dec no-undo.
 DEF VAR v-t-win AS DEC DECIMALS 4 NO-UNDO.

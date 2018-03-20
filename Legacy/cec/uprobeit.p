@@ -167,8 +167,8 @@ FOR EACH blk BREAK BY blk.snum:
   
     v-yld = IF eb.est-type GE 7 THEN 1
     ELSE
-        IF eb.yld-qty LT 0  THEN (-1 / eb.yld-qty)
-        ELSE eb.yld-qty.
+        IF eb.quantityPerSet LT 0  THEN (-1 / eb.quantityPerSet)
+        ELSE eb.quantityPerSet.
   
     FIND FIRST probeit
         WHERE probeit.company EQ probe.company

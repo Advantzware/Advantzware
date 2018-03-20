@@ -800,7 +800,7 @@ DO:
             END.
 
             ASSIGN
-                v-yld-qty       = IF eb.est-type EQ 2 THEN eb.cust-% ELSE eb.yld-qty
+                v-yld-qty       = IF eb.est-type EQ 2 THEN eb.cust-% ELSE eb.quantityPerSet
                 v-yld-qty       = IF v-yld-qty LT 0 THEN (-1 / v-yld-qty) ELSE v-yld-qty
                 reftable.val[1] = reftable.val[1] + (xjob.lab / v-yld-qty)
                 reftable.val[2] = reftable.val[2] + (xjob.mat / v-yld-qty)
@@ -1345,13 +1345,13 @@ DO:
                                 (IF eb.est-type EQ 2 THEN
                                 IF eb.cust-% LT 0 THEN (-1 / eb.cust-%) ELSE eb.cust-%
                                 ELSE
-                                IF eb.yld-qty LT 0 THEN (-1 / eb.yld-qty) ELSE eb.yld-qty) /
+                                IF eb.quantityPerSet LT 0 THEN (-1 / eb.quantityPerSet) ELSE eb.quantityPerSet) /
                                 eb.num-up DESCENDING:
                                 v-blk-qty = (job-hdr.qty *
                                     (IF eb.est-type EQ 2 THEN
                                     IF eb.cust-% LT 0 THEN (-1 / eb.cust-%) ELSE eb.cust-%
                                     ELSE
-                                    IF eb.yld-qty LT 0 THEN (-1 / eb.yld-qty) ELSE eb.yld-qty) /
+                                    IF eb.quantityPerSet LT 0 THEN (-1 / eb.quantityPerSet) ELSE eb.quantityPerSet) /
                                     (eb.num-up * v-out)).
                                 LEAVE.
                             END.

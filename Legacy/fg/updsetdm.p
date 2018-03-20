@@ -52,7 +52,7 @@ if avail itemfg and itemfg.isaset then do:
        itemfg.weight-100 = 0.
        
     ASSIGN
-     v-yld-qty     = IF b-eb.cust-% NE 0 THEN b-eb.cust-% ELSE b-eb.yld-qty
+     v-yld-qty     = IF b-eb.cust-% NE 0 THEN b-eb.cust-% ELSE b-eb.quantityPerSet
      v-yld-qty     = IF v-yld-qty LT 0 THEN -1 / v-yld-qty ELSE v-yld-qty
      itemfg.t-wid  = itemfg.t-wid  + (b-eb.t-wid  * v-yld-qty)
      itemfg.t-len  = itemfg.t-len  + (b-eb.t-len  * v-yld-qty)

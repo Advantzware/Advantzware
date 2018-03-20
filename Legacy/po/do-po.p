@@ -1844,14 +1844,14 @@ FOR EACH w-job-mat
           NO-LOCK NO-ERROR.
 
       IF AVAIL est AND (est.est-type EQ 2 OR est.est-type EQ 6) THEN
-         FOR EACH eb FIELDS(yld-qty)
+         FOR EACH eb FIELDS(quantityPerSet)
              WHERE eb.company EQ job.company
                AND eb.est-no  EQ job.est-no
                AND eb.form-no EQ w-job-mat.frm
              NO-LOCK:
            ld-part-qty = ld-part-qty +
-                         (ld-line-qty * IF eb.yld-qty lt 0 THEN (-1 / eb.yld-qty)
-                                                           ELSE eb.yld-qty).
+                         (ld-line-qty * IF eb.quantityPerSet lt 0 THEN (-1 / eb.quantityPerSet)
+                                                           ELSE eb.quantityPerSet).
          END. /* Each eb */
 
       ELSE ld-part-qty = ld-line-qty.

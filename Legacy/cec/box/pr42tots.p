@@ -94,12 +94,12 @@ FOR EACH car WHERE car.snum NE 0:
         fg-wt$     = fg-wt$ + (car.qty / 100 * ld-fg-rate)
         fg-wt      = fg-wt + car.qty.
 
-    FOR EACH eb FIELDS(form-no yld-qty) WHERE
+    FOR EACH eb FIELDS(form-no quantityPerSet) WHERE
         eb.company = xest.company AND
         eb.est-no = xest.est-no AND
         eb.form-no > 0 AND eb.form-no <= v-form-no        NO-LOCK:
         ASSIGN
-            mclean2yld = IF eb.yld-qty LT 0 THEN -1 / eb.yld-qty ELSE eb.yld-qty
+            mclean2yld = IF eb.quantityPerSet LT 0 THEN -1 / eb.quantityPerSet ELSE eb.quantityPerSet
             mclean2Qty = mclean2Qty + (qtty[vmcl] * mclean2yld).
     END.
     IF CAN-FIND(FIRST xeb
@@ -140,14 +140,14 @@ FOR EACH car
     BREAK BY car.id:
 
     z = 0.
-    FOR EACH eb FIELDS(form-no yld-qty) WHERE
+    FOR EACH eb FIELDS(form-no quantityPerSet) WHERE
         eb.company = xest.company AND
         eb.est-no = xest.est-no AND
         eb.part-no = car.id
         NO-LOCK:
         ASSIGN
             v-yld = IF eb.form-no EQ 0 THEN 1 ELSE
-                     IF eb.yld-qty LT 0 THEN -1 / eb.yld-qty ELSE eb.yld-qty
+                     IF eb.quantityPerSet LT 0 THEN -1 / eb.quantityPerSet ELSE eb.quantityPerSet
             z     = z + (qtty[vmcl] * v-yld).
     END.
     FIND FIRST xeb WHERE xeb.company = xest.company AND
@@ -289,13 +289,13 @@ ASSIGN
     .
 
 IF xest.form-qty EQ 1 OR vmclean2 THEN
-    FOR EACH eb FIELDS(yld-qty)
+    FOR EACH eb FIELDS(quantityPerSet)
         WHERE eb.company EQ xest.company
         AND eb.est-no  EQ xest.est-no
         AND eb.form-no EQ v-form-no
         NO-LOCK:
         ASSIGN
-            v-yld = IF eb.yld-qty LT 0 THEN -1 / eb.yld-qty ELSE eb.yld-qty
+            v-yld = IF eb.quantityPerSet LT 0 THEN -1 / eb.quantityPerSet ELSE eb.quantityPerSet
             v-qty = v-qty + (qtty[vmcl] * v-yld)     
             .
 
@@ -375,7 +375,7 @@ FIND FIRST xeb WHERE xeb.company = xest.company
     AND xeb.form-no NE 0 NO-ERROR.
 
 ASSIGN
-    v-yld   = IF xeb.yld-qty LT 0 THEN -1 / xeb.yld-qty ELSE xeb.yld-qty
+    v-yld   = IF xeb.quantityPerSet LT 0 THEN -1 / xeb.quantityPerSet ELSE xeb.quantityPerSet
     qm      = qtty[vmcl] /* * (if vmclean2 then v-yld else 1) */ / 1000
     fac-tot = dm-tot[5] + op-tot[5] +
            tprep-mat + tprep-lab + mis-tot[1] + mis-tot[3].

@@ -18,7 +18,7 @@ FIND FIRST ef OF eb NO-LOCK NO-ERROR.
 
 ld-per-set = IF eb.est-type EQ 2 THEN eb.cust-%
              ELSE
-             IF eb.est-type EQ 6 THEN eb.yld-qty
+             IF eb.est-type EQ 6 THEN eb.quantityPerSet
              ELSE 1.
 
 IF ld-per-set LT 0 THEN ld-per-set = -1 / ld-per-set.

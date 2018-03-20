@@ -2238,7 +2238,7 @@ PROCEDURE check-for-set :
                         AND fg-set.set-no = bf-eb.stock-no
                         AND fg-set.part-no = eb.stock-no NO-ERROR.
     IF AVAIL fg-set THEN DO:
-      fg-set.part-qty = eb.yld-qty.
+      fg-set.part-qty = INTEGER(eb.cust-%).  
       FIND CURRENT fg-set NO-LOCK NO-ERROR.
     END.
   END.

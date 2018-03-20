@@ -339,7 +339,7 @@ IF AVAIL eb THEN DO:
                (ROWID(b-eb) EQ ROWID(eb) AND eb.form-no NE 0))
         NO-LOCK:
       ASSIGN
-       ld     = IF b-eb.yld-qty LT 0 THEN -1 / b-eb.yld-qty ELSE b-eb.yld-qty
+       ld     = IF b-eb.quantityPerSet LT 0 THEN -1 / b-eb.quantityPerSet ELSE b-eb.quantityPerSet
        tt-msf = tt-msf +
                 (tt-set * ld * (IF v-corr THEN (b-eb.t-sqin * .007)
                                           ELSE (b-eb.t-sqin / 144)) / 1000).
