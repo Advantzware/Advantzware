@@ -402,7 +402,7 @@ DEFINE BROWSE br-estitm
       eb.i-coat FORMAT ">9":U
       eb.i-coat-p COLUMN-LABEL "Coat Passes" FORMAT ">9":U WIDTH 12
       eb.yld-qty FORMAT "->>>>>>>9":U
-      eb.quantityPerSet FORMAT ">>>>9.9<<<<<":U
+      eb.quantityPerSet FORMAT ">>>>9.9<<<<":U
       ef.f-col COLUMN-LABEL "Inks/Form" FORMAT ">>":U
       ef.f-pass COLUMN-LABEL "Passes/Form" FORMAT ">>":U
       ef.f-coat COLUMN-LABEL "Coatings/Form" FORMAT ">>":U
