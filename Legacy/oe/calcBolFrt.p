@@ -15,6 +15,7 @@ DEF VAR dTotBasis AS DECIMAL NO-UNDO DECIMALS 10.
 DEF VAR tot-other-freight AS DEC NO-UNDO DECIMALS 10.
 DEF VAR ldMinRate AS DEC NO-UNDO.
 DEF VAR dTotFreight AS DEC NO-UNDO DECIMALS 10.
+DEFINE VARIABLE cCustID AS CHARACTER NO-UNDO.
 DEF BUFFER bf-oe-boll FOR oe-boll.
 
 
@@ -30,8 +31,11 @@ DEF BUFFER bf-oe-boll FOR oe-boll.
  FOR EACH bf-oe-boll
      WHERE bf-oe-boll.company EQ oe-bolh.company
        AND bf-oe-boll.b-no    EQ oe-bolh.b-no:
+       
+       cCustID = oe-bolh.cust-no.
+       RUN pGetCustID(BUFFER bf-oe-boll, INPUT-OUTPUT cCustID).
    RUN oe/getLineFrtBasis.p (INPUT oe-bolh.company,
-               INPUT oe-bolh.cust-no,
+               INPUT cCustID,
                INPUT oe-bolh.ship-id,
                INPUT oe-bolh.carrier,
                INPUT rowid(bf-oe-boll), 
@@ -44,17 +48,18 @@ DEF BUFFER bf-oe-boll FOR oe-boll.
  FOR EACH bf-oe-boll
      WHERE bf-oe-boll.company EQ oe-bolh.company
        AND bf-oe-boll.b-no    EQ oe-bolh.b-no:
-
+       cCustID = oe-bolh.cust-no.
+       RUN pGetCustID(BUFFER bf-oe-boll, INPUT-OUTPUT cCustID).
    FIND FIRST shipto
          WHERE shipto.company EQ oe-bolh.company
-           AND shipto.cust-no EQ oe-bolh.cust-no
+           AND shipto.cust-no EQ cCustID
            AND shipto.ship-id EQ oe-bolh.ship-id
          NO-LOCK NO-ERROR.
    IF NOT AVAIL shipto THEN
      NEXT.
 
    RUN oe/getLineFrtBasis.p (INPUT oe-bolh.company,
-               INPUT oe-bolh.cust-no,
+               INPUT cCustID,
                INPUT oe-bolh.ship-id,
                INPUT oe-bolh.carrier,
                INPUT rowid(bf-oe-boll), 
@@ -82,7 +87,7 @@ DEF BUFFER bf-oe-boll FOR oe-boll.
 
 
    RUN oe/getLineFrt.p (oe-bolh.company, 
-                        shipto.loc, 
+                        bf-oe-boll.loc, 
                         oe-bolh.carrier, 
                         v-del-zone,
                         shipto.ship-zip, 
@@ -108,9 +113,11 @@ DEF BUFFER bf-oe-boll FOR oe-boll.
        WHERE bf-oe-boll.company EQ oe-bolh.company
          AND bf-oe-boll.b-no    EQ oe-bolh.b-no
        EXCLUSIVE-LOCK:
-
+       
+       cCustID = oe-bolh.cust-no.
+       RUN pGetCustID(BUFFER bf-oe-boll, INPUT-OUTPUT cCustID).
      RUN oe/getLineFrtBasis.p (INPUT oe-bolh.company,
-               INPUT oe-bolh.cust-no,
+               INPUT cCustID,
                INPUT oe-bolh.ship-id,
                INPUT oe-bolh.carrier,
                INPUT rowid(bf-oe-boll), 
@@ -126,3 +133,26 @@ DEF BUFFER bf-oe-boll FOR oe-boll.
  /*oe-bolh.freight = dTotFreight.*/ /* task NO 5051503 */
  FIND CURRENT oe-bolh NO-LOCK.
  opdFreight = dTotFreight.
+
+
+/* **********************  Internal Procedures  *********************** */
+
+PROCEDURE pGetCustID:
+/*------------------------------------------------------------------------------
+ Purpose: Returns the appropriate cust ID given an oe-boll buffer
+ Notes:
+------------------------------------------------------------------------------*/
+DEFINE PARAMETER BUFFER ipbf-oe-boll FOR oe-boll.
+DEFINE INPUT-OUTPUT PARAMETER iopcCustID AS CHARACTER NO-UNDO.
+
+IF ipbf-oe-boll.s-code EQ 'T' THEN DO:
+    FIND FIRST cust NO-LOCK 
+        WHERE cust.company EQ ipbf-oe-boll.company
+        AND cust.active EQ "X"
+        NO-ERROR.
+    IF AVAILABLE cust 
+        THEN iopcCustID = cust.cust-no.
+ 
+END.
+
+END PROCEDURE.
