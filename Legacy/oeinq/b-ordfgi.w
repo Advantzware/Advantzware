@@ -668,7 +668,7 @@ AND fg-rdtlh.rita-code EQ fg-rcpth.rita-code"
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -1332,19 +1332,19 @@ DO:
         IF confirm THEN
         DO:
            FIND CURRENT fg-rcpth EXCLUSIVE-LOCK NO-ERROR.
-           
+
            IF AVAILABLE fg-rcpth THEN DO:
-            
-            
+
+
               FOR EACH bf-fg-rdtlh EXCLUSIVE-LOCK 
                           WHERE bf-fg-rdtlh.r-no EQ fg-rcpth.r-no:
                  DELETE bf-fg-rdtlh.
               END.
-                            
+
               DELETE fg-rcpth.
-              
+
           END.
-          
+
           RUN local-open-query.
         END.
      END.
@@ -1427,7 +1427,7 @@ END.
 ON VALUE-CHANGED OF fi_i-no IN FRAME F-Main /* FG Item# */
 DO:
   {&self-name}:SCREEN-VALUE = CAPS({&self-name}:SCREEN-VALUE).
-  {&SELF-NAME}:CURSOR-OFFSET = LENGTH({&SELF-NAME}:SCREEN-VALUE) + 1 + IF LASTKEY EQ 32 THEN 1 ELSE 0. /* added by script _caps.p */
+  IF LASTKEY EQ 32 THEN {&SELF-NAME}:CURSOR-OFFSET = LENGTH({&SELF-NAME}:SCREEN-VALUE) + 2. /* res */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1451,7 +1451,7 @@ END.
 ON VALUE-CHANGED OF fi_job-no IN FRAME F-Main /* Job# */
 DO:
   {&self-name}:SCREEN-VALUE = CAPS({&self-name}:SCREEN-VALUE).
-  {&SELF-NAME}:CURSOR-OFFSET = LENGTH({&SELF-NAME}:SCREEN-VALUE) + 1 + IF LASTKEY EQ 32 THEN 1 ELSE 0. /* added by script _caps.p */
+  IF LASTKEY EQ 32 THEN {&SELF-NAME}:CURSOR-OFFSET = LENGTH({&SELF-NAME}:SCREEN-VALUE) + 2. /* res */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1515,7 +1515,7 @@ END.
 ON VALUE-CHANGED OF fi_rita-code IN FRAME F-Main /* Trans Code */
 DO:
   {&self-name}:SCREEN-VALUE = CAPS({&self-name}:SCREEN-VALUE).
-  {&SELF-NAME}:CURSOR-OFFSET = LENGTH({&SELF-NAME}:SCREEN-VALUE) + 1 + IF LASTKEY EQ 32 THEN 1 ELSE 0. /* added by script _caps.p */
+  IF LASTKEY EQ 32 THEN {&SELF-NAME}:CURSOR-OFFSET = LENGTH({&SELF-NAME}:SCREEN-VALUE) + 2. /* res */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1757,7 +1757,7 @@ PROCEDURE local-display-fields :
         RUN "system/PgmMstrSecur.p" PERSISTENT SET hPgmSecurity.
         RUN epCanAccess IN hPgmSecurity ("oeinq/b-ordfgi.w", "", OUTPUT lResult).
         DELETE OBJECT hPgmSecurity.
-    
+
         IF NOT lResult THEN ASSIGN btn_del:HIDDEN = YES
             btn_del:SENSITIVE = NO
             btn_copy:HIDDEN = YES
@@ -2285,7 +2285,7 @@ PROCEDURE valid-tag-no :
 
   DO WITH FRAME {&FRAME-NAME}:
       lv-tag = fg-rdtlh.tag:SCREEN-VALUE IN BROWSE {&browse-name}.
-      
+
    IF fg-rdtlh.tag:SCREEN-VALUE IN BROWSE {&browse-name} NE "" AND
        fg-rcpth.rita-code:SCREEN-VALUE IN BROWSE {&browse-name} EQ "R" AND  
        int(fg-rdtlh.qty:SCREEN-VALUE IN BROWSE {&browse-name}) GT 0 THEN do:
