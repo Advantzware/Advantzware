@@ -45,6 +45,7 @@ DEF VAR is-xprint-form AS LOGICAL NO-UNDO.
 DEF VAR ls-fax-file AS CHAR NO-UNDO.
 
 DEF TEMP-TABLE tt-report NO-UNDO LIKE report.
+DEF TEMP-TABLE tt-report2 NO-UNDO LIKE report.
 def stream s-excel.
 
 DEF VAR ldummy AS LOG NO-UNDO.
@@ -1968,7 +1969,8 @@ IF NOT tb_sumcat THEN do:
 END. /* default */
 
 ELSE DO: /* summarized by category */
-     MAIN:
+    EMPTY TEMP-TABLE tt-report2 .
+    MAIN-BLOCK:
     for each rm-rcpth where rm-rcpth.company    eq cocode
                         and rm-rcpth.i-no       ge v-fitem
                         and rm-rcpth.i-no       le v-titem
@@ -1986,31 +1988,16 @@ ELSE DO: /* summarized by category */
        first ITEM where item.company eq cocode
                     and item.i-no    eq rm-rcpth.i-no
                     and item.procat  ge v-fpcat
-                    and item.procat  le v-tpcat no-lock,
-    
-       each rm-rdtlh where rm-rdtlh.r-no      eq rm-rcpth.r-no
-                       and rm-rdtlh.rita-code eq rm-rcpth.rita-code NO-LOCK
-                  break BY item.procat
-                        by rm-rcpth.i-no
-                        by rm-rcpth.trans-date
+                    and item.procat  le v-tpcat NO-LOCK
+        break BY item.procat
           transaction:
-    
         {custom/statusMsg.i "'Processing Item # ' + string(rm-rcpth.i-no)"} 
-    
-            v-code = rm-rcpth.rita-code.
-    
-             if first-of(item.procat) then do:
-               if first(item.procat) then view frame r-top.
-    
-               /*page.*/
-             end.
-    
-            FIND FIRST job-hdr NO-LOCK
+        FIND FIRST job-hdr NO-LOCK
                WHERE job-hdr.company EQ rm-rcpth.company
                  AND job-hdr.job-no EQ rm-rcpth.job-no 
                  AND job-hdr.job-no2 EQ rm-rcpth.job-no2
                  AND job-hdr.job-no NE ""  NO-ERROR.
-            
+
         IF AVAIL job-hdr THEN
                 FIND FIRST cust NO-LOCK
                      WHERE cust.company EQ cocode 
@@ -2023,15 +2010,45 @@ ELSE DO: /* summarized by category */
                 ASSIGN
                     cCustNo   = ""
                     cCustName = "" .
+
                 RELEASE cust .
                 RELEASE job-hdr .
-     
-             IF cCustNo GE begin_cust-no AND cCustNo LE End_cust-no THEN  .
-             ELSE NEXT MAIN .
-             
+            IF cCustNo GE begin_cust-no AND cCustNo LE End_cust-no THEN  .
+             ELSE NEXT MAIN-BLOCK .
+
+        CREATE tt-report2 .
+            ASSIGN tt-report2.key-01 = rm-rcpth.i-no  
+                   tt-report2.rec-id = RECID(rm-rcpth) 
+                   tt-report2.key-02 = cCustNo 
+                   tt-report2.key-03 = cCustName  .
+
+    END.
     
-             if first-of(rm-rcpth.trans-date) then v-first[1] = yes.
-             if first-of(rm-rcpth.i-no)       then v-first[2] = yes.
+    FOR EACH  tt-report2 NO-LOCK ,
+     FIRST rm-rcpth WHERE rm-rcpth.company EQ cocode
+           AND recid(rm-rcpth) EQ tt-report2.rec-id ,
+    
+       first ITEM where item.company eq cocode
+                    and item.i-no    eq rm-rcpth.i-no
+                    and item.procat  ge v-fpcat
+                    and item.procat  le v-tpcat no-lock,
+    
+       each rm-rdtlh where rm-rdtlh.r-no      eq rm-rcpth.r-no
+                       and rm-rdtlh.rita-code eq rm-rcpth.rita-code NO-LOCK
+                  BREAK by tt-report2.key-02
+                        BY item.procat
+                        
+          transaction:
+    
+        {custom/statusMsg.i "'Processing Item # ' + string(rm-rcpth.i-no)"} 
+    
+            v-code = rm-rcpth.rita-code.
+    
+             if first-of(item.procat) then do:
+               if first(item.procat) then view frame r-top.
+    
+               /*page.*/
+             end.
     
              assign
               v-job-no = fill(" ",6 - length(trim(rm-rdtlh.job-no))) +
@@ -2104,22 +2121,6 @@ ELSE DO: /* summarized by category */
     
              if v-job-no begins "-" then v-job-no = "".
     
-    
-            /* IF v-export THEN DO: */
-                IF FIRST-OF(rm-rcpth.i-no) THEN
-                   ASSIGN
-                      v-i-no   = rm-rcpth.i-no
-                      v-i-name = rm-rcpth.i-name.   
-                ELSE
-                   ASSIGN
-                      v-i-no   = ""
-                      v-i-name = "".
-    
-                IF FIRST-OF(rm-rcpth.trans-date) THEN
-                   v-trans-date = STRING(rm-rcpth.trans-date).
-                ELSE
-                   v-trans-date = "".
-    
                 IF AVAILABLE(po-ord) THEN
                    v-vend-no = po-ord.vend-no.
                 ELSE
@@ -2140,7 +2141,7 @@ ELSE DO: /* summarized by category */
               v-ton[1] = v-ton[1] + v-ton[4].
     
              v-first[1] = no.
-             if last-of(rm-rcpth.trans-date) then v-first[2] = no.
+             /*if last-of(rm-rcpth.trans-date) then v-first[2] = no.*/
     
              if last-of(item.procat) then do:
                  
@@ -2167,8 +2168,8 @@ ELSE DO: /* summarized by category */
                                 WHEN "val"      THEN cVarValue = string(v-val[1],"->,>>>,>>>,>>9.99")    .
                                 WHEN "cat"      THEN cVarValue = STRING(item.procat,"x(8)")    .
                                 WHEN "cat-desc-val" THEN cVarValue = STRING(cCatDesc,"x(30)")    .
-                                WHEN "cust-no"  THEN cVarValue = STRING(cCustNo,"x(8)")    .
-                                WHEN "cust-name" THEN cVarValue = STRING(cCustName,"x(30)")  .
+                                WHEN "cust-no"  THEN cVarValue = STRING(tt-report2.key-02,"x(8)")    .
+                                WHEN "cust-name" THEN cVarValue = STRING(tt-report2.key-03,"x(30)")  .
                            END CASE.
     
                            cExcelVarValue = cVarValue.
@@ -2189,35 +2190,7 @@ ELSE DO: /* summarized by category */
                 v-msf[1] = 0
                 v-ton[1] = 0.
              end.
-    
-             if v-code ne "T" then do:
-              find first costtype
-                  where costtype.company   eq cocode
-                    and costtype.loc       eq rm-rdtlh.loc
-                    and costtype.cost-type eq item.cost-type
-                  no-lock no-error.
-    
-              if v-code eq "R" then
-              do:
-                 create tt-report.
-                 assign
-                   tt-report.term-id = ""
-                   tt-report.key-01  = if avail costtype then costtype.inv-asset
-                                       else "Cost Type not found"
-                   tt-report.key-02  = string(v-value,"->>,>>>,>>9.99").
-              end.
-    
-              else
-              do:
-                create tt-report.
-                 assign
-                   tt-report.term-id = ""
-                   tt-report.key-01  = if avail costtype then costtype.cons-exp
-                                       else "Cost Type not found"
-                   tt-report.key-02  = string(v-value,"->>,>>>,>>9.99").    
-              end.
-          END.
-    END.
+      END.
     
     hide frame r-top2.
 
@@ -2225,6 +2198,7 @@ END.  /* summarized by category */
 
 v-value = 0.
 PUT SKIP(2) .
+IF NOT tb_sumcat THEN
 for each tt-report where tt-report.term-id eq "",
      first account
      where account.company eq cocode
