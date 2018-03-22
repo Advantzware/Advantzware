@@ -1,11 +1,11 @@
 /* ar/rep/invptreelot.i  */
 
 PUT "<B><FTimes New Roman>"
-    "<C3><R2><#1>"
-    "<R+8><C+75><IMAGE#1=" ls-full-img1 SKIP(2)
+    "<C3><R1><#1>"
+    "<R+12><C+90><IMAGE#1=" ls-full-img1 SKIP(2)
     "<=1>" SKIP
     "<C1><#2>"
-    "<P10><=2><R+6>"
+    "<P10><=2><R+10>"
     "<FCourier New>"
     SKIP(1)
     space(12) "BILL TO:" SPACE(43) "SHIP TO:" SKIP
