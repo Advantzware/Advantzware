@@ -203,7 +203,10 @@ PROCEDURE pCreateHeader:
     DEFINE INPUT PARAMETER ipcFormRK AS CHARACTER.
     DEFINE INPUT PARAMETER ipcSetRK AS CHARACTER.
     DEFINE INPUT-OUTPUT PARAMETER iopcRK AS CHARACTER. 
-
+    
+    DEFINE BUFFER bf-eb FOR eb.
+    DEFINE VARIABLE dFactor AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dFormSqIn AS DECIMAL NO-UNDO.
 
     CREATE ttCostHeader.
     iopcRK = STRING(TODAY,"99999999") + STRING(NEXT-VALUE(rec_key_seq,ASI),"99999999").
@@ -224,11 +227,10 @@ PROCEDURE pCreateHeader:
         ttCostHeader.estimateNo        = ipbf-est.est-no
         ttCostHeader.industry          = IF ipbf-est.est-type < 5 THEN 1 ELSE 2
         ttCostHeader.estimateType      = ipbf-est.est-type
-        ttCostHeader.factorForm        = 1
         ttCostHeader.factorSet         = 1
         .
     
-    IF AVAILABLE ipbf-ef THEN 
+    IF AVAILABLE ipbf-ef THEN DO:
         ASSIGN              
             ttCostHeader.lengthGross = ipbf-ef.gsh-len 
             ttCostHeader.widthGross  = ipbf-ef.gsh-wid 
@@ -237,17 +239,31 @@ PROCEDURE pCreateHeader:
             ttCostHeader.widthNet    = ipbf-ef.nsh-wid 
             ttCostHeader.depthNet    = ipbf-ef.nsh-dep
             .
-    IF AVAILABLE ipbf-eb THEN 
+        IF CAN-FIND(FIRST bf-eb OF ipbf-ef WHERE bf-eb.blank-no GT 1) THEN DO:
+            dFormSqIn = 0.
+            FOR EACH bf-eb OF ipbf-ef NO-LOCK:
+                dFormSqIn = dFormSqIn + bf-eb.t-sqin * bf-eb.num-up.
+            END.       
+        END.
+            
+    END.
+    IF AVAILABLE ipbf-eb THEN DO:
         ASSIGN      
-            ttCostHeader.quantityPerSet  = ipbf-eb.yld-qty
+            ttCostHeader.quantityPerSet  = IF ipbf-eb.quantityPerSet NE 0 THEN ipbf-eb.quantityPerSet ELSE ipbf-eb.yld-qty
             ttCostHeader.quantityYield   = ipbf-eb.yld-qty
             ttCostHeader.quantityRequest = ipbf-eb.bl-qty 
             ttCostHeader.lengthBlank     = ipbf-eb.t-len
             ttCostHeader.widthBlank      = ipbf-eb.t-wid
-            ttCostHeader.blankSquareFeet = ipbf-eb.t-sqft
+            ttCostHeader.blankSquareFeet = ipbf-eb.t-sqin / 144
             ttCostHeader.customerPartID  = ipbf-eb.part-no
             ttCostHeader.fgItemID        = ipbf-eb.stock-no
+            
             .
+        IF dFormSqIn GT 0 THEN 
+            ttCostHeader.factorForm = (ipbf-eb.t-sqin * ipbf-eb.num-up ) / dFormSqin.
+        IF ttCostHeader.factorForm EQ 0 THEN ttCostHeader.factorForm = 1. 
+    END.
+     
 
 END PROCEDURE.
 
