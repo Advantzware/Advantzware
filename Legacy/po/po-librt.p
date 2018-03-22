@@ -45,6 +45,9 @@ DEFINE VARIABLE iTempAdder AS INTEGER NO-UNDO.
 DEFINE VARIABLE v-mch-cod AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cDimensions     AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cFormattedScore AS CHARACTER NO-UNDO.
+DEFINE VARIABLE len-score AS CHARACTER.
+DEFINE VARIABLE v-test-scr AS LOG.
+DEFINE VARIABLE v-space    AS LOG. 
 DEFINE BUFFER b-qty   FOR reftable.
 DEFINE BUFFER b-setup FOR reftable.
 DEFINE STREAM sEDIPOH.
@@ -362,7 +365,75 @@ IF AVAILABLE cust AND liberty-log AND liberty-dir NE "" THEN
             RUN po/po-ordls.p (RECID(po-ordl)).
     
             {po/po-ordls.i}
+
+
+            IF AVAIL b-ref1 OR AVAIL b-ref2 THEN 
+            DO:
+                ASSIGN
+                    lv-val = 0
+                    lv-typ = "".
+
+                IF AVAIL b-ref1 THEN
+                DO x = 1 TO 12:
+                    ASSIGN
+                        lv-val[x] = b-ref1.val[x]
+                        lv-typ[x] = SUBSTR(b-ref1.dscr,x,1).
+                END.
+
+                IF AVAIL b-ref2 THEN
+                DO x = 1 TO 8:
+                    ASSIGN
+                        lv-val[x + 12] = b-ref2.val[x]
+                        lv-typ[x + 12] = SUBSTR(b-ref2.dscr,x,1).
+                END.
+
+                DO lv-int = 0 TO 1:
+                    ASSIGN
+                        v-lscore-c = ""
+                        len-score  = "".
+
+                    DO x = 1 TO 10:
+                        IF lv-val[(lv-int * 10) + x] NE 0 THEN
+                            v-lscore-c = v-lscore-c + TRIM(IF lv-val[(lv-int * 10) + x] GT 9999 THEN
+                                STRING(lv-val[(lv-int * 10) + x],">>>>>")
+                                ELSE
+                                IF lv-val[(lv-int * 10) + x] GT 999 THEN
+                                STRING(lv-val[(lv-int * 10) + x],">>>>")
+                                ELSE 
+                                STRING(lv-val[(lv-int * 10) + x],">>>.99")).
+
+                        /* print score type for Premier */
+                        IF v-score-types AND lv-typ[(lv-int * 10) + x] NE "" THEN 
+                            v-lscore-c = v-lscore-c + lv-typ[(lv-int * 10) + x] + " ".     
+                        ELSE v-lscore-c = v-lscore-c + " ".
+                    END.
  
+                    IF v-lscore-c NE "" THEN 
+                    DO:
+                        v-space = NO.
+
+                        DO x = 1 TO LENGTH(v-lscore-c):
+                            IF SUBSTR(v-lscore-c,x,1) NE " " THEN
+                                ASSIGN
+                                    len-score = len-score + SUBSTR(v-lscore-c,x,1)
+                                    v-space   = YES.
+         
+                            ELSE
+                                IF v-space THEN
+                                    ASSIGN
+                                        len-score = len-score + "  "
+                                        v-space   = NO.
+                        END.
+
+                        v-test-scr = YES.
+               
+                        DO x = 1 TO LENGTH(TRIM(len-score)):
+                            IF SUBSTR(TRIM(len-score),x,1) EQ " " THEN v-test-scr = NO.
+                        END.
+                    END.
+                END.
+            END.
+
             li-style = IF AVAILABLE b-ref1 OR AVAILABLE b-ref2 THEN 1 ELSE 2.
 
             /* PUT li-style                                    FORMAT "9999". */
@@ -387,19 +458,37 @@ IF AVAILABLE cust AND liberty-log AND liberty-dir NE "" THEN
             /* PRICE PER MSF */
             v-ord-cst = po-ordl.cost.
 
-            /* Formatted Dimensions */
-            IF ITEM.s-dep GT 0 THEN 
-              cDimensions = TRIM(STRING(ITEM.s-len, ">>>>.99")) + " x " + TRIM(STRING(ITEM.s-wid, ">>>>.99")) + " x " + TRIM(STRING(ITEM.s-dep, ">>>>.99")).
-            ELSE
-              cDimensions = TRIM(STRING(ITEM.s-wid, ">>>>.99")).
-            IF ITEM.s-dep GT 0 THEN DO:
-                cFormattedScore = fFormScore(ITEM.s-len) + fFormScore(ITEM.s-wid).
-                IF ITEM.s-dep GT 0 THEN 
-                    cFormattedScore =  cFormattedScore + fFormScore(ITEM.s-dep).
+
+              
+            IF AVAILABLE b-ref1 THEN DO:
+                IF b-ref1.val[3] GT 0 THEN 
+                    cDimensions = TRIM(STRING(b-ref1.val[1], ">>>>.99")) + " x " + TRIM(STRING(b-ref1.val[2], ">>>>.99")) + " x " + TRIM(STRING(b-ref1.val[3], ">>>>.99")).
+                ELSE
+                    cDimensions = TRIM(STRING(b-ref1.val[2], ">>>>.99")).       
+                             
+                IF b-ref1.val[2] GT 0 THEN 
+                DO:
+                    cFormattedScore = fFormScore(b-ref1.val[1]) + fFormScore(b-ref1.val[2]).
+                    IF b-ref1.val[3] GT 0 THEN 
+                        cFormattedScore =  cFormattedScore + fFormScore(b-ref1.val[3]).
+                END.
+                ELSE
+                    cFormattedScore =  fFormScore(b-ref1.val[1]).                
             END.
-            ELSE
-                    cFormattedScore =  fFormScore(ITEM.s-wid).
-            
+            ELSE DO:
+                /* Formatted Dimensions */
+                IF ITEM.s-dep GT 0 THEN 
+                    cDimensions = TRIM(STRING(ITEM.s-len, ">>>>.99")) + " x " + TRIM(STRING(ITEM.s-wid, ">>>>.99")) + " x " + TRIM(STRING(ITEM.s-dep, ">>>>.99")).
+                ELSE
+                    cDimensions = TRIM(STRING(ITEM.s-wid, ">>>>.99")).
+                IF ITEM.s-dep GT 0 THEN DO:
+                    cFormattedScore = fFormScore(ITEM.s-len) + fFormScore(ITEM.s-wid).
+                    IF ITEM.s-dep GT 0 THEN 
+                        cFormattedScore =  cFormattedScore + fFormScore(ITEM.s-dep).
+                END.
+                ELSE
+                        cFormattedScore =  fFormScore(ITEM.s-wid).
+            END.
             IF po-ordl.pr-uom NE "MSF" THEN
                 RUN sys/ref/convcuom.p(po-ordl.pr-uom, "MSF",
                     item.basis-w, po-ordl.s-len,
@@ -631,7 +720,7 @@ IF AVAILABLE cust AND liberty-log AND liberty-dir NE "" THEN
             fInsText( 383, 11, STRING(po-ordl.ord-qty - (po-ord.under-pct * po-ordl.ord-qty / 100)    )). /* PO min qty */
             fInsText( 395, 11, STRING(po-ordl.ord-qty + (po-ord.over-pct * po-ordl.ord-qty / 100)   )). /* po max qty */
             fInsText( 407, 15, v-mch-cod    ). /* first machine from routing */
-            fInsText( 423, 252, ""       ). /* formatted scoring */
+            fInsText( 423, 252, cFormattedScore ). /* formatted scoring */
             fInsText( 676, 254, v-instr  ). /* po comments */
             cOutLine = TRIM(cOutLine, ",").
             PUT STREAM sEDIPOITEM UNFORMATTED cOutLine SKIP.
