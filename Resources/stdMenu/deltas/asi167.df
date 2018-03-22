@@ -40694,8 +40694,9 @@ ADD FIELD "BillableFreightAmt" OF "fg-rctd" AS decimal
   ORDER 730
 
 ADD FIELD "CreateInvoice" OF "fg-rctd" AS logical 
-  FORMAT "Create Invoice?"
-  INITIAL "Create Invoice?"
+  FORMAT "yes/no"
+  INITIAL "no"
+  LABEL "Create Invoice?"
   POSITION 74
   MAX-WIDTH 1
   ORDER 700
@@ -106491,4 +106492,4 @@ ADD INDEX "wi-city" ON "zipcode"
 PSC
 cpstream=ISO8859-1
 .
-0002263558
+0002263563
