@@ -95,7 +95,8 @@ IF AVAIL fg-rctd THEN
                     BUFFER po-ord,
                     BUFFER oe-ordl,
                     BUFFER oe-ord).
-IF fg-rctd.SetHeaderRno EQ 0 THEN DO TRANSACTION:
+/* Was original if reftable found when oe-ord was available */
+IF AVAILABLE oe-ord THEN DO TRANSACTION:
 
   ASSIGN
    ll       = fg-rctd.CreateInvoice
@@ -111,7 +112,7 @@ IF fg-rctd.SetHeaderRno EQ 0 THEN DO TRANSACTION:
                       BUFFER bf-po-ordl,
                       BUFFER bf-po-ord,
                       BUFFER bf-oe-ordl,
-                      BUFFER bf-oe-ord).
+                      BUFFER bf-oe-ord).      
 
       ASSIGN 
           ll-first  = ROWID(bf-fg-rctd)
