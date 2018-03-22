@@ -58,8 +58,8 @@
 PSC
 filename=prgmxref
 records=0000000000056
-ldbname=asitest167
-timestamp=2018/03/11-10:39:48
+ldbname=ASI
+timestamp=2018/03/18-08:08:54
 numformat=44,46
 dateformat=mdy-1950
 map=NO-MAP
