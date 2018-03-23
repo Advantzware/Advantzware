@@ -17,6 +17,7 @@
 DEFINE VARIABLE dQtyPerSet AS DECIMAL NO-UNDO.
 DEFINE VARIABLE iCount AS INTEGER NO-UNDO.
 DEFINE VARIABLE iCountProcessed AS INTEGER NO-UNDO.
+DEFINE VARIABLE iCountInitialized AS INTEGER NO-UNDO.
 /* ********************  Preprocessor Definitions  ******************** */
 
 
@@ -29,18 +30,27 @@ FOR EACH company NO-LOCK
     :
         iCount = iCount + 1.
         CASE est.est-type:
-            WHEN 5 OR WHEN 6 THEN
-                ASSIGN 
-                    iCountProcessed = iCountProcessed + 1 
-                    dQtyPerSet = eb.yld-qty
-                    .
+            WHEN 5 OR WHEN 6 THEN DO:
+                IF eb.quantityPerSet EQ 0 THEN DO: 
+                    ASSIGN 
+                        iCountProcessed = iCountProcessed + 1 
+                        dQtyPerSet = eb.yld-qty
+                        .
+                    IF dQtyPerSet LT 0 THEN dQtyPerSet = -1 / dQtyPerSet.
+                    IF dQtyPerSet EQ 0 THEN dQtyPerSet = 1.
+                    eb.quantityPerSet = dQtyPerSet.   
+                END.
+            END.
   /*Folding carton uses %-cust - out of scope for ticket 25146*/     
 /*            WHEN 1 OR WHEN 2 THEN      */
 /*                dQtyPerSet = eb.cust-%.*/
 /*                                       */
         END CASE.
-        IF dQtyPerSet LT 0 THEN dQtyPerSet = -1 / dQtyPerSet.
-        IF dQtyPerSet EQ 0 THEN dQtyPerSet = 1.
-        eb.quantityPerSet = dQtyPerSet.
+        IF eb.quantityPerSet EQ 0 THEN 
+            ASSIGN 
+                eb.quantityPerSet = 1
+                iCountInitialized = iCountInitialized + 1.
 END.
-MESSAGE iCountProcessed " of " iCount " total estimates converted." VIEW-AS ALERT-BOX.
+MESSAGE "Total Estimates: " iCount SKIP 
+        "Converted from .yld-qty: " iCountProcessed SKIP
+        "Initialized to 1: " iCountInitialized VIEW-AS ALERT-BOX.
