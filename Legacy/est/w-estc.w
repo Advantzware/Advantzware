@@ -1134,7 +1134,7 @@ PROCEDURE capacityPage:
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-    RUN schedule/capacityPage.p ("Est", ROWID(est), est.company).
+    RUN schedule/capacityPage.w ("Est", ROWID(est), est.company).
 
 END PROCEDURE.
 	

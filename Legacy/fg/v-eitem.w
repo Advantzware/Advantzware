@@ -1311,9 +1311,9 @@ PROCEDURE local-display-fields :
      lv-field-hdl = lv-group-hdl:FIRST-CHILD.
 
      IF NOT lVendCostMtx THEN
-         e-itemfg-vend.spare-dec-1:HIDDEN = TRUE .
+         e-itemfg-vend.spare-dec-1:HIDDEN = TRUE.
      ELSE 
-        e-itemfg-vend.spare-dec-1:HIDDEN = FALSE .
+         e-itemfg-vend.spare-dec-1:HIDDEN = FALSE.
 
     DO WHILE VALID-HANDLE(lv-field-hdl):
       IF lv-field-hdl:NAME BEGINS "tb_sel" THEN
