@@ -55,6 +55,7 @@ DEF VAR lv-show-next AS LOG NO-UNDO.
 DEF VAR lv-last-show-rel-no AS int NO-UNDO.
 DEF VAR lv-first-show-rel-no AS int NO-UNDO.
 DEF VAR lActive AS LOGICAL NO-UNDO.
+DEFINE VARIABLE v-shipto-zone AS CHARACTER NO-UNDO.
 DEFINE VARIABLE begin_rno LIKE oe-rell.r-no NO-UNDO.
 DEFINE VARIABLE ending_rno LIKE oe-rell.r-no NO-UNDO.
 DO TRANSACTION:
@@ -112,7 +113,11 @@ END.
     IF lv-sort-by EQ "rel-date"  THEN STRING(YEAR(oe-relh.rel-date),"9999") + STRING(MONTH(oe-relh.rel-date),"99") + STRING(DAY(oe-relh.rel-date),"99") ELSE ~
     IF lv-sort-by EQ "job-no"    THEN STRING(oe-rell.job-no,"x(6)") + STRING(oe-rell.job-no2,"99")                                                      ELSE ~
     IF lv-sort-by EQ "qty"       THEN STRING(oe-rell.qty,"9999999999")                                                                                  ELSE ~
-                                      STRING(oe-relh.printed, "Y/N")
+    IF lv-sort-by EQ "q-onh"       THEN STRING(itemfg.q-onh,"9999999999")                                                                               ELSE ~
+    IF lv-sort-by EQ "v-shipto-zone"  THEN get-shipto-zone()                                                                                       ELSE ~
+                                      STRING(oe-relh.printed, "Y/N")                                                
+    
+
 
 &SCOPED-DEFINE sortby BY oe-relh.release# BY oe-rell.i-no
 
@@ -151,7 +156,7 @@ END.
 &Scoped-define FIELDS-IN-QUERY-Browser-Table oe-relh.release# ~
 oe-rell.ord-no oe-rell.po-no oe-relh.cust-no itemfg.part-no oe-relh.ship-id ~
 oe-rell.i-no oe-relh.rel-date oe-rell.job-no oe-rell.job-no2 ~
-oe-relh.printed oe-rell.qty 
+oe-relh.printed oe-rell.qty itemfg.q-onh get-shipto-zone() @ v-shipto-zone 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table oe-relh.release# ~
 oe-rell.ord-no oe-rell.po-no oe-relh.cust-no oe-relh.ship-id oe-rell.i-no ~
 oe-relh.rel-date oe-rell.job-no oe-rell.job-no2 oe-relh.printed 
@@ -198,7 +203,12 @@ fi_i-no fi_po-no fi_job-no fi_job-no2 fi_sort-by
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD get-shipto-zone B-table-Win 
+FUNCTION get-shipto-zone RETURNS CHARACTER
+  ( /* parameter-definitions */ )  FORWARD.
 
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 /* ***********************  Control Definitions  ********************** */
 
@@ -302,6 +312,10 @@ DEFINE BROWSE Browser-Table
       oe-rell.job-no2 COLUMN-LABEL "" FORMAT "99":U LABEL-BGCOLOR 14
       oe-relh.printed FORMAT "Y/N":U LABEL-BGCOLOR 14
       oe-rell.qty COLUMN-LABEL "Release Qty" FORMAT "->>,>>>,>>9":U
+            LABEL-BGCOLOR 14
+      itemfg.q-onh COLUMN-LABEL "Qty On Hand" FORMAT "->,>>>,>>9":U
+            LABEL-BGCOLOR 14
+      get-shipto-zone() @ v-shipto-zone COLUMN-LABEL "Ship To Zone" FORMAT "x(5)":U
             LABEL-BGCOLOR 14
   ENABLE
       oe-relh.release#
@@ -473,6 +487,10 @@ use-index r-no"
 "oe-relh.printed" ? ? "logical" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[12]   > ASI.oe-rell.qty
 "oe-rell.qty" "Release Qty" ? "integer" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"itemfg.q-onh" "Qty On Hand" "->,>>>,>>>" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[13]   > ASI.itemfg.q-onh
+"get-shipto-zone() @ v-shipto-zone" "Ship To Zone" "x(8)" ? ? ? ? ? ? ? no ? no no "10" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[33]   > "_<CALC>"     
      _Query            is OPENED
 */  /* BROWSE Browser-Table */
 &ANALYZE-RESUME
@@ -1638,6 +1656,47 @@ PROCEDURE state-changed :
       {src/adm/template/bstates.i}
   END CASE.
 END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION get-shipto-zone B-table-Win 
+FUNCTION get-shipto-zone RETURNS CHARACTER
+  ( /* parameter-definitions */ ) :
+/*------------------------------------------------------------------------------
+  Purpose:  Task 09111201 
+Add new field called  "Last Shipto" on  O-Q-1.
+This will print the last or next shipto code form the Release Folder.
+
+When multiple release lines exist for the item, the program will look for a release in the following priority:
+Release Status C for Completed.
+Release Status Z for Invoiced.
+Release Status P for posted release that is in the bill of lading file.
+Release Status B for back ordered release
+Release Status A for Actual Release.
+Release Status I for Invoicable / past warehouse terms.
+Release Status L for late.
+Release Status S for released.
+
+The logic is to print the history of the shipment first back to the release status.
+    Notes:  
+------------------------------------------------------------------------------*/
+
+  FOR EACH shipto NO-LOCK
+      WHERE shipto.company EQ cocode
+       AND shipto.cust-no EQ oe-relh.cust-no
+      AND shipto.ship-id EQ oe-relh.ship-id :
+
+       IF AVAILABLE shipto THEN
+       DO:
+           RETURN shipto.dest-code.
+       END.
+  END.
+
+
+  RETURN "".
+
+END FUNCTION.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
