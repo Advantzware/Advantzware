@@ -4491,7 +4491,8 @@ ASSIGN
  itemfg.pur-uom    = /*IF AVAIL bf-itemfg THEN bf-itemfg.pur-uom ELSE "M" */ oe-ordl.pr-uom:SCREEN-VALUE 
 /* gdm - 11190901 */
  itemfg.ship-meth  = IF AVAIL bf-itemfg THEN bf-itemfg.ship-meth ELSE YES 
-  itemfg.part-no    = oe-ordl.part-no:screen-value.
+  itemfg.part-no    = oe-ordl.part-no:screen-value
+  itemfg.setupDate  = TODAY.
 
 ASSIGN
     itemfg.taxable = IF AVAIL cust 
