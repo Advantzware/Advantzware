@@ -1,12 +1,8 @@
-
 /*------------------------------------------------------------------------
     File        : ImportCust.p
     Purpose     : 
-
     Syntax      :
-
     Description : Import Program (Persistent) for Configuring and Processing the Import for Customer	
-
     Author(s)   : BV
     Created     : Sun Jan 21:18:38 EST 2018
     Notes       :
@@ -18,6 +14,7 @@
 
 DEFINE TEMP-TABLE ttImportCust
     FIELD Company        AS CHARACTER 
+    FIELD Location        AS CHARACTER 
     FIELD cCustNo        AS CHARACTER FORMAT "X(8)" COLUMN-LABEL "Customer" 
     FIELD cCustName      AS CHARACTER FORMAT "X(30)" COLUMN-LABEL "Customer Name" 
     FIELD cCustAdd1      AS CHARACTER FORMAT "X(30)" COLUMN-LABEL "Customer Addr1" 
@@ -51,8 +48,7 @@ DEFINE TEMP-TABLE ttImportCust
     .
 
 DEFINE VARIABLE giIndexOffset AS INTEGER   NO-UNDO INIT 1. /*Set to 1 if there is a Company field in temp-table since this will not be part of the mport data*/
-DEFINE VARIABLE gcWidths      AS CHARACTER NO-UNDO INIT "60,100,100,100,60,40, 100,100,150,100,60,60,100,60,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100". 
-DEFINE VARIABLE lUpdateDup AS LOGICAL NO-UNDO.
+
 /* ********************  Preprocessor Definitions  ******************** */
 
 
@@ -60,60 +56,37 @@ DEFINE VARIABLE lUpdateDup AS LOGICAL NO-UNDO.
 
 
 /* **********************  Internal Procedures  *********************** */
+{util/ImportProcs.i &ImportTempTable = "ttImportCust"}
 
-
-PROCEDURE pAddRecord:
+PROCEDURE pValidate PRIVATE:
     /*------------------------------------------------------------------------------
-     Purpose: Accepts a Data Array, validates it and adds a temp-table record
+     Purpose: Validates a given Import Record for key fields
      Notes:
     ------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipcData AS CHARACTER NO-UNDO EXTENT.
+    DEFINE PARAMETER BUFFER ipbf-ttImportCust FOR ttImportCust.
     DEFINE INPUT PARAMETER iplUpdateDuplicates AS LOGICAL NO-UNDO.
     DEFINE INPUT PARAMETER iplFieldValidation AS LOGICAL NO-UNDO.
     DEFINE OUTPUT PARAMETER oplValid AS LOGICAL NO-UNDO.
     DEFINE OUTPUT PARAMETER opcNote AS CHARACTER NO-UNDO.
 
-    DEFINE VARIABLE hdTempTableBuffer AS HANDLE.
-    DEFINE VARIABLE cData             AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE hdValidator AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE cValidNote  AS CHARACTER NO-UNDO.
     DEFINE BUFFER bf-ttImportCust FOR ttImportCust.
-    lUpdateDup = iplUpdateDuplicates.
+
+    RUN util/Validate.p PERSISTENT SET hdValidator.
+    
     oplValid = YES.
-    CREATE ttImportCust.
-    ASSIGN 
-        ttImportCust.Company = ipcCompany.
-    FOR EACH ttImportMap
-        WHERE ttImportMap.cType EQ 'Cust':
-        cData = ipcData[ttImportMap.iImportIndex].
-        hdTempTableBuffer = TEMP-TABLE ttImportCust:DEFAULT-BUFFER-HANDLE:BUFFER-FIELD(ttImportMap.iIndex + giIndexOffset):HANDLE.
-        CASE ttImportMap.cDataType:
-            WHEN "integer" THEN 
-                ASSIGN 
-                    hdTempTableBuffer:BUFFER-VALUE = INT(cData).
-            WHEN "logical" THEN 
-                ASSIGN 
-                    hdTempTableBuffer:BUFFER-VALUE = cData BEGINS "Y".
-            WHEN "decimal" THEN 
-                ASSIGN 
-                    hdTempTableBuffer:BUFFER-VALUE = DEC(cDaTa).
-            WHEN "date" THEN 
-                ASSIGN 
-                    hdTempTableBuffer:BUFFER-VALUE = DATE(cData). 
-            OTHERWISE 
-            ASSIGN 
-                hdTempTableBuffer:BUFFER-VALUE = cData.
-        END CASE.              
-    END.   
+    
     IF oplValid THEN 
     DO:
-        IF ttImportCust.Company EQ '' THEN 
+        IF ipbf-ttImportCust.Company EQ '' THEN 
             ASSIGN 
                 oplValid = NO
                 opcNote  = "Key Field Blank: Company".
     END.
     IF oplValid THEN 
     DO:
-        IF ttImportCust.cCustNo EQ '' THEN 
+        IF ipbf-ttImportCust.cCustNo EQ '' THEN 
             ASSIGN 
                 oplValid = NO
                 opcNote  = "Key Field Blank: Customer".
@@ -121,41 +94,65 @@ PROCEDURE pAddRecord:
     
     IF oplValid THEN 
     DO:
-        IF ttImportCust.cCustType EQ '' THEN 
+        IF ipbf-ttImportCust.cCustType EQ '' THEN 
             ASSIGN 
                 oplValid = NO
                 opcNote  = "Key Field Blank: Customer Type".
     END.
     IF oplValid THEN 
     DO:
-        IF ttImportCust.cTerms EQ '' THEN 
+        IF ipbf-ttImportCust.cTerms EQ '' THEN 
             ASSIGN 
                 oplValid = NO
                 opcNote  = "Key Field Blank: Customer Terms".
     END.
     IF oplValid THEN 
     DO:
-        IF ttImportCust.cCreditLimit LT 0 THEN 
+        IF ipbf-ttImportCust.cCreditLimit LT 0 THEN 
             ASSIGN 
                 oplValid = NO
                 opcNote  = "Credit Limit can not be Nagetive.".
     END.
+    IF oplValid THEN 
+    DO:
+        FIND FIRST cust NO-LOCK 
+            WHERE cust.company EQ ipbf-ttImportCust.Company
+            AND cust.cust-no EQ ipbf-ttImportCust.cCustNo
+            NO-ERROR .
+        IF AVAILABLE cust THEN 
+        DO:
+            IF NOT iplUpdateDuplicates THEN 
+                ASSIGN 
+                    oplValid = NO
+                    opcNote  = "Duplicate Exists:  Will be skipped"
+                    .
+            ELSE
+                ASSIGN 
+                    opcNote = "Update record - All fields to be overwritten"
+                    .        
+        END.
+        ELSE 
+            ASSIGN 
+                opcNote = "Add record"
+                .
+        
+    END.
 
     IF oplValid AND iplFieldValidation THEN 
     DO:
-        IF oplValid AND ttImportCust.cStatus NE "" THEN 
+        IF oplValid AND ipbf-ttImportCust.cStatus NE "" THEN 
             DO:
-            IF LOOKUP(ttImportCust.cStatus,"A,X,S,E,I") LE 0 THEN
+            IF LOOKUP(ipbf-ttImportCust.cStatus,"A,X,S,E,I") LE 0 THEN
                 ASSIGN 
                     oplValid = NO
                     opcNote  = "Invalid status"
                     .
         END.
-        IF oplValid AND ttImportCust.cCustSman NE "" THEN 
+        IF oplValid AND ipbf-ttImportCust.cCustSman NE "" THEN 
             DO:
             FIND FIRST sman NO-LOCK 
-                WHERE sman.company EQ ttImportCust.Company
-                AND sman.sman EQ ttImportCust.cCustSman
+                WHERE sman.company EQ ipbf-ttImportCust.Company
+                AND sman.sman EQ ipbf-ttImportCust.cCustSman
                 NO-ERROR.
             IF NOT AVAILABLE sman THEN 
                 ASSIGN 
@@ -163,11 +160,11 @@ PROCEDURE pAddRecord:
                     opcNote  = "Invalid Salesman"
                     .
         END.
-        IF oplValid AND ttImportCust.cCustType NE "" THEN 
+        IF oplValid AND ipbf-ttImportCust.cCustType NE "" THEN 
             DO:
             FIND FIRST custype NO-LOCK
-                WHERE custype.company = ttImportCust.Company
-                AND custype.custype = ttImportCust.cCustType
+                WHERE custype.company = ipbf-ttImportCust.Company
+                AND custype.custype = ipbf-ttImportCust.cCustType
                 NO-ERROR.
             IF NOT AVAILABLE custype THEN 
                 ASSIGN 
@@ -176,10 +173,10 @@ PROCEDURE pAddRecord:
                     .
         END.
 
-        IF oplValid AND ttImportCust.cCustState NE "" THEN 
+        IF oplValid AND ipbf-ttImportCust.cCustState NE "" THEN 
             DO:
             FIND FIRST state NO-LOCK
-                WHERE state.state = ttImportCust.cCustState
+                WHERE state.state = ipbf-ttImportCust.cCustState
                 NO-ERROR.
             IF NOT AVAILABLE state THEN 
                 ASSIGN 
@@ -187,21 +184,21 @@ PROCEDURE pAddRecord:
                     opcNote  = "Invalid State"
                     .
         END.
-        IF oplValid AND ttImportCust.cTerms NE "" THEN 
+        IF oplValid AND ipbf-ttImportCust.cTerms NE "" THEN 
             DO:
             FIND FIRST terms NO-LOCK 
-                WHERE terms.company = ttImportCust.Company
-                AND terms.t-code EQ ttImportCust.cTerms NO-ERROR.
+                WHERE terms.company = ipbf-ttImportCust.Company
+                AND terms.t-code EQ ipbf-ttImportCust.cTerms NO-ERROR.
             IF NOT AVAILABLE terms THEN 
                 ASSIGN 
                     oplValid = NO
                     opcNote  = "Invalid Terms"
                     .
         END.
-        IF oplValid AND ttImportCust.cShipState NE "" THEN 
+        IF oplValid AND ipbf-ttImportCust.cShipState NE "" THEN 
             DO:
             FIND FIRST state NO-LOCK
-                WHERE state.state = ttImportCust.cShipState
+                WHERE state.state = ipbf-ttImportCust.cShipState
                 NO-ERROR.
             IF NOT AVAILABLE state THEN 
                 ASSIGN 
@@ -212,213 +209,120 @@ PROCEDURE pAddRecord:
 
     END.
     
-    IF NOT oplValid THEN DELETE ttImportCust.
-    
 END PROCEDURE.
 
-PROCEDURE pExportData:
+PROCEDURE pProcessRecord PRIVATE:
     /*------------------------------------------------------------------------------
-     Purpose:  Runs the Export Data Program for Estimate
+     Purpose:  Processes an import record, incrementing the "opiAdded" variable
      Notes:
     ------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER ipriContext AS ROWID NO-UNDO.
-    DEFINE INPUT PARAMETER iopcFile AS CHARACTER NO-UNDO.
-
-
-END PROCEDURE.
-
-PROCEDURE pInitialize:
-    /*------------------------------------------------------------------------------
-     Purpose: Initializes the specific Column Mapping for Estimates   
-     Notes:
-    ------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER ipcLoadFile AS CHARACTER NO-UNDO.
-
-    DEFINE VARIABLE cFields     AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cLabels     AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cDataTypes  AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cFormats    AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE iIndex      AS INTEGER   NO-UNDO.
-    DEFINE VARIABLE iIndexStart AS INTEGER   NO-UNDO.
-    
-    EMPTY TEMP-TABLE ttImportCust.
-    EMPTY TEMP-TABLE ttImportMap.
-    
-    iIndexStart = 1 + giIndexOffset.
-    
-    IF ipcLoadFile EQ '' THEN 
-    DO:
-        ASSIGN 
-            cFields    = ""
-            cDataTypes = ""
-            cFormats   = ""
-            cLabels    = ""
-            .
-        DO iIndex = iIndexStart TO TEMP-TABLE ttImportCust:DEFAULT-BUFFER-HANDLE:NUM-FIELDS:
-            ASSIGN 
-                cFields    = cFields + TEMP-TABLE ttImportCust:DEFAULT-BUFFER-HANDLE:BUFFER-FIELD(iIndex):NAME + ","
-                cDataTypes = cDataTypes + TEMP-TABLE ttImportCust:DEFAULT-BUFFER-HANDLE:BUFFER-FIELD(iIndex):DATA-TYPE + ","
-                cFormats   = cFormats + TEMP-TABLE ttImportCust:DEFAULT-BUFFER-HANDLE:BUFFER-FIELD(iIndex):FORMAT + ","
-                cLabels    = cLabels + TEMP-TABLE ttImportCust:DEFAULT-BUFFER-HANDLE:BUFFER-FIELD(iIndex):COLUMN-LABEL + ","
-                .
-            
-        
-        END.
-        ASSIGN 
-            cFields    = TRIM(cFields,",")
-            cDataTypes = TRIM(cDataTypes,",")
-            cFormats   = TRIM(cFormats,",")
-            cLabels    = TRIM(cLabels,",")
-            .
-        DO iIndex = 1 TO NUM-ENTRIES(cFields):
-            CREATE ttImportMap.
-            ASSIGN 
-                ttImportMap.cType         = "Cust"
-                ttImportMap.cLabel        = ENTRY(iIndex,cFields)
-                ttImportMap.iIndex        = iIndex
-                ttImportMap.iImportIndex  = iIndex
-                ttImportMap.cDataType     = ENTRY(iIndex,cDataTypes)
-                ttImportMap.cColumnLabel  = ENTRY(iIndex,cLabels)
-                ttImportMap.cColumnFormat = ENTRY(iIndex,cFormats)
-                .
-            IF iIndex LE NUM-ENTRIES(gcWidths)  THEN 
-                ttImportMap.iColumnWidth = INT(ENTRY(iIndex,gcWidths)).
-        END. 
-    
-    END.
-    ELSE 
-    DO:
-    /*Load from Config File provided*/
-    END.
-
-END PROCEDURE.
-
-PROCEDURE pProcessImport:
-    /*------------------------------------------------------------------------------
-     Purpose: Processes the temp-table already loaded and returns counts
-     Notes:
-    ------------------------------------------------------------------------------*/
-    DEFINE OUTPUT PARAMETER opiUpdated AS INTEGER NO-UNDO.
-    DEFINE OUTPUT PARAMETER opiAdded AS INTEGER NO-UNDO.
-
-    DEFINE VARIABLE riEb      AS ROWID     NO-UNDO.
-    DEFINE VARIABLE cIndustry AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE iEstType  AS INTEGER   NO-UNDO.
-    DEFINE VARIABLE riItemfg  AS ROWID     NO-UNDO.
+    DEFINE PARAMETER BUFFER ipbf-ttImportCust FOR ttImportCust.
+    DEFINE INPUT-OUTPUT PARAMETER iopiAdded AS INTEGER NO-UNDO.
      
     MAIN:
-    FOR EACH ttImportCust NO-LOCK
+    FOR EACH ipbf-ttImportCust NO-LOCK
        /* WHERE ttImportCust.lValid EQ YES */
         : 
         FIND FIRST cust EXCLUSIVE-LOCK
-            WHERE cust.company EQ ttImportCust.company
-            AND cust.cust-no EQ ttImportCust.cCustNo
+            WHERE cust.company EQ ipbf-ttImportCust.company
+            AND cust.cust-no EQ ipbf-ttImportCust.cCustNo
             NO-ERROR.  
         IF NOT AVAILABLE cust THEN 
         DO:
-            opiAdded = opiAdded + 1.
-                       
-          /*  IF NOT iplLogOnly THEN 
-            DO:*/
+            iopiAdded = iopiAdded + 1.
 
                 CREATE cust.
         END.
-        ELSE DO:
-            IF not(lUpdateDup) THEN NEXT MAIN.
-        opiUpdated = opiUpdated + 1.
-        END.
-                ASSIGN
-                    cust.company     = ttImportCust.company.
-                    cust.cust-no     = ttImportCust.cCustNo.
-                    cust.name        = ttImportCust.cCustName.
-                    cust.addr[1]     = ttImportCust.cCustAdd1.
-                    cust.addr[2]     = ttImportCust.cCustAdd2.
-                    cust.city        = ttImportCust.cCustCity.
-                    cust.state       = ttImportCust.cCustState.
-                    cust.fax-country = ttImportCust.cCustCountry.
-                    cust.country     = ttImportCust.cCustCountry.
-                    cust.zip         = ttImportCust.cCustZip.
-                    cust.sman        = ttImportCust.cCustSman.
-                    cust.area-code   = ttImportCust.cCustAreaCode.
-                    cust.phone       = REPLACE(ttImportCust.cCustPhone,"-","").
-                    cust.fax         = REPLACE(ttImportCust.cCustFax,"-","").
-                    cust.cr-lim      = DECIMAL(ttImportCust.cCreditLimit).
-                    cust.active      = ttImportCust.cStatus.
-                    cust.cr-hold     = ttImportCust.cCreditHold. /* = "YES" THEN TRUE ELSE FALSE.*/
-                    cust.type        = ttImportCust.cCustType.
-                    cust.terms       = ttImportCust.cTerms.
-                    cust.tax-id      = ttImportCust.cFedID.
-                    cust.contact     = ttImportCust.cContact.
-                    cust.date-field  = DATE(ttImportCust.cDateAdded). 
-                    
-                FIND FIRST shipto EXCLUSIVE-LOCK 
-                    WHERE shipto.company EQ ttImportCust.company
-                    AND shipto.cust-no EQ ttImportCust.cCustNo
-                    AND shipto.ship-id EQ ttImportCust.cCustNo
-                    NO-ERROR.
-                IF NOT AVAILABLE shipto THEN 
+        ASSIGN
+        cust.company     = ipbf-ttImportCust.company.
+        cust.cust-no     = ipbf-ttImportCust.cCustNo.
+        cust.name        = ipbf-ttImportCust.cCustName.
+        cust.addr[1]     = ipbf-ttImportCust.cCustAdd1.
+        cust.addr[2]     = ipbf-ttImportCust.cCustAdd2.
+        cust.city        = ipbf-ttImportCust.cCustCity.
+        cust.state       = ipbf-ttImportCust.cCustState.
+        cust.fax-country = ipbf-ttImportCust.cCustCountry.
+        cust.country     = ipbf-ttImportCust.cCustCountry.
+        cust.zip         = ipbf-ttImportCust.cCustZip.
+        cust.sman        = ipbf-ttImportCust.cCustSman.
+        cust.area-code   = ipbf-ttImportCust.cCustAreaCode.
+        cust.phone       = REPLACE(ipbf-ttImportCust.cCustPhone,"-","").
+        cust.fax         = REPLACE(ipbf-ttImportCust.cCustFax,"-","").
+        cust.cr-lim      = DECIMAL(ipbf-ttImportCust.cCreditLimit).
+        cust.active      = ipbf-ttImportCust.cStatus.
+        cust.cr-hold     = ipbf-ttImportCust.cCreditHold. /* = "YES" THEN TRUE ELSE FALSE.*/
+        cust.type        = ipbf-ttImportCust.cCustType.
+        cust.terms       = ipbf-ttImportCust.cTerms.
+        cust.tax-id      = ipbf-ttImportCust.cFedID.
+        cust.contact     = ipbf-ttImportCust.cContact.
+        cust.date-field  = DATE(ipbf-ttImportCust.cDateAdded). 
+        
+        FIND FIRST shipto EXCLUSIVE-LOCK 
+            WHERE shipto.company EQ ipbf-ttImportCust.company
+            AND shipto.cust-no EQ ipbf-ttImportCust.cCustNo
+            AND shipto.ship-id EQ ipbf-ttImportCust.cCustNo
+            NO-ERROR.
+        IF NOT AVAILABLE shipto THEN 
+            DO:
+            CREATE shipto.
+            ASSIGN 
+                shipto.company   = ipbf-ttImportCust.company
+                shipto.cust-no   = ipbf-ttImportCust.cCustNo
+                shipto.ship-id   = ipbf-ttImportCust.cCustNo
+                shipto.ship-name = ipbf-ttImportCust.cShipName
+                .
+            END.
+            ASSIGN 
+                shipto.ship-addr[1] = ipbf-ttImportCust.cShipAdd1
+                shipto.ship-addr[2] = ipbf-ttImportCust.cShipAdd2
+                shipto.ship-city    = ipbf-ttImportCust.cShipCity
+                shipto.ship-state   = ipbf-ttImportCust.cShipState
+                shipto.ship-zip     = ipbf-ttImportCust.cShipZip
+                .
+            FIND FIRST soldto EXCLUSIVE-LOCK 
+                WHERE soldto.company EQ ipbf-ttImportCust.company
+                AND soldto.cust-no EQ ipbf-ttImportCust.cCustNo
+                AND soldto.sold-id EQ ipbf-ttImportCust.cCustNo
+                NO-ERROR.
+            IF NOT AVAILABLE soldto THEN 
                 DO:
-                    CREATE shipto.
-                    ASSIGN 
-                        shipto.company   = ttImportCust.company
-                        shipto.cust-no   = ttImportCust.cCustNo
-                        shipto.ship-id   = ttImportCust.cCustNo
-                        shipto.ship-name = ttImportCust.cShipName
-                        .
-                END.
+                CREATE soldto.
                 ASSIGN 
-                    shipto.ship-addr[1] = ttImportCust.cShipAdd1
-                    shipto.ship-addr[2] = ttImportCust.cShipAdd2
-                    shipto.ship-city    = ttImportCust.cShipCity
-                    shipto.ship-state   = ttImportCust.cShipState
-                    shipto.ship-zip     = ttImportCust.cShipZip
+                    soldto.company   = ipbf-ttImportCust.company
+                    soldto.cust-no   = ipbf-ttImportCust.cCustNo
+                    soldto.sold-id   = ipbf-ttImportCust.cCustNo
+                    soldto.sold-name = ipbf-ttImportCust.cCustName
                     .
-                FIND FIRST soldto EXCLUSIVE-LOCK 
-                    WHERE soldto.company EQ ttImportCust.company
-                    AND soldto.cust-no EQ ttImportCust.cCustNo
-                    AND soldto.sold-id EQ ttImportCust.cCustNo
-                    NO-ERROR.
-                IF NOT AVAILABLE soldto THEN 
-                DO:
-                    CREATE soldto.
-                    ASSIGN 
-                        soldto.company   = ttImportCust.company
-                        soldto.cust-no   = ttImportCust.cCustNo
-                        soldto.sold-id   = ttImportCust.cCustNo
-                        soldto.sold-name = ttImportCust.cCustName
-                        .
-                END.
-                ASSIGN 
-                    soldto.sold-addr[1] = ttImportCust.cCustAdd1
-                    soldto.sold-addr[2] = ttImportCust.cCustAdd2
-                    soldto.sold-city    = ttImportCust.cCustCity
-                    soldto.sold-state   = ttImportCust.cCustState
-                    soldto.sold-zip     = ttImportCust.cCustZip
-                    .
-                RUN pAddNote (cust.rec_key,
-                    ttImportCust.cNote1,
-                    "Misc Message 1",
-                    "",
-                    "C").
-                RUN pAddNote (cust.rec_key,
-                    ttImportCust.cNote2,
-                    "Misc Message 2",
-                    "",
-                    "C").
-                RUN pAddNote (cust.rec_key,
-                    ttImportCust.cNote3,
-                    "Mfg. Inst.",
-                    "",
-                    "C").
-                RUN pAddNote (cust.rec_key,
-                    ttImportCust.cNote4,
-                    "B/L Message",
-                    "",
-                    "C"). 
-            
+            END.
+            ASSIGN 
+                soldto.sold-addr[1] = ipbf-ttImportCust.cCustAdd1
+                soldto.sold-addr[2] = ipbf-ttImportCust.cCustAdd2
+                soldto.sold-city    = ipbf-ttImportCust.cCustCity
+                soldto.sold-state   = ipbf-ttImportCust.cCustState
+                soldto.sold-zip     = ipbf-ttImportCust.cCustZip
+                .
+            RUN pAddNote (cust.rec_key,
+                          ipbf-ttImportCust.cNote1,
+                          "Misc Message 1",
+                          "",
+                          "C").
+            RUN pAddNote (cust.rec_key,
+                          ipbf-ttImportCust.cNote2,
+                          "Misc Message 2",
+                          "",
+                          "C").
+            RUN pAddNote (cust.rec_key,
+                          ipbf-ttImportCust.cNote3,
+                          "Mfg. Inst.",
+                          "",
+                          "C").
+            RUN pAddNote (cust.rec_key,
+                          ipbf-ttImportCust.cNote4,
+                          "B/L Message",
+                          "",
+                          "C"). 
     END.
-    opiUpdated = opiUpdated - opiAdded.
-
+    
 END PROCEDURE.
 
 PROCEDURE pAddNote:
