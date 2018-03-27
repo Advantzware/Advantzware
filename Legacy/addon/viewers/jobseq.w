@@ -35,6 +35,8 @@ CREATE WIDGET-POOL.
 
 /* Local Variable Definitions ---                                       */
 
+&SCOPED-DEFINE jobseq-delete jobseq-delete
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
