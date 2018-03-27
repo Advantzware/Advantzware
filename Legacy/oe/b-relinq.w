@@ -102,10 +102,10 @@ END.
           AND oe-rell.r-no      EQ oe-relh.r-no,    ~
        FIRST itemfg OF oe-rell NO-LOCK
 
-&SCOPED-DEFINE sortby-log                                                                                                                                    ~
-    IF lv-sort-by EQ "ord-no"    THEN STRING(oe-rell.ord-no,"9999999999")                                                                               ELSE ~
-    IF lv-sort-by EQ "release#"  THEN STRING(oe-relh.release#,"9999999999")                                                                             ELSE ~
-    IF lv-sort-by EQ "cust-no"   THEN oe-relh.cust-no                                                                                                   ELSE ~
+&SCOPED-DEFINE sortby-log ~
+    IF lv-sort-by EQ "ord-no"    THEN STRING(oe-rell.ord-no,"9999999999") ELSE ~
+    IF lv-sort-by EQ "release#"  THEN STRING(oe-relh.release#,"9999999999") ELSE ~
+    IF lv-sort-by EQ "cust-no"   THEN oe-relh.cust-no ELSE ~
     IF lv-sort-by EQ "part-no"   THEN itemfg.part-no                                                                                                    ELSE ~
     IF lv-sort-by EQ "ship-id"   THEN oe-relh.ship-id                                                                                                   ELSE ~
     IF lv-sort-by EQ "ord-date"  THEN STRING(YEAR(oe-relh.rel-date),"9999") + STRING(MONTH(oe-relh.rel-date),"99") + STRING(DAY(oe-relh.rel-date),"99") ELSE ~
@@ -116,8 +116,7 @@ END.
     IF lv-sort-by EQ "qty"       THEN STRING(oe-rell.qty,"9999999999")                                                                                  ELSE ~
     IF lv-sort-by EQ "q-onh"       THEN STRING(itemfg.q-onh,"9999999999")                                                                               ELSE ~
     IF lv-sort-by EQ "v-shipto-zone"  THEN get-shipto-zone()                                                                                       ELSE ~
-                                      STRING(oe-relh.printed, "Y/N")                                                
-    IF lv-sort-by EQ "ld-qty-oh"       THEN string(fQty-oh(),"->>,>>>,>>9")                                                                                                   ELSE ~
+    IF lv-sort-by EQ "ld-qty-oh"       THEN string(fQty-oh(),"->>,>>>,>>9")                                                                   ELSE ~
                                       STRING(oe-relh.printed, "Y/N")
 
 &SCOPED-DEFINE sortby BY oe-relh.release# BY oe-rell.i-no
