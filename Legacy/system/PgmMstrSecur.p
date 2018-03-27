@@ -58,6 +58,7 @@ PROCEDURE epCanAccess:
                 (ipProgName EQ "sys/ref/hlp-ctrl.w" AND ipFunction EQ "EnableUpdateButton") OR  /*Update Help Button - redundant with above?*/
                 (ipProgName EQ "sys/ref/hlp.w" AND ipFunction EQ "Access1") OR  /*Update Help Button - redundant with above?*/
                 (ipProgName EQ "viewers/usercontrol.w" AND ipFunction EQ "Access2") OR /*NK5 User Control - Max Sessions Per User*/
+                (ipProgName EQ "browsers/userlog.w" AND ipFunction EQ "") OR /*NK5 User Control -delete button */
                 (ipProgName EQ "browsers/fgijob.w" AND ipFunction EQ "Access2") OR /*IF1 Bon/Job tab*/
                 (ipProgName EQ "cec/v-item2.w" AND ipFunction EQ "") OR /*MF2 inventory tab overright button */
                 (ipProgName EQ "jcinq/b-updmac.w" AND ipFunction EQ "") OR /* JQ1 Mach hrs Tab  */
