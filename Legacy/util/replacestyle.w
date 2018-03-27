@@ -281,6 +281,7 @@ PROCEDURE build-box1 :
 
    find first xbox-design-hdr where
         xbox-design-hdr.design-no eq style.design-no AND
+        xbox-design-hdr.company   eq style.company and
         xbox-design-hdr.est-no    eq ""
         no-lock no-error.
 
