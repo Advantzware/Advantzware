@@ -55,6 +55,7 @@ DEF VAR lv-show-next AS LOG NO-UNDO.
 DEF VAR lv-last-show-rel-no AS int NO-UNDO.
 DEF VAR lv-first-show-rel-no AS int NO-UNDO.
 DEF VAR lActive AS LOGICAL NO-UNDO.
+DEFINE VARIABLE v-shipto-zone AS CHARACTER NO-UNDO.
 DEFINE VARIABLE begin_rno LIKE oe-rell.r-no NO-UNDO.
 DEFINE VARIABLE ending_rno LIKE oe-rell.r-no NO-UNDO.
 DEFINE VARIABLE ld-qty-oh LIKE itemfg.q-onh NO-UNDO.
@@ -113,6 +114,9 @@ END.
     IF lv-sort-by EQ "rel-date"  THEN STRING(YEAR(oe-relh.rel-date),"9999") + STRING(MONTH(oe-relh.rel-date),"99") + STRING(DAY(oe-relh.rel-date),"99") ELSE ~
     IF lv-sort-by EQ "job-no"    THEN STRING(oe-rell.job-no,"x(6)") + STRING(oe-rell.job-no2,"99")                                                      ELSE ~
     IF lv-sort-by EQ "qty"       THEN STRING(oe-rell.qty,"9999999999")                                                                                  ELSE ~
+    IF lv-sort-by EQ "q-onh"       THEN STRING(itemfg.q-onh,"9999999999")                                                                               ELSE ~
+    IF lv-sort-by EQ "v-shipto-zone"  THEN get-shipto-zone()                                                                                       ELSE ~
+                                      STRING(oe-relh.printed, "Y/N")                                                
     IF lv-sort-by EQ "ld-qty-oh"       THEN string(fQty-oh(),"->>,>>>,>>9")                                                                                                   ELSE ~
                                       STRING(oe-relh.printed, "Y/N")
 
@@ -153,7 +157,7 @@ END.
 &Scoped-define FIELDS-IN-QUERY-Browser-Table oe-relh.release# ~
 oe-rell.ord-no oe-rell.po-no oe-relh.cust-no itemfg.part-no oe-relh.ship-id ~
 oe-rell.i-no oe-relh.rel-date oe-rell.job-no oe-rell.job-no2 ~
-oe-relh.printed oe-rell.qty fQty-oh () @ ld-qty-oh
+oe-relh.printed oe-rell.qty fQty-oh () @ ld-qty-oh itemfg.q-onh get-shipto-zone() @ v-shipto-zone 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table oe-relh.release# ~
 oe-rell.ord-no oe-rell.po-no oe-relh.cust-no oe-relh.ship-id oe-rell.i-no ~
 oe-relh.rel-date oe-rell.job-no oe-rell.job-no2 oe-relh.printed 
@@ -200,7 +204,12 @@ fi_i-no fi_po-no fi_job-no fi_job-no2 fi_sort-by
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
 
-/* ************************  Function Prototypes ********************** */
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD get-shipto-zone B-table-Win 
+FUNCTION get-shipto-zone RETURNS CHARACTER
+  ( /* parameter-definitions */ )  FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fQty-oh B-table-Win 
 FUNCTION fQty-oh RETURNS INTEGER
@@ -313,6 +322,9 @@ DEFINE BROWSE Browser-Table
       oe-rell.qty COLUMN-LABEL "Release Qty" FORMAT "->>,>>>,>>9":U
             LABEL-BGCOLOR 14
       fQty-oh () @ ld-qty-oh COLUMN-LABEL "Qty On Hand" FORMAT "->>,>>>,>>9":U
+      itemfg.q-onh COLUMN-LABEL "Qty On Hand" FORMAT "->,>>>,>>9":U
+            LABEL-BGCOLOR 14
+      get-shipto-zone() @ v-shipto-zone COLUMN-LABEL "Ship To Zone" FORMAT "x(5)":U
             LABEL-BGCOLOR 14
   ENABLE
       oe-relh.release#
@@ -486,6 +498,10 @@ use-index r-no"
 "oe-rell.qty" "Release Qty" ? "integer" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
     _FldNameList[13]   > "_<CALC>"
 "fqty-oh () @ ld-qty-oh" "Qty On Hand" ? "integer" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+    _FldNameList[14]   > ASI.itemfg.q-onh
+"itemfg.q-onh" "Qty On Hand" "->,>>>,>>>" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[33]   > "_<CALC>"     
+"get-shipto-zone() @ v-shipto-zone" "Ship To Zone" "x(8)" ? ? ? ? ? ? ? no ? no no "10" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is OPENED
 */  /* BROWSE Browser-Table */
 &ANALYZE-RESUME
@@ -1655,6 +1671,27 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION get-shipto-zone B-table-Win 
+FUNCTION get-shipto-zone RETURNS CHARACTER
+  ( /* parameter-definitions */ ) :
+
+  FOR EACH shipto NO-LOCK
+      WHERE shipto.company EQ cocode
+       AND shipto.cust-no EQ oe-relh.cust-no
+      AND shipto.ship-id EQ oe-relh.ship-id :
+
+       IF AVAILABLE shipto THEN
+       DO:
+           RETURN shipto.dest-code.
+       END.
+  END.
+
+  RETURN "".
+
+END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fQty-oh B-table-Win 
 FUNCTION fQty-oh RETURNS INTEGER
