@@ -21,6 +21,9 @@
 /* Audit History.rpa */
 {aoa/tempTable/ttAuditHistory.i}
 
+/* EDI 810 Exception.rpa */
+{AOA/tempTable/ttEDI810Exception.i}
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -44,6 +47,16 @@
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fAuditHistory Procedure 
 FUNCTION fAuditHistory RETURNS HANDLE ( {aoa/includes/fInputVars.i} )  FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
+
+&IF DEFINED(EXCLUDE-fEDI810Exception) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fEDI810Exception Procedure 
+FUNCTION fEDI810Exception RETURNS HANDLE ( {aoa/includes/fInputVars.i} )  FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -121,6 +134,28 @@ END FUNCTION.
 
 &ENDIF
 
+&IF DEFINED(EXCLUDE-fEDI810Exception) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fEDI810Exception Procedure 
+FUNCTION fEDI810Exception RETURNS HANDLE ( {aoa/includes/fInputVars.i} ) :
+/*------------------------------------------------------------------------------
+  Purpose:  EDI 810 Exception.rpa
+    Notes:  
+------------------------------------------------------------------------------*/
+    EMPTY TEMP-TABLE ttEDI810Exception.
+    
+    /* subject business logic */
+    RUN AOA/BL/edi810Xcp.p (OUTPUT TABLE ttEDI810Exception, ipcCompany, ipiBatch, ipcUserID).
+    
+    RETURN TEMP-TABLE ttEDI810Exception:HANDLE .
+
+END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
+
 &IF DEFINED(EXCLUDE-fGetTableHandle) = 0 &THEN
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fGetTableHandle Procedure 
@@ -134,6 +169,8 @@ FUNCTION fGetTableHandle RETURNS HANDLE
         /* Audit History.rpa */
         WHEN "AuditHist." THEN
         RETURN TEMP-TABLE ttAuditHistory:HANDLE.
+        WHEN "edi810Xcp." THEN
+        RETURN TEMP-TABLE ttEDI810Exception:HANDLE.
     END CASE.
 
 END FUNCTION.
