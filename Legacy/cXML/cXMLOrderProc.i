@@ -421,7 +421,7 @@ PROCEDURE genOrderLines:
       oe-ordl.t-price = oe-ordl.qty * oe-ordl.price.
        
       oe-ordl.cas-cnt = IF oe-ordl.qty LT itemfg.case-count THEN oe-ordl.qty ELSE itemfg.case-count.
-      {oe/defwhsed.i oe-ordl}
+      /* {oe/defwhsed.i oe-ordl} */
 
       RUN CreateRelease (INPUT ipcShipToID,
                          INPUT "").

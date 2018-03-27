@@ -385,6 +385,31 @@ END PROCEDURE.
 
 &ENDIF
 
+&IF DEFINED(EXCLUDE-epSetUpEDI) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE epSetUpEDI Procedure 
+PROCEDURE epSetUpEDI :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+FIND FIRST module NO-LOCK 
+      WHERE module.module EQ "m"
+        AND module.is-used EQ TRUE
+        AND module.expire-date GE TODAY
+  NO-ERROR.
+IF AVAILABLE module 
+AND SEARCH("rc/genrcvar.r") NE  ? THEN 
+  RUN rc/genrcvar.p. 
+     
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
+
 &IF DEFINED(EXCLUDE-epTouchLogin) = 0 &THEN
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE epTouchLogin Procedure 
@@ -437,6 +462,7 @@ PROCEDURE epUpdateUsrFile :
     ASSIGN
         opcUserList = TRIM(opcUserList,",").
         
+    
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

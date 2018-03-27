@@ -1,0 +1,51 @@
+
+
+
+
+
+
+BILL TO:                                SHIP TO:
+     AT&T Communications Corp.11111          AT&T Communications Corp.
+     ATT 1000 Blvd                           ATT 1000 Blvd
+                                             Suite 1001
+     Yardley, PA  19067                      Camden, NJ  18099
+
+
+                                                    BOL DATE  10/02/2013
+BOL# 007191                       TRAILER # FEDX1                COLLECT
+                                                              PAGE 01 OF 00
+-------------------------------------------------------------------------------
+                P.O.#                                             PER
+ITEM NUMBER     JOB#            PRODUCT DESCRIPTION          UNIT UNIT   TOTAL
+--------------- --------------- ---------------------------- ---- ------ ------
+ATT-2297 CP     PO# Job 20136   RT 5x3x2 Item Name XYZ         10    250   2500
+                206136-00       Description 1
+                                RT 5x3x2 Item Desc 2 Changed
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Received by: ____________________________________________ Date: _______________
+

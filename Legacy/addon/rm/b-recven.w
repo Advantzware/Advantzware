@@ -97,7 +97,7 @@ FIND FIRST sys-ctrl
     WHERE sys-ctrl.company eq cocode
     AND sys-ctrl.name eq "RMTAGS"
     NO-LOCK NO-ERROR.
-v-rmtags-log = IF AVAIL sys-ctrl THEN sys-ctrl.LOG ELSE NO.
+v-rmtags-log = IF AVAIL sys-ctrl THEN sys-ctrl.LOG-fld ELSE NO.
 
 FIND FIRST sys-ctrl NO-LOCK
      WHERE sys-ctrl.company EQ g_company

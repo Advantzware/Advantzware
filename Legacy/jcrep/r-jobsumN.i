@@ -487,7 +487,7 @@ DEF  VAR acl-lbr AS DEC INIT 0 NO-UNDO.
                          WHEN "act-speed"   THEN cVarValue = "" .
                          WHEN "act-cost"  THEN cVarValue =   IF v-mr-cost <> ? AND v-mr-cost <> 0 THEN STRING(v-mr-cost,">>>>>9-") ELSE "".
                          WHEN "cost-vari"    THEN cVarValue = IF v-mr-cost-var <> ? AND v-mr-cost-var <> 0 THEN STRING(v-mr-cost-var,">>>>,>>>,>>9-") ELSE "" .
-                         WHEN "cost-var%"   THEN cVarValue = IF v-mr-prod-p <> ? AND v-mr-prod-p <> 0 THEN  string(v-mr-prod-p,">>>9.9-") ELSE "".
+                         WHEN "cost-var%"   THEN cVarValue = IF v-mr-prod-p <> ? AND v-mr-prod-p <> 0 THEN  string(v-mr-prod-p,">>>>>9.9-") ELSE "".
                          WHEN "est-qty"   THEN cVarValue = IF work-mch.mr-waste <> ? AND work-mch.mr-waste <> 0 THEN string(work-mch.mr-waste,">>>>,>>>,>>9-") ELSE "".
                          WHEN "actual"  THEN cVarValue = IF work-mch.mr-qty <> ? AND work-mch.mr-qty <> 0 THEN  STRING(work-mch.mr-qty,">>>>>,>>9-") ELSE "".
                          WHEN "var-per"   THEN cVarValue = IF v-mr-wst-var <> ? AND v-mr-wst-var <> 0 THEN  STRING(v-mr-wst-var,">>>>>>9.9-") ELSE "".
@@ -596,7 +596,7 @@ DEF  VAR acl-lbr AS DEC INIT 0 NO-UNDO.
                          WHEN "act-cost"    THEN cVarValue = IF v-run-cost <> ? AND v-run-cost <> 0 THEN STRING(v-run-cost,">>>>>9-") ELSE "" .
 
                          WHEN "cost-vari"   THEN cVarValue = IF v-run-cost-var <> ? AND v-run-cost-var <> 0 THEN  string(v-run-cost-var,">>>>,>>>,>>9-") ELSE "".
-                         WHEN "cost-var%"   THEN cVarValue = IF v-run-prod-p <> ? AND v-run-prod-p <> 0 THEN string(v-run-prod-p,">>>9.9-") ELSE "".
+                         WHEN "cost-var%"   THEN cVarValue = IF v-run-prod-p <> ? AND v-run-prod-p <> 0 THEN string(v-run-prod-p,">>>>>9.9-") ELSE "".
                          WHEN "est-qty"  THEN cVarValue = IF work-mch.run-waste <> ? AND work-mch.run-waste <> 0 THEN  STRING(work-mch.run-waste,">>>>,>>>,>>9-") ELSE "".
                          WHEN "actual"   THEN cVarValue = IF work-mch.wst-qty <> ? AND work-mch.wst-qty <> 0 THEN  STRING(work-mch.wst-qty,">,>>>,>>9-") ELSE "".
                          WHEN "var-per"   THEN cVarValue = IF v-run-wst-var <> ? AND v-run-wst-var <> 0 THEN  STRING(v-run-wst-var,">>>>>>9.9-") ELSE "".

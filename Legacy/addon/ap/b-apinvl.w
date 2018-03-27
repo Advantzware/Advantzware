@@ -33,9 +33,7 @@ CREATE WIDGET-POOL.
 {custom/globdefs.i}
 
 DEF BUFFER bf-invl FOR ap-invl.
-DEF BUFFER b-cost FOR reftable.
-DEF BUFFER b-qty FOR reftable.
-DEF BUFFER b-setup FOR reftable.
+
 
 DEF VAR v-wid AS DEC NO-UNDO.
 DEF VAR v-len AS DEC NO-UNDO.
@@ -2361,15 +2359,10 @@ DO WITH FRAME {&FRAME-NAME}:
     
       IF v-index EQ 0 THEN
       DO:
-         FIND FIRST b-qty WHERE
-              b-qty.reftable = "vend-qty" AND
-              b-qty.company = e-item-vend.company AND
-              b-qty.CODE    = e-item-vend.i-no AND
-              b-qty.code2   = e-item-vend.vend-no
-              NO-LOCK NO-ERROR.
+
         
          DO i = 1 TO 10:
-            IF v-qty-comp LE b-qty.val[i] THEN
+            IF v-qty-comp LE e-item-vend.runQtyXtra[i] THEN
             DO:
                v-index = i + 10.
                LEAVE.
@@ -2387,25 +2380,13 @@ DO WITH FRAME {&FRAME-NAME}:
             v-cost = ((e-item-vend.run-cost[i] * v-qty-comp) + v-setup) / v-qty-comp.
       ELSE
       DO:
-         FIND FIRST b-cost WHERE
-              b-cost.reftable = "vend-cost" AND
-              b-cost.company = e-item-vend.company AND
-              b-cost.CODE    = e-item-vend.i-no AND
-              b-cost.code2   = e-item-vend.vend-no
-              NO-LOCK NO-ERROR.
-        
-         FIND FIRST b-setup WHERE
-              b-setup.reftable = "vend-setup" AND
-              b-setup.company = e-item-vend.company AND
-              b-setup.CODE    = e-item-vend.i-no AND
-              b-setup.code2   = e-item-vend.vend-no              
-              NO-LOCK NO-ERROR.
 
-         IF AVAIL b-cost AND AVAIL b-setup THEN
+
+         IF AVAIL e-item-vend THEN
             ASSIGN
-               v-setup = b-setup.val[v-index - 10]
+               v-setup = e-item-vend.setupsXtra[v-index - 10]
                op-adder-setup = op-adder-setup + v-setup
-               v-cost = ((b-cost.val[v-index - 10] * v-qty-comp) + v-setup) / v-qty-comp.
+               v-cost = ((e-item-vend.runCostXtra[v-index - 10] * v-qty-comp) + v-setup) / v-qty-comp.
       END.
       
       /* This adds the Adder cost in */
@@ -3128,26 +3109,7 @@ PROCEDURE vend-cost :
         CREATE tt-eiv.
         tt-eiv.rec_key = e-item-vend.rec_key.
 
-        FIND FIRST b-qty WHERE
-             b-qty.reftable = "vend-qty" AND
-             b-qty.company = e-item-vend.company AND
-             b-qty.CODE    = e-item-vend.i-no AND
-             b-qty.code2   = e-item-vend.vend-no             
-             NO-LOCK NO-ERROR.
 
-        FIND FIRST b-cost WHERE
-             b-cost.reftable = "vend-cost" AND
-             b-cost.company = e-item-vend.company AND
-             b-cost.CODE    = e-item-vend.i-no AND
-             b-cost.code2   = e-item-vend.vend-no             
-             NO-LOCK NO-ERROR.
-
-        FIND FIRST b-setup WHERE
-             b-setup.reftable = "vend-setup" AND
-             b-setup.company = e-item-vend.company AND
-             b-setup.CODE    = e-item-vend.i-no AND
-             b-setup.code2   = e-item-vend.vend-no             
-             NO-LOCK NO-ERROR.
 
         DO v-index = 1 TO 20:
 
@@ -3157,11 +3119,11 @@ PROCEDURE vend-cost :
                  tt-eiv.run-cost[v-index] = e-item-vend.run-cost[v-index]
                  tt-eiv.setups[v-index] = e-item-vend.setups[v-index].
            ELSE
-              IF AVAIL b-qty THEN
+              IF AVAIL e-item-vend THEN
                  ASSIGN
-                 tt-eiv.run-qty[v-index] = b-qty.val[v-index - 10]
-                 tt-eiv.run-cost[v-index] = b-cost.val[v-index - 10]
-                 tt-eiv.setups[v-index] = b-setup.val[v-index - 10].
+                 tt-eiv.run-qty[v-index] = e-item-vend.runQtyXtra[v-index - 10]
+                 tt-eiv.run-cost[v-index] = e-item-vend.runCostXtra[v-index - 10]
+                 tt-eiv.setups[v-index] = e-item-vend.setupsXtra[v-index - 10].
         END.
       END.
     END.

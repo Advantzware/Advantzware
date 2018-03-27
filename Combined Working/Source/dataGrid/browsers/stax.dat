@@ -1,0 +1,18 @@
+FOR EACH stax NO-LOCK WHERE stax.company EQ "%company%"
+tax-code1,tax-group
+
+Indexed: tax-group
+Non-Idx: tax-acc1,tax-acc1,tax-acc1,tax-acc1,tax-acc1,tax-code1,tax-code1,tax-code1,tax-code1,tax-code1,tax-dscr1,tax-dscr1,tax-dscr1,tax-dscr1,tax-dscr1,tax-frt1,tax-frt1,tax-frt1,tax-frt1,tax-frt1,tax-rate1,tax-rate1,tax-rate1,tax-rate1,tax-rate1
+
+Generated 04.18.2017 @  2:18:52 am by: nosweat
+Table: stax - Records: 47
+
+    Index: rec_key
+         Field: rec_key
+
+    Index: stax
+         Field: tax-group
+
+    Index: tax-group
+         Field: company
+         Field: tax-group

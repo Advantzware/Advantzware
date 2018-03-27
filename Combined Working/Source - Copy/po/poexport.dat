@@ -1,0 +1,4 @@
+"Code" "Name" "FTP Address" "UserID" "Password" "Ftp or sFtp" "Folder" "Ftp software (ftp or winscp)" "Asc/Bin" "Script File" "Ftp Command"
+"GP" "Woodland" "van-ftp.nubridges.net" "WOODLNDM" "WDFTP3" "sftp" "inbox" "winscp" "" "ftpcmdgp.txt" "put"
+"AlliFlutes" "Rudd" "Edi.schwarzdata.com" "FluRud850" "y7BuOfbiCs8gZqD" "ftp" "" "winscp" "" "ftpaf.txt" "PUT"
+"AlliFlutes" "TrePaper" "Edi.schwarzdata.com" "FluTre850" "lFp7QmshvOHbg7R" "ftp" "" "winscp" "" "ftpaf.txt" "PUT"

@@ -1,0 +1,7 @@
+-db	r:\asi\fold\ship50\asi
+-S	ASIFWV8
+-N	TCP
+-H	NTSERVER1
+-nofixdate
+-inp	10000
+-p 	j:\asiv8\test\fold\start.p 

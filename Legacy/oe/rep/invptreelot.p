@@ -100,7 +100,7 @@ DEF TEMP-TABLE w-sman NO-UNDO
 
 FIND FIRST inv-head NO-LOCK NO-ERROR.
 
-ASSIGN ls-image1 = "images\Peachtree_logo_address.jpg"
+ASSIGN ls-image1 = "images\Peachtree_logo_2018.png"
        FILE-INFO:FILE-NAME = ls-image1
        ls-full-img1 = FILE-INFO:FULL-PATHNAME + ">".
 
