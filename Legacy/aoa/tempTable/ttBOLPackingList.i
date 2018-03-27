@@ -20,6 +20,7 @@ DEFINE TEMP-TABLE ttBOLPackingList NO-UNDO
     FIELD partial    AS DECIMAL   LABEL "Partials"     FORMAT ">>>,>>9"
     FIELD weight     AS INTEGER   LABEL "Wgt/Case"     FORMAT ">>>>9"
     FIELD prntr      AS CHARACTER LABEL "Printer"      FORMAT "x(8)"
+    FIELD msfPrice   AS DECIMAL   LABEL "MSF"          FORMAT "->>,>>9.99"
     FIELD xxSort     AS CHARACTER LABEL "Sort"         FORMAT "x(50)"
         INDEX sortBy IS PRIMARY rowType xxSort
         .
