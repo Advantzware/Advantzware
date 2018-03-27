@@ -17,26 +17,27 @@
 
 DEFINE TEMP-TABLE ttImportAP
     FIELD Company         AS CHARACTER FORMAT "x(3)"
-    FIELD InvoiceNo       AS CHARACTER FORMAT "x(20)" COLUMN-LABEL "Invoice #"
-    FIELD VendorID        AS CHARACTER FORMAT "x(10)" COLUMN-LABEL "Vendor ID"
-    FIELD InvoiceDate     AS DATE FORMAT "99/99/99" COLUMN-LABEL "Inv Date"
-    FIELD DueDate         AS DATE FORMAT "99/99/99" COLUMN-LABEL "Due Date"
-    FIELD LineAmount      AS DECIMAL FORMAT "->>>,>>>,>>>.99" COLUMN-LABEL "$ Amount" 
-    FIELD LineQuantity    AS DECIMAL FORMAT "->>>,>>>,>>>.99" COLUMN-LABEL "Quantity"
-    FIELD LineQuantityUom AS CHARACTER FORMAT "x(3)" COLUMN-LABEL "Qty UOM"
-    FIELD LinePrice       AS DECIMAL FORMAT "->>>,>>>,>>>.99" COLUMN-LABEL "Price"
-    FIELD LinePriceUom    AS CHARACTER FORMAT "x(3)" COLUMN-LABEL "Price UOM"
-    FIELD LineTax         AS LOGICAL FORMAT "Y/N" COLUMN-LABEL "Tax (Line)"
-    FIELD LineAccount     AS CHARACTER FORMAT "x(20)" COLUMN-LABEL "GL Accnt #"
-    FIELD TaxGroup        AS CHARACTER FORMAT "x(5)" COLUMN-LABEL "Tax Group"
-    FIELD Discount        AS DECIMAL FORMAT "->>>,>>>,>>>.99" COLUMN-LABEL "Discount"
-    FIELD DiscountDays    AS INTEGER FORMAT ">>9" COLUMN-LABEL "Disc Days"
-    FIELD LinePONumber    AS INTEGER FORMAT ">>>>>9" COLUMN-LABEL "PO #"
-    FIELD LinePOLine      AS INTEGER FORMAT ">>9" COLUMN-LABEL "PO Line"
+    FIELD Location        AS CHARACTER 
+    FIELD InvoiceNo       AS CHARACTER FORMAT "x(20)" COLUMN-LABEL "Invoice #" HELP "Required - Size:20"
+    FIELD VendorID        AS CHARACTER FORMAT "x(10)" COLUMN-LABEL "Vendor ID" HELP "Required - Must be valid - Size:10"
+    FIELD InvoiceDate     AS DATE      FORMAT "99/99/99" COLUMN-LABEL "Inv Date" HELP "Defaults to Today - Date"
+    FIELD DueDate         AS DATE      FORMAT "99/99/99" COLUMN-LABEL "Due Date" HELP "Defaults based on Vendor Terms - Date"
+    FIELD LineAmount      AS DECIMAL   FORMAT "->>>,>>>,>>>.99" COLUMN-LABEL "$ Amount" HELP "Optional - Decimal"
+    FIELD LineQuantity    AS DECIMAL   FORMAT "->>>,>>>,>>>.99" COLUMN-LABEL "Quantity" HELP "Defaults to 1 - Decimal"
+    FIELD LineQuantityUom AS CHARACTER FORMAT "x(3)" COLUMN-LABEL "Qty UOM" HELP "Defaults to EA - Size:3"
+    FIELD LinePrice       AS DECIMAL   FORMAT "->>>,>>>,>>>.99" COLUMN-LABEL "Price" HELP "Defaults to Line Amount - Decimal"
+    FIELD LinePriceUom    AS CHARACTER FORMAT "x(3)" COLUMN-LABEL "Price UOM" HELP "Defaults to EA - Size:3"
+    FIELD LineTax         AS LOGICAL   FORMAT "Y/N" COLUMN-LABEL "Tax (Line)" HELP "Defaults to Y if Tax Group assigned - Logical"
+    FIELD LineAccount     AS CHARACTER FORMAT "x(20)" COLUMN-LABEL "GL Accnt #" HELP "Defaults to Vendor GL Account - Size:20"
+    FIELD TaxGroup        AS CHARACTER FORMAT "x(5)" COLUMN-LABEL "Tax Group" HELP "Defaults to Vendor Tax Group - Size:5"
+    FIELD Discount        AS DECIMAL   FORMAT "->>>,>>>,>>>.99" COLUMN-LABEL "Discount" HELP "Optional - Decimal"
+    FIELD DiscountDays    AS INTEGER   FORMAT ">>9" COLUMN-LABEL "Disc Days" HELP "Optional - Integer"
+    FIELD LinePONumber    AS INTEGER   FORMAT ">>>>>9" COLUMN-LABEL "PO #" HELP "NOT YET SUPPORTED"
+    FIELD LinePOLine      AS INTEGER   FORMAT ">>9" COLUMN-LABEL "PO Line" HELP "NOT YET SUPPORTED"
     .
     
 
-DEFINE VARIABLE giIndexOffset AS INTEGER NO-UNDO INIT 1. /*Set to 1 if there is a Company field in temp-table since this will not be part of the import data*/
+DEFINE VARIABLE giIndexOffset AS INTEGER NO-UNDO INIT 2. /*Set to 1 if there is a Company field in temp-table since this will not be part of the import data*/
 
 
 /* ********************  Preprocessor Definitions  ******************** */
@@ -46,66 +47,45 @@ DEFINE VARIABLE giIndexOffset AS INTEGER NO-UNDO INIT 1. /*Set to 1 if there is 
 
 
 /* **********************  Internal Procedures  *********************** */
+ /*This Includes Procedures with the expected parameters.  Includes pInitialize, pAddRecord, pProcessImport*/
+{util/ImportProcs.i &ImportTempTable = "ttImportAP"}
 
-PROCEDURE pAddRecord:
+PROCEDURE pValidate PRIVATE:
     /*------------------------------------------------------------------------------
-     Purpose: Accepts a Data Array, validates it and adds a temp-table record
+     Purpose: Validates a given Import Record for key fields
      Notes:
     ------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipcData AS CHARACTER NO-UNDO EXTENT.
+    DEFINE PARAMETER BUFFER ipbf-ttImportAP FOR ttImportAP.
     DEFINE INPUT PARAMETER iplUpdateDuplicates AS LOGICAL NO-UNDO.
     DEFINE INPUT PARAMETER iplFieldValidation AS LOGICAL NO-UNDO.
     DEFINE OUTPUT PARAMETER oplValid AS LOGICAL NO-UNDO.
     DEFINE OUTPUT PARAMETER opcNote AS CHARACTER NO-UNDO.
 
-    DEFINE VARIABLE hdTempTableBuffer AS HANDLE.
-    DEFINE VARIABLE cData             AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE hdValidator AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE cValidNote  AS CHARACTER NO-UNDO.
     DEFINE BUFFER bf-ttImportAP FOR ttImportAP.
-
+    
+    RUN util/Validate.p PERSISTENT SET hdValidator.
+  
     oplValid = YES.
-    CREATE ttImportAP.
-    ASSIGN 
-        ttImportAP.Company = ipcCompany.
-    FOR EACH ttImportMap
-        WHERE ttImportMap.cType EQ 'AP':
-        cData = ipcData[ttImportMap.iImportIndex].
-        hdTempTableBuffer = TEMP-TABLE ttImportAP:DEFAULT-BUFFER-HANDLE:BUFFER-FIELD(ttImportMap.iIndex + giIndexOffset):HANDLE.
-        CASE ttImportMap.cDataType:
-            WHEN "integer" THEN 
-                ASSIGN 
-                    hdTempTableBuffer:BUFFER-VALUE = INT(cData).
-            WHEN "logical" THEN 
-                ASSIGN 
-                    hdTempTableBuffer:BUFFER-VALUE = cData BEGINS "Y".
-            WHEN "decimal" THEN 
-                ASSIGN 
-                    hdTempTableBuffer:BUFFER-VALUE = DEC(cDaTa).
-            WHEN "date" THEN 
-                ASSIGN 
-                    hdTempTableBuffer:BUFFER-VALUE = DATE(cData). 
-            OTHERWISE 
-            ASSIGN 
-                hdTempTableBuffer:BUFFER-VALUE = cData.
-        END CASE.              
-    END.
+  
     IF oplValid THEN 
     DO:
-        IF ttImportAP.Company EQ '' THEN 
+        IF ipbf-ttImportAP.Company EQ '' THEN 
             ASSIGN 
                 oplValid = NO
                 opcNote  = "Key Field Blank: Company".
     END.
     IF oplValid THEN 
     DO:
-        IF ttImportAP.VendorID EQ '' THEN 
+        IF ipbf-ttImportAP.VendorID EQ '' THEN 
             ASSIGN 
                 oplValid = NO
                 opcNote  = "Key Field Blank: VendorID".
     END.
     IF oplValid THEN 
     DO:
-        IF ttImportAP.InvoiceNo EQ '' THEN 
+        IF ipbf-ttImportAP.InvoiceNo EQ '' THEN 
             ASSIGN 
                 oplValid = NO
                 opcNote  = "Key Field Blank: Invoice#".
@@ -113,8 +93,8 @@ PROCEDURE pAddRecord:
     IF oplValid THEN 
     DO:
         FIND FIRST vend NO-LOCK 
-            WHERE vend.company EQ ttImportAP.Company
-            AND vend.vend-no EQ ttImportAP.VendorID
+            WHERE vend.company EQ ipbf-ttImportAP.Company
+            AND vend.vend-no EQ ipbf-ttImportAP.VendorID
             NO-ERROR. 
         IF NOT AVAILABLE vend THEN 
             ASSIGN 
@@ -125,12 +105,12 @@ PROCEDURE pAddRecord:
     IF oplValid THEN 
     DO:
         FIND FIRST bf-ttImportAP NO-LOCK 
-            WHERE bf-ttImportAP.Company EQ ttImportAP.Company
-            AND bf-ttImportAP.VendorID EQ ttImportAP.VendorID
-            AND bf-ttImportAP.InvoiceNo EQ ttImportAP.InvoiceNo
-            AND bf-ttImportAP.LinePONumber EQ ttImportAP.LinePONumber 
-            AND bf-ttImportAP.LinePOLine EQ ttImportAP.LinePOLine
-            AND ROWID(bf-ttImportAP) NE ROWID(ttImportAP)
+            WHERE bf-ttImportAP.Company EQ ipbf-ttImportAP.Company
+            AND bf-ttImportAP.VendorID EQ ipbf-ttImportAP.VendorID
+            AND bf-ttImportAP.InvoiceNo EQ ipbf-ttImportAP.InvoiceNo
+            AND bf-ttImportAP.LinePONumber EQ ipbf-ttImportAP.LinePONumber 
+            AND bf-ttImportAP.LinePOLine EQ ipbf-ttImportAP.LinePOLine
+            AND ROWID(bf-ttImportAP) NE ROWID(ipbf-ttImportAP)
             NO-ERROR.
         IF AVAILABLE bf-ttImportAP THEN 
             ASSIGN 
@@ -141,16 +121,16 @@ PROCEDURE pAddRecord:
     IF oplValid THEN 
     DO:
         FIND FIRST ap-inv NO-LOCK 
-            WHERE ap-inv.company EQ ttImportAP.Company
-            AND ap-inv.vend-no EQ ttImportAP.VendorID
-            AND ap-inv.inv-no EQ ttImportAP.InvoiceNo
+            WHERE ap-inv.company EQ ipbf-ttImportAP.Company
+            AND ap-inv.vend-no EQ ipbf-ttImportAP.VendorID
+            AND ap-inv.inv-no EQ ipbf-ttImportAP.InvoiceNo
             NO-ERROR .
         IF AVAILABLE ap-inv THEN 
             FIND FIRST ap-invl NO-LOCK 
                 WHERE ap-invl.company EQ ap-inv.company
                 AND ap-invl.i-no EQ ap-inv.i-no
-                AND ap-invl.po-no EQ ttImportAP.LinePONumber
-                AND ap-invl.po-line EQ ttImportAP.LinePOLine
+                AND ap-invl.po-no EQ ipbf-ttImportAP.LinePONumber
+                AND ap-invl.po-line EQ ipbf-ttImportAP.LinePOLine
                 NO-ERROR.
         IF AVAILABLE ap-inv AND AVAILABLE ap-invl THEN 
         DO:
@@ -176,11 +156,11 @@ PROCEDURE pAddRecord:
     END.
     IF oplValid AND iplFieldValidation THEN 
     DO:
-        IF oplValid AND ttImportAP.TaxGroup NE "" THEN 
+        IF oplValid AND ipbf-ttImportAP.TaxGroup NE "" THEN 
         DO:
             FIND FIRST stax NO-LOCK 
-                WHERE stax.company EQ ttImportAP.Company
-                AND stax.tax-group EQ ttImportAP.TaxGroup
+                WHERE stax.company EQ ipbf-ttImportAP.Company
+                AND stax.tax-group EQ ipbf-ttImportAP.TaxGroup
                 NO-ERROR.
             IF NOT AVAILABLE stax THEN 
                 ASSIGN 
@@ -190,7 +170,6 @@ PROCEDURE pAddRecord:
                     
         END.
     END.
-    IF NOT oplValid THEN DELETE ttImportAP.
     
 END PROCEDURE.
 
@@ -318,174 +297,92 @@ PROCEDURE pCreateNewInvoiceLine:
 
 END PROCEDURE.
 
-PROCEDURE pExportData:
-/*------------------------------------------------------------------------------
- Purpose:  Runs the Export Data Program for AP
- Notes:
-------------------------------------------------------------------------------*/
 
-
-END PROCEDURE.
-
-PROCEDURE pInitialize:
+PROCEDURE pProcessRecord PRIVATE:
     /*------------------------------------------------------------------------------
-     Purpose: Initializes the specific Column Mapping for APs   
+     Purpose:  Processes an import record, incrementing the "opiAdded" variable
      Notes:
     ------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER ipcLoadFile AS CHARACTER NO-UNDO.
-
-    DEFINE VARIABLE cFields     AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cLabels     AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cDataTypes  AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cWidths     AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cFormats    AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE iIndex      AS INTEGER   NO-UNDO.
-    DEFINE VARIABLE iIndexStart AS INTEGER   NO-UNDO.
-    
-    EMPTY TEMP-TABLE ttImportAP.
-    EMPTY TEMP-TABLE ttImportMap.
-    
-    iIndexStart = 1 + giIndexOffset.
-    cWidths    = "60,60,60,60,60,60,60,60,60,60,60,60,60,60,60,60".
-    
-    IF ipcLoadFile EQ '' THEN 
-    DO:
-        ASSIGN 
-            cFields    = ""
-            cDataTypes = ""
-            cFormats   = ""
-            cLabels    = ""
-            .
-        DO iIndex = iIndexStart TO TEMP-TABLE ttImportAP:DEFAULT-BUFFER-HANDLE:NUM-FIELDS:
-            ASSIGN 
-                cFields    = cFields + TEMP-TABLE ttImportAP:DEFAULT-BUFFER-HANDLE:BUFFER-FIELD(iIndex):NAME + ","
-                cDataTypes = cDataTypes + TEMP-TABLE ttImportAP:DEFAULT-BUFFER-HANDLE:BUFFER-FIELD(iIndex):DATA-TYPE + ","
-                cFormats   = cFormats + TEMP-TABLE ttImportAP:DEFAULT-BUFFER-HANDLE:BUFFER-FIELD(iIndex):FORMAT + ","
-                cLabels    = cLabels + TEMP-TABLE ttImportAP:DEFAULT-BUFFER-HANDLE:BUFFER-FIELD(iIndex):COLUMN-LABEL + ","
-                .
-            
-        
-        END.
-        ASSIGN 
-            cFields    = TRIM(cFields,",")
-            cDataTypes = TRIM(cDataTypes,",")
-            cFormats   = TRIM(cFormats,",")
-            cLabels    = TRIM(cLabels,",")
-            .
-        DO iIndex = 1 TO NUM-ENTRIES(cFields):
-            CREATE ttImportMap.
-            ASSIGN 
-                ttImportMap.cType         = "AP"
-                ttImportMap.cLabel        = ENTRY(iIndex,cFields)
-                ttImportMap.iIndex        = iIndex
-                ttImportMap.iImportIndex  = iIndex
-                ttImportMap.cDataType     = ENTRY(iIndex,cDataTypes)
-                ttImportMap.cColumnLabel  = ENTRY(iIndex,cLabels)
-                ttImportMap.cColumnFormat = ENTRY(iIndex,cFormats)
-                .
-            IF iIndex LE NUM-ENTRIES(cWidths)  THEN 
-                ttImportMap.iColumnWidth = INT(ENTRY(iIndex,cWidths)).
-        END. 
-    
-    END.
-    ELSE 
-    DO:
-    /*Load from Config File provided*/
-    END.
-
-END PROCEDURE.
-
-PROCEDURE pProcessImport:
-    /*------------------------------------------------------------------------------
-     Purpose: Processes the temp-table already loaded and returns counts
-     Notes:
-    ------------------------------------------------------------------------------*/
-    DEFINE OUTPUT PARAMETER opiUpdated AS INTEGER NO-UNDO.
-    DEFINE OUTPUT PARAMETER opiAdded AS INTEGER NO-UNDO.
+    DEFINE PARAMETER BUFFER ipbf-ttImportAP FOR ttImportAP.
+    DEFINE INPUT-OUTPUT PARAMETER iopiAdded AS INTEGER NO-UNDO.
 
     DEFINE VARIABLE riAPInv  AS ROWID. 
     DEFINE VARIABLE riAPInvl AS ROWID. 
     
-    FOR EACH ttImportAP NO-LOCK:
-        IF ttImportAP.VendorID EQ "" THEN NEXT.
-        IF ttImportAP.InvoiceNo EQ "" THEN NEXT.
-        
-        opiAdded = opiAdded + 1.
-        
-        /*if found, add another line to existing header - otherwise, create a new header*/
-        FIND FIRST ap-inv NO-LOCK
-            WHERE ap-inv.company EQ ttImportAP.Company
-            AND ap-inv.inv-no EQ ttImportAP.InvoiceNo
-            AND ap-inv.vend-no EQ ttImportAP.VendorID
+       
+    iopiAdded = iopiAdded + 1.
+    /*if found, add another line to existing header - otherwise, create a new header*/
+    FIND FIRST ap-inv NO-LOCK
+        WHERE ap-inv.company EQ ipbf-ttImportAP.Company
+        AND ap-inv.inv-no EQ ipbf-ttImportAP.InvoiceNo
+        AND ap-inv.vend-no EQ ipbf-ttImportAP.VendorID
+        NO-ERROR.
+    IF NOT AVAILABLE ap-inv THEN /*create a new one*/
+    DO:
+        RUN pCreateNewInvoice (ipbf-ttImportAP.Company, ipbf-ttImportAP.VendorID, ipbf-ttImportAP.InvoiceNo, ipbf-ttImportAP.InvoiceDate, OUTPUT riApInv).
+        FIND ap-inv EXCLUSIVE-LOCK
+            WHERE ROWID(ap-inv) EQ riAPInv
             NO-ERROR.
-        IF NOT AVAILABLE ap-inv THEN /*create a new one*/
-        DO:
-            RUN pCreateNewInvoice (ttImportAP.Company, ttImportAP.VendorID, ttImportAP.InvoiceNo, ttImportAP.InvoiceDate, OUTPUT riApInv).
-            FIND ap-inv EXCLUSIVE-LOCK
-                WHERE ROWID(ap-inv) EQ riAPInv
-                NO-ERROR.
-            IF NOT AVAILABLE ap-inv THEN NEXT.    
+        IF NOT AVAILABLE ap-inv THEN NEXT.    
                     
-            /*Override defaults with imported values for header*/
-            IF ttImportAP.InvoiceDate NE ?THEN 
-                ap-inv.inv-date =  ttImportAP.InvoiceDate.
-            IF ttImportAP.TaxGroup NE "" THEN  
-            DO:
-                FIND FIRST stax NO-LOCK 
-                    WHERE stax.company EQ ttImportAP.Company
-                    AND stax.tax-group EQ ttImportAP.TaxGroup
-                    NO-ERROR.
-                IF AVAILABLE stax THEN 
-                    ap-inv.tax-gr = ttImportAP.TaxGroup.
-            END.
-            IF ttImportAP.DueDate NE ? THEN 
-                ap-inv.due-date = ttImportAP.DueDate.
-            IF ttImportAP.DiscountDays NE 0 THEN 
-                ap-inv.disc-days = ttImportAP.DiscountDays.
-            IF ttImportAP.Discount NE 0 THEN 
-                ap-inv.disc-% = ttImportAP.Discount.
-    
-        END. /*not available ap-inv*/
-        RUN pCreateNewInvoiceLine (ROWID(ap-inv), OUTPUT riAPInvl).
-        FIND ap-invl EXCLUSIVE-LOCK 
-            WHERE ROWID(ap-invl) EQ riAPInvl
-            NO-ERROR.
-        IF NOT AVAILABLE ap-invl THEN NEXT.
-                
-        /*Override defaults with imported values for line*/ 
-        ASSIGN 
-            ap-invl.tax = ttImportAP.LineTax
-            ap-invl.amt = ttImportAP.LineAmount
-            .
-        IF ttImportAP.LineQuantity NE 0 THEN 
-            ap-invl.qty = ttImportAP.LineQuantity.
-        ELSE 
-            ap-invl.qty = 1.
-        IF ttImportAP.LineQuantityUom NE "" THEN 
-            ap-invl.cons-uom = ttImportAP.LineQuantityUOM.
-        ELSE 
-            ap-invl.cons-uom = "EA".
-        IF ttImportAP.LinePrice NE 0 THEN 
-            ap-invl.unit-pr = ttImportAP.LinePrice.
-        ELSE 
-            ap-invl.unit-pr = ap-invl.amt.
-        IF ttImportAP.LinePriceUom NE "" THEN 
-            ap-invl.pr-qty-uom = ttImportAP.LinePriceUom.
-        ELSE 
-            ap-invl.pr-qty-uom = "EA".
-        IF ttImportAP.LinePONumber NE 0 THEN 
+        /*Override defaults with imported values for header*/
+        IF ipbf-ttImportAP.InvoiceDate NE ?THEN 
+            ap-inv.inv-date =  ipbf-ttImportAP.InvoiceDate.
+        IF ipbf-ttImportAP.TaxGroup NE "" THEN  
         DO:
-            ap-invl.po-no = ttImportAP.LinePONumber.
-            RUN pUpdateInvoiceLineFromPO(ROWID(ap-inv)).
+            FIND FIRST stax NO-LOCK 
+                WHERE stax.company EQ ipbf-ttImportAP.Company
+                AND stax.tax-group EQ ipbf-ttImportAP.TaxGroup
+                NO-ERROR.
+            IF AVAILABLE stax THEN 
+                ap-inv.tax-gr = ipbf-ttImportAP.TaxGroup.
         END.
-        IF ttImportAP.LinePOLine NE 0 THEN
-            ap-invl.po-line = ttImportAP.LinePOLine.
-        IF ttImportAP.LineAccount NE "" THEN 
-            ap-invl.actnum = ttImportAP.LineAccount.
-                                                            
-        RUN pRecalculateInvoiceHeader (ROWID(ap-inv), NO).   
-    END.
+        IF ipbf-ttImportAP.DueDate NE ? THEN 
+            ap-inv.due-date = ipbf-ttImportAP.DueDate.
+        IF ipbf-ttImportAP.DiscountDays NE 0 THEN 
+            ap-inv.disc-days = ipbf-ttImportAP.DiscountDays.
+        IF ipbf-ttImportAP.Discount NE 0 THEN 
+            ap-inv.disc-% = ipbf-ttImportAP.Discount.
     
+    END. /*not available ap-inv*/
+    RUN pCreateNewInvoiceLine (ROWID(ap-inv), OUTPUT riAPInvl).
+    FIND ap-invl EXCLUSIVE-LOCK 
+        WHERE ROWID(ap-invl) EQ riAPInvl
+        NO-ERROR.
+    IF NOT AVAILABLE ap-invl THEN NEXT.
+                
+    /*Override defaults with imported values for line*/ 
+    ASSIGN 
+        ap-invl.tax = ipbf-ttImportAP.LineTax
+        ap-invl.amt = ipbf-ttImportAP.LineAmount
+        .
+    IF ipbf-ttImportAP.LineQuantity NE 0 THEN 
+        ap-invl.qty = ipbf-ttImportAP.LineQuantity.
+    ELSE 
+        ap-invl.qty = 1.
+    IF ipbf-ttImportAP.LineQuantityUom NE "" THEN 
+        ap-invl.cons-uom = ipbf-ttImportAP.LineQuantityUOM.
+    ELSE 
+        ap-invl.cons-uom = "EA".
+    IF ipbf-ttImportAP.LinePrice NE 0 THEN 
+        ap-invl.unit-pr = ipbf-ttImportAP.LinePrice.
+    ELSE 
+        ap-invl.unit-pr = ap-invl.amt.
+    IF ipbf-ttImportAP.LinePriceUom NE "" THEN 
+        ap-invl.pr-qty-uom = ipbf-ttImportAP.LinePriceUom.
+    ELSE 
+        ap-invl.pr-qty-uom = "EA".
+    IF ipbf-ttImportAP.LinePONumber NE 0 THEN 
+    DO:
+        ap-invl.po-no = ipbf-ttImportAP.LinePONumber.
+        RUN pUpdateInvoiceLineFromPO(ROWID(ap-inv)).
+    END.
+    IF ipbf-ttImportAP.LinePOLine NE 0 THEN
+        ap-invl.po-line = ipbf-ttImportAP.LinePOLine.
+    IF ipbf-ttImportAP.LineAccount NE "" THEN 
+        ap-invl.actnum = ipbf-ttImportAP.LineAccount.
+                                                            
+    RUN pRecalculateInvoiceHeader (ROWID(ap-inv), NO).   
 
 END PROCEDURE.
 

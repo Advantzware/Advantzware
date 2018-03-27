@@ -85,9 +85,7 @@ FIND FIRST oe-ctrl WHERE oe-ctrl.company EQ cocode NO-LOCK NO-ERROR.
 
 IF ip-run EQ 1 AND fginvrec-log THEN
   FIND fg-rctd WHERE ROWID(fg-rctd) EQ ip-rowid NO-LOCK NO-ERROR.
-/* was getting passed in with invalid fg-rctd reowid */
-IF NOT AVAILABLE fg-rctd THEN 
-    RETURN. 
+
 
 IF AVAIL fg-rctd THEN
   RUN get-ord-recs (ROWID(fg-rctd),
@@ -95,7 +93,8 @@ IF AVAIL fg-rctd THEN
                     BUFFER po-ord,
                     BUFFER oe-ordl,
                     BUFFER oe-ord).
-IF fg-rctd.SetHeaderRno EQ 0 THEN DO TRANSACTION:
+/* Was original if reftable found when oe-ord was available */
+IF AVAILABLE oe-ord THEN DO TRANSACTION:
 
   ASSIGN
    ll       = fg-rctd.CreateInvoice
@@ -111,7 +110,7 @@ IF fg-rctd.SetHeaderRno EQ 0 THEN DO TRANSACTION:
                       BUFFER bf-po-ordl,
                       BUFFER bf-po-ord,
                       BUFFER bf-oe-ordl,
-                      BUFFER bf-oe-ord).
+                      BUFFER bf-oe-ord).      
 
       ASSIGN 
           ll-first  = ROWID(bf-fg-rctd)

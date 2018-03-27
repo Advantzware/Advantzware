@@ -21,9 +21,9 @@ def var v-run-wst-var as dec no-undo.
 def var v-act-speed as dec no-undo.
 def var v-dscr like dept.dscr no-undo.
 def var v-cst-var as dec format ">,>>>,>>9-" no-undo.
-def var v-prod-p as dec format ">>>>9.9-" no-undo.
+def var v-prod-p as dec format ">>>>>>9.9-" no-undo.
 def var v-sub-cst-var as dec format ">,>>>,>>9-" no-undo.
-def var v-sub-prod-p as dec format ">>>>9.9-" no-undo.
+def var v-sub-prod-p as dec format ">>>>>>9.9-" no-undo.
 def var v-prd-var as dec format ">,>>>,>>9-" no-undo.
 def var v-t-est-hrs as dec format ">>>>9.99" no-undo.
 def var v-t-act-hrs as dec format ">>>>9.9" no-undo.

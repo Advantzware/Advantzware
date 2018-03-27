@@ -734,9 +734,9 @@ DO:
     END.
 
     WHEN "stack-code" THEN DO:
-      RUN windows/l-stcode.w (eb.company, eb.loc, eb.stack-code:SCREEN-VALUE, lw-focus:SCREEN-VALUE, OUTPUT char-val).
-      IF char-val NE "" AND lw-focus:SCREEN-VALUE NE ENTRY(1,char-val) THEN DO:
-        lw-focus:SCREEN-VALUE = ENTRY(1,char-val).
+      RUN windows/l-stcode.w (eb.company, eb.stack-code:SCREEN-VALUE, OUTPUT char-val).
+      IF char-val NE "" AND eb.stack-code:SCREEN-VALUE NE ENTRY(1,char-val) THEN DO:
+        eb.stack-code:SCREEN-VALUE = ENTRY(1,char-val).
         RUN new-stack-code.
       END.
     END.

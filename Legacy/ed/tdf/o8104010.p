@@ -56,7 +56,17 @@ ASSIGN
                 
 FIND FIRST EDMast NO-LOCK WHERE EDMast.Partner EQ ws_partner NO-ERROR.
 IF NOT AVAILABLE EDMast THEN 
-    RETURN. 
+    RETURN.
+FIND FIRST edcode NO-LOCK WHERE edcode.partner EQ EDMast.partner
+    AND edcode.setid = "810"
+    NO-ERROR.    
+IF NOT AVAILABLE edcode THEN 
+  FIND FIRST edcode NO-LOCK WHERE edcode.partner EQ EDMast.partnerGrp
+    AND edcode.setid = "810"  
+    NO-ERROR.
+
+IF NOT AVAILABLE edcode THEN 
+  RETURN. 
 FIND first ediPartnerSegment NO-LOCK  
      WHERE ediPartnerSegment.partnerGrp EQ EDMast.partnerGrp
      NO-ERROR.
@@ -95,12 +105,14 @@ ASSIGN
 FIND FIRST eddoc NO-LOCK
   WHERE eddoc.setid = edcode.setid
     AND eddoc.partner = ws_partner
-  AND eddoc.error-count = 0
-  AND eddoc.posted = FALSE
-  AND NOT eddoc.status-flag = "DEL"   /* 9809 CAH */
-  AND eddoc.direction = edcode.direction NO-ERROR.
+    AND eddoc.error-count = 0
+    AND eddoc.posted = FALSE
+    AND NOT eddoc.status-flag = "DEL"   /* 9809 CAH */
+    AND eddoc.direction = edcode.direction 
+  NO-ERROR.
+  
 IF NOT AVAIL eddoc THEN
-RETURN. /* nothing to do */
+  RETURN. /* nothing to do */
 {rc/hdg-wide.i "ed/tdf/o8103060.p" "OUTBOUND INVOICE EDIT LIST" "(s-out)"}
 {rc/hdg-noco.i}
 ASSIGN
@@ -112,18 +124,20 @@ FORM
   
 ws_edi_path = ws_edi_path +  fOutputFileName().
 lPathIsGood = fCheckFolderOfPath(ws_edi_path).
+
 IF NOT lPathIsGood THEN 
   RETURN.
 OUTPUT STREAM s-edi TO VALUE(ws_edi_path).
 
 START = TIME.
 FOR EACH eddoc EXCLUSIVE
-    WHERE eddoc.setid = edcode.setid
-      AND eddoc.partner = ws_partner
-    AND eddoc.error-count = 0
-    AND eddoc.posted = FALSE
-    AND eddoc.direction = edcode.direction
-AND NOT eddoc.status-flag = "DEL"   /* 9809 CAH */:
+    WHERE eddoc.setid       EQ edcode.setid
+      AND eddoc.partner     EQ ws_partner
+      AND eddoc.error-count EQ 0
+      AND eddoc.posted      EQ FALSE
+      AND eddoc.direction   EQ edcode.direction
+AND NOT eddoc.status-flag EQ "DEL"   /* 9809 CAH */:
+
   ws_section = 10.
   /*
   DISPLAY
@@ -520,6 +534,7 @@ ACCUMULATE
 IF error-status:error OR ws_erc <> 0
   THEN
 {rc/incr.i ws_recs_inerror}.
+
 {rc/accum.i ws_amt_changed edivtran.tot-gross}.
 /* 9810 CAH: was causing screen flip ...
 {rc/statsdis.i}

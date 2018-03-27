@@ -673,6 +673,7 @@ FIND FIRST style NO-LOCK WHERE style.company EQ xeb.company
                  NO-ERROR.
 IF AVAILABLE style THEN
   FIND FIRST xbox-design-hdr NO-LOCK WHERE xbox-design-hdr.design-no EQ style.design-no
+     			               AND xbox-design-hdr.company   eq style.company       
                                AND xbox-design-hdr.est-no    EQ ""
              NO-ERROR.
 

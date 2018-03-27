@@ -193,7 +193,8 @@ do on error undo:
        itemfg.spc-no      = bf-eb.spc-no
        itemfg.isaset      = no 
        itemfg.pur-man     = bf-eb.form-no GT 0 AND bf-eb.pur-man
-       itemfg.alloc       = bf-eb.set-is-assembled.
+       itemfg.alloc       = bf-eb.set-is-assembled
+       itemfg.setupDate   = TODAY.
 
       /* Create an itemfg-loc for the default warehouse */
       RUN fg/chkfgloc.p (INPUT itemfg.i-no, INPUT "").

@@ -43,6 +43,9 @@ ASSIGN
                    + "_"
                    + STRING(TIME)
                    + ".csv".
+
+FIND FIRST company NO-LOCK NO-ERROR.
+
 OUTPUT TO VALUE(cOutputFile).
 PUT company.company SPACE(5)
     company.name SPACE(5)

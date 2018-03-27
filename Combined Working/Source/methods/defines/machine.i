@@ -1,0 +1,3 @@
+/* machine.i */
+
+DEFINE {&NEW} SHARED VARIABLE s-machine AS CHARACTER NO-UNDO.

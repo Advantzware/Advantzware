@@ -672,6 +672,7 @@ find first style where style.company eq xeb.company
                  no-lock no-error.
 if avail style then
   find first xbox-design-hdr where xbox-design-hdr.design-no eq style.design-no
+  			                   and xbox-design-hdr.company   eq style.company 	
                                and xbox-design-hdr.est-no    eq ""
              no-lock no-error.
 

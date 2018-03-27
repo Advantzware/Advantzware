@@ -1,0 +1,22 @@
+FOR EACH custype NO-LOCK WHERE custype.company EQ "%company%"
+custype,dscr
+
+Indexed: custype,dscr
+Non-Idx: commrate,discount
+
+Generated 04.18.2017 @  2:14:41 am by: nosweat
+Table: custype - Records: 41
+
+    Index: custype
+         Field: company
+         Field: custype
+
+    Index: dscr
+         Field: company
+         Field: dscr
+
+    Index: rec_key
+         Field: rec_key
+
+    Index: wi-dscr
+         Field: dscr

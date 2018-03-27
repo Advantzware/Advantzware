@@ -1,0 +1,300 @@
+ADD TABLE "userControl"
+  AREA "Schema Area"
+  DUMP-NAME "usercontrol"
+
+ADD FIELD "numLicensedUsers" OF "userControl" AS integer 
+  FORMAT ">>,>>9"
+  INITIAL "0"
+  LABEL "Number Licensed Users"
+  POSITION 2
+  MAX-WIDTH 4
+  ORDER 10
+
+ADD FIELD "maxAllowedUsers" OF "userControl" AS integer 
+  FORMAT ">>,>>9"
+  INITIAL "0"
+  LABEL "Max Allowed Users"
+  POSITION 3
+  MAX-WIDTH 4
+  COLUMN-LABEL "Max Allowed Users"
+  ORDER 20
+
+ADD FIELD "numUsersOverLimit" OF "userControl" AS integer 
+  FORMAT ">,>>9"
+  INITIAL "0"
+  LABEL "Num Users Over Limit"
+  POSITION 4
+  MAX-WIDTH 4
+  COLUMN-LABEL "Num Users Over Limit"
+  ORDER 30
+
+ADD FIELD "userAdminEmail" OF "userControl" AS character 
+  FORMAT "x(16)"
+  INITIAL ""
+  LABEL "User for Admin Email"
+  POSITION 5
+  MAX-WIDTH 32
+  COLUMN-LABEL "User for Admin Email"
+  ORDER 40
+
+ADD FIELD "adminEmailAddr" OF "userControl" AS character 
+  FORMAT "x(30)"
+  INITIAL ""
+  LABEL "Admin Email Address"
+  POSITION 6
+  MAX-WIDTH 60
+  COLUMN-LABEL "Admin Email"
+  ORDER 50
+
+ADD FIELD "loginTimeDirective" OF "userControl" AS character 
+  FORMAT "x(20)"
+  INITIAL ""
+  LABEL "Login Time Directive"
+  POSITION 7
+  MAX-WIDTH 40
+  COLUMN-LABEL "Login Time Directive"
+  ORDER 60
+
+ADD FIELD "secondAdminEmail" OF "userControl" AS character 
+  FORMAT "x(30)"
+  INITIAL ""
+  LABEL "2nd Admin Email"
+  POSITION 8
+  MAX-WIDTH 60
+  ORDER 70
+
+ADD FIELD "autoLogoutTime" OF "userControl" AS integer 
+  FORMAT ">>,>>>9"
+  INITIAL "18"
+  LABEL "Auto Logout Time"
+  POSITION 9
+  MAX-WIDTH 4
+  COLUMN-LABEL "Auto Logout Time"
+  ORDER 80
+
+ADD FIELD "rec_key" OF "userControl" AS character 
+  FORMAT "X(20)"
+  INITIAL ""
+  LABEL "Rec Key"
+  POSITION 10
+  MAX-WIDTH 40
+  HELP "Enter Rec Key"
+  ORDER 90
+
+ADD INDEX "rec_key" ON "userControl" 
+  AREA "Schema Area"
+  PRIMARY
+  INDEX-FIELD "rec_key" ASCENDING 
+
+ADD TABLE "userEula"
+  AREA "Schema Area"
+  LABEL "userEula Master"
+  DESCRIPTION "userEula Master"
+  DUMP-NAME "userEula"
+
+ADD FIELD "rec_key" OF "userEula" AS character 
+  FORMAT "X(16)"
+  INITIAL ""
+  LABEL "Record Key"
+  POSITION 2
+  MAX-WIDTH 32
+  HELP "Enter Record Key Value"
+  ORDER 10
+
+ADD FIELD "eula_date" OF "userEula" AS date 
+  FORMAT "99/99/9999"
+  INITIAL ?
+  LABEL "EULA Date"
+  POSITION 3
+  MAX-WIDTH 4
+  HELP "Enter Date of userEula"
+  ORDER 20
+
+ADD FIELD "eula_time" OF "userEula" AS integer 
+  FORMAT "99999"
+  INITIAL "0"
+  LABEL "EULA Time"
+  POSITION 4
+  MAX-WIDTH 4
+  HELP "Enter Time of userEula"
+  ORDER 30
+
+ADD FIELD "user_id" OF "userEula" AS character 
+  FORMAT "X(12)"
+  INITIAL ""
+  LABEL "User ID"
+  POSITION 5
+  MAX-WIDTH 24
+  HELP "Enter User ID"
+  ORDER 40
+
+ADD FIELD "eula_title" OF "userEula" AS character 
+  FORMAT "X(60)"
+  INITIAL ""
+  LABEL "EULA Title"
+  POSITION 6
+  MAX-WIDTH 120
+  HELP "Enter EULA Title"
+  ORDER 60
+
+ADD FIELD "eula_text" OF "userEula" AS character 
+  FORMAT "X(8)"
+  INITIAL ""
+  LABEL "EULA Text"
+  POSITION 7
+  MAX-WIDTH 16
+  VIEW-AS "VIEW-AS EDITOR INNER-CHARS 60 INNER-LINES 10 SCROLLBAR-VERTICAL"
+  HELP "Enter EULA Text"
+  ORDER 70
+
+ADD FIELD "accepted" OF "userEula" AS logical 
+  FORMAT "yes/no"
+  INITIAL "no"
+  LABEL "Accepted"
+  POSITION 8
+  MAX-WIDTH 1
+  VIEW-AS "VIEW-AS TOGGLE-BOX"
+  HELP "Enter accepted Indicator"
+  ORDER 50
+
+ADD FIELD "eula_code" OF "userEula" AS character 
+  DESCRIPTION "EULA Code"
+  FORMAT "X(2)"
+  INITIAL ""
+  LABEL "EULA Code"
+  POSITION 9
+  MAX-WIDTH 4
+  HELP "EULA Code"
+  ORDER 80
+
+ADD FIELD "num_times_warned" OF "userEula" AS integer 
+  FORMAT "999"
+  INITIAL "0"
+  LABEL "# Times Warned"
+  POSITION 10
+  MAX-WIDTH 4
+  HELP "Enter number of times warned"
+  ORDER 90
+
+ADD INDEX "pi-userEula" ON "userEula" 
+  AREA "Schema Area"
+  PRIMARY
+  DESCRIPTION "userEula Master Primary Index"
+  INDEX-FIELD "eula_code" ASCENDING 
+  INDEX-FIELD "user_id" ASCENDING 
+
+ADD TABLE "userLog"
+  AREA "Schema Area"
+  DESCRIPTION "Tracks usre logins and logouts."
+  DUMP-NAME "userlog"
+
+ADD FIELD "user_id" OF "userLog" AS character 
+  FORMAT "X(12)"
+  INITIAL ""
+  LABEL "User ID"
+  POSITION 2
+  MAX-WIDTH 24
+  HELP "Enter User ID"
+  ORDER 40
+
+ADD FIELD "sessionID" OF "userLog" AS integer 
+  FORMAT ">>>>>>>>>>"
+  INITIAL "0"
+  LABEL "Session ID"
+  POSITION 3
+  MAX-WIDTH 4
+  COLUMN-LABEL "Session ID"
+  ORDER 50
+
+ADD FIELD "userName" OF "userLog" AS character 
+  FORMAT "x(16)"
+  INITIAL ""
+  LABEL "User name"
+  POSITION 4
+  MAX-WIDTH 32
+  COLUMN-LABEL "User name"
+  ORDER 60
+
+ADD FIELD "IpAddress" OF "userLog" AS character 
+  FORMAT "x(15)"
+  INITIAL ""
+  LABEL "IP Address"
+  POSITION 7
+  MAX-WIDTH 30
+  COLUMN-LABEL "IP Addr"
+  ORDER 90
+
+ADD FIELD "deviceName" OF "userLog" AS character 
+  FORMAT "x(25)"
+  INITIAL ""
+  LABEL "Device Name"
+  POSITION 8
+  MAX-WIDTH 50
+  COLUMN-LABEL "Device Name"
+  ORDER 100
+
+ADD FIELD "EulaVersion" OF "userLog" AS decimal 
+  FORMAT ">>,>>9.99"
+  INITIAL ?
+  LABEL "Eula Version"
+  POSITION 9
+  MAX-WIDTH 17
+  COLUMN-LABEL "Eula Version"
+  DECIMALS 2
+  ORDER 110
+
+ADD FIELD "logoutDateTime" OF "userLog" AS datetime 
+  FORMAT "99/99/9999 HH:MM:SS.SSS"
+  INITIAL ?
+  LABEL "Logout Date Time"
+  POSITION 10
+  MAX-WIDTH 8
+  COLUMN-LABEL "Logout Date Time"
+  ORDER 120
+
+ADD FIELD "userStatus" OF "userLog" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  LABEL "User Status"
+  POSITION 11
+  MAX-WIDTH 16
+  COLUMN-LABEL "User Status"
+  ORDER 130
+
+ADD FIELD "loginDateTime" OF "userLog" AS datetime 
+  FORMAT "99/99/9999 HH:MM:SS.SSS"
+  INITIAL ?
+  LABEL "Login Date Time"
+  POSITION 12
+  MAX-WIDTH 8
+  COLUMN-LABEL "Login Date Time"
+  ORDER 140
+
+ADD FIELD "rec_key" OF "userLog" AS character 
+  FORMAT "X(20)"
+  INITIAL ""
+  LABEL "Rec Key"
+  POSITION 13
+  MAX-WIDTH 40
+  HELP "Enter Rec Key"
+  ORDER 150
+
+ADD INDEX "user_id" ON "userLog" 
+  AREA "Schema Area"
+  PRIMARY
+  INDEX-FIELD "user_id" ASCENDING 
+
+ADD INDEX "loginDateTime" ON "userLog" 
+  AREA "Schema Area"
+  INDEX-FIELD "loginDateTime" ASCENDING 
+
+ADD INDEX "sessionID" ON "userLog" 
+  AREA "Schema Area"
+  INDEX-FIELD "sessionID" ASCENDING 
+
+
+.
+PSC
+cpstream=ISO8859-1
+.
+0000006247

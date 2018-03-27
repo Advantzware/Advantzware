@@ -1614,16 +1614,8 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ASSIGN
     lv-format-c = sys-ctrl.char-fld
     lv-int-c    = sys-ctrl.int-fld
-    lv-default-c = sys-ctrl.char-fld .   
-
-    &IF DEFINED(TSJobCard) NE 0 &THEN
-    ASSIGN
-        begin_job1 = ip-job-no
-        begin_job2 = ip-job-no2
-        end_job1   = ip-job-no
-        end_job2   = ip-job-no2
-        .
-    &ENDIF
+    lv-default-c = sys-ctrl.char-fld .  
+ 
     
     IF TRIM(begin_job1:SCREEN-VALUE) NE ""                          AND
        TRIM(begin_job1:SCREEN-VALUE) EQ TRIM(end_job1:SCREEN-VALUE) AND
@@ -1716,14 +1708,19 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
       ASSIGN
          tb_make_hold:HIDDEN = YES
          tb_make_hold:SENSITIVE = NO.
-
-
-  {methods/nowait.i}
-
+  
+{methods/nowait.i}
   DO WITH FRAME {&frame-name}:
-
+      
     {custom/usrprint.i}
-
+   &IF DEFINED(TSJobCard) NE 0 &THEN
+    ASSIGN
+        begin_job1:SCREEN-VALUE = ip-job-no
+        begin_job2:SCREEN-VALUE = string(ip-job-no2)
+        end_job1:SCREEN-VALUE   = ip-job-no
+        end_job2:SCREEN-VALUE   = string(ip-job-no2)
+        .
+   &ENDIF
     IF lv-format-c = "ColonialPL" OR lv-format-f = "Colonial" OR lv-format-f = "xml" THEN
       ASSIGN
         tb_draft:HIDDEN = NO

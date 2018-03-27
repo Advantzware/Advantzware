@@ -137,7 +137,7 @@ DO:
                         b-w-fg-rctd.partial  = bf2-fg-rctd.partial * -1
                         b-w-fg-rctd.t-qty    = bf2-fg-rctd.t-qty * -1
                         b-w-fg-rctd.ext-cost = bf2-fg-rctd.ext-cost * -1
-                        b-w-fg-rctd.SetHeaderRno = bf2-fg-rctd.r-no
+                        b-w-fg-rctd.SetHeaderRno = fg-rctd.r-no
                         .
 
                         

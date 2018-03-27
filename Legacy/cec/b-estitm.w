@@ -4477,7 +4477,8 @@ ASSIGN
  itemfg.isaset     = (xest.est-type EQ 2 OR xest.est-type EQ 6) AND
                      xeb.form-no EQ 0
  itemfg.pur-man    = xeb.pur-man 
- itemfg.alloc      = xeb.set-is-assembled.
+ itemfg.alloc      = xeb.set-is-assembled
+ itemfg.setupDate  = TODAY.
  RUN fg/chkfgloc.p (INPUT itemfg.i-no, INPUT "").
 
  {oe/fgfreighta.i xeb}
