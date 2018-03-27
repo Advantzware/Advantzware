@@ -13,6 +13,7 @@
 "HS" "Customer Item By Month" "custitem." "HR17"
 "JC" "Cost Out Report" "costOut." "JR15"
 "NS" "Audit History" "AuditHist." "NS5"
+"NS" "EDI 810 Exception" "edi810Xcp." "NR10"
 "OE" "BOL Packing List" "bolpcklst." "OS9"
 "OE" "Invoice Post / Update GL" "r-inve&p." "OB4"
 "OE" "Open Order Report" "r-ordopn." "OR16"

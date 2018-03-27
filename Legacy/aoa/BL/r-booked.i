@@ -413,9 +413,10 @@ PROCEDURE pOrdersBooked2:
                        dSqft = dSqft + (dOrdQty
                              * (IF fg-set.part-qty GE 0 THEN fg-set.part-qty
                                 ELSE (-1 / fg-set.part-qty))
-                             * bItemFG.t-sqft / 1000).
+                             * bItemFG.t-sqft / 1000)
+                             .
                    END. /* each fg-set */
-                END.
+                END. /* if avail itemfg */
                 ELSE dSqft = IF AVAILABLE itemfg THEN (itemfg.t-sqft * dOrdQty / 1000) ELSE 0.
                 CREATE w-data.
                 ASSIGN
