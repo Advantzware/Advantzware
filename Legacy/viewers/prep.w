@@ -570,7 +570,7 @@ DO:
 
       WHEN "i-no" THEN DO:
          RUN windows/l-itmall.w (gcompany, "","", prep.i-no:SCREEN-VALUE, OUTPUT char-val, OUTPUT look-recid).
-         IF char-val NE "" AND ENTRY(1,char-val) NE lw-focus:SCREEN-VALUE THEN
+         IF char-val NE "" AND ENTRY(1,char-val) NE prep.i-no:SCREEN-VALUE THEN
             lw-focus:SCREEN-VALUE = ENTRY(1,char-val).
       END.
 
@@ -600,13 +600,13 @@ DO:
       END.
 
       when "last-est-no" then do:         
-        run windows/l-est.w (gcompany,gloc,lw-focus:screen-value, output char-val).
+        run windows/l-est.w (gcompany,gloc,prep.last-est-no:screen-value, output char-val).
         if char-val ne "" then do:
           find eb where recid(eb) eq int(entry(1,char-val)) no-lock no-error.
 
           if avail eb then do:
             assign
-             lw-focus:screen-value          = eb.est-no
+             prep.last-est-no:screen-value          = eb.est-no
              prep.cust-no:screen-value   = eb.cust-no
              prep.carton-l:screen-value  = string(eb.len)
              prep.carton-w:screen-value  = string(eb.wid)
@@ -653,39 +653,39 @@ DO:
       end.
 
       when "box-style" then do:         
-        run windows/l-style.w (gcompany,lw-focus:screen-value, output char-val).
+        run windows/l-style.w (gcompany,prep.box-style:screen-value, output char-val).
         if char-val ne "" then do: 
-          lw-focus:screen-value = entry(1,char-val).
+          prep.box-style:screen-value = entry(1,char-val).
         end.  
       end.
 
       when "cust-no" then do:
-        run windows/l-cust.w (gcompany,lw-focus:screen-value, output char-val).
+        run windows/l-cust.w (gcompany,prep.cust-no:screen-value, output char-val).
         if char-val ne "" then do:
           assign
-           lw-focus:screen-value          = entry(1,char-val)
+           prep.cust-no:screen-value          = entry(1,char-val)
            prep.cust-name:screen-value = entry(2,char-val).
         end.
       end.  /* cust-no*/
 
       when "loc" then do:
-          run rm/l-loc.w (gcompany, lw-focus:screen-value, output char-val).
+          run rm/l-loc.w (gcompany, prep.loc:screen-value, output char-val).
           if char-val <> "" then 
-              assign lw-focus:screen-value  = entry(1,char-val).  
+              assign prep.loc:screen-value  = entry(1,char-val).  
       end.
 
       when "loc-bin" then do:
           run rm/l-locbin.w (gcompany,prep.loc:screen-value, output char-val).
-          if char-val <> "" then assign lw-focus:screen-value  = entry(1,char-val).                  
+          if char-val <> "" then assign prep.loc:screen-value  = entry(1,char-val).                  
 
       END.
       when "fgcat" then do:
-             run windows/l-fgcat.w (gcompany,lw-focus:screen-value, output char-val).
-             if char-val <> "" then lw-focus:screen-value = entry(1,char-val).
+             run windows/l-fgcat.w (gcompany,prep.fgcat:screen-value, output char-val).
+             if char-val <> "" then prep.fgcat:screen-value = entry(1,char-val).
       end.
       when "procat" then do:
-             run windows/l-rmcat.w (gcompany,lw-focus:screen-value, output char-val).
-             if char-val <> "" then lw-focus:screen-value = entry(1,char-val).
+             run windows/l-rmcat.w (gcompany,prep.procat:screen-value, output char-val).
+             if char-val <> "" then prep.procat:screen-value = entry(1,char-val).
       end.
       otherwise do:
         run applhelp.p.
