@@ -10,7 +10,7 @@ DEFINE VARIABLE iRowCount AS INTEGER NO-UNDO.
        iRowCount = iRowCount + 1.
    END.
    IF iRowCount = 1 THEN DO:
-       MESSAGE 'Cannot delete job sequence. Need atleast one job sequence' VIEW-AS ALERT-BOX INFORMATION.
+       MESSAGE 'Cannot delete this job sequence. At least one job sequence is required.' VIEW-AS ALERT-BOX INFORMATION.
        RETURN ERROR.
    END.
    
