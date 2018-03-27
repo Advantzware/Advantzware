@@ -49,6 +49,8 @@ DEF VAR vend-char-f AS CHAR NO-UNDO.
 DEF VAR vend-log-f AS LOG NO-UNDO.
 DEFINE VARIABLE l-valid AS LOGICAL NO-UNDO.
 DEF VAR ll-secure AS LOG NO-UNDO.
+DEF VAR hPgmSecurity AS HANDLE NO-UNDO.
+DEF VAR lResult AS LOG NO-UNDO.
 {sys/ref/sys-ctrl.i}
 
 
@@ -1196,10 +1198,11 @@ PROCEDURE enable-vend-fields :
 ------------------------------------------------------------------------------*/
 
   DO WITH FRAME {&FRAME-NAME}:
-      FIND FIRST users NO-LOCK
-     WHERE users.user_id EQ USERID(LDBNAME(1)) NO-ERROR.
+     RUN "system/PgmMstrSecur.p" PERSISTENT SET hPgmSecurity.
+             RUN epCanAccess IN hPgmSecurity ("viewers/vend.w", "", OUTPUT lResult).
+    DELETE OBJECT hPgmSecurity.
 
-IF AVAIL users AND users.securityLevel GE 1000 THEN
+IF lResult THEN
      ENABLE vend.po-export.
 /*    ENABLE tb_cc tb_billpay.*/
   END.
@@ -1739,10 +1742,11 @@ PROCEDURE valid-po-sec :
 
   {methods/lValidateError.i YES}
   l-valid = YES.
-  FIND FIRST users NO-LOCK
-     WHERE users.user_id EQ USERID(LDBNAME(1)) NO-ERROR.
+  RUN "system/PgmMstrSecur.p" PERSISTENT SET hPgmSecurity.
+             RUN epCanAccess IN hPgmSecurity ("viewers/vend.w", "", OUTPUT lResult).
+    DELETE OBJECT hPgmSecurity.
 
-IF AVAIL users AND users.securityLevel GE 1000 THEN
+IF lResult THEN
     ASSIGN ll-secure = YES.
 
   DO WITH FRAME {&frame-name}:  

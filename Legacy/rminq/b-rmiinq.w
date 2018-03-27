@@ -544,9 +544,14 @@ ASSIGN
 ON MOUSE-SELECT-DBLCLICK OF Browser-Table IN FRAME F-Main
 DO:
     DEFINE VARIABLE ll       AS LOGICAL NO-UNDO.
-    DEFINE VARIABLE lv-rowid AS ROWID   NO-UNDO. 
+    DEFINE VARIABLE lv-rowid AS ROWID   NO-UNDO.
+    DEF VAR hPgmSecurity AS HANDLE NO-UNDO.
+            DEF VAR lResult AS LOG NO-UNDO.
+            RUN "system/PgmMstrSecur.p" PERSISTENT SET hPgmSecurity.
+            RUN epCanAccess IN hPgmSecurity ("rminq/b-rmiinq.w", "", OUTPUT lResult).
+    DELETE OBJECT hPgmSecurity.
 
-  IF USERID("nosweat") EQ "asi" OR AVAIL users AND users.securityLevel GT 899 THEN DO:
+  IF lResult THEN DO:
 
     RUN rminq/d-rmiinq.w (ROWID(rm-rcpth),ROWID(rm-rdtlh), "update", OUTPUT lv-rowid) .
 
@@ -1399,11 +1404,13 @@ PROCEDURE local-display-fields :
                               TRIM(STRING(ll-sort-asc,"As/Des")) + "cending".
   END.
 
-  FIND FIRST users NO-LOCK WHERE 
-      users.user_id EQ USERID(LDBNAME(1)) 
-      NO-ERROR.
+  DEF VAR hPgmSecurity AS HANDLE NO-UNDO.
+              DEF VAR lResult AS LOG NO-UNDO.
+              RUN "system/PgmMstrSecur.p" PERSISTENT SET hPgmSecurity.
+              RUN epCanAccess IN hPgmSecurity ("rminq/b-rmiinq.w", "", OUTPUT lResult).
+    DELETE OBJECT hPgmSecurity.
 
-  IF AVAIL users AND users.securityLevel LT 900 THEN
+  IF not lResult THEN
      ASSIGN btCopy:HIDDEN = YES
             btCopy:SENSITIVE = NO
             btDelete:HIDDEN = YES
