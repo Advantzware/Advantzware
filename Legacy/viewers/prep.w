@@ -90,7 +90,7 @@ END.
 DEFINE QUERY external_tables FOR prep.
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-FIELDS prep.dscr prep.ml prep.cost prep.mkup ~
-prep.spare-dec-1 prep.amtz prep.mat-type prep.dfault prep.cost-type ~
+prep.spare-dec-1 prep.amtz prep.mat-type prep.dfault prep.vend-no prep.cost-type ~
 prep.actnum prep.prep-date prep.loc prep.loc-bin prep.simon prep.fgcat ~
 prep.cust-no prep.cust-name prep.owner[1] prep.owner-%[1] prep.number-up ~
 prep.no-of-impressions prep.owner[2] prep.owner-%[2] prep.disposal-date ~
@@ -103,7 +103,7 @@ prep.last-est-no prep.last-order prep.i-no prep.procat
 fi_blank-loc fi_blank-loc-bin fi_job-no fi_job-no2 fi_cad# fi_fil# RECT-2 ~
 RECT-3 RECT-4 
 &Scoped-Define DISPLAYED-FIELDS prep.code prep.dscr prep.ml prep.cost ~
-prep.mkup prep.spare-dec-1 prep.amtz prep.mat-type prep.dfault ~
+prep.mkup prep.spare-dec-1 prep.amtz prep.mat-type prep.dfault prep.vend-no ~
 prep.cost-type prep.uom prep.actnum prep.prep-date prep.loc prep.loc-bin ~
 prep.simon prep.fgcat prep.cust-no prep.cust-name prep.owner[1] ~
 prep.owner-%[1] prep.number-up prep.no-of-impressions prep.owner[2] ~
@@ -278,6 +278,11 @@ DEFINE FRAME F-Main
      prep.dfault AT ROW 3.52 COL 19
           VIEW-AS TOGGLE-BOX
           SIZE 27.4 BY .76
+     prep.vend-no AT ROW 3.52 COL 60 COLON-ALIGNED
+          LABEL "Vendor"
+          VIEW-AS FILL-IN 
+          SIZE 20 BY 1
+          BGCOLOR 15 FONT 4
      prep.cost-type AT ROW 5.29 COL 17 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 7 BY 1
@@ -687,6 +692,12 @@ DO:
              run windows/l-rmcat.w (gcompany,prep.procat:screen-value, output char-val).
              if char-val <> "" then prep.procat:screen-value = entry(1,char-val).
       end.
+      WHEN "vend-no" THEN DO:
+          run windows/l-vendno.w (gcompany, "", prep.vend-no:SCREEN-VALUE, OUTPUT char-val).
+          IF char-val NE "" AND ENTRY(1,char-val) NE lw-focus:SCREEN-VALUE THEN DO:
+              prep.vend-no:SCREEN-VALUE = ENTRY(1,char-val).
+          END.
+      END.
       otherwise do:
         run applhelp.p.
         if g_lookup-var ne "" then lw-focus:screen-value = g_lookup-var.
@@ -1063,6 +1074,19 @@ ON LEAVE OF prep.procat IN FRAME F-Main /* RM Category */
 DO:
     IF LASTKEY NE -1 THEN DO:
     RUN valid-rmcat NO-ERROR.
+    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+  END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME prep.vend-no
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL prep.vend-no V-table-Win
+ON LEAVE OF prep.vend-no IN FRAME F-Main /* RM Category */
+DO:
+    IF LASTKEY NE -1 THEN DO:
+    RUN valid-vend NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
   END.
 END.
@@ -1705,6 +1729,10 @@ PROCEDURE local-update-record :
 
   RUN valid-rmcat NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+
+  RUN valid-vend NO-ERROR.
+  IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+
   {&methods/lValidateError.i YES}
   if PREP.CUST-no:screen-value <> "" THEN
   DO:
@@ -2357,6 +2385,31 @@ PROCEDURE valid-rmcat :
 
   END.
   {methods/lValidateError.i NO}
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-vend B-table-Win 
+PROCEDURE valid-vend :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+
+  DO WITH FRAME {&FRAME-NAME}:
+
+     IF prep.vend-no:SCREEN-VALUE NE ""  AND 
+        NOT CAN-FIND(FIRST vend WHERE vend.company EQ cocode
+                                 AND vend.vend-no EQ prep.vend-no:SCREEN-VALUE)
+    THEN DO:
+      MESSAGE "Invalid Vendor, try help..." VIEW-AS ALERT-BOX ERROR.
+      APPLY "entry" TO prep.vend-no.
+      RETURN ERROR.
+    END.
+  END.
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
