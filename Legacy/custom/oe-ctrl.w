@@ -434,9 +434,10 @@ DO:
     END.
     */
     IF LENGTH(fNextRFIDNum:SCREEN-VALUE) <> 24 THEN DO:
-       MESSAGE "RFID Next Number uses 24 digit number."
+      /* MESSAGE "RFID Next Number uses 24 digit number."
            VIEW-AS ALERT-BOX ERROR BUTTONS OK.
-       RETURN NO-APPLY.
+       RETURN NO-APPLY.*/
+        fNextRFIDNum:SCREEN-VALUE = "00000000000001".
     END.
     FIND CURRENT ar-ctrl EXCLUSIVE-LOCK.
     FIND CURRENT oe-ctrl EXCLUSIVE-LOCK.
