@@ -457,6 +457,24 @@ DO:
               assign quotehd.del-zone:SCREEN-VALUE = entry(1,char-val).
            return no-apply.  
        end.
+       when "terms" then do:
+           run windows/l-terms.w 
+               (gcompany,quotehd.terms:screen-value in frame {&frame-name}, output char-val).
+           if char-val <> "" then 
+              assign quotehd.terms:screen-value in frame {&frame-name} = entry(1,char-val)
+                     term_desc:SCREEN-VALUE = ENTRY(2,char-val).
+           return no-apply.  
+       end.
+       WHEN "est-no" THEN DO:
+              RUN windows/l-est.w (gcompany,gloc,quotehd.est-no:screen-value in frame {&frame-name}, OUTPUT char-val).
+              IF char-val <> "" THEN DO:
+                 FIND FIRST eb WHERE STRING(RECID(eb)) = char-val NO-LOCK NO-ERROR.
+                 IF AVAIL eb THEN DO:
+                   quotehd.est-no:screen-value = eb.est-no.
+                 END.
+              END. 
+              return no-apply.  
+        END.
        otherwise do:
            lv-handle = focus:handle.
            run applhelp.p.
@@ -883,14 +901,14 @@ PROCEDURE enable-detail :
   Notes:       
 ------------------------------------------------------------------------------*/
 
- IF quotehd.est-no <> "" AND NOT adm-new-record THEN  /* update with est#*/
+ IF AVAIL quotehd AND quotehd.est-no <> "" AND NOT adm-new-record THEN  /* update with est#*/
       DISABLE /*quotehd.cust-no quotehd.billto[1] quotehd.billto[2]
               quotehd.billto[3] quotehd.billto[4]
               quotehd.ship-id quotehd.shipto[1 FOR 4]*/
               {&list-5}
        WITH FRAME {&FRAME-NAME}.
 
- ELSE IF quotehd.est-no <> "" AND adm-new-record AND NOT adm-adding-record THEN  /* copy with est#*/
+ ELSE IF AVAIL quotehd AND quotehd.est-no <> "" AND adm-new-record AND NOT adm-adding-record THEN  /* copy with est#*/
       DISABLE /*quotehd.cust-no quotehd.billto[1] quotehd.billto[2]
               quotehd.billto[3] quotehd.billto[4]
               quotehd.ship-id quotehd.shipto[1 FOR 4]*/
