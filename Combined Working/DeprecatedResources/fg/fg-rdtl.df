@@ -1,0 +1,178 @@
+ADD TABLE "fg-rdtl"
+  DESCRIPTION "Finished Goods - Detail Records"
+  DUMP-NAME "fg-rdtl"
+
+ADD FIELD "company" OF "fg-rdtl" AS character 
+  FORMAT "x(3)"
+  INITIAL ""
+  LABEL "Company"
+  HELP "Enter company."
+  ORDER 10
+  MANDATORY
+
+ADD FIELD "partial" OF "fg-rdtl" AS integer 
+  FORMAT ">>>,>>9"
+  INITIAL "0"
+  HELP "Enter quantity received."
+  ORDER 160
+  MANDATORY
+
+ADD FIELD "std-cost" OF "fg-rdtl" AS decimal 
+  FORMAT ">>>,>>9.99<<"
+  INITIAL "0"
+  LABEL "Costs"
+  HELP "Enter item unit cost"
+  DECIMALS 4
+  ORDER 110
+
+ADD FIELD "ext-cost" OF "fg-rdtl" AS decimal 
+  FORMAT "->>>,>>9.99<<"
+  INITIAL "0"
+  HELP "Total Value Of Item Transaction."
+  DECIMALS 4
+  ORDER 80
+
+ADD FIELD "loc2" OF "fg-rdtl" AS character 
+  FORMAT "x(5)"
+  INITIAL ""
+  LABEL "To Whse"
+  HELP "Enter The Destination Warehouse."
+  ORDER 240
+
+ADD FIELD "loc-bin2" OF "fg-rdtl" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  LABEL "To Bin"
+  HELP "Enter Bin at Destination Location."
+  ORDER 250
+
+ADD FIELD "loc" OF "fg-rdtl" AS character 
+  FORMAT "x(5)"
+  INITIAL ""
+  LABEL "Warehouse"
+  HELP "Enter the plant/warehouse location"
+  ORDER 20
+  MANDATORY
+
+ADD FIELD "loc-bin" OF "fg-rdtl" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  LABEL "Primary Bin Loc."
+  HELP "Enter Bin Location where Item is Stocked"
+  ORDER 40
+
+ADD FIELD "r-no" OF "fg-rdtl" AS integer 
+  FORMAT ">>>>>>>9"
+  INITIAL "0"
+  LABEL "Unique Internal Number"
+  ORDER 150
+
+ADD FIELD "uom" OF "fg-rdtl" AS character 
+  FORMAT "x(4)"
+  INITIAL ""
+  LABEL "Purchased UOM"
+  HELP "Enter Unit of Measure for Purchasing this Raw Material"
+  ORDER 70
+
+ADD FIELD "cases" OF "fg-rdtl" AS integer 
+  FORMAT ">>>,>>9"
+  INITIAL "0"
+  HELP "Enter number of cases received."
+  ORDER 190
+  MANDATORY
+
+ADD FIELD "tag2" OF "fg-rdtl" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  LABEL "To Tag"
+  HELP "Enter Tag Number at Destination Location."
+  ORDER 260
+
+ADD FIELD "rita-code" OF "fg-rdtl" AS character 
+  FORMAT "x(1)"
+  INITIAL ""
+  LABEL "CODE"
+  ORDER 100
+  MANDATORY
+  CASE-SENSITIVE
+
+ADD FIELD "tag" OF "fg-rdtl" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  HELP "Enter tag identification."
+  ORDER 50
+
+ADD FIELD "qty-case" OF "fg-rdtl" AS integer 
+  FORMAT ">>>,>>9"
+  INITIAL "0"
+  HELP "Enter quantity received."
+  ORDER 210
+  MANDATORY
+
+ADD FIELD "t-qty" OF "fg-rdtl" AS decimal 
+  FORMAT "->>>,>>>,>>9.99"
+  INITIAL "0"
+  LABEL ""
+  DECIMALS 2
+  ORDER 220
+
+ADD FIELD "frm" OF "fg-rdtl" AS integer 
+  FORMAT ">>9"
+  INITIAL "1"
+  LABEL "Form"
+  HELP "Form Numer."
+  ORDER 270
+
+ADD FIELD "blank-no" OF "fg-rdtl" AS integer 
+  FORMAT ">9"
+  INITIAL "0"
+  LABEL "BLANK"
+  ORDER 280
+
+ADD FIELD "cases-stack" OF "fg-rdtl" AS integer 
+  FORMAT ">,>>9"
+  INITIAL "0"
+  LABEL "Case/Bundles per Stack"
+  ORDER 290
+
+ADD FIELD "stacks-unit" OF "fg-rdtl" AS integer 
+  FORMAT ">,>>9"
+  INITIAL "0"
+  LABEL "Stacks per Unit"
+  ORDER 300
+
+ADD FIELD "units-pallet" OF "fg-rdtl" AS integer 
+  FORMAT ">,>>9"
+  INITIAL "0"
+  LABEL "Units per Pallet"
+  ORDER 310
+
+ADD FIELD "stack-code" OF "fg-rdtl" AS character 
+  FORMAT "x"
+  INITIAL ""
+  LABEL "Stacking Code"
+  ORDER 320
+
+ADD FIELD "receiver-no" OF "fg-rdtl" AS character 
+  FORMAT "x(20)"
+  INITIAL ""
+  LABEL "Receiver No"
+  HELP "Enter the carrier BOL/Packing List number for AP invoicing"
+  ORDER 330
+
+ADD INDEX "r-no" ON "fg-rdtl" 
+  PRIMARY
+  INDEX-FIELD "r-no" ASCENDING 
+  INDEX-FIELD "loc" ASCENDING 
+  INDEX-FIELD "loc-bin" ASCENDING 
+  INDEX-FIELD "tag" ASCENDING 
+
+ADD INDEX "tag" ON "fg-rdtl" 
+  INDEX-FIELD "company" ASCENDING 
+  INDEX-FIELD "tag" ASCENDING 
+
+.
+PSC
+codepage=iso8859-1
+.
+0000003732

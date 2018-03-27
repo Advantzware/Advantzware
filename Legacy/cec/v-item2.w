@@ -1176,10 +1176,13 @@ PROCEDURE override :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    FIND FIRST users NO-LOCK
-     WHERE users.user_id EQ USERID(LDBNAME(1)) NO-ERROR.
+    DEF VAR hPgmSecurity AS HANDLE NO-UNDO.
+        DEF VAR lResult AS LOG NO-UNDO.
+        RUN "system/PgmMstrSecur.p" PERSISTENT SET hPgmSecurity.
+        RUN epCanAccess IN hPgmSecurity ("cec/v-item2.w", "", OUTPUT lResult).
+    DELETE OBJECT hPgmSecurity.
 
-IF AVAIL users AND users.securityLevel GT 900 THEN
+IF lResult THEN
       ll-secure = YES .
 
   IF NOT ll-secure THEN RUN sys/ref/d-passwd.w (3, OUTPUT ll-secure).

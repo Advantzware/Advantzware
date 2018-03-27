@@ -460,6 +460,32 @@ DO:
   RUN valid-tag-no NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
+  RUN valid-po-no NO-ERROR.
+  IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+
+  RUN valid-job-no NO-ERROR.
+  IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+
+  RUN valid-job-no2 NO-ERROR.
+  IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+
+  RUN valid-loc NO-ERROR.
+  IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+
+  RUN valid-loc-bin NO-ERROR.
+  IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+
+  RUN valid-user NO-ERROR.
+  IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+
+  RUN valid-cost NO-ERROR.
+  IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+
+  RUN valid-code NO-ERROR.
+  IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+
+
+
   RUN update-record.
 
 APPLY "go" TO FRAME {&FRAME-NAME}.
@@ -492,6 +518,119 @@ DO:
   IF LASTKEY NE -1 THEN DO:
       
     RUN valid-tag-no NO-ERROR.
+    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+  END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME rm-rdtlh.cost
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rm-rdtlh.cost Dialog-Frame
+ON LEAVE OF rm-rdtlh.cost IN FRAME Dialog-Frame /* Item# */
+DO:
+  IF LASTKEY NE -1 THEN DO:
+      RUN valid-cost NO-ERROR.
+      IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+  END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME rm-rcpth.po-no
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rm-rcpth.po-no Dialog-Frame
+ON LEAVE OF rm-rcpth.po-no IN FRAME Dialog-Frame /* Item# */
+DO:
+  IF LASTKEY NE -1 THEN DO:
+      
+    RUN valid-po-no NO-ERROR.
+    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+  END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME rm-rcpth.job-no
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rm-rcpth.job-no Dialog-Frame
+ON LEAVE OF rm-rcpth.job-no IN FRAME Dialog-Frame /* Item# */
+DO:
+  IF LASTKEY NE -1 THEN DO:
+      
+    RUN valid-job-no NO-ERROR.
+    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+  END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME rm-rcpth.rita-code
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rm-rcpth.rita-code Dialog-Frame
+ON LEAVE OF rm-rcpth.rita-code IN FRAME Dialog-Frame /* Item# */
+DO:
+  IF LASTKEY NE -1 THEN DO:
+      
+    RUN valid-code NO-ERROR.
+    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+  END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME rm-rdtlh.USER-ID
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rm-rdtlh.USER-ID Dialog-Frame
+ON LEAVE OF rm-rdtlh.USER-ID IN FRAME Dialog-Frame /* Item# */
+DO:
+  IF LASTKEY NE -1 THEN DO:
+      
+    RUN valid-user NO-ERROR.
+    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+  END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME rm-rdtlh.loc
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rm-rdtlh.loc Dialog-Frame
+ON LEAVE OF rm-rdtlh.loc IN FRAME Dialog-Frame /* Item# */
+DO:
+  IF LASTKEY NE -1 THEN DO:
+      
+    RUN valid-loc NO-ERROR.
+    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+  END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME rm-rdtlh.loc-bin
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rm-rdtlh.loc-bin Dialog-Frame
+ON LEAVE OF rm-rdtlh.loc-bin IN FRAME Dialog-Frame /* Item# */
+DO:
+  IF LASTKEY NE -1 THEN DO:
+      
+    RUN valid-loc-bin NO-ERROR.
+    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+  END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME rm-rcpth.job-no2
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rm-rcpth.job-no2 Dialog-Frame
+ON LEAVE OF rm-rcpth.job-no2 IN FRAME Dialog-Frame /* Item# */
+DO:
+  IF LASTKEY NE -1 THEN DO:
+      
+    RUN valid-job-no2 NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
   END.
 END.
@@ -709,6 +848,222 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-po-no Dialog-Frame 
+PROCEDURE valid-po-no :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  
+  {methods/lValidateError.i YES}
+  DO WITH FRAME {&FRAME-NAME}:
+    IF NOT CAN-FIND(FIRST po-ord
+                    WHERE po-ord.company EQ cocode
+                       AND string(po-ord.po-no)   EQ rm-rcpth.po-no:SCREEN-VALUE )
+    THEN DO:
+      MESSAGE "invalid Purchase Order..." VIEW-AS ALERT-BOX ERROR.
+      rm-rcpth.po-no:SCREEN-VALUE  = string(rm-rcpth.po-no).
+      APPLY "entry" TO rm-rcpth.po-no .
+      RETURN ERROR.
+    END.
+  END.
+
+  {methods/lValidateError.i NO}
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-job-no Dialog-Frame 
+PROCEDURE valid-job-no :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  
+  {methods/lValidateError.i YES}
+  DO WITH FRAME {&FRAME-NAME}:
+    IF NOT CAN-FIND(FIRST job-hdr
+                    WHERE job-hdr.company EQ cocode
+                       AND job-hdr.job-no EQ rm-rcpth.job-no:SCREEN-VALUE )
+    THEN DO:
+      MESSAGE "Invalid Job#..." VIEW-AS ALERT-BOX ERROR.
+      rm-rcpth.job-no:SCREEN-VALUE  = string(rm-rcpth.job-no).
+      APPLY "entry" TO rm-rcpth.job-no .
+      RETURN ERROR.
+    END.
+  END.
+
+  {methods/lValidateError.i NO}
+END PROCEDURE.
+
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-cost Dialog-Frame 
+PROCEDURE valid-cost :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  
+  {methods/lValidateError.i YES}
+  DO WITH FRAME {&FRAME-NAME}:
+    IF int(rm-rdtlh.cost:SCREEN-VALUE) LT 0 
+    THEN DO:
+      MESSAGE "Cost can not be nagetive." VIEW-AS ALERT-BOX ERROR.
+      rm-rdtlh.cost:SCREEN-VALUE  = string(rm-rdtlh.cost).
+      APPLY "entry" TO rm-rdtlh.cost .
+      RETURN ERROR.
+    END.
+  END.
+
+  {methods/lValidateError.i NO}
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-user Dialog-Frame 
+PROCEDURE valid-user :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  
+  {methods/lValidateError.i YES}
+  DO WITH FRAME {&FRAME-NAME}:
+    IF NOT CAN-FIND(FIRST users
+                    WHERE users.USER_id EQ rm-rdtlh.USER-ID:SCREEN-VALUE )
+    THEN DO:
+      MESSAGE "Invalid User..." VIEW-AS ALERT-BOX ERROR.
+      rm-rdtlh.USER-ID:SCREEN-VALUE  = string(rm-rdtlh.USER-ID).
+      APPLY "entry" TO rm-rdtlh.USER-ID .
+      RETURN ERROR.
+    END.
+  END.
+
+  {methods/lValidateError.i NO}
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-code Dialog-Frame 
+PROCEDURE valid-code :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  
+  {methods/lValidateError.i YES}
+  DO WITH FRAME {&FRAME-NAME}:
+      
+    IF LOOKUP(rm-rcpth.rita-code:SCREEN-VALUE,"R,I,T,A,C") EQ 0
+    THEN DO:
+      MESSAGE "Invalid Code..." VIEW-AS ALERT-BOX ERROR.
+      rm-rcpth.rita-code:SCREEN-VALUE  = string(rm-rcpth.rita-code).
+      APPLY "entry" TO rm-rcpth.rita-code .
+      RETURN ERROR.
+    END.
+  END.
+
+  {methods/lValidateError.i NO}
+END PROCEDURE.
+
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-loc Dialog-Frame 
+PROCEDURE valid-loc :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  
+  {methods/lValidateError.i YES}
+  DO WITH FRAME {&FRAME-NAME}:
+    IF NOT CAN-FIND(FIRST loc
+                    WHERE loc.company EQ cocode
+                       AND loc.loc  EQ rm-rdtlh.loc:SCREEN-VALUE )
+    THEN DO:
+      MESSAGE "Invalid Warehouse..." VIEW-AS ALERT-BOX ERROR.
+      rm-rdtlh.loc:SCREEN-VALUE  = rm-rdtlh.loc.
+      APPLY "entry" TO rm-rdtlh.loc.
+      RETURN ERROR.
+    END.
+  END.
+
+  {methods/lValidateError.i NO}
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-loc-bin Dialog-Frame 
+PROCEDURE valid-loc-bin :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  
+  {methods/lValidateError.i YES}
+  DO WITH FRAME {&FRAME-NAME}:
+    IF NOT CAN-FIND(FIRST rm-bin
+                    WHERE rm-bin.company EQ cocode
+                       AND rm-bin.loc  EQ rm-rdtlh.loc:SCREEN-VALUE
+                       AND rm-bin.loc-bin EQ rm-rdtlh.loc-bin:SCREEN-VALUE )
+    THEN DO:
+      MESSAGE "Invalid Bin..." VIEW-AS ALERT-BOX ERROR.
+      rm-rdtlh.loc-bin:SCREEN-VALUE  = rm-rdtlh.loc-bin.
+      APPLY "entry" TO rm-rdtlh.loc-bin.
+      RETURN ERROR.
+    END.
+  END.
+
+  {methods/lValidateError.i NO}
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-job-no2 Dialog-Frame 
+PROCEDURE valid-job-no2 :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  
+  {methods/lValidateError.i YES}
+  DO WITH FRAME {&FRAME-NAME}:
+    IF NOT CAN-FIND(FIRST job-hdr
+                    WHERE job-hdr.company EQ cocode
+                       AND job-hdr.job-no EQ rm-rcpth.job-no:SCREEN-VALUE 
+                       AND job-hdr.job-no2 EQ int(rm-rcpth.job-no2:SCREEN-VALUE) )
+    THEN DO:
+      MESSAGE "Invalid Job#..." VIEW-AS ALERT-BOX ERROR.
+      rm-rcpth.job-no2:SCREEN-VALUE  = string(rm-rcpth.job-no2).
+      APPLY "entry" TO rm-rcpth.job-no2 .
+      RETURN ERROR.
+    END.
+  END.
+
+  {methods/lValidateError.i NO}
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUM
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-i-no Dialog-Frame 
 PROCEDURE valid-i-no :

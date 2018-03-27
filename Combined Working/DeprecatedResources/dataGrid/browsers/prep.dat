@@ -1,0 +1,34 @@
+FOR EACH prep NO-LOCK WHERE prep.company EQ "%company%"
+code,dscr,mat-type,mkup
+
+Indexed: code,dscr,mat-type
+Non-Idx: amtz,cost,dfault,mkup,ml,simon,uom
+
+Generated 04.20.2017 @  2:17:49 am by: nosweat
+Table: prep - Records: 6,468
+
+    Index: mat-type
+         Field: company
+         Field: loc
+         Field: mat-type
+         Field: code
+
+    Index: prep
+         Field: company
+         Field: loc
+         Field: dscr
+
+    Index: prep-code
+         Field: company
+         Field: loc
+         Field: code
+
+    Index: real-index
+         Field: company
+         Field: code
+
+    Index: rec_key
+         Field: rec_key
+
+    Index: wi-dscr
+         Field: dscr

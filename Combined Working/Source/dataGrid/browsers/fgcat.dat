@@ -1,0 +1,27 @@
+FOR EACH fgcat NO-LOCK WHERE fgcat.company EQ "%company%"
+dscr,procat
+
+Indexed: dscr,procat
+Non-Idx: cat-format,cDscr,cType,glacc
+
+Generated 04.18.2017 @  1:42:21 am by: nosweat
+Table: fgcat - Records: 66
+
+    Index: dscr
+         Field: company
+         Field: dscr
+
+    Index: fgcat
+         Field: company
+         Field: procat
+
+    Index: industry
+         Field: company
+         Field: industry
+         Field: procat
+
+    Index: rec_key
+         Field: rec_key
+
+    Index: wi-dscr
+         Field: dscr

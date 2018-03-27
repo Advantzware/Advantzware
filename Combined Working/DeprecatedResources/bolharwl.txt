@@ -1,0 +1,63 @@
+
+
+
+                                                                     8201
+
+                                                                     11/21/2014
+
+                                                                     1 OF 0
+
+
+
+         Hewlett Packard                              Hewlett Packard
+         One HP Way                                   One HP Way
+
+         Santa Anna, CA  45888-1234                   Santa Anna, CA  45888-1234
+
+
+
+
+
+ 555                       Our Truck                                     Destination
+
+
+
+  5  5000 207915                                           5  1,000  5000 C    149
+          Hew11864B Item Name
+          HEW11864B
+          FHEW1000006A99
+
+ 10  5000 207915                                          10    500  5000 C    149
+          Hew11864C Item Name
+          HEW11864C
+          FHEW1000007A99
+
+          Testing note 1                                              
+          Testing note 2                                              
+          Testing note 3                                              
+          Testing note 4                                              
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

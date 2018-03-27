@@ -1,0 +1,5 @@
+&Scoped-define TABLENAME waste-type
+
+TRIGGER PROCEDURE FOR CREATE OF {&TABLENAME}.
+
+{methods/triggers/create.i}

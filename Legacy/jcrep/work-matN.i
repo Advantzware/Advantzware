@@ -79,7 +79,7 @@
                          WHEN "item-act-um"  THEN cVarValue = STRING(work-mat.act-qty-uom,"x(3)") .
                          WHEN "item-act-cost"  THEN cVarValue = STRING(work-mat.act-cost,">>,>>>,>>9") .
                          WHEN "item-cost-var"  THEN cVarValue = string(v-cst-var,">>,>>>,>>9-") .
-                         WHEN "item-cost-var-per"   THEN cVarValue = string(v-prod-p,">>>>9.9-").
+                         WHEN "item-cost-var-per"   THEN cVarValue = string(v-prod-p,">>>>>>9.9-").
                          
                          
                     END CASE.
@@ -158,7 +158,7 @@ IF work-mat.mat-type = "B" THEN
                          WHEN "item-act-um"  THEN cVarValue = STRING("EA","x(3)") .
                          WHEN "item-act-cost"  THEN cVarValue = STRING(job-farm.act-tot-cost,">>,>>>,>>9") .
                          WHEN "item-cost-var"  THEN cVarValue = string(round(job-farm.std-tot-cost - job-farm.act-tot-cost, 0),">>,>>>,>>9-") .
-                         WHEN "item-cost-var-per"   THEN cVarValue = string(ROUND(job-farm.std-tot-cost - job-farm.act-tot-cost, 0),">>>>9.9-").
+                         WHEN "item-cost-var-per"   THEN cVarValue = string(ROUND(job-farm.std-tot-cost - job-farm.act-tot-cost, 0),">>>>>>9.9-").
                          
                          
                     END CASE.
@@ -218,7 +218,7 @@ IF work-mat.mat-type = "B" THEN
                          WHEN "item-act-um"  THEN cVarValue = "" .
                          WHEN "item-act-cost"  THEN cVarValue = STRING(v-t-act-cost,">>,>>>,>>9") .
                          WHEN "item-cost-var"  THEN cVarValue = string(v-cst-var,">>,>>>,>>9-") .
-                         WHEN "item-cost-var-per"   THEN cVarValue = string(v-prod-p,">>>>9.9-").
+                         WHEN "item-cost-var-per"   THEN cVarValue = string(v-prod-p,">>>>>>9.9-").
                          
                          
                     END CASE.

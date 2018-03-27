@@ -1,0 +1,23 @@
+UPDATE FIELD "company" OF "mach-part"
+  VALEXP ?
+
+ADD FIELD "ack-prnt-date" OF "oe-ord" AS date
+  DESCRIPTION "Order acknowledgement printed date"
+  FORMAT "99/99/9999"
+  POSITION 127
+  INITIAL ?
+  ORDER 1240
+  MAX-WIDTH 4
+
+ADD SEQUENCE "jobi_seq"
+  INITIAL 1
+  INCREMENT 1
+  CYCLE-ON-LIMIT no
+  MIN-VAL ?
+  MAX-VAL 999999
+
+.
+PSC
+cpstream=ISO8859-1
+.
+0000000345

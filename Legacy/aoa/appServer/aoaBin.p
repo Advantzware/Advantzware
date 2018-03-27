@@ -145,7 +145,7 @@ PROCEDURE pGetColumns :
                       + "," + STRING(iWidth)
                       + "," + STRING(iLeft)
             iLeft     = iLeft + iWidth + 50
-            iRptWidth = iRptWidth + iWidth
+            iRptWidth = iRptWidth + iWidth + 50
             .
     END. /* each idx */
     iWidth = -1.
@@ -157,7 +157,6 @@ PROCEDURE pGetColumns :
                      + "," + STRING(iWidth)
             .
     END. /* each idx */
-    
     cRowType = "ColumnMetaData," + STRING(iRptWidth) + cRowType.
     iphTable:BUFFER-CREATE.
     ASSIGN

@@ -1,0 +1,7 @@
+option batch abort
+option confirm off
+open ftp://premierpleky:C8S1f9zyWy@corrchoiceb2b.greif.com
+cd mcc
+put Q:\rcode\CorrChoice\dataxfer\in\po_PremierXcorrchoice150817195621.dat
+close
+Exit

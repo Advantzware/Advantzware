@@ -79,11 +79,17 @@ DEFINE BUFFER b-rm-rctd FOR rm-rctd.
 DEF VAR lAllowRmAdd AS LOG NO-UNDO.
 DEF VAR lcReturn   AS CHAR NO-UNDO.
 DEF VAR llRecFound AS LOG  NO-UNDO.
+DEFINE VARIABLE lRMOverrunCost AS LOGICAL NO-UNDO .
 
 RUN sys/ref/nk1look.p (cocode, "RMAllowAdd", "L", NO, NO, "", "", 
     OUTPUT lcReturn, OUTPUT llRecFound).
 
    lAllowRmAdd = LOGICAL(lcReturn) NO-ERROR.
+
+RUN sys/ref/nk1look.p (cocode, "RMOverrunCostProtection", "L", NO, NO, "", "", 
+    OUTPUT lcReturn, OUTPUT llRecFound).
+
+   lRMOverrunCost = LOGICAL(lcReturn) NO-ERROR.
 
 DEFINE TEMP-TABLE tt-eiv NO-UNDO
     FIELD run-qty  AS DECIMAL DECIMALS 3 EXTENT 20
@@ -2167,6 +2173,10 @@ PROCEDURE get-matrix :
     /* gdm - 07210901 */
     DEFINE VARIABLE v-po-cost   LIKE po-ordl.cost NO-UNDO.
     DEFINE VARIABLE v-po-cuom   LIKE lv-cost-uom NO-UNDO. 
+    DEFINE VARIABLE dOverPer AS DECIMAL NO-UNDO .
+    DEFINE VARIABLE dConsumQty AS DECIMAL NO-UNDO .
+    DEFINE VARIABLE dPoQty AS DECIMAL NO-UNDO .
+    DEFINE VARIABLE dRecQty AS DECIMAL NO-UNDO .
   
     IF AVAILABLE rm-rctd THEN
         IF ip-first-disp AND
@@ -2201,7 +2211,10 @@ PROCEDURE get-matrix :
                 ASSIGN  
                     v-len = po-ordl.s-len
                     v-wid = po-ordl.s-wid
-                    v-bwt = 0.     
+                    v-bwt = 0
+                    dOverPer = po-ordl.over-pct
+                    dPoQty = po-ordl.ord-qty  . 
+                    dConsumQty =  dPoQty +  (dPoQty  * ( dOverPer / 100) ) .
                 {rm/pol-dims.i}
             END.
             ELSE 
@@ -2261,27 +2274,39 @@ PROCEDURE get-matrix :
                     INPUT rm-rctd.qty,
                     OUTPUT lv-out-qty).
 
-            /* convert cost pr-uom*/
-            /*sys/ref/convcuom.p*/
-            IF rm-rctd.cost-uom EQ "L" THEN
-                lv-out-cost = rm-rctd.cost / lv-out-qty.
-            ELSE
-                IF rm-rctd.cost-uom EQ lv-cost-uom THEN
-                    lv-out-cost = rm-rctd.cost.
+           /* convert cost pr-uom*/
+                /*sys/ref/convcuom.p*/
+                IF rm-rctd.cost-uom EQ "L" THEN
+                    lv-out-cost = rm-rctd.cost / lv-out-qty.
                 ELSE
-                    RUN custom/convcuom.p (cocode,
-                        rm-rctd.cost-uom, lv-cost-uom,                    
-                        v-bwt, v-len, v-wid, v-dep,
-                        rm-rctd.cost, OUTPUT lv-out-cost).
+                    IF rm-rctd.cost-uom EQ lv-cost-uom THEN
+                        lv-out-cost = rm-rctd.cost.
+                    ELSE
+                        RUN custom/convcuom.p (cocode,
+                            rm-rctd.cost-uom, lv-cost-uom,                    
+                            v-bwt, v-len, v-wid, v-dep,
+                            rm-rctd.cost, OUTPUT lv-out-cost).
+    
+                IF lv-out-qty  EQ ? THEN lv-out-qty  = 0.
+                IF lv-out-cost EQ ? THEN lv-out-cost = 0.
+               
+                 IF lRMOverrunCost AND NOT AVAIL po-ordl THEN
+                    dConsumQty = lv-out-qty . 
 
-            IF lv-out-qty  EQ ? THEN lv-out-qty  = 0.
-            IF lv-out-cost EQ ? THEN lv-out-cost = 0.
-
-            IF ll-add-setup AND lv-out-qty NE 0 THEN
-                lv-out-cost = lv-out-cost + (lv-setup / lv-out-qty).
-
-            ext-cost = ROUND(lv-out-qty * lv-out-cost,2).
-  
+                 IF ll-add-setup AND lv-out-qty NE 0 THEN
+                           lv-out-cost = lv-out-cost + (lv-setup / lv-out-qty).
+           
+                IF lRMOverrunCost THEN do:
+                   IF lv-out-qty GT dConsumQty   THEN DO:
+                       ext-cost = ROUND(dConsumQty * lv-out-cost,2).
+                   END.
+                   ELSE DO:
+                    ext-cost = ROUND(lv-out-qty * lv-out-cost,2).
+                   END.
+                END.
+                ELSE do:
+                     ext-cost = ROUND(lv-out-qty * lv-out-cost,2).
+                END.   
         END.
 
         ELSE
@@ -2321,7 +2346,10 @@ PROCEDURE get-matrix :
 
                         /* gdm - 07210901 */
                         v-po-cost = po-ordl.cost
-                        v-po-cuom = po-ordl.pr-uom.
+                        v-po-cuom = po-ordl.pr-uom
+                        dOverPer = po-ordl.over-pct
+                        dPoQty = po-ordl.ord-qty .
+                        dConsumQty =  dPoQty +  (dPoQty  * ( dOverPer / 100) ) .
 
                     {rm/pol-dims.i}
                 END.
@@ -2383,7 +2411,7 @@ PROCEDURE get-matrix :
                                          input v-dep,
                                          DEC(rm-rctd.qty:screen-value in browse {&browse-name}),
                                          output lv-out-qty).*/
-
+                 
                 /* convert cost */
                 IF rm-rctd.cost-uom:SCREEN-VALUE IN BROWSE {&browse-name} EQ "L" THEN
                     lv-out-cost = DEC(rm-rctd.cost:SCREEN-VALUE IN BROWSE {&browse-name}) / lv-out-qty .
@@ -2415,11 +2443,27 @@ PROCEDURE get-matrix :
                 IF lv-out-qty  EQ ? THEN lv-out-qty  = 0.
                 IF lv-out-cost EQ ? THEN lv-out-cost = 0.
 
-                IF ll-add-setup AND lv-out-qty NE 0 THEN
-                    lv-out-cost = lv-out-cost + (lv-setup / lv-out-qty).
+                IF lRMOverrunCost AND NOT AVAIL po-ordl THEN
+                    dConsumQty = lv-out-qty .
+        
+                 IF ll-add-setup AND lv-out-qty NE 0 THEN
+                           lv-out-cost = lv-out-cost + (lv-setup / lv-out-qty).
+               
+                
+                IF lRMOverrunCost THEN do:
+                   IF lv-out-qty GT dConsumQty   THEN DO:
+                      
+                       ext-cost = ROUND(dConsumQty * lv-out-cost,2).
+                   END.
+                   ELSE DO:
+                    ext-cost = ROUND(lv-out-qty * lv-out-cost,2).
+                   END.
+                END.
+                ELSE do:
+                     ext-cost = ROUND(lv-out-qty * lv-out-cost,2).
+                END.   
 
-                ASSIGN 
-                    ext-cost                      = ROUND(lv-out-qty * lv-out-cost,2)
+                ASSIGN
                     rm-rctd.cost:SCREEN-VALUE     = STRING(lv-out-cost)
                     rm-rctd.cost-uom:SCREEN-VALUE = lv-cost-uom
                     rm-rctd.qty:SCREEN-VALUE      = STRING(lv-out-qty)

@@ -200,9 +200,12 @@ ASSIGN
 ON CHOOSE OF btn-update IN FRAME F-Main /* Update Cost/Unit/Count */
 DO:
   def var char-hdl as cha no-undo.
- FIND FIRST users NO-LOCK
-     WHERE users.user_id EQ USERID(LDBNAME(1)) NO-ERROR.
-  IF AVAIL users AND users.securityLevel GE 900 THEN
+  DEF VAR hPgmSecurity AS HANDLE NO-UNDO.
+         DEF VAR lResult AS LOG NO-UNDO.
+         RUN "system/PgmMstrSecur.p" PERSISTENT SET hPgmSecurity.
+         RUN epCanAccess IN hPgmSecurity ("viewers/p-fg-bj-l.w", "", OUTPUT lResult).
+    DELETE OBJECT hPgmSecurity.
+  IF lResult THEN
     ASSIGN ll-secure = YES.
   
   IF NOT ll-secure THEN do:  

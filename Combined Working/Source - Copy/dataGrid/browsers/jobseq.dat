@@ -1,0 +1,14 @@
+FOR EACH jobseq NO-LOCK
+charge_code,job-code_cat,job-code_dscr,jobseq
+
+Indexed: jobseq
+Non-Idx: charge_code,job-code_cat,job-code_dscr
+
+Generated 04.18.2017 @  6:11:51 am by: nosweat
+Table: jobseq - Records: 0
+
+    Index: pi-jobseq
+         Field: jobseq
+
+    Index: si-rec_key
+         Field: rec_key

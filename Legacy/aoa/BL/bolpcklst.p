@@ -79,6 +79,60 @@ FOR EACH oe-bolh NO-LOCK
          NO-ERROR.
     IF AVAILABLE rfidtag AND LENGTH(rfidtag.rfidtag) GT 5 THEN
     ttBOLPackingList.ticket = SUBSTR(rfidtag.rfidtag,LENGTH(rfidtag.rfidtag) - 5).
+    RUN pMSF (OUTPUT ttBOLPackingList.msfPrice).
 END. /* each oe-bolh */
+
+PROCEDURE pMSF:
+    DEFINE OUTPUT PARAMETER opdMSFPrice AS DECIMAL NO-UNDO.
+     
+    DEFINE VARIABLE dPct         AS   DECIMAL          NO-UNDO.
+    DEFINE VARIABLE dPriceAmount LIKE oe-ord.t-revenue NO-UNDO.
+    DEFINE VARIABLE dOrdQty      LIKE oe-ordl.qty      NO-UNDO.
+    DEFINE VARIABLE dSqft        AS   DECIMAL          NO-UNDO.
+    DEFINE VARIABLE dRevenue     LIKE oe-ordl.t-price  NO-UNDO.
+    DEFINE VARIABLE idx          AS   INTEGER          NO-UNDO.
+    
+    DEFINE BUFFER bItemFG FOR itemfg.
+    
+    FIND FIRST oe-ordl NO-LOCK 
+         WHERE oe-ordl.company EQ oe-boll.company
+           AND oe-ordl.ord-no  EQ oe-boll.ord-no
+           AND oe-ordl.i-no    EQ oe-boll.i-no
+         NO-ERROR.
+    IF AVAILABLE oe-ordl THEN DO:
+        FIND FIRST itemfg NO-LOCK
+             WHERE itemfg.company EQ ipcCompany
+               AND itemfg.i-no    EQ oe-ordl.i-no
+             NO-ERROR.
+        dPct = 100.
+        DO idx = 1 TO 3:
+            IF oe-ordl.s-man[idx] EQ "" THEN NEXT.
+            dPct = oe-ordl.s-pct[idx].
+            LEAVE.
+        END. /* do idx */
+        ASSIGN
+            dPct         = dPct / 100
+            dOrdQty      = oe-ordl.qty * dPct
+            dPriceAmount = oe-ordl.t-price * dPct
+            .
+        IF AVAILABLE itemfg AND itemfg.isaset THEN DO:
+           dSqft = 1.
+           FOR EACH fg-set FIELDS(part-no part-qty) NO-LOCK
+               WHERE fg-set.company EQ itemfg.company
+                 AND fg-set.set-no  EQ itemfg.i-no,
+               FIRST bItemFG FIELDS(t-sqft) NO-LOCK
+               WHERE bItemFG.company EQ itemfg.company
+                 AND bItemFG.i-no EQ fg-set.part-no
+               :
+               dSqft = dSqft + (dOrdQty
+                     * (IF fg-set.part-qty GE 0 THEN fg-set.part-qty
+                        ELSE (-1 / fg-set.part-qty))
+                     * bItemFG.t-sqft / 1000).
+           END. /* each fg-set */
+        END. /* if avail itemfg */
+        ELSE dSqft = IF AVAILABLE itemfg THEN (itemfg.t-sqft * dOrdQty / 1000) ELSE 1.
+        opdMSFPrice = dPriceAmount / dSqft.
+    END. /*if avail */
+END PROCEDURE.
 
 {aoa/BL/pBuildCustList.i}

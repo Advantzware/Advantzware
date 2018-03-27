@@ -36,10 +36,10 @@ def output parameter op-char-val as cha no-undo. /* string i-code + i-name */
 
 def var lv-type-dscr as cha no-undo.
 def var lv-first-time as log init yes no-undo.
-&scoped-define fld-name-1 reftable.code
-&scoped-define fld-name-2 reftable.dscr
-&scoped-define SORTBY-1 BY reftable.code
-&scoped-define SORTBY-2 BY reftable.dscr
+&scoped-define fld-name-1 flute.code
+&scoped-define fld-name-2 flute.dscr
+&scoped-define SORTBY-1 BY flute.code
+&scoped-define SORTBY-2 BY flute.dscr
 &global-define IAMWHAT LOOKUP
 
 /* _UIB-CODE-BLOCK-END */
@@ -51,30 +51,26 @@ def var lv-first-time as log init yes no-undo.
 /* ********************  Preprocessor Definitions  ******************** */
 
 &Scoped-define PROCEDURE-TYPE DIALOG-BOX
+&Scoped-define DB-AWARE no
 
-/* Name of first Frame and/or Browse and/or first Query                 */
+/* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME Dialog-Frame
 &Scoped-define BROWSE-NAME BROWSE-1
 
 /* Internal Tables (found by Frame, Query & Browse Queries)             */
-&Scoped-define INTERNAL-TABLES reftable
+&Scoped-define INTERNAL-TABLES flute
 
 /* Define KEY-PHRASE in case it is used by any query. */
 &Scoped-define KEY-PHRASE TRUE
 
 /* Definitions for BROWSE BROWSE-1                                      */
-&Scoped-define FIELDS-IN-QUERY-BROWSE-1 reftable.code reftable.dscr ~
-reftable.val[1] reftable.code2 
+&Scoped-define FIELDS-IN-QUERY-BROWSE-1 flute.code flute.dscr ~
+flute.thickness flute.class 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-BROWSE-1 
-&Scoped-define FIELD-PAIRS-IN-QUERY-BROWSE-1
-&Scoped-define OPEN-QUERY-BROWSE-1 OPEN QUERY BROWSE-1 FOR EACH reftable WHERE ~{&KEY-PHRASE} ~
-      AND reftable.reftable = "Flute" and  ~
-ASI.reftable.company  = "" and ~
-ASI.reftable.loc = "" ~
- NO-LOCK ~
-    ~{&SORTBY-PHRASE}.
-&Scoped-define TABLES-IN-QUERY-BROWSE-1 reftable
-&Scoped-define FIRST-TABLE-IN-QUERY-BROWSE-1 reftable
+&Scoped-define QUERY-STRING-BROWSE-1 FOR EACH flute WHERE ~{&KEY-PHRASE} NO-LOCK
+&Scoped-define OPEN-QUERY-BROWSE-1 OPEN QUERY BROWSE-1 FOR EACH flute WHERE ~{&KEY-PHRASE} NO-LOCK.
+&Scoped-define TABLES-IN-QUERY-BROWSE-1 flute
+&Scoped-define FIRST-TABLE-IN-QUERY-BROWSE-1 flute
 
 
 /* Definitions for DIALOG-BOX Dialog-Frame                              */
@@ -124,23 +120,23 @@ DEFINE VARIABLE rd-sort AS INTEGER
      SIZE 45 BY .95 NO-UNDO.
 
 DEFINE RECTANGLE RECT-1
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL 
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 96 BY 1.43.
 
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
 DEFINE QUERY BROWSE-1 FOR 
-      reftable SCROLLING.
+      flute SCROLLING.
 &ANALYZE-RESUME
 
 /* Browse definitions                                                   */
 DEFINE BROWSE BROWSE-1
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS BROWSE-1 Dialog-Frame _STRUCTURED
   QUERY BROWSE-1 NO-LOCK DISPLAY
-      reftable.code
-      reftable.dscr
-      reftable.val[1] COLUMN-LABEL "Thickness"
-      reftable.code2 COLUMN-LABEL "SW/DW/TW"
+      flute.code FORMAT "x(8)":U
+      flute.dscr FORMAT "x(30)":U
+      flute.thickness FORMAT "->>,>>9.99":U
+      flute.class COLUMN-LABEL "SW/DW/TW" FORMAT "x(8)":U
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ROW-MARKERS SEPARATORS SIZE 96 BY 11.19
@@ -176,12 +172,13 @@ DEFINE FRAME Dialog-Frame
 &ANALYZE-RESUME _END-PROCEDURE-SETTINGS
 
 
-/* ***************  Runtime Attributes and UIB Settings  ************** */
+
+/* ***********  Runtime Attributes and AppBuilder Settings  *********** */
 
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
 /* SETTINGS FOR DIALOG-BOX Dialog-Frame
-                                                                        */
-/* BROWSE-TAB BROWSE-1 1 Dialog-Frame */
+   FRAME-NAME                                                           */
+/* BROWSE-TAB BROWSE-1 TEXT-1 Dialog-Frame */
 ASSIGN 
        FRAME Dialog-Frame:SCROLLABLE       = FALSE
        FRAME Dialog-Frame:HIDDEN           = TRUE.
@@ -194,24 +191,21 @@ ASSIGN
 
 &ANALYZE-SUSPEND _QUERY-BLOCK BROWSE BROWSE-1
 /* Query rebuild information for BROWSE BROWSE-1
-     _TblList          = "ASI.reftable"
-     _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
-     _Where[1]         = "ASI.reftable.reftable = ""Flute"" and 
-ASI.reftable.company  = """" and
-ASI.reftable.loc = """"
-"
-     _FldNameList[1]   = ASI.reftable.code
-     _FldNameList[2]   = ASI.reftable.dscr
-     _FldNameList[3]   > ASI.reftable.val[1]
-"val[1]" "Thickness" ? "decimal" ? ? ? ? ? ? no ?
-     _FldNameList[4]   > ASI.reftable.code2
-"code2" "SW/DW/TW" ? "character" ? ? ? ? ? ? no ?
+     _TblList          = "ASI.flute"
+     _Options          = "NO-LOCK KEY-PHRASE"
+     _FldNameList[1]   > ASI.flute.code
+"flute.code" ? "x(8)" "character" ? ? ? ? ? ? no "Enter code for this reference table item" no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[2]   > ASI.flute.dscr
+"flute.dscr" ? ? "character" ? ? ? ? ? ? no "Enter description." no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[3]   > ASI.flute.thickness
+"flute.thickness" ? "->>,>>9.99" "decimal" ? ? ? ? ? ? no "" no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[4]   > ASI.flute.class
+"flute.class" "SW/DW/TW" "x(8)" "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is OPENED
 */  /* BROWSE BROWSE-1 */
 &ANALYZE-RESUME
 
  
-
 
 
 
@@ -249,9 +243,9 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL BROWSE-1 Dialog-Frame
 ON DEFAULT-ACTION OF BROWSE-1 IN FRAME Dialog-Frame
 DO:
-   op-char-val = reftable.code:screen-value in browse {&browse-name} + "," +
-                 reftable.dscr:screen-value in browse {&browse-name} + "," +
-                 string(reftable.val[1])
+   op-char-val = flute.code:screen-value in browse {&browse-name} + "," +
+                 flute.dscr:screen-value in browse {&browse-name} + "," +
+                 string(flute.thickness)
                  .
    apply "window-close" to frame {&frame-name}. 
       
@@ -282,9 +276,9 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL bt-ok Dialog-Frame
 ON CHOOSE OF bt-ok IN FRAME Dialog-Frame /* OK */
 DO:
-   op-char-val = reftable.code:screen-value in browse {&browse-name} + "," +
-                 reftable.dscr:screen-value in browse {&browse-name} + "," +
-                 string(reftable.val[1])
+   op-char-val = flute.code:screen-value in browse {&browse-name} + "," +
+                 flute.dscr:screen-value in browse {&browse-name} + "," +
+                 string(flute.thickness)
                  .
    apply "window-close" to frame {&frame-name}. 
       
@@ -362,7 +356,7 @@ RUN disable_UI.
 
 /* **********************  Internal Procedures  *********************** */
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI Dialog-Frame _DEFAULT-DISABLE
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI Dialog-Frame  _DEFAULT-DISABLE
 PROCEDURE disable_UI :
 /*------------------------------------------------------------------------------
   Purpose:     DISABLE the User Interface
@@ -379,8 +373,7 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE enable_UI Dialog-Frame _DEFAULT-ENABLE
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE enable_UI Dialog-Frame  _DEFAULT-ENABLE
 PROCEDURE enable_UI :
 /*------------------------------------------------------------------------------
   Purpose:     ENABLE the User Interface
@@ -401,5 +394,4 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 

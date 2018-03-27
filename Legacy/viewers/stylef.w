@@ -498,20 +498,20 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 14 BY 1
           BGCOLOR 15 
-     "Default Dimensions" VIEW-AS TEXT
-          SIZE 29 BY .62 AT ROW 2.43 COL 15
+     "  Default Dimensions" VIEW-AS TEXT 
+          SIZE 24 BY .62 AT ROW 2.43 COL 15
           FGCOLOR 9 
-     "Die && Rule Formulas" VIEW-AS TEXT
-          SIZE 29 BY .62 AT ROW 2.43 COL 104
+     "  Die && Rule Formulas" VIEW-AS TEXT
+          SIZE 25 BY .62 AT ROW 2.43 COL 104
           FGCOLOR 9 
-     "Layout Formulas" VIEW-AS TEXT
-          SIZE 25 BY .62 AT ROW 7.24 COL 103.4
+     "  Layout Formulas" VIEW-AS TEXT
+          SIZE 21 BY .62 AT ROW 7.17 COL 103.4
           FGCOLOR 9 
-     "Default Machine Routing" VIEW-AS TEXT
-          SIZE 39 BY .62 AT ROW 9.91 COL 9.2
+     "  Default Machine Routing" VIEW-AS TEXT
+          SIZE 30 BY .62 AT ROW 9.91 COL 14
           FGCOLOR 9 
-     "Default Material Codes" VIEW-AS TEXT
-          SIZE 32 BY .62 AT ROW 2.43 COL 52.6
+     "  Default Material Codes" VIEW-AS TEXT
+          SIZE 28 BY .70 AT ROW 2.43 COL 55
           FGCOLOR 9 
      "6" VIEW-AS TEXT
           SIZE 3 BY .62 AT ROW 15.91 COL 111

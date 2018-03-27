@@ -1770,7 +1770,8 @@ PROCEDURE crt-itemfg :
   itemfg.sell-price = DEC(get-sv("oe-ordl.price"))
   itemfg.part-no    = get-sv("oe-ordl.part-no")
   itemfg.cust-no    = oe-ord.cust-no
-  itemfg.cust-name  = oe-ord.cust-name.
+  itemfg.cust-name  = oe-ord.cust-name
+  itemfg.setupDate  = TODAY.
   ASSIGN
   itemfg.pur-uom    = get-sv("oe-ordl.pr-uom")
   itemfg.ship-meth  = IF AVAIL bf-itemfg THEN bf-itemfg.ship-meth ELSE YES.
