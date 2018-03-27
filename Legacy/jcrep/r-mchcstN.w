@@ -66,11 +66,11 @@ DEF VAR cTextListToDefault AS cha NO-UNDO.
 
 
 ASSIGN cTextListToSelect = "MACH CODE,JOB #,FG DESCRIPTION,EST M/R,ACT M/R,%VAR M/R,EST RUN," +
-                                              "ACT RUN,%VAR RUN,EST BRD,ACT BRD,%VAR MAT"
+                                              "ACT RUN,%VAR RUN,EST BRD,ACT BRD,%VAR MAT,FG ITEM#"
        cFieldListToSelect = "mch-cd,job,fg-dsc,est-mr,act-mr,var-mr,est-run," +
-                                        "act-run,var-run,est-brd,act-brd,act-mat"
-       cFieldLength = "9,10,30,10,10,8,10," + "10,8,10,10,8"
-       cFieldType = "c,c,c,i,i,i,i," + "i,i,i,i,i" 
+                                        "act-run,var-run,est-brd,act-brd,act-mat,fg-item"
+       cFieldLength = "9,10,30,10,10,8,10," + "10,8,10,10,8,15"
+       cFieldType = "c,c,c,i,i,i,i," + "i,i,i,i,i,c" 
     .
 
 {sys/inc/ttRptSel.i}
