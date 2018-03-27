@@ -19,12 +19,14 @@ do:
 
       if can-do("Browse,Frame",self:type) THEN DO:
 
-       IF ls-prog-name MATCHES "*viewers/sys-ctrl*" THEN
-            RUN sys/ref/hlp-ctrl.w (FRAME-FIELD,sys-ctrl.company,sys-ctrl.NAME,ls-prog-name, "English") .
+       IF ls-prog-name MATCHES "*viewers/sys-ctrl*" THEN do:
+            /*RUN sys/ref/hlp-ctrl.w (FRAME-FIELD,sys-ctrl.company,sys-ctrl.NAME,ls-prog-name, "English") .*/
+		run sys/ref/hlpd.w (sys-ctrl.NAME, sys-ctrl.company, FRAME-FIELD,ls-prog-name, "English") .
+		end.
                             /* self:name or focus:name */
-       ELSE run sys/ref/hlp.w (self:name, frame-file, frame-db,ls-prog-name, "English") .
+       ELSE run sys/ref/hlpd.w (self:name, frame-file, frame-db,ls-prog-name, "English") .
    END.
-   else run sys/ref/hlp.w (focus:name, focus:table, focus:dbname,"{&frame-name}", "English") .
+   else run sys/ref/hlpd.w (focus:name, focus:table, focus:dbname,"{&frame-name}", "English") .
    
    return no-apply.
 end.
