@@ -114,28 +114,7 @@ IF old-{&TABLENAME}.ord-no = 0         AND
  {&TABLENAME}.tot-qty EQ 0 THEN DO:
     {&TABLENAME}.tot-qty = {&TABLENAME}.qty.
  /*   RUN fg/fgitmloc.p (INPUT {&TABLENAME}.i-no, INPUT ROWID({&TABLENAME})). */
-END.
-  
-
-IF PROGRAM-NAME(2) NE ?                AND
-   {&TABLENAME}.r-no NE 0              AND
-   INDEX("SIL",{&TABLENAME}.stat) GT 0 AND
-   NOT CAN-FIND(FIRST oe-rel-audit
-                WHERE oe-rel-audit.reftable EQ "oe-rel-audit"
-                  AND oe-rel-audit.company  EQ STRING({&TABLENAME}.r-no,"9999999999")
-                USE-INDEX reftable)
-THEN DO:
-  CREATE oe-rel-audit.
-  ASSIGN
-   oe-rel-audit.reftable = "oe-rel-audit"
-   oe-rel-audit.company  = STRING({&TABLENAME}.r-no,"9999999999")
-   oe-rel-audit.loc      = USERID("nosweat")
-   oe-rel-audit.code     = STRING(TODAY,"99/99/9999")
-   oe-rel-audit.code2    = STRING(TIME,"99999")
-   oe-rel-audit.val[1]   = {&TABLENAME}.qty
-   oe-rel-audit.val[2]   = {&TABLENAME}.tot-qty
-   oe-rel-audit.dscr     = PROGRAM-NAME(2).
-END.
+END.  
 
 FOR EACH oe-ord
     WHERE oe-ord.company EQ {&TABLENAME}.company
