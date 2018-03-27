@@ -6,11 +6,11 @@
 /* ***************************  Definitions  ***************************/
 
 /* Audit History.rpa */
-{aoa/tempTable/ttAuditHistory.i}
+{AOA/tempTable/ttAuditHistory.i}
 
 /* Parameters Definitions ---                                           */
 DEFINE OUTPUT PARAMETER TABLE FOR ttAuditHistory.
-{aoa/includes/pAuditHistory.i}
+{AOA/includes/pAuditHistory.i}
 
 /* local variables */
 DEFINE VARIABLE dtStartDateTime AS DATETIME  NO-UNDO.
