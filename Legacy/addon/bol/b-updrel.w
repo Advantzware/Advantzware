@@ -151,7 +151,7 @@ DEFINE VARIABLE gvlCheckOrdStat   AS LOGICAL     NO-UNDO.
 DEFINE VARIABLE lSaveToTempfile AS LOGICAL NO-UNDO.
 DEFINE STREAM sTmpSaveInfo.
 DEFINE VARIABLE cTmpSaveFile AS CHARACTER NO-UNDO.
-   
+DEFINE VARIABLE lsecurity-flag AS LOGICAL NO-UNDO.   
 /* Just for compatibility with b-relbol.w, not used */
 DEFINE VARIABLE v-job-qty AS INTEGER FORMAT "->,>>>,>>9":U INITIAL 0 
      LABEL "Job Qty" 
@@ -1468,7 +1468,11 @@ END.
   LOAD "l-font.ini" DIR cDir BASE-KEY "INI".
   USE "l-font.ini".
 
+IF NOT lsecurity-flag THEN RUN sys/ref/d-passwd.w (3, OUTPUT lsecurity-flag).
+        
+IF lsecurity-flag THEN
 RUN custom/d-prompt.w (INPUT ipcButtonList, ip-parms, "", OUTPUT op-values).
+ELSE  op-values =  "DEFAULT" + "," + "No" .
 
 /* Load original ini for original font set */
 UNLOAD "l-font.ini" NO-ERROR.
@@ -2100,9 +2104,13 @@ END. /* Loadtag order number is zero */
 
                       END.
         
-        /* New Logic */
-        RUN custom/d-prompt.w (INPUT "yes-no-cancel", ip-parms, "", OUTPUT op-values).
+         IF NOT lsecurity-flag THEN RUN sys/ref/d-passwd.w (3, OUTPUT lsecurity-flag).
         
+        IF lsecurity-flag THEN
+        RUN custom/d-prompt.w (INPUT "yes-no-cancel", ip-parms, "", OUTPUT op-values). /* New Logic */
+        ELSE  op-values =  "DEFAULT" + "," + "No" .
+
+       
         /* Load original ini for original font set */
         UNLOAD "l-font.ini" NO-ERROR.
 
