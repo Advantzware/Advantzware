@@ -88,7 +88,8 @@ for each job-mch
        mch-act.opn      = yes
        mch-act.complete = yes
        mch-act.hours    = v-hrs
-       mch-act.shift    = if avail shift then shift.shift else 1.
+       mch-act.shift    = if avail shift then shift.shift else 1
+       mch-act.user-id  = USERID(LDBNAME(1)) .
              
       if i eq 1 then do:
         assign

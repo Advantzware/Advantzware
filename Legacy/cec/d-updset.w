@@ -576,7 +576,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
                      AND eb.est-no  EQ bf-eb.est-no
                      AND eb.eqty    EQ bf-eb.eqty
                      AND ROWID(eb)  NE ROWID(bf-eb)).
-     IF NOT ll AND ((bf-eb.est-type GE 5 AND bf-eb.yld-qty GT 1) OR
+     IF NOT ll AND ((bf-eb.est-type GE 5 AND bf-eb.quantityPerSet GT 1) OR
                     (bf-eb.est-type LE 4 AND bf-eb.cust-% GT 1)) THEN
        MESSAGE "Change this estimate to a set?"
            VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
@@ -599,7 +599,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
        i = i + 1.
        IF LAST(bf-eb.est-no) THEN LEAVE.
    END.
-   IF i LE 1 AND ((bf-eb.est-type GE 5 AND bf-eb.yld-qty EQ 2) OR
+   IF i LE 1 AND ((bf-eb.est-type GE 5 AND bf-eb.quantityPerSet EQ 2) OR
                   (bf-eb.est-type LE 4 AND bf-eb.cust-% EQ 2)) THEN DO:
      RUN check-use NO-ERROR.
      IF ERROR-STATUS:ERROR THEN RETURN.
@@ -634,7 +634,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
        BREAK BY b-eb.est-no:
      ASSIGN
       ld-yld   = IF b-eb.est-type GE 5 THEN
-                   (IF b-eb.yld-qty LT 0 THEN -1 / b-eb.yld-qty ELSE b-eb.yld-qty)
+                   (IF b-eb.quantityPerSet LT 0 THEN -1 / b-eb.quantityPerSet ELSE b-eb.quantityPerSet)
                  ELSE
                    (IF b-eb.cust-%  LT 0 THEN -1 / b-eb.cust-%  ELSE b-eb.cust-%)
       ld-sqin  = est.est-qty[1] * ld-yld * b-eb.t-sqin

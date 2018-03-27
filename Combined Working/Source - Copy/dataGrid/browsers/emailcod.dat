@@ -1,0 +1,20 @@
+FOR EACH emailcod NO-LOCK
+description,emailcod
+
+Indexed: description,emailcod
+Non-Idx: ?
+
+Generated 04.19.2017 @  4:01:57 am by: nosweat
+Table: emailcod - Records: 29
+
+    Index: pi-emailcod
+         Field: emailcod
+
+    Index: si-description
+         Field: description
+
+    Index: si-rec_key
+         Field: rec_key
+
+    Index: wi-description
+         Field: description

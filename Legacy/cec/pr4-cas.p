@@ -24,7 +24,7 @@ DEF BUFFER b-setup FOR reftable.
 
 assign
  save-qty = qty
- qty = qty / xeb.yld-qty.
+ qty = qty / xeb.quantityPerSet.
  
 find first ce-ctrl {sys/look/ce-ctrlW.i} no-lock no-error.
 

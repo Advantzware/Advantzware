@@ -49,7 +49,7 @@ for each blk where blk.snum eq v-form-no or (not vmclean2):
     xjob.stock-no = xeb.stock-no.
 end.
 
-v-yld = if xeb.yld-qty lt 0 then -1 / xeb.yld-qty else xeb.yld-qty.
+v-yld = if xeb.quantityPerSet lt 0 then -1 / xeb.quantityPerSet else xeb.quantityPerSet.
 
 display "TOTAL  DIRECT  MATERIALS "
         dm-tot[5] /
@@ -80,7 +80,7 @@ for each est-prep where est-prep.company = xest.company
     with frame ad down no-labels no-box stream-io:
 
       qty = 0.
-      FOR EACH xeb FIELDS(yld-qty)
+      FOR EACH xeb FIELDS(quantityPerSet)
           WHERE xeb.company     EQ est-prep.company 
             AND xeb.est-no      EQ est-prep.est-no
             AND xeb.form-no     EQ est-prep.s-num
@@ -88,7 +88,7 @@ for each est-prep where est-prep.company = xest.company
                  est-prep.b-num EQ 0)
           NO-LOCK:
         ASSIGN
-           v-yld = if xeb.yld-qty lt 0 then -1 / xeb.yld-qty else xeb.yld-qty
+           v-yld = if xeb.quantityPerSet lt 0 then -1 / xeb.quantityPerSet else xeb.quantityPerSet
            qty = qty + (tt-blk * v-yld).
       END.
 

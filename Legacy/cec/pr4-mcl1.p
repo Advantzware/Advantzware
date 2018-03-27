@@ -43,7 +43,7 @@ if vmclean and avail probe then do:
     vmcl  = probe.line
     v-yld = IF xest.est-type GE 7 THEN 1 ELSE
             if xest.form-qty eq 1 then 1 else
-            (if xeb.yld-qty lt 0 then -1 / xeb.yld-qty else xeb.yld-qty)
+            (if xeb.quantityPerSet lt 0 then -1 / xeb.quantityPerSet else xeb.quantityPerSet)
     qty   = probe.est-qty
     qm    = qty / 1000 * v-sqft-fac.
 
@@ -76,7 +76,7 @@ if vmclean and avail probe then do:
       /* ..this */
 
       v-yld = IF xest.est-type GE 7 THEN 1 ELSE
-              if eb.yld-qty lt 0 then -1 / eb.yld-qty else eb.yld-qty
+              if eb.quantityPerSet lt 0 then -1 / eb.quantityPerSet else eb.quantityPerSet
 
       v-prf-s = probeit.sell-price - probeit.fact-cost
       v-pct-s = ROUND(v-prf-s / probeit.fact-cost * 100,2).

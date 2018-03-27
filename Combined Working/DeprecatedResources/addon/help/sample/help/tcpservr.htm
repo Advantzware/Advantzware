@@ -1,0 +1,60 @@
+<html>
+<head>
+<title>Help: TCP/IP Server</title>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+</head>
+
+<body bgcolor="#FFFFFF" background="images/bg.gif" text="#FFFFFF" alink="#FF0000" link="#FF0000" vlink="#FF0000">
+<h1 align="left">TCP/IP Server</h1>
+<p><img src="images/tcpserv.gif" width="847" height="118" border="0"></p>
+<p>This process runs independently of the Patriot G2 system. <b>Show Current Connections</b> 
+  will dump a display of any current TCP/IP client connections. At any time the 
+  log screen can be cleared and it's contents dumped to the <i><b>tcpserv.log</b></i> 
+  file found in the directory <i><b>logs</b></i> by press the <b>Clear Log</b> 
+  button. Each connection processed is immediately added to the file <i><b>current.log</b></i> 
+  which is a snapshot of the current entires display on the screen. There also 
+  exists a log file named <i><b>last.log</b></i> which contains the contents of 
+  all the entries from the time the TCP/IP Server was started until it is <b>Closed</b>. 
+  When the screen entries approach 20k, the entries are dumped to the various 
+  logs files as if the Server was halted and the screen is cleared to begin accepting 
+  new connection entries.</p>
+<p><b><u>Received Packet Processing Logic:</u></b></p>
+<p>1. Receive TCP/IP Client connection.<br>
+  2. Convert received packet from Base 16.<br>
+  3. Calculate encrpytion key based on digit found within the Dealer's Store ID.<br>
+  4. Using encrpytion key, decrpyt received packet.<br>
+  5. Post received packet to the TCP/IP Server screen.<br>
+  6. Parse received packet into it's various components.<br>
+  7. Validate received packet length and version number.<br>
+  8. Validate dealer exists.<br>
+  9. Validate dealer is currently active.<br>
+  10. Check if this packet is a test card by checking the card number against 
+  those found in the text file <i><b>testcard.txt</b></i>.<br>
+  11. Validate the dealer has enough inventory on hand to process requested quantity.</p>
+<p>12. Check if request is for a Registry Card.<br>
+  12a. Validate Registry exits.<br>
+  12b. Validate Master Key name encoded on card exists.<br>
+  12c. Validate Master Key is currently active.<br>
+  12d. Validate Key Set exists.<br>
+  12e. Obtain Customer information for Registry Card requests.</p>
+<p>13. Check if request is for a Blind Code Card.<br>
+  13a. Check if request is for a first time use.<br>
+  13a1. Validate that first time use of card number and name does not already 
+  exist.<br>
+  13ab. Create Blind Code Card for first time use.<br>
+  13b. Validate Blind Code Card is currently active.<br>
+  13c. Validate Key Code and Key Angle exits.</p>
+<p>NOTE: Regardless of any failed validations above every packet is processed 
+  from this point forward.</p>
+<p>14. Build return packet to send back.<br>
+  15. Post return packet to the TCP/IP Server screen.<br>
+  16. Using encryption key, encrypt return packet.<br>
+  17. Convert return packet to Base 16.<br>
+  18. Send return packet to TCP/IP Client connection.<br>
+  19. Close TCP/IP Client conntection.<br>
+  20. For valid requests or Registry Card requests with invalid Key Set, post 
+  entry to Activity table and adjust Dealer's inventory by decrementing inventory 
+  on hand quantity and incrementing inventory used quantity.<br>
+  21. Post current TCP/IP Server screen entries to log file <i><b>current.log</b></i>.</p>
+</body>
+</html>

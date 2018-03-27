@@ -1,0 +1,8 @@
+
+Cust. #  Customer Status
+-------- ---------------
+ABABAB   A
+ABB1000  A
+abc      A
+ATT1000  A
+kkk      A

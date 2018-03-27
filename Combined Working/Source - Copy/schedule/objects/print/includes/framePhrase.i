@@ -1,0 +1,6 @@
+&IF '{1}' NE '' &THEN
+&SCOPED-DEFINE widthSize {1}
+&ELSE
+&SCOPED-DEFINE widthSize 240
+&ENDIF
+WITH STREAM-IO WIDTH {&widthSize} NO-LABELS NO-BOX

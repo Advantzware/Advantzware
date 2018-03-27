@@ -311,8 +311,14 @@ DO:
   DEF BUFFER bf-userLog FOR userLog.
   DEFINE VARIABLE li AS INTEGER     NO-UNDO.
   DEFINE VARIABLE lAns AS LOGICAL     NO-UNDO.
+  DEFINE VARIABLE hPgmSecurity AS HANDLE NO-UNDO.
+  DEFINE VARIABLE lResult AS LOG NO-UNDO.
 
-  IF NOT USERID(LDBNAME(1)) EQ "ASI" THEN DO:
+        RUN "system/PgmMstrSecur.p" PERSISTENT SET hPgmSecurity.
+        RUN epCanAccess IN hPgmSecurity ("browsers/userlog.w", "", OUTPUT lResult).
+    DELETE OBJECT hPgmSecurity.
+
+  IF NOT lResult THEN DO:
     MESSAGE "Please contact your administrator to delete session records."
       VIEW-AS ALERT-BOX INFO BUTTONS OK.
     RETURN NO-APPLY.

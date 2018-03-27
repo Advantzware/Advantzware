@@ -511,7 +511,7 @@ do vmcl = 1 to 28:   /* ??? 28 not 4*/
                      assign kli.ship-add[2] = kli.ship-add[3]
                             kli.ship-add[3] = kli.ship-add[4] kli.ship-add[4] = "".
               end.  /* not avail kli */
-              assign v-yld = if xeb.yld-qty lt 0 then -1 / xeb.yld-qty else xeb.yld-qty
+              assign v-yld = if xeb.quantityPerSet lt 0 then -1 / xeb.quantityPerSet else xeb.quantityPerSet
                      qty   = qtty[vmcl] * v-yld.
               find first blk where blk.snum eq xeb.form-no and
                                    blk.bnum eq xeb.blank-no no-error.
@@ -613,7 +613,7 @@ do vmcl = 1 to 28:   /* ??? 28 not 4*/
                BREAK BY xeb.blank-no:
 
              ASSIGN
-             v-yld = if xeb.yld-qty lt 0 then -1 / xeb.yld-qty else xeb.yld-qty
+             v-yld = if xeb.quantityPerSet lt 0 then -1 / xeb.quantityPerSet else xeb.quantityPerSet
              /* set total # of blanks on all forms */
              tt-blk = qtty[vmcl].
              /* set total # of blanks on this form */
@@ -769,7 +769,7 @@ do vmcl = 1 to 28:   /* ??? 28 not 4*/
                           and xeb.form-no eq xef.form-no
                NO-LOCK
                        with frame blk no-box no-labels width 80 down stream-io:
-              v-yld = if xeb.yld-qty lt 0 then -1 / xeb.yld-qty else xeb.yld-qty.
+              v-yld = if xeb.quantityPerSet lt 0 then -1 / xeb.quantityPerSet else xeb.quantityPerSet.
               find first style  where  style.company eq cocode and
                                        style.style eq xeb.style no-lock no-error.
               ASSIGN

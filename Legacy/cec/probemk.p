@@ -76,8 +76,8 @@ DO:
         AND eb.form-no EQ xef.form-no
         NO-LOCK.
 
-        v-sheets =  probe.est-qty * (IF eb.yld-qty GT 0 THEN eb.yld-qty ELSE 
-            IF eb.yld-qty EQ 0 THEN 1 ELSE (-1 / eb.yld-qty)) / eb.num-up / vn-out.
+        v-sheets =  probe.est-qty * (IF eb.quantityPerSet GT 0 THEN eb.quantityPerSet ELSE 
+            IF eb.quantityPerSet EQ 0 THEN 1 ELSE (-1 / eb.quantityPerSet)) / eb.num-up / vn-out.
         IF v-sheets GT v-max-sheets THEN
             v-max-sheets = v-sheets.
 
@@ -174,7 +174,7 @@ ASSIGN
     blk.kli     = xeb.cust-no
     blk.id      = xeb.part-no
     blk.bnum    = 1
-    blk.qreq    = qty / xeb.yld-qty
+    blk.qreq    = qty / xeb.quantityPerSet
     blk.fact    = ord-cost / (qty / 1000)
     blk.cost    = tt-tot / (qty / 1000)
     blk.fg-wt   = fg-wt
@@ -215,7 +215,7 @@ DO:
         mku_gsa-m           = ce-ctrl.fg-rate
         mku_com             = ce-ctrl.comm-mrkup
         mku_whs             = ce-ctrl.whse-mrkup
-        probe.est-qty       = qty / xeb.yld-qty
+        probe.est-qty       = qty / xeb.quantityPerSet
         probe.fact-cost     = ord-cost / qm
         probe.full-cost     = tt-tot / qm
         probe.sell-price    = v-price / qm
@@ -276,7 +276,7 @@ DO:
                 tt-tot FORMAT ">>>>,>>9.99"  TO 80 SKIP.
       
             IF v-rollfac THEN
-                PUT "FULL COST PER ROLL" tt-tot / (qty / xeb.yld-qty) TO 48.
+                PUT "FULL COST PER ROLL" tt-tot / (qty / xeb.quantityPerSet) TO 48.
       
             IF ce-ctrl.sell-by EQ "S" THEN
                 PUT "Markup on Fact Cost"         FORMAT "x(19)"
@@ -299,7 +299,7 @@ DO:
       
             IF v-rollfac THEN
                 PUT "SELLING PRICE PER ROLL"
-                    probe.sell-price * qm / (qty / xeb.yld-qty) TO 48.
+                    probe.sell-price * qm / (qty / xeb.quantityPerSet) TO 48.
         END.
         ELSE
         DO:
@@ -314,7 +314,7 @@ DO:
                 tt-tot FORMAT ">,>>>,>>9.99"  TO 80 SKIP.
       
             IF v-rollfac THEN
-                PUT "FULL COST PER ROLL" tt-tot / (qty / xeb.yld-qty) FORMAT ">,>>>,>>9.99" TO 48.
+                PUT "FULL COST PER ROLL" tt-tot / (qty / xeb.quantityPerSet) FORMAT ">,>>>,>>9.99" TO 48.
       
             IF ce-ctrl.sell-by EQ "S" THEN
                 PUT "Markup on Fact Cost"         FORMAT "x(19)"
@@ -337,7 +337,7 @@ DO:
       
             IF v-rollfac THEN
                 PUT "SELLING PRICE PER ROLL"
-                    probe.sell-price * qm / (qty / xeb.yld-qty) FORMAT ">,>>>,>>>" TO 48.
+                    probe.sell-price * qm / (qty / xeb.quantityPerSet) FORMAT ">,>>>,>>>" TO 48.
         END.
     END.
 
@@ -364,7 +364,7 @@ DO:
         DO:
             ASSIGN
                 vmcl-desc = "FULL COST PER ROLL"
-                vmcl-cost = tt-tot / (qty / xeb.yld-qty).
+                vmcl-cost = tt-tot / (qty / xeb.quantityPerSet).
             {cec/pr4-mcln.i vmcl-desc vmcl vmcl-cost 100003}
         END.
 
@@ -422,7 +422,7 @@ DO:
         DO:
             ASSIGN
                 vmcl-desc = "SELLING PRICE PER ROLL"
-                vmcl-cost = probe.sell-price * qm / (qty / xeb.yld-qty).
+                vmcl-cost = probe.sell-price * qm / (qty / xeb.quantityPerSet).
             {cec/pr4-mcln.i vmcl-desc vmcl vmcl-cost 100011}
         END.
     END.

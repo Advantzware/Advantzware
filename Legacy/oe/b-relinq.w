@@ -58,6 +58,7 @@ DEF VAR lActive AS LOGICAL NO-UNDO.
 DEFINE VARIABLE v-shipto-zone AS CHARACTER NO-UNDO.
 DEFINE VARIABLE begin_rno LIKE oe-rell.r-no NO-UNDO.
 DEFINE VARIABLE ending_rno LIKE oe-rell.r-no NO-UNDO.
+DEFINE VARIABLE ld-qty-oh LIKE itemfg.q-onh NO-UNDO.
 DO TRANSACTION:
      {sys/ref/CustList.i NEW}
     {sys/inc/custlistform.i ""OT1"" }
@@ -116,8 +117,8 @@ END.
     IF lv-sort-by EQ "q-onh"       THEN STRING(itemfg.q-onh,"9999999999")                                                                               ELSE ~
     IF lv-sort-by EQ "v-shipto-zone"  THEN get-shipto-zone()                                                                                       ELSE ~
                                       STRING(oe-relh.printed, "Y/N")                                                
-    
-
+    IF lv-sort-by EQ "ld-qty-oh"       THEN string(fQty-oh(),"->>,>>>,>>9")                                                                                                   ELSE ~
+                                      STRING(oe-relh.printed, "Y/N")
 
 &SCOPED-DEFINE sortby BY oe-relh.release# BY oe-rell.i-no
 
@@ -156,7 +157,7 @@ END.
 &Scoped-define FIELDS-IN-QUERY-Browser-Table oe-relh.release# ~
 oe-rell.ord-no oe-rell.po-no oe-relh.cust-no itemfg.part-no oe-relh.ship-id ~
 oe-rell.i-no oe-relh.rel-date oe-rell.job-no oe-rell.job-no2 ~
-oe-relh.printed oe-rell.qty itemfg.q-onh get-shipto-zone() @ v-shipto-zone 
+oe-relh.printed oe-rell.qty fQty-oh () @ ld-qty-oh itemfg.q-onh get-shipto-zone() @ v-shipto-zone 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table oe-relh.release# ~
 oe-rell.ord-no oe-rell.po-no oe-relh.cust-no oe-relh.ship-id oe-rell.i-no ~
 oe-relh.rel-date oe-rell.job-no oe-rell.job-no2 oe-relh.printed 
@@ -205,6 +206,13 @@ fi_i-no fi_po-no fi_job-no fi_job-no2 fi_sort-by
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD get-shipto-zone B-table-Win 
 FUNCTION get-shipto-zone RETURNS CHARACTER
+  ( /* parameter-definitions */ )  FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fQty-oh B-table-Win 
+FUNCTION fQty-oh RETURNS INTEGER
   ( /* parameter-definitions */ )  FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
@@ -313,6 +321,7 @@ DEFINE BROWSE Browser-Table
       oe-relh.printed FORMAT "Y/N":U LABEL-BGCOLOR 14
       oe-rell.qty COLUMN-LABEL "Release Qty" FORMAT "->>,>>>,>>9":U
             LABEL-BGCOLOR 14
+      fQty-oh () @ ld-qty-oh COLUMN-LABEL "Qty On Hand" FORMAT "->>,>>>,>>9":U
       itemfg.q-onh COLUMN-LABEL "Qty On Hand" FORMAT "->,>>>,>>9":U
             LABEL-BGCOLOR 14
       get-shipto-zone() @ v-shipto-zone COLUMN-LABEL "Ship To Zone" FORMAT "x(5)":U
@@ -487,10 +496,12 @@ use-index r-no"
 "oe-relh.printed" ? ? "logical" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[12]   > ASI.oe-rell.qty
 "oe-rell.qty" "Release Qty" ? "integer" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+    _FldNameList[13]   > "_<CALC>"
+"fqty-oh () @ ld-qty-oh" "Qty On Hand" ? "integer" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+    _FldNameList[14]   > ASI.itemfg.q-onh
 "itemfg.q-onh" "Qty On Hand" "->,>>>,>>>" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[13]   > ASI.itemfg.q-onh
-"get-shipto-zone() @ v-shipto-zone" "Ship To Zone" "x(8)" ? ? ? ? ? ? ? no ? no no "10" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[33]   > "_<CALC>"     
+"get-shipto-zone() @ v-shipto-zone" "Ship To Zone" "x(8)" ? ? ? ? ? ? ? no ? no no "10" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is OPENED
 */  /* BROWSE Browser-Table */
 &ANALYZE-RESUME
@@ -1676,6 +1687,29 @@ FUNCTION get-shipto-zone RETURNS CHARACTER
   END.
 
   RETURN "".
+
+END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fQty-oh B-table-Win 
+FUNCTION fQty-oh RETURNS INTEGER
+  ( /* parameter-definitions */ ) :
+/*------------------------------------------------------------------------------
+  Purpose:  
+    Notes:  
+------------------------------------------------------------------------------*/
+  DEF VAR iQtyOh AS INTEGER NO-UNDO.
+
+  DO WITH FRAME {&FRAME-NAME}:
+      FIND itemfg NO-LOCK WHERE itemfg.company = oe-rell.company
+          AND itemfg.i-no = oe-rell.i-no  NO-ERROR.
+      IF AVAIL itemfg  THEN
+          ASSIGN iQtyOh = itemfg.q-onh.
+  END.
+
+  RETURN iQtyOh.   /* Function return value. */
 
 END FUNCTION.
 

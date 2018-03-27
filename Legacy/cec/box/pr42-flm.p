@@ -333,7 +333,7 @@ for each xef where xef.company = xest.company and
      if avail eb then flm.id = eb.part-no.
      if flm.bnum gt 0 then
        assign
-        v-yld    = if eb.yld-qty lt 0 then -1 / eb.yld-qty else eb.yld-qty
+        v-yld    = if eb.quantityPerSet lt 0 then -1 / eb.quantityPerSet else eb.quantityPerSet
         flm.cosm = f-cost[i] / (tt-blk * v-yld / 1000).
      else flm.cosm = f-cost[i] / ( t-blkqty[xef.form-no] / 1000).
         

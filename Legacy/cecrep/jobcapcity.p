@@ -99,6 +99,7 @@ DEF VAR v-loop-cnt AS INT NO-UNDO.
 DEF VAR v-note-cnt AS INT NO-UNDO.
 DEF VAR v-note-length AS INT NO-UNDO.
 DEF VAR v-die-loc AS cha FORM "x(15)" NO-UNDO.
+DEFINE VARIABLE v-plate-loc AS CHARACTER NO-UNDO .
 
 DEF VAR v-prev-ext-gap AS INT NO-UNDO.
 DEF VAR v-coldscr LIKE eb.i-coldscr NO-UNDO.
@@ -263,8 +264,8 @@ do v-local-loop = 1 to v-local-copies:
           ASSIGN lv-fg-name = IF AVAIL xoe-ordl AND xoe-ordl.i-no EQ job-hdr.i-no THEN xoe-ordl.i-name ELSE itemfg.i-name.
           {cec/rollfac.i}
           v-pqty = if v-rollfac OR xeb.est-type EQ 8 then 1 else
-                   if xeb.yld-qty lt 0 then (-1 / xeb.yld-qty)
-                                       else xeb.yld-qty.
+                   if xeb.quantityPerSet lt 0 then (-1 / xeb.quantityPerSet)
+                                       else xeb.quantityPerSet.
           FIND FIRST sman WHERE sman.company = xeb.company AND
                                 sman.sman = xeb.sman NO-LOCK NO-ERROR.
           v-sman = IF AVAIL sman THEN sman.sname ELSE xeb.sman.
@@ -476,14 +477,14 @@ do v-local-loop = 1 to v-local-copies:
                             no-lock no-error.
 
         ASSIGN
-           v-die-loc = ""
+           v-die-loc = IF AVAIL xxprep AND xxprep.loc NE "" THEN string(xxprep.loc) + "/" +  xxprep.loc-bin ELSE "" 
            v-coldscr = IF AVAIL xeb AND xeb.i-coldscr <> "" THEN xeb.i-coldscr ELSE "Plain"
            lv-ord-po = IF AVAIL xoe-ord THEN xoe-ord.po-no ELSE "".
         FIND FIRST b-itemfg WHERE b-itemfg.company = itemfg.company AND b-itemfg.i-no = xeb.stock-no
                 NO-LOCK NO-ERROR.
         FIND FIRST notes WHERE notes.rec_key EQ b-itemfg.rec_key 
                            AND notes.note_code = "LOC" NO-LOCK NO-ERROR.
-        IF AVAIL notes THEN v-die-loc = SUBSTRING(notes.note_text,1,10).
+        /*IF AVAIL notes THEN v-die-loc = SUBSTRING(notes.note_text,1,10).*/
         IF AVAIL b-itemfg THEN lv-fg-name = b-itemfg.i-name.
         
         v-see-1st-blank = IF NOT FIRST-OF(w-ef.frm) OR
@@ -602,7 +603,7 @@ do v-local-loop = 1 to v-local-copies:
             "<P8>" "<U>Die Cutting, Slit, & Saw</U><P10>" AT 125
            SKIP
              "<P8><U>Item Description:</U><P10>" AT 10               
-             "Die #" AT 100 xeb.die-no when avail xeb " Loc:" v-die-loc 
+             "Die #:" AT 100 xeb.die-no when avail xeb " Loc:" v-die-loc format "x(15)"
            SKIP
            "Style:" AT 2 xstyle.dscr WHEN AVAIL xstyle              
            "Gross Size:" AT 80  
@@ -688,11 +689,20 @@ do v-local-loop = 1 to v-local-copies:
              pr-text = TRIM(SUBSTR(notes.note_text,1,45)).
       END.
 
+      RELEASE xxprep .
+
+      IF AVAIL xeb THEN
+      find first xxprep where xxprep.company eq cocode
+                            and xxprep.code eq xeb.plate-no
+                            no-lock no-error.
+
+         v-plate-loc = IF AVAIL xxprep AND xxprep.loc NE "" THEN string(xxprep.loc) + "/" +  xxprep.loc-bin ELSE "" .
+
       display "<P8><U>Packing:</U>" AT 13 
-              "<U><B><P11>Printing:</B></U>" AT 125
+              "<U><B><P10>Printing:</B></U>" AT 125
               "<P10>" SKIP
               v-cas-desc AT 3 FORM "x(25)"
-              "<B><P11>PRINTING PLATE #:" AT 80 xeb.plate-no when avail xeb "</B><P10>"
+              "<P10>Plate #:" AT 80 xeb.plate-no when avail xeb "<P10>" " Loc:" v-plate-loc format "x(15)"
               SKIP
               "# Per Bndl:"        AT 3
               xeb.cas-cnt when avail xeb
@@ -1057,7 +1067,7 @@ do v-local-loop = 1 to v-local-copies:
         FOR EACH xeb WHERE xeb.company = est.company
                         AND xeb.est-no = est.est-no
                         AND xeb.form-no > 0 NO-LOCK:
-            PUT xeb.stock-no AT 3 space(14) xeb.part-dscr1 space(5) xeb.yld-qty FORMAT "->>>>>9" SKIP.
+            PUT xeb.stock-no AT 3 space(14) xeb.part-dscr1 space(5) xeb.quantityPerSet FORMAT "->>>>>9" SKIP.
             v-tmp-line = v-tmp-line + 1.
         END.
         v-tmp-line = v-tmp-line + 1.

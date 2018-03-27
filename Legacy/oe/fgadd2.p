@@ -126,7 +126,7 @@ do on error undo:
        v-item-dscr1 = bf-eb.part-dscr2
        v-item-dscr2 = ""
        v-item-price = 0
-       v-part-qty   = if bf-eb.cust-% ne 0 then bf-eb.cust-% else bf-eb.yld-qty.
+       v-part-qty   = if bf-eb.cust-% ne 0 then bf-eb.cust-% else bf-eb.quantityPerSet.
 
       if v-part-qty lt 0 then v-part-qty = -1 / v-part-qty.
 
@@ -193,7 +193,8 @@ do on error undo:
        itemfg.spc-no      = bf-eb.spc-no
        itemfg.isaset      = no 
        itemfg.pur-man     = bf-eb.form-no GT 0 AND bf-eb.pur-man
-       itemfg.alloc       = bf-eb.set-is-assembled.
+       itemfg.alloc       = bf-eb.set-is-assembled
+       itemfg.setupDate   = TODAY.
 
       /* Create an itemfg-loc for the default warehouse */
       RUN fg/chkfgloc.p (INPUT itemfg.i-no, INPUT "").

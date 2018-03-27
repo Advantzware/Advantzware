@@ -148,7 +148,7 @@ DEFINE VARIABLE lvrOeOrd          AS ROWID            NO-UNDO.
 DEFINE VARIABLE lvlReturnNoApply  AS LOGICAL          NO-UNDO.
 DEFINE VARIABLE lvlReturnCancel   AS LOGICAL          NO-UNDO.
 DEFINE VARIABLE gvlCheckOrdStat   AS LOGICAL     NO-UNDO.
-
+DEFINE VARIABLE lsecurity-flag AS LOGICAL NO-UNDO.
 /* bol print/post */
 DEF NEW SHARED VAR out-recid AS RECID NO-UNDO.
 DEFINE VARIABLE BolPostLog AS LOGICAL NO-UNDO.
@@ -1446,7 +1446,11 @@ END.
   LOAD "l-font.ini" DIR cDir BASE-KEY "INI".
   USE "l-font.ini".
 
+IF NOT lsecurity-flag THEN RUN sys/ref/d-passwd.w (3, OUTPUT lsecurity-flag).
+        
+IF lsecurity-flag THEN
 RUN custom/d-prompt.w (INPUT ipcButtonList, ip-parms, "", OUTPUT op-values).
+ELSE  op-values =  "DEFAULT" + "," + "No" .
 
 /* Load original ini for original font set */
 UNLOAD "l-font.ini" NO-ERROR.
@@ -2032,9 +2036,12 @@ ELSE DO:
           USE "l-font.ini".
 
         END.
+
+        IF NOT lsecurity-flag THEN RUN sys/ref/d-passwd.w (3, OUTPUT lsecurity-flag).
         
-        /* New Logic */
-        RUN custom/d-prompt.w (INPUT "yes-no-cancel", ip-parms, "", OUTPUT op-values).
+        IF lsecurity-flag THEN
+        RUN custom/d-prompt.w (INPUT "yes-no-cancel", ip-parms, "", OUTPUT op-values). /* New Logic */
+        ELSE  op-values =  "DEFAULT" + "," + "No" .
         
         /* Load original ini for original font set */
         UNLOAD "l-font.ini" NO-ERROR.

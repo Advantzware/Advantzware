@@ -1,0 +1,1 @@
+'Uservend: ' + uservend.vend-no

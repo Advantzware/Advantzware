@@ -86,7 +86,7 @@ ASSIGN cTextListToSelect = "Due Date,Order#,Customer Name,Vendor Name,Order Qty,
                            "Cost Due,MSF Due,Machine#,P/O#,FG Item#,RM Item#,Width,Length,UOM,Job#,Job Due" 
        cFieldListToSelect = "wk-sh-ord.due-date,v-ord-no,v-cust-name,v-vend-name,ld-oqty,ld-rqty," +
                             "v-cst-rem,v-msf-rem,wk-sh-ord.machine,po-ordl.po-no,vFGItem#,po-ordl.i-no,v-wid,v-len,lv-uom,v-job-no,v-jobDueDate"
-       cFieldLength = "8,6,30,30,15,15," + "10,10,8,6,15,15,10,10,4,9,10" 
+       cFieldLength = "8,6,30,30,15,15," + "10,10,8,6,15,15,10,10,4,12,10" 
        cFieldType   = "i,i,c,c,i,i," + "i,i,c,i,c,c,i,i,c,c,c"
        .
 

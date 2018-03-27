@@ -1,0 +1,1 @@
+'Zip Code: ' + zipcode.zipcode + ' - ' + zipcode.city + ', ' + zipcode.state + ' ' + zipcode.country

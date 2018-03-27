@@ -1,0 +1,30 @@
+FOR EACH reftable NO-LOCK WHERE reftable.reftable EQ "Holiday"
+code,loc
+
+Indexed: code,loc
+Non-Idx: ?
+
+Generated 04.18.2017 @  2:54:30 am by: nosweat
+Table: reftable - Records: 22,870,674
+
+    Index: code
+         Field: reftable
+         Field: code
+
+    Index: code2
+         Field: reftable
+         Field: code2
+
+    Index: loc
+         Field: reftable
+         Field: loc
+
+    Index: rec_key
+         Field: rec_key
+
+    Index: reftable
+         Field: reftable
+         Field: company
+         Field: loc
+         Field: code
+         Field: code2

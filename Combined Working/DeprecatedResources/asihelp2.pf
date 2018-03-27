@@ -1,0 +1,6 @@
+-H asisbs
+-N tcp
+-S 3813
+-ld     asihlp
+-db     Q:\Data\Progress\asi_gui10\db1010\asihelp.db
+-cache c:\tmp\asihelp.csh

@@ -1,7 +1,7 @@
-
 &ANALYZE-SUSPEND _VERSION-NUMBER UIB_v8r12 GUI
 &ANALYZE-RESUME
 /* Connected Databases 
+          asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 &Scoped-define FRAME-NAME Dialog-Frame
@@ -26,9 +26,6 @@
 /*----------------------------------------------------------------------*/
 
 /* ***************************  Definitions  ************************** */
-
-/* Parameters Definitions ---                                           */
-
 
 &SCOPED-DEFINE useMatches
 
@@ -70,37 +67,25 @@ DEF VAR idx AS INTEGER NO-UNDO.
 DEF VAR useColors AS CHAR NO-UNDO.
 DEF VAR gcompany AS CHAR NO-UNDO.
 
-&scoped-define SORTBY-1 BY tt-cust-part.i-no
-&scoped-define SORTBY-2 BY tt-cust-part.part-no
-&scoped-define SORTBY-3 BY tt-cust-part.i-name
-&scoped-define FLD-NAME-1 tt-cust-part.i-no
-&scoped-define FLD-NAME-2 tt-cust-part.part-no
-&scoped-define FLD-NAME-3 tt-cust-part.i-name
+&scoped-define SORTBY-1 BY itemfg.i-no
+&scoped-define SORTBY-2 BY itemfg.part-no
+&scoped-define SORTBY-3 BY itemfg.i-name
+&scoped-define FLD-NAME-1 itemfg.i-no
+&scoped-define FLD-NAME-2 itemfg.part-no
+&scoped-define FLD-NAME-3 itemfg.i-name
 &scoped-define IDXNAME2 cust-part
 &scoped-define IDXNAME3 name
 
 &scoped-define IAMWHAT LOOKUP
 
-ll-new-file = CAN-FIND(FIRST _file WHERE _file._file-name EQ "cust-part").
+ll-new-file = CAN-FIND(FIRST asi._file WHERE asi._file._file-name EQ "cust-part").
 
 gcompany = ip-company.
 {sys/inc/fgbrowse.i}
 useColors = sys-ctrl.char-fld.
 
-DEF TEMP-TABLE tt-cust-part    
-    FIELD i-no AS CHAR
-    FIELD i-name AS CHAR
-    FIELD part-no AS CHAR 
-    FIELD part-dscr1 AS CHAR
-    FIELD part-dscr2 AS CHAR
-    FIELD q-onh AS INTEGER
-    FIELD cust-no AS CHAR
-    FIELD stocked AS LOGICAL
-    FIELD r-id  AS RECID .
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 
 
 &ANALYZE-SUSPEND _UIB-PREPROCESSOR-BLOCK 
@@ -110,26 +95,33 @@ DEF TEMP-TABLE tt-cust-part
 &Scoped-define PROCEDURE-TYPE DIALOG-BOX
 &Scoped-define DB-AWARE no
 
-/* Name of designated FRAME-NAME and/or first browse and/or first query */
+/* Name of first Frame and/or Browse and/or first Query                 */
 &Scoped-define FRAME-NAME Dialog-Frame
 &Scoped-define BROWSE-NAME BROWSE-1
 
 /* Internal Tables (found by Frame, Query & Browse Queries)             */
-&Scoped-define INTERNAL-TABLES tt-cust-part
+&Scoped-define INTERNAL-TABLES itemfg
 
 /* Define KEY-PHRASE in case it is used by any query. */
 &Scoped-define KEY-PHRASE TRUE
 
 /* Definitions for BROWSE BROWSE-1                                      */
-&Scoped-define FIELDS-IN-QUERY-BROWSE-1 tt-cust-part.i-no tt-cust-part.i-name tt-cust-part.q-onh tt-cust-part.cust-no tt-cust-part.part-no tt-cust-part.part-dscr1 tt-cust-part.stocked  
-&Scoped-define ENABLED-FIELDS-IN-QUERY-BROWSE-1   
-&Scoped-define SELF-NAME BROWSE-1
-&Scoped-define QUERY-STRING-BROWSE-1 FOR EACH tt-cust-part WHERE ~{&KEY-PHRASE} ~
-NO-LOCK     ~{&SORTBY-PHRASE}
-&Scoped-define OPEN-QUERY-BROWSE-1 OPEN QUERY {&SELF-NAME} FOR EACH tt-cust-part WHERE ~{&KEY-PHRASE} ~
-NO-LOCK     ~{&SORTBY-PHRASE}.
-&Scoped-define TABLES-IN-QUERY-BROWSE-1 tt-cust-part
-&Scoped-define FIRST-TABLE-IN-QUERY-BROWSE-1 tt-cust-part
+&Scoped-define FIELDS-IN-QUERY-BROWSE-1 itemfg.i-no itemfg.i-name ~
+itemfg.q-onh get-cust () @ itemfg.cust-no itemfg.cust-no itemfg.part-no ~
+get-part () @ itemfg.part-no itemfg.part-dscr1 itemfg.stocked 
+&Scoped-define ENABLED-FIELDS-IN-QUERY-BROWSE-1 
+&Scoped-define QUERY-STRING-BROWSE-1 FOR EACH itemfg WHERE ~{&KEY-PHRASE} ~
+      AND itemfg.company = ip-company ~
+AND itemfg.stat = "A" ~
+~{&INDEX-PHRASE}  NO-LOCK ~
+    ~{&SORTBY-PHRASE}
+&Scoped-define OPEN-QUERY-BROWSE-1 OPEN QUERY BROWSE-1 FOR EACH itemfg WHERE ~{&KEY-PHRASE} ~
+      AND itemfg.company = ip-company ~
+AND itemfg.stat = "A" ~
+~{&INDEX-PHRASE}  NO-LOCK ~
+    ~{&SORTBY-PHRASE}.
+&Scoped-define TABLES-IN-QUERY-BROWSE-1 itemfg
+&Scoped-define FIRST-TABLE-IN-QUERY-BROWSE-1 itemfg
 
 
 /* Definitions for DIALOG-BOX Dialog-Frame                              */
@@ -137,7 +129,7 @@ NO-LOCK     ~{&SORTBY-PHRASE}.
     ~{&OPEN-QUERY-BROWSE-1}
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-1 BROWSE-1 rd-sort bt-clear lv-search ~
+&Scoped-Define ENABLED-OBJECTS BROWSE-1 RECT-1 rd-sort bt-clear lv-search ~
 bt-ok bt-cancel 
 &Scoped-Define DISPLAYED-OBJECTS rd-sort lv-search 
 
@@ -148,6 +140,22 @@ bt-ok bt-cancel
 &ANALYZE-RESUME
 
 
+/* ************************  Function Prototypes ********************** */
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD get-cust Dialog-Frame 
+FUNCTION get-cust RETURNS CHARACTER
+  ( /* parameter-definitions */ )  FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD get-part Dialog-Frame 
+FUNCTION get-part RETURNS CHARACTER
+  ( /* parameter-definitions */ )  FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 /* ***********************  Control Definitions  ********************** */
 
@@ -156,20 +164,20 @@ bt-ok bt-cancel
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON bt-cancel AUTO-END-KEY 
      LABEL "&Cancel" 
-     SIZE 10 BY 1.14.
+     SIZE 11 BY 1.
 
 DEFINE BUTTON bt-clear 
      LABEL "C&lear Find" 
-     SIZE 12.4 BY 1.14.
+     SIZE 12.4 BY 1.
 
 DEFINE BUTTON bt-ok 
      LABEL "&OK" 
-     SIZE 10 BY 1.14.
+     SIZE 11 BY 1.
 
 DEFINE VARIABLE lv-search AS CHARACTER FORMAT "X(256)":U 
      LABEL "Search" 
      VIEW-AS FILL-IN 
-     SIZE 84 BY 1 NO-UNDO.
+     SIZE 93 BY 1 NO-UNDO.
 
 DEFINE VARIABLE rd-sort AS INTEGER 
      VIEW-AS RADIO-SET HORIZONTAL
@@ -186,22 +194,22 @@ DEFINE RECTANGLE RECT-1
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
 DEFINE QUERY BROWSE-1 FOR 
-      tt-cust-part SCROLLING.
+      itemfg SCROLLING.
 &ANALYZE-RESUME
 
 /* Browse definitions                                                   */
 DEFINE BROWSE BROWSE-1
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS BROWSE-1 Dialog-Frame _FREEFORM
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS BROWSE-1 Dialog-Frame _STRUCTURED
   QUERY BROWSE-1 NO-LOCK DISPLAY
-     tt-cust-part.i-no COLUMN-LABEL "Item No" FORMAT "x(15)":U WIDTH 23
-     tt-cust-part.i-name COLUMN-LABEL "Name" FORMAT "x(15)":U WIDTH 23
-     tt-cust-part.q-onh COLUMN-LABEL "Qty on Hand" 
-     tt-cust-part.cust-no COLUMN-LABEL "Cust#" FORMAT "x(8)":U WIDTH 15
-     tt-cust-part.part-no COLUMN-LABEL "Cust Part #" FORMAT "x(15)":U
-            WIDTH 23
-     tt-cust-part.part-dscr1 COLUMN-LABEL "Item Description" FORMAT "x(30)":U WIDTH 33
-     tt-cust-part.stocked COLUMN-LABEL "Stock Mat'l?"  FORMAT "Yes/No":U
-      
+      itemfg.i-no FORMAT "x(15)":U WIDTH 23
+      itemfg.i-name FORMAT "x(30)":U
+      itemfg.q-onh FORMAT "->>,>>>,>>9.999":U
+      get-cust () @ itemfg.cust-no
+      itemfg.cust-no FORMAT "x(8)":U WIDTH 10
+      itemfg.part-no FORMAT "x(15)":U
+      get-part () @ itemfg.part-no
+      itemfg.part-dscr1 FORMAT "x(30)":U
+      itemfg.stocked FORMAT "Yes/No":U
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ROW-MARKERS SEPARATORS SIZE 141 BY 11.19
@@ -211,16 +219,16 @@ DEFINE BROWSE BROWSE-1
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME Dialog-Frame
-     BROWSE-1 AT ROW 1 COL 1.6
+     BROWSE-1 AT ROW 1 COL 1
      rd-sort AT ROW 12.67 COL 14 NO-LABEL
      bt-clear AT ROW 14.1 COL 2
-     lv-search AT ROW 14.1 COL 21 COLON-ALIGNED
-     bt-ok AT ROW 14.1 COL 108
-     bt-cancel AT ROW 14.1 COL 120
+     lv-search AT ROW 14.1 COL 22 COLON-ALIGNED
+     bt-ok AT ROW 14.1 COL 118
+     bt-cancel AT ROW 14.1 COL 131
      "Sort By:" VIEW-AS TEXT
-          SIZE 9 BY 1 AT ROW 12.67 COL 2
+          SIZE 8 BY 1 AT ROW 12.67 COL 4
      RECT-1 AT ROW 12.43 COL 1
-     SPACE(0.59) SKIP(1.51)
+     SPACE(0.59) SKIP(1.37)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
          TITLE "Finished Goods Information".
@@ -242,8 +250,8 @@ DEFINE FRAME Dialog-Frame
 
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
 /* SETTINGS FOR DIALOG-BOX Dialog-Frame
-   FRAME-NAME                                                           */
-/* BROWSE-TAB BROWSE-1 RECT-1 Dialog-Frame */
+                                                                        */
+/* BROWSE-TAB BROWSE-1 1 Dialog-Frame */
 ASSIGN 
        FRAME Dialog-Frame:SCROLLABLE       = FALSE
        FRAME Dialog-Frame:HIDDEN           = TRUE.
@@ -256,21 +264,26 @@ ASSIGN
 
 &ANALYZE-SUSPEND _QUERY-BLOCK BROWSE BROWSE-1
 /* Query rebuild information for BROWSE BROWSE-1
-     _START_FREEFORM
-IF rd-sort = 1 THEN DO:
-   OPEN QUERY {&SELF-NAME} FOR EACH tt-cust-part WHERE tt-cust-part.po-no BEGINS lv-search
-                                 BY tt-cust-part.part-no.
-END.
-ELSE DO:
-    OPEN QUERY {&SELF-NAME} FOR EACH tt-cust-part WHERE tt-cust-part.po-no BEGINS lv-search
-                                  BY tt-cust-part.i-no.
-END.
-     _END_FREEFORM
+     _TblList          = "ASI.itemfg"
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
      _TblOptList       = ", FIRST"
-     _Where[1]         = "ASI.oe-rel.company = ip-company
- AND ASI.oe-rel.po-no BEGINS ip-cur-val
- AND ASI.oe-rel.po-no <> """""
+     _Where[1]         = "ASI.itemfg.company = ip-company
+AND ASI.itemfg.stat = ""A""
+~{&INDEX-PHRASE} "
+     _FldNameList[1]   > ASI.itemfg.i-no
+"i-no" ? ? "character" ? ? ? ? ? ? no ? no no "23" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[2]   = ASI.itemfg.i-name
+     _FldNameList[3]   = ASI.itemfg.q-onh
+     _FldNameList[4]   > "_<CALC>"
+"get-cust () @ itemfg.cust-no" ? ? ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[5]   > ASI.itemfg.cust-no
+"cust-no" ? ? "character" ? ? ? ? ? ? no ? no no "10" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[6]   > ASI.itemfg.part-no
+"part-no" ? "x(15)" "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[7]   > "_<CALC>"
+"get-part () @ itemfg.part-no" ? ? ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[8]   = ASI.itemfg.part-dscr1
+     _FldNameList[9]   = ASI.itemfg.stocked
      _Query            is OPENED
 */  /* BROWSE BROWSE-1 */
 &ANALYZE-RESUME
@@ -283,14 +296,13 @@ END.
 
 &Scoped-define SELF-NAME Dialog-Frame
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Dialog-Frame Dialog-Frame
-ON WINDOW-CLOSE OF FRAME Dialog-Frame /* PO Information */
+ON WINDOW-CLOSE OF FRAME Dialog-Frame /* Finished Goods Information */
 DO:
   APPLY "END-ERROR":U TO SELF.
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 
 
 &Scoped-define BROWSE-NAME BROWSE-1
@@ -303,25 +315,56 @@ DO:
                                 
    lv-search:screen-value = lv-search:screen-value + keylabel(lastkey).
    apply "leave" to lv-search.
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
-&Scoped-define BROWSE-NAME BROWSE-1
-&Scoped-define SELF-NAME BROWSE-1
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL BROWSE-1 Dialog-Frame
 ON DEFAULT-ACTION OF BROWSE-1 IN FRAME Dialog-Frame
 DO:
-  ASSIGN
-   op-recid  = tt-cust-part.r-id
-   op-char-val = tt-cust-part.i-no + "," +
-                  tt-cust-part.i-name 
-                 . 
+   op-char-val = itemfg.i-no:screen-value in browse {&browse-name} + "," +
+                 itemfg.i-name:screen-value in browse {&browse-name} 
+                 .
+   op-recid  = recid(itemfg).               
+   apply "window-close" to frame {&frame-name}. 
+      
+END.
 
-   APPLY "window-close" TO FRAME {&FRAME-NAME}.
-  
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL BROWSE-1 Dialog-Frame
+ON ROW-DISPLAY OF BROWSE-1 IN FRAME Dialog-Frame
+DO:
+  IF useColors NE '' THEN
+  DO idx = 1 TO columnCount:
+    CASE useColors:
+      WHEN 'Bronze/Maroon' THEN
+      ASSIGN
+        cellColumn[idx]:FGCOLOR = IF itemfg.stocked AND itemfg.q-onh LE 0 THEN 15 ELSE ?
+        cellColumn[idx]:BGCOLOR = IF itemfg.stocked AND itemfg.q-onh LE 0 THEN 4 ELSE ?.
+      OTHERWISE
+      ASSIGN
+        cellColumn[idx]:FGCOLOR = ?
+        cellColumn[idx]:BGCOLOR = ?.
+    END CASE.
+  END. /* do idx */
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME bt-cancel
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL bt-cancel Dialog-Frame
+ON CHOOSE OF bt-cancel IN FRAME Dialog-Frame /* Cancel */
+DO:
+   ASSIGN op-char-val = ""
+          op-recid = ?.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -334,7 +377,7 @@ ON CHOOSE OF bt-clear IN FRAME Dialog-Frame /* Clear Find */
 DO:
     assign lv-search:screen-value = "".
            lv-search = "".
-   case rd-sort:
+    case rd-sort:
         {srtord2.i 1}
         {srtord2.i 2}
         {srtord2.i 3}
@@ -350,14 +393,12 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL bt-ok Dialog-Frame
 ON CHOOSE OF bt-ok IN FRAME Dialog-Frame /* OK */
 DO:
-    assign
-     op-recid  = tt-cust-part.r-id
-     op-char-val = tt-cust-part.i-no + "," +
-                  tt-cust-part.i-name 
-                 . 
-
-   APPLY "window-close" TO FRAME {&FRAME-NAME}.
-    
+   op-char-val = itemfg.i-no:screen-value in browse {&browse-name} + "," +
+                 itemfg.i-name:screen-value in browse {&browse-name} 
+                 .
+   op-recid  = recid(itemfg).                 
+   apply "window-close" to frame {&frame-name}. 
+      
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -367,19 +408,11 @@ END.
 &Scoped-define SELF-NAME lv-search
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lv-search Dialog-Frame
 ON LEAVE OF lv-search IN FRAME Dialog-Frame /* Search */
-or return of lv-search
+OR RETURN OF lv-search
 DO:
-    assign rd-sort 
-           lv-search.
+    ASSIGN lv-search.
 
-    &scoped-define IAMWHAT Search   
-
-    &scoped-define where-statement begins lv-search
-    case rd-sort:
-        {srtord2.i 1}
-        {srtord2.i 2}
-        {srtord2.i 3}
-    end.        
+    RUN new-search.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -389,34 +422,11 @@ END.
 &Scoped-define SELF-NAME rd-sort
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rd-sort Dialog-Frame
 ON VALUE-CHANGED OF rd-sort IN FRAME Dialog-Frame
-DO: 
-    lv-search = "".
-    lv-search:SCREEN-VALUE = "".
-    ASSIGN rd-sort.
-    RUN new-rd-sort.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL BROWSE-1 Dialog-Frame
-ON ROW-DISPLAY OF BROWSE-1 IN FRAME Dialog-Frame
 DO:
-  IF useColors NE '' THEN
-  DO idx = 1 TO columnCount:
-    CASE useColors:
-      WHEN 'Bronze/Maroon' THEN
-      ASSIGN
-        cellColumn[idx]:FGCOLOR = IF tt-cust-part.stocked AND tt-cust-part.q-onh LE 0 THEN 15 ELSE ?
-        cellColumn[idx]:BGCOLOR = IF tt-cust-part.stocked AND tt-cust-part.q-onh LE 0 THEN 4 ELSE ?.
-      OTHERWISE
-      ASSIGN
-        cellColumn[idx]:FGCOLOR = ?
-        cellColumn[idx]:BGCOLOR = ?.
-    END CASE.
-  END. /* do idx */
+  lv-search = "".
+  lv-search:SCREEN-VALUE = "".
+  ASSIGN rd-sort.
+  RUN new-rd-sort.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -441,13 +451,12 @@ MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
 
-  
-  RUN create-tt-cust-part.
-
   IF ip-cur-val EQ "0" THEN ip-cur-val = "".
 
   RUN getCellColumns.
+
   RUN enable_UI.
+
   DO WITH FRAME {&FRAME-NAME}:
     {custom/usrprint.i}
     lv-search = ip-cur-val.
@@ -459,8 +468,8 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
           AND itemfg.i-no    BEGINS ip-cur-val
         NO-ERROR.
     IF AVAIL itemfg THEN
-      lv-search = IF rd-sort:SCREEN-VALUE EQ "2" THEN tt-cust-part.part-no
-                                                 ELSE tt-cust-part.i-name.
+      lv-search = IF rd-sort:SCREEN-VALUE EQ "2" THEN itemfg.part-no
+                                                 ELSE itemfg.i-name.
 
     lv-search:SCREEN-VALUE = lv-search.
 
@@ -469,11 +478,6 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     ELSE RUN new-search.
   END.
 
-  /*&scoped-define key-phrase {&fld-name-1} >= ip-cur-val
-  &scoped-define sortby-phrase {&sortby-1}*/
-
-  /*RUN enable_UI.*/
-  
   WAIT-FOR GO OF FRAME {&FRAME-NAME}.
 END.
 RUN disable_UI.
@@ -483,52 +487,6 @@ RUN disable_UI.
 
 
 /* **********************  Internal Procedures  *********************** */
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE create-tt-cust-part Dialog-Frame 
-PROCEDURE create-tt-cust-part :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-
-FOR EACH itemfg NO-LOCK
-    WHERE itemfg.company = ip-company
-      AND itemfg.stat = "A" BREAK BY itemfg.i-no  :
-      IF FIRST-OF(itemfg.i-no) THEN DO:
-        CREATE tt-cust-part.
-            ASSIGN
-                tt-cust-part.i-no       =  itemfg.i-no
-                tt-cust-part.i-name     =  itemfg.i-name
-                tt-cust-part.q-onh      =  itemfg.q-onh
-                tt-cust-part.cust-no    =  itemfg.cust-no
-                tt-cust-part.part-no    =  itemfg.part-no
-                tt-cust-part.part-dscr1 =  itemfg.part-dscr1
-                tt-cust-part.part-dscr2 =  itemfg.part-dscr2
-                tt-cust-part.stocked    =  itemfg.stocked
-                tt-cust-part.r-id       =    RECID(itemfg).
-      END.
-      
-     FOR EACH cust-part WHERE cust-part.company EQ itemfg.company   
-       AND cust-part.i-no = itemfg.i-no AND cust-part.part-no NE ""
-          NO-LOCK :
-            CREATE tt-cust-part.
-            ASSIGN
-                tt-cust-part.i-no       =  itemfg.i-no
-                tt-cust-part.i-name     =  itemfg.i-name
-                tt-cust-part.q-onh      =  itemfg.q-onh
-                tt-cust-part.cust-no    =  cust-part.cust-no
-                tt-cust-part.part-no    =  cust-part.part-no
-                tt-cust-part.part-dscr1 =  itemfg.part-dscr1
-                tt-cust-part.part-dscr2 =  itemfg.part-dscr2
-                tt-cust-part.stocked    =  itemfg.stocked
-                tt-cust-part.r-id       =    RECID(itemfg).
-     END.
-END.
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI Dialog-Frame  _DEFAULT-DISABLE
 PROCEDURE disable_UI :
@@ -560,7 +518,7 @@ PROCEDURE enable_UI :
 ------------------------------------------------------------------------------*/
   DISPLAY rd-sort lv-search 
       WITH FRAME Dialog-Frame.
-  ENABLE RECT-1 BROWSE-1 rd-sort bt-clear lv-search bt-ok bt-cancel 
+  ENABLE BROWSE-1 RECT-1 rd-sort bt-clear lv-search bt-ok bt-cancel 
       WITH FRAME Dialog-Frame.
   VIEW FRAME Dialog-Frame.
   {&OPEN-BROWSERS-IN-QUERY-Dialog-Frame}
@@ -569,35 +527,34 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE new-rd-sort Dialog-Frame 
-PROCEDURE new-rd-sort :
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE get-cust-part Dialog-Frame 
+PROCEDURE get-cust-part :
 /*------------------------------------------------------------------------------
   Purpose:     
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  /* redefined for lookup */
-  &scoped-define IAMWHAT LOOKUP   
-         
-  DO WITH FRAME {&FRAME-NAME}: 
-    assign rd-sort.
-    case rd-sort:
-        {srtord2.i 1}
-        {srtord2.i 2}
-        {srtord2.i 3}
-    end. 
-  END.
+  DEF VAR cp-part-no LIKE itemfg.part-no NO-UNDO.
+  DEF VAR cp-rowid AS ROWID NO-UNDO.
 
-  DO TRANSACTION:
-    RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
-    APPLY 'entry' TO BROWSE {&browse-name}.
+
+  IF AVAIL itemfg AND ll-new-file AND ip-cust-no NE "" THEN DO:
+    ASSIGN
+     cp-part-no = ""
+     cp-rowid   = ROWID(itemfg).
+
+    RUN custom/getcpart.p (ip-company, ip-cust-no,
+                           INPUT-OUTPUT cp-part-no, INPUT-OUTPUT cp-rowid).
+    IF cp-part-no NE "" THEN
+      ASSIGN
+       lv-part-no = cp-part-no
+       lv-cust-no = ip-cust-no.
   END.
 
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE getCellColumns Dialog-Frame 
 PROCEDURE getCellColumns :
@@ -616,6 +573,33 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE new-rd-sort Dialog-Frame 
+PROCEDURE new-rd-sort :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  
+  /* redefined for lookup */
+  &scoped-define IAMWHAT LOOKUP   
+         
+  DO WITH FRAME {&FRAME-NAME}:
+    assign rd-sort.
+    case rd-sort:
+        {srtord2.i 1}
+        {srtord2.i 2}
+        {srtord2.i 3}
+    end.    
+  END.
+
+  RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
+  APPLY 'entry' TO BROWSE {&browse-name}.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE new-search Dialog-Frame 
 PROCEDURE new-search :
@@ -640,3 +624,44 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+/* ************************  Function Implementations ***************** */
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION get-cust Dialog-Frame 
+FUNCTION get-cust RETURNS CHARACTER
+  ( /* parameter-definitions */ ) :
+/*------------------------------------------------------------------------------
+  Purpose:  
+    Notes:  
+------------------------------------------------------------------------------*/
+  
+  lv-cust-no = itemfg.cust-no.
+
+  RUN get-cust-part.
+
+  RETURN lv-cust-no.            /* Function return value. */
+
+END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION get-part Dialog-Frame 
+FUNCTION get-part RETURNS CHARACTER
+  ( /* parameter-definitions */ ) :
+/*------------------------------------------------------------------------------
+  Purpose:  
+    Notes:  
+------------------------------------------------------------------------------*/
+
+  lv-part-no = itemfg.part-no.
+
+  RUN get-cust-part.
+
+  RETURN lv-part-no.            /* Function return value. */
+
+END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+

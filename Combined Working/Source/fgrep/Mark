@@ -1,0 +1,289 @@
+{custom/gcompany.i}
+{custom/gloc.i}
+{custom/getcmpny.i}
+{custom/getloc.i}
+
+{sys/inc/var.i new shared}
+
+ASSIGN
+ cocode = gcompany
+ locode = gloc.
+ 
+DEF VAR daStartPost AS DATE NO-UNDO.
+DEF VAR daEndPost AS DATE NO-UNDO.
+
+UPDATE
+    daStartPost LABEL "Beginning Post Date" SKIP
+    daEndPost LABEL "Ending Post Date"
+    WITH FRAME fDates VIEW-AS DIALOG-BOX THREE-D CENTERED.
+
+ASSIGN cTextListToSelect = "DATE,ITEM,DESCRIPTN,PO#,JOB#,VENDOR#,TRANSACTION TYPE,TAG#,RFID#,UNITS," +
+                           "COUNT,BIN,CUOM,TOTAL QTY,TOTAL COST,TOT SELL VAL," +
+                           "CUSTOMER PART#,DIE#,# UP,CAD#,PLATE#,NUM OF COLORS,SHEET SIZE,CALIPER,USER-ID,WHSE,WT/100,REC TIME,POSTED," +
+                           "CATGY,UNIT COST,UNIT SELL,SUOM,PROMISE DATE,ORD DUE DATE,START DATE,SHIPTO,SHIPTO NAME,ORDER#," +
+                           "BEFORE QTY,BIN CHANGE,BOL#"
+
+DEF TEMP-TABLE ttRpt
+    FIELD ttRowID AS ROWID
+    FIELD ttDate AS DATE
+    FIELD ttRecID1 AS RECID
+    FIELD ttRecID2 AS RECID
+
+    FIELD company LIKE company.company
+
+    FIELD trans-date LIKE fg-rcpth.trans-date
+    FIELD i-no LIKE fg-rcpth.i-no
+    FIELD i-name LIKE fg-rcpth.i-name
+    FIELD po-no LIKE fg-rcpth.po-no
+    FIELD job-no LIKE fg-rcpth.job-no
+    FIELD lv-cost-uom LIKE fg-rcpth.pur-uom
+    FIELD user-id LIKE fg-rcpth.user-id
+    FIELD post-date LIKE fg-rcpth.post-date
+
+    FIELD bol-no LIKE fg-rdtlh.bol-no
+    FIELD cust-no LIKE fg-rdtlh.cust-no
+    FIELD v-cases LIKE fg-rdtlh.cases
+    FIELD v-qty-case LIKE fg-rdtlh.qty-case
+    FIELD loc-bin LIKE fg-rdtlh.loc-bin
+    FIELD loc LIKE fg-rdtlh.loc
+    FIELD wt-h LIKE fg-rdtlh.tot-wt
+    FIELD rec-time LIKE fg-rdtlh.trans-time
+    FIELD v-tag LIKE fg-rdtlh.tag
+
+    FIELD part-no LIKE itemfg.part-no
+    FIELD die-no LIKE itemfg.die-no
+    FIELD cad-no LIKE itemfg.cad-no
+    FIELD plate-no LIKE itemfg.plate-no
+    FIELD procat LIKE itemfg.procat
+
+    FIELD vend-no LIKE po-ord.vend-no
+    
+    FIELD v-tran-type AS CHAR
+    FIELD v-rfid# AS CHAR
+    FIELD v-fg-qty AS INT
+    FIELD v-fg-cost AS DEC
+    FIELD v-fg-value AS DEC
+    FIELD v-numUp AS INT
+    FIELD v-numColors AS INT
+    FIELD v-SheetSize AS CHAR
+    FIELD v-caliper AS CHAR
+    FIELD unt-cst AS DEC
+    FIELD unt-sel AS DEC
+    FIELD suom AS CHAR
+    FIELD prom-date AS DATE
+    FIELD due-date AS DATE
+    FIELD job-start AS DATE
+    FIELD shipto AS CHAR
+    FIELD shipname AS CHAR
+    FIELD order-no AS INT
+    FIELD bef-qty AS DEC
+    FIELD bin-qty AS DEC
+    .
+                
+FOR EACH fg-rcpth NO-LOCK WHERE
+    fg-rcpth.company EQ cocode AND
+    fg-rcpth.post-date GE daStartPost AND
+    fg-rcpth.post-date LE daEndPost,
+    EACH fg-rdtlh NO-LOCK WHERE
+        fg-rdtlh.r-no EQ fg-rcpth.r-no AND
+        fg-rdtlh.rita-code EQ fg-rcpth.r-no:
+        
+    FIND FIRST itemfg NO-LOCK WHERE 
+        itemfg.company EQ cocode AND 
+        itemfg.i-no    EQ fg-rcpth.i-no
+        NO-ERROR.
+    
+    FIND FIRST oe-bolh NO-LOCK WHERE 
+        oe-bolh.company EQ cocode AND 
+        oe-bolh.b-no    EQ fg-rcpth.b-no 
+        NO-ERROR.
+
+    IF AVAIL oe-bolh THEN DO:
+        FIND FIRST oe-boll NO-LOCK WHERE 
+            oe-boll.company EQ oe-bolh.company AND 
+            oe-boll.b-no    EQ oe-bolh.b-no 
+            NO-ERROR.
+        FIND FIRST shipto NO-LOCK WHERE 
+            shipto.company EQ cocode and 
+            shipto.cust-no EQ oe-bolh.cust-no AND 
+            shipto.ship-id EQ oe-bolh.ship-id 
+            NO-ERROR.
+    END.
+    
+    FIND FIRST po-ord NO-LOCK WHERE
+        po-ord.company EQ cocode and
+        po-ord.po-no   EQ INT(fg-rcpth.po-no)
+        NO-ERROR.   
+
+    FIND FIRST loadtag NO-LOCK WHERE
+        loadtag.item-type EQ NO AND 
+        loadtag.company EQ cocode ADN
+        loadtag.i-no EQ fg-rcpth.i-no AND 
+        loadtag.tag-no EQ fg-rdtlh.tag
+        NO-ERROR.
+
+    IF AVAIL loadtag THEN FIND FIRST rfidtag OF loadtag 
+        NO-LOCK NO-ERROR.
+            
+    FIND FIRST fg-bin NO-LOCK WHERE
+        fg-bin.company EQ fg-rcpth.company AND
+        fg-bin.job-no  EQ fg-rcpth.job-no AND
+        fg-bin.job-no2 EQ fg-rcpth.job-no2 AND
+        fg-bin.i-no    EQ fg-rcpth.i-no AND
+        fg-bin.loc     EQ fg-rdtlh.loc AND
+        fg-bin.loc-bin EQ fg-rdtlh.loc-bin AND
+        fg-bin.tag     EQ fg-rdtlh.tag AND
+        fg-bin.po-no   EQ fg-rcpth.po-no AND
+        fg-bin.bol-no  EQ fg-rdtlh.bol-no
+        NO-ERROR.
+    IF NOT AVAIL fg-bin THEN FIND FIRST fg-bin NO-LOCK WHERE
+        fg-bin.company EQ fg-rcpth.company AND
+        fg-bin.job-no  EQ fg-rcpth.job-no AND
+        fg-bin.job-no2 EQ fg-rcpth.job-no2 AND
+        fg-bin.i-no    EQ fg-rcpth.i-no AND
+        fg-bin.loc     EQ fg-rdtlh.loc AND
+        fg-bin.loc-bin EQ fg-rdtlh.loc-bin AND
+        fg-bin.tag     EQ fg-rdtlh.tag
+        NO-ERROR.
+    IF NOT AVAIL fg-bin THEN FIND FIRST fg-bin NO-LOCK WHERE
+        fg-bin.company EQ fg-rcpth.company AND
+        fg-bin.i-no    EQ fg-rcpth.i-no AND
+        fg-bin.po-no   EQ fg-rcpth.po-no AND
+        fg-bin.loc     EQ fg-rdtlh.loc AND
+        fg-bin.loc-bin EQ fg-rdtlh.loc-bin AND
+        fg-bin.tag     EQ fg-rdtlh.tag
+        NO-ERROR.
+    IF NOT AVAIL fg-bin THEN FIND FIRST fg-bin NO-LOCK WHERE
+        fg-bin.company EQ fg-rcpth.company AND
+        fg-bin.i-no    EQ fg-rcpth.i-no AND
+        fg-bin.loc     EQ fg-rdtlh.loc AND
+        fg-bin.loc-bin EQ fg-rdtlh.loc-bin AND
+        fg-bin.tag     EQ fg-rdtlh.tag
+        NO-ERROR.
+
+    FIND FIRST job NO-LOCK WHERE 
+        job.company EQ fg-rcpth.company AND 
+        job.job-no EQ fg-rcpth.job-no AND 
+        job.job-no2 EQ fg-rcpth.job-no2
+        NO-ERROR.
+
+    FIND FIRST job-hdr NO-LOCK WHERE 
+        job-hdr.company = fg-rcpth.company AND 
+        job-hdr.job-no = fg-rcpth.job-no AND 
+        job-hdr.job-no2 = fg-rcpth.job-no2 AND 
+        job-hdr.i-no = fg-rcpth.i-no 
+        NO-ERROR.
+
+    IF AVAIL itemfg THEN DO:
+        FIND FIRST eb NO-LOCK WHERE 
+            eb.company = itemfg.company AND
+            eb.est-no = itemfg.est-no AND
+            eb.stock-no = itemfg.i-no 
+            NO-ERROR.
+
+        IF AVAIL eb THEN FIND ef OF eb NO-LOCK NO-ERROR.
+        
+        ASSIGN
+            ttRpt.lv-sell-price = itemfg.sell-price
+            ttRpt.suom   = itemfg.sell-uom    
+            ttRpt.lv-cost-uom   = itemfg.prod-uom
+            ttRpt.v-fg-qty   = fg-rdtlh.qty
+            ttRpt.v-fg-cost  = fg-rdtlh.cost * (v-fg-qty / IF lv-cost-uom EQ "M" THEN 1000 ELSE 1)
+            ttRpt.v-fg-value = 0
+            v-msf[1]   = 0
+            v-msf[2]   = 0.
+            
+        IF fg-rcpth.rita-code EQ "R" THEN DO:
+            RUN calc-msf-for-r (INPUT ROWID(fg-rcpth),
+                                INPUT ROWID(fg-rdtlh),
+                                INPUT LAST-OF(tt-report.key-02),
+                                INPUT v-corr,
+                                OUTPUT v-on,
+                                OUTPUT v-qty-pallet,
+                                OUTPUT v-msf[1],
+                                OUTPUT v-msf[2]).
+
+            IF v-msf[1] GT fg-rdtlh.qty * itemfg.t-sqft THEN
+                v-msf[2] = v-msf[2] + (v-msf[1] - (fg-rdtlh.qty * itemfg.t-sqft)).
+            v-msf[1] = fg-rdtlh.qty * itemfg.t-sqft.
+        END.
+
+        
+        IF AVAIL eb 
+        AND AVAIL ef THEN ASSIGN 
+            v-numColors = (eb.i-col)
+            v-numup = (eb.num-up)
+            v-sheetsize = IF AVAIL ef THEN string(ef.gsh-wid) + "x" + string(ef.gsh-len) ELSE ""
+            v-caliper = IF AVAIL ef THEN string(ef.cal) ELSE "".
+    END.
+    
+    IF AVAIL job THEN ASSIGN
+        job-start = job.start-date .
+    
+    IF AVAIL job-hdr 
+    AND job-hdr.est-no <> "" THEN DO:
+        FIND eb NO-LOCK WHERE 
+            eb.company = job-hdr.company AND 
+            eb.est-no = job-hdr.est-no AND 
+            eb.stock-no = job-hdr.i-no 
+            NO-ERROR.
+        IF AVAIL eb THEN DO:
+            FIND ef OF eb NO-LOCK NO-ERROR.
+            ASSIGN 
+                v-numColors = (eb.i-col)
+                v-numup = (eb.num-up)
+                v-sheetsize = IF AVAIL ef THEN string(ef.gsh-wid) + "x" + string(ef.gsh-len) ELSE ""
+                v-caliper = IF AVAIL ef THEN string(ef.cal) ELSE "".
+        END.
+    END.
+
+    IF AVAIL job-hdr 
+    AND job-hdr.ord-no <> 0 THEN DO:
+        FIND FIRST oe-ordl NO-LOCK WHERE 
+            oe-ordl.company = cocode AND 
+            oe-ordl.ord-no = int(job-hdr.ord-no ) AND 
+            oe-ordl.i-no   = itemfg.i-no 
+            NO-ERROR.
+        IF AVAIL oe-ordl THEN ASSIGN 
+            prom-date = oe-ordl.prom-date 
+            due-date = oe-ordl.req-date 
+            order-no = oe-ordl.ord-no   .
+    END.
+    ELSE IF AVAIL oe-bolh THEN DO:
+        FIND FIRST oe-boll NO-LOCK WHERE 
+            oe-boll.company = oe-bolh.company AND 
+            oe-boll.b-no = oe-bolh.b-no AND 
+            oe-boll.i-no = itemfg.i-no 
+            NO-ERROR.
+        IF AVAIL oe-boll THEN FIND FIRST oe-ordl NO-LOCK WHERE 
+            oe-ordl.company = cocode AND 
+            oe-ordl.ord-no = int(oe-boll.ord-no ) AND 
+            oe-ordl.i-no   = itemfg.i-no 
+            NO-ERROR.
+        IF AVAIL oe-ordl THEN ASSIGN 
+            prom-date = oe-ordl.prom-date 
+            due-date = oe-ordl.req-date 
+            order-no = oe-ordl.ord-no   .
+    END.
+    
+    IF fg-rcpth.rita-code EQ "S" THEN ASSIGN 
+        lv-cost-uom = IF AVAILABLE fg-bin THEN fg-bin.pur-uom ELSE "M"
+        iBol-no = IF AVAIL oe-boll THEN oe-boll.bol-no ELSE 0.
+    ELSE ASSIGN 
+        iBol-no = 0
+        lv-cost-uom = fg-rcpth.pur-uom.
+       
+
+    CREATE ttRpt.
+    ASSIGN
+        ttRpt.ttRowID = ROWID(ttRpt)
+        ttRpt.ttRecID1 = RECID(fg-rcpth)
+        ttRpt.ttRecID2 = RECID(fg-rdtlh)
+        ttRpt.company = fg-rcpth.company
+        ttRpt.post-date = fg-rcpth.post-date
+        ttRpt.trans-date = fg-rcpth.trans-date
+        ttRpt.i-no = fg-rcpth.i-no
+        ttRpt.i-name = fg-rcpth.i-name
+        ttRpt.po-no = fg-rcpth.po-no
+        
+        

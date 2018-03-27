@@ -1032,12 +1032,9 @@ END.
 ON LEAVE OF rfqitem.flute IN FRAME F-Main /* Flute */
 DO:
     if self:screen-value = "" then return.
-    find first reftable where reftable.reftable = "Flute" and 
-                              reftable.company  = "" and
-                              reftable.loc = "" and
-                              reftable.code = self:screen-value
-         no-lock no-error.                          
-    if not avail reftable and lastkey <> -1 then do:
+    find first flute where flute.code = self:screen-value
+         no-lock no-error.
+    if not avail flute and lastkey <> -1 then do:
     {&methods/lValidateError.i YES}
        message "Invalid Flute. Try Help." view-as alert-box error.
        return no-apply.

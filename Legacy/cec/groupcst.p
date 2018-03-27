@@ -206,8 +206,8 @@ IF AVAIL groupcst THEN DO:
        ASSIGN
         qty      = IF xest.est-type GE 7 THEN xeb.yld-qty
                    ELSE
-                     xest.est-qty[1] * (IF xeb.yld-qty LT 0 THEN (-1 / xeb.yld-qty)
-                                                            ELSE xeb.yld-qty)
+                     xest.est-qty[1] * (IF xeb.quantityPerSet LT 0 THEN (-1 / xeb.quantityPerSet)
+                                                            ELSE xeb.quantityPerSet)
         save-qty = 0
         b-qty    = 0
   

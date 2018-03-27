@@ -1,0 +1,16 @@
+FOR EACH file NO-LOCK
+dscr,grp,name,program,seq
+
+Indexed: grp,name,seq
+Non-Idx: dscr,program
+
+Generated 04.18.2017 @  2:48:49 am by: nosweat
+Table: file - Records: 66
+
+    Index: rec_key
+         Field: rec_key
+
+    Index: seq
+         Field: seq
+         Field: grp
+         Field: name

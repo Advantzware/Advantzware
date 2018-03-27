@@ -63,7 +63,8 @@ assign
  itemfg.isaset     = (xest.est-type eq 2 or xest.est-type eq 6) and
                      xeb.form-no eq 0 
  itemfg.pur-man    = xeb.pur-man     
- itemfg.alloc      = NOT xeb.set-is-assembled.
+ itemfg.alloc      = NOT xeb.set-is-assembled
+ itemfg.setupDate  = TODAY.
 
   IF fgmaster-log THEN
       itemfg.stocked = YES.

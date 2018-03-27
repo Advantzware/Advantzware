@@ -3398,30 +3398,30 @@ PROCEDURE display-job-mat :
                     IF AVAILABLE est AND (est.est-type EQ 2 OR est.est-type EQ 6) THEN
                     DO:
                         IF tt-job-mat.frm NE ? THEN
-                            FOR EACH eb FIELDS(yld-qty) NO-LOCK
+                            FOR EACH eb FIELDS(quantityPerSet) NO-LOCK
                                 WHERE eb.company EQ job.company
                                 AND eb.est-no  EQ job.est-no
                                 AND eb.form-no EQ tt-job-mat.frm
                                 :
                   
                                 ld-part-qty = ld-part-qty +
-                                    (ld-line-qty * IF eb.yld-qty LT 0 THEN (-1 / eb.yld-qty)
-                                    ELSE eb.yld-qty).
+                                    (ld-line-qty * IF eb.quantityPerSet LT 0 THEN (-1 / eb.quantityPerSet)
+                                    ELSE eb.quantityPerSet).
                             END.
                         ELSE
                             FOR EACH w-po-ordl
                                 BREAK BY w-po-ordl.s-num:
                     
                                 IF FIRST-OF(w-po-ordl.s-num) THEN
-                                    FOR EACH eb FIELDS(yld-qty) WHERE
+                                    FOR EACH eb FIELDS(quantityPerSet) WHERE
                                         eb.company EQ job.company AND
                                         eb.est-no  EQ job.est-no AND
                                         eb.form-no EQ w-po-ordl.s-num
                                         NO-LOCK:
                     
                                         ld-part-qty = ld-part-qty +
-                                            (ld-line-qty * IF eb.yld-qty LT 0 THEN (-1 / eb.yld-qty)
-                                            ELSE eb.yld-qty).
+                                            (ld-line-qty * IF eb.quantityPerSet LT 0 THEN (-1 / eb.quantityPerSet)
+                                            ELSE eb.quantityPerSet).
                                     END.
                             END.
                  

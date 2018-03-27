@@ -127,7 +127,7 @@ DEFINE BUTTON Btn_Cancel AUTO-GO
      SIZE 15 BY 1.14
      BGCOLOR 8 .
 
-DEFINE BUTTON Btn_OK AUTO-GO 
+DEFINE BUTTON Btn_OK /*AUTO-GO */
      LABEL "&Save" 
      SIZE 15 BY 1.14
      BGCOLOR 8 .
@@ -230,8 +230,11 @@ DO:
   RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,'record-target':U,OUTPUT char-hdl).
 
   IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN DO:
+      
     RUN dispatch IN WIDGET-HANDLE(char-hdl) ("update-record").
     IF NOT ll-valid THEN RETURN NO-APPLY.
+    ELSE APPLY "END-ERROR":U TO SELF.
+
   END.
 END.
 

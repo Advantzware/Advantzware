@@ -1,0 +1,36 @@
+ADD TABLE "mfgroup"
+  AREA "Schema Area"
+  LABEL "Misc Fields Group"
+  DESCRIPTION "Misc Fields Group"
+  DUMP-NAME "mfgroup"
+
+ADD FIELD "mfgroup_data" OF "mfgroup" AS character 
+  FORMAT "X(8)"
+  INITIAL ""
+  LABEL "Misc Fields Group Data"
+  POSITION 2
+  MAX-WIDTH 16
+  ORDER 10
+
+ADD FIELD "mfgroup_tabs" OF "mfgroup" AS character 
+  FORMAT "X(8)"
+  INITIAL ""
+  LABEL "MF Group Tabs"
+  POSITION 3
+  MAX-WIDTH 16
+  COLUMN-LABEL "Tabs"
+  HELP "Enter Misc Field Group Tabs"
+  ORDER 20
+
+ADD INDEX "pi-mfgroup" ON "mfgroup" 
+  AREA "Schema Area"
+  UNIQUE
+  PRIMARY
+  DESCRIPTION "Primary MF Group Index"
+  INDEX-FIELD "mfgroup_data" ASCENDING 
+
+.
+PSC
+cpstream=ISO8859-1
+.
+0000000675

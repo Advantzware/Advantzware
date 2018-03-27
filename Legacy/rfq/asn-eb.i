@@ -112,7 +112,8 @@
         eb.t-sqin        = rfqitem.t-sqin
         eb.t-wid         = rfqitem.t-wid
         eb.bl-qty = rfqitem.qty[1]
-        eb.yld-qty       = 1 /*rfqitem.qty[1] */                   
+        eb.yld-qty       = 1 /*rfqitem.qty[1] */     
+        eb.quantityPerSet = 1              
         eb.dest-code     = ls-dest-code
         eb.i-coat-p  = IF eb.i-coat EQ 0 THEN 0
                        ELSE 1

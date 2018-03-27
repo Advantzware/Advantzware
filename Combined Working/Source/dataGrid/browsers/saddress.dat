@@ -1,0 +1,33 @@
+FOR EACH address NO-LOCK ,  EACH rec_key OF address,  EACH prgmxref OF rec_key where prgmxref.pageno ne "999999999"
+address1,name1,prgmname,table_name,zipcode
+
+Indexed: address1,zipcode
+Non-Idx: address_type,name1,prgmname,table_name
+
+Generated 04.19.2017 @  3:52:16 am by: nosweat
+Table: address - Records: 1
+
+    Index: pi-address
+         Field: table_rec_key
+         Field: zipcode
+         Field: address1
+         Field: address2
+
+    Index: si-address1
+         Field: address1
+
+    Index: si-rec_key
+         Field: rec_key
+
+    Index: wi-address1
+         Field: address1
+
+Table: rec_key - Records: 63,340,741
+
+    Index: pi-rec_key
+         Field: rec_key
+
+Table: prgmxref - Records: 56
+
+    Index: pi-prgmxref
+         Field: table_name

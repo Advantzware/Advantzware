@@ -16,7 +16,7 @@
       "<=1><R+1><C25></B>"            SKIP.
    PUT
       "<=1><R+4><C25><B><C50>Bill of Lading #: " oe-bolh.bol-no   "</B>"
-      "<C1><R2><FROM><R12><C15><#89><AT=0.53,0.18>".   
+      "<C1><R2><FROM><R12><C15><#89><AT=0.01,0.01>".   
 
    IF (AVAIL shipto AND shipto.broker EQ NO) OR NOT AVAIL shipto THEN
       PUT "<IMAGE#89=" ls-full-img1 SKIP

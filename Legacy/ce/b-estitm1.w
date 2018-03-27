@@ -2238,7 +2238,7 @@ PROCEDURE check-for-set :
                         AND fg-set.set-no = bf-eb.stock-no
                         AND fg-set.part-no = eb.stock-no NO-ERROR.
     IF AVAIL fg-set THEN DO:
-      fg-set.part-qty = eb.yld-qty.
+      fg-set.part-qty = INTEGER(eb.cust-%).  
       FIND CURRENT fg-set NO-LOCK NO-ERROR.
     END.
   END.
@@ -2950,7 +2950,8 @@ ASSIGN
  itemfg.isaset     = (xest.est-type EQ 2 OR xest.est-type EQ 6) AND
                      xeb.form-no EQ 0
  itemfg.pur-man    = xeb.pur-man  
- itemfg.alloc      = xeb.set-is-assembled.
+ itemfg.alloc      = xeb.set-is-assembled
+ itemfg.setupDate  = TODAY.
 
  RUN fg/chkfgloc.p (INPUT itemfg.i-no, INPUT "").
  RUN fg/chkfgloc.p (INPUT itemfg.i-no, INPUT xeb.loc).

@@ -1500,7 +1500,8 @@ assign
  itemfg.pur-uom    = IF xeb.pur-man THEN "EA" ELSE "M"
  itemfg.prod-uom   = IF xeb.pur-man THEN "EA" ELSE "M"
  itemfg.alloc      = v-alloc
- itemfg.stocked    = YES.
+ itemfg.stocked    = YES
+ itemfg.setupDate  = TODAY.
   /* Create an itemfg-loc for the default warehouse */
   RUN fg/chkfgloc.p (INPUT itemfg.i-no, INPUT "").
 

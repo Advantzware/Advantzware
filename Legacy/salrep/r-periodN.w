@@ -297,10 +297,10 @@ DEFINE VARIABLE td-show-parm AS LOGICAL INITIAL no
 
 DEFINE FRAME FRAME-A
      as-of-date AT ROW 2.48 COL 27 COLON-ALIGNED
-     end_slsmn AT ROW 2.95 COL 70 COLON-ALIGNED HELP
-          "Enter Ending Sales Rep Number"
      begin_slsmn AT ROW 3.67 COL 27 COLON-ALIGNED HELP
           "Enter Beginning Sales Rep Number"
+     end_slsmn AT ROW 3.67 COL 70 COLON-ALIGNED HELP
+          "Enter Ending Sales Rep Number"
      lbl_select AT ROW 5.1 COL 22 COLON-ALIGNED NO-LABEL
      rd_select AT ROW 5.1 COL 36 NO-LABEL
      lbl_sort AT ROW 6.05 COL 27 COLON-ALIGNED NO-LABEL
@@ -1337,6 +1337,7 @@ def var v-sqft as dec.
 def var v-wght as dec.
 def var v-pct as dec format "99.99" no-undo.
 DEFINE VARIABLE dPerSales AS DECIMAL FORMAT "99.99" NO-UNDO.
+DEFINE VARIABLE dPerAmt AS DECIMAL FORMAT "99.99" NO-UNDO.
 DEF VAR ld-inv-pct AS DEC NO-UNDO.
 DEF VAR ld-amt-msf AS DEC NO-UNDO.
 DEF VAR ld-wgt-msf AS DEC NO-UNDO.

@@ -53,10 +53,10 @@ IF AVAIL est THEN DO:
         AND b-eb.form-no NE 0
       NO-LOCK:
     ld-yld = ld-yld +
-             (IF b-eb.yld-qty LT 0 THEN (-1 / b-eb.yld-qty) ELSE b-eb.yld-qty).
+             (IF b-eb.quantityPerSet LT 0 THEN (-1 / b-eb.quantityPerSet) ELSE b-eb.quantityPerSet).
   END.
 
-  ELSE ld-yld = IF eb.yld-qty LT 0 THEN (-1 / eb.yld-qty) ELSE eb.yld-qty.
+  ELSE ld-yld = IF eb.quantityPerSet LT 0 THEN (-1 / eb.quantityPerSet) ELSE eb.quantityPerSet.
 
   RUN est/rc-seq.p (OUTPUT lv-rc-seq).
 

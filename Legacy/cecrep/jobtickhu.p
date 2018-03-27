@@ -20,7 +20,7 @@ def var v-sht-dec as dec no-undo.
 def var v-op-qty  as int no-undo.
 def var v-on-f    as dec no-undo.
 DEF VAR v-len     LIKE xef.gsh-len NO-UNDO.
-DEF VAR v-yld-qty LIKE eb.yld-qty NO-UNDO.
+DEF VAR v-yld-qty LIKE eb.quantityPerSet NO-UNDO.
 DEF VAR v-n-out   AS INT NO-UNDO.
 DEF VAR v-out2 AS INT NO-UNDO.
 
@@ -471,12 +471,12 @@ DO:
             (IF bf-eb.est-type EQ 2 THEN
                IF bf-eb.cust-% LT 0 THEN (-1 / bf-eb.cust-%) ELSE bf-eb.cust-%
              ELSE
-             IF bf-eb.yld-qty LT 0 THEN (-1 / bf-eb.yld-qty) ELSE bf-eb.yld-qty) /
+             IF bf-eb.quantityPerSet LT 0 THEN (-1 / bf-eb.quantityPerSet) ELSE bf-eb.quantityPerSet) /
              bf-eb.num-up DESC:
 
          ASSIGN
             v-sht-dec = job-hdr.qty / (v-out2 * bf-eb.num-up)
-            v-yld-qty = IF bf-eb.est-type EQ 6 THEN bf-eb.yld-qty
+            v-yld-qty = IF bf-eb.est-type EQ 6 THEN bf-eb.quantityPerSet
                         ELSE
                         IF bf-eb.est-type EQ 2 THEN bf-eb.cust-%
                         ELSE 1

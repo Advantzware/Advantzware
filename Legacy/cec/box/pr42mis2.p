@@ -63,7 +63,7 @@ FIND FIRST xeb WHERE xeb.company = xest.company
        WITH FRAME ag NO-BOX NO-LABELS:
 
        qty = 0.
-       FOR EACH xeb FIELDS(yld-qty)
+       FOR EACH xeb FIELDS(quantityPerSet)
            WHERE xeb.company     EQ xest.company 
              AND xeb.est-no      EQ est-prep.est-no
              AND xeb.form-no     EQ est-prep.s-num
@@ -71,7 +71,7 @@ FIND FIRST xeb WHERE xeb.company = xest.company
                   est-prep.b-num EQ 0)
            NO-LOCK:
            ASSIGN
-              v-yld = IF xeb.yld-qty LT 0 THEN -1 / xeb.yld-qty ELSE xeb.yld-qty
+              v-yld = IF xeb.quantityPerSet LT 0 THEN -1 / xeb.quantityPerSet ELSE xeb.quantityPerSet
               qty = qty + (tt-blk * v-yld).
        END.
       
@@ -221,7 +221,7 @@ FIND FIRST xeb WHERE xeb.company = xest.company
 
          IF mis-cost[i] NE "" THEN DO:
             qty = 0.
-            FOR EACH xeb FIELDS(yld-qty)
+            FOR EACH xeb FIELDS(quantityPerSet)
                 WHERE xeb.company      EQ xef.company
                   AND xeb.est-no       EQ xef.est-no
                   AND xeb.form-no      EQ xef.form-no
@@ -229,7 +229,7 @@ FIND FIRST xeb WHERE xeb.company = xest.company
                        xef.mis-bnum[i] EQ 0)
                 NO-LOCK:
               ASSIGN
-               v-yld = IF xeb.yld-qty LT 0 THEN -1 / xeb.yld-qty ELSE xeb.yld-qty
+               v-yld = IF xeb.quantityPerSet LT 0 THEN -1 / xeb.quantityPerSet ELSE xeb.quantityPerSet
                qty   = qty + tt-blk * v-yld.
             END.
 
