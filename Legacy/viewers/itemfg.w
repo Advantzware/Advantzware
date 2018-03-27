@@ -789,6 +789,9 @@ DO:
     IF LASTKEY <> -1 AND itemfg.def-loc:SCREEN-VALUE <> "" AND
     NOT CAN-FIND(FIRST loc WHERE loc.company = gcompany AND loc.loc = itemfg.def-loc:SCREEN-VALUE)
     THEN DO:
+         IF itemfg.def-loc:SCREEN-VALUE EQ ""  THEN
+             MESSAGE "Must enter a valid warehouse..." VIEW-AS ALERT-BOX ERROR.
+         ELSE
          MESSAGE "Invalid Warehouse. Try Help." VIEW-AS ALERT-BOX ERROR.
          RETURN NO-APPLY.
     END.
@@ -802,12 +805,15 @@ END.
 &Scoped-define SELF-NAME itemfg.def-loc-bin
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL itemfg.def-loc-bin V-table-Win
 ON LEAVE OF itemfg.def-loc-bin IN FRAME F-Main /* Bin */
-DO:
+DO: 
     {&methods/lValidateError.i YES}
     IF LASTKEY <> -1 AND itemfg.def-loc-bin:SCREEN-VALUE <> "" AND
        NOT CAN-FIND(FIRST fg-bin WHERE fg-bin.company = gcompany AND fg-bin.loc = itemfg.def-loc:SCREEN-VALUE AND
                           fg-bin.loc-bin = itemfg.def-loc-bin:SCREEN-VALUE)
     THEN DO:
+        IF itemfg.def-loc-bin:screen-value EQ "" THEN
+            MESSAGE "Must enter a valid Bin..." VIEW-AS ALERT-BOX ERROR.
+         ELSE
          MESSAGE "Invalid Warehouse Bin. Try Help." VIEW-AS ALERT-BOX ERROR.
          RETURN NO-APPLY.
     END.
@@ -1730,7 +1736,9 @@ PROCEDURE local-create-record :
          /* gdm - 11190901 */
          itemfg.ship-meth =  v-shpmet
          itemfg.exempt-disc = NO
-         itemfg.stat = "A".
+         itemfg.stat = "A"
+         itemfg.def-loc        = ""
+         itemfg.def-loc-bin    = "" .
 
   DO WITH FRAME {&FRAME-NAME}:
 
@@ -1749,6 +1757,8 @@ PROCEDURE local-create-record :
 /*      rd_status:SCREEN-VALUE      = "A"   */
 /*      tb_exempt-disc:SCREEN-VALUE = "no". */
   END.
+
+   
 
 END PROCEDURE.
 
@@ -1914,6 +1924,9 @@ PROCEDURE local-update-record :
     IF itemfg.def-loc:SCREEN-VALUE <> "" AND
        NOT CAN-FIND(FIRST loc WHERE loc.company = gcompany AND loc.loc = itemfg.def-loc:SCREEN-VALUE)
     THEN DO:
+         IF itemfg.def-loc:SCREEN-VALUE EQ ""  THEN
+             MESSAGE "Must enter a valid warehouse..." VIEW-AS ALERT-BOX ERROR.
+         ELSE
          MESSAGE "Invalid Warehouse. Try Help." VIEW-AS ALERT-BOX ERROR.
          APPLY "entry" TO itemfg.def-loc.
          RETURN NO-APPLY.
@@ -1923,6 +1936,9 @@ PROCEDURE local-update-record :
        NOT CAN-FIND(FIRST fg-bin WHERE fg-bin.company = gcompany AND fg-bin.loc = itemfg.def-loc:SCREEN-VALUE AND
                           fg-bin.loc-bin = itemfg.def-loc-bin:SCREEN-VALUE)
     THEN DO:
+         IF itemfg.def-loc-bin:SCREEN-VALUE EQ ""  THEN
+             MESSAGE "Must enter a valid Bin..." VIEW-AS ALERT-BOX ERROR.
+         ELSE
          MESSAGE "Invalid Warehouse Bin. Try Help." VIEW-AS ALERT-BOX ERROR.
          APPLY "entry" TO itemfg.def-loc-bin.
          RETURN NO-APPLY.
@@ -2201,6 +2217,8 @@ PROCEDURE proc-copy :
   DEF VAR v-cost AS LOG INIT YES NO-UNDO.
 
   IF AVAIL itemfg THEN DO WITH FRAME {&FRAME-NAME}:
+         itemfg.def-loc:SCREEN-VALUE        = "" .
+         itemfg.def-loc-bin:SCREEN-VALUE    = "" . /* task 25536 */
 
       RUN oeinq/d-cpyfg.w (OUTPUT v-cost, OUTPUT v-mat, OUTPUT v-cpyspc, OUTPUT v-begspc, OUTPUT v-endspc).
      IF NOT v-cost THEN
@@ -2654,4 +2672,5 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
 
