@@ -48,7 +48,8 @@ DO segx = 1 TO NUM-ENTRIES(segment_list)
       ws_char = str_buffa /* save it for debugging if needed */
       .
  
-    next_program = "ed/tdf/" + ws_segment + ".p".
+    next_program = "ed/tdf/" + ws_segment + ".r".
+  
     IF SEARCH(next_program) <> ? THEN
     DO:
       error-status:error = FALSE.

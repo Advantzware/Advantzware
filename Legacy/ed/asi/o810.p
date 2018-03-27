@@ -125,6 +125,11 @@ RETURN RETURN-VALUE.
 
 /* ------------------------  Internal Procedures ------------------------- */
 
+
+
+/* **********************  Internal Procedures  *********************** */
+
+
 PROCEDURE edi-ar.ip:
 
     IF top-debug THEN RUN rc/debugmsg.p ("...start of ar-inv invoice").
@@ -746,7 +751,9 @@ PROCEDURE edi-040.ip:
           AND   edivtran.invoice-no = invoice_number
           AND   edivtran.cust-po    = purchase_order_number /* 03.26.2004 CAH: inv-line.po-no */
         NO-ERROR.
-
+/*    IF AVAILABLE edivtran THEN 
+      RUN ipDeleteEdiInvoice. */
+      
     IF NOT AVAILABLE edivtran THEN
     DO:
         FIND FIRST edcode NO-LOCK
@@ -1414,3 +1421,30 @@ PROCEDURE edi-oe.ip:
     RETURN "".  /* 03.22.2004 CAH, CALLER LOOKS FOR THIS */
 
 END PROCEDURE.  /* edi-oe.ip */
+
+PROCEDURE ipDeleteEdiInvoice:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    FIND FIRST edivtran EXCLUSIVE-LOCK
+        WHERE edivtran.company = ws_company
+        AND   edivtran.invoice-no = invoice_number
+        AND   edivtran.cust-po    = purchase_order_number /* 03.26.2004 CAH: inv-line.po-no */
+        NO-ERROR.
+    IF AVAILABLE edivtran THEN DO:
+        FOR EACH edIvLine 
+          WHERE edIvLine.partner EQ edivtran.partner
+            AND edIvLine.seq     EQ edivtran.seq:
+          DELETE edIvLine.
+        END.
+        FOR EACH edIvAddon
+            WHERE edIvAddon.partner EQ edivtran.partner
+            AND edIvAddon.seq     EQ edivtran.seq:
+            DELETE edIvAddon.
+        END.
+        DELETE edivtran.
+    END.
+
+END PROCEDURE.
+
