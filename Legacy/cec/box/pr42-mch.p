@@ -64,12 +64,12 @@ DEFINE SHARED WORKFILE w-form
 {ce/fEstOpRecKey.i}
 
 v-parts = 0.
-FOR EACH eb FIELDS(yld-qty) NO-LOCK
+FOR EACH eb FIELDS(quantityPerSet) NO-LOCK
     WHERE eb.company EQ xest.company
     AND eb.est-no  EQ xest.est-no
     AND eb.form-no NE 0:
     v-parts = v-parts +
-        (IF eb.yld-qty LT 0 THEN (-1 / eb.yld-qty) ELSE eb.yld-qty).
+        (IF eb.quantityPerSet LT 0 THEN (-1 / eb.quantityPerSet) ELSE eb.quantityPerSet).
 END.
 
 /* machines */
@@ -329,7 +329,7 @@ FOR EACH xef
             op.speed = IF ll-unitize THEN (op.run-qty / oprun)
             ELSE opsp.
 
-            v-yld = IF eb.yld-qty LT 0 THEN -1 / eb.yld-qty ELSE eb.yld-qty.
+            v-yld = IF eb.quantityPerSet LT 0 THEN -1 / eb.quantityPerSet ELSE eb.quantityPerSet.
 
             IF vmclean THEN oprun$ = oprun$ / ((qtty[vmcl] * v-yld) / 1000).
 
@@ -429,7 +429,7 @@ FOR EACH xef
             NO-LOCK.
 
         ASSIGN
-            v-yld  = IF xeb.yld-qty LT 0 THEN -1 / xeb.yld-qty ELSE xeb.yld-qty
+            v-yld  = IF xeb.quantityPerSet LT 0 THEN -1 / xeb.quantityPerSet ELSE xeb.quantityPerSet
             tr-tot = ((xeb.len * xeb.wid * xeb.dep) *
                (qtty[vmcl] * v-yld)) /
                (item.case-l * item.case-w * item.case-d).
@@ -478,7 +478,7 @@ FOR EACH xef
             AND xeb.form-no EQ xef.form-no
             NO-LOCK:
         
-            v-yld  = IF xeb.yld-qty LT 0 THEN -1 / xeb.yld-qty ELSE xeb.yld-qty.
+            v-yld  = IF xeb.quantityPerSet LT 0 THEN -1 / xeb.quantityPerSet ELSE xeb.quantityPerSet.
     
             FIND FIRST carrier
                 WHERE carrier.company EQ cocode

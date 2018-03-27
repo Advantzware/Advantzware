@@ -681,6 +681,7 @@ PROCEDURE pProcessRecord PRIVATE:
         est.est-qty[1] = eb.eqty
         ef.eqty        = eb.eqty
         est-qty.qty[1] = eb.eqty
+        eb.bl-qty = eb.eqty
         .
 
     ASSIGN 
@@ -707,9 +708,12 @@ PROCEDURE pProcessRecord PRIVATE:
         ef.trim-w       = ipbf-ttImportEstimate.WidthDie
         ef.trim-l       = ipbf-ttImportEstimate.LengthDie
         .
-            
+
     IF ipbf-ttImportEstimate.Category NE '' THEN 
         eb.procat       = ipbf-ttImportEstimate.Category.
+    
+    eb.quantityPerSet = 1.
+    
     IF ipbf-ttImportEstimate.QuantityYield GT 0 THEN 
         eb.yld-qty      = ipbf-ttImportEstimate.QuantityYield.
     ELSE 

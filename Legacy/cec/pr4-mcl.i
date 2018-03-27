@@ -4,20 +4,20 @@
     
     ASSIGN v-yld = 0
            mclean2yld = 0.
-    FOR EACH eb FIELDS(yld-qty) NO-LOCK
+    FOR EACH eb FIELDS(quantityPerSet) NO-LOCK
         WHERE eb.company EQ xest.company
           AND eb.est-no  EQ xest.est-no
           AND eb.form-no EQ v-form-no:
       v-yld = v-yld +
-              (IF eb.yld-qty LT 0 THEN (-1 / eb.yld-qty) ELSE eb.yld-qty).
+              (IF eb.quantityPerSet LT 0 THEN (-1 / eb.quantityPerSet) ELSE eb.quantityPerSet).
     END.
     IF vmclean2 THEN
-    FOR EACH eb FIELDS(yld-qty) NO-LOCK
+    FOR EACH eb FIELDS(quantityPerSet) NO-LOCK
         WHERE eb.company EQ xest.company
           AND eb.est-no  EQ xest.est-no
           AND eb.form-no > 0 AND eb.form-no <= v-form-no :
         mclean2yld = mclean2yld +
-              (IF eb.yld-qty LT 0 THEN (-1 / eb.yld-qty) ELSE eb.yld-qty).
+              (IF eb.quantityPerSet LT 0 THEN (-1 / eb.quantityPerSet) ELSE eb.quantityPerSet).
     END.
     /*IF vmclean2 THEN v-yld = mclean2yld.*/
 

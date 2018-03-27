@@ -116,7 +116,8 @@ display-cw-dim(yes,eb.len) @ eb.len eb.len ~
 display-cw-dim(yes,eb.len) @ eb.len display-cw-dim(yes,eb.wid) @ eb.wid ~
 eb.wid display-cw-dim(yes,eb.wid) @ eb.wid ~
 display-cw-dim(yes,eb.dep) @ eb.dep eb.dep ~
-display-cw-dim(yes,eb.dep) @ eb.dep eb.tab-in eb.i-col eb.i-coat eb.yld-qty 
+display-cw-dim(yes,eb.dep) @ eb.dep eb.tab-in eb.i-col eb.i-coat eb.yld-qty ~
+eb.quantityPerSet 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-br_table 
 &Scoped-define QUERY-STRING-br_table FOR EACH ef WHERE ef.company = est-qty.company ~
   AND ef.est-no = est-qty.est-no ~
@@ -230,19 +231,20 @@ DEFINE BROWSE br_table
       ef.board FORMAT "x(12)":U COLUMN-FONT 2
       ef.cal FORMAT ">9.99999<":U COLUMN-FONT 2
       eb.procat FORMAT "x(5)":U COLUMN-FONT 2
-      display-cw-dim(YES,eb.len) @ eb.len
+      display-cw-dim(yes,eb.len) @ eb.len
       eb.len FORMAT ">>9.99":U COLUMN-FONT 2
-      display-cw-dim(YES,eb.len) @ eb.len
-      display-cw-dim(YES,eb.wid) @ eb.wid
+      display-cw-dim(yes,eb.len) @ eb.len
+      display-cw-dim(yes,eb.wid) @ eb.wid
       eb.wid FORMAT ">>9.99":U COLUMN-FONT 2
-      display-cw-dim(YES,eb.wid) @ eb.wid
-      display-cw-dim(YES,eb.dep) @ eb.dep
+      display-cw-dim(yes,eb.wid) @ eb.wid
+      display-cw-dim(yes,eb.dep) @ eb.dep
       eb.dep FORMAT ">>9.99":U COLUMN-FONT 2
-      display-cw-dim(YES,eb.dep) @ eb.dep
+      display-cw-dim(yes,eb.dep) @ eb.dep
       eb.tab-in FORMAT "In/Out":U
       eb.i-col FORMAT ">9":U
       eb.i-coat FORMAT ">9":U
-      eb.yld-qty COLUMN-LABEL "Qty/Set" FORMAT "->>>>>9":U
+      eb.yld-qty COLUMN-LABEL "Yield Quantity" FORMAT "->>>>>9":U
+      eb.quantityPerSet FORMAT ">>>>9.9<<<":U
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ASSIGN SEPARATORS SIZE 148 BY 16.43
@@ -381,7 +383,9 @@ ASSIGN
      _FldNameList[25]   = ASI.eb.i-col
      _FldNameList[26]   = ASI.eb.i-coat
      _FldNameList[27]   > ASI.eb.yld-qty
-"eb.yld-qty" "Qty/Set" "->>>>>9" "integer" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"eb.yld-qty" "Yield Quantity" "->>>>>9" "integer" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[28]   > ASI.eb.quantityPerSet
+"eb.quantityPerSet" ? ? "decimal" ? ? ? ? ? ? no "Quantity Per Set" no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE br_table */
 &ANALYZE-RESUME
@@ -2006,6 +2010,7 @@ PROCEDURE crt-est-childrecord :
    eb.tr-no    = ce-ctrl.def-pal
    eb.i-pass   = 0
    eb.yld-qty = 1
+   eb.quantityPerSet = 1
    .
    
    RUN est/packCodeOverride.p (INPUT eb.company, eb.cust-no, eb.style, OUTPUT cPackCodeOverride).
@@ -2353,6 +2358,7 @@ PROCEDURE crt-new-set :
    eb.cust-no = ls-cust-no
    eb.ship-id = ls-ship-id
    eb.yld-qty = 1
+   eb.quantityPerSet = 1
    eb.part-no = ls-part-no + "-" + string(eb.form-no)
    eb.tab-in = YES
    eb.len = 0
@@ -2405,7 +2411,7 @@ PROCEDURE crt-new-set :
     
   DISPLAY eb.cust-no eb.ship-id eb.part-no eb.tab-in 
           eb.len eb.wid eb.dep eb.procat
-          eb.yld-qty 
+          eb.yld-qty eb.quantityPerSet
           WITH BROWSE {&browse-name}.
 
   ASSIGN lv-eb-recid = RECID(eb) 
@@ -2947,7 +2953,7 @@ PROCEDURE local-create-record :
      RUN new-state IN phandle ('update-begin':U).  /* to have save button */
 
      DISPLAY est.est-no est.est-date WITH BROWSE {&browse-name}.          
-     DISP eb.yld-qty WITH BROWSE {&browse-name}.
+     DISP eb.yld-qty eb.quantityPerSet WITH BROWSE {&browse-name}.
 
   END.
   ELSE IF ls-add-what = "item" THEN DO:

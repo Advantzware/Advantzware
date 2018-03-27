@@ -6,7 +6,7 @@
     IF INDEX("SON",xef.mis-simon[i]) > 0 THEN NEXT.
     IF mis-cost[i] NE "" THEN DO:
      qty = 0.
-     FOR EACH xeb FIELDS(yld-qty)
+     FOR EACH xeb FIELDS(quantityPerSet)
          WHERE xeb.company      EQ xef.company
            AND xeb.est-no       EQ xef.est-no
            AND xeb.form-no      EQ xef.form-no
@@ -14,7 +14,7 @@
                 xef.mis-bnum[i] EQ 0)
          NO-LOCK:
        ASSIGN
-        v-yld = IF xeb.yld-qty LT 0 THEN -1 / xeb.yld-qty ELSE xeb.yld-qty
+        v-yld = IF xeb.quantityPerSet LT 0 THEN -1 / xeb.quantityPerSet ELSE xeb.quantityPerSet
         qty   = qty + (v-qty * v-yld).
      END.
 

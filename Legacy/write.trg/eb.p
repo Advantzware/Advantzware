@@ -69,7 +69,7 @@ IF {&TABLENAME}.est-type EQ 2 AND
    {&TABLENAME}.cust-% EQ 0   THEN {&TABLENAME}.cust-%  = 1.
 ELSE
 IF {&TABLENAME}.est-type GE 5 AND {&TABLENAME}.est-type LE 6 AND 
-   {&TABLENAME}.yld-qty EQ 0  THEN {&TABLENAME}.yld-qty = 1.
+   {&TABLENAME}.quantityPerSet EQ 0  THEN {&TABLENAME}.quantityPerSet = 1.
 
 IF {&TABLENAME}.part-no     NE "" AND
    old-{&TABLENAME}.part-no NE "" THEN RUN est/validset.p (BUFFER {&TABLENAME}).

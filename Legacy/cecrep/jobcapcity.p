@@ -264,8 +264,8 @@ do v-local-loop = 1 to v-local-copies:
           ASSIGN lv-fg-name = IF AVAIL xoe-ordl AND xoe-ordl.i-no EQ job-hdr.i-no THEN xoe-ordl.i-name ELSE itemfg.i-name.
           {cec/rollfac.i}
           v-pqty = if v-rollfac OR xeb.est-type EQ 8 then 1 else
-                   if xeb.yld-qty lt 0 then (-1 / xeb.yld-qty)
-                                       else xeb.yld-qty.
+                   if xeb.quantityPerSet lt 0 then (-1 / xeb.quantityPerSet)
+                                       else xeb.quantityPerSet.
           FIND FIRST sman WHERE sman.company = xeb.company AND
                                 sman.sman = xeb.sman NO-LOCK NO-ERROR.
           v-sman = IF AVAIL sman THEN sman.sname ELSE xeb.sman.
@@ -1067,7 +1067,7 @@ do v-local-loop = 1 to v-local-copies:
         FOR EACH xeb WHERE xeb.company = est.company
                         AND xeb.est-no = est.est-no
                         AND xeb.form-no > 0 NO-LOCK:
-            PUT xeb.stock-no AT 3 space(14) xeb.part-dscr1 space(5) xeb.yld-qty FORMAT "->>>>>9" SKIP.
+            PUT xeb.stock-no AT 3 space(14) xeb.part-dscr1 space(5) xeb.quantityPerSet FORMAT "->>>>>9" SKIP.
             v-tmp-line = v-tmp-line + 1.
         END.
         v-tmp-line = v-tmp-line + 1.

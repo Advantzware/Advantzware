@@ -117,8 +117,8 @@ for each xef where xef.company = xest.company and
                    AND eb.est-no  = xef.est-no
                    AND eb.form-no EQ xef.form-no
                  NO-LOCK.
-      v-sheets =  probe.est-qty * (IF eb.yld-qty GT 0 THEN eb.yld-qty ELSE 
-        IF eb.yld-qty EQ 0 THEN 1 ELSE (-1 / eb.yld-qty)) / eb.num-up / v-n-out.
+      v-sheets =  probe.est-qty * (IF eb.quantityPerSet GT 0 THEN eb.quantityPerSet ELSE 
+        IF eb.quantityPerSet EQ 0 THEN 1 ELSE (-1 / eb.quantityPerSet)) / eb.num-up / v-n-out.
             
         IF v-sheets GT v-max-sheets THEN
              v-max-sheets = v-sheets.
@@ -189,7 +189,7 @@ for each blk:
                       eb.form-no  = blk.snum   and
                       eb.blank-no = blk.bnum no-lock no-error.
   ASSIGN
-   ld-yld    = IF eb.yld-qty LT 0 THEN (-1 / eb.yld-qty) ELSE eb.yld-qty
+   ld-yld    = IF eb.quantityPerSet LT 0 THEN (-1 / eb.quantityPerSet) ELSE eb.quantityPerSet
    probe.bsf = probe.bsf +
                ((if v-corr then (eb.t-sqin * .007) else (eb.t-sqin / 144)) *
                 ld-yld).

@@ -58,8 +58,8 @@ DEF VAR vcMailMode      AS CHAR NO-UNDO.
 DEF VAR vcDefaultForm   AS CHAR NO-UNDO.
 /* DEF VAR vcDefaultBOLX   AS CHAR NO-UNDO. */
 DEF VAR v-def-coc-fmt   AS CHAR NO-UNDO.
-DEF VAR v-strips1 AS INT NO-UNDO.
-DEF VAR v-strips2 AS INT NO-UNDO.
+DEF VAR v-strips1 AS DECIMAL NO-UNDO.
+DEF VAR v-strips2 AS DECIMAL NO-UNDO.
 DEF VAR v-next-num AS INT NO-UNDO.
 DEF VAR choice AS LOG NO-UNDO.
 
@@ -887,7 +887,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
         IF AVAIL eb AND AVAIL est THEN DO:
             RUN calc-values (INPUT ROWID(est), ROWID(eb)).
-            fiNoCells:SCREEN-VALUE = STRING((v-strips1 + 1) * (v-strips2 + 1)).
+            fiNoCells:SCREEN-VALUE = STRING((INTEGER(v-strips1) + 1) * (INTEGER(v-strips2) + 1)).
         END.
     END.
     APPLY "entry" TO begin_cust.
@@ -1095,7 +1095,7 @@ DO:
       scr-end-cell-l1 = {sys/inc/k16.i b-eb1.k-len-array2[1]}
       scr-end-cell-l2 = {sys/inc/k16.i b-eb1.k-len-array2[v-int]}
       scr-in-cell-length = {sys/inc/k16.i b-eb1.k-len-array2[2]}
-       v-strips1 = b-eb1.yld-qty.
+       v-strips1 = b-eb1.quantityPerSet.
 END.
 
 IF AVAIL b-eb2 THEN
@@ -1112,7 +1112,7 @@ DO:
       scr-end-cell-w1 = {sys/inc/k16.i b-eb2.k-len-array2[1]}
       scr-end-cell-w2 = {sys/inc/k16.i b-eb2.k-len-array2[v-int]}
       scr-in-cell-width = {sys/inc/k16.i b-eb2.k-len-array2[2]}
-      v-strips2 = b-eb2.yld-qty       .
+      v-strips2 = b-eb2.quantityPerSet       .
    iCnt = 0.
    FOR EACH ef WHERE ef.company = b-eb2.company
                  AND ef.est-no  = b-eb2.est-no

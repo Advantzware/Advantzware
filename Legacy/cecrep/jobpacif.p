@@ -159,8 +159,8 @@ do v-local-loop = 1 to v-local-copies:
           
           {cec/rollfac.i}
           v-pqty = if v-rollfac OR xeb.est-type EQ 8 then 1 else
-                   if xeb.yld-qty lt 0 then (-1 / xeb.yld-qty)
-                                       else xeb.yld-qty.
+                   if xeb.quantityPerSet lt 0 then (-1 / xeb.quantityPerSet)
+                                       else xeb.quantityPerSet.
         end.
         
         assign
@@ -300,7 +300,7 @@ do v-local-loop = 1 to v-local-copies:
               v-cus[2] AT 2
               "Set Qty:" AT 40 trim(string(if avail xoe-ordl then xoe-ordl.qty
                                                else job-hdr.qty,">,>>>,>>9")) format "x(9)"
-              "Qty/Set:" trim(string(IF AVAIL xeb THEN xeb.yld-qty ELSE 1,"->>,>>9")) format "x(7)"
+              "Qty/Set:" trim(string(IF AVAIL xeb THEN xeb.quantityPerSet ELSE 1,"->>,>>9")) format "x(7)"
               "Size:" AT 80 (trim(string({sys/inc/k16v.i xeb.len},">,>>9.99")) + " x " +
                              trim(string({sys/inc/k16v.i xeb.wid},">,>>9.99")) + " x " +
                              trim(string({sys/inc/k16v.i xeb.dep},">,>>9.99"))) FORM "x(30)" WHEN AVAIL xeb            

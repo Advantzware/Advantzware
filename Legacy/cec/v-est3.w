@@ -2613,7 +2613,7 @@ PROCEDURE set-pack :
       WHERE b-eb.company EQ eb.company
         AND b-eb.est-no  EQ eb.est-no
         AND b-eb.eqty    EQ eb.eqty
-        AND b-eb.yld-qty LT 0
+        AND b-eb.quantityPerSet LT 0
         AND CAN-FIND(FIRST b-eb1
                      WHERE b-eb1.company EQ b-eb.company
                        AND b-eb1.est-no  EQ b-eb.est-no
@@ -2634,7 +2634,7 @@ PROCEDURE set-pack :
           WHERE b-eb.company EQ eb.company
             AND b-eb.est-no  EQ eb.est-no
             AND b-eb.form-no NE 0
-            AND b-eb.yld-qty GE 0:
+            AND b-eb.quantityPerSet GE 0:
 
         ASSIGN
          b-eb.cas-no   = ""
@@ -2657,7 +2657,7 @@ PROCEDURE set-pack :
     END.
   END.
 
-  op-update = NOT ll-ans OR eb.yld-qty LT 0.
+  op-update = NOT ll-ans OR eb.quantityPerSet LT 0.
 
 END PROCEDURE.
 

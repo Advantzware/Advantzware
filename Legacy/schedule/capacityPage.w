@@ -951,14 +951,14 @@ PROCEDURE pBuildTTJob :
             END. /* if sch-m-code ne m-code */
             IF est.est-type EQ 6 THEN DO:
                 dParts = 0.
-                FOR EACH eb FIELDS(yld-qty) NO-LOCK
+                FOR EACH eb FIELDS(quantityPerSet) NO-LOCK
                     WHERE eb.company EQ est.company
                       AND eb.est-no  EQ est.est-no
                       AND eb.form-no NE 0
                     :
                     dParts = dParts
-                            + (IF eb.yld-qty LT 0 THEN (-1 / eb.yld-qty)
-                               ELSE eb.yld-qty).
+                            + (IF eb.quantityPerSet LT 0 THEN (-1 / eb.quantityPerSet)
+                               ELSE eb.quantityPerSet).
                 END.
             END. /* if est-type eq 6 */
             ASSIGN

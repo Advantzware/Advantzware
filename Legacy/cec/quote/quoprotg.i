@@ -349,7 +349,7 @@ FOR EACH tt-item,
         IF est.est-type EQ 6 THEN
            put eb.part-no AT 8 FORM "x(21)"
                "  Qty Per Set "
-               TRIM(STRING(eb.yld-qty,"->>>,>>>"))
+               TRIM(STRING(eb.quantityPerSet,"->>>,>>>"))
                SKIP.
         ELSE
            put eb.part-no AT 8 FORM "x(21)"

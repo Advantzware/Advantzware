@@ -69,7 +69,7 @@ FOR EACH xef
       NO-LOCK:
 
     ASSIGN
-     v-yld    = IF xeb.yld-qty LT 0 THEN -1 / xeb.yld-qty ELSE xeb.yld-qty
+     v-yld    = IF xeb.quantityPerSet LT 0 THEN -1 / xeb.quantityPerSet ELSE xeb.quantityPerSet
      qty      = tt-blk * v-yld
      b-wt-tot = (xeb.t-sqin - xeb.t-win) * qty / 144000 * b-wt.
 
@@ -166,7 +166,7 @@ for each xeb where xeb.company = xest.company
                and xeb.est-no    eq xest.est-no
                and (xeb.form-no eq v-form-no or (not vmclean2))
           break by xeb.part-no:
-   v-yld = if xeb.yld-qty lt 0 then -1 / xeb.yld-qty else xeb.yld-qty.
+   v-yld = if xeb.quantityPerSet lt 0 then -1 / xeb.quantityPerSet else xeb.quantityPerSet.
 
    if not first-of(xeb.part-no) then next.
    if xeb.tr-no ne "" then do with frame ac3 no-box no-labels stream-io:
@@ -288,7 +288,7 @@ FOR EACH xef
       NO-LOCK:
 
     ASSIGN
-     v-yld    = IF xeb.yld-qty LT 0 THEN -1 / xeb.yld-qty ELSE xeb.yld-qty
+     v-yld    = IF xeb.quantityPerSet LT 0 THEN -1 / xeb.quantityPerSet ELSE xeb.quantityPerSet
      qty      = tt-blk * v-yld
      b-wt-tot = (xeb.t-sqin - xeb.t-win) * qty / 144000 * b-wt.
 
@@ -437,7 +437,7 @@ for each cas where cas.typ = 4 by cas.snum by cas.bnum with no-labels no-box:
       v-yld    = 1.
 
    IF AVAIL xeb THEN
-      v-yld    = IF xeb.yld-qty LT 0 THEN -1 / xeb.yld-qty ELSE xeb.yld-qty.
+      v-yld    = IF xeb.quantityPerSet LT 0 THEN -1 / xeb.quantityPerSet ELSE xeb.quantityPerSet.
 
    {est/matcost.i strap-qty cas.cost strap}
 
@@ -662,7 +662,7 @@ PROCEDURE get-wt.
           AND b-eb.form-no EQ b-ef.form-no
         NO-LOCK:
       ASSIGN
-       v-yld    = IF b-eb.yld-qty LT 0 THEN -1 / b-eb.yld-qty ELSE b-eb.yld-qty
+       v-yld    = IF b-eb.quantityPerSet LT 0 THEN -1 / b-eb.quantityPerSet ELSE b-eb.quantityPerSet
        qty      = tt-blk * v-yld
        b-wt-tot = b-wt-tot +
                   ((b-eb.t-sqin - b-eb.t-win) * qty / 144000 * b-wt).

@@ -60,6 +60,7 @@ ASSIGN
  eb.ship-id   = prev-ship
  eb.tr-cas    = 1
  eb.i-pass    = 0
+ eb.quantityPerSet   = 1
  eb.yld-qty   = 1
  eb.tab-in    = YES
  eb.len       = 0

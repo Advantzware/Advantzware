@@ -283,7 +283,7 @@ IF AVAIL probe THEN DO:
     ASSIGN
      ld-sqi = ((eb.t-len * ld-sqi) + ld-len) * ((eb.t-wid * ld-sqi) + ld-wid)
      ld-yld = IF eb.est-type EQ 5 THEN 1 ELSE
-              IF eb.yld-qty LT 0 THEN (-1 / eb.yld-qty) ELSE eb.yld-qty
+              IF eb.quantityPerSet LT 0 THEN (-1 / eb.quantityPerSet) ELSE eb.quantityPerSet
      ld-msf = ld-msf + (ld-sqi * probe.est-qty * ld-yld).
   END.
   IF ld-msf NE 0 THEN

@@ -233,7 +233,7 @@ FOR EACH est-op WHERE est-op.company = xest.company
         ELSE opsp.
 
         IF vmclean THEN oprun$ = oprun$ /
-                (qtty[k] * xeb.yld-qty / 1000 * v-sqft-fac).
+                (qtty[k] * xeb.quantityPerSet / 1000 * v-sqft-fac).
         
         /* task 09171202 - Reversed with Ticket 26136 */
 /*        IF est-op.dept EQ "DC" AND est-op.n-out EQ 0 THEN*/
@@ -255,7 +255,7 @@ FOR EACH est-op WHERE est-op.company = xest.company
             WITH STREAM-IO.
 
         IF vmclean THEN oprun$ = oprun$ *
-                (qtty[k] * xeb.yld-qty / 1000 * v-sqft-fac).
+                (qtty[k] * xeb.quantityPerSet / 1000 * v-sqft-fac).
 
         IF AVAILABLE itemfg AND est-op.b-num NE 0 THEN op.i-name = itemfg.i-name.
         IF op.line GT 500 THEN op.line = op.line - 500.
@@ -412,7 +412,7 @@ DO:
 END.
 
 IF vmclean THEN op-tot[4] = op-tot[4] /
-        (qtty[k] * xeb.yld-qty / 1000 * v-sqft-fac).
+        (qtty[k] * xeb.quantityPerSet / 1000 * v-sqft-fac).
 
 PUT "TOTAL  OPERATIONS        "
     op-tot[3]                FORMAT ">>>>9.99"    TO 57
@@ -420,6 +420,6 @@ PUT "TOTAL  OPERATIONS        "
     op-tot[5]                FORMAT ">>>>,>>9.99" TO 80 SKIP(1).
 
 IF vmclean THEN op-tot[4] = op-tot[4] *
-        (qtty[k] * xeb.yld-qty / 1000 * v-sqft-fac).
+        (qtty[k] * xeb.quantityPerSet / 1000 * v-sqft-fac).
 
 /* end ---------------------------------- copr. 1997  advanced software, inc. */

@@ -163,7 +163,8 @@
         eb.t-sqin        = bf-ritem.t-sqin
         eb.t-wid         = bf-ritem.t-wid
         eb.bl-qty = bf-ritem.qty[1]
-        eb.yld-qty       = bf-ritem.qty[99]                    
+        eb.yld-qty       = bf-ritem.qty[99]           
+        eb.quantityPerSet = 1         
         eb.dest-code     = ls-dest-code
         eb.i-coat-p  = IF eb.i-coat EQ 0 THEN 0
                        ELSE 1

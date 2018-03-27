@@ -432,7 +432,7 @@
       end.
     end.
 
-    qty = qtty[k] * IF xeb.yld-qty EQ 0 THEN 1 ELSE xeb.yld-qty.
+    qty = qtty[k] * IF xeb.quantityPerSet EQ 0 THEN 1 ELSE xeb.quantityPerSet.
     if qty = 0 then leave loupe.
     vmcl = k.
     iMasterQuantity = qtty[k].
@@ -443,7 +443,7 @@
 
     ASSIGN
        k = maxpage /* k used in kmr-run.i */
-       qty = qtty[k] * xeb.yld-qty.
+       qty = qtty[k] * xeb.quantityPerSet.
 
     /*find first xop where xop.company = xest.company and xop.est-no = xest.est-no and xop.line >= 500 no-lock no-error.*/
     find first item {sys/look/itemW.i} and item.i-no = xef.board no-lock no-error.
@@ -491,7 +491,7 @@
 
     display /*skip(1)*/
             " --Qty---- --- Description ------ -- Size / Color ----- --- Style / Part No ---"
-            qty / xeb.yld-qty format ">>,>>>,>>9"
+            qty / xeb.quantityPerSet format ">>,>>>,>>9"
             dsc[1] space(1) sizcol[1] space(2) stypart[1] skip
             space(11)
             dsc[2] space(1) sizcol[2] space(2) stypart[2] skip
@@ -500,7 +500,7 @@
             with no-box no-labels color value(col-norm) stream-io width 80 frame aa1 .
 
     ASSIGN
-     v-yld-qty   = xeb.yld-qty
+     v-yld-qty   = xeb.quantityPerSet
      v-hdr-depth = IF xeb.t-dep   EQ 0 AND
                       xef.nsh-dep EQ 0 AND
                       xef.gsh-dep EQ 0 THEN "" ELSE "Depth".

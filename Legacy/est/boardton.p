@@ -31,7 +31,7 @@ IF AVAIL ef THEN DO:
     ELSE
     IF eb.est-type EQ 2 OR eb.est-type EQ 6 THEN DO:
       ASSIGN
-       ld-set = IF eb.est-type LE 4 THEN eb.cust-% ELSE eb.yld-qty
+       ld-set = IF eb.est-type LE 4 THEN eb.cust-% ELSE eb.quantityPerSet
        ld-qty = est.est-qty[1] *
                 (IF ld-set LT 0 THEN -1 / ld-set ELSE ld-set).
     END.
