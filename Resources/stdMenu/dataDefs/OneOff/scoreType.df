@@ -1,0 +1,18 @@
+ADD FIELD "rec_key" OF "scoreType" AS character 
+  FORMAT "X(20)"
+  INITIAL ""
+  LABEL "Rec Key"
+  POSITION 5
+  MAX-WIDTH 40
+  HELP "Enter Rec Key"
+  ORDER 40
+
+ADD INDEX "rec_key" ON "scoreType" 
+  AREA "Index"
+  INDEX-FIELD "rec_key" ASCENDING 
+
+.
+PSC
+cpstream=ISO8859-1
+.
+0000000974

@@ -306,10 +306,10 @@ DO:
     DELETE OBJECT hPgmSecurity.
     
     /* If not automatically cleared by security level, ask for password */
-    IF NOT lResult THEN DO:
+    IF lResult THEN DO:
         RUN sys/ref/uphlp-pass.w (3, OUTPUT lResult).
         IF lResult THEN 
-            RUN sys/ref/hlpupd.p (ip-field,ip-table,ip-db,ip-frame,ip-language,OUTPUT op-ed-text).
+            RUN sys/ref/hlpupd.w (ip-field,ip-table,ip-db,ip-frame,ip-language,OUTPUT op-ed-text).
     END.
 
     /* === re-display    ==========*/

@@ -289,9 +289,9 @@ DEF  VAR acl-lbr AS DEC INIT 0 NO-UNDO.
             "  <-------ACTUAL-------->    COST      COST       "
             " <---SPOILAGE ANALYSIS---->" skip
             "CODE   DESCRIPTION      R PRODUCED   HOURS  SPEED   COST  "
-            "   HOURS  SPEED   COST     VARIANCE    VAR%       "
-            " EST QTY   ACTUAL     VAR %" skip
-            fill("-", 135) format "x(135)" skip.
+            "   HOURS  SPEED   COST     VARIANCE     VAR%       "
+            " EST QTY   ACTUAL        VAR %" skip
+            fill("-", 139) format "x(139)" skip.
 
       assign
        v-t-est-hrs  = 0
@@ -347,7 +347,7 @@ DEF  VAR acl-lbr AS DEC INIT 0 NO-UNDO.
                 v-mr-cost-var format ">,>>>,>>9-"
                   when v-mr-cost-var ne 0
                    and v-mr-cost-var ne ?
-                v-mr-prod-p format ">>>9.9-"
+                v-mr-prod-p format ">>>>>9.9-"
                   when v-mr-prod-p ne 0
                    and v-mr-prod-p ne ?
                 "     "
@@ -412,7 +412,7 @@ DEF  VAR acl-lbr AS DEC INIT 0 NO-UNDO.
                 v-run-cost-var format ">,>>>,>>9-"
                   when v-run-cost-var ne 0
                    and v-run-cost-var ne ?
-                v-run-prod-p format ">>>9.9-"
+                v-run-prod-p format ">>>>>9.9-"
                   when v-run-prod-p ne 0
                    and v-run-prod-p ne ?
                 "     "
@@ -530,10 +530,10 @@ DEF  VAR acl-lbr AS DEC INIT 0 NO-UNDO.
       if can-find(FIRST work-mat) then
          put skip(1)
              "                                     <-----ESTIMATED------>"
-             "  <-------ACTUAL--------->     COST      COST  " skip
+             "  <-------ACTUAL--------->     COST          COST  " skip
              "ITEM CODE       DESCRIPTION          QUANTITY UM        COST"
-             "  QUANTITY UM        COST   VARIANCE    VAR%   " skip
-             fill("-",105) format "x(105)" skip.
+             "  QUANTITY UM        COST   VARIANCE        VAR%   " skip
+             fill("-",109) format "x(109)" skip.
       
       IF v-merge-mat THEN DO:
           FOR EACH work-mat BREAK BY work-mat.i-no:
@@ -637,7 +637,7 @@ DEF  VAR acl-lbr AS DEC INIT 0 NO-UNDO.
                 work-prep.est-cost format ">,>>>,>>9-" to 48
                 work-prep.act-cost format ">,>>>,>>9-" to 59
                 v-cst-var format ">,>>>,>>9-" to 70
-                v-prod-p format ">>>9.9-" to 80
+                v-prod-p format ">>>>>9.9-" to 80
 
             WITH FRAME det-p STREAM-IO WIDTH 200 NO-LABELS NO-BOX down.
         

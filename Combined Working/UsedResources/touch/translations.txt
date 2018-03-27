@@ -1,0 +1,105 @@
+English,Espanol
+Graphics\32x32\usa_32.ico,Graphics\32x32\mexico_32.ico
+Accept Entry,Acepte la Entrada
+Accept Password,Acepta Contrasena
+Alpha,Alpha
+Back,Atrás
+Backspace,Tecla de Retroceso
+Blank,Blanco
+Blank Number,Blanco
+Boxes,Cajas
+Browse Trans,Hojear Trans
+Cancel,Cancelacion
+Caps Lock,Cerradura de Casquillos
+Category,Categoria
+Charge,Cargos
+Charge Code,Cargos Código
+Clear,Claro
+Close,Cerrar
+Company,Compania
+Complete,Completo
+Complete?,Completo?
+Completed?,Completo?
+Down,Abajo
+Employee,Empleado
+Employee Status,Condicion de Empleado
+End Date,Dia de Termino
+End Time,Tiempo del Final
+EndDate,Dia de!Termino
+EndTime,Tiempo del!Final
+Enter Job,Entrar Trabajo
+Enter Machine Code,Introduzca el Código de Maquina
+Espanol,English
+First Blank,Primer Blanco
+First Code,Primer Código
+First Form,Primera Forma
+First Job,Primer Trabajo
+First Pass,Primer Paso
+Form,Forma
+Form Number,Forma
+Home,Casa
+Hour,Hora
+Item Number,Numero de Articulo
+Job,Trabajo
+Job Card,Tarjeta de trabajo
+Job Checklist,Lista de tareas
+Job Filter,Filtro de trabajo
+Data Collection,Coleccion de Informacion
+Job List,Lista de Trabajo
+Job Number,Trabajo
+Key Value,Valor Dominante
+Last Blank,Ultimo Blanco
+Last Code,Ultimo Código
+Last Form,Ultimo Forma
+Last Job,Ultimo Trabajo
+Last Pass,Ultimo Paso
+Log In,Entrada
+Log Out,Salida
+Login,Entrada
+Logout,Salida
+Machine,Maquina
+Machine Filter,Filtro de la máquina
+Machine Status,Condicion de Maquina
+Main Menu,Menú Principal
+Minute,Minuto
+Page Down,Página Abajo
+Page Up,Página Arriba
+Pass,Pase
+Pass Number,Numero de Pase
+Password,Contrasena
+Quantity,Cantidad
+Reset Time,Reajuste la Hora
+Run,Transcurso
+Run Quantity,Cantidad
+Schedule,Horario
+Search,Búsqueda
+Select Company,Seleccione a Compania
+Select Employee,Seleccione a Empleado
+Select Job,Seleccione de Trabajo
+Select Machine,Seleccione la Maquina
+Sequence,Secuencia
+Set Time,Fije la Hora
+Shift,Turno
+Sort,Clase
+Sort / Job,Trabajo de la Clase
+Sort / Start,Comienzo de la Clase
+Space,Espacio
+Start Date,Fecha de Comienzo
+Start Time,Hora de Salida
+StartDate,Fecha de!Comienzo
+StartTime,Hora de!Salida
+Status,Estado
+Total,Total
+Total Time,Tiempo Total
+Total Run,Cantidad Total
+Touch Screen,Pantalla del Tacto
+Up,Hasta
+Verify Entries,Verifique las Entradas
+Verify Job Number,Verifique el Numero de Trabajo
+View Tran,Ver Tran
+Waste,Basura
+Waste Quantity,Basura
+images\onedown.bmp,images\espanol\onedown.bmp
+images\oneup.bmp,images\espanol\oneup.bmp
+images\pagedown.bmp,images\espanol\pagedown.bmp
+images\pageup.bmp,images\espanol\pageup.bmp

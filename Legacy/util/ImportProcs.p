@@ -1,7 +1,7 @@
 
 /*------------------------------------------------------------------------
     File        : ImportProcs.p
-    Purpose     : 
+    Purpose     : Common procedures for Import - Pass Through to Typed Importers
 
     Syntax      :
 
@@ -106,10 +106,12 @@ PROCEDURE pGenerateLog:
      Notes:
     ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipcLogFile AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER iplErrorsOnly AS LOGICAL NO-UNDO.
 
     OUTPUT STREAM sLog TO VALUE(ipcLogFile).
 
-    FOR EACH ttImportData:
+    FOR EACH ttImportData
+        WHERE (NOT ttImportData.lValid AND iplErrorsOnly) OR NOT iplErrorsOnly:
         EXPORT STREAM sLog DELIMITER "," 
             ttImportData.lValid
             ttImportData.cImportNote
@@ -126,6 +128,7 @@ PROCEDURE pGenerateTemplate:
      Notes:
     ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER iplShellOnly AS LOGICAL NO-UNDO.
+    DEFINE INPUT PARAMETER iplIncludeHelp AS LOGICAL NO-UNDO.
     DEFINE INPUT PARAMETER ipriContext AS ROWID NO-UNDO.
     DEFINE INPUT-OUTPUT PARAMETER iopcFile AS CHARACTER NO-UNDO.
 
@@ -138,6 +141,12 @@ PROCEDURE pGenerateTemplate:
             PUT STREAM sTemplate UNFORMATTED ttImportMap.cColumnLabel ',' .
         END.
         PUT STREAM sTemplate SKIP.
+        IF iplIncludeHelp THEN DO:
+            FOR EACH ttImportMap:
+                PUT STREAM sTemplate UNFORMATTED ttImportMap.cHelp ',' .
+            END.
+            PUT STREAM sTemplate SKIP.
+        END.    
         OUTPUT STREAM sTemplate CLOSE.
     END.
     ELSE 
@@ -156,28 +165,13 @@ PROCEDURE pInitializeType:
     ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipcTypeToInit AS CHARACTER NO-UNDO.
     
+    DEFINE VARIABLE cProgram AS CHARACTER NO-UNDO.
+    
     EMPTY TEMP-TABLE ttImportMap.
-    CASE ipcTypeToInit:
-        WHEN "ShipTo" THEN
-        RUN util/ImportShipTo.p PERSISTENT SET ghdImportProcForType.
-        WHEN "Cash" THEN
-        RUN util/ImportCash.p PERSISTENT SET ghdImportProcForType.
-        WHEN "Cust" THEN
-        RUN util/ImportCust.p PERSISTENT SET ghdImportProcForType.
-        WHEN "Est" THEN
-        RUN util/ImportEstimate.p PERSISTENT SET ghdImportProcForType.
-        WHEN "Vend" THEN
-        RUN util/ImportVend.p PERSISTENT SET ghdImportProcForType.
-        WHEN "GL" THEN
-        RUN util/ImportGL.p PERSISTENT SET ghdImportProcForType.
-        WHEN "FG" THEN
-        RUN util/ImportFG.p PERSISTENT SET ghdImportProcForType.
-        WHEN "AP" THEN
-        RUN util/ImportAP.p PERSISTENT SET ghdImportProcForType.
-        WHEN "AR" THEN
-        RUN util/ImportAR.p PERSISTENT SET ghdImportProcForType.
-        
-    END CASE.
+    /*gc global variables defined in ttImport.i*/
+    cProgram = gcTypeProgramsFolder + ENTRY(LOOKUP(ipcTypeToInit,gcTypeList),gcTypePrograms).
+    RUN VALUE(cProgram) PERSISTENT SET ghdImportProcForType.
+
     IF NOT CAN-FIND(FIRST ttImportMap WHERE ttImportMap.cType EQ ipcTypeToInit) THEN
         RUN pInitialize IN ghdImportProcForType("").
 
@@ -190,6 +184,7 @@ PROCEDURE pLoad:
      Notes: 
     ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO. 
+    DEFINE INPUT PARAMETER ipcLocation AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcFile AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER iplHeader AS LOGICAL NO-UNDO.
     DEFINE INPUT PARAMETER iplUpdateDuplicates AS LOGICAL NO-UNDO.
@@ -224,6 +219,7 @@ PROCEDURE pLoad:
             DO:
                 IF (iplHeader AND iCount GT 1) OR NOT iplHeader THEN 
                     RUN pAddRecord IN ghdImportProcForType(ipcCompany,
+                        ipcLocation,
                         ttImportData.cData, 
                         iplUpdateDuplicates,
                         iplFieldValidation,

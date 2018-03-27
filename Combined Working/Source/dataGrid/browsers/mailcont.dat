@@ -1,0 +1,11 @@
+FOR EACH mailcont OF maillist NO-LOCK
+?
+
+Indexed: contact-title,cust-name,cust-no,first-name,maillist,Non-Idx: last-name
+Non-Idx: ?
+
+Generated 04.18.2017 @  6:34:37 am by: nosweat
+
+    Index: mailcont
+         Field: list-no
+         Field: contact-rec

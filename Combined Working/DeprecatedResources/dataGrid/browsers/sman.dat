@@ -1,0 +1,22 @@
+FOR EACH sman NO-LOCK WHERE sman.company EQ "%company%"
+sman,sname,territory
+
+Indexed: sman,sname
+Non-Idx: basisComm,netpct,scomm,territory
+
+Generated 04.18.2017 @  2:15:20 am by: nosweat
+Table: sman - Records: 85
+
+    Index: rec_key
+         Field: rec_key
+
+    Index: sman
+         Field: company
+         Field: sman
+
+    Index: sname
+         Field: company
+         Field: sname
+
+    Index: wi-sname
+         Field: sname

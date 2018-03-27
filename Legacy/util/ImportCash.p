@@ -17,18 +17,19 @@
 
 DEFINE TEMP-TABLE ttImportCash
     FIELD Company         AS CHARACTER FORMAT "x(3)"
-    FIELD CustomerID      AS CHARACTER FORMAT "x(10)" COLUMN-LABEL "Customer ID"
-    FIELD CheckNo         AS INTEGER   FORMAT "9999999999" COLUMN-LABEL "Check #" 
-    FIELD BankCode        AS CHARACTER FORMAT "x(3)" COLUMN-LABEL "Bank"
-    FIELD CheckDate       AS DATE      FORMAT "99/99/9999" COLUMN-LABEL "Check Date"
-    FIELD CheckAmount     AS DECIMAL   FORMAT ">>,>>>,>>9.99" COLUMN-LABEL "Check Amount"
-    FIELD InvoiceNo       AS INTEGER   FORMAT "999999" COLUMN-LABEL "Invoice #"
-    FIELD InvoiceDiscount AS DECIMAL   FORMAT ">>9.99" COLUMN-LABEL "Discount" 
-    FIELD InvoiceApplied  AS DECIMAL   FORMAT ">>,>>>,>>9.99" COLUMN-LABEL "Applied Amount"
-    FIELD AccountNumber   AS CHARACTER FORMAT "x(30)" COLUMN-LABEL "GL Account"
+    FIELD Location        AS CHARACTER FORMAT "x(5)"
+    FIELD CustomerID      AS CHARACTER FORMAT "x(10)" COLUMN-LABEL "Customer ID" HELP "Required - Must be valid - Size:10"
+    FIELD CheckNo         AS INTEGER   FORMAT "9999999999" COLUMN-LABEL "Check #" HELP "Required - Integer"
+    FIELD BankCode        AS CHARACTER FORMAT "x(3)" COLUMN-LABEL "Bank" HELP "Defaults based on AR Control File Account - Size:3"
+    FIELD CheckDate       AS DATE      FORMAT "99/99/9999" COLUMN-LABEL "Check Date" HELP "Defaults to Today - Date"
+    FIELD CheckAmount     AS DECIMAL   FORMAT ">>,>>>,>>9.99" COLUMN-LABEL "Check Amount" HELP "Required non 0 - Decimal"
+    FIELD InvoiceNo       AS INTEGER   FORMAT "999999" COLUMN-LABEL "Invoice #" HELP "Optional - Blank/0 will be place 'On Account'"
+    FIELD InvoiceDiscount AS DECIMAL   FORMAT ">>9.99" COLUMN-LABEL "Discount" HELP "Optional - Decimal"
+    FIELD InvoiceApplied  AS DECIMAL   FORMAT ">>,>>>,>>9.99" COLUMN-LABEL "Applied Amount" HELP "Defaults to Check Amount + Discount - Must not be greater than Check Amount - Decimal"
+    FIELD AccountNumber   AS CHARACTER FORMAT "x(30)" COLUMN-LABEL "GL Account" HELP "Defaults from Bank or AR Control File - Size:15"
     .
 
-DEFINE VARIABLE giIndexOffset AS INTEGER NO-UNDO INIT 1. /*Set to 1 if there is a Company field in temp-table since this will not be part of the import data*/
+DEFINE VARIABLE giIndexOffset AS INTEGER NO-UNDO INIT 2. /*Set to 1 if there is a Company field in temp-table since this will not be part of the import data*/
 
 
 /* ********************  Preprocessor Definitions  ******************** */
@@ -38,66 +39,43 @@ DEFINE VARIABLE giIndexOffset AS INTEGER NO-UNDO INIT 1. /*Set to 1 if there is 
 
 
 /* **********************  Internal Procedures  *********************** */
+{util/ImportProcs.i &ImportTempTable = "ttImportCash"}
 
-PROCEDURE pAddRecord:
+PROCEDURE pValidate PRIVATE:
     /*------------------------------------------------------------------------------
-     Purpose: Accepts a Data Array, validates it and adds a temp-table record
+     Purpose: Validates a given Import Record for key fields
      Notes:
     ------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipcData AS CHARACTER NO-UNDO EXTENT.
+    DEFINE PARAMETER BUFFER ipbf-ttImportCash FOR ttImportCash.
     DEFINE INPUT PARAMETER iplUpdateDuplicates AS LOGICAL NO-UNDO.
     DEFINE INPUT PARAMETER iplFieldValidation AS LOGICAL NO-UNDO.
     DEFINE OUTPUT PARAMETER oplValid AS LOGICAL NO-UNDO.
     DEFINE OUTPUT PARAMETER opcNote AS CHARACTER NO-UNDO.
 
-    DEFINE VARIABLE hdTempTableBuffer AS HANDLE.
-    DEFINE VARIABLE cData             AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE hdValidator AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE cValidNote  AS CHARACTER NO-UNDO.
     DEFINE BUFFER bf-ttImportCash FOR ttImportCash.
 
+    RUN util/Validate.p PERSISTENT SET hdValidator.
+    
     oplValid = YES.
-    CREATE ttImportCash.
-    ASSIGN 
-        ttImportCash.Company = ipcCompany.
-    FOR EACH ttImportMap
-        WHERE ttImportMap.cType EQ 'Cash':
-        cData = ipcData[ttImportMap.iImportIndex].
-        hdTempTableBuffer = TEMP-TABLE ttImportCash:DEFAULT-BUFFER-HANDLE:BUFFER-FIELD(ttImportMap.iIndex + giIndexOffset):HANDLE.
-        CASE ttImportMap.cDataType:
-            WHEN "integer" THEN 
-                ASSIGN 
-                    hdTempTableBuffer:BUFFER-VALUE = INT(cData).
-            WHEN "logical" THEN 
-                ASSIGN 
-                    hdTempTableBuffer:BUFFER-VALUE = cData BEGINS "Y".
-            WHEN "decimal" THEN 
-                ASSIGN 
-                    hdTempTableBuffer:BUFFER-VALUE = DEC(cDaTa).
-            WHEN "date" THEN 
-                ASSIGN 
-                    hdTempTableBuffer:BUFFER-VALUE = DATE(cData). 
-            OTHERWISE 
-            ASSIGN 
-                hdTempTableBuffer:BUFFER-VALUE = cData.
-        END CASE.              
-    END.
     IF oplValid THEN 
     DO:
-        IF ttImportCash.Company EQ '' THEN 
+        IF ipbf-ttImportCash.Company EQ '' THEN 
             ASSIGN 
                 oplValid = NO
                 opcNote  = "Key Field Blank: Company".
     END.
     IF oplValid THEN 
     DO:
-        IF ttImportCash.CustomerID EQ '' THEN 
+        IF ipbf-ttImportCash.CustomerID EQ '' THEN 
             ASSIGN 
                 oplValid = NO
                 opcNote  = "Key Field Blank: Customer ID".
     END.
     IF oplValid THEN 
     DO:
-        IF ttImportCash.CheckNo EQ 0 THEN 
+        IF ipbf-ttImportCash.CheckNo EQ 0 THEN 
             ASSIGN 
                 oplValid = NO
                 opcNote  = "Key Field Blank: Check#".
@@ -105,8 +83,8 @@ PROCEDURE pAddRecord:
     IF oplValid THEN 
     DO:
         FIND FIRST cust NO-LOCK 
-            WHERE cust.company EQ ttImportCash.Company
-            AND cust.cust-no EQ ttImportCash.CustomerID
+            WHERE cust.company EQ ipbf-ttImportCash.Company
+            AND cust.cust-no EQ ipbf-ttImportCash.CustomerID
             NO-ERROR. 
         IF NOT AVAILABLE cust THEN 
             ASSIGN 
@@ -114,14 +92,14 @@ PROCEDURE pAddRecord:
                 opcNote  = "Key Field Invalid: CustomerID"
                 .
     END.
-    IF oplValid AND ttImportCash.InvoiceNo NE 0 THEN 
+    IF oplValid AND ipbf-ttImportCash.InvoiceNo NE 0 THEN 
     DO:
         FIND FIRST ar-inv NO-LOCK 
-            WHERE ar-inv.company EQ ttImportCash.Company 
+            WHERE ar-inv.company EQ ipbf-ttImportCash.Company 
             AND ar-inv.posted
-            AND ar-inv.cust-no EQ ttImportCash.CustomerID
-            AND ar-inv.inv-no EQ ttImportCash.InvoiceNo
-        NO-ERROR.
+            AND ar-inv.cust-no EQ ipbf-ttImportCash.CustomerID
+            AND ar-inv.inv-no EQ ipbf-ttImportCash.InvoiceNo
+            NO-ERROR.
         IF NOT AVAILABLE ar-inv THEN 
             ASSIGN 
                 oplValid = NO 
@@ -131,11 +109,11 @@ PROCEDURE pAddRecord:
     IF oplValid THEN 
     DO:
         FIND FIRST bf-ttImportCash NO-LOCK 
-            WHERE bf-ttImportCash.Company EQ ttImportCash.Company
-            AND bf-ttImportCash.CustomerID EQ ttImportCash.CustomerID
-            AND bf-ttImportCash.CheckNo EQ ttImportCash.CheckNo
-            AND bf-ttImportCash.InvoiceNo EQ ttImportCash.InvoiceNo 
-            AND ROWID(bf-ttImportCash) NE ROWID(ttImportCash)
+            WHERE bf-ttImportCash.Company EQ ipbf-ttImportCash.Company
+            AND bf-ttImportCash.CustomerID EQ ipbf-ttImportCash.CustomerID
+            AND bf-ttImportCash.CheckNo EQ ipbf-ttImportCash.CheckNo
+            AND bf-ttImportCash.InvoiceNo EQ ipbf-ttImportCash.InvoiceNo 
+            AND ROWID(bf-ttImportCash) NE ROWID(ipbf-ttImportCash)
             NO-ERROR.
         IF AVAILABLE bf-ttImportCash THEN 
             ASSIGN 
@@ -146,14 +124,14 @@ PROCEDURE pAddRecord:
     IF oplValid THEN 
     DO:
         FIND FIRST ar-cash NO-LOCK 
-            WHERE ar-cash.company EQ ttImportCash.Company
-            AND ar-cash.cust-no EQ ttImportCash.CustomerID
-            AND ar-cash.check-no EQ ttImportCash.CheckNo
+            WHERE ar-cash.company EQ ipbf-ttImportCash.Company
+            AND ar-cash.cust-no EQ ipbf-ttImportCash.CustomerID
+            AND ar-cash.check-no EQ ipbf-ttImportCash.CheckNo
             NO-ERROR .
         IF AVAILABLE ar-cash THEN 
             FIND FIRST ar-cashl NO-LOCK 
                 WHERE ar-cashl.company EQ ar-cash.company
-                AND ar-cashl.inv-no EQ ttImportCash.InvoiceNo
+                AND ar-cashl.inv-no EQ ipbf-ttImportCash.InvoiceNo
                 NO-ERROR.
         IF AVAILABLE ar-cash AND AVAILABLE ar-cashl THEN 
         DO:
@@ -179,11 +157,11 @@ PROCEDURE pAddRecord:
     END.
     IF oplValid AND iplFieldValidation THEN 
     DO:
-        IF oplValid AND ttImportCash.BankCode NE "" THEN 
+        IF oplValid AND ipbf-ttImportCash.BankCode NE "" THEN 
         DO:
             FIND FIRST bank NO-LOCK  
-                WHERE bank.company EQ ttImportCash.Company
-                AND bank.bank-code EQ ttImportCash.BankCode 
+                WHERE bank.company EQ ipbf-ttImportCash.Company
+                AND bank.bank-code EQ ipbf-ttImportCash.BankCode 
                 NO-ERROR.
             IF NOT AVAILABLE bank THEN 
                 ASSIGN 
@@ -192,11 +170,11 @@ PROCEDURE pAddRecord:
                     .
                     
         END.
-        IF oplValid AND ttImportCash.AccountNumber NE "" THEN 
+        IF oplValid AND ipbf-ttImportCash.AccountNumber NE "" THEN 
         DO:
             FIND FIRST account NO-LOCK  
-                WHERE account.company EQ ttImportCash.Company
-                AND account.actnum EQ ttImportCash.AccountNumber
+                WHERE account.company EQ ipbf-ttImportCash.Company
+                AND account.actnum EQ ipbf-ttImportCash.AccountNumber
                 AND account.type NE 'T'
                 NO-ERROR.
             IF NOT AVAILABLE account THEN 
@@ -206,7 +184,7 @@ PROCEDURE pAddRecord:
                     .
                     
         END.
-        IF oplValid AND ttImportCash.CheckAmount EQ 0 THEN 
+        IF oplValid AND ipbf-ttImportCash.CheckAmount EQ 0 THEN 
         DO:
             ASSIGN 
                 oplValid = NO 
@@ -214,7 +192,7 @@ PROCEDURE pAddRecord:
                 .
                 
         END.
-        IF oplValid AND ttImportCash.InvoiceApplied GT ttImportCash.CheckAmount THEN 
+        IF oplValid AND ipbf-ttImportCash.InvoiceApplied GT ipbf-ttImportCash.CheckAmount THEN 
         DO:
             ASSIGN 
                 oplValid = NO 
@@ -223,7 +201,6 @@ PROCEDURE pAddRecord:
                 
         END.
     END.
-    IF NOT oplValid THEN DELETE ttImportCash.
     
 END PROCEDURE.
 
@@ -286,8 +263,8 @@ PROCEDURE pCreateNewCashLine:
     DEFINE INPUT PARAMETER ipiInvoice AS INTEGER NO-UNDO.
     DEFINE OUTPUT PARAMETER opriCashl AS ROWID.
     
-    DEFINE VARIABLE iNextLine AS INTEGER NO-UNDO.
-    DEFINE VARIABLE cAccount AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iNextLine AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE cAccount  AS CHARACTER NO-UNDO.
     DEFINE BUFFER bf-ar-cashl FOR ar-cashl.
     
     FIND ar-cash NO-LOCK 
@@ -302,16 +279,16 @@ PROCEDURE pCreateNewCashLine:
     iNextLine = 1.
     FOR EACH bf-ar-cashl OF ar-cash NO-LOCK BY LINE DESCENDING:
         iNextLine = bf-ar-cashl.line + 1.
-      LEAVE.
+        LEAVE.
     END.
                     
     CREATE ar-cashl.
     ASSIGN
-        ar-cashl.company    = ar-cash.company
-        ar-cashl.c-no       = ar-cash.c-no
-        ar-cashl.line       = iNextLine
-        ar-cashl.cust-no    = ar-cash.cust-no
-        ar-cashl.check-no   = STRING(ar-cash.check-no,"9999999999")
+        ar-cashl.company  = ar-cash.company
+        ar-cashl.c-no     = ar-cash.c-no
+        ar-cashl.line     = iNextLine
+        ar-cashl.cust-no  = ar-cash.cust-no
+        ar-cashl.check-no = STRING(ar-cash.check-no,"9999999999")
         ar-cashl.inv-date = TODAY
         .
     
@@ -344,7 +321,8 @@ PROCEDURE pCreateNewCashLine:
         IF AVAILABLE account THEN 
             ASSIGN cAccount = account.actnum.
     END.
-    ASSIGN ar-cashl.actnum = cAccount.
+    ASSIGN 
+        ar-cashl.actnum = cAccount.
     /*End Get Account Number*/
 
     /*Get Invoice Information*/
@@ -355,8 +333,8 @@ PROCEDURE pCreateNewCashLine:
         NO-ERROR.
     IF AVAILABLE ar-inv THEN 
         ASSIGN 
-            ar-cashl.inv-no = ar-inv.inv-no
-            ar-cashl.amt-due = ar-inv.due
+            ar-cashl.inv-no   = ar-inv.inv-no
+            ar-cashl.amt-due  = ar-inv.due
             ar-cashl.inv-date = ar-inv.inv-date
             .
                
@@ -365,145 +343,66 @@ PROCEDURE pCreateNewCashLine:
   
 END PROCEDURE.
 
-PROCEDURE pExportData:
-/*------------------------------------------------------------------------------
- Purpose:  Runs the Export Data Program for AP
- Notes:
-------------------------------------------------------------------------------*/
 
-
-END PROCEDURE.
-
-PROCEDURE pInitialize:
+PROCEDURE pProcessRecord PRIVATE:
     /*------------------------------------------------------------------------------
-     Purpose: Initializes the specific Column Mapping for APs   
+     Purpose:  Processes an import record, incrementing the "opiAdded" variable
      Notes:
     ------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER ipcLoadFile AS CHARACTER NO-UNDO.
-
-    DEFINE VARIABLE cFields     AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cLabels     AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cDataTypes  AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cWidths     AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cFormats    AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE iIndex      AS INTEGER   NO-UNDO.
-    DEFINE VARIABLE iIndexStart AS INTEGER   NO-UNDO.
-    
-    EMPTY TEMP-TABLE ttImportCash.
-    EMPTY TEMP-TABLE ttImportMap.
-    
-    iIndexStart = 1 + giIndexOffset.
-    cWidths    = "60,60,60,60,60,60,60,60,60,60,60,60,60,60,60,60".
-    
-    IF ipcLoadFile EQ '' THEN 
-    DO:
-        ASSIGN 
-            cFields    = ""
-            cDataTypes = ""
-            cFormats   = ""
-            cLabels    = ""
-            .
-        DO iIndex = iIndexStart TO TEMP-TABLE ttImportCash:DEFAULT-BUFFER-HANDLE:NUM-FIELDS:
-            ASSIGN 
-                cFields    = cFields + TEMP-TABLE ttImportCash:DEFAULT-BUFFER-HANDLE:BUFFER-FIELD(iIndex):NAME + ","
-                cDataTypes = cDataTypes + TEMP-TABLE ttImportCash:DEFAULT-BUFFER-HANDLE:BUFFER-FIELD(iIndex):DATA-TYPE + ","
-                cFormats   = cFormats + TEMP-TABLE ttImportCash:DEFAULT-BUFFER-HANDLE:BUFFER-FIELD(iIndex):FORMAT + ","
-                cLabels    = cLabels + TEMP-TABLE ttImportCash:DEFAULT-BUFFER-HANDLE:BUFFER-FIELD(iIndex):COLUMN-LABEL + ","
-                .
-            
-        
-        END.
-        ASSIGN 
-            cFields    = TRIM(cFields,",")
-            cDataTypes = TRIM(cDataTypes,",")
-            cFormats   = TRIM(cFormats,",")
-            cLabels    = TRIM(cLabels,",")
-            .
-        DO iIndex = 1 TO NUM-ENTRIES(cFields):
-            CREATE ttImportMap.
-            ASSIGN 
-                ttImportMap.cType         = "Cash"
-                ttImportMap.cLabel        = ENTRY(iIndex,cFields)
-                ttImportMap.iIndex        = iIndex
-                ttImportMap.iImportIndex  = iIndex
-                ttImportMap.cDataType     = ENTRY(iIndex,cDataTypes)
-                ttImportMap.cColumnLabel  = ENTRY(iIndex,cLabels)
-                ttImportMap.cColumnFormat = ENTRY(iIndex,cFormats)
-                .
-            IF iIndex LE NUM-ENTRIES(cWidths)  THEN 
-                ttImportMap.iColumnWidth = INT(ENTRY(iIndex,cWidths)).
-        END. 
-    
-    END.
-    ELSE 
-    DO:
-    /*Load from Config File provided*/
-    END.
-
-END PROCEDURE.
-
-PROCEDURE pProcessImport:
-    /*------------------------------------------------------------------------------
-     Purpose: Processes the temp-table already loaded and returns counts
-     Notes:
-    ------------------------------------------------------------------------------*/
-    DEFINE OUTPUT PARAMETER opiUpdated AS INTEGER NO-UNDO.
-    DEFINE OUTPUT PARAMETER opiAdded AS INTEGER NO-UNDO.
+    DEFINE PARAMETER BUFFER ipbf-ttImportCash FOR ttImportCash.
+    DEFINE INPUT-OUTPUT PARAMETER iopiAdded AS INTEGER NO-UNDO.
 
     DEFINE VARIABLE riCash  AS ROWID. 
     DEFINE VARIABLE riCashl AS ROWID. 
     
-    FOR EACH ttImportCash NO-LOCK:
-        IF ttImportCash.CustomerID EQ "" THEN NEXT.
+
                 
-        opiAdded = opiAdded + 1.
+    iopiAdded = iopiAdded + 1.
         
-        /*if found, add another line to existing header - otherwise, create a new header*/
-        FIND FIRST ar-cash NO-LOCK
-            WHERE ar-cash.company EQ ttImportCash.Company
-            AND ar-cash.check-date EQ ttImportCash.CheckDate
-            AND ar-cash.check-no EQ ttImportCash.CheckNo
-            AND ar-cash.cust-no EQ ttImportCash.CustomerID
+    /*if found, add another line to existing header - otherwise, create a new header*/
+    FIND FIRST ar-cash NO-LOCK
+        WHERE ar-cash.company EQ ipbf-ttImportCash.Company
+        AND ar-cash.check-date EQ ipbf-ttImportCash.CheckDate
+        AND ar-cash.check-no EQ ipbf-ttImportCash.CheckNo
+        AND ar-cash.cust-no EQ ipbf-ttImportCash.CustomerID
+        NO-ERROR.
+    IF NOT AVAILABLE ar-cash THEN /*create a new one*/
+    DO:
+        RUN pCreateNewCashHeader (ipbf-ttImportCash.Company, ipbf-ttImportCash.CustomerID, ipbf-ttImportCash.CheckNo, OUTPUT riCash).
+        FIND ar-cash EXCLUSIVE-LOCK
+            WHERE ROWID(ar-cash) EQ riCash
             NO-ERROR.
-        IF NOT AVAILABLE ar-cash THEN /*create a new one*/
-        DO:
-            RUN pCreateNewCashHeader (ttImportCash.Company, ttImportCash.CustomerID, ttImportCash.CheckNo, OUTPUT riCash).
-            FIND ar-cash EXCLUSIVE-LOCK
-                WHERE ROWID(ar-cash) EQ riCash
-                NO-ERROR.
-            IF NOT AVAILABLE ar-cash THEN NEXT.    
+        IF NOT AVAILABLE ar-cash THEN NEXT.    
                     
-            /*Override defaults with imported values for header*/
-            IF ttImportCash.CheckDate NE ? THEN 
-                ar-cash.check-date =  ttImportCash.CheckDate.
-            IF ttImportCash.BankCode NE "" THEN 
-                ar-cash.bank-code = ttImportCash.BankCode. 
+        /*Override defaults with imported values for header*/
+        IF ipbf-ttImportCash.CheckDate NE ? THEN 
+            ar-cash.check-date =  ipbf-ttImportCash.CheckDate.
+        IF ipbf-ttImportCash.BankCode NE "" THEN 
+            ar-cash.bank-code = ipbf-ttImportCash.BankCode. 
             
-            ar-cash.check-amt = ttImportCash.CheckAmount.
+        ar-cash.check-amt = ipbf-ttImportCash.CheckAmount.
             
-        END. /*not available ar-cash*/
-        RUN pCreateNewCashLine (ROWID(ar-cash), ttImportCash.InvoiceNo, OUTPUT riCashl).
-        FIND ar-cashl EXCLUSIVE-LOCK 
-            WHERE ROWID(ar-cashl) EQ riCashl
-            NO-ERROR.
-        IF NOT AVAILABLE ar-cashl THEN NEXT.
+    END. /*not available ar-cash*/
+    RUN pCreateNewCashLine (ROWID(ar-cash), ipbf-ttImportCash.InvoiceNo, OUTPUT riCashl).
+    FIND ar-cashl EXCLUSIVE-LOCK 
+        WHERE ROWID(ar-cashl) EQ riCashl
+        NO-ERROR.
+    IF NOT AVAILABLE ar-cashl THEN NEXT.
                 
-        /*Override defaults with imported values for line*/ 
-         ASSIGN 
-            ar-cashl.amt-disc = ttImportCash.InvoiceDiscount
-            .       
+    /*Override defaults with imported values for line*/ 
+    ASSIGN 
+        ar-cashl.amt-disc = ipbf-ttImportCash.InvoiceDiscount
+        .       
         
-        IF ttImportCash.InvoiceApplied EQ 0 THEN 
-            ar-cashl.amt-paid = ttImportCash.CheckAmount + ar-cashl.amt-disc.
-        ELSE 
-            ar-cashl.amt-paid = ttImportCash.InvoiceApplied.
+    IF ipbf-ttImportCash.InvoiceApplied EQ 0 THEN 
+        ar-cashl.amt-paid = ipbf-ttImportCash.CheckAmount + ar-cashl.amt-disc.
+    ELSE 
+        ar-cashl.amt-paid = ipbf-ttImportCash.InvoiceApplied.
         
 
-        IF ttImportCash.AccountNumber NE "" THEN 
-            ar-cashl.actnum = ttImportCash.AccountNumber.
+    IF ipbf-ttImportCash.AccountNumber NE "" THEN 
+        ar-cashl.actnum = ipbf-ttImportCash.AccountNumber.
                                                             
-    END.
-    
 
 END PROCEDURE.
 

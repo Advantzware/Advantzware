@@ -2154,7 +2154,8 @@ ASSIGN
  itemfg.isaset     = (xest.est-type EQ 2 OR xest.est-type EQ 6) AND
                      xeb.form-no EQ 0
  itemfg.pur-man    = xeb.pur-man      
- itemfg.alloc      = itemfg.isaset.
+ itemfg.alloc      = itemfg.isaset
+ itemfg.setupDate  = TODAY.
 
  {oe/fgfreighta.i xeb}
 

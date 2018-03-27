@@ -1,0 +1,5 @@
+open 216.117.9.77
+customer
+custom3r
+put P:\Rcode\Kiwi\Export\dataxfer\in\TL_kiwi110120235208.dat
+quit

@@ -1,0 +1,6 @@
+open ftp.lovebox.com
+mc8mtb0xhf
+dlkxd992
+cd /aspire/mc8mtb0xhf/InBox
+put c:\tmp\RFC58085
+quit

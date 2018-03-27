@@ -3,8 +3,8 @@
 /* -------------------------------------------------------------------------- */
 
 assign
- tt-report.key-01 = if sort-by-inv then string({1}.inv-no,"999999")
-		            else tt-report.key-09
+ tt-report.key-01 = /*if sort-by-inv then string({1}.inv-no,"999999")
+		            else*/ tt-report.key-09
 
  tt-report.key-02 = string({2},"99/99/9999")
 

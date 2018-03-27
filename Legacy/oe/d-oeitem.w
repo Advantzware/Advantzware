@@ -4491,7 +4491,8 @@ ASSIGN
  itemfg.pur-uom    = /*IF AVAIL bf-itemfg THEN bf-itemfg.pur-uom ELSE "M" */ oe-ordl.pr-uom:SCREEN-VALUE 
 /* gdm - 11190901 */
  itemfg.ship-meth  = IF AVAIL bf-itemfg THEN bf-itemfg.ship-meth ELSE YES 
-  itemfg.part-no    = oe-ordl.part-no:screen-value.
+  itemfg.part-no    = oe-ordl.part-no:screen-value
+  itemfg.setupDate  = TODAY.
 
 ASSIGN
     itemfg.taxable = IF AVAIL cust 
@@ -5734,6 +5735,21 @@ PROCEDURE exit-delete :
       DELETE exit-oe-ordl.
       LEAVE.
     END.
+  END.
+
+  IF AVAIL oe-ord THEN do:
+      IF CAN-FIND(FIRST b-oe-ordl 
+                  WHERE b-oe-ordl.company EQ oe-ord.company
+                    AND b-oe-ordl.ord-no  EQ oe-ord.ord-no
+                    AND b-oe-ordl.line    GE 1
+                    AND b-oe-ordl.line    LT 99999999) THEN
+      FOR EACH b-oe-ordl
+          WHERE b-oe-ordl.company EQ oe-ord.company
+            AND b-oe-ordl.ord-no  EQ oe-ord.ord-no
+            AND (b-oe-ordl.line   LT 1 OR
+                 b-oe-ordl.line   GE 99999999):
+        DELETE b-oe-ordl.
+      END.  
   END.
 
   op-cancel = YES.

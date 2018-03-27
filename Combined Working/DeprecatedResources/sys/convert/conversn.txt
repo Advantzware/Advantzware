@@ -1,0 +1,188 @@
+/* ASI GUI Databas conversion Procedure
+   Convert database from V8 Character to V9 GUI 
+   modified : 09/19/05
+   
+*/
+
+services.txt : asigui 2502
+               asihelp 2503
+               nosweat 2504
+
+Default network drive : N
+
+
+===== ASI Database Conversion ===============
+  
+1. DUMP data FROM V8 CHARACTER DATABASE.
+     WINDOW Explore ->
+     GO TO CHARACTER DATABASE DIRECTORY ->
+     DOUBLE click DATABASE (ASI.DB) 
+       (You are IN Data DICTIONARY tool AND ASI DATABASE IS only CONNECTED)          
+         ->
+     GO TO tools ->
+     GO TO Data administration ->
+     GO TO Admin ->
+     GO TO DUMP Data AND definitions ->
+     GO TO TABLE CONTENTS ->
+     Click "Select Some" BUTTON ->
+     Enter * IN TABLE NAME TO SELECT ALL AND click OK BUTTON ->
+     Unselect following tables 
+         (box-design-hdr, box-design-line, mach-calendar)  ->
+     Enter OUTPUT DIRECTORY NAME (destination path)   (ex, c:\temp\v8data ) 
+         AND click OK BUTTON   ->
+     Dumping PROCEDURE will begin.
+
+2. LOAD data TO V9 GUI DATABASE.
+     Have a PROGRESS Development configuration FILE IN c:\program files\PROGRESS ->   
+     GET INTO GUI DATABASE's Procedure Editor ->
+     GO TO Tool ->
+     Data administration ->
+     DATABASE ->
+     SELECT working DATABASE ->
+     SELECT ASI DATABASE AND click OK BUTTON ->
+     GO TO ADMIN ->
+     GO TO LOAD Data AND definitions ->
+     GO TO TABLE CONTENTS ->
+     Clieck "Select Some" BUTTON ->
+     Enter * IN TABLE NAME TO SELECT ALL AND click OK BUTTON ->
+     Unselect following tables 
+         (box-design-hdr, box-design-line,mnu-item,usr-menu, mach-calendar, oe-bolh, oe-relh, quote, est-flm,usr-menu)  ->
+     Enter INPUT DIRECTORY NAME (Dumped data residing DIRECTORY) (ex, c:\temp\v8data ) 
+         AND click OK BUTTON   ->
+     Loading PROCEDURE will begin.
+
+ 3. Loading PROCEDURE Verification 
+       OPEN asi.ds FILE FROM ASI GUI DATABASE DIRECTORY.
+       CHECK IF ANY numbers IN # OF ERRORS COLUMN.
+       IF there IS a VALUE other than 0 THEN  CHECK the TABLE's error file from
+          dumped data residing DIRECTORY. (ex c:\temp\v8data\account.e )
+          IF you see ANY ERROR MESSAGE other THEN NO data TO IMPORT MESSAGE, talk TO YOOSUN
+          
+ 4. LOAD Box-design-hdr, box-design-line, usercomp,mnu-item and usr-menu data FROM GUI DATABASE.
+
+ 5. RUN Conversion utility program
+        ALL programs are IN R:\asi_gui9\SOURCE\sys\CONVERT.
+        GET CURRENT programs whenever you DO conversion.
+
+        CREATE ASIGUI developer's icon if not existing ->
+        Enter RIGHT START IN DIRECTORY NAME (  ex. r:\asi_gui9\SOURCE )
+        GET INTO PROCEDURE EDITOR.
+        REPEAT following PROCEDURE FOR ALL conversion programs.
+             GO TO FILE -> OPEN  ->
+             SELECT a conversion program. ->
+             IF ANY DIRECTORY OR FILE NAME IS IN the conversion program,
+                Change TO appropriate path NAME.
+             Press F2 KEY TO RUN
+             WHEN PROCEDURE IS finished, SELECT NEXT conversion program TO RUN.
+             -------------------
+             RUN conversion programs IN following order.
+               
+               t-estqty.p
+               t-estflm.p  - CHECK Dumped data file's directory
+               t-blqty.p
+               t-oerelh.p  - CHECK dumped data FILE's directory
+               t-oebolh.p  - CHECK dumped data FILE's directory
+               t-order.p 
+               t-quotld.p  - CHECK dumped data FILE's directory.
+               t-quote.p
+               t-einst.p  - notes
+               t-flute.p
+               t-ref.p
+               t-stax.p
+               t-sysctrl.p
+               t-notes.p
+               t-vend.p  - vendor rec_key and notes
+               util/fxopened.p  -update status  
+               fxestdim.p 
+               fixrmrec.p
+               convinks.p     
+               t-ordopn.p
+               f-mach.p  for machine's industry problem
+               (t-boxhld.p, t-boxlld.p for estimate's box-design)
+               sys/convert/fxordl.p   reset oe-ordl.e-num to 0               
+               REc_key update  - t-cstrec.p, t-itgrec.p t-itmrec.p t-ordrec.p t-jobrec.p t-porec.p
+               Maybe need to reset oe-bolh.po-no to blank. (BOL posting problem).  
+               Check std-code.code if 1 - 9 exist make them to 01,02...09.
+                (1-> 01, 2-> 02... 9 -> 09)
+               
+               util/upd-box.r to change drive letter for box images.
+               vend.actdscr = need to be filled from account.actdscr.
+               util/quote22.p  for new customer with no quote records.
+               sys/convert/t-styflu_corr.p for Corrugated conversion - Style Flute scores
+                
+ 6.    Load Liscense module.
+             util/loadmod.p for ASI_GUI
+             util/loadmoda.p for Addon.
+             To change module values, run util/module.w
+
+             (mainmenu.w could be used but make it a little bit slower).
+            
+ 7.    Xprint
+       PCanywhere
+       Progress ADM2
+       Backup software 
+
+
+
+============= ASI ADDON Database Conversion ===============
+
+1.  Make Back up for all databases.
+
+2.  Copy all database to new version 9 directory.
+
+3.  Truncate bi file for all databases (nosweat,emptrack, jobs and rfq )
+    (ex.  c:\dlc\bin\proutil f:\asiaddon9\db\nosweat -C truncate bi -G 0
+          c:\dlc\bin\proutil f:\asiaddon9\db\jobs -C truncate bi -G 0
+          c:\dlc\bin\proutil f:\asiaddon9\db\emptrack -C truncate bi -G 0
+          c:\dlc\bin\proutil f:\asiaddon9\db\rfq -C truncate bi -G 0  
+
+4.  Convert single volumn database to multi-volumn database for all databases
+    ( ex.  c:\dlc\bin\prostrct convert f:\asiaddon9\db\nosweat 
+           Enter Y and press enter key to start convertsion  
+           -------
+           c:\dlc\bin\prostrct convert f:\asiaddon9\db\jobs 
+           Enter Y and press enter key to start convertsion  
+           -------
+           c:\dlc\bin\prostrct convert f:\asiaddon9\db\emptrack
+           Enter Y and press enter key to start convertsion  
+           -------
+           c:\dlc\bin\prostrct convert f:\asiaddon9\db\rfq
+           Enter Y and press enter key to start convertsion  
+    )
+
+5.  Convert V8 database to V9 database for all databases
+    (ex.  c:\program files\progress\bin\proutil f:\asiaddon9\db\nosweat -C conv89
+          Enter Y and press enter key to start conversion
+          ---------
+          c:\program files\progress\bin\proutil f:\asiaddon9\db\jobs -C conv89
+          Enter Y and press enter key to start convertsion  
+          ---------
+          c:\program files\progress\bin\proutil f:\asiaddon9\db\emptrack -C conv89
+          Enter Y and press enter key to start convertsion  
+          ---------
+          c:\program files\progress\bin\proutil f:\asiaddon9\db\rfq -C conv89
+          Enter Y and press enter key to start convertsion  
+    )
+
+6.  Load delta df files( deltanos.df, deltaemp.df, deltajob.df and deltarfq.df).
+      * Need to create delta df files first.(r:\asi_gui9\source\sys\convert\*.df)
+        In general,if V8 addon is same as ASI V8 addon, Emptrack and RFQ do not need to do this. 
+        Do only for NOSWEAT and JOBS database.
+
+     Go to Tool -> Data Administration
+     Go to Database -> Select working datase -> select Nosweat
+     Go to Admin -> Load data and definition -> data definition
+     Enter Delta df file for NOSWEAT (ex c:\data\deltanow.df)     
+     -------------
+     Go to Database -> Select working datase -> select Emptrack
+     Go to Admin -> Load data and definition -> data definition
+     Enter Delta df file for NOSWEAT (ex c:\data\deltaemp.df)
+     -------------
+     Go to Database -> Select working datase -> select Jobs
+     Go to Admin -> Load data and definition -> data definition
+     Enter Delta df file for NOSWEAT (ex c:\data\deltajob.df)
+    -------------
+     Go to Database -> Select working datase -> select rfq
+     Go to Admin -> Load data and definition -> data definition
+     Enter Delta df file for NOSWEAT (ex c:\data\deltarfq.df) 
+   

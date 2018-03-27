@@ -488,7 +488,10 @@ DO:
               END.      
           END.  
           WHEN "carrier" THEN DO:
-              RUN windows/l-carrie.w (g_company,g_loc, FOCUS:SCREEN-VALUE, OUTPUT char-val).
+              FIND FIRST oe-boll NO-LOCK 
+                WHERE oe-boll.company EQ oe-bolh.company
+                  AND oe-boll.b-no    EQ oe-bolh.b-no NO-ERROR.
+              RUN windows/l-carrie.w (g_company,oe-boll.loc, FOCUS:SCREEN-VALUE, OUTPUT char-val).
               IF char-val NE "" AND entry(1,char-val) NE FOCUS:SCREEN-VALUE IN FRAME {&FRAME-NAME} THEN DO:
                  FOCUS:SCREEN-VALUE = ENTRY(1,char-val).
                  RUN new-carrier.

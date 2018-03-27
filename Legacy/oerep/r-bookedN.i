@@ -233,7 +233,6 @@ FORMAT wkrecap.procat
         AND oe-ord.cust-no  LE end_cust-no
         AND oe-ord.ord-date GE lo_trANDate
         AND oe-ord.ord-date LE tdate
-        AND oe-ord.type     ne "T"
         AND oe-ord.stat     NE "D"
       BY oe-ord.company BY oe-ord.ord-date BY oe-ord.ord-no:
 

@@ -1,0 +1,14 @@
+FOR EACH freight-class NO-LOCK
+description,freight-class
+
+Indexed: freight-class
+Non-Idx: description
+
+Generated 04.18.2017 @  1:45:44 am by: nosweat
+Table: freight-class - Records: 0
+
+    Index: freight-class
+         Field: freight-class
+
+    Index: rec_key
+         Field: rec_key

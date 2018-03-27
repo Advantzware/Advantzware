@@ -1,0 +1,65 @@
+ADD TABLE "emailcod"
+  AREA "Schema Area"
+  LABEL "Email Codes"
+  DESCRIPTION "Email Codes"
+  DUMP-NAME "emailcod"
+  TABLE-TRIGGER "CREATE" OVERRIDE PROCEDURE "create.trg/emailcod.p" CRC "?" 
+  TABLE-TRIGGER "DELETE" OVERRIDE PROCEDURE "delete.trg/emailcod.p" CRC "?" 
+  TABLE-TRIGGER "WRITE" OVERRIDE PROCEDURE "write.trg/emailcod.p" CRC "?" 
+
+ADD FIELD "emailcod" OF "emailcod" AS character 
+  FORMAT "X(8)"
+  INITIAL ""
+  LABEL "Email Code"
+  POSITION 2
+  SQL-WIDTH 16
+  COLUMN-LABEL "Code"
+  HELP "Enter Email Code"
+  ORDER 10
+
+ADD FIELD "description" OF "emailcod" AS character 
+  FORMAT "X(30)"
+  INITIAL ""
+  LABEL "Description"
+  POSITION 3
+  SQL-WIDTH 60
+  HELP "Enter Code Description"
+  ORDER 20
+
+ADD FIELD "rec_key" OF "emailcod" AS character 
+  FORMAT "X(20)"
+  INITIAL ""
+  LABEL "Record Key"
+  POSITION 4
+  SQL-WIDTH 40
+  HELP "Enter Record Key Value"
+  ORDER 30
+
+ADD INDEX "pi-emailcod" ON "emailcod" 
+  AREA "Schema Area"
+  UNIQUE
+  PRIMARY
+  DESCRIPTION "Email Codes Primary Index"
+  INDEX-FIELD "emailcod" ASCENDING 
+
+ADD INDEX "si-description" ON "emailcod" 
+  AREA "Schema Area"
+  DESCRIPTION "Email Codes Secondary Index by Description"
+  INDEX-FIELD "description" ASCENDING 
+
+ADD INDEX "si-rec_key" ON "emailcod" 
+  AREA "Schema Area"
+  DESCRIPTION "Email Codes Secondary Index by rec_key"
+  INDEX-FIELD "rec_key" ASCENDING 
+
+ADD INDEX "wi-description" ON "emailcod" 
+  AREA "Schema Area"
+  WORD
+  DESCRIPTION "Email Codes Word Index by Description"
+  INDEX-FIELD "description" ASCENDING 
+
+.
+PSC
+cpstream=ISO8859-1
+.
+0000001717

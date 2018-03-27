@@ -31,20 +31,15 @@
 
 /* Local Variable Definitions ---                                       */
 def input parameter ip-company like itemfg.company no-undo.
-def input parameter ip-loc like itemfg.loc no-undo.
-def input parameter ip-stack like reftable.CODE no-undo.
 def input parameter ip-cur-val as cha no-undo.
 def output parameter op-char-val as cha no-undo. /* string i-code + i-name */
 
 def var lv-first-time as log init yes no-undo.
-&scoped-define fld-name-1 reftable.CODE
-&scoped-define fld-name-2 reftable.dscr
-&scoped-define SORTBY-1 BY reftable.code
-&scoped-define SORTBY-2 BY reftable.Dscr
+&scoped-define fld-name-1 stackPattern.stackCode 
+&scoped-define fld-name-2 stackPattern.stackDescription
+&scoped-define SORTBY-1 BY stackPattern.stackCode
+&scoped-define SORTBY-2 BY stackPattern.stackDescription
 &global-define IAMWHAT LOOKUP
-
-def buffer strap for reftable.
-def buffer pattern for reftable.
 
 {custom/globdefs.i}
 
@@ -70,25 +65,20 @@ ASSIGN
 &Scoped-define BROWSE-NAME BROWSE-1
 
 /* Internal Tables (found by Frame, Query & Browse Queries)             */
-&Scoped-define INTERNAL-TABLES reftable strap pattern
+&Scoped-define INTERNAL-TABLES stackPattern
 
 /* Define KEY-PHRASE in case it is used by any query. */
 &Scoped-define KEY-PHRASE TRUE
 
 /* Definitions for BROWSE BROWSE-1                                      */
-&Scoped-define FIELDS-IN-QUERY-BROWSE-1 reftable.code reftable.dscr reftable.val[1] strap.val[1] strap.code2 strap.dscr pattern.dscr   
+&Scoped-define FIELDS-IN-QUERY-BROWSE-1 stackPattern.stackCode stackPattern.stackDescription stackPattern.stackCount stackPattern.strapCount stackPattern.strapCode stackPattern.strapFormula stackPattern.stackImage   
 &Scoped-define ENABLED-FIELDS-IN-QUERY-BROWSE-1   
 &Scoped-define SELF-NAME BROWSE-1
-&Scoped-define QUERY-STRING-BROWSE-1 FOR EACH reftable WHERE ~{&KEY-PHRASE}       AND reftable.reftable = "STACK" and ASI.reftable.company = "" AND reftable.loc = "" NO-LOCK, ~
-        first strap  where strap.reftable = "STACKSTRAP"                 and strap.company = ""                 and strap.loc = ""                 and strap.code = reftable.code no-lock, ~
-       FIRST pattern OUTER-JOIN where pattern.reftable = "STACKPAT"                 and pattern.company = ""                 and pattern.loc = ""                 and pattern.code = reftable.code NO-LOCK                     ~{&SORTBY-PHRASE}
-&Scoped-define OPEN-QUERY-BROWSE-1 OPEN QUERY {&SELF-NAME} FOR EACH reftable WHERE ~{&KEY-PHRASE}       AND reftable.reftable = "STACK" and ASI.reftable.company = "" AND reftable.loc = "" NO-LOCK, ~
-        first strap  where strap.reftable = "STACKSTRAP"                 and strap.company = ""                 and strap.loc = ""                 and strap.code = reftable.code no-lock, ~
-       FIRST pattern OUTER-JOIN where pattern.reftable = "STACKPAT"                 and pattern.company = ""                 and pattern.loc = ""                 and pattern.code = reftable.code NO-LOCK                     ~{&SORTBY-PHRASE}.
-&Scoped-define TABLES-IN-QUERY-BROWSE-1 reftable strap pattern
-&Scoped-define FIRST-TABLE-IN-QUERY-BROWSE-1 reftable
-&Scoped-define SECOND-TABLE-IN-QUERY-BROWSE-1 strap
-&Scoped-define THIRD-TABLE-IN-QUERY-BROWSE-1 pattern
+&Scoped-define QUERY-STRING-BROWSE-1 FOR EACH stackPattern WHERE ~{&KEY-PHRASE}  NO-LOCK                     ~{&SORTBY-PHRASE}
+&Scoped-define OPEN-QUERY-BROWSE-1 OPEN QUERY {&SELF-NAME} FOR EACH stackPattern WHERE ~{&KEY-PHRASE}    NO-LOCK      ~{&SORTBY-PHRASE}.
+&Scoped-define TABLES-IN-QUERY-BROWSE-1 stackPattern
+&Scoped-define FIRST-TABLE-IN-QUERY-BROWSE-1 stackPattern
+
 
 
 /* Definitions for DIALOG-BOX Dialog-Frame                              */
@@ -144,22 +134,20 @@ DEFINE RECTANGLE RECT-1
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
 DEFINE QUERY BROWSE-1 FOR 
-      reftable, 
-      strap, 
-      pattern SCROLLING.
+      stackPattern SCROLLING.
 &ANALYZE-RESUME
 
 /* Browse definitions                                                   */
 DEFINE BROWSE BROWSE-1
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS BROWSE-1 Dialog-Frame _FREEFORM
   QUERY BROWSE-1 NO-LOCK DISPLAY
-      reftable.code
-      reftable.dscr 
-      reftable.val[1] label "Stacks" form ">9"
-      strap.val[1] label "Straps"    form ">9"
-      strap.code2 label "Strap Code" form "x(10)"
-      strap.dscr label "Formula" form "x(20)"
-      pattern.dscr LABEL "Pattern Image" FORM "x(50)"
+      stackPattern.stackCode
+      stackPattern.stackDescription 
+      stackPattern.stackCount label "Stacks" form ">9"
+      stackPattern.strapCount label "Straps"    form ">9"
+      stackPattern.strapCode label "Strap Code" form "x(10)"
+      stackPattern.strapFormula label "Formula" form "x(20)"
+      stackPattern.stackImage LABEL "Pattern Image" FORM "x(50)"
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ROW-MARKERS SEPARATORS SIZE 113 BY 11.19
@@ -215,24 +203,11 @@ ASSIGN
 &ANALYZE-SUSPEND _QUERY-BLOCK BROWSE BROWSE-1
 /* Query rebuild information for BROWSE BROWSE-1
      _START_FREEFORM
-OPEN QUERY {&SELF-NAME} FOR EACH reftable WHERE ~{&KEY-PHRASE}
-      AND reftable.reftable = "STACK" and
-ASI.reftable.company = ""
-AND reftable.loc = "" NO-LOCK,
- first strap  where strap.reftable = "STACKSTRAP"
-                and strap.company = ""
-                and strap.loc = ""
-                and strap.code = reftable.code no-lock,
-FIRST pattern OUTER-JOIN where pattern.reftable = "STACKPAT"
-                and pattern.company = ""
-                and pattern.loc = ""
-                and pattern.code = reftable.code NO-LOCK
+OPEN QUERY {&SELF-NAME} FOR EACH stackPattern WHERE ~{&KEY-PHRASE}
+      NO-LOCK
                     ~{&SORTBY-PHRASE}.
      _END_FREEFORM
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
-     _Where[1]         = "ASI.carr-mtx.company = ip-company and 
-ASI.carr-mtx.loc = ip-loc and 
-ASI.carr-mtx.carrier = ip-carrier"
      _Query            is OPENED
 */  /* BROWSE BROWSE-1 */
 &ANALYZE-RESUME
@@ -275,11 +250,12 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL BROWSE-1 Dialog-Frame
 ON DEFAULT-ACTION OF BROWSE-1 IN FRAME Dialog-Frame
 DO:
-   op-char-val = reftable.CODE + "," + reftable.dscr 
+   op-char-val = stackPattern.stackCode:screen-value in browse {&browse-name} + "," +
+                 stackPattern.stackDescription:screen-value in browse {&browse-name}
                  .
    apply "window-close" to frame {&frame-name}. 
       
-END.
+END. 
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -306,7 +282,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL bt-ok Dialog-Frame
 ON CHOOSE OF bt-ok IN FRAME Dialog-Frame /* OK */
 DO:
-   op-char-val = reftable.CODE + "," + reftable.dscr 
+   op-char-val = stackPattern.stackCode:screen-value in browse {&browse-name} + "," +
+                 stackPattern.stackDescription:screen-value in browse {&browse-name}
                  .
    apply "window-close" to frame {&frame-name}. 
       

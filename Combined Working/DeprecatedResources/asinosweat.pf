@@ -1,0 +1,11 @@
+-H      asisbs
+-N 	TCP
+-S 	3802
+-db 	nosweat
+-ld 	asinos
+-mmax 	10000
+-T 	c:\tmp
+-F
+-tok 	1500
+-inp 	8192
+-s 	800

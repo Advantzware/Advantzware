@@ -6,11 +6,11 @@
 /* -------------------------------------------------------------------------- */
 
 PUT "<B><FTimes New Roman>".
-PUT "<C7><R1><#1>"
-     "<R+12><C+90><IMAGE#1=" ls-full-img1  SKIP(2).
+PUT "<C7><R2><#1>"
+     "<R+10><C+42><IMAGE#1=" ls-full-img1  SKIP(2).
 PUT "<=1>". 
 PUT "<C1><#2>"
-    "<P10><=2><R+10>"
+    "<P10><=2><R+9>"
     "<FCourier New>"
     SKIP(2)
     space(8) "BILL TO:" SPACE(47) "SHIP TO:" SKIP
