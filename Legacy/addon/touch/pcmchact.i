@@ -35,6 +35,7 @@ IF AVAIL job THEN DO:
    mch-act.waste      = machtran.waste_qty / v-up-hs
    mch-act.start      = machtran.start_time
    mch-act.stopp      = machtran.end_time
+   mch-act.user-id    = USERID(LDBNAME(1))
 
   /* mch-act.bc-job     = job-mch.bc-job
    mch-act.bc-i-no    = job-mch.bc-i-no

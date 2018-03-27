@@ -508,21 +508,30 @@ END.
 {sys/inc/f3help.i}
 
 ON 'MOUSE-SELECT-DBLCLICK':U OF {&browse-name} DO:
-  FIND FIRST users NO-LOCK WHERE 
-         users.user_id EQ USERID(LDBNAME(1)) 
-         NO-ERROR.
-  IF AVAIL users AND users.securityLevel GT 999 THEN DO:
+  
+    DEF VAR hPgmSecurity AS HANDLE NO-UNDO.
+    DEF VAR lResult AS LOG NO-UNDO.
+    RUN "system/PgmMstrSecur.p" PERSISTENT SET hPgmSecurity.
+    RUN epCanAccess IN hPgmSecurity ("browsers/fgijob.w", "Access1", OUTPUT lResult).
+    DELETE OBJECT hPgmSecurity.
+    
+  IF lResult THEN DO:
     RUN set-read-only (NO).
 
     APPLY "entry" TO w-job.cust-no IN BROWSE {&browse-name}.
   END.
-   ELSE IF AVAIL users AND users.securityLevel GT 899 THEN DO:
-     DO WITH FRAME {&FRAME-NAME}:
-     w-job.tot-wt:READ-ONLY IN BROWSE {&browse-name} = NO.
-     END.
+   ELSE DO:
+     RUN "system/PgmMstrSecur.p" PERSISTENT SET hPgmSecurity.
+     RUN epCanAccess IN hPgmSecurity ("browsers/fgijob.w", "Access2", OUTPUT lResult).
+     DELETE OBJECT hPgmSecurity.
+     IF lResult THEN DO:
+       DO WITH FRAME {&FRAME-NAME}:
+         w-job.tot-wt:READ-ONLY IN BROWSE {&browse-name} = NO.
+       END.
 
-    APPLY "entry" TO w-job.tot-wt IN BROWSE {&browse-name}.
-  END.
+       APPLY "entry" TO w-job.tot-wt IN BROWSE {&browse-name}.
+     END.
+   end.
 END.
 
 ON 'RETURN':U OF w-job.cust-no IN BROWSE {&browse-name} DO:

@@ -1,0 +1,61 @@
+FOR EACH itemfg NO-LOCK WHERE itemfg.company EQ "%company%"
+cad-no,cust-no,est-no,i-code,i-name,i-no,procat,spc-no,style
+
+Indexed: cad-no,cust-no,est-no,i-name,i-no,procat
+Non-Idx: i-code,part-dscr1,spc-no,stocked,style
+
+Generated 04.18.2017 @  2:39:53 am by: nosweat
+Table: itemfg - Records: 55,776
+
+    Index: cad-no
+         Field: company
+         Field: cad-no
+
+    Index: cust-part
+         Field: company
+         Field: part-no
+
+    Index: cust-po
+         Field: company
+         Field: cust-po-no
+
+    Index: customer
+         Field: company
+         Field: cust-no
+         Field: i-no
+
+    Index: estimate
+         Field: company
+         Field: est-no
+         Field: i-no
+         Field: loc
+
+    Index: i-no
+         Field: company
+         Field: i-no
+
+    Index: isaset
+         Field: company
+         Field: isaset
+         Field: i-no
+
+    Index: name
+         Field: company
+         Field: i-name
+
+    Index: procat
+         Field: company
+         Field: procat
+         Field: i-no
+
+    Index: rec_key
+         Field: rec_key
+
+    Index: stat
+         Field: company
+         Field: stat
+         Field: i-no
+
+    Index: type-code
+         Field: company
+         Field: type-code

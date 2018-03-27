@@ -1,0 +1,22 @@
+FOR EACH matprep NO-LOCK WHERE matprep.company EQ "%company%"
+dscr,mat
+
+Indexed: dscr,mat
+Non-Idx: ?
+
+Generated 04.18.2017 @  2:50:03 am by: nosweat
+Table: matprep - Records: 7
+
+    Index: dscr
+         Field: company
+         Field: dscr
+
+    Index: mat
+         Field: company
+         Field: mat
+
+    Index: rec_key
+         Field: rec_key
+
+    Index: wi-dscr
+         Field: dscr

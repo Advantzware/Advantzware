@@ -1,0 +1,143 @@
+<!DOCTYPE html public "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+<HEAD>
+<TITLE>Advantzware OA</TITLE>
+<SCRIPT type="text/javascript" src="edScript/spin.min.js"></SCRIPT>
+<SCRIPT type="text/javascript">
+        var urlParamString=getParamString();  
+		var username=getQueryVariable("username");
+		var password=getQueryVariable("password");
+		var spinner;
+		var spinnerOpts = {
+			lines: 13, // The number of lines to draw
+			length: 7, // The length of each line
+			width: 3, // The line thickness
+			radius: 10, // The radius of the inner circle
+			rotate: 0, // The rotation offset
+			color: '#FFFFFF', // #rgb or #rrggbb
+			speed: 1, // Rounds per second
+			trail: 30, // Afterglow percentage
+			shadow: false, // Whether to render a shadow
+			hwaccel: false, // Whether to use hardware acceleration
+			className: 'spinner', // The CSS class to assign to the spinner
+			zIndex: 2e9, // The z-index (defaults to 2000000000)
+			top: 'auto', // Top position relative to parent in px
+			left: 'auto' // Left position relative to parent in px
+		};
+		
+		function start() {
+			showSpinner();
+			fetchDashboard();
+		}
+		
+		function showSpinner() {
+			document.getElementById('fade').style.display='block'
+			spinner=new Spinner(spinnerOpts).spin(document.getElementById('frameHolder'));
+		}
+		function hideSpinner () {
+			document.getElementById('fade').style.display='none'	
+		    if (spinner != null) spinner.stop();
+		    spinner = null;
+		}
+		function getQueryVariable(variable) {
+		  var query = window.location.search.substring(1);
+		  var vars = query.split("&");
+		  for (var i=0;i<vars.length;i++) {
+		    var pair = vars[i].split("=");
+		    if (pair[0] == variable) {
+		      return pair[1];
+		    }
+		  } 
+		  return "";
+		}
+		function getParamString() {
+		  var query = window.location.search.substring(1);
+		  var vars = query.split("&");
+		  var returnValue = "";
+		  for (var i=0;i<vars.length;i++) {
+		    var pair = vars[i].split("=");
+		    if (pair[0] != "username" && pair[0] != "password") {
+			  if (returnValue != "") returnValue = returnValue + "&";
+		      returnValue = returnValue + pair[0] + "=" + pair[1];
+		    }
+		  } 
+		  if (returnValue != "") returnValue = "?" + returnValue;
+		  return returnValue;
+		}
+		function fetchDashboard(){
+			document.getElementById('usrInput').value = username;
+			document.getElementById('pwdInput').value = password;
+			//ReturnURL = encodeURI("Dashboard.aspx" + urlParamString);
+			//document.getElementById('fetchDashboard').action = "login.aspx?ReturnUrl=" + ReturnURL;
+			document.getElementById('fetchDashboard').action = "Dashboard.aspx" + urlParamString;
+			document.getElementById('fetchDashboard').submit();
+	    }
+</SCRIPT>
+    <STYLE>
+	  .headingText {
+	    position: absolute;
+		top: 0px;
+		left: 0px;
+	    width: 100%;
+		height: 30px;
+		padding: 2px 0px 5px 0px;
+		font-size: .9em;
+    	font-family: Segoe UI, Verdana, Sans-Serif;
+		line-height: 30px;
+		text-align: left;
+		font-weight: bold;
+		color: #003366;
+		background-color: #cccccc;
+	  }
+	  .mainHeaderTable {
+	  	position: absolute;
+	    top: 0px;
+	    left: 0px;
+	    width: 100%;
+	    height: 26px;
+	  }
+	  .black_overlay{
+        display: none;
+        position: absolute;
+        top: 0%;
+        left: 0%;
+        width: 100%;
+        height: 100%;
+        background-color: black;
+        z-index:1001;
+        -moz-opacity: 0.8;
+        opacity:.80;
+        filter: alpha(opacity=80);
+	  }
+	  .frameHolder {
+        position: absolute;
+        top: 40px;
+        left: 0px;
+        right: 0px;
+        bottom: 0px;
+      }
+	  .dashboardFrame {
+        width: 100%;
+        height: 100%;
+      }
+	</STYLE>
+</HEAD>
+<BODY onLoad="start();">
+	<FORM id="fetchDashboard" target="dashboardBox" method="post">
+		<input id="usrInput" type="hidden" name="username" value="">
+		<input id="pwdInput" type="hidden" name="password" value="">
+	</FORM>
+	<DIV id="fade" class="black_overlay"></DIV>
+	<DIV class="headingText">
+		<TABLE class="mainHeaderTable">
+			<TR>
+				<TD style="text-align: left">AdvantzwareOA</TD>
+				<TD style="text-align: right">v1.0</TD>
+			</TR>
+		</TABLE>
+	</DIV>
+	<DIV class="frameHolder" id="frameHolder">
+		<IFRAME src="" class="dashboardFrame" name="dashboardBox" id="dashboardBox" frameborder="0" width="100%" seamless="seamless" onLoad="hideSpinner();"></IFRAME>
+	</DIV>
+</BODY>
+</HTML>

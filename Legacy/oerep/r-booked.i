@@ -232,7 +232,6 @@ format wkrecap.procat
         AND oe-ord.cust-no  LE end_cust-no
         and oe-ord.ord-date ge lo_trandate
         and oe-ord.ord-date le tdate
-        and oe-ord.type     ne "T"
         AND oe-ord.stat     NE "D"
       no-lock
       by oe-ord.company by oe-ord.ord-date by oe-ord.ord-no:

@@ -176,10 +176,13 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_OK D-Dialog
 ON CHOOSE OF Btn_OK IN FRAME D-Dialog /* OK */
 DO:
-    FIND FIRST users NO-LOCK
-        WHERE users.user_id EQ USERID(LDBNAME(1)) NO-ERROR.
+    DEF VAR hPgmSecurity AS HANDLE NO-UNDO.
+            DEF VAR lResult AS LOG NO-UNDO.
+            RUN "system/PgmMstrSecur.p" PERSISTENT SET hPgmSecurity.
+            RUN epCanAccess IN hPgmSecurity ("util/module.w", "", OUTPUT lResult).
+    DELETE OBJECT hPgmSecurity.
 
-    IF AVAIL users AND users.securityLevel GE 1000 THEN DO:
+    IF lResult THEN DO:
         RUN util/module2.w ("ASI").
         APPLY 'CLOSE' TO THIS-PROCEDURE. 
         RETURN.

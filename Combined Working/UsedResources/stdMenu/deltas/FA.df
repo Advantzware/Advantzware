@@ -1,0 +1,152 @@
+UPDATE TABLE "fa-control"
+  TABLE-TRIGGER "CREATE" OVERRIDE PROCEDURE "create.trg/fa-control.p" CRC "?" 
+  TABLE-TRIGGER "DELETE" OVERRIDE PROCEDURE "delete.trg/fa-control.p" CRC "?" 
+  TABLE-TRIGGER "WRITE" OVERRIDE PROCEDURE "write.trg/fa-control.p" CRC "?" 
+
+ADD FIELD "rec_key" OF "fa-control" AS character 
+  FORMAT "X(20)"
+  INITIAL ""
+  LABEL "Rec Key"
+  POSITION 21
+  MAX-WIDTH 40
+  HELP "Enter Rec Key"
+  ORDER 381
+
+ADD INDEX "rec_key" ON "fa-control" 
+  AREA "Index"
+  DESCRIPTION "Secondary Index by rec_key"
+  INDEX-FIELD "rec_key" ASCENDING 
+
+UPDATE TABLE "fa-control-d"
+  TABLE-TRIGGER "CREATE" OVERRIDE PROCEDURE "create.trg/fa-control-d.p" CRC "?" 
+  TABLE-TRIGGER "DELETE" OVERRIDE PROCEDURE "delete.trg/fa-control-d.p" CRC "?" 
+  TABLE-TRIGGER "WRITE" OVERRIDE PROCEDURE "write.trg/fa-control-d.p" CRC "?" 
+
+ADD FIELD "rec_key" OF "fa-control-d" AS character 
+  FORMAT "X(20)"
+  INITIAL ""
+  LABEL "Rec Key"
+  POSITION 16
+  MAX-WIDTH 40
+  HELP "Enter Rec Key"
+  ORDER 201
+
+ADD INDEX "rec_key" ON "fa-control-d" 
+  AREA "Index"
+  DESCRIPTION "Secondary Index by rec_key"
+  INDEX-FIELD "rec_key" ASCENDING 
+
+UPDATE TABLE "fa-entry"
+  TABLE-TRIGGER "CREATE" OVERRIDE PROCEDURE "create.trg/fa-entry.p" CRC "?" 
+  TABLE-TRIGGER "DELETE" OVERRIDE PROCEDURE "delete.trg/fa-entry.p" CRC "?" 
+  TABLE-TRIGGER "WRITE" OVERRIDE PROCEDURE "write.trg/fa-entry.p" CRC "?" 
+
+ADD FIELD "rec_key" OF "fa-entry" AS character 
+  FORMAT "X(20)"
+  INITIAL ""
+  LABEL "Rec Key"
+  POSITION 20
+  MAX-WIDTH 40
+  HELP "Enter Rec Key"
+  ORDER 201
+
+ADD INDEX "rec_key" ON "fa-entry" 
+  AREA "Index"
+  DESCRIPTION "Secondary Index by rec_key"
+  INDEX-FIELD "rec_key" ASCENDING 
+
+UPDATE TABLE "fa-gl-post"
+  TABLE-TRIGGER "CREATE" OVERRIDE PROCEDURE "create.trg/fa-gl-post.p" CRC "?" 
+  TABLE-TRIGGER "DELETE" OVERRIDE PROCEDURE "delete.trg/fa-gl-post.p" CRC "?" 
+  TABLE-TRIGGER "WRITE" OVERRIDE PROCEDURE "write.trg/fa-gl-post.p" CRC "?" 
+
+ADD FIELD "rec_key" OF "fa-gl-post" AS character 
+  FORMAT "X(20)"
+  INITIAL ""
+  LABEL "Rec Key"
+  POSITION 25
+  MAX-WIDTH 40
+  HELP "Enter Rec Key"
+  ORDER 261
+
+ADD INDEX "rec_key" ON "fa-gl-post" 
+  AREA "Index"
+  DESCRIPTION "Secondary Index by rec_key"
+  INDEX-FIELD "rec_key" ASCENDING 
+
+UPDATE TABLE "fa-jrnl"
+  TABLE-TRIGGER "CREATE" OVERRIDE PROCEDURE "create.trg/fa-jrnl.p" CRC "?" 
+  TABLE-TRIGGER "DELETE" OVERRIDE PROCEDURE "delete.trg/fa-jrnl.p" CRC "?" 
+  TABLE-TRIGGER "WRITE" OVERRIDE PROCEDURE "write.trg/fa-jrnl.p" CRC "?" 
+
+ADD FIELD "rec_key" OF "fa-jrnl" AS character 
+  FORMAT "X(20)"
+  INITIAL ""
+  LABEL "Rec Key"
+  POSITION 21
+  MAX-WIDTH 40
+  HELP "Enter Rec Key"
+  ORDER 261
+
+ADD INDEX "rec_key" ON "fa-jrnl" 
+  AREA "Index"
+  DESCRIPTION "Secondary Index by rec_key"
+  INDEX-FIELD "rec_key" ASCENDING 
+
+UPDATE TABLE "fa-mast"
+  TABLE-TRIGGER "CREATE" OVERRIDE PROCEDURE "create.trg/fa-mast.p" CRC "?" 
+  TABLE-TRIGGER "DELETE" OVERRIDE PROCEDURE "delete.trg/fa-mast.p" CRC "?" 
+  TABLE-TRIGGER "WRITE" OVERRIDE PROCEDURE "write.trg/fa-mast.p" CRC "?" 
+
+ADD FIELD "rec_key" OF "fa-mast" AS character 
+  FORMAT "X(20)"
+  INITIAL ""
+  LABEL "Rec Key"
+  POSITION 72
+  MAX-WIDTH 40
+  HELP "Enter Rec Key"
+  ORDER 871
+
+ADD INDEX "rec_key" ON "fa-mast" 
+  AREA "Index"
+  DESCRIPTION "Secondary Index by rec_key"
+  INDEX-FIELD "rec_key" ASCENDING 
+
+UPDATE TABLE "fa-mast-rep"
+  TABLE-TRIGGER "CREATE" OVERRIDE PROCEDURE "create.trg/fa-mast-rep.p" CRC "?" 
+  TABLE-TRIGGER "DELETE" OVERRIDE PROCEDURE "delete.trg/fa-mast-rep.p" CRC "?" 
+  TABLE-TRIGGER "WRITE" OVERRIDE PROCEDURE "write.trg/fa-mast-rep.p" CRC "?" 
+
+ADD FIELD "rec_key" OF "fa-mast-rep" AS character 
+  FORMAT "X(20)"
+  INITIAL ""
+  LABEL "Rec Key"
+  POSITION 16
+  MAX-WIDTH 40
+  HELP "Enter Rec Key"
+  ORDER 151
+
+ADD INDEX "rec_key" ON "fa-mast-rep" 
+  AREA "Index"
+  DESCRIPTION "Secondary Index by rec_key"
+  INDEX-FIELD "rec_key" ASCENDING 
+
+UPDATE TABLE "fa-tags"
+  TABLE-TRIGGER "CREATE" OVERRIDE PROCEDURE "create.trg/fa-tags.p" CRC "?" 
+  TABLE-TRIGGER "DELETE" OVERRIDE PROCEDURE "delete.trg/fa-tags.p" CRC "?" 
+  TABLE-TRIGGER "WRITE" OVERRIDE PROCEDURE "write.trg/fa-tags.p" CRC "?" 
+
+ADD FIELD "rec_key" OF "fa-tags" AS character 
+  FORMAT "X(20)"
+  INITIAL ""
+  LABEL "Rec Key"
+  POSITION 6
+  MAX-WIDTH 40
+  HELP "Enter Rec Key"
+  ORDER 51
+
+ADD INDEX "rec_key" ON "fa-tags" 
+  AREA "Index"
+  DESCRIPTION "Secondary Index by rec_key"
+  INDEX-FIELD "rec_key" ASCENDING 
+

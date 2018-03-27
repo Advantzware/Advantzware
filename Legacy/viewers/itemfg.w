@@ -96,7 +96,7 @@ RUN sys/ref/ordtypes.p (OUTPUT lv-type-codes, OUTPUT lv-type-dscrs).
 /* Need to scope the external tables to this procedure                  */
 DEFINE QUERY external_tables FOR itemfg.
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-FIELDS itemfg.spare-int-2 itemfg.i-no itemfg.isaset ~
+&Scoped-Define ENABLED-FIELDS itemfg.spare-int-2 itemfg.setupDate itemfg.i-no itemfg.isaset ~
 itemfg.part-no itemfg.i-name itemfg.part-dscr1 itemfg.part-dscr2 ~
 itemfg.part-dscr3 itemfg.spare-char-1 itemfg.est-no itemfg.style ~
 itemfg.style-desc itemfg.die-no itemfg.plate-no itemfg.cad-no itemfg.spc-no ~
@@ -113,7 +113,7 @@ itemfg.prod-uom
 &Scoped-define FIRST-ENABLED-TABLE itemfg
 &Scoped-Define ENABLED-OBJECTS tg-Freeze-weight RECT-10 RECT-8 RECT-9 ~
 RECT-11 RECT-12 
-&Scoped-Define DISPLAYED-FIELDS itemfg.spare-int-2 itemfg.i-no ~
+&Scoped-Define DISPLAYED-FIELDS itemfg.spare-int-2 itemfg.setupDate itemfg.i-no ~
 itemfg.isaset itemfg.part-no itemfg.i-name itemfg.part-dscr1 ~
 itemfg.part-dscr2 itemfg.part-dscr3 itemfg.spare-char-1 itemfg.exempt-disc ~
 itemfg.est-no itemfg.style itemfg.style-desc itemfg.die-no itemfg.plate-no ~
@@ -214,6 +214,10 @@ DEFINE FRAME F-Main
           LABEL "Rel Seq" FORMAT ">>>>>>9"
           VIEW-AS FILL-IN 
           SIZE 16.4 BY 1
+    itemfg.setupDate AT ROW 16.91 COL 47 COLON-ALIGNED
+          LABEL "Setup Date" FORMAT "99/99/9999"
+          VIEW-AS FILL-IN 
+          SIZE 17 BY 1
      itemfg.i-no AT ROW 1.48 COL 15.4 COLON-ALIGNED
           LABEL "FG Item #"
           VIEW-AS FILL-IN 
@@ -563,6 +567,8 @@ ASSIGN
    EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN itemfg.spare-int-2 IN FRAME F-Main
    EXP-LABEL EXP-FORMAT EXP-HELP                                        */
+/* SETTINGS FOR FILL-IN itemfg.setupDate IN FRAME F-Main
+   EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN itemfg.spc-no IN FRAME F-Main
    EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR RADIO-SET itemfg.stat IN FRAME F-Main
@@ -789,6 +795,9 @@ DO:
     IF LASTKEY <> -1 AND itemfg.def-loc:SCREEN-VALUE <> "" AND
     NOT CAN-FIND(FIRST loc WHERE loc.company = gcompany AND loc.loc = itemfg.def-loc:SCREEN-VALUE)
     THEN DO:
+         IF itemfg.def-loc:SCREEN-VALUE EQ ""  THEN
+             MESSAGE "Must enter a valid warehouse..." VIEW-AS ALERT-BOX ERROR.
+         ELSE
          MESSAGE "Invalid Warehouse. Try Help." VIEW-AS ALERT-BOX ERROR.
          RETURN NO-APPLY.
     END.
@@ -802,12 +811,15 @@ END.
 &Scoped-define SELF-NAME itemfg.def-loc-bin
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL itemfg.def-loc-bin V-table-Win
 ON LEAVE OF itemfg.def-loc-bin IN FRAME F-Main /* Bin */
-DO:
+DO: 
     {&methods/lValidateError.i YES}
     IF LASTKEY <> -1 AND itemfg.def-loc-bin:SCREEN-VALUE <> "" AND
        NOT CAN-FIND(FIRST fg-bin WHERE fg-bin.company = gcompany AND fg-bin.loc = itemfg.def-loc:SCREEN-VALUE AND
                           fg-bin.loc-bin = itemfg.def-loc-bin:SCREEN-VALUE)
     THEN DO:
+        IF itemfg.def-loc-bin:screen-value EQ "" THEN
+            MESSAGE "Must enter a valid Bin..." VIEW-AS ALERT-BOX ERROR.
+         ELSE
          MESSAGE "Invalid Warehouse Bin. Try Help." VIEW-AS ALERT-BOX ERROR.
          RETURN NO-APPLY.
     END.
@@ -1410,7 +1422,7 @@ PROCEDURE enable-itemfg-field :
             fi_type-dscr.
 
     IF NOT adm-new-record THEN DO:
-      DISABLE itemfg.i-no.
+      DISABLE itemfg.i-no .
       /*IF itemfg.est-no:SCREEN-VALUE NE "" THEN DO:
         MESSAGE "IMPORT Estimate Info (Part#, Unit Count, Style, Die#, Plate#, etc.) for FG?"
             VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
@@ -1730,7 +1742,10 @@ PROCEDURE local-create-record :
          /* gdm - 11190901 */
          itemfg.ship-meth =  v-shpmet
          itemfg.exempt-disc = NO
-         itemfg.stat = "A".
+         itemfg.stat = "A"
+         itemfg.setupDate = TODAY
+         itemfg.def-loc        = ""
+         itemfg.def-loc-bin    = "" .
 
   DO WITH FRAME {&FRAME-NAME}:
 
@@ -1749,6 +1764,8 @@ PROCEDURE local-create-record :
 /*      rd_status:SCREEN-VALUE      = "A"   */
 /*      tb_exempt-disc:SCREEN-VALUE = "no". */
   END.
+
+   
 
 END PROCEDURE.
 
@@ -1914,6 +1931,9 @@ PROCEDURE local-update-record :
     IF itemfg.def-loc:SCREEN-VALUE <> "" AND
        NOT CAN-FIND(FIRST loc WHERE loc.company = gcompany AND loc.loc = itemfg.def-loc:SCREEN-VALUE)
     THEN DO:
+         IF itemfg.def-loc:SCREEN-VALUE EQ ""  THEN
+             MESSAGE "Must enter a valid warehouse..." VIEW-AS ALERT-BOX ERROR.
+         ELSE
          MESSAGE "Invalid Warehouse. Try Help." VIEW-AS ALERT-BOX ERROR.
          APPLY "entry" TO itemfg.def-loc.
          RETURN NO-APPLY.
@@ -1923,6 +1943,9 @@ PROCEDURE local-update-record :
        NOT CAN-FIND(FIRST fg-bin WHERE fg-bin.company = gcompany AND fg-bin.loc = itemfg.def-loc:SCREEN-VALUE AND
                           fg-bin.loc-bin = itemfg.def-loc-bin:SCREEN-VALUE)
     THEN DO:
+         IF itemfg.def-loc-bin:SCREEN-VALUE EQ ""  THEN
+             MESSAGE "Must enter a valid Bin..." VIEW-AS ALERT-BOX ERROR.
+         ELSE
          MESSAGE "Invalid Warehouse Bin. Try Help." VIEW-AS ALERT-BOX ERROR.
          APPLY "entry" TO itemfg.def-loc-bin.
          RETURN NO-APPLY.
@@ -2201,6 +2224,8 @@ PROCEDURE proc-copy :
   DEF VAR v-cost AS LOG INIT YES NO-UNDO.
 
   IF AVAIL itemfg THEN DO WITH FRAME {&FRAME-NAME}:
+         itemfg.def-loc:SCREEN-VALUE        = "" .
+         itemfg.def-loc-bin:SCREEN-VALUE    = "" . /* task 25536 */
 
       RUN oeinq/d-cpyfg.w (OUTPUT v-cost, OUTPUT v-mat, OUTPUT v-cpyspc, OUTPUT v-begspc, OUTPUT v-endspc).
      IF NOT v-cost THEN
@@ -2654,4 +2679,5 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
 

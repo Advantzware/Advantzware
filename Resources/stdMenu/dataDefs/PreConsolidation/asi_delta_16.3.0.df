@@ -1,0 +1,32 @@
+ADD FIELD "markup_reduction" OF "cust-markup" AS decimal
+  FORMAT "->>>9.99<<<"
+  POSITION 34
+  INITIAL "0"
+  HELP "Customer Markup Percentage."
+  LABEL "Markup Reduction"
+  COLUMN-LABEL "Markup Reduction %"
+  EXTENT 10
+  DECIMALS 5
+  ORDER 280
+  MAX-WIDTH 180
+
+ADD FIELD "lookup_reduction" OF "cust-markup" AS decimal
+  FORMAT ">,>>>,>>9.9<<<<"
+  POSITION 35
+  INITIAL "0"
+  HELP "Enter MSF"
+  LABEL "Reduction Lookup"
+  COLUMN-LABEL "Reduction Lookup"
+  EXTENT 10
+  DECIMALS 5
+  ORDER 290
+  MAX-WIDTH 240
+
+UPDATE FIELD "frt-pay" OF "vend"
+  INITIAL "P"
+
+.
+PSC
+cpstream=ISO8859-1
+.
+0000000586

@@ -1,0 +1,101 @@
+  /* Quote# */
+  
+   mypict = chExcelApplication:Range("A1"):Parent:Pictures:Insert(ls-full-img1).
+   mypict:TOP = chExcelApplication:Range("A1"):TOP.
+   mypict:LEFT = chExcelApplication:Range("A1"):LEFT.
+   mypict:HEIGHT = 85.          
+   RELEASE OBJECT mypict.   
+     
+  ASSIGN v-cell = "R1C5".
+  chExcelApplication:Goto(v-cell) NO-ERROR.
+  ASSIGN chExcelApplication:ActiveCell:Value = v-first-q-no
+
+  /* Customer ID */
+  
+  v-cell = "R4C3".
+  chExcelApplication:Goto(v-cell) NO-ERROR.
+  ASSIGN chExcelApplication:ActiveCell:Value = xquo.cust-no
+
+  /* Contact */
+  
+  v-cell = "R4C5".
+  chExcelApplication:Goto(v-cell) NO-ERROR.
+  ASSIGN chExcelApplication:ActiveCell:Value = xquo.contact
+
+  /* Telephone */
+  
+  v-cell = "R6C3".
+  chExcelApplication:Goto(v-cell) NO-ERROR.
+  ASSIGN chExcelApplication:ActiveCell:Value = cust.area-code + cust.phone
+    
+  /* Fax */
+  
+  v-cell = "R6C5".
+  chExcelApplication:Goto(v-cell) NO-ERROR.
+  ASSIGN chExcelApplication:ActiveCell:Value = cust.fax
+
+  /* Sold To */
+  
+  v-cell = "R9C1".
+  chExcelApplication:Goto(v-cell) NO-ERROR.
+  ASSIGN chExcelApplication:ActiveCell:Value = bill[1]
+
+  v-cell = "R10C1".
+  chExcelApplication:Goto(v-cell) NO-ERROR.
+  ASSIGN chExcelApplication:ActiveCell:Value = bill[2]
+
+  v-cell = "R11C1".
+  chExcelApplication:Goto(v-cell) NO-ERROR.
+  ASSIGN chExcelApplication:ActiveCell:Value = bill[3]
+
+  v-cell = "R12C1".
+  chExcelApplication:Goto(v-cell) NO-ERROR.
+  ASSIGN chExcelApplication:ActiveCell:Value = bill[4]
+
+  /* Ship To */
+  
+  v-cell = "R9C3".
+  chExcelApplication:Goto(v-cell) NO-ERROR.
+  ASSIGN chExcelApplication:ActiveCell:Value = shipto[1]
+
+  v-cell = "R10C3".
+  chExcelApplication:Goto(v-cell) NO-ERROR.
+  ASSIGN chExcelApplication:ActiveCell:Value = shipto[2]
+
+  v-cell = "R11C3".
+  chExcelApplication:Goto(v-cell) NO-ERROR.
+  ASSIGN chExcelApplication:ActiveCell:Value = shipto[3]
+
+  v-cell = "R12C3".
+  chExcelApplication:Goto(v-cell) NO-ERROR.
+  ASSIGN chExcelApplication:ActiveCell:Value = shipto[4]
+
+  /* Quote Date */
+  
+  v-cell = "R15C1".
+  chExcelApplication:Goto(v-cell) NO-ERROR.
+  ASSIGN chExcelApplication:ActiveCell:Value =  xquo.quo-date
+
+  /* SalesPerson */
+  
+  v-cell = "R15C2".
+  chExcelApplication:Goto(v-cell) NO-ERROR.
+  ASSIGN chExcelApplication:ActiveCell:Value =  sman.sname
+
+  /* Terms */
+  
+  v-cell = "R15C3".
+  chExcelApplication:Goto(v-cell) NO-ERROR.
+  ASSIGN chExcelApplication:ActiveCell:Value =  terms.dscr
+
+  /* FOB */
+  
+  v-cell = "R15C5".
+  chExcelApplication:Goto(v-cell) NO-ERROR.
+  ASSIGN chExcelApplication:ActiveCell:Value =  cust.fob-code
+
+  /* Over-Under */
+  
+  v-cell = "R15C6".
+  chExcelApplication:Goto(v-cell) NO-ERROR.
+  ASSIGN chExcelApplication:ActiveCell:Value = v-over-under.

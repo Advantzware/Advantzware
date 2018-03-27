@@ -1063,8 +1063,11 @@ PROCEDURE copyOrder :
       li-lead-days = b-cust-c.ship-days
       b-oe-ord.last-date = DATE(b-oe-ord.ord-date) + 
                                              b-cust-c.ship-days
-      b-oe-ord.due-date  = b-oe-ord.last-date .
-
+      b-oe-ord.due-date  = b-oe-ord.last-date 
+      b-oe-ord.posted    = no
+      b-oe-ord.stat      = "N"  
+      .
+      
        IF  lastship-cha = "Stock/Custom" THEN DO:
           /* If order has no estimate. */
           IF b-oe-ord.est-no = "" THEN

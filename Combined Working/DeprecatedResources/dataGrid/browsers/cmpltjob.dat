@@ -1,0 +1,32 @@
+FOR EACH cmpltjob NO-LOCK WHERE  cmpltjob.company EQ "%company%" AND TRUE
+blank_number,form_number,job_number,job_sub,machine
+
+Indexed: blank_number,form_number,job_number,job_sub,machine
+Non-Idx: ?
+
+Generated 04.18.2017 @  6:10:58 am by: nosweat
+Table: cmpltjob - Records: 0
+
+    Index: cmpltjob
+         Field: company
+         Field: machine
+         Field: job_number
+         Field: job_sub
+         Field: form_number
+         Field: blank_number
+         Field: pass_sequence
+
+    Index: pi-cmpltjob
+         Field: company
+         Field: machine
+         Field: job_number
+         Field: job_sub
+
+    Index: si-machine
+         Field: machine
+
+    Index: si-posted
+         Field: posted
+
+    Index: si-rec_key
+         Field: rec_key

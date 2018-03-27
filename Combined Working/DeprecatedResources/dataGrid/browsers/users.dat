@@ -1,0 +1,33 @@
+FOR EACH users NO-LOCK WHERE (users.user_id EQ userid(ldbname(1)) or userid(ldbname(1)) EQ "ASI" or userid(ldbname(1)) EQ "nosweat"),  FIRST usr NO-LOCK WHERE usr.uid EQ users.user_id
+user_id,user_name
+
+Indexed: user_id,user_name
+Non-Idx: track_usage,use_colors,use_ctrl_keys,use_fonts,Usr-Lang
+
+Generated 04.17.2017 @ 11:43:25 pm by: asi
+Table: users - Records: 267
+
+    Index: pi-users
+         Field: user_id
+
+    Index: si-rec_key
+         Field: rec_key
+
+    Index: si-user_name
+         Field: user_name
+
+    Index: wi-user_name
+         Field: user_name
+
+Table: usr - Records: 380
+
+    Index: rec_key
+         Field: rec_key
+
+    Index: uid
+         Field: uid
+
+    Index: usr
+         Field: Company
+         Field: Loc
+         Field: uid

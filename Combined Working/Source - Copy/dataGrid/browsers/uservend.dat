@@ -1,0 +1,62 @@
+FOR EACH uservend NO-LOCK WHERE  uservend.user_id EQ users.user_id AND  uservend.company EQ cocode,    FIRST vend NO-LOCK WHERE    vend.company EQ uservend.company AND    vend.vend-no EQ uservend.vend-no AND    TRUE
+vend-no,name
+
+Indexed: vend-no,name
+Non-Idx: vend_default
+
+Generated 04.19.2017 @  2:31:44 pm by: asi
+Table: uservend - Records: 0
+
+    Index: reckey-idx
+         Field: rec_key
+
+    Index: uservend-idx
+         Field: user_id
+         Field: company
+         Field: vend-no
+
+Table: vend - Records: 3,309
+
+    Index: buyer
+         Field: company
+         Field: buyer
+         Field: vend-no
+
+    Index: city
+         Field: company
+         Field: city
+         Field: name
+         Field: vend-no
+
+    Index: name
+         Field: company
+         Field: name
+         Field: vend-no
+
+    Index: rec_key
+         Field: rec_key
+
+    Index: state
+         Field: company
+         Field: st
+         Field: name
+         Field: vend-no
+
+    Index: type
+         Field: company
+         Field: type
+         Field: name
+         Field: vend-no
+
+    Index: vend
+         Field: company
+         Field: vend-no
+
+    Index: wi-name
+         Field: name
+
+    Index: zip
+         Field: company
+         Field: zip
+         Field: Postal
+         Field: vend-no

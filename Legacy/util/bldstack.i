@@ -23,13 +23,9 @@ for each item
           by item.reg-no:
 
   if first-of(item.reg-no) then do:
-    find first reftable
-        where reftable.reftable eq "FLUTE"
-          and reftable.company  eq ""
-          and reftable.code     eq item.flute
-        no-lock no-error.
-
-    if avail reftable then
+  FIND FIRST flute WHERE flute.company EQ item.company
+                     AND flute.code EQ item.flute NO-LOCK NO-ERROR.
+  IF AVAIL flute THEN
     for each b-item
         where b-item.company  eq cocode
           and b-item.mat-type eq "D"

@@ -1364,19 +1364,19 @@ DO:
                 DO:
                 {sys/inc/roundup.i job-mat.qty}
                 END.
-
-                IF NOT AVAILABLE job-hdr THEN
-                    FIND FIRST job-hdr WHERE job-hdr.company = cocode
-                        AND job-hdr.job-no  = job.job-no
-                        AND job-hdr.job-no2 = job.job-no2
-                        AND job-hdr.job     = job.job
-                        EXCLUSIVE-LOCK NO-ERROR.
-                IF AVAIL(job-hdr) AND job-mat.len GT 0 AND job-mat.wid GT 0 AND job-mat.qty GT 0
-                    AND job-mat.std-cost GT 0 AND job-hdr.qty GT 0 AND job-mat.sc-uom = "MSF" THEN
-                    ASSIGN job-mat.cost-m = ((job-mat.LEN * job-mat.wid / 144) * (job-mat.qty / 1000) * job-mat.std-cost)
-                 / job-hdr.qty * 1000.
-                IF job-mat.cost-m = ? THEN
-                    job-mat.cost-m = 0.
+/*Ticket 25418 - Mismatch of cost/m on Materials tab vs. Job Hdr Cost/M - do not recalculate the cost/m */
+/*                IF NOT AVAILABLE job-hdr THEN                                                                            */
+/*                    FIND FIRST job-hdr WHERE job-hdr.company = cocode                                                    */
+/*                        AND job-hdr.job-no  = job.job-no                                                                 */
+/*                        AND job-hdr.job-no2 = job.job-no2                                                                */
+/*                        AND job-hdr.job     = job.job                                                                    */
+/*                        EXCLUSIVE-LOCK NO-ERROR.                                                                         */
+/*                IF AVAIL(job-hdr) AND job-mat.len GT 0 AND job-mat.wid GT 0 AND job-mat.qty GT 0                         */
+/*                    AND job-mat.std-cost GT 0 AND job-hdr.qty GT 0 AND job-mat.sc-uom = "MSF" THEN                       */
+/*                    ASSIGN job-mat.cost-m = ((job-mat.LEN * job-mat.wid / 144) * (job-mat.qty / 1000) * job-mat.std-cost)*/
+/*                 / job-hdr.qty * 1000.                                                                                   */
+/*                IF job-mat.cost-m = ? THEN                                                                               */
+/*                    job-mat.cost-m = 0.                                                                                  */
 
                 IF job-mat.qty-all EQ 0 OR
                     NOT job-mat.all-flg  THEN

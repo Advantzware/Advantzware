@@ -1,1 +1,1 @@
-{util/ImpInclude.i ""ImpCash."" ""Cash""}
+{util/ImpInclude.i ""ImpCash."" ""ttImportCash""}

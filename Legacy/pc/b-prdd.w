@@ -1406,6 +1406,7 @@ PROCEDURE local-create-record :
          pc-prdd.START = TIME
          pc-prdd.startx = "0000"
          pc-prdd.stopx = "0000"
+         pc-prdd.USER-ID = USERID(LDBNAME(1)) 
          lv-crt-rowid = ROWID(pc-prdd).
 
 END PROCEDURE.

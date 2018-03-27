@@ -51,6 +51,8 @@ DEFINE TEMP-TABLE tt-mat-tran NO-UNDO
         sheet-no ASC blank-no ASC i-no ASC.
 
 DEF VAR op-valid AS LOG NO-UNDO.
+DEF VAR hPgmSecurity AS HANDLE NO-UNDO.
+DEF VAR lResult AS LOG NO-UNDO.
 
 {custom/globdefs.i}
 {sys/inc/VAR.i "new shared" }
@@ -547,10 +549,11 @@ FRAME {&FRAME-NAME}:TITLE = "Job #: " + ip-job-no + "-" + STRING(ip-job-no2)
 
 btn_dril-dwn:SENSITIVE = YES .
 
-FIND FIRST users NO-LOCK WHERE 
-         users.user_id EQ USERID(LDBNAME(1)) 
-         NO-ERROR.
-IF AVAIL users AND users.securityLevel GT 899 THEN
+        RUN "system/PgmMstrSecur.p" PERSISTENT SET hPgmSecurity.
+        RUN epCanAccess IN hPgmSecurity ("jcinq/b-updmat.w", "", OUTPUT lResult).
+    DELETE OBJECT hPgmSecurity.
+    
+IF lResult THEN
    ASSIGN
       btn_add:SENSITIVE = YES
       btn_add:HIDDEN = NO
