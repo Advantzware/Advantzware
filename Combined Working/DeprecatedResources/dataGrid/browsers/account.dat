@@ -1,0 +1,27 @@
+FOR EACH account NO-LOCK WHERE account.company EQ "%company%"
+actnum,dscr,type
+
+Indexed: actnum,dscr,type
+Non-Idx: ?
+
+Generated 04.18.2017 @  2:35:32 am by: nosweat
+Table: account - Records: 2,573
+
+    Index: account
+         Field: company
+         Field: actnum
+         Field: yr
+
+    Index: dscr
+         Field: company
+         Field: dscr
+
+    Index: rec_key
+         Field: rec_key
+
+    Index: type
+         Field: company
+         Field: type
+
+    Index: wi-dscr
+         Field: dscr

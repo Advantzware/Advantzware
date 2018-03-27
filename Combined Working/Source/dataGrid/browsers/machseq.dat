@@ -1,0 +1,16 @@
+FOR EACH machseq NO-LOCK WHERE  machseq.company EQ "%company%"  AND machseq.machine EQ "%mach.m-code%"
+job-code_dscr,machseq
+
+Indexed: machseq
+Non-Idx: charge_code,job-code_cat,job-code_dscr
+
+Generated 04.18.2017 @  6:22:11 am by: nosweat
+Table: machseq - Records: 0
+
+    Index: pi-machseq
+         Field: company
+         Field: machine
+         Field: machseq
+
+    Index: si-rec_key
+         Field: rec_key

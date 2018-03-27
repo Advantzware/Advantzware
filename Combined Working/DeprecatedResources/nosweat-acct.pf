@@ -1,0 +1,16 @@
+-H      asisbs
+-N 	TCP
+-S 	5041
+-db 	nosweat
+-ld 	NOSWEAT
+-mmax 	10000
+-T 	c:\tmp
+-F
+-tok 	1500
+-inp 	8192
+-D	200
+-s 	2200
+-nb  	512
+-rereadnolock
+-Bt     10000
+-tmpbsize 8

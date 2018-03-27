@@ -1,0 +1,23 @@
+/* --------------------------------------------- sys/ref/stack-fl.a 08/99 JLF */
+/*                                                                            */
+/* add statement - stacking matrix file                                       */
+/*                                                                            */
+/* -------------------------------------------------------------------------- */
+
+create stack-flute.
+
+assign
+ stack-flute.company = cocode
+ stack-flute.loc     = locode
+ stack-flute.code    = flute.code.
+
+i = 0.
+for each b-reftable where b-reftable.reftable eq "STACK" no-lock:
+  assign
+   i                        = i + 1
+   stack-flute.col-value[i] = b-reftable.code.
+
+  if i eq 10 then leave.
+end.
+
+/* end ---------------------------------- copr. 1999  advanced software, inc. */

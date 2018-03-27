@@ -1,0 +1,16 @@
+FOR EACH routing NO-LOCK WHERE routing.company EQ "%company%"
+dscr,r-code
+
+Indexed: r-code
+Non-Idx: dscr,m-code,m-code,m-code,m-code,m-code,m-code,m-code,m-code,m-code,m-code
+
+Generated 04.18.2017 @ 12:48:32 am by: nosweat
+Table: routing - Records: 27
+
+    Index: rec_key
+         Field: rec_key
+
+    Index: routing
+         Field: company
+         Field: loc
+         Field: r-code

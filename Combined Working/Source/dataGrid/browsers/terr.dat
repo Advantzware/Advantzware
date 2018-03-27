@@ -1,0 +1,22 @@
+FOR EACH terr NO-LOCK WHERE terr.company EQ "%company%"
+dscr,terr
+
+Indexed: dscr,terr
+Non-Idx: ?
+
+Generated 04.18.2017 @  2:16:39 am by: nosweat
+Table: terr - Records: 2
+
+    Index: dscr
+         Field: company
+         Field: dscr
+
+    Index: rec_key
+         Field: rec_key
+
+    Index: terr
+         Field: company
+         Field: terr
+
+    Index: wi-dscr
+         Field: dscr

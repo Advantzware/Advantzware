@@ -1,0 +1,555 @@
+ADD TABLE "oe-bolh"
+  DESCRIPTION "order entry bill of lading"
+  DUMP-NAME "oe-bolh"
+  TABLE-TRIGGER "CREATE" OVERRIDE PROCEDURE "create.trg/oe-bolh.p" CRC "?" 
+  TABLE-TRIGGER "DELETE" OVERRIDE PROCEDURE "delete.trg/oe-bolh.p" CRC "?" 
+  TABLE-TRIGGER "WRITE" OVERRIDE PROCEDURE "write.trg/oe-bolh.p" CRC "?" 
+
+ADD FIELD "bol-no" OF "oe-bolh" AS integer 
+  FORMAT ">>>>>>>9"
+  INITIAL "0"
+  HELP "enter Bill of Lading Number"
+  ORDER 2060
+
+ADD FIELD "ord-no" OF "oe-bolh" AS integer 
+  FORMAT ">>>>>9"
+  INITIAL "0"
+  LABEL "Order#"
+  ORDER 80
+
+ADD FIELD "po-no" OF "oe-bolh" AS character 
+  FORMAT "x(15)"
+  INITIAL ""
+  LABEL "P.O. Num"
+  HELP "Customer P.O. Number"
+  ORDER 90
+
+ADD FIELD "rel-date" OF "oe-bolh" AS date 
+  FORMAT "99/99/99"
+  INITIAL ?
+  LABEL "Date Last Counted"
+  HELP "enter Release dates for line items by ship-to by date"
+  ORDER 110
+
+ADD FIELD "rel-no" OF "oe-bolh" AS integer 
+  FORMAT ">>>>>9"
+  INITIAL "0"
+  ORDER 100
+
+ADD FIELD "trailer" OF "oe-bolh" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  COLUMN-LABEL "Trailer No."
+  ORDER 130
+
+ADD FIELD "cust-no" OF "oe-bolh" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  LABEL "Customer"
+  HELP "Enter customer number."
+  ORDER 60
+
+ADD FIELD "b-ord-no" OF "oe-bolh" AS integer 
+  FORMAT ">>9"
+  INITIAL "0"
+  COLUMN-LABEL "Backorder #"
+  ORDER 2030
+
+ADD FIELD "b-no" OF "oe-bolh" AS integer 
+  FORMAT ">>>>>9"
+  INITIAL "0"
+  ORDER 30
+
+ADD FIELD "bol-date" OF "oe-bolh" AS date 
+  FORMAT "99/99/99"
+  INITIAL "today"
+  LABEL "BOL Date"
+  ORDER 50
+
+ADD FIELD "company" OF "oe-bolh" AS character 
+  FORMAT "x(3)"
+  INITIAL ""
+  LABEL "Company"
+  HELP "Enter the company code."
+  ORDER 10
+  MANDATORY
+
+ADD FIELD "loc" OF "oe-bolh" AS character 
+  FORMAT "x(5)"
+  INITIAL ""
+  LABEL "Warehouse"
+  HELP "Enter the plant/warehouse location"
+  ORDER 20
+  MANDATORY
+
+ADD FIELD "carrier" OF "oe-bolh" AS character 
+  FORMAT "x(5)"
+  INITIAL ""
+  LABEL "Carrier"
+  HELP "Enter the common carrier code"
+  ORDER 120
+  MANDATORY
+
+ADD FIELD "posted" OF "oe-bolh" AS logical 
+  FORMAT "y/n"
+  INITIAL "no"
+  LABEL "Posted"
+  ORDER 140
+
+ADD FIELD "deleted" OF "oe-bolh" AS logical 
+  FORMAT "yes/no"
+  INITIAL "no"
+  ORDER 2050
+
+ADD FIELD "INV-NO" OF "oe-bolh" AS integer 
+  FORMAT ">>>>>9"
+  INITIAL "0"
+  LABEL "Invoice Number"
+  COLUMN-LABEL "Invoice!Number"
+  HELP "Invoice Bill Of Ladding was shipped on."
+  ORDER 2110
+
+ADD FIELD "printed" OF "oe-bolh" AS logical 
+  FORMAT "Y/N"
+  INITIAL "no"
+  LABEL "Printed?"
+  HELP "Has this Release been printed?"
+  ORDER 2040
+
+ADD FIELD "ship-date" OF "oe-bolh" AS date 
+  FORMAT "99/99/99"
+  INITIAL ?
+  COLUMN-LABEL "Ship Date"
+  ORDER 980
+
+ADD FIELD "ship-i" OF "oe-bolh" AS character 
+  FORMAT "x(60)"
+  INITIAL ""
+  LABEL "Shipping Instructions"
+  HELP "Shipping Instructions for Released Items."
+  EXTENT 4
+  ORDER 2020
+
+ADD FIELD "ship-no" OF "oe-bolh" AS integer 
+  FORMAT ">>9"
+  INITIAL "0"
+  LABEL "Ship To #"
+  ORDER 28
+  MANDATORY
+
+ADD FIELD "tot-qty" OF "oe-bolh" AS decimal 
+  FORMAT "->>,>>>,>>9"
+  INITIAL "0"
+  HELP "Enter quantity received."
+  DECIMALS 3
+  ORDER 1050
+  MANDATORY
+
+ADD FIELD "w-ord" OF "oe-bolh" AS logical 
+  FORMAT "yes/no"
+  INITIAL "no"
+  HELP "Release on order entry orders."
+  ORDER 970
+
+ADD FIELD "r-no" OF "oe-bolh" AS integer 
+  FORMAT ">>>>>9"
+  INITIAL "0"
+  ORDER 2070
+
+ADD FIELD "tot-wt" OF "oe-bolh" AS integer 
+  FORMAT ">>>>9"
+  INITIAL "0"
+  LABEL "total weight"
+  ORDER 2080
+
+ADD FIELD "freight" OF "oe-bolh" AS decimal 
+  FORMAT ">>,>>9.99"
+  INITIAL "0"
+  LABEL "Freight"
+  DECIMALS 2
+  ORDER 2090
+
+ADD FIELD "cwt" OF "oe-bolh" AS decimal 
+  FORMAT ">>9.99"
+  INITIAL "0"
+  LABEL "Rate/Hundred Wt"
+  HELP "Rate per Hundred."
+  DECIMALS 2
+  ORDER 2100
+
+ADD FIELD "ship-id" OF "oe-bolh" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  LABEL "Ship To ID"
+  HELP "Ship To Id, Maybe a Billable Customer Id."
+  ORDER 2120
+
+ADD FIELD "tot-pallets" OF "oe-bolh" AS integer 
+  FORMAT ">,>>9"
+  INITIAL "0"
+  LABEL "Total Pallets"
+  HELP "Enter the total number of pallets"
+  ORDER 2130
+
+ADD FIELD "sold-id" OF "oe-bolh" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  ORDER 2140
+
+ADD FIELD "sold-no" OF "oe-bolh" AS integer 
+  FORMAT "->,>>>,>>9"
+  INITIAL "0"
+  ORDER 2150
+
+ADD FIELD "master-bol-no" OF "oe-bolh" AS integer 
+  FORMAT ">>>>>>>9"
+  INITIAL "0"
+  LABEL "Master BOL No"
+  COLUMN-LABEL "Master!BOL No"
+  ORDER 2160
+
+ADD FIELD "master-bol-printed" OF "oe-bolh" AS logical 
+  FORMAT "yes/no"
+  INITIAL "no"
+  LABEL "Master BOL Printed?"
+  COLUMN-LABEL "Master BOL!Printed?"
+  ORDER 2170
+
+ADD FIELD "user-id" OF "oe-bolh" AS character 
+  FORMAT "x(10)"
+  INITIAL ""
+  LABEL "User ID"
+  ORDER 2180
+
+ADD FIELD "frt-pay" OF "oe-bolh" AS character 
+  FORMAT "x(1)"
+  INITIAL ""
+  LABEL "Freight Payment Method"
+  ORDER 2190
+
+ADD FIELD "rec_key" OF "oe-bolh" AS character 
+  FORMAT "X(20)"
+  INITIAL ""
+  LABEL "Rec Key"
+  HELP "Enter Rec Key"
+  ORDER 2200
+
+ADD FIELD "bol-status" OF "oe-bolh" AS character 
+  DESCRIPTION "Hold, Approved"
+  FORMAT "X(8)"
+  INITIAL ""
+  LABEL "Status"
+  ORDER 2210
+
+ADD INDEX "b-no" ON "oe-bolh" 
+  UNIQUE
+  PRIMARY
+  INDEX-FIELD "b-no" ASCENDING 
+
+ADD INDEX "bol-date" ON "oe-bolh" 
+  INDEX-FIELD "company" ASCENDING 
+  INDEX-FIELD "bol-date" ASCENDING 
+  INDEX-FIELD "bol-no" ASCENDING 
+  INDEX-FIELD "cust-no" ASCENDING 
+
+ADD INDEX "bol-no" ON "oe-bolh" 
+  INDEX-FIELD "company" ASCENDING 
+  INDEX-FIELD "bol-no" ASCENDING 
+  INDEX-FIELD "bol-date" ASCENDING 
+  INDEX-FIELD "cust-no" ASCENDING 
+
+ADD INDEX "cust" ON "oe-bolh" 
+  INDEX-FIELD "company" ASCENDING 
+  INDEX-FIELD "cust-no" ASCENDING 
+  INDEX-FIELD "bol-no" ASCENDING 
+  INDEX-FIELD "bol-date" ASCENDING 
+
+ADD INDEX "deleted" ON "oe-bolh" 
+  INDEX-FIELD "company" ASCENDING 
+  INDEX-FIELD "deleted" ASCENDING 
+  INDEX-FIELD "bol-no" ASCENDING 
+  INDEX-FIELD "ord-no" ASCENDING 
+
+ADD INDEX "master-bol" ON "oe-bolh" 
+  INDEX-FIELD "company" ASCENDING 
+  INDEX-FIELD "carrier" ASCENDING 
+  INDEX-FIELD "sold-id" ASCENDING 
+  INDEX-FIELD "ship-id" ASCENDING 
+
+ADD INDEX "order-no" ON "oe-bolh" 
+  INDEX-FIELD "company" ASCENDING 
+  INDEX-FIELD "ord-no" ASCENDING 
+  INDEX-FIELD "rel-no" ASCENDING 
+  INDEX-FIELD "b-ord-no" ASCENDING 
+
+ADD INDEX "post" ON "oe-bolh" 
+  INDEX-FIELD "company" ASCENDING 
+  INDEX-FIELD "posted" ASCENDING 
+  INDEX-FIELD "printed" DESCENDING 
+  INDEX-FIELD "bol-no" ASCENDING 
+  INDEX-FIELD "ord-no" ASCENDING 
+
+ADD INDEX "rec_key" ON "oe-bolh" 
+  DESCRIPTION "Secondary Index by rec_key"
+  INDEX-FIELD "rec_key" ASCENDING 
+
+ADD INDEX "rel-no" ON "oe-bolh" 
+  INDEX-FIELD "company" ASCENDING 
+  INDEX-FIELD "rel-no" ASCENDING 
+  INDEX-FIELD "b-ord-no" ASCENDING 
+
+ADD TABLE "oe-boll"
+  DESCRIPTION "Order Entry Bill of Lading Lines"
+  DUMP-NAME "oe-boll"
+  TABLE-TRIGGER "CREATE" OVERRIDE PROCEDURE "create.trg/oe-boll.p" CRC "?" 
+  TABLE-TRIGGER "DELETE" OVERRIDE PROCEDURE "delete.trg/oe-boll.p" CRC "?" 
+  TABLE-TRIGGER "WRITE" OVERRIDE PROCEDURE "write.trg/oe-boll.p" CRC "?" 
+
+ADD FIELD "b-no" OF "oe-boll" AS integer 
+  FORMAT ">>>>>9"
+  INITIAL "0"
+  ORDER 10
+
+ADD FIELD "bol-date" OF "oe-boll" AS date 
+  FORMAT "99/99/99"
+  INITIAL "today"
+  LABEL "BOL Date"
+  ORDER 90
+
+ADD FIELD "bol-no" OF "oe-boll" AS integer 
+  FORMAT ">>>>>>>9"
+  INITIAL ""
+  HELP "enter Bill of Lading Number"
+  ORDER 130
+
+ADD FIELD "company" OF "oe-boll" AS character 
+  FORMAT "x(3)"
+  INITIAL ""
+  LABEL "Company"
+  HELP "Enter the company code."
+  ORDER 140
+  MANDATORY
+
+ADD FIELD "i-no" OF "oe-boll" AS character 
+  FORMAT "x(15)"
+  INITIAL ""
+  LABEL "Item No"
+  HELP "Finished Goods Item Number"
+  ORDER 40
+  MANDATORY
+
+ADD FIELD "line" OF "oe-boll" AS integer 
+  FORMAT "99"
+  INITIAL "0"
+  LABEL "Line"
+  ORDER 20
+
+ADD FIELD "qty-case" OF "oe-boll" AS integer 
+  FORMAT "->>>,>>Z"
+  INITIAL "0"
+  LABEL "Quantity Per Case"
+  HELP "Quantity per case shipped."
+  ORDER 190
+  MANDATORY
+
+ADD FIELD "loc" OF "oe-boll" AS character 
+  FORMAT "x(5)"
+  INITIAL ""
+  LABEL "Warehouse"
+  HELP "Enter the plant/warehouse location"
+  ORDER 50
+  MANDATORY
+
+ADD FIELD "loc-bin" OF "oe-boll" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  LABEL "Primary Bin Loc."
+  HELP "Enter Bin Location where Item is Stocked"
+  ORDER 60
+
+ADD FIELD "partial" OF "oe-boll" AS decimal 
+  FORMAT ">>>,>>9"
+  INITIAL "0"
+  HELP "Enter partial case quantity received."
+  DECIMALS 3
+  ORDER 70
+  MANDATORY
+
+ADD FIELD "ord-no" OF "oe-boll" AS integer 
+  FORMAT ">>>>>9"
+  INITIAL "0"
+  LABEL "Order#"
+  ORDER 150
+
+ADD FIELD "cases" OF "oe-boll" AS integer 
+  FORMAT "->>>,>>Z"
+  INITIAL "0"
+  LABEL "Number of Cases Shipped"
+  HELP "Number of cases Shipped."
+  ORDER 200
+  MANDATORY
+
+ADD FIELD "tag" OF "oe-boll" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  HELP "Enter tag identification."
+  ORDER 30
+
+ADD FIELD "tot-qty" OF "oe-boll" AS decimal 
+  FORMAT "->>,>>>,>>9"
+  INITIAL "0"
+  HELP "Enter quantity received."
+  DECIMALS 3
+  ORDER 80
+  MANDATORY
+
+ADD FIELD "posted" OF "oe-boll" AS logical 
+  FORMAT "y/n"
+  INITIAL "no"
+  LABEL "Posted"
+  ORDER 100
+
+ADD FIELD "printed" OF "oe-boll" AS logical 
+  FORMAT "Y/N"
+  INITIAL "no"
+  LABEL "Printed?"
+  HELP "Has this Release been printed?"
+  ORDER 120
+
+ADD FIELD "qty" OF "oe-boll" AS integer 
+  FORMAT "->>,>>>,>>9"
+  INITIAL "0"
+  LABEL "Quantity Shipped"
+  HELP "Quantity Shipped."
+  ORDER 210
+
+ADD FIELD "s-code" OF "oe-boll" AS character 
+  FORMAT "x"
+  INITIAL ""
+  LABEL "Ship Code"
+  HELP "Enter (I)nvoice only, (S)hip only, or (B)oth invoice & ship."
+  ORDER 110
+
+ADD FIELD "r-no" OF "oe-boll" AS integer 
+  FORMAT ">>>>>9"
+  INITIAL "0"
+  ORDER 160
+
+ADD FIELD "weight" OF "oe-boll" AS integer 
+  FORMAT ">>>>9"
+  INITIAL "0"
+  LABEL "weight"
+  ORDER 170
+
+ADD FIELD "deleted" OF "oe-boll" AS logical 
+  FORMAT "Y/N"
+  INITIAL "no"
+  ORDER 180
+
+ADD FIELD "INV-NO" OF "oe-boll" AS integer 
+  FORMAT ">>>>>9"
+  INITIAL "0"
+  LABEL "Invoice Nunmber"
+  COLUMN-LABEL "Invoice!Number"
+  HELP "Invoice number item was shipped on from O/E."
+  ORDER 220
+
+ADD FIELD "job-no" OF "oe-boll" AS character 
+  FORMAT "x(6)"
+  INITIAL ""
+  LABEL "Job Number"
+  HELP "Enter the Job Number for this BOL line"
+  ORDER 230
+
+ADD FIELD "job-no2" OF "oe-boll" AS integer 
+  FORMAT "99"
+  INITIAL "0"
+  HELP "Enter the Job Number for this BOL line"
+  ORDER 240
+
+ADD FIELD "po-no" OF "oe-boll" AS character 
+  FORMAT "x(15)"
+  INITIAL ""
+  LABEL "Customer PO"
+  HELP "Enter the Customer PO number for this BOL line"
+  ORDER 250
+
+ADD FIELD "p-c" OF "oe-boll" AS logical 
+  FORMAT "C/P"
+  INITIAL "no"
+  LABEL "Partial/Complete"
+  ORDER 260
+
+ADD FIELD "bol-line" OF "oe-boll" AS integer 
+  FORMAT ">9"
+  INITIAL "0"
+  LABEL "BOL Line"
+  ORDER 270
+
+ADD FIELD "rec_key" OF "oe-boll" AS character 
+  FORMAT "X(20)"
+  INITIAL ""
+  LABEL "Rec Key"
+  HELP "Enter Rec Key"
+  ORDER 280
+
+ADD FIELD "rel-no" OF "oe-boll" AS integer 
+  FORMAT ">>>>>9"
+  INITIAL "0"
+  ORDER 290
+
+ADD FIELD "rel-date" OF "oe-boll" AS date 
+  FORMAT "99/99/99"
+  INITIAL ?
+  LABEL "Date Last Counted"
+  HELP "enter Release dates for line items by ship-to by date"
+  ORDER 300
+
+ADD INDEX "b-no" ON "oe-boll" 
+  PRIMARY
+  INDEX-FIELD "company" ASCENDING 
+  INDEX-FIELD "b-no" ASCENDING 
+  INDEX-FIELD "i-no" ASCENDING 
+
+ADD INDEX "b-no2" ON "oe-boll" 
+  INDEX-FIELD "b-no" ASCENDING 
+  INDEX-FIELD "i-no" ASCENDING 
+
+ADD INDEX "bol-line" ON "oe-boll" 
+  INDEX-FIELD "company" ASCENDING 
+  INDEX-FIELD "b-no" ASCENDING 
+  INDEX-FIELD "bol-line" ASCENDING 
+
+ADD INDEX "bol-no" ON "oe-boll" 
+  INDEX-FIELD "company" ASCENDING 
+  INDEX-FIELD "bol-no" ASCENDING 
+  INDEX-FIELD "i-no" ASCENDING 
+  INDEX-FIELD "loc" ASCENDING 
+  INDEX-FIELD "loc-bin" ASCENDING 
+  INDEX-FIELD "tag" ASCENDING 
+
+ADD INDEX "i-no" ON "oe-boll" 
+  INDEX-FIELD "company" ASCENDING 
+  INDEX-FIELD "i-no" ASCENDING 
+  INDEX-FIELD "loc" ASCENDING 
+  INDEX-FIELD "loc-bin" ASCENDING 
+  INDEX-FIELD "tag" ASCENDING 
+
+ADD INDEX "job-no" ON "oe-boll" 
+  INDEX-FIELD "company" ASCENDING 
+  INDEX-FIELD "job-no" ASCENDING 
+  INDEX-FIELD "job-no2" ASCENDING 
+
+ADD INDEX "po-no" ON "oe-boll" 
+  INDEX-FIELD "company" ASCENDING 
+  INDEX-FIELD "po-no" ASCENDING 
+
+ADD INDEX "rec_key" ON "oe-boll" 
+  DESCRIPTION "Secondary Index by rec_key"
+  INDEX-FIELD "rec_key" ASCENDING 
+
+.
+PSC
+codepage=iso8859-1
+.
+0000012720

@@ -1,0 +1,49 @@
+FOR EACH phone NO-LOCK WHERE phone.table_rec_key EQ "%emailcod.rec_key%" ,  EACH shipto NO-LOCK WHERE shipto.rec_key EQ phone.table_rec_key  AND shipto.rec_key EQ phone.table_rec_key
+attention,cust-no,rec_key,rec_key,ship-id,ship-name,titlcode
+
+Indexed: attention,cust-no,rec_key,rec_key,ship-id,ship-name,titlcode
+Non-Idx: ?
+
+Generated 04.19.2017 @  4:06:05 am by: nosweat
+Table: shipto - Records: 14,475
+
+    Index: rec_key
+         Field: rec_key
+
+    Index: ship-id
+         Field: company
+         Field: cust-no
+         Field: ship-id
+
+    Index: ship-id2
+         Field: company
+         Field: ship-id
+
+    Index: ship-name
+         Field: company
+         Field: cust-no
+         Field: ship-name
+
+    Index: ship-no
+         Field: company
+         Field: cust-no
+         Field: ship-no
+
+    Index: ship-no2
+         Field: company
+         Field: ship-no
+
+Table: phone - Records: 1,849
+
+    Index: pi-phone
+         Field: table_rec_key
+         Field: attention
+
+    Index: si-rec_key
+         Field: rec_key
+
+    Index: titlcode
+         Field: titlcode
+
+    Index: wi-attention
+         Field: attention
