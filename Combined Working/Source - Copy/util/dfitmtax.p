@@ -1,0 +1,6 @@
+
+SESSION:SET-WAIT-STATE ("general").
+
+
+
+SESSION:SET-WAIT-STATE ("").

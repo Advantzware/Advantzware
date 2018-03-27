@@ -121,7 +121,7 @@ DEF VAR cAuditDbName AS CHAR INITIAL "asiAudit" NO-UNDO.
 DEF VAR cAuditDbPort AS CHAR INITIAL "2828" NO-UNDO.
 DEF VAR cAuditDbStFile AS CHAR INITIAL "asiAudit.st" NO-UNDO.
 DEF VAR cBackupDir AS CHAR INITIAL "Backups" NO-UNDO.
-DEF VAR cConnectAudit AS CHAR INITIAL "YES" NO-UNDO.
+DEF VAR cConnectAudit AS CHAR INITIAL "NO" NO-UNDO.
 DEF VAR cCurrVer AS CHAR INITIAL "10.6.0" NO-UNDO.
 DEF VAR cDbAdmin AS CHAR INITIAL "DbAdmin" NO-UNDO.
 DEF VAR cDbAuditDir AS CHAR INITIAL "Audit" NO-UNDO.
@@ -873,8 +873,8 @@ PROCEDURE ipConnectDb :
     IF cPassword <> "" THEN
         CONNECT VALUE(cStatement + 
                   " -U " + cUser + 
-                  " -P " + cPassword + 
-                  " -ct 2") NO-ERROR.
+                  " -P '" + cPassword + 
+                  "' -ct 2") NO-ERROR.
     ELSE
             CONNECT VALUE(cStatement + 
                   " -U " + cUser + 
@@ -911,7 +911,7 @@ PROCEDURE ipConnectDb :
         lError = NOT CONNECTED(LDBNAME(1)).
     IF lError THEN
         RETURN.
-        
+
     IF CONNECTED(LDBNAME(1))
     AND lConnectAudit THEN DO:
         IF INDEX(PDBNAME(1),"165") <> 0 
@@ -941,7 +941,7 @@ PROCEDURE ipConnectDb :
         IF connectStatement NE "" THEN
             CONNECT VALUE(connectStatement).
     END.
-    
+
         
 END PROCEDURE.
 
@@ -1053,6 +1053,7 @@ PROCEDURE ipPreRun :
     RUN epUpdateUsrFile IN hPreRun (OUTPUT cUsrList).
     RUN ipUpdUsrFile IN THIS-PROCEDURE (cUsrList).
     RUN epGetUserGroups IN hPreRun (OUTPUT g_groups).
+    IF INDEX(PDBNAME(1),"166") EQ 0 THEN RUN epSetUpEDI IN hPreRun.
     
     IF fiUserID:{&SV} = "ASI" THEN RUN asiload.p.
 

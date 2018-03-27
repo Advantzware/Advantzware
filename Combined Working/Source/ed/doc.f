@@ -1,0 +1,45 @@
+/* 05/10/97 FORM LIKE file EDDoc */
+
+FORM
+  EDDoc.Partner
+  EDDoc.ISA
+  EDDoc.GS
+  EDDoc.ST
+  EDDoc.AddDate
+  EDDoc.AddTime
+  EDDoc.AddOp
+  EDDoc.OpenItem
+  EDDoc.Stat
+  EDDoc.ChgDate
+  EDDoc.ChgTime
+  EDDoc.ChgOp
+  EDDoc.SetID
+  EDDoc.UserRef
+  EDDoc.FGID
+  EDDoc.Version
+  EDDoc.InterpDate
+  EDDoc.InterpTime
+  EDDoc.FGAgency
+  EDDoc.EDI_Agency
+  EDDoc.EDI_Standard
+  EDDoc.FGDate
+  EDDoc.FGTime
+  EDDoc.FGSender
+  EDDoc.FGRecvID
+  EDDoc.Recv-Test-Prod
+  EDDoc.Set-Test-Prod
+  EDDoc.DocID
+  EDDoc.DocSeq
+  EDDoc.Seq
+  EDDoc.Status-Flag
+  EDDoc.Location-Number
+  EDDoc.Unique-Order-No
+  EDDoc.Unique-SDQ-No
+  EDDoc.C-FADate
+  EDDoc.C-FATime
+  EDDoc.P-FADate
+  EDDoc.P-FATime
+  EDDoc.Direction
+  EDDoc.Error-count
+  EDDoc.Posted
+  WITH FRAME eddoc NO-LABELS.

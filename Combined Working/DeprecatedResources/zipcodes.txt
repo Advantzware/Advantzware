@@ -1,0 +1,6 @@
+0
+0
+0
+0
+Linden,NJ,07037,908,5,Union,P,EST,y,TRUCK,1,
+Alsip, IL,60803,240,4,union,p,est,y,truck,2,

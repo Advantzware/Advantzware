@@ -1,0 +1,631 @@
+
+     Author: Ron Stark
+
+      Email: Ron.Stark@AdvantzWare.com
+           : Ron@TheStarkGroup.com
+
+    Support: 215.369.7800 (AdvantzWare Support)
+           : Ron Ext 7007
+           : 404.769.7009 (Cell)
+
+ COPYRIGHT, All Rights Reserved, Advantzware, Inc.
+            All Rights Reserved, The Stark Group, Inc.
+           (scrolldown to view release history)
+
+ History:
+
+ r4.004 (updated 1.15.2018)
+ * expanded format for gross length & width fields
+ * data collection view adjusted for scheduled machines
+
+ r4.004 (updated 12.15.2017)
+ * ability to generate html pages (licensed feature)
+ * ability for board to run unattended
+
+ r4.003 (updated 11.3.2017)
+ * added field "sb status"
+ * ability to create html resource pages
+ * convert notes & checkoffs to database
+ * enhance notes & checkoffs purge
+
+ r4.002 (updated 9.19.2017)
+ * added field "mr std hrs"
+ * added field "run std hrs"
+
+ r4.002 (updated 8.10.2017)
+ * utilize est-op_rec_key during save operation
+ * added field "mat type 5 qty"
+ * added field "mat type 6 qty"
+ * added field "required qty"
+
+ r4.001 (updated 6.28.2017)
+ * prevent duplicate status checkoff
+ * added field "empalert csr"
+ * apply lag time to resource jobs
+ * add additional receipted material types
+ * ability to clear all or completed only checkoffs
+ * ability to clear all or completed only notes
+
+ r4.000 (updated 5.22.2017)
+ * corrected hold status logic
+ * process to schedule by due date
+
+ r3.006 (updated 3.23.2017)
+ * added field "dc prod qty"
+ * added field "first release" date
+ * correct job description value
+ * added userid to excel file name
+
+ r3.005 (updated 1.27.2017)
+ * added field job "created" date
+
+ r3.004 (updated 1.5.2017)
+ * ability to load udf fields
+ * added field "speed"
+ * ability for capacity view to show kicks
+ * added number of jobs column to capacity view
+
+ r3.003 (updated 10.26.2016)
+ * added field "routing" to reports
+ * ability to clear status checkoffs
+ * ability to clear sb job notes
+ * ability to return all jobs to pending
+ * ability to schedule all jobs from pending
+ * correct label colors for sbStatus.w
+
+ r3.002 (updated 9.19.2016)
+ * added field "due qty"
+ * added field "underrun%"
+ * added field "overrun%"
+
+ r3.001 (updated 1.1.2016)
+ * re-write of load process
+ * added field "total price"
+
+ r2.016 (updated 10.28.2015)
+ * new return to pending interface
+ * interface with vorne systems data collection load
+ * add ability to place pending job as last job
+
+ r2.015 (updated 6.27.2015)
+ * added hold status type
+ * added field "mfg date"
+ * added field "job status"
+
+ r2.014 (updated 2.25.2015)
+ * correct no. of cases value for combo jobs
+ * correct company login value
+
+ r2.013 (updated 11.12.2014)
+ * allow use of dept sort based on useDeptSort.dat
+
+ r2.013 (updated 10.9.2014)
+ * correct department value setting during load
+
+ r2.013 (updated 9.28.2014)
+ * correct move resource department value
+
+ r2.013 (updated 9.4.2014)
+ * added field "cases name"
+ * added field "die bin"
+ * added field "film name"
+
+ r2.012 (updated 8.15.2014)
+ * allow skip line in job text and tooltip
+ * use status custom labels in job text and tooltip
+ * added field "no. of cases"
+
+ r2.011 (updated 6.26.2014)
+ * if job already run-complete, do not overwrite
+ * load corrects excessive start dates to pending
+ * auto shift view when time exceeds visible screen
+
+ r2.010 (updated 4.1.2014)
+ * correct status checkoff to hold yes value when set
+ * correct ability to cancel external report/checkoff
+ * added material type adder fields
+
+ r2.009 (updated 11.11.2013)
+ * ability to select how external modules load jobs
+ * only load selected fields (purchased addon)
+
+ r2.008 (updated 11.6.2013)
+ * populate item name when blank
+ * correct excel output column order
+ * correct field filter for due date
+
+ r2.008 (updated 10.8.2013)
+ * restore popups when minimized
+ * correct error to hold added pending jobs to board
+ * correct start date showing on tooltip popup
+ * correct pending set time AM vs PM when hour is 12
+
+ r2.007 (updated 9.12.2013)
+ * enhanced load to include sorting by blank no
+ * correct blank no mask in job tooltip
+ * added field "varnish"
+
+ r2.006 (updated 6.12.2013)
+ * correct job notes display in excel output
+
+ r2.006 (updated 3.8.2013)
+ * add notes display to status report
+
+ r2.006 (updated 2.22.2013)
+ * ability to resize all popup browsers
+ * ability to sort pending jobs by due date
+ * added popup job notes to excel format
+ * correct auto-size view version issue
+ * correct resource pack when lag time involved
+ * added field insert "internal length"
+ * added field insert "internal width"
+ * added field insert "end cell length"
+ * added field insert "end cell width"
+ * added field "current qty" from pcl readers
+ * CTRL-O performs status checkoff operation
+ * CTRL-S performs save board operation
+ * CTRL-R performs reset board operation
+ * 50th birthday
+
+ r2.005 (updated 8.4.2012)
+ * set job to pending if any dates blank and
+ ~ nk1 logic for noDate option set
+
+ r2.005 (updated 6.14.2012)
+ * ability to custom set job tool tip
+
+ r2.004 (updated 6.8.2012)
+ * allow resource change for pending job
+ * correct set load of fg item
+ * correct set load of po qty rec'd
+ * correct due date filter
+ * set job to pending if any dates blank
+
+ r2.003 (updated 8.17.2011)
+ * added field "cust part#"
+ * correct auto refresh size change of view objects
+
+ r2.003 (updated 5.2.2011)
+ * correct po qty received load
+ * correct data collection load
+
+ r2.003 (updated 3.6.2011)
+ * added gap value to pending job popup
+
+ r2.003 (updated 12.22.2010)
+ * added field "cust po#"
+ * data collection update not effect locked jobs
+ * data collection update handle trans w/o mr complete
+ * job object display when notes button shows in view
+ * ability to access notes in job detail popup in view
+ 
+ r2.002 (updated 10.6.2010)
+ * correct view version job downtime span 
+ * job detail popup accessed from pending jobs
+ * correct run complete for touch screen data collection
+ * correct notes failing to appear on reports
+ * added mat type 5 raw item#
+ * added mat type 6 raw item#
+ * added field "pack code"
+ * added field "gross sheet length"
+ * added field "gross sheet width"
+ * expanded "tot mrp" field gt 9,999,999
+ * correct extract of job mat for unique job
+
+ r2.001 (updated 4.26.2010)
+ * ability to custom set job object text
+ * added field "production qty"
+
+ r2.000 (updated 3.25.2010)
+ * added word documentation formatted help
+ * auto load status check off material types
+
+ r1.065 (updated 12.12.2009)
+ * added field "pallet name"
+ * added field "pallet mrp"
+
+ r1.064 (updated 11.12.2009)
+ * set background color based on due date/prod date
+ * added configuration option to use due date/prod date
+ * added field "prod date", production date
+
+ r1.063 (updated 12.9.2008)
+ * multi line tooltip including job status
+ * correct <multi item> setting for items
+ * improve load process speed part II
+ * ability to upload jobs to bobst highway connect
+ * correct creating multiple inuse.dat files
+
+ r1.062 (updated 10.1.2008)
+ * added trace ability to load process
+ * designate index usage for data collection for r10
+ * correct pathing when accessing sb from touch screen
+
+ r1.061 (updated 8.5.2008)
+ * correct notes delete 4 resource ne schedule resource
+ * correct notes load for view version
+ * add quick access notes button to job objects
+ * improve load process speed part I
+ * correct disabled custom color priority
+ * pull salesrep from customer if no order exists
+ * create process to use salesreps as status checkoffs
+
+ r1.060 (updated 4.4.2008)
+ * ascending order of job notes on reports
+ * add blank line after note display when skipLine used
+
+ r1.060 (released 2.28.2008)
+ * prompt for save before applying downtime changes
+ * toggle job detail popup from within resouce detail
+ * ability for notes to span all resources
+ * expand panel length & width formats
+ * correct corrugated viewer screen position
+
+ r1.059 (released 1.23.2008)
+ * changed field "msf" to "rel msf", based on oe rel qty
+ * added field "run msf", based on run qty
+ * handle multiple customers per job by form
+
+ r1.058 (released 11.9.2007)
+ * correct font 9 error in asi environment
+ * added sort option to pending jobs report
+ * added sort option to job by resource report
+ * format dates with slashes for excel output
+
+ r1.057 (released 10.25.2007)
+ * correct upload to correct saving notes error
+ * provide po data for jobs with no order
+ * added debug logging to load process program
+ * added field Tab (In/Out)
+ * correct index issue for status checkoff & notes
+
+ r1.056 (released 6.30.2007)
+ * ability to view multiple pro users
+ * added date prompt popup (CTRL-D or CTRL-T)
+ * added field MSF
+ * added field Tab (In/Out) to job detail popup
+ * removed reference to ref-table for sch-m-code
+ * correct department notes display
+ * correct job detail popup initialization issue
+ * correct drop/drag lag time error issue
+ * correct downtime rectangle error of oversized screens
+
+ r1.055 (released 2.1.2007)
+ * added lag time capability (CTRL-L)
+ * prevent losing notes/checkoff status b/c rebuild
+ * capacity view's top row displays pending job time
+ * auto maximize all browser popups
+ * last pending day to prevent invalid end date
+ * added field ship to city (plus state & zip code)
+ * added field pallet/unit
+
+ r1.054 (released 8.10.2006)
+ * custom name user created reports
+ * ability to backup/restore .dat files
+ * ability to not cascade jobs
+ * enhanced calendar popup
+ 
+ r1.053 (released 6.21.2006)
+ * weekday contact information added above
+ * ability to prevent data collection update per job
+ * added field Release Qty
+ * added field Release Date
+ * added field Release Ship To Address
+
+ r1.052 (released 5.26.2006)
+ * correct pack options prompt
+ * prevent drop/drag of locked job
+ * added field salesman
+ * display job# in data collection popup title bar
+ * added field po qty received
+ * new move pending job's resource module
+ * preserve changed resource sequence to/from ASI
+
+ r1.051 (released 2.20.2006)
+ * access resource popup with double click of resource
+ * updates to match rco400
+ * added next/previous resource to reports layout
+ * new move job's resource module
+ * added fields po & qty received to job detail popup
+ * added fields total mrp, mat length, #up
+ * added fields linear feet, total pieces, cad
+ * created fleetwood sb for client fibre
+ * status by salesman for house of packaging
+
+ r1.050 (released 12.12.2005)
+ * prompt shift jobs when not in conflict
+ * show <multi item> for multiple item jobs
+ * added job status viewer when processing updates
+ * capacity view option to include/exclude downtime
+ * exclude reports from selection list
+ * allow for non-use of ink unit#
+ * job browse popup by resource in view version
+ * force auto focus for all popups
+ * added job conflict shift sequence of jobs option
+ * added save (pack resource) button to resource popup
+ * ability to bring forward selected resource
+ * add config to prompt pack options
+ * correct pack job routine
+ * added color description field
+ * refresh pending by job when job return from board
+ * added due date to field filters/print range
+ * added lock & note indicators to job detail popup
+ * auto sort by seq in external status by resource
+ * ability to add skip (blank) line in reports
+ * prompt for resource pack in job sequencer
+ * ability to set auto refresh rate of view version
+ * send all changes from external status
+ * eight time options of pack functionality
+ * set default time option for pack functionality
+ * add seq to external status, sorting by columns
+ * prompt for sequencer save on x close
+ * fit dynamic columns/report layout for 800x600
+ * show job routing in detial popup in order
+ * sync changes to run qty in job detail popup
+ * select time vs. status colors for jobs
+ * correct ink value buckets
+
+ r1.049 (released 10.13.2005)
+ * reload board after changes to downtime
+ * calendar popup help added to pending modules
+ * ability to copy specific downtime date
+ * launch earlier versions of excel (prior 2003)
+ * added fields board length and width
+ * convert columns.dat to job by resource format 1
+ * allow custom selection of filter fields
+ * maintain asi department codes for print reports
+ * expand fields to include inks (colors)
+ * added quick complete & close to job complete popup
+ * all reports changed to dynamic report layout
+ * show user login id if already open
+ * add asi security to external modules
+ * refresh pending by resource after status checkoff
+ * refresh pending browsers when board changes
+ * add job routings to job detail popup
+ * show start/end/date/time on mouse over of job
+ * prevent issue when job standands rebuilt
+ * return job to pending by dropping onto pending icons
+ * correctly set job color from pending modules
+ * reset job when return to pending cancelled
+ * added auto save interval
+
+ r1.048 (released 9.28.2005)
+ * added department notes to asi job detail popup
+ * object oriented browser column order & report layout
+ * advantzware job query added to job detail popup
+ * capture mr/run completed flags from data collection
+ * send change prompt when closing external status
+ * save last font value setting in print popup
+ * improve job sort by expanding form mask
+ * improve run quantity display mask
+
+ r1.047 (released 9.22.2005)
+ * allow external status checkoff to whole job
+ * allow access to job detail popup in viewer
+ * correct auto size in field filter popup
+ * handle goto option in popup browsers when empty
+ * added job, down and total time to popup browsers
+ * update board when update done in job detail popup
+ * close popups before opening sequencer/capacity viewer
+ * added status checkoff report with sorting options
+ * handle job standards rebuild error in detail popup
+ * add board name to load
+ * color display to selected job in job sequencer
+ * access data collection from job detail popup
+ * access data collection from resource detail popup
+ * add fg item name to load
+ * up/down arrows to change job seq in resource popup
+ * job detail popup access via job sequencer
+ * quick entry to open entire day capacity
+ * load board and colors from jobs vs estimates
+ * prompt to save job sequence before exiting
+ * prompt to save board before reload
+ * correct print orientation to asi interface
+
+ r1.046 (released 9.8.2005)
+ * correct loading jobs multiple forms
+ * added "in use" warning
+ * correct changing downtime 2b top 2 bottom/bottom 2 top
+ * prevent capacity viewer from starting before today
+ * combine pack jobs button for entire/visible board
+ * move right-mouse-click function to pack button
+ * correct pack to prevent starting on midnight of downtime
+
+ r1.045 (released 9.1.2005)
+ * change job sequencer column color when selected
+ * show all resources on board in capacity view
+ * show all resources on board in job sequencer
+ * restructure load to increase speed
+ * handle visualization when using 800x600 monitors
+ * abilty to pack job from within resource popup
+ * correct shrinking object size during re-load
+ * exit program properly when using popup menu
+ * correct auto sequence function in resource popup
+ * ability to return board jobs to pending
+ * added resource sequencer module
+ * add warning to date prompt if exceeding 90 days
+
+ r1.044 (released 8.17.2005)
+ * added job sequencer module
+ * added capacity view module
+ * update board from job data collection
+ * email all contacts with ecode sbPro.
+ * add warning to pending jobs if exceeding due date
+ * show downtime in scheduler view
+ * show last as of date and time
+ * correct add/remove function in resource tab
+ * correct auto find for external status module
+ * show resource when included w/o jobs
+ * sort resource's by schedule resource value
+ * hide unused check off status buttons
+ * correct under/over downtime widget errors
+ * scheduler view to always be set to full board
+ * create downtime objects when board is empty
+ * improve external status process for multi users
+
+ r1.043 (released 8.1.2005)
+ * email all contacts with ecode sbPro.
+ * auto refresh popups when board changes
+ * ability to optimize/pack by resource
+ * confirm move popup allows to set start or end values
+ * (un)lock related jobs when (un)locking job
+ * cancel id selection, quitting schedule board
+
+ r1.042 (released 7.1.2005)
+ * allow seperate boards for folding/corrugated/all
+ * allow scenario change downtimes
+ * show color status on pending job browsers
+ * prevent invalid time range entries in downtime
+ * load jobs with schedule machine override
+
+ r1.041 (released 6.14.2005)
+ * correct no color selection
+ * correct job placement after downtime issue
+
+ r1.040 (released 6.1.2005)
+ * auto update configurations data for version change
+ * ability to change speed, qty and time values of job
+ * create downtime to open 24 hour day of capacity
+
+ r1.039 (released 5.18.2005)
+ * page-up/page-down same as ctrl-n/ctrl-p
+ * generate HTML page view of schedule board (beta)
+ * added customer name to job browser & pending jobs
+ * add config. to prompt for pending jobs exceeding days
+ * access job status values external to schedule board
+ * show external updates pending inside schedule board
+ * process external updates pending
+ * added foreground color selection
+ * disable popup menu options when board not visable
+
+ r1.038 (released 5.5.2005)
+ * correct drop/drag and resource popup formulas
+ * added 14 new custom colors & selection module
+ * add seven new free form status checkoffs
+ * added bring forward option to adjust entire board
+ * ctrl-n/ctrl-p to move to next/previous resource of job
+
+ r1.037 (released 4.20.2005)
+ * correct pending by jobs to include all selected jobs
+ * enhance due date extraction & calculation
+
+ r1.036 (released 4.6.2005)
+ * access system clock from database server
+ * add help text to all button ojbects
+ * add ability to surpress report parameter page
+ * show data and time report created
+ * rename temp-table jobStack table to avoid conflict
+ * correct to download all due dates
+
+ r1.035 (released 3.16.2005)
+ * correct output to actual.dat location
+ * prompt to show color in printing report
+ * pending by resource, schedule only one job
+
+ r1.034 (released 2.23.2005)
+ * external access to reports
+ * add vendor & po due date to reports
+ * ability to reload board from source
+ * complete job in pending w/o placing on board
+ * allow sorting/filtering on run qty, vendor & po due date
+ * expand logic to load vendor
+ * expand logic to load po due date
+ * added new pending by resource module
+ * expanded right-mouse-click popup menu for all functions
+ * add auto sequence button to resource popup
+ * pending jobs moved to board upload correctly
+ * extract w/f board during load
+ * enhanced bring forward using resource seq relationship
+ * expand logic to load due date
+
+ r1.033 (released 12.3.2004)
+ * download fg item vs customer part number
+ * correct upload to update completed status
+ * prompt to save board before closing board
+ * access pending jobs & ability to add to schedule board
+ * added pending jobs report
+ * upload process retains checkoff status for pending jobs
+ * correct reposition of board button objects beyond frame
+ * correct duplicate resource error
+
+ r1.032 (released 10.19.2004)
+ * ability to handle routing resource vs schedule resource
+
+ r1.031 (released 10.8.2004)
+ * correct job color display on deselection
+ * correct job move in resource popup
+ * capture resource description during load
+ * add completed checkoff to whole job vs. per resource
+ * prevent deleted notes from showing on reports
+ * prevent locked jobs from being moved forward
+ * show job locked status on error exception
+ * block view board user from running error exception fix
+ * show job checkoff status in job by resource
+ * added customer name to job board object
+ * clear field filters when closing
+ * add read only notes to view board
+ * add read only status checkoff to view board
+ * add excel as an output option
+ * ability of upload to handle job resource change
+
+ r1.030 (released 9.23.2004)
+ * correct import of custom value fields
+ * auto correct errors in error exception
+ * load start date = ? as pending job
+ * load handles job times that are unknown (?)
+ * set wait state when changing scenario
+ * correct color legend auto size if all colors set
+ * handle start/end/due time if values unknown (?)
+ * set resource popup sort to job sequence value
+ * change bring forward to account for current time
+ * change optimize to account for current time
+ * improve job selection/deselection process
+ * change labels in job/downtime conflict prompts
+ * close any popups still open when board closed
+
+ r1.029 (released 9.13.2004)
+ * error exception report completed
+ * correct downtime bug, calendar wide, date specific
+ * add configuration for applying status checkoff
+ * add status checkoff to whole job vs. per resource
+ * correct job color display on deselection
+ * added function to prevent moving job out of seq.
+ * correct to once again show FG Items in Resource Popup
+
+ r1.028 (released 8.30.2004)
+ * correct job popup to correctly show items
+ * correct job load to extract items
+ * correct board reposition when resource not visible
+ * create new universal print program interface
+ * create three custom reports
+ * added localized startup procedure (security, etc)
+ * correct startup configuration screen size
+
+ r1.027 (released 8.20.2004)
+ * ability to load jobs with no preset date information
+ * show additional data on job object & resource popup
+ * allow more than one line of data on job object
+ * add extra data columns per job for resource popup
+ * hide lock button object correctly
+ * allow multi job lock/unlock in resource popup
+ * change field filter prompt to range values
+ * correct move existing function in resource popup
+
+ r1.026 (released 8.15.2004)
+ * reset job object color after deselect
+ * reset job object position after drop/drag error
+ * correct invalid parameters passed to bring forward
+ * hide completed job based on configuration value
+ * correct invalid parameters passed to autoSchedule
+ * allow r1.025 & later config.dat file to auto upgrade
+ * debug drop/drag job conflict resolution procedures
+
+ r1.025 (released 3.31.2004)
+ * demo first working version
+
+ r1.002 (released 2.22.2004)
+ * initiated actual development of functional sb
+ * 41st birthday
+
+ r1.001 (released 5.28.2001)
+ * initiated development concept mockup of sb

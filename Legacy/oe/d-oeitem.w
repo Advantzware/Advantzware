@@ -5737,6 +5737,21 @@ PROCEDURE exit-delete :
     END.
   END.
 
+  IF AVAIL oe-ord THEN do:
+      IF CAN-FIND(FIRST b-oe-ordl 
+                  WHERE b-oe-ordl.company EQ oe-ord.company
+                    AND b-oe-ordl.ord-no  EQ oe-ord.ord-no
+                    AND b-oe-ordl.line    GE 1
+                    AND b-oe-ordl.line    LT 99999999) THEN
+      FOR EACH b-oe-ordl
+          WHERE b-oe-ordl.company EQ oe-ord.company
+            AND b-oe-ordl.ord-no  EQ oe-ord.ord-no
+            AND (b-oe-ordl.line   LT 1 OR
+                 b-oe-ordl.line   GE 99999999):
+        DELETE b-oe-ordl.
+      END.  
+  END.
+
   op-cancel = YES.
 
 END PROCEDURE.

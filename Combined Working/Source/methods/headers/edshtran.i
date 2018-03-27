@@ -1,0 +1,1 @@
+ STRING(EDSHTran.BOL-No)

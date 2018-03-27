@@ -1034,7 +1034,7 @@ DO WITH FRAME {&FRAME-NAME}:
         ASSIGN  v-po-no = INTEGER(edShLine.Cust-po) NO-ERROR. 
         IF NOT ERROR-STATUS:ERROR THEN 
         DO:
-            IF NOT CAN-FIND(FIRST po-ord WHERE
+            IF CAN-FIND(FIRST po-ord WHERE
                 po-ord.company EQ cocode AND
                 po-ord.po-no EQ v-po-no) THEN 
             DO:

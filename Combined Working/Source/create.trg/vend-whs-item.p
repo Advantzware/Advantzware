@@ -1,0 +1,1 @@
+TRIGGER PROCEDURE FOR CREATE OF vend-whse-item.

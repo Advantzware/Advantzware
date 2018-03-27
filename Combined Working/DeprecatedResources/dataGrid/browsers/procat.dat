@@ -1,0 +1,22 @@
+FOR EACH procat NO-LOCK WHERE procat.company EQ "%company%"
+dscr,procat
+
+Indexed: dscr,procat
+Non-Idx: ?
+
+Generated 04.18.2017 @  1:32:10 am by: nosweat
+Table: procat - Records: 60
+
+    Index: dscr
+         Field: company
+         Field: dscr
+
+    Index: procat
+         Field: company
+         Field: procat
+
+    Index: rec_key
+         Field: rec_key
+
+    Index: wi-dscr
+         Field: dscr

@@ -1,0 +1,5 @@
+-H 	asisbs
+-N 	tcp
+-S 	3801		
+-ld     asihlp
+-db     E:\Data\Progress\asi10test\db1010\asihelp.db

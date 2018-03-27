@@ -1019,13 +1019,12 @@ PROCEDURE local-assign-record :
   DEF VAR char-hdl AS cha NO-UNDO.
 
   /* Code placed here will execute PRIOR to standard behavior. */
+  RUN pVendCostMtx ("ASSIGN").
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-record':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-
-  RUN pVendCostMtx ("ASSIGN").
 
   RUN reftable-values (NO).
   for each tmpfile: delete tmpfile .  end.
@@ -1222,9 +1221,9 @@ PROCEDURE local-display-fields :
      lv-group-hdl = FRAME {&FRAME-NAME}:FIRST-CHILD
      lv-field-hdl = lv-group-hdl:FIRST-CHILD.
      IF NOT lVendCostMtx THEN
-         e-itemfg-vend.spare-dec-1:HIDDEN = TRUE .
+         e-itemfg-vend.spare-dec-1:HIDDEN = TRUE.
      ELSE 
-        e-itemfg-vend.spare-dec-1:HIDDEN = FALSE .
+         e-itemfg-vend.spare-dec-1:HIDDEN = FALSE.
 
     DO WHILE VALID-HANDLE(lv-field-hdl):
       IF lv-field-hdl:NAME BEGINS "roll-w" AND

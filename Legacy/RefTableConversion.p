@@ -17,7 +17,7 @@
 BLOCK-LEVEL ON ERROR UNDO, THROW.
 DEFINE VARIABLE oRefTableMigration AS RefTableMigration.
 DEFINE VARIABLE iCount             AS INTEGER           NO-UNDO.
-DEFINE VARIABLE iRecordLimit       AS INTEGER           NO-UNDO INITIAL 90000.
+DEFINE VARIABLE iRecordLimit       AS INTEGER           NO-UNDO INITIAL 10000000.
 DEFINE VARIABLE iProcessCount      AS INTEGER           NO-UNDO.
 DEFINE VARIABLE cOutputFile        AS CHARACTER         NO-UNDO.
 DEFINE VARIABLE cError             AS CHARACTER         NO-UNDO.
@@ -35,6 +35,22 @@ disable triggers for load of reftable.
 
 
 /* ***************************  Main Block  *************************** */
+ASSIGN 
+    cOutputFile = "c:\tmp\reftableconversion" 
+                   + STRING(YEAR(TODAY)) 
+                   + STRING(MONTH(TODAY)) 
+                   + STRING(DAY(TODAY))
+                   + "_"
+                   + STRING(TIME)
+                   + ".csv".
+
+FIND FIRST company NO-LOCK NO-ERROR.
+
+OUTPUT TO VALUE(cOutputFile).
+PUT company.company SPACE(5)
+    company.name SPACE(5)
+    pdbname(1) SKIP(2).
+
 ASSIGN 
     oRefTableMigration = NEW RefTableMigration().
 
@@ -281,9 +297,6 @@ ASSIGN
         ttResults.cConvError   = cError
         ttResults.timetaken    = (MTIME - startTime) / 1000
         .
-    MESSAGE "fg-rctd.user-id reftable data migration complete. Record Count:" + STRING(iCount)
-            + " Time Taken: " STRING(ttResults.timetaken).
-            
 
 
     ASSIGN cError = ""
@@ -1457,6 +1470,65 @@ ASSIGN
 
 
 
+    ASSIGN cError = ""
+           startTime = MTIME
+           iCount = 0
+           iProcessCount = 0
+           .
+    ASSIGN
+        iCount = oRefTableMigration:VendQty(iRecordLimit)
+        iProcessCount = oRefTableMigration:iProcessCount NO-ERROR.
+    IF ERROR-STATUS:ERROR THEN ASSIGN cError = "Error occured while reftable conversion.".
+    CREATE ttResults.
+    ASSIGN
+        ttResults.cReftable    = "vend-qty"
+        ttResults.iTotalCount  = iCount
+        ttResults.iChangeCount = iProcessCount
+        ttResults.cConvError   = cError
+        ttResults.timetaken    = (MTIME - startTime) / 1000
+        .
+        
+    
+    ASSIGN cError = ""
+           startTime = MTIME
+           iCount = 0
+           iProcessCount = 0
+           .
+    ASSIGN
+        iCount = oRefTableMigration:VendCost(iRecordLimit)
+        iProcessCount = oRefTableMigration:iProcessCount NO-ERROR.
+    IF ERROR-STATUS:ERROR THEN ASSIGN cError = "Error occured while reftable conversion.".
+    CREATE ttResults.
+    ASSIGN
+        ttResults.cReftable    = "vend-cost"
+        ttResults.iTotalCount  = iCount
+        ttResults.iChangeCount = iProcessCount
+        ttResults.cConvError   = cError
+        ttResults.timetaken    = (MTIME - startTime) / 1000
+        .
+    
+    
+    ASSIGN cError = ""
+           startTime = MTIME
+           iCount = 0
+           iProcessCount = 0
+           .
+    ASSIGN
+        iCount = oRefTableMigration:VendSetup(iRecordLimit)
+        iProcessCount = oRefTableMigration:iProcessCount NO-ERROR.
+    IF ERROR-STATUS:ERROR THEN ASSIGN cError = "Error occured while reftable conversion.".
+    CREATE ttResults.
+    ASSIGN
+        ttResults.cReftable    = "vend-setup"
+        ttResults.iTotalCount  = iCount
+        ttResults.iChangeCount = iProcessCount
+        ttResults.cConvError   = cError
+        ttResults.timetaken    = (MTIME - startTime) / 1000
+        .
+    
+            
+
+
 
 
 
@@ -1467,15 +1539,6 @@ ASSIGN
                                  
 
 
-ASSIGN 
-    cOutputFile = "c:\temp\reftableconversion" 
-                   + STRING(YEAR(TODAY)) 
-                   + STRING(MONTH(TODAY)) 
-                   + STRING(DAY(TODAY))
-                   + "_"
-                   + STRING(TIME)
-                   + ".csv".
-OUTPUT TO VALUE(cOutputFile).
 PUT "RefTable,Total Records,Records Converted,Error,Time Taken (Secs)" SKIP.
 FOR EACH ttResults: 
     EXPORT DELIMITER "," ttResults.

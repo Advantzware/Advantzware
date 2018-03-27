@@ -56,7 +56,7 @@
            work-mat.act-qty-uom
            work-mat.act-cost           format ">>,>>>,>>9"
            v-cst-var                   format ">>,>>>,>>9-"
-           v-prod-p                    format ">>>>9.9-"
+           v-prod-p                    format ">>>>>>9.9-"
 
        WITH FRAME {1} STREAM-IO WIDTH 200 NO-LABELS NO-BOX down.
 

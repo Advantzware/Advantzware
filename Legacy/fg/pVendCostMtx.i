@@ -35,22 +35,28 @@ DO WITH FRAME {&FRAME-NAME}:
                     dRunQty[idx] = dRunQty[idx] - .001.
                 END. /* do idx */
                 DO idx = jdx TO 1 BY -1:
-                    dRunCost[idx + 1] = dRunCost[idx].
+                    ASSIGN
+                        dRunCost[idx + 1] = dRunCost[idx]
+                        dSetups[idx + 1]  = dSetups[idx]
+                        .
                 END. /* do idx */
                 ASSIGN
                     dRunQty[jdx + 1] = 9999999.9
                     dRunCost[1]      = 0
-                    dSetups[jdx + 1] = dSetups[jdx]
                     .
+                IF jdx GT 1 THEN
+                dSetups[1] = DECIMAL(e-itemfg-vend.spare-dec-1:SCREEN-VALUE).
             END. /* if lvendcostmtx */
-            IF AVAILABLE e-itemfg-vend THEN
-            DO idx = 1 TO EXTENT(dRunQty):
-                ASSIGN
-                    e-itemfg-vend.run-qty[idx]  = dRunQty[idx]
-                    e-itemfg-vend.run-cost[idx] = dRunCost[idx]
-                    e-itemfg-vend.setups[idx]   = dSetups[idx]
-                    .
-            END. /* do idx */
+            IF AVAILABLE e-itemfg-vend THEN DO:
+                FIND CURRENT e-itemfg-vend EXCLUSIVE-LOCK.
+                DO idx = 1 TO EXTENT(dRunQty):
+                    ASSIGN
+                        e-itemfg-vend.run-qty[idx]  = dRunQty[idx]
+                        e-itemfg-vend.run-cost[idx] = dRunCost[idx]
+                        e-itemfg-vend.setups[idx]   = dSetups[idx]
+                        .
+                END. /* do idx */
+            END. /* if avail */
         END. /* assign */
         WHEN "DISPLAY" THEN DO:
             IF AVAILABLE e-itemfg-vend THEN
@@ -70,14 +76,19 @@ DO WITH FRAME {&FRAME-NAME}:
                 DO idx = 1 TO jdx:
                     dRunQty[idx] = dRunQty[idx] + .001.
                     IF idx LT jdx THEN
-                    dRunCost[idx] = dRunCost[idx + 1].
+                    ASSIGN
+                        dRunCost[idx] = dRunCost[idx + 1]
+                        dSetups[idx]  = dSetups[idx + 1]
+                        .
                 END. /* do idx */
-                IF jdx NE 0 THEN 
+                IF jdx GT 1 THEN 
                 ASSIGN
                     dRunQty[jdx]  = 0
                     dRunCost[jdx] = 0
                     dSetups[jdx]  = 0
                     .
+                ELSE IF jdx EQ 1 THEN 
+                dRunQty[jdx] = .001.
                 ENABLE btnShowVendCostMtx.
             END. /* if lvendcostmtx */
             ASSIGN

@@ -101,7 +101,7 @@ DEFINE VARIABLE intPageNum     AS INTEGER    NO-UNDO.
 {cecrep/jobtick2.i "new shared"}
 
 ASSIGN tmpstore = fill("-",130)
-       ls-image1 = "images\Peachtree.jpg"
+       ls-image1 = "images\Peachtree_logo_2018.png"
        FILE-INFO:FILE-NAME = ls-image1
        ls-full-img1 = FILE-INFO:FULL-PATHNAME + ">".
 
