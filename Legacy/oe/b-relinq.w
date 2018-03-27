@@ -1663,24 +1663,6 @@ END PROCEDURE.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION get-shipto-zone B-table-Win 
 FUNCTION get-shipto-zone RETURNS CHARACTER
   ( /* parameter-definitions */ ) :
-/*------------------------------------------------------------------------------
-  Purpose:  Task 09111201 
-Add new field called  "Last Shipto" on  O-Q-1.
-This will print the last or next shipto code form the Release Folder.
-
-When multiple release lines exist for the item, the program will look for a release in the following priority:
-Release Status C for Completed.
-Release Status Z for Invoiced.
-Release Status P for posted release that is in the bill of lading file.
-Release Status B for back ordered release
-Release Status A for Actual Release.
-Release Status I for Invoicable / past warehouse terms.
-Release Status L for late.
-Release Status S for released.
-
-The logic is to print the history of the shipment first back to the release status.
-    Notes:  
-------------------------------------------------------------------------------*/
 
   FOR EACH shipto NO-LOCK
       WHERE shipto.company EQ cocode
@@ -1692,7 +1674,6 @@ The logic is to print the history of the shipment first back to the release stat
            RETURN shipto.dest-code.
        END.
   END.
-
 
   RETURN "".
 
