@@ -32,7 +32,23 @@ DEFINE {1} {2} TEMP-TABLE ttImportMap
     FIELD iColumnWidth  AS INTEGER 
     FIELD cColumnFormat AS CHARACTER 
     FIELD cDataType     AS CHARACTER  
+    FIELD cHelp         AS CHARACTER
     .
+    
+DEFINE {1} {2} VARIABLE gcTypeList AS CHARACTER.   
+DEFINE {1} {2} VARIABLE gcTypeLabels AS CHARACTER.
+DEFINE {1} {2} VARIABLE gcTypePrograms AS CHARACTER.
+DEFINE {1} {2} VARIABLE gcTypeProgramsFolder AS CHARACTER INIT "util\".
+ 
+ASSIGN          /*     1           2             3             4              5          */
+    gcTypeList = "ttImportAP,ttImportCash,ttImportShipTo,ttImportEstimate,ttImportFG"
+                /*          1                    2                        3                                  4                 5       */
+    gcTypeLabels = "Accounts Payable (VU1),Cash Receipts (AC1),Customer ShipTos (AF1 - ShipTo Tab),Estimates (EC/EF),Finished Goods (IF1)"
+                /*           1       2            3            4             5           */   
+    gcTypePrograms = "ImportAP.p,ImportCash.p,ImportShipTo.p,ImportEstimate.p,ImportFG.p"
+    .
+                     
+     
 
 /* ********************  Preprocessor Definitions  ******************** */
 
