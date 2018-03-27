@@ -1,0 +1,14 @@
+FOR EACH usergrps NO-LOCK
+dscr,usergrps,users
+
+Indexed: usergrps
+Non-Idx: dscr,users
+
+Generated 04.18.2017 @  2:41:54 am by: nosweat
+Table: usergrps - Records: 34
+
+    Index: pi-usergrps
+         Field: usergrps
+
+    Index: si-rec_key
+         Field: rec_key

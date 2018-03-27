@@ -1,0 +1,23 @@
+ADD FIELD "reviewStatus" OF "hlp-head" AS character
+  FORMAT "x(8)"
+  POSITION 13
+  INITIAL ""
+  LABEL "Review Status"
+  COLUMN-LABEL "Review Status"
+  ORDER 120
+  MAX-WIDTH 16
+
+ADD FIELD "showInGlossary" OF "hlp-head" AS logical
+  FORMAT "yes/no"
+  POSITION 14
+  INITIAL "no"
+  LABEL "Show In Glossary?"
+  COLUMN-LABEL "Show In Glossary?"
+  ORDER 130
+  MAX-WIDTH 1
+
+.
+PSC
+cpstream=ISO8859-1
+.
+0000000388

@@ -1,0 +1,23 @@
+ADD FIELD "udfHeight" OF "mfgroup" AS integer 
+  FORMAT ">>>9"
+  INITIAL "0"
+  LABEL "Height"
+  POSITION 4
+  MAX-WIDTH 4
+  HELP "Enter UDF Design Screen Height"
+  ORDER 30
+
+ADD FIELD "udfWidth" OF "mfgroup" AS integer 
+  FORMAT ">>>9"
+  INITIAL "0"
+  LABEL "Width"
+  POSITION 5
+  MAX-WIDTH 4
+  HELP "Enter UDF Design Screen Width"
+  ORDER 40
+
+.
+PSC
+cpstream=ISO8859-1
+.
+0000001023

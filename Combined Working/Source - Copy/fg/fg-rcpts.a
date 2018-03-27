@@ -1,0 +1,22 @@
+/* --------------------------------------------------- fg/fg-rcpts.a 10/93 cd */
+/* Finished Goods - Receipts Header Add                                       */
+/* -------------------------------------------------------------------------- */
+x = 1.
+find last fg-rcpts use-index r-no no-lock no-error.
+if available fg-rcpts then x = fg-rcpts.r-no + 1.
+find last fg-rcpth use-index r-no no-lock no-error.
+if available fg-rcpth and fg-rcpth.r-no >= x then x = fg-rcpth.r-no + 1.
+/*
+find last fg-ctrl where fg-ctrl.company = cocode no-error.
+x = fg-ctrl.rcpt-no + 1.
+*/
+create fg-rcpts.
+assign
+fg-rcpts.r-no = x
+fg-rcpts.trans-date = today
+fg-rcpts.company    = cocode
+fg-rcpts.loc        = locode
+fg-rcpts.rita-code  = "R"
+fil_id              = recid(fg-rcpts).
+
+/* end ---------------------------------- copr. 1993  advanced software, inc. */

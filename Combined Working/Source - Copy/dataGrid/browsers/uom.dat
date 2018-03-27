@@ -1,0 +1,28 @@
+FOR EACH uom NO-LOCK
+dscr,uom
+
+Indexed: dscr,uom
+Non-Idx: mult,Other
+
+Generated 04.18.2017 @  2:52:51 am by: nosweat
+Table: uom - Records: 18
+
+    Index: base-uom
+         Field: base-uom
+         Field: uom
+
+    Index: dscr
+         Field: dscr
+
+    Index: rec_key
+         Field: rec_key
+
+    Index: uom
+         Field: uom
+
+    Index: uom-base
+         Field: base-uom
+         Field: uom
+
+    Index: wi-dscr
+         Field: dscr

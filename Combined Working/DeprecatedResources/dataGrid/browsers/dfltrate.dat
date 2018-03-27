@@ -1,0 +1,18 @@
+FOR EACH rate NO-LOCK WHERE rate.company EQ "zzz" AND rate.employee EQ "zzzzz"
+machine,ratetype,shift
+
+Indexed: machine,ratetype,shift
+Non-Idx: factortype,rate,rate_usage
+
+Generated 04.18.2017 @  6:25:02 am by: nosweat
+Table: rate - Records: 0
+
+    Index: pi-rate
+         Field: company
+         Field: employee
+         Field: shift
+         Field: machine
+         Field: ratetype
+
+    Index: si-rec_key
+         Field: rec_key

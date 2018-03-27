@@ -1,0 +1,22 @@
+/* dispvalu.i */
+
+&IF "{&{&VALUTYPE}FLD{1}}" NE "" &THEN
+  &IF "{&DATATYP{1}}" NE "" &THEN
+  &Scoped-define BEGINS-OR-GE GE
+  &ELSE
+  &Scoped-define BEGINS-OR-GE BEGINS
+  &ENDIF
+WHEN "{&{&VALUTYPE}FLD{1}}" THEN
+DO:
+  FIND FIRST {&FIRST-EXTERNAL-TABLE} WHERE
+      &IF "{&WHERE-STATEMENT}" NE "" &THEN
+      {&WHERE-STATEMENT} AND
+      &ENDIF
+      {&DBFIELD{1}} {&BEGINS-OR-GE} {&DATATYP{1}}(fldhandle:SCREEN-VALUE)
+      NO-LOCK NO-ERROR.
+  IF NOT AVAILABLE {&FIRST-EXTERNAL-TABLE} THEN
+  RUN Get-{&VALUTYPE}-Values.
+  ELSE
+  RUN Set-{&VALUTYPE}-Values.
+END.
+&ENDIF

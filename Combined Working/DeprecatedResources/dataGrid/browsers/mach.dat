@@ -1,0 +1,28 @@
+FOR EACH mach NO-LOCK WHERE mach.company EQ "%company%"
+d-seq,industry,loc,m-code,m-dscr,m-seq
+
+Indexed: d-seq,industry,loc,m-code,m-seq
+Non-Idx: dept,m-dscr,mr-waste,p-type,run-spoil,sch-m-code
+
+Generated 04.26.2017 @ 11:03:25 am by: 
+Table: mach - Records: 93
+
+    Index: d-seq
+         Field: company
+         Field: loc
+         Field: d-seq
+         Field: m-seq
+         Field: m-code
+
+    Index: industry
+         Field: company
+         Field: industry
+         Field: m-code
+
+    Index: m-code
+         Field: company
+         Field: loc
+         Field: m-code
+
+    Index: rec_key
+         Field: rec_key

@@ -1,0 +1,24 @@
+FOR EACH item-comm NO-LOCK WHERE item-comm.company EQ "%company%"
+cust-no,i-no,part-no
+
+Indexed: cust-no,i-no
+Non-Idx: base-cost,comm-rate-percent,fixed-gross-profit,freight-percent,industrial-percent,misc-percent,overhead-percent,part-no,set-sales-price,warehouse-percent,zz-dec
+
+Generated 04.18.2017 @  1:18:13 am by: nosweat
+Table: item-comm - Records: 41,076
+
+    Index: com-cust
+         Field: company
+         Field: cust-no
+
+    Index: com-cust-item
+         Field: company
+         Field: cust-no
+         Field: i-no
+
+    Index: com-item
+         Field: company
+         Field: i-no
+
+    Index: rec-key
+         Field: rec_key
