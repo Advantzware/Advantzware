@@ -89,10 +89,6 @@ DEF BUFFER b2-oe-ord FOR oe-ord.
 
 {jcrep/r-ticket.i "new shared"}
 
-FIND FIRST users WHERE
-     users.user_id EQ USERID("NOSWEAT")
-     NO-LOCK NO-ERROR.
-
 DEF VAR hPgmSecurity AS HANDLE NO-UNDO.
 DEF VAR lResult AS LOG NO-UNDO.
 RUN "system/ProgramMasterSecurity.p" PERSISTENT SET hPgmSecurity.
@@ -101,9 +97,9 @@ DELETE OBJECT hPgmSecurity.
 
 IF lResult THEN ASSIGN lAsiUser = YES .
 
-IF AVAIL users AND users.USER_id EQ "ASI" THEN
-    ASSIGN lAsiUser = YES .
-
+FIND FIRST users WHERE
+     users.user_id EQ USERID("ASI")
+     NO-LOCK NO-ERROR.
 IF AVAIL users AND users.user_program[2] NE "" THEN
    v-dir = users.user_program[2] + "\".
 ELSE
