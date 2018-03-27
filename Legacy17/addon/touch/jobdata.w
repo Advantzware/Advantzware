@@ -816,15 +816,15 @@ PROCEDURE CtrlFrame.PSTimer.Tick .
   Parameters:  None required for OCX.
   Notes:       
 ------------------------------------------------------------------------------*/
-
-  /*IF NOT v-time-clock-off  THEN */
-  IF timerStatus:SCREEN-VALUE IN FRAME {&FRAME-NAME} MATCHES "*on*" THEN
-     ASSIGN lv-timer = lv-timer + 1
-           time-hour:SCREEN-VALUE IN FRAME {&FRAME-NAME} = SUBSTR(STRING(lv-timer,'HH:MM AM'),1,2)
-           time-minute:SCREEN-VALUE = SUBSTR(STRING(lv-timer,'HH:MM AM'),4,2).
-          IF time-hour:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ "12" THEN
-           Btn_AMPM:LABEL = SUBSTR(STRING(lv-timer,'HH:MM AM'),7,2)  .
-  
+    IF timerStatus:SCREEN-VALUE IN FRAME {&FRAME-NAME} MATCHES "*on*" THEN DO:
+        ASSIGN
+            lv-timer = lv-timer + 1
+            time-hour:SCREEN-VALUE IN FRAME {&FRAME-NAME} = SUBSTR(STRING(lv-timer,'HH:MM AM'),1,2)
+            time-minute:SCREEN-VALUE = SUBSTR(STRING(lv-timer,'HH:MM AM'),4,2)
+            .
+        IF time-hour:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ "12" THEN
+        Btn_AMPM:LABEL = SUBSTR(STRING(lv-timer,'HH:MM AM'),7,2).
+    END.
   
 END PROCEDURE.
 

@@ -609,7 +609,7 @@ DO:
   DEFINE VARIABLE cGetField AS CHARACTER NO-UNDO.
 
   IF svLookupDB EQ "" THEN
-  svLookupDB = "NOSWEAT".
+  svLookupDB = "ASI".
   CREATE ALIAS dictdb FOR DATABASE VALUE(svLookupDB).
   cGetField = svLookupDB:SCREEN-VALUE + "."
             + svLookupFile:SCREEN-VALUE + "."
@@ -806,7 +806,7 @@ DO:
   PUT UNFORMATTED "~~" svEndInclude.
   PUT UNFORMATTED SKIP
     "~&Scoped-define ui-prgmname " svUIPrgmname SKIP
-    "~&Scoped-define window-size " INTEGER(svHeightSize) + 4.7 SKIP
+    "~&Scoped-define window-size " INTEGER(svHeightSize) + 5 SKIP
     "~&Scoped-define window-col " (150 - INTEGER(svWidthSize)) / 2 SKIP
     "~&Scoped-define rect-1-row " INTEGER(svHeightSize) + 1.15 SKIP
     "~&Scoped-define by-row " INTEGER(svHeightSize) + 1.42 SKIP
@@ -815,7 +815,7 @@ DO:
     "~&Scoped-define btn-row " INTEGER(svHeightSize) + 2.7 SKIP
     "~&Scoped-define btn-ok-col " INTEGER(svWidthSize) - 7 SKIP
     "~&Scoped-define btn-cancel-col " INTEGER(svWidthSize) - 14 SKIP
-    "~&Scoped-define auto-find-row " INTEGER(svHeightSize) + 4.6 SKIP(1).
+    "~&Scoped-define auto-find-row " INTEGER(svHeightSize) + 4.65 SKIP(1).
 
   DO i = 1 TO NUM-ENTRIES(svOrderValues):
     cDataType = "STRING".

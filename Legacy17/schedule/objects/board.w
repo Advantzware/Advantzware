@@ -202,10 +202,10 @@ END.
 &Scoped-define FRAME-NAME boardFrame
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS scenario btnSave btnRemove btnReset ~
-btnPending btnPendingJobs btnDatePrompt btnShowDowntime btnDetail ~
-btnFlashLight btnJobBrowse resourceGrid btnPrevDate btnNextDate boardDate ~
-btnCalendar btnTimeLine intervals timeValue btnPrevInterval btnNextInterval ~
+&Scoped-Define ENABLED-OBJECTS resourceGrid scenario btnSave btnRemove ~
+btnReset btnPending btnPendingJobs btnDatePrompt btnShowDowntime btnDetail ~
+btnFlashLight btnJobBrowse btnPrevDate btnNextDate boardDate btnCalendar ~
+btnTimeLine intervals timeValue btnPrevInterval btnNextInterval ~
 btnResourceList btnNext btnLast btnSetColorType resourceList 
 &Scoped-Define DISPLAYED-OBJECTS scenario boardDate intervals timeValue ~
 resourceList day-1 day-2 day-3 day-4 day-5 day-6 day-7 day-8 day-9 day-10 ~
@@ -409,6 +409,11 @@ DEFINE BUTTON btnTimeLine
      IMAGE-UP FILE "schedule\images\clock1.bmp":U
      LABEL "" 
      SIZE 5.2 BY 1.05 TOOLTIP "Position Board to Current Date & Time".
+
+DEFINE BUTTON btnToolTip 
+     IMAGE-UP FILE "schedule/images/helpabout.bmp":U
+     LABEL "" 
+     SIZE 5 BY 1.05 TOOLTIP "Show ToolTip".
 
 DEFINE VARIABLE intervals AS CHARACTER FORMAT "X(256)":U INITIAL "1 Hour" 
      VIEW-AS COMBO-BOX INNER-LINES 30
@@ -837,6 +842,8 @@ DEFINE FRAME boardFrame
           "Remove Scenario"
      btnReset AT ROW 1.05 COL 102 HELP
           "Reset Scenario"
+     btnToolTip AT ROW 1.05 COL 107.6 HELP
+          "Click to Show ToolTip" WIDGET-ID 2
      btnPending AT ROW 1.05 COL 113 HELP
           "Click to Access Pending by Job"
      btnPendingJobs AT ROW 1.05 COL 118 HELP
@@ -901,14 +908,14 @@ DEFINE FRAME boardFrame
      day-13 AT ROW 2.19 COL 90.8 COLON-ALIGNED NO-LABEL
      day-14 AT ROW 2.19 COL 96.2 COLON-ALIGNED NO-LABEL
      day-15 AT ROW 2.19 COL 101.6 COLON-ALIGNED NO-LABEL
-     day-16 AT ROW 2.19 COL 107 COLON-ALIGNED NO-LABEL
-     day-17 AT ROW 2.19 COL 112.4 COLON-ALIGNED NO-LABEL
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE .
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME boardFrame
+     day-16 AT ROW 2.19 COL 107 COLON-ALIGNED NO-LABEL
+     day-17 AT ROW 2.19 COL 112.4 COLON-ALIGNED NO-LABEL
      day-18 AT ROW 2.19 COL 117.8 COLON-ALIGNED NO-LABEL
      day-19 AT ROW 2.19 COL 123.2 COLON-ALIGNED NO-LABEL
      day-20 AT ROW 2.19 COL 128.6 COLON-ALIGNED NO-LABEL
@@ -1216,6 +1223,12 @@ ASSIGN
 ASSIGN 
        btnShowDowntime:PRIVATE-DATA IN FRAME boardFrame     = 
                 " Downtime".
+
+/* SETTINGS FOR BUTTON btnToolTip IN FRAME boardFrame
+   NO-ENABLE                                                            */
+ASSIGN 
+       btnToolTip:PRIVATE-DATA IN FRAME boardFrame     = 
+                "Complete Job".
 
 /* SETTINGS FOR FILL-IN day-1 IN FRAME boardFrame
    NO-ENABLE                                                            */
@@ -1726,6 +1739,18 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME btnToolTip
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnToolTip s-object
+ON CHOOSE OF btnToolTip IN FRAME boardFrame
+DO:
+    IF VALID-HANDLE(currentJob) THEN
+    MESSAGE currentJob:TOOLTIP VIEW-AS ALERT-BOX.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME intervals
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL intervals s-object
 ON VALUE-CHANGED OF intervals IN FRAME boardFrame
@@ -1854,6 +1879,7 @@ PROCEDURE asiDC :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+  DEFINE VARIABLE lvProdAce AS CHARACTER NO-UNDO.
   DEFINE VARIABLE lvVorneDat AS CHARACTER NO-UNDO.
   DEFINE VARIABLE lvHCDat AS CHARACTER NO-UNDO.
   DEFINE VARIABLE lvHCExport AS CHARACTER NO-UNDO.
@@ -1874,43 +1900,51 @@ PROCEDURE asiDC :
 
   SESSION:SET-WAIT-STATE('General').
 
-  lvVorneDat = findProgram('{&data}/',ID,'/Vorne.dat').
-  IF lvVorneDat NE ? THEN DO:
-      RUN {&loads}/ASI/vorne.w (lvVorneDat,OUTPUT lvContinue).
+  lvProdAce = findProgram('{&data}/',ID,'/ProdAce.dat').
+  IF lvProdAce NE ? THEN DO:
+      RUN {&loads}/ASI/prodAce.w (lvProdAce,OUTPUT lvContinue).
       IF NOT lvContinue THEN RETURN.
-  END.
-  
-  lvHCDat = findProgram('{&data}/',ID,'/HighwayConnect.dat').
-  IF lvHCDat NE ? THEN DO:
-    INPUT FROM VALUE(lvHCDat) NO-ECHO.
-    IMPORT lvHCExport.
-    IMPORT lvHCImport.
-    INPUT CLOSE.
-    FOR EACH ttblJob NO-LOCK
-        WHERE ttblJob.jobCompleted EQ NO
-          AND ttblJob.liveUpdate EQ YES
-        BREAK BY ttblJob.resource:
-      IF FIRST-OF(ttblJob.resource) THEN DO:
-        FIND FIRST ttblResource NO-LOCK
-             WHERE ttblResource.resource EQ ttblJob.resource NO-ERROR.
-        IF AVAILABLE ttblResource THEN
-        OUTPUT TO VALUE(lvHCImport + ttblResource.resourceDescription + '.txt').
-        ELSE NEXT.
-      END. /* first-of */
-      EXPORT DELIMITER '~t' 'H' 'U'
-        ttblJob.job + (IF ttblJob.userField19 EQ '' THEN ''
-                       ELSE '.' + STRING(INTEGER(ttblJob.userField19)))
-        ttblResource.resourceDescription
-        ttblJob.userField08
-        ttblJob.userField09
-        ttblJob.userField01
-        ttblJob.userField01
-        STRING(YEAR(ttblJob.dueDate)) + STRING(MONTH(ttblJob.dueDate)) + STRING(DAY(ttblJob.dueDate))
-        STRING(INTEGER(ttblJob.userField15))
-        .
-    END. /* each ttbljob */
-    OUTPUT CLOSE.
-  END. /* if lvhcdat ne ? */
+  END. /* production ace */
+  ELSE DO:
+      lvVorneDat = findProgram('{&data}/',ID,'/Vorne.dat').
+      IF lvVorneDat NE ? THEN DO:
+          RUN {&loads}/ASI/vorne.w (lvVorneDat,OUTPUT lvContinue).
+          IF NOT lvContinue THEN RETURN.
+      END. /* vorne */
+      ELSE DO:
+          lvHCDat = findProgram('{&data}/',ID,'/HighwayConnect.dat').
+          IF lvHCDat NE ? THEN DO:
+            INPUT FROM VALUE(lvHCDat) NO-ECHO.
+            IMPORT lvHCExport.
+            IMPORT lvHCImport.
+            INPUT CLOSE.
+            FOR EACH ttblJob NO-LOCK
+                WHERE ttblJob.jobCompleted EQ NO
+                  AND ttblJob.liveUpdate EQ YES
+                BREAK BY ttblJob.resource:
+              IF FIRST-OF(ttblJob.resource) THEN DO:
+                FIND FIRST ttblResource NO-LOCK
+                     WHERE ttblResource.resource EQ ttblJob.resource NO-ERROR.
+                IF AVAILABLE ttblResource THEN
+                OUTPUT TO VALUE(lvHCImport + ttblResource.resourceDescription + '.txt').
+                ELSE NEXT.
+              END. /* first-of */
+              EXPORT DELIMITER '~t' 'H' 'U'
+                ttblJob.job + (IF ttblJob.userField19 EQ '' THEN ''
+                               ELSE '.' + STRING(INTEGER(ttblJob.userField19)))
+                ttblResource.resourceDescription
+                ttblJob.userField08
+                ttblJob.userField09
+                ttblJob.userField01
+                ttblJob.userField01
+                STRING(YEAR(ttblJob.dueDate)) + STRING(MONTH(ttblJob.dueDate)) + STRING(DAY(ttblJob.dueDate))
+                STRING(INTEGER(ttblJob.userField15))
+                .
+            END. /* each ttbljob */
+            OUTPUT CLOSE.
+          END. /* if lvhcdat ne ? */
+      END. /* highway connect */
+  END. /* else */
 
   {{&includes}/asiDC.i ttblJob}
   {{&includes}/asiDC.i pendingJob}
@@ -2105,7 +2139,7 @@ PROCEDURE buildPixelArray :
   RUN msgFrame ('Building Pixel Array').
   DO i = 1 TO 24:
     k = INT((intEtime[i] - intStime[i]) / rectWidth).
-    DO j = 1 to rectWidth:
+    DO j = 1 TO rectWidth:
       ASSIGN
         dateTimePixel[j + (i - 1) * rectWidth] =
                       numericDateTime(intDate[i],(j - 1) * k + intStime[i]).
@@ -2141,9 +2175,12 @@ PROCEDURE buildResource :
     resourceIdx = resourceIdx + 1.
     {{&includes}/{&Board}/lightBulb.i}
     RUN createResourceButton (ttblResource.resource,
-                              ttblResource.resourceDescription,resourceIdx).
+                              ttblResource.resourceDescription,
+                              resourceIdx).
     RUN createResource (ttblResource.resource,
-                        ttblResource.resourceDescription,resourceIdx).
+                        ttblResource.resourceDescription,
+                        resourceIdx,
+                        ttblResource.dmiID).
   END.
   RUN hideResource (resourceIdx).
   RUN LockWindowUpdate (0,OUTPUT i).
@@ -2357,6 +2394,7 @@ PROCEDURE createJob :
   ASSIGN
     ttblJob.jobBGColor = jobBGColor()
     ttblJob.jobFGColor = jobFGColor()
+    ttblJob.statusLabel = jobStatus()
     ttblJob.widgetIdx = ipIdx
     jobWidget.jobBGColor = ttblJob.jobBGColor
     jobWidget.jobFGColor = ttblJob.jobFGColor
@@ -2375,7 +2413,8 @@ PROCEDURE createJob :
     pWidget:SCREEN-VALUE = pWidget:SCREEN-VALUE +
                            (IF intervals:LOOKUP(intervals:SCREEN-VALUE)
                             LE noteButtons THEN '    ' ELSE '') + jobDescriptn
-    pWidget:PRIVATE-DATA = STRING(ROWID(ttblJob)).
+    pWidget:PRIVATE-DATA = STRING(ROWID(ttblJob))
+    .
   pWidget:TOOLTIP = jobToolTip + '~n~nStatus: ' + jobStatus().
   IF '{&Board}' EQ 'Basic' THEN
   pWidget:SCREEN-VALUE = jobDescriptn.
@@ -2396,6 +2435,9 @@ PROCEDURE createResource :
   DEFINE INPUT PARAMETER ipResource AS CHARACTER NO-UNDO.
   DEFINE INPUT PARAMETER ipResourceDescription AS CHARACTER NO-UNDO.
   DEFINE INPUT PARAMETER ipIdx AS INTEGER NO-UNDO.
+  DEFINE INPUT PARAMETER ipDmiID AS INTEGER NO-UNDO.
+
+  ipDmiID = ipIdx.
 
   DEFINE VARIABLE pWidget AS WIDGET-HANDLE NO-UNDO.
 
@@ -2421,8 +2463,10 @@ PROCEDURE createResource :
     pWidget:LABEL = REPLACE(ipResource,'&','&&')
     pWidget:NAME = ipResource
     pWidget:PRIVATE-DATA = ipResource
-    pWidget:TOOLTIP = IF ipResourceDescription EQ '' THEN ?
-                      ELSE ipResourceDescription
+    pWidget:TOOLTIP = (IF ipResourceDescription EQ '' THEN ?
+                       ELSE ipResourceDescription) +
+                      (IF ipDmiID NE 0 THEN ' (DMI ID: ' + STRING(ipDmiID,'999') + ')'
+                       ELSE '')
     ldummy = pWidget:MOVE-TO-TOP()
     resourceWidget[ipIdx] = pWidget:HANDLE
     resourceYCoord = resourceYCoord + hpixels + gap.
@@ -2869,10 +2913,6 @@ PROCEDURE getScenario :
   DEFINE VARIABLE version AS CHARACTER NO-UNDO.
   DEFINE VARIABLE i AS INTEGER NO-UNDO.
 
-  /*
-  RUN msgFrame ('Load Pending Jobs').
-  {{&includes}/getPending.i}
-  */
   RUN msgFrame ('Load Scenario "' + scenario + '"').
   {{&includes}/getScenario.i}
   RUN msgFrame ('Load Pending Jobs').
@@ -3418,6 +3458,7 @@ PROCEDURE pFromPending :
         ASSIGN
           ttblJob.jobBGColor = jobBGColor()
           ttblJob.jobFGColor = jobFGColor()
+          ttblJob.statusLabel = jobStatus()
           .
         IF priorDateTime NE ? AND priorDateTime GE ttblJob.startDateTime THEN DO:
           ASSIGN
@@ -3431,6 +3472,7 @@ PROCEDURE pFromPending :
           ASSIGN
             ttblJob.jobBGColor = jobBGColor()
             ttblJob.jobFGColor = jobFGColor()
+            ttblJob.statusLabel = jobStatus()
             .
         END.
         RUN firstAvailable (ttblJob.resource,ROWID(ttblJob),ttblJob.timeSpan,
@@ -3452,6 +3494,7 @@ PROCEDURE pFromPending :
         ASSIGN
           ttblJob.jobBGColor = jobBGColor()
           ttblJob.jobFGColor = jobFGColor()
+          ttblJob.statusLabel = jobStatus()
           .
         ASSIGN
           priorEndDate  = ttblJob.endDate
@@ -3525,6 +3568,7 @@ PROCEDURE pFromPendingByDueDate :
           ASSIGN
             ttblJob.jobBGColor = jobBGColor()
             ttblJob.jobFGColor = jobFGColor()
+            ttblJob.statusLabel = jobStatus()
             .
 
           RUN pSetResourceSequence (bPendingJob.resource).
@@ -3654,6 +3698,7 @@ PROCEDURE pSetDueDateJob :
         ASSIGN
           ttblJob.jobBGColor = jobBGColor()
           ttblJob.jobFGColor = jobFGColor()
+          ttblJob.statusLabel = jobStatus()
           priorStartDate = ttblJob.startDate
           priorStartTime = ttblJob.startTime
           priorDateTime  = ttblJob.startDateTime
@@ -3842,7 +3887,9 @@ PROCEDURE setJobColors :
   FOR EACH ttblJob EXCLUSIVE-LOCK:
     ASSIGN
       ttblJob.jobBGColor = jobBGColor()
-      ttblJob.jobFGColor = jobFGColor().
+      ttblJob.jobFGColor = jobFGColor()
+      ttblJob.statusLabel = jobStatus()
+      .
   END.
   APPLY 'RETURN' TO boardDate IN FRAME {&FRAME-NAME}.
 

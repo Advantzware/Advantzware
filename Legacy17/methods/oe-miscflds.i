@@ -40,7 +40,7 @@ PROCEDURE selectMiscFlds:
       {&mfRecKey} = job-hdr.company + "|jh" + STRING(job-hdr.j-no)
       {&mfHeader} = " Job: " + job-hdr.job-no + "-" + STRING(job-hdr.job-no2) + " Item#: " + job-hdr.i-no.
 
-  RUN nosweat/mfvalns.p (sys-ctrl.char-fld,{&mfRecKey},{&mfHeader}).
+  RUN nosweat/mfvalns.p (sys-ctrl.char-fld,{&mfRecKey},{&mfHeader},?).
 END PROCEDURE.
 
 PROCEDURE sysCtrlMiscFlds:

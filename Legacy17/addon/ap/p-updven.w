@@ -54,10 +54,10 @@ CREATE WIDGET-POOL.
 /* Local Variable Definitions ---                                       */
 &Scoped-define adm-attribute-dlg adm/support/u-paneld.w
 
-
-DEFINE VARIABLE trans-commit AS LOGICAL NO-UNDO.  
-DEFINE VARIABLE panel-type   AS CHARACTER NO-UNDO INIT 'SAVE':U.
-DEFINE VARIABLE add-active   AS LOGICAL NO-UNDO INIT no.
+DEFINE VARIABLE hUpdateButton AS HANDLE    NO-UNDO.
+DEFINE VARIABLE trans-commit  AS LOGICAL   NO-UNDO.  
+DEFINE VARIABLE panel-type    AS CHARACTER NO-UNDO INIT 'SAVE':U.
+DEFINE VARIABLE add-active    AS LOGICAL   NO-UNDO INIT NO.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

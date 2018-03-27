@@ -2153,6 +2153,7 @@ PROCEDURE add-estimate :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+  DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.
 
   ASSIGN                
   ll-is-add-from-tool = YES  /* add from option button not from add button */
@@ -2162,6 +2163,11 @@ PROCEDURE add-estimate :
      then run est/d-addset.w (output ls-add-what). /* one item or set cec/est-add.p */*/
   RUN est/d-addfol.w (INPUT YES, OUTPUT ls-add-what). /* one item or set cec/est-add.p */
   IF ls-add-what = "" THEN RETURN NO-APPLY.  /* cancel */
+  
+  IF ls-add-what EQ "est" THEN DO:
+      RUN get-link-handle IN adm-broker-hdl  (THIS-PROCEDURE,'Record-source':U,OUTPUT char-hdl).
+      RUN clearFilterValues IN WIDGET-HANDLE(char-hdl).
+  END.
 
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'add-record':U ) .
   
@@ -6682,7 +6688,8 @@ PROCEDURE pCreateFormFromImport:
  Purpose: Processes ttInputEst temp-table, adding forms to the estimate in context
  Notes:
 ------------------------------------------------------------------------------*/
-  DEF VAR iCount AS INT NO-UNDO.
+  DEFINE VARIABLE iCount AS INTEGER NO-UNDO.
+  DEFINE VARIABLE lDummy AS LOGICAL NO-UNDO.
    
   ASSIGN
     ll-new-record = YES
@@ -6696,12 +6703,9 @@ PROCEDURE pCreateFormFromImport:
   
   RUN est/BuildEstimate.p ("C").
   
+  RUN dispatch('open-query').
+    lDummy = {&browse-name}:REFRESH() IN FRAME {&FRAME-NAME}.
   
-  IF iCount > 0 THEN DO:
-     RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"record-source",OUTPUT char-hdl).
-     RUN new_record IN WIDGET-HANDLE(char-hdl)  (lv-crt-est-rowid).
-  END. 
-
 
 END PROCEDURE.
 	

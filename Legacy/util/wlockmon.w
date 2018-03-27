@@ -40,6 +40,37 @@ DEF VAR hqRecKey AS HANDLE NO-UNDO.
 DEF VAR hbRecKey AS HANDLE NO-UNDO.
 DEF VAR hbhRecKey1 AS HANDLE NO-UNDO.
 DEF VAR hbhRecKey2 AS HANDLE NO-UNDO.
+DEF VAR cName AS CHAR NO-UNDO.
+
+DEF TEMP-TABLE ttLocks
+    FIELD ttfLock-Id AS INT64
+    FIELD ttfLock-Usr AS INT
+    FIELD ttfLock-Name AS CHAR
+    FIELD ttfLock-Type AS CHAR
+    FIELD ttfLock-Table AS INT
+    FIELD ttfLock-RecId AS RECID
+    FIELD ttfLock-Tty AS CHAR
+    FIELD ttfUserID AS CHAR
+    FIELD ttfRecKey AS CHAR
+    FIELD ttfTable AS CHAR
+    FIELD ttfLockTime AS DATETIME-TZ
+    FIELD ttfDuration AS INT
+    FIELD ttfDispTime AS CHAR.
+    
+DEF TEMP-TABLE ttLocks2
+    FIELD ttfLock-Id AS INT64
+    FIELD ttfLock-Usr AS INT
+    FIELD ttfLock-Name AS CHAR
+    FIELD ttfLock-Type AS CHAR
+    FIELD ttfLock-Table AS INT
+    FIELD ttfLock-RecId AS RECID
+    FIELD ttfLock-Tty AS CHAR
+    FIELD ttfUserID AS CHAR
+    FIELD ttfRecKey AS CHAR
+    FIELD ttfTable AS CHAR
+    FIELD ttfLockTime AS DATETIME-TZ
+    FIELD ttfDuration AS INT
+    FIELD ttfDispTime AS CHAR.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -56,8 +87,8 @@ DEF VAR hbhRecKey2 AS HANDLE NO-UNDO.
 &Scoped-define FRAME-NAME DEFAULT-FRAME
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS slLockList bStart fiInterval bQuit fiTable 
-&Scoped-Define DISPLAYED-OBJECTS slLockList fiInterval fiTable 
+&Scoped-Define ENABLED-OBJECTS slLockList bStart fiInterval bQuit 
+&Scoped-Define DISPLAYED-OBJECTS slLockList fiInterval RADIO-SET-1 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -85,19 +116,21 @@ DEFINE BUTTON bStop
      LABEL "Stop Monitor" 
      SIZE 15 BY 1.1.
 
-DEFINE VARIABLE fiInterval AS INTEGER FORMAT ">>9":U INITIAL 3 
+DEFINE VARIABLE fiInterval AS INTEGER FORMAT ">>9":U INITIAL 30 
      LABEL "Refresh Interval (secs)" 
      VIEW-AS FILL-IN 
      SIZE 6 BY 1 NO-UNDO.
 
-DEFINE VARIABLE fiTable AS CHARACTER FORMAT "X(256)":U INITIAL "*" 
-     LABEL "Table (*) for all" 
-     VIEW-AS FILL-IN 
-     SIZE 46 BY 1 NO-UNDO.
+DEFINE VARIABLE RADIO-SET-1 AS INTEGER 
+     VIEW-AS RADIO-SET HORIZONTAL
+     RADIO-BUTTONS 
+          "All Locks", 1,
+"Lingering Only", 2
+     SIZE 34 BY .86 NO-UNDO.
 
 DEFINE VARIABLE slLockList AS CHARACTER 
      VIEW-AS SELECTION-LIST SINGLE SCROLLBAR-VERTICAL 
-     SIZE 95 BY 12.38
+     SIZE 162 BY 14.62
      FONT 2 NO-UNDO.
 
 
@@ -105,23 +138,29 @@ DEFINE VARIABLE slLockList AS CHARACTER
 
 DEFINE FRAME DEFAULT-FRAME
      slLockList AT ROW 2.33 COL 3 NO-LABEL
-     bStart AT ROW 15.19 COL 3
-     bStop AT ROW 15.19 COL 19
-     fiInterval AT ROW 15.19 COL 57 COLON-ALIGNED
-     bQuit AT ROW 15.19 COL 67
-     fiTable AT ROW 16.81 COL 29 COLON-ALIGNED
+     bStart AT ROW 17.67 COL 4
+     bStop AT ROW 17.67 COL 20
+     fiInterval AT ROW 17.67 COL 58 COLON-ALIGNED
+     bQuit AT ROW 17.67 COL 151
+     RADIO-SET-1 AT ROW 17.76 COL 70 NO-LABEL WIDGET-ID 6
+     "Phone" VIEW-AS TEXT
+          SIZE 11 BY .62 AT ROW 1.24 COL 43 WIDGET-ID 12
+     "Terminal" VIEW-AS TEXT
+          SIZE 11 BY .62 AT ROW 1.24 COL 62 WIDGET-ID 10
+     "Duration" VIEW-AS TEXT
+          SIZE 11 BY .67 AT ROW 1.24 COL 149 WIDGET-ID 4
      "Table" VIEW-AS TEXT
-          SIZE 11 BY .67 AT ROW 1.24 COL 39
+          SIZE 11 BY .67 AT ROW 1.24 COL 76
      "Rec Key" VIEW-AS TEXT
-          SIZE 12 BY .67 AT ROW 1.24 COL 56
-     "Type" VIEW-AS TEXT
-          SIZE 8 BY .67 AT ROW 1.24 COL 87
-     "User" VIEW-AS TEXT
-          SIZE 8 BY .67 AT ROW 1.24 COL 4
+          SIZE 12 BY .67 AT ROW 1.24 COL 108
+     "Lock Type" VIEW-AS TEXT
+          SIZE 11 BY .67 AT ROW 1.24 COL 136
+     "User ID/Name" VIEW-AS TEXT
+          SIZE 16 BY .67 AT ROW 1.24 COL 4
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 99.2 BY 18.11.
+         SIZE 166.8 BY 18.43.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -141,12 +180,12 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW C-Win ASSIGN
          HIDDEN             = YES
          TITLE              = "Record Lock Viewer"
-         HEIGHT             = 18.1
-         WIDTH              = 99.2
-         MAX-HEIGHT         = 18.1
-         MAX-WIDTH          = 99.2
-         VIRTUAL-HEIGHT     = 18.1
-         VIRTUAL-WIDTH      = 99.2
+         HEIGHT             = 18.62
+         WIDTH              = 166.8
+         MAX-HEIGHT         = 18.86
+         MAX-WIDTH          = 166.8
+         VIRTUAL-HEIGHT     = 18.86
+         VIRTUAL-WIDTH      = 166.8
          RESIZE             = yes
          SCROLL-BARS        = no
          STATUS-AREA        = yes
@@ -170,6 +209,8 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 /* SETTINGS FOR FRAME DEFAULT-FRAME
    FRAME-NAME                                                           */
 /* SETTINGS FOR BUTTON bStop IN FRAME DEFAULT-FRAME
+   NO-ENABLE                                                            */
+/* SETTINGS FOR RADIO-SET RADIO-SET-1 IN FRAME DEFAULT-FRAME
    NO-ENABLE                                                            */
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
 THEN C-Win:HIDDEN = no.
@@ -202,6 +243,7 @@ ON WINDOW-CLOSE OF C-Win /* Record Lock Viewer */
 DO:
   /* This event will close the window and terminate the procedure.  */
     APPLY 'choose' TO bStop IN FRAME default-frame.
+    APPLY 'choose' to bQuit IN FRAME default-frame.
     APPLY "CLOSE":U TO THIS-PROCEDURE.
   /* RETURN NO-APPLY. */
 END.
@@ -234,8 +276,7 @@ DO:
         bStop:SENSITIVE = TRUE
         bQuit:SENSITIVE = FALSE
         SELF:SENSITIVE = FALSE
-        fiInterval:SENSITIVE = FALSE
-        fiTable:SENSITIVE = FALSE. 
+        fiInterval:SENSITIVE = FALSE. 
 
     RUN ipMonitor IN THIS-PROCEDURE.
 
@@ -256,11 +297,35 @@ DO:
         SELF:SENSITIVE = FALSE
         bQuit:SENSITIVE = TRUE
         bStart:SENSITIVE = TRUE
-        fiInterval:SENSITIVE = TRUE
-        fiTable:SENSITIVE = TRUE. 
+        fiInterval:SENSITIVE = TRUE. 
         
     STATUS INPUT ("Monitor is not running").
     STATUS DEFAULT ("Monitor is not running").
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME fiInterval
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiInterval C-Win
+ON LEAVE OF fiInterval IN FRAME DEFAULT-FRAME /* Refresh Interval (secs) */
+DO:
+    IF INTEGER(SELF:SCREEN-VALUE) GT 600 THEN DO:
+        MESSAGE
+            "Maximum interval is 600 seconds (10 minutes). Resetting."
+            VIEW-AS ALERT-BOX INFO.
+        ASSIGN
+            SELF:SCREEN-VALUE = "600".
+    END.
+    ELSE IF INTEGER(SELF:SCREEN-VALUE) LT 3 THEN DO:
+        MESSAGE
+            "Minimum interval is 3 seconds. Resetting."
+            VIEW-AS ALERT-BOX INFO.
+        ASSIGN
+            SELF:SCREEN-VALUE = "3".
+    END.
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -333,9 +398,9 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY slLockList fiInterval fiTable 
+  DISPLAY slLockList fiInterval RADIO-SET-1 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
-  ENABLE slLockList bStart fiInterval bQuit fiTable 
+  ENABLE slLockList bStart fiInterval bQuit 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
   VIEW C-Win.
@@ -353,6 +418,7 @@ PROCEDURE ipMonitor :
 ------------------------------------------------------------------------------*/
     DEF VAR cDisp AS CHAR NO-UNDO.
     DEF VAR a AS INT NO-UNDO.
+    DEF VAR deDuration AS DEC NO-UNDO.
     runmon:
     REPEAT WHILE lStart:
         PROCESS EVENTS.
@@ -368,55 +434,106 @@ PROCEDURE ipMonitor :
         END.
         
         ASSIGN 
-             fitable = fitable:SCREEN-VALUE 
              fiInterval = int(fiInterval:SCREEN-VALUE) .
-
-        FOR EACH _lock where
-            _lock._lock-id < 50 AND 
-            _lock._lock-table <> ? NO-LOCK:
+        EMPTY TEMP-TABLE ttLocks.
+    
+        FOR EACH _lock WHERE
+            _lock._lock-usr <> ? AND 
+            _lock._lock-recid <> ? NO-LOCK:
             FIND FIRST _file WHERE
                 _file._file-number = _lock._lock-table
                 USE-INDEX _file-number
                 NO-LOCK NO-ERROR.
-            FIND FIRST _index OF _file WHERE 
-                RECID(_index) = _file._prime-index
-                NO-LOCK NO-ERROR.
-            CREATE BUFFER hbRecKey FOR TABLE _file._file-name.
+            CREATE ttLocks.
+            ASSIGN
+                ttLocks.ttfLock-Id = _lock._Lock-ID
+                ttLocks.ttfLock-Usr = _lock._Lock-Usr
+                ttLocks.ttfLock-Name = _lock._Lock-Name
+                ttLocks.ttfLock-Type = _lock._Lock-Type
+                ttLocks.ttfLock-Table = _lock._Lock-Table
+                ttLocks.ttfLock-RecID = _lock._Lock-RecID
+                ttLocks.ttfLock-Tty = _lock._Lock-Tty
+                ttLocks.ttfTable = _file._file-name
+                ttLocks.ttfLockTime = NOW
+                ttLocks.ttfDuration = 0
+                ttLocks.ttfDispTime = "00:00:00".
+            FIND FIRST ttLocks2 WHERE
+                ttLocks2.ttfLock-ID EQ ttLocks.ttfLock-ID
+                NO-ERROR.
+            IF NOT AVAIL ttLocks2 THEN DO:
+                CREATE ttLocks2.
+                BUFFER-COPY ttLocks TO ttLocks2.
+            END.
+            ELSE DO:
+                ASSIGN
+                    ttLocks2.ttfDuration = (NOW - ttLocks2.ttfLockTime) / 1000
+                    ttLocks2.ttfDispTime = STRING(ttLocks2.ttfDuration,"HH:MM:SS").
+            END.
+        END.
+        FOR EACH ttLocks2 WHERE NOT CAN-FIND (FIRST ttLocks WHERE
+                                ttLocks.ttfLock-ID = ttLocks2.ttfLock-ID):
+            DELETE ttLocks2.
+        END.
+                
+        FOR EACH ttLocks2:
+            CREATE BUFFER hbRecKey FOR TABLE ttLocks2.ttfTable.
             CREATE QUERY hqRecKey.
             hqRecKey:SET-BUFFERS(hbRecKey).
-            hqRecKey:QUERY-PREPARE("for each " + _file._file-name + " where recid(" + _file._file-name + 
-                                   ") = " + string(_lock._lock-recid)).
+            hqRecKey:QUERY-PREPARE("for each " + ttLocks2.ttfTable + " where recid(" + ttLocks2.ttfTable + 
+                                   ") = " + string(ttLocks2.ttfLock-RECID)).
             hqRecKey:QUERY-OPEN.
             hqRecKey:GET-FIRST.
-            FIND FIRST _index-field OF _index NO-LOCK NO-ERROR.
-            IF AVAIL _index-field THEN DO:
-                FIND FIRST _field OF _index-field NO-LOCK NO-ERROR.
-                IF AVAIL _field THEN ASSIGN
-                   hbhRecKey1 = hbRecKey:BUFFER-FIELD(_field._field-physpos).
+            FIND _lock WHERE
+                _lock._lock-ID EQ ttLocks2.ttfLock-ID
+                NO-LOCK NO-ERROR.
+            IF AVAIL _lock THEN DO:
+                FIND users NO-LOCK WHERE
+                    users.user_id EQ _lock._lock-name
+                    NO-ERROR.
+                IF AVAIL users THEN ASSIGN
+                    cName = users.user_id + " - " + users.user_name.
+                ELSE ASSIGN
+                    cName = users.user_id.
+                FIND FIRST _file WHERE
+                    _file._file-number = _lock._lock-table
+                    USE-INDEX _file-number
+                    NO-LOCK NO-ERROR.
+                FIND FIRST _index OF _file WHERE 
+                    RECID(_index) = _file._prime-index
+                    NO-LOCK NO-ERROR.
+                FIND FIRST _index-field OF _index NO-LOCK NO-ERROR.
+                IF AVAIL _index-field THEN DO:
+                    FIND FIRST _field OF _index-field NO-LOCK NO-ERROR.
+                    IF AVAIL _field THEN ASSIGN
+                       hbhRecKey1 = hbRecKey:BUFFER-FIELD(_field._field-physpos).
+                END.
+                FIND NEXT _index-field OF _index NO-LOCK NO-ERROR.
+                IF AVAIL _index-field THEN DO:
+                    FIND FIRST _field OF _index-field NO-LOCK NO-ERROR.
+                    IF AVAIL _field THEN ASSIGN
+                        hbhRecKey2 = hbRecKey:BUFFER-FIELD(_field._field-physpos).
+                END.
+                IF AVAIL (_file) THEN ASSIGN
+                    cDisp = FILL(" ",124)
+                    SUBSTRING(cDisp,1,26) = SUBSTRING(cName,1,26)
+                    SUBSTRING(cDisp,28,12) = IF AVAIL users THEN STRING(users.phone,"999-999-9999") ELSE ""
+                    SUBSTRING(cDisp,42,8) = SUBSTRING(_lock._lock-Tty,1,8)
+                    SUBSTRING(cDisp,52,20) = SUBSTRING(_file._file-name,1,20)
+                    SUBSTRING(cDisp,74,22) = (IF VALID-HANDLE(hbhRecKey1) THEN TRIM(hbhRecKey1:STRING-VALUE) ELSE "") + "|" + 
+                                             (IF VALID-HANDLE(hbhRecKey2) THEN TRIM(hbhRecKey2:STRING-VALUE) ELSE "")
+                    SUBSTRING(cDisp,98,4) = IF INDEX(_lock._lock-flags,"X") > 0 THEN "EXCL" ELSE
+                                            IF INDEX(_lock._lock-flags,"S") > 0 THEN "SHRD" ELSE
+                                            IF INDEX(_lock._lock-flags,"U") > 0 THEN "UPGR" ELSE
+                                            IF INDEX(_lock._lock-flags,"L") > 0 THEN "LIMB" ELSE
+                                            IF INDEX(_lock._lock-flags,"Q") > 0 THEN "QUED" ELSE
+                                            ""
+                    SUBSTRING(cDisp,104,12) = ttLocks2.ttfDispTime.
+                slLockList:ADD-LAST(cDisp).
+                IF VALID-HANDLE(hbhRecKey1) THEN DELETE OBJECT hbhRecKey1.
+                IF VALID-HANDLE(hbhRecKey2) THEN DELETE OBJECT hbhRecKey2.
+                DELETE OBJECT hqRecKey.
+                DELETE OBJECT hbRecKey.            
             END.
-            FIND NEXT _index-field OF _index NO-LOCK NO-ERROR.
-            IF AVAIL _index-field THEN DO:
-                FIND FIRST _field OF _index-field NO-LOCK NO-ERROR.
-                IF AVAIL _field THEN ASSIGN
-                    hbhRecKey2 = hbRecKey:BUFFER-FIELD(_field._field-physpos).
-            END.
-            IF AVAIL (_file) THEN ASSIGN
-                cDisp = FILL(" ",80)
-                SUBSTRING(cDisp,1,24) = _lock._lock-name
-                SUBSTRING(cDisp,26,LENGTH(_file._file-name)) = _file._file-name
-                SUBSTRING(cDisp,36,22) = (IF VALID-HANDLE(hbhRecKey1) THEN TRIM(hbhRecKey1:STRING-VALUE) ELSE "") + "|" + 
-                                         (IF VALID-HANDLE(hbhRecKey2) THEN TRIM(hbhRecKey2:STRING-VALUE) ELSE "")
-                SUBSTRING(cDisp,60,4) = IF INDEX(_lock._lock-flags,"X") > 0 THEN "EXCL" ELSE
-                                        IF INDEX(_lock._lock-flags,"S") > 0 THEN "SHRD" ELSE
-                                        IF INDEX(_lock._lock-flags,"U") > 0 THEN "UPGR" ELSE
-                                        IF INDEX(_lock._lock-flags,"L") > 0 THEN "LIMB" ELSE
-                                        IF INDEX(_lock._lock-flags,"Q") > 0 THEN "QUED" ELSE
-                                        "".
-            slLockList:ADD-LAST(cDisp).
-            IF VALID-HANDLE(hbhRecKey1) THEN DELETE OBJECT hbhRecKey1.
-            IF VALID-HANDLE(hbhRecKey2) THEN DELETE OBJECT hbhRecKey2.
-            DELETE OBJECT hqRecKey.
-            DELETE OBJECT hbRecKey.
         END.
         WAIT-FOR 'CHOOSE' OF bStop PAUSE INTEGER(fiInterval:SCREEN-VALUE).
     END.

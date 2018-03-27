@@ -4,10 +4,6 @@
           asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admBrowserUsing.i} /* added by script _admBrowsers.p */
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS B-table-Win 
 /*------------------------------------------------------------------------
 
@@ -29,7 +25,6 @@ CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
 
-&SCOPED-DEFINE dataGridInclude dataGrid\addon\fg\b-rcptd.i
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
@@ -360,8 +355,6 @@ END.
 {src/adm/method/query.i}
 {methods/template/browser.i}
 
-{Advantzware/WinKit/dataGridProc.i}
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -454,7 +447,7 @@ reftable.loc      EQ STRING(fg-rctd.r-no,""9999999999"") AND ( NOT reftable.dscr
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -667,10 +660,11 @@ DO:
               fg-rctd.tag:SCREEN-VALUE = ENTRY(1,char-val).
               /*  ===*/
               IF CAN-FIND(FIRST b-fg-rctd 
-                          WHERE b-fg-rctd.company = cocode 
-                            AND b-fg-rctd.tag = fg-rctd.tag:SCREEN-VALUE
-                            AND ((lv-do-what = "delete" 
-                            AND b-fg-rctd.rita-code <> "P") OR lv-do-what <> "delete" )
+                          WHERE b-fg-rctd.company   EQ cocode 
+                            AND b-fg-rctd.tag       EQ fg-rctd.tag:SCREEN-VALUE
+                            AND b-fg-rctd.rita-code NE "P"
+                            AND ((lv-do-what        EQ "delete" 
+                            AND b-fg-rctd.rita-code NE "P") OR lv-do-what <> "delete" )
                             AND RECID(b-fg-rctd) <> RECID(fg-rctd)) THEN DO:
                  MESSAGE "This Tag Number Has Already Been Used." SKIP
                          "Please Enter A Unique Tag Number."    
@@ -691,15 +685,15 @@ DO:
                     RETURN NO-APPLY.
                  END.
               END.
-
+              
               {addon/loadtags/disptgf2.i "FGItem" fg-rctd.tag:SCREEN-VALUE}
-
+              
               RUN get-def-values.
               ASSIGN
               lv-prev-job2 = fg-rctd.job-no2:SCREEN-VALUE IN BROWSE {&browse-name}
               lv-job-no = fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}
               lv-job-no2 = fg-rctd.job-no2:SCREEN-VALUE IN BROWSE {&browse-name}.
-
+  
               RETURN NO-APPLY.
            END.
        END.
@@ -743,10 +737,10 @@ ON VALUE-CHANGED OF Browser-Table IN FRAME F-Main
 DO:
   /* This ADM trigger code must be preserved in order to notify other
      objects when the browser's current row changes. */
-
+   
   {src/adm/template/brschnge.i}
   {methods/template/local/setvalue.i}
-
+  
       RUN set-query.
 END.
 
@@ -767,7 +761,7 @@ DO:
 
     DEF VAR op-error AS LOG NO-UNDO.
     IF fg-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name} EQ "" THEN DO:
-
+    
           MESSAGE "This Tag Number Cannot Be Blank." SKIP
                   "Please Enter A Tag Number." 
              VIEW-AS ALERT-BOX ERROR.
@@ -811,7 +805,7 @@ DO:
           {addon/loadtags/disptgf2.i "FGItem" fg-rctd.tag:SCREEN-VALUE}
         END.
         /*IF fg-rctd.loc:SCREEN-VALUE = "" THEN*/
-
+            
         RUN get-def-values.
         ASSIGN
         lv-prev-job2 = fg-rctd.job-no2:SCREEN-VALUE IN BROWSE {&browse-name}
@@ -832,12 +826,12 @@ DO:
            ELSE APPLY "entry" TO fg-rctd.cases.
            RETURN NO-APPLY.
         END.
-
+        
         IF NOT v-ssfgscan AND adm-new-record THEN DO:
            APPLY "row-leave" TO BROWSE {&browse-name}.
            RETURN NO-APPLY.
         END.
-
+       
     END.
 END.
 
@@ -879,7 +873,7 @@ DO:
 
       /* User only needs to tab past loc to continue to scan next tag */
       IF SSPostFG-log THEN DO:
-
+        
         APPLY 'entry' TO fg-rctd.tag IN BROWSE {&browse-name}.
         DEF VAR h AS HANDLE.
         h = fg-rctd.tag:HANDLE IN BROWSE {&browse-name}.
@@ -932,7 +926,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rctd.qty-case Browser-Table _BROWSE-COLUMN B-table-Win
 ON LEAVE OF fg-rctd.qty-case IN BROWSE Browser-Table /* Unit!Count */
 DO:
-
+  
     /*
     RUN get-matrix (NO) NO-ERROR.
    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY. */
@@ -1102,14 +1096,14 @@ DO:
           AND po-ordl.item-type EQ NO
           AND po-ordl.i-no      EQ fg-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name}
         NO-LOCK NO-ERROR.
-
+    
     IF NOT AVAIL po-ordl THEN
     FIND FIRST po-ordl
         WHERE po-ordl.company   EQ cocode
           AND po-ordl.po-no     EQ INT({&self-name}:SCREEN-VALUE IN BROWSE {&browse-name})
           AND po-ordl.item-type EQ NO
         NO-LOCK NO-ERROR.
-
+    
     IF AVAIL po-ordl THEN DO:
       ASSIGN
        fg-rctd.i-no:screen-value in browse {&browse-name} = po-ordl.i-no
@@ -1333,7 +1327,7 @@ PROCEDURE fgPostlog :
   Notes:       
 ------------------------------------------------------------------------------*/
  DEFINE INPUT PARAMETER ipLogText AS CHARACTER NO-UNDO.
-
+        
  PUT STREAM logFile UNFORMATTED STRING(TODAY,'99.99.9999') ' '
      STRING(TIME,'hh:mm:ss am') ' : ' ipLogText SKIP.
 
@@ -1374,9 +1368,9 @@ PROCEDURE get-fg-bin-cost :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-
-
-
+  
+  
+  
   DO WITH FRAME {&FRAME-NAME}:
     FIND FIRST fg-bin
         WHERE fg-bin.company EQ cocode
@@ -1569,7 +1563,7 @@ IF AVAIL fg-rctd AND fg-rctd.i-no:SCREEN-VALUE <> "" THEN DO: /* in update mode 
                        AND po-ordl.job-no2 = integer(fg-rctd.job-no2:screen-value)
                        AND po-ordl.item-type = NO
                        NO-LOCK NO-ERROR.
-
+  
   IF AVAIL po-ordl THEN DO:
     ASSIGN
      v-len = po-ordl.s-len
@@ -1610,7 +1604,7 @@ IF AVAIL fg-rctd AND fg-rctd.i-no:SCREEN-VALUE <> "" THEN DO: /* in update mode 
       OUTPUT lvCalcExtCost,
       OUTPUT lvCalcFrtCost,
       OUTPUT lvSetupPerCostUom).
-
+    
     ASSIGN
       fg-rctd.cost-uom:screen-value IN BROWSE {&browse-name} = lvCalcCostUom
       fg-rctd.std-cost:screen-value IN BROWSE {&browse-name} = STRING(lvCalcStdCost)
@@ -1642,21 +1636,21 @@ IF AVAIL fg-rctd AND fg-rctd.i-no:SCREEN-VALUE <> "" THEN DO: /* in update mode 
                   WHERE oe-ord.company EQ job-hdr.company
                     AND oe-ord.ord-no  EQ job-hdr.ord-no
                   NO-ERROR.
-
+              
               v-rec-qty = (job-hdr.qty * (1 + (IF AVAIL oe-ordl THEN oe-ordl.over-pct ELSE
                                                IF AVAIL oe-ord  THEN oe-ord.over-pct  ELSE 0 / 100))).
-
+      
           END.
           IF v-rec-qty <  int(fg-rctd.t-qty:SCREEN-VALUE) AND NOT lv-overrun-checked THEN DO:
              MESSAGE "Receipt quantity exceeds job quantity." VIEW-AS ALERT-BOX WARNING.
              lv-overrun-checked = YES.
           END.
-
+          
        END.
   END.
 
   lv-out-qty = DEC(fg-rctd.t-qty:SCREEN-VALUE IN BROWSE {&browse-name}). 
-
+  
   IF fg-rctd.cost-uom:SCREEN-VALUE IN BROWSE {&browse-name} EQ lv-cost-uom               OR
      (LOOKUP(fg-rctd.cost-uom:SCREEN-VALUE IN BROWSE {&browse-name},fg-uom-list) GT 0 AND
       LOOKUP(lv-cost-uom,fg-uom-list)                                            GT 0)   THEN
@@ -1666,7 +1660,7 @@ IF AVAIL fg-rctd AND fg-rctd.i-no:SCREEN-VALUE <> "" THEN DO: /* in update mode 
                       v-bwt, v-len, v-wid, v-dep,
                       fg-rctd.std-cost:SCREEN-VALUE IN BROWSE {&browse-name}, OUTPUT lv-out-cost).
 END.
-
+  
 IF LOOKUP(lv-cost-uom,fg-uom-list) EQ 0 THEN
   RUN rm/convquom.p("EA", lv-cost-uom,                   
                     v-bwt, v-len, v-wid, v-dep,
@@ -1704,7 +1698,7 @@ PROCEDURE get-matrix-all :
   DEF VAR ll-ea AS LOG NO-UNDO.
 
   DEF BUFFER b-fg-rctd FOR fg-rctd.
-
+  
   FOR EACH b-fg-rctd WHERE
       b-fg-rctd.company EQ cocode AND
       LOOKUP(b-fg-rctd.rita-code,"R,E") > 0
@@ -1718,7 +1712,7 @@ PROCEDURE get-matrix-all :
          NEXT.
       lv-out-qty = lv-out-qty + b-fg-rctd.t-qty.     
   END.
-
+  
   lv-out-qty = lv-out-qty + int(fg-rctd.t-qty:SCREEN-VALUE).
 
   IF fg-rctd.i-no:SCREEN-VALUE <> "" THEN DO: /* in update mode - use screen-value */
@@ -1732,7 +1726,7 @@ PROCEDURE get-matrix-all :
                        AND po-ordl.job-no2 = integer(fg-rctd.job-no2:screen-value)
                        AND po-ordl.item-type = NO
                        NO-LOCK NO-ERROR.
-
+  
        IF AVAIL po-ordl THEN DO:
           v-rec-qty = po-ordl.t-rec-qty + lv-out-qty.
           RUN sys/ref/ea-um-fg.p (po-ordl.pr-qty-uom, OUTPUT ll-ea).
@@ -1769,19 +1763,19 @@ PROCEDURE get-matrix-all :
                   WHERE oe-ord.company EQ job-hdr.company
                     AND oe-ord.ord-no  EQ job-hdr.ord-no
                   NO-ERROR.
-
+              
               v-rec-qty = (job-hdr.qty * (1 + (IF AVAIL oe-ordl THEN oe-ordl.over-pct ELSE
                                                IF AVAIL oe-ord  THEN oe-ord.over-pct  ELSE 0 / 100))).
-
+      
            END.
            IF v-rec-qty <  lv-out-qty AND NOT lv-overrun-checked THEN DO:
               MESSAGE "Receipt quantity exceeds job quantity." VIEW-AS ALERT-BOX WARNING.
               lv-overrun-checked = YES.
            END.
-
+           
          END.
        END.
-
+     
   END. /* i-no <> ""*/
 
 END PROCEDURE.
@@ -1887,7 +1881,7 @@ PROCEDURE get-values :
             AND reftable-job.code2    EQ fg-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name}
           NO-LOCK NO-ERROR.
     END.
-
+       
     IF AVAIL job-hdr AND job-hdr.std-tot-cost GT 0 THEN
       ASSIGN
        lv-cost-uom = "M"
@@ -1907,7 +1901,7 @@ PROCEDURE get-values :
             AND po-ordl.i-no      EQ fg-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name}
             AND po-ordl.item-type EQ NO
           NO-LOCK NO-ERROR.
-
+          
       IF AVAIL po-ordl THEN DO:
         ASSIGN
          lv-cost-uom = po-ordl.pr-uom.
@@ -1915,7 +1909,7 @@ PROCEDURE get-values :
 
         RUN show-freight.
       END.
-
+     
       ELSE
       IF AVAIL itemfg          AND
          DEC(lv-std-cost) EQ 0 THEN DO:
@@ -1969,11 +1963,11 @@ PROCEDURE gl-from-work :
 ------------------------------------------------------------------------------*/
  DEF INPUT PARAM ip-run AS INT NO-UNDO.
   DEF INPUT PARAM ip-trnum AS INT NO-UNDO.
-
+  
   DEF VAR credits AS DEC INIT 0 NO-UNDO.
   DEF VAR debits AS DEC INIT 0 NO-UNDO. 
 
-
+  
   FIND FIRST period
       WHERE period.company EQ cocode
         AND period.pst     LE v-post-date
@@ -1984,7 +1978,7 @@ PROCEDURE gl-from-work :
       WHERE (ip-run EQ 1 AND work-gl.job-no NE "")
          OR (ip-run EQ 2 AND work-gl.job-no EQ "")
       BREAK BY work-gl.actnum:
-
+      
     ASSIGN
      debits  = debits  + work-gl.debits
      credits = credits + work-gl.credits.
@@ -2053,7 +2047,7 @@ PROCEDURE local-assign-record :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-
+  
   DEF VAR ls-tmp-qty AS cha NO-UNDO.
   DEF VAR ls-tmp-uom AS cha NO-UNDO.
   DEF VAR ls-tmp-cst AS cha NO-UNDO.
@@ -2111,12 +2105,12 @@ PROCEDURE local-assign-record :
           FIND FIRST itemfg WHERE itemfg.company EQ po-ordl.company
             AND itemfg.i-no EQ po-ordl.i-no 
           NO-LOCK NO-ERROR.
-
+     
       IF AVAIL itemfg AND itemfg.pur-man = TRUE AND po-ordl.job-no GT "" THEN
           ASSIGN fg-rctd.job-no = po-ordl.job-no
                  fg-rctd.job-no2 = po-ordl.job-no2.
 
-
+      
   END.
   RUN fg/comprcpt.p (ROWID(fg-rctd)).
 
@@ -2178,7 +2172,7 @@ PROCEDURE local-create-record :
 ------------------------------------------------------------------------------*/
   DEF VAR lv-rno LIKE fg-rctd.r-no NO-UNDO.
   DEF BUFFER b-fg-rctd FOR fg-rctd.
-
+  
   /* Code placed here will execute PRIOR to standard behavior. */
   lv-rno = 0.
   FIND LAST b-fg-rctd USE-INDEX fg-rctd NO-LOCK NO-ERROR.
@@ -2291,7 +2285,7 @@ PROCEDURE local-enable-fields :
   DEF VAR hd-next AS WIDGET-HANDLE NO-UNDO.
   DEF VAR li AS INT NO-UNDO.
 
-
+   
   /* Code placed here will execute PRIOR to standard behavior. */
   DO WITH FRAME {&FRAME-NAME}:
     DO li = 1 TO {&BROWSE-NAME}:NUM-COLUMNS:
@@ -2346,14 +2340,14 @@ PROCEDURE local-open-query :
   RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"container-source",OUTPUT char-hdl).
   IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
      RUN get-do-what IN WIDGET-HANDLE(char-hdl) (OUTPUT lv-do-what).
-
+  
   RUN get-first-r-no.
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'open-query':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-
+  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2388,10 +2382,10 @@ PROCEDURE local-update-record :
   DEF VAR li AS INT NO-UNDO.
   DEF VAR op-error AS LOG NO-UNDO.
     DEF VAR lvrSaveRowid AS ROWID NO-UNDO.
-
+    
   /* Code placed here will execute PRIOR to standard behavior. */
   lvrSaveRowid = ROWID(fg-rctd).  
-
+  
   RUN valid-tag (fg-rctd.tag:HANDLE IN BROWSE {&browse-name}, OUTPUT op-error).
   IF op-error THEN DO: 
     IF NOT AVAIL fg-rctd THEN
@@ -2413,13 +2407,13 @@ PROCEDURE local-update-record :
   END.
 
   RUN get-matrix (NO).
-
+  
   RUN valid-lot# (fg-rctd.stack-code:HANDLE,OUTPUT op-error).
   IF op-error THEN RETURN NO-APPLY.
 
   RUN valid-po-no (1,OUTPUT op-error).
   IF op-error THEN RETURN NO-APPLY.
-
+  
   RUN valid-job-no(OUTPUT op-error).
   IF op-error THEN RETURN NO-APPLY.
 
@@ -2533,7 +2527,7 @@ PROCEDURE post-finish-goods :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-
+  
   DEF BUFFER b-fg-rcpts FOR fg-rcpts.
   DEF BUFFER b-fg-rdtl FOR fg-rdtl.
   DEF BUFFER b-fg-bin FOR fg-bin.
@@ -2665,7 +2659,7 @@ PROCEDURE post-finish-goods :
       IF LAST-OF(w-fg-rctd.tag) THEN DO:
         IF TRIM(w-fg-rctd.tag) NE "" THEN 
         /* Ensure Bin/Tags Qty is correct.  Task 01270602 */
-
+        
         FOR EACH fg-bin NO-LOCK
             WHERE fg-bin.company EQ g_company
               AND fg-bin.i-no    EQ loadtag.i-no
@@ -2783,13 +2777,13 @@ PROCEDURE post-finish-goods :
                 gl-ctrl.trnum = v-trnum.
 
          FIND CURRENT gl-ctrl NO-LOCK.
-
+         
          IF fgPostLog THEN RUN fgPostLog ('Begin Run gl-from-work 1').         
          RUN gl-from-work (1, v-trnum).
          IF fgPostLog THEN RUN fgPostLog ('End 1 - Begin Run gl-from-work 2').
          RUN gl-from-work (2, v-trnum).
          IF fgPostLog THEN RUN fgPostLog ('End Run gl-from-work 2').
-
+         
          LEAVE.
         END. /* IF AVAIL gl-ctrl */
       END. /* REPEAT */
@@ -2841,9 +2835,9 @@ PROCEDURE post-finish-goods :
     IF fgPostLog THEN RUN fgPostLog ('End').
     IF fgPostLog THEN OUTPUT STREAM logFile CLOSE.
     SESSION:SET-WAIT-STATE ("").
-
+  
   RUN local-open-query.
-
+    
   END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2883,7 +2877,7 @@ PROCEDURE scan-next :
   DEF VAR browse-order-num AS INT NO-UNDO.
 
   RUN local-open-query.
-
+  
   browse-order-num = INT(browse-order:SCREEN-VALUE IN FRAME {&FRAME-NAME}).
 
   IF lv-do-what <> "Delete" THEN
@@ -3175,11 +3169,11 @@ PROCEDURE tag-method :
 ------------------------------------------------------------------------------*/
   /*
   def output parameter op-tag# as log no-undo.
-
-
+  
+  
   {rm/tag#.i}
   op-tag# = v-tag#.
-
+  
   */
 END PROCEDURE.
 
@@ -3196,7 +3190,7 @@ PROCEDURE tag-sequence :
  DEF VAR v-tag-seq AS INT NO-UNDO.
   DEF VAR v-locode AS cha NO-UNDO.
   DEF BUFFER xfg-rctd FOR fg-rctd.
-
+  
   ASSIGN v-tag-seq = 0
          v-locode  = "".
 
@@ -3287,7 +3281,7 @@ PROCEDURE valid-delete-tag :
     op-error = YES.
     LEAVE.
  END.
-
+ 
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -3356,7 +3350,7 @@ PROCEDURE valid-job-no2 :
   DEF VAR lv-err AS LOG INIT NO NO-UNDO.
 
   DEFINE OUTPUT PARAMETER op-error AS LOG NO-UNDO.
-
+                                                         
   DO WITH FRAME {&frame-name}:
     IF TRIM(fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}) NE TRIM(lv-job-no)  OR
        DEC(fg-rctd.job-no2:SCREEN-VALUE IN BROWSE {&browse-name}) NE DEC(lv-job-no2) THEN
@@ -3376,7 +3370,7 @@ PROCEDURE valid-job-no2 :
           NO-LOCK:
         LEAVE.
       END.
-
+          
       IF NOT AVAIL job-hdr THEN
       FOR EACH job
           WHERE job.company EQ cocode
@@ -3520,9 +3514,9 @@ PROCEDURE valid-tag :
 ------------------------------------------------------------------------------*/
   DEF INPUT PARAM ip-focus AS WIDGET-HANDLE NO-UNDO.
   DEF OUTPUT PARAM op-error AS LOG NO-UNDO.
-
+ 
   DEF VAR lv-msg AS CHAR NO-UNDO.
-
+  
   DEF VAR llValid AS LOG NO-UNDO.
   DEF VAR lcJobNo AS CHAR NO-UNDO.
   DEF VAR lcJobNo2 AS CHAR NO-UNDO.
@@ -3536,20 +3530,21 @@ PROCEDURE valid-tag :
        IF ip-focus:SCREEN-VALUE EQ "" THEN 
          lv-msg = "Tag# number cannot be blank, please re-enter".
        ELSE DO:
-
+       
          IF lv-do-what NE "Delete" AND NOT ll-set-parts THEN
          DO:
-            IF (CAN-FIND(FIRST b-fg-rctd WHERE
-                b-fg-rctd.company     EQ cocode AND
-                b-fg-rctd.tag         EQ ip-focus:SCREEN-VALUE AND
-                RECID(b-fg-rctd)      NE RECID(fg-rctd)) OR
+            IF (CAN-FIND(FIRST b-fg-rctd 
+                           WHERE b-fg-rctd.company     EQ cocode 
+                             AND b-fg-rctd.tag         EQ ip-focus:SCREEN-VALUE 
+                             AND b-fg-rctd.rita-code   NE "P"
+                             AND RECID(b-fg-rctd)      NE RECID(fg-rctd)) OR
              CAN-FIND(FIRST b-fg-rdtlh
                       WHERE b-fg-rdtlh.company   EQ cocode
                         AND b-fg-rdtlh.tag       EQ ip-focus:SCREEN-VALUE
                         AND b-fg-rdtlh.qty       GT 0
                         AND b-fg-rdtlh.rita-code NE "S")) THEN
              lv-msg = "Tag# has already been used, please re-enter".
-
+        
          END. /*lv-do-what NE "Delete"*/
          ELSE IF NOT ll-set-parts THEN
          DO:
@@ -3562,7 +3557,7 @@ PROCEDURE valid-tag :
          END. /*lv-do-what eq "Delete"*/
 
        END. /* If non-blank tag # */
-
+      
 
 
       /* check for assembled and unassembled set parts on-hand or pending receipt*/
@@ -3626,7 +3621,7 @@ PROCEDURE valid-tag :
       END.
     END.
   END.
-
+  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -3721,7 +3716,7 @@ PROCEDURE validate-record :
                  INT(fg-rctd.qty-case:SCREEN-VALUE IN BROWSE {&browse-name})) +
                 INT(fg-rctd.partial:SCREEN-VALUE IN BROWSE {&browse-name}),"->>>,>>>,>>9.99")
      li-max-qty = DEC(fg-rctd.t-qty:SCREEN-VALUE IN BROWSE {&browse-name}).
-
+            
     RUN fg/checksetb.p (ROWID(itemfg),
                        ROWID(fg-rctd),
                        fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name},
@@ -3738,7 +3733,7 @@ PROCEDURE validate-record :
                          INPUT DEC(fg-rctd.t-qty:SCREEN-VALUE IN BROWSE {&browse-name}),
                          INPUT fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name},
                          OUTPUT ll).      
-
+       
       IF ll THEN  
         ASSIGN
          fg-rctd.t-qty:SCREEN-VALUE IN BROWSE {&browse-name}  = STRING(li-max-qty)
@@ -3756,7 +3751,7 @@ PROCEDURE validate-record :
       END.
     END.
   END.
-
+  
   IF NOT CAN-FIND(FIRST loc WHERE
      loc.company = cocode AND
      loc.loc = fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}) THEN DO:
@@ -3769,7 +3764,7 @@ PROCEDURE validate-record :
                 WHERE itemfg.company EQ cocode
                   AND itemfg.i-no    EQ fg-rctd.i-no:SCREEN-VALUE
                   AND itemfg.prod-uom NE "") THEN DO:
-
+    
        MESSAGE fg-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name} + " has no cost UOM. Please correct the item master and try again."
            VIEW-AS ALERT-BOX ERROR.
        APPLY "entry" TO fg-rctd.i-no.
@@ -3789,7 +3784,7 @@ PROCEDURE validate-record :
   /* ===== tag validation =====*/
   IF fg-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name} <> "" THEN
   DO:
-
+  
     IF CAN-FIND(FIRST b-fg-rctd 
                 WHERE b-fg-rctd.company = cocode 
                   AND b-fg-rctd.tag = fg-rctd.tag:SCREEN-VALUE
@@ -3825,7 +3820,7 @@ PROCEDURE validate-record :
         AND bf-loadtag.tag-no EQ fg-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name}
         NO-LOCK NO-ERROR.
     IF AVAIL bf-loadtag AND bf-loadtag.i-no NE fg-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name} THEN DO:
-
+    
        MESSAGE "Item number does not match loadtag item number" SKIP
             "Please rescan and validate Item# field."
            VIEW-AS ALERT-BOX ERROR.
@@ -3838,7 +3833,7 @@ PROCEDURE validate-record :
    RUN get-matrix (NO).
 
    RUN get-matrix-all (FALSE).
-
+   
    IF INT(fg-rctd.cases-unit:SCREEN-VALUE) < 1 THEN DO:  /* task# 06200520*/
       MESSAGE "Unit/Pallet must be greater than or equal to 1." VIEW-AS ALERT-BOX.
       APPLY "entry" TO fg-rctd.cases-unit .

@@ -6,7 +6,7 @@
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admViewersUsing.i} /* added by script c:\tmp\p42959__V16toV17.ped */
+{Advantzware\WinKit\admViewersUsing.i} /* added by script _admViewers.p */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
@@ -91,7 +91,7 @@ style.royalty style.dim-tk style.dim-pan5 style.dim-fit style.material[1] ~
 style.material[2] style.material[3] style.material[4] style.material[5] ~
 style.material[6] style.material[7] style.qty-per-set style.dim-df ~
 style.m-code[1] style.m-code[2] style.m-code[3] style.m-code[4] ~
-style.m-code[5] style.m-code[6] style.m-code[7] style.defaultPackCode 
+style.m-code[5] style.m-code[6] style.m-code[7] style.spare-char-5 
 &Scoped-define ENABLED-TABLES style
 &Scoped-define FIRST-ENABLED-TABLE style
 &Scoped-Define ENABLED-OBJECTS RECT-19 RECT-7 RECT-8 RECT-9 
@@ -103,7 +103,7 @@ style.qty-per-set style.dim-df style.m-code[1] style.m-code[2] ~
 style.m-code[3] style.m-code[4] style.m-code[5] style.m-code[6] ~
 style.m-code[7] style.m-dscr[1] style.m-dscr[2] style.m-dscr[3] ~
 style.m-dscr[4] style.m-dscr[5] style.m-dscr[6] style.m-dscr[7] ~
-style.defaultPackCode 
+style.spare-char-5 
 &Scoped-define DISPLAYED-TABLES style flute
 &Scoped-define FIRST-DISPLAYED-TABLE style
 &Scoped-define SECOND-DISPLAYED-TABLE flute
@@ -199,7 +199,7 @@ DEFINE RECTANGLE RECT-7
 
 DEFINE RECTANGLE RECT-8
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 40 BY 8.81.
+     SIZE 40 BY 9.29.
 
 DEFINE RECTANGLE RECT-9
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
@@ -293,7 +293,7 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 14 BY 1
           BGCOLOR 15 FONT 4
-     style.dim-df AT ROW 12.24 COL 62 COLON-ALIGNED HELP
+     style.dim-df AT ROW 12.43 COL 62 COLON-ALIGNED HELP
           "" WIDGET-ID 4
           LABEL "# Slots" FORMAT ">9"
           VIEW-AS FILL-IN 
@@ -369,9 +369,11 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 30 BY 1
           BGCOLOR 15 FONT 4
-     style.defaultPackCode AT ROW 11.95 COL 117 COLON-ALIGNED WIDGET-ID 6
+     style.spare-char-5 AT ROW 11.24 COL 62 COLON-ALIGNED WIDGET-ID 6
+          LABEL "Packing Code"
           VIEW-AS FILL-IN 
-          SIZE 11.6 BY 1
+          SIZE 14 BY 1
+          BGCOLOR 15 
      "DEFAULT MATERIAL CODES" VIEW-AS TEXT
           SIZE 35 BY .62 AT ROW 2.91 COL 47
           FGCOLOR 9 
@@ -515,6 +517,8 @@ ASSIGN
 /* SETTINGS FOR FILL-IN style.qty-per-set IN FRAME F-Main
    EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN style.royalty IN FRAME F-Main
+   EXP-LABEL                                                            */
+/* SETTINGS FOR FILL-IN style.spare-char-5 IN FRAME F-Main
    EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN style.style IN FRAME F-Main
    NO-ENABLE 1                                                          */
@@ -699,13 +703,13 @@ DO:
 
                 END CASE.
         END.  /* m-code */
-        WHEN "defaultPackCode" THEN 
+        WHEN "spare-char-5" THEN /*Pack Code*/
            DO:
-               RUN windows/l-item.w (style.company, "", "C", FOCUS:SCREEN-VALUE, OUTPUT char-val).
+               RUN windows/l-item.w (style.company, "2", "C", FOCUS:SCREEN-VALUE, OUTPUT char-val).
                IF char-val NE "" AND FOCUS:SCREEN-VALUE NE ENTRY(1,char-val) THEN 
                DO:
                    FOCUS:SCREEN-VALUE = ENTRY(1,char-val).
-                   APPLY "value-changed" TO style.defaultPackCode.
+                   APPLY "value-changed" TO style.spare-char-5.
                END.
            END.        
    END CASE.

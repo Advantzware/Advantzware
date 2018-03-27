@@ -484,8 +484,8 @@ PROCEDURE Read_Menus :
                             sys-ctrl.name = "cemenu"
                             no-lock no-error.
   if avail sys-ctrl then do:
-     if sys-ctrl.char-fld = "Corrware" then ls-menu-lst = "menu.cor".
-     if sys-ctrl.char-fld = "Foldware" then ls-menu-lst = "menu.fol".
+     if sys-ctrl.char-fld = "Corrware" then ls-menu-lst = "addon\menu.cor".
+     if sys-ctrl.char-fld = "Foldware" then ls-menu-lst = "addon\menu.fol".
   end.
 
   IF SEARCH(".\usermenu\" + USERID(ldbname(1)) + "\" + ls-menu-lst) <> ? THEN

@@ -6,7 +6,7 @@
 /*------------------------------------------------------------------------
 
   File: est/d-artioscad.w
-
+  
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -63,7 +63,7 @@ def temp-table tt-CompStyle NO-UNDO
     field compQty as int extent 30
     field compNumUp as int extent 30
     FIELD compPurMan AS LOG EXTENT 10.
-
+                                 
 {sys/inc/var.i shared}
 {custom/gcompany.i}  
 gcompany = cocode.
@@ -539,7 +539,6 @@ DEFINE FRAME D-Dialog
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB D-Dialog 
 /* ************************* Included-Libraries *********************** */
 
-{Advantzware/WinKit/embedwindow.i}
 {src/adm/method/containr.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -572,7 +571,7 @@ ASSIGN
 */  /* DIALOG-BOX D-Dialog */
 &ANALYZE-RESUME
 
-
+ 
 
 
 /* **********************  Create OCX Containers  ********************** */
@@ -621,20 +620,20 @@ END.
 ON CHOOSE OF btnCAD#Lookup IN FRAME D-Dialog
 DO:
     def var cCadFile as cha no-undo.
-
+    
     def var okClicked as log no-undo.
-
+    
     SYSTEM-DIALOG GET-FILE cCadFile 
                 TITLE 'Select Artios CAD File to insert'
                 FILTERS 'ARD Files    (*.ard)' '*.ard'
                 INITIAL-DIR artioscad-chr
                 MUST-EXIST USE-FILENAME UPDATE okClicked.
-
+  
 
   IF okClicked THEN
      ASSIGN cadNumber:screen-value = cCadFile.
-
-
+     
+     
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -647,12 +646,12 @@ ON CHOOSE OF btnCADPathLookup IN FRAME D-Dialog
 DO:
    def var cCadFilepath as cha no-undo.
    def var okClicked as log no-undo.
-
+    
    SYSTEM-DIALOG GET-dir cCadFilePath 
        TITLE 'Select Artios CAD File Path to insert'
        INITIAL-DIR artioscad-chr
        UPDATE okClicked.
-
+   
    IF okClicked THEN
       cadpath:screen-value = cCadFilePath.
 END.
@@ -680,7 +679,7 @@ DO:
   def var cArtiosCadFile as cha no-undo.
   def var iRevision as int init 65 no-undo.
   def var iRevExt as int no-undo.
-
+  
   assign iFormNumber = 0
          iBlankNumber = 0
          cadNumber cStyle iNumOfParts cCategory rs-man-pur iSetQty
@@ -692,41 +691,41 @@ DO:
   if substring(artioscad-chr,length(artioscad-chr),1) <> "/" and
      substring(artioscad-chr,length(artioscad-chr),1) <> "\" then
      artioscad-chr = artioscad-chr + "\".
-
+  
   if index(cadNumber,"\") > 0 or index(cadNumber,"/") > 0 or
      index(cadNumber,"ARD") > 0 then cArtiosCadFile = cadNumber.
   else    cArtiosCadFile = artioscad-chr + cadnumber + ".ard".
-
+ 
   session:set-wait-state("general").
-
+  
   run AssignCADFormInfo.
-
+  
   /* run getSubDirList.   run from leave of cadnumber */
-
+  
   if search(cArtiosCadFile ) <> ? then do:  /* import single CAD file */
      run create-ttCad (cArtiosCadFile).
   end.
   else do iExt = 1 to iProjectCount: 
     /* import Project CAD file ###### + %%(2 digit extension) +  @ (1 character revision) */
-
+    
      for each tt-SubDir :    
        if search(tt-SubDir.DirName + cadNumber + string(iExt,"99") + ".ARD" ) <> ? then do:       
-
+          
           run create-ttCad (tt-SubDir.DirName + cadNumber + string(iExt,"99") + ".ARD" ).               
        end.
         /* check revision file */
        do iRevExt = 65 to 90:
-
+     
           if search(tt-SubDir.DirName + cadNumber + string(iExt,"99") + chr(iRevExt) + ".ARD" ) <> ? 
              then  run create-ttCad (tt-SubDir.DirName + cadNumber + string(iExt,"99") + chr(iRevExt) + ".ARD" ).               
           else if search(tt-SubDir.DirName + cadNumber + string(iExt,"99") + chr(iRevExt + 32) + ".ARD" ) <> ? 
              then  run create-ttCad (tt-SubDir.DirName + cadNumber + string(iExt,"99") + chr(iRevExt + 32) + ".ARD" ).  
        end.
      end.  /* each tt-SubDir */
-
+                 
   end. 
   session:set-wait-state("").
-
+   
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -738,14 +737,14 @@ END.
 ON LEAVE OF cadNumber IN FRAME D-Dialog /* CAD File/Project # */
 DO:
     def var icnt as int no-undo.
-
+    
     ASSIGN cadNumber cadPath .
     run getNumofCADForm (output iNumofCADForm).
 
     /* if iNumofCADForm > 1 then do icnt = 2 to iNumofCadForm: */
 /*        cb-CADSeq:add-last(string(icnt)). */
 /*     end. */
-
+    
     vNumOfCADForm:screen-value  = "Total Number of CAD File: " + string(iNumofCadForm).  
 END.
 
@@ -758,14 +757,14 @@ END.
 ON LEAVE OF cadPath IN FRAME D-Dialog /* CAD File Path */
 DO:
     def var icnt as int no-undo.
-
+    
     ASSIGN cadNumber .
     run getNumofCADForm (output iNumofCADForm).
 
     /* if iNumofCADForm > 1 then do icnt = 2 to iNumofCadForm: */
 /*        cb-CADSeq:add-last(string(icnt)). */
 /*     end. */
-
+    
     vNumOfCADForm:screen-value  = "Total Number of CAD File: " + string(iNumofCadForm).  
 END.
 
@@ -777,7 +776,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cb-CadSeq D-Dialog
 ON VALUE-CHANGED OF cb-CadSeq IN FRAME D-Dialog /* CAD Form# */
 DO:
-
+     
      run displayCadFormInfo.
 END.
 
@@ -1184,7 +1183,7 @@ DO:
 /*                 cStyleComp-4:screen-value in frame {&frame-name} = cStyle:screen-value */
 /*                 cStyleComp-5:screen-value in frame {&frame-name} = cStyle:screen-value */
 /*                   . */
-
+                 
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1323,7 +1322,7 @@ ON LEAVE OF iNumOfParts IN FRAME D-Dialog /* # of Components */
 DO:
      def var dTmpValue as dec no-undo.
      def var dTmpQty as int no-undo.
-
+     
      assign dRatio-1 = 100
             dRatio-2 = 0
             dRatio-3 = 0
@@ -1375,19 +1374,19 @@ DO:
             rs-man-pur-8 = "M"
             rs-man-pur-9 = "M"
             rs-man-pur-10 = "M".
-
+                
      assign iNumOfParts iSetQty.
      if iNumOfParts = 1 then
         assign dRatio-1 = 100
                iCompQty-1 = 1
                cStyleComp-1 = cStyle
                rs-man-pur-1 = rs-man-pur.
-
+     
      if iNumofParts > 1 then do:
         ASSIGN
            dTmpValue = 100 / iNumOfParts
            dTmpQty = iSetQty / iNumOfParts.
-
+        
         case iNumOfParts:
            when 1 then assign dRatio-1 = 100
                               cStyleComp-1 = cStyle
@@ -1420,7 +1419,7 @@ DO:
                               rs-man-pur-1 = rs-man-pur
                               rs-man-pur-2 = rs-man-pur
                               rs-man-pur-3 = rs-man-pur.
-
+                                        
            when 4 then assign dRatio-1 = dTmpValue
                               dRatio-2 = dTmpValue
                               dRatio-3 = dTmpValue                             
@@ -1531,7 +1530,7 @@ DO:
                               rs-man-pur-5 = rs-man-pur
                               rs-man-pur-6 = rs-man-pur
                               rs-man-pur-7 = rs-man-pur.
-
+                                        
            when 8 then assign dRatio-1 = dTmpValue
                               dRatio-2 = dTmpValue
                               dRatio-3 = dTmpValue                             
@@ -1572,7 +1571,7 @@ DO:
                               rs-man-pur-6 = rs-man-pur
                               rs-man-pur-7 = rs-man-pur
                               rs-man-pur-8 = rs-man-pur.
-
+                                        
             when 9 then assign dRatio-1 = dTmpValue
                                dRatio-2 = dTmpValue
                                dRatio-3 = dTmpValue                             
@@ -1670,18 +1669,18 @@ DO:
                                 rs-man-pur-9 = rs-man-pur
                                 rs-man-pur-10 = rs-man-pur.
         end.
-
-
+           
+           
        /*  display dRatio-1 dRatio-2 dRatio-3 dRatio-4 dRatio-5 dRatio-6 dRatio-7 dRatio-8 dRatio-9 dRatio-10 */
 /*                    cStyleComp-1 cStyleComp-2 cStyleComp-3 cStyleComp-4 cStyleComp-5 */
 /*                    cStyleComp-6 cStyleComp-7 cStyleComp-8 cStyleComp-9 cStyleComp-10 */
 /*                    iCompQty-1 iCompQty-2 iCompQty-3 iCompQty-4 iCompQty-5 */
 /*                    iCompQty-6 iCompQty-7 iCompQty-8 iCompQty-9 iCompQty-10 */
 /*                 with frame {&frame-name}. */
-
+                
 /*         run createObjects.       */  
      end.
-
+     
       display dRatio-1 dRatio-2 dRatio-3 dRatio-4 dRatio-5 dRatio-6 dRatio-7 dRatio-8 dRatio-9 dRatio-10
                    cStyleComp-1 cStyleComp-2 cStyleComp-3 cStyleComp-4 cStyleComp-5
                    cStyleComp-6 cStyleComp-7 cStyleComp-8 cStyleComp-9 cStyleComp-10
@@ -1718,7 +1717,7 @@ ON LEAVE OF iSetQty IN FRAME D-Dialog /* Estimate Qty */
 DO:
       /* assign iCompQty-1:screen-value in frame {&frame-name} = iSetQty:screen-value */
 /*                  . */
-
+                 
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1802,7 +1801,7 @@ PROCEDURE assignCADFormInfo :
        create bf-CompStyle.
        assign bf-CompStyle.form-num = int(substring(cb-CADSeq,1,2)).
     end.
-
+   
     assign bf-CompStyle.Style = cStyle:screen-value in frame {&frame-name}
            bf-CompStyle.pur-man = IF rs-man-pur:SCREEN-VALUE EQ "M" THEN NO ELSE YES
            bf-CompStyle.NumOfComponents = int(iNumofParts:screen-value)
@@ -1816,7 +1815,7 @@ PROCEDURE assignCADFormInfo :
            bf-CompStyle.compRatio[8] = dec(dRatio-8:screen-value)
            bf-CompStyle.compRatio[9] = dec(dRatio-9:screen-value)
            bf-CompStyle.compRatio[10] = dec(dRatio-10:screen-value)
-
+           
            bf-CompStyle.compStyle[1] = cStyleComp-1:screen-value
            bf-CompStyle.compStyle[2] = cStyleComp-2:screen-value
            bf-CompStyle.compStyle[3] = cStyleComp-3:screen-value
@@ -1827,7 +1826,7 @@ PROCEDURE assignCADFormInfo :
            bf-CompStyle.compStyle[8] = cStyleComp-8:screen-value
            bf-CompStyle.compStyle[9] = cStyleComp-9:screen-value
            bf-CompStyle.compStyle[10] = cStyleComp-10:screen-value
-
+           
            bf-CompStyle.compQty[1] = int(iCompQty-1:screen-value)
            bf-CompStyle.compQty[2] = int(iCompQty-2:screen-value)
            bf-CompStyle.compQty[3] = int(iCompQty-3:screen-value)
@@ -1838,7 +1837,7 @@ PROCEDURE assignCADFormInfo :
            bf-CompStyle.compQty[8] = int(iCompQty-8:screen-value)
            bf-CompStyle.compQty[9] = int(iCompQty-9:screen-value)
            bf-CompStyle.compQty[10] = int(iCompQty-10:screen-value)
-
+           
            bf-CompStyle.compNumUp[1] = int(iNumUp-1:screen-value)
            bf-CompStyle.compNumUp[2] = int(iNumUp-2:screen-value)
            bf-CompStyle.compNumUp[3] = int(iNumUp-3:screen-value)
@@ -1974,9 +1973,9 @@ ASSIGN
                                  + " " +
                                  chCtrlFrame:CadX:ReturnTextCode4Param("DBGET(DSGNR,LNAME$)")
                           .
-
+           
        if avail tt-compstyle and tt-CompStyle.NumOfComponents > 1 then do while iSeq < tt-CompStyle.NumOfComponents:
-
+  
           create tt-artios.
           assign iSeq = iSeq + 1
                  iBlankNumber = iBlankNumber + 1
@@ -2019,7 +2018,7 @@ ASSIGN
        end.
 
        resultx = chCtrlFrame:CadX:CloseDesign().
-
+           
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2051,7 +2050,7 @@ do tmpCount = 1 to iNumOfParts:
                  HIDDEN = NO
                  sensitive = yes.
      iRow = iRow + 2.            
-
+     
      .
 end.
 
@@ -2086,14 +2085,14 @@ PROCEDURE displayCADFormInfo :
   Notes:       
 ------------------------------------------------------------------------------*/
   def buffer bf-compStyle for tt-CompStyle.
-
-
+  
+ 
   find first bf-CompStyle where bf-CompStyle.form-num = int(substring(cb-CADSeq,1,2)) no-error.
   if not avail bf-CompStyle then do:
      create bf-CompStyle.
      assign bf-CompStyle.form-num = int(substring(cb-CADSeq,1,2)).
   end.
-
+  
  assign bf-CompStyle.Style = cStyle:screen-value in frame {&frame-name}
         bf-CompStyle.pur-man = IF rs-man-pur:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ "M" THEN NO ELSE YES
         bf-CompStyle.NumOfComponents = int(iNumofParts:screen-value)
@@ -2107,7 +2106,7 @@ PROCEDURE displayCADFormInfo :
         bf-CompStyle.compRatio[8] = dec(dRatio-8:screen-value)
         bf-CompStyle.compRatio[9] = dec(dRatio-9:screen-value)
         bf-CompStyle.compRatio[10] = dec(dRatio-10:screen-value)
-
+        
         bf-CompStyle.compStyle[1] = cStyleComp-1:screen-value
         bf-CompStyle.compStyle[2] = cStyleComp-2:screen-value
         bf-CompStyle.compStyle[3] = cStyleComp-3:screen-value
@@ -2118,7 +2117,7 @@ PROCEDURE displayCADFormInfo :
         bf-CompStyle.compStyle[8] = cStyleComp-8:screen-value
         bf-CompStyle.compStyle[9] = cStyleComp-9:screen-value
         bf-CompStyle.compStyle[10] = cStyleComp-10:screen-value
-
+        
         bf-CompStyle.compQty[1] = int(iCompQty-1:screen-value)
         bf-CompStyle.compQty[2] = int(iCompQty-2:screen-value)
         bf-CompStyle.compQty[3] = int(iCompQty-3:screen-value)
@@ -2129,7 +2128,7 @@ PROCEDURE displayCADFormInfo :
         bf-CompStyle.compQty[8] = int(iCompQty-8:screen-value)
         bf-CompStyle.compQty[9] = int(iCompQty-9:screen-value)
         bf-CompStyle.compQty[10] = int(iCompQty-10:screen-value)
-
+        
         bf-CompStyle.compNumUp[1] = int(iNumUp-1:screen-value)
         bf-CompStyle.compNumUp[2] = int(iNumUp-2:screen-value)
         bf-CompStyle.compNumUp[3] = int(iNumUp-3:screen-value)
@@ -2151,8 +2150,8 @@ PROCEDURE displayCADFormInfo :
         bf-CompStyle.compPurMan[8] = IF rs-man-pur-8:SCREEN-VALUE EQ "M" THEN NO ELSE YES.
         bf-CompStyle.compPurMan[9] = IF rs-man-pur-9:SCREEN-VALUE EQ "M" THEN NO ELSE YES.
         bf-CompStyle.compPurMan[10] = IF rs-man-pur-10:SCREEN-VALUE EQ "M" THEN NO ELSE YES.
-
-
+            
+            
       find first tt-CompStyle where tt-CompStyle.form-num = int(substring(cb-CADSeq:screen-value,1,2)) no-error.
       if avail tt-CompStyle then
       assign cStyle:screen-value = tt-CompStyle.Style
@@ -2197,7 +2196,7 @@ PROCEDURE displayCADFormInfo :
                iNumUp-8:screen-value = string(tt-CompStyle.compNumUp[8])
                iNumUp-9:screen-value = string(tt-CompStyle.compNumUp[9])
                iNumUp-10:screen-value = string(tt-CompStyle.compNumUp[10])
-
+                
                rs-man-pur:SCREEN-VALUE   = IF tt-CompStyle.pur-man EQ NO THEN "M" ELSE "P"
                rs-man-pur-1:screen-value = IF tt-CompStyle.compPurMan[1] EQ NO THEN "M" ELSE "P"
                rs-man-pur-2:screen-value = IF tt-CompStyle.compPurMan[2] EQ NO THEN "M" ELSE "P"
@@ -2209,7 +2208,7 @@ PROCEDURE displayCADFormInfo :
                rs-man-pur-8:screen-value = IF tt-CompStyle.compPurMan[8] EQ NO THEN "M" ELSE "P"
                rs-man-pur-9:screen-value = IF tt-CompStyle.compPurMan[9] EQ NO THEN "M" ELSE "P"
                rs-man-pur-10:screen-value = IF tt-CompStyle.compPurMan[10] EQ NO THEN "M" ELSE "P".
-
+               
         else assign
                cStyle:screen-value = ""
                rs-man-pur:SCREEN-VALUE = "M"
@@ -2264,7 +2263,7 @@ PROCEDURE displayCADFormInfo :
                rs-man-pur-8:SCREEN-VALUE = "M"
                rs-man-pur-9:SCREEN-VALUE = "M"
                rs-man-pur-10:SCREEN-VALUE = "M".
-
+            
       assign cb-CADSeq.      
 
 END PROCEDURE.
@@ -2493,7 +2492,7 @@ PROCEDURE getCADCAM2 :
 /*     END. */
 /*     INPUT CLOSE. */
 /*   END. */
-
+  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2507,12 +2506,12 @@ PROCEDURE getNumofCADForm :
   Notes:       
 ------------------------------------------------------------------------------*/
   def output param opNumofCADForm as int no-undo.
-
+    
   def var cTMPCadFIle as cha no-undo.
   def var iExt as int no-undo.
   def var iRevExt as int no-undo.
   def var cCAD# as cha no-undo.
-
+  
   empty temp-table tt-subdir.
 
   /* if artioscad-chr = "" then artioscad-chr = "c:\artios\asi\". */
@@ -2522,8 +2521,8 @@ PROCEDURE getNumofCADForm :
 
   if cadPath = "" then cadPath = "c:\artios\asi\".
 
-
-
+  
+  
   if substring(cadPath,length(cadPath),1) <> "/" and
      substring(cadPath,length(cadPath),1) <> "\" then
      cadPath = cadPath + "\".
@@ -2532,7 +2531,7 @@ PROCEDURE getNumofCADForm :
   assign tt-SubDir.DirName = cadPath.
 
   run getSubDirList (cadPAth).
-
+    
   if index(CadNumber,".ard") = 0 and
      search(cadNumber + ".ard") = ? then do:
      /*  if artioscad-chr = "" then artioscad-chr = "c:\artios\asi\". */
@@ -2541,7 +2540,7 @@ PROCEDURE getNumofCADForm :
 
      for each tt-SubDir:  
        cTMPCadFile = tt-SubDir.DirName + CadNumber.
-
+    
        do iExt = 1 to iProjectCount:
           if search(cTmpCadFile + string(iExt,"99") + ".ARD" ) <> ? then do:
              assign opNumofCADForm = opNumofCADForm + 1
@@ -2550,7 +2549,7 @@ PROCEDURE getNumofCADForm :
           end.
           /* check revision file existing */
          do iRevExt = 65 to 90:  /* A - Z */
-
+     
            if search(cTMPCadFile + string(iExt,"99") + chr(iRevExt) + ".ARD" ) <> ? or
               search(cTMPCadFile + string(iExt,"99") + chr(iRevExt + 32) + ".ARD" ) <> ? 
             then do:
@@ -2594,7 +2593,7 @@ PROCEDURE getSubDirList :
 /* END.                                                  */
 
    INPUT FROM OS-DIR (ipcCurrentDirectory).
-
+    
    REPEAT:
         IMPORT cFileName.
         IF cFileName = '.' OR cFileName = '..' OR cFileName = ? THEN NEXT.
@@ -2698,9 +2697,9 @@ PROCEDURE valid-category :
   Notes:       
 ------------------------------------------------------------------------------*/
    DEFINE OUTPUT PARAMETER op-error AS LOG NO-UNDO.
-
+   
    DO WITH FRAME {&FRAME-NAME}:
-
+   
       IF NOT CAN-FIND(FIRST fgcat WHERE
          fgcat.company EQ cocode AND
          fgcat.procat  EQ cCategory:SCREEN-VALUE) OR
@@ -2725,7 +2724,7 @@ PROCEDURE valid-style :
    DEFINE INPUT PARAMETER ip-handle AS WIDGET-HANDLE.
    DEFINE INPUT PARAMETER ip-check-blank AS LOG NO-UNDO.
    DEFINE OUTPUT parameter op-error AS LOG NO-UNDO.
-
+   
    DO WITH FRAME {&FRAME-NAME}:
       IF (ip-handle:SCREEN-VALUE NE "" AND NOT CAN-FIND(FIRST style
                       WHERE style.company  EQ gcompany

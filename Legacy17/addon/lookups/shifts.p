@@ -1,4 +1,4 @@
-/* shifts.p - Generated 04/02/2009 -  2:47 pm by nosweat
+/* shifts.p - Generated 10/17/2017 -  7:54 pm by NoSweat
 "shifts. " ~
 "ASI " ~
 "shifts " ~
@@ -32,7 +32,7 @@
 &Scoped-define def-include ~{custom/gcompany.i} ~{sys/inc/var.i new shared}
 &Scoped-define end-include 
 &Scoped-define ui-prgmname shifts.
-&Scoped-define window-size 14.7
+&Scoped-define window-size 15
 &Scoped-define window-col 54.5
 &Scoped-define rect-1-row 11.15
 &Scoped-define by-row 11.42
@@ -41,7 +41,7 @@
 &Scoped-define btn-row 12.7
 &Scoped-define btn-ok-col 34
 &Scoped-define btn-cancel-col 27
-&Scoped-define auto-find-row 14.6
+&Scoped-define auto-find-row 14.65
 
 &Global-define FORMAT-1 X
 &Scoped-define FLDNAME1 shifts.shift

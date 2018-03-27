@@ -198,7 +198,6 @@ DEFINE FRAME D-Dialog
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB D-Dialog 
 /* ************************* Included-Libraries *********************** */
 
-{Advantzware/WinKit/embedwindow.i}
 {src/adm/method/containr.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -241,7 +240,7 @@ OPEN QUERY {&SELF-NAME}
 */  /* DIALOG-BOX D-Dialog */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -402,7 +401,7 @@ PROCEDURE build-table :
   DEF VAR i AS INT NO-UNDO.
   DEF VAR choice AS LOG NO-UNDO.
 
-
+  
   FOR EACH tt-inv:
     DELETE tt-inv.
   END.

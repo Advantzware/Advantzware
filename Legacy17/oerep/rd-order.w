@@ -465,6 +465,22 @@ DEF VAR char-val AS CHAR NO-UNDO.
            end.
            return no-apply.
        end.  /* cust-no*/  
+        when "begin_item" then do:
+           ls-cur-val = lw-focus:screen-value.
+           run windows/l-itemfg.w (cocode, "", ls-cur-val, output char-val).
+           if char-val <> "" then do:
+              lw-focus:screen-value =  ENTRY(1,char-val).
+           end.
+           return no-apply.
+       end.  /* cust-no*/
+       when "end_item" then do:
+           ls-cur-val = lw-focus:screen-value.
+           run windows/l-itemfg.w (cocode, "", ls-cur-val, output char-val).
+           if char-val <> "" then do:
+              lw-focus:screen-value =  ENTRY(1,char-val).
+           end.
+           return no-apply.
+       end.  /* cust-no*/
    END CASE.
 END.
 
@@ -1356,7 +1372,7 @@ IF tb_excel THEN
            WHERE oe-rel.company EQ g_company 
              AND ROWID(oe-rel) EQ  tt-report.row-id NO-ERROR.
        
-       IF INDEX("A,B,P",v-stat) > 0 AND AVAIL oe-rel THEN
+       IF AVAIL oe-rel THEN
            ASSIGN
            v-act-rel-qty = oe-rel.qty
            dSchRelQty    = oe-rel.tot-qty .

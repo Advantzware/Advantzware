@@ -6,7 +6,7 @@
 &SCOPED-DEFINE Fleetwood ASI/Fleetwood
 /* add new fields to procedures loadUserFieldLabelWidth & setUseFields below */
 /* add userField to rptFields.dat, see config.w definitions section to enable field */
-&SCOPED-DEFINE nextUserField 93
+&SCOPED-DEFINE nextUserField 98
 
 /* when expanding userFields mod the following:
    1. scopDir.i (userExtent)
@@ -135,28 +135,7 @@ FUNCTION getItemName RETURNS CHARACTER (ipCompany AS CHARACTER,ipJobNo AS CHARAC
 
   RETURN itemName.
 END FUNCTION.
-/*
-FUNCTION getItemNo RETURNS CHARACTER (ipCompany AS CHARACTER,ipJobNo AS CHARACTER,
-                                      ipJobNo2 AS INTEGER,ipForm AS INTEGER,
-                                      ipItemNo AS CHARACTER):
-  DEFINE VARIABLE itemNo AS CHARACTER NO-UNDO.
 
-  FOR EACH bJobMch NO-LOCK
-     WHERE bJobMch.company EQ ipCompany
-       AND bJobMch.job-no EQ ipJobNo
-       AND bJobMch.job-no2 EQ ipJobNo2
-       AND bJobMch.frm EQ ipForm
-       AND bJobMch.i-no GT '':
-    IF bJobMch.i-no NE '' AND bJobMch.i-no NE itemNo THEN
-    itemNo = IF itemNo EQ '' THEN bJobMch.i-no
-        ELSE IF itemNo NE bJobMch.i-no THEN '<Multi Item>'
-        ELSE ''.
-    IF itemNo EQ '<Multi Item>' THEN LEAVE.
-  END. /* each bjobmch */
-  IF itemNo EQ '' THEN itemNo = ipItemNo.
-  RETURN itemNo.
-END FUNCTION.
-*/
 FUNCTION getSetPOQtyRec RETURNS CHARACTER (ipCompany AS CHARACTER,ipJobNo AS CHARACTER,
                                            ipJobNo2 AS INTEGER,ipForm AS INTEGER,
                                            ipINo AS CHARACTER):
@@ -317,6 +296,7 @@ DEFINE TEMP-TABLE tResource NO-UNDO
   FIELD mDscr AS CHARACTER
   FIELD department AS CHARACTER
   FIELD kicks AS INTEGER
+  FIELD dmiID AS INTEGER
     INDEX tResource IS PRIMARY dSeq mSeq resource.
 
 DISABLE TRIGGERS FOR LOAD OF reftable.
@@ -349,21 +329,22 @@ END FUNCTION.
 
 FUNCTION getLiveUpdate RETURNS LOGICAL
         (ipCompany AS CHARACTER, ipJobNo AS CHARACTER, ipJobNo2 AS INTEGER,
-         ipForm AS INTEGER, ipMCode AS CHARACTER):
+         ipForm AS INTEGER, ipMCode AS CHARACTER, ipSBLiveUpdate AS LOGICAL):
 
   DEFINE VARIABLE lvCode AS CHARACTER NO-UNDO.
 
   IF traceON THEN
-  PUT UNFORMATTED 'Function getLiveUpdate @ ' AT 15 STRING(TIME,'hh:mm:ss') ' ' ETIME SKIP.
-  
+  PUT UNFORMATTED 'Function getLiveUpdate @ ' AT 15 STRING(TIME,'hh:mm:ss') ' ' ETIME SKIP.  
   lvCode = ipJobNo + ',' + STRING(ipJobNo2) + ',' + STRING(ipForm) + ',' + ipMCode.
-  FIND FIRST reftable NO-LOCK WHERE reftable.reftable EQ 'sbLiveUpdate'
-                                AND reftable.company EQ ipCompany
-                                AND reftable.loc EQ ''
-                                AND reftable.code EQ lvCode NO-ERROR.
+  FIND FIRST reftable NO-LOCK
+       WHERE reftable.reftable EQ 'sbLiveUpdate'
+         AND reftable.company EQ ipCompany
+         AND reftable.loc EQ ''
+         AND reftable.code EQ lvCode
+       NO-ERROR.
   IF AVAILABLE reftable THEN
   RETURN reftable.code2 EQ 'Yes'.
-  ELSE RETURN YES.
+  ELSE RETURN ipSBLiveUpdate.
 END FUNCTION.
 
 FUNCTION getEmpAlert RETURNS CHARACTER
@@ -468,8 +449,8 @@ END. /* salesman routine */
 
 RUN setUseFields.
 RUN moveFontValue.
-RUN moveNotes.
-RUN fixSBRefTable.
+/*RUN moveNotes.*/
+/*RUN fixSBRefTable.*/
 RUN loadRptLayout ('jobText',OUTPUT jobText).
 RUN loadRptLayout ('jobToolTip',OUTPUT jobToolTip).
 
@@ -520,6 +501,7 @@ FOR EACH mach NO-LOCK
           tResource.mSeq = bMach.m-seq
           tResource.department = STRING(bMach.d-seq,'99') + STRING(bMach.m-seq,'99')
           tResource.kicks = bMach.spare-int-1  
+          tResource.dmiID = bMach.spare-int-2
           .
         IF NOT useDeptSort THEN tResource.department = '0000'.
       END. /* avail bmach */
@@ -536,6 +518,7 @@ FOR EACH tResource EXCLUSIVE-LOCK:
       &sortOrder=sortOrder
       &department=tResource.department
       &kicks=tResource.kicks
+      &dmiID=tResource.dmiID
       }
 END. /* each tresource */
 
@@ -608,6 +591,23 @@ FOR EACH job-hdr NO-LOCK
 
     IF FIRST-OF(job-mch.frm) OR cascadeJob EQ NO THEN resSeq = 0.
 
+    IF job-mch.est-op_rec_key EQ "" THEN DO:
+        FIND FIRST est-op NO-LOCK
+             WHERE est-op.company EQ est.company
+               AND est-op.est-no EQ est.est-no
+               AND est-op.m-code EQ job-mch.m-code
+               AND est-op.s-num EQ job-mch.frm
+               AND est-op.b-num EQ job-mch.blank-no
+               AND est-op.op-pass EQ job-mch.pass
+               AND est-op.line LT 500
+             NO-ERROR.
+        FIND FIRST bJobMch EXCLUSIVE-LOCK
+             WHERE ROWID(bJobMch) EQ ROWID(job-mch).
+        bJobMch.est-op_rec_key = IF AVAILABLE est-op THEN est-op.rec_key
+                                 ELSE "None".
+        RELEASE bJobMch.
+    END. /* est-op_rec_key eq "" */
+
     IF traceON THEN DO:
       debugCount = debugCount + 1.
       PUT UNFORMATTED
@@ -652,7 +652,7 @@ FOR EACH job-hdr NO-LOCK
       salesRepFound = NO
       startDate = job-mch.start-date-su
       startTime = fixTime(job-mch.start-time-su)
-      strRowID = STRING(ROWID(job)) + ',' + STRING(ROWID(job-mch))
+      strRowID = STRING(ROWID(job)) + ',' + STRING(ROWID(job-mch)) + ',' + job-mch.est-op_rec_key
       keyValues = job-mch.company + ','
                 + STRING(job-mch.line) + ','
                 + job-mch.m-code + ','
@@ -725,6 +725,16 @@ FOR EACH job-hdr NO-LOCK
             userField[63] = setUserField(63,oe-ordl.po-no)
             .
         END. /* each oe-rel */
+        IF userField[91] EQ "" THEN 
+        FOR EACH oe-rel NO-LOCK
+            WHERE oe-rel.company EQ oe-ordl.company
+              AND oe-rel.ord-no EQ oe-ordl.ord-no
+            BREAK BY oe-rel.rel-date:
+            IF FIRST-OF(oe-rel.rel-date) THEN DO:  
+                userField[91] = setUserField(91,STRING(oe-rel.rel-date,'99.99.9999')).
+                LEAVE.
+            END. /* first-of */
+        END. /* each oe0rel */
       END. /* ufoerel */
     END. /* avail oe-ordl */
     
@@ -1004,7 +1014,7 @@ FOR EACH job-hdr NO-LOCK
       statusTimeStamp = ''
       lagTime = job-mch.lag-time
       liveUpdate = getLiveUpdate(job-mch.company,job-mch.job-no,job-mch.job-no2,
-                                 job-mch.frm,job-mch.m-code)
+                                 job-mch.frm,job-mch.m-code,job-mch.sbLiveUpdate)
       userField[1] = setUserField(1,custNo)
       userField[2] = setUserField(2,custName)
       userField[5] = setUserField(5,IF AVAILABLE eb THEN eb.die-no ELSE '')
@@ -1056,6 +1066,8 @@ FOR EACH job-hdr NO-LOCK
       userField[85] = setUserField(85,fDueQty(INT(userField[15]),INT(userField[57]),DEC(userField[86]),DEC(userField[87])))
       userField[88] = setUserField(88,IF job-mch.speed EQ ? THEN '' ELSE LEFT-TRIM(STRING(job-mch.speed,'z,zzz,zz9')))
       userField[89] = setUserField(89,STRING(job.create-date,'99.99.9999'))
+      userfield[96] = setUserField(96,STRING(job-mch.mr-hr,'>,>>9.99'))
+      userfield[97] = setUserField(97,STRING(job-mch.run-hr,'>,>>9.99'))
       jobDescription = jobText
       .
     IF AVAILABLE itemfg AND NOT job-mch.run-qty * itemfg.t-sqft / 1000 LT 1000000 THEN
@@ -1082,13 +1094,16 @@ FOR EACH job-hdr NO-LOCK
                        OUTPUT userField[55], /* D */
                        OUTPUT userField[56], /* D */
                        OUTPUT userField[61], /* 5 */
+                       OUTPUT userField[93], /* 5 */
                        OUTPUT userField[62], /* 6 */
+                       OUTPUT userField[94], /* 6 */
                        OUTPUT userField[70], /* V */
                        OUTPUT userField[71], /* A */
                        OUTPUT userField[78], /* C */
                        OUTPUT userField[79], /* C */
-                       OUTPUT userField[81]) /* W */
-                       .
+                       OUTPUT userField[81], /* W */
+                       OUTPUT userField[95]  /* Required Qty */
+                       ).
 
     RUN ipJobMatField (job-mch.company,
                        job-mch.j-no,
@@ -1147,50 +1162,82 @@ FOR EACH job-hdr NO-LOCK
     IF useNotes THEN DO:
       IF traceON THEN
       PUT UNFORMATTED 'Job Notes @ ' AT 15 STRING(TIME,'hh:mm:ss') ' ' ETIME SKIP.
-      lvCode = scheduleResource + ',' + STRING(job-mch.job) + ',' + job-mch.job-no + ',' + STRING(job-mch.job-no2) + ',' + STRING(job-mch.frm).
-      IF CAN-FIND(FIRST reftable
-                  WHERE reftable.reftable EQ 'SB: Note'
-                    AND reftable.company EQ job-mch.company
-                    AND reftable.loc EQ ''
-                    AND reftable.code EQ lvCode
-                    AND reftable.dscr NE '') THEN
-      FOR EACH reftable NO-LOCK
-          WHERE reftable.reftable BEGINS 'SB: Note'
-            AND reftable.company EQ job-mch.company
-            AND reftable.loc EQ ''
-            AND reftable.code EQ lvCode
-            AND reftable.dscr NE '':
-        IF traceON THEN
-        PUT UNFORMATTED reftable.dscr AT 20 SKIP.
-        lvNoteKey = job-mch.company + ',' + lvCode.
-        {{&exports}/jobNotes.i &streamName=sJobNotes
-          &jobRowID=ENTRY(2,strRowID)
-          &noteDate=ENTRY(1,reftable.code2)
-          &noteTime=ENTRY(2,reftable.code2)
-          &noteText=reftable.dscr
-          &noteKey=lvNoteKey}
-      END. /* each reftable */
+      ASSIGN
+        lvCode = scheduleResource + ','
+               + STRING(job-mch.job) + ','
+               + job-mch.job-no + ','
+               + STRING(job-mch.job-no2) + ','
+               + STRING(job-mch.frm)
+        lvNoteKey = job-mch.company + ',' + lvCode
+        .
+      IF CAN-FIND (FIRST sbNote
+                   WHERE sbNote.company EQ job-mch.company
+                     AND sbNote.m-code EQ scheduleResource
+                     AND sbNote.job-no EQ job-mch.job-no
+                     AND sbNote.job-no2 EQ job-mch.job-no2
+                     AND sbNote.frm EQ job-mch.frm) THEN DO:
+        FOR EACH sbNote NO-LOCK 
+            WHERE sbNote.company EQ job-mch.company
+              AND sbNote.m-code EQ scheduleResource
+              AND sbNote.job-no EQ job-mch.job-no
+              AND sbNote.job-no2 EQ job-mch.job-no2
+              AND sbNote.frm EQ job-mch.frm
+            :
+          IF traceON THEN
+          PUT UNFORMATTED reftable.dscr AT 20 SKIP.
+          {{&exports}/jobNotes.i &streamName=sJobNotes
+            &jobRowID=ENTRY(2,strRowID)
+            &noteDate=sbNote.noteDate
+            &noteTime=sbNote.noteTime
+            &noteText=sbNote.jobNote
+            &noteKey=lvNoteKey}
+        END. /* each sbnote */ 
+      END. /* can-find sbnote */
+      ELSE DO:
+        IF CAN-FIND(FIRST reftable
+                    WHERE reftable.reftable EQ 'SB: Note'
+                      AND reftable.company EQ job-mch.company
+                      AND reftable.loc EQ ''
+                      AND reftable.code EQ lvCode
+                      AND reftable.dscr NE '') THEN
+        FOR EACH reftable NO-LOCK
+            WHERE reftable.reftable BEGINS 'SB: Note'
+              AND reftable.company EQ job-mch.company
+              AND reftable.loc EQ ''
+              AND reftable.code EQ lvCode
+              AND reftable.dscr NE '':
+          IF traceON THEN
+          PUT UNFORMATTED reftable.dscr AT 20 SKIP.
+          {{&exports}/jobNotes.i &streamName=sJobNotes
+            &jobRowID=ENTRY(2,strRowID)
+            &noteDate=ENTRY(1,reftable.code2)
+            &noteTime=ENTRY(2,reftable.code2)
+            &noteText=reftable.dscr
+            &noteKey=lvNoteKey}
+        END. /* each reftable */
+      END. /* else */
     END. /* usenotes */
     
     IF useStatus THEN DO:
       IF traceON THEN
       PUT UNFORMATTED 'Job Status @ ' AT 15 STRING(TIME,'hh:mm:ss') ' ' ETIME SKIP.
-      FIND FIRST reftable NO-LOCK
-           WHERE reftable.reftable EQ 'SB: Status'
-             AND reftable.company EQ job-mch.company
-             AND reftable.loc EQ ''
-             AND reftable.code EQ lvCode
-             AND reftable.dscr NE '' NO-ERROR.
-      IF AVAILABLE reftable THEN DO:
+      FIND FIRST sbStatus NO-LOCK
+           WHERE sbStatus.company EQ job-mch.company
+             AND sbStatus.m-code EQ job-mch.m-code
+             AND sbStatus.job-no EQ job-mch.job-no
+             AND sbStatus.job-no2 EQ job-mch.job-no2
+             AND sbStatus.frm EQ job-mch.frm
+           NO-ERROR.
+      IF AVAILABLE sbStatus THEN DO:
         IF traceON THEN
-        PUT UNFORMATTED reftable.dscr AT 20 SKIP.
+        PUT UNFORMATTED sbStatus.sbStatus AT 20 SKIP.
         IF NOT useSalesRep THEN
         DO i = 2 TO NUM-ENTRIES(customValueList):
           IF ENTRY(i,customValueList) EQ 'Hold' THEN DO:
             jobStatus[i - 1] = job.stat NE 'H'.
             NEXT.
           END. /* check for hold status */
-          jobStatus[i - 1] = NOT CAN-DO(reftable.dscr,ENTRY(i,customValueList)).
+          jobStatus[i - 1] = sbStatus.sbStatus[i - 1].
           IF jobStatus[i - 1] THEN NEXT. /* if already yes, leave it alone */
           FIND FIRST statusCheckOffs
                WHERE statusCheckOffs.statusCheckOffs EQ ENTRY(i,customValueList)
@@ -1200,14 +1247,43 @@ FOR EACH job-hdr NO-LOCK
                                             job-mch.job-no,job-mch.job-no2,
                                             job-mch.frm,statusCheckOffs.materialType).
         END. /* not usesalesrep */
-      END. /* if avail reftable */
-      ELSE IF NOT useSalesRep THEN
-      ASSIGN
-        jobStatus[LOOKUP('Board',customValueList) - 1] = jobBoard
-                  WHEN CAN-DO(customValueList,'Board')
-        jobStatus[LOOKUP('Hold',customValueList) - 1] = job.stat NE 'H'
-                  WHEN CAN-DO(customValueList,'Hold')
-        .
+      END. /* avail sbstatus */
+      ELSE DO:
+        FIND FIRST reftable NO-LOCK
+             WHERE reftable.reftable EQ 'SB: Status'
+               AND reftable.company EQ job-mch.company
+               AND reftable.loc EQ ''
+               AND reftable.code EQ lvCode
+               AND reftable.dscr NE ''
+             NO-ERROR.
+        IF AVAILABLE reftable THEN DO:
+          IF traceON THEN
+          PUT UNFORMATTED reftable.dscr AT 20 SKIP.
+          IF NOT useSalesRep THEN
+          DO i = 2 TO NUM-ENTRIES(customValueList):
+            IF ENTRY(i,customValueList) EQ 'Hold' THEN DO:
+              jobStatus[i - 1] = job.stat NE 'H'.
+              NEXT.
+            END. /* check for hold status */
+            jobStatus[i - 1] = NOT CAN-DO(reftable.dscr,ENTRY(i,customValueList)).
+            IF jobStatus[i - 1] THEN NEXT. /* if already yes, leave it alone */
+            FIND FIRST statusCheckOffs
+                 WHERE statusCheckOffs.statusCheckOffs EQ ENTRY(i,customValueList)
+                 NO-ERROR.
+            IF AVAILABLE statusCheckOffs THEN
+            jobStatus[i - 1] = statusCheckOff(job-mch.company,job-mch.job,
+                                              job-mch.job-no,job-mch.job-no2,
+                                              job-mch.frm,statusCheckOffs.materialType).
+          END. /* not usesalesrep */
+        END. /* avail reftable */
+        ELSE IF NOT useSalesRep THEN
+        ASSIGN
+          jobStatus[LOOKUP('Board',customValueList) - 1] = jobBoard
+                    WHEN CAN-DO(customValueList,'Board')
+          jobStatus[LOOKUP('Hold',customValueList) - 1] = job.stat NE 'H'
+                    WHEN CAN-DO(customValueList,'Hold')
+          .
+      END. /* else */      
     END. /* useStatus */
 
     /* make sure data is clean, unknown values unacceptable */
@@ -1326,19 +1402,25 @@ PROCEDURE ipJobMaterial:
   DEFINE OUTPUT PARAMETER opBoardLength AS DECIMAL NO-UNDO.
   DEFINE OUTPUT PARAMETER opBoardWidth AS DECIMAL NO-UNDO.
   DEFINE OUTPUT PARAMETER opJobBoard AS LOGICAL NO-UNDO.
-  DEFINE OUTPUT PARAMETER opBoard AS CHARACTER NO-UNDO.     /*  3,B */
-  DEFINE OUTPUT PARAMETER opInk AS CHARACTER NO-UNDO.       /* 14,I */
-  DEFINE OUTPUT PARAMETER opPallet AS CHARACTER NO-UNDO.    /* 55,D */
-  DEFINE OUTPUT PARAMETER opTotMRP AS CHARACTER NO-UNDO.    /* 56,D */
-  DEFINE OUTPUT PARAMETER opMatType5 AS CHARACTER NO-UNDO.  /* 61,5 */
-  DEFINE OUTPUT PARAMETER opMatType6 AS CHARACTER NO-UNDO.  /* 62,6 */
-  DEFINE OUTPUT PARAMETER opVarnish AS CHARACTER NO-UNDO.   /* 70,V */
-  DEFINE OUTPUT PARAMETER opAdders AS CHARACTER NO-UNDO.    /* 71,A */
-  DEFINE OUTPUT PARAMETER opNoCases AS CHARACTER NO-UNDO.   /* 78,C */
-  DEFINE OUTPUT PARAMETER opCasesName AS CHARACTER NO-UNDO. /* 79,C */
-  DEFINE OUTPUT PARAMETER opFilmName AS CHARACTER NO-UNDO.  /* 81,W */
+  DEFINE OUTPUT PARAMETER opBoard AS CHARACTER NO-UNDO.        /*  3,B */
+  DEFINE OUTPUT PARAMETER opInk AS CHARACTER NO-UNDO.          /* 14,I */
+  DEFINE OUTPUT PARAMETER opPallet AS CHARACTER NO-UNDO.       /* 55,D */
+  DEFINE OUTPUT PARAMETER opTotMRP AS CHARACTER NO-UNDO.       /* 56,D */
+  DEFINE OUTPUT PARAMETER opMatType5 AS CHARACTER NO-UNDO.     /* 61,5 */
+  DEFINE OUTPUT PARAMETER opMatType5Qty AS CHARACTER NO-UNDO.  /* 93,5 */
+  DEFINE OUTPUT PARAMETER opMatType6 AS CHARACTER NO-UNDO.     /* 62,6 */
+  DEFINE OUTPUT PARAMETER opMatType6Qty AS CHARACTER NO-UNDO.  /* 94,6 */
+  DEFINE OUTPUT PARAMETER opVarnish AS CHARACTER NO-UNDO.      /* 70,V */
+  DEFINE OUTPUT PARAMETER opAdders AS CHARACTER NO-UNDO.       /* 71,A */
+  DEFINE OUTPUT PARAMETER opNoCases AS CHARACTER NO-UNDO.      /* 78,C */
+  DEFINE OUTPUT PARAMETER opCasesName AS CHARACTER NO-UNDO.    /* 79,C */
+  DEFINE OUTPUT PARAMETER opFilmName AS CHARACTER NO-UNDO.     /* 81,W */
+  DEFINE OUTPUT PARAMETER opRequiredQty AS CHARACTER NO-UNDO.  /* 95   */
 
   DEFINE VARIABLE noCases AS DECIMAL NO-UNDO.
+  DEFINE VARIABLE matType5Qty AS DECIMAL NO-UNDO.
+  DEFINE VARIABLE matType6Qty AS DECIMAL NO-UNDO.
+  DEFINE VARIABLE requiredQty AS DECIMAL NO-UNDO.
   
   IF NOT ufIPJobMaterial THEN RETURN.
 
@@ -1346,7 +1428,7 @@ PROCEDURE ipJobMaterial:
   PUT UNFORMATTED 'Procedure ipJobMaterial @ ' AT 15 STRING(TIME,'hh:mm:ss') ' ' ETIME.
   
   FOR EACH job-mat NO-LOCK
-      WHERE job-mat.company eq ipCompany
+      WHERE job-mat.company EQ ipCompany
         AND job-mat.job EQ ipJob
         AND job-mat.job-no EQ ipJobNo
         AND job-mat.job-no2 EQ ipJobNo2
@@ -1354,12 +1436,18 @@ PROCEDURE ipJobMaterial:
       :
     FOR EACH item OF job-mat NO-LOCK:
       CASE item.mat-type:
-        WHEN '5' THEN
+        WHEN '5' THEN DO:
           IF NOT CAN-DO(opMatType5,job-mat.i-no) THEN
           opMatType5 = opMatType5 + comma(opMatType5) + job-mat.i-no.
-        WHEN '6' THEN
+          IF ipBlankNo EQ job-mat.blank-no THEN
+          matType5Qty = matType5Qty + job-mat.qty.
+        END.
+        WHEN '6' THEN DO:
           IF NOT CAN-DO(opMatType6,job-mat.i-no) THEN
           opMatType6 = opMatType6 + comma(opMatType6) + job-mat.i-no.
+          IF ipBlankNo EQ job-mat.blank-no THEN
+          matType6Qty = matType6Qty + job-mat.qty.
+        END.
         WHEN 'A' THEN
           IF NOT CAN-DO(opAdders,job-mat.i-no) THEN
           opAdders = opAdders + comma(opAdders) + job-mat.i-no.
@@ -1399,12 +1487,18 @@ PROCEDURE ipJobMaterial:
         opFilmName = REPLACE(item.i-name,'"','').
       END CASE.
     END. /* each item */
+    requiredQty = requiredQty + job-mat.qty.
   END. /* each job-mat */
-  opNoCases = STRING(noCases,'>,>>>,>>9.9<<<<<').
+  ASSIGN 
+    opNoCases = STRING(noCases,'>,>>>,>>9.9<<<<<')
+    opMatType5Qty = STRING(matType5Qty,'>,>>>,>>9.9<<<<<')
+    opMatType6Qty = STRING(matType6Qty,'>,>>>,>>9.9<<<<<')
+    opRequiredQty = STRING(requiredQty,'>,>>>,>>9.9<<<<<')
+    .
   IF traceON THEN
   PUT UNFORMATTED
-    '5 ' AT 20 opMatType5
-    '6 ' AT 20 opMatType6
+    '5 ' AT 20 opMatType5 ' ' opMatType5Qty
+    '6 ' AT 20 opMatType6 ' ' opMatType6Qty
     'A ' AT 20 opAdders
     'B ' AT 20 opBoard
     'C ' AT 20 opNoCases ' ' opCasesName
@@ -1412,6 +1506,7 @@ PROCEDURE ipJobMaterial:
     'I ' AT 20 opInk
     'V ' AT 20 opVarnish
     'W ' AT 20 opFilmName
+    'Req Qty ' AT 20 opRequiredQty
     'Time: ' AT 20 ETIME
     SKIP.
 END PROCEDURE.
@@ -1646,6 +1741,10 @@ PROCEDURE colCheck:
   CREATE colCheck.
   ASSIGN colCheck.fld1 = 'Lag Time' colCheck.fld2 = 'lagTime'
          colCheck.fld3 = 'Lag Time' colCheck.fld4 = 'lagTime'.
+  /* added 11.1.2017 to ttblJob */
+  CREATE colCheck.
+  ASSIGN colCheck.fld1 = 'Status Label' colCheck.fld2 = 'statusLabel'
+         colCheck.fld3 = 'Status Label' colCheck.fld4 = 'statusLabel'.
 END PROCEDURE.
 
 PROCEDURE moveFontValue:
@@ -1657,76 +1756,76 @@ PROCEDURE moveFontValue:
 END PROCEDURE.
 
 PROCEDURE moveNotes:
-  DEFINE VARIABLE lvCode AS CHARACTER NO-UNDO.
-  DEFINE VARIABLE lvCode2 AS CHARACTER NO-UNDO.
-
-  FOR EACH notes EXCLUSIVE-LOCK WHERE notes.note_title CONTAINS 'SB:':
-    FIND FIRST job-mch NO-LOCK WHERE job-mch.rec_key EQ notes.rec_key NO-ERROR.
-    IF AVAILABLE job-mch THEN DO:
-      ASSIGN
-        lvCode = job-mch.m-code + ',' + STRING(job-mch.job) + ',' + job-mch.job-no + ',' + STRING(job-mch.job-no2) + ',' + STRING(job-mch.frm)
-        lvCode2 = STRING(notes.note_date) + ',' + STRING(notes.note_time).
-      IF NOT CAN-FIND(FIRST reftable NO-LOCK
-                      WHERE reftable.reftable EQ notes.note_title
-                        AND reftable.company EQ job-mch.company
-                        AND reftable.loc EQ ''
-                        AND reftable.code EQ lvCode
-                        AND reftable.code2 EQ lvCode2) THEN DO:
-        CREATE reftable.
-        ASSIGN
-          reftable.reftable = notes.note_title
-          reftable.company = job-mch.company
-          reftable.loc = ''
-          reftable.code = lvCode
-          reftable.code2 = lvCode2
-          reftable.dscr = notes.note_text.
-      END. /* if not can-find */
-    END. /* avail job-mch */
-    DELETE notes.
-  END. /* each notes */
+/*  DEFINE VARIABLE lvCode AS CHARACTER NO-UNDO.                                                                                                */
+/*  DEFINE VARIABLE lvCode2 AS CHARACTER NO-UNDO.                                                                                               */
+/*                                                                                                                                              */
+/*  FOR EACH notes EXCLUSIVE-LOCK WHERE notes.note_title CONTAINS 'SB:':                                                                        */
+/*    FIND FIRST job-mch NO-LOCK WHERE job-mch.rec_key EQ notes.rec_key NO-ERROR.                                                               */
+/*    IF AVAILABLE job-mch THEN DO:                                                                                                             */
+/*      ASSIGN                                                                                                                                  */
+/*        lvCode = job-mch.m-code + ',' + STRING(job-mch.job) + ',' + job-mch.job-no + ',' + STRING(job-mch.job-no2) + ',' + STRING(job-mch.frm)*/
+/*        lvCode2 = STRING(notes.note_date) + ',' + STRING(notes.note_time).                                                                    */
+/*      IF NOT CAN-FIND(FIRST reftable NO-LOCK                                                                                                  */
+/*                      WHERE reftable.reftable EQ notes.note_title                                                                             */
+/*                        AND reftable.company EQ job-mch.company                                                                               */
+/*                        AND reftable.loc EQ ''                                                                                                */
+/*                        AND reftable.code EQ lvCode                                                                                           */
+/*                        AND reftable.code2 EQ lvCode2) THEN DO:                                                                               */
+/*        CREATE reftable.                                                                                                                      */
+/*        ASSIGN                                                                                                                                */
+/*          reftable.reftable = notes.note_title                                                                                                */
+/*          reftable.company = job-mch.company                                                                                                  */
+/*          reftable.loc = ''                                                                                                                   */
+/*          reftable.code = lvCode                                                                                                              */
+/*          reftable.code2 = lvCode2                                                                                                            */
+/*          reftable.dscr = notes.note_text.                                                                                                    */
+/*      END. /* if not can-find */                                                                                                              */
+/*    END. /* avail job-mch */                                                                                                                  */
+/*    DELETE notes.                                                                                                                             */
+/*  END. /* each notes */                                                                                                                       */
 END PROCEDURE.
 
 PROCEDURE fixSBRefTable:
-  DEFINE VARIABLE lvCode AS CHARACTER NO-UNDO.
-  
-  DEFINE BUFFER bRefTable FOR reftable.
-  
-  IF NOT CAN-FIND(FIRST reftable WHERE reftable.reftable BEGINS 'SB: Job') THEN
-  RETURN.
-
-  OUTPUT TO VALUE('{&data}/' + ID + '/reftable.d').
-  FOR EACH reftable EXCLUSIVE-LOCK WHERE reftable.reftable BEGINS 'SB: Job':
-    FOR EACH job-mch NO-LOCK
-        WHERE job-mch.company EQ reftable.company
-          AND job-mch.m-code EQ ENTRY(1,reftable.code)
-          AND job-mch.job EQ INTEGER(ENTRY(2,reftable.code))
-          AND job-mch.job-no EQ ENTRY(3,reftable.code)
-          AND job-mch.job-no2 EQ INTEGER(ENTRY(4,reftable.code))
-          AND job-mch.run-complete EQ NO,
-        FIRST job-hdr NO-LOCK       
-        WHERE job-hdr.company EQ job-mch.company
-          AND job-hdr.job EQ job-mch.job
-          AND job-hdr.job-no EQ job-mch.job-no
-          AND job-hdr.job-no2 EQ job-mch.job-no2
-          AND job-hdr.frm EQ job-mch.frm
-          AND job-hdr.opened EQ YES
-      BREAK BY job-mch.frm:
-      IF NOT FIRST(job-mch.frm) THEN NEXT.
-      lvCode = reftable.code + ',' + STRING(job-mch.frm).
-      IF CAN-FIND(FIRST bRefTable WHERE bRefTable.reftable BEGINS 'SB: Job'
-                  AND bRefTable.company EQ reftable.company
-                  AND bRefTable.loc EQ ''
-                  AND bRefTable.code EQ lvCode) THEN NEXT.
-      CREATE bRefTable.
-      BUFFER-COPY reftable EXCEPT reftable code TO bRefTable
-        ASSIGN
-          bRefTable.reftable = REPLACE(reftable.reftable,'SB: Job','SB:')
-          bRefTable.code = lvCode.
-    END. /* each job-mch */
-    EXPORT reftable.
-    DELETE reftable.
-  END. /* each reftable */
-  OUTPUT CLOSE.
+/*  DEFINE VARIABLE lvCode AS CHARACTER NO-UNDO.                                 */
+/*                                                                               */
+/*  DEFINE BUFFER bRefTable FOR reftable.                                        */
+/*                                                                               */
+/*  IF NOT CAN-FIND(FIRST reftable WHERE reftable.reftable BEGINS 'SB: Job') THEN*/
+/*  RETURN.                                                                      */
+/*                                                                               */
+/*  OUTPUT TO VALUE('{&data}/' + ID + '/reftable.d').                            */
+/*  FOR EACH reftable EXCLUSIVE-LOCK WHERE reftable.reftable BEGINS 'SB: Job':   */
+/*    FOR EACH job-mch NO-LOCK                                                   */
+/*        WHERE job-mch.company EQ reftable.company                              */
+/*          AND job-mch.m-code EQ ENTRY(1,reftable.code)                         */
+/*          AND job-mch.job EQ INTEGER(ENTRY(2,reftable.code))                   */
+/*          AND job-mch.job-no EQ ENTRY(3,reftable.code)                         */
+/*          AND job-mch.job-no2 EQ INTEGER(ENTRY(4,reftable.code))               */
+/*          AND job-mch.run-complete EQ NO,                                      */
+/*        FIRST job-hdr NO-LOCK                                                  */
+/*        WHERE job-hdr.company EQ job-mch.company                               */
+/*          AND job-hdr.job EQ job-mch.job                                       */
+/*          AND job-hdr.job-no EQ job-mch.job-no                                 */
+/*          AND job-hdr.job-no2 EQ job-mch.job-no2                               */
+/*          AND job-hdr.frm EQ job-mch.frm                                       */
+/*          AND job-hdr.opened EQ YES                                            */
+/*      BREAK BY job-mch.frm:                                                    */
+/*      IF NOT FIRST(job-mch.frm) THEN NEXT.                                     */
+/*      lvCode = reftable.code + ',' + STRING(job-mch.frm).                      */
+/*      IF CAN-FIND(FIRST bRefTable WHERE bRefTable.reftable BEGINS 'SB: Job'    */
+/*                  AND bRefTable.company EQ reftable.company                    */
+/*                  AND bRefTable.loc EQ ''                                      */
+/*                  AND bRefTable.code EQ lvCode) THEN NEXT.                     */
+/*      CREATE bRefTable.                                                        */
+/*      BUFFER-COPY reftable EXCEPT reftable code TO bRefTable                   */
+/*        ASSIGN                                                                 */
+/*          bRefTable.reftable = REPLACE(reftable.reftable,'SB: Job','SB:')      */
+/*          bRefTable.code = lvCode.                                             */
+/*    END. /* each job-mch */                                                    */
+/*    EXPORT reftable.                                                           */
+/*    DELETE reftable.                                                           */
+/*  END. /* each reftable */                                                     */
+/*  OUTPUT CLOSE.                                                                */
 END PROCEDURE.
 
 PROCEDURE loadUserFieldLabelWidth:
@@ -1828,6 +1927,11 @@ PROCEDURE loadUserFieldLabelWidth:
     userLabel[90] = 'DC Prod Qty'     userWidth[90] = 12
     userLabel[91] = 'First Release'   userWidth[91] = 15
     userLabel[92] = 'EmpAlert CSR'    userWidth[92] = 30
+    userLabel[93] = 'MatType5 Qty'    userWidth[93] = 12
+    userLabel[94] = 'MatType6 Qty'    userWidth[94] = 12
+    userLabel[95] = 'Required Qty'    userWidth[95] = 12  
+    userLabel[96] = 'MR Std Hrs'      userWidth[96] = 8
+    userLabel[97] = 'Run Std Hrs'     userWidth[97] = 8
     .
   /* add userField to rptFields.dat, see config.w definitions section
      to enable field */
@@ -1887,12 +1991,12 @@ PROCEDURE setUseFields:
     ufEF = useField[3] OR useField[22] OR useField[23] OR useField[58] OR useField[59]
     ufEst = useField[26] OR useField[27]
     ufGetSalesRep = useField[36]
-    ufIPJobMaterial = useField[3] OR useField[14] OR useField[55] OR useField[56] OR useField[61] OR useField[62] OR useField[70] OR useField[71] OR useField[78] OR useField[79] OR useField[81]
+    ufIPJobMaterial = useField[3] OR useField[14] OR useField[55] OR useField[56] OR useField[61] OR useField[62] OR useField[70] OR useField[71] OR useField[78] OR useField[79] OR useField[81] OR useField[93] OR useField[94] OR useField[95]
     ufIPJobMatField = useField[29] OR useField[30] OR useField[31] OR useField[32] OR useField[33]
     ufIPJobSet = useField[65] OR useField[66] OR useField[67] OR useField[68]
     ufItemFG = useField[21] OR useField[34] OR useField[52] OR useField[54] OR useField[64]
     ufJob = useField[89]
-    ufJobMch = useField[9] OR useField[15] OR useField[18] OR useField[19] OR useField[20] OR useField[85] OR useField[88]
+    ufJobMch = useField[9] OR useField[15] OR useField[18] OR useField[19] OR useField[20] OR useField[85] OR useField[88] OR useField[96] OR useField[97]
     ufOEOrdl = useField[82] OR useField[84] OR useField[86] OR useField[87]
     ufOERel = useField[37] OR useField[38] OR useField[39] OR useField[40] OR useField[52] OR useField[63]OR useField[91]
     ufPOOrdl = useField[7] OR useField[16] OR useField[17] OR useField[35]

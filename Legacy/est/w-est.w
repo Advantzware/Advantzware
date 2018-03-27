@@ -90,6 +90,7 @@ DEFINE VARIABLE h_b-estop AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_b-estprp AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_b-estq AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_b-estqty AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_capacityPage AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_exit AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_farmnav AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_folder AS HANDLE NO-UNDO.
@@ -332,11 +333,19 @@ PROCEDURE adm-create-objects :
 
     WHEN 0 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
+             INPUT  'panels/p-capacityPage.w':U ,
+             INPUT  FRAME OPTIONS-FRAME:HANDLE ,
+             INPUT  'Layout = ':U ,
+             OUTPUT h_capacityPage ).
+       RUN set-position IN h_capacityPage ( 1.00 , 28.00 ) NO-ERROR.
+       /* Size in UIB:  ( 1.81 , 7.80 ) */
+
+       RUN init-object IN THIS-PROCEDURE (
              INPUT  'smartobj/xferjobdata.w':U ,
              INPUT  FRAME OPTIONS-FRAME:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_xferjobdata ).
-       RUN set-position IN h_xferjobdata ( 1.00 , 20.00 ) NO-ERROR.
+       RUN set-position IN h_xferjobdata ( 1.00 , 36.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.81 , 17.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
@@ -394,10 +403,10 @@ PROCEDURE adm-create-objects :
     WHEN 1 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'viewers/movecol.w':U ,
-             INPUT  FRAME est:HANDLE ,
+             INPUT  FRAME OPTIONS-FRAME:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_movecol ).
-       RUN set-position IN h_movecol ( 1.00 , 71.20 ) NO-ERROR.
+       RUN set-position IN h_movecol ( 1.00 , 20.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.81 , 7.80 ) */
 
        RUN init-object IN THIS-PROCEDURE (
@@ -417,7 +426,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME OPTIONS-FRAME:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_export ).
-       RUN set-position IN h_export ( 1.00 , 28.00 ) NO-ERROR.
+       RUN set-position IN h_export ( 1.00 , 13.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.81 , 7.80 ) */ 
 
        /* Links to SmartViewer h_movecol. */
@@ -1135,6 +1144,22 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE capacityPage W-Win
+PROCEDURE capacityPage:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    RUN schedule/capacityPage.w ("Est", ROWID(est), est.company).
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable-enable-farm W-Win 
 PROCEDURE disable-enable-farm :
 /*------------------------------------------------------------------------------
@@ -1251,7 +1276,7 @@ PROCEDURE local-change-page :
    li-page[2] = li-page[1]
    li-page[1] = int(return-value).
   
-  if li-page[1] = 10 then do:  /* quote */
+  /*if li-page[1] = 10 then do:  /* quote */
     def buffer bf-quote for quotehd .
     find first bf-quote where bf-quote.company = g_company and
                             bf-quote.loc = g_loc and
@@ -1264,7 +1289,7 @@ PROCEDURE local-change-page :
        run hide-quote.
        return no-apply.        
     end.                            
-  end.
+  end.*/ /* ticket - 23023 */
    
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'change-page':U ) .

@@ -1,0 +1,3686 @@
+ADD TABLE "costHeader"
+  AREA "Data"
+  LABEL "Cost Header"
+  DESCRIPTION "Header tables for estimate and job cost calculations"
+  DUMP-NAME "costHeader"
+
+ADD FIELD "company" OF "costHeader" AS character 
+  DESCRIPTION "Company code"
+  FORMAT "x(3)"
+  INITIAL ""
+  LABEL "Company"
+  POSITION 2
+  MAX-WIDTH 6
+  COLUMN-LABEL "Company"
+  HELP "Enter the company code."
+  ORDER 5
+  MANDATORY
+
+ADD FIELD "rec_key" OF "costHeader" AS character 
+  DESCRIPTION "Unique identifier for header record"
+  FORMAT "X(20)"
+  INITIAL ""
+  LABEL "Rec Key"
+  POSITION 3
+  MAX-WIDTH 40
+  COLUMN-LABEL "Rec Key"
+  HELP "Enter record key"
+  ORDER 15
+
+ADD FIELD "rec_keyParentForm" OF "costHeader" AS character 
+  DESCRIPTION "Unique identifier for parent form"
+  FORMAT "X(20)"
+  INITIAL ""
+  LABEL "Rec Key Form"
+  POSITION 4
+  MAX-WIDTH 40
+  COLUMN-LABEL "Rec Key Form"
+  HELP "Enter form record key"
+  ORDER 25
+
+ADD FIELD "rec_keyParentSet" OF "costHeader" AS character 
+  DESCRIPTION "Unique identifier for parent set"
+  FORMAT "X(20)"
+  INITIAL ""
+  LABEL "Rec Key Set"
+  POSITION 5
+  MAX-WIDTH 40
+  COLUMN-LABEL "Rec Key Set"
+  HELP "Enter set record key"
+  ORDER 35
+
+ADD FIELD "isItem" OF "costHeader" AS logical 
+  DESCRIPTION "Does the header represent the costs for a finished good item"
+  FORMAT "yes/no"
+  INITIAL "no"
+  LABEL "Is FG Item"
+  POSITION 6
+  MAX-WIDTH 1
+  COLUMN-LABEL "Is FG Item"
+  HELP "Select Yes if this is FG Item"
+  ORDER 45
+
+ADD FIELD "estimateNo" OF "costHeader" AS character 
+  DESCRIPTION "Estimate number for header"
+  FORMAT "x(8)"
+  INITIAL ""
+  LABEL "Estimate #"
+  POSITION 7
+  MAX-WIDTH 16
+  COLUMN-LABEL "Estimate #"
+  HELP "Enter estimate number."
+  ORDER 55
+  MANDATORY
+
+ADD FIELD "industry" OF "costHeader" AS integer 
+  DESCRIPTION "Holds an indicator for industry 1=Fold 2=Corr 3=Foam"
+  FORMAT "9"
+  INITIAL "0"
+  LABEL "Industry"
+  POSITION 8
+  MAX-WIDTH 4
+  COLUMN-LABEL "Industry"
+  HELP "Enter whether header is used for 1=Fold 2=Corr 3=Foam"
+  ORDER 65
+
+ADD FIELD "estimateType" OF "costHeader" AS integer 
+  DESCRIPTION "Estimate Type: 1 = Single Fold, 2 = Set Fold, 3/4 = Combo Fold
+5 = Single Corr, 6 = Set Corr, 8 = Combo Corr"
+  FORMAT "9"
+  INITIAL "0"
+  LABEL "Estimate Type"
+  POSITION 9
+  MAX-WIDTH 4
+  COLUMN-LABEL "Estimate Type"
+  HELP "Enter estimate type (1-Single 2-2pc. 3-Tandem 4-Combo)"
+  ORDER 75
+
+ADD FIELD "quantityMaster" OF "costHeader" AS integer 
+  DESCRIPTION "Total Estimate Quantity for cost calculation (Single, Set, Total Combo & Tandem)"
+  FORMAT ">>>>>>>9"
+  INITIAL "0"
+  LABEL "Quantity"
+  POSITION 10
+  MAX-WIDTH 4
+  COLUMN-LABEL "Quantity"
+  HELP "Enter master quantity for cost calculation"
+  ORDER 85
+
+ADD FIELD "headerDescription" OF "costHeader" AS character 
+  DESCRIPTION "Description for the header cost calculation"
+  FORMAT "x(30)"
+  INITIAL ""
+  LABEL "Header Description"
+  POSITION 11
+  MAX-WIDTH 60
+  COLUMN-LABEL "Header Desc"
+  HELP "Enter header description"
+  ORDER 95
+
+ADD FIELD "formNo" OF "costHeader" AS integer 
+  DESCRIPTION "Form/Sheet Number"
+  FORMAT ">9"
+  INITIAL "1"
+  LABEL "Form"
+  POSITION 12
+  MAX-WIDTH 4
+  COLUMN-LABEL "Form"
+  HELP "Enter form/sheet number"
+  ORDER 105
+  MANDATORY
+
+ADD FIELD "blankNo" OF "costHeader" AS integer 
+  DESCRIPTION "Blank number"
+  FORMAT ">9"
+  INITIAL "1"
+  LABEL "Blank"
+  POSITION 13
+  MAX-WIDTH 4
+  COLUMN-LABEL "Blank"
+  HELP "Enter blank number"
+  ORDER 115
+  MANDATORY
+
+ADD FIELD "jobNo" OF "costHeader" AS character 
+  DESCRIPTION "Job Number"
+  FORMAT "x(8)"
+  INITIAL ""
+  LABEL "Job #"
+  POSITION 14
+  MAX-WIDTH 16
+  COLUMN-LABEL "Job #"
+  HELP "Enter job number"
+  ORDER 125
+
+ADD FIELD "jobNo2" OF "costHeader" AS integer 
+  DESCRIPTION "Job sub number to track reorders, etc."
+  FORMAT ">9"
+  INITIAL "0"
+  LABEL "Job Run #"
+  POSITION 15
+  MAX-WIDTH 4
+  COLUMN-LABEL "Job Run #"
+  HELP "Enter job sub-number"
+  ORDER 135
+
+ADD FIELD "calculationTime" OF "costHeader" AS datetime 
+  DESCRIPTION "Date and time that calculation was started"
+  FORMAT "99/99/9999 HH:MM:SS.SSS"
+  INITIAL ?
+  LABEL "Calculation Date-time"
+  POSITION 16
+  MAX-WIDTH 8
+  COLUMN-LABEL "Calculation Date-time"
+  HELP "Calculation date-time"
+  ORDER 145
+
+ADD FIELD "calculatedBy" OF "costHeader" AS character 
+  DESCRIPTION "User ID for the user who initiated the calculation"
+  FORMAT "x(8)"
+  INITIAL ""
+  LABEL "Calculated By"
+  POSITION 17
+  MAX-WIDTH 16
+  COLUMN-LABEL "Calculated By"
+  HELP "User ID the started calculation"
+  ORDER 155
+
+ADD FIELD "customerPartID" OF "costHeader" AS character 
+  DESCRIPTION "Customer Part # for Header Item"
+  FORMAT "x(15)"
+  INITIAL ""
+  LABEL "Customer Part #"
+  POSITION 18
+  MAX-WIDTH 16
+  COLUMN-LABEL "Customer Part #"
+  HELP "Enter customer's part number for this item"
+  ORDER 165
+
+ADD FIELD "fgItemID" OF "costHeader" AS character 
+  DESCRIPTION "Finished Good Item Number"
+  FORMAT "x(15)"
+  INITIAL ""
+  LABEL "FG Item #"
+  POSITION 19
+  MAX-WIDTH 30
+  COLUMN-LABEL "FG Item #"
+  HELP "Enter finished good item number"
+  ORDER 175
+
+ADD FIELD "actCostBoard" OF "costHeader" AS decimal 
+  DESCRIPTION "Actual Board Cost"
+  FORMAT "->,>>>,>>9.99"
+  INITIAL "0"
+  LABEL "Board Cost - Actual"
+  POSITION 20
+  MAX-WIDTH 21
+  COLUMN-LABEL "Board-Act"
+  DECIMALS 6
+  ORDER 465
+
+ADD FIELD "stdCostDirectMaterial" OF "costHeader" AS decimal 
+  DESCRIPTION "Estimated/Standard Direct Material Cost"
+  FORMAT "->,>>>,>>9.99"
+  INITIAL "0"
+  LABEL "Direct Material Cost - Standard"
+  POSITION 21
+  MAX-WIDTH 21
+  COLUMN-LABEL "Dir Mat-Std"
+  DECIMALS 6
+  ORDER 195
+
+ADD FIELD "stdCostDirectLabor" OF "costHeader" AS decimal 
+  DESCRIPTION "Estimated/Standard Direct Labor Cost"
+  FORMAT "->,>>>,>>9.99"
+  INITIAL "0"
+  LABEL "Direct Labor Cost - Standard"
+  POSITION 22
+  MAX-WIDTH 21
+  COLUMN-LABEL "Dir Lab-Std"
+  DECIMALS 6
+  ORDER 205
+
+ADD FIELD "stdCostVariableOverhead" OF "costHeader" AS decimal 
+  DESCRIPTION "Estimated/Standard Variable Overhead Cost"
+  FORMAT "->,>>>,>>9.99"
+  INITIAL "0"
+  LABEL "Variable Overhead Cost - Standard"
+  POSITION 23
+  MAX-WIDTH 21
+  COLUMN-LABEL "Var OH-Std"
+  DECIMALS 6
+  ORDER 215
+
+ADD FIELD "stdCostFixedOverhead" OF "costHeader" AS decimal 
+  DESCRIPTION "Estimated/Standard Fixed Overhead Cost"
+  FORMAT "->,>>>,>>9.99"
+  INITIAL "0"
+  LABEL "Fixed Overhead Cost - Standard"
+  POSITION 24
+  MAX-WIDTH 21
+  COLUMN-LABEL "Fix OH-Std"
+  DECIMALS 6
+  ORDER 225
+
+ADD FIELD "stdCostDirectFactory" OF "costHeader" AS decimal 
+  DESCRIPTION "Estimated/Standard Direct Factory Cost"
+  FORMAT "->,>>>,>>9.99"
+  INITIAL "0"
+  LABEL "Direct Factory Cost - Standard"
+  POSITION 25
+  MAX-WIDTH 21
+  COLUMN-LABEL "Dir Fact-Std"
+  DECIMALS 6
+  ORDER 235
+
+ADD FIELD "stdCostTotalFactory" OF "costHeader" AS decimal 
+  DESCRIPTION "Estimated/Standard Total Factory Cost"
+  FORMAT "->,>>>,>>9.99"
+  INITIAL "0"
+  LABEL "Total Factory Cost - Standard"
+  POSITION 26
+  MAX-WIDTH 21
+  COLUMN-LABEL "Tot Fact-Std"
+  DECIMALS 6
+  ORDER 245
+
+ADD FIELD "actCostPrepLabor" OF "costHeader" AS decimal 
+  DESCRIPTION "Actual Prep Labor Cost"
+  FORMAT "->,>>>,>>9.99"
+  INITIAL "0"
+  LABEL "Prep Labor Cost - Actual"
+  POSITION 27
+  MAX-WIDTH 21
+  COLUMN-LABEL "Prep Lab-Act"
+  DECIMALS 6
+  ORDER 535
+
+ADD FIELD "stdCostPrepMaterial" OF "costHeader" AS decimal 
+  DESCRIPTION "Estimated/Standard Prep Material Cost"
+  FORMAT "->,>>>,>>9.99"
+  INITIAL "0"
+  LABEL "Prep Material Cost - Standard"
+  POSITION 28
+  MAX-WIDTH 21
+  COLUMN-LABEL "Prep Mat-Std"
+  DECIMALS 6
+  ORDER 265
+
+ADD FIELD "actCostMiscLabor" OF "costHeader" AS decimal 
+  DESCRIPTION "Actual Miscellaneous Labor Cost"
+  FORMAT "->,>>>,>>9.99"
+  INITIAL "0"
+  LABEL "Misc Labor Cost - Actual"
+  POSITION 29
+  MAX-WIDTH 21
+  COLUMN-LABEL "Misc Lab-Act"
+  DECIMALS 6
+  ORDER 555
+
+ADD FIELD "actCostMiscMaterial" OF "costHeader" AS decimal 
+  DESCRIPTION "Actual Miscellaneous Material Cost"
+  FORMAT "->,>>>,>>9.99"
+  INITIAL "0"
+  LABEL "Misc Material Cost - Actual"
+  POSITION 30
+  MAX-WIDTH 21
+  COLUMN-LABEL "Misc Mat-Act"
+  DECIMALS 6
+  ORDER 565
+
+ADD FIELD "actCostTotalOther" OF "costHeader" AS decimal 
+  DESCRIPTION "Actual Total Other Cost"
+  FORMAT "->,>>>,>>9.99"
+  INITIAL "0"
+  LABEL "Total Other Cost - Actual"
+  POSITION 31
+  MAX-WIDTH 21
+  COLUMN-LABEL "Tot Oth-Act"
+  DECIMALS 6
+  ORDER 575
+
+ADD FIELD "actProfitGross" OF "costHeader" AS decimal 
+  DESCRIPTION "Actual Gross Profit"
+  FORMAT "->,>>>,>>9.99"
+  INITIAL "0"
+  LABEL "Gross Profit - Actual"
+  POSITION 32
+  MAX-WIDTH 21
+  COLUMN-LABEL "Gross Profit-Act"
+  DECIMALS 6
+  ORDER 725
+
+ADD FIELD "stdCostBoard" OF "costHeader" AS decimal 
+  DESCRIPTION "Estimated/Standard Board Cost"
+  FORMAT "->,>>>,>>9.99"
+  INITIAL "0"
+  LABEL "Board Cost - Standard"
+  POSITION 33
+  MAX-WIDTH 21
+  COLUMN-LABEL "Board-Std"
+  DECIMALS 6
+  ORDER 185
+
+ADD FIELD "actCostDirectMaterial" OF "costHeader" AS decimal 
+  DESCRIPTION "Actual Direct Material Cost"
+  FORMAT "->,>>>,>>9.99"
+  INITIAL "0"
+  LABEL "Direct Material Cost - Actual"
+  POSITION 34
+  MAX-WIDTH 21
+  COLUMN-LABEL "Dir Mat-Act"
+  DECIMALS 6
+  ORDER 475
+
+ADD FIELD "actCostDirectLabor" OF "costHeader" AS decimal 
+  DESCRIPTION "Actual Direct Labor Cost"
+  FORMAT "->,>>>,>>9.99"
+  INITIAL "0"
+  LABEL "Direct Labor Cost - Actual"
+  POSITION 35
+  MAX-WIDTH 21
+  COLUMN-LABEL "Dir Lab-Act"
+  DECIMALS 6
+  ORDER 485
+
+ADD FIELD "actCostVariableOverhead" OF "costHeader" AS decimal 
+  DESCRIPTION "Actual Variable Overhead Cost"
+  FORMAT "->,>>>,>>9.99"
+  INITIAL "0"
+  LABEL "Variable Overhead Cost - Actual"
+  POSITION 36
+  MAX-WIDTH 21
+  COLUMN-LABEL "Var OH-Act"
+  DECIMALS 6
+  ORDER 495
+
+ADD FIELD "actCostFixedOverhead" OF "costHeader" AS decimal 
+  DESCRIPTION "Actual Fixed Overhead Cost"
+  FORMAT "->,>>>,>>9.99"
+  INITIAL "0"
+  LABEL "Fixed Overhead Cost - Actual"
+  POSITION 37
+  MAX-WIDTH 21
+  COLUMN-LABEL "Fix OH-Act"
+  DECIMALS 6
+  ORDER 505
+
+ADD FIELD "actCostDirectFactory" OF "costHeader" AS decimal 
+  DESCRIPTION "Actual Direct Factory Cost"
+  FORMAT "->,>>>,>>9.99"
+  INITIAL "0"
+  LABEL "Direct Factory Cost - Actual"
+  POSITION 38
+  MAX-WIDTH 21
+  COLUMN-LABEL "Dir Fact-Act"
+  DECIMALS 6
+  ORDER 515
+
+ADD FIELD "actCostTotalFactory" OF "costHeader" AS decimal 
+  DESCRIPTION "Actual Total Factory Cost"
+  FORMAT "->,>>>,>>9.99"
+  INITIAL "0"
+  LABEL "Total Factory Cost - Actual"
+  POSITION 39
+  MAX-WIDTH 21
+  COLUMN-LABEL "Tot Fact-Act"
+  DECIMALS 6
+  ORDER 525
+
+ADD FIELD "stdCostPrepLabor" OF "costHeader" AS decimal 
+  DESCRIPTION "Estimated/Standard Prep Labor Cost"
+  FORMAT "->,>>>,>>9.99"
+  INITIAL "0"
+  LABEL "Prep Labor Cost - Standard"
+  POSITION 40
+  MAX-WIDTH 21
+  COLUMN-LABEL "Prep Lab-Std"
+  DECIMALS 6
+  ORDER 255
+
+ADD FIELD "actCostPrepMaterial" OF "costHeader" AS decimal 
+  DESCRIPTION "Actual Prep Material Cost"
+  FORMAT "->,>>>,>>9.99"
+  INITIAL "0"
+  LABEL "Prep Material Cost - Actual"
+  POSITION 41
+  MAX-WIDTH 21
+  COLUMN-LABEL "Prep Mat-Act"
+  DECIMALS 6
+  ORDER 545
+
+ADD FIELD "stdCostMiscLabor" OF "costHeader" AS decimal 
+  DESCRIPTION "Estimated/Standard Miscellaneous Labor Cost"
+  FORMAT "->,>>>,>>9.99"
+  INITIAL "0"
+  LABEL "Misc Labor Cost - Standard"
+  POSITION 42
+  MAX-WIDTH 21
+  COLUMN-LABEL "Misc Lab-Std"
+  DECIMALS 6
+  ORDER 275
+
+ADD FIELD "stdCostMiscMaterial" OF "costHeader" AS decimal 
+  DESCRIPTION "Estimated/Standard Miscellaneous Material Cost"
+  FORMAT "->,>>>,>>9.99"
+  INITIAL "0"
+  LABEL "Misc Material Cost - Standard"
+  POSITION 43
+  MAX-WIDTH 21
+  COLUMN-LABEL "Misc Mat-Std"
+  DECIMALS 6
+  ORDER 285
+
+ADD FIELD "stdCostTotalOther" OF "costHeader" AS decimal 
+  DESCRIPTION "Estimated/Standard Total Other Cost"
+  FORMAT "->,>>>,>>9.99"
+  INITIAL "0"
+  LABEL "Total Other Cost - Standard"
+  POSITION 44
+  MAX-WIDTH 21
+  COLUMN-LABEL "Tot Oth-Std"
+  DECIMALS 6
+  ORDER 295
+
+ADD FIELD "quantityPerSet" OF "costHeader" AS decimal 
+  DESCRIPTION "Quantity Per Set"
+  FORMAT "->,>>>,>>9.99"
+  INITIAL "0"
+  LABEL "Qty Per Set"
+  POSITION 45
+  MAX-WIDTH 21
+  COLUMN-LABEL "Qty Per Set"
+  DECIMALS 6
+  ORDER 745
+
+ADD FIELD "quantityRequest" OF "costHeader" AS decimal 
+  DESCRIPTION "Request Quantity"
+  FORMAT "->,>>>,>>9.99"
+  INITIAL "0"
+  LABEL "Request Qty"
+  POSITION 46
+  MAX-WIDTH 21
+  COLUMN-LABEL "Req Qty"
+  DECIMALS 6
+  ORDER 755
+
+ADD FIELD "quantityYield" OF "costHeader" AS decimal 
+  DESCRIPTION "Yield Quantity"
+  FORMAT "->,>>>,>>9.99"
+  INITIAL "0"
+  LABEL "Yield Qty"
+  POSITION 47
+  MAX-WIDTH 21
+  COLUMN-LABEL "Yld Qty"
+  DECIMALS 6
+  ORDER 765
+
+ADD FIELD "actCostWarehousing" OF "costHeader" AS decimal 
+  DESCRIPTION "Actual Warehousing Cost"
+  FORMAT "->,>>>,>>9.99"
+  INITIAL "0"
+  LABEL "Warehousing Cost - Actual"
+  POSITION 48
+  MAX-WIDTH 21
+  COLUMN-LABEL "Warehousing-Act"
+  DECIMALS 6
+  ORDER 645
+
+ADD FIELD "actCostFreight" OF "costHeader" AS decimal 
+  DESCRIPTION "Actual Freight Cost"
+  FORMAT "->,>>>,>>9.99"
+  INITIAL "0"
+  LABEL "Freight Cost - Actual"
+  POSITION 49
+  MAX-WIDTH 21
+  COLUMN-LABEL "Freight-Act"
+  DECIMALS 6
+  ORDER 585
+
+ADD FIELD "actCostCommission" OF "costHeader" AS decimal 
+  DESCRIPTION "Actual Commission Cost"
+  FORMAT "->,>>>,>>9.99"
+  INITIAL "0"
+  LABEL "Commission Cost - Actual"
+  POSITION 50
+  MAX-WIDTH 21
+  COLUMN-LABEL "Comm-Act"
+  DECIMALS 6
+  ORDER 695
+
+ADD FIELD "actCostFull" OF "costHeader" AS decimal 
+  DESCRIPTION "Actual Full Cost"
+  FORMAT "->,>>>,>>9.99"
+  INITIAL "0"
+  LABEL "Full Cost - Actual"
+  POSITION 51
+  MAX-WIDTH 21
+  COLUMN-LABEL "Full-Act"
+  DECIMALS 6
+  ORDER 705
+
+ADD FIELD "stdCostBrokerComm" OF "costHeader" AS decimal 
+  DESCRIPTION "Estimated/Standard Broker Commission Cost"
+  FORMAT "->,>>>,>>9.99"
+  INITIAL "0"
+  LABEL "Broker Comm Cost - Standard"
+  POSITION 52
+  MAX-WIDTH 21
+  COLUMN-LABEL "Broker Comm-Std"
+  DECIMALS 6
+  ORDER 375
+
+ADD FIELD "stdCostCommission" OF "costHeader" AS decimal 
+  DESCRIPTION "Estimated/Standard Commission Cost"
+  FORMAT "->,>>>,>>9.99"
+  INITIAL "0"
+  LABEL "Commission Cost - Standard"
+  POSITION 53
+  MAX-WIDTH 21
+  COLUMN-LABEL "Comm-Std"
+  DECIMALS 6
+  ORDER 415
+
+ADD FIELD "actCostGSABoard" OF "costHeader" AS decimal 
+  DESCRIPTION "Actual GS&A Board Cost"
+  FORMAT "->,>>>,>>9.99"
+  INITIAL "0"
+  LABEL "GS&A Board Cost - Actual"
+  POSITION 54
+  MAX-WIDTH 21
+  COLUMN-LABEL "GSA Board-Act"
+  DECIMALS 6
+  ORDER 615
+
+ADD FIELD "actCostGSALabor" OF "costHeader" AS decimal 
+  DESCRIPTION "Actual GS&A Labor Cost"
+  FORMAT "->,>>>,>>9.99"
+  INITIAL "0"
+  LABEL "GS&A Labor Cost - Actual"
+  POSITION 55
+  MAX-WIDTH 21
+  COLUMN-LABEL "GSA Lab-Act"
+  DECIMALS 6
+  ORDER 605
+
+ADD FIELD "actCostTotalGSA" OF "costHeader" AS decimal 
+  DESCRIPTION "Actual Total GS&A Cost"
+  FORMAT "->,>>>,>>9.99"
+  INITIAL "0"
+  LABEL "Total GS&A Cost - Actual"
+  POSITION 56
+  MAX-WIDTH 21
+  COLUMN-LABEL "Total GSA-Act"
+  DECIMALS 6
+  ORDER 625
+
+ADD FIELD "actCostGSAMaterial" OF "costHeader" AS decimal 
+  DESCRIPTION "Actual GS&A Material Cost"
+  FORMAT "->,>>>,>>9.99"
+  INITIAL "0"
+  LABEL "GS&A Material Cost - Actual"
+  POSITION 57
+  MAX-WIDTH 21
+  COLUMN-LABEL "GSA Mat-Act"
+  DECIMALS 6
+  ORDER 595
+
+ADD FIELD "stdCostFreight" OF "costHeader" AS decimal 
+  DESCRIPTION "Estimated/Standard Freight Cost"
+  FORMAT "->,>>>,>>9.99"
+  INITIAL "0"
+  LABEL "Freight Cost - Standard"
+  POSITION 58
+  MAX-WIDTH 21
+  COLUMN-LABEL "Freight-Std"
+  DECIMALS 6
+  ORDER 305
+
+ADD FIELD "stdCostFull" OF "costHeader" AS decimal 
+  DESCRIPTION "Estimated/Standard Full Cost"
+  FORMAT "->,>>>,>>9.99"
+  INITIAL "0"
+  LABEL "Full Cost - Standard"
+  POSITION 59
+  MAX-WIDTH 21
+  COLUMN-LABEL "Full-Std"
+  DECIMALS 6
+  ORDER 425
+
+ADD FIELD "stdCostGSABoard" OF "costHeader" AS decimal 
+  DESCRIPTION "Estimated/Standard GS&A Board Cost"
+  FORMAT "->,>>>,>>9.99"
+  INITIAL "0"
+  LABEL "GS&A Board Cost - Standard"
+  POSITION 60
+  MAX-WIDTH 21
+  COLUMN-LABEL "GSA Board-Std"
+  DECIMALS 6
+  ORDER 335
+
+ADD FIELD "stdCostGSALabor" OF "costHeader" AS decimal 
+  DESCRIPTION "Estimated/Standard GS&A Labor Cost"
+  FORMAT "->,>>>,>>9.99"
+  INITIAL "0"
+  LABEL "GS&A Labor Cost - Standard"
+  POSITION 61
+  MAX-WIDTH 21
+  COLUMN-LABEL "GSA Lab-Std"
+  DECIMALS 6
+  ORDER 325
+
+ADD FIELD "stdCostGSAMaterial" OF "costHeader" AS decimal 
+  DESCRIPTION "Estimated/Standard GS&A Material Cost"
+  FORMAT "->,>>>,>>9.99"
+  INITIAL "0"
+  LABEL "GS&A Material Cost - Standard"
+  POSITION 62
+  MAX-WIDTH 21
+  COLUMN-LABEL "GSA Mat-Std"
+  DECIMALS 6
+  ORDER 315
+
+ADD FIELD "actCostRoyalty" OF "costHeader" AS decimal 
+  DESCRIPTION "Actual Royalty Cost"
+  FORMAT "->,>>>,>>9.99"
+  INITIAL "0"
+  LABEL "Royalty Cost - Actual"
+  POSITION 63
+  MAX-WIDTH 21
+  COLUMN-LABEL "Royalty-Act"
+  DECIMALS 6
+  ORDER 635
+
+ADD FIELD "actCostSpecial1" OF "costHeader" AS decimal 
+  DESCRIPTION "Actual Special Custom Cost 1"
+  FORMAT "->,>>>,>>9.99"
+  INITIAL "0"
+  LABEL "Special Cost 1 - Actual"
+  POSITION 64
+  MAX-WIDTH 21
+  COLUMN-LABEL "Spec1-Act"
+  DECIMALS 6
+  ORDER 665
+
+ADD FIELD "actCostSpecial2" OF "costHeader" AS decimal 
+  DESCRIPTION "Actual Special Custom Cost 2"
+  FORMAT "->,>>>,>>9.99"
+  INITIAL "0"
+  LABEL "Special Cost 2 - Actual"
+  POSITION 65
+  MAX-WIDTH 21
+  COLUMN-LABEL "Spec2-Act"
+  DECIMALS 6
+  ORDER 675
+
+ADD FIELD "actCostSpecial3" OF "costHeader" AS decimal 
+  DESCRIPTION "Actual Special Custom Cost 3"
+  FORMAT "->,>>>,>>9.99"
+  INITIAL "0"
+  LABEL "Special Cost 3 - Actual"
+  POSITION 66
+  MAX-WIDTH 21
+  COLUMN-LABEL "Spec3-Act"
+  DECIMALS 6
+  ORDER 685
+
+ADD FIELD "stdCostRoyalty" OF "costHeader" AS decimal 
+  DESCRIPTION "Estimated/Standard Royalty Cost"
+  FORMAT "->,>>>,>>9.99"
+  INITIAL "0"
+  LABEL "Royalty Cost - Standard"
+  POSITION 67
+  MAX-WIDTH 21
+  COLUMN-LABEL "Royalty-Std"
+  DECIMALS 6
+  ORDER 355
+
+ADD FIELD "stdCostSpecial1" OF "costHeader" AS decimal 
+  DESCRIPTION "Estimated/Standard Special Custom Cost 1"
+  FORMAT "->,>>>,>>9.99"
+  INITIAL "0"
+  LABEL "Special Cost 1 - Standard"
+  POSITION 68
+  MAX-WIDTH 21
+  COLUMN-LABEL "Spec1-Std"
+  DECIMALS 6
+  ORDER 385
+
+ADD FIELD "stdCostSpecial2" OF "costHeader" AS decimal 
+  DESCRIPTION "Estimated/Standard Special Custom Cost 2"
+  FORMAT "->,>>>,>>9.99"
+  INITIAL "0"
+  LABEL "Special Cost 2 - Standard"
+  POSITION 69
+  MAX-WIDTH 21
+  COLUMN-LABEL "Spec2-Std"
+  DECIMALS 6
+  ORDER 395
+
+ADD FIELD "stdCostSpecial3" OF "costHeader" AS decimal 
+  DESCRIPTION "Estimated/Standard Special Custom Cost 3"
+  FORMAT "->,>>>,>>9.99"
+  INITIAL "0"
+  LABEL "Special Cost 3 - Standard"
+  POSITION 70
+  MAX-WIDTH 21
+  COLUMN-LABEL "Spec3-Std"
+  DECIMALS 6
+  ORDER 405
+
+ADD FIELD "actSellPrice" OF "costHeader" AS decimal 
+  DESCRIPTION "Actual Sell Price"
+  FORMAT "->,>>>,>>9.99"
+  INITIAL "0"
+  LABEL "Sell Price - Actual"
+  POSITION 71
+  MAX-WIDTH 21
+  COLUMN-LABEL "Sell Price-Act"
+  DECIMALS 6
+  ORDER 735
+
+ADD FIELD "stdCostTotalGSA" OF "costHeader" AS decimal 
+  DESCRIPTION "Estimated/Standard Total GS&A Cost"
+  FORMAT "->,>>>,>>9.99"
+  INITIAL "0"
+  LABEL "Total GS&A Cost - Standard"
+  POSITION 72
+  MAX-WIDTH 21
+  COLUMN-LABEL "Total GSA-Std"
+  DECIMALS 6
+  ORDER 345
+
+ADD FIELD "actCostBrokerComm" OF "costHeader" AS decimal 
+  DESCRIPTION "Actual Broker Commission Cost"
+  FORMAT "->,>>>,>>9.99"
+  INITIAL "0"
+  LABEL "Broker Comm Cost - Actual"
+  POSITION 73
+  MAX-WIDTH 21
+  COLUMN-LABEL "Broker Comm-Act"
+  DECIMALS 6
+  ORDER 655
+
+ADD FIELD "actProfitNet" OF "costHeader" AS decimal 
+  DESCRIPTION "Actual Net Profit"
+  FORMAT "->,>>>,>>9.99"
+  INITIAL "0"
+  LABEL "Net Profit - Actual"
+  POSITION 74
+  MAX-WIDTH 21
+  COLUMN-LABEL "Net Profit-Act"
+  DECIMALS 6
+  ORDER 715
+
+ADD FIELD "stdCostWarehousing" OF "costHeader" AS decimal 
+  DESCRIPTION "Estimated/Standard Warehousing Cost"
+  FORMAT "->,>>>,>>9.99"
+  INITIAL "0"
+  LABEL "Warehousing Cost - Standard"
+  POSITION 75
+  MAX-WIDTH 21
+  COLUMN-LABEL "Warehousing-Std"
+  DECIMALS 6
+  ORDER 365
+
+ADD FIELD "stdProfitGross" OF "costHeader" AS decimal 
+  DESCRIPTION "Estimated/Standard Gross Profit"
+  FORMAT "->,>>>,>>9.99"
+  INITIAL "0"
+  LABEL "Gross Profit - Standard"
+  POSITION 76
+  MAX-WIDTH 21
+  COLUMN-LABEL "Gross Profit-Std"
+  DECIMALS 6
+  ORDER 445
+
+ADD FIELD "stdProfitNet" OF "costHeader" AS decimal 
+  DESCRIPTION "Estimated/Standard Net Profit"
+  FORMAT "->,>>>,>>9.99"
+  INITIAL "0"
+  LABEL "Net Profit - Standard"
+  POSITION 77
+  MAX-WIDTH 21
+  COLUMN-LABEL "Net Profit-Std"
+  DECIMALS 6
+  ORDER 435
+
+ADD FIELD "stdSellPrice" OF "costHeader" AS decimal 
+  DESCRIPTION "Estimated/Standard Sell Price"
+  FORMAT "->,>>>,>>9.99"
+  INITIAL "0"
+  LABEL "Sell Price - Standard"
+  POSITION 78
+  MAX-WIDTH 21
+  COLUMN-LABEL "Sell Price-Std"
+  DECIMALS 6
+  ORDER 455
+
+ADD FIELD "lengthGross" OF "costHeader" AS decimal 
+  DESCRIPTION "Gross sheet length"
+  FORMAT ">>9.9999"
+  INITIAL "0"
+  LABEL "Gross Sheet Length"
+  POSITION 79
+  MAX-WIDTH 21
+  COLUMN-LABEL "Gross Sht L"
+  HELP "Length of gross sheet"
+  DECIMALS 6
+  ORDER 775
+
+ADD FIELD "widthGross" OF "costHeader" AS decimal 
+  DESCRIPTION "Gross sheet width"
+  FORMAT ">>9.9999"
+  INITIAL "0"
+  LABEL "Gross Sheet Width"
+  POSITION 80
+  MAX-WIDTH 21
+  COLUMN-LABEL "Gross Sht W"
+  HELP "Width of gross sheet"
+  DECIMALS 6
+  ORDER 785
+
+ADD FIELD "depthGross" OF "costHeader" AS decimal 
+  DESCRIPTION "Gross sheet depth"
+  FORMAT ">>9.9999"
+  INITIAL "0"
+  LABEL "Gross Sheet Depth"
+  POSITION 81
+  MAX-WIDTH 21
+  COLUMN-LABEL "Gross Sht D"
+  HELP "Depth of gross sheet"
+  DECIMALS 6
+  ORDER 795
+
+ADD FIELD "depthNet" OF "costHeader" AS decimal 
+  DESCRIPTION "Net sheet depth"
+  FORMAT ">>9.9999"
+  INITIAL "0"
+  LABEL "Net Sheet Depth"
+  POSITION 82
+  MAX-WIDTH 21
+  COLUMN-LABEL "Net Sht D"
+  HELP "Depth of net sheet"
+  DECIMALS 6
+  ORDER 805
+
+ADD FIELD "lengthNet" OF "costHeader" AS decimal 
+  DESCRIPTION "Net sheet length"
+  FORMAT ">>9.9999"
+  INITIAL "0"
+  LABEL "Net Sheet Length"
+  POSITION 83
+  MAX-WIDTH 21
+  COLUMN-LABEL "Net Sht L"
+  HELP "Length of net sheet"
+  DECIMALS 6
+  ORDER 815
+
+ADD FIELD "widthNet" OF "costHeader" AS decimal 
+  DESCRIPTION "Net sheet width"
+  FORMAT ">>9.9999"
+  INITIAL "0"
+  LABEL "Net Sheet Width"
+  POSITION 84
+  MAX-WIDTH 21
+  COLUMN-LABEL "Net Sht W"
+  HELP "Width of net sheet"
+  DECIMALS 6
+  ORDER 825
+
+ADD FIELD "lengthBlank" OF "costHeader" AS decimal 
+  DESCRIPTION "Blank length"
+  FORMAT ">>9.9999"
+  INITIAL "0"
+  LABEL "Blank Length"
+  POSITION 85
+  MAX-WIDTH 21
+  COLUMN-LABEL "Blank L"
+  HELP "Length of blank"
+  DECIMALS 6
+  ORDER 835
+
+ADD FIELD "widthBlank" OF "costHeader" AS decimal 
+  DESCRIPTION "Blank width"
+  FORMAT ">>9.9999"
+  INITIAL "0"
+  LABEL "Blank Width"
+  POSITION 86
+  MAX-WIDTH 21
+  COLUMN-LABEL "Blank W"
+  HELP "Width of blank"
+  DECIMALS 6
+  ORDER 845
+
+ADD FIELD "blankSquareFeet" OF "costHeader" AS decimal 
+  DESCRIPTION "Blank square feet"
+  FORMAT ">>>9.999<<"
+  INITIAL "0"
+  LABEL "Blank Square Feet"
+  POSITION 87
+  MAX-WIDTH 21
+  COLUMN-LABEL "Blank Sq Ft"
+  HELP "Blank square feet"
+  DECIMALS 6
+  ORDER 855
+
+ADD FIELD "factorForm" OF "costHeader" AS decimal 
+  DESCRIPTION "Factor for blank area on combo form"
+  FORMAT "->>,>>9.99"
+  INITIAL "0"
+  LABEL "Factor - Form"
+  POSITION 88
+  MAX-WIDTH 21
+  COLUMN-LABEL "Factor Form"
+  HELP "Factor for blank area on combo form"
+  DECIMALS 6
+  ORDER 865
+
+ADD FIELD "factorSet" OF "costHeader" AS decimal 
+  DESCRIPTION "Factor for item within set"
+  FORMAT "->>,>>9.99"
+  INITIAL "0"
+  LABEL "Factor - Set"
+  POSITION 89
+  MAX-WIDTH 21
+  COLUMN-LABEL "Factor - Set"
+  HELP "Factor for item within set"
+  DECIMALS 6
+  ORDER 875
+
+ADD INDEX "rec_key" ON "costHeader" 
+  AREA "Index"
+  UNIQUE
+  PRIMARY
+  INDEX-FIELD "rec_key" ASCENDING 
+
+ADD INDEX "CalcBy" ON "costHeader" 
+  AREA "Index"
+  INDEX-FIELD "company" ASCENDING 
+  INDEX-FIELD "calculatedBy" ASCENDING 
+
+ADD INDEX "Calculation" ON "costHeader" 
+  AREA "Index"
+  INDEX-FIELD "calculationTime" ASCENDING 
+
+ADD INDEX "Estimate" ON "costHeader" 
+  AREA "Index"
+  INDEX-FIELD "company" ASCENDING 
+  INDEX-FIELD "estimateNo" ASCENDING 
+
+ADD INDEX "Job" ON "costHeader" 
+  AREA "Index"
+  INDEX-FIELD "company" ASCENDING 
+  INDEX-FIELD "jobNo" ASCENDING 
+  INDEX-FIELD "jobNo2" ASCENDING 
+
+ADD TABLE "country"
+  AREA "Schema Area"
+  DESCRIPTION "GM:GM:Country master file"
+  DUMP-NAME "country"
+  TABLE-TRIGGER "CREATE" OVERRIDE PROCEDURE "create.trg\country.p" CRC "?" 
+  TABLE-TRIGGER "DELETE" OVERRIDE PROCEDURE "delete.trg\country.p" CRC "?" 
+  TABLE-TRIGGER "WRITE" OVERRIDE PROCEDURE "write.trg\country.p" CRC "?" 
+
+ADD FIELD "Country-code" OF "country" AS character 
+  FORMAT "x(4)"
+  INITIAL ""
+  LABEL "Country-code"
+  POSITION 2
+  MAX-WIDTH 8
+  HELP "Enter the country code."
+  ORDER 10
+
+ADD FIELD "Description" OF "country" AS character 
+  FORMAT "x(20)"
+  INITIAL ""
+  LABEL "Description"
+  POSITION 3
+  MAX-WIDTH 40
+  HELP "Enter the country description."
+  ORDER 20
+
+ADD FIELD "CommonName" OF "country" AS character 
+  FORMAT "X(60)"
+  INITIAL ""
+  LABEL "CommonName"
+  POSITION 4
+  MAX-WIDTH 120
+  ORDER 30
+
+ADD FIELD "FormalName" OF "country" AS character 
+  FORMAT "X(6)"
+  INITIAL ""
+  LABEL "FormalName"
+  POSITION 5
+  MAX-WIDTH 12
+  ORDER 40
+
+ADD FIELD "ISONumeric" OF "country" AS integer 
+  FORMAT "999"
+  INITIAL "0"
+  LABEL "ISONumeric"
+  POSITION 6
+  MAX-WIDTH 4
+  ORDER 50
+
+ADD FIELD "ISOAlpha2" OF "country" AS character 
+  FORMAT "X(2)"
+  INITIAL ""
+  LABEL "ISOAlpha2"
+  POSITION 7
+  MAX-WIDTH 4
+  ORDER 60
+
+ADD FIELD "ISOAlpha3" OF "country" AS character 
+  FORMAT "X(3)"
+  INITIAL ""
+  LABEL "ISOAlpha3"
+  POSITION 8
+  MAX-WIDTH 6
+  ORDER 70
+
+ADD FIELD "DefaultCurrency" OF "country" AS character 
+  FORMAT "X(3)"
+  INITIAL ""
+  LABEL "DefaultCurrency"
+  POSITION 9
+  MAX-WIDTH 6
+  ORDER 80
+
+ADD FIELD "AltCurrency1" OF "country" AS character 
+  FORMAT "X(3)"
+  INITIAL ""
+  LABEL "AltCurrency1"
+  POSITION 10
+  MAX-WIDTH 6
+  ORDER 90
+
+ADD FIELD "AltCurrency2" OF "country" AS character 
+  FORMAT "X(3)"
+  INITIAL ""
+  LABEL "AltCurrency2"
+  POSITION 11
+  MAX-WIDTH 6
+  ORDER 100
+
+ADD FIELD "DialCountry" OF "country" AS character 
+  FORMAT "X(3)"
+  INITIAL ""
+  LABEL "DialCountry"
+  POSITION 12
+  MAX-WIDTH 6
+  ORDER 110
+
+ADD FIELD "DialArea" OF "country" AS character 
+  FORMAT "X(3)"
+  INITIAL ""
+  LABEL "DialArea"
+  POSITION 13
+  MAX-WIDTH 6
+  ORDER 120
+
+ADD FIELD "rec_key" OF "country" AS character 
+  FORMAT "X(20)"
+  INITIAL ""
+  LABEL "Record Key"
+  POSITION 14
+  MAX-WIDTH 40
+  HELP "Enter Record Key Value"
+  LENGTH 0
+  ORDER 130
+
+ADD INDEX "country-code" ON "country" 
+  AREA "Schema Area"
+  UNIQUE
+  PRIMARY
+  INDEX-FIELD "Country-code" ASCENDING 
+
+ADD INDEX "iDialArea" ON "country" 
+  AREA "Schema Area"
+  INDEX-FIELD "DialCountry" ASCENDING 
+  INDEX-FIELD "DialArea" ASCENDING 
+
+ADD INDEX "iISOAlpha2" ON "country" 
+  AREA "Schema Area"
+  INDEX-FIELD "ISOAlpha2" ASCENDING 
+
+ADD INDEX "rec_key" ON "country" 
+  AREA "Index"
+  INDEX-FIELD "rec_key" ASCENDING 
+
+ADD TABLE "EdiPartnerSegment"
+  AREA "Data"
+  DUMP-NAME "edipartnersegment"
+  TABLE-TRIGGER "CREATE" OVERRIDE PROCEDURE "create.trg\ediPartnerSegment.p" CRC "?" 
+  TABLE-TRIGGER "DELETE" OVERRIDE PROCEDURE "delete.trg\ediPartnerSegment.p" CRC "?" 
+  TABLE-TRIGGER "WRITE" OVERRIDE PROCEDURE "write.trg\ediPartnerSegment.p" CRC "?" 
+
+ADD FIELD "SetID" OF "EdiPartnerSegment" AS character 
+  FORMAT "x(4)"
+  INITIAL ""
+  LABEL "Set ID"
+  POSITION 2
+  MAX-WIDTH 8
+  COLUMN-LABEL "Set ID"
+  ORDER 20
+
+ADD FIELD "Version" OF "EdiPartnerSegment" AS character 
+  FORMAT "x(5)"
+  INITIAL ""
+  LABEL "Version"
+  POSITION 3
+  MAX-WIDTH 10
+  COLUMN-LABEL "Version"
+  ORDER 30
+
+ADD FIELD "Section" OF "EdiPartnerSegment" AS character 
+  FORMAT "x(12)"
+  INITIAL ""
+  POSITION 4
+  MAX-WIDTH 24
+  ORDER 40
+
+ADD FIELD "Loop" OF "EdiPartnerSegment" AS character 
+  FORMAT "x(12)"
+  INITIAL ""
+  POSITION 5
+  MAX-WIDTH 24
+  ORDER 50
+
+ADD FIELD "SegmentOrder" OF "EdiPartnerSegment" AS integer 
+  FORMAT "999"
+  INITIAL "0"
+  LABEL "Order"
+  POSITION 6
+  MAX-WIDTH 4
+  COLUMN-LABEL "Order"
+  ORDER 60
+
+ADD FIELD "SegmentCode" OF "EdiPartnerSegment" AS character 
+  FORMAT "x(4)"
+  INITIAL ""
+  LABEL "Segment"
+  POSITION 7
+  MAX-WIDTH 8
+  COLUMN-LABEL "Segment"
+  ORDER 70
+
+ADD FIELD "ElementNum" OF "EdiPartnerSegment" AS integer 
+  FORMAT "999"
+  INITIAL "0"
+  POSITION 8
+  MAX-WIDTH 4
+  ORDER 80
+
+ADD FIELD "PartnerGrp" OF "EdiPartnerSegment" AS character 
+  FORMAT "x(12)"
+  INITIAL ""
+  POSITION 9
+  MAX-WIDTH 16
+  ORDER 10
+
+ADD FIELD "Qualifier" OF "EdiPartnerSegment" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  POSITION 10
+  MAX-WIDTH 16
+  ORDER 90
+
+ADD FIELD "rec_key" OF "EdiPartnerSegment" AS character 
+  FORMAT "X(20)"
+  INITIAL ""
+  LABEL "Record Key"
+  POSITION 11
+  MAX-WIDTH 40
+  HELP "Enter Record Key Value"
+  LENGTH 0
+  ORDER 100
+
+ADD INDEX "PartnerSetVer" ON "EdiPartnerSegment" 
+  AREA "Data"
+  UNIQUE
+  PRIMARY
+  INDEX-FIELD "PartnerGrp" ASCENDING 
+  INDEX-FIELD "SetID" ASCENDING 
+  INDEX-FIELD "Version" ASCENDING 
+  INDEX-FIELD "Section" ASCENDING 
+  INDEX-FIELD "SegmentOrder" ASCENDING 
+  INDEX-FIELD "SegmentCode" ASCENDING 
+  INDEX-FIELD "Qualifier" ASCENDING 
+  INDEX-FIELD "ElementNum" ASCENDING 
+
+ADD INDEX "rec_key" ON "EdiPartnerSegment" 
+  AREA "Data"
+  INDEX-FIELD "rec_key" ASCENDING 
+
+ADD TABLE "EdiX12Segment"
+  AREA "Data"
+  DUMP-NAME "edix12segment"
+
+ADD FIELD "SetID" OF "EdiX12Segment" AS character 
+  FORMAT "x(4)"
+  INITIAL ""
+  LABEL "Set ID"
+  POSITION 2
+  MAX-WIDTH 8
+  COLUMN-LABEL "Set ID"
+  ORDER 10
+
+ADD FIELD "Version" OF "EdiX12Segment" AS character 
+  FORMAT "x(5)"
+  INITIAL ""
+  LABEL "Version"
+  POSITION 3
+  MAX-WIDTH 10
+  COLUMN-LABEL "Version"
+  ORDER 20
+
+ADD FIELD "Section" OF "EdiX12Segment" AS character 
+  FORMAT "x(12)"
+  INITIAL ""
+  POSITION 4
+  MAX-WIDTH 24
+  ORDER 30
+
+ADD FIELD "Loop" OF "EdiX12Segment" AS character 
+  FORMAT "x(12)"
+  INITIAL ""
+  POSITION 5
+  MAX-WIDTH 24
+  ORDER 40
+
+ADD FIELD "SegmentOrder" OF "EdiX12Segment" AS integer 
+  FORMAT "999"
+  INITIAL "0"
+  LABEL "Order"
+  POSITION 6
+  MAX-WIDTH 4
+  COLUMN-LABEL "Order"
+  ORDER 50
+
+ADD FIELD "SegmentCode" OF "EdiX12Segment" AS character 
+  FORMAT "x(4)"
+  INITIAL ""
+  LABEL "Segment"
+  POSITION 7
+  MAX-WIDTH 8
+  COLUMN-LABEL "Segment"
+  ORDER 60
+
+ADD FIELD "ElementNum" OF "EdiX12Segment" AS integer 
+  FORMAT "999"
+  INITIAL "0"
+  POSITION 8
+  MAX-WIDTH 4
+  ORDER 70
+
+ADD FIELD "SegmentName" OF "EdiX12Segment" AS character 
+  FORMAT "x(20)"
+  INITIAL ""
+  LABEL "Name"
+  POSITION 9
+  MAX-WIDTH 40
+  COLUMN-LABEL "Name"
+  ORDER 80
+
+ADD FIELD "SegmentDesc" OF "EdiX12Segment" AS character 
+  FORMAT "x(50)"
+  INITIAL ""
+  LABEL "Segment Description"
+  POSITION 10
+  MAX-WIDTH 100
+  COLUMN-LABEL "Segment Description"
+  ORDER 90
+
+ADD FIELD "ElementName" OF "EdiX12Segment" AS character 
+  FORMAT "x(20)"
+  INITIAL ""
+  LABEL "Elem Name"
+  POSITION 11
+  MAX-WIDTH 40
+  COLUMN-LABEL "Element Name"
+  ORDER 100
+
+ADD FIELD "ElementDesc" OF "EdiX12Segment" AS character 
+  FORMAT "x(50)"
+  INITIAL ""
+  LABEL "Elem Description"
+  POSITION 12
+  MAX-WIDTH 100
+  COLUMN-LABEL "Element Description"
+  ORDER 110
+
+ADD FIELD "rec_key" OF "EdiX12Segment" AS character 
+  FORMAT "X(20)"
+  INITIAL ""
+  LABEL "Record Key"
+  POSITION 13
+  MAX-WIDTH 40
+  HELP "Enter Record Key Value"
+  LENGTH 0
+  ORDER 120
+
+ADD INDEX "SetIDVersion" ON "EdiX12Segment" 
+  AREA "Index"
+  UNIQUE
+  PRIMARY
+  INDEX-FIELD "SetID" ASCENDING 
+  INDEX-FIELD "Version" ASCENDING 
+  INDEX-FIELD "Section" ASCENDING 
+  INDEX-FIELD "SegmentOrder" ASCENDING 
+  INDEX-FIELD "SegmentCode" ASCENDING 
+  INDEX-FIELD "ElementNum" ASCENDING 
+
+ADD INDEX "rec_key" ON "EdiX12Segment" 
+  AREA "Data"
+  INDEX-FIELD "rec_key" ASCENDING 
+
+ADD TABLE "edPartnerGrp"
+  AREA "Data"
+  DESCRIPTION "Partner Group contains info related to a group of partners"
+  DUMP-NAME "edpartnergrp"
+  TABLE-TRIGGER "CREATE" OVERRIDE PROCEDURE "create.trg\edPartnerGrp.p" CRC "?" 
+  TABLE-TRIGGER "DELETE" OVERRIDE PROCEDURE "delete.trg\edPartnerGrp.p" CRC "?" 
+  TABLE-TRIGGER "WRITE" OVERRIDE PROCEDURE "write.trg\edPartnerGrp.p" CRC "?" 
+
+ADD FIELD "PartnerGrp" OF "edPartnerGrp" AS character 
+  FORMAT "x(12)"
+  INITIAL ""
+  LABEL "Partner Group"
+  POSITION 2
+  MAX-WIDTH 24
+  ORDER 230
+
+ADD FIELD "PartnerGrpName" OF "edPartnerGrp" AS character 
+  FORMAT "x(25)"
+  INITIAL ""
+  LABEL "TP Group Name"
+  POSITION 3
+  MAX-WIDTH 50
+  ORDER 240
+
+ADD FIELD "rec_key" OF "edPartnerGrp" AS character 
+  FORMAT "X(20)"
+  INITIAL ""
+  LABEL "Record Key"
+  POSITION 4
+  MAX-WIDTH 40
+  HELP "Enter Record Key Value"
+  LENGTH 0
+  ORDER 250
+
+ADD FIELD "ISA" OF "edPartnerGrp" AS integer 
+  FORMAT ">>>>>>>>9"
+  INITIAL "0"
+  POSITION 5
+  MAX-WIDTH 4
+  HELP "ISA sequence number of incoming document header"
+  ORDER 260
+
+ADD FIELD "GS" OF "edPartnerGrp" AS integer 
+  FORMAT ">>>>>>>>9"
+  INITIAL "0"
+  POSITION 6
+  MAX-WIDTH 4
+  HELP "Group sequence number of incoming document header"
+  ORDER 270
+
+ADD FIELD "ST" OF "edPartnerGrp" AS integer 
+  FORMAT ">>>>>>>>9"
+  INITIAL "0"
+  POSITION 7
+  MAX-WIDTH 4
+  HELP "Sequence number within Group on incoming document"
+  ORDER 280
+
+ADD INDEX "PartnerGrp" ON "edPartnerGrp" 
+  AREA "Data"
+  PRIMARY
+  INDEX-FIELD "PartnerGrp" ASCENDING 
+
+ADD INDEX "rec_key" ON "edPartnerGrp" 
+  AREA "Data"
+  INDEX-FIELD "rec_key" ASCENDING 
+
+ADD TABLE "edSetID"
+  AREA "Data"
+  DESCRIPTION "EDI Set ID - document types"
+  DUMP-NAME "edsetid"
+  TABLE-TRIGGER "CREATE" OVERRIDE PROCEDURE "create.trg\edSetID.p" CRC "?" 
+  TABLE-TRIGGER "DELETE" OVERRIDE PROCEDURE "delete.trg\edSetId.p" CRC "?" 
+  TABLE-TRIGGER "WRITE" OVERRIDE PROCEDURE "write.trg\edSetId.p" CRC "?" 
+
+ADD FIELD "SetID" OF "edSetID" AS character 
+  DESCRIPTION "Transaction Type"
+  FORMAT "x(6)"
+  INITIAL ""
+  POSITION 2
+  MAX-WIDTH 12
+  HELP "EDI Document Type: 810=Invoice, 850=PO, 856=ASN, etc."
+  ORDER 20
+  MANDATORY
+
+ADD FIELD "setIDDescription" OF "edSetID" AS character 
+  FORMAT "x(40)"
+  INITIAL ""
+  LABEL "Description"
+  POSITION 3
+  MAX-WIDTH 80
+  ORDER 30
+
+ADD FIELD "rec_key" OF "edSetID" AS character 
+  FORMAT "X(20)"
+  INITIAL ""
+  LABEL "Record Key"
+  POSITION 4
+  MAX-WIDTH 40
+  HELP "Enter Record Key Value"
+  LENGTH 0
+  ORDER 40
+
+ADD INDEX "setID" ON "edSetID" 
+  AREA "Data"
+  UNIQUE
+  PRIMARY
+  INDEX-FIELD "SetID" ASCENDING 
+
+ADD INDEX "rec_key" ON "edSetID" 
+  AREA "Data"
+  INDEX-FIELD "rec_key" ASCENDING 
+
+ADD TABLE "InvoiceLines"
+  AREA "Data"
+  DUMP-NAME "invoicelines"
+
+ADD FIELD "CustomerName" OF "InvoiceLines" AS character 
+  FORMAT "x(35)"
+  INITIAL ""
+  POSITION 2
+  MAX-WIDTH 70
+  ORDER 10
+
+ADD FIELD "ConsolCustName" OF "InvoiceLines" AS character 
+  DESCRIPTION "Consolidated Customer Name"
+  FORMAT "x(35)"
+  INITIAL ""
+  POSITION 3
+  MAX-WIDTH 70
+  ORDER 20
+
+ADD FIELD "InvoiceDate" OF "InvoiceLines" AS date 
+  FORMAT "99/99/99"
+  INITIAL ?
+  POSITION 4
+  MAX-WIDTH 4
+  ORDER 30
+
+ADD FIELD "MSFPerInvoice" OF "InvoiceLines" AS decimal 
+  FORMAT "->>>,>>9.99999"
+  INITIAL "0"
+  POSITION 5
+  MAX-WIDTH 20
+  DECIMALS 5
+  ORDER 40
+
+ADD FIELD "SalesDollsPerInvoice" OF "InvoiceLines" AS decimal 
+  FORMAT "->>>,>>9.99999"
+  INITIAL "0"
+  POSITION 6
+  MAX-WIDTH 20
+  DECIMALS 5
+  ORDER 50
+
+ADD FIELD "QuantitySold" OF "InvoiceLines" AS integer 
+  FORMAT "->>>>>>>9"
+  INITIAL "0"
+  POSITION 7
+  MAX-WIDTH 4
+  ORDER 60
+
+ADD FIELD "UOM" OF "InvoiceLines" AS character 
+  FORMAT "x(3)"
+  INITIAL ""
+  POSITION 8
+  MAX-WIDTH 6
+  ORDER 70
+
+ADD FIELD "UnitPrice" OF "InvoiceLines" AS decimal 
+  FORMAT "->>>,>>9.99999"
+  INITIAL "0"
+  POSITION 9
+  MAX-WIDTH 20
+  DECIMALS 5
+  ORDER 80
+
+ADD FIELD "WeightLbs" OF "InvoiceLines" AS decimal 
+  FORMAT "->>>,>>9.99999"
+  INITIAL "0"
+  POSITION 10
+  MAX-WIDTH 20
+  DECIMALS 5
+  ORDER 90
+
+ADD FIELD "ProductCode" OF "InvoiceLines" AS character 
+  FORMAT "x(25)"
+  INITIAL ""
+  POSITION 11
+  MAX-WIDTH 50
+  ORDER 100
+
+ADD FIELD "ProductCodeDescription" OF "InvoiceLines" AS character 
+  FORMAT "x(50)"
+  INITIAL ""
+  POSITION 12
+  MAX-WIDTH 100
+  ORDER 110
+
+ADD FIELD "InvoiceMonthChar" OF "InvoiceLines" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  POSITION 13
+  MAX-WIDTH 16
+  ORDER 120
+
+ADD FIELD "PostingPeriodChar" OF "InvoiceLines" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  POSITION 14
+  MAX-WIDTH 16
+  ORDER 130
+
+ADD FIELD "InvoiceNumber" OF "InvoiceLines" AS integer 
+  FORMAT ">>>>>>>>9"
+  INITIAL "0"
+  POSITION 15
+  MAX-WIDTH 4
+  ORDER 140
+
+ADD FIELD "InvoiceType" OF "InvoiceLines" AS character 
+  FORMAT "x(10)"
+  INITIAL ""
+  POSITION 16
+  MAX-WIDTH 20
+  ORDER 150
+
+ADD FIELD "InvoiceLineNumber" OF "InvoiceLines" AS integer 
+  FORMAT ">>>>9"
+  INITIAL "0"
+  POSITION 17
+  MAX-WIDTH 4
+  ORDER 160
+
+ADD FIELD "BoardGrade" OF "InvoiceLines" AS character 
+  FORMAT "x(10)"
+  INITIAL ""
+  POSITION 18
+  MAX-WIDTH 20
+  ORDER 170
+
+ADD FIELD "ProductID" OF "InvoiceLines" AS character 
+  FORMAT "x(25)"
+  INITIAL ""
+  POSITION 19
+  MAX-WIDTH 50
+  ORDER 180
+
+ADD FIELD "ProductIdDescription" OF "InvoiceLines" AS character 
+  FORMAT "x(50)"
+  INITIAL ""
+  POSITION 20
+  MAX-WIDTH 100
+  ORDER 190
+
+ADD FIELD "DeliveryType" OF "InvoiceLines" AS character 
+  FORMAT "x(20)"
+  INITIAL ""
+  POSITION 21
+  MAX-WIDTH 40
+  ORDER 200
+
+ADD FIELD "ShipToName" OF "InvoiceLines" AS character 
+  FORMAT "x(40)"
+  INITIAL ""
+  POSITION 22
+  MAX-WIDTH 80
+  ORDER 210
+
+ADD FIELD "ShipToStreet" OF "InvoiceLines" AS character 
+  FORMAT "x(40)"
+  INITIAL ""
+  POSITION 23
+  MAX-WIDTH 80
+  ORDER 220
+
+ADD FIELD "ShipToCity" OF "InvoiceLines" AS character 
+  FORMAT "x(40)"
+  INITIAL ""
+  POSITION 24
+  MAX-WIDTH 80
+  ORDER 230
+
+ADD FIELD "ShipToState" OF "InvoiceLines" AS character 
+  FORMAT "x(4)"
+  INITIAL ""
+  POSITION 25
+  MAX-WIDTH 8
+  ORDER 240
+
+ADD FIELD "ShipToCountry" OF "InvoiceLines" AS character 
+  FORMAT "x(20)"
+  INITIAL ""
+  POSITION 26
+  MAX-WIDTH 40
+  ORDER 250
+
+ADD FIELD "DesignNumber" OF "InvoiceLines" AS character 
+  FORMAT "x(80)"
+  INITIAL ""
+  POSITION 27
+  MAX-WIDTH 160
+  ORDER 260
+
+ADD FIELD "CuttingDieNumbers" OF "InvoiceLines" AS character 
+  FORMAT "x(80)"
+  INITIAL ""
+  POSITION 28
+  MAX-WIDTH 160
+  ORDER 270
+
+ADD FIELD "PrintPlateNumbers" OF "InvoiceLines" AS character 
+  FORMAT "x(80)"
+  INITIAL ""
+  POSITION 29
+  MAX-WIDTH 160
+  ORDER 280
+
+ADD FIELD "MachineRouting" OF "InvoiceLines" AS character 
+  FORMAT "x(80)"
+  INITIAL ""
+  POSITION 30
+  MAX-WIDTH 160
+  ORDER 290
+
+ADD FIELD "DirectCosts" OF "InvoiceLines" AS decimal 
+  DESCRIPTION "total Direct Costs"
+  FORMAT "->>>,>>9.99999"
+  INITIAL "0"
+  POSITION 31
+  MAX-WIDTH 20
+  DECIMALS 5
+  ORDER 300
+
+ADD FIELD "BoardCost" OF "InvoiceLines" AS decimal 
+  FORMAT "->>,>>9.99999"
+  INITIAL "0"
+  POSITION 32
+  MAX-WIDTH 20
+  DECIMALS 5
+  ORDER 310
+
+ADD FIELD "PaperCost" OF "InvoiceLines" AS decimal 
+  FORMAT "->>,>>9.99999"
+  INITIAL "0"
+  POSITION 33
+  MAX-WIDTH 20
+  DECIMALS 5
+  ORDER 320
+
+ADD FIELD "AdhesiveCost" OF "InvoiceLines" AS decimal 
+  FORMAT "->>,>>9.99999"
+  INITIAL "0"
+  POSITION 34
+  MAX-WIDTH 20
+  DECIMALS 5
+  ORDER 330
+
+ADD FIELD "CoatingsCost" OF "InvoiceLines" AS decimal 
+  FORMAT "->>,>>9.99999"
+  INITIAL "0"
+  POSITION 35
+  MAX-WIDTH 20
+  DECIMALS 5
+  ORDER 340
+
+ADD FIELD "MaterialsCost" OF "InvoiceLines" AS decimal 
+  FORMAT "->>,>>9.99999"
+  INITIAL "0"
+  POSITION 36
+  MAX-WIDTH 20
+  DECIMALS 5
+  ORDER 350
+
+ADD FIELD "LabelsCost" OF "InvoiceLines" AS decimal 
+  FORMAT "->>,>>9.99999"
+  INITIAL "0"
+  POSITION 37
+  MAX-WIDTH 20
+  DECIMALS 5
+  ORDER 360
+
+ADD FIELD "StrappingBundlingCost" OF "InvoiceLines" AS decimal 
+  FORMAT "->>,>>9.99999"
+  INITIAL "0"
+  POSITION 38
+  MAX-WIDTH 20
+  DECIMALS 5
+  ORDER 370
+
+ADD FIELD "InkCost" OF "InvoiceLines" AS decimal 
+  FORMAT "->>,>>9.99999"
+  INITIAL "0"
+  POSITION 39
+  MAX-WIDTH 20
+  DECIMALS 5
+  ORDER 380
+
+ADD FIELD "PalletsCost" OF "InvoiceLines" AS decimal 
+  FORMAT "->>,>>9.99999"
+  INITIAL "0"
+  POSITION 40
+  MAX-WIDTH 20
+  DECIMALS 5
+  ORDER 390
+
+ADD FIELD "StretchWrapCost" OF "InvoiceLines" AS decimal 
+  FORMAT "->>,>>9.99999"
+  INITIAL "0"
+  POSITION 41
+  MAX-WIDTH 20
+  DECIMALS 5
+  ORDER 400
+
+ADD FIELD "GlueCost" OF "InvoiceLines" AS decimal 
+  FORMAT "->>,>>9.99999"
+  INITIAL "0"
+  POSITION 42
+  MAX-WIDTH 20
+  DECIMALS 5
+  ORDER 410
+
+ADD FIELD "LabourCost" OF "InvoiceLines" AS decimal 
+  FORMAT "->>,>>9.99999"
+  INITIAL "0"
+  POSITION 43
+  MAX-WIDTH 20
+  DECIMALS 5
+  ORDER 420
+
+ADD FIELD "LabourDirectCost" OF "InvoiceLines" AS decimal 
+  FORMAT "->>,>>9.99999"
+  INITIAL "0"
+  POSITION 44
+  MAX-WIDTH 20
+  DECIMALS 5
+  ORDER 430
+
+ADD FIELD "LabourIndirectCost" OF "InvoiceLines" AS decimal 
+  FORMAT "->>,>>9.99"
+  INITIAL "0"
+  POSITION 45
+  MAX-WIDTH 17
+  DECIMALS 2
+  ORDER 440
+
+ADD FIELD "DeliveryCost" OF "InvoiceLines" AS decimal 
+  FORMAT "->>,>>9.99999"
+  INITIAL "0"
+  POSITION 46
+  MAX-WIDTH 20
+  DECIMALS 5
+  ORDER 450
+
+ADD FIELD "DirectOverheadCost" OF "InvoiceLines" AS decimal 
+  FORMAT "->>,>>9.99999"
+  INITIAL "0"
+  POSITION 47
+  MAX-WIDTH 20
+  DECIMALS 5
+  ORDER 460
+
+ADD FIELD "MaintenancePartscost" OF "InvoiceLines" AS decimal 
+  FORMAT "->>,>>9.99999"
+  INITIAL "0"
+  POSITION 48
+  MAX-WIDTH 20
+  DECIMALS 5
+  ORDER 470
+
+ADD FIELD "TermsDiscount" OF "InvoiceLines" AS decimal 
+  FORMAT "->>,>>9.99999"
+  INITIAL "0"
+  POSITION 49
+  MAX-WIDTH 20
+  DECIMALS 5
+  ORDER 480
+
+ADD FIELD "Rebates" OF "InvoiceLines" AS decimal 
+  FORMAT "->>,>>9.99999"
+  INITIAL "0"
+  POSITION 50
+  MAX-WIDTH 20
+  DECIMALS 5
+  ORDER 490
+
+ADD FIELD "EquipmentRecovery" OF "InvoiceLines" AS decimal 
+  FORMAT "->>,>>9.99999"
+  INITIAL "0"
+  POSITION 51
+  MAX-WIDTH 17
+  DECIMALS 2
+  ORDER 500
+
+ADD FIELD "ToolingCost" OF "InvoiceLines" AS decimal 
+  FORMAT "->>,>>9.99999"
+  INITIAL "0"
+  POSITION 52
+  MAX-WIDTH 20
+  DECIMALS 5
+  ORDER 510
+
+ADD FIELD "FixedCosts" OF "InvoiceLines" AS decimal 
+  FORMAT "->>,>>9.99999"
+  INITIAL "0"
+  POSITION 53
+  MAX-WIDTH 20
+  DECIMALS 5
+  ORDER 520
+
+ADD FIELD "SGACosts" OF "InvoiceLines" AS decimal 
+  FORMAT "->>,>>9.99999"
+  INITIAL "0"
+  POSITION 54
+  MAX-WIDTH 20
+  DECIMALS 5
+  ORDER 530
+
+ADD FIELD "FixedOverHeadCosts" OF "InvoiceLines" AS decimal 
+  FORMAT "->>,>>9.99999"
+  INITIAL "0"
+  POSITION 55
+  MAX-WIDTH 20
+  DECIMALS 5
+  ORDER 540
+
+ADD FIELD "WarehouseCost" OF "InvoiceLines" AS decimal 
+  FORMAT "->>,>>9.99999"
+  INITIAL "0"
+  POSITION 56
+  MAX-WIDTH 20
+  DECIMALS 5
+  ORDER 550
+
+ADD FIELD "OrderNumber" OF "InvoiceLines" AS integer 
+  FORMAT ">>>>>>>9"
+  INITIAL "0"
+  POSITION 57
+  MAX-WIDTH 4
+  ORDER 560
+
+ADD FIELD "CustomerPONumber" OF "InvoiceLines" AS character 
+  FORMAT "x(35)"
+  INITIAL ""
+  POSITION 58
+  MAX-WIDTH 70
+  ORDER 570
+
+ADD FIELD "WarehouseCode" OF "InvoiceLines" AS character 
+  FORMAT "x(20)"
+  INITIAL ""
+  POSITION 59
+  MAX-WIDTH 40
+  ORDER 580
+
+ADD FIELD "WarehouseBin" OF "InvoiceLines" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  POSITION 60
+  MAX-WIDTH 16
+  ORDER 590
+
+ADD FIELD "Company" OF "InvoiceLines" AS character 
+  FORMAT "x(3)"
+  INITIAL ""
+  POSITION 61
+  MAX-WIDTH 6
+  ORDER 600
+
+ADD FIELD "ShipToZip" OF "InvoiceLines" AS character 
+  FORMAT "x(10)"
+  INITIAL ""
+  POSITION 62
+  MAX-WIDTH 20
+  ORDER 610
+
+ADD FIELD "TotalCost" OF "InvoiceLines" AS decimal 
+  FORMAT "->>,>>9.999999"
+  INITIAL "0"
+  POSITION 63
+  MAX-WIDTH 20
+  DECIMALS 5
+  ORDER 620
+
+ADD FIELD "ProductCategory" OF "InvoiceLines" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  POSITION 64
+  MAX-WIDTH 16
+  ORDER 630
+
+ADD FIELD "FixedOverhead" OF "InvoiceLines" AS decimal 
+  DESCRIPTION "fixed overhead Costs"
+  FORMAT "->>>,>>9.99999"
+  INITIAL "0"
+  POSITION 65
+  MAX-WIDTH 20
+  DECIMALS 5
+  ORDER 640
+
+ADD FIELD "VariableOverheadCost" OF "InvoiceLines" AS decimal 
+  FORMAT "->>,>>9.99999"
+  INITIAL "0"
+  POSITION 66
+  MAX-WIDTH 20
+  DECIMALS 5
+  ORDER 650
+
+ADD INDEX "InvoiceLine" ON "InvoiceLines" 
+  AREA "Index"
+  PRIMARY
+  INDEX-FIELD "Company" ASCENDING 
+  INDEX-FIELD "InvoiceNumber" ASCENDING 
+  INDEX-FIELD "InvoiceLineNumber" ASCENDING 
+
+ADD INDEX "Category" ON "InvoiceLines" 
+  AREA "Index"
+  INDEX-FIELD "Company" ASCENDING 
+  INDEX-FIELD "ProductCategory" ASCENDING 
+
+ADD INDEX "Customer" ON "InvoiceLines" 
+  AREA "Index"
+  INDEX-FIELD "Company" ASCENDING 
+  INDEX-FIELD "CustomerName" ASCENDING 
+
+ADD INDEX "InvoiceDat" ON "InvoiceLines" 
+  AREA "Index"
+  INDEX-FIELD "Company" ASCENDING 
+  INDEX-FIELD "InvoiceDate" ASCENDING 
+
+ADD TABLE "noteLink"
+  AREA "Data"
+  DUMP-NAME "notelink"
+
+ADD FIELD "rec_key" OF "noteLink" AS character 
+  FORMAT "X(20)"
+  INITIAL ""
+  LABEL "Record Key"
+  POSITION 2
+  MAX-WIDTH 40
+  HELP "Enter Record Key Value"
+  LENGTH 0
+  ORDER 40
+
+ADD FIELD "Noterec_key" OF "noteLink" AS character 
+  FORMAT "X(20)"
+  INITIAL ""
+  LABEL "Note Rec Key"
+  POSITION 3
+  MAX-WIDTH 40
+  HELP "Enter Record Key Value"
+  ORDER 50
+
+ADD FIELD "Objectrec_key" OF "noteLink" AS character 
+  FORMAT "X(20)"
+  INITIAL ""
+  LABEL "Object Record Key"
+  POSITION 4
+  MAX-WIDTH 40
+  HELP "Enter Record Key Value"
+  ORDER 60
+
+ADD INDEX "iPrimary" ON "noteLink" 
+  AREA "Data"
+  UNIQUE
+  PRIMARY
+  INDEX-FIELD "rec_key" ASCENDING 
+  INDEX-FIELD "Noterec_key" ASCENDING 
+  INDEX-FIELD "Objectrec_key" ASCENDING 
+
+ADD INDEX "iNoteRecKey" ON "noteLink" 
+  AREA "Data"
+  INDEX-FIELD "Noterec_key" ASCENDING 
+
+ADD INDEX "iObjRecKey" ON "noteLink" 
+  AREA "Data"
+  INDEX-FIELD "Objectrec_key" ASCENDING 
+
+ADD INDEX "iRecKey" ON "noteLink" 
+  AREA "Data"
+  INDEX-FIELD "rec_key" ASCENDING 
+
+ADD TABLE "reftable1"
+  AREA "Data"
+  DESCRIPTION "Backup copy of reftabloe used during conversion"
+  DUMP-NAME "reftable1"
+
+ADD FIELD "reftable" OF "reftable1" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  LABEL "Table"
+  POSITION 2
+  MAX-WIDTH 16
+  HELP "Enter Identifying Code for this list."
+  ORDER 5
+
+ADD FIELD "company" OF "reftable1" AS character 
+  FORMAT "x(3)"
+  INITIAL ""
+  LABEL "Company"
+  POSITION 3
+  MAX-WIDTH 6
+  ORDER 10
+  MANDATORY
+
+ADD FIELD "loc" OF "reftable1" AS character 
+  FORMAT "x(5)"
+  INITIAL ""
+  LABEL "Warehouse"
+  POSITION 4
+  MAX-WIDTH 10
+  HELP "Enter Warehouse Code"
+  ORDER 20
+
+ADD FIELD "code" OF "reftable1" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  LABEL "Code"
+  POSITION 5
+  MAX-WIDTH 16
+  HELP "Enter code for this reference table item."
+  ORDER 30
+  MANDATORY
+
+ADD FIELD "code2" OF "reftable1" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  LABEL "Code 2"
+  POSITION 6
+  MAX-WIDTH 16
+  ORDER 35
+
+ADD FIELD "dscr" OF "reftable1" AS character 
+  FORMAT "x(30)"
+  INITIAL ""
+  LABEL "Description"
+  POSITION 7
+  MAX-WIDTH 60
+  HELP "Enter description"
+  ORDER 40
+
+ADD FIELD "val" OF "reftable1" AS decimal 
+  FORMAT "->>,>>9.99"
+  INITIAL "0"
+  LABEL "Values"
+  POSITION 8
+  MAX-WIDTH 286
+  EXTENT 13
+  DECIMALS 6
+  ORDER 50
+
+ADD FIELD "rec_key" OF "reftable1" AS character 
+  FORMAT "X(20)"
+  INITIAL ""
+  LABEL "Rec Key"
+  POSITION 9
+  MAX-WIDTH 40
+  HELP "Enter Rec Key"
+  ORDER 60
+
+ADD FIELD "spare-char-1" OF "reftable1" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  POSITION 10
+  MAX-WIDTH 16
+  ORDER 70
+
+ADD FIELD "spare-char-2" OF "reftable1" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  POSITION 11
+  MAX-WIDTH 16
+  ORDER 80
+
+ADD FIELD "spare-char-3" OF "reftable1" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  POSITION 12
+  MAX-WIDTH 16
+  ORDER 90
+
+ADD FIELD "spare-char-4" OF "reftable1" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  POSITION 13
+  MAX-WIDTH 16
+  ORDER 100
+
+ADD FIELD "spare-char-5" OF "reftable1" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  POSITION 14
+  MAX-WIDTH 16
+  ORDER 110
+
+ADD FIELD "spare-dec-1" OF "reftable1" AS decimal 
+  FORMAT "->>,>>9.99"
+  INITIAL "0"
+  POSITION 15
+  MAX-WIDTH 21
+  DECIMALS 6
+  ORDER 120
+
+ADD FIELD "spare-dec-2" OF "reftable1" AS decimal 
+  FORMAT "->>,>>9.99"
+  INITIAL "0"
+  POSITION 16
+  MAX-WIDTH 21
+  DECIMALS 6
+  ORDER 130
+
+ADD FIELD "spare-dec-3" OF "reftable1" AS decimal 
+  FORMAT "->>,>>9.99"
+  INITIAL "0"
+  POSITION 17
+  MAX-WIDTH 21
+  DECIMALS 6
+  ORDER 140
+
+ADD FIELD "spare-dec-4" OF "reftable1" AS decimal 
+  FORMAT "->>,>>9.99"
+  INITIAL "0"
+  POSITION 18
+  MAX-WIDTH 21
+  DECIMALS 6
+  ORDER 150
+
+ADD FIELD "spare-dec-5" OF "reftable1" AS decimal 
+  FORMAT "->>,>>9.99"
+  INITIAL "0"
+  POSITION 19
+  MAX-WIDTH 21
+  DECIMALS 6
+  ORDER 160
+
+ADD FIELD "spare-int-1" OF "reftable1" AS integer 
+  FORMAT "->,>>>,>>9"
+  INITIAL "0"
+  POSITION 20
+  MAX-WIDTH 4
+  ORDER 170
+
+ADD FIELD "spare-int-2" OF "reftable1" AS integer 
+  FORMAT "->,>>>,>>9"
+  INITIAL "0"
+  POSITION 21
+  MAX-WIDTH 4
+  ORDER 180
+
+ADD FIELD "spare-int-3" OF "reftable1" AS integer 
+  FORMAT "->,>>>,>>9"
+  INITIAL "0"
+  POSITION 22
+  MAX-WIDTH 4
+  ORDER 190
+
+ADD FIELD "spare-int-4" OF "reftable1" AS integer 
+  FORMAT "->,>>>,>>9"
+  INITIAL "0"
+  POSITION 23
+  MAX-WIDTH 4
+  ORDER 200
+
+ADD FIELD "spare-int-5" OF "reftable1" AS integer 
+  FORMAT "->,>>>,>>9"
+  INITIAL "0"
+  POSITION 24
+  MAX-WIDTH 4
+  ORDER 210
+
+ADD INDEX "reftable" ON "reftable1" 
+  AREA "Data"
+  PRIMARY
+  INDEX-FIELD "reftable" ASCENDING 
+  INDEX-FIELD "company" ASCENDING 
+  INDEX-FIELD "loc" ASCENDING 
+  INDEX-FIELD "code" ASCENDING 
+  INDEX-FIELD "code2" ASCENDING 
+
+ADD INDEX "code" ON "reftable1" 
+  AREA "Data"
+  INDEX-FIELD "reftable" ASCENDING 
+  INDEX-FIELD "code" ASCENDING 
+
+ADD INDEX "code2" ON "reftable1" 
+  AREA "Data"
+  INDEX-FIELD "reftable" ASCENDING 
+  INDEX-FIELD "code2" ASCENDING 
+
+ADD INDEX "loc" ON "reftable1" 
+  AREA "Data"
+  INDEX-FIELD "reftable" ASCENDING 
+  INDEX-FIELD "loc" ASCENDING 
+
+ADD INDEX "rec_key" ON "reftable1" 
+  AREA "Data"
+  INDEX-FIELD "rec_key" ASCENDING 
+
+ADD TABLE "scoreType"
+  AREA "Data"
+  DUMP-NAME "scoretype"
+  TABLE-TRIGGER "CREATE" OVERRIDE PROCEDURE "create.trg/scoreType.p" CRC "?" 
+  TABLE-TRIGGER "DELETE" OVERRIDE PROCEDURE "delete.trg/scoreType.p" CRC "?" 
+  TABLE-TRIGGER "WRITE" OVERRIDE PROCEDURE "write.trg/scoreType.p" CRC "?" 
+
+ADD FIELD "company" OF "scoreType" AS character 
+  FORMAT "x(3)"
+  INITIAL ""
+  LABEL "Company"
+  POSITION 2
+  MAX-WIDTH 6
+  HELP "Enter the company code."
+  ORDER 5
+
+ADD FIELD "scoreType" OF "scoreType" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  LABEL "Score Type"
+  POSITION 3
+  MAX-WIDTH 16
+  ORDER 15
+  MANDATORY
+
+ADD FIELD "description" OF "scoreType" AS character 
+  FORMAT "x(60)"
+  INITIAL ""
+  LABEL "Description"
+  POSITION 4
+  MAX-WIDTH 120
+  ORDER 25
+
+ADD FIELD "rec_key" OF "scoreType" AS character 
+  FORMAT "X(20)"
+  INITIAL ""
+  LABEL "Record Key"
+  POSITION 5
+  MAX-WIDTH 40
+  HELP "Enter Record Key Value"
+  LENGTH 0
+  ORDER 35
+
+ADD INDEX "ipuScoreType" ON "scoreType" 
+  AREA "Data"
+  UNIQUE
+  PRIMARY
+  INDEX-FIELD "company" ASCENDING 
+  INDEX-FIELD "scoreType" ASCENDING 
+
+ADD INDEX "iRecKey" ON "scoreType" 
+  AREA "Data"
+  INDEX-FIELD "rec_key" ASCENDING 
+
+ADD TABLE "stackPattern"
+  AREA "Data"
+  DUMP-NAME "stackpattern"
+
+ADD FIELD "stackCode" OF "stackPattern" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  LABEL "Stack Code"
+  POSITION 2
+  MAX-WIDTH 16
+  ORDER 10
+  MANDATORY
+
+ADD FIELD "stackDescription" OF "stackPattern" AS character 
+  FORMAT "x(60)"
+  INITIAL ""
+  LABEL "Description"
+  POSITION 3
+  MAX-WIDTH 120
+  ORDER 20
+
+ADD FIELD "stackCount" OF "stackPattern" AS integer 
+  FORMAT "->,>>>,>>9"
+  INITIAL "0"
+  LABEL "Count"
+  POSITION 4
+  MAX-WIDTH 4
+  ORDER 30
+
+ADD FIELD "strapCode" OF "stackPattern" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  LABEL "Strap Code"
+  POSITION 5
+  MAX-WIDTH 16
+  ORDER 40
+
+ADD FIELD "strapCount" OF "stackPattern" AS integer 
+  FORMAT "->,>>>,>>9"
+  INITIAL "0"
+  LABEL "Strap Count"
+  POSITION 6
+  MAX-WIDTH 4
+  ORDER 50
+
+ADD FIELD "strapFormula" OF "stackPattern" AS character 
+  FORMAT "x(256)"
+  INITIAL ""
+  LABEL "Strap Formula"
+  POSITION 7
+  MAX-WIDTH 512
+  ORDER 60
+
+ADD FIELD "rec_key" OF "stackPattern" AS character 
+  FORMAT "X(20)"
+  INITIAL ""
+  LABEL "Record Key"
+  POSITION 8
+  MAX-WIDTH 40
+  HELP "Enter Record Key Value"
+  LENGTH 0
+  ORDER 70
+
+ADD FIELD "stackImage" OF "stackPattern" AS character 
+  FORMAT "x(60)"
+  INITIAL ""
+  LABEL "StackImage"
+  POSITION 9
+  MAX-WIDTH 120
+  ORDER 80
+
+ADD INDEX "ipuStackPattern" ON "stackPattern" 
+  AREA "Data"
+  UNIQUE
+  PRIMARY
+  INDEX-FIELD "stackCode" ASCENDING 
+  INDEX-FIELD "strapCode" ASCENDING 
+
+ADD INDEX "iStackCode" ON "stackPattern" 
+  AREA "Data"
+  INDEX-FIELD "stackCode" ASCENDING 
+
+ADD INDEX "iStrapCode" ON "stackPattern" 
+  AREA "Data"
+  INDEX-FIELD "strapCode" ASCENDING 
+
+UPDATE FIELD "bal" OF "bank"
+  LABEL "Reg. Bal."
+
+ADD FIELD "Pay-type" OF "bank" AS character
+  FORMAT "xx"
+  POSITION 43
+  INITIAL ""
+  LABEL "UK Pay Type"
+  ORDER 420
+  MAX-WIDTH 4
+
+ADD FIELD "RTN" OF "bank" AS integer
+  FORMAT ">999999999"
+  POSITION 44
+  INITIAL "0"
+  LABEL "RTN"
+  ORDER 430
+  MAX-WIDTH 4
+
+ADD FIELD "ODFI" OF "bank" AS logical
+  FORMAT "Y/N"
+  POSITION 45
+  INITIAL "Y"
+  LABEL "ODFI"
+  ORDER 440
+  MAX-WIDTH 1
+
+ADD FIELD "ACHID" OF "bank" AS integer
+  FORMAT ">999999999"
+  POSITION 46
+  INITIAL "0"
+  LABEL "ACH ID"
+  ORDER 450
+  MAX-WIDTH 4
+
+ADD FIELD "SwiftBIC" OF "bank" AS character
+  FORMAT "x(11)"
+  POSITION 47
+  INITIAL ""
+  LABEL "Swift BIC"
+  ORDER 460
+  MAX-WIDTH 22
+
+ADD FIELD "Bank-ID" OF "bank" AS character
+  FORMAT "x(16)"
+  POSITION 48
+  INITIAL ""
+  LABEL "Bank ID"
+  ORDER 470
+  MAX-WIDTH 32
+
+ADD FIELD "rec-bal" OF "bank" AS decimal
+  FORMAT "->,>>>,>>9.99"
+  POSITION 49
+  INITIAL "0"
+  LABEL "Reconciled Bal"
+  DECIMALS 2
+  ORDER 480
+  MAX-WIDTH 17
+
+ADD FIELD "Bank-RTN" OF "cust" AS integer
+  FORMAT ">999999999"
+  POSITION 154
+  INITIAL "0"
+  LABEL "Bank RTN"
+  ORDER 1520
+  MAX-WIDTH 4
+
+ADD FIELD "Bank-Acct" OF "cust" AS character
+  FORMAT "x(18)"
+  POSITION 155
+  INITIAL ""
+  LABEL "Bank Acct"
+  ORDER 1530
+  MAX-WIDTH 36
+
+ADD FIELD "flatCommPct" OF "cust" AS decimal
+  FORMAT "->>9.99<<"
+  POSITION 156
+  INITIAL "0"
+  LABEL "Flat Comm Pct"
+  DECIMALS 4
+  ORDER 1540
+  MAX-WIDTH 19
+
+ADD FIELD "csrUser_id" OF "cust" AS character
+  FORMAT "X(8)"
+  POSITION 157
+  INITIAL ""
+  HELP "Enter User ID's"
+  LABEL "CSR User ID"
+  ORDER 1550
+  MAX-WIDTH 16
+
+ADD FIELD "SwiftBIC" OF "cust" AS character
+  FORMAT "x(11)"
+  POSITION 158
+  INITIAL ""
+  LABEL "Swift BIC"
+  ORDER 1560
+  MAX-WIDTH 22
+
+ADD FIELD "minOrder" OF "cust" AS decimal
+  FORMAT "->,>>>,>>9.99"
+  POSITION 159
+  INITIAL "0"
+  LABEL "Min Order"
+  DECIMALS 2
+  ORDER 1570
+  MAX-WIDTH 17
+
+ADD FIELD "minOrderPenalty" OF "cust" AS decimal
+  FORMAT "->>>,>>9.99"
+  POSITION 160
+  INITIAL "0"
+  LABEL "Min Ord Penalty"
+  DECIMALS 2
+  ORDER 1580
+  MAX-WIDTH 17
+
+ADD FIELD "minOrdPenaltyPct" OF "cust" AS logical
+  FORMAT "yes/no"
+  POSITION 161
+  INITIAL "no"
+  LABEL "Penalty Pct"
+  ORDER 1590
+  MAX-WIDTH 1
+
+ADD FIELD "runCostXtra" OF "e-item-vend" AS decimal
+  FORMAT ">>,>>9.9999"
+  POSITION 44
+  INITIAL "0"
+  HELP "Enter Standard Unit of Measure Cost for this Quantity Level"
+  LABEL "Xtra Cost Per"
+  COLUMN-LABEL "Xtra Cost Per"
+  EXTENT 10
+  DECIMALS 4
+  ORDER 430
+  MAX-WIDTH 240
+
+ADD FIELD "runQtyXtra" OF "e-item-vend" AS decimal
+  FORMAT ">,>>>,>>9.9<<"
+  POSITION 45
+  INITIAL "0"
+  HELP "Enter Estimated Unit of Measure Quantity for this Cost Level"
+  LABEL "Xtra Run Qty To"
+  COLUMN-LABEL "Xtra Run Qty To"
+  EXTENT 10
+  DECIMALS 3
+  ORDER 440
+  MAX-WIDTH 240
+
+ADD FIELD "setupsXtra" OF "e-item-vend" AS decimal
+  FORMAT "->>,>>9.99"
+  POSITION 46
+  INITIAL "0"
+  LABEL "Xtra Setup Charge"
+  EXTENT 10
+  DECIMALS 2
+  ORDER 450
+  MAX-WIDTH 220
+
+ADD FIELD "unitized" OF "eb" AS logical
+  FORMAT "yes/no"
+  POSITION 154
+  INITIAL "no"
+  LABEL "Logical"
+  ORDER 1500
+  MAX-WIDTH 1
+
+ADD FIELD "quantityPerSet" OF "eb" AS decimal
+  FORMAT ">>>>9.9<<<"
+  POSITION 155
+  INITIAL "0"
+  LABEL "Qty/Set"
+  DECIMALS 5
+  ORDER 1510
+  MAX-WIDTH 20
+
+UPDATE FIELD "Partner" OF "EDAPCheck"
+  VALEXP ?
+  VALMSG ""
+
+UPDATE FIELD "From-vendor" OF "EDAPCheck"
+  VALEXP ?
+  VALMSG ""
+
+UPDATE FIELD "Form-1099" OF "EDAPCheck"
+  VIEW-AS "VIEW-AS TOGGLE-BOX"
+
+UPDATE FIELD "Dept" OF "EDAPCheck"
+  VALEXP ?
+  VALMSG ""
+
+UPDATE FIELD "Company" OF "EDAPCheck"
+  VALEXP ?
+  VALMSG ""
+
+UPDATE FIELD "Balance-error" OF "EDAPCheck"
+  VIEW-AS "VIEW-AS TOGGLE-BOX"
+
+UPDATE FIELD "Ap-distribut" OF "EDAPCheck"
+  VALEXP ?
+  VALMSG ""
+
+UPDATE FIELD "Ap-account" OF "EDAPCheck"
+  VALEXP ?
+  VALMSG ""
+
+UPDATE FIELD "Vendor" OF "EDCat"
+  VALEXP ?
+  VALMSG ""
+
+UPDATE FIELD "Sf-code" OF "EDCo"
+  VALEXP ?
+  VALMSG ""
+
+UPDATE FIELD "Company" OF "EDCo"
+  VALEXP ?
+  VALMSG ""
+
+UPDATE FIELD "ASN-on-inv" OF "EDCo"
+  FORMAT "yes/no"
+  VIEW-AS "VIEW-AS TOGGLE-BOX"
+
+UPDATE FIELD "Test-prod" OF "EDCode"
+  VIEW-AS "VIEW-AS TOGGLE-BOX"
+
+UPDATE FIELD "Partner" OF "EDCode"
+  FORMAT "x(15)"
+  VALEXP ?
+  VALMSG ""
+
+UPDATE FIELD "Customized" OF "EDCode"
+  VIEW-AS "VIEW-AS TOGGLE-BOX"
+
+ADD FIELD "outputType" OF "EDCode" AS character
+  FORMAT "x(8)"
+  POSITION 13
+  INITIAL ""
+  HELP "Enter output type: XML, EDI, Delimited, Fixed"
+  LABEL "Output Type"
+  ORDER 120
+  MAX-WIDTH 16
+
+ADD FIELD "sendFileOnPrint" OF "EDCode" AS logical
+  FORMAT "yes/no"
+  POSITION 14
+  INITIAL "no"
+  VIEW-AS "VIEW-AS TOGGLE-BOX"
+  ORDER 130
+  MAX-WIDTH 1
+
+UPDATE FIELD "Posted" OF "EDDoc"
+  FORMAT "yes/no"
+  VIEW-AS "VIEW-AS TOGGLE-BOX"
+
+UPDATE FIELD "Partner" OF "EDDoc"
+  FORMAT "x(15)"
+
+UPDATE FIELD "OpenItem" OF "EDDoc"
+  VIEW-AS "VIEW-AS TOGGLE-BOX"
+
+UPDATE FIELD "Partner" OF "EDICXref"
+  FORMAT "x(15)"
+  VALEXP ?
+  VALMSG ""
+
+UPDATE FIELD "Item-no" OF "EDICXref"
+  VALEXP ?
+  VALMSG ""
+
+UPDATE FIELD "Company" OF "EDICXref"
+  VALEXP ?
+  VALMSG ""
+
+UPDATE FIELD "Partner" OF "EDIVAddon"
+  FORMAT "x(15)"
+  VALEXP ?
+  VALMSG ""
+
+UPDATE FIELD "Company" OF "EDIVAddon"
+  VALEXP ?
+  VALMSG ""
+
+UPDATE FIELD "Allow-charge" OF "EDIVAddon"
+  VIEW-AS "VIEW-AS TOGGLE-BOX"
+
+UPDATE FIELD "Unit-price" OF "EDIVLine"
+  DECIMALS 6
+
+UPDATE FIELD "Taxable" OF "EDIVLine"
+  VIEW-AS "VIEW-AS TOGGLE-BOX"
+
+UPDATE FIELD "Selling-price" OF "EDIVLine"
+  DECIMALS 6
+
+UPDATE FIELD "Partner" OF "EDIVLine"
+  FORMAT "x(15)"
+  VALEXP ?
+  VALMSG ""
+
+UPDATE FIELD "Company" OF "EDIVLine"
+  VALEXP ?
+  VALMSG ""
+
+UPDATE FIELD "Partner" OF "EDIVTran"
+  FORMAT "x(15)"
+  VALEXP ?
+  VALMSG ""
+
+UPDATE FIELD "Company" OF "EDIVTran"
+  VALEXP ?
+  VALMSG ""
+
+UPDATE TABLE "EDMast"
+  VALEXP ?
+  VALMSG ""
+
+UPDATE FIELD "Vendor" OF "EDMast"
+  VALEXP ?
+  VALMSG ""
+
+UPDATE FIELD "Sf-code" OF "EDMast"
+  VALEXP ?
+  VALMSG ""
+
+UPDATE FIELD "Partner" OF "EDMast"
+  FORMAT "x(15)"
+
+UPDATE FIELD "Id-trim" OF "EDMast"
+  VIEW-AS "VIEW-AS TOGGLE-BOX"
+
+UPDATE FIELD "Cust" OF "EDMast"
+  VALEXP ?
+  VALMSG ""
+
+UPDATE FIELD "ASN-on-DS" OF "EDMast"
+  VIEW-AS "VIEW-AS TOGGLE-BOX"
+
+ADD FIELD "PartnerGrp" OF "EDMast" AS character
+  FORMAT "x(12)"
+  POSITION 24
+  INITIAL ""
+  LABEL "Partner Group"
+  ORDER 230
+  MAX-WIDTH 24
+
+UPDATE FIELD "Suspense" OF "EDPD"
+  VIEW-AS "VIEW-AS TOGGLE-BOX"
+
+UPDATE FIELD "Partner" OF "EDPD"
+  FORMAT "x(15)"
+  VALEXP ?
+  VALMSG ""
+
+UPDATE FIELD "Partner" OF "EDPOAddon"
+  FORMAT "x(15)"
+  VALEXP ?
+  VALMSG ""
+
+UPDATE FIELD "Allow-charge" OF "EDPOAddon"
+  VIEW-AS "VIEW-AS TOGGLE-BOX"
+
+UPDATE FIELD "Taxable" OF "EDPOLine"
+  VIEW-AS "VIEW-AS TOGGLE-BOX"
+
+UPDATE FIELD "Partner" OF "EDPOLine"
+  FORMAT "x(15)"
+  VALEXP ?
+  VALMSG ""
+
+UPDATE TABLE "EDPOTran"
+  VALEXP ?
+  VALMSG ""
+
+UPDATE FIELD "Ship-st" OF "EDPOTran"
+  VALEXP ?
+  VALMSG ""
+
+UPDATE FIELD "Partner" OF "EDPOTran"
+  FORMAT "x(15)"
+  VALEXP ?
+  VALMSG ""
+
+UPDATE FIELD "Cust" OF "EDPOTran"
+  VALEXP ?
+  VALMSG ""
+
+UPDATE FIELD "Ship-to" OF "EDShipto"
+  VALEXP ?
+  VALMSG ""
+
+UPDATE FIELD "Partner" OF "EDShipto"
+  FORMAT "x(15)"
+  VALEXP ?
+  VALMSG ""
+
+UPDATE FIELD "Cust" OF "EDShipto"
+  VALEXP ?
+  VALMSG ""
+
+ADD FIELD "siteID" OF "EDShipto" AS character
+  FORMAT "x(20)"
+  POSITION 24
+  INITIAL ""
+  LABEL "Site ID"
+  ORDER 790
+  MAX-WIDTH 40
+
+UPDATE FIELD "Carrier" OF "EDShipVia"
+  VALEXP ?
+  VALMSG ""
+
+UPDATE FIELD "Partner" OF "EDSHLine"
+  FORMAT "x(15)"
+  VALEXP ?
+  VALMSG ""
+
+UPDATE FIELD "Partner" OF "EDSHOrd"
+  FORMAT "x(15)"
+  VALEXP ?
+  VALMSG ""
+
+UPDATE FIELD "Partner" OF "EDSHPack"
+  FORMAT "x(15)"
+  VALEXP ?
+  VALMSG ""
+
+UPDATE FIELD "Partner" OF "EDSHTare"
+  FORMAT "x(15)"
+  VALEXP ?
+  VALMSG ""
+
+UPDATE FIELD "Partner" OF "EDSHTran"
+  FORMAT "x(15)"
+  VALEXP ?
+  VALMSG ""
+
+ADD FIELD "highlight" OF "est" AS logical
+  FORMAT "yes/no"
+  POSITION 70
+  INITIAL "no"
+  LABEL "Highlight"
+  ORDER 580
+  MAX-WIDTH 1
+
+ADD FIELD "csrUser_id" OF "est" AS character
+  FORMAT "X(8)"
+  POSITION 71
+  INITIAL ""
+  HELP "Enter User ID's"
+  LABEL "CSR User ID"
+  ORDER 590
+  MAX-WIDTH 16
+
+ADD FIELD "calcBoardCostFromBlank" OF "est" AS logical
+  FORMAT "yes/no"
+  POSITION 72
+  INITIAL "no"
+  LABEL "Calc Board Cost from Blank"
+  ORDER 600
+  MAX-WIDTH 1
+
+ADD FIELD "allFormsInk" OF "est" AS logical
+  FORMAT "yes/no"
+  POSITION 73
+  INITIAL "no"
+  LABEL "All Forms Ink"
+  ORDER 610
+  MAX-WIDTH 1
+
+ADD FIELD "whsed" OF "est-qty" AS logical
+  FORMAT "yes/no"
+  POSITION 28
+  INITIAL "no"
+  LABEL "Whsed"
+  EXTENT 99
+  ORDER 270
+  MAX-WIDTH 792
+
+ADD FIELD "releases" OF "est-qty" AS character
+  FORMAT "x(256)"
+  POSITION 29
+  INITIAL ""
+  LABEL "Releases"
+  EXTENT 99
+  ORDER 280
+  MAX-WIDTH 50886
+
+UPDATE TABLE "fa-control"
+  TABLE-TRIGGER "CREATE" OVERRIDE PROCEDURE "create.trg/fa-control.p" CRC "?"
+  TABLE-TRIGGER "DELETE" OVERRIDE PROCEDURE "delete.trg/fa-control.p" CRC "?"
+  TABLE-TRIGGER "WRITE" OVERRIDE PROCEDURE "write.trg/fa-control.p" CRC "?"
+
+ADD FIELD "rec_key" OF "fa-control" AS character
+  FORMAT "X(20)"
+  POSITION 21
+  INITIAL ""
+  HELP "Enter Rec Key"
+  LABEL "Rec Key"
+  ORDER 381
+  MAX-WIDTH 40
+
+ADD INDEX "rec_key" ON "fa-control"
+  AREA "Index"
+  DESCRIPTION "Secondary Index by rec_key"
+  INDEX-FIELD "rec_key" ASCENDING
+
+UPDATE TABLE "fa-control-d"
+  TABLE-TRIGGER "CREATE" OVERRIDE PROCEDURE "create.trg/fa-control-d.p" CRC "?"
+  TABLE-TRIGGER "DELETE" OVERRIDE PROCEDURE "delete.trg/fa-control-d.p" CRC "?"
+  TABLE-TRIGGER "WRITE" OVERRIDE PROCEDURE "write.trg/fa-control-d.p" CRC "?"
+
+ADD FIELD "rec_key" OF "fa-control-d" AS character
+  FORMAT "X(20)"
+  POSITION 16
+  INITIAL ""
+  HELP "Enter Rec Key"
+  LABEL "Rec Key"
+  ORDER 201
+  MAX-WIDTH 40
+
+ADD INDEX "rec_key" ON "fa-control-d"
+  AREA "Index"
+  DESCRIPTION "Secondary Index by rec_key"
+  INDEX-FIELD "rec_key" ASCENDING
+
+UPDATE TABLE "fa-entry"
+  TABLE-TRIGGER "CREATE" OVERRIDE PROCEDURE "create.trg/fa-entry.p" CRC "?"
+  TABLE-TRIGGER "DELETE" OVERRIDE PROCEDURE "delete.trg/fa-entry.p" CRC "?"
+  TABLE-TRIGGER "WRITE" OVERRIDE PROCEDURE "write.trg/fa-entry.p" CRC "?"
+
+ADD FIELD "rec_key" OF "fa-entry" AS character
+  FORMAT "X(20)"
+  POSITION 20
+  INITIAL ""
+  HELP "Enter Rec Key"
+  LABEL "Rec Key"
+  ORDER 201
+  MAX-WIDTH 40
+
+ADD INDEX "rec_key" ON "fa-entry"
+  AREA "Index"
+  DESCRIPTION "Secondary Index by rec_key"
+  INDEX-FIELD "rec_key" ASCENDING
+
+UPDATE TABLE "fa-gl-post"
+  TABLE-TRIGGER "CREATE" OVERRIDE PROCEDURE "create.trg/fa-gl-post.p" CRC "?"
+  TABLE-TRIGGER "DELETE" OVERRIDE PROCEDURE "delete.trg/fa-gl-post.p" CRC "?"
+  TABLE-TRIGGER "WRITE" OVERRIDE PROCEDURE "write.trg/fa-gl-post.p" CRC "?"
+
+ADD FIELD "rec_key" OF "fa-gl-post" AS character
+  FORMAT "X(20)"
+  POSITION 25
+  INITIAL ""
+  HELP "Enter Rec Key"
+  LABEL "Rec Key"
+  ORDER 261
+  MAX-WIDTH 40
+
+ADD INDEX "rec_key" ON "fa-gl-post"
+  AREA "Index"
+  DESCRIPTION "Secondary Index by rec_key"
+  INDEX-FIELD "rec_key" ASCENDING
+
+UPDATE TABLE "fa-jrnl"
+  TABLE-TRIGGER "CREATE" OVERRIDE PROCEDURE "create.trg/fa-jrnl.p" CRC "?"
+  TABLE-TRIGGER "DELETE" OVERRIDE PROCEDURE "delete.trg/fa-jrnl.p" CRC "?"
+  TABLE-TRIGGER "WRITE" OVERRIDE PROCEDURE "write.trg/fa-jrnl.p" CRC "?"
+
+ADD FIELD "rec_key" OF "fa-jrnl" AS character
+  FORMAT "X(20)"
+  POSITION 21
+  INITIAL ""
+  HELP "Enter Rec Key"
+  LABEL "Rec Key"
+  ORDER 261
+  MAX-WIDTH 40
+
+ADD INDEX "rec_key" ON "fa-jrnl"
+  AREA "Index"
+  DESCRIPTION "Secondary Index by rec_key"
+  INDEX-FIELD "rec_key" ASCENDING
+
+UPDATE TABLE "fa-mast"
+  TABLE-TRIGGER "CREATE" OVERRIDE PROCEDURE "create.trg/fa-mast.p" CRC "?"
+  TABLE-TRIGGER "DELETE" OVERRIDE PROCEDURE "delete.trg/fa-mast.p" CRC "?"
+  TABLE-TRIGGER "WRITE" OVERRIDE PROCEDURE "write.trg/fa-mast.p" CRC "?"
+
+ADD FIELD "rec_key" OF "fa-mast" AS character
+  FORMAT "X(20)"
+  POSITION 72
+  INITIAL ""
+  HELP "Enter Rec Key"
+  LABEL "Rec Key"
+  ORDER 871
+  MAX-WIDTH 40
+
+ADD INDEX "rec_key" ON "fa-mast"
+  AREA "Index"
+  DESCRIPTION "Secondary Index by rec_key"
+  INDEX-FIELD "rec_key" ASCENDING
+
+UPDATE TABLE "fa-mast-rep"
+  TABLE-TRIGGER "CREATE" OVERRIDE PROCEDURE "create.trg/fa-mast-rep.p" CRC "?"
+  TABLE-TRIGGER "DELETE" OVERRIDE PROCEDURE "delete.trg/fa-mast-rep.p" CRC "?"
+  TABLE-TRIGGER "WRITE" OVERRIDE PROCEDURE "write.trg/fa-mast-rep.p" CRC "?"
+
+ADD FIELD "rec_key" OF "fa-mast-rep" AS character
+  FORMAT "X(20)"
+  POSITION 16
+  INITIAL ""
+  HELP "Enter Rec Key"
+  LABEL "Rec Key"
+  ORDER 151
+  MAX-WIDTH 40
+
+ADD INDEX "rec_key" ON "fa-mast-rep"
+  AREA "Index"
+  DESCRIPTION "Secondary Index by rec_key"
+  INDEX-FIELD "rec_key" ASCENDING
+
+UPDATE TABLE "fa-tags"
+  TABLE-TRIGGER "CREATE" OVERRIDE PROCEDURE "create.trg/fa-tags.p" CRC "?"
+  TABLE-TRIGGER "DELETE" OVERRIDE PROCEDURE "delete.trg/fa-tags.p" CRC "?"
+  TABLE-TRIGGER "WRITE" OVERRIDE PROCEDURE "write.trg/fa-tags.p" CRC "?"
+
+ADD FIELD "rec_key" OF "fa-tags" AS character
+  FORMAT "X(20)"
+  POSITION 6
+  INITIAL ""
+  HELP "Enter Rec Key"
+  LABEL "Rec Key"
+  ORDER 51
+  MAX-WIDTH 40
+
+ADD INDEX "rec_key" ON "fa-tags"
+  AREA "Index"
+  DESCRIPTION "Secondary Index by rec_key"
+  INDEX-FIELD "rec_key" ASCENDING
+
+ADD FIELD "po-line" OF "fg-rcpth" AS integer
+  FORMAT "99"
+  POSITION 39
+  INITIAL "0"
+  LABEL "PO Line"
+  ORDER 410
+  MAX-WIDTH 4
+
+ADD FIELD "SetHeaderRno" OF "fg-rctd" AS integer
+  DESCRIPTION "Set Header R-no or 0 if not a set part"
+  FORMAT ">>>>>>>>9"
+  POSITION 71
+  INITIAL "0"
+  ORDER 690
+  MAX-WIDTH 4
+
+ADD FIELD "InvoiceFreight" OF "fg-rctd" AS logical
+  FORMAT "yes/no"
+  POSITION 72
+  INITIAL "no"
+  LABEL "Invoice Freight?"
+  ORDER 720
+  MAX-WIDTH 1
+
+ADD FIELD "BillableFreightAmt" OF "fg-rctd" AS decimal
+  FORMAT "->>>,>>9.99"
+  POSITION 73
+  INITIAL "0"
+  LABEL "Bill Freight Amount"
+  DECIMALS 2
+  ORDER 730
+  MAX-WIDTH 17
+
+ADD FIELD "CreateInvoice" OF "fg-rctd" AS logical
+  FORMAT "Create Invoice?"
+  POSITION 74
+  INITIAL "Create Invoice?"
+  ORDER 700
+  MAX-WIDTH 1
+
+ADD FIELD "EmailBOL" OF "fg-rctd" AS logical
+  FORMAT "yes/no"
+  POSITION 75
+  INITIAL "no"
+  LABEL "Email BOL?"
+  ORDER 710
+  MAX-WIDTH 1
+
+ADD INDEX "setHeaderRno" ON "fg-rctd"
+  AREA "Index"
+  INDEX-FIELD "SetHeaderRno" ASCENDING
+
+ADD FIELD "avg-cost" OF "fg-rdtlh" AS decimal
+  FORMAT ">>>,>>9.9999"
+  POSITION 53
+  INITIAL "0"
+  HELP "Average Cost for all Purchases is updated by System"
+  LABEL "Purch Cost Avg"
+  DECIMALS 4
+  ORDER 520
+  MAX-WIDTH 19
+
+ADD FIELD "last-cost" OF "fg-rdtlh" AS decimal
+  FORMAT ">>>,>>9.9999"
+  POSITION 54
+  INITIAL "0"
+  HELP "Last Cost per Comsumption Unit of Measure updated by Purchasing"
+  LABEL "Purch Cost Last"
+  DECIMALS 4
+  ORDER 530
+  MAX-WIDTH 19
+
+ADD FIELD "std-fix-cost" OF "fg-rdtlh" AS decimal
+  FORMAT "->>>,>>9.99<<"
+  POSITION 55
+  INITIAL "0"
+  HELP "Enter Standard Fixed Overhead Cost"
+  DECIMALS 4
+  ORDER 540
+  MAX-WIDTH 19
+
+ADD FIELD "std-lab-cost" OF "fg-rdtlh" AS decimal
+  FORMAT "->>>,>>9.99<<"
+  POSITION 56
+  INITIAL "0"
+  HELP "Enter Standard Labor Cost"
+  DECIMALS 4
+  ORDER 550
+  MAX-WIDTH 19
+
+ADD FIELD "std-mat-cost" OF "fg-rdtlh" AS decimal
+  FORMAT "->>>,>>9.99<<"
+  POSITION 57
+  INITIAL "0"
+  HELP "Enter Standard Material Cost"
+  DECIMALS 4
+  ORDER 560
+  MAX-WIDTH 19
+
+ADD FIELD "std-tot-cost" OF "fg-rdtlh" AS decimal
+  FORMAT "->>>,>>9.99<<"
+  POSITION 58
+  INITIAL "0"
+  HELP "Enter Total Standard Item Cost"
+  DECIMALS 4
+  ORDER 570
+  MAX-WIDTH 19
+
+ADD FIELD "std-var-cost" OF "fg-rdtlh" AS decimal
+  FORMAT "->>>,>>9.99<<"
+  POSITION 59
+  INITIAL "0"
+  HELP "Enter Standard Variable Overhead Cost"
+  DECIMALS 4
+  ORDER 580
+  MAX-WIDTH 19
+
+ADD FIELD "lockWeight" OF "item" AS logical
+  FORMAT "yes/no"
+  POSITION 104
+  INITIAL "no"
+  LABEL "Lock Weight"
+  ORDER 1030
+  MAX-WIDTH 1
+
+ADD FIELD "itemStatus" OF "itemfg" AS character
+  FORMAT "x(8)"
+  POSITION 209
+  INITIAL ""
+  LABEL "Item Status"
+  ORDER 2050
+  MAX-WIDTH 16
+
+ADD FIELD "unitized" OF "itemfg" AS logical
+  FORMAT "yes/no"
+  POSITION 210
+  INITIAL "no"
+  LABEL "Unitized"
+  ORDER 2060
+  MAX-WIDTH 1
+
+ADD FIELD "lockWeight" OF "itemfg" AS logical
+  FORMAT "yes/no"
+  POSITION 211
+  INITIAL "no"
+  LABEL "Lock Weight"
+  ORDER 2070
+  MAX-WIDTH 1
+
+ADD FIELD "setupDate" OF "itemfg" AS date
+  FORMAT "99/99/99"
+  POSITION 212
+  INITIAL ?
+  LABEL "Setup Date"
+  ORDER 2080
+  MAX-WIDTH 4
+
+ADD FIELD "csrUser_id" OF "job" AS character
+  FORMAT "X(8)"
+  POSITION 63
+  INITIAL ""
+  HELP "Enter User ID's"
+  LABEL "CSR User ID"
+  ORDER 620
+  MAX-WIDTH 16
+
+ADD FIELD "freezeNote" OF "job" AS logical
+  FORMAT "yes/no"
+  POSITION 64
+  INITIAL "no"
+  LABEL "FreezeNotes"
+  ORDER 630
+  MAX-WIDTH 1
+
+ADD FIELD "freezeNotesDate" OF "job" AS date
+  FORMAT "99/99/99"
+  POSITION 65
+  INITIAL ?
+  LABEL "Freeze Notes Date"
+  ORDER 640
+  MAX-WIDTH 4
+
+ADD FIELD "dmiID" OF "job-code" AS integer
+  FORMAT ">>>9"
+  POSITION 6
+  INITIAL "0"
+  HELP "Enter DMI ID"
+  LABEL "DMI ID"
+  ORDER 32
+  MAX-WIDTH 4
+
+ADD FIELD "freezeNote" OF "job-hdr" AS logical
+  FORMAT "yes/no"
+  POSITION 49
+  INITIAL "no"
+  LABEL "Freeze Notes"
+  ORDER 500
+  MAX-WIDTH 1
+
+ADD FIELD "splitShip" OF "job-hdr" AS logical
+  FORMAT "yes/no"
+  POSITION 50
+  INITIAL "no"
+  LABEL "Split Ship"
+  ORDER 510
+  MAX-WIDTH 1
+
+ADD FIELD "freezeNotesDate" OF "job-hdr" AS date
+  FORMAT "99/99/99"
+  POSITION 51
+  INITIAL ?
+  LABEL "Freeze Notes Date"
+  ORDER 520
+  MAX-WIDTH 4
+
+ADD FIELD "obsolete" OF "mach" AS logical
+  FORMAT "yes/no"
+  POSITION 112
+  INITIAL "no"
+  LABEL "Obsolete"
+  ORDER 1060
+  MAX-WIDTH 1
+
+ADD FIELD "udfHeight" OF "mfgroup" AS integer
+  FORMAT ">>>9"
+  POSITION 4
+  INITIAL "0"
+  HELP "Enter UDF Design Screen Height"
+  LABEL "Height"
+  ORDER 30
+  MAX-WIDTH 4
+
+ADD FIELD "udfWidth" OF "mfgroup" AS integer
+  FORMAT ">>>9"
+  POSITION 5
+  INITIAL "0"
+  HELP "Enter UDF Design Screen Width"
+  LABEL "Width"
+  ORDER 40
+  MAX-WIDTH 4
+
+ADD FIELD "attachment" OF "notes" AS character
+  FORMAT "x(200)"
+  POSITION 21
+  INITIAL ""
+  LABEL "Attachment"
+  ORDER 200
+  MAX-WIDTH 400
+
+ADD FIELD "attachmentName" OF "notes" AS character
+  FORMAT "x(32)"
+  POSITION 22
+  INITIAL ""
+  LABEL "Attach Name"
+  ORDER 210
+  MAX-WIDTH 64
+
+ADD FIELD "attachmentType" OF "notes" AS character
+  FORMAT "x(8)"
+  POSITION 23
+  INITIAL ""
+  LABEL "Attach Type"
+  ORDER 220
+  MAX-WIDTH 16
+
+ADD FIELD "customerVisible" OF "notes" AS logical
+  FORMAT "yes/no"
+  POSITION 24
+  INITIAL "no"
+  LABEL "Visible to Cust"
+  ORDER 230
+  MAX-WIDTH 1
+
+ADD FIELD "department" OF "notes" AS character
+  FORMAT "x(8)"
+  POSITION 25
+  INITIAL ""
+  LABEL "Department"
+  ORDER 240
+  MAX-WIDTH 16
+
+ADD FIELD "company" OF "notes" AS character
+  FORMAT "x(8)"
+  POSITION 26
+  INITIAL ""
+  LABEL "Company"
+  ORDER 250
+  MAX-WIDTH 16
+
+ADD FIELD "alertType" OF "notes" AS character
+  FORMAT "x(8)"
+  POSITION 27
+  INITIAL ""
+  LABEL "Alert Type"
+  ORDER 260
+  MAX-WIDTH 16
+
+ADD FIELD "printMethod" OF "notes" AS character
+  FORMAT "x(8)"
+  POSITION 28
+  INITIAL ""
+  LABEL "Print Method"
+  ORDER 270
+  MAX-WIDTH 16
+
+ADD FIELD "zeroPrice" OF "oe-boll" AS decimal
+  FORMAT "->>,>>9.99"
+  POSITION 80
+  INITIAL "0"
+  LABEL "Zero Price"
+  COLUMN-LABEL "Zero Price"
+  DECIMALS 2
+  ORDER 760
+  MAX-WIDTH 17
+
+ADD FIELD "csrUser_id" OF "oe-ord" AS character
+  FORMAT "X(8)"
+  POSITION 134
+  INITIAL ""
+  HELP "Enter User ID's"
+  LABEL "CSR User ID"
+  ORDER 1310
+  MAX-WIDTH 16
+
+ADD FIELD "billFreight" OF "oe-ord" AS logical
+  FORMAT "yes/no"
+  POSITION 135
+  INITIAL "no"
+  LABEL "Bill Freight"
+  ORDER 1320
+  MAX-WIDTH 1
+
+ADD FIELD "priceHold" OF "oe-ord" AS logical
+  FORMAT "yes/no"
+  POSITION 136
+  INITIAL "no"
+  LABEL "Price Hold"
+  ORDER 1330
+  MAX-WIDTH 1
+
+ADD FIELD "priceHoldReason" OF "oe-ord" AS character
+  FORMAT "x(24)"
+  POSITION 137
+  INITIAL ""
+  LABEL "Price Holde Reason"
+  ORDER 1340
+  MAX-WIDTH 48
+
+ADD FIELD "estPrepEqty" OF "oe-ordm" AS decimal
+  FORMAT "->>,>>9.99"
+  POSITION 47
+  INITIAL "0"
+  LABEL "Qty"
+  DECIMALS 2
+  ORDER 470
+  MAX-WIDTH 17
+
+ADD FIELD "estPrepLine" OF "oe-ordm" AS integer
+  FORMAT ">9"
+  POSITION 48
+  INITIAL "0"
+  HELP "Enter Line number for this Preparation item"
+  LABEL "Line #"
+  ORDER 480
+  MANDATORY
+  MAX-WIDTH 4
+
+ADD FIELD "miscType" OF "oe-ordm" AS integer
+  FORMAT "->,>>>,>>9"
+  POSITION 49
+  INITIAL "0"
+  LABEL "Misc Type"
+  ORDER 490
+  MAX-WIDTH 4
+
+ADD FIELD "miscInd" OF "oe-ordm" AS character
+  FORMAT "x(8)"
+  POSITION 50
+  INITIAL ""
+  LABEL "Misc Ind"
+  ORDER 500
+  MAX-WIDTH 16
+
+ADD FIELD "custShipID" OF "oe-prmtx" AS character
+  FORMAT "x(8)"
+  POSITION 24
+  INITIAL ""
+  LABEL "Ship ID"
+  ORDER 440
+  MAX-WIDTH 16
+
+ADD FIELD "zeroPrice" OF "oe-rel" AS decimal
+  FORMAT "->>,>>9.99"
+  POSITION 75
+  INITIAL "0"
+  LABEL "Zero Price"
+  COLUMN-LABEL "Zero Price"
+  DECIMALS 2
+  ORDER 2420
+  MAX-WIDTH 17
+
+ADD FIELD "zeroPrice" OF "oe-rell" AS decimal
+  FORMAT "->>,>>9.99"
+  POSITION 68
+  INITIAL "0"
+  LABEL "Zero Price"
+  COLUMN-LABEL "Zero Price"
+  DECIMALS 2
+  ORDER 660
+  MAX-WIDTH 17
+
+UPDATE FIELD "dir_group" OF "prgrms"
+  FORMAT "X(64)"
+
+ADD FIELD "securityLevelDefault" OF "prgrms" AS integer
+  FORMAT ">>>9"
+  POSITION 21
+  INITIAL "0"
+  LABEL "Sec. Lev. Default"
+  ORDER 200
+  MAX-WIDTH 4
+
+ADD FIELD "securityLevelUser" OF "prgrms" AS integer
+  FORMAT ">>9"
+  POSITION 22
+  INITIAL "0"
+  LABEL "User Sec. Lev."
+  ORDER 210
+  MAX-WIDTH 4
+
+ADD FIELD "popUpMenu" OF "prgrms" AS character
+  FORMAT "x(32)"
+  POSITION 23
+  INITIAL ""
+  LABEL "Pop Up Menu"
+  ORDER 220
+  MAX-WIDTH 64
+
+ADD FIELD "itemParent" OF "prgrms" AS character
+  FORMAT "x(32)"
+  POSITION 24
+  INITIAL ""
+  LABEL "Parent"
+  ORDER 230
+  MAX-WIDTH 64
+
+ADD FIELD "quantityPerSet" OF "probe" AS decimal
+  FORMAT ">>>>9.9<<<"
+  POSITION 90
+  INITIAL "0"
+  LABEL "Qty/Set"
+  DECIMALS 5
+  ORDER 830
+  MAX-WIDTH 20
+
+ADD FIELD "whsed" OF "quoteqty" AS logical
+  FORMAT "yes/no"
+  POSITION 46
+  INITIAL "no"
+  LABEL "Whsed"
+  ORDER 510
+  MAX-WIDTH 1
+
+ADD FIELD "po-line" OF "rm-rcpth" AS integer
+  FORMAT "99"
+  POSITION 34
+  INITIAL "0"
+  LABEL "PO Line"
+  ORDER 410
+  MAX-WIDTH 4
+
+ADD FIELD "exportCustID" OF "shipto" AS character
+  FORMAT "x(16)"
+  POSITION 79
+  INITIAL ""
+  LABEL "Export ID#"
+  ORDER 740
+  MAX-WIDTH 32
+
+ADD FIELD "sysCtrlID" OF "sys-ctrl" AS integer
+  FORMAT ">>>>>>9"
+  POSITION 27
+  INITIAL "0"
+  LABEL "SysCtrl ID"
+  ORDER 260
+  MAX-WIDTH 4
+
+ADD FIELD "seqNo" OF "sys-ctrl" AS integer
+  FORMAT "->,>>>,>>9"
+  POSITION 28
+  INITIAL "0"
+  LABEL "Seq No"
+  ORDER 270
+  MAX-WIDTH 4
+
+ADD FIELD "category" OF "sys-ctrl" AS character
+  FORMAT "x(16)"
+  POSITION 29
+  INITIAL ""
+  LABEL "Category"
+  ORDER 280
+  MAX-WIDTH 32
+
+ADD FIELD "subcategory" OF "sys-ctrl" AS character
+  FORMAT "x(16)"
+  POSITION 30
+  INITIAL ""
+  LABEL "SubCategory"
+  ORDER 290
+  MAX-WIDTH 32
+
+ADD FIELD "typeCode" OF "sys-ctrl" AS character
+  FORMAT "x(8)"
+  POSITION 31
+  INITIAL ""
+  LABEL "Type Code"
+  ORDER 300
+  MAX-WIDTH 16
+
+ADD FIELD "sysCtrlID" OF "sys-ctrl-shipto" AS integer
+  FORMAT ">>>>>>9"
+  POSITION 30
+  INITIAL "0"
+  LABEL "SysCtrl ID"
+  ORDER 290
+  MAX-WIDTH 4
+
+ADD FIELD "seqNo" OF "sys-ctrl-shipto" AS integer
+  FORMAT "->,>>>,>>9"
+  POSITION 31
+  INITIAL "0"
+  LABEL "Seq No"
+  ORDER 300
+  MAX-WIDTH 4
+
+ADD FIELD "category" OF "sys-ctrl-shipto" AS character
+  FORMAT "x(16)"
+  POSITION 32
+  INITIAL ""
+  LABEL "Category"
+  ORDER 310
+  MAX-WIDTH 32
+
+ADD FIELD "subcategory" OF "sys-ctrl-shipto" AS character
+  FORMAT "x(16)"
+  POSITION 33
+  INITIAL ""
+  LABEL "SubCategory"
+  ORDER 320
+  MAX-WIDTH 32
+
+ADD FIELD "typeCode" OF "sys-ctrl-shipto" AS character
+  FORMAT "x(8)"
+  POSITION 34
+  INITIAL ""
+  LABEL "Type Code"
+  ORDER 330
+  MAX-WIDTH 16
+
+ADD FIELD "Bank-RTN" OF "vend" AS integer
+  FORMAT ">999999999"
+  POSITION 124
+  INITIAL "0"
+  LABEL "Bank RTN"
+  ORDER 1230
+  MAX-WIDTH 4
+
+ADD FIELD "Bank-Acct" OF "vend" AS character
+  FORMAT "x(18)"
+  POSITION 125
+  INITIAL ""
+  LABEL "Bank Acct"
+  ORDER 1240
+  MAX-WIDTH 36
+
+ADD FIELD "SwiftBIC" OF "vend" AS character
+  FORMAT "x(11)"
+  POSITION 126
+  INITIAL ""
+  LABEL "Swift BIC"
+  ORDER 1250
+  MAX-WIDTH 22
+
+ADD SEQUENCE "jobCodeDMISeq"
+  INITIAL 0
+  INCREMENT 1
+  CYCLE-ON-LIMIT yes
+  MIN-VAL ?
+  MAX-VAL ?
+
+UPDATE SEQUENCE "oerel_rno_seq"
+  MAX-VAL 999999
+
+UPDATE SEQUENCE "oerel_rno_seq01"
+  MAX-VAL 999999
+
+UPDATE SEQUENCE "oerel_rno_seq02"
+  MAX-VAL 999999
+
+UPDATE SEQUENCE "oerel_rno_seq03"
+  MAX-VAL 999999
+
+UPDATE SEQUENCE "oerel_rno_seq04"
+  MAX-VAL 999999
+
+UPDATE SEQUENCE "oerel_rno_seq05"
+  MAX-VAL 999999
+
+UPDATE SEQUENCE "oerel_rno_seq06"
+  MAX-VAL 999999
+
+UPDATE SEQUENCE "oerel_rno_seq07"
+  MAX-VAL 999999
+
+UPDATE SEQUENCE "oerel_rno_seq08"
+  MAX-VAL 999999
+
+UPDATE SEQUENCE "oerel_rno_seq09"
+  MAX-VAL 999999
+
+UPDATE SEQUENCE "oerel_rno_seq10"
+  MAX-VAL 999999
+
+.
+PSC
+cpstream=ISO8859-1
+.
+0000079888

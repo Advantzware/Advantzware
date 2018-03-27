@@ -45,6 +45,19 @@
   FIELD obal-acc-t1 LIKE fa-mast.obal-acc-t1 VALIDATE ~
   FIELD obal-acc-t2 LIKE fa-mast.obal-acc-t2 VALIDATE ~
   FIELD par-asset LIKE fa-mast.par-asset VALIDATE ~
+  FIELD period1 LIKE fa-mast.period[1] VALIDATE ~
+  FIELD period2 LIKE fa-mast.period[2] VALIDATE ~
+  FIELD period3 LIKE fa-mast.period[3] VALIDATE ~
+  FIELD period4 LIKE fa-mast.period[4] VALIDATE ~
+  FIELD period5 LIKE fa-mast.period[5] VALIDATE ~
+  FIELD period6 LIKE fa-mast.period[6] VALIDATE ~
+  FIELD period7 LIKE fa-mast.period[7] VALIDATE ~
+  FIELD period8 LIKE fa-mast.period[8] VALIDATE ~
+  FIELD period9 LIKE fa-mast.period[9] VALIDATE ~
+  FIELD period10 LIKE fa-mast.period[10] VALIDATE ~
+  FIELD period11 LIKE fa-mast.period[11] VALIDATE ~
+  FIELD period12 LIKE fa-mast.period[12] VALIDATE ~
+  FIELD period13 LIKE fa-mast.period[13] VALIDATE ~
   FIELD proceeds LIKE fa-mast.proceeds VALIDATE ~
   FIELD processed LIKE fa-mast.processed VALIDATE ~
   FIELD profit-bk LIKE fa-mast.profit-bk VALIDATE ~
@@ -64,20 +77,6 @@
   FIELD start-prd LIKE fa-mast.start-prd VALIDATE ~
   FIELD tag-nof LIKE fa-mast.tag-nof VALIDATE ~
   FIELD tag-not LIKE fa-mast.tag-not VALIDATE ~
-  FIELD yr-of-depr LIKE fa-mast.yr-of-depr VALIDATE ~
-  FIELD period1 LIKE fa-mast.period[1] VALIDATE ~
-  FIELD period2 LIKE fa-mast.period[2] VALIDATE ~
-  FIELD period3 LIKE fa-mast.period[3] VALIDATE ~
-  FIELD period4 LIKE fa-mast.period[4] VALIDATE ~
-  FIELD period5 LIKE fa-mast.period[5] VALIDATE ~
-  FIELD period6 LIKE fa-mast.period[6] VALIDATE ~
-  FIELD period7 LIKE fa-mast.period[7] VALIDATE ~
-  FIELD period8 LIKE fa-mast.period[8] VALIDATE ~
-  FIELD period9 LIKE fa-mast.period[9] VALIDATE ~
-  FIELD period10 LIKE fa-mast.period[10] VALIDATE ~
-  FIELD period11 LIKE fa-mast.period[11] VALIDATE ~
-  FIELD period12 LIKE fa-mast.period[12] VALIDATE ~
-  FIELD period13 LIKE fa-mast.period[13] VALIDATE ~
   FIELD tax1-period1 LIKE fa-mast.tax1-period[1] VALIDATE ~
   FIELD tax1-period2 LIKE fa-mast.tax1-period[2] VALIDATE ~
   FIELD tax1-period3 LIKE fa-mast.tax1-period[3] VALIDATE ~
@@ -103,4 +102,5 @@
   FIELD tax2-period10 LIKE fa-mast.tax2-period[10] VALIDATE ~
   FIELD tax2-period11 LIKE fa-mast.tax2-period[11] VALIDATE ~
   FIELD tax2-period12 LIKE fa-mast.tax2-period[12] VALIDATE ~
-  FIELD tax2-period13 LIKE fa-mast.tax2-period[13] VALIDATE 
+  FIELD tax2-period13 LIKE fa-mast.tax2-period[13] VALIDATE ~
+  FIELD yr-of-depr LIKE fa-mast.yr-of-depr VALIDATE 

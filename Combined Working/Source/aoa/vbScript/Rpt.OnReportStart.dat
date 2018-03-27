@@ -1,0 +1,133 @@
+
+Sub OnReportStart
+  Dim colArray
+  Dim valArray
+  Dim parmArray
+  Dim parmPairArray
+  Dim foundItem
+  Dim sectionItem()
+  Dim controlItem()
+  Dim showArray
+  colArray = split(Rpt.Fields.Item("RowType"),"|")
+  iColArray = 0
+  For Each columnData in colArray
+    iColArray = iColArray + 1
+    valArray = split(columnData,",")
+    iValArray = 0
+    For Each valItem in valArray
+      iValArray = iValArray + 1
+      If iColArray = 1 Then
+        ' Set Report Width
+        If iValArray = 2 Then
+          Rpt.PrintWidth = valItem
+        End If
+      End If
+      If iColArray > 1 Then
+        ' Locate Object Based on Name
+        If iValArray = 1 Then
+          foundItem = -1
+          For ix = 0 to Rpt.Sections.Count - 1
+            ' Check All Sections Except Group Headers
+            If Rpt.Sections.Item(ix).Type <> 4 Then
+              For iy = 0 to Rpt.Sections.Item(ix).Controls.Count - 1
+                itemName = valItem + "_" + Rpt.Sections.Item(ix).Name
+                If itemName = Rpt.Sections.Item(ix).Controls.Item(iy).Name Then
+                  foundItem = foundItem + 1
+                  ReDim Preserve sectionItem(foundItem)
+                  ReDim Preserve controlItem(foundItem)
+                  sectionItem(foundItem) = ix
+                  controlItem(foundItem) = iy
+                End If
+              Next
+            End If
+          Next
+        End If
+        ' Set Width of Column
+        If iValArray = 2 Then
+          If foundItem > -1 Then
+            For iz = 0 to foundItem
+              ' Hide Column
+              If valItem = -1 Then
+                Rpt.Sections.Item(sectionItem(iz)).Controls.Item(controlItem(iz)).Visible = False
+              Else
+                Rpt.Sections.Item(sectionItem(iz)).Controls.Item(controlItem(iz)).Visible = True
+                Rpt.Sections.Item(sectionItem(iz)).Controls.Item(controlItem(iz)).Width = valItem
+              End If
+            Next
+          End If
+        End If
+        ' Set Position of Column
+        If iValArray = 3 Then
+          If foundItem > -1 Then
+            For iz = 0 to foundItem
+              Rpt.Sections.Item(sectionItem(iz)).Controls.Item(controlItem(iz)).Left = valItem
+            Next
+          End If
+        End If
+      End If
+    Next
+  Next
+  ' Set Parameter Values and Hide Selected Sections
+  parmArray = split(Rpt.Fields.Item("Parameters"),"|")
+  iParmArray = 0
+  For Each parmPair in parmArray
+    iParmArray = iParmArray + 1
+    ' Hide Selected Sections
+    If iParmArray = 1 Then
+      showArray = split(parmPair,"^")
+      For Each showVal in showArray
+        For ix = 0 to Rpt.Sections.Count - 1
+          If Rpt.Sections.Item(ix).Type = CInt(showVal) Then
+            Rpt.Sections.Item(ix).BackStyle = 1
+            Rpt.Sections.Item(ix).Visible = False
+          End If
+        Next
+      Next
+    End If
+    ' Check If Hiding Parameters
+    If iParmArray = 2 Then
+      If parmPair = "NoParameters" Then
+      ' Hide Parameters by Shrinking Section Size
+        Rpt.Sections.Item("ReportHeader").Height = Rpt.Sections.Item("ReportHeader").Controls.Item("ReportTitle").Height
+      End If
+    End If
+    ' Find and Set Parameters
+    If iParmArray > 2 Then
+      parmPairArray = split(parmPair,"^")
+      iParmVal = 0
+      For Each parmVal in parmPairArray
+        iParmVal = iParmVal + 1
+        If iParmVal = 1 Then
+          ' Find Parameter by Name
+          foundItem = -1
+          For iy = 0 to Rpt.Sections.Item("ReportHeader").Controls.Count - 1
+            If Rpt.Sections.Item("ReportHeader").Controls.Item(iy).Name = parmVal Then
+              foundItem = iy
+            End If
+          Next
+          ' Check for Sub Report Parameter
+          subRpt = ""
+          If InStr(parmVal,"svSubRpt_") > 0 Then
+            subRpt = Replace(parmVal,"sv","")
+          End If
+        End If
+        ' Set Parameter Value
+        If iParmVal = 2 Then
+          If foundItem <> -1 Then
+            Rpt.Sections.Item("ReportHeader").Controls.Item(foundItem).Caption = parmVal
+          End If
+          ' Show/Hide Sub Report
+          If subRpt <> "" Then
+            For ixx = 0 to Rpt.Sections.Count - 1
+              For iyy = 0 to Rpt.Sections.Item(ixx).Controls.Count - 1
+                If subRpt = Rpt.Sections.Item(ixx).Controls.Item(iyy).Name Then
+                  Rpt.Sections.Item(ixx).Controls.Item(iyy).Visible = parmVal = "yes"
+                End If
+              Next
+            Next
+          End If
+        End If
+      Next
+    End If
+  Next
+End Sub

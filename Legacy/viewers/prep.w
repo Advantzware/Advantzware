@@ -58,11 +58,6 @@ DEFINE {&NEW} SHARED VARIABLE g_lookup-var AS CHARACTER NO-UNDO.
 
 &SCOPED-DEFINE enable-prep enable-prep
 
-&SCOPED-DEFINE where-preplastjob                 ~
-    WHERE reftable.reftable EQ "PREPLASTJOB"     ~
-      AND reftable.company  EQ prep.company ~
-      AND reftable.loc      EQ prep.loc             ~
-      AND reftable.code     EQ prep.CODE
 
 DO TRANSACTION:
   {sys/inc/addprep.i}
@@ -260,7 +255,7 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 14 BY 1
           BGCOLOR 15 FONT 4
-     prep.mkup AT ROW 2.43 COL 73 COLON-ALIGNED FORMAT ">>9.99<<"
+     prep.mkup AT ROW 2.43 COL 73 COLON-ALIGNED FORMAT "->>9.99<<"
           VIEW-AS FILL-IN 
           SIZE 11 BY 1
           BGCOLOR 15 FONT 4
@@ -940,7 +935,7 @@ END.
 ON VALUE-CHANGED OF fi_job-no IN FRAME F-Main /* Last Job # Used */
 DO:
   {&self-name}:SCREEN-VALUE = CAPS({&self-name}:SCREEN-VALUE).
-  {&SELF-NAME}:CURSOR-OFFSET = LENGTH({&SELF-NAME}:SCREEN-VALUE) + 1. /* added by script _caps.p */
+  IF LASTKEY EQ 32 THEN {&SELF-NAME}:CURSOR-OFFSET = LENGTH({&SELF-NAME}:SCREEN-VALUE) + 2. /* res */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1578,6 +1573,28 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-enable V-table-Win 
+PROCEDURE check-update-mode :
+/*------------------------------------------------------------------------------
+  Purpose:     Override standard ADM method
+  Notes:       
+------------------------------------------------------------------------------*/
+DEFINE OUTPUT PARAMETER op-in-update AS LOGICAL INIT NO NO-UNDO.
+
+IF prep.dscr:SENSITIVE IN FRAME {&FRAME-NAME} EQ YES THEN do:
+    op-in-update = YES .
+END.  
+
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-enable V-table-Win 
 PROCEDURE local-enable :
 /*------------------------------------------------------------------------------
@@ -1795,28 +1812,13 @@ PROCEDURE reftable-values :
 
   /* gdm - */
   DEF BUFFER bf-reftable FOR reftable.
-
-  IF AVAIL prep THEN DO:
-    FIND FIRST reftable {&where-preplastjob}
-         NO-LOCK NO-ERROR.
-
-    IF NOT AVAIL reftable THEN DO:
-      CREATE reftable.
-      ASSIGN
-       reftable.reftable = "PREPLASTJOB"
-       reftable.company  = prep.company
-       reftable.loc      = prep.loc
-       reftable.code     = prep.CODE
-       reftable.code2    = fi_job-no
-       reftable.val[1]   = fi_job-no2. 
-    END.
+ IF AVAIL prep THEN DO:
 
     IF ip-display THEN DO:
       ASSIGN
-        fi_job-no = reftable.code2
-        fi_job-no2 = reftable.val[1]
+        fi_job-no = prep.last-job-no
+        fi_job-no2 = prep.last-job-no2
          .
-
         FIND FIRST bf-reftable NO-LOCK
                WHERE bf-reftable.reftable EQ "PREPCADFILE"
                  AND bf-reftable.rec_key  EQ prep.rec_key NO-ERROR.  
@@ -1824,24 +1826,18 @@ PROCEDURE reftable-values :
            ASSIGN fi_cad# =  bf-reftable.CODE
                   fi_fil# = bf-reftable.code2.
         END.
-
         RELEASE bf-reftable.
     END.
     ELSE
     DO:
-       IF fi_job-no NE reftable.code2 OR
-          fi_job-no2 NE reftable.val[1] THEN
+       IF fi_job-no NE prep.last-job-no OR
+          fi_job-no2 NE prep.last-job-no2 THEN
           DO:
              REPEAT:
-                FIND CURRENT reftable EXCLUSIVE-LOCK NO-ERROR NO-WAIT.
-
-                IF AVAILABLE reftable THEN
                 DO:
                    ASSIGN
-                      reftable.code2 = fi_job-no
-                      reftable.val[1] = fi_job-no2.
-
-                   FIND CURRENT reftable NO-LOCK.
+                      prep.last-job-no = fi_job-no
+                      prep.last-job-no2 = fi_job-no2.
                    LEAVE.
                 END.
              END.
@@ -1866,6 +1862,8 @@ PROCEDURE reftable-values :
        /*END.*/
     END. /* else */
   END.
+
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

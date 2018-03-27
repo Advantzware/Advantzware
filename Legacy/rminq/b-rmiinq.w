@@ -89,8 +89,9 @@ DEF BUFFER rm-rdtlh-1 FOR rm-rdtlh.
     IF lv-sort-by EQ "tag"        THEN rm-rdtlh.tag                                                   ELSE ~
     IF lv-sort-by EQ "tag2"       THEN rm-rdtlh.tag2                                                  ELSE ~
     IF lv-sort-by EQ "pur-uom"    THEN rm-rcpth.pur-uom                                               ELSE ~
-    IF lv-sort-by EQ "qty"        THEN STRING(9999999999 + rm-rdtlh.qty,"9999999999.99")              ELSE ~
-    IF lv-sort-by EQ "cost"       THEN STRING(rm-rdtlh.cost,"9999999999.99999")                       ELSE ~
+    IF lv-sort-by EQ "qty"        THEN STRING(rm-rdtlh.qty,"-9999999999.99")                          ELSE ~
+    IF lv-sort-by EQ "cost"       THEN STRING(rm-rdtlh.cost,"-9999999999.99")                         ELSE ~
+    IF lv-sort-by EQ "ld-ext-cost"       THEN STRING((rm-rdtlh.qty * rm-rdtlh.cost),"-9999999999.99") ELSE ~
     IF lv-sort-by EQ "job-no"     THEN STRING(rm-rcpth.job-no,"x(6)") + STRING(rm-rcpth.job-no2,"99") ELSE ~
                                        STRING(YEAR(rm-rcpth.trans-date),"9999") + STRING(MONTH(rm-rcpth.trans-date),"99") + STRING(DAY(rm-rcpth.trans-date),"99") + STRING(rm-rcpth.r-no,"9999999999")
 
@@ -327,7 +328,7 @@ DEFINE BROWSE Browser-Table
       rm-rdtlh.cost COLUMN-LABEL "Cost" FORMAT "->>>,>>9.99<<<<":U
             LABEL-BGCOLOR 14
       disp-uom () @ rm-rcpth.loc
-      rm-rcpth.loc COLUMN-LABEL "Cost/UOM" FORMAT "x(3)":U LABEL-BGCOLOR 14
+      rm-rcpth.loc COLUMN-LABEL "Cost/UOM" FORMAT "x(3)":U
       disp-uom () @ rm-rcpth.loc
       rm-rdtlh.qty * rm-rdtlh.cost @ ld-ext-cost COLUMN-LABEL "Ext Cost" FORMAT "->>,>>>,>>9.99":U
             LABEL-BGCOLOR 14
@@ -542,10 +543,15 @@ ASSIGN
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Browser-Table B-table-Win
 ON MOUSE-SELECT-DBLCLICK OF Browser-Table IN FRAME F-Main
 DO:
-  IF USERID("nosweat") EQ "asi" THEN DO:
-    RUN set-read-only (NO).
+    DEFINE VARIABLE ll       AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lv-rowid AS ROWID   NO-UNDO. 
 
-    APPLY "entry" TO rm-rcpth.i-no IN BROWSE {&browse-name}.
+  IF USERID("nosweat") EQ "asi" OR AVAIL users AND users.securityLevel GT 899 THEN DO:
+
+    RUN rminq/d-rmiinq.w (ROWID(rm-rcpth),ROWID(rm-rdtlh), "update", OUTPUT lv-rowid) .
+
+    RUN repo-query (ROWID(rm-rcpth)).
+
   END.
 END.
 
@@ -598,11 +604,12 @@ DO:
     ASSIGN
      lv-column-nam = "job-no"
      lv-column-lab = "Job#".
-  ELSE
-  IF lv-column-nam EQ "loc" THEN
-    ASSIGN
-     lv-column-nam = "pur-uom"
+  IF lv-column-lab = "Cost/UOM" THEN
+      ASSIGN
+     lv-column-nam = "pur-UOM"
      lv-column-lab = "Cost/UOM".
+
+ /**/
 
   IF lv-sort-by EQ lv-column-nam THEN ll-sort-asc = NOT ll-sort-asc.
 
@@ -640,6 +647,20 @@ ON LEAVE OF rm-rcpth.i-no IN BROWSE Browser-Table /* Item# */
 DO:
   IF LASTKEY NE -1 THEN DO:
     RUN valid-i-no NO-ERROR.
+    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+  END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME rm-rdtlh.tag
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rm-rdtlh.tag Browser-Table _BROWSE-COLUMN B-table-Win
+ON LEAVE OF rm-rdtlh.tag IN BROWSE Browser-Table /* Item# */
+DO:
+  IF LASTKEY NE -1 THEN DO:
+
+    RUN valid-tag-no NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
   END.
 END.
@@ -750,6 +771,9 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rm-rdtlh.tag Browser-Table _BROWSE-COLUMN B-table-Win
 ON RETURN OF rm-rdtlh.tag IN BROWSE Browser-Table /* Tag */
 DO:
+    RUN valid-tag-no NO-ERROR.
+    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+
   RUN update-record.
 END.
 
@@ -1004,7 +1028,7 @@ END.
 ON VALUE-CHANGED OF fi_job-no IN FRAME F-Main /* Job# */
 DO:
   {&self-name}:SCREEN-VALUE = CAPS({&self-name}:SCREEN-VALUE).
-  {&SELF-NAME}:CURSOR-OFFSET = LENGTH({&SELF-NAME}:SCREEN-VALUE) + 1. /* added by script _caps.p */
+  IF LASTKEY EQ 32 THEN {&SELF-NAME}:CURSOR-OFFSET = LENGTH({&SELF-NAME}:SCREEN-VALUE) + 2. /* res */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1042,7 +1066,7 @@ END.
 ON VALUE-CHANGED OF fi_rita-code IN FRAME F-Main /* Trans Code */
 DO:
   {&self-name}:SCREEN-VALUE = CAPS({&self-name}:SCREEN-VALUE).
-  {&SELF-NAME}:CURSOR-OFFSET = LENGTH({&SELF-NAME}:SCREEN-VALUE) + 1. /* added by script _caps.p */
+  IF LASTKEY EQ 32 THEN {&SELF-NAME}:CURSOR-OFFSET = LENGTH({&SELF-NAME}:SCREEN-VALUE) + 2. /* res */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1090,9 +1114,16 @@ END.
 {methods/browsers/setCellColumns.i}    
 SESSION:DATA-ENTRY-RETURN = YES.
 
+
+
 &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
 RUN dispatch IN THIS-PROCEDURE ('initialize':U).
 &ENDIF
+
+DO WITH FRAME {&FRAME-NAME}:
+    fi_date:SCREEN-VALUE = STRING(TODAY - 180) .
+    fi_date = TODAY - 180 .
+  END.
 
 {methods/winReSize.i}
 /*
@@ -1367,16 +1398,21 @@ PROCEDURE local-display-fields :
     fi_sort-by:SCREEN-VALUE = TRIM(lv-sort-by-lab)               + " " +
                               TRIM(STRING(ll-sort-asc,"As/Des")) + "cending".
   END.
-  IF USERID("NOSWEAT") EQ "ASI" THEN
-     ASSIGN btCopy:HIDDEN = NO
-            btCopy:SENSITIVE = YES
-            btDelete:HIDDEN = NO
-            btDelete:SENSITIVE = YES.
-  ELSE
+
+  FIND FIRST users NO-LOCK WHERE 
+      users.user_id EQ USERID(LDBNAME(1)) 
+      NO-ERROR.
+
+  IF AVAIL users AND users.securityLevel LT 900 THEN
      ASSIGN btCopy:HIDDEN = YES
             btCopy:SENSITIVE = NO
             btDelete:HIDDEN = YES
             btDelete:SENSITIVE = NO.
+  ELSE
+      ASSIGN btCopy:HIDDEN = NO
+            btCopy:SENSITIVE = YES
+            btDelete:HIDDEN = NO
+            btDelete:SENSITIVE = YES.
 
   IF v-called-setCellColumns = NO THEN DO:
      RUN setCellColumns.
@@ -1853,6 +1889,45 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-tag-no B-table-Win 
+PROCEDURE valid-tag-no :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEF VAR lv-tag LIKE rm-rdtlh.tag NO-UNDO.
+  DEF BUFFER b-item FOR item.
+  DEF BUFFER b-rm-rdtlh FOR rm-rdtlh.
+
+  DO WITH FRAME {&FRAME-NAME}:
+      lv-tag = rm-rdtlh.tag:SCREEN-VALUE IN BROWSE {&browse-name}.
+
+   IF rm-rdtlh.tag:SCREEN-VALUE IN BROWSE {&browse-name} NE "" AND
+       rm-rcpth.rita-code:SCREEN-VALUE IN BROWSE {&browse-name} EQ "R" AND  
+       int(rm-rdtlh.qty:SCREEN-VALUE IN BROWSE {&browse-name}) GT 0 THEN do:
+
+       FIND FIRST  b-rm-rdtlh NO-LOCK
+           WHERE b-rm-rdtlh.company EQ cocode
+           /*AND b-rm-rcpth.i-no EQ fi_rm-i-no*/
+           AND b-rm-rdtlh.tag     EQ lv-tag 
+           AND ROWID(b-rm-rdtlh)  NE ROWID(rm-rdtlh) NO-ERROR .
+
+       IF AVAIL b-rm-rdtlh THEN DO:
+           MESSAGE "This Tag Number has already been used..." VIEW-AS ALERT-BOX INFO.
+           rm-rdtlh.tag:SCREEN-VALUE IN BROWSE {&browse-name} = rm-rdtlh.tag.
+           APPLY "entry" TO rm-rdtlh.tag IN BROWSE {&browse-name}.
+           RETURN ERROR.
+       END.
+    END.
+  END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-tag B-table-Win 
 PROCEDURE valid-tag :

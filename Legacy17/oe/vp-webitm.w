@@ -27,7 +27,7 @@ CREATE WIDGET-POOL.
 
 /* Local Variable Definitions ---                                       */
 
-def var char-hdl as cha no-undo.
+DEF VAR char-hdl AS cha NO-UNDO.
 DEF VAR ll-canceled AS LOG NO-UNDO.
 DEF VAR v-rowid-list AS CHAR NO-UNDO. /* Used to pull records from history */
 
@@ -41,7 +41,7 @@ DEF VAR v-rowid-list AS CHAR NO-UNDO. /* Used to pull records from history */
 
 /* ********************  Preprocessor Definitions  ******************** */
 
-&Scoped-define PROCEDURE-TYPE SmartPanel
+&Scoped-define PROCEDURE-TYPE SmartViewer
 &Scoped-define DB-AWARE no
 
 &Scoped-define ADM-SUPPORTED-LINKS Record-Source,Record-Target,TableIO-Target
@@ -57,7 +57,7 @@ DEF VAR v-rowid-list AS CHAR NO-UNDO. /* Used to pull records from history */
 /* Need to scope the external tables to this procedure                  */
 DEFINE QUERY external_tables FOR oe-ordl, oe-ord.
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS Btn-View btn-price btn-stat btn-his 
+&Scoped-Define ENABLED-OBJECTS Btn-View Btn-Save btn-price btn-stat btn-his 
 
 /* Custom List Definitions                                              */
 /* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,List-3,List-4,List-5,List-6      */
@@ -200,8 +200,6 @@ ASSIGN
    NO-ENABLE                                                            */
 /* SETTINGS FOR BUTTON Btn-Delete IN FRAME F-Main
    NO-ENABLE                                                            */
-/* SETTINGS FOR BUTTON Btn-Save IN FRAME F-Main
-   NO-ENABLE                                                            */
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
@@ -215,7 +213,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -225,10 +223,10 @@ ASSIGN
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn-Add V-table-Win
 ON CHOOSE OF Btn-Add IN FRAME F-Main /* Add */
 DO:
-   run oe/d-oeitem.w (?, oe-ord.ord-no,"ADD",INPUT TABLE tt-item-qty-price,
+   RUN oe/d-oeitem.w (?, oe-ord.ord-no,"ADD",INPUT TABLE tt-item-qty-price,
                       OUTPUT v-rowid-list, OUTPUT ll-canceled).  
-   run get-link-handle in adm-broker-hdl(this-procedure,"oeitem-target", output char-hdl).
-   run reopen-query in widget-handle(char-hdl) (?).
+   RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"oeitem-target", OUTPUT char-hdl).
+   RUN reopen-query IN WIDGET-HANDLE(char-hdl) (?).
 
   {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.07.2017 @  2:08:54 pm */
 END.
@@ -241,8 +239,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn-Delete V-table-Win
 ON CHOOSE OF Btn-Delete IN FRAME F-Main /* Delete */
 DO:
-   run get-link-handle in adm-broker-hdl(this-procedure,"oeitem-target", output char-hdl).
-   run delete-item in widget-handle(char-hdl).
+   RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"oeitem-target", OUTPUT char-hdl).
+   RUN delete-item IN WIDGET-HANDLE(char-hdl).
   {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.07.2017 @  2:08:54 pm */
 END.
 
@@ -254,8 +252,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-his V-table-Win
 ON CHOOSE OF btn-his IN FRAME F-Main /* History */
 DO:
-   run get-link-handle in adm-broker-hdl(this-procedure,"oeitem-target", output char-hdl).
-   run select-his in widget-handle(char-hdl).
+   RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"oeitem-target", OUTPUT char-hdl).
+   RUN select-his IN WIDGET-HANDLE(char-hdl).
 
   {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.07.2017 @  2:08:54 pm */
 END.
@@ -268,8 +266,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-price V-table-Win
 ON CHOOSE OF btn-price IN FRAME F-Main /* Price */
 DO:
-   run get-link-handle in adm-broker-hdl(this-procedure,"oeitem-target", output char-hdl).
-   run select-price in widget-handle(char-hdl).
+   RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"oeitem-target", OUTPUT char-hdl).
+   RUN select-price IN WIDGET-HANDLE(char-hdl).
 
   {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.07.2017 @  2:08:54 pm */
 END.
@@ -281,14 +279,13 @@ END.
 &Scoped-define SELF-NAME Btn-Save
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn-Save V-table-Win
 ON CHOOSE OF Btn-Save IN FRAME F-Main /* Update */
-/*
-    DO:
-    run oe/d-oeitem.w (recid(oe-ordl), oe-ordl.ord-no,"Update",INPUT TABLE tt-item-qty-price,OUTPUT ll-canceled).
-    run get-link-handle in adm-broker-hdl(this-procedure,"oeitem-target", output char-hdl).
-    run reopen-query in widget-handle(char-hdl) (rowid(oe-ordl)).
-
-      */
-/*  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.07.2017 @  2:08:54 pm */*/
+DO:
+    RUN oe/d-oeitem.w (RECID(oe-ordl), oe-ordl.ord-no, "WebUpdate",INPUT TABLE tt-item-qty-price,
+                       OUTPUT v-rowid-list, OUTPUT ll-canceled).
+    RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"oeitem-target", OUTPUT char-hdl).
+    RUN reopen-query IN WIDGET-HANDLE(char-hdl) (ROWID(oe-ordl)).
+    
+  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.07.2017 @  2:08:54 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -299,8 +296,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-stat V-table-Win
 ON CHOOSE OF btn-stat IN FRAME F-Main /* Stat */
 DO:
-   run get-link-handle in adm-broker-hdl(this-procedure,"oeitem-target", output char-hdl).
-   run select-stat in widget-handle(char-hdl).
+   RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"oeitem-target", OUTPUT char-hdl).
+   RUN select-stat IN WIDGET-HANDLE(char-hdl).
 
   {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.07.2017 @  2:08:54 pm */
 END.
@@ -313,7 +310,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn-View V-table-Win
 ON CHOOSE OF Btn-View IN FRAME F-Main /* View */
 DO:
-    run oe/d-oeitem.w (recid(oe-ordl), oe-ordl.ord-no, "View",INPUT TABLE tt-item-qty-price,
+    RUN oe/d-oeitem.w (RECID(oe-ordl), oe-ordl.ord-no, "View",INPUT TABLE tt-item-qty-price,
                        OUTPUT v-rowid-list, OUTPUT ll-canceled).
   {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.07.2017 @  2:08:54 pm */
 END.
@@ -415,6 +412,22 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE set-editors V-table-Winset-editors
+PROCEDURE set-editors:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER p-field-setting AS CHARACTER NO-UNDO.
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE state-changed V-table-Win 
 PROCEDURE state-changed :
 /* -----------------------------------------------------------
@@ -442,7 +455,7 @@ PROCEDURE update-item :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  run oe/d-oeitem.w (recid(oe-ordl), oe-ordl.ord-no,"Update",INPUT TABLE tt-item-qty-price,
+  RUN oe/d-oeitem.w (RECID(oe-ordl), oe-ordl.ord-no,"Update",INPUT TABLE tt-item-qty-price,
                      OUTPUT v-rowid-list, OUTPUT ll-canceled).
 
 END PROCEDURE.

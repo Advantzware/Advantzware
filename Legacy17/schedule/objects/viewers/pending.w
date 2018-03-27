@@ -35,6 +35,8 @@ CREATE WIDGET-POOL.
 {{&includes}/filterVars.i}
 {{&includes}/ttblJob.i}
 {{&viewers}/includes/sharedVars.i NEW}
+&SCOPED-DEFINE useTable pendingJob
+{{&includes}/jobStatusFunc.i}
 
 /* Parameters Definitions ---                                           */
 
@@ -1259,7 +1261,9 @@ PROCEDURE scheduleJobs :
       ttblJob.endDateTime = numericDateTime(ttblJob.endDate,ttblJob.endTime).
       ASSIGN
         ttblJob.jobBGColor = bJobBGColor()
-        ttblJob.jobFGColor = bJobFGColor().
+        ttblJob.jobFGColor = bJobFGColor()
+        ttblJob.statusLabel = jobStatus()
+        .
       CASE ipOption:
         WHEN 1 THEN DO:
           IF priorDateTime NE ? AND priorDateTime GE ttblJob.startDateTime THEN DO:
@@ -1272,7 +1276,9 @@ PROCEDURE scheduleJobs :
             ttblJob.endDateTime = numericDateTime(ttblJob.endDate,ttblJob.endTime).
             ASSIGN
               ttblJob.jobBGColor = bJobBGColor()
-              ttblJob.jobFGColor = bJobFGColor().
+              ttblJob.jobFGColor = bJobFGColor()
+              ttblJob.statusLabel = jobStatus()
+              .
           END.
           RUN firstAvailable IN boardHandle (ttblJob.resource,ROWID(ttblJob),ttblJob.timeSpan,
                                              INPUT-OUTPUT ttblJob.startDateTime,
@@ -1291,11 +1297,14 @@ PROCEDURE scheduleJobs :
           ttblJob.endDateTime = numericDateTime(ttblJob.endDate,ttblJob.endTime).
           ASSIGN
             ttblJob.jobBGColor = bJobBGColor()
-            ttblJob.jobFGColor = bJobFGColor().
+            ttblJob.jobFGColor = bJobFGColor()
+            ttblJob.statusLabel = jobStatus()
+            .
           ASSIGN
             priorEndDate = ttblJob.endDate
             priorEndTime = ttblJob.endTime
-            priorDateTime = ttblJob.endDateTime.
+            priorDateTime = ttblJob.endDateTime
+            .
         END. /* if ipOption */
         WHEN 2 THEN
         RUN moveExisting IN boardHandle (ttblJob.resource,ttblJob.startDateTime,
@@ -1323,7 +1332,9 @@ PROCEDURE scheduleJobs :
           ttblJob.endDateTime = numericDateTime(ttblJob.endDate,ttblJob.endTime).
           ASSIGN
             ttblJob.jobBGColor = bJobBGColor()
-            ttblJob.jobFGColor = bJobFGColor().
+            ttblJob.jobFGColor = bJobFGColor()
+            ttblJob.statusLabel = jobStatus()
+            .
         END.
       END CASE.
       RUN setResourceSequence (bPendingJob.resource).

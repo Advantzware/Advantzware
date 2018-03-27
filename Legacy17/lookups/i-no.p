@@ -1,4 +1,4 @@
-/* i-no.p - Generated 01/06/2006 -  9:34 am by nosweat
+/* i-no.p - Generated 10/17/2017 -  7:54 pm by NoSweat
 "i-no. " ~
 "ASI " ~
 "itemfg " ~
@@ -25,22 +25,23 @@
 &Scoped-define font 4
 &Scoped-define height-size 19
 &Scoped-define width-size 80
-&Scoped-define show-fields itemfg.i-no WIDTH 18 itemfg.i-name WIDTH 40 itemfg.cust-name WIDTH 40
+&Scoped-define show-fields itemfg.i-no itemfg.i-name itemfg.cust-name
+&Scoped-define show-fields-yellow itemfg.i-no LABEL-BGCOLOR 14 itemfg.i-name LABEL-BGCOLOR 14 itemfg.cust-name LABEL-BGCOLOR 14
 &Scoped-define frame-title 
 &Scoped-define top-include ~{custom/getcmpny.i} ~{custom/getloc.i} ~{sys/inc/varasgn.i}
 &Scoped-define def-include ~{custom/gcompany.i} ~{custom/gloc.i} ~{sys/inc/var.i new shared} ~{fg/fgvars.i}
 &Scoped-define end-include 
 &Scoped-define ui-prgmname 
-&Scoped-define window-size 23
+&Scoped-define window-size 24
 &Scoped-define window-col 35
 &Scoped-define rect-1-row 20.15
 &Scoped-define by-row 20.42
 &Scoped-define browse-order-width 74
 &Scoped-define browse-order-row 20.42
-&Scoped-define btn-row 21.77
-&Scoped-define btn-ok-col 71
-&Scoped-define btn-cancel-col 60
-&Scoped-define auto-find-row 22.85
+&Scoped-define btn-row 21.7
+&Scoped-define btn-ok-col 73
+&Scoped-define btn-cancel-col 66
+&Scoped-define auto-find-row 23.65
 
 &Global-define FORMAT-1 x(15)
 &Scoped-define FLDNAME1 itemfg.i-no

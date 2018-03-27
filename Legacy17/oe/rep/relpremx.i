@@ -124,6 +124,9 @@ DEF BUFFER xitemfg FOR itemfg.
 DEF SHARED VAR v-print-components AS LOG NO-UNDO.
 DEF SHARED VAR s-print-part-no AS LOG NO-UNDO.
 DEF VAR v-reljob AS CHAR FORMAT "x(10)" NO-UNDO.
+DEFINE VARIABLE iOrdQtyCust AS INTEGER NO-UNDO.
+DEFINE BUFFER bf-oe-ordl FOR oe-ordl .
+
 ASSIGN tmpstore = fill("-",130).
 
 find first sys-ctrl where sys-ctrl.company eq cocode
@@ -342,6 +345,16 @@ if v-zone-p then v-zone-hdr = "Route No.:".
                 w-bin.job2 = fg-bin.job-no2
                 i        = i + 1
                  .
+               ASSIGN iOrdQtyCust = 0.
+               FOR EACH bf-oe-ordl NO-LOCK
+                    WHERE bf-oe-ordl.company EQ oe-ordl.company
+                      AND bf-oe-ordl.ord-no EQ oe-ordl.ord-no
+                      AND bf-oe-ordl.i-no EQ oe-ordl.i-no 
+                      AND bf-oe-ordl.po-no EQ oe-ordl.po-no :
+                    iOrdQtyCust = iOrdQtyCust + IF bf-oe-ordl.spare-dec-1 GT 0 THEN bf-oe-ordl.spare-dec-1 ELSE bf-oe-ordl.qty  .
+               END.
+               IF iOrdQtyCust GT 0 THEN
+                   ASSIGN w-bin.w-cust-qty = iOrdQtyCust .
               
                IF s-print-what-item NE "S" THEN
                   FOR EACH fg-rcpth FIELDS(r-no trans-date) WHERE
@@ -560,8 +573,18 @@ if v-zone-p then v-zone-hdr = "Route No.:".
                BY w-bin.w-date-time
                by w-bin.w-qty[2] desc
                by w-bin.w-qty[1] desc:
+                ASSIGN iOrdQtyCust = 0.
+               FOR EACH bf-oe-ordl NO-LOCK
+                    WHERE bf-oe-ordl.company EQ oe-ordl.company
+                      AND bf-oe-ordl.ord-no EQ oe-ordl.ord-no
+                      AND bf-oe-ordl.i-no EQ oe-ordl.i-no 
+                      AND bf-oe-ordl.po-no EQ oe-ordl.po-no :
+                    iOrdQtyCust = iOrdQtyCust + IF bf-oe-ordl.spare-dec-1 GT 0 THEN bf-oe-ordl.spare-dec-1 ELSE bf-oe-ordl.qty  .
+               END.
 
-               ASSIGN w-bin.w-cust-qty = IF oe-ordl.spare-dec-1 GT 0 THEN oe-ordl.spare-dec-1 ELSE oe-ordl.qty  .
+               ASSIGN w-bin.w-cust-qty = iOrdQtyCust  .
+               IF w-bin.w-cust-qty EQ 0 THEN
+                 ASSIGN w-bin.w-cust-qty = IF oe-ordl.spare-dec-1 GT 0 THEN oe-ordl.spare-dec-1 ELSE oe-ordl.qty  .
                leave.
            end.
 

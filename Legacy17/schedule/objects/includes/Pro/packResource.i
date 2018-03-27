@@ -119,17 +119,21 @@
         ttblJob.startTime = lvStartTime
         ttblJob.endDate = lvEndDate
         ttblJob.endTime = lvEndTime
-        ttblJob.downtimeSpan = lvDowntimeSpan.
+        ttblJob.downtimeSpan = lvDowntimeSpan
+        .
       ttblJob.startDateTime = numericDateTime(lvStartDate,lvStartTime).
       ttblJob.endDateTime = numericDateTime(lvEndDate,lvEndTime).
       ASSIGN
         ttblJob.jobBGColor = jobBGColor()
-        ttblJob.jobFGColor = jobFGColor().
+        ttblJob.jobFGColor = jobFGColor()
+        ttblJob.statusLabel = jobStatus()
+        .
     END. /* if not joblocked & not jobcompleted */
     ELSE
     ASSIGN
       lvEndDate = ttblJob.endDate
-      lvEndTime = ttblJob.endTime.
+      lvEndTime = ttblJob.endTime
+      .
     /*
     IF ttblJob.lagTime NE 0 THEN
     RUN addTime (ttblJob.startDate,ttblJob.startTime,ttblJob.lagTime,
@@ -138,7 +142,8 @@
     ASSIGN
       priorDate[1] = lvEndDate
       priorTime[1] = lvEndTime
-      priorDateTime[2] = numericDateTime(priorDate[1],priorTime[1]).
+      priorDateTime[2] = numericDateTime(priorDate[1],priorTime[1])
+      .
   END. /* each ttblJob */
   IF NOT useSequence THEN DO:
     RUN msgFrame ('Setting Job Sequence Values').

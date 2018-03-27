@@ -1,5 +1,7 @@
 /* r-prodlys.i - used by aoa/BL/r-prodlys.p & aoa/BL/machprod.p */
 
+{aoa/includes/shiftStartEndTime.i}
+
 RUN pProductionAnalysis1 (
     ipcCompany,
     cLocation,
@@ -13,27 +15,31 @@ RUN pProductionAnalysis1 (
     cEndOpDateOption,
     iStartShift,
     iEndShift,
+    iShiftStartTime,
+    iShiftEndTime,
     lPrintByScheduledMachine,
     lRoundDecimals,
     cSort
     ).
 
 PROCEDURE pProductionAnalysis1:
-    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER   NO-UNDO.
-    DEFINE INPUT PARAMETER ipcLocation AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipcStartDept AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipcEndDept AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipcStartMachine AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipcEndMachine AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipdtStartOpDate AS DATE NO-UNDO.
-    DEFINE INPUT PARAMETER ipcStartOpDateOption AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipdtEndOpDate AS DATE NO-UNDO.
-    DEFINE INPUT PARAMETER ipcEndOpDateOption AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipiStartShift AS INTEGER NO-UNDO.
-    DEFINE INPUT PARAMETER ipiEndShift AS INTEGER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcCompany                 AS CHARACTER   NO-UNDO.
+    DEFINE INPUT PARAMETER ipcLocation                AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcStartDept               AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcEndDept                 AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcStartMachine            AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcEndMachine              AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipdtStartOpDate            AS DATE NO-UNDO.
+    DEFINE INPUT PARAMETER ipcStartOpDateOption       AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipdtEndOpDate              AS DATE NO-UNDO.
+    DEFINE INPUT PARAMETER ipcEndOpDateOption         AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiStartShift              AS INTEGER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiEndShift                AS INTEGER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiShiftStartTime          AS INTEGER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiShiftEndTime            AS INTEGER NO-UNDO.
     DEFINE INPUT PARAMETER iplPrintByScheduledMachine AS LOGICAL NO-UNDO.
-    DEFINE INPUT PARAMETER iplRoundDecimals AS LOGICAL NO-UNDO.
-    DEFINE INPUT PARAMETER ipcSort AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER iplRoundDecimals           AS LOGICAL NO-UNDO.
+    DEFINE INPUT PARAMETER ipcSort                    AS CHARACTER NO-UNDO.
     
     /* local variables */
     DEFINE VARIABLE iTotalUp   AS INTEGER   NO-UNDO.
@@ -49,6 +55,8 @@ PROCEDURE pProductionAnalysis1:
           AND mch-act.op-date LE ipdtEndOpDate
           AND mch-act.shift   GE ipiStartShift
           AND mch-act.shift   LE ipiEndShift
+          AND DATETIME(mch-act.op-date,mch-act.op-time) GE DATETIME(ipdtStartOpDate,ipiShiftStartTime)
+          AND DATETIME(mch-act.op-date,mch-act.op-time) LE DATETIME(ipdtEndOpDate,ipiShiftEndTime)
         USE-INDEX dte-idx,
         FIRST mach NO-LOCK
         WHERE mach.company EQ mch-act.company
@@ -349,15 +357,18 @@ PROCEDURE pProductionAnalysis1:
         END. /* round decimals */
     END. /* each ttProductionAnalysis */
 
-    RUN pProductionAnalysis2 (ipcCompany, ipdtStartOpDate, ipdtEndOpDate, ipiStartShift, ipiEndShift).
+    RUN pProductionAnalysis2 (ipcCompany, ipdtStartOpDate, ipdtEndOpDate, ipiStartShift, ipiEndShift, ipiShiftStartTime, ipiShiftEndTime).
 END PROCEDURE.
 
 PROCEDURE pProductionAnalysis2:
-    DEFINE INPUT PARAMETER ipcCompany      AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipdtStartOpDate AS DATE      NO-UNDO.
-    DEFINE INPUT PARAMETER ipdtEndOpDate   AS DATE      NO-UNDO.
-    DEFINE INPUT PARAMETER ipiStartShift   AS INTEGER   NO-UNDO.
-    DEFINE INPUT PARAMETER ipiEndShift     AS INTEGER   NO-UNDO.
+    DEFINE INPUT PARAMETER ipcCompany        AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipdtStartOpDate   AS DATE      NO-UNDO.
+    DEFINE INPUT PARAMETER ipdtEndOpDate     AS DATE      NO-UNDO.
+    DEFINE INPUT PARAMETER ipiStartShift     AS INTEGER   NO-UNDO.
+    DEFINE INPUT PARAMETER ipiEndShift       AS INTEGER   NO-UNDO.
+    DEFINE INPUT PARAMETER ipiShiftStartTime AS INTEGER   NO-UNDO.
+    DEFINE INPUT PARAMETER ipiShiftEndTime   AS INTEGER   NO-UNDO.
+    
 
     DEFINE VARIABLE dCalcMSF AS DECIMAL NO-UNDO.
     DEFINE VARIABLE iCount   AS INTEGER NO-UNDO.
@@ -490,6 +501,8 @@ PROCEDURE pProductionAnalysis2:
               AND bMchAct.op-date   LE ipdtEndOpDate
               AND bMchAct.shift     GE ipiStartShift
               AND bMchAct.shift     LE ipiEndShift
+              AND DATETIME(bMchAct.op-date,bMchAct.op-time) GE DATETIME(ipdtStartOpDate,ipiShiftStartTime)
+              AND DATETIME(bMchAct.op-date,bMchAct.op-time) LE DATETIME(ipdtEndOpDate,ipiShiftEndTime)
             :
             FIND FIRST job-code NO-LOCK
                  WHERE job-code.code EQ bMchAct.code

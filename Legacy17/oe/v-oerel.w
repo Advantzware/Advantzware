@@ -6,7 +6,7 @@
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admViewersUsing.i} /* added by script c:\tmp\p42959__V16toV17.ped */
+{Advantzware\WinKit\admViewersUsing.i} /* added by script _admViewers.p */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
@@ -48,6 +48,8 @@ DEF BUFFER bf-cust1 FOR cust.
 
 DEF VAR v-access-close AS LOG.
 DEF VAR v-access-list AS CHAR.
+DEFINE VARIABLE  ou-log      LIKE sys-ctrl.log-fld NO-UNDO INITIAL NO.
+DEFINE VARIABLE ou-cust-int LIKE sys-ctrl.int-fld NO-UNDO.
 
 RUN methods/prgsecur.p
     (INPUT "OEDateMod",
@@ -69,6 +71,10 @@ RUN sys/ref/nk1look.p (g_company, "oeDateChange", "C", no, no, "", "",
                           OUTPUT v-rtn-char, OUTPUT v-rec-found).                      
 IF v-rec-found THEN
     oeDateChange-char = v-rtn-char NO-ERROR.
+
+DO TRANSACTION:
+     {sys/ref/CustList.i NEW}
+END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -514,6 +520,8 @@ DO:
   IF LASTKEY NE -1 THEN DO:
     RUN valid-cust-no NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+    RUN valid-cust-user NO-ERROR.
+    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
   END.
 END.
 
@@ -613,7 +621,7 @@ FOR EACH cust fields(cust-no) NO-LOCK
   lv-cust-x = cust.cust-no.
   LEAVE.
 END.
-
+ RUN sys/inc/custlistform.p (INPUT "OT1" , INPUT cocode , OUTPUT ou-log , OUTPUT ou-cust-int) .
 {sys/inc/relcrhold.i}
 
 &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN              
@@ -1424,6 +1432,9 @@ PROCEDURE local-update-record :
   RUN valid-cust-no NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
+  RUN valid-cust-user NO-ERROR.
+  IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+
   RUN valid-ship-id NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
@@ -1459,6 +1470,30 @@ PROCEDURE local-update-record :
      RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"record-target",OUTPUT char-hdl).
      RUN add-line IN WIDGET-HANDLE(char-hdl).
   END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-cancel-record V-table-Win 
+PROCEDURE local-cancel-record :
+/*------------------------------------------------------------------------------
+  Purpose:     Override standard ADM method
+  Notes:       
+------------------------------------------------------------------------------*/
+
+
+  /* Code placed here will execute PRIOR to standard behavior. */
+
+  /* Buttons were made not sensitive during add, so reverse that here */
+
+  /* Dispatch standard ADM method.                             */
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'cancel-record':U ) .
+
+  /* Code placed here will execute AFTER standard behavior.    */
+  adm-adding-record = NO.
 
 END PROCEDURE.
 
@@ -1677,6 +1712,36 @@ PROCEDURE valid-cust-no :
   END.
 
   {methods/lValidateError.i NO}
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-cust-user B-table-Win 
+PROCEDURE valid-cust-user :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+ custcount = "".
+DEF VAR lActive AS LOG NO-UNDO.
+RUN sys/ref/CustList.p (INPUT cocode,
+                            INPUT 'OT1',
+                            INPUT YES,
+                            OUTPUT lActive).
+ {sys/inc/chblankcust.i ""OT1""}
+
+  IF ou-log THEN
+    DO WITH FRAME {&FRAME-NAME}:
+      IF LOOKUP(oe-relh.cust-no:SCREEN-VALUE ,custcount) = 0 THEN DO:
+          MESSAGE "Customer is not on Users Customer List.  "  SKIP
+              "Please add customer to Network Admin - Users Customer List."  VIEW-AS ALERT-BOX ERROR.
+          APPLY "entry" TO oe-relh.cust-no .
+          RETURN ERROR.
+      END.
+    END.
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

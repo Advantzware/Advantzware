@@ -2,7 +2,6 @@
 /* PRINT INVOICE   Xprint form for PEACHTREE with FG Lot                       */ 
 /* -------------------------------------------------------------------------- */
 DEF INPUT PARAM ip-copy-title AS cha NO-UNDO.
-
 {sys/inc/var.i shared}
 
 {oe/rep/invoice.i}
@@ -31,7 +30,7 @@ DEF VAR v-bill-i       AS CHAR FORMAT "x(25)" NO-UNDO.
 DEF VAR v-ship-i       AS CHAR FORMAT "x(25)" NO-UNDO.
 DEF VAR v-price-head   AS CHAR FORMAT "x(5)"  NO-UNDO.
 DEF VAR ls-image1      AS CHAR                NO-UNDO.
-DEF VAR ls-full-img1   AS CHAR FORMAT "x(150)" NO-UNDO.
+DEF VAR ls-full-img1   AS CHAR FORMAT "x(200)" NO-UNDO.
 DEF VAR v-comp-add1    AS CHAR FORM "x(30)"   NO-UNDO.
 DEF VAR v-comp-add2    AS CHAR FORM "x(30)"   NO-UNDO.
 DEF VAR v-comp-add3    AS CHAR FORM "x(30)"   NO-UNDO.
@@ -101,7 +100,7 @@ DEF TEMP-TABLE w-sman NO-UNDO
 
 FIND FIRST inv-head NO-LOCK NO-ERROR.
 
-ASSIGN ls-image1 = "images\Peachtree_logo_address.jpg"
+ASSIGN ls-image1 = "images\Peachtree_logo_2018.png"
        FILE-INFO:FILE-NAME = ls-image1
        ls-full-img1 = FILE-INFO:FULL-PATHNAME + ">".
 
@@ -445,14 +444,10 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
         ASSIGN v-case-cnt = ""
                v-pc       = "P" /* partial*/ 
                i          = 0.
-
+       
         IF inv-line.inv-qty EQ 0 AND inv-line.ship-qty EQ 0 THEN NEXT .
 
-        FIND FIRST reftable NO-LOCK
-          WHERE reftable.reftable EQ "inv-line.lot-no" 
-            AND reftable.rec_key  EQ inv-line.rec_key
-            USE-INDEX rec_key NO-ERROR.
-
+        
         FOR EACH oe-boll NO-LOCK 
           WHERE oe-boll.company EQ inv-line.company
             AND oe-boll.bol-no  EQ inv-head.bol-no
@@ -465,11 +460,9 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
 
         END. /* each oe-boll */
 
-        IF AVAIL reftable 
-          THEN v-case-cnt[1] = v-case-cnt[1] + 
+        v-case-cnt[1] = v-case-cnt[1] + 
                                FILL(" ",32 - LENGTH(v-case-cnt[1])) 
-                               /*+ 
-                               reftable.CODE*/ .
+                                .
 
         IF v-printline > 62 THEN DO:
           PAGE.

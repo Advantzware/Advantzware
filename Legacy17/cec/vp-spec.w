@@ -6,7 +6,7 @@
 
   File:
 
-  Description: from VIEWER.W - Template for SmartViewer Objects
+  Description: from VIEWER.W - Template for SmartPanel Objects
 
   Input Parameters:
       <none>
@@ -57,7 +57,7 @@ cocode = gcompany.
 &Scoped-define FRAME-NAME F-Main
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-41 print-box 
+&Scoped-Define ENABLED-OBJECTS print-box RECT-41 
 
 /* Custom List Definitions                                              */
 /* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,List-3,List-4,List-5,List-6      */
@@ -102,7 +102,7 @@ FUNCTION GetCESample RETURNS CHARACTER
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON print-box 
-     LABEL "Spec Sheet" 
+     LABEL "Sample" 
      SIZE 13 BY 1.91.
 
 DEFINE RECTANGLE RECT-41
@@ -124,7 +124,7 @@ DEFINE FRAME F-Main
 
 &ANALYZE-SUSPEND _PROCEDURE-SETTINGS
 /* Settings for THIS-PROCEDURE
-   Type: SmartViewer
+   Type: SmartPanel
    Allow: Basic,DB-Fields
    Frames: 1
    Add Fields to: EXTERNAL-TABLES
@@ -175,6 +175,10 @@ ASSIGN
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
 
+ASSIGN 
+       print-box:PRIVATE-DATA IN FRAME F-Main     = 
+                "panel-image".
+
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
@@ -196,7 +200,7 @@ ASSIGN
 
 &Scoped-define SELF-NAME print-box
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL print-box V-table-Win
-ON CHOOSE OF print-box IN FRAME F-Main /* Spec Sheet */
+ON CHOOSE OF print-box IN FRAME F-Main /* Sample */
 DO:
     DEF VAR char-hdl AS cha NO-UNDO.
 
@@ -227,6 +231,8 @@ END.
   IF GetCESample() EQ "Premier" THEN
       print-box:LABEL = "Spec/NOC".
   ELSE print-box:LABEL = "Sample".
+
+  {methods/setButton.i print-box "Sample"} /* added by script _panelImages.p */
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -283,7 +289,7 @@ PROCEDURE send-records :
 ------------------------------------------------------------------------------*/
 
   /* SEND-RECORDS does nothing because there are no External
-     Tables specified for this SmartViewer, and there are no
+     Tables specified for this SmartPanel, and there are no
      tables specified in any contained Browse, Query, or Frame. */
 
 END PROCEDURE.

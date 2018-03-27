@@ -10,13 +10,16 @@
     Description : AppServer Functions and Procedures
 
     Author(s)   : Ron Stark
-    Created     : 3.23.2016
+    Created     : 8.1.2017
     Notes       :
   ----------------------------------------------------------------------*/
 /*          This .W file was created with the Progress AppBuilder.      */
 /*----------------------------------------------------------------------*/
 
 /* ***************************  Definitions  ************************** */
+
+/* Reordering Advice.rpa */
+{aoa/tempTable/ttReOrderingAdvice.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -34,6 +37,29 @@
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
 
+
+/* ************************  Function Prototypes ********************** */
+
+&IF DEFINED(EXCLUDE-fGetTableHandle) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fGetTableHandle Procedure 
+FUNCTION fGetTableHandle RETURNS HANDLE
+  ( ipcProgramID AS CHARACTER )  FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
+
+&IF DEFINED(EXCLUDE-fReOrderingAdvice) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fReOrderingAdvice Procedure 
+FUNCTION fReOrderingAdvice RETURNS HANDLE ( {aoa/includes/fInputVars.i} )  FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
 
 
 /* *********************** Procedure Settings ************************ */
@@ -71,3 +97,48 @@
 &ANALYZE-RESUME
 
 
+/* ************************  Function Implementations ***************** */
+
+&IF DEFINED(EXCLUDE-fGetTableHandle) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fGetTableHandle Procedure 
+FUNCTION fGetTableHandle RETURNS HANDLE
+  ( ipcProgramID AS CHARACTER ) :
+/*------------------------------------------------------------------------------
+  Purpose:  
+    Notes:  
+------------------------------------------------------------------------------*/
+    CASE ipcProgramID:
+        /* Reordering Advice.rpa */
+        WHEN "r-reordr." THEN
+        RETURN TEMP-TABLE ttReOrderingAdvice:HANDLE.
+    END CASE.
+
+END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
+
+&IF DEFINED(EXCLUDE-fReOrderingAdvice) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fReOrderingAdvice Procedure 
+FUNCTION fReOrderingAdvice RETURNS HANDLE ( {aoa/includes/fInputVars.i} ) :
+/*------------------------------------------------------------------------------
+Purpose:  Reordering Advice.rpa
+Notes:  
+------------------------------------------------------------------------------*/
+    EMPTY TEMP-TABLE ttReOrderingAdvice.
+    
+    /* subject business logic */
+    RUN aoa/BL/r-reordr.p (OUTPUT TABLE ttReOrderingAdvice, ipcCompany, ipiBatch, ipcUserID).
+    
+    RETURN TEMP-TABLE ttReOrderingAdvice:HANDLE .
+
+END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF

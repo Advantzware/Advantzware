@@ -150,7 +150,7 @@ CLASS Advantzware.Windows.SmartFramework.Menu.MainMenuForm
     ------------------------------------------------------------------------------*/
     METHOD PROTECTED VOID DisplayLanguageName ():
 
-        THIS-OBJECT:ultraStatusBar1:Panels ["language":U]:Text = SessionManager:LanguageDisplayName .
+        THIS-OBJECT:ultraStatusBar1:Panels ["language":U]:Text = "Language: " + SessionManager:LanguageDisplayName .
 
     END METHOD .
 
@@ -1596,7 +1596,7 @@ CLASS Advantzware.Windows.SmartFramework.Menu.MainMenuForm
     ------------------------------------------------------------------------------*/
     METHOD PROTECTED VOID LoginCompanyNameChangedHandler ():
 
-        THIS-OBJECT:ultraStatusBar1:Panels["logincompanyname":U]:Text = SessionManager:LoginCompanyName .
+        THIS-OBJECT:ultraStatusBar1:Panels["logincompanyname":U]:Text = "Company: " + SessionManager:LoginCompanyName .
 
     END METHOD.
 
@@ -1689,7 +1689,8 @@ CLASS Advantzware.Windows.SmartFramework.Menu.MainMenuForm
 
         SUPER:OnLoad (e) .
 
-        ultraStatusBar1:Panels["proversion":U]:Text = SessionHelper:FullVersionString() .
+        ultraStatusBar1:Panels["proversion":U]:Text = "ProVersion: " + SessionHelper:FullVersionString() .
+        ultraStatusBar1:Panels["logincompanyname":U]:Text = "Company: " + "Name Here".
 
         oSystemDescriptionProvider = {Consultingwerk/get-service.i Consultingwerk.Framework.ISystemDescriptionProvider
                                                                    "NEW Consultingwerk.Framework.SystemDescriptionProvider ()"} .
@@ -1697,7 +1698,7 @@ CLASS Advantzware.Windows.SmartFramework.Menu.MainMenuForm
          oSystemDescription = oSystemDescriptionProvider:GetSystemDescription() .
 
         IF VALID-OBJECT (oSystemDescription) THEN
-             ultraStatusBar1:Panels["system":U]:Text = oSystemDescription:Description .
+             ultraStatusBar1:Panels["system":U]:Text = "System: " + oSystemDescription:Description .
 
         /* DockManager */
         DockManagerHelper:RestoreFromSettingsService (ultraDockManager1,
@@ -2109,7 +2110,7 @@ CLASS Advantzware.Windows.SmartFramework.Menu.MainMenuForm
                                                 e AS System.EventArgs):
 
         Consultingwerk.Windows.API.Win32:ShellExecute ("open":U,
-                                                       "http://www.facebook.com/Consultingwerk":U) .
+                                                       "http://www.advantzware.com":U) .
 
     END METHOD.
 
@@ -2140,7 +2141,7 @@ CLASS Advantzware.Windows.SmartFramework.Menu.MainMenuForm
     ------------------------------------------------------------------------------*/
     METHOD PROTECTED VOID UserNameChangedHandler ():
 
-        THIS-OBJECT:ultraStatusBar1:Panels["username":U]:Text = SessionManager:UserName .
+        THIS-OBJECT:ultraStatusBar1:Panels["username":U]:Text = "User Login: " + SessionManager:UserName .
 
     END METHOD.
 

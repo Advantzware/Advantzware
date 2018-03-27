@@ -7,7 +7,7 @@ IF intervals:LOOKUP(intervals:SCREEN-VALUE) LE noteButtons AND
   RUN createNote (intervals:LOOKUP(intervals:SCREEN-VALUE) LE lockButtons AND
                   xValue LT FRAME {&FRAME-NAME}:WIDTH-PIXELS - 14,
                   noteIdx,xValue,yValue,ROWID(ttblJob),
-                  CAN-FIND(FIRST jobNotes WHERE jobNotes.jobRowID EQ TO-ROWID(ENTRY(NUM-ENTRIES(ttblJob.rowIDs),ttblJob.rowIDs))
+                  CAN-FIND(FIRST jobNotes WHERE jobNotes.jobRowID EQ TO-ROWID(ENTRY(2,ttblJob.rowIDs))
                                             AND jobNotes.jobStatus EQ NO
                                             AND jobNotes.deleteNote EQ NO)).
 END.

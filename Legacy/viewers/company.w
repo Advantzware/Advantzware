@@ -440,7 +440,7 @@ DO:
 
   IF {&self-name}:SCREEN-VALUE NE "" THEN DO:
     {&self-name}:SCREEN-VALUE = CAPS({&self-name}:SCREEN-VALUE).
-  {&SELF-NAME}:CURSOR-OFFSET = LENGTH({&SELF-NAME}:SCREEN-VALUE) + 1. /* added by script _caps.p */
+  IF LASTKEY EQ 32 THEN {&SELF-NAME}:CURSOR-OFFSET = LENGTH({&SELF-NAME}:SCREEN-VALUE) + 2. /* res */
 
     FIND FIRST bf-company
         WHERE bf-company.company EQ {&self-name}:SCREEN-VALUE
@@ -967,3 +967,27 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-buttons V-table-Win 
+PROCEDURE valid-buttons :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    /*add and delete not valid buttons*/
+    DEF OUTPUT PARAMETER op-add-valid AS LOG NO-UNDO.
+    DEF OUTPUT PARAMETER op-delete-valid AS LOG INIT YES NO-UNDO.
+
+    DEF VAR hPgmSecurity AS HANDLE NO-UNDO.
+    DEF VAR lResult AS LOG NO-UNDO.
+    RUN "system/PgmMstrSecur.p" PERSISTENT SET hPgmSecurity.
+    RUN epCanAccess IN hPgmSecurity ("viewers/company.w", "", OUTPUT lResult).
+    DELETE OBJECT hPgmSecurity.
+
+    ASSIGN 
+        op-add-valid = lResult.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME

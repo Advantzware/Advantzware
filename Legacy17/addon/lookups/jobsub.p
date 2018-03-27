@@ -1,4 +1,4 @@
-/* jobsub.p - Generated 07/11/2000 -  5:21 pm by NoSweat
+/* jobsub.p - Generated 10/17/2017 -  7:54 pm by NoSweat
 "jobsub. " ~
 "ASI " ~
 "job-mch " ~
@@ -12,8 +12,8 @@
 "yes " ~
 "job-no2,job-no " ~
 "Job Sub Number Lookup " ~
-"{custom/getcmpny.i} ~{sys/inc/varasgn.i}" ~
-"{custom/gcompany.i} ~{methods/defines/jobmach.i} ~{sys/inc/var.i new shared}" ~
+"{custom/getcmpny.i} ~{sys/inc/varasgn.i} " ~
+"{custom/gcompany.i} ~{methods/defines/jobmach.i} ~{sys/inc/var.i new shared} " ~
 " " ~
 " " ~
 */
@@ -26,21 +26,22 @@
 &Scoped-define height-size 19
 &Scoped-define width-size 46
 &Scoped-define show-fields job-mch.job-no2 job-mch.job-no
+&Scoped-define show-fields-yellow job-mch.job-no2 LABEL-BGCOLOR 14 job-mch.job-no LABEL-BGCOLOR 14
 &Scoped-define frame-title Job Sub Number Lookup
 &Scoped-define top-include ~{custom/getcmpny.i} ~{sys/inc/varasgn.i}
 &Scoped-define def-include ~{custom/gcompany.i} ~{methods/defines/jobmach.i} ~{sys/inc/var.i new shared}
 &Scoped-define end-include 
 &Scoped-define ui-prgmname 
-&Scoped-define window-size 23
+&Scoped-define window-size 24
 &Scoped-define window-col 52
 &Scoped-define rect-1-row 20.15
 &Scoped-define by-row 20.42
 &Scoped-define browse-order-width 40
 &Scoped-define browse-order-row 20.42
-&Scoped-define btn-row 21.77
-&Scoped-define btn-ok-col 37
-&Scoped-define btn-cancel-col 26
-&Scoped-define auto-find-row 22.85
+&Scoped-define btn-row 21.7
+&Scoped-define btn-ok-col 39
+&Scoped-define btn-cancel-col 32
+&Scoped-define auto-find-row 23.65
 
 &Global-define DATATYP1 INTEGER
 &Global-define FORMAT-1 >9

@@ -1486,59 +1486,69 @@ DO:
             ASSIGN
                 job-mch.company  = cocode
                 job-mch.blank-no = IF (mach.p-type EQ "B" OR
-                              (xest.est-type EQ 3 AND op.dept EQ "PR"))
-                          THEN op.blank-no ELSE 0
-       job-mch.job      = job.job
-       job-mch.job-no   = job.job-no
-       job-mch.job-no2  = job.job-no2
-       job-mch.dept     = op.dept
-       job-mch.frm      = op.form-no
-       job-mch.i-no     = /*IF AVAIL itemfg THEN itemfg.i-no ELSE - bpv TASK 12181205*/ op.i-no
-       job-mch.i-name   = /*IF AVAIL itemfg THEN itemfg.i-name ELSE */ op.i-name
-       job-mch.line     = op.line
-       job-mch.m-code   = op.m-code
-       job-mch.mr-fixoh = op.mr-fixoh
-       job-mch.mr-hr    = op.mr-hr
-       job-mch.mr-rate  = op.mr-rate
-       job-mch.mr-varoh = op.mr-varoh
-       job-mch.mr-waste = op.mr-waste
-       job-mch.pass     = op.pass
-       job-mch.run-hr   = op.run-hr
-       job-mch.run-fixoh = op.run-fixoh
-       job-mch.run-rate  = op.run-rate
-       job-mch.run-varoh = op.run-varoh
-       job-mch.speed    = op.speed
-       job-mch.wst-prct = op.wst-prct
-       job-mch.lag-time = mach.daily-prod-hours
-    /* job-mch.start-date = job.start-date */
-       job-mch.run-qty  = op.run-qty
-       job-mch.n-out    = IF AVAIL est-op AND est-op.n-out NE 0 THEN est-op.n-out ELSE 1
-       job-mch.n-on     = IF mach.p-type EQ "B" THEN 1 ELSE
-                            (v-up * v-out / v-on-f).
+                                      (xest.est-type EQ 3 AND op.dept EQ "PR"))
+                                   THEN op.blank-no ELSE 0
+                job-mch.job      = job.job
+                job-mch.job-no   = job.job-no
+                job-mch.job-no2  = job.job-no2
+                job-mch.dept     = op.dept
+                job-mch.frm      = op.form-no
+                job-mch.i-no     = /*IF AVAIL itemfg THEN itemfg.i-no ELSE - bpv TASK 12181205*/ op.i-no
+                job-mch.i-name   = /*IF AVAIL itemfg THEN itemfg.i-name ELSE */ op.i-name
+                job-mch.line     = op.line
+                job-mch.m-code   = op.m-code
+                job-mch.mr-fixoh = op.mr-fixoh
+                job-mch.mr-hr    = op.mr-hr
+                job-mch.mr-rate  = op.mr-rate
+                job-mch.mr-varoh = op.mr-varoh
+                job-mch.mr-waste = op.mr-waste
+                job-mch.pass     = op.pass
+                job-mch.run-hr   = op.run-hr
+                job-mch.run-fixoh = op.run-fixoh
+                job-mch.run-rate  = op.run-rate
+                job-mch.run-varoh = op.run-varoh
+                job-mch.speed    = op.speed
+                job-mch.wst-prct = op.wst-prct
+                job-mch.lag-time = mach.daily-prod-hours
+             /* job-mch.start-date = job.start-date */
+                job-mch.run-qty  = op.run-qty
+                job-mch.n-out    = IF AVAIL est-op AND est-op.n-out NE 0 THEN est-op.n-out ELSE 1
+                job-mch.n-on     = IF mach.p-type EQ "B" THEN 1 ELSE
+                                     (v-up * v-out / v-on-f)
+                job-mch.est-op_rec_key = op.rec_key
+                .
       
             FIND FIRST tt-job-mch
-                WHERE tt-job-mch.company  EQ job-mch.company
-                AND tt-job-mch.m-code   EQ job-mch.m-code
-                AND tt-job-mch.job      EQ job-mch.job
-                AND tt-job-mch.job-no   EQ job-mch.job-no
-                AND tt-job-mch.job-no2  EQ job-mch.job-no2
-                AND tt-job-mch.frm      EQ job-mch.frm
-                AND tt-job-mch.blank-no EQ job-mch.blank-no
-                AND tt-job-mch.pass     EQ job-mch.pass
-                AND tt-job-mch.dept     EQ job-mch.dept
-                NO-ERROR.
+                 WHERE tt-job-mch.est-op_rec_key EQ job-mch.est-op_rec_key
+                 NO-ERROR.
+            IF NOT AVAILABLE tt-job-mch THEN 
+            FIND FIRST tt-job-mch
+                 WHERE tt-job-mch.company  EQ job-mch.company
+                   AND tt-job-mch.m-code   EQ job-mch.m-code
+                   AND tt-job-mch.job      EQ job-mch.job
+                   AND tt-job-mch.job-no   EQ job-mch.job-no
+                   AND tt-job-mch.job-no2  EQ job-mch.job-no2
+                   AND tt-job-mch.frm      EQ job-mch.frm
+                   AND tt-job-mch.blank-no EQ job-mch.blank-no
+                   AND tt-job-mch.pass     EQ job-mch.pass
+                   AND tt-job-mch.dept     EQ job-mch.dept
+                 NO-ERROR.
             IF AVAILABLE tt-job-mch THEN
-                ASSIGN
-                    job-mch.start-date    = tt-job-mch.start-date
-                    job-mch.start-date-su = tt-job-mch.start-date-su
-                    job-mch.start-time    = tt-job-mch.start-time
-                    job-mch.start-time-su = tt-job-mch.start-time-su
-                    job-mch.end-date      = tt-job-mch.end-date
-                    job-mch.end-date-su   = tt-job-mch.end-date-su
-                    job-mch.end-time      = tt-job-mch.end-time
-                    job-mch.end-time-su   = tt-job-mch.end-time-su
-                    job-mch.mr-complete   = tt-job-mch.mr-complete
-                    job-mch.run-complete  = tt-job-mch.run-complete.
+            ASSIGN
+                job-mch.m-code        = tt-job-mch.m-code
+                job-mch.start-date    = tt-job-mch.start-date
+                job-mch.start-date-su = tt-job-mch.start-date-su
+                job-mch.start-time    = tt-job-mch.start-time
+                job-mch.start-time-su = tt-job-mch.start-time-su
+                job-mch.end-date      = tt-job-mch.end-date
+                job-mch.end-date-su   = tt-job-mch.end-date-su
+                job-mch.end-time      = tt-job-mch.end-time
+                job-mch.end-time-su   = tt-job-mch.end-time-su
+                job-mch.mr-complete   = tt-job-mch.mr-complete
+                job-mch.run-complete  = tt-job-mch.run-complete
+                job-mch.sbLiveUpdate  = tt-job-mch.sbLiveUpdate
+                job-mch.anchored      = tt-job-mch.anchored
+                .
         END. /* each op */
 
         EMPTY TEMP-TABLE tt-job-mch.

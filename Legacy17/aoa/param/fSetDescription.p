@@ -10,6 +10,14 @@ DEFINE VARIABLE cRange AS CHARACTER NO-UNDO.
 cRange = REPLACE(iphObject:NAME,"sv","").
 /* add additional parameter fields alphabetically */
 CASE iphObject:NAME:
+    WHEN "svStartCarrier" OR WHEN "svEndCarrier" THEN DO:
+        cRange = REPLACE(cRange,"Company","").
+        FIND FIRST carrier NO-LOCK
+             WHERE carrier.company EQ ipcCompany
+               AND carrier.carrier EQ iphObject:SCREEN-VALUE
+             NO-ERROR.
+        IF AVAILABLE carrier THEN opcDescription = carrier.dscr.
+    END.
     WHEN "svStartCompany" OR WHEN "svEndCompany" THEN DO:
         cRange = REPLACE(cRange,"Company","").
         FIND FIRST company NO-LOCK
@@ -118,6 +126,14 @@ CASE iphObject:NAME:
              WHERE users.user_id EQ iphObject:SCREEN-VALUE
              NO-ERROR.
         IF AVAILABLE users THEN opcDescription = users.user_name.
+    END.
+    WHEN "svStartVendNo" OR WHEN "svEndVendNo" THEN DO:
+        cRange = REPLACE(cRange,"VendNo","").
+        FIND FIRST vend NO-LOCK
+             WHERE vend.company EQ ipcCompany
+               AND vend.vend-no EQ iphObject:SCREEN-VALUE
+             NO-ERROR.
+        IF AVAILABLE vend THEN opcDescription = vend.name.
     END.
 END CASE.
 

@@ -49,6 +49,7 @@ DEF VAR hld-n-out AS INT NO-UNDO.
 DEF VAR hld-shqty AS INT NO-UNDO.
 DEF VAR v-dep LIKE eb.dep NO-UNDO.
 DEF VAR v-count AS INT NO-UNDO.
+DEFINE VARIABLE dOutDivisor AS DECIMAL NO-UNDO INIT 1. /*For cumulative Out Divisor 19774*/
 
 DEF BUFFER b-eb FOR eb.
 
@@ -101,15 +102,18 @@ for each est-op
       and est-op.qty     eq v-op-qty 
       and est-op.line    ge 500
     break by est-op.d-seq desc by line desc:
-
+   
+   /*19774 - accumulate the Out Divisor for use in final waste calc*/
+   IF est-op.n_out_div GT 1 THEN 
+        dOutDivisor = dOutDivisor * est-op.n_out_div.
+        
   {cec/prokalk.i}
 end.
-
-r-spo[1] = cumul - (spo + hld-shqty).
+r-spo[1] = cumul - (spo + hld-shqty * dOutDivisor).
 
 IF r-spo[1] LT 0 THEN r-spo[1] = 0.
 
-spo = cumul - (hld-shqty + r-spo[1]).
+spo = cumul - (hld-shqty * dOutDivisor + r-spo[1]).
 
 IF spo LT 0 THEN spo = 0.
 

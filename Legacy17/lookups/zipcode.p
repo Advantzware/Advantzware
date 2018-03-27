@@ -1,4 +1,4 @@
-/* zipcode.p - Generated 03/08/2002 - 11:50 am by nosweat
+/* zipcode.p - Generated 10/17/2017 -  7:54 pm by NoSweat
 "zipcode. " ~
 "ASI " ~
 "zipcode " ~
@@ -26,12 +26,13 @@
 &Scoped-define height-size 19
 &Scoped-define width-size 62
 &Scoped-define show-fields zipcode.zipcode zipcode.pref_type zipcode.pref# zipcode.city zipcode.state
+&Scoped-define show-fields-yellow zipcode.zipcode LABEL-BGCOLOR 14 zipcode.pref_type LABEL-BGCOLOR 14 zipcode.pref# LABEL-BGCOLOR 14 zipcode.city LABEL-BGCOLOR 14 zipcode.state LABEL-BGCOLOR 14
 &Scoped-define frame-title Zip Codes Lookup
 &Scoped-define top-include ~{sys/inc/varasgn.i}
 &Scoped-define def-include ~{methods/defines/s-pref.i} ~{sys/inc/var.i new shared}
 &Scoped-define end-include ~{methods/lookups/setpref.i}
 &Scoped-define ui-prgmname zipcode.
-&Scoped-define window-size 23.7
+&Scoped-define window-size 24
 &Scoped-define window-col 44
 &Scoped-define rect-1-row 20.15
 &Scoped-define by-row 20.42
@@ -40,7 +41,7 @@
 &Scoped-define btn-row 21.7
 &Scoped-define btn-ok-col 55
 &Scoped-define btn-cancel-col 48
-&Scoped-define auto-find-row 23.6
+&Scoped-define auto-find-row 23.65
 
 &Global-define FORMAT-1 X(10)
 &Scoped-define FLDNAME1 zipcode.zipcode

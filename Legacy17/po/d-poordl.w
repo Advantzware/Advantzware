@@ -3055,7 +3055,7 @@ PROCEDURE display-item :
     DEFINE BUFFER bJobMat FOR job-mat.
     DEFINE BUFFER xJobMat FOR job-mat.
     DEFINE BUFFER bItem   FOR item.
-  
+    
     IF AVAILABLE po-ordl THEN 
     DO:
   
@@ -3148,9 +3148,13 @@ PROCEDURE display-item :
             v-po-dep-frac:SCREEN-VALUE IN FRAME {&FRAME-NAME} = v-dep-frac.
     END.
     /* Updates po-ordl */
-    IF AVAILABLE po-ordl THEN 
+
+    
+    IF AVAILABLE po-ordl AND ip-type NE "view"  THEN 
         FIND CURRENT po-ordl EXCLUSIVE-LOCK.
+
   {po/podisdet.i}
+
 FIND CURRENT po-ordl NO-LOCK NO-ERROR.
 
 fi_pb-qty:HIDDEN IN FRAME Dialog-Frame = NOT poqty-log.
@@ -3164,7 +3168,7 @@ IF ip-type <> "View" THEN ENABLE Btn_Cancel Btn_OK WITH FRAME Dialog-Frame.
 VIEW FRAME {&frame-name}. 
   
 APPLY "entry" TO FRAME {&frame-name}.
-  
+
 RUN valid-vend-cost (NO) NO-ERROR.
 IF ERROR-STATUS:ERROR THEN RETURN.  
 

@@ -1,25 +1,25 @@
 
-DEF INPUT PARAM ip-rowid AS ROWID NO-UNDO.
+DEFINE INPUT PARAMETER ip-rowid AS ROWID NO-UNDO.
 
 {sys/inc/var.i SHARED}
 
 {fg/fullset.i NEW}
 
-DEF BUFFER b-fg-rctd   FOR fg-rctd.
-DEF BUFFER bf-fg-rctd  FOR fg-rctd.
+DEFINE BUFFER b-fg-rctd   FOR fg-rctd.
+DEFINE BUFFER bf-fg-rctd  FOR fg-rctd.
 
-DEF BUFFER b-w-fg-rctd FOR fg-rctd.
-DEF BUFFER b-itemfg    FOR itemfg.
-DEF BUFFER use-job     FOR reftable.
-DEF BUFFER b-fg-rcpts  FOR fg-rcpts.
+DEFINE BUFFER b-w-fg-rctd FOR fg-rctd.
+DEFINE BUFFER b-itemfg    FOR itemfg.
+DEFINE BUFFER use-job     FOR reftable.
+DEFINE BUFFER b-fg-rcpts  FOR fg-rcpts.
 
-DEF    VAR      li-max-qty     AS INT       NO-UNDO.
-DEF    VAR      v-part-qty     AS DEC       NO-UNDO.
-DEF    VAR      v-set-qty      AS DEC       NO-UNDO.
-DEF    VAR      v-cost         AS DEC       NO-UNDO.
-DEF    VAR      ldQty          AS DEC       NO-UNDO.
-DEF    VAR      li             AS INT       NO-UNDO.
-DEF    VAR      fg-uom-list    AS CHAR      NO-UNDO.
+DEFINE VARIABLE li-max-qty     AS INTEGER   NO-UNDO.
+DEFINE VARIABLE v-part-qty     AS DECIMAL   NO-UNDO.
+DEFINE VARIABLE v-set-qty      AS DECIMAL   NO-UNDO.
+DEFINE VARIABLE v-cost         AS DECIMAL   NO-UNDO.
+DEFINE VARIABLE ldQty          AS DECIMAL   NO-UNDO.
+DEFINE VARIABLE li             AS INTEGER   NO-UNDO.
+DEFINE VARIABLE fg-uom-list    AS CHARACTER NO-UNDO.
 
 DEFINE VARIABLE lFound         AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lFGSetAssembly AS LOGICAL   NO-UNDO.
@@ -48,26 +48,26 @@ RUN sys/ref/nk1look.p (INPUT cocode,
     OUTPUT cFGSetAssembly,
     OUTPUT lFound).
 
-DEF TEMP-TABLE tt-bin 
+DEFINE TEMP-TABLE tt-bin 
     FIELD tt-bin-row AS ROWID .
 
-DEF TEMP-TABLE tt-del-fg-rctd
+DEFINE TEMP-TABLE tt-del-fg-rctd
     FIELD fg-rctd-row AS ROWID.
 
-DEF TEMP-TABLE tt-del-fg-rcpts
+DEFINE TEMP-TABLE tt-del-fg-rcpts
     FIELD fg-rcpts-row AS ROWID.
 
 RUN sys/ref/uom-fg.p (?, OUTPUT fg-uom-list).
   
 FIND fg-rctd WHERE ROWID(fg-rctd) EQ ip-rowid NO-LOCK NO-ERROR.
 
-IF AVAIL fg-rctd THEN
+IF AVAILABLE fg-rctd THEN
     FIND FIRST itemfg
         WHERE itemfg.company EQ cocode
         AND itemfg.i-no    EQ fg-rctd.i-no
         NO-LOCK NO-ERROR.
 
-IF AVAIL itemfg                                    
+IF AVAILABLE itemfg                                    
     AND itemfg.isaset
     AND itemfg.alloc NE YES    /*any assembled set*/
     AND fg-rctd.rita-code EQ "R"                       
@@ -116,10 +116,10 @@ DO:
                     /* Manufactured components */
                     li = 0.
                     FIND LAST b-w-fg-rctd USE-INDEX fg-rctd NO-LOCK NO-ERROR.
-                    IF AVAIL b-w-fg-rctd AND b-w-fg-rctd.r-no GT li THEN li = b-w-fg-rctd.r-no.
+                    IF AVAILABLE b-w-fg-rctd AND b-w-fg-rctd.r-no GT li THEN li = b-w-fg-rctd.r-no.
         
                     FIND LAST fg-rcpth USE-INDEX r-no NO-LOCK NO-ERROR.
-                    IF AVAIL fg-rcpth AND fg-rcpth.r-no GT li THEN li = fg-rcpth.r-no.
+                    IF AVAILABLE fg-rcpth AND fg-rcpth.r-no GT li THEN li = fg-rcpth.r-no.
         
                     CREATE b-fg-rcpts.
                     BUFFER-COPY bf-fg-rcpts EXCEPT rec_key TO b-fg-rcpts
@@ -137,6 +137,8 @@ DO:
                         b-w-fg-rctd.partial  = bf2-fg-rctd.partial * -1
                         b-w-fg-rctd.t-qty    = bf2-fg-rctd.t-qty * -1
                         b-w-fg-rctd.ext-cost = bf2-fg-rctd.ext-cost * -1.
+
+                        
                 END. /* If pur-man eq NO i.e manufactured */
                 ELSE 
                 DO:
@@ -148,17 +150,92 @@ DO:
                         
                     IF AVAILABLE tt-fg-set THEN 
                         RUN processComponent.
-                        
+                    
+                    /* Look for Purchased component recs created with positive qty */
+                    /* These are not needed for purchased componenents, only need the - */
+                    FOR EACH fg-rcpts
+                        WHERE fg-rcpts.company   EQ fg-rctd.company
+                        AND fg-rcpts.linker    EQ "fg-rctd: " + STRING(fg-rctd.r-no,"9999999999")
+                        AND fg-rcpts.i-no      EQ b-itemfg.i-no
+                   
+                        NO-LOCK,
+                        EACH bf-fg-rctd
+                        WHERE bf-fg-rctd.company EQ fg-rcpts.company
+                        AND bf-fg-rctd.rita-code NE "P"
+                        AND bf-fg-rctd.i-no    EQ b-itemfg.i-no
+                        AND bf-fg-rctd.r-no    EQ fg-rcpts.r-no                      
+                        AND bf-fg-rctd.t-qty     GT 0
+                        NO-LOCK:
+                        /* Delete the negatives for a receipt of assembled set */
+                        /* with parts since only the negative is needed        */
+                        /*DEF VAR llDelRecs AS LOG NO-UNDO. */
+                        llDelRecs = FALSE.
+                        IF AVAILABLE b-itemfg THEN 
+                        DO:
+                            IF fg-rctd.job-no NE "" THEN
+                            DO:
+                                FIND FIRST job WHERE
+                                    job.company EQ cocode AND
+                                    job.job-no EQ fg-rctd.job-no AND
+                                    job.job-no2 EQ fg-rctd.job-no2
+                                    NO-LOCK NO-ERROR.
+    
+                                IF AVAILABLE job THEN
+                                DO:
+                                    FIND FIRST eb WHERE
+                                        eb.company  EQ cocode AND
+                                        eb.est-no   EQ job.est-no AND
+                                        eb.stock-no EQ b-itemfg.i-no
+                                        NO-LOCK NO-ERROR.
+                                    IF AVAILABLE eb THEN
+                                    DO:
+                                        IF eb.pur-man EQ YES THEN llDelRecs = TRUE.
+                                    END.
+                                    ELSE
+                                        IF b-itemfg.pur-man EQ YES THEN llDelRecs = TRUE.
+                     
+                                END.
+                            END.
+                            ELSE           
+                                IF b-itemfg.pur-man EQ YES THEN llDelRecs = TRUE.
+                        END.                            
+                        IF llDelRecs THEN 
+                        DO:
+
+                            CREATE tt-del-fg-rctd.
+                            ASSIGN 
+                                tt-del-fg-rctd.fg-rctd-row = ROWID(bf-fg-rctd).
+
+                            CREATE tt-del-fg-rcpts.
+                            ASSIGN 
+                                tt-del-fg-rcpts.fg-rcpts-row = ROWID(fg-rcpts).
+
+                        END.    
+                    END.                    
                     
                 END.
                  
 
                 RELEASE b-w-fg-rctd.
             END. /* for each bf-fg-rcpts */
-
+            /* Task 11111303 - This positive receipt of components for an assembled set */
+            /* with parts is not needed, so delete them after they are used */
+            /* to create the negative part of the transaction               */
+            FOR EACH tt-del-fg-rctd.
+                FIND b-fg-rctd WHERE ROWID(b-fg-rctd) EQ tt-del-fg-rctd.fg-rctd-row
+                    EXCLUSIVE-LOCK NO-ERROR.
+                IF AVAILABLE b-fg-rctd THEN
+                    DELETE b-fg-rctd. 
+                FIND fg-rcpts WHERE ROWID(fg-rcpts) EQ tt-del-fg-rcpts.fg-rcpts-row
+                    EXCLUSIVE-LOCK NO-ERROR.
+                IF AVAILABLE fg-rcpts THEN
+                    DELETE fg-rcpts. 
+            END.
+              
         END. /* alloc = ? */
         ELSE 
-        DO:             
+        DO:           
+             
             RUN fg/fullset.p (ROWID(itemfg)).        
 
             FOR EACH tt-fg-set,
@@ -181,16 +258,21 @@ DO:
     END. /* li-max ge ... */
 END. /* If avail itemfg and alloc ne yes */
 
+
+
+/* **********************  Internal Procedures  *********************** */
+
+
 PROCEDURE bin-qty-used:
-    DEF INPUT PARAMETER iprBinRow AS ROWID NO-UNDO.
-    DEF OUTPUT PARAMETER opdQty AS DECIMAL NO-UNDO.
-    DEF BUFFER bf-fg-bin  FOR fg-bin.
-    DEF BUFFER bf-fg-rctd FOR fg-rctd.
-    DEF VAR ldQty AS DECIMAL NO-UNDO.
+    DEFINE INPUT PARAMETER iprBinRow AS ROWID NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdQty AS DECIMAL NO-UNDO.
+    DEFINE BUFFER bf-fg-bin  FOR fg-bin.
+    DEFINE BUFFER bf-fg-rctd FOR fg-rctd.
+    DEFINE VARIABLE ldQty AS DECIMAL NO-UNDO.
   
     FIND FIRST bf-fg-bin WHERE ROWID(bf-fg-bin) EQ iprBinRow
         NO-LOCK NO-ERROR.
-    IF NOT AVAIL bf-fg-bin THEN
+    IF NOT AVAILABLE bf-fg-bin THEN
         RETURN.
 
     /* Subtract from bin qty the quantity of previous tags used */
@@ -233,7 +315,7 @@ PROCEDURE processComponent:
             AND b-fg-rctd.t-qty   GT 0
             NO-LOCK NO-ERROR.
 
-        IF AVAIL b-fg-rctd THEN 
+        IF AVAILABLE b-fg-rctd THEN 
         DO:
 
             FOR EACH fg-rcpts
@@ -254,7 +336,7 @@ PROCEDURE processComponent:
                     AND fg-bin.i-no EQ b-itemfg.i-no
                     AND fg-bin.tag  EQ bf-fg-rctd.tag
                     NO-LOCK NO-ERROR.
-                IF AVAIL fg-bin THEN 
+                IF AVAILABLE fg-bin THEN 
                 DO: 
                     CREATE tt-bin.
                     ASSIGN 
@@ -305,7 +387,7 @@ PROCEDURE processComponent:
             AND use-job.company  EQ STRING(fg-rctd.r-no,"9999999999")
             NO-ERROR.
   
-        IF AVAIL use-job AND use-job.val[1] EQ 1 THEN 
+        IF AVAILABLE use-job AND use-job.val[1] EQ 1 THEN 
         DO:      
             IF lFGSetAssembly THEN 
             DO:              
@@ -319,7 +401,7 @@ PROCEDURE processComponent:
                     AND fg-bin.loc     EQ fg-rctd.loc
                     AND fg-bin.loc-bin EQ cFGSetAssembly
                     AND fg-bin.qty     GT 0
-                    NO-LOCK BY fg-bin.qty DESC:     
+                    NO-LOCK BY fg-bin.qty DESCENDING:     
 
                     RUN bin-qty-used (INPUT ROWID(fg-bin), OUTPUT ldQty).
                     IF NOT ldQty GT 0 THEN
@@ -336,13 +418,13 @@ PROCEDURE processComponent:
                     AND fg-bin.job-no  EQ fg-rctd.job-no
                     AND fg-bin.job-no2 EQ fg-rctd.job-no2
                     AND fg-bin.qty     GT 0
-                    NO-LOCK BY fg-bin.qty DESC:           
+                    NO-LOCK BY fg-bin.qty DESCENDING:           
                     RUN bin-qty-used (INPUT ROWID(fg-bin), OUTPUT ldQty).
                     
                     IF NOT ldQty GT 0 THEN
                         NEXT.
                         
-      {fg/fg-post2.i b- ldQty}
+                    {fg/fg-post2.i b- ldQty}
                 END. 
             END.
 
@@ -361,11 +443,11 @@ PROCEDURE processComponent:
                     AND fg-bin.qty     GT 0
                     AND fg-bin.loc     EQ fg-rctd.loc
                     AND fg-bin.loc-bin EQ cFGSetAssembly
-                    NO-LOCK BY fg-bin.qty DESC:     
+                    NO-LOCK BY fg-bin.qty DESCENDING:     
                     RUN bin-qty-used (INPUT ROWID(fg-bin), OUTPUT ldQty).
                     IF NOT ldQty GT 0 THEN
                         NEXT.
-      {fg/fg-post2.i b- ldQty}
+                    {fg/fg-post2.i b- ldQty}
                 END.  
             END.
     
@@ -377,12 +459,12 @@ PROCEDURE processComponent:
                     AND fg-bin.qty     GT 0
                     AND fg-bin.loc     EQ fg-rctd.loc
                     AND fg-bin.loc-bin EQ cFGSetAssembly
-                    NO-LOCK BY fg-bin.qty DESC:                  
+                    NO-LOCK BY fg-bin.qty DESCENDING:                  
                     RUN bin-qty-used (INPUT ROWID(fg-bin), OUTPUT ldQty).
 
                     IF NOT ldQty GT 0 THEN
                         NEXT.
-      {fg/fg-post2.i b- ldQty}
+                    {fg/fg-post2.i b- ldQty}
                 END.
 
         END. /* if fgsetassembly */
@@ -394,13 +476,13 @@ PROCEDURE processComponent:
                 AND fg-bin.i-no    EQ b-itemfg.i-no
                 AND fg-bin.job-no  NE ""
                 AND fg-bin.qty     GT 0
-                NO-LOCK BY fg-bin.qty DESC:
+                NO-LOCK BY fg-bin.qty DESCENDING:
 
                 RUN bin-qty-used (INPUT ROWID(fg-bin), OUTPUT ldQty).
 
                 IF NOT ldQty GT 0 THEN
                     NEXT.
-    {fg/fg-post2.i b- ldQty}
+                {fg/fg-post2.i b- ldQty}
             END.  
 
         IF v-set-qty GT 0 THEN
@@ -409,12 +491,12 @@ PROCEDURE processComponent:
                 AND fg-bin.i-no    EQ b-itemfg.i-no
                 AND fg-bin.job-no  EQ ""
                 AND fg-bin.qty     GT 0
-                NO-LOCK BY fg-bin.qty DESC:
+                NO-LOCK BY fg-bin.qty DESCENDING:
                 RUN bin-qty-used (INPUT ROWID(fg-bin), OUTPUT ldQty).
 
                 IF NOT ldQty GT 0 THEN
                     NEXT.
-    {fg/fg-post2.i b- ldQty}
+                {fg/fg-post2.i b- ldQty}
 
             END.
             
@@ -422,12 +504,12 @@ PROCEDURE processComponent:
             FOR EACH fg-bin
                 WHERE fg-bin.company EQ cocode
                 AND fg-bin.i-no    EQ b-itemfg.i-no
-                NO-LOCK BY fg-bin.qty DESC:     
+                NO-LOCK BY fg-bin.qty DESCENDING:     
                 RUN bin-qty-used (INPUT ROWID(fg-bin), OUTPUT ldQty).
                 
                 IF NOT ldQty GT 0 THEN
                     NEXT.
-    {fg/fg-post2.i b- ldQty}
+                {fg/fg-post2.i b- ldQty}
     
             END.
 

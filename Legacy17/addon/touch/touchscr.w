@@ -35,6 +35,7 @@ CREATE WIDGET-POOL.
 /* Local Variable Definitions ---                                       */
 
 {touch/touchdef.i}
+{methods/prgsecur.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

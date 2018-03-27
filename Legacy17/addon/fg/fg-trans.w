@@ -454,7 +454,8 @@ PROCEDURE local-view :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'view':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-   RUN auto-ADD IN h_p-updbar.
+  {methods/selectTab.i 1}
+  RUN auto-ADD IN h_p-updbar.
 
 /* IF VALID-HANDLE(h_b-trans) THEN DO: */
 /*     RUN set-resize-no IN h_b-trans. */

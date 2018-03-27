@@ -5,8 +5,8 @@
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admViewersUsing.i} /* added by script c:\tmp\p42959__V16toV17.ped */
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS V-table-Win 
+{Advantzware\WinKit\admViewersUsing.i} /* added by script _admViewers.p */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
@@ -52,6 +52,7 @@ def TEMP-TABLE w-box-l NO-UNDO like box-design-line.
 def var lv-wscore like box-design-hdr.wscore no-undo.
 def var lv-wcum-score like box-design-hdr.wcum-score no-undo.
 DEF VAR ll-box-refreshed AS LOG NO-UNDO.
+DEFINE VARIABLE cDesignNo AS CHARACTER NO-UNDO.
 
 DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.
 DEFINE VARIABLE pHandle AS HANDLE NO-UNDO.
@@ -69,7 +70,7 @@ DEFINE VARIABLE pHandle AS HANDLE NO-UNDO.
 
 &Scoped-define ADM-SUPPORTED-LINKS Record-Source,Record-Target,TableIO-Target
 
-/* Name of first Frame and/or Browse and/or first Query                 */
+/* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME F-Main
 
 /* External Tables                                                      */
@@ -80,8 +81,8 @@ DEFINE VARIABLE pHandle AS HANDLE NO-UNDO.
 /* Need to scope the external tables to this procedure                  */
 DEFINE QUERY external_tables FOR box-design-hdr.
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-FIELDS box-design-hdr.description ~
-box-design-hdr.box-3d-image 
+&Scoped-Define ENABLED-FIELDS box-design-hdr.design-no ~
+box-design-hdr.description box-design-hdr.box-3d-image 
 &Scoped-define ENABLED-TABLES box-design-hdr
 &Scoped-define FIRST-ENABLED-TABLE box-design-hdr
 &Scoped-Define ENABLED-OBJECTS box-image-2 RECT-40 btnFirst btnPrevious ~
@@ -150,7 +151,7 @@ DEFINE IMAGE box-image-2
      SIZE 111 BY 12.38.
 
 DEFINE RECTANGLE RECT-40
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL 
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 145 BY 16.43.
 
 
@@ -228,15 +229,13 @@ END.
 /* SETTINGS FOR WINDOW V-table-Win
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME F-Main
-   NOT-VISIBLE Size-to-Fit                                              */
+   NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
 
 /* SETTINGS FOR FILL-IN box-design-hdr.description IN FRAME F-Main
    1                                                                    */
-/* SETTINGS FOR FILL-IN box-design-hdr.design-no IN FRAME F-Main
-   NO-ENABLE                                                            */
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
@@ -250,7 +249,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -330,6 +329,30 @@ END.
 ON CHOOSE OF btnPrevious IN FRAME F-Main /* Previous */
 DO:
   {methods/run_link.i "CONTAINER-SOURCE" "changeImage" "('prev')"}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME box-design-hdr.design-no
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL box-design-hdr.design-no V-table-Win
+ON ENTRY OF box-design-hdr.design-no IN FRAME F-Main /* Design # */
+DO:
+  cDesignNo = SELF:SCREEN-VALUE.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL box-design-hdr.design-no V-table-Win
+ON LEAVE OF box-design-hdr.design-no IN FRAME F-Main /* Design # */
+DO:
+  IF LASTKEY <> -1 THEN DO:
+     RUN valid-design-no NO-ERROR.
+     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+  END.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -655,4 +678,31 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-design-no V-table-Win
+PROCEDURE valid-design-no:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+  DEFINE VARIABLE iDesignNo AS INTEGER NO-UNDO.
+  
+  iDesignNo = INTEGER (box-design-hdr.design-no:SCREEN-VALUE IN FRAME {&FRAME-NAME}).
+  
+  IF iDesignNo EQ INTEGER (cDesignNo) THEN RETURN.
+  
+  {methods/lValidateError.i YES}
+  IF CAN-FIND (FIRST box-design-hdr
+               WHERE box-design-hdr.company   EQ g_company
+                 AND box-design-hdr.design-no EQ iDesignNo) THEN DO:
+     MESSAGE "Design Number" iDesignNo "Already Used - Try Again" VIEW-AS ALERT-BOX ERROR.
+     RETURN ERROR.
+  END.
+  {methods/lValidateError.i NO}
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 

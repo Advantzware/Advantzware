@@ -1,5 +1,5 @@
-/* fa/sdoFaGL_cl.w - non-db proxy for fa/sdoFaGL.w */
+/* fa/sdoFaGl_cl.w - non-db proxy for fa/sdoFaGl.w */
 
 &GLOBAL-DEFINE DB-REQUIRED FALSE
 
-{"fa/sdoFaGL.w"}
+{"fa/sdoFaGl.w"}

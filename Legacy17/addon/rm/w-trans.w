@@ -431,6 +431,7 @@ PROCEDURE local-view :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'view':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
+  {methods/selectTab.i 1}
   RUN auto-add IN h_p-updsav.
 
 END PROCEDURE.

@@ -17,8 +17,10 @@
       ASSIGN
         ttblJob.jobBGColor = jobBGColor()
         ttblJob.jobFGColor = jobFGColor()
+        ttblJob.statusLabel = jobStatus()
         jobWidget.jobBGColor = ttblJob.jobBGColor
-        jobWidget.jobFGColor = ttblJob.jobFGColor.
+        jobWidget.jobFGColor = ttblJob.jobFGColor
+        .
     END.
   END. /* each jobWidget */
   FOR EACH jobWidget NO-LOCK WHERE jobWidget.idx LE jobIdx:
@@ -29,7 +31,8 @@
       jobWidget.jobWidget:BGCOLOR = IF jobWidget.jobWidget:NAME EQ ipJob THEN flashLightColor
                                     ELSE jobWidget.jobBGColor
       jobWidget.jobWidget:FGCOLOR = IF jobWidget.jobWidget:NAME EQ ipJob THEN 0
-                                    ELSE jobWidget.jobFGColor.
+                                    ELSE jobWidget.jobFGColor
+      .
     IF jobWidget.jobWidget:NAME EQ ipJob THEN
     DO WITH FRAME {&FRAME-NAME}:
       jobWidget.jobWidget:MOVE-TO-TOP().

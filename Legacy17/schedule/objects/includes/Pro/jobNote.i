@@ -8,7 +8,7 @@
   FIND ttblJob EXCLUSIVE-LOCK WHERE ROWID(ttblJob) EQ TO-ROWID(ipWidget:PRIVATE-DATA) NO-ERROR.
   IF AVAILABLE ttblJob THEN
   ASSIGN
-    noteExists = CAN-FIND(FIRST jobNotes WHERE jobNotes.jobRowID EQ TO-ROWID(ENTRY(NUM-ENTRIES(ttblJob.rowIDs),ttblJob.rowIDs))
+    noteExists = CAN-FIND(FIRST jobNotes WHERE jobNotes.jobRowID EQ TO-ROWID(ENTRY(2,ttblJob.rowIDs))
                                            AND jobNotes.jobStatus EQ NO
                                            AND jobNotes.deleteNote EQ NO)
     ldummy = ipWidget:LOAD-IMAGE-UP(IF noteExists THEN '{&images}/noteTack.bmp' ELSE '{&images}/noteTackRed.bmp')

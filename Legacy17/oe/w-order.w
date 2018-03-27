@@ -561,6 +561,7 @@ PROCEDURE adm-create-objects :
 
        /* Links to SmartViewer h_oe-hold. */
        RUN add-link IN adm-broker-hdl ( h_v-ord , 'status':U , h_oe-hold ).
+       RUN add-link IN adm-broker-hdl ( h_v-ord , 'Record':U , h_oe-hold ).
 
        /* Links to SmartViewer h_vp-tandm. */
        RUN add-link IN adm-broker-hdl ( h_v-ord , 'tandem':U , h_vp-tandm ).

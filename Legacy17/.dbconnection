@@ -3,4 +3,5 @@
 <connectionentry identifier="SmartDB"/>
 <connectionentry identifier="temp-db"/>
 <connectionentry identifier="asi"/>
+<connectionentry identifier="Audit"/>
 </connection>

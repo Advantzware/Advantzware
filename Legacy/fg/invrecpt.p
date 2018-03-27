@@ -14,7 +14,6 @@ DEF BUFFER bf-po-ordl FOR po-ordl.
 DEF BUFFER bf-po-ord  FOR po-ord.
 DEF BUFFER bf-oe-ordl FOR oe-ordl.
 DEF BUFFER bf-oe-ord  FOR oe-ord.
-DEF BUFFER bf-ref     FOR reftable.
 
 DEF NEW SHARED VAR out-recid AS RECID NO-UNDO.
 DEF NEW SHARED VAR relh-recid AS RECID NO-UNDO.
@@ -87,17 +86,18 @@ FIND FIRST oe-ctrl WHERE oe-ctrl.company EQ cocode NO-LOCK NO-ERROR.
 IF ip-run EQ 1 AND fginvrec-log THEN
   FIND fg-rctd WHERE ROWID(fg-rctd) EQ ip-rowid NO-LOCK NO-ERROR.
 
+
 IF AVAIL fg-rctd THEN
   RUN get-ord-recs (ROWID(fg-rctd),
                     BUFFER po-ordl,
                     BUFFER po-ord,
                     BUFFER oe-ordl,
-                    BUFFER oe-ord,
-                    BUFFER reftable).
+                    BUFFER oe-ord).
+/* Was original if reftable found when oe-ord was available */
+IF AVAILABLE oe-ord THEN DO TRANSACTION:
 
-IF AVAIL reftable THEN DO TRANSACTION:
   ASSIGN
-   ll       = reftable.val[1] NE 0
+   ll       = fg-rctd.CreateInvoice
    ll-first = ROWID(fg-rctd).
 
   FOR EACH bf-fg-rctd
@@ -110,32 +110,23 @@ IF AVAIL reftable THEN DO TRANSACTION:
                       BUFFER bf-po-ordl,
                       BUFFER bf-po-ord,
                       BUFFER bf-oe-ordl,
-                      BUFFER bf-oe-ord,
-                      BUFFER bf-ref).
-    ASSIGN
-     ll       = bf-ref.val[1] NE 0
-     ll-first = ROWID(bf-fg-rctd)
-     dBillAmt = bf-ref.val[2]
-     lEmailBol = bf-ref.val[3] EQ 1
-     lInvFrt  = bf-ref.val[2] NE 0.
+                      BUFFER bf-oe-ord).      
 
+      ASSIGN 
+          ll-first  = ROWID(bf-fg-rctd)
+          ll        = bf-fg-rctd.CreateInvoice
+          dBillAmt  = bf-fg-rctd.BillableFreightAmt
+          lEmailBol = bf-fg-rctd.EmailBOL
+          lInvFrt   = bf-fg-rctd.InvoiceFreight
+          .
     LEAVE.
   END.
 
   IF ROWID(fg-rctd) EQ ll-first THEN DO:
 
-  
-    FIND FIRST bf-ref
-        WHERE bf-ref.reftable EQ "fg-rctd.user-id"
-          AND bf-ref.company  EQ fg-rctd.company
-          AND bf-ref.loc      EQ STRING(fg-rctd.r-no,"9999999999")
-          AND (bf-ref.val[1] EQ 1
-              OR bf-ref.val[3] GT 0)
-        NO-LOCK NO-ERROR.
-           
-    IF NOT AVAIL bf-ref THEN 
-      /* Prompt for other information for invoice */    
-      RUN prompt-for-invoice (OUTPUT ll, OUTPUT lInvFrt, OUTPUT dBillAmt, OUTPUT lEmailBol).
+      IF NOT fg-rctd.CreateInvoice AND NOT fg-rctd.EmailBOL THEN 
+        /* Prompt for other information for invoice */    
+        RUN prompt-for-invoice (OUTPUT ll, OUTPUT lInvFrt, OUTPUT dBillAmt, OUTPUT lEmailBol).
 
   END.
 
@@ -149,67 +140,66 @@ IF AVAIL reftable THEN DO TRANSACTION:
                       BUFFER bf-po-ordl,
                       BUFFER bf-po-ord,
                       BUFFER bf-oe-ordl,
-                      BUFFER bf-oe-ord,
-                      BUFFER bf-ref).
-
-    FIND CURRENT bf-ref.
- 
-    bf-ref.val[1] = INT(ll).
-    bf-ref.val[3] = INT(lEmailBol).
-    IF lInvFrt THEN
-      bf-ref.val[2] = dBillAmt.
-
-    IF ll AND bf-ref.dscr EQ "" THEN DO:
-      li-tag-no = 0.
-
-      FOR EACH loadtag
-          WHERE loadtag.company   EQ bf-oe-ordl.company
-            AND loadtag.item-type EQ NO
-            AND loadtag.tag-no    BEGINS STRING(CAPS(bf-oe-ordl.i-no),"x(15)")      
-          NO-LOCK
-          BY loadtag.tag-no DESC:
-        li-tag-no = INT(SUBSTR(loadtag.tag-no,16,5)).
-        LEAVE.
-      END. /* repeat*/
-  
-      CREATE loadtag.
-      ASSIGN
-       loadtag.company      = bf-oe-ordl.company
-       loadtag.tag-no       = STRING(CAPS(bf-oe-ordl.i-no),"x(15)") +
-                              STRING(li-tag-no + 1,"99999")
-       bf-ref.dscr          = loadtag.tag-no
-       loadtag.item-type    = NO /*FGitem*/
-       loadtag.po-no        = bf-po-ord.po-no
-       loadtag.job-no       = bf-fg-rctd.job-no
-       loadtag.job-no2      = bf-fg-rctd.job-no2
-       loadtag.ord-no       = bf-oe-ordl.ord-no
-       loadtag.i-no         = CAPS(bf-oe-ordl.i-no)
-       loadtag.i-name       = bf-oe-ordl.i-name
-       loadtag.qty          = bf-fg-rctd.t-qty
-       loadtag.qty-case     = bf-fg-rctd.qty-case
-       loadtag.case-bundle  = bf-fg-rctd.cases-unit
-       loadtag.pallet-count = loadtag.qty-case * loadtag.case-bundle
-       loadtag.partial      = bf-fg-rctd.partial
-       loadtag.sts          = "Printed"
-       loadtag.tag-date     = TODAY
-       loadtag.tag-time     = TIME
-       bf-fg-rctd.tag       = bf-ref.dscr.
+                      BUFFER bf-oe-ord).
+    IF AVAILABLE bf-oe-ordl AND AVAILABLE bf-po-ord THEN DO:
+          ASSIGN 
+            bf-fg-rctd.CreateInvoice      = ll 
+            bf-fg-rctd.BillableFreightAmt = dBillAmt
+            .  
+          IF lInvFrt THEN 
+            bf-fg-rctd.EmailBOL           = lEmailBol .
+            
+        IF ll AND bf-fg-rctd.spare-char-1 EQ "" THEN DO:
+          li-tag-no = 0.
+    
+          FOR EACH loadtag
+              WHERE loadtag.company   EQ bf-oe-ordl.company
+                AND loadtag.item-type EQ NO
+                AND loadtag.tag-no    BEGINS STRING(CAPS(bf-oe-ordl.i-no),"x(15)")      
+              NO-LOCK
+              BY loadtag.tag-no DESC:
+            li-tag-no = INT(SUBSTR(loadtag.tag-no,16,5)).
+            LEAVE.
+          END. /* repeat*/
+      
+          CREATE loadtag.
+          ASSIGN
+           loadtag.company      = bf-oe-ordl.company
+           loadtag.tag-no       = STRING(CAPS(bf-oe-ordl.i-no),"x(15)") +
+                                  STRING(li-tag-no + 1,"99999")
+           bf-fg-rctd.spare-char-1 = loadtag.tag-no
+           loadtag.item-type    = NO /*FGitem*/
+           loadtag.po-no        = bf-po-ord.po-no
+           loadtag.job-no       = bf-fg-rctd.job-no
+           loadtag.job-no2      = bf-fg-rctd.job-no2
+           loadtag.ord-no       = bf-oe-ordl.ord-no
+           loadtag.i-no         = CAPS(bf-oe-ordl.i-no)
+           loadtag.i-name       = bf-oe-ordl.i-name
+           loadtag.qty          = bf-fg-rctd.t-qty
+           loadtag.qty-case     = bf-fg-rctd.qty-case
+           loadtag.case-bundle  = bf-fg-rctd.cases-unit
+           loadtag.pallet-count = loadtag.qty-case * loadtag.case-bundle
+           loadtag.partial      = bf-fg-rctd.partial
+           loadtag.sts          = "Printed"
+           loadtag.tag-date     = TODAY
+           loadtag.tag-time     = TIME
+           bf-fg-rctd.tag       = bf-fg-rctd.spare-char-1.
+        END.
+        ELSE
+        IF NOT ll AND bf-fg-rctd.spare-char-1 NE "" THEN DO:
+          FIND FIRST loadtag
+              WHERE loadtag.company   EQ bf-oe-ordl.company
+                AND loadtag.item-type EQ NO
+                AND loadtag.tag-no    EQ bf-fg-rctd.spare-char-1
+              NO-ERROR.
+          IF AVAIL loadtag THEN DELETE loadtag.
+          ASSIGN
+           bf-fg-rctd.spare-char-1    = ""
+           bf-fg-rctd.tag = bf-fg-rctd.spare-char-1
+           .
+        END.
     END.
-
-    ELSE
-    IF NOT ll AND bf-ref.dscr NE "" THEN DO:
-      FIND FIRST loadtag
-          WHERE loadtag.company   EQ bf-oe-ordl.company
-            AND loadtag.item-type EQ NO
-            AND loadtag.tag-no    EQ bf-ref.dscr
-          NO-ERROR.
-      IF AVAIL loadtag THEN DELETE loadtag.
-      ASSIGN
-       bf-ref.dscr    = ""
-       bf-fg-rctd.tag = bf-ref.dscr.
-    END.
-
-    FIND CURRENT bf-ref NO-LOCK NO-ERROR.
+    /* FIND CURRENT bf-ref NO-LOCK NO-ERROR. */
     FIND itemfg WHERE itemfg.company = bf-oe-ordl.company
                   AND itemfg.i-no    = bf-oe-ordl.i-no
                 NO-LOCK NO-ERROR.
@@ -231,10 +221,9 @@ IF ip-run EQ 2 THEN DO TRANSACTION:
                       BUFFER po-ordl,
                       BUFFER po-ord,
                       BUFFER oe-ordl,
-                      BUFFER oe-ord,
-                      BUFFER reftable).
+                      BUFFER oe-ord).
     
-    IF NOT AVAIL reftable OR reftable.val[1] EQ 0 THEN DELETE w-inv.
+    IF fg-rctd.CreateInvoice EQ NO THEN DELETE w-inv.
   END.
 
   FOR EACH w-inv,
@@ -246,13 +235,13 @@ IF ip-run EQ 2 THEN DO TRANSACTION:
                       BUFFER po-ordl,
                       BUFFER po-ord,
                       BUFFER oe-ordl,
-                      BUFFER oe-ord,
-                      BUFFER reftable).
-    IF AVAIL(reftable) AND (reftable.val[2] GT 0 OR reftable.val[3] EQ 1) THEN
-    ASSIGN dBillAmt = reftable.val[2]
-           lEmailBol = reftable.val[3] EQ 1
-           lInvFrt  = reftable.val[2] GT 0. /* if bill amt gt 0, then assign freight flag */
-    
+                      BUFFER oe-ord).
+      IF fg-rctd.BillableFreightAmt GT 0 OR fg-rctd.EmailBOL THEN
+      ASSIGN    
+          dBillAmt  = fg-rctd.BillableFreightAmt 
+          lInvFrt   = fg-rctd.BillableFreightAmt GT 0 /* if bill amt gt 0, then assign freight flag */
+          lEmailBol = fg-rctd.EmailBOL          
+          .    
     lv-rowid = ?.
     FOR EACH oe-rel
         WHERE oe-rel.company EQ oe-ordl.company
@@ -278,7 +267,7 @@ IF ip-run EQ 2 THEN DO TRANSACTION:
 /* 10051225 */
 /*       FIND FIRST oe-rel USE-INDEX seq-no NO-LOCK NO-ERROR.      */
 /*       v-nxt-r-no = IF AVAIL oe-rel THEN oe-rel.r-no + 1 ELSE 1. */
-      RUN oe/get-r-no.p (INPUT "oe-rel", OUTPUT v-nxt-r-no).
+      RUN oe/getNextRelNo.p (INPUT "oe-rel", OUTPUT v-nxt-r-no).
       CREATE oe-rel.
       ASSIGN
        oe-rel.company   = oe-ordl.company
@@ -383,6 +372,12 @@ IF ip-run EQ 2 THEN DO TRANSACTION:
      oe-rell.i-no     = oe-rel.i-no
      oe-rell.po-no    = oe-rel.po-no
      oe-rell.line     = oe-rel.line
+     oe-rell.lot-no   = oe-rel.lot-no
+     oe-rell.lot-no  = oe-rel.lot-no
+     oe-rell.frt-pay = oe-rel.frt-pay
+     oe-rell.fob-code = oe-rel.fob-code
+     oe-rell.sell-price = oe-rel.sell-price
+     oe-rell.zeroPrice = oe-rel.zeroPrice
      oe-rell.printed  = YES
      oe-relh.printed  = NO
      oe-rell.posted   = NO
@@ -431,13 +426,14 @@ IF ip-run EQ 2 THEN DO TRANSACTION:
                       BUFFER po-ordl,
                       BUFFER po-ord,
                       BUFFER oe-ordl,
-                      BUFFER oe-ord,
-                      BUFFER reftable).
-    IF AVAIL(reftable) AND (reftable.val[2] GT 0 OR reftable.val[3] EQ 1) THEN
-    ASSIGN dBillAmt = reftable.val[2]
-           lEmailBol = reftable.val[3] EQ 1
-           lInvFrt  = reftable.val[2] GT 0.
-    
+                      BUFFER oe-ord).
+  
+    IF fg-rctd.BillableFreightAmt GT 0 OR fg-rctd.EmailBOL THEN 
+        ASSIGN    
+            dBillAmt = fg-rctd.BillableFreightAmt 
+            lInvFrt  = fg-rctd.BillableFreightAmt GT 0 /* if bill amt gt 0, then assign freight flag */
+            lEmailBol = fg-rctd.EmailBOL          
+            .       
     IF FIRST-OF(w-inv.r-no) THEN DO:
       headblok:
       FOR EACH oe-relh WHERE oe-relh.r-no EQ w-inv.r-no
@@ -522,16 +518,14 @@ PROCEDURE get-ord-recs:
   DEF PARAM BUFFER b-po-ordl FOR po-ordl.
   DEF PARAM BUFFER b-po-ord  FOR po-ord.
   DEF PARAM BUFFER b-oe-ordl FOR oe-ordl.
-  DEF PARAM BUFFER b-oe-ord  FOR oe-ord.
-  DEF PARAM BUFFER b-ref     FOR reftable.
+  DEF PARAM BUFFER b-oe-ord  FOR oe-ord.  
 
   DEF BUFFER b-fg-rctd FOR fg-rctd.
 
   RELEASE b-po-ordl.
   RELEASE b-po-ord.
   RELEASE b-oe-ordl.
-  RELEASE b-oe-ord.
-  RELEASE b-ref.
+  RELEASE b-oe-ord.  
 
 
   FIND b-fg-rctd WHERE ROWID(b-fg-rctd) EQ ip-rowid1 NO-LOCK NO-ERROR.
@@ -570,12 +564,7 @@ PROCEDURE get-ord-recs:
           AND b-oe-ord.ord-no  EQ b-oe-ordl.ord-no
         NO-LOCK NO-ERROR.
 
-    IF AVAIL oe-ord THEN
-    FIND FIRST b-ref
-        WHERE b-ref.reftable EQ "fg-rctd.user-id"
-          AND b-ref.company  EQ b-fg-rctd.company
-          AND b-ref.loc      EQ STRING(b-fg-rctd.r-no,"9999999999")
-        NO-LOCK NO-ERROR.
+
   END.
 END.
 
@@ -606,7 +595,7 @@ DEFINE VARIABLE lvErrMsg     AS CHARACTER   NO-UNDO.
    
     /* Create an Invoice? */
     /*+ "|type=literal,name=label10,row=2.2,col=26,enable=false,width=38,font=5,scrval=" + "Create Invoice for Drop Shipped Purchase Order?" + ",FORMAT=X(58)" */
-    + "|type=toggle,name=tb_addinv,row=2.2,col=23,enable=true,width=42,font=5,data-type=logical,label=Create Invoice for Drop Shipped Purchase Order?"
+    + "|type=toggle,name=tb_addinv,row=2.2,col=23,enable=true,width=42,font=5,data-type=logical,scrval=yes,label=Create Invoice for Drop Shipped Purchase Order?"
 
    
 
@@ -614,7 +603,7 @@ DEFINE VARIABLE lvErrMsg     AS CHARACTER   NO-UNDO.
 /*    + "|type=literal,name=label9,row=5.7,col=26,enable=false,width=38,font=5,scrval=" + "INVOICE Freight? " + ",FORMAT=X(58)" */
     + "|type=toggle,name=tb_invfrt,row=5.7,col=23,enable=true,width=25,font=5,data-type=logical,label=INVOICE Freight?,depfield=tb_addinv"
 
-    + "|type=literal,name=label7,row=5.7,col=50,enable=false,width=58,font=5,scrval=" + "Billable Freight:" + ",FORMAT=X(58)" 
+    + "|type=literal,name=label7,row=5.7,col=50,enable=true,width=58,font=5,scrval=" + "Billable Freight:" + ",FORMAT=X(58)" 
     + "|type=fill-in,name=fi_BillAmt,row=5.6,col=69,enable=true,width=15,font=5,data-type=decimal,depfield=tb_invfrt" 
 
     /* Email BOL toggle box */

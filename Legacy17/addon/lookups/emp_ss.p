@@ -1,4 +1,4 @@
-/* emp_ss.p - Generated 03/30/2000 - 10:32 am by nosweat
+/* emp_ss.p - Generated 10/17/2017 -  7:54 pm by NoSweat
 "emp_ss. " ~
 "ASI " ~
 "employee " ~
@@ -26,12 +26,13 @@
 &Scoped-define height-size 19
 &Scoped-define width-size 67
 &Scoped-define show-fields employee.soc_sec employee.last_name employee.first_name employee.employee
+&Scoped-define show-fields-yellow employee.soc_sec LABEL-BGCOLOR 14 employee.last_name LABEL-BGCOLOR 14 employee.first_name LABEL-BGCOLOR 14 employee.employee LABEL-BGCOLOR 14
 &Scoped-define frame-title Employees Social Security # Lookup
 &Scoped-define top-include ~{custom/getcmpny.i} ~{sys/inc/varasgn.i}
 &Scoped-define def-include ~{custom/gcompany.i} ~{sys/inc/var.i new shared}
 &Scoped-define end-include 
 &Scoped-define ui-prgmname employee.
-&Scoped-define window-size 23.7
+&Scoped-define window-size 24
 &Scoped-define window-col 41.5
 &Scoped-define rect-1-row 20.15
 &Scoped-define by-row 20.42
@@ -40,7 +41,7 @@
 &Scoped-define btn-row 21.7
 &Scoped-define btn-ok-col 60
 &Scoped-define btn-cancel-col 53
-&Scoped-define auto-find-row 23.6
+&Scoped-define auto-find-row 23.65
 
 &Global-define FORMAT-1 XXX-XX-XXXX
 &Scoped-define FLDNAME1 employee.soc_sec

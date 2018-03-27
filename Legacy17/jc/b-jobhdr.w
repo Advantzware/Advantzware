@@ -996,6 +996,8 @@ PROCEDURE rebuild-stds :
 ------------------------------------------------------------------------------*/
   DEF VAR lv-rowid AS ROWID NO-UNDO.
   DEF VAR char-hdl AS CHAR NO-UNDO.
+  DEF VAR iQty     AS INTEGER NO-UNDO .
+  DEF BUFFER bf-job-hdr FOR job-hdr .
                               
   IF job.est-no NE "" THEN DO:
 
@@ -1019,6 +1021,15 @@ PROCEDURE rebuild-stds :
        lv-recalced = YES
         nufile      = IF lv-qty-changed THEN ? ELSE NO.
 
+        FOR EACH bf-job-hdr NO-LOCK 
+            WHERE bf-job-hdr.company EQ job.company 
+             AND bf-job-hdr.job     EQ job.job
+             AND bf-job-hdr.job-no  EQ job.job-no
+             AND bf-job-hdr.job-no2 EQ job.job-no2 :
+            iQty = iQty + bf-job-hdr.qty .
+        END.
+        IF iQty EQ 0 THEN nufile = YES .
+
       RUN jc/jc-calc.p (RECID(job-hdr), YES).
 
       ASSIGN
@@ -1029,6 +1040,8 @@ PROCEDURE rebuild-stds :
 
       /*RUN refresh-browser. */
       RUN refresh-RecordSource.
+
+      RUN refresh-browser .
 
       RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"record-source", OUTPUT char-hdl).
       RUN get-start-date IN WIDGET-HANDLE(char-hdl) (INPUT YES).

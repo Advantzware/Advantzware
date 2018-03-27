@@ -22,7 +22,8 @@ FOR EACH {1} EXCLUSIVE-LOCK:
     {1}.endTime = lvEndTime
     {1}.downtimeSpan = lvDowntimeSpan
     {1}.jobLocked = lvJobLocked
-    {1}.jobCompleted = lvJobCompleted.
+    {1}.jobCompleted = lvJobCompleted
+    .
   {1}.startDateTime = numericDateTime({1}.startDate,{1}.startTime).
   {1}.endDateTime = numericDateTime({1}.endDate,{1}.endTime).
   &IF '{1}' EQ 'pendingJob' &THEN
@@ -33,10 +34,13 @@ FOR EACH {1} EXCLUSIVE-LOCK:
     ttblJob.origStartDate = {1}.startDate
     ttblJob.origStartTime = {1}.startTime
     ttblJob.origEndDate = {1}.endDate
-    ttblJob.origEndTime = {1}.endTime.
+    ttblJob.origEndTime = {1}.endTime
+    .
   DELETE {1}.
   &ENDIF
   ASSIGN
     ttblJob.jobBGColor = jobBGColor()
-    ttblJob.jobFGColor = jobFGColor().
+    ttblJob.jobFGColor = jobFGColor()
+    ttblJob.statusLabel = jobStatus()
+    .
 END. /* each {1} */

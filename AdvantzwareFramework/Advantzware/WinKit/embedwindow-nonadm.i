@@ -30,6 +30,7 @@
 {src/winkit/winkitactive.i}
 
 DEFINE VARIABLE adm-broker-hdl AS HANDLE NO-UNDO.
+DEFINE VARIABLE hUpdateButton  AS HANDLE NO-UNDO.
 {methods/defines/lValidateError.i}
 
 &IF DEFINED (winkitactive) NE 0 &THEN

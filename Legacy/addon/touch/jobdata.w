@@ -29,6 +29,7 @@ CREATE WIDGET-POOL.
 
 /* Local Variable Definitions ---                                       */
 
+&SCOPED-DEFINE PageNo 14
 {touch/touchdef.i}
 {custom/shftdefs.i}
 
@@ -39,8 +40,7 @@ CREATE WIDGET-POOL.
 
 DEF VAR lv-timer AS INT NO-UNDO. /* clock timer */
 DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
-DEFINE VARIABLE vTsampmWarn AS CHAR NO-UNDO .
-
+DEFINE VARIABLE vTsampmWarn AS CHAR NO-UNDO.
 
 {sys/inc/var.i NEW SHARED}
 
@@ -69,7 +69,7 @@ DEF NEW SHARED TEMP-TABLE tt-comp FIELD i-no AS cha
                               FIELD rcv-qty AS INT
                               FIELD est-no AS cha 
                               FIELD form-no AS INT 
-                              FIELD set-qty AS INT .
+                              FIELD set-qty AS INT.
 
 DEF TEMP-TABLE tt-mach NO-UNDO
     FIELD machine AS CHAR
@@ -103,9 +103,8 @@ DEF BUFFER b-tt-machtran-reckey FOR tt-machtran-reckey.
 &Scoped-define FRAME-NAME F-Main
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-1 Btn_Close Btn_Hour Btn_Minute ~
-Btn_AMPM Btn_Quantity Btn_Waste Btn_complete Btn_ReSet_Time Btn_Set_Time ~
-Btn_Accept Btn_Cancel 
+&Scoped-Define ENABLED-OBJECTS RECT-1 Btn_Hour Btn_Minute Btn_AMPM ~
+Btn_Quantity Btn_Waste Btn_complete 
 &Scoped-Define DISPLAYED-OBJECTS time-hour time-minute run-qty waste-qty ~
 v-completed timerStatus 
 
@@ -114,7 +113,7 @@ v-completed timerStatus
 &Scoped-define JOB-DATA-FIELDS time-hour time-minute run-qty waste-qty ~
 v-completed 
 &Scoped-define JOB-DATA-BUTTONS Btn_Hour Btn_Minute Btn_AMPM Btn_Quantity ~
-Btn_Waste Btn_complete Btn_ReSet_Time Btn_Set_Time Btn_Accept Btn_Cancel 
+Btn_Waste Btn_complete 
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
@@ -122,15 +121,12 @@ Btn_Waste Btn_complete Btn_ReSet_Time Btn_Set_Time Btn_Accept Btn_Cancel
 
 /* ************************  Function Prototypes ********************** */
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD getNumForms s-object
-FUNCTION getNumForms RETURNS INTEGER 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD getNumForms s-object 
+FUNCTION getNumForms RETURNS INTEGER
   (  ) FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD setTimerStatus s-object 
 FUNCTION setTimerStatus RETURNS CHARACTER
@@ -148,65 +144,44 @@ DEFINE VARIABLE CtrlFrame AS WIDGET-HANDLE NO-UNDO.
 DEFINE VARIABLE chCtrlFrame AS COMPONENT-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON Btn_Accept 
-     LABEL "ACCEPT ENTRY" 
-     SIZE 41 BY 2.38 TOOLTIP "ACCEPT ENTRY".
-
 DEFINE BUTTON Btn_AMPM 
      LABEL "AM" 
      SIZE 15 BY 1.67.
 
-DEFINE BUTTON Btn_Cancel 
-     LABEL "CANCEL" 
-     SIZE 40 BY 2.38 TOOLTIP "CANCEL".
-
-DEFINE BUTTON Btn_Close 
-     IMAGE-UP FILE "images\exit-au":U
-     LABEL "CLOSE" 
-     SIZE 10 BY 2.38.
-
 DEFINE BUTTON Btn_complete 
-     LABEL "COMPLETE?" 
-     SIZE 16 BY 1.67 TOOLTIP "COMPLETE?".
+     LABEL "Complete?" 
+     SIZE 16 BY 1.67 TOOLTIP "Complete?".
 
 DEFINE BUTTON Btn_Hour 
-     LABEL "HOUR" 
-     SIZE 16 BY 1.67 TOOLTIP "HOUR".
+     LABEL "Hour" 
+     SIZE 16 BY 1.67 TOOLTIP "Hour".
 
 DEFINE BUTTON Btn_Minute 
-     LABEL "MINUTE" 
-     SIZE 15 BY 1.67 TOOLTIP "MINUTE".
+     LABEL "Minute" 
+     SIZE 15 BY 1.67 TOOLTIP "Minute".
 
 DEFINE BUTTON Btn_Quantity 
-     LABEL "QUANTITY" 
-     SIZE 16 BY 1.67 TOOLTIP "QUANTITY".
-
-DEFINE BUTTON Btn_ReSet_Time 
-     LABEL "RESET TIME" 
-     SIZE 20 BY 2.38 TOOLTIP "RESET TIME".
-
-DEFINE BUTTON Btn_Set_Time 
-     LABEL "SET TIME" 
-     SIZE 21 BY 2.38 TOOLTIP "SET TIME".
+     LABEL "Quantity" 
+     SIZE 16 BY 1.67 TOOLTIP "Quantity".
 
 DEFINE BUTTON Btn_Waste 
-     LABEL "WASTE" 
-     SIZE 16 BY 1.67 TOOLTIP "WASTE".
+     LABEL "Waste" 
+     SIZE 16 BY 1.67 TOOLTIP "Waste".
 
 DEFINE VARIABLE run-qty AS DECIMAL FORMAT "->>,>>>,>>9":U INITIAL 0 
      VIEW-AS FILL-IN 
      SIZE 16 BY 1
-     BGCOLOR 15 FGCOLOR 0  NO-UNDO.
+     BGCOLOR 0 FGCOLOR 15  NO-UNDO.
 
 DEFINE VARIABLE time-hour AS INTEGER FORMAT ">9":U INITIAL 0 
      VIEW-AS FILL-IN 
      SIZE 7 BY 1
-     BGCOLOR 15 FGCOLOR 0  NO-UNDO.
+     BGCOLOR 0 FGCOLOR 15  NO-UNDO.
 
 DEFINE VARIABLE time-minute AS INTEGER FORMAT ">9":U INITIAL 0 
      VIEW-AS FILL-IN 
      SIZE 7 BY 1
-     BGCOLOR 15 FGCOLOR 0  NO-UNDO.
+     BGCOLOR 0 FGCOLOR 15  NO-UNDO.
 
 DEFINE VARIABLE timerStatus AS CHARACTER FORMAT "X(256)":U INITIAL "Auto Timer On" 
       VIEW-AS TEXT 
@@ -215,12 +190,12 @@ DEFINE VARIABLE timerStatus AS CHARACTER FORMAT "X(256)":U INITIAL "Auto Timer O
 DEFINE VARIABLE v-completed AS LOGICAL FORMAT "yes/no":U INITIAL NO 
      VIEW-AS FILL-IN 
      SIZE 8 BY 1
-     BGCOLOR 15 FGCOLOR 0  NO-UNDO.
+     BGCOLOR 0 FGCOLOR 15  NO-UNDO.
 
 DEFINE VARIABLE waste-qty AS DECIMAL FORMAT "->>,>>>,>>9":U INITIAL 0 
      VIEW-AS FILL-IN 
      SIZE 16 BY 1
-     BGCOLOR 15 FGCOLOR 0  NO-UNDO.
+     BGCOLOR 0 FGCOLOR 15  NO-UNDO.
 
 DEFINE RECTANGLE RECT-1
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
@@ -230,28 +205,23 @@ DEFINE RECTANGLE RECT-1
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     Btn_Close AT ROW 1.71 COL 114
-     Btn_Hour AT ROW 1.95 COL 22
-     Btn_Minute AT ROW 1.95 COL 48
-     Btn_AMPM AT ROW 1.95 COL 73
-     time-hour AT ROW 2.19 COL 37 COLON-ALIGNED NO-LABEL
-     time-minute AT ROW 2.19 COL 62 COLON-ALIGNED NO-LABEL
-     Btn_Quantity AT ROW 4.33 COL 22
-     run-qty AT ROW 4.57 COL 37 COLON-ALIGNED NO-LABEL
-     Btn_Waste AT ROW 6.48 COL 22
-     waste-qty AT ROW 6.71 COL 37 COLON-ALIGNED NO-LABEL
-     Btn_complete AT ROW 8.62 COL 22
-     v-completed AT ROW 8.86 COL 37 COLON-ALIGNED NO-LABEL
-     Btn_ReSet_Time AT ROW 11.24 COL 2
-     Btn_Set_Time AT ROW 11.24 COL 22
-     Btn_Accept AT ROW 11.24 COL 43
-     Btn_Cancel AT ROW 11.24 COL 84
-     timerStatus AT ROW 2.43 COL 89 COLON-ALIGNED NO-LABEL
+     Btn_Hour AT ROW 1.71 COL 22
+     Btn_Minute AT ROW 1.71 COL 48
+     Btn_AMPM AT ROW 1.71 COL 73
+     time-hour AT ROW 1.95 COL 37 COLON-ALIGNED NO-LABEL
+     time-minute AT ROW 1.95 COL 62 COLON-ALIGNED NO-LABEL
+     Btn_Quantity AT ROW 4.1 COL 22
+     run-qty AT ROW 4.33 COL 37 COLON-ALIGNED NO-LABEL
+     Btn_Waste AT ROW 6.24 COL 22
+     waste-qty AT ROW 6.48 COL 37 COLON-ALIGNED NO-LABEL
+     Btn_complete AT ROW 8.38 COL 22
+     v-completed AT ROW 8.62 COL 37 COLON-ALIGNED NO-LABEL
+     timerStatus AT ROW 2.19 COL 89 COLON-ALIGNED NO-LABEL
      RECT-1 AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
-         BGCOLOR 7 FGCOLOR 15 FONT 6.
+         BGCOLOR 15 FONT 6.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -308,20 +278,8 @@ ASSIGN
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
 
-/* SETTINGS FOR BUTTON Btn_Accept IN FRAME F-Main
-   2                                                                    */
-ASSIGN 
-       Btn_Accept:PRIVATE-DATA IN FRAME F-Main     = 
-                "ACCEPT ENTRY".
-
 /* SETTINGS FOR BUTTON Btn_AMPM IN FRAME F-Main
    2                                                                    */
-/* SETTINGS FOR BUTTON Btn_Cancel IN FRAME F-Main
-   2                                                                    */
-ASSIGN 
-       Btn_Cancel:PRIVATE-DATA IN FRAME F-Main     = 
-                "CANCEL".
-
 /* SETTINGS FOR BUTTON Btn_complete IN FRAME F-Main
    2                                                                    */
 ASSIGN 
@@ -332,37 +290,25 @@ ASSIGN
    2                                                                    */
 ASSIGN 
        Btn_Hour:PRIVATE-DATA IN FRAME F-Main     = 
-                "HOUR".
+                "Hour".
 
 /* SETTINGS FOR BUTTON Btn_Minute IN FRAME F-Main
    2                                                                    */
 ASSIGN 
        Btn_Minute:PRIVATE-DATA IN FRAME F-Main     = 
-                "MINUTE".
+                "Minute".
 
 /* SETTINGS FOR BUTTON Btn_Quantity IN FRAME F-Main
    2                                                                    */
 ASSIGN 
        Btn_Quantity:PRIVATE-DATA IN FRAME F-Main     = 
-                "QUANTITY".
-
-/* SETTINGS FOR BUTTON Btn_ReSet_Time IN FRAME F-Main
-   2                                                                    */
-ASSIGN 
-       Btn_ReSet_Time:PRIVATE-DATA IN FRAME F-Main     = 
-                "RESET TIME".
-
-/* SETTINGS FOR BUTTON Btn_Set_Time IN FRAME F-Main
-   2                                                                    */
-ASSIGN 
-       Btn_Set_Time:PRIVATE-DATA IN FRAME F-Main     = 
-                "SET TIME".
+                "Quantity".
 
 /* SETTINGS FOR BUTTON Btn_Waste IN FRAME F-Main
    2                                                                    */
 ASSIGN 
        Btn_Waste:PRIVATE-DATA IN FRAME F-Main     = 
-                "WASTE".
+                "Waste".
 
 /* SETTINGS FOR FILL-IN run-qty IN FRAME F-Main
    NO-ENABLE 1                                                          */
@@ -404,8 +350,8 @@ CREATE CONTROL-FRAME CtrlFrame ASSIGN
        COLUMN          = 103
        HEIGHT          = 4.76
        WIDTH           = 20
-       HIDDEN          = YES
-       SENSITIVE       = YES.
+       HIDDEN          = yes
+       SENSITIVE       = yes.
 
 PROCEDURE adm-create-controls:
       CtrlFrame:NAME = "CtrlFrame":U .
@@ -420,204 +366,6 @@ END PROCEDURE.
 
 
 /* ************************  Control Triggers  ************************ */
-
-&Scoped-define SELF-NAME Btn_Accept
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Accept s-object
-ON CHOOSE OF Btn_Accept IN FRAME F-Main /* ACCEPT ENTRY */
-DO:
-  DEF VAR v-time-hour AS INT NO-UNDO.
-  DEF VAR ampm AS INT NO-UNDO.
-  DEF VAR v-gang-jobs AS LOG NO-UNDO.
-  DEF VAR lv-starts AS CHAR EXTENT 2 NO-UNDO.
-  DEF VAR lv-stopps AS CHAR EXTENT 2 NO-UNDO.
-  DEF VAR v-today AS DATE NO-UNDO.
-  DEF VAR v-index AS INT NO-UNDO.
-  DEF VAR v-start AS INT INIT 1 NO-UNDO.
-  DEF VAR v-entered-start-date AS DATE NO-UNDO.
-  DEF VAR v-valid AS LOG INIT TRUE NO-UNDO.
-
-  DEF BUFFER bf-machtran FOR machtran.
-  DEF BUFFER bf2-machtran FOR machtran.
-  DEF BUFFER bf-mach FOR mach.
-
-  ASSIGN
-     time-hour time-minute run-qty waste-qty
-     v-time-hour = time-hour
-     v-today = TODAY.
-
-  IF time-hour LT 1 OR time-hour GT 12 THEN
-  DO:
-    MESSAGE 'INVALID HOUR - ENTER BETWEEN 1 AND 12' VIEW-AS ALERT-BOX ERROR.
-    APPLY 'CHOOSE' TO Btn_Hour.
-    RETURN NO-APPLY.
-  END.
-  IF time-minute GT 59 THEN
-  DO:
-    MESSAGE 'INVALID MINUTE - ENTER BETWEEN 0 AND 59' VIEW-AS ALERT-BOX ERROR.
-    APPLY 'CHOOSE' TO Btn_Minute.
-    RETURN NO-APPLY.
-  END.  
-  IF job_sequence BEGINS 'END' THEN DO: /* task 10050516*/
-     RUN check-tsqty NO-ERROR.
-     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-  END.
-
-  ASSIGN ampm = IF Btn_AMPM:LABEL = 'PM' AND time-hour NE 12 THEN 43200 ELSE 0
-         v-time-hour = IF Btn_AMPM:LABEL = 'AM' AND time-hour = 12 THEN 0 ELSE v-time-hour.
-
-  /* check machine's running. If yes, don't create new transaction. End it first */
-  {methods/run_link.i "CONTAINER" "Get_Value" "('company_code',OUTPUT company_code)"}
-  {methods/run_link.i "CONTAINER" "Get_Value" "('machine_code',OUTPUT machine_code)"}     
-  {methods/run_link.i "CONTAINER" "Get_Value" "('machine_list',OUTPUT machine_list)"}
- 
-  /* task# 10110517 allow duplicate time if gang jobs is yes*/
-  FIND FIRST bf-mach WHERE
-       bf-mach.company EQ company_code AND
-       bf-mach.m-code  EQ machine_code
-       NO-LOCK NO-ERROR.
-
-  v-gang-jobs = IF AVAIL bf-mach THEN bf-mach.gang-jobs ELSE NO.
-  
-  IF NOT v-gang-jobs THEN DO:
-     IF job_sequence BEGINS 'START' THEN DO:
-
-        FIND FIRST bf-machtran WHERE
-             bf-machtran.company EQ company_code AND
-             bf-machtran.machine EQ machine_code AND
-             bf-machtran.END_date   EQ ? AND
-             bf-machtran.end_time   EQ 0 AND
-             bf-machtran.TOTAL_time EQ 0
-             NO-LOCK NO-ERROR.
-       
-        IF AVAIL bf-machtran THEN DO:
-           MESSAGE "Machine " + "is running for a job " +
-                   TRIM(bf-machtran.job_number) +
-                   "-" + TRIM(STRING(bf-machtran.job_sub,"99")) +  
-                   ".   Must end data collection for the job " +
-                   TRIM(bf-machtran.job_number)
-               VIEW-AS ALERT-BOX ERROR.
-           RETURN NO-APPLY.
-        END.
-     END.
-    
-     ELSE DO:
-       {methods/run_link.i "CONTAINER" "Get_MachTran_Rowid" "(OUTPUT machtran-rowid)"}
-       FIND FIRST bf2-machtran NO-LOCK
-           WHERE ROWID(bf2-machtran) EQ machtran-rowid
-           NO-ERROR.
-     END.
-    
-     ASSIGN
-      lv-stopps[1] = STRING(YEAR(v-today),"9999") +
-                     STRING(MONTH(v-today),"99")  +
-                     STRING(DAY(v-today),"99")    +
-                     STRING(v-time-hour * 3600 + time-minute * 60 + ampm,"99999")
-      lv-starts[1] = IF AVAIL bf2-machtran THEN
-                       (STRING(YEAR(bf2-machtran.start_date),"9999") +
-                        STRING(MONTH(bf2-machtran.start_date),"99")  +
-                        STRING(DAY(bf2-machtran.start_date),"99")    +
-                        STRING(bf2-machtran.start_time,"99999"))
-                     ELSE lv-stopps[1]
-     v-entered-start-date = IF AVAIL bf2-machtran THEN bf2-machtran.start_date ELSE
-                            v-today.
-     
-     EMPTY TEMP-TABLE tt-mach.
-     
-     CREATE tt-mach.
-     ASSIGN tt-mach.machine = machine_code.
-     RELEASE tt-mach.
-     
-     DO v-index = 1 TO LENGTH(machine_list):
-     
-        IF SUBSTRING(machine_list,v-index,1) EQ "," AND
-           machine_code NE SUBSTRING(machine_list,v-start,v-index - v-start) THEN
-        DO:
-           CREATE tt-mach.
-           ASSIGN tt-mach.machine = SUBSTRING(machine_list,v-start,v-index - v-start)
-                  v-start = v-index + 1.
-           RELEASE tt-mach.
-        END.
-     END.
-     
-     FOR EACH tt-mach,
-         EACH bf-machtran FIELDS(START_date START_time END_date END_time
-              charge_code job_number job_sub FORM_number BLANK_number ) NO-LOCK
-         WHERE bf-machtran.company  EQ company_code
-           AND bf-machtran.machine EQ tt-mach.machine
-           AND bf-machtran.end_date NE ?
-           AND bf-machtran.END_date GE v-entered-start-date
-           AND (NOT AVAIL bf2-machtran OR
-                ROWID(bf-machtran)  NE ROWID(bf2-machtran))
-         USE-INDEX menddate:
-     
-         ASSIGN
-          lv-starts[2] = STRING(YEAR(bf-machtran.start_date),"9999") +
-                         STRING(MONTH(bf-machtran.start_date),"99")  +
-                         STRING(DAY(bf-machtran.start_date),"99")    +
-                         STRING(bf-machtran.start_time,"99999")
-          lv-stopps[2] = STRING(YEAR(bf-machtran.end_date),"9999") +
-                         STRING(MONTH(bf-machtran.end_date),"99")  +
-                         STRING(DAY(bf-machtran.end_date),"99") +
-                         STRING(bf-machtran.end_time,"99999").
-          
-         IF NOT(job_sequence BEGINS 'START') THEN
-         DO:
-            IF lv-starts[1] EQ lv-starts[2] THEN
-               v-valid = FALSE.
-            ELSE IF lv-starts[1] GT lv-starts[2] THEN
-            DO:
-                IF lv-starts[1] LT lv-stopps[2] THEN
-                   v-valid = FALSE.
-            END.
-            ELSE IF lv-starts[2] LT lv-stopps[1] THEN
-                v-valid = FALSE.
-         END.
-         ELSE /*start*/
-            IF lv-starts[2] LE lv-starts[1] AND
-               lv-starts[1] LT lv-stopps[2] THEN
-               v-valid = FALSE.
-              
-         IF NOT v-valid THEN
-         DO:
-            MESSAGE "Machine transaction " + TRIM(bf-machtran.charge_code) +
-                    " exists for Job#: " + TRIM(bf-machtran.job_number) + "-" +
-                    TRIM(STRING(bf-machtran.job_sub,"99")) +
-                    " Form#: " + STRING(bf-machtran.FORM_number) +
-                    " Blank#: " + STRING(bf-machtran.BLANK_number) +
-                    " From " + STRING(bf-machtran.START_date,"99/99/99") + "@" +
-                               STRING(bf-machtran.START_time,"hh:mm") +
-                    " To " + STRING(bf-machtran.END_date,"99/99/99") + "@" +
-                             STRING(bf-machtran.end_time,"hh:mm")
-                    SKIP
-                    "Validate operation's start date and time."
-                VIEW-AS ALERT-BOX ERROR.
-            RETURN NO-APPLY.
-         END.
-     END.
-  END.
-
-  RUN Job_Data_Collection(INPUT v-today).
-  RELEASE machemp.
-  RELEASE machtran.
-
-  IF RETURN-VALUE = 'COMPLETED' THEN
-  DO:   
-    IF getNumForms() GT 1 THEN DO:
-    {methods/run_link.i "CONTAINER" "Change_Page" "(10)"}
-    END.
-    ELSE DO:
-        {methods/run_link.i "CONTAINER" "Change_Page" "(9)"} /* Tried 15, but no effect */        
-    END.
-    RETURN NO-APPLY.
-  END.
-
-  {methods/run_link.i "CONTAINER" "Run_Get_Job_Sequence"}
-  {methods/run_link.i "CONTAINER" "Change_Page" "(13)"}
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 
 &Scoped-define SELF-NAME Btn_AMPM
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_AMPM s-object
@@ -645,33 +393,9 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME Btn_Cancel
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Cancel s-object
-ON CHOOSE OF Btn_Cancel IN FRAME F-Main /* CANCEL */
-DO:
-  {methods/run_link.i "CONTAINER" "Change_Page" "(13)"}
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME Btn_Close
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Close s-object
-ON CHOOSE OF Btn_Close IN FRAME F-Main /* CLOSE */
-DO:
-  RELEASE machtran.
-  RELEASE machemp.
-  {methods/run_link.i "CONTAINER" "Change_Page" "(2)"}
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
 &Scoped-define SELF-NAME Btn_complete
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_complete s-object
-ON CHOOSE OF Btn_complete IN FRAME F-Main /* COMPLETE? */
+ON CHOOSE OF Btn_complete IN FRAME F-Main /* Complete? */
 DO:
   /*RUN Reset_Field_Colors.
   h_field = v-completed:HANDLE.
@@ -689,7 +413,7 @@ END.
 
 &Scoped-define SELF-NAME Btn_Hour
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Hour s-object
-ON CHOOSE OF Btn_Hour IN FRAME F-Main /* HOUR */
+ON CHOOSE OF Btn_Hour IN FRAME F-Main /* Hour */
 DO:
   
 
@@ -707,7 +431,7 @@ END.
 
 &Scoped-define SELF-NAME Btn_Minute
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Minute s-object
-ON CHOOSE OF Btn_Minute IN FRAME F-Main /* MINUTE */
+ON CHOOSE OF Btn_Minute IN FRAME F-Main /* Minute */
 DO:
   
 
@@ -725,7 +449,7 @@ END.
 
 &Scoped-define SELF-NAME Btn_Quantity
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Quantity s-object
-ON CHOOSE OF Btn_Quantity IN FRAME F-Main /* QUANTITY */
+ON CHOOSE OF Btn_Quantity IN FRAME F-Main /* Quantity */
 DO:
   RUN Reset_Field_Colors.
   h_field = run-qty:HANDLE.
@@ -736,68 +460,9 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME Btn_ReSet_Time
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_ReSet_Time s-object
-ON CHOOSE OF Btn_ReSet_Time IN FRAME F-Main /* RESET TIME */
-DO:
-    
-
-    ASSIGN time-hour:SCREEN-VALUE = SUBSTR(STRING(TIME,'HH:MM AM'),1,2)
-           time-minute:SCREEN-VALUE = SUBSTR(STRING(TIME,'HH:MM AM'),4,2)
-           Btn_AMPM:LABEL = SUBSTR(STRING(TIME,'HH:MM AM'),7,2)
-           .
-   
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME Btn_Set_Time
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Set_Time s-object
-ON CHOOSE OF Btn_Set_Time IN FRAME F-Main /* SET TIME */
-DO:
-   DEF VAR ampm AS INT NO-UNDO.
-
-  {methods/run_link.i "CONTAINER" "Get_Value" "('company_code',OUTPUT company_code)"}
-  {methods/run_link.i "CONTAINER" "Get_Value" "('machine_code',OUTPUT machine_code)"}
-  {methods/run_link.i "CONTAINER" "Get_Value" "('job_number',OUTPUT job_number)"}
-  {methods/run_link.i "CONTAINER" "Get_Value" "('job_sub',OUTPUT job_sub)"}
-  {methods/run_link.i "CONTAINER" "Get_Value" "('form_number',OUTPUT form_number)"}
-  {methods/run_link.i "CONTAINER" "Get_Value" "('blank_number',OUTPUT blank_number)"}
-  {methods/run_link.i "CONTAINER" "Get_Value" "('pass_sequence',OUTPUT pass_sequence)"}
-  FIND LAST machtran
-       WHERE machtran.company = company_code
-         AND machtran.machine = machine_code
-         AND machtran.job_number = job_number
-         AND machtran.job_sub = INTEGER(job_sub)
-         AND machtran.form_number = INTEGER(form_number)
-         AND machtran.blank_number = INTEGER(blank_number)
-         AND machtran.pass_sequence = INTEGER(pass_sequence)
-         AND (machtran.end_time NE 0
-          OR machtran.total_time NE 0)
-       NO-LOCK NO-ERROR.
-  IF AVAILABLE machtran THEN
-  ASSIGN 
-    time-hour:SCREEN-VALUE = SUBSTR(STRING(machtran.end_time,'HH:MM AM'),1,2)
-    time-minute:SCREEN-VALUE = SUBSTR(STRING(machtran.end_time,'HH:MM AM'),4,2)
-    Btn_AMPM:LABEL = SUBSTR(STRING(machtran.end_time,'HH:MM AM'),7,2)
-    ampm = IF Btn_AMPM:LABEL = 'PM' AND time-hour NE 12 THEN 43200 ELSE 0
-    lv-timer = int(time-hour:SCREEN-VALUE) * 3600 +
-               INT(time-minute:SCREEN-VALUE) * 60 +
-               ampm /* ampm adds in 12 hours for a PM time */.
-    
-  ELSE
-  SELF:SENSITIVE = FALSE.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
 &Scoped-define SELF-NAME Btn_Waste
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Waste s-object
-ON CHOOSE OF Btn_Waste IN FRAME F-Main /* WASTE */
+ON CHOOSE OF Btn_Waste IN FRAME F-Main /* Waste */
 DO:
   RUN Reset_Field_Colors.
   h_field = waste-qty:HANDLE.
@@ -816,15 +481,15 @@ PROCEDURE CtrlFrame.PSTimer.Tick .
   Parameters:  None required for OCX.
   Notes:       
 ------------------------------------------------------------------------------*/
-
-  /*IF NOT v-time-clock-off  THEN */
-  IF timerStatus:SCREEN-VALUE IN FRAME {&FRAME-NAME} MATCHES "*on*" THEN
-     ASSIGN lv-timer = lv-timer + 1
-           time-hour:SCREEN-VALUE IN FRAME {&FRAME-NAME} = SUBSTR(STRING(lv-timer,'HH:MM AM'),1,2)
-           time-minute:SCREEN-VALUE = SUBSTR(STRING(lv-timer,'HH:MM AM'),4,2).
-          IF time-hour:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ "12" THEN
-           Btn_AMPM:LABEL = SUBSTR(STRING(lv-timer,'HH:MM AM'),7,2)  .
-  
+    IF timerStatus:SCREEN-VALUE IN FRAME {&FRAME-NAME} MATCHES "*on*" THEN DO:
+        ASSIGN
+            lv-timer = lv-timer + 1
+            time-hour:SCREEN-VALUE IN FRAME {&FRAME-NAME} = SUBSTR(STRING(lv-timer,'HH:MM AM'),1,2)
+            time-minute:SCREEN-VALUE = SUBSTR(STRING(lv-timer,'HH:MM AM'),4,2)
+            .
+        IF time-hour:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ "12" THEN
+        Btn_AMPM:LABEL = SUBSTR(STRING(lv-timer,'HH:MM AM'),7,2).
+    END.
   
 END PROCEDURE.
 
@@ -839,10 +504,13 @@ END PROCEDURE.
 
 /* ***************************  Main Block  *************************** */
 {sys/inc/f3helpw.i}
+
 /* If testing in the UIB, initialize the SmartObject. */  
 &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
   RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
 &ENDIF
+
+{touch/pCreateINIObjects.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -2078,10 +1746,12 @@ PROCEDURE Init_Job :
   FIND job-code WHERE job-code.code = charge_code NO-LOCK NO-ERROR.
   DO WITH FRAME {&FRAME-NAME}:
     ENABLE {&JOB-DATA-BUTTONS}.
-    IF job_sequence BEGINS 'END' THEN DISABLE Btn_Cancel Btn_Set_Time.
+    IF job_sequence BEGINS 'END' THEN DO:
+        RUN pSetSensitive ("Back",NO).
+        RUN pSetSensitive ("SetTiDO",NO).
+    END.
     FIND LAST jobseq NO-LOCK NO-ERROR.
     ASSIGN
-      Btn_Accept:LABEL = CAPS(job_sequence)
       Btn_AMPM:LABEL = SUBSTR(STRING(TIME,'HH:MM AM'),7,2)
       time-hour:SCREEN-VALUE = SUBSTR(STRING(TIME,'HH:MM AM'),1,2)
       time-minute:SCREEN-VALUE = SUBSTR(STRING(TIME,'HH:MM AM'),4,2)
@@ -2095,14 +1765,12 @@ PROCEDURE Init_Job :
 
     IF job_sequence BEGINS 'START' OR
        NOT CAN-FIND(jobseq WHERE jobseq.charge_code = charge_code) THEN
-    DO:
+    DO: 
       ASSIGN
         Btn_Quantity:HIDDEN = TRUE
         run-qty:HIDDEN = TRUE
-        /*Btn_Waste:HIDDEN = TRUE*/ /* ticket 19309*/
-        /*waste-qty:HIDDEN = TRUE*/
-        /*btn_complete:HIDDEN = TRUE*/
-        /*v-completed:HIDDEN = TRUE*/  .
+        v-completed:SCREEN-VALUE = "No" 
+        .
       APPLY 'CHOOSE' TO Btn_Hour.
     END.
     ELSE
@@ -2121,7 +1789,14 @@ PROCEDURE Init_Job :
     v-time-clock-off = NO
     timerStatus:SCREEN-VALUE = setTimerStatus(NO).
 
-  {touch/tchsec.i}
+  IF NOT v-can-update AND tstimeb-log = NO THEN DO:
+      ASSIGN btn_hour:SENSITIVE IN FRAME {&FRAME-NAME} = NO
+             btn_minute:SENSITIVE = NO
+             btn_ampm:SENSITIVE = NO
+             .              
+      RUN pSetSensitive ("ResetTime",NO).
+      RUN pSetSensitive ("SetTime",NO).
+  END.
 
 END PROCEDURE.
 
@@ -2739,6 +2414,26 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-initialize s-object 
+PROCEDURE local-initialize :
+/*------------------------------------------------------------------------------
+  Purpose:     Override standard ADM method
+  Notes:       
+------------------------------------------------------------------------------*/
+
+  /* Code placed here will execute PRIOR to standard behavior. */
+  RUN pCreateINIObjects ("HomeSmall,ResetTime,SetTime,AcceptEntry,Back").
+
+  /* Dispatch standard ADM method.                             */
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'initialize':U ) .
+
+  /* Code placed here will execute AFTER standard behavior.    */
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-view s-object 
 PROCEDURE local-view :
 /*------------------------------------------------------------------------------
@@ -2758,6 +2453,257 @@ PROCEDURE local-view :
     timerStatus:SCREEN-VALUE = setTimerStatus(NO).
 
   {methods/run_link.i "CONTAINER" "Get_Value" "('machine_list',OUTPUT machine_list)"}
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pClick s-object 
+PROCEDURE pClick :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcClick AS CHARACTER NO-UNDO.
+    
+    DEFINE VARIABLE ampm AS INTEGER NO-UNDO.
+    DEFINE VARIABLE v-time-hour AS INT NO-UNDO.
+    DEFINE VARIABLE v-gang-jobs AS LOG NO-UNDO.
+    DEFINE VARIABLE lv-starts AS CHAR EXTENT 2 NO-UNDO.
+    DEFINE VARIABLE lv-stopps AS CHAR EXTENT 2 NO-UNDO.
+    DEFINE VARIABLE v-today AS DATE NO-UNDO.
+    DEFINE VARIABLE v-index AS INT NO-UNDO.
+    DEFINE VARIABLE v-start AS INT INIT 1 NO-UNDO.
+    DEFINE VARIABLE v-entered-start-date AS DATE NO-UNDO.
+    DEFINE VARIABLE v-valid AS LOG INIT TRUE NO-UNDO.
+  
+    DEF BUFFER bf-machtran FOR machtran.
+    DEF BUFFER bf2-machtran FOR machtran.
+    DEF BUFFER bf-mach FOR mach.
+    
+    CASE ipcClick:
+        WHEN "HomeSmall" THEN DO WITH FRAME {&FRAME-NAME}:
+            RELEASE machtran.
+            RELEASE machemp.
+            {methods/run_link.i "CONTAINER" "Change_Page" "(2)"}
+        END.
+        WHEN "ResetTime" THEN DO:
+            ASSIGN
+                time-hour:SCREEN-VALUE = SUBSTR(STRING(TIME,'HH:MM AM'),1,2)
+                time-minute:SCREEN-VALUE = SUBSTR(STRING(TIME,'HH:MM AM'),4,2)
+                Btn_AMPM:LABEL = SUBSTR(STRING(TIME,'HH:MM AM'),7,2)
+                .
+        END.
+        WHEN "SetTime" THEN DO:
+            {methods/run_link.i "CONTAINER" "Get_Value" "('company_code',OUTPUT company_code)"}
+            {methods/run_link.i "CONTAINER" "Get_Value" "('machine_code',OUTPUT machine_code)"}
+            {methods/run_link.i "CONTAINER" "Get_Value" "('job_number',OUTPUT job_number)"}
+            {methods/run_link.i "CONTAINER" "Get_Value" "('job_sub',OUTPUT job_sub)"}
+            {methods/run_link.i "CONTAINER" "Get_Value" "('form_number',OUTPUT form_number)"}
+            {methods/run_link.i "CONTAINER" "Get_Value" "('blank_number',OUTPUT blank_number)"}
+            {methods/run_link.i "CONTAINER" "Get_Value" "('pass_sequence',OUTPUT pass_sequence)"}
+            FIND LAST machtran NO-LOCK
+                 WHERE machtran.company       EQ company_code
+                   AND machtran.machine       EQ machine_code
+                   AND machtran.job_number    EQ job_number
+                   AND machtran.job_sub       EQ INTEGER(job_sub)
+                   AND machtran.form_number   EQ INTEGER(form_number)
+                   AND machtran.blank_number  EQ INTEGER(blank_number)
+                   AND machtran.pass_sequence EQ INTEGER(pass_sequence)
+                   AND (machtran.end_time     NE 0
+                    OR machtran.total_time    NE 0)
+                 NO-ERROR.
+            IF AVAILABLE machtran THEN
+            ASSIGN 
+              time-hour:SCREEN-VALUE = SUBSTR(STRING(machtran.end_time,'HH:MM AM'),1,2)
+              time-minute:SCREEN-VALUE = SUBSTR(STRING(machtran.end_time,'HH:MM AM'),4,2)
+              Btn_AMPM:LABEL = SUBSTR(STRING(machtran.end_time,'HH:MM AM'),7,2)
+              ampm = IF Btn_AMPM:LABEL = 'PM' AND time-hour NE 12 THEN 43200 ELSE 0
+              lv-timer = int(time-hour:SCREEN-VALUE) * 3600
+                       + INT(time-minute:SCREEN-VALUE) * 60
+                       + ampm /* ampm adds in 12 hours for a PM time */
+                       .             
+            ELSE
+            RUN pSetSensitive ("ResetTime",NO).
+        END.
+        WHEN "AcceptEntry" THEN DO:          
+            ASSIGN
+               time-hour time-minute run-qty waste-qty
+               v-time-hour = time-hour
+               v-today = TODAY.
+          
+            IF time-hour LT 1 OR time-hour GT 12 THEN DO:
+              MESSAGE 'INVALID HOUR - ENTER BETWEEN 1 AND 12' VIEW-AS ALERT-BOX ERROR.
+              APPLY 'CHOOSE' TO Btn_Hour.
+              RETURN NO-APPLY.
+            END.
+            IF time-minute GT 59 THEN DO:
+              MESSAGE 'INVALID MINUTE - ENTER BETWEEN 0 AND 59' VIEW-AS ALERT-BOX ERROR.
+              APPLY 'CHOOSE' TO Btn_Minute.
+              RETURN NO-APPLY.
+            END.  
+            IF job_sequence BEGINS 'END' THEN DO: /* task 10050516*/
+               RUN check-tsqty NO-ERROR.
+               IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+            END.
+          
+            ASSIGN ampm = IF Btn_AMPM:LABEL = 'PM' AND time-hour NE 12 THEN 43200 ELSE 0
+                   v-time-hour = IF Btn_AMPM:LABEL = 'AM' AND time-hour = 12 THEN 0 ELSE v-time-hour.
+          
+            /* check machine's running. If yes, don't create new transaction. End it first */
+            {methods/run_link.i "CONTAINER" "Get_Value" "('company_code',OUTPUT company_code)"}
+            {methods/run_link.i "CONTAINER" "Get_Value" "('machine_code',OUTPUT machine_code)"}     
+            {methods/run_link.i "CONTAINER" "Get_Value" "('machine_list',OUTPUT machine_list)"}
+           
+            /* task# 10110517 allow duplicate time if gang jobs is yes*/
+            FIND FIRST bf-mach WHERE
+                 bf-mach.company EQ company_code AND
+                 bf-mach.m-code  EQ machine_code
+                 NO-LOCK NO-ERROR.
+          
+            v-gang-jobs = IF AVAIL bf-mach THEN bf-mach.gang-jobs ELSE NO.
+            
+            IF NOT v-gang-jobs THEN DO:
+               IF job_sequence BEGINS 'START' THEN DO:
+          
+                  FIND FIRST bf-machtran WHERE
+                       bf-machtran.company EQ company_code AND
+                       bf-machtran.machine EQ machine_code AND
+                       bf-machtran.END_date   EQ ? AND
+                       bf-machtran.end_time   EQ 0 AND
+                       bf-machtran.TOTAL_time EQ 0
+                       NO-LOCK NO-ERROR.
+                 
+                  IF AVAIL bf-machtran THEN DO:
+                     MESSAGE "Machine " + "is running for a job " +
+                             TRIM(bf-machtran.job_number) +
+                             "-" + TRIM(STRING(bf-machtran.job_sub,"99")) +  
+                             ".   Must end data collection for the job " +
+                             TRIM(bf-machtran.job_number)
+                         VIEW-AS ALERT-BOX ERROR.
+                     RETURN NO-APPLY.
+                  END.
+               END.
+              
+               ELSE DO:
+                 {methods/run_link.i "CONTAINER" "Get_MachTran_Rowid" "(OUTPUT machtran-rowid)"}
+                 FIND FIRST bf2-machtran NO-LOCK
+                     WHERE ROWID(bf2-machtran) EQ machtran-rowid
+                     NO-ERROR.
+               END.
+              
+               ASSIGN
+                lv-stopps[1] = STRING(YEAR(v-today),"9999") +
+                               STRING(MONTH(v-today),"99")  +
+                               STRING(DAY(v-today),"99")    +
+                               STRING(v-time-hour * 3600 + time-minute * 60 + ampm,"99999")
+                lv-starts[1] = IF AVAIL bf2-machtran THEN
+                                 (STRING(YEAR(bf2-machtran.start_date),"9999") +
+                                  STRING(MONTH(bf2-machtran.start_date),"99")  +
+                                  STRING(DAY(bf2-machtran.start_date),"99")    +
+                                  STRING(bf2-machtran.start_time,"99999"))
+                               ELSE lv-stopps[1]
+               v-entered-start-date = IF AVAIL bf2-machtran THEN bf2-machtran.start_date ELSE
+                                      v-today.
+               
+               EMPTY TEMP-TABLE tt-mach.
+               
+               CREATE tt-mach.
+               ASSIGN tt-mach.machine = machine_code.
+               RELEASE tt-mach.
+               
+               DO v-index = 1 TO LENGTH(machine_list):
+               
+                  IF SUBSTRING(machine_list,v-index,1) EQ "," AND
+                     machine_code NE SUBSTRING(machine_list,v-start,v-index - v-start) THEN
+                  DO:
+                     CREATE tt-mach.
+                     ASSIGN tt-mach.machine = SUBSTRING(machine_list,v-start,v-index - v-start)
+                            v-start = v-index + 1.
+                     RELEASE tt-mach.
+                  END.
+               END.
+               
+               FOR EACH tt-mach,
+                   EACH bf-machtran FIELDS(START_date START_time END_date END_time
+                        charge_code job_number job_sub FORM_number BLANK_number ) NO-LOCK
+                   WHERE bf-machtran.company  EQ company_code
+                     AND bf-machtran.machine EQ tt-mach.machine
+                     AND bf-machtran.end_date NE ?
+                     AND bf-machtran.END_date GE v-entered-start-date
+                     AND (NOT AVAIL bf2-machtran OR
+                          ROWID(bf-machtran)  NE ROWID(bf2-machtran))
+                   USE-INDEX menddate:
+               
+                   ASSIGN
+                    lv-starts[2] = STRING(YEAR(bf-machtran.start_date),"9999") +
+                                   STRING(MONTH(bf-machtran.start_date),"99")  +
+                                   STRING(DAY(bf-machtran.start_date),"99")    +
+                                   STRING(bf-machtran.start_time,"99999")
+                    lv-stopps[2] = STRING(YEAR(bf-machtran.end_date),"9999") +
+                                   STRING(MONTH(bf-machtran.end_date),"99")  +
+                                   STRING(DAY(bf-machtran.end_date),"99") +
+                                   STRING(bf-machtran.end_time,"99999").
+                    
+                   IF NOT(job_sequence BEGINS 'START') THEN
+                   DO:
+                      IF lv-starts[1] EQ lv-starts[2] THEN
+                         v-valid = FALSE.
+                      ELSE IF lv-starts[1] GT lv-starts[2] THEN
+                      DO:
+                          IF lv-starts[1] LT lv-stopps[2] THEN
+                             v-valid = FALSE.
+                      END.
+                      ELSE IF lv-starts[2] LT lv-stopps[1] THEN
+                          v-valid = FALSE.
+                   END.
+                   ELSE /*start*/
+                      IF lv-starts[2] LE lv-starts[1] AND
+                         lv-starts[1] LT lv-stopps[2] THEN
+                         v-valid = FALSE.
+                        
+                   IF NOT v-valid THEN
+                   DO:
+                      MESSAGE "Machine transaction " + TRIM(bf-machtran.charge_code) +
+                              " exists for Job#: " + TRIM(bf-machtran.job_number) + "-" +
+                              TRIM(STRING(bf-machtran.job_sub,"99")) +
+                              " Form#: " + STRING(bf-machtran.FORM_number) +
+                              " Blank#: " + STRING(bf-machtran.BLANK_number) +
+                              " From " + STRING(bf-machtran.START_date,"99/99/99") + "@" +
+                                         STRING(bf-machtran.START_time,"hh:mm") +
+                              " To " + STRING(bf-machtran.END_date,"99/99/99") + "@" +
+                                       STRING(bf-machtran.end_time,"hh:mm")
+                              SKIP
+                              "Validate operation's start date and time."
+                          VIEW-AS ALERT-BOX ERROR.
+                      RETURN NO-APPLY.
+                   END.
+               END.
+            END.
+          
+            RUN Job_Data_Collection(INPUT v-today).
+            RELEASE machemp.
+            RELEASE machtran.
+          
+            IF RETURN-VALUE = 'COMPLETED' THEN DO:   
+              IF getNumForms() GT 1 THEN DO:
+              {methods/run_link.i "CONTAINER" "Change_Page" "(10)"}
+              END.
+              ELSE DO:
+                  {methods/run_link.i "CONTAINER" "Change_Page" "(9)"} /* Tried 15, but no effect */        
+              END.
+              RETURN NO-APPLY.
+            END.
+          
+            {methods/run_link.i "CONTAINER" "Run_Get_Job_Sequence"}
+            {methods/run_link.i "CONTAINER" "Change_Page" "(13)"}
+        END.
+        WHEN "Back" THEN DO:
+            {methods/run_link.i "CONTAINER" "Change_Page" "(13)"}
+        END.
+    END CASE.
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2901,15 +2847,15 @@ PROCEDURE proc-form-cmplt :
     FIND FIRST b-reftable
         WHERE b-reftable.reftable EQ "ts/jobdata.p"
           AND b-reftable.company  EQ company_code
-          AND b-reftable.code     EQ STRING(RECID(job-hdr))
+          AND b-reftable.code     EQ job-hdr.rec_key
         EXCLUSIVE NO-ERROR.
     IF AVAIL b-reftable THEN DELETE b-reftable.
     CREATE b-reftable.
     ASSIGN
      b-reftable.reftable = "ts/jobdata.p"
      b-reftable.company  = company_code
-     b-reftable.code     = STRING(RECID(job-hdr))
-     b-reftable.code2    = STRING(RECID(fg-bin)).
+     b-reftable.code     = job-hdr.rec_key
+     b-reftable.code2    = fg-bin.rec_key.
     
     v-runqty = 0. 
     FOR EACH bf-machtran FIELDS(RUN_qty) WHERE
@@ -3114,11 +3060,11 @@ PROCEDURE proc-form-cmplt :
       FIND FIRST b-reftable
           WHERE b-reftable.reftable EQ "ts/jobdata.p"
             AND b-reftable.company  EQ company_code
-            AND b-reftable.code     EQ STRING(RECID(job-hdr))
+            AND b-reftable.code     EQ job-hdr.rec_key
           NO-LOCK NO-ERROR.
 
       IF AVAIL b-reftable THEN 
-      FIND FIRST fg-bin WHERE RECID(fg-bin) EQ INT(b-reftable.code2) NO-LOCK NO-ERROR.
+      FIND FIRST fg-bin WHERE fg-bin.rec_key EQ b-reftable.code2 NO-LOCK NO-ERROR.
       
       IF AVAIL fg-bin THEN
         ASSIGN
@@ -3315,15 +3261,15 @@ PROCEDURE proc-set-cmplt :
     FIND FIRST b-reftable
         WHERE b-reftable.reftable EQ "ts/jobdata.p"
           AND b-reftable.company  EQ company_code
-          AND b-reftable.code     EQ STRING(RECID(job-hdr))
+          AND b-reftable.code     EQ job-hdr.rec_key
         EXCLUSIVE NO-ERROR.
     IF AVAIL b-reftable THEN DELETE b-reftable.
     CREATE b-reftable.
     ASSIGN
      b-reftable.reftable = "ts/jobdata.p"
      b-reftable.company  = company_code
-     b-reftable.code     = STRING(RECID(job-hdr))
-     b-reftable.code2    = STRING(RECID(fg-bin))
+     b-reftable.code     = job-hdr.rec_key
+     b-reftable.code2    = fg-bin.rec_key
      v-runqty = 0.
 
     FOR EACH bf-machtran FIELDS(RUN_qty) WHERE
@@ -3656,23 +3602,24 @@ PROCEDURE Reset_Field_Colors :
   DO WITH FRAME {&FRAME-NAME}:
     ASSIGN
       h_field = time-hour:HANDLE
-      time-hour:FGCOLOR = 0
-      time-hour:BGCOLOR = 15
+      time-hour:FGCOLOR = 15
+      time-hour:BGCOLOR = 0
       h_field = time-minute:HANDLE
-      time-minute:FGCOLOR = 0
-      time-minute:BGCOLOR = 15
+      time-minute:FGCOLOR = 15
+      time-minute:BGCOLOR = 0
       h_field = run-qty:HANDLE
-      run-qty:FGCOLOR = 0
-      run-qty:BGCOLOR = 15
+      run-qty:FGCOLOR = 15
+      run-qty:BGCOLOR = 0
       h_field = waste-qty:HANDLE
-      waste-qty:FGCOLOR = 0
-      waste-qty:BGCOLOR = 15.
-
+      waste-qty:FGCOLOR = 15
+      waste-qty:BGCOLOR = 0
+      .
     IF tskey-log EQ NO THEN
        ASSIGN time-hour:SENSITIVE = NO
               time-minute:SENSITIVE = NO
               run-qty:SENSITIVE = NO
-              waste-qty:SENSITIVE = NO.
+              waste-qty:SENSITIVE = NO
+              .
   END.
 
 END PROCEDURE.
@@ -3691,7 +3638,9 @@ PROCEDURE Set_Field_Colors :
      ASSIGN
         field_value = ''
         h_field:FGCOLOR = 15
-        h_field:BGCOLOR = 4.
+        h_field:BGCOLOR = 4 /* dark red */
+        h_field:BGCOLOR = 3 /* tiel */
+        .
     
      IF tskey-log EQ NO THEN
      DO:
@@ -3863,9 +3812,8 @@ END PROCEDURE.
 
 /* ************************  Function Implementations ***************** */
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION getNumForms s-object
-FUNCTION getNumForms RETURNS INTEGER 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION getNumForms s-object 
+FUNCTION getNumForms RETURNS INTEGER
   (  ):
     /*------------------------------------------------------------------------------
      Purpose:
@@ -3912,11 +3860,9 @@ FUNCTION getNumForms RETURNS INTEGER
     RETURN iFormCnt.
 
 END FUNCTION.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION setTimerStatus s-object 
 FUNCTION setTimerStatus RETURNS CHARACTER

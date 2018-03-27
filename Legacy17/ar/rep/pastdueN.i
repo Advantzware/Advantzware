@@ -53,12 +53,42 @@ DEFINE SHARED VARIABLE cFieldType         AS cha       NO-UNDO.
 DEFINE SHARED VARIABLE iColumnLength      AS INTEGER   NO-UNDO.
 DEFINE SHARED BUFFER b-itemfg FOR itemfg .
 DEFINE SHARED VARIABLE cTextListToDefault AS cha NO-UNDO.
-
+DEF VAR str-tit4 AS cha FORM "x(200)" NO-UNDO.
+DEF VAR str-tit5 AS cha FORM "x(200)" NO-UNDO.
+DEF VAR cslist AS cha NO-UNDO.
 /*{sys/form/r-top5L3.f} */
-DEFINE SHARED FRAME r-top.
 
+/* 21685 Frame r-top no longer shared, so set up title here */
+/*DEFINE SHARED FRAME r-top. */
+FORM HEADER "" WITH FRAME r-top.
+
+FOR EACH ttRptSelected BY ttRptSelected.DisplayOrder:
+
+    IF LENGTH(ttRptSelected.TextList) = ttRptSelected.FieldLength 
+        THEN ASSIGN str-tit4    = str-tit4 + ttRptSelected.TextList + " "
+            str-tit5    = str-tit5 + FILL("-",ttRptSelected.FieldLength) + " "
+             .        
+    ELSE 
+        ASSIGN str-tit4    = str-tit4 + 
+            (IF ttRptSelected.HeadingFromLeft THEN
+                ttRptSelected.TextList + FILL(" ",ttRptSelected.FieldLength - LENGTH(ttRptSelected.TextList))
+            ELSE FILL(" ",ttRptSelected.FieldLength - LENGTH(ttRptSelected.TextList)) + ttRptSelected.TextList) + " "
+            str-tit5    = str-tit5 + FILL("-",ttRptSelected.FieldLength) + " "
+            
+            .        
+    cSlist = cSlist + ttRptSelected.FieldList + ",".
+
+
+    IF LOOKUP(ttRptSelected.TextList, "InvoiceAmt,Past Due Amt") <> 0    THEN
+        ASSIGN
+            str-line = str-line + FILL("-",ttRptSelected.FieldLength) + " " .
+    ELSE
+        str-line = str-line + FILL(" ",ttRptSelected.FieldLength) + " " .
+
+END.
 /*{sys/form/r-top3.f}*/
-
+{sys/form/r-top5DL2.f} 
+VIEW FRAME r-top.
 FOR EACH cust
     WHERE cust.company EQ cocode
     AND cust.cust-no GE v-s-cust

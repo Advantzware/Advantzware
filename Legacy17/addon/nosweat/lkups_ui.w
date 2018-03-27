@@ -34,6 +34,7 @@ CREATE WIDGET-POOL.
 
 /* Local Variable Definitions ---                                       */
 
+DEFINE VARIABLE hUpdateButton AS HANDLE NO-UNDO.
 {methods/defines/hndldefs.i}
 {methods/prgsecur.i}
 

@@ -6,21 +6,21 @@ DEFINE OUTPUT PARAMETER TABLE FOR ttOpenOrderReportDetail.
 {aoa/includes/aoaInputDefParams.i}
 
 DEFINE VARIABLE tmpFile AS CHARACTER NO-UNDO.
-    
-tmpFile = SEARCH("aoa/tmp/ttOpenOrderReportDetail." +
-                 ipcCompany + "." +
-                 STRING(ipiBatch) + "." +
-                 ipcUserID + ".dat"
-                 ).
 
+DEFINE BUFFER bttOpenOrderReportDetail FOR ttOpenOrderReportDetail.
+    
+tmpFile = SEARCH("AOA.ttOpenOrderReportDetail."
+        + ipcCompany       + "."
+        + STRING(ipiBatch) + "."
+        + ipcUserID        + ".dat"
+        ).
 IF tmpFile NE ? THEN DO:
+    CREATE bttOpenOrderReportDetail.
     INPUT FROM VALUE(tmpFile).
     REPEAT:
+        IMPORT bttOpenOrderReportDetail.
         CREATE ttOpenOrderReportDetail.
-        IMPORT ttOpenOrderReportDetail.
+        BUFFER-COPY bttOpenOrderReportDetail TO ttOpenOrderReportDetail.
     END. /* repeat */
     INPUT CLOSE.
-    IF ttOpenOrderReportDetail.xxIndex EQ 0 THEN
-    DELETE ttOpenOrderReportDetail.
 END. /* tmpfile ne ? */
-

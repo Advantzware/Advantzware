@@ -19,7 +19,7 @@ ASSIGN
   timeSpan = STRING(ROUND({1}.timeSpan / 3600,2))
   downtimeSpan = STRING(ROUND({1}.downtimeSpan / 3600,2))
   lockImageName = '{&images}/' + TRIM(STRING({1}.jobLocked,'/un')) + 'locked.gif'
-  noteRowID = TO-ROWID(ENTRY(NUM-ENTRIES({1}.rowIDs),{1}.rowIDs))
+  noteRowID = TO-ROWID(ENTRY(2,{1}.rowIDs))
   noteImage:HIDDEN = NOT CAN-FIND(FIRST jobNotes WHERE jobNotes.jobRowID EQ noteRowID
                                                    AND jobNotes.jobStatus EQ NO
                                                    AND jobNotes.deleteNote EQ NO).

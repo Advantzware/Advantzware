@@ -1,4 +1,4 @@
-/* zipcode_.p - Generated 03/27/1998 - 10:15 pm by Exitt
+/* zipcode_.p - Generated 10/17/2017 -  7:54 pm by NoSweat
 "zipcode_. " ~
 "ASI " ~
 "zipcode " ~
@@ -26,12 +26,13 @@
 &Scoped-define height-size 19
 &Scoped-define width-size 51
 &Scoped-define show-fields zipcode.city zipcode.zipcode zipcode.state
+&Scoped-define show-fields-yellow zipcode.city LABEL-BGCOLOR 14 zipcode.zipcode LABEL-BGCOLOR 14 zipcode.state LABEL-BGCOLOR 14
 &Scoped-define frame-title City Lookup
-&Scoped-define top-include ~{custom/getcmpny.i} ~{custom/getloc.i} ~{sys/inc/varasgn.i} 
+&Scoped-define top-include ~{custom/getcmpny.i} ~{custom/getloc.i} ~{sys/inc/varasgn.i}
 &Scoped-define def-include ~{custom/gcompany.i} ~{custom/gloc.i} ~{sys/inc/var.i NEW SHARED}
 &Scoped-define end-include 
 &Scoped-define ui-prgmname zipcode.
-&Scoped-define window-size 23.7
+&Scoped-define window-size 24
 &Scoped-define window-col 49.5
 &Scoped-define rect-1-row 20.15
 &Scoped-define by-row 20.42
@@ -40,7 +41,7 @@
 &Scoped-define btn-row 21.7
 &Scoped-define btn-ok-col 44
 &Scoped-define btn-cancel-col 37
-&Scoped-define auto-find-row 23.6
+&Scoped-define auto-find-row 23.65
 
 &Global-define FORMAT-1 X(20)
 &Scoped-define FLDNAME1 zipcode.city

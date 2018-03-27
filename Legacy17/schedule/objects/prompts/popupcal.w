@@ -62,11 +62,11 @@ DEFINE VARIABLE i AS INTEGER NO-UNDO.
 &Scoped-define FRAME-NAME DEFAULT-FRAME
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS months sDay years Btn-1 Btn-2 Btn-3 Btn-4 ~
-Btn-5 Btn-6 Btn-7 Btn-8 Btn-9 Btn-10 Btn-11 Btn-12 Btn-13 Btn-14 Btn-15 ~
-Btn-16 Btn-17 Btn-18 Btn-19 Btn-20 Btn-21 Btn-22 Btn-23 Btn-24 Btn-25 ~
-Btn-26 Btn-27 Btn-28 Btn-29 Btn-30 Btn-31 Btn-32 Btn-33 Btn-34 Btn-35 ~
-Btn-36 Btn-37 btnToday btnClose btnOK 
+&Scoped-Define ENABLED-OBJECTS btnClose btnOK btnToday months sDay years ~
+Btn-1 Btn-2 Btn-3 Btn-4 Btn-5 Btn-6 Btn-7 Btn-8 Btn-9 Btn-10 Btn-11 Btn-12 ~
+Btn-13 Btn-14 Btn-15 Btn-16 Btn-17 Btn-18 Btn-19 Btn-20 Btn-21 Btn-22 ~
+Btn-23 Btn-24 Btn-25 Btn-26 Btn-27 Btn-28 Btn-29 Btn-30 Btn-31 Btn-32 ~
+Btn-33 Btn-34 Btn-35 Btn-36 Btn-37 
 &Scoped-Define DISPLAYED-OBJECTS months sDay years 
 
 /* Custom List Definitions                                              */
@@ -238,20 +238,21 @@ DEFINE BUTTON Btn-9
      SIZE 4 BY 1.
 
 DEFINE BUTTON btnClose 
-     IMAGE-UP FILE "schedule/images/exit1.bmp":U
+     IMAGE-UP FILE "Graphics/16x16/delete.jpg":U NO-FOCUS FLAT-BUTTON
      LABEL "&Close" 
      SIZE 5 BY 1.1
      BGCOLOR 8 .
 
 DEFINE BUTTON btnOK 
-     IMAGE-UP FILE "schedule/images/commit.bmp":U
+     IMAGE-UP FILE "Graphics/16x16/save.jpg":U NO-FOCUS FLAT-BUTTON
      LABEL "&OK" 
      SIZE 5 BY 1.1
      BGCOLOR 8 .
 
 DEFINE BUTTON btnToday 
+     IMAGE-UP FILE "Graphics/16x16/calendar_clock.png":U NO-FOCUS FLAT-BUTTON
      LABEL "&Today" 
-     SIZE 9 BY 1.1.
+     SIZE 5 BY 1.1.
 
 DEFINE VARIABLE months AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS COMBO-BOX INNER-LINES 12
@@ -275,6 +276,9 @@ DEFINE VARIABLE sDay AS CHARACTER FORMAT "X(256)":U
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME DEFAULT-FRAME
+     btnClose AT ROW 9.33 COL 27
+     btnOK AT ROW 9.33 COL 32
+     btnToday AT ROW 9.33 COL 22
      months AT ROW 1.24 COL 2 HELP
           "Select Month" NO-LABEL
      sDay AT ROW 1.24 COL 16 COLON-ALIGNED NO-LABEL
@@ -317,35 +321,31 @@ DEFINE FRAME DEFAULT-FRAME
      Btn-35 AT ROW 7.91 COL 32
      Btn-36 AT ROW 9.1 COL 2
      Btn-37 AT ROW 9.1 COL 7
-     btnToday AT ROW 9.33 COL 16
-     btnClose AT ROW 9.33 COL 26
-     btnOK AT ROW 9.33 COL 32
-     "S" VIEW-AS TEXT
-          SIZE 3 BY .62 AT ROW 2.43 COL 3
-          FGCOLOR 15 FONT 6
-     "T" VIEW-AS TEXT
-          SIZE 3 BY .62 AT ROW 2.43 COL 13
-          FGCOLOR 15 FONT 6
-     "F" VIEW-AS TEXT
-          SIZE 3 BY .62 AT ROW 2.43 COL 28
-          FGCOLOR 15 FONT 6
-     "T" VIEW-AS TEXT
-          SIZE 3 BY .62 AT ROW 2.43 COL 23
-          FGCOLOR 15 FONT 6
-     "M" VIEW-AS TEXT
-          SIZE 3 BY .62 AT ROW 2.43 COL 8
-          FGCOLOR 15 FONT 6
-     "W" VIEW-AS TEXT
-          SIZE 3 BY .62 AT ROW 2.43 COL 18
-          FGCOLOR 15 FONT 6
      "S" VIEW-AS TEXT
           SIZE 3 BY .62 AT ROW 2.43 COL 33
-          FGCOLOR 15 FONT 6
+          FONT 6
+     "W" VIEW-AS TEXT
+          SIZE 3 BY .62 AT ROW 2.43 COL 18
+          FONT 6
+     "M" VIEW-AS TEXT
+          SIZE 3 BY .62 AT ROW 2.43 COL 8
+          FONT 6
+     "T" VIEW-AS TEXT
+          SIZE 3 BY .62 AT ROW 2.43 COL 23
+          FONT 6
+     "F" VIEW-AS TEXT
+          SIZE 3 BY .62 AT ROW 2.43 COL 28
+          FONT 6
+     "T" VIEW-AS TEXT
+          SIZE 3 BY .62 AT ROW 2.43 COL 13
+          FONT 6
+     "S" VIEW-AS TEXT
+          SIZE 3 BY .62 AT ROW 2.43 COL 3
+          FONT 6
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 36.4 BY 9.48
-         BGCOLOR 5 .
+         SIZE 36.4 BY 9.48.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -1274,11 +1274,11 @@ PROCEDURE enable_UI :
 ------------------------------------------------------------------------------*/
   DISPLAY months sDay years 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
-  ENABLE months sDay years Btn-1 Btn-2 Btn-3 Btn-4 Btn-5 Btn-6 Btn-7 Btn-8 
-         Btn-9 Btn-10 Btn-11 Btn-12 Btn-13 Btn-14 Btn-15 Btn-16 Btn-17 Btn-18 
-         Btn-19 Btn-20 Btn-21 Btn-22 Btn-23 Btn-24 Btn-25 Btn-26 Btn-27 Btn-28 
-         Btn-29 Btn-30 Btn-31 Btn-32 Btn-33 Btn-34 Btn-35 Btn-36 Btn-37 
-         btnToday btnClose btnOK 
+  ENABLE btnClose btnOK btnToday months sDay years Btn-1 Btn-2 Btn-3 Btn-4 
+         Btn-5 Btn-6 Btn-7 Btn-8 Btn-9 Btn-10 Btn-11 Btn-12 Btn-13 Btn-14 
+         Btn-15 Btn-16 Btn-17 Btn-18 Btn-19 Btn-20 Btn-21 Btn-22 Btn-23 Btn-24 
+         Btn-25 Btn-26 Btn-27 Btn-28 Btn-29 Btn-30 Btn-31 Btn-32 Btn-33 Btn-34 
+         Btn-35 Btn-36 Btn-37 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
   VIEW C-Win.

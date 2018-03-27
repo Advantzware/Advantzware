@@ -1,0 +1,10 @@
+UPDATE TABLE "scoreType"
+  TABLE-TRIGGER "CREATE" OVERRIDE PROCEDURE "create.trg/scoreType.p" CRC "?" 
+  TABLE-TRIGGER "DELETE" OVERRIDE PROCEDURE "delete.trg/scoreType.p" CRC "?" 
+  TABLE-TRIGGER "WRITE" OVERRIDE PROCEDURE "write.trg/scoreType.p" CRC "?" 
+
+.
+PSC
+cpstream=ISO8859-1
+.
+0000004046

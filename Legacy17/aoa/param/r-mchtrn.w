@@ -4,7 +4,7 @@
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS sObject 
 /*------------------------------------------------------------------------
 
-  File: r-commcr.w
+  File: r-mchtrn.w
 
   Description: from SMART.W - Template for basic ADM2 SmartObject
 
@@ -50,12 +50,14 @@ CREATE WIDGET-POOL.
 &Scoped-Define ENABLED-OBJECTS svCompany svStartMachTranDate btnCalendar-1 ~
 svStartMachTranDateOption svEndMachTranDate btnCalendar-2 ~
 svEndMachTranDateOption svAllMachine svStartMachine svEndMachine svAllShift ~
-svStartShift svEndShift svSort svSubRpt_EmployeeTransactions 
+svStartShift svEndShift svUseTime svStartTime svStartAMPM svEndTime ~
+svEndAMPM svSort svSubRpt_EmployeeTransactions 
 &Scoped-Define DISPLAYED-OBJECTS svCompany svStartMachTranDate ~
 svStartMachTranDateOption svEndMachTranDate svEndMachTranDateOption ~
 svAllMachine svStartMachine startMachineDescription svEndMachine ~
 endMachineDescription svAllShift svStartShift startShiftDescription ~
-svEndShift endShiftDescription svSort svSubRpt_EmployeeTransactions 
+svEndShift endShiftDescription svUseTime svStartTime svStartAMPM svEndTime ~
+svEndAMPM svSort svSubRpt_EmployeeTransactions 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -80,11 +82,25 @@ DEFINE BUTTON btnCalendar-2
      LABEL "" 
      SIZE 4.6 BY 1.05 TOOLTIP "PopUp Calendar".
 
+DEFINE VARIABLE svEndAMPM AS CHARACTER FORMAT "X(2)":U INITIAL "AM" 
+     VIEW-AS COMBO-BOX INNER-LINES 2
+     LIST-ITEMS "am","pm" 
+     DROP-DOWN-LIST
+     SIZE 8 BY 1 TOOLTIP "Select AM/PM"
+     BGCOLOR 15  NO-UNDO.
+
 DEFINE VARIABLE svEndMachTranDateOption AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS COMBO-BOX INNER-LINES 5
      LIST-ITEMS "Item 1" 
      DROP-DOWN-LIST
      SIZE 25 BY 1 NO-UNDO.
+
+DEFINE VARIABLE svStartAMPM AS CHARACTER FORMAT "X(2)":U INITIAL "AM" 
+     VIEW-AS COMBO-BOX INNER-LINES 2
+     LIST-ITEMS "am","pm" 
+     DROP-DOWN-LIST
+     SIZE 8 BY 1 TOOLTIP "Select AM/PM"
+     BGCOLOR 15  NO-UNDO.
 
 DEFINE VARIABLE svStartMachTranDateOption AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS COMBO-BOX INNER-LINES 5
@@ -128,6 +144,11 @@ DEFINE VARIABLE svEndShift AS INTEGER FORMAT ">9" INITIAL 3
      VIEW-AS FILL-IN 
      SIZE 4 BY 1.
 
+DEFINE VARIABLE svEndTime AS CHARACTER FORMAT "99:99":U INITIAL "1200" 
+     LABEL "End Time" 
+     VIEW-AS FILL-IN 
+     SIZE 8 BY 1 NO-UNDO.
+
 DEFINE VARIABLE svStartMachine AS CHARACTER FORMAT "X(8)" 
      LABEL "Start Machine" 
      VIEW-AS FILL-IN 
@@ -142,6 +163,11 @@ DEFINE VARIABLE svStartShift AS INTEGER FORMAT ">9" INITIAL 1
      LABEL "Start Shift" 
      VIEW-AS FILL-IN 
      SIZE 4 BY 1.
+
+DEFINE VARIABLE svStartTime AS CHARACTER FORMAT "99:99":U INITIAL "1200" 
+     LABEL "Start Time" 
+     VIEW-AS FILL-IN 
+     SIZE 8 BY 1 NO-UNDO.
 
 DEFINE VARIABLE svSort AS CHARACTER 
      VIEW-AS RADIO-SET VERTICAL
@@ -165,6 +191,11 @@ DEFINE VARIABLE svSubRpt_EmployeeTransactions AS LOGICAL INITIAL no
      LABEL "Show Employee Transactions" 
      VIEW-AS TOGGLE-BOX
      SIZE 32 BY 1 NO-UNDO.
+
+DEFINE VARIABLE svUseTime AS LOGICAL INITIAL no 
+     LABEL "Use Start/End Times (not Shift Tables)" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 40 BY 1 NO-UNDO.
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -199,15 +230,25 @@ DEFINE FRAME F-Main
      svEndShift AT ROW 13.14 COL 23 COLON-ALIGNED HELP
           "Enter End Shift" WIDGET-ID 218
      endShiftDescription AT ROW 13.14 COL 28 COLON-ALIGNED NO-LABEL WIDGET-ID 212
-     svSort AT ROW 15.05 COL 25 NO-LABEL WIDGET-ID 84
-     svSubRpt_EmployeeTransactions AT ROW 19.05 COL 25 HELP
+     svUseTime AT ROW 14.33 COL 25 HELP
+          "Select to Use Time vs Shift Table" WIDGET-ID 248
+     svStartTime AT ROW 15.52 COL 23 COLON-ALIGNED HELP
+          "Enter Start Time" WIDGET-ID 222
+     svStartAMPM AT ROW 15.52 COL 31 COLON-ALIGNED HELP
+          "Select AM/PM" NO-LABEL WIDGET-ID 244
+     svEndTime AT ROW 15.52 COL 52 COLON-ALIGNED HELP
+          "Enter End Time" WIDGET-ID 228
+     svEndAMPM AT ROW 15.52 COL 60 COLON-ALIGNED HELP
+          "Select AM/PM" NO-LABEL WIDGET-ID 246
+     svSort AT ROW 17.43 COL 25 NO-LABEL WIDGET-ID 84
+     svSubRpt_EmployeeTransactions AT ROW 21.43 COL 25 HELP
           "Select to Show Employee Transactions" WIDGET-ID 88
      "Sort By:" VIEW-AS TEXT
-          SIZE 8 BY 1 AT ROW 15.05 COL 16 WIDGET-ID 90
+          SIZE 8 BY 1 AT ROW 20.05 COL 17 WIDGET-ID 90
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 70.6 BY 20.1
+         SIZE 70.6 BY 22.76
          TITLE "Report Parameters".
 
 
@@ -237,7 +278,7 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW sObject ASSIGN
-         HEIGHT             = 20.1
+         HEIGHT             = 22.76
          WIDTH              = 70.6.
 /* END WINDOW DEFINITION */
                                                                         */
@@ -398,6 +439,17 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME svEndTime
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svEndTime sObject
+ON LEAVE OF svEndTime IN FRAME F-Main /* End Time */
+DO:
+    {AOA/includes/svTime.i}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME svStartMachine
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svStartMachine sObject
 ON LEAVE OF svStartMachine IN FRAME F-Main /* Start Machine */
@@ -436,6 +488,28 @@ END.
 ON LEAVE OF svStartShift IN FRAME F-Main /* Start Shift */
 DO:
     startShiftDescription:SCREEN-VALUE = {aoa/includes/fSetDescription.i}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME svStartTime
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svStartTime sObject
+ON LEAVE OF svStartTime IN FRAME F-Main /* Start Time */
+DO:
+    {AOA/includes/svTime.i}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME svUseTime
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svUseTime sObject
+ON VALUE-CHANGED OF svUseTime IN FRAME F-Main /* Use Start/End Times (not Shift Tables) */
+DO:
+    {AOA/includes/svTimeInit.i svStartTime svStartAMPM svEndTime svEndAMPM}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -500,10 +574,12 @@ PROCEDURE pInitialize :
         APPLY "VALUE-CHANGED":U TO svAllMachine.
         APPLY "LEAVE":U TO svStartMachine.
         APPLY "LEAVE":U TO svEndMachine.
-        
+
         APPLY "VALUE-CHANGED":U TO svAllShift.
         APPLY "LEAVE":U TO svStartShift.
         APPLY "LEAVE":U TO svEndShift.
+        
+        APPLY "VALUE-CHANGED":U TO svUseTime.
     END.
 
 END PROCEDURE.

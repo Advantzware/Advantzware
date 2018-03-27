@@ -118,7 +118,7 @@ DEFINE BUFFER bUserPrint FOR user-print.
     ~{&OPEN-QUERY-browseUserPrint}
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS btnExcel btnCancel btnView 
+&Scoped-Define ENABLED-OBJECTS btnExcel btnSaveParams btnCancel btnView 
 
 /* Custom List Definitions                                              */
 /* ScheduleFields,showFields,batchObjects,batchShowHide,columnObjects,List-6 */
@@ -140,6 +140,13 @@ btnMoveDown
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fDateOptions W-Win 
 FUNCTION fDateOptions RETURNS LOGICAL (ipDateOption AS HANDLE)  FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fDateOptionValue W-Win 
+FUNCTION fDateOptionValue RETURNS DATE
+  (ipcDateOption AS CHARACTER, ipdtDate AS DATE)  FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -304,6 +311,11 @@ DEFINE BUTTON btnSave
      LABEL "&Save" 
      SIZE 4.4 BY 1 TOOLTIP "Save Parameter Values to Batch ID".
 
+DEFINE BUTTON btnSaveParams 
+     IMAGE-UP FILE "aoa/images/aoasave.jpg":U
+     LABEL "Save Params" 
+     SIZE 4.4 BY 1 TOOLTIP "Save Parameters".
+
 DEFINE BUTTON btnScheduler 
      LABEL "Assign &Scheduler Batch ID" 
      SIZE 27 BY 1 TOOLTIP "Assign Batch ID to Parameter Values".
@@ -359,9 +371,11 @@ DEFINE FRAME paramFrame
           "Show Batch Parameter Values" WIDGET-ID 20
      btnExcel AT ROW 2.43 COL 35 HELP
           "Export to Excel" WIDGET-ID 22
-     btnCancel AT ROW 3.62 COL 2 HELP
+     btnSaveParams AT ROW 3.62 COL 2 HELP
+          "Save Parameters" WIDGET-ID 24
+     btnCancel AT ROW 3.62 COL 7 HELP
           "Close" WIDGET-ID 12
-     btnView AT ROW 3.62 COL 7 HELP
+     btnView AT ROW 3.62 COL 12 HELP
           "View" WIDGET-ID 14
      btnDelete AT ROW 3.62 COL 25 HELP
           "Delete Batch ID" WIDGET-ID 4
@@ -806,6 +820,19 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME btnSaveParams
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnSaveParams W-Win
+ON CHOOSE OF btnSaveParams IN FRAME paramFrame /* Save Params */
+DO:
+    RUN pSaveParamValues (NO, BUFFER user-print).
+    MESSAGE "Parameter Values Saved"
+    VIEW-AS ALERT-BOX.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME btnScheduler
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnScheduler W-Win
 ON CHOOSE OF btnScheduler IN FRAME paramFrame /* Assign Scheduler Batch ID */
@@ -1073,7 +1100,7 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  ENABLE btnExcel btnCancel btnView 
+  ENABLE btnExcel btnSaveParams btnCancel btnView 
       WITH FRAME paramFrame IN WINDOW W-Win.
   {&OPEN-BROWSERS-IN-QUERY-paramFrame}
   DISPLAY svShowAll svShowReportHeader svShowParameters svShowPageHeader 
@@ -1657,7 +1684,7 @@ PROCEDURE pGetParamValues :
         hChild = hChild:FIRST-CHILD
         .
     DO WHILE VALID-HANDLE(hChild):
-        IF hChild:NAME NE ? AND hChild:SENSITIVE THEN DO:
+        IF hChild:NAME NE ? AND (hChild:SENSITIVE OR hChild:TYPE EQ "COMBO-BOX") THEN DO:
             DO idx = 1 TO EXTENT(user-print.field-name):
                 IF TRIM(user-print.field-name[idx]) EQ hChild:NAME THEN DO:
                     hChild:SCREEN-VALUE = user-print.field-value[idx].
@@ -1881,8 +1908,9 @@ PROCEDURE pSaveParamValues :
             hChild = hChild:FIRST-CHILD
             .
         DO WHILE VALID-HANDLE(hChild):
-            IF hChild:NAME NE ?        AND
-               hChild:SENSITIVE        AND
+            IF hChild:NAME NE ? AND
+              (hChild:SENSITIVE OR
+               hChild:TYPE EQ "COMBO-BOX") AND
                hChild:TYPE NE "Button" THEN
             ASSIGN
                 idx = idx + 1
@@ -2054,10 +2082,12 @@ PROCEDURE pSetWinSize :
             iSaveHeight                               = hWinKitFrame:HEIGHT-PIXELS
             btnView:Y                                 = hParamFrame:HEIGHT-PIXELS + 5
             btnCancel:Y                               = hParamFrame:HEIGHT-PIXELS + 5
+            btnSaveParams:Y                           = hParamFrame:HEIGHT-PIXELS + 5
             btnExcel:Y                                = hParamFrame:HEIGHT-PIXELS + 5
             btnView:X                                 = hParamFrame:WIDTH-PIXELS - btnView:WIDTH-PIXELS
             btnCancel:X                               = btnView:X - btnCancel:WIDTH-PIXELS - 2
-            btnExcel:X                                = btnCancel:X - ((btnCancel:X
+            btnSaveParams:X                           = btnCancel:X - btnSaveParams:WIDTH-PIXELS - 2
+            btnExcel:X                                = btnSaveParams:X - ((btnSaveParams:X
                                                       - (btnShowBatch:X + btnShowBatch:WIDTH-PIXELS)) / 2)
                                                       - btnExcel:WIDTH-PIXELS / 2
             .
@@ -2247,6 +2277,14 @@ FUNCTION fDateOptions RETURNS LOGICAL (ipDateOption AS HANDLE) :
 ,Current Date +5~
 ,Current Date -6~
 ,Current Date +6~
+,Current Date -7~
+,Current Date +7~
+,Current Date -8~
+,Current Date +8~
+,Current Date -9~
+,Current Date +9~
+,Current Date -10~
+,Current Date +10~
 ,Start of this Month~
 ,End of this Month~
 ,First Day of Last Month~
@@ -2277,6 +2315,20 @@ FUNCTION fDateOptions RETURNS LOGICAL (ipDateOption AS HANDLE) :
         .
 
   RETURN TRUE.
+
+END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fDateOptionValue W-Win 
+FUNCTION fDateOptionValue RETURNS DATE
+  (ipcDateOption AS CHARACTER, ipdtDate AS DATE) :
+/*------------------------------------------------------------------------------
+  Purpose:  
+    Notes:  
+------------------------------------------------------------------------------*/
+    RETURN DYNAMIC-FUNCTION("fDateOptionDate" IN hAppSrvBin,ipcDateOption,ipdtDate).
 
 END FUNCTION.
 

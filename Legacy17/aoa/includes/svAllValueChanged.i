@@ -9,3 +9,5 @@ ASSIGN
     {1}:SCREEN-VALUE = ""
     {2}:SCREEN-VALUE = ""
     .
+APPLY "LEAVE":U TO {1}.
+APPLY "LEAVE":U TO {2}.

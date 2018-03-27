@@ -936,7 +936,7 @@ FOR EACH ttCustList
                            AND fg-rcpth.job-no  = oe-ordl.job-no 
                            AND fg-rcpth.job-no2 = oe-ordl.job-no2
                              NO-LOCK
-                             BREAK BY fg-rcpth.trans-date:
+                             BREAK BY fg-rcpth.trans-date DESC:
                  trans-date = fg-rcpth.trans-date.
                  LEAVE.
             END.
@@ -1152,7 +1152,7 @@ FOR EACH ttCustList
                            AND fg-rcpth.job-no  = oe-ordl.job-no 
                            AND fg-rcpth.job-no2 = oe-ordl.job-no2
                              NO-LOCK
-                             BREAK BY fg-rcpth.trans-date:
+                             BREAK BY fg-rcpth.trans-date DESC:
                  trans-date = fg-rcpth.trans-date.
                  LEAVE.
             END.

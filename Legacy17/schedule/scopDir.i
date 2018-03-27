@@ -35,16 +35,16 @@ when expanding userExtent, changes need to be made in the following:
    8. viewers/includes/viewersInclude.i (reopenBrowse)
    9. config.w [fieldsFrame] (defs)
 *******************************************************************/
-&GLOBAL-DEFINE version1 v2.015
-&GLOBAL-DEFINE version2 v2.016
-&GLOBAL-DEFINE version3 v3.001
-&GLOBAL-DEFINE version4 v3.002
-&GLOBAL-DEFINE version5 v3.003
-&GLOBAL-DEFINE version6 v3.004
-&GLOBAL-DEFINE version7 v3.005
-&GLOBAL-DEFINE version8 v3.006
-&GLOBAL-DEFINE version9 v4.000
-&GLOBAL-DEFINE version v4.001
+&GLOBAL-DEFINE version1 v3.001
+&GLOBAL-DEFINE version2 v3.002
+&GLOBAL-DEFINE version3 v3.003
+&GLOBAL-DEFINE version4 v3.004
+&GLOBAL-DEFINE version5 v3.005
+&GLOBAL-DEFINE version6 v3.006
+&GLOBAL-DEFINE version7 v4.000
+&GLOBAL-DEFINE version8 v4.001
+&GLOBAL-DEFINE version9 v4.002
+&GLOBAL-DEFINE version v4.003
 
 &IF DEFINED(installDir) EQ 0 &THEN
 DEFINE VARIABLE clientDat AS CHARACTER NO-UNDO.

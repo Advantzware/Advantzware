@@ -8,6 +8,14 @@ IF "{1}" = "RMItem" THEN DO:
     MESSAGE "Invalid Loadtag#." VIEW-AS ALERT-BOX ERROR.
     RETURN NO-APPLY.
   END.
+  /* blank loadtag record should not exist, if it does, remove it */
+  IF CAN-FIND (FIRST bLoadTag WHERE bLoadTag.company EQ "") THEN DO:
+      FIND FIRST bLoadTag EXCLUSIVE-LOCK 
+           WHERE bLoadTag.company EQ ""
+           NO-ERROR.
+      IF AVAILABLE bLoadTag THEN 
+      DELETE bLoadTag.
+  END. /* if blank loadtag */
   &IF DEFINED(checkNewRecord) &THEN
   IF adm-new-record THEN DO:
   &ENDIF

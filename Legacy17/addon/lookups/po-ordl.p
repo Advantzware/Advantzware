@@ -1,4 +1,4 @@
-/* po-ordl.p - Generated 01/03/2001 -  1:06 pm by nosweat
+/* po-ordl.p - Generated 10/17/2017 -  7:54 pm by NoSweat
 "po-ordl. " ~
 "ASI " ~
 "po-ordl " ~
@@ -12,8 +12,8 @@
 "no " ~
 "po-no,i-no " ~
 "PO# " ~
-"{custom/getcmpny.i}  ~{sys/inc/varasgn.i}" ~
-"{custom/gcompany.i} {methods/defines/rm-rcpt.i} ~{sys/inc/var.i new shared}" ~
+"{custom/getcmpny.i}  ~{sys/inc/varasgn.i} " ~
+"{custom/gcompany.i} ~{methods/defines/rm-rcpt.i} ~{sys/inc/var.i new shared} " ~
 "{custom/itemno.i} " ~
 " " ~
 */
@@ -26,21 +26,22 @@
 &Scoped-define height-size 19
 &Scoped-define width-size 100
 &Scoped-define show-fields po-ordl.po-no po-ordl.due-date po-ordl.job-no po-ordl.job-no2 po-ordl.i-no po-ordl.i-name
+&Scoped-define show-fields-yellow po-ordl.po-no LABEL-BGCOLOR 14 po-ordl.due-date LABEL-BGCOLOR 14 po-ordl.job-no LABEL-BGCOLOR 14 po-ordl.job-no2 LABEL-BGCOLOR 14 po-ordl.i-no LABEL-BGCOLOR 14 po-ordl.i-name LABEL-BGCOLOR 14
 &Scoped-define frame-title PO#
-&Scoped-define top-include ~{custom/getcmpny.i} ~{sys/inc/varasgn.i}
+&Scoped-define top-include ~{custom/getcmpny.i}  ~{sys/inc/varasgn.i}
 &Scoped-define def-include ~{custom/gcompany.i} ~{methods/defines/rm-rcpt.i} ~{sys/inc/var.i new shared}
 &Scoped-define end-include ~{custom/itemno.i}
 &Scoped-define ui-prgmname 
-&Scoped-define window-size 23
+&Scoped-define window-size 24
 &Scoped-define window-col 25
 &Scoped-define rect-1-row 20.15
 &Scoped-define by-row 20.42
 &Scoped-define browse-order-width 94
 &Scoped-define browse-order-row 20.42
-&Scoped-define btn-row 21.77
-&Scoped-define btn-ok-col 91
-&Scoped-define btn-cancel-col 80
-&Scoped-define auto-find-row 22.85
+&Scoped-define btn-row 21.7
+&Scoped-define btn-ok-col 93
+&Scoped-define btn-cancel-col 86
+&Scoped-define auto-find-row 23.65
 
 &Global-define DATATYP1 INTEGER
 &Global-define FORMAT-1 >>>>>9

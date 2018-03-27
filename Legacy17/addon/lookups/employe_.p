@@ -1,4 +1,4 @@
-/* employe_.p - Generated 07/31/2000 -  4:25 pm by NoSweat
+/* employe_.p - Generated 10/17/2017 -  7:54 pm by NoSweat
 "employe_. " ~
 "ASI " ~
 "employee " ~
@@ -12,7 +12,7 @@
 "yes " ~
 "last_name,employee " ~
 "Employees Name Lookup " ~
-"{custom/getcmpny.i} ~{sys/inc/varasgn.i}" ~
+"{custom/getcmpny.i} ~{sys/inc/varasgn.i} " ~
 "{custom/gcompany.i} ~{sys/inc/var.i new shared} " ~
 " " ~
 "employee. " ~
@@ -26,12 +26,13 @@
 &Scoped-define height-size 19
 &Scoped-define width-size 50
 &Scoped-define show-fields employee.last_name employee.first_name employee.employee
+&Scoped-define show-fields-yellow employee.last_name LABEL-BGCOLOR 14 employee.first_name LABEL-BGCOLOR 14 employee.employee LABEL-BGCOLOR 14
 &Scoped-define frame-title Employees Name Lookup
 &Scoped-define top-include ~{custom/getcmpny.i} ~{sys/inc/varasgn.i}
 &Scoped-define def-include ~{custom/gcompany.i} ~{sys/inc/var.i new shared}
 &Scoped-define end-include 
 &Scoped-define ui-prgmname employee.
-&Scoped-define window-size 23.7
+&Scoped-define window-size 24
 &Scoped-define window-col 50
 &Scoped-define rect-1-row 20.15
 &Scoped-define by-row 20.42
@@ -40,7 +41,7 @@
 &Scoped-define btn-row 21.7
 &Scoped-define btn-ok-col 43
 &Scoped-define btn-cancel-col 36
-&Scoped-define auto-find-row 23.6
+&Scoped-define auto-find-row 23.65
 
 &Global-define FORMAT-1 x(15)
 &Scoped-define FLDNAME1 employee.last_name

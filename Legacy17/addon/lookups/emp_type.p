@@ -1,4 +1,4 @@
-/* emp_type.p - Generated 09/07/2005 -  2:57 pm by nosweat
+/* emp_type.p - Generated 10/17/2017 -  7:54 pm by NoSweat
 "emp_type. " ~
 "ASI " ~
 "emp_type " ~
@@ -12,8 +12,8 @@
 "yes " ~
 "emp_type,description " ~
 "Employee Types Lookup " ~
-"{custom/getcmpny.i} " ~
-"{custom/gcompany.i} " ~
+"{custom/getcmpny.i} ~{sys/inc/varasgn.i} " ~
+"{custom/gcompany.i} ~{sys/inc/var.i new shared} " ~
 " " ~
 "emp_type. " ~
 */
@@ -26,12 +26,13 @@
 &Scoped-define height-size 10
 &Scoped-define width-size 40
 &Scoped-define show-fields emp_type.emp_type emp_type.description
+&Scoped-define show-fields-yellow emp_type.emp_type LABEL-BGCOLOR 14 emp_type.description LABEL-BGCOLOR 14
 &Scoped-define frame-title Employee Types Lookup
 &Scoped-define top-include ~{custom/getcmpny.i} ~{sys/inc/varasgn.i}
 &Scoped-define def-include ~{custom/gcompany.i} ~{sys/inc/var.i new shared}
 &Scoped-define end-include 
 &Scoped-define ui-prgmname emp_type.
-&Scoped-define window-size 14.7
+&Scoped-define window-size 15
 &Scoped-define window-col 55
 &Scoped-define rect-1-row 11.15
 &Scoped-define by-row 11.42
@@ -40,7 +41,7 @@
 &Scoped-define btn-row 12.7
 &Scoped-define btn-ok-col 33
 &Scoped-define btn-cancel-col 26
-&Scoped-define auto-find-row 14.6
+&Scoped-define auto-find-row 14.65
 
 &Global-define FORMAT-1 x(5)
 &Scoped-define FLDNAME1 emp_type.emp_type

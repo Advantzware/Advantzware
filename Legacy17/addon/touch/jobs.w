@@ -1247,7 +1247,9 @@ PROCEDURE schedule-proc :
     FIND CURRENT sys-ctrl NO-LOCK.
   END.
   IF sys-ctrl.log-fld THEN RUN VALUE(SEARCH('schedule\sbView.r')).
-  ELSE RUN VALUE(SEARCH('schedule\sbBasic.r')). /*jcsch/w-jobsc3.w (machine_code).*/
+  ELSE
+  MESSAGE "Scheduler View Not Enabled - Please Refer to System Administrator."
+  VIEW-AS ALERT-BOX.
 
 END PROCEDURE.
 

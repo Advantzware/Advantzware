@@ -1,4 +1,4 @@
-/* cust.p - Generated 06/14/2016 -  3:40 pm by NoSweat
+/* cust.p - Generated 10/17/2017 -  7:54 pm by NoSweat
 "cust. " ~
 "ASI " ~
 "cust " ~
@@ -32,16 +32,16 @@
 &Scoped-define def-include ~{custom/gcompany.i} ~{custom/gloc.i} ~{sys/inc/var.i NEW SHARED}
 &Scoped-define end-include 
 &Scoped-define ui-prgmname cust.
-&Scoped-define window-size 23
+&Scoped-define window-size 24
 &Scoped-define window-col 0
 &Scoped-define rect-1-row 20.15
 &Scoped-define by-row 20.42
 &Scoped-define browse-order-width 144
 &Scoped-define browse-order-row 20.42
-&Scoped-define btn-row 21.77
-&Scoped-define btn-ok-col 141
-&Scoped-define btn-cancel-col 130
-&Scoped-define auto-find-row 22.85
+&Scoped-define btn-row 21.7
+&Scoped-define btn-ok-col 143
+&Scoped-define btn-cancel-col 136
+&Scoped-define auto-find-row 23.65
 
 &Global-define FORMAT-1 x(8)
 &Scoped-define FLDNAME1 cust.cust-no

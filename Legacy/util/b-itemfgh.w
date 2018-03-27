@@ -769,7 +769,7 @@ ON VALUE-CHANGED OF fi_cust-no IN FRAME F-Main
 DO:
    DO WITH FRAME F-Main:
      ASSIGN {&self-name} = CAPS({&self-name}:SCREEN-VALUE). 
-  {&SELF-NAME}:CURSOR-OFFSET = LENGTH({&SELF-NAME}:SCREEN-VALUE) + 1. /* added by script _caps.p */
+  IF LASTKEY EQ 32 THEN {&SELF-NAME}:CURSOR-OFFSET = LENGTH({&SELF-NAME}:SCREEN-VALUE) + 2. /* res */
      DISP {&self-name} WITH FRAME F-MAIN.
    END.
 END.
@@ -784,7 +784,7 @@ ON VALUE-CHANGED OF fi_i-name IN FRAME F-Main
 DO:
    DO WITH FRAME F-Main:
      ASSIGN {&self-name} = CAPS({&self-name}:SCREEN-VALUE). 
-  {&SELF-NAME}:CURSOR-OFFSET = LENGTH({&SELF-NAME}:SCREEN-VALUE) + 1. /* added by script _caps.p */
+  IF LASTKEY EQ 32 THEN {&SELF-NAME}:CURSOR-OFFSET = LENGTH({&SELF-NAME}:SCREEN-VALUE) + 2. /* res */
      DISP {&self-name} WITH FRAME F-MAIN.
    END.
 END.
@@ -798,12 +798,12 @@ END.
 ON VALUE-CHANGED OF fi_i-no IN FRAME F-Main
 DO:
   /* IF LASTKEY <> 32 THEN {&self-name}:SCREEN-VALUE = CAPS({&self-name}:SCREEN-VALUE). */
-  {&SELF-NAME}:CURSOR-OFFSET = LENGTH({&SELF-NAME}:SCREEN-VALUE) + 1. /* added by script _caps.p */
+  IF LASTKEY EQ 32 THEN {&SELF-NAME}:CURSOR-OFFSET = LENGTH({&SELF-NAME}:SCREEN-VALUE) + 2. /* res */
   /* IF LASTKEY <> 32 THEN {&self-name}:SCREEN-VALUE = CAPS({&self-name}:SCREEN-VALUE). */
-  {&SELF-NAME}:CURSOR-OFFSET = LENGTH({&SELF-NAME}:SCREEN-VALUE) + 1. /* added by script _caps.p */
+  IF LASTKEY EQ 32 THEN {&SELF-NAME}:CURSOR-OFFSET = LENGTH({&SELF-NAME}:SCREEN-VALUE) + 2. /* res */
    DO WITH FRAME F-Main:
      ASSIGN {&self-name} = CAPS({&self-name}:SCREEN-VALUE). 
-  {&SELF-NAME}:CURSOR-OFFSET = LENGTH({&SELF-NAME}:SCREEN-VALUE) + 1. /* added by script _caps.p */
+  IF LASTKEY EQ 32 THEN {&SELF-NAME}:CURSOR-OFFSET = LENGTH({&SELF-NAME}:SCREEN-VALUE) + 2. /* res */
      DISP {&self-name} WITH FRAME F-MAIN.
    END.
 
@@ -819,7 +819,7 @@ ON VALUE-CHANGED OF fi_part-no IN FRAME F-Main
 DO:
    DO WITH FRAME F-Main:
      ASSIGN {&self-name} = CAPS({&self-name}:SCREEN-VALUE). 
-  {&SELF-NAME}:CURSOR-OFFSET = LENGTH({&SELF-NAME}:SCREEN-VALUE) + 1. /* added by script _caps.p */
+  IF LASTKEY EQ 32 THEN {&SELF-NAME}:CURSOR-OFFSET = LENGTH({&SELF-NAME}:SCREEN-VALUE) + 2. /* res */
      DISP {&self-name} WITH FRAME F-MAIN.
    END.
 END.

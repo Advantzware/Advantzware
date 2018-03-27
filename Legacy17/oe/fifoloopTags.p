@@ -39,14 +39,14 @@ END.
 FUNCTION fDebugLog RETURNS CHARACTER 
   (INPUT ipcMessage AS CHARACTER ) FORWARD.
 
-cDebugLog = "logs/" + string(today, "99999999") + string(time) + "fifo.txt".
+cDebugLog = "logs/" + STRING(TODAY , "99999999") + STRING(TIME) + "fifo.txt".
 lUseLogs = FALSE.
 IF SEARCH("logs/fifo.txt") NE ?  THEN
    lUseLogs = TRUE.
 DEFINE STREAM sDebug.
 IF lUseLogs THEN DO:
     OUTPUT STREAM sDEbug TO VALUE(cDebugLog).
-    OUTPUT TO VALUE(replace(cDebugLog, "txt", "errs")).
+    OUTPUT TO VALUE(REPLACE(cDebugLog, "txt", "errs")).
 END.
 
 /** If Shipping From Bill Of Lading Then Set Ship Code = B
@@ -149,7 +149,7 @@ DO:
             FOR EACH fg-bin
                 WHERE fg-bin.company    EQ cocode
                 AND fg-bin.i-no       EQ cINo
-                AND (fg-bin.cust-no   EQ "" OR fg-bin.cust-no EQ oe-relh.cust-no)
+                AND (fg-bin.cust-no   EQ "" /*OR fg-bin.cust-no EQ oe-relh.cust-no*/)
                 AND (ipcLocationList EQ "" OR LOOKUP(fg-bin.loc, ipcLocationList) GT 0)
                 AND (NOT AVAILABLE oe-ordl                          OR
                 
@@ -204,11 +204,13 @@ DO:
     ELSE 
     DO:
         fDebugLog("fifo - before loop " + " qty to asign " + STRING(iRelQtyToAssign)).        
+        DEFINE VARIABLE iLastToAssign AS INTEGER.
+        iLastToAssign = 0.
         /* Using i-no index */
         fifo-loop:
         REPEAT:
-            DEFINE VARIABLE iLastToAssign AS INTEGER.
-            iLastToAssign = 0.
+/*            DEFINE VARIABLE iLastToAssign AS INTEGER.*/
+/*            iLastToAssign = 0.                       */
             loop-count:
             DO iFifoLoopCount = 1 TO 2.
                 lFgBinFound = FALSE.
@@ -235,12 +237,12 @@ DO:
                             (fg-bin.qty      GE iRelQtyToAssign AND iFifoLoopCount EQ 1))
 
                         AND NOT CAN-FIND( FIRST ttoe-rell
-                                              WHERE ttoe-rell.company          eq            fg-bin.company                                                                                         
-                                                  and ttoe-rell.loc            eq            fg-bin.loc     
-                                                  and ttoe-rell.loc-bin        eq            fg-bin.loc-bin 
-                                                  and ttoe-rell.tag            eq            fg-bin.tag     
-                                                  and ttoe-rell.job-no         eq            fg-bin.job-no
-                                                  and ttoe-rell.job-no2        eq            fg-bin.job-no2
+                                              WHERE ttoe-rell.company          EQ            fg-bin.company                                                                                         
+                                                  AND ttoe-rell.loc            EQ            fg-bin.loc     
+                                                  AND ttoe-rell.loc-bin        EQ            fg-bin.loc-bin 
+                                                  AND ttoe-rell.tag            EQ            fg-bin.tag     
+                                                  AND ttoe-rell.job-no         EQ            fg-bin.job-no
+                                                  AND ttoe-rell.job-no2        EQ            fg-bin.job-no2
 /*                                                   and ttoe-rell.cust-no        eq            fg-bin.cust-no */
 /*                                                   and ttoe-rell.i-no           eq            fg-bin.i-no    */
 /*                                                   and ttoe-rell.po-no          eq            fg-bin.po-no   */
@@ -324,7 +326,7 @@ END. /* If assigning tag #'s */
 
 fDebugLog("run pcreateOeREll " + cRunMode).
 /* Based on temp-tables created, create the actual records */
-IF cRunMode ne "oe-boll" THEN
+IF cRunMode NE "oe-boll" THEN
   RUN pCreateOeRell.
 ELSE 
   RUN pCreateDynamicTT.

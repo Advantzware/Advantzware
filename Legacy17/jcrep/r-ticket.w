@@ -2594,8 +2594,8 @@ PROCEDURE ExcelEmail :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-MESSAGE "email" cExcelOutput
-    VIEW-AS ALERT-BOX INFO BUTTONS OK.
+/*MESSAGE "email" cExcelOutput          */
+/*    VIEW-AS ALERT-BOX INFO BUTTONS OK.*/
      {custom/asimailx.i &TYPE = "Excel"
                              &begin_cust= begin_job1
                              &END_cust=end_job1
@@ -2907,7 +2907,8 @@ PROCEDURE output-to-printer :
        FILE-INFO:FILE-NAME = list-name.
        RUN printfile (FILE-INFO:FILE-NAME).
    END.
-   ELSE DO:  MESSAGE "lv-format-f  " lv-format-f VIEW-AS ALERT-BOX ERROR.
+   ELSE DO:
+/*      MESSAGE "lv-format-f  " lv-format-f VIEW-AS ALERT-BOX ERROR.*/
       IF /*index("Interpac,Dayton,FibreFC,Livngstn",lv-format-f) > 0 */
         lookup(lv-format-f, 
           "Interpac,FibreFC,HPB,Metro,Dayton,Livngstn,CentBox,Keystone,Frankstn,Colonial,Unipak,OttPkg,MWFibre,Shelby,CCC,Indiana-XL,PPI,PackRite,Rosmar,Accord,Knight,MidYork,Dee,Badger,Carded,Carded2,Coburn,Knight***,jobcardf 1,jobcardf 2") > 0 THEN

@@ -14,12 +14,15 @@
         ttblJob.startTime = ttblJob-do.startTime[1]
         ttblJob.endDate = ttblJob-do.endDate[1]
         ttblJob.endTime = ttblJob-do.endTime[1]
-        ttblJob.jobLocked = ttblJob-do.jobLocked[1].
+        ttblJob.jobLocked = ttblJob-do.jobLocked[1]
+        .
       ttblJob.startDateTime = numericDateTime(ttblJob.startDate,ttblJob.startTime).
       ttblJob.endDateTime = numericDateTime(ttblJob.endDate,ttblJob.endTime).
       ASSIGN
         ttblJob.jobBGColor = jobBGColor()
-        ttblJob.jobFGColor = jobFGColor().
+        ttblJob.jobFGColor = jobFGColor()
+        ttblJob.statusLabel = jobStatus()
+        .
       FIND CURRENT ttblJob NO-LOCK.
       IF boardDate:SCREEN-VALUE NE STRING(ttblJob.startDate,'99/99/9999') AND
          moveUndoRedo THEN

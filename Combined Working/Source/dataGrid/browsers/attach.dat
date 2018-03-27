@@ -1,0 +1,23 @@
+FOR EACH attach NO-LOCK WHERE attach.company EQ "%company%" and (LOOKUP(attach.rec_key,v-rec-key-list) gt 0 and (v-est-no <> "" and trim(attach.est-no) EQ trim(v-est-no)) or (v-i-no <> "" and lookup(attach.i-no,v-i-no) > 0) and attach.i-no gt "")
+attach-file,est-no,i-no
+
+Indexed: est-no,i-no
+Non-Idx: attach-file,creat-date
+
+Generated 04.18.2017 @ 10:59:09 pm by: nosweat
+Table: attach - Records: 32,826
+
+    Index: est-no
+         Field: company
+         Field: est-no
+
+    Index: i-no
+         Field: company
+         Field: i-no
+
+    Index: link
+         Field: link-table
+         Field: rec_key
+
+    Index: rec_key
+         Field: rec_key

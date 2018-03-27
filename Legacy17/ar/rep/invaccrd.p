@@ -106,8 +106,8 @@ DEF VAR v-inv-total AS DEC NO-UNDO.
 /* === with xprint ====*/
 DEF VAR ls-image1 AS cha NO-UNDO.
 DEF VAR ls-image2 AS cha NO-UNDO.
-DEF VAR ls-full-img1 AS cha FORM "x(50)" NO-UNDO.
-DEF VAR ls-full-img2 AS cha FORM "x(50)" NO-UNDO.
+DEF VAR ls-full-img1 AS cha FORM "x(150)" NO-UNDO.
+DEF VAR ls-full-img2 AS cha FORM "x(150)" NO-UNDO.
 ASSIGN ls-image1 = "images\accord.jpg"
        ls-image2 = "images\accord.jpg".
 
@@ -578,9 +578,9 @@ ELSE lv-comp-color = "BLACK".
             PUT space(1)
                 v-po-no 
                 v-i-no  format "x(15)" SPACE(1)
-                v-i-dscr  format "x(25)" SPACE(1)
-                v-inv-qty format "->>>>>9" 
-                v-ship-qty  format "->>>>>>" SPACE(1)
+                v-i-dscr  format "x(23)" SPACE(1)
+                v-inv-qty format "->>>>>>9" SPACE(1) 
+                v-ship-qty  format "->>>>>>>" SPACE(1)
               /*  v-bo-qty  format "->>>>>9" SPACE(1)
                 v-i-no  format "x(15)" SPACE(1)  space(13)  */                             
                 v-price  format ">>>>9.9999" SPACE(1)               

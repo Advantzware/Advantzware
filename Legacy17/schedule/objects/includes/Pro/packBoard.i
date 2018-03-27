@@ -212,7 +212,9 @@
     ttblJob.endDateTime = numericDateTime(ttblJob.endDate,ttblJob.endTime).
     ASSIGN
       ttblJob.jobBGColor = jobBGColor()
-      ttblJob.jobFGColor = jobFGColor().
+      ttblJob.jobFGColor = jobFGColor()
+      ttblJob.statusLabel = jobStatus()
+      .
   END. /* each jobStacker */
   OUTPUT CLOSE.
   EMPTY TEMP-TABLE jobStacker.

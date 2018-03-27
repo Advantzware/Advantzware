@@ -13,7 +13,7 @@ to its TABLEIO-TARGET. "
 
         This is the standard version of the database
         update SmartPanel. It uses the TABLEIO link
-        to communicate with SmartViewers and Smart-
+        to communicate with SamrtPanels and Smart-
         Browsers.
 
         There are two styles of this SmartPanel
@@ -212,6 +212,10 @@ ASSIGN
        FRAME Panel-Frame:SCROLLABLE       = FALSE
        FRAME Panel-Frame:HIDDEN           = TRUE.
 
+ASSIGN 
+       Btn-post:PRIVATE-DATA IN FRAME Panel-Frame     = 
+                "panel-image".
+
 /* SETTINGS FOR RECTANGLE RECT-1 IN FRAME Panel-Frame
    NO-ENABLE 1                                                          */
 /* _RUN-TIME-ATTRIBUTES-END */
@@ -227,7 +231,7 @@ ASSIGN
 */  /* FRAME Panel-Frame */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -372,6 +376,8 @@ END.
   {methods/setButton.i Btn-Add "Add"} /* added by script _admTransPanels.p */
   {methods/setButton.i Btn-Delete "Delete"} /* added by script _admTransPanels.p */
   {methods/setButton.i Btn-Cancel "Cancel"} /* added by script _admTransPanels.p */
+  
+  {methods/setButton.i Btn-post "Post"}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

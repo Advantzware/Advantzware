@@ -6,7 +6,7 @@
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admViewersUsing.i} /* added by script c:\tmp\p42959__V16toV17.ped */
+{Advantzware\WinKit\admViewersUsing.i} /* added by script _admViewers.p */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
@@ -1089,14 +1089,6 @@ PROCEDURE assignCC :
   Notes:       
 ------------------------------------------------------------------------------*/
 DO WITH FRAME {&FRAME-NAME}:
-/*    IF tb_cc:SCREEN-VALUE EQ "YES" THEN     */
-/*        vend.spare-int-1 = 1.               */
-/*    ELSE                                    */
-/*        vend.spare-int-1 = 0.               */
-/*    IF tb_billpay:SCREEN-VALUE EQ "YES" THEN*/
-/*        vend.spare-int-2 = 1.               */
-/*    ELSE                                    */
-/*        vend.spare-int-2 = 0.               */
    vend.payment-type = cb_paytype:SCREEN-VALUE IN FRAME {&frame-name}.
 END.
 
@@ -1190,14 +1182,6 @@ PROCEDURE displayCC :
   Notes:       
 ------------------------------------------------------------------------------*/
 DO WITH FRAME {&FRAME-NAME}:
-/*    IF AVAIL(vend) AND vend.spare-int-1 EQ 1 THEN*/
-/*        tb_cc:SCREEN-VALUE = "YES".              */
-/*    ELSE                                         */
-/*        tb_cc:SCREEN-VALUE = "NO".               */
-/*    IF AVAIL(vend) AND vend.spare-int-2 EQ 1 THEN*/
-/*        tb_billpay:SCREEN-VALUE = "YES".         */
-/*    ELSE                                         */
-/*        tb_billpay:SCREEN-VALUE = "NO".          */
   IF AVAILABLE vend THEN cb_paytype:SCREEN-VALUE IN FRAME {&frame-name} = vend.payment-type. 
 
 END.

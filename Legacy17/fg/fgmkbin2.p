@@ -73,8 +73,11 @@ FOR EACH fg-rcpth
      fg-bin.std-fix-cost = itemfg.std-fix-cost
      fg-bin.case-count   = fg-rdtlh.qty-case
      fg-bin.units-pallet = fg-rdtlh.units-pallet
-     fg-bin.cases-unit   = fg-rdtlh.stacks-unit.
+     fg-bin.cases-unit   = fg-rdtlh.stacks-unit .
   END.
-
+  IF fg-bin.po-no EQ "" AND fg-rcpth.po-no NE "" THEN
+      ASSIGN 
+      fg-bin.po-no        = fg-rcpth.po-no  .  
+  
   {fg/fgmkbin2.i}
 END. /* EACH fg-rcpth */

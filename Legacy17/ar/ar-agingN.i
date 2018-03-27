@@ -586,7 +586,7 @@ END.
                      WHEN "phone"     THEN cVarValue = trim(string(cust.area-code,"(xxx)") + string(cust.phone,"xxx-xxxx")) .
                      WHEN "fax"       THEN cVarValue = trim(string(substr(cust.fax,1,3),"(xxx)") + string(substr(cust.fax,4,7),"xxx-xxxx")).
                      WHEN "chk-memo"  THEN cVarValue = STRING("0").
-                     WHEN "day-old"   THEN cVarValue = STRING(d,">>>>>>>>"). /*8*/
+                     WHEN "day-old"   THEN cVarValue = STRING(d,"->>>>>>>"). /*8*/
                      WHEN "type"      THEN cVarValue = string(v-type,"x(4)").
                      WHEN "inv"       THEN cVarValue = string(ar-inv.inv-no,">>>>>>>>") .
                      WHEN "inv-date"  THEN cVarValue = STRING(ar-inv.inv-date,"99/99/99") .

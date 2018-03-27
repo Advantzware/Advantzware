@@ -28,7 +28,7 @@ v-std-list = "LoadTagSSCC,IR12,OEDateChange,FGRecptPassWord,InvStatus,BOLQtyPopu
             + "OEJobHold,lmLock,CESAMPLE,DefaultDir,JobHoldReason,ASIHelpService,CRMAuthToken,TSAMPMWarn,SSScanVendor," 
             + "OEBOLPrompt,SHTCALCWarn,BOLFMTTran,BOLMaster,SalesBudget,CEMarkupMatrixInterpolate,CEMarkupMatrixLookup,"
             + "KiwiT,BusinessFormModal,LoadTagXprintImage,AsiHelpClientID,CEGotoCalc,FGKEEPZEROBIN,RMKEEPZEROBIN,PrePressHotFolderIn,PrePressHotFolderOut,"
-            + "METRIC"  .
+            + "METRIC,CEImportForm,CEImportFormFolder,BusinessFromLogo,CalcBtnImage,CalcBtnLink"  .
 
 
 IF CAN-DO(v-std-list,ip-nk1-value) THEN
@@ -320,12 +320,36 @@ CASE ip-nk1-value:
         INPUT "PrePress Hot Folder Out",
         INPUT "" /* Char Value */, INPUT 0 /* Int value */,
         INPUT YES /* Logical value */).
-   WHEN "METRIC" THEN 
+    WHEN "METRIC" THEN 
     RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
         INPUT "Default Metric flag to be set",
         INPUT "" /* Char Value */, INPUT 0 /* Int value */,
-        INPUT YES /* Logical value */).
-        
+        INPUT NO /* Logical value */).
+    WHEN "CEImportForm" THEN 
+    RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
+        INPUT "Enable Import Estimate Form from Excel",
+        INPUT "" /* Char Value */, INPUT 0 /* Int value */,
+        INPUT NO /* Logical value */).
+    WHEN "CEImportFormFolder" THEN 
+    RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
+        INPUT "Default Folder for Import Estimate Form",
+        INPUT "C:\temp\" /* Char Value */, INPUT 0 /* Int value */,
+        INPUT NO /* Logical value */).
+    WHEN "BusinessFromLogo" THEN 
+    RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
+        INPUT "Define the path to the logo to be used on the standard Business forms",
+        INPUT "" /* Char Value */, INPUT 0 /* Int value */,
+        INPUT NO /* Logical value */).
+    WHEN "CalcBtnImage" THEN 
+    RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
+        INPUT "Calculator Factor Button Image",
+        INPUT "Graphics\32x32\calculator.ico" /* Char Value */, INPUT 0 /* Int value */,
+        INPUT NO /* Logical value */).
+    WHEN "CalcBtnLink" THEN 
+    RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
+        INPUT "Calculator Factor Button Link",
+        INPUT "http://www.metric-conversions.org/length/millimeters-to-inches.htm" /* Char Value */, INPUT 0 /* Int value */,
+        INPUT NO /* Logical value */).
 END CASE.
 ELSE
 CASE ip-nk1-value:

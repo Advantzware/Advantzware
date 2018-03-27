@@ -13,7 +13,7 @@ to its TABLEIO-TARGET. "
 
         This is the standard version of the database
         update SmartPanel. It uses the TABLEIO link
-        to communicate with SmartViewers and Smart-
+        to communicate with SmartPanels and Smart-
         Browsers.
 
         There are two styles of this SmartPanel
@@ -100,7 +100,7 @@ DEFINE BUTTON Btn-Add
      FONT 4.
 
 DEFINE BUTTON Btn-bom 
-     LABEL "&B.o.m." 
+     LABEL "&B.O.M." 
      SIZE 9 BY 1.29
      FONT 4.
 
@@ -125,7 +125,7 @@ DEFINE BUTTON Btn-Save
      FONT 4.
 
 DEFINE RECTANGLE RECT-1
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL 
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 74 BY 1.76.
 
 
@@ -200,6 +200,14 @@ ASSIGN
        FRAME Panel-Frame:SCROLLABLE       = FALSE
        FRAME Panel-Frame:HIDDEN           = TRUE.
 
+ASSIGN 
+       Btn-bom:PRIVATE-DATA IN FRAME Panel-Frame     = 
+                "panel-image".
+
+ASSIGN 
+       Btn-est:PRIVATE-DATA IN FRAME Panel-Frame     = 
+                "panel-image".
+
 /* SETTINGS FOR RECTANGLE RECT-1 IN FRAME Panel-Frame
    NO-ENABLE 1                                                          */
 /* _RUN-TIME-ATTRIBUTES-END */
@@ -239,7 +247,7 @@ END.
 
 &Scoped-define SELF-NAME Btn-bom
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn-bom C-WIn
-ON CHOOSE OF Btn-bom IN FRAME Panel-Frame /* B.o.m. */
+ON CHOOSE OF Btn-bom IN FRAME Panel-Frame /* B.O.M. */
 DO:
 
    RUN notify ('copy-record':U).
@@ -373,6 +381,9 @@ END.
   {methods/setButton.i Btn-Add "Add"} /* added by script _admTransPanels.p */
   {methods/setButton.i Btn-Delete "Delete"} /* added by script _admTransPanels.p */
   {methods/setButton.i Btn-Cancel "Cancel"} /* added by script _admTransPanels.p */
+
+  {methods/setButton.i Btn-bom "B.O.M."} /* added by script _panelImages.p */
+  {methods/setButton.i Btn-est "EstimateBuild"} /* added by script _panelImages.p */
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

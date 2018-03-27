@@ -1553,6 +1553,22 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE clearFilterValues B-table-Win
+PROCEDURE clearFilterValues:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    {methods/clearFilterValues.i}
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE create-est B-table-Win 
 PROCEDURE create-est :
 /*------------------------------------------------------------------------------
@@ -2207,10 +2223,13 @@ PROCEDURE New_record :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEF INPUT PARAMETER ip-rowid AS ROWID NO-UNDO.
-  
 
-  vi_est-no = "".
-  lv-first-run = YES.
+  /*vi_est-no = "".
+  lv-first-run = YES.*/
+  /* Set the lv-est-no value so that search will be faster */
+  FIND FIRST eb WHERE ROWID(eb) EQ ip-rowid NO-LOCK NO-ERROR.
+  IF AVAILABLE eb THEN 
+    RUN setEstNoSearch (INPUT eb.est-no).
 
   RUN local-open-query.
 
@@ -2239,16 +2258,16 @@ PROCEDURE New_record-user :
 ------------------------------------------------------------------------------*/
  DEF INPUT PARAMETER ip-rowid AS ROWID NO-UNDO.
  DEF VAR v-custcount AS CHAR NO-UNDO . 
-  lv-first-run = YES.
+ /* Set the lv-est-no value so that search will be faster */ 
+ FIND FIRST eb WHERE ROWID(eb) EQ ip-rowid NO-LOCK NO-ERROR.
+  IF AVAILABLE eb THEN 
+    RUN setEstNoSearch (INPUT eb.est-no).
+
   ASSIGN
        v-custcount = custcount 
-      custcount    = "" .
+       custcount   = "" .
   RUN local-open-query.
-  
-  /*
-  RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"itemrec-target",OUTPUT char-hdl).
-  RUN dispatch IN WIDGET-HANDLE(char-hdl) ('open-query').
-  */
+ 
 ASSIGN custcount = v-custcount .
   DO WITH FRAME {&frame-name}:
     REPOSITION {&browse-name} TO ROWID ip-rowid NO-ERROR.  
@@ -2257,6 +2276,24 @@ ASSIGN custcount = v-custcount .
     RETURN NO-APPLY.  
   END.
 
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE setEstNoSearch B-table-Win 
+PROCEDURE setEstNoSearch :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+DEF INPUT PARAM ipiEstNo LIKE eb.est-no NO-UNDO.
+
+ASSIGN vi_est-no = ipiEstNo
+       tb_single = YES 
+       tb_set    = YES 
+       tb_tancom = YES   .
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

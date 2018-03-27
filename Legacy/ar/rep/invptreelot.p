@@ -3,7 +3,6 @@
 /*                                                                  */
 /* ---------------------------------------------------------------- */
 DEF INPUT PARAM ip-copy-title AS cha NO-UNDO.
-
 {sys/inc/var.i shared}
 
 {ar/rep/invoice.i}
@@ -88,11 +87,11 @@ DEF VAR v-price2    AS DECI NO-UNDO.
 DEF VAR v-soldto-name   AS CHAR FORMAT "x(30)" NO-UNDO.
 DEF VAR v-soldto-addr   AS CHAR FORMAT "x(30)" extent 2 NO-UNDO.
 DEF VAR ls-image1 AS cha NO-UNDO.
-DEF VAR ls-full-img1 AS cha FORM "x(150)" NO-UNDO.
+DEF VAR ls-full-img1 AS cha FORM "x(200)" NO-UNDO.
 
 ASSIGN
    
-   ls-image1 = "images\Peachtree.jpg"
+   ls-image1 = "images\Peachtree_logo_2018.png"
    FILE-INFO:FILE-NAME = ls-image1
    ls-full-img1 = FILE-INFO:FULL-PATHNAME + ">".
 

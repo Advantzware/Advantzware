@@ -112,7 +112,7 @@ tb_excel tb_runExcel fi_file
 DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON btn-cancel /*AUTO-END-KEY*/ /* task - 12031502  */
+DEFINE BUTTON btn-cancel 
      LABEL "&Cancel" 
      SIZE 15 BY 1.14.
 
@@ -185,13 +185,15 @@ DEFINE VARIABLE fi_file AS CHARACTER FORMAT "X(30)" INITIAL "c:~\tmp~\r-araged.c
      SIZE 44 BY 1
      FGCOLOR 9 .
 
-DEFINE VARIABLE lbl_sort AS CHARACTER FORMAT "X(256)":U INITIAL "Sort 1?" 
+DEFINE VARIABLE lbl_sort AS CHARACTER FORMAT "X(256)":U INITIAL "Sorted By?" 
+     LABEL "Sorted By?" 
      VIEW-AS FILL-IN 
-     SIZE 8 BY 1 NO-UNDO.
+     SIZE 12 BY 1 NO-UNDO.
 
-DEFINE VARIABLE lbl_sort2 AS CHARACTER FORMAT "X(256)":U INITIAL "Sort 2?" 
+DEFINE VARIABLE lbl_sort2 AS CHARACTER FORMAT "X(256)":U INITIAL "Aged By?" 
+     LABEL "Aged By?" 
      VIEW-AS FILL-IN 
-     SIZE 8 BY 1 NO-UNDO.
+     SIZE 10.8 BY 1 NO-UNDO.
 
 DEFINE VARIABLE lines-per-page AS INTEGER FORMAT ">>":U INITIAL 99 
      LABEL "Lines Per Page" 
@@ -250,16 +252,16 @@ DEFINE VARIABLE rd_sort AS CHARACTER INITIAL "Name"
      RADIO-BUTTONS 
           "Customer#", "#Number",
 "Name", "Name",
-"SalesRep#", "SalesRep#"
-     SIZE 44 BY 1 NO-UNDO.
+"SalesRep#", "SalesRep#",
+"Invoice#", "Invoice#"
+     SIZE 48 BY 1 NO-UNDO.
 
 DEFINE VARIABLE rd_sort2 AS CHARACTER INITIAL "InvDate" 
-     VIEW-AS RADIO-SET HORIZONTAL
+     VIEW-AS RADIO-SET VERTICAL
      RADIO-BUTTONS 
           "Due Date", "DueDate",
-"Invoice Date", "InvDate",
-"Invoice#", "Invoice#"
-     SIZE 51 BY 1 NO-UNDO.
+"Invoice Date", "InvDate"
+     SIZE 18 BY 1.67 NO-UNDO.
 
 DEFINE VARIABLE rs_detail AS INTEGER 
      VIEW-AS RADIO-SET HORIZONTAL
@@ -271,85 +273,85 @@ DEFINE VARIABLE rs_detail AS INTEGER
 
 DEFINE RECTANGLE RECT-6
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 93 BY 8.1.
+     SIZE 98 BY 8.1.
 
 DEFINE RECTANGLE RECT-7
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 94 BY 18.57.
+     SIZE 99 BY 18.57.
 
-DEFINE VARIABLE tb_address AS LOGICAL INITIAL NO 
+DEFINE VARIABLE tb_address AS LOGICAL INITIAL no 
      LABEL "Print Customer Address?" 
      VIEW-AS TOGGLE-BOX
      SIZE 28 BY 1 NO-UNDO.
 
-DEFINE VARIABLE tb_cust-list AS LOGICAL INITIAL NO 
+DEFINE VARIABLE tb_cust-list AS LOGICAL INITIAL no 
      LABEL "Use Defined Customer List" 
      VIEW-AS TOGGLE-BOX
      SIZE 31.8 BY .62 NO-UNDO.
 
-DEFINE VARIABLE tb_cust-po AS LOGICAL INITIAL NO 
+DEFINE VARIABLE tb_cust-po AS LOGICAL INITIAL no 
      LABEL "Print Customer PO#?" 
      VIEW-AS TOGGLE-BOX
      SIZE 28 BY .81 NO-UNDO.
 
-DEFINE VARIABLE tb_days-old AS LOGICAL INITIAL NO 
+DEFINE VARIABLE tb_days-old AS LOGICAL INITIAL no 
      LABEL "Print # of Days Old?" 
      VIEW-AS TOGGLE-BOX
      SIZE 26 BY 1 NO-UNDO.
 
-DEFINE VARIABLE tb_excel AS LOGICAL INITIAL YES 
+DEFINE VARIABLE tb_excel AS LOGICAL INITIAL yes 
      LABEL "Export To Excel?" 
      VIEW-AS TOGGLE-BOX
      SIZE 21 BY .95
      BGCOLOR 3  NO-UNDO.
 
-DEFINE VARIABLE tb_fuel AS LOGICAL INITIAL YES 
+DEFINE VARIABLE tb_fuel AS LOGICAL INITIAL yes 
      LABEL "Include Fuel Surcharges?" 
      VIEW-AS TOGGLE-BOX
      SIZE 29 BY .81 NO-UNDO.
 
-DEFINE VARIABLE tb_include-factored AS LOGICAL INITIAL NO 
+DEFINE VARIABLE tb_include-factored AS LOGICAL INITIAL no 
      LABEL "Include Factored FG Items?" 
      VIEW-AS TOGGLE-BOX
      SIZE 31 BY 1 NO-UNDO.
 
-DEFINE VARIABLE tb_job# AS LOGICAL INITIAL NO 
+DEFINE VARIABLE tb_job# AS LOGICAL INITIAL no 
      LABEL "Print JOB#?" 
      VIEW-AS TOGGLE-BOX
      SIZE 17 BY .81 NO-UNDO.
 
-DEFINE VARIABLE tb_paid AS LOGICAL INITIAL NO 
+DEFINE VARIABLE tb_paid AS LOGICAL INITIAL no 
      LABEL "Include Paid Invoices?" 
      VIEW-AS TOGGLE-BOX
      SIZE 27 BY 1 NO-UNDO.
 
-DEFINE VARIABLE tb_PrintCollectionNotes AS LOGICAL INITIAL NO 
+DEFINE VARIABLE tb_PrintCollectionNotes AS LOGICAL INITIAL no 
      LABEL "Print Collection Notes?" 
      VIEW-AS TOGGLE-BOX
      SIZE 28 BY 1 NO-UNDO.
 
-DEFINE VARIABLE tb_PrintInvNotes AS LOGICAL INITIAL NO 
+DEFINE VARIABLE tb_PrintInvNotes AS LOGICAL INITIAL no 
      LABEL "Print Invoice Notes?" 
      VIEW-AS TOGGLE-BOX
      SIZE 28 BY 1 NO-UNDO.
 
-DEFINE VARIABLE tb_runExcel AS LOGICAL INITIAL NO 
+DEFINE VARIABLE tb_runExcel AS LOGICAL INITIAL no 
      LABEL "Auto Run Excel?" 
      VIEW-AS TOGGLE-BOX
      SIZE 21 BY .95
      BGCOLOR 3  NO-UNDO.
 
-DEFINE VARIABLE tb_separate-fc AS LOGICAL INITIAL NO 
+DEFINE VARIABLE tb_separate-fc AS LOGICAL INITIAL no 
      LABEL "Separate Finance Charges?" 
      VIEW-AS TOGGLE-BOX
      SIZE 30.4 BY .81 NO-UNDO.
 
-DEFINE VARIABLE td-show-parm AS LOGICAL INITIAL NO 
+DEFINE VARIABLE td-show-parm AS LOGICAL INITIAL no 
      LABEL "Show Parameters?" 
      VIEW-AS TOGGLE-BOX
      SIZE 24 BY .81 NO-UNDO.
 
-DEFINE VARIABLE tgInactiveCust AS LOGICAL INITIAL NO 
+DEFINE VARIABLE tgInactiveCust AS LOGICAL INITIAL no 
      LABEL "Inactive Customers?" 
      VIEW-AS TOGGLE-BOX
      SIZE 26 BY .81 NO-UNDO.
@@ -380,25 +382,25 @@ DEFINE FRAME FRAME-A
      period-days-2 AT ROW 8.1 COL 39 COLON-ALIGNED
      period-days-3 AT ROW 8.1 COL 51 COLON-ALIGNED
      rs_detail AT ROW 9.05 COL 29 NO-LABEL WIDGET-ID 6
-     lbl_sort AT ROW 10.24 COL 19 COLON-ALIGNED NO-LABEL
-     rd_sort AT ROW 10.24 COL 29 NO-LABEL
-     lbl_sort2 AT ROW 11.19 COL 19 COLON-ALIGNED NO-LABEL
-     rd_sort2 AT ROW 11.19 COL 29 NO-LABEL
-     tb_paid AT ROW 12.14 COL 29
-     tb_include-factored AT ROW 12.14 COL 59.6
-     tb_fuel AT ROW 13.1 COL 29
-     tb_separate-fc AT ROW 13.1 COL 59.6
-     begin_inv-date AT ROW 14.1 COL 27 COLON-ALIGNED HELP
+     lbl_sort AT ROW 10.24 COL 4.4 COLON-ALIGNED NO-LABEL
+     rd_sort AT ROW 10.24 COL 18.4 NO-LABEL
+     lbl_sort2 AT ROW 10.24 COL 66.2 COLON-ALIGNED NO-LABEL
+     rd_sort2 AT ROW 10.29 COL 79.4 NO-LABEL
+     tb_paid AT ROW 11.95 COL 29
+     tb_include-factored AT ROW 11.95 COL 59.6
+     tb_fuel AT ROW 12.91 COL 29
+     tb_separate-fc AT ROW 12.91 COL 59.6
+     begin_inv-date AT ROW 13.91 COL 27 COLON-ALIGNED HELP
           "Enter Beginning Invoice Date"
-     end_inv-date AT ROW 14.1 COL 70 COLON-ALIGNED HELP
+     end_inv-date AT ROW 13.91 COL 70 COLON-ALIGNED HELP
           "Enter Ending Invoice Date"
-     tb_days-old AT ROW 15.14 COL 29
-     tb_address AT ROW 15.14 COL 59
-     tb_PrintInvNotes AT ROW 16.43 COL 29 WIDGET-ID 10
-     tb_PrintCollectionNotes AT ROW 16.43 COL 59 WIDGET-ID 12
-     tb_cust-po AT ROW 17.62 COL 29 WIDGET-ID 16
-     tb_job# AT ROW 17.62 COL 59 WIDGET-ID 18
-     tgInactiveCust AT ROW 18.67 COL 29 WIDGET-ID 20
+     tb_days-old AT ROW 14.95 COL 29
+     tb_address AT ROW 14.95 COL 59
+     tb_PrintInvNotes AT ROW 16.24 COL 29 WIDGET-ID 10
+     tb_PrintCollectionNotes AT ROW 16.24 COL 59 WIDGET-ID 12
+     tb_cust-po AT ROW 17.43 COL 29 WIDGET-ID 16
+     tb_job# AT ROW 17.43 COL 59 WIDGET-ID 18
+     tgInactiveCust AT ROW 18.48 COL 29 WIDGET-ID 20
      lv-ornt AT ROW 20.48 COL 32 NO-LABEL
      lines-per-page AT ROW 20.48 COL 84.8 COLON-ALIGNED
      rd-dest AT ROW 20.91 COL 7 NO-LABEL
@@ -414,16 +416,16 @@ DEFINE FRAME FRAME-A
      "Selection Parameters" VIEW-AS TEXT
           SIZE 21 BY .71 AT ROW 1.24 COL 3
           BGCOLOR 2 
-     "Detail Only" VIEW-AS TEXT
-          SIZE 17 BY .62 AT ROW 15.90 COL 32.8 WIDGET-ID 4
      "Output Destination" VIEW-AS TEXT
           SIZE 18 BY .62 AT ROW 20.05 COL 4
+     "Detail Only" VIEW-AS TEXT
+          SIZE 17 BY .62 AT ROW 15.71 COL 32.8 WIDGET-ID 4
      RECT-6 AT ROW 19.81 COL 2
-     RECT-7 AT ROW 1.1 COL 1
+     RECT-7 AT ROW 1.24 COL 1
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1.6 ROW 1.24
-         SIZE 94.4 BY 29.33.
+         SIZE 99.8 BY 29.33.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -444,20 +446,20 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          HIDDEN             = YES
          TITLE              = "AR Aged Receivables"
          HEIGHT             = 29.67
-         WIDTH              = 96
+         WIDTH              = 101.4
          MAX-HEIGHT         = 33.29
          MAX-WIDTH          = 204.8
          VIRTUAL-HEIGHT     = 33.29
          VIRTUAL-WIDTH      = 204.8
-         RESIZE             = YES
-         SCROLL-BARS        = NO
-         STATUS-AREA        = YES
+         RESIZE             = yes
+         SCROLL-BARS        = no
+         STATUS-AREA        = yes
          BGCOLOR            = ?
          FGCOLOR            = ?
-         KEEP-FRAME-Z-ORDER = YES
-         THREE-D            = YES
-         MESSAGE-AREA       = NO
-         SENSITIVE          = YES.
+         KEEP-FRAME-Z-ORDER = yes
+         THREE-D            = yes
+         MESSAGE-AREA       = no
+         SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 /* END WINDOW DEFINITION                                                */
@@ -483,16 +485,6 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME                                                           */
-ASSIGN
-       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "ribbon-button".
-
-
-ASSIGN
-       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "ribbon-button".
-
-
 ASSIGN 
        as-of-date:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
@@ -516,6 +508,14 @@ ASSIGN
 ASSIGN 
        begin_slsmn:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
+
+ASSIGN 
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+ASSIGN 
+       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
 
 ASSIGN 
        end_comp:PRIVATE-DATA IN FRAME FRAME-A     = 
@@ -644,7 +644,7 @@ ASSIGN
                 "parm".
 
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
-THEN C-Win:HIDDEN = NO.
+THEN C-Win:HIDDEN = no.
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -1181,8 +1181,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    end_inv-date  = TODAY
    fi_file = "c:\tmp\ar-aging.csv" 
    begin_comp = lv-default-comp
-   end_comp   = lv-default-comp
-    .
+   end_comp   = lv-default-comp .
 
   RUN enable_UI.
 
@@ -1193,10 +1192,13 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
                                OUTPUT ou-cust-int) .
 
   DO WITH FRAME {&FRAME-NAME}:
+
     {methods/setButton.i btn-cancel "Cancel"} /* added by script _nonAdm1Images2.p */
     {methods/setButton.i btn-ok "OK"} /* added by script _nonAdm1Images2.p */
     {custom/usrprint.i}
     as-of-date:SCREEN-VALUE = STRING(TODAY).
+    lbl_sort:SCREEN-VALUE =  "Sorted By?" .
+    lbl_sort2:SCREEN-VALUE =  "Aged By?" .
     IF v-count LE 1 THEN
         ASSIGN
           begin_comp:SENSITIVE = NO
@@ -1603,7 +1605,10 @@ ASSIGN grand-t = 0
     IF v-sort EQ "#Number" THEN
       RUN ar/ar-agng2.p.
     ELSE
+      IF v-sort EQ "SalesRep#" THEN
       RUN ar/ar-agng7.p.
+      ELSE
+       RUN ar/ar-agng5.p.
   ELSE
   IF v-sort2 BEGINS "InvD" THEN
     IF v-sort EQ "Name" THEN
@@ -1611,16 +1616,18 @@ ASSIGN grand-t = 0
     ELSE
     IF v-sort EQ "#Number" THEN
       RUN ar/ar-agng4.p.
-    ELSE
+    ELSE IF v-sort EQ "SalesRep#" THEN
       RUN ar/ar-agng8.p.
-  ELSE
+    ELSE RUN ar/ar-agng6.p.
+
+ /* ELSE
     IF v-sort EQ "Name" THEN
       RUN ar/ar-agng5.p.
     ELSE
     IF v-sort EQ "#Number" THEN
       RUN ar/ar-agng6.p.
     ELSE
-      RUN ar/ar-agng9.p.
+      RUN ar/ar-agng9.p.*/
 
   IF tb_excel THEN DO:
     OUTPUT STREAM s-temp CLOSE.

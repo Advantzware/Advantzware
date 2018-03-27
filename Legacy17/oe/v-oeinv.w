@@ -6,7 +6,7 @@
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admViewersUsing.i} /* added by script c:\tmp\p42959__V16toV17.ped */
+{Advantzware\WinKit\admViewersUsing.i} /* added by script _admViewers.p */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
@@ -1666,6 +1666,9 @@ PROCEDURE valid-cust-no :
 
     IF v-msg EQ "" THEN
       IF cust.active eq "I" THEN v-msg = "Orders may not be processed for inactive customers...".
+
+     IF v-msg EQ "" THEN
+      IF cust.active eq "X" THEN v-msg = "Orders may not be processed for Inhouse customers...".
 
     IF v-msg EQ "" THEN
       IF ll-cred-lim AND inv-status:SCREEN-VALUE NE "ON HOLD" THEN DO:

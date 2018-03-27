@@ -79,7 +79,6 @@ def {1} workfile w-ef no-undo
   field frm  like ef.form-no.
 
 /*def {1} frame head. */
-
 FORM HEADER
        "<P8><=1>" 
        "<U>Sold To:</U>" at 23        /*"<U>Location:</U>" AT 105*/ "<U>Job Information:</U><P10>" AT 145 SKIP
@@ -90,7 +89,7 @@ FORM HEADER
        SKIP
        v-cus[3] AT 2 "Ord Date:" AT 39 v-ord-date /*"_____ _____ @ _____" AT 67*/   "Salesman:" AT 90 v-sman
        SKIP
-       v-cus[4] AT 2 "For Shipping Use Only" AT 39 /*"_____ _____ @ _____" AT 67*/  /*v-dept-note[31] AT 90*/ 
+       v-cus[4] AT 2 "For Shipping Use Only" AT 39 /*"_____ _____ @ _____" AT 67*/  v-dept-note[31] AT 90 
        SKIP
        "PO #:" AT 2 lv-ord-po    "Rel. Date:____________" AT 39 /*"_____ _____ @ _____" AT 67*/
        "<P8><U>Order Information:</U><P10>" AT 100       

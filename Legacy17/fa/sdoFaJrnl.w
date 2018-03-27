@@ -33,23 +33,11 @@ CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
 
-&SCOPED-DEFINE cControl FA
-&SCOPED-DEFINE cEntity1 {&cControl}
-&SCOPED-DEFINE cEntity2
-&SCOPED-DEFINE cTable fa-jrnl
-&SCOPED-DEFINE lLarge FALSE
-&SCOPED-DEFINE initQuery ""
-&SCOPED-DEFINE initSort ""
-&SCOPED-DEFINE lJump TRUE
-&SCOPED-DEFINE keyField1 fa-entity
-&SCOPED-DEFINE keyType1 CHAR
-&SCOPED-DEFINE byEntity 
+/* Parameters Definitions ---                                           */
 
-DEF BUFFER bTable FOR {&cTable}.
-DEF VAR cKeyValue1 AS {&keyType1}.
-DEF VAR rFileRowid AS ROWID.
+/* Local Variable Definitions ---                                       */
 
-{src/asicommon.i}
+&glob DATA-LOGIC-PROCEDURE .p
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -238,8 +226,6 @@ END.
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN initializeObject.
   &ENDIF
-
-{src/sdoComProcs.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

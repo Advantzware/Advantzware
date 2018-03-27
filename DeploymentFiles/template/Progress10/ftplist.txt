@@ -1,7 +1,0 @@
-open ftp.advantzware.com
-user asi215 Yorkie12\301oxford
-put systemSummary.txt
-bye
-close
-quit
-exit

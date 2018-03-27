@@ -770,6 +770,7 @@ DO:
      .
 
     RUN dispatch ("open-query").
+    APPLY "VALUE-CHANGED":U TO {&BROWSE-NAME}.
   END.
   SESSION:SET-WAIT-STATE("").
 END.

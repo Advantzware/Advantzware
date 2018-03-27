@@ -1,6 +1,10 @@
 &ANALYZE-SUSPEND _VERSION-NUMBER UIB_v8r12 GUI ADM1
 &ANALYZE-RESUME
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
+{Advantzware\WinKit\admViewersUsing.i} /* added by script _admViewers.p */
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
 
@@ -40,7 +44,7 @@ CREATE WIDGET-POOL.
 
 /* ********************  Preprocessor Definitions  ******************** */
 
-&Scoped-define PROCEDURE-TYPE SmartPanel
+&Scoped-define PROCEDURE-TYPE SmartViewer
 &Scoped-define DB-AWARE no
 
 &Scoped-define ADM-SUPPORTED-LINKS Record-Source,Record-Target,TableIO-Target
@@ -143,8 +147,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB V-table-Win 
 /* ************************* Included-Libraries *********************** */
 
-{Advantzware/WinKit/winkit-panel.i}
-{src/adm/method/panel.i}
+{src/adm/method/viewer.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -194,13 +197,11 @@ DO:
    DEF VAR char-hdl AS cha NO-UNDO.
    DEF VAR ll AS LOG NO-UNDO.
 
-
    RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"tandem-source", OUTPUT char-hdl).
    IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN DO:
      RUN check-tandem-button IN WIDGET-HANDLE(char-hdl) (OUTPUT ll).
      IF NOT ll THEN RUN add-tandem IN WIDGET-HANDLE(char-hdl).
    END.
-  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */

@@ -161,6 +161,8 @@ viewers\p-calcc.w
 viewers\runbtn.w
 addon\loadtags\vp-print.w
 addon\rfq\v-set.w
+addon\fg\v-post.w
+addon\fg\v-postct.w
 addon\rm\v-post.w
 addon\viewers\empinout.w
 addon\viewers\lunch.w
@@ -192,7 +194,6 @@ jc\vp-appr.w
 jc\vp-clsjc.w
 jc\vp-hldjc.w
 jcsch\vp-color.w
-oe\p-credapp.w
 oe\p-oehold.w
 oe\p-relhld.w
 oe\vp-clsoe.w
@@ -217,12 +218,10 @@ rm\v-trpost.w
 rm\vp-price.w
 viewers\delsel.w
 viewers\expsurchrg.w
-viewers\file-seq.w
 viewers\impexcel.w
 viewers\import.w
 viewers\p-calcq.w
 viewers\p-farmh.w
-viewers\p-fg-bj-2.w
 viewers\p-fg-bj-l.w
 viewers\p-fg-bj.w
 viewers\p-overq.w

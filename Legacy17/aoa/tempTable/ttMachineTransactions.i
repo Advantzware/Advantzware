@@ -17,6 +17,7 @@ DEFINE TEMP-TABLE ttMachineTransactions NO-UNDO
     FIELD endDate         LIKE machtran.end_date
     FIELD endTime         AS CHARACTER                LABEL "Log Out"           FORMAT "hh:mm am"
     FIELD shift           LIKE machtran.shift
+    FIELD msf             AS DECIMAL                  LABEL "MSF"               FORMAT ">>>>>9.999"
     FIELD totalTime       AS DECIMAL                  LABEL "Total"             FORMAT "->>>,>>9.99"
     FIELD runQty          AS INTEGER                  LABEL "Run Qty"           FORMAT "->>>,>>9"
     FIELD wasteQty        AS INTEGER                  LABEL "Waste Qty"         FORMAT "->>>,>>9"

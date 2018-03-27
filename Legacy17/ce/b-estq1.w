@@ -1445,6 +1445,22 @@ RUN dispatch IN THIS-PROCEDURE ('initialize':U).
 /* **********************  Internal Procedures  *********************** */
 
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE clearFilterValues B-table-Win
+PROCEDURE clearFilterValues:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    {methods/clearFilterValues.i}
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE setEstNoSearch B-table-Win
 PROCEDURE setEstNoSearch:
 /*------------------------------------------------------------------------------

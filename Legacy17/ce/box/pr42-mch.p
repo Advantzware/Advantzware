@@ -26,6 +26,7 @@ DEFINE        VARIABLE v-gu-out      AS INTEGER INIT 1 NO-UNDO.
 DEFINE        VARIABLE v-printed-lit AS LOG     NO-UNDO.
 
 {sys/inc/ceprice.i}
+{ce/fEstOpRecKey.i}
 
 ASSIGN
     opsplit$      = 0
@@ -212,7 +213,9 @@ FOR EACH est-op
             OP.run-rate  = mach.run-rate
             OP.run-varoh = mach.run-varoh
             OP.wst-prct  = est-op.op-spoil
-            OP.speed     = est-op.op-speed.
+            OP.speed     = est-op.op-speed
+            op.rec_key   = fEstOpRecKey(est-op.rec_key)
+            .
         IF est-op.op-sb THEN
             OP.run-qty = est-op.num-sh * v-on-f.
         /*	 else*/

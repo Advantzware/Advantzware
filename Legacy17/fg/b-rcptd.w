@@ -4595,9 +4595,10 @@ PROCEDURE valid-cases :
   
         IF lv-msg EQ "" AND NOT ll-set-parts AND
            (CAN-FIND(FIRST b-fg-rctd
-                     WHERE b-fg-rctd.company EQ cocode
-                       AND b-fg-rctd.tag     EQ fg-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name}
-                     AND RECID(b-fg-rctd)  NE RECID(fg-rctd)) OR
+                     WHERE b-fg-rctd.company   EQ cocode
+                       AND b-fg-rctd.tag       EQ fg-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name}
+                       AND b-fg-rctd.rita-code NE "P"
+                       AND RECID(b-fg-rctd)    NE RECID(fg-rctd)) OR
             CAN-FIND(FIRST b-fg-rdtlh
                      WHERE b-fg-rdtlh.company   EQ cocode
                        AND b-fg-rdtlh.tag       EQ fg-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name}
@@ -5012,6 +5013,7 @@ PROCEDURE valid-tag :
          (CAN-FIND(FIRST b-fg-rctd
                    WHERE b-fg-rctd.company EQ cocode
                      AND b-fg-rctd.tag     EQ ip-focus:SCREEN-VALUE
+                     AND b-fg-rctd.rita-code NE "P"
                      AND RECID(b-fg-rctd)  NE RECID(fg-rctd)) OR
           CAN-FIND(FIRST b-fg-rdtlh
                    WHERE b-fg-rdtlh.company   EQ cocode

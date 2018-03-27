@@ -18,19 +18,6 @@ ASSIGN
   ldummy = SESSION:SET-WAIT-STATE("GENERAL")
   g_version = "2.1A-8.2A"
   .
-/*m_id = OS-GETENV("opsysid").                          */
-/*                                                      */
-/*IF m_id = ? THEN m_id = "".                           */
-/*                                                      */
-/*IF NOT SETUSERID(m_id,"","NOSWEAT") OR m_id EQ "" THEN*/
-/*RUN nosweat/login.w.                                  */
-/*                                                      */
-/*IF USERID("NOSWEAT") = "" OR quit_login  THEN         */
-/*DO:                                                   */
-/*  ldummy = SESSION:SET-WAIT-STATE("").                */
-/*  QUIT.                                               */
-/*END.                                                  */
-
 FIND users NO-LOCK WHERE users.user_id EQ USERID("ASI") NO-ERROR.
 IF NOT AVAILABLE users THEN DO:     
   SESSION:SET-WAIT-STATE("").
@@ -39,70 +26,42 @@ IF NOT AVAILABLE users THEN DO:
   QUIT.
 END.
 g_track_usage = users.track_usage.
-
-/*FOR EACH parmfile NO-LOCK:                                                         */
-/*                                                                                   */
-/*  IF SEARCH (parmfile.parmfile) > "" THEN                                          */
-/*    CONNECT -pf VALUE(parmfile.parmfile) NO-ERROR.                                 */
-/*  ELSE                                                                             */
-/*      IF SEARCH (REPLACE (parmfile.parmfile, ".~\", "")) > "" THEN                 */
-/*        CONNECT -pf VALUE(SEARCH(REPLACE (parmfile.parmfile, ".~\", ""))) NO-ERROR.*/
-/*  ELSE DO:                                                                         */
-/*      MESSAGE "Cannot find .pf file: " parmfile.parmfile SKIP                      */
-/*      REPLACE (parmfile.parmfile, ".~\", "")                                       */
-/*          VIEW-AS ALERT-BOX ERROR .                                                */
-/*                                                                                   */
-/*      RETURN .                                                                     */
-/*  END.                                                                             */
-/*                                                                                   */
-/*  IF ERROR-STATUS:ERROR THEN                                                       */
-/*  DO i = 1 TO ERROR-STATUS:NUM-MESSAGES:                                           */
-/*    MESSAGE ERROR-STATUS:GET-NUMBER(i) ERROR-STATUS:GET-MESSAGE(i)                 */
-/*        VIEW-AS ALERT-BOX ERROR.                                                   */
-/*  END.                                                                             */
-/*END.                                                                               */
-/* ======= 
-  Load program & lookup data 
-  =========*/
-
-IF CONNECTED("ASI") THEN DO:
-  CREATE ALIAS NoSweat  FOR DATABASE ASI NO-ERROR.
-  CREATE ALIAS EmpTrack FOR DATABASE ASI NO-ERROR.
-  CREATE ALIAS Jobs     FOR DATABASE ASI NO-ERROR.
-  CREATE ALIAS RFQ      FOR DATABASE ASI NO-ERROR.
-  
+IF CONNECTED(LDBNAME(1)) AND LDBNAME(1) EQ "ASI" THEN DO:
+    CREATE ALIAS nosweat  FOR DATABASE VALUE(LDBNAME(1)).
+    CREATE ALIAS emptrack FOR DATABASE VALUE(LDBNAME(1)).
+    CREATE ALIAS jobs     FOR DATABASE VALUE(LDBNAME(1)).
+    CREATE ALIAS rfq      FOR DATABASE VALUE(LDBNAME(1)).
+    CREATE ALIAS asihelp  FOR DATABASE VALUE(LDBNAME(1)).
+    CREATE ALIAS asihlp   FOR DATABASE VALUE(LDBNAME(1)).
+    CREATE ALIAS asinos   FOR DATABASE VALUE(LDBNAME(1)).  
   IF USERID("ASI") EQ "ASI" OR USERID("ASI") EQ "NOSWEAT" THEN RUN asiload.p.
-
   RUN chkdate.p.
-/*  RUN createSingleUserPFs.*/
   {methods/setdevid.i}
+  IF NOT VALID-HANDLE (Persistent-Handle) THEN
   RUN nosweat/persist.p PERSISTENT SET Persistent-Handle.
+  IF NOT VALID-HANDLE (ListLogic-Handle) THEN
   RUN lstlogic/persist.p PERSISTENT SET ListLogic-Handle.
   RUN Get_Procedure IN Persistent-HANDLE ("user_dir.",OUTPUT run-proc,yes).
   g_groups = "". /* YSK need to reset */
   FOR EACH usergrps NO-LOCK:
     IF CAN-DO(usergrps.users,USERID("ASI")) THEN
     g_groups = g_groups + usergrps.usergrps + ",".  /* YSK "," added  */
-  END.
-  
+  END.  
   init_menu = yes.
   DO WHILE init_menu:
     init_menu = no.
     RUN Advantzware/Windows/SmartFramework/Menu/mainmenu_stub.p PERSISTENT .
-ASSIGN
-  g_init = TRUE 
-  g_company = ""
-  g_loc = ""
-  .
-RUN Get_Procedure IN Persistent-Handle ("comp_loc.",OUTPUT run-proc,yes).
-
-IF g_company EQ "" OR g_loc EQ "" THEN DO:
-  MESSAGE "No Company and/or Location found for your login ID." SKIP
-      "Please Contact System's Administrator." VIEW-AS ALERT-BOX INFORMATION.
-  RETURN.
-END.
-/*    RUN Advantzware/Windows/SmartFramework/Menu/start.p .*/
-/*    RUN Get_Procedure IN Persistent-Handle ("{&execProgram}",OUTPUT run-proc,yes).*/
+    ASSIGN
+      g_init = TRUE 
+      g_company = ""
+      g_loc = ""
+      .
+    RUN Get_Procedure IN Persistent-Handle ("comp_loc.",OUTPUT run-proc,yes).    
+    IF g_company EQ "" OR g_loc EQ "" THEN DO:
+      MESSAGE "No Company and/or Location found for your login ID." SKIP
+          "Please Contact System's Administrator." VIEW-AS ALERT-BOX INFORMATION.
+      RETURN.
+    END.
   END.
 END.
 ELSE DO:
@@ -110,16 +69,4 @@ ELSE DO:
   MESSAGE "CONNECT to ASI Database Failed" SKIP(1)
     "Contact Systems Manager" VIEW-AS ALERT-BOX ERROR.
 END. 
-
 SESSION:SET-WAIT-STATE("").
-/*QUIT.*/
-
-/*PROCEDURE createSingleUserPFs:                   */
-/*  DEFINE VARIABLE i AS INTEGER NO-UNDO.          */
-/*                                                 */
-/*  DO i = 1 TO NUM-DBS:                           */
-/*    OUTPUT TO VALUE(LC(LDBNAME(i)) + '-1.pf').   */
-/*    PUT UNFORMATTED '-db ' PDBNAME(i) ' -1' SKIP.*/
-/*    OUTPUT CLOSE.                                */
-/*  END. /* do i */                                */
-/*END PROCEDURE.                                   */

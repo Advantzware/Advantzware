@@ -27,12 +27,12 @@
 &Global-define SORTBY-2 
 &Global-define IDXNAME2 
 &Global-define DESCRIP2 Description
-&Global-define FLDNAME3 statecod.fips_code
-&Global-define DATATYP3 INTEGER
-&Global-define FORMAT-3 99
+&Global-define FLDNAME3 
+&Global-define DATATYP3 
+&Global-define FORMAT-3 
 &Global-define SORTBY-3 
 &Global-define IDXNAME3 
-&Global-define DESCRIP3 FIPS Code
+&Global-define DESCRIP3 
 &Global-define FLDNAME4 
 &Global-define SORTBY-4 
 &Global-define IDXNAME4 

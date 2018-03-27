@@ -365,7 +365,7 @@ END.
 /* ***************************  Main Block  *************************** */
 
 /* Parent the dialog-box to the ACTIVE-WINDOW, if there is no parent.   */
-IF VALID-HANDLE(ACTIVE-WINDOW) AND FRAME {&FRAME-NAME}:PARENT eq ?
+IF VALID-HANDLE(ACTIVE-WINDOW) AND FRAME {&FRAME-NAME}:PARENT EQ ?
 THEN FRAME {&FRAME-NAME}:PARENT = ACTIVE-WINDOW.
 
 
@@ -445,6 +445,7 @@ PROCEDURE pClearCheckoffs :
     IF NOT lContinue THEN RETURN.
     SESSION:SET-WAIT-STATE("General").
     DISABLE TRIGGERS FOR LOAD OF reftable.
+    DISABLE TRIGGERS FOR LOAD OF sbStatus.
     FOR EACH reftable EXCLUSIVE-LOCK
         WHERE reftable.reftable BEGINS 'SB: Status'
         :
@@ -452,6 +453,16 @@ PROCEDURE pClearCheckoffs :
            fDeleteRecord(reftable.company,reftable.code) THEN
         DELETE reftable.
     END. /* each reftable */
+    FOR EACH sbStatus EXCLUSIVE-LOCK
+        :
+        IF deleteStatusCheckoffs EQ "ALL" OR
+           fDeleteRecord(sbStatus.company,
+                         sbStatus.m-code + ",,"
+                       + sbStatus.job-no + ","
+                       + STRING(sbStatus.job-no2) + ","
+                       + STRING(sbStatus.frm)) THEN
+        DELETE sbStatus.
+    END. /* each sbStatus */
     RUN pReload IN ipContainerHandle.
     SESSION:SET-WAIT-STATE("").
     MESSAGE "Status Checkoffs Cleared" VIEW-AS ALERT-BOX.
@@ -476,6 +487,7 @@ PROCEDURE pClearNotes :
     IF NOT lContinue THEN RETURN.
     SESSION:SET-WAIT-STATE("General").
     DISABLE TRIGGERS FOR LOAD OF reftable.
+    DISABLE TRIGGERS FOR LOAD OF sbNote.
     FOR EACH reftable EXCLUSIVE-LOCK
         WHERE reftable.reftable BEGINS 'SB: Note'
         :
@@ -483,6 +495,16 @@ PROCEDURE pClearNotes :
            fDeleteRecord(reftable.company,reftable.code) THEN
         DELETE reftable.
     END. /* each reftable */
+    FOR EACH sbNote EXCLUSIVE-LOCK
+        :
+        IF deleteJobNotes EQ "ALL" OR
+           fDeleteRecord(sbNote.company,
+                         sbNote.m-code + ",,"
+                       + sbNote.job-no + ","
+                       + STRING(sbNote.job-no2) + ","
+                       + STRING(sbNote.frm)) THEN
+        DELETE sbNote.
+    END. /* each sbNote */
     RUN pReload IN ipContainerHandle.
     SESSION:SET-WAIT-STATE("").
     MESSAGE "Job Notes Cleared" VIEW-AS ALERT-BOX.
@@ -722,25 +744,25 @@ FUNCTION fDeleteRecord RETURNS LOGICAL
 ------------------------------------------------------------------------------*/
     DEFINE VARIABLE lDelete AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE cMCode  AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE iJob    AS INTEGER   NO-UNDO.
+/*    DEFINE VARIABLE iJob    AS INTEGER   NO-UNDO.*/
     DEFINE VARIABLE cJobNo  AS CHARACTER NO-UNDO.
     DEFINE VARIABLE iJobNo2 AS INTEGER   NO-UNDO.
     DEFINE VARIABLE iFrm    AS INTEGER   NO-UNDO.
 
     ASSIGN
         cMCode  = ENTRY(1,ipcCode)
-        iJob    = INTEGER(ENTRY(2,ipcCode))
+/*        iJob    = INTEGER(ENTRY(2,ipcCode))*/
         cJobNo  = ENTRY(3,ipcCode)
         iJobNo2 = INTEGER(ENTRY(4,ipcCode))
         iFrm    = INTEGER(ENTRY(5,ipcCode))
         lDelete = CAN-FIND(FIRST job-mch
-                                 WHERE job-mch.company EQ ipcCompany
-                                   AND job-mch.m-code  EQ cMCode
-                                   AND job-mch.job     EQ iJob
-                                   AND job-mch.job-no  EQ cJobNo
-                                   AND job-mch.job-no2 EQ iJobNo2
-                                   AND job-mch.frm     EQ iFrm
-                                   AND job-mch.run-complete EQ YES)
+                           WHERE job-mch.company EQ ipcCompany
+                             AND job-mch.m-code  EQ cMCode
+/*                             AND job-mch.job     EQ iJob*/
+                             AND job-mch.job-no  EQ cJobNo
+                             AND job-mch.job-no2 EQ iJobNo2
+                             AND job-mch.frm     EQ iFrm
+                             AND job-mch.run-complete EQ YES)
         .
     RETURN lDelete.
 

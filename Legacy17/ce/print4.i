@@ -239,7 +239,8 @@ DEFINE {1} TEMP-TABLE op NO-UNDO
     FIELD run-qty   LIKE job-mch.run-qty
     FIELD opmr      AS DECIMAL
     FIELD oprun     AS DECIMAL
-    FIELD optot     AS DECIMAL.
+    FIELD optot     AS DECIMAL
+    FIELD rec_key   AS CHARACTER .
 
 DEFINE {1} TEMP-TABLE xprep NO-UNDO
     FIELD frm      LIKE job-prep.frm

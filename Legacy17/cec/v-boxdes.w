@@ -5,8 +5,8 @@
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admViewersUsing.i} /* added by script c:\tmp\p42959__V16toV17.ped */
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS V-table-Win 
+{Advantzware\WinKit\admViewersUsing.i} /* added by script _admViewers.p */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
@@ -45,6 +45,7 @@ def TEMP-TABLE w-box-h NO-UNDO like box-design-hdr.
 def TEMP-TABLE w-box-l NO-UNDO LIKE box-design-line.
 def var lv-wscore like box-design-hdr.wscore no-undo.
 def var lv-wcum-score like box-design-hdr.wcum-score no-undo.
+DEFINE VARIABLE cDesignNo AS CHARACTER NO-UNDO.
 
 PROCEDURE ShellExecuteA EXTERNAL "shell32":u :
       define input parameter hwnd as long.
@@ -80,8 +81,9 @@ END PROCEDURE.
 /* Need to scope the external tables to this procedure                  */
 DEFINE QUERY external_tables FOR box-design-hdr.
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-FIELDS box-design-hdr.description ~
-box-design-hdr.box-image box-design-hdr.lscore box-design-hdr.wscore 
+&Scoped-Define ENABLED-FIELDS box-design-hdr.design-no ~
+box-design-hdr.description box-design-hdr.box-image box-design-hdr.lscore ~
+box-design-hdr.wscore 
 &Scoped-define ENABLED-TABLES box-design-hdr
 &Scoped-define FIRST-ENABLED-TABLE box-design-hdr
 &Scoped-Define ENABLED-OBJECTS box-image-2 RECT-29 btn_right btn_left 
@@ -182,12 +184,12 @@ DEFINE FRAME F-Main
           FONT 0
      "W Score" VIEW-AS TEXT
           SIZE 11 BY .86 AT ROW 4.1 COL 134
-     "W Totals" VIEW-AS TEXT
-          SIZE 11 BY .86 AT ROW 4.1 COL 121
-     "Score:" VIEW-AS TEXT
-          SIZE 8 BY .62 AT ROW 2.43 COL 120
      "Total" VIEW-AS TEXT
           SIZE 8 BY .62 AT ROW 3.38 COL 120
+     "Score:" VIEW-AS TEXT
+          SIZE 8 BY .62 AT ROW 2.43 COL 120
+     "W Totals" VIEW-AS TEXT
+          SIZE 11 BY .86 AT ROW 4.1 COL 121
      box-image-2 AT ROW 4.57 COL 3
      RECT-29 AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
@@ -259,8 +261,6 @@ ASSIGN
 
 /* SETTINGS FOR FILL-IN box-design-hdr.description IN FRAME F-Main
    1                                                                    */
-/* SETTINGS FOR FILL-IN box-design-hdr.design-no IN FRAME F-Main
-   NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN box-design-hdr.lcum-score IN FRAME F-Main
    NO-ENABLE 2 EXP-LABEL EXP-FORMAT                                     */
 /* SETTINGS FOR FILL-IN box-design-hdr.lscore IN FRAME F-Main
@@ -289,7 +289,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -443,6 +443,30 @@ DO:
     APPLY LASTKEY.
     box-design-hdr.lcum-score:SCREEN-VALUE = SUBSTRING(box-design-hdr.lcum-score,1,80).
     RETURN NO-APPLY.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME box-design-hdr.design-no
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL box-design-hdr.design-no V-table-Win
+ON ENTRY OF box-design-hdr.design-no IN FRAME F-Main /* Design # */
+DO:
+  cDesignNo = SELF:SCREEN-VALUE.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL box-design-hdr.design-no V-table-Win
+ON LEAVE OF box-design-hdr.design-no IN FRAME F-Main /* Design # */
+DO:
+  IF LASTKEY <> -1 THEN DO:
+     RUN valid-design-no NO-ERROR.
+     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+  END.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1211,4 +1235,31 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-design-no V-table-Win
+PROCEDURE valid-design-no:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+  DEFINE VARIABLE iDesignNo AS INTEGER NO-UNDO.
+  
+  iDesignNo = INTEGER (box-design-hdr.design-no:SCREEN-VALUE IN FRAME {&FRAME-NAME}).
+  
+  IF iDesignNo EQ INTEGER (cDesignNo) THEN RETURN.
+  
+  {methods/lValidateError.i YES}
+  IF CAN-FIND (FIRST box-design-hdr
+               WHERE box-design-hdr.company   EQ g_company
+                 AND box-design-hdr.design-no EQ iDesignNo) THEN DO:
+     MESSAGE "Design Number" iDesignNo "Already Used - Try Again" VIEW-AS ALERT-BOX ERROR.
+     RETURN ERROR.
+  END.
+  {methods/lValidateError.i NO}
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 

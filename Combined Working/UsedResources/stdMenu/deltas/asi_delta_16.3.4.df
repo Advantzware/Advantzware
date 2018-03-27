@@ -1,0 +1,17 @@
+ADD FIELD "ack-date" OF "EDPOTran" AS date
+  FORMAT "99/99/99"
+  POSITION 62
+  INITIAL ?
+  LABEL "Ack Date"
+  ORDER 761
+  MAX-WIDTH 4
+
+ADD INDEX "AckDate" ON "EDPOTran"
+  AREA "Schema Area"
+  INDEX-FIELD "ack-date" ASCENDING
+
+.
+PSC
+cpstream=ISO8859-1
+.
+0000000241

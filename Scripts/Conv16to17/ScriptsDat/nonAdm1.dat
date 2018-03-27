@@ -799,13 +799,6 @@ util\xlship2.w
 util\XrefTypetoGroup.w
 util\zeroBin.w
 util\zeroparts.w
-util\DataDigger\frLoadChooseFile.w
-util\DataDigger\frLoadImport.w
-util\DataDigger\frLoadMapping.w
-util\DataDigger\frLoadSettings.w
-util\DataDigger\wDataDigger.w
-util\DataDigger\wEdit.w
-util\DataDigger\wLoadData.w
 windows\addfgloc.w
 windows\contacts.w
 windows\r-prep.w

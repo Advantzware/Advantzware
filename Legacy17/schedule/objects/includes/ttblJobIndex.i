@@ -20,6 +20,7 @@
     INDEX resourceDetailFlag resourceDetailFlag
     INDEX printFlag printFlag
     INDEX sortBy sortBy
+    INDEX statusLabel statusLabel
     INDEX udfFields01 udfField01
     INDEX udfFields02 udfField02
     INDEX udfFields03 udfField03

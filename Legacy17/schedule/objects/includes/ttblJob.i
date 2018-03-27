@@ -26,6 +26,7 @@ DEFINE {1} SHARED TEMP-TABLE ttblResource NO-UNDO
   FIELD priority AS INTEGER
   FIELD department AS CHARACTER
   FIELD kicks AS INTEGER
+  FIELD dmiID AS INTEGER
     INDEX ttblResource IS PRIMARY UNIQUE order sortOrder resource
     INDEX priority priority
     INDEX resource resource.

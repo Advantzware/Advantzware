@@ -1,0 +1,658 @@
+ADD TABLE "asi2corr"
+  AREA "Schema Area"
+  DUMP-NAME "asi2corr"
+
+ADD FIELD "company" OF "asi2corr" AS character 
+  FORMAT "x(3)"
+  INITIAL ""
+  POSITION 2
+  MAX-WIDTH 6
+  ORDER 10
+
+ADD FIELD "job-no" OF "asi2corr" AS character 
+  FORMAT "x(6)"
+  INITIAL ""
+  POSITION 3
+  MAX-WIDTH 12
+  ORDER 20
+
+ADD FIELD "job-no2" OF "asi2corr" AS integer 
+  FORMAT ">9"
+  INITIAL "0"
+  POSITION 4
+  MAX-WIDTH 4
+  ORDER 30
+
+ADD FIELD "download-date" OF "asi2corr" AS date 
+  FORMAT "99/99/9999"
+  INITIAL ?
+  POSITION 5
+  MAX-WIDTH 4
+  ORDER 40
+
+ADD FIELD "download-user" OF "asi2corr" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  POSITION 6
+  MAX-WIDTH 16
+  ORDER 50
+
+ADD FIELD "download-time" OF "asi2corr" AS integer 
+  FORMAT "->,>>>,>>9"
+  INITIAL "0"
+  POSITION 7
+  MAX-WIDTH 4
+  ORDER 60
+
+ADD FIELD "rec_key" OF "asi2corr" AS character 
+  FORMAT "x(20)"
+  INITIAL ""
+  POSITION 8
+  MAX-WIDTH 40
+  ORDER 70
+
+ADD INDEX "job-no" ON "asi2corr" 
+  AREA "Schema Area"
+  PRIMARY
+  INDEX-FIELD "company" ASCENDING 
+  INDEX-FIELD "job-no" ASCENDING 
+  INDEX-FIELD "job-no2" ASCENDING 
+
+ADD INDEX "download-date" ON "asi2corr" 
+  AREA "Schema Area"
+  INDEX-FIELD "download-date" ASCENDING 
+
+ADD TABLE "corr2asi"
+  AREA "Schema Area"
+  DUMP-NAME "corr2asi"
+
+ADD FIELD "company" OF "corr2asi" AS character 
+  FORMAT "x(3)"
+  INITIAL ""
+  POSITION 2
+  MAX-WIDTH 6
+  ORDER 10
+
+ADD FIELD "job-no" OF "corr2asi" AS character 
+  FORMAT "x(6)"
+  INITIAL ""
+  POSITION 3
+  MAX-WIDTH 12
+  ORDER 20
+
+ADD FIELD "job-no2" OF "corr2asi" AS integer 
+  FORMAT ">9"
+  INITIAL "0"
+  POSITION 4
+  MAX-WIDTH 4
+  ORDER 30
+
+ADD FIELD "cl-order-id" OF "corr2asi" AS character 
+  FORMAT "x(20)"
+  INITIAL ""
+  LABEL "CorrLink Order ID"
+  POSITION 5
+  MAX-WIDTH 40
+  ORDER 40
+
+ADD FIELD "cl-cust-name" OF "corr2asi" AS character 
+  FORMAT "x(24)"
+  INITIAL ""
+  POSITION 6
+  MAX-WIDTH 48
+  ORDER 50
+
+ADD FIELD "cl-completion-date" OF "corr2asi" AS date 
+  FORMAT "99/99/9999"
+  INITIAL ?
+  POSITION 7
+  MAX-WIDTH 4
+  ORDER 60
+
+ADD FIELD "cl-completion-time" OF "corr2asi" AS integer 
+  FORMAT "->,>>>,>>9"
+  INITIAL "0"
+  POSITION 8
+  MAX-WIDTH 4
+  ORDER 70
+
+ADD FIELD "cl-total-start-blanks" OF "corr2asi" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  POSITION 9
+  MAX-WIDTH 16
+  ORDER 80
+
+ADD FIELD "import-date" OF "corr2asi" AS date 
+  FORMAT "99/99/9999"
+  INITIAL ?
+  POSITION 10
+  MAX-WIDTH 4
+  ORDER 90
+
+ADD FIELD "import-time" OF "corr2asi" AS integer 
+  FORMAT "->,>>>,>>9"
+  INITIAL "0"
+  POSITION 11
+  MAX-WIDTH 4
+  ORDER 100
+
+ADD FIELD "import-user" OF "corr2asi" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  POSITION 12
+  MAX-WIDTH 16
+  ORDER 110
+
+ADD FIELD "rec_key" OF "corr2asi" AS character 
+  FORMAT "x(20)"
+  INITIAL ""
+  POSITION 13
+  MAX-WIDTH 40
+  ORDER 120
+
+ADD INDEX "job-no" ON "corr2asi" 
+  AREA "Schema Area"
+  PRIMARY
+  INDEX-FIELD "company" ASCENDING 
+  INDEX-FIELD "job-no" ASCENDING 
+  INDEX-FIELD "job-no2" ASCENDING 
+
+ADD INDEX "import-date" ON "corr2asi" 
+  AREA "Schema Area"
+  INDEX-FIELD "import-date" ASCENDING 
+
+ADD INDEX "import-user" ON "corr2asi" 
+  AREA "Schema Area"
+  INDEX-FIELD "import-user" ASCENDING 
+
+ADD TABLE "corrxref"
+  AREA "Schema Area"
+  DUMP-NAME "corrxref"
+
+ADD FIELD "xref-type" OF "corrxref" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  POSITION 2
+  MAX-WIDTH 16
+  ORDER 10
+
+ADD FIELD "asi-val" OF "corrxref" AS character 
+  FORMAT "x(30)"
+  INITIAL ""
+  POSITION 3
+  MAX-WIDTH 60
+  ORDER 20
+
+ADD FIELD "corr-val" OF "corrxref" AS character 
+  FORMAT "x(30)"
+  INITIAL ""
+  POSITION 4
+  MAX-WIDTH 60
+  ORDER 30
+
+ADD FIELD "is-current" OF "corrxref" AS logical 
+  FORMAT "yes/no"
+  INITIAL "no"
+  POSITION 5
+  MAX-WIDTH 1
+  ORDER 40
+
+ADD INDEX "xref-type" ON "corrxref" 
+  AREA "Schema Area"
+  PRIMARY
+  INDEX-FIELD "xref-type" ASCENDING 
+  INDEX-FIELD "asi-val" ASCENDING 
+
+ADD INDEX "is-current" ON "corrxref" 
+  AREA "Schema Area"
+  INDEX-FIELD "is-current" ASCENDING 
+
+RENAME INDEX "i-no" TO "temp-30828" ON "oe-retl"
+
+RENAME INDEX "r-no" TO "temp-80833" ON "oe-retl"
+
+ADD INDEX "i-no" ON "oe-retl"
+  AREA "Schema Area"
+  INDEX-FIELD "company" ASCENDING
+  INDEX-FIELD "r-no" ASCENDING
+  INDEX-FIELD "i-no" ASCENDING
+
+ADD INDEX "r-no" ON "oe-retl"
+  AREA "Schema Area"
+  UNIQUE
+  INDEX-FIELD "company" ASCENDING
+  INDEX-FIELD "r-no" ASCENDING
+  INDEX-FIELD "line" ASCENDING
+  INDEX-FIELD "tag" ASCENDING
+
+UPDATE PRIMARY INDEX "r-no" ON "oe-retl"
+
+DROP INDEX "temp-30828" ON "oe-retl"
+DROP INDEX "temp-80833" ON "oe-retl"
+
+UPDATE SEQUENCE "ap_check_seq"
+  MAX-VAL 999999
+
+UPDATE SEQUENCE "ap_check_seq01"
+  MAX-VAL 999999
+
+UPDATE SEQUENCE "ap_check_seq02"
+  MAX-VAL 999999
+
+UPDATE SEQUENCE "ap_check_seq03"
+  MAX-VAL 999999
+
+UPDATE SEQUENCE "ap_check_seq04"
+  MAX-VAL 999999
+
+UPDATE SEQUENCE "ap_check_seq05"
+  MAX-VAL 999999
+
+UPDATE SEQUENCE "ap_check_seq06"
+  MAX-VAL 999999
+
+UPDATE SEQUENCE "ap_check_seq07"
+  MAX-VAL 999999
+
+UPDATE SEQUENCE "ap_check_seq08"
+  MAX-VAL 999999
+
+UPDATE SEQUENCE "ap_check_seq09"
+  MAX-VAL 999999
+
+UPDATE SEQUENCE "ap_check_seq10"
+  MAX-VAL 999999
+
+UPDATE SEQUENCE "ap_inv_seq"
+  MAX-VAL 999999
+
+UPDATE SEQUENCE "ap_inv_seq01"
+  MAX-VAL 999999
+
+UPDATE SEQUENCE "ap_inv_seq02"
+  MAX-VAL 999999
+
+UPDATE SEQUENCE "ap_inv_seq03"
+  MAX-VAL 999999
+
+UPDATE SEQUENCE "ap_inv_seq04"
+  MAX-VAL 999999
+
+UPDATE SEQUENCE "ap_inv_seq05"
+  MAX-VAL 999999
+
+UPDATE SEQUENCE "ap_inv_seq06"
+  MAX-VAL 999999
+
+UPDATE SEQUENCE "ap_inv_seq07"
+  MAX-VAL 999999
+
+UPDATE SEQUENCE "ap_inv_seq08"
+  MAX-VAL 999999
+
+UPDATE SEQUENCE "ap_inv_seq09"
+  MAX-VAL 999999
+
+UPDATE SEQUENCE "ap_inv_seq10"
+  MAX-VAL 999999
+
+UPDATE SEQUENCE "arcash_seq"
+  MAX-VAL 999999
+
+UPDATE SEQUENCE "arcash_seq01"
+  MAX-VAL 999999
+
+UPDATE SEQUENCE "arcash_seq02"
+  MAX-VAL 999999
+
+UPDATE SEQUENCE "arcash_seq03"
+  MAX-VAL 999999
+
+UPDATE SEQUENCE "arcash_seq04"
+  MAX-VAL 999999
+
+UPDATE SEQUENCE "arcash_seq05"
+  MAX-VAL 999999
+
+UPDATE SEQUENCE "arcash_seq06"
+  MAX-VAL 999999
+
+UPDATE SEQUENCE "arcash_seq07"
+  MAX-VAL 999999
+
+UPDATE SEQUENCE "arcash_seq08"
+  MAX-VAL 999999
+
+UPDATE SEQUENCE "arcash_seq09"
+  MAX-VAL 999999
+
+UPDATE SEQUENCE "arcash_seq10"
+  MAX-VAL 999999
+
+UPDATE SEQUENCE "ar_xno_seq"
+  MAX-VAL 999999
+
+UPDATE SEQUENCE "ar_xno_seq01"
+  MAX-VAL 999999
+
+UPDATE SEQUENCE "ar_xno_seq02"
+  MAX-VAL 999999
+
+UPDATE SEQUENCE "ar_xno_seq03"
+  MAX-VAL 999999
+
+UPDATE SEQUENCE "ar_xno_seq04"
+  MAX-VAL 999999
+
+UPDATE SEQUENCE "ar_xno_seq05"
+  MAX-VAL 999999
+
+UPDATE SEQUENCE "ar_xno_seq06"
+  MAX-VAL 999999
+
+UPDATE SEQUENCE "ar_xno_seq07"
+  MAX-VAL 999999
+
+UPDATE SEQUENCE "ar_xno_seq08"
+  MAX-VAL 999999
+
+UPDATE SEQUENCE "ar_xno_seq09"
+  MAX-VAL 999999
+
+UPDATE SEQUENCE "ar_xno_seq10"
+  MAX-VAL 999999
+
+UPDATE SEQUENCE "bol_seq01"
+  MAX-VAL 999999
+
+UPDATE SEQUENCE "bol_seq02"
+  MAX-VAL 999999
+
+UPDATE SEQUENCE "bol_seq03"
+  MAX-VAL 999999
+
+UPDATE SEQUENCE "bol_seq04"
+  MAX-VAL 999999
+
+UPDATE SEQUENCE "bol_seq05"
+  MAX-VAL 999999
+
+UPDATE SEQUENCE "bol_seq06"
+  MAX-VAL 999999
+
+UPDATE SEQUENCE "bol_seq07"
+  MAX-VAL 999999
+
+UPDATE SEQUENCE "bol_seq08"
+  MAX-VAL 999999
+
+UPDATE SEQUENCE "bol_seq09"
+  MAX-VAL 999999
+
+UPDATE SEQUENCE "bol_seq10"
+  MAX-VAL 999999
+
+UPDATE SEQUENCE "enum_seq"
+  MAX-VAL 999999
+
+UPDATE SEQUENCE "enum_seq01"
+  MAX-VAL 999999
+
+UPDATE SEQUENCE "enum_seq02"
+  MAX-VAL 999999
+
+UPDATE SEQUENCE "enum_seq03"
+  MAX-VAL 999999
+
+UPDATE SEQUENCE "enum_seq04"
+  MAX-VAL 999999
+
+UPDATE SEQUENCE "enum_seq05"
+  MAX-VAL 999999
+
+UPDATE SEQUENCE "enum_seq06"
+  MAX-VAL 999999
+
+UPDATE SEQUENCE "enum_seq07"
+  MAX-VAL 999999
+
+UPDATE SEQUENCE "enum_seq08"
+  MAX-VAL 999999
+
+UPDATE SEQUENCE "enum_seq09"
+  MAX-VAL 999999
+
+UPDATE SEQUENCE "enum_seq10"
+  MAX-VAL 999999
+
+UPDATE SEQUENCE "fg_rcpt_seq01"
+  MAX-VAL 999999
+
+UPDATE SEQUENCE "fg_rcpt_seq02"
+  MAX-VAL 999999
+
+UPDATE SEQUENCE "fg_rcpt_seq03"
+  MAX-VAL 999999
+
+UPDATE SEQUENCE "fg_rcpt_seq04"
+  MAX-VAL 999999
+
+UPDATE SEQUENCE "fg_rcpt_seq05"
+  MAX-VAL 999999
+
+UPDATE SEQUENCE "fg_rcpt_seq06"
+  MAX-VAL 999999
+
+UPDATE SEQUENCE "fg_rcpt_seq07"
+  MAX-VAL 999999
+
+UPDATE SEQUENCE "fg_rcpt_seq08"
+  MAX-VAL 999999
+
+UPDATE SEQUENCE "fg_rcpt_seq09"
+  MAX-VAL 999999
+
+UPDATE SEQUENCE "fg_rcpt_seq10"
+  MAX-VAL 999999
+
+UPDATE SEQUENCE "inv_r_no_seq"
+  MAX-VAL 999999
+
+UPDATE SEQUENCE "inv_r_no_seq01"
+  MAX-VAL 999999
+
+UPDATE SEQUENCE "inv_r_no_seq02"
+  MAX-VAL 999999
+
+UPDATE SEQUENCE "inv_r_no_seq03"
+  MAX-VAL 999999
+
+UPDATE SEQUENCE "inv_r_no_seq04"
+  MAX-VAL 999999
+
+UPDATE SEQUENCE "inv_r_no_seq05"
+  MAX-VAL 999999
+
+UPDATE SEQUENCE "inv_r_no_seq06"
+  MAX-VAL 999999
+
+UPDATE SEQUENCE "inv_r_no_seq07"
+  MAX-VAL 999999
+
+UPDATE SEQUENCE "inv_r_no_seq08"
+  MAX-VAL 999999
+
+UPDATE SEQUENCE "inv_r_no_seq09"
+  MAX-VAL 999999
+
+UPDATE SEQUENCE "inv_r_no_seq10"
+  MAX-VAL 999999
+
+UPDATE SEQUENCE "job_seq"
+  MAX-VAL 999999
+
+UPDATE SEQUENCE "job_seq01"
+  MAX-VAL 999999
+
+UPDATE SEQUENCE "job_seq02"
+  MAX-VAL 999999
+
+UPDATE SEQUENCE "job_seq03"
+  MAX-VAL 999999
+
+UPDATE SEQUENCE "job_seq04"
+  MAX-VAL 999999
+
+UPDATE SEQUENCE "job_seq05"
+  MAX-VAL 999999
+
+UPDATE SEQUENCE "job_seq06"
+  MAX-VAL 999999
+
+UPDATE SEQUENCE "job_seq07"
+  MAX-VAL 999999
+
+UPDATE SEQUENCE "job_seq08"
+  MAX-VAL 999999
+
+UPDATE SEQUENCE "job_seq09"
+  MAX-VAL 999999
+
+UPDATE SEQUENCE "job_seq10"
+  MAX-VAL 999999
+
+UPDATE SEQUENCE "jrnl_seq"
+  MAX-VAL 999999
+
+UPDATE SEQUENCE "jrnl_seq01"
+  MAX-VAL 999999
+
+UPDATE SEQUENCE "jrnl_seq02"
+  MAX-VAL 999999
+
+UPDATE SEQUENCE "jrnl_seq03"
+  MAX-VAL 999999
+
+UPDATE SEQUENCE "jrnl_seq04"
+  MAX-VAL 999999
+
+UPDATE SEQUENCE "jrnl_seq05"
+  MAX-VAL 999999
+
+UPDATE SEQUENCE "jrnl_seq06"
+  MAX-VAL 999999
+
+UPDATE SEQUENCE "jrnl_seq07"
+  MAX-VAL 999999
+
+UPDATE SEQUENCE "jrnl_seq08"
+  MAX-VAL 999999
+
+UPDATE SEQUENCE "jrnl_seq09"
+  MAX-VAL 999999
+
+UPDATE SEQUENCE "jrnl_seq10"
+  MAX-VAL 999999
+
+UPDATE SEQUENCE "master_bol_seq"
+  MAX-VAL 999999
+
+UPDATE SEQUENCE "master_bol_seq01"
+  MAX-VAL 999999
+
+UPDATE SEQUENCE "master_bol_seq02"
+  MAX-VAL 999999
+
+UPDATE SEQUENCE "master_bol_seq03"
+  MAX-VAL 999999
+
+UPDATE SEQUENCE "master_bol_seq04"
+  MAX-VAL 999999
+
+UPDATE SEQUENCE "master_bol_seq05"
+  MAX-VAL 999999
+
+UPDATE SEQUENCE "master_bol_seq06"
+  MAX-VAL 999999
+
+UPDATE SEQUENCE "master_bol_seq07"
+  MAX-VAL 999999
+
+UPDATE SEQUENCE "master_bol_seq08"
+  MAX-VAL 999999
+
+UPDATE SEQUENCE "master_bol_seq09"
+  MAX-VAL 999999
+
+UPDATE SEQUENCE "master_bol_seq10"
+  MAX-VAL 999999
+
+UPDATE SEQUENCE "oerel_release_seq"
+  MAX-VAL 999999
+
+UPDATE SEQUENCE "oerel_release_seq01"
+  MAX-VAL 999999
+
+UPDATE SEQUENCE "oerel_release_seq02"
+  MAX-VAL 999999
+
+UPDATE SEQUENCE "oerel_release_seq03"
+  MAX-VAL 999999
+
+UPDATE SEQUENCE "oerel_release_seq04"
+  MAX-VAL 999999
+
+UPDATE SEQUENCE "oerel_release_seq05"
+  MAX-VAL 999999
+
+UPDATE SEQUENCE "oerel_release_seq06"
+  MAX-VAL 999999
+
+UPDATE SEQUENCE "oerel_release_seq07"
+  MAX-VAL 999999
+
+UPDATE SEQUENCE "oerel_release_seq08"
+  MAX-VAL 999999
+
+UPDATE SEQUENCE "oerel_release_seq09"
+  MAX-VAL 999999
+
+UPDATE SEQUENCE "oerel_release_seq10"
+  MAX-VAL 999999
+
+UPDATE SEQUENCE "rm_rcpt_seq01"
+  MAX-VAL 999999
+
+UPDATE SEQUENCE "rm_rcpt_seq02"
+  MAX-VAL 999999
+
+UPDATE SEQUENCE "rm_rcpt_seq03"
+  MAX-VAL 999999
+
+UPDATE SEQUENCE "rm_rcpt_seq04"
+  MAX-VAL 999999
+
+UPDATE SEQUENCE "rm_rcpt_seq05"
+  MAX-VAL 999999
+
+UPDATE SEQUENCE "rm_rcpt_seq06"
+  MAX-VAL 999999
+
+UPDATE SEQUENCE "rm_rcpt_seq07"
+  MAX-VAL 999999
+
+UPDATE SEQUENCE "rm_rcpt_seq08"
+  MAX-VAL 999999
+
+UPDATE SEQUENCE "rm_rcpt_seq09"
+  MAX-VAL 999999
+
+UPDATE SEQUENCE "rm_rcpt_seq10"
+  MAX-VAL 999999
+
+.
+PSC
+cpstream=ISO8859-1
+.
+0000012018

@@ -2246,6 +2246,75 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE repo-query B-table-Win
+PROCEDURE repo-query:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+  DEF INPUT PARAM ip-rowid AS ROWID NO-UNDO.
+
+
+  DO WITH FRAME {&FRAME-NAME}:
+    REPOSITION {&browse-name} TO ROWID ip-rowid NO-ERROR.
+    IF ERROR-STATUS:ERROR THEN DO:
+      RUN one-row-query (ip-rowid).
+      REPOSITION {&browse-name} TO ROWID ip-rowid NO-ERROR.
+    END.
+    IF NOT ERROR-STATUS:ERROR THEN RUN dispatch ("row-changed").
+  END.
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE repo-query1 B-table-Win
+PROCEDURE repo-query1:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+  DEF INPUT PARAM ip-rowid AS ROWID NO-UNDO.
+
+  DEF VAR lv-rowid AS ROWID NO-UNDO.
+
+  DEF BUFFER b-oe-ordl FOR oe-ordl.
+  DEF BUFFER b-oe-ord  FOR oe-ord.
+
+
+  IF AVAIL oe-ordl THEN lv-rowid = ROWID(oe-ordl).
+
+  FIND b-oe-ord WHERE ROWID(b-oe-ord) EQ ip-rowid NO-LOCK NO-ERROR.
+
+  IF AVAIL b-oe-ord THEN DO:
+    RUN dispatch ("get-first").
+    IF ROWID(oe-ord) EQ ip-rowid THEN RUN dispatch ("get-last").
+    IF ROWID(oe-ord) EQ ip-rowid THEN RUN dispatch ("open-query").
+    IF AVAIL oe-ordl THEN RUN repo-query (ROWID(oe-ordl)).
+
+    IF CAN-FIND(FIRST b-oe-ordl OF b-oe-ord
+                WHERE ROWID(b-oe-ordl) EQ lv-rowid) THEN
+      ip-rowid = lv-rowid.
+    ELSE DO:
+      FIND FIRST b-oe-ordl OF b-oe-ord NO-LOCK.
+      ip-rowid = ROWID(b-oe-ordl).
+    END.
+  END.
+
+  RUN repo-query (ip-rowid).
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE select-his B-table-Win 
 PROCEDURE select-his :
 /*------------------------------------------------------------------------------

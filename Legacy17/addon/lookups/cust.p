@@ -1,4 +1,4 @@
-/* cust.p - Generated 01/20/2006 -  4:23 pm by nosweat
+/* cust.p - Generated 10/17/2017 -  7:54 pm by NoSweat
 "cust. " ~
 "ASI " ~
 "cust " ~
@@ -26,21 +26,22 @@
 &Scoped-define height-size 19
 &Scoped-define width-size 120
 &Scoped-define show-fields cust.cust-no cust.name cust.city cust.state cust.zip cust.type cust.sman cust.terr
+&Scoped-define show-fields-yellow cust.cust-no LABEL-BGCOLOR 14 cust.name LABEL-BGCOLOR 14 cust.city LABEL-BGCOLOR 14 cust.state LABEL-BGCOLOR 14 cust.zip LABEL-BGCOLOR 14 cust.type LABEL-BGCOLOR 14 cust.sman LABEL-BGCOLOR 14 cust.terr LABEL-BGCOLOR 14
 &Scoped-define frame-title Customers Lookup
 &Scoped-define top-include ~{custom/getcmpny.i} ~{custom/getloc.i} ~{sys/inc/varasgn.i}
 &Scoped-define def-include ~{custom/gcompany.i} ~{custom/gloc.i} ~{sys/inc/var.i NEW SHARED}
 &Scoped-define end-include 
 &Scoped-define ui-prgmname cust.
-&Scoped-define window-size 23
+&Scoped-define window-size 24
 &Scoped-define window-col 15
 &Scoped-define rect-1-row 20.15
 &Scoped-define by-row 20.42
 &Scoped-define browse-order-width 114
 &Scoped-define browse-order-row 20.42
-&Scoped-define btn-row 21.77
-&Scoped-define btn-ok-col 111
-&Scoped-define btn-cancel-col 100
-&Scoped-define auto-find-row 22.85
+&Scoped-define btn-row 21.7
+&Scoped-define btn-ok-col 113
+&Scoped-define btn-cancel-col 106
+&Scoped-define auto-find-row 23.65
 
 &Global-define FORMAT-1 x(30)
 &Scoped-define FLDNAME1 cust.name

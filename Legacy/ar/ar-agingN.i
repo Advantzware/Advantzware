@@ -2,11 +2,11 @@
 /* A/R Aged Receivables Report Program - A/R Module                           */
 /* -------------------------------------------------------------------------- */
 
+
 {sys/inc/var.i shared}
 {sys/ref/CustList.i}
 {ar/ar-agng2.i}
 {sys/inc/ttRptSel.i}
-{sys/form/r-top3w.f}
 
 DEF  SHARED VAR ldummy AS LOG NO-UNDO.
 DEF  SHARED VAR cTextListToSelect AS cha NO-UNDO.
@@ -18,6 +18,15 @@ DEF  SHARED VAR cTextListToDefault AS cha NO-UNDO.
 DEF  SHARED VAR cColumnInit AS LOG INIT YES NO-UNDO.
 DEF  SHARED VAR cSelectedList AS cha NO-UNDO.
 DEF  SHARED VAR str-line AS cha FORM "x(300)" NO-UNDO.
+DEF  SHARED VAR  str-tit4 AS cha FORM "x(300)" NO-UNDO.
+DEF  SHARED VAR str-tit5 AS cha FORM "x(300)" NO-UNDO.
+DEF  SHARED VAR str-tit6 AS cha FORM "x(300)" NO-UNDO.
+DEF  SHARED VAR str-tit7 AS cha FORM "x(300)" NO-UNDO.
+DEF  SHARED VAR cstrtit AS CHARACTER FORM "x(300)" NO-UNDO.
+DEF  SHARED VAR cstrtit2 AS CHARACTER FORM "x(300)" NO-UNDO.
+DEF  SHARED VAR iline AS INTEGER NO-UNDO .
+
+{sys/form/r-top5L3.f}
 
 DEF VAR cDisplay AS cha NO-UNDO.
 DEF VAR cExcelDisplay AS cha NO-UNDO.
@@ -76,6 +85,7 @@ DEF VAR v-check-date AS DATE NO-UNDO.
 DEF VAR v-gltrans-desc AS CHAR FORMAT "X(60)" NO-UNDO.
 DEF VAR cPoNo LIKE ar-inv.po-no NO-UNDO.
 DEF VAR cJobStr AS CHAR FORMAT "x(9)" NO-UNDO.
+DEF VAR iLinePerPage AS INTEGER NO-UNDO .
 DEF TEMP-TABLE tt-cust NO-UNDO FIELD curr-code LIKE cust.curr-code
                                FIELD sorter    LIKE cust.cust-no
                                FIELD row-id    AS   ROWID
@@ -96,7 +106,9 @@ DEF TEMP-TABLE tt-inv NO-UNDO  FIELD sorter    LIKE ar-inv.inv-no
           AND ar-inv.posted      EQ YES            ~
           AND ar-inv.cust-no     EQ cust.cust-no   ~
           AND ar-inv.inv-date    LE v-date         ~
-          AND ar-inv.terms       NE "CASH"         
+          AND ar-inv.terms       NE "CASH"         ~
+          AND ar-inv.terms       GE v-s-terms      ~
+          AND ar-inv.terms       LE v-e-terms
 
 &SCOPED-DEFINE for-each-arcsh                            ~
     FOR EACH ar-cash                                     ~
@@ -122,6 +134,8 @@ DEF TEMP-TABLE tt-inv NO-UNDO  FIELD sorter    LIKE ar-inv.inv-no
             WHERE ar-inv.company     EQ cust.company     ~
               AND ar-inv.inv-no      EQ ar-cashl.inv-no  ~
               AND ar-inv.inv-date    GT v-date           ~
+              AND ar-inv.terms       GE v-s-terms        ~
+              AND ar-inv.terms       LE v-e-terms        ~
             USE-INDEX inv-no NO-ERROR.                   ~
         IF NOT AVAIL ar-inv THEN NEXT.                   ~
       END.                                               ~
@@ -159,9 +173,13 @@ DEF TEMP-TABLE tt-inv NO-UNDO  FIELD sorter    LIKE ar-inv.inv-no
                   WHERE tt-factored.x-no EQ ar-inv.x-no) THEN       ~
         NEXT.   
 
-FORM HEADER SKIP(1)
+FORM HEADER /*SKIP(1)*/
      lv-page-break FORMAT "x(200)"
 WITH PAGE-TOP FRAME r-top-1 STREAM-IO WIDTH 200 NO-BOX.
+
+ASSIGN
+ str-tit2 = cstrtit
+ str-tit3 = cstrtit2 .
 
 {custom/formtext.i NEW}
 DEF VAR lv-text AS cha NO-UNDO.
@@ -177,27 +195,25 @@ FORMAT HEADER
   FILL("_",132) FORMAT "x(131)"
 WITH PAGE-TOP FRAME r-top-2 STREAM-IO WIDTH 200 NO-BOX.
 
-/* Store list of all factored items */
+
 DEF TEMP-TABLE tt-factored
-  FIELD company LIKE reftable.company
+  FIELD company LIKE itemfg.company
   FIELD i-no    LIKE itemfg.i-no
   FIELD x-no    LIKE ar-invl.x-no
   INDEX i1 i-no
   INDEX i2 x-no.
   
-FOR EACH reftable WHERE reftable.reftable EQ "FACTORED"        
-                    AND reftable.code2    EQ "YES"
-                  NO-LOCK:
-  /* Note: code2 index exists on reftable */
-  FIND FIRST tt-factored WHERE tt-factored.i-no EQ reftable.CODE
+FOR EACH itemfg WHERE itemfg.factored    EQ YES
+                  NO-LOCK:  
+  FIND FIRST tt-factored WHERE tt-factored.i-no EQ itemfg.i-no
     NO-LOCK NO-ERROR.
   IF NOT AVAIL tt-factored THEN DO:
     FOR EACH ar-invl WHERE ar-invl.company EQ cocode
-      AND ar-invl.i-no EQ reftable.CODE
+      AND ar-invl.i-no EQ itemfg.i-no
       NO-LOCK:
       CREATE tt-factored.
-      ASSIGN tt-factored.company = reftable.company
-             tt-factored.i-no    = reftable.CODE.
+      ASSIGN tt-factored.company = itemfg.company
+             tt-factored.i-no    = itemfg.i-no.
     END.
   END.
 END.
@@ -218,8 +234,8 @@ END.
         AND ttCustList.log-fld no-lock) else true)
         AND cust.sman    GE v-s-sman
         AND cust.sman    LE v-e-sman
-        AND cust.terms    GE v-s-terms
-        AND cust.terms    LE v-e-terms
+        /*AND cust.terms    GE v-s-terms
+        AND cust.terms    LE v-e-terms*/ /* Ticket 23993 */
         AND (cust.ACTIVE NE "I" OR v-inactive-custs)
         AND ((cust.curr-code GE v-s-curr    AND
               cust.curr-code LE v-e-curr)       OR
@@ -274,6 +290,20 @@ END.
                    TRIM(tt-cust.curr-code) + "/" + TRIM(tt-cust.sorter).
     PROCESS EVENTS.
     
+   IF FIRST(tt-cust.curr-code) THEN DO:
+        VIEW FRAME r-top.
+        iLinePerPage = 9 .
+       /* PUT str-tit6 FORMAT "x(400)" SKIP 
+            str-tit7 FORMAT "x(400)" SKIP .*/
+    END.
+    
+    /*IF iLinePerPage  GE (iline - 5)  THEN DO:
+        PAGE.
+        PUT str-tit6 FORMAT "x(400)" SKIP 
+            str-tit7 FORMAT "x(400)" SKIP .
+        iLinePerPage = 9 .
+    END.*/
+    
     IF FIRST-OF(tt-cust.curr-code) THEN DO:
       lv-page-break = "Currency: " + TRIM(tt-cust.curr-code).
 
@@ -282,12 +312,24 @@ END.
         /*VIEW FRAME r-top-2.*/
       END.
 
-      IF ll-mult-curr OR FIRST(tt-cust.curr-code) THEN PAGE.
+      IF ll-mult-curr OR FIRST(tt-cust.curr-code) THEN do:
+           PAGE.
+           PUT str-tit6 FORMAT "x(400)" SKIP 
+            str-tit7 FORMAT "x(400)" SKIP .
+           iLinePerPage = 9 .
+      END.
     END.
+    
+    
 
     IF FIRST-OF(tt-cust.sorter)     AND
        NOT FIRST(tt-cust.curr-code) AND
-       "{&sort-by}" EQ "cust.sman"  THEN PAGE.
+       "{&sort-by}" EQ "cust.sman"  THEN do:
+       PAGE.
+        PUT str-tit6 FORMAT "x(400)" SKIP 
+            str-tit7 FORMAT "x(400)" SKIP .
+        iLinePerPage = 9 .
+    END.
 
     FIND FIRST sman NO-LOCK
         WHERE sman.company eq cust.company
@@ -368,13 +410,13 @@ END.
               cJobStr = ar-invl.job-no + "-" + STRING(ar-invl.job-no2, "99").
       END.
 
-
+  
       assign
        ag     = amt
        d      = v-date - ar-inv.{&date}
        ni     = ni + 1
        v-type = IF ar-inv.terms EQ "FCHG" THEN "FC" ELSE "IN".
-
+        
       for each ar-cashl
           where ar-cashl.company  eq ar-inv.company
             and ar-cashl.posted   eq yes
@@ -441,7 +483,7 @@ END.
          m3 = m3 + string(cust.phone,"999-9999").
 
          find first terms where terms.company = cust.company and
-                                terms.t-code = cust.terms no-lock no-error.
+                                terms.t-code = ar-inv.terms no-lock no-error.
 
          /* If input trend days entered, then do the trend days calculation. */
          IF  v-trend-days > 0 THEN
@@ -557,12 +599,19 @@ END.
           ELSE
              cust-t-fc[v-int] = cust-t-fc[v-int] + ag.
        END.
-       
+
+        
        /*if v-export then
          run export-data ("", d, v-type, string(ar-inv.inv-no,">>>>>>>>>>"),
                           ar-inv.inv-date, amt,
                           v-dec[1], v-dec[2], v-dec[3], v-dec[4]).*/
       if det-rpt = 1 THEN DO:
+          IF iLinePerPage  GE (iline - 5)  THEN DO:
+              PAGE.
+              PUT str-tit6 FORMAT "x(400)" SKIP 
+                  str-tit7 FORMAT "x(400)" SKIP .
+              iLinePerPage = 9 .
+          END.
          ASSIGN cDisplay = ""
                cTmpField = ""
                cVarValue = ""
@@ -586,7 +635,7 @@ END.
                      WHEN "phone"     THEN cVarValue = trim(string(cust.area-code,"(xxx)") + string(cust.phone,"xxx-xxxx")) .
                      WHEN "fax"       THEN cVarValue = trim(string(substr(cust.fax,1,3),"(xxx)") + string(substr(cust.fax,4,7),"xxx-xxxx")).
                      WHEN "chk-memo"  THEN cVarValue = STRING("0").
-                     WHEN "day-old"   THEN cVarValue = STRING(d,">>>>>>>>"). /*8*/
+                     WHEN "day-old"   THEN cVarValue = STRING(d,"->>>>>>>"). /*8*/
                      WHEN "type"      THEN cVarValue = string(v-type,"x(4)").
                      WHEN "inv"       THEN cVarValue = string(ar-inv.inv-no,">>>>>>>>") .
                      WHEN "inv-date"  THEN cVarValue = STRING(ar-inv.inv-date,"99/99/99") .
@@ -599,8 +648,8 @@ END.
                      WHEN "per-3"     THEN cVarValue = STRING(v-dec[4],"->>>>>>>>9.99") .
                      WHEN "cust-po"   THEN cVarValue = STRING(cPoNo,"x(15)") .
                      WHEN "job"       THEN cVarValue = STRING(cJobStr,"x(9)")  .
-                     WHEN "inv-note"  THEN cVarValue = "".
-                     WHEN "coll-note" THEN cVarValue = "".
+                     WHEN "inv-note"  THEN  NEXT  .
+                     WHEN "coll-note" THEN  NEXT  .
                     
                 END CASE.
                   
@@ -610,7 +659,8 @@ END.
                 cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
         END.
         
-        PUT UNFORMATTED cDisplay SKIP.
+        PUT UNFORMATTED cDisplay FORMAT "x(400)" SKIP.
+        iLinePerPage = iLinePerPage + 1 .
 
         IF sPrtInvNote THEN RUN Display-InvNote.
         IF sPrtCollectionNote THEN RUN Display-CollectionNote.
@@ -734,6 +784,12 @@ END.
                 run export-data (ar-cashl.check-no, 0, v-type,
                                  string(ar-cashl.inv-no,">>>>>>>>>>"),
                                  ar-cash.check-date, v-cr-db-amt, 0, 0, 0, 0).*/
+                IF iLinePerPage  GE (iline - 5)  THEN DO:
+                    PAGE.
+                    PUT str-tit6 FORMAT "x(400)" SKIP 
+                        str-tit7 FORMAT "x(400)" SKIP .
+                    iLinePerPage = 9 .
+                END.
                  ASSIGN cDisplay = ""
                      cTmpField = ""
                      cVarValue = ""
@@ -770,8 +826,8 @@ END.
                          WHEN "per-3"     THEN cVarValue = /*STRING(v-dec[4],"->>>>>>>>9.99")*/ "" .
                          WHEN "cust-po"   THEN cVarValue = STRING(cPoNo,"x(15)") .
                          WHEN "job"       THEN cVarValue = STRING(cJobStr,"x(10)")  .
-                         WHEN "inv-note"  THEN cVarValue = "".
-                         WHEN "coll-note" THEN cVarValue = "".
+                         WHEN "inv-note"  THEN NEXT .
+                         WHEN "coll-note" THEN NEXT .
                      END CASE.
 
                      cExcelVarValue = cVarValue.
@@ -780,7 +836,8 @@ END.
                      cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
             END.
 
-            PUT UNFORMATTED cDisplay SKIP.
+            PUT UNFORMATTED cDisplay FORMAT "x(400)" SKIP.
+            iLinePerPage = iLinePerPage + 1 .
             IF v-export THEN DO:
                 PUT STREAM s-temp UNFORMATTED  
                     cExcelDisplay SKIP.
@@ -799,6 +856,12 @@ END.
               run export-data (ar-cashl.check-no, 0, v-disc-type,
                                string(ar-cashl.inv-no,">>>>>>>>>>"),
                                ar-cash.check-date, v-disc-amt, 0, 0, 0, 0).*/
+             IF iLinePerPage  GE (iline - 5)  THEN DO:
+                 PAGE.
+                 PUT str-tit6 FORMAT "x(400)" SKIP 
+                     str-tit7 FORMAT "x(400)" SKIP .
+                 iLinePerPage = 9 .
+             END.
                     ASSIGN cDisplay = ""
                      cTmpField = ""
                      cVarValue = ""
@@ -835,8 +898,8 @@ END.
                          WHEN "per-3"     THEN cVarValue = /*STRING(v-dec[4],"->>>>>>>>9.99")*/ "" .
                          WHEN "cust-po"   THEN cVarValue = STRING(cPoNo,"x(15)") .
                          WHEN "job"       THEN cVarValue = STRING(cJobStr,"x(10)")  .
-                         WHEN "inv-note"  THEN cVarValue = "".
-                         WHEN "coll-note" THEN cVarValue = "".
+                         WHEN "inv-note"  THEN NEXT .
+                         WHEN "coll-note" THEN NEXT .
                      END CASE.
 
                      cExcelVarValue = cVarValue.
@@ -845,7 +908,8 @@ END.
                      cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
             END.
 
-            PUT UNFORMATTED cDisplay SKIP.
+            PUT UNFORMATTED cDisplay FORMAT "x(400)" SKIP.
+            iLinePerPage = iLinePerPage + 1 .
             IF v-export THEN DO:
                 PUT STREAM s-temp UNFORMATTED  
                     cExcelDisplay SKIP.
@@ -900,7 +964,14 @@ END.
             run export-data (ar-cashl.check-no, 0, v-type,
                              string(ar-cashl.inv-no,">>>>>>>>>>"),
                              v-check-date, v-cr-db-amt, 0, 0, 0, 0).*/
+
               IF det-rpt = 1 THEN do:
+                   IF iLinePerPage  GE (iline - 5)  THEN DO:
+                       PAGE.
+                       PUT str-tit6 FORMAT "x(400)" SKIP 
+                           str-tit7 FORMAT "x(400)" SKIP .
+                       iLinePerPage = 9 .
+                   END.
                    ASSIGN cDisplay = ""
                      cTmpField = ""
                      cVarValue = ""
@@ -937,8 +1008,8 @@ END.
                          WHEN "per-3"     THEN cVarValue = /*STRING(v-dec[4],"->>>>>>>>9.99")*/ "" .
                          WHEN "cust-po"   THEN cVarValue = STRING(cPoNo,"x(15)") .
                          WHEN "job"       THEN cVarValue = STRING(cJobStr,"x(10)")  .
-                         WHEN "inv-note"  THEN cVarValue = "".
-                         WHEN "coll-note" THEN cVarValue = "".
+                         WHEN "inv-note"  THEN NEXT .
+                         WHEN "coll-note" THEN NEXT .
                      END CASE.
 
                      cExcelVarValue = cVarValue.
@@ -947,7 +1018,8 @@ END.
                      cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
             END.
 
-            PUT UNFORMATTED cDisplay SKIP.
+            PUT UNFORMATTED cDisplay FORMAT "x(400)" SKIP.
+            iLinePerPage = iLinePerPage + 1 .
             IF v-export THEN DO:
                 PUT STREAM s-temp UNFORMATTED  
                     cExcelDisplay SKIP.
@@ -1023,7 +1095,7 @@ END.
         m3 = m3 + string(cust.phone,"999-9999").
 
         find first terms where terms.company = cust.company and
-                               terms.t-code = cust.terms no-lock no-error.
+                               terms.t-code = ar-inv.terms no-lock no-error.
 
        /* if det-rpt = 1 then
           display cust.cust-no
@@ -1152,6 +1224,12 @@ END.
                             v-check-date, v-cr-db-amt + v-disc-amt,
                             unapp[1], unapp[2], unapp[3], unapp[4]).*/
             if det-rpt = 1 THEN do:
+             IF iLinePerPage  GE (iline - 5)  THEN DO:
+                 PAGE.
+                 PUT str-tit6 FORMAT "x(400)" SKIP 
+                     str-tit7 FORMAT "x(400)" SKIP .
+                 iLinePerPage = 9 .
+             END.
              ASSIGN cDisplay = ""
                cTmpField = ""
                cVarValue = ""
@@ -1188,8 +1266,8 @@ END.
                      WHEN "per-3"     THEN cVarValue = STRING(unapp[4],"->>>>>>>>9.99") .
                      WHEN "cust-po"   THEN cVarValue = STRING(cPoNo,"x(15)") .
                      WHEN "job"       THEN cVarValue = STRING(cJobStr,"x(10)")  .
-                     WHEN "inv-note"  THEN cVarValue = "".
-                     WHEN "coll-note" THEN cVarValue = "".
+                     WHEN "inv-note"  THEN NEXT .
+                     WHEN "coll-note" THEN NEXT .
                     
                 END CASE.
                   
@@ -1199,7 +1277,8 @@ END.
                 cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
         END.
         
-        PUT UNFORMATTED cDisplay SKIP.
+        PUT UNFORMATTED cDisplay FORMAT "x(400)" SKIP.
+        iLinePerPage = iLinePerPage + 1 .
         IF v-export THEN DO:
              PUT STREAM s-temp UNFORMATTED  
                    cExcelDisplay SKIP.
@@ -1270,6 +1349,12 @@ END.
                            v-check-date, v-cr-db-amt + v-disc-amt,
                            0, 0, 0, 0).*/
        if det-rpt = 1 THEN do:
+            IF iLinePerPage  GE (iline - 5)  THEN DO:
+                PAGE.
+                PUT str-tit6 FORMAT "x(400)" SKIP 
+                    str-tit7 FORMAT "x(400)" SKIP .
+                iLinePerPage = 9 .
+            END.
             ASSIGN cDisplay = ""
                cTmpField = ""
                cVarValue = ""
@@ -1306,8 +1391,8 @@ END.
                      WHEN "per-3"     THEN cVarValue = /*STRING(unapp[4],"->>>>>>>>9.99")*/ "" .
                      WHEN "cust-po"   THEN cVarValue = STRING(cPoNo,"x(15)") .
                      WHEN "job"       THEN cVarValue = STRING(cJobStr,"x(10)")  .
-                     WHEN "inv-note"  THEN cVarValue = "".
-                     WHEN "coll-note" THEN cVarValue = "".
+                     WHEN "inv-note"  THEN NEXT .
+                     WHEN "coll-note" THEN NEXT .
                     
                 END CASE.
                   
@@ -1317,7 +1402,8 @@ END.
                 cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
         END.
         
-        PUT UNFORMATTED cDisplay SKIP.
+        PUT UNFORMATTED cDisplay FORMAT "x(400)" SKIP.
+        iLinePerPage = iLinePerPage + 1 .
         IF v-export THEN DO:
              PUT STREAM s-temp UNFORMATTED  
                    cExcelDisplay SKIP.
@@ -1772,35 +1858,7 @@ END.
     def input parameter v-field-10 like ag                no-undo.
     DEF VAR v-delimiter AS cha NO-UNDO.       /* 9: tab 44: comma*/
     v-delimiter = "~t" /*CHR(9)*/ .
-    /*put stream s-temp unformatted
-        trim(cust.cust-no)                                      + v-delimiter +
-        trim(cust.name)                                         + v-delimiter +
-        trim(cust.contact)                                      + v-delimiter +
-        trim(v-sman)                                            + v-delimiter +
-        trim(if avail terms then terms.dscr else "")            + v-delimiter +
-        trim(cust.addr[1])                                      + v-delimiter +
-        trim(cust.addr[2])                                      + v-delimiter +
-        trim(cust.city)                                         + v-delimiter +
-        trim(cust.state)                                        + v-delimiter +
-        trim(cust.zip)                                          + v-delimiter +
-        trim(string(cust.cr-lim,">>>>>>>>9.99"))                + v-delimiter +
-        trim(string(cust.area-code,"(xxx)") + " " +
-             string(cust.phone,"xxx-xxxx"))                     + v-delimiter +
-        trim(string(substr(cust.fax,1,3),"(xxx)") + " " +
-             string(substr(cust.fax,4,7),"xxx-xxxx"))           + v-delimiter +
-        trim(v-field-01)                                        + v-delimiter +
-        trim(string(v-field-02,"->>>>"))                        + v-delimiter +
-        trim(v-field-03)                                        + v-delimiter +
-        trim(v-field-04)                                        + v-delimiter +
-        trim(string(v-field-05,"99/99/9999"))                   + v-delimiter +
-        trim(string(v-field-06,"->>>>>>>>9.99"))                + v-delimiter +
-        trim(string(v-field-07,"->>>>>>>>9.99"))                + v-delimiter +
-        trim(string(v-field-08,"->>>>>>>>9.99"))                + v-delimiter +
-        trim(string(v-field-09,"->>>>>>>>9.99"))                + v-delimiter +
-        trim(string(v-field-10,"->>>>>>>>9.99"))
-        skip.
-        */
-    IF det-rpt = 1 THEN do:
+        IF det-rpt = 1 THEN do:
 
     EXPORT STREAM s-temp DELIMITER ","
         trim(cust.cust-no)                                     
@@ -1866,14 +1924,23 @@ END.
            IF  i <= 8 THEN v-inv-note[i] = tt-formtext.tt-text.      
     END.
     
-
+     
     IF v-Inv-Note[1] <> "" THEN DO:
+        IF iLinePerPage  GE (iline - 5)  THEN DO:
+            PAGE.
+            PUT str-tit6 FORMAT "x(400)" SKIP 
+                str-tit7 FORMAT "x(400)" SKIP .
+            iLinePerPage = 9 .
+        END.
        PUT SKIP(1) "Invoice Note: " v-Inv-Note[1] SKIP.
        DO i = 2 TO 5:
-          IF v-Inv-Note[i] > "" THEN 
+          IF v-Inv-Note[i] > "" THEN do: 
             PUT v-Inv-Note[i] SKIP.
+            iLinePerPage = iLinePerPage + 1 .
+          END.
        END.
        PUT SKIP(1) .
+       iLinePerPage = iLinePerPage + 3 .
     END.
   END.
    /*-----------------------------------------------------------------------------*/
@@ -1907,12 +1974,21 @@ END.
     END.
 
     IF v-Collection-Note[1] <> "" THEN DO:
+       IF iLinePerPage  GE (iline - 5)  THEN DO:
+        PAGE.
+        PUT str-tit6 FORMAT "x(400)" SKIP 
+            str-tit7 FORMAT "x(400)" SKIP .
+        iLinePerPage = 9 .
+       END.
        PUT SKIP(1) "Collection Note: " v-Collection-Note[1] SKIP.
        DO i = 2 TO 5:
-         IF v-Collection-Note[i] > "" THEN
+         IF v-Collection-Note[i] > "" THEN do:
            PUT v-Collection-Note[i] SKIP.
+           iLinePerPage = iLinePerPage + 1 .
+         END.
        END.
        PUT SKIP(1) .
+       iLinePerPage = iLinePerPage + 3 .
     END.
 
   END PROCEDURE.
@@ -2015,6 +2091,7 @@ END.
 
         IF vname = "cust.cust-no" THEN do:
             PUT UNFORMATTED   cust.cust-no FORMAT "x(8)" space(1)  cust.name  FORMAT "x(25)"   substring(cDisplay,35,400) SKIP.
+            iLinePerPage = iLinePerPage + 1.
             IF v-export THEN DO:
                 PUT STREAM s-temp UNFORMATTED   
                    cust.cust-no FORMAT "x(8)" space(1)  cust.name  FORMAT "x(25)" ','  substring(cExcelDisplay,4,400) SKIP(1).
@@ -2023,6 +2100,7 @@ END.
         ELSE DO:
             PUT SKIP(1) str-line SKIP . 
             PUT UNFORMATTED  "          " vname  substring(cDisplay,33,400) SKIP.
+            iLinePerPage = iLinePerPage + 4 .
             IF v-export THEN DO:
                 PUT STREAM s-temp UNFORMATTED  
                  '                       ' vname  ','  substring(cExcelDisplay,4,400) SKIP(1).

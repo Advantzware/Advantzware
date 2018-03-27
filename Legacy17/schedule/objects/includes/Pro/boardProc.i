@@ -206,7 +206,8 @@ PROCEDURE bringForward :
            AND buffJob.resourceSequence LT ttblJob.resourceSequence NO-ERROR.
     ASSIGN
       lvStartDate = IF AVAILABLE buffJob THEN buffJob.endDate ELSE lvForwardDate
-      lvStartTime = IF AVAILABLE buffJob THEN buffJob.endTime ELSE lvForwardTime.
+      lvStartTime = IF AVAILABLE buffJob THEN buffJob.endTime ELSE lvForwardTime
+      .
     RUN downtimeSpan (ttblJob.resource,ttblJob.timeSpan,lvStartDate,lvStartTime,
                       OUTPUT lvEndDate,OUTPUT lvEndTime,OUTPUT lvDowntimeSpan).
     ASSIGN
@@ -214,12 +215,15 @@ PROCEDURE bringForward :
       ttblJob.startTime = lvStartTime
       ttblJob.endDate = lvEndDate
       ttblJob.endTime = lvEndTime
-      ttblJob.downtimeSpan = lvDowntimeSpan.
+      ttblJob.downtimeSpan = lvDowntimeSpan
+      .
     ttblJob.startDateTime = numericDateTime(lvStartDate,lvStartTime).
     ttblJob.endDateTime = numericDateTime(lvEndDate,lvEndTime).
     ASSIGN
       ttblJob.jobBGColor = jobBGColor()
-      ttblJob.jobFGColor = jobFGColor().
+      ttblJob.jobFGColor = jobFGColor()
+      ttblJob.statusLabel = jobStatus()
+      .
     /*
     RUN jobMoveHistory (ROWID(ttblJob),lvStartDate,lvStartTime,
                         lvEndDate,lvEndTime,ttblJob.jobLocked,
@@ -849,12 +853,15 @@ PROCEDURE jobMoveHistory :
     ttblJob.endTime = ipEndTime
     ttblJob.jobLocked = ipJobLocked
     ttblJob.downtimeSpan = ipDowntimeSpan
-    schdChanged = YES.
+    schdChanged = YES
+    .
   ttblJob.startDateTime = numericDateTime(ipStartDate,ipStartTime).
   ttblJob.endDateTime = numericDateTime(ipEndDate,ipEndTime).
   ASSIGN
     ttblJob.jobBGColor = jobBGColor()
-    ttblJob.jobFGColor = jobFGColor().
+    ttblJob.jobFGColor = jobFGColor()
+    ttblJob.statusLabel = jobStatus()
+    .
   FIND CURRENT ttblJob NO-LOCK.
   /*
   ENABLE btnUndo WITH FRAME {&FRAME-NAME}.
@@ -901,13 +908,15 @@ PROCEDURE jobReset :
     copy2Resource = NO
     jobMoving = NO
     jobMovingDisplay:HIDDEN IN FRAME {&FRAME-NAME} = YES
-    ldummy = jobMovingDisplay:MOVE-TO-BOTTOM().
+    ldummy = jobMovingDisplay:MOVE-TO-BOTTOM()
+    .
   {{&includes}/{&Board}/jobDeselection.i}
   IF NOT AVAILABLE ttblJob THEN
   FIND ttblJob NO-LOCK WHERE ROWID(ttblJob) EQ TO-ROWID(ipWidget:PRIVATE-DATA).
   ASSIGN
     ipWidget:BGCOLOR = jobBGColor()
-    ipWidget:FGCOLOR = jobFGColor().
+    ipWidget:FGCOLOR = jobFGColor()
+    .
 
 END PROCEDURE.
 
@@ -925,6 +934,8 @@ PROCEDURE jobSelection :
 
   DEFINE VARIABLE i AS INTEGER NO-UNDO.
 
+/*  MESSAGE ipWidget:TOOLTIP VIEW-AS ALERT-BOX.*/
+  
   RUN gridLine (ipWidget).
   IF endMove THEN
   DO:
@@ -1564,7 +1575,9 @@ PROCEDURE setJobColor :
   IF NOT AVAILABLE ttblJob THEN RETURN.
   ASSIGN
     ttblJob.jobBGColor = jobBGColor()
-    ttblJob.jobFGColor = jobFGColor().
+    ttblJob.jobFGColor = jobFGColor()
+    ttblJob.statusLabel = jobStatus()
+    .
   IF ttblJob.widgetIdx NE 0 THEN
   DO:
     {{&includes}/ttblWidgetFind.i "jobWidget" ttblJob.widgetIdx}

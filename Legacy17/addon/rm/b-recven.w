@@ -41,6 +41,7 @@ ASSIGN
 
 DEFINE BUFFER b-po-ord FOR po-ord.
 DEFINE BUFFER b-company FOR company.
+DEFINE BUFFER bLoadTag FOR loadtag.
 
 DEF VAR lv-search AS CHAR NO-UNDO.
 def var char-val as cha no-undo.

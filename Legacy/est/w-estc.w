@@ -92,6 +92,7 @@ DEFINE VARIABLE h_b-estop AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_b-estprp AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_b-estq AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_b-estqty AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_capacityPage AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_exit AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_farmnav AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_folder AS HANDLE NO-UNDO.
@@ -165,7 +166,7 @@ DEFINE FRAME OPTIONS-FRAME
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 50 ROW 1
-         SIZE 110 BY 1.91
+         SIZE 111 BY 1.91
          BGCOLOR 15 .
 
 DEFINE FRAME message-frame
@@ -354,12 +355,20 @@ PROCEDURE adm-create-objects :
   CASE adm-current-page: 
 
     WHEN 0 THEN DO:
+         RUN init-object IN THIS-PROCEDURE (
+               INPUT  'panels/p-capacityPage.w':U ,
+               INPUT  FRAME OPTIONS-FRAME:HANDLE ,
+               INPUT  'Layout = ':U ,
+               OUTPUT h_capacityPage ).
+         RUN set-position IN h_capacityPage ( 1.00 , 16.00 ) NO-ERROR.
+         /* Size in UIB:  ( 1.81 , 7.80 ) */
+
         RUN init-object IN THIS-PROCEDURE (
               INPUT  'smartobj/xferjobdata.w':U ,
               INPUT  FRAME OPTIONS-FRAME:HANDLE ,
               INPUT  '':U ,
               OUTPUT h_xferjobdata ).
-        RUN set-position IN h_xferjobdata ( 1.00 , 23.00 ) NO-ERROR.
+        RUN set-position IN h_xferjobdata ( 1.00 , 24.00 ) NO-ERROR.
         /* Size in UIB:  ( 1.81 , 17.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
@@ -367,7 +376,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME OPTIONS-FRAME:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_options3 ).
-       RUN set-position IN h_options3 ( 1.00 , 31.00 ) NO-ERROR.
+       RUN set-position IN h_options3 ( 1.00 , 32.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.81 , 71.80 ) */
 
        RUN init-object IN THIS-PROCEDURE (
@@ -383,7 +392,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME OPTIONS-FRAME:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_printquo ).
-       RUN set-position IN h_printquo ( 1.00 , 95.00 ) NO-ERROR.
+       RUN set-position IN h_printquo ( 1.00 , 96.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.81 , 7.80 ) */
 
        RUN init-object IN THIS-PROCEDURE (
@@ -391,7 +400,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME OPTIONS-FRAME:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_exit ).
-       RUN set-position IN h_exit ( 1.00 , 103.00 ) NO-ERROR.
+       RUN set-position IN h_exit ( 1.00 , 104.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.81 , 7.80 ) */
 
        RUN init-object IN THIS-PROCEDURE (
@@ -414,7 +423,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME OPTIONS-FRAME:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_movecol ).
-       RUN set-position IN h_movecol ( 1.00 , 15.00 ) NO-ERROR.
+       RUN set-position IN h_movecol ( 1.00 , 8.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.81 , 7.80 ) */
 
        RUN init-object IN THIS-PROCEDURE (
@@ -430,7 +439,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME OPTIONS-FRAME:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_export ).
-       RUN set-position IN h_export ( 1.00 , 7.00 ) NO-ERROR.
+       RUN set-position IN h_export ( 1.00 , 1.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.81 , 7.80 ) */ 
 
        /* Links to SmartViewer h_movecol. */
@@ -1118,6 +1127,22 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE capacityPage W-Win
+PROCEDURE capacityPage:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    RUN schedule/capacityPage.w ("Est", ROWID(est), est.company).
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable-enable-farm W-Win 
 PROCEDURE disable-enable-farm :
 /*------------------------------------------------------------------------------
@@ -1237,7 +1262,7 @@ PROCEDURE local-change-page :
    li-page[2] = li-page[1]
    li-page[1] = int(return-value).
   
-  if li-page[1] = 10 then do:  /* quote */
+  /*if li-page[1] = 10 then do:  /* quote */
     def buffer bf-quote for quotehd .
     find first bf-quote where bf-quote.company = g_company and
                             bf-quote.loc = g_loc and
@@ -1250,7 +1275,7 @@ PROCEDURE local-change-page :
        run hide-quote.
        return no-apply.        
     end.                            
-  end.
+  end.*/ /* ticket - 23023 */
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'change-page':U ) .

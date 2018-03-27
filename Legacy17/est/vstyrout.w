@@ -6,7 +6,7 @@
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admViewersUsing.i} /* added by script c:\tmp\p42959__V16toV17.ped */
+{Advantzware\WinKit\admViewersUsing.i} /* added by script _admViewers.p */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
@@ -1953,10 +1953,9 @@ PROCEDURE validate-routing :
                     and routing.r-code = ip-r-code)
     then do:
               return error.
-    end.
-    {methods/lValidateError.i NO}                 
+    end.   
+    {methods/lValidateError.i NO}              
     return. 
-
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

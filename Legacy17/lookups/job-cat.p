@@ -1,4 +1,4 @@
-/* job-cat.p - Generated 01/18/2000 - 11:51 am by nosweat
+/* job-cat.p - Generated 10/17/2017 -  7:54 pm by NoSweat
 "job-cat. " ~
 "ASI " ~
 "job-cat " ~
@@ -26,21 +26,22 @@
 &Scoped-define height-size 19
 &Scoped-define width-size 59
 &Scoped-define show-fields job-cat.cat job-cat.dscr
+&Scoped-define show-fields-yellow job-cat.cat LABEL-BGCOLOR 14 job-cat.dscr LABEL-BGCOLOR 14
 &Scoped-define frame-title Job Categories Lookup
 &Scoped-define top-include ~{sys/inc/varasgn.i}
 &Scoped-define def-include ~{sys/inc/var.i new shared}
 &Scoped-define end-include 
 &Scoped-define ui-prgmname job-cat.
-&Scoped-define window-size 23
+&Scoped-define window-size 24
 &Scoped-define window-col 45.5
 &Scoped-define rect-1-row 20.15
 &Scoped-define by-row 20.42
 &Scoped-define browse-order-width 53
 &Scoped-define browse-order-row 20.42
-&Scoped-define btn-row 21.77
-&Scoped-define btn-ok-col 50
-&Scoped-define btn-cancel-col 39
-&Scoped-define auto-find-row 22.85
+&Scoped-define btn-row 21.7
+&Scoped-define btn-ok-col 52
+&Scoped-define btn-cancel-col 45
+&Scoped-define auto-find-row 23.65
 
 &Global-define FORMAT-1 x(3)
 &Scoped-define FLDNAME1 job-cat.cat

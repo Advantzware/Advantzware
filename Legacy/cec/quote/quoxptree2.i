@@ -1,15 +1,15 @@
  /* cec/quote/quoxpnt2.i */
  
-  PUT "<C+25><#1>"
-      "<=1>" SKIP 
-      "<C1><#2><Farial>"
-      "<=2><R+4>" "<FGCOLOR=" + trim(lv-comp-color) + ">" FORM "x(15)"
-      "<P10><=2><R+5>" "<C1><R2><FROM><R12><C15><#89><AT=0.53,0.18>" FORM "x(45)"
-      "<IMAGE#89=" ls-full-img1 FORMAT "x(50)" SKIP(5)
+ 
+ PUT "<R1><C2><#89><R+14><C+80><IMAGE#89=" ls-full-img1 FORMAT "x(200)". /* Abox logo */ 
+  PUT "<=1>" SKIP. 
+  PUT "<C1><#2><Farial>"
+      "<=2><R+3>" "<FGCOLOR=" + trim(lv-comp-color) + ">" FORM "x(15)"
+      "<P10><=2><R+4>" SKIP(3)
       /* v-comp-add1 AT 8 SKIP
        v-comp-add2 AT 8 SKIP
        v-comp-add3 AT 8 SKIP
-       v-comp-add4 AT 8 SKIP */
+       v-comp-add4 AT 8 SKIP*/
        v-comp-add5 AT 8 "<FGCOLOR=" + trim(lv-other-color) + ">" FORM "x(15)" SKIP
        lv-email AT 8 SKIP(3)
       "<FCourier New>"
@@ -18,6 +18,8 @@
       SPACE(5) bill[2]  xquo.shipto[2] AT 55 SKIP
       SPACE(5) bill[3]  xquo.shipto[3] AT 55 SKIP
       SPACE(5) bill[4]  xquo.shipto[4] AT 55 SKIP.
+ 
+  
 
   IF lv-display-comp THEN
      PUT "<=2><C3><R+2><FGCOLOR=" trim(lv-comp-color) + ">"

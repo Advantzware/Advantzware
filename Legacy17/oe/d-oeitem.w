@@ -1380,6 +1380,14 @@ DO:
 
   DISABLE TRIGGERS FOR LOAD OF xoe-ord.
 
+  IF ip-type EQ "WebUpdate" THEN DO:
+    FIND CURRENT oe-ordl EXCLUSIVE-LOCK.
+    ASSIGN oe-ordl.qty.
+    FIND CURRENT oe-ordl NO-LOCK.
+    APPLY "go" TO FRAME {&FRAME-NAME}.
+    RETURN.
+  END.
+
   /* display spec notes for the item */   
   RUN windows/d-spnote.w (oe-ordl.i-no:SCREEN-VALUE).
 
@@ -3289,6 +3297,12 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
       ASSIGN
        fi_qty-uom:SENSITIVE = NO
        fi_qty-uom:HIDDEN    = YES.
+
+      IF ip-type EQ "WebUpdate" THEN DO:  
+          DISABLE {&ENABLED-FIELDS} WITH FRAME {&FRAME-NAME}. 
+          ENABLE oe-ordl.qty.
+      END. /* webupdate */
+
   END.
 
   IF fgsecurity-log THEN
@@ -3314,7 +3328,6 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
       ASSIGN
         asi.oe-ordl.spare-char-2:SENSITIVE IN FRAME {&FRAME-NAME} = NO
         asi.oe-ordl.spare-dec-1:SENSITIVE IN FRAME {&FRAME-NAME} = NO.
-
 
   WAIT-FOR GO OF FRAME {&FRAME-NAME}.
 END.
@@ -4907,16 +4920,15 @@ PROCEDURE display-est-detail :
                         INPUT-OUTPUT v-job-no2,
                         INPUT v-disp-prod-cat,
                         INPUT FILL(" ",6 - LENGTH(TRIM(oe-ordl.est-no:SCREEN-VALUE))) + TRIM(oe-ordl.est-no:SCREEN-VALUE)).
-      
        IF v-job-no NE "" THEN DO:
          ASSIGN
-          oe-ordl.job-no  = v-job-no
-          oe-ordl.job-no2 = v-job-no2.
-         DISPLAY oe-ordl.job-no
-                 oe-ordl.job-no2.
+          oe-ordl.job-no:SCREEN-VALUE  = v-job-no
+          oe-ordl.job-no2:SCREEN-VALUE = string(v-job-no2) .
+         /*DISPLAY oe-ordl.job-no
+                 oe-ordl.job-no2.*/
        END.
       FOR EACH job-hdr  WHERE job-hdr.company EQ cocode
-                           AND job-hdr.job-no  EQ oe-ordl.job-no
+                           AND job-hdr.job-no  EQ oe-ordl.job-no:SCREEN-VALUE
                            USE-INDEX job-no NO-LOCK
                          BY job-hdr.job-no DESC BY job-hdr.job-no2 DESC:
          oe-ordl.job-no2:SCREEN-VALUE = STRING(IF AVAIL job-hdr THEN job-hdr.job-no2 + 1 ELSE 0).

@@ -344,6 +344,7 @@ PROCEDURE local-view :
 
   /* Code placed here will execute AFTER standard behavior.    */
   RUN auto-add IN  h_p-updba2.
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

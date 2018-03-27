@@ -416,7 +416,8 @@ ASSIGN
                         ELSE itemfg.part-no
            lv-cust-set = lv-part-no
            lv-au = IF itemfg.alloc THEN "U" ELSE "A"
-           vll-is-a-set = itemfg.isaset.
+           vll-is-a-set = itemfg.isaset
+           v-dept-note[31] = "CSR: " + IF AVAILABLE xoe-ord THEN xoe-ord.user-id ELSE job.user-id.
 
        IF est.est-type = 6 THEN
           ASSIGN
@@ -915,10 +916,9 @@ ASSIGN
         v-count = v-count + 1.
     END.                       
     /***************************/
-
         ASSIGN
         v-inst = ""
-        v-dept-note[31] = "CSR: " + IF AVAILABLE xoe-ord THEN xoe-ord.user-id ELSE job.user-id.
+        /*v-dept-note[31] = "CSR: " + IF AVAILABLE xoe-ord THEN xoe-ord.user-id ELSE job.user-id */ .
         IF s-prt-ship-split THEN
            FIND FIRST tt-fibre WHERE tt-fibre.tt-job-no = job-hdr.job-no
                          AND tt-fibre.tt-job-no2 = job-hdr.job-no2

@@ -456,7 +456,7 @@ PROCEDURE local-view :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'view':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-
+  {methods/selectTab.i 1}
   RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"init-entry-target", OUTPUT char-hdl).
   RUN apply-entry IN WIDGET-HANDLE(char-hdl).
 

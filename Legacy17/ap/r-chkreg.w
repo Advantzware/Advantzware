@@ -23,7 +23,7 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
-DEF VAR list-name as cha no-undo.
+DEF VAR list-name AS cha NO-UNDO.
 DEF VAR init-dir AS CHA NO-UNDO.
 DEF VAR lv-comp-curr AS cha NO-UNDO.
 
@@ -37,45 +37,45 @@ DEF VAR lv-comp-curr AS cha NO-UNDO.
 
 {sys/inc/VAR.i new shared}
 
-assign
+ASSIGN
  cocode = gcompany
  locode = gloc.
 
 FIND FIRST company WHERE company.company EQ cocode NO-LOCK NO-ERROR.
 IF AVAIL company THEN lv-comp-curr = company.curr-code.
 
-def new shared var v-trnum as INT NO-UNDO.
-def var v-unline as char format "x(80)" init
+DEF NEW SHARED VAR v-trnum AS INT NO-UNDO.
+DEF VAR v-unline AS CHAR FORMAT "x(80)" INIT
   "--------------- ------------------------- ------- ----------- ---"  NO-UNDO.
-def var time_stamp as ch NO-UNDO.
-def var v-postable as log init NO NO-UNDO.
+DEF VAR time_stamp AS ch NO-UNDO.
+DEF VAR v-postable AS LOG INIT NO NO-UNDO.
 DEF VAR v-invalid AS LOG NO-UNDO.
-def var save_id as recid NO-UNDO.
-def var pct-paid as dec NO-UNDO.
-def var gtot0 like ap-sel.inv-bal NO-UNDO.
-def var gtot1 like ap-sel.disc-amt NO-UNDO.
-def var gtot2 like ap-sel.amt-paid NO-UNDO.
-def var ndisc as dec NO-UNDO.
-def var wckdate as date NO-UNDO.
-def var bal as dec format "->>,>>>,>>9.99" NO-UNDO.
-def var bal1 as dec format "->>,>>>,>>9.99" NO-UNDO.
-def var tot-of-inv as de format "->>,>>>,>>9.99" NO-UNDO.
-def var v-fst-chk as log NO-UNDO.
-def var v-lst-chk as log NO-UNDO.
-def var tot0 as dec format "->>,>>>,>>9.99" NO-UNDO.
-def var tot1 as dec format "->>,>>>,>>9.99" NO-UNDO.
-def var tot2 as dec format "->>,>>>,>>9.99" NO-UNDO.
-def var c1  as dec NO-UNDO.
-def var op as log format "Yes/No" NO-UNDO.
-def var ctr as int label "NUMBER OF CHECKS WRITTEN " NO-UNDO.
-def var credit as dec NO-UNDO.
-def var tdisc as dec NO-UNDO.
-def var wcash as char format "x(25)" label "CASH ACCOUNT" NO-UNDO.
+DEF VAR save_id AS RECID NO-UNDO.
+DEF VAR pct-paid AS DEC NO-UNDO.
+DEF VAR gtot0 LIKE ap-sel.inv-bal NO-UNDO.
+DEF VAR gtot1 LIKE ap-sel.disc-amt NO-UNDO.
+DEF VAR gtot2 LIKE ap-sel.amt-paid NO-UNDO.
+DEF VAR ndisc AS DEC NO-UNDO.
+DEF VAR wckdate AS DATE NO-UNDO.
+DEF VAR bal AS DEC FORMAT "->>,>>>,>>9.99" NO-UNDO.
+DEF VAR bal1 AS DEC FORMAT "->>,>>>,>>9.99" NO-UNDO.
+DEF VAR tot-of-inv AS de FORMAT "->>,>>>,>>9.99" NO-UNDO.
+DEF VAR v-fst-chk AS LOG NO-UNDO.
+DEF VAR v-lst-chk AS LOG NO-UNDO.
+DEF VAR tot0 AS DEC FORMAT "->>,>>>,>>9.99" NO-UNDO.
+DEF VAR tot1 AS DEC FORMAT "->>,>>>,>>9.99" NO-UNDO.
+DEF VAR tot2 AS DEC FORMAT "->>,>>>,>>9.99" NO-UNDO.
+DEF VAR c1  AS DEC NO-UNDO.
+DEF VAR op AS LOG FORMAT "Yes/No" NO-UNDO.
+DEF VAR ctr AS INT LABEL "NUMBER OF CHECKS WRITTEN " NO-UNDO.
+DEF VAR credit AS DEC NO-UNDO.
+DEF VAR tdisc AS DEC NO-UNDO.
+DEF VAR wcash AS CHAR FORMAT "x(25)" LABEL "CASH ACCOUNT" NO-UNDO.
 DEF VAR v-frt-acct LIKE ap-ctrl.freight NO-UNDO.
-def var ap-acct like ap-ctrl.payables NO-UNDO.
-def var v-loop-count as int no-undo INITIAL 10 .
-def var post-manual as log format "Manual/Automatic"
-  label "Post Manual or Automatic (M/A)?" INITIAL no NO-UNDO.
+DEF VAR ap-acct LIKE ap-ctrl.payables NO-UNDO.
+DEF VAR v-loop-count AS INT NO-UNDO INITIAL 10 .
+DEF VAR post-manual AS LOG FORMAT "Manual/Automatic"
+  LABEL "Post Manual or Automatic (M/A)?" INITIAL NO NO-UNDO.
 DEF VAR lv-audit-dir AS CHAR NO-UNDO.
 
 /* gdm - 05210901 */
@@ -97,32 +97,32 @@ DEF TEMP-TABLE tt-post NO-UNDO FIELD row-id    AS ROWID
                                FIELD curr-paid LIKE ap-sel.amt-paid
                                FIELD actnum    LIKE account.actnum.
 
-find first ap-ctrl where ap-ctrl.company = cocode
-      no-lock no-wait no-error.
+FIND FIRST ap-ctrl WHERE ap-ctrl.company = cocode
+      NO-LOCK NO-WAIT NO-ERROR.
 IF AVAIL ap-ctrl THEN
-    assign wcash   = ap-ctrl.cash-act
+    ASSIGN wcash   = ap-ctrl.cash-act
            ap-acct = ap-ctrl.payables
            v-frt-acct = ap-ctrl.freight.
 
-release ap-ctrl.
+RELEASE ap-ctrl.
 
 
 DO TRANSACTION:
    {sys/inc/postdate.i}
    {sys/inc/aplockbx.i}   
-   find first sys-ctrl where
-        sys-ctrl.company eq cocode AND
-        sys-ctrl.name    eq "AUDITDIR"
-        no-lock no-error.
+   FIND FIRST sys-ctrl WHERE
+        sys-ctrl.company EQ cocode AND
+        sys-ctrl.name    EQ "AUDITDIR"
+        NO-LOCK NO-ERROR.
 
-   if not avail sys-ctrl THEN DO:
-      create sys-ctrl.
-      assign
+   IF NOT AVAIL sys-ctrl THEN DO:
+      CREATE sys-ctrl.
+      ASSIGN
          sys-ctrl.company = cocode
          sys-ctrl.name    = "AUDITDIR"
          sys-ctrl.descrip = "Audit Trails directory"
          sys-ctrl.char-fld = ".\AUDIT TRAILS".
-   end.
+   END.
 
    lv-audit-dir = sys-ctrl.char-fld.
 
@@ -246,34 +246,34 @@ DEFINE RECTANGLE RECT-7
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 94 BY 9.29.
 
-DEFINE VARIABLE tb_APcheckFile AS LOGICAL INITIAL no 
+DEFINE VARIABLE tb_APcheckFile AS LOGICAL INITIAL NO 
      LABEL "Create AP Check File?" 
      VIEW-AS TOGGLE-BOX
      SIZE 26 BY 1 NO-UNDO.
 
-DEFINE VARIABLE tb_excel AS LOGICAL INITIAL yes 
+DEFINE VARIABLE tb_excel AS LOGICAL INITIAL YES 
      LABEL "Export To Excel?" 
      VIEW-AS TOGGLE-BOX
      SIZE 21 BY .81
      BGCOLOR 3  NO-UNDO.
 
-DEFINE VARIABLE tb_prt-acc AS LOGICAL INITIAL no 
+DEFINE VARIABLE tb_prt-acc AS LOGICAL INITIAL NO 
      LABEL "Print Invoice & GL Account Detail?" 
      VIEW-AS TOGGLE-BOX
      SIZE 37 BY 1 NO-UNDO.
 
-DEFINE VARIABLE tb_runExcel AS LOGICAL INITIAL no 
+DEFINE VARIABLE tb_runExcel AS LOGICAL INITIAL NO 
      LABEL "Auto Run Excel?" 
      VIEW-AS TOGGLE-BOX
      SIZE 21 BY .81
      BGCOLOR 3  NO-UNDO.
 
-DEFINE VARIABLE tb_void AS LOGICAL INITIAL no 
+DEFINE VARIABLE tb_void AS LOGICAL INITIAL NO 
      LABEL "Void Skipped Checks?" 
      VIEW-AS TOGGLE-BOX
      SIZE 37 BY 1 NO-UNDO.
 
-DEFINE VARIABLE td-show-parm AS LOGICAL INITIAL no 
+DEFINE VARIABLE td-show-parm AS LOGICAL INITIAL NO 
      LABEL "Show Parameters?" 
      VIEW-AS TOGGLE-BOX
      SIZE 24 BY .81 NO-UNDO.
@@ -339,15 +339,15 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          MAX-WIDTH          = 204.8
          VIRTUAL-HEIGHT     = 33.29
          VIRTUAL-WIDTH      = 204.8
-         RESIZE             = yes
-         SCROLL-BARS        = no
-         STATUS-AREA        = yes
+         RESIZE             = YES
+         SCROLL-BARS        = NO
+         STATUS-AREA        = YES
          BGCOLOR            = ?
          FGCOLOR            = ?
-         KEEP-FRAME-Z-ORDER = yes
-         THREE-D            = yes
-         MESSAGE-AREA       = no
-         SENSITIVE          = yes.
+         KEEP-FRAME-Z-ORDER = YES
+         THREE-D            = YES
+         MESSAGE-AREA       = NO
+         SENSITIVE          = YES.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 /* END WINDOW DEFINITION                                                */
@@ -422,7 +422,7 @@ ASSIGN
 /* SETTINGS FOR FILL-IN tran-period IN FRAME FRAME-A
    NO-ENABLE                                                            */
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
-THEN C-Win:HIDDEN = no.
+THEN C-Win:HIDDEN = NO.
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -472,7 +472,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-cancel C-Win
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
-   apply "close" to this-procedure.
+   APPLY "close" TO THIS-PROCEDURE.
     {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p */
 END.
 
@@ -491,7 +491,7 @@ DO:
   ASSIGN  fi_CheckFile:SCREEN-VALUE = fi_CheckFile.
 
   RUN check-date.
-  if v-invalid then return no-apply.
+  IF v-invalid THEN RETURN NO-APPLY.
 
   DO WITH FRAME {&FRAME-NAME}:
     ASSIGN {&displayed-objects}.
@@ -543,16 +543,16 @@ DO:
     /* gdm - 11050906 */
   END.
 
-  run run-report.
+  RUN run-report.
 
-  case rd-dest:
-       when 1 then run output-to-printer.
-       when 2 then run output-to-screen.
-       when 3 then run output-to-file.
-  end case.
+  CASE rd-dest:
+       WHEN 1 THEN RUN output-to-printer.
+       WHEN 2 THEN RUN output-to-screen.
+       WHEN 3 THEN RUN output-to-file.
+  END CASE.
 
-  find first ap-ctrl where ap-ctrl.company eq cocode no-lock no-error.
-  if not avail ap-ctrl then return.
+  FIND FIRST ap-ctrl WHERE ap-ctrl.company EQ cocode NO-LOCK NO-ERROR.
+  IF NOT AVAIL ap-ctrl THEN RETURN.
   IF AVAIL ap-ctrl  AND ap-ctrl.payables EQ "" THEN DO:
       MESSAGE "No AP control record found. " VIEW-AS ALERT-BOX .
       RETURN.
@@ -565,7 +565,7 @@ DO:
             VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
             UPDATE lv-post.
 
-    IF lv-post THEN do:  
+    IF lv-post THEN DO:  
       IF aplockbx-log THEN DO:
          RUN create-bank-file (OUTPUT lv-bank-file).
          MESSAGE "Check Register/Lock Box file is created into " 
@@ -580,7 +580,7 @@ DO:
     ELSE RUN undo-trnum.
   END.
 
-  ELSE do:
+  ELSE DO:
       MESSAGE "No A/P Checks available for posting..." VIEW-AS ALERT-BOX ERROR.
       RUN undo-trnum.
   END.
@@ -595,7 +595,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_CheckFile C-Win
 ON LEAVE OF fi_CheckFile IN FRAME FRAME-A
 DO:
-     assign {&self-name}.
+     ASSIGN {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -606,7 +606,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_file C-Win
 ON LEAVE OF fi_file IN FRAME FRAME-A /* If Yes, File Name */
 DO:
-     assign {&self-name}.
+     ASSIGN {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -617,7 +617,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lines-per-page C-Win
 ON LEAVE OF lines-per-page IN FRAME FRAME-A /* Lines Per Page */
 DO:
-  assign {&self-name}.
+  ASSIGN {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -675,7 +675,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rd-dest C-Win
 ON VALUE-CHANGED OF rd-dest IN FRAME FRAME-A
 DO:
-  assign {&self-name}.
+  ASSIGN {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -714,7 +714,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_excel C-Win
 ON VALUE-CHANGED OF tb_excel IN FRAME FRAME-A /* Export To Excel? */
 DO:
-  assign {&self-name}.
+  ASSIGN {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -736,7 +736,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_runExcel C-Win
 ON VALUE-CHANGED OF tb_runExcel IN FRAME FRAME-A /* Auto Run Excel? */
 DO:
-  assign {&self-name}.
+  ASSIGN {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -758,7 +758,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL td-show-parm C-Win
 ON VALUE-CHANGED OF td-show-parm IN FRAME FRAME-A /* Show Parameters? */
 DO:
-    assign {&self-name}.
+    ASSIGN {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -769,12 +769,12 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tran-date C-Win
 ON LEAVE OF tran-date IN FRAME FRAME-A /* Post Date */
 DO:
-  assign {&self-name}.
+  ASSIGN {&self-name}.
 
-  if lastkey ne -1 then do:
-    run check-date.
-    if v-invalid then return no-apply.
-  end.
+  IF LASTKEY NE -1 THEN DO:
+    RUN check-date.
+    IF v-invalid THEN RETURN NO-APPLY.
+  END.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -785,7 +785,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tran-period C-Win
 ON LEAVE OF tran-period IN FRAME FRAME-A /* Period */
 DO:
-  assign {&self-name}.
+  ASSIGN {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1043,7 +1043,7 @@ REPEAT:
   THEN LEAVE.
 
   FIND NEXT asi._lock NO-LOCK NO-ERROR.
-  IF _lock-recid = ? THEN DO:
+  IF AVAILABLE asi._lock AND asi._lock._lock-recid = ? THEN DO:
       RELEASE asi._lock.
       LEAVE.
   END.
@@ -1117,7 +1117,7 @@ PROCEDURE create-bank-file :
 
   DEF VAR targetfile AS CHAR FORMAT "X(50)" NO-UNDO.
   DEF VAR dirname1 AS CHAR FORMAT "X(20)" NO-UNDO.
-  DEF VAR v-account AS char NO-UNDO.
+  DEF VAR v-account AS CHAR NO-UNDO.
   DEF VAR v-ref AS cha NO-UNDO.
   DEF VAR v-check-date AS DATE NO-UNDO.
   DEF VAR v-check-date-string AS cha NO-UNDO.
@@ -1151,8 +1151,8 @@ PROCEDURE create-bank-file :
       IF FIRST-OF(ap-sel.check-no) THEN v-check-total-amt = 0.
 
       v-check-total-amt = v-check-total-amt + ap-sel.amt-paid.
-      IF last-of(ap-sel.check-no) THEN DO:
-          find first bank where bank.company = ap-sel.company and
+      IF LAST-OF(ap-sel.check-no) THEN DO:
+          FIND FIRST bank WHERE bank.company = ap-sel.company AND
                              bank.bank-code = ap-sel.bank-code NO-ERROR.
 
           ASSIGN
@@ -1240,7 +1240,7 @@ PROCEDURE output-to-file :
 ------------------------------------------------------------------------------*/
      DEFINE VARIABLE OKpressed AS LOGICAL NO-UNDO.
 
-     if init-dir = "" then init-dir = "c:\temp" .
+     IF init-dir = "" THEN init-dir = "c:\temp" .
      SYSTEM-DIALOG GET-FILE list-name
          TITLE      "Enter Listing Name to SAVE AS ..."
          FILTERS    "Listing Files (*.rpt)" "*.rpt",
@@ -1297,7 +1297,7 @@ PROCEDURE output-to-screen :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  run scr-rpt.w (list-name,c-win:title,INT(lv-font-no),lv-ornt). /* open file-name, title */ 
+  RUN scr-rpt.w (list-name,c-win:TITLE,INT(lv-font-no),lv-ornt). /* open file-name, title */ 
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1720,7 +1720,7 @@ IF tb_APcheckFile
     DISPLAY ap-sel.check-no    FORMAT "zzzzzzz9"
             ap-sel.vend-no
             SKIP(1)
-        WITH FRAME vv no-box no-labels NO-ATTR-SPACE STREAM-IO.
+        WITH FRAME vv NO-BOX NO-LABELS NO-ATTR-SPACE STREAM-IO.
 
     IF tb_excel THEN
        PUT STREAM excel UNFORMATTED
@@ -2017,8 +2017,8 @@ IF tb_prt-acc THEN DO:
 
     IF FIRST-OF(ap-invl.actnum) THEN DO:
       FIND FIRST account
-          WHERE account.company eq ap-inv.company
-            AND account.actnum  eq ap-invl.actnum
+          WHERE account.company EQ ap-inv.company
+            AND account.actnum  EQ ap-invl.actnum
           NO-LOCK NO-ERROR.
 
       PUT ap-invl.actnum + " - " +
@@ -2073,8 +2073,8 @@ IF tb_prt-acc THEN DO:
 
     IF FIRST-OF(tt-post.actnum) THEN DO:
       FIND FIRST account
-          WHERE account.company eq ap-sel.company
-            AND account.actnum  eq tt-post.actnum
+          WHERE account.company EQ ap-sel.company
+            AND account.actnum  EQ tt-post.actnum
           NO-LOCK NO-ERROR.
 
       PUT tt-post.actnum + " - " +
@@ -2104,11 +2104,11 @@ IF tb_prt-acc THEN DO:
           " *" SKIP(1).
   END.
 
-  PUT "***** TOTAL for ALL ACCOUNTS " to 116
+  PUT "***** TOTAL for ALL ACCOUNTS " TO 116
       (ACCUM TOTAL v-line-amt) +
        (ACCUM TOTAL v-frgt-amt) +
         (ACCUM TOTAL tt-post.curr-paid - ap-sel.amt-paid)
-                        FORMAT "->>,>>>,>>9.99" to 130
+                        FORMAT "->>,>>>,>>9.99" TO 130
       SKIP(2).
 END.
 
@@ -2134,62 +2134,62 @@ PROCEDURE show-param :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  def var lv-frame-hdl as handle no-undo.
-  def var lv-group-hdl as handle no-undo.
-  def var lv-field-hdl as handle no-undo.
-  def var lv-field2-hdl as handle no-undo.
-  def var parm-fld-list as cha no-undo.
-  def var parm-lbl-list as cha no-undo.
-  def var i as int no-undo.
-  def var lv-label as cha.
+  DEF VAR lv-frame-hdl AS HANDLE NO-UNDO.
+  DEF VAR lv-group-hdl AS HANDLE NO-UNDO.
+  DEF VAR lv-field-hdl AS HANDLE NO-UNDO.
+  DEF VAR lv-field2-hdl AS HANDLE NO-UNDO.
+  DEF VAR parm-fld-list AS cha NO-UNDO.
+  DEF VAR parm-lbl-list AS cha NO-UNDO.
+  DEF VAR i AS INT NO-UNDO.
+  DEF VAR lv-label AS cha.
 
-  lv-frame-hdl = frame {&frame-name}:handle.
-  lv-group-hdl = lv-frame-hdl:first-child.
-  lv-field-hdl = lv-group-hdl:first-child .
+  lv-frame-hdl = FRAME {&frame-name}:handle.
+  lv-group-hdl = lv-frame-hdl:FIRST-CHILD.
+  lv-field-hdl = lv-group-hdl:FIRST-CHILD .
 
-  do while true:
-     if not valid-handle(lv-field-hdl) then leave.
-     if lookup(lv-field-hdl:private-data,"parm") > 0
-        then do:
-           if lv-field-hdl:label <> ? then 
-              assign parm-fld-list = parm-fld-list + lv-field-hdl:screen-value + ","
-                     parm-lbl-list = parm-lbl-list + lv-field-hdl:label + "," 
+  DO WHILE TRUE:
+     IF NOT VALID-HANDLE(lv-field-hdl) THEN LEAVE.
+     IF LOOKUP(lv-field-hdl:PRIVATE-DATA,"parm") > 0
+        THEN DO:
+           IF lv-field-hdl:LABEL <> ? THEN 
+              ASSIGN parm-fld-list = parm-fld-list + lv-field-hdl:SCREEN-VALUE + ","
+                     parm-lbl-list = parm-lbl-list + lv-field-hdl:LABEL + "," 
                      .
-           else do:  /* radio set */
-              assign parm-fld-list = parm-fld-list + lv-field-hdl:screen-value + ","
+           ELSE DO:  /* radio set */
+              ASSIGN parm-fld-list = parm-fld-list + lv-field-hdl:SCREEN-VALUE + ","
                      .
-              lv-field2-hdl = lv-group-hdl:first-child.
-              repeat:
-                  if not valid-handle(lv-field2-hdl) then leave. 
-                  if lv-field2-hdl:private-data = lv-field-hdl:name then do:
-                     parm-lbl-list = parm-lbl-list + lv-field2-hdl:screen-value + ",".
-                  end.
-                  lv-field2-hdl = lv-field2-hdl:next-sibling.                 
-              end.       
-           end.                 
-        end.            
-     lv-field-hdl = lv-field-hdl:next-sibling.   
-  end.
+              lv-field2-hdl = lv-group-hdl:FIRST-CHILD.
+              REPEAT:
+                  IF NOT VALID-HANDLE(lv-field2-hdl) THEN LEAVE. 
+                  IF lv-field2-hdl:PRIVATE-DATA = lv-field-hdl:NAME THEN DO:
+                     parm-lbl-list = parm-lbl-list + lv-field2-hdl:SCREEN-VALUE + ",".
+                  END.
+                  lv-field2-hdl = lv-field2-hdl:NEXT-SIBLING.                 
+              END.       
+           END.                 
+        END.            
+     lv-field-hdl = lv-field-hdl:NEXT-SIBLING.   
+  END.
 
-  put space(28)
+  PUT SPACE(28)
       "< Selection Parameters >"
-      skip(1).
+      SKIP(1).
 
-  do i = 1 to num-entries(parm-fld-list,","):
-    if entry(i,parm-fld-list) ne "" or
-       entry(i,parm-lbl-list) ne "" then do:
+  DO i = 1 TO NUM-ENTRIES(parm-fld-list,","):
+    IF ENTRY(i,parm-fld-list) NE "" OR
+       entry(i,parm-lbl-list) NE "" THEN DO:
 
-      lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
-                 trim(entry(i,parm-lbl-list)) + ":".
+      lv-label = FILL(" ",34 - length(TRIM(ENTRY(i,parm-lbl-list)))) +
+                 trim(ENTRY(i,parm-lbl-list)) + ":".
 
-      put lv-label format "x(35)" at 5
-          space(1)
-          trim(entry(i,parm-fld-list)) format "x(40)"
-          skip.              
-    end.
-  end.
+      PUT lv-label FORMAT "x(35)" AT 5
+          SPACE(1)
+          TRIM(ENTRY(i,parm-fld-list)) FORMAT "x(40)"
+          SKIP.              
+    END.
+  END.
 
-  put fill("-",80) format "x(80)" skip.
+  PUT FILL("-",80) FORMAT "x(80)" SKIP.
 
 END PROCEDURE.
 

@@ -533,12 +533,12 @@ ELSE lv-comp-color = "BLACK".
             PUT
                 v-po-no FORMAT "x(15)" SPACE(1)
                 v-i-no  format "x(15)" SPACE(1)
-                v-i-dscr  format "x(25)" SPACE(1)
-                v-inv-qty format "->>>>>9" SPACE(1)
-                v-ship-qty  format "->>>>>9" SPACE(1)
+                v-i-dscr  format "x(23)" SPACE(1)
+                v-inv-qty FORMAT "->>>>>>9" SPACE(1)
+                v-ship-qty  format "->>>>>>9" SPACE(1)
               /*  v-bo-qty  format "->>>>>9" SPACE(1)
                 v-i-no  format "x(15)" SPACE(1)  space(13)   */                            
-                v-price  format ">>>>9.9999"                
+                v-price  format ">>>>9.9999" SPACE(1)               
                 inv-line.t-price  format "->>>,>>9.99"                
                 SKIP
                 v-ord-no SPACE(10)

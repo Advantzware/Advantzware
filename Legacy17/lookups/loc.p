@@ -1,4 +1,4 @@
-/* loc.p - Generated 12/02/2004 - 12:31 pm by nosweat
+/* loc.p - Generated 10/17/2017 -  7:54 pm by NoSweat
 "loc. " ~
 "ASI " ~
 "loc " ~
@@ -26,21 +26,22 @@
 &Scoped-define height-size 19
 &Scoped-define width-size 44
 &Scoped-define show-fields loc.loc loc.dscr
+&Scoped-define show-fields-yellow loc.loc LABEL-BGCOLOR 14 loc.dscr LABEL-BGCOLOR 14
 &Scoped-define frame-title Location Lookup
 &Scoped-define top-include ~{custom/getcmpny.i} ~{sys/inc/varasgn.i}
 &Scoped-define def-include ~{custom/gcompany.i} ~{sys/inc/var.i new shared}
 &Scoped-define end-include 
 &Scoped-define ui-prgmname loc.
-&Scoped-define window-size 23
+&Scoped-define window-size 24
 &Scoped-define window-col 53
 &Scoped-define rect-1-row 20.15
 &Scoped-define by-row 20.42
 &Scoped-define browse-order-width 38
 &Scoped-define browse-order-row 20.42
-&Scoped-define btn-row 21.77
-&Scoped-define btn-ok-col 35
-&Scoped-define btn-cancel-col 24
-&Scoped-define auto-find-row 22.85
+&Scoped-define btn-row 21.7
+&Scoped-define btn-ok-col 37
+&Scoped-define btn-cancel-col 30
+&Scoped-define auto-find-row 23.65
 
 &Global-define FORMAT-1 x(5)
 &Scoped-define FLDNAME1 loc.loc

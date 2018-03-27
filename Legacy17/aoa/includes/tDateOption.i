@@ -6,5 +6,4 @@ ASSIGN
     btnCalendar-{&btnCalendar}:SENSITIVE = {&SELF-NAME} EQ "Fixed Date"
     .
 IF {&SELF-NAME} NE "Fixed Date" THEN
-{&dateObject}:SCREEN-VALUE = "".
-
+{&dateObject}:SCREEN-VALUE = DYNAMIC-FUNCTION("fDateOptionValue" IN hContainer,{&SELF-NAME},DATE({&dateObject}:SCREEN-VALUE)).

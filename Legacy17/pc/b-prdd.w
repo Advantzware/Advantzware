@@ -1216,6 +1216,7 @@ PROCEDURE local-assign-record :
   DEF VAR ls-name AS cha NO-UNDO.
   DEF VAR ll-job-mch AS LOG NO-UNDO.
   DEF VAR li AS INT NO-UNDO.
+  DEFINE VARIABLE lNewJobMch AS LOGICAL NO-UNDO.
 
   /* Code placed here will execute PRIOR to standard behavior. */
   ls-name = pc-prdd.i-name:SCREEN-VALUE IN BROWSE {&browse-name}.
@@ -1251,7 +1252,7 @@ PROCEDURE local-assign-record :
   ll-job-mch = NO.
   FOR EACH tt-job-mch:
     FIND FIRST job-mch WHERE ROWID(job-mch) EQ tt-job-mch.row-id NO-ERROR.
-
+    lNewJobMch = NOT AVAILABLE job-mch.
     IF NOT AVAIL job-mch THEN CREATE job-mch.
     BUFFER-COPY tt-job-mch TO job-mch NO-ERROR.
 
@@ -1270,6 +1271,8 @@ PROCEDURE local-assign-record :
          job-mch.wst-prct = mach.run-spoil.
         IF pc-prdd.speed GT 0 THEN
           job-mch.speed    = pc-prdd.speed.
+        IF lNewJobMch THEN 
+          job-mch.est-op_rec_key = "".
       END.
 
     END.
@@ -3001,6 +3004,20 @@ PROCEDURE valid-pass :
             AND (job-mch.blank-no EQ INT(pc-prdd.blank-no:SCREEN-VALUE IN BROWSE {&browse-name}) or
                  ll-no-blk)
             AND job-mch.dept    EQ pc-prdd.dept
+            AND job-mch.pass    EQ INT(pc-prdd.pass:SCREEN-VALUE IN BROWSE {&browse-name})
+          USE-INDEX seq-idx NO-LOCK NO-ERROR.
+
+      IF NOT AVAIL job-mch THEN
+      /* search without using dept */
+      FIND FIRST job-mch
+          WHERE job-mch.company EQ pc-prdd.company
+            AND job-mch.job     EQ li-help-job
+            AND job-mch.job-no  EQ pc-prdd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}
+            AND job-mch.job-no2 EQ INT(pc-prdd.job-no2:SCREEN-VALUE IN BROWSE {&browse-name})
+            AND job-mch.m-code  EQ pc-prdd.m-code
+            AND job-mch.frm     EQ INT(pc-prdd.frm:SCREEN-VALUE IN BROWSE {&browse-name})
+            AND (job-mch.blank-no EQ INT(pc-prdd.blank-no:SCREEN-VALUE IN BROWSE {&browse-name}) or
+                 ll-no-blk)
             AND job-mch.pass    EQ INT(pc-prdd.pass:SCREEN-VALUE IN BROWSE {&browse-name})
           USE-INDEX seq-idx NO-LOCK NO-ERROR.
 

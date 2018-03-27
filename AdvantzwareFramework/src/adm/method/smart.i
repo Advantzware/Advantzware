@@ -609,7 +609,25 @@ PROCEDURE new-state :
   DEFINE INPUT PARAMETER p-state AS CHARACTER NO-UNDO.
 
   RUN broker-new-state IN adm-broker-hdl (THIS-PROCEDURE, p-state) NO-ERROR.
-
+  
+  DEFINE VARIABLE phandle  AS WIDGET-HANDLE NO-UNDO.
+  DEFINE VARIABLE char-hdl AS CHARACTER     NO-UNDO.
+           
+  IF Consultingwerk.WindowIntegrationKit.WinKitSettings:WinKitActive EQ TRUE THEN DO:
+      CASE p-state:
+          WHEN "update-begin" THEN
+          phandle = THIS-PROCEDURE.
+          WHEN "update-complete" THEN DO:
+              RUN get-link-handle IN adm-broker-hdl
+                  (THIS-PROCEDURE,'TableIO-source':U,OUTPUT char-hdl).
+              phandle = WIDGET-HANDLE(char-hdl).
+          END.
+      END CASE.
+      IF VALID-HANDLE (phandle) AND
+         CAN-DO (phandle:INTERNAL-ENTRIES,"winkit-update-button") THEN  
+      RUN winkit-update-button IN phandle (p-state).
+  END.
+  
   RETURN.
 END PROCEDURE.
 

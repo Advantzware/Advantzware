@@ -1,0 +1,3 @@
+  For ix = 0 to Rpt.Sections.Count - 1
+    Rpt.Sections.Item(ix).Visible = True
+  Next

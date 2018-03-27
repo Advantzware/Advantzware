@@ -6,7 +6,7 @@
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admViewersUsing.i} /* added by script c:\tmp\p42959__V16toV17.ped */
+{Advantzware\WinKit\admViewersUsing.i} /* added by script _admViewers.p */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
@@ -200,6 +200,22 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
+/* ************************  Control Triggers  ************************ */
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL titlcode.titlcode SmartViewer
+ON LEAVE OF titlcode.titlcode IN FRAME F-Main /* Estimate # */
+DO:
+  IF LASTKEY NE -1 THEN DO:
+     IF titlcode.titlcode:screen-value = "" THEN DO:
+        MESSAGE "Title Code can't be blank  ...." VIEW-AS ALERT-BOX INFORMATION BUTTONS OK .
+       RETURN NO-APPLY.
+    END.
+  END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 
 
@@ -287,6 +303,30 @@ PROCEDURE send-records :
   {src/adm/template/snd-end.i}
 
 END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-update-record V-table-Win 
+PROCEDURE local-update-record :
+/*------------------------------------------------------------------------------
+  Purpose:     Override standard ADM method
+  Notes:       
+------------------------------------------------------------------------------*/
+  /* validation */
+  DO WITH FRAME {&frame-name}:
+    IF titlcode.titlcode:screen-value = "" THEN DO:
+        MESSAGE "Title Code can't be blank  ...." VIEW-AS ALERT-BOX INFORMATION BUTTONS OK .
+       APPLY "entry" TO titlcode.titlcode.
+       RETURN NO-APPLY.
+    END.
+  END.
+  /* Dispatch standard ADM method.                             */
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
+
+
+END PROCEDURE.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

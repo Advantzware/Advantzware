@@ -145,7 +145,7 @@ DEFINE FRAME F-Main
 
 &ANALYZE-SUSPEND _PROCEDURE-SETTINGS
 /* Settings for THIS-PROCEDURE
-   Type: SmartViewer
+   Type: SmartPanel
    External Tables: ASI.inv-head,ASI.inv-line
    Allow: Basic,DB-Fields
    Frames: 1
@@ -197,12 +197,40 @@ ASSIGN
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
 
+ASSIGN 
+       Btn-Add:PRIVATE-DATA IN FRAME F-Main     = 
+                "panel-image".
+
+ASSIGN 
+       Btn-Delete:PRIVATE-DATA IN FRAME F-Main     = 
+                "panel-image".
+
 /* SETTINGS FOR BUTTON btn-his IN FRAME F-Main
    NO-ENABLE                                                            */
+ASSIGN 
+       btn-his:PRIVATE-DATA IN FRAME F-Main     = 
+                "panel-image".
+
 /* SETTINGS FOR BUTTON btn-misc IN FRAME F-Main
    NO-ENABLE                                                            */
+ASSIGN 
+       btn-misc:PRIVATE-DATA IN FRAME F-Main     = 
+                "panel-image".
+
+ASSIGN 
+       Btn-Save:PRIVATE-DATA IN FRAME F-Main     = 
+                "panel-image".
+
 /* SETTINGS FOR BUTTON btn-ship IN FRAME F-Main
    NO-ENABLE                                                            */
+ASSIGN 
+       btn-ship:PRIVATE-DATA IN FRAME F-Main     = 
+                "panel-image".
+
+ASSIGN 
+       Btn-View:PRIVATE-DATA IN FRAME F-Main     = 
+                "panel-image".
+
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
@@ -335,6 +363,14 @@ END.
   &ENDIF         
 
   /************************ INTERNAL PROCEDURES ********************/
+
+  {methods/setButton.i Btn-Add "Add"} /* added by script _panelImages.p */
+  {methods/setButton.i Btn-Delete "Delete"} /* added by script _panelImages.p */
+  {methods/setButton.i btn-his "History"} /* added by script _panelImages.p */
+  {methods/setButton.i btn-misc "Misc"} /* added by script _panelImages.p */
+  {methods/setButton.i Btn-Save "Update"} /* added by script _panelImages.p */
+  {methods/setButton.i btn-ship "Shipped"} /* added by script _panelImages.p */
+  {methods/setButton.i Btn-View "View"} /* added by script _panelImages.p */
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

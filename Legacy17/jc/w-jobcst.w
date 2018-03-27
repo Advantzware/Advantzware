@@ -1042,9 +1042,9 @@ PROCEDURE local-change-page :
     li-last-page = li-prev-page.
 
     /* This attempts to clear error of fg item screen appearing when user clicks on estimate */
-    RUN init-pages IN THIS-PROCEDURE ('8':U) NO-ERROR.
-    RUN init-pages IN THIS-PROCEDURE ('7':U) NO-ERROR.
-    RUN init-pages IN THIS-PROCEDURE ('6':U) NO-ERROR.
+/*    RUN init-pages IN THIS-PROCEDURE ('8':U) NO-ERROR.*/
+/*    RUN init-pages IN THIS-PROCEDURE ('7':U) NO-ERROR.*/
+/*    RUN init-pages IN THIS-PROCEDURE ('6':U) NO-ERROR.*/
 
     FIND FIRST est NO-LOCK WHERE est.company EQ job.company
                              AND est.est-no EQ job.est-no NO-ERROR.

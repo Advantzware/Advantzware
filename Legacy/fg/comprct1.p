@@ -86,7 +86,7 @@ DO:
     IF li-max-qty GE fg-rctd.t-qty THEN 
     DO:
       
-        IF itemfg.alloc EQ ?  /*assembled w/part receipts*/                                                                   AND
+        IF itemfg.alloc EQ ?  /*assembled w/part receipts*/    AND
             CAN-FIND(FIRST fg-rcpts
             WHERE fg-rcpts.company EQ fg-rctd.company
             AND fg-rcpts.linker  EQ "fg-rctd: " + STRING(fg-rctd.r-no,"9999999999")) THEN 
@@ -126,7 +126,7 @@ DO:
                         ASSIGN
                         b-fg-rcpts.r-no      = li + 1
                         b-fg-rcpts.rita-code = "set".
-        
+
                     RELEASE b-fg-rcpts.
              
                     CREATE b-w-fg-rctd.
@@ -136,7 +136,9 @@ DO:
                         b-w-fg-rctd.cases    = bf2-fg-rctd.cases * -1
                         b-w-fg-rctd.partial  = bf2-fg-rctd.partial * -1
                         b-w-fg-rctd.t-qty    = bf2-fg-rctd.t-qty * -1
-                        b-w-fg-rctd.ext-cost = bf2-fg-rctd.ext-cost * -1.
+                        b-w-fg-rctd.ext-cost = bf2-fg-rctd.ext-cost * -1
+                        b-w-fg-rctd.SetHeaderRno = fg-rctd.r-no
+                        .
 
                         
                 END. /* If pur-man eq NO i.e manufactured */
@@ -382,12 +384,8 @@ PROCEDURE processComponent:
     IF v-set-qty GT 0 OR (v-set-qty LT 0 AND fg-rctd.t-qty LT 0) THEN 
     DO:
 
-        FIND FIRST use-job NO-LOCK
-            WHERE use-job.reftable EQ "fg-rctd.use-job"
-            AND use-job.company  EQ STRING(fg-rctd.r-no,"9999999999")
-            NO-ERROR.
-  
-        IF AVAILABLE use-job AND use-job.val[1] EQ 1 THEN 
+       
+         IF fg-rctd.use-job THEN 
         DO:      
             IF lFGSetAssembly THEN 
             DO:              
@@ -414,7 +412,7 @@ PROCEDURE processComponent:
             DO:              
                 FOR EACH fg-bin
                     WHERE fg-bin.company EQ cocode
-                    AND fg-bin.i-no    EQ b-itemfg.i-no
+                    AND fg-bin.i-no    EQ b-itemfg.i-no 
                     AND fg-bin.job-no  EQ fg-rctd.job-no
                     AND fg-bin.job-no2 EQ fg-rctd.job-no2
                     AND fg-bin.qty     GT 0

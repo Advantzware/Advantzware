@@ -43,6 +43,16 @@
 /* Recap Product Category.rpa */
 {aoa/tempTable/ttRecapProductCategory.i}
 
+/* Scheduled Releases.rpa */
+{aoa/tempTable/ttScheduledReleases.i}
+{aoa/tempTable/ttScheduledReleasesNotes.i}
+{aoa/tempTable/ttScheduledReleasesStats.i}
+
+/* Shipment Report.rpa */
+{aoa/tempTable/ttShipmentReport.i}
+{aoa/tempTable/ttShipmentReportDetail.i}
+{aoa/tempTable/ttShipmentReportSummary.i}
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -163,6 +173,50 @@ FUNCTION fRecapProductCategory RETURNS HANDLE ( {aoa/includes/fInputVars.i} )  F
 
 &ENDIF
 
+&IF DEFINED(EXCLUDE-fScheduledReleases) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fScheduledReleases Procedure 
+FUNCTION fScheduledReleases RETURNS HANDLE ( {aoa/includes/fInputVars.i} )  FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
+
+&IF DEFINED(EXCLUDE-fScheduledReleasesNotes) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fScheduledReleasesNotes Procedure
+FUNCTION fScheduledReleasesNotes RETURNS HANDLE ( {aoa/includes/fInputVars.i} )  FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
+
+&IF DEFINED(EXCLUDE-fScheduledReleasesStats) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fScheduledReleasesStats Procedure
+FUNCTION fScheduledReleasesStats RETURNS HANDLE ( {aoa/includes/fInputVars.i} )  FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
+
+&IF DEFINED(EXCLUDE-fShipmentReport) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fShipmentReport Procedure 
+FUNCTION fShipmentReport RETURNS HANDLE ( {aoa/includes/fInputVars.i} )  FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
+
 
 /* *********************** Procedure Settings ************************ */
 
@@ -257,6 +311,12 @@ FUNCTION fGetTableHandle RETURNS HANDLE
         /* Recap Product Category.rpa */
         WHEN "recappc." THEN
         RETURN TEMP-TABLE ttRecapProductCategory:HANDLE.
+        /* Scheduled Releases.rpa */
+        WHEN "r-sched." THEN
+        RETURN TEMP-TABLE ttScheduledReleases:HANDLE.
+        /* Shipment Report.rpa */
+        WHEN "shiprpt." THEN
+        RETURN TEMP-TABLE ttShipmentReport:HANDLE.
     END CASE.
 
 END FUNCTION.
@@ -440,6 +500,105 @@ Notes:
     RUN aoa/BL/recappc.p (OUTPUT TABLE ttRecapProductCategory, ipcCompany, ipiBatch, ipcUserID).
     
     RETURN TEMP-TABLE ttRecapProductCategory:HANDLE .
+
+END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
+
+&IF DEFINED(EXCLUDE-fScheduledReleases) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fScheduledReleases Procedure 
+FUNCTION fScheduledReleases RETURNS HANDLE ( {aoa/includes/fInputVars.i} ) :
+/*------------------------------------------------------------------------------
+  Purpose:  Scheduled Releases.rpa
+    Notes:  
+------------------------------------------------------------------------------*/
+    EMPTY TEMP-TABLE ttScheduledReleases.
+    EMPTY TEMP-TABLE ttScheduledReleasesNotes.
+    EMPTY TEMP-TABLE ttScheduledReleasesStats.
+    
+    /* subject business logic */
+    RUN aoa/BL/r-sched.p (OUTPUT TABLE ttScheduledReleases,
+                          OUTPUT TABLE ttScheduledReleasesNotes,
+                          OUTPUT TABLE ttScheduledReleasesStats,
+                          ipcCompany, ipiBatch, ipcUserID).
+    
+    RETURN TEMP-TABLE ttScheduledReleases:HANDLE .
+
+END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
+
+&IF DEFINED(EXCLUDE-fScheduledReleasesNotes) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fScheduledReleasesNotes Procedure
+FUNCTION fScheduledReleasesNotes RETURNS HANDLE ( {aoa/includes/fInputVars.i} ) :
+/*------------------------------------------------------------------------------
+  Purpose:  Scheduled Releases.rpa
+    Notes:  
+------------------------------------------------------------------------------*/
+    EMPTY TEMP-TABLE ttScheduledReleasesNotes.
+    
+    /* subject business logic */
+    RUN aoa/BL/r-schedNotes.p (OUTPUT TABLE ttScheduledReleasesNotes, ipcCompany, ipiBatch, ipcUserID).
+    
+    RETURN TEMP-TABLE ttScheduledReleasesNotes:HANDLE .
+
+END FUNCTION.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
+
+&IF DEFINED(EXCLUDE-fScheduledReleasesStats) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fScheduledReleasesStats Procedure
+FUNCTION fScheduledReleasesStats RETURNS HANDLE ( {aoa/includes/fInputVars.i} ) :
+/*------------------------------------------------------------------------------
+  Purpose:  Scheduled Releases.rpa
+    Notes:  
+------------------------------------------------------------------------------*/
+    EMPTY TEMP-TABLE ttScheduledReleasesStats.
+    
+    /* subject business logic */
+    RUN aoa/BL/r-schedStats.p (OUTPUT TABLE ttScheduledReleasesStats, ipcCompany, ipiBatch, ipcUserID).
+    
+    RETURN TEMP-TABLE ttScheduledReleasesStats:HANDLE .
+
+END FUNCTION.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
+
+&IF DEFINED(EXCLUDE-fShipmentReport) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fShipmentReport Procedure 
+FUNCTION fShipmentReport RETURNS HANDLE ( {aoa/includes/fInputVars.i} ) :
+/*------------------------------------------------------------------------------
+  Purpose:  Shipment Report.rpa
+    Notes:  
+------------------------------------------------------------------------------*/
+    EMPTY TEMP-TABLE ttShipmentReport.
+    EMPTY TEMP-TABLE ttShipmentReportDetail.
+    EMPTY TEMP-TABLE ttShipmentReportSummary.
+    
+    /* subject business logic */
+    RUN aoa/BL/shiprpt.p (OUTPUT TABLE ttShipmentReport, ipcCompany, ipiBatch, ipcUserID).
+    
+    RETURN TEMP-TABLE ttShipmentReport:HANDLE .
 
 END FUNCTION.
 

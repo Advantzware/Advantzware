@@ -4,10 +4,6 @@
           asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admBrowserUsing.i} /* added by script _admBrowsers.p */
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS B-table-Win 
 /*------------------------------------------------------------------------
 
@@ -35,7 +31,6 @@ CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
 
-&SCOPED-DEFINE dataGridInclude dataGrid\addon\fg\b-trans.i
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
@@ -45,7 +40,7 @@ CREATE WIDGET-POOL.
 {custom/gloc.i}
 {custom/globdefs.i}
 {sys/inc/VAR.i NEW SHARED}
-
+ 
 
 def var char-val as cha no-undo.
 def var ext-cost as decimal no-undo.
@@ -282,8 +277,6 @@ END.
 {src/adm/method/query.i}
 {methods/template/browser.i}
 
-{Advantzware/WinKit/dataGridProc.i}
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -373,7 +366,7 @@ fg-rctd.created-by = USERID(""NOSWEAT"")"
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -389,7 +382,7 @@ DO:
    RUN get-link-handle IN adm-broker-hdl
       (THIS-PROCEDURE,'TableIO-source':U,OUTPUT char-hdl).
    phandle = WIDGET-HANDLE(char-hdl).
-
+   
    RUN new-state in phandle ('update-begin':U).
 
 END.
@@ -406,7 +399,7 @@ DO:
  DEF BUFFER bf-tmp FOR fg-rctd.
 
  IF NOT avail fg-rctd then find fg-rctd where recid(fg-rctd) = lv-recid no-lock no-error. 
-
+ 
  def var ll-tag# as log no-undo.
  ll-help-run = yes.
  case focus:name :
@@ -457,7 +450,7 @@ DO:
                         VIEW-AS ALERT-BOX ERROR.
                 RETURN NO-APPLY.
              END.
-
+             
              FIND FIRST loadtag WHERE loadtag.company = g_company
                         AND loadtag.ITEM-type = NO
                         AND loadtag.tag-no = fg-rctd.tag:SCREEN-VALUE NO-LOCK NO-ERROR.
@@ -508,7 +501,7 @@ DO:
               assign fg-rctd.loc2:screen-value in  browse {&browse-name}  = entry(1,char-val).             
               APPLY "tab" TO fg-rctd.loc2.
            end.
-
+           
            return no-apply.   
      end.
      when "loc-bin2" then do:
@@ -533,7 +526,7 @@ ON ROW-DISPLAY OF Browser-Table IN FRAME F-Main
 DO:  /* display calculated field */
   /* def var ii as int.
    ii = if avail fg-rctd then integer(fg-rctd.po-no) else 0.
-
+   
    if avail fg-rctd then    run get-matrix (true).
 */
   DEF VAR iHoldCnt AS INT.
@@ -558,7 +551,7 @@ DO:  /* display calculated field */
         END. /* if no error */
     END. /* if avail tt-line-cnt */
   END. /* if has a rowid */
-
+  
 END. /* Do */
 
 /* _UIB-CODE-BLOCK-END */
@@ -636,7 +629,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rctd.tag Browser-Table _BROWSE-COLUMN B-table-Win
 ON LEAVE OF fg-rctd.tag IN BROWSE Browser-Table /* From!Tag */
 DO:
-
+    
   IF LASTKEY NE -1 THEN DO:
     RUN leave-tag.
     RETURN NO-APPLY.
@@ -800,7 +793,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rctd.loc-bin2 Browser-Table _BROWSE-COLUMN B-table-Win
 ON LEAVE OF fg-rctd.loc-bin2 IN BROWSE Browser-Table /* To!Bin */
 DO:
-
+  
   IF LASTKEY NE -1 THEN DO:
     RUN valid-loc-bin2 NO-ERROR.    
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
@@ -1063,7 +1056,7 @@ DO WITH FRAME {&FRAME-NAME}:
        fg-rctd.loc-bin2:SCREEN-VALUE IN BROWSE {&browse-name} = fg-bin.loc-bin
        fg-rctd.tag2:SCREEN-VALUE IN BROWSE {&browse-name}     = fg-bin.tag.
 
-
+      
     END.
   END.
 END PROCEDURE.
@@ -1098,7 +1091,7 @@ PROCEDURE leave-tag :
        ELSE APPLY "entry" TO fg-rctd.loc2 IN BROWSE {&browse-name}.
     END.
 
-
+   
     IF sstransf-int = 1 THEN
     DO:
       FOR LAST  b-fg-rctd FIELDS (b-fg-rctd.loc2 b-fg-rctd.loc-bin2) 
@@ -1120,9 +1113,9 @@ PROCEDURE leave-tag :
              IF FOCUS:NAME = "loc2" AND adm-new-record THEN DO:
                  APPLY 'entry' TO fg-rctd.tag IN BROWSE {&browse-name}.
                  APPLY 'return' TO fg-rctd.tag IN BROWSE {&browse-name}.
-
+                 
              END.
-
+                
 /*           DISPLAY b-fg-rctd.loc2 @ fg-rctd.loc2          */
 /*                   b-fg-rctd.loc-bin2  @ fg-rctd.loc-bin2 */
 /*                   WITH FRAME {&FRAME-NAME}.              */
@@ -1280,7 +1273,7 @@ PROCEDURE local-assign-record :
          v-tag-no = v-tag-no + 1.
      END. /* repeat */
      IF v-tag-no = 0 THEN v-tag-no = 1.
-
+  
      CREATE bf-tag.
      BUFFER-COPY loadtag EXCEPT loadtag.tag-no TO bf-tag.
      ASSIGN bf-tag.tag-no       = /*string(ip-tag-no,"99999") + STRING(w-ord.i-no,"x(15)") */
@@ -1372,7 +1365,7 @@ DEF BUFFER bf-reftable FOR reftable.
   lv-new-tag-number-chosen = ?.
 
   /* Remove any blank records created by local-add */
-
+  
   FOR EACH  b-fg-rctd 
       WHERE b-fg-rctd.company   EQ cocode
         AND b-fg-rctd.rita-code EQ "T"
@@ -1387,7 +1380,7 @@ DEF BUFFER bf-reftable FOR reftable.
       IF AVAIL bf-fg-rctd THEN
         DELETE bf-fg-rctd.
   END.
-
+    
   BROWSE {&BROWSE-NAME}:REFRESH() NO-ERROR.
   RUN adm-open-query.
 END PROCEDURE.
@@ -1530,7 +1523,7 @@ PROCEDURE local-disable-fields :
   /* Code placed here will execute AFTER standard behavior.    */
   if valid-handle(hd-post-child) then  hd-post-child:sensitive = yes.
             /* value assigned from local-enable-fields*/
-
+  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1558,10 +1551,10 @@ DEFINE VARIABLE iHoldCnt AS INTEGER     NO-UNDO.
       IF NOT ERROR-STATUS:ERROR THEN DO:       
          iLineCnt:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(tt-line-cnt.line-number).
       END.
-
+      
     END.
     ELSE DO:
-
+      
       iHoldCnt = integer(iLineCnt:SCREEN-VALUE IN BROWSE {&browse-name}) NO-ERROR.
       IF NOT ERROR-STATUS:ERROR THEN DO:    
         iLineCnt = iLineCnt + 1.        
@@ -1585,11 +1578,11 @@ PROCEDURE local-enable-fields :
   Notes:       
 ------------------------------------------------------------------------------*/
    /* Code placed here will execute PRIOR to standard behavior. */
-
+   
  /* def var out-hd-lst as cha no-undo.
   def var ii as int no-undo.
   def var hd-next as widget-handle no-undo.
-
+   
   /* Code placed here will execute PRIOR to standard behavior. */
   run get-link-handle in adm-broker-hdl (this-procedure,"record-target", output out-hd-lst).
   hd-post = widget-handle(out-hd-lst).  /* procedure */
@@ -1630,8 +1623,8 @@ BROWSE {&browse-name}:SELECT-FOCUSED-ROW() NO-ERROR.
      ELSE APPLY "entry" TO fg-rctd.loc2 IN BROWSE {&browse-name}.
 
   END.
-
-
+  
+ 
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1674,21 +1667,21 @@ v-progstack = (IF PROGRAM-NAME(1) NE ? THEN "," + PROGRAM-NAME(1) ELSE "")
 
   RUN valid-job-loc-bin-tag NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-
+  
   RUN valid-i-no NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-
+  
   RUN valid-loc2 NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-
+  
   RUN valid-loc-bin2 NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-
+  
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
-
+  
   /* Code placed here will execute AFTER standard behavior.    */
-
+ 
   IF AVAIL fg-rctd THEN DO:  
     RUN local-initialize.
     DEF VAR rCurrentRow AS ROWID.
@@ -1731,7 +1724,7 @@ PROCEDURE make-small :
 DO WITH FRAME {&FRAME-NAME}:
     BROWSE {&browse-name}:HEIGHT-CHARS = 6.19.
      browse-order:VISIBLE = NO.
-
+          
      auto_find:VISIBLE = NO.
      Btn_Clear_Find:VISIBLE = NO.
      RECT-4:VISIBLE = NO.
@@ -2011,7 +2004,7 @@ PROCEDURE valid-job-loc-bin-tag :
 
     /* To cover previous Transfer Posting Bugs
        if loadtag.tot-cases = 0 then get Unit Count from Fg-bin */
-
+    
     IF AVAIL loadtag AND INT(fg-rctd.cases:SCREEN-VALUE) = 0 AND li-field# = 5 THEN
        FIND FIRST fg-bin WHERE fg-bin.company = gcompany
                            AND fg-bin.tag = loadtag.tag-no
@@ -2045,7 +2038,7 @@ PROCEDURE valid-job-loc-bin-tag :
                       DEC(fg-rctd.qty-case:SCREEN-VALUE IN BROWSE {&browse-name})) +
                       DEC(fg-rctd.partial:SCREEN-VALUE IN BROWSE {&browse-name})
     THEN DO:
-
+    
       ASSIGN
        fg-rctd.qty-case:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(fg-bin.case-count)
        fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}      = CAPS(fg-bin.loc)
@@ -2056,7 +2049,7 @@ PROCEDURE valid-job-loc-bin-tag :
                     IF adm-new-record THEN CAPS(fg-bin.tag) ELSE fg-rctd.tag2:SCREEN-VALUE.
        IF fg-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name} NE "" AND lv-new-tag-number-chosen = ? 
            AND fg-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name} EQ fg-rctd.tag2:SCREEN-VALUE IN BROWSE {&browse-name}  THEN DO:
-
+       
            IF fg-rctd.cases:SCREEN-VALUE IN BROWSE {&browse-name} NE  STRING(TRUNC((fg-bin.qty - fg-bin.partial-count) / fg-bin.case-count, 0)) 
                AND int(fg-rctd.cases:SCREEN-VALUE IN BROWSE {&browse-name}) NE 0 THEN DO:
                  MESSAGE "Units not matching units in Tag will need to create a new tag #"
@@ -2068,7 +2061,7 @@ PROCEDURE valid-job-loc-bin-tag :
                     lv-new-tag-number-chosen = TRUE.
                  ELSE
                     lv-new-tag-number-chosen = FALSE.
-
+        
                  IF NOT lv-new-tag-number-chosen THEN
                     fg-rctd.cases:SCREEN-VALUE IN BROWSE {&browse-name}    = STRING(TRUNC((fg-bin.qty - fg-bin.partial-count) / fg-bin.case-count, 0)).
            END. /* ask if creating a new tag number */
@@ -2076,7 +2069,7 @@ PROCEDURE valid-job-loc-bin-tag :
        END.
     END.
     ELSE DO:
-
+        
       IF AVAIL fg-bin THEN DO:
         MESSAGE "Insufficient Qty (" fg-bin.qty ") in Bin..." SKIP(1)
           'Cases:' fg-rctd.cases '*' SKIP

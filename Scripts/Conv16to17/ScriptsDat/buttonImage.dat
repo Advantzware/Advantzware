@@ -1,25 +1,128 @@
 // tab delimited format: Label<tab>Image --- do not delete this line
++FG#	memory
+3D Image	3d_glasses
 Add	document_empty
+Add Job	add
+Add Periods	add
+Add Tandem	add
+Allocation	graph_fork
+Auto-Calc	calculator
+Auto-Calculate	calculator
+B.O.M.	document_text
+Bol/Inv	document_notebook
+Bom	document_text
+Build Menu	engineer
+Cad/2D	document_center_vertical
+Calculate	Calculator
+Caliper	Caliper
 Cancel	error
 Close	door_exit
 Copy	copy
+Copy Balances To Budgets	data_copy
+Copy Menu	copy
+Copy Periods	copy
 Delete	delete
+Delete All	erase
+Depth	fit_to_width
+Detail	drop_down_list
+Die	painters_palette
 Done	door_exit
 Down	nav_down
+Eff/Qty	gold_bars
+Estimatebuild	keypad
 First	navigate_beginning
+Freight	truck_container
 Goto	queue
+Graphic	graphics_tablet
+Hard Copy	element_copy
+Help	question
+History	history2
+Hold	lock
+Hold/Release	lock_open
+Image Refresh	selection_refresh
+Image Update	photos
+Import	import
+Import Budgets	chest_into
+Import Excel	import
+Import Price	import
+Import-Price	import
+Ink Reset	replace
+Invoice	invoice
+Item	coffee_bean
+Job Stds	text_align_left
 Last	navigate_end
+Last Yr And YTD Balances	book_bookmark
+Leaf/Film	film
 Left	navigate_left
-Print	printer
+Load Highlighted Invoices	invoice_euro
+Load Highlighted Journals	invoice
 Mail?	mail
+Mass Delete	selection_delete
+Misc	scroll
 No Note	sign_forbidden
+No Notes	sign_warning
 No UDF	sign_forbidden
+No-Udf	sign_warning
 Note	edit
 OK	checkbox
+Override	window_environment
+Override Qtys	window_environment
+Override Unit	window_star
+Post	data_floppy_disk
+Prior Yr/Ytd Bal	book_bookmark
+Prefix Fg Item#	bookmark
+Price	money_dollar
+Price Change	money_bill_cut
+Price Mtx	money_coins
+Print	printer
+Print BOL	print_layout_single
+Print Box	print_layout_continous
+Print Price List	print_layout_single
+Qty	symbol_sum
+Quote	document_information
+Re-Sequence	sort_up_down
+Rebuild	tools
+Rebuild Job Qty	hammer
+Rebuild Job Stds wrench
+Rebuild Std	wrench
+Rebuild Stds.	wrench
+Recalc Cost	calculator
+Recalc Costs	calculator
+Recalc Qty	calculator
+Recalc Qtys	calculator
+Recalc Totals	calculator
+Recost Board	invoice_dollar
+Refresh	refresh
+Release	trafficlight_green
+Reprice	calculator
 Reset	undo_32
+Reset Ink	paint_brush
 Right	navigate_right
+Sample	document_size
 Save	floppy_disk
+Schedule	calendar
+Scores	score_board
+Select Bin/Tags	elements2
+Select Bins/Tag	elements_branch2
+Select Bins/Tags	elements2
+Set	star
+Sheet Calc	calculator
+Shipped	small_truck
+Spec Card	document_center
+Spec Sheet	document_size
+Spec/Noc	document_size
+Stack Pattern	memory
 Start	checkbox
-Up	nav_up
+Start Process	checkbox
+Stat	chart_column
+Transfer	arrow_mix
 UDF	window_dialog
+Unapprove	undo 
+Unit Calc	calculator
+Unpost Actual	undo
+Up	nav_up
 Update	pencil
+Update Base Cost	calculator
+Update Cost/Unit/Count	redo
+Update Price Matrix	calculator
+View	windows

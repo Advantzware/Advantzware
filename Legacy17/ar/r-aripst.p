@@ -1,2 +1,2 @@
  
- RUN ar/r-arve&p.w (YES).
+ RUN ar/r-arve&p.w PERSISTENT (YES).

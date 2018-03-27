@@ -160,6 +160,8 @@ DEF VAR v-paidflg AS LOG NO-UNDO.
 &SCOPED-DEFINE sortby-log2                                                                                                             ~
     IF lv-sort-by EQ "po-no"     THEN STRING(po-ordl.po-no,"9999999999")                                                          ELSE ~
     IF lv-sort-by EQ "vend-no"   THEN po-ord.vend-no                                                                              ELSE ~
+    IF lv-sort-by EQ "ship-id"   THEN po-ord.ship-id                                                                              ELSE ~
+    IF lv-sort-by EQ "ship-name"   THEN po-ord.ship-name                                                                          ELSE ~
     IF lv-sort-by EQ "job-no"    THEN STRING(po-ordl.job-no,"x(6)") + STRING(po-ordl.job-no2,"99") + STRING(po-ordl.s-num,"999")  ELSE ~
     IF lv-sort-by EQ "i-no"      THEN po-ordl.i-no                                                                                ELSE ~
     IF lv-sort-by EQ "i-name"    THEN po-ordl.i-name                                                                              ELSE ~
@@ -843,6 +845,9 @@ DO:
      objects when the browser's current row changes. */
   {src/adm/template/brschnge.i}
   RUN set-value.
+
+  RUN dept-pan-image-proc.
+
 END.
 
 /*DO:
@@ -980,7 +985,7 @@ END.
 ON VALUE-CHANGED OF fi_i-no IN FRAME F-Main
 DO:
   IF LASTKEY <> 32 THEN {&self-name}:SCREEN-VALUE = CAPS({&self-name}:SCREEN-VALUE).
-  {&SELF-NAME}:CURSOR-OFFSET = LENGTH({&SELF-NAME}:SCREEN-VALUE) + 1. /* added by script _caps.p */
+  IF LASTKEY EQ 32 THEN {&SELF-NAME}:CURSOR-OFFSET = LENGTH({&SELF-NAME}:SCREEN-VALUE) + 2. /* res */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1009,7 +1014,7 @@ END.
 ON VALUE-CHANGED OF fi_job-no IN FRAME F-Main
 DO:
   IF LASTKEY <> 32 THEN {&self-name}:SCREEN-VALUE = CAPS({&self-name}:SCREEN-VALUE).
-  {&SELF-NAME}:CURSOR-OFFSET = LENGTH({&SELF-NAME}:SCREEN-VALUE) + 1. /* added by script _caps.p */
+  IF LASTKEY EQ 32 THEN {&SELF-NAME}:CURSOR-OFFSET = LENGTH({&SELF-NAME}:SCREEN-VALUE) + 2. /* res */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1021,7 +1026,7 @@ END.
 ON VALUE-CHANGED OF fi_vend-i-no IN FRAME F-Main
 DO:
   IF LASTKEY <> 32 THEN {&self-name}:SCREEN-VALUE = CAPS({&self-name}:SCREEN-VALUE).
-  {&SELF-NAME}:CURSOR-OFFSET = LENGTH({&SELF-NAME}:SCREEN-VALUE) + 1. /* added by script _caps.p */
+  IF LASTKEY EQ 32 THEN {&SELF-NAME}:CURSOR-OFFSET = LENGTH({&SELF-NAME}:SCREEN-VALUE) + 2. /* res */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1033,7 +1038,7 @@ END.
 ON VALUE-CHANGED OF fi_vend-no IN FRAME F-Main
 DO:
   IF LASTKEY <> 32 THEN {&self-name}:SCREEN-VALUE = CAPS({&self-name}:SCREEN-VALUE).
-  {&SELF-NAME}:CURSOR-OFFSET = LENGTH({&SELF-NAME}:SCREEN-VALUE) + 1. /* added by script _caps.p */
+  IF LASTKEY EQ 32 THEN {&SELF-NAME}:CURSOR-OFFSET = LENGTH({&SELF-NAME}:SCREEN-VALUE) + 2. /* res */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1104,6 +1109,10 @@ SESSION:DATA-ENTRY-RETURN = YES.
  DO WITH FRAME {&FRAME-NAME}:
     {custom/usrprint.i}  /* task 07101525 */
     fi_due-date = DATE(fi_due-date:SCREEN-VALUE)  .
+    IF fi_due-date LT TODAY - 365  THEN
+        ASSIGN
+           fi_due-date:SCREEN-VALUE = STRING(TODAY - 180) 
+           fi_due-date = TODAY - 180 .
   END.
 
 
@@ -1376,8 +1385,10 @@ PROCEDURE local-get-first :
   /* Code placed here will execute AFTER standard behavior.    */
   {methods/template/local/setvalue2.i}
 
-  IF AVAIL po-ord THEN
+  IF AVAIL po-ord THEN do:
      RUN paper-clip-image-proc(INPUT po-ord.rec_key).
+     RUN dept-pan-image-proc.
+  END.
 
 END PROCEDURE.
 
@@ -1399,8 +1410,10 @@ PROCEDURE local-get-last :
   /* Code placed here will execute AFTER standard behavior.    */
   {methods/template/local/setvalue2.i}
 
-  IF AVAIL po-ord THEN
+  IF AVAIL po-ord THEN do:
      RUN paper-clip-image-proc(INPUT po-ord.rec_key).
+     RUN dept-pan-image-proc.
+  END.
 
 END PROCEDURE.
 
@@ -1422,8 +1435,10 @@ PROCEDURE local-get-next :
   /* Code placed here will execute AFTER standard behavior.    */
   {methods/template/local/setvalue2.i}
 
-  IF AVAIL po-ord THEN
+  IF AVAIL po-ord THEN do:
      RUN paper-clip-image-proc(INPUT po-ord.rec_key).
+     RUN dept-pan-image-proc.
+  END.
 
 END PROCEDURE.
 
@@ -1445,8 +1460,10 @@ PROCEDURE local-get-prev :
   /* Code placed here will execute AFTER standard behavior.    */
   {methods/template/local/setvalue2.i}
 
-  IF AVAIL po-ord THEN
+  IF AVAIL po-ord THEN do:
      RUN paper-clip-image-proc(INPUT po-ord.rec_key).
+     RUN dept-pan-image-proc.
+  END.
 
 END PROCEDURE.
 
@@ -2161,7 +2178,7 @@ PROCEDURE set-defaults :
      tb_open:SCREEN-VALUE      = "yes"
      tb_closed:SCREEN-VALUE    = "no"  .
      IF fi_due-date:SCREEN-VALUE = "" THEN
-     fi_due-date:SCREEN-VALUE  = "01/01/0001" .   /* task 07101525 */ 
+     fi_due-date:SCREEN-VALUE  = STRING(TODAY - 180) .   /* task 07101525 */ 
   END.
 
 END PROCEDURE.
@@ -2645,6 +2662,34 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE dept-pan-image-proc B-table-Win 
+PROCEDURE dept-pan-image-proc :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+   DEF VAR v-spec AS LOG NO-UNDO.
+   DEF VAR char-hdl AS CHAR NO-UNDO.
+
+   FIND FIRST notes WHERE notes.rec_key = po-ord.rec_key
+       NO-LOCK NO-ERROR.
+
+   IF AVAIL notes THEN
+      v-spec = TRUE.
+   ELSE v-spec = FALSE.
+
+   RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE, 'spec-target':U, OUTPUT char-hdl).
+
+   IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
+      RUN dept-pen-image IN WIDGET-HANDLE(char-hdl) (INPUT v-spec).
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE state-changed B-table-Win 
 PROCEDURE state-changed :

@@ -37,12 +37,20 @@ def var lv-roll-w like e-itemfg.roll-w no-undo.
 DEF VAR lv-group-hdl AS HANDLE NO-UNDO.
 DEF VAR lv-field-hdl AS HANDLE NO-UNDO.
 DEF VAR char-hdl AS CHAR NO-UNDO.
+DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO .
+DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO .
+DEFINE VARIABLE lVendCostMtx AS LOGICAL NO-UNDO .
 
 {custom/gcompany.i}
 {custom/persist.i}
 
 DEF VAR gTerm AS cha NO-UNDO.
 DEF VAR gNewVendor AS LOG NO-UNDO.
+
+RUN sys/ref/nk1look.p (INPUT g_company, "VendCostMatrix", "L" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+OUTPUT cRtnChar, OUTPUT lRecFound).
+ASSIGN lVendCostMtx = LOGICAL(cRtnChar) NO-ERROR .
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -69,49 +77,39 @@ DEF VAR gNewVendor AS LOG NO-UNDO.
 DEFINE QUERY external_tables FOR e-itemfg-vend, e-itemfg.
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-FIELDS e-itemfg-vend.vend-item e-itemfg-vend.cust-no ~
-e-itemfg-vend.vend-no e-itemfg-vend.run-qty[1] e-itemfg-vend.run-cost[1] ~
-e-itemfg-vend.setups[1] e-itemfg-vend.run-qty[2] e-itemfg-vend.run-cost[2] ~
-e-itemfg-vend.setups[2] e-itemfg-vend.run-qty[3] e-itemfg-vend.run-cost[3] ~
-e-itemfg-vend.setups[3] e-itemfg-vend.run-qty[4] e-itemfg-vend.run-cost[4] ~
-e-itemfg-vend.setups[4] e-itemfg-vend.run-qty[5] e-itemfg-vend.run-cost[5] ~
-e-itemfg-vend.setups[5] e-itemfg-vend.run-qty[6] e-itemfg-vend.run-cost[6] ~
-e-itemfg-vend.setups[6] e-itemfg-vend.run-qty[7] e-itemfg-vend.run-cost[7] ~
-e-itemfg-vend.setups[7] e-itemfg-vend.run-qty[8] e-itemfg-vend.run-cost[8] ~
-e-itemfg-vend.setups[8] e-itemfg-vend.run-qty[9] e-itemfg-vend.run-cost[9] ~
-e-itemfg-vend.setups[9] e-itemfg-vend.run-qty[10] ~
-e-itemfg-vend.run-cost[10] e-itemfg-vend.setups[10] ~
-e-itemfg-vend.roll-w[27] e-itemfg-vend.roll-w[28] e-itemfg-vend.roll-w[29] ~
-e-itemfg-vend.roll-w[30] 
+e-itemfg-vend.vend-no e-itemfg-vend.spare-dec-1 e-itemfg-vend.roll-w[27] ~
+e-itemfg-vend.roll-w[28] e-itemfg-vend.roll-w[29] e-itemfg-vend.roll-w[30] 
 &Scoped-define ENABLED-TABLES e-itemfg-vend
 &Scoped-define FIRST-ENABLED-TABLE e-itemfg-vend
 &Scoped-Define ENABLED-OBJECTS tb_sel tb_sel-01 tb_sel-02 tb_sel-03 ~
 tb_sel-04 tb_sel-05 tb_sel-06 tb_sel-07 tb_sel-08 tb_sel-09 tb_sel-10 ~
-RECT-24 
+RECT-24 RECT-26 
 &Scoped-Define DISPLAYED-FIELDS e-itemfg-vend.i-no e-itemfg.std-uom ~
 e-itemfg-vend.vend-item e-itemfg-vend.cust-no e-itemfg-vend.vend-no ~
-e-itemfg-vend.run-qty[1] e-itemfg-vend.run-cost[1] e-itemfg-vend.setups[1] ~
-e-itemfg-vend.run-qty[2] e-itemfg-vend.run-cost[2] e-itemfg-vend.setups[2] ~
-e-itemfg-vend.run-qty[3] e-itemfg-vend.run-cost[3] e-itemfg-vend.setups[3] ~
-e-itemfg-vend.run-qty[4] e-itemfg-vend.run-cost[4] e-itemfg-vend.setups[4] ~
-e-itemfg-vend.run-qty[5] e-itemfg-vend.run-cost[5] e-itemfg-vend.setups[5] ~
-e-itemfg-vend.run-qty[6] e-itemfg-vend.run-cost[6] e-itemfg-vend.setups[6] ~
-e-itemfg-vend.run-qty[7] e-itemfg-vend.run-cost[7] e-itemfg-vend.setups[7] ~
-e-itemfg-vend.run-qty[8] e-itemfg-vend.run-cost[8] e-itemfg-vend.setups[8] ~
-e-itemfg-vend.run-qty[9] e-itemfg-vend.run-cost[9] e-itemfg-vend.setups[9] ~
-e-itemfg-vend.run-qty[10] e-itemfg-vend.run-cost[10] ~
-e-itemfg-vend.setups[10] e-itemfg-vend.roll-w[27] e-itemfg-vend.roll-w[28] ~
+e-itemfg-vend.spare-dec-1 e-itemfg-vend.roll-w[27] e-itemfg-vend.roll-w[28] ~
 e-itemfg-vend.roll-w[29] e-itemfg-vend.roll-w[30] 
 &Scoped-define DISPLAYED-TABLES e-itemfg-vend e-itemfg
 &Scoped-define FIRST-DISPLAYED-TABLE e-itemfg-vend
 &Scoped-define SECOND-DISPLAYED-TABLE e-itemfg
 &Scoped-Define DISPLAYED-OBJECTS ls-item-name ls-item-dscr ls-vend-name ~
 tb_sel tb_sel-01 tb_sel-02 tb_sel-03 tb_sel-04 tb_sel-05 tb_sel-06 ~
-tb_sel-07 tb_sel-08 tb_sel-09 tb_sel-10 fi_oh-markup 
+tb_sel-07 tb_sel-08 tb_sel-09 tb_sel-10 fi_oh-markup qty-label run-qty-01 ~
+run-cost-01 setups-01 run-qty-02 run-cost-02 setups-02 run-qty-03 ~
+run-cost-03 setups-03 run-qty-04 run-cost-04 setups-04 run-qty-05 ~
+run-cost-05 setups-05 run-qty-06 run-cost-06 setups-06 run-qty-07 ~
+run-cost-07 setups-07 run-qty-08 run-cost-08 setups-08 run-qty-09 ~
+run-cost-09 setups-09 run-qty-10 run-cost-10 setups-10 
 
 /* Custom List Definitions                                              */
-/* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,List-3,DISPLAY-FIELD,List-5,List-6 */
+/* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,farmFields,DISPLAY-FIELD,List-5,List-6 */
 &Scoped-define ADM-CREATE-FIELDS e-itemfg.std-uom 
 &Scoped-define ADM-ASSIGN-FIELDS e-itemfg.std-uom fi_oh-markup 
+&Scoped-define farmFields run-qty-01 run-cost-01 setups-01 run-qty-02 ~
+run-cost-02 setups-02 run-qty-03 run-cost-03 setups-03 run-qty-04 ~
+run-cost-04 setups-04 run-qty-05 run-cost-05 setups-05 run-qty-06 ~
+run-cost-06 setups-06 run-qty-07 run-cost-07 setups-07 run-qty-08 ~
+run-cost-08 setups-08 run-qty-09 run-cost-09 setups-09 run-qty-10 ~
+run-cost-10 setups-10 
 &Scoped-define DISPLAY-FIELD fi_oh-markup 
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
@@ -144,6 +142,10 @@ RUN set-attribute-list (
 
 
 /* Definitions of the field level widgets                               */
+DEFINE BUTTON btnShowVendCostMtx 
+     LABEL "*" 
+     SIZE 3 BY .81 TOOLTIP "Show Vend Cost Mtx".
+
 DEFINE VARIABLE fi_oh-markup AS INTEGER FORMAT ">,>>9":U INITIAL 0 
      LABEL "GS&&A O/H Markup %" 
      VIEW-AS FILL-IN 
@@ -161,9 +163,137 @@ DEFINE VARIABLE ls-vend-name AS CHARACTER FORMAT "X(256)":U
      VIEW-AS FILL-IN 
      SIZE 58 BY 1 NO-UNDO.
 
+DEFINE VARIABLE qty-label AS CHARACTER FORMAT "X(15)":U 
+     VIEW-AS FILL-IN 
+     SIZE 12.8 BY .81 NO-UNDO.
+
+DEFINE VARIABLE run-cost-01 AS DECIMAL FORMAT ">>,>>9.9999" INITIAL 0 
+     VIEW-AS FILL-IN 
+     SIZE 15.2 BY 1.
+
+DEFINE VARIABLE run-cost-02 AS DECIMAL FORMAT ">>,>>9.9999" INITIAL 0 
+     VIEW-AS FILL-IN 
+     SIZE 15.2 BY 1.
+
+DEFINE VARIABLE run-cost-03 AS DECIMAL FORMAT ">>,>>9.9999" INITIAL 0 
+     VIEW-AS FILL-IN 
+     SIZE 15.2 BY 1.
+
+DEFINE VARIABLE run-cost-04 AS DECIMAL FORMAT ">>,>>9.9999" INITIAL 0 
+     VIEW-AS FILL-IN 
+     SIZE 15.2 BY 1.
+
+DEFINE VARIABLE run-cost-05 AS DECIMAL FORMAT ">>,>>9.9999" INITIAL 0 
+     VIEW-AS FILL-IN 
+     SIZE 15.2 BY 1.
+
+DEFINE VARIABLE run-cost-06 AS DECIMAL FORMAT ">>,>>9.9999" INITIAL 0 
+     VIEW-AS FILL-IN 
+     SIZE 15.2 BY 1.
+
+DEFINE VARIABLE run-cost-07 AS DECIMAL FORMAT ">>,>>9.9999" INITIAL 0 
+     VIEW-AS FILL-IN 
+     SIZE 15.2 BY 1.
+
+DEFINE VARIABLE run-cost-08 AS DECIMAL FORMAT ">>,>>9.9999" INITIAL 0 
+     VIEW-AS FILL-IN 
+     SIZE 15.2 BY 1.
+
+DEFINE VARIABLE run-cost-09 AS DECIMAL FORMAT ">>,>>9.9999" INITIAL 0 
+     VIEW-AS FILL-IN 
+     SIZE 15.2 BY 1.
+
+DEFINE VARIABLE run-cost-10 AS DECIMAL FORMAT ">>,>>9.9999" INITIAL 0 
+     VIEW-AS FILL-IN 
+     SIZE 15.2 BY 1.
+
+DEFINE VARIABLE run-qty-01 AS DECIMAL FORMAT ">,>>>,>>9.9<<" INITIAL 0 
+     VIEW-AS FILL-IN 
+     SIZE 15.2 BY 1.
+
+DEFINE VARIABLE run-qty-02 AS DECIMAL FORMAT ">,>>>,>>9.9<<" INITIAL 0 
+     VIEW-AS FILL-IN 
+     SIZE 15.2 BY 1.
+
+DEFINE VARIABLE run-qty-03 AS DECIMAL FORMAT ">,>>>,>>9.9<<" INITIAL 0 
+     VIEW-AS FILL-IN 
+     SIZE 15.2 BY 1.
+
+DEFINE VARIABLE run-qty-04 AS DECIMAL FORMAT ">,>>>,>>9.9<<" INITIAL 0 
+     VIEW-AS FILL-IN 
+     SIZE 15.2 BY 1.
+
+DEFINE VARIABLE run-qty-05 AS DECIMAL FORMAT ">,>>>,>>9.9<<" INITIAL 0 
+     VIEW-AS FILL-IN 
+     SIZE 15.2 BY 1.
+
+DEFINE VARIABLE run-qty-06 AS DECIMAL FORMAT ">,>>>,>>9.9<<" INITIAL 0 
+     VIEW-AS FILL-IN 
+     SIZE 15.2 BY 1.
+
+DEFINE VARIABLE run-qty-07 AS DECIMAL FORMAT ">,>>>,>>9.9<<" INITIAL 0 
+     VIEW-AS FILL-IN 
+     SIZE 15.2 BY 1.
+
+DEFINE VARIABLE run-qty-08 AS DECIMAL FORMAT ">,>>>,>>9.9<<" INITIAL 0 
+     VIEW-AS FILL-IN 
+     SIZE 15.2 BY 1.
+
+DEFINE VARIABLE run-qty-09 AS DECIMAL FORMAT ">,>>>,>>9.9<<" INITIAL 0 
+     VIEW-AS FILL-IN 
+     SIZE 15.2 BY 1.
+
+DEFINE VARIABLE run-qty-10 AS DECIMAL FORMAT ">,>>>,>>9.9<<" INITIAL 0 
+     VIEW-AS FILL-IN 
+     SIZE 15.2 BY 1.
+
+DEFINE VARIABLE setups-01 AS DECIMAL FORMAT "->>,>>9.99" INITIAL 0 
+     VIEW-AS FILL-IN 
+     SIZE 15 BY 1.
+
+DEFINE VARIABLE setups-02 AS DECIMAL FORMAT "->>,>>9.99" INITIAL 0 
+     VIEW-AS FILL-IN 
+     SIZE 15 BY 1.
+
+DEFINE VARIABLE setups-03 AS DECIMAL FORMAT "->>,>>9.99" INITIAL 0 
+     VIEW-AS FILL-IN 
+     SIZE 15 BY 1.
+
+DEFINE VARIABLE setups-04 AS DECIMAL FORMAT "->>,>>9.99" INITIAL 0 
+     VIEW-AS FILL-IN 
+     SIZE 15 BY 1.
+
+DEFINE VARIABLE setups-05 AS DECIMAL FORMAT "->>,>>9.99" INITIAL 0 
+     VIEW-AS FILL-IN 
+     SIZE 15 BY 1.
+
+DEFINE VARIABLE setups-06 AS DECIMAL FORMAT "->>,>>9.99" INITIAL 0 
+     VIEW-AS FILL-IN 
+     SIZE 15 BY 1.
+
+DEFINE VARIABLE setups-07 AS DECIMAL FORMAT "->>,>>9.99" INITIAL 0 
+     VIEW-AS FILL-IN 
+     SIZE 15 BY 1.
+
+DEFINE VARIABLE setups-08 AS DECIMAL FORMAT "->>,>>9.99" INITIAL 0 
+     VIEW-AS FILL-IN 
+     SIZE 15 BY 1.
+
+DEFINE VARIABLE setups-09 AS DECIMAL FORMAT "->>,>>9.99" INITIAL 0 
+     VIEW-AS FILL-IN 
+     SIZE 15 BY 1.
+
+DEFINE VARIABLE setups-10 AS DECIMAL FORMAT "->>,>>9.99" INITIAL 0 
+     VIEW-AS FILL-IN 
+     SIZE 15 BY 1.
+
 DEFINE RECTANGLE RECT-24
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 99 BY 17.62.
+
+DEFINE RECTANGLE RECT-26
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
+     SIZE 49 BY 9.76.
 
 DEFINE VARIABLE tb_sel AS LOGICAL INITIAL no 
      LABEL "Check to pre-select this quantity/" 
@@ -244,114 +374,22 @@ DEFINE FRAME F-Main
           SIZE 16 BY 1
      ls-vend-name AT ROW 4.57 COL 30 COLON-ALIGNED NO-LABEL
      tb_sel AT ROW 6 COL 53
-     e-itemfg-vend.run-qty[1] AT ROW 6.95 COL 2 NO-LABEL
-          VIEW-AS FILL-IN 
-          SIZE 15 BY 1
-     e-itemfg-vend.run-cost[1] AT ROW 6.95 COL 17 COLON-ALIGNED NO-LABEL
-          VIEW-AS FILL-IN 
-          SIZE 15.2 BY 1
-     e-itemfg-vend.setups[1] AT ROW 6.95 COL 34 COLON-ALIGNED NO-LABEL
-          VIEW-AS FILL-IN 
-          SIZE 15 BY 1
      tb_sel-01 AT ROW 6.95 COL 53
-     e-itemfg-vend.run-qty[2] AT ROW 7.91 COL 2 NO-LABEL
-          VIEW-AS FILL-IN 
-          SIZE 15 BY 1
-     e-itemfg-vend.run-cost[2] AT ROW 7.91 COL 17 COLON-ALIGNED NO-LABEL
-          VIEW-AS FILL-IN 
-          SIZE 15.2 BY 1
-     e-itemfg-vend.setups[2] AT ROW 7.91 COL 34 COLON-ALIGNED NO-LABEL
-          VIEW-AS FILL-IN 
-          SIZE 15 BY 1
      tb_sel-02 AT ROW 7.91 COL 53
-     e-itemfg-vend.run-qty[3] AT ROW 8.86 COL 2 NO-LABEL
-          VIEW-AS FILL-IN 
-          SIZE 15.2 BY 1
-     e-itemfg-vend.run-cost[3] AT ROW 8.86 COL 17 COLON-ALIGNED NO-LABEL
-          VIEW-AS FILL-IN 
-          SIZE 15.2 BY 1
-     e-itemfg-vend.setups[3] AT ROW 8.86 COL 34 COLON-ALIGNED NO-LABEL
-          VIEW-AS FILL-IN 
-          SIZE 15 BY 1
      tb_sel-03 AT ROW 8.86 COL 53
-     e-itemfg-vend.run-qty[4] AT ROW 9.81 COL 2 NO-LABEL
-          VIEW-AS FILL-IN 
-          SIZE 15.2 BY .95
-     e-itemfg-vend.run-cost[4] AT ROW 9.81 COL 17 COLON-ALIGNED NO-LABEL
-          VIEW-AS FILL-IN 
-          SIZE 15.2 BY 1
-     e-itemfg-vend.setups[4] AT ROW 9.81 COL 34 COLON-ALIGNED NO-LABEL
-          VIEW-AS FILL-IN 
-          SIZE 15 BY 1
      tb_sel-04 AT ROW 9.81 COL 53
-     e-itemfg-vend.run-qty[5] AT ROW 10.76 COL 2 NO-LABEL
-          VIEW-AS FILL-IN 
-          SIZE 15.2 BY 1
-     e-itemfg-vend.run-cost[5] AT ROW 10.76 COL 17 COLON-ALIGNED NO-LABEL
-          VIEW-AS FILL-IN 
-          SIZE 15.2 BY 1
-     e-itemfg-vend.setups[5] AT ROW 10.76 COL 34 COLON-ALIGNED NO-LABEL
-          VIEW-AS FILL-IN 
-          SIZE 15 BY 1
      tb_sel-05 AT ROW 10.76 COL 53
-     e-itemfg-vend.run-qty[6] AT ROW 11.71 COL 2 NO-LABEL
-          VIEW-AS FILL-IN 
-          SIZE 15.2 BY 1
-     e-itemfg-vend.run-cost[6] AT ROW 11.71 COL 17 COLON-ALIGNED NO-LABEL
-          VIEW-AS FILL-IN 
-          SIZE 15.2 BY 1
-     e-itemfg-vend.setups[6] AT ROW 11.71 COL 34 COLON-ALIGNED NO-LABEL
-          VIEW-AS FILL-IN 
-          SIZE 15 BY 1
      tb_sel-06 AT ROW 11.71 COL 53
-     e-itemfg-vend.run-qty[7] AT ROW 12.67 COL 2 NO-LABEL
-          VIEW-AS FILL-IN 
-          SIZE 15.2 BY 1
-    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1 SCROLLABLE 
-         FONT 6.
-
-/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
-DEFINE FRAME F-Main
-     e-itemfg-vend.run-cost[7] AT ROW 12.67 COL 17 COLON-ALIGNED NO-LABEL
-          VIEW-AS FILL-IN 
-          SIZE 15.2 BY 1
-     e-itemfg-vend.setups[7] AT ROW 12.67 COL 34 COLON-ALIGNED NO-LABEL
-          VIEW-AS FILL-IN 
-          SIZE 15 BY 1
      tb_sel-07 AT ROW 12.67 COL 53
-     e-itemfg-vend.run-qty[8] AT ROW 13.62 COL 2 NO-LABEL
-          VIEW-AS FILL-IN 
-          SIZE 15.2 BY 1
-     e-itemfg-vend.run-cost[8] AT ROW 13.62 COL 17 COLON-ALIGNED NO-LABEL
-          VIEW-AS FILL-IN 
-          SIZE 15.2 BY 1
-     e-itemfg-vend.setups[8] AT ROW 13.62 COL 34 COLON-ALIGNED NO-LABEL
-          VIEW-AS FILL-IN 
-          SIZE 15 BY 1
      tb_sel-08 AT ROW 13.62 COL 53
-     e-itemfg-vend.run-qty[9] AT ROW 14.57 COL 2 NO-LABEL
-          VIEW-AS FILL-IN 
-          SIZE 15.2 BY 1
-     e-itemfg-vend.run-cost[9] AT ROW 14.57 COL 17 COLON-ALIGNED NO-LABEL
-          VIEW-AS FILL-IN 
-          SIZE 15.2 BY 1
-     e-itemfg-vend.setups[9] AT ROW 14.57 COL 34 COLON-ALIGNED NO-LABEL
-          VIEW-AS FILL-IN 
-          SIZE 15 BY 1
      tb_sel-09 AT ROW 14.57 COL 53
-     e-itemfg-vend.run-qty[10] AT ROW 15.52 COL 2 NO-LABEL
-          VIEW-AS FILL-IN 
-          SIZE 15.2 BY 1
-     e-itemfg-vend.run-cost[10] AT ROW 15.52 COL 17 COLON-ALIGNED NO-LABEL
-          VIEW-AS FILL-IN 
-          SIZE 15.2 BY 1
-     e-itemfg-vend.setups[10] AT ROW 15.52 COL 34 COLON-ALIGNED NO-LABEL
-          VIEW-AS FILL-IN 
-          SIZE 15 BY 1
      tb_sel-10 AT ROW 15.52 COL 53
-     fi_oh-markup AT ROW 15.76 COL 88.2 COLON-ALIGNED
+     e-itemfg-vend.spare-dec-1 AT ROW 14.52 COL 80 COLON-ALIGNED HELP
+          ""
+          LABEL "Min. Charge"
+          VIEW-AS FILL-IN 
+          SIZE 13.6 BY 1
+     fi_oh-markup AT ROW 15.76 COL 80 COLON-ALIGNED
      e-itemfg-vend.roll-w[27] AT ROW 17.43 COL 17 COLON-ALIGNED HELP
           "Enter Sheet Width Minimum"
           LABEL "Sheet Width"
@@ -370,16 +408,53 @@ DEFINE FRAME F-Main
           "Enter Sheet Length Maximum" NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 11.6 BY 1
+     qty-label AT ROW 6 COL 2.2 NO-LABEL
+     run-qty-01 AT ROW 7.05 COL 2.4 NO-LABEL WIDGET-ID 28
+     run-cost-01 AT ROW 7.05 COL 16.4 COLON-ALIGNED NO-LABEL WIDGET-ID 8
+     setups-01 AT ROW 7.05 COL 33.4 COLON-ALIGNED NO-LABEL WIDGET-ID 48
+     run-qty-02 AT ROW 8 COL 2.4 NO-LABEL WIDGET-ID 30
+     run-cost-02 AT ROW 8 COL 16.4 COLON-ALIGNED NO-LABEL WIDGET-ID 10
+     setups-02 AT ROW 8 COL 33.4 COLON-ALIGNED NO-LABEL WIDGET-ID 50
+     run-qty-03 AT ROW 8.95 COL 2.4 NO-LABEL WIDGET-ID 32
+     run-cost-03 AT ROW 8.95 COL 16.4 COLON-ALIGNED NO-LABEL WIDGET-ID 12
+     setups-03 AT ROW 8.95 COL 33.4 COLON-ALIGNED NO-LABEL WIDGET-ID 52
+     run-qty-04 AT ROW 9.91 COL 2.4 NO-LABEL WIDGET-ID 34
+     run-cost-04 AT ROW 9.91 COL 16.4 COLON-ALIGNED NO-LABEL WIDGET-ID 14
+     setups-04 AT ROW 9.91 COL 33.4 COLON-ALIGNED NO-LABEL WIDGET-ID 54
+     run-qty-05 AT ROW 10.86 COL 2.4 NO-LABEL WIDGET-ID 36
+     run-cost-05 AT ROW 10.86 COL 16.4 COLON-ALIGNED NO-LABEL WIDGET-ID 16
+     setups-05 AT ROW 10.86 COL 33.4 COLON-ALIGNED NO-LABEL WIDGET-ID 56
+     run-qty-06 AT ROW 11.81 COL 2.4 NO-LABEL WIDGET-ID 38
+     run-cost-06 AT ROW 11.81 COL 16.4 COLON-ALIGNED NO-LABEL WIDGET-ID 18
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 1 SCROLLABLE 
+         FONT 6.
+
+/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
+DEFINE FRAME F-Main
+     setups-06 AT ROW 11.81 COL 33.4 COLON-ALIGNED NO-LABEL WIDGET-ID 58
+     run-qty-07 AT ROW 12.76 COL 2.4 NO-LABEL WIDGET-ID 40
+     run-cost-07 AT ROW 12.76 COL 16.4 COLON-ALIGNED NO-LABEL WIDGET-ID 20
+     setups-07 AT ROW 12.76 COL 33.4 COLON-ALIGNED NO-LABEL WIDGET-ID 60
+     run-qty-08 AT ROW 13.71 COL 2.4 NO-LABEL WIDGET-ID 42
+     run-cost-08 AT ROW 13.71 COL 16.4 COLON-ALIGNED NO-LABEL WIDGET-ID 22
+     setups-08 AT ROW 13.71 COL 33.4 COLON-ALIGNED NO-LABEL WIDGET-ID 62
+     run-qty-09 AT ROW 14.67 COL 2.4 NO-LABEL WIDGET-ID 44
+     run-cost-09 AT ROW 14.67 COL 16.4 COLON-ALIGNED NO-LABEL WIDGET-ID 24
+     setups-09 AT ROW 14.67 COL 33.4 COLON-ALIGNED NO-LABEL WIDGET-ID 64
+     run-qty-10 AT ROW 15.62 COL 2.4 NO-LABEL WIDGET-ID 46
+     run-cost-10 AT ROW 15.62 COL 16.4 COLON-ALIGNED NO-LABEL WIDGET-ID 26
+     setups-10 AT ROW 15.62 COL 33.4 COLON-ALIGNED NO-LABEL WIDGET-ID 66
+     btnShowVendCostMtx AT ROW 6.05 COL 15 WIDGET-ID 68
      "Cost Per" VIEW-AS TEXT
-          SIZE 14 BY 1 AT ROW 6 COL 20
+          SIZE 14 BY .71 AT ROW 6 COL 20
      "Min" VIEW-AS TEXT
           SIZE 5 BY .62 AT ROW 16.71 COL 57
      "Max" VIEW-AS TEXT
           SIZE 5 BY .62 AT ROW 16.71 COL 69
-     "QTY to" VIEW-AS TEXT
-          SIZE 14 BY 1 AT ROW 6 COL 3
      "Setup $" VIEW-AS TEXT
-          SIZE 14 BY 1 AT ROW 6 COL 37
+          SIZE 14 BY .71 AT ROW 6 COL 37
      "Purchased" VIEW-AS TEXT
           SIZE 13 BY .95 AT ROW 2.67 COL 2
      "Min" VIEW-AS TEXT
@@ -387,6 +462,7 @@ DEFINE FRAME F-Main
      "Max" VIEW-AS TEXT
           SIZE 5 BY .62 AT ROW 16.71 COL 34
      RECT-24 AT ROW 1 COL 1
+     RECT-26 AT ROW 6.95 COL 2 WIDGET-ID 6
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -448,6 +524,11 @@ ASSIGN
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
 
+/* SETTINGS FOR BUTTON btnShowVendCostMtx IN FRAME F-Main
+   NO-ENABLE                                                            */
+ASSIGN 
+       btnShowVendCostMtx:HIDDEN IN FRAME F-Main           = TRUE.
+
 /* SETTINGS FOR FILL-IN fi_oh-markup IN FRAME F-Main
    NO-ENABLE 2 4                                                        */
 /* SETTINGS FOR FILL-IN e-itemfg-vend.i-no IN FRAME F-Main
@@ -458,6 +539,8 @@ ASSIGN
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN ls-vend-name IN FRAME F-Main
    NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN qty-label IN FRAME F-Main
+   NO-ENABLE ALIGN-L                                                    */
 /* SETTINGS FOR FILL-IN e-itemfg-vend.roll-w[27] IN FRAME F-Main
    EXP-LABEL EXP-HELP                                                   */
 /* SETTINGS FOR FILL-IN e-itemfg-vend.roll-w[28] IN FRAME F-Main
@@ -466,26 +549,68 @@ ASSIGN
    EXP-LABEL EXP-HELP                                                   */
 /* SETTINGS FOR FILL-IN e-itemfg-vend.roll-w[30] IN FRAME F-Main
    EXP-HELP                                                             */
-/* SETTINGS FOR FILL-IN e-itemfg-vend.run-qty[10] IN FRAME F-Main
-   ALIGN-L                                                              */
-/* SETTINGS FOR FILL-IN e-itemfg-vend.run-qty[1] IN FRAME F-Main
-   ALIGN-L                                                              */
-/* SETTINGS FOR FILL-IN e-itemfg-vend.run-qty[2] IN FRAME F-Main
-   ALIGN-L                                                              */
-/* SETTINGS FOR FILL-IN e-itemfg-vend.run-qty[3] IN FRAME F-Main
-   ALIGN-L                                                              */
-/* SETTINGS FOR FILL-IN e-itemfg-vend.run-qty[4] IN FRAME F-Main
-   ALIGN-L                                                              */
-/* SETTINGS FOR FILL-IN e-itemfg-vend.run-qty[5] IN FRAME F-Main
-   ALIGN-L                                                              */
-/* SETTINGS FOR FILL-IN e-itemfg-vend.run-qty[6] IN FRAME F-Main
-   ALIGN-L                                                              */
-/* SETTINGS FOR FILL-IN e-itemfg-vend.run-qty[7] IN FRAME F-Main
-   ALIGN-L                                                              */
-/* SETTINGS FOR FILL-IN e-itemfg-vend.run-qty[8] IN FRAME F-Main
-   ALIGN-L                                                              */
-/* SETTINGS FOR FILL-IN e-itemfg-vend.run-qty[9] IN FRAME F-Main
-   ALIGN-L                                                              */
+/* SETTINGS FOR FILL-IN run-cost-01 IN FRAME F-Main
+   NO-ENABLE 3                                                          */
+/* SETTINGS FOR FILL-IN run-cost-02 IN FRAME F-Main
+   NO-ENABLE 3                                                          */
+/* SETTINGS FOR FILL-IN run-cost-03 IN FRAME F-Main
+   NO-ENABLE 3                                                          */
+/* SETTINGS FOR FILL-IN run-cost-04 IN FRAME F-Main
+   NO-ENABLE 3                                                          */
+/* SETTINGS FOR FILL-IN run-cost-05 IN FRAME F-Main
+   NO-ENABLE 3                                                          */
+/* SETTINGS FOR FILL-IN run-cost-06 IN FRAME F-Main
+   NO-ENABLE 3                                                          */
+/* SETTINGS FOR FILL-IN run-cost-07 IN FRAME F-Main
+   NO-ENABLE 3                                                          */
+/* SETTINGS FOR FILL-IN run-cost-08 IN FRAME F-Main
+   NO-ENABLE 3                                                          */
+/* SETTINGS FOR FILL-IN run-cost-09 IN FRAME F-Main
+   NO-ENABLE 3                                                          */
+/* SETTINGS FOR FILL-IN run-cost-10 IN FRAME F-Main
+   NO-ENABLE 3                                                          */
+/* SETTINGS FOR FILL-IN run-qty-01 IN FRAME F-Main
+   NO-ENABLE ALIGN-L 3                                                  */
+/* SETTINGS FOR FILL-IN run-qty-02 IN FRAME F-Main
+   NO-ENABLE ALIGN-L 3                                                  */
+/* SETTINGS FOR FILL-IN run-qty-03 IN FRAME F-Main
+   NO-ENABLE ALIGN-L 3                                                  */
+/* SETTINGS FOR FILL-IN run-qty-04 IN FRAME F-Main
+   NO-ENABLE ALIGN-L 3                                                  */
+/* SETTINGS FOR FILL-IN run-qty-05 IN FRAME F-Main
+   NO-ENABLE ALIGN-L 3                                                  */
+/* SETTINGS FOR FILL-IN run-qty-06 IN FRAME F-Main
+   NO-ENABLE ALIGN-L 3                                                  */
+/* SETTINGS FOR FILL-IN run-qty-07 IN FRAME F-Main
+   NO-ENABLE ALIGN-L 3                                                  */
+/* SETTINGS FOR FILL-IN run-qty-08 IN FRAME F-Main
+   NO-ENABLE ALIGN-L 3                                                  */
+/* SETTINGS FOR FILL-IN run-qty-09 IN FRAME F-Main
+   NO-ENABLE ALIGN-L 3                                                  */
+/* SETTINGS FOR FILL-IN run-qty-10 IN FRAME F-Main
+   NO-ENABLE ALIGN-L 3                                                  */
+/* SETTINGS FOR FILL-IN setups-01 IN FRAME F-Main
+   NO-ENABLE 3                                                          */
+/* SETTINGS FOR FILL-IN setups-02 IN FRAME F-Main
+   NO-ENABLE 3                                                          */
+/* SETTINGS FOR FILL-IN setups-03 IN FRAME F-Main
+   NO-ENABLE 3                                                          */
+/* SETTINGS FOR FILL-IN setups-04 IN FRAME F-Main
+   NO-ENABLE 3                                                          */
+/* SETTINGS FOR FILL-IN setups-05 IN FRAME F-Main
+   NO-ENABLE 3                                                          */
+/* SETTINGS FOR FILL-IN setups-06 IN FRAME F-Main
+   NO-ENABLE 3                                                          */
+/* SETTINGS FOR FILL-IN setups-07 IN FRAME F-Main
+   NO-ENABLE 3                                                          */
+/* SETTINGS FOR FILL-IN setups-08 IN FRAME F-Main
+   NO-ENABLE 3                                                          */
+/* SETTINGS FOR FILL-IN setups-09 IN FRAME F-Main
+   NO-ENABLE 3                                                          */
+/* SETTINGS FOR FILL-IN setups-10 IN FRAME F-Main
+   NO-ENABLE 3                                                          */
+/* SETTINGS FOR FILL-IN e-itemfg-vend.spare-dec-1 IN FRAME F-Main
+   EXP-LABEL EXP-HELP                                                   */
 /* SETTINGS FOR FILL-IN e-itemfg.std-uom IN FRAME F-Main
    NO-ENABLE 1 2 EXP-LABEL                                              */
 /* SETTINGS FOR FILL-IN e-itemfg-vend.vend-no IN FRAME F-Main
@@ -503,7 +628,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -540,6 +665,17 @@ DO:
         END.
     end.    
 
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnShowVendCostMtx
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnShowVendCostMtx V-table-Win
+ON CHOOSE OF btnShowVendCostMtx IN FRAME F-Main /* * */
+DO:
+    RUN pVendCostMtx ("SHOW").
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -937,11 +1073,13 @@ PROCEDURE local-assign-record :
   /*IF NOT AVAIL e-itemfg then*/
   find first e-itemfg where recid(e-itemfg) = lv-recid NO-ERROR.
 
+  RUN pVendCostMtx ("ASSIGN").
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-record':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
+
   for each tmpfile: delete tmpfile .  end.
 
   do i = 1 to 30:
@@ -1050,7 +1188,8 @@ PROCEDURE local-cancel-record :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'cancel-record':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-  disable e-itemfg.std-uom fi_oh-markup WITH FRAME {&FRAME-NAME}.
+  disable e-itemfg.std-uom fi_oh-markup {&farmFields} WITH FRAME {&FRAME-NAME}.
+  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1171,6 +1310,11 @@ PROCEDURE local-display-fields :
      lv-group-hdl = FRAME {&FRAME-NAME}:FIRST-CHILD
      lv-field-hdl = lv-group-hdl:FIRST-CHILD.
 
+     IF NOT lVendCostMtx THEN
+         e-itemfg-vend.spare-dec-1:HIDDEN = TRUE.
+     ELSE 
+         e-itemfg-vend.spare-dec-1:HIDDEN = FALSE.
+
     DO WHILE VALID-HANDLE(lv-field-hdl):
       IF lv-field-hdl:NAME BEGINS "tb_sel" THEN
         ASSIGN
@@ -1216,8 +1360,12 @@ PROCEDURE local-display-fields :
   /*task# 07190509*/
   ASSIGN ls-vend-name = ""  
          ls-item-name = ""
-         ls-item-dscr = "".
-
+         ls-item-dscr = ""
+         qty-label    = "Qty " + STRING(lVendCostMtx,"FROM/TO")
+         .
+  
+  RUN pVendCostMtx ("DISPLAY").
+  
   FIND FIRST vend WHERE vend.company = gcompany
                     AND vend.vend-no = e-itemfg-vend.vend-no:SCREEN-VALUE NO-LOCK NO-ERROR.
   IF AVAIL vend THEN ls-vend-name = vend.NAME.
@@ -1228,7 +1376,7 @@ PROCEDURE local-display-fields :
      FIND itemfg WHERE itemfg.company = gcompany AND itemfg.i-no = e-itemfg.i-no NO-LOCK NO-ERROR.
   IF AVAIL itemfg THEN ASSIGN ls-item-name = itemfg.i-name
                               ls-item-dscr = itemfg.part-dscr1.
-  DISP ls-item-name ls-item-dscr WITH FRAME {&FRAME-NAME}.
+  DISP ls-item-name ls-item-dscr qty-label WITH FRAME {&FRAME-NAME}.
 
   RUN new-sel.
 
@@ -1270,7 +1418,7 @@ PROCEDURE local-enable-fields :
       lv-field-hdl = lv-field-hdl:NEXT-SIBLING.
     END.
 
-    ENABLE e-itemfg.std-uom fi_oh-markup.
+    ENABLE e-itemfg.std-uom fi_oh-markup {&farmFields}.
 
     APPLY "entry" TO e-itemfg.std-uom.
   END.
@@ -1340,12 +1488,11 @@ PROCEDURE local-update-record :
 
   ELSE RUN dispatch ("display-fields").
 
-  disable e-itemfg.std-uom fi_oh-markup WITH FRAME {&FRAME-NAME}.
+  disable e-itemfg.std-uom fi_oh-markup {&farmFields} WITH FRAME {&FRAME-NAME}.
 
   RUN update-est-matrices-proc.
 
 END PROCEDURE.
-
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1396,7 +1543,6 @@ PROCEDURE new-sel :
 
 END PROCEDURE.
 
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -1427,6 +1573,20 @@ PROCEDURE price-change :
 
    run get-link-handle in adm-broker-hdl (this-procedure, "record-source", output char-hdl).
    run reopen-and-repo in widget-handle(char-hdl) (rowid(bf-e-itemfg-vend)).
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pVendCostMtx V-table-Win 
+PROCEDURE pVendCostMtx :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    {fg/pVendCostMtx.i}
 
 END PROCEDURE.
 

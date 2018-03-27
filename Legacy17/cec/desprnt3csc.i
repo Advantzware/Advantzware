@@ -36,6 +36,7 @@ DEF VAR lv-met-lcum AS cha NO-UNDO.
 DEF VAR ld-tmp-scr AS DEC NO-UNDO.
 DEF VAR li-num-space AS INT NO-UNDO.
 DEF VAR lv-null-cnt AS INT NO-UNDO.
+DEFINE VARIABLE iScore AS INTEGER NO-UNDO .
 DEF VAR v-fgitem AS cha FORM "x(70)" NO-UNDO.
 form w-box-design-line.wcum-score-c             at 1
      w-box-design-line.wscore-c
@@ -97,16 +98,14 @@ for each ef
   if avail box-design-hdr          and
      box-design-hdr.design-no eq 0 then do:
 
-    assign
+   assign
      v-lscore-c     = box-design-hdr.lscore
      v-lcum-score-c = box-design-hdr.lcum-score.
-
   
     i = 0.
     for each box-design-line of box-design-hdr
         where box-design-line.wcum-score ne ""
         no-lock:
-
       i = i + 1.
       create w-box-design-line.
       assign
@@ -261,18 +260,47 @@ for each ef
 
   put {1} v-hdr skip.
   if v-triad THEN put {1} space(6) v-lcum-score-c space(2) "Totals" skip.
+  IF substring(v-lscore-c,76,1) EQ "" THEN
+      ASSIGN iScore = 76.
+  ELSE IF substring(v-lscore-c,77,1) EQ "" THEN
+      ASSIGN iScore = 77.
+  ELSE IF substring(v-lscore-c,78,1) EQ "" THEN
+      ASSIGN iScore = 78.
+  ELSE 
+      ASSIGN iScore = 79.
 
   IF est.metric THEN DO:
       if v-triad then
-         put {1} v-lscore-c    skip.
+         put {1} substring(v-lscore-c,1,iScore)  FORM "x(76)"  skip.
+         IF SUBSTRING(v-lscore-c,iScore + 1,iScore + 4) NE "" THEN DO:
+            put {1} SKIP(1) substring(v-lscore-c,iScore + 1,150)  FORM "x(76)"  skip.
+        END.
       else
-        put {1} v-lscore-c  FORM "x(100)"  skip
-                v-lcum-score-c FORM "x(100)"  skip.
+        put {1} substring(v-lscore-c,1,iScore)  FORM "x(76)"  skip
+        substring(v-lcum-score-c,1,iScore) FORM "x(76)"  SKIP.
+        IF SUBSTRING(v-lscore-c,iScore + 1,iScore + 4) NE "" THEN DO:
+            put {1} SKIP(1) substring(v-lscore-c,iScore + 1,150)  FORM "x(76)"  skip
+                substring(v-lcum-score-c,iScore + 1,150) FORM "x(76)"  SKIP.
+        END.
   END.
   ELSE DO:
-      if v-triad THEN put {1} v-lscore-c    skip.
-      ELSE put {1} v-lscore-c  FORM "x(85)"  skip
-                v-lcum-score-c FORM "x(85)"  skip.
+      if v-triad THEN DO:
+         put {1} substring(v-lscore-c,1,iScore)  FORM "x(76)"  skip.
+         IF SUBSTRING(v-lscore-c,iScore + 1,iScore + 4) NE "" THEN DO:
+            put {1} SKIP(1) substring(v-lscore-c,iScore + 1,150)  FORM "x(76)"  skip.
+        END.
+
+      END.
+      ELSE DO:
+        put {1} substring(v-lscore-c,1,iScore)  FORM "x(76)"  skip
+        substring(v-lcum-score-c,1,iScore) FORM "x(76)"  SKIP.
+        IF SUBSTRING(v-lscore-c,iScore + 1,iScore + 4) NE "" THEN DO:
+            put {1} SKIP(1) substring(v-lscore-c,iScore + 1,150)  FORM "x(76)"  skip
+                substring(v-lcum-score-c,iScore + 1,150) FORM "x(76)"  SKIP.
+        END.
+
+        
+      END.
   END.
 
   v-lines = v-lines + 4.

@@ -6,7 +6,7 @@
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admViewersUsing.i} /* added by script c:\tmp\p42959__V16toV17.ped */
+{Advantzware\WinKit\admViewersUsing.i} /* added by script _admViewers.p */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
@@ -348,6 +348,24 @@ END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME phone.titlcode
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL phone.titlcode V-table-Win
+ON HELP OF phone.titlcode IN FRAME F-Main /* Title Code */
+DO:
+   DEF VAR v-title AS cha NO-UNDO.
+
+   RUN windows/l-ttlcod.w (phone.titlcode:SCREEN-VALUE, OUTPUT v-title).
+   IF v-title <> "" THEN
+       ASSIGN
+       phone.titlcode:SCREEN-VALUE = entry(1,v-title)
+       titlcode_description:SCREEN-VALUE = entry(2,v-title) .
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 
 &UNDEFINE SELF-NAME

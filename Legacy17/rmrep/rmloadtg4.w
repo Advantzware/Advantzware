@@ -909,6 +909,10 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
     RUN enable_UI.
 
+    {methods/setButton.i btn-cancel "Cancel"} /* added by script _nonAdm1Images2.p */
+    {methods/setButton.i btn-ok "OK"} /* added by script _nonAdm1Images2.p */
+    /* {custom/usrprint.i} */
+
     IF v-loadtag NE "TRIAD" THEN HIDE {&triad}.
 
     FIND FIRST sys-ctrl NO-LOCK 

@@ -11,7 +11,8 @@
       ttblJob.startTime = ttblJob.origStartTime
       ttblJob.endDate = ttblJob.origEndDate
       ttblJob.endTime = ttblJob.origEndTime
-      ttblJob.sequenced = ttblJob.jobSequence NE 0.
+      ttblJob.sequenced = ttblJob.jobSequence NE 0
+      .
     IF ttblJob.timeSpan EQ 0 THEN
     ttblJob.timeSpan = timeSpan(ttblJob.startDate,ttblJob.startTime,
                                 ttblJob.endDate,ttblJob.endTime).
@@ -20,7 +21,9 @@
     ttblJob.dueDateTime = numericDateTime(ttblJob.dueDate,ttblJob.dueTime).
     ASSIGN
       ttblJob.jobBGColor = jobBGColor()
-      ttblJob.jobFGColor = jobFGColor().
+      ttblJob.jobFGColor = jobFGColor()
+      ttblJob.statusLabel = jobStatus()
+      .
     DO i = 2 TO NUM-ENTRIES(customValueList):
       IF ttblJob.jobStatus[i - 1] THEN NEXT.
       ttblJob.prepCompleted = NO.

@@ -32,6 +32,8 @@ DEFINE VARIABLE oForm   AS Consultingwerk.WindowIntegrationKit.Forms.IEmbeddedWi
 DEFINE VARIABLE oPanelRibbonTab AS Infragistics.Win.UltraWinToolbars.RibbonTab NO-UNDO .
 DEFINE VARIABLE cPanelRibbonGroupKey AS CHARACTER NO-UNDO .
 
+DEFINE VARIABLE hUpdateButton AS HANDLE NO-UNDO.
+
 {methods/defines/lValidateError.i}
 
 /* ***************************  Main Block  *************************** */
@@ -51,6 +53,25 @@ PROCEDURE winkit-enable:
     IF VALID-OBJECT (oForm) THEN
         Consultingwerk.Util.UltraToolbarsHelper:RefreshTools (oForm:ToolbarsManager, FALSE, FALSE) .
 
+END PROCEDURE.
+
+PROCEDURE winkit-update-button:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcState AS CHARACTER NO-UNDO.
+    
+    IF VALID-HANDLE (hUpdateButton) THEN DO:
+        CASE ipcState:
+            WHEN "update-begin" THEN
+            {methods/setButton.i hUpdateButton "Save"} 
+            WHEN "update-complete" THEN
+            {methods/setButton.i hUpdateButton "Update"} 
+        END CASE.
+        RUN winkit-view IN THIS-PROCEDURE.
+    END.
+    
 END PROCEDURE.
 
 PROCEDURE winkit-view:

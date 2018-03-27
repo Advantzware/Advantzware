@@ -718,7 +718,7 @@ qtr-file-name = in-file-name + ".q".
                      ap-pay.check-date = v-check-date
                      ap-pay.period = p_per.
 
-              IF top-debug THEN    RUN rc/debugrec.p ("", RECID(ap-pay)) "ap-pay".
+              /* IF top-debug THEN    RUN rc/debugrec.p ("", RECID(ap-pay)) "ap-pay". */
       END.
 
       ASSIGN write_it = FALSE

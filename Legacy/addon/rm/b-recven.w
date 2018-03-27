@@ -41,6 +41,7 @@ ASSIGN
 
 DEFINE BUFFER b-po-ord FOR po-ord.
 DEFINE BUFFER b-company FOR company.
+DEFINE BUFFER bLoadTag FOR loadtag.
 
 DEF VAR lv-search AS CHAR NO-UNDO.
 def var char-val as cha no-undo.
@@ -96,7 +97,7 @@ FIND FIRST sys-ctrl
     WHERE sys-ctrl.company eq cocode
     AND sys-ctrl.name eq "RMTAGS"
     NO-LOCK NO-ERROR.
-v-rmtags-log = IF AVAIL sys-ctrl THEN sys-ctrl.LOG ELSE NO.
+v-rmtags-log = IF AVAIL sys-ctrl THEN sys-ctrl.LOG-fld ELSE NO.
 
 FIND FIRST sys-ctrl NO-LOCK
      WHERE sys-ctrl.company EQ g_company
@@ -741,7 +742,8 @@ DO:
                    AND bpo-ordl.po-no EQ loadtag.po-no
                    AND bpo-ordl.job-no EQ loadtag.job-no
                    AND bpo-ordl.job-no2 EQ loadtag.job-no2
-                   AND bpo-ordl.i-no EQ loadtag.i-no NO-ERROR.
+                   AND bpo-ordl.i-no EQ loadtag.i-no
+                   AND bpo-ordl.s-num EQ loadtag.form-no NO-ERROR.
             IF AVAILABLE bpo-ordl THEN
                rm-rctd.s-num:SCREEN-VALUE = STRING(bpo-ordl.s-num).
             
@@ -846,7 +848,8 @@ DO:
                AND bpo-ordl.po-no EQ loadtag.po-no
                AND bpo-ordl.job-no EQ loadtag.job-no
                AND bpo-ordl.job-no2 EQ loadtag.job-no2
-               AND bpo-ordl.i-no EQ loadtag.i-no NO-ERROR.
+               AND bpo-ordl.i-no EQ loadtag.i-no 
+               AND bpo-ordl.s-num EQ loadtag.form-no NO-ERROR.
         IF AVAILABLE bpo-ordl THEN
            rm-rctd.s-num:SCREEN-VALUE = STRING(bpo-ordl.s-num).
         
@@ -2699,7 +2702,8 @@ PROCEDURE leave-tag-proc :
                AND bpo-ordl.po-no EQ loadtag.po-no
                AND bpo-ordl.job-no EQ loadtag.job-no
                AND bpo-ordl.job-no2 EQ loadtag.job-no2
-               AND bpo-ordl.i-no EQ loadtag.i-no NO-ERROR.
+               AND bpo-ordl.i-no EQ loadtag.i-no 
+               AND bpo-ordl.s-num EQ loadtag.form-no NO-ERROR.
         IF AVAILABLE bpo-ordl THEN
            rm-rctd.s-num:SCREEN-VALUE = STRING(bpo-ordl.s-num).
         

@@ -27,6 +27,7 @@ DEFINE VARIABLE v-printed-lit AS LOG     NO-UNDO.
 FIND FIRST ce-ctrl {sys/look/ce-ctrlW.i} NO-LOCK NO-ERROR.
 
 {sys/inc/ceprice.i}
+{ce/fEstOpRecKey.i}
 
 ASSIGN
     opsplit$      = 0
@@ -150,7 +151,9 @@ FOR EACH est-op WHERE est-op.company = xest.company
             op.run-rate  = mach.run-rate
             op.run-varoh = mach.run-varoh
             op.wst-prct  = est-op.op-spoil
-            op.speed     = est-op.op-speed.
+            op.speed     = est-op.op-speed
+            op.rec_key   = fEstOpRecKey(est-op.rec_key)
+            .
         IF est-op.op-sb THEN
             op.run-qty = est-op.num-sh * v-on-f.
         ELSE

@@ -93,7 +93,7 @@ FUNCTION setPrgmName RETURNS CHARACTER
 /* ***********************  Control Definitions  ********************** */
 
 /* Define the widget handle for the window                              */
-DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
+DEFINE VARIABLE C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON Btn_Cancel AUTO-END-KEY DEFAULT 
@@ -155,17 +155,17 @@ DEFINE VARIABLE m_menus AS CHARACTER
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME DEFAULT-FRAME
-     m_default AT ROW 1.24 COL 122 NO-LABEL
+     m_default AT ROW 1.24 COL 122 NO-LABELS
      m_menus AT ROW 2.24 COL 1 HELP
-          "Select Menu" NO-LABEL
+          "Select Menu" NO-LABELS
      can_run AT ROW 2.38 COL 99.6 HELP
-          "Edit Security Access Values" NO-LABEL
+          "Edit Security Access Values" NO-LABELS
      can_update AT ROW 7.67 COL 99.6 HELP
-          "Edit Security Access Values" NO-LABEL
+          "Edit Security Access Values" NO-LABELS
      can_create AT ROW 12.95 COL 99.6 HELP
-          "Edit Security Access Values" NO-LABEL
+          "Edit Security Access Values" NO-LABELS
      can_delete AT ROW 18.33 COL 99.6 HELP
-          "Edit Security Access Values" NO-LABEL
+          "Edit Security Access Values" NO-LABELS
      Btn_Default AT ROW 24.1 COL 85 HELP
           "Use this function to SET DEFAULT access values"
      Btn_Select AT ROW 24.1 COL 111 HELP
@@ -224,15 +224,15 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          MAX-WIDTH          = 175
          VIRTUAL-HEIGHT     = 24.76
          VIRTUAL-WIDTH      = 175
-         RESIZE             = yes
-         SCROLL-BARS        = no
-         STATUS-AREA        = yes
+         RESIZE             = YES
+         SCROLL-BARS        = NO
+         STATUS-AREA        = YES
          BGCOLOR            = ?
          FGCOLOR            = ?
-         KEEP-FRAME-Z-ORDER = yes
-         THREE-D            = yes
-         MESSAGE-AREA       = no
-         SENSITIVE          = yes.
+         KEEP-FRAME-Z-ORDER = YES
+         THREE-D            = YES
+         MESSAGE-AREA       = NO
+         SENSITIVE          = YES.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 /* END WINDOW DEFINITION                                                */
@@ -261,7 +261,7 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 /* SETTINGS FOR FILL-IN m_default IN FRAME DEFAULT-FRAME
    NO-ENABLE ALIGN-L                                                    */
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
-THEN C-Win:HIDDEN = no.
+THEN C-Win:HIDDEN = NO.
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -411,14 +411,14 @@ PAUSE 0 BEFORE-HIDE.
 MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
-  IF access-close THEN do:
+  IF access-close THEN DO:
     APPLY "CLOSE" TO THIS-PROCEDURE.
     RETURN.
   END.
   RUN buildPanels.
   RUN enable_UI.
   RUN Enhance IN Persistent-Handle (FRAME {&FRAME-NAME}:HANDLE).
-  INPUT FROM value(search("menu.lst")) NO-ECHO.
+  INPUT FROM value(SEARCH("menu_plus.lst")) NO-ECHO.
   RUN Get_Menus.
   INPUT CLOSE.
   {methods/nowait.i}
@@ -548,12 +548,10 @@ PROCEDURE Get_Menus :
       IMPORT m_item1 m_item2.
       IF CAN-DO("RULE,SKIP",m_item1) THEN
       NEXT.
-      IF INDEX(m_item1,".") EQ 0 THEN
-      DO:
+      IF INDEX(m_item1,".") EQ 0 THEN DO:
         CREATE wk-items.
         wk-items.item-name = m_item1.
-        IF m_item1 NE m_item2 THEN
-        DO:
+        IF m_item1 NE m_item2 THEN DO:
           FIND FIRST b-items WHERE b-items.item-name EQ m_item2.
           wk-items.item-level = b-items.item-level + 1.
         END.

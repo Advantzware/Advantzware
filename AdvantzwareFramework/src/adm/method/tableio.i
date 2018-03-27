@@ -977,26 +977,25 @@ PROCEDURE adm-disable-fields :
      &IF NUM-ENTRIES("{&adm-first-enabled-table}":U, " ":U) = 1 &THEN
        &IF DEFINED(adm-browser) NE 0 &THEN  
            /* Get focus out of the browser and then make it read-only. */
-           RUN notify ('apply-entry, TABLEIO-SOURCE':U).
-           
-           IF Consultingwerk.WindowIntegrationKit.WinKitSettings:WinKitActive EQ TRUE THEN
-           DO ON ERROR UNDO, THROW:
+           IF Consultingwerk.WindowIntegrationKit.WinKitSettings:WinKitActive EQ TRUE AND
+              {&BROWSE-NAME}:READ-ONLY IN FRAME {&FRAME-NAME} EQ NO THEN DO:
                DEFINE VARIABLE hSomethingElse AS HANDLE NO-UNDO.
                CREATE FILL-IN hSomethingElse
-               ASSIGN  
-                    FRAME = FRAME {&frame-name}:HANDLE 
+               ASSIGN
+                    FRAME = FRAME {&frame-name}:HANDLE
+                    NAME = "SomethingElse"
                     VISIBLE = TRUE
-                    SENSITIVE = TRUE .                    
-               hSomethingElse:MOVE-TO-TOP () . 
-               APPLY "entry" TO hSomethingElse .
+                    SENSITIVE = TRUE . 
+               hSomethingElse:MOVE-TO-TOP () .
+               APPLY "entry" TO hSomethingElse.
                {&BROWSE-NAME}:READ-ONLY IN FRAME {&FRAME-NAME} = YES.
-               FINALLY:
-                   IF VALID-HANDLE (hSomethingElse) THEN
-                   DELETE OBJECT hSomethingElse.
-               END FINALLY.
+               IF VALID-HANDLE (hSomethingElse) THEN
+               DELETE OBJECT hSomethingElse.
            END.
-           ELSE 
-           {&BROWSE-NAME}:READ-ONLY IN FRAME {&FRAME-NAME} = YES.
+           ELSE IF {&BROWSE-NAME}:READ-ONLY IN FRAME {&FRAME-NAME} EQ NO THEN DO: 
+               RUN notify ('apply-entry, TABLEIO-SOURCE':U).
+               {&BROWSE-NAME}:READ-ONLY IN FRAME {&FRAME-NAME} = YES.
+           END.
        &ELSE
            DISABLE {&UNLESS-HIDDEN} {&adm-tableio-fields} 
              WITH FRAME {&FRAME-NAME}.
@@ -1112,8 +1111,25 @@ PROCEDURE adm-enable-fields :
                 row-is-selected = 
                   BROWSE {&BROWSE-NAME}:NUM-SELECTED-ROWS = 1.
                 /* Get focus out of the browser and then make it read-only. */
+           IF Consultingwerk.WindowIntegrationKit.WinKitSettings:WinKitActive EQ TRUE AND
+              {&BROWSE-NAME}:READ-ONLY IN FRAME {&FRAME-NAME} EQ YES THEN DO:
+               DEFINE VARIABLE hSomethingElse AS HANDLE NO-UNDO.
+               CREATE FILL-IN hSomethingElse
+               ASSIGN
+                    FRAME = FRAME {&frame-name}:HANDLE
+                    NAME = "SomethingElse"
+                    VISIBLE = TRUE
+                    SENSITIVE = TRUE . 
+               hSomethingElse:MOVE-TO-TOP () .
+               APPLY "entry" TO hSomethingElse.
+               {&BROWSE-NAME}:READ-ONLY IN FRAME {&FRAME-NAME} = NO.
+               IF VALID-HANDLE (hSomethingElse) THEN
+               DELETE OBJECT hSomethingElse.
+           END.
+           ELSE IF {&BROWSE-NAME}:READ-ONLY IN FRAME {&FRAME-NAME} EQ YES THEN DO: 
                 RUN notify ('apply-entry, TABLEIO-SOURCE':U).
-                {&BROWSE-NAME}:READ-ONLY = no.
+                {&BROWSE-NAME}:READ-ONLY = NO.
+           END.
                 /* Turning read-only off deselects the current row,
                    so we must reselect it. */
                 IF row-is-selected THEN
@@ -1297,6 +1313,11 @@ PROCEDURE adm-update-record :
             RETURN "ADM-ERROR":U.
       END.
       
+      /* because transaction panal is no longer present, updatable browser's are
+         left with last field seemingly enabled... this work around fixes that */
+      IF Consultingwerk.WindowIntegrationKit.WinKitSettings:WinKitActive EQ TRUE THEN
+          RUN dispatch ("enable-fields").
+
       /* Do final update processing, unless there is a larger transaction
          open elsewhere, in which case it must be done when the
          transaction is ended. */
