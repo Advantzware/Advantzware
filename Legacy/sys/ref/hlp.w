@@ -480,6 +480,7 @@ IF NOT vhWebService:CONNECTED() THEN
     END.  /* WebService is conn*/
 /* mod-sewa */
 
+{&WINDOW-NAME}:MOVE-TO-TOP().
 
 /* Include custom  Main Block code for SmartWindows. */
 {src/adm/template/windowmn.i}
