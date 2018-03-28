@@ -138,7 +138,7 @@ DEFINE VARIABLE browse-order AS INTEGER
 
 DEFINE RECTANGLE RECT-4
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 145 BY 1.43.
+     SIZE 154 BY 1.43.
 
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
@@ -230,7 +230,7 @@ DEFINE BROWSE Browser-Table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS Browser-Table B-table-Win _STRUCTURED
   QUERY Browser-Table NO-LOCK DISPLAY
       EDIVTran.Invoice-no COLUMN-LABEL "Invoice No" FORMAT "x(22)":U
-      EDIVTran.Partner FORMAT "x(15)":U
+      EDIVTran.Partner FORMAT "x(05)":U
       EDIVTran.Vendor FORMAT "x(10)":U
       EDIVTran.Cust FORMAT "x(10)":U
       EDIVTran.Tot-net COLUMN-LABEL "Total Net Amt" FORMAT "->,>>>,>>>.99":U
@@ -310,7 +310,7 @@ DEFINE BROWSE Browser-Table
       EDIVTran.BOL-No FORMAT "x(15)":U
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ASSIGN SEPARATORS SIZE 145 BY 18.1
+    WITH NO-ASSIGN SEPARATORS SIZE 154 BY 25
          FONT 2.
 
 
@@ -319,15 +319,15 @@ DEFINE BROWSE Browser-Table
 DEFINE FRAME F-Main
      Browser-Table AT ROW 1 COL 1 HELP
           "Use Home, End, Page-Up, Page-Down, & Arrow Keys to Navigate"
-     browse-order AT ROW 19.33 COL 6 HELP
+     browse-order AT ROW 26.24 COL 6 HELP
           "Select Browser Sort Order" NO-LABEL
-     auto_find AT ROW 19.33 COL 70 COLON-ALIGNED HELP
+     auto_find AT ROW 26.24 COL 79 COLON-ALIGNED HELP
           "Enter Auto Find Value"
-     Btn_Clear_Find AT ROW 19.33 COL 132 HELP
+     Btn_Clear_Find AT ROW 26.24 COL 141 HELP
           "CLEAR AUTO FIND Value"
      "By:" VIEW-AS TEXT
-          SIZE 4 BY 1 AT ROW 19.33 COL 2
-     RECT-4 AT ROW 19.1 COL 1
+          SIZE 4 BY 1 AT ROW 26.24 COL 2
+     RECT-4 AT ROW 26 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -360,8 +360,8 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW B-table-Win ASSIGN
-         HEIGHT             = 19.81
-         WIDTH              = 146.8.
+         HEIGHT             = 26.43
+         WIDTH              = 154.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -386,7 +386,7 @@ END.
   NOT-VISIBLE,,RUN-PERSISTENT                                           */
 /* SETTINGS FOR FRAME F-Main
    NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
-/* BROWSE-TAB Browser-Table TEXT-1 F-Main */
+/* BROWSE-TAB Browser-Table 1 F-Main */
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
@@ -403,16 +403,16 @@ ASSIGN
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
      _TblOptList       = "USED"
      _FldNameList[1]   > asi.EDIVTran.Invoice-no
-"Invoice-no" "Invoice No" ? "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"EDIVTran.Invoice-no" "Invoice No" ? "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   = asi.EDIVTran.Partner
      _FldNameList[3]   = asi.EDIVTran.Vendor
      _FldNameList[4]   = asi.EDIVTran.Cust
      _FldNameList[5]   > asi.EDIVTran.Tot-net
-"Tot-net" "Total Net Amt" ? "decimal" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"EDIVTran.Tot-net" "Total Net Amt" ? "decimal" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[6]   > asi.EDIVTran.Tot-Gross
-"Tot-Gross" "Total Gross Amount" ? "decimal" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"EDIVTran.Tot-Gross" "Total Gross Amount" ? "decimal" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[7]   > asi.EDIVTran.Tot-cartons
-"Tot-cartons" "Total cartons" ? "integer" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"EDIVTran.Tot-cartons" "Total cartons" ? "integer" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[8]   = asi.EDIVTran.Wght-uom
      _FldNameList[9]   = asi.EDIVTran.Volume-uom
      _FldNameList[10]   = asi.EDIVTran.Vn-code
