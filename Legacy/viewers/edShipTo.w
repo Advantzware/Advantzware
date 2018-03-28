@@ -59,7 +59,7 @@ CREATE WIDGET-POOL.
 /* Need to scope the external tables to this procedure                  */
 DEFINE QUERY external_tables FOR EDShipto.
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-FIELDS EDShipto.Partner EDShipto.Cust ~
+&Scoped-Define ENABLED-FIELDS EDShipto.Cust EDShipto.Partner ~
 EDShipto.Description EDShipto.Ship-to EDShipto.St-code EDShipto.By-code ~
 EDShipto.Opened EDShipto.Ref-type EDShipto.Attention EDShipto.Name ~
 EDShipto.Addr1 EDShipto.Addr2 EDShipto.City EDShipto.Cust-Region ~
@@ -69,7 +69,7 @@ EDShipto.Comments[3] EDShipto.Comments[4] EDShipto.Comments[5]
 &Scoped-define ENABLED-TABLES EDShipto
 &Scoped-define FIRST-ENABLED-TABLE EDShipto
 &Scoped-Define ENABLED-OBJECTS RECT-1 
-&Scoped-Define DISPLAYED-FIELDS EDShipto.Partner EDShipto.Cust ~
+&Scoped-Define DISPLAYED-FIELDS EDShipto.Cust EDShipto.Partner ~
 EDShipto.Description EDShipto.Ship-to EDShipto.St-code EDShipto.By-code ~
 EDShipto.Opened EDShipto.Ref-type EDShipto.Attention EDShipto.Name ~
 EDShipto.Addr1 EDShipto.Addr2 EDShipto.City EDShipto.Cust-Region ~
@@ -121,12 +121,12 @@ DEFINE RECTANGLE RECT-1
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     EDShipto.Partner AT ROW 1.1 COL 16 COLON-ALIGNED WIDGET-ID 38
-          VIEW-AS FILL-IN 
-          SIZE 8 BY 1
-     EDShipto.Cust AT ROW 1.1 COL 38 COLON-ALIGNED WIDGET-ID 24
+     EDShipto.Cust AT ROW 1 COL 43 COLON-ALIGNED WIDGET-ID 24
           VIEW-AS FILL-IN 
           SIZE 14 BY 1
+     EDShipto.Partner AT ROW 1.1 COL 16 COLON-ALIGNED WIDGET-ID 38
+          VIEW-AS FILL-IN 
+          SIZE 18 BY 1
      EDShipto.Description AT ROW 2.1 COL 16 COLON-ALIGNED WIDGET-ID 28
           VIEW-AS FILL-IN 
           SIZE 38 BY 1
@@ -276,13 +276,6 @@ ASSIGN
 &ANALYZE-RESUME
 
  
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _XFTR "SmartViewerCues" V-table-Win _INLINE
-/* Actions: adecomm/_so-cue.w ? adecomm/_so-cued.p ? adecomm/_so-cuew.p */
-/* SmartViewer,uib,49270
-Destroy on next read */
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK V-table-Win 
