@@ -632,14 +632,10 @@ PROCEDURE Change_Page :
     WHEN 14 THEN /* job data */
     DO:
       RUN Display_Keyboard ('numeric.',h_jobdata).
-      RUN Set_Title(translate('Job Data',NO) + ' - ' +
-                    translate('Sequence',NO) + ': ' + job_sequence + ', ' +
-                    translate('Pass',NO) + ': ' + pass_sequence + ', ' +
-                    translate('Blank',NO) + ': ' + blank_number +
-                   (IF item_number NE '' THEN ' (' + item_number + ')' ELSE '') +
-                    ', ' +
-                    translate('Form',NO) + ': ' + form_number + ', ' +
-                    translate('Job',NO) + ': ' + LEFT-TRIM(job#) + ', ' +
+      RUN Set_Title(translate('Job Data',NO) + ' - ' + 
+                    translate('Job#',NO) + ': ' + LEFT-TRIM(job#) + ', ' +
+                    translate('S-B',NO) + ' = ' + form_number + '-' + blank_number + ', ' +
+                    translate('Item',NO) + ': ' + (IF item_number NE '' THEN  item_number ELSE '') + ', ' +
                     translate('Machine',NO) + ': ' + machine_code + ', ' +
                     translate('Company',NO) + ': ' + company_code).
 
