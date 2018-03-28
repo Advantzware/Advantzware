@@ -130,7 +130,7 @@ DEFINE VARIABLE browse-order AS INTEGER
 
 DEFINE RECTANGLE RECT-4
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 145 BY 1.43.
+     SIZE 154 BY 1.43.
 
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
@@ -173,7 +173,7 @@ DEFINE QUERY Browser-Table FOR
 DEFINE BROWSE Browser-Table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS Browser-Table B-table-Win _STRUCTURED
   QUERY Browser-Table NO-LOCK DISPLAY
-      EDIVAddon.Partner FORMAT "x(15)":U
+      EDIVAddon.Partner FORMAT "x(05)":U
       EDIVAddon.Seq FORMAT ">>>>>>9":U
       EDIVAddon.Ref-Num COLUMN-LABEL "Ref Num" FORMAT "x(30)":U
       EDIVAddon.Uom-code COLUMN-LABEL "Uom" FORMAT "x(2)":U
@@ -206,7 +206,7 @@ DEFINE BROWSE Browser-Table
       EDIVAddon.Addon-line FORMAT ">>9":U
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ASSIGN SEPARATORS SIZE 145 BY 7.38
+    WITH NO-ASSIGN SEPARATORS SIZE 154 BY 12.62
          FONT 2.
 
 
@@ -215,15 +215,15 @@ DEFINE BROWSE Browser-Table
 DEFINE FRAME F-Main
      Browser-Table AT ROW 1 COL 1 HELP
           "Use Home, End, Page-Up, Page-Down, & Arrow Keys to Navigate"
-     browse-order AT ROW 8.86 COL 6 HELP
+     browse-order AT ROW 13.86 COL 6 HELP
           "Select Browser Sort Order" NO-LABEL
-     auto_find AT ROW 8.86 COL 70 COLON-ALIGNED HELP
+     auto_find AT ROW 13.86 COL 79 COLON-ALIGNED HELP
           "Enter Auto Find Value"
-     Btn_Clear_Find AT ROW 8.86 COL 132 HELP
+     Btn_Clear_Find AT ROW 13.86 COL 141 HELP
           "CLEAR AUTO FIND Value"
      "By:" VIEW-AS TEXT
-          SIZE 4 BY 1 AT ROW 8.86 COL 1.6
-     RECT-4 AT ROW 8.62 COL 1
+          SIZE 4 BY 1 AT ROW 13.86 COL 1.6
+     RECT-4 AT ROW 13.62 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -257,8 +257,8 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW B-table-Win ASSIGN
-         HEIGHT             = 9.48
-         WIDTH              = 145.8.
+         HEIGHT             = 14.05
+         WIDTH              = 154.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -283,7 +283,7 @@ END.
   NOT-VISIBLE,,RUN-PERSISTENT                                           */
 /* SETTINGS FOR FRAME F-Main
    NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
-/* BROWSE-TAB Browser-Table TEXT-1 F-Main */
+/* BROWSE-TAB Browser-Table 1 F-Main */
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
