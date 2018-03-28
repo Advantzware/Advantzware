@@ -1,5 +1,14 @@
 /* pCreateINIObjects.i */
 
+&global-define defaultWidth 38
+&global-define defaultHeight 2.62
+&global-define defaultFGColor ?
+&global-define defaultBGColor 8
+&global-define defaultCol 2
+&global-define defaultRow 5.29
+&global-define defaultColGap 39
+&global-define defaultRowGap 2.81
+
 PROCEDURE pCreateINIObjects:
     DEFINE INPUT PARAMETER cSections AS CHARACTER NO-UNDO.
     
@@ -14,16 +23,56 @@ PROCEDURE pCreateINIObjects:
     DEFINE VARIABLE cText    AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cTooltip AS CHARACTER NO-UNDO.
     DEFINE VARIABLE idx      AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE jdx      AS INTEGER   NO-UNDO.
     DEFINE VARIABLE hWidget  AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE poolName AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cClick   AS CHARACTER NO-UNDO.
     
     ASSIGN
+    &IF DEFINED(VDC) NE 0 &THEN
+        jdx = 2
+        poolName = "VDC" + ENTRY(1,cSections)
+        FILE-INFO:FILE-NAME = SEARCH("VDC\VDC.ini")
+    &ELSE
+        jdx = 1
+        poolName = "TouchPool{&PageNo}"
+        hFrame = FRAME {&FRAME-NAME}:HANDLE
         FILE-INFO:FILE-NAME = SEARCH("touch\touchscr.ini")
+    &ENDIF
         tsINI = FILE-INFO:FULL-PATHNAME
         .
     LOAD tsINI.
     USE tsINI.
     
-    DO idx = 1 TO NUM-ENTRIES(cSections):
+    &IF DEFINED(VDC) NE 0 &THEN
+    ASSIGN 
+        dCol = DEC(fGetKeyValue(hFrame:NAME,"Col"))
+        dRow = DEC(fGetKeyValue(hFrame:NAME,"Row"))
+        dWidth = DEC(fGetKeyValue(hFrame:NAME,"Width"))
+        dHeight = DEC(fGetKeyValue(hFrame:NAME,"Height"))
+        hFrame:HIDDEN = YES
+        .
+    IF dCol EQ ? THEN dCol = 42.
+    IF dRow EQ ? THEN dRow = 1.
+    ASSIGN 
+        hFrame:COL = dCol
+        hFrame:ROW = dRow
+        .
+    IF dHeight EQ ? THEN
+    dHeight = FRAME {&FRAME-NAME}:VIRTUAL-HEIGHT - dRow + 1.24.
+    ASSIGN
+        hFrame:VIRTUAL-HEIGHT = dHeight
+        hFrame:HEIGHT = dHeight
+        .
+    IF dWidth EQ ? THEN
+    dWidth = FRAME {&FRAME-NAME}:WIDTH - dCol + 2.
+    ASSIGN
+        hFrame:VIRTUAL-WIDTH = dWidth
+        hFrame:WIDTH = dWidth
+        .
+    &ENDIF
+
+    DO idx = jdx TO NUM-ENTRIES(cSections):
         ASSIGN
             dCol     = DEC(fGetKeyValue(ENTRY(idx,cSections),"Col"))
             dRow     = DEC(fGetKeyValue(ENTRY(idx,cSections),"Row"))
@@ -34,94 +83,231 @@ PROCEDURE pCreateINIObjects:
             cImage   =     fGetKeyValue(ENTRY(idx,cSections),"Image")
             cText    =     fGetKeyValue(ENTRY(idx,cSections),"Text")
             cTooltip =     fGetKeyValue(ENTRY(idx,cSections),"Tooltip")
+            cClick   = ENTRY(idx,cSections)
+            &IF DEFINED(VDC) NE 0 &THEN
+            cClick   = hFrame:NAME + "," + cClick
+            &ENDIF
             .
         IF dCol EQ ? THEN NEXT.
         
-        IF dWidth   EQ ? THEN dWidth   = 38.
-        IF dHeight  EQ ? THEN dHeight  = 2.62.
-        IF iFGColor EQ ? THEN iFGColor = ?.
-        IF iBGColor EQ ? THEN iBGColor = 8.
+        IF dWidth   EQ ? THEN dWidth   = {&defaultWidth}.
+        IF dHeight  EQ ? THEN dHeight  = {&defaultHeight}.
+        IF iFGColor EQ ? THEN iFGColor = {&defaultFGColor}.
+        IF iBGColor EQ ? THEN iBGColor = {&defaultBGColor}.
         IF cTooltip EQ ? THEN cToolTip = cText.
         
-        CREATE ttTriggers.
-        ttTriggers.triggerName = ENTRY(idx,cSections).
-        
-        CREATE RECTANGLE hWidget IN WIDGET-POOL "TouchPool{&PageNo}"
-            ASSIGN
-                FRAME = FRAME {&FRAME-NAME}:HANDLE
-                NAME = ENTRY(idx,cSections) + "Trigger"
-                COL = dCol
-                ROW = dRow
-                SENSITIVE = YES
-                WIDTH = dWidth
-                HEIGHT = dHeight
-                FGCOLOR = iFGColor
-                BGCOLOR = iBGColor
-                TOOLTIP = cTooltip
-          TRIGGERS:
-            ON MOUSE-SELECT-CLICK
-              PERSISTENT RUN pClick IN THIS-PROCEDURE (ENTRY(idx,cSections)).
-          END TRIGGERS.
-        IF VALID-HANDLE(hWidget) THEN DO:
-            ttTriggers.hRectangle = hWidget.
-            hWidget:MOVE-TO-TOP().
-        END.
-        IF cText NE ? THEN DO:
-            CREATE EDITOR hWidget IN WIDGET-POOL "TouchPool{&PageNo}"
-                ASSIGN
-                    FRAME = FRAME {&FRAME-NAME}:HANDLE
-                    NAME = ENTRY(idx,cSections) + "Text"
-                    COL = dCol + 12
-                    ROW = dRow + .95
-                    SENSITIVE = YES
-                    WIDTH = dWidth - 13
-                    HEIGHT = dHeight - 1.19
-                    FGCOLOR = iFGColor
-                    BGCOLOR = iBGColor
-                    SCROLLBAR-HORIZONTAL = NO
-                    SCROLLBAR-VERTICAL = NO
-                    WORD-WRAP = YES
-                    READ-ONLY = YES
-                    BOX = NO
-                    PRIVATE-DATA = cText
-                    SCREEN-VALUE = cText
-                    TOOLTIP = cTooltip
-              TRIGGERS:
-                ON MOUSE-SELECT-CLICK
-                  PERSISTENT RUN pClick IN THIS-PROCEDURE (ENTRY(idx,cSections)).
-              END TRIGGERS.
-            IF VALID-HANDLE(hWidget) THEN DO:
-                ttTriggers.hEditor = hWidget.
-                hWidget:MOVE-TO-TOP().
-            END.
-        END. /* ctext ne ? */
-        IF cText NE ? THEN
-        dWidth = dWidth - 28.
-        IF dWidth LT 10 THEN
-        dWidth = 10.
-        CREATE IMAGE hWidget IN WIDGET-POOL "TouchPool{&PageNo}"
-            ASSIGN
-                FRAME = FRAME {&FRAME-NAME}:HANDLE
-                NAME = ENTRY(idx,cSections) + "Image"
-                COL = dCol + 1
-                ROW = dRow + .23
-                SENSITIVE = YES
-                WIDTH = dWidth
-                HEIGHT = dHeight - .48
-                TRANSPARENT = YES
-                TOOLTIP = cTooltip
-          TRIGGERS:
-            ON MOUSE-SELECT-CLICK
-              PERSISTENT RUN pClick IN THIS-PROCEDURE (ENTRY(idx,cSections)).
-          END TRIGGERS.
-        IF VALID-HANDLE(hWidget) THEN DO:
-            ttTriggers.hImage = hWidget.
-            hWidget:LOAD-IMAGE(SEARCH(cImage)).
-            hWidget:MOVE-TO-TOP().
-        END.
+        RUN pCreateObject (
+            poolName,
+            hFrame,
+            ENTRY(idx,cSections),
+            dCol,
+            dRow,
+            dWidth,
+            dHeight,
+            iFGColor,
+            iBGColor,
+            cText,
+            cTooltip,
+            cClick,
+            cImage,
+            NO
+            ).
     END. /* do idx */
     
     UNLOAD tsINI.
+
+END PROCEDURE.
+
+PROCEDURE pCreateObject:
+    DEFINE INPUT PARAMETER ipcPoolName AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER iphFrame    AS HANDLE    NO-UNDO.
+    DEFINE INPUT PARAMETER ipcName     AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipdCol      AS DECIMAL   NO-UNDO.
+    DEFINE INPUT PARAMETER ipdRow      AS DECIMAL   NO-UNDO.
+    DEFINE INPUT PARAMETER ipdWidth    AS DECIMAL   NO-UNDO.
+    DEFINE INPUT PARAMETER ipdHeight   AS DECIMAL   NO-UNDO.
+    DEFINE INPUT PARAMETER ipiFGColor  AS INTEGER   NO-UNDO.
+    DEFINE INPUT PARAMETER ipiBGColor  AS INTEGER   NO-UNDO.
+    DEFINE INPUT PARAMETER ipcText     AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcToolTip  AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcClick    AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcImage    AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER iplDynamic  AS LOGICAL   NO-UNDO.
+
+    DEFINE VARIABLE cDynamic AS CHARACTER NO-UNDO.
+    
+    IF iplDynamic THEN cDynamic = "dynamic".
+    
+    CREATE ttTriggers.
+    ASSIGN
+        ttTriggers.frameHandle   = iphFrame 
+        ttTriggers.triggerName   = ipcName
+        ttTriggers.dynamicObject = iplDynamic
+        .
+    RUN pCreateRectangle (
+        ipcPoolName,
+        iphFrame,
+        ipcName,
+        ipdCol,
+        ipdRow,
+        ipdWidth,
+        ipdHeight,
+        ipiFGColor,
+        ipiBGColor,
+        ipcTooltip,
+        ipcClick
+        ).            
+    IF ipcText NE ? THEN
+    RUN pCreateEditor (
+        ipcPoolName,
+        iphFrame,
+        ipcName,
+        ipdCol,
+        ipdRow,
+        ipdWidth,
+        ipdHeight,
+        ipiFGColor,
+        ipiBGColor,
+        ipcText,
+        ipcTooltip,
+        ipcClick
+        ).
+    IF ipcText  NE ?  THEN ipdWidth = ipdWidth - 28.
+    IF ipdWidth LT 10 THEN ipdWidth = 10.
+    RUN pCreateImage (
+        ipcPoolName,
+        iphFrame,
+        ipcName,
+        ipdCol,
+        ipdRow,
+        ipdWidth,
+        ipdHeight,
+        ipcTooltip,
+        ipcClick,
+        ipcImage
+        ).
+
+END PROCEDURE.
+
+PROCEDURE pCreateEditor:
+    DEFINE INPUT PARAMETER ipcPoolName AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER iphFrame    AS HANDLE    NO-UNDO.
+    DEFINE INPUT PARAMETER ipcName     AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipdCol      AS DECIMAL   NO-UNDO.
+    DEFINE INPUT PARAMETER ipdRow      AS DECIMAL   NO-UNDO.
+    DEFINE INPUT PARAMETER ipdWidth    AS DECIMAL   NO-UNDO.
+    DEFINE INPUT PARAMETER ipdHeight   AS DECIMAL   NO-UNDO.
+    DEFINE INPUT PARAMETER ipiFGColor  AS INTEGER   NO-UNDO.
+    DEFINE INPUT PARAMETER ipiBGColor  AS INTEGER   NO-UNDO.
+    DEFINE INPUT PARAMETER ipcText     AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcToolTip  AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcClick    AS CHARACTER NO-UNDO.
+    
+    DEFINE VARIABLE hWidget AS HANDLE NO-UNDO.
+
+    CREATE EDITOR hWidget IN WIDGET-POOL ipcPoolName
+        ASSIGN
+            FRAME = iphFrame
+            NAME = ipcName + "Text"
+            COL = ipdCol + 12
+            ROW = ipdRow + .95
+            SENSITIVE = YES
+            WIDTH = ipdWidth - 13
+            HEIGHT = ipdHeight - 1.19
+            FGCOLOR = ipiFGColor
+            BGCOLOR = ipiBGColor
+            SCROLLBAR-HORIZONTAL = NO
+            SCROLLBAR-VERTICAL = NO
+            WORD-WRAP = YES
+            READ-ONLY = YES
+            BOX = NO
+            PRIVATE-DATA = ipcText
+            SCREEN-VALUE = ipcText
+            TOOLTIP = ipcTooltip
+      TRIGGERS:
+        ON MOUSE-SELECT-CLICK
+          PERSISTENT RUN pClick IN THIS-PROCEDURE (ipcClick).
+      END TRIGGERS.
+    IF VALID-HANDLE(hWidget) THEN DO:
+        ttTriggers.hEditor = hWidget.
+        hWidget:MOVE-TO-TOP().
+    END.
+
+END PROCEDURE.
+
+PROCEDURE pCreateImage:
+    DEFINE INPUT PARAMETER ipcPoolName AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER iphFrame    AS HANDLE    NO-UNDO.
+    DEFINE INPUT PARAMETER ipcName     AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipdCol      AS DECIMAL   NO-UNDO.
+    DEFINE INPUT PARAMETER ipdRow      AS DECIMAL   NO-UNDO.
+    DEFINE INPUT PARAMETER ipdWidth    AS DECIMAL   NO-UNDO.
+    DEFINE INPUT PARAMETER ipdHeight   AS DECIMAL   NO-UNDO.
+    DEFINE INPUT PARAMETER ipcToolTip  AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcClick    AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcImage    AS CHARACTER NO-UNDO.
+    
+    DEFINE VARIABLE hWidget AS HANDLE NO-UNDO.
+    
+    CREATE IMAGE hWidget IN WIDGET-POOL ipcPoolName
+        ASSIGN
+            FRAME = iphFrame
+            NAME = ipcName + "Image"
+            COL = ipdCol + 1
+            ROW = ipdRow + .23
+            SENSITIVE = YES
+            WIDTH = ipdWidth
+            HEIGHT = ipdHeight - .48
+            TRANSPARENT = YES
+            TOOLTIP = ipcTooltip
+      TRIGGERS:
+        ON MOUSE-SELECT-CLICK
+          PERSISTENT RUN pClick IN THIS-PROCEDURE (ipcClick).
+      END TRIGGERS.
+    IF VALID-HANDLE(hWidget) THEN DO:
+        ttTriggers.hImage = hWidget.
+        hWidget:LOAD-IMAGE(SEARCH(ipcImage)).
+        hWidget:MOVE-TO-TOP().
+    END.
+
+END PROCEDURE.
+
+PROCEDURE pCreateRectangle:
+    DEFINE INPUT PARAMETER ipcPoolName AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER iphFrame    AS HANDLE    NO-UNDO.
+    DEFINE INPUT PARAMETER ipcName     AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipdCol      AS DECIMAL   NO-UNDO.
+    DEFINE INPUT PARAMETER ipdRow      AS DECIMAL   NO-UNDO.
+    DEFINE INPUT PARAMETER ipdWidth    AS DECIMAL   NO-UNDO.
+    DEFINE INPUT PARAMETER ipdHeight   AS DECIMAL   NO-UNDO.
+    DEFINE INPUT PARAMETER ipiFGColor  AS INTEGER   NO-UNDO.
+    DEFINE INPUT PARAMETER ipiBGColor  AS INTEGER   NO-UNDO.
+    DEFINE INPUT PARAMETER ipcToolTip  AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcClick    AS CHARACTER NO-UNDO.
+    
+    DEFINE VARIABLE hWidget AS HANDLE NO-UNDO.
+
+    CREATE RECTANGLE hWidget IN WIDGET-POOL ipcPoolName
+        ASSIGN
+            FRAME = iphFrame
+            NAME = ipcName + "Trigger"
+            COL = ipdCol
+            ROW = ipdRow
+            SENSITIVE = YES
+            WIDTH = ipdWidth
+            HEIGHT = ipdHeight
+            FGCOLOR = ipiFGColor
+            BGCOLOR = ipiBGColor
+            TOOLTIP = ipcTooltip
+            ROUNDED = YES
+      TRIGGERS:
+        ON MOUSE-SELECT-CLICK
+          PERSISTENT RUN pClick IN THIS-PROCEDURE (ipcClick).
+      END TRIGGERS.
+    IF VALID-HANDLE(hWidget) THEN DO:
+        ttTriggers.hRectangle = hWidget.
+        hWidget:MOVE-TO-TOP().
+    END.
 
 END PROCEDURE.
 
@@ -130,7 +316,8 @@ PROCEDURE pSetSensitive:
     DEFINE INPUT PARAMETER iplSensitive AS LOGICAL   NO-UNDO.
     
     FIND FIRST ttTriggers
-         WHERE ttTriggers.triggerName EQ ipcName
+         WHERE ttTriggers.frameHandle EQ hFrame
+           AND ttTriggers.triggerName EQ ipcName
          NO-ERROR.
     IF AVAILABLE ttTriggers THEN DO:
         IF VALID-HANDLE(ttTriggers.hRectangle) THEN

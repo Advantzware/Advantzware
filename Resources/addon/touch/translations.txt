@@ -1,104 +1,112 @@
-English,Espanol
-Graphics\32x32\usa_32.ico,Graphics\32x32\mexico_32.ico
-Accept Entry,Acepte la Entrada
-Accept Password,Acepta Contrasena
-Alpha,Alpha
-Back,Atrás
-Backspace,Tecla de Retroceso
-Blank,Blanco
+English,Espanol (Spanish),Français (French)
+Graphics\32x32\usa_32.ico,Graphics\32x32\mexico_32.ico,Graphics\32x32\france_32.ico
+Accept Entry,Acepte la Entrada,Accepter l'entrée
+Accept Password,Acepta Contrasena,Accepter le mot de passe
+Alpha,Alpha,Alpha
+Back,Atrás,Précédent
+Backspace,Tecla de Retroceso,Backspace
+Blank,Blanco,Vide
 Blank Number,Blanco
-Boxes,Cajas
-Browse Trans,Hojear Trans
-Cancel,Cancelacion
-Caps Lock,Cerradura de Casquillos
-Category,Categoria
-Charge,Cargos
-Charge Code,Cargos Código
-Clear,Claro
-Close,Cerrar
-Company,Compania
-Complete,Completo
-Complete?,Completo?
-Completed?,Completo?
-Down,Abajo
-Employee,Empleado
-Employee Status,Condicion de Empleado
-End Date,Dia de Termino
-End Time,Tiempo del Final
-EndDate,Dia de!Termino
-EndTime,Tiempo del!Final
-Enter Job,Entrar Trabajo
-Enter Machine Code,Introduzca el Código de Maquina
-Espanol,English
-First Blank,Primer Blanco
-First Code,Primer Código
-First Form,Primera Forma
-First Job,Primer Trabajo
-First Pass,Primer Paso
-Form,Forma
-Form Number,Forma
-Home,Casa
-Hour,Hora
-Item Number,Numero de Articulo
-Job,Trabajo
-Job Card,Tarjeta de trabajo
-Job Checklist,Lista de tareas
-Job Filter,Filtro de trabajo
-Data Collection,Coleccion de Informacion
-Job List,Lista de Trabajo
-Job Number,Trabajo
-Key Value,Valor Dominante
-Last Blank,Ultimo Blanco
-Last Code,Ultimo Código
-Last Form,Ultimo Forma
-Last Job,Ultimo Trabajo
-Last Pass,Ultimo Paso
-Log In,Entrada
-Log Out,Salida
-Login,Entrada
-Logout,Salida
-Machine,Maquina
-Machine Filter,Filtro de la máquina
-Machine Status,Condicion de Maquina
-Main Menu,Menú Principal
-Minute,Minuto
-Page Down,Página Abajo
-Page Up,Página Arriba
-Pass,Pase
-Pass Number,Numero de Pase
-Password,Contrasena
-Quantity,Cantidad
-Reset Time,Reajuste la Hora
-Run,Transcurso
-Run Quantity,Cantidad
-Schedule,Horario
-Search,Búsqueda
-Select Company,Seleccione a Compania
-Select Employee,Seleccione a Empleado
-Select Job,Seleccione de Trabajo
-Select Machine,Seleccione la Maquina
-Sequence,Secuencia
-Set Time,Fije la Hora
-Shift,Turno
-Sort,Clase
-Sort / Job,Trabajo de la Clase
-Sort / Start,Comienzo de la Clase
-Space,Espacio
-Start Date,Fecha de Comienzo
-Start Time,Hora de Salida
-StartDate,Fecha de!Comienzo
-StartTime,Hora de!Salida
-Status,Estado
-Total,Total
-Total Time,Tiempo Total
-Total Run,Cantidad Total
-Touch Screen,Pantalla del Tacto
-Up,Hasta
-Verify Entries,Verifique las Entradas
-Verify Job Number,Verifique el Numero de Trabajo
-View Tran,Ver Tran
-Waste,Basura
-Waste Quantity,Basura
+Blanks,Espacios,Blancs
+Boxes,Cajas,Boîtes
+Browse Trans,Hojear Trans,Parcourir Trans
+Cancel,Cancelacion,Annuler
+Caps Lock,Cerradura de Casquillos,Verr. Maj
+Category,Categoria,Catégorie
+Charge,Cargos,Charge
+Charge Code,Cargos Código,Code de charge
+Clear,Claro,Clair
+Close,Cerrar,Près
+Company,Compania,Société
+Complete,Completo,Complet
+Complete?,Completo?,Complet?
+Completed?,Completo?,Terminé?
+Data Collection,Coleccion de Informacion,Collecte de données
+Down,Abajo,Bas
+Employee,Empleado,Employé
+Employee Login,Login de empleado,Connexion de l'employé
+Employee Logout,Cierre de sesión de empleado,Déconnexion de l'employé
+Employee Status,Condicion de Empleado,Statut de l'employé
+End Date,Dia de Termino,Date de fin
+End Time,Tiempo del Final,Heure de fin
+EndDate,Dia de!Termino,Date de fin
+EndTime,Tiempo del!Final,Heure de fin
+Enter Job,Entrar Trabajo,Entrez le travail
+Enter Machine Code,Introduzca el Código de Maquina,Entrez le code machine
+First Blank,Primer Blanco,Premier blanc
+First Code,Primer Código,Premier code
+First Form,Primera Forma,Première forme
+First Job,Primer Trabajo,Premier emploi
+First Pass,Primer Paso,Première passe
+Form,Forma,Forme
+Form Number,Forma,Numéro de formulaire
+Forms,Formas,Formes
+Home,Casa,Accueil
+Hour,Hora,Heure
+Item Number,Numero de Articulo,Numéro d'article
+Job,Trabajo,Travail
+Job Card,Tarjeta de trabajo,Carte de travail
+Job Checklist,Lista de tareas,Liste d'emploi
+Job Filter,Filtro de trabajo,Filtre de travail
+Jobs,Trabajos,Emplois
+Job List,Lista de Trabajo,Liste d'emploi
+Job Number,Trabajo,Numéro d'emploi
+Key Value,Valor Dominante,Valeur de la clé
+Last Blank,Ultimo Blanco,Dernier blanc
+Last Code,Ultimo Código,Dernier code
+Last Form,Ultimo Forma,Dernier formulaire
+Last Job,Ultimo Trabajo,Dernier emploi
+Last Pass,Ultimo Paso,Dernière passe
+Log In,Entrada,Se connecter
+Log Out,Salida,Déconnexion
+Login,Entrada,Connexion
+Logout,Salida,Déconnexion
+Machine,Maquina,Machine
+Machine Filter,Filtro de la máquina,Filtre de machine
+Machine Status,Condicion de Maquina,État de la machine
+Main Menu,Menú Principal,Menu principal
+Menu,Menú,Menu
+Minute,Minuto,Minute
+Page Down,Página Abajo,Page vers le bas
+Page Up,Página Arriba,Page Up
+Pass,Pase,Passer
+Pass Number,Numero de Pase,Numéro de passe
+Password,Contrasena,Password
+Quantity,Cantidad,Quantité
+Reset Time,Reajuste la Hora,Heure de réinitialisation
+Run,Transcurso,Exécuter
+Run Quantity,Cantidad,Quantité d'exécution
+SB View,Vista SB,SB View
+Schedule,Horario,Annexe
+Search,Búsqueda,Recherche
+Select Company,Seleccione a Compania,Sélectionner une entreprise
+Select Employee,Seleccione a Empleado,Sélectionner un employé
+Select Job,Seleccione de Trabajo,Sélectionner un emploi
+Select Machine,Seleccione la Maquina,Sélectionner la machine
+Sequence,Secuencia,Séquence
+Session Information,Información de la sesión,Informations sur la session
+Set Time,Fije la Hora,Régler l'heure
+Shift,Turno,Maj
+Sort,Clase,Sorte
+Sort / Job,Trabajo de la Clase,Trier/travail
+Sort / Start,Comienzo de la Clase,Trier/démarrer
+Space,Espacio,Espace
+Start Date,Fecha de Comienzo,Date de début
+Start Time,Hora de Salida,Heure de début
+StartDate,Fecha de!Comienzo,Date de début
+StartTime,Hora de!Salida,Heure de début
+Status,Estado,Statut
+Total,Total,Total
+Total Time,Tiempo Total,Temps total
+Total Run,Cantidad Total,Total Run
+Touch Screen,Pantalla del Tacto,Écran tactile
+Up,Hasta,Jusqu'
+Verify Entries,Verifique las Entradas,Vérifier les écritures
+Verify Job Number,Verifique el Numero de Trabajo,Vérifier le numéro du travail
+View Tran,Ver Tran,Voir Tran
+Visual Data Collection,Recopilación de datos visuales,Collection de données visuelles
+Waste,Basura,Déchets
+Waste Quantity,Basura,Quantité de déchets
 images\onedown.bmp,images\espanol\onedown.bmp
 images\oneup.bmp,images\espanol\oneup.bmp
 images\pagedown.bmp,images\espanol\pagedown.bmp
