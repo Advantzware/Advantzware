@@ -117,6 +117,9 @@ DEF VAR iLockoutTries AS INT NO-UNDO.
 /* Advantzware.ini variables */
 DEF VAR cAdminDir AS CHAR INITIAL "Admin" NO-UNDO.
 DEF VAR cAdminport AS CHAR INITIAL "20952" NO-UNDO.
+DEF VAR caudDbList AS CHAR INITIAL "audProd" NO-UNDO.
+DEF VAR caudPortList AS CHAR INITIAL "2836" NO-UNDO.
+DEF VAR caudDirList  AS CHAR INITIAL "Audit" NO-UNDO. 
 DEF VAR cAuditDbName AS CHAR INITIAL "asiAudit" NO-UNDO.
 DEF VAR cAuditDbPort AS CHAR INITIAL "2828" NO-UNDO.
 DEF VAR cAuditDbStFile AS CHAR INITIAL "asiAudit.st" NO-UNDO.
@@ -520,6 +523,10 @@ DO:
             /* Set current dir */
             RUN ipSetCurrentDir (cMapDir + "\" + cEnvDir + "\" + cbEnvironment:{&SV}). 
 
+IF INDEX(cRunPgm,"mainmenu") <> 0
+AND SEARCH("system/mainmenu2.r") NE ? THEN ASSIGN
+    cRunPgm = "system/mainmenu2.w".
+
             RUN VALUE(cRunPgm).
         END.
         ELSE DO:
@@ -870,6 +877,10 @@ PROCEDURE ipConnectDb :
     DEF INPUT PARAMETER cPassword AS CHAR NO-UNDO.
     DEF OUTPUT PARAMETER lError AS LOG NO-UNDO.
 
+    DEF VAR iLookup AS INT NO-UNDO.
+    DEF VAR xdbName AS CHAR NO-UNDO.
+    DEF VAR xdbPort AS CHAR NO-UNDO.
+
     IF cPassword <> "" THEN
         CONNECT VALUE(cStatement + 
                   " -U " + cUser + 
@@ -914,28 +925,21 @@ PROCEDURE ipConnectDb :
 
     IF CONNECTED(LDBNAME(1))
     AND lConnectAudit THEN DO:
+    
+    ASSIGN
+        xdbName = cbDatabase:{&SV}
+        iLookup = LOOKUP(xdbName,cDbList)
+        xDbName = ""
+        xDbName = ENTRY(iLookup,cAudDbList)
+        xdbPort = ENTRY(iLookup,cAudPortList).
+    
         IF INDEX(PDBNAME(1),"165") <> 0 
         OR INDEX(PDBNAME(1),"ship") <> 0 THEN ASSIGN
             connectStatement = "".
-        ELSE IF INDEX(PDBNAME(1),"166") <> 0 THEN ASSIGN
-            connectStatement = "-db asiAudit166" + 
+        ELSE IF xDbName NE "" THEN ASSIGN
+            connectStatement = "-db " + xDbName + 
                                " -H " + chostName +
-                               " -S 2861" + 
-                               " -N tcp -ld AUDIT".
-        ELSE IF INDEX(PDBNAME(1),"167") <> 0 THEN ASSIGN
-            connectStatement = "-db asiAudit167" + 
-                               " -H " + chostName +
-                               " -S 2862" + 
-                               " -N tcp -ld AUDIT".
-        ELSE IF INDEX(PDBNAME(1),"PremTest") <> 0 THEN ASSIGN
-            connectStatement = "-db asiAuditPrm" + 
-                               " -H " + chostName +
-                               " -S 2863" + 
-                               " -N tcp -ld AUDIT".
-        ELSE ASSIGN
-            connectStatement = "-db " + cauditDbName + 
-                               " -H " + chostName +
-                               " -S " + cAuditDbPort +
+                               " -S " + xdbPort + 
                                " -N tcp -ld AUDIT".
 
         IF connectStatement NE "" THEN
@@ -1099,6 +1103,9 @@ PROCEDURE ipReadIniFile :
         CASE cVarName[jCtr]:
             WHEN "adminDir" THEN ASSIGN cAdminDir = cVarValue[jCtr].
             WHEN "adminport" THEN ASSIGN cadminport = cVarValue[jCtr]. 
+            WHEN "audDbList" THEN ASSIGN caudDbList = cVarValue[jCtr]. 
+            WHEN "audPortList" THEN ASSIGN caudPortList = cVarValue[jCtr]. 
+            WHEN "audDirList" THEN ASSIGN caudDirList = cVarValue[jCtr]. 
             WHEN "auditDbName" THEN ASSIGN cauditDbName = cVarValue[jCtr]. 
             WHEN "auditDbPort" THEN ASSIGN cauditDbPort = cVarValue[jCtr]. 
             WHEN "auditDbStFile" THEN ASSIGN cauditDbStFile = cVarValue[jCtr]. 
