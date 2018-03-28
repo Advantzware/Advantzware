@@ -796,7 +796,7 @@ PROCEDURE valid-part-no :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEF BUFFER b-itemfg FOR itemfg.
-
+  DEFINE BUFFER bf-fg-set FOR fg-set .
   DEF VAR lv-msg AS CHAR NO-UNDO.
 
 
@@ -820,6 +820,16 @@ PROCEDURE valid-part-no :
         lv-msg = "You may not add this FG Item because Set Header: " +
                  CAPS(TRIM(itemfg.i-no)) + " is a component of Set Part: "   +
                  CAPS(TRIM(fg-set.part-no:SCREEN-VALUE IN BROWSE {&browse-name})).
+    END.
+
+    IF lv-msg EQ "" THEN DO:
+      FIND FIRST bf-fg-set NO-LOCK
+           WHERE fg-set.company EQ itemfg.company 
+            AND bf-fg-set.set-no EQ itemfg.i-no
+            AND bf-fg-set.part-no EQ fg-set.part-no:SCREEN-VALUE 
+            AND ROWID(bf-fg-set) NE rowid(fg-set) NO-ERROR .
+      IF AVAIL bf-fg-set THEN
+          lv-msg = fg-set.part-no:SCREEN-VALUE + " already exists on set record.." .
     END.
 
     IF lv-msg NE "" THEN DO:
