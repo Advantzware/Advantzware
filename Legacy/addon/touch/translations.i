@@ -49,8 +49,10 @@ END.
 INPUT CLOSE.
 
 /* make list avail to other smart objects */
+&IF DEFINED(VDC) EQ 0 &THEN
 RUN Set_Value ('language_list',languageList) NO-ERROR.
 RUN Set_Value ('flag_list',flagList) NO-ERROR.
+&ENDIF
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -131,20 +133,22 @@ PROCEDURE Label_Language :
     current-widget = current-widget:FIRST-CHILD
     current-widget = current-widget:FIRST-CHILD.
   DO WHILE current-widget NE ?:
-    IF current-widget:PRIVATE-DATA NE ? THEN
-    DO:
+    IF current-widget:PRIVATE-DATA NE ? AND 
+       NOT current-widget:NAME BEGINS "_" THEN DO:
       /* this object uses an image, not text */
       IF INDEX(current-widget:PRIVATE-DATA,'images') NE 0 THEN
-      ldummy = current-widget:LOAD-IMAGE(translate(current-widget:PRIVATE-DATA,NO)).
+      current-widget:LOAD-IMAGE(current-widget:PRIVATE-DATA).
       ELSE
         IF current-widget:TYPE EQ "EDITOR" THEN
         current-widget:SCREEN-VALUE = translate(current-widget:PRIVATE-DATA,NO).
         ELSE
-        current-widget:LABEL = translate(current-widget:PRIVATE-DATA,NO /*
-                                         current-widget:TYPE EQ 'Button'*/ ).
+        current-widget:LABEL = translate(current-widget:PRIVATE-DATA,NO).
     END.
     current-widget = current-widget:NEXT-SIBLING.
   END.
+  &IF DEFINED(VDC) NE 0 &THEN
+  current-frame:TITLE = translate(current-frame:PRIVATE-DATA,NO).
+  &ENDIF
 
 END PROCEDURE.
 
@@ -164,7 +168,11 @@ FUNCTION translate RETURNS CHARACTER
   DEFINE VARIABLE idx AS INTEGER NO-UNDO.
   DEFINE VARIABLE rtnString AS CHARACTER NO-UNDO.
 
+  &IF DEFINED(VDC) NE 0 &THEN
+  labelLanguage = cLabelLanguage.
+  &ELSE
   RUN Get_Value ('label_language':U,OUTPUT labelLanguage). /* language */
+  &ENDIF
   idx = LOOKUP(labelLanguage,languageList). /* list of languages */
   IF idx EQ 0 THEN idx = 1. /* didn't find it, so assume english */
   
