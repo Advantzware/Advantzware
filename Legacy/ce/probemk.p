@@ -189,10 +189,7 @@ IF cerunf EQ "Dee" THEN
 
 tt-tot = tt-tot + v-nman.
   
-IF OPSYS EQ "unix" THEN
-    UNIX SILENT COPY VALUE(outfile1) VALUE(outfile3).
-ELSE
-    DOS SILENT COPY VALUE(outfile1) VALUE(outfile3).
+os-copy VALUE(outfile1) VALUE(outfile3).
 
 OUTPUT TO VALUE(outfile3) APPEND.
 

@@ -1193,6 +1193,7 @@ PROCEDURE mousePosition :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+&IF DEFINED(FWD-VERSION) EQ 0 &THEN
   DEFINE VARIABLE cursorPos AS MEMPTR NO-UNDO.
 
   SET-SIZE(cursorPos) = 16.
@@ -1202,6 +1203,15 @@ PROCEDURE mousePosition :
     cursorX = GET-LONG(cursorPos,1)
     cursorY = GET-LONG(cursorPos,5).
   SET-SIZE(cursorPos) = 0.
+&ELSE
+  DEFINE VARIABLE cursorPos AS INT EXTENT 2 NO-UNDO.
+
+  cursorPos = FRAME {&FRAME-NAME}:GET-MOUSE-POSITION().
+  
+  ASSIGN
+    cursorX = cursorPos[1]
+    cursorY = cursorPos[2].
+&ENDIF
 
 END PROCEDURE.
 

@@ -125,20 +125,12 @@ for each probeit
                           + ".v" + string(probe.line,v-probe-fmt),
                    OUTPUT tmp-dir).
 
-   if opsys eq "unix" then
-      unix silent copy value(tmp-dir + trim(xest.est-no) + "-"  +
-				       string(v-form-no,"99")     + ".v" +
-				       string(probe.line,v-probe-fmt))
-		       value(lv-cebrowse-dir + trim(xest.est-no) + "-"  +
-				       string(v-form-no,"99")     + ".s" +
-				       string(probe.line,v-probe-fmt)).
-   else /* if opsys eq "MSDOS" then */
-      dos silent copy value(tmp-dir + trim(xest.est-no) + "-"  +
-				      string(v-form-no,"99")     + ".v" +
-				      string(probe.line,v-probe-fmt))
-		      value(lv-cebrowse-dir + trim(xest.est-no) + "-"  +
-				      string(v-form-no,"99")     + ".s" +
-				      string(probe.line,v-probe-fmt)).
+   os-copy value(tmp-dir + trim(xest.est-no) + "-"  +
+				     string(v-form-no,"99")     + ".v" +
+				     string(probe.line,v-probe-fmt))
+		     value(lv-cebrowse-dir + trim(xest.est-no) + "-"  +
+				     string(v-form-no,"99")     + ".s" +
+				     string(probe.line,v-probe-fmt)).
 
    output to value(lv-cebrowse-dir + trim(xest.est-no) + "-"  +
 			     string(v-form-no,"99")     + ".s" +
@@ -190,16 +182,10 @@ else do:
                     OUTPUT tmp-dir).
 
    if xest.est-type eq 2 then do:
-      if opsys eq "unix" then
-	     unix silent copy value(tmp-dir + trim(xest.est-no) + "-01.v"
-		               			        + string(probe.line,v-probe-fmt))
-			  value(lv-cebrowse-dir + trim(xest.est-no) + "-01.s"
-						     + string(probe.line,v-probe-fmt)).
-      else /* if opsys eq "MSDOS" then */
-	 dos silent copy value(tmp-dir + trim(xest.est-no) + "-01.v"
-						     + string(probe.line,v-probe-fmt))
-			 value(lv-cebrowse-dir + trim(xest.est-no) + "-01.s"
-						     + string(probe.line,v-probe-fmt)).
+      os-copy value(tmp-dir + trim(xest.est-no) + "-01.v"
+                    + string(probe.line,v-probe-fmt))
+              value(lv-cebrowse-dir + trim(xest.est-no) + "-01.s"
+                    + string(probe.line,v-probe-fmt)).
 
       output to value(lv-cebrowse-dir + trim(xest.est-no) + "-01.s"
 					      + string(probe.line,v-probe-fmt)) append.
@@ -211,16 +197,10 @@ else do:
 						     + string(probe.line,v-probe-fmt),
                        OUTPUT tmp-dir).
 
-      if opsys eq "unix" then
-	 unix silent copy value(tmp-dir + trim(xest.est-no) + ".v"
-						     + string(probe.line,v-probe-fmt))
-			  value(lv-cebrowse-dir + trim(xest.est-no) + ".s"
-						     + string(probe.line,v-probe-fmt)).
-      else /* if opsys eq "MSDOS" then */
-	 dos silent copy value(tmp-dir + trim(xest.est-no) + ".v"
-						     + string(probe.line,v-probe-fmt))
-			 value(lv-cebrowse-dir + trim(xest.est-no) + ".s"
-						     + string(probe.line,v-probe-fmt)).
+      os-copy value(tmp-dir + trim(xest.est-no) + ".v"
+                    + string(probe.line,v-probe-fmt))
+              value(lv-cebrowse-dir + trim(xest.est-no) + ".s"
+                    + string(probe.line,v-probe-fmt)).
 
        output to value(lv-cebrowse-dir + trim(xest.est-no) + ".s"
 					      + string(probe.line,v-probe-fmt)) append.

@@ -128,7 +128,9 @@ DEFINE TEMP-TABLE bTtblResource NO-UNDO LIKE ttblResource.
 CREATE bTtblResource.
 
 {{&includes}/{&Board}/boardDefs.i}
+&IF DEFINED(FWD-VERSION) EQ 0 &THEN
 {{&includes}/lockWindowUpdate.i}
+&ENDIF
 
 /* configuration vars */
 {{&includes}/configVars.i}
@@ -2473,7 +2475,11 @@ PROCEDURE buildResource :
   DEFINE VARIABLE i AS INTEGER NO-UNDO.
 
   RUN msgFrame ('Building Resources').
+&IF DEFINED(FWD-VERSION) EQ 0 &THEN
   RUN LockWindowUpdate (ACTIVE-WINDOW:HWND,OUTPUT i).
+&ELSE
+  ACTIVE-WINDOW:DISABLE-REDRAW = TRUE.
+&ENDIF
   ASSIGN
     resourceXCoord = 1
     resourceYCoord = 55
@@ -2491,7 +2497,11 @@ PROCEDURE buildResource :
                         ttblResource.dmiID).
   END.
   RUN hideResource (resourceIdx).
+&IF DEFINED(FWD-VERSION) EQ 0 &THEN
   RUN LockWindowUpdate (0,OUTPUT i).
+&ELSE
+  ACTIVE-WINDOW:DISABLE-REDRAW = FALSE.
+&ENDIF
 
 END PROCEDURE.
 
@@ -3534,14 +3544,22 @@ PROCEDURE loadConfiguration :
   jobMovingDisplay:BGCOLOR IN FRAME {&FRAME-NAME} = flashLightColor.
   IF saveDowntimeTop NE downtimeTop THEN
   DO: /* remove downtime widgets, need to re-create them as different type */
+&IF DEFINED(FWD-VERSION) EQ 0 &THEN
     RUN LockWindowUpdate (ACTIVE-WINDOW:HWND,OUTPUT i).
+&ELSE
+  ACTIVE-WINDOW:DISABLE-REDRAW = TRUE.
+&ENDIF
     DELETE WIDGET-POOL 'downtimePool' NO-ERROR.
     CREATE WIDGET-POOL 'downtimePool' PERSISTENT.
     ASSIGN
       downtimeIdx = 0
       saveDowntimeTop = downtimeTop.
     EMPTY TEMP-TABLE downtimeWidget.
+&IF DEFINED(FWD-VERSION) EQ 0 &THEN
     RUN LockWindowUpdate (0,OUTPUT i).
+&ELSE
+    ACTIVE-WINDOW:DISABLE-REDRAW = FALSE.
+&ENDIF
   END.
   IF saveFullBoard NE fullBoard THEN
   DO WITH FRAME {&FRAME-NAME}:
@@ -4335,7 +4353,11 @@ PROCEDURE setScreenStatus :
   IF showStatus OR openBoard THEN
   VIEW FRAME msgFrame.
   ELSE
+&IF DEFINED(FWD-VERSION) EQ 0 &THEN
   RUN LockWindowUpdate (ACTIVE-WINDOW:HWND,OUTPUT i).
+&ELSE
+  ACTIVE-WINDOW:DISABLE-REDRAW = TRUE.
+&ENDIF
 
 END PROCEDURE.
 
@@ -4415,7 +4437,11 @@ PROCEDURE showBoard :
 ------------------------------------------------------------------------------*/
   DEFINE VARIABLE i AS INTEGER NO-UNDO.
 
+&IF DEFINED(FWD-VERSION) EQ 0 &THEN
   RUN LockWindowUpdate (ACTIVE-WINDOW:HWND,OUTPUT i).
+&ELSE
+  ACTIVE-WINDOW:DISABLE-REDRAW = TRUE.
+&ENDIF
   RUN timeLine.
   {{&includes}/{&Board}/hidelightBulb.i}
   {{&includes}/ttblWidgetShow.i "jobWidget" jobIdx NO}
@@ -4424,7 +4450,11 @@ PROCEDURE showBoard :
   {{&includes}/ttblWidgetShow.i "threeDWidget" threeDIdx NO}
   {{&includes}/{&Board}/showDowntime.i}
   openBoard = NO.
+&IF DEFINED(FWD-VERSION) EQ 0 &THEN
   RUN LockWindowUpdate (0,OUTPUT i).
+&ELSE
+  ACTIVE-WINDOW:DISABLE-REDRAW = FALSE.
+&ENDIF
   
 END PROCEDURE.
 

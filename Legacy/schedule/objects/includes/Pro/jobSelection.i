@@ -3,7 +3,11 @@
   FIND ttblJob NO-LOCK WHERE ROWID(ttblJob) EQ TO-ROWID(ipWidget:PRIVATE-DATA) NO-ERROR.
   IF NOT AVAILABLE ttblJob THEN
   RETURN NO-APPLY.
+&IF DEFINED(FWD-VERSION) EQ 0 &THEN
   RUN LockWindowUpdate (ACTIVE-WINDOW:HWND,OUTPUT i).
+&ELSE
+  ACTIVE-WINDOW:DISABLE-REDRAW = TRUE.
+&ENDIF
   RUN showLightBulb (ttblJob.job).
   IF flashLight THEN
   RUN showFlashLight (ttblJob.job).
@@ -20,4 +24,8 @@
     currentResource = ''
     .
   &ENDIF
+&IF DEFINED(FWD-VERSION) EQ 0 &THEN
   RUN LockWindowUpdate (0,OUTPUT i).
+&ELSE
+  ACTIVE-WINDOW:DISABLE-REDRAW = FALSE.
+&ENDIF

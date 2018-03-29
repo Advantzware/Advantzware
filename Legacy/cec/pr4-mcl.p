@@ -80,11 +80,8 @@ do k = 1 to 28:
     output close.
   end.
 
-  if opsys = "unix" then
-    unix silent cat value(outfile2) >> value(outfile3).
-  else /* if opsys = "msdos" then */
-    dos silent type value(outfile2) >> value(outfile3).
-    dos silent type value(outfile3) > value(ls-outfile).
+  os-append value(outfile2) value(outfile3).
+  os-copy value(outfile3) value(ls-outfile).
 end.
 
 /* end ---------------------------------- copr. 1996  advanced software, inc. */

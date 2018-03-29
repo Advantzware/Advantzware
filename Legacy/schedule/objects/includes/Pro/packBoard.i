@@ -107,7 +107,11 @@
   END. /* do while */
   IF endLessLoop THEN
   DO:
+&IF DEFINED(FWD-VERSION) EQ 0 &THEN
     RUN LockWindowUpdate (0,OUTPUT i).
+&ELSE
+    ACTIVE-WINDOW:DISABLE-REDRAW = FALSE.
+&ENDIF
     RUN msgFrame (?).
     HIDE FRAME msgFrame NO-PAUSE.
     MESSAGE 'An Endless Loop Condition Exists!!!' SKIP(1)

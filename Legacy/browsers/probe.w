@@ -2984,52 +2984,28 @@ PROCEDURE per-1000 :
        RUN get-dir-proc(INPUT TRIM(est.est-no) + ".s" + STRING(b-probe.line,"99"),
                      OUTPUT tmp-dir).
 
-       IF OPSYS EQ "unix" THEN 
-          UNIX SILENT cp  VALUE(tmp-dir + TRIM(est.est-no) + ".s" + STRING(b-probe.line,"99"))
-                         VALUE(lv-cebrowse-dir + TRIM(est.est-no) + ".p" + STRING(b-probe.line,"99")).
-       ELSE
-         DOS SILENT COPY VALUE(tmp-dir + TRIM(est.est-no) + ".s" + STRING(b-probe.line,"99"))
-                         VALUE(lv-cebrowse-dir + TRIM(est.est-no) + ".p" + STRING(b-probe.line,"99")).
+       OS-COPY VALUE(tmp-dir + TRIM(est.est-no) + ".s" + STRING(b-probe.line,"99"))
+               VALUE(lv-cebrowse-dir + TRIM(est.est-no) + ".p" + STRING(b-probe.line,"99")).
 
        RUN get-dir-proc(INPUT TRIM(est.est-no) + ".a" + STRING(b-probe.line,"99"),
                         OUTPUT tmp-dir).
 
-       IF OPSYS EQ "unix" THEN
-           UNIX SILENT cat VALUE(tmp-dir + TRIM(est.est-no) + ".a"
-                                                    + STRING(b-probe.line,"99")) >>
-                          VALUE(lv-cebrowse-dir + TRIM(est.est-no) + ".p"
-                                                    + STRING(b-probe.line,"99")).
-       ELSE /* IF opsys = "MSDOS" THEN */
-          DOS SILENT TYPE VALUE(tmp-dir + TRIM(est.est-no) + ".a"
-                                                    + STRING(b-probe.line,"99")) >>
-                          VALUE(lv-cebrowse-dir + TRIM(est.est-no) + ".p"
-                                                    + STRING(b-probe.line,"99")).
+       OS-APPEND VALUE(tmp-dir + TRIM(est.est-no) + ".a" + STRING(b-probe.line,"99"))
+                 VALUE(lv-cebrowse-dir + TRIM(est.est-no) + ".p" + STRING(b-probe.line,"99")).
     END.
     ELSE
     DO:
        RUN get-dir-proc(INPUT TRIM(est.est-no) + ".s" + STRING(b-probe.line,"999"),
                         OUTPUT tmp-dir).
 
-       IF OPSYS EQ "unix" THEN 
-         UNIX SILENT cp  VALUE(tmp-dir + TRIM(est.est-no) + ".s" + STRING(b-probe.line,"999"))
-                         VALUE(lv-cebrowse-dir + TRIM(est.est-no) + ".p" + STRING(b-probe.line,"999")).
-       ELSE
-         DOS SILENT COPY VALUE(tmp-dir + TRIM(est.est-no) + ".s" + STRING(b-probe.line,"999"))
-                         VALUE(lv-cebrowse-dir + TRIM(est.est-no) + ".p" + STRING(b-probe.line,"999")).
+       OS-COPY VALUE(tmp-dir + TRIM(est.est-no) + ".s" + STRING(b-probe.line,"999"))
+               VALUE(lv-cebrowse-dir + TRIM(est.est-no) + ".p" + STRING(b-probe.line,"999")).
 
        RUN get-dir-proc(INPUT TRIM(est.est-no) + ".a" + STRING(b-probe.line,"999"),
                         OUTPUT tmp-dir).
 
-       IF OPSYS EQ "unix" THEN
-          UNIX SILENT cat VALUE(tmp-dir + TRIM(est.est-no) + ".a"
-                                + STRING(b-probe.line,"999")) >>
-                          VALUE(lv-cebrowse-dir + TRIM(est.est-no) + ".p"
-                                + STRING(b-probe.line,"999")).
-       ELSE /* IF opsys = "MSDOS" THEN */
-          DOS SILENT TYPE VALUE(tmp-dir + TRIM(est.est-no) + ".a"
-                                + STRING(b-probe.line,"999")) >>
-                          VALUE(lv-cebrowse-dir + trim(est.est-no) + ".p"
-                                + STRING(b-probe.line,"999")).
+       OS-APPEND VALUE(tmp-dir + TRIM(est.est-no) + ".a" + STRING(b-probe.line,"999"))
+                 VALUE(lv-cebrowse-dir + TRIM(est.est-no) + ".p" + STRING(b-probe.line,"999")).
     END.
 
     tmp-dir = lv-cebrowse-dir.
@@ -3177,15 +3153,15 @@ PROCEDURE print-box-est :
   DO:
      RUN get-dir-proc(INPUT TRIM(xest.est-no) + ".p" + STRING(probe.line,"99"),
                       OUTPUT tmp-dir).
-     DOS SILENT TYPE VALUE(tmp-dir + TRIM(xest.est-no) + ".p" + STRING(probe.line,"99"))
-                      >> VALUE(ls-outfile). /*page skip problem */
+     OS-APPEND VALUE(tmp-dir + TRIM(xest.est-no) + ".p" + STRING(probe.line,"99"))
+               VALUE(ls-outfile). /*page skip problem */
   END.
   ELSE
   DO:
      RUN get-dir-proc(INPUT TRIM(xest.est-no) + ".p" + STRING(probe.line,"999"),
                       OUTPUT tmp-dir).
-     DOS SILENT TYPE VALUE(tmp-dir + TRIM(xest.est-no) + ".p" + STRING(probe.line,"999"))
-                      >> VALUE(ls-outfile). /*page skip problem */
+     OS-APPEND VALUE(tmp-dir + TRIM(xest.est-no) + ".p" + STRING(probe.line,"999"))
+               VALUE(ls-outfile). /*page skip problem */
   END.
 
   lv-input = "".
@@ -3436,13 +3412,13 @@ PROCEDURE printBoxImage :
        DO:
           RUN get-dir-proc(INPUT TRIM(xest.est-no) + '-01.b' + STRING(probe.line,'99'),
                            OUTPUT tmp-dir).
-          DOS SILENT TYPE VALUE(tmp-dir + TRIM(xest.est-no) + '-01.b' + STRING(probe.line,'99')) >> VALUE(ls-outfile).
+          OS-APPEND VALUE(tmp-dir + TRIM(xest.est-no) + '-01.b' + STRING(probe.line,'99')) VALUE(ls-outfile).
        END.
        ELSE
        DO:
           RUN get-dir-proc(INPUT TRIM(xest.est-no) + '-01.b' + STRING(probe.line,'999'),
                            OUTPUT tmp-dir).
-          DOS SILENT TYPE VALUE(tmp-dir + TRIM(xest.est-no) + '-01.b' + STRING(probe.line,'999')) >> VALUE(ls-outfile).
+          OS-APPEND VALUE(tmp-dir + TRIM(xest.est-no) + '-01.b' + STRING(probe.line,'999')) VALUE(ls-outfile).
        END.
     END.
     ELSE
@@ -3451,13 +3427,13 @@ PROCEDURE printBoxImage :
        DO:
           RUN get-dir-proc(INPUT TRIM(xest.est-no) + '.b' + STRING(probe.line,'99'),
                            OUTPUT tmp-dir).
-          DOS SILENT TYPE VALUE(tmp-dir + TRIM(xest.est-no) + '.b' + STRING(probe.line,'99')) >> VALUE(ls-outfile).
+          OS-APPEND VALUE(tmp-dir + TRIM(xest.est-no) + '.b' + STRING(probe.line,'99')) VALUE(ls-outfile).
        END.
        ELSE
        DO:
           RUN get-dir-proc(INPUT TRIM(xest.est-no) + '.b' + STRING(probe.line,'999'),
                            OUTPUT tmp-dir).
-          DOS SILENT TYPE VALUE(tmp-dir + TRIM(xest.est-no) + '.b' + STRING(probe.line,'999')) >> VALUE(ls-outfile).
+          OS-APPEND VALUE(tmp-dir + TRIM(xest.est-no) + '.b' + STRING(probe.line,'999')) VALUE(ls-outfile).
        END.
     END.
         
@@ -4192,16 +4168,8 @@ PROCEDURE update-item :
                                + STRING(probe.line,v-probe-fmt),
                          OUTPUT tmp-dir).
         
-        IF OPSYS EQ "unix" THEN 
-          UNIX SILENT cp  VALUE(tmp-dir + TRIM(est.est-no) + ".s"
-                                        + STRING(probe.line,v-probe-fmt))
-                          VALUE(lv-cebrowse-dir + TRIM(est.est-no) + ".p"
-                                        + STRING(probe.line,v-probe-fmt)).
-        ELSE
-          DOS SILENT COPY VALUE(tmp-dir + TRIM(est.est-no) + ".s"
-                                        + STRING(probe.line,v-probe-fmt))
-                          VALUE(lv-cebrowse-dir + TRIM(est.est-no) + ".p"
-                                        + STRING(probe.line,v-probe-fmt)).
+        OS-COPY VALUE(tmp-dir + TRIM(est.est-no) + ".s" + STRING(probe.line,v-probe-fmt))
+                VALUE(lv-cebrowse-dir + TRIM(est.est-no) + ".p" + STRING(probe.line,v-probe-fmt)).
 
         RUN per-1000.
       END.

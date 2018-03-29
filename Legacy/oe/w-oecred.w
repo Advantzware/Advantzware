@@ -297,6 +297,7 @@ END.
 
 
 /* ***************************  Main Block  *************************** */
+&IF DEFINED(FWD-VERSION) EQ 0 &THEN
 procedure SendMessageA external "user32.dll":
     define input  parameter hwnd   as long no-undo.
     define input  parameter wmsg   as long no-undo.
@@ -312,6 +313,7 @@ procedure RedrawWindow external "user32.dll":
     def input parameter v-flags as long no-undo.
     def return parameter v-ret  as long no-undo.
 end procedure.
+&ENDIF
 /* Include custom  Main Block code for SmartWindows. */
 {src/adm/template/windowmn.i}
 
@@ -1094,26 +1096,33 @@ PROCEDURE lockWindow :
 
   define variable iRet as integer no-undo. 
 
+&IF DEFINED(FWD-VERSION) EQ 0 &THEN
   &GLOBAL-DEFINE WM_SETREDRAW     11
   &GLOBAL-DEFINE RDW_ALLCHILDREN 128
   &GLOBAL-DEFINE RDW_ERASE         4
   &GLOBAL-DEFINE RDW_INVALIDATE    1
+&ENDIF
 
   /* Now, only lock when the semaphore is increased to 1 */
   if plLock  then
   do:
 
+&IF DEFINED(FWD-VERSION) EQ 0 &THEN
     run SendMessageA( phWindow:hwnd /* {&window-name}:hwnd */
                     , {&WM_SETREDRAW}
                     , 0
                     , 0
                     , output iRet
                     ).
+&ELSE
+    phWindow:DISABLE-REDRAW = TRUE.
+&ENDIF
   end.
 
   /* And only unlock after the last unlock command */
   else 
   do:
+&IF DEFINED(FWD-VERSION) EQ 0 &THEN
     run SendMessageA( phWindow:hwnd /* {&window-name}:hwnd */
                     , {&WM_SETREDRAW}
                     , 1
@@ -1127,6 +1136,9 @@ PROCEDURE lockWindow :
                     , {&RDW_ALLCHILDREN} + {&RDW_ERASE} + {&RDW_INVALIDATE}
                     , output iRet
                     ).
+&ELSE
+    phWindow:DISABLE-REDRAW = FALSE.
+&ENDIF
 
   end. 
 END PROCEDURE.
