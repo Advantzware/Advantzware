@@ -480,10 +480,10 @@ PROCEDURE purge-trans :
         DISABLE TRIGGERS FOR LOAD OF emplogin.
 
         SESSION:SET-WAIT-STATE("general").
-        OS-CREATE-DIR "system".
-        OUTPUT STREAM st-mach TO VALUE("system\machtran.d" + STRING(TIME)).
-        OUTPUT STREAM st-emp TO VALUE("system\machemp.d" + STRING(TIME)).
-        OUTPUT STREAM st-emplogin TO VALUE("system\emplogin.d" + STRING(TIME)).
+        OS-CREATE-DIR ".\CustFiles\Dumps".
+        OUTPUT STREAM st-mach TO VALUE(".\CustFiles\Dumps\machtran.d" + STRING(TIME)).
+        OUTPUT STREAM st-emp TO VALUE(".\CustFiles\Dumps\machemp.d" + STRING(TIME)).
+        OUTPUT STREAM st-emplogin TO VALUE(".\CustFiles\Dumps\emplogin.d" + STRING(TIME)).
 
 
         /* may need code not to delete notes but can't display anyway 
