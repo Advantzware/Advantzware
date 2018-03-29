@@ -35,7 +35,7 @@ if avail itemfg and itemfg.isaset then do:
                          AND b-eb.est-no  EQ b-itemfg.est-no
                          AND b-eb.stock-no EQ b-itemfg.i-no
                        NO-LOCK NO-ERROR.
-       b-itemfg.q-ono = itemfg.q-ono * (IF avail(b-eb) AND b-eb.spare-char-2 EQ "Y" THEN 1 ELSE tt-fg-set.part-qty). 
+       b-itemfg.q-ono = itemfg.q-ono * (IF avail(b-eb) AND b-eb.spare-char-2 EQ "Y" THEN 1 ELSE tt-fg-set.qtyPerSet). 
        IF AVAIL(b-eb) THEN
          RUN fg/chkfgloc.p (INPUT b-itemfg.i-no, INPUT b-eb.loc).
        IF AVAIL(b-eb) THEN
@@ -45,7 +45,7 @@ if avail itemfg and itemfg.isaset then do:
                AND itemfg-loc.loc     EQ b-eb.loc
              EXCLUSIVE-LOCK NO-ERROR.
        IF AVAIL(itemfg-loc) THEN
-         itemfg-loc.q-ono = itemfg-loc.q-ono * (IF avail(b-eb) AND b-eb.spare-char-2 EQ "Y" THEN 1 ELSE tt-fg-set.part-qty).
+         itemfg-loc.q-ono = itemfg-loc.q-ono * (IF avail(b-eb) AND b-eb.spare-char-2 EQ "Y" THEN 1 ELSE tt-fg-set.qtyPerSet).
        FIND CURRENT itemfg-loc NO-LOCK NO-ERROR.
     end.
   END.

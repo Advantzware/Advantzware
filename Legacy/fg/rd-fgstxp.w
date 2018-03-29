@@ -1071,7 +1071,7 @@ IF tb_excel THEN
              CASE cTmpField:    
                   WHEN "part-no" THEN cVarValue = STRING(fg-set.part-no). 
                   WHEN "name" THEN cVarValue = STRING(lv-part-name). 
-                  WHEN "qty-per" THEN cVarValue = STRING(fg-set.part-qty). 
+                  WHEN "qty-per" THEN cVarValue = STRING(fg-set.qtyPerSet). 
                   WHEN "oh-qty" THEN cVarValue = STRING(lv-q-onh,"->,>>>,>>>,>>9"). 
 
                   WHEN "po-job" THEN cVarValue = STRING(lv-q-ono,"->,>>>,>>>,>>9"). 

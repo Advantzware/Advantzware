@@ -34,7 +34,7 @@ DEF VAR v-ans           AS LOG INIT no NO-UNDO.
 DEF VAR v-date-ship     AS DATE INIT today NO-UNDO.
 DEF VAR v-del-no        AS INT FORMAT ">>>>>>" NO-UNDO.
 DEF VAR v-bol-cases     LIKE oe-boll.cases NO-UNDO.
-DEF VAR v-set-qty       AS INT NO-UNDO.
+DEF VAR v-set-qty       AS DECIMAL NO-UNDO.
 DEF VAR v-part-qty      AS DEC FORMAT "999.9999" NO-UNDO.
 DEF VAR v-net           LIKE inv-head.t-inv-rev NO-UNDO.
 DEF VAR v-case-cnt      AS CHAR FORMAT "x(80)" extent 5 NO-UNDO.
@@ -334,7 +334,7 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
                         FOR EACH fg-set FIELDS(part-qty) NO-LOCK 
                             WHERE fg-set.company EQ xinv-line.company
                             AND fg-set.set-no  EQ xinv-line.i-no:
-                            ASSIGN v-set-qty = v-set-qty + fg-set.part-qty.
+                            ASSIGN v-set-qty = v-set-qty + fg-set.QtyPerSet.
                         END. /*each fg-set*/
                         IF v-set-qty = 0 THEN ASSIGN v-set-qty = 1.
                         FOR EACH eb NO-LOCK 
@@ -346,8 +346,8 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
                                 WHERE fg-set.company EQ xinv-line.company 
                                 AND fg-set.set-no  EQ xinv-line.i-no  
                                 AND fg-set.part-no EQ eb.stock-no NO-ERROR.
-                            IF AVAIL fg-set AND fg-set.part-qty NE 0 THEN 
-                                ASSIGN v-part-qty = fg-set.part-qty / v-set-qty. 
+                            IF AVAIL fg-set AND fg-set.QtyPerSet NE 0 THEN 
+                                ASSIGN v-part-qty = fg-set.QtyPerSet / v-set-qty. 
                             ELSE
                                 ASSIGN v-part-qty = 1 / v-set-qty.
                             IF eb.cas-cnt EQ 0 THEN

@@ -102,7 +102,7 @@ RUN set-attribute-list (
 /* ************************  Function Prototypes ********************** */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD get-alloc V-table-Win 
-FUNCTION get-alloc RETURNS INTEGER
+FUNCTION get-alloc RETURNS DECIMAL
   ( /* parameter-definitions */ )  FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
@@ -486,7 +486,7 @@ END PROCEDURE.
 /* ************************  Function Implementations ***************** */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION get-alloc V-table-Win 
-FUNCTION get-alloc RETURNS INTEGER
+FUNCTION get-alloc RETURNS DECIMAL
   ( /* parameter-definitions */ ) :
 /*------------------------------------------------------------------------------
   Purpose:  
@@ -499,7 +499,7 @@ FUNCTION get-alloc RETURNS INTEGER
   DEF BUFFER b2-itemfg-loc FOR itemfg-loc.
   /* To make the procedure the same as that in fgijob.w */
 
-  DEF VAR lv-q-all AS INT NO-UNDO.
+  DEF VAR lv-q-all AS DECIMAL NO-UNDO.
 
   ASSIGN
    lv-q-all = 0.
@@ -555,7 +555,7 @@ FUNCTION get-alloc RETURNS INTEGER
                       AND oe-rel.ord-no = oe-ordl.ord-no
                       AND oe-rel.i-no  = oe-ordl.i-no
                     NO-LOCK.
-              lv-q-all = lv-q-all + (b2-itemfg.q-alloc * fg-set.part-qty).
+              lv-q-all = lv-q-all + (b2-itemfg.q-alloc * fg-set.QtyPerSet).
               LEAVE. /* q-alloc contains value for all orders */
             END.
           END.
@@ -580,7 +580,7 @@ FUNCTION get-alloc RETURNS INTEGER
                       AND oe-rel.i-no  = oe-ordl.i-no
                       AND oe-rel.spare-char-1 EQ lc-pass-loc
                     NO-LOCK.
-              lv-q-all = lv-q-all + (b2-itemfg-loc.q-alloc * fg-set.part-qty).
+              lv-q-all = lv-q-all + (b2-itemfg-loc.q-alloc * fg-set.QtyPerSet).
               LEAVE. /* q-alloc contains value for all orders */
             END. /* Each Ordl */
           END.

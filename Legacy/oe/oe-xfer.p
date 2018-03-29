@@ -761,7 +761,7 @@ FOR FIRST bf-ord WHERE rowid(bf-ord) EQ ip-ord-from NO-LOCK,
     FOR EACH fg-set WHERE fg-set.set-no EQ itemfg.i-no.
         CREATE tt-item-list.
         ASSIGN tt-item-list.i-no = fg-set.part-no
-               tt-item-list.qty  = bf-ordl.qty * fg-set.part-qty
+               tt-item-list.qty  = bf-ordl.qty * fg-set.qtyPerSet
                tt-item-list.price = 0.
     END.
 

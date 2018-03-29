@@ -82,7 +82,7 @@
              (xinv-line.est-type eq 2 or xinv-line.est-type eq 6) then do:
             for each fg-set no-lock where fg-set.company = xinv-line.company
                 and fg-set.set-no = xinv-line.i-no:
-              assign v-set-qty = v-set-qty + fg-set.part-qty.
+              assign v-set-qty = v-set-qty + fg-set.qtyPerSet.
             end.
             if v-set-qty = 0 then
             assign v-set-qty = 1.
@@ -94,8 +94,8 @@
                 fg-set.set-no = xinv-line.i-no  and
                 fg-set.part-no = eb.stock-no no-lock no-error.
 
-              if avail fg-set and fg-set.part-qty ne 0 then
-              assign v-part-qty = fg-set.part-qty / v-set-qty.
+              if avail fg-set and fg-set.qtyPerSet ne 0 then
+              assign v-part-qty = fg-set.qtyPerSet / v-set-qty.
               else
               assign v-part-qty = 1 / v-set-qty.
 

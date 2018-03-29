@@ -678,7 +678,7 @@ PROCEDURE jobRouting:
                 CREATE tt-fg-set.
                 ASSIGN
                     tt-fg-set.part-no      = reftable.code2
-                    tt-fg-set.part-qty     = reftable.val[12]
+                    tt-fg-set.qtyPerSet     = reftable.val[12]
                     tt-fg-set.part-qty-dec = reftable.val[13]
                     .
             END. /* each reftable */
@@ -686,14 +686,14 @@ PROCEDURE jobRouting:
             CREATE tt-fg-set.
             ASSIGN
                 tt-fg-set.part-no      = job-hdr.i-no
-                tt-fg-set.part-qty     = job-hdr.frm
+                tt-fg-set.qtyPerSet     = job-hdr.frm
                 tt-fg-set.part-qty-dec = job-hdr.blank-no
                 .
         END. /* else */
         RELEASE tt-fg-set.
     
         FOR EACH tt-fg-set
-            BREAK BY tt-fg-set.part-qty
+            BREAK BY tt-fg-set.qtyPerSet
                   BY tt-fg-set.part-qty-dec
             :
             FOR EACH job-mch NO-LOCK 
@@ -701,7 +701,7 @@ PROCEDURE jobRouting:
                   AND job-mch.job     EQ job.job
                   AND job-mch.job-no  EQ job.job-no
                   AND job-mch.job-no2 EQ job.job-no2
-                  AND job-mch.frm     EQ tt-fg-set.part-qty
+                  AND job-mch.frm     EQ integer(tt-fg-set.qtyPerSet)
                 BREAK BY job-mch.line
                 :
                 cRouting = cRouting + job-mch.m-code + ",".
@@ -715,10 +715,10 @@ PROCEDURE jobRouting:
                 CREATE ttScheduledReleasesStats.
                 ASSIGN 
                     ttScheduledReleasesStats.xxItemFGRecKey = itemfg.rec_key
-                    ttScheduledReleasesStats.statsLine      = "S/B: " + TRIM(STRING(tt-fg-set.part-qty,">>>"))
+                    ttScheduledReleasesStats.statsLine      = "S/B: " + TRIM(STRING(tt-fg-set.qtyPerSet,"->>,>>9.99<<<<"))
                                                             + "/"     + TRIM(STRING(tt-fg-set.part-qty-dec,">>"))
                     .
-                IF LAST-OF(tt-fg-set.part-qty) THEN DO:
+                IF LAST-OF(tt-fg-set.qtyPerSet) THEN DO:
                     RUN pPrintScheduleStats.
                     IF cRouting NE "" THEN 
                     ttScheduledReleasesStats.statsLine = ttScheduledReleasesStats.statsLine
@@ -741,7 +741,7 @@ PROCEDURE pPrintScheduleStats:
         WHERE po-ordl.company   EQ job.company
           AND po-ordl.job-no    EQ job.job-no
           AND po-ordl.job-no2   EQ job.job-no2
-          AND po-ordl.s-num     EQ tt-fg-set.part-qty
+          AND po-ordl.s-num     EQ tt-fg-set.qtyPerSet
           AND po-ordl.item-type EQ YES
         USE-INDEX job-no,
         FIRST po-ord NO-LOCK 

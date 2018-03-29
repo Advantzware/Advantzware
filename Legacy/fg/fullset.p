@@ -31,7 +31,7 @@ IF AVAIL itemfg THEN DO:
   CREATE tt-fg-set.
   ASSIGN
    tt-fg-set.part-no      = itemfg.i-no
-   tt-fg-set.part-qty     = IF AVAIL fg-set THEN fg-set.part-qty ELSE 1
+   tt-fg-set.qtyPerSet     = IF AVAIL fg-set THEN fg-set.qtyPerSet ELSE 1
    tt-fg-set.part-qty-dec = IF AVAIL fg-set THEN v-part-qty-dec ELSE 1
    tt-fg-set.isaset       = NOT AVAIL fg-set
    tt-fg-set.alloc        = NOT AVAIL fg-set.
@@ -56,7 +56,7 @@ DO WHILE CAN-FIND(FIRST tt-fg-set WHERE tt-fg-set.set-no NE tt-fg-set.part-no
       CREATE tt-fg-set2.
       BUFFER-COPY fg-set TO tt-fg-set2
       ASSIGN
-       tt-fg-set2.part-qty     = tt-fg-set.part-qty * fg-set.part-qty
+       tt-fg-set2.qtyPerSet     = tt-fg-set.qtyPerSet * fg-set.qtyPerSet
        tt-fg-set2.part-qty-dec = tt-fg-set.part-qty-dec * v-part-qty-dec
        tt-fg-set2.isaset       = itemfg.isaset
        tt-fg-set2.alloc        = itemfg.alloc.

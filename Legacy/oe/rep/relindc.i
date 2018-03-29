@@ -221,7 +221,7 @@ IF v-zone-p THEN v-zone-hdr = "Route No.:".
             FOR EACH fg-set NO-LOCK
                 WHERE fg-set.company EQ xoe-ordl.company
                   AND fg-set.set-no  EQ xoe-ordl.i-no:
-              v-set-qty = v-set-qty + fg-set.part-qty.
+              v-set-qty = v-set-qty + fg-set.QtyPerSet.
             END.
             IF v-set-qty EQ 0 THEN v-set-qty = 1.
             FOR EACH eb NO-LOCK
@@ -235,8 +235,8 @@ IF v-zone-p THEN v-zone-hdr = "Route No.:".
                    NO-ERROR.
 
               ASSIGN
-               v-part-qty = (IF AVAILABLE fg-set AND fg-set.part-qty NE 0 THEN
-                             fg-set.part-qty ELSE 1) / v-set-qty
+               v-part-qty = (IF AVAILABLE fg-set AND fg-set.QtyPerSet NE 0 THEN
+                             fg-set.QtyPerSet ELSE 1) / v-set-qty
                v-pallets = v-pallets +
                            (IF xoe-rell.qty-case NE 0 THEN
                               ROUND((xoe-rell.qty-case / eb.cas-pal) + .49, 0)
