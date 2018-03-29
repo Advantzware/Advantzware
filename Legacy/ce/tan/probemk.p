@@ -131,10 +131,7 @@ assign
   end.
 /* JLF added 04/24/96 */
 
-  IF opsys = "unix" THEN
-    UNIX silent copy value(outfile1) value(outfile3).
-  ELSE /* IF opsys = "msdos" THEN */
-    DOS silent copy value(outfile1) value(outfile3).
+  os-copy value(outfile1) value(outfile3).
     
   OUTPUT TO VALUE(outfile3) APPEND.
   if vprint then do:

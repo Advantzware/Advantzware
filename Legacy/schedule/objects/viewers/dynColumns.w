@@ -61,7 +61,9 @@ DEFINE TEMP-TABLE colOrder NO-UNDO
   FIELD browseColumnRowID AS ROWID
     INDEX colOrder IS PRIMARY colOrder.
 
+&IF DEFINED(FWD-VERSION) EQ 0 &THEN
 {{&includes}/lockWindowUpdate.i}
+&ENDIF
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1057,7 +1059,11 @@ PROCEDURE createFields :
   DEFINE VARIABLE lvRowID AS ROWID NO-UNDO.
   DEFINE VARIABLE i AS INTEGER NO-UNDO.
 
+&IF DEFINED(FWD-VERSION) EQ 0 &THEN
   RUN LockWindowUpdate (FRAME {&FRAME-NAME}:HWND,OUTPUT i).
+&ELSE
+  ACTIVE-WINDOW:DISABLE-REDRAW = TRUE.
+&ENDIF
   DELETE WIDGET-POOL 'fieldPool' NO-ERROR.
   CREATE WIDGET-POOL 'fieldPool' PERSISTENT.
   layoutFields:LIST-ITEM-PAIRS IN FRAME {&FRAME-NAME} = ?.
@@ -1066,7 +1072,11 @@ PROCEDURE createFields :
     RUN createObject (rptFields.fieldLabel,rptFields.fieldName,rptFields.fieldFormat,
                       rptLayout.rptLine,rptLayout.rptColumn,ROWID(rptLayout)).
   END.
+&IF DEFINED(FWD-VERSION) EQ 0 &THEN
   RUN LockWindowUpdate (0,OUTPUT i).
+&ELSE
+  ACTIVE-WINDOW:DISABLE-REDRAW = FALSE.
+&ENDIF
 
 END PROCEDURE.
 

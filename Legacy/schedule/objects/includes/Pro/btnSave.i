@@ -53,4 +53,8 @@
   /* RUN buildBoard (YES). */
   RUN msgFrame (?).
   HIDE FRAME msgFrame NO-PAUSE.
+&IF DEFINED(FWD-VERSION) EQ 0 &THEN
   RUN LockWindowUpdate (0,OUTPUT i).
+&ELSE
+  ACTIVE-WINDOW:DISABLE-REDRAW = FALSE.
+&ENDIF

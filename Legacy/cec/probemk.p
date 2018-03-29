@@ -162,10 +162,7 @@ IF ll-use-margin OR
 
 tt-tot = tt-tot + v-comm.
 
-IF OPSYS EQ "unix" THEN
-    UNIX SILENT COPY VALUE(outfile1) VALUE(outfile3).
-ELSE
-    DOS SILENT COPY VALUE(outfile1) VALUE(outfile3).
+OS-COPY VALUE(outfile1) VALUE(outfile3).
 
 OUTPUT to value(outfile3) append.
 

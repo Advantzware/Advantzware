@@ -314,9 +314,11 @@ END.
 ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME} 
        THIS-PROCEDURE:CURRENT-WINDOW = {&WINDOW-NAME}.
 
+&IF DEFINED(FWD-VERSION) EQ 0 &THEN
 PROCEDURE LockWindowUpdate EXTERNAL "user32.dll": 
 DEFINE INPUT PARAMETER hWndLock AS LONG NO-UNDO. 
-END PROCEDURE. /* LockWindowUpdate */ 
+END PROCEDURE. /* LockWindowUpdate */
+&ENDIF
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
@@ -400,10 +402,18 @@ PROCEDURE numdel :
 ------------------------------------------------------------------------------*/
 DEF INPUT PARAMETER ipcTable AS CHAR NO-UNDO.
 DEF INPUT PARAMETER ipiCnt AS INT NO-UNDO.
+&IF DEFINED(FWD-VERSION) EQ 0 &THEN
 Run LockWindowUpdate(input CURRENT-WINDOW:HWND). 
+&ELSE
+ACTIVE-WINDOW:DISABLE-REDRAW = TRUE.
+&ENDIF
 IF VALID-HANDLE(hStatus) THEN
   RUN process-message IN hStatus (INPUT ipcTable + ": " + STRING(ipiCnt)).
+&IF DEFINED(FWD-VERSION) EQ 0 &THEN
 Run LockWindowUpdate(input 0). 
+&ELSE
+ACTIVE-WINDOW:DISABLE-REDRAW = FALSE.
+&ENDIF
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

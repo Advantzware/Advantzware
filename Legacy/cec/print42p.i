@@ -925,11 +925,7 @@ do vmcl = 1 to 28:   /* ??? 28 not 4*/
 
       run cec/box/pr42mis2.p (INPUT LAST(ef.form-no)).
 
-      if opsys eq "unix" then
-         unix silent copy value(outfile1) value(outfile3).
-      else /* if opsys eq "MSDOS" then */
-         /*dos silent copy value(outfile1) value(outfile3).*/
-         OS-COPY value(outfile1) value(outfile3).
+      os-copy value(outfile1) value(outfile3).
 
       assign   v-tt-tot[v-form-no]   = tt-tot
                v-fac-tot[v-form-no]  = fac-tot
@@ -985,25 +981,13 @@ do vmcl = 1 to 28:   /* ??? 28 not 4*/
 
      IF probe.LINE LT 100 THEN
      DO:
-        if opsys eq "unix" then do:
-           unix silent rm value(tmp-dir + TRIM(xest.est-no) + "-*.*" + string(probe.line,"99")).
-           unix silent rm value(tmp-dir + TRIM(xest.est-no) +   ".*" + string(probe.line,"99")).
-        end.
-        else DO:
-           OS-DELETE value(tmp-dir + TRIM(xest.est-no) + "-*.*" + string(probe.line,"99")).
-           OS-DELETE value(tmp-dir + TRIM(xest.est-no) +   ".*" + string(probe.line,"99")).
-        end.
+        OS-DELETE value(tmp-dir + TRIM(xest.est-no) + "-*.*" + string(probe.line,"99")).
+        OS-DELETE value(tmp-dir + TRIM(xest.est-no) +   ".*" + string(probe.line,"99")).
      END.
      ELSE
      DO:
-        if opsys eq "unix" then do:
-           unix silent rm value(tmp-dir + TRIM(xest.est-no) + "-*.*" + string(probe.line,"999")).
-           unix silent rm value(tmp-dir + TRIM(xest.est-no) +   ".*" + string(probe.line,"999")).
-        end.
-        else DO:
-           OS-DELETE value(tmp-dir + TRIM(xest.est-no) + "-*.*" + string(probe.line,"999")).
-           OS-DELETE value(tmp-dir + TRIM(xest.est-no) +   ".*" + string(probe.line,"999")).
-        end.
+        OS-DELETE value(tmp-dir + TRIM(xest.est-no) + "-*.*" + string(probe.line,"999")).
+        OS-DELETE value(tmp-dir + TRIM(xest.est-no) +   ".*" + string(probe.line,"999")).
      END.
         
      FIND CURRENT probe.

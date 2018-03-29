@@ -758,27 +758,17 @@
               ls-outfile = tmp-dir + trim(est.est-no) + ".p" + string(probe.line,"999").
 
     if search(outfile1) <> ? then do:       
-       dos silent  type value(outfile3) > value(ls-outfile).
-       dos silent  type value(outfile2) >> value(ls-outfile).    
+       os-copy value(outfile3) value(ls-outfile).
+       os-append value(outfile2) value(ls-outfile).
     end.
     else next.
                  
     if not vprint then DO TRANSACTION:
 
       IF probe.LINE LT 100 THEN
-      DO:
-         if opsys = "unix" then
-           unix silent rm value(tmp-dir + trim(xest.est-no) + ".*" + string(probe.line,"99")).
-         else
-           dos silent del value(tmp-dir + trim(xest.est-no) + ".*" + string(probe.line,"99")).
-      END.
+         os-delete value(tmp-dir + trim(xest.est-no) + ".*" + string(probe.line,"99")).
       ELSE
-      DO:
-         if opsys = "unix" then
-           unix silent rm value(tmp-dir + trim(xest.est-no) + ".*" + string(probe.line,"999")).
-         else
-           dos silent del value(tmp-dir + trim(xest.est-no) + ".*" + string(probe.line,"999")).
-      END.
+         os-delete value(tmp-dir + trim(xest.est-no) + ".*" + string(probe.line,"999")).
 
       FIND CURRENT probe.
       DELETE probe.

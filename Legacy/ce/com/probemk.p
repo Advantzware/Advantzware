@@ -211,10 +211,7 @@ ASSIGN
  probe.vo-cost = opsplit$[2] / (qty / 1000)
  probe.fo-cost = opsplit$[3] / (qty / 1000).
 
-if opsys eq "unix" then
-  unix silent copy value(outfile1) value(outfile3).
-else
-  dos silent copy value(outfile1) value(outfile3).
+os-copy value(outfile1) value(outfile3).
 
 output to value(outfile3) append.
 
