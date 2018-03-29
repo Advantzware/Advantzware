@@ -131,7 +131,7 @@ DEF VAR v-zipflg AS LOG NO-UNDO.
 /* Need to scope the external tables to this procedure                  */
 DEFINE QUERY external_tables FOR cust.
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-FIELDS cust.log-field[1] cust.active cust.name ~
+&Scoped-Define ENABLED-FIELDS cust.active cust.NAME  ~
 cust.addr[1] cust.addr[2] cust.city cust.state cust.zip cust.terms ~
 cust.cr-use cust.cr-rating cust.cr-lim cust.ord-lim cust.disc ~
 cust.curr-code cust.cr-hold-invdays cust.cr-hold-invdue cust.cust-level ~
@@ -142,11 +142,11 @@ cust.area-code cust.phone cust.scomm cust.fax-prefix cust.fax-country ~
 cust.frt-pay cust.fob-code cust.ship-part cust.loc cust.carrier ~
 cust.del-zone cust.terr cust.under-pct cust.over-pct cust.markup ~
 cust.ship-days cust.manf-day cust.spare-int-1 cust.pallet cust.case-bundle ~
-cust.int-field[1] cust.po-mandatory cust.show-set 
+cust.int-field[1] cust.po-mandatory cust.show-set cust.log-field[1]
 &Scoped-define ENABLED-TABLES cust
 &Scoped-define FIRST-ENABLED-TABLE cust
 &Scoped-Define ENABLED-OBJECTS RECT-2 RECT-3 RECT-4 
-&Scoped-Define DISPLAYED-FIELDS cust.log-field[1] cust.cust-no cust.active ~
+&Scoped-Define DISPLAYED-FIELDS cust.cust-no cust.active ~
 cust.name cust.addr[1] cust.addr[2] cust.city cust.state cust.zip ~
 cust.terms cust.cr-use cust.cr-rating cust.cr-lim cust.ord-lim cust.disc ~
 cust.curr-code cust.cr-hold-invdays cust.cr-hold-invdue cust.cust-level ~
@@ -157,7 +157,7 @@ cust.area-code cust.phone cust.scomm cust.fax-prefix cust.fax-country ~
 cust.frt-pay cust.fob-code cust.ship-part cust.loc cust.carrier ~
 cust.del-zone cust.terr cust.under-pct cust.over-pct cust.markup ~
 cust.ship-days cust.manf-day cust.spare-int-1 cust.pallet cust.case-bundle ~
-cust.int-field[1] cust.po-mandatory cust.show-set 
+cust.int-field[1] cust.po-mandatory cust.show-set cust.log-field[1]
 &Scoped-define DISPLAYED-TABLES cust
 &Scoped-define FIRST-DISPLAYED-TABLE cust
 &Scoped-Define DISPLAYED-OBJECTS fl_custemail terms_dscr rd_inv-meth ~
@@ -290,11 +290,7 @@ DEFINE RECTANGLE RECT-4
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     cust.log-field[1] AT ROW 18.14 COL 114.6 HELP
-          "" WIDGET-ID 16
-          LABEL "Paperless Invoice?"
-          VIEW-AS TOGGLE-BOX
-          SIZE 26.4 BY .81
+     
      cust.cust-no AT ROW 1 COL 12 COLON-ALIGNED
           LABEL "Customer"
           VIEW-AS FILL-IN 
@@ -591,6 +587,11 @@ DEFINE FRAME F-Main
      cust.show-set AT ROW 17.38 COL 114.6
           VIEW-AS TOGGLE-BOX
           SIZE 23 BY .81
+     cust.log-field[1] AT ROW 18.14 COL 114.6 HELP
+          "" WIDGET-ID 16
+          LABEL "Paperless Invoice?"
+          VIEW-AS TOGGLE-BOX
+          SIZE 26.4 BY .81
      "Taxable:" VIEW-AS TEXT
           SIZE 10 BY .62 AT ROW 16.14 COL 11
      "Tax Information" VIEW-AS TEXT
