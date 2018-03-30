@@ -17,10 +17,10 @@
 &GLOBAL-DEFINE viewers {&objects}/viewers
 
 /* cellColumn = udfExtent + userExtent + 30 */
-&GLOBAL-DEFINE cellColumn 148
+&GLOBAL-DEFINE cellColumn 173
 &GLOBAL-DEFINE statusExtent 30
 &GLOBAL-DEFINE udfExtent 20
-&GLOBAL-DEFINE userExtent 98
+&GLOBAL-DEFINE userExtent 123
 /*******************************************************************
 when expanding userExtent, changes need to be made in the following:
 --------------------------------------------------------------------
@@ -35,16 +35,16 @@ when expanding userExtent, changes need to be made in the following:
    8. viewers/includes/viewersInclude.i (reopenBrowse)
    9. config.w [fieldsFrame] (defs)
 *******************************************************************/
-&GLOBAL-DEFINE version1 v3.002
-&GLOBAL-DEFINE version2 v3.003
-&GLOBAL-DEFINE version3 v3.004
-&GLOBAL-DEFINE version4 v3.005
-&GLOBAL-DEFINE version5 v3.006
-&GLOBAL-DEFINE version6 v4.000
-&GLOBAL-DEFINE version7 v4.001
-&GLOBAL-DEFINE version8 v4.002
-&GLOBAL-DEFINE version9 v4.003
-&GLOBAL-DEFINE version v4.004
+&GLOBAL-DEFINE version1 v3.003
+&GLOBAL-DEFINE version2 v3.004
+&GLOBAL-DEFINE version3 v3.005
+&GLOBAL-DEFINE version4 v3.006
+&GLOBAL-DEFINE version5 v4.000
+&GLOBAL-DEFINE version6 v4.001
+&GLOBAL-DEFINE version7 v4.002
+&GLOBAL-DEFINE version8 v4.003
+&GLOBAL-DEFINE version9 v4.004
+&GLOBAL-DEFINE version v4.005
 
 &IF DEFINED(installDir) EQ 0 &THEN
 DEFINE VARIABLE clientDat AS CHARACTER NO-UNDO.
