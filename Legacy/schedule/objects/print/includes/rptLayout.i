@@ -286,6 +286,31 @@ PROCEDURE buildLines:
       {{&includes}/userField.i 96}
       {{&includes}/userField.i 97}
       {{&includes}/userField.i 98}
+      {{&includes}/userField.i 99}
+      {{&includes}/userField.i 100}
+      {{&includes}/userField.i 101}
+      {{&includes}/userField.i 102}
+      {{&includes}/userField.i 103}
+      {{&includes}/userField.i 104}
+      {{&includes}/userField.i 105}
+      {{&includes}/userField.i 106}
+      {{&includes}/userField.i 107}
+      {{&includes}/userField.i 108}
+      {{&includes}/userField.i 109}
+      {{&includes}/userField.i 110}
+      {{&includes}/userField.i 111}
+      {{&includes}/userField.i 112}
+      {{&includes}/userField.i 113}
+      {{&includes}/userField.i 114}
+      {{&includes}/userField.i 115}
+      {{&includes}/userField.i 116}
+      {{&includes}/userField.i 117}
+      {{&includes}/userField.i 118}
+      {{&includes}/userField.i 119}
+      {{&includes}/userField.i 120}
+      {{&includes}/userField.i 121}
+      {{&includes}/userField.i 122}
+      {{&includes}/userField.i 123}
     END CASE.
   END. /* each rptLayout */
   IF ipExcel THEN DO:

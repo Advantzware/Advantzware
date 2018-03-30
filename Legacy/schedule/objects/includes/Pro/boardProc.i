@@ -1558,11 +1558,37 @@ PROCEDURE saveScenario :
       ttblJob.userField96
       ttblJob.userField97
       ttblJob.userField98
+      ttblJob.userField99
+      ttblJob.userField100
+      ttblJob.userField101
+      ttblJob.userField102
+      ttblJob.userField103
+      ttblJob.userField104
+      ttblJob.userField105
+      ttblJob.userField106
+      ttblJob.userField107
+      ttblJob.userField108
+      ttblJob.userField109
+      ttblJob.userField110
+      ttblJob.userField111
+      ttblJob.userField112
+      ttblJob.userField113
+      ttblJob.userField114
+      ttblJob.userField115
+      ttblJob.userField116
+      ttblJob.userField117
+      ttblJob.userField118
+      ttblJob.userField119
+      ttblJob.userField120
+      ttblJob.userField121
+      ttblJob.userField122
+      ttblJob.userField123
       ttblJob.jobStatus
       ttblJob.statusTimeStamp
       ttblJob.liveUpdate
       ttblJob.lagTime
-      ttblJob.jobToolTip.
+      ttblJob.jobToolTip
+      .
   END.
   OUTPUT CLOSE.
   justOpened = NO.
