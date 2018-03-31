@@ -614,15 +614,13 @@ PROCEDURE Change_Page :
     END.
     WHEN 13 THEN /* job sequence */
     DO:
-      RUN Set_Title(translate('Sequence',NO) + ' - ' +
-                    translate('Pass',NO) + ': ' + pass_sequence + ', ' +
-                    translate('Blank',NO) + ': ' + blank_number +
-                   (IF item_number NE '' THEN ' (' + item_number + ')' ELSE '') +
-                    ', ' +
+      RUN Set_Title(translate('Job#',NO) + ': ' + LEFT-TRIM(job#) + ', ' +
                     translate('Form',NO) + ': ' + form_number + ', ' +
-                    translate('Job',NO) + ': ' + LEFT-TRIM(job#) + ', ' +
-                    translate('Machine',NO) + ': ' + machine_code + ', ' +
+                    translate('Blank',NO) + ': ' + blank_number + ', ' +
+                    translate('Item',NO) + ': ' + (IF item_number NE '' THEN  item_number ELSE '') + ', ' +
+                    translate('Mach',NO) + ': ' + machine_code + ', ' +
                     translate('Company',NO) + ': ' + company_code).
+
       IF VALID-HANDLE(h_w-mchtrn) THEN
       DELETE PROCEDURE h_w-mchtrn.
       RUN touch/w-mchtrn.w PERSISTENT SET h_w-mchtrn (THIS-PROCEDURE).
@@ -632,11 +630,11 @@ PROCEDURE Change_Page :
     WHEN 14 THEN /* job data */
     DO:
       RUN Display_Keyboard ('numeric.',h_jobdata).
-      RUN Set_Title(translate('Job Data',NO) + ' - ' + 
-                    translate('Job#',NO) + ': ' + LEFT-TRIM(job#) + ', ' +
-                    translate('S-B',NO) + ' = ' + form_number + '-' + blank_number + ', ' +
+      RUN Set_Title(translate('Job#',NO) + ': ' + LEFT-TRIM(job#) + ', ' +
+                    translate('Form',NO) + ': ' + form_number + ', ' +
+                    translate('Blank',NO) + ': ' + blank_number + ', ' +
                     translate('Item',NO) + ': ' + (IF item_number NE '' THEN  item_number ELSE '') + ', ' +
-                    translate('Machine',NO) + ': ' + machine_code + ', ' +
+                    translate('Mach',NO) + ': ' + machine_code + ', ' +
                     translate('Company',NO) + ': ' + company_code).
 
       IF VALID-HANDLE(h_w-mchtrn) THEN DELETE PROCEDURE h_w-mchtrn.
