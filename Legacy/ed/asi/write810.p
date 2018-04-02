@@ -11,9 +11,9 @@ ws_edi_path = "c:\tmp\edi".
 FIND FIRST EDCo NO-LOCK WHERE EDCo.Company EQ ipCompany
                        NO-ERROR.
 IF AVAILABLE EDCo THEN 
-   cReportPath = EDCo.Path-err + "\" + "810report.txt".
+   cReportPath = EDCo.Path-err + "\" + "810report" + STRING(RANDOM(1,100000), "999999" ) + ".txt".
 ELSE
-    cReportPath = "c:\tmp\810report.txt".
+    cReportPath = "c:\tmp\" + "810report" + STRING(RANDOM(1,100000), "999999" ) + ".txt".
     
 OUTPUT stream s-out TO VALUE(cReportPath). 
     
@@ -21,7 +21,9 @@ FOR EACH EDCode NO-LOCK
     WHERE  edcode.setid EQ "810",
     
     EACH EDMast NO-LOCK 
-       WHERE EDMast.partnerGrp EQ EDCode.partner
+       WHERE EDMast.partnerGrp EQ EDCode.partner,
+    FIRST eddoc WHERE eddoc.partner EQ edmast.partner
+      AND eddoc.posted = NO
        .
        
     IF AVAILABLE EDMast THEN 
@@ -48,10 +50,12 @@ FOR EACH EDCode NO-LOCK
           ws_edi_path = EDcode.Path-out + fOutputFileName().
       ELSE  
           ws_edi_path = EDMast.Path-out + fOutputFileName().
+
       RUN ed/tdf/o8104010.p.
       
+      
     END.
-     
+
     RUN ed/postProcessEDI.p (INPUT "810", ws_edi_path, ws_partner, ws_edi_path + ".edi").
      
 END.
