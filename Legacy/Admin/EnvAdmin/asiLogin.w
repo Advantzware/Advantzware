@@ -87,6 +87,10 @@ DEFINE VARIABLE lExit AS LOGICAL NO-UNDO.
 DEFINE VARIABLE tslogin-log AS LOGICAL NO-UNDO.
 DEFINE VARIABLE lFound AS LOGICAL NO-UNDO.
 DEFINE VARIABLE cTsLogin AS CHARACTER NO-UNDO.
+DEFINE VARIABLE origDirectoryName AS CHARACTER NO-UNDO FORMAT "X(256)".
+DEFINE VARIABLE intBufferSize    AS INTEGER   NO-UNDO INITIAL 256.
+DEFINE VARIABLE intResult        AS INTEGER   NO-UNDO.
+DEFINE VARIABLE ptrToString      AS MEMPTR    NO-UNDO.
 
 DEF VAR cIniFileLoc AS CHAR NO-UNDO.
 DEF VAR cUsrFileLoc AS CHAR NO-UNDO.
@@ -113,90 +117,10 @@ DEF VAR cUsrList AS CHAR NO-UNDO.
 DEF VAR lUpdUsr AS LOG NO-UNDO.
 DEF VAR iTries AS INT NO-UNDO.
 DEF VAR iLockoutTries AS INT NO-UNDO.
+DEF VAR cIniVarList AS CHAR NO-UNDO.
+DEF VAR cPatchNo AS CHAR NO-UNDO.
 
-/* Advantzware.ini variables */
-DEF VAR cAdminDir AS CHAR INITIAL "Admin" NO-UNDO.
-DEF VAR cAdminport AS CHAR INITIAL "20952" NO-UNDO.
-DEF VAR caudDbList AS CHAR INITIAL "audProd" NO-UNDO.
-DEF VAR caudPortList AS CHAR INITIAL "2836" NO-UNDO.
-DEF VAR caudDirList  AS CHAR INITIAL "Audit" NO-UNDO. 
-DEF VAR cAuditDbName AS CHAR INITIAL "asiAudit" NO-UNDO.
-DEF VAR cAuditDbPort AS CHAR INITIAL "2828" NO-UNDO.
-DEF VAR cAuditDbStFile AS CHAR INITIAL "asiAudit.st" NO-UNDO.
-DEF VAR cBackupDir AS CHAR INITIAL "Backups" NO-UNDO.
-DEF VAR cConnectAudit AS CHAR INITIAL "NO" NO-UNDO.
-DEF VAR cCurrVer AS CHAR INITIAL "10.6.0" NO-UNDO.
-DEF VAR cDbAdmin AS CHAR INITIAL "DbAdmin" NO-UNDO.
-DEF VAR cDbAuditDir AS CHAR INITIAL "Audit" NO-UNDO.
-DEF VAR cDbBackup AS CHAR INITIAL "Databases" NO-UNDO.
-DEF VAR cDbDataDir AS CHAR INITIAL "Data" NO-UNDO.
-DEF VAR cDbDir AS CHAR INITIAL "Databases" NO-UNDO.
-DEF VAR cDbDirList AS CHAR INITIAL "Prod" NO-UNDO.
-DEF VAR cDbList AS CHAR INITIAL "asiProd" NO-UNDO.
-DEF VAR cDbPortList AS CHAR INITIAL "2826" NO-UNDO.
-DEF VAR cDbProdDir AS CHAR INITIAL "Prod" NO-UNDO.
-DEF VAR cDbShipDir AS CHAR INITIAL "Ship" NO-UNDO.
-DEF VAR cDbStructDir AS CHAR INITIAL "Structure" NO-UNDO.
-DEF VAR cDbTestDir AS CHAR INITIAL "Test" NO-UNDO.
-DEF VAR cDeltaFilename AS CHAR INITIAL "asi165166.df" NO-UNDO.
-DEF VAR cDeskDir AS CHAR INITIAL "Desktop" NO-UNDO.
-DEF VAR cDfFilename AS CHAR INITIAL "asi166.df" NO-UNDO.
-DEF VAR cDLCDir AS CHAR INITIAL "OE116" NO-UNDO.
-DEF VAR cDocDir AS CHAR INITIAL "Documentation" NO-UNDO.
-DEF VAR cDrive AS CHAR INITIAL "C" NO-UNDO.
-DEF VAR cEnvAddonDir AS CHAR INITIAL "Addon" NO-UNDO.
-DEF VAR cEnvAdmin AS CHAR INITIAL "EnvAdmin" NO-UNDO.
-DEF VAR cEnvCustFilesDir AS CHAR INITIAL "CustFiles" NO-UNDO.
-DEF VAR cEnvCustomerDir AS CHAR INITIAL "Customer" NO-UNDO.
-DEF VAR cEnvDir AS CHAR INITIAL "Environments" NO-UNDO.
-DEF VAR cEnvList AS CHAR INITIAL "Prod" NO-UNDO.
-DEF VAR cEnvOverrideDir AS CHAR INITIAL "Override" NO-UNDO.
-DEF VAR cEnvPODir AS CHAR INITIAL "PO" NO-UNDO.
-DEF VAR cEnvProdDir AS CHAR INITIAL "Prod" NO-UNDO.
-DEF VAR cEnvProgramsDir AS CHAR INITIAL "Programs" NO-UNDO.
-DEF VAR cEnvResourcesDir AS CHAR INITIAL "Resources" NO-UNDO.
-DEF VAR cEnvScheduleDir AS CHAR INITIAL "Schedule" NO-UNDO.
-DEF VAR cEnvTestDir AS CHAR INITIAL "Test" NO-UNDO.
-DEF VAR cEnvUserMenuDir AS CHAR INITIAL "Usermenu" NO-UNDO.
-DEF VAR cEnvUsersDir AS CHAR INITIAL "Users" NO-UNDO.
-DEF VAR cHostname AS CHAR INITIAL "HOSTNAME" NO-UNDO.
-DEF VAR cInstallDir AS CHAR INITIAL "Install" NO-UNDO.
-DEF VAR cLockoutTries AS CHAR INITIAL "4" NO-UNDO.
-DEF VAR cMakeBackup AS CHAR INITIAL "N" NO-UNDO.
-DEF VAR cMapDir AS CHAR INITIAL "N" NO-UNDO.
-DEF VAR cModeList AS CHAR INITIAL "Advantzware,Addon,CaseLabel,Schedule Monitor,Editor,Esko Monitor,FG XML Monitor,Loadtags,Monitor Users,Rel XML Monitor,RFID Monitor,RM Loadtag,Sharpshooter,Touchscreen" NO-UNDO.
-DEF VAR cPgmBackup AS CHAR INITIAL "Programs" NO-UNDO.
-DEF VAR cPgmList AS CHAR INITIAL "system/mainmenu.w,system/addmain.w,oerep/r-casetg.w,custom/asiSchW.w,_edit.p,jobxml\monitor.w,fgXml\monitor.w,oerep/r-loadtg.w,proshut.bat,relxml\monitor.w,rfid\monitor.w,rmrep/rmloadtg.w,sshoot/sshoot.w,touch/touchscr.w" NO-UNDO.
-DEF VAR cProdDbName AS CHAR INITIAL "asiProd" NO-UNDO.
-DEF VAR cProdDbPort AS CHAR INITIAL "2826" NO-UNDO.
-DEF VAR cProdDbStFile AS CHAR INITIAL "asiProd.st" NO-UNDO.
-DEF VAR cProVersion AS CHAR INITIAL "11" NO-UNDO.
-DEF VAR cResBackup AS CHAR INITIAL "Resources" NO-UNDO.
-DEF VAR cShipDBName AS CHAR INITIAL "asiShip" NO-UNDO.
-DEF VAR cShipDBPort AS CHAR INITIAL "2825" NO-UNDO.
-DEF VAR cShipDbStFile AS CHAR INITIAL "asiShip.st" NO-UNDO.
-DEF VAR cSitename AS CHAR INITIAL "ASI" NO-UNDO.
-DEF VAR cTestDBName AS CHAR INITIAL "asiTest" NO-UNDO.
-DEF VAR cTestDbPort AS CHAR INITIAL "2827" NO-UNDO.
-DEF VAR cTestDbStFile AS CHAR INITIAL "asiTest.st" NO-UNDO.
-DEF VAR cTopDir AS CHAR INITIAL "asigui" NO-UNDO.
-DEF VAR cUpdAdminDir AS CHAR INITIAL "Admin" NO-UNDO.
-DEF VAR cUpdateDir AS CHAR INITIAL "Updates" NO-UNDO.
-DEF VAR cUpdCompressDir AS CHAR INITIAL "Compress" NO-UNDO.
-DEF VAR cUpdDataDir AS CHAR INITIAL "DataFiles" NO-UNDO.
-DEF VAR cUpdDeskDir AS CHAR INITIAL "Desktop" NO-UNDO.
-DEF VAR cUpdMenuDir AS CHAR INITIAL "MenuFiles" NO-UNDO.
-DEF VAR cUpdProgramDir AS CHAR INITIAL "ProgramFiles" NO-UNDO.
-DEF VAR cUpdRelNotesDir AS CHAR INITIAL "ReleaseNotes" NO-UNDO.
-DEF VAR cUpdSQLDir AS CHAR INITIAL "SQLAccess" NO-UNDO.
-DEF VAR cUpdStructureDir AS CHAR INITIAL "StructureUpdate" NO-UNDO.
-DEF VAR cVerDate AS CHAR INITIAL "10/1/17" NO-UNDO.
-DEF VAR cXdbList AS CHAR INITIAL "" NO-UNDO.
-DEF VAR cXdbPortList AS CHAR INITIAL "" NO-UNDO.
-DEF VAR cXenvList AS CHAR INITIAL "" NO-UNDO.
-DEF VAR cXmodeList AS CHAR INITIAL "" NO-UNDO.
-DEF VAR cXportList AS CHAR INITIAL "" NO-UNDO.
-/* END advantzware.ini Variables */
+{advinivars.i}
 
 DEF TEMP-TABLE ttIniFile
     FIELD iPos AS INT
@@ -212,6 +136,12 @@ DEF TEMP-TABLE ttUsers
     FIELD ttfEnvList AS CHAR
     FIELD ttfDbList AS CHAR
     FIELD ttfModeList AS CHAR.
+
+PROCEDURE GetCurrentDirectoryA EXTERNAL "KERNEL32.DLL":
+    DEFINE INPUT        PARAMETER intBufferSize AS LONG.
+    DEFINE INPUT-OUTPUT PARAMETER ptrToString   AS MEMPTR.
+    DEFINE RETURN       PARAMETER intResult     AS SHORT.
+END PROCEDURE.
 
 PROCEDURE SetCurrentDirectoryA EXTERNAL "KERNEL32.DLL":
    DEFINE INPUT  PARAMETER chrCurDir AS CHARACTER.
@@ -229,10 +159,23 @@ ASSIGN
     g_sysdate = TODAY
     g_version = "2.1A-8.2A"
     origPropath = PROPATH.
+
+IF origDirectoryName = "" THEN DO:
+    SET-SIZE(ptrToString) = 256.
+    RUN GetCurrentDirectoryA (INPUT        intBufferSize,
+                              INPUT-OUTPUT ptrToString,
+                              OUTPUT       intResult).
+    ASSIGN origDirectoryName = GET-STRING(ptrToString,1).    
+END.
+ELSE DO:
+    RUN ipSetCurrentDir (origDirectoryName). 
+END.
         
 /* Find the .ini file containing variables and values */
-RUN ipGetIniFile.
-IF NOT lFoundIni THEN DO:
+RUN ipCreateTTIniFile.
+RUN ipFindIniFile.
+
+IF cIniLoc EQ "" THEN DO:
     MESSAGE
         "Unable to locate an 'advantzware.ini' file." SKIP
         "Please contact Advantzware Support. Exiting..."
@@ -240,20 +183,12 @@ IF NOT lFoundIni THEN DO:
     QUIT.
 END.
 ELSE DO:
-    /* Read the .ini file and set the name/value pair. */
     RUN ipReadIniFile.
-    IF lCorrupt THEN DO:
-        MESSAGE
-            "The configuration file 'advantzware.ini'" SKIP
-            "is incomplete or corrupt. Exiting..."
-            VIEW-AS ALERT-BOX ERROR.
-        QUIT.
-    END.
 END.
 
 /* Find the .usr file containing user-level settings */
-RUN ipGetUsrFile.
-IF NOT lFoundUsr THEN DO:
+RUN ipFindUsrFile.
+IF cUsrLoc EQ "" THEN DO:
     MESSAGE
         "Unable to locate an 'advantzware.usr' file." SKIP
         "Please contact Advantzware Support. Exiting..."
@@ -350,7 +285,7 @@ DEFINE FRAME DEFAULT-FRAME
      cbMode AT ROW 11.24 COL 15 COLON-ALIGNED WIDGET-ID 10
      cbEnvironment AT ROW 12.67 COL 15 COLON-ALIGNED WIDGET-ID 8
      cbDatabase AT ROW 14.1 COL 15 COLON-ALIGNED WIDGET-ID 18
-     Btn_Cancel AT ROW 15.76 COL 3 WIDGET-ID 22
+     Btn_Cancel AT ROW 15.76 COL 6 WIDGET-ID 22
      Btn_OK AT ROW 15.76 COL 27 WIDGET-ID 26
      IMAGE-2 AT ROW 1.48 COL 4 WIDGET-ID 28
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
@@ -826,14 +761,14 @@ PROCEDURE ipChangeEnvironment :
         cTop = cMapDir + "\" + cEnvDir + "\" + cbEnvironment:{&SV} + "\"
         preProPath = cMapDir + "\" + cEnvDir + "\" + cbEnvironment:{&SV} + "," +
                      cTop + cEnvCustomerDir + "," +
-                     cTop + cEnvCustomerDir + "\Addon," +
                      cTop + cEnvOverrideDir + "," +
-                     cTop + cEnvOverrideDir + "\Addon," +
                      cTop + cEnvProgramsDir + "," +
+                     cTop + cEnvCustomerDir + "\Addon," +
+                     cTop + cEnvOverrideDir + "\Addon," +
                      cTop + cEnvProgramsDir + "\Addon" + "," +
                      cTop + "\CustFiles" + "," +
-                     cTop + cEnvResourcesDir + "," +
-                     cTop + cEnvResourcesDir + "\Addon" + "," +
+                     cTop + cEnvResourceDir + "," +
+                     cTop + cEnvResourceDir + "\Addon" + "," +
                      cMapDir + "\" + cAdminDir + "\" + cEnvAdmin + ",".
         PROPATH = preProPath + origPropath.
 END PROCEDURE.
@@ -919,6 +854,7 @@ PROCEDURE ipConnectDb :
     END.
 
     ASSIGN
+        lConnectAudit = IF INDEX(cConnectAudit,"Y") NE 0 OR INDEX(cConnectAudit,"T") NE 0 THEN TRUE ELSE FALSE
         lError = NOT CONNECTED(LDBNAME(1)).
     IF lError THEN
         RETURN.
@@ -931,7 +867,8 @@ PROCEDURE ipConnectDb :
         iLookup = LOOKUP(xdbName,cDbList)
         xDbName = ""
         xDbName = ENTRY(iLookup,cAudDbList)
-        xdbPort = ENTRY(iLookup,cAudPortList).
+        xdbPort = ENTRY(iLookup,cAudPortList)
+        connectStatement = "".
     
         IF INDEX(PDBNAME(1),"165") <> 0 
         OR INDEX(PDBNAME(1),"ship") <> 0 THEN ASSIGN
@@ -941,12 +878,39 @@ PROCEDURE ipConnectDb :
                                " -H " + chostName +
                                " -S " + xdbPort + 
                                " -N tcp -ld AUDIT".
-
-        IF connectStatement NE "" THEN
+        IF connectStatement NE "" THEN DO:
             CONNECT VALUE(connectStatement).
+            IF NOT CONNECTED(LDBNAME(2)) THEN DO:
+                MESSAGE
+                    "The Audit database failed to connect.  Please" SKIP
+                    "contact your system administrator for assistance."
+                    VIEW-AS ALERT-BOX ERROR.
+                QUIT.
+            END.
+        END.
     END.
 
         
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipCreateTTIniFile C-Win 
+PROCEDURE ipCreateTTIniFile :
+/*------------------------------------------------------------------------------
+  Purpose:     Builds initial ttIniFile with sequences correct for output
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    EMPTY TEMP-TABLE ttIniFile.
+    DO i = 1 to NUM-ENTRIES(cIniVarList):
+        CREATE ttIniFile.
+        ASSIGN
+            ttIniFile.iPos = i
+            ttIniFile.cVarName = ENTRY(i,cIniVarList).
+    END.
+            
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -959,6 +923,9 @@ PROCEDURE ipDisconnectDB :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+    IF CONNECTED(LDBNAME(2)) THEN
+        DISCONNECT VALUE(LDBNAME(2)).
+
     IF CONNECTED(LDBNAME(1)) THEN
         DISCONNECT VALUE(LDBNAME(1)).
 
@@ -967,54 +934,260 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipGetIniFile C-Win 
-PROCEDURE ipGetIniFile :
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipExpandVarNames C-Win 
+PROCEDURE ipExpandVarNames :
 /*------------------------------------------------------------------------------
   Purpose:     
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    ASSIGN
-        lFoundIni = FALSE
-        cIniFileLoc = "advantzware.ini".
-    IF SEARCH(cIniFileLoc) = ? THEN DO WHILE SEARCH(cIniFileLoc) = ?:
-        ASSIGN 
-            iCtr = iCtr + 1
-            cIniFileLoc = "..\" + cIniFileLoc.
-        IF iCtr > 4 THEN LEAVE.
-    END.
-    IF NOT SEARCH(cIniFileLoc) = ? THEN ASSIGN
-        file-info:file-name = SEARCH(cIniFileLoc)
-        cIniLoc = file-info:full-pathname
-        lFoundIni = TRUE.
 
+    /* Modify variables for ease of use */
+    ASSIGN
+        cAdminDir = cMapDir + "\" + cAdminDir
+        cBackupDir = cMapDir + "\" + cBackupDir
+        cDBDir = cMapDir + "\" + cDbDir
+        cDocDir = cMapDir + "\" + cDocDir
+        cDeskDir = cMapDir + "\" + cDeskDir
+        cEnvDir = cMapDir + "\" + cEnvDir
+        cInstallDir = cMapDir + "\" + cInstallDir
+        cUpdatesDir = cMapDir + "\" + cUpdatesDir
+
+        cDbAdmin = cAdminDir + "\" + cDbAdmin
+        cEnvAdmin = cAdminDir + "\" + cEnvAdmin
+        cDbBackup = cBackupDir + "\" + cDbBackup
+        cPgmBackup = cBackupDir + "\" + cPgmBackup
+        cResBackup = cBackupDir + "\" + cResBackup
+        cDbAuditDir = cDbDir + "\" + cDbAuditDir
+        cDbDataDir = cDbDir + "\" + cDbDataDir
+        cDbProdDir = cDbDir + "\" + cDbProdDir
+        cDbShipDir = cDbDir + "\" + cDbShipDir
+        cDbStructDir = cDbDir + "\" + cDbStructDir
+        cDbTestDir = cDbDir + "\" + cDbTestDir
+        cEnvProdDir = cEnvDir + "\" + cEnvProdDir
+        cEnvTestDir = cEnvDir + "\" + cEnvTestDir
+        cUpdAdminDir = cUpdatesDir + "\" + "Patch" + cPatchNo + "\" + cUpdAdminDir
+        cUpdCompressDir = cUpdatesDir + "\" + "Patch" + cPatchNo + "\" + cUpdCompressDir
+        cUpdDataDir = cUpdatesDir + "\" + "Patch" + cPatchNo + "\" + cUpdDataDir
+        cUpdDeskDir = cUpdatesDir + "\" + "Patch" + cPatchNo + "\" + cUpdDeskDir
+        cUpdMenuDir = cUpdatesDir + "\" + "Patch" + cPatchNo + "\" + cUpdMenuDir
+        cUpdProgramDir = cUpdatesDir + "\" + "Patch" + cPatchNo + "\" + cUpdProgramDir
+        cUpdRelNotesDir = cUpdatesDir + "\" + "Patch" + cPatchNo + "\" + cUpdRelNotesDir
+        cUpdStructureDir = cUpdatesDir + "\" + "Patch" + cPatchNo + "\" + cUpdStructureDir
+        lmakeBackup = IF INDEX(cMakeBackup,"Y") NE 0 OR INDEX(cMakeBackup,"T") NE 0 THEN TRUE ELSE FALSE
+        cLockoutTries = SUBSTRING(cLockoutTries,1,1)
+        iLockoutTries = IF cLockoutTries NE "" 
+                        AND ASC(cLockoutTries) GE 48
+                        AND ASC(cLockoutTries) LE 57 THEN INT(cLockoutTries) ELSE 0
+        .
+        
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipGetUsrFile C-Win 
-PROCEDURE ipGetUsrFile :
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipFindIniFile C-Win 
+PROCEDURE ipFindIniFile :
 /*------------------------------------------------------------------------------
-  Purpose:     
+  Purpose:     Find the advantzware.ini file
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    ASSIGN
-        lFoundUsr = FALSE
-        cUsrFileLoc = "advantzware.usr".
-    IF SEARCH(cUsrFileLoc) = ? THEN DO WHILE SEARCH(cUsrFileLoc) = ?:
-        ASSIGN 
-            iCtr = iCtr + 1
-            cUsrFileLoc = "..\" + cUsrFileLoc.
-        IF iCtr > 4 THEN LEAVE.
+    /* Start guessing where the file might be */
+    DO:
+        ASSIGN
+            cIniLoc = "advantzware.ini".
+        IF SEARCH(cIniLoc) <> ? THEN DO:
+            ASSIGN
+                cIniLoc = SEARCH(cIniLoc).
+            LEAVE.
+        END.
+        ELSE ASSIGN
+            cIniLoc = "..\advantzware.ini".
+        IF SEARCH(cIniLoc) <> ? THEN DO:
+            ASSIGN
+                cIniLoc = SEARCH(cIniLoc).
+            LEAVE.
+        END.
+        ASSIGN
+            cIniLoc = "N:\Admin\advantzware.ini".
+        IF SEARCH(cIniLoc) <> ? THEN DO:
+            ASSIGN
+                cIniLoc = SEARCH(cIniLoc).
+            LEAVE.
+        END.
+        ASSIGN
+            cIniLoc = "P:\Admin\advantzware.ini".
+        IF SEARCH(cIniLoc) <> ? THEN DO:
+            ASSIGN
+                cIniLoc = SEARCH(cIniLoc).
+            LEAVE.
+        END.
+        ASSIGN
+            cIniLoc = "C:\ASIGUI\Admin\advantzware.ini.".
+        IF SEARCH(cIniLoc) <> ? THEN DO:
+            ASSIGN
+                cIniLoc = SEARCH(cIniLoc).
+            LEAVE.
+        END.
+        ASSIGN
+            cIniLoc = "C:\ASI\Admin\advantzware.ini".
+        IF SEARCH(cIniLoc) <> ? THEN DO:
+            ASSIGN
+                cIniLoc = SEARCH(cIniLoc).
+            LEAVE.
+        END.
+        ASSIGN
+            cIniLoc = "D:\ASIGUI\Admin\advantzware.ini.".
+        IF SEARCH(cIniLoc) <> ? THEN DO:
+            ASSIGN
+                cIniLoc = SEARCH(cIniLoc).
+            LEAVE.
+        END.
+        ASSIGN
+            cIniLoc = "D:\ASI\Admin\advantzware.ini".
+        IF SEARCH(cIniLoc) <> ? THEN DO:
+            ASSIGN
+                cIniLoc = SEARCH(cIniLoc).
+            LEAVE.
+        END.
+        ASSIGN
+            cIniLoc = "E:\ASIGUI\Admin\advantzware.ini.".
+        IF SEARCH(cIniLoc) <> ? THEN DO:
+            ASSIGN
+                cIniLoc = SEARCH(cIniLoc).
+            LEAVE.
+        END.
+        ASSIGN
+            cIniLoc = "E:\ASI\Admin\advantzware.ini".
+        IF SEARCH(cIniLoc) <> ? THEN DO:
+            ASSIGN
+                cIniLoc = SEARCH(cIniLoc).
+            LEAVE.
+        END.
+        ASSIGN
+            cIniLoc = "F:\ASIGUI\Admin\advantzware.ini.".
+        IF SEARCH(cIniLoc) <> ? THEN DO:
+            ASSIGN
+                cIniLoc = SEARCH(cIniLoc).
+            LEAVE.
+        END.
+        ASSIGN
+            cIniLoc = "F:\ASI\Admin\advantzware.ini".
+        IF SEARCH(cIniLoc) <> ? THEN DO:
+            ASSIGN
+                cIniLoc = SEARCH(cIniLoc).
+            LEAVE.
+        END.
+        ASSIGN
+            cIniLoc = "".
     END.
-    IF NOT SEARCH(cUsrFileLoc) = ? THEN ASSIGN
-        cUsrFileLoc = SEARCH(cUsrFileLoc)
-        file-info:file-name = SEARCH(cUsrFileLoc)
-        cUsrLoc = file-info:full-pathname
-        lFoundUsr = TRUE.
+    
+    IF cIniLoc EQ "" THEN
+        RUN ipStatus ("Cannot locate .ini file. Autocreating...").
+           
+END PROCEDURE.
 
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipFindUsrFile C-Win 
+PROCEDURE ipFindUsrFile :
+/*------------------------------------------------------------------------------
+  Purpose:     Find the advantzware.usr file
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    /* Start guessing where the file might be */
+    DO:
+        ASSIGN
+            cUsrLoc = "advantzware.usr".
+        IF SEARCH(cUsrLoc) <> ? THEN DO:
+            ASSIGN
+                cUsrLoc = SEARCH(cUsrLoc).
+            LEAVE.
+        END.
+        ELSE ASSIGN
+            cUsrLoc = "..\advantzware.usr".
+        IF SEARCH(cUsrLoc) <> ? THEN DO:
+            ASSIGN
+                cUsrLoc = SEARCH(cUsrLoc).
+            LEAVE.
+        END.
+        ASSIGN
+            cUsrLoc = "N:\Admin\advantzware.usr".
+        IF SEARCH(cUsrLoc) <> ? THEN DO:
+            ASSIGN
+                cUsrLoc = SEARCH(cUsrLoc).
+            LEAVE.
+        END.
+        ASSIGN
+            cUsrLoc = "P:\Admin\advantzware.usr".
+        IF SEARCH(cUsrLoc) <> ? THEN DO:
+            ASSIGN
+                cUsrLoc = SEARCH(cUsrLoc).
+            LEAVE.
+        END.
+        ASSIGN
+            cUsrLoc = "C:\ASIGUI\Admin\advantzware.usr.".
+        IF SEARCH(cUsrLoc) <> ? THEN DO:
+            ASSIGN
+                cUsrLoc = SEARCH(cUsrLoc).
+            LEAVE.
+        END.
+        ASSIGN
+            cUsrLoc = "C:\ASI\Admin\advantzware.usr".
+        IF SEARCH(cUsrLoc) <> ? THEN DO:
+            ASSIGN
+                cUsrLoc = SEARCH(cUsrLoc).
+            LEAVE.
+        END.
+        ASSIGN
+            cUsrLoc = "D:\ASIGUI\Admin\advantzware.usr.".
+        IF SEARCH(cUsrLoc) <> ? THEN DO:
+            ASSIGN
+                cUsrLoc = SEARCH(cUsrLoc).
+            LEAVE.
+        END.
+        ASSIGN
+            cUsrLoc = "D:\ASI\Admin\advantzware.usr".
+        IF SEARCH(cUsrLoc) <> ? THEN DO:
+            ASSIGN
+                cUsrLoc = SEARCH(cUsrLoc).
+            LEAVE.
+        END.
+        ASSIGN
+            cUsrLoc = "E:\ASIGUI\Admin\advantzware.usr.".
+        IF SEARCH(cUsrLoc) <> ? THEN DO:
+            ASSIGN
+                cUsrLoc = SEARCH(cUsrLoc).
+            LEAVE.
+        END.
+        ASSIGN
+            cUsrLoc = "E:\ASI\Admin\advantzware.usr".
+        IF SEARCH(cUsrLoc) <> ? THEN DO:
+            ASSIGN
+                cUsrLoc = SEARCH(cUsrLoc).
+            LEAVE.
+        END.
+        ASSIGN
+            cUsrLoc = "F:\ASIGUI\Admin\advantzware.usr.".
+        IF SEARCH(cUsrLoc) <> ? THEN DO:
+            ASSIGN
+                cUsrLoc = SEARCH(cUsrLoc).
+            LEAVE.
+        END.
+        ASSIGN
+            cUsrLoc = "F:\ASI\Admin\advantzware.usr".
+        IF SEARCH(cUsrLoc) <> ? THEN DO:
+            ASSIGN
+                cUsrLoc = SEARCH(cUsrLoc).
+            LEAVE.
+        END.
+        ASSIGN
+            cUsrLoc = "".
+    END.
+    
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1080,113 +1253,134 @@ PROCEDURE ipReadIniFile :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    ASSIGN 
-        lCorrupt = FALSE
-        iCtr = 1.
-        
-    EMPTY TEMP-TABLE ttIniFile.
-    INPUT FROM VALUE(SEARCH(cIniFileLoc)).
+    INPUT FROM VALUE(SEARCH(cIniLoc)).
     REPEAT:
         IMPORT UNFORMATTED cIniLine.
-        CREATE ttIniFile.
-        ASSIGN
-            ttIniFile.iPos = iCtr
-            iCtr = iCtr + 1
-            ttIniFile.cRaw = cIniLine.
-        IF INDEX(cIniLine,"=") NE 0 THEN ASSIGN
-            cVarName[iCtr] = ENTRY(1,cIniLine,"=")
-            cVarValue[iCtr] = ENTRY(2,cIniLine,"=").
+        IF cIniLine BEGINS "#" THEN DO:
+            FIND ttIniFile WHERE 
+                ttIniFile.cVarName = cIniLine
+                NO-ERROR.
+            IF AVAIL ttIniFile THEN ASSIGN
+                ttIniFile.cRaw = cIniLine.
+        END.
+        ELSE DO:
+            FIND ttIniFile WHERE 
+                ttIniFile.cVarName = ENTRY(1,cIniLine,"=")
+                NO-ERROR.
+            IF AVAIL ttIniFile THEN ASSIGN
+                ttIniFile.cRaw = cIniLine
+                ttIniFile.cVarValue = ENTRY(2,cIniLine,"=").
+        END.            
     END.
     INPUT CLOSE.
+    
+    /* This lets the advantzware.ini file "heal" itself when changes made to program but not local */
+    /* Used in installer, not used in login
+    FOR EACH ttIniFile WHERE
+        NOT ttIniFile.cVarName BEGINS "#" AND
+        NOT ttIniFile.cVarName EQ "" AND
+        ttIniFile.cVarValue = "":
+        DISP 
+            ttIniFile.cVarName LABEL "Name" FORMAT "x(32)" WITH WIDTH 90 
+            FRAME dGetValue VIEW-AS DIALOG-BOX THREE-D CENTERED 
+            1 COLUMN SIDE-LABELS TITLE "Need .INI file value".
+        UPDATE 
+            ttIniFile.cVarValue LABEL "Value" FORMAT "x(60)"
+            WITH FRAME dGetValue.
+    END. 
+    */
 
-    DO jCtr = 1 TO 100:
-        CASE cVarName[jCtr]:
-            WHEN "adminDir" THEN ASSIGN cAdminDir = cVarValue[jCtr].
-            WHEN "adminport" THEN ASSIGN cadminport = cVarValue[jCtr]. 
-            WHEN "audDbList" THEN ASSIGN caudDbList = cVarValue[jCtr]. 
-            WHEN "audPortList" THEN ASSIGN caudPortList = cVarValue[jCtr]. 
-            WHEN "audDirList" THEN ASSIGN caudDirList = cVarValue[jCtr]. 
-            WHEN "auditDbName" THEN ASSIGN cauditDbName = cVarValue[jCtr]. 
-            WHEN "auditDbPort" THEN ASSIGN cauditDbPort = cVarValue[jCtr]. 
-            WHEN "auditDbStFile" THEN ASSIGN cauditDbStFile = cVarValue[jCtr]. 
-            WHEN "backupDir" THEN ASSIGN cBackupDir = cVarValue[jCtr].
-            WHEN "connectAudit" THEN ASSIGN cConnectAudit = cVarValue[jCtr]. 
-            WHEN "currVer" THEN ASSIGN cCurrVer = cVarValue[jCtr].
-            WHEN "dbAdmin" THEN ASSIGN cDbAdmin = cVarValue[jCtr]. 
-            WHEN "dbAuditDir" THEN ASSIGN cDbAuditDir = cVarValue[jCtr].
-            WHEN "dbBackup" THEN ASSIGN cDbBackup = cVarValue[jCtr]. 
-            WHEN "dbDataDir" THEN ASSIGN cDbDataDir = cVarValue[jCtr]. 
-            WHEN "dbDir" THEN ASSIGN cDbDir = cVarValue[jCtr]. 
-            WHEN "dbDirList" THEN ASSIGN cDbDirList = cVarValue[jCtr]. 
-            WHEN "dbList" THEN ASSIGN cdbList = cVarValue[jCtr]. 
-            WHEN "dbPortList" THEN ASSIGN cDbPortList = cVarValue[jCtr]. 
-            WHEN "dbProdDir" THEN ASSIGN cDbProdDir = cVarValue[jCtr]. 
-            WHEN "dbShipDir" THEN ASSIGN cDbShipDir = cVarValue[jCtr]. 
-            WHEN "dbStructDir" THEN ASSIGN cDbStructDir = cVarValue[jCtr]. 
-            WHEN "dbTestDir" THEN ASSIGN cDbTestDir = cVarValue[jCtr]. 
-            WHEN "deltaFilename" THEN ASSIGN cdeltaFilename = cVarValue[jCtr]. 
-            WHEN "deskDir" THEN ASSIGN cDeskDir = cVarValue[jCtr]. 
-            WHEN "dfFilename" THEN ASSIGN cdfFilename = cVarValue[jCtr]. 
-            WHEN "DLCDir" THEN ASSIGN cDLCDir = cVarValue[jCtr]. 
-            WHEN "docDir" THEN ASSIGN cDocDir = cVarValue[jCtr]. 
-            WHEN "drive" THEN ASSIGN cDrive = cVarValue[jCtr]. 
-            WHEN "envAddonDir" THEN ASSIGN cEnvAddonDir = cVarValue[jCtr]. 
-            WHEN "envAdmin" THEN ASSIGN cEnvAdmin = cVarValue[jCtr]. 
-            WHEN "envCustFilesDir" THEN ASSIGN cEnvCustFilesDir = cVarValue[jCtr]. 
-            WHEN "envCustomerDir" THEN ASSIGN cEnvCustomerDir = cVarValue[jCtr]. 
-            WHEN "envDir" THEN ASSIGN cEnvDir = cVarValue[jCtr]. 
-            WHEN "envList" THEN ASSIGN cenvList = cVarValue[jCtr]. 
-            WHEN "envOverrideDir" THEN ASSIGN cEnvOverrideDir = cVarValue[jCtr]. 
-            WHEN "envProgramsDir" THEN ASSIGN cEnvProgramsDir = cVarValue[jCtr]. 
-            WHEN "envPoDir" THEN ASSIGN cEnvPODir = cVarValue[jCtr]. 
-            WHEN "envProdDir" THEN ASSIGN cenvProdDir = cVarValue[jCtr]. 
-            WHEN "envResourcesDir" THEN ASSIGN cEnvResourcesDir = cVarValue[jCtr]. 
-            WHEN "envScheduleDir" THEN ASSIGN cEnvScheduleDir = cVarValue[jCtr]. 
-            WHEN "envTestDir" THEN ASSIGN cEnvTestDir = cVarValue[jCtr]. 
-            WHEN "envUserMenuDir" THEN ASSIGN cEnvUserMenuDir = cVarValue[jCtr]. 
-            WHEN "envUsersDir" THEN ASSIGN cEnvUsersDir = cVarValue[jCtr]. 
-            WHEN "hostname" THEN ASSIGN cHostname = cVarValue[jCtr].
-            WHEN "installDir" THEN ASSIGN cInstallDir = cVarValue[jCtr]. 
-            WHEN "lockoutTries" THEN ASSIGN cLockoutTries = cVarValue[jCtr]. 
-            WHEN "makeBackup" THEN ASSIGN cmakeBackup = cVarValue[jCtr]. 
-            WHEN "mapDir" THEN ASSIGN cMapDir = cVarValue[jCtr]. 
-            WHEN "modeList" THEN ASSIGN cmodeList = cVarValue[jCtr]. 
-            WHEN "pgmBackup" THEN ASSIGN cPgmBackup = cVarValue[jCtr]. 
-            WHEN "pgmList" THEN ASSIGN cpgmList = cVarValue[jCtr]. 
-            WHEN "prodDbName" THEN ASSIGN cprodDbName = cVarValue[jCtr]. 
-            WHEN "prodDbPort" THEN ASSIGN cprodDbPort = cVarValue[jCtr]. 
-            WHEN "prodDbStFile" THEN ASSIGN cprodDbStFile = cVarValue[jCtr]. 
-            WHEN "proVersion" THEN ASSIGN cproVersion = cVarValue[jCtr]. 
-            WHEN "resBackup" THEN ASSIGN cResBackup = cVarValue[jCtr]. 
-            WHEN "shipDBName" THEN ASSIGN cshipDBName = cVarValue[jCtr]. 
-            WHEN "shipDBPort" THEN ASSIGN cshipDBPort = cVarValue[jCtr]. 
-            WHEN "shipDbStFile" THEN ASSIGN cshipDbStFile = cVarValue[jCtr]. 
-            WHEN "sitename" THEN ASSIGN cSitename = cVarValue[jCtr]. 
-            WHEN "testDBName" THEN ASSIGN ctestDBName = cVarValue[jCtr]. 
-            WHEN "testDbPort" THEN ASSIGN ctestDbPort = cVarValue[jCtr]. 
-            WHEN "testDbStFile" THEN ASSIGN ctestDbStFile = cVarValue[jCtr]. 
-            WHEN "topDir" THEN ASSIGN cTopDir = cVarValue[jCtr]. 
-            WHEN "updAdminDir" THEN ASSIGN cUpdAdminDir = cVarValue[jCtr]. 
-            WHEN "updateDir" THEN ASSIGN cUpdateDir = cVarValue[jCtr]. 
-            WHEN "updCompressDir" THEN ASSIGN cUpdCompressDir = cVarValue[jCtr]. 
-            WHEN "updDataDir" THEN ASSIGN cUpdDataDir = cVarValue[jCtr]. 
-            WHEN "updDeskDir" THEN ASSIGN cUpdDeskDir = cVarValue[jCtr]. 
-            WHEN "updMenuDir" THEN ASSIGN cUpdMenuDir = cVarValue[jCtr]. 
-            WHEN "updProgramDir" THEN ASSIGN cUpdProgramDir = cVarValue[jCtr]. 
-            WHEN "updRelNotesDir" THEN ASSIGN cUpdRelNotesDir = cVarValue[jCtr]. 
-            WHEN "updSQLDir" THEN ASSIGN cUpdSQLDir = cVarValue[jCtr]. 
-            WHEN "updStructuredDir" THEN ASSIGN cUpdStructureDir = cVarValue[jCtr]. 
-            WHEN "verDate" THEN ASSIGN cVerDate = cVarValue[jCtr].
+    FOR EACH ttIniFile:
+        CASE ttIniFile.cVarName:
+            WHEN "siteName" THEN ASSIGN cSiteName = ttIniFile.cVarValue.
+            WHEN "hostname" THEN ASSIGN cHostname = ttIniFile.cVarValue.
+            WHEN "drive" THEN ASSIGN cDrive = ttIniFile.cVarValue.
+            WHEN "dbDrive" THEN ASSIGN cDbDrive = ttIniFile.cVarValue.
+            WHEN "topDir" THEN ASSIGN cTopDir = ttIniFile.cVarValue.
+            WHEN "mapDir" THEN ASSIGN cMapDir = ttIniFile.cVarValue.
+            WHEN "DLCDir" THEN ASSIGN cDLCDir = ttIniFile.cVarValue.
+            WHEN "currVer" THEN ASSIGN cCurrVer = ttIniFile.cVarValue.
+            WHEN "verDate" THEN ASSIGN cVerDate = ttIniFile.cVarValue.
+            WHEN "connectAudit" THEN ASSIGN cConnectAudit = ttIniFile.cVarValue.
+            WHEN "makeBackup" THEN ASSIGN cMakeBackup = ttIniFile.cVarValue.
+            WHEN "lockoutTries" THEN ASSIGN cLockoutTries = ttIniFile.cVarValue.
+            WHEN "adminDir" THEN ASSIGN cAdminDir = ttIniFile.cVarValue.
+            WHEN "backupDir" THEN ASSIGN cBackupDir = ttIniFile.cVarValue.
+            WHEN "dbDir" THEN ASSIGN cDbDir = ttIniFile.cVarValue.
+            WHEN "deskDir" THEN ASSIGN cDeskDir = ttIniFile.cVarValue.
+            WHEN "docDir" THEN ASSIGN cDocDir = ttIniFile.cVarValue.
+            WHEN "envDir" THEN ASSIGN cEnvDir = ttIniFile.cVarValue.
+            WHEN "installDir" THEN ASSIGN cInstallDir = ttIniFile.cVarValue.
+            WHEN "updatesDir" THEN ASSIGN cUpdatesDir = ttIniFile.cVarValue.
+            WHEN "dbAdmin" THEN ASSIGN cDbAdmin = ttIniFile.cVarValue.
+            WHEN "envAdmin" THEN ASSIGN cEnvAdmin = ttIniFile.cVarValue.
+            WHEN "dbBackup" THEN ASSIGN cDbBackup = ttIniFile.cVarValue.
+            WHEN "pgmBackup" THEN ASSIGN cPgmBackup = ttIniFile.cVarValue.
+            WHEN "resBackup" THEN ASSIGN cResBackup = ttIniFile.cVarValue.
+            WHEN "dbAuditDir" THEN ASSIGN cDbAuditDir = ttIniFile.cVarValue.
+            WHEN "dbDataDir" THEN ASSIGN cDbDataDir = ttIniFile.cVarValue.
+            WHEN "dbProdDir" THEN ASSIGN cDbProdDir = ttIniFile.cVarValue.
+            WHEN "dbShipDir" THEN ASSIGN cDbShipDir = ttIniFile.cVarValue.
+            WHEN "dbStructDir" THEN ASSIGN cDbStructDir = ttIniFile.cVarValue.
+            WHEN "dbTestDir" THEN ASSIGN cDbTestDir = ttIniFile.cVarValue.
+            WHEN "docMiscDocuments" THEN ASSIGN cDocMiscDocuments = ttIniFile.cVarValue.
+            WHEN "docReleaseNotes" THEN ASSIGN cDocReleaseNotes = ttIniFile.cVarValue.
+            WHEN "docUserManual" THEN ASSIGN cDocUserManual = ttIniFile.cVarValue.
+            WHEN "envProdDir" THEN ASSIGN cEnvProdDir = ttIniFile.cVarValue.
+            WHEN "envTestDir" THEN ASSIGN cEnvTestDir = ttIniFile.cVarValue.
+            WHEN "envAddonDir" THEN ASSIGN cEnvAddonDir = ttIniFile.cVarValue.
+            WHEN "envCustFiles" THEN ASSIGN cEnvCustFiles = ttIniFile.cVarValue.
+            WHEN "envCustomerDir" THEN ASSIGN cEnvCustomerDir = ttIniFile.cVarValue.
+            WHEN "envOverrideDir" THEN ASSIGN cEnvOverrideDir = ttIniFile.cVarValue.
+            WHEN "envPoDir" THEN ASSIGN cEnvPoDir = ttIniFile.cVarValue.
+            WHEN "envProgramsDir" THEN ASSIGN cEnvProgramsDir = ttIniFile.cVarValue.
+            WHEN "envResourceDir" THEN ASSIGN cEnvResourceDir = ttIniFile.cVarValue.
+            WHEN "envScheduleDir" THEN ASSIGN cEnvScheduleDir = ttIniFile.cVarValue.
+            WHEN "envTemplateDir" THEN ASSIGN cEnvTemplateDir = ttIniFile.cVarValue.
+            WHEN "envUserMenuDir" THEN ASSIGN cEnvUserMenuDir = ttIniFile.cVarValue.
+            WHEN "envUsersDir" THEN ASSIGN cEnvUsersDir = ttIniFile.cVarValue.
+            WHEN "instAOA" THEN ASSIGN cInstAOA = ttIniFile.cVarValue.
+            WHEN "instBackup" THEN ASSIGN cInstBackup = ttIniFile.cVarValue.
+            WHEN "instDBMS" THEN ASSIGN cInstDBMS = ttIniFile.cVarValue.
+            WHEN "instEsko" THEN ASSIGN cInstEsko = ttIniFile.cVarValue.
+            WHEN "instFileUtils" THEN ASSIGN cInstFileUtils = ttIniFile.cVarValue.
+            WHEN "instLocalPrint" THEN ASSIGN cInstLocalPrint = ttIniFile.cVarValue.
+            WHEN "instRemAccess" THEN ASSIGN cInstRemAccess = ttIniFile.cVarValue.
+            WHEN "updAdminDir" THEN ASSIGN cUpdAdminDir = ttIniFile.cVarValue.
+            WHEN "updCompressDir" THEN ASSIGN cUpdCompressDir = ttIniFile.cVarValue.
+            WHEN "updDataDir" THEN ASSIGN cUpdDataDir = ttIniFile.cVarValue.
+            WHEN "updDataUpdateDir" THEN ASSIGN cUpdDataUpdateDir = ttIniFile.cVarValue.
+            WHEN "updDeskDir" THEN ASSIGN cUpdDeskDir = ttIniFile.cVarValue.
+            WHEN "updMenuDir" THEN ASSIGN cUpdMenuDir = ttIniFile.cVarValue.
+            WHEN "updProgramDir" THEN ASSIGN cUpdProgramDir = ttIniFile.cVarValue.
+            WHEN "updRelNotesDir" THEN ASSIGN cUpdRelNotesDir = ttIniFile.cVarValue.
+            WHEN "updSqlDir" THEN ASSIGN cUpdSqlDir = ttIniFile.cVarValue.
+            WHEN "updStructureDir" THEN ASSIGN cUpdStructureDir = ttIniFile.cVarValue.
+            WHEN "modeList" THEN ASSIGN cModeList = ttIniFile.cVarValue.
+            WHEN "envList" THEN ASSIGN cEnvList = ttIniFile.cVarValue.
+            WHEN "dbList" THEN ASSIGN cDbList = ttIniFile.cVarValue.
+            WHEN "pgmList" THEN ASSIGN cPgmList = ttIniFile.cVarValue.
+            WHEN "dbDirList" THEN ASSIGN cDbDirList = ttIniFile.cVarValue.
+            WHEN "dbPortList" THEN ASSIGN cDbPortList = ttIniFile.cVarValue.
+            WHEN "audDirList" THEN ASSIGN cAudDirList = ttIniFile.cVarValue.
+            WHEN "audDbList" THEN ASSIGN cAudDbList = ttIniFile.cVarValue.
+            WHEN "audPortList" THEN ASSIGN cAudPortList = ttIniFile.cVarValue.
+            WHEN "envVerList" THEN ASSIGN cEnvVerList = ttIniFile.cVarValue.
+            WHEN "dbVerList" THEN ASSIGN cDbVerList = ttIniFile.cVarValue.
+            WHEN "prodDbName" THEN ASSIGN cProdDbName = ttIniFile.cVarValue.
+            WHEN "prodDbPort" THEN ASSIGN cProdDbPort = ttIniFile.cVarValue.
+            WHEN "prodDbStFile" THEN ASSIGN cProdDbStFile = ttIniFile.cVarValue.
+            WHEN "shipDbName" THEN ASSIGN cShipDbName = ttIniFile.cVarValue.
+            WHEN "shipDbPort" THEN ASSIGN cShipDbPort = ttIniFile.cVarValue.
+            WHEN "shipDbStFile" THEN ASSIGN cShipDbStFile = ttIniFile.cVarValue.
+            WHEN "testDbName" THEN ASSIGN cTestDbName = ttIniFile.cVarValue.
+            WHEN "testDbPort" THEN ASSIGN cTestDbPort = ttIniFile.cVarValue.
+            WHEN "testDbStFile" THEN ASSIGN cTestDbStFile = ttIniFile.cVarValue.
+            WHEN "adminPort" THEN ASSIGN cAdminPort = ttIniFile.cVarValue.
+            WHEN "dfFileName" THEN ASSIGN cDfFileName = ttIniFile.cVarValue.
+            WHEN "deltaFileName" THEN ASSIGN cDeltaFileName = ttIniFile.cVarValue.
         END CASE.
     END.
-
-    ASSIGN
-        lconnectAudit = IF CAN-DO("Y,YES,TRUE",cConnectAudit) THEN TRUE ELSE FALSE
-        lmakeBackup = IF CAN-DO("Y,YES,TRUE",cMakeBackup) THEN TRUE ELSE FALSE
-        cLockoutTries = SUBSTRING(cLockoutTries,1,1)
-        iLockoutTries = IF cLockoutTries NE "" 
-                        AND ASC(cLockoutTries) GE 48
-                        AND ASC(cLockoutTries) LE 57 THEN INT(cLockoutTries) ELSE 0.
 
 END PROCEDURE.
 
@@ -1203,7 +1397,7 @@ PROCEDURE ipReadUsrFile :
     ASSIGN 
         lCorrupt = FALSE
         iCtr = 1.
-    INPUT FROM VALUE(SEARCH(cUsrFileLoc)).
+    INPUT FROM VALUE(SEARCH(cUsrLoc)).
     REPEAT:
         IMPORT UNFORMATTED cUsrLine.
         IF INDEX(cUsrLine,"|") = 0 THEN NEXT.
@@ -1286,7 +1480,7 @@ PROCEDURE ipUpdUsrFile :
     END.
     IF lUpdUsr = TRUE THEN DO:
         OUTPUT STREAM usrStream TO VALUE(cUsrFileLoc).
-        FOR EACH ttUsers:
+        FOR EACH ttUsers BY ttUsers.ttfPdbname by ttUsers.ttfUserID:
             ASSIGN cOutString = 
                 ttUsers.ttfPdbname + "|" +
                 ttUsers.ttfUserAlias + "|" + 
