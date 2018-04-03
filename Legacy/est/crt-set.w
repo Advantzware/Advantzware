@@ -371,6 +371,10 @@ DO:
   IF LASTKEY NE -1 THEN DO:
     RUN valid-part-no NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+    IF length(fi_part-no:SCREEN-VALUE in frame {&frame-name}) GT 12 THEN
+        MESSAGE "Set Cust Part# should be Limited To:" SKIP
+        "12 Characters if there are more than 9 components." SKIP
+        "13 Characters if there are less than 9 components." VIEW-AS ALERT-BOX WARNING BUTTONS OK.
   END.
 END.
 
