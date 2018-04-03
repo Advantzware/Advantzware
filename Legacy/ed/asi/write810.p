@@ -1,5 +1,7 @@
 {ed/sharedv.i "new"}
+{ed/edivars.i       "new shared"}
 DEFINE INPUT PARAMETER ipCompany AS CHARACTER NO-UNDO.
+DEFINE INPUT  PARAMETER ipiInvoice AS INTEGER NO-UNDO.
 DEFINE NEW SHARED STREAM s-out.
 DEFINE NEW SHARED STREAM s-err.
 DEFINE VARIABLE cReportPath AS CHARACTER NO-UNDO.
@@ -50,7 +52,7 @@ FOR EACH EDCode NO-LOCK
           ws_edi_path = EDcode.Path-out + fOutputFileName().
       ELSE  
           ws_edi_path = EDMast.Path-out + fOutputFileName().
-
+      invoice_number = STRING(ipiInvoice).
       RUN ed/tdf/o8104010.p.
       
       
