@@ -120,7 +120,130 @@ DEF VAR iLockoutTries AS INT NO-UNDO.
 DEF VAR cIniVarList AS CHAR NO-UNDO.
 DEF VAR cPatchNo AS CHAR NO-UNDO.
 
-{advinivars.i}
+/* Ensure that these lists always match, 'c' is always the prefix */
+ASSIGN cIniVarList = 
+    "# Setup Variables,siteName,hostname,drive,dbDrive,topDir,mapDir,DLCDir,currVer,verDate,connectAudit,makeBackup,lockoutTries," +
+    "# Filestructure Variables,adminDir,backupDir,dbDir,deskDir,docDir,envDir,installDir,updatesDir," +
+    "# Admin subdirs,dbAdmin,envAdmin," +
+    "# Backup subdirs,dbBackup,pgmBackup,resBackup," +
+    "# Database subdirs,dbAuditDir,dbDataDir,dbProdDir,dbShipDir,dbStructDir,dbTestDir," +
+    "# Documentation subdirs,docMiscDocuments,docReleaseNotes,docUserManual," +
+    "# Environment subdirs,envProdDir,envTestDir," +
+    "# Environment inner structure,envAddonDir,envCustFiles,envCustomerDir,envOverrideDir,envPoDir,envProgramsDir,envResourceDir,envScheduleDir,envTemplateDir,envUserMenuDir,envUsersDir," + 
+    "# Install subdirs,instAOA,instBackup,instDBMS,instEsko,instFileUtils,instLocalPrint,instRemAccess," +
+    "# Updates subdirs,updAdminDir,updCompressDir,updDataDir,updDataUpdateDir,updDeskDir,updMenuDir,updProgramDir,updRelNotesDir,updSqlDir,updStructureDir," +
+    "# ASI Login Items,modeList,envList,dbList," +
+    "# ASI Login Items Support,pgmList,dbDirList,dbPortList,audDirList,audDbList,audPortList,envVerList,dbVerList," +
+    "# Basic DB Elements,audDbName,audDbPort,audDbStFile,prodDbName,prodDbPort,prodDbStFile,shipDbName,shipDbPort,shipDbStFile,testDbName,testDbPort,testDbStFile," +
+    "# Misc Elements,adminPort,dfFileName,deltaFileName".
+
+
+/* # Setup Variables */
+DEF VAR cSitename AS CHAR INITIAL "ASI" NO-UNDO.
+DEF VAR cHostname AS CHAR INITIAL "HOSTNAME" NO-UNDO.
+DEF VAR cDrive AS CHAR INITIAL "C:" NO-UNDO.
+DEF VAR cDbDrive AS CHAR INITIAL "C:" NO-UNDO.
+DEF VAR cTopDir AS CHAR INITIAL "asigui" NO-UNDO.
+DEF VAR cMapDir AS CHAR INITIAL "N:" NO-UNDO.
+DEF VAR cDLCDir AS CHAR INITIAL "C:\Progress\OE116" NO-UNDO.
+DEF VAR cCurrVer AS CHAR INITIAL "10.6.0" NO-UNDO.
+DEF VAR cVerDate AS CHAR INITIAL "10/1/17" NO-UNDO.
+DEF VAR cConnectAudit AS CHAR INITIAL "NO" NO-UNDO.
+DEF VAR cMakeBackup AS CHAR INITIAL "NO" NO-UNDO.
+DEF VAR cLockoutTries AS CHAR INITIAL "4" NO-UNDO.
+/* # Filestructure Variables */
+DEF VAR cAdminDir AS CHAR INITIAL "Admin" NO-UNDO.
+DEF VAR cBackupDir AS CHAR INITIAL "Backups" NO-UNDO.
+DEF VAR cDbDir AS CHAR INITIAL "Databases" NO-UNDO.
+DEF VAR cDeskDir AS CHAR INITIAL "Desktop" NO-UNDO.
+DEF VAR cDocDir AS CHAR INITIAL "Documentation" NO-UNDO.
+DEF VAR cEnvDir AS CHAR INITIAL "Environments" NO-UNDO.
+DEF VAR cInstallDir AS CHAR INITIAL "Install" NO-UNDO.
+DEF VAR cUpdatesDir AS CHAR INITIAL "Updates" NO-UNDO.
+/* # Admin subdirs */
+DEF VAR cDbAdmin AS CHAR INITIAL "DbAdmin" NO-UNDO.
+DEF VAR cEnvAdmin AS CHAR INITIAL "EnvAdmin" NO-UNDO.
+/* # Backup subdirs */
+DEF VAR cDbBackup AS CHAR INITIAL "Databases" NO-UNDO.
+DEF VAR cPgmBackup AS CHAR INITIAL "Programs" NO-UNDO.
+DEF VAR cResBackup AS CHAR INITIAL "Resources" NO-UNDO.
+/* # Database subdirs */
+DEF VAR cDbAuditDir AS CHAR INITIAL "Audit" NO-UNDO.
+DEF VAR cDbDataDir AS CHAR INITIAL "Data" NO-UNDO.
+DEF VAR cDbProdDir AS CHAR INITIAL "Prod" NO-UNDO.
+DEF VAR cDbShipDir AS CHAR INITIAL "Ship" NO-UNDO.
+DEF VAR cDbStructDir AS CHAR INITIAL "Structure" NO-UNDO.
+DEF VAR cDbTestDir AS CHAR INITIAL "Test" NO-UNDO.
+/* # Documentation subdirs */
+DEF VAR cDocMiscDocuments AS CHAR INITIAL "MiscDocuments" NO-UNDO.
+DEF VAR cDocReleaseNotes AS CHAR INITIAL "ReleaseNotes" NO-UNDO.
+DEF VAR cDocUserManual AS CHAR INITIAL "UserManual" NO-UNDO.
+/* # Environment subdirs */
+DEF VAR cEnvProdDir AS CHAR INITIAL "Prod" NO-UNDO.
+DEF VAR cEnvTestDir AS CHAR INITIAL "Test" NO-UNDO.
+/* # Environment inner structure */
+DEF VAR cEnvAddonDir AS CHAR INITIAL "Addon" NO-UNDO.
+DEF VAR cEnvCustFiles AS CHAR INITIAL "CustFiles" NO-UNDO.
+DEF VAR cEnvCustomerDir AS CHAR INITIAL "Customer" NO-UNDO.
+DEF VAR cEnvOverrideDir AS CHAR INITIAL "Override" NO-UNDO.
+DEF VAR cEnvPODir AS CHAR INITIAL "PO" NO-UNDO.
+DEF VAR cEnvProgramsDir AS CHAR INITIAL "Programs" NO-UNDO.
+DEF VAR cEnvResourceDir AS CHAR INITIAL "Resources" NO-UNDO.
+DEF VAR cEnvScheduleDir AS CHAR INITIAL "Schedule" NO-UNDO.
+DEF VAR cEnvTemplateDir AS CHAR INITIAL "Schedule" NO-UNDO.
+DEF VAR cEnvUserMenuDir AS CHAR INITIAL "Usermenu" NO-UNDO.
+DEF VAR cEnvUsersDir AS CHAR INITIAL "Users" NO-UNDO.
+/* # Install subdirs */
+DEF VAR cInstAOA AS CHAR INITIAL "AOAInstall" NO-UNDO.
+DEF VAR cInstBackup AS CHAR INITIAL "BackupInstall" NO-UNDO.
+DEF VAR cInstDBMS AS CHAR INITIAL "DBMSInstall" NO-UNDO.
+DEF VAR cInstEsko AS CHAR INITIAL "EskoInstall" NO-UNDO.
+DEF VAR cInstFileUtils AS CHAR INITIAL "FileUtilities" NO-UNDO.
+DEF VAR cInstLocalPrint AS CHAR INITIAL "LocalPrintInstall" NO-UNDO.
+DEF VAR cInstRemAccess AS CHAR INITIAL "RemoteAccessInstall" NO-UNDO.
+/* # Updates subdirs */
+DEF VAR cUpdAdminDir AS CHAR INITIAL "Admin" NO-UNDO.
+DEF VAR cUpdCompressDir AS CHAR INITIAL "Compress" NO-UNDO.
+DEF VAR cUpdDataDir AS CHAR INITIAL "DataFiles" NO-UNDO.
+DEF VAR cUpdDataUpdateDir AS CHAR INITIAL "DataFiles" NO-UNDO.
+DEF VAR cUpdDeskDir AS CHAR INITIAL "Desktop" NO-UNDO.
+DEF VAR cUpdMenuDir AS CHAR INITIAL "MenuFiles" NO-UNDO.
+DEF VAR cUpdProgramDir AS CHAR INITIAL "ProgramFiles" NO-UNDO.
+DEF VAR cUpdRelNotesDir AS CHAR INITIAL "ReleaseNotes" NO-UNDO.
+DEF VAR cUpdSQLDir AS CHAR INITIAL "SQLAccess" NO-UNDO.
+DEF VAR cUpdStructureDir AS CHAR INITIAL "StructureUpdate" NO-UNDO.
+/* #ASI Login Items */
+DEF VAR cModeList AS CHAR INITIAL "Advantzware,Addon,CaseLabel,Schedule Monitor,Editor,Esko Monitor,FG XML Monitor,Loadtags,Monitor Users,Rel XML Monitor,RFID Monitor,RM Loadtag,Sharpshooter,Touchscreen" NO-UNDO.
+DEF VAR cEnvList AS CHAR INITIAL "Prod" NO-UNDO.
+DEF VAR cDbList AS CHAR INITIAL "asiProd" NO-UNDO.
+/* #ASI Login Items Support */
+DEF VAR cPgmList AS CHAR INITIAL "system/mainmenu.w,system/addmain.w,oerep/r-casetg.w,custom/asiSchW.w,_edit.p,jobxml\monitor.w,fgXml\monitor.w,oerep/r-loadtg.w,proshut.bat,relxml\monitor.w,rfid\monitor.w,rmrep/rmloadtg.w,sshoot/sshoot.w,touch/touchscr.w" NO-UNDO.
+DEF VAR cDbDirList AS CHAR INITIAL "Prod" NO-UNDO.
+DEF VAR cDbPortList AS CHAR INITIAL "2826" NO-UNDO.
+DEF VAR cAudDirList AS CHAR INITIAL "Audit" NO-UNDO.
+DEF VAR cAudDBList AS CHAR INITIAL "audProd" NO-UNDO.
+DEF VAR cAudPortList AS CHAR INITIAL "2836" NO-UNDO.
+DEF VAR cEnvVerList AS CHAR INITIAL "16.7.0" NO-UNDO.
+DEF VAR cDbVerList AS CHAR INITIAL "16.7.0" NO-UNDO.
+/* # Basic DB Elements */
+DEF VAR cAudDbName AS CHAR INITIAL "audProd" NO-UNDO.
+DEF VAR cAudDbPort AS CHAR INITIAL "2836" NO-UNDO.
+DEF VAR cAudDbStFile AS CHAR INITIAL "audit.st" NO-UNDO.
+DEF VAR cProdDbName AS CHAR INITIAL "asiProd" NO-UNDO.
+DEF VAR cProdDbPort AS CHAR INITIAL "2826" NO-UNDO.
+DEF VAR cProdDbStFile AS CHAR INITIAL "asiProd.st" NO-UNDO.
+DEF VAR cShipDbName AS CHAR INITIAL "asiShip" NO-UNDO.
+DEF VAR cShipDbPort AS CHAR INITIAL "2825" NO-UNDO.
+DEF VAR cShipDbStFile AS CHAR INITIAL "asiShip.st" NO-UNDO.
+DEF VAR cTestDbName AS CHAR INITIAL "asiTest" NO-UNDO.
+DEF VAR cTestDbPort AS CHAR INITIAL "2827" NO-UNDO.
+DEF VAR cTestDbStFile AS CHAR INITIAL "asiTest.st" NO-UNDO.
+/* # Misc Elements */
+DEF VAR cAdminPort AS CHAR INITIAL "20942.st" NO-UNDO.
+DEF VAR cDfFileName AS CHAR INITIAL "asi167.df" NO-UNDO.
+DEF VAR cDeltaFileName AS CHAR INITIAL "asi166167.df" NO-UNDO.
+
+/* END advantzware.ini Variables */
 
 DEF TEMP-TABLE ttIniFile
     FIELD iPos AS INT
