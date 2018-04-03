@@ -574,7 +574,7 @@ DO:
              NO-ERROR.
        IF NOT AVAIL itemfg THEN DO:
           MESSAGE "Invalid FG Item Number." VIEW-AS ALERT-BOX ERROR.
-          RETURN NO-APPLY.
+          RETURN.
        END.
        ASSIGN
          ar-invl.i-dscr:SCREEN-VALUE IN BROWSE {&browse-name} = itemfg.i-dscr
@@ -740,7 +740,7 @@ DO:
                                 NO-LOCK NO-ERROR.
        IF NOT AVAIL oe-bolh THEN DO:
           MESSAGE "Invalid BOL Number." VIEW-AS ALERT-BOX ERROR.
-          RETURN NO-APPLY.
+          RETURN.
        END.
        ELSE DO:
         find FIRST oe-boll no-lock 
@@ -784,7 +784,7 @@ DO:
                                 NO-LOCK NO-ERROR.
        IF NOT AVAIL oe-ord THEN DO:
           MESSAGE "Invalid Order Number." VIEW-AS ALERT-BOX ERROR.
-          RETURN NO-APPLY.
+          RETURN.
        END.
        
     END.
@@ -988,7 +988,20 @@ PROCEDURE local-assign-record :
    find first cust where cust.company eq g_company
                       and cust.cust-no eq ar-inv.cust-no no-lock no-error.
    ar-invl.tax = if ar-inv.tax-code ne "" and cust.sort eq "Y" then YES ELSE NO.
-
+ 
+  IF ar-invl.bol-no GT 0 
+    AND ar-invl.b-no EQ 0 THEN DO:
+    FIND FIRST oe-bolh NO-LOCK
+      WHERE oe-bolh.company EQ ar-invl.company
+        AND oe-bolh.bol-no EQ ar-invl.bol-no 
+      NO-ERROR.
+    IF AVAIL oe-bolh THEN DO:
+         
+      ar-invl.b-no = oe-bolh.b-no.
+      
+    END.
+      
+  END.
   {ar/ar-invk.i bf-inv}
 
 END PROCEDURE.
@@ -1182,21 +1195,8 @@ PROCEDURE local-update-record :
     
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
-  
-  IF ar-invl.bol-no GT 0 
-    AND ar-invl.b-no EQ 0 THEN DO:
-    FIND FIRST oe-bolh NO-LOCK
-      WHERE oe-bolh.company EQ ar-invl.company
-        AND oe-bolh.bol-no EQ ar-invl.bol-no 
-      NO-ERROR.
-    IF AVAIL oe-bolh THEN DO:
-      
-      find current ar-invl exclusive-lock. 
-      ar-invl.b-no = oe-bolh.b-no.
-      find current ar-invl no-lock.
-    end.
-      
-  END.
+ 
+
 
   /* Code placed here will execute AFTER standard behavior.    */
   RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"invhead-target", OUTPUT char-hdl).
