@@ -516,9 +516,10 @@ END.
 
 &Scoped-define SELF-NAME fi_date
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_date B-table-Win
-ON VALUE-CHANGED OF fi_date IN FRAME F-Main /* From Inv Date */
+ON LEAVE OF fi_date IN FRAME F-Main /* From Inv Date */
 DO:
-  fi_date-to:SCREEN-VALUE = fi_date:SCREEN-VALUE.   
+  fi_date-to:SCREEN-VALUE = fi_date:SCREEN-VALUE. 
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
