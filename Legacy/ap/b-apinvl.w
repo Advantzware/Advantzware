@@ -2071,12 +2071,12 @@ PROCEDURE local-delete-record :
   END.
 
   lv-invamt = ap-invl.amt.
+  
   find first po-ordl where po-ordl.company   eq ap-inv.company
              and po-ordl.po-no     eq ap-invl.po-no
              and po-ordl.line      eq {ap/invlline.i -1}
-             and po-ordl.item-type eq no
-             no-lock no-error.
-   if avail po-ordl then
+             no-lock no-error. 
+   if avail po-ordl THEN do: 
       for each fg-rcpth where fg-rcpth.company   eq ap-inv.company
                and fg-rcpth.i-no      eq po-ordl.i-no
                and fg-rcpth.po-no     eq trim(string(po-ordl.po-no,">>>>>>>>>>"))
@@ -2086,6 +2086,16 @@ PROCEDURE local-delete-record :
 
            fg-rcpth.b-no = 0.
        end.
+       
+       FOR EACH rm-rcpth NO-LOCK
+           WHERE rm-rcpth.company EQ ap-inv.company
+             AND rm-rcpth.i-no    EQ po-ordl.i-no
+             AND rm-rcpth.po-no   EQ trim(string(po-ordl.po-no,">>>>>>>>>>"))
+             AND rm-rcpth.rita-code EQ "R" ,
+           EACH rm-rdtlh OF rm-rcpth EXCLUSIVE-LOCK :
+         ASSIGN rm-rdtlh.receiver-no = "" .
+      END.
+   END.
 
   RUN delete-tt.
 
