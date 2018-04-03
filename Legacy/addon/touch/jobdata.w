@@ -1859,9 +1859,19 @@ PROCEDURE job-start :
         machtran.start_time = time-hour * 3600 + time-minute * 60 + ampm
         machtran.jobseq = IF AVAILABLE jobseq THEN jobseq.jobseq ELSE 0
         machtran.charge_code = charge_code        
-        machtran-rowid = ROWID(machtran).      
-      RUN Get-Shift(company_code,machine_code,machtran.start_time,job_sequence,
-             OUTPUT machtran.shift).
+        machtran-rowid = ROWID(machtran)
+        .      
+      RUN Get-Shift (company_code,machine_code,machtran.start_time,job_sequence,
+                     OUTPUT machtran.shift).
+      FIND FIRST shift_break NO-LOCK USE-INDEX shift
+           WHERE shift_break.company    EQ machtran.company
+             AND shift_break.shift      EQ machtran.shift
+             AND shift_break.start_time LE machtran.start_time
+             AND shift_break.end_time   GE machtran.start_time
+           NO-ERROR.
+      IF AVAILABLE shift_break THEN 
+      machtran.start_time = shift_break.end_time + 1.
+      
       {methods/run_link.i "CONTAINER" "Set_MachTran_Rowid" "(machtran-rowid)"}
       /* get active employees logged into this machine */
       FOR EACH emplogin NO-LOCK
@@ -1950,7 +1960,8 @@ PROCEDURE Job_Data_Collection :
       {&JOB-DATA-FIELDS}
       ampm = IF Btn_AMPM:LABEL = 'PM' AND time-hour NE 12 THEN 43200 ELSE 0
       time-hour = IF Btn_AMPM:LABEL = 'AM' AND time-hour = 12 THEN 0 ELSE time-hour
-      stoptime = time-hour * 3600 + time-minute * 60 + ampm.        
+      stoptime = time-hour * 3600 + time-minute * 60 + ampm
+      .
     IF job_sequence BEGINS 'START' THEN
     DO:     
         RUN job-start(INPUT v-today).
@@ -1959,6 +1970,17 @@ PROCEDURE Job_Data_Collection :
     DO: /* close out current operation */
       {methods/run_link.i "CONTAINER" "Get_MachTran_Rowid" "(OUTPUT machtran-rowid)"}
       FIND machtran WHERE ROWID(machtran) = machtran-rowid EXCLUSIVE-LOCK.
+      FIND FIRST shift_break NO-LOCK USE-INDEX shift
+           WHERE shift_break.company    EQ machtran.company
+             AND shift_break.shift      EQ machtran.shift
+             AND shift_break.start_time LE stoptime
+             AND shift_break.end_time   GE stoptime
+           NO-ERROR.
+      IF AVAILABLE shift_break THEN
+      ASSIGN 
+          machtran.end_time = shift_break.start_time
+          stoptime = machtran.end_time
+          .
       IF ((machtran.start_date EQ v-today AND 
           stoptime LT machtran.start_time) OR
           (machtran.start_date GT v-today)) THEN
@@ -1996,7 +2018,7 @@ PROCEDURE Job_Data_Collection :
             machtran.end_time = stoptime. /* no shift change, close out current */
             {custom/calctime.i &file="machtran"}
             /*=== CHECK BREAK TIME FOR the shift ==== */
-            {addon/touch/do-break.i}         
+            {addon/touch/do-break.i}
          END.
          ELSE
          DO: /* shift change, close out current */        
@@ -2005,7 +2027,7 @@ PROCEDURE Job_Data_Collection :
 
             IF tsdocksec-log AND
                SUBSTRING(STRING(endtime,"HH:MM:SS"),7,2) EQ "59" THEN
-               endtime = endtime + 1.
+            endtime = endtime + 1.
 
             machtran.end_time = endtime.
             {custom/calctime.i &file="machtran"} 
