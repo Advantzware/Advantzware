@@ -15,7 +15,7 @@ then detail area.
 *****************************************************************************
 \***************************************************************************/
 {ed/sharedv.i}
-{ed/edivars.i       "new shared"}
+{ed/edivars.i       "shared"}
 {ed/tdf/sharedv.i   "new shared"}
 {rc/stringv.i       "new shared"}
 {rc/fcurrent.i}
@@ -121,7 +121,7 @@ ASSIGN
 FORM
   WITH FRAME f-det DOWN WIDTH 144.
   
-ws_edi_path = ws_edi_path +  fOutputFileName().
+ws_edi_path = ws_edi_path +  (IF AVAILABLE eddoc THEN eddoc.docID + "_" ELSE "") + fOutputFileName().
 
 lPathIsGood = fCheckFolderOfPath(ws_edi_path).
 
@@ -136,7 +136,8 @@ FOR EACH eddoc EXCLUSIVE
       AND eddoc.error-count EQ 0
       AND eddoc.posted      EQ FALSE
       AND eddoc.direction   EQ edcode.direction
-AND NOT eddoc.status-flag EQ "DEL"   /* 9809 CAH */:
+AND NOT eddoc.status-flag EQ "DEL"   /* 9809 CAH */
+    AND (eddoc.docid EQ invoice_number OR invoice_number EQ ""):
     /* Set immediately so doesn't get picked up by another user */
     eddoc.posted = TRUE.
   ws_section = 10.
@@ -165,6 +166,7 @@ AND NOT eddoc.status-flag EQ "DEL"   /* 9809 CAH */:
     {rc/incr.i ws_recs_inerror}.
     RETURN.
   END.
+  
     FIND FIRST edshipto
         WHERE edshipto.partner = EDIVTran.Partner
         AND edshipto.ref-type = "BT"
@@ -477,19 +479,23 @@ FOR EACH edivline OF edivtran EXCLUSIVE
     
   /* 9810 CAH ... */
         CASE ws_partner_grp:
-            WHEN "SEARS" THEN 
-                DO:
+      WHEN "SEARS" THEN DO:
     if unit_of_measure = "" 
     or unit_of_measure = "CT" 
     or unit_of_measure = "CS"
     then unit_of_measure = "EA".
   end.
-      when "AMAZ" then 
-          do:
+      when "AMAZ" then do:
              ASSIGN 
                item_product_qualifier = "PO"
                product_id = purchase_order_number
                .
+             IF purchase_order_number EQ "" AND AVAILABLE oe-ordl AND oe-ordl.po-no GT "" THEN 
+               purchase_order_number = oe-ordl.po-no.
+             ELSE 
+               IF purchase_order_number EQ "" AND AVAILABLE ar-invl AND ar-invl.po-no GT "" THEN 
+                   purchase_order_number = ar-invl.po-no.
+               
              IF unit_of_measure EQ "M" THEN 
                ASSIGN
                   unit_of_measure = "EA"

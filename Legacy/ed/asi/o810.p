@@ -50,6 +50,13 @@ DEFINE    VARIABLE      v-billto-addr   AS CHARACTER      FORMAT "x(30)" EXTENT 
 DEFINE    VARIABLE      v-billto-city   AS CHARACTER      FORMAT "x(15)" NO-UNDO.
 DEFINE    VARIABLE      v-billto-state  AS CHARACTER      FORMAT "x(2)" NO-UNDO.
 DEFINE    VARIABLE      v-billto-zip    AS CHARACTER      FORMAT "x(10)" NO-UNDO.
+DEFINE VARIABLE v-inv-freight     AS DECIMAL NO-UNDO.
+DEFINE VARIABLE v-subtot-lines AS DECIMAL NO-UNDO.
+DEFINE VARIABLE v-inv-total   AS DECIMAL NO-UNDO.
+DEFINE BUFFER bf-ar-invl FOR ar-invl.
+DEFINE TEMP-TABLE ttAddons
+  FIELD addline AS int
+  INDEX i1 addline.
 
 FUNCTION fUOM-CF RETURNS DECIMAL (INPUT pUOM AS CHARACTER):
     DEFINE VARIABLE UOM-cf AS DECIMAL NO-UNDO DECIMALS 10.
@@ -131,7 +138,18 @@ RETURN RETURN-VALUE.
 
 
 PROCEDURE edi-ar.ip:
-
+    DEFINE VARIABLE lInvalidBol AS LOGICAL NO-UNDO.
+    lInvalidBol = NO.
+    FOR EACH ar-invl 
+        WHERE ar-invl.x-no = ar-inv.x-no
+        AND (ar-invl.inv-qty NE 0 OR ar-invl.misc):
+            
+        FIND oe-bolh OF ar-invl NO-LOCK NO-ERROR.
+        IF NOT AVAILABLE oe-bolh THEN  
+            lInvalidBol = YES.
+    END.
+    IF lInvalidBol THEN 
+        RETURN "Invalid BOL#".     
     IF top-debug THEN RUN rc/debugmsg.p ("...start of ar-inv invoice").
     ASSIGN  
         v-shipto-name    = ar-inv.sold-name
@@ -171,10 +189,12 @@ PROCEDURE edi-ar.ip:
     IF RETURN-VALUE > "" THEN 
     DO:
         RETURN RETURN-VALUE.
-    END.    
+    END.
+   
 
     FOR EACH ar-invl 
-        WHERE ar-invl.x-no = ar-inv.x-no:
+        WHERE ar-invl.x-no = ar-inv.x-no
+            AND (ar-invl.inv-qty NE 0 OR ar-invl.misc):
 
         IF top-debug THEN
             RUN rc/debugrec.s ("", RECID(ar-invl)) "ar-invl".
@@ -183,7 +203,7 @@ PROCEDURE edi-ar.ip:
   
 
         FIND oe-bolh OF ar-invl NO-LOCK NO-ERROR.
-
+ 
         /* ar-inv* records cannot be linked to a release ... 
       
         /* 03.24.2004 CAH to provide a source for ship-date */
@@ -208,6 +228,7 @@ PROCEDURE edi-ar.ip:
         IF AVAILABLE oe-bolh
             THEN
         DO:
+            
             IF top-debug THEN
                 RUN rc/debugrec.s ("", RECID(oe-bolh)) "oe-bolh".
             FIND FIRST oe-boll
@@ -277,7 +298,7 @@ PROCEDURE edi-ar.ip:
             ?,  /* rel-no */
             INPUT ar-inv.terms
             ).
-    
+
         RUN edi-050.ip (
             ar-invl.line,
             ar-invl.i-no
@@ -372,31 +393,60 @@ PROCEDURE gen-addon.ip:
         WHERE edivtran.partner      = eddoc.partner
           AND   edivtran.seq          = eddoc.seq
         NO-ERROR.
+    IF AVAILABLE eddoc THEN 
+    IF pLine EQ 0 THEN DO:
+        FIND FIRST edivaddon NO-LOCK WHERE 
+          edivaddon.partner = eddoc.partner
+          AND edivaddon.seq = eddoc.seq
+          AND edivaddon.Description[1]   eq pDesc
+          NO-ERROR.
+        IF AVAILABLE edivaddon THEN 
+          pLine = edivaddon.line.
+        ELSE  
+        DO:
+          /* If a different addon exists, make sure not to use the same line number */  
+            FIND LAST edivaddon NO-LOCK WHERE 
+                edivaddon.partner = ws_partner
+                AND edivaddon.seq = eddoc.seq                
+               NO-ERROR.
+          IF AVAILABLE edivaddon THEN 
+            pLine = edivaddon.line + 1.
     
+        END.
+    END.
     IF pLine > 0 THEN 
         FIND FIRST edivline OF edivtran
             WHERE edivline.line         = pLine
             NO-LOCK NO-ERROR.
 
     FIND FIRST EDIVAddon EXCLUSIVE-LOCK
-        WHERE edivaddon.partner     = eddoc.partner
+        WHERE edivaddon.partner     = ws_partner
           AND edivaddon.seq  = eddoc.seq
-          AND edivaddon.line        = pline
+          AND edivaddon.Description[1]   = pDesc
         NO-ERROR.
-
     IF NOT AVAILABLE edivaddon THEN
     DO:
-        FIND LAST bAddon NO-LOCK OF edivtran
+        FIND LAST bAddon NO-LOCK 
+           WHERE bAddon.partner = ws_partner 
+             AND bAddon.seq = eddoc.seq
             NO-ERROR.
         ws_int =
             (IF AVAILABLE edivaddon THEN
             edivaddon.addon-line ELSE
             0) + 1.
+        FIND LAST ttAddons NO-ERROR.
+        IF AVAILABLE ttAddons AND ws_int LE ttAddons.addline + 1 THEN 
+          ws_int = ttAddons.addline + 1.
+
+        /* ### if both of the above fail then this addon will be an orphan */
+        CREATE ttAddons.
+        ASSIGN 
+          ttAddons.addline = ws_int.
 
         /* ### if both of the above fail then this addon will be an orphan */
         CREATE edivaddon.
         ASSIGN
-            edivaddon.partner    = edmast.partner
+            edivaddon.partner    = ws_partner
             edivaddon.company    = edivtran.company
             edivaddon.invoice-no = edivtran.invoice-no
             edivaddon.line       = pline
@@ -833,7 +883,24 @@ PROCEDURE edi-040.ip:
                 edivtran.FOB-Qual      =                 (IF inv-head.fob-code = "DEST" THEN "DE" ELSE "OR")   /* origin */
                 edivtran.contact-name  = inv-head.contact
                 .
-        ELSE IF AVAILABLE ar-inv THEN ASSIGN
+                
+
+        
+        ELSE IF AVAILABLE ar-inv THEN DO: 
+                ASSIGN v-subtot-lines = 0
+                       v-inv-freight  = 0
+                       v-inv-total    = 0
+                       .
+                ASSIGN        
+                       v-inv-freight = if ar-inv.f-bill THEN ar-inv.freight ELSE 0.
+                FOR EACH bf-ar-invl NO-LOCK  
+                    WHERE bf-ar-invl.x-no = ar-inv.x-no
+                      AND (bf-ar-invl.inv-qty NE 0 OR bf-ar-invl.misc) :
+                    v-subtot-lines = v-subtot-lines + bf-ar-invl.amt.
+                END.
+                v-inv-total = v-subtot-lines + ar-inv.tax-amt + v-inv-freight.
+
+                 ASSIGN
                     edivtran.Invoice-date  = ar-inv.Inv-date
                     edivtran.BOL-No        = ?   
                     edivtran.terms         = ar-inv.terms
@@ -843,7 +910,7 @@ PROCEDURE edi-040.ip:
                     edivtran.routing[2]    = ar-inv.ship-i[2]
                     edivtran.routing[3]    = ar-inv.ship-i[3]
                     edivtran.routing[4]    = ar-inv.ship-i[4]
-                    edivtran.tot-Gross     = ar-inv.gross
+                    edivtran.tot-Gross     = v-inv-total /* ar-inv.gross to match printout */
                     edivtran.tot-frt       = ar-inv.freight
                     edivtran.tot-wght      = ar-inv.t-weight
                     edivtran.ship-stat     = ar-inv.stat
@@ -853,7 +920,7 @@ PROCEDURE edi-040.ip:
                     edivtran.FOB-Qual      =                     (IF ar-inv.fob-code = "DEST" THEN "DE" ELSE "OR")   /* origin */
                     edivtran.contact-name  = ar-inv.contact
                     .
-
+        END. /* If avail ar-inv */
         FIND FIRST asi.terms NO-LOCK 
           WHERE asi.terms.company = ws_company
             AND asi.terms.t-code = pTerms 
@@ -1050,7 +1117,7 @@ PROCEDURE edi-050.ip:
             edivline.Description[1]   = inv-line.i-name /* part-dscr1 */
             edivline.Description[2]   = inv-line.part-dscr1 /* 2 */
             edivline.unit-price       = inv-line.price
-            edivline.qty-shipped      = inv-line.inv-qty
+            edivline.qty-shipped      = (IF inv-line.inv-qty NE 0 THEN inv-line.inv-qty ELSE 1)
             /* 9804 CAH> was inv-line.qty, which appears to be original ordered */
             edivline.Qty-ord-orig     = IF AVAILABLE oe-ordl THEN oe-ordl.qty ELSE inv-line.qty
             edivline.qty-var          = edivline.qty-ord-orig - edivline.qty-shipped
@@ -1123,7 +1190,7 @@ PROCEDURE edi-050.ip:
                 edivline.Description[1]   = ar-invl.i-name /* part-dscr1 */
                 edivline.Description[2]   = ar-invl.part-dscr1 /* 2 */
                 edivline.unit-price       = ar-invl.unit-pr
-                edivline.qty-shipped      = ar-invl.inv-qty
+                edivline.qty-shipped      = (IF ar-invl.inv-qty NE 0 THEN ar-invl.inv-qty ELSE 1)
                 /* 9804 CAH> was ar-invl.qty, which appears to be original ordered */
                 edivline.Qty-ord-orig     = IF AVAILABLE oe-ordl THEN oe-ordl.qty ELSE ar-invl.qty
                 edivline.qty-var          = edivline.qty-ord-orig - edivline.qty-shipped

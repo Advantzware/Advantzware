@@ -42,6 +42,7 @@ DEFINE VARIABLE cPartnerName   AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lFolderIsGood  AS LOGICAL NO-UNDO.
 DEFINE VARIABLE iPos       AS INTEGER   NO-UNDO.
 DEFINE VARIABLE cOutFolder AS CHARACTER NO-UNDO.
+DEFINE VARIABLE iNumerPos AS INTEGER.
 
 lFolderIsGood = fCheckFolderOfPath(ipcOutPath).
 IF NOT lFolderIsGood THEN 
@@ -151,11 +152,20 @@ REPEAT:
                 cElem = STRING(INTEGER(cElem)).
                 
             /* Convert from implied decimal to decimal format */    
-            IF cSegment EQ "IT1" AND iCurrentElem EQ 4 THEN 
-                ASSIGN
+            IF cSegment EQ "IT1" AND iCurrentElem EQ 4 THEN DO:
+                iNumerPos = INTEGER(SUBSTRING(cElem, 1, 1)).
+
+                IF iNumerPos = 5 THEN
+                    ASSIGN
+                        cElem = SUBSTRING(cElem, 2, 12) + "." + 
+                  substring(cElem, 14, 5)
+                        cElem = STRING(DECIMAL(cElem)).
+                ELSE                 
+                  ASSIGN
                     cElem = SUBSTRING(cElem, 2, 11) + "." + 
-                  substring(cElem, 13, 6)
+                            SUBSTRING(cElem, 13, 6)
                     cElem = STRING(DECIMAL(cElem)).
+            END.
             IF cSegment EQ "N1" AND iCurrentElem EQ 1 THEN 
               cQualifier = cElem.
               
@@ -304,6 +314,5 @@ cOutFolder = SUBSTRING(ipcOutPath, 1, iPos - 1).
 
 OS-COPY value(ipcOutPath) VALUE(cOutFolder + "\Send").
 OS-DELETE VALUE(ipcOutPath).
-/* Out temporarily for debug */
-/* OS-DELETE VALUE(ipcInPath). */ 
+OS-DELETE VALUE(ipcInPath). 
  

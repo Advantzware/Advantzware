@@ -516,24 +516,6 @@ END.
        ASSIGN xar-inv.printed = yes.
               xar-inv.stat = "X".
     END. /* DO TRANSACTION avail ar-inv */ 
-    /* Create eddoc for invoice if required */
-    RUN ed/asi/o810hook.p (recid(ar-inv), no, no).  
-    FIND FIRST edmast NO-LOCK
-          WHERE edmast.cust EQ ar-inv.cust-no
-          NO-ERROR.
-    IF AVAIL edmast THEN 
-    DO: 
-        FIND FIRST edcode NO-LOCK
-            WHERE edcode.partner EQ edmast.partner
-            NO-ERROR.
-        IF NOT AVAIL edcode THEN 
-            FIND FIRST edcode NO-LOCK
-                WHERE edcode.partner EQ edmast.partnerGrp
-                NO-ERROR.
-    END.  
-
-   IF AVAIL edcode AND edcode.sendFileOnPrint THEN
-    RUN ed/asi/write810.p (INPUT cocode).
   end. /* each ar-inv */
 
 /* END ---------------------------------- copr. 1996 Advanced Software, Inc. */

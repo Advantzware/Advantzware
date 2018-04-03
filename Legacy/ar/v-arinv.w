@@ -79,7 +79,7 @@ ar-inv.cust-name ar-inv.disc-% ar-inv.disc-days ar-inv.carrier ~
 ar-inv.freight 
 &Scoped-define ENABLED-TABLES ar-inv
 &Scoped-define FIRST-ENABLED-TABLE ar-inv
-&Scoped-Define ENABLED-OBJECTS RECT-1 RECT-5 
+&Scoped-Define ENABLED-OBJECTS tbEdiInvoice RECT-1 RECT-5 
 &Scoped-Define DISPLAYED-FIELDS ar-inv.cust-no ar-inv.ship-id ar-inv.inv-no ~
 ar-inv.po-no ar-inv.inv-date ar-inv.due-date ar-inv.tax-code ar-inv.terms ~
 ar-inv.terms-d ar-inv.cust-name ar-inv.disc-% ar-inv.disc-days ~
@@ -87,7 +87,7 @@ ar-inv.carrier ar-inv.freight ar-inv.tax-amt ar-inv.gross ar-inv.disc-taken ~
 ar-inv.paid ar-inv.due ar-inv.curr-code[1] ar-inv.ex-rate 
 &Scoped-define DISPLAYED-TABLES ar-inv
 &Scoped-define FIRST-DISPLAYED-TABLE ar-inv
-&Scoped-Define DISPLAYED-OBJECTS ship_name 
+&Scoped-Define DISPLAYED-OBJECTS tbEdiInvoice ship_name 
 
 /* Custom List Definitions                                              */
 /* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,ROW-AVAILABLE,DISPLAY-FIELD,List-5,F1 */
@@ -140,10 +140,16 @@ DEFINE RECTANGLE RECT-5
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 42 BY 3.81.
 
+DEFINE VARIABLE tbEdiInvoice AS LOGICAL INITIAL no 
+     LABEL "EDI Invoice?" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 26 BY .81 NO-UNDO.
+
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
+     tbEdiInvoice AT ROW 9.43 COL 89 WIDGET-ID 2
      ar-inv.cust-no AT ROW 1.48 COL 16 COLON-ALIGNED
           LABEL "Customer#"
           VIEW-AS FILL-IN 
@@ -201,14 +207,14 @@ DEFINE FRAME F-Main
           LABEL "Invoice Amt"
           VIEW-AS FILL-IN 
           SIZE 22 BY 1
-     ar-inv.disc-taken AT ROW 6.24 COL 105 COLON-ALIGNED
+     ar-inv.disc-taken AT ROW 5.91 COL 105 COLON-ALIGNED
           LABEL "Discount"
           VIEW-AS FILL-IN 
           SIZE 22 BY 1
-     ar-inv.paid AT ROW 7.19 COL 105 COLON-ALIGNED
+     ar-inv.paid AT ROW 6.86 COL 105 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 22 BY 1
-     ar-inv.due AT ROW 8.14 COL 105 COLON-ALIGNED
+     ar-inv.due AT ROW 7.81 COL 105 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 22 BY 1
      ar-inv.curr-code[1] AT ROW 9.33 COL 20.4 COLON-ALIGNED
@@ -220,7 +226,7 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 14 BY 1
      RECT-1 AT ROW 1 COL 1
-     RECT-5 AT ROW 5.76 COL 88
+     RECT-5 AT ROW 5.43 COL 88
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -330,7 +336,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -405,7 +411,6 @@ DO:
    {&methods/lValidateError.i NO}
 END.
 
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -464,7 +469,6 @@ DO:
     {&methods/lValidateError.i NO}
 END.
 
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -502,7 +506,6 @@ DO:
    {&methods/lValidateError.i NO}
 END.
 
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -516,7 +519,6 @@ DO:
     {VALIDATE/stax.i ar-inv.tax-code}
     {&methods/lValidateError.i NO}
 END.
-
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -547,7 +549,6 @@ DO:
     lv-due-calckt = YES.
     {&methods/lValidateError.i NO}
 END.
-
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -701,8 +702,10 @@ PROCEDURE local-assign-record :
 
   /* Code placed here will execute AFTER standard behavior.    */
   ar-inv.f-bill = ar-inv.freight GT 0.
-
-
+  
+  DO WITH FRAME {&FRAME-NAME}:     
+     ar-inv.spare-int-1 = (IF tbEdiInvoice:SCREEN-VALUE = "YES" THEN 1 ELSE 0).
+  END. 
   IF adm-adding-record THEN DO:
     FIND FIRST cust WHERE cust.company = g_company
                     AND cust.cust-no = ar-inv.cust-no NO-LOCK NO-ERROR.
@@ -859,6 +862,7 @@ PROCEDURE local-display-fields :
         NO-ERROR.
     IF AVAIL currency THEN
       ar-inv.ex-rate:SCREEN-VALUE = STRING(currency.ex-rate).
+    tbEdiInvoice:SCREEN-VALUE = (IF ar-inv.spare-int-1 = 1 THEN "YES" ELSE "NO").
   END.
 
 END PROCEDURE.
@@ -874,6 +878,7 @@ PROCEDURE local-update-record :
 ------------------------------------------------------------------------------*/
   DEF VAR ll-new-record AS LOG NO-UNDO.
   DEF VAR v-oldinv LIKE ar-inv.inv-no NO-UNDO.
+  DEFINE VARIABLE lIsAnEDI AS LOGICAL NO-UNDO.
   DEF BUFFER bARInvl FOR ar-invl.
 
   /* Code placed here will execute PRIOR to standard behavior. */
@@ -902,6 +907,8 @@ PROCEDURE local-update-record :
         APPLY "entry" TO ar-inv.terms.
         RETURN NO-APPLY.
      END.
+
+     
      IF DATE(ar-inv.inv-date:SCREEN-VALUE) > TODAY THEN DO:
         MESSAGE "Invoice Date is Past Today, Continue?" VIEW-AS ALERT-BOX WARNING BUTTON YES-NO
                       UPDATE ll-ans AS LOG.
@@ -961,8 +968,6 @@ PROCEDURE local-update-record :
   END. /* each barinvl */
 
 END PROCEDURE.
-
-
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

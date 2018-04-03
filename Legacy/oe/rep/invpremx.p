@@ -1039,23 +1039,8 @@ END.
     IF v-printline <= 66 THEN page.
     
     {XMLOutput/XMLOutput.i &c=c &XMLClose} /* rstark 05291402 */
-    /* Create eddoc for invoice if required */
-    RUN ed/asi/o810hook.p (recid(inv-head), no, no).     
-    FIND FIRST edmast NO-LOCK
-          WHERE edmast.cust EQ inv-head.cust-no
-          NO-ERROR.
-   IF AVAIL edmast THEN DO: 
-     FIND FIRST edcode NO-LOCK
-       WHERE edcode.partner EQ edmast.partner
-     NO-ERROR.
-     IF NOT AVAIL edcode THEN 
-       FIND FIRST edcode NO-LOCK
-            WHERE edcode.partner EQ edmast.partnerGrp
-            NO-ERROR.
-   END.  
-   IF AVAIL edcode AND edcode.sendFileOnPrint THEN    
-    RUN ed/asi/write810.p (INPUT cocode).    
-  end. /* each xinv-head */
+
+end. /* each xinv-head */
 
 {XMLOutput/XMLOutput.i &XMLClose} /* rstark 05181205 */
 

@@ -29,7 +29,7 @@ DEFINE VARIABLE init-dir  AS CHARACTER NO-UNDO.
 
 {methods/defines/hndldefs.i}
 {methods/defines/globdefs.i}
-
+{ed/edivars.i       "new shared"}
 DEFINE BUFFER b-prgrms FOR prgrms.
 
 DEFINE VARIABLE v-prgmname   LIKE b-prgrms.prgmname NO-UNDO.
