@@ -61,6 +61,13 @@ FIND FIRST sys-ctrl
       AND sys-ctrl.NAME    EQ "RELCREDT"
     NO-LOCK NO-ERROR.
 /* gdm - 03090901 end */
+ELSE
+IF ip-type EQ 9 THEN
+FIND FIRST sys-ctrl
+    WHERE sys-ctrl.company EQ cocode
+      AND sys-ctrl.NAME    EQ "SSBOLPassword"
+    NO-LOCK NO-ERROR.
+/* gdm - 03090901 end */
 
 ELSE 
 FIND FIRST sys-ctrl
@@ -89,13 +96,20 @@ IF AVAIL sys-ctrl THEN DO:
     op-validated = NO.
     RETURN.
   END.
+  ELSE
+  IF (ip-type = 9 ) AND
+     (NOT sys-ctrl.log-fld OR sys-ctrl.char-fld EQ "") THEN DO:
+    op-validated = NO.
+    RETURN.
+  END.
 END.
 
 ELSE DO:
   MESSAGE "No System Control record exists for " +
           IF ip-type EQ 5 THEN "JOBPASS"  ELSE
           IF ip-type EQ 2 THEN "CUSTPASS" ELSE
-          IF ip-type EQ 6 THEN "INVPASS"  ELSE "SECURITY..."
+          IF ip-type EQ 6 THEN "INVPASS"  ELSE
+          IF ip-type EQ 9 THEN "SSBOLPassword"  ELSE "SECURITY..."
           VIEW-AS ALERT-BOX ERROR.
   RETURN.
 END.
