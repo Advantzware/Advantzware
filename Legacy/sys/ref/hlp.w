@@ -110,7 +110,7 @@ DEFINE BUTTON Btn_OK AUTO-END-KEY
      BGCOLOR 8 .
 
 DEFINE VARIABLE ed-text AS CHARACTER 
-     VIEW-AS EDITOR MAX-CHARS 300000 SCROLLBAR-VERTICAL
+     VIEW-AS EDITOR MAX-CHARS 500000 SCROLLBAR-VERTICAL
      SIZE 115 BY 18.57
      FONT 0 NO-UNDO.
 
@@ -307,8 +307,7 @@ DO:
     
     /* If not automatically cleared by security level, ask for password */
     IF lResult THEN DO:
-        RUN sys/ref/uphlp-pass.w (3, OUTPUT lResult).
-        IF lResult THEN 
+       
             RUN sys/ref/hlpupd.w (ip-field,ip-table,ip-db,ip-frame,ip-language,OUTPUT op-ed-text).
     END.
 

@@ -86,7 +86,7 @@ DEFINE BUTTON Btn_OK AUTO-GO
      BGCOLOR 8 .
 
 DEFINE VARIABLE ed-text AS CHARACTER 
-     VIEW-AS EDITOR NO-WORD-WRAP SCROLLBAR-HORIZONTAL
+     VIEW-AS EDITOR MAX-CHARS 500000 SCROLLBAR-VERTICAL 
      SIZE 115 BY 18.57
      FONT 0 NO-UNDO.
 
@@ -186,13 +186,10 @@ DO:
     end.
   */  
 
-    ASSIGN ll-secure = NO
-           op-ed-text = ed-text.
+    ASSIGN op-ed-text = ed-text.
 
-    IF NOT ll-secure THEN RUN sys/ref/uphlp-pass.w (3, OUTPUT ll-secure).
-
-    IF ll-secure EQ YES THEN
-    run sys/ref/hlpupd.p (ip-field,ip-table,ip-db,ip-frame,ip-language,OUTPUT op-ed-text).
+    
+    run sys/ref/hlpupd.w (ip-field,ip-table,ip-db,ip-frame,ip-language,OUTPUT op-ed-text).
 /* === re-display    ==========*/
   /*find first asihlp.hlp-head where hlp-head.fld-name = ip-field and
                                  hlp-head.fil-name = ip-table
@@ -355,7 +352,9 @@ IF NOT vhWebService:CONNECTED() THEN
 END. /* WebService no conn*/
 
  ELSE DO:  /* WebService conn*/ 
-     
+     IF ip-table EQ ? THEN ip-table = "" .
+     IF ip-field EQ ? THEN ip-field = "" .
+     IF ip-frame EQ ? THEN ip-frame = "" . 
     RUN Service1Soap SET vhSalesSoap ON vhWebService .
     RUN HelpMain IN vhSalesSoap(INPUT string(ip-field),INPUT STRING(ip-table),INPUT STRING(ip-frame), INPUT STRING(vclint),  OUTPUT parameters1,OUTPUT parameters2,OUTPUT fr-flags).
 
@@ -390,6 +389,15 @@ END. /* WebService no conn*/
     END.  /* WebService is conn*/     /*mod-sewa  */
           
   RUN enable_UI.
+
+    DEF VAR hPgmSecurity AS HANDLE NO-UNDO.
+    DEF VAR lResult AS LOG NO-UNDO.
+    RUN "system/PgmMstrSecur.p" PERSISTENT SET hPgmSecurity.
+    RUN epCanAccess IN hPgmSecurity ("sys/ref/hlp.w", "Access2", OUTPUT lResult).
+    DELETE OBJECT hPgmSecurity.
+    IF NOT lResult THEN ASSIGN
+        btn-update:VISIBLE IN FRAME {&frame-name} = NO.
+
   WAIT-FOR GO OF FRAME {&FRAME-NAME}.
 END.
 RUN disable_UI.
