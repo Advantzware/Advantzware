@@ -162,9 +162,15 @@ DEFINE FRAME Dialog-Frame
      btnLanguage-1 AT ROW 1.95 COL 6 WIDGET-ID 24
      btnOK AT ROW 15.76 COL 48 WIDGET-ID 4
      btnLanguage-2 AT ROW 3.62 COL 6 WIDGET-ID 26
+     btnLanguage-3 AT ROW 5.29 COL 6 WIDGET-ID 28
      svLanguageList AT ROW 2.19 COL 16 NO-LABEL WIDGET-ID 30
      svMenuSize AT ROW 7.91 COL 5 NO-LABEL WIDGET-ID 34
-     btnLanguage-3 AT ROW 5.29 COL 6 WIDGET-ID 28
+     "(Screen Size: 653 x 800)" VIEW-AS TEXT
+          SIZE 24 BY .62 AT ROW 8.62 COL 41 WIDGET-ID 72
+          BGCOLOR 8 
+     "(Screen Size: 805 x 800)" VIEW-AS TEXT
+          SIZE 24 BY .62 AT ROW 10.52 COL 41 WIDGET-ID 70
+          BGCOLOR 8 
      "** Menu Size Change Requires a Close/Reopen **" VIEW-AS TEXT
           SIZE 49 BY .62 AT ROW 14.33 COL 17 WIDGET-ID 66
      " Menu Size" VIEW-AS TEXT
@@ -180,6 +186,9 @@ DEFINE FRAME Dialog-Frame
      "Scheduling..." VIEW-AS TEXT
           SIZE 16 BY .62 AT ROW 8.38 COL 23 WIDGET-ID 42
           BGCOLOR 8 FONT 6
+     "(Screen Size: 957 x 800)" VIEW-AS TEXT
+          SIZE 24 BY .62 AT ROW 13.14 COL 41 WIDGET-ID 68
+          BGCOLOR 8 
      RECT-13 AT ROW 8.14 COL 17 WIDGET-ID 38
      IMAGE-1 AT ROW 8.38 COL 18 WIDGET-ID 40
      RECT-14 AT ROW 9.81 COL 17 WIDGET-ID 46
