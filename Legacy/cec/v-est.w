@@ -90,6 +90,9 @@ DEF VAR cadFile AS CHARACTER NO-UNDO.
 DEF VAR lv-master-est-no LIKE eb.master-est-no NO-UNDO.
 DEF BUFFER b-style FOR style.
 DEF VAR v-count AS INT NO-UNDO.
+DEFINE VARIABLE v-box-uom LIKE sys-ctrl.char-fld.
+DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lRecFound AS LOGICAL     NO-UNDO.
 
 DO TRANSACTION:
   {sys/inc/addprep.i}
@@ -116,6 +119,16 @@ DO:
        RELEASE tt-64-dec.
    END.
 END.
+
+RUN sys/ref/nk1look.p (INPUT cocode, "BOXDESUM", "C" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+OUTPUT cRtnChar, OUTPUT lRecFound).
+
+    v-box-uom = cRtnChar NO-ERROR. 
+
+
+
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -3207,14 +3220,21 @@ PROCEDURE local-assign-record :
          RUN tokenize-proc(box-design-hdr.lscore).
 
          DO v-count = 1 TO 30:
-
-            ASSIGN
-               v-dec = {sys/inc/k16v.i eb.k-len-array2[v-count]}
-               v-dec2 = {sys/inc/k16v.i eb.k-wid-array2[v-count]}.
-
-            IF v-l-array[v-count] NE v-dec OR
-               v-w-array[v-count] NE v-dec2 THEN
-               DO:
+             IF v-box-uom EQ "Inches" OR
+          (v-box-uom EQ "Both" AND (NOT est.metric)) THEN DO:
+                 ASSIGN
+                     v-dec = {sys/inc/k16v.i eb.k-len-array2[v-count]}
+                     v-dec2 = {sys/inc/k16v.i eb.k-wid-array2[v-count]}.
+             END.
+             ELSE DO:
+                 ASSIGN
+                     v-dec = ROUND(eb.k-len-array2[v-count]     * 25.4,0)
+                     v-dec2 = round(eb.k-wid-array2[v-count]     * 25.4,0).
+             END.
+          
+            IF  v-l-array[v-count] NE v-dec OR
+               v-w-array[v-count] NE v-dec2  THEN
+               DO:  
                   MESSAGE "Do you wish to reset box design?"
                      VIEW-AS ALERT-BOX BUTTON YES-NO UPDATE ll-ans2.
 
