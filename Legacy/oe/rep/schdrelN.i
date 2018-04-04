@@ -164,7 +164,7 @@ if chosen eq 2 then DO:
                  WHEN "job-h-desc" THEN DO:
                     cVarValue = string(cReasonDesc,"x(15)") .
                 END.
-                WHEN "run-comp" THEN do: 
+                WHEN "run-comp" OR WHEN "comp-date" THEN do: 
                         ASSIGN v-lst-m-code = "" .
 
                         FOR EACH tt-fg-set:
@@ -274,7 +274,8 @@ if chosen eq 2 then DO:
                                         ASSIGN v-m-code = v-m-code + job-mch.m-code.*/
                                        /* PUT UNFORMATTED job-mch.m-code. */
                                           IF LAST(job-mch.line) THEN do: /*PUT ", ".*/
-                                          ASSIGN  cVarValue = STRING(job-mch.run-complete) .
+                                          IF cTmpField = "run-comp"  THEN ASSIGN  cVarValue = STRING(job-mch.run-complete) .
+                                          ELSE IF cTmpField = "comp-date" THEN ASSIGN  cVarValue = IF job-mch.end-date NE ? THEN STRING(job-mch.end-date) ELSE "" .
                                           END.
                                     END.
                                 END.
@@ -391,6 +392,12 @@ if chosen eq 2 then DO:
 
                                     cVarValue = IF v-m-code NE "" THEN v-m-code ELSE "" .
                 END.
+                WHEN "mfg-date" THEN DO:
+                  IF w-ord.prom-date NE ? THEN
+                      cVarValue = STRING(w-ord.prom-date) .
+                  ELSE cVarValue = "" .
+                END.
+            
             END CASE.
             cExcelVarValue = cVarValue.
             cDisplay = cDisplay + cVarValue +
