@@ -48,6 +48,7 @@ DEFINE VARIABLE cFormattedScore AS CHARACTER NO-UNDO.
 DEFINE VARIABLE len-score AS CHARACTER.
 DEFINE VARIABLE v-test-scr AS LOG.
 DEFINE VARIABLE v-space    AS LOG. 
+DEFINE VARIABLE cSenderID AS CHARACTER INIT "1244037".
 DEFINE BUFFER b-qty   FOR reftable.
 DEFINE BUFFER b-setup FOR reftable.
 DEFINE STREAM sEDIPOH.
@@ -157,24 +158,25 @@ IF AVAILABLE cust AND liberty-log AND liberty-dir NE "" THEN
         ASSIGN
             v-outfile[1] = TRIM(liberty-dir) + v-slash + "dataxfer" +
                   v-slash + "in" + v-slash
-            v-outfile[2] = "EDIPOH" + "1244037" /* Edi Sender ID */ + USERID("asi") + "_"
+            v-outfile[2] = "EDIPOH" + cSenderID /* Edi Sender ID */ + USERID("asi") + "_"
             v-outfile[3] = 
                   substr(STRING(YEAR(TODAY),"9999"),3,2) +
                   string(MONTH(TODAY),"99") +
                   string(DAY(TODAY),"99") + "_" +
                   substr(STRING(TIME,"HH:MM:SS"),1,2) +
                   substr(STRING(TIME,"HH:MM:SS"),4,2) +
-                  substr(STRING(TIME,"HH:MM:SS"),7,2) + ".DAT"
+                  substr(STRING(TIME,"HH:MM:SS"),7,2) + "_" +
+                  cSenderID + ".DAT"
             v-outfile[4] = v-outfile[1] + v-outfile[2] + v-outfile[3].
    
        
         OUTPUT STREAM sEDIPOH to value(v-outfile[4]).
         
-        v-outfile[2] = "EDIPOD" + "1244037" /* Edi Sender ID */ + USERID("asi").
+        v-outfile[2] = "EDIPOD" + cSenderID /* Edi Sender ID */ + USERID("asi").
         v-outfile[4] = v-outfile[1] + v-outfile[2] + v-outfile[3].
         OUTPUT STREAM sEDIPOD to value(v-outfile[4]).
         
-        v-outfile[2] = "EDIPOITEM" + "1244037" /* Edi Sender ID */ + USERID("asi").
+        v-outfile[2] = "EDIITEM" + cSenderID /* Edi Sender ID */ + USERID("asi").
         v-outfile[4] = v-outfile[1] + v-outfile[2] + v-outfile[3].
         OUTPUT STREAM sEDIPOITEM to value(v-outfile[4]).
         
@@ -225,12 +227,12 @@ IF AVAILABLE cust AND liberty-log AND liberty-dir NE "" THEN
         fInsText(  279,    1, ""              ). /* not used */
         fInsText(  281,    1, "S"              ). /* not used */
         fInsText(  283,   15, ""              ). /* not used */
-        fInsText(  299,   15, "1244037"           ). /* assigned ID */
+        fInsText(  299,   15, cSenderID           ). /* assigned ID */
         fInsText(  315,    2, ""              ). /* not used */
         fInsText(  318,    7, fnRJust(STRING(iSequence), 7)). /* sequential number */
         fInsText(  326,   10, STRING(po-ord.due-date, "99/99/9999")). /* due date */
         fInsText(  337,   10, STRING(TODAY, "99/99/9999")   ).
-        fInsText(  348,   10, fTime(TIME) + "    ").
+        fInsText(  348,   10, fTime(TIME)     ).
         fInsText(  359,    1, ""              ). /* not used */
         fInsText(  361,   25, "NW"            ). /* po status */
         fInsText(  387,   25, "N"             ). /* po type */
@@ -252,7 +254,7 @@ IF AVAILABLE cust AND liberty-log AND liberty-dir NE "" THEN
         fInsText(  725,    2, ""              ). /* not used */
         fInsText(  728,    3, v-sstate        ). /* ship to state */
         fInsText(  732,    9, v-szip          ). /* ship to zip */
-        fInsText(  742,   15, "1244037"       ). /* cust sender id if consolidated */
+        fInsText(  742,   15, cSenderID       ). /* cust sender id if consolidated */
         fInsText(  758,    2, ""              ). /* not used */
         fInsText(  761,    1, "P"             ). /* test or prod */
         fInsText(  763,    1, ""              ). /* not used */
@@ -658,7 +660,7 @@ IF AVAILABLE cust AND liberty-log AND liberty-dir NE "" THEN
             fInsText(  322,    1, ""         ). /* not used */
             fInsText(  324,   15, ""         ). /* not used */
             fInsText(  340,   30, po-ordl.i-no ). /* base board grade */
-            fInsText(  371,   15, "1244037"  ). /* sheet plant's cusotmer no. in corrugators's database */
+            fInsText(  371,   15, cSenderID  ). /* sheet plant's cusotmer no. in corrugators's database */
             fInsText(  387,    2, ""         ). /* EDI Interchange qualifier */
             fInsText(  390,    7, fnRJust(STRING(iSequence), 7)). /* Unique Sequential number */
             fInsText(  398,   11, STRING(po-ordl.line)). 
@@ -756,7 +758,7 @@ FUNCTION fFormScore RETURNS CHARACTER
 		
 		iIntValue = TRUNCATE(ipdDim, 0).
         cResult =   STRING(iIntValue, "9999") 
-                  + STRING(ipdDim - iIntValue, "99")
+                  + SUBSTRING(STRING(ipdDim - iIntValue, ".99"), 2)
                   + "x     "
                   .
 		RETURN cResult.
