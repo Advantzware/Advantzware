@@ -443,7 +443,9 @@ IF NOT vhWebService:CONNECTED() THEN
     END. /* WebService no conn*/
 
     ELSE DO:
-       
+      IF ip-table EQ ? THEN ip-table = "" .
+      IF ip-field EQ ? THEN ip-field = "" .
+      IF ip-frame EQ ? THEN ip-frame = "" .  
     RUN Service1Soap SET vhSalesSoap ON vhWebService .
     RUN HelpMain IN vhSalesSoap(INPUT STRING(ip-field),INPUT STRING(ip-table),INPUT STRING(ip-frame),INPUT STRING(vclint),  OUTPUT parameters1,OUTPUT parameters2,OUTPUT fr-flags ).
      
