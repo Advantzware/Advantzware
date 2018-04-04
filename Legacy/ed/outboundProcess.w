@@ -561,14 +561,14 @@ PROCEDURE processOutbound:
                 HIDE FRAME f-current NO-PAUSE.
                     {rc/statdisp.i}
                 IF INDEX(next_program, "write810") GT 0 THEN 
-                    RUN VALUE(next_program) (INPUT cocode).
+                    RUN VALUE(next_program) (INPUT cocode, INPUT 0).
                 ELSE 
                     RUN VALUE(next_program).
                 IF top-debug THEN
                     RUN rc/debugmsg.p ("After running: " + next_program).
                 did_some = TRUE.
                 /*      DISPLAY ws_erc WITH FRAME f-current. */
-                PAUSE 2.
+                /* PAUSE 2. */
                 next_program = "".
                 STATUS DEFAULT.
             END.

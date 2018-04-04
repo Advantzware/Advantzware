@@ -52,7 +52,10 @@ FOR EACH EDCode NO-LOCK
           ws_edi_path = EDcode.Path-out + fOutputFileName().
       ELSE  
           ws_edi_path = EDMast.Path-out + fOutputFileName().
-      invoice_number = STRING(ipiInvoice).
+      IF ipiInvoice GT 0 THEN 
+         invoice_number = STRING(ipiInvoice).
+      ELSE 
+         invoice_number = "".
       RUN ed/tdf/o8104010.p.
       
       
