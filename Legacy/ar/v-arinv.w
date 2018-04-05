@@ -79,7 +79,7 @@ ar-inv.cust-name ar-inv.disc-% ar-inv.disc-days ar-inv.carrier ~
 ar-inv.freight 
 &Scoped-define ENABLED-TABLES ar-inv
 &Scoped-define FIRST-ENABLED-TABLE ar-inv
-&Scoped-Define ENABLED-OBJECTS tbEdiInvoice RECT-1 RECT-5 
+&Scoped-Define ENABLED-OBJECTS RECT-1 RECT-5 
 &Scoped-Define DISPLAYED-FIELDS ar-inv.cust-no ar-inv.ship-id ar-inv.inv-no ~
 ar-inv.po-no ar-inv.inv-date ar-inv.due-date ar-inv.tax-code ar-inv.terms ~
 ar-inv.terms-d ar-inv.cust-name ar-inv.disc-% ar-inv.disc-days ~
@@ -87,7 +87,7 @@ ar-inv.carrier ar-inv.freight ar-inv.tax-amt ar-inv.gross ar-inv.disc-taken ~
 ar-inv.paid ar-inv.due ar-inv.curr-code[1] ar-inv.ex-rate 
 &Scoped-define DISPLAYED-TABLES ar-inv
 &Scoped-define FIRST-DISPLAYED-TABLE ar-inv
-&Scoped-Define DISPLAYED-OBJECTS tbEdiInvoice ship_name 
+&Scoped-Define DISPLAYED-OBJECTS ship_name tbEdiInvoice 
 
 /* Custom List Definitions                                              */
 /* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,ROW-AVAILABLE,DISPLAY-FIELD,List-5,F1 */
@@ -149,7 +149,6 @@ DEFINE VARIABLE tbEdiInvoice AS LOGICAL INITIAL no
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     tbEdiInvoice AT ROW 9.43 COL 89 WIDGET-ID 2
      ar-inv.cust-no AT ROW 1.48 COL 16 COLON-ALIGNED
           LABEL "Customer#"
           VIEW-AS FILL-IN 
@@ -225,6 +224,7 @@ DEFINE FRAME F-Main
           LABEL "Exchange Rate"
           VIEW-AS FILL-IN 
           SIZE 14 BY 1
+     tbEdiInvoice AT ROW 9.43 COL 89 WIDGET-ID 4
      RECT-1 AT ROW 1 COL 1
      RECT-5 AT ROW 5.43 COL 88
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
@@ -242,7 +242,7 @@ DEFINE FRAME F-Main
    Allow: Basic,DB-Fields
    Frames: 1
    Add Fields to: EXTERNAL-TABLES
-   Other Settings: PERSISTENT-ONLY
+   Other Settings: PERSISTENT-ONLY COMPILE
  */
 
 /* This procedure should always be RUN PERSISTENT.  Report the error,  */
@@ -321,6 +321,8 @@ ASSIGN
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN ar-inv.tax-code IN FRAME F-Main
    EXP-LABEL                                                            */
+/* SETTINGS FOR TOGGLE-BOX tbEdiInvoice IN FRAME F-Main
+   NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN ar-inv.terms-d IN FRAME F-Main
    NO-ENABLE 2 EXP-LABEL                                                */
 /* _RUN-TIME-ATTRIBUTES-END */
@@ -832,6 +834,29 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-disable V-table-Win 
+PROCEDURE local-disable :
+/*------------------------------------------------------------------------------
+  Purpose:     Override standard ADM method
+  Notes:       
+------------------------------------------------------------------------------*/
+
+  /* Code placed here will execute PRIOR to standard behavior. */
+ message "disable fuield" view-as alert-box.
+  /* Dispatch standard ADM method.                             */
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'disable':U ) .
+
+  /* Code placed here will execute AFTER standard behavior.    */
+  message "disable it" view-as alert-box.
+  DO WITH FRAME F-Main:
+    DISABLE tbEdiInvoice.
+  END.
+  
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-display-fields V-table-Win 
 PROCEDURE local-display-fields :
 /*------------------------------------------------------------------------------
@@ -870,6 +895,25 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-enable V-table-Win 
+PROCEDURE local-enable :
+/*------------------------------------------------------------------------------
+  Purpose:     Override standard ADM method
+  Notes:       
+------------------------------------------------------------------------------*/
+
+  /* Code placed here will execute PRIOR to standard behavior. */
+
+  /* Dispatch standard ADM method.                             */
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'enable':U ) .
+
+  /* Code placed here will execute AFTER standard behavior.    */
+  
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-update-record V-table-Win 
 PROCEDURE local-update-record :
 /*------------------------------------------------------------------------------
@@ -887,7 +931,10 @@ PROCEDURE local-update-record :
 
   RUN valid-cust-no NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-
+ 
+  DO WITH FRAME  {&FRAME-NAME}:
+  DISABLE tbEdiInvoice.
+  END.
   DO WITH FRAME {&FRAME-NAME}:
      {&methods/lValidateError.i YES}
      {VALIDATE/stax.i ar-inv.tax-code}
@@ -1045,6 +1092,9 @@ PROCEDURE proc-enable :
   Notes:       
 ------------------------------------------------------------------------------*/
 
+   DO WITH FRAME  {&FRAME-NAME}:
+     ENABLE tbEdiInvoice.
+   END.
    IF NOT adm-new-record THEN
      IF ar-inv.posted THEN DO:
         DEF VAR char-hdl AS cha NO-UNDO.

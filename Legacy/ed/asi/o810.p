@@ -138,6 +138,7 @@ RETURN RETURN-VALUE.
 
 
 PROCEDURE edi-ar.ip:
+    /*
     DEFINE VARIABLE lInvalidBol AS LOGICAL NO-UNDO.
     lInvalidBol = NO.
     FOR EACH ar-invl 
@@ -149,7 +150,8 @@ PROCEDURE edi-ar.ip:
             lInvalidBol = YES.
     END.
     IF lInvalidBol THEN 
-        RETURN "Invalid BOL#".     
+        RETURN "Invalid BOL#".
+        */     
     IF top-debug THEN RUN rc/debugmsg.p ("...start of ar-inv invoice").
     ASSIGN  
         v-shipto-name    = ar-inv.sold-name
