@@ -207,20 +207,20 @@ DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btnAfterValueFilterClear 
-     IMAGE-UP FILE "Graphics/16x16/keyboard_key_x.gif":U NO-FOCUS
+     IMAGE-UP FILE "Graphics/16x16/navigate_cross.png":U NO-FOCUS
      LABEL "" 
-     SIZE 4 BY .95 TOOLTIP "Clear After Value Filter".
+     SIZE 4.4 BY 1.05 TOOLTIP "Clear After Value Filter".
 
 DEFINE BUTTON btnAuditTables 
-     IMAGE-UP FILE "Graphics/32x32/indent_increase.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/checks.ico":U NO-FOCUS FLAT-BUTTON
      LABEL "" 
      SIZE 8.4 BY 2 TOOLTIP "Select Tables to Audit"
      FONT 4.
 
 DEFINE BUTTON btnBeforeValueFilterClear 
-     IMAGE-UP FILE "Graphics/16x16/keyboard_key_x.gif":U NO-FOCUS
+     IMAGE-UP FILE "Graphics/16x16/navigate_cross.png":U NO-FOCUS
      LABEL "" 
-     SIZE 4 BY .95 TOOLTIP "Clear Before Value Filter".
+     SIZE 4.4 BY 1.05 TOOLTIP "Clear Before Value Filter".
 
 DEFINE BUTTON btnCalendar-1 
      IMAGE-UP FILE "Graphics/16x16/calendar.bmp":U
@@ -427,11 +427,15 @@ DEFINE FRAME DEFAULT-FRAME
 DEFINE FRAME AuditSearch
      btnAuditTables AT ROW 2.67 COL 118 HELP
           "Click to Access Tables to Audit" WIDGET-ID 288
+     btnAfterValueFilterClear AT ROW 3.62 COL 234 HELP
+          "Click to Clear After Value Filter" WIDGET-ID 42
      svType AT ROW 1.24 COL 8 COLON-ALIGNED HELP
           "Select Audit Type Filter" WIDGET-ID 6
      svStartDate AT ROW 1.24 COL 36 COLON-ALIGNED HELP
           "Enter From Date" WIDGET-ID 20
      btnCalendar-1 AT ROW 1.24 COL 54 WIDGET-ID 272
+     btnBeforeValueFilterClear AT ROW 2.43 COL 234 HELP
+          "Click to Clear Before Value Filter" WIDGET-ID 40
      svStartDateOption AT ROW 1.24 COL 59 HELP
           "Select Start Date Option" NO-LABEL WIDGET-ID 74
      svDB AT ROW 1.24 COL 89 COLON-ALIGNED HELP
@@ -459,12 +463,8 @@ DEFINE FRAME AuditSearch
           "Enter After Value to Filter" WIDGET-ID 38
      btnClear AT ROW 2.67 COL 127 HELP
           "Click to Clear Filters" WIDGET-ID 284
-     btnAfterValueFilterClear AT ROW 3.62 COL 234 HELP
-          "Click to Clear After Value Filter" WIDGET-ID 42
      btnSearch AT ROW 2.67 COL 136 HELP
           "Click to Apply Filter Selections" WIDGET-ID 286
-     btnBeforeValueFilterClear AT ROW 2.43 COL 234 HELP
-          "Click to Clear Before Value Filter" WIDGET-ID 40
      btnFilterAfterValue AT ROW 3.62 COL 145 HELP
           "Select to Filter by After Value" WIDGET-ID 34
      btnFilterAuditKey AT ROW 1.24 COL 145 HELP
@@ -1401,10 +1401,10 @@ PROCEDURE enable_UI :
   IF AVAILABLE AuditHdr THEN 
     DISPLAY AuditHdr.AuditKey 
       WITH FRAME AuditSearch IN WINDOW C-Win.
-  ENABLE btnAuditTables svType svStartDate btnCalendar-1 svStartDateOption svDB 
-         maxRows svUser svEndDate btnCalendar-2 svEndDateOption svTable 
-         svBeforeValueFilter svField svAfterValueFilter btnClear 
-         btnAfterValueFilterClear btnSearch btnBeforeValueFilterClear 
+  ENABLE btnAuditTables btnAfterValueFilterClear svType svStartDate 
+         btnCalendar-1 btnBeforeValueFilterClear svStartDateOption svDB maxRows 
+         svUser svEndDate btnCalendar-2 svEndDateOption svTable 
+         svBeforeValueFilter svField svAfterValueFilter btnClear btnSearch 
          btnFilterAfterValue btnFilterAuditKey btnFilterBeforeValue btnHistory 
       WITH FRAME AuditSearch IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-AuditSearch}
