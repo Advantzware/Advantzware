@@ -868,9 +868,7 @@ PROCEDURE stackImage:
 
 /* bad code - reftable remnant */
 /*  IF AVAILABLE pattern AND SEARCH(stackPattern.stackImage) NE ? THEN  */
-
   IF AVAILABLE stackPattern AND SEARCH(stackPattern.stackImage) NE ? THEN
-
   PUT UNFORMATTED
     "<#stackImage><C27><R+1><FROM><C2><R+12>"
     "<IMAGE#stackImage=" stackPattern.stackImage ">"
