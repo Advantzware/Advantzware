@@ -21,7 +21,7 @@ j = IF users.developer OR USER(LDBNAME(1)) EQ "ASI" THEN 2 ELSE 1.
 
 ASSIGN
     m_est-only    = SEARCH("menuest.r") NE ?
-    m_menu-lst[1] = "menu"
+    m_menu-lst[1] = "{&addon}menu"
     m_menu-lst[2] = "lst".
 
 FIND FIRST sys-ctrl NO-LOCK
@@ -37,12 +37,14 @@ m_menu-lst[1] = TRIM(m_menu-lst[1]) + "." + TRIM(m_menu-lst[2]).
 
 DO i = 1 TO j:
     IF i = 1 THEN
+        &IF DEFINED(addon) EQ 0 &THEN
         IF SEARCH("usermenu/" + USERID(LDBNAME(1)) + "/" + m_menu-lst[1]) NE ? THEN
             INPUT FROM VALUE(SEARCH("usermenu/" + USERID(LDBNAME(1)) + "/" + m_menu-lst[1])) NO-ECHO.
         ELSE
+        &ENDIF
             INPUT FROM VALUE(SEARCH(m_menu-lst[1])) NO-ECHO.
     ELSE
-        INPUT FROM VALUE(SEARCH ("popup.lst")) NO-ECHO.
+        INPUT FROM VALUE(SEARCH ("{&addon}popup.lst")) NO-ECHO.
     REPEAT:
         ASSIGN
             m_item1 = ""
@@ -63,12 +65,14 @@ END.
 
 DO i = 1 TO j:
     IF i = 1 THEN
+        &IF DEFINED(addon) EQ 0 &THEN
         IF SEARCH("usermenu/" + USERID(LDBNAME(1)) + "/" + m_menu-lst[1]) NE ? THEN
             INPUT FROM VALUE(SEARCH("usermenu/" + USERID(LDBNAME(1)) + "/" + m_menu-lst[1])) NO-ECHO.
         ELSE
+        &ENDIF
             INPUT FROM VALUE(SEARCH(m_menu-lst[1])) NO-ECHO.
     ELSE
-        INPUT FROM VALUE(SEARCH ("popup.lst")) NO-ECHO.
+        INPUT FROM VALUE(SEARCH ("{&addon}popup.lst")) NO-ECHO.
     REPEAT:
         ASSIGN
             m_item1 = ""
