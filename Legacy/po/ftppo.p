@@ -35,6 +35,8 @@ DEFINE VARIABLE cWinScpIniFile AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cWinScpXmlLog AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lConfigBased AS LOG NO-UNDO.
 DEFINE VARIABLE lConfigIdentified AS LOGICAL NO-UNDO.
+DEFINE VARIABLE cSingleFile AS CHARACTER NO-UNDO.
+DEFINE VARIABLE iCnt AS INTEGER NO-UNDO.
 DEF TEMP-TABLE ttConfig FIELD exportFormat  AS CHAR
                       FIELD destName AS CHAR FORMAT "x(20)"
                       FIELD ftp-site AS CHAR FORMAT "x(30)"
@@ -690,11 +692,15 @@ PROCEDURE config-based-script:
 
             IF ttConfig.ftp-dir GT "" THEN 
             PUT UNFORMATTED
-                "cd " + ttConfig.ftp-dir     SKIP.
-                
-            PUT UNFORMATTED
-                 ttConfig.ftp-cmd + " " + ip-exp-file SKIP .   /* file to transfer */
+                "cd " + ttConfig.ftp-dir     SKIP.            
+           
+            DO iCnt = 1 TO NUM-ENTRIES(ip-exp-file):
+                cSingleFile = ENTRY(iCnt, ip-exp-file).
 
+                PUT UNFORMATTED
+                     ttConfig.ftp-cmd + " " + cSingleFile SKIP .   /* file to transfer */
+            END. 
+            
             PUT UNFORMATTED
                 "quit" .
 
@@ -736,9 +742,14 @@ PROCEDURE config-based-script:
                 PUT UNFORMATTED
                     "cd " + ttConfig.ftp-dir          SKIP.            
 
-            PUT UNFORMATTED
-                ttConfig.ftp-cmd + " " + ip-exp-file  SKIP .      /* file to transfer */
 
+            DO iCnt = 1 TO NUM-ENTRIES(ip-exp-file):
+                cSingleFile = ENTRY(iCnt, ip-exp-file).
+
+                PUT UNFORMATTED
+                    ttConfig.ftp-cmd + " " + cSingleFile SKIP .   /* file to transfer */
+            END. 
+            
             PUT UNFORMATTED    
                 "close"                               SKIP .     
 
