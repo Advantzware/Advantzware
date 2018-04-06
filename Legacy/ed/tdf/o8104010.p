@@ -445,7 +445,7 @@ FOR EACH edivline OF edivtran EXCLUSIVE
             WHERE ar-invl.company EQ edivtran.company
               AND ar-invl.cust-no EQ edivtran.cust
               AND ar-invl.inv-no  EQ INTEGER(edivtran.invoice-no)
-              AND ar-invl.i-no    EQ inv-line.i-no
+              AND ar-invl.i-no    EQ edivline.item-no
             NO-ERROR.
               IF AVAILABLE ar-invl THEN 
               find first oe-ordl NO-LOCK 
