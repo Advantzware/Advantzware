@@ -35,7 +35,8 @@ DISPLAY
   prep.uom
   prep.simon
   prep.cost-type COLUMN-LABEL 'CType'
-  prep.actnum.
+  prep.actnum
+  prep.vend-no FORMAT "X(8)".
 
 {methods/lstlogic/shownote.i &db_table="prep" &col="5" &frame-name="f-notes"}
 {methods/lstlogic/showmisc.i &db_table="prep" &col="5" &frame-name="f-miscflds"}

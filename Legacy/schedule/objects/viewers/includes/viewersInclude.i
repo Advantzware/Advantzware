@@ -166,7 +166,7 @@ PROCEDURE getCellColumns :
       .
     IF cellColumn[i]:NAME BEGINS 'userField' THEN
     ASSIGN
-      idx = INTEGER(SUBSTRING(cellColumn[i]:NAME,10,2))
+      idx = INTEGER(SUBSTRING(cellColumn[i]:NAME,10))
       cellColumn[i]:LABEL = userLabel[idx]
       cellColumn[i]:WIDTH-CHARS = userWidth[idx]
       .
@@ -401,6 +401,31 @@ PROCEDURE reopenBrowse :
     {{&viewers}/includes/byReopenBrowse.i "user" 96}
     {{&viewers}/includes/byReopenBrowse.i "user" 97}
     {{&viewers}/includes/byReopenBrowse.i "user" 98}
+    {{&viewers}/includes/byReopenBrowse.i "user" 99}
+    {{&viewers}/includes/byReopenBrowse.i "user" 100}
+    {{&viewers}/includes/byReopenBrowse.i "user" 101}
+    {{&viewers}/includes/byReopenBrowse.i "user" 102}
+    {{&viewers}/includes/byReopenBrowse.i "user" 103}
+    {{&viewers}/includes/byReopenBrowse.i "user" 104}
+    {{&viewers}/includes/byReopenBrowse.i "user" 105}
+    {{&viewers}/includes/byReopenBrowse.i "user" 106}
+    {{&viewers}/includes/byReopenBrowse.i "user" 107}
+    {{&viewers}/includes/byReopenBrowse.i "user" 108}
+    {{&viewers}/includes/byReopenBrowse.i "user" 109}
+    {{&viewers}/includes/byReopenBrowse.i "user" 110}
+    {{&viewers}/includes/byReopenBrowse.i "user" 111}
+    {{&viewers}/includes/byReopenBrowse.i "user" 112}
+    {{&viewers}/includes/byReopenBrowse.i "user" 113}
+    {{&viewers}/includes/byReopenBrowse.i "user" 114}
+    {{&viewers}/includes/byReopenBrowse.i "user" 115}
+    {{&viewers}/includes/byReopenBrowse.i "user" 116}
+    {{&viewers}/includes/byReopenBrowse.i "user" 117}
+    {{&viewers}/includes/byReopenBrowse.i "user" 118}
+    {{&viewers}/includes/byReopenBrowse.i "user" 119}
+    {{&viewers}/includes/byReopenBrowse.i "user" 120}
+    {{&viewers}/includes/byReopenBrowse.i "user" 121}
+    {{&viewers}/includes/byReopenBrowse.i "user" 122}
+    {{&viewers}/includes/byReopenBrowse.i "user" 123}
   END CASE.
 END PROCEDURE.
 
@@ -655,6 +680,31 @@ END PROCEDURE.
 {{&viewers}/includes/reopenBrowse.i "user" 96}
 {{&viewers}/includes/reopenBrowse.i "user" 97}
 {{&viewers}/includes/reopenBrowse.i "user" 98}
+{{&viewers}/includes/reopenBrowse.i "user" 99}
+{{&viewers}/includes/reopenBrowse.i "user" 100}
+{{&viewers}/includes/reopenBrowse.i "user" 101}
+{{&viewers}/includes/reopenBrowse.i "user" 102}
+{{&viewers}/includes/reopenBrowse.i "user" 103}
+{{&viewers}/includes/reopenBrowse.i "user" 104}
+{{&viewers}/includes/reopenBrowse.i "user" 105}
+{{&viewers}/includes/reopenBrowse.i "user" 106}
+{{&viewers}/includes/reopenBrowse.i "user" 107}
+{{&viewers}/includes/reopenBrowse.i "user" 108}
+{{&viewers}/includes/reopenBrowse.i "user" 109}
+{{&viewers}/includes/reopenBrowse.i "user" 110}
+{{&viewers}/includes/reopenBrowse.i "user" 111}
+{{&viewers}/includes/reopenBrowse.i "user" 112}
+{{&viewers}/includes/reopenBrowse.i "user" 113}
+{{&viewers}/includes/reopenBrowse.i "user" 114}
+{{&viewers}/includes/reopenBrowse.i "user" 115}
+{{&viewers}/includes/reopenBrowse.i "user" 116}
+{{&viewers}/includes/reopenBrowse.i "user" 117}
+{{&viewers}/includes/reopenBrowse.i "user" 118}
+{{&viewers}/includes/reopenBrowse.i "user" 119}
+{{&viewers}/includes/reopenBrowse.i "user" 120}
+{{&viewers}/includes/reopenBrowse.i "user" 121}
+{{&viewers}/includes/reopenBrowse.i "user" 122}
+{{&viewers}/includes/reopenBrowse.i "user" 123}
 
 &UNDEFINE startDatePhrase
 &UNDEFINE dateRangePhrase
@@ -675,7 +725,11 @@ PROCEDURE setSize :
 
   DEFINE VARIABLE i AS INTEGER NO-UNDO.
 
+&IF DEFINED(FWD-VERSION) EQ 0 &THEN
   RUN lockWindowUpdate (ACTIVE-WINDOW:HWND,OUTPUT i).
+&ELSE
+  ACTIVE-WINDOW:DISABLE-REDRAW = TRUE.
+&ENDIF
   ASSIGN
     browseJob:HIDDEN IN FRAME {&FRAME-NAME} = YES
     &IF DEFINED(dynColumns) EQ 0 &THEN
@@ -700,7 +754,11 @@ PROCEDURE setSize :
     RECT-1:HIDDEN = NO
     &ENDIF
     browseJob:HIDDEN IN FRAME {&FRAME-NAME} = NO.
+&IF DEFINED(FWD-VERSION) EQ 0 &THEN
   RUN lockWindowUpdate (0,OUTPUT i).
+&ELSE
+  ACTIVE-WINDOW:DISABLE-REDRAW = FALSE.
+&ENDIF
 
 END PROCEDURE.
 

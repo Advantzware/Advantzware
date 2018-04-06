@@ -37,7 +37,7 @@ def var v-ans as logical initial no NO-UNDO.
 def var v-date-ship as date NO-UNDO.
 def var v-del-no as int format ">>>>>>" NO-UNDO.
 def var v-bol-cases LIKE oe-boll.cases NO-UNDO.
-def var v-set-qty AS INT NO-UNDO.
+def var v-set-qty AS DECIMAL NO-UNDO.
 def var v-part-qty AS DEC FORMAT "999.9999" NO-UNDO.
 def var v-net like ar-inv.due NO-UNDO.
 def var v-case-cnt as char format "x(80)" extent 5 NO-UNDO.
@@ -90,8 +90,8 @@ FIND FIRST ar-inv NO-LOCK NO-ERROR.
 /* === with xprint ====*/
 DEF VAR ls-image1 AS cha NO-UNDO.
 DEF VAR ls-image2 AS cha NO-UNDO.
-DEF VAR ls-full-img1 AS cha FORM "x(150)" NO-UNDO.
-DEF VAR ls-full-img2 AS cha FORM "x(150)" NO-UNDO.
+DEF VAR ls-full-img1 AS cha FORM "x(200)" NO-UNDO.
+DEF VAR ls-full-img2 AS cha FORM "x(200)" NO-UNDO.
 ASSIGN ls-image1 = "images\unipak.jpg"
        ls-image2 = "images\pacific2.bmp".
 
@@ -309,7 +309,7 @@ assign
              DO:
                FOR EACH fg-set NO-LOCK WHERE fg-set.company = ar-invl.company
                   AND fg-set.set-no = ar-invl.i-no:
-                 ASSIGN v-set-qty = v-set-qty + fg-set.part-qty.
+                 ASSIGN v-set-qty = v-set-qty + fg-set.qtyPerSet.
                END.
                IF v-set-qty = 0 THEN
                   ASSIGN v-set-qty = 1.
@@ -321,8 +321,8 @@ assign
                     fg-set.set-no = ar-invl.i-no  AND
                     fg-set.part-no = eb.stock-no NO-LOCK NO-ERROR.
 
-                 IF AVAIL fg-set AND fg-set.part-qty NE 0 THEN
-                   ASSIGN v-part-qty = fg-set.part-qty / v-set-qty.
+                 IF AVAIL fg-set AND fg-set.qtyPerSet NE 0 THEN
+                   ASSIGN v-part-qty = fg-set.qtyPerSet / v-set-qty.
                  ELSE
                    ASSIGN v-part-qty = 1 / v-set-qty.
 
@@ -383,7 +383,7 @@ assign
         if avail ar-invl then
         do:
          assign v-price-head = ar-invl.pr-uom
-                v-po-no = IF ar-invl.po-no <> "" THEN ar-invl.po-no ELSE ar-inv.po-no
+               /* v-po-no = IF ar-invl.po-no <> "" THEN ar-invl.po-no ELSE ar-inv.po-no*/
                 v-ord-no = ar-invl.ord-no
                 lv-bol-no = ar-invl.bol-no
                 .
@@ -396,7 +396,7 @@ assign
                                   no-lock no-error.
           if avail oe-ord then
           do:
-            assign v-po-no = oe-ord.po-no
+            assign /*v-po-no = oe-ord.po-no*/
                    v-bill-i = oe-ord.bill-i[1]
                    v-ord-no = oe-ord.ord-no
                    v-ord-date = oe-ord.ord-date.
@@ -476,6 +476,19 @@ assign
               assign v-bo-qty = if ( ar-invl.qty - ar-invl.ship-qty ) < 0
                                   then 0 else ar-invl.qty - ar-invl.ship-qty.
 
+            ASSIGN v-po-no = "".
+            if avail oe-ordl then
+             FOR EACH oe-rel NO-LOCK
+                WHERE oe-rel.company = cocode
+                AND oe-rel.ord-no = oe-ordl.ord-no
+                AND oe-rel.i-no = oe-ordl.i-no
+                AND oe-rel.LINE = oe-ordl.LINE :
+
+                IF oe-rel.po-no NE "" THEN DO:
+                  v-po-no = oe-rel.po-no. 
+                  LEAVE.
+                END.
+             END. 
             assign v-inv-qty = ar-invl.qty
                    v-ship-qty = ar-invl.ship-qty
                    v-i-no = ar-invl.i-no
@@ -566,7 +579,7 @@ assign
             end.
 
             IF ar-invl.disc NE 0 THEN
-              PUT SPACE(41)
+              PUT SPACE(25) v-po-no FORMAT "x(15)" SPACE(1)
                   "Less " + TRIM(STRING(ar-invl.disc,">>9.99%")) + " Discount" FORMAT "x(21)"
                   v-price - ar-invl.amt FORMAT "->>>,>>9.99" TO 95.
 

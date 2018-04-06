@@ -116,7 +116,7 @@ DEFINE        VARIABLE v-date-ship      AS DATE    INITIAL TODAY NO-UNDO.
 DEFINE        VARIABLE v-date-ord       AS DATE    NO-UNDO.
 DEFINE        VARIABLE v-del-no         AS INTEGER     FORMAT ">>>>>>" NO-UNDO.
 DEFINE        VARIABLE v-bol-cases      LIKE oe-boll.cases NO-UNDO.
-DEFINE        VARIABLE v-set-qty        AS INTEGER     NO-UNDO.
+DEFINE        VARIABLE v-set-qty        AS v-set-qty     NO-UNDO.
 DEFINE        VARIABLE v-part-qty       AS DECIMAL     FORMAT "999.9999" NO-UNDO.
 DEFINE        VARIABLE v-net            LIKE inv-head.t-inv-rev NO-UNDO.
 DEFINE        VARIABLE v-case-cnt       AS CHARACTER    FORMAT "x(80)" EXTENT 5 NO-UNDO.
@@ -164,7 +164,7 @@ DEFINE VARIABLE lFirstLine    AS LOGICAL NO-UNDO.
 FIND FIRST ar-inv NO-LOCK NO-ERROR.
 /* === with xprint ====*/
 DEFINE           VARIABLE      ls-image1    AS cha       NO-UNDO.
-DEFINE           VARIABLE      ls-full-img1 AS cha       FORM "x(150)" NO-UNDO.
+DEFINE           VARIABLE      ls-full-img1 AS cha       FORM "x(200)" NO-UNDO.
 /*ASSIGN ls-image1 = "images\premiercan.jpg"          */
 /*       FILE-INFO:FILE-NAME = ls-image1.             */
 /*       ls-full-img1 = FILE-INFO:FULL-PATHNAME + ">".*/
@@ -762,7 +762,7 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
                         FOR EACH fg-set NO-LOCK WHERE fg-set.company = xar-invl.company
                             AND fg-set.set-no = xar-invl.i-no:
                             ASSIGN 
-                                v-set-qty = v-set-qty + fg-set.part-qty.
+                                v-set-qty = v-set-qty + fg-set.QtyPerSet.
                         END.
                         IF v-set-qty = 0 THEN
                             ASSIGN v-set-qty = 1.
@@ -774,8 +774,8 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
                                 fg-set.set-no = xar-invl.i-no  AND
                                 fg-set.part-no = eb.stock-no NO-LOCK NO-ERROR.
 
-                            IF AVAILABLE fg-set AND fg-set.part-qty NE 0 THEN
-                                ASSIGN v-part-qty = fg-set.part-qty / v-set-qty.
+                            IF AVAILABLE fg-set AND fg-set.QtyPerSet NE 0 THEN
+                                ASSIGN v-part-qty = fg-set.QtyPerSet / v-set-qty.
                             ELSE
                                 ASSIGN v-part-qty = 1 / v-set-qty.
 
@@ -980,7 +980,7 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
 
         PUT "<FTimes New Roman>".
         IF lChkImage THEN
-            PUT  "<C3><#1><R+8><C+45>" "<IMAGE#1=" + ls-full-img1 FORM "x(160)" SKIP .
+            PUT  "<C3><#1><R+8><C+45>" "<IMAGE#1=" + ls-full-img1 FORM "x(200)" SKIP .
         /*         PUT "<C3><R2><#1>"                                         */
         /*             "<R+8><C+45><IMAGE#1=" ls-full-img1 SKIP. /* image */ .*/
         PUT "<=1>" SKIP. 
@@ -1150,7 +1150,7 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
 
                 PUT "<FTimes New Roman>".
                 IF lChkImage THEN
-                    PUT  "<C3><#1><R+8><C+45>" "<IMAGE#1=" + ls-full-img1 FORM "x(160)" SKIP .
+                    PUT  "<C3><#1><R+8><C+45>" "<IMAGE#1=" + ls-full-img1 FORM "x(200)" SKIP .
                 /*         PUT "<C3><R2><#1>"                                         */
                 /*             "<R+8><C+45><IMAGE#1=" ls-full-img1 SKIP. /* image */ .*/
                 PUT "<=1>" SKIP. 
@@ -1490,7 +1490,7 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
 
                 PUT "<FTimes New Roman>".
                 IF lChkImage THEN
-                    PUT  "<C3><#1><R+8><C+45>" "<IMAGE#1=" + ls-full-img1 FORM "x(160)" SKIP .
+                    PUT  "<C3><#1><R+8><C+45>" "<IMAGE#1=" + ls-full-img1 FORM "x(200)" SKIP .
                 /*         PUT "<C3><R2><#1>"                                         */
                 /*             "<R+8><C+45><IMAGE#1=" ls-full-img1 SKIP. /* image */ .*/
                 PUT "<=1>" SKIP. 

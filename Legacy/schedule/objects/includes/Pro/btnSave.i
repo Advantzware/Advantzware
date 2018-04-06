@@ -25,7 +25,7 @@
       ASSIGN scenario.
       RETURN NO-APPLY.
     END.
-    ENABLE btnRemove btnReset WITH FRAME {&FRAME-NAME}.
+    ENABLE /*btnRemove*/ btnReset WITH FRAME {&FRAME-NAME}.
     ASSIGN
       scenario = SUBSTRING(scenario,R-INDEX(scenario,'\') + 1)
       scenario = REPLACE(scenario,'.dat','').
@@ -53,4 +53,8 @@
   /* RUN buildBoard (YES). */
   RUN msgFrame (?).
   HIDE FRAME msgFrame NO-PAUSE.
+&IF DEFINED(FWD-VERSION) EQ 0 &THEN
   RUN LockWindowUpdate (0,OUTPUT i).
+&ELSE
+  ACTIVE-WINDOW:DISABLE-REDRAW = FALSE.
+&ENDIF

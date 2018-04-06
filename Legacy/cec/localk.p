@@ -79,7 +79,7 @@ FOR EACH bf-eb
     NO-LOCK:
 
   ASSIGN
-   v-yld    = IF bf-eb.yld-qty LT 0 THEN -1 / bf-eb.yld-qty ELSE bf-eb.yld-qty.  
+   v-yld    = IF bf-eb.quantityPerSet LT 0 THEN -1 / bf-eb.quantityPerSet ELSE bf-eb.quantityPerSet.  
    v-eb-qty = qty * v-yld.
 
   CREATE w-qty.
@@ -150,7 +150,7 @@ for each est-op
       no-lock.
 
   if first(est-op.d-seq) THEN
-    v-yld = if xeb.yld-qty lt 0 then -1 / xeb.yld-qty else xeb.yld-qty.
+    v-yld = if xeb.quantityPerSet lt 0 then -1 / xeb.quantityPerSet else xeb.quantityPerSet.
 
   cumul = 0.
 

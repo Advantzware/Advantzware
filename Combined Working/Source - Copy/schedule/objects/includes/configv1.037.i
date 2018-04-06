@@ -1,0 +1,18 @@
+allResources alphaSort autoSize
+boardDatePrompt
+completedCheckoff completedHide customCheckoff
+datePrompt detailWindow downtimeBlock downtimeConflictBGColor downtimePrompt
+downtimeSize downtimeTop downtimeWarning
+endDateBuffer
+flashGridLine flashLightColor flashLight flashTimeLine fullBoard
+gap gridBGColor gridLineColor
+hpixels
+intervalInit
+jobBlock jobConflictBGColor jobPrompt jobWarning
+lightBulbColor lockButtons loadCapacity
+moveUndoRedo
+pendingDays popupBottom
+resourceBGColor resourceBrowseAction resourceJobDetail
+showDowntime showStatus
+threeD threeDBottom threeDLeft threeDRight threeDTop timeInit timeLineColor
+.

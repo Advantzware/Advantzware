@@ -1089,18 +1089,20 @@ PROCEDURE ipReadIniFile :
 ------------------------------------------------------------------------------*/
     DEF VAR cIniLine AS CHAR NO-UNDO.
     
-    INPUT FROM VALUE(SEARCH(cIniLoc)).
-    REPEAT:
-        IMPORT UNFORMATTED cIniLine.
-        IF cIniLine BEGINS "envList" THEN ASSIGN
-            cEnvList = ENTRY(2,cIniLine,"=").
-        ELSE IF cIniLine BEGINS "dbList" THEN ASSIGN
-            cDbList = ENTRY(2,cIniLine,"=").
-        IF cIniLine BEGINS "modeList" THEN ASSIGN
-            cModeList = ENTRY(2,cIniLine,"=").
-        ELSE NEXT.
+    IF SEARCH(cIniLoc) NE ? THEN do:
+        INPUT FROM VALUE(SEARCH(cIniLoc)) .
+        REPEAT:
+            IMPORT UNFORMATTED cIniLine.
+            IF cIniLine BEGINS "envList" THEN ASSIGN
+                cEnvList = ENTRY(2,cIniLine,"=").
+            ELSE IF cIniLine BEGINS "dbList" THEN ASSIGN
+                cDbList = ENTRY(2,cIniLine,"=").
+            IF cIniLine BEGINS "modeList" THEN ASSIGN
+                cModeList = ENTRY(2,cIniLine,"=").
+            ELSE NEXT.
+        END.
+        INPUT CLOSE.
     END.
-    INPUT CLOSE.
 
 END PROCEDURE.
 
@@ -1115,21 +1117,25 @@ PROCEDURE ipReadUsrFile :
   Notes:       
 ------------------------------------------------------------------------------*/
     DEF VAR cUsrLine AS CHAR NO-UNDO.
-    INPUT FROM VALUE(SEARCH(cUsrLoc)).
-    REPEAT:
-        IMPORT UNFORMATTED cUsrLine.
-        IF INDEX(cUsrLine,"|") = 0 THEN NEXT.
-        CREATE ttUsers.
-        ASSIGN
-            ttUsers.ttfPdbname = ENTRY(1,cUsrLine,"|")
-            ttUsers.ttfUserAlias = ENTRY(2,cUsrLine,"|")
-            ttUsers.ttfUserID = ENTRY(3,cUsrLine,"|")
-            ttUsers.ttfEnvList = ENTRY(4,cUsrLine,"|")
-            ttUsers.ttfDbList = ENTRY(5,cUsrLine,"|")
-            ttUsers.ttfModeList = ENTRY(6,cUsrLine,"|")
-            .
+    
+    IF SEARCH(cUsrLoc) NE ? THEN do:
+
+        INPUT FROM VALUE(SEARCH(cUsrLoc)).
+        REPEAT:
+            IMPORT UNFORMATTED cUsrLine.
+            IF INDEX(cUsrLine,"|") = 0 THEN NEXT.
+            CREATE ttUsers.
+            ASSIGN
+                ttUsers.ttfPdbname = ENTRY(1,cUsrLine,"|")
+                ttUsers.ttfUserAlias = ENTRY(2,cUsrLine,"|")
+                ttUsers.ttfUserID = ENTRY(3,cUsrLine,"|")
+                ttUsers.ttfEnvList = ENTRY(4,cUsrLine,"|")
+                ttUsers.ttfDbList = ENTRY(5,cUsrLine,"|")
+                ttUsers.ttfModeList = ENTRY(6,cUsrLine,"|")
+                .
+        END.
+        INPUT CLOSE.
     END.
-    INPUT CLOSE.
 
 END PROCEDURE.
 
@@ -1329,11 +1335,7 @@ PROCEDURE local-delete-record :
         usrx.uid = users.user_id:
         DELETE usrx.
     END.
-    FOR EACH reftable EXCLUSIVE WHERE 
-        reftable.reftable EQ "users.user-docs" AND
-        reftable.company EQ users.user_id:
-        DELETE reftable.
-    END.
+   
     FOR EACH reftable EXCLUSIVE WHERE
         reftable.reftable EQ "users.phone-no" AND
         reftable.company EQ users.user_id:

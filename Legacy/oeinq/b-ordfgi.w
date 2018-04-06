@@ -90,11 +90,7 @@ ll-sort-asc = NOT oeinq.
     EACH fg-rdtlh NO-LOCK                          ~
     WHERE fg-rdtlh.r-no      EQ fg-rcpth.r-no      ~
       AND fg-rdtlh.rita-code EQ fg-rcpth.rita-code ~
-      AND fg-rdtlh.tag MATCHES fi_tag#,            ~
-    FIRST reftable NO-LOCK OUTER-JOIN              ~
-    WHERE reftable.reftable EQ "fg-rctd.user-id"   ~
-      AND reftable.company  EQ fg-rcpth.company    ~
-      AND reftable.loc      EQ STRING(fg-rcpth.r-no,"9999999999")
+      AND fg-rdtlh.tag MATCHES fi_tag#
 
 &SCOPED-DEFINE sortby-log                                                                                   ~
     IF lv-sort-by EQ "i-no"        THEN fg-rcpth.i-no                                                  ELSE ~
@@ -157,7 +153,7 @@ END.
 /* Need to scope the external tables to this procedure                  */
 DEFINE QUERY external_tables FOR itemfg.
 /* Internal Tables (found by Frame, Query & Browse Queries)             */
-&Scoped-define INTERNAL-TABLES fg-rcpth fg-rdtlh reftable
+&Scoped-define INTERNAL-TABLES fg-rcpth fg-rdtlh
 
 /* Define KEY-PHRASE in case it is used by any query. */
 &Scoped-define KEY-PHRASE TRUE
@@ -170,40 +166,30 @@ fg-rdtlh.cust-no fg-rdtlh.loc fg-rdtlh.loc-bin fg-rdtlh.qty fg-rdtlh.tag ~
 fg-rdtlh.cost fg-rdtlh.cases fg-rdtlh.qty-case ~
 get-pallet-info (output li-qty-pal) @ li-pallets fg-rdtlh.stacks-unit ~
 fg-rdtlh.partial li-qty-pal @ li-qty-pal fg-rdtlh.stack-code ~
-fg-rdtlh.tot-wt reftable.code fg-rdtlh.user-id fg-rcpth.b-no ~
-fg-rcpth.pur-uom display-ship() @ bol-ship fg-rcpth.post-date get-vend-no() @ vend-no get-vend-info() @ vend-name ~
-get-fg-qty(1) @ iBinQtyBef  get-fg-qty(2) @ iBinQty 
+fg-rdtlh.tot-wt fg-rdtlh.user-id fg-rcpth.b-no fg-rcpth.pur-uom ~
+display-ship() @ bol-ship fg-rcpth.post-date get-vend-no () @ vend-no ~
+get-vend-info () @ vend-name get-fg-qty (1) @ iBinQtyBef ~
+get-fg-qty (2) @ iBinQty 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table fg-rcpth.i-no ~
 fg-rcpth.po-no fg-rcpth.job-no fg-rcpth.job-no2 fg-rcpth.trans-date ~
 fg-rcpth.rita-code fg-rdtlh.cust-no fg-rdtlh.loc fg-rdtlh.loc-bin ~
 fg-rdtlh.qty fg-rdtlh.tag fg-rdtlh.cost fg-rdtlh.cases fg-rdtlh.qty-case ~
 fg-rdtlh.stacks-unit fg-rdtlh.partial fg-rdtlh.stack-code fg-rdtlh.tot-wt ~
-reftable.code fg-rcpth.pur-uom fg-rcpth.post-date
-&Scoped-define ENABLED-TABLES-IN-QUERY-Browser-Table fg-rcpth fg-rdtlh ~
-reftable
+fg-rcpth.pur-uom fg-rcpth.post-date 
+&Scoped-define ENABLED-TABLES-IN-QUERY-Browser-Table fg-rcpth fg-rdtlh
 &Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-Browser-Table fg-rcpth
 &Scoped-define SECOND-ENABLED-TABLE-IN-QUERY-Browser-Table fg-rdtlh
-&Scoped-define THIRD-ENABLED-TABLE-IN-QUERY-Browser-Table reftable
 &Scoped-define QUERY-STRING-Browser-Table FOR EACH fg-rcpth OF itemfg  WHERE ~{&KEY-PHRASE} NO-LOCK, ~
       EACH fg-rdtlh WHERE fg-rdtlh.r-no EQ fg-rcpth.r-no ~
-AND fg-rdtlh.rita-code EQ fg-rcpth.rita-code NO-LOCK, ~
-      FIRST reftable WHERE TRUE /* Join to fg-rcpth incomplete */ ~
-      AND reftable.reftable EQ "fg-rctd.user-id" AND ~
-reftable.company  EQ fg-rcpth.company AND ~
-reftable.loc      EQ STRING(fg-rcpth.r-no,"9999999999") OUTER-JOIN NO-LOCK ~
+AND fg-rdtlh.rita-code EQ fg-rcpth.rita-code NO-LOCK ~
     ~{&SORTBY-PHRASE}
 &Scoped-define OPEN-QUERY-Browser-Table OPEN QUERY Browser-Table FOR EACH fg-rcpth OF itemfg  WHERE ~{&KEY-PHRASE} NO-LOCK, ~
       EACH fg-rdtlh WHERE fg-rdtlh.r-no EQ fg-rcpth.r-no ~
-AND fg-rdtlh.rita-code EQ fg-rcpth.rita-code NO-LOCK, ~
-      FIRST reftable WHERE TRUE /* Join to fg-rcpth incomplete */ ~
-      AND reftable.reftable EQ "fg-rctd.user-id" AND ~
-reftable.company  EQ fg-rcpth.company AND ~
-reftable.loc      EQ STRING(fg-rcpth.r-no,"9999999999") OUTER-JOIN NO-LOCK ~
+AND fg-rdtlh.rita-code EQ fg-rcpth.rita-code NO-LOCK ~
     ~{&SORTBY-PHRASE}.
-&Scoped-define TABLES-IN-QUERY-Browser-Table fg-rcpth fg-rdtlh reftable
+&Scoped-define TABLES-IN-QUERY-Browser-Table fg-rcpth fg-rdtlh
 &Scoped-define FIRST-TABLE-IN-QUERY-Browser-Table fg-rcpth
 &Scoped-define SECOND-TABLE-IN-QUERY-Browser-Table fg-rdtlh
-&Scoped-define THIRD-TABLE-IN-QUERY-Browser-Table reftable
 
 
 /* Definitions for FRAME F-Main                                         */
@@ -249,14 +235,14 @@ FUNCTION get-pallet-info RETURNS INTEGER
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD get-vend-info B-table-Win 
 FUNCTION get-vend-info RETURNS CHAR
-  ( /* parameter-definitions */ ) FORWARD.
+  ( /* parameter-definitions */ )  FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD get-vend-no B-table-Win 
 FUNCTION get-vend-no RETURNS CHAR
-  ( /* parameter-definitions */ ) FORWARD.
+  ( /* parameter-definitions */ )  FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -389,9 +375,9 @@ DEFINE QUERY Browser-Table FOR
       fg-rcpth.rita-code
       fg-rcpth.b-no
       fg-rcpth.pur-uom
-      fg-rcpth.post-date), 
-      fg-rdtlh, 
-      reftable SCROLLING.
+      fg-rcpth.post-date
+      vend-no), 
+      fg-rdtlh SCROLLING.
 &ANALYZE-RESUME
 
 /* Browse definitions                                                   */
@@ -427,7 +413,7 @@ DEFINE BROWSE Browser-Table
             LABEL-BGCOLOR 14
       fg-rdtlh.qty-case COLUMN-LABEL "Qty/Unit" FORMAT "->>>,>>9":U
             LABEL-BGCOLOR 14
-      get-pallet-info (OUTPUT li-qty-pal) @ li-pallets COLUMN-LABEL "Pallets" FORMAT "->>>>>>":U
+      get-pallet-info (output li-qty-pal) @ li-pallets COLUMN-LABEL "Pallets" FORMAT "->>>>>>":U
             WIDTH 9.4 LABEL-BGCOLOR 14
       fg-rdtlh.stacks-unit COLUMN-LABEL "Units/Pallet" FORMAT ">,>>9":U
             LABEL-BGCOLOR 14
@@ -439,7 +425,6 @@ DEFINE BROWSE Browser-Table
             LABEL-BGCOLOR 14
       fg-rdtlh.tot-wt COLUMN-LABEL "Lbs / 100" FORMAT ">>,>>9.99":U
             WIDTH 16
-      reftable.code COLUMN-LABEL "UserID" FORMAT "x(8)":U WIDTH 12
       fg-rdtlh.user-id COLUMN-LABEL "Posted By" FORMAT "x(8)":U
             WIDTH 13
       fg-rcpth.b-no FORMAT ">>>>>9":U
@@ -449,8 +434,8 @@ DEFINE BROWSE Browser-Table
             LABEL-BGCOLOR 14
       get-vend-no() @ vend-no COLUMN-LABEL "Vendor" FORMAT "x(8)":U
       get-vend-info() @ vend-name COLUMN-LABEL "Name" FORMAT "x(25)":U
-      get-fg-qty(1) @ iBinQtyBef  COLUMN-LABEL "Before Qty" FORMAT "->>>>>>9":U
-      get-fg-qty(2) @ iBinQty  COLUMN-LABEL "Bin Change" FORMAT "->>>>>>9":U
+      get-fg-qty (1) @ iBinQtyBef COLUMN-LABEL "Before Qty" FORMAT "->>>>>>9":U
+      get-fg-qty (2) @ iBinQty COLUMN-LABEL "Bin Change" FORMAT "->>>>>>9":U
 
   ENABLE
       fg-rcpth.i-no
@@ -471,7 +456,6 @@ DEFINE BROWSE Browser-Table
       fg-rdtlh.partial
       fg-rdtlh.stack-code
       fg-rdtlh.tot-wt
-      reftable.code
       fg-rcpth.pur-uom
       fg-rcpth.post-date
 /* _UIB-CODE-BLOCK-END */
@@ -606,14 +590,11 @@ ASSIGN
 
 &ANALYZE-SUSPEND _QUERY-BLOCK BROWSE Browser-Table
 /* Query rebuild information for BROWSE Browser-Table
-     _TblList          = "ASI.fg-rcpth OF ASI.itemfg ,ASI.fg-rdtlh WHERE ASI.fg-rcpth ...,ASI.reftable WHERE ASI.fg-rcpth ..."
+     _TblList          = "ASI.fg-rcpth OF ASI.itemfg ,ASI.fg-rdtlh WHERE ASI.fg-rcpth ..."
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
      _TblOptList       = "USED,, FIRST OUTER"
      _JoinCode[2]      = "fg-rdtlh.r-no EQ fg-rcpth.r-no
 AND fg-rdtlh.rita-code EQ fg-rcpth.rita-code"
-     _Where[3]         = "reftable.reftable EQ ""fg-rctd.user-id"" AND
-reftable.company  EQ fg-rcpth.company AND
-reftable.loc      EQ STRING(fg-rcpth.r-no,""9999999999"")"
      _FldNameList[1]   > ASI.fg-rcpth.i-no
 "fg-rcpth.i-no" "FG Item#" "x(15)" "character" ? ? ? 14 ? ? yes "" no no "21" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > ASI.fg-rcpth.po-no
@@ -658,25 +639,23 @@ reftable.loc      EQ STRING(fg-rcpth.r-no,""9999999999"")"
 "fg-rdtlh.stack-code" "FG Lot#" "X(20)" "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[22]   > ASI.fg-rdtlh.tot-wt
 "fg-rdtlh.tot-wt" "Lbs / 100" ? "decimal" ? ? ? ? ? ? yes ? no no "16" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[23]   > ASI.reftable.code
-"reftable.code" "UserID" ? "character" ? ? ? ? ? ? yes ? no no "12" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[24]   > ASI.fg-rdtlh.user-id
+     _FldNameList[23]   > ASI.fg-rdtlh.user-id
 "fg-rdtlh.user-id" "Posted By" ? "character" ? ? ? ? ? ? no ? no no "13" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[25]   > ASI.fg-rcpth.b-no
+     _FldNameList[24]   > ASI.fg-rcpth.b-no
 "fg-rcpth.b-no" ? ? "integer" ? ? ? ? ? ? no ? no no ? no no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[26]   > ASI.fg-rcpth.pur-uom
+     _FldNameList[25]   > ASI.fg-rcpth.pur-uom
 "fg-rcpth.pur-uom" "UOM for Cost" ? "character" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[27]   > "_<CALC>"
+     _FldNameList[26]   > "_<CALC>"
 "display-ship() @ bol-ship" "BOL Cust" "character" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[28]   > ASI.fg-rcpth.post-date
+     _FldNameList[27]   > ASI.fg-rcpth.post-date
 "fg-rcpth.post-date" "Posted" ? "date" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-   _FldNameList[29]   > "_<CALC>"
+     _FldNameList[28]   > "_<CALC>"
 "get-vend-no () @ vend-no" "Vendor" "Character" ? ? ? ? 14 ? ? no ? no no "9.4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-    _FldNameList[30]   > "_<CALC>"
+     _FldNameList[29]   > "_<CALC>"
 "get-vend-info () @ vend-name" "Name" "Character" ? ? ? ? 14 ? ? no ? no no "9.4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-    _FldNameList[31]   > "_<CALC>"
+     _FldNameList[30]   > "_<CALC>"
 "get-fg-qty (1) @ iBinQtyBef" "Before Qty" "->>>>>>9" ? ? ? ? 14 ? ? no ? no no "9.4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-    _FldNameList[32]   > "_<CALC>"
+     _FldNameList[31]   > "_<CALC>"
 "get-fg-qty (2) @ iBinQty" "Bin Change" "->>>>>>9" ? ? ? ? 14 ? ? no ? no no "9.4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */
@@ -820,6 +799,7 @@ END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
 
 &Scoped-define SELF-NAME fg-rcpth.job-no
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rcpth.job-no Browser-Table _BROWSE-COLUMN B-table-Win
@@ -1166,17 +1146,6 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME reftable.code
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL reftable.code Browser-Table _BROWSE-COLUMN B-table-Win
-ON RETURN OF reftable.code IN BROWSE Browser-Table /* UserID */
-DO:
-  RUN update-record.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
 &Scoped-define SELF-NAME fg-rcpth.pur-uom
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rcpth.pur-uom Browser-Table _BROWSE-COLUMN B-table-Win
 ON LEAVE OF fg-rcpth.pur-uom IN BROWSE Browser-Table /* UOM for Cost */
@@ -1190,6 +1159,17 @@ END.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rcpth.pur-uom Browser-Table _BROWSE-COLUMN B-table-Win
 ON RETURN OF fg-rcpth.pur-uom IN BROWSE Browser-Table /* UOM for Cost */
+DO:
+  RUN update-record.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME fg-rcpth.post-date
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rcpth.post-date Browser-Table _BROWSE-COLUMN B-table-Win
+ON RETURN OF fg-rcpth.post-date IN BROWSE Browser-Table /* Posted */
 DO:
   RUN update-record.
 END.
@@ -1352,19 +1332,19 @@ DO:
         IF confirm THEN
         DO:
            FIND CURRENT fg-rcpth EXCLUSIVE-LOCK NO-ERROR.
-           
+
            IF AVAILABLE fg-rcpth THEN DO:
-            
-            
+
+
               FOR EACH bf-fg-rdtlh EXCLUSIVE-LOCK 
                           WHERE bf-fg-rdtlh.r-no EQ fg-rcpth.r-no:
                  DELETE bf-fg-rdtlh.
               END.
-                            
+
               DELETE fg-rcpth.
-              
+
           END.
-          
+
           RUN local-open-query.
         END.
      END.
@@ -1447,7 +1427,7 @@ END.
 ON VALUE-CHANGED OF fi_i-no IN FRAME F-Main /* FG Item# */
 DO:
   {&self-name}:SCREEN-VALUE = CAPS({&self-name}:SCREEN-VALUE).
-  {&SELF-NAME}:CURSOR-OFFSET = LENGTH({&SELF-NAME}:SCREEN-VALUE) + 1 + IF LASTKEY EQ 32 THEN 1 ELSE 0. /* added by script _caps.p */
+  IF LASTKEY EQ 32 THEN {&SELF-NAME}:CURSOR-OFFSET = LENGTH({&SELF-NAME}:SCREEN-VALUE) + 2. /* res */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1471,7 +1451,7 @@ END.
 ON VALUE-CHANGED OF fi_job-no IN FRAME F-Main /* Job# */
 DO:
   {&self-name}:SCREEN-VALUE = CAPS({&self-name}:SCREEN-VALUE).
-  {&SELF-NAME}:CURSOR-OFFSET = LENGTH({&SELF-NAME}:SCREEN-VALUE) + 1 + IF LASTKEY EQ 32 THEN 1 ELSE 0. /* added by script _caps.p */
+  IF LASTKEY EQ 32 THEN {&SELF-NAME}:CURSOR-OFFSET = LENGTH({&SELF-NAME}:SCREEN-VALUE) + 2. /* res */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1535,7 +1515,7 @@ END.
 ON VALUE-CHANGED OF fi_rita-code IN FRAME F-Main /* Trans Code */
 DO:
   {&self-name}:SCREEN-VALUE = CAPS({&self-name}:SCREEN-VALUE).
-  {&SELF-NAME}:CURSOR-OFFSET = LENGTH({&SELF-NAME}:SCREEN-VALUE) + 1 + IF LASTKEY EQ 32 THEN 1 ELSE 0. /* added by script _caps.p */
+  IF LASTKEY EQ 32 THEN {&SELF-NAME}:CURSOR-OFFSET = LENGTH({&SELF-NAME}:SCREEN-VALUE) + 2. /* res */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1761,40 +1741,38 @@ PROCEDURE local-display-fields :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-
-  /* Code placed here will execute PRIOR to standard behavior. */
+    DEF VAR hPgmSecurity AS HANDLE NO-UNDO.
+    DEF VAR lResult AS LOG NO-UNDO.
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'display-fields':U ) .
 
-  /* Code placed here will execute AFTER standard behavior.    */
-  IF AVAIL fg-rcpth THEN RUN display-itemfg (ROWID(fg-rcpth)).
+    IF AVAIL fg-rcpth THEN 
+        RUN display-itemfg (ROWID(fg-rcpth)).
 
-  DO WITH FRAME {&FRAME-NAME}:
-    fi_sort-by:SCREEN-VALUE = TRIM(lv-sort-by-lab)               + " " +
-                              TRIM(STRING(ll-sort-asc,"As/Des")) + "cending".
+    DO WITH FRAME {&FRAME-NAME}:
+        fi_sort-by:SCREEN-VALUE = TRIM(lv-sort-by-lab)               + " " +
+                                  TRIM(STRING(ll-sort-asc,"As/Des")) + "cending".
 
+        RUN "system/PgmMstrSecur.p" PERSISTENT SET hPgmSecurity.
+        RUN epCanAccess IN hPgmSecurity ("oeinq/b-ordfgi.w", "", OUTPUT lResult).
+        DELETE OBJECT hPgmSecurity.
 
-  FIND FIRST users NO-LOCK WHERE 
-      users.user_id EQ USERID(LDBNAME(1)) 
-      NO-ERROR.
- 
-  IF AVAIL users AND users.securityLevel LE 900 THEN
-       ASSIGN btn_del:HIDDEN = YES
-              btn_del:SENSITIVE = NO
-              btn_copy:HIDDEN = YES
-              btn_copy:SENSITIVE = NO
-              btCompress:HIDDEN = YES
-              btCompress:SENSITIVE = NO.
-    ELSE
-        ASSIGN btn_del:HIDDEN = NO
-              btn_del:SENSITIVE = YES
-              btn_copy:HIDDEN = NO
-              btn_copy:SENSITIVE = YES
-              btCompress:HIDDEN = NO
-              btCompress:SENSITIVE = YES.
+        IF NOT lResult THEN ASSIGN btn_del:HIDDEN = YES
+            btn_del:SENSITIVE = NO
+            btn_copy:HIDDEN = YES
+            btn_copy:SENSITIVE = NO
+            btCompress:HIDDEN = YES
+            btCompress:SENSITIVE = NO.
+        ELSE ASSIGN 
+            btn_del:HIDDEN = NO
+            btn_del:SENSITIVE = YES
+            btn_copy:HIDDEN = NO
+            btn_copy:SENSITIVE = YES
+            btCompress:HIDDEN = NO
+            btCompress:SENSITIVE = YES.
 
-  END.
+    END.
 
 END PROCEDURE.
 
@@ -1997,7 +1975,6 @@ PROCEDURE send-records :
   {src/adm/template/snd-list.i "itemfg"}
   {src/adm/template/snd-list.i "fg-rcpth"}
   {src/adm/template/snd-list.i "fg-rdtlh"}
-  {src/adm/template/snd-list.i "reftable"}
 
   /* Deal with any unexpected table requests before closing.           */
   {src/adm/template/snd-end.i}
@@ -2050,7 +2027,6 @@ PROCEDURE set-read-only :
      fg-rdtlh.stacks-unit:READ-ONLY IN BROWSE {&browse-name} = ip-log
      fg-rdtlh.stack-code:READ-ONLY IN BROWSE {&browse-name} = ip-log
      fg-rdtlh.tot-wt:READ-ONLY IN BROWSE {&browse-name} = ip-log
-     reftable.code:READ-ONLY IN BROWSE {&browse-name}        = ip-log
      fg-rcpth.pur-uom:READ-ONLY IN BROWSE {&browse-name}        = ip-log
      fg-rcpth.post-date:READ-ONLY IN BROWSE {&browse-name}  = ip-log
      /*fg-rcpth.vend-no:READ-ONLY IN BROWSE {&browse-name}  = ip-log*/
@@ -2092,7 +2068,6 @@ PROCEDURE update-record :
 ------------------------------------------------------------------------------*/
   DEF BUFFER b-rcpth FOR fg-rcpth.
   DEF BUFFER b-rdtlh FOR fg-rdtlh.
-  DEF BUFFER b-reftb FOR reftable.
 
   DISABLE TRIGGERS FOR LOAD OF fg-rcpth.
   DISABLE TRIGGERS FOR LOAD OF fg-rdtlh.
@@ -2100,16 +2075,7 @@ PROCEDURE update-record :
   DO WITH FRAME {&FRAME-NAME}:
     FIND b-rcpth WHERE ROWID(b-rcpth) EQ ROWID(fg-rcpth).
     FIND b-rdtlh WHERE ROWID(b-rdtlh) EQ ROWID(fg-rdtlh).
-    FIND b-reftb WHERE ROWID(b-reftb) EQ ROWID(reftable) NO-ERROR.
 
-    IF NOT AVAIL b-reftb THEN DO:
-      CREATE b-reftb.
-      ASSIGN
-       b-reftb.reftable = "fg-rctd.user-id"
-       b-reftb.company  = b-rcpth.company
-       b-reftb.loc      = STRING(b-rcpth.r-no,"9999999999")
-       b-reftb.code     = USERID("nosweat").
-    END.
 
     ASSIGN
      b-rcpth.i-no        = fg-rcpth.i-no:SCREEN-VALUE IN BROWSE {&browse-name}
@@ -2131,7 +2097,6 @@ PROCEDURE update-record :
      b-rdtlh.cases       = INT(fg-rdtlh.cases:SCREEN-VALUE IN BROWSE {&browse-name})
      b-rdtlh.stacks-unit = INT(fg-rdtlh.stacks-unit:SCREEN-VALUE IN BROWSE {&browse-name})
      b-rdtlh.stack-code  = fg-rdtlh.stack-code:SCREEN-VALUE IN BROWSE {&browse-name}
-     b-reftb.code        = reftable.code:SCREEN-VALUE IN BROWSE {&browse-name}
      b-rcpth.pur-uom     = fg-rcpth.pur-uom:SCREEN-VALUE IN BROWSE {&browse-name}
      b-rdtlh.rita-code   = b-rcpth.rita-code 
      b-rcpth.post-date  = DATE(fg-rcpth.post-date:SCREEN-VALUE IN BROWSE {&browse-name})
@@ -2139,7 +2104,7 @@ PROCEDURE update-record :
 
     FIND b-rcpth WHERE ROWID(b-rcpth) EQ ROWID(fg-rcpth) NO-LOCK NO-ERROR.
     FIND b-rdtlh WHERE ROWID(b-rdtlh) EQ ROWID(fg-rdtlh) NO-LOCK NO-ERROR.
-    FIND b-reftb WHERE ROWID(b-reftb) EQ ROWID(reftable) NO-LOCK NO-ERROR.
+
 
     RUN set-read-only (YES).
 
@@ -2267,43 +2232,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-tag-no B-table-Win 
-PROCEDURE valid-tag-no :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  DEF VAR lv-tag LIKE fg-rdtlh.tag NO-UNDO.
-  DEF BUFFER b-fg-rdtlh FOR fg-rdtlh.
-
-  DO WITH FRAME {&FRAME-NAME}:
-      lv-tag = fg-rdtlh.tag:SCREEN-VALUE IN BROWSE {&browse-name}.
-      
-   IF fg-rdtlh.tag:SCREEN-VALUE IN BROWSE {&browse-name} NE "" AND
-       fg-rcpth.rita-code:SCREEN-VALUE IN BROWSE {&browse-name} EQ "R" AND  
-       int(fg-rdtlh.qty:SCREEN-VALUE IN BROWSE {&browse-name}) GT 0 THEN do:
-
-       FIND FIRST  b-fg-rdtlh NO-LOCK
-           WHERE b-fg-rdtlh.company EQ cocode
-           /*AND b-fg-rcpth.i-no EQ fi_rm-i-no*/
-           AND b-fg-rdtlh.tag     EQ lv-tag 
-           AND ROWID(b-fg-rdtlh)  NE ROWID(fg-rdtlh) NO-ERROR .
-
-       IF AVAIL b-fg-rdtlh THEN DO:
-           MESSAGE "This Tag Number has already been used..." VIEW-AS ALERT-BOX INFO.
-           fg-rdtlh.tag:SCREEN-VALUE IN BROWSE {&browse-name} = fg-rdtlh.tag.
-           APPLY "entry" TO fg-rdtlh.tag IN BROWSE {&browse-name}.
-           RETURN ERROR.
-       END.
-    END.
-  END.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-tag B-table-Win 
 PROCEDURE valid-tag :
 /*------------------------------------------------------------------------------
@@ -2338,6 +2266,43 @@ PROCEDURE valid-tag :
 
 
 
+  END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-tag-no B-table-Win 
+PROCEDURE valid-tag-no :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEF VAR lv-tag LIKE fg-rdtlh.tag NO-UNDO.
+  DEF BUFFER b-fg-rdtlh FOR fg-rdtlh.
+
+  DO WITH FRAME {&FRAME-NAME}:
+      lv-tag = fg-rdtlh.tag:SCREEN-VALUE IN BROWSE {&browse-name}.
+
+   IF fg-rdtlh.tag:SCREEN-VALUE IN BROWSE {&browse-name} NE "" AND
+       fg-rcpth.rita-code:SCREEN-VALUE IN BROWSE {&browse-name} EQ "R" AND  
+       int(fg-rdtlh.qty:SCREEN-VALUE IN BROWSE {&browse-name}) GT 0 THEN do:
+
+       FIND FIRST  b-fg-rdtlh NO-LOCK
+           WHERE b-fg-rdtlh.company EQ cocode
+           /*AND b-fg-rcpth.i-no EQ fi_rm-i-no*/
+           AND b-fg-rdtlh.tag     EQ lv-tag 
+           AND ROWID(b-fg-rdtlh)  NE ROWID(fg-rdtlh) NO-ERROR .
+
+       IF AVAIL b-fg-rdtlh THEN DO:
+           MESSAGE "This Tag Number has already been used..." VIEW-AS ALERT-BOX INFO.
+           fg-rdtlh.tag:SCREEN-VALUE IN BROWSE {&browse-name} = fg-rdtlh.tag.
+           APPLY "entry" TO fg-rdtlh.tag IN BROWSE {&browse-name}.
+           RETURN ERROR.
+       END.
+    END.
   END.
 
 END PROCEDURE.
@@ -2386,6 +2351,66 @@ FUNCTION display-ship RETURNS CHARACTER
   END.
   ELSE
       RETURN "".
+
+END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION get-fg-qty B-table-Win 
+FUNCTION get-fg-qty RETURNS INT
+  ( /* parameter-definitions */ INPUT ip-int AS INT ) :
+/*------------------------------------------------------------------------------
+  Purpose:  
+    Notes:  
+------------------------------------------------------------------------------*/
+DEFINE VARIABLE iReturnVal AS INTEGER NO-UNDO.
+DEFINE VARIABLE iBinQtyb AS INTEGER NO-UNDO.
+DEFINE VARIABLE iBinQtya AS INTEGER NO-UNDO.
+DEFINE VARIABLE iBinQtydeff AS INTEGER NO-UNDO.
+DEFINE BUFFER bf-fg-rcpth FOR fg-rcpth .
+DEFINE BUFFER bf-fg-rdtlh FOR fg-rdtlh .
+
+  iBinQtyb = 0 .  
+
+ IF fg-rcpth.rita-code = "C" THEN DO:
+  FOR EACH bf-fg-rcpth NO-LOCK
+      WHERE bf-fg-rcpth.company EQ cocode 
+        AND bf-fg-rcpth.i-no EQ fg-rcpth.i-no
+        AND bf-fg-rcpth.job-no EQ fg-rcpth.job-no
+        AND bf-fg-rcpth.job-no2 EQ fg-rcpth.job-no2
+        AND bf-fg-rcpth.po-no EQ fg-rcpth.po-no
+        AND bf-fg-rcpth.rita-code NE "C" ,
+       EACH bf-fg-rdtlh NO-LOCK WHERE
+            bf-fg-rdtlh.r-no EQ bf-fg-rcpth.r-no
+        AND bf-fg-rdtlh.loc EQ fg-rdtlh.loc
+        AND bf-fg-rdtlh.loc-bin EQ fg-rdtlh.loc-bin
+        AND bf-fg-rdtlh.tag EQ fg-rdtlh.tag
+        AND bf-fg-rdtlh.cust-no EQ fg-rdtlh.cust-no 
+        AND bf-fg-rdtlh.bol-no EQ fg-rdtlh.bol-no
+        AND bf-fg-rdtlh.inv-no EQ fg-rdtlh.inv-no BY fg-rcpth.trans-date DESC :
+      iBinQtyb = iBinQtyb +  bf-fg-rdtlh.qty  .
+      LEAVE .
+  END.
+
+  ASSIGN iBinQtya = fg-rdtlh.qty  
+      iBinQtydeff = iBinQtya - iBinQtyb .
+
+  IF ip-int = 1 THEN
+       iReturnVal = iBinQtyb .
+  ELSE 
+       iReturnVal = iBinQtydeff.
+
+ END. /* fg-rcpth.rita-code = "C" */
+ ELSE DO:
+     IF ip-int = 1 THEN
+       iReturnVal = 0 .
+   ELSE 
+       iReturnVal = fg-rdtlh.qty .
+
+ END.
+
+ RETURN iReturnVal .
 
 END FUNCTION.
 
@@ -2448,90 +2473,6 @@ END FUNCTION.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION get-vend-no B-table-Win 
-FUNCTION get-vend-no RETURNS CHAR
-  ( /* parameter-definitions */ ) :
-/*------------------------------------------------------------------------------
-  Purpose:  
-    Notes:  
-------------------------------------------------------------------------------*/
-
-FIND FIRST po-ord
-    WHERE po-ord.company EQ cocode
-      AND po-ord.po-no    EQ int(fg-rcpth.po-no)
-    NO-LOCK NO-ERROR.  
-
-IF AVAIL po-ord THEN
-    RETURN STRING(po-ord.vend-no) .
-ELSE
-    RETURN "" .
-
-END FUNCTION.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION get-fg-qty B-table-Win 
-FUNCTION get-fg-qty RETURNS INT
-  ( /* parameter-definitions */ INPUT ip-int AS INT ) :
-/*------------------------------------------------------------------------------
-  Purpose:  
-    Notes:  
-------------------------------------------------------------------------------*/
-DEFINE VARIABLE iReturnVal AS INTEGER NO-UNDO.
-DEFINE VARIABLE iBinQtyb AS INTEGER NO-UNDO.
-DEFINE VARIABLE iBinQtya AS INTEGER NO-UNDO.
-DEFINE VARIABLE iBinQtydeff AS INTEGER NO-UNDO.
-DEFINE BUFFER bf-fg-rcpth FOR fg-rcpth .
-DEFINE BUFFER bf-fg-rdtlh FOR fg-rdtlh .
-
-  iBinQtyb = 0 .  
-
- IF fg-rcpth.rita-code = "C" THEN DO:
-  FOR EACH bf-fg-rcpth NO-LOCK
-      WHERE bf-fg-rcpth.company EQ cocode 
-        AND bf-fg-rcpth.i-no EQ fg-rcpth.i-no
-        AND bf-fg-rcpth.job-no EQ fg-rcpth.job-no
-        AND bf-fg-rcpth.job-no2 EQ fg-rcpth.job-no2
-        AND bf-fg-rcpth.po-no EQ fg-rcpth.po-no
-        AND bf-fg-rcpth.rita-code NE "C" ,
-       EACH bf-fg-rdtlh NO-LOCK WHERE
-            bf-fg-rdtlh.r-no EQ bf-fg-rcpth.r-no
-        AND bf-fg-rdtlh.loc EQ fg-rdtlh.loc
-        AND bf-fg-rdtlh.loc-bin EQ fg-rdtlh.loc-bin
-        AND bf-fg-rdtlh.tag EQ fg-rdtlh.tag
-        AND bf-fg-rdtlh.cust-no EQ fg-rdtlh.cust-no 
-        AND bf-fg-rdtlh.bol-no EQ fg-rdtlh.bol-no
-        AND bf-fg-rdtlh.inv-no EQ fg-rdtlh.inv-no BY fg-rcpth.trans-date DESC :
-      iBinQtyb = iBinQtyb +  bf-fg-rdtlh.qty  .
-      LEAVE .
-  END.
-
-  ASSIGN iBinQtya = fg-rdtlh.qty  
-      iBinQtydeff = iBinQtya - iBinQtyb .
-
-  IF ip-int = 1 THEN
-       iReturnVal = iBinQtyb .
-  ELSE 
-       iReturnVal = iBinQtydeff.
-
- END. /* fg-rcpth.rita-code = "C" */
- ELSE DO:
-     IF ip-int = 1 THEN
-       iReturnVal = 0 .
-   ELSE 
-       iReturnVal = fg-rdtlh.qty .
-
- END.
-
- RETURN iReturnVal .
-
-END FUNCTION.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION get-vend-info B-table-Win 
 FUNCTION get-vend-info RETURNS CHAR
   ( /* parameter-definitions */ ) :
@@ -2562,3 +2503,27 @@ END FUNCTION.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION get-vend-no B-table-Win 
+FUNCTION get-vend-no RETURNS CHAR
+  ( /* parameter-definitions */ ) :
+/*------------------------------------------------------------------------------
+  Purpose:  
+    Notes:  
+------------------------------------------------------------------------------*/
+
+FIND FIRST po-ord
+    WHERE po-ord.company EQ cocode
+      AND po-ord.po-no    EQ int(fg-rcpth.po-no)
+    NO-LOCK NO-ERROR.  
+
+IF AVAIL po-ord THEN
+    RETURN STRING(po-ord.vend-no) .
+ELSE
+    RETURN "" .
+
+END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+

@@ -94,12 +94,12 @@ FOR EACH car WHERE car.snum NE 0:
         fg-wt$     = fg-wt$ + (car.qty / 100 * ld-fg-rate)
         fg-wt      = fg-wt + car.qty.
 
-    FOR EACH eb FIELDS(form-no yld-qty) WHERE
+    FOR EACH eb FIELDS(form-no quantityPerSet) WHERE
         eb.company = xest.company AND
         eb.est-no = xest.est-no AND
         eb.form-no > 0 AND eb.form-no <= v-form-no        NO-LOCK:
         ASSIGN
-            mclean2yld = IF eb.yld-qty LT 0 THEN -1 / eb.yld-qty ELSE eb.yld-qty
+            mclean2yld = IF eb.quantityPerSet LT 0 THEN -1 / eb.quantityPerSet ELSE eb.quantityPerSet
             mclean2Qty = mclean2Qty + (qtty[vmcl] * mclean2yld).
     END.
     IF CAN-FIND(FIRST xeb
@@ -140,14 +140,14 @@ FOR EACH car
     BREAK BY car.id:
 
     z = 0.
-    FOR EACH eb FIELDS(form-no yld-qty) WHERE
+    FOR EACH eb FIELDS(form-no quantityPerSet) WHERE
         eb.company = xest.company AND
         eb.est-no = xest.est-no AND
         eb.part-no = car.id
         NO-LOCK:
         ASSIGN
             v-yld = IF eb.form-no EQ 0 THEN 1 ELSE
-                     IF eb.yld-qty LT 0 THEN -1 / eb.yld-qty ELSE eb.yld-qty
+                     IF eb.quantityPerSet LT 0 THEN -1 / eb.quantityPerSet ELSE eb.quantityPerSet
             z     = z + (qtty[vmcl] * v-yld).
     END.
     FIND FIRST xeb WHERE xeb.company = xest.company AND
@@ -289,13 +289,13 @@ ASSIGN
     .
 
 IF xest.form-qty EQ 1 OR vmclean2 THEN
-    FOR EACH eb FIELDS(yld-qty)
+    FOR EACH eb FIELDS(quantityPerSet)
         WHERE eb.company EQ xest.company
         AND eb.est-no  EQ xest.est-no
         AND eb.form-no EQ v-form-no
         NO-LOCK:
         ASSIGN
-            v-yld = IF eb.yld-qty LT 0 THEN -1 / eb.yld-qty ELSE eb.yld-qty
+            v-yld = IF eb.quantityPerSet LT 0 THEN -1 / eb.quantityPerSet ELSE eb.quantityPerSet
             v-qty = v-qty + (qtty[vmcl] * v-yld)     
             .
 
@@ -352,14 +352,9 @@ ELSE
         gsa-fm = cust.scomm.
     ELSE
     DO:
-        FIND FIRST reftable-broker-pct
-            WHERE reftable-broker-pct.reftable EQ "ce-ctrl.broker-pct"
-            AND reftable-broker-pct.company  EQ ce-ctrl.company
-            AND reftable-broker-pct.loc      EQ ce-ctrl.loc
-            NO-LOCK NO-ERROR.
+         
+          gsa-fm = ce-ctrl.broker-pct.
 
-        IF AVAILABLE reftable-broker-pct THEN
-            gsa-fm = reftable-broker-pct.val[1].
     END.
 
 OUTPUT close.
@@ -380,7 +375,7 @@ FIND FIRST xeb WHERE xeb.company = xest.company
     AND xeb.form-no NE 0 NO-ERROR.
 
 ASSIGN
-    v-yld   = IF xeb.yld-qty LT 0 THEN -1 / xeb.yld-qty ELSE xeb.yld-qty
+    v-yld   = IF xeb.quantityPerSet LT 0 THEN -1 / xeb.quantityPerSet ELSE xeb.quantityPerSet
     qm      = qtty[vmcl] /* * (if vmclean2 then v-yld else 1) */ / 1000
     fac-tot = dm-tot[5] + op-tot[5] +
            tprep-mat + tprep-lab + mis-tot[1] + mis-tot[3].
@@ -890,7 +885,7 @@ DO:
         ELSE vmcl-cost = ctrl2[18].
 
         ASSIGN
-            fac-tot2  = fac-tot2 + vmcl-cost
+/*            fac-tot2  = fac-tot2 + vmcl-cost - double counted above 26340*/
             vmcl-cost = vmcl-cost / qm.
 
         {cec/pr4-mcln.i vmcl-desc vmcl vmcl-cost 19}
@@ -1118,7 +1113,95 @@ DO:
         mclean.rec-type = "boardm".
     END.
 END.
-
+FIND FIRST ttCostHeader EXCLUSIVE-LOCK 
+        WHERE ttCostHeader.estimateNo EQ xeb.est-no
+        AND ttCostHeader.formNo EQ v-form-no
+        AND ttCostHeader.blankNo EQ 0
+        AND ttCostHeader.quantityMaster EQ qtty[vmcl]
+        AND ttCostHeader.jobNo EQ cJobNo
+        AND ttCostHeader.jobNo2 EQ iJobNo2
+    NO-ERROR.
+IF NOT AVAILABLE ttCostHeader THEN 
+    FIND FIRST ttCostHeader EXCLUSIVE-LOCK 
+        WHERE ttCostHeader.estimateNo EQ xeb.est-no
+        AND ttCostHeader.formNo EQ v-form-no
+        AND ttCostHeader.blankNo EQ xeb.blank-no
+        AND ttCostHeader.quantityMaster EQ qtty[vmcl]
+        AND ttCostHeader.jobNo EQ cJobNo
+        AND ttCostHeader.jobNo2 EQ iJobNo2
+    NO-ERROR.
+    IF AVAILABLE ttCostHeader THEN DO: 
+        ASSIGN 
+            ttCostHeader.stdCostDirectMaterial =  dm-tot[5]
+            ttCostHeader.stdCostDirectLabor =  op-tot[5]
+            ttCostHeader.stdCostVariableOverhead = op-tot[6]
+            ttCostHeader.stdCostPrepLabor = tprep-lab
+            ttCostHeader.stdCostPrepMaterial =  tprep-mat
+            ttCostHeader.stdCostMiscLabor =  mis-tot[3]
+            ttCostHeader.stdCostMiscMaterial = mis-tot[1]
+            ttCostHeader.stdCostDirectFactory = ttCostHeader.stdCostDirectLabor + 
+                                                ttCostHeader.stdCostDirectMaterial + 
+                                                ttCostHeader.stdCostVariableOverhead + 
+                                                ttCostHeader.stdCostPrepLabor + 
+                                                ttCostHeader.stdCostPrepMaterial + 
+                                                ttCostHeader.stdCostMiscLabor +  
+                                                ttCostHeader.stdCostMiscMaterial
+            ttCostHeader.stdCostFixedOverhead =  op-tot[7]
+            ttCostHeader.stdCostTotalFactory =  ttCostHeader.stdCostDirectFactory +
+                                                ttCostHeader.stdCostFixedOverhead
+            ttCostHeader.stdCostFreight = fr-tot
+            ttCostHeader.stdCostGSALabor = ctrl2[10]
+            ttCostHeader.stdCostGSAMaterial = ctrl2[9]
+            ttCostHeader.stdCostWarehousing = ctrl2[1]
+            ttCostHeader.stdCostBrokerComm = ctrl2[13]
+            ttCostHeader.stdCostSpecial1 = ctrl2[4]
+            ttCostHeader.stdCostSpecial2 = ctrl2[11]
+            ttCostHeader.stdCostSpecial3 = ctrl2[12]
+            ttCostHeader.stdCostGSABoard = calcpcts.val[2] 
+            ttCostHeader.stdCostTotalGSA = ttCostHeader.stdCostGSABoard + ttCostHeader.stdCostGSALabor + ttCostHeader.stdCostGSAMaterial
+            ttCostHeader.stdCostTotalOther = ttCostHeader.stdCostFreight +  
+                                      ttCostHeader.stdCostWarehousing +
+                                      ttCostHeader.stdCostBrokerComm +
+                                      ttCostHeader.stdCostSpecial1 +
+                                      ttCostHeader.stdCostSpecial2 +
+                                      ttCostHeader.stdCostSpecial3 +
+                                      ttCostHeader.stdCostTotalGSA + 
+                                      ttCostHeader.stdCostRoyalty
+            .        
+        IF ctrl[13] NE 0 /*include S1 in Factory Costs*/ THEN 
+            ASSIGN 
+                ttCostHeader.stdCostTotalFactory = ttCostHeader.stdCostTotalFactory + ttCostHeader.stdCostSpecial1
+                ttCostHeader.stdCostTotalOther = ttCostHeader.stdCostTotalOther - ttCostHeader.stdCostSpecial1
+                .
+        IF ctrl[14] NE 0 /*include S2 in Factory Costs*/ THEN 
+            ASSIGN 
+                ttCostHeader.stdCostTotalFactory = ttCostHeader.stdCostTotalFactory + ttCostHeader.stdCostSpecial2
+                ttCostHeader.stdCostTotalOther = ttCostHeader.stdCostTotalOther - ttCostHeader.stdCostSpecial2
+                .
+        IF ctrl[15] NE 0 /*include S3 in Factory Costs*/ THEN 
+            ASSIGN 
+                ttCostHeader.stdCostTotalFactory = ttCostHeader.stdCostTotalFactory + ttCostHeader.stdCostSpecial3
+                ttCostHeader.stdCostTotalOther = ttCostHeader.stdCostTotalOther - ttCostHeader.stdCostSpecial3
+                .
+        IF ctrl[16] NE 0 /*include GSA in Factory Costs*/ THEN 
+            ASSIGN 
+                ttCostHeader.stdCostTotalFactory = ttCostHeader.stdCostTotalFactory + ttCostHeader.stdCostTotalGSA
+                ttCostHeader.stdCostTotalOther = ttCostHeader.stdCostTotalOther - ttCostHeader.stdCostTotalGSA
+                .
+        IF ctrl[6] NE 0 /*include Freight in Factory Costs - Should be total but direct right now - 26330*/ THEN 
+            ASSIGN 
+                ttCostHeader.stdCostDirectFactory = ttCostHeader.stdCostDirectFactory + ttCostHeader.stdCostFreight
+                ttCostHeader.stdCostTotalFactory = ttCostHeader.stdCostTotalFactory + ttCostHeader.stdCostFreight
+                ttCostHeader.stdCostTotalOther = ttCostHeader.stdCostTotalOther - ttCostHeader.stdCostFreight
+                .
+        IF ctrl[18] NE 0 /*include Royalty in Factory Costs*/ THEN 
+            ASSIGN 
+                ttCostHeader.stdCostTotalFactory = ttCostHeader.stdCostTotalFactory + ttCostHeader.stdCostRoyalty
+                ttCostHeader.stdCostTotalOther = ttCostHeader.stdCostTotalOther - ttCostHeader.stdCostRoyalty
+                .
+            
+        
+    END.
 OUTPUT close.
 
 /* end ---------------------------------- copr. 1996  advanced software, inc. */

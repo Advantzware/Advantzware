@@ -30,7 +30,7 @@ DEF VAR v-tax-code      LIKE stax.tax-code NO-UNDO.
 DEF VAR v-tx-rate       LIKE stax.tax-rate NO-UNDO.
 DEF VAR v-date-ship     AS DATE INIT today NO-UNDO.
 DEF VAR v-bol-cases     LIKE oe-boll.cases NO-UNDO.
-DEF VAR v-set-qty       AS INT NO-UNDO.
+DEF VAR v-set-qty       AS DECIMAL NO-UNDO.
 DEF VAR v-part-qty      AS DEC FORMAT "999.9999" NO-UNDO.
 DEF VAR v-case-cnt      AS CHAR FORMAT "x(80)" extent 5 NO-UNDO.
 DEF VAR v-case-line     AS CHAR NO-UNDO.
@@ -79,7 +79,7 @@ DEF VAR v-inv-total AS DECI NO-UNDO.
 FIND FIRST inv-head NO-LOCK NO-ERROR.
 
 DEF VAR ls-image1    AS CHAR NO-UNDO.
-DEF VAR ls-full-img1 AS CHAR FORMAT "x(150)" NO-UNDO.
+DEF VAR ls-full-img1 AS CHAR FORMAT "x(200)" NO-UNDO.
 
 ASSIGN ls-image1 = "images\bell.jpg"
        FILE-INFO:FILE-NAME = ls-image1
@@ -247,7 +247,7 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
                        WHERE fg-set.company EQ xinv-line.company
                          AND fg-set.set-no  EQ xinv-line.i-no:
 
-                         ASSIGN v-set-qty = v-set-qty + fg-set.part-qty.
+                         ASSIGN v-set-qty = v-set-qty + fg-set.QtyPerSet.
                      END.
 
                      IF v-set-qty = 0 
@@ -264,9 +264,9 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
                              AND fg-set.set-no  EQ xinv-line.i-no  
                              AND fg-set.part-no EQ eb.stock-no NO-ERROR.
                          IF AVAIL fg-set AND 
-                            fg-set.part-qty NE 0 
+                            fg-set.QtyPerSet NE 0 
                            THEN 
-                            ASSIGN v-part-qty = fg-set.part-qty / v-set-qty. 
+                            ASSIGN v-part-qty = fg-set.QtyPerSet / v-set-qty. 
                            ELSE
                             ASSIGN v-part-qty = 1 / v-set-qty.
 

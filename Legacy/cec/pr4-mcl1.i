@@ -55,7 +55,7 @@ IF v-rollfac THEN DO:
   {cec/est-summ.i vmcl-desc vmcl-cost}
   IF {2} THEN est-summ.per-m = 0.
   est-summ.per-m = est-summ.per-m +
-                   ({1}.full-cost * qm / (qty / xeb.yld-qty) * v-yld).
+                   ({1}.full-cost * qm / (qty / xeb.quantityPerSet) * v-yld).
 END.
 
 IF ce-ctrl.sell-by EQ "S" THEN DO:
@@ -245,7 +245,7 @@ IF v-rollfac THEN DO:
   {cec/est-summ.i vmcl-desc vmcl-cost}
   IF {2} THEN est-summ.per-m = 0.
   est-summ.per-m = est-summ.per-m +
-                   ({1}.sell-price * qm / (qty / xeb.yld-qty) * v-yld).
+                   ({1}.sell-price * qm / (qty / xeb.quantityPerSet) * v-yld).
 END.
 
 /* end ---------------------------------- copr. 1997  advanced software, inc. */

@@ -195,27 +195,25 @@ FORMAT HEADER
   FILL("_",132) FORMAT "x(131)"
 WITH PAGE-TOP FRAME r-top-2 STREAM-IO WIDTH 200 NO-BOX.
 
-/* Store list of all factored items */
+
 DEF TEMP-TABLE tt-factored
-  FIELD company LIKE reftable.company
+  FIELD company LIKE itemfg.company
   FIELD i-no    LIKE itemfg.i-no
   FIELD x-no    LIKE ar-invl.x-no
   INDEX i1 i-no
   INDEX i2 x-no.
   
-FOR EACH reftable WHERE reftable.reftable EQ "FACTORED"        
-                    AND reftable.code2    EQ "YES"
-                  NO-LOCK:
-  /* Note: code2 index exists on reftable */
-  FIND FIRST tt-factored WHERE tt-factored.i-no EQ reftable.CODE
+FOR EACH itemfg WHERE itemfg.factored    EQ YES
+                  NO-LOCK:  
+  FIND FIRST tt-factored WHERE tt-factored.i-no EQ itemfg.i-no
     NO-LOCK NO-ERROR.
   IF NOT AVAIL tt-factored THEN DO:
     FOR EACH ar-invl WHERE ar-invl.company EQ cocode
-      AND ar-invl.i-no EQ reftable.CODE
+      AND ar-invl.i-no EQ itemfg.i-no
       NO-LOCK:
       CREATE tt-factored.
-      ASSIGN tt-factored.company = reftable.company
-             tt-factored.i-no    = reftable.CODE.
+      ASSIGN tt-factored.company = itemfg.company
+             tt-factored.i-no    = itemfg.i-no.
     END.
   END.
 END.
@@ -650,8 +648,8 @@ END.
                      WHEN "per-3"     THEN cVarValue = STRING(v-dec[4],"->>>>>>>>9.99") .
                      WHEN "cust-po"   THEN cVarValue = STRING(cPoNo,"x(15)") .
                      WHEN "job"       THEN cVarValue = STRING(cJobStr,"x(9)")  .
-                     WHEN "inv-note"  THEN cVarValue = "".
-                     WHEN "coll-note" THEN cVarValue = "".
+                     WHEN "inv-note"  THEN  NEXT  .
+                     WHEN "coll-note" THEN  NEXT  .
                     
                 END CASE.
                   
@@ -828,8 +826,8 @@ END.
                          WHEN "per-3"     THEN cVarValue = /*STRING(v-dec[4],"->>>>>>>>9.99")*/ "" .
                          WHEN "cust-po"   THEN cVarValue = STRING(cPoNo,"x(15)") .
                          WHEN "job"       THEN cVarValue = STRING(cJobStr,"x(10)")  .
-                         WHEN "inv-note"  THEN cVarValue = "".
-                         WHEN "coll-note" THEN cVarValue = "".
+                         WHEN "inv-note"  THEN NEXT .
+                         WHEN "coll-note" THEN NEXT .
                      END CASE.
 
                      cExcelVarValue = cVarValue.
@@ -900,8 +898,8 @@ END.
                          WHEN "per-3"     THEN cVarValue = /*STRING(v-dec[4],"->>>>>>>>9.99")*/ "" .
                          WHEN "cust-po"   THEN cVarValue = STRING(cPoNo,"x(15)") .
                          WHEN "job"       THEN cVarValue = STRING(cJobStr,"x(10)")  .
-                         WHEN "inv-note"  THEN cVarValue = "".
-                         WHEN "coll-note" THEN cVarValue = "".
+                         WHEN "inv-note"  THEN NEXT .
+                         WHEN "coll-note" THEN NEXT .
                      END CASE.
 
                      cExcelVarValue = cVarValue.
@@ -1010,8 +1008,8 @@ END.
                          WHEN "per-3"     THEN cVarValue = /*STRING(v-dec[4],"->>>>>>>>9.99")*/ "" .
                          WHEN "cust-po"   THEN cVarValue = STRING(cPoNo,"x(15)") .
                          WHEN "job"       THEN cVarValue = STRING(cJobStr,"x(10)")  .
-                         WHEN "inv-note"  THEN cVarValue = "".
-                         WHEN "coll-note" THEN cVarValue = "".
+                         WHEN "inv-note"  THEN NEXT .
+                         WHEN "coll-note" THEN NEXT .
                      END CASE.
 
                      cExcelVarValue = cVarValue.
@@ -1268,8 +1266,8 @@ END.
                      WHEN "per-3"     THEN cVarValue = STRING(unapp[4],"->>>>>>>>9.99") .
                      WHEN "cust-po"   THEN cVarValue = STRING(cPoNo,"x(15)") .
                      WHEN "job"       THEN cVarValue = STRING(cJobStr,"x(10)")  .
-                     WHEN "inv-note"  THEN cVarValue = "".
-                     WHEN "coll-note" THEN cVarValue = "".
+                     WHEN "inv-note"  THEN NEXT .
+                     WHEN "coll-note" THEN NEXT .
                     
                 END CASE.
                   
@@ -1393,8 +1391,8 @@ END.
                      WHEN "per-3"     THEN cVarValue = /*STRING(unapp[4],"->>>>>>>>9.99")*/ "" .
                      WHEN "cust-po"   THEN cVarValue = STRING(cPoNo,"x(15)") .
                      WHEN "job"       THEN cVarValue = STRING(cJobStr,"x(10)")  .
-                     WHEN "inv-note"  THEN cVarValue = "".
-                     WHEN "coll-note" THEN cVarValue = "".
+                     WHEN "inv-note"  THEN NEXT .
+                     WHEN "coll-note" THEN NEXT .
                     
                 END CASE.
                   
@@ -1860,35 +1858,7 @@ END.
     def input parameter v-field-10 like ag                no-undo.
     DEF VAR v-delimiter AS cha NO-UNDO.       /* 9: tab 44: comma*/
     v-delimiter = "~t" /*CHR(9)*/ .
-    /*put stream s-temp unformatted
-        trim(cust.cust-no)                                      + v-delimiter +
-        trim(cust.name)                                         + v-delimiter +
-        trim(cust.contact)                                      + v-delimiter +
-        trim(v-sman)                                            + v-delimiter +
-        trim(if avail terms then terms.dscr else "")            + v-delimiter +
-        trim(cust.addr[1])                                      + v-delimiter +
-        trim(cust.addr[2])                                      + v-delimiter +
-        trim(cust.city)                                         + v-delimiter +
-        trim(cust.state)                                        + v-delimiter +
-        trim(cust.zip)                                          + v-delimiter +
-        trim(string(cust.cr-lim,">>>>>>>>9.99"))                + v-delimiter +
-        trim(string(cust.area-code,"(xxx)") + " " +
-             string(cust.phone,"xxx-xxxx"))                     + v-delimiter +
-        trim(string(substr(cust.fax,1,3),"(xxx)") + " " +
-             string(substr(cust.fax,4,7),"xxx-xxxx"))           + v-delimiter +
-        trim(v-field-01)                                        + v-delimiter +
-        trim(string(v-field-02,"->>>>"))                        + v-delimiter +
-        trim(v-field-03)                                        + v-delimiter +
-        trim(v-field-04)                                        + v-delimiter +
-        trim(string(v-field-05,"99/99/9999"))                   + v-delimiter +
-        trim(string(v-field-06,"->>>>>>>>9.99"))                + v-delimiter +
-        trim(string(v-field-07,"->>>>>>>>9.99"))                + v-delimiter +
-        trim(string(v-field-08,"->>>>>>>>9.99"))                + v-delimiter +
-        trim(string(v-field-09,"->>>>>>>>9.99"))                + v-delimiter +
-        trim(string(v-field-10,"->>>>>>>>9.99"))
-        skip.
-        */
-    IF det-rpt = 1 THEN do:
+        IF det-rpt = 1 THEN do:
 
     EXPORT STREAM s-temp DELIMITER ","
         trim(cust.cust-no)                                     

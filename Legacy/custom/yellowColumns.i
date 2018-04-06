@@ -1169,7 +1169,8 @@ PROCEDURE openQuery:
      IF sortColumn EQ 'Passes'         THEN STRING(eb.i-pass, '>9')     ELSE ~
      IF sortColumn EQ 'Coating'        THEN STRING(eb.i-coat, '>9')     ELSE ~
      IF sortColumn EQ 'Coat Passes'    THEN STRING(eb.i-coat-p, '>9')   ELSE ~
-     IF sortColumn EQ 'Qty/Set'        THEN STRING(eb.yld-qty, '->>>>>>>9')   ELSE ~
+     IF sortColumn EQ 'Yield Qty       THEN STRING(eb.yld-qty, '->>>>>>>9')   ELSE ~
+     IF sortColumn EQ 'Qty/Set'        THEN STRING(eb.quantityPerSet, '->>>>>>>9.99')   ELSE ~
      IF sortColumn EQ 'Inks/Form'      THEN STRING(ef.f-col, '>9')      ELSE ~
      IF sortColumn EQ 'Passes/Form'    THEN STRING(ef.f-pass, '>9')     ELSE ~
      IF sortColumn EQ 'Coatings/Form'  THEN STRING(ef.f-coat, '>9')     ELSE ~

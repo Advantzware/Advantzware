@@ -33,7 +33,7 @@ def var v-inv-date as date initial TODAY FORM "99/99/9999" NO-UNDO.
 def shared var v-fr-tax as logical initial no NO-UNDO.
 def var v-date-ship as date initial today NO-UNDO.
 def var v-bol-cases LIKE oe-boll.cases NO-UNDO.
-def var v-set-qty AS INT NO-UNDO.
+def var v-set-qty AS DECIMAL NO-UNDO.
 def var v-part-qty AS DEC FORMAT "999.9999" NO-UNDO.
 def var v-net like inv-head.t-inv-rev NO-UNDO.
 def var v-case-cnt as char format "x(80)" extent 5 NO-UNDO.
@@ -74,7 +74,7 @@ DEF VAR lv-inv-list AS CHAR NO-UNDO.
 FIND FIRST inv-head NO-LOCK NO-ERROR.
 
 DEF VAR ls-image1    AS CHAR NO-UNDO.
-DEF VAR ls-full-img1 AS CHAR FORMAT "x(150)" NO-UNDO.
+DEF VAR ls-full-img1 AS CHAR FORMAT "x(200)" NO-UNDO.
 
 ASSIGN 
     ls-image1 = "images\capcity.jpg"
@@ -269,7 +269,7 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
                  WHERE fg-set.company = xinv-line.company
                    AND fg-set.set-no = xinv-line.i-no:
 
-                 ASSIGN v-set-qty = v-set-qty + fg-set.part-qty.
+                 ASSIGN v-set-qty = v-set-qty + fg-set.QtyPerSet.
                END.
 
 
@@ -289,8 +289,8 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
                      AND fg-set.part-no = eb.stock-no NO-LOCK NO-ERROR.
 
                  IF AVAIL fg-set AND 
-                    fg-set.part-qty NE 0 
-                   THEN ASSIGN v-part-qty = fg-set.part-qty / v-set-qty.
+                    fg-set.QtyPerSet NE 0 
+                   THEN ASSIGN v-part-qty = fg-set.QtyPerSet / v-set-qty.
                    ELSE ASSIGN v-part-qty = 1 / v-set-qty.
 
                  IF eb.cas-cnt = 0 

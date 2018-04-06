@@ -21,9 +21,7 @@ def new shared var v-part-dscr2 as char format "x(30)".
 def new shared var v-report-cost as dec init 0 format ">>,>>9.9999" no-undo.
 def new shared var v-cont-upd as log init yes no-undo.
 
-DEF BUFFER b-cost FOR reftable.
-DEF BUFFER b-qty FOR reftable.
-DEF BUFFER b-setup FOR reftable.
+
 DEF BUFFER b-po-ordl FOR po-ordl.
 DEF BUFFER bf-itemfg FOR itemfg.
 
@@ -827,34 +825,17 @@ FOR EACH w-job-mat
                   tt-eiv.roll-w[v-index] = e-item-vend.roll-w[v-index].
                END.
               
-               FIND FIRST b-qty WHERE
-                    b-qty.reftable = "vend-qty" AND
-                    b-qty.company = e-item-vend.company AND
-	                b-qty.CODE    = e-item-vend.i-no AND
-                    b-qty.code2   = e-item-vend.vend-no
-                    NO-LOCK NO-ERROR.
+
               
-               IF AVAIL b-qty THEN
+               IF AVAIL e-item-vend THEN
                DO:
-                  FIND FIRST b-cost WHERE
-                       b-cost.reftable = "vend-cost" AND
-                       b-cost.company = e-item-vend.company AND
-	                   b-cost.CODE    = e-item-vend.i-no AND
-                       b-cost.code2   = e-item-vend.vend-no
-                       NO-LOCK NO-ERROR.
-              
-                  FIND FIRST b-setup WHERE
-                       b-setup.reftable = "vend-setup" AND
-                       b-setup.company = e-item-vend.company AND
-	                   b-setup.CODE    = e-item-vend.i-no AND
-                       b-setup.code2   = e-item-vend.vend-no
-                       NO-LOCK NO-ERROR.
+
                
                   DO v-index = 1 TO 10:
                      ASSIGN
-                        tt-eiv.run-qty[v-index + 10] = b-qty.val[v-index]
-                        tt-eiv.run-cost[v-index + 10] = b-cost.val[v-index]
-                        tt-eiv.setups[v-index + 10] = b-setup.val[v-index].
+                        tt-eiv.run-qty[v-index + 10] = e-item-vend.runQtyXtra[v-index]
+                        tt-eiv.run-cost[v-index + 10] = e-item-vend.runCostXtra[v-index]
+                        tt-eiv.setups[v-index + 10] = e-item-vend.setupsXtra[v-index].
                   END. /* v-index = 1 to 10 */
                END. /* if avail b-qty */
             END. /* if tt-eiv doesn't already exist */
@@ -1863,14 +1844,14 @@ FOR EACH w-job-mat
           NO-LOCK NO-ERROR.
 
       IF AVAIL est AND (est.est-type EQ 2 OR est.est-type EQ 6) THEN
-         FOR EACH eb FIELDS(yld-qty)
+         FOR EACH eb FIELDS(quantityPerSet)
              WHERE eb.company EQ job.company
                AND eb.est-no  EQ job.est-no
                AND eb.form-no EQ w-job-mat.frm
              NO-LOCK:
            ld-part-qty = ld-part-qty +
-                         (ld-line-qty * IF eb.yld-qty lt 0 THEN (-1 / eb.yld-qty)
-                                                           ELSE eb.yld-qty).
+                         (ld-line-qty * IF eb.quantityPerSet lt 0 THEN (-1 / eb.quantityPerSet)
+                                                           ELSE eb.quantityPerSet).
          END. /* Each eb */
 
       ELSE ld-part-qty = ld-line-qty.

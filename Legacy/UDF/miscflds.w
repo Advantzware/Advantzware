@@ -63,6 +63,7 @@ DEFINE VARIABLE currentTab    AS INTEGER       NO-UNDO.
 DEFINE VARIABLE lastID        AS INTEGER       NO-UNDO.
 DEFINE VARIABLE i             AS INTEGER       NO-UNDO.
 DEFINE VARIABLE savePrompt    AS LOGICAL       NO-UNDO.
+DEFINE VARIABLE lError        AS LOGICAL       NO-UNDO.
 
 DEFINE BUFFER bAttrb FOR ttAttrb.
 
@@ -83,7 +84,9 @@ TRIGGERS: ~
     PERSISTENT RUN resizeWidget IN THIS-PROCEDURE (dynWidget:HANDLE). ~
 END TRIGGERS.
 
-{methods/lockWindowUpdate.i}
+&IF DEFINED(FWD-VERSION) EQ 0 &THEN
+   {methods/lockWindowUpdate.i}
+&ENDIF
 
 SESSION:SET-WAIT-STATE("").
 
@@ -103,11 +106,11 @@ SESSION:SET-WAIT-STATE("").
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS btnMFPrgrms tabLabelsRect RECT-5 RECT-4 ~
-widgetRect tabNavRect RECT-2 RECT-3 RECT-8 portRect tabNavRect-3 prgrmsRect ~
-mfgroupList mfgroupTab btnCombo-Box tabLabels btnAddTab btnEditor ~
-btnFill-In btnRadio-Set btnRectangle btnSelection-List btnSlider btnText ~
-btnToggle-Box btnCopy btnCut btnDeleteTab btnDownTab btnExit btnExport ~
-btnImport btnNextTab btnPaste btnPrevTab btnProperty btnRenameTab btnUpTab ~
+widgetRect tabNavRect RECT-2 RECT-3 RECT-8 portRect prgrmsRect mfgroupList ~
+mfgroupTab btnCombo-Box btnAddTab tabLabels btnEditor btnFill-In ~
+btnRadio-Set btnRectangle btnSelection-List btnSlider btnText btnToggle-Box ~
+btnCopy btnCut btnDeleteTab btnDownTab btnExit btnExport btnImport ~
+btnNextTab btnPaste btnPrevTab btnProperty btnRenameTab btnUpTab ~
 btnAddGroup btnCopyGroup btnDeleteGroup btnRenameGroup btnRestore btnSave ~
 btnTabOrder btnTest 
 &Scoped-Define DISPLAYED-OBJECTS mfgroupList mfgroupTab tabLabels ~
@@ -118,7 +121,7 @@ textLabel toggle-BoxLabel gapFieldLabel prgrmsLabel
 /* Custom List Definitions                                              */
 /* notFoundIn234,widgetLabels,widgetButtons,propertyCutCopy,List-5,List-6 */
 &Scoped-define notFoundIn234 widgetRect mfgroupTab btnPointer btnCombo-Box ~
-tabLabels btnAddTab btnEditor btnFill-In btnRadio-Set btnRectangle ~
+btnAddTab tabLabels btnEditor btnFill-In btnRadio-Set btnRectangle ~
 btnSelection-List btnSlider btnText btnToggle-Box btnDeleteTab btnDownTab ~
 btnNextTab btnPrevTab btnRenameTab btnUpTab btnDeleteGroup btnRenameGroup ~
 btnTest widgetLabel pointerLabel tabNavLabel combo-BoxLabel editorLabel ~
@@ -437,7 +440,7 @@ DEFINE VARIABLE gapFieldLabel AS CHARACTER FORMAT "X(256)":U INITIAL "Align Gap"
 DEFINE VARIABLE mfgroupField AS CHARACTER FORMAT "X(256)":U 
      LABEL "Group" 
      VIEW-AS FILL-IN 
-     SIZE 48 BY .91 NO-UNDO.
+     SIZE 48 BY 1 NO-UNDO.
 
 DEFINE VARIABLE pointerLabel AS CHARACTER FORMAT "X(256)":U INITIAL " Pointer" 
       VIEW-AS TEXT 
@@ -502,7 +505,7 @@ DEFINE RECTANGLE portRect
 
 DEFINE RECTANGLE prgrmsRect
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   
-     SIZE 27 BY 3.33
+     SIZE 15 BY 3.33
      BGCOLOR 8 .
 
 DEFINE RECTANGLE RECT-1
@@ -531,14 +534,9 @@ DEFINE RECTANGLE RECT-8
 
 DEFINE RECTANGLE tabLabelsRect
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   
-     SIZE 27.6 BY 17.14.
+     SIZE 27.6 BY 14.52.
 
 DEFINE RECTANGLE tabNavRect
-     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   
-     SIZE 27.6 BY 1.43
-     BGCOLOR 8 .
-
-DEFINE RECTANGLE tabNavRect-3
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   
      SIZE 27.6 BY 1.43
      BGCOLOR 8 .
@@ -549,7 +547,17 @@ DEFINE RECTANGLE widgetRect
 
 DEFINE VARIABLE tabLabels AS CHARACTER 
      VIEW-AS SELECTION-LIST SINGLE NO-DRAG SCROLLBAR-VERTICAL 
-     SIZE 26 BY 14.76 TOOLTIP "Change Current Tab (Page)" NO-UNDO.
+     SIZE 26 BY 12.14 TOOLTIP "Change Current Tab (Page)" NO-UNDO.
+
+DEFINE VARIABLE udfHeightSize AS INTEGER INITIAL 0 
+     VIEW-AS SLIDER MIN-VALUE 460 MAX-VALUE 9999 VERTICAL 
+     TIC-MARKS LEFT FREQUENCY 100
+     SIZE 12 BY 3.81 NO-UNDO.
+
+DEFINE VARIABLE udfWidthSize AS INTEGER INITIAL 0 
+     VIEW-AS SLIDER MIN-VALUE 460 MAX-VALUE 9999 HORIZONTAL 
+     TIC-MARKS TOP FREQUENCY 100
+     SIZE 27 BY 2.38 NO-UNDO.
 
 DEFINE RECTANGLE Rect-Bottom
      EDGE-PIXELS 0    
@@ -580,24 +588,24 @@ DEFINE RECTANGLE Rect-Top
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME fMiscFlds
-     btnMFPrgrms AT ROW 23.86 COL 132 HELP
+     btnMFPrgrms AT ROW 23.86 COL 138 HELP
           "Programs" WIDGET-ID 34
-     mfgroupList AT ROW 1.71 COL 8 COLON-ALIGNED HELP
-          "Select Group Name"
      mfgroupField AT ROW 1.71 COL 8 COLON-ALIGNED HELP
           "Enter Group Name"
+     mfgroupList AT ROW 1.71 COL 8 COLON-ALIGNED HELP
+          "Select Group Name"
      mfgroupTab AT ROW 4.81 COL 133.6 COLON-ALIGNED HELP
           "Select Tab Number" NO-LABEL
      btnPointer AT ROW 5.57 COL 3.2 HELP
           "Restore Mouse Cursor to ARROW POINTER"
      btnCombo-Box AT ROW 7.19 COL 3.2 HELP
           "Create New COMBO-BOX"
+     btnAddTab AT ROW 7.19 COL 125 HELP
+          "ADD New Tab"
      tabField AT ROW 7.19 COL 124 HELP
           "Enter Tab Label" NO-LABEL
      tabLabels AT ROW 8.38 COL 124 HELP
           "Select tab Label" NO-LABEL
-     btnAddTab AT ROW 7.19 COL 125 HELP
-          "ADD New Tab"
      btnEditor AT ROW 8.86 COL 3.2 HELP
           "Create New EDITOR"
      btnFill-In AT ROW 10.52 COL 3.2 HELP
@@ -614,8 +622,10 @@ DEFINE FRAME fMiscFlds
           "Create New TEXT"
      btnToggle-Box AT ROW 20.52 COL 3 HELP
           "Create New TOGGLE-BOX"
+     udfWidthSize AT ROW 21 COL 123 NO-LABEL WIDGET-ID 44
      gapField AT ROW 22.19 COL 1 COLON-ALIGNED HELP
           "Enter Gap Amount in Pixels" NO-LABEL
+     udfHeightSize AT ROW 23.38 COL 122 NO-LABEL WIDGET-ID 42
      btnCopy AT ROW 1.48 COL 88 HELP
           "Copy Selections"
      btnCut AT ROW 1.48 COL 80 HELP
@@ -662,8 +672,6 @@ DEFINE FRAME fMiscFlds
      pointerLabel AT ROW 5.57 COL 8.2 COLON-ALIGNED NO-LABEL
      tabNavLabel AT ROW 6.48 COL 126 NO-LABEL WIDGET-ID 14
      combo-BoxLabel AT ROW 7.19 COL 8.2 COLON-ALIGNED NO-LABEL
-     editorLabel AT ROW 8.86 COL 8.2 COLON-ALIGNED NO-LABEL
-     fill-InLabel AT ROW 10.52 COL 8.2 COLON-ALIGNED NO-LABEL
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
@@ -671,6 +679,8 @@ DEFINE FRAME fMiscFlds
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME fMiscFlds
+     editorLabel AT ROW 8.86 COL 8.2 COLON-ALIGNED NO-LABEL
+     fill-InLabel AT ROW 10.52 COL 8.2 COLON-ALIGNED NO-LABEL
      radio-SetLabel AT ROW 12.19 COL 8.2 COLON-ALIGNED NO-LABEL
      rectangleLabel AT ROW 13.86 COL 8 COLON-ALIGNED NO-LABEL
      selection-ListLabel AT ROW 15.52 COL 8 COLON-ALIGNED NO-LABEL
@@ -678,12 +688,9 @@ DEFINE FRAME fMiscFlds
      textLabel AT ROW 18.86 COL 8 COLON-ALIGNED NO-LABEL
      toggle-BoxLabel AT ROW 20.52 COL 8 COLON-ALIGNED NO-LABEL
      gapFieldLabel AT ROW 22.19 COL 9 COLON-ALIGNED NO-LABEL WIDGET-ID 2
-     prgrmsLabel AT ROW 26 COL 131 NO-LABEL WIDGET-ID 36
+     prgrmsLabel AT ROW 26 COL 138 NO-LABEL WIDGET-ID 36
      "Tab Order" VIEW-AS TEXT
           SIZE 10 BY .76 AT ROW 3.62 COL 69
-          FONT 4
-     "Atrributes" VIEW-AS TEXT
-          SIZE 9 BY .76 AT ROW 3.62 COL 59
           FONT 4
      "Save" VIEW-AS TEXT
           SIZE 5 BY .76 AT ROW 3.62 COL 125 WIDGET-ID 12
@@ -718,10 +725,13 @@ DEFINE FRAME fMiscFlds
      "Preview" VIEW-AS TEXT
           SIZE 8 BY .76 AT ROW 3.62 COL 106 WIDGET-ID 6
           FONT 4
-     "Copy" VIEW-AS TEXT
-          SIZE 5 BY .95 AT ROW 3.19 COL 25
      "Import" VIEW-AS TEXT
           SIZE 6 BY .76 AT ROW 26 COL 5 WIDGET-ID 28
+          FONT 4
+     "Copy" VIEW-AS TEXT
+          SIZE 5 BY .95 AT ROW 3.19 COL 25
+     "Atrributes" VIEW-AS TEXT
+          SIZE 9 BY .76 AT ROW 3.62 COL 59
           FONT 4
      tabLabelsRect AT ROW 6.24 COL 123
      RECT-1 AT ROW 1.24 COL 2
@@ -733,8 +743,7 @@ DEFINE FRAME fMiscFlds
      RECT-3 AT ROW 1.24 COL 79
      RECT-8 AT ROW 1.24 COL 115 WIDGET-ID 4
      portRect AT ROW 23.62 COL 2 WIDGET-ID 20
-     tabNavRect-3 AT ROW 4.57 COL 123 WIDGET-ID 22
-     prgrmsRect AT ROW 23.62 COL 123 WIDGET-ID 32
+     prgrmsRect AT ROW 23.62 COL 135 WIDGET-ID 32
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
@@ -748,8 +757,8 @@ DEFINE FRAME folderFrm
      Rect-Bottom AT ROW 23.38 COL 2
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 26 ROW 4.52
-         SIZE 96.2 BY 22.62.
+         AT COL 26 ROW 4.48
+         SIZE 96.2 BY 22.67.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -930,6 +939,16 @@ ASSIGN
    NO-ENABLE 1 2                                                        */
 ASSIGN 
        toggle-BoxLabel:READ-ONLY IN FRAME fMiscFlds        = TRUE.
+
+/* SETTINGS FOR SLIDER udfHeightSize IN FRAME fMiscFlds
+   NO-DISPLAY NO-ENABLE                                                 */
+ASSIGN 
+       udfHeightSize:HIDDEN IN FRAME fMiscFlds           = TRUE.
+
+/* SETTINGS FOR SLIDER udfWidthSize IN FRAME fMiscFlds
+   NO-DISPLAY NO-ENABLE                                                 */
+ASSIGN 
+       udfWidthSize:HIDDEN IN FRAME fMiscFlds           = TRUE.
 
 /* SETTINGS FOR FILL-IN widgetLabel IN FRAME fMiscFlds
    NO-ENABLE 1                                                          */
@@ -1514,7 +1533,7 @@ DO:
       savePrompt = YES
       .
     DO i = 1 TO mfgroupList:NUM-ITEMS: /* see if item already exists */
-      IF mfgroupList:ENTRY(i) = cdummy THEN ldummy = YES.
+      IF mfgroupList:ENTRY(i) EQ cdummy THEN ldummy = YES.
     END.
     IF newMFGroup THEN RUN addGroup.
     ELSE IF copyMFGroup THEN RUN copyGroup.
@@ -1993,6 +2012,30 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME udfHeightSize
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL udfHeightSize W-Win
+ON VALUE-CHANGED OF udfHeightSize IN FRAME fMiscFlds
+DO:
+    ASSIGN {&SELF-NAME} udfWidthSize.
+    RUN setLayoutSize.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME udfWidthSize
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL udfWidthSize W-Win
+ON VALUE-CHANGED OF udfWidthSize IN FRAME fMiscFlds
+DO:
+    ASSIGN {&SELF-NAME} udfHeightSize.
+    RUN setLayoutSize.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &UNDEFINE SELF-NAME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK W-Win 
@@ -2367,14 +2410,14 @@ PROCEDURE createLabelWidget :
         Y = ipiY
         FORMAT = "X(" +
           (IF LENGTH(ipcLabel) NE 0 THEN STRING(LENGTH(ipcLabel) + 1)
-          ELSE "1") + ")"
+           ELSE "1") + ")"
         SENSITIVE = YES
         SCREEN-VALUE = IF ipcLabel = "" THEN "" ELSE ipcLabel + ":"
         .
     ASSIGN
       labelWidget:FONT = ?
       labelWidget:X = IF ipiX - labelWidget:WIDTH-PIXELS - 1 LT 0 THEN 0
-                       ELSE ipiX - labelWidget:WIDTH-PIXELS - 1
+                      ELSE ipiX - labelWidget:WIDTH-PIXELS - 1
       labelWidget:HEIGHT-CHARS = 1
       ldummy = labelWidget:MOVE-TO-TOP()
       labelWidget:HIDDEN = NO
@@ -2395,10 +2438,15 @@ PROCEDURE createTabs :
 ------------------------------------------------------------------------------*/
   DEFINE VARIABLE i AS INTEGER NO-UNDO.
 
+&IF DEFINED(FWD-VERSION) EQ 0 &THEN
   RUN LockWindowUpdate (ACTIVE-WINDOW:HWND,OUTPUT i).
+&ELSE
+  ACTIVE-WINDOW:DISABLE-REDRAW = TRUE.
+&ENDIF
   DO WITH FRAME {&FRAME-NAME}:
     FIND ttMFGroup
-        WHERE ttMFGroup.mfgroup_data EQ mfgroupList:SCREEN-VALUE NO-ERROR.
+         WHERE ttMFGroup.mfgroup_data EQ mfgroupList:SCREEN-VALUE
+         NO-ERROR.
     IF NOT AVAILABLE ttMFGroup THEN DO:
       ASSIGN
         mfgroupTab:LIST-ITEMS = "1"
@@ -2409,6 +2457,11 @@ PROCEDURE createTabs :
       RETURN.
     END.
     ELSE DO:
+      ASSIGN
+        udfWidthSize = ttMFGroup.udfWidth
+        udfHeightSize = ttMFGroup.udfHeight
+        .
+      RUN setLayoutSize.
       ENABLE {&notFoundIn234} {&widgetButtons}.
       RUN selectNewWidgetType ("","arrow").
     END.
@@ -2442,6 +2495,10 @@ PROCEDURE createTabs :
     tabLabels:REPLACE(tabLabels:ENTRY(i) + "|Default",tabLabels:ENTRY(i)).
   END.
   DO i = 1 TO NUM-ENTRIES(ttMFGroup.mfgroup_tabs):
+    IF (3 + (i - 1) * 72) + 72 GT FRAME folderFrm:WIDTH-PIXELS THEN DO:
+      lError = YES.
+      RETURN.
+    END. /* check if tab will fit */
     CREATE IMAGE tabImage[i] IN WIDGET-POOL "{&widgetPoolName}"
       ASSIGN
         FRAME = FRAME folderFrm:HANDLE
@@ -2488,7 +2545,11 @@ PROCEDURE createTabs :
     ldummy = tabImage[currentTab]:MOVE-TO-TOP()
     ldummy = tabLabel[currentTab]:MOVE-TO-TOP()
     .
+&IF DEFINED(FWD-VERSION) EQ 0 &THEN
   RUN LockWindowUpdate (0,OUTPUT i).
+&ELSE
+  ACTIVE-WINDOW:DISABLE-REDRAW = FALSE.
+&ENDIF
 
 END PROCEDURE.
 
@@ -2504,17 +2565,33 @@ PROCEDURE createWidgets :
 ------------------------------------------------------------------------------*/
   DEFINE VARIABLE i AS INTEGER NO-UNDO.
 
+&IF DEFINED(FWD-VERSION) EQ 0 &THEN
   RUN LockWindowUpdate (ACTIVE-WINDOW:HWND,OUTPUT i).
+&ELSE
+  ACTIVE-WINDOW:DISABLE-REDRAW = TRUE.
+&ENDIF
   DELETE WIDGET-POOL "{&widgetPoolName}" NO-ERROR.
   CREATE WIDGET-POOL "{&widgetPoolName}" PERSISTENT.
   RUN createTabs.
+  IF lError EQ NO THEN
   FOR EACH ttAttrb
       WHERE ttAttrb.attr_mfgroup EQ mfgroupList:SCREEN-VALUE IN FRAME {&FRAME-NAME}
         AND ttAttrb.attr_tab EQ INTEGER(mfgroupTab:SCREEN-VALUE)
       :
     RUN dynamicWidget.
+    IF lError THEN LEAVE.
   END.
+&IF DEFINED(FWD-VERSION) EQ 0 &THEN
   RUN LockWindowUpdate (0,OUTPUT i).
+&ELSE
+  ACTIVE-WINDOW:DISABLE-REDRAW = TRUE.
+&ENDIF
+  IF lError THEN DO:
+    MESSAGE
+      "Design Screen Resolution is too Small for this UDF Layout!"
+    VIEW-AS ALERT-BOX ERROR.
+    lError = NO.
+  END. /* if error */
 
 END PROCEDURE.
 
@@ -2844,6 +2921,11 @@ PROCEDURE dynamicWidget :
     vert-bar = IF NUM-ENTRIES(ttAttrb.attr_settings) GT 1 AND
                   ENTRY(2,ttAttrb.attr_settings) = "yes" THEN YES ELSE NO
     .
+  IF ttAttrb.attr_y + ttAttrb.attr_height GT FRAME folderFrm:HEIGHT-PIXELS OR
+     ttAttrb.attr_x + ttAttrb.attr_width GT FRAME folderFrm:WIDTH-PIXELS THEN DO:
+    lError = YES.
+    RETURN.
+  END. /* check if can fit in frame */
   RUN createLabelWidget (ttAttrb.attr_type,ttAttrb.attr_label,ttAttrb.attr_x,ttAttrb.attr_y).
   DO ON ERROR UNDO, RETURN "CREATE-ERROR":
     CASE ttAttrb.attr_type:
@@ -2923,10 +3005,10 @@ PROCEDURE enable_UI :
           toggle-BoxLabel gapFieldLabel prgrmsLabel 
       WITH FRAME fMiscFlds IN WINDOW W-Win.
   ENABLE btnMFPrgrms tabLabelsRect RECT-5 RECT-4 widgetRect tabNavRect RECT-2 
-         RECT-3 RECT-8 portRect tabNavRect-3 prgrmsRect mfgroupList mfgroupTab 
-         btnCombo-Box tabLabels btnAddTab btnEditor btnFill-In btnRadio-Set 
-         btnRectangle btnSelection-List btnSlider btnText btnToggle-Box btnCopy 
-         btnCut btnDeleteTab btnDownTab btnExit btnExport btnImport btnNextTab 
+         RECT-3 RECT-8 portRect prgrmsRect mfgroupList mfgroupTab btnCombo-Box 
+         btnAddTab tabLabels btnEditor btnFill-In btnRadio-Set btnRectangle 
+         btnSelection-List btnSlider btnText btnToggle-Box btnCopy btnCut 
+         btnDeleteTab btnDownTab btnExit btnExport btnImport btnNextTab 
          btnPaste btnPrevTab btnProperty btnRenameTab btnUpTab btnAddGroup 
          btnCopyGroup btnDeleteGroup btnRenameGroup btnRestore btnSave 
          btnTabOrder btnTest 
@@ -3033,6 +3115,7 @@ PROCEDURE loadWidgetData :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEFINE VARIABLE groupList AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE sizeList AS CHARACTER NO-UNDO.
   DEFINE VARIABLE i AS INTEGER NO-UNDO.
 
   IF NOT CAN-FIND(FIRST mfgroup) THEN RETURN.
@@ -3040,9 +3123,13 @@ PROCEDURE loadWidgetData :
   EMPTY TEMP-TABLE ttMFPrgrms.
 
   FOR EACH mfgroup NO-LOCK:
-    groupList = groupList
-              + (IF groupList NE "" THEN "," ELSE "")
-              + ENTRY(1,mfgroup.mfgroup_data,"|").
+    ASSIGN
+      groupList = groupList
+                + ENTRY(1,mfgroup.mfgroup_data,"|") + ","
+      sizeList  = sizeList
+                + STRING(mfgroup.udfWidth) + "x"
+                + STRING(mfgroup.udfHeight) + ","
+                .
     DO i = 2 TO NUM-ENTRIES(mfgroup.mfgroup_data,"|"):
       FIND FIRST prgrms NO-LOCK
            WHERE prgrms.prgmname EQ ENTRY(i,mfgroup.mfgroup_data,"|")
@@ -3056,9 +3143,14 @@ PROCEDURE loadWidgetData :
         .
     END. /* do i */
   END. /* each mfgroup */
+  ASSIGN
+    groupList = TRIM(groupList,",")
+    sizeList = TRIM(sizeList,",")
+    .
 
   OUTPUT TO VALUE("users/" + USERID("NOSWEAT") + "/mfgroup.dat").
   EXPORT groupList.
+  EXPORT sizeList.
   FOR EACH mfgroup NO-LOCK:
     EXPORT mfgroup.mfgroup_tabs.
   END.
@@ -3084,12 +3176,15 @@ PROCEDURE loadWidgetData :
 
   INPUT FROM VALUE("users/" + USERID("NOSWEAT") + "/mfgroup.dat").
   IMPORT cdummy.
+  IMPORT sizeList.
   DO i = 1 TO NUM-ENTRIES(cdummy):
     IMPORT currentLabel.
     CREATE ttMFGroup.
     ASSIGN
       ttMFGroup.mfgroup_data = ENTRY(i,cdummy)
       ttMFGroup.mfgroup_tabs = currentLabel
+      ttMFGroup.udfWidth = INTEGER(ENTRY(1,ENTRY(i,sizeList),"x"))
+      ttMFGroup.udfHeight = INTEGER(ENTRY(2,ENTRY(i,sizeList),"x"))
       .
   END.
   INPUT CLOSE.
@@ -3151,7 +3246,18 @@ PROCEDURE moveObjects :
     prgrmsRect:X = prgrmsRect:X + offSet
     btnMFPrgrms:X = btnMFPrgrms:X + offSet
     prgrmsLabel:X = prgrmsLabel:X + offSet
+    udfHeightSize:X = udfHeightSize:X + offSet
+    udfWidthSize:X = udfWidthSize:X + offSet
+    udfHeightSize:MAX-VALUE = FRAME folderFrm:HEIGHT-PIXELS
+    udfWidthSize:MAX-VALUE = FRAME folderFrm:WIDTH-PIXELS
     .
+  IF udfHeightSize EQ 0 THEN
+  udfHeightSize = udfHeightSize:MAX-VALUE.
+  IF udfWidthSize EQ 0 THEN
+  udfWidthSize = udfWidthSize:MAX-VALUE.
+
+  ENABLE udfWidthSize udfHeightSize WITH FRAME {&FRAME-NAME}.
+  DISPLAY udfWidthSize udfHeightSize WITH FRAME {&FRAME-NAME}.
 
 END PROCEDURE.
 
@@ -3700,6 +3806,55 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE setLayoutSize W-Win 
+PROCEDURE setLayoutSize :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DO WITH FRAME {&FRAME-NAME}:
+    IF udfWidthSize LT udfWidthSize:MIN-VALUE THEN
+    udfWidthSize = udfWidthSize:MAX-VALUE.
+    IF udfHeightSize LT udfHeightSize:MIN-VALUE THEN
+    udfHeightSize = udfHeightSize:MAX-VALUE.
+    DISPLAY udfWidthSize udfHeightSize.
+  END. /* with frame */
+  
+  DO WITH FRAME folderFrm:
+    ASSIGN
+      Rect-Main:HIDDEN = YES
+      Rect-Top:HIDDEN = YES
+      Rect-Left:HIDDEN = YES
+      Rect-Right:HIDDEN = YES
+      Rect-Bottom:HIDDEN = YES
+      FRAME folderFrm:HEIGHT-PIXELS = udfHeightSize
+      FRAME folderFrm:VIRTUAL-HEIGHT-PIXELS = udfHeightSize
+      FRAME folderFrm:WIDTH-PIXELS = udfWidthSize
+      FRAME folderFrm:VIRTUAL-WIDTH-PIXELS = udfWidthSize
+      Rect-Main:HEIGHT-PIXELS = udfHeightSize - 23
+      Rect-Main:WIDTH-PIXELS = udfWidthSize - 6
+      Rect-Left:HEIGHT-PIXELS = Rect-Main:HEIGHT-PIXELS - 5
+      Rect-Right:HEIGHT-PIXELS = Rect-Main:HEIGHT-PIXELS - 8
+      Rect-Right:X = Rect-Main:WIDTH-PIXELS - 1
+      Rect-Top:WIDTH-PIXELS = Rect-Main:WIDTH-PIXELS - 2
+      Rect-Bottom:WIDTH-PIXELS = Rect-Main:WIDTH-PIXELS - 2
+      Rect-Bottom:Y = Rect-Main:HEIGHT-PIXELS + 17
+      Rect-Main:HIDDEN = NO
+      Rect-Top:HIDDEN = NO
+      Rect-Left:HIDDEN = NO
+      Rect-Right:HIDDEN = NO
+      Rect-Bottom:HIDDEN = NO
+      ttMFGroup.udfWidth = udfWidthSize
+      ttMFGroup.udfHeight = udfHeightSize
+      .
+  END. /* with frame */
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE tabOrder W-Win 
 PROCEDURE tabOrder :
 /*------------------------------------------------------------------------------
@@ -3784,12 +3939,14 @@ PROCEDURE winReSize :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEFINE VARIABLE offSet AS INTEGER NO-UNDO.
+  DEFINE VARIABLE offSet  AS INTEGER NO-UNDO.
+  DEFINE VARIABLE iHeight AS INTEGER NO-UNDO.
+  DEFINE VARIABLE iWidth  AS INTEGER NO-UNDO.
 
   ASSIGN
-      {&WINDOW-NAME}:WINDOW-STATE = 1
-      offSet = IF {&WINDOW-NAME}:HEIGHT-PIXELS GT 600 THEN 50 ELSE 0
-      .
+    {&WINDOW-NAME}:WINDOW-STATE = 1
+    offSet = IF {&WINDOW-NAME}:HEIGHT-PIXELS GT 600 THEN 50 ELSE 0
+    .  
   IF {&WINDOW-NAME}:HEIGHT-PIXELS LT 600 THEN {&WINDOW-NAME}:HEIGHT-PIXELS = 600.
   IF {&WINDOW-NAME}:WIDTH-PIXELS LT 800 THEN {&WINDOW-NAME}:WIDTH-PIXELS = 800.
   ASSIGN

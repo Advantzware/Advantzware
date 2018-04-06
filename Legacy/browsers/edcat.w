@@ -163,7 +163,7 @@ DEFINE BROWSE Browser-Table
       EDCat.Seq FORMAT ">>>>>>9":U
       EDCat.rec_key FORMAT "X(20)":U
       EDCat.Purpose-code FORMAT "xx":U
-      EDCat.Partner FORMAT "x(05)":U
+      EDCat.Partner FORMAT "x(05)":U WIDTH 12
       EDCat.Lines FORMAT ">>9":U
       EDCat.Leadtime-Unit COLUMN-LABEL "Leadtime Unit" FORMAT "x(2)":U
       EDCat.Leadtime-days COLUMN-LABEL "Leadtime Days" FORMAT "->,>>>,>>9":U
@@ -280,7 +280,8 @@ ASSIGN
      _FldNameList[6]   = asi.EDCat.Seq
      _FldNameList[7]   = asi.EDCat.rec_key
      _FldNameList[8]   = asi.EDCat.Purpose-code
-     _FldNameList[9]   = asi.EDCat.Partner
+     _FldNameList[9]   > asi.EDCat.Partner
+"EDCat.Partner" ? ? "character" ? ? ? ? ? ? no ? no no "12" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[10]   = asi.EDCat.Lines
      _FldNameList[11]   > asi.EDCat.Leadtime-Unit
 "EDCat.Leadtime-Unit" "Leadtime Unit" ? "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no

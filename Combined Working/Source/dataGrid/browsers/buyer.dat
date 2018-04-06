@@ -1,0 +1,22 @@
+FOR EACH buyer NO-LOCK WHERE buyer.company EQ "%company%"
+buyer,buyer-n
+
+Indexed: buyer,buyer-n
+Non-Idx: ?
+
+Generated 04.18.2017 @  2:30:19 am by: nosweat
+Table: buyer - Records: 30
+
+    Index: buyer
+         Field: company
+         Field: buyer
+
+    Index: buyer-n
+         Field: company
+         Field: buyer-n
+
+    Index: rec_key
+         Field: rec_key
+
+    Index: wi-buyer-n
+         Field: buyer-n

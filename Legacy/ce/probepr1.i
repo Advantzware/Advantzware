@@ -1,6 +1,6 @@
 /* ------------------------------------------------- cec/probepr1.i 10/96 JLF */
 
-v-yld = IF eb.yld-qty LT 0 THEN -1 / eb.yld-qty ELSE eb.yld-qty.
+v-yld = IF eb.quantityPerSet LT 0 THEN -1 / eb.quantityPerSet ELSE eb.quantityPerSet.
 
 FIND FIRST b-probemk
     WHERE b-probemk.reftable EQ "ce/com/probemk.p"

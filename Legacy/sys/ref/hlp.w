@@ -110,7 +110,7 @@ DEFINE BUTTON Btn_OK AUTO-END-KEY
      BGCOLOR 8 .
 
 DEFINE VARIABLE ed-text AS CHARACTER 
-     VIEW-AS EDITOR MAX-CHARS 300000 SCROLLBAR-VERTICAL
+     VIEW-AS EDITOR MAX-CHARS 500000 SCROLLBAR-VERTICAL
      SIZE 115 BY 18.57
      FONT 0 NO-UNDO.
 
@@ -294,47 +294,27 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-update W-Win
 ON CHOOSE OF btn-update IN FRAME F-Main /* Update Help */
 DO:
-    /* need security check */
-    DEF VAR lv-password AS cha NO-UNDO.
     DEF VAR op-ed-text AS cha NO-UNDO.
+    ASSIGN 
+        op-ed-text = ed-text.
 
-    ASSIGN ll-secure = NO
-           op-ed-text = ed-text.
-
-    FIND FIRST users NO-LOCK
-     WHERE users.user_id EQ USERID(LDBNAME(1)) NO-ERROR.
-
-    IF AVAIL users AND users.securityLevel GE 900 THEN
-    ASSIGN ll-secure = YES.
-
-    IF NOT ll-secure THEN RUN sys/ref/uphlp-pass.w (3, OUTPUT ll-secure).
-
-    IF ll-secure EQ YES THEN
-        RUN sys/ref/hlpupd.p (ip-field,ip-table,ip-db,ip-frame,ip-language,OUTPUT op-ed-text).
-
+    /* need security check */
+    DEF VAR hPgmSecurity AS HANDLE NO-UNDO.
+    DEF VAR lResult AS LOG NO-UNDO.
+    RUN "system/PgmMstrSecur.p" PERSISTENT SET hPgmSecurity.
+    RUN epCanAccess IN hPgmSecurity ("sys/ref/hlp.w", "Access1", OUTPUT lResult).
+    DELETE OBJECT hPgmSecurity.
     
-/* === re-display    ==========*/
-  /*find first asihlp.hlp-head where hlp-head.fld-name = ip-field and
-                                 hlp-head.fil-name = ip-table
-                                 no-lock no-error.
-  if not avail hlp-head then do:
-     find first asihlp.hlp-head where hlp-head.fld-name = ip-field NO-LOCK NO-ERROR.
-     IF NOT AVAIL asihlp.hlp-head THEN
-        find first asihlp.hlp-head where asihlp.hlp-head.fld-name matches ("*" +  ip-frame + "*")  no-lock no-error.
-     IF NOT AVAIL asihlp.hlp-head THEN
-        find first asihlp.hlp-head where asihlp.hlp-head.fld-name = ip-field NO-LOCK NO-ERROR.     
-     if avail hlp-head then do:
-        ed-text = asihlp.hlp-head.help-txt.
-        display ed-text with frame {&frame-name}.   
-     end.  
-  end.
-  else do:
-        ed-text = hlp-head.help-txt.
-        display ed-text with frame {&frame-name}.   
-  end.*/
+    /* If not automatically cleared by security level, ask for password */
+    IF lResult THEN DO:
+       
+            RUN sys/ref/hlpupd.w (ip-field,ip-table,ip-db,ip-frame,ip-language,OUTPUT op-ed-text).
+    END.
 
-  ed-text = op-ed-text .
-        DISPLAY ed-text WITH FRAME {&frame-name}.   
+    /* === re-display    ==========*/
+    assign
+        ed-text = op-ed-text .
+    DISPLAY ed-text WITH FRAME {&frame-name}.   
 
 END.
 
@@ -463,7 +443,9 @@ IF NOT vhWebService:CONNECTED() THEN
     END. /* WebService no conn*/
 
     ELSE DO:
-       
+      IF ip-table EQ ? THEN ip-table = "" .
+      IF ip-field EQ ? THEN ip-field = "" .
+      IF ip-frame EQ ? THEN ip-frame = "" .  
     RUN Service1Soap SET vhSalesSoap ON vhWebService .
     RUN HelpMain IN vhSalesSoap(INPUT STRING(ip-field),INPUT STRING(ip-table),INPUT STRING(ip-frame),INPUT STRING(vclint),  OUTPUT parameters1,OUTPUT parameters2,OUTPUT fr-flags ).
      
@@ -499,6 +481,7 @@ IF NOT vhWebService:CONNECTED() THEN
     END.  /* WebService is conn*/
 /* mod-sewa */
 
+{&WINDOW-NAME}:MOVE-TO-TOP().
 
 /* Include custom  Main Block code for SmartWindows. */
 {src/adm/template/windowmn.i}
@@ -592,20 +575,16 @@ PROCEDURE local-enable :
   Notes:       
 ------------------------------------------------------------------------------*/
 
-  /* Code placed here will execute PRIOR to standard behavior. */
-
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'enable':U ) .
 
-  /* Code placed here will execute AFTER standard behavior.    */
-    IF USERID("nosweat") NE "ASI" THEN
-        btDataDigger:VISIBLE IN FRAME f-main = NO.
-    
-    FIND FIRST users NO-LOCK
-     WHERE users.user_id EQ USERID(LDBNAME(1)) NO-ERROR.
-
-    IF AVAIL users AND users.securityLevel LE 999 THEN
-     btn-update:VISIBLE IN FRAME f-main = NO.
+    DEF VAR hPgmSecurity AS HANDLE NO-UNDO.
+    DEF VAR lResult AS LOG NO-UNDO.
+    RUN "system/PgmMstrSecur.p" PERSISTENT SET hPgmSecurity.
+    RUN epCanAccess IN hPgmSecurity ("sys/ref/hlp.w", "Access2", OUTPUT lResult).
+    DELETE OBJECT hPgmSecurity.
+    IF NOT lResult THEN ASSIGN
+        btn-update:VISIBLE IN FRAME f-main = NO.
 
 END PROCEDURE.
 

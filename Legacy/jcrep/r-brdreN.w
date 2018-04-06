@@ -1363,7 +1363,7 @@ DEF VAR brd-cst   AS DEC NO-UNDO.
 def var v-cost as dec no-undo.
 def var v-cst-qty as dec no-undo.
 DEF VAR v-brdcst AS DEC NO-UNDO.
-DEFINE VARIABLE iSetMult AS INTEGER     NO-UNDO.
+DEFINE VARIABLE iSetMult AS DECIMAL     NO-UNDO.
 
 DEF VAR cDisplay AS cha NO-UNDO.
 DEF VAR cExcelDisplay AS cha NO-UNDO.
@@ -1733,7 +1733,7 @@ ASSIGN
                   AND fg-set.set-no EQ job-hdr.i-no
                   AND fg-set.part-no EQ eb.stock-no
                 NO-LOCK NO-ERROR.
-            IF AVAIL fg-set THEN iSetMult = fg-set.part-qty.
+            IF AVAIL fg-set THEN iSetMult = fg-set.qtyPerSet.
 /*             {ce/set-qty.i v-qty eb} */
          END.
 
@@ -1852,6 +1852,9 @@ IF tb_excel THEN
                  WHEN "t-msf"     THEN cVarValue = string(v-msf,"->>>,>>9.99") .
                  WHEN "t-msf-rm"  THEN cVarValue = string(v-msf-rm,"->>>,>>9.99") .
                  WHEN "inv-date"  THEN cVarValue = IF dInvdt <> ? THEN STRING(dInvdt,"99/99/9999") ELSE ""      .
+                 WHEN "basis-wht"    THEN cVarValue = IF AVAIL ITEM AND item.basis-w NE 0 THEN STRING(ITEM.basis-w,">>9.99") ELSE "".
+                 WHEN "cat"    THEN cVarValue = IF AVAIL ITEM THEN STRING(ITEM.procat,"x(5)") ELSE "".
+
 
 
             END CASE.
@@ -1942,6 +1945,8 @@ IF tb_excel THEN
                            WHEN "t-msf"     THEN cVarValue = "" .
                            WHEN "t-msf-rm"  THEN cVarValue = "" .
                            WHEN "inv-date"  THEN cVarValue = "" .
+                           WHEN "basis-wht"    THEN cVarValue = "".
+                           WHEN "cat"    THEN cVarValue = "".
 
                       END CASE.
 
@@ -2018,6 +2023,8 @@ IF tb_excel THEN
                            WHEN "t-msf"     THEN cVarValue = "" .
                            WHEN "t-msf-rm"  THEN cVarValue = "" .
                            WHEN "inv-date"  THEN cVarValue = "" .
+                           WHEN "basis-wht"    THEN cVarValue = "".
+                           WHEN "cat"    THEN cVarValue = "".
 
                       END CASE.
 
@@ -2091,6 +2098,8 @@ IF tb_excel THEN
                            WHEN "t-msf"     THEN cVarValue = "" .
                            WHEN "t-msf-rm"  THEN cVarValue = "" .
                            WHEN "inv-date"  THEN cVarValue = "" .
+                           WHEN "basis-wht"    THEN cVarValue = "".
+                           WHEN "cat"    THEN cVarValue = "".
 
                       END CASE.
 

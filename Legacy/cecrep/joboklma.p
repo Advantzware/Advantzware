@@ -154,8 +154,8 @@ do v-local-loop = 1 to v-local-copies:
 
           {cec/rollfac.i}
           v-pqty = if v-rollfac OR xeb.est-type EQ 8 then 1 else
-                   if xeb.yld-qty lt 0 then (-1 / xeb.yld-qty)
-                                       else xeb.yld-qty.
+                   if xeb.quantityPerSet lt 0 then (-1 / xeb.quantityPerSet)
+                                       else xeb.quantityPerSet.
         end.
         
         assign
@@ -200,7 +200,7 @@ do v-local-loop = 1 to v-local-copies:
               v-dc-setup[3] =  ""
               v-dies[1] =      ""
               v-dies[2] =      ""
-              v-qty-1 = v-set-qty / xeb.yld-qty
+              v-qty-1 = v-set-qty / xeb.quantityPerSet
               . 
     ELSE IF w-ef.frm = 2 THEN
          ASSIGN v-due-date2 = date(v-due-date)
@@ -215,7 +215,7 @@ do v-local-loop = 1 to v-local-copies:
               v-dc-setup[4] =  ""
               v-dies[3] =     ""
               v-dies[4] =     ""
-              v-qty-1 = v-set-qty / xeb.yld-qty
+              v-qty-1 = v-set-qty / xeb.quantityPerSet
               .
 
     IF LAST(w-ef.frm) THEN DO:
@@ -624,7 +624,7 @@ do v-local-loop = 1 to v-local-copies:
              FOR EACH xeb WHERE xeb.company = est.company
                              AND xeb.est-no = est.est-no
                              AND xeb.form-no > 0 NO-LOCK:
-                 PUT xeb.stock-no AT 3 space(14) xeb.part-dscr1 space(5) xeb.yld-qty SKIP.
+                 PUT xeb.stock-no AT 3 space(14) xeb.part-dscr1 space(5) xeb.quantityPerSet SKIP.
                  v-tmp-line = v-tmp-line + 1.
              END.
              v-tmp-line = v-tmp-line + 1.
@@ -730,17 +730,14 @@ hide all no-pause.
 
 PROCEDURE stackImage:
   DEFINE BUFFER pattern FOR reftable.
-
+  DEFINE BUFFER stackPattern FOR stackPattern.
   IF v-stackcode EQ '' THEN RETURN.
-  FIND FIRST pattern NO-LOCK
-       WHERE pattern.reftable EQ 'STACKPAT'
-         AND pattern.company EQ ''
-         AND pattern.loc EQ ''
-         AND pattern.code EQ SUBSTR(v-stackcode,9,1) NO-ERROR.
-  IF AVAILABLE pattern AND SEARCH(pattern.dscr) NE ? THEN
+  FIND FIRST stackPattern NO-LOCK
+       WHERE stackPattern.stackCode EQ SUBSTR(v-stackcode,9,1) NO-ERROR.
+  IF AVAILABLE pattern AND SEARCH(stackPattern.stackImage) NE ? THEN
   PUT UNFORMATTED
     "<#71><C27><R+1><FROM><C2><R+12>"
-    "<IMAGE#71=" pattern.dscr ">"
+    "<IMAGE#71=" stackPattern.stackImage ">"
     "<R-13>".
 END PROCEDURE.
 

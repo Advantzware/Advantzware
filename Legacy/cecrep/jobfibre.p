@@ -60,6 +60,7 @@ DEF NEW SHARED VAR v-adder-5 AS CHAR FORMAT "X(10)" NO-UNDO.
 DEF NEW SHARED VAR v-adder-6 AS CHAR FORMAT "X(10)" NO-UNDO.
 
 DEF BUFFER b-itemfg FOR itemfg.
+DEF BUFFER b-job-hdr FOR job-hdr.
 
 RUN sys/ref/ordtypes.p (OUTPUT lv-sts-code, OUTPUT lv-sts-desc).
 
@@ -214,21 +215,9 @@ assign
       
        IF s-prt-ship-split THEN
        DO:
-          FIND FIRST reftable WHERE
-               reftable.reftable EQ "SPLITSHIP" AND
-               reftable.company  EQ cocode AND
-               reftable.loc      EQ job-hdr.job-no AND
-               reftable.CODE     EQ STRING(job-hdr.job-no2,"99")
-               NO-LOCK NO-ERROR.
-         
-          IF NOT AVAIL reftable THEN DO:
-             CREATE reftable.
-             ASSIGN
-                reftable.reftable = "SPLITSHIP"
-                reftable.company  = cocode
-                reftable.loc      = job-hdr.job-no
-                reftable.CODE     = STRING(job-hdr.job-no2,"99").
-          END.
+          FIND FIRST b-job-hdr where ROWID(b-job-hdr) = ROWID(job-hdr) EXCLUSIVE-LOCK NO-ERROR.
+             ASSIGN b-job-hdr.splitShip = YES.
+          Release b-job-hdr. 
        END.
 
        /* get whether warehous item or not */
@@ -285,8 +274,8 @@ assign
           lv-fg-name = IF AVAIL xoe-ordl AND xoe-ordl.i-no EQ job-hdr.i-no THEN xoe-ordl.i-name ELSE itemfg.i-name.
           {cec/rollfac.i}
           v-pqty = if v-rollfac OR xeb.est-type EQ 8 then 1 else
-                   if xeb.yld-qty lt 0 then (-1 / xeb.yld-qty)
-                                       else xeb.yld-qty.
+                   if xeb.quantityPerSet lt 0 then (-1 / xeb.quantityPerSet)
+                                       else xeb.quantityPerSet.
           FIND FIRST sman WHERE sman.company = xeb.company AND
                                 sman.sman = xeb.sman NO-LOCK NO-ERROR.
           v-sman = IF AVAIL sman THEN sman.sname ELSE xeb.sman.
@@ -415,12 +404,11 @@ assign
        lv-est-type = lv-est-type + "   FORM " + string(b-eb.form-no) + " OF " + string(xest.form-qty) 
                     + "  BLANK " + STRING(b-eb.blank-no) + " OF " + STRING(xef.blank-qty).
 
-       FIND FIRST reftable NO-LOCK WHERE reftable.reftable EQ 'stackpat'
-                           AND reftable.company EQ ''
-                           AND reftable.loc EQ ''
-                           AND reftable.code EQ b-eb.stack-code NO-ERROR.
-       IF AVAILABLE reftable AND SEARCH(reftable.dscr) NE ? THEN lv-spattern-img =  reftable.dscr.
 
+       FIND FIRST stackPattern NO-LOCK WHERE stackPattern.stackCode EQ b-eb.stack-code NO-ERROR.
+       IF AVAILABLE stackPattern AND SEARCH(stackPattern.stackImage) NE ? THEN lv-spattern-img =  stackPattern.stackImage.
+             
+       
        PUT "<P10></PROGRESS>" SKIP "<FCourier New><C2><B>" lv-au "<C33>" lv-est-type "</B>"
        "<P12><B><C90>JOB TICKET" /*AT 140*/  /*caps(SUBSTRING(v-fg,1,1)) FORM "x" AT 40*/       
        SKIP
@@ -751,7 +739,7 @@ assign
            
            lv-text = lv-text + 
                      STRING(job-hdr.frm,">9") + "     " +
-                     "<B>" + CAPS(note.note_code) + ":</B>" + "   " + 
+                     "<B>" + CAPS(notes.note_code) + ":</B>" + "   " + 
                      notes.note_text + CHR(10) .
        END.
     END.
@@ -980,11 +968,11 @@ assign
              /* each components */
         
              v-tmp-line = 0.
-             FOR EACH xeb FIELDS(stock-no part-dscr1 yld-qty) WHERE
+             FOR EACH xeb FIELDS(stock-no part-dscr1 quantityPerSet) WHERE
                  xeb.company = est.company AND
                  xeb.est-no = est.est-no AND
                  xeb.form-no > 0 NO-LOCK:
-                 PUT xeb.stock-no AT 3 space(14) xeb.part-dscr1 space(5) xeb.yld-qty FORMAT "->>>>>9" SKIP.
+                 PUT xeb.stock-no AT 3 space(14) xeb.part-dscr1 space(5) xeb.quantityPerSet FORMAT "->>>>>9" SKIP.
                  v-tmp-line = v-tmp-line + 1.
              END.
              v-tmp-line = v-tmp-line + 1.

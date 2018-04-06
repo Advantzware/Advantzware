@@ -164,10 +164,10 @@ DEFINE FRAME F-Main
     box-design-hdr.description AT ROW 1.24 COL 22 COLON-ALIGNED NO-LABELS
     VIEW-AS FILL-IN 
     SIZE 38 BY 1
-    box-design-hdr.box-image AT ROW 1.24 COL 75 COLON-ALIGNED
+    box-design-hdr.box-image AT ROW 1.24 COL 75 COLON-ALIGNED  FORMAT "x(200)"
     VIEW-AS FILL-IN 
     SIZE 63 BY 1
-    box-design-hdr.box-3d-image AT ROW 1.24 COL 75 COLON-ALIGNED
+    box-design-hdr.box-3d-image AT ROW 1.24 COL 75 COLON-ALIGNED  FORMAT "x(200)"
     VIEW-AS FILL-IN 
     SIZE 62 BY 1
     BGCOLOR 14 
@@ -673,6 +673,7 @@ FIND FIRST style NO-LOCK WHERE style.company EQ xeb.company
                  NO-ERROR.
 IF AVAILABLE style THEN
   FIND FIRST xbox-design-hdr NO-LOCK WHERE xbox-design-hdr.design-no EQ style.design-no
+     			               AND xbox-design-hdr.company   eq style.company       
                                AND xbox-design-hdr.est-no    EQ ""
              NO-ERROR.
 
@@ -1629,6 +1630,10 @@ PROCEDURE update-fgitem-img :
       FIND FIRST itemfg WHERE itemfg.company = g_company
                           AND itemfg.i-no = lv-fgitem NO-LOCK NO-ERROR.
       lv-fgimg = IF AVAILABLE itemfg THEN itemfg.box-IMAGE ELSE "".
+       FILE-INFO:FILE-NAME = lv-fgimg NO-ERROR .
+       IF FILE-INFO:FILE-type EQ ? THEN
+        lv-fgimg = "" .
+
       IF lv-fgimg <> "" THEN
       DO:
           RUN ShellExecuteA(0, "open", lv-fgimg, "", "", 0, OUTPUT tInt).
@@ -1655,9 +1660,15 @@ PROCEDURE update-fgitem-img :
        ELSE IF AVAILABLE itemfg THEN DO:
            MESSAGE "No Graphic Image entered. Would you like to enter it?" VIEW-AS ALERT-BOX QUESTION
                BUTTON YES-NO UPDATE ll-ans AS LOG.
-           IF ll-ans THEN RUN fg/d-fgimg.w (RECID(itemfg)).
-           FIND CURRENT itemfg NO-LOCK NO-ERROR.
-           IF itemfg.box-image <> "" THEN
+           IF ll-ans THEN do:
+                RUN fg/d-fgimg.w (RECID(itemfg)).
+                FIND CURRENT itemfg NO-LOCK NO-ERROR.
+                lv-fgimg = itemfg.box-image .
+                FILE-INFO:FILE-NAME = lv-fgimg NO-ERROR .
+                IF FILE-INFO:FILE-type EQ ? THEN
+                lv-fgimg = "" .
+           END.
+           IF ll-ans AND lv-fgimg NE "" AND itemfg.box-image <> "" THEN
            DO:
                RUN ShellExecuteA(0, "open", itemfg.box-image, "", "", 0, OUTPUT tInt).
                  IF tInt LE 32 THEN
@@ -1676,7 +1687,7 @@ PROCEDURE update-fgitem-img :
                          ELSE IF    SEARCH("c:\windows\system32\mspaint.exe") <> ? THEN lv-cmd = "c:\windows\system32\mspaint.exe".
                          ASSIGN
                              lv-cmd = lv-cmd + " " + chr(34) + itemfg.box-image + CHR(34) .
-                         OS-COMMAND SILENT VALUE(lv-cmd).
+                         OS-COMMAND SILENT VALUE(lv-cmd) NO-ERROR.
                      END.
                  END.
            END.

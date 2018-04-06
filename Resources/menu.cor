@@ -29,7 +29,7 @@ prep. af est
 ce-ctrl. af est
 carrier. af est
 routing. af est
-scores. af est
+scoreType. af est
 machatt. af est
 custmkup. af est
 b file est
@@ -60,6 +60,7 @@ r-bolpst. b3
 r-bolsum. b3
 r-trksch. b3
 r-BOLtag. b3
+bolpcklst. b3
 b4 b
 w-oeinv. b4
 r-invedt. b4
@@ -146,6 +147,7 @@ r-tonmsf. cr
 r-inkglu. cr
 r-rmroll. cr
 r-rmbrd. cr
+r-brdrec. cr
 cf c est
 w-item. cf est
 procat. cf est

@@ -1,0 +1,25 @@
+Defi#: DO ON ERROR UNDO, RETURN "ERROR-DEFI":
+  DEFINE INPUT PARAMETER Date# AS DATE FORMAT "99-99-9999".
+  DEFINE OUTPUT PARAMETER Week# AS INTEGER.
+  DEFINE VARIABLE FDY# AS INTEGER NO-UNDO. /* First Day of Year */
+  DEFINE VARIABLE FDtY# AS DATE NO-UNDO FORMAT "99-99-9999". /* First Date
+of Year */
+  DEFINE VARIABLE i# AS INTEGER NO-UNDO.
+END.
+Main#: DO ON ERROR UNDO, RETURN "ERROR-MAIN" WITH FRAME FRAME-A:
+  FDY# = WEEKDAY(DATE(01,01,YEAR(Date#))).
+  FDtY# = IF FDY# <= 5 THEN DATE(01,03,YEAR(Date#)) - FDY# ELSE
+DATE(01,10,YEAR(Date#)) - FDY#.
+  Week# = TRUNCATE((Date# - FDtY# + 7) / 7,0).
+  IF Week# < 1 THEN DO: /* Week 52 or 53 previous year? */
+    FDY# = WEEKDAY(DATE(01,01,YEAR(Date#) - 1)).
+    FDtY# = IF FDY# <= 5 THEN DATE(01,03,YEAR(Date#) - 1) - FDY# ELSE
+DATE(01,10,YEAR(Date#) - 1) - FDY#.
+    Week# = TRUNCATE((DATE(MONTH(Date#),01,YEAR(Date#)) - FDtY# + 7) / 7,0).
+  END.
+  ELSE IF Week# > 52 THEN DO: /* Week 53 this year or week 1 next year? */
+    FDY# = WEEKDAY(DATE(01,10,YEAR(Date#) + 1)).
+    Week# = IF FDY# >= 2 AND FDY# <= 5 THEN 53 ELSE 1.
+  END.
+  RETURN.
+END.

@@ -1,0 +1,23 @@
+  FIELD asset-code LIKE fa-gl-post.asset-code VALIDATE ~
+  FIELD Credit-amt LIKE fa-gl-post.Credit-amt VALIDATE ~
+  FIELD Currency-cod LIKE fa-gl-post.Currency-cod VALIDATE ~
+  FIELD Debit-amt LIKE fa-gl-post.Debit-amt VALIDATE ~
+  FIELD Entity-code LIKE fa-gl-post.Entity-code VALIDATE ~
+  FIELD Explanation LIKE fa-gl-post.Explanation VALIDATE ~
+  FIELD fa-entity LIKE fa-gl-post.fa-entity VALIDATE ~
+  FIELD Gl-code LIKE fa-gl-post.Gl-code VALIDATE ~
+  FIELD Group-no LIKE fa-gl-post.Group-no VALIDATE ~
+  FIELD hm-credit-amt LIKE fa-gl-post.hm-credit-amt VALIDATE ~
+  FIELD hm-debit-amt LIKE fa-gl-post.hm-debit-amt VALIDATE ~
+  FIELD Job-no LIKE fa-gl-post.Job-no VALIDATE ~
+  FIELD Jrnl-no LIKE fa-gl-post.Jrnl-no VALIDATE ~
+  FIELD line-no LIKE fa-gl-post.line-no VALIDATE ~
+  FIELD posted LIKE fa-gl-post.posted VALIDATE ~
+  FIELD Prd LIKE fa-gl-post.Prd VALIDATE ~
+  FIELD Reference LIKE fa-gl-post.Reference VALIDATE ~
+  FIELD Rv-entry LIKE fa-gl-post.Rv-entry VALIDATE ~
+  FIELD Seq-no LIKE fa-gl-post.Seq-no VALIDATE ~
+  FIELD Source LIKE fa-gl-post.Source VALIDATE ~
+  FIELD Temporary LIKE fa-gl-post.Temporary VALIDATE ~
+  FIELD Trans-date LIKE fa-gl-post.Trans-date VALIDATE ~
+  FIELD Yr LIKE fa-gl-post.Yr VALIDATE 

@@ -36,7 +36,7 @@ def var v-date-ship as date initial today NO-UNDO.
 def var v-date-ord as date NO-UNDO.
 def var v-del-no as int format ">>>>>>" NO-UNDO.
 def var v-bol-cases LIKE oe-boll.cases NO-UNDO.
-def var v-set-qty AS INT NO-UNDO.
+def var v-set-qty AS DECIMAL NO-UNDO.
 def var v-part-qty AS DEC FORMAT "999.9999" NO-UNDO.
 def var v-net like inv-head.t-inv-rev NO-UNDO.
 def var v-case-cnt as char format "x(80)" extent 5 NO-UNDO.
@@ -84,7 +84,7 @@ DEFINE VARIABLE lFirstLine AS LOGICAL     NO-UNDO.
 FIND FIRST inv-head NO-LOCK NO-ERROR.
 /* === with xprint ====*/
 DEF VAR ls-image1 AS cha NO-UNDO.
-DEF VAR ls-full-img1 AS cha FORM "x(150)" NO-UNDO.
+DEF VAR ls-full-img1 AS cha FORM "x(200)" NO-UNDO.
 /*ASSIGN ls-image1 = "images\premiercan.jpg"          */
 /*       FILE-INFO:FILE-NAME = ls-image1.             */
 /*       ls-full-img1 = FILE-INFO:FULL-PATHNAME + ">".*/
@@ -350,7 +350,7 @@ END.
              DO:
                FOR EACH fg-set NO-LOCK WHERE fg-set.company = xinv-line.company
                   AND fg-set.set-no = xinv-line.i-no:
-                 ASSIGN v-set-qty = v-set-qty + fg-set.part-qty.
+                 ASSIGN v-set-qty = v-set-qty + fg-set.QtyPerSet.
                END.
                IF v-set-qty = 0 THEN
                   ASSIGN v-set-qty = 1.
@@ -362,8 +362,8 @@ END.
                     fg-set.set-no = xinv-line.i-no  AND
                     fg-set.part-no = eb.stock-no NO-LOCK NO-ERROR.
 
-                 IF AVAIL fg-set AND fg-set.part-qty NE 0 THEN
-                   ASSIGN v-part-qty = fg-set.part-qty / v-set-qty.
+                 IF AVAIL fg-set AND fg-set.QtyPerSet NE 0 THEN
+                   ASSIGN v-part-qty = fg-set.QtyPerSet / v-set-qty.
                  ELSE
                    ASSIGN v-part-qty = 1 / v-set-qty.
 
@@ -1039,23 +1039,8 @@ END.
     IF v-printline <= 66 THEN page.
     
     {XMLOutput/XMLOutput.i &c=c &XMLClose} /* rstark 05291402 */
-    /* Create eddoc for invoice if required */
-    RUN ed/asi/o810hook.p (recid(inv-head), no, no).     
-    FIND FIRST edmast NO-LOCK
-          WHERE edmast.cust EQ inv-head.cust-no
-          NO-ERROR.
-   IF AVAIL edmast THEN DO: 
-     FIND FIRST edcode NO-LOCK
-       WHERE edcode.partner EQ edmast.partner
-     NO-ERROR.
-     IF NOT AVAIL edcode THEN 
-       FIND FIRST edcode NO-LOCK
-            WHERE edcode.partner EQ edmast.partnerGrp
-            NO-ERROR.
-   END.  
-   IF AVAIL edcode AND edcode.sendFileOnPrint THEN    
-    RUN ed/asi/write810.p (INPUT cocode).    
-  end. /* each xinv-head */
+
+end. /* each xinv-head */
 
 {XMLOutput/XMLOutput.i &XMLClose} /* rstark 05181205 */
 

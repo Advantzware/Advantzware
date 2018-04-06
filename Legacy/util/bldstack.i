@@ -23,13 +23,9 @@ for each item
           by item.reg-no:
 
   if first-of(item.reg-no) then do:
-    find first reftable
-        where reftable.reftable eq "FLUTE"
-          and reftable.company  eq ""
-          and reftable.code     eq item.flute
-        no-lock no-error.
-
-    if avail reftable then
+  FIND FIRST flute WHERE flute.company EQ item.company
+                     AND flute.code EQ item.flute NO-LOCK NO-ERROR.
+  IF AVAIL flute THEN
     for each b-item
         where b-item.company  eq cocode
           and b-item.mat-type eq "D"
@@ -60,20 +56,19 @@ for each item
           do j = 1 to 10:
             if stack-flute.col-value[j]       ne "" and
                stack-flute.vals[(i * 10) + j] eq 0  then do:
-
-              find first b-reftable
-                  where b-reftable.reftable eq "STACK"
-                    and b-reftable.company  eq ""
-                    and b-reftable.code     eq stack-flute.col-value[j]
+ 
+                find first stackPattern
+                  where stackPattern.stackCode     eq stack-flute.col-value[j]
                   no-lock no-error.
-              if avail b-reftable then
+              if avail stackPattern then
                 assign
                  stack-flute.vals[(i * 10) + j] =
                                     (b-item.case-d - v-height) / (item.cal * 2)
                  stack-flute.vals[(i * 10) + j] =
                                     (stack-flute.vals[(i * 10) + j] -
                                      stack-flute.vals[(i * 10) + j] modulo 5) *
-                                    b-reftable.val[1].
+                                    stackPattern.stackCount.
+ 
             end.
           end.
 

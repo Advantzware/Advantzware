@@ -69,7 +69,7 @@ IF {&TABLENAME}.est-type EQ 2 AND
    {&TABLENAME}.cust-% EQ 0   THEN {&TABLENAME}.cust-%  = 1.
 ELSE
 IF {&TABLENAME}.est-type GE 5 AND {&TABLENAME}.est-type LE 6 AND 
-   {&TABLENAME}.yld-qty EQ 0  THEN {&TABLENAME}.yld-qty = 1.
+   {&TABLENAME}.quantityPerSet EQ 0  THEN {&TABLENAME}.quantityPerSet = 1.
 
 IF {&TABLENAME}.part-no     NE "" AND
    old-{&TABLENAME}.part-no NE "" THEN RUN est/validset.p (BUFFER {&TABLENAME}).
@@ -592,11 +592,10 @@ FOR EACH b-itemfg NO-LOCK
 END.
 
 IF {&TABLENAME}.stack-code NE "" AND {&TABLENAME}.stacks EQ 0 THEN DO:
-  FIND FIRST reftable NO-LOCK
-      {cec/stackW.i}
-        AND reftable.code EQ {&TABLENAME}.stack-code
+  FIND FIRST stackPattern NO-LOCK
+       WHERE stackPattern.stackCode EQ {&TABLENAME}.stack-code
       NO-ERROR.
-  IF AVAIL reftable THEN {&TABLENAME}.stacks = reftable.val[1].
+  IF AVAIL stackPattern THEN {&TABLENAME}.stacks = stackPattern.stackCount.
 END.
 
 /* Clear out any error-status from find with no-error that is false */

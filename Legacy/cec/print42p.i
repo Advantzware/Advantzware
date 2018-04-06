@@ -141,35 +141,15 @@ ctrl[17] = int(ce-ctrl.spec-add[7])
 ctrl[18] = int(ce-ctrl.spec-add[8])
 v-gsa    = index("SB",ce-ctrl.sell-by) eq 0.
 
-FIND FIRST reftable
-     WHERE reftable.reftable EQ "ce-ctrl.broker-pct"
-       AND reftable.company  EQ ce-ctrl.company
-       AND reftable.loc      EQ ce-ctrl.loc
-     NO-LOCK NO-ERROR.
 
-IF AVAIL reftable THEN
-   ctrl[19] = reftable.val[1].
+   ctrl[19] = ce-ctrl.broker-pct.
 
-FIND FIRST reftable NO-LOCK
-    WHERE reftable.reftable EQ "ce-ctrl.fg-rate-farm"
-      AND reftable.company  EQ ce-ctrl.company
-      AND reftable.loc      EQ ce-ctrl.loc
-    NO-ERROR.  
-fg-rate-f = IF AVAIL reftable THEN reftable.val[1] ELSE 0.
 
-FIND FIRST reftable NO-LOCK
-    WHERE reftable.reftable EQ "ce-ctrl.rm-rate-farm"
-      AND reftable.company  EQ ce-ctrl.company
-      AND reftable.loc      EQ ce-ctrl.loc
-    NO-ERROR.  
-rm-rate-f = IF AVAIL reftable THEN reftable.val[1] ELSE 0.
+fg-rate-f = ce-ctrl.fg-rate-farm.
 
-FIND FIRST reftable NO-LOCK
-    WHERE reftable.reftable EQ "ce-ctrl.hand-pct-farm"
-      AND reftable.company  EQ ce-ctrl.company
-      AND reftable.loc      EQ ce-ctrl.loc
-    NO-ERROR.    
-hand-pct-f = (IF AVAIL reftable THEN reftable.val[1] ELSE 0) / 100.
+rm-rate-f = ce-ctrl.rm-rate-farm.
+
+hand-pct-f = ce-ctrl.hand-pct-farm / 100.
 
 if not v-gsa then do-gsa = no.
 
@@ -207,12 +187,13 @@ if vprint then do:
 
   if lv-error then return error.
 
-  IF lv-override THEN
-  for each probe where probe.company = xest.company and
+  IF lv-override THEN DO:
+      RUN est\CostResetHeaders.p(ROWID(xest), ROWID(job)).
+      for each probe where probe.company = xest.company and
                        probe.est-no = xest.est-no:
      delete probe.                 
-  end.
-
+    end.
+  END.
   do i = 1 to 28:
      ASSIGN
         qtty[i] = tt-qtty.qtty[i]
@@ -269,10 +250,12 @@ else do:
 end.
 
 DO TRANSACTION:
-  {est/op-lock.i xest}
+    {est/op-lock.i xest}
+
   FIND est WHERE RECID(est) EQ RECID(xest).
   FIND CURRENT recalc-mr.
-  FIND CURRENT op-lock.
+    FIND CURRENT op-lock.
+
 
   ASSIGN
    est.recalc       = do-speed
@@ -340,6 +323,7 @@ IF NOT AVAIL xeb THEN /* task 04091012*/
 
 do vmcl = 1 to 28:   /* ??? 28 not 4*/
   if qtty[vmcl] eq 0 then next.
+  iMasterQuantity = qtty[vmcl].  /*Assign the master estimate quantity*/
 
   IF v-do-all-forms-ink AND xest.est-type EQ 6 AND
      INDEX(PROGRAM-NAME(1),"all-inks") EQ 0 AND
@@ -527,7 +511,7 @@ do vmcl = 1 to 28:   /* ??? 28 not 4*/
                      assign kli.ship-add[2] = kli.ship-add[3]
                             kli.ship-add[3] = kli.ship-add[4] kli.ship-add[4] = "".
               end.  /* not avail kli */
-              assign v-yld = if xeb.yld-qty lt 0 then -1 / xeb.yld-qty else xeb.yld-qty
+              assign v-yld = if xeb.quantityPerSet lt 0 then -1 / xeb.quantityPerSet else xeb.quantityPerSet
                      qty   = qtty[vmcl] * v-yld.
               find first blk where blk.snum eq xeb.form-no and
                                    blk.bnum eq xeb.blank-no no-error.
@@ -629,7 +613,7 @@ do vmcl = 1 to 28:   /* ??? 28 not 4*/
                BREAK BY xeb.blank-no:
 
              ASSIGN
-             v-yld = if xeb.yld-qty lt 0 then -1 / xeb.yld-qty else xeb.yld-qty
+             v-yld = if xeb.quantityPerSet lt 0 then -1 / xeb.quantityPerSet else xeb.quantityPerSet
              /* set total # of blanks on all forms */
              tt-blk = qtty[vmcl].
              /* set total # of blanks on this form */
@@ -785,7 +769,7 @@ do vmcl = 1 to 28:   /* ??? 28 not 4*/
                           and xeb.form-no eq xef.form-no
                NO-LOCK
                        with frame blk no-box no-labels width 80 down stream-io:
-              v-yld = if xeb.yld-qty lt 0 then -1 / xeb.yld-qty else xeb.yld-qty.
+              v-yld = if xeb.quantityPerSet lt 0 then -1 / xeb.quantityPerSet else xeb.quantityPerSet.
               find first style  where  style.company eq cocode and
                                        style.style eq xeb.style no-lock no-error.
               ASSIGN
@@ -941,11 +925,7 @@ do vmcl = 1 to 28:   /* ??? 28 not 4*/
 
       run cec/box/pr42mis2.p (INPUT LAST(ef.form-no)).
 
-      if opsys eq "unix" then
-         unix silent copy value(outfile1) value(outfile3).
-      else /* if opsys eq "MSDOS" then */
-         /*dos silent copy value(outfile1) value(outfile3).*/
-         OS-COPY value(outfile1) value(outfile3).
+      os-copy value(outfile1) value(outfile3).
 
       assign   v-tt-tot[v-form-no]   = tt-tot
                v-fac-tot[v-form-no]  = fac-tot
@@ -964,7 +944,8 @@ do vmcl = 1 to 28:   /* ??? 28 not 4*/
              ord-cost = ord-cost + v-ord-cost[j].
   end.
 
-  if vprint then run cec/box/probemk.p (ROWID(probe)).
+/*  if vprint then - Need this to run for Job BUild to get Prices and Commissions in CostHeader table*/
+    run cec/box/probemk.p (ROWID(probe)).
    dTotalManHrs = 0. /*20305 - need to reset Total Man Hrs calc per Quantity*/
    
   FOR EACH xjob:
@@ -1000,25 +981,13 @@ do vmcl = 1 to 28:   /* ??? 28 not 4*/
 
      IF probe.LINE LT 100 THEN
      DO:
-        if opsys eq "unix" then do:
-           unix silent rm value(tmp-dir + TRIM(xest.est-no) + "-*.*" + string(probe.line,"99")).
-           unix silent rm value(tmp-dir + TRIM(xest.est-no) +   ".*" + string(probe.line,"99")).
-        end.
-        else DO:
-           OS-DELETE value(tmp-dir + TRIM(xest.est-no) + "-*.*" + string(probe.line,"99")).
-           OS-DELETE value(tmp-dir + TRIM(xest.est-no) +   ".*" + string(probe.line,"99")).
-        end.
+        OS-DELETE value(tmp-dir + TRIM(xest.est-no) + "-*.*" + string(probe.line,"99")).
+        OS-DELETE value(tmp-dir + TRIM(xest.est-no) +   ".*" + string(probe.line,"99")).
      END.
      ELSE
      DO:
-        if opsys eq "unix" then do:
-           unix silent rm value(tmp-dir + TRIM(xest.est-no) + "-*.*" + string(probe.line,"999")).
-           unix silent rm value(tmp-dir + TRIM(xest.est-no) +   ".*" + string(probe.line,"999")).
-        end.
-        else DO:
-           OS-DELETE value(tmp-dir + TRIM(xest.est-no) + "-*.*" + string(probe.line,"999")).
-           OS-DELETE value(tmp-dir + TRIM(xest.est-no) +   ".*" + string(probe.line,"999")).
-        end.
+        OS-DELETE value(tmp-dir + TRIM(xest.est-no) + "-*.*" + string(probe.line,"999")).
+        OS-DELETE value(tmp-dir + TRIM(xest.est-no) +   ".*" + string(probe.line,"999")).
      END.
         
      FIND CURRENT probe.

@@ -17,7 +17,7 @@ def var v-dec    as dec no-undo.
 def var v-op-qty as int no-undo.
 def var v-on-f   as dec no-undo.
 DEF VAR v-len LIKE xef.gsh-len NO-UNDO.
-DEF VAR v-yld-qty LIKE eb.yld-qty NO-UNDO.
+DEF VAR v-yld-qty LIKE eb.quantityPerSet NO-UNDO.
 DEF VAR v-n-out AS INT NO-UNDO.
 def WORKFILE w-rec field w-recdate as DATE field w-rec-qty as dec.
 
@@ -514,7 +514,7 @@ IF v-net-shts THEN
    v-yld-qty = IF AVAIL xeb THEN
                  IF xeb.est-type EQ 2 THEN xeb.cust-%
                  ELSE
-                 IF xeb.est-type EQ 6 THEN xeb.yld-qty
+                 IF xeb.est-type EQ 6 THEN xeb.quantityPerSet
                  ELSE 1
                ELSE 1
    v-sht-qty = v-sht-qty *

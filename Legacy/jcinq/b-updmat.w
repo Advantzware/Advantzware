@@ -51,6 +51,8 @@ DEFINE TEMP-TABLE tt-mat-tran NO-UNDO
         sheet-no ASC blank-no ASC i-no ASC.
 
 DEF VAR op-valid AS LOG NO-UNDO.
+DEF VAR hPgmSecurity AS HANDLE NO-UNDO.
+DEF VAR lResult AS LOG NO-UNDO.
 
 {custom/globdefs.i}
 {sys/inc/VAR.i "new shared" }
@@ -332,18 +334,20 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL BROWSE-2 D-Dialog
 ON MOUSE-SELECT-DBLCLICK OF BROWSE-2 IN FRAME D-Dialog
 DO:
-  FIND FIRST users NO-LOCK WHERE 
-         users.user_id EQ USERID(LDBNAME(1)) 
-         NO-ERROR.
-  IF AVAIL users AND users.securityLevel GT 899  AND
-    AVAILABLE tt-mat-tran THEN DO:
 
-    /*  RUN windows/ITEM.w .*/
-
-   RUN set-read-only (INPUT NO).
-
-   APPLY "entry" TO tt-mat-tran.tran-date IN BROWSE {&browse-name}.
- END.
+    DEF VAR hPgmSecurity AS HANDLE NO-UNDO.
+    DEF VAR lResult AS LOG NO-UNDO.
+    RUN "system/PgmMstrSecur.p" PERSISTENT SET hPgmSecurity.
+    RUN epCanAccess IN hPgmSecurity ("jcinq/b-updmat.w", "", OUTPUT lResult).
+    DELETE OBJECT hPgmSecurity.
+    
+    IF lResult 
+    AND AVAIL tt-mat-tran THEN DO:
+        /*  RUN windows/ITEM.w .*/
+        RUN set-read-only (INPUT NO).
+        APPLY "entry" TO tt-mat-tran.tran-date IN BROWSE {&browse-name}.
+    END.
+  
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -545,10 +549,11 @@ FRAME {&FRAME-NAME}:TITLE = "Job #: " + ip-job-no + "-" + STRING(ip-job-no2)
 
 btn_dril-dwn:SENSITIVE = YES .
 
-FIND FIRST users NO-LOCK WHERE 
-         users.user_id EQ USERID(LDBNAME(1)) 
-         NO-ERROR.
-IF AVAIL users AND users.securityLevel GT 899 THEN
+        RUN "system/PgmMstrSecur.p" PERSISTENT SET hPgmSecurity.
+        RUN epCanAccess IN hPgmSecurity ("jcinq/b-updmat.w", "", OUTPUT lResult).
+    DELETE OBJECT hPgmSecurity.
+    
+IF lResult THEN
    ASSIGN
       btn_add:SENSITIVE = YES
       btn_add:HIDDEN = NO

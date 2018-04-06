@@ -88,20 +88,22 @@ DEFINE QUERY external_tables FOR ar-inv.
 
 /* Definitions for BROWSE Browser-Table                                 */
 &Scoped-define FIELDS-IN-QUERY-Browser-Table ar-invl.line ar-invl.actnum ~
-get-actdscr() @ v-actdscr ar-invl.i-no ar-invl.i-name ~
+get-actdscr() @ v-actdscr ar-invl.i-no ar-invl.part-no ar-invl.i-name ~
 get-i-dscr () @ ar-invl.i-dscr ar-invl.i-dscr ar-invl.lot-no ~
 ar-invl.inv-qty ar-invl.cons-uom ar-invl.sf-sht ar-invl.unit-pr ~
 ar-invl.pr-qty-uom ar-invl.disc calc-amt () @ ar-invl.amt ~
 calc-amt () @ ar-invl.amt ar-invl.amt ar-invl.amt-msf ar-invl.cost ~
 ar-invl.dscr[1] ar-invl.sman[1] ar-invl.s-pct[1] ar-invl.s-comm[1] ~
 ar-invl.sman[2] ar-invl.s-pct[2] ar-invl.s-comm[2] ar-invl.sman[3] ~
-ar-invl.s-pct[3] ar-invl.s-comm[3] 
+ar-invl.s-pct[3] ar-invl.s-comm[3] ar-invl.bol-no ar-invl.ord-no ~
+ar-invl.po-no 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table ar-invl.line ~
-ar-invl.actnum ar-invl.i-name ar-invl.i-dscr ar-invl.lot-no ar-invl.inv-qty ~
-ar-invl.sf-sht ar-invl.unit-pr ar-invl.pr-qty-uom ar-invl.cost ~
-ar-invl.dscr[1] ar-invl.sman[1] ar-invl.s-pct[1] ar-invl.s-comm[1] ~
-ar-invl.sman[2] ar-invl.s-pct[2] ar-invl.s-comm[2] ar-invl.sman[3] ~
-ar-invl.s-pct[3] ar-invl.s-comm[3] 
+ar-invl.actnum ar-invl.i-no ar-invl.part-no ar-invl.i-name ar-invl.i-dscr ~
+ar-invl.lot-no ar-invl.inv-qty ar-invl.sf-sht ar-invl.unit-pr ~
+ar-invl.pr-qty-uom ar-invl.cost ar-invl.dscr[1] ar-invl.sman[1] ~
+ar-invl.s-pct[1] ar-invl.s-comm[1] ar-invl.sman[2] ar-invl.s-pct[2] ~
+ar-invl.s-comm[2] ar-invl.sman[3] ar-invl.s-pct[3] ar-invl.s-comm[3] ~
+ar-invl.bol-no ar-invl.ord-no ar-invl.po-no 
 &Scoped-define ENABLED-TABLES-IN-QUERY-Browser-Table ar-invl
 &Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-Browser-Table ar-invl
 &Scoped-define QUERY-STRING-Browser-Table FOR EACH ar-invl WHERE ar-invl.x-no = ar-inv.x-no NO-LOCK ~
@@ -188,6 +190,7 @@ DEFINE BROWSE Browser-Table
       ar-invl.actnum COLUMN-LABEL "Account Number" FORMAT "x(25)":U
       get-actdscr() @ v-actdscr COLUMN-LABEL "Account Description" FORMAT "x(45)":U
       ar-invl.i-no FORMAT "x(15)":U
+      ar-invl.part-no FORMAT "x(15)":U
       ar-invl.i-name COLUMN-LABEL "Item Name" FORMAT "x(30)":U
       get-i-dscr () @ ar-invl.i-dscr
       ar-invl.i-dscr FORMAT "x(30)":U
@@ -213,9 +216,14 @@ DEFINE BROWSE Browser-Table
       ar-invl.sman[3] COLUMN-LABEL "SlsRep" FORMAT "x(3)":U
       ar-invl.s-pct[3] COLUMN-LABEL "% of Sale" FORMAT ">>9.99":U
       ar-invl.s-comm[3] COLUMN-LABEL "Comm%" FORMAT ">>9.99":U
+      ar-invl.bol-no FORMAT ">>>>>>>9":U
+      ar-invl.ord-no FORMAT ">>>>>9":U
+      ar-invl.po-no FORMAT "x(15)":U
   ENABLE
       ar-invl.line
       ar-invl.actnum
+      ar-invl.i-no
+      ar-invl.part-no
       ar-invl.i-name
       ar-invl.i-dscr
       ar-invl.lot-no
@@ -234,6 +242,9 @@ DEFINE BROWSE Browser-Table
       ar-invl.sman[3] HELP "Enter Salesrep's Intitials or Number"
       ar-invl.s-pct[3]
       ar-invl.s-comm[3]
+      ar-invl.bol-no
+      ar-invl.ord-no
+      ar-invl.po-no
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ASSIGN SEPARATORS SIZE 145 BY 6.19
@@ -335,55 +346,64 @@ ASSIGN
 "ar-invl.actnum" "Account Number" ? "character" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   > "_<CALC>"
 "get-actdscr() @ v-actdscr" "Account Description" "x(45)" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[4]   = ASI.ar-invl.i-no
-     _FldNameList[5]   > ASI.ar-invl.i-name
+     _FldNameList[4]   > ASI.ar-invl.i-no
+"ar-invl.i-no" ? ? "character" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[5]   > ASI.ar-invl.part-no
+"ar-invl.part-no" ? ? "character" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[6]   > ASI.ar-invl.i-name
 "ar-invl.i-name" "Item Name" ? "character" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[6]   > "_<CALC>"
+     _FldNameList[7]   > "_<CALC>"
 "get-i-dscr () @ ar-invl.i-dscr" ? ? ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[7]   > ASI.ar-invl.i-dscr
+     _FldNameList[8]   > ASI.ar-invl.i-dscr
 "ar-invl.i-dscr" ? ? "character" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[8]   > ASI.ar-invl.lot-no
+     _FldNameList[9]   > ASI.ar-invl.lot-no
 "ar-invl.lot-no" ? ? "character" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[9]   > ASI.ar-invl.inv-qty
+     _FldNameList[10]   > ASI.ar-invl.inv-qty
 "ar-invl.inv-qty" "Invoice Qty" "->>,>>>,>>9.9<" "decimal" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[10]   = ASI.ar-invl.cons-uom
-     _FldNameList[11]   > ASI.ar-invl.sf-sht
+     _FldNameList[11]   = ASI.ar-invl.cons-uom
+     _FldNameList[12]   > ASI.ar-invl.sf-sht
 "ar-invl.sf-sht" "SqFt" "->>,>>9.99<<" "decimal" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[12]   > ASI.ar-invl.unit-pr
+     _FldNameList[13]   > ASI.ar-invl.unit-pr
 "ar-invl.unit-pr" ? "->>,>>>,>>9.99<<<<" "decimal" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[13]   > ASI.ar-invl.pr-qty-uom
+     _FldNameList[14]   > ASI.ar-invl.pr-qty-uom
 "ar-invl.pr-qty-uom" "UOM" ? "character" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[14]   > ASI.ar-invl.disc
+     _FldNameList[15]   > ASI.ar-invl.disc
 "ar-invl.disc" "Dsct%" ">>9.99" "decimal" ? ? ? ? ? ? no ? no no "8" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[15]   > "_<CALC>"
-"calc-amt () @ ar-invl.amt" ? ? ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[16]   > "_<CALC>"
 "calc-amt () @ ar-invl.amt" ? ? ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[17]   > ASI.ar-invl.amt
+     _FldNameList[17]   > "_<CALC>"
+"calc-amt () @ ar-invl.amt" ? ? ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[18]   > ASI.ar-invl.amt
 "ar-invl.amt" "Amount" ? "decimal" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[18]   = ASI.ar-invl.amt-msf
-     _FldNameList[19]   > ASI.ar-invl.cost
+     _FldNameList[19]   = ASI.ar-invl.amt-msf
+     _FldNameList[20]   > ASI.ar-invl.cost
 "ar-invl.cost" "Cost" ? "decimal" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[20]   > ASI.ar-invl.dscr[1]
+     _FldNameList[21]   > ASI.ar-invl.dscr[1]
 "ar-invl.dscr[1]" "Cost!UOM" "x(4)" "character" ? ? ? ? ? ? yes "Enter Cost Unit of Measure" no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[21]   > ASI.ar-invl.sman[1]
+     _FldNameList[22]   > ASI.ar-invl.sman[1]
 "ar-invl.sman[1]" "SlsRep" ? "character" ? ? ? ? ? ? yes "Enter Salesrep's Intitials or Number" no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[22]   > ASI.ar-invl.s-pct[1]
+     _FldNameList[23]   > ASI.ar-invl.s-pct[1]
 "ar-invl.s-pct[1]" "% of Sale" ? "decimal" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[23]   > ASI.ar-invl.s-comm[1]
+     _FldNameList[24]   > ASI.ar-invl.s-comm[1]
 "ar-invl.s-comm[1]" "Comm%" ? "decimal" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[24]   > ASI.ar-invl.sman[2]
+     _FldNameList[25]   > ASI.ar-invl.sman[2]
 "ar-invl.sman[2]" "SlsRep" ? "character" ? ? ? ? ? ? yes "Enter Salesrep's Intitials or Number" no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[25]   > ASI.ar-invl.s-pct[2]
+     _FldNameList[26]   > ASI.ar-invl.s-pct[2]
 "ar-invl.s-pct[2]" "% of Sale" ? "decimal" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[26]   > ASI.ar-invl.s-comm[2]
+     _FldNameList[27]   > ASI.ar-invl.s-comm[2]
 "ar-invl.s-comm[2]" "Comm%" ? "decimal" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[27]   > ASI.ar-invl.sman[3]
+     _FldNameList[28]   > ASI.ar-invl.sman[3]
 "ar-invl.sman[3]" "SlsRep" ? "character" ? ? ? ? ? ? yes "Enter Salesrep's Intitials or Number" no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[28]   > ASI.ar-invl.s-pct[3]
+     _FldNameList[29]   > ASI.ar-invl.s-pct[3]
 "ar-invl.s-pct[3]" "% of Sale" ? "decimal" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[29]   > ASI.ar-invl.s-comm[3]
+     _FldNameList[30]   > ASI.ar-invl.s-comm[3]
 "ar-invl.s-comm[3]" "Comm%" ? "decimal" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[31]   > ASI.ar-invl.bol-no
+"ar-invl.bol-no" ? ? "integer" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[32]   > ASI.ar-invl.ord-no
+"ar-invl.ord-no" ? ? "integer" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[33]   > ASI.ar-invl.po-no
+"ar-invl.po-no" ? ? "character" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */
 &ANALYZE-RESUME
@@ -541,6 +561,31 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME ar-invl.i-no
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ar-invl.i-no Browser-Table _BROWSE-COLUMN B-table-Win
+ON LEAVE OF ar-invl.i-no IN BROWSE Browser-Table /* Item No */
+DO:
+      IF LASTKEY = -1 THEN RETURN.
+
+    IF ar-invl.i-no:MODIFIED IN BROWSE {&browse-name} THEN DO:
+       FIND FIRST itemfg NO-LOCK
+             WHERE itemfg.company = g_company 
+               AND itemfg.i-no = ar-invl.i-no:SCREEN-VALUE
+             NO-ERROR.
+       IF NOT AVAIL itemfg THEN DO:
+          MESSAGE "Invalid FG Item Number." VIEW-AS ALERT-BOX ERROR.
+          RETURN.
+       END.
+       ASSIGN
+         ar-invl.i-dscr:SCREEN-VALUE IN BROWSE {&browse-name} = itemfg.i-dscr
+         ar-invl.i-name:SCREEN-VALUE IN BROWSE {&browse-name} = itemfg.i-name.
+    END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME ar-invl.pr-qty-uom
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ar-invl.pr-qty-uom Browser-Table _BROWSE-COLUMN B-table-Win
 ON LEAVE OF ar-invl.pr-qty-uom IN BROWSE Browser-Table /* UOM */
@@ -676,6 +721,73 @@ DO:
             RETURN NO-APPLY.
          END.
    END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME ar-invl.bol-no
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ar-invl.bol-no Browser-Table _BROWSE-COLUMN B-table-Win
+ON LEAVE OF ar-invl.bol-no IN BROWSE Browser-Table /* Bill Of Lading Number */
+DO:
+    IF LASTKEY = -1 THEN RETURN.
+
+    IF ar-invl.bol-no:MODIFIED IN BROWSE {&browse-name} 
+     AND ar-invl.bol-no:SCREEN-VALUE GT "" THEN DO:
+       FIND FIRST oe-bolh WHERE oe-bolh.company = g_company AND                                
+                                oe-bolh.bol-no = INTEGER(ar-invl.bol-no:SCREEN-VALUE)
+                                NO-LOCK NO-ERROR.
+       IF NOT AVAIL oe-bolh THEN DO:
+          MESSAGE "Invalid BOL Number." VIEW-AS ALERT-BOX ERROR.
+          RETURN.
+       END.
+       ELSE DO:
+        find FIRST oe-boll no-lock 
+         WHERE oe-boll.company EQ oe-bolh.company
+          AND oe-boll.bol-no EQ oe-bolh.bol-no
+          and oe-boll.i-no EQ ar-invl.i-no:screen-value
+         no-error.
+        IF avail oe-boll and INTEGER(ar-invl.ord-no:SCREEN-VALUE) EQ 0 THEN
+         assign
+         ar-invl.ord-no:screen-value = string(oe-boll.ord-no)
+         ar-invl.po-no:screen-value = string(oe-boll.po-no)
+         .
+        if avail oe-boll then
+         find first oe-ordl no-lock 
+          where oe-ordl.company eq oe-boll.company
+            and oe-ordl.ord-no eq oe-boll.ord-no
+            and oe-ordl.i-no eq oe-boll.i-no
+          no-error.
+          if avail oe-ordl then
+         ar-invl.part-no:screen-value = oe-ordl.part-no
+         .
+       END.
+    END.
+
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME ar-invl.ord-no
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ar-invl.ord-no Browser-Table _BROWSE-COLUMN B-table-Win
+ON LEAVE OF ar-invl.ord-no IN BROWSE Browser-Table /* Order# */
+DO:
+      IF LASTKEY = -1 THEN RETURN.
+
+    IF ar-invl.ord-no:MODIFIED IN BROWSE {&browse-name} 
+     AND ar-invl.ord-no:screen-value GT "" THEN DO:
+       FIND FIRST oe-ord WHERE oe-ord.company = g_company AND                                
+                                oe-ord.ord-no = INTEGER(ar-invl.ord-no:SCREEN-VALUE)
+                                NO-LOCK NO-ERROR.
+       IF NOT AVAIL oe-ord THEN DO:
+          MESSAGE "Invalid Order Number." VIEW-AS ALERT-BOX ERROR.
+          RETURN.
+       END.
+       
+    END.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -876,7 +988,20 @@ PROCEDURE local-assign-record :
    find first cust where cust.company eq g_company
                       and cust.cust-no eq ar-inv.cust-no no-lock no-error.
    ar-invl.tax = if ar-inv.tax-code ne "" and cust.sort eq "Y" then YES ELSE NO.
-
+ 
+  IF ar-invl.bol-no GT 0 
+    AND ar-invl.b-no EQ 0 THEN DO:
+    FIND FIRST oe-bolh NO-LOCK
+      WHERE oe-bolh.company EQ ar-invl.company
+        AND oe-bolh.bol-no EQ ar-invl.bol-no 
+      NO-ERROR.
+    IF AVAIL oe-bolh THEN DO:
+         
+      ar-invl.b-no = oe-bolh.b-no.
+      
+    END.
+      
+  END.
   {ar/ar-invk.i bf-inv}
 
 END PROCEDURE.
@@ -1029,6 +1154,32 @@ PROCEDURE local-update-record :
           RETURN NO-APPLY.
        END.
   END.
+  IF ar-invl.bol-no:MODIFIED IN BROWSE {&browse-name}
+   AND ar-invl.bol-no:SCREEN-VALUE GT "" THEN DO:
+       /* Bol# check */
+       FIND FIRST oe-boll NO-LOCK 
+           WHERE oe-boll.company EQ g_company 
+             AND oe-boll.bol-no  EQ INTEGER(ar-invl.bol-no:SCREEN-VALUE)
+             AND oe-boll.i-no    EQ ar-invl.i-no:SCREEN-VALUE
+           NO-ERROR.
+       IF NOT AVAIL oe-boll THEN DO:
+          MESSAGE "Invalid Bol # for item#." VIEW-AS ALERT-BOX ERROR.
+          APPLY "entry" TO ar-invl.bol-no.
+          RETURN NO-APPLY.
+       END.
+       
+       IF INTEGER(ar-invl.ord-no:SCREEN-VALUE) NE oe-boll.ord-no THEN DO:
+          MESSAGE "Invalid Bol # for item#." VIEW-AS ALERT-BOX ERROR.
+          APPLY "entry" TO ar-invl.bol-no.
+          RETURN NO-APPLY.       
+       END.
+       IF ar-invl.po-no:SCREEN-VALUE NE oe-boll.po-no THEN DO:
+          MESSAGE "Invalid PO# for this BOL." VIEW-AS ALERT-BOX ERROR.
+          APPLY "entry" TO ar-invl.bol-no.
+          RETURN NO-APPLY.       
+       END.       
+  END.
+
   IF LOOKUP(ar-invl.pr-qty-uom:SCREEN-VALUE IN BROWSE {&browse-name} ,lv-uom-list) <= 0 THEN DO:
      MESSAGE "Invalid Unit of Measure." VIEW-AS ALERT-BOX ERROR.
      APPLY "entry" TO ar-invl.pr-qty-uom.
@@ -1039,11 +1190,13 @@ PROCEDURE local-update-record :
      APPLY "entry" TO ar-invl.pr-qty-uom.
      RETURN NO-APPLY.
   END.
-
+   
   ll-new-record = adm-new-record.
-
+    
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
+ 
+
 
   /* Code placed here will execute AFTER standard behavior.    */
   RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"invhead-target", OUTPUT char-hdl).

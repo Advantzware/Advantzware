@@ -153,7 +153,7 @@ DEFINE FRAME F-Main
      box-design-hdr.description AT ROW 1.24 COL 21 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 38 BY 1
-     box-design-hdr.box-image AT ROW 1.24 COL 77 COLON-ALIGNED
+     box-design-hdr.box-image AT ROW 1.24 COL 77 COLON-ALIGNED FORMAT "x(200)"
           VIEW-AS FILL-IN 
           SIZE 63 BY 1
      box-design-hdr.lscore AT ROW 2.43 COL 1 COLON-ALIGNED NO-LABEL FORMAT "x(135)"
@@ -583,6 +583,7 @@ find first style where style.company eq xeb.company
                  no-lock no-error.
 if avail style then
   find first xbox-design-hdr where xbox-design-hdr.design-no eq style.design-no
+  			       and xbox-design-hdr.company   eq style.company 	
                                and xbox-design-hdr.est-no    eq ""
              no-lock no-error.
 

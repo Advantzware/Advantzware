@@ -58,11 +58,6 @@ DEFINE {&NEW} SHARED VARIABLE g_lookup-var AS CHARACTER NO-UNDO.
 
 &SCOPED-DEFINE enable-prep enable-prep
 
-&SCOPED-DEFINE where-preplastjob                 ~
-    WHERE reftable.reftable EQ "PREPLASTJOB"     ~
-      AND reftable.company  EQ prep.company ~
-      AND reftable.loc      EQ prep.loc             ~
-      AND reftable.code     EQ prep.CODE
 
 DO TRANSACTION:
   {sys/inc/addprep.i}
@@ -95,7 +90,7 @@ END.
 DEFINE QUERY external_tables FOR prep.
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-FIELDS prep.dscr prep.ml prep.cost prep.mkup ~
-prep.spare-dec-1 prep.amtz prep.mat-type prep.dfault prep.cost-type ~
+prep.spare-dec-1 prep.amtz prep.mat-type prep.dfault prep.vend-no prep.cost-type ~
 prep.actnum prep.prep-date prep.loc prep.loc-bin prep.simon prep.fgcat ~
 prep.cust-no prep.cust-name prep.owner[1] prep.owner-%[1] prep.number-up ~
 prep.no-of-impressions prep.owner[2] prep.owner-%[2] prep.disposal-date ~
@@ -108,7 +103,7 @@ prep.last-est-no prep.last-order prep.i-no prep.procat
 fi_blank-loc fi_blank-loc-bin fi_job-no fi_job-no2 fi_cad# fi_fil# RECT-2 ~
 RECT-3 RECT-4 
 &Scoped-Define DISPLAYED-FIELDS prep.code prep.dscr prep.ml prep.cost ~
-prep.mkup prep.spare-dec-1 prep.amtz prep.mat-type prep.dfault ~
+prep.mkup prep.spare-dec-1 prep.amtz prep.mat-type prep.dfault prep.vend-no ~
 prep.cost-type prep.uom prep.actnum prep.prep-date prep.loc prep.loc-bin ~
 prep.simon prep.fgcat prep.cust-no prep.cust-name prep.owner[1] ~
 prep.owner-%[1] prep.number-up prep.no-of-impressions prep.owner[2] ~
@@ -283,6 +278,11 @@ DEFINE FRAME F-Main
      prep.dfault AT ROW 3.52 COL 19
           VIEW-AS TOGGLE-BOX
           SIZE 27.4 BY .76
+     prep.vend-no AT ROW 3.52 COL 60 COLON-ALIGNED
+          LABEL "Vendor"
+          VIEW-AS FILL-IN 
+          SIZE 20 BY 1
+          BGCOLOR 15 FONT 4
      prep.cost-type AT ROW 5.29 COL 17 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 7 BY 1
@@ -575,7 +575,7 @@ DO:
 
       WHEN "i-no" THEN DO:
          RUN windows/l-itmall.w (gcompany, "","", prep.i-no:SCREEN-VALUE, OUTPUT char-val, OUTPUT look-recid).
-         IF char-val NE "" AND ENTRY(1,char-val) NE lw-focus:SCREEN-VALUE THEN
+         IF char-val NE "" AND ENTRY(1,char-val) NE prep.i-no:SCREEN-VALUE THEN
             lw-focus:SCREEN-VALUE = ENTRY(1,char-val).
       END.
 
@@ -605,13 +605,13 @@ DO:
       END.
 
       when "last-est-no" then do:         
-        run windows/l-est.w (gcompany,gloc,lw-focus:screen-value, output char-val).
+        run windows/l-est.w (gcompany,gloc,prep.last-est-no:screen-value, output char-val).
         if char-val ne "" then do:
           find eb where recid(eb) eq int(entry(1,char-val)) no-lock no-error.
 
           if avail eb then do:
             assign
-             lw-focus:screen-value          = eb.est-no
+             prep.last-est-no:screen-value          = eb.est-no
              prep.cust-no:screen-value   = eb.cust-no
              prep.carton-l:screen-value  = string(eb.len)
              prep.carton-w:screen-value  = string(eb.wid)
@@ -658,40 +658,46 @@ DO:
       end.
 
       when "box-style" then do:         
-        run windows/l-style.w (gcompany,lw-focus:screen-value, output char-val).
+        run windows/l-style.w (gcompany,prep.box-style:screen-value, output char-val).
         if char-val ne "" then do: 
-          lw-focus:screen-value = entry(1,char-val).
+          prep.box-style:screen-value = entry(1,char-val).
         end.  
       end.
 
       when "cust-no" then do:
-        run windows/l-cust.w (gcompany,lw-focus:screen-value, output char-val).
+        run windows/l-cust.w (gcompany,prep.cust-no:screen-value, output char-val).
         if char-val ne "" then do:
           assign
-           lw-focus:screen-value          = entry(1,char-val)
+           prep.cust-no:screen-value          = entry(1,char-val)
            prep.cust-name:screen-value = entry(2,char-val).
         end.
       end.  /* cust-no*/
 
       when "loc" then do:
-          run rm/l-loc.w (gcompany, lw-focus:screen-value, output char-val).
+          run rm/l-loc.w (gcompany, prep.loc:screen-value, output char-val).
           if char-val <> "" then 
-              assign lw-focus:screen-value  = entry(1,char-val).  
+              assign prep.loc:screen-value  = entry(1,char-val).  
       end.
 
       when "loc-bin" then do:
           run rm/l-locbin.w (gcompany,prep.loc:screen-value, output char-val).
-          if char-val <> "" then assign lw-focus:screen-value  = entry(1,char-val).                  
+          if char-val <> "" then assign prep.loc:screen-value  = entry(1,char-val).                  
 
       END.
       when "fgcat" then do:
-             run windows/l-fgcat.w (gcompany,lw-focus:screen-value, output char-val).
-             if char-val <> "" then lw-focus:screen-value = entry(1,char-val).
+             run windows/l-fgcat.w (gcompany,prep.fgcat:screen-value, output char-val).
+             if char-val <> "" then prep.fgcat:screen-value = entry(1,char-val).
       end.
       when "procat" then do:
-             run windows/l-rmcat.w (gcompany,lw-focus:screen-value, output char-val).
-             if char-val <> "" then lw-focus:screen-value = entry(1,char-val).
+             run windows/l-rmcat.w (gcompany,prep.procat:screen-value, output char-val).
+             if char-val <> "" then prep.procat:screen-value = entry(1,char-val).
       end.
+      WHEN "vend-no" THEN DO:
+          run windows/l-vendno.w (gcompany, "", prep.vend-no:SCREEN-VALUE, OUTPUT char-val).
+          IF char-val NE "" AND ENTRY(1,char-val) NE lw-focus:SCREEN-VALUE THEN DO:
+              prep.vend-no:SCREEN-VALUE = ENTRY(1,char-val).
+          END.
+      END.
       otherwise do:
         run applhelp.p.
         if g_lookup-var ne "" then lw-focus:screen-value = g_lookup-var.
@@ -940,7 +946,7 @@ END.
 ON VALUE-CHANGED OF fi_job-no IN FRAME F-Main /* Last Job # Used */
 DO:
   {&self-name}:SCREEN-VALUE = CAPS({&self-name}:SCREEN-VALUE).
-  {&SELF-NAME}:CURSOR-OFFSET = LENGTH({&SELF-NAME}:SCREEN-VALUE) + 1 + IF LASTKEY EQ 32 THEN 1 ELSE 0. /* added by script _caps.p */
+  IF LASTKEY EQ 32 THEN {&SELF-NAME}:CURSOR-OFFSET = LENGTH({&SELF-NAME}:SCREEN-VALUE) + 2. /* res */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1068,6 +1074,19 @@ ON LEAVE OF prep.procat IN FRAME F-Main /* RM Category */
 DO:
     IF LASTKEY NE -1 THEN DO:
     RUN valid-rmcat NO-ERROR.
+    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+  END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME prep.vend-no
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL prep.vend-no V-table-Win
+ON LEAVE OF prep.vend-no IN FRAME F-Main /* RM Category */
+DO:
+    IF LASTKEY NE -1 THEN DO:
+    RUN valid-vend NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
   END.
 END.
@@ -1710,6 +1729,10 @@ PROCEDURE local-update-record :
 
   RUN valid-rmcat NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+
+  RUN valid-vend NO-ERROR.
+  IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+
   {&methods/lValidateError.i YES}
   if PREP.CUST-no:screen-value <> "" THEN
   DO:
@@ -1817,28 +1840,13 @@ PROCEDURE reftable-values :
 
   /* gdm - */
   DEF BUFFER bf-reftable FOR reftable.
-
-  IF AVAIL prep THEN DO:
-    FIND FIRST reftable {&where-preplastjob}
-         NO-LOCK NO-ERROR.
-
-    IF NOT AVAIL reftable THEN DO:
-      CREATE reftable.
-      ASSIGN
-       reftable.reftable = "PREPLASTJOB"
-       reftable.company  = prep.company
-       reftable.loc      = prep.loc
-       reftable.code     = prep.CODE
-       reftable.code2    = fi_job-no
-       reftable.val[1]   = fi_job-no2. 
-    END.
+ IF AVAIL prep THEN DO:
 
     IF ip-display THEN DO:
       ASSIGN
-        fi_job-no = reftable.code2
-        fi_job-no2 = reftable.val[1]
+        fi_job-no = prep.last-job-no
+        fi_job-no2 = prep.last-job-no2
          .
-
         FIND FIRST bf-reftable NO-LOCK
                WHERE bf-reftable.reftable EQ "PREPCADFILE"
                  AND bf-reftable.rec_key  EQ prep.rec_key NO-ERROR.  
@@ -1846,24 +1854,18 @@ PROCEDURE reftable-values :
            ASSIGN fi_cad# =  bf-reftable.CODE
                   fi_fil# = bf-reftable.code2.
         END.
-
         RELEASE bf-reftable.
     END.
     ELSE
     DO:
-       IF fi_job-no NE reftable.code2 OR
-          fi_job-no2 NE reftable.val[1] THEN
+       IF fi_job-no NE prep.last-job-no OR
+          fi_job-no2 NE prep.last-job-no2 THEN
           DO:
              REPEAT:
-                FIND CURRENT reftable EXCLUSIVE-LOCK NO-ERROR NO-WAIT.
-
-                IF AVAILABLE reftable THEN
                 DO:
                    ASSIGN
-                      reftable.code2 = fi_job-no
-                      reftable.val[1] = fi_job-no2.
-
-                   FIND CURRENT reftable NO-LOCK.
+                      prep.last-job-no = fi_job-no
+                      prep.last-job-no2 = fi_job-no2.
                    LEAVE.
                 END.
              END.
@@ -1888,6 +1890,8 @@ PROCEDURE reftable-values :
        /*END.*/
     END. /* else */
   END.
+
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2381,6 +2385,31 @@ PROCEDURE valid-rmcat :
 
   END.
   {methods/lValidateError.i NO}
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-vend B-table-Win 
+PROCEDURE valid-vend :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+
+  DO WITH FRAME {&FRAME-NAME}:
+
+     IF prep.vend-no:SCREEN-VALUE NE ""  AND 
+        NOT CAN-FIND(FIRST vend WHERE vend.company EQ cocode
+                                 AND vend.vend-no EQ prep.vend-no:SCREEN-VALUE)
+    THEN DO:
+      MESSAGE "Invalid Vendor, try help..." VIEW-AS ALERT-BOX ERROR.
+      APPLY "entry" TO prep.vend-no.
+      RETURN ERROR.
+    END.
+  END.
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

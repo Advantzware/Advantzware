@@ -1,0 +1,6 @@
+-H asisbs
+-N TCP
+-S 3802
+-db E:\Data\Progress\asi10test\db1010\nosweat
+-ld asinos
+-T c:\tmp

@@ -689,7 +689,7 @@ END.
 
 /* ***************************  Main Block  *************************** */
 
-{sys/inc/f3helpw.i}
+{sys/inc/f3helpd.i}
 /* Parent the dialog-box to the ACTIVE-WINDOW, if there is no parent.   */
 IF VALID-HANDLE(ACTIVE-WINDOW) AND FRAME {&FRAME-NAME}:PARENT EQ ?
 THEN FRAME {&FRAME-NAME}:PARENT = ACTIVE-WINDOW.
@@ -1209,29 +1209,13 @@ FUNCTION getValue-itemfg RETURNS CHARACTER
               ELSE
                 lc-return = "".
         END.  
-         WHEN "jd-edw"  THEN DO:
-                FIND FIRST reftable NO-LOCK
-                    WHERE reftable.reftable EQ "JDEDWARDCUST#" 
-                      AND reftable.company  EQ ipb-itemfg.company          
-                      AND reftable.loc      EQ ""              
-                      AND reftable.code     EQ ipb-itemfg.cust-no  
-                      AND reftable.code2    EQ ipb-itemfg.ship-id NO-ERROR.
-              IF AVAILABLE reftable THEN
-                  lc-return = reftable.dscr .                          
-              ELSE
-                lc-return = "". 
+        WHEN "jd-edw"  THEN DO:
+              ASSIGN lc-return = ipb-itemfg.exportCustID.
         END.
          WHEN "man-tax"  THEN DO:
-            FIND FIRST reftable NO-LOCK
-               WHERE reftable.reftable EQ "shipto.mandatory-tax" 
-                 AND reftable.company  EQ ipb-itemfg.company         
-                 AND reftable.loc      EQ ""                     
-                 AND reftable.code     EQ ipb-itemfg.cust-no         
-                 AND reftable.code2    EQ ipb-itemfg.ship-id NO-ERROR.
-              IF AVAILABLE reftable THEN
-                  lc-return = STRING(reftable.val[1] EQ 1) .                          
-              ELSE
-                lc-return = "". 
+            
+                  lc-return = STRING(ipb-itemfg.tax-mandatory) .                          
+              
         END.
 
         OTHERWISE DO:

@@ -126,7 +126,7 @@ OTHERWISE /*  "3060" */
     {rc/outstr.i    item_assigned_id        18  20}
     {ed/tdf/outstrde.i  quantity_invoiced   38  11  0}
     {rc/outstr.i    unit_of_measure         49  02}
-    {ed/tdf/outstrde.i  unit_price          51  18  6}
+    {ed/tdf/outstrde.i  unit_price          51  18  5}
     {rc/outstr.i    item_product_qualifier  71  02}
     {rc/outstr.i    product_id              73  40}
     .

@@ -63,7 +63,9 @@ DEFINE BUFFER bPJob FOR pendingJob.
 /* configuration version procedures */
 {{&includes}/configVersion.i}
 
+&IF DEFINED(FWD-VERSION) EQ 0 &THEN
 {{&includes}/lockWindowUpdate.i}
+&ENDIF
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

@@ -12,12 +12,18 @@ def var v-zone like shipto.dest-code.
 def var v-part-dscr like oe-ordl.i-name.
 def var v-qty like oe-rell.qty.
 def var v-frt-pay-dscr as char format "x(11)" no-undo.
+
+DEFINE TEMP-TABLE ttReleasesToPrint NO-UNDO
+    FIELD OeRelHRowID AS ROWID 
+    FIELD SessionID   AS CHARACTER
+        .
+
 /* === with xprint ====*/
 DEF VAR v-term AS cha NO-UNDO.
 DEF VAR ls-image1 AS cha NO-UNDO.
 DEF VAR ls-image2 AS cha NO-UNDO.
-DEF VAR ls-full-img1 AS cha FORM "x(50)" NO-UNDO.
-DEF VAR ls-full-img2 AS cha FORM "x(50)" NO-UNDO.
+DEF VAR ls-full-img1 AS cha FORM "x(200)" NO-UNDO.
+DEF VAR ls-full-img2 AS cha FORM "x(200)" NO-UNDO.
 ASSIGN ls-image1 = "".
        ls-image2 = "".
 
@@ -232,7 +238,7 @@ if v-zone-p then v-zone-hdr = "Route No.:".
                 where fg-set.company eq xoe-ordl.company
                   and fg-set.set-no  eq xoe-ordl.i-no
                 no-lock:
-              v-set-qty = v-set-qty + fg-set.part-qty.
+              v-set-qty = v-set-qty + fg-set.QtyPerSet.
             end.
             if v-set-qty eq 0 then v-set-qty = 1.
             for each eb
@@ -247,8 +253,8 @@ if v-zone-p then v-zone-hdr = "Route No.:".
                   no-lock no-error.
 
               assign
-               v-part-qty = (if avail fg-set and fg-set.part-qty ne 0 then
-                             fg-set.part-qty else 1) / v-set-qty
+               v-part-qty = (if avail fg-set and fg-set.QtyPerSet ne 0 then
+                             fg-set.QtyPerSet else 1) / v-set-qty
                v-pallets = v-pallets +
                            (if xoe-rell.qty-case ne 0 then
                               round((xoe-rell.qty-case / eb.cas-pal) + .49, 0)

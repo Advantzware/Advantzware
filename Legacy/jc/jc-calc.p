@@ -573,7 +573,7 @@ DO:
                         END.
            
                         IF NOT AVAILABLE oe-rel THEN job-hdr.ord-no = oe-ordl.ord-no.
-                        RUN oe/whs-item.p (BUFFER oe-ordl, OUTPUT ll-whs-item).
+                        ll-whs-item = oe-ordl.managed.
                         IF NOT ll-whs-item AND ll-add-over THEN
                             RUN oe/overundr.p ("O", "+", oe-ordl.over-pct, job-hdr.qty,
                                 OUTPUT job-hdr.qty).
@@ -670,32 +670,10 @@ DO:
         ASSIGN
             job.est-no      = xest.est-no
             job.create-date = TODAY
-            job.rec_key     = IF job.rec_key = "" THEN xest.rec_key ELSE job.rec_key.
-        job.stat          = "R".
-    END.
-
-
-    DO TRANSACTION:
-        FIND FIRST reftable
-            WHERE reftable.reftable EQ "job.create-time"
-            AND reftable.company  EQ job.company
-            AND reftable.loc      EQ ""
-            AND reftable.code     EQ STRING(job.job,"9999999999")
-            USE-INDEX reftable NO-ERROR.
-        IF NOT AVAILABLE reftable THEN 
-        DO:
-            CREATE reftable.
-            ASSIGN
-                reftable.reftable = "job.create-time"
-                reftable.company  = job.company
-                reftable.loc      = ""
-                reftable.code     = STRING(job.job,"9999999999").
-        END.
-        reftable.val[1] = TIME.
-
-        FIND CURRENT reftable NO-LOCK.
-        RELEASE reftable.
-    END.
+            job.rec_key     = IF job.rec_key = "" THEN xest.rec_key ELSE job.rec_key
+            job.stat          = "R"
+            job.create-time = TIME.
+    END.  
   
   
     FIND CURRENT job NO-LOCK.
@@ -822,7 +800,7 @@ DO:
             END.
 
             ASSIGN
-                v-yld-qty       = IF eb.est-type EQ 2 THEN eb.cust-% ELSE eb.yld-qty
+                v-yld-qty       = IF eb.est-type EQ 2 THEN eb.cust-% ELSE eb.quantityPerSet
                 v-yld-qty       = IF v-yld-qty LT 0 THEN (-1 / v-yld-qty) ELSE v-yld-qty
                 reftable.val[1] = reftable.val[1] + (xjob.lab / v-yld-qty)
                 reftable.val[2] = reftable.val[2] + (xjob.mat / v-yld-qty)
@@ -1367,13 +1345,13 @@ DO:
                                 (IF eb.est-type EQ 2 THEN
                                 IF eb.cust-% LT 0 THEN (-1 / eb.cust-%) ELSE eb.cust-%
                                 ELSE
-                                IF eb.yld-qty LT 0 THEN (-1 / eb.yld-qty) ELSE eb.yld-qty) /
+                                IF eb.quantityPerSet LT 0 THEN (-1 / eb.quantityPerSet) ELSE eb.quantityPerSet) /
                                 eb.num-up DESCENDING:
                                 v-blk-qty = (job-hdr.qty *
                                     (IF eb.est-type EQ 2 THEN
                                     IF eb.cust-% LT 0 THEN (-1 / eb.cust-%) ELSE eb.cust-%
                                     ELSE
-                                    IF eb.yld-qty LT 0 THEN (-1 / eb.yld-qty) ELSE eb.yld-qty) /
+                                    IF eb.quantityPerSet LT 0 THEN (-1 / eb.quantityPerSet) ELSE eb.quantityPerSet) /
                                     (eb.num-up * v-out)).
                                 LEAVE.
                             END.
@@ -1386,19 +1364,19 @@ DO:
                 DO:
                 {sys/inc/roundup.i job-mat.qty}
                 END.
-
-                IF NOT AVAILABLE job-hdr THEN
-                    FIND FIRST job-hdr WHERE job-hdr.company = cocode
-                        AND job-hdr.job-no  = job.job-no
-                        AND job-hdr.job-no2 = job.job-no2
-                        AND job-hdr.job     = job.job
-                        EXCLUSIVE-LOCK NO-ERROR.
-                IF AVAIL(job-hdr) AND job-mat.len GT 0 AND job-mat.wid GT 0 AND job-mat.qty GT 0
-                    AND job-mat.std-cost GT 0 AND job-hdr.qty GT 0 AND job-mat.sc-uom = "MSF" THEN
-                    ASSIGN job-mat.cost-m = ((job-mat.LEN * job-mat.wid / 144) * (job-mat.qty / 1000) * job-mat.std-cost)
-                 / job-hdr.qty * 1000.
-                IF job-mat.cost-m = ? THEN
-                    job-mat.cost-m = 0.
+/*Ticket 25418 - Mismatch of cost/m on Materials tab vs. Job Hdr Cost/M - do not recalculate the cost/m */
+/*                IF NOT AVAILABLE job-hdr THEN                                                                            */
+/*                    FIND FIRST job-hdr WHERE job-hdr.company = cocode                                                    */
+/*                        AND job-hdr.job-no  = job.job-no                                                                 */
+/*                        AND job-hdr.job-no2 = job.job-no2                                                                */
+/*                        AND job-hdr.job     = job.job                                                                    */
+/*                        EXCLUSIVE-LOCK NO-ERROR.                                                                         */
+/*                IF AVAIL(job-hdr) AND job-mat.len GT 0 AND job-mat.wid GT 0 AND job-mat.qty GT 0                         */
+/*                    AND job-mat.std-cost GT 0 AND job-hdr.qty GT 0 AND job-mat.sc-uom = "MSF" THEN                       */
+/*                    ASSIGN job-mat.cost-m = ((job-mat.LEN * job-mat.wid / 144) * (job-mat.qty / 1000) * job-mat.std-cost)*/
+/*                 / job-hdr.qty * 1000.                                                                                   */
+/*                IF job-mat.cost-m = ? THEN                                                                               */
+/*                    job-mat.cost-m = 0.                                                                                  */
 
                 IF job-mat.qty-all EQ 0 OR
                     NOT job-mat.all-flg  THEN

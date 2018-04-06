@@ -195,34 +195,16 @@ for each xef where xef.company = xest.company and
                   tt-eiv.setups[j] = e-item-vend.setups[j].
             END.
 
-            FIND FIRST b-qty WHERE
-                 b-qty.reftable = "vend-qty" AND
-                 b-qty.company = e-item-vend.company AND
-		         b-qty.CODE    = e-item-vend.i-no AND
-                 b-qty.code2   = e-item-vend.vend-no
-                 NO-LOCK NO-ERROR.
 
-            IF AVAIL b-qty THEN
+            IF AVAIL e-item-vend THEN
             DO:
-               FIND FIRST b-cost WHERE
-                    b-cost.reftable = "vend-cost" AND
-                    b-cost.company = e-item-vend.company AND
-		            b-cost.CODE    = e-item-vend.i-no AND
-                    b-cost.code2   = e-item-vend.vend-no
-                    NO-LOCK NO-ERROR.
-              
-               FIND FIRST b-setup WHERE
-                    b-setup.reftable = "vend-setup" AND
-                    b-setup.company = e-item-vend.company AND
-		            b-setup.CODE    = e-item-vend.i-no AND
-                    b-setup.code2   = e-item-vend.vend-no
-                    NO-LOCK NO-ERROR.
+
 
                DO j = 1 TO 10:
                   ASSIGN
-                     tt-eiv.run-qty[j + 10] = b-qty.val[j]
-                     tt-eiv.run-cost[j + 10] = b-cost.val[j]
-                     tt-eiv.setups[j + 10] = b-setup.val[j].
+                     tt-eiv.run-qty[j + 10] = e-item-vend.runQtyXtra[j]
+                     tt-eiv.run-cost[j + 10] = e-item-vend.runCostXtra[j]
+                     tt-eiv.setups[j + 10] = e-item-vend.setupsXtra[j].
                END.
             END.
          END.
@@ -351,7 +333,7 @@ for each xef where xef.company = xest.company and
      if avail eb then flm.id = eb.part-no.
      if flm.bnum gt 0 then
        assign
-        v-yld    = if eb.yld-qty lt 0 then -1 / eb.yld-qty else eb.yld-qty
+        v-yld    = if eb.quantityPerSet lt 0 then -1 / eb.quantityPerSet else eb.quantityPerSet
         flm.cosm = f-cost[i] / (tt-blk * v-yld / 1000).
      else flm.cosm = f-cost[i] / ( t-blkqty[xef.form-no] / 1000).
         

@@ -1,0 +1,66 @@
+FOR EACH item NO-LOCK WHERE item.company EQ "%company%" AND item.industry EQ "1"
+i-code,i-dscr,i-name,i-no,mat-type,procat
+
+Indexed: i-code,i-dscr,i-name,i-no,mat-type,procat
+Non-Idx: cons-uom,cost-type,q-comm,q-onh,q-ono
+
+Generated 04.18.2017 @  1:30:44 am by: nosweat
+Table: item - Records: 10,072
+
+    Index: cust
+         Field: company
+         Field: cust-no
+         Field: i-no
+
+    Index: flute-test
+         Field: company
+         Field: flute
+         Field: reg-no
+
+    Index: i-code
+         Field: company
+         Field: i-code
+         Field: i-name
+
+    Index: i-dscr
+         Field: company
+         Field: i-dscr
+
+    Index: i-name
+         Field: company
+         Field: i-name
+
+    Index: i-no
+         Field: company
+         Field: i-no
+
+    Index: industry
+         Field: company
+         Field: industry
+         Field: i-no
+
+    Index: item
+         Field: company
+         Field: industry
+         Field: i-name
+         Field: i-no
+
+    Index: mat-type
+         Field: company
+         Field: mat-type
+         Field: i-name
+
+    Index: price-code
+         Field: company
+         Field: price-code
+
+    Index: procat
+         Field: company
+         Field: procat
+         Field: i-name
+
+    Index: rec_key
+         Field: rec_key
+
+    Index: wi-name
+         Field: i-name

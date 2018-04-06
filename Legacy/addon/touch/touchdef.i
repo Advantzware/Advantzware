@@ -33,13 +33,16 @@ DEFINE VARIABLE label_language AS CHARACTER NO-UNDO.
 DEFINE VARIABLE language_list AS CHARACTER NO-UNDO.
 DEFINE VARIABLE flag_list AS CHARACTER NO-UNDO.
 DEFINE VARIABLE machine_list AS CHARACTER NO-UNDO.
+DEFINE VARIABLE hFrame AS HANDLE NO-UNDO.
 
 DEFINE TEMP-TABLE ttTriggers NO-UNDO
+    FIELD frameHandle AS HANDLE  
     FIELD triggerName AS CHARACTER
+    FIELD dynamicObject AS LOGICAL 
     FIELD hRectangle AS HANDLE
     FIELD hEditor AS HANDLE
     FIELD hImage AS HANDLE
-        INDEX ttTriggers IS PRIMARY triggerName
+        INDEX ttTriggers IS PRIMARY frameHandle triggerName
         .
 
 DELETE WIDGET-POOL "TouchPool{&PageNo}" NO-ERROR.

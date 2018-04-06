@@ -1,5 +1,7 @@
 &ANALYZE-SUSPEND _VERSION-NUMBER UIB_v8r12 GUI
 &ANALYZE-RESUME
+/* Connected Databases 
+*/
 &Scoped-define WINDOW-NAME C-Win
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS C-Win 
 /*------------------------------------------------------------------------
@@ -41,6 +43,12 @@ CREATE WIDGET-POOL.
 
 DEFINE VARIABLE i AS INTEGER NO-UNDO.
 
+DEFINE TEMP-TABLE ttTable NO-UNDO
+    FIELD tableName AS CHARACTER FORMAT "x(20)" LABEL "Table"
+    FIELD audit     AS LOGICAL   EXTENT 3
+        INDEX ttTable IS PRIMARY tableName
+        .
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -54,11 +62,33 @@ DEFINE VARIABLE i AS INTEGER NO-UNDO.
 
 /* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME DEFAULT-FRAME
+&Scoped-define BROWSE-NAME dbTables
+
+/* Internal Tables (found by Frame, Query & Browse Queries)             */
+&Scoped-define INTERNAL-TABLES ttTable
+
+/* Definitions for BROWSE dbTables                                      */
+&Scoped-define FIELDS-IN-QUERY-dbTables ttTable.tableName ttTable.audit[1] ttTable.audit[2] ttTable.audit[3]   
+&Scoped-define ENABLED-FIELDS-IN-QUERY-dbTables ttTable.audit[1] ttTable.audit[2] ttTable.audit[3]   
+&Scoped-define ENABLED-TABLES-IN-QUERY-dbTables ttTable
+&Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-dbTables ttTable
+&Scoped-define SELF-NAME dbTables
+&Scoped-define QUERY-STRING-dbTables FOR EACH ttTable WHERE ttTable.tableName MATCHES "*" + svFilter + "*"
+&Scoped-define OPEN-QUERY-dbTables OPEN QUERY {&SELF-NAME} FOR EACH ttTable WHERE ttTable.tableName MATCHES "*" + svFilter + "*".
+&Scoped-define TABLES-IN-QUERY-dbTables ttTable
+&Scoped-define FIRST-TABLE-IN-QUERY-dbTables ttTable
+
+
+/* Definitions for FRAME DEFAULT-FRAME                                  */
+&Scoped-define OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME ~
+    ~{&OPEN-QUERY-dbTables}
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS Btn_Add audit-tables db-names table-names ~
-Btn_Audit_All Btn_Cancel Btn_OK Btn_Remove Btn_Tables_All 
-&Scoped-Define DISPLAYED-OBJECTS audit-tables db-names table-names 
+&Scoped-Define ENABLED-OBJECTS btnBeforeValueFilterClear btnExit btnOK ~
+svFilter svToggleAuditCreate svToggleAuditDelete svToggleAuditUpdate ~
+dbTables 
+&Scoped-Define DISPLAYED-OBJECTS svFilter svToggleAuditCreate ~
+svToggleAuditDelete svToggleAuditUpdate 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -74,85 +104,96 @@ Btn_Audit_All Btn_Cancel Btn_OK Btn_Remove Btn_Tables_All
 DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON Btn_Add 
-     IMAGE-UP FILE "Graphics/32x32/navigate_right2.ico":U NO-FOCUS FLAT-BUTTON
-     LABEL "&Add >>" 
-     SIZE 8 BY 1.91 TOOLTIP "Add".
+DEFINE BUTTON btnBeforeValueFilterClear 
+     IMAGE-UP FILE "Graphics/16x16/navigate_cross.png":U NO-FOCUS FLAT-BUTTON
+     LABEL "" 
+     SIZE 4.4 BY 1.05 TOOLTIP "Clear Filter Value".
 
-DEFINE BUTTON Btn_Audit_All 
-     IMAGE-UP FILE "Graphics/32x32/indent_increase.ico":U NO-FOCUS FLAT-BUTTON
-     LABEL "&Select All >" 
-     SIZE 8 BY 1.91 TOOLTIP "Select All".
-
-DEFINE BUTTON Btn_Cancel DEFAULT 
-     IMAGE-UP FILE "Graphics/32x32/door_exit.ico":U NO-FOCUS FLAT-BUTTON
-     LABEL "&Cancel" 
+DEFINE BUTTON btnExit DEFAULT 
+     IMAGE-UP FILE "Graphics/32x32/navigate_cross.ico":U NO-FOCUS FLAT-BUTTON
+     LABEL "" 
      SIZE 8 BY 1.91 TOOLTIP "Exit"
      BGCOLOR 8 FONT 4.
 
-DEFINE BUTTON Btn_OK AUTO-GO DEFAULT 
-     IMAGE-UP FILE "Graphics/32x32/floppy_disk.ico":U NO-FOCUS FLAT-BUTTON
-     LABEL "&OK" 
+DEFINE BUTTON btnOK AUTO-GO DEFAULT 
+     IMAGE-UP FILE "Graphics/32x32/navigate_check.ico":U NO-FOCUS FLAT-BUTTON
+     LABEL "" 
      SIZE 8 BY 1.91 TOOLTIP "Save"
      BGCOLOR 8 FONT 4.
 
-DEFINE BUTTON Btn_Remove 
-     IMAGE-UP FILE "Graphics/32x32/navigate_left2.ico":U NO-FOCUS FLAT-BUTTON
-     LABEL "<< &Remove" 
-     SIZE 8 BY 1.91 TOOLTIP "Remove".
+DEFINE VARIABLE svFilter AS CHARACTER FORMAT "X(256)":U 
+     LABEL "Filter" 
+     VIEW-AS FILL-IN 
+     SIZE 28 BY 1 NO-UNDO.
 
-DEFINE BUTTON Btn_Tables_All 
-     IMAGE-UP FILE "Graphics/32x32/indent_decrease.ico":U NO-FOCUS FLAT-BUTTON
-     LABEL "< Selec&t All" 
-     SIZE 8 BY 1.91 TOOLTIP "Select All".
+DEFINE RECTANGLE RECT-11
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 64 BY 2.38.
 
-DEFINE VARIABLE audit-tables AS CHARACTER 
-     VIEW-AS SELECTION-LIST MULTIPLE SORT SCROLLBAR-VERTICAL 
-     SIZE 24 BY 32.14 NO-UNDO.
+DEFINE VARIABLE svToggleAuditCreate AS LOGICAL INITIAL no 
+     LABEL "Create" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 10 BY .81 NO-UNDO.
 
-DEFINE VARIABLE db-names AS CHARACTER 
-     VIEW-AS SELECTION-LIST SINGLE SORT SCROLLBAR-VERTICAL 
-     SIZE 24 BY 3.05 NO-UNDO.
+DEFINE VARIABLE svToggleAuditDelete AS LOGICAL INITIAL no 
+     LABEL "Delete" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 10 BY .81 NO-UNDO.
 
-DEFINE VARIABLE table-names AS CHARACTER 
-     VIEW-AS SELECTION-LIST MULTIPLE SORT SCROLLBAR-VERTICAL 
-     SIZE 24 BY 27.62 NO-UNDO.
+DEFINE VARIABLE svToggleAuditUpdate AS LOGICAL INITIAL no 
+     LABEL "Update" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 10 BY .81 NO-UNDO.
+
+/* Query definitions                                                    */
+&ANALYZE-SUSPEND
+DEFINE QUERY dbTables FOR 
+      ttTable SCROLLING.
+&ANALYZE-RESUME
+
+/* Browse definitions                                                   */
+DEFINE BROWSE dbTables
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS dbTables C-Win _FREEFORM
+  QUERY dbTables DISPLAY
+      ttTable.tableName
+ttTable.audit[1] COLUMN-LABEL "Audit Create" VIEW-AS TOGGLE-BOX
+ttTable.audit[2] COLUMN-LABEL "Audit Delete"  VIEW-AS TOGGLE-BOX
+ttTable.audit[3] COLUMN-LABEL "Audit Update"  VIEW-AS TOGGLE-BOX
+ENABLE
+ttTable.audit[1]
+ttTable.audit[2]
+ttTable.audit[3]
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+    WITH NO-ROW-MARKERS SEPARATORS SIZE 64 BY 30.48
+         TITLE "Database Tables".
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME DEFAULT-FRAME
-     Btn_Add AT ROW 7.67 COL 35 HELP
-          "Add Selected Table to Tables to Audit"
-     audit-tables AT ROW 2.19 COL 44 HELP
-          "Select Table Name" NO-LABEL
-     db-names AT ROW 2.24 COL 1 HELP
-          "Select Database Name" NO-LABEL
-     table-names AT ROW 6.71 COL 1 HELP
-          "Select Table Name" NO-LABEL
-     Btn_Audit_All AT ROW 12.43 COL 35 HELP
-          "Select All Tables to Audit"
-     Btn_Cancel AT ROW 32.43 COL 35 HELP
+     btnBeforeValueFilterClear AT ROW 1.48 COL 44 HELP
+          "Click to Clear Value Filter" WIDGET-ID 40
+     btnExit AT ROW 1.48 COL 57 HELP
           "Use this function to CANCEL field selecition"
-     Btn_OK AT ROW 32.43 COL 26 HELP
+     btnOK AT ROW 1.48 COL 49 HELP
           "Use this function to ACCEPT selected field"
-     Btn_Remove AT ROW 12.43 COL 26 HELP
-          "Remove Selected Table from Tables to Audit"
-     Btn_Tables_All AT ROW 7.67 COL 26 HELP
-          "Select All Tables"
-     "Table Names" VIEW-AS TEXT
-          SIZE 15.6 BY 1 AT ROW 5.52 COL 4
-          FONT 6
-     "Tables to Audit" VIEW-AS TEXT
-          SIZE 18 BY 1 AT ROW 1 COL 46
-          FONT 6
-     "Database Names" VIEW-AS TEXT
-          SIZE 20 BY 1 AT ROW 1 COL 3
-          FONT 6
+     svFilter AT ROW 1.48 COL 14 COLON-ALIGNED HELP
+          "Enter Filter Value" WIDGET-ID 6
+     svToggleAuditCreate AT ROW 2.67 COL 16 HELP
+          "Select to Toggle Audit Create" WIDGET-ID 4
+     svToggleAuditDelete AT ROW 2.67 COL 27 HELP
+          "Select to Toggle Audit Delete" WIDGET-ID 8
+     svToggleAuditUpdate AT ROW 2.67 COL 38 HELP
+          "Select to Toggle Audit Update" WIDGET-ID 10
+     dbTables AT ROW 3.86 COL 2 WIDGET-ID 100
+     "Toggle Audit" VIEW-AS TEXT
+          SIZE 12 BY .81 AT ROW 2.67 COL 3 WIDGET-ID 12
+     RECT-11 AT ROW 1.24 COL 2 WIDGET-ID 2
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 67.2 BY 33.33.
+         SIZE 66 BY 33.33.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -173,11 +214,12 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          HIDDEN             = YES
          TITLE              = "Audit Table Selections"
          HEIGHT             = 33.33
-         WIDTH              = 67.2
+         WIDTH              = 66
          MAX-HEIGHT         = 33.33
-         MAX-WIDTH          = 67.2
+         MAX-WIDTH          = 66
          VIRTUAL-HEIGHT     = 33.33
-         VIRTUAL-WIDTH      = 67.2
+         VIRTUAL-WIDTH      = 66
+         MAX-BUTTON         = no
          RESIZE             = yes
          SCROLL-BARS        = no
          STATUS-AREA        = yes
@@ -200,10 +242,26 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME DEFAULT-FRAME
    FRAME-NAME                                                           */
+/* BROWSE-TAB dbTables svToggleAuditUpdate DEFAULT-FRAME */
+/* SETTINGS FOR RECTANGLE RECT-11 IN FRAME DEFAULT-FRAME
+   NO-ENABLE                                                            */
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
 THEN C-Win:HIDDEN = no.
 
 /* _RUN-TIME-ATTRIBUTES-END */
+&ANALYZE-RESUME
+
+
+/* Setting information for Queries and Browse Widgets fields            */
+
+&ANALYZE-SUSPEND _QUERY-BLOCK BROWSE dbTables
+/* Query rebuild information for BROWSE dbTables
+     _START_FREEFORM
+OPEN QUERY {&SELF-NAME} FOR EACH ttTable
+WHERE ttTable.tableName MATCHES "*" + svFilter + "*".
+     _END_FREEFORM
+     _Query            is OPENED
+*/  /* BROWSE dbTables */
 &ANALYZE-RESUME
 
  
@@ -238,120 +296,93 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME audit-tables
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL audit-tables C-Win
-ON DEFAULT-ACTION OF audit-tables IN FRAME DEFAULT-FRAME
+&Scoped-define SELF-NAME btnBeforeValueFilterClear
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnBeforeValueFilterClear C-Win
+ON CHOOSE OF btnBeforeValueFilterClear IN FRAME DEFAULT-FRAME
 DO:
-  table-names:ADD-LAST(audit-tables:SCREEN-VALUE).
-  audit-tables:DELETE(audit-tables:SCREEN-VALUE).
+    svFilter:SCREEN-VALUE = "".
+    APPLY "VALUE-CHANGED":U TO svFilter.
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME Btn_Add
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Add C-Win
-ON CHOOSE OF Btn_Add IN FRAME DEFAULT-FRAME /* Add >> */
+&Scoped-define SELF-NAME btnExit
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnExit C-Win
+ON CHOOSE OF btnExit IN FRAME DEFAULT-FRAME
 DO:
-  DO i = 1 TO table-names:NUM-ITEMS WITH FRAME {&FRAME-NAME}:
-    IF table-names:IS-SELECTED(i) AND
-      (NOT CAN-DO(audit-tables:LIST-ITEMS,table-names:ENTRY(i)) OR
-       audit-tables:NUM-ITEMS = 0) THEN
-    audit-tables:ADD-LAST(table-names:ENTRY(i)).
-  END.
-  RUN Get_Tables.
+    APPLY "CLOSE" TO THIS-PROCEDURE.
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME Btn_Audit_All
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Audit_All C-Win
-ON CHOOSE OF Btn_Audit_All IN FRAME DEFAULT-FRAME /* Select All > */
+&Scoped-define SELF-NAME btnOK
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnOK C-Win
+ON CHOOSE OF btnOK IN FRAME DEFAULT-FRAME
 DO:
-  audit-tables:SCREEN-VALUE IN FRAME {&FRAME-NAME} = audit-tables:LIST-ITEMS.
+    APPLY "ROW-LEAVE":U TO BROWSE {&BROWSE-NAME}.
+    RUN pSave.
+    MESSAGE
+        "Audit Selections Saved"
+    VIEW-AS ALERT-BOX.
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME Btn_Cancel
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Cancel C-Win
-ON CHOOSE OF Btn_Cancel IN FRAME DEFAULT-FRAME /* Cancel */
+&Scoped-define SELF-NAME svFilter
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svFilter C-Win
+ON VALUE-CHANGED OF svFilter IN FRAME DEFAULT-FRAME /* Filter */
 DO:
-  APPLY "CLOSE" TO THIS-PROCEDURE.
+    ASSIGN {&SELF-NAME}.
+    {&OPEN-QUERY-{&BROWSE-NAME}}
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME Btn_OK
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_OK C-Win
-ON CHOOSE OF Btn_OK IN FRAME DEFAULT-FRAME /* OK */
+&Scoped-define SELF-NAME svToggleAuditCreate
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svToggleAuditCreate C-Win
+ON VALUE-CHANGED OF svToggleAuditCreate IN FRAME DEFAULT-FRAME /* Create */
 DO:
-  FIND FIRST config EXCLUSIVE-LOCK.
-  config.audit_tables = audit-tables:LIST-ITEMS IN FRAME {&FRAME-NAME}.
-  APPLY "CLOSE" TO THIS-PROCEDURE.
+    ASSIGN {&SELF-NAME}.
+    RUN pSetAudit (1,{&SELF-NAME}).
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME Btn_Remove
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Remove C-Win
-ON CHOOSE OF Btn_Remove IN FRAME DEFAULT-FRAME /* << Remove */
+&Scoped-define SELF-NAME svToggleAuditDelete
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svToggleAuditDelete C-Win
+ON VALUE-CHANGED OF svToggleAuditDelete IN FRAME DEFAULT-FRAME /* Delete */
 DO:
-  DO i = audit-tables:NUM-ITEMS TO 1 BY -1 WITH FRAME {&FRAME-NAME}:
-    IF audit-tables:IS-SELECTED(i) THEN
-    audit-tables:DELETE(i).
-  END.
-  RUN Get_Tables.
+    ASSIGN {&SELF-NAME}.
+    RUN pSetAudit (2,{&SELF-NAME}).
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME Btn_Tables_All
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Tables_All C-Win
-ON CHOOSE OF Btn_Tables_All IN FRAME DEFAULT-FRAME /* < Select All */
+&Scoped-define SELF-NAME svToggleAuditUpdate
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svToggleAuditUpdate C-Win
+ON VALUE-CHANGED OF svToggleAuditUpdate IN FRAME DEFAULT-FRAME /* Update */
 DO:
-  table-names:SCREEN-VALUE IN FRAME {&FRAME-NAME} = table-names:LIST-ITEMS.
+    ASSIGN {&SELF-NAME}.
+    RUN pSetAudit (3,{&SELF-NAME}).
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME db-names
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL db-names C-Win
-ON VALUE-CHANGED OF db-names IN FRAME DEFAULT-FRAME
-DO:
-  RUN Get_Tables.
-  table-names:SCREEN-VALUE = ENTRY(1,table-names:LIST-ITEMS).
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME table-names
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL table-names C-Win
-ON DEFAULT-ACTION OF table-names IN FRAME DEFAULT-FRAME
-DO:
-  audit-tables:ADD-LAST(table-names:SCREEN-VALUE).
-  table-names:DELETE(table-names:SCREEN-VALUE).
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
+&Scoped-define BROWSE-NAME dbTables
 &UNDEFINE SELF-NAME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK C-Win 
@@ -377,14 +408,7 @@ MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
   RUN enable_UI.
-  FIND FIRST config NO-LOCK NO-ERROR.
-  IF NOT AVAILABLE config THEN
-  RETURN.
-  audit-tables:LIST-ITEMS IN FRAME {&FRAME-NAME} = config.audit_tables.
-  RUN Get_DBs.
-  db-names:SCREEN-VALUE IN FRAME {&FRAME-NAME} =
-      db-names:ENTRY(1) IN FRAME {&FRAME-NAME}.
-  APPLY "VALUE-CHANGED" TO db-names.
+  RUN pGetTables.
   {methods/nowait.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
@@ -426,10 +450,10 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY audit-tables db-names table-names 
+  DISPLAY svFilter svToggleAuditCreate svToggleAuditDelete svToggleAuditUpdate 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
-  ENABLE Btn_Add audit-tables db-names table-names Btn_Audit_All Btn_Cancel 
-         Btn_OK Btn_Remove Btn_Tables_All 
+  ENABLE btnBeforeValueFilterClear btnExit btnOK svFilter svToggleAuditCreate 
+         svToggleAuditDelete svToggleAuditUpdate dbTables 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
   VIEW C-Win.
@@ -438,44 +462,85 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Get_DBs C-Win 
-PROCEDURE Get_DBs :
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetTables C-Win 
+PROCEDURE pGetTables :
 /* -----------------------------------------------------------
-  Purpose: Populate db-names selection list with connected database names
+  Purpose: Populate table-names selection list with table names
   Parameters:  <none>
   Notes:       
 -------------------------------------------------------------*/
-  DEFINE VARIABLE list-items AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cTables AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE idx     AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE jdx     AS INTEGER   NO-UNDO.
+    
+    FIND FIRST config NO-LOCK NO-ERROR.
+    IF NOT AVAILABLE config THEN RETURN.
+     
+    CREATE ALIAS dictdb FOR DATABASE ASI.
+    RUN Get_Procedure IN Persistent-Handle ("filelist.",OUTPUT run-proc,no) NO-ERROR.
+    IF run-proc NE "" THEN
+    RUN VALUE(run-proc) (OUTPUT cTables).
+    DO idx = 1 TO NUM-ENTRIES(cTables):
+        CREATE ttTable.
+        ttTable.tableName   = ENTRY(idx,cTables).
+        DO jdx = 1 TO EXTENT(ttTable.audit):
+            ttTable.audit[jdx] = CAN-DO(ENTRY(jdx,config.audit_tables,"|"),ttTable.tableName).
+        END. /* do jdx */
+    END. /* do idx */
+    {&OPEN-QUERY-{&BROWSE-NAME}}
   
-  RUN Get_Procedure IN Persistent-Handle (INPUT "db_list.",OUTPUT run-proc,no) NO-ERROR.
-  IF run-proc NE "" THEN
-  RUN VALUE(run-proc) (OUTPUT list-items).
-  db-names:LIST-ITEMS IN FRAME {&FRAME-NAME} = list-items.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSave C-Win 
+PROCEDURE pSave :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE cTables AS CHARACTER NO-UNDO EXTENT 3.
+    DEFINE VARIABLE idx     AS INTEGER   NO-UNDO.
+    
+    DEFINE BUFFER bttTable FOR ttTable.
+    
+    FOR EACH bttTable:
+        DO idx = 1 TO EXTENT(bttTable.audit):
+            IF bttTable.audit[idx] THEN
+            cTables[idx] = cTables[idx] + bttTable.tableName + ",".
+        END. /* do idx */
+    END. /* each btttable */
+    FIND FIRST config EXCLUSIVE-LOCK NO-ERROR.
+    IF NOT AVAILABLE config THEN RETURN.
+    config.audit_tables = TRIM(cTables[1],",") + "|"
+                        + TRIM(cTables[2],",") + "|"
+                        + TRIM(cTables[3],",")
+                        .
+    FIND FIRST config NO-LOCK.
 
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Get_Tables C-Win 
-PROCEDURE Get_Tables :
-/* -----------------------------------------------------------
-  Purpose: Populate table-names selection list with table names
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSetAudit C-Win 
+PROCEDURE pSetAudit :
+/*------------------------------------------------------------------------------
+  Purpose:     
   Parameters:  <none>
   Notes:       
--------------------------------------------------------------*/
-  DEFINE VARIABLE list-items AS CHARACTER NO-UNDO.
-  DEFINE VARIABLE idx        AS INTEGER   NO-UNDO.
-  
-  CREATE ALIAS dictdb FOR DATABASE VALUE(db-names:SCREEN-VALUE IN FRAME {&FRAME-NAME}).
-  RUN Get_Procedure IN Persistent-Handle (INPUT "filelist.",OUTPUT run-proc,no) NO-ERROR.
-  IF run-proc NE "" THEN
-  RUN VALUE(run-proc) (OUTPUT list-items).
-  table-names:LIST-ITEMS IN FRAME {&FRAME-NAME} = ?.
-  DO idx = 1 TO NUM-ENTRIES(list-items):
-    IF CAN-DO(audit-tables:LIST-ITEMS,ENTRY(idx,list-items)) THEN NEXT.
-    table-names:ADD-LAST(ENTRY(idx,list-items)).
-  END.
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipiIdx   AS INTEGER NO-UNDO.
+    DEFINE INPUT PARAMETER iplAudit AS LOGICAL NO-UNDO.
+    
+    FOR EACH ttTable
+        WHERE ttTable.tableName MATCHES "*" + svFilter + "*"
+        :
+        ttTable.audit[ipiIdx] = iplAudit.
+    END. /* each tttable */
+    {&OPEN-QUERY-{&BROWSE-NAME}}
 
 END PROCEDURE.
 
@@ -489,7 +554,7 @@ PROCEDURE Set-Focus :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  {methods/setfocus.i db-names}
+  {methods/setfocus.i svFilter}
 
 END PROCEDURE.
 

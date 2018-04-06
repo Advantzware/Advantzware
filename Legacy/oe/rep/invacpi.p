@@ -40,8 +40,8 @@ DEF VAR v-price-head   AS CHAR FORMAT "x(5)"           NO-UNDO.
 DEF VAR v-bot-lab      AS CHAR FORMAT "x(63)" EXTENT 3 NO-UNDO.
 DEF VAR ls-image1      AS CHAR                         NO-UNDO.
 DEF VAR ls-image2      AS CHAR                         NO-UNDO.
-DEF VAR ls-full-img1   AS CHAR FORMAT "x(150)"          NO-UNDO.
-DEF VAR ls-full-img2   AS CHAR FORMAT "x(150)"          NO-UNDO.
+DEF VAR ls-full-img1   AS CHAR FORMAT "x(200)"          NO-UNDO.
+DEF VAR ls-full-img2   AS CHAR FORMAT "x(200)"          NO-UNDO.
 DEF VAR v-tel          AS CHAR FORMAT "x(30)"          NO-UNDO.
 DEF VAR v-fax          AS CHAR FORMAT "x(30)"          NO-UNDO.
 DEF VAR v-contact      AS CHAR FORMAT "x(20)"          NO-UNDO.
@@ -73,7 +73,7 @@ DEF VAR v-len          AS INT                 NO-UNDO.
 DEF VAR v-tot-pallets  AS INT                 NO-UNDO.
 DEF VAR v-tot-qty      AS INT                 NO-UNDO.
 DEF VAR v-del-no       AS INT FORMAT ">>>>>>" NO-UNDO.
-DEF VAR v-set-qty      AS INT                 NO-UNDO.
+DEF VAR v-set-qty      AS DECIMAL             NO-UNDO.
 DEF VAR cnt            AS INT                 NO-UNDO.
 DEF VAR minus-ship     AS INT                 NO-UNDO.
 DEF VAR v-beeler-lines AS INT                 NO-UNDO.
@@ -315,7 +315,7 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
                   WHERE fg-set.company = xinv-line.company
                     AND fg-set.set-no = xinv-line.i-no:
 
-                   ASSIGN v-set-qty = v-set-qty + fg-set.part-qty.
+                   ASSIGN v-set-qty = v-set-qty + fg-set.QtyPerSet.
                 END.
 
                IF v-set-qty = 0 
@@ -333,8 +333,8 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
                      AND fg-set.set-no = xinv-line.i-no  
                      AND fg-set.part-no = eb.stock-no NO-LOCK NO-ERROR.
                  IF AVAIL fg-set AND 
-                    fg-set.part-qty NE 0 
-                   THEN ASSIGN v-part-qty = fg-set.part-qty / v-set-qty.
+                    fg-set.QtyPerSet NE 0 
+                   THEN ASSIGN v-part-qty = fg-set.QtyPerSet / v-set-qty.
                    ELSE ASSIGN v-part-qty = 1 / v-set-qty.
 
                  IF eb.cas-cnt = 0 

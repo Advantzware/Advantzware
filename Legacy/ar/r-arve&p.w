@@ -1116,7 +1116,31 @@ do transaction on error undo with width 255:
        run ar/sonoinv.p ("ar-inv", recid(ar-inv), output v-rec-written).
        assign t-rec-written = t-rec-written + v-rec-written.
      end.
-
+     
+      /* Create eddoc for invoice if required */
+      FIND FIRST edmast NO-LOCK
+          WHERE edmast.cust EQ ar-inv.cust-no
+          NO-ERROR.
+      /* ar-inv.spare-int-1 indicates selected for EDI */
+      IF AVAILABLE edmast AND ar-inv.spare-int-1 EQ 1 THEN DO:   
+          FIND FIRST eddoc NO-LOCK 
+            WHERE eddoc.setid EQ '810'
+              AND eddoc.partner EQ edmast.partner
+              AND eddoc.docid = STRING(ar-inv.inv-no) 
+            NO-ERROR.
+          IF NOT AVAILABLE eddoc THEN DO:   
+            RUN ed/asi/o810hook.p (recid(ar-inv), no, no).     
+            FIND FIRST edcode NO-LOCK
+                WHERE edcode.partner EQ edmast.partner
+                NO-ERROR.
+            IF NOT AVAIL edcode THEN 
+               FIND FIRST edcode NO-LOCK
+                  WHERE edcode.partner EQ edmast.partnerGrp
+                  NO-ERROR.
+            IF AVAIL edcode AND edcode.sendFileOnPrint THEN    
+              RUN ed/asi/write810.p (INPUT cocode, INPUT ar-inv.inv-no).
+          END. /* If eddoc not available */    
+      END. /* If edi 810 customer */
     find first cust
         {sys/ref/custW.i}
           and cust.cust-no eq ar-inv.cust-no
@@ -1318,15 +1342,13 @@ DO: /* REPEAT: 9508 cah */
    ASSIGN
    report.term-id = v-term-id
    report.key-01  = STRING(ar-inv.inv-no,"9999999999")
-   report.rec-id  = RECID(ar-inv).
+   report.rec-id  = RECID(ar-inv).  
 
-   /* mods for task# 09200521*/
-   IF cust.factored THEN
+IF cust.factored THEN
    for each ar-invl no-lock where ar-invl.x-no = ar-inv.x-no:
-       IF CAN-FIND(FIRST reftable WHERE reftable.reftable EQ "FACTORED"
-                              AND reftable.company  EQ ar-inv.company
-                              AND reftable.loc      EQ ""
-                              AND reftable.code     EQ ar-invl.i-no)
+       IF CAN-FIND(FIRST itemfg WHERE itemfg.company  EQ ar-inv.company
+                              AND itemfg.i-no     EQ ar-invl.i-no
+                              AND itemfg.factored = yes)
            OR ar-invl.i-no = ""
        THEN DO:
             report.key-02 = "Factored".  /* for oe/rep/expfrank.p task#  09200521*/

@@ -20,7 +20,8 @@ DEF TEMP-TABLE w-fg-rctd NO-UNDO LIKE fg-rctd
     FIELD invoiced    AS LOG   INIT NO
     FIELD old-tag     AS CHAR
     FIELD ret-loc     AS CHAR
-    FIELD ret-loc-bin AS CHAR.
+    FIELD ret-loc-bin AS CHAR    
+    .
 
 DEF INPUT PARAMETER ip-post-eom-date AS DATE NO-UNDO.
 DEF INPUT PARAMETER ip-run-what AS CHAR NO-UNDO. 
@@ -53,6 +54,7 @@ DEFINE INPUT PARAMETER t-receipt      AS LOGICAL   INITIAL NO.
 DEFINE INPUT PARAMETER t-ret          AS LOGICAL   INITIAL NO. 
 DEFINE INPUT PARAMETER t-ship         AS LOGICAL   INITIAL NO. 
 DEFINE INPUT PARAMETER t-trans        AS LOGICAL   INITIAL NO. 
+DEFINE INPUT PARAMETER t-setup        AS LOGICAL   INITIAL NO.
 DEFINE INPUT PARAMETER tb_excel       AS LOGICAL   INITIAL YES. 
 DEFINE INPUT PARAMETER tb_glnum       AS LOGICAL   INITIAL NO. 
 DEFINE INPUT PARAMETER tb_grndtotal   AS LOGICAL   INITIAL NO. 
@@ -118,7 +120,6 @@ END.
 DEFINE SHARED VARIABLE choice AS LOG NO-UNDO.
 
 DEF VAR v-fg-value AS DEC FORMAT "->,>>>,>>9.99".
-DEF VAR t-setup AS LOG NO-UNDO.
 
 DEF            VAR v-msf          AS DEC     FORMAT ">,>>9.999" EXTENT 6.
 DEF            VAR is-xprint-form AS LOG     NO-UNDO.
@@ -679,39 +680,27 @@ PROCEDURE build-comp-tables:
             AND fg-set.set-no  EQ w-fg-rctd.i-no
             NO-LOCK:
 
-            FIND FIRST reftable
-                WHERE reftable.reftable EQ "fg-rctd.user-id"
-                AND reftable.company  EQ w-fg-rctd.company
-                AND reftable.loc      EQ STRING(w-fg-rctd.r-no,"9999999999")
-                NO-LOCK NO-ERROR.
 
-            IF AVAIL reftable THEN 
+            IF w-fg-rctd.SetHeaderRno GT 0 THEN 
             DO:
-
+                /* Each fg-rctd of a set part number */
                 FOR EACH bf-fg-rctd 
                     WHERE bf-fg-rctd.company EQ w-fg-rctd.company
                     AND bf-fg-rctd.i-no EQ fg-set.part-no
                     AND bf-fg-rctd.rita-code EQ "R" 
+                    AND bf-fg-rctd.SetHeaderRno GT 0
                     NO-LOCK:
 
-                    FOR EACH reftable 
-                        WHERE reftable.reftable EQ "fg-rctd.user-id"
-                        AND reftable.company  EQ bf-fg-rctd.company
-                        AND reftable.loc      EQ STRING(bf-fg-rctd.r-no,"9999999999")        
-                        AND (reftable.dscr EQ "fg-rctd: " + STRING(w-fg-rctd.r-no, "9999999999") AND reftable.dscr BEGINS "fg-rctd: ")  
-                        USE-INDEX loc   NO-LOCK .
-
-                        FIND fg-rctd WHERE ROWID(fg-rctd) EQ ROWID(bf-fg-rctd)
-                            NO-LOCK NO-ERROR.
-                        IF AVAIL fg-rctd AND fg-rctd.rita-code NE "P" THEN 
-                        DO:
-                            FIND FIRST bf-w-fg-rctd WHERE bf-w-fg-rctd.row-id EQ ROWID(fg-rctd)
-                                NO-LOCK NO-ERROR.
-                            IF NOT AVAIL bf-w-fg-rctd AND fg-rctd.rita-code EQ w-fg-rctd.rita-code THEN
-                                RUN build-tables.
-                        END.
-
-                    END. /* each reftable */
+                    FIND fg-rctd WHERE ROWID(fg-rctd) EQ ROWID(bf-fg-rctd)
+                          NO-LOCK NO-ERROR.
+                    IF AVAIL fg-rctd AND fg-rctd.rita-code NE "P" THEN 
+                    DO:
+                        FIND FIRST bf-w-fg-rctd WHERE bf-w-fg-rctd.row-id EQ ROWID(fg-rctd)
+                             NO-LOCK NO-ERROR.
+                        IF NOT AVAIL bf-w-fg-rctd AND fg-rctd.rita-code EQ w-fg-rctd.rita-code THEN
+                             RUN build-tables.
+                    END.
+                  
                 END. /* each bf-fg-rctd */
             END. /* avail reftable for header item */
         END. /* each fg-set */
@@ -752,7 +741,7 @@ PROCEDURE build-tables:
             CREATE w-fg-rctd.
             BUFFER-COPY fg-rctd TO w-fg-rctd
                 ASSIGN
-                w-fg-rctd.row-id  = ROWID(fg-rctd)
+                w-fg-rctd.row-id  = ROWID(fg-rctd)                
                 w-fg-rctd.has-rec = YES.
 
             IF ip-run-what EQ "SETUP" THEN

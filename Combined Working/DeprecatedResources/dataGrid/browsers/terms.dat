@@ -1,0 +1,22 @@
+FOR EACH terms NO-LOCK WHERE terms.company EQ "%company%"
+dscr,t-code,type
+
+Indexed: dscr,t-code
+Non-Idx: cut-date,disc-days,disc-rate,net-days,type
+
+Generated 04.18.2017 @  2:16:10 am by: nosweat
+Table: terms - Records: 66
+
+    Index: dscr
+         Field: company
+         Field: dscr
+
+    Index: rec_key
+         Field: rec_key
+
+    Index: t-code
+         Field: company
+         Field: t-code
+
+    Index: wi-dscr
+         Field: dscr

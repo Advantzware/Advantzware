@@ -1259,9 +1259,10 @@ PROCEDURE create-item :
       bf-oe-ordl.s-comm[i] = oe-ord.s-comm[i].
     END.
     ASSIGN
-    bf-oe-ordl.q-qty = oe-ord.t-fuel.
+    bf-oe-ordl.q-qty = oe-ord.t-fuel
+    bf-oe-ordl.managed = oe-ord.managed.
     v-margin = oe-ord.t-fuel.
-    {oe/defwhsed.i bf-oe-ordl}
+    
     IF bf-oe-ordl.LINE EQ 1 OR NOT AVAIL oe-ordl THEN
     FIND oe-ordl WHERE ROWID(oe-ordl) = ROWID(bf-oe-ordl) NO-ERROR.
   END. /* avail oe-ord */
@@ -1708,19 +1709,7 @@ PROCEDURE create-release :
       oe-rel.s-code = IF oe-ordl.is-a-component THEN "S" 
                         ELSE SUBSTRING(v-relType,1,1).
       IF oe-ord.TYPE = "T" THEN
-        ASSIGN oe-rel.s-code = "T".
-      FIND FIRST reftable
-      WHERE reftable.reftable EQ "oe-rel.s-code"
-      AND reftable.company  EQ STRING(oe-rel.r-no,"9999999999") NO-LOCK NO-ERROR.
-      IF NOT AVAIL reftable THEN DO:
-        CREATE reftable.
-        ASSIGN reftable.reftable = "oe-rel.s-code"
-        reftable.company = STRING(oe-rel.r-no,"9999999999")
-        reftable.CODE = IF oe-ordl.is-a-component THEN "S" 
-                        ELSE SUBSTRING(v-relType,1,1).
-        IF oe-ord.TYPE = "T" THEN
-        ASSIGN reftable.CODE = "T".
-      END.
+        ASSIGN oe-rel.s-code = "T".      
     END.
   END.
 
@@ -1781,7 +1770,8 @@ PROCEDURE crt-itemfg :
   itemfg.sell-price = DEC(get-sv("oe-ordl.price"))
   itemfg.part-no    = get-sv("oe-ordl.part-no")
   itemfg.cust-no    = oe-ord.cust-no
-  itemfg.cust-name  = oe-ord.cust-name.
+  itemfg.cust-name  = oe-ord.cust-name
+  itemfg.setupDate  = TODAY.
   ASSIGN
   itemfg.pur-uom    = get-sv("oe-ordl.pr-uom")
   itemfg.ship-meth  = IF AVAIL bf-itemfg THEN bf-itemfg.ship-meth ELSE YES.
@@ -2626,8 +2616,8 @@ PROCEDURE final-steps2 :
       fil_id = RECID(oe-ordl).
     END.
     IF lv-q-no NE 0 THEN DO:
-      RUN oe/ordlq-no.p (ROWID(oe-ordl), lv-q-no).
-      FIND CURRENT oe-ordl.
+     FIND CURRENT oe-ordl.
+      ASSIGN oe-ordl.q-no = lv-q-no.
     END.
   END.
 
@@ -5100,12 +5090,7 @@ PROCEDURE valid-po-no :
     FIND FIRST cust NO-LOCK
     WHERE cust.company EQ oe-ord.company
     AND cust.cust-no EQ oe-ord.cust-no
-    AND CAN-FIND(FIRST cust-po-mand
-    WHERE cust-po-mand.reftable EQ "cust.po-mand"
-    AND cust-po-mand.company  EQ cust.company
-    AND cust-po-mand.loc      EQ ""
-    AND cust-po-mand.CODE     EQ cust.cust-no
-    AND cust-po-mand.val[1]   EQ 1)
+    AND cust.po-mandatory
     NO-ERROR.
     /* If qty is zero at this point, assume it's a transfer */
     IF AVAIL cust AND TRIM(get-sv("oe-ordl.po-no")) EQ "" 

@@ -66,7 +66,7 @@ DEF VAR giCurrOrd AS INT NO-UNDO.
 RECT-18 RECT-19 
 &Scoped-Define DISPLAYED-FIELDS oe-ctrl.i-code ar-ctrl.last-inv ~
 oe-ctrl.n-bol oe-ctrl.prcom oe-ctrl.f-tax oe-ctrl.prep-chrg oe-ctrl.prep-comm ~
-oe-ctrl.ship-from oe-ctrl.u-inv oe-ctrl.p-fact oe-ctrl.p-bol oe-ctrl.p-pick ~
+oe-ctrl.ship-from oe-ctrl.p-fact oe-ctrl.p-bol oe-ctrl.p-pick ~
 oe-ctrl.p-ack oe-ctrl.p-sep oe-ctrl.pr-broker 
 &Scoped-define DISPLAYED-TABLES oe-ctrl ar-ctrl
 &Scoped-define FIRST-DISPLAYED-TABLE oe-ctrl
@@ -76,7 +76,7 @@ oe-ctrl.p-ack oe-ctrl.p-sep oe-ctrl.pr-broker
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
 &Scoped-define List-1 tgCreateSSBol oe-ctrl.i-code n-ord oe-ctrl.n-bol ~
-oe-ctrl.prcom oe-ctrl.f-tax oe-ctrl.prep-chrg oe-ctrl.prep-comm oe-ctrl.u-inv oe-ctrl.p-fact ~
+oe-ctrl.prcom oe-ctrl.f-tax oe-ctrl.prep-chrg oe-ctrl.prep-comm oe-ctrl.p-fact ~
 oe-ctrl.p-bol oe-ctrl.p-pick oe-ctrl.p-ack oe-ctrl.p-sep oe-ctrl.pr-broker ~
 fNextRFIDNum 
 
@@ -172,13 +172,8 @@ DEFINE FRAME oe-ctrl
           LABEL "Charge Tax on Prep Charges"
           VIEW-AS TOGGLE-BOX
           SIZE 37 BY .81
-     oe-ctrl.ship-from AT ROW 14.81 COL 37 COLON-ALIGNED
+     oe-ctrl.ship-from AT ROW 15.81 COL 37 COLON-ALIGNED
           LABEL "Ship From"
-          VIEW-AS FILL-IN 
-          SIZE 8.6 BY 1
-          BGCOLOR 15 
-     oe-ctrl.u-inv AT ROW 15.76 COL 37 COLON-ALIGNED
-          LABEL "Update Inventory When Posting"
           VIEW-AS FILL-IN 
           SIZE 8.6 BY 1
           BGCOLOR 15 
@@ -325,8 +320,7 @@ ASSIGN
    NO-ENABLE EXP-LABEL                                                  */
 /* SETTINGS FOR TOGGLE-BOX tgCreateSSBol IN FRAME oe-ctrl
    NO-ENABLE 1                                                          */
-/* SETTINGS FOR FILL-IN oe-ctrl.u-inv IN FRAME oe-ctrl
-   NO-ENABLE 1 EXP-LABEL                                                */
+
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
 THEN C-Win:HIDDEN = no.
 
@@ -419,9 +413,9 @@ DO:
     oe-ctrl.n-ord = giCurrOrd + 1.
     n-ord:SCREEN-VALUE = STRING(giCurrOrd  + 1, ">>>>>>").
 
-    IF CAN-FIND(FIRST inv-head WHERE inv-head.company EQ gcompany AND
+    /*IF CAN-FIND(FIRST inv-head WHERE inv-head.company EQ gcompany AND
                 inv-head.multi-invoice = no) THEN
-      DISABLE oe-ctrl.u-inv.
+      DISABLE oe-ctrl.u-inv.*/
     ASSIGN
       {&SELF-NAME}:LABEL = "&Save"
       Btn_Close:LABEL = "&Cancel".
@@ -440,9 +434,10 @@ DO:
     END.
     */
     IF LENGTH(fNextRFIDNum:SCREEN-VALUE) <> 24 THEN DO:
-       MESSAGE "RFID Next Number uses 24 digit number."
+      /* MESSAGE "RFID Next Number uses 24 digit number."
            VIEW-AS ALERT-BOX ERROR BUTTONS OK.
-       RETURN NO-APPLY.
+       RETURN NO-APPLY.*/
+        fNextRFIDNum:SCREEN-VALUE = "00000000000001".
     END.
     FIND CURRENT ar-ctrl EXCLUSIVE-LOCK.
     FIND CURRENT oe-ctrl EXCLUSIVE-LOCK.
@@ -451,6 +446,7 @@ DO:
     oe-ctrl.spare-char-1 = fNextRFIDNum.
     ASSIGN tgCreateSSBol.
     oe-ctrl.spare-int-1 = (IF tgCreateSSBol THEN 1 ELSE 0).
+    oe-ctrl.u-inv = YES .  /* task 24948 */
     DISABLE {&LIST-1}.
     DISABLE tgCreateSSBol.
     ASSIGN
@@ -600,7 +596,7 @@ PROCEDURE enable_UI :
       WITH FRAME oe-ctrl IN WINDOW C-Win.
   IF AVAILABLE oe-ctrl THEN 
     DISPLAY oe-ctrl.i-code oe-ctrl.n-bol oe-ctrl.prcom oe-ctrl.f-tax oe-ctrl.prep-chrg
-          oe-ctrl.prep-comm oe-ctrl.ship-from oe-ctrl.u-inv oe-ctrl.p-fact 
+          oe-ctrl.prep-comm oe-ctrl.ship-from oe-ctrl.p-fact 
           oe-ctrl.p-bol oe-ctrl.p-pick oe-ctrl.p-ack oe-ctrl.p-sep 
           oe-ctrl.pr-broker 
       WITH FRAME oe-ctrl IN WINDOW C-Win.

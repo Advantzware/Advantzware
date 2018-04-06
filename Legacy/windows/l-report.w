@@ -159,18 +159,7 @@ ASSIGN
 /* Setting information for Queries and Browse Widgets fields            */
 
 &ANALYZE-SUSPEND _QUERY-BLOCK BROWSE BROWSE-1
-/* Query rebuild information for BROWSE BROWSE-1
-     _START_FREEFORM
-OPEN QUERY {&SELF-NAME} FOR EACH report WHERE report.term-id eq v-term NO-LOCK,
-      each tt-rpt where tt-rpt.tt-recid = recid(report) NO-LOCK BY tt-rpt.tt-selldate DESC.
-     _END_FREEFORM
-     _Options          = "NO-LOCK"
-     _Where[1]         = "ASI.reftable.reftable = ""Flute"" and 
-ASI.reftable.company  = """" and
-ASI.reftable.loc = """"
-"
-     _Query            is OPENED
-*/  /* BROWSE BROWSE-1 */
+ /* BROWSE BROWSE-1 */
 &ANALYZE-RESUME
 
  

@@ -53,11 +53,13 @@ DEF BUFFER b-itemfg FOR itemfg .
 DEF VAR cTextListToDefault AS cha NO-UNDO.
 
 ASSIGN cTextListToSelect = "CUSTOMER,JOB#,S,B,DIE#,Plate#,DUE DATE,COMPLETION DATE,STYLE," +
-                                               "QTY GLUING,SHEETED,PRINTED,DIE CUT,GLUED,GLUE HRS,ORD MFG DATE,RELEASE DATE" 
+                           "QTY GLUING,SHEETED,PRINTED,DIE CUT,GLUED,GLUE HRS,ORD MFG DATE,RELEASE DATE," +
+                           "ORDER #,ORDER DATE,FG ITEM#,PO#,PRIMARY CONTACT"             
        cFieldListToSelect = "cust,job,frm,blnk,die,palt,due-dt,comp-dt,styl," +
-                                        "qty-glu,sht,prntd,die-cut,glue,glu-hrs,mfg-date,rel-date"
-       cFieldLength = "8,10,1,1,20,15,10,15,7," + "13,7,7,7,5,14,11,12" 
-       cFieldType = "c,c,c,c,c,c,c,c,c," + "i,i,i,i,i,i,c,c"
+                            "qty-glu,sht,prntd,die-cut,glue,glu-hrs,mfg-date,rel-date," +
+                            "order-no,ord-date,fg-item,po-no,pri-contact"
+       cFieldLength = "8,10,1,1,20,15,10,15,7," + "13,7,7,7,5,14,11,12," + "7,10,15,15,25" 
+       cFieldType = "c,c,c,c,c,c,c,c,c," + "i,i,i,i,i,i,c,c," + "c,c,c,c,c"
     .
 
 {sys/inc/ttRptSel.i}
@@ -1273,7 +1275,7 @@ DEF VAR cPrepDscr AS cha FORM "x(25)" NO-UNDO.
 {sys/form/r-top5DL3.f} 
 cSelectedList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
 DEF VAR excelheader AS CHAR NO-UNDO.
-
+DEFINE VARIABLE cPrim-Contact AS CHARACTER NO-UNDO .
 {custom/statusMsg.i " 'Processing...   '"}
 
 /*form header v-hdr skip with frame r-top WIDTH 230.*/
@@ -1291,40 +1293,7 @@ assign
   v-tjob    = fill(" ",6 - length(trim(end_job-no)))   +
                trim(end_job-no)   + string(int(end_job-no2),"99") 
 
-  /*v-hdr[1]  =  fill(" ",150) 
-  v-hdr[2]  = "CUSTOMER  JOB#        S  B DIE#            " 
-  v-hdr[3]  = "--------- ----------- -- - --------------- " .
-  IF tb_plate THEN ASSIGN
-      v-hdr[2]  = v-hdr[2] + "PLATE#          " 
-      v-hdr[3]  = v-hdr[3] + "--------------- ".
-ASSIGN
-  v-hdr[2]  = v-hdr[2] + "DUE DATE   " 
-  v-hdr[3]  = v-hdr[3] + "---------- ".
-
-  IF tb_comdate THEN ASSIGN
-      v-hdr[2]  = v-hdr[2] + "COMPLETION DATE" 
-      v-hdr[3]  = v-hdr[3] + "---------------".
-  IF  tb_style THEN ASSIGN
-      v-hdr[2]  = v-hdr[2] + " STYLE"
-      v-hdr[3]  = v-hdr[3] + " -----".
-  IF  tb_qty THEN ASSIGN
-      v-hdr[2]  = v-hdr[2] + "    QTY GLUING" 
-      v-hdr[3]  = v-hdr[3] + " -------------".
-  IF  tb_sheet THEN ASSIGN
-      v-hdr[2]  = v-hdr[2] + " SHEETED" 
-      v-hdr[3]  = v-hdr[3] + " -------".
-  IF  tb_print THEN ASSIGN
-      v-hdr[2]  = v-hdr[2] + " PRINTED" 
-      v-hdr[3]  = v-hdr[3] + " -------".
-  IF  tb_die THEN ASSIGN
-      v-hdr[2]  = v-hdr[2] + " DIE CUT" 
-      v-hdr[3]  = v-hdr[3] + " -------".
-  IF tb_glue THEN ASSIGN
-      v-hdr[2]  = v-hdr[2] + " GLUED"  
-      v-hdr[3]  = v-hdr[3] + " -----".
-  IF  tb_glhr THEN ASSIGN
-      v-hdr[2]  = v-hdr[2] + "      GLUE HRS"
-      v-hdr[3]  = v-hdr[3] + " -------------"*/ .
+   .
 
   ASSIGN
   /*v-hdr[3]  = fill("-",150)*/
@@ -1625,91 +1594,19 @@ SESSION:SET-WAIT-STATE ("general").
                      v-rel-date = IF AVAIL oe-relh THEN oe-relh.rel-date ELSE oe-rel.rel-date.
                         LEAVE.
                  END.
-
-
-         /*    PUT
-                 tt-report.key-02 space(2)
-                 v-job SPACE(1)
-                 job-hdr.frm SPACE(1) 
-                 job-mch.blank-no SPACE(1)
-                 v-die-no SPACE(1).
-             IF v-plate AND AVAIL eb THEN
-                 PUT eb.plate-no SPACE(1).
-             IF v-plate AND NOT AVAIL eb THEN
-                 PUT SPACE(16) .
-
-             PUT v-date FORM "99/99/9999" SPACE(1) .
-
-             IF v-run-end-date NE ? AND  v-comdate THEN
-                 PUT v-run-end-date FORM "99/99/9999" SPACE(6).
-             IF v-run-end-date EQ ? AND  v-comdate THEN
-                 PUT SPACE(16).
-
-             IF AVAIL eb AND v-style THEN
-                 PUT eb.style SPACE(1).
-             IF NOT AVAIL eb AND v-style THEN
-                 PUT SPACE(7) .
-
-             IF job-mch.dept = "GL" AND v-logqty THEN
-                 PUT job-mch.run-qty FORM "->>>,>>>,>>9" SPACE(1) .
-             IF job-mch.dept NE "GL" AND v-logqty THEN
-                 PUT SPACE(13) .
-
-             IF v-logsheet THEN
-                 PUT v-rs FORMAT "x(7)" SPACE(1) .
-             IF v-print THEN
-                 PUT v-pr FORMAT "x(7)" SPACE(1) .
-             IF v-die THEN
-                 PUT v-dc FORMAT "x(7)" SPACE(1) .
-             IF v-glue THEN
-                 PUT v-gl FORMAT "x(5)" SPACE(1)  .
-
-             IF job-mch.dept = "GL" AND  v-glhr THEN
-                 PUT job-mch.run-hr FORM "->>>>>,>>9.99" .
-             IF job-mch.dept NE "GL" AND  v-glhr THEN
-                 PUT SPACE(12) .
-
-             PUT SKIP.
-
-          IF tb_excel THEN do:
-             PUT STREAM excel UNFORMATTED
-              '"'   tt-report.key-02                     '",'
-              '"'   v-job                                '",'
-              '"'   job-hdr.frm                          '",'
-              '"'   job-mch.blank-no                     '",'
-              '"'   (IF AVAIL eb THEN eb.die-no ELSE '') '",'  .
-          IF tb_plate THEN
-             PUT STREAM excel UNFORMATTED
-                '"' (IF AVAIL eb THEN eb.plate-no ELSE '') '",'.
-              PUT STREAM excel UNFORMATTED
-                '"' v-date '",'.
-          IF tb_comdate THEN
-             PUT STREAM excel UNFORMATTED
-               '"' (IF v-run-end-date NE ? THEN v-run-end-date ELSE ?)  '",'.
-          IF tb_style THEN
-              PUT STREAM excel UNFORMATTED
-              '"'  (IF AVAIL eb THEN eb.style ELSE '') '",'.
-          IF tb_qty THEN
-              PUT STREAM excel UNFORMATTED
-               '"' (IF job-mch.dept = "GL" THEN job-mch.run-qty ELSE 0)  '",'.
-          IF tb_sheet THEN
-              PUT STREAM excel UNFORMATTED
-              '"'  v-rs      '",'                    .
-          IF tb_print THEN
-              PUT STREAM excel UNFORMATTED
-               '"' v-pr       '",'                   .
-          IF tb_die THEN
-              PUT STREAM excel UNFORMATTED
-               '"' v-dc        '",'                  .
-          IF tb_glue THEN
-             PUT STREAM excel UNFORMATTED
-               '"' v-gl         '",'                 .
-          IF tb_glhr THEN
-              PUT STREAM excel UNFORMATTED
-               '"' (IF job-mch.dept = "GL" THEN job-mch.run-hr ELSE 0) '",'.
-              PUT STREAM excel UNFORMATTED
-                  SKIP.
-          END. */
+                ASSIGN cPrim-Contact = "" .
+                FIND FIRST cust NO-LOCK
+                     WHERE cust.company EQ cocode
+                       AND cust.cust-no EQ tt-report.key-02 NO-ERROR .
+                IF AVAIL cust THEN
+                FOR EACH empalert NO-LOCK
+                    WHERE  empalert.table_rec_key = cust.rec_key
+                      AND  empalert.spare-char-1 EQ "Yes" , 
+                    FIRST users WHERE users.user_id = empalert.user-id
+                     NO-LOCK BY users.user_id  :
+                    cPrim-Contact = users.user_name .
+                    LEAVE .
+                END.
 
              ASSIGN cDisplay = ""
                    cTmpField = ""
@@ -1737,7 +1634,11 @@ SESSION:SET-WAIT-STATE ("general").
                          WHEN "glu-hrs"     THEN cVarValue =  IF job-mch.dept = "GL" THEN STRING(job-mch.run-hr,"->>>>>,>>9.99") ELSE ""      .
                          WHEN "mfg-date"     THEN cVarValue =  IF AVAIL oe-ordl THEN STRING(oe-ordl.prom-date,"99/99/9999") ELSE ""      .
                          WHEN "rel-date"     THEN cVarValue =  IF v-rel-date <> ? THEN STRING(v-rel-date,"99/99/9999") ELSE ""      .
-
+                         WHEN "order-no"     THEN cVarValue =  IF AVAIL oe-ordl THEN STRING(oe-ordl.ord-no) ELSE "".
+                         WHEN "ord-date"     THEN cVarValue =  IF AVAIL oe-ord AND oe-ord.ord-date NE ? THEN STRING(oe-ord.ord-date,"99/99/9999") ELSE ""      .
+                         WHEN "fg-item"      THEN cVarValue =  IF AVAIL oe-ordl THEN STRING(oe-ordl.i-no,"x(15)") ELSE ""      .
+                         WHEN "po-no"        THEN cVarValue =  IF AVAIL oe-ordl THEN STRING(oe-ordl.po-no,"x(15)") ELSE ""      .
+                         WHEN "pri-contact"  THEN cVarValue =   STRING(cPrim-Contact,"x(25)")   .
                     END CASE.  
 
                     cExcelVarValue = cVarValue.

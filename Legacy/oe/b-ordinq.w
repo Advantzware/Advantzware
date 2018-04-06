@@ -111,6 +111,7 @@ ll-sort-asc = NO /*oeinq*/.
           AND oe-ordl.cust-no BEGINS fi_cust-no ~
           AND oe-ordl.i-no BEGINS fi_i-no ~
           AND oe-ordl.part-no BEGINS fi_part-no ~
+          AND oe-ordl.po-no   BEGINS fi_po-no1 ~
           AND oe-ordl.est-no BEGINS fi_est-no ~
           AND oe-ordl.s-man[1] BEGINS fi_sman ~
           AND oe-ordl.job-no BEGINS fi_job-no ~
@@ -126,6 +127,7 @@ ll-sort-asc = NO /*oeinq*/.
           AND oe-ordl.cust-no BEGINS fi_cust-no ~
           AND oe-ordl.i-no MATCHES (IF INDEX(fi_i-no, '*') EQ 0 THEN '*' ELSE fi_i-no) ~
           AND oe-ordl.part-no MATCHES (IF INDEX(fi_part-no, '*') EQ 0 THEN '*' ELSE fi_part-no) ~
+          AND oe-ordl.po-no     MATCHES (IF index(fi_po-no1, "*") EQ 0 THEN "*" ELSE fi_po-no1) ~
           AND oe-ordl.est-no BEGINS fi_est-no ~
           AND oe-ordl.s-man[1] BEGINS fi_sman ~
           AND oe-ordl.job-no BEGINS fi_job-no ~
@@ -547,7 +549,7 @@ DEFINE BROWSE Browser-Table
       oe-ordl.job-no2
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ASSIGN SEPARATORS SIZE 155 BY 16.52
+    WITH NO-ASSIGN SEPARATORS SIZE 155 BY 16.5
          FONT 2.
 
 
@@ -576,6 +578,12 @@ DEFINE FRAME F-Main
      "Job#" VIEW-AS TEXT
           SIZE 8 BY .71 AT ROW 1.24 COL 104
           FGCOLOR 9 FONT 6
+     "Estimate#" VIEW-AS TEXT
+          SIZE 12 BY .71 AT ROW 1.24 COL 90
+          FGCOLOR 9 FONT 6
+     "BrwsrColMode:" VIEW-AS TEXT
+          SIZE 16.6 BY 1 AT ROW 3.14 COL 115 WIDGET-ID 6
+          FONT 6
      "CAD#" VIEW-AS TEXT
           SIZE 8 BY .71 AT ROW 1.24 COL 119
           FGCOLOR 9 FONT 6
@@ -600,12 +608,6 @@ DEFINE FRAME F-Main
      "Cust PO#" VIEW-AS TEXT
           SIZE 18 BY .71 AT ROW 1.24 COL 70
           FGCOLOR 9 FONT 6
-     "Estimate#" VIEW-AS TEXT
-          SIZE 12 BY .71 AT ROW 1.24 COL 90
-          FGCOLOR 9 FONT 6
-     "BrwsrColMode:" VIEW-AS TEXT
-          SIZE 16.6 BY 1 AT ROW 3.14 COL 115 WIDGET-ID 6
-          FONT 6
      RECT-1 AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -783,7 +785,7 @@ AND itemfg.i-no EQ oe-ordl.i-no"
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -979,6 +981,7 @@ DO:
                     AND (bf-oe-ordl.ord-no EQ fi_ord-no OR fi_ord-no EQ 0)
                     AND (bf-oe-ordl.est-no BEGINS fi_est-no OR fi_est-no EQ "")
                     AND (bf-oe-ordl.job-no BEGINS fi_job-no OR fi_job-no EQ "")
+                    AND (bf-oe-ordl.po-no BEGINS fi_po-no1 OR fi_po-no1 = "")
                     AND (bf-oe-ordl.s-man[1] BEGINS fi_sman OR fi_sman EQ "")
                   NO-ERROR.
              IF AVAILABLE bf-oe-ordl THEN DO:
@@ -1060,7 +1063,7 @@ END.
 ON VALUE-CHANGED OF fi_cust-no IN FRAME F-Main
 DO:
   IF LASTKEY <> 32 THEN {&self-name}:SCREEN-VALUE = CAPS({&self-name}:SCREEN-VALUE).
-  {&SELF-NAME}:CURSOR-OFFSET = LENGTH({&SELF-NAME}:SCREEN-VALUE) + 1 + IF LASTKEY EQ 32 THEN 1 ELSE 0. /* added by script _caps.p */
+  IF LASTKEY EQ 32 THEN {&SELF-NAME}:CURSOR-OFFSET = LENGTH({&SELF-NAME}:SCREEN-VALUE) + 2. /* res */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1133,7 +1136,7 @@ END.
 ON VALUE-CHANGED OF fi_job-no IN FRAME F-Main
 DO:
   {&self-name}:SCREEN-VALUE = CAPS({&self-name}:SCREEN-VALUE).
-  {&SELF-NAME}:CURSOR-OFFSET = LENGTH({&SELF-NAME}:SCREEN-VALUE) + 1 + IF LASTKEY EQ 32 THEN 1 ELSE 0. /* added by script _caps.p */
+  IF LASTKEY EQ 32 THEN {&SELF-NAME}:CURSOR-OFFSET = LENGTH({&SELF-NAME}:SCREEN-VALUE) + 2. /* res */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1188,7 +1191,7 @@ END.
 ON VALUE-CHANGED OF fi_sman IN FRAME F-Main
 DO:
   IF LASTKEY <> 32 THEN {&self-name}:SCREEN-VALUE = CAPS({&self-name}:SCREEN-VALUE).
-  {&SELF-NAME}:CURSOR-OFFSET = LENGTH({&SELF-NAME}:SCREEN-VALUE) + 1 + IF LASTKEY EQ 32 THEN 1 ELSE 0. /* added by script _caps.p */
+  IF LASTKEY EQ 32 THEN {&SELF-NAME}:CURSOR-OFFSET = LENGTH({&SELF-NAME}:SCREEN-VALUE) + 2. /* res */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1603,7 +1606,7 @@ PROCEDURE local-initialize :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-  
+
   /* Code placed here will execute PRIOR to standard behavior. */
 
   /* Dispatch standard ADM method.                             */
@@ -1768,6 +1771,7 @@ PROCEDURE one-row-query :
   IF fi_cust-no EQ "" AND
      fi_i-no    EQ "" AND
      fi_part-no EQ "" AND
+     fi_po-no1  EQ "" AND
      fi_est-no  EQ "" AND
      fi_job-no  EQ "" THEN DO:
         &SCOPED-DEFINE joinScop OUTER-JOIN
@@ -2629,14 +2633,9 @@ Regardless of Customer Bill to.
       /* If Order Type = T, Skip release when status is NOT Z or C. */
 /*       IF oe-ord.TYPE = "T" AND LOOKUP(buf-oe-rel.stat,"Z,C") = 0  THEN NEXT.  */
 
-      /* Get reftable.code */
-      FIND FIRST buf-reftable NO-LOCK WHERE 
-                 buf-reftable.reftable EQ "oe-rel.s-code" AND 
-                 buf-reftable.company  EQ STRING(buf-oe-rel.r-no,"9999999999") NO-ERROR.
-      IF NOT AVAIL(buf-reftable) THEN NEXT.
-      /* If order type NOT T, skip if S/I code is NOT "T". */
-      IF oe-ord.TYPE <> "T" AND buf-reftable.CODE <> "T" THEN NEXT.
-
+        IF buf-oe-rel.s-code = "" THEN
+          NEXT.
+        IF oe-ord.TYPE <> "T" AND buf-oe-rel.s-code <> "T" THEN NEXT.  
 
       ASSIGN vTransfer-Qty = (vTransfer-Qty + buf-oe-rel.qty).
   END.

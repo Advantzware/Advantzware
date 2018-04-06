@@ -115,7 +115,7 @@ END.
 /* Need to scope the external tables to this procedure                  */
 DEFINE QUERY external_tables FOR est, eb, ef.
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-FIELDS eb.cust-no eb.ship-id eb.sman eb.comm ~
+&Scoped-Define ENABLED-FIELDS eb.cust-no eb.ship-id est.csrUser_id eb.sman eb.comm ~
 eb.procat eb.part-no eb.stock-no eb.part-dscr1 eb.part-dscr2 eb.die-no ~
 ef.cad-image eb.cad-no eb.plate-no eb.spc-no eb.upc-no eb.style est.metric ~
 ef.board eb.len eb.wid eb.dep eb.adhesive eb.dust eb.fpanel eb.lock ~
@@ -129,7 +129,7 @@ eb.bl-qty
 btn_cust RECT-18 RECT-19 RECT-23 RECT-24 
 &Scoped-Define DISPLAYED-FIELDS est.est-no eb.form-no est.form-qty ~
 eb.blank-no est.mod-date est.ord-date eb.cust-no eb.ship-id eb.ship-name ~
-eb.ship-addr[1] eb.ship-addr[2] eb.ship-city eb.ship-state eb.ship-zip ~
+eb.ship-addr[1] eb.ship-addr[2] eb.ship-city eb.ship-state eb.ship-zip est.csrUser_id ~
 eb.sman eb.comm eb.procat eb.part-no eb.stock-no eb.part-dscr1 ~
 eb.part-dscr2 eb.die-no ef.cad-image eb.cad-no eb.plate-no eb.spc-no ~
 eb.upc-no eb.style est.metric ef.board ef.brd-dscr eb.len eb.wid eb.dep ~
@@ -294,28 +294,32 @@ DEFINE FRAME fold
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
           FONT 6
-     eb.ship-name AT ROW 3.86 COL 21 COLON-ALIGNED
+     eb.ship-name AT ROW 3.80 COL 21 COLON-ALIGNED
           LABEL "Company"
           VIEW-AS FILL-IN 
           SIZE 46 BY 1
           FONT 6
-     eb.ship-addr[1] AT ROW 4.81 COL 21 COLON-ALIGNED
+     eb.ship-addr[1] AT ROW 4.70 COL 21 COLON-ALIGNED
           LABEL "Address"
           VIEW-AS FILL-IN 
           SIZE 46 BY 1
-     eb.ship-addr[2] AT ROW 5.76 COL 21 COLON-ALIGNED NO-LABEL
+     eb.ship-addr[2] AT ROW 5.55 COL 21 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 46 BY 1
-     eb.ship-city AT ROW 6.71 COL 21 COLON-ALIGNED
+     eb.ship-city AT ROW 6.45 COL 21 COLON-ALIGNED
           LABEL "City/State/Zip"
           VIEW-AS FILL-IN 
           SIZE 23 BY 1
-     eb.ship-state AT ROW 6.71 COL 44.4 COLON-ALIGNED NO-LABEL
+     eb.ship-state AT ROW 6.45 COL 44.4 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 6 BY 1
-     eb.ship-zip AT ROW 6.71 COL 50.8 COLON-ALIGNED NO-LABEL
+     eb.ship-zip AT ROW 6.45 COL 50.8 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 16.2 BY 1
+     est.csrUser_id AT ROW 7.30 COL 22 COLON-ALIGNED
+          LABEL "CSR"
+          VIEW-AS FILL-IN 
+          SIZE 16 BY 1
      eb.sman AT ROW 8.14 COL 21 COLON-ALIGNED
           LABEL "Sales Rep"
           VIEW-AS FILL-IN 
@@ -382,7 +386,7 @@ DEFINE FRAME fold
           VIEW-AS FILL-IN 
           SIZE 23 BY 1
      eb.upc-no AT ROW 8.86 COL 121.2 COLON-ALIGNED
-          LABEL "UPC#"
+          LABEL "UPC#" FORMAT "x(20)"
           VIEW-AS FILL-IN 
           SIZE 30 BY 1
           FONT 6
@@ -634,6 +638,8 @@ ASSIGN
    NO-ENABLE 2                                                          */
 /* SETTINGS FOR FILL-IN eb.ship-zip IN FRAME fold
    NO-ENABLE 2                                                          */
+/* SETTINGS FOR FILL-IN est.csrUser_id IN FRAME fold
+   EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN eb.sman IN FRAME fold
    EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN sman_sname IN FRAME fold
@@ -764,6 +770,7 @@ DO:
            run windows/l-cust.w (cocode,ls-cur-val, output char-val).
            if char-val <> "" then do:
               lw-focus:screen-value =  ENTRY(1,char-val).
+              RUN csr-display .
               find first shipto where shipto.company = cocode
                                   and shipto.cust-no = lw-focus:screen-value
                                   no-lock no-error.
@@ -823,6 +830,12 @@ DO:
        WHEN "cad-image"THEN DO:
            APPLY "choose" TO btnDieLookup.
        END.
+       when "csrUser_id" then do:
+         run windows/l-users.w (est.csrUser_id:SCREEN-VALUE in frame {&frame-name}, output char-val).
+           if char-val <> "" then 
+              assign est.csrUser_id:screen-value in frame {&frame-name} = entry(1,char-val).
+           return no-apply.
+       END.
   end case. 
 
   RETURN NO-APPLY.
@@ -840,6 +853,21 @@ DO:
     RUN valid-adhesive (FOCUS) NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
   END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME est.csrUser_id
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL est.csrUser_id V-table-Win
+ON LEAVE OF est.csrUser_id IN FRAME fold /* Type */
+DO:
+  
+  IF LASTKEY <> -1 THEN DO:
+     RUN valid-custcsr NO-ERROR.
+     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+  END.
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1075,7 +1103,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL eb.cust-no V-table-Win
 ON VALUE-CHANGED OF eb.cust-no IN FRAME fold /* Cust# */
 DO:
-  RUN shipto-enable.
+  RUN shipto-enable. 
+  RUN csr-display .
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1692,7 +1721,8 @@ assign
  itemfg.isaset     = (xest.est-type eq 2 or xest.est-type eq 6) and
                      xeb.form-no eq 0
  itemfg.pur-man    = xeb.pur-man 
- itemfg.alloc      = xeb.set-is-assembled.
+ itemfg.alloc      = xeb.set-is-assembled
+ itemfg.setupDate  = TODAY.
 
  RUN fg/chkfgloc.p (INPUT itemfg.i-no, INPUT "").
 
@@ -2412,6 +2442,9 @@ PROCEDURE local-update-record :
   RUN valid-wid-len NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
+  RUN valid-custcsr NO-ERROR.
+  IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+
   DO WITH FRAME {&FRAME-NAME}:
   /*  IF eb.t-wid:MODIFIED OR eb.t-len:MODIFIED OR 
        eb.wid:MODIFIED OR eb.len:MODIFIED OR eb.dep:MODIFIED */
@@ -2816,6 +2849,32 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+  
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE csr-display V-table-Win 
+PROCEDURE csr-display :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DO WITH FRAME {&frame-name}:
+
+      FIND FIRST cust NO-LOCK
+            WHERE cust.company = cocode
+              AND cust.cust-no = eb.cust-no:SCREEN-VALUE NO-ERROR.
+     
+       IF AVAIL cust THEN
+           est.csrUser_id:SCREEN-VALUE = cust.csrUser_id .
+
+  END.
+
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE shipto-enable V-table-Win 
 PROCEDURE shipto-enable :
 /*------------------------------------------------------------------------------
@@ -2967,6 +3026,29 @@ PROCEDURE valid-board :
 
     IF ef.brd-dscr:SCREEN-VALUE EQ "" THEN RUN new-board.
   END.
+
+  {methods/lValidateError.i NO}
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-custcsr V-table-Win 
+PROCEDURE valid-custcsr :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  {methods/lValidateError.i YES}
+
+   IF est.csrUser_id:SCREEN-VALUE IN FRAME {&FRAME-NAME} NE "" THEN DO:
+       IF NOT CAN-FIND(FIRST users WHERE users.USER_ID EQ est.csrUser_id:SCREEN-VALUE IN FRAME {&FRAME-NAME})
+       THEN DO:
+           MESSAGE "Invalid customer CSR. Try help." VIEW-AS ALERT-BOX ERROR.
+           RETURN ERROR.
+       END.
+   END.
 
   {methods/lValidateError.i NO}
 END PROCEDURE.

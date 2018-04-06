@@ -42,35 +42,15 @@
      ctrl[18] = int(ce-ctrl.spec-add[8])
      v-gsa    = index("SB",ce-ctrl.sell-by) eq 0.
      
-  FIND FIRST reftable-broker-pct
-       WHERE reftable-broker-pct.reftable EQ "ce-ctrl.broker-pct"
-         AND reftable-broker-pct.company  EQ ce-ctrl.company
-         AND reftable-broker-pct.loc      EQ ce-ctrl.loc
-       NO-LOCK NO-ERROR.
 
-  IF AVAIL reftable-broker-pct THEN
-     ctrl[19] = reftable-broker-pct.val[1].
+     ctrl[19] = ce-ctrl.broker-pct.
 
-  FIND FIRST reftable NO-LOCK
-      WHERE reftable.reftable EQ "ce-ctrl.fg-rate-farm"
-        AND reftable.company  EQ ce-ctrl.company
-        AND reftable.loc      EQ ce-ctrl.loc
-      NO-ERROR.  
-  fg-rate-f = IF AVAIL reftable THEN reftable.val[1] ELSE 0.
+  fg-rate-f = ce-ctrl.fg-rate-farm.
+ 
+  rm-rate-f = ce-ctrl.rm-rate-farm.
 
-  FIND FIRST reftable NO-LOCK
-      WHERE reftable.reftable EQ "ce-ctrl.rm-rate-farm"
-        AND reftable.company  EQ ce-ctrl.company
-        AND reftable.loc      EQ ce-ctrl.loc
-      NO-ERROR.  
-  rm-rate-f = IF AVAIL reftable THEN reftable.val[1] ELSE 0.
-
-  FIND FIRST reftable NO-LOCK
-      WHERE reftable.reftable EQ "ce-ctrl.hand-pct-farm"
-        AND reftable.company  EQ ce-ctrl.company
-        AND reftable.loc      EQ ce-ctrl.loc
-      NO-ERROR.    
-  hand-pct-f = (IF AVAIL reftable THEN reftable.val[1] ELSE 0) / 100.
+  
+  hand-pct-f = ce-ctrl.hand-pct-farm / 100.
 
   find first xop where xop.company = xest.company and
                        xop.est-no = xest.est-no and
@@ -220,11 +200,13 @@
                        input-output v-match-up, INPUT-OUTPUT v-do-all-forms-ink, INPUT-OUTPUT v-board-cost-from-blank, input no, output lv-error). 
      if lv-error then return error.
 
-     IF lv-override THEN
-     for each probe where probe.company = xest.company and
-                       probe.est-no = xest.est-no:
-        delete probe.                 
-     end.
+     IF lv-override THEN DO:
+         for each probe where probe.company = xest.company and
+                           probe.est-no = xest.est-no:
+            delete probe.                 
+         end.
+         RUN est\CostResetHeaders.p(ROWID(xest), ROWID(job)).
+     END.
   
      DO i = 1 TO EXTENT(qtty):
         ASSIGN
@@ -278,6 +260,7 @@
 
   DO TRANSACTION:
     {est/op-lock.i xest}
+
     FIND xef WHERE RECID(xef) EQ lv-ef-recid .
     FIND xef WHERE RECID(xef) EQ lv-ef-recid NO-LOCK.
     FIND est WHERE RECID(est) EQ RECID(xest).
@@ -293,6 +276,7 @@
     FIND xest WHERE RECID(xest) EQ RECID(est) NO-LOCK.
     FIND CURRENT recalc-mr NO-LOCK.
     FIND CURRENT op-lock NO-LOCK.  
+     
   END.
 
   session:set-wait-state("General").
@@ -448,10 +432,10 @@
       end.
     end.
 
-    qty = qtty[k] * IF xeb.yld-qty EQ 0 THEN 1 ELSE xeb.yld-qty.
+    qty = qtty[k] * IF xeb.quantityPerSet EQ 0 THEN 1 ELSE xeb.quantityPerSet.
     if qty = 0 then leave loupe.
     vmcl = k.
-
+    iMasterQuantity = qtty[k].
     {est/probeset.i qtty[k] v-match-up}
 
     maxpage = k.
@@ -459,7 +443,7 @@
 
     ASSIGN
        k = maxpage /* k used in kmr-run.i */
-       qty = qtty[k] * xeb.yld-qty.
+       qty = qtty[k] * xeb.quantityPerSet.
 
     /*find first xop where xop.company = xest.company and xop.est-no = xest.est-no and xop.line >= 500 no-lock no-error.*/
     find first item {sys/look/itemW.i} and item.i-no = xef.board no-lock no-error.
@@ -507,7 +491,7 @@
 
     display /*skip(1)*/
             " --Qty---- --- Description ------ -- Size / Color ----- --- Style / Part No ---"
-            qty / xeb.yld-qty format ">>,>>>,>>9"
+            qty / xeb.quantityPerSet format ">>,>>>,>>9"
             dsc[1] space(1) sizcol[1] space(2) stypart[1] skip
             space(11)
             dsc[2] space(1) sizcol[2] space(2) stypart[2] skip
@@ -516,7 +500,7 @@
             with no-box no-labels color value(col-norm) stream-io width 80 frame aa1 .
 
     ASSIGN
-     v-yld-qty   = xeb.yld-qty
+     v-yld-qty   = xeb.quantityPerSet
      v-hdr-depth = IF xeb.t-dep   EQ 0 AND
                       xef.nsh-dep EQ 0 AND
                       xef.gsh-dep EQ 0 THEN "" ELSE "Depth".
@@ -774,27 +758,17 @@
               ls-outfile = tmp-dir + trim(est.est-no) + ".p" + string(probe.line,"999").
 
     if search(outfile1) <> ? then do:       
-       dos silent  type value(outfile3) > value(ls-outfile).
-       dos silent  type value(outfile2) >> value(ls-outfile).    
+       os-copy value(outfile3) value(ls-outfile).
+       os-append value(outfile2) value(ls-outfile).
     end.
     else next.
                  
     if not vprint then DO TRANSACTION:
 
       IF probe.LINE LT 100 THEN
-      DO:
-         if opsys = "unix" then
-           unix silent rm value(tmp-dir + trim(xest.est-no) + ".*" + string(probe.line,"99")).
-         else
-           dos silent del value(tmp-dir + trim(xest.est-no) + ".*" + string(probe.line,"99")).
-      END.
+         os-delete value(tmp-dir + trim(xest.est-no) + ".*" + string(probe.line,"99")).
       ELSE
-      DO:
-         if opsys = "unix" then
-           unix silent rm value(tmp-dir + trim(xest.est-no) + ".*" + string(probe.line,"999")).
-         else
-           dos silent del value(tmp-dir + trim(xest.est-no) + ".*" + string(probe.line,"999")).
-      END.
+         os-delete value(tmp-dir + trim(xest.est-no) + ".*" + string(probe.line,"999")).
 
       FIND CURRENT probe.
       DELETE probe.

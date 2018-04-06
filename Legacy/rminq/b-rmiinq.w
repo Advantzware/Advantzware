@@ -543,10 +543,20 @@ ASSIGN
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Browser-Table B-table-Win
 ON MOUSE-SELECT-DBLCLICK OF Browser-Table IN FRAME F-Main
 DO:
-  IF USERID("nosweat") EQ "asi" THEN DO:
-    RUN set-read-only (NO).
+    DEFINE VARIABLE ll       AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lv-rowid AS ROWID   NO-UNDO.
+    DEF VAR hPgmSecurity AS HANDLE NO-UNDO.
+            DEF VAR lResult AS LOG NO-UNDO.
+            RUN "system/PgmMstrSecur.p" PERSISTENT SET hPgmSecurity.
+            RUN epCanAccess IN hPgmSecurity ("rminq/b-rmiinq.w", "", OUTPUT lResult).
+    DELETE OBJECT hPgmSecurity.
 
-    APPLY "entry" TO rm-rcpth.i-no IN BROWSE {&browse-name}.
+  IF lResult THEN DO:
+
+    RUN rminq/d-rmiinq.w (ROWID(rm-rcpth),ROWID(rm-rdtlh), "update", OUTPUT lv-rowid) .
+
+    RUN repo-query (ROWID(rm-rcpth)).
+
   END.
 END.
 
@@ -654,7 +664,7 @@ END.
 ON LEAVE OF rm-rdtlh.tag IN BROWSE Browser-Table /* Item# */
 DO:
   IF LASTKEY NE -1 THEN DO:
-      
+
     RUN valid-tag-no NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
   END.
@@ -768,7 +778,7 @@ ON RETURN OF rm-rdtlh.tag IN BROWSE Browser-Table /* Tag */
 DO:
     RUN valid-tag-no NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-  
+
   RUN update-record.
 END.
 
@@ -1023,7 +1033,7 @@ END.
 ON VALUE-CHANGED OF fi_job-no IN FRAME F-Main /* Job# */
 DO:
   {&self-name}:SCREEN-VALUE = CAPS({&self-name}:SCREEN-VALUE).
-  {&SELF-NAME}:CURSOR-OFFSET = LENGTH({&SELF-NAME}:SCREEN-VALUE) + 1 + IF LASTKEY EQ 32 THEN 1 ELSE 0. /* added by script _caps.p */
+  IF LASTKEY EQ 32 THEN {&SELF-NAME}:CURSOR-OFFSET = LENGTH({&SELF-NAME}:SCREEN-VALUE) + 2. /* res */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1061,7 +1071,7 @@ END.
 ON VALUE-CHANGED OF fi_rita-code IN FRAME F-Main /* Trans Code */
 DO:
   {&self-name}:SCREEN-VALUE = CAPS({&self-name}:SCREEN-VALUE).
-  {&SELF-NAME}:CURSOR-OFFSET = LENGTH({&SELF-NAME}:SCREEN-VALUE) + 1 + IF LASTKEY EQ 32 THEN 1 ELSE 0. /* added by script _caps.p */
+  IF LASTKEY EQ 32 THEN {&SELF-NAME}:CURSOR-OFFSET = LENGTH({&SELF-NAME}:SCREEN-VALUE) + 2. /* res */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1394,11 +1404,13 @@ PROCEDURE local-display-fields :
                               TRIM(STRING(ll-sort-asc,"As/Des")) + "cending".
   END.
 
-  FIND FIRST users NO-LOCK WHERE 
-      users.user_id EQ USERID(LDBNAME(1)) 
-      NO-ERROR.
-  
-  IF AVAIL users AND users.securityLevel LE 900 THEN
+  DEF VAR hPgmSecurity AS HANDLE NO-UNDO.
+              DEF VAR lResult AS LOG NO-UNDO.
+              RUN "system/PgmMstrSecur.p" PERSISTENT SET hPgmSecurity.
+              RUN epCanAccess IN hPgmSecurity ("rminq/b-rmiinq.w", "", OUTPUT lResult).
+    DELETE OBJECT hPgmSecurity.
+
+  IF not lResult THEN
      ASSIGN btCopy:HIDDEN = YES
             btCopy:SENSITIVE = NO
             btDelete:HIDDEN = YES
@@ -1898,7 +1910,7 @@ PROCEDURE valid-tag-no :
 
   DO WITH FRAME {&FRAME-NAME}:
       lv-tag = rm-rdtlh.tag:SCREEN-VALUE IN BROWSE {&browse-name}.
-      
+
    IF rm-rdtlh.tag:SCREEN-VALUE IN BROWSE {&browse-name} NE "" AND
        rm-rcpth.rita-code:SCREEN-VALUE IN BROWSE {&browse-name} EQ "R" AND  
        int(rm-rdtlh.qty:SCREEN-VALUE IN BROWSE {&browse-name}) GT 0 THEN do:

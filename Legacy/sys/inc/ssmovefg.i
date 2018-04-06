@@ -13,7 +13,7 @@ IF NOT AVAIL sys-ctrl THEN DO:
    sys-ctrl.company  = cocode
    sys-ctrl.name     = "SSMoveFG"
    sys-ctrl.log-fld  = NO
-   sys-ctrl.cha = "FG Lot#"
+   sys-ctrl.char-fld = "FG Lot#"
    sys-ctrl.descrip  = "Sharp Shooter Move Finish Goods Post".
 END.
 

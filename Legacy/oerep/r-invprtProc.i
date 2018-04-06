@@ -1,4 +1,4 @@
-/*------------------------------------------------------------------------
+/* -----------------------------------------------------
     File        : r-invprt.i
     Purpose     : 
 
@@ -1154,9 +1154,12 @@ PROCEDURE build-list1:
         WHERE cust.company EQ cocode
         AND cust.cust-no EQ {&head}.cust-no
         AND ((cust.inv-meth EQ ? AND {&head}.{&multiinvoice}) OR
-        (cust.inv-meth NE ? AND NOT {&head}.{&multiinvoice}) OR
-        "{&head}" EQ "ar-inv"
-        )
+          (cust.inv-meth NE ? AND NOT {&head}.{&multiinvoice}) OR
+          "{&head}" EQ "ar-inv" )
+        AND (    (rd-dest-screen-value EQ "5" AND cust.log-field[1] EQ YES) 
+              OR (rd-dest-screen-value EQ "1" AND cust.log-field[1] EQ NO)
+              OR (rd-dest-screen-value NE "1" AND rd-dest-screen-value NE "5") 
+              OR  tb_override-email) 
         NO-LOCK BY {&head}.{&bolno} :
         
         FIND FIRST buf-{&line} NO-LOCK 
@@ -1378,7 +1381,7 @@ PROCEDURE run-report :
                     AND b-{&head}1.{&multiinvoice} EQ NO            
                     AND INDEX(vcHoldStats, b-{&head}1.stat) EQ 0:
                     FIND FIRST inv-misc NO-LOCK 
-                       WHERE inv-misc.r-no EQ b-{&head}1.r-no
+                       WHERE inv-misc.{&miscrno} EQ b-{&head}1.{&rno}
                        NO-ERROR.
 
                     IF AVAILABLE inv-misc THEN DO:
@@ -1850,6 +1853,10 @@ PROCEDURE setBolDates:
                     opdEndDate   = STRING({&head}.inv-date).
         END.
     END. 
+    IF opdBeginDate EQ ? THEN 
+        opdBeginDate = "".
+    IF opdEndDate EQ ? THEN 
+        opdEndDate = "".        
 END.
 
 PROCEDURE setBOLRange:
@@ -1887,7 +1894,6 @@ PROCEDURE setBOLRange:
 
           
     DO WITH FRAME frame-a: 
-        
         IF INT(begin_bol-SCREEN-VALUE) NE 0                         AND
             INT(begin_bol-SCREEN-VALUE) EQ INT(end_bol-SCREEN-VALUE) THEN 
         DO :
@@ -1935,7 +1941,8 @@ PROCEDURE setBOLRange:
             END.
         END. 
         IF "{&head}" eq "inv-head" THEN DO:
-            IF INTEGER(begin_bol-screen-value) GT 0 THEN DO:
+            
+            IF INTEGER(begin_bol-screen-value) GT 0 THEN DO: 
                 FOR EACH oe-bolh NO-LOCK
                   WHERE oe-bolh.company EQ cocode
                     AND oe-bolh.posted EQ TRUE
@@ -1953,30 +1960,42 @@ PROCEDURE setBOLRange:
             END. 
             ELSE 
             DO:
-                IF INT(begin_inv-screen-value) GT 0 AND INT(end_inv-screen-value) GT 0 THEN DO:
+                
+                IF INT(begin_inv-screen-value) GT 0 AND INT(end_inv-screen-value) GT 0 THEN DO: 
                   IF int(begin_bol-SCREEN-VALUE) EQ 0 THEN opbegin_bol-SCREEN-VALUE = "0".
                   IF int(end_bol-SCREEN-VALUE) EQ 0 THEN opend_bol-SCREEN-VALUE = "99999999".
+
+                  FOR EACH {&head} NO-LOCK
+                      WHERE {&head}.company EQ cocode
+                      AND {&head}.inv-no GE INT(begin_inv-SCREEN-VALUE)
+                      AND {&head}.inv-no LE INT(end_inv-SCREEN-VALUE)
+                      AND {&head}.{&multiinvoice} EQ NO             
+                      AND INDEX(vcHoldStats, {&head}.stat) EQ 0:
+                      ASSIGN 
+                          opbegin_date-SCREEN-VALUE = STRING(inv-head.inv-date).
+                          opend_date-SCREEN-VALUE = STRING(inv-head.inv-date). 
+                    . 
+                  END.
                 END.
-/*                FOR EACH oe-bolh NO-LOCK                                     */
-/*                    WHERE oe-bolh.company EQ cocode                          */
-/*                    AND oe-bolh.posted EQ TRUE                               */
-/*                    AND oe-bolh.printed EQ TRUE                              */
-/*                    AND oe-bolh.{&bolno}  GE INT(begin_bol-SCREEN-VALUE)     */
-/*                    AND oe-bolh.{&bolno}  LE INT(end_bol-SCREEN-VALUE):      */
-/*                                                                             */
-/*                    IF oe-bolh.bol-date LT DATE(begin_date-SCREEN-VALUE) THEN*/
-/*                        opbegin_date-SCREEN-VALUE = STRING(oe-bolh.bol-date).*/
-/*                                                                             */
-/*                    IF oe-bolh.bol-date GT DATE(end_date-screen-value) THEN  */
-/*                      opend_date-SCREEN-VALUE = STRING(oe-bolh.bol-date).    */
-/*                                                                             */
-/*                 END.                                                        */
+                ELSE 
+                DO: 
+                    FOR EACH {&head} NO-LOCK
+                        WHERE   {&head}.company EQ cocode
+                        AND {&head}.cust-no GE (begin_cust-screen-value)
+                        AND {&head}.cust-no LE (end_cust-screen-value)
+                        AND {&head}.{&multiinvoice} EQ NO             
+                        AND INDEX(vcHoldStats, {&head}.stat) EQ 0:
+                      ASSIGN
+                        opbegin_date-SCREEN-VALUE = STRING(inv-head.inv-date)
+                        opend_date-SCREEN-VALUE = STRING(inv-head.inv-date).
+                    END.
+                END.
                 
             END.
             
         END.
-        ELSE DO:
-            IF INT(begin_inv-screen-value) GT 0 THEN DO:
+        ELSE DO: 
+            IF INT(begin_inv-screen-value) GT 0 THEN DO: 
               FOR EACH ar-inv NO-LOCK
                  WHERE ar-inv.company eq cocode
                    AND ar-inv.inv-no GE INTEGER(begin_inv-screen-value)

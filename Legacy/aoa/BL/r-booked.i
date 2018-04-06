@@ -49,12 +49,9 @@ FOR EACH oe-ord NO-LOCK
         IF oe-ord.TYPE EQ "T" THEN NEXT.
         cCode = "".
         FOR EACH oe-rel FIELDS(r-no) NO-LOCK 
-            WHERE oe-rel.company EQ oe-ord.company 
-              AND oe-rel.ord-no  EQ oe-ord.ord-no,
-            FIRST reftable NO-LOCK 
-            WHERE reftable.reftable EQ "oe-rel.s-code" 
-              AND reftable.company  EQ STRING(oe-rel.r-no,"9999999999") 
-              AND reftable.code     EQ "T"
+           WHERE oe-rel.company EQ oe-ord.company 
+             AND oe-rel.ord-no  EQ oe-ord.ord-no
+             AND oe-rel.s-code EQ "T"
             :
             cCode = "T".
             LEAVE.
@@ -414,11 +411,12 @@ PROCEDURE pOrdersBooked2:
                          AND bItemFG.i-no EQ fg-set.part-no
                        :
                        dSqft = dSqft + (dOrdQty
-                             * (IF fg-set.part-qty GE 0 THEN fg-set.part-qty
-                                ELSE (-1 / fg-set.part-qty))
-                             * bItemFG.t-sqft / 1000).
+                             * (IF fg-set.qtyPerSet GE 0 THEN fg-set.qtyPerSet
+                                ELSE (-1 / fg-set.qtyPerSet))
+                             * bItemFG.t-sqft / 1000)
+                             .
                    END. /* each fg-set */
-                END.
+                END. /* if avail itemfg */
                 ELSE dSqft = IF AVAILABLE itemfg THEN (itemfg.t-sqft * dOrdQty / 1000) ELSE 0.
                 CREATE w-data.
                 ASSIGN
@@ -430,7 +428,7 @@ PROCEDURE pOrdersBooked2:
                     dQM           = oe-ordl.qty / 1000
                     w-data.proCat = IF AVAILABLE itemfg THEN itemfg.proCat ELSE ""
                     w-data.item-n = IF AVAILABLE itemfg THEN itemfg.i-name ELSE ""
-                    w-data.qty    = dPriceAmount
+                    w-data.qty    = dOrdQty
                     w-data.margin = oe-ordl.q-qty
                     .
                 IF NOT oe-ordl.is-a-component THEN

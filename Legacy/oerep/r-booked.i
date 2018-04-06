@@ -232,7 +232,6 @@ format wkrecap.procat
         AND oe-ord.cust-no  LE end_cust-no
         and oe-ord.ord-date ge lo_trandate
         and oe-ord.ord-date le tdate
-        and oe-ord.type     ne "T"
         AND oe-ord.stat     NE "D"
       no-lock
       by oe-ord.company by oe-ord.ord-date by oe-ord.ord-no:
@@ -247,12 +246,8 @@ format wkrecap.procat
         
        FOR EACH oe-rel FIELDS(r-no) WHERE
            oe-rel.company = oe-ord.company AND 
-           oe-rel.ord-no  = oe-ord.ord-no
-           NO-LOCK,
-           FIRST reftable WHERE
-                 reftable.reftable EQ "oe-rel.s-code" AND 
-                 reftable.company  EQ STRING(oe-rel.r-no,"9999999999") AND
-                 reftable.CODE EQ "T"
+           oe-rel.ord-no  = oe-ord.ord-no AND 
+             oe-rel.s-code  = "T"
                  NO-LOCK:
       
                  v-code = "T".

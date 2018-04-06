@@ -14,7 +14,7 @@
      SKIP.
 
  IF (AVAIL shipto AND shipto.broker EQ NO) OR NOT AVAIL shipto THEN
-    PUT "<C1><#1><R+5><C+25>" "<IMAGE#1=" ls-full-img1  SKIP 
+    PUT "<C1><#1><R+9><C+45>" "<IMAGE#1=" ls-full-img1  SKIP 
      "<=1><C11><FGCOLOR=" trim(lv-comp-color) + ">"
      "<=1><C11><R+1><P20><B>" lv-comp-name "</B><FGCOLOR=" trim(lv-other-color) + ">" FORM "x(6)" 
      "<P10></B>"

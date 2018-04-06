@@ -80,8 +80,8 @@ ASSIGN cTextListToSelect = "FG ITEM,FG ITEM DESCRIPTION,SELLING PRICE/M,ORDERED,
                             "mischeader,misc-code,misc-desc,misc-est-cost,misc-act-cost,misc-vari,misc-vari-per"
 
        cFieldLength = "15,30,10,10,10,10,10,9,5,9,6,6," +
-                      "15,7,16,2,8,7,6,8,7,6,6,12,6,12,9,9," +
-                      "15,15,20,10,3,10,9,3,10,10,8," +
+                      "15,7,16,2,8,7,6,8,7,6,6,12,8,12,9,9," +
+                      "15,15,20,10,3,10,9,3,10,10,9," +
                       "15,11,25,10,10,10,10"   
 
         cFieldType = "c,c,i,i,i,i,i,i,i,i,i,i," + "c,c,c,c,i,i,i,i,i,i,i,i,i,i,i,i," + "c,c,c,i,i,i,i,i,i,i,i," + "c,c,c,i,i,i,i"    .
@@ -1446,25 +1446,25 @@ DEFINE VARIABLE cVarValue AS cha NO-UNDO.
 DEFINE VARIABLE cExcelVarValue AS cha NO-UNDO.
 DEFINE VARIABLE cSelectedList AS cha NO-UNDO.
 DEFINE VARIABLE cFieldName AS cha NO-UNDO.
-DEFINE VARIABLE fg-str-tit AS cha FORM "x(200)" NO-UNDO.
-DEFINE VARIABLE fg-str-tit2 AS cha FORM "x(200)" NO-UNDO.
-DEFINE VARIABLE fg-str-tit3 AS cha FORM "x(200)" NO-UNDO.
-DEFINE VARIABLE fg-str-line AS cha FORM "x(300)" NO-UNDO.
+DEFINE VARIABLE fg-str-tit AS cha FORM "x(150)" NO-UNDO.
+DEFINE VARIABLE fg-str-tit2 AS cha FORM "x(150)" NO-UNDO.
+DEFINE VARIABLE fg-str-tit3 AS cha FORM "x(150)" NO-UNDO.
+DEFINE VARIABLE fg-str-line AS cha FORM "x(150)" NO-UNDO.
 
-DEFINE VARIABLE mach-str-tit AS cha FORM "x(200)" NO-UNDO.
-DEFINE VARIABLE mach-str-tit2 AS cha FORM "x(200)" NO-UNDO.
-DEFINE VARIABLE mach-str-tit3 AS cha FORM "x(200)" NO-UNDO.
-DEFINE VARIABLE mach-str-line AS cha FORM "x(300)" NO-UNDO.
+DEFINE VARIABLE mach-str-tit AS cha FORM "x(150)" NO-UNDO.
+DEFINE VARIABLE mach-str-tit2 AS cha FORM "x(150)" NO-UNDO.
+DEFINE VARIABLE mach-str-tit3 AS cha FORM "x(150)" NO-UNDO.
+DEFINE VARIABLE mach-str-line AS cha FORM "x(150)" NO-UNDO.
 
-DEFINE VARIABLE item-str-tit AS cha FORM "x(200)" NO-UNDO.
-DEFINE VARIABLE item-str-tit2 AS cha FORM "x(200)" NO-UNDO.
-DEFINE VARIABLE item-str-tit3 AS cha FORM "x(200)" NO-UNDO.
-DEFINE VARIABLE item-str-line AS cha FORM "x(300)" NO-UNDO.
+DEFINE VARIABLE item-str-tit AS cha FORM "x(150)" NO-UNDO.
+DEFINE VARIABLE item-str-tit2 AS cha FORM "x(150)" NO-UNDO.
+DEFINE VARIABLE item-str-tit3 AS cha FORM "x(150)" NO-UNDO.
+DEFINE VARIABLE item-str-line AS cha FORM "x(150)" NO-UNDO.
 
-DEFINE VARIABLE misc-str-tit AS cha FORM "x(200)" NO-UNDO.
-DEFINE VARIABLE misc-str-tit2 AS cha FORM "x(200)" NO-UNDO.
-DEFINE VARIABLE misc-str-tit3 AS cha FORM "x(200)" NO-UNDO.
-DEFINE VARIABLE misc-str-line AS cha FORM "x(300)" NO-UNDO.
+DEFINE VARIABLE misc-str-tit AS cha FORM "x(150)" NO-UNDO.
+DEFINE VARIABLE misc-str-tit2 AS cha FORM "x(150)" NO-UNDO.
+DEFINE VARIABLE misc-str-tit3 AS cha FORM "x(150)" NO-UNDO.
+DEFINE VARIABLE misc-str-line AS cha FORM "x(150)" NO-UNDO.
 
 /*{sys/form/r-top5DL3.f} */
 cSelectedList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
@@ -1916,7 +1916,7 @@ ASSIGN cDisplay = ""
                          WHEN "act-cost"    THEN cVarValue = IF v-qty4 <> ? AND v-qty4 <> 0 THEN STRING(v-qty4,">>>>>9-") ELSE "" .
 
                          WHEN "cost-vari"   THEN cVarValue = IF v-qty5 <> ? AND v-qty5 <> 0 THEN  STRING(v-qty5,">>>>,>>>,>>9-") ELSE "".
-                         WHEN "cost-var%"   THEN cVarValue = IF v-qty6 <> ? AND v-qty6 <> 0 THEN STRING(v-qty6,">>>9.9-") ELSE "".
+                         WHEN "cost-var%"   THEN cVarValue = IF v-qty6 <> ? AND v-qty6 <> 0 THEN STRING(v-qty6,">>>>>9.9-") ELSE "".
                          WHEN "est-qty"  THEN cVarValue = /*IF work-mch.run-waste <> ? THEN  STRING(work-mch.run-waste,">>>>,>>>,>>9-") ELSE*/ "".
                          WHEN "actual"   THEN cVarValue = /*IF work-mch.wst-qty <> ? THEN  STRING(work-mch.wst-qty,">,>>>,>>9-") ELSE*/ "".
                          WHEN "var-per"   THEN cVarValue = /*IF v-run-wst-var <> ? THEN  STRING(v-run-wst-var,">>>>>>9.9-") ELSE*/ "".
@@ -1927,8 +1927,8 @@ ASSIGN cDisplay = ""
                                FILL(" ",int(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
                     cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
             END.
-
-            PUT UNFORMATTED "        " + string(v-header,"x(27)")  + substring(cDisplay,36,250) SKIP .
+            IF (LINE-COUNTER + 10) GT lines-per-page THEN PAGE.
+            PUT UNFORMATTED "        " + string(v-header,"x(27)")  + substring(cDisplay,36,150) SKIP .
             IF tb_excel2 THEN DO:
                  PUT STREAM excel2 UNFORMATTED ','  v-header 
                      SUBSTRING(cExcelDisplay,6,300) SKIP.

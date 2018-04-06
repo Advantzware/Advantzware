@@ -57,7 +57,7 @@ DEF BUFFER b-usercomp FOR usercomp .
 &Scoped-define PROCEDURE-TYPE Window
 &Scoped-define DB-AWARE no
 
-/* Name of first Frame and/or Browse and/or first Query                 */
+/* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME DEFAULT-FRAME
 &Scoped-define BROWSE-NAME companies
 
@@ -93,14 +93,14 @@ usercomp.loc = '' AND ~
       WHERE usercomp.user_id = USERID("NOSWEAT") AND ~
 usercomp.company = company.company AND ~
 usercomp.loc NE "" AND ~
-(IF g_init THEN  usercomp.loc_default = yes ~
+(IF g_init THEN usercomp.loc_default = yes ~
  ELSE TRUE) NO-LOCK, ~
       EACH loc OF usercomp NO-LOCK
 &Scoped-define OPEN-QUERY-locations OPEN QUERY locations FOR EACH usercomp ~
       WHERE usercomp.user_id = USERID("NOSWEAT") AND ~
 usercomp.company = company.company AND ~
 usercomp.loc NE "" AND ~
-( IF g_init THEN  usercomp.loc_default = yes ~
+(IF g_init THEN usercomp.loc_default = yes ~
  ELSE TRUE) NO-LOCK, ~
       EACH loc OF usercomp NO-LOCK.
 &Scoped-define TABLES-IN-QUERY-locations usercomp loc
@@ -114,7 +114,7 @@ usercomp.loc NE "" AND ~
     ~{&OPEN-QUERY-locations}
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS companies locations sysdate Btn_Cancel ~
+&Scoped-Define ENABLED-OBJECTS companies locations Btn_Cancel sysdate ~
 Btn_OK 
 &Scoped-Define DISPLAYED-OBJECTS sysdate 
 
@@ -133,16 +133,22 @@ DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON Btn_Cancel 
+     IMAGE-UP FILE "Graphics/32x32/navigate_cross.ico":U NO-FOCUS FLAT-BUTTON
      LABEL "&Cancel" 
-     SIZE 15 BY 1.14.
+     SIZE 8 BY 1.91 TOOLTIP "Cancel".
 
 DEFINE BUTTON Btn_OK 
+     IMAGE-UP FILE "Graphics/32x32/navigate_check.ico":U NO-FOCUS FLAT-BUTTON
      LABEL "&OK" 
-     SIZE 15 BY 1.14.
+     SIZE 8 BY 1.91 TOOLTIP "OK".
 
 DEFINE VARIABLE sysdate AS DATE FORMAT "99/99/9999":U 
      VIEW-AS FILL-IN 
-     SIZE 17 BY 1 NO-UNDO.
+     SIZE 16 BY 1 NO-UNDO.
+
+DEFINE RECTANGLE RECT-1
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 18 BY 2.38.
 
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
@@ -182,18 +188,19 @@ DEFINE FRAME DEFAULT-FRAME
           "Select Company"
      locations AT ROW 1 COL 46 HELP
           "Select Department"
-     sysdate AT ROW 2.43 COL 88 COLON-ALIGNED HELP
-          "Enter System Date" NO-LABEL
-     Btn_Cancel AT ROW 4.81 COL 91 HELP
+     Btn_Cancel AT ROW 5.29 COL 100 HELP
           "CANCEL Select Company/Department"
-     Btn_OK AT ROW 6.24 COL 91 HELP
+     sysdate AT ROW 2.43 COL 90 COLON-ALIGNED HELP
+          "Enter System Date" NO-LABEL
+     Btn_OK AT ROW 5.29 COL 92 HELP
           "Select Company/Department"
      "System Date" VIEW-AS TEXT
-          SIZE 12 BY .62 AT ROW 1.71 COL 92
+          SIZE 12 BY .62 AT ROW 1.71 COL 94
+     RECT-1 AT ROW 5.05 COL 91 WIDGET-ID 2
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 108.2 BY 6.71.
+         SIZE 108.8 BY 6.71.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -214,11 +221,11 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          HIDDEN             = YES
          TITLE              = "Select Company/Department"
          HEIGHT             = 6.71
-         WIDTH              = 105.6
-         MAX-HEIGHT         = 7.71
-         MAX-WIDTH          = 108.2
-         VIRTUAL-HEIGHT     = 7.71
-         VIRTUAL-WIDTH      = 108.2
+         WIDTH              = 108.8
+         MAX-HEIGHT         = 6.71
+         MAX-WIDTH          = 108.8
+         VIRTUAL-HEIGHT     = 6.71
+         VIRTUAL-WIDTH      = 108.8
          RESIZE             = yes
          SCROLL-BARS        = no
          STATUS-AREA        = no
@@ -246,19 +253,19 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
 /* SETTINGS FOR WINDOW C-Win
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME DEFAULT-FRAME
-                                                                        */
-ASSIGN
+   FRAME-NAME                                                           */
+/* BROWSE-TAB companies 1 DEFAULT-FRAME */
+/* BROWSE-TAB locations RECT-1 DEFAULT-FRAME */
+ASSIGN 
        Btn_Cancel:PRIVATE-DATA IN FRAME DEFAULT-FRAME     = 
                 "ribbon-button".
 
-
-ASSIGN
+ASSIGN 
        Btn_OK:PRIVATE-DATA IN FRAME DEFAULT-FRAME     = 
                 "ribbon-button".
 
-
-/* BROWSE-TAB companies 1 DEFAULT-FRAME */
-/* BROWSE-TAB locations companies DEFAULT-FRAME */
+/* SETTINGS FOR RECTANGLE RECT-1 IN FRAME DEFAULT-FRAME
+   NO-ENABLE                                                            */
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
 THEN C-Win:HIDDEN = no.
 
@@ -298,7 +305,7 @@ usercomp.loc NE """" AND
 */  /* BROWSE locations */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -487,7 +494,7 @@ PROCEDURE enable_UI :
 ------------------------------------------------------------------------------*/
   DISPLAY sysdate 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
-  ENABLE companies locations sysdate Btn_Cancel Btn_OK 
+  ENABLE companies locations Btn_Cancel sysdate Btn_OK 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
   VIEW C-Win.

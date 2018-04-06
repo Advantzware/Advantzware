@@ -619,18 +619,18 @@ DEFINE FRAME FRAME-A
      Btn_Cancel AT ROW 25.81 COL 57
      "Trans Typ :" VIEW-AS TEXT
           SIZE 12 BY .95 AT ROW 10.76 COL 2 WIDGET-ID 6
-     "This Procedure Will Post All Finished Goods Transactions" VIEW-AS TEXT
-          SIZE 65 BY .95 AT ROW 1.71 COL 23.8
-          FONT 6
-     "Print Options :" VIEW-AS TEXT
-          SIZE 15 BY .95 AT ROW 10.76 COL 55
-     "Output Destination" VIEW-AS TEXT
-          SIZE 18 BY .62 AT ROW 18.43 COL 1
-     "Sort Options :" VIEW-AS TEXT
-          SIZE 15 BY .95 AT ROW 10.76 COL 37 WIDGET-ID 14
      "Selection Parameters" VIEW-AS TEXT
           SIZE 21 BY .71 AT ROW 1.1 COL 1.8
           BGCOLOR 2 
+     "Sort Options :" VIEW-AS TEXT
+          SIZE 15 BY .95 AT ROW 10.76 COL 37 WIDGET-ID 14
+     "Output Destination" VIEW-AS TEXT
+          SIZE 18 BY .62 AT ROW 18.43 COL 1
+     "Print Options :" VIEW-AS TEXT
+          SIZE 15 BY .95 AT ROW 10.76 COL 55
+     "This Procedure Will Post All Finished Goods Transactions" VIEW-AS TEXT
+          SIZE 65 BY .95 AT ROW 1.71 COL 23.8
+          FONT 6
      RECT-6 AT ROW 18.33 COL 1
      RECT-7 AT ROW 1 COL 1
      RECT-30 AT ROW 10.67 COL 1.6 WIDGET-ID 8
@@ -692,16 +692,6 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME                                                           */
 ASSIGN
-       Btn_Cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "ribbon-button".
-
-
-ASSIGN
-       Btn_OK:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "ribbon-button".
-
-
-ASSIGN 
        begin_fg-r-no:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
@@ -720,6 +710,14 @@ ASSIGN
 ASSIGN 
        begin_whs:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
+
+ASSIGN 
+       Btn_Cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+ASSIGN 
+       Btn_OK:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
 
 ASSIGN 
        end_fg-r-no:PRIVATE-DATA IN FRAME FRAME-A     = 
@@ -863,7 +861,7 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME btn-cancel
+&Scoped-define SELF-NAME Btn_Cancel
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Cancel C-Win
 ON CHOOSE OF Btn_Cancel IN FRAME FRAME-A /* Cancel */
 DO:
@@ -1312,6 +1310,7 @@ FOR EACH w-fg-rctd WHERE w-fg-rctd.rita-code EQ "R":
                   WHERE bf-fg-rctd.company EQ w-fg-rctd.company
                     AND bf-fg-rctd.i-no EQ fg-set.part-no
                     AND bf-fg-rctd.rita-code EQ "R" 
+                    AND bf-fg-rctd.SetHeaderRno GT 0
                   NO-LOCK:
 
 
@@ -1324,9 +1323,7 @@ FOR EACH w-fg-rctd WHERE w-fg-rctd.rita-code EQ "R":
                         RUN build-tables.
                   END.
 
-/*                END. /* each reftable */*/
-/*            END. /* each bf-fg-rctd */  */
-        END. /* avail reftable for header item */
+        END. /* each fg-rctd */
     END. /* each fg-set */
 
 END. /* each w-fg-rctd, check for set components */
@@ -2806,13 +2803,13 @@ PROCEDURE fg-post :
             BUFFER po-ordl,
             BUFFER po-ord,
             BUFFER oe-ordl,
-            BUFFER oe-ord,
-            BUFFER reftable).
-        IF AVAIL(reftable) AND (reftable.val[2] GT 0 OR reftable.val[3] EQ 1) THEN
-            ASSIGN ll        = reftable.val[1] NE 0
-                dBillAmt  = reftable.val[2]
-                lEmailBol = reftable.val[3] EQ 1
-                lInvFrt   = reftable.val[1] GT 0.
+            BUFFER oe-ord).
+        
+        ASSIGN ll        = fg-rctd.CreateInvoice
+               dBillAmt  = fg-rctd.BillableFreightAmt
+               lEmailBol = fg-rctd.EmailBOL
+               lInvFrt   = fg-rctd.InvoiceFreight
+               .
         IF lEmailBol AND last-of(tt-inv.bol-no) THEN 
         DO:
             FIND FIRST oe-bolh WHERE oe-bolh.company EQ g_company
@@ -2941,7 +2938,7 @@ PROCEDURE get-ord-recs :
   DEF PARAM BUFFER b-po-ord  FOR po-ord.
   DEF PARAM BUFFER b-oe-ordl FOR oe-ordl.
   DEF PARAM BUFFER b-oe-ord  FOR oe-ord.
-  DEF PARAM BUFFER b-ref     FOR reftable.
+
 
   DEF BUFFER b-fg-rctd FOR fg-rctd.
 
@@ -2949,7 +2946,7 @@ PROCEDURE get-ord-recs :
   RELEASE b-po-ord.
   RELEASE b-oe-ordl.
   RELEASE b-oe-ord.
-  RELEASE b-ref.
+  
 
 
   FIND b-fg-rctd WHERE ROWID(b-fg-rctd) EQ ip-rowid1 NO-LOCK NO-ERROR.
@@ -3342,6 +3339,7 @@ PROCEDURE print-and-post :
 ------------------------------------------------------------------------------*/
   DEF VAR lv-r-no LIKE rm-rctd.r-no NO-UNDO.
   DEF VAR lContinue AS LOGICAL NO-UNDO.
+  DEFINE BUFFER bf-fg-rctd for fg-rctd.
   /* 11111302 - Automatically include set components instead of this validate*/
   /* RUN ValidateFGItemRange(OUTPUT lContinue). */
 /*   IF NOT lContinue THEN DO:                               */
@@ -3407,6 +3405,10 @@ PROCEDURE print-and-post :
               fg-rcpts.linker = "fg-rctd: " + STRING(fg-rctd.r-no,"9999999999").
 
             END. /* each fg-rcpts */
+            FOR EACH bf-fg-rctd EXCLUSIVE-LOCK
+               WHERE bf-fg-rctd.SetHeaderRno EQ lv-r-no:
+               bf-fg-rctd.SetHeaderRno = fg-rctd.r-no.
+            END.
         END. /* If r-no was changed by trigger */
       END. /* do trans */
       w-fg-rctd.r-no = fg-rctd.r-no.
@@ -3832,6 +3834,7 @@ IF ip-run-what EQ "" THEN
         t-ret ,
         t-ship ,
         t-trans ,
+        t-setup,
         tb_excel ,
         tb_glnum ,
         tb_grndtotal ,
@@ -4226,8 +4229,15 @@ FUNCTION fnValidateFgAssembly RETURNS LOGICAL
     DEFINE VARIABLE lSucceeded AS LOGICAL NO-UNDO.
     
     lSucceeded = YES.
-    FOR EACH b-w-fg-rctd WHERE b-w-fg-rctd.qty LT 0.
+    FOR EACH b-w-fg-rctd 
+       WHERE b-w-fg-rctd.qty LT 0
+         AND b-w-fg-rctd.SetHeaderRno GT 0
+       .
 
+       FIND FIRST w-fg-rctd NO-LOCK WHERE w-fg-rctd.r-no EQ b-w-fg-rctd.SetHeaderRno  NO-ERROR. 
+        
+       IF NOT AVAILABLE w-fg-rctd THEN 
+           NEXT. 
       
         FIND fg-rctd EXCLUSIVE-LOCK WHERE ROWID(fg-rctd) = w-fg-rctd.row-id  NO-ERROR.
         FIND FIRST itemfg NO-LOCK WHERE itemfg.company EQ cocode 

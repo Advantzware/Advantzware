@@ -148,13 +148,29 @@ DEFINE VARIABLE lvrOeOrd          AS ROWID            NO-UNDO.
 DEFINE VARIABLE lvlReturnNoApply  AS LOGICAL          NO-UNDO.
 DEFINE VARIABLE lvlReturnCancel   AS LOGICAL          NO-UNDO.
 DEFINE VARIABLE gvlCheckOrdStat   AS LOGICAL     NO-UNDO.
-
+DEFINE VARIABLE lsecurity-flag AS LOGICAL NO-UNDO.
 /* bol print/post */
 DEF NEW SHARED VAR out-recid AS RECID NO-UNDO.
 DEFINE VARIABLE BolPostLog AS LOGICAL NO-UNDO.
 DEF STREAM logFile.
+DEF VAR cRtnChar AS CHAR NO-UNDO.
+DEFINE VARIABLE lRecFound AS LOGICAL     NO-UNDO.
+DEFINE VARIABLE lSSBOLPassword AS LOGICAL NO-UNDO.
+DEFINE VARIABLE cSSBOLPassword AS CHARACTER NO-UNDO.
 
 v-hold-list = "Royal,Superior,ContSrvc,BlueRidg,Danbury".
+
+RUN sys/ref/nk1look.p (INPUT cocode, "SSBOLPassword", "L" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+OUTPUT cRtnChar, OUTPUT lRecFound). 
+lSSBOLPassword = LOGICAL(cRtnChar) NO-ERROR .
+RUN sys/ref/nk1look.p (INPUT cocode, "SSBOLPassword", "C" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+OUTPUT cRtnChar, OUTPUT lRecFound). 
+  cSSBOLPassword = cRtnChar NO-ERROR .
+
+IF NOT lSSBOLPassword OR cSSBOLPassword EQ ""  THEN
+ lsecurity-flag = YES .
 
 /* Include file contains transaction keyword */
 {sys/ref/relpost.i}
@@ -1446,7 +1462,11 @@ END.
   LOAD "l-font.ini" DIR cDir BASE-KEY "INI".
   USE "l-font.ini".
 
+IF NOT lsecurity-flag THEN RUN sys/ref/d-passwd.w (9, OUTPUT lsecurity-flag).
+        
+IF lsecurity-flag THEN
 RUN custom/d-prompt.w (INPUT ipcButtonList, ip-parms, "", OUTPUT op-values).
+ELSE  op-values =  "DEFAULT" + "," + "No" .
 
 /* Load original ini for original font set */
 UNLOAD "l-font.ini" NO-ERROR.
@@ -2032,9 +2052,12 @@ ELSE DO:
           USE "l-font.ini".
 
         END.
+
+        IF NOT lsecurity-flag THEN RUN sys/ref/d-passwd.w (9, OUTPUT lsecurity-flag).
         
-        /* New Logic */
-        RUN custom/d-prompt.w (INPUT "yes-no-cancel", ip-parms, "", OUTPUT op-values).
+        IF lsecurity-flag THEN
+        RUN custom/d-prompt.w (INPUT "yes-no-cancel", ip-parms, "", OUTPUT op-values). /* New Logic */
+        ELSE  op-values =  "DEFAULT" + "," + "No" .
         
         /* Load original ini for original font set */
         UNLOAD "l-font.ini" NO-ERROR.

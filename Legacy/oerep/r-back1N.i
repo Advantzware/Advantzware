@@ -1,4 +1,9 @@
 
+  /*do i = 1 to 3:
+    assign
+     fstat = tstat
+     tstat = if i eq 1 then "C" else
+             if i eq 2 then "D" else "Z".*/
     
     for each xoe-ord
         where xoe-ord.company  eq cocode
@@ -32,12 +37,8 @@
         
          FOR EACH oe-rel FIELDS(r-no) WHERE
              oe-rel.company = xoe-ord.company AND 
-             oe-rel.ord-no  = xoe-ord.ord-no
-             NO-LOCK,
-             FIRST reftable WHERE
-                   reftable.reftable EQ "oe-rel.s-code" AND 
-                   reftable.company  EQ STRING(oe-rel.r-no,"9999999999") AND
-                   reftable.CODE EQ "T"
+             oe-rel.ord-no  = xoe-ord.ord-no AND 
+             oe-rel.s-code  = "T"
                    NO-LOCK:
         
                    v-code = "T".
@@ -152,9 +153,26 @@
             
       transaction:
 
-       {custom/statusMsg.i "'Processing Item # ' + string(tt-report.key-03)"} 
+       {custom/statusMsg.i "'Processing Order # ' + string(oe-ord.ord-no)"} 
 
     if first-of(substr(tt-report.key-01,1,8)) and v-sort NE "Item" then do:
+
+      IF v-sort EQ "Cust" THEN
+      DO: 
+         find first cust
+              where cust.company eq cocode
+              and cust.cust-no eq substr(tt-report.key-01,1,8)
+              no-lock no-error.
+         v-name = if avail cust then cust.name else "Not on File".
+      END.
+      ELSE
+      DO: 
+         FIND FIRST sman WHERE
+              sman.company EQ cocode AND
+              sman.sman EQ substr(tt-report.key-01,1,3)
+              NO-LOCK NO-ERROR.
+         v-name-rep = IF AVAIL sman THEN sman.sname ELSE "Not on File".
+      END. 
            
       if first(substr(tt-report.key-01,1,8)) then do:
        /* display with frame r-top-1.
@@ -171,22 +189,66 @@
     
     IF AVAIL w-ord THEN
     DO:
-        find first cust
-              where cust.company eq cocode
-              and cust.cust-no eq w-ord.cust-no
-              no-lock no-error.
-         v-name = if avail cust then cust.name else "Not on File".
-     
-         FIND FIRST sman WHERE
-              sman.company EQ cocode AND
-              sman.sman EQ w-ord.sman
-              NO-LOCK NO-ERROR.
-         v-name-rep = IF AVAIL sman THEN sman.sname ELSE "Not on File".
 
         {custom/statusMsg.i "'Processing Order # ' + string(w-ord.ord-no)"} 
 
        v-uom = if w-ord.uom ne "" then caps(w-ord.uom) else "EA".
-      
+       
+       /* if v-ponum then do with frame ordhead-po:
+          DISPLAY w-ord.due-date
+                  w-ord.ord-date
+                  w-ord.ord-no
+                  w-ord.po-num
+                  w-ord.part-no
+                  w-ord.pallets  when v-get-qty
+                  w-ord.qty-onh  when v-get-qty
+                  w-ord.qty-due
+                  w-ord.price    when v-priceflag
+                  v-uom          when v-priceflag
+                  w-ord.t-price  when v-priceflag.
+          down.
+        end.
+       
+        else do with frame ordhead:
+          display w-ord.due-date
+                  w-ord.ord-date
+                  w-ord.ord-no
+                  w-ord.part-no
+                  w-ord.pallets when v-get-qty
+                  w-ord.qty-onh when v-get-qty
+                  w-ord.qty-due
+                  w-ord.price   when v-priceflag
+                  v-uom         when v-priceflag
+                  w-ord.t-price when v-priceflag.
+          down.
+        end.
+       
+        IF tb_excel THEN DO:
+        
+          IF v-ponum THEN
+            po-num-excel = '"' + w-ord.po-num + '",'.
+       
+          PUT STREAM excel UNFORMATTED
+              '"' (IF w-ord.due-date NE ? THEN STRING(w-ord.due-date)
+                   ELSE "")                                                 '",'
+              '"' (IF w-ord.ord-date NE ? THEN STRING(w-ord.ord-date)
+                   ELSE "")                                                 '",'
+              '"' w-ord.ord-no                                              '",'
+                  po-num-excel 
+              '"' w-ord.part-no                                             '",'
+              '"' (IF v-get-qty THEN STRING(w-ord.pallets)
+                   ELSE "")                                                 '",'
+              '"' (IF v-get-qty THEN STRING(w-ord.qty-onh,"->,>>>,>>9.9<<<")
+                   ELSE "")                                                 '",'
+              '"' STRING(w-ord.qty-due,"->,>>>,>>9")                        '",'
+              '"' (IF v-priceflag THEN STRING(w-ord.price,">>>,>>9.99<<<")
+                      + v-uom ELSE "")                                      '",'
+              '"' (IF v-priceflag THEN STRING(w-ord.t-price,">>,>>>,>>9.99")
+                   ELSE "")                                                 '",'
+              SKIP.
+        END. */
+          
+
         ASSIGN cDisplay = ""
                cTmpField = ""
                cVarValue = ""

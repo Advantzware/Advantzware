@@ -266,13 +266,14 @@ DEF VAR lv-persistent-handle AS HANDLE NO-UNDO.
 &Scoped-define FIELDS-IN-QUERY-Browser-Table est.est-no eb.cust-no ~
 eb.part-no display-combo-qty () @ est-qty.eqty est-qty.eqty ~
 display-combo-qty () @ est-qty.eqty eb.ord-no eb.stock-no eb.style ~
-eb.part-dscr1 eb.flute eb.test eb.yld-qty ~
+eb.part-dscr1 eb.flute eb.test eb.yld-qty eb.quantityPerSet ~
 display-cw-dim(yes,eb.len) @ eb.len display-cw-dim(yes,eb.wid) @ eb.wid ~
 display-cw-dim(yes,eb.dep) @ eb.dep eb.die-no eb.cad-no eb.plate-no ~
 est.est-date est.updated-id eb.rec_key eb.pur-man eb.ship-id est.entered-id 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table est.est-no eb.cust-no ~
 eb.part-no est-qty.eqty eb.ord-no eb.stock-no eb.style eb.part-dscr1 ~
-eb.flute eb.test eb.yld-qty eb.die-no eb.cad-no eb.plate-no est.est-date 
+eb.flute eb.test eb.yld-qty eb.quantityPerSet eb.die-no eb.cad-no ~
+eb.plate-no est.est-date 
 &Scoped-define ENABLED-TABLES-IN-QUERY-Browser-Table est eb est-qty
 &Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-Browser-Table est
 &Scoped-define SECOND-ENABLED-TABLE-IN-QUERY-Browser-Table eb
@@ -470,22 +471,22 @@ DEFINE RECTANGLE RECT-1
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 151 BY 5.24.
 
-DEFINE VARIABLE tb_set AS LOGICAL INITIAL YES 
+DEFINE VARIABLE tb_set AS LOGICAL INITIAL yes 
      LABEL "Set" 
      VIEW-AS TOGGLE-BOX
      SIZE 8 BY .86 NO-UNDO.
 
-DEFINE VARIABLE tb_single AS LOGICAL INITIAL YES 
+DEFINE VARIABLE tb_single AS LOGICAL INITIAL yes 
      LABEL "Single" 
      VIEW-AS TOGGLE-BOX
      SIZE 10 BY .86 NO-UNDO.
 
-DEFINE VARIABLE tb_tancom AS LOGICAL INITIAL YES 
+DEFINE VARIABLE tb_tancom AS LOGICAL INITIAL yes 
      LABEL "Tandem/Combo" 
      VIEW-AS TOGGLE-BOX
      SIZE 20 BY .86 NO-UNDO.
 
-DEFINE VARIABLE TG_exact-match AS LOGICAL INITIAL NO 
+DEFINE VARIABLE TG_exact-match AS LOGICAL INITIAL no 
      LABEL "Exact" 
      VIEW-AS TOGGLE-BOX
      SIZE 9.6 BY .81 TOOLTIP "Exact Match" NO-UNDO.
@@ -503,6 +504,7 @@ DEFINE QUERY Browser-Table FOR
       eb.flute
       eb.test
       eb.yld-qty
+      eb.quantityPerSet
       eb.len
       eb.len
       eb.wid
@@ -540,10 +542,12 @@ DEFINE BROWSE Browser-Table
       eb.part-dscr1 COLUMN-LABEL "Item Name" FORMAT "x(30)":U LABEL-BGCOLOR 14
       eb.flute FORMAT "XXX":U LABEL-BGCOLOR 14
       eb.test FORMAT "x(6)":U LABEL-BGCOLOR 14
-      eb.yld-qty COLUMN-LABEL "Qty/Set" FORMAT "->>>>>>9":U LABEL-BGCOLOR 14
-      display-cw-dim(YES,eb.len) @ eb.len FORMAT ">>9.99":U LABEL-BGCOLOR 14
-      display-cw-dim(YES,eb.wid) @ eb.wid FORMAT ">>9.99":U LABEL-BGCOLOR 14
-      display-cw-dim(YES,eb.dep) @ eb.dep FORMAT ">>9.99":U LABEL-BGCOLOR 14
+      eb.yld-qty COLUMN-LABEL "Yield Quantity" FORMAT "->>>>>>9":U
+            LABEL-BGCOLOR 14
+      eb.quantityPerSet FORMAT ">>>>9.9<<<":U
+      display-cw-dim(yes,eb.len) @ eb.len FORMAT ">>9.99":U LABEL-BGCOLOR 14
+      display-cw-dim(yes,eb.wid) @ eb.wid FORMAT ">>9.99":U LABEL-BGCOLOR 14
+      display-cw-dim(yes,eb.dep) @ eb.dep FORMAT ">>9.99":U LABEL-BGCOLOR 14
       eb.die-no FORMAT "x(15)":U LABEL-BGCOLOR 14
       eb.cad-no COLUMN-LABEL "Cad #" FORMAT "x(15)":U LABEL-BGCOLOR 14
       eb.plate-no FORMAT "x(15)":U LABEL-BGCOLOR 14
@@ -567,6 +571,7 @@ DEFINE BROWSE Browser-Table
       eb.flute
       eb.test
       eb.yld-qty
+      eb.quantityPerSet
       eb.die-no
       eb.cad-no
       eb.plate-no
@@ -610,6 +615,20 @@ DEFINE FRAME F-Main
           "Use Home, End, Page-Up, Page-Down, & Arrow Keys to Navigate"
      "to" VIEW-AS TEXT
           SIZE 3 BY 1 AT ROW 2.91 COL 101
+     "Estimate" VIEW-AS TEXT
+          SIZE 11 BY .67 AT ROW 1.24 COL 3
+          FGCOLOR 9 FONT 6
+     "Customer" VIEW-AS TEXT
+          SIZE 13 BY .62 AT ROW 1.24 COL 17
+          FGCOLOR 9 FONT 6
+     "FG Item# / Name" VIEW-AS TEXT
+          SIZE 20 BY .62 AT ROW 1.24 COL 51
+          FGCOLOR 9 FONT 6
+     "Style" VIEW-AS TEXT
+          SIZE 9 BY .62 AT ROW 1.24 COL 73
+          FGCOLOR 9 FONT 6
+     "to" VIEW-AS TEXT
+          SIZE 3 BY 1 AT ROW 1.95 COL 101
      "Customer Part#" VIEW-AS TEXT
           SIZE 19 BY .62 AT ROW 1.24 COL 31
           FGCOLOR 9 FONT 6
@@ -632,20 +651,6 @@ DEFINE FRAME F-Main
      "Browser Col. Mode:" VIEW-AS TEXT
           SIZE 22.6 BY .62 AT ROW 5.29 COL 115.2 WIDGET-ID 10
           FONT 6
-     "Estimate" VIEW-AS TEXT
-          SIZE 11 BY .67 AT ROW 1.24 COL 3
-          FGCOLOR 9 FONT 6
-     "Customer" VIEW-AS TEXT
-          SIZE 13 BY .62 AT ROW 1.24 COL 17
-          FGCOLOR 9 FONT 6
-     "FG Item# / Name" VIEW-AS TEXT
-          SIZE 20 BY .62 AT ROW 1.24 COL 51
-          FGCOLOR 9 FONT 6
-     "Style" VIEW-AS TEXT
-          SIZE 9 BY .62 AT ROW 1.24 COL 73
-          FGCOLOR 9 FONT 6
-     "to" VIEW-AS TEXT
-          SIZE 3 BY 1 AT ROW 1.95 COL 101
      RECT-1 AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -778,30 +783,32 @@ and est-qty.eqty = eb.eqty
      _FldNameList[12]   > ASI.eb.test
 "eb.test" ? ? "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[13]   > ASI.eb.yld-qty
-"eb.yld-qty" "Qty/Set" "->>>>>>9" "integer" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[14]   > "_<CALC>"
-"display-cw-dim(yes,eb.len) @ eb.len" ? ">>9.99" ? ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"eb.yld-qty" "Yield Quantity" "->>>>>>9" "integer" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[14]   > ASI.eb.quantityPerSet
+"eb.quantityPerSet" ? ? "decimal" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[15]   > "_<CALC>"
-"display-cw-dim(yes,eb.wid) @ eb.wid" ? ">>9.99" ? ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"display-cw-dim(yes,eb.len) @ eb.len" ? ">>9.99" ? ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[16]   > "_<CALC>"
+"display-cw-dim(yes,eb.wid) @ eb.wid" ? ">>9.99" ? ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[17]   > "_<CALC>"
 "display-cw-dim(yes,eb.dep) @ eb.dep" ? ">>9.99" ? ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[17]   > ASI.eb.die-no
+     _FldNameList[18]   > ASI.eb.die-no
 "eb.die-no" ? ? "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[18]   > ASI.eb.cad-no
+     _FldNameList[19]   > ASI.eb.cad-no
 "eb.cad-no" "Cad #" ? "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[19]   > ASI.eb.plate-no
+     _FldNameList[20]   > ASI.eb.plate-no
 "eb.plate-no" ? ? "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[20]   > ASI.est.est-date
+     _FldNameList[21]   > ASI.est.est-date
 "est.est-date" ? ? "date" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[21]   > ASI.est.updated-id
+     _FldNameList[22]   > ASI.est.updated-id
 "est.updated-id" "Modified By" ? "character" ? ? ? 14 ? ? no ? no no "15" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[22]   > ASI.eb.rec_key
+     _FldNameList[23]   > ASI.eb.rec_key
 "eb.rec_key" ? ? "character" ? ? ? ? ? ? no ? no no ? no no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[23]   > ASI.eb.pur-man
+     _FldNameList[24]   > ASI.eb.pur-man
 "eb.pur-man" ? ? "logical" ? ? ? ? ? ? no ? no no ? no no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[24]   > ASI.eb.ship-id
+     _FldNameList[25]   > ASI.eb.ship-id
 "eb.ship-id" ? ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[25]   > ASI.est.entered-id
+     _FldNameList[26]   > ASI.est.entered-id
 "est.entered-id" "Created By" ? "character" ? ? ? 14 ? ? no ? no no "15" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */
@@ -822,6 +829,25 @@ and est-qty.eqty = eb.eqty
 
 &Scoped-define SELF-NAME begin_cust-no
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_cust-no B-table-Win
+ON HELP OF begin_cust-no IN FRAME F-Main
+DO:
+   DEF VAR char-val AS cha NO-UNDO.
+   RUN windows/l-cust2.w (INPUT g_company, INPUT FOCUS:SCREEN-VALUE,"", OUTPUT char-val).
+          IF char-val <> "" THEN
+          DO:
+            /* 11121503 Was moving to previous field for some reason */
+            APPLY 'entry' TO begin_cust-no IN FRAME F-MAIN.
+            FOCUS:SCREEN-VALUE = ENTRY(1,char-val).
+
+          END.
+          /* return no-apply. */
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_cust-no B-table-Win
 ON LEAVE OF begin_cust-no IN FRAME F-Main
 DO:
   /*IF LASTKEY NE -1 THEN DO:
@@ -835,26 +861,6 @@ DO:
      RETURN NO-APPLY.
   END.
   ELSE begin_ship:SENSITIVE = NO.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME begin_cust-no
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_cust-no B-table-Win
-ON HELP OF begin_cust-no IN FRAME F-Main
-DO:
-   DEF VAR char-val AS cha NO-UNDO.
-   RUN windows/l-cust2.w (INPUT g_company, INPUT FOCUS:SCREEN-VALUE,"", OUTPUT char-val).
-          IF char-val <> "" THEN
-          DO:
-            /* 11121503 Was moving to previous field for some reason */
-            APPLY 'entry' TO begin_cust-no IN FRAME F-MAIN.
-            FOCUS:SCREEN-VALUE = ENTRY(1,char-val).
-
-          END.
-          /* return no-apply. */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -912,7 +918,7 @@ END.
 ON ROW-DISPLAY OF Browser-Table IN FRAME F-Main
 DO:
    DEFINE VARIABLE lActive AS LOGICAL     NO-UNDO.
-   IF AVAIL est AND est.dropslit THEN
+   IF AVAIL est AND est.highlight THEN
       est.est-no:BGCOLOR IN BROWSE {&browse-name} = 14.
    ELSE
    IF AVAIL est AND est.mod-date = 01/01/1900 THEN
@@ -1299,19 +1305,6 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&Scoped-define SELF-NAME vi_stock-no
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL vi_stock-no B-table-Win
-ON HELP OF vi_stock-no IN FRAME F-Main
-DO:
-   DEF VAR char-val AS cha NO-UNDO.
-
-    RUN windows/l-itemfg.w (g_company,"","", OUTPUT char-val).
-    IF char-val <> "" THEN FOCUS:SCREEN-VALUE = ENTRY(1,char-val).
-    RETURN NO-APPLY.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
 
 &Scoped-define SELF-NAME vi_est-no
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL vi_est-no B-table-Win
@@ -1429,6 +1422,20 @@ END.
 
 
 &Scoped-define SELF-NAME vi_stock-no
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL vi_stock-no B-table-Win
+ON HELP OF vi_stock-no IN FRAME F-Main
+DO:
+   DEF VAR char-val AS cha NO-UNDO.
+
+    RUN windows/l-itemfg.w (g_company,"","", OUTPUT char-val).
+    IF char-val <> "" THEN FOCUS:SCREEN-VALUE = ENTRY(1,char-val).
+    RETURN NO-APPLY.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL vi_stock-no B-table-Win
 ON LEAVE OF vi_stock-no IN FRAME F-Main
 DO:
@@ -1553,9 +1560,8 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE clearFilterValues B-table-Win
-PROCEDURE clearFilterValues:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE clearFilterValues B-table-Win 
+PROCEDURE clearFilterValues :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -1563,11 +1569,9 @@ PROCEDURE clearFilterValues:
     {methods/clearFilterValues.i}
 
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE create-est B-table-Win 
 PROCEDURE create-est :
@@ -1749,6 +1753,32 @@ PROCEDURE crt-est-childrecord :
 /*   end.                                                                                  */
 
 
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE dept-image-proc B-table-Win 
+PROCEDURE dept-image-proc :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+   DEF VAR v-spec AS LOG NO-UNDO.
+   DEF VAR char-hdl AS CHAR NO-UNDO.
+  
+   FIND FIRST notes WHERE notes.rec_key = est.rec_key
+       NO-LOCK NO-ERROR.
+   
+   IF AVAIL notes THEN
+      v-spec = TRUE.
+   ELSE v-spec = FALSE.
+
+   RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE, 'attach-target':U, OUTPUT char-hdl).
+  
+   IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
+      RUN dept-pen-image IN WIDGET-HANDLE(char-hdl) (INPUT v-spec).
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2248,7 +2278,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE New_record-user B-table-Win 
 PROCEDURE New_record-user :
 /*------------------------------------------------------------------------------
@@ -2276,39 +2305,6 @@ ASSIGN custcount = v-custcount .
     RETURN NO-APPLY.  
   END.
 
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE setEstNoSearch B-table-Win 
-PROCEDURE setEstNoSearch :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-DEF INPUT PARAM ipiEstNo LIKE eb.est-no NO-UNDO.
-
-ASSIGN vi_est-no = ipiEstNo
-       tb_single = YES 
-       tb_set    = YES 
-       tb_tancom = YES   
-       begin_cust-no = ""
-       begin_ship    = ""
-       vi_part-no    = ""
-       vi_stock-no   = ""
-       vi_part-dscr1 = ""
-       vi_style      = ""
-       vi_len        = 0.00
-       vi_wid        = 0.00
-       vi_dep        = 0.00
-       vi_len-2      = 99999.99
-       vi_wid-2      = 99999.99
-       vi_dep-2      = 99999.99
-       vi_die-no     = "*" 
-       vi_cad-no     = ""
-       vi_plate-no   = ""  .
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2445,6 +2441,39 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE setEstNoSearch B-table-Win 
+PROCEDURE setEstNoSearch :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+DEF INPUT PARAM ipiEstNo LIKE eb.est-no NO-UNDO.
+
+ASSIGN vi_est-no = ipiEstNo
+       tb_single = YES 
+       tb_set    = YES 
+       tb_tancom = YES   
+       begin_cust-no = ""
+       begin_ship    = ""
+       vi_part-no    = ""
+       vi_stock-no   = ""
+       vi_part-dscr1 = ""
+       vi_style      = ""
+       vi_len        = 0.00
+       vi_wid        = 0.00
+       vi_dep        = 0.00
+       vi_len-2      = 99999.99
+       vi_wid-2      = 99999.99
+       vi_dep-2      = 99999.99
+       vi_die-no     = "*" 
+       vi_cad-no     = ""
+       vi_plate-no   = ""  .
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE show-all B-table-Win 
 PROCEDURE show-all :
 /*------------------------------------------------------------------------------
@@ -2538,33 +2567,6 @@ ELSE IF lv-show-next THEN DO:
 
 END.
 
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE dept-pan-image-proc B-table-Win 
-PROCEDURE dept-image-proc :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-   DEF VAR v-spec AS LOG NO-UNDO.
-   DEF VAR char-hdl AS CHAR NO-UNDO.
-  
-   FIND FIRST notes WHERE notes.rec_key = est.rec_key
-       NO-LOCK NO-ERROR.
-   
-   IF AVAIL notes THEN
-      v-spec = TRUE.
-   ELSE v-spec = FALSE.
-
-   RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE, 'attach-target':U, OUTPUT char-hdl).
-  
-   IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
-      RUN dept-pen-image IN WIDGET-HANDLE(char-hdl) (INPUT v-spec).
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

@@ -666,15 +666,7 @@ DO:
 
   IF AVAIL job THEN DO:
 
-    FIND FIRST reftable
-         WHERE reftable.reftable EQ "job.create-time"
-           AND reftable.company  EQ job.company
-           AND reftable.loc      EQ ""
-           AND reftable.code     EQ STRING(job.job,"9999999999")
-           USE-INDEX reftable
-         NO-LOCK NO-ERROR.
-
-    IF AVAIL reftable THEN li-time = reftable.val[1].
+      li-time = job.create-time.     
 
     IF job.create-date  GT job.pr-print-date      OR
        (job.create-date EQ job.pr-print-date AND
@@ -862,7 +854,7 @@ END.
 ON VALUE-CHANGED OF fi_cust-no IN FRAME F-Main
 DO:
   {&self-name}:SCREEN-VALUE = CAPS({&self-name}:SCREEN-VALUE).
-  {&SELF-NAME}:CURSOR-OFFSET = LENGTH({&SELF-NAME}:SCREEN-VALUE) + 1 + IF LASTKEY EQ 32 THEN 1 ELSE 0. /* added by script _caps.p */
+  IF LASTKEY EQ 32 THEN {&SELF-NAME}:CURSOR-OFFSET = LENGTH({&SELF-NAME}:SCREEN-VALUE) + 2. /* res */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -899,7 +891,7 @@ END.
 ON VALUE-CHANGED OF fi_i-no IN FRAME F-Main
 DO:
   {&self-name}:SCREEN-VALUE = CAPS({&self-name}:SCREEN-VALUE).
-  {&SELF-NAME}:CURSOR-OFFSET = LENGTH({&SELF-NAME}:SCREEN-VALUE) + 1 + IF LASTKEY EQ 32 THEN 1 ELSE 0. /* added by script _caps.p */
+  IF LASTKEY EQ 32 THEN {&SELF-NAME}:CURSOR-OFFSET = LENGTH({&SELF-NAME}:SCREEN-VALUE) + 2. /* res */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -923,7 +915,7 @@ END.
 ON VALUE-CHANGED OF fi_job-no IN FRAME F-Main
 DO:
   {&self-name}:SCREEN-VALUE = CAPS({&self-name}:SCREEN-VALUE).
-  {&SELF-NAME}:CURSOR-OFFSET = LENGTH({&SELF-NAME}:SCREEN-VALUE) + 1 + IF LASTKEY EQ 32 THEN 1 ELSE 0. /* added by script _caps.p */
+  IF LASTKEY EQ 32 THEN {&SELF-NAME}:CURSOR-OFFSET = LENGTH({&SELF-NAME}:SCREEN-VALUE) + 2. /* res */
 END.
 
 /* _UIB-CODE-BLOCK-END */

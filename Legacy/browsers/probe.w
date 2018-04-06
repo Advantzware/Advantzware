@@ -1673,11 +1673,14 @@ PROCEDURE calc-fields :
 
     DO WITH FRAME {&FRAME-NAME}:
       voverall:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(voverall (0)).
+      dMatPctSellPrice:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(fDirectMatPctSellPrice()).
       IF lv-changed2 NE "S" THEN 
         probe.gross-profit:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(display-gp (0)).
     END.
     RUN recalc-multicell.
+     
     RUN save-fields.
+
   END.
 
 END PROCEDURE.
@@ -2981,52 +2984,28 @@ PROCEDURE per-1000 :
        RUN get-dir-proc(INPUT TRIM(est.est-no) + ".s" + STRING(b-probe.line,"99"),
                      OUTPUT tmp-dir).
 
-       IF OPSYS EQ "unix" THEN 
-          UNIX SILENT cp  VALUE(tmp-dir + TRIM(est.est-no) + ".s" + STRING(b-probe.line,"99"))
-                         VALUE(lv-cebrowse-dir + TRIM(est.est-no) + ".p" + STRING(b-probe.line,"99")).
-       ELSE
-         DOS SILENT COPY VALUE(tmp-dir + TRIM(est.est-no) + ".s" + STRING(b-probe.line,"99"))
-                         VALUE(lv-cebrowse-dir + TRIM(est.est-no) + ".p" + STRING(b-probe.line,"99")).
+       OS-COPY VALUE(tmp-dir + TRIM(est.est-no) + ".s" + STRING(b-probe.line,"99"))
+               VALUE(lv-cebrowse-dir + TRIM(est.est-no) + ".p" + STRING(b-probe.line,"99")).
 
        RUN get-dir-proc(INPUT TRIM(est.est-no) + ".a" + STRING(b-probe.line,"99"),
                         OUTPUT tmp-dir).
 
-       IF OPSYS EQ "unix" THEN
-           UNIX SILENT cat VALUE(tmp-dir + TRIM(est.est-no) + ".a"
-                                                    + STRING(b-probe.line,"99")) >>
-                          VALUE(lv-cebrowse-dir + TRIM(est.est-no) + ".p"
-                                                    + STRING(b-probe.line,"99")).
-       ELSE /* IF opsys = "MSDOS" THEN */
-          DOS SILENT TYPE VALUE(tmp-dir + TRIM(est.est-no) + ".a"
-                                                    + STRING(b-probe.line,"99")) >>
-                          VALUE(lv-cebrowse-dir + TRIM(est.est-no) + ".p"
-                                                    + STRING(b-probe.line,"99")).
+       OS-APPEND VALUE(tmp-dir + TRIM(est.est-no) + ".a" + STRING(b-probe.line,"99"))
+                 VALUE(lv-cebrowse-dir + TRIM(est.est-no) + ".p" + STRING(b-probe.line,"99")).
     END.
     ELSE
     DO:
        RUN get-dir-proc(INPUT TRIM(est.est-no) + ".s" + STRING(b-probe.line,"999"),
                         OUTPUT tmp-dir).
 
-       IF OPSYS EQ "unix" THEN 
-         UNIX SILENT cp  VALUE(tmp-dir + TRIM(est.est-no) + ".s" + STRING(b-probe.line,"999"))
-                         VALUE(lv-cebrowse-dir + TRIM(est.est-no) + ".p" + STRING(b-probe.line,"999")).
-       ELSE
-         DOS SILENT COPY VALUE(tmp-dir + TRIM(est.est-no) + ".s" + STRING(b-probe.line,"999"))
-                         VALUE(lv-cebrowse-dir + TRIM(est.est-no) + ".p" + STRING(b-probe.line,"999")).
+       OS-COPY VALUE(tmp-dir + TRIM(est.est-no) + ".s" + STRING(b-probe.line,"999"))
+               VALUE(lv-cebrowse-dir + TRIM(est.est-no) + ".p" + STRING(b-probe.line,"999")).
 
        RUN get-dir-proc(INPUT TRIM(est.est-no) + ".a" + STRING(b-probe.line,"999"),
                         OUTPUT tmp-dir).
 
-       IF OPSYS EQ "unix" THEN
-          UNIX SILENT cat VALUE(tmp-dir + TRIM(est.est-no) + ".a"
-                                + STRING(b-probe.line,"999")) >>
-                          VALUE(lv-cebrowse-dir + TRIM(est.est-no) + ".p"
-                                + STRING(b-probe.line,"999")).
-       ELSE /* IF opsys = "MSDOS" THEN */
-          DOS SILENT TYPE VALUE(tmp-dir + TRIM(est.est-no) + ".a"
-                                + STRING(b-probe.line,"999")) >>
-                          VALUE(lv-cebrowse-dir + trim(est.est-no) + ".p"
-                                + STRING(b-probe.line,"999")).
+       OS-APPEND VALUE(tmp-dir + TRIM(est.est-no) + ".a" + STRING(b-probe.line,"999"))
+                 VALUE(lv-cebrowse-dir + TRIM(est.est-no) + ".p" + STRING(b-probe.line,"999")).
     END.
 
     tmp-dir = lv-cebrowse-dir.
@@ -3174,15 +3153,15 @@ PROCEDURE print-box-est :
   DO:
      RUN get-dir-proc(INPUT TRIM(xest.est-no) + ".p" + STRING(probe.line,"99"),
                       OUTPUT tmp-dir).
-     DOS SILENT TYPE VALUE(tmp-dir + TRIM(xest.est-no) + ".p" + STRING(probe.line,"99"))
-                      >> VALUE(ls-outfile). /*page skip problem */
+     OS-APPEND VALUE(tmp-dir + TRIM(xest.est-no) + ".p" + STRING(probe.line,"99"))
+               VALUE(ls-outfile). /*page skip problem */
   END.
   ELSE
   DO:
      RUN get-dir-proc(INPUT TRIM(xest.est-no) + ".p" + STRING(probe.line,"999"),
                       OUTPUT tmp-dir).
-     DOS SILENT TYPE VALUE(tmp-dir + TRIM(xest.est-no) + ".p" + STRING(probe.line,"999"))
-                      >> VALUE(ls-outfile). /*page skip problem */
+     OS-APPEND VALUE(tmp-dir + TRIM(xest.est-no) + ".p" + STRING(probe.line,"999"))
+               VALUE(ls-outfile). /*page skip problem */
   END.
 
   lv-input = "".
@@ -3433,13 +3412,13 @@ PROCEDURE printBoxImage :
        DO:
           RUN get-dir-proc(INPUT TRIM(xest.est-no) + '-01.b' + STRING(probe.line,'99'),
                            OUTPUT tmp-dir).
-          DOS SILENT TYPE VALUE(tmp-dir + TRIM(xest.est-no) + '-01.b' + STRING(probe.line,'99')) >> VALUE(ls-outfile).
+          OS-APPEND VALUE(tmp-dir + TRIM(xest.est-no) + '-01.b' + STRING(probe.line,'99')) VALUE(ls-outfile).
        END.
        ELSE
        DO:
           RUN get-dir-proc(INPUT TRIM(xest.est-no) + '-01.b' + STRING(probe.line,'999'),
                            OUTPUT tmp-dir).
-          DOS SILENT TYPE VALUE(tmp-dir + TRIM(xest.est-no) + '-01.b' + STRING(probe.line,'999')) >> VALUE(ls-outfile).
+          OS-APPEND VALUE(tmp-dir + TRIM(xest.est-no) + '-01.b' + STRING(probe.line,'999')) VALUE(ls-outfile).
        END.
     END.
     ELSE
@@ -3448,13 +3427,13 @@ PROCEDURE printBoxImage :
        DO:
           RUN get-dir-proc(INPUT TRIM(xest.est-no) + '.b' + STRING(probe.line,'99'),
                            OUTPUT tmp-dir).
-          DOS SILENT TYPE VALUE(tmp-dir + TRIM(xest.est-no) + '.b' + STRING(probe.line,'99')) >> VALUE(ls-outfile).
+          OS-APPEND VALUE(tmp-dir + TRIM(xest.est-no) + '.b' + STRING(probe.line,'99')) VALUE(ls-outfile).
        END.
        ELSE
        DO:
           RUN get-dir-proc(INPUT TRIM(xest.est-no) + '.b' + STRING(probe.line,'999'),
                            OUTPUT tmp-dir).
-          DOS SILENT TYPE VALUE(tmp-dir + TRIM(xest.est-no) + '.b' + STRING(probe.line,'999')) >> VALUE(ls-outfile).
+          OS-APPEND VALUE(tmp-dir + TRIM(xest.est-no) + '.b' + STRING(probe.line,'999')) VALUE(ls-outfile).
        END.
     END.
         
@@ -3563,7 +3542,7 @@ PROCEDURE printProbe :
                i = i + 1 .
            END.
      END.
-     
+
      IF NOT is-xprint-form AND v-prt-note THEN RUN print-notes(LINE-COUNTER).
     INPUT CLOSE.
     IF PAGE-NUM EQ 1 THEN
@@ -3574,9 +3553,10 @@ PROCEDURE printProbe :
   IF is-xprint-form THEN RUN print-box-est (lv-dest,lv-font,lv-ornt).
   ELSE DO:
      list-name = ls-outfile.
+     OUTPUT CLOSE. /* if output still open, will blowout in scr-rptest.w */
      CASE lv-dest:
           WHEN 1 THEN RUN custom/prntproc.p (list-name,lv-font,lv-ornt).
-          WHEN 2 THEN RUN scr-rptest.w (list-name,"Estimate Analysis",lv-font,lv-ornt). 
+          WHEN 2 THEN RUN scr-rptest.w (list-name,"Estimate Analysis",lv-font,lv-ornt).
           WHEN 3 THEN DO:
               {custom/out2file.i}
           END.
@@ -3755,17 +3735,13 @@ PROCEDURE run-screen-calc :
         AND est-op.line    LT 500,
       FIRST mach NO-LOCK
       {sys/look/machW.i}
-        AND mach.m-code EQ est-op.m-code,
-      FIRST reftable NO-LOCK
-      WHERE reftable.reftable EQ "mach.obsolete"
-        AND reftable.company  EQ mach.company
-        AND reftable.loc      EQ mach.loc
-        AND reftable.code     EQ mach.m-code
-        AND reftable.val[1]   EQ 1:
-    MESSAGE "Machine: " + TRIM(mach.m-code) +
-            " is obsolete, please replace to complete calculation..."
-        VIEW-AS ALERT-BOX ERROR.
-    RETURN.
+        AND mach.m-code EQ est-op.m-code:
+    IF mach.obsolete THEN DO:
+        MESSAGE "Machine: " + TRIM(mach.m-code) +
+                " is obsolete, please replace to complete calculation..."
+            VIEW-AS ALERT-BOX ERROR.
+        RETURN.
+    END.
   END.
 
   IF est.est-type EQ 8 THEN RUN cec/com/print4.p NO-ERROR.
@@ -3863,22 +3839,19 @@ PROCEDURE run-whatif :
         AND est-op.line    LT 500,
       FIRST mach NO-LOCK
       {sys/look/machW.i}
-        AND mach.m-code EQ est-op.m-code,
-      FIRST reftable NO-LOCK
-      WHERE reftable.reftable EQ "mach.obsolete"
-        AND reftable.company  EQ mach.company
-        AND reftable.loc      EQ mach.loc
-        AND reftable.code     EQ mach.m-code
-        AND reftable.val[1]   EQ 1:
+        AND mach.m-code EQ est-op.m-code:
+   IF mach.obsolete THEN DO:
     MESSAGE "Machine: " + TRIM(mach.m-code) +
             " is obsolete, please replace to complete calculation..."
         VIEW-AS ALERT-BOX ERROR.
     RETURN.
+   END.
   END.
-
-  IF est.est-type EQ 8 THEN RUN cec/com/print4.p NO-ERROR.
-
-  ELSE DO:
+  
+  RUN est\CostResetHeaders.p(?,?).
+  IF est.est-type EQ 8 THEN
+    RUN cec/com/print4.p NO-ERROR.
+   ELSE DO:
     FIND FIRST probe NO-LOCK WHERE probe.company EQ est.company
                        AND probe.est-no EQ est.est-no
                       NO-ERROR.
@@ -3905,7 +3878,8 @@ PROCEDURE run-whatif :
     RUN est-summ.
 
   END.
-
+  RUN est\CostExportHeaders.p(est.company,TRIM(est.est-no) + "Est").
+  
   FOR EACH est-op WHERE est-op.company EQ xest.company AND
                         est-op.est-no EQ xest.est-no AND est-op.line GT 500 
                         EXCLUSIVE-LOCK :
@@ -3957,6 +3931,7 @@ PROCEDURE run-whatif :
       END.
 
   END.
+  RUN dispatch ('open-query').
   RUN dispatch ('open-query').     
 END PROCEDURE.
 
@@ -4193,16 +4168,8 @@ PROCEDURE update-item :
                                + STRING(probe.line,v-probe-fmt),
                          OUTPUT tmp-dir).
         
-        IF OPSYS EQ "unix" THEN 
-          UNIX SILENT cp  VALUE(tmp-dir + TRIM(est.est-no) + ".s"
-                                        + STRING(probe.line,v-probe-fmt))
-                          VALUE(lv-cebrowse-dir + TRIM(est.est-no) + ".p"
-                                        + STRING(probe.line,v-probe-fmt)).
-        ELSE
-          DOS SILENT COPY VALUE(tmp-dir + TRIM(est.est-no) + ".s"
-                                        + STRING(probe.line,v-probe-fmt))
-                          VALUE(lv-cebrowse-dir + TRIM(est.est-no) + ".p"
-                                        + STRING(probe.line,v-probe-fmt)).
+        OS-COPY VALUE(tmp-dir + TRIM(est.est-no) + ".s" + STRING(probe.line,v-probe-fmt))
+                VALUE(lv-cebrowse-dir + TRIM(est.est-no) + ".p" + STRING(probe.line,v-probe-fmt)).
 
         RUN per-1000.
       END.
@@ -4467,9 +4434,11 @@ FUNCTION fDirectMatPctSellPrice RETURNS DECIMAL
  Notes: Ticket 24941 
 ------------------------------------------------------------------------------*/
         DEFINE VARIABLE dMatPct AS DECIMAL NO-UNDO.
+        DEFINE VARIABLE dPrice AS DECIMAL NO-UNDO.
     
-    IF AVAILABLE probe AND probe.sell-price GT 0 THEN 
-        dMatPct = probe.spare-dec-1 / probe.sell-price * 100.
+    dPrice = DEC(probe.sell-price).
+    IF AVAILABLE probe AND dPrice GT 0 THEN 
+        dMatPct = probe.spare-dec-1 / dPrice * 100.
     
         RETURN dMatPct.
 

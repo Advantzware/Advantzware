@@ -209,8 +209,8 @@ do v-local-loop = 1 to v-local-copies:
 
           {cec/rollfac.i}
           v-pqty = if v-rollfac OR xeb.est-type EQ 8 then 1 else
-                   if xeb.yld-qty lt 0 then (-1 / xeb.yld-qty)
-                                       else xeb.yld-qty.
+                   if xeb.quantityPerSet lt 0 then (-1 / xeb.quantityPerSet)
+                                       else xeb.quantityPerSet.
           FIND FIRST sman WHERE sman.company = xeb.company AND
                                 sman.sman = xeb.sman NO-LOCK NO-ERROR.
           v-sman = IF AVAIL sman THEN sman.sNAME ELSE xeb.sman.
@@ -866,10 +866,10 @@ do v-local-loop = 1 to v-local-copies:
                      xeb.part-dscr1 AT 20 
                      v-sampreq      AT 52.
 
-                 IF xeb.yld-qty LT 0 THEN
-                   PUT -1 / xeb.yld-qty FORMAT ">>>>>>9.9<<<<<<" AT 67.
+                 IF xeb.quantityPerSet LT 0 THEN
+                   PUT -1 / xeb.quantityPerSet FORMAT ">>>>>>9.9<<<<<<" AT 67.
                  ELSE
-                   PUT xeb.yld-qty FORMAT ">>>>>>9.9<<<<<<" AT 67.
+                   PUT xeb.quantityPerSet FORMAT ">>>>>>9.9<<<<<<" AT 67.
 
                  FIND FIRST xstyle NO-LOCK
                     WHERE xstyle.company  EQ xeb.company

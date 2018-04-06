@@ -1,0 +1,40 @@
+FOR EACH mstd NO-LOCK WHERE mstd.company EQ "%mach.company%" AND mstd.loc EQ "%mach.loc%" AND mstd.m-code EQ "%mach.m-code%"
+dept,m-code,m-dscr,style
+
+Indexed: dept,m-code,style
+Non-Idx: m-dscr
+
+Generated 04.11.2017 @  8:02:04 pm by: asi
+Table: mach - Records: 93
+
+    Index: d-seq
+         Field: company
+         Field: loc
+         Field: d-seq
+         Field: m-seq
+         Field: m-code
+
+    Index: industry
+         Field: company
+         Field: industry
+         Field: m-code
+
+    Index: m-code
+         Field: company
+         Field: loc
+         Field: m-code
+
+    Index: rec_key
+         Field: rec_key
+
+Table: mstd - Records: 141
+
+    Index: m-code
+         Field: company
+         Field: loc
+         Field: m-code
+         Field: dept
+         Field: style
+
+    Index: rec_key
+         Field: rec_key

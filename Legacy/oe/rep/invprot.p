@@ -35,7 +35,7 @@ DEF VAR v-ans           AS LOG INIT no NO-UNDO.
 DEF VAR v-date-ship     AS DATE INIT 01/01/1900 NO-UNDO.
 DEF VAR v-del-no        AS INT FORMAT ">>>>>>" NO-UNDO.
 DEF VAR v-bol-cases     LIKE oe-boll.cases NO-UNDO.
-DEF VAR v-set-qty       AS INT NO-UNDO.
+DEF VAR v-set-qty       AS DECIMAL NO-UNDO.
 DEF VAR v-part-qty      AS DEC FORMAT "999.9999" NO-UNDO.
 DEF VAR v-net           LIKE inv-head.t-inv-rev NO-UNDO.
 DEF VAR v-case-cnt      AS CHAR FORMAT "x(80)" extent 5 NO-UNDO.
@@ -89,8 +89,8 @@ FIND FIRST inv-head NO-LOCK NO-ERROR.
 /* === with xprint ====*/
 DEF VAR ls-image1    AS CHAR NO-UNDO.
 DEF VAR ls-image2    AS CHAR NO-UNDO.
-DEF VAR ls-full-img1 AS CHAR FORMAT "x(150)" NO-UNDO.
-DEF VAR ls-full-img2 AS CHAR FORMAT "x(150)" NO-UNDO.
+DEF VAR ls-full-img1 AS CHAR FORMAT "x(200)" NO-UNDO.
+DEF VAR ls-full-img2 AS CHAR FORMAT "x(200)" NO-UNDO.
 ASSIGN ls-image1 = "images\protinv.jpg"
        FILE-INFO:FILE-NAME = ls-image1
        ls-full-img1 = FILE-INFO:FULL-PATHNAME + ">".
@@ -372,7 +372,7 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
                        WHERE fg-set.company EQ xinv-line.company
                          AND fg-set.set-no  EQ xinv-line.i-no:
 
-                         ASSIGN v-set-qty = v-set-qty + fg-set.part-qty.
+                         ASSIGN v-set-qty = v-set-qty + fg-set.QtyPerSet.
                      END.
 
                      IF v-set-qty = 0 THEN
@@ -389,9 +389,9 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
                              AND fg-set.set-no  EQ xinv-line.i-no  
                              AND fg-set.part-no EQ eb.stock-no NO-ERROR.
                          IF AVAIL fg-set AND 
-                            fg-set.part-qty NE 0 
+                            fg-set.QtyPerSet NE 0 
                            THEN 
-                            ASSIGN v-part-qty = fg-set.part-qty / v-set-qty. 
+                            ASSIGN v-part-qty = fg-set.QtyPerSet / v-set-qty. 
                            ELSE
                             ASSIGN v-part-qty = 1 / v-set-qty.
 
@@ -1011,7 +1011,7 @@ PROCEDURE printNotes:
         AND LOOKUP(notes.note_code,ipcTypeList) GT 0
         NO-LOCK NO-ERROR.
             IF AVAIL notes THEN DO:
-                lc-text = lc-text + " " + note.note_text + CHR(10).
+                lc-text = lc-text + " " + notes.note_text + CHR(10).
                 LEAVE.
             END.
     END.
@@ -1019,7 +1019,7 @@ PROCEDURE printNotes:
      FOR EACH notes WHERE notes.rec_key = inv-head.rec_key
          AND LOOKUP(notes.note_code,ipcTypeList) GT 0
          NO-LOCK:
-            lc-text = lc-text + " " + note.note_text + CHR(10).
+            lc-text = lc-text + " " + notes.note_text + CHR(10).
      END.
   
   IF lc-text NE "" THEN DO:

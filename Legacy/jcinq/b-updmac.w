@@ -298,7 +298,13 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL BROWSE-2 D-Dialog
 ON MOUSE-SELECT-DBLCLICK OF BROWSE-2 IN FRAME D-Dialog
 DO:  
-  IF (USERID("nosweat") EQ "asi" OR l-jcMchUpd-sec) AND
+    DEF VAR hPgmSecurity AS HANDLE NO-UNDO.
+            DEF VAR lResult AS LOG NO-UNDO.
+            RUN "system/PgmMstrSecur.p" PERSISTENT SET hPgmSecurity.
+            RUN epCanAccess IN hPgmSecurity ("jcinq/b-updmac.w", "", OUTPUT lResult).
+    DELETE OBJECT hPgmSecurity.
+    
+  IF (lResult  OR l-jcMchUpd-sec) AND
     AVAILABLE tt-mch-tran THEN DO:
     RUN set-read-only (INPUT NO,
                        INPUT tt-mch-tran.tran-type EQ "HRS").

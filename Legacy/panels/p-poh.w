@@ -478,6 +478,8 @@ PROCEDURE set-buttons :
   Notes:       
 ------------------------------------------------------------------------------*/
 DEFINE INPUT PARAMETER panel-state AS CHARACTER NO-UNDO.
+DEFINE VARIABLE hPgmSecurity AS HANDLE NO-UNDO.
+DEFINE VARIABLE lResult AS LOG NO-UNDO.
 
 DO WITH FRAME Panel-Frame:
 
@@ -595,6 +597,15 @@ DO WITH FRAME Panel-Frame:
   END. /* panel-state = action-chosen */
 
   {CUSTOM/SECPANEL.I}
+
+ 
+ RUN "system/PgmMstrSecur.p" PERSISTENT SET hPgmSecurity.
+ RUN epCanAccess IN hPgmSecurity ("panels/p-poh.w", "", OUTPUT lResult).
+ DELETE OBJECT hPgmSecurity.
+
+ IF NOT lResult THEN
+     ASSIGN Btn-Copy:SENSITIVE = NO. 
+  
 
 END. /* DO WITH FRAME */
 

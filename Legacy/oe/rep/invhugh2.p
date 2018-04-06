@@ -36,7 +36,7 @@ def var v-ans as logical initial no NO-UNDO.
 def var v-date-ship as date initial today NO-UNDO.
 def var v-del-no as int format ">>>>>>" NO-UNDO.
 def var v-bol-cases LIKE oe-boll.cases NO-UNDO.
-def var v-set-qty AS INT NO-UNDO.
+def var v-set-qty AS DECIMAL NO-UNDO.
 def var v-part-qty AS DEC FORMAT "999.9999" NO-UNDO.
 def var v-net like inv-head.t-inv-rev NO-UNDO.
 def var v-case-cnt as char format "x(80)" extent 5 NO-UNDO.
@@ -117,15 +117,7 @@ DEF VAR v-bol-no AS CHAR NO-UNDO.
       FIND FIRST cust WHERE cust.company = xinv-head.company
                         AND cust.cust-no = xinv-head.cust-no NO-LOCK NO-ERROR.
 
-      FIND FIRST reftable WHERE
-           reftable.reftable EQ "cust.show-set" AND
-           reftable.company  EQ xinv-head.company AND
-           reftable.loc      EQ "" AND            
-           reftable.code     EQ xinv-head.cust-no
-           NO-LOCK NO-ERROR.
-
-      IF NOT AVAIL reftable OR
-         (AVAIL reftable AND reftable.val[1] = 1) THEN
+      if avail cust and cust.show-set then
          v-show-parts = YES.
       ELSE
          v-show-parts = NO.
@@ -257,7 +249,7 @@ DEF VAR v-bol-no AS CHAR NO-UNDO.
              DO:
                FOR EACH fg-set NO-LOCK WHERE fg-set.company = xinv-line.company
                   AND fg-set.set-no = xinv-line.i-no:
-                 ASSIGN v-set-qty = v-set-qty + fg-set.part-qty.
+                 ASSIGN v-set-qty = v-set-qty + fg-set.QtyPerSet.
                END.
                IF v-set-qty = 0 THEN
                   ASSIGN v-set-qty = 1.
@@ -269,8 +261,8 @@ DEF VAR v-bol-no AS CHAR NO-UNDO.
                     fg-set.set-no = xinv-line.i-no  AND
                     fg-set.part-no = eb.stock-no NO-LOCK NO-ERROR.
 
-                 IF AVAIL fg-set AND fg-set.part-qty NE 0 THEN
-                   ASSIGN v-part-qty = fg-set.part-qty / v-set-qty.
+                 IF AVAIL fg-set AND fg-set.QtyPerSet NE 0 THEN
+                   ASSIGN v-part-qty = fg-set.QtyPerSet / v-set-qty.
                  ELSE
                    ASSIGN v-part-qty = 1 / v-set-qty.
 

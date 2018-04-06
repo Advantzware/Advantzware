@@ -167,8 +167,8 @@ FOR EACH blk BREAK BY blk.snum:
   
     v-yld = IF eb.est-type GE 7 THEN 1
     ELSE
-        IF eb.yld-qty LT 0  THEN (-1 / eb.yld-qty)
-        ELSE eb.yld-qty.
+        IF eb.quantityPerSet LT 0  THEN (-1 / eb.quantityPerSet)
+        ELSE eb.quantityPerSet.
   
     FIND FIRST probeit
         WHERE probeit.company EQ probe.company
@@ -367,6 +367,8 @@ FOR EACH probeit
             NO-ERROR.
     IF AVAILABLE eb THEN DO:
         ASSIGN 
+            iFormNo = eb.form-no
+            iBlankNo = eb.blank-no
             dMCostToExcludeMisc = 0
             dMPriceToAddMisc = 0
             .
@@ -478,7 +480,25 @@ FOR EACH probeit
         dMPriceToAddMisc + dMPriceToAddPrep,
         OUTPUT probeit.sell-price,
         OUTPUT v-comm).
-    
+    FIND FIRST ttCostHeader EXCLUSIVE-LOCK 
+        WHERE ttCostHeader.estimateNo EQ probeit.est-no
+        AND ttCostHeader.formNo EQ iFormNo
+        AND ttCostHeader.blankNo EQ iBlankNo
+        AND ttCostHeader.quantityMaster EQ iMasterQuantity
+        AND ttCostHeader.jobNo EQ cJobNo
+        AND ttCostHeader.jobNo2 EQ iJobNo2
+    NO-ERROR.
+    IF AVAILABLE ttCostHeader THEN DO: 
+        ASSIGN 
+            ttCostHeader.stdCostBoard = dBoardCst * (v-qty / 1000)
+            ttCostHeader.stdCostCommission = v-comm 
+            ttCostHeader.stdSellPrice = probeit.sell-price
+            ttCostHeader.stdCostFull            = probeit.full-cost * (v-qty / 1000) + ttCostHeader.stdCostCommission
+            ttCostHeader.stdProfitGross         = ttCostHeader.stdSellPrice - ttCostHeader.stdCostTotalFactory
+            ttCostHeader.stdProfitNet           = ttCostHeader.stdSellPrice - ttCostHeader.stdCostFull
+            .        
+            
+    END.
     ASSIGN 
         v-comm = v-comm / (v-qty / 1000)
         probeit.sell-price = probeit.sell-price / (v-qty / 1000)

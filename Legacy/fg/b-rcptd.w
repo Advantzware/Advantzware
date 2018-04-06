@@ -192,12 +192,14 @@ fg-rctd.frt-cost fg-rctd.stack-code
       AND fg-rctd.company eq cocode and ~
 fg-rctd.r-no ge lv-frst-rno and ~
 (fg-rctd.rita-code eq "R" or fg-rctd.rita-code eq "E") ~
+AND (fg-rctd.SetHeaderRno EQ INTEGER(SUBSTRING(lv-linker, 10, 10)) OR (NOT ll-set-parts AND fg-rctd.SetHeaderRno EQ 0)) ~
 use-index fg-rctd NO-LOCK ~
     ~{&SORTBY-PHRASE}
 &Scoped-define OPEN-QUERY-Browser-Table OPEN QUERY Browser-Table FOR EACH fg-rctd WHERE ~{&KEY-PHRASE} ~
       AND fg-rctd.company eq cocode and ~
 fg-rctd.r-no ge lv-frst-rno and ~
 (fg-rctd.rita-code eq "R" or fg-rctd.rita-code eq "E") ~
+AND (fg-rctd.SetHeaderRno EQ INTEGER(SUBSTRING(lv-linker, 10, 10)) OR (NOT ll-set-parts AND fg-rctd.SetHeaderRno EQ 0)) ~
 use-index fg-rctd NO-LOCK ~
     ~{&SORTBY-PHRASE}.
 &Scoped-define TABLES-IN-QUERY-Browser-Table fg-rctd
@@ -407,7 +409,7 @@ END.
   NOT-VISIBLE,,RUN-PERSISTENT                                           */
 /* SETTINGS FOR FRAME F-Main
    NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
-/* BROWSE-TAB Browser-Table TEXT-1 F-Main */
+/* BROWSE-TAB Browser-Table 1 F-Main */
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
@@ -434,6 +436,7 @@ ASSIGN
      _Where[1]         = "fg-rctd.company eq cocode and
 fg-rctd.r-no ge lv-frst-rno and
 (fg-rctd.rita-code eq ""R"" or fg-rctd.rita-code eq ""E"")
+AND (fg-rctd.SetHeaderRno EQ INTEGER(SUBSTRING(lv-linker, 10, 10)) OR (NOT ll-set-parts AND fg-rctd.SetHeaderRno EQ 0))
 use-index fg-rctd"
      _FldNameList[1]   > ASI.fg-rctd.r-no
 "fg-rctd.r-no" "Seq#" ">>>>>>>>" "integer" ? ? ? 14 ? ? no ? no no "12" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
@@ -826,7 +829,7 @@ END.
 ON LEAVE OF fg-rctd.tag IN BROWSE Browser-Table /* Tag# */
 DO:    
   DEF VAR lNegative AS LOG NO-UNDO.
-  IF LASTKEY NE -1 THEN DO:    
+  IF LASTKEY NE -1 AND SELF:MODIFIED THEN DO:    
     IF avail(fg-rctd) AND fg-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name} NE fg-rctd.tag THEN
       RUN valid-tag (FOCUS, OUTPUT lNegative) NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
@@ -885,7 +888,7 @@ DO:
   IF liDummy EQ 0 THEN
     RETURN.
 
-  IF LASTKEY NE -1 THEN DO:
+  IF LASTKEY NE -1 AND SELF:MODIFIED THEN DO:
       IF INT({&self-name}:SCREEN-VALUE IN BROWSE {&browse-name}) EQ 0 THEN
           {&self-name}:SCREEN-VALUE IN BROWSE {&browse-name} = "".
       IF {&self-name}:SCREEN-VALUE IN BROWSE {&browse-name} NE "" THEN DO:
@@ -979,7 +982,7 @@ DO:
   IF liDummy EQ 0 THEN
     RETURN.
 
-  IF LASTKEY NE -1 THEN DO:
+  IF LASTKEY NE -1 AND SELF:MODIFIED THEN DO:
     IF NOT fgRecptPassWord-log THEN
       RUN valid-job-no (INPUT YES) NO-ERROR.
     ELSE
@@ -1016,7 +1019,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rctd.job-no2 Browser-Table _BROWSE-COLUMN B-table-Win
 ON LEAVE OF fg-rctd.job-no2 IN BROWSE Browser-Table
 DO:
-  IF LASTKEY NE -1 THEN DO:
+  IF LASTKEY NE -1 AND SELF:MODIFIED THEN DO:
     RUN valid-job-no2 NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
@@ -1262,6 +1265,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rctd.std-cost Browser-Table _BROWSE-COLUMN B-table-Win
 ON LEAVE OF fg-rctd.std-cost IN BROWSE Browser-Table /* Cost/UOM */
 DO:
+    IF SELF:MODIFIED THEN
   RUN get-matrix (NO).
 END.
 
@@ -1291,7 +1295,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rctd.cost-uom Browser-Table _BROWSE-COLUMN B-table-Win
 ON LEAVE OF fg-rctd.cost-uom IN BROWSE Browser-Table /* UOM */
 DO:
-  IF LASTKEY NE -1 THEN DO:
+  IF LASTKEY NE -1 AND SELF:MODIFIED THEN DO:
     RUN valid-uom NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
@@ -1325,6 +1329,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rctd.frt-cost Browser-Table _BROWSE-COLUMN B-table-Win
 ON LEAVE OF fg-rctd.frt-cost IN BROWSE Browser-Table /* Freight Cost */
 DO:
+    IF SELF:MODIFIED THEN
   RUN get-matrix (NO).
 END.
 
@@ -2822,6 +2827,7 @@ FOR EACH b-fg-rctd WHERE b-fg-rctd.company EQ g_company
     AND b-fg-rctd.i-no = fg-rctd.i-no
     AND (RECID(b-fg-rctd) <> RECID(fg-rctd)
          OR (adm-new-record AND NOT adm-adding-record))
+    AND b-fg-rctd.SetHeaderRno EQ INTEGER(SUBSTRING(lv-linker, 10, 10))
   NO-LOCK:
 
 
@@ -2933,6 +2939,8 @@ PROCEDURE get-set-full-qty :
            AND b-fg-rctd.i-no = fg-rctd.i-no:SCREEN-VALUE 
            AND (RECID(b-fg-rctd) <> recid(fg-rctd) 
                 OR (adm-new-record AND NOT adm-adding-record))
+           AND b-fg-rctd.SetHeaderRno EQ INTEGER(SUBSTRING(lv-linker, 10, 10))
+           AND b-fg-rctd.SetHeaderRno GT 0
            NO-LOCK:     
 
 
@@ -3217,6 +3225,7 @@ PROCEDURE local-assign-record :
   DEF VAR v-full-qty AS DEC NO-UNDO.
   DEF VAR lQtyChanged AS LOG NO-UNDO.
   DEF VAR lOK AS LOG NO-UNDO.
+  DEFINE VARIABLE iLinker AS INTEGER NO-UNDO. 
   /* Code placed here will execute PRIOR to standard behavior. */
   
   /* Needed since the newly created row can become unavailable for some reason */
@@ -3271,6 +3280,9 @@ PROCEDURE local-assign-record :
   IF ll-set-parts THEN DO:
     FIND FIRST fg-rcpts WHERE fg-rcpts.r-no EQ fg-rctd.r-no NO-ERROR.
     IF NOT AVAIL fg-rcpts THEN DO:
+      iLinker = INTEGER(SUBSTRING(lv-linker, 10, 10)) NO-ERROR.
+      IF NOT ERROR-STATUS:ERROR THEN 
+        fg-rctd.setHeaderRno = iLinker. 
       CREATE fg-rcpts.
       fg-rcpts.r-no       = fg-rctd.r-no.
     END.
@@ -3433,6 +3445,21 @@ PROCEDURE local-create-record :
     was identified as causing slowness at Hughes, however we found a bunch of "orphaned" set parts receipts 
     that should be handled separately (04181326)*/
 
+    /*BV - This code sets the new receipt date to the latest existing receipt date. This code
+    was identified as causing slowness at Hughes, however we found a bunch of "orphaned" set parts receipts 
+    that should be handled separately (04181326)*/
+    FOR EACH b-fg-rctd NO-LOCK
+        WHERE b-fg-rctd.company   EQ g_company
+          AND b-fg-rctd.rita-code EQ "R"
+          AND ROWID(b-fg-rctd)    NE ROWID(fg-rctd)
+          AND b-fg-rctd.SetHeaderRno EQ 0
+        BY b-fg-rctd.r-no DESC:  /*Last one added, not necessarily the last date*/
+        
+      fg-rctd.rct-date = b-fg-rctd.rct-date.
+      
+      LEAVE.
+    END.
+  
   END.  
 
   ASSIGN
@@ -3736,6 +3763,7 @@ PROCEDURE local-update-record :
 
   ASSIGN lv-new-job-ran = NO
          lv-prev-job2 = "".
+
 
   IF NOT ll-set-parts THEN RUN fg/invrecpt.p (ROWID(fg-rctd), 1).
   
@@ -4043,7 +4071,7 @@ DEFINE VARIABLE full-qty       AS INTEGER      NO-UNDO.
 DEFINE VARIABLE rPrevRec       AS ROWID        NO-UNDO.
 DEFINE VARIABLE cSelectionItem AS CHARACTER    NO-UNDO.
 DEFINE VARIABLE dMaxQty        AS DECIMAL      NO-UNDO.
-
+DEFINE VARIABLE iLinker        AS INTEGER NO-UNDO.
 
 DEF BUFFER bfFgRctd FOR fg-rctd.
 DEF BUFFER b-fg-rctd FOR fg-rctd.
@@ -4169,6 +4197,15 @@ gvcCurrentItem = fg-rctd.i-no.
      was identified as causing slowness at Hughes, however we found a bunch of "orphaned" set parts receipts 
      that should be handled separately (04181326)*/
 
+     FOR EACH b-fg-rctd NO-LOCK
+         WHERE b-fg-rctd.company   EQ g_company
+           AND b-fg-rctd.rita-code EQ "R"
+           AND ROWID(b-fg-rctd)    NE ROWID(bfFgRctd)         
+           AND b-fg-rctd.setHeaderRno EQ 0 /*not a set part receipt*/           
+         BY b-fg-rctd.r-no DESC:  /*Last one added, not necessarily the last date*/
+       bfFgRctd.rct-date = b-fg-rctd.rct-date.
+       LEAVE.
+     END.
    
 
      ASSIGN
@@ -4178,7 +4215,8 @@ gvcCurrentItem = fg-rctd.i-no.
       bfFgRctd.trans-time   = TIME
       .   
 
-        ASSIGN bfFgRctd.created-by = USERID("nosweat").
+        ASSIGN bfFgRctd.created-by   = USERID("nosweat")
+               bfFgRctd.SetHeaderRno = INTEGER(SUBSTRING(lv-linker, 10, 10)).
 
       /* as in local-assign logic */
       IF ll-set-parts THEN DO:
@@ -4187,6 +4225,10 @@ gvcCurrentItem = fg-rctd.i-no.
           CREATE fg-rcpts.
           fg-rcpts.r-no       = bfFgRctd.r-no.
         END.
+        iLinker = INTEGER(SUBSTRING(lv-linker, 10, 10)) NO-ERROR.
+        IF NOT ERROR-STATUS:ERROR THEN 
+          fg-rctd.setHeaderRno = iLinker. 
+        
         ASSIGN
          fg-rcpts.company    = cocode
          fg-rcpts.i-no       = bfFgRctd.i-no

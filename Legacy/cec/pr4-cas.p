@@ -24,7 +24,7 @@ DEF BUFFER b-setup FOR reftable.
 
 assign
  save-qty = qty
- qty = qty / xeb.yld-qty.
+ qty = qty / xeb.quantityPerSet.
  
 find first ce-ctrl {sys/look/ce-ctrlW.i} no-lock no-error.
 
@@ -150,7 +150,7 @@ find first ce-ctrl {sys/look/ce-ctrlW.i} no-lock no-error.
 
             find first item
                 where item.company eq cocode
-                  and item.i-no    eq strap.code2
+                  and item.i-no    eq stackPattern.strapCode
                 no-lock no-error.
 
             if not avail item then leave pallet-blok.

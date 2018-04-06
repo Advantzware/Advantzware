@@ -585,7 +585,7 @@ END.
 
 /* ***************************  Main Block  *************************** */
 
-{sys/inc/f3helpw.i}
+{sys/inc/f3helpd.i}
 /* Parent the dialog-box to the ACTIVE-WINDOW, if there is no parent.   */
 IF VALID-HANDLE(ACTIVE-WINDOW) AND FRAME {&FRAME-NAME}:PARENT eq ?
 THEN FRAME {&FRAME-NAME}:PARENT = ACTIVE-WINDOW.
@@ -985,13 +985,7 @@ FUNCTION getValue-itemfg RETURNS CHARACTER
                     lc-return = "Title".
         END.
         WHEN "term-disc"  THEN DO:
-            FIND FIRST reftable
-            WHERE reftable.reftable EQ "GLACCTDISC"
-                AND reftable.company  EQ gcompany
-                AND reftable.loc      EQ ""
-                AND reftable.code     EQ ipb-itemfg.actnum
-                NO-LOCK NO-ERROR.
-            IF AVAIL reftable AND reftable.val[1] EQ 1 THEN
+            IF account.terms-discount EQ YES THEN
                 lc-return = "Yes".
             ELSE
                 lc-return = "No".

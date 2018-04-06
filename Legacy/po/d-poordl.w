@@ -110,9 +110,7 @@ DEFINE TEMP-TABLE tt-eiv-2 NO-UNDO
     FIELD setups   AS DECIMAL   DECIMALS 2 EXTENT 20
     FIELD rec_key  AS CHARACTER.
 
-DEFINE BUFFER b-cost  FOR reftable.
-DEFINE BUFFER b-qty   FOR reftable.
-DEFINE BUFFER b-setup FOR reftable.
+
 
 DEFINE NEW SHARED VARIABLE fil_id             AS RECID     NO-UNDO.
 DEFINE NEW SHARED VARIABLE v-pocost1          AS CHARACTER.
@@ -282,7 +280,7 @@ DEFINE BUTTON Btn_OK
 
 DEFINE VARIABLE adders        AS CHARACTER 
     VIEW-AS EDITOR SCROLLBAR-VERTICAL
-    SIZE 48 BY 6.19
+    SIZE 56 BY 6.19
     BGCOLOR 15 FONT 2 NO-UNDO.
 
 DEFINE VARIABLE fiCount       AS INTEGER   FORMAT "->,>>>,>>9":U INITIAL 0 
@@ -486,7 +484,7 @@ DEFINE FRAME Dialog-Frame
     VIEW-AS FILL-IN 
     SIZE 19 BY 1
     v-tonnage AT ROW 6.38 COL 105 COLON-ALIGNED NO-LABELS
-    adders AT ROW 7.48 COL 86 NO-LABELS
+    adders AT ROW 7.60 COL 78 NO-LABELS
     v-po-wid-frac AT ROW 7.57 COL 3.4 COLON-ALIGNED NO-LABELS
     v-po-len-frac AT ROW 7.57 COL 18 COLON-ALIGNED NO-LABELS
     v-po-dep-frac AT ROW 7.57 COL 36 COLON-ALIGNED NO-LABELS
@@ -2240,7 +2238,8 @@ PROCEDURE adder-text :
             adders:SCREEN-VALUE = 'Adder Charges     '
                          + FILL(" ",12 - LENGTH("Cost/" + po-ordl.pr-uom:SCREEN-VALUE))
                          + "Cost/" + po-ordl.pr-uom:SCREEN-VALUE
-                         + CHR(10) + '=============================='
+                         + '   SU' 
+                         + CHR(10) + '==================================='
                          + CHR(10) + addersText
             adders:HIDDEN       = addersText EQ ''
             adders:SENSITIVE    = addersText NE ''.
@@ -3399,30 +3398,30 @@ PROCEDURE display-job-mat :
                     IF AVAILABLE est AND (est.est-type EQ 2 OR est.est-type EQ 6) THEN
                     DO:
                         IF tt-job-mat.frm NE ? THEN
-                            FOR EACH eb FIELDS(yld-qty) NO-LOCK
+                            FOR EACH eb FIELDS(quantityPerSet) NO-LOCK
                                 WHERE eb.company EQ job.company
                                 AND eb.est-no  EQ job.est-no
                                 AND eb.form-no EQ tt-job-mat.frm
                                 :
                   
                                 ld-part-qty = ld-part-qty +
-                                    (ld-line-qty * IF eb.yld-qty LT 0 THEN (-1 / eb.yld-qty)
-                                    ELSE eb.yld-qty).
+                                    (ld-line-qty * IF eb.quantityPerSet LT 0 THEN (-1 / eb.quantityPerSet)
+                                    ELSE eb.quantityPerSet).
                             END.
                         ELSE
                             FOR EACH w-po-ordl
                                 BREAK BY w-po-ordl.s-num:
                     
                                 IF FIRST-OF(w-po-ordl.s-num) THEN
-                                    FOR EACH eb FIELDS(yld-qty) WHERE
+                                    FOR EACH eb FIELDS(quantityPerSet) WHERE
                                         eb.company EQ job.company AND
                                         eb.est-no  EQ job.est-no AND
                                         eb.form-no EQ w-po-ordl.s-num
                                         NO-LOCK:
                     
                                         ld-part-qty = ld-part-qty +
-                                            (ld-line-qty * IF eb.yld-qty LT 0 THEN (-1 / eb.yld-qty)
-                                            ELSE eb.yld-qty).
+                                            (ld-line-qty * IF eb.quantityPerSet LT 0 THEN (-1 / eb.quantityPerSet)
+                                            ELSE eb.quantityPerSet).
                                     END.
                             END.
                  
@@ -4603,34 +4602,16 @@ PROCEDURE po-adder2 :
                         tt-eiv-2.setups[v-index]   = e-item-vend.setups[v-index].
                 END.
 
-                FIND FIRST b-qty WHERE
-                    b-qty.reftable = "vend-qty" AND
-                    b-qty.company = e-item-vend.company AND
-                    b-qty.CODE    = e-item-vend.i-no AND
-                    b-qty.code2   = e-item-vend.vend-no
-                    NO-LOCK NO-ERROR.
-      
-                IF AVAILABLE b-qty THEN
-                DO:
-                    FIND FIRST b-cost NO-LOCK WHERE
-                        b-cost.reftable = "vend-cost" AND
-                        b-cost.company = e-item-vend.company AND
-                        b-cost.CODE    = e-item-vend.i-no AND
-                        b-cost.code2   = e-item-vend.vend-no
-                        NO-ERROR.
 
-                    FIND FIRST b-setup NO-LOCK WHERE
-                        b-setup.reftable = "vend-setup" AND
-                        b-setup.company = e-item-vend.company AND
-                        b-setup.CODE    = e-item-vend.i-no AND
-                        b-setup.code2   = e-item-vend.vend-no
-                        NO-ERROR.
+                IF AVAILABLE e-item-vend THEN
+                DO:
+
       
                     DO v-index = 1 TO 10:
                         ASSIGN
-                            tt-eiv-2.run-qty[v-index + 10]  = b-qty.val[v-index]
-                            tt-eiv-2.run-cost[v-index + 10] = b-cost.val[v-index]
-                            tt-eiv-2.setups[v-index + 10]   = b-setup.val[v-index].
+                            tt-eiv-2.run-qty[v-index + 10]  = e-item-vend.runQtyXtra[v-index]
+                            tt-eiv-2.run-cost[v-index + 10] = e-item-vend.runCostXtra[v-index]
+                            tt-eiv-2.setups[v-index + 10]   = e-item-vend.setupsXtra[v-index].
                     END.
                 END.
 
@@ -4643,7 +4624,7 @@ PROCEDURE po-adder2 :
                 ASSIGN
                     v-setup        = tt-eiv-2.setups[i]
                     op-adder-setup = op-adder-setup + v-setup
-                    v-cost         = ((tt-eiv-2.run-cost[i] * v-qty-comp) + v-setup) / v-qty-comp.
+                    v-cost         = /*((*/tt-eiv-2.run-cost[i] /** v-qty-comp) + v-setup) / v-qty-comp*/ .
                 /* This adds the Adder cost in */
                 IF e-item.std-uom NE po-ordl.pr-uom:SCREEN-VALUE THEN
                     RUN sys/ref/convcuom.p(e-item.std-uom, po-ordl.pr-uom:SCREEN-VALUE, job-mat.basis-w,
@@ -4664,7 +4645,7 @@ PROCEDURE po-adder2 :
             ASSIGN
                 addersText = addersText + SUBSTR(item.i-name,1,18) +
                   FILL(' ',19 - LENGTH(SUBSTR(item.i-name,1,18))) +
-                  STRING(v-cost,'-z,zz9.9999') + CHR(10)
+                  STRING(v-cost,'-z,zz9.99') + STRING(v-setup,'-zzz9.99') + CHR(10)
                 v-add-cost = v-add-cost + v-cost.
 
             /* gdm - */     
@@ -6245,33 +6226,17 @@ PROCEDURE vend-cost :
                             tt-eiv.run-cost[v-index] = e-item-vend.run-cost[v-index]
                             tt-eiv.setups[v-index]   = e-item-vend.setups[v-index].
                     END.
-                    FIND FIRST b-qty NO-LOCK WHERE
-                        b-qty.reftable = "vend-qty" AND
-                        b-qty.company = e-item-vend.company AND
-                        b-qty.CODE    = e-item-vend.i-no AND
-                        b-qty.code2   = e-item-vend.vend-no
-                        NO-ERROR.
+                    
          
-                    IF AVAILABLE b-qty THEN
+                    IF AVAILABLE e-item-vend THEN
                     DO:
-                        FIND FIRST b-cost NO-LOCK WHERE
-                            b-cost.reftable = "vend-cost" AND
-                            b-cost.company = e-item-vend.company AND
-                            b-cost.CODE    = e-item-vend.i-no AND
-                            b-cost.code2   = e-item-vend.vend-no
-                            NO-ERROR.
-                        FIND FIRST b-setup NO-LOCK WHERE
-                            b-setup.reftable = "vend-setup" AND
-                            b-setup.company = e-item-vend.company AND
-                            b-setup.CODE    = e-item-vend.i-no AND
-                            b-setup.code2   = e-item-vend.vend-no
-                            NO-ERROR.
+                        
              
                         DO v-index = 1 TO 10:
                             ASSIGN
-                                tt-eiv.run-qty[v-index + 10]  = b-qty.val[v-index]
-                                tt-eiv.run-cost[v-index + 10] = b-cost.val[v-index]
-                                tt-eiv.setups[v-index + 10]   = b-setup.val[v-index].
+                                tt-eiv.run-qty[v-index + 10]  = e-item-vend.runQtyXtra[v-index]
+                                tt-eiv.run-cost[v-index + 10] = e-item-vend.runCostXtra[v-index]
+                                tt-eiv.setups[v-index + 10]   = e-item-vend.setupsXtra[v-index].
                         END.
                     END.
                 END.

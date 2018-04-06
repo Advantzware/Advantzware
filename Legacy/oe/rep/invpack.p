@@ -38,7 +38,7 @@ def var v-ans as logical init no.
 def var v-date-ship as date init today.
 def var v-del-no as int format ">>>>>>".
 def var v-bol-cases like oe-boll.cases.
-def var v-set-qty as int.
+def var v-set-qty as DECIMAL.
 def var v-part-qty as dec format "999.9999".
 def var old-frt like inv-head.t-inv-freight no-undo.
 def var v-net like inv-head.t-inv-rev.
@@ -287,7 +287,7 @@ form " " to 80
              DO:
                FOR EACH fg-set NO-LOCK WHERE fg-set.company = xinv-line.company
                   AND fg-set.set-no = xinv-line.i-no:
-                 ASSIGN v-set-qty = v-set-qty + fg-set.part-qty.
+                 ASSIGN v-set-qty = v-set-qty + fg-set.QtyPerSet.
                END.
                IF v-set-qty = 0 THEN
                   ASSIGN v-set-qty = 1.
@@ -299,8 +299,8 @@ form " " to 80
                     fg-set.set-no = xinv-line.i-no  AND
                     fg-set.part-no = eb.stock-no NO-LOCK NO-ERROR.
 
-                 IF AVAIL fg-set AND fg-set.part-qty NE 0 THEN
-                   ASSIGN v-part-qty = fg-set.part-qty / v-set-qty.
+                 IF AVAIL fg-set AND fg-set.QtyPerSet NE 0 THEN
+                   ASSIGN v-part-qty = fg-set.QtyPerSet / v-set-qty.
                  ELSE
                    ASSIGN v-part-qty = 1 / v-set-qty.
 

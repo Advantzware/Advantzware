@@ -52,14 +52,12 @@ DEFINE VARIABLE op-valid-mach    AS LOG       NO-UNDO.
 
 DEFINE BUFFER m2-lst FOR m-lst.
 
+
+
 &SCOPED-DEFINE where-machine                                                     ~
-               WHERE (mach.company EQ cocode                                  ~
-                 AND  NOT CAN-FIND(FIRST reftable                             ~
-                                   WHERE reftable.reftable EQ "mach.obsolete" ~
-                                     AND reftable.company  EQ mach.company    ~
-                                     AND reftable.loc      EQ mach.loc        ~
-                                     AND reftable.code     EQ mach.m-code     ~
-                                     AND reftable.val[1]   EQ 1)) 
+               WHERE mach.company EQ cocode                                  ~
+                 AND mach.obsolete EQ NO                                       
+
 
 
 SESSION:SET-WAIT-STATE("general").
@@ -113,7 +111,7 @@ FOR EACH xef
         ASSIGN
             iIndex     = 0
             v-yld = IF xest.form-qty EQ 1 THEN 1 ELSE
-              (IF xeb.yld-qty LT 0 THEN -1 / xeb.yld-qty ELSE xeb.yld-qty)
+              (IF xeb.quantityPerSet LT 0 THEN -1 / xeb.quantityPerSet ELSE xeb.quantityPerSet)
             dMSF = ipiQty * v-yld * xeb.t-len * xeb.t-wid
             dMSF = (IF v-corr THEN (dMSF * .007) ELSE (dMSF / 144)) / 1000.
 

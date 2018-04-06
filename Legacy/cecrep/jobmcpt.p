@@ -327,8 +327,8 @@ FUNCTION display-cw-dim RETURNS DECIMAL
         
         {cec/rollfac.i}
         v-pqty = IF v-rollfac OR xeb.est-type EQ 8 THEN 1 ELSE
-        IF xeb.yld-qty LT 0 THEN (-1 / xeb.yld-qty)
-        ELSE xeb.yld-qty.
+        IF xeb.quantityPerSet LT 0 THEN (-1 / xeb.quantityPerSet)
+        ELSE xeb.quantityPerSet.
       END.
       
       ASSIGN
@@ -394,7 +394,7 @@ FUNCTION display-cw-dim RETURNS DECIMAL
       IF w-ef.frm = 1 THEN DO:
         /* msf is based on max quantity (includes overrun qty) */
         ASSIGN
-        fi_per-set = IF xeb.yld-qty LT 0 THEN -1 / xeb.yld-qty ELSE xeb.yld-qty
+        fi_per-set = IF xeb.quantityPerSet LT 0 THEN -1 / xeb.quantityPerSet ELSE xeb.quantityPerSet
         fi_msf  = (v-set-qty *
         (fi_per-set + (fi_per-set * li-over-run) / 100)) *
         (IF v-corr THEN (xeb.t-sqin * .007)
@@ -413,15 +413,15 @@ FUNCTION display-cw-dim RETURNS DECIMAL
         v-die1    =      xeb.die-no
         v-slot-height1 =  {sys/inc/k16.i xeb.dep }
         v-qty-1 = v-set-qty - (v-set-qty * li-under-run  / 100 )
-        v-board-qty-1 = ( (v-set-qty * li-over-run  / 100 ) + v-set-qty) * xeb.yld-qty
+        v-board-qty-1 = ( (v-set-qty * li-over-run  / 100 ) + v-set-qty) * xeb.quantityPerSet
         .
         IF v-set-qty EQ 0 THEN
-        v-board-qty-1 = xeb.yld-qty.
+        v-board-qty-1 = xeb.quantityPerSet.
       END.
       
       ELSE IF w-ef.frm = 2 THEN DO:
         ASSIGN
-        fi_per-set = IF xeb.yld-qty LT 0 THEN -1 / xeb.yld-qty ELSE xeb.yld-qty
+        fi_per-set = IF xeb.quantityPerSet LT 0 THEN -1 / xeb.quantityPerSet ELSE xeb.quantityPerSet
         fi_msf  = (v-set-qty
         * (fi_per-set + (fi_per-set * li-over-run) / 100)) *
         (IF v-corr THEN (xeb.t-sqin * .007)
@@ -439,13 +439,13 @@ FUNCTION display-cw-dim RETURNS DECIMAL
         v-dies[3] =     ""
         v-dies[4] =     ""
         v-die2    =      xeb.die-no
-        v-board-qty-2  = ((v-set-qty * li-over-run  / 100) + v-set-qty) * xeb.yld-qty
+        v-board-qty-2  = ((v-set-qty * li-over-run  / 100) + v-set-qty) * xeb.quantityPerSet
         v-slot-height2 = {sys/inc/k16.i xeb.dep }
         .
       END.
       ELSE IF w-ef.frm = 3 THEN DO:
         ASSIGN
-        fi_per-set = IF xeb.yld-qty LT 0 THEN -1 / xeb.yld-qty ELSE xeb.yld-qty
+        fi_per-set = IF xeb.quantityPerSet LT 0 THEN -1 / xeb.quantityPerSet ELSE xeb.quantityPerSet
         fi_msf  = (v-set-qty
         * (fi_per-set + (fi_per-set * li-over-run) / 100)) *
         (IF v-corr THEN (xeb.t-sqin * .007)
@@ -462,7 +462,7 @@ FUNCTION display-cw-dim RETURNS DECIMAL
         v-board-size-3 = STRING(fi_msf)
         v-dies[5] =     ""
         v-dies[6] =     ""
-        v-board-qty-3  = ((v-set-qty * li-over-run  / 100) + v-set-qty) * xeb.yld-qty
+        v-board-qty-3  = ((v-set-qty * li-over-run  / 100) + v-set-qty) * xeb.quantityPerSet
         v-slot-height3 = {sys/inc/k16.i xeb.dep }
         .
       END.
@@ -804,7 +804,7 @@ FUNCTION display-cw-dim RETURNS DECIMAL
         FOR EACH xeb WHERE xeb.company = est.company
           AND xeb.est-no = est.est-no
           AND xeb.form-no > 0 NO-LOCK:
-          PUT xeb.stock-no AT 3 SPACE(14) xeb.part-dscr1 SPACE(5) xeb.yld-qty SKIP.
+          PUT xeb.stock-no AT 3 SPACE(14) xeb.part-dscr1 SPACE(5) xeb.quantityPerSet SKIP.
           v-tmp-line = v-tmp-line + 1.
         END.
         v-tmp-line = v-tmp-line + 1.
@@ -912,17 +912,14 @@ HIDE ALL NO-PAUSE.
 
 PROCEDURE stackImage:
   DEFINE BUFFER pattern FOR reftable.
-  
+  DEFINE BUFFER stackPattern FOR stackPattern.
   IF v-stackcode EQ '' THEN RETURN.
-  FIND FIRST pattern NO-LOCK
-  WHERE pattern.reftable EQ 'STACKPAT'
-  AND pattern.company EQ ''
-  AND pattern.loc EQ ''
-  AND pattern.CODE EQ SUBSTR(v-stackcode,9,1) NO-ERROR.
-  IF AVAILABLE pattern AND SEARCH(pattern.dscr) NE ? THEN
+  FIND FIRST stackPattern NO-LOCK
+  WHERE stackPattern.stackCode EQ SUBSTR(v-stackcode,9,1) NO-ERROR.
+  IF AVAILABLE stackPattern AND SEARCH(stackPattern.stackImage) NE ? THEN
   PUT UNFORMATTED
   "<#71><C27><R+1><FROM><C2><R+12>"
-  "<IMAGE#71=" pattern.dscr ">"
+  "<IMAGE#71=" stackPattern.stackImage ">"
   "<R-13>".
 END PROCEDURE.
 
@@ -934,7 +931,7 @@ PROCEDURE getNotesNew:
   
     DEFINE VARIABLE li AS INTEGER.
     DEFINE VARIABLE l-width AS INTEGER.
-    DEFINE VARIABLE l-rec LIKE note.rec_key.
+    DEFINE VARIABLE l-rec LIKE notes.rec_key.
 
     IF ipcNoteType = "Pen" THEN l-rec = job.rec_key.
     ELSE IF ipcNoteType = "Spec" THEN l-rec = itemfg.rec_key.
@@ -952,7 +949,7 @@ PROCEDURE getNotesNew:
     AND LOOKUP(notes.note_code,ipcTypeList) GT 0
     NO-LOCK:
     lv-text = lv-text /*+ " <B>" + TRIM(notes.note_title) + "</B>" + CHR(10)*/
-    + " " + note.note_text + CHR(10).
+    + " " + notes.note_text + CHR(10).
   END.
   
   IF lv-text NE "" THEN DO:

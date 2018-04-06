@@ -57,22 +57,14 @@ DEF VAR lv-puruom       LIKE itemfg.pur-uom NO-UNDO.
 
 /* gdm - 11190901 */
 DEF VAR v-shpmet        LIKE itemfg.ship-meth NO-UNDO.
+DEFINE VARIABLE lCheckPurMan AS LOGICAL NO-UNDO .
 
 &scoped-define copy-proc proc-copy
 &SCOPED-DEFINE itemfg-maint itemfg-maint
 
 
-&SCOPED-DEFINE where-fgstatus                 ~
-    WHERE reftable.reftable EQ "FGSTATUS"     ~
-      AND reftable.company  EQ itemfg.company ~
-      AND reftable.loc      EQ ""             ~
-      AND reftable.code     EQ itemfg.i-no
 
-&SCOPED-DEFINE where-exempt-disc                    ~
-    WHERE reftable.reftable EQ "itemfg.exempt-disc" ~
-      AND reftable.company  EQ itemfg.company       ~
-      AND reftable.loc      EQ ""                   ~
-      AND reftable.code     EQ itemfg.i-no
+
 
 DEF TEMP-TABLE w-est-no
     FIELD w-est-no LIKE itemfg.est-no
@@ -104,7 +96,7 @@ RUN sys/ref/ordtypes.p (OUTPUT lv-type-codes, OUTPUT lv-type-dscrs).
 /* Need to scope the external tables to this procedure                  */
 DEFINE QUERY external_tables FOR itemfg.
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-FIELDS itemfg.spare-int-2 itemfg.i-no itemfg.isaset ~
+&Scoped-Define ENABLED-FIELDS itemfg.spare-int-2 itemfg.setupDate itemfg.i-no itemfg.isaset ~
 itemfg.part-no itemfg.i-name itemfg.part-dscr1 itemfg.part-dscr2 ~
 itemfg.part-dscr3 itemfg.spare-char-1 itemfg.est-no itemfg.style ~
 itemfg.style-desc itemfg.die-no itemfg.plate-no itemfg.cad-no itemfg.spc-no ~
@@ -121,7 +113,7 @@ itemfg.prod-uom
 &Scoped-define FIRST-ENABLED-TABLE itemfg
 &Scoped-Define ENABLED-OBJECTS tg-Freeze-weight RECT-10 RECT-8 RECT-9 ~
 RECT-11 RECT-12 
-&Scoped-Define DISPLAYED-FIELDS itemfg.spare-int-2 itemfg.i-no ~
+&Scoped-Define DISPLAYED-FIELDS itemfg.spare-int-2 itemfg.setupDate itemfg.i-no ~
 itemfg.isaset itemfg.part-no itemfg.i-name itemfg.part-dscr1 ~
 itemfg.part-dscr2 itemfg.part-dscr3 itemfg.spare-char-1 itemfg.exempt-disc ~
 itemfg.est-no itemfg.style itemfg.style-desc itemfg.die-no itemfg.plate-no ~
@@ -222,6 +214,10 @@ DEFINE FRAME F-Main
           LABEL "Rel Seq" FORMAT ">>>>>>9"
           VIEW-AS FILL-IN 
           SIZE 16.4 BY 1
+    itemfg.setupDate AT ROW 16.91 COL 47 COLON-ALIGNED
+          LABEL "Setup Date" FORMAT "99/99/9999"
+          VIEW-AS FILL-IN 
+          SIZE 17 BY 1
      itemfg.i-no AT ROW 1.48 COL 15.4 COLON-ALIGNED
           LABEL "FG Item #"
           VIEW-AS FILL-IN 
@@ -269,20 +265,20 @@ DEFINE FRAME F-Main
      itemfg.style-desc AT ROW 11 COL 27.4 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 38 BY 1
-     itemfg.die-no AT ROW 12.1 COL 11 COLON-ALIGNED
+     itemfg.die-no AT ROW 12.1 COL 11 COLON-ALIGNED FORMAT "x(20)"
           VIEW-AS FILL-IN 
-          SIZE 27 BY 1
-     itemfg.plate-no AT ROW 13.05 COL 11 COLON-ALIGNED
+          SIZE 30 BY 1
+     itemfg.plate-no AT ROW 13.05 COL 11 COLON-ALIGNED FORMAT "x(20)"
           VIEW-AS FILL-IN 
-          SIZE 27 BY 1
+          SIZE 30 BY 1
      itemfg.cad-no AT ROW 14 COL 11 COLON-ALIGNED
-          LABEL "CAD#"
+          LABEL "CAD#" FORMAT "x(20)"
           VIEW-AS FILL-IN 
-          SIZE 27 BY 1.05
+          SIZE 30 BY 1.05
      itemfg.spc-no AT ROW 14.95 COL 11 COLON-ALIGNED
-          LABEL "QC #"
+          LABEL "QC #" FORMAT "x(20)"
           VIEW-AS FILL-IN 
-          SIZE 27 BY 1
+          SIZE 30 BY 1
      itemfg.upc-no AT ROW 15.91 COL 11 COLON-ALIGNED
           LABEL "UPC #" FORMAT "x(20)"
           VIEW-AS FILL-IN 
@@ -309,12 +305,6 @@ DEFINE FRAME F-Main
                     "Purchased", yes,
 "Manufactured", no
           SIZE 38.2 BY .95
-     itemfg.ship-meth AT ROW 4 COL 85.4 NO-LABEL
-          VIEW-AS RADIO-SET HORIZONTAL
-          RADIO-BUTTONS 
-                    "Case", yes,
-"Pallet", no
-          SIZE 22 BY .95
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -322,6 +312,12 @@ DEFINE FRAME F-Main
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME F-Main
+     itemfg.ship-meth AT ROW 4 COL 85.4 NO-LABEL
+          VIEW-AS RADIO-SET HORIZONTAL
+          RADIO-BUTTONS 
+                    "Case", yes,
+"Pallet", no
+          SIZE 22 BY .95
      itemfg.i-code AT ROW 4 COL 108.2 NO-LABEL
           VIEW-AS RADIO-SET HORIZONTAL
           RADIO-BUTTONS 
@@ -398,6 +394,13 @@ DEFINE FRAME F-Main
           LABEL "Std Mat'l Cost" FORMAT "->>>>>>>9.99"
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 1 SCROLLABLE 
+         FONT 6.
+
+/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
+DEFINE FRAME F-Main
      itemfg.std-lab-cost AT ROW 14.05 COL 88.6 COLON-ALIGNED
           LABEL "Std Labor Cost" FORMAT "->>>>>>>9.99"
           VIEW-AS FILL-IN 
@@ -406,13 +409,6 @@ DEFINE FRAME F-Main
           LABEL "Std Var OH Cost" FORMAT "->>>>>>>9.99"
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
-    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1 SCROLLABLE 
-         FONT 6.
-
-/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
-DEFINE FRAME F-Main
      itemfg.std-fix-cost AT ROW 15.95 COL 88.6 COLON-ALIGNED
           LABEL "Std Fix OH Cost" FORMAT "->>>>>>>9.99"
           VIEW-AS FILL-IN 
@@ -512,7 +508,7 @@ ASSIGN
 /* SETTINGS FOR FILL-IN itemfg.avg-cost IN FRAME F-Main
    EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN itemfg.cad-no IN FRAME F-Main
-   EXP-LABEL                                                            */
+   EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN itemfg.case-count IN FRAME F-Main
    EXP-LABEL EXP-FORMAT EXP-HELP                                        */
 /* SETTINGS FOR FILL-IN itemfg.case-pall IN FRAME F-Main
@@ -523,6 +519,8 @@ ASSIGN
    EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN itemfg.def-loc IN FRAME F-Main
    EXP-LABEL                                                            */
+/* SETTINGS FOR FILL-IN itemfg.die-no IN FRAME F-Main
+   EXP-FORMAT                                                           */
 /* SETTINGS FOR FILL-IN itemfg.est-no IN FRAME F-Main
    EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR TOGGLE-BOX itemfg.exempt-disc IN FRAME F-Main
@@ -547,6 +545,8 @@ ASSIGN
    EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN itemfg.part-no IN FRAME F-Main
    EXP-LABEL EXP-FORMAT                                                 */
+/* SETTINGS FOR FILL-IN itemfg.plate-no IN FRAME F-Main
+   EXP-FORMAT                                                           */
 /* SETTINGS FOR FILL-IN itemfg.procat IN FRAME F-Main
    EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN itemfg.prod-code IN FRAME F-Main
@@ -567,8 +567,10 @@ ASSIGN
    EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN itemfg.spare-int-2 IN FRAME F-Main
    EXP-LABEL EXP-FORMAT EXP-HELP                                        */
-/* SETTINGS FOR FILL-IN itemfg.spc-no IN FRAME F-Main
+/* SETTINGS FOR FILL-IN itemfg.setupDate IN FRAME F-Main
    EXP-LABEL                                                            */
+/* SETTINGS FOR FILL-IN itemfg.spc-no IN FRAME F-Main
+   EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR RADIO-SET itemfg.stat IN FRAME F-Main
    2 4                                                                  */
 /* SETTINGS FOR FILL-IN itemfg.std-fix-cost IN FRAME F-Main
@@ -627,7 +629,7 @@ DO:
         WHEN "sell-uom" THEN DO:
              /*run sys/ref/uom-rm.p  (item.mat-type, output uom-list). */
              RUN windows/l-stduom.w (gcompany,uom-list, lw-focus:SCREEN-VALUE, OUTPUT char-val).
-         /*    run windows/l-uom.w (lw-focus:screen-value, output char-val).     display all Uom */
+         /*    run windows/l-uom.w (lw-focus:SCREEN-VALUE, output char-val).     display all Uom */
              IF char-val <> "" THEN 
                 ASSIGN lw-focus:SCREEN-VALUE = ENTRY(1,char-val)
                        .
@@ -646,15 +648,15 @@ DO:
              END.
         END.
         WHEN "def-loc-bin" THEN DO:
-             RUN windows/l-fgbin.w (gcompany,itemfg.def-loc:screen-value,lw-focus:SCREEN-VALUE, OUTPUT char-val).
-      /*       run windows/l-locbin.w (gcompany,itemfg.def-loc:screen-value,lw-focus:screen-value, output char-val).  
+             RUN windows/l-fgbin.w (gcompany,itemfg.def-loc:SCREEN-VALUE,lw-focus:SCREEN-VALUE, OUTPUT char-val).
+      /*       run windows/l-locbin.w (gcompany,itemfg.def-loc:SCREEN-VALUE,lw-focus:SCREEN-VALUE, output char-val).  
       */  
              IF char-val <> "" THEN 
                 ASSIGN lw-focus:SCREEN-VALUE = ENTRY(1,char-val)
                        .
         END.
         WHEN "est-no" THEN DO:
-             RUN windows/l-fgest.w (gcompany, itemfg.cust-no:screen-value, lw-focus:SCREEN-VALUE, OUTPUT char-val).
+             RUN windows/l-fgest.w (gcompany, itemfg.cust-no:SCREEN-VALUE, lw-focus:SCREEN-VALUE, OUTPUT char-val).
              FIND FIRST eb WHERE RECID(eb) EQ INT(char-val) NO-LOCK NO-ERROR.
              IF AVAIL eb AND TRIM(lw-focus:SCREEN-VALUE) NE TRIM(eb.est-no) THEN DO:
                lw-focus:SCREEN-VALUE = eb.est-no.
@@ -665,7 +667,7 @@ DO:
              RUN windows/l-fgcat.w (gcompany,lw-focus:SCREEN-VALUE, OUTPUT char-val).
              IF char-val <> "" THEN 
                 ASSIGN lw-focus:SCREEN-VALUE = ENTRY(1,char-val)
-                       itemfg.procat-desc:screen-value = ENTRY(2,char-val)
+                       itemfg.procat-desc:SCREEN-VALUE = ENTRY(2,char-val)
                        .
         END.
         WHEN "type-code" THEN DO:
@@ -679,7 +681,7 @@ DO:
              RUN windows/l-style.w (gcompany,lw-focus:SCREEN-VALUE, OUTPUT char-val).
              IF char-val <> "" THEN 
                 ASSIGN lw-focus:SCREEN-VALUE = ENTRY(1,char-val)
-                       itemfg.style-desc:screen-value = ENTRY(2,char-val)
+                       itemfg.style-desc:SCREEN-VALUE = ENTRY(2,char-val)
                        .
         END.
         WHEN "plate-no" OR WHEN "die-no" THEN DO:
@@ -689,10 +691,10 @@ DO:
               lw-focus:SCREEN-VALUE = ENTRY(1,char-val).
        END.
        WHEN "frt-class" THEN DO:
-             RUN windows/l-frtcls.w (itemfg.frt-class:screen-value, OUTPUT char-val).
+             RUN windows/l-frtcls.w (itemfg.frt-class:SCREEN-VALUE, OUTPUT char-val).
              IF char-val <> "" THEN 
-                ASSIGN itemfg.frt-class:screen-value = ENTRY(1,char-val)
-                       itemfg.frt-class-dscr:screen-value = ENTRY(2,char-val)
+                ASSIGN itemfg.frt-class:SCREEN-VALUE = ENTRY(1,char-val)
+                       itemfg.frt-class-dscr:SCREEN-VALUE = ENTRY(2,char-val)
                        .
         END.
 
@@ -736,8 +738,8 @@ ON LEAVE OF itemfg.case-count IN FRAME F-Main /* Count */
 DO:
     {&methods/lValidateError.i YES}
     IF LASTKEY <> -1 AND 
-       (/*itemfg.i-code:screen-value = "S" and*/
-         int(itemfg.case-count:screen-value) < 1 ) 
+       (/*itemfg.i-code:SCREEN-VALUE = "S" and*/
+         int(itemfg.case-count:SCREEN-VALUE) < 1 ) 
     THEN DO:
          MESSAGE "Case count can not less than ONE !!! " VIEW-AS ALERT-BOX ERROR.
          RETURN NO-APPLY.
@@ -790,9 +792,12 @@ END.
 ON LEAVE OF itemfg.def-loc IN FRAME F-Main /* Warehse */
 DO:
     {&methods/lValidateError.i YES}
-    IF LASTKEY <> -1 AND itemfg.def-loc:screen-value <> "" AND
-    NOT CAN-FIND(FIRST loc WHERE loc.company = gcompany AND loc.loc = itemfg.def-loc:screen-value)
+    IF LASTKEY <> -1 AND itemfg.def-loc:SCREEN-VALUE <> "" AND
+    NOT CAN-FIND(FIRST loc WHERE loc.company = gcompany AND loc.loc = itemfg.def-loc:SCREEN-VALUE)
     THEN DO:
+         IF itemfg.def-loc:SCREEN-VALUE EQ ""  THEN
+             MESSAGE "Must enter a valid warehouse..." VIEW-AS ALERT-BOX ERROR.
+         ELSE
          MESSAGE "Invalid Warehouse. Try Help." VIEW-AS ALERT-BOX ERROR.
          RETURN NO-APPLY.
     END.
@@ -806,12 +811,15 @@ END.
 &Scoped-define SELF-NAME itemfg.def-loc-bin
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL itemfg.def-loc-bin V-table-Win
 ON LEAVE OF itemfg.def-loc-bin IN FRAME F-Main /* Bin */
-DO:
+DO: 
     {&methods/lValidateError.i YES}
-    IF LASTKEY <> -1 AND itemfg.def-loc-bin:screen-value <> "" AND
-       NOT CAN-FIND(FIRST fg-bin WHERE fg-bin.company = gcompany AND fg-bin.loc = itemfg.def-loc:screen-value AND
-                          fg-bin.loc-bin = itemfg.def-loc-bin:screen-value)
+    IF LASTKEY <> -1 AND itemfg.def-loc-bin:SCREEN-VALUE <> "" AND
+       NOT CAN-FIND(FIRST fg-bin WHERE fg-bin.company = gcompany AND fg-bin.loc = itemfg.def-loc:SCREEN-VALUE AND
+                          fg-bin.loc-bin = itemfg.def-loc-bin:SCREEN-VALUE)
     THEN DO:
+        IF itemfg.def-loc-bin:screen-value EQ "" THEN
+            MESSAGE "Must enter a valid Bin..." VIEW-AS ALERT-BOX ERROR.
+         ELSE
          MESSAGE "Invalid Warehouse Bin. Try Help." VIEW-AS ALERT-BOX ERROR.
          RETURN NO-APPLY.
     END.
@@ -957,18 +965,18 @@ END.
 ON LEAVE OF itemfg.procat IN FRAME F-Main /* Category */
 DO:
     {&methods/lValidateError.i YES}
-    IF LASTKEY <> -1 AND SELF:screen-value <> "" AND
+    IF LASTKEY <> -1 AND SELF:SCREEN-VALUE <> "" AND
        NOT CAN-FIND(FIRST fgcat WHERE fgcat.company = gcompany AND
-                                      fgcat.procat = SELF:screen-value)
+                                      fgcat.procat = SELF:SCREEN-VALUE)
     THEN DO:
          MESSAGE "Invalid Product Category. Try Help." VIEW-AS ALERT-BOX ERROR.
          RETURN NO-APPLY.
     END.
 
     FIND FIRST fgcat WHERE fgcat.company = gcompany AND
-                           fgcat.procat = SELF:screen-value
+                           fgcat.procat = SELF:SCREEN-VALUE
                            NO-LOCK NO-ERROR.
-   itemfg.procat-desc:screen-value = IF AVAIL fgcat THEN fgcat.dscr ELSE "".
+   itemfg.procat-desc:SCREEN-VALUE = IF AVAIL fgcat THEN fgcat.dscr ELSE "".
    {&methods/lValidateError.i NO}
 END.
 
@@ -982,9 +990,9 @@ ON LEAVE OF itemfg.prod-uom IN FRAME F-Main /* Cost UOM */
 DO:
     {&methods/lValidateError.i YES}
     IF LASTKEY <> -1 AND 
-       ( (itemfg.i-code:screen-value = "S" AND
-          can-do("EA,M",itemfg.prod-uom:screen-value )) OR
-         (itemfg.i-code:screen-value = "C" AND can-do("M",itemfg.prod-uom:screen-value) )
+       ( (itemfg.i-code:SCREEN-VALUE = "S" AND
+          can-do("EA,M",itemfg.prod-uom:SCREEN-VALUE )) OR
+         (itemfg.i-code:SCREEN-VALUE = "C" AND can-do("M",itemfg.prod-uom:SCREEN-VALUE) )
         )
     THEN DO:  END.
     ELSE IF LASTKEY <>  -1 THEN DO:
@@ -1033,7 +1041,7 @@ DO:
     RUN calc-std-cost.    
 
     FOR EACH fg-bin  WHERE fg-bin.company EQ gcompany
-                       AND fg-bin.i-no    EQ itemfg.i-no:screen-value
+                       AND fg-bin.i-no    EQ itemfg.i-no:SCREEN-VALUE
                        AND fg-bin.pur-uom NE INPUT itemfg.prod-uom:
 
 
@@ -1090,7 +1098,26 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL itemfg.pur-man V-table-Win
 ON VALUE-CHANGED OF itemfg.pur-man IN FRAME F-Main /* Purchased or Manf */
 DO:
-    IF itemfg.pur-man:screen-value = "no" THEN itemfg.prod-uom:screen-value = "M".
+    DEFINE BUFFER bf-eb FOR eb.
+    
+    IF itemfg.pur-man:SCREEN-VALUE EQ "no" THEN ASSIGN
+        itemfg.prod-uom:SCREEN-VALUE = "M".
+    
+    FIND FIRST bf-eb NO-LOCK WHERE 
+        bf-eb.company EQ cocode AND 
+        bf-eb.stock-no EQ itemfg.i-no:SCREEN-VALUE AND 
+        bf-eb.pur-man NE logical(itemfg.pur-man:SCREEN-VALUE) 
+        NO-ERROR.
+
+    IF AVAIL bf-eb THEN DO:
+        MESSAGE "Purchased / Manufactured Field" SKIP 
+                "Estimate Does Not Match Finished Goods." SKIP
+                "Reset Both? "
+            VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
+            UPDATE lCheckPurMan . 
+     END.
+     ELSE lCheckPurMan = NO .
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1103,15 +1130,15 @@ ON LEAVE OF itemfg.sell-uom IN FRAME F-Main /* UOM */
 DO:
     {&methods/lValidateError.i YES}
     IF LASTKEY <> -1 THEN DO:
-      IF SELF:screen-value EQ "" THEN DO:
+      IF SELF:SCREEN-VALUE EQ "" THEN DO:
         MESSAGE 
               "Unit of Measure can't be blank. Please enter a valid UOM." 
              VIEW-AS ALERT-BOX ERROR.
          RETURN NO-APPLY.
       END.
 
-      IF SELF:screen-value <> "" AND
-         NOT CAN-FIND(FIRST uom WHERE uom.uom = SELF:screen-value AND
+      IF SELF:SCREEN-VALUE <> "" AND
+         NOT CAN-FIND(FIRST uom WHERE uom.uom = SELF:SCREEN-VALUE AND
                          lookup(uom.uom, uom-list) > 0 )
         THEN DO:
           MESSAGE 
@@ -1176,18 +1203,18 @@ END.
 ON LEAVE OF itemfg.style IN FRAME F-Main /* Style */
 DO:  
     {&methods/lValidateError.i YES}
-    IF LASTKEY <> -1 AND SELF:screen-value <> "" AND
+    IF LASTKEY <> -1 AND SELF:SCREEN-VALUE <> "" AND
        NOT CAN-FIND(FIRST style WHERE style.company = gcompany AND
-                                      style.style = SELF:screen-value)
+                                      style.style = SELF:SCREEN-VALUE)
     THEN DO:
          MESSAGE "Invalid Style. Try Help." VIEW-AS ALERT-BOX ERROR.
          RETURN NO-APPLY.
     END.
 
     FIND FIRST style WHERE style.company = gcompany AND
-                                      style.style = SELF:screen-value
+                                      style.style = SELF:SCREEN-VALUE
                                       NO-LOCK NO-ERROR.
-    itemfg.style-desc:screen-value = IF AVAIL style THEN style.dscr ELSE "".
+    itemfg.style-desc:SCREEN-VALUE = IF AVAIL style THEN style.dscr ELSE "".
     {&methods/lValidateError.i NO}
 
 END.
@@ -1327,11 +1354,11 @@ PROCEDURE calc-std-cost :
   Notes:       
 ------------------------------------------------------------------------------*/
   DO WITH FRAME {&frame-name}:
-    itemfg.total-std-cost:screen-value =
-       STRING(dec(itemfg.std-mat-cost:screen-value) +
-              dec(itemfg.std-lab-cost:screen-value) +
-              dec(itemfg.std-var-cost:screen-value) +
-              dec(itemfg.std-fix-cost:screen-value)).
+    itemfg.total-std-cost:SCREEN-VALUE =
+       STRING(dec(itemfg.std-mat-cost:SCREEN-VALUE) +
+              dec(itemfg.std-lab-cost:SCREEN-VALUE) +
+              dec(itemfg.std-var-cost:SCREEN-VALUE) +
+              dec(itemfg.std-fix-cost:SCREEN-VALUE)).
 
   END.
 END PROCEDURE.
@@ -1395,7 +1422,7 @@ PROCEDURE enable-itemfg-field :
             fi_type-dscr.
 
     IF NOT adm-new-record THEN DO:
-      DISABLE itemfg.i-no.
+      DISABLE itemfg.i-no .
       /*IF itemfg.est-no:SCREEN-VALUE NE "" THEN DO:
         MESSAGE "IMPORT Estimate Info (Part#, Unit Count, Style, Die#, Plate#, etc.) for FG?"
             VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
@@ -1551,7 +1578,7 @@ PROCEDURE local-assign-record :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-record':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-  RUN reftable-values (NO).
+  
 
   IF tg-freeze-weight THEN
       itemfg.spare-int-1 = 1.
@@ -1603,7 +1630,7 @@ PROCEDURE local-assign-record :
  FIND FIRST fg-set WHERE fg-set.company = itemfg.company 
      AND fg-set.set-no = itemfg.i-no NO-LOCK NO-ERROR.
 
- IF AVAIL itemfg AND AVAIL fg-set THEN
+ IF AVAIL itemfg AND (AVAIL fg-set OR lCheckPurMan) THEN
    FOR EACH eb NO-LOCK      
        WHERE eb.company EQ itemfg.company
          AND eb.cust-no EQ itemfg.cust-no
@@ -1615,6 +1642,7 @@ PROCEDURE local-assign-record :
      END.
      RELEASE bf-eb.
    END. /* each eb */
+   ASSIGN lCheckPurMan = NO .
 
   IF NOT  v-mat AND adm-new-record AND NOT adm-adding-record THEN DO: /* task 06161508 */
 
@@ -1714,7 +1742,10 @@ PROCEDURE local-create-record :
          /* gdm - 11190901 */
          itemfg.ship-meth =  v-shpmet
          itemfg.exempt-disc = NO
-         itemfg.stat = "A".
+         itemfg.stat = "A"
+         itemfg.setupDate = TODAY
+         itemfg.def-loc        = ""
+         itemfg.def-loc-bin    = "" .
 
   DO WITH FRAME {&FRAME-NAME}:
 
@@ -1734,6 +1765,8 @@ PROCEDURE local-create-record :
 /*      tb_exempt-disc:SCREEN-VALUE = "no". */
   END.
 
+   
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1750,11 +1783,7 @@ PROCEDURE local-display-fields :
   IF AVAIL itemfg AND NOT adm-new-record THEN DO:
     tb_taxable = itemfg.taxable.
 
-/*     ASSIGN                                               */
-/*      rd_status      = "A"                                */
-/*      tb_exempt-disc = NO.                                */
-/*                                                          */
-/*     IF itemfg.i-no NE "" THEN RUN reftable-values (YES). */
+
   END.
 
   /* Dispatch standard ADM method.                             */
@@ -1879,17 +1908,17 @@ PROCEDURE local-update-record :
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
   {&methods/lValidateError.i YES}
   DO WITH FRAME {&frame-name}:
-    IF itemfg.style:screen-value <> "" AND
+    IF itemfg.style:SCREEN-VALUE <> "" AND
        NOT CAN-FIND(FIRST style WHERE style.company = gcompany AND
-                                      style.style = itemfg.style:screen-value)
+                                      style.style = itemfg.style:SCREEN-VALUE)
     THEN DO:
          MESSAGE "Invalid Style. Try Help." VIEW-AS ALERT-BOX ERROR.
          APPLY "entry" TO itemfg.style.
          RETURN NO-APPLY.
     END.
-    IF itemfg.procat:screen-value <> "" AND
+    IF itemfg.procat:SCREEN-VALUE <> "" AND
        NOT CAN-FIND(FIRST fgcat WHERE fgcat.company = gcompany AND
-                                      fgcat.procat = itemfg.procat:screen-value)
+                                      fgcat.procat = itemfg.procat:SCREEN-VALUE)
     THEN DO:
          MESSAGE "Invalid Product Category. Try Help." VIEW-AS ALERT-BOX ERROR.
          APPLY "entry" TO itemfg.procat.
@@ -1899,31 +1928,37 @@ PROCEDURE local-update-record :
     RUN valid-type NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
-    IF itemfg.def-loc:screen-value <> "" AND
-       NOT CAN-FIND(FIRST loc WHERE loc.company = gcompany AND loc.loc = itemfg.def-loc:screen-value)
+    IF itemfg.def-loc:SCREEN-VALUE <> "" AND
+       NOT CAN-FIND(FIRST loc WHERE loc.company = gcompany AND loc.loc = itemfg.def-loc:SCREEN-VALUE)
     THEN DO:
+         IF itemfg.def-loc:SCREEN-VALUE EQ ""  THEN
+             MESSAGE "Must enter a valid warehouse..." VIEW-AS ALERT-BOX ERROR.
+         ELSE
          MESSAGE "Invalid Warehouse. Try Help." VIEW-AS ALERT-BOX ERROR.
          APPLY "entry" TO itemfg.def-loc.
          RETURN NO-APPLY.
     END.
 
-    IF itemfg.def-loc-bin:screen-value <> "" AND
-       NOT CAN-FIND(FIRST fg-bin WHERE fg-bin.company = gcompany AND fg-bin.loc = itemfg.def-loc:screen-value AND
-                          fg-bin.loc-bin = itemfg.def-loc-bin:screen-value)
+    IF itemfg.def-loc-bin:SCREEN-VALUE <> "" AND
+       NOT CAN-FIND(FIRST fg-bin WHERE fg-bin.company = gcompany AND fg-bin.loc = itemfg.def-loc:SCREEN-VALUE AND
+                          fg-bin.loc-bin = itemfg.def-loc-bin:SCREEN-VALUE)
     THEN DO:
+         IF itemfg.def-loc-bin:SCREEN-VALUE EQ ""  THEN
+             MESSAGE "Must enter a valid Bin..." VIEW-AS ALERT-BOX ERROR.
+         ELSE
          MESSAGE "Invalid Warehouse Bin. Try Help." VIEW-AS ALERT-BOX ERROR.
          APPLY "entry" TO itemfg.def-loc-bin.
          RETURN NO-APPLY.
     END.
       IF itemfg.prod-uom:VISIBLE = YES THEN 
       DO:
-        IF (itemfg.i-code:screen-value = "S" AND can-do("EA,M",itemfg.prod-uom:screen-value )) OR
-           (itemfg.i-code:screen-value = "C" AND can-do("M",itemfg.prod-uom:screen-value) )
+        IF (itemfg.i-code:SCREEN-VALUE = "S" AND can-do("EA,M",itemfg.prod-uom:SCREEN-VALUE )) OR
+           (itemfg.i-code:SCREEN-VALUE = "C" AND can-do("M",itemfg.prod-uom:SCREEN-VALUE) )
         THEN DO:  END.
         ELSE DO:
 
-            IF fgsecurity-log AND ((itemfg.i-code:screen-value = "S" AND can-do("EA,M",itemfg.prod-uom )) OR
-           (itemfg.i-code:screen-value = "C" AND can-do("M",itemfg.prod-uom) )) THEN DO: END.
+            IF fgsecurity-log AND ((itemfg.i-code:SCREEN-VALUE = "S" AND can-do("EA,M",itemfg.prod-uom )) OR
+           (itemfg.i-code:SCREEN-VALUE = "C" AND can-do("M",itemfg.prod-uom) )) THEN DO: END.
            ELSE DO:
                 MESSAGE "Enter M for Box Products, Enter EA or M for Non Box Products."
                        VIEW-AS ALERT-BOX ERROR.
@@ -1932,7 +1967,7 @@ PROCEDURE local-update-record :
             END.
         END.     
     END.
-    IF int(itemfg.case-count:screen-value) < 1  
+    IF int(itemfg.case-count:SCREEN-VALUE) < 1  
     THEN DO:
          MESSAGE "Case count can not less than ONE !!! " VIEW-AS ALERT-BOX ERROR.
          APPLY "entry" TO itemfg.case-count.
@@ -2189,6 +2224,8 @@ PROCEDURE proc-copy :
   DEF VAR v-cost AS LOG INIT YES NO-UNDO.
 
   IF AVAIL itemfg THEN DO WITH FRAME {&FRAME-NAME}:
+         itemfg.def-loc:SCREEN-VALUE        = "" .
+         itemfg.def-loc-bin:SCREEN-VALUE    = "" . /* task 25536 */
 
       RUN oeinq/d-cpyfg.w (OUTPUT v-cost, OUTPUT v-mat, OUTPUT v-cpyspc, OUTPUT v-begspc, OUTPUT v-endspc).
      IF NOT v-cost THEN
@@ -2246,55 +2283,6 @@ PROCEDURE recalc-cost :
   RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE, "record-source", OUTPUT char-hdl).
 
   RUN repo-query IN WIDGET-HANDLE(char-hdl) (ROWID(itemfg)).
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE reftable-values V-table-Win 
-PROCEDURE reftable-values :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  DEF INPUT PARAM ip-display AS LOG NO-UNDO.
-
-  IF AVAIL itemfg THEN DO:
-
-/*     FIND FIRST reftable {&where-fgstatus} NO-ERROR. */
-/*     IF NOT AVAIL reftable THEN DO:                  */
-/*       CREATE reftable.                              */
-/*       ASSIGN                                        */
-/*        reftable.reftable = "FGSTATUS"               */
-/*        reftable.company  = itemfg.company           */
-/*        reftable.loc      = ""                       */
-/*        reftable.code     = itemfg.i-no              */
-/*        reftable.code2    = rd_status.               */
-/*     END.                                            */
-/*     IF ip-display THEN                                 */
-/*       rd_status = reftable.code2.                      */
-/*     ELSE                                               */
-/*       reftable.code2 = rd_status.                      */
-/*                                                        */
-/*     FIND FIRST reftable {&where-exempt-disc} NO-ERROR. */
-/*     IF NOT AVAIL reftable THEN DO:                     */
-/*       CREATE reftable.                                 */
-/*       ASSIGN                                           */
-/*        reftable.reftable = "itemfg.exempt-disc"        */
-/*        reftable.company  = itemfg.company              */
-/*        reftable.loc      = ""                          */
-/*        reftable.code     = itemfg.i-no.                */
-/*     END.                                               */
-/*                                                        */
-/*     IF ip-display THEN                                 */
-/*       tb_exempt-disc = reftable.val[1] EQ 1.           */
-/*     ELSE                                               */
-/*       reftable.val[1] = INT(tb_exempt-disc).           */
-/*                                                        */
-/*     FIND CURRENT reftable NO-LOCK.                     */
-  END.
-
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2550,10 +2538,10 @@ PROCEDURE valid-cust-part :
 
   {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
-       IF itemfg.part-no:screen-value EQ "" THEN
+       IF itemfg.part-no:SCREEN-VALUE EQ "" THEN
            ASSIGN itemfg.part-no:SCREEN-VALUE = itemfg.i-no:SCREEN-VALUE .
 
-       IF itemfg.part-no:screen-value EQ "" THEN DO:
+       IF itemfg.part-no:SCREEN-VALUE EQ "" THEN DO:
          MESSAGE "Cust part# can't be blank." VIEW-AS ALERT-BOX ERROR.
          APPLY "entry" TO itemfg.part-no.
          RETURN ERROR.
@@ -2691,4 +2679,5 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
 

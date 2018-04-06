@@ -96,36 +96,7 @@ END.
 
 {sys/inc/oeuserid.i}
 
-/*IF old-{&TABLENAME}.r-no NE 0 AND {&TABLENAME}.link-no EQ 0 THEN DO:
-  FIND FIRST reftable
-      WHERE reftable.reftable EQ "oe-rel.s-code"
-        AND reftable.company  EQ STRING(oe-rel.r-no,"9999999999")
-      NO-LOCK NO-ERROR.
-  lv-s-code[1] = IF AVAIL reftable THEN reftable.code ELSE "B".
 
-  FOR EACH b-{&TABLENAME}
-      WHERE b-{&TABLENAME}.company  EQ {&TABLENAME}.company
-        AND b-{&TABLENAME}.ord-no   EQ {&TABLENAME}.ord-no
-        AND b-{&TABLENAME}.i-no     EQ {&TABLENAME}.i-no
-        AND b-{&TABLENAME}.line     EQ {&TABLENAME}.line
-        AND b-{&TABLENAME}.po-no    EQ {&TABLENAME}.po-no
-        AND b-{&TABLENAME}.ship-id  EQ {&TABLENAME}.ship-id
-        AND b-{&TABLENAME}.rel-date EQ {&TABLENAME}.rel-date
-        AND b-{&TABLENAME}.carrier  EQ {&TABLENAME}.carrier
-        AND b-{&TABLENAME}.qty      EQ {&TABLENAME}.qty
-        AND b-{&TABLENAME}.link-no  EQ 0
-        AND ROWID(b-{&TABLENAME})   NE ROWID({&TABLENAME})
-      USE-INDEX ord-item:
-
-    FIND FIRST reftable
-        WHERE reftable.reftable EQ "oe-rel.s-code"
-          AND reftable.company  EQ STRING(b-oe-rel.r-no,"9999999999")
-        NO-LOCK NO-ERROR.
-    lv-s-code[2] = IF AVAIL reftable THEN reftable.code ELSE "B".
-
-    IF lv-s-code[1] EQ lv-s-code[2] THEN DELETE b-{&TABLENAME}.
-  END.
-END.*/
 
     /* Per Joe, don't calculate if it's on this list */
 IF NOT INDEX("CZPAB",{&TABLENAME}.stat) GT 0 THEN
@@ -143,28 +114,7 @@ IF old-{&TABLENAME}.ord-no = 0         AND
  {&TABLENAME}.tot-qty EQ 0 THEN DO:
     {&TABLENAME}.tot-qty = {&TABLENAME}.qty.
  /*   RUN fg/fgitmloc.p (INPUT {&TABLENAME}.i-no, INPUT ROWID({&TABLENAME})). */
-END.
-  
-
-IF PROGRAM-NAME(2) NE ?                AND
-   {&TABLENAME}.r-no NE 0              AND
-   INDEX("SIL",{&TABLENAME}.stat) GT 0 AND
-   NOT CAN-FIND(FIRST oe-rel-audit
-                WHERE oe-rel-audit.reftable EQ "oe-rel-audit"
-                  AND oe-rel-audit.company  EQ STRING({&TABLENAME}.r-no,"9999999999")
-                USE-INDEX reftable)
-THEN DO:
-  CREATE oe-rel-audit.
-  ASSIGN
-   oe-rel-audit.reftable = "oe-rel-audit"
-   oe-rel-audit.company  = STRING({&TABLENAME}.r-no,"9999999999")
-   oe-rel-audit.loc      = USERID("nosweat")
-   oe-rel-audit.code     = STRING(TODAY,"99/99/9999")
-   oe-rel-audit.code2    = STRING(TIME,"99999")
-   oe-rel-audit.val[1]   = {&TABLENAME}.qty
-   oe-rel-audit.val[2]   = {&TABLENAME}.tot-qty
-   oe-rel-audit.dscr     = PROGRAM-NAME(2).
-END.
+END.  
 
 FOR EACH oe-ord
     WHERE oe-ord.company EQ {&TABLENAME}.company

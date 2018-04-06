@@ -180,7 +180,7 @@ v-oecount = avail sys-ctrl and sys-ctrl.log-fld.
       ASSIGN
           v-len = b-eb1.len
           v-hight1 = b-eb1.wid
-          v-qty-set = b-eb1.yld-qty
+          v-qty-set = b-eb1.quantityPerSet
           v-int = style.dim-df + 1
           scr-style-1 = b-eb1.style
           scr-end-cell-l1 = {sys/inc/k16.i b-eb1.k-len-array2[1]}
@@ -200,7 +200,7 @@ v-oecount = avail sys-ctrl and sys-ctrl.log-fld.
           ASSIGN
               v-wid = b-eb2.len
               v-hight2 = b-eb2.wid
-              v-qty-set2 = b-eb2.yld-qty
+              v-qty-set2 = b-eb2.quantityPerSet
               v-int = style.dim-df + 1
               scr-style-2 = b-eb2.style
               scr-end-cell-w1 = {sys/inc/k16.i b-eb2.k-len-array2[1]}

@@ -86,7 +86,7 @@ DEFINE TEMP-TABLE tt-fg-bin NO-UNDO LIKE fg-bin.
      FIELD ord-no AS INTEGER
      FIELD line AS INTEGER
      FIELD part-no AS CHARACTER FORMAT "X(15)"
-     FIELD part-qty AS INTEGER
+     FIELD QtyPerSet AS DECIMAL
      FIELD part-qty-dec AS DECIMAL
      field routing AS CHARACTER
      field rm-no AS CHARACTER
@@ -1817,7 +1817,7 @@ PROCEDURE build-tt :
                ASSIGN
                   tt-fg-set.ord-no       = oe-ordl.ord-no
                   tt-fg-set.line         = oe-ordl.line
-                  tt-fg-set.part-qty     = reftable.val[12]
+                  tt-fg-set.QtyPerSet    = reftable.val[12]
                   tt-fg-set.part-qty-dec = reftable.val[13].
 
                FOR EACH job-mch FIELDS(m-code blank-no) WHERE 
@@ -1825,7 +1825,7 @@ PROCEDURE build-tt :
                    job-mch.job     EQ job.job AND
                    job-mch.job-no  EQ job.job-no AND
                    job-mch.job-no2 EQ job.job-no2 AND
-                   job-mch.frm     EQ tt-fg-set.part-qty NO-LOCK
+                   job-mch.frm     EQ INTEGER(tt-fg-set.QtyPerSet) NO-LOCK
                    BREAK BY job-mch.line:
 
                    IF job-mch.blank-no EQ 0 OR
@@ -1838,7 +1838,7 @@ PROCEDURE build-tt :
                       est-op.company = oe-ordl.company AND
                       est-op.est-no = oe-ordl.est-no AND
                       est-op.line LT 500 AND
-                      est-op.s-num EQ tt-fg-set.part-qty
+                      est-op.s-num EQ INTEGER(tt-fg-set.QtyPerSet)
                       NO-LOCK:
 
                       IF est-op.b-num EQ 0 OR
@@ -1851,7 +1851,7 @@ PROCEDURE build-tt :
                FIND FIRST ef WHERE
                     ef.company = job-hdr.company AND
                     ef.est-no = job-hdr.est-no AND
-                    ef.form-no = tt-fg-set.part-qty
+                    ef.form-no = INTEGER(tt-fg-set.QtyPerSet)
                     NO-LOCK NO-ERROR.
 
                IF AVAIL ef THEN
@@ -1860,7 +1860,7 @@ PROCEDURE build-tt :
                FIND FIRST eb WHERE
                     eb.company EQ job-hdr.company AND
                     eb.est-no  EQ job-hdr.est-no AND
-                    eb.form-no EQ tt-fg-set.part-qty AND
+                    eb.form-no EQ tt-fg-set.QtyPerSet AND
                     eb.blank-no EQ tt-fg-set.part-qty-dec
                     NO-LOCK NO-ERROR.
 

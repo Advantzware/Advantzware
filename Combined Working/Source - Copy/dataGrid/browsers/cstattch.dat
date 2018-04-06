@@ -1,0 +1,23 @@
+FOR EACH attach NO-LOCK WHERE attach.rec_key EQ ip-rec_key and (if ip-ord-no ne "" then (attach.est-no eq ip-ord-no or attach.est-no eq "") else attach.est-no eq "")
+attach-file,est-no,file-type
+
+Indexed: est-no
+Non-Idx: attach-file,creat-date,file-type
+
+Generated 04.18.2017 @ 10:59:39 pm by: nosweat
+Table: attach - Records: 32,826
+
+    Index: est-no
+         Field: company
+         Field: est-no
+
+    Index: i-no
+         Field: company
+         Field: i-no
+
+    Index: link
+         Field: link-table
+         Field: rec_key
+
+    Index: rec_key
+         Field: rec_key

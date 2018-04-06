@@ -1006,9 +1006,11 @@ SUBSCRIBE TO "NumDel" ANYWHERE.
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
+&IF DEFINED(FWD-VERSION) EQ 0 &THEN
 PROCEDURE LockWindowUpdate EXTERNAL "user32.dll": 
 DEFINE INPUT PARAMETER hWndLock AS LONG NO-UNDO. 
 END PROCEDURE. /* LockWindowUpdate */
+&ENDIF
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1146,10 +1148,18 @@ PROCEDURE numDel :
 ------------------------------------------------------------------------------*/
 DEF INPUT PARAMETER ipcTable AS CHAR NO-UNDO.
 DEF INPUT PARAMETER ipiCnt AS INT NO-UNDO.
+&IF DEFINED(FWD-VERSION) EQ 0 &THEN
 Run LockWindowUpdate(input CURRENT-WINDOW:HWND). 
+&ELSE
+ACTIVE-WINDOW:DISABLE-REDRAW = TRUE.
+&ENDIF
 IF VALID-HANDLE(hStatus) THEN
   RUN process-message IN hStatus (INPUT ipcTable + ": " + STRING(ipiCnt)).
+&IF DEFINED(FWD-VERSION) EQ 0 &THEN
 Run LockWindowUpdate(input 0).
+&ELSE
+ACTIVE-WINDOW:DISABLE-REDRAW = FALSE.
+&ENDIF
 
 END PROCEDURE.
 
@@ -1399,6 +1409,7 @@ main-loop:
         and itemfg.cust-no le v-cust[2]
         and itemfg.procat  ge v-procat[1]
         and itemfg.procat  le v-procat[2]
+        and itemfg.setupDate  LT lvdCutOffDate
         AND itemfg.q-onh   LE 0  /* Only want to inactivate items with no inventory */
       no-lock
 

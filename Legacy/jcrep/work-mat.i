@@ -44,6 +44,7 @@
                v-supress-est = TRUE.
        END.
    END.
+   IF (LINE-COUNTER + 10) GT lines-per-page THEN PAGE.
    display work-mat.i-no FORMAT "x(15)"
            item.i-dscr when avail item format "x(18)"
            work-mat.est-qty            format ">>,>>>,>>9"
@@ -55,7 +56,7 @@
            work-mat.act-qty-uom
            work-mat.act-cost           format ">>,>>>,>>9"
            v-cst-var                   format ">>,>>>,>>9-"
-           v-prod-p                    format ">>>>9.9-"
+           v-prod-p                    format ">>>>>>9.9-"
 
        WITH FRAME {1} STREAM-IO WIDTH 200 NO-LABELS NO-BOX down.
 
@@ -82,6 +83,7 @@ IF work-mat.mat-type = "B" THEN
                    AND itemfg.i-no EQ job-farm.i-no 
                    NO-LOCK NO-ERROR.
              DOWN WITH FRAME {1}.
+             IF (LINE-COUNTER + 10) GT lines-per-page THEN PAGE.
              display job-farm.i-no @ work-mat.i-no
                      itemfg.i-dscr when avail itemfg @ item.i-dscr 
                      job-farm.qty                    @ work-mat.est-qty
@@ -115,7 +117,7 @@ IF work-mat.mat-type = "B" THEN
       v-prod-p = (v-cst-var / v-t-est-cost) * 100.00.
 
      if v-prod-p eq ? then v-prod-p = 0.
-
+      IF (LINE-COUNTER + 10) GT lines-per-page THEN PAGE.
      put "----------" at 51
          "---------  ---------  -------" at 77 skip
          "  TOTAL MATERIAL   (DIRECT) :"

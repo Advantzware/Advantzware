@@ -214,8 +214,8 @@ do v-local-loop = 1 to v-local-copies:
 
           {cec/rollfac.i}
           v-pqty = if v-rollfac OR xeb.est-type EQ 8 then 1 else
-                   if xeb.yld-qty lt 0 then (-1 / xeb.yld-qty)
-                                       else xeb.yld-qty.
+                   if xeb.quantityPerSet lt 0 then (-1 / xeb.quantityPerSet)
+                                       else xeb.quantityPerSet.
         end.
         
         assign
@@ -714,10 +714,10 @@ do v-local-loop = 1 to v-local-copies:
                     xeb.part-dscr1 AT 20 
                     v-sampreq      AT 52.
 
-                IF xeb.yld-qty LT 0 THEN
-                  PUT -1 / xeb.yld-qty FORMAT ">>>>>>9.9<<<<<<" AT 67.
+                IF xeb.quantityPerSet LT 0 THEN
+                  PUT -1 / xeb.quantityPerSet FORMAT ">>>>>>9.9<<<<<<" AT 67.
                 ELSE
-                  PUT xeb.yld-qty FORMAT ">>>>>>9.9<<<<<<" AT 67.
+                  PUT xeb.quantityPerSet FORMAT ">>>>>>9.9<<<<<<" AT 67.
 
                 FIND FIRST xstyle NO-LOCK
                    WHERE xstyle.company  EQ xeb.company
@@ -911,17 +911,14 @@ do v-local-loop = 1 to v-local-copies:
 
 PROCEDURE stackImage:
   DEFINE BUFFER pattern FOR reftable.
-
+  DEFINE BUFFER stackPattern FOR stackPattern.
   IF v-stackcode EQ '' THEN RETURN.
-  FIND FIRST pattern NO-LOCK
-       WHERE pattern.reftable EQ 'STACKPAT'
-         AND pattern.company EQ ''
-         AND pattern.loc EQ ''
-         AND pattern.code EQ SUBSTR(v-stackcode,9,1) NO-ERROR.
-  IF AVAILABLE pattern AND SEARCH(pattern.dscr) NE ? THEN
+  FIND FIRST stackPattern NO-LOCK
+       WHERE stackPattern.stackCode EQ SUBSTR(v-stackcode,9,1) NO-ERROR.
+  IF AVAILABLE stackPattern AND SEARCH(stackPattern.stackImage) NE ? THEN
   PUT UNFORMATTED
     "<#71><C27><R+1><FROM><C2><R+12>"
-    "<IMAGE#71=" pattern.dscr ">"
+    "<IMAGE#71=" stackPattern.stackImage ">"
     "<R-13>".
 END PROCEDURE.
 

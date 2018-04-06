@@ -54,7 +54,7 @@ DEF BUFFER recalc-mr FOR reftable.
 
 &Scoped-define ADM-SUPPORTED-LINKS Record-Source,Record-Target,TableIO-Target,Navigation-Target
 
-/* Name of first Frame and/or Browse and/or first Query                 */
+/* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME F-Main
 &Scoped-define BROWSE-NAME Browser-Table
 
@@ -67,8 +67,8 @@ DEF BUFFER recalc-mr FOR reftable.
 /* Definitions for BROWSE Browser-Table                                 */
 &Scoped-define FIELDS-IN-QUERY-Browser-Table est.est-no est.est-date ~
 est-qty.eqty eb.ord-no eb.cust-no eb.part-no eb.stock-no eb.style ~
-eb.part-dscr1 eb.flute eb.test eb.len eb.yld-qty eb.wid eb.die-no eb.dep ~
-eb.plate-no 
+eb.part-dscr1 eb.flute eb.test eb.wid eb.len eb.yld-qty eb.quantityPerSet ~
+eb.die-no eb.dep eb.plate-no 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table 
 &Scoped-define QUERY-STRING-Browser-Table FOR EACH est WHERE ~{&KEY-PHRASE} ~
       AND est.company = gcompany and ~
@@ -168,9 +168,10 @@ DEFINE QUERY Browser-Table FOR
       eb.part-dscr1
       eb.flute
       eb.test
+      eb.wid
       eb.len
       eb.yld-qty
-      eb.wid
+      eb.quantityPerSet
       eb.die-no
       eb.dep
       eb.plate-no) SCROLLING.
@@ -191,9 +192,10 @@ DEFINE BROWSE Browser-Table
       eb.part-dscr1 COLUMN-LABEL "Item Name" FORMAT "x(30)":U
       eb.flute FORMAT "XXX":U
       eb.test FORMAT "x(6)":U
-      eb.len
-      eb.yld-qty COLUMN-LABEL "Qty/Set" FORMAT ">>>>>>9":U
       eb.wid
+      eb.len
+      eb.yld-qty COLUMN-LABEL "Yield Quantity" FORMAT ">>>>>>9":U
+      eb.quantityPerSet FORMAT ">>>>9.9<<<":U
       eb.die-no FORMAT "x(15)":U
       eb.dep
       eb.plate-no FORMAT "x(15)":U
@@ -274,8 +276,8 @@ END.
 /* SETTINGS FOR WINDOW B-table-Win
   NOT-VISIBLE,,RUN-PERSISTENT                                           */
 /* SETTINGS FOR FRAME F-Main
-   NOT-VISIBLE Size-to-Fit                                              */
-/* BROWSE-TAB Browser-Table 1 F-Main */
+   NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
+/* BROWSE-TAB Browser-Table TEXT-1 F-Main */
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
@@ -321,15 +323,16 @@ ASI.est.est-type >= 1 and est.est-type <= 4"
      _FldNameList[10]   = ASI.eb.flute
      _FldNameList[11]   = ASI.eb.test
      _FldNameList[12]   > "_<CALC>"
-"eb.len" ? ? ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[13]   > ASI.eb.yld-qty
-"eb.yld-qty" "Qty/Set" ? "integer" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[14]   > "_<CALC>"
 "eb.wid" ? ? ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[15]   = ASI.eb.die-no
-     _FldNameList[16]   > "_<CALC>"
+     _FldNameList[13]   > "_<CALC>"
+"eb.len" ? ? ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[14]   > ASI.eb.yld-qty
+"eb.yld-qty" "Yield Quantity" ? "integer" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[15]   = ASI.eb.quantityPerSet
+     _FldNameList[16]   = ASI.eb.die-no
+     _FldNameList[17]   > "_<CALC>"
 "eb.dep" ? ? ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[17]   = ASI.eb.plate-no
+     _FldNameList[18]   = ASI.eb.plate-no
      _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */
 &ANALYZE-RESUME

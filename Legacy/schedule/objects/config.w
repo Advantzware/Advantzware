@@ -87,9 +87,29 @@ userField76 userField77 userField78 userField79 userField80 ~
 userField81 userField82 userField83 userField84 userField85 ~
 userField86 userField87 userField88 userField89 userField90 ~
 userField91 userField92 userField93 userField94 userField95 ~
-userField96 userField97
+userField96 userField97 userField98 userField99 userField100 ~
+userField101 userField102 userField103 
 /*
-userField98 
+userField104 
+userField105 
+userField106 
+userField107 
+userField108
+userField109 
+userField110 
+userField111 
+userField112 
+userField113 
+userField114 
+userField115 
+userField116 
+userField117 
+userField118 
+userField119 
+userField120 
+userField121 
+userField122 
+userField123 
 */
 
 /* _UIB-CODE-BLOCK-END */
@@ -333,7 +353,7 @@ DEFINE RECTANGLE colorChoice-3
      BGCOLOR 3 .
 
 DEFINE RECTANGLE colorChoice-30
-     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
      SIZE 15 BY 1.
 
 DEFINE RECTANGLE colorChoice-4
@@ -1156,7 +1176,7 @@ DEFINE VARIABLE configFrameSelection AS CHARACTER
      SIZE 20 BY 2.62 NO-UNDO.
 
 DEFINE RECTANGLE RECT-6
-     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
      SIZE 17 BY 1.67.
 
 DEFINE BUTTON btnBoardDatePrompt 
@@ -1611,502 +1631,627 @@ DEFINE VARIABLE threeDTopValue AS LOGICAL INITIAL no
 DEFINE VARIABLE useNotes AS LOGICAL INITIAL no 
      LABEL "SB Notes" 
      VIEW-AS TOGGLE-BOX
-     SIZE 31 BY .81 NO-UNDO.
+     SIZE 25 BY .81 NO-UNDO.
 
 DEFINE VARIABLE userField01 AS LOGICAL INITIAL no 
      LABEL "User Field 01" 
      VIEW-AS TOGGLE-BOX
-     SIZE 31 BY .81 NO-UNDO.
+     SIZE 25 BY .81 NO-UNDO.
 
 DEFINE VARIABLE userField02 AS LOGICAL INITIAL no 
      LABEL "User Field 02" 
      VIEW-AS TOGGLE-BOX
-     SIZE 31 BY .81 NO-UNDO.
+     SIZE 25 BY .81 NO-UNDO.
 
 DEFINE VARIABLE userField03 AS LOGICAL INITIAL no 
      LABEL "User Field 03" 
      VIEW-AS TOGGLE-BOX
-     SIZE 31 BY .81 NO-UNDO.
+     SIZE 25 BY .81 NO-UNDO.
 
 DEFINE VARIABLE userField04 AS LOGICAL INITIAL no 
      LABEL "User Field 04" 
      VIEW-AS TOGGLE-BOX
-     SIZE 31 BY .81 NO-UNDO.
+     SIZE 25 BY .81 NO-UNDO.
 
 DEFINE VARIABLE userField05 AS LOGICAL INITIAL no 
      LABEL "User Field 05" 
      VIEW-AS TOGGLE-BOX
-     SIZE 31 BY .81 NO-UNDO.
+     SIZE 25 BY .81 NO-UNDO.
 
 DEFINE VARIABLE userField06 AS LOGICAL INITIAL no 
      LABEL "User Field 06" 
      VIEW-AS TOGGLE-BOX
-     SIZE 31 BY .81 NO-UNDO.
+     SIZE 25 BY .81 NO-UNDO.
 
 DEFINE VARIABLE userField07 AS LOGICAL INITIAL no 
      LABEL "User Field 07" 
      VIEW-AS TOGGLE-BOX
-     SIZE 31 BY .81 NO-UNDO.
+     SIZE 25 BY .81 NO-UNDO.
 
 DEFINE VARIABLE userField08 AS LOGICAL INITIAL no 
      LABEL "User Field 08" 
      VIEW-AS TOGGLE-BOX
-     SIZE 31 BY .81 NO-UNDO.
+     SIZE 25 BY .81 NO-UNDO.
 
 DEFINE VARIABLE userField09 AS LOGICAL INITIAL no 
      LABEL "User Field 09" 
      VIEW-AS TOGGLE-BOX
-     SIZE 31 BY .81 NO-UNDO.
+     SIZE 25 BY .81 NO-UNDO.
 
 DEFINE VARIABLE userField10 AS LOGICAL INITIAL no 
      LABEL "User Field 10" 
      VIEW-AS TOGGLE-BOX
-     SIZE 31 BY .81 NO-UNDO.
+     SIZE 25 BY .81 NO-UNDO.
+
+DEFINE VARIABLE userField100 AS LOGICAL INITIAL no 
+     LABEL "User Field 100" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 25 BY .81 NO-UNDO.
+
+DEFINE VARIABLE userField101 AS LOGICAL INITIAL no 
+     LABEL "User Field 101" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 25 BY .81 NO-UNDO.
+
+DEFINE VARIABLE userField102 AS LOGICAL INITIAL no 
+     LABEL "User Field 102" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 25 BY .81 NO-UNDO.
+
+DEFINE VARIABLE userField103 AS LOGICAL INITIAL no 
+     LABEL "User Field 103" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 25 BY .81 NO-UNDO.
+
+DEFINE VARIABLE userField104 AS LOGICAL INITIAL no 
+     LABEL "User Field 104" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 25 BY .81 NO-UNDO.
+
+DEFINE VARIABLE userField105 AS LOGICAL INITIAL no 
+     LABEL "User Field 105" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 25 BY .81 NO-UNDO.
+
+DEFINE VARIABLE userField106 AS LOGICAL INITIAL no 
+     LABEL "User Field 106" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 25 BY .81 NO-UNDO.
+
+DEFINE VARIABLE userField107 AS LOGICAL INITIAL no 
+     LABEL "User Field 107" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 25 BY .81 NO-UNDO.
+
+DEFINE VARIABLE userField108 AS LOGICAL INITIAL no 
+     LABEL "User Field 108" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 25 BY .81 NO-UNDO.
+
+DEFINE VARIABLE userField109 AS LOGICAL INITIAL no 
+     LABEL "User Field 109" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 25 BY .81 NO-UNDO.
 
 DEFINE VARIABLE userField11 AS LOGICAL INITIAL no 
      LABEL "User Field 11" 
      VIEW-AS TOGGLE-BOX
-     SIZE 31 BY .81 NO-UNDO.
+     SIZE 25 BY .81 NO-UNDO.
+
+DEFINE VARIABLE userField110 AS LOGICAL INITIAL no 
+     LABEL "User Field 110" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 25 BY .81 NO-UNDO.
+
+DEFINE VARIABLE userField111 AS LOGICAL INITIAL no 
+     LABEL "User Field 111" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 25 BY .81 NO-UNDO.
+
+DEFINE VARIABLE userField112 AS LOGICAL INITIAL no 
+     LABEL "User Field 112" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 25 BY .81 NO-UNDO.
+
+DEFINE VARIABLE userField113 AS LOGICAL INITIAL no 
+     LABEL "User Field 113" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 25 BY .81 NO-UNDO.
+
+DEFINE VARIABLE userField114 AS LOGICAL INITIAL no 
+     LABEL "User Field 114" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 25 BY .81 NO-UNDO.
+
+DEFINE VARIABLE userField115 AS LOGICAL INITIAL no 
+     LABEL "User Field 115" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 25 BY .81 NO-UNDO.
+
+DEFINE VARIABLE userField116 AS LOGICAL INITIAL no 
+     LABEL "User Field 116" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 25 BY .81 NO-UNDO.
+
+DEFINE VARIABLE userField117 AS LOGICAL INITIAL no 
+     LABEL "User Field 117" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 25 BY .81 NO-UNDO.
+
+DEFINE VARIABLE userField118 AS LOGICAL INITIAL no 
+     LABEL "User Field 118" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 25 BY .81 NO-UNDO.
+
+DEFINE VARIABLE userField119 AS LOGICAL INITIAL no 
+     LABEL "User Field 119" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 25 BY .81 NO-UNDO.
 
 DEFINE VARIABLE userField12 AS LOGICAL INITIAL no 
      LABEL "User Field 12" 
      VIEW-AS TOGGLE-BOX
-     SIZE 31 BY .81 NO-UNDO.
+     SIZE 25 BY .81 NO-UNDO.
+
+DEFINE VARIABLE userField120 AS LOGICAL INITIAL no 
+     LABEL "User Field 120" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 25 BY .81 NO-UNDO.
+
+DEFINE VARIABLE userField121 AS LOGICAL INITIAL no 
+     LABEL "User Field 121" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 25 BY .81 NO-UNDO.
+
+DEFINE VARIABLE userField122 AS LOGICAL INITIAL no 
+     LABEL "User Field 122" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 25 BY .81 NO-UNDO.
+
+DEFINE VARIABLE userField123 AS LOGICAL INITIAL no 
+     LABEL "User Field 123" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 25 BY .81 NO-UNDO.
 
 DEFINE VARIABLE userField13 AS LOGICAL INITIAL no 
      LABEL "User Field 13" 
      VIEW-AS TOGGLE-BOX
-     SIZE 31 BY .81 NO-UNDO.
+     SIZE 25 BY .81 NO-UNDO.
 
 DEFINE VARIABLE userField14 AS LOGICAL INITIAL no 
      LABEL "User Field 14" 
      VIEW-AS TOGGLE-BOX
-     SIZE 31 BY .81 NO-UNDO.
+     SIZE 25 BY .81 NO-UNDO.
 
 DEFINE VARIABLE userField15 AS LOGICAL INITIAL no 
      LABEL "User Field 15" 
      VIEW-AS TOGGLE-BOX
-     SIZE 31 BY .81 NO-UNDO.
+     SIZE 25 BY .81 NO-UNDO.
 
 DEFINE VARIABLE userField16 AS LOGICAL INITIAL no 
      LABEL "User Field 16" 
      VIEW-AS TOGGLE-BOX
-     SIZE 31 BY .81 NO-UNDO.
+     SIZE 25 BY .81 NO-UNDO.
 
 DEFINE VARIABLE userField17 AS LOGICAL INITIAL no 
      LABEL "User Field 17" 
      VIEW-AS TOGGLE-BOX
-     SIZE 31 BY .81 NO-UNDO.
+     SIZE 25 BY .81 NO-UNDO.
 
 DEFINE VARIABLE userField18 AS LOGICAL INITIAL no 
      LABEL "User Field 18" 
      VIEW-AS TOGGLE-BOX
-     SIZE 31 BY .81 NO-UNDO.
+     SIZE 25 BY .81 NO-UNDO.
 
 DEFINE VARIABLE userField19 AS LOGICAL INITIAL no 
      LABEL "User Field 19" 
      VIEW-AS TOGGLE-BOX
-     SIZE 31 BY .81 NO-UNDO.
+     SIZE 25 BY .81 NO-UNDO.
 
 DEFINE VARIABLE userField20 AS LOGICAL INITIAL no 
      LABEL "User Field 20" 
      VIEW-AS TOGGLE-BOX
-     SIZE 31 BY .81 NO-UNDO.
+     SIZE 25 BY .81 NO-UNDO.
 
 DEFINE VARIABLE userField21 AS LOGICAL INITIAL no 
      LABEL "User Field 21" 
      VIEW-AS TOGGLE-BOX
-     SIZE 31 BY .81 NO-UNDO.
+     SIZE 25 BY .81 NO-UNDO.
 
 DEFINE VARIABLE userField22 AS LOGICAL INITIAL no 
      LABEL "User Field 22" 
      VIEW-AS TOGGLE-BOX
-     SIZE 31 BY .81 NO-UNDO.
+     SIZE 25 BY .81 NO-UNDO.
 
 DEFINE VARIABLE userField23 AS LOGICAL INITIAL no 
      LABEL "User Field 23" 
      VIEW-AS TOGGLE-BOX
-     SIZE 31 BY .81 NO-UNDO.
+     SIZE 25 BY .81 NO-UNDO.
 
 DEFINE VARIABLE userField24 AS LOGICAL INITIAL no 
      LABEL "User Field 24" 
      VIEW-AS TOGGLE-BOX
-     SIZE 31 BY .81 NO-UNDO.
+     SIZE 25 BY .81 NO-UNDO.
 
 DEFINE VARIABLE userField25 AS LOGICAL INITIAL no 
      LABEL "User Field 25" 
      VIEW-AS TOGGLE-BOX
-     SIZE 31 BY .81 NO-UNDO.
+     SIZE 25 BY .81 NO-UNDO.
 
 DEFINE VARIABLE userField26 AS LOGICAL INITIAL no 
      LABEL "User Field 26" 
      VIEW-AS TOGGLE-BOX
-     SIZE 31 BY .81 NO-UNDO.
+     SIZE 25 BY .81 NO-UNDO.
 
 DEFINE VARIABLE userField27 AS LOGICAL INITIAL no 
      LABEL "User Field 27" 
      VIEW-AS TOGGLE-BOX
-     SIZE 31 BY .81 NO-UNDO.
+     SIZE 25 BY .81 NO-UNDO.
 
 DEFINE VARIABLE userField28 AS LOGICAL INITIAL no 
      LABEL "User Field 28" 
      VIEW-AS TOGGLE-BOX
-     SIZE 31 BY .81 NO-UNDO.
+     SIZE 25 BY .81 NO-UNDO.
 
 DEFINE VARIABLE userField29 AS LOGICAL INITIAL no 
      LABEL "User Field 29" 
      VIEW-AS TOGGLE-BOX
-     SIZE 31 BY .81 NO-UNDO.
+     SIZE 25 BY .81 NO-UNDO.
 
 DEFINE VARIABLE userField30 AS LOGICAL INITIAL no 
      LABEL "User Field 30" 
      VIEW-AS TOGGLE-BOX
-     SIZE 31 BY .81 NO-UNDO.
+     SIZE 25 BY .81 NO-UNDO.
 
 DEFINE VARIABLE userField31 AS LOGICAL INITIAL no 
      LABEL "User Field 31" 
      VIEW-AS TOGGLE-BOX
-     SIZE 31 BY .81 NO-UNDO.
+     SIZE 25 BY .81 NO-UNDO.
 
 DEFINE VARIABLE userField32 AS LOGICAL INITIAL no 
      LABEL "User Field 32" 
      VIEW-AS TOGGLE-BOX
-     SIZE 31 BY .81 NO-UNDO.
+     SIZE 25 BY .81 NO-UNDO.
 
 DEFINE VARIABLE userField33 AS LOGICAL INITIAL no 
      LABEL "User Field 33" 
      VIEW-AS TOGGLE-BOX
-     SIZE 31 BY .81 NO-UNDO.
+     SIZE 25 BY .81 NO-UNDO.
 
 DEFINE VARIABLE userField34 AS LOGICAL INITIAL no 
      LABEL "User Field 34" 
      VIEW-AS TOGGLE-BOX
-     SIZE 31 BY .81 NO-UNDO.
+     SIZE 25 BY .81 NO-UNDO.
 
 DEFINE VARIABLE userField35 AS LOGICAL INITIAL no 
      LABEL "User Field 35" 
      VIEW-AS TOGGLE-BOX
-     SIZE 31 BY .81 NO-UNDO.
+     SIZE 25 BY .81 NO-UNDO.
 
 DEFINE VARIABLE userField36 AS LOGICAL INITIAL no 
      LABEL "User Field 36" 
      VIEW-AS TOGGLE-BOX
-     SIZE 31 BY .81 NO-UNDO.
+     SIZE 25 BY .81 NO-UNDO.
 
 DEFINE VARIABLE userField37 AS LOGICAL INITIAL no 
      LABEL "User Field 37" 
      VIEW-AS TOGGLE-BOX
-     SIZE 31 BY .81 NO-UNDO.
+     SIZE 25 BY .81 NO-UNDO.
 
 DEFINE VARIABLE userField38 AS LOGICAL INITIAL no 
      LABEL "User Field 38" 
      VIEW-AS TOGGLE-BOX
-     SIZE 31 BY .81 NO-UNDO.
+     SIZE 25 BY .81 NO-UNDO.
 
 DEFINE VARIABLE userField39 AS LOGICAL INITIAL no 
      LABEL "User Field 39" 
      VIEW-AS TOGGLE-BOX
-     SIZE 31 BY .81 NO-UNDO.
+     SIZE 25 BY .81 NO-UNDO.
 
 DEFINE VARIABLE userField40 AS LOGICAL INITIAL no 
      LABEL "User Field 40" 
      VIEW-AS TOGGLE-BOX
-     SIZE 31 BY .81 NO-UNDO.
+     SIZE 25 BY .81 NO-UNDO.
 
 DEFINE VARIABLE userField41 AS LOGICAL INITIAL no 
      LABEL "User Field 41" 
      VIEW-AS TOGGLE-BOX
-     SIZE 31 BY .81 NO-UNDO.
+     SIZE 25 BY .81 NO-UNDO.
 
 DEFINE VARIABLE userField42 AS LOGICAL INITIAL no 
      LABEL "User Field 42" 
      VIEW-AS TOGGLE-BOX
-     SIZE 31 BY .81 NO-UNDO.
+     SIZE 25 BY .81 NO-UNDO.
 
 DEFINE VARIABLE userField43 AS LOGICAL INITIAL no 
      LABEL "User Field 43" 
      VIEW-AS TOGGLE-BOX
-     SIZE 31 BY .81 NO-UNDO.
+     SIZE 25 BY .81 NO-UNDO.
 
 DEFINE VARIABLE userField44 AS LOGICAL INITIAL no 
      LABEL "User Field 44" 
      VIEW-AS TOGGLE-BOX
-     SIZE 31 BY .81 NO-UNDO.
+     SIZE 25 BY .81 NO-UNDO.
 
 DEFINE VARIABLE userField45 AS LOGICAL INITIAL no 
      LABEL "User Field 45" 
      VIEW-AS TOGGLE-BOX
-     SIZE 31 BY .81 NO-UNDO.
+     SIZE 25 BY .81 NO-UNDO.
 
 DEFINE VARIABLE userField46 AS LOGICAL INITIAL no 
      LABEL "User Field 46" 
      VIEW-AS TOGGLE-BOX
-     SIZE 31 BY .81 NO-UNDO.
+     SIZE 25 BY .81 NO-UNDO.
 
 DEFINE VARIABLE userField47 AS LOGICAL INITIAL no 
      LABEL "User Field 47" 
      VIEW-AS TOGGLE-BOX
-     SIZE 31 BY .81 NO-UNDO.
+     SIZE 25 BY .81 NO-UNDO.
 
 DEFINE VARIABLE userField48 AS LOGICAL INITIAL no 
      LABEL "User Field 48" 
      VIEW-AS TOGGLE-BOX
-     SIZE 31 BY .81 NO-UNDO.
+     SIZE 25 BY .81 NO-UNDO.
 
 DEFINE VARIABLE userField49 AS LOGICAL INITIAL no 
      LABEL "User Field 49" 
      VIEW-AS TOGGLE-BOX
-     SIZE 31 BY .81 NO-UNDO.
+     SIZE 25 BY .81 NO-UNDO.
 
 DEFINE VARIABLE userField50 AS LOGICAL INITIAL no 
      LABEL "User Field 50" 
      VIEW-AS TOGGLE-BOX
-     SIZE 31 BY .81 NO-UNDO.
+     SIZE 25 BY .81 NO-UNDO.
 
 DEFINE VARIABLE userField51 AS LOGICAL INITIAL no 
      LABEL "User Field 51" 
      VIEW-AS TOGGLE-BOX
-     SIZE 31 BY .81 NO-UNDO.
+     SIZE 25 BY .81 NO-UNDO.
 
 DEFINE VARIABLE userField52 AS LOGICAL INITIAL no 
      LABEL "User Field 52" 
      VIEW-AS TOGGLE-BOX
-     SIZE 31 BY .81 NO-UNDO.
+     SIZE 25 BY .81 NO-UNDO.
 
 DEFINE VARIABLE userField53 AS LOGICAL INITIAL no 
      LABEL "User Field 53" 
      VIEW-AS TOGGLE-BOX
-     SIZE 31 BY .81 NO-UNDO.
+     SIZE 25 BY .81 NO-UNDO.
 
 DEFINE VARIABLE userField54 AS LOGICAL INITIAL no 
      LABEL "User Field 54" 
      VIEW-AS TOGGLE-BOX
-     SIZE 31 BY .81 NO-UNDO.
+     SIZE 25 BY .81 NO-UNDO.
 
 DEFINE VARIABLE userField55 AS LOGICAL INITIAL no 
      LABEL "User Field 55" 
      VIEW-AS TOGGLE-BOX
-     SIZE 31 BY .81 NO-UNDO.
+     SIZE 25 BY .81 NO-UNDO.
 
 DEFINE VARIABLE userField56 AS LOGICAL INITIAL no 
      LABEL "User Field 56" 
      VIEW-AS TOGGLE-BOX
-     SIZE 31 BY .81 NO-UNDO.
+     SIZE 25 BY .81 NO-UNDO.
 
 DEFINE VARIABLE userField57 AS LOGICAL INITIAL no 
      LABEL "User Field 57" 
      VIEW-AS TOGGLE-BOX
-     SIZE 31 BY .81 NO-UNDO.
+     SIZE 25 BY .81 NO-UNDO.
 
 DEFINE VARIABLE userField58 AS LOGICAL INITIAL no 
      LABEL "User Field 58" 
      VIEW-AS TOGGLE-BOX
-     SIZE 31 BY .81 NO-UNDO.
+     SIZE 25 BY .81 NO-UNDO.
 
 DEFINE VARIABLE userField59 AS LOGICAL INITIAL no 
      LABEL "User Field 59" 
      VIEW-AS TOGGLE-BOX
-     SIZE 31 BY .81 NO-UNDO.
+     SIZE 25 BY .81 NO-UNDO.
 
 DEFINE VARIABLE userField60 AS LOGICAL INITIAL no 
      LABEL "User Field 60" 
      VIEW-AS TOGGLE-BOX
-     SIZE 31 BY .81 NO-UNDO.
+     SIZE 25 BY .81 NO-UNDO.
 
 DEFINE VARIABLE userField61 AS LOGICAL INITIAL no 
      LABEL "User Field 61" 
      VIEW-AS TOGGLE-BOX
-     SIZE 31 BY .81 NO-UNDO.
+     SIZE 25 BY .81 NO-UNDO.
 
 DEFINE VARIABLE userField62 AS LOGICAL INITIAL no 
      LABEL "User Field 62" 
      VIEW-AS TOGGLE-BOX
-     SIZE 31 BY .81 NO-UNDO.
+     SIZE 25 BY .81 NO-UNDO.
 
 DEFINE VARIABLE userField63 AS LOGICAL INITIAL no 
      LABEL "User Field 63" 
      VIEW-AS TOGGLE-BOX
-     SIZE 31 BY .81 NO-UNDO.
+     SIZE 25 BY .81 NO-UNDO.
 
 DEFINE VARIABLE userField64 AS LOGICAL INITIAL no 
      LABEL "User Field 64" 
      VIEW-AS TOGGLE-BOX
-     SIZE 31 BY .81 NO-UNDO.
+     SIZE 25 BY .81 NO-UNDO.
 
 DEFINE VARIABLE userField65 AS LOGICAL INITIAL no 
      LABEL "User Field 65" 
      VIEW-AS TOGGLE-BOX
-     SIZE 31 BY .81 NO-UNDO.
+     SIZE 25 BY .81 NO-UNDO.
 
 DEFINE VARIABLE userField66 AS LOGICAL INITIAL no 
      LABEL "User Field 66" 
      VIEW-AS TOGGLE-BOX
-     SIZE 31 BY .81 NO-UNDO.
+     SIZE 25 BY .81 NO-UNDO.
 
 DEFINE VARIABLE userField67 AS LOGICAL INITIAL no 
      LABEL "User Field 67" 
      VIEW-AS TOGGLE-BOX
-     SIZE 31 BY .81 NO-UNDO.
+     SIZE 25 BY .81 NO-UNDO.
 
 DEFINE VARIABLE userField68 AS LOGICAL INITIAL no 
      LABEL "User Field 68" 
      VIEW-AS TOGGLE-BOX
-     SIZE 31 BY .81 NO-UNDO.
+     SIZE 25 BY .81 NO-UNDO.
 
 DEFINE VARIABLE userField69 AS LOGICAL INITIAL no 
      LABEL "User Field 69" 
      VIEW-AS TOGGLE-BOX
-     SIZE 31 BY .81 NO-UNDO.
+     SIZE 25 BY .81 NO-UNDO.
 
 DEFINE VARIABLE userField70 AS LOGICAL INITIAL no 
      LABEL "User Field 70" 
      VIEW-AS TOGGLE-BOX
-     SIZE 31 BY .81 NO-UNDO.
+     SIZE 25 BY .81 NO-UNDO.
 
 DEFINE VARIABLE userField71 AS LOGICAL INITIAL no 
      LABEL "User Field 71" 
      VIEW-AS TOGGLE-BOX
-     SIZE 31 BY .81 NO-UNDO.
+     SIZE 25 BY .81 NO-UNDO.
 
 DEFINE VARIABLE userField72 AS LOGICAL INITIAL no 
      LABEL "User Field 72" 
      VIEW-AS TOGGLE-BOX
-     SIZE 31 BY .81 NO-UNDO.
+     SIZE 25 BY .81 NO-UNDO.
 
 DEFINE VARIABLE userField73 AS LOGICAL INITIAL no 
      LABEL "User Field 73" 
      VIEW-AS TOGGLE-BOX
-     SIZE 31 BY .81 NO-UNDO.
+     SIZE 25 BY .81 NO-UNDO.
 
 DEFINE VARIABLE userField74 AS LOGICAL INITIAL no 
      LABEL "User Field 74" 
      VIEW-AS TOGGLE-BOX
-     SIZE 31 BY .81 NO-UNDO.
+     SIZE 25 BY .81 NO-UNDO.
 
 DEFINE VARIABLE userField75 AS LOGICAL INITIAL no 
      LABEL "User Field 75" 
      VIEW-AS TOGGLE-BOX
-     SIZE 31 BY .81 NO-UNDO.
+     SIZE 25 BY .81 NO-UNDO.
 
 DEFINE VARIABLE userField76 AS LOGICAL INITIAL no 
      LABEL "User Field 76" 
      VIEW-AS TOGGLE-BOX
-     SIZE 31 BY .81 NO-UNDO.
+     SIZE 25 BY .81 NO-UNDO.
 
 DEFINE VARIABLE userField77 AS LOGICAL INITIAL no 
      LABEL "User Field 77" 
      VIEW-AS TOGGLE-BOX
-     SIZE 31 BY .81 NO-UNDO.
+     SIZE 25 BY .81 NO-UNDO.
 
 DEFINE VARIABLE userField78 AS LOGICAL INITIAL no 
      LABEL "User Field 78" 
      VIEW-AS TOGGLE-BOX
-     SIZE 31 BY .81 NO-UNDO.
+     SIZE 25 BY .81 NO-UNDO.
 
 DEFINE VARIABLE userField79 AS LOGICAL INITIAL no 
      LABEL "User Field 79" 
      VIEW-AS TOGGLE-BOX
-     SIZE 31 BY .81 NO-UNDO.
+     SIZE 25 BY .81 NO-UNDO.
 
 DEFINE VARIABLE userField80 AS LOGICAL INITIAL no 
      LABEL "User Field 80" 
      VIEW-AS TOGGLE-BOX
-     SIZE 31 BY .81 NO-UNDO.
+     SIZE 25 BY .81 NO-UNDO.
 
 DEFINE VARIABLE userField81 AS LOGICAL INITIAL no 
      LABEL "User Field 81" 
      VIEW-AS TOGGLE-BOX
-     SIZE 31 BY .81 NO-UNDO.
+     SIZE 25 BY .81 NO-UNDO.
 
 DEFINE VARIABLE userField82 AS LOGICAL INITIAL no 
      LABEL "User Field 82" 
      VIEW-AS TOGGLE-BOX
-     SIZE 31 BY .81 NO-UNDO.
+     SIZE 25 BY .81 NO-UNDO.
 
 DEFINE VARIABLE userField83 AS LOGICAL INITIAL no 
      LABEL "User Field 83" 
      VIEW-AS TOGGLE-BOX
-     SIZE 31 BY .81 NO-UNDO.
+     SIZE 25 BY .81 NO-UNDO.
 
 DEFINE VARIABLE userField84 AS LOGICAL INITIAL no 
      LABEL "User Field 84" 
      VIEW-AS TOGGLE-BOX
-     SIZE 31 BY .81 NO-UNDO.
+     SIZE 25 BY .81 NO-UNDO.
 
 DEFINE VARIABLE userField85 AS LOGICAL INITIAL no 
      LABEL "User Field 85" 
      VIEW-AS TOGGLE-BOX
-     SIZE 31 BY .81 NO-UNDO.
+     SIZE 25 BY .81 NO-UNDO.
 
 DEFINE VARIABLE userField86 AS LOGICAL INITIAL no 
      LABEL "User Field 86" 
      VIEW-AS TOGGLE-BOX
-     SIZE 31 BY .81 NO-UNDO.
+     SIZE 25 BY .81 NO-UNDO.
 
 DEFINE VARIABLE userField87 AS LOGICAL INITIAL no 
      LABEL "User Field 87" 
      VIEW-AS TOGGLE-BOX
-     SIZE 31 BY .81 NO-UNDO.
+     SIZE 25 BY .81 NO-UNDO.
 
 DEFINE VARIABLE userField88 AS LOGICAL INITIAL no 
      LABEL "User Field 88" 
      VIEW-AS TOGGLE-BOX
-     SIZE 31 BY .81 NO-UNDO.
+     SIZE 25 BY .81 NO-UNDO.
 
 DEFINE VARIABLE userField89 AS LOGICAL INITIAL no 
      LABEL "User Field 89" 
      VIEW-AS TOGGLE-BOX
-     SIZE 31 BY .81 NO-UNDO.
+     SIZE 25 BY .81 NO-UNDO.
 
 DEFINE VARIABLE userField90 AS LOGICAL INITIAL no 
      LABEL "User Field 90" 
      VIEW-AS TOGGLE-BOX
-     SIZE 31 BY .81 NO-UNDO.
+     SIZE 25 BY .81 NO-UNDO.
 
 DEFINE VARIABLE userField91 AS LOGICAL INITIAL no 
      LABEL "User Field 91" 
      VIEW-AS TOGGLE-BOX
-     SIZE 31 BY .81 NO-UNDO.
+     SIZE 25 BY .81 NO-UNDO.
 
 DEFINE VARIABLE userField92 AS LOGICAL INITIAL no 
      LABEL "User Field 92" 
      VIEW-AS TOGGLE-BOX
-     SIZE 31 BY .81 NO-UNDO.
+     SIZE 25 BY .81 NO-UNDO.
 
 DEFINE VARIABLE userField93 AS LOGICAL INITIAL no 
      LABEL "User Field 93" 
      VIEW-AS TOGGLE-BOX
-     SIZE 31 BY .81 NO-UNDO.
+     SIZE 25 BY .81 NO-UNDO.
 
 DEFINE VARIABLE userField94 AS LOGICAL INITIAL no 
      LABEL "User Field 94" 
      VIEW-AS TOGGLE-BOX
-     SIZE 31 BY .81 NO-UNDO.
+     SIZE 25 BY .81 NO-UNDO.
 
 DEFINE VARIABLE userField95 AS LOGICAL INITIAL no 
      LABEL "User Field 95" 
      VIEW-AS TOGGLE-BOX
-     SIZE 31 BY .81 NO-UNDO.
+     SIZE 25 BY .81 NO-UNDO.
 
 DEFINE VARIABLE userField96 AS LOGICAL INITIAL no 
      LABEL "User Field 96" 
      VIEW-AS TOGGLE-BOX
-     SIZE 31 BY .81 NO-UNDO.
+     SIZE 25 BY .81 NO-UNDO.
 
 DEFINE VARIABLE userField97 AS LOGICAL INITIAL no 
      LABEL "User Field 97" 
      VIEW-AS TOGGLE-BOX
-     SIZE 31 BY .81 NO-UNDO.
+     SIZE 25 BY .81 NO-UNDO.
 
 DEFINE VARIABLE userField98 AS LOGICAL INITIAL no 
      LABEL "User Field 98" 
      VIEW-AS TOGGLE-BOX
-     SIZE 31 BY .81 NO-UNDO.
+     SIZE 25 BY .81 NO-UNDO.
+
+DEFINE VARIABLE userField99 AS LOGICAL INITIAL no 
+     LABEL "User Field 99" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 25 BY .81 NO-UNDO.
 
 DEFINE VARIABLE useStatus AS LOGICAL INITIAL no 
      LABEL "Status Checkoffs" 
      VIEW-AS TOGGLE-BOX
-     SIZE 31 BY .81 NO-UNDO.
+     SIZE 25 BY .81 NO-UNDO.
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -2137,6 +2282,434 @@ DEFINE FRAME configurationFrame
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
          TITLE "Scheduler Configuration".
+
+DEFINE FRAME fieldsFrame
+     userField71 AT ROW 1.24 COL 2
+     userField72 AT ROW 2.19 COL 2
+     userField73 AT ROW 3.14 COL 2
+     userField74 AT ROW 4.1 COL 2
+     userField75 AT ROW 5.05 COL 2
+     userField76 AT ROW 6 COL 2
+     userField77 AT ROW 6.95 COL 2
+     userField24 AT ROW 7.91 COL 2
+     userField19 AT ROW 8.86 COL 2
+     userField03 AT ROW 9.81 COL 2
+     userField26 AT ROW 10.76 COL 2
+     userField04 AT ROW 11.71 COL 2
+     userField27 AT ROW 12.67 COL 2
+     userField34 AT ROW 13.62 COL 2
+     userField22 AT ROW 14.57 COL 2
+     userField79 AT ROW 15.52 COL 2
+     userField21 AT ROW 16.48 COL 2
+     userField25 AT ROW 17.43 COL 2
+     userField14 AT ROW 18.38 COL 2
+     userField28 AT ROW 19.33 COL 2
+     userField89 AT ROW 20.29 COL 2
+     userField69 AT ROW 21.24 COL 2
+     userField64 AT ROW 22.19 COL 2
+     userField63 AT ROW 23.14 COL 2
+     userField01 AT ROW 24.1 COL 2
+     userField02 AT ROW 1.24 COL 27
+     userField90 AT ROW 2.19 COL 27
+     userField12 AT ROW 3.14 COL 27
+     userField05 AT ROW 4.1 COL 27
+     userField80 AT ROW 5.05 COL 27
+     userField85 AT ROW 6 COL 27
+     userField92 AT ROW 6.95 COL 27
+     userField66 AT ROW 7.91 COL 27
+     userField68 AT ROW 8.86 COL 27
+     userField08 AT ROW 9.81 COL 27
+     userField81 AT ROW 10.76 COL 27
+     userField91 AT ROW 11.71 COL 27
+     userField18 AT ROW 12.67 COL 27
+     userField58 AT ROW 13.62 COL 27
+     userField59 AT ROW 14.57 COL 27
+     userField41 AT ROW 15.52 COL 27
+     userField42 AT ROW 16.48 COL 27
+     userField43 AT ROW 17.43 COL 27
+     userField44 AT ROW 18.38 COL 27
+     userField45 AT ROW 19.33 COL 27
+     userField46 AT ROW 20.29 COL 27
+     userField47 AT ROW 21.24 COL 27
+     userField48 AT ROW 22.19 COL 27
+     userField49 AT ROW 23.14 COL 27
+     userField50 AT ROW 24.1 COL 27
+     userField65 AT ROW 1.24 COL 51
+     userField67 AT ROW 2.19 COL 51
+     userField09 AT ROW 3.14 COL 51
+     userField83 AT ROW 4.1 COL 51
+     userField10 AT ROW 5.05 COL 51
+     userField32 AT ROW 6 COL 51
+     userField82 AT ROW 6.95 COL 51
+     userField30 AT ROW 7.91 COL 51
+     userField61 AT ROW 8.86 COL 51
+     userField93 AT ROW 9.81 COL 51
+     userField62 AT ROW 10.76 COL 51
+     userField94 AT ROW 11.71 COL 51
+     userField96 AT ROW 12.67 COL 51
+     userField102 AT ROW 13.62 COL 51 WIDGET-ID 8
+     userField100 AT ROW 14.57 COL 51 WIDGET-ID 4
+     userField98 AT ROW 15.52 COL 51
+     userField78 AT ROW 16.48 COL 51
+     userField87 AT ROW 17.43 COL 51
+     userField60 AT ROW 18.38 COL 51
+     userField56 AT ROW 19.33 COL 51
+     userField55 AT ROW 20.29 COL 51
+     userField51 AT ROW 21.24 COL 51
+     userField20 AT ROW 22.19 COL 51
+     userField06 AT ROW 23.14 COL 51
+     userField07 AT ROW 24.1 COL 51
+     userField16 AT ROW 1.24 COL 76
+     userField35 AT ROW 2.19 COL 76
+     userField57 AT ROW 3.14 COL 76
+     userField52 AT ROW 4.1 COL 76
+     userField38 AT ROW 5.05 COL 76
+     userField37 AT ROW 6 COL 76
+     userField95 AT ROW 6.95 COL 76
+     userField54 AT ROW 7.91 COL 76
+     userField15 AT ROW 8.86 COL 76
+     userField97 AT ROW 9.81 COL 76
+     userField103 AT ROW 10.76 COL 76 WIDGET-ID 10
+     userField101 AT ROW 11.71 COL 76 WIDGET-ID 6
+    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 24 ROW 1.24
+         SIZE 129 BY 25.
+
+/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
+DEFINE FRAME fieldsFrame
+     userField36 AT ROW 12.67 COL 76
+     useNotes AT ROW 13.62 COL 76
+     userField23 AT ROW 14.57 COL 76
+     userField39 AT ROW 15.52 COL 76
+     userField40 AT ROW 16.48 COL 76
+     userField99 AT ROW 17.43 COL 76 WIDGET-ID 2
+     userField88 AT ROW 18.38 COL 76
+     useStatus AT ROW 19.33 COL 76
+     userField13 AT ROW 20.29 COL 76
+     userField53 AT ROW 21.24 COL 76
+     userField29 AT ROW 22.19 COL 76
+     userField33 AT ROW 23.14 COL 76
+     userField86 AT ROW 24.1 COL 76
+     userField84 AT ROW 1.24 COL 102
+     userField31 AT ROW 2.19 COL 102
+     userField70 AT ROW 3.14 COL 102
+     userField17 AT ROW 4.1 COL 102
+     userField11 AT ROW 5.05 COL 102
+     userField104 AT ROW 6 COL 102 WIDGET-ID 12
+     userField105 AT ROW 6.95 COL 102 WIDGET-ID 14
+     userField106 AT ROW 7.91 COL 102 WIDGET-ID 16
+     userField107 AT ROW 8.86 COL 102 WIDGET-ID 18
+     userField108 AT ROW 9.81 COL 102 WIDGET-ID 20
+     userField109 AT ROW 10.76 COL 102 WIDGET-ID 22
+     userField110 AT ROW 11.71 COL 102 WIDGET-ID 24
+     userField111 AT ROW 12.67 COL 102 WIDGET-ID 26
+     userField112 AT ROW 13.62 COL 102 WIDGET-ID 28
+     userField113 AT ROW 14.57 COL 102 WIDGET-ID 30
+     userField114 AT ROW 15.52 COL 102 WIDGET-ID 32
+     userField115 AT ROW 16.48 COL 102 WIDGET-ID 34
+     userField116 AT ROW 17.43 COL 102 WIDGET-ID 36
+     userField117 AT ROW 18.38 COL 102 WIDGET-ID 38
+     userField118 AT ROW 19.33 COL 102 WIDGET-ID 40
+     userField119 AT ROW 20.29 COL 102 WIDGET-ID 42
+     userField120 AT ROW 21.24 COL 102 WIDGET-ID 44
+     userField121 AT ROW 22.19 COL 102 WIDGET-ID 46
+     userField122 AT ROW 23.14 COL 102 WIDGET-ID 48
+     userField123 AT ROW 24.1 COL 102 WIDGET-ID 50
+    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 24 ROW 1.24
+         SIZE 129 BY 25
+         TITLE "Fields".
+
+DEFINE FRAME colorsFrame
+     jobLabel-1 AT ROW 1.95 COL 3 COLON-ALIGNED
+     customLabel-1 AT ROW 1.95 COL 73 COLON-ALIGNED
+     customValue-1 AT ROW 1.95 COL 93 COLON-ALIGNED NO-LABEL
+     colorPriorityValue-13 AT ROW 1.95 COL 118 COLON-ALIGNED NO-LABEL
+     jobLabel-2 AT ROW 3.14 COL 3 COLON-ALIGNED
+     customLabel-2 AT ROW 3.14 COL 73 COLON-ALIGNED
+     customValue-2 AT ROW 3.14 COL 93 COLON-ALIGNED NO-LABEL
+     colorPriorityValue-14 AT ROW 3.14 COL 118 COLON-ALIGNED NO-LABEL
+     jobLabel-3 AT ROW 4.33 COL 3 COLON-ALIGNED
+     colorPriorityValue-1 AT ROW 4.33 COL 33 COLON-ALIGNED NO-LABEL
+     customLabel-3 AT ROW 4.33 COL 73 COLON-ALIGNED
+     customValue-3 AT ROW 4.33 COL 93 COLON-ALIGNED NO-LABEL
+     colorPriorityValue-15 AT ROW 4.33 COL 118 COLON-ALIGNED NO-LABEL
+     jobLabel-4 AT ROW 5.52 COL 3 COLON-ALIGNED
+     colorPriorityValue-2 AT ROW 5.52 COL 33 COLON-ALIGNED NO-LABEL
+     customLabel-4 AT ROW 5.52 COL 73 COLON-ALIGNED
+     customValue-4 AT ROW 5.52 COL 93 COLON-ALIGNED NO-LABEL
+     colorPriorityValue-16 AT ROW 5.52 COL 118 COLON-ALIGNED NO-LABEL
+     jobLabel-5 AT ROW 6.71 COL 3 COLON-ALIGNED
+     colorPriorityValue-3 AT ROW 6.71 COL 33 COLON-ALIGNED NO-LABEL
+     customLabel-5 AT ROW 6.71 COL 73 COLON-ALIGNED
+     customValue-5 AT ROW 6.71 COL 93 COLON-ALIGNED NO-LABEL
+     colorPriorityValue-17 AT ROW 6.71 COL 118 COLON-ALIGNED NO-LABEL
+     jobLabel-6 AT ROW 7.91 COL 3 COLON-ALIGNED
+     colorPriorityValue-4 AT ROW 7.91 COL 33 COLON-ALIGNED NO-LABEL
+     customLabel-6 AT ROW 7.91 COL 73 COLON-ALIGNED
+     customValue-6 AT ROW 7.91 COL 93 COLON-ALIGNED NO-LABEL
+     colorPriorityValue-18 AT ROW 7.91 COL 118 COLON-ALIGNED NO-LABEL
+     jobLabel-7 AT ROW 9.1 COL 3 COLON-ALIGNED
+     colorPriorityValue-5 AT ROW 9.1 COL 33 COLON-ALIGNED NO-LABEL
+     customLabel-7 AT ROW 9.1 COL 73 COLON-ALIGNED
+     customValue-7 AT ROW 9.1 COL 93 COLON-ALIGNED NO-LABEL
+     colorPriorityValue-19 AT ROW 9.1 COL 118 COLON-ALIGNED NO-LABEL
+     jobLabel-8 AT ROW 10.29 COL 3 COLON-ALIGNED
+     colorPriorityValue-6 AT ROW 10.29 COL 33 COLON-ALIGNED NO-LABEL
+     customLabel-8 AT ROW 10.29 COL 73 COLON-ALIGNED
+     customValue-8 AT ROW 10.29 COL 93 COLON-ALIGNED NO-LABEL
+     colorPriorityValue-20 AT ROW 10.29 COL 118 COLON-ALIGNED NO-LABEL
+     jobLabel-9 AT ROW 11.48 COL 3 COLON-ALIGNED
+     colorPriorityValue-7 AT ROW 11.48 COL 33 COLON-ALIGNED NO-LABEL
+     customLabel-9 AT ROW 11.48 COL 73 COLON-ALIGNED
+     customValue-9 AT ROW 11.48 COL 93 COLON-ALIGNED NO-LABEL
+     colorPriorityValue-21 AT ROW 11.48 COL 118 COLON-ALIGNED NO-LABEL
+     jobLabel-10 AT ROW 12.67 COL 3 COLON-ALIGNED
+     colorPriorityValue-8 AT ROW 12.67 COL 33 COLON-ALIGNED NO-LABEL
+     customLabel-10 AT ROW 12.67 COL 73 COLON-ALIGNED
+     customValue-10 AT ROW 12.67 COL 93 COLON-ALIGNED NO-LABEL
+     colorPriorityValue-22 AT ROW 12.67 COL 118 COLON-ALIGNED NO-LABEL
+     jobLabel-11 AT ROW 13.86 COL 3 COLON-ALIGNED
+     colorPriorityValue-9 AT ROW 13.86 COL 33 COLON-ALIGNED NO-LABEL
+     customLabel-11 AT ROW 13.86 COL 73 COLON-ALIGNED
+     customValue-11 AT ROW 13.86 COL 93 COLON-ALIGNED NO-LABEL
+     colorPriorityValue-23 AT ROW 13.86 COL 118 COLON-ALIGNED NO-LABEL
+     jobLabel-12 AT ROW 15.05 COL 3 COLON-ALIGNED
+    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 24 ROW 1.24
+         SIZE 129 BY 25.24.
+
+/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
+DEFINE FRAME colorsFrame
+     colorPriorityValue-10 AT ROW 15.05 COL 33 COLON-ALIGNED NO-LABEL
+     customLabel-12 AT ROW 15.05 COL 73 COLON-ALIGNED
+     customValue-12 AT ROW 15.05 COL 93 COLON-ALIGNED NO-LABEL
+     colorPriorityValue-24 AT ROW 15.05 COL 118 COLON-ALIGNED NO-LABEL
+     jobLabel-13 AT ROW 16.24 COL 3 COLON-ALIGNED
+     colorPriorityValue-11 AT ROW 16.24 COL 33 COLON-ALIGNED NO-LABEL
+     customLabel-13 AT ROW 16.24 COL 73 COLON-ALIGNED
+     customValue-13 AT ROW 16.24 COL 93 COLON-ALIGNED NO-LABEL
+     colorPriorityValue-25 AT ROW 16.24 COL 118 COLON-ALIGNED NO-LABEL
+     jobLabel-14 AT ROW 17.43 COL 3 COLON-ALIGNED
+     colorPriorityValue-12 AT ROW 17.43 COL 33 COLON-ALIGNED NO-LABEL
+     customLabel-14 AT ROW 17.43 COL 73 COLON-ALIGNED
+     customValue-14 AT ROW 17.43 COL 93 COLON-ALIGNED NO-LABEL
+     colorPriorityValue-26 AT ROW 17.43 COL 118 COLON-ALIGNED NO-LABEL
+     colorPriorityValue-27 AT ROW 18.86 COL 33 COLON-ALIGNED NO-LABEL
+     colorPriorityValue-28 AT ROW 18.86 COL 118 COLON-ALIGNED NO-LABEL
+     reloadReportValue AT ROW 21 COL 21 NO-LABEL
+     customCheckoffValue AT ROW 21 COL 83 HELP
+          "Select to Apply Checkoff to Whole Job vs. Each Resource"
+     reloadStatusValue AT ROW 22.19 COL 21 NO-LABEL
+     completedCheckoffValue AT ROW 22.19 COL 83 HELP
+          "Select to Apply Completed Checkoff to Whole Job vs. Each Resour"
+     btnHTMLPageLocation AT ROW 23.62 COL 82 HELP
+          "Click to Set HTML Page Location" WIDGET-ID 2
+     dueDateUsedValue AT ROW 24.1 COL 32 HELP
+          "Select Due Date/Production Date" NO-LABEL
+     "<Start--End><Due><Now>" VIEW-AS TEXT
+          SIZE 25 BY 1 AT ROW 12.67 COL 44
+          FONT 1
+     "<Start--End><Now><Due>" VIEW-AS TEXT
+          SIZE 25 BY 1 AT ROW 11.48 COL 44
+          FONT 1
+     "[Status Checkoff Default Settings]" VIEW-AS TEXT
+          SIZE 32 BY .62 AT ROW 20.29 COL 83
+          BGCOLOR 8 
+     "<Start--Now--Due--End>" VIEW-AS TEXT
+          SIZE 25 BY 1 AT ROW 9.1 COL 44
+          FONT 1
+     "[Set Job Color based on <Due>]" VIEW-AS TEXT
+          SIZE 31 BY .62 AT ROW 23.38 COL 3
+          BGCOLOR 8 
+     "Job Conflict Color" VIEW-AS TEXT
+          SIZE 17 BY .62 AT ROW 19.1 COL 7
+     "Priority" VIEW-AS TEXT
+          SIZE 7 BY .62 AT ROW 1.24 COL 36
+     "<Now><Start--End><Due>" VIEW-AS TEXT
+          SIZE 25 BY 1 AT ROW 4.33 COL 44
+          FONT 1
+     "Status Checkoffs:" VIEW-AS TEXT
+          SIZE 17 BY .81 AT ROW 22.19 COL 3
+     "<Unavailable>" VIEW-AS TEXT
+          SIZE 14 BY 1 AT ROW 1.95 COL 44
+          FONT 1
+     "Downtime Conflict Color" VIEW-AS TEXT
+          SIZE 23 BY .62 AT ROW 19.1 COL 86
+     "Reports:" VIEW-AS TEXT
+          SIZE 8 BY .81 AT ROW 21 COL 12
+     "BG   FG" VIEW-AS TEXT
+          SIZE 8 BY .62 AT ROW 1.24 COL 27
+          FONT 1
+     "<Now><Due><Start--End>" VIEW-AS TEXT
+          SIZE 25 BY 1 AT ROW 6.71 COL 44
+          FONT 1
+     "Value" VIEW-AS TEXT
+          SIZE 7 BY .62 AT ROW 1.24 COL 99
+     "Default ~"<Due>~" Value Used:" VIEW-AS TEXT
+          SIZE 28 BY .81 AT ROW 24.1 COL 3
+    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 24 ROW 1.24
+         SIZE 129 BY 25.24.
+
+/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
+DEFINE FRAME colorsFrame
+     "Job Color Label" VIEW-AS TEXT
+          SIZE 16 BY .62 AT ROW 1.24 COL 6
+     "BG   FG" VIEW-AS TEXT
+          SIZE 8 BY .62 AT ROW 1.24 COL 112
+          FONT 1
+     "<Job Completed>" VIEW-AS TEXT
+          SIZE 17 BY 1 AT ROW 3.14 COL 44
+          FONT 1
+     "<Due><Start--End><Now>" VIEW-AS TEXT
+          SIZE 25 BY 1 AT ROW 15.05 COL 44
+          FONT 1
+     "Priority" VIEW-AS TEXT
+          SIZE 7 BY .62 AT ROW 1.24 COL 121
+     "[External Program Load Setting]" VIEW-AS TEXT
+          SIZE 30 BY .62 AT ROW 20.29 COL 3
+          BGCOLOR 8 
+     "<Due><Start--Now--End>" VIEW-AS TEXT
+          SIZE 25 BY 1 AT ROW 16.24 COL 44
+          FONT 1
+     "Custom Color Label" VIEW-AS TEXT
+          SIZE 19 BY .62 AT ROW 1.24 COL 76
+     "<Start--Now--End><Due>" VIEW-AS TEXT
+          SIZE 25 BY 1 AT ROW 7.91 COL 44
+          FONT 1
+     "<Now><Start--Due--End>" VIEW-AS TEXT
+          SIZE 25 BY 1 AT ROW 5.52 COL 44
+          FONT 1
+     "<Start--Due--End><Now>" VIEW-AS TEXT
+          SIZE 25 BY 1 AT ROW 13.86 COL 44
+          FONT 1
+     "<Due><Now><Start--End>" VIEW-AS TEXT
+          SIZE 25 BY 1 AT ROW 17.43 COL 44
+          FONT 1
+     "<Start--Due--Now--End>" VIEW-AS TEXT
+          SIZE 25 BY 1 AT ROW 10.29 COL 44
+          FONT 1
+     RECT-7 AT ROW 18.62 COL 2
+     customBGColor-1 AT ROW 1.95 COL 110
+     customBGColor-10 AT ROW 12.67 COL 110
+     customBGColor-11 AT ROW 13.86 COL 110
+     customBGColor-12 AT ROW 15.05 COL 110
+     customBGColor-13 AT ROW 16.24 COL 110
+     customBGColor-14 AT ROW 17.43 COL 110
+     customBGColor-2 AT ROW 3.14 COL 110
+     customBGColor-3 AT ROW 4.33 COL 110
+     customBGColor-4 AT ROW 5.52 COL 110
+     customBGColor-5 AT ROW 6.71 COL 110
+     customBGColor-6 AT ROW 7.91 COL 110
+     customBGColor-7 AT ROW 9.1 COL 110
+     customBGColor-8 AT ROW 10.29 COL 110
+     customBGColor-9 AT ROW 11.48 COL 110
+     downtimeConflictBGColorValue AT ROW 18.86 COL 110
+     jobBGColor-1 AT ROW 1.95 COL 25
+     jobBGColor-10 AT ROW 12.67 COL 25
+     jobBGColor-11 AT ROW 13.86 COL 25
+     jobBGColor-12 AT ROW 15.05 COL 25
+     jobBGColor-13 AT ROW 16.24 COL 25
+     jobBGColor-14 AT ROW 17.43 COL 25
+     jobBGColor-2 AT ROW 3.14 COL 25
+     jobBGColor-3 AT ROW 4.33 COL 25
+     jobBGColor-4 AT ROW 5.52 COL 25
+     jobBGColor-5 AT ROW 6.71 COL 25
+     jobBGColor-6 AT ROW 7.91 COL 25
+     jobBGColor-7 AT ROW 9.1 COL 25
+     jobBGColor-8 AT ROW 10.29 COL 25
+     jobBGColor-9 AT ROW 11.48 COL 25
+     jobConflictBGColorValue AT ROW 18.86 COL 25
+     jobFGColor-1 AT ROW 1.95 COL 32
+     jobFGColor-2 AT ROW 3.14 COL 32
+     jobFGColor-3 AT ROW 4.33 COL 32
+     jobFGColor-4 AT ROW 5.52 COL 32
+     jobFGColor-5 AT ROW 6.71 COL 32
+     jobFGColor-6 AT ROW 7.91 COL 32
+     jobFGColor-7 AT ROW 9.1 COL 32
+     jobFGColor-8 AT ROW 10.29 COL 32
+     jobFGColor-9 AT ROW 11.48 COL 32
+     jobFGColor-10 AT ROW 12.67 COL 32
+     jobFGColor-11 AT ROW 13.86 COL 32
+     jobFGColor-12 AT ROW 15.05 COL 32
+     jobFGColor-13 AT ROW 16.24 COL 32
+    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 24 ROW 1.24
+         SIZE 129 BY 25.24.
+
+/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
+DEFINE FRAME colorsFrame
+     jobFGColor-14 AT ROW 17.43 COL 32
+     jobConflictFGColorValue AT ROW 18.86 COL 32
+     downtimeConflictFGColorValue AT ROW 18.86 COL 117
+     customFGColor-1 AT ROW 1.95 COL 117
+     customFGColor-2 AT ROW 3.14 COL 117
+     customFGColor-3 AT ROW 4.33 COL 117
+     customFGColor-4 AT ROW 5.52 COL 117
+     customFGColor-5 AT ROW 6.71 COL 117
+     customFGColor-6 AT ROW 7.91 COL 117
+     customFGColor-7 AT ROW 9.1 COL 117
+     customFGColor-8 AT ROW 10.29 COL 117
+     customFGColor-9 AT ROW 11.48 COL 117
+     customFGColor-10 AT ROW 12.67 COL 117
+     customFGColor-11 AT ROW 13.86 COL 117
+     customFGColor-12 AT ROW 15.05 COL 117
+     customFGColor-13 AT ROW 16.24 COL 117
+     customFGColor-14 AT ROW 17.43 COL 117
+     RECT-11 AT ROW 20.52 COL 82
+     RECT-12 AT ROW 20.52 COL 2
+     RECT-13 AT ROW 23.62 COL 2
+    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 24 ROW 1.24
+         SIZE 129 BY 25.24
+         TITLE "Color, Label & Priority Settings".
+
+DEFINE FRAME colorDisplayFrame
+     "No Color" VIEW-AS TEXT
+          SIZE 9 BY .52 AT ROW 19.33 COL 5
+     colorChoice-0 AT ROW 1.24 COL 2
+     colorChoice-1 AT ROW 2.43 COL 2
+     colorChoice-10 AT ROW 3.62 COL 10
+     colorChoice-11 AT ROW 4.81 COL 10
+     colorChoice-12 AT ROW 6 COL 10
+     colorChoice-13 AT ROW 7.19 COL 10
+     colorChoice-14 AT ROW 8.38 COL 10
+     colorChoice-15 AT ROW 1.24 COL 10
+     colorChoice-30 AT ROW 19.1 COL 2
+     colorChoice-2 AT ROW 3.62 COL 2
+     colorChoice-3 AT ROW 4.81 COL 2
+     colorChoice-4 AT ROW 6 COL 2
+     colorChoice-5 AT ROW 7.19 COL 2
+     colorChoice-6 AT ROW 8.38 COL 2
+     colorChoice-7 AT ROW 9.57 COL 2
+     colorChoice-8 AT ROW 9.57 COL 10
+     colorChoice-9 AT ROW 2.43 COL 10
+     colorChoice-16 AT ROW 10.76 COL 2
+     colorChoice-17 AT ROW 11.95 COL 2
+     colorChoice-18 AT ROW 13.14 COL 2
+     colorChoice-19 AT ROW 14.33 COL 2
+     colorChoice-20 AT ROW 15.52 COL 2
+     colorChoice-21 AT ROW 16.71 COL 2
+     colorChoice-22 AT ROW 17.91 COL 2
+     colorChoice-23 AT ROW 10.76 COL 10
+     colorChoice-24 AT ROW 11.95 COL 10
+     colorChoice-25 AT ROW 13.14 COL 10
+     colorChoice-26 AT ROW 14.33 COL 10
+     colorChoice-27 AT ROW 15.52 COL 10
+     colorChoice-28 AT ROW 16.71 COL 10
+     colorChoice-29 AT ROW 17.91 COL 10
+    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 3 ROW 4.1
+         SIZE 17 BY 20.24
+         TITLE "Colors".
 
 DEFINE FRAME defaultsFrame
      intervals AT ROW 1.95 COL 10 COLON-ALIGNED HELP
@@ -2243,9 +2816,6 @@ DEFINE FRAME defaultsFrame
      rectDTOver AT ROW 4.81 COL 99 COLON-ALIGNED NO-LABEL
      "Job Conflict Settings" VIEW-AS TEXT
           SIZE 20 BY .62 AT ROW 15.05 COL 91
-     "[Conflict Settings]" VIEW-AS TEXT
-          SIZE 16.8 BY .62 AT ROW 14.33 COL 91
-          BGCOLOR 8 
      "[Priority Settings]" VIEW-AS TEXT
           SIZE 16 BY .62 AT ROW 10.76 COL 91
           BGCOLOR 8 
@@ -2281,6 +2851,8 @@ DEFINE FRAME defaultsFrame
      "[Resource Popup Settings]" VIEW-AS TEXT
           SIZE 26 BY .62 AT ROW 20.76 COL 3
           BGCOLOR 8 
+     "Downtime Conflict Settings" VIEW-AS TEXT
+          SIZE 26 BY .62 AT ROW 16.95 COL 91
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 24 ROW 1.24
@@ -2288,8 +2860,6 @@ DEFINE FRAME defaultsFrame
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME defaultsFrame
-     "Downtime Conflict Settings" VIEW-AS TEXT
-          SIZE 26 BY .62 AT ROW 16.95 COL 91
      "Board Background Color" VIEW-AS TEXT
           SIZE 24 BY .62 AT ROW 4.57 COL 10
      "Res. Seq.:" VIEW-AS TEXT
@@ -2299,10 +2869,13 @@ DEFINE FRAME defaultsFrame
           FGCOLOR 12 
      "Auto: Save | Refresh | Monitor" VIEW-AS TEXT
           SIZE 30 BY .62 AT ROW 11.48 COL 3
-     "Resource Grid Background Color" VIEW-AS TEXT
-          SIZE 32 BY .62 AT ROW 5.76 COL 10
      "Job Selection Highlight Color" VIEW-AS TEXT
           SIZE 27.6 BY .62 AT ROW 10.52 COL 10
+     "Resource Grid Background Color" VIEW-AS TEXT
+          SIZE 32 BY .62 AT ROW 5.76 COL 10
+     "[Conflict Settings]" VIEW-AS TEXT
+          SIZE 16.8 BY .62 AT ROW 14.33 COL 91
+          BGCOLOR 8 
      RECT-3 AT ROW 21 COL 2
      RECT-1 AT ROW 1.48 COL 2
      rectGrid AT ROW 4.81 COL 91
@@ -2331,409 +2904,6 @@ DEFINE FRAME defaultsFrame
          AT COL 24 ROW 1.24
          SIZE 129 BY 25.24
          TITLE "Default Settings".
-
-DEFINE FRAME colorDisplayFrame
-     "No Color" VIEW-AS TEXT
-          SIZE 9 BY .52 AT ROW 19.33 COL 5
-     colorChoice-0 AT ROW 1.24 COL 2
-     colorChoice-1 AT ROW 2.43 COL 2
-     colorChoice-10 AT ROW 3.62 COL 10
-     colorChoice-11 AT ROW 4.81 COL 10
-     colorChoice-12 AT ROW 6 COL 10
-     colorChoice-13 AT ROW 7.19 COL 10
-     colorChoice-14 AT ROW 8.38 COL 10
-     colorChoice-15 AT ROW 1.24 COL 10
-     colorChoice-30 AT ROW 19.1 COL 2
-     colorChoice-2 AT ROW 3.62 COL 2
-     colorChoice-3 AT ROW 4.81 COL 2
-     colorChoice-4 AT ROW 6 COL 2
-     colorChoice-5 AT ROW 7.19 COL 2
-     colorChoice-6 AT ROW 8.38 COL 2
-     colorChoice-7 AT ROW 9.57 COL 2
-     colorChoice-8 AT ROW 9.57 COL 10
-     colorChoice-9 AT ROW 2.43 COL 10
-     colorChoice-16 AT ROW 10.76 COL 2
-     colorChoice-17 AT ROW 11.95 COL 2
-     colorChoice-18 AT ROW 13.14 COL 2
-     colorChoice-19 AT ROW 14.33 COL 2
-     colorChoice-20 AT ROW 15.52 COL 2
-     colorChoice-21 AT ROW 16.71 COL 2
-     colorChoice-22 AT ROW 17.91 COL 2
-     colorChoice-23 AT ROW 10.76 COL 10
-     colorChoice-24 AT ROW 11.95 COL 10
-     colorChoice-25 AT ROW 13.14 COL 10
-     colorChoice-26 AT ROW 14.33 COL 10
-     colorChoice-27 AT ROW 15.52 COL 10
-     colorChoice-28 AT ROW 16.71 COL 10
-     colorChoice-29 AT ROW 17.91 COL 10
-    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 3 ROW 4.1
-         SIZE 17 BY 20.24
-         TITLE "Colors".
-
-DEFINE FRAME colorsFrame
-     jobLabel-1 AT ROW 1.95 COL 3 COLON-ALIGNED
-     customLabel-1 AT ROW 1.95 COL 73 COLON-ALIGNED
-     customValue-1 AT ROW 1.95 COL 93 COLON-ALIGNED NO-LABEL
-     colorPriorityValue-13 AT ROW 1.95 COL 118 COLON-ALIGNED NO-LABEL
-     jobLabel-2 AT ROW 3.14 COL 3 COLON-ALIGNED
-     customLabel-2 AT ROW 3.14 COL 73 COLON-ALIGNED
-     customValue-2 AT ROW 3.14 COL 93 COLON-ALIGNED NO-LABEL
-     colorPriorityValue-14 AT ROW 3.14 COL 118 COLON-ALIGNED NO-LABEL
-     jobLabel-3 AT ROW 4.33 COL 3 COLON-ALIGNED
-     colorPriorityValue-1 AT ROW 4.33 COL 33 COLON-ALIGNED NO-LABEL
-     customLabel-3 AT ROW 4.33 COL 73 COLON-ALIGNED
-     customValue-3 AT ROW 4.33 COL 93 COLON-ALIGNED NO-LABEL
-     colorPriorityValue-15 AT ROW 4.33 COL 118 COLON-ALIGNED NO-LABEL
-     jobLabel-4 AT ROW 5.52 COL 3 COLON-ALIGNED
-     colorPriorityValue-2 AT ROW 5.52 COL 33 COLON-ALIGNED NO-LABEL
-     customLabel-4 AT ROW 5.52 COL 73 COLON-ALIGNED
-     customValue-4 AT ROW 5.52 COL 93 COLON-ALIGNED NO-LABEL
-     colorPriorityValue-16 AT ROW 5.52 COL 118 COLON-ALIGNED NO-LABEL
-     jobLabel-5 AT ROW 6.71 COL 3 COLON-ALIGNED
-     colorPriorityValue-3 AT ROW 6.71 COL 33 COLON-ALIGNED NO-LABEL
-     customLabel-5 AT ROW 6.71 COL 73 COLON-ALIGNED
-     customValue-5 AT ROW 6.71 COL 93 COLON-ALIGNED NO-LABEL
-     colorPriorityValue-17 AT ROW 6.71 COL 118 COLON-ALIGNED NO-LABEL
-     jobLabel-6 AT ROW 7.91 COL 3 COLON-ALIGNED
-     colorPriorityValue-4 AT ROW 7.91 COL 33 COLON-ALIGNED NO-LABEL
-     customLabel-6 AT ROW 7.91 COL 73 COLON-ALIGNED
-     customValue-6 AT ROW 7.91 COL 93 COLON-ALIGNED NO-LABEL
-     colorPriorityValue-18 AT ROW 7.91 COL 118 COLON-ALIGNED NO-LABEL
-     jobLabel-7 AT ROW 9.1 COL 3 COLON-ALIGNED
-     colorPriorityValue-5 AT ROW 9.1 COL 33 COLON-ALIGNED NO-LABEL
-     customLabel-7 AT ROW 9.1 COL 73 COLON-ALIGNED
-     customValue-7 AT ROW 9.1 COL 93 COLON-ALIGNED NO-LABEL
-     colorPriorityValue-19 AT ROW 9.1 COL 118 COLON-ALIGNED NO-LABEL
-     jobLabel-8 AT ROW 10.29 COL 3 COLON-ALIGNED
-     colorPriorityValue-6 AT ROW 10.29 COL 33 COLON-ALIGNED NO-LABEL
-     customLabel-8 AT ROW 10.29 COL 73 COLON-ALIGNED
-     customValue-8 AT ROW 10.29 COL 93 COLON-ALIGNED NO-LABEL
-     colorPriorityValue-20 AT ROW 10.29 COL 118 COLON-ALIGNED NO-LABEL
-     jobLabel-9 AT ROW 11.48 COL 3 COLON-ALIGNED
-     colorPriorityValue-7 AT ROW 11.48 COL 33 COLON-ALIGNED NO-LABEL
-     customLabel-9 AT ROW 11.48 COL 73 COLON-ALIGNED
-     customValue-9 AT ROW 11.48 COL 93 COLON-ALIGNED NO-LABEL
-     colorPriorityValue-21 AT ROW 11.48 COL 118 COLON-ALIGNED NO-LABEL
-     jobLabel-10 AT ROW 12.67 COL 3 COLON-ALIGNED
-     colorPriorityValue-8 AT ROW 12.67 COL 33 COLON-ALIGNED NO-LABEL
-     customLabel-10 AT ROW 12.67 COL 73 COLON-ALIGNED
-     customValue-10 AT ROW 12.67 COL 93 COLON-ALIGNED NO-LABEL
-     colorPriorityValue-22 AT ROW 12.67 COL 118 COLON-ALIGNED NO-LABEL
-     jobLabel-11 AT ROW 13.86 COL 3 COLON-ALIGNED
-     colorPriorityValue-9 AT ROW 13.86 COL 33 COLON-ALIGNED NO-LABEL
-     customLabel-11 AT ROW 13.86 COL 73 COLON-ALIGNED
-     customValue-11 AT ROW 13.86 COL 93 COLON-ALIGNED NO-LABEL
-     colorPriorityValue-23 AT ROW 13.86 COL 118 COLON-ALIGNED NO-LABEL
-     jobLabel-12 AT ROW 15.05 COL 3 COLON-ALIGNED
-    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 24 ROW 1.24
-         SIZE 129 BY 25.24.
-
-/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
-DEFINE FRAME colorsFrame
-     colorPriorityValue-10 AT ROW 15.05 COL 33 COLON-ALIGNED NO-LABEL
-     customLabel-12 AT ROW 15.05 COL 73 COLON-ALIGNED
-     customValue-12 AT ROW 15.05 COL 93 COLON-ALIGNED NO-LABEL
-     colorPriorityValue-24 AT ROW 15.05 COL 118 COLON-ALIGNED NO-LABEL
-     jobLabel-13 AT ROW 16.24 COL 3 COLON-ALIGNED
-     colorPriorityValue-11 AT ROW 16.24 COL 33 COLON-ALIGNED NO-LABEL
-     customLabel-13 AT ROW 16.24 COL 73 COLON-ALIGNED
-     customValue-13 AT ROW 16.24 COL 93 COLON-ALIGNED NO-LABEL
-     colorPriorityValue-25 AT ROW 16.24 COL 118 COLON-ALIGNED NO-LABEL
-     jobLabel-14 AT ROW 17.43 COL 3 COLON-ALIGNED
-     colorPriorityValue-12 AT ROW 17.43 COL 33 COLON-ALIGNED NO-LABEL
-     customLabel-14 AT ROW 17.43 COL 73 COLON-ALIGNED
-     customValue-14 AT ROW 17.43 COL 93 COLON-ALIGNED NO-LABEL
-     colorPriorityValue-26 AT ROW 17.43 COL 118 COLON-ALIGNED NO-LABEL
-     colorPriorityValue-27 AT ROW 18.86 COL 33 COLON-ALIGNED NO-LABEL
-     colorPriorityValue-28 AT ROW 18.86 COL 118 COLON-ALIGNED NO-LABEL
-     reloadReportValue AT ROW 21 COL 21 NO-LABEL
-     customCheckoffValue AT ROW 21 COL 83 HELP
-          "Select to Apply Checkoff to Whole Job vs. Each Resource"
-     reloadStatusValue AT ROW 22.19 COL 21 NO-LABEL
-     completedCheckoffValue AT ROW 22.19 COL 83 HELP
-          "Select to Apply Completed Checkoff to Whole Job vs. Each Resour"
-     btnHTMLPageLocation AT ROW 23.62 COL 82 HELP
-          "Click to Set HTML Page Location" WIDGET-ID 2
-     dueDateUsedValue AT ROW 24.1 COL 32 HELP
-          "Select Due Date/Production Date" NO-LABEL
-     "Priority" VIEW-AS TEXT
-          SIZE 7 BY .62 AT ROW 1.24 COL 36
-     "<Now><Start--End><Due>" VIEW-AS TEXT
-          SIZE 25 BY 1 AT ROW 4.33 COL 44
-          FONT 1
-     "Status Checkoffs:" VIEW-AS TEXT
-          SIZE 17 BY .81 AT ROW 22.19 COL 3
-     "<Unavailable>" VIEW-AS TEXT
-          SIZE 14 BY 1 AT ROW 1.95 COL 44
-          FONT 1
-     "Downtime Conflict Color" VIEW-AS TEXT
-          SIZE 23 BY .62 AT ROW 19.1 COL 86
-     "Reports:" VIEW-AS TEXT
-          SIZE 8 BY .81 AT ROW 21 COL 12
-     "BG   FG" VIEW-AS TEXT
-          SIZE 8 BY .62 AT ROW 1.24 COL 27
-          FONT 1
-     "<Now><Due><Start--End>" VIEW-AS TEXT
-          SIZE 25 BY 1 AT ROW 6.71 COL 44
-          FONT 1
-     "Value" VIEW-AS TEXT
-          SIZE 7 BY .62 AT ROW 1.24 COL 99
-     "Default ~"<Due>~" Value Used:" VIEW-AS TEXT
-          SIZE 28 BY .81 AT ROW 24.1 COL 3
-     "Job Color Label" VIEW-AS TEXT
-          SIZE 16 BY .62 AT ROW 1.24 COL 6
-     "BG   FG" VIEW-AS TEXT
-          SIZE 8 BY .62 AT ROW 1.24 COL 112
-          FONT 1
-     "<Job Completed>" VIEW-AS TEXT
-          SIZE 17 BY 1 AT ROW 3.14 COL 44
-          FONT 1
-     "<Due><Start--End><Now>" VIEW-AS TEXT
-          SIZE 25 BY 1 AT ROW 15.05 COL 44
-          FONT 1
-     "Priority" VIEW-AS TEXT
-          SIZE 7 BY .62 AT ROW 1.24 COL 121
-     "[External Program Load Setting]" VIEW-AS TEXT
-          SIZE 30 BY .62 AT ROW 20.29 COL 3
-          BGCOLOR 8 
-     "<Due><Start--Now--End>" VIEW-AS TEXT
-          SIZE 25 BY 1 AT ROW 16.24 COL 44
-          FONT 1
-    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 24 ROW 1.24
-         SIZE 129 BY 25.24.
-
-/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
-DEFINE FRAME colorsFrame
-     "Custom Color Label" VIEW-AS TEXT
-          SIZE 19 BY .62 AT ROW 1.24 COL 76
-     "<Start--Now--End><Due>" VIEW-AS TEXT
-          SIZE 25 BY 1 AT ROW 7.91 COL 44
-          FONT 1
-     "<Now><Start--Due--End>" VIEW-AS TEXT
-          SIZE 25 BY 1 AT ROW 5.52 COL 44
-          FONT 1
-     "<Start--Due--End><Now>" VIEW-AS TEXT
-          SIZE 25 BY 1 AT ROW 13.86 COL 44
-          FONT 1
-     "<Due><Now><Start--End>" VIEW-AS TEXT
-          SIZE 25 BY 1 AT ROW 17.43 COL 44
-          FONT 1
-     "<Start--Due--Now--End>" VIEW-AS TEXT
-          SIZE 25 BY 1 AT ROW 10.29 COL 44
-          FONT 1
-     "<Start--End><Due><Now>" VIEW-AS TEXT
-          SIZE 25 BY 1 AT ROW 12.67 COL 44
-          FONT 1
-     "Job Conflict Color" VIEW-AS TEXT
-          SIZE 17 BY .62 AT ROW 19.1 COL 7
-     "[Set Job Color based on <Due>]" VIEW-AS TEXT
-          SIZE 31 BY .62 AT ROW 23.38 COL 3
-          BGCOLOR 8 
-     "<Start--Now--Due--End>" VIEW-AS TEXT
-          SIZE 25 BY 1 AT ROW 9.1 COL 44
-          FONT 1
-     "[Status Checkoff Default Settings]" VIEW-AS TEXT
-          SIZE 32 BY .62 AT ROW 20.29 COL 83
-          BGCOLOR 8 
-     "<Start--End><Now><Due>" VIEW-AS TEXT
-          SIZE 25 BY 1 AT ROW 11.48 COL 44
-          FONT 1
-     RECT-7 AT ROW 18.62 COL 2
-     customBGColor-1 AT ROW 1.95 COL 110
-     customBGColor-10 AT ROW 12.67 COL 110
-     customBGColor-11 AT ROW 13.86 COL 110
-     customBGColor-12 AT ROW 15.05 COL 110
-     customBGColor-13 AT ROW 16.24 COL 110
-     customBGColor-14 AT ROW 17.43 COL 110
-     customBGColor-2 AT ROW 3.14 COL 110
-     customBGColor-3 AT ROW 4.33 COL 110
-     customBGColor-4 AT ROW 5.52 COL 110
-     customBGColor-5 AT ROW 6.71 COL 110
-     customBGColor-6 AT ROW 7.91 COL 110
-     customBGColor-7 AT ROW 9.1 COL 110
-     customBGColor-8 AT ROW 10.29 COL 110
-     customBGColor-9 AT ROW 11.48 COL 110
-     downtimeConflictBGColorValue AT ROW 18.86 COL 110
-     jobBGColor-1 AT ROW 1.95 COL 25
-     jobBGColor-10 AT ROW 12.67 COL 25
-     jobBGColor-11 AT ROW 13.86 COL 25
-     jobBGColor-12 AT ROW 15.05 COL 25
-     jobBGColor-13 AT ROW 16.24 COL 25
-     jobBGColor-14 AT ROW 17.43 COL 25
-     jobBGColor-2 AT ROW 3.14 COL 25
-     jobBGColor-3 AT ROW 4.33 COL 25
-     jobBGColor-4 AT ROW 5.52 COL 25
-     jobBGColor-5 AT ROW 6.71 COL 25
-     jobBGColor-6 AT ROW 7.91 COL 25
-     jobBGColor-7 AT ROW 9.1 COL 25
-     jobBGColor-8 AT ROW 10.29 COL 25
-     jobBGColor-9 AT ROW 11.48 COL 25
-     jobConflictBGColorValue AT ROW 18.86 COL 25
-     jobFGColor-1 AT ROW 1.95 COL 32
-     jobFGColor-2 AT ROW 3.14 COL 32
-     jobFGColor-3 AT ROW 4.33 COL 32
-     jobFGColor-4 AT ROW 5.52 COL 32
-     jobFGColor-5 AT ROW 6.71 COL 32
-     jobFGColor-6 AT ROW 7.91 COL 32
-     jobFGColor-7 AT ROW 9.1 COL 32
-     jobFGColor-8 AT ROW 10.29 COL 32
-     jobFGColor-9 AT ROW 11.48 COL 32
-     jobFGColor-10 AT ROW 12.67 COL 32
-     jobFGColor-11 AT ROW 13.86 COL 32
-     jobFGColor-12 AT ROW 15.05 COL 32
-     jobFGColor-13 AT ROW 16.24 COL 32
-     jobFGColor-14 AT ROW 17.43 COL 32
-    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 24 ROW 1.24
-         SIZE 129 BY 25.24.
-
-/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
-DEFINE FRAME colorsFrame
-     jobConflictFGColorValue AT ROW 18.86 COL 32
-     downtimeConflictFGColorValue AT ROW 18.86 COL 117
-     customFGColor-1 AT ROW 1.95 COL 117
-     customFGColor-2 AT ROW 3.14 COL 117
-     customFGColor-3 AT ROW 4.33 COL 117
-     customFGColor-4 AT ROW 5.52 COL 117
-     customFGColor-5 AT ROW 6.71 COL 117
-     customFGColor-6 AT ROW 7.91 COL 117
-     customFGColor-7 AT ROW 9.1 COL 117
-     customFGColor-8 AT ROW 10.29 COL 117
-     customFGColor-9 AT ROW 11.48 COL 117
-     customFGColor-10 AT ROW 12.67 COL 117
-     customFGColor-11 AT ROW 13.86 COL 117
-     customFGColor-12 AT ROW 15.05 COL 117
-     customFGColor-13 AT ROW 16.24 COL 117
-     customFGColor-14 AT ROW 17.43 COL 117
-     RECT-11 AT ROW 20.52 COL 82
-     RECT-12 AT ROW 20.52 COL 2
-     RECT-13 AT ROW 23.62 COL 2
-    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 24 ROW 1.24
-         SIZE 129 BY 25.24
-         TITLE "Color, Label & Priority Settings".
-
-DEFINE FRAME fieldsFrame
-     userField71 AT ROW 1.24 COL 2
-     userField72 AT ROW 2.19 COL 2
-     userField73 AT ROW 3.14 COL 2
-     userField74 AT ROW 4.1 COL 2
-     userField75 AT ROW 5.05 COL 2
-     userField76 AT ROW 6 COL 2
-     userField77 AT ROW 6.95 COL 2
-     userField24 AT ROW 7.91 COL 2
-     userField19 AT ROW 8.86 COL 2
-     userField03 AT ROW 9.81 COL 2
-     userField26 AT ROW 10.76 COL 2
-     userField04 AT ROW 11.71 COL 2
-     userField27 AT ROW 12.67 COL 2
-     userField34 AT ROW 13.62 COL 2
-     userField22 AT ROW 14.57 COL 2
-     userField79 AT ROW 15.52 COL 2
-     userField21 AT ROW 16.48 COL 2
-     userField25 AT ROW 17.43 COL 2
-     userField14 AT ROW 18.38 COL 2
-     userField28 AT ROW 19.33 COL 2
-     userField89 AT ROW 20.29 COL 2
-     userField69 AT ROW 21.24 COL 2
-     userField64 AT ROW 22.19 COL 2
-     userField63 AT ROW 23.14 COL 2
-     userField01 AT ROW 24.1 COL 2
-     userField02 AT ROW 1.24 COL 34
-     userField90 AT ROW 2.19 COL 34
-     userField12 AT ROW 3.14 COL 34
-     userField05 AT ROW 4.1 COL 34
-     userField80 AT ROW 5.05 COL 34
-     userField85 AT ROW 6 COL 34
-     userField92 AT ROW 6.95 COL 34
-     userField66 AT ROW 7.91 COL 34
-     userField68 AT ROW 8.86 COL 34
-     userField08 AT ROW 9.81 COL 34
-     userField81 AT ROW 10.76 COL 34
-     userField91 AT ROW 11.71 COL 34
-     userField18 AT ROW 12.67 COL 34
-     userField58 AT ROW 13.62 COL 34
-     userField59 AT ROW 14.57 COL 34
-     userField41 AT ROW 15.52 COL 34
-     userField42 AT ROW 16.48 COL 34
-     userField43 AT ROW 17.43 COL 34
-     userField44 AT ROW 18.38 COL 34
-     userField45 AT ROW 19.33 COL 34
-     userField46 AT ROW 20.29 COL 34
-     userField47 AT ROW 21.24 COL 34
-     userField48 AT ROW 22.19 COL 34
-     userField49 AT ROW 23.14 COL 34
-     userField50 AT ROW 24.1 COL 34
-     userField65 AT ROW 1.24 COL 66
-     userField67 AT ROW 2.19 COL 66
-     userField09 AT ROW 3.14 COL 66
-     userField10 AT ROW 4.1 COL 66
-     userField32 AT ROW 5.05 COL 66
-     userField82 AT ROW 6 COL 66
-     userField30 AT ROW 6.95 COL 66
-     userField61 AT ROW 7.91 COL 66
-     userField93 AT ROW 8.86 COL 66
-     userField62 AT ROW 9.81 COL 66
-     userField94 AT ROW 10.76 COL 66
-     userField96 AT ROW 11.71 COL 66
-     userField78 AT ROW 12.67 COL 66
-     userField87 AT ROW 13.62 COL 66
-     userField60 AT ROW 14.57 COL 66
-     userField56 AT ROW 15.52 COL 66
-     userField55 AT ROW 16.48 COL 66
-     userField51 AT ROW 17.43 COL 66
-     userField20 AT ROW 18.38 COL 66
-     userField06 AT ROW 19.33 COL 66
-     userField07 AT ROW 20.29 COL 66
-     userField16 AT ROW 21.24 COL 66
-     userField35 AT ROW 22.19 COL 66
-     userField57 AT ROW 23.14 COL 66
-     userField52 AT ROW 24.1 COL 66
-     userField38 AT ROW 1.24 COL 98
-     userField37 AT ROW 2.19 COL 98
-     userField95 AT ROW 3.14 COL 98
-     userField54 AT ROW 4.1 COL 98
-     userField15 AT ROW 5.05 COL 98
-     userField97 AT ROW 6 COL 98
-     userField36 AT ROW 6.95 COL 98
-     useNotes AT ROW 7.91 COL 98
-     userField23 AT ROW 8.86 COL 98
-     userField39 AT ROW 9.81 COL 98
-     userField40 AT ROW 10.76 COL 98
-     userField83 AT ROW 11.71 COL 98
-     userField88 AT ROW 12.67 COL 98
-     useStatus AT ROW 13.62 COL 98
-    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 23 ROW 1.24
-         SIZE 129 BY 25.
-
-/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
-DEFINE FRAME fieldsFrame
-     userField13 AT ROW 14.57 COL 98
-     userField53 AT ROW 15.52 COL 98
-     userField29 AT ROW 16.48 COL 98
-     userField33 AT ROW 17.43 COL 98
-     userField86 AT ROW 18.38 COL 98
-     userField84 AT ROW 19.33 COL 98
-     userField31 AT ROW 20.29 COL 98
-     userField70 AT ROW 21.24 COL 98
-     userField17 AT ROW 22.19 COL 98
-     userField11 AT ROW 23.14 COL 98
-     userField98 AT ROW 24.1 COL 98
-    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 23 ROW 1.24
-         SIZE 129 BY 25
-         TITLE "Fields".
 
 
 /* *********************** Procedure Settings ************************ */

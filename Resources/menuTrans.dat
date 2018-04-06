@@ -1,0 +1,689 @@
+English,Espanol (Spanish),Français (French)
+Graphics\32x32\usa_32.ico,Graphics\32x32\mexico_32.ico,Graphics\32x32\france_32.ico
+1099-MISC,1099-Varios,1099-Divers
+2 Scheduler View,2 Vista de programador,2 Vue du planificateur
+3 Scheduler Pro,3 Programador Pro,3 Planificateur Pro
+A/R Control
+About,Sobre,Sur
+Accounts Payable Control
+Accounts Receivable,Cuentas por cobrar,Comptes débiteurs
+Acknowledgements
+Actual Releases
+Add/Edit DB/CR Memos
+Aged Inventory
+Aged Inventory w/WIP
+Aged Receivables
+Aged Receivables Totals
+Alphabetic Item List
+AP Accounts by Vendor
+AP Cash Requirements
+AP Check Register
+AP Credit/Debit Memos
+AP Invoice Inquiry
+AP Invoice Posting
+AP Invoices by Vendor
+AP Mailing List
+AP Vendor Analysis
+Apply/Reapply Cash/Memos
+Approve Jobs
+AR Accounts by Customer
+AR Cash Requirements
+AR Credit/Debit Memos
+AR Invoice Edit List
+AR Invoice Inquiry
+AR Mailing List
+Archive/Delete Estimates
+ASI Version (Patch History)
+Assign WIP Tags To Machine
+Audit History
+Bank Deposit Report
+Bank Reconciliation
+Banks
+Barcode Sharp Shooter,Código de barras Sharp Shooter,Tireur pointu de code à barres
+Batch Procedure Maintenance
+Batch Running Procedure
+Batch Spool Requests
+Bill Finance Charges
+Bill Of Lading Creation
+Bill of Lading Transaction
+Bill of Materials Print
+Billing / Counter Sales
+Billing Detail Sales Journal
+Board Reconciliation
+Board/Paper To Order
+BOL Edit List
+BOL Packing List
+Bookings Highlights
+Box Designs
+Build Estimate Files
+Build FG Warehouse/Bin
+Build Flute/Test Counts
+Build Payment Selection List
+Build Security by Menu,Crear seguridad por menú,Générer la sécurité par menu
+Buyers
+Carrier List
+Case Label Creation
+Cash Receipts
+Cash Receipts by Sales Rep
+Cash Receipts by SalesRep Name
+Cash Receipts Processing
+Change Price of Posted Invoice
+Change User Groups
+Chart of Accounts
+Check Processing
+Check Register
+Check Register by GL#
+Check Register Import
+Checks/Invoices
+Close / Reopen Jobs
+Close / Reopen Orders
+Close / Reopen POs
+Close Month
+Closed Job Analysis
+Codes
+Codes Listings
+Comm Cost By Item
+Commission Cash Receipt
+Commissions
+Commissions using Comm Cost by
+Company
+Completed Machine Jobs
+Completed Machine Jobs List
+Configurations
+Contact List
+Contact Marketing,Mercado de contacto,Contact marché
+Control File
+Copy Curr Bal to Budgets
+Copy Customer Notes
+Copy Customers to Contact Mgr.
+Copy Order
+CorrTrim Downloading Inquiry
+CorrTrim Downloading Program
+CorrTrim Uploading History Inq
+CorrTrim Uploading Program
+Corrugated / Foam Materials
+Corrugated Box Estimate
+Corrugated Styles
+Cost Estimate Control
+Count Finished Goods
+Count Raw Goods Inventory
+CR/DB Memo Edit List
+Create Bill of Lading
+Create FG Receipt from BOLs
+Credit Hold / Approve Orders
+CRM Contacts
+CRM Customers
+Cross References
+Currency Code
+Current Month Detail
+Current Period To Date Sales
+Customer Activity
+Customer Inventory
+Customer Inventory Report 1
+Customer Inventory Report 2
+Customer List
+Customer Shipto List
+Customer Snapshot Totals
+Customer Types
+Customer/ShipTo List
+Customers
+Cycle Count Code Report
+Daily Summary by Employee
+Daily Transactions
+Data Collection / Login
+Data Collection Waste By Dep.
+Data Collection,Recopilación de datos,Collecte de données
+Date Change Reasons
+Debit/Credit Register
+Delete Zero Qty FG Bins
+Delete Zero Qty RM Bins
+Departments
+Detail Cash History Report
+Detail Invoice Report
+Detail Misc Cash History Rpt
+Disbursements Register
+DL-Mat-GSA by Whs/Bin/Tag
+Download Contacts
+Download to Laptop
+EDI ASN (856)
+EDI Order Acks (855)
+EDI Orders (850)
+EDI Orders (850) Import/Monito
+EDI Release Create/BOL Load
+Edit/Post AR Applied Items
+Edit/Post AR Cash Receipts
+Edit/Post AR Misc. Receipts
+Email Codes
+Employee Default Rates
+Employee Time by Job and Machi
+Employee Time Sheet
+Employee Transaction Summary
+Employee Transactions
+Employee Types
+Employee Types List
+Employees
+Employees List
+Enter Misc. Receipts
+Enter/Edit AP Invoices
+Enter/Edit AR Invoices
+Enter/Edit BOL
+Enter/Edit Cash Receipts
+Enter/Edit CR/DB Memos
+Enter/Edit Disbursements
+Enter/Edit Invoices
+Enter/Edit Journal Entries
+Enter/Edit POs
+Enter/Edit Recurring AP Invcs
+Enter/Edit Recurring Journals
+Enter/Edit Releases
+Enter/Edit Returns
+Estimates by Size
+Estimates List
+Estimates List w/Margins
+Estimating / Quotes,Estimar / Cotizaciones,Estimation / Devis
+Excel Reports
+Exceptions Report
+Exit,Salida,Sortie
+Export Electronic Invoices
+Export Estimates
+Factory Ticket Print
+FG Category Product Sales
+FG Consolidate Tags
+FG Daily Activity
+FG Enter/Modify Adjustments
+FG Enter/Modify Physical Count
+FG Enter/Modify Receipts
+FG Enter/Modify Transfers
+FG Export to Excel
+FG History
+FG Issue
+FG Item Ship Method Update
+FG Item Value/Cost Summary
+FG Packing Detail
+FG Posting Report By Date
+FG Purchase Requirements
+FG Rebuild Bins/Reset Bal
+FG Sell Price/Bin Cost
+File,Archivo,Fichier
+File Cleanup
+File Maint. Cont'd for TS
+File Maintenance
+File Maintenance for Contact
+File Maintenance for Customers
+File Maintenance for G/L
+File Maintenance for Items
+File Maintenance for Jobs
+File Maintenance for Orders
+File Maintenance for Purchases
+File Maintenance for Raw Goods
+File Maintenance for RFQ
+File Maintenance for TS
+File Maintenance for Vendors
+Financial Statements
+Finished Good Item
+Finished Goods
+Finished Goods Categories
+Finished Goods Control
+Fix A/R Invoice Date
+Fix Cash Receipt Date
+Fix FG Hist Cost
+Fix Invoice Cost
+Fix RM Hist Cost
+Floor Reporting at Machine
+Flute and Unit Counts
+Folding Carton Materials
+Folding Estimates
+Folding Styles
+Freight Class
+Freight Report
+General Ledger Control
+General Ledger,Contabilidad general,Comptabilité générale
+GL Accounts
+GL Auto Distribution
+GL History
+GL Invoice Summary
+GL Posting Check
+GL Posting Register
+Global FG Price Change
+Global Price Increase
+Global Quote Price Change
+Global RM Price Change
+Help,Ayuda,Aide
+Help Maintenance
+High Sales (This Yr vs. Last)
+High Sales by Date Ranges
+High Sales Tracking
+History of Sales,Historia de las ventas,Historia de Las Ventas
+Holidays
+Hots List
+Hots List by Open Order
+Hots List by Release Number
+Hots List2 by Open Order
+Import Estimates
+Import GL Account Budgets
+Import Order
+Import Payroll Entries
+In/Out Transaction Report
+Income Statement Ratios
+Ink/Glue Consumption
+Inks by Machine
+Inventory / Finished Goods,Inventario / Productos acabados,Inventaire / Produits finis
+Inventory Balances
+Inventory by Bin/Tag
+Inventory by Item Name
+Inventory Status by Job
+Invoice Balances
+Invoice Highlights
+Invoice Post / Update GL
+Issue Materials to Jobs
+Item File Maintenance
+Item List by Customer
+Item Receipt
+Item Usage
+Job Actual Cost Detail
+Job Backlog by Machine
+Job Backlog by MSF/Kicks
+Job Categories
+Job Cost Control
+Job Costing,Costeo del trabajo,Coût du travail
+Job Hold Reasons
+Job Log
+Job Material/Machine Report
+Job Sequence
+Job Summary
+Job Tick w/Order Printed?
+Job Variance
+Job/Est/PO Audit
+Job/Vendor Analysis
+Jobs Due Tracking
+Journal Entries Report
+K-Control Parameters
+Kopy Estimate
+L. More Reports for Receivable
+Label Menu
+Labor / Misc. Material Costs
+Labor Hours by Charge Code
+Labor Hours vs Estimated
+Labor Report
+Laptop/Server Link
+Last Year vs. This Year
+Levy F.G. Returns / Credits
+List Cash Disbursements
+List Management
+List More Reports
+List Request for Quotes
+Lists More Reports
+Load Estimates
+Load Reconciliation File
+Loadtag Creation
+Machine Assigned Charge Codes
+Machine Assigned Chrg Cds List
+Machine Assigned Shifts
+Machine Assigned Shifts List
+Machine Attachments/Adders
+Machine Backlog Analysis
+Machine Backlog By Kicks
+Machine Charge Codes
+Machine Cost By Job
+Machine Efficiency
+Machine Efficiency - Excel
+Machine File
+Machine File List
+Machine Notes Report
+Machine Productivity
+Machine Routings
+Machine Transaction Summary
+Machine Transactions
+Machines MSF Produced by Job
+Mail List Label
+Mail List Merge
+Main Menu - Advantzware version,Menú Principal - Advantzware versión,Menu Principal - Advantzware version
+Management Dashboard
+Management Highlights
+Management Highlights Summary
+Manual Checks
+Markup Matrix
+Master BOL Print
+Material Cost Types
+Material Receipts History
+Material Required for Job
+Material Types
+Materials
+Materials / Raw Goods,Materiales / Mercancías crudas,Matériaux / Produits bruts
+Materials Allocation
+Misc Surcharges
+Miscellaneous Edit List
+Miscellaneous Entry/Maint
+Monthly Tax
+Move FG To Board/Misc RM
+MSF by Job
+MTD Destination Subtotals
+Network / System Administrator,Administrador de sistemas y redes,Administrateur réseau/système
+New License Code Entry
+Next Ship Date and Value
+OE Invoice Edit List
+On-Time Deliveries
+On-Time Deliveries for Jobs
+Open Jobs Backlog Report
+Open Jobs by Due Date/Cust
+Open Order Report
+Order Backlog
+Order Backlog by Part Number
+Order Balance by PO / Job
+Order Balance by PO#
+Order Edit List
+Order Entry
+Order Entry Control
+Order Post/Purge Deleted
+Order Processing,Proceso de la orden,Traitement des commandes
+Order Status
+Orders Booked
+Orders Booked by Due Date
+Orders Booked by Order No
+Pallet Tag for BOL
+Parameter Files
+Parameter Files Listing
+Past Due Aging
+Payment Terms
+Payment Type
+Physical Count Processing
+Physical Count Report
+Plant File Maintenance
+PO FG/RM History
+PO FG/RM History by Customer
+PO Inquiry
+PO Purchased Variance
+PO Receipts Not Vouchered
+PO Rejection Codes
+PO Vendor Analysis
+PO's  Vouchered by FG Category
+Popup Menu Maintenance
+Post AR Invoices
+Post BOL / Create Invoices
+Post Counts to Finished Goods
+Post Credit/Debit Memos
+Post Physical Counts
+Post Returns
+Post to Finished Goods Files
+Post to Raw Material Files
+Post TouchData to ASI Database
+Prep and Die File
+Prep Charge Report
+Prep File
+Prep List by Mat'l Type
+Preparation Material Types
+Print AP Checks
+Print AR Credit/Debit Memos
+Print AR Invoices
+Print Bills of Lading
+Print Finished Goods Edit List
+Print OE Invoices
+Print PO Edit List
+Print POs
+Print Raw Material Edit List
+Print Release Tickets
+Print/Post Journal Entries
+Product Line GL Accounts
+Production Analysis
+Production by Department
+Production by Machine
+Production Highlights
+Production Report
+Profit by Invoice
+Profit by ProdCat/Slsrep
+Profit w/Freight
+Program Master
+Program Master List
+Prospects and Customers Names
+Purchase Order Control Menu
+Purchasing,Compra,Achat
+Purge Customers
+Purge Employee Transaction
+Purge FG History
+Purge Finished Goods
+Purge GL Accounts
+Purge Jobs
+Purge Orders
+Purge Paid AP Invoices
+Purge Paid AR Invoices
+Purge POs
+Purge Quotes
+Purge Raw Materials
+Purge Report File
+Purge Touch Data
+Purge Unship/Post/Closed Rels
+Purge Zero Posted AR
+Purge Zero Time Transaction
+Qty On Hand/Shipd by SMan
+QTY Totals by Cust/Item
+Qty/Value by Cust and Job
+Query Accounts Payable
+Query Accounts Receivables
+Query Builder
+Query Data Collection
+Query Finished Goods
+Query General Ledger History
+Query Jobs
+Query Orders
+Query Purchase Orders
+Query Raw Goods
+Quick Fixes
+Quote Requests,Solicitudes de cotización,Demandes de devis
+Quoted Price List
+Quotes
+Quotes List
+Raw Materials Categories
+Raw Materials Control
+Raw Materials Cost List
+Recap Product Category
+Receipts Overages for Credit
+Reconciliation Register
+Reconciliation Report
+Red Flag Report
+Reference Date vs Posting Date
+Release Edit List
+Reorder Advice By Ship-to
+Reorder Requirements
+Reordering Advice
+Report Maintenance
+Reports,Informes,Rapports
+Reports continued...
+Reports for Admins
+Reports for Contacts
+Reports for Data Collection
+Reports for Estimates
+Reports for Finished Goods
+Reports for General Ledger
+Reports for Job Costing
+Reports for Orders
+Reports for Payables
+Reports for Purchasing
+Reports for Raw Goods
+Reports for Receivables
+Reports for SS Report
+Reports for Touch Screen
+RePost TouchData to ASI Databa
+Request For Quotes
+Returns Edit List
+RFQ File Maintenance
+RFQ List
+RM Allocated by Job
+RM Enter/Modify Adjustments
+RM Enter/Modify Receipts
+RM Enter/Modify Transfers
+RM History
+RM Loadtag Creation
+RM Rebuild Bins/Reset Balances
+RM/FG Specifications
+Roll Stock Consumed Report
+Roll Stock Cost
+Roll Stock Lot/Tag Report
+Run Custom Utility Program
+Sales by Cust/Item/PO
+Sales by Customer Zip
+Sales by Invoice/Cat/Shipto
+Sales by Item/Cust/Ship
+Sales by Period
+Sales by Product w/Cost
+Sales by Shipping Carrier
+Sales Comparison/Sales Rep
+Sales Price Matrix
+Sales Rep / Commissions
+Sales Rep Highlights
+Sales Rep Performance
+Sales Tax Codes
+Sales Territories
+Sales Value by Slsmn by Cust
+Sales Values by Cust/Item
+Sales vs. Budget
+Sales with Multiple Sorts
+Sales/Value by Cust and Tag
+Schedule Ticket Print
+Scheduled Receipts
+Scheduled Receipts with Orders
+Scheduled Releases
+Scheduled Releases by Ship-To
+Scheduled Releases w/Job
+Scheduled Ship vs. QOH
+Scheduled Ship vs. Qty On-Hand
+Scheduling,Programación,Planification
+Score Types
+Scrap Report
+Scrap Report by Machine
+Search for Estimates
+Select Tables to Audit
+Select by Due Date
+Select by Vendor
+Selection Register
+Set Company/Location
+Set FG Blank Warehouse/Bin
+Set FG Item Warehouse/Bin
+Set FG On-Hand Qty to Zero
+Set FG On-Order Qty to Zero
+Set Maintenance
+Set RM On-Hand to Zero
+Set Salesman Commission
+Set Taxable FG Default
+Sheets on Order
+Shifts
+Shifts List
+Ship To Inquiry
+Shipment Approval Report
+Shipment By Customer Part
+Shipments by Item/Cust
+Shipping / Bill of Lading
+Shutdown SpoolRequest Monitor
+Single RFQ List
+Stacking Matrix
+Stacking Patterns
+Standards Matrix
+State and Province Abbrev List
+State and Province Abbreviations
+Statements
+Status,Estado,Statut
+Status Checkoff,Estado Marcar,Statut précompte
+Style File
+Summary Invoice Cost
+System
+System Listings
+System Control Parameters
+System Reference Files
+Tax Distribution Schedule
+Tax Schedule By Customer
+Taxing Authority Codes
+Tickets for Releases
+Title Codes
+Title Codes List
+Tools for Sales
+Total Weight and  Sales by 1st
+Totals by Salesrep  DD/MM/YY
+Touch Screen,Pantalla táctil,Écran tactile
+Track Bank Reconciliation
+Track Usage List
+Transaction by TON/MSF
+Transaction History
+Transaction Report
+Transactions by Order
+Transfer Misc. Costs to Job
+Transfer Transaction BOL
+Transfer WIP to Job Cost
+Trial Balance
+Truck / Common Carriers
+Truck Plan Selection
+Truckload BOL Summary
+Units of Measure
+Unreported Labor Report
+Unshipped FG Detail
+Unshipped FG Summary
+Update / Add Orders
+Update / Enter A/R Invoices
+Update / Enter Job
+Update / Enter Jobs
+Update / Enter Purchase Orders
+Update / Enter Vendor Invoices
+Update / Journal Entries
+Update AP Invoice
+Update AR/OE Inv Cost and Comm
+Update Customer Number
+Update Est SlsmnComm/PallCase
+Update Estimate Labor Rates
+Update FG Item Code
+Update Materials Transactions
+Update RM Item Code
+Update Vendor Number
+Update Warehouse Transactions
+Update/Add Hours via Job Card
+Upload to Server
+User
+User Groups List
+User Control
+User Defined Fields Builder
+User's Menu Structure
+Users
+Users List
+Value/Cost by Whs/Bin/Tag
+Value/Profit by Item
+Vendor 1099 Report
+Vendor Aging
+Vendor Cross Reference
+Vendor Master List
+Vendor Price List
+Vendor Types
+Vendors
+Visual Data Collection
+Void AP Checks
+Void Cash Receipts
+Voided Cash Receipt Register
+Voided Check Register
+Vouchers / Payables,Vales / Cuentas por pagar,Bons / Fournisseurs
+W.I.P. Daily Summary
+W.I.P. Job Audit Trail
+Warehouse History
+Warehouse Item Audit List
+Warehouse Management,Gestión de almacenes,Gestion des entrepôts
+Waste Analysis by Job
+Web Orders Transfer/Approve
+Whse / Bin Locations
+WIP by Product Category
+WIP Hours Preposted Edit List
+WIP Job Audit Trail
+WIP Standards Detail
+WIP Tag Creation
+WIP Tag Maintenance
+WIP TAG Report
+WIP Value of Sheeted Inventory
+With $/MSF Totals by Salesrep
+Write AP Credit/Debit Memos
+Write AR Credit/Debit Memos
+Write End of Period Totals
+Write Financial Statements
+Y More File Cleanup
+Year End
+Yearly Sales Volume
+YTD Cost/Sales by Cust
+Z System Reference Files
+Z. More Lists for Orders
+Z. Sales by Customer Invoice
+Zip Codes
+Zip Codes List
+Zip Codes Loader

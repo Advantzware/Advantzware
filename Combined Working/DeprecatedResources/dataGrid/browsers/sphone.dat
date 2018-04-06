@@ -1,0 +1,31 @@
+FOR EACH phone NO-LOCK ,  EACH rec_key OF phone,  EACH prgmxref OF rec_key where prgmxref.pageno ne "999999999"
+attention,fax_city_code,phone,phone_city_code,phone_ext,prgmname,table_name
+
+Indexed: attention
+Non-Idx: fax,fax_city_code,fax_ctry_code,phone,phone_city_code,phone_ctry_code,phone_ext,prgmname,table_name
+
+Generated 04.19.2017 @  3:57:28 am by: nosweat
+Table: phone - Records: 1,849
+
+    Index: pi-phone
+         Field: table_rec_key
+         Field: attention
+
+    Index: si-rec_key
+         Field: rec_key
+
+    Index: titlcode
+         Field: titlcode
+
+    Index: wi-attention
+         Field: attention
+
+Table: rec_key - Records: 63,340,741
+
+    Index: pi-rec_key
+         Field: rec_key
+
+Table: prgmxref - Records: 56
+
+    Index: pi-prgmxref
+         Field: table_name

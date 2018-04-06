@@ -143,17 +143,7 @@ ASSIGN
 /* Setting information for Queries and Browse Widgets fields            */
 
 &ANALYZE-SUSPEND _QUERY-BLOCK BROWSE BROWSE-1
-/* Query rebuild information for BROWSE BROWSE-1
-     _START_FREEFORM
-OPEN QUERY {&SELF-NAME} FOR EACH tt-dim WHERE tt-val NE 0 BY tt-val DESC.
-     _END_FREEFORM
-     _Options          = "NO-LOCK"
-     _Where[1]         = "ASI.reftable.reftable = ""Flute"" and 
-ASI.reftable.company  = """" and
-ASI.reftable.loc = """"
-"
-     _Query            is OPENED
-*/  /* BROWSE BROWSE-1 */
+  /* BROWSE BROWSE-1 */
 &ANALYZE-RESUME
 
  

@@ -79,7 +79,7 @@
                          WHEN "item-act-um"  THEN cVarValue = STRING(work-mat.act-qty-uom,"x(3)") .
                          WHEN "item-act-cost"  THEN cVarValue = STRING(work-mat.act-cost,">>,>>>,>>9") .
                          WHEN "item-cost-var"  THEN cVarValue = string(v-cst-var,">>,>>>,>>9-") .
-                         WHEN "item-cost-var-per"   THEN cVarValue = string(v-prod-p,">>>>9.9-").
+                         WHEN "item-cost-var-per"   THEN cVarValue = string(v-prod-p,">>>>>>9.9-").
                          
                          
                     END CASE.
@@ -89,7 +89,7 @@
                                FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
                     cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
             END.
-          
+            IF (LINE-COUNTER + 10) GT lines-per-page THEN PAGE.
             PUT UNFORMATTED cDisplay SKIP.
             IF tb_excel2 THEN DO:
                  PUT STREAM excel2 UNFORMATTED  
@@ -158,7 +158,7 @@ IF work-mat.mat-type = "B" THEN
                          WHEN "item-act-um"  THEN cVarValue = STRING("EA","x(3)") .
                          WHEN "item-act-cost"  THEN cVarValue = STRING(job-farm.act-tot-cost,">>,>>>,>>9") .
                          WHEN "item-cost-var"  THEN cVarValue = string(round(job-farm.std-tot-cost - job-farm.act-tot-cost, 0),">>,>>>,>>9-") .
-                         WHEN "item-cost-var-per"   THEN cVarValue = string(ROUND(job-farm.std-tot-cost - job-farm.act-tot-cost, 0),">>>>9.9-").
+                         WHEN "item-cost-var-per"   THEN cVarValue = string(ROUND(job-farm.std-tot-cost - job-farm.act-tot-cost, 0),">>>>>>9.9-").
                          
                          
                     END CASE.
@@ -168,7 +168,7 @@ IF work-mat.mat-type = "B" THEN
                                FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
                     cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
             END.
-          
+            IF (LINE-COUNTER + 10) GT lines-per-page THEN PAGE.
             PUT UNFORMATTED cDisplay SKIP.
             IF tb_excel2 THEN DO:
                  PUT STREAM excel2 UNFORMATTED  
@@ -218,7 +218,7 @@ IF work-mat.mat-type = "B" THEN
                          WHEN "item-act-um"  THEN cVarValue = "" .
                          WHEN "item-act-cost"  THEN cVarValue = STRING(v-t-act-cost,">>,>>>,>>9") .
                          WHEN "item-cost-var"  THEN cVarValue = string(v-cst-var,">>,>>>,>>9-") .
-                         WHEN "item-cost-var-per"   THEN cVarValue = string(v-prod-p,">>>>9.9-").
+                         WHEN "item-cost-var-per"   THEN cVarValue = string(v-prod-p,">>>>>>9.9-").
                          
                          
                     END CASE.
@@ -228,7 +228,8 @@ IF work-mat.mat-type = "B" THEN
                                FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
                     cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
             END.
+            IF (LINE-COUNTER + 10) GT lines-per-page THEN PAGE.
             PUT item-str-line SKIP .
-            PUT UNFORMATTED  "   TOTAL MATERIAL   (DIRECT) :"  + substring(cDisplay,31,250)  SKIP(1).
+            PUT UNFORMATTED  "   TOTAL MATERIAL   (DIRECT) :"  + substring(cDisplay,31,150)  SKIP(1).
 
    end.

@@ -71,8 +71,8 @@ DEF VAR iColumnLength AS INT NO-UNDO.
 DEF VAR cTextListToDefault AS cha NO-UNDO.
 DEFINE VARIABLE glCustListActive AS LOGICAL     NO-UNDO.
 
-ASSIGN cTextListToSelect = "Rep,SalesRep Name,Customer,Name,Period 1,Period 2,Period 3,Period 4,Period 5,Period 6," +
-                                               "Period 7,Period 8,Period 9,Period 10,Period 11,Period 12,YTD Amt"
+ASSIGN cTextListToSelect = "Rep,SalesRep Name,Customer,Name,January,February,March,April,May,June," +
+                                               "July,August,September,October,November,December,YTD Amt"
        cFieldListToSelect = "rep,rname,cust,name,p1,p2,p3,p4,p5,p6," +
                                         "p7,p8,p9,p10,p11,p12,ytd-amt"
        cFieldLength = "3,25,8,30,17,17,17,17,17,17," + "17,17,17,17,17,17,17"
@@ -80,8 +80,8 @@ ASSIGN cTextListToSelect = "Rep,SalesRep Name,Customer,Name,Period 1,Period 2,Pe
     .
 
 {sys/inc/ttRptSel.i}
-ASSIGN cTextListToDefault  = "Customer,Name,Period 1,Period 2,Period 3,Period 4,Period 5,Period 6," +
-                                               "Period 7,Period 8,Period 9,Period 10,Period 11,Period 12,YTD Amt".
+ASSIGN cTextListToDefault  = "Customer,Name,January,February,March,April,May,June," +
+                                               "July,August,September,October,November,December,YTD Amt".
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -98,15 +98,15 @@ ASSIGN cTextListToDefault  = "Customer,Name,Period 1,Period 2,Period 3,Period 4,
 &Scoped-define FRAME-NAME FRAME-A
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-6 RECT-7 as-of-date prt-period ~
-srt-period cust rd_print tb_cust-list btnCustList begin_cust end_cust ~
-begin_slsmn end_slsmn tb_prt-cust sl_avail Btn_Def sl_selected Btn_Add ~
-Btn_Remove btn_Up btn_down rd-dest lv-ornt lines-per-page lv-font-no ~
-td-show-parm tb_excel tb_runExcel fi_file btn-ok btn-cancel 
-&Scoped-Define DISPLAYED-OBJECTS as-of-date prt-period srt-period cust ~
-lbl_sort rd_print tb_cust-list begin_cust end_cust begin_slsmn end_slsmn ~
-tb_prt-cust sl_avail sl_selected rd-dest lv-ornt lines-per-page lv-font-no ~
-lv-font-name td-show-parm tb_excel tb_runExcel fi_file 
+&Scoped-Define ENABLED-OBJECTS RECT-6 RECT-7 begin_date end_date srt-period ~
+rd_print tb_cust-list begin_cust end_cust btnCustList begin_slsmn end_slsmn ~
+tb_prt-cust sl_avail Btn_Def sl_selected Btn_Add Btn_Remove btn_Up btn_down ~
+rd-dest lv-ornt lines-per-page lv-font-no td-show-parm tb_excel tb_runExcel ~
+fi_file btn-ok btn-cancel 
+&Scoped-Define DISPLAYED-OBJECTS begin_date end_date srt-period lbl_sort ~
+rd_print tb_cust-list begin_cust end_cust begin_slsmn end_slsmn tb_prt-cust ~
+sl_avail sl_selected rd-dest lv-ornt lines-per-page lv-font-no lv-font-name ~
+td-show-parm tb_excel tb_runExcel fi_file 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -131,7 +131,7 @@ FUNCTION GEtFieldValue RETURNS CHARACTER
 DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON btn-cancel /*AUTO-END-KEY */
+DEFINE BUTTON btn-cancel 
      LABEL "&Cancel" 
      SIZE 15 BY 1.14.
 
@@ -163,23 +163,18 @@ DEFINE BUTTON btn_Up
      LABEL "Move Up" 
      SIZE 16 BY 1.
 
-DEFINE VARIABLE as-of-date AS DATE FORMAT "99/99/9999":U INITIAL 01/01/001 
-     LABEL "As Of Date" 
-     VIEW-AS FILL-IN 
-     SIZE 17 BY .95 NO-UNDO.
-
 DEFINE VARIABLE begin_cust AS CHARACTER FORMAT "X(8)":U 
      LABEL "Beginning Cust#" 
      VIEW-AS FILL-IN 
      SIZE 20 BY 1 NO-UNDO.
 
+DEFINE VARIABLE begin_date AS DATE FORMAT "99/99/9999":U INITIAL 01/01/001 
+     LABEL "Start Date" 
+     VIEW-AS FILL-IN 
+     SIZE 17 BY .95 NO-UNDO.
+
 DEFINE VARIABLE begin_slsmn AS CHARACTER FORMAT "XXX" 
      LABEL "Beginning Salesrep#" 
-     VIEW-AS FILL-IN 
-     SIZE 11 BY 1.
-
-DEFINE VARIABLE cust AS INTEGER FORMAT ">>>>>" INITIAL 99999 
-     LABEL "Customers To Print" 
      VIEW-AS FILL-IN 
      SIZE 11 BY 1.
 
@@ -187,6 +182,11 @@ DEFINE VARIABLE end_cust AS CHARACTER FORMAT "X(8)":U INITIAL "zzzzzzzz"
      LABEL "Ending Cust#" 
      VIEW-AS FILL-IN 
      SIZE 20 BY 1 NO-UNDO.
+
+DEFINE VARIABLE end_date AS DATE FORMAT "99/99/9999":U INITIAL 01/01/001 
+     LABEL "End Date" 
+     VIEW-AS FILL-IN 
+     SIZE 17 BY .95 NO-UNDO.
 
 DEFINE VARIABLE end_slsmn AS CHARACTER FORMAT "XXX" INITIAL "zzz" 
      LABEL "Ending Salesrep#" 
@@ -216,11 +216,6 @@ DEFINE VARIABLE lv-font-no AS CHARACTER FORMAT "X(256)":U INITIAL "11"
      LABEL "Font" 
      VIEW-AS FILL-IN 
      SIZE 7 BY 1 NO-UNDO.
-
-DEFINE VARIABLE prt-period AS INTEGER FORMAT "->9" INITIAL 0 
-     LABEL "Periods To Print" 
-     VIEW-AS FILL-IN 
-     SIZE 11 BY 1.
 
 DEFINE VARIABLE srt-period AS INTEGER FORMAT "->9" INITIAL 0 
      LABEL "Sort By Period" 
@@ -258,7 +253,7 @@ DEFINE RECTANGLE RECT-6
 
 DEFINE RECTANGLE RECT-7
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 94 BY 11.5.
+     SIZE 94 BY 9.76.
 
 DEFINE VARIABLE sl_avail AS CHARACTER 
      VIEW-AS SELECTION-LIST MULTIPLE SCROLLBAR-VERTICAL 
@@ -299,62 +294,60 @@ DEFINE VARIABLE td-show-parm AS LOGICAL INITIAL no
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME FRAME-A
-     as-of-date AT ROW 2.1 COL 32 COLON-ALIGNED HELP
+     begin_date AT ROW 2.1 COL 32 COLON-ALIGNED HELP
           "Enter As Of Date"
-     prt-period AT ROW 3.29 COL 32 COLON-ALIGNED HELP
-          "Enter Periods to Print"
-     srt-period AT ROW 4.48 COL 32 COLON-ALIGNED HELP
+     end_date AT ROW 2.1 COL 63.8 COLON-ALIGNED HELP
+          "Enter As Of Date"
+     srt-period AT ROW 3.24 COL 32 COLON-ALIGNED HELP
           "Enter Periods to Sort By"
-     cust AT ROW 5.67 COL 32 COLON-ALIGNED HELP
-          "Customers To Print"
-     lbl_sort AT ROW 6.86 COL 21 COLON-ALIGNED NO-LABEL
-     rd_print AT ROW 6.86 COL 34 NO-LABEL
-     tb_cust-list AT ROW 8.05 COL 31.8 WIDGET-ID 6
-     btnCustList AT ROW 8.05 COL 64.2 WIDGET-ID 8
-     begin_cust AT ROW 9 COL 24.6 COLON-ALIGNED HELP
+     lbl_sort AT ROW 4.81 COL 21 COLON-ALIGNED NO-LABEL
+     rd_print AT ROW 4.81 COL 34 NO-LABEL
+     tb_cust-list AT ROW 6 COL 31.8 WIDGET-ID 6
+     begin_cust AT ROW 6.95 COL 24.6 COLON-ALIGNED HELP
           "Enter Beginning Customer Number"
-     end_cust AT ROW 9 COL 63.8 COLON-ALIGNED HELP
+     end_cust AT ROW 6.95 COL 63.8 COLON-ALIGNED HELP
           "Enter Ending Customer Number"
-     begin_slsmn AT ROW 10.14 COL 24.6 COLON-ALIGNED HELP
+     btnCustList AT ROW 8.05 COL 64.2 WIDGET-ID 8
+     begin_slsmn AT ROW 8.1 COL 24.6 COLON-ALIGNED HELP
           "Enter Beginning Sales Rep Number" WIDGET-ID 6
-     end_slsmn AT ROW 10.14 COL 63.8 COLON-ALIGNED HELP
+     end_slsmn AT ROW 8.1 COL 63.8 COLON-ALIGNED HELP
           "Enter Ending Sales Rep Number" WIDGET-ID 8
-     tb_prt-cust AT ROW 11.33 COL 31
-     sl_avail AT ROW 13.33 COL 4.2 NO-LABEL WIDGET-ID 26
-     Btn_Def AT ROW 13.33 COL 40.2 HELP
+     tb_prt-cust AT ROW 9.29 COL 31
+     sl_avail AT ROW 11.62 COL 4.2 NO-LABEL WIDGET-ID 26
+     Btn_Def AT ROW 11.62 COL 40.2 HELP
           "Add Selected Table to Tables to Audit" WIDGET-ID 56
-     sl_selected AT ROW 13.33 COL 59.6 NO-LABEL WIDGET-ID 28
-     Btn_Add AT ROW 14.33 COL 40.2 HELP
+     sl_selected AT ROW 11.62 COL 59.6 NO-LABEL WIDGET-ID 28
+     Btn_Add AT ROW 12.62 COL 40.2 HELP
           "Add Selected Table to Tables to Audit" WIDGET-ID 32
-     Btn_Remove AT ROW 15.33 COL 40.2 HELP
+     Btn_Remove AT ROW 13.62 COL 40.2 HELP
           "Remove Selected Table from Tables to Audit" WIDGET-ID 34
-     btn_Up AT ROW 16.38 COL 40.2 WIDGET-ID 40
-     btn_down AT ROW 17.38 COL 40.2 WIDGET-ID 42
-     rd-dest AT ROW 19.43 COL 5 NO-LABEL
-     lv-ornt AT ROW 19.91 COL 31 NO-LABEL
-     lines-per-page AT ROW 19.91 COL 84 COLON-ALIGNED
-     lv-font-no AT ROW 21.81 COL 34 COLON-ALIGNED
-     lv-font-name AT ROW 22.76 COL 28 COLON-ALIGNED NO-LABEL
-     td-show-parm AT ROW 23.95 COL 30
-     tb_excel AT ROW 25.24 COL 50.2 RIGHT-ALIGNED
-     tb_runExcel AT ROW 25.24 COL 71.2 RIGHT-ALIGNED
-     fi_file AT ROW 26.05 COL 28.2 COLON-ALIGNED HELP
+     btn_Up AT ROW 14.67 COL 40.2 WIDGET-ID 40
+     btn_down AT ROW 15.67 COL 40.2 WIDGET-ID 42
+     rd-dest AT ROW 17.71 COL 5 NO-LABEL
+     lv-ornt AT ROW 18.19 COL 31 NO-LABEL
+     lines-per-page AT ROW 18.19 COL 84 COLON-ALIGNED
+     lv-font-no AT ROW 20.1 COL 34 COLON-ALIGNED
+     lv-font-name AT ROW 21.05 COL 28 COLON-ALIGNED NO-LABEL
+     td-show-parm AT ROW 22.24 COL 30
+     tb_excel AT ROW 23.52 COL 50.2 RIGHT-ALIGNED
+     tb_runExcel AT ROW 23.52 COL 71.2 RIGHT-ALIGNED
+     fi_file AT ROW 24.33 COL 28.2 COLON-ALIGNED HELP
           "Enter File Name"
-     btn-ok AT ROW 27.76 COL 19
-     btn-cancel AT ROW 27.76 COL 57
+     btn-ok AT ROW 26.05 COL 19
+     btn-cancel AT ROW 26.05 COL 57
      "Selected Columns(In Display Order)" VIEW-AS TEXT
-          SIZE 34 BY .62 AT ROW 12.62 COL 59.6 WIDGET-ID 44
-     "Available Columns" VIEW-AS TEXT
-          SIZE 29 BY .62 AT ROW 12.62 COL 5 WIDGET-ID 38
+          SIZE 34 BY .62 AT ROW 10.91 COL 59.6 WIDGET-ID 44
+     "(Enter 99 For YTD)" VIEW-AS TEXT
+          SIZE 22 BY 1 AT ROW 3.57 COL 51
+          FGCOLOR 9 
+     "Output Destination" VIEW-AS TEXT
+          SIZE 18 BY .62 AT ROW 17 COL 3
      "Selection Parameters" VIEW-AS TEXT
           SIZE 21 BY .71 AT ROW 1.24 COL 5
           BGCOLOR 2 
-     "Output Destination" VIEW-AS TEXT
-          SIZE 18 BY .62 AT ROW 18.71 COL 3
-     "(Enter 99 For YTD)" VIEW-AS TEXT
-          SIZE 22 BY 1 AT ROW 4.81 COL 51
-          FGCOLOR 9 
-     RECT-6 AT ROW 19.14 COL 1
+     "Available Columns" VIEW-AS TEXT
+          SIZE 29 BY .62 AT ROW 10.91 COL 5 WIDGET-ID 38
+     RECT-6 AT ROW 17.43 COL 1
      RECT-7 AT ROW 1 COL 1
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -379,7 +372,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW C-Win ASSIGN
          HIDDEN             = YES
          TITLE              = "High Sales Tracking"
-         HEIGHT             = 28.62
+         HEIGHT             = 26.86
          WIDTH              = 96.2
          MAX-HEIGHT         = 33.29
          MAX-WIDTH          = 204.8
@@ -413,22 +406,12 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME                                                           */
-ASSIGN
-       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "ribbon-button".
-
-
-ASSIGN
-       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "ribbon-button".
-
-
 ASSIGN 
-       as-of-date:PRIVATE-DATA IN FRAME FRAME-A     = 
+       begin_cust:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
 ASSIGN 
-       begin_cust:PRIVATE-DATA IN FRAME FRAME-A     = 
+       begin_date:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
 ASSIGN 
@@ -436,11 +419,19 @@ ASSIGN
                 "parm".
 
 ASSIGN 
-       cust:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "parm".
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+ASSIGN 
+       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
 
 ASSIGN 
        end_cust:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
+
+ASSIGN 
+       end_date:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
 ASSIGN 
@@ -459,10 +450,6 @@ ASSIGN
 
 /* SETTINGS FOR FILL-IN lv-font-name IN FRAME FRAME-A
    NO-ENABLE                                                            */
-ASSIGN 
-       prt-period:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "parm".
-
 ASSIGN 
        rd_print:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
@@ -493,7 +480,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -525,17 +512,6 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME as-of-date
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL as-of-date C-Win
-ON LEAVE OF as-of-date IN FRAME FRAME-A /* As Of Date */
-DO:
-  assign {&self-name}.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
 &Scoped-define SELF-NAME begin_cust
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_cust C-Win
 ON HELP OF begin_cust IN FRAME FRAME-A /* Beginning Cust# */
@@ -554,6 +530,17 @@ END.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_cust C-Win
 ON LEAVE OF begin_cust IN FRAME FRAME-A /* Beginning Cust# */
+DO:
+  assign {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME begin_date
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_date C-Win
+ON LEAVE OF begin_date IN FRAME FRAME-A /* Start Date */
 DO:
   assign {&self-name}.
 END.
@@ -735,17 +722,6 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME cust
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cust C-Win
-ON LEAVE OF cust IN FRAME FRAME-A /* Customers To Print */
-DO:
-   assign {&self-name}.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
 &Scoped-define SELF-NAME end_cust
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_cust C-Win
 ON HELP OF end_cust IN FRAME FRAME-A /* Ending Cust# */
@@ -763,6 +739,17 @@ END.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_cust C-Win
 ON LEAVE OF end_cust IN FRAME FRAME-A /* Ending Cust# */
+DO:
+  assign {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME end_date
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_date C-Win
+ON LEAVE OF end_date IN FRAME FRAME-A /* End Date */
 DO:
   assign {&self-name}.
 END.
@@ -845,17 +832,6 @@ END.
 ON VALUE-CHANGED OF lv-ornt IN FRAME FRAME-A
 DO:
   {custom/chgfont.i}
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME prt-period
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL prt-period C-Win
-ON LEAVE OF prt-period IN FRAME FRAME-A /* Periods To Print */
-DO:
-  assign {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1053,10 +1029,10 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
      no-lock.  
 
   assign
-   as-of-date = TODAY
-   prt-period = 3
+   /*as-of-date = TODAY*/
+   /*prt-period = 3*/
    srt-period = period.pnum
-   cust       = 99999.
+  /* cust       = 99999*/.
 
   RUN DisplaySelectionList.
   RUN enable_UI.
@@ -1071,7 +1047,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     {custom/usrprint.i}
      RUN DisplaySelectionList2.
 
-   APPLY "entry" TO as-of-date IN FRAME {&FRAME-NAME}.
+   APPLY "entry" TO begin_date IN FRAME {&FRAME-NAME}.
   END.
 
 RUN sys/ref/CustList.p (INPUT cocode,
@@ -1323,16 +1299,16 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY as-of-date prt-period srt-period cust lbl_sort rd_print tb_cust-list 
+  DISPLAY begin_date end_date srt-period lbl_sort rd_print tb_cust-list 
           begin_cust end_cust begin_slsmn end_slsmn tb_prt-cust sl_avail 
           sl_selected rd-dest lv-ornt lines-per-page lv-font-no lv-font-name 
           td-show-parm tb_excel tb_runExcel fi_file 
       WITH FRAME FRAME-A IN WINDOW C-Win.
-  ENABLE RECT-6 RECT-7 as-of-date prt-period srt-period cust rd_print 
-         tb_cust-list btnCustList begin_cust end_cust begin_slsmn end_slsmn 
-         tb_prt-cust sl_avail Btn_Def sl_selected Btn_Add Btn_Remove btn_Up 
-         btn_down rd-dest lv-ornt lines-per-page lv-font-no td-show-parm 
-         tb_excel tb_runExcel fi_file btn-ok btn-cancel 
+  ENABLE RECT-6 RECT-7 begin_date end_date srt-period rd_print tb_cust-list 
+         begin_cust end_cust btnCustList begin_slsmn end_slsmn tb_prt-cust 
+         sl_avail Btn_Def sl_selected Btn_Add Btn_Remove btn_Up btn_down 
+         rd-dest lv-ornt lines-per-page lv-font-no td-show-parm tb_excel 
+         tb_runExcel fi_file btn-ok btn-cancel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.
@@ -1531,6 +1507,9 @@ def var v-j       as   DEC NO-UNDO.
 DEF VAR lv-sman   AS   CHAR NO-UNDO.
 DEF VAR lv-sname   AS   CHAR NO-UNDO.
 
+DEFINE VARIABLE dSdate    AS  DATE FORMAT "99/99/9999" NO-UNDO.
+DEFINE VARIABLE dEdate    AS  DATE FORMAT "99/99/9999" NO-UNDO.
+
 DEF VAR cDisplay AS cha NO-UNDO.
 DEF VAR cExcelDisplay AS cha NO-UNDO.
 DEF VAR hField AS HANDLE NO-UNDO.
@@ -1581,26 +1560,19 @@ SESSION:SET-WAIT-STATE ("general").
 EMPTY TEMP-TABLE tt-report.
 EMPTY TEMP-TABLE tt-report2.
 
-v-date = today.
+/*v-date = today.*/
 
 find first company where company.company eq cocode no-lock.
 
-find first period
-    where period.company eq cocode
-      and period.pst     le v-date
-      and period.pend    ge v-date
-    no-lock.
-
 assign
- v-per-1 = 3
+ v-per-1 = 12
  v-per-2 = period.pnum
- v-custs = 99999
  str-tit2 = c-win:title
  {sys/inc/ctrtext.i str-tit2 112}
- v-date     = as-of-date
- v-per-1    = prt-period
+ /*v-date     = as-of-date*/
+ dSdate     = begin_date
+ dEdate     = end_date
  v-per-2    = srt-period
- v-custs    = cust
  v-sort     = rd_print EQ "Customer"
  fsman      = begin_slsmn
  tsman      = end_slsmn
@@ -1609,7 +1581,11 @@ assign
  fcus       =  begin_cust
  tcus       =  END_cust .
 
-
+find first period
+    where period.company eq cocode
+      and period.pst     le dEdate
+      and period.pend    ge dSdate
+    no-lock.
  DEF VAR cslist AS cha NO-UNDO.
  FOR EACH ttRptSelected BY ttRptSelected.DisplayOrder:
 
@@ -1627,7 +1603,7 @@ assign
           .        
           cSlist = cSlist + ttRptSelected.FieldList + ",".
 
-        IF LOOKUP(ttRptSelected.TextList, "Period 1,Period 2,Period 3,Period 4,Period 5,Period 6,Period 7,Period 8,Period 9,Period 10,Period 11,Period 12,YTD Amt") <> 0    THEN
+        IF LOOKUP(ttRptSelected.TextList, "January,February,March,April,May,June,July,August,September,October,November,December,YTD Amt") <> 0    THEN
          ASSIGN
          str-line = str-line + FILL("-",ttRptSelected.FieldLength) + " " .
         ELSE
@@ -1636,8 +1612,8 @@ assign
 
 find last period
     where period.company eq cocode
-      and period.pst     le v-date
-      and period.pend    ge v-date
+      and period.pst     le dEdate
+      and period.pend    ge dSdate
     no-lock.
 
 v-yr = period.yr.
@@ -1682,8 +1658,8 @@ for each period
                   (if v-label[v] eq "" then "Period " else "/") +
                   trim(string(period.pnum,">9")).
 
-    IF tb_excel THEN
-       excelheader = excelheader + ",Period " + STRING(period.pnum,">9").
+   /* IF tb_excel THEN
+       excelheader = excelheader + ",Period " + STRING(period.pnum,">9").*/
 
     if v ge 4 then v = 0.
   end.
@@ -1716,7 +1692,6 @@ IF tb_excel THEN DO:
       OUTPUT STREAM excel TO VALUE(fi_file).
       PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' skip.
 END. 
-
 /*display "" with frame r-top.*/
 FOR EACH ar-inv
     WHERE ar-inv.company  EQ cocode
@@ -1724,8 +1699,8 @@ FOR EACH ar-inv
       AND ar-inv.cust-no  LE tcus
       AND (if lselected then can-find(first ttCustList where ttCustList.cust-no eq ar-inv.cust-no
       AND ttCustList.log-fld no-lock) else true)
-      AND ar-inv.inv-date GE fdate[1]
-      AND ar-inv.inv-date LE v-date
+      AND ar-inv.inv-date GE dSdate
+      AND ar-inv.inv-date LE dEdate
       AND ar-inv.posted   EQ YES
     USE-INDEX inv-date NO-LOCK,
     FIRST cust 
@@ -1763,8 +1738,9 @@ FOR EACH ar-inv
 
       create tt-report.
       assign
-       tt-report.key-01  = /*if v-sort then "" else*/ v-slsm[1]
+       tt-report.key-01  = if v-sort then cust.cust-no ELSE v-slsm[1]
        tt-report.key-02  = cust.cust-no
+       tt-report.key-03  = v-slsm[1]
        tt-report.dec1    = v-amt[1]
        tt-report.dec2    = v-amt[2]
        tt-report.key-10  = "ar-invl"
@@ -1785,8 +1761,8 @@ FOR each cust where cust.company eq cocode
     each ar-cash
     where ar-cash.company    eq cocode
       and ar-cash.cust-no    eq cust.cust-no
-      and ar-cash.check-date ge fdate[1]
-      and ar-cash.check-date le v-date
+      and ar-cash.check-date ge dSdate
+      and ar-cash.check-date le dEdate
       and ar-cash.posted     eq yes
     use-index ar-cash no-lock,
 
@@ -1840,8 +1816,9 @@ FOR each cust where cust.company eq cocode
 
      create tt-report.
      assign
-      tt-report.key-01  = /*if v-sort then "" else */ v-slsm[1]
+      tt-report.key-01  = if v-sort then cust.cust-no else  v-slsm[1]
       tt-report.key-02  = cust.cust-no
+      tt-report.key-03  = v-slsm[1]
       tt-report.dec1    = v-amt[1]
       tt-report.dec2    = v-amt[2]
       tt-report.key-10  = "ar-cashl"
@@ -1864,8 +1841,9 @@ IF v-inc THEN
 
        CREATE tt-report.
        ASSIGN
-          tt-report.key-01  = /*if v-sort then "" else*/ cust.sman
-          tt-report.key-02  = cust.cust-no.
+          tt-report.key-01  = if v-sort then cust.cust-no ELSE cust.sman
+          tt-report.key-02  = cust.cust-no
+          tt-report.key-03  = cust.sman .
        RELEASE tt-report.
    END.
 
@@ -1874,19 +1852,20 @@ v-amt = 0.
 
 for each tt-report no-lock
 
-    break by tt-report.key-01
-          by tt-report.key-02:
+    break by tt-report.key-02
+          by tt-report.key-03 :
 
   assign
    v-amt[1] = v-amt[1] + tt-report.dec1
    v-amt[2] = v-amt[2] + tt-report.dec2.
 
-  if last-of(tt-report.key-02) then do:
+  if last-of(tt-report.key-03) then do:
      if v-amt[1] ne 0 or v-inc or v-ytd then do:
        create tt-report2.
        assign
         tt-report2.key-01 = tt-report.key-01
         tt-report2.key-02 = tt-report.key-02
+        tt-report2.key-03 = tt-report.key-03 
         tt-report2.dec1   = if v-ytd then 0 else v-amt[1]
         tt-report2.dec2   = v-amt[2].
      end.
@@ -1914,19 +1893,15 @@ for each tt-report2,
     {custom/statusMsg.i " 'Processing Customer#  '  + cust.cust-no "}
   if first-of(tt-report2.key-01) then do:
     v-prt = 0.
-
-
     IF FIRST(tt-report2.key-01) THEN VIEW FRAME r-top.
-
-   /* if not v-sort then do: */
+  end.
+  
       find first sman
           where sman.company eq cocode
-            and sman.sman    eq tt-report2.key-01
+            and sman.sman    eq tt-report2.key-03
           no-lock no-error.
-      lv-sman = TRIM(tt-report2.key-01) .
+      lv-sman = TRIM(tt-report2.key-03) .
       lv-sname = TRIM(IF AVAIL sman THEN sman.sname ELSE "Not on file").
-   
-  end.
   
   assign
    v-amt = 0
@@ -1940,7 +1915,7 @@ for each tt-report2,
        find ar-invl where recid(ar-invl) eq tt-report.rec-id no-lock.
        find ar-inv  where ar-inv.x-no    eq ar-invl.x-no  no-lock.
 
-       do v = v1 to v-per-2:
+       do v = v1 to v-per-2: 
          if ar-inv.inv-date ge fdate[v] and
             ar-inv.inv-date le tdate[v] then
            v-amt[v] = v-amt[v] + dec(tt-report.dec2).
@@ -1970,7 +1945,7 @@ for each tt-report2,
   END. 
 
 IF v-inc OR (NOT v-inc AND (lp-zero EQ NO)) THEN DO:
-  if v-prt le v-custs then do:
+ /* if v-prt le v-custs then do:*/
      v = 0.
 
         ASSIGN cDisplay = ""
@@ -2017,7 +1992,7 @@ IF v-inc OR (NOT v-inc AND (lp-zero EQ NO)) THEN DO:
      put SKIP.
      IF tb_excel THEN
         PUT STREAM excel UNFORMATTED SKIP(1).
-  end.
+  /*end.*/
 
   do i = 1 to 21:
      v-tot-amt[i] = v-tot-amt[i] + v-amt[i].

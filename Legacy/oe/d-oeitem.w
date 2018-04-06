@@ -111,7 +111,6 @@ DEF VAR v-run-schedule AS LOG NO-UNDO.
 DEF VAR lv-type-codes AS CHAR NO-UNDO.
 DEF VAR lv-type-dscrs AS CHAR NO-UNDO.
 DEF VAR K_FRAC AS DEC INIT 6.25 NO-UNDO.
-DEF VAR ll-prev-whs-item AS LOG NO-UNDO.
 DEF VAR ld-prev-t-price LIKE oe-ordl.t-price NO-UNDO.
 DEF VAR li-prev-ord-qty LIKE oe-ordl.qty NO-UNDO.
 DEF VAR ld-prev-prom-date AS DATE NO-UNDO.
@@ -161,6 +160,7 @@ DEFINE VARIABLE OEPO#Xfer-log AS LOGICAL     NO-UNDO.
 DEFINE VARIABLE oeDateChange-log AS LOGICAL     NO-UNDO.
 DEFINE VARIABLE oeDateChange-chr AS CHARACTER   NO-UNDO.
 DEFINE VARIABLE gcLastDateChange AS CHARACTER   NO-UNDO.
+DEFINE VARIABLE cOEPriceMatrixCheck AS CHARACTER     NO-UNDO.
 cocode = g_company.
 
 {oe/oe-sysct1.i NEW} 
@@ -169,8 +169,6 @@ cocode = g_company.
 
 DEF BUFFER bf-ef FOR ef.
 DEF BUFFER bf-eb FOR eb.
-DEF BUFFER oe-ord-whs-order FOR reftable.
-DEF BUFFER oe-ordl-whs-item FOR reftable.
 DEF BUFFER bf-oe-ordl FOR oe-ordl.
 DEF BUFFER bf-oe-rel FOR oe-rel.
 
@@ -237,6 +235,15 @@ RUN sys/ref/nk1look.p (INPUT cocode, "OEPriceMatrixCheck", "I" /* Logical */,
                        OUTPUT v-rtn-char, 
                        OUTPUT v-rec-found).
 glOEPriceMatrixCheckAllowMax = INT(v-rtn-char) EQ 1 NO-ERROR.
+
+RUN sys/ref/nk1look.p (INPUT cocode, "OEPriceMatrixCheck", "C" /* Logical */, 
+                       INPUT NO /* check by cust */, 
+                       INPUT YES /* use cust not vendor */,
+                       INPUT "" /* cust */, 
+                       INPUT "" /* ship-to*/,
+                       OUTPUT v-rtn-char, 
+                       OUTPUT v-rec-found).
+cOEPriceMatrixCheck = v-rtn-char  .
 
 RUN sys/ref/nk1look.p (cocode, "oeDateChange", "L", NO, NO, "", "", 
                           OUTPUT v-rtn-char, OUTPUT v-rec-found).
@@ -362,22 +369,23 @@ oe-ordl.job-no2 oe-ordl.qty oe-ordl.i-no oe-ordl.part-no oe-ordl.i-name ~
 oe-ordl.part-dscr1 oe-ordl.part-dscr2 oe-ordl.part-dscr3 oe-ordl.po-no ~
 oe-ordl.e-num oe-ordl.po-no-po oe-ordl.vend-no oe-ordl.price oe-ordl.pr-uom ~
 oe-ordl.tax oe-ordl.disc oe-ordl.cas-cnt oe-ordl.t-price oe-ordl.partial ~
-oe-ordl.cost oe-ordl.cases-unit oe-ordl.type-code oe-ordl.whsed ~
-oe-ordl.s-man[1] oe-ordl.s-pct[1] oe-ordl.s-comm[1] oe-ordl.s-man[2] ~
-oe-ordl.s-pct[2] oe-ordl.s-comm[2] oe-ordl.s-man[3] oe-ordl.s-pct[3] ~
-oe-ordl.s-comm[3] oe-ordl.over-pct oe-ordl.under-pct oe-ordl.req-code ~
-oe-ordl.prom-code oe-ordl.req-date oe-ordl.prom-date oe-ordl.spare-char-1 ~
-oe-ordl.spare-dec-1 oe-ordl.spare-char-2 
-&Scoped-define ENABLED-FIELDS-IN-QUERY-d-oeitem oe-ordl.est-no oe-ordl.qty ~
-oe-ordl.i-no oe-ordl.part-no oe-ordl.i-name oe-ordl.part-dscr1 ~
-oe-ordl.part-dscr2 oe-ordl.part-dscr3 oe-ordl.po-no oe-ordl.e-num ~
-oe-ordl.po-no-po oe-ordl.price oe-ordl.pr-uom oe-ordl.tax oe-ordl.disc ~
-oe-ordl.cas-cnt oe-ordl.partial oe-ordl.cases-unit oe-ordl.type-code ~
+oe-ordl.cost oe-ordl.cases-unit oe-ordl.type-code oe-ordl.managed ~
 oe-ordl.whsed oe-ordl.s-man[1] oe-ordl.s-pct[1] oe-ordl.s-comm[1] ~
 oe-ordl.s-man[2] oe-ordl.s-pct[2] oe-ordl.s-comm[2] oe-ordl.s-man[3] ~
 oe-ordl.s-pct[3] oe-ordl.s-comm[3] oe-ordl.over-pct oe-ordl.under-pct ~
 oe-ordl.req-code oe-ordl.prom-code oe-ordl.req-date oe-ordl.prom-date ~
 oe-ordl.spare-char-1 oe-ordl.spare-dec-1 oe-ordl.spare-char-2 
+&Scoped-define ENABLED-FIELDS-IN-QUERY-d-oeitem oe-ordl.est-no oe-ordl.qty ~
+oe-ordl.i-no oe-ordl.part-no oe-ordl.i-name oe-ordl.part-dscr1 ~
+oe-ordl.part-dscr2 oe-ordl.part-dscr3 oe-ordl.po-no oe-ordl.e-num ~
+oe-ordl.po-no-po oe-ordl.price oe-ordl.pr-uom oe-ordl.tax oe-ordl.disc ~
+oe-ordl.cas-cnt oe-ordl.partial oe-ordl.cases-unit oe-ordl.type-code ~
+oe-ordl.managed oe-ordl.whsed oe-ordl.s-man[1] oe-ordl.s-pct[1] ~
+oe-ordl.s-comm[1] oe-ordl.s-man[2] oe-ordl.s-pct[2] oe-ordl.s-comm[2] ~
+oe-ordl.s-man[3] oe-ordl.s-pct[3] oe-ordl.s-comm[3] oe-ordl.over-pct ~
+oe-ordl.under-pct oe-ordl.req-code oe-ordl.prom-code oe-ordl.req-date ~
+oe-ordl.prom-date oe-ordl.spare-char-1 oe-ordl.spare-dec-1 ~
+oe-ordl.spare-char-2 
 &Scoped-define ENABLED-TABLES-IN-QUERY-d-oeitem oe-ordl
 &Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-d-oeitem oe-ordl
 &Scoped-define QUERY-STRING-d-oeitem FOR EACH oe-ordl SHARE-LOCK, ~
@@ -397,33 +405,32 @@ oe-ordl.spare-char-1 oe-ordl.spare-dec-1 oe-ordl.spare-char-2
 oe-ordl.part-no oe-ordl.i-name oe-ordl.part-dscr1 oe-ordl.part-dscr2 ~
 oe-ordl.part-dscr3 oe-ordl.po-no oe-ordl.e-num oe-ordl.po-no-po ~
 oe-ordl.price oe-ordl.pr-uom oe-ordl.tax oe-ordl.disc oe-ordl.cas-cnt ~
-oe-ordl.partial oe-ordl.cases-unit oe-ordl.type-code oe-ordl.whsed ~
-oe-ordl.s-man[1] oe-ordl.s-pct[1] oe-ordl.s-comm[1] oe-ordl.s-man[2] ~
-oe-ordl.s-pct[2] oe-ordl.s-comm[2] oe-ordl.s-man[3] oe-ordl.s-pct[3] ~
-oe-ordl.s-comm[3] oe-ordl.over-pct oe-ordl.under-pct oe-ordl.req-code ~
-oe-ordl.prom-code oe-ordl.req-date oe-ordl.prom-date oe-ordl.spare-char-1 ~
-oe-ordl.spare-dec-1 oe-ordl.spare-char-2 
+oe-ordl.partial oe-ordl.cases-unit oe-ordl.type-code oe-ordl.managed ~
+oe-ordl.whsed oe-ordl.s-man[1] oe-ordl.s-pct[1] oe-ordl.s-comm[1] ~
+oe-ordl.s-man[2] oe-ordl.s-pct[2] oe-ordl.s-comm[2] oe-ordl.s-man[3] ~
+oe-ordl.s-pct[3] oe-ordl.s-comm[3] oe-ordl.over-pct oe-ordl.under-pct ~
+oe-ordl.req-code oe-ordl.prom-code oe-ordl.req-date oe-ordl.prom-date ~
+oe-ordl.spare-char-1 oe-ordl.spare-dec-1 oe-ordl.spare-char-2 
 &Scoped-define ENABLED-TABLES oe-ordl
 &Scoped-define FIRST-ENABLED-TABLE oe-ordl
-&Scoped-Define ENABLED-OBJECTS fi_qty-uom tb_whs-item Btn_OK Btn_Done ~
-Btn_Cancel Btn_hist fi_jobStartDate btn-quotes RECT-31 RECT-39 RECT-40 ~
-RECT-41 
+&Scoped-Define ENABLED-OBJECTS fi_qty-uom Btn_OK Btn_Done Btn_Cancel ~
+Btn_hist fi_jobStartDate btn-quotes RECT-31 RECT-39 RECT-40 RECT-41 
 &Scoped-Define DISPLAYED-FIELDS oe-ordl.est-no oe-ordl.job-no ~
 oe-ordl.job-no2 oe-ordl.qty oe-ordl.i-no oe-ordl.part-no oe-ordl.i-name ~
 oe-ordl.part-dscr1 oe-ordl.part-dscr2 oe-ordl.part-dscr3 oe-ordl.po-no ~
 oe-ordl.e-num oe-ordl.po-no-po oe-ordl.vend-no oe-ordl.price oe-ordl.pr-uom ~
 oe-ordl.tax oe-ordl.disc oe-ordl.cas-cnt oe-ordl.t-price oe-ordl.partial ~
-oe-ordl.cost oe-ordl.cases-unit oe-ordl.type-code oe-ordl.whsed ~
-oe-ordl.s-man[1] oe-ordl.s-pct[1] oe-ordl.s-comm[1] oe-ordl.s-man[2] ~
-oe-ordl.s-pct[2] oe-ordl.s-comm[2] oe-ordl.s-man[3] oe-ordl.s-pct[3] ~
-oe-ordl.s-comm[3] oe-ordl.over-pct oe-ordl.under-pct oe-ordl.req-code ~
-oe-ordl.prom-code oe-ordl.req-date oe-ordl.prom-date oe-ordl.spare-char-1 ~
-oe-ordl.spare-dec-1 oe-ordl.spare-char-2 
+oe-ordl.cost oe-ordl.cases-unit oe-ordl.type-code oe-ordl.managed ~
+oe-ordl.whsed oe-ordl.s-man[1] oe-ordl.s-pct[1] oe-ordl.s-comm[1] ~
+oe-ordl.s-man[2] oe-ordl.s-pct[2] oe-ordl.s-comm[2] oe-ordl.s-man[3] ~
+oe-ordl.s-pct[3] oe-ordl.s-comm[3] oe-ordl.over-pct oe-ordl.under-pct ~
+oe-ordl.req-code oe-ordl.prom-code oe-ordl.req-date oe-ordl.prom-date ~
+oe-ordl.spare-char-1 oe-ordl.spare-dec-1 oe-ordl.spare-char-2 
 &Scoped-define DISPLAYED-TABLES oe-ordl
 &Scoped-define FIRST-DISPLAYED-TABLE oe-ordl
 &Scoped-Define DISPLAYED-OBJECTS fiPromDtLabel fi_type-dscr fi_qty-uom ~
-spare-dec-1 tb_whs-item fi_s-pct-lbl fi_s-comm-lbl fi_sman-lbl fi_sname-1 ~
-fi_sname-2 fi_sname-3 fi_sname-lbl fi_jobStartDate 
+spare-dec-1 fi_s-pct-lbl fi_s-comm-lbl fi_sman-lbl fi_sname-1 fi_sname-2 ~
+fi_sname-3 fi_sname-lbl fi_jobStartDate 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -436,15 +443,12 @@ oe-ordl.cost oe-ordl.type-code fi_sname-1 fi_sname-2 fi_sname-3
 
 /* ************************  Function Prototypes ********************** */
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fOEScreenUOMConvert d-oeitem
-FUNCTION fOEScreenUOMConvert RETURNS DECIMAL 
-  (  ipdStartQuantity AS DECIMAL , ipcUOM AS CHARACTER, ipdCount AS DECIMAL ) FORWARD.
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fOEScreenUOMConvert d-oeitem 
+FUNCTION fOEScreenUOMConvert RETURNS DECIMAL
+  ( ipdStartQuantity AS DECIMAL , ipcUOM AS CHARACTER, ipdCount AS DECIMAL ) FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD get-colonial-rel-date d-oeitem 
 FUNCTION get-colonial-rel-date RETURNS DATE
@@ -561,11 +565,6 @@ DEFINE RECTANGLE RECT-41
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 64 BY 5.81.
 
-DEFINE VARIABLE tb_whs-item AS LOGICAL INITIAL no 
-     LABEL "Managed Inventory" 
-     VIEW-AS TOGGLE-BOX
-     SIZE 27 BY .81 NO-UNDO.
-
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
 DEFINE QUERY d-oeitem FOR 
@@ -679,7 +678,9 @@ DEFINE FRAME d-oeitem
      oe-ordl.type-code AT ROW 7.67 COL 112 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 4.4 BY 1 TOOLTIP "(O)riginal, (R)epeat, Repeat with (C)hange, inhouse (T)ransfer"
-     tb_whs-item AT ROW 9 COL 114
+     oe-ordl.managed AT ROW 9 COL 114
+          VIEW-AS TOGGLE-BOX
+          SIZE 27 BY .81
      oe-ordl.whsed AT ROW 9.86 COL 114 HELP
           "Is line item warehoused?" WIDGET-ID 2
           LABEL "Run && Ship"
@@ -741,15 +742,14 @@ DEFINE FRAME d-oeitem
           VIEW-AS FILL-IN 
           SIZE 18 BY 1
      Btn_OK AT ROW 17.38 COL 40.4
-     Btn_Done AT ROW 17.38 COL 60.4
-     Btn_Cancel AT ROW 17.38 COL 80.6
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
-         FONT 6
-         DEFAULT-BUTTON Btn_Done CANCEL-BUTTON Btn_Cancel.
+         FONT 6.
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME d-oeitem
+     Btn_Done AT ROW 17.38 COL 60.4
+     Btn_Cancel AT ROW 17.38 COL 80.6
      Btn_hist AT ROW 3.14 COL 46.6
      oe-ordl.spare-char-1 AT ROW 1.19 COL 133.2 COLON-ALIGNED WIDGET-ID 12
           LABEL "Status" FORMAT "x(2)"
@@ -873,10 +873,10 @@ ASSIGN
    EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN oe-ordl.spare-char-2 IN FRAME d-oeitem
    EXP-LABEL                                                            */
-/* SETTINGS FOR FILL-IN oe-ordl.spare-dec-1 IN FRAME d-oeitem
-   EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN spare-dec-1 IN FRAME d-oeitem
    NO-ENABLE LIKE = asi.itemfg. EXP-LABEL EXP-FORMAT                    */
+/* SETTINGS FOR FILL-IN oe-ordl.spare-dec-1 IN FRAME d-oeitem
+   EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN oe-ordl.t-price IN FRAME d-oeitem
    NO-ENABLE 2 EXP-LABEL                                                */
 /* SETTINGS FOR TOGGLE-BOX oe-ordl.tax IN FRAME d-oeitem
@@ -1461,33 +1461,24 @@ DO:
         IF v-runsh = 1 THEN
            ASSIGN asi.oe-ordl.whsed:SCREEN-VALUE = "YES".
         IF v-runsh = 2 THEN DO:
-           ASSIGN tb_whs-item:SCREEN-VALUE = "YES" tb_whs-item = YES.
+           ASSIGN oe-ordl.managed:SCREEN-VALUE = "YES" oe-ordl.managed = YES.
         END.        
     END.
-    DO TRANSACTION:      
-
-      IF AVAIL oe-ordl-whs-item THEN DO:
-         IF tb_whs-item THEN
-             oe-ordl.managed = true.
-         ELSE
-             oe-ordl.managed = false.
-         FIND CURRENT oe-ordl-whs-item NO-LOCK.
-      END.
-    END.
-
   END.
   ELSE
     IF (runship-char EQ "" OR  runship-char EQ "DefaultOnly" ) AND runship-log EQ YES AND oe-ordl.est-no:SCREEN-VALUE NE "" THEN
        ASSIGN asi.oe-ordl.whsed:SCREEN-VALUE = "YES".
 
 
-  IF glOEPriceMatrixCheck 
-      AND oe-ordl.est-no:SCREEN-VALUE EQ "" THEN
+  IF /*glOEPriceMatrixCheck 
+      AND*/ oe-ordl.est-no:SCREEN-VALUE EQ "" THEN
       RUN PriceMatrixQtyCheck(INPUT cocode,
                               INPUT oe-ord.cust-no,
                               INPUT oe-ordl.i-no:SCREEN-VALUE,
                               INPUT DEC(oe-ordl.qty:SCREEN-VALUE),
-                              INPUT glOEPriceMatrixCheckAllowMax).
+                              INPUT glOEPriceMatrixCheckAllowMax,
+                              INPUT DEC(oe-ordl.price:SCREEN-VALUE)) NO-ERROR.
+   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
   IF oepricecheck-log AND oe-ordl.est-no:SCREEN-VALUE EQ "" AND
      ll-new-record THEN
@@ -1521,7 +1512,7 @@ DO:
 
   DO WITH FRAME {&FRAME-NAME}:
     ASSIGN {&FIELDS-IN-QUERY-{&FRAME-NAME}}
-           tb_whs-item fi_jobStartDate.
+          fi_jobStartDate.
     IF asi.oe-ordl.whsed:HIDDEN = FALSE THEN
         ASSIGN oe-ordl.whsed.
     IF STRING(DATE(oe-ordl.spare-int-2)) NE fi_jobStartDate:SCREEN-VALUE THEN DO:
@@ -1531,7 +1522,6 @@ DO:
 
   END.
 
-  RUN whs-item (1).
   FIND xoe-ord WHERE RECID(xoe-ord) = recid(oe-ord) EXCLUSIVE.
   FIND FIRST itemfg WHERE itemfg.company EQ cocode
                       AND itemfg.i-no EQ oe-ordl.i-no NO-LOCK NO-ERROR.
@@ -3216,7 +3206,6 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
       IF INDEX(ip-type,"Update-") NE 0 AND oe-ordl.est-no NE "" THEN
          RUN get-est-comm (INPUT ROWID(oe-ordl), INPUT YES).
 
-      RUN whs-item (0).
       ASSIGN btn_done:hidden = YES.
       RUN custom/framechk.p (1, FRAME {&FRAME-NAME}:HANDLE).
 
@@ -3873,10 +3862,10 @@ IF AVAIL oe-ord THEN DO:
    END.
 
    ASSIGN
-      bf-oe-ordl.q-qty = oe-ord.t-fuel.
-      v-margin = oe-ord.t-fuel.
-
-   {oe/defwhsed.i bf-oe-ordl}
+      bf-oe-ordl.q-qty = oe-ord.t-fuel
+      v-margin = oe-ord.t-fuel
+      bf-oe-ordl.managed = oe-ord.managed
+      .
 
        IF runship-char EQ "DefaultOnly" THEN DO:
            bf-oe-ordl.whsed = YES.
@@ -3972,7 +3961,9 @@ PROCEDURE create-job :
          job.job-no     = oe-ordl.job-no
          job.job-no2    = oe-ordl.job-no2
          job.stat       = "P"
-         op-recid = RECID(job).
+         job.csrUser_id = IF AVAIL oe-ord THEN oe-ord.csrUser_id ELSE ""
+         op-recid = RECID(job) 
+          .
 
    FIND FIRST job-hdr WHERE job-hdr.company EQ cocode
                        AND job-hdr.job-no  EQ oe-ordl.job-no
@@ -4419,18 +4410,7 @@ IF v-relflg2 THEN DO:
       ELSE IF AVAIL sys-ctrl AND sys-ctrl.log-fld THEN v-reltype = sys-ctrl.char-fld.
   
   IF v-relType <> "" THEN DO:
-    FIND FIRST reftable
-    WHERE reftable.reftable EQ "oe-rel.s-code"
-        AND reftable.company  EQ STRING(oe-rel.r-no,"9999999999") 
-      NO-LOCK NO-ERROR.
-    IF NOT AVAIL reftable THEN DO:
-      CREATE reftable.
-      ASSIGN reftable.reftable = "oe-rel.s-code"
-             reftable.company = STRING(oe-rel.r-no,"9999999999")
-             reftable.CODE = IF oe-ordl.is-a-component THEN "S"
-                                ELSE SUBSTRING(v-relType,1,1).
-      IF oe-ord.TYPE = "T" THEN
-        ASSIGN reftable.CODE = "T".
+    
       FIND bf-oe-rel WHERE ROWID(bf-oe-rel) EQ ROWID(oe-rel)
         EXCLUSIVE-LOCK.
       bf-oe-rel.s-code = IF oe-ordl.is-a-component THEN "S"
@@ -4438,7 +4418,6 @@ IF v-relflg2 THEN DO:
       IF oe-ord.TYPE = "T" THEN
         ASSIGN bf-oe-rel.s-code = "T".      
       RELEASE bf-oe-rel.
-    END. /* not avail reftable */
   END. /* v-reltype <> "" */
 END. /* if v-relflg2 */
 
@@ -4512,7 +4491,8 @@ ASSIGN
  itemfg.pur-uom    = /*IF AVAIL bf-itemfg THEN bf-itemfg.pur-uom ELSE "M" */ oe-ordl.pr-uom:SCREEN-VALUE 
 /* gdm - 11190901 */
  itemfg.ship-meth  = IF AVAIL bf-itemfg THEN bf-itemfg.ship-meth ELSE YES 
-  itemfg.part-no    = oe-ordl.part-no:screen-value.
+  itemfg.part-no    = oe-ordl.part-no:screen-value
+  itemfg.setupDate  = TODAY.
 
 ASSIGN
     itemfg.taxable = IF AVAIL cust 
@@ -5258,7 +5238,7 @@ DO WITH FRAME {&FRAME-NAME}:
   IF NOT AVAIL oe-ord THEN FIND oe-ord WHERE oe-ord.company = g_company AND
                                 oe-ord.ord-no = oe-ordl.ord-no NO-LOCK. 
   IF itemfg.CLASS EQ "*" OR itemfg.exempt-disc THEN oe-ordl.disc:SCREEN-VALUE = "0".
-/*   {custom/fgexempt.i itemfg oe-ordl.disc:SCREEN-VALUE} */
+
 
   IF oe-ordl.type-code:SCREEN-VALUE EQ "O" AND oe-ordl.est-no NE "" THEN
      ASSIGN oe-ordl.i-name:screen-value     = IF itemfg.i-name <> "" THEN itemfg.i-name ELSE oe-ordl.i-name:screen-value 
@@ -5444,7 +5424,7 @@ IF ERROR-STATUS:ERROR THEN RETURN ERROR.
 DO WITH FRAME {&frame-name}:  
   FIND itemfg WHERE RECID(itemfg) = ip-recid NO-LOCK.
    IF itemfg.CLASS EQ "*" OR itemfg.exempt-disc THEN oe-ordl.disc:SCREEN-VALUE = "0".
-/*   {custom/fgexempt.i itemfg oe-ordl.disc:SCREEN-VALUE} */
+
 
   RUN default-type (BUFFER itemfg).
 
@@ -5679,7 +5659,7 @@ PROCEDURE display-item :
 
     RUN new-type.
     RUN new-s-man (0).
-    RUN whs-item (0).
+
   END.
 
   ENABLE btn_ok btn_cancel WITH FRAME {&frame-name}.    
@@ -5701,9 +5681,9 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY fiPromDtLabel fi_type-dscr fi_qty-uom spare-dec-1 tb_whs-item 
-          fi_s-pct-lbl fi_s-comm-lbl fi_sman-lbl fi_sname-1 fi_sname-2 
-          fi_sname-3 fi_sname-lbl fi_jobStartDate 
+  DISPLAY fiPromDtLabel fi_type-dscr fi_qty-uom spare-dec-1 fi_s-pct-lbl 
+          fi_s-comm-lbl fi_sman-lbl fi_sname-1 fi_sname-2 fi_sname-3 
+          fi_sname-lbl fi_jobStartDate 
       WITH FRAME d-oeitem.
   IF AVAILABLE oe-ordl THEN 
     DISPLAY oe-ordl.est-no oe-ordl.job-no oe-ordl.job-no2 oe-ordl.qty oe-ordl.i-no 
@@ -5711,18 +5691,18 @@ PROCEDURE enable_UI :
           oe-ordl.part-dscr3 oe-ordl.po-no oe-ordl.e-num oe-ordl.po-no-po 
           oe-ordl.vend-no oe-ordl.price oe-ordl.pr-uom oe-ordl.tax oe-ordl.disc 
           oe-ordl.cas-cnt oe-ordl.t-price oe-ordl.partial oe-ordl.cost 
-          oe-ordl.cases-unit oe-ordl.type-code oe-ordl.whsed oe-ordl.s-man[1] 
-          oe-ordl.s-pct[1] oe-ordl.s-comm[1] oe-ordl.s-man[2] oe-ordl.s-pct[2] 
-          oe-ordl.s-comm[2] oe-ordl.s-man[3] oe-ordl.s-pct[3] oe-ordl.s-comm[3] 
-          oe-ordl.over-pct oe-ordl.under-pct oe-ordl.req-code oe-ordl.prom-code 
-          oe-ordl.req-date oe-ordl.prom-date oe-ordl.spare-char-1 
-          oe-ordl.spare-dec-1 oe-ordl.spare-char-2 
+          oe-ordl.cases-unit oe-ordl.type-code oe-ordl.managed oe-ordl.whsed 
+          oe-ordl.s-man[1] oe-ordl.s-pct[1] oe-ordl.s-comm[1] oe-ordl.s-man[2] 
+          oe-ordl.s-pct[2] oe-ordl.s-comm[2] oe-ordl.s-man[3] oe-ordl.s-pct[3] 
+          oe-ordl.s-comm[3] oe-ordl.over-pct oe-ordl.under-pct oe-ordl.req-code 
+          oe-ordl.prom-code oe-ordl.req-date oe-ordl.prom-date 
+          oe-ordl.spare-char-1 oe-ordl.spare-dec-1 oe-ordl.spare-char-2 
       WITH FRAME d-oeitem.
   ENABLE oe-ordl.est-no oe-ordl.qty fi_qty-uom oe-ordl.i-no oe-ordl.part-no 
          oe-ordl.i-name oe-ordl.part-dscr1 oe-ordl.part-dscr2 
          oe-ordl.part-dscr3 oe-ordl.po-no oe-ordl.e-num oe-ordl.po-no-po 
          oe-ordl.price oe-ordl.pr-uom oe-ordl.tax oe-ordl.disc oe-ordl.cas-cnt 
-         oe-ordl.partial oe-ordl.cases-unit oe-ordl.type-code tb_whs-item 
+         oe-ordl.partial oe-ordl.cases-unit oe-ordl.type-code oe-ordl.managed 
          oe-ordl.whsed oe-ordl.s-man[1] oe-ordl.s-pct[1] oe-ordl.s-comm[1] 
          oe-ordl.s-man[2] oe-ordl.s-pct[2] oe-ordl.s-comm[2] oe-ordl.s-man[3] 
          oe-ordl.s-pct[3] oe-ordl.s-comm[3] oe-ordl.over-pct oe-ordl.under-pct 
@@ -5755,6 +5735,21 @@ PROCEDURE exit-delete :
       DELETE exit-oe-ordl.
       LEAVE.
     END.
+  END.
+
+  IF AVAIL oe-ord THEN do:
+      IF CAN-FIND(FIRST b-oe-ordl 
+                  WHERE b-oe-ordl.company EQ oe-ord.company
+                    AND b-oe-ordl.ord-no  EQ oe-ord.ord-no
+                    AND b-oe-ordl.line    GE 1
+                    AND b-oe-ordl.line    LT 99999999) THEN
+      FOR EACH b-oe-ordl
+          WHERE b-oe-ordl.company EQ oe-ord.company
+            AND b-oe-ordl.ord-no  EQ oe-ord.ord-no
+            AND (b-oe-ordl.line   LT 1 OR
+                 b-oe-ordl.line   GE 99999999):
+        DELETE b-oe-ordl.
+      END.  
   END.
 
   op-cancel = YES.
@@ -5918,8 +5913,9 @@ DEF VAR v-q-backl AS INT NO-UNDO.
 
     IF lv-q-no NE 0 THEN DO:        
 
-      RUN oe/ordlq-no.p (ROWID(oe-ordl), lv-q-no).
+      
       FIND CURRENT oe-ordl.
+      ASSIGN oe-ordl.q-no = lv-q-no.
     END.
 
   END.
@@ -7190,6 +7186,7 @@ DEFINE INPUT PARAMETER ipcCust AS CHARACTER NO-UNDO.
 DEFINE INPUT PARAMETER ipcINo AS CHARACTER NO-UNDO.
 DEFINE INPUT PARAMETER ipdQty AS DECIMAL NO-UNDO.
 DEFINE INPUT PARAMETER iplAllowMax AS LOGICAL NO-UNDO.
+DEFINE INPUT PARAMETER ipdPrice AS DECIMAL NO-UNDO.
 
 DEFINE BUFFER bf-oe-prmtx FOR oe-prmtx.
 DEFINE BUFFER bf-cust FOR cust.
@@ -7198,7 +7195,7 @@ DEFINE BUFFER bf-itemfg FOR itemfg.
 DEFINE VARIABLE lFound AS LOGICAL     NO-UNDO.
 DEFINE VARIABLE iLevel AS INTEGER     NO-UNDO.
 DEFINE VARIABLE lLessThanMax AS LOGICAL     NO-UNDO.
-
+DEFINE VARIABLE dPriceMtx AS DECIMAL NO-UNDO .
 FIND FIRST bf-cust 
     WHERE bf-cust.company EQ ipcCompany
       AND bf-cust.cust-no EQ ipcCust
@@ -7212,35 +7209,83 @@ IF AVAIL bf-cust AND AVAIL bf-itemfg AND ipdQty NE 0 THEN DO:
                              INPUT ROWID(bf-itemfg),
                              INPUT ROWID(bf-cust),
                              INPUT NO,
-                             OUTPUT lFound).
-    IF lFound AND AVAIL bf-oe-prmtx THEN DO:
-        ASSIGN 
-            lFound = NO
-            lLessThanMax = YES.
-        IF iplAllowMax THEN 
-            DO iLevel = 1 TO 10:  /*don't fail match if qty is at the max*/
-                IF ipdQty LE bf-oe-prmtx.qty[iLevel] THEN DO:
-                    lLessThanMax = NOT (bf-oe-prmtx.qty[iLevel] EQ 99999999).
-                    iLevel = 99.
-                    LEAVE.
+                             OUTPUT lFound).   
+
+    IF  cOEPriceMatrixCheck EQ "Block Entry"  THEN DO:
+        
+         ASSIGN dPriceMtx = 0 .
+         IF lFound AND AVAIL bf-oe-prmtx THEN DO:
+            ASSIGN 
+                lFound = NO
+                lLessThanMax = YES.
+                iplAllowMax = YES .
+            IF iplAllowMax THEN 
+                DO iLevel = 1 TO 10:  /*don't fail match if qty is at the max*/
+                    IF ipdQty LE bf-oe-prmtx.qty[iLevel] THEN DO:
+                        dPriceMtx = bf-oe-prmtx.price[iLevel] .
+                        lLessThanMax = NOT (bf-oe-prmtx.qty[iLevel] EQ 99999999).
+                        iLevel = 99.
+                        LEAVE.
+                    END.
                 END.
-            END.
-        IF NOT iplAllowMax OR lLessThanMax THEN
-            DO iLevel = 1 TO 10:
-                IF ipdQty EQ bf-oe-prmtx.qty[iLevel] THEN
-                    lFound = YES.
-            END.
-        IF NOT lFound AND NOT lLessThanMax AND iplAllowMax THEN
-            lFound = YES.
+            IF NOT iplAllowMax OR lLessThanMax THEN
+                DO iLevel = 1 TO 10:
+                    IF ipdQty EQ bf-oe-prmtx.qty[iLevel] THEN
+                        ASSIGN dPriceMtx = bf-oe-prmtx.price[iLevel]
+                        lFound = YES.
+                END.
+            IF NOT lFound AND NOT lLessThanMax AND iplAllowMax THEN
+                lFound = YES.
+        END.
+      /*  MESSAGE "dPriceMtx " STRING(dPriceMtx) VIEW-AS ALERT-BOX ERROR .*/
+        IF lFound AND int(ipdPrice) NE dPriceMtx  THEN DO:
+            MESSAGE 'According to Price Matrix price will be: ' STRING(dPriceMtx)  SKIP
+                    ' for Quantity: ' STRING(ipdQty)   
+                VIEW-AS ALERT-BOX INFO BUTTONS OK.
+            RETURN ERROR  .
+        END.
+        IF NOT lFound AND cOEPriceMatrixCheck EQ "Block Entry"  THEN DO:
+            MESSAGE 'Price Matrix not found for:' SKIP
+                '  Customer ' ipcCust SKIP
+                '  Item ' ipcINo SKIP 
+                '  Quantity of ' STRING(ipdQty) SKIP 
+                'Please Enter price in Price Matrix before save Item Line.'
+                VIEW-AS ALERT-BOX INFO BUTTONS OK.
+            RETURN ERROR  .
+        END.
+    
+    END. /* cOEPriceMatrixCheck EQ "Block Entry" */
+    ELSE IF glOEPriceMatrixCheck THEN DO:
+        IF lFound AND AVAIL bf-oe-prmtx THEN DO:
+            ASSIGN 
+                lFound = NO
+                lLessThanMax = YES.
+            IF iplAllowMax THEN 
+                DO iLevel = 1 TO 10:  /*don't fail match if qty is at the max*/
+                    IF ipdQty LE bf-oe-prmtx.qty[iLevel] THEN DO:
+                        lLessThanMax = NOT (bf-oe-prmtx.qty[iLevel] EQ 99999999).
+                        iLevel = 99.
+                        LEAVE.
+                    END.
+                END.
+            IF NOT iplAllowMax OR lLessThanMax THEN
+                DO iLevel = 1 TO 10:
+                    IF ipdQty EQ bf-oe-prmtx.qty[iLevel] THEN
+                        lFound = YES.
+                END.
+            IF NOT lFound AND NOT lLessThanMax AND iplAllowMax THEN
+                lFound = YES.
+        END.
+
+    IF NOT lFound THEN
+        MESSAGE 'Price Matrix not found for:' SKIP
+        '  Customer ' ipcCust SKIP
+        '  Item ' ipcINo SKIP 
+        '  Quantity of ' STRING(ipdQty) SKIP 
+        'Please review Matrix tab to confirm price levels.'
+            VIEW-AS ALERT-BOX INFO BUTTONS OK.
     END.
 END.
-IF NOT lFound THEN
-    MESSAGE 'Price Matrix not found for:' SKIP
-    '  Customer ' ipcCust SKIP
-    '  Item ' ipcINo SKIP 
-    '  Quantity of ' STRING(ipdQty) SKIP 
-    'Please review Matrix tab to confirm price levels.'
-        VIEW-AS ALERT-BOX INFO BUTTONS OK.
 
 END PROCEDURE.
 
@@ -8637,12 +8682,7 @@ PROCEDURE valid-po-no :
     FIND FIRST cust NO-LOCK
         WHERE cust.company EQ oe-ord.company
           AND cust.cust-no EQ oe-ord.cust-no
-          AND CAN-FIND(FIRST cust-po-mand
-                       WHERE cust-po-mand.reftable EQ "cust.po-mand"
-                         AND cust-po-mand.company  EQ cust.company
-                         AND cust-po-mand.loc      EQ ""
-                         AND cust-po-mand.code     EQ cust.cust-no
-                         AND cust-po-mand.val[1]   EQ 1)
+          AND cust.po-mandatory
         NO-ERROR.
     
     IF AVAIL cust AND TRIM(oe-ordl.po-no:SCREEN-VALUE) EQ "" THEN DO:
@@ -9465,44 +9505,11 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE whs-item d-oeitem 
-PROCEDURE whs-item :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  DEF INPUT PARAM ip-int AS INT NO-UNDO.
-
-
-  RELEASE oe-ordl-whs-item.  
-
-  IF ip-int EQ 0 THEN DO WITH FRAME {&FRAME-NAME}:
-    ASSIGN
-     ll-prev-whs-item = AVAIL oe-ordl AND oe-ordl.managed = true     
-     tb_whs-item:SCREEN-VALUE = STRING(ll-prev-whs-item,"yes/no").
-    
-  END.
-
-  ELSE
-  IF AVAIL oe-ordl-whs-item THEN DO TRANSACTION:
-    IF ll-prev-whs-item NE tb_whs-item THEN v-qty-mod = YES.
-    ll-prev-whs-item = tb_whs-item.
-    FIND CURRENT oe-ordl-whs-item.
-    oe-ordl-whs-item.val[1] = INT(tb_whs-item).
-    FIND CURRENT oe-ordl-whs-item NO-LOCK.
-  END.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
 
 /* ************************  Function Implementations ***************** */
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fOEScreenUOMConvert d-oeitem
-FUNCTION fOEScreenUOMConvert RETURNS DECIMAL 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fOEScreenUOMConvert d-oeitem 
+FUNCTION fOEScreenUOMConvert RETURNS DECIMAL
   ( ipdStartQuantity AS DECIMAL , ipcUOM AS CHARACTER, ipdCount AS DECIMAL ):
 /*---------------------------------------------------       ---------------------------
  Purpose:
@@ -9529,11 +9536,9 @@ END CASE.
 RETURN ipdStartQuantity * dMultiplier.
 
 END FUNCTION.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION get-colonial-rel-date d-oeitem 
 FUNCTION get-colonial-rel-date RETURNS DATE

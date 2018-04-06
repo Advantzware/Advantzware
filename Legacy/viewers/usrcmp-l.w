@@ -352,6 +352,7 @@ PROCEDURE local-update-record :
 ------------------------------------------------------------------------------*/
  DEF VAR vDefault AS CHAR NO-UNDO.
  DEF VAR default-val AS LOG NO-UNDO .
+ DEFINE BUFFER bff-usercomp FOR usercomp .
  ASSIGN default-val = usercomp.loc_default .
   /* Code placed here will execute PRIOR to standard behavior. */
   {methods/run_link.i "RECORD-SOURCE" "Get-Values" "(OUTPUT op-user_id,OUTPUT op-company)"}
@@ -376,6 +377,26 @@ PROCEDURE local-update-record :
     APPLY "entry" TO usercomp.loc.
     RETURN NO-APPLY.
   END.
+
+  FIND FIRST bff-usercomp NO-LOCK
+        WHERE bff-usercomp.company = op-company
+          AND bff-usercomp.user_id = op-user_id 
+          AND bff-usercomp.loc_default = Yes
+          AND ROWID(bff-usercomp) <>  rowid(usercomp)
+          AND usercomp.loc_default:SCREEN-VALUE EQ "Yes"
+      NO-ERROR .
+     IF AVAIL bff-usercomp THEN DO:
+        MESSAGE "Are you sure you want to reset the default location to " 
+           usercomp.loc:SCREEN-VALUE IN FRAME {&FRAME-NAME}
+           VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO UPDATE ll-ans AS LOG.
+        IF NOT ll-ans THEN RETURN.
+        IF ll-ans THEN DO:
+            FIND CURRENT bff-usercomp EXCLUSIVE-LOCK NO-ERROR .
+            ASSIGN bff-usercomp.loc_default = NO .
+            FIND CURRENT bff-usercomp NO-LOCK NO-ERROR .
+        END.
+     END.
+
   {&methods/lValidateError.i NO}
   IF usercomp.loc_default:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "Yes" THEN DO:  /* task 07071403 */
       find first ce-ctrl where ce-ctrl.company = op-company and
@@ -394,6 +415,11 @@ PROCEDURE local-update-record :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
 
  /* Code placed here will execute AFTER standard behavior.    */
+  adm-new-record = NO .
+  DEF VAR char-hdl AS cha NO-UNDO.
+
+  RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE, "record-source", OUTPUT char-hdl).
+  RUN dispatch IN WIDGET-HANDLE(char-hdl) ("open-query").
 
 END PROCEDURE.
 

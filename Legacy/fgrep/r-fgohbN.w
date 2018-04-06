@@ -98,7 +98,7 @@ ASSIGN cTextListToSelect = "CUSTOMER,CUST NAME,ITEM #,TAG#,FULL TAG#,FG LOT#,CUS
                                 "loc,bin,msf-on-hand,cost-uom,rel-qty,qty-on-hand,last-sale,itemfg.procat," +
                                 "view-po,line-po,rel-po,sell-price,ord-pr,uom-cost,v-tot-cost,mat-cost,lab-cost,sale-rep," + 
                                 "sell-value-fg,sell-value-ord,days-old,custno,set-header,qty-per-set"
-           cFieldLength = "8,30,15,6,24,20,15,30,10,8," + "5,8,8,5,11,11,9,7," + "11,11,11,11,11,11,11,11,11,3," + "14,14,8,8,15,11"
+           cFieldLength = "8,30,15,6,24,20,15,30,10,8," + "5,8,8,5,11,11,9,7," + "11,11,11,11,11,11,11,11,11,3," + "14,14,8,8,15,14"
            cFieldType = "c,c,c,c,c,c,c,c,c,c,c," + "c,c,i,c,i,i,c,c," + "c,c,c,i,i,i,i,i,i,c," + "i,i,i,c,c,i"
            .
 
@@ -110,11 +110,7 @@ ASSIGN cTextListToDefault  = "CUSTOMER,CUST NAME,ITEM #,FULL TAG#,FG LOT#,REC DA
 
 {sys/inc/oereordr.i}
 
-&SCOPED-DEFINE where-fgstatus                 ~
-    WHERE reftable.reftable EQ "FGSTATUS"     ~
-      AND reftable.company  EQ itemfg.company ~
-      AND reftable.loc      EQ ""             ~
-      AND reftable.code     EQ itemfg.i-no
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

@@ -121,8 +121,6 @@ DEF NEW SHARED BUFFER xest FOR est.
 DEF NEW SHARED BUFFER xeb FOR eb.
 DEF NEW SHARED BUFFER xef FOR ef.
 
-DEF BUFFER oe-ord-whs-order FOR reftable.
-DEF BUFFER oe-ordl-whs-item FOR reftable.
 
 &Scoped-define sman-fields oe-ord.sman oe-ord.s-pct oe-ord.s-comm
 
@@ -223,36 +221,36 @@ RUN sys/ref/ordtypes.p (OUTPUT lv-type-codes, OUTPUT lv-type-dscrs).
 DEFINE QUERY external_tables FOR oe-ord.
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-FIELDS oe-ord.ord-no oe-ord.est-no oe-ord.job-no ~
-oe-ord.job-no2 oe-ord.spare-char-2 oe-ord.sold-id oe-ord.ord-date ~
-oe-ord.due-code oe-ord.due-date oe-ord.last-date oe-ord.prod-date ~
-oe-ord.po-no oe-ord.contact oe-ord.over-pct oe-ord.under-pct oe-ord.terms ~
-oe-ord.tax-gr oe-ord.frt-pay oe-ord.carrier oe-ord.fob-code oe-ord.sman[1] ~
-oe-ord.s-pct[1] oe-ord.s-comm[1] oe-ord.sman[2] oe-ord.s-pct[2] ~
-oe-ord.s-comm[2] oe-ord.sman[3] oe-ord.s-pct[3] oe-ord.s-comm[3] ~
-oe-ord.cc-type oe-ord.cc-expiration oe-ord.cc-num oe-ord.cc-auth ~
-oe-ord.spare-char-1 
+oe-ord.job-no2 oe-ord.spare-char-2 oe-ord.sold-id oe-ord.csrUser_id ~
+oe-ord.ord-date oe-ord.due-code oe-ord.due-date oe-ord.last-date ~
+oe-ord.prod-date oe-ord.po-no oe-ord.contact oe-ord.over-pct ~
+oe-ord.under-pct oe-ord.terms oe-ord.tax-gr oe-ord.managed oe-ord.frt-pay ~
+oe-ord.carrier oe-ord.fob-code oe-ord.sman[1] oe-ord.s-pct[1] ~
+oe-ord.s-comm[1] oe-ord.sman[2] oe-ord.s-pct[2] oe-ord.s-comm[2] ~
+oe-ord.sman[3] oe-ord.s-pct[3] oe-ord.s-comm[3] oe-ord.cc-type ~
+oe-ord.cc-expiration oe-ord.cc-num oe-ord.cc-auth oe-ord.spare-char-1 
 &Scoped-define ENABLED-TABLES oe-ord
 &Scoped-define FIRST-ENABLED-TABLE oe-ord
 &Scoped-Define ENABLED-OBJECTS btnCalendar-1 btnCalendar-2 btnCalendar-3 ~
 btnCalendar-4 btnCalendar-5 RECT-30 RECT-33 RECT-35 RECT-36 RECT-37 RECT-34 
 &Scoped-Define DISPLAYED-FIELDS oe-ord.ord-no oe-ord.est-no oe-ord.job-no ~
 oe-ord.job-no2 oe-ord.user-id oe-ord.stat oe-ord.spare-char-2 ~
-oe-ord.cust-no oe-ord.sold-id oe-ord.ord-date oe-ord.cust-name ~
-oe-ord.sold-name oe-ord.due-code oe-ord.due-date oe-ord.addr[1] ~
-oe-ord.sold-addr[1] oe-ord.last-date oe-ord.addr[2] oe-ord.sold-addr[2] ~
-oe-ord.prod-date oe-ord.city oe-ord.state oe-ord.zip oe-ord.sold-city ~
-oe-ord.sold-state oe-ord.sold-zip oe-ord.po-no oe-ord.contact ~
-oe-ord.over-pct oe-ord.under-pct oe-ord.terms oe-ord.terms-d oe-ord.tax-gr ~
-oe-ord.frt-pay oe-ord.carrier oe-ord.fob-code oe-ord.sman[1] ~
-oe-ord.sname[1] oe-ord.s-pct[1] oe-ord.s-comm[1] oe-ord.sman[2] ~
-oe-ord.sname[2] oe-ord.s-pct[2] oe-ord.s-comm[2] oe-ord.sman[3] ~
-oe-ord.sname[3] oe-ord.s-pct[3] oe-ord.s-comm[3] oe-ord.cc-type ~
-oe-ord.cc-expiration oe-ord.cc-num oe-ord.cc-auth oe-ord.spare-char-1 ~
-oe-ord.approved-date oe-ord.ack-prnt-date 
+oe-ord.cust-no oe-ord.sold-id oe-ord.csrUser_id oe-ord.ord-date ~
+oe-ord.cust-name oe-ord.sold-name oe-ord.due-code oe-ord.due-date ~
+oe-ord.addr[1] oe-ord.sold-addr[1] oe-ord.last-date oe-ord.addr[2] ~
+oe-ord.sold-addr[2] oe-ord.prod-date oe-ord.city oe-ord.state oe-ord.zip ~
+oe-ord.sold-city oe-ord.sold-state oe-ord.sold-zip oe-ord.po-no ~
+oe-ord.contact oe-ord.over-pct oe-ord.under-pct oe-ord.terms oe-ord.terms-d ~
+oe-ord.tax-gr oe-ord.managed oe-ord.frt-pay oe-ord.carrier oe-ord.fob-code ~
+oe-ord.sman[1] oe-ord.sname[1] oe-ord.s-pct[1] oe-ord.s-comm[1] ~
+oe-ord.sman[2] oe-ord.sname[2] oe-ord.s-pct[2] oe-ord.s-comm[2] ~
+oe-ord.sman[3] oe-ord.sname[3] oe-ord.s-pct[3] oe-ord.s-comm[3] ~
+oe-ord.cc-type oe-ord.cc-expiration oe-ord.cc-num oe-ord.cc-auth ~
+oe-ord.spare-char-1 oe-ord.approved-date oe-ord.ack-prnt-date 
 &Scoped-define DISPLAYED-TABLES oe-ord
 &Scoped-define FIRST-DISPLAYED-TABLE oe-ord
-&Scoped-Define DISPLAYED-OBJECTS fi_type fi_prev_order tb_whs-order ~
-fi_sname-lbl fi_s-pct-lbl fi_s-comm-lbl fi_sman-lbl 
+&Scoped-Define DISPLAYED-OBJECTS fi_type fi_prev_order fi_sname-lbl ~
+fi_s-pct-lbl fi_s-comm-lbl fi_sman-lbl 
 
 /* Custom List Definitions                                              */
 /* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,calendarPopup,webField,nonWebField,List-6 */
@@ -260,12 +258,12 @@ fi_sname-lbl fi_s-pct-lbl fi_s-comm-lbl fi_sman-lbl
 &Scoped-define ADM-ASSIGN-FIELDS fi_type oe-ord.stat oe-ord.cust-name ~
 oe-ord.sold-name oe-ord.addr[1] oe-ord.sold-addr[1] oe-ord.addr[2] ~
 oe-ord.sold-addr[2] oe-ord.city oe-ord.state oe-ord.zip oe-ord.sold-city ~
-oe-ord.sold-state oe-ord.sold-zip oe-ord.terms-d fi_prev_order tb_whs-order ~
-oe-ord.sname[1] oe-ord.sname[2] oe-ord.sname[3] 
+oe-ord.sold-state oe-ord.sold-zip oe-ord.terms-d fi_prev_order ~
+oe-ord.managed oe-ord.sname[1] oe-ord.sname[2] oe-ord.sname[3] 
 &Scoped-define calendarPopup btnCalendar-1 btnCalendar-2 btnCalendar-3 ~
 btnCalendar-4 btnCalendar-5 
 &Scoped-define webField oe-ord.due-code oe-ord.due-date oe-ord.po-no 
-&Scoped-define nonWebField fi_type fi_prev_order tb_whs-order 
+&Scoped-define nonWebField fi_type fi_prev_order oe-ord.managed 
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
@@ -387,11 +385,6 @@ DEFINE RECTANGLE RECT-37
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 152 BY 6.19.
 
-DEFINE VARIABLE tb_whs-order AS LOGICAL INITIAL no 
-     LABEL "Managed Inventory" 
-     VIEW-AS TOGGLE-BOX
-     SIZE 26 BY 1 NO-UNDO.
-
 
 /* ************************  Frame Definitions  *********************** */
 
@@ -431,6 +424,10 @@ DEFINE FRAME F-Main
           LABEL "Sold To"
           VIEW-AS FILL-IN 
           SIZE 15 BY 1
+     oe-ord.csrUser_id AT ROW 2.67 COL 94 COLON-ALIGNED
+          LABEL "CSR"
+          VIEW-AS FILL-IN 
+          SIZE 17 BY 1
      oe-ord.ord-date AT ROW 2.67 COL 128.2 COLON-ALIGNED
           LABEL "Date"
           VIEW-AS FILL-IN 
@@ -481,9 +478,6 @@ DEFINE FRAME F-Main
      oe-ord.sold-city AT ROW 7.43 COL 59.2 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 23 BY 1
-     oe-ord.sold-state AT ROW 7.43 COL 82.2 COLON-ALIGNED NO-LABEL
-          VIEW-AS FILL-IN 
-          SIZE 6 BY 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -491,6 +485,9 @@ DEFINE FRAME F-Main
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME F-Main
+     oe-ord.sold-state AT ROW 7.43 COL 82.2 COLON-ALIGNED NO-LABEL
+          VIEW-AS FILL-IN 
+          SIZE 6 BY 1
      oe-ord.sold-zip AT ROW 7.43 COL 88.2 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
@@ -520,7 +517,9 @@ DEFINE FRAME F-Main
           LABEL "Tax Code"
           VIEW-AS FILL-IN 
           SIZE 14 BY 1
-     tb_whs-order AT ROW 11.29 COL 50
+     oe-ord.managed AT ROW 11.29 COL 50
+          VIEW-AS TOGGLE-BOX
+          SIZE 26 BY 1
      oe-ord.frt-pay AT ROW 11.1 COL 100 NO-LABEL
           VIEW-AS RADIO-SET HORIZONTAL
           RADIO-BUTTONS 
@@ -571,9 +570,6 @@ DEFINE FRAME F-Main
      oe-ord.s-pct[3] AT ROW 17.14 COL 49.2 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 10.4 BY 1
-     oe-ord.s-comm[3] AT ROW 17.14 COL 63.2 COLON-ALIGNED NO-LABEL
-          VIEW-AS FILL-IN 
-          SIZE 10.4 BY 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -581,6 +577,9 @@ DEFINE FRAME F-Main
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME F-Main
+     oe-ord.s-comm[3] AT ROW 17.14 COL 63.2 COLON-ALIGNED NO-LABEL
+          VIEW-AS FILL-IN 
+          SIZE 10.4 BY 1
      oe-ord.cc-type AT ROW 14.33 COL 96 COLON-ALIGNED
           LABEL "Payment Type"
           VIEW-AS FILL-IN 
@@ -721,6 +720,8 @@ ASSIGN
    NO-ENABLE 2                                                          */
 /* SETTINGS FOR FILL-IN oe-ord.contact IN FRAME F-Main
    EXP-LABEL                                                            */
+/* SETTINGS FOR FILL-IN oe-ord.csrUser_id IN FRAME F-Main
+   EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN oe-ord.cust-name IN FRAME F-Main
    NO-ENABLE 2 EXP-LABEL                                                */
 /* SETTINGS FOR FILL-IN oe-ord.cust-no IN FRAME F-Main
@@ -749,6 +750,8 @@ ASSIGN
    EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN oe-ord.last-date IN FRAME F-Main
    EXP-LABEL                                                            */
+/* SETTINGS FOR TOGGLE-BOX oe-ord.managed IN FRAME F-Main
+   2 5                                                                  */
 /* SETTINGS FOR FILL-IN oe-ord.ord-date IN FRAME F-Main
    EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN oe-ord.po-no IN FRAME F-Main
@@ -789,8 +792,6 @@ ASSIGN
    NO-ENABLE 2                                                          */
 /* SETTINGS FOR FILL-IN oe-ord.tax-gr IN FRAME F-Main
    EXP-LABEL                                                            */
-/* SETTINGS FOR TOGGLE-BOX tb_whs-order IN FRAME F-Main
-   NO-ENABLE 2 5                                                        */
 /* SETTINGS FOR FILL-IN oe-ord.terms IN FRAME F-Main
    EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN oe-ord.terms-d IN FRAME F-Main
@@ -935,6 +936,12 @@ DO:
               RUN windows/l-ordtyp.w (fi_type:SCREEN-VALUE, OUTPUT char-val).
               IF char-val <> "" THEN fi_type:SCREEN-VALUE = ENTRY(1,char-val).
          END.
+         when "csrUser_id" then do:
+         run windows/l-users.w (oe-ord.csrUser_id:SCREEN-VALUE in frame {&frame-name}, output char-val).
+           if char-val <> "" then 
+              assign oe-ord.csrUser_id:screen-value in frame {&frame-name} = entry(1,char-val).
+           return no-apply.
+     end.
     END CASE.
     RETURN NO-APPLY.
 END.
@@ -1046,6 +1053,22 @@ END.
 ON HELP OF oe-ord.cc-expiration IN FRAME F-Main /* Expire */
 DO:
   {methods/calendar.i}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME oe-ord.csrUser_id
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-ord.csrUser_id V-table-Win
+ON LEAVE OF oe-ord.csrUser_id IN FRAME F-Main /* CSR */
+DO:
+  
+  IF LASTKEY <> -1 THEN DO:
+     RUN valid-custcsr NO-ERROR.
+     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+  END.
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1173,7 +1196,7 @@ DO:
     RUN valid-est-no NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
-    IF ll-est-no-mod AND TRIM({&self-name}:SCREEN-VALUE) NE "" THEN DO:
+    IF ll-est-no-mod AND TRIM(oe-ord.est-no:SCREEN-VALUE) NE "" THEN DO: 
       RUN get-from-est.
       IF RETURN-VALUE NE "" THEN RETURN NO-APPLY.
     END.
@@ -2658,7 +2681,8 @@ ASSIGN
  itemfg.pur-uom    = IF xeb.pur-man THEN "EA" ELSE "M"
  itemfg.prod-uom   = IF xeb.pur-man THEN "EA" ELSE "M"
  itemfg.alloc      = v-alloc
- itemfg.stocked    = YES.
+ itemfg.stocked    = YES
+ itemfg.setupDate  = TODAY.
  /* Create an itemfg-loc for the default warehouse */
  RUN fg/chkfgloc.p (INPUT itemfg.i-no, INPUT "").
 
@@ -3158,7 +3182,7 @@ PROCEDURE disable-fields :
 ------------------------------------------------------------------------------*/
 
   DO WITH FRAME {&FRAME-NAME}:
-    DISABLE fi_type tb_whs-order fi_prev_order.
+    DISABLE fi_type fi_prev_order.
   END.
 
   IF NOT v-oecomm-log THEN RUN hide-comm (YES).
@@ -3232,6 +3256,7 @@ PROCEDURE display-cust-detail :
             ll-f-bill = oe-ord.frt-pay = "B"
             oe-ord.sman[1]:screen-value   = cust.sman
             oe-ord.s-pct[1]:screen-value = "100.00"
+            oe-ord.csrUser_id:SCREEN-VALUE = cust.csrUser_id 
             v-custype         = cust.type
             v-ord-limit       = cust.ord-lim
             v-crd-limit       = cust.cr-lim - (cust.acc-bal + cust.ord-bal).
@@ -3535,12 +3560,7 @@ IF AVAIL xest THEN DO:
         RUN fg/GetItemfgActInact.p (INPUT g_company,
                                     INPUT eb.stock-no,
                                     OUTPUT lActive).
-/*        FIND FIRST reftable WHERE reftable.reftable EQ "FGSTATUS"  */
-/*                              AND reftable.company  EQ g_company   */
-/*                              AND reftable.loc      EQ ""          */
-/*                              AND reftable.code     EQ eb.stock-no */
-/*                              NO-LOCK NO-ERROR.                    */
-/*        IF AVAIL reftable AND reftable.code2 = "I" THEN DO:        */
+
         IF NOT lActive THEN DO:
             MESSAGE eb.stock-no "has InActive Status. Order cannot be placed for the Inactive Item."
                   VIEW-AS ALERT-BOX ERROR. 
@@ -3618,6 +3638,7 @@ IF AVAIL xest THEN DO:
              oe-ord.under-pct:screen-value = STRING(cust.under-pct)
              oe-ord.fob-code:screen-value  = cust.fob-code
              oe-ord.tax-gr:screen-value    = cust.tax-gr
+             oe-ord.csrUser_id:SCREEN-VALUE = IF xest.csrUser_id NE "" THEN xest.csrUser_id ELSE cust.csrUser_id
              v-custype         = cust.type.
 
       IF lastship-cha = "Stock/Custom" THEN DO:
@@ -4447,7 +4468,6 @@ PROCEDURE local-assign-record :
     END.
     FIND CURRENT bf-oe-ord NO-LOCK NO-ERROR.
 
-    RUN whs-order (1).
 
     IF  lv-change-inv-po THEN 
     DO:        
@@ -4934,7 +4954,6 @@ PROCEDURE local-display-fields :
      IF oe-ord.TYPE EQ "T" AND oe-ord.pord-no GT 0 THEN
          fi_prev_order = STRING(oe-ord.pord-no).
 
-     RUN whs-order (0).
   END.
 
   /* Dispatch standard ADM method.                             */
@@ -4991,7 +5010,7 @@ PROCEDURE local-enable-fields :
 
     lv-old-cust-no = oe-ord.cust-no:SCREEN-VALUE.
 
-    ENABLE fi_type tb_whs-order fi_prev_order.
+    ENABLE fi_type fi_prev_order.
     IF NOT job#-log THEN DISABLE oe-ord.job-no oe-ord.job-no2.
     IF adm-new-record THEN
         ENABLE oe-ord.due-date.
@@ -5114,6 +5133,9 @@ PROCEDURE local-update-record :
      IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
      RUN valid-tax-gr NO-ERROR.
+     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+
+     RUN valid-custcsr NO-ERROR.
      IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
      RUN valid-due-date.
@@ -6206,6 +6228,26 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-custcsr V-table-Win 
+PROCEDURE valid-custcsr :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  {methods/lValidateError.i YES}
+  IF oe-ord.csrUser_id:SCREEN-VALUE IN FRAME {&FRAME-NAME} NE "" AND
+       NOT CAN-FIND(FIRST users WHERE users.USER_ID EQ oe-ord.csrUser_id:SCREEN-VALUE IN FRAME {&FRAME-NAME})
+  THEN DO:
+     MESSAGE "Invalid customer CSR. Try help." VIEW-AS ALERT-BOX ERROR.
+     RETURN ERROR.
+  END.
+  {methods/lValidateError.i NO}
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-due-date V-table-Win 
 PROCEDURE valid-due-date :
 /*------------------------------------------------------------------------------
@@ -6415,7 +6457,6 @@ PROCEDURE valid-po-no :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEF BUFFER b-oe-ordl FOR oe-ordl.
-  DEF BUFFER cust-po-mand FOR reftable.
 
 
   {methods/lValidateError.i YES}
@@ -6423,12 +6464,7 @@ PROCEDURE valid-po-no :
     FIND FIRST cust NO-LOCK
         WHERE cust.company EQ oe-ord.company
           AND cust.cust-no EQ oe-ord.cust-no:SCREEN-VALUE
-          AND CAN-FIND(FIRST cust-po-mand
-                       WHERE cust-po-mand.reftable EQ "cust.po-mand"
-                         AND cust-po-mand.company  EQ cust.company
-                         AND cust-po-mand.loc      EQ ""
-                         AND cust-po-mand.code     EQ cust.cust-no
-                         AND cust-po-mand.val[1]   EQ 1)
+          AND cust.po-mandatory
         NO-ERROR.
 
     IF AVAIL cust AND TRIM(oe-ord.po-no:SCREEN-VALUE) EQ "" THEN DO:
@@ -6585,37 +6621,6 @@ PROCEDURE valid-type :
   END.
 
   {methods/lValidateError.i NO}
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE whs-order V-table-Win 
-PROCEDURE whs-order :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  DEF INPUT PARAM ip-int AS INT NO-UNDO.
-
-
-  RELEASE oe-ord-whs-order.
-
-  
-
-  IF ip-int EQ 0 THEN DO WITH FRAME {&FRAME-NAME}:
-    tb_whs-order:SCREEN-VALUE = STRING(AVAIL oe-ord-whs-order AND
-                                       oe-ord.managed = true,"yes/no").
-  END.
-
-  ELSE
-  IF AVAIL oe-ord-whs-order THEN DO /*  */:
-    FIND CURRENT oe-ord-whs-order.
-    oe-ord.managed = LOGICAL(tb_whs-order).
-    FIND CURRENT oe-ord-whs-order NO-LOCK.
-  END.
-
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

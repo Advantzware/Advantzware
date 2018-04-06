@@ -651,7 +651,7 @@ END.
 
 /* ***************************  Main Block  *************************** */
 
-{sys/inc/f3helpw.i}
+{sys/inc/f3helpd.i}
 /* Parent the dialog-box to the ACTIVE-WINDOW, if there is no parent.   */
 IF VALID-HANDLE(ACTIVE-WINDOW) AND FRAME {&FRAME-NAME}:PARENT eq ?
 THEN FRAME {&FRAME-NAME}:PARENT = ACTIVE-WINDOW.
@@ -1071,7 +1071,7 @@ IF tb_excel THEN
              CASE cTmpField:    
                   WHEN "part-no" THEN cVarValue = STRING(fg-set.part-no). 
                   WHEN "name" THEN cVarValue = STRING(lv-part-name). 
-                  WHEN "qty-per" THEN cVarValue = STRING(fg-set.part-qty). 
+                  WHEN "qty-per" THEN cVarValue = STRING(fg-set.qtyPerSet). 
                   WHEN "oh-qty" THEN cVarValue = STRING(lv-q-onh,"->,>>>,>>>,>>9"). 
 
                   WHEN "po-job" THEN cVarValue = STRING(lv-q-ono,"->,>>>,>>>,>>9"). 

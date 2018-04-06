@@ -207,20 +207,20 @@ DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btnAfterValueFilterClear 
-     IMAGE-UP FILE "Graphics/16x16/keyboard_key_x.gif":U NO-FOCUS
+     IMAGE-UP FILE "Graphics/16x16/navigate_cross.png":U NO-FOCUS
      LABEL "" 
-     SIZE 4 BY .95 TOOLTIP "Clear After Value Filter".
+     SIZE 4.4 BY 1.05 TOOLTIP "Clear After Value Filter".
 
 DEFINE BUTTON btnAuditTables 
-     IMAGE-UP FILE "Graphics/32x32/indent_increase.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/checks.ico":U NO-FOCUS FLAT-BUTTON
      LABEL "" 
      SIZE 8.4 BY 2 TOOLTIP "Select Tables to Audit"
      FONT 4.
 
 DEFINE BUTTON btnBeforeValueFilterClear 
-     IMAGE-UP FILE "Graphics/16x16/keyboard_key_x.gif":U NO-FOCUS
+     IMAGE-UP FILE "Graphics/16x16/navigate_cross.png":U NO-FOCUS
      LABEL "" 
-     SIZE 4 BY .95 TOOLTIP "Clear Before Value Filter".
+     SIZE 4.4 BY 1.05 TOOLTIP "Clear Before Value Filter".
 
 DEFINE BUTTON btnCalendar-1 
      IMAGE-UP FILE "Graphics/16x16/calendar.bmp":U
@@ -317,12 +317,12 @@ DEFINE VARIABLE maxRows AS INTEGER FORMAT ">,>>>,>>9":U INITIAL 2500
 DEFINE VARIABLE svAfterValueFilter AS CHARACTER FORMAT "X(256)":U 
      LABEL "After Value" 
      VIEW-AS FILL-IN 
-     SIZE 101.4 BY 1 NO-UNDO.
+     SIZE 70.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE svBeforeValueFilter AS CHARACTER FORMAT "X(256)":U 
      LABEL "Before Value" 
      VIEW-AS FILL-IN 
-     SIZE 101.4 BY 1 NO-UNDO.
+     SIZE 70.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE svEndDate AS DATE FORMAT "99/99/9999":U 
      LABEL "To Date" 
@@ -386,7 +386,7 @@ DEFINE BROWSE AuditDetail
       AuditDtl.AuditAfterValue FORMAT "x(45)":U LABEL-BGCOLOR 14
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ROW-MARKERS SEPARATORS SIZE 124 BY 25.48
+    WITH NO-ROW-MARKERS SEPARATORS SIZE 124 BY 18.1
          FGCOLOR 1 
          TITLE FGCOLOR 1 "Audit Detail".
 
@@ -403,7 +403,7 @@ DEFINE BROWSE AuditHeader
       AuditHdr.AuditKey FORMAT "x(40)":U LABEL-BGCOLOR 14
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ROW-MARKERS SEPARATORS SIZE 125 BY 30.48
+    WITH NO-ROW-MARKERS SEPARATORS SIZE 96 BY 23.1
          FGCOLOR 1 
          TITLE FGCOLOR 1 "Audit Header".
 
@@ -411,27 +411,31 @@ DEFINE BROWSE AuditHeader
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME DEFAULT-FRAME
-     btnStack AT ROW 6.24 COL 136 HELP
+     btnStack AT ROW 6.24 COL 106 HELP
           "Click to View Program Stack Trace" WIDGET-ID 282
      AuditHeader AT ROW 6.48 COL 1 WIDGET-ID 200
-     AuditDetail AT ROW 6.48 COL 146 WIDGET-ID 300
-     btnPrint AT ROW 6.24 COL 127 HELP
+     AuditDetail AT ROW 6.48 COL 115 WIDGET-ID 300
+     btnPrint AT ROW 6.24 COL 97 HELP
           "Print" WIDGET-ID 280
-     svSortByHdr AT ROW 5.76 COL 96 COLON-ALIGNED WIDGET-ID 2
-     svSortByDtl AT ROW 5.76 COL 238 COLON-ALIGNED WIDGET-ID 4
+     svSortByHdr AT ROW 5.76 COL 68 COLON-ALIGNED WIDGET-ID 2
+     svSortByDtl AT ROW 5.76 COL 207 COLON-ALIGNED WIDGET-ID 4
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 269 BY 36.05 WIDGET-ID 100.
+         SIZE 238.2 BY 28.57 WIDGET-ID 100.
 
 DEFINE FRAME AuditSearch
      btnAuditTables AT ROW 2.67 COL 118 HELP
           "Click to Access Tables to Audit" WIDGET-ID 288
+     btnAfterValueFilterClear AT ROW 3.62 COL 234 HELP
+          "Click to Clear After Value Filter" WIDGET-ID 42
      svType AT ROW 1.24 COL 8 COLON-ALIGNED HELP
           "Select Audit Type Filter" WIDGET-ID 6
      svStartDate AT ROW 1.24 COL 36 COLON-ALIGNED HELP
           "Enter From Date" WIDGET-ID 20
      btnCalendar-1 AT ROW 1.24 COL 54 WIDGET-ID 272
+     btnBeforeValueFilterClear AT ROW 2.43 COL 234 HELP
+          "Click to Clear Before Value Filter" WIDGET-ID 40
      svStartDateOption AT ROW 1.24 COL 59 HELP
           "Select Start Date Option" NO-LABEL WIDGET-ID 74
      svDB AT ROW 1.24 COL 89 COLON-ALIGNED HELP
@@ -440,7 +444,7 @@ DEFINE FRAME AuditSearch
      AuditHdr.AuditKey AT ROW 1.24 COL 161.6 COLON-ALIGNED WIDGET-ID 26
           LABEL "Audit Key" FORMAT "x(256)"
           VIEW-AS FILL-IN 
-          SIZE 101.4 BY 1
+          SIZE 70.4 BY 1
           BGCOLOR 15 
      svUser AT ROW 2.43 COL 8 COLON-ALIGNED HELP
           "Select User Filter" WIDGET-ID 12
@@ -459,24 +463,20 @@ DEFINE FRAME AuditSearch
           "Enter After Value to Filter" WIDGET-ID 38
      btnClear AT ROW 2.67 COL 127 HELP
           "Click to Clear Filters" WIDGET-ID 284
-     btnAfterValueFilterClear AT ROW 3.62 COL 265 HELP
-          "Click to Clear After Value Filter" WIDGET-ID 42
      btnSearch AT ROW 2.67 COL 136 HELP
           "Click to Apply Filter Selections" WIDGET-ID 286
-     btnBeforeValueFilterClear AT ROW 2.43 COL 265 HELP
-          "Click to Clear Before Value Filter" WIDGET-ID 40
      btnFilterAfterValue AT ROW 3.62 COL 145 HELP
           "Select to Filter by After Value" WIDGET-ID 34
      btnFilterAuditKey AT ROW 1.24 COL 145 HELP
           "Select to Filter by Audit Key" WIDGET-ID 28
      btnFilterBeforeValue AT ROW 2.43 COL 145 HELP
           "Select to Filter by Before Value" WIDGET-ID 32
-     btnHistory AT ROW 1.24 COL 265 HELP
+     btnHistory AT ROW 1.24 COL 234 HELP
           "Click to View History" WIDGET-ID 30
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 269 BY 4.76
+         SIZE 238 BY 4.76
          TITLE "Search Filters" WIDGET-ID 500.
 
 DEFINE FRAME AuditView
@@ -535,7 +535,7 @@ DEFINE FRAME AuditView
           BGCOLOR 15 
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 127 ROW 32.19
+         AT COL 97 ROW 24.57
          SIZE 142 BY 4.81
          TITLE BGCOLOR 15 "Audit Detail View" WIDGET-ID 400.
 
@@ -557,12 +557,12 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW C-Win ASSIGN
          HIDDEN             = YES
          TITLE              = "Audit History"
-         HEIGHT             = 36.05
-         WIDTH              = 269
+         HEIGHT             = 28.57
+         WIDTH              = 238.2
          MAX-HEIGHT         = 320
-         MAX-WIDTH          = 269
+         MAX-WIDTH          = 238.2
          VIRTUAL-HEIGHT     = 320
-         VIRTUAL-WIDTH      = 269
+         VIRTUAL-WIDTH      = 238.2
          RESIZE             = yes
          SCROLL-BARS        = no
          STATUS-AREA        = yes
@@ -661,7 +661,7 @@ ASSIGN
        AuditDetail:ALLOW-COLUMN-SEARCHING IN FRAME DEFAULT-FRAME = TRUE.
 
 ASSIGN 
-       AuditHeader:NUM-LOCKED-COLUMNS IN FRAME DEFAULT-FRAME     = 5
+       AuditHeader:NUM-LOCKED-COLUMNS IN FRAME DEFAULT-FRAME     = 3
        AuditHeader:MAX-DATA-GUESS IN FRAME DEFAULT-FRAME         = 2500
        AuditHeader:ALLOW-COLUMN-SEARCHING IN FRAME DEFAULT-FRAME = TRUE.
 
@@ -1331,7 +1331,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     RUN pGetFilterValues ("TABLE").
     RUN pGetFilterValues ("FIELD").
     &IF DEFINED(AuditHistory) NE 0 &THEN
-    /* scop def set in system/audithist.p         */
+    /* scop def set in system/CallAudit.p         */
     /* invoked by CTRL-A from viewers or browsers */
     ASSIGN
         lAuditKeyFilter = YES
@@ -1401,10 +1401,10 @@ PROCEDURE enable_UI :
   IF AVAILABLE AuditHdr THEN 
     DISPLAY AuditHdr.AuditKey 
       WITH FRAME AuditSearch IN WINDOW C-Win.
-  ENABLE btnAuditTables svType svStartDate btnCalendar-1 svStartDateOption svDB 
-         maxRows svUser svEndDate btnCalendar-2 svEndDateOption svTable 
-         svBeforeValueFilter svField svAfterValueFilter btnClear 
-         btnAfterValueFilterClear btnSearch btnBeforeValueFilterClear 
+  ENABLE btnAuditTables btnAfterValueFilterClear svType svStartDate 
+         btnCalendar-1 btnBeforeValueFilterClear svStartDateOption svDB maxRows 
+         svUser svEndDate btnCalendar-2 svEndDateOption svTable 
+         svBeforeValueFilter svField svAfterValueFilter btnClear btnSearch 
          btnFilterAfterValue btnFilterAuditKey btnFilterBeforeValue btnHistory 
       WITH FRAME AuditSearch IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-AuditSearch}
@@ -1967,10 +1967,10 @@ PROCEDURE pWinReSize :
         HIDE FRAME {&FRAME-NAME}.
         HIDE BROWSE AuditHeader BROWSE AuditDetail.
         HIDE FRAME AuditView.
-        IF {&WINDOW-NAME}:HEIGHT LT 36 THEN
-        {&WINDOW-NAME}:HEIGHT = 36.
-        IF {&WINDOW-NAME}:WIDTH  LT 269 THEN
-        {&WINDOW-NAME}:WIDTH  = 269.
+        IF {&WINDOW-NAME}:HEIGHT LT 28.57 THEN
+        {&WINDOW-NAME}:HEIGHT = 28.57.
+        IF {&WINDOW-NAME}:WIDTH  LT 238.2 THEN
+        {&WINDOW-NAME}:WIDTH  = 238.2.
         ASSIGN
             iHeight = {&WINDOW-NAME}:HEIGHT - FRAME {&FRAME-NAME}:HEIGHT
             iWidth  = {&WINDOW-NAME}:WIDTH  - FRAME {&FRAME-NAME}:WIDTH

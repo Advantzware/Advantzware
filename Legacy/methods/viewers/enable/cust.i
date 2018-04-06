@@ -10,10 +10,8 @@ ENABLE ptd-sales total-msf WITH FRAME {&FRAME-NAME}.
 APPLY 'ENTRY' TO ptd-sales.
 &ELSE
 DO WITH FRAME {&FRAME-NAME}:
-  ENABLE {&faxFields} tb_po-mand fi_flat-comm fl_custemail.
+  ENABLE {&faxFields} fi_flat-comm fl_custemail.
 
-  IF v-inv-fmt EQ "Hughes" THEN
-     ENABLE tb_show-set.
 
   RELEASE inv-head.
   RELEASE b-inv-head.
@@ -33,6 +31,7 @@ DO WITH FRAME {&FRAME-NAME}:
         AND NOT b-inv-head.multi-invoice
       NO-ERROR.
   IF NOT AVAIL b-inv-head THEN ENABLE rd_inv-meth.
+APPLY 'ENTRY' TO cust.name .
 END.
 &ENDIF
 

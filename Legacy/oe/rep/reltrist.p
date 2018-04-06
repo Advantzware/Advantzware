@@ -20,6 +20,11 @@ def var v-frt-pay-dscr as character no-undo.
 def var v-qty-uom as character no-undo.
 def var v-to-ship as integer no-undo.
 
+DEFINE TEMP-TABLE ttReleasesToPrint NO-UNDO
+    FIELD OeRelHRowID AS ROWID 
+    FIELD SessionID   AS CHARACTER
+        .
+
 def stream last-page.
 
 
@@ -211,7 +216,7 @@ format
                 where fg-set.company eq xoe-ordl.company
                   and fg-set.set-no  eq xoe-ordl.i-no
                 no-lock:
-              v-set-qty = v-set-qty + fg-set.part-qty.
+              v-set-qty = v-set-qty + fg-set.QtyPerSet.
             end.
             if v-set-qty eq 0 then v-set-qty = 1.
             for each eb
@@ -225,8 +230,8 @@ format
                     and fg-set.part-no eq eb.stock-no
                   no-lock no-error.
 
-              if avail fg-set and fg-set.part-qty ne 0 then
-                v-part-qty = fg-set.part-qty / v-set-qty.
+              if avail fg-set and fg-set.QtyPerSet ne 0 then
+                v-part-qty = fg-set.QtyPerSet / v-set-qty.
               else
                 v-part-qty = 1 / v-set-qty.
 

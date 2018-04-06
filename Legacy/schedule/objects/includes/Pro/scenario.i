@@ -14,16 +14,20 @@
   
   IF {&SELF-NAME} EQ '<New>' THEN
   DO WITH FRAME {&FRAME-NAME}:
-    DISABLE btnRemove btnReset.
+    DISABLE /*btnRemove*/ btnReset.
     RETURN NO-APPLY.
   END.
   ELSE
-  ENABLE btnRemove btnReset WITH FRAME {&FRAME-NAME}.
+  ENABLE /*btnRemove*/ btnReset WITH FRAME {&FRAME-NAME}.
   
   IF showStatus OR openBoard THEN
   VIEW FRAME msgFrame.
   ELSE
+&IF DEFINED(FWD-VERSION) EQ 0 &THEN
   RUN LockWindowUpdate (ACTIVE-WINDOW:HWND,OUTPUT i).
+&ELSE
+  ACTIVE-WINDOW:DISABLE-REDRAW = TRUE.
+&ENDIF
   EMPTY TEMP-TABLE ttblJob-do.
   /* DISABLE btnRedo btnUndo WITH FRAME {&FRAME-NAME}. */
   SESSION:SET-WAIT-STATE('GENERAL').

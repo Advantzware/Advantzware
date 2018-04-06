@@ -418,8 +418,10 @@ DO:
       ASSIGN mkeys = "".
       INPUT CLEAR.
     END.  /* LOOP3 */
+    /* UNREACHABLE CODE (causes a problem in javac after conversion)
     IF KEYFUNCTION(LASTKEY) = "END-ERROR" THEN
     LEAVE MAIN.
+    */
   END.   /* LOOP1 */
 END.   /* MAIN */
 IF KEYFUNCTION(LASTKEY) = "END-ERROR" THEN
