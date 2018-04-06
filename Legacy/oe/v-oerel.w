@@ -1479,12 +1479,14 @@ PROCEDURE local-update-record :
         oe-relh.spare-char-3 = "". 
   END.
 
-  run dispatch ('row-changed').
+  /*run dispatch ('row-changed').*/
   ll-got-ship-id = no.
   IF lv-adding-record THEN DO:
      DEF VAR char-hdl AS cha NO-UNDO.
      RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"record-target",OUTPUT char-hdl).
      RUN add-line IN WIDGET-HANDLE(char-hdl).
+     adm-new-record = NO .
+     adm-adding-record = NO .
   END.
 
 END PROCEDURE.
