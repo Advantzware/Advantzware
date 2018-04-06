@@ -155,7 +155,7 @@ CREATE WIDGET-POOL "MainMenuPool".
 &Scoped-define FRAME-NAME FRAME-USER
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS imageSettings svLink 
+&Scoped-Define ENABLED-OBJECTS imageSettings imageCompany svLink 
 &Scoped-Define DISPLAYED-OBJECTS company_name loc_loc users_user_id ~
 Mneumonic svLink 
 
@@ -189,18 +189,6 @@ FUNCTION fSetColor RETURNS LOGICAL
 DEFINE VAR MAINMENU AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON btnLanguage-1  NO-FOCUS FLAT-BUTTON
-     LABEL "Lang 1" 
-     SIZE 9 BY 1.67.
-
-DEFINE BUTTON btnLanguage-2  NO-FOCUS FLAT-BUTTON
-     LABEL "Lang 2" 
-     SIZE 9 BY 1.67.
-
-DEFINE BUTTON btnLanguage-3  NO-FOCUS FLAT-BUTTON
-     LABEL "Lang 3" 
-     SIZE 9 BY 1.67.
-
 DEFINE VARIABLE company_name AS CHARACTER FORMAT "X(256)":U 
       VIEW-AS TEXT 
      SIZE 35 BY .62
@@ -229,6 +217,10 @@ DEFINE VARIABLE users_user_id AS CHARACTER FORMAT "X(256)":U
 DEFINE IMAGE boxes
      FILENAME "Graphics/advantzware_logo.jpg":U
      SIZE 97 BY 20.48.
+
+DEFINE IMAGE imageCompany
+     FILENAME "Graphics/32x32/office_building.png":U TRANSPARENT
+     SIZE 6.4 BY 1.52 TOOLTIP "Change Company/Location".
 
 DEFINE IMAGE imageSettings
      FILENAME "Graphics/32x32/gearwheels.ico":U TRANSPARENT
@@ -264,7 +256,7 @@ DEFINE RECTANGLE RECT-6
 
 DEFINE RECTANGLE RECT-7
      EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
-     SIZE 48 BY 1.19
+     SIZE 40 BY 1.19
      BGCOLOR 15 .
 
 DEFINE RECTANGLE RECT-8
@@ -281,31 +273,29 @@ DEFINE RECTANGLE RECT-9
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME FRAME-USER
-     btnLanguage-1 AT ROW 3.62 COL 150 WIDGET-ID 24
-     btnLanguage-2 AT ROW 5.29 COL 150 WIDGET-ID 26
-     btnLanguage-3 AT ROW 6.95 COL 150 WIDGET-ID 28
      company_name AT ROW 1.71 COL 13 COLON-ALIGNED NO-LABEL
      loc_loc AT ROW 1.71 COL 76 COLON-ALIGNED NO-LABEL
      users_user_id AT ROW 1.71 COL 117 COLON-ALIGNED NO-LABEL
      Mneumonic AT ROW 1.71 COL 140 COLON-ALIGNED NO-LABEL WIDGET-ID 2
      svLink AT ROW 4.1 COL 15 NO-LABEL WIDGET-ID 34
+     "Location:" VIEW-AS TEXT
+          SIZE 9 BY .62 AT ROW 1.71 COL 68
      "User ID:" VIEW-AS TEXT
           SIZE 8 BY .62 AT ROW 1.71 COL 110
      "Company:" VIEW-AS TEXT
           SIZE 10 BY .62 AT ROW 1.71 COL 4
-     "Location:" VIEW-AS TEXT
-          SIZE 9 BY .62 AT ROW 1.71 COL 68
      boxes AT ROW 8.86 COL 52
      menu-image AT ROW 3.86 COL 53
      RECT-2 AT ROW 1 COL 1
      linkRect AT ROW 3.86 COL 13 WIDGET-ID 36
      RECT-5 AT ROW 1.48 COL 3 WIDGET-ID 38
      RECT-6 AT ROW 1.48 COL 101 WIDGET-ID 40
-     RECT-7 AT ROW 1.48 COL 52 WIDGET-ID 42
+     RECT-7 AT ROW 1.48 COL 60 WIDGET-ID 42
      RECT-8 AT ROW 1.48 COL 140 WIDGET-ID 44
      RECT-9 AT ROW 3.29 COL 1 WIDGET-ID 46
      RECT-10 AT ROW 3.62 COL 52 WIDGET-ID 48
      imageSettings AT ROW 1.24 COL 152 WIDGET-ID 52
+     imageCompany AT ROW 1.24 COL 52 WIDGET-ID 54
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
@@ -366,23 +356,12 @@ IF NOT MAINMENU:LOAD-ICON("Graphics/asiicon.ico":U) THEN
    FRAME-NAME                                                           */
 /* SETTINGS FOR IMAGE boxes IN FRAME FRAME-USER
    NO-ENABLE                                                            */
-/* SETTINGS FOR BUTTON btnLanguage-1 IN FRAME FRAME-USER
-   NO-ENABLE                                                            */
-ASSIGN 
-       btnLanguage-1:HIDDEN IN FRAME FRAME-USER           = TRUE.
-
-/* SETTINGS FOR BUTTON btnLanguage-2 IN FRAME FRAME-USER
-   NO-ENABLE                                                            */
-ASSIGN 
-       btnLanguage-2:HIDDEN IN FRAME FRAME-USER           = TRUE.
-
-/* SETTINGS FOR BUTTON btnLanguage-3 IN FRAME FRAME-USER
-   NO-ENABLE                                                            */
-ASSIGN 
-       btnLanguage-3:HIDDEN IN FRAME FRAME-USER           = TRUE.
-
 /* SETTINGS FOR FILL-IN company_name IN FRAME FRAME-USER
    NO-ENABLE                                                            */
+ASSIGN 
+       imageCompany:PRIVATE-DATA IN FRAME FRAME-USER     = 
+                "Change Company/Location".
+
 ASSIGN 
        imageSettings:PRIVATE-DATA IN FRAME FRAME-USER     = 
                 "Settings".
@@ -459,36 +438,11 @@ DO:
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME btnLanguage-1
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnLanguage-1 MAINMENU
-ON CHOOSE OF btnLanguage-1 IN FRAME FRAME-USER /* Lang 1 */
+&Scoped-define SELF-NAME imageCompany
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL imageCompany MAINMENU
+ON MOUSE-SELECT-CLICK OF imageCompany IN FRAME FRAME-USER
 DO:
-    cLabelLanguage = SELF:LABEL.
-    RUN pReset.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME btnLanguage-2
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnLanguage-2 MAINMENU
-ON CHOOSE OF btnLanguage-2 IN FRAME FRAME-USER /* Lang 2 */
-DO:
-    cLabelLanguage = SELF:LABEL.
-    RUN pReset.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME btnLanguage-3
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnLanguage-3 MAINMENU
-ON CHOOSE OF btnLanguage-3 IN FRAME FRAME-USER /* Lang 3 */
-DO:
-    cLabelLanguage = SELF:LABEL.
-    RUN pReset.
+    RUN custom/comp_loc.w.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -499,6 +453,9 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL imageSettings MAINMENU
 ON MOUSE-SELECT-CLICK OF imageSettings IN FRAME FRAME-USER
 DO:
+    /*
+    RUN system/sysCtrlUsage.w.
+    */
     RUN system/userSettings.w (
         INPUT-OUTPUT iMenuSize,
         INPUT-OUTPUT iLanguage,
@@ -565,21 +522,6 @@ END.
 ON ANY-PRINTABLE OF FRAME {&FRAME-NAME} ANYWHERE
 DO:
     RUN pKeyPress (LASTKEY).
-END.
-
-ON "ALT-1" OF FRAME {&FRAME-NAME} ANYWHERE
-DO:
-    RUN pSelectLanguage (1).    
-END.
-
-ON "ALT-2" OF FRAME {&FRAME-NAME} ANYWHERE
-DO:
-    RUN pSelectLanguage (2).
-END.
-
-ON "ALT-3" OF FRAME {&FRAME-NAME} ANYWHERE
-DO:
-    RUN pSelectLanguage (3).    
 END.
 
 {sys/inc/f3helpm.i} /* ASI F3 key include */
@@ -652,7 +594,7 @@ PROCEDURE enable_UI :
 ------------------------------------------------------------------------------*/
   DISPLAY company_name loc_loc users_user_id Mneumonic svLink 
       WITH FRAME FRAME-USER IN WINDOW MAINMENU.
-  ENABLE imageSettings svLink 
+  ENABLE imageSettings imageCompany svLink 
       WITH FRAME FRAME-USER IN WINDOW MAINMENU.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-USER}
   VIEW MAINMENU.
@@ -1071,10 +1013,11 @@ PROCEDURE pGetMenu :
             ttblItem.imageFile = fItemImage(cPrgrm)
             .            
     END. /* repeat */
+    IF AVAILABLE ttblMenu THEN
+    ttblMenu.menuCount = ttblMenu.menuCount + 1.
     CREATE ttblItem.
     ASSIGN 
         idx                = idx + 1
-        ttblMenu.menuCount = ttblMenu.menuCount + 1
         ttblItem.menuOrder = idx
         ttblItem.menu1     = "Exit"
         ttblItem.menu2     = "file"
@@ -1217,12 +1160,6 @@ PROCEDURE pInit :
     RUN pImages.
     
     DO WITH FRAME {&FRAME-NAME}:
-        IF cLanguageList NE '' THEN
-        DO i = 1 TO NUM-ENTRIES(cLanguageList):
-            {system/btnLanguage.i 1}
-            {system/btnLanguage.i 2}
-            {system/btnLanguage.i 3}
-        END. /* do i */
         ASSIGN
             cSourceMenu = SEARCH("usermenu/" + USERID("ASI") + "/menu." + cMenuExt)
             iLanguage = LOOKUP(cLabelLanguage,cLanguageList)
@@ -1349,34 +1286,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSelectLanguage MAINMENU 
-PROCEDURE pSelectLanguage :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER ipiAltKey AS INTEGER NO-UNDO.
-    
-    CASE ipiAltKey:
-        WHEN 1 THEN
-        APPLY "CHOOSE":U TO btnLanguage-1 IN FRAME {&FRAME-NAME}.
-        WHEN 2 THEN
-        APPLY "CHOOSE":U TO btnLanguage-2 IN FRAME {&FRAME-NAME}.
-        WHEN 3 THEN
-        APPLY "CHOOSE":U TO btnLanguage-3 IN FRAME {&FRAME-NAME}.
-    END CASE.
-    ASSIGN
-        boxes:HIDDEN IN FRAME {&FRAME-NAME} = NO
-        menu-image:HIDDEN = NO
-        RECT-10:HIDDEN = NO
-        .
-    
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSetUserSettings MAINMENU 
 PROCEDURE pSetUserSettings :
 /*------------------------------------------------------------------------------
@@ -1462,8 +1371,8 @@ FUNCTION fItemImage RETURNS CHARACTER
     FIND FIRST ttblImage
          WHERE ttblImage.prgmName EQ ipcPrgmName
          NO-ERROR.
-  RETURN IF AVAILABLE ttblImage THEN ttblImage.imageFile
-         ELSE "Graphics/24x24/error.png".
+    RETURN IF AVAILABLE ttblImage THEN ttblImage.imageFile
+           ELSE cImageFolder + "error.png".
 
 END FUNCTION.
 
