@@ -110,7 +110,7 @@ DEFINE BUTTON Btn_OK AUTO-END-KEY
      BGCOLOR 8 .
 
 DEFINE VARIABLE ed-text AS CHARACTER 
-     VIEW-AS EDITOR MAX-CHARS 300000 SCROLLBAR-VERTICAL
+     VIEW-AS EDITOR MAX-CHARS 500000 SCROLLBAR-VERTICAL
      SIZE 115 BY 18.57
      FONT 0 NO-UNDO.
 
@@ -307,8 +307,7 @@ DO:
     
     /* If not automatically cleared by security level, ask for password */
     IF lResult THEN DO:
-        RUN sys/ref/uphlp-pass.w (3, OUTPUT lResult).
-        IF lResult THEN 
+       
             RUN sys/ref/hlpupd.w (ip-field,ip-table,ip-db,ip-frame,ip-language,OUTPUT op-ed-text).
     END.
 
@@ -444,7 +443,9 @@ IF NOT vhWebService:CONNECTED() THEN
     END. /* WebService no conn*/
 
     ELSE DO:
-       
+      IF ip-table EQ ? THEN ip-table = "" .
+      IF ip-field EQ ? THEN ip-field = "" .
+      IF ip-frame EQ ? THEN ip-frame = "" .  
     RUN Service1Soap SET vhSalesSoap ON vhWebService .
     RUN HelpMain IN vhSalesSoap(INPUT STRING(ip-field),INPUT STRING(ip-table),INPUT STRING(ip-frame),INPUT STRING(vclint),  OUTPUT parameters1,OUTPUT parameters2,OUTPUT fr-flags ).
      
