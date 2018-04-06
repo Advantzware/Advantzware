@@ -3834,6 +3834,7 @@ IF ip-run-what EQ "" THEN
         t-ret ,
         t-ship ,
         t-trans ,
+        t-setup,
         tb_excel ,
         tb_glnum ,
         tb_grndtotal ,
