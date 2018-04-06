@@ -53,6 +53,7 @@ DEFINE VARIABLE cSenderID       AS CHARACTER INIT "1244037".
 DEFINE VARIABLE cEDIPOHFile     AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cEDIPODFile     AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cEDIPOItemFile  AS CHARACTER NO-UNDO.
+DEFINE VARIABLE iCnt            AS INTEGER NO-UNDO.
 DEFINE BUFFER b-qty   FOR reftable.
 DEFINE BUFFER b-setup FOR reftable.
 DEFINE STREAM sEDIPOH.
@@ -259,7 +260,7 @@ IF AVAILABLE cust AND liberty-log AND liberty-dir NE "" THEN
         fInsText("L",   667,   17, ""              ). /* not used */
         fInsText("L",   685,   35, cust.name       ). /* ship to company name */
         fInsText("L",   721,    2, ""              ). /* not used */
-        fInsText("L",   725,    3, v-sstate        ). /* ship to state */
+        fInsText("L",   724,    3, v-sstate        ). /* ship to state */
         fInsText("L",   728,    9, v-szip          ). /* ship to zip */
         fInsText("L",   738,   15, cSenderID       ). /* cust sender id if consolidated */
         fInsText("L",   754,    2, ""              ). /* not used */
@@ -471,19 +472,50 @@ IF AVAILABLE cust AND liberty-log AND liberty-dir NE "" THEN
 
               
             IF AVAILABLE b-ref1 THEN DO:
-                IF b-ref1.val[3] GT 0 THEN 
-                    cDimensions = TRIM(STRING(b-ref1.val[1], ">>>>.99")) + " x " + TRIM(STRING(b-ref1.val[2], ">>>>.99")) + " x " + TRIM(STRING(b-ref1.val[3], ">>>>.99")).
-                ELSE
-                    cDimensions = TRIM(STRING(b-ref1.val[2], ">>>>.99")).       
-                             
+                
+                IF b-ref1.val[3] GT 0 THEN DO: 
+                    /* cDimensions = TRIM(STRING(b-ref1.val[1], ">>>>.99")) + " x " + TRIM(STRING(b-ref1.val[2], ">>>>.99")) + " x " + TRIM(STRING(b-ref1.val[3], ">>>>.99")). */
+                    cDimensions = "".
+                    DO icnt = 1 TO EXTENT(b-ref1.val):
+                        IF b-ref1.val[iCnt] GT 0 THEN DO:
+                            IF cDimensions = "" THEN 
+                              cDimensions = TRIM(STRING(b-ref1.val[iCnt], ">>>>.99")).
+                            ELSE
+                                cDimensions = cDimensions + " x " + TRIM(STRING(b-ref1.val[iCnt], ">>>>.99")).
+                        END.
+                        ELSE 
+                          LEAVE.
+                    END.
+                    IF cDimensions EQ "" THEN 
+                        cDimensions = TRIM(STRING(po-ordl.s-wid, ">>>>.99")).
+                END.
+                ELSE IF b-ref1.val[2] GT 0 THEN 
+                    cDimensions = TRIM(STRING(b-ref1.val[2], ">>>>.99")).
+                
+                /* If no dimensions, should just be the width */
+                IF cDimensions EQ "" THEN        
+                    cDimensions = TRIM(STRING(po-ordl.s-wid, ">>>>.99")).
+                    
+                /* Formatted Scoring */    
                 IF b-ref1.val[2] GT 0 THEN 
                 DO:
-                    cFormattedScore = fFormScore(b-ref1.val[1]) + fFormScore(b-ref1.val[2]).
-                    IF b-ref1.val[3] GT 0 THEN 
-                        cFormattedScore =  cFormattedScore + fFormScore(b-ref1.val[3]).
+                    cFormattedScore = "".
+                    DO iCnt = 1 TO EXTENT(b-ref1.val):
+                        /* cFormattedScore = fFormScore(b-ref1.val[1]) + fFormScore(b-ref1.val[2]). */
+                        IF b-ref1.val[iCnt] GT 0 THEN 
+                            cFormattedScore =  cFormattedScore + fFormScore(b-ref1.val[iCnt]).
+                        ELSE 
+                            LEAVE. 
+                    END.
                 END.
                 ELSE
-                    cFormattedScore =  fFormScore(b-ref1.val[1]).                
+                    IF b-ref1.val[1] GT 0 THEN 
+                      cFormattedScore =  fFormScore(b-ref1.val[1]).
+                    
+                /* If no score should just be the width */    
+                IF cFormattedScore EQ "" THEN 
+                    cFormattedScore =  fFormScore(po-ordl.s-wid).
+                                    
             END.
             ELSE DO:
                 /* Formatted Dimensions */
@@ -499,6 +531,8 @@ IF AVAILABLE cust AND liberty-log AND liberty-dir NE "" THEN
                 ELSE
                         cFormattedScore =  fFormScore(ITEM.s-wid).
             END.
+            /* Trim last x off of the end */
+            cFormattedScore = TRIM(TRIM(cFormattedScore), "x").
             IF po-ordl.pr-uom NE "MSF" THEN
                 RUN sys/ref/convcuom.p(po-ordl.pr-uom, "MSF",
                     item.basis-w, po-ordl.s-len,
@@ -719,7 +753,7 @@ IF AVAILABLE cust AND liberty-log AND liberty-dir NE "" THEN
             fInsText("L",  305, 3, v-adder[1]    ). /* first board adder */
             fInsText("L",  309, 3, v-adder[2]    ). /* 2nd board adder */
             fInsText("L",  313, 3, v-adder[3]    ). /* 3rd board adder */
-            fInsText("L",  318, 3, v-adder[4]    ). /* 4th board adder */
+            fInsText("L",  317, 3, v-adder[4]    ). /* 4th board adder */
             fInsText("L",  321, 3, v-adder[5]    ). /* 5th board adder */
             fInsText("L",  325, 3, v-adder[6]    ). /* 6th board adder */
             fInsText("L",  329, 3, v-adder[7]    ). /* 7th board adder */
