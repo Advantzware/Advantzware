@@ -478,18 +478,26 @@ FOR EACH edivline OF edivtran EXCLUSIVE
     .
     
   /* 9810 CAH ... */
-        CASE ws_partner_grp:
-      WHEN "SEARS" THEN DO:
-    if unit_of_measure = "" 
-    or unit_of_measure = "CT" 
-    or unit_of_measure = "CS"
-    then unit_of_measure = "EA".
-  end.
-      when "AMAZ" then do:
+    CASE ws_partner_grp:
+        WHEN "SEARS" THEN DO:
+            IF unit_of_measure = "" 
+              OR unit_of_measure = "CT" 
+              OR unit_of_measure = "CS"
+            THEN unit_of_measure = "EA".
+        END.
+        WHEN "AMAZ" THEN DO:
+            IF customer_item_number GT "" THEN 
+               ASSIGN 
+                  second_product_type    = "BP"
+                  second_description     = customer_item_number
+                  .
+                  
              ASSIGN 
+
                item_product_qualifier = "PO"
-               product_id = purchase_order_number
+               product_id             = purchase_order_number
                .
+               
              IF purchase_order_number EQ "" AND AVAILABLE oe-ordl AND oe-ordl.po-no GT "" THEN 
                purchase_order_number = oe-ordl.po-no.
              ELSE 
@@ -501,8 +509,8 @@ FOR EACH edivline OF edivtran EXCLUSIVE
                   unit_of_measure = "EA"
                   unit_price = unit_price / 1000
                   .
-          end.
-  end case.
+          END.
+  END CASE .
   RUN write_segments.ip (detail_segment_list).
 END.
 
