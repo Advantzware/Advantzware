@@ -1589,8 +1589,9 @@ PROCEDURE reopen-query :
      def var char-hdl as cha no-undo.
      run get-link-handle in adm-broker-hdl(this-procedure,"record-source", output char-hdl).  /* viewer*/
      run get-link-handle in adm-broker-hdl(widget-handle(char-hdl),"record-source", output char-hdl). /* first page browser */
-    
-     RUN record-added IN WIDGET-HANDLE(char-hdl).
+     
+     IF adm-new-record THEN
+         RUN record-added IN WIDGET-HANDLE(char-hdl).
      run reopen-query in widget-handle(char-hdl) (ROWID(oe-relh)) .
 
 END PROCEDURE.
