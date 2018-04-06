@@ -274,7 +274,7 @@ DO:
      IF iL[2] GT 0 AND (iL[1] NE iL[2] OR iL[2] EQ 1) THEN DO:
        RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"record-source", OUTPUT char-hdl).
        RUN local-open-query IN WIDGET-HANDLE(char-hdl).
-       RUN reopen-query IN WIDGET-HANDLE(char-hdl) .
+       RUN reopen-query IN WIDGET-HANDLE(char-hdl)("add") .
        RUN repo-query IN WIDGET-HANDLE(char-hdl) (lv-rowid).
      END.
   END.
@@ -342,7 +342,7 @@ DO:
           
        RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"record-source", OUTPUT char-hdl).
        RUN local-open-query IN WIDGET-HANDLE(char-hdl).
-       RUN reopen-query IN WIDGET-HANDLE(char-hdl) .
+       RUN reopen-query IN WIDGET-HANDLE(char-hdl)("copy") .
        RUN repo-query IN WIDGET-HANDLE(char-hdl) (lv-rowid).
       END.
    END.
@@ -400,7 +400,7 @@ DO:
        BUFFER-COMPARE tt-oe-rell TO oe-rell SAVE RESULT IN ll.
        
        RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"record-source", OUTPUT char-hdl).
-       RUN reopen-query IN WIDGET-HANDLE(char-hdl) .
+       RUN reopen-query IN WIDGET-HANDLE(char-hdl)("update") .
        RUN repo-query IN WIDGET-HANDLE(char-hdl) (lv-rowid).
       
        /*RUN reopen-po-ord-query.*/
