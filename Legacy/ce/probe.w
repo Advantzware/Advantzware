@@ -3714,7 +3714,7 @@ FUNCTION fDirectMatPctSellPrice RETURNS DECIMAL
        DEFINE VARIABLE dMatPct AS DECIMAL NO-UNDO.
         DEFINE VARIABLE dPrice AS DECIMAL NO-UNDO.
     
-    dPrice = DEC(probe.sell-price:SCREEN-VALUE IN BROWSE {&browse-name}).
+    dPrice = DEC(probe.sell-price).
     IF AVAILABLE probe AND dPrice GT 0 THEN 
         dMatPct = probe.spare-dec-1 / dPrice * 100.
     
