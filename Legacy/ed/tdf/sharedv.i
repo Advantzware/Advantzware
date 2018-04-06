@@ -49,7 +49,7 @@ DEF {1} var ws_elem_delim          AS char FORMAT 'x(06)' NO-UNDO
 /* 9805 CP */
 DEF {1} var tdf_eof AS logical NO-UNDO initial FALSE LABEL "EOF".
 
-def {1} var str_bigint      as integer  no-undo format "-9999999999999999999".
+def {1} var str_bigint      as int64  no-undo format "-9999999999999999999".
 def {1} var str_bigchar     as char     no-undo format "x(20)".
 /* during outbound processing if there is an error set this field */
 def {1} var erc_field       as char     no-undo format "x(30)".
