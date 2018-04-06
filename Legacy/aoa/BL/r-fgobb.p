@@ -620,7 +620,7 @@ PROCEDURE pInventoryValue:
             ttInventoryValue.daysOld      = ipdtAsOfDate - dtRctDate
             ttInventoryValue.custNoOwned  = ""
             ttInventoryValue.setHeader    = IF AVAILABLE fg-set AND cJobNo NE "" THEN fg-set.set-no   ELSE ""
-            ttInventoryValue.qtyPerSet    = IF AVAILABLE fg-set AND cJobNo NE "" THEN fg-set.part-qty ELSE 0
+            ttInventoryValue.qtyPerSet    = IF AVAILABLE fg-set AND cJobNo NE "" THEN fg-set.qtyPerSet ELSE 0
             ttInventoryValue.recDate      = dtRctDate
             ttInventoryValue.xxSort       = IF ipcSort EQ "Customer"         THEN ttInventoryValue.custNo
                                        ELSE IF ipcSort EQ "FG Item"          THEN ttInventoryValue.iNo

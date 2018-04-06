@@ -60,7 +60,7 @@ DEF VAR v-inv-no       AS INT                 NO-UNDO.
 DEF VAR v-tot-pallets  AS INT                 NO-UNDO.
 DEF VAR v-tot-qty      AS INT                 NO-UNDO.
 DEF VAR v-del-no       AS INT FORMAT ">>>>>>" NO-UNDO.
-DEF VAR v-set-qty      AS INT                 NO-UNDO.
+DEF VAR v-set-qty      AS DECIMAL                 NO-UNDO.
 DEF VAR v-beeler-lines AS INT                 NO-UNDO.
 DEF VAR v              AS INT                 NO-UNDO.
 DEF VAR v-bo-qty       AS INT FORMAT "99999"  NO-UNDO.
@@ -222,7 +222,7 @@ FOR EACH report
           FOR EACH fg-set FIELDS(part-qty) NO-LOCK 
             WHERE fg-set.company = ar-invl.company
               AND fg-set.set-no = ar-invl.i-no:
-            ASSIGN v-set-qty = v-set-qty + fg-set.part-qty.
+            ASSIGN v-set-qty = v-set-qty + fg-set.qtyPerSet.
           END.
 
           IF v-set-qty = 0 
@@ -239,8 +239,8 @@ FOR EACH report
                WHERE fg-set.company = ar-invl.company 
                  AND fg-set.set-no = ar-invl.i-no  
                  AND fg-set.part-no = eb.stock-no NO-LOCK NO-ERROR.
-             IF AVAIL fg-set AND fg-set.part-qty NE 0 
-               THEN ASSIGN v-part-qty = fg-set.part-qty / v-set-qty.
+             IF AVAIL fg-set AND fg-set.qtyPerSet NE 0 
+               THEN ASSIGN v-part-qty = fg-set.qtyPerSet / v-set-qty.
                ELSE ASSIGN v-part-qty = 1 / v-set-qty.
 
              IF eb.cas-cnt = 0

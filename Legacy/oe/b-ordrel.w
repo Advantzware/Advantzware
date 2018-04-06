@@ -1470,7 +1470,7 @@ FOR EACH fg-set WHERE fg-set.set-no = oe-ordl.i-no
   oe-rel.s-code          = "S".     
 
   /* Set oe-rel quantity based on set part quantity */
-  oe-rel.tot-qty = ipiRelQty * fg-set.part-qty.
+  oe-rel.tot-qty = ipiRelQty * fg-set.qtyPerSet.
   oe-rel.rel-date = ipdtRelDate.
   IF ipcPoNo GT "" THEN
       oe-rel.po-no = ipcPoNo.

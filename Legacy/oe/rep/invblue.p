@@ -38,7 +38,7 @@ def var v-ans as logical initial no.
 def var v-date-ship as date initial today.
 def var v-del-no as int format ">>>>>>".
 def var v-bol-cases like oe-boll.cases.
-def var v-set-qty as int.
+def var v-set-qty as DECIMAL.
 def var v-part-qty as dec format "999.9999".
 def var old-frt like inv-head.t-inv-freight no-undo.
 def var v-net like inv-head.t-inv-rev.
@@ -256,7 +256,7 @@ form inv-misc.charge at 20
                    where fg-set.company eq xinv-line.company
                      and fg-set.set-no  eq xinv-line.i-no
                    no-lock:
-                 v-set-qty = v-set-qty + fg-set.part-qty.
+                 v-set-qty = v-set-qty + fg-set.QtyPerSet.
                end.
 
                if v-set-qty = 0 then v-set-qty = 1.
@@ -275,8 +275,8 @@ form inv-misc.charge at 20
                      no-lock no-error.
 
                  assign
-                  v-part-qty = (if avail fg-set and fg-set.part-qty ne 0 then
-                                  fg-set.part-qty else 1) / v-set-qty
+                  v-part-qty = (if avail fg-set and fg-set.QtyPerSet ne 0 then
+                                  fg-set.QtyPerSet else 1) / v-set-qty
                   v-tot-cas  = round((if eb.cas-cnt eq 0 then
                                         v-t-weight else v-tot-qty) *
                                      v-part-qty / eb.cas-wt, 2).

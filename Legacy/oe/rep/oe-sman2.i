@@ -83,7 +83,7 @@
                        b-itemfg.i-no EQ fg-set.part-no
                        NO-LOCK:
 
-                 v-sqft = v-sqft + (v-qty * (IF fg-set.part-qty GE 0 THEN fg-set.part-qty ELSE (-1 / fg-set.part-qty))
+                 v-sqft = v-sqft + (v-qty * (IF fg-set.QtyPerSet GE 0 THEN fg-set.QtyPerSet ELSE (-1 / fg-set.QtyPerSet))
                                     * b-itemfg.t-sqft / 1000).
              END.
           END.

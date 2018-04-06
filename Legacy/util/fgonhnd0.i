@@ -10,7 +10,7 @@ for each itemfg
      CAN-FIND(FIRST fg-set WHERE
      fg-set.company EQ cocode AND
      fg-set.part-no EQ itemfg.i-no AND
-     fg-set.part-qty GT 0) THEN
+     fg-set.QtyPerSet GT 0) THEN
      NEXT.
 
   status default " Processing...    Cust: " + itemfg.cust-no +

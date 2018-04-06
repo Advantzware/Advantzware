@@ -1363,7 +1363,7 @@ DEF VAR brd-cst   AS DEC NO-UNDO.
 def var v-cost as dec no-undo.
 def var v-cst-qty as dec no-undo.
 DEF VAR v-brdcst AS DEC NO-UNDO.
-DEFINE VARIABLE iSetMult AS INTEGER     NO-UNDO.
+DEFINE VARIABLE iSetMult AS DECIMAL     NO-UNDO.
 
 DEF VAR cDisplay AS cha NO-UNDO.
 DEF VAR cExcelDisplay AS cha NO-UNDO.
@@ -1733,7 +1733,7 @@ ASSIGN
                   AND fg-set.set-no EQ job-hdr.i-no
                   AND fg-set.part-no EQ eb.stock-no
                 NO-LOCK NO-ERROR.
-            IF AVAIL fg-set THEN iSetMult = fg-set.part-qty.
+            IF AVAIL fg-set THEN iSetMult = fg-set.qtyPerSet.
 /*             {ce/set-qty.i v-qty eb} */
          END.
 

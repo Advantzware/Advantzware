@@ -108,19 +108,19 @@
                                 CREATE tt-fg-set.
                                 ASSIGN
                                     tt-fg-set.part-no      = reftable.code2
-                                    tt-fg-set.part-qty     = reftable.val[12]
+                                    tt-fg-set.QtyPerSet     = reftable.val[12]
                                     tt-fg-set.part-qty-dec = reftable.val[13].
                                 END.
                                 ELSE DO:
                                     CREATE tt-fg-set.
                                     ASSIGN
                                         tt-fg-set.part-no      = job-hdr.i-no
-                                        tt-fg-set.part-qty     = job-hdr.frm
+                                        tt-fg-set.QtyPerSet     = job-hdr.frm
                                         tt-fg-set.part-qty-dec = job-hdr.blank-no.
                                 END.
 
                                 FOR EACH tt-fg-set
-                                    BREAK BY tt-fg-set.part-qty
+                                    BREAK BY tt-fg-set.QtyPerSet
                                     BY tt-fg-set.part-qty-dec:
 
                                     FOR EACH job-mch
@@ -128,7 +128,7 @@
                                         AND job-mch.job     EQ job.job
                                         AND job-mch.job-no  EQ job.job-no
                                         AND job-mch.job-no2 EQ job.job-no2
-                                        AND job-mch.frm     EQ tt-fg-set.part-qty
+                                        AND job-mch.frm     EQ INTEGER(tt-fg-set.QtyPerSet)
                                         NO-LOCK
                                         BREAK BY job-mch.line:
                                         IF FIRST(job-mch.line) AND v-m-code <> "" THEN 

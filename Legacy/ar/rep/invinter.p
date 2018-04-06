@@ -41,7 +41,7 @@ def var v-tx-rate like stax.tax-rate.
 def var v-ans as logical initial no.
 def var v-date-ship as date initial today.
 def var v-bol-cases LIKE oe-boll.cases.
-def var v-set-qty AS INT.
+def var v-set-qty AS DECIMAL.
 def var v-part-qty AS DEC FORMAT "999.9999".
 def var v-net like ar-inv.net.
 def var v-gross like ar-inv.gross.
@@ -358,7 +358,7 @@ with frame blankl no-labels no-box no-underline stream-io width 80.
              DO:
                FOR EACH fg-set NO-LOCK WHERE fg-set.company = xar-invl.company
                   AND fg-set.set-no = xar-invl.i-no:
-                 ASSIGN v-set-qty = v-set-qty + fg-set.part-qty.
+                 ASSIGN v-set-qty = v-set-qty + fg-set.qtyPerSet.
                END.
                IF v-set-qty = 0 THEN
                   ASSIGN v-set-qty = 1.
@@ -370,8 +370,8 @@ with frame blankl no-labels no-box no-underline stream-io width 80.
                     fg-set.set-no = xar-invl.i-no  AND
                     fg-set.part-no = eb.stock-no NO-LOCK NO-ERROR.
 
-                 IF AVAIL fg-set AND fg-set.part-qty NE 0 THEN
-                   ASSIGN v-part-qty = fg-set.part-qty / v-set-qty.
+                 IF AVAIL fg-set AND fg-set.qtyPerSet NE 0 THEN
+                   ASSIGN v-part-qty = fg-set.qtyPerSet / v-set-qty.
                  ELSE
                    ASSIGN v-part-qty = 1 / v-set-qty.
 
