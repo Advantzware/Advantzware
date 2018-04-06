@@ -122,6 +122,7 @@ DEFINE VARIABLE iHiCount      AS INTEGER   NO-UNDO.
 DEFINE VARIABLE iMenuSize     AS INTEGER   NO-UNDO.
 DEFINE VARIABLE iLanguage     AS INTEGER   NO-UNDO.
 DEFINE VARIABLE lOK           AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE hExitWidget   AS HANDLE    NO-UNDO.
 
 ASSIGN
     g_company = ""
@@ -278,12 +279,12 @@ DEFINE FRAME FRAME-USER
      users_user_id AT ROW 1.71 COL 117 COLON-ALIGNED NO-LABEL
      Mneumonic AT ROW 1.71 COL 140 COLON-ALIGNED NO-LABEL WIDGET-ID 2
      svLink AT ROW 4.1 COL 15 NO-LABEL WIDGET-ID 34
-     "Location:" VIEW-AS TEXT
-          SIZE 9 BY .62 AT ROW 1.71 COL 68
      "User ID:" VIEW-AS TEXT
           SIZE 8 BY .62 AT ROW 1.71 COL 110
      "Company:" VIEW-AS TEXT
           SIZE 10 BY .62 AT ROW 1.71 COL 4
+     "Location:" VIEW-AS TEXT
+          SIZE 9 BY .62 AT ROW 1.71 COL 68
      boxes AT ROW 8.86 COL 52
      menu-image AT ROW 3.86 COL 53
      RECT-2 AT ROW 1 COL 1
@@ -616,6 +617,7 @@ PROCEDURE pClick :
     
     DEFINE BUFFER bttblItem FOR ttblItem.
     
+    RUN pSetFocus.
     IF VALID-HANDLE(iphObjectHandle) THEN DO:
         IF iphObjectHandle:NAME EQ 'Exit' THEN
         APPLY 'WINDOW-CLOSE':U TO {&WINDOW-NAME}.
@@ -708,6 +710,10 @@ PROCEDURE pCreateEditor :
     IF VALID-HANDLE(hWidget) THEN DO:
         ttblItem.hEditor = hWidget.
         hWidget:MOVE-TO-TOP().
+        IF ipcName EQ "Exit" THEN DO:
+            hExitWidget = hWidget.
+            RUN pSetFocus.
+        END.
     END.
 
 END PROCEDURE.
@@ -1161,10 +1167,13 @@ PROCEDURE pInit :
     
     DO WITH FRAME {&FRAME-NAME}:
         ASSIGN
+            cSourceMenu = ?
+            &IF DEFINED(addon) EQ 0 &THEN
             cSourceMenu = SEARCH("usermenu/" + USERID("ASI") + "/menu." + cMenuExt)
+            &ENDIF
             iLanguage = LOOKUP(cLabelLanguage,cLanguageList)
             .
-        IF cSourceMenu EQ ? THEN cSourceMenu = SEARCH("menu." + cMenuExt).
+        IF cSourceMenu EQ ? THEN cSourceMenu = SEARCH("{&addon}menu." + cMenuExt).
         INPUT FROM VALUE(cSourceMenu) NO-ECHO.
         RUN pGetMenu.
         INPUT CLOSE.
@@ -1280,6 +1289,23 @@ PROCEDURE pReset :
     END.
     RUN pMenuBar.
     RUN pCreateMenuObjects ("file").
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSetFocus MAINMENU 
+PROCEDURE pSetFocus :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    IF VALID-HANDLE(hExitWidget) THEN DO:
+        APPLY "ENTRY":U TO hExitWidget.
+        hExitWidget:SET-SELECTION(1,256).
+    END.
 
 END PROCEDURE.
 
