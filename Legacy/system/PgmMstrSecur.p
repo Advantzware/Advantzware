@@ -66,6 +66,7 @@ PROCEDURE epCanAccess:
                 (ipProgName EQ "rminq/b-rmiinq.w" AND ipFunction EQ "") OR /*MF1 or MF2 Hostory tab   */
                 (ipProgName EQ "system/mainmenu.w" AND ipFunction EQ "Access1") OR /*Main menu load*/
                 (ipProgName EQ "viewers/p-fg-bj-l.w" AND ipFunction EQ "") OR /*IF1 Bin/Jobs tab */
+                (ipProgName EQ "panels/p-poh.w" AND ipFunction EQ "") OR /*PU1  view po tab copy button */
                 
                 (ipProgName EQ "" AND ipFunction = "")
             ) THEN ASSIGN
