@@ -335,7 +335,7 @@ IF AVAIL itemfg THEN DO:
       BREAK BY tt-fg-set.QtyPerSet
             BY tt-fg-set.part-qty-dec:
       
-      lv-first-last-set = FIRST(tt-fg-set.part-qty) AND LAST(tt-fg-set.part-qty).
+      lv-first-last-set = FIRST(tt-fg-set.QtyPerSet) AND LAST(tt-fg-set.QtyPerSet).
       
       IF NOT lv-first-last-set THEN DO:
          PUT SPACE(5)

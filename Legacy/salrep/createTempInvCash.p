@@ -208,7 +208,7 @@ FOR EACH cust
         
         /* If Created via ar-inv, type is blank */
         FIND FIRST invoiceLines NO-LOCK WHERE invoiceLines.company EQ ar-cashl.company 
-          AND invoicesLine.invoiceNumber EQ ar-cashl.inv-no 
+          AND invoiceLines.invoiceNumber EQ ar-cashl.inv-no 
           AND invoiceLines.type NE "" no-error.
         IF AVAIL invoiceLines THEN 
             NEXT.

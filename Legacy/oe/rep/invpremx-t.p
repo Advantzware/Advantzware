@@ -116,7 +116,7 @@ DEFINE        VARIABLE v-date-ship      AS DATE    INITIAL TODAY NO-UNDO.
 DEFINE        VARIABLE v-date-ord       AS DATE    NO-UNDO.
 DEFINE        VARIABLE v-del-no         AS INTEGER     FORMAT ">>>>>>" NO-UNDO.
 DEFINE        VARIABLE v-bol-cases      LIKE oe-boll.cases NO-UNDO.
-DEFINE        VARIABLE v-set-qty        AS v-set-qty     NO-UNDO.
+DEFINE        VARIABLE v-set-qty        AS DECIMAL     NO-UNDO.
 DEFINE        VARIABLE v-part-qty       AS DECIMAL     FORMAT "999.9999" NO-UNDO.
 DEFINE        VARIABLE v-net            LIKE inv-head.t-inv-rev NO-UNDO.
 DEFINE        VARIABLE v-case-cnt       AS CHARACTER    FORMAT "x(80)" EXTENT 5 NO-UNDO.

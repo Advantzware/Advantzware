@@ -989,7 +989,7 @@ FUNCTION fExtCost RETURNS DECIMAL
         IF dResult = ? THEN dResult = 0.
 PUT STREAM sDebug UNFORMATTED  ar-invl.inv-no " cost " dcost " qty " dqty " cuom " cuom " dres " dResult
         SKIP. 
-        
+
 		RETURN dResult.
 
 
