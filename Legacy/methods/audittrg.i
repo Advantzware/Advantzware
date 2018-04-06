@@ -11,21 +11,23 @@ DEFINE VARIABLE cIdxFields  AS CHARACTER NO-UNDO.
 &IF "{&ACTION}" = "UPDATE" &THEN
 IF old-{&TABLENAME}.rec_key NE "" THEN DO:
     /* update */
-    IF CAN-FIND(FIRST config WHERE CAN-DO(config.audit_tables,"{&TABLENAME}")) THEN DO:
+    IF CAN-FIND(FIRST config WHERE CAN-DO(ENTRY(3,config.audit_tables,"|"),"{&TABLENAME}")) THEN DO:
         hTable[2] = BUFFER old-{&TABLENAME}:HANDLE.
         RUN pCreateAuditHdr ("UPDATE").
         RUN pAuditDetail ("UPDATE").
     END. /* if can-find */
 END. /* if old-rec_key */
-ELSE DO:
+ELSE IF CAN-FIND(FIRST config WHERE CAN-DO(ENTRY(1,config.audit_tables,"|"),"{&TABLENAME}")) THEN DO:
     /* create */
     RUN pCreateAuditHdr ("CREATE").
     RUN pAuditDetail ("CREATE").
 END. /* else */
 &ELSE
-/* delete */
-RUN pCreateAuditHdr ("DELETE").
-RUN pAuditDetail ("DELETE").
+IF CAN-FIND(FIRST config WHERE CAN-DO(ENTRY(2,config.audit_tables,"|"),"{&TABLENAME}")) THEN DO:
+    /* delete */
+    RUN pCreateAuditHdr ("DELETE").
+    RUN pAuditDetail ("DELETE").
+END.
 &ENDIF
 
 PROCEDURE pAuditDetail:
