@@ -478,8 +478,9 @@ PROCEDURE set-buttons :
   Notes:       
 ------------------------------------------------------------------------------*/
 DEFINE INPUT PARAMETER panel-state AS CHARACTER NO-UNDO.
-DEFINE VARIABLE hPgmSecurity AS HANDLE NO-UNDO.
-DEFINE VARIABLE lResult AS LOG NO-UNDO.
+DEFINE VARIABLE v-autopo-sec AS LOGICAL NO-UNDO.
+DEFINE VARIABLE v-access-close AS LOGICAL NO-UNDO.
+DEFINE VARIABLE v-access-list AS CHARACTER NO-UNDO.
 
 DO WITH FRAME Panel-Frame:
 
@@ -599,12 +600,19 @@ DO WITH FRAME Panel-Frame:
   {CUSTOM/SECPANEL.I}
 
  
- RUN "system/PgmMstrSecur.p" PERSISTENT SET hPgmSecurity.
- RUN epCanAccess IN hPgmSecurity ("panels/p-poh.w", "", OUTPUT lResult).
- DELETE OBJECT hPgmSecurity.
+  /* Check if authorized enter job */
+RUN methods/prgsecur.p
+    (INPUT "PoCopyButt",
+     INPUT "ACCESS",
+     INPUT YES,
+     INPUT YES,
+     INPUT YES,
+     OUTPUT v-autopo-sec,
+     OUTPUT v-access-close,
+     OUTPUT v-access-list).
 
- IF NOT lResult THEN
-     ASSIGN Btn-Copy:SENSITIVE = NO. 
+     IF NOT v-autopo-sec THEN
+         ASSIGN Btn-Copy:SENSITIVE = v-autopo-sec . 
   
 
 END. /* DO WITH FRAME */
