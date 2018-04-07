@@ -4958,7 +4958,7 @@ PROCEDURE valid-wid-len :
 
   {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
-    lv-handle = IF LOOKUP(FOCUS:NAME,"style,len") GT 0 THEN FOCUS ELSE ?.
+    lv-handle = IF LOOKUP(FOCUS:NAME,"style,len") GT 0 THEN FOCUS ELSE ? NO-ERROR.
     IF NOT VALID-HANDLE(lv-handle) THEN lv-handle = eb.wid:HANDLE.
 
     IF ll-warn AND ll-wid-len-warned EQ NO                         AND
