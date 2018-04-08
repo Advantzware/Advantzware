@@ -44,9 +44,9 @@ CREATE WIDGET-POOL.
 DEFINE VARIABLE i AS INTEGER NO-UNDO.
 
 DEFINE TEMP-TABLE ttTable NO-UNDO
-    FIELD tableName AS CHARACTER FORMAT "x(20)" LABEL "Table"
-    FIELD audit     AS LOGICAL   EXTENT 3
-        INDEX ttTable IS PRIMARY tableName
+    FIELD auditTable AS CHARACTER FORMAT "x(20)" LABEL "Table"
+    FIELD audit      AS LOGICAL   EXTENT 4
+        INDEX ttTable IS PRIMARY auditTable
         .
 
 /* _UIB-CODE-BLOCK-END */
@@ -68,13 +68,13 @@ DEFINE TEMP-TABLE ttTable NO-UNDO
 &Scoped-define INTERNAL-TABLES ttTable
 
 /* Definitions for BROWSE dbTables                                      */
-&Scoped-define FIELDS-IN-QUERY-dbTables ttTable.tableName ttTable.audit[1] ttTable.audit[2] ttTable.audit[3]   
-&Scoped-define ENABLED-FIELDS-IN-QUERY-dbTables ttTable.audit[1] ttTable.audit[2] ttTable.audit[3]   
+&Scoped-define FIELDS-IN-QUERY-dbTables ttTable.auditTable ttTable.audit[1] ttTable.audit[2] ttTable.audit[3] ttTable.audit[4]   
+&Scoped-define ENABLED-FIELDS-IN-QUERY-dbTables ttTable.audit[1] ttTable.audit[2] ttTable.audit[3] ttTable.audit[4]   
 &Scoped-define ENABLED-TABLES-IN-QUERY-dbTables ttTable
 &Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-dbTables ttTable
 &Scoped-define SELF-NAME dbTables
-&Scoped-define QUERY-STRING-dbTables FOR EACH ttTable WHERE ttTable.tableName MATCHES "*" + svFilter + "*"
-&Scoped-define OPEN-QUERY-dbTables OPEN QUERY {&SELF-NAME} FOR EACH ttTable WHERE ttTable.tableName MATCHES "*" + svFilter + "*".
+&Scoped-define QUERY-STRING-dbTables FOR EACH ttTable WHERE ttTable.auditTable MATCHES "*" + svFilter + "*"
+&Scoped-define OPEN-QUERY-dbTables OPEN QUERY {&SELF-NAME} FOR EACH ttTable WHERE ttTable.auditTable MATCHES "*" + svFilter + "*".
 &Scoped-define TABLES-IN-QUERY-dbTables ttTable
 &Scoped-define FIRST-TABLE-IN-QUERY-dbTables ttTable
 
@@ -84,11 +84,11 @@ DEFINE TEMP-TABLE ttTable NO-UNDO
     ~{&OPEN-QUERY-dbTables}
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS btnBeforeValueFilterClear btnExit btnOK ~
-svFilter svToggleAuditCreate svToggleAuditDelete svToggleAuditUpdate ~
-dbTables 
+&Scoped-Define ENABLED-OBJECTS btnBeforeValueFilterClear svFilter ~
+svToggleAuditCreate svToggleAuditDelete svToggleAuditUpdate svStackTrace ~
+dbTables btnExit btnOK 
 &Scoped-Define DISPLAYED-OBJECTS svFilter svToggleAuditCreate ~
-svToggleAuditDelete svToggleAuditUpdate 
+svToggleAuditDelete svToggleAuditUpdate svStackTrace 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -124,11 +124,16 @@ DEFINE BUTTON btnOK AUTO-GO DEFAULT
 DEFINE VARIABLE svFilter AS CHARACTER FORMAT "X(256)":U 
      LABEL "Filter" 
      VIEW-AS FILL-IN 
-     SIZE 28 BY 1 NO-UNDO.
+     SIZE 32 BY 1 NO-UNDO.
 
 DEFINE RECTANGLE RECT-11
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
-     SIZE 64 BY 2.38.
+     SIZE 76 BY 2.38.
+
+DEFINE VARIABLE svStackTrace AS LOGICAL INITIAL no 
+     LABEL "Stack" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 10 BY .81 NO-UNDO.
 
 DEFINE VARIABLE svToggleAuditCreate AS LOGICAL INITIAL no 
      LABEL "Create" 
@@ -155,29 +160,27 @@ DEFINE QUERY dbTables FOR
 DEFINE BROWSE dbTables
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS dbTables C-Win _FREEFORM
   QUERY dbTables DISPLAY
-      ttTable.tableName
+      ttTable.auditTable
 ttTable.audit[1] COLUMN-LABEL "Audit Create" VIEW-AS TOGGLE-BOX
-ttTable.audit[2] COLUMN-LABEL "Audit Delete"  VIEW-AS TOGGLE-BOX
-ttTable.audit[3] COLUMN-LABEL "Audit Update"  VIEW-AS TOGGLE-BOX
+ttTable.audit[2] COLUMN-LABEL "Audit Delete" VIEW-AS TOGGLE-BOX
+ttTable.audit[3] COLUMN-LABEL "Audit Update" VIEW-AS TOGGLE-BOX
+ttTable.audit[4] COLUMN-LABEL "Stack Trace"  VIEW-AS TOGGLE-BOX
 ENABLE
 ttTable.audit[1]
 ttTable.audit[2]
 ttTable.audit[3]
+ttTable.audit[4]
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ROW-MARKERS SEPARATORS SIZE 64 BY 30.48
+    WITH NO-ROW-MARKERS SEPARATORS SIZE 76 BY 30.48
          TITLE "Database Tables".
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME DEFAULT-FRAME
-     btnBeforeValueFilterClear AT ROW 1.48 COL 44 HELP
+     btnBeforeValueFilterClear AT ROW 1.48 COL 48 HELP
           "Click to Clear Value Filter" WIDGET-ID 40
-     btnExit AT ROW 1.48 COL 57 HELP
-          "Use this function to CANCEL field selecition"
-     btnOK AT ROW 1.48 COL 49 HELP
-          "Use this function to ACCEPT selected field"
      svFilter AT ROW 1.48 COL 14 COLON-ALIGNED HELP
           "Enter Filter Value" WIDGET-ID 6
      svToggleAuditCreate AT ROW 2.67 COL 16 HELP
@@ -186,14 +189,20 @@ DEFINE FRAME DEFAULT-FRAME
           "Select to Toggle Audit Delete" WIDGET-ID 8
      svToggleAuditUpdate AT ROW 2.67 COL 38 HELP
           "Select to Toggle Audit Update" WIDGET-ID 10
+     svStackTrace AT ROW 2.67 COL 49 HELP
+          "Select to Toggle Audit Stack Trace" WIDGET-ID 42
      dbTables AT ROW 3.86 COL 2 WIDGET-ID 100
+     btnExit AT ROW 1.48 COL 69 HELP
+          "Use this function to CANCEL field selecition"
+     btnOK AT ROW 1.48 COL 61 HELP
+          "Use this function to ACCEPT selected field"
      "Toggle Audit" VIEW-AS TEXT
           SIZE 12 BY .81 AT ROW 2.67 COL 3 WIDGET-ID 12
      RECT-11 AT ROW 1.24 COL 2 WIDGET-ID 2
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 66 BY 33.33.
+         SIZE 78 BY 33.33.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -214,11 +223,11 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          HIDDEN             = YES
          TITLE              = "Audit Table Selections"
          HEIGHT             = 33.33
-         WIDTH              = 66
+         WIDTH              = 78
          MAX-HEIGHT         = 33.33
-         MAX-WIDTH          = 66
+         MAX-WIDTH          = 78
          VIRTUAL-HEIGHT     = 33.33
-         VIRTUAL-WIDTH      = 66
+         VIRTUAL-WIDTH      = 78
          MAX-BUTTON         = no
          RESIZE             = yes
          SCROLL-BARS        = no
@@ -242,7 +251,7 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME DEFAULT-FRAME
    FRAME-NAME                                                           */
-/* BROWSE-TAB dbTables svToggleAuditUpdate DEFAULT-FRAME */
+/* BROWSE-TAB dbTables svStackTrace DEFAULT-FRAME */
 /* SETTINGS FOR RECTANGLE RECT-11 IN FRAME DEFAULT-FRAME
    NO-ENABLE                                                            */
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
@@ -258,7 +267,7 @@ THEN C-Win:HIDDEN = no.
 /* Query rebuild information for BROWSE dbTables
      _START_FREEFORM
 OPEN QUERY {&SELF-NAME} FOR EACH ttTable
-WHERE ttTable.tableName MATCHES "*" + svFilter + "*".
+WHERE ttTable.auditTable MATCHES "*" + svFilter + "*".
      _END_FREEFORM
      _Query            is OPENED
 */  /* BROWSE dbTables */
@@ -340,6 +349,18 @@ ON VALUE-CHANGED OF svFilter IN FRAME DEFAULT-FRAME /* Filter */
 DO:
     ASSIGN {&SELF-NAME}.
     {&OPEN-QUERY-{&BROWSE-NAME}}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME svStackTrace
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svStackTrace C-Win
+ON VALUE-CHANGED OF svStackTrace IN FRAME DEFAULT-FRAME /* Stack */
+DO:
+    ASSIGN {&SELF-NAME}.
+    RUN pSetAudit (4,{&SELF-NAME}).
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -451,9 +472,11 @@ PROCEDURE enable_UI :
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
   DISPLAY svFilter svToggleAuditCreate svToggleAuditDelete svToggleAuditUpdate 
+          svStackTrace 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
-  ENABLE btnBeforeValueFilterClear btnExit btnOK svFilter svToggleAuditCreate 
-         svToggleAuditDelete svToggleAuditUpdate dbTables 
+  ENABLE btnBeforeValueFilterClear svFilter svToggleAuditCreate 
+         svToggleAuditDelete svToggleAuditUpdate svStackTrace dbTables btnExit 
+         btnOK 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
   VIEW C-Win.
@@ -469,24 +492,16 @@ PROCEDURE pGetTables :
   Parameters:  <none>
   Notes:       
 -------------------------------------------------------------*/
-    DEFINE VARIABLE cTables AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE idx     AS INTEGER   NO-UNDO.
-    DEFINE VARIABLE jdx     AS INTEGER   NO-UNDO.
-    
-    FIND FIRST config NO-LOCK NO-ERROR.
-    IF NOT AVAILABLE config THEN RETURN.
-     
-    CREATE ALIAS dictdb FOR DATABASE ASI.
-    RUN Get_Procedure IN Persistent-Handle ("filelist.",OUTPUT run-proc,no) NO-ERROR.
-    IF run-proc NE "" THEN
-    RUN VALUE(run-proc) (OUTPUT cTables).
-    DO idx = 1 TO NUM-ENTRIES(cTables):
+    FOR EACH AuditTbl NO-LOCK:
         CREATE ttTable.
-        ttTable.tableName   = ENTRY(idx,cTables).
-        DO jdx = 1 TO EXTENT(ttTable.audit):
-            ttTable.audit[jdx] = CAN-DO(ENTRY(jdx,config.audit_tables,"|"),ttTable.tableName).
-        END. /* do jdx */
-    END. /* do idx */
+        ASSIGN
+            ttTable.auditTable = AuditTbl.AuditTable
+            ttTable.audit[1]   = AuditTbl.AuditCreate
+            ttTable.audit[2]   = AuditTbl.AuditDelete
+            ttTable.audit[3]   = AuditTbl.AuditUpdate
+            ttTable.audit[4]   = AuditTbl.AuditStack
+            .
+    END. /* each audittbl */
     {&OPEN-QUERY-{&BROWSE-NAME}}
   
 END PROCEDURE.
@@ -507,18 +522,18 @@ PROCEDURE pSave :
     DEFINE BUFFER bttTable FOR ttTable.
     
     FOR EACH bttTable:
-        DO idx = 1 TO EXTENT(bttTable.audit):
-            IF bttTable.audit[idx] THEN
-            cTables[idx] = cTables[idx] + bttTable.tableName + ",".
-        END. /* do idx */
+        FIND FIRST AuditTbl EXCLUSIVE-LOCK
+             WHERE AuditTbl.AuditTable EQ bttTable.auditTable
+             NO-ERROR.
+        IF NOT AVAILABLE AuditTbl THEN NEXT.
+        ASSIGN
+            AuditTbl.AuditCreate = bttTable.audit[1]
+            AuditTbl.AuditDelete = bttTable.audit[2]
+            AuditTbl.AuditUpdate = bttTable.audit[3]
+            AuditTbl.AuditStack  = bttTable.audit[4]
+            .
+        FIND CURRENT AuditTbl NO-LOCK.
     END. /* each btttable */
-    FIND FIRST config EXCLUSIVE-LOCK NO-ERROR.
-    IF NOT AVAILABLE config THEN RETURN.
-    config.audit_tables = TRIM(cTables[1],",") + "|"
-                        + TRIM(cTables[2],",") + "|"
-                        + TRIM(cTables[3],",")
-                        .
-    FIND FIRST config NO-LOCK.
 
 END PROCEDURE.
 
@@ -536,7 +551,7 @@ PROCEDURE pSetAudit :
     DEFINE INPUT PARAMETER iplAudit AS LOGICAL NO-UNDO.
     
     FOR EACH ttTable
-        WHERE ttTable.tableName MATCHES "*" + svFilter + "*"
+        WHERE ttTable.auditTable MATCHES "*" + svFilter + "*"
         :
         ttTable.audit[ipiIdx] = iplAudit.
     END. /* each tttable */
