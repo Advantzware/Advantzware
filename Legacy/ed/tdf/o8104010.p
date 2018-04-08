@@ -468,7 +468,10 @@ FOR EACH edivline OF edivtran EXCLUSIVE
     unit_of_measure             = edivline.uom-code
     weight_unit_measure         = "LB"
     volume_unit_measure         = "CF"
+    second_product_type    = ""
+    second_description     = ""    
     .
+    
     IF AVAILABLE oe-ordl THEN 
       ws_line = oe-ordl.line.
     ELSE 
