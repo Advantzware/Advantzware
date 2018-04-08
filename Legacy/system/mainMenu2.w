@@ -123,6 +123,14 @@ DEFINE VARIABLE iMenuSize     AS INTEGER   NO-UNDO.
 DEFINE VARIABLE iLanguage     AS INTEGER   NO-UNDO.
 DEFINE VARIABLE lOK           AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE hExitWidget   AS HANDLE    NO-UNDO.
+DEFINE VARIABLE cASILink      AS CHARACTER NO-UNDO INITIAL
+    "http://www.advantzware.com".
+DEFINE VARIABLE cAICCLink     AS CHARACTER NO-UNDO INITIAL
+    "http://www.aiccbox.org/".
+DEFINE VARIABLE cTAPPILink    AS CHARACTER NO-UNDO INITIAL
+    "http://tappi.org/".
+DEFINE VARIABLE cZoHoLink    AS CHARACTER NO-UNDO INITIAL
+    "https://support.zoho.com/portal/advantzware/kb".
 
 ASSIGN
     g_company = ""
@@ -156,9 +164,10 @@ CREATE WIDGET-POOL "MainMenuPool".
 &Scoped-define FRAME-NAME FRAME-USER
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS imageSettings imageCompany svLink 
+&Scoped-Define ENABLED-OBJECTS imageSettings imageCompany imageLogo ~
+aiccLogo tappiLogo zohoHelp 
 &Scoped-Define DISPLAYED-OBJECTS company_name loc_loc users_user_id ~
-Mneumonic svLink 
+Mneumonic 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -205,23 +214,27 @@ DEFINE VARIABLE Mneumonic AS CHARACTER FORMAT "X(256)":U
      SIZE 5 BY .62
      FONT 6 NO-UNDO.
 
-DEFINE VARIABLE svLink AS CHARACTER FORMAT "X(256)":U INITIAL "www.Advantzware.com" 
-      VIEW-AS TEXT 
-     SIZE 23 BY .62
-     BGCOLOR 1 FGCOLOR 15  NO-UNDO.
-
 DEFINE VARIABLE users_user_id AS CHARACTER FORMAT "X(256)":U 
       VIEW-AS TEXT 
      SIZE 13 BY .62
      FONT 6 NO-UNDO.
 
+DEFINE IMAGE aiccLogo
+     FILENAME "Graphics/aicc.png":U
+     STRETCH-TO-FIT TRANSPARENT
+     SIZE 8.4 BY 1.91 TOOLTIP "AICC Link".
+
 DEFINE IMAGE boxes
      FILENAME "Graphics/advantzware_logo.jpg":U
-     SIZE 97 BY 20.48.
+     SIZE 98 BY 20.48.
 
 DEFINE IMAGE imageCompany
      FILENAME "Graphics/32x32/office_building.png":U TRANSPARENT
      SIZE 6.4 BY 1.52 TOOLTIP "Change Company/Location".
+
+DEFINE IMAGE imageLogo
+     FILENAME "Graphics/asiicon.ico":U TRANSPARENT
+     SIZE 7 BY 1.67 TOOLTIP "Advantzware Link".
 
 DEFINE IMAGE imageSettings
      FILENAME "Graphics/32x32/gearwheels.ico":U TRANSPARENT
@@ -231,14 +244,22 @@ DEFINE IMAGE menu-image
      FILENAME "Graphics/logo1.bmp":U CONVERT-3D-COLORS
      SIZE 95 BY 4.52.
 
-DEFINE RECTANGLE linkRect
-     EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
-     SIZE 27 BY 1.19
-     BGCOLOR 1 FGCOLOR 15 .
+DEFINE IMAGE tappiLogo
+     FILENAME "Graphics/tappi-logo.jpg":U
+     STRETCH-TO-FIT TRANSPARENT
+     SIZE 8.4 BY 1.91 TOOLTIP "TAPPI Link".
+
+DEFINE IMAGE zohoHelp
+     FILENAME "Graphics/32x32/question.png":U TRANSPARENT
+     SIZE 7 BY 1.67 TOOLTIP "Advantzware Help Tickets".
 
 DEFINE RECTANGLE RECT-10
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
      SIZE 97 BY 5.
+
+DEFINE RECTANGLE RECT-11
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 10 BY 8.81.
 
 DEFINE RECTANGLE RECT-2
      EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
@@ -252,7 +273,7 @@ DEFINE RECTANGLE RECT-5
 
 DEFINE RECTANGLE RECT-6
      EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
-     SIZE 38 BY 1.19
+     SIZE 39 BY 1.19
      BGCOLOR 15 .
 
 DEFINE RECTANGLE RECT-7
@@ -277,8 +298,7 @@ DEFINE FRAME FRAME-USER
      company_name AT ROW 1.71 COL 13 COLON-ALIGNED NO-LABEL
      loc_loc AT ROW 1.71 COL 76 COLON-ALIGNED NO-LABEL
      users_user_id AT ROW 1.71 COL 117 COLON-ALIGNED NO-LABEL
-     Mneumonic AT ROW 1.71 COL 140 COLON-ALIGNED NO-LABEL WIDGET-ID 2
-     svLink AT ROW 4.1 COL 15 NO-LABEL WIDGET-ID 34
+     Mneumonic AT ROW 1.71 COL 141 COLON-ALIGNED NO-LABEL WIDGET-ID 2
      "User ID:" VIEW-AS TEXT
           SIZE 8 BY .62 AT ROW 1.71 COL 110
      "Company:" VIEW-AS TEXT
@@ -288,15 +308,19 @@ DEFINE FRAME FRAME-USER
      boxes AT ROW 8.86 COL 52
      menu-image AT ROW 3.86 COL 53
      RECT-2 AT ROW 1 COL 1
-     linkRect AT ROW 3.86 COL 13 WIDGET-ID 36
      RECT-5 AT ROW 1.48 COL 3 WIDGET-ID 38
      RECT-6 AT ROW 1.48 COL 101 WIDGET-ID 40
      RECT-7 AT ROW 1.48 COL 60 WIDGET-ID 42
-     RECT-8 AT ROW 1.48 COL 140 WIDGET-ID 44
+     RECT-8 AT ROW 1.48 COL 141 WIDGET-ID 44
      RECT-9 AT ROW 3.29 COL 1 WIDGET-ID 46
      RECT-10 AT ROW 3.62 COL 52 WIDGET-ID 48
      imageSettings AT ROW 1.24 COL 152 WIDGET-ID 52
      imageCompany AT ROW 1.24 COL 52 WIDGET-ID 54
+     imageLogo AT ROW 3.86 COL 152 WIDGET-ID 56
+     RECT-11 AT ROW 3.62 COL 150 WIDGET-ID 58
+     aiccLogo AT ROW 7.91 COL 151 WIDGET-ID 60
+     tappiLogo AT ROW 10.05 COL 151 WIDGET-ID 62
+     zohoHelp AT ROW 5.76 COL 152 WIDGET-ID 64
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
@@ -364,11 +388,13 @@ ASSIGN
                 "Change Company/Location".
 
 ASSIGN 
+       imageLogo:PRIVATE-DATA IN FRAME FRAME-USER     = 
+                "Advantzware Link".
+
+ASSIGN 
        imageSettings:PRIVATE-DATA IN FRAME FRAME-USER     = 
                 "Settings".
 
-/* SETTINGS FOR RECTANGLE linkRect IN FRAME FRAME-USER
-   NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN loc_loc IN FRAME FRAME-USER
    NO-ENABLE                                                            */
 /* SETTINGS FOR IMAGE menu-image IN FRAME FRAME-USER
@@ -376,6 +402,8 @@ ASSIGN
 /* SETTINGS FOR FILL-IN Mneumonic IN FRAME FRAME-USER
    NO-ENABLE                                                            */
 /* SETTINGS FOR RECTANGLE RECT-10 IN FRAME FRAME-USER
+   NO-ENABLE                                                            */
+/* SETTINGS FOR RECTANGLE RECT-11 IN FRAME FRAME-USER
    NO-ENABLE                                                            */
 /* SETTINGS FOR RECTANGLE RECT-2 IN FRAME FRAME-USER
    NO-ENABLE                                                            */
@@ -389,11 +417,6 @@ ASSIGN
    NO-ENABLE                                                            */
 /* SETTINGS FOR RECTANGLE RECT-9 IN FRAME FRAME-USER
    NO-ENABLE                                                            */
-/* SETTINGS FOR FILL-IN svLink IN FRAME FRAME-USER
-   ALIGN-L                                                              */
-ASSIGN 
-       svLink:READ-ONLY IN FRAME FRAME-USER        = TRUE.
-
 /* SETTINGS FOR FILL-IN users_user_id IN FRAME FRAME-USER
    NO-ENABLE                                                            */
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(MAINMENU)
@@ -439,11 +462,33 @@ DO:
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME aiccLogo
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL aiccLogo MAINMENU
+ON MOUSE-SELECT-CLICK OF aiccLogo IN FRAME FRAME-USER
+DO:
+    OS-COMMAND NO-WAIT START VALUE(cAICCLink).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME imageCompany
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL imageCompany MAINMENU
 ON MOUSE-SELECT-CLICK OF imageCompany IN FRAME FRAME-USER
 DO:
     RUN custom/comp_loc.w.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME imageLogo
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL imageLogo MAINMENU
+ON MOUSE-SELECT-CLICK OF imageLogo IN FRAME FRAME-USER
+DO:
+    OS-COMMAND NO-WAIT START VALUE(cASILink).
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -473,11 +518,22 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME svLink
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svLink MAINMENU
-ON LEFT-MOUSE-CLICK OF svLink IN FRAME FRAME-USER
+&Scoped-define SELF-NAME tappiLogo
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tappiLogo MAINMENU
+ON MOUSE-SELECT-CLICK OF tappiLogo IN FRAME FRAME-USER
 DO:
-    OS-COMMAND NO-WAIT START VALUE(svLink).
+    OS-COMMAND NO-WAIT START VALUE(cTAPPILink).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME zohoHelp
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL zohoHelp MAINMENU
+ON MOUSE-SELECT-CLICK OF zohoHelp IN FRAME FRAME-USER
+DO:
+    OS-COMMAND NO-WAIT START VALUE(cZoHoLink).
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -507,7 +563,7 @@ ON WINDOW-CLOSE OF {&WINDOW-NAME}
 DO:  
     closeMenu = YES.
     IF USERID("ASI") NE "Nosweat" THEN
-        MESSAGE 'Exit AdvantzWare?' VIEW-AS ALERT-BOX
+        MESSAGE 'Exit Advantzware?' VIEW-AS ALERT-BOX
             QUESTION BUTTONS YES-NO UPDATE closeMenu.
     IF NOT closeMenu THEN RETURN NO-APPLY.        
     RUN system/userLogOut.p.        
@@ -593,9 +649,9 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY company_name loc_loc users_user_id Mneumonic svLink 
+  DISPLAY company_name loc_loc users_user_id Mneumonic 
       WITH FRAME FRAME-USER IN WINDOW MAINMENU.
-  ENABLE imageSettings imageCompany svLink 
+  ENABLE imageSettings imageCompany imageLogo aiccLogo tappiLogo zohoHelp 
       WITH FRAME FRAME-USER IN WINDOW MAINMENU.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-USER}
   VIEW MAINMENU.
@@ -1047,17 +1103,13 @@ PROCEDURE pGetMenu :
     ASSIGN
         dMaxWindow = IF {&maxWindow} GE {&minWindowHeight} THEN {&maxWindow}
                      ELSE {&minWindowHeight}
-        {&WINDOW-NAME}:COLUMN = 3
-        {&WINDOW-NAME}:ROW = 1.5
+        {&WINDOW-NAME}:COLUMN = 1
+        {&WINDOW-NAME}:ROW = 1
         {&WINDOW-NAME}:VIRTUAL-HEIGHT = dMaxWindow
         {&WINDOW-NAME}:HEIGHT = dMaxWindow
         {&WINDOW-NAME}:MAX-HEIGHT = dMaxWindow
         FRAME {&FRAME-NAME}:VIRTUAL-HEIGHT = dMaxWindow
         FRAME {&FRAME-NAME}:HEIGHT = dMaxWindow
-        linkRect:ROW = {&WINDOW-NAME}:HEIGHT - .43
-        linkRect:COL = {&WINDOW-NAME}:WIDTH - 27
-        svLink:ROW = {&WINDOW-NAME}:HEIGHT - .19
-        svLink:COL = {&WINDOW-NAME}:WIDTH - 25
         iObjectCount = 0
         .
     RUN pCreateMenuObjects ("file").
