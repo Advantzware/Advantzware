@@ -311,8 +311,9 @@ OUTPUT stream sOutput close.
  
 iPos = r-index(ipcOutPath, "\").
 cOutFolder = SUBSTRING(ipcOutPath, 1, iPos - 1).
-
-OS-COPY value(ipcOutPath) VALUE(cOutFolder + "\Send").
+FILE-INFO:FILE-NAME = ipcOutPath.
+IF FILE-INFO:FILE-SIZE GT 0 THEN 
+  OS-COPY value(ipcOutPath) VALUE(cOutFolder + "\Send").
 OS-DELETE VALUE(ipcOutPath).
 OS-DELETE VALUE(ipcInPath). 
  
