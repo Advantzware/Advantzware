@@ -3162,9 +3162,11 @@ PROCEDURE local-assign-record :
 
   RUN one-eb-on-ef (ROWID(ef), OUTPUT ll-one-eb-on-ef).
 
-  IF ll-one-eb-on-ef AND ll-blank-size-changed THEN DO:
-    MESSAGE "Do you wish to reset layout screen?"
-        VIEW-AS ALERT-BOX BUTTON YES-NO UPDATE ll-ans2 AS LOG.
+  IF ll-one-eb-on-ef AND ll-blank-size-changed AND est.metric THEN DO:
+      
+          MESSAGE "Do you wish to reset layout screen?"
+              VIEW-AS ALERT-BOX BUTTON YES-NO UPDATE ll-ans2 AS LOG.
+     
 
     ef.lsh-lock = NO.    
     IF ll-ans2 THEN RUN update-sheet.    
@@ -3185,11 +3187,13 @@ PROCEDURE local-assign-record :
     FIND CURRENT b-est NO-LOCK.
   END.
 
-  IF ll-blank-size-changed                       OR
-     (cestyle-log AND eb.style NE lv-prev-style) THEN DO:
+  IF ll-blank-size-changed OR (cestyle-log AND eb.style NE lv-prev-style)
+         THEN DO: 
     ll-ans2 = NO.
+    IF est.metric THEN DO:
     MESSAGE "Do you wish to reset box design?"
         VIEW-AS ALERT-BOX BUTTON YES-NO UPDATE ll-ans2.
+    END.
     IF ll-ans2 THEN
        lv-box-des = "B".
     ELSE
@@ -3234,9 +3238,11 @@ PROCEDURE local-assign-record :
           
             IF  v-l-array[v-count] NE v-dec OR
                v-w-array[v-count] NE v-dec2  THEN
-               DO:  
+               DO:
+                IF est.metric THEN DO: 
                   MESSAGE "Do you wish to reset box design?"
                      VIEW-AS ALERT-BOX BUTTON YES-NO UPDATE ll-ans2.
+                END.
 
                   IF ll-ans2 THEN
                      lv-box-des = "B".
