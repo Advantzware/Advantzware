@@ -61,7 +61,7 @@
            v-rec-qty = v-rec-qty + ld.
         end.
 
-        if v-rec-qty gt po-ordl.cons-qty * (1 + (po-ord.over-pct / 100)) THEN
+        if v-rec-qty gt po-ordl.cons-qty * (1 + (po-ordl.over-pct / 100)) THEN
         do:          
            message "The PO qty + overrun has been exceeded. Do you want to re-enter?"
                   VIEW-AS ALERT-BOX WARNING BUTTON YES-NO UPDATE ll-ans AS LOG.
@@ -70,7 +70,7 @@
                RETURN NO-APPLY.
            END.          
         end.
-        ELSE IF rmunderover-cha EQ "UnderRuns and OverRun" AND v-rec-qty LT po-ordl.cons-qty - (po-ordl.cons-qty * po-ord.under-pct / 100) THEN
+        ELSE IF rmunderover-cha EQ "UnderRuns and OverRun" AND v-rec-qty LT po-ordl.cons-qty - (po-ordl.cons-qty * po-ordl.under-pct / 100) THEN
         DO:
            MESSAGE "The PO qty is less than the underrun. Do you want to re-enter?"
               VIEW-AS ALERT-BOX WARNING BUTTON YES-NO UPDATE ll-ans2 AS LOG.
