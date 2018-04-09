@@ -3045,6 +3045,7 @@ PROCEDURE create-report-record-1 :
                   AND sys-ctrl-ship.ship-id = "" NO-LOCK NO-ERROR.
      IF AVAIL sys-ctrl-shipto AND sys-ctrl-shipto.log-fld THEN v-reltype = sys-ctrl-shipto.char-fld.
      ELSE IF AVAIL sys-ctrl AND sys-ctrl.log-fld THEN v-reltype = sys-ctrl.char-fld.
+     ELSE v-reltype = "B" .
      IF v-relType <> "" THEN DO:
           IF oe-rel.s-code EQ '' THEN DO:
            FIND bf-oe-rel WHERE ROWID(bf-oe-rel) EQ ROWID(oe-rel)
