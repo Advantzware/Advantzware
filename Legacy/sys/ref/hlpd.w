@@ -55,7 +55,7 @@ DEF VAR tmp-dir AS CHAR NO-UNDO.
 &Scoped-define FRAME-NAME Dialog-Frame
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS ed-text Btn_OK btn-print btn-update 
+&Scoped-Define ENABLED-OBJECTS ed-text Btn_OK btn-print btn-update btDataDigger
 &Scoped-Define DISPLAYED-OBJECTS lv-help-title lv-program lv-frame-name ~
 ed-text 
 
@@ -70,8 +70,21 @@ ed-text
 /* ***********************  Control Definitions  ********************** */
 
 /* Define a dialog box                                                  */
+/* Menu Definitions                                                     */
+DEFINE MENU POPUP-MENU-btDataDigger 
+       MENU-ITEM m_ProTools2    LABEL "ProTools"      
+       MENU-ITEM m_Program_Stack LABEL "Program Stack" 
+       MENU-ITEM m_Trans        LABEL "Transactions and Locks Window".
+
+DEFINE MENU POPUP-MENU-lv-program 
+       MENU-ITEM m_ProTools     LABEL "ProTools"      .
+
 
 /* Definitions of the field level widgets                               */
+DEFINE BUTTON btDataDigger 
+     LABEL "Admin" 
+     SIZE 11 BY 1.14.
+
 DEFINE BUTTON btn-update 
      LABEL "Update Help" 
      SIZE 18 BY 1.14.
@@ -114,7 +127,8 @@ DEFINE FRAME Dialog-Frame
      Btn_OK AT ROW 22.91 COL 25
      btn-print AT ROW 22.91 COL 55
      btn-update AT ROW 22.91 COL 78
-     SPACE(24.59) SKIP(0.22)
+     btDataDigger AT ROW 22.91 COL 105 WIDGET-ID 2
+     /*SPACE(24.59) SKIP(0.22)*/
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
          TITLE "Help Information".
@@ -140,6 +154,9 @@ DEFINE FRAME Dialog-Frame
 ASSIGN 
        FRAME Dialog-Frame:SCROLLABLE       = FALSE
        FRAME Dialog-Frame:HIDDEN           = TRUE.
+
+ASSIGN 
+       btDataDigger:POPUP-MENU IN FRAME Dialog-Frame       = MENU POPUP-MENU-btDataDigger:HANDLE.
 
 ASSIGN 
        ed-text:RETURN-INSERTED IN FRAME Dialog-Frame  = TRUE
@@ -178,39 +195,35 @@ DO:
     /* need security check */
     def var lv-password as cha no-undo.
     DEF VAR op-ed-text AS cha NO-UNDO.
-  /*  
-    message "Please Enter Password : " update lv-password.
-    if lv-password <> "yorkie" then do:
-       message "Security Error.  Contact System Administrator!" view-as alert-box error.
-       return .
-    end.
-  */  
+    DEFINE VARIABLE hPgmSecurity AS HANDLE NO-UNDO.
+    DEFINE VARIABLE lResult AS LOG NO-UNDO.
 
     ASSIGN op-ed-text = ed-text.
 
+    /* need security check */
+    RUN "system/PgmMstrSecur.p" PERSISTENT SET hPgmSecurity.
+    RUN epCanAccess IN hPgmSecurity ("sys/ref/hlp.w", "Access1", OUTPUT lResult).
+    DELETE OBJECT hPgmSecurity.
     
-    run sys/ref/hlpupd.w (ip-field,ip-table,ip-db,ip-frame,ip-language,OUTPUT op-ed-text).
-/* === re-display    ==========*/
-  /*find first asihlp.hlp-head where hlp-head.fld-name = ip-field and
-                                 hlp-head.fil-name = ip-table
-                                 no-lock no-error.
-  if not avail hlp-head then do:
-     find first hlp-head where hlp-head.fld-name = ip-field NO-LOCK NO-ERROR.     
-     IF NOT AVAIL hlp-head THEN
-        find first hlp-head where hlp-head.fld-name matches ("*" +  ip-frame + "*")  no-lock no-error.
-     if avail hlp-head then do:
-        ed-text = hlp-head.help-txt.
-        display ed-text with frame {&frame-name}.   
-     end.  
-  end.
-  else do:
-        ed-text = hlp-head.help-txt.
-        display ed-text with frame {&frame-name}.   
-  end.*/
+    /* If not automatically cleared by security level, ask for password */
+    IF lResult THEN DO:
+        run sys/ref/hlpupd.w (ip-field,ip-table,ip-db,ip-frame,ip-language,OUTPUT op-ed-text).
+    END.
 
         ed-text = op-ed-text.
         display ed-text with frame {&frame-name}.
 
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME btDataDigger
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btDataDigger Dialog-Frame
+ON CHOOSE OF btDataDigger IN FRAME Dialog-Frame /* Admin */
+DO:
+  MESSAGE "Datadigger is replaced with the query tool on the advantzware menu."
+  VIEW-AS ALERT-BOX.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -425,6 +438,7 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE enable_UI Dialog-Frame  _DEFAULT-ENABLE
 PROCEDURE enable_UI :
 /*------------------------------------------------------------------------------
@@ -438,7 +452,7 @@ PROCEDURE enable_UI :
 ------------------------------------------------------------------------------*/
   DISPLAY lv-help-title lv-program lv-frame-name ed-text 
       WITH FRAME Dialog-Frame.
-  ENABLE ed-text Btn_OK btn-print btn-update 
+  ENABLE ed-text Btn_OK btn-print btn-update btDataDigger 
       WITH FRAME Dialog-Frame.
   VIEW FRAME Dialog-Frame.
   {&OPEN-BROWSERS-IN-QUERY-Dialog-Frame}

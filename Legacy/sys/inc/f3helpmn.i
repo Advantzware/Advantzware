@@ -23,5 +23,5 @@
            ls-prog-name
            view-as alert-box.
 */                  
-   run sys/ref/hlp.w (focus:name, frame-file, frame-db,ls-prog-name, "English") .
+   run sys/ref/hlpd.w (focus:name, frame-file, frame-db,ls-prog-name, "English") .
    
