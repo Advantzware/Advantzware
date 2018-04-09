@@ -523,14 +523,14 @@ PROCEDURE pSave :
     
     FOR EACH bttTable:
         FIND FIRST AuditTbl EXCLUSIVE-LOCK
-             WHERE AuditTbl.AuditTable EQ ttTable.auditTable
+             WHERE AuditTbl.AuditTable EQ bttTable.auditTable
              NO-ERROR.
         IF NOT AVAILABLE AuditTbl THEN NEXT.
         ASSIGN
-            AuditTbl.AuditCreate = ttTable.audit[1]
-            AuditTbl.AuditDelete = ttTable.audit[2]
-            AuditTbl.AuditUpdate = ttTable.audit[3]
-            AuditTbl.AuditStack = ttTable.audit[4]
+            AuditTbl.AuditCreate = bttTable.audit[1]
+            AuditTbl.AuditDelete = bttTable.audit[2]
+            AuditTbl.AuditUpdate = bttTable.audit[3]
+            AuditTbl.AuditStack  = bttTable.audit[4]
             .
         FIND CURRENT AuditTbl NO-LOCK.
     END. /* each btttable */
