@@ -99,19 +99,14 @@
                 v-ext = v-qty-onh * oe-ordl.price /
                         (if avail uom then uom.mult else 1000).
               end.
-              /*FIND  oe-rel WHERE oe-rel.company EQ cocode 
-                           AND oe-rel.ord-no  EQ oe-ordl.ord-no 
-                           AND oe-rel.i-no    EQ oe-ordl.i-no 
-                           AND oe-rel.line    EQ oe-ordl.LINE NO-LOCK NO-ERROR.
-               ASSIGN cCust-lot = IF AVAIL oe-rel THEN STRING(oe-rel.lot-no,"x(15)") ELSE "".*/
               ASSIGN cCust-lot   = "" .
               FOR EACH oe-rel NO-LOCK WHERE oe-rel.company EQ oe-ordl.company
                    AND oe-rel.ord-no EQ oe-ordl.ord-no
                    AND oe-rel.i-no EQ oe-ordl.i-no 
-                   AND oe-rel.LINE EQ oe-ordl.LINE 
-                   AND oe-rel.link-no EQ 0 :
+                   AND oe-rel.LINE EQ oe-ordl.LINE :
                         IF oe-rel.lot-no NE "" AND cCust-lot EQ "" THEN
                            cCust-lot  =  string(oe-rel.lot-no,"x(15)") . 
+                        
               END.
   
         IF tb_excel THEN  
@@ -365,16 +360,12 @@
                        FOR EACH oe-rel NO-LOCK WHERE oe-rel.company EQ oe-ordl.company
                          AND oe-rel.ord-no EQ oe-ordl.ord-no
                          AND oe-rel.i-no EQ oe-ordl.i-no 
-                         AND oe-rel.LINE EQ oe-ordl.LINE 
-                         AND oe-rel.link-no EQ 0 :
+                         AND oe-rel.LINE EQ oe-ordl.LINE
+                         :
                           IF oe-rel.lot-no NE "" AND cCust-lot EQ "" THEN
                            cCust-lot  =  string(oe-rel.lot-no,"x(15)") . 
-                     END.
-                    /* FIND  oe-rel WHERE oe-rel.company EQ cocode 
-                           AND oe-rel.ord-no  EQ oe-ordl.ord-no 
-                           AND oe-rel.i-no    EQ oe-ordl.i-no 
-                           AND oe-rel.line    EQ oe-ordl.LINE NO-LOCK NO-ERROR.
-               ASSIGN cCust-lot = IF AVAIL oe-rel THEN STRING(oe-rel.lot-no,"x(15)") ELSE "".*/
+                          
+                     END.                   
 
 
         IF tb_excel THEN  
