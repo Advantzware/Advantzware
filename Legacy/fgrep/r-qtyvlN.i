@@ -1,5 +1,6 @@
 DEFINE VARIABLE iCommited AS INTEGER.
 DEFINE VARIABLE cLotNum AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cCustLotNum AS CHARACTER NO-UNDO.
 EMPTY TEMP-TABLE tt-cust.
 
 FOR EACH cust
@@ -227,15 +228,17 @@ FOR EACH tt-cust,
                          ASSIGN v-sell-price = itemfg.sell-price .
 
                      ASSIGN iCommited = 0
-                           /* cLotNum   = "" */.
+                            cCustLotNum   = "" .
                      FOR EACH oe-rel NO-LOCK WHERE oe-rel.company EQ oe-ordl.company
                          AND oe-rel.ord-no EQ oe-ordl.ord-no
                          AND oe-rel.i-no EQ oe-ordl.i-no 
-                         AND oe-rel.LINE EQ oe-ordl.LINE 
-                         AND oe-rel.link-no EQ 0 :
+                         AND oe-rel.LINE EQ oe-ordl.LINE :
+
+                         IF oe-rel.link-no EQ 0 THEN
                          iCommited = iCommited + oe-rel.tot-qty .
-                       /*  IF oe-rel.lot-no NE "" AND cLotNum EQ "" THEN
-                           cLotNum  =  string(oe-rel.lot-no,"x(15)") . */
+                        
+                         IF oe-rel.lot-no NE "" AND cCustLotNum EQ "" THEN
+                           cCustLotNum  =  string(oe-rel.lot-no,"x(15)") . 
                      END.
                        
 
@@ -261,7 +264,8 @@ FOR EACH tt-cust,
                           WHEN "ttl-val"    THEN cVarValue = STRING(v-ext-job,"->>>,>>>,>>9.99") .
                           WHEN "commtd"     THEN cVarValue = STRING(iCommited,"->>,>>>,>>9") .  
                           WHEN "qty-case"   THEN cVarValue = STRING(itemfg.case-count,"->>,>>9") . 
-                          WHEN "cust-lot"   THEN cVarValue = cLotNum . 
+                          WHEN "fg-lot"   THEN cVarValue = cLotNum .
+                          WHEN "cust-lot"   THEN cVarValue = cCustLotNum .
 
                      END CASE.
                        
@@ -332,7 +336,8 @@ FOR EACH tt-cust,
                           WHEN "ttl-val"    THEN cVarValue = STRING(v-tot-ext,"->>>,>>>,>>9.99") .
                           WHEN "commtd"     THEN cVarValue = "" .  
                           WHEN "qty-case"   THEN cVarValue = "" .
-                          WHEN "cust-lot"   THEN cVarValue = "" . 
+                          WHEN "FG-lot"   THEN cVarValue = "" . 
+                          WHEN "cust-lot"   THEN cVarValue = "" .
                      END CASE.
                        
                      cExcelVarValue = cVarValue.
@@ -370,6 +375,7 @@ FOR EACH tt-cust,
                           WHEN "ttl-val"    THEN cVarValue = STRING(v-grand-tot-ext,"->>>,>>>,>>9.99") . 
                           WHEN "commtd"     THEN cVarValue = "" .  
                           WHEN "qty-case"   THEN cVarValue = "" .
+                          WHEN "FG-lot"   THEN cVarValue = "" . 
                           WHEN "cust-lot"   THEN cVarValue = "" . 
                      END CASE.
                        

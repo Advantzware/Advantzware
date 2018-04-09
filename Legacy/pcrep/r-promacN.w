@@ -62,13 +62,13 @@ DEF VAR cTextListToDefault AS cha NO-UNDO.
 ASSIGN cTextListToSelect = "M Code,FG Item,Job #,Cust#,MR Std,MR Acl,MR Eff%,RUN Std,RUN Acl," +
                            "RUN Eff%,MR&RUN Std,MR&RUN Acl,MR&RUN Eff%,D/T Acl,D/T Eff%,Acl Qty,Exptd Qty,MR-C,RUNC," +
                            "Total Machine Hours,Total Labor Hours,Pieces per Hour,MSF,MSF per Hour,Number On," +
-                           "Kicks per Hour,Pieces per Man Hour,MR Waste,Run Waste,Total Waste,% Waste,Date" 
+                           "Kicks per Hour,Pieces per Man Hour,MR Waste,Run Waste,Total Waste,% Waste,Date,User ID" 
        cFieldListToSelect = "m-cod,ino,job,cust-no,mr-stn,mr-acl,mr-eff,run-stnd,run-acl," +
                             "run-eff,mr&-stnd,mr&-acl,mr&-eff,dt-acl,dt-eff,acl-qty,exp-qty,mr-comp,run-comp," +
                             "ttl-mch-hrs,ttl-lbr-hrs,pic-per-hrs,msf,msf-per-hrs,nbr-on," +
-                            "kik-per-hrs,pic-per-man-hrs,mr-wst,run-wst,ttl-wst,%wst,date"
-       cFieldLength = "6,15,10,8,8,8,8,8,8," + "8,10,10,11,8,8,11,11,4,4," + "19,17,15,9,12,10," + "14,19,9,9,11,9,10"
-       cFieldType = "c,c,c,c,i,i,i,i,i," + "i,i,i,i,i,i,i,i,c,c," + "i,i,i,i,i,i," + "i,i,i,i,i,i,c"
+                            "kik-per-hrs,pic-per-man-hrs,mr-wst,run-wst,ttl-wst,%wst,date,user-id"
+       cFieldLength = "6,15,10,8,8,8,8,8,8," + "8,10,10,11,8,8,11,11,4,4," + "19,17,15,9,12,10," + "14,19,9,9,11,9,10,10"
+       cFieldType = "c,c,c,c,i,i,i,i,i," + "i,i,i,i,i,i,i,i,c,c," + "i,i,i,i,i,i," + "i,i,i,i,i,i,c,c"
     .
 
 {sys/inc/ttRptSel.i}
@@ -1360,6 +1360,7 @@ DEF VAR v-runcomp AS CHAR NO-UNDO .
 DEF VAR v-mrwaste AS DEC NO-UNDO .
 DEF VAR v-runwaste AS DEC NO-UNDO .
 DEFINE VARIABLE dt-date AS DATE NO-UNDO .
+DEFINE VARIABLE cUserId AS CHARACTER NO-UNDO .
 
 DEF VAR cDisplay AS cha NO-UNDO.
 DEF VAR cExcelDisplay AS cha NO-UNDO.
@@ -1888,7 +1889,9 @@ END.
      ASSIGN v-runwaste = 0 
             v-mrwaste = 0 
             v-act-lab-cost = 0
-            dt-date = ? . 
+            dt-date = ? 
+            cUserId = "".
+            
      FOR EACH bf-mch-act WHERE
            bf-mch-act.company EQ cocode AND
            bf-mch-act.dept EQ tt-mch-srt.dept AND
@@ -1914,6 +1917,7 @@ END.
 
             v-act-lab-cost = v-act-lab-cost + (bf-mch-act.hours * bf-mch-act.crew) .
             dt-date = bf-mch-act.op-date .
+            cUserId = IF AVAIL bf-mch-act THEN  bf-mch-act.USER-ID ELSE "".
 
      END. /* FOR EACH bf-mch-act W */
 
@@ -1991,6 +1995,7 @@ END.
                          WHEN "ttl-wst"           THEN cVarValue =  STRING(v-mrwaste + v-runwaste,"->,>>9.99") .
                          WHEN "%wst"              THEN cVarValue =  IF v-wst NE ? THEN STRING(v-wst,"->,>>9.99") ELSE "".
                          WHEN "date"              THEN cVarValue =  IF dt-date NE ? THEN STRING(dt-date) ELSE "".
+                         WHEN "user-id"           THEN cVarValue = IF cUserId NE "" THEN STRING(cUserId,"x(10)") ELSE "" .
                          
                     END CASE.
                       
@@ -2081,6 +2086,7 @@ END.
                          WHEN "ttl-wst"           THEN cVarValue =  "" .
                          WHEN "%wst"              THEN cVarValue =  "" .
                          WHEN "date"              THEN cVarValue =  "" .
+                         WHEN "user-id"           THEN cVarValue = "" .
                          
                     END CASE.
                       
@@ -2151,6 +2157,7 @@ END.
                          WHEN "ttl-wst"           THEN cVarValue =  "" .
                          WHEN "%wst"              THEN cVarValue =  "" .
                          WHEN "date"              THEN cVarValue =  "" .
+                         WHEN "user-id"           THEN cVarValue = "" .
                          
                     END CASE.
                       
