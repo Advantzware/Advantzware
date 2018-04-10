@@ -633,20 +633,6 @@ PROCEDURE post-enable :
       DISABLE sys-ctrl.log-fld WITH FRAME {&FRAME-NAME}.
 
   END.
-  IF sys-ctrl.NAME:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "SECURITY"  
-  THEN DO:
-       
-               RUN "system/PgmMstrSecur.p" PERSISTENT SET hPgmSecurity.
-               RUN epCanAccess IN hPgmSecurity ("viewers/sys-ctrl.w", "", OUTPUT lResult).
-               DELETE OBJECT hPgmSecurity.
-
-      IF lResult THEN
-          ENABLE  sys-ctrl.log-fld WITH FRAME {&FRAME-NAME}.
-      ELSE
-          DISABLE sys-ctrl.char-fld sys-ctrl.date-fld sys-ctrl.dec-fld sys-ctrl.int-fld 
-                  sys-ctrl.log-fld sys-ctrl.descrip sys-ctrl.module WITH FRAME {&FRAME-NAME}.
-
-  END.
 
 END PROCEDURE.
 
@@ -881,6 +867,23 @@ PROCEDURE valid-log-fld :
   {sys/ref/valid-log-fld.i}
 
   {methods/lValidateError.i NO}
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE get-sys-ctrl-value V-table-Win 
+PROCEDURE get-sys-ctrl-value :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEFINE OUTPUT PARAMETER opSysName AS CHARACTER NO-UNDO.
+    IF AVAIL sys-ctrl THEN
+        opSysName = sys-ctrl.NAME.
+    ELSE opSysName = "".
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
