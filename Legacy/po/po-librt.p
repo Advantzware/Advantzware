@@ -468,9 +468,7 @@ IF AVAILABLE cust AND liberty-log AND liberty-dir NE "" THEN
       
             /* PRICE PER MSF */
             v-ord-cst = po-ordl.cost.
-
-
-              
+             
             IF AVAILABLE b-ref1 THEN DO:
                 
                 IF b-ref1.val[3] GT 0 THEN DO: 
@@ -487,14 +485,14 @@ IF AVAILABLE cust AND liberty-log AND liberty-dir NE "" THEN
                           LEAVE.
                     END.
                     IF cDimensions EQ "" THEN 
-                        cDimensions = TRIM(STRING(po-ordl.s-wid, ">>>>.99")).
+                        cDimensions = TRIM(STRING({sys/inc/k16.i po-ordl.s-wid}, ">>>>.99")).
                 END.
                 ELSE IF b-ref1.val[2] GT 0 THEN 
                     cDimensions = TRIM(STRING(b-ref1.val[2], ">>>>.99")).
                 
                 /* If no dimensions, should just be the width */
                 IF cDimensions EQ "" THEN        
-                    cDimensions = TRIM(STRING(po-ordl.s-wid, ">>>>.99")).
+                    cDimensions = TRIM(STRING({sys/inc/k16.i po-ordl.s-wid}, ">>>>.99")).
                     
                 /* Formatted Scoring */    
                 IF b-ref1.val[2] GT 0 THEN 
@@ -514,22 +512,22 @@ IF AVAILABLE cust AND liberty-log AND liberty-dir NE "" THEN
                     
                 /* If no score should just be the width */    
                 IF cFormattedScore EQ "" THEN 
-                    cFormattedScore =  fFormScore(po-ordl.s-wid).
+                    cFormattedScore =  fFormScore({sys/inc/k16.i po-ordl.s-wid}).
                                     
             END.
             ELSE DO:
                 /* Formatted Dimensions */
                 IF ITEM.s-dep GT 0 THEN 
-                    cDimensions = TRIM(STRING(ITEM.s-len, ">>>>.99")) + " x " + TRIM(STRING(ITEM.s-wid, ">>>>.99")) + " x " + TRIM(STRING(ITEM.s-dep, ">>>>.99")).
+                    cDimensions = TRIM(STRING({sys/inc/k16.i ITEM.s-len}, ">>>>.99")) + " x " + TRIM(STRING({sys/inc/k16.i item.s-wid}, ">>>>.99")) + " x " + TRIM(STRING({sys/inc/k16.i item.s-dep}, ">>>>.99")).
                 ELSE
-                    cDimensions = TRIM(STRING(ITEM.s-wid, ">>>>.99")).
+                    cDimensions = TRIM(STRING({sys/inc/k16.i ITEM.s-wid}, ">>>>.99")).
                 IF ITEM.s-dep GT 0 THEN DO:
-                    cFormattedScore = fFormScore(ITEM.s-len) + fFormScore(ITEM.s-wid).
+                    cFormattedScore = fFormScore({sys/inc/k16.i ITEM.s-len}) + fFormScore({sys/inc/k16.i ITEM.s-wid}).
                     IF ITEM.s-dep GT 0 THEN 
-                        cFormattedScore =  cFormattedScore + fFormScore(ITEM.s-dep).
+                        cFormattedScore =  cFormattedScore + fFormScore({sys/inc/k16.i ITEM.s-dep}).
                 END.
                 ELSE
-                        cFormattedScore =  fFormScore(ITEM.s-wid).
+                        cFormattedScore =  fFormScore({sys/inc/k16.i ITEM.s-wid}).
             END.
             /* Trim last x off of the end */
             cFormattedScore = TRIM(TRIM(cFormattedScore), "x").
