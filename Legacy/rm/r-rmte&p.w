@@ -927,7 +927,12 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_job-no2 C-Win
 ON LEAVE OF begin_job-no2 IN FRAME FRAME-F
 DO:
-  assign {&self-name}.
+  /* assign {&self-name}.*/
+    DO WITH FRAME {&FRAME-NAME}:
+        IF length(begin_job-no2:SCREEN-VALUE) LT 3 THEN DO:
+            ASSIGN begin_job-no2:SCREEN-VALUE = "0" + SUBSTRING(begin_job-no2:SCREEN-VALUE,2,2).
+        END.
+    END.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -937,7 +942,12 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_job-no2 C-Win
 ON LEAVE OF end_job-no2 IN FRAME FRAME-F
 DO:
-  assign {&self-name}.
+  /*assign {&self-name}.*/
+    DO WITH FRAME {&FRAME-NAME}:
+        IF length(end_job-no2:SCREEN-VALUE) LT 3 THEN DO:
+            ASSIGN end_job-no2:SCREEN-VALUE = "0" + SUBSTRING(end_job-no2:SCREEN-VALUE,2,2).
+        END.
+    END.
 END.
 
 /* _UIB-CODE-BLOCK-END */
