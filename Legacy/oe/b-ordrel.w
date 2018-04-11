@@ -655,7 +655,7 @@ DO:
               END.
          END.
          WHEN "carrier" THEN DO:
-              RUN windows/l-carrie.w (g_company, oe-rel.spare-char-1, lw-focus:SCREEN-VALUE, OUTPUT char-val).
+              RUN windows/l-carrie.w (g_company, oe-rel.spare-char-1:SCREEN-VALUE, lw-focus:SCREEN-VALUE, OUTPUT char-val).
               IF char-val <> "" THEN lw-focus:SCREEN-VALUE = ENTRY(1,char-val).
               RETURN NO-APPLY.
          END.
