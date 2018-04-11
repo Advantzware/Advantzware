@@ -80,7 +80,9 @@ assign
  ar-invl.std-var-cost = v-cost[3]
  ar-invl.std-mat-cost = v-cost[4]
  ar-invl.loc          = IF AVAIL oe-boll THEN oe-boll.loc ELSE ""
- ar-invl.lot-no       = inv-line.lot-no.
+ ar-invl.lot-no       = inv-line.lot-no
+ ar-invl.e-num        = inv-line.e-num
+ .
 
  
 if ar-invl.ord-no eq 0 then ar-invl.s-pct[1] = 100. 

@@ -405,7 +405,8 @@ DO:
         city     = IF AVAILABLE EDShipto THEN EDShipto.City ELSE ""
         country  = IF AVAILABLE EDShipto THEN EDShipto.Country ELSE ""
         state  = IF AVAILABLE EDShipto THEN EDShipto.state ELSE ""
-        zip      = IF AVAILABLE EDShipto THEN EDShipto.Zip ELSE "".
+        zip      = IF AVAILABLE EDShipto THEN EDShipto.Zip ELSE ""
+        .
     ws_section = 24.    
     RUN write_segments.ip ("N1,006").
     RUN write_segments.ip ("N3,008").
@@ -422,39 +423,14 @@ ASSIGN
   purchase_order_number           = edivtran.cust-po
   purchase_order_date#            = edivtran.cust-po-date
   . 
+  
 ws_section = 30.
 ws_line = 0.
 FOR EACH edivline OF edivtran EXCLUSIVE
     WHERE edivline.qty-shipped <> 0
-    BY edivline.line:
+    BY INTEGER(edivline.cust-po-line) :
         
-  IF AVAILABLE edivtran AND edivtran.invoice-no GT "" AND edivline.item-no GT "" THEN DO:
-      FIND FIRST inv-line NO-LOCK 
-        WHERE inv-line.company EQ edivtran.company
-          AND inv-line.inv-no EQ INTEGER(edivtran.invoice-no)
-          AND inv-line.i-no   EQ edivline.item-no
-        NO-ERROR.
-      IF AVAILABLE inv-line THEN 
-        FIND FIRST oe-ordl NO-LOCK 
-          WHERE oe-ordl.company EQ inv-line.company
-            AND oe-ordl.ord-no  EQ inv-line.ord-no
-            AND oe-ordl.i-no    EQ inv-line.i-no
-          NO-ERROR.          
-      ELSE DO:
-          FIND FIRST ar-invl NO-LOCK  
-            WHERE ar-invl.company EQ edivtran.company
-              AND ar-invl.cust-no EQ edivtran.cust
-              AND ar-invl.inv-no  EQ INTEGER(edivtran.invoice-no)
-              AND ar-invl.i-no    EQ edivline.item-no
-            NO-ERROR.
-              IF AVAILABLE ar-invl THEN 
-              find first oe-ordl NO-LOCK 
-                  WHERE oe-ordl.company EQ ar-invl.company
-                    AND oe-ordl.ord-no  EQ ar-invl.ord-no 
-                    AND oe-ordl.i-no    EQ ar-invl.i-no 
-                  NO-ERROR.
-      END.
-  END.
+
   
   ASSIGN
     product_characteristic_code = "08"
@@ -468,13 +444,13 @@ FOR EACH edivline OF edivtran EXCLUSIVE
     unit_of_measure             = edivline.uom-code
     weight_unit_measure         = "LB"
     volume_unit_measure         = "CF"
-    second_product_type    = ""
-    second_description     = ""    
+    second_product_type         = ""
+    second_description          = ""    
     .
     
-    IF AVAILABLE oe-ordl THEN 
-      ws_line = oe-ordl.line.
-    ELSE 
+    IF INTEGER(edivline.cust-po-line) GT 0 THEN 
+      ws_line = INTEGER(edivline.cust-po-line).
+    ELSE
       ws_line = ws_line + 1.
     
     item_assigned_id            = STRING(ws_line)
@@ -501,18 +477,13 @@ FOR EACH edivline OF edivtran EXCLUSIVE
                product_id             = purchase_order_number
                .
                
-             IF purchase_order_number EQ "" AND AVAILABLE oe-ordl AND oe-ordl.po-no GT "" THEN 
-               purchase_order_number = oe-ordl.po-no.
-             ELSE 
-               IF purchase_order_number EQ "" AND AVAILABLE ar-invl AND ar-invl.po-no GT "" THEN 
-                   purchase_order_number = ar-invl.po-no.
                
              IF unit_of_measure EQ "M" THEN 
                ASSIGN
                   unit_of_measure = "EA"
                   unit_price = unit_price / 1000
                   .
-          END.
+        END.
   END CASE .
   RUN write_segments.ip (detail_segment_list).
 END.

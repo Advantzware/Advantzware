@@ -61,18 +61,18 @@ DEFINE QUERY external_tables FOR EDIVLine.
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-FIELDS EDIVLine.Line EDIVLine.Company ~
 EDIVLine.Partner EDIVLine.Invoice-no EDIVLine.Item-no EDIVLine.By-code ~
-EDIVLine.Description[1] EDIVLine.Seq EDIVLine.SF-Code ~
-EDIVLine.Description[2] EDIVLine.ship-stat EDIVLine.Uom-code ~
-EDIVLine.Cust-item-no EDIVLine.Price-basis EDIVLine.Size-desc ~
-EDIVLine.Color-desc EDIVLine.Cust-po-line EDIVLine.UPC EDIVLine.Pack-size ~
-EDIVLine.Product-type EDIVLine.Config-code EDIVLine.Qty-ord-orig ~
-EDIVLine.Unit-price EDIVLine.Item-disc-amount EDIVLine.Qty-shipped ~
-EDIVLine.Selling-price EDIVLine.Item-wght-each EDIVLine.Item-net ~
-EDIVLine.Size-qual[1] EDIVLine.Dimension[1] EDIVLine.Item-ctn-wght ~
-EDIVLine.Item-gross EDIVLine.Size-qual[2] EDIVLine.Dimension[2] ~
-EDIVLine.Size-qual[3] EDIVLine.Dimension[3] EDIVLine.Qty-var ~
-EDIVLine.Bo-flag EDIVLine.Item-ctn-cube EDIVLine.Item-each-cube ~
-EDIVLine.Special-svc-code EDIVLine.Taxable 
+EDIVLine.Description[1] EDIVLine.SF-Code EDIVLine.Description[2] ~
+EDIVLine.ship-stat EDIVLine.Uom-code EDIVLine.Cust-item-no ~
+EDIVLine.Price-basis EDIVLine.Size-desc EDIVLine.Color-desc ~
+EDIVLine.Cust-po-line EDIVLine.UPC EDIVLine.Pack-size EDIVLine.Product-type ~
+EDIVLine.Config-code EDIVLine.Qty-ord-orig EDIVLine.Unit-price ~
+EDIVLine.Item-disc-amount EDIVLine.Qty-shipped EDIVLine.Selling-price ~
+EDIVLine.Item-wght-each EDIVLine.Item-net EDIVLine.Size-qual[1] ~
+EDIVLine.Dimension[1] EDIVLine.Item-ctn-wght EDIVLine.Item-gross ~
+EDIVLine.Size-qual[2] EDIVLine.Dimension[2] EDIVLine.Size-qual[3] ~
+EDIVLine.Dimension[3] EDIVLine.Qty-var EDIVLine.Bo-flag ~
+EDIVLine.Item-ctn-cube EDIVLine.Item-each-cube EDIVLine.Special-svc-code ~
+EDIVLine.Taxable 
 &Scoped-define ENABLED-TABLES EDIVLine
 &Scoped-define FIRST-ENABLED-TABLE EDIVLine
 &Scoped-Define ENABLED-OBJECTS RECT-1 RECT-2 RECT-3 RECT-4 
@@ -433,6 +433,8 @@ ASSIGN
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN EDIVLine.Selling-price IN FRAME F-Main
    EXP-LABEL                                                            */
+/* SETTINGS FOR FILL-IN EDIVLine.Seq IN FRAME F-Main
+   NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN EDIVLine.ship-stat IN FRAME F-Main
    EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN EDIVLine.Size-desc IN FRAME F-Main
@@ -462,6 +464,30 @@ ASSIGN
 
  
 
+
+
+/* ************************  Control Triggers  ************************ */
+
+&Scoped-define SELF-NAME EDIVLine.Cust-po-line
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL EDIVLine.Cust-po-line V-table-Win
+ON LEAVE OF EDIVLine.Cust-po-line IN FRAME F-Main /* Cust Po line */
+DO:
+  DEFINE VARIABLE iIntVal AS INTEGER NO-UNDO.
+  IF edivline.cust-po-line:SCREEN-VALUE GT "" THEN DO:
+    iIntVal = INTEGER(cust-po-line:SCREEN-VALUE) NO-ERROR.
+    IF ERROR-STATUS:ERROR THEN DO:
+     MESSAGE "Po Line # must be an integer" VIEW-AS ALERT-BOX.
+     RETURN NO-APPLY.
+    END.
+      
+  END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&UNDEFINE SELF-NAME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK V-table-Win 
 
