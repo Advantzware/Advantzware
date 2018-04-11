@@ -364,13 +364,13 @@ THEN FRAME {&FRAME-NAME}:PARENT = ACTIVE-WINDOW.
 MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
-  
-
-/*  &scoped-define key-phrase {&fld-name-1} >= ip-cur-val  
+ 
+  &scoped-define key-phrase {&fld-name-1} >= integer(ip-cur-val)
+  &scoped-define sortby-phrase {&sortby-1}
   lv-search = ip-cur-val.
-*/  
+  
   RUN enable_UI.
-  {custom/lookpos.i &lookup-file = "cust" &lookup-field = "cust-no"}
+  /*{custom/lookpos.i &lookup-file = "cust" &lookup-field = "cust-no"}*/
   
   WAIT-FOR GO OF FRAME {&FRAME-NAME}.
 END.
