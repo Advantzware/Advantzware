@@ -902,21 +902,21 @@ PROCEDURE local-display-fields :
   DO WITH FRAME {&FRAME-NAME}:
     IF AVAIL ar-inv AND NOT ar-inv.f-bill THEN
       ar-inv.freight:SCREEN-VALUE = "".
-
+    IF AVAILABLE ar-inv THEN 
     FIND FIRST shipto NO-LOCK
         WHERE shipto.company EQ ar-inv.company
           AND shipto.cust-no EQ ar-inv.cust-no:SCREEN-VALUE
           AND shipto.ship-id EQ ar-inv.ship-id:SCREEN-VALUE
         NO-ERROR.
     IF AVAIL shipto THEN ship_name:SCREEN-VALUE = shipto.ship-name.
-
+    IF AVAILABLE ar-inv THEN 
     FIND FIRST currency NO-LOCK
         WHERE currency.company EQ ar-inv.company 
           AND currency.c-code  EQ ar-inv.curr-code[1]:SCREEN-VALUE
         NO-ERROR.
     IF AVAIL currency THEN
       ar-inv.ex-rate:SCREEN-VALUE = STRING(currency.ex-rate).
-    tbEdiInvoice:SCREEN-VALUE = (IF ar-inv.spare-int-1 = 1 THEN "YES" ELSE "NO").
+    tbEdiInvoice:SCREEN-VALUE = (IF AVAILABLE(ar-inv) AND ar-inv.spare-int-1 = 1 THEN "YES" ELSE "NO").
   END.
 
 END PROCEDURE.
