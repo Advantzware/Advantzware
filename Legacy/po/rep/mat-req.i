@@ -60,10 +60,19 @@ DEF VAR ll-no-po AS LOG NO-UNDO.
         {1}report.key-02 = job-mat.rm-i-no.
         
         if v-sort-by-size then do:
-          assign
-           {1}report.key-01 = string(job-mat.wid,"9999.9999") +
-                              string(job-mat.len,"9999.9999")
-           len-score        = "".
+          IF AVAIL ITEM AND ITEM.i-code EQ "R" THEN DO:
+              IF LOOKUP(ITEM.mat-type,"1,2,3,4,5,A,B,P,R") GT 0 THEN 
+                  ASSIGN  {1}report.key-01 = if item.r-wid ne 0 then STRING(ITEM.r-wid,"9999.9999") ELSE STRING(ITEM.s-wid,"9999.9999") +
+                                             string(ITEM.s-len,"9999.9999").
+                  ELSE 
+                      ASSIGN  {1}report.key-01 = STRING(ITEM.case-w,"9999.9999") +
+                                                  string(ITEM.case-l,"9999.9999").
+          END.
+          ELSE DO:
+             ASSIGN {1}report.key-01 = string(job-mat.wid,"9999.9999") +
+                              string(job-mat.len,"9999.9999").
+          END.
+          len-score        = "".
 
           release b-ref1.
           release b-ref2.
@@ -148,9 +157,19 @@ DEF VAR ll-no-po AS LOG NO-UNDO.
          {1}report.key-04 = string(po-ordl.line,"9999999999").
 
         if v-sort-by-size then do:
-          assign
-           {1}report.key-01 = string(po-ordl.s-wid,"9999.9999") +
-                              string(po-ordl.s-len,"9999.9999")
+          IF AVAIL ITEM AND ITEM.i-code EQ "R" THEN DO:
+              IF LOOKUP(ITEM.mat-type,"1,2,3,4,5,A,B,P,R") GT 0 THEN 
+                  ASSIGN  {1}report.key-01 = if item.r-wid ne 0 then STRING(ITEM.r-wid,"9999.9999") ELSE STRING(ITEM.s-wid,"9999.9999") +
+                                             string(ITEM.s-len,"9999.9999").
+                  ELSE 
+                      ASSIGN  {1}report.key-01 = STRING(ITEM.case-w,"9999.9999") +
+                                                  string(ITEM.case-l,"9999.9999").
+          END.
+          ELSE DO:
+             ASSIGN {1}report.key-01 = string(job-mat.wid,"9999.9999") +
+                              string(job-mat.len,"9999.9999").
+          END.
+
            len-score        = "".
                              
            run po/po-ordls.p (recid(po-ordl)). 
@@ -205,7 +224,20 @@ for each {1}report where {1}report.term-id eq v-term,
       assign
        v-uom    = job-mat.qty-uom
        v-qty[1] = v-qty[1] + job-mat.qty.
+      ASSIGN
+          v-len =  job-mat.len
+          v-wid =  job-mat.wid.
     end.
+    IF AVAIL ITEM AND ITEM.i-code EQ "R" THEN DO:
+        IF LOOKUP(ITEM.mat-type,"1,2,3,4,5,A,B,P,R") GT 0 THEN
+            ASSIGN
+            v-len = ITEM.s-len
+            v-wid = if item.r-wid ne 0 then ITEM.r-wid ELSE ITEM.s-wid.
+        ELSE 
+            ASSIGN
+            v-len = ITEM.case-l
+            v-wid = ITEM.case-w.
+     END.
 
     v-qty[4] = v-qty[1].
   end.
@@ -239,18 +271,16 @@ for each {1}report where {1}report.term-id eq v-term,
 
     if po-ordl.cons-uom ne v-uom then do:
       assign
-       v-len = po-ordl.s-len
-       v-wid = po-ordl.s-wid
        v-bwt = item.basis-w.
 
       if po-ordl.cons-qty ne 0 then
         run sys/ref/convquom.p(po-ordl.cons-uom, v-uom,
-                               v-bwt, v-len, v-wid, item.s-dep,
+                               v-bwt, po-ordl.s-len, po-ordl.s-wid, item.s-dep,
                                po-ordl.cons-qty, output v-qty[2]).
                                
       if po-ordl.t-rec-qty ne 0 then
         run sys/ref/convquom.p(po-ordl.cons-uom, v-uom,
-                               v-bwt, v-len, v-wid, item.s-dep,
+                               v-bwt, po-ordl.s-len, po-ordl.s-wid, item.s-dep,
                                po-ordl.t-rec-qty, output v-qty[3]).
     end.
 
