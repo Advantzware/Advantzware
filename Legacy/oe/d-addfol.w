@@ -104,7 +104,7 @@ DEFINE FRAME D-Dialog
      SPACE(0.59) SKIP(0.00)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
-         TITLE "Adding Option"
+         TITLE "Select Option"
          DEFAULT-BUTTON Btn_add CANCEL-BUTTON Btn_Cancel.
 
 
