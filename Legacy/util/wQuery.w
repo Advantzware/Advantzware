@@ -2934,8 +2934,10 @@ END.
 
 /* ***************************  Main Block  *************************** */
 
-RUN util/chk-mod.p ("ASI","wquery.") NO-ERROR.
-lContinue = NOT ERROR-STATUS:ERROR.
+RUN util/CheckModule.p ("ASI",
+                    "wquery", 
+                    YES, 
+                    OUTPUT lContinue).
 
 IF lContinue EQ NO THEN DO:
     APPLY "CLOSE":U TO THIS-PROCEDURE.
