@@ -621,6 +621,8 @@ DO:
   DEF VAR lValidQty AS LOG NO-UNDO.
 
   DO WITH FRAME {&FRAME-NAME}:
+    IF begin_job-no2:SCREEN-VALUE EQ "??" THEN
+    begin_job-no2:SCREEN-VALUE = "0".
     IF end_job-no2:SCREEN-VALUE EQ "??" THEN
     end_job-no2:SCREEN-VALUE = "99".
     ASSIGN {&DISPLAYED-OBJECTS}.    
