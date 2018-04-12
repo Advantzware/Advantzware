@@ -62,8 +62,8 @@ DEF VAR ll-no-po AS LOG NO-UNDO.
         if v-sort-by-size then do:
           IF AVAIL ITEM AND ITEM.i-code EQ "R" THEN DO:
               IF LOOKUP(ITEM.mat-type,"1,2,3,4,5,A,B,P,R") GT 0 THEN 
-                  ASSIGN  {1}report.key-01 = if item.r-wid ne 0 then STRING(ITEM.r-wid,"9999.9999") ELSE STRING(ITEM.s-wid,"9999.9999") +
-                                             string(ITEM.s-len,"9999.9999").
+                  ASSIGN  {1}report.key-01 = (if item.r-wid ne 0 then STRING(ITEM.r-wid,"9999.9999") ELSE STRING(ITEM.s-wid,"9999.9999")) +
+                                             string(job-mat.len,"9999.9999").
                   ELSE 
                       ASSIGN  {1}report.key-01 = STRING(ITEM.case-w,"9999.9999") +
                                                   string(ITEM.case-l,"9999.9999").
@@ -159,8 +159,8 @@ DEF VAR ll-no-po AS LOG NO-UNDO.
         if v-sort-by-size then do:
           IF AVAIL ITEM AND ITEM.i-code EQ "R" THEN DO:
               IF LOOKUP(ITEM.mat-type,"1,2,3,4,5,A,B,P,R") GT 0 THEN 
-                  ASSIGN  {1}report.key-01 = if item.r-wid ne 0 then STRING(ITEM.r-wid,"9999.9999") ELSE STRING(ITEM.s-wid,"9999.9999") +
-                                             string(ITEM.s-len,"9999.9999").
+                  ASSIGN  {1}report.key-01 = (if item.r-wid ne 0 then STRING(ITEM.r-wid,"9999.9999") ELSE STRING(ITEM.s-wid,"9999.9999")) +
+                                             string(job-mat.len,"9999.9999").
                   ELSE 
                       ASSIGN  {1}report.key-01 = STRING(ITEM.case-w,"9999.9999") +
                                                   string(ITEM.case-l,"9999.9999").
@@ -231,7 +231,6 @@ for each {1}report where {1}report.term-id eq v-term,
     IF AVAIL ITEM AND ITEM.i-code EQ "R" THEN DO:
         IF LOOKUP(ITEM.mat-type,"1,2,3,4,5,A,B,P,R") GT 0 THEN
             ASSIGN
-            v-len = ITEM.s-len
             v-wid = if item.r-wid ne 0 then ITEM.r-wid ELSE ITEM.s-wid.
         ELSE 
             ASSIGN
