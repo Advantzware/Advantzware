@@ -1064,7 +1064,17 @@ END PROCEDURE.
 PROCEDURE edi-050.ip:
     DEFINE INPUT PARAMETER pLine AS INTEGER NO-UNDO.
     DEFINE INPUT PARAMETER pItem AS CHARACTER NO-UNDO.   /* i-No */
+    DEFINE VARIABLE iArLineNum AS INTEGER NO-UNDO.
 
+    IF AVAILABLE ar-invl THEN 
+        FIND FIRST oe-ordl NO-LOCK 
+            WHERE oe-ordl.company EQ ar-invl.company
+            AND oe-ordl.ord-no  EQ ar-invl.ord-no 
+            AND oe-ordl.i-no    EQ ar-invl.i-no 
+            NO-ERROR.
+    IF AVAILABLE oe-ordl THEN 
+      iArLineNum = (IF oe-ordl.e-num GT 0 THEN oe-ordl.e-num ELSE oe-ordl.line).
+    
     FIND edivline
         WHERE edivline.partner      = edivtran.partner
         AND edivline.seq          = edivtran.seq
@@ -1110,7 +1120,7 @@ PROCEDURE edi-050.ip:
                                  IF vcCustpoLine > "" THEN vcCustPoLine ELSE
                                  IF AVAILABLE edpoline THEN STRING(edpoline.line) ELSE
                                  IF AVAILABLE inv-line THEN STRING(IF inv-line.e-num GT 0 THEN inv-line.e-num ELSE inv-line.line) ELSE
-                                 IF AVAILABLE ar-invl THEN  STRING(IF ar-invl.e-num GT 0 THEN ar-invl.e-num ELSE ar-invl.line)                                
+                                 IF AVAILABLE ar-invl THEN  STRING(iArLineNum)                                
                                  ELSE STRING(pLine))
                                  .
     
