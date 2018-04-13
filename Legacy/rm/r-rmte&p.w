@@ -2,7 +2,6 @@
 &ANALYZE-RESUME
 &Scoped-define WINDOW-NAME C-Win
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS C-Win 
-
 /*------------------------------------------------------------------------
 
   File: r-rmte&p.w
@@ -425,10 +424,10 @@ DEFINE FRAME FRAME-F
      "Selection Parameters" VIEW-AS TEXT
           SIZE 22 BY .95 AT ROW 1.48 COL 6
           BGCOLOR 2 
-     "Transaction Types" VIEW-AS TEXT
-          SIZE 21 BY .86 AT ROW 7.76 COL 23
      "Output Destination" VIEW-AS TEXT
           SIZE 20 BY .62 AT ROW 13.38 COL 2
+     "Transaction Types" VIEW-AS TEXT
+          SIZE 21 BY .86 AT ROW 7.76 COL 23
      RECT-18 AT ROW 1 COL 1
      RECT-6 AT ROW 13.14 COL 1
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
@@ -622,6 +621,10 @@ DO:
   DEF VAR lValidQty AS LOG NO-UNDO.
 
   DO WITH FRAME {&FRAME-NAME}:
+    IF begin_job-no2:SCREEN-VALUE EQ "??" THEN
+    begin_job-no2:SCREEN-VALUE = "0".
+    IF end_job-no2:SCREEN-VALUE EQ "??" THEN
+    end_job-no2:SCREEN-VALUE = "99".
     ASSIGN {&DISPLAYED-OBJECTS}.    
   END.
 
@@ -1085,8 +1088,8 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         ldt-to:SCREEN-VALUE = STRING(dLastDate)
         v-from-job:SCREEN-VALUE =  cFirstJob
         v-to-job:SCREEN-VALUE =  cLastJob
-        begin_job-no2:SCREEN-VALUE =  string(iFirstJob2)
-        end_job-no2:SCREEN-VALUE =  string(iLastJob2) .
+        begin_job-no2:SCREEN-VALUE =  STRING(iFirstJob2)
+        end_job-no2:SCREEN-VALUE =  STRING(iLastJob2) .
     END.
     IF NOT ip-post THEN
        v-post-date:SCREEN-VALUE = STRING(TODAY).
@@ -2047,8 +2050,8 @@ v-avg-cst = rm-ctrl.avg-lst-cst.
           AND rm-rctd.rita-code EQ "ADDER"
           AND rm-rctd.job-no    GE v-from-job
           AND rm-rctd.job-no    LE v-to-job
-          AND rm-rctd.job-no2    GE INTEGER(begin_job-no2)
-          AND rm-rctd.job-no2    LE INTEGER(end_job-no2)
+          AND rm-rctd.job-no2   GE begin_job-no2
+          AND rm-rctd.job-no2   LE end_job-no2
           AND ((begin_userid    LE "" AND
                 end_userid      GE "") OR
                (rm-rctd.user-id GE begin_userid AND
@@ -2161,8 +2164,8 @@ FORM v-disp-actnum LABEL "G/L ACCOUNT NUMBER"
         WHERE rm-rctd.company   EQ cocode
           AND rm-rctd.job-no    GE v-from-job
           AND rm-rctd.job-no    LE v-to-job
-          AND rm-rctd.job-no2   GE INTEGER(begin_job-no2)
-          AND rm-rctd.job-no2   LE INTEGER(end_job-no2)
+          AND rm-rctd.job-no2   GE begin_job-no2
+          AND rm-rctd.job-no2   LE end_job-no2
           AND rm-rctd.rct-date  GE ldt-from
           AND rm-rctd.rct-date  LE ldt-to
           AND INDEX(v-types,rm-rctd.rita-code) GT 0 
