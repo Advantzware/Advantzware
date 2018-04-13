@@ -64,18 +64,16 @@ PUT "<R11><#4><R17><C80><RECT>" SKIP
 PUT "<R16><C77><FROM><R+2><C+3><RECT><||3>"
     "<|10><R19><C1><#4><FROM><R23><C80><RECT>" SKIP
     "<R21><C1><FROM><R21><C80><LINE>" SKIP    
-    "<R19><C11><FROM><R23><C11><LINE>" SKIP
-    "<R19><C22><FROM><R23><C22><LINE>" SKIP
-    "<R19><C38><FROM><R23><C38><LINE>" SKIP
-    "<R19><C49><FROM><R23><C49><LINE>" SKIP
-    "<R19><C65><FROM><R23><C65><LINE>" SKIP
+    "<R19><C14><FROM><R23><C14><LINE>" SKIP
+    "<R19><C31><FROM><R23><C31><LINE>" SKIP
+    "<R19><C47><FROM><R23><C47><LINE>" SKIP
+    "<R19><C64><FROM><R23><C64><LINE>" SKIP
     "<R19><C72><FROM><R23><C72><LINE>" SKIP
     .
-PUT "<=4><R+1> Ready Date         FOB             Ship Via             Terms          Sales Person         Order#      Quote#" SKIP
-"<=4><R+3> " oe-ord.due-date FORM "99/99/9999" space(4)
-cust.fob-code FORM "x(14)" SPACE(2)
-v-shipvia /*carrier.carrier*/ FORM "x(20)" SPACE(3)
-oe-ord.terms-d /*terms.dscr*/ FORM "x(15)" space(1) v-salesman FORM "x(20)" space(1) oe-ord.ord-no space(6) v-q-no SKIP.
+PUT  "<=4><R+1><C5>FOB<C19>Ship Via<C36>Terms<C52>Sales Person<C66>Order#<C74>Quote#" SKIP
+     "<=4><R+3> " "<C2>" cust.fob-code FORM "x(14)" 
+    "<C15>" v-shipvia FORM "x(20)"
+    "<C32>" oe-ord.terms-d FORM "x(15)" "<C48>" v-salesman FORM "x(20)" "<C66>" oe-ord.ord-no "<C74>" v-q-no SKIP.
 
 
 PUT "<|10><R24><C1><#5><FROM><R26><C80><RECT>" SKIP    
