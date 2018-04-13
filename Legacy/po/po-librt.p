@@ -360,9 +360,8 @@ IF AVAILABLE cust AND liberty-log AND liberty-dir NE "" THEN
                           AND reftable.code2    EQ xitem.i-no
                         NO-LOCK:
                         
-                        iTempAdder = INT(reftable.code) NO-ERROR.
-                        IF NOT ERROR-STATUS:ERROR THEN 
-                            v-adder[i] = STRING(INT(reftable.code),"9999").
+                        
+                        v-adder[i] = reftable.code.
 
                         ASSIGN
                             i = i + 1
@@ -652,23 +651,22 @@ IF AVAILABLE cust AND liberty-log AND liberty-dir NE "" THEN
             FOR EACH notes WHERE notes.rec_key EQ po-ord.rec_key NO-LOCK:
                 v-instr = v-instr + " " + trim(notes.note_text).
             END.
-            iAdderCount  = 1.
-            iNumericAdder = INTEGER(po-ordl.i-no) NO-ERROR.
-            IF NOT ERROR-STATUS:ERROR THEN 
-                ASSIGN v-adder[iAdderCount] = STRING(iNumericAdder, "9999")
-                    iAdderCount          = iAdderCount + 1
-                    .
+            iAdderCount  = 1.  
+            /* Not needed for American carton */         
+            /*ASSIGN v-adder[iAdderCount] = STRING(po-ordl.i-no)
+                   iAdderCount          = iAdderCount + 1
+                   . */
 
             /* Get adder codes */
             EMPTY TEMP-TABLE ttPoAdders.
             RUN po/getPoAdders.p (INPUT ROWID(po-ordl), INPUT table ttPoAdders BY-REFERENCE).
             FOR EACH ttPoAdders i = 1 TO 6:
-                iNumericAdder = INTEGER(ttPoAdders.adderCode) NO-ERROR.
-                IF NOT ERROR-STATUS:ERROR THEN 
-                    ASSIGN v-adder[iAdderCount] = STRING(iNumericAdder, "999")
-                        iAdderCount          = iAdderCount + 1
-                        .
+                                
+                    ASSIGN v-adder[iAdderCount] = STRING(ttPoAdders.adderCode)
+                           iAdderCount          = iAdderCount + 1
+                           .
             END.
+            
             v-mch-cod = "" .
             FOR EACH job-mch WHERE job-mch.company EQ cocode
                 AND job-mch.job-no EQ po-ordl.job-no
@@ -748,22 +746,22 @@ IF AVAILABLE cust AND liberty-log AND liberty-dir NE "" THEN
             fInsText("L",  44, 1,  "R"           ).  /* adhesive code */
             fInsText("L",  46, 3,  "1"           ).  /* plant number */
             fInsText("L",  50, 254, cDimensions  ). /* mil score */
-            fInsText("L",  305, 3, v-adder[1]    ). /* first board adder */
-            fInsText("L",  309, 3, v-adder[2]    ). /* 2nd board adder */
-            fInsText("L",  313, 3, v-adder[3]    ). /* 3rd board adder */
-            fInsText("L",  317, 3, v-adder[4]    ). /* 4th board adder */
-            fInsText("L",  321, 3, v-adder[5]    ). /* 5th board adder */
-            fInsText("L",  325, 3, v-adder[6]    ). /* 6th board adder */
-            fInsText("L",  329, 3, v-adder[7]    ). /* 7th board adder */
-            fInsText("L",  333, 3, ""            ). /* 8th board adder */    
-            fInsText("L",  337, 22, STRING(po-ord.po-no, "999999") ). /* po # */
-            fInsText("L",  360, 11, STRING(po-ordl.line) ). /* po line # */
-            fInsText("L",  372, 10, "0"        ). /* combo msf 3 decimals */
-            fInsText("L",  383, 11, STRING(po-ordl.ord-qty - (po-ord.under-pct * po-ordl.ord-qty / 100)    )). /* PO min qty */
-            fInsText("L",  395, 11, STRING(po-ordl.ord-qty + (po-ord.over-pct * po-ordl.ord-qty / 100)   )). /* po max qty */
-            fInsText("L",  407, 15, v-mch-cod    ). /* first machine from routing */
-            fInsText("L",  423, 252, cFormattedScore ). /* formatted scoring */
-            fInsText("L",  676, 254, v-instr  ). /* po comments */
+            fInsText("L",  305, 10, v-adder[1]    ). /* first board adder */
+            fInsText("L",  316, 10, v-adder[2]    ). /* 2nd board adder */
+            fInsText("L",  327, 10, v-adder[3]    ). /* 3rd board adder */
+            fInsText("L",  338, 10, v-adder[4]    ). /* 4th board adder */
+            fInsText("L",  349, 10, v-adder[5]    ). /* 5th board adder */
+            fInsText("L",  360, 10, v-adder[6]    ). /* 6th board adder */
+            fInsText("L",  371, 10, v-adder[7]    ). /* 7th board adder */
+            fInsText("L",  382, 10, ""            ). /* 8th board adder */    
+            fInsText("L",  393, 22, STRING(po-ord.po-no, "999999") ). /* po # */
+            fInsText("L",  416, 11, STRING(po-ordl.line) ). /* po line # */
+            fInsText("L",  428, 10, "0"        ). /* combo msf 3 decimals */
+            fInsText("L",  439, 11, STRING(po-ordl.ord-qty - (po-ord.under-pct * po-ordl.ord-qty / 100)    )). /* PO min qty */
+            fInsText("L",  451, 11, STRING(po-ordl.ord-qty + (po-ord.over-pct * po-ordl.ord-qty / 100)   )). /* po max qty */
+            fInsText("L",  463, 15, v-mch-cod    ). /* first machine from routing */
+            fInsText("L",  479, 252, cFormattedScore ). /* formatted scoring */
+            fInsText("L",  732, 254, v-instr  ). /* po comments */
             cOutLine = TRIM(cOutLine, ",").
             PUT STREAM sEDIPOITEM UNFORMATTED cOutLine SKIP.
             iSequence = iSequence + 1.
