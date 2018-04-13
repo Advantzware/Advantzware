@@ -28,12 +28,11 @@
 &Global-define SORTBY-2 
 &Global-define IDXNAME2 
 &Global-define DESCRIP2 Cust. #
-&Global-define FLDNAME3 
-&Global-define DATATYP3 
-&Global-define FORMAT-3 
+&Global-define FLDNAME3 ar-inv.cust-name
+&Global-define FORMAT-3 x(30)
 &Global-define SORTBY-3 
 &Global-define IDXNAME3 
-&Global-define DESCRIP3 
+&Global-define DESCRIP3 Cust Name
 &Global-define FLDNAME4 
 &Global-define SORTBY-4 
 &Global-define IDXNAME4 

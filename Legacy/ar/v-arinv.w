@@ -92,8 +92,8 @@ ar-inv.freight
 &Scoped-define FIRST-ENABLED-TABLE ar-inv
 &Scoped-Define ENABLED-OBJECTS tbEdiInvoice RECT-1 RECT-5 
 &Scoped-Define DISPLAYED-FIELDS ar-inv.cust-no ar-inv.ship-id ar-inv.inv-no ~
-ar-inv.po-no ar-inv.inv-date ar-inv.due-date ar-inv.tax-code ar-inv.terms ~
-ar-inv.terms-d ar-inv.cust-name ar-inv.disc-% ar-inv.disc-days ~
+ar-inv.po-no ar-inv.inv-date ar-inv.due-date ar-inv.printed ar-inv.tax-code ar-inv.terms ~
+ar-inv.period ar-inv.terms-d ar-inv.cust-name ar-inv.disc-% ar-inv.disc-days ~
 ar-inv.carrier ar-inv.freight ar-inv.tax-amt ar-inv.gross ar-inv.disc-taken ~
 ar-inv.paid ar-inv.due ar-inv.curr-code[1] ar-inv.ex-rate 
 &Scoped-define DISPLAYED-TABLES ar-inv
@@ -182,6 +182,14 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 21 BY 1
      ar-inv.due-date AT ROW 6.24 COL 16 COLON-ALIGNED
+          VIEW-AS FILL-IN 
+          SIZE 21 BY 1
+    ar-inv.printed AT ROW 6.45 COL 56 COLON-ALIGNED FORMAT "Yes/No"
+          LABEL "Printed"
+          VIEW-AS FILL-IN 
+          SIZE 21 BY 1
+    ar-inv.period AT ROW 7.30 COL 56 COLON-ALIGNED 
+          LABEL "Period"
           VIEW-AS FILL-IN 
           SIZE 21 BY 1
      ar-inv.tax-code AT ROW 7.19 COL 16 COLON-ALIGNED
@@ -1350,9 +1358,6 @@ PROCEDURE pCreateDuplicate :
    ar-inv.USER-ID  = USERID(LDBNAME(1)) 
    ar-inv.upd-date = TODAY 
    ar-inv.upd-time = TIME 
-   ar-inv.spare-char-1 = IF cType EQ "duplicate" THEN "Copy" ELSE "Rebill" .
-   ar-inv.spare-int-2 = INTEGER(Is-add-dup-inv) 
-   
    .
 
   FIND FIRST bff-ar-inv NO-LOCK 
@@ -1360,7 +1365,11 @@ PROCEDURE pCreateDuplicate :
         AND bff-ar-inv.inv-no EQ integer(Is-add-dup-inv) NO-ERROR .
   IF AVAIL bff-ar-inv THEN DO:
       BUFFER-COPY bff-ar-inv EXCEPT company inv-date x-no inv-no USER-ID upd-date upd-time posted rec_key TO ar-inv .
-      ASSIGN ar-inv.inv-date = IF oeDateAuto-Int EQ 0 THEN TODAY ELSE ar-inv.inv-date .
+       ar-inv.inv-date = IF oeDateAuto-Int EQ 0 THEN TODAY ELSE ar-inv.inv-date .
+       ar-inv.printed  = NO .
+       ar-inv.paid     = 0 .
+       ar-inv.spare-char-1 = IF cType EQ "duplicate" THEN "Copy" ELSE "Rebill" .
+       ar-inv.spare-int-2  = INTEGER(Is-add-dup-inv) .
 
    FOR EACH bff-ar-invl NO-LOCK 
        WHERE bff-ar-invl.company EQ bff-ar-inv.company
@@ -1444,9 +1453,6 @@ DEFINE VARIABLE Y AS INTEGER NO-UNDO.
    ar-inv.USER-ID  = USERID(LDBNAME(1)) 
    ar-inv.upd-date = TODAY 
    ar-inv.upd-time = TIME 
-   ar-inv.spare-char-1 = IF cType EQ "Credit" THEN "Copy" ELSE "Rebill" 
-   ar-inv.spare-int-2 = INTEGER(Is-add-dup-inv) 
-
    .
 
   FIND FIRST bff-ar-inv NO-LOCK 
@@ -1462,10 +1468,12 @@ DEFINE VARIABLE Y AS INTEGER NO-UNDO.
           ar-inv.gross         = ar-inv.gross * -1 
           ar-inv.tax-amt       = ar-inv.tax-amt * -1  
           ar-inv.t-weight      = ar-inv.t-weight * -1
-          ar-inv.paid          = ar-inv.paid * -1
-          ar-inv.inv-date = IF oeDateAuto-Int EQ 0 THEN TODAY ELSE ar-inv.inv-date .
-          
-
+          ar-inv.net           = ar-inv.net * -1
+          ar-inv.paid          = 0
+          ar-inv.printed       = NO 
+          ar-inv.inv-date      = IF oeDateAuto-Int EQ 0 THEN TODAY ELSE ar-inv.inv-date 
+          ar-inv.spare-char-1  = IF cType EQ "Credit" THEN "Credit" ELSE "Rebill" 
+          ar-inv.spare-int-2   = INTEGER(Is-add-dup-inv) .
 
    FOR EACH bff-ar-invl NO-LOCK 
        WHERE bff-ar-invl.company EQ bff-ar-inv.company
@@ -1487,15 +1495,18 @@ DEFINE VARIABLE Y AS INTEGER NO-UNDO.
             bf-invl.cost       = bf-invl.cost * -1 
             bf-invl.disc       = bf-invl.disc * -1 
             bf-invl.inv-qty    = bf-invl.inv-qty * -1 
-            bf-invl.qty        = bf-invl.qty * -1 
-            bf-invl.s-comm[1]  = bf-invl.s-comm[1] * -1 
-            bf-invl.s-comm[2]  = bf-invl.s-comm[2] * -1
-            bf-invl.s-comm[3]  = bf-invl.s-comm[3] * -1 
-            bf-invl.inv-qty    = bf-invl.inv-qty * -1 
+            bf-invl.qty        = bf-invl.qty * -1
             bf-invl.t-freight  = bf-invl.t-freight * -1 
             bf-invl.t-fuel     = bf-invl.t-fuel * -1 
-            bf-invl.unit-pr    = bf-invl.unit-pr * -1
-            bf-invl.amt        = bf-invl.amt * -1.
+            bf-invl.amt        = bf-invl.amt * -1
+            bf-invl.t-cost     = bf-invl.t-cost * -1  
+            bf-invl.prep-amt   = bf-invl.prep-amt * -1
+            bf-invl.std-fix-cost = bf-invl.std-fix-cost * -1 
+            bf-invl.std-lab-cost = bf-invl.std-lab-cost * -1 
+            bf-invl.std-mat-cost = bf-invl.std-mat-cost * -1
+            bf-invl.std-tot-cost = bf-invl.std-tot-cost * -1  
+            bf-invl.std-var-cost = bf-invl.std-var-cost * -1 
+              .
 
         
    END. /* for each bff-ar-invl */
@@ -1506,7 +1517,6 @@ DEFINE VARIABLE Y AS INTEGER NO-UNDO.
   RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"record-source",OUTPUT char-hdl).
   IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
   RUN New_record IN WIDGET-HANDLE(char-hdl) (ROWID(ar-inv)) NO-ERROR.
-  
 
 
 END PROCEDURE.
