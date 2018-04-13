@@ -398,7 +398,7 @@ IF AVAIL itemfg THEN DO:
               AND job-mch.job     EQ job.job
               AND job-mch.job-no  EQ job.job-no
               AND job-mch.job-no2 EQ job.job-no2
-              AND job-mch.frm     EQ tt-fg-set.QtyPerSet
+              AND job-mch.frm     EQ INTEGER(tt-fg-set.QtyPerSet)
             BREAK BY job-mch.line:
           
             IF FIRST(job-mch.line) THEN 

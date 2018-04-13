@@ -209,7 +209,7 @@ FOR EACH cust
         /* If Created via ar-inv, type is blank */
         FIND FIRST invoiceLines NO-LOCK WHERE invoiceLines.company EQ ar-cashl.company 
           AND invoiceLines.invoiceNumber EQ ar-cashl.inv-no 
-          AND invoiceLines.type NE "" no-error.
+          AND invoiceLines.invoicetype NE "" no-error.
         IF AVAIL invoiceLines THEN 
             NEXT.
             
@@ -242,8 +242,8 @@ FOR EACH tt-report
         FIND ar-cash  WHERE ar-cash.c-no    EQ ar-cashl.c-no NO-LOCK.
         /* If Created via ar-inv, type is blank */
         FIND FIRST invoiceLines NO-LOCK WHERE invoiceLines.company EQ ar-cashl.company 
-            AND invoicesLine.invoiceNumber EQ ar-cashl.inv-no 
-            AND invoiceLines.type NE "" no-error.
+            AND invoiceLines.invoiceNumber EQ ar-cashl.inv-no 
+            AND invoiceLines.invoicetype NE "" no-error.
         IF AVAIL invoiceLines THEN 
             NEXT.        
         cnt2 = cnt2 + 1.
