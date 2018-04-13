@@ -389,7 +389,8 @@ DO:
     IF lDeleteOrig THEN 
     DO:
         FIND FIRST edivtran EXCLUSIVE-LOCK 
-          WHERE edivtran.invoice-no EQ string(IF AVAILABLE ar-inv THEN ar-inv.inv-no ELSE inv-head.inv-no)
+          WHERE edivtran.company EQ cocode
+            AND edivtran.invoice-no EQ string(IF AVAILABLE ar-inv THEN ar-inv.inv-no ELSE inv-head.inv-no)
           NO-ERROR.
         IF AVAILABLE edivtran THEN 
         DO:
@@ -405,14 +406,28 @@ DO:
               
             END.
             FIND FIRST eddoc EXCLUSIVE-LOCK 
-               WHERE eddoc.seq = edivtran.seq 
+               WHERE eddoc.seq EQ edivtran.seq 
+                 AND eddoc.partner EQ edivtran.partner
                NO-ERROR.
             IF AVAILABLE eddoc THEN 
                 DELETE eddoc.
             DELETE edivtran.
         END.
     END.
-    
+    ELSE DO: 
+        FIND FIRST edivtran NO-LOCK 
+            WHERE edivtran.company EQ cocode
+              AND edivtran.invoice-no EQ string(IF AVAILABLE ar-inv THEN ar-inv.inv-no ELSE inv-head.inv-no)
+            NO-ERROR.   
+        IF AVAILABLE edivtran THEN      
+            FIND FIRST eddoc EXCLUSIVE-LOCK 
+                WHERE eddoc.seq EQ edivtran.seq 
+                AND eddoc.partner EQ edivtran.partner
+                NO-ERROR.
+        IF AVAILABLE eddoc THEN 
+          eddoc.posted = NO.
+        
+    END.
     /* Create eddoc for invoice if required */
     RUN ed/asi/o810hook.p (IF AVAILABLE(ar-inv) THEN RECID(ar-inv) ELSE RECID(inv-head), NO, NO).  
     FIND FIRST edmast NO-LOCK
