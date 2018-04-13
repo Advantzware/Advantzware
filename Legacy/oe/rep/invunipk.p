@@ -353,15 +353,21 @@ assign
             assign v-salesman = v-salesman + w-sman.sman.
           delete w-sman.
         end.
+        
+        find first inv-line where inv-line.r-no = inv-head.r-no no-lock no-error.
+        IF AVAIL inv-line THEN
+        find first oe-bolh no-lock
+            where oe-bolh.company eq cocode
+            and oe-bolh.b-no    eq inv-line.b-no no-error.
+        if avail oe-bolh then 
+            find first oe-boll no-lock
+            where oe-boll.company eq cocode
+            and oe-boll.b-no    eq oe-bolh.b-no
+            and oe-boll.i-no    eq inv-line.i-no no-error.
 
-        find first oe-bolh where oe-bolh.company = inv-head.company and
-                                 oe-bolh.bol-no = inv-head.bol-no
-                                 USE-INDEX bol-no no-lock no-error.
-        if avail oe-bolh then
-          assign v-rel-po-no = oe-bolh.po-no.
+        if avail oe-boll then
+          assign v-rel-po-no = oe-boll.po-no.
 
-        find first inv-line where inv-line.r-no = inv-head.r-no
-                                  no-lock no-error.
         if avail inv-line then
         do:
           assign v-price-head = inv-line.pr-uom.
@@ -559,7 +565,7 @@ assign
             end.
 
             IF inv-line.disc NE 0 OR v-po-no NE "" THEN
-              PUT SPACE(25) v-po-no FORMAT "x(15)" SPACE(1)
+              PUT SPACE(41) /*v-po-no FORMAT "x(15)" SPACE(1)*/
                   "Less " + TRIM(STRING(inv-line.disc,">>9.99%")) + " Discount" FORMAT "x(21)"
                   v-price - inv-line.t-price FORMAT "->>>,>>9.99" TO 95.
 

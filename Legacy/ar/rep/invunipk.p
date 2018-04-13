@@ -380,6 +380,19 @@ assign
           assign v-rel-po-no = oe-bolh.po-no.
         */
         find first ar-invl where ar-invl.x-no = ar-inv.x-no no-lock no-error.
+        IF AVAIL ar-invl THEN
+        find first oe-bolh no-lock
+            where oe-bolh.company eq cocode
+            and oe-bolh.b-no    eq ar-invl.b-no no-error.
+        if avail oe-bolh then 
+            find first oe-boll no-lock
+            where oe-boll.company eq cocode
+            and oe-boll.b-no    eq oe-bolh.b-no
+            and oe-boll.i-no    eq ar-invl.i-no no-error.
+
+        if avail oe-boll then
+          assign v-rel-po-no = oe-boll.po-no.
+        
         if avail ar-invl then
         do:
          assign v-price-head = ar-invl.pr-uom
