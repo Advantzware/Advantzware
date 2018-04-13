@@ -219,10 +219,9 @@ do v-local-loop = 1 to v-local-copies:
             find first oe-ordl where oe-ordl.company eq job-hdr.company
                  and oe-ordl.ord-no  eq job-hdr.ord-no
                  and oe-ordl.i-no    eq job-hdr.i-no NO-LOCK no-error.
-       IF AVAIL oe-ordl THEN          
-       ASSIGN
+       IF AVAIL oe-ordl THEN
        v-managed-order = IF oe-ordl.managed = true THEN "MANAGED   WAREHOUSE   ORDER"
-                         ELSE ""
+                         ELSE "".
        v-break = first-of(job.job-no2). 
        
 
