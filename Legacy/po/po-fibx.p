@@ -135,7 +135,7 @@ form header
     with frame po-cont page-bottom no-box no-labels NO-UNDERLINE STREAM-IO.
 
 def stream last-page.
-DEF VAR v-image AS cha FORM "x(200)" NO-UNDO.
+DEF VAR v-image AS cha FORM "x(80)" NO-UNDO.
 v-image = "<C1><#1><R+7><C+35><IMAGE#1=" + ls-full-img1 + "<=1>" .
 
 output stream last-page to value("po-fibx.txt") page-size VALUE(v-lines-per-page).
