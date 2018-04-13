@@ -80,12 +80,12 @@ DEFINE VARIABLE lTagFormat AS LOGICAL NO-UNDO .
 
 ASSIGN cTextListToSelect = "Whse,Item,Description,Bin,Tag,Rolls," +
                            "Last Trans Date,Quantity,Unit Cost,Cost Value,MSF,Tons,Cost/MSF,Vendor Tag,Vendor Po#,Cert/Lot/Mill#,Vendor,Last Recd,Caliper," +
-                           "Wt/Msf,PO GL Account,Item Name,Job#,Width,Length,Depth,Roll Wid"
+                           "Wt/Msf,PO GL Account,Item Name,Job#,Width,Length,Depth,Roll Wid,Sheet Size,Adders"
        cFieldListToSelect = "tt-rm-bin.loc,tt-rm-bin.i-no,v-itemname,loc-bin,tag,rolls," +
                             "trans-date,qty,v-cost,v-total,v-msf,v-tons,v-costMSF,cVendTag,cVendPo,crtlot,cVendCode,cLstRcd,cali," +
-                            "wt-msf,po-gl-act,cItemName,job-no,wid,len,dep,roll-wid"
-       cFieldLength = "5,10,30,8,22,5," + "15,16,10,13,11,11,11,30,10,30,8,9,7," + "6,25,30,10,10,10,10,10"
-       cFieldType = "c,c,c,c,c,i," + "c,i,i,i,i,i,i,c,i,c,c,c,i," + "i,c,c,c,i,i,i,i"
+                            "wt-msf,po-gl-act,cItemName,job-no,wid,len,dep,roll-wid,sht-size,adder"
+       cFieldLength = "5,10,30,8,22,5," + "15,16,10,13,11,11,11,30,10,30,8,9,7," + "6,25,30,10,10,10,10,10,20,30"
+       cFieldType = "c,c,c,c,c,i," + "c,i,i,i,i,i,i,c,i,c,c,c,i," + "i,c,c,c,i,i,i,i,c,c"
        .
 
 {sys/inc/ttRptSel.i}
@@ -1652,6 +1652,7 @@ DEFINE VARIABLE cJobNo2 LIKE po-ordl.job-no2 NO-UNDO .
 DEFINE VARIABLE cSNum AS INTEGER NO-UNDO .
 DEFINE VARIABLE cBNum AS INTEGER NO-UNDO .
 DEF BUFFER bf-loadtag FOR loadtag.
+DEFINE VARIABLE cAdder AS CHARACTER FORMAT "x(30)" NO-UNDO.
 
     {custom/statusMsg.i "'Processing...'"} 
 
@@ -1986,7 +1987,8 @@ SESSION:SET-WAIT-STATE ("general").
         cJobNo = "" 
         cSNum  = 0
         cBNum  = 0
-        cJobNo2 = 0 .
+        cJobNo2 = 0
+        cAdder = "" .
 
     IF tt-rm-bin.po-no NE 0 AND AVAILABLE po-ord THEN DO:
         FIND FIRST po-ordl  NO-LOCK WHERE po-ordl.company EQ tt-rm-bin.company 
@@ -1998,8 +2000,26 @@ SESSION:SET-WAIT-STATE ("general").
                     cJobNo     = IF po-ordl.job-no NE "" THEN string(po-ordl.job-no) + "-" + STRING(po-ordl.job-no2) ELSE ""
                     cJobNo2    =  po-ordl.job-no2
                     cSNum      = po-ordl.s-num
-                    cBNum      = po-ordl.b-num        .
+                    cBNum      = po-ordl.b-num  .
+            FIND FIRST job-hdr NO-LOCK
+                WHERE job-hdr.company EQ cocode
+                AND job-hdr.job-no  EQ po-ordl.job-no
+                AND job-hdr.job-no2 EQ po-ordl.job-no2 NO-ERROR.
 
+            FOR EACH job-mat WHERE job-mat.company eq cocode
+                and job-mat.job     eq job-hdr.job
+                and job-mat.job-no  eq job-hdr.job-no
+                and job-mat.job-no2 eq job-hdr.job-no2
+                and job-mat.frm     eq job-hdr.frm
+                and can-find(first item where item.company  eq cocode
+                                        and item.i-no     eq job-mat.i-no
+                                        and item.mat-type eq "A")
+                NO-LOCK BREAK BY job-mat.i-no :
+               IF NOT LAST(job-mat.i-no) THEN
+                cAdder = cAdder + job-mat.i-no + ",".
+               ELSE 
+                cAdder = cAdder + job-mat.i-no.
+            END.
         END.
     END.
     
@@ -2010,9 +2030,7 @@ SESSION:SET-WAIT-STATE ("general").
         v-tons = v-MSF * ITEM.basis-w / 2000 /*Lbs*/
         v-CostMsf = tt-rm-bin.qty * v-cost / v-msf 
         v-cum-tons = v-cum-tons + v-tons
-        v-cum-MSF = v-cum-MSF + v-msf
-        cShtSize = IF ITEM.r-wid GT 0 THEN trim(STRING(ITEM.r-wid,">,>>9.99"))
-                   ELSE (trim(string(ITEM.s-len,">,>>9.99")) + " X " + trim(string(ITEM.s-wid,">,>>9.99")) ).
+        v-cum-MSF = v-cum-MSF + v-msf.
 
           dShtWid     = 0  .
           dShtLen     = 0  .
@@ -2050,7 +2068,9 @@ SESSION:SET-WAIT-STATE ("general").
                  dShtRollWid = 0 .
          END.
 
+         cShtSize = (trim(string(dShtLen,">,>>99.99")) + " X " + trim(string(dShtWid,">,>>99.99")) ).
 
+    IF cAdder EQ "," THEN cAdder =  "".
 
      IF v-CostMsf EQ ? THEN
          ASSIGN v-CostMsf = 0.   /* task 10251310  */
@@ -2107,7 +2127,9 @@ SESSION:SET-WAIT-STATE ("general").
                 WHEN "len" THEN cVarValue = STRING(dShtLen,">,>>99.999"). 
                 WHEN "wid" THEN cVarValue = STRING(dShtWid,">,>>99.999"). 
                 WHEN "dep" THEN cVarValue = STRING(dShtDep,">,>>99.999"). 
-                WHEN "roll-wid" THEN cVarValue = STRING(dShtRollWid,">,>>99.999"). 
+                WHEN "roll-wid" THEN cVarValue = STRING(dShtRollWid,">,>>99.999").
+                WHEN "sht-size" THEN cVarValue = STRING(cShtSize,"x(20)").
+                WHEN "adder" THEN cVarValue = STRING(cAdder,"x(30)").
           END CASE.
           cExcelVarValue = cVarValue.  
           IF cTmpField = "tag" THEN do:
@@ -2168,6 +2190,8 @@ SESSION:SET-WAIT-STATE ("general").
                  WHEN "wid" THEN cVarValue = "". 
                  WHEN "dep" THEN cVarValue = "". 
                  WHEN "roll-wid" THEN cVarValue = "". 
+                 WHEN "sht-size" THEN cVarValue = "".
+                 WHEN "adder" THEN cVarValue = "".
                      
            END CASE.
 
@@ -2226,6 +2250,8 @@ SESSION:SET-WAIT-STATE ("general").
                  WHEN "wid" THEN cVarValue = "". 
                  WHEN "dep" THEN cVarValue = "". 
                  WHEN "roll-wid" THEN cVarValue = "". 
+                 WHEN "sht-size" THEN cVarValue = "".
+                 WHEN "adder" THEN cVarValue = "".
            END CASE.
            cExcelVarValue = cVarValue.  
            cDisplay = cDisplay + cVarValue +
@@ -2301,7 +2327,9 @@ SESSION:SET-WAIT-STATE ("general").
                  WHEN "len" THEN cVarValue = "". 
                  WHEN "wid" THEN cVarValue = "". 
                  WHEN "dep" THEN cVarValue = "". 
-                 WHEN "roll-wid" THEN cVarValue = "". 
+                 WHEN "roll-wid" THEN cVarValue = "".
+                 WHEN "sht-size" THEN cVarValue = "".
+                 WHEN "adder" THEN cVarValue = "".
            END CASE.
            cExcelVarValue = cVarValue.  
            cDisplay = cDisplay + cVarValue +
@@ -2359,6 +2387,8 @@ SESSION:SET-WAIT-STATE ("general").
                  WHEN "wid" THEN cVarValue = "". 
                  WHEN "dep" THEN cVarValue = "". 
                  WHEN "roll-wid" THEN cVarValue = "". 
+                 WHEN "sht-size" THEN cVarValue = "".
+                 WHEN "adder" THEN cVarValue = "".
            END CASE.
         
            cExcelVarValue = cVarValue.  
@@ -2434,7 +2464,9 @@ SESSION:SET-WAIT-STATE ("general").
                  WHEN "len" THEN cVarValue = "". 
                  WHEN "wid" THEN cVarValue = "". 
                  WHEN "dep" THEN cVarValue = "". 
-                 WHEN "roll-wid" THEN cVarValue = "". 
+                 WHEN "roll-wid" THEN cVarValue = "".
+                 WHEN "sht-size" THEN cVarValue = "".
+                 WHEN "adder" THEN cVarValue = "".
            END CASE.
         
            cExcelVarValue = cVarValue.  
@@ -2493,7 +2525,9 @@ SESSION:SET-WAIT-STATE ("general").
                  WHEN "len" THEN cVarValue = "". 
                  WHEN "wid" THEN cVarValue = "". 
                  WHEN "dep" THEN cVarValue = "". 
-                 WHEN "roll-wid" THEN cVarValue = "". 
+                 WHEN "roll-wid" THEN cVarValue = "".
+                 WHEN "sht-size" THEN cVarValue = "".
+                 WHEN "adder" THEN cVarValue = "".
            END CASE.
         
            cExcelVarValue = cVarValue.  
@@ -2611,6 +2645,7 @@ DEFINE VARIABLE cJobNo LIKE po-ordl.job-no NO-UNDO.
 DEFINE VARIABLE cJobNo2 LIKE po-ordl.job-no2 NO-UNDO .
 DEFINE VARIABLE cSNum AS INTEGER NO-UNDO .
 DEFINE VARIABLE cBNum AS INTEGER NO-UNDO .
+DEFINE VARIABLE cAdder AS CHARACTER FORMAT "x(30)" NO-UNDO.
 
 /* rdb 02/06/07 02050701 */
 DEFINE VARIABLE chrTotCostVal AS CHARACTER NO-UNDO.
@@ -2790,19 +2825,43 @@ IF LAST-OF(tt-rm-bin.i-no) THEN DO:
         dShtWid = 0
         dShtLen = 0
         dShtDep = 0
-        dShtRollWid = 0.
+        dShtRollWid = 0
+        cAdder = "".
 
     IF tt-rm-bin.po-no NE 0 AND AVAILABLE po-ord THEN DO:
         FIND FIRST po-ordl NO-LOCK WHERE po-ordl.company EQ tt-rm-bin.company 
             AND po-ordl.po-no EQ po-ord.po-no
             AND po-ordl.i-no EQ tt-rm-bin.i-no NO-ERROR.
         
-        IF AVAILABLE po-ordl THEN
+        IF AVAILABLE po-ordl THEN DO:
             ASSIGN vpo-gl-act = po-ordl.actnum
                    cJobNo     = IF po-ordl.job-no NE "" THEN string(po-ordl.job-no) + "-" + STRING(po-ordl.job-no2) ELSE "" 
                    cJobNo2    =  po-ordl.job-no2
                    cSNum      = po-ordl.s-num
                    cBNum      = po-ordl.b-num .
+
+            FIND FIRST job-hdr NO-LOCK
+                WHERE job-hdr.company EQ cocode
+                AND job-hdr.job-no  EQ po-ordl.job-no
+                AND job-hdr.job-no2 EQ po-ordl.job-no2 NO-ERROR.
+
+            FOR EACH job-mat WHERE job-mat.company eq cocode
+                and job-mat.job     eq job-hdr.job
+                and job-mat.job-no  eq job-hdr.job-no
+                and job-mat.job-no2 eq job-hdr.job-no2
+                and job-mat.frm     eq job-hdr.frm
+                and can-find(first item where item.company  eq cocode
+                                        and item.i-no     eq job-mat.i-no
+                                        and item.mat-type eq "A")
+                NO-LOCK BREAK BY job-mat.i-no :
+               IF NOT LAST(job-mat.i-no) THEN
+                cAdder = cAdder + job-mat.i-no + ",".
+               ELSE 
+                cAdder = cAdder + job-mat.i-no.
+            END.
+        END.
+
+        
     END.
 
     IF ITEM.i-code EQ "R" THEN do:
@@ -2836,7 +2895,8 @@ IF LAST-OF(tt-rm-bin.i-no) THEN DO:
             dShtDep     = 0
             dShtRollWid = 0 .
     END.
-    
+
+    cShtSize = (trim(string(dShtLen,">,>>99.99")) + " X " + trim(string(dShtWid,">,>>99.99")) ).
     
     ASSIGN cDisplay = ""
            cTmpField = ""
@@ -2884,7 +2944,9 @@ IF LAST-OF(tt-rm-bin.i-no) THEN DO:
                 WHEN "len" THEN cVarValue = STRING(dShtLen,">,>>99.999"). 
                 WHEN "wid" THEN cVarValue = STRING(dShtWid,">,>>99.999"). 
                 WHEN "dep" THEN cVarValue = STRING(dShtDep,">,>>99.999"). 
-                WHEN "roll-wid" THEN cVarValue = STRING(dShtRollWid,">,>>99.999"). 
+                WHEN "roll-wid" THEN cVarValue = STRING(dShtRollWid,">,>>99.999").
+                WHEN "sht-size" THEN cVarValue = STRING(cShtSize,"x(20)").
+                WHEN "adder" THEN cVarValue = STRING(cAdder,"x(30)").
           END CASE.
           cExcelVarValue = cVarValue.  
           cDisplay = cDisplay + cVarValue +
@@ -2947,6 +3009,8 @@ END.
                  WHEN "wid" THEN cVarValue = "". 
                  WHEN "dep" THEN cVarValue = "". 
                  WHEN "roll-wid" THEN cVarValue = "". 
+                 WHEN "sht-size" THEN cVarValue = "".
+                 WHEN "adder" THEN cVarValue = "".
            END CASE.
         
            cExcelVarValue = cVarValue.  
@@ -3021,6 +3085,8 @@ END.
                  WHEN "wid" THEN cVarValue = "". 
                  WHEN "dep" THEN cVarValue = "". 
                  WHEN "roll-wid" THEN cVarValue = "". 
+                 WHEN "sht-size" THEN cVarValue = "".
+                 WHEN "adder" THEN cVarValue = "".
            END CASE.
         
            cExcelVarValue = cVarValue.  
