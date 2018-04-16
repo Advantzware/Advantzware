@@ -766,6 +766,7 @@ PROCEDURE pCreateEditor :
     IF VALID-HANDLE(hWidget) THEN DO:
         ttblItem.hEditor = hWidget.
         hWidget:MOVE-TO-TOP().
+        hWidget:LOAD-MOUSE-POINTER("ARROW").
         IF ipcName EQ "Exit" THEN DO:
             hExitWidget = hWidget.
             RUN pSetFocus.
