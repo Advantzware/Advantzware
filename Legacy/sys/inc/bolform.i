@@ -30,7 +30,7 @@
           ASSIGN
              v-program = "oe/rep/bolprem.p"
              lines-per-page = 55.
-       WHEN "PremierX" THEN
+       WHEN "PremierX" or WHEN "PremierXFooter" THEN
           ASSIGN
              v-program      = "oe/rep/bolpremx.p"
              is-xprint-form = YES
