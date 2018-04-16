@@ -78,7 +78,7 @@ DEFINE TEMP-TABLE ttblMenu NO-UNDO
     FIELD menuName  AS CHARACTER 
     FIELD menuCount AS INTEGER 
     FIELD menuGuid  AS CHARACTER 
-    FIELD mneumonic AS CHARACTER 
+    FIELD mnemonic  AS CHARACTER 
         INDEX ttblMenu IS PRIMARY UNIQUE menuName
         INDEX menuCount menuCount
         .
@@ -87,7 +87,7 @@ DEFINE TEMP-TABLE ttblItem NO-UNDO
     FIELD menu1      AS CHARACTER FORMAT "x(12)"
     FIELD menu2      AS CHARACTER 
     FIELD seq        AS INTEGER 
-    FIELD mneumonic  AS CHARACTER
+    FIELD mnemonic   AS CHARACTER
     FIELD level      AS INTEGER
     FIELD mainMenu   AS LOGICAL
     FIELD imageFile  AS CHARACTER
@@ -96,7 +96,7 @@ DEFINE TEMP-TABLE ttblItem NO-UNDO
     FIELD hEditor    AS HANDLE
         INDEX ttblItems IS PRIMARY UNIQUE menuOrder menu2
         INDEX menu2 menu2 menuOrder
-        INDEX mneumonic menu2 mneumonic
+        INDEX mnemonic menu2 mnemonic
         INDEX seq menu2 seq
         .
 DEFINE TEMP-TABLE ttblImage NO-UNDO
@@ -115,7 +115,7 @@ DEFINE VARIABLE cEulaVersion  AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lUserExit     AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cSourceMenu   AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cUserName     AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cMneumonic    AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cMnemonic     AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cImageFolder  AS CHARACTER NO-UNDO.
 DEFINE VARIABLE dObjectHeight AS DECIMAL   NO-UNDO.
 DEFINE VARIABLE iHiCount      AS INTEGER   NO-UNDO.
@@ -123,14 +123,7 @@ DEFINE VARIABLE iMenuSize     AS INTEGER   NO-UNDO.
 DEFINE VARIABLE iLanguage     AS INTEGER   NO-UNDO.
 DEFINE VARIABLE lOK           AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE hExitWidget   AS HANDLE    NO-UNDO.
-DEFINE VARIABLE cASILink      AS CHARACTER NO-UNDO INITIAL
-    "http://www.advantzware.com".
-DEFINE VARIABLE cAICCLink     AS CHARACTER NO-UNDO INITIAL
-    "http://www.aiccbox.org/".
-DEFINE VARIABLE cTAPPILink    AS CHARACTER NO-UNDO INITIAL
-    "http://tappi.org/".
-DEFINE VARIABLE cZoHoLink    AS CHARACTER NO-UNDO INITIAL
-    "https://support.zoho.com/portal/advantzware/kb".
+DEFINE VARIABLE hMenuLink     AS HANDLE    NO-UNDO EXTENT 8.
 
 ASSIGN
     g_company = ""
@@ -164,10 +157,9 @@ CREATE WIDGET-POOL "MainMenuPool".
 &Scoped-define FRAME-NAME FRAME-USER
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS imageSettings imageCompany imageLogo ~
-aiccLogo tappiLogo zohoHelp 
+&Scoped-Define ENABLED-OBJECTS imageSettings imageCompany menuLinkZoHo 
 &Scoped-Define DISPLAYED-OBJECTS company_name loc_loc users_user_id ~
-Mneumonic 
+Mnemonic 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -209,7 +201,7 @@ DEFINE VARIABLE loc_loc AS CHARACTER FORMAT "X(256)":U
      SIZE 9 BY .62
      FONT 6 NO-UNDO.
 
-DEFINE VARIABLE Mneumonic AS CHARACTER FORMAT "X(256)":U 
+DEFINE VARIABLE Mnemonic AS CHARACTER FORMAT "X(256)":U 
       VIEW-AS TEXT 
      SIZE 5 BY .62
      FONT 6 NO-UNDO.
@@ -219,22 +211,13 @@ DEFINE VARIABLE users_user_id AS CHARACTER FORMAT "X(256)":U
      SIZE 13 BY .62
      FONT 6 NO-UNDO.
 
-DEFINE IMAGE aiccLogo
-     FILENAME "Graphics/aicc.png":U
-     STRETCH-TO-FIT TRANSPARENT
-     SIZE 8.4 BY 1.91 TOOLTIP "AICC Link".
-
 DEFINE IMAGE boxes
      FILENAME "Graphics/advantzware_logo.jpg":U
-     SIZE 98 BY 20.48.
+     SIZE 108 BY 17.86.
 
 DEFINE IMAGE imageCompany
      FILENAME "Graphics/32x32/office_building.png":U TRANSPARENT
      SIZE 6.4 BY 1.52 TOOLTIP "Change Company/Location".
-
-DEFINE IMAGE imageLogo
-     FILENAME "Graphics/asiicon.ico":U TRANSPARENT
-     SIZE 7 BY 1.67 TOOLTIP "Advantzware Link".
 
 DEFINE IMAGE imageSettings
      FILENAME "Graphics/32x32/gearwheels.ico":U TRANSPARENT
@@ -244,13 +227,42 @@ DEFINE IMAGE menu-image
      FILENAME "Graphics/logo1.bmp":U CONVERT-3D-COLORS
      SIZE 95 BY 4.52.
 
-DEFINE IMAGE tappiLogo
-     FILENAME "Graphics/tappi-logo.jpg":U
-     STRETCH-TO-FIT TRANSPARENT
-     SIZE 8.4 BY 1.91 TOOLTIP "TAPPI Link".
+DEFINE IMAGE menuLink-1
+     STRETCH-TO-FIT
+     SIZE 12 BY 2.29.
 
-DEFINE IMAGE zohoHelp
-     FILENAME "Graphics/32x32/question.png":U TRANSPARENT
+DEFINE IMAGE menuLink-2
+     STRETCH-TO-FIT
+     SIZE 12 BY 2.29.
+
+DEFINE IMAGE menuLink-3
+     STRETCH-TO-FIT
+     SIZE 12 BY 2.29.
+
+DEFINE IMAGE menuLink-4
+     STRETCH-TO-FIT
+     SIZE 12 BY 2.29.
+
+DEFINE IMAGE menuLink-5
+     STRETCH-TO-FIT
+     SIZE 12 BY 2.29.
+
+DEFINE IMAGE menuLink-6
+     STRETCH-TO-FIT
+     SIZE 12 BY 2.29.
+
+DEFINE IMAGE menuLink-7
+     STRETCH-TO-FIT
+     SIZE 12 BY 2.29.
+
+DEFINE IMAGE menuLink-8
+     STRETCH-TO-FIT
+     SIZE 12 BY 2.29.
+
+DEFINE IMAGE menuLinkASI TRANSPARENT
+     SIZE 7 BY 1.67 TOOLTIP "Advantzware Link".
+
+DEFINE IMAGE menuLinkZoHo TRANSPARENT
      SIZE 7 BY 1.67 TOOLTIP "Advantzware Help Tickets".
 
 DEFINE RECTANGLE RECT-10
@@ -259,7 +271,7 @@ DEFINE RECTANGLE RECT-10
 
 DEFINE RECTANGLE RECT-11
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
-     SIZE 10 BY 8.81.
+     SIZE 10 BY 5.
 
 DEFINE RECTANGLE RECT-2
      EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
@@ -298,7 +310,7 @@ DEFINE FRAME FRAME-USER
      company_name AT ROW 1.71 COL 13 COLON-ALIGNED NO-LABEL
      loc_loc AT ROW 1.71 COL 76 COLON-ALIGNED NO-LABEL
      users_user_id AT ROW 1.71 COL 117 COLON-ALIGNED NO-LABEL
-     Mneumonic AT ROW 1.71 COL 141 COLON-ALIGNED NO-LABEL WIDGET-ID 2
+     Mnemonic AT ROW 1.71 COL 141 COLON-ALIGNED NO-LABEL WIDGET-ID 2
      "User ID:" VIEW-AS TEXT
           SIZE 8 BY .62 AT ROW 1.71 COL 110
      "Company:" VIEW-AS TEXT
@@ -316,11 +328,17 @@ DEFINE FRAME FRAME-USER
      RECT-10 AT ROW 3.62 COL 52 WIDGET-ID 48
      imageSettings AT ROW 1.24 COL 152 WIDGET-ID 52
      imageCompany AT ROW 1.24 COL 52 WIDGET-ID 54
-     imageLogo AT ROW 3.86 COL 152 WIDGET-ID 56
+     menuLinkASI AT ROW 4.1 COL 152 WIDGET-ID 56
      RECT-11 AT ROW 3.62 COL 150 WIDGET-ID 58
-     aiccLogo AT ROW 7.91 COL 151 WIDGET-ID 60
-     tappiLogo AT ROW 10.05 COL 151 WIDGET-ID 62
-     zohoHelp AT ROW 5.76 COL 152 WIDGET-ID 64
+     menuLinkZoHo AT ROW 6.24 COL 152 WIDGET-ID 64
+     menuLink-1 AT ROW 26.95 COL 148 WIDGET-ID 66
+     menuLink-2 AT ROW 26.95 COL 135 WIDGET-ID 68
+     menuLink-3 AT ROW 26.95 COL 122 WIDGET-ID 70
+     menuLink-4 AT ROW 26.95 COL 109 WIDGET-ID 72
+     menuLink-5 AT ROW 26.95 COL 96 WIDGET-ID 74
+     menuLink-6 AT ROW 26.95 COL 83 WIDGET-ID 76
+     menuLink-7 AT ROW 26.95 COL 70 WIDGET-ID 78
+     menuLink-8 AT ROW 26.95 COL 57 WIDGET-ID 80
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
@@ -388,10 +406,6 @@ ASSIGN
                 "Change Company/Location".
 
 ASSIGN 
-       imageLogo:PRIVATE-DATA IN FRAME FRAME-USER     = 
-                "Advantzware Link".
-
-ASSIGN 
        imageSettings:PRIVATE-DATA IN FRAME FRAME-USER     = 
                 "Settings".
 
@@ -399,7 +413,54 @@ ASSIGN
    NO-ENABLE                                                            */
 /* SETTINGS FOR IMAGE menu-image IN FRAME FRAME-USER
    NO-ENABLE                                                            */
-/* SETTINGS FOR FILL-IN Mneumonic IN FRAME FRAME-USER
+/* SETTINGS FOR IMAGE menuLink-1 IN FRAME FRAME-USER
+   NO-ENABLE                                                            */
+ASSIGN 
+       menuLink-1:HIDDEN IN FRAME FRAME-USER           = TRUE.
+
+/* SETTINGS FOR IMAGE menuLink-2 IN FRAME FRAME-USER
+   NO-ENABLE                                                            */
+ASSIGN 
+       menuLink-2:HIDDEN IN FRAME FRAME-USER           = TRUE.
+
+/* SETTINGS FOR IMAGE menuLink-3 IN FRAME FRAME-USER
+   NO-ENABLE                                                            */
+ASSIGN 
+       menuLink-3:HIDDEN IN FRAME FRAME-USER           = TRUE.
+
+/* SETTINGS FOR IMAGE menuLink-4 IN FRAME FRAME-USER
+   NO-ENABLE                                                            */
+ASSIGN 
+       menuLink-4:HIDDEN IN FRAME FRAME-USER           = TRUE.
+
+/* SETTINGS FOR IMAGE menuLink-5 IN FRAME FRAME-USER
+   NO-ENABLE                                                            */
+ASSIGN 
+       menuLink-5:HIDDEN IN FRAME FRAME-USER           = TRUE.
+
+/* SETTINGS FOR IMAGE menuLink-6 IN FRAME FRAME-USER
+   NO-ENABLE                                                            */
+ASSIGN 
+       menuLink-6:HIDDEN IN FRAME FRAME-USER           = TRUE.
+
+/* SETTINGS FOR IMAGE menuLink-7 IN FRAME FRAME-USER
+   NO-ENABLE                                                            */
+ASSIGN 
+       menuLink-7:HIDDEN IN FRAME FRAME-USER           = TRUE.
+
+/* SETTINGS FOR IMAGE menuLink-8 IN FRAME FRAME-USER
+   NO-ENABLE                                                            */
+ASSIGN 
+       menuLink-8:HIDDEN IN FRAME FRAME-USER           = TRUE.
+
+/* SETTINGS FOR IMAGE menuLinkASI IN FRAME FRAME-USER
+   NO-ENABLE                                                            */
+ASSIGN 
+       menuLinkASI:HIDDEN IN FRAME FRAME-USER           = TRUE
+       menuLinkASI:PRIVATE-DATA IN FRAME FRAME-USER     = 
+                "Advantzware Link".
+
+/* SETTINGS FOR FILL-IN Mnemonic IN FRAME FRAME-USER
    NO-ENABLE                                                            */
 /* SETTINGS FOR RECTANGLE RECT-10 IN FRAME FRAME-USER
    NO-ENABLE                                                            */
@@ -462,33 +523,11 @@ DO:
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME aiccLogo
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL aiccLogo MAINMENU
-ON MOUSE-SELECT-CLICK OF aiccLogo IN FRAME FRAME-USER
-DO:
-    OS-COMMAND NO-WAIT START VALUE(cAICCLink).
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
 &Scoped-define SELF-NAME imageCompany
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL imageCompany MAINMENU
 ON MOUSE-SELECT-CLICK OF imageCompany IN FRAME FRAME-USER
 DO:
     RUN custom/comp_loc.w.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME imageLogo
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL imageLogo MAINMENU
-ON MOUSE-SELECT-CLICK OF imageLogo IN FRAME FRAME-USER
-DO:
-    OS-COMMAND NO-WAIT START VALUE(cASILink).
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -518,22 +557,110 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME tappiLogo
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tappiLogo MAINMENU
-ON MOUSE-SELECT-CLICK OF tappiLogo IN FRAME FRAME-USER
+&Scoped-define SELF-NAME menuLink-1
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL menuLink-1 MAINMENU
+ON MOUSE-SELECT-CLICK OF menuLink-1 IN FRAME FRAME-USER
 DO:
-    OS-COMMAND NO-WAIT START VALUE(cTAPPILink).
+    RUN pMenuLinkClick (1).
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME zohoHelp
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL zohoHelp MAINMENU
-ON MOUSE-SELECT-CLICK OF zohoHelp IN FRAME FRAME-USER
+&Scoped-define SELF-NAME menuLink-2
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL menuLink-2 MAINMENU
+ON MOUSE-SELECT-CLICK OF menuLink-2 IN FRAME FRAME-USER
 DO:
-    OS-COMMAND NO-WAIT START VALUE(cZoHoLink).
+    RUN pMenuLinkClick (2).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME menuLink-3
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL menuLink-3 MAINMENU
+ON MOUSE-SELECT-CLICK OF menuLink-3 IN FRAME FRAME-USER
+DO:
+    RUN pMenuLinkClick (3).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME menuLink-4
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL menuLink-4 MAINMENU
+ON MOUSE-SELECT-CLICK OF menuLink-4 IN FRAME FRAME-USER
+DO:
+    RUN pMenuLinkClick (4).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME menuLink-5
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL menuLink-5 MAINMENU
+ON MOUSE-SELECT-CLICK OF menuLink-5 IN FRAME FRAME-USER
+DO:
+    RUN pMenuLinkClick (5).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME menuLink-6
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL menuLink-6 MAINMENU
+ON MOUSE-SELECT-CLICK OF menuLink-6 IN FRAME FRAME-USER
+DO:
+    RUN pMenuLinkClick (6).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME menuLink-7
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL menuLink-7 MAINMENU
+ON MOUSE-SELECT-CLICK OF menuLink-7 IN FRAME FRAME-USER
+DO:
+    RUN pMenuLinkClick (7).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME menuLink-8
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL menuLink-8 MAINMENU
+ON MOUSE-SELECT-CLICK OF menuLink-8 IN FRAME FRAME-USER
+DO:
+    RUN pMenuLinkClick (8).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME menuLinkASI
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL menuLinkASI MAINMENU
+ON MOUSE-SELECT-CLICK OF menuLinkASI IN FRAME FRAME-USER
+DO:
+    OS-COMMAND NO-WAIT START VALUE(menuLinkasi:PRIVATE-DATA).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME menuLinkZoHo
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL menuLinkZoHo MAINMENU
+ON MOUSE-SELECT-CLICK OF menuLinkZoHo IN FRAME FRAME-USER
+DO:
+    OS-COMMAND NO-WAIT START VALUE(menuLinkZoHo:PRIVATE-DATA).
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -649,9 +776,9 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY company_name loc_loc users_user_id Mneumonic 
+  DISPLAY company_name loc_loc users_user_id Mnemonic 
       WITH FRAME FRAME-USER IN WINDOW MAINMENU.
-  ENABLE imageSettings imageCompany imageLogo aiccLogo tappiLogo zohoHelp 
+  ENABLE imageSettings imageCompany menuLinkZoHo 
       WITH FRAME FRAME-USER IN WINDOW MAINMENU.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-USER}
   VIEW MAINMENU.
@@ -679,8 +806,8 @@ PROCEDURE pClick :
         APPLY 'WINDOW-CLOSE':U TO {&WINDOW-NAME}.
 
         FIND FIRST ttblItem
-             WHERE ttblItem.menu1     EQ iphObjectHandle:NAME
-               AND ttblItem.mneumonic EQ iphObjectHandle:TOOLTIP.
+             WHERE ttblItem.menu1    EQ iphObjectHandle:NAME
+               AND ttblItem.mnemonic EQ iphObjectHandle:TOOLTIP.
         ASSIGN
             boxes:HIDDEN IN FRAME {&FRAME-NAME} = YES
             menu-image:HIDDEN = YES
@@ -700,8 +827,8 @@ PROCEDURE pClick :
     
         ASSIGN
             dObjectCol = ttblItem.hRectangle:COLUMN + {&objectWidth} + {&objectGap}
-            cMneumonic = ttblItem.mneumonic
-            Mneumonic:SCREEN-VALUE IN FRAME {&FRAME-NAME} = cMneumonic
+            cMnemonic  = ttblItem.mnemonic
+            mnemonic:SCREEN-VALUE IN FRAME {&FRAME-NAME} = cMnemonic
             .    
         IF INDEX(iphObjectHandle:NAME,'.') EQ 0 THEN
         RUN pCreateMenuObjects (iphObjectHandle:NAME).
@@ -766,7 +893,6 @@ PROCEDURE pCreateEditor :
     IF VALID-HANDLE(hWidget) THEN DO:
         ttblItem.hEditor = hWidget.
         hWidget:MOVE-TO-TOP().
-        hWidget:LOAD-MOUSE-POINTER("ARROW").
         IF ipcName EQ "Exit" THEN DO:
             hExitWidget = hWidget.
             RUN pSetFocus.
@@ -880,7 +1006,7 @@ PROCEDURE pCreateMenuObjects :
             {&FGColor},
             {&BGColor},
             cObjectLabel,
-            ttblItem.mneumonic,
+            ttblItem.mnemonic,
             "pClick",
             ttblItem.imageFile
             ).
@@ -1021,7 +1147,7 @@ PROCEDURE pGetMenu :
 ------------------------------------------------------------------------------*/
     DEFINE VARIABLE cPrgrm     AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cMenu      AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cMneumonic AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cMnemonic  AS CHARACTER NO-UNDO.
     DEFINE VARIABLE idx        AS INTEGER   NO-UNDO.
     DEFINE VARIABLE iLength    AS INTEGER   NO-UNDO.
     DEFINE VARIABLE dMaxWindow AS DECIMAL   NO-UNDO.
@@ -1041,10 +1167,10 @@ PROCEDURE pGetMenu :
         IF lMainMenu THEN cMenu = "file".
         
         FIND FIRST prgrms NO-LOCK WHERE prgrms.prgmname EQ cPrgrm NO-ERROR.
-        ASSIGN cMneumonic = SUBSTRING (prgrms.prgtitle,1,1) WHEN AVAILABLE prgrms.
+        ASSIGN cMnemonic = SUBSTRING (prgrms.prgtitle,1,1) WHEN AVAILABLE prgrms.
 
         FIND FIRST ttblMenu WHERE ttblMenu.menuName EQ cMenu NO-ERROR.
-        ASSIGN cMneumonic = ttblMenu.mneumonic + cMneumonic WHEN AVAILABLE ttblMenu.
+        ASSIGN cMnemonic = ttblMenu.mnemonic + cMnemonic WHEN AVAILABLE ttblMenu.
 
         IF INDEX (cPrgrm,".") EQ 0 THEN DO:
             FIND FIRST ttblMenu WHERE ttblMenu.menuName EQ cPrgrm NO-ERROR.
@@ -1052,7 +1178,7 @@ PROCEDURE pGetMenu :
                 CREATE ttblMenu.
                 ASSIGN
                     ttblMenu.menuName  = cPrgrm
-                    ttblMenu.mneumonic = cMneumonic 
+                    ttblMenu.mnemonic  = cMnemonic 
                    .
             END.
         END.
@@ -1061,8 +1187,8 @@ PROCEDURE pGetMenu :
         
         IF NOT CAN-FIND(FIRST prgrms WHERE prgrms.prgmname EQ cPrgrm) THEN NEXT.
 
-        IF LENGTH (cMneumonic) EQ 3 THEN
-        ASSIGN cMneumonic = SUBSTRING (cMneumonic,1,2) + ENTRY(ttblMenu.menuCount,cNumChars).
+        IF LENGTH (cMnemonic) EQ 3 THEN
+        ASSIGN cMnemonic = SUBSTRING (cMnemonic,1,2) + ENTRY(ttblMenu.menuCount,cNumChars).
 
         CREATE ttblItem.
         ASSIGN 
@@ -1071,7 +1197,7 @@ PROCEDURE pGetMenu :
             ttblItem.menuOrder = idx
             ttblItem.menu1     = cPrgrm
             ttblItem.menu2     = cMenu
-            ttblItem.mneumonic = cMneumonic
+            ttblItem.mnemonic  = cMnemonic
             ttblItem.mainMenu  = lMainMenu
             ttblItem.imageFile = fItemImage(cPrgrm)
             .            
@@ -1084,16 +1210,16 @@ PROCEDURE pGetMenu :
         ttblItem.menuOrder = idx
         ttblItem.menu1     = "Exit"
         ttblItem.menu2     = "file"
-        ttblItem.mneumonic = "X"
+        ttblItem.mnemonic  = "X"
         ttblItem.mainMenu  = NO
         ttblItem.imageFile = fItemImage("Exit")
         .            
     FOR EACH ttblItem USE-INDEX menu2 BREAK BY ttblItem.menu2:
         IF FIRST-OF(ttblItem.menu2) THEN idx = 0.
         ASSIGN
-            idx           = idx + 1
-            ttblItem.seq  = idx
-            ttblItem.level = LENGTH(ttblItem.mneumonic)
+            idx            = idx + 1
+            ttblItem.seq   = idx
+            ttblItem.level = LENGTH(ttblItem.mnemonic)
            .
         IF ttblItem.level GT 3 THEN
         ttblItem.level = 3.
@@ -1113,6 +1239,11 @@ PROCEDURE pGetMenu :
         FRAME {&FRAME-NAME}:HEIGHT = dMaxWindow
         iObjectCount = 0
         .
+    DO idx = 1 TO EXTENT(hMenuLink):
+        hMenuLink[idx]:ROW = FRAME {&FRAME-NAME}:HEIGHT - 1.86.
+        hMenuLink[idx]:MOVE-TO-TOP().
+    END. /* do idx */
+    
     RUN pCreateMenuObjects ("file").
 
 END PROCEDURE.
@@ -1188,6 +1319,7 @@ PROCEDURE pInit :
   Notes:       
 ------------------------------------------------------------------------------*/
     DEFINE VARIABLE cMenuExt AS CHARACTER NO-UNDO INITIAL "lst".
+    DEFINE VARIABLE idx      AS INTEGER   NO-UNDO.
     
     FIND FIRST sys-ctrl NO-LOCK
         WHERE sys-ctrl.company EQ g_company
@@ -1217,6 +1349,85 @@ PROCEDURE pInit :
     END CASE.
     
     RUN pImages.
+    
+    DO WITH FRAME {&FRAME-NAME}:
+        FIND FIRST sys-ctrl NO-LOCK
+             WHERE sys-ctrl.company EQ g_company
+               AND sys-ctrl.name    EQ "MENULINKASI"
+             NO-ERROR.
+        IF NOT AVAILABLE sys-ctrl THEN DO TRANSACTION:
+            CREATE sys-ctrl.
+            ASSIGN
+                sys-ctrl.name = "MENULINKASI"
+                sys-ctrl.descrip = "http://www.advantzware.com"
+                sys-ctrl.char-fld = "Graphics\asiicon.ico"
+                sys-ctrl.log-fld = YES
+                .
+        END. /* not avail */
+        IF sys-ctrl.log-fld AND
+           SEARCH(sys-ctrl.char-fld) NE ? AND
+           sys-ctrl.descrip NE "" THEN DO:
+            ASSIGN
+                menuLinkASI:PRIVATE-DATA = sys-ctrl.descrip
+                menuLinkASI:HIDDEN       = NO
+                menuLinkASI:SENSITIVE    = YES
+                .
+            menuLinkASI:LOAD-IMAGE(SEARCH(sys-ctrl.char-fld)).
+        END. /* if avail */
+        FIND FIRST sys-ctrl NO-LOCK
+             WHERE sys-ctrl.company EQ g_company
+               AND sys-ctrl.name    EQ "MENULINKZOHO"
+             NO-ERROR.
+        IF NOT AVAILABLE sys-ctrl THEN DO TRANSACTION:
+            CREATE sys-ctrl.
+            ASSIGN
+                sys-ctrl.name = "MENULINKZOHO"
+                sys-ctrl.descrip = "https://support.zoho.com/portal/advantzware/kb"
+                sys-ctrl.char-fld = "Graphics\32x32\question.ico"
+                sys-ctrl.log-fld = YES
+                .
+        END. /* not avail */
+        IF sys-ctrl.log-fld AND
+           SEARCH(sys-ctrl.char-fld) NE ? AND
+           sys-ctrl.descrip NE "" THEN DO:
+            ASSIGN
+                menuLinkZoHo:PRIVATE-DATA = sys-ctrl.descrip
+                menuLinkZoHo:HIDDEN       = NO
+                menuLinkZoHo:SENSITIVE    = YES
+                .
+            menuLinkZoHo:LOAD-IMAGE(SEARCH(sys-ctrl.char-fld)).
+        END. /* if avail */
+        ASSIGN
+            hMenuLink[1] = menuLink-1:HANDLE IN FRAME {&FRAME-NAME}
+            hMenuLink[2] = menuLink-2:HANDLE
+            hMenuLink[3] = menuLink-3:HANDLE
+            hMenuLink[4] = menuLink-4:HANDLE
+            hMenuLink[5] = menuLink-5:HANDLE
+            hMenuLink[6] = menuLink-6:HANDLE
+            hMenuLink[7] = menuLink-7:HANDLE
+            hMenuLink[8] = menuLink-8:HANDLE
+            .
+        DO idx = 1 TO EXTENT(hMenuLink):
+            FIND FIRST sys-ctrl NO-LOCK
+                 WHERE sys-ctrl.company EQ g_company
+                   AND sys-ctrl.name    EQ "MENULINK" + STRING(idx)
+                 NO-ERROR.
+            IF NOT AVAILABLE sys-ctrl THEN DO TRANSACTION:
+                CREATE sys-ctrl.
+                sys-ctrl.name = "MENULINK" + STRING(idx).
+            END. /* not avail */
+            IF sys-ctrl.log-fld AND
+               SEARCH(sys-ctrl.char-fld) NE ? AND
+               sys-ctrl.descrip NE "" THEN DO:
+                ASSIGN
+                    hMenuLink[idx]:PRIVATE-DATA = sys-ctrl.descrip
+                    hMenuLink[idx]:HIDDEN       = NO
+                    hMenuLink[idx]:SENSITIVE    = YES
+                    .
+                hMenuLink[idx]:LOAD-IMAGE(SEARCH(sys-ctrl.char-fld)).
+            END. /* if avail */
+        END. /* do idx */
+    END. /* with frame */
     
     DO WITH FRAME {&FRAME-NAME}:
         ASSIGN
@@ -1253,36 +1464,36 @@ PROCEDURE pKeyPress :
     DEFINE VARIABLE idx   AS INTEGER   NO-UNDO.
 
     ASSIGN
-        cSave      = SUBSTR(cMneumonic,1,2)
-        cKey       = CAPS(KEYLABEL(ipiLastKey)) WHEN INDEX("{&validKeys}",KEYLABEL(ipiLastKey)) NE 0
-        cMneumonic = IF cKey NE "" THEN cSave + cKey ELSE ""
+        cSave     = SUBSTR(cMnemonic,1,2)
+        cKey      = CAPS(KEYLABEL(ipiLastKey)) WHEN INDEX("{&validKeys}",KEYLABEL(ipiLastKey)) NE 0
+        cMnemonic = IF cKey NE "" THEN cSave + cKey ELSE ""
         .
-    DO WHILE cMneumonic NE "":
+    DO WHILE cMnemonic NE "":
         idx = idx + 1.
         /* prevents endless loop */
         IF idx GT 5 THEN LEAVE.
         FIND FIRST ttblItem
-             WHERE ttblItem.mneumonic EQ cMneumonic
+             WHERE ttblItem.mnemonic EQ cMnemonic
              NO-ERROR.
         IF AVAILABLE ttblItem THEN DO:
-            Mneumonic:SCREEN-VALUE IN FRAME {&FRAME-NAME} = cmneumonic.
+            mnemonic:SCREEN-VALUE IN FRAME {&FRAME-NAME} = cMnemonic.
             RUN pClick (ttblItem.hRectangle).
-            cMneumonic = SUBSTR(cMneumonic,1,2).
+            cMnemonic = SUBSTR(cMnemonic,1,2).
             LEAVE.
         END.
         ELSE
         ASSIGN
-            cSave = SUBSTR(cSave,1,LENGTH(cSave) - 1)
-            cMneumonic = cSave + cKey
+            cSave     = SUBSTR(cSave,1,LENGTH(cSave) - 1)
+            cMnemonic = cSave + cKey
             .
     END. /* do idx */
     
-    IF cMneumonic EQ "" OR idx GT 5 THEN DO:
+    IF cMnemonic EQ "" OR idx GT 5 THEN DO:
         ASSIGN
             boxes:HIDDEN IN FRAME {&FRAME-NAME} = NO
             menu-image:HIDDEN = NO
             RECT-10:HIDDEN = NO
-            Mneumonic:SCREEN-VALUE = ""
+            mnemonic:SCREEN-VALUE = ""
             .
         FOR EACH ttblItem WHERE ttblItem.level GT 1:
             DELETE OBJECT ttblItem.hImage NO-ERROR.
@@ -1322,6 +1533,22 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pMenuLinkClick MAINMENU 
+PROCEDURE pMenuLinkClick :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipiLink AS INTEGER NO-UNDO.
+    
+    OS-COMMAND NO-WAIT START VALUE(hMenuLink[ipiLink]:PRIVATE-DATA).
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pReset MAINMENU 
 PROCEDURE pReset :
 /*------------------------------------------------------------------------------
@@ -1330,7 +1557,7 @@ PROCEDURE pReset :
   Notes:       
 ------------------------------------------------------------------------------*/
     ASSIGN
-        Mneumonic:SCREEN-VALUE IN FRAME {&FRAME-NAME} = ""
+        mnemonic:SCREEN-VALUE IN FRAME {&FRAME-NAME} = ""
         dObjectCol = {&startObjectCol}
         {&WINDOW-NAME}:TITLE = fTranslate({&WINDOW-NAME}:PRIVATE-DATA,NO)
                              + " {&awversion}"
