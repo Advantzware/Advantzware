@@ -506,7 +506,9 @@ for each xxreport where xxreport.term-id eq v-term-id,
   IF cSignatureFile NE "" THEN
       cSignatureFile = cSignatureFile + ">".
 
- IF NOT v-footer THEN do:
+ IF v-footer THEN do:
+     PUT "<FArial><C2><R46><#3><R+5><C+160><IMAGE#3=" cImageFooter + ">" FORMAT "x(200)"  .
+ END.
 
   PUT "<R52><C53><#8><FROM><R+4><C+27><RECT> " 
       "<=8><R+1> Total Units       :" v-grand-total-cases
@@ -563,11 +565,7 @@ for each xxreport where xxreport.term-id eq v-term-id,
       "<R66> <C28>Charges"
       "<R67><C28><P6>advanced:$ <P7><C45>  PER"
       "<RESTORE=LPI>".
- END.
- ELSE DO:
-   PUT "<FArial><C2><R51><#3><R+20><C+140><IMAGE#3=" cImageFooter + ">" FORMAT "x(200)"  .
- END.
-
+ 
 
   v-printline = v-printline + 14. 
   
