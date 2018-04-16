@@ -98,7 +98,9 @@ DEF TEMP-TABLE ttDetail
       FIELD ShipToState AS CHARACTER
       FIELD ShipToZip AS CHARACTER
       FIELD ShipToPhone AS CHARACTER
-      FIELD ShipToContact AS CHARACTER .
+      FIELD ShipToContact AS CHARACTER 
+      FIELD POLineNum AS INTEGER 
+      .
 
 DO TRANSACTION:
     {sys/inc/oereleas.i}
@@ -552,7 +554,8 @@ PROCEDURE BuildImpTable :
                          ttDetail.ShipToPhone = ENTRY(19,cInput).
             IF NUM-ENTRIES(cInput) >= 20 THEN
                          ttDetail.ShipToContact = ENTRY(20,cInput).
-    
+            IF NUM-ENTRIES(cInput) >= 21 THEN
+                         ttDetail.POLineNum = INTEGER(ENTRY(21,cInput)) NO-ERROR.
           END.
      END.
     
@@ -844,6 +847,7 @@ PROCEDURE CreateOrder :
                             oe-ordl.whsed = IF oe-ordl.est-no <> "" THEN YES ELSE NO
                             oe-ordl.managed = oe-ord.managed
                             oe-ordl.q-no = IF ttDetail.ItemQuote# <> 0 THEN ttDetail.ItemQuote# ELSE oe-ord.q-no
+                            oe-ordl.e-num = ttDetail.POLineNum
                             .
                   IF oe-ordl.price = 0 THEN DO:
                      FIND FIRST xoe-ord OF oe-ord NO-LOCK.

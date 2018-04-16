@@ -200,13 +200,14 @@ DEFINE STREAM excel.
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-18 RECT-6 fiAutoIssue v-post-date ~
-v-from-job begin_job-no2 v-to-job end_job-no2 ldt-from ldt-to begin_userid end_userid t-receipt ~
-t-issue t-trans t-adj t-showtotal lv-ornt lines-per-page rd-dest lv-font-no ~
-td-show-parm tb_excel tb_runExcel fi_file Btn_OK Btn_Cancel 
-&Scoped-Define DISPLAYED-OBJECTS fiAutoIssue v-post-date v-from-job begin_job-no2 ~
-v-to-job end_job-no2 ldt-from ldt-to begin_userid end_userid t-receipt t-issue t-trans ~
-t-adj t-showtotal lv-ornt lines-per-page rd-dest lv-font-no td-show-parm ~
-lv-font-name tb_excel tb_runExcel fi_file 
+v-from-job begin_job-no2 v-to-job end_job-no2 ldt-from ldt-to begin_userid ~
+end_userid t-receipt t-issue t-trans t-adj t-showtotal lv-ornt ~
+lines-per-page rd-dest lv-font-no td-show-parm tb_excel tb_runExcel fi_file ~
+Btn_OK Btn_Cancel 
+&Scoped-Define DISPLAYED-OBJECTS fiAutoIssue v-post-date v-from-job ~
+begin_job-no2 v-to-job end_job-no2 ldt-from ldt-to begin_userid end_userid ~
+t-receipt t-issue t-trans t-adj t-showtotal lv-ornt lines-per-page rd-dest ~
+lv-font-no td-show-parm lv-font-name tb_excel tb_runExcel fi_file 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -241,10 +242,20 @@ DEFINE BUTTON Btn_OK AUTO-GO
      SIZE 15 BY 1.14
      BGCOLOR 8 .
 
+DEFINE VARIABLE begin_job-no2 AS INTEGER FORMAT ">9":U INITIAL 0 
+     LABEL "" 
+     VIEW-AS FILL-IN 
+     SIZE 4.4 BY 1 NO-UNDO.
+
 DEFINE VARIABLE begin_userid AS CHARACTER FORMAT "X(8)":U 
      LABEL "Beginning User ID" 
      VIEW-AS FILL-IN 
      SIZE 16 BY 1 NO-UNDO.
+
+DEFINE VARIABLE end_job-no2 AS INTEGER FORMAT ">9":U INITIAL 99 
+     LABEL "" 
+     VIEW-AS FILL-IN 
+     SIZE 4.6 BY 1 NO-UNDO.
 
 DEFINE VARIABLE end_userid AS CHARACTER FORMAT "X(8)":U INITIAL "zzzzzzzz" 
      LABEL "Ending User ID" 
@@ -296,11 +307,6 @@ DEFINE VARIABLE v-from-job AS CHARACTER FORMAT "X(256)":U
      VIEW-AS FILL-IN 
      SIZE 20 BY 1 NO-UNDO.
 
-DEFINE VARIABLE begin_job-no2 AS CHARACTER FORMAT "-99":U INITIAL "00" 
-     LABEL "" 
-     VIEW-AS FILL-IN 
-     SIZE 4.4 BY 1 NO-UNDO.
-
 DEFINE VARIABLE v-post-date AS DATE FORMAT "99/99/9999":U INITIAL 01/01/001 
      LABEL "Post Date" 
      VIEW-AS FILL-IN 
@@ -310,11 +316,6 @@ DEFINE VARIABLE v-to-job AS CHARACTER FORMAT "X(256)":U INITIAL "zzzzzz"
      LABEL "Ending Job#" 
      VIEW-AS FILL-IN 
      SIZE 20 BY 1 NO-UNDO.
-
-DEFINE VARIABLE end_job-no2 AS CHARACTER FORMAT "-99":U INITIAL "99" 
-     LABEL "" 
-     VIEW-AS FILL-IN 
-     SIZE 4.6 BY 1 NO-UNDO.
 
 DEFINE VARIABLE lv-ornt AS CHARACTER INITIAL "P" 
      VIEW-AS RADIO-SET HORIZONTAL
@@ -342,44 +343,44 @@ DEFINE RECTANGLE RECT-6
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 92 BY 8.81.
 
-DEFINE VARIABLE t-adj AS LOGICAL INITIAL NO 
+DEFINE VARIABLE t-adj AS LOGICAL INITIAL no 
      LABEL "Adjustments" 
      VIEW-AS TOGGLE-BOX
      SIZE 23 BY .81 NO-UNDO.
 
-DEFINE VARIABLE t-issue AS LOGICAL INITIAL NO 
+DEFINE VARIABLE t-issue AS LOGICAL INITIAL no 
      LABEL "Issues" 
      VIEW-AS TOGGLE-BOX
      SIZE 11 BY .81 NO-UNDO.
 
-DEFINE VARIABLE t-receipt AS LOGICAL INITIAL NO 
+DEFINE VARIABLE t-receipt AS LOGICAL INITIAL no 
      LABEL "Receipts" 
      VIEW-AS TOGGLE-BOX
      SIZE 36 BY .86 NO-UNDO.
 
-DEFINE VARIABLE t-showtotal AS LOGICAL INITIAL NO 
+DEFINE VARIABLE t-showtotal AS LOGICAL INITIAL no 
      LABEL "Show Totals?" 
      VIEW-AS TOGGLE-BOX
      SIZE 25 BY .81 NO-UNDO.
 
-DEFINE VARIABLE t-trans AS LOGICAL INITIAL NO 
+DEFINE VARIABLE t-trans AS LOGICAL INITIAL no 
      LABEL "Transfers" 
      VIEW-AS TOGGLE-BOX
      SIZE 17 BY .81 NO-UNDO.
 
-DEFINE VARIABLE tb_excel AS LOGICAL INITIAL NO 
+DEFINE VARIABLE tb_excel AS LOGICAL INITIAL no 
      LABEL "Export To Excel?" 
      VIEW-AS TOGGLE-BOX
      SIZE 21 BY .81
      BGCOLOR 3  NO-UNDO.
 
-DEFINE VARIABLE tb_runExcel AS LOGICAL INITIAL NO 
+DEFINE VARIABLE tb_runExcel AS LOGICAL INITIAL no 
      LABEL "Auto Run Excel?" 
      VIEW-AS TOGGLE-BOX
      SIZE 21 BY .81
      BGCOLOR 3  NO-UNDO.
 
-DEFINE VARIABLE td-show-parm AS LOGICAL INITIAL YES 
+DEFINE VARIABLE td-show-parm AS LOGICAL INITIAL yes 
      LABEL "Show Parameters?" 
      VIEW-AS TOGGLE-BOX
      SIZE 24 BY .81 NO-UNDO.
@@ -458,15 +459,15 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          MAX-WIDTH          = 322.8
          VIRTUAL-HEIGHT     = 48.05
          VIRTUAL-WIDTH      = 322.8
-         RESIZE             = YES
-         SCROLL-BARS        = NO
-         STATUS-AREA        = YES
+         RESIZE             = yes
+         SCROLL-BARS        = no
+         STATUS-AREA        = yes
          BGCOLOR            = ?
          FGCOLOR            = ?
-         KEEP-FRAME-Z-ORDER = YES
-         THREE-D            = YES
-         MESSAGE-AREA       = NO
-         SENSITIVE          = YES.
+         KEEP-FRAME-Z-ORDER = yes
+         THREE-D            = yes
+         MESSAGE-AREA       = no
+         SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 &IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
@@ -486,15 +487,21 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-F
    FRAME-NAME                                                           */
-ASSIGN
+ASSIGN 
+       begin_job-no2:PRIVATE-DATA IN FRAME FRAME-F     = 
+                "parm".
+
+ASSIGN 
        Btn_Cancel:PRIVATE-DATA IN FRAME FRAME-F     = 
                 "ribbon-button".
 
-
-ASSIGN
+ASSIGN 
        Btn_OK:PRIVATE-DATA IN FRAME FRAME-F     = 
                 "ribbon-button".
 
+ASSIGN 
+       end_job-no2:PRIVATE-DATA IN FRAME FRAME-F     = 
+                "parm".
 
 ASSIGN 
        fi_file:PRIVATE-DATA IN FRAME FRAME-F     = 
@@ -536,9 +543,6 @@ ASSIGN
 ASSIGN 
        v-from-job:PRIVATE-DATA IN FRAME FRAME-F     = 
                 "parm".
-ASSIGN 
-       begin_job-no2:PRIVATE-DATA IN FRAME FRAME-F     = 
-                "parm".
 
 ASSIGN 
        v-post-date:PRIVATE-DATA IN FRAME FRAME-F     = 
@@ -547,17 +551,14 @@ ASSIGN
 ASSIGN 
        v-to-job:PRIVATE-DATA IN FRAME FRAME-F     = 
                 "parm".
-ASSIGN 
-       end_job-no2:PRIVATE-DATA IN FRAME FRAME-F     = 
-                "parm".
 
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
-THEN C-Win:HIDDEN = NO.
+THEN C-Win:HIDDEN = no.
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -589,6 +590,17 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME begin_job-no2
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_job-no2 C-Win
+ON LEAVE OF begin_job-no2 IN FRAME FRAME-F
+DO:
+  assign {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME Btn_Cancel
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Cancel C-Win
 ON CHOOSE OF Btn_Cancel IN FRAME FRAME-F /* Cancel */
@@ -609,6 +621,10 @@ DO:
   DEF VAR lValidQty AS LOG NO-UNDO.
 
   DO WITH FRAME {&FRAME-NAME}:
+    IF begin_job-no2:SCREEN-VALUE EQ "??" THEN
+    begin_job-no2:SCREEN-VALUE = "0".
+    IF end_job-no2:SCREEN-VALUE EQ "??" THEN
+    end_job-no2:SCREEN-VALUE = "99".
     ASSIGN {&DISPLAYED-OBJECTS}.    
   END.
 
@@ -750,6 +766,17 @@ DO:
   END.
 
   RUN util/fxissues.p.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME end_job-no2
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_job-no2 C-Win
+ON LEAVE OF end_job-no2 IN FRAME FRAME-F
+DO:
+  assign {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -923,36 +950,6 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&Scoped-define SELF-NAME begin_job-no2
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_job-no2 C-Win
-ON LEAVE OF begin_job-no2 IN FRAME FRAME-F
-DO:
-  /* assign {&self-name}.*/
-    DO WITH FRAME {&FRAME-NAME}:
-        IF length(begin_job-no2:SCREEN-VALUE) LT 3 THEN DO:
-            ASSIGN begin_job-no2:SCREEN-VALUE = "0" + SUBSTRING(begin_job-no2:SCREEN-VALUE,2,2).
-        END.
-    END.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&Scoped-define SELF-NAME end_job-no2
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_job-no2 C-Win
-ON LEAVE OF end_job-no2 IN FRAME FRAME-F
-DO:
-  /*assign {&self-name}.*/
-    DO WITH FRAME {&FRAME-NAME}:
-        IF length(end_job-no2:SCREEN-VALUE) LT 3 THEN DO:
-            ASSIGN end_job-no2:SCREEN-VALUE = "0" + SUBSTRING(end_job-no2:SCREEN-VALUE,2,2).
-        END.
-    END.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 
 &Scoped-define SELF-NAME v-post-date
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL v-post-date C-Win
@@ -1025,8 +1022,8 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
   ll-auto = IF v-autoissue = ? THEN NO ELSE v-autoissue.
 
-  iLastJob2 = ?.
-  iFirstJob2 = ?.
+  iLastJob2 = 99.
+  iFirstJob2 = 0.
   lFromSS = DYNAMIC-FUNCTION('is-run-from-ss':U).
   FOR EACH rm-rctd
       WHERE rm-rctd.company   EQ cocode
@@ -1091,8 +1088,8 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         ldt-to:SCREEN-VALUE = STRING(dLastDate)
         v-from-job:SCREEN-VALUE =  cFirstJob
         v-to-job:SCREEN-VALUE =  cLastJob
-        begin_job-no2:SCREEN-VALUE =  string(iFirstJob2)
-        end_job-no2:SCREEN-VALUE =  string(iLastJob2) .
+        begin_job-no2:SCREEN-VALUE =  STRING(iFirstJob2)
+        end_job-no2:SCREEN-VALUE =  STRING(iLastJob2) .
     END.
     IF NOT ip-post THEN
        v-post-date:SCREEN-VALUE = STRING(TODAY).
@@ -1336,15 +1333,15 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY fiAutoIssue v-post-date v-from-job begin_job-no2 v-to-job end_job-no2 ldt-from ldt-to 
-          begin_userid end_userid t-receipt t-issue t-trans t-adj t-showtotal 
-          lv-ornt lines-per-page rd-dest lv-font-no td-show-parm lv-font-name 
-          tb_excel tb_runExcel fi_file 
+  DISPLAY fiAutoIssue v-post-date v-from-job begin_job-no2 v-to-job end_job-no2 
+          ldt-from ldt-to begin_userid end_userid t-receipt t-issue t-trans 
+          t-adj t-showtotal lv-ornt lines-per-page rd-dest lv-font-no 
+          td-show-parm lv-font-name tb_excel tb_runExcel fi_file 
       WITH FRAME FRAME-F IN WINDOW C-Win.
-  ENABLE RECT-18 RECT-6 fiAutoIssue v-post-date v-from-job begin_job-no2 v-to-job end_job-no2 ldt-from 
-         ldt-to begin_userid end_userid t-receipt t-issue t-trans t-adj 
-         t-showtotal lv-ornt lines-per-page rd-dest lv-font-no td-show-parm 
-         tb_excel tb_runExcel fi_file Btn_OK Btn_Cancel 
+  ENABLE RECT-18 RECT-6 fiAutoIssue v-post-date v-from-job begin_job-no2 
+         v-to-job end_job-no2 ldt-from ldt-to begin_userid end_userid t-receipt 
+         t-issue t-trans t-adj t-showtotal lv-ornt lines-per-page rd-dest 
+         lv-font-no td-show-parm tb_excel tb_runExcel fi_file Btn_OK Btn_Cancel 
       WITH FRAME FRAME-F IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-F}
   VIEW C-Win.
@@ -1430,9 +1427,8 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE getRecordLock C-Win
-PROCEDURE getRecordLock:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE getRecordLock C-Win 
+PROCEDURE getRecordLock :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -1534,11 +1530,9 @@ PROCEDURE getRecordLock:
 
 
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE gl-from-work C-Win 
 PROCEDURE gl-from-work :
@@ -2056,8 +2050,8 @@ v-avg-cst = rm-ctrl.avg-lst-cst.
           AND rm-rctd.rita-code EQ "ADDER"
           AND rm-rctd.job-no    GE v-from-job
           AND rm-rctd.job-no    LE v-to-job
-          AND rm-rctd.job-no2    GE INTEGER(begin_job-no2)
-          AND rm-rctd.job-no2    LE INTEGER(end_job-no2)
+          AND rm-rctd.job-no2   GE begin_job-no2
+          AND rm-rctd.job-no2   LE end_job-no2
           AND ((begin_userid    LE "" AND
                 end_userid      GE "") OR
                (rm-rctd.user-id GE begin_userid AND
@@ -2170,8 +2164,8 @@ FORM v-disp-actnum LABEL "G/L ACCOUNT NUMBER"
         WHERE rm-rctd.company   EQ cocode
           AND rm-rctd.job-no    GE v-from-job
           AND rm-rctd.job-no    LE v-to-job
-          AND rm-rctd.job-no2   GE INTEGER(begin_job-no2)
-          AND rm-rctd.job-no2   LE INTEGER(end_job-no2)
+          AND rm-rctd.job-no2   GE begin_job-no2
+          AND rm-rctd.job-no2   LE end_job-no2
           AND rm-rctd.rct-date  GE ldt-from
           AND rm-rctd.rct-date  LE ldt-to
           AND INDEX(v-types,rm-rctd.rita-code) GT 0 

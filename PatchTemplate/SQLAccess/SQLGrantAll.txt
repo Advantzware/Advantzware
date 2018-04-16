@@ -1,0 +1,1 @@
+sqlexp -char -infile N:\Updates\PATCH16.5.8\SQLAccess\allfiles.SQL -outfile c:\temp\report.txt -db asiProd -S 2826 -H localhost -user sysprogress -password sysprogress

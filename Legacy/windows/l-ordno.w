@@ -176,7 +176,7 @@ DEFINE FRAME Dialog-Frame
      SPACE(134.79) SKIP(2.22)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
-         TITLE "PO Information".
+         TITLE "Order Information".
 
 
 /* *********************** Procedure Settings ************************ */
