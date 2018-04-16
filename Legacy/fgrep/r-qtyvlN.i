@@ -211,7 +211,10 @@ FOR EACH tt-cust,
 
                      IF AVAIL oe-ordl THEN
                        v-ext-job = (oe-ordl.t-price / oe-ordl.qty) * v-qty-job.
-       
+                   IF AVAIL oe-ordl THEN
+                     FIND FIRST oe-ord NO-LOCK 
+                         WHERE oe-ord.company EQ oe-ordl.company
+                         AND oe-ord.ord-no EQ oe-ordl.ord-no NO-ERROR.
 
                      v-sales-rep = "" .
 
@@ -266,6 +269,7 @@ FOR EACH tt-cust,
                           WHEN "qty-case"   THEN cVarValue = STRING(itemfg.case-count,"->>,>>9") . 
                           WHEN "fg-lot"   THEN cVarValue = cLotNum .
                           WHEN "cust-lot"   THEN cVarValue = cCustLotNum .
+                          WHEN "due-date"    THEN cVarValue = IF AVAIL oe-ord AND oe-ord.due-date NE ? THEN STRING(oe-ord.due-date,"99/99/9999") ELSE "" . 
 
                      END CASE.
                        
@@ -338,6 +342,7 @@ FOR EACH tt-cust,
                           WHEN "qty-case"   THEN cVarValue = "" .
                           WHEN "FG-lot"   THEN cVarValue = "" . 
                           WHEN "cust-lot"   THEN cVarValue = "" .
+                          WHEN "due-date"    THEN cVarValue = "" . 
                      END CASE.
                        
                      cExcelVarValue = cVarValue.
@@ -377,6 +382,7 @@ FOR EACH tt-cust,
                           WHEN "qty-case"   THEN cVarValue = "" .
                           WHEN "FG-lot"   THEN cVarValue = "" . 
                           WHEN "cust-lot"   THEN cVarValue = "" . 
+                          WHEN "due-date" THEN cVarValue = "" . 
                      END CASE.
                        
                      cExcelVarValue = cVarValue.
