@@ -44,8 +44,9 @@ CREATE WIDGET-POOL.
 DEFINE VARIABLE i AS INTEGER NO-UNDO.
 
 DEFINE TEMP-TABLE ttTable NO-UNDO
-    FIELD auditTable AS CHARACTER FORMAT "x(20)" LABEL "Table"
-    FIELD audit      AS LOGICAL   EXTENT 4
+    FIELD auditTable  AS CHARACTER FORMAT "x(20)" LABEL "Table"
+    FIELD description AS CHARACTER FORMAT "x(30)" LABEL "Description"
+    FIELD audit       AS LOGICAL   EXTENT 4
         INDEX ttTable IS PRIMARY auditTable
         .
 
@@ -68,7 +69,7 @@ DEFINE TEMP-TABLE ttTable NO-UNDO
 &Scoped-define INTERNAL-TABLES ttTable
 
 /* Definitions for BROWSE dbTables                                      */
-&Scoped-define FIELDS-IN-QUERY-dbTables ttTable.auditTable ttTable.audit[1] ttTable.audit[2] ttTable.audit[3] ttTable.audit[4]   
+&Scoped-define FIELDS-IN-QUERY-dbTables ttTable.auditTable ttTable.description ttTable.audit[1] ttTable.audit[2] ttTable.audit[3] ttTable.audit[4]   
 &Scoped-define ENABLED-FIELDS-IN-QUERY-dbTables ttTable.audit[1] ttTable.audit[2] ttTable.audit[3] ttTable.audit[4]   
 &Scoped-define ENABLED-TABLES-IN-QUERY-dbTables ttTable
 &Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-dbTables ttTable
@@ -128,7 +129,7 @@ DEFINE VARIABLE svFilter AS CHARACTER FORMAT "X(256)":U
 
 DEFINE RECTANGLE RECT-11
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
-     SIZE 76 BY 2.38.
+     SIZE 107 BY 2.38.
 
 DEFINE VARIABLE svStackTrace AS LOGICAL INITIAL no 
      LABEL "Stack" 
@@ -161,6 +162,7 @@ DEFINE BROWSE dbTables
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS dbTables C-Win _FREEFORM
   QUERY dbTables DISPLAY
       ttTable.auditTable
+ttTable.description
 ttTable.audit[1] COLUMN-LABEL "Audit Create" VIEW-AS TOGGLE-BOX
 ttTable.audit[2] COLUMN-LABEL "Audit Delete" VIEW-AS TOGGLE-BOX
 ttTable.audit[3] COLUMN-LABEL "Audit Update" VIEW-AS TOGGLE-BOX
@@ -172,37 +174,37 @@ ttTable.audit[3]
 ttTable.audit[4]
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ROW-MARKERS SEPARATORS SIZE 76 BY 30.48
+    WITH NO-ROW-MARKERS SEPARATORS SIZE 107 BY 30.48
          TITLE "Database Tables".
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME DEFAULT-FRAME
-     btnBeforeValueFilterClear AT ROW 1.48 COL 48 HELP
+     btnBeforeValueFilterClear AT ROW 1.48 COL 67 HELP
           "Click to Clear Value Filter" WIDGET-ID 40
-     svFilter AT ROW 1.48 COL 14 COLON-ALIGNED HELP
+     svFilter AT ROW 1.48 COL 33 COLON-ALIGNED HELP
           "Enter Filter Value" WIDGET-ID 6
-     svToggleAuditCreate AT ROW 2.67 COL 16 HELP
+     svToggleAuditCreate AT ROW 2.67 COL 35 HELP
           "Select to Toggle Audit Create" WIDGET-ID 4
-     svToggleAuditDelete AT ROW 2.67 COL 27 HELP
+     svToggleAuditDelete AT ROW 2.67 COL 46 HELP
           "Select to Toggle Audit Delete" WIDGET-ID 8
-     svToggleAuditUpdate AT ROW 2.67 COL 38 HELP
+     svToggleAuditUpdate AT ROW 2.67 COL 57 HELP
           "Select to Toggle Audit Update" WIDGET-ID 10
-     svStackTrace AT ROW 2.67 COL 49 HELP
+     svStackTrace AT ROW 2.67 COL 68 HELP
           "Select to Toggle Audit Stack Trace" WIDGET-ID 42
      dbTables AT ROW 3.86 COL 2 WIDGET-ID 100
-     btnExit AT ROW 1.48 COL 69 HELP
+     btnExit AT ROW 1.48 COL 100 HELP
           "Use this function to CANCEL field selecition"
-     btnOK AT ROW 1.48 COL 61 HELP
+     btnOK AT ROW 1.48 COL 92 HELP
           "Use this function to ACCEPT selected field"
      "Toggle Audit" VIEW-AS TEXT
-          SIZE 12 BY .81 AT ROW 2.67 COL 3 WIDGET-ID 12
+          SIZE 12 BY .81 AT ROW 2.67 COL 22 WIDGET-ID 12
      RECT-11 AT ROW 1.24 COL 2 WIDGET-ID 2
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 78 BY 33.33.
+         SIZE 109 BY 33.33.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -223,11 +225,11 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          HIDDEN             = YES
          TITLE              = "Audit Table Selections"
          HEIGHT             = 33.33
-         WIDTH              = 78
+         WIDTH              = 109
          MAX-HEIGHT         = 33.33
-         MAX-WIDTH          = 78
+         MAX-WIDTH          = 145.8
          VIRTUAL-HEIGHT     = 33.33
-         VIRTUAL-WIDTH      = 78
+         VIRTUAL-WIDTH      = 145.8
          MAX-BUTTON         = no
          RESIZE             = yes
          SCROLL-BARS        = no
@@ -501,6 +503,13 @@ PROCEDURE pGetTables :
             ttTable.audit[3]   = AuditTbl.AuditUpdate
             ttTable.audit[4]   = AuditTbl.AuditStack
             .
+        FIND FIRST ASI._file NO-LOCK
+             WHERE ASI._file._file-name EQ ttTable.auditTable
+             NO-ERROR.
+        IF AVAILABLE ASI._file THEN
+        ttTable.description = ASI._file._Desc.
+        ELSE /* table no longer exists in schema, turn off audit */
+        ttTable.audit = NO.
     END. /* each audittbl */
     {&OPEN-QUERY-{&BROWSE-NAME}}
   
