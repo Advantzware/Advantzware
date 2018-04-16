@@ -703,7 +703,7 @@ DO:
 
 
   IF CAN-FIND(FIRST ttCustList WHERE
-     ttCustList.cust-no NE "" AND ttCustList.log-fld = YES ) AND rd-dest NE 5 THEN
+     ttCustList.cust-no NE "" AND ttCustList.log-fld = YES ) THEN
   DO: 
 
      IF v-stmt-char EQ "ASIExcel" THEN
