@@ -116,6 +116,14 @@ ar-invl.po-no
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
 
+/* ************************  Function Prototypes ********************** */
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD get-itemfg-cost d-oeitem 
+FUNCTION get-itemfg-cost RETURNS DECIMAL
+  ( ipv-item AS CHAR /* parameter-definitions */ )  FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 
 /* ***********************  Control Definitions  ********************** */
@@ -425,10 +433,13 @@ DO:
        when "i-no" then do:
            RUN windows/l-itemfg.w (g_company, ar-inv.cust-no,ar-invl.i-no:SCREEN-VALUE , OUTPUT char-val).
            IF char-val <> "" THEN ASSIGN ar-invl.i-no:SCREEN-VALUE  = ENTRY(1,char-val).
+           RUN get-iteminfo .
+           APPLY "entry" TO ar-invl.i-no .
        END.
        when "part-no" then do:
            RUN windows/l-cpart.w (g_company,ar-inv.cust-no,ar-invl.part-no:SCREEN-VALUE, OUTPUT char-val,OUTPUT op-row-id).
            IF char-val <> "" THEN ASSIGN ar-invl.part-no:SCREEN-VALUE = ENTRY(1,char-val).
+           APPLY "entry" TO ar-invl.part-no .
        END.
        when "bol-no" then do:
            RUN windows/l-bolhsp.w (g_company, ?,ar-invl.bol-no:SCREEN-VALUE, OUTPUT char-val,OUTPUT op-rec-id).
@@ -606,7 +617,7 @@ ON LEAVE OF ar-invl.actnum IN FRAME Dialog-Frame /* Account Number */
 DO:
     IF LASTKEY = -1 THEN RETURN.
 
-    IF ar-invl.actnum:MODIFIED  THEN DO:
+    IF ar-invl.actnum:SCREEN-VALUE GT ""  THEN DO:
        FIND FIRST account WHERE account.company = g_company AND
                                 account.TYPE <> "T" AND
                                 account.actnum = ar-invl.actnum:SCREEN-VALUE
@@ -641,8 +652,45 @@ DO:
        END.
        ASSIGN
          ar-invl.i-dscr:SCREEN-VALUE  = itemfg.part-dscr1
-         ar-invl.i-name:SCREEN-VALUE  = itemfg.i-name.
+         ar-invl.i-name:SCREEN-VALUE  = itemfg.i-name 
+         ar-invl.unit-pr:SCREEN-VALUE  = string(itemfg.sell-price)
+         ar-invl.cost:screen-value   = STRING(get-itemfg-cost(itemfg.i-no)).
     END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME ar-invl.i-no
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ar-invl.i-no Dialog-Frame
+ON VALUE-CHANGED OF ar-invl.i-no IN FRAME Dialog-Frame /* Item No */
+DO:
+      IF LASTKEY = -1 THEN RETURN.
+       FIND FIRST itemfg NO-LOCK
+             WHERE itemfg.company = g_company 
+               AND itemfg.i-no = ar-invl.i-no:SCREEN-VALUE
+             NO-ERROR.
+       IF AVAIL itemfg THEN DO:
+           ASSIGN
+         ar-invl.i-dscr:SCREEN-VALUE  = itemfg.part-dscr1
+         ar-invl.i-name:SCREEN-VALUE  = itemfg.i-name 
+         ar-invl.unit-pr:SCREEN-VALUE  = string(itemfg.sell-price)
+         ar-invl.cost:screen-value   = STRING(get-itemfg-cost(itemfg.i-no)).
+           FIND FIRST fgcat NO-LOCK 
+               WHERE fgcat.company EQ itemfg.company 
+                 AND fgcat.procat EQ  itemfg.procat NO-ERROR .
+           IF AVAIL fgcat THEN
+               ASSIGN ar-invl.actnum:SCREEN-VALUE  = fgcat.glacc .
+
+           FIND FIRST account WHERE account.company = g_company AND
+                                account.TYPE <> "T" AND
+                                account.actnum = ar-invl.actnum:SCREEN-VALUE
+                                NO-LOCK NO-ERROR.
+           IF AVAIL account  THEN
+           fi_acc-desc:SCREEN-VALUE  = account.dscr.
+           
+       END.
+    
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1027,7 +1075,7 @@ PROCEDURE create-item :
             ar-invl.pr-qty-uom = "EA"
             ar-invl.cons-uom = "EA"
             ar-invl.dscr[1] = "EA"
-            ar-invl.actnum = IF AVAIL ar-ctrl THEN ar-ctrl.sales ELSE ""
+            /*ar-invl.actnum = IF AVAIL ar-ctrl THEN ar-ctrl.sales ELSE ""*/
             ar-invl.sman[1] = IF AVAIL cust THEN cust.sman ELSE ""
             ar-invl.s-pct[1] = IF ar-invl.sman[1] NE "" THEN 100 ELSE 0.
 
@@ -1158,6 +1206,78 @@ PROCEDURE enable_UI :
   VIEW FRAME Dialog-Frame.
   {&OPEN-BROWSERS-IN-QUERY-Dialog-Frame}
 END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE get-iteminfo Dialog-Frame 
+PROCEDURE get-iteminfo :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+
+  DO WITH FRAME {&FRAME-NAME}:
+   FIND FIRST itemfg NO-LOCK
+             WHERE itemfg.company = g_company 
+               AND itemfg.i-no = ar-invl.i-no:SCREEN-VALUE
+             NO-ERROR.
+       IF AVAIL itemfg THEN DO:
+           ASSIGN
+         ar-invl.i-dscr:SCREEN-VALUE  = itemfg.part-dscr1
+         ar-invl.i-name:SCREEN-VALUE  = itemfg.i-name 
+         ar-invl.unit-pr:SCREEN-VALUE  = string(itemfg.sell-price)
+         ar-invl.cost:screen-value   = STRING(get-itemfg-cost(itemfg.i-no)).
+           FIND FIRST fgcat NO-LOCK 
+               WHERE fgcat.company EQ itemfg.company 
+                 AND fgcat.procat EQ  itemfg.procat NO-ERROR .
+           IF AVAIL fgcat THEN
+               ASSIGN ar-invl.actnum:SCREEN-VALUE  = fgcat.glacc .
+
+           FIND FIRST account WHERE account.company = g_company AND
+                                account.TYPE <> "T" AND
+                                account.actnum = ar-invl.actnum:SCREEN-VALUE
+                                NO-LOCK NO-ERROR.
+           IF AVAIL account  THEN
+           fi_acc-desc:SCREEN-VALUE  = account.dscr.
+           
+       END.
+  END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION get-itemfg-cost d-oeitem 
+FUNCTION get-itemfg-cost RETURNS DECIMAL
+  ( ipv-item AS CHAR /* parameter-definitions */ ) :
+/*------------------------------------------------------------------------------
+  Purpose:  
+    Notes:  
+------------------------------------------------------------------------------*/
+  DEF BUFFER bfItemfg FOR itemfg.
+  DEF VAR v-cost AS DEC NO-UNDO.
+  v-cost = 0.
+  FIND FIRST bfItemfg WHERE bfItemfg.company = cocode
+                        AND bfItemfg.i-no    = ipv-item
+                      NO-LOCK NO-ERROR.
+  IF AVAIL(bfItemfg) THEN
+    v-cost = bfItemfg.total-std-cost.
+  FIND FIRST fg-ctrl WHERE fg-ctrl.company = cocode NO-LOCK NO-ERROR.
+  IF AVAIL fg-ctrl THEN DO:
+    IF fg-ctrl.inv-meth = "A" AND bfItemfg.avg-cost GT 0 THEN
+      v-cost = bfItemfg.avg-cost.
+    ELSE
+      IF fg-ctrl.inv-meth = "L" AND bfItemfg.last-cost GT 0 THEN
+          v-cost = bfItemfg.last-cost.
+  END.
+  RETURN v-cost.   /* Function return value. */
+
+END FUNCTION.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

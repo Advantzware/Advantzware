@@ -717,13 +717,13 @@ assign
                     THEN ar-inv.freight ELSE 0.    
                     /*ar-inv.t-inv-freight*/.
    
-    PUT "<R58><C60><#8><FROM><R+5><C+20><RECT> " 
-        "<=8> Sub Total  :" v-subtot-lines FORM "->>,>>9.99"
+    PUT "<R58><C60><#8><FROM><R+5><C+21><RECT> " 
+        "<=8> Sub Total  :" v-subtot-lines FORM "->>>,>>9.99"
         "<=8><R+1> Freight    :" v-inv-freight
         "<=8><R+2> " v-bot-lab[1] 
         "<=8><R+3> " /*PST        :" ar-inv.t-inv-tax FORM "->>,>>9.99"*/
                     v-bot-lab[2]
-        "<=8><R+4> Grand Total:" v-subtot-lines + v-t-tax[1] + v-t-tax[2] + v-t-tax[3] + v-inv-freight  FORM "->>,>>9.99" 
+        "<=8><R+4> Grand Total:" v-subtot-lines + v-t-tax[1] + v-t-tax[2] + v-t-tax[3] + v-inv-freight  FORM "->>>,>>9.99" 
         /*v-subtot-lines + v-t-tax[1] + v-t-tax[2] + v-t-tax[3] + v-inv-freight */.
 
     PUT "<R58><C1><#9><FROM><R+4><C+30><RECT> " 

@@ -90,7 +90,7 @@ ar-inv.cust-name ar-inv.disc-% ar-inv.disc-days ar-inv.carrier ~
 ar-inv.freight 
 &Scoped-define ENABLED-TABLES ar-inv
 &Scoped-define FIRST-ENABLED-TABLE ar-inv
-&Scoped-Define ENABLED-OBJECTS tbEdiInvoice RECT-1 RECT-5 
+&Scoped-Define ENABLED-OBJECTS btnCalendar-1 btnCalendar-2 tbEdiInvoice RECT-1 RECT-5 
 &Scoped-Define DISPLAYED-FIELDS ar-inv.cust-no ar-inv.ship-id ar-inv.inv-no ~
 ar-inv.po-no ar-inv.inv-date ar-inv.due-date ar-inv.printed ar-inv.tax-code ar-inv.terms ~
 ar-inv.period ar-inv.terms-d ar-inv.cust-name ar-inv.disc-% ar-inv.disc-days ~
@@ -105,6 +105,7 @@ ar-inv.paid ar-inv.due ar-inv.curr-code[1] ar-inv.ex-rate
 &Scoped-define ADM-CREATE-FIELDS ar-inv.cust-no 
 &Scoped-define ADM-ASSIGN-FIELDS ar-inv.cust-no ar-inv.terms-d ~
 ar-inv.cust-name ar-inv.curr-code[1] 
+&Scoped-define calendarPopup btnCalendar-1 btnCalendar-2
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
@@ -139,6 +140,16 @@ RUN set-attribute-list (
 
 
 /* Definitions of the field level widgets                               */
+DEFINE BUTTON btnCalendar-1 
+     IMAGE-UP FILE "Graphics/16x16/calendar.bmp":U
+     LABEL "" 
+     SIZE 4.6 BY 1.05 TOOLTIP "PopUp Calendar".
+
+DEFINE BUTTON btnCalendar-2 
+     IMAGE-UP FILE "Graphics/16x16/calendar.bmp":U
+     LABEL "" 
+     SIZE 4.6 BY 1.05 TOOLTIP "PopUp Calendar".
+
 DEFINE VARIABLE ship_name AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS FILL-IN 
      SIZE 46 BY 1 NO-UNDO.
@@ -160,7 +171,6 @@ DEFINE VARIABLE tbEdiInvoice AS LOGICAL INITIAL no
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     tbEdiInvoice AT ROW 9.43 COL 89 WIDGET-ID 2
      ar-inv.cust-no AT ROW 1.48 COL 16 COLON-ALIGNED
           LABEL "Customer#"
           VIEW-AS FILL-IN 
@@ -244,6 +254,9 @@ DEFINE FRAME F-Main
           LABEL "Exchange Rate"
           VIEW-AS FILL-IN 
           SIZE 14 BY 1
+     tbEdiInvoice AT ROW 9.43 COL 89 WIDGET-ID 2
+     btnCalendar-1 AT ROW 5.29 COL 39.2
+     btnCalendar-2 AT ROW 6.24 COL 39.2
      RECT-1 AT ROW 1 COL 1
      RECT-5 AT ROW 5.43 COL 88
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
@@ -307,7 +320,10 @@ END.
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
-
+/* SETTINGS FOR BUTTON btnCalendar-1 IN FRAME F-Main
+   3                                                                    */
+/* SETTINGS FOR BUTTON btnCalendar-2 IN FRAME F-Main
+   3                                                                    */
 /* SETTINGS FOR FILL-IN ar-inv.curr-code[1] IN FRAME F-Main
    NO-ENABLE 2 EXP-LABEL                                                */
 /* SETTINGS FOR FILL-IN ar-inv.cust-name IN FRAME F-Main
@@ -486,6 +502,48 @@ DO:
     {ar/invduedt.i}  /* recalc due-date */
     lv-due-calckt = YES.
     {&methods/lValidateError.i NO}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME ar-inv.due-date
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ar-inv.due-date V-table-Win
+ON HELP OF ar-inv.due-date IN FRAME F-Main /* Ack. Date */
+DO:
+  {methods/calendar.i}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME ar-inv.inv-date
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ar-inv.inv-date V-table-Win
+ON HELP OF ar-inv.inv-date IN FRAME F-Main /* Hold/Appr Date */
+DO:
+  {methods/calendar.i}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME btnCalendar-1
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnCalendar-1 V-table-Win
+ON CHOOSE OF btnCalendar-1 IN FRAME F-Main
+DO:
+  {methods/btnCalendar.i ar-inv.inv-date}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnCalendar-2
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnCalendar-2 V-table-Win
+ON CHOOSE OF btnCalendar-2 IN FRAME F-Main
+DO:
+  {methods/btnCalendar.i ar-inv.due-date}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1017,8 +1075,10 @@ PROCEDURE local-update-record :
   /* Code placed here will execute AFTER standard behavior.    */
   IF ll-new-record THEN DO:
      DEF VAR char-hdl AS cha NO-UNDO.
-     RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"add-line-target", OUTPUT char-hdl).
-     RUN auto-line-add IN WIDGET-HANDLE(char-hdl).
+     RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"add-line-target",OUTPUT char-hdl).
+     RUN add-line IN WIDGET-HANDLE(char-hdl).
+     adm-new-record = NO .
+     adm-adding-record = NO .
   END.
   lv-due-calckt = NO.
 
@@ -1288,11 +1348,11 @@ PROCEDURE valid-inv-no :
                   AND ROWID(b-ar-inv)  NE ROWID(ar-inv)) THEN
       lv-msg = "already exists".
 
-    IF lv-msg EQ "" AND 
+    /*IF lv-msg EQ "" AND 
        CAN-FIND(FIRST b-ar-invl
                 WHERE b-ar-invl.company EQ cocode
                   AND b-ar-invl.inv-no  EQ INT(ar-inv.inv-no:SCREEN-VALUE))
-      THEN  lv-msg = "already exists".
+      THEN  lv-msg = "already exists ".*/
 
     IF lv-msg NE "" THEN DO:
       MESSAGE TRIM(ar-inv.inv-no:LABEL) +
@@ -1469,6 +1529,7 @@ DEFINE VARIABLE Y AS INTEGER NO-UNDO.
           ar-inv.tax-amt       = ar-inv.tax-amt * -1  
           ar-inv.t-weight      = ar-inv.t-weight * -1
           ar-inv.net           = ar-inv.net * -1
+          ar-inv.due           = ar-inv.due * -1
           ar-inv.paid          = 0
           ar-inv.printed       = NO 
           ar-inv.inv-date      = IF oeDateAuto-Int EQ 0 THEN TODAY ELSE ar-inv.inv-date 

@@ -249,10 +249,9 @@ PROCEDURE valid-inv-no :
 ------------------------------------------------------------------------------*/
   
   DO WITH FRAME {&FRAME-NAME}:
-   IF INT(begin_inv-no:SCREEN-VALUE) NE 0 THEN DO:
+   
       FIND FIRST ar-inv NO-LOCK
           WHERE ar-inv.company EQ g_company 
-            AND ar-inv.posted  EQ YES
             AND ar-inv.inv-no  EQ INT(begin_inv-no:SCREEN-VALUE)
           NO-ERROR.
       IF NOT AVAIL ar-inv THEN DO:
@@ -260,7 +259,6 @@ PROCEDURE valid-inv-no :
         APPLY "entry" TO begin_inv-no.
         RETURN ERROR.
       END.
-    END.
     
   END.
 
