@@ -396,9 +396,12 @@ FOR EACH itemfg NO-LOCK
         AND fg-rdtlh.rita-code EQ fg-rcpth.rita-code
         AND (fg-rdtlh.cost EQ 0                           OR
              fg-rdtlh.cost EQ ?                           OR
-             (NOT tb_0                                AND
-              (INDEX("CRT",fg-rdtlh.rita-code) GT 0 OR
-               fg-rcpth.job-no NE "")))
+             NOT tb_0
+             /*26626 - Premier "S" transactions without Jobs not be corrected*/
+/*                                             AND      */
+/*              (INDEX("CRT",fg-rdtlh.rita-code) GT 0 OR*/
+/*               fg-rcpth.job-no NE ""))                */
+               )
       USE-INDEX rm-rdtl
 
       BREAK BY INT(fg-rcpth.rita-code NE "R")
@@ -494,12 +497,13 @@ FOR EACH itemfg NO-LOCK
             AND po-ordl.i-no      EQ fg-rcpth.i-no
           NO-LOCK NO-ERROR.
 
-      IF NOT AVAIL po-ordl THEN
-      FIND FIRST po-ordl
-          WHERE po-ordl.company   EQ fg-rcpth.company
-            AND po-ordl.po-no     EQ lv-po-no
-            AND po-ordl.item-type EQ NO
-          NO-LOCK NO-ERROR.
+/* 26626 - Removing this find since it does not match on FG Item*/
+/*      IF NOT AVAIL po-ordl THEN                      */
+/*      FIND FIRST po-ordl                             */
+/*          WHERE po-ordl.company   EQ fg-rcpth.company*/
+/*            AND po-ordl.po-no     EQ lv-po-no        */
+/*            AND po-ordl.item-type EQ NO              */
+/*          NO-LOCK NO-ERROR.                          */
     END.
 
     IF itemfg.pur-man AND fg-rcpth.rita-code EQ "R" AND NOT AVAIL po-ordl THEN
