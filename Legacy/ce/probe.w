@@ -3715,11 +3715,15 @@ FUNCTION fDirectMatPctSellPrice RETURNS DECIMAL
        DEFINE VARIABLE dMatPct AS DECIMAL NO-UNDO.
         DEFINE VARIABLE dPrice AS DECIMAL NO-UNDO.
     
-    dPrice = DEC(probe.sell-price).
-    IF AVAILABLE probe AND dPrice GT 0 THEN 
+    ASSIGN 
+        dPrice = 0
+        dMatPct = 0.
+    IF AVAILABLE probe THEN 
+        dPrice = DEC(probe.sell-price).
+    IF dPrice GT 0 THEN 
         dMatPct = probe.spare-dec-1 / dPrice * 100.
     
-        RETURN dMatPct.
+    RETURN dMatPct.
 
 
 END FUNCTION.
