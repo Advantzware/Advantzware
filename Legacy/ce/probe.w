@@ -401,7 +401,7 @@ DEFINE BROWSE br_table
       probe.fact-cost COLUMN-LABEL "Tot.Fact!Cost" FORMAT ">>>,>>9.99":U
             WIDTH 15 COLUMN-FONT 0
       probe.full-cost FORMAT ">>>,>>9.99":U WIDTH 15 COLUMN-FONT 0
-      probe.market-price COLUMN-LABEL "Margin%" FORMAT "->>9.99":U
+      probe.market-price COLUMN-LABEL "Margin%" FORMAT "->,>>9.99":U
       display-gp (1) @ probe.gross-profit
       probe.gross-profit COLUMN-LABEL "Gross%" FORMAT "->,>>9.99":U
             COLUMN-FONT 0
@@ -530,7 +530,7 @@ ASI.probe.est-no = ASI.eb.est-no"
      _FldNameList[3]   > ASI.probe.full-cost
 "probe.full-cost" ? ">>>,>>9.99" "decimal" ? ? 0 ? ? ? yes ? no no "15" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[4]   > ASI.probe.market-price
-"probe.market-price" "Margin%" "->>9.99" "decimal" ? ? ? ? ? ? yes "Enter Margin% to get Commission%" no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"probe.market-price" "Margin%" "->,>>9.99" "decimal" ? ? ? ? ? ? yes "Enter Margin% to get Commission%" no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[5]   > "_<CALC>"
 "display-gp (1) @ probe.gross-profit" ? ? ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[6]   > ASI.probe.gross-profit
@@ -743,6 +743,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL probe.gross-profit br_table _BROWSE-COLUMN B-table-Win
 ON VALUE-CHANGED OF probe.gross-profit IN BROWSE br_table /* Gross% */
 DO:
+
   lv-changed = "G".
 END.
 
