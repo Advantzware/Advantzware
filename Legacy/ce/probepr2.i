@@ -56,18 +56,18 @@ put "FULL COST" probe.full-cost         to {1} format ">>>,>>9.99"
 
 IF ce-ctrl.sell-by EQ "S" THEN
   put "Margin on Fact Cost"
-      string(v-pct-s,"->>9.99%")        to 29
+      string(v-pct-s,"->>>9.99%")        to 29
       v-prf-s                           to {1} format "->>,>>9.99"
 	  v-prf-s * qm                      to 80  format "->>>,>>9.99" skip.
 
 put "Net Margin"
-	string(probe.net-profit,"->>9.99%")              to 29
+	string(probe.net-profit,"->>>9.99%")              to 29
     probe.sell-price * (probe.net-profit / 100)      to {1} format "->>,>>9.99"
 	probe.sell-price * (probe.net-profit / 100) * qm to 80  format "->>>,>>9.99" skip.
 
 IF cerunf EQ "Fibre" THEN
   PUT "Available Margin"
-      STRING(probe.market-price,"->>9.99%") TO 29
+      STRING(probe.market-price,"->>>9.99%") TO 29
       probe.sell-price * (probe.market-price / 100)      TO {1} FORMAT "->>,>>9.99"
       probe.sell-price * (probe.market-price / 100) * qm TO 80  FORMAT "->>>,>>9.99"
       SKIP.

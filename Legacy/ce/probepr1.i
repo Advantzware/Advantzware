@@ -58,18 +58,18 @@ put "FULL COST" probeit.full-cost * v-yld to {1} format ">>>,>>9.99"
 
 IF ce-ctrl.sell-by EQ "S" THEN
   put "Markup on Fact Cost"         format "x(19)"
-      string(v-pct-s,"->>9.99%")    to 29
+      string(v-pct-s,"->>>9.99%")    to 29
       v-prf-s * v-yld               to {1} format "->>,>>9.99"
       v-prf-s * v-yld * qm          to 80  format "->>>,>>9.99" skip.
 
 put "Net Margin"
-	string(probeit.net-profit,"->>9.99%")                 to 29
+	string(probeit.net-profit,"->>>9.99%")                 to 29
     probeit.sell-price * (v-pct / 100) * v-yld            to {1} format "->>,>>9.99"
 	probeit.sell-price * (v-pct / 100) * v-yld * qm       to 80  format "->>>,>>9.99" skip.
 
 IF cerunf EQ "Fibre" THEN
   PUT "Available Margin"
-      STRING(probe.market-price,"->>9.99%") TO 29
+      STRING(probe.market-price,"->>>9.99%") TO 29
       probeit.sell-price * (probe.market-price / 100)      TO {1} FORMAT "->>,>>9.99"
       probeit.sell-price * (probe.market-price / 100) * qm TO 80  FORMAT "->>>,>>9.99"
       SKIP.
