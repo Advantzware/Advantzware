@@ -49,7 +49,7 @@ DEF VAR v-ship-i     AS CHAR FORMAT "x(60)" EXTENT 4 NO-UNDO.
 DEF VAR ll-display-comp AS LOG                 NO-UNDO.  /* display company address */
 DEF VAR ll-consol-rells AS LOG                 NO-UNDO.
 DEF VAR lv-comp-name    AS CHAR FORMAT "x(30)" NO-UNDO.
-DEF VAR lv-email        AS CHAR FORMAT "x(40)" NO-UNDO.
+DEF VAR lv-email        AS CHAR FORMAT "x(56)" NO-UNDO.
 
 DEF VAR v-UntCnt        AS CHAR FORMAT "x(10)" NO-UNDO.
 

@@ -107,7 +107,7 @@ DEF VAR v-ship-i AS cha FORM "x(60)" EXTENT 4 NO-UNDO.
 
 DEF VAR ll-display-comp AS LOG NO-UNDO.  /* display company address */
 DEF VAR lv-comp-name AS cha FORM "x(30)" NO-UNDO.
-DEF VAR lv-email AS cha FORM "x(30)" NO-UNDO.
+DEF VAR lv-email AS cha FORM "x(56)" NO-UNDO.
 
 DEF VAR lv-comp-color AS cha NO-UNDO.
 DEF VAR lv-other-color AS cha INIT "BLACK" NO-UNDO.
