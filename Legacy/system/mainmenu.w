@@ -402,7 +402,7 @@ PROCEDURE Create_Buttons :
             (IF INDEX(ttbl.menu1,'.') NE 0 OR ttbl.menu1 = 'Exit' THEN ''
             ELSE ' >').
 
-          IF AVAILABLE prgrms AND prgrms.prgmname EQ "file."  THEN DO
+          IF AVAILABLE prgrms AND prgrms.prgmname EQ "file."  THEN DO:
               RUN "system/PgmMstrSecur.p" PERSISTENT SET hPgmSecurity.
               RUN epCanAccess IN hPgmSecurity ("system/mainmenu.w", "", OUTPUT lResult).
               DELETE OBJECT hPgmSecurity.
