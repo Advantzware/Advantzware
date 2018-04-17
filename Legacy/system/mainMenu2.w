@@ -228,35 +228,27 @@ DEFINE IMAGE menu-image
      SIZE 95 BY 4.52.
 
 DEFINE IMAGE menuLink-1
-     STRETCH-TO-FIT
      SIZE 12 BY 2.29.
 
 DEFINE IMAGE menuLink-2
-     STRETCH-TO-FIT
      SIZE 12 BY 2.29.
 
 DEFINE IMAGE menuLink-3
-     STRETCH-TO-FIT
      SIZE 12 BY 2.29.
 
 DEFINE IMAGE menuLink-4
-     STRETCH-TO-FIT
      SIZE 12 BY 2.29.
 
 DEFINE IMAGE menuLink-5
-     STRETCH-TO-FIT
      SIZE 12 BY 2.29.
 
 DEFINE IMAGE menuLink-6
-     STRETCH-TO-FIT
      SIZE 12 BY 2.29.
 
 DEFINE IMAGE menuLink-7
-     STRETCH-TO-FIT
      SIZE 12 BY 2.29.
 
 DEFINE IMAGE menuLink-8
-     STRETCH-TO-FIT
      SIZE 12 BY 2.29.
 
 DEFINE IMAGE menuLinkASI TRANSPARENT
@@ -893,6 +885,7 @@ PROCEDURE pCreateEditor :
     IF VALID-HANDLE(hWidget) THEN DO:
         ttblItem.hEditor = hWidget.
         hWidget:MOVE-TO-TOP().
+        hWidget:LOAD-MOUSE-POINTER("ARROW").
         IF ipcName EQ "Exit" THEN DO:
             hExitWidget = hWidget.
             RUN pSetFocus.
@@ -1361,16 +1354,15 @@ PROCEDURE pInit :
                 sys-ctrl.name = "MENULINKASI"
                 sys-ctrl.descrip = "http://www.advantzware.com"
                 sys-ctrl.char-fld = "Graphics\asiicon.ico"
-                sys-ctrl.log-fld = YES
                 .
         END. /* not avail */
-        IF sys-ctrl.log-fld AND
-           SEARCH(sys-ctrl.char-fld) NE ? AND
+        IF SEARCH(sys-ctrl.char-fld) NE ? AND
            sys-ctrl.descrip NE "" THEN DO:
             ASSIGN
-                menuLinkASI:PRIVATE-DATA = sys-ctrl.descrip
-                menuLinkASI:HIDDEN       = NO
-                menuLinkASI:SENSITIVE    = YES
+                menuLinkASI:PRIVATE-DATA   = sys-ctrl.descrip
+                menuLinkASI:HIDDEN         = NO
+                menuLinkASI:STRETCH-TO-FIT = sys-ctrl.log-fld
+                menuLinkASI:TRANSPARENT    = sys-ctrl.int-fld EQ 1
                 .
             menuLinkASI:LOAD-IMAGE(SEARCH(sys-ctrl.char-fld)).
         END. /* if avail */
@@ -1384,16 +1376,16 @@ PROCEDURE pInit :
                 sys-ctrl.name = "MENULINKZOHO"
                 sys-ctrl.descrip = "https://support.zoho.com/portal/advantzware/kb"
                 sys-ctrl.char-fld = "Graphics\32x32\question.ico"
-                sys-ctrl.log-fld = YES
                 .
         END. /* not avail */
-        IF sys-ctrl.log-fld AND
-           SEARCH(sys-ctrl.char-fld) NE ? AND
+        IF SEARCH(sys-ctrl.char-fld) NE ? AND
            sys-ctrl.descrip NE "" THEN DO:
             ASSIGN
-                menuLinkZoHo:PRIVATE-DATA = sys-ctrl.descrip
-                menuLinkZoHo:HIDDEN       = NO
-                menuLinkZoHo:SENSITIVE    = YES
+                menuLinkZoHo:PRIVATE-DATA   = sys-ctrl.descrip
+                menuLinkZoHo:HIDDEN         = NO
+                menuLinkZoHo:SENSITIVE      = YES
+                menuLinkZoHo:STRETCH-TO-FIT = sys-ctrl.log-fld
+                menuLinkZoHo:TRANSPARENT    = sys-ctrl.int-fld EQ 1
                 .
             menuLinkZoHo:LOAD-IMAGE(SEARCH(sys-ctrl.char-fld)).
         END. /* if avail */
@@ -1416,15 +1408,17 @@ PROCEDURE pInit :
                 CREATE sys-ctrl.
                 sys-ctrl.name = "MENULINK" + STRING(idx).
             END. /* not avail */
-            IF sys-ctrl.log-fld AND
-               SEARCH(sys-ctrl.char-fld) NE ? AND
+            IF SEARCH(sys-ctrl.char-fld) NE ? AND
                sys-ctrl.descrip NE "" THEN DO:
                 ASSIGN
-                    hMenuLink[idx]:PRIVATE-DATA = sys-ctrl.descrip
-                    hMenuLink[idx]:HIDDEN       = NO
-                    hMenuLink[idx]:SENSITIVE    = YES
+                    hMenuLink[idx]:PRIVATE-DATA   = sys-ctrl.descrip
+                    hMenuLink[idx]:HIDDEN         = NO
+                    hMenuLink[idx]:SENSITIVE      = YES
+                    hMenuLink[idx]:STRETCH-TO-FIT = sys-ctrl.log-fld
+                    hMenuLink[idx]:TOOLTIP        = sys-ctrl.descrip
+                    hMenuLink[idx]:TRANSPARENT    = sys-ctrl.int-fld EQ 1
                     .
-                hMenuLink[idx]:LOAD-IMAGE(SEARCH(sys-ctrl.char-fld)).
+                hMenuLink[idx]:LOAD-IMAGE(SEARCH(sys-ctrl.char-fld)).                
             END. /* if avail */
         END. /* do idx */
     END. /* with frame */
