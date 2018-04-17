@@ -536,7 +536,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_OK Dialog-Frame
 ON CHOOSE OF Btn_OK IN FRAME Dialog-Frame /* Save */
 DO:
-
+    DEFINE VARIABLE dOldAmount AS DECIMAL NO-UNDO .
     DO WITH FRAME {&FRAME-NAME}:
 
      IF ar-invl.actnum:MODIFIED  THEN DO:
@@ -589,14 +589,14 @@ DO:
       END.
     END.
 
- 
+ ASSIGN dOldAmount = IF AVAIL ar-invl THEN ar-invl.amt ELSE 0 .
   DO TRANSACTION:
       FIND CURRENT ar-invl EXCLUSIVE-LOCK NO-ERROR.
       
       DO WITH FRAME {&FRAME-NAME}:
           ASSIGN {&FIELDS-IN-QUERY-{&FRAME-NAME}} .
       END.
-      RUN update-ar-invl .
+      RUN update-ar-invl(dOldAmount) .
   END.
 
  FIND CURRENT ar-invl NO-LOCK NO-ERROR.
@@ -652,9 +652,7 @@ DO:
        END.
        ASSIGN
          ar-invl.i-dscr:SCREEN-VALUE  = itemfg.part-dscr1
-         ar-invl.i-name:SCREEN-VALUE  = itemfg.i-name 
-         ar-invl.unit-pr:SCREEN-VALUE  = string(itemfg.sell-price)
-         ar-invl.cost:screen-value   = STRING(get-itemfg-cost(itemfg.i-no)).
+         ar-invl.i-name:SCREEN-VALUE  = itemfg.i-name .
     END.
 END.
 
@@ -690,6 +688,31 @@ DO:
            fi_acc-desc:SCREEN-VALUE  = account.dscr.
            
        END.
+    
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME   
+
+
+&Scoped-define SELF-NAME ar-invl.inv-qty
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ar-invl.inv-qty Dialog-Frame
+ON VALUE-CHANGED OF ar-invl.inv-qty IN FRAME Dialog-Frame /* quantity */
+DO:
+      IF LASTKEY = -1 THEN RETURN.
+       RUN pCalcAmtMsf .
+    
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME ar-invl.unit-pr
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROLar-invl.unit-pr Dialog-Frame
+ON VALUE-CHANGED OF ar-invl.unit-pr IN FRAME Dialog-Frame /* price */
+DO:
+      IF LASTKEY = -1 THEN RETURN.
+       RUN pCalcAmtMsf .
     
 END.
 
@@ -983,15 +1006,17 @@ PROCEDURE update-ar-invl :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+  DEFINE INPUT PARAMETER ipAmount AS DECIMAL NO-UNDO .
   DEF VAR out-qty LIKE ar-invl.qty NO-UNDO.
   DEF BUFFER bf-inv FOR ar-inv.
 
   /* Code placed here will execute PRIOR to standard behavior. */
   FIND bf-inv WHERE RECID(bf-inv) = RECID(ar-inv) .
-  IF  ip-type EQ "copy"  THEN .  /* copy */
-  ELSE DO:  
-    ASSIGN bf-inv.gross = bf-inv.gross - ar-invl.amt
-           bf-inv.net   = bf-inv.net - ar-invl.amt.
+  
+  IF  ip-type EQ "update"  THEN do:  /* update */
+  
+    ASSIGN bf-inv.gross = bf-inv.gross - ipAmount
+           bf-inv.net   = bf-inv.net - ipAmount .
   END.
   
   ar-invl.qty = ar-invl.inv-qty.
@@ -1009,7 +1034,7 @@ PROCEDURE update-ar-invl :
    ar-invl.amt-msf = ((ar-invl.qty * ar-invl.sf-sht) / 1000.0)
    bf-inv.gross    = bf-inv.gross + ar-invl.amt
    bf-inv.net      = bf-inv.net + ar-invl.amt.
-
+ 
    find first cust where cust.company eq g_company
                       and cust.cust-no eq ar-inv.cust-no no-lock no-error.
    ar-invl.tax = if ar-inv.tax-code ne "" and cust.sort eq "Y" then YES ELSE NO.
@@ -1124,7 +1149,8 @@ PROCEDURE display-item :
 
         DISPLAY  ar-invl.line ar-invl.actnum ar-invl.i-no ar-invl.part-no 
                ar-invl.i-name ar-invl.i-dscr ar-invl.lot-no ar-invl.inv-qty 
-               ar-invl.sf-sht ar-invl.unit-pr ar-invl.pr-qty-uom ar-invl.cost
+               ar-invl.sf-sht ar-invl.unit-pr ar-invl.pr-qty-uom ar-invl.disc 
+               ar-invl.amt ar-invl.amt-msf ar-invl.cost ar-invl.cons-uom
                ar-invl.dscr[1] ar-invl.sman[1] ar-invl.s-pct[1] ar-invl.s-comm[1]
                ar-invl.sman[2] ar-invl.s-pct[2] ar-invl.s-comm[2] ar-invl.sman[3] 
                ar-invl.s-pct[3] ar-invl.s-comm[3] ar-invl.bol-no ar-invl.ord-no
@@ -1251,6 +1277,41 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCalcAmtMsf Dialog-Frame 
+PROCEDURE pCalcAmtMsf :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEF VAR out-qty LIKE ar-invl.qty NO-UNDO.
+  
+DO WITH FRAME {&FRAME-NAME}:
+
+  run sys/ref/convsuom.p (ar-invl.cons-uom:SCREEN-VALUE,
+                          ar-invl.pr-qty-uom:SCREEN-VALUE,
+                          ar-invl.sf-sht:SCREEN-VALUE,
+                          ar-invl.inv-qty:SCREEN-VALUE,
+                          OUTPUT out-qty).
+
+  assign
+      ar-invl.amt:SCREEN-VALUE     = if   (out-qty * DECIMAL(ar-invl.unit-pr:SCREEN-VALUE)) eq 0
+                                    then STRING(decimal(ar-invl.inv-qty:SCREEN-VALUE) * decimal(ar-invl.unit-pr:SCREEN-VALUE))
+                                    else STRING(out-qty * decimal(ar-invl.unit-pr:SCREEN-VALUE)) .
+      ar-invl.amt-msf:SCREEN-VALUE = STRING((integer(ar-invl.inv-qty:SCREEN-VALUE) * decimal(ar-invl.sf-sht:SCREEN-VALUE)) / 1000.0)
+   .
+ 
+END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION get-itemfg-cost d-oeitem 
 FUNCTION get-itemfg-cost RETURNS DECIMAL

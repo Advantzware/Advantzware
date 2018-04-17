@@ -1426,6 +1426,7 @@ PROCEDURE pCreateDuplicate :
   IF AVAIL bff-ar-inv THEN DO:
       BUFFER-COPY bff-ar-inv EXCEPT company inv-date x-no inv-no USER-ID upd-date upd-time posted rec_key TO ar-inv .
        ar-inv.inv-date = IF oeDateAuto-Int EQ 0 THEN TODAY ELSE ar-inv.inv-date .
+       ar-inv.due-date = IF oeDateAuto-Int EQ 0 THEN TODAY ELSE ar-inv.due-date .
        ar-inv.printed  = NO .
        ar-inv.paid     = 0 .
        ar-inv.spare-char-1 = IF cType EQ "duplicate" THEN "Copy" ELSE "Rebill" .
@@ -1533,6 +1534,7 @@ DEFINE VARIABLE Y AS INTEGER NO-UNDO.
           ar-inv.paid          = 0
           ar-inv.printed       = NO 
           ar-inv.inv-date      = IF oeDateAuto-Int EQ 0 THEN TODAY ELSE ar-inv.inv-date 
+          ar-inv.due-date      = IF oeDateAuto-Int EQ 0 THEN TODAY ELSE ar-inv.due-date 
           ar-inv.spare-char-1  = IF cType EQ "Credit" THEN "Credit" ELSE "Rebill" 
           ar-inv.spare-int-2   = INTEGER(Is-add-dup-inv) .
 
