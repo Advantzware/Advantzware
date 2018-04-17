@@ -138,18 +138,7 @@ RETURN RETURN-VALUE.
 
 
 PROCEDURE edi-ar.ip:
-    DEFINE VARIABLE lInvalidBol AS LOGICAL NO-UNDO.
-    lInvalidBol = NO.
-    FOR EACH ar-invl 
-        WHERE ar-invl.x-no = ar-inv.x-no
-        AND (ar-invl.inv-qty NE 0 OR ar-invl.misc):
-            
-        FIND oe-bolh OF ar-invl NO-LOCK NO-ERROR.
-        IF NOT AVAILABLE oe-bolh THEN  
-            lInvalidBol = YES.
-    END.
-    IF lInvalidBol THEN 
-        RETURN "Invalid BOL#".     
+  
     IF top-debug THEN RUN rc/debugmsg.p ("...start of ar-inv invoice").
     ASSIGN  
         v-shipto-name    = ar-inv.sold-name
@@ -194,7 +183,7 @@ PROCEDURE edi-ar.ip:
 
     FOR EACH ar-invl 
         WHERE ar-invl.x-no = ar-inv.x-no
-            AND (ar-invl.inv-qty NE 0 OR ar-invl.misc):
+            AND (ar-invl.inv-qty NE 0 AND NOT ar-invl.misc):
 
         IF top-debug THEN
             RUN rc/debugrec.s ("", RECID(ar-invl)) "ar-invl".
@@ -364,7 +353,25 @@ PROCEDURE edi-ar.ip:
             "Invoice Level Taxes"
             ).
     END.
-
+    
+    /* Process the misc records that came from inv-misc */
+    FOR EACH ar-invl 
+        WHERE ar-invl.x-no = ar-inv.x-no
+        AND  ar-invl.misc:
+        
+           
+        RUN gen-addon.ip (
+            ws_eddoc_rec, 
+            0,      
+            ar-invl.prep-charge,
+            ar-invl.Dscr[1],
+            ar-invl.amt,
+            0,             /* rate */
+            (IF ar-invl.billable THEN "Y" ELSE "N"),
+            "ESTIMATE# " + ar-invl.est-no
+            ).            
+    END.
+     
     IF top-debug THEN
         RUN rc/debugrec.s ("Bottom of Program", RECID(edivtran)) "edivtran".
 
@@ -1057,9 +1064,33 @@ END PROCEDURE.
 PROCEDURE edi-050.ip:
     DEFINE INPUT PARAMETER pLine AS INTEGER NO-UNDO.
     DEFINE INPUT PARAMETER pItem AS CHARACTER NO-UNDO.   /* i-No */
+    DEFINE VARIABLE iOrdLineNum AS INTEGER NO-UNDO.
 
+    IF AVAILABLE ar-invl THEN DO:
+        /* In case or-ordl not found */
+        iOrdLineNum = ar-invl.line.
+        FIND FIRST oe-ordl NO-LOCK 
+            WHERE oe-ordl.company EQ ar-invl.company
+            AND oe-ordl.ord-no  EQ ar-invl.ord-no 
+            AND oe-ordl.i-no    EQ ar-invl.i-no 
+            NO-ERROR.
+    END.
+    ELSE IF AVAILABLE inv-line THEN 
+        DO:
+            /* In case or-ordl not found */
+            iOrdLineNum = inv-line.line.
+            FIND FIRST oe-ordl NO-LOCK 
+                WHERE oe-ordl.company EQ inv-line.company
+                AND oe-ordl.ord-no  EQ inv-line.ord-no 
+                AND oe-ordl.i-no    EQ inv-line.i-no 
+                NO-ERROR.
+        END.    
+        
+    IF AVAILABLE oe-ordl THEN 
+      iOrdLineNum = (IF oe-ordl.e-num GT 0 THEN oe-ordl.e-num ELSE oe-ordl.line).
+    
     FIND edivline
-        WHERE edivline.partner      = edivtran.partner
+        WHERE edivline.partner    = edivtran.partner
         AND edivline.seq          = edivtran.seq
         AND edivline.line         = pLine
         EXCLUSIVE-LOCK NO-ERROR.
@@ -1100,11 +1131,12 @@ PROCEDURE edi-050.ip:
     ELSE IF AVAILABLE edpoline AND edpoline.upc > "" THEN edpoline.upc ELSE "")
         edivline.sf-code      = IF AVAILABLE oe-bolh THEN oe-bolh.loc ELSE ""
         edivline.cust-po-line = (IF AVAILABLE edpoline AND edpoline.cust-po-line > "" THEN edpoline.cust-po-line ELSE
-    IF vcCustpoLine > "" THEN vcCustPoLine ELSE
-    IF AVAILABLE edpoline THEN STRING(edpoline.line) ELSE
-    IF AVAILABLE oe-ordl THEN STRING(oe-ordl.line)
-    ELSE STRING(pLine))
-        .
+                                 IF vcCustpoLine > "" THEN vcCustPoLine ELSE
+                                 IF AVAILABLE edpoline THEN STRING(edpoline.line) ELSE
+                                 IF AVAILABLE inv-line THEN STRING(iOrdLineNum) ELSE
+                                 IF AVAILABLE ar-invl THEN  STRING(iOrdLineNum)                                
+                                 ELSE STRING(pLine))
+                                 .
     
     IF AVAILABLE inv-line THEN 
     DO:      /* specific to inv-line */
