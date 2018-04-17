@@ -35,22 +35,19 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
-
 {methods/defines/hndldefs.i}
 {methods/prgsecur.i}
-
 {custom/gcompany.i}
 {custom/getcmpny.i}
 {custom/gloc.i}
 {custom/getloc.i}
-
 {sys/inc/var.i new shared}
 
-assign
- cocode = gcompany
- locode = gloc.
+DEF VAR v-process AS LOG NO-UNDO.
 
-def var v-process as log no-undo.
+ASSIGN
+    cocode = gcompany
+    locode = gloc.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -67,12 +64,11 @@ def var v-process as log no-undo.
 &Scoped-define FRAME-NAME FRAME-A
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-17 begin_i-no end_i-no begin_cust ~
-end_cust tb_del-zer tb_del-neg tbIncludeInactive tb_batch btn-process ~
+&Scoped-Define ENABLED-OBJECTS begin_i-no end_i-no begin_cust end_cust ~
+tbRebuild tb_del-zer tb_del-neg tbIncludeInactive tb_batch btn-process ~
 btn-cancel 
 &Scoped-Define DISPLAYED-OBJECTS begin_i-no end_i-no begin_cust end_cust ~
-lbl_del-zer tb_del-zer lbl_del-neg tb_del-neg lbl_Incl_inactive ~
-tbIncludeInactive tb_batch 
+tbRebuild tb_del-zer tb_del-neg tbIncludeInactive tb_batch 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -116,67 +112,52 @@ DEFINE VARIABLE end_i-no AS CHARACTER FORMAT "X(15)":U INITIAL "zzzzzzzzzzzzzzz"
      VIEW-AS FILL-IN 
      SIZE 21 BY 1 NO-UNDO.
 
-DEFINE VARIABLE lbl_del-neg AS CHARACTER FORMAT "X(256)":U INITIAL "Delete Bins With Negative Quantity?" 
-     VIEW-AS FILL-IN 
-     SIZE 36 BY 1 NO-UNDO.
-
-DEFINE VARIABLE lbl_del-zer AS CHARACTER FORMAT "X(256)":U INITIAL "Delete Bins With Zero Quantity?" 
-     VIEW-AS FILL-IN 
-     SIZE 32 BY 1 NO-UNDO.
-
-DEFINE VARIABLE lbl_Incl_inactive AS CHARACTER FORMAT "X(256)":U INITIAL "Include Inactive Items?" 
-     VIEW-AS FILL-IN 
-     SIZE 24 BY 1 NO-UNDO.
-
-DEFINE RECTANGLE RECT-17
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 89 BY 10.24.
-
 DEFINE VARIABLE tbIncludeInactive AS LOGICAL INITIAL no 
-     LABEL "" 
+     LABEL "Include Inactive Items?" 
      VIEW-AS TOGGLE-BOX
-     SIZE 3 BY .71 NO-UNDO.
+     SIZE 26 BY .81 NO-UNDO.
+
+DEFINE VARIABLE tbRebuild AS LOGICAL INITIAL yes 
+     LABEL "Rebuild ALL bin quantities from history?" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 54 BY .81 NO-UNDO.
 
 DEFINE VARIABLE tb_batch AS LOGICAL INITIAL no 
      LABEL "Run In Batch Mode?" 
      VIEW-AS TOGGLE-BOX
-     SIZE 27 BY .81
-     BGCOLOR 14  NO-UNDO.
+     SIZE 27 BY .81 NO-UNDO.
 
 DEFINE VARIABLE tb_del-neg AS LOGICAL INITIAL no 
      LABEL "Delete Bins With Negative Quantity?" 
      VIEW-AS TOGGLE-BOX
-     SIZE 3 BY .95 NO-UNDO.
+     SIZE 43 BY .81 NO-UNDO.
 
 DEFINE VARIABLE tb_del-zer AS LOGICAL INITIAL no 
      LABEL "Delete Bins With Zero Quantity?" 
      VIEW-AS TOGGLE-BOX
-     SIZE 3 BY .95 NO-UNDO.
+     SIZE 41 BY .81 NO-UNDO.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME FRAME-A
-     begin_i-no AT ROW 6.95 COL 22.4 COLON-ALIGNED HELP
+     begin_i-no AT ROW 6.95 COL 22 COLON-ALIGNED HELP
           "Enter Beginning Item Number"
-     end_i-no AT ROW 6.95 COL 65.4 COLON-ALIGNED HELP
+     end_i-no AT ROW 6.95 COL 65 COLON-ALIGNED HELP
           "Enter Ending Item Number"
-     begin_cust AT ROW 8.14 COL 22.4 COLON-ALIGNED HELP
+     begin_cust AT ROW 8.14 COL 22 COLON-ALIGNED HELP
           "Enter Beginning Customer Number"
-     end_cust AT ROW 8.14 COL 65.4 COLON-ALIGNED HELP
+     end_cust AT ROW 8.14 COL 65 COLON-ALIGNED HELP
           "Enter Ending Customer Number"
-     lbl_del-zer AT ROW 10.29 COL 24 COLON-ALIGNED NO-LABEL
-     tb_del-zer AT ROW 10.29 COL 58
-     lbl_del-neg AT ROW 11.24 COL 20 COLON-ALIGNED NO-LABEL
-     tb_del-neg AT ROW 11.29 COL 58
-     lbl_Incl_inactive AT ROW 12.33 COL 31.4 COLON-ALIGNED NO-LABEL WIDGET-ID 28
-     tbIncludeInactive AT ROW 12.38 COL 58 WIDGET-ID 26
-     tb_batch AT ROW 13.38 COL 58 WIDGET-ID 24
+     tbRebuild AT ROW 10.05 COL 24 WIDGET-ID 30
+     tb_del-zer AT ROW 11 COL 24
+     tb_del-neg AT ROW 11.95 COL 24
+     tbIncludeInactive AT ROW 12.91 COL 24 WIDGET-ID 26
+     tb_batch AT ROW 13.86 COL 24 WIDGET-ID 24
      btn-process AT ROW 16.48 COL 21
      btn-cancel AT ROW 16.48 COL 53
      "Selection Parameters" VIEW-AS TEXT
           SIZE 21 BY .62 AT ROW 5.29 COL 5
-     RECT-17 AT ROW 4.81 COL 1
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
@@ -250,22 +231,14 @@ ASSIGN FRAME FRAME-B:FRAME = FRAME FRAME-A:HANDLE.
 
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME                                                           */
-ASSIGN
+ASSIGN 
        btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "ribbon-button".
 
-
-ASSIGN
+ASSIGN 
        btn-process:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "ribbon-button".
 
-
-/* SETTINGS FOR FILL-IN lbl_del-neg IN FRAME FRAME-A
-   NO-ENABLE                                                            */
-/* SETTINGS FOR FILL-IN lbl_del-zer IN FRAME FRAME-A
-   NO-ENABLE                                                            */
-/* SETTINGS FOR FILL-IN lbl_Incl_inactive IN FRAME FRAME-A
-   NO-ENABLE                                                            */
 /* SETTINGS FOR FRAME FRAME-B
                                                                         */
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
@@ -274,7 +247,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -310,7 +283,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-cancel C-Win
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
-    apply "close" to this-procedure.
+    APPLY "close" TO THIS-PROCEDURE.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -321,23 +294,27 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-process C-Win
 ON CHOOSE OF btn-process IN FRAME FRAME-A /* Start Process */
 DO:
-  DO WITH FRAME {&FRAME-NAME}:
-    ASSIGN {&DISPLAYED-OBJECTS}.
-  END.
+    DO WITH FRAME {&FRAME-NAME}:
+        ASSIGN {&DISPLAYED-OBJECTS}.
+    END.
 
-  v-process = NO.
+    ASSIGN
+        v-process = NO.
 
-  MESSAGE "Are you sure you want to" TRIM(c-win:TITLE) +
-          " within the selection parameters?"
-          VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
-          UPDATE v-process.
+    MESSAGE 
+        "Are you sure you want to" TRIM(c-win:TITLE) +
+        "within the selection parameters?"
+        VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO UPDATE v-process.
 
-  IF g_batch THEN tb_batch = YES.
-  IF tb_batch THEN DO:
-     RUN run-batch.
-     RETURN NO-APPLY.
-  END.
-  ELSE IF v-process THEN RUN run-process.
+    IF g_batch THEN ASSIGN
+        tb_batch = YES.
+    IF tb_batch THEN DO:
+        RUN run-batch.
+        RETURN NO-APPLY.
+    END.
+    ELSE IF v-process THEN 
+        RUN run-process.
+        
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -416,11 +393,11 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY begin_i-no end_i-no begin_cust end_cust lbl_del-zer tb_del-zer 
-          lbl_del-neg tb_del-neg lbl_Incl_inactive tbIncludeInactive tb_batch 
+  DISPLAY begin_i-no end_i-no begin_cust end_cust tbRebuild tb_del-zer 
+          tb_del-neg tbIncludeInactive tb_batch 
       WITH FRAME FRAME-A IN WINDOW C-Win.
-  ENABLE RECT-17 begin_i-no end_i-no begin_cust end_cust tb_del-zer tb_del-neg 
-         tbIncludeInactive tb_batch btn-process btn-cancel 
+  ENABLE begin_i-no end_i-no begin_cust end_cust tbRebuild tb_del-zer 
+         tb_del-neg tbIncludeInactive tb_batch btn-process btn-cancel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW FRAME FRAME-B IN WINDOW C-Win.
@@ -438,9 +415,9 @@ PROCEDURE run-batch :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEF VAR rd-dest AS INT NO-UNDO.
+    DEF VAR rd-dest AS INT NO-UNDO.
 
-  {batch/runbatch.i "util\sfgbinbal.r"}
+    {batch/runbatch.i "util\sfgbinbal.r"}
 
 END PROCEDURE.
 
@@ -452,94 +429,82 @@ PROCEDURE run-process :
 /* ------------------------------------------------ util/fg-mkbin.p 05/97 JLF */
 /* finished goods bin rebuild program                                         */
 /* -------------------------------------------------------------------------- */
+    DEF VAR fcus        LIKE cust.cust-no.
+    DEF VAR tcus        LIKE fcus               INIT "zzzzzzzz".
+    DEF VAR fitm        LIKE itemfg.i-no.
+    DEF VAR titm        LIKE fitm               INIT "zzzzzzzzzzzzzzz".
+    DEF VAR vzer        AS   LOG                INIT NO.
+    DEF VAR vneg        AS   LOG                INIT NO.
+    DEF VAR vInclInact  AS   LOG                INIT NO.
 
-DEF VAR fcus        LIKE cust.cust-no.
-DEF VAR tcus        LIKE fcus               INIT "zzzzzzzz".
-DEF VAR fitm        LIKE itemfg.i-no.
-DEF VAR titm        LIKE fitm               INIT "zzzzzzzzzzzzzzz".
-DEF VAR vzer        AS   LOG                INIT NO.
-DEF VAR vneg        AS   LOG                INIT NO.
-DEF VAR vInclInact  AS   LOG                INIT NO.
+    DO WITH FRAME {&FRAME-NAME}:
+        ASSIGN
+            begin_i-no
+            end_i-no
+            begin_cust
+            end_cust
+            tb_del-zer
+            tb_del-neg
+            tbRebuild
+            tbIncludeInactive.
+    END.
 
+    ASSIGN
+        fitm = begin_i-no
+        titm = end_i-no
+        fcus = begin_cust
+        tcus = end_cust
+        vzer = tb_del-zer
+        vneg = tb_del-neg
+        vInclInact = tbIncludeInactive.
 
-DO WITH FRAME {&FRAME-NAME}:
-  ASSIGN
-   begin_i-no
-   end_i-no
-   begin_cust
-   end_cust
-   tb_del-zer
-   tb_del-neg
-   tbIncludeInactive.
-END.
+    SESSION:SET-WAIT-STATE("General").
 
-ASSIGN
- fitm = begin_i-no
- titm = end_i-no
- fcus = begin_cust
- tcus = end_cust
- vzer = tb_del-zer
- vneg = tb_del-neg
- vInclInact = tbIncludeInactive.
+    FOR EACH itemfg NO-LOCK WHERE
+        itemfg.company EQ cocode AND 
+        itemfg.cust-no GE fcus AND 
+        itemfg.cust-no LE tcus AND 
+        itemfg.i-no GE fitm AND 
+        itemfg.i-no LE titm AND 
+        TRIM(itemfg.i-no) NE "" AND 
+        (itemfg.stat EQ "A" OR vInclInact)
+        USE-INDEX customer:
 
+        STATUS DEFAULT "Processing Customer#/FG#: " + TRIM(itemfg.cust-no) + "/" + TRIM(itemfg.i-no).
 
-SESSION:SET-WAIT-STATE("General").
+        IF tbRebuild THEN DO TRANSACTION:
+            RUN fg/fg-mkbin.p (RECID(itemfg)).
+        END.
 
-FOR EACH itemfg
-    WHERE itemfg.company    EQ cocode
-      AND itemfg.cust-no    GE fcus
-      AND itemfg.cust-no    LE tcus
-      AND itemfg.i-no       GE fitm
-      AND itemfg.i-no       LE titm
-      AND TRIM(itemfg.i-no) NE ""
-      AND (itemfg.stat EQ "A" OR vInclInact)
-    USE-INDEX customer NO-LOCK
-    TRANSACTION:
+        IF vzer THEN FOR EACH fg-bin WHERE 
+            fg-bin.company EQ cocode AND 
+            fg-bin.i-no EQ itemfg.i-no AND 
+            fg-bin.qty EQ 0:
+            DELETE fg-bin.
+        END.
 
-  STATUS DEFAULT "Processing Customer#/FG#: " +
-                 TRIM(itemfg.cust-no) + "/" + TRIM(itemfg.i-no).
+        IF vneg THEN FOR EACH fg-bin WHERE 
+            fg-bin.company EQ cocode AND 
+            fg-bin.i-no    EQ itemfg.i-no AND 
+            fg-bin.qty     LT 0:
 
-/*   FIND FIRST reftable                                                    */
-/*     WHERE reftable.reftable EQ "FGSTATUS"                                */
-/*     AND reftable.company  EQ itemfg.company                              */
-/*     AND reftable.loc      EQ ""                                          */
-/*     AND reftable.code     EQ itemfg.i-no NO-LOCK NO-ERROR.               */
-/*   IF AVAIL reftable AND vInclInact = FALSE AND reftable.code2 = "I" THEN */
-/*       NEXT.                                                              */
+            RUN fg/cre-pchr.p (ROWID(fg-bin), "C", 0, 0).
+            DELETE fg-bin.
+        END.
 
-  RUN fg/fg-mkbin.p (RECID(itemfg)).
+        IF tbRebuild THEN DO TRANSACTION:
+            RUN fg/fg-reset.p (RECID(itemfg)).  
+        END.
 
-  IF vzer THEN
-  FOR EACH fg-bin
-      WHERE fg-bin.company EQ cocode
-        AND fg-bin.i-no    EQ itemfg.i-no
-        AND fg-bin.qty     EQ 0:
-    DELETE fg-bin.
-  END.
+    END. /* each itemfg */
 
-  IF vneg THEN
-  FOR EACH fg-bin
-      WHERE fg-bin.company EQ cocode
-        AND fg-bin.i-no    EQ itemfg.i-no
-        AND fg-bin.qty     LT 0:
+    STATUS DEFAULT "".
+    SESSION:SET-WAIT-STATE("General").
+    MESSAGE 
+        TRIM(c-win:TITLE) + " Process Is Completed." 
+        VIEW-AS ALERT-BOX.
 
-    RUN fg/cre-pchr.p (ROWID(fg-bin), "C", 0, 0).
-
-    DELETE fg-bin.
-  END.
-
-  RUN fg/fg-reset.p (RECID(itemfg)).  
-END. /* each itemfg */
-
-STATUS DEFAULT "".
-
-SESSION:SET-WAIT-STATE("General").
-
-MESSAGE TRIM(c-win:TITLE) + " Process Is Completed." VIEW-AS ALERT-BOX.
-
-APPLY "close" TO THIS-PROCEDURE.
-
-/* end ---------------------------------- copr. 2001  advanced software, inc. */
+    APPLY "close" TO THIS-PROCEDURE.
 
 END PROCEDURE.
 
