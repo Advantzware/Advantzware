@@ -94,7 +94,7 @@ DEF VAR v-printline AS INT NO-UNDO.
 DEF VAR ll-display-comp AS LOG NO-UNDO.  /* display company address */
 DEF VAR ll-consol-bolls AS LOG NO-UNDO.
 DEF VAR lv-comp-name AS cha FORM "x(30)" NO-UNDO.
-DEF VAR lv-email AS cha FORM "x(40)" NO-UNDO.
+DEF VAR lv-email AS cha FORM "x(56)" NO-UNDO.
 DEF VAR lv-bolfmt-int AS INT NO-UNDO.
 DEF VAR lv-comp-color AS cha NO-UNDO.
 DEF VAR lv-other-color AS cha INIT "BLACK" NO-UNDO.

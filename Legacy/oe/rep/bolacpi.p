@@ -97,7 +97,7 @@ DEFINE VARIABLE v-printline AS INTEGER NO-UNDO.
 DEFINE VARIABLE ll-display-comp AS LOG NO-UNDO.  /* display company address */
 DEFINE VARIABLE ll-consol-bolls AS LOG NO-UNDO.
 DEFINE VARIABLE lv-comp-name AS cha FORM "x(30)" NO-UNDO.
-DEFINE VARIABLE lv-email AS cha FORM "x(40)" NO-UNDO.
+DEFINE VARIABLE lv-email AS cha FORM "x(56)" NO-UNDO.
 DEFINE VARIABLE lv-bolfmt-int AS INTEGER NO-UNDO.
 DEFINE VARIABLE lv-comp-color AS cha NO-UNDO.
 DEFINE VARIABLE lv-other-color AS cha INIT "BLACK" NO-UNDO.

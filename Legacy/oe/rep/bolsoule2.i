@@ -24,7 +24,7 @@
 /*          v-comp-add4 AT 8 SKIP                                                        */
 /*          v-comp-add5 AT 8 "<FGCOLOR=" + trim(lv-other-color) + ">" FORM "x(15)" SKIP  */
                "<FCourier New><P10>"
-              "Email: " + trim(lv-email) FORMAT "x(50)" AT 15 SKIP(1)
+              "Email: " + trim(lv-email) FORMAT "x(56)" AT 15 SKIP(1)
                "Sold To:" SPACE(30) "Ship To:"  SKIP
                SPACE(5) v-comp-name v-ship-name AT 45 skip
                SPACE(5) v-comp-addr[1] v-ship-addr[1] AT 45 SKIP
