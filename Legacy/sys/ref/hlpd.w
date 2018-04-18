@@ -322,6 +322,11 @@ find first sys-ctrl NO-LOCK
 IF NOT vhWebService:CONNECTED() THEN
     DO: 
 
+    MESSAGE "Unable to connect to the Advantzware Documentation/Help Server." SKIP
+            "Please report the issue to Advantzware support" SKIP
+            "AsiHelpService:" + STRING(vconn) 
+         VIEW-AS ALERT-BOX INFO .
+
      find first hlp-head where hlp-head.fld-name = ip-field and
                                  hlp-head.fil-name = ip-table and
                                  hlp-head.frm-name = ip-frame
