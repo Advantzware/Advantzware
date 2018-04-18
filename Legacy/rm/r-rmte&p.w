@@ -2042,6 +2042,8 @@ v-avg-cst = rm-ctrl.avg-lst-cst.
       FIND CURRENT mat-act NO-LOCK NO-ERROR.
       FIND CURRENT job NO-LOCK NO-ERROR.
       FIND CURRENT job-mat NO-LOCK NO-ERROR.
+      FIND CURRENT po-ord NO-LOCK NO-ERROR.
+      FIND CURRENT po-ordl NO-LOCK NO-ERROR.
     END. /* for each rm-rctd */
 
     v-dunne = YES.
