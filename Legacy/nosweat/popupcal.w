@@ -1176,6 +1176,12 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   dateValue = DATE(FRAME-VALUE) NO-ERROR.
   IF dateValue EQ ? THEN
   dateValue = TODAY.
+
+  IF INTEGER(YEAR(dateValue)) LT 1900 OR INTEGER(YEAR(dateValue)) GT 3000 THEN do:
+      MESSAGE "Calender year should be between 1900 to 3000 years. " VIEW-AS ALERT-BOX INFO .
+      RETURN .
+  END.
+
   DO WITH FRAME {&FRAME-NAME}:
     DO i = 1900 TO 3000:
       years:ADD-LAST(STRING(i)).
