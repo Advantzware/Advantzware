@@ -360,7 +360,6 @@ ELSE lv-comp-color = "BLACK".
                                     oe-ordl.t-ship-qty) < 0 then 0 else
                                    (ar-invl.qty - v-ship-qty -
                                     oe-ordl.t-ship-qty).
-
               IF NOT CAN-FIND(FIRST oe-boll
                               WHERE oe-boll.company EQ ar-invl.company
                                 AND oe-boll.b-no    EQ ar-invl.b-no
@@ -445,8 +444,16 @@ ELSE lv-comp-color = "BLACK".
                             else           trim(lv-inv-list).
 
               if v-part-info ne "" OR (v = 1 AND ar-invl.part-no <> "") then do:
-                 IF v = 1 THEN PUT SPACE(25) ar-invl.part-no SPACE v-part-info SKIP.
-                 ELSE
+                 IF v = 1 THEN DO:
+
+                     IF LENGTH(ar-invl.po-no) LE 8 THEN DO:
+                         PUT  SPACE(16) ar-invl.po-no FORMAT "x(8)" SPACE(1)   ar-invl.part-no SPACE v-part-info SKIP.
+                     END.
+                     ELSE DO: 
+                         PUT  SPACE(9) ar-invl.po-no FORMAT "x(15)" SPACE(1)   ar-invl.part-no SPACE v-part-info SKIP.
+                     END.
+                 END.
+                 ELSE 
                  IF v = 2 THEN PUT SPACE(41) v-part-info SKIP.
                  ELSE          PUT SPACE(20) "Previous Invoice(s): " v-part-info SKIP.
                  v-printline = v-printline + 1.
