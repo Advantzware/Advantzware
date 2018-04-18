@@ -151,6 +151,11 @@
              v-program = "oe/rep/bolxprnt10.p"
              is-xprint-form = YES
              lines-per-page = 80.
+       WHEN "Wingate-BOL" THEN
+          ASSIGN
+             v-program = "oe/rep/bolwinget.p"
+             is-xprint-form = YES
+             lines-per-page = 80.
         WHEN "bolfmt10-CAN" THEN
           ASSIGN
              v-program = "oe/rep/bolxprnt10can.p"
