@@ -426,6 +426,7 @@ PROCEDURE initScreen :
       blank_# = ''
       pass_# = ''
       item_# = ''
+      item_name = ''
       field_value = ''
       h_field = job_#:HANDLE
       h_field:SCREEN-VALUE = ''
