@@ -47,7 +47,7 @@ DEF VAR ll-got-cust-info AS LOG NO-UNDO.  /* assigned from cust leave trigger */
 DEF VAR lv-due-calckt AS LOG NO-UNDO.
 DEF VAR ls-add-what AS CHARACTER NO-UNDO.
 DEFINE VARIABLE Is-add-dup-inv AS CHARACTER NO-UNDO .
-DEFINE VARIABLE oeDateAuto-Int AS INTEGER NO-UNDO .
+DEFINE VARIABLE oeInvAddDate-Int AS INTEGER NO-UNDO .
 DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO .
 DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO .
 {sys/inc/VAR.i "new shared"}
@@ -58,7 +58,7 @@ RUN sys/ref/nk1look.p (INPUT cocode, "InvAddDate", "I" /* Logical */, NO /* chec
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
 OUTPUT cRtnChar, OUTPUT lRecFound).
 IF lRecFound THEN
-    oeDateAuto-Int = INTEGER(cRtnChar) NO-ERROR.
+    oeInvAddDate-Int = INTEGER(cRtnChar) NO-ERROR.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1425,11 +1425,22 @@ PROCEDURE pCreateDuplicate :
         AND bff-ar-inv.inv-no EQ integer(Is-add-dup-inv) NO-ERROR .
   IF AVAIL bff-ar-inv THEN DO:
       BUFFER-COPY bff-ar-inv EXCEPT company inv-date x-no inv-no USER-ID upd-date upd-time posted rec_key TO ar-inv .
-       ar-inv.inv-date = IF oeDateAuto-Int EQ 0 THEN TODAY ELSE ar-inv.inv-date .
+       ar-inv.inv-date = IF oeInvAddDate-Int EQ 0 THEN TODAY ELSE ar-inv.inv-date .
        ar-inv.printed  = NO .
        ar-inv.paid     = 0 .
        ar-inv.spare-char-1 = IF cType EQ "duplicate" THEN "Copy" ELSE "Rebill" .
        ar-inv.spare-int-2  = INTEGER(Is-add-dup-inv) .
+       FIND FIRST cust NO-LOCK 
+           WHERE cust.company EQ g_company
+           AND cust.cust-no EQ ar-inv.cust-no
+           NO-ERROR.  
+       IF AVAIL cust THEN
+           FIND FIRST terms NO-LOCK 
+           WHERE terms.t-code EQ cust.terms
+           NO-ERROR.
+       IF AVAIL terms THEN
+           ASSIGN  ar-inv.due-date = IF oeInvAddDate-Int EQ 0 THEN TODAY + terms.net-days ELSE ar-inv.due-date .
+       ELSE ar-inv.due-date = IF oeInvAddDate-Int EQ 0 THEN TODAY ELSE ar-inv.due-date .
 
    FOR EACH bff-ar-invl NO-LOCK 
        WHERE bff-ar-invl.company EQ bff-ar-inv.company
@@ -1532,9 +1543,21 @@ DEFINE VARIABLE Y AS INTEGER NO-UNDO.
           ar-inv.due           = ar-inv.due * -1
           ar-inv.paid          = 0
           ar-inv.printed       = NO 
-          ar-inv.inv-date      = IF oeDateAuto-Int EQ 0 THEN TODAY ELSE ar-inv.inv-date 
+          ar-inv.inv-date      = IF oeInvAddDate-Int EQ 0 THEN TODAY ELSE ar-inv.inv-date 
           ar-inv.spare-char-1  = IF cType EQ "Credit" THEN "Credit" ELSE "Rebill" 
           ar-inv.spare-int-2   = INTEGER(Is-add-dup-inv) .
+          
+          FIND FIRST cust NO-LOCK 
+              WHERE cust.company EQ g_company
+              AND cust.cust-no EQ ar-inv.cust-no
+              NO-ERROR.  
+          IF AVAIL cust THEN
+          FIND FIRST terms NO-LOCK 
+              WHERE terms.t-code EQ cust.terms
+             NO-ERROR.
+            IF AVAIL terms THEN
+                ASSIGN  ar-inv.due-date = IF oeInvAddDate-Int EQ 0 THEN TODAY + terms.net-days ELSE ar-inv.due-date .
+            ELSE ar-inv.due-date = IF oeInvAddDate-Int EQ 0 THEN TODAY ELSE ar-inv.due-date .
 
    FOR EACH bff-ar-invl NO-LOCK 
        WHERE bff-ar-invl.company EQ bff-ar-inv.company
