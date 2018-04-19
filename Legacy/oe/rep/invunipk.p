@@ -564,11 +564,6 @@ assign
               end.
             end.
 
-            IF inv-line.disc NE 0 OR v-po-no NE "" THEN
-              PUT SPACE(41) /*v-po-no FORMAT "x(15)" SPACE(1)*/
-                  "Less " + TRIM(STRING(inv-line.disc,">>9.99%")) + " Discount" FORMAT "x(21)"
-                  v-price - inv-line.t-price FORMAT "->>>,>>9.99" TO 95.
-
             put skip(1).
             v-printline = v-printline + 1.
        /*
