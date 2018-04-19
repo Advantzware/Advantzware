@@ -232,9 +232,8 @@ assign
                and oe-ordl.i-no    eq job-hdr.i-no NO-LOCK no-error.
        IF AVAIL oe-ordl THEN  
 
-       ASSIGN
        v-managed-order = IF oe-ordl.managed = true THEN "MANAGED   WAREHOUSE   ORDER"
-                         ELSE ""
+                         ELSE "".
        v-break = first-of(job.job-no2).
 
       release xest.

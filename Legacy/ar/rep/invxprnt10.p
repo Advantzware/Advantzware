@@ -34,7 +34,7 @@ def var v-ans as logical initial no NO-UNDO.
 def var v-date-ship as date initial today NO-UNDO.
 def var v-del-no as int format ">>>>>>" NO-UNDO.
 def var v-bol-cases LIKE oe-boll.cases NO-UNDO.
-def var v-set-qty AS INT NO-UNDO.
+def var v-set-qty AS DECIMAL NO-UNDO.
 def var v-part-qty AS DEC FORMAT "999.9999" NO-UNDO.
 def var v-net like inv-head.t-inv-rev NO-UNDO.
 def var v-case-cnt as char format "x(80)" extent 5 NO-UNDO.
@@ -258,7 +258,7 @@ ELSE lv-comp-color = "BLACK".
              DO:
                FOR EACH fg-set NO-LOCK WHERE fg-set.company = ar-invl.company
                                        AND fg-set.set-no = ar-invl.i-no:
-                    ASSIGN v-set-qty = v-set-qty + fg-set.part-qty.
+                    ASSIGN v-set-qty = v-set-qty + fg-set.qtyPerSet.
                END.
                IF v-set-qty = 0 THEN ASSIGN v-set-qty = 1.
                FOR EACH eb NO-LOCK WHERE eb.company = ar-invl.company AND
@@ -268,8 +268,8 @@ ELSE lv-comp-color = "BLACK".
                     fg-set.set-no = ar-invl.i-no  AND
                     fg-set.part-no = eb.stock-no NO-LOCK NO-ERROR.
 
-                 IF AVAIL fg-set AND fg-set.part-qty NE 0 THEN
-                   ASSIGN v-part-qty = fg-set.part-qty / v-set-qty.
+                 IF AVAIL fg-set AND fg-set.qtyPerSet NE 0 THEN
+                   ASSIGN v-part-qty = fg-set.qtyPerSet / v-set-qty.
                  ELSE
                    ASSIGN v-part-qty = 1 / v-set-qty.
 
@@ -360,7 +360,6 @@ ELSE lv-comp-color = "BLACK".
                                     oe-ordl.t-ship-qty) < 0 then 0 else
                                    (ar-invl.qty - v-ship-qty -
                                     oe-ordl.t-ship-qty).
-
               IF NOT CAN-FIND(FIRST oe-boll
                               WHERE oe-boll.company EQ ar-invl.company
                                 AND oe-boll.b-no    EQ ar-invl.b-no
@@ -445,8 +444,16 @@ ELSE lv-comp-color = "BLACK".
                             else           trim(lv-inv-list).
 
               if v-part-info ne "" OR (v = 1 AND ar-invl.part-no <> "") then do:
-                 IF v = 1 THEN PUT SPACE(25) ar-invl.part-no SPACE v-part-info SKIP.
-                 ELSE
+                 IF v = 1 THEN DO:
+
+                     IF LENGTH(ar-invl.po-no) LE 8 THEN DO:
+                         PUT  SPACE(16) ar-invl.po-no FORMAT "x(8)" SPACE(1)   ar-invl.part-no SPACE v-part-info SKIP.
+                     END.
+                     ELSE DO: 
+                         PUT  SPACE(9) ar-invl.po-no FORMAT "x(15)" SPACE(1)   ar-invl.part-no SPACE v-part-info SKIP.
+                     END.
+                 END.
+                 ELSE 
                  IF v = 2 THEN PUT SPACE(41) v-part-info SKIP.
                  ELSE          PUT SPACE(20) "Previous Invoice(s): " v-part-info SKIP.
                  v-printline = v-printline + 1.

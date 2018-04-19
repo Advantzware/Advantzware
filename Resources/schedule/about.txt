@@ -14,6 +14,14 @@
 
  History:
 
+ r4.005 (updated 3.30.2018)
+ * added field "msf"
+ * added field "sqft"
+ * added field "mr waste"
+ * added field "run waste"
+ * added field "mr time"
+ * added field "run time"
+
  r4.004 (updated 1.15.2018)
  * expanded format for gross length & width fields
  * data collection view adjusted for scheduled machines

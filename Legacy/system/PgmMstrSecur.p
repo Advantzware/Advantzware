@@ -36,8 +36,8 @@ PROCEDURE epCanAccess:
                 (ipProgName EQ "windows/std-code.w" AND ipFunction EQ "") OR /*NZ7 (NZ6) Standards Matrix*/
                 (ipProgName EQ "windows/uom.w" AND ipFunction EQ "") OR /*NZ8 (NZ7) Units of Measure*/
                 (ipProgName EQ "windows/xref.w" AND ipFunction EQ "") OR /*NZ11 (NZ10) Cross References*/
-                (ipProgName EQ "browsers/fgijob.w" AND ipFunction EQ "Access1") OR /*IF1 Bon/Job tab*/
-                (ipProgName EQ "system/mainmenu.w" AND ipFunction EQ "") OR /*Main menu load*/
+                (ipProgName EQ "browsers/fgijob.w" AND ipFunction EQ "Access1") OR /*IF1 Bon/Job tab  allow edit only super  admin */
+                (ipProgName EQ "system/mainmenu.w" AND ipFunction EQ "") OR /*Main menu load NZ1 System Reference Files Access*/
                 (ipProgName EQ "util/module.w" AND ipFunction EQ "") OR /*run util module*/
                 (ipProgName EQ "viewers/file-seq.w" AND ipFunction EQ "") OR /*NZ1 System ref Files */
                 (ipProgName EQ "viewers/sys-ctrl.w" AND ipFunction EQ "") OR /*NK1 view control tab */
@@ -59,12 +59,12 @@ PROCEDURE epCanAccess:
                 (ipProgName EQ "sys/ref/hlp.w" AND ipFunction EQ "Access1") OR  /*Update Help Button - redundant with above?*/
                 (ipProgName EQ "viewers/usercontrol.w" AND ipFunction EQ "Access2") OR /*NK5 User Control - Max Sessions Per User*/
                 (ipProgName EQ "browsers/userlog.w" AND ipFunction EQ "") OR /*NK5 User Control -delete button */
-                (ipProgName EQ "browsers/fgijob.w" AND ipFunction EQ "Access2") OR /*IF1 Bon/Job tab*/
+                (ipProgName EQ "browsers/fgijob.w" AND ipFunction EQ "Access2") OR /*IF1 Bon/Job tab allow edit 'Total Weight" to admin*/
                 (ipProgName EQ "cec/v-item2.w" AND ipFunction EQ "") OR /*MF2 inventory tab overright button */
                 (ipProgName EQ "jcinq/b-updmac.w" AND ipFunction EQ "") OR /* JQ1 Mach hrs Tab  */
                 (ipProgName EQ "jcinq/b-updmat.w" AND ipFunction EQ "") OR /* JQ1 MAterial Tab   */
                 (ipProgName EQ "rminq/b-rmiinq.w" AND ipFunction EQ "") OR /*MF1 or MF2 Hostory tab   */
-                (ipProgName EQ "system/mainmenu.w" AND ipFunction EQ "Access1") OR /*Main menu load*/
+                (ipProgName EQ "system/mainmenu.w" AND ipFunction EQ "Access1") OR /*Main menu load Run Custom Utility Program access*/
                 (ipProgName EQ "viewers/p-fg-bj-l.w" AND ipFunction EQ "") OR /*IF1 Bin/Jobs tab */
                 
                 (ipProgName EQ "" AND ipFunction = "")

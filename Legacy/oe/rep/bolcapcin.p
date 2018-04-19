@@ -74,7 +74,7 @@ DEF VAR v-line-total AS DEC NO-UNDO.
 DEF VAR v-printline AS INT NO-UNDO.
 DEF VAR lv-display-comp AS LOG NO-UNDO.
 DEF VAR lv-comp-name AS cha FORM "x(30)" NO-UNDO.
-DEF VAR lv-email AS cha FORM "x(40)" NO-UNDO.
+DEF VAR lv-email AS cha FORM "x(56)" NO-UNDO.
 DEF VAR v-cusx-add1 AS cha NO-UNDO.
 DEF VAR v-cusx-add2 AS cha NO-UNDO.
 DEF VAR v-cusx-add3 AS cha NO-UNDO.

@@ -200,7 +200,7 @@ DEFINE VARIABLE cBarCodeProgram AS CHARACTER NO-UNDO .
 DEFINE VARIABLE i-bardir-int AS INTEGER NO-UNDO .
 DEFINE VARIABLE i-xprint-int AS INTEGER NO-UNDO .
 DEF VAR ls-image1 AS cha NO-UNDO.
-DEF VAR ls-full-img1 AS cha FORM "x(150)" NO-UNDO.
+DEF VAR ls-full-img1 AS cha FORM "x(200)" NO-UNDO.
 DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
 DEFINE VARIABLE lBussFormModle AS LOGICAL NO-UNDO.
@@ -7084,6 +7084,9 @@ DEFINE VARIABLE cFax   AS CHARACTER NO-UNDO.
            END.
            ELSE IF scr-label-file:SCREEN-VALUE EQ "loadtag12.xpr" THEN DO:
                {oe/rep/lodxprnt12.i}
+           END.
+           ELSE IF scr-label-file:SCREEN-VALUE EQ "loadtag13.xpr" THEN DO:
+               {oe/rep/lodxprnt13.i}
            END.
     
          IF NOT LAST(tt-word-print.i-no) THEN PAGE .

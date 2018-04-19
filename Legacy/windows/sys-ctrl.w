@@ -422,6 +422,7 @@ PROCEDURE adm-create-objects :
        /* Links to SmartViewer h_sys-ctrl-2. */
        RUN add-link IN adm-broker-hdl ( h_p-updsav , 'TableIO':U , h_sys-ctrl-2 ).
        RUN add-link IN adm-broker-hdl ( h_sys-ctrl , 'Record':U , h_sys-ctrl-2 ).
+       RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'getsec':U , h_sys-ctrl-2 ).
 
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_prtsyscl-5 ,
@@ -615,6 +616,9 @@ PROCEDURE local-change-page :
 ------------------------------------------------------------------------------*/
 
   DEFINE VARIABLE viCurrPage AS INTEGER    NO-UNDO.
+  DEF VAR hPgmSecurity AS HANDLE NO-UNDO.
+  DEF VAR lResult AS LOG NO-UNDO.
+  DEFINE VARIABLE cSysNmae AS CHARACTER NO-UNDO.
   
   /* Code placed here will execute PRIOR to standard behavior. */
   RUN GET-ATTRIBUTE('CURRENT-PAGE').
@@ -630,6 +634,20 @@ PROCEDURE local-change-page :
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'change-page':U ) .
+  IF viCurrPage = 2 THEN DO:
+      RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE, 'getsec-target':U, OUTPUT char-hdl).
+
+      IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
+          RUN get-sys-ctrl-value IN WIDGET-HANDLE(char-hdl) (OUTPUT cSysNmae).
+ 
+     IF cSysNmae = "SECURITY" THEN DO:
+        RUN "system/PgmMstrSecur.p" PERSISTENT SET hPgmSecurity.
+               RUN epCanAccess IN hPgmSecurity ("viewers/sys-ctrl.w", "", OUTPUT lResult).
+               DELETE OBJECT hPgmSecurity.
+        IF NOT lResult THEN 
+            RUN set-buttons IN h_p-updsav ('disable-all').
+     END.
+  END.
 
   /* Code placed here will execute AFTER standard behavior.    */
   {methods/winReSizePgChg.i}

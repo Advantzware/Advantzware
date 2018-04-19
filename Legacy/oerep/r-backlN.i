@@ -134,7 +134,7 @@
            tt-report.key-02  = (trim(job.job-no) + "-" +
                                   string(job.job-no2,"99"))
            tt-report.key-03  = job-hdr.i-no
-           tt-report.key-04  = string(v-qty[1] - v-qty[2],"9999999999")
+           tt-report.key-04  = IF v-qty[2] GT v-qty[1] THEN "0" ELSE string(v-qty[1] - v-qty[2],"9999999999")
            tt-report.key-05  = job-hdr.cust-no
            tt-report.rec-id  = recid(job).
         end.
@@ -285,6 +285,8 @@
               v-gpdollar = (w-ord.t-price - w-ord.cost)
               v-gp       = round(v-gpdollar / w-ord.t-price * 100,2).
           IF v-gp = ?  THEN ASSIGN v-gp = 0.
+
+          IF w-ord.t-price LT 0 THEN w-ord.t-price = 0.
     
               ASSIGN cDisplay = ""
                      cTmpField = ""
@@ -348,7 +350,7 @@
                 v-tot-pct = if v-tot-sales[1] ne 0 
                             THEN (v-tot-sales[1] - v-tot-cost[1]) / v-tot-sales[1] * 100 
                             ELSE 0.
-                IF v-tot-pct = ?  THEN v-tot-pct = 0.
+                IF v-tot-pct = ? THEN v-tot-pct = 0.
                /* put skip(1)
                     "Order Qty"    to 42
                     "Cost"         to 58

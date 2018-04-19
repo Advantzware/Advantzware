@@ -390,6 +390,8 @@ PROCEDURE Create_Buttons :
     ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER menu-item AS CHARACTER NO-UNDO.
     DEFINE VARIABLE button-label AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE hPgmSecurity AS HANDLE NO-UNDO.
+    DEFINE VARIABLE lResult AS LOG NO-UNDO.
 
     button-row = {&start-button-row}.
     FOR EACH ttbl NO-LOCK WHERE ttbl.menu2 = menu-item:
@@ -399,18 +401,24 @@ PROCEDURE Create_Buttons :
         button-label = (IF AVAILABLE prgrms THEN prgrms.prgtitle ELSE ttbl.menu1) +
             (IF INDEX(ttbl.menu1,'.') NE 0 OR ttbl.menu1 = 'Exit' THEN ''
             ELSE ' >').
-        FIND FIRST users NO-LOCK WHERE 
-                users.user_id EQ USERID(LDBNAME(1)) 
-                NO-ERROR.
-        IF AVAILABLE users AND users.securityLevel LE 999 
-            AND AVAILABLE prgrms AND prgrms.prgmname EQ "file." THEN NEXT.
 
-        IF AVAILABLE prgrms AND prgrms.prgmname EQ "custproc." 
-            AND USER("nosweat") NE "asi" THEN DO: /*NEXT .*/ /* ticket - 23865  */
-            IF AVAIL users AND users.securityLevel LE 899 THEN
-                NEXT.
-        END.
+          IF AVAILABLE prgrms AND prgrms.prgmname EQ "file."  THEN DO:
+              RUN "system/PgmMstrSecur.p" PERSISTENT SET hPgmSecurity.
+              RUN epCanAccess IN hPgmSecurity ("system/mainmenu.w", "", OUTPUT lResult).
+              DELETE OBJECT hPgmSecurity.
+  
+              IF NOT lResult 
+                  AND AVAILABLE prgrms AND prgrms.prgmname EQ "file." THEN NEXT.
+          END.
 
+         IF AVAILABLE prgrms AND prgrms.prgmname EQ "custproc."  THEN DO: /*NEXT .*/ /* ticket - 23865  */
+             RUN "system/PgmMstrSecur.p" PERSISTENT SET hPgmSecurity.
+             RUN epCanAccess IN hPgmSecurity ("system/mainmenu.w", "Access1", OUTPUT lResult).
+             DELETE OBJECT hPgmSecurity. 
+             IF NOT lResult THEN
+                 NEXT.
+         END.
+        
         RUN Mneumonic (INPUT-OUTPUT button-label).
 
         CREATE BUTTON button-widget IN WIDGET-POOL "dyn-buttons"

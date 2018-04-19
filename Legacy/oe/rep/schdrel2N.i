@@ -579,7 +579,8 @@ form header
        ld-palls            =  w-ord.rel-qty / 
                               ((IF oe-ordl.cas-cnt    EQ 0 THEN 1 ELSE oe-ordl.cas-cnt) *
                               (IF oe-ordl.cases-unit EQ 0 THEN 1 ELSE oe-ordl.cases-unit))
-       w-ord.ord-date     = string(oe-ord.ord-date)  .
+       w-ord.ord-date     = string(oe-ord.ord-date)
+       w-ord.prom-date         = oe-ordl.prom-date  .
 
       {sys/inc/roundup.i ld-palls}
 

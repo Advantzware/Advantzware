@@ -21,7 +21,7 @@ DEF VAR liBlank AS INT NO-UNDO.
 DEF VAR liForm AS INT NO-UNDO.
 DEF BUFFER bf-itemfg FOR itemfg.
 DEF VAR liNumSets AS INT NO-UNDO.
-DEF VAR liQtyPerSet AS INT NO-UNDO.
+DEF VAR liQtyPerSet AS DECIMAL NO-UNDO.
 DEF VAR llUOMChanged AS LOG NO-UNDO.
 {custom/globdefs.i}
 {custom/gcompany.i}
@@ -55,7 +55,7 @@ FOR EACH job-hdr WHERE job-hdr.company EQ cocode
            IF AVAIL bf-itemfg AND bf-itemfg.pur-man THEN DO:
              /* This is a purchased component, so create the job-farm */
              liNumSets   = job-hdr.qty.
-             liQtyPerSet = fg-set.part-qty.
+             liQtyPerSet = fg-set.qtyPerSet.
              
              RUN create-job-farm.
              RELEASE job-farm.

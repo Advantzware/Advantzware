@@ -35,7 +35,7 @@ DEFINE TEMP-TABLE ttInventoryValue NO-UNDO
     FIELD daysOld      AS INTEGER   LABEL "Days Old"     FORMAT "->>>>>>9" 
     FIELD custNoOwned  AS CHARACTER LABEL "Cust Own"     FORMAT "X(8)" 
     FIELD setHeader    AS CHARACTER LABEL "Set Header"   FORMAT "X(15)" 
-    FIELD qtyPerSet    AS INTEGER   LABEL "Qty Per Set"  FORMAT "->>,>>>,>>9" 
+    FIELD qtyPerSet    AS DECIMAL   LABEL "Qty Per Set"  FORMAT "->>,>>9.99<<<<" 
     FIELD recDate      AS DATE      LABEL "Rec Date"     FORMAT 99/99/9999
     FIELD xxSort       AS CHARACTER LABEL "Sort"         FORMAT "x(500)"
         INDEX sortBy IS PRIMARY rowType xxSort

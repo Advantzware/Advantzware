@@ -109,7 +109,7 @@ DEFINE VARIABLE v-cust-phono       AS CHARACTER        NO-UNDO.
 
 DEFINE VARIABLE ll-display-comp    AS LOGICAL          NO-UNDO. /* display company address */
 DEFINE VARIABLE lv-comp-name       AS cha              FORM "x(30)" NO-UNDO.
-DEFINE VARIABLE lv-email           AS cha              FORM "x(30)" NO-UNDO.
+DEFINE VARIABLE lv-email           AS cha              FORM "x(56)" NO-UNDO.
 
 DEFINE VARIABLE lv-comp-color      AS cha              NO-UNDO.
 DEFINE VARIABLE lv-other-color     AS cha              INIT "BLACK" NO-UNDO.

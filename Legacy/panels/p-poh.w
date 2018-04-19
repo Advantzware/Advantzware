@@ -478,6 +478,9 @@ PROCEDURE set-buttons :
   Notes:       
 ------------------------------------------------------------------------------*/
 DEFINE INPUT PARAMETER panel-state AS CHARACTER NO-UNDO.
+DEFINE VARIABLE v-autopo-sec AS LOGICAL NO-UNDO.
+DEFINE VARIABLE v-access-close AS LOGICAL NO-UNDO.
+DEFINE VARIABLE v-access-list AS CHARACTER NO-UNDO.
 
 DO WITH FRAME Panel-Frame:
 
@@ -595,6 +598,22 @@ DO WITH FRAME Panel-Frame:
   END. /* panel-state = action-chosen */
 
   {CUSTOM/SECPANEL.I}
+
+ 
+  /* Check if authorized enter job */
+RUN methods/prgsecur.p
+    (INPUT "PoCopyButt",
+     INPUT "ACCESS",
+     INPUT YES,
+     INPUT YES,
+     INPUT YES,
+     OUTPUT v-autopo-sec,
+     OUTPUT v-access-close,
+     OUTPUT v-access-list).
+
+     IF NOT v-autopo-sec THEN
+         ASSIGN Btn-Copy:SENSITIVE = v-autopo-sec . 
+  
 
 END. /* DO WITH FRAME */
 

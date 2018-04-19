@@ -49,7 +49,7 @@ DEF VAR v-ship-i     AS CHAR FORMAT "x(60)" EXTENT 4 NO-UNDO.
 DEF VAR ll-display-comp AS LOG                 NO-UNDO.  /* display company address */
 DEF VAR ll-consol-rells AS LOG                 NO-UNDO.
 DEF VAR lv-comp-name    AS CHAR FORMAT "x(30)" NO-UNDO.
-DEF VAR lv-email        AS CHAR FORMAT "x(40)" NO-UNDO.
+DEF VAR lv-email        AS CHAR FORMAT "x(56)" NO-UNDO.
 
 DEF VAR v-UntCnt        AS CHAR FORMAT "x(10)" NO-UNDO.
 
@@ -228,7 +228,7 @@ IF v-zone-p THEN ASSIGN v-zone-hdr = "Route No.:".
             WHERE fg-set.company EQ xoe-ordl.company
               AND fg-set.set-no  EQ xoe-ordl.i-no NO-LOCK:
 
-              ASSIGN v-set-qty = v-set-qty + fg-set.part-qty.
+              ASSIGN v-set-qty = v-set-qty + fg-set.QtyPerSet.
           END.
 
           IF v-set-qty EQ 0 THEN ASSIGN v-set-qty = 1.
@@ -245,8 +245,8 @@ IF v-zone-p THEN ASSIGN v-zone-hdr = "Route No.:".
 
             ASSIGN
               v-part-qty = (IF AVAIL fg-set AND 
-                               fg-set.part-qty NE 0 
-                              THEN fg-set.part-qty 
+                               fg-set.QtyPerSet NE 0 
+                              THEN fg-set.QtyPerSet 
                               ELSE 1) / v-set-qty
               v-pallets = v-pallets +
                          (IF xoe-rell.qty-case NE 0 

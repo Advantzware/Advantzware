@@ -230,7 +230,7 @@ DEFINE BROWSE Browser-Table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS Browser-Table B-table-Win _STRUCTURED
   QUERY Browser-Table NO-LOCK DISPLAY
       EDIVTran.Invoice-no COLUMN-LABEL "Invoice No" FORMAT "x(22)":U
-      EDIVTran.Partner FORMAT "x(05)":U
+      EDIVTran.Partner FORMAT "x(15)":U
       EDIVTran.Vendor FORMAT "x(10)":U
       EDIVTran.Cust FORMAT "x(10)":U
       EDIVTran.Tot-net COLUMN-LABEL "Total Net Amt" FORMAT "->,>>>,>>>.99":U
@@ -595,6 +595,41 @@ PROCEDURE disable_UI :
   /* Hide all frames. */
   HIDE FRAME F-Main.
   IF THIS-PROCEDURE:PERSISTENT THEN DELETE PROCEDURE THIS-PROCEDURE.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-delete-record B-table-Win 
+PROCEDURE local-delete-record :
+/*------------------------------------------------------------------------------
+  Purpose:     Override standard ADM method
+  Notes:       
+------------------------------------------------------------------------------*/
+DEFINE VARIABLE cPartner AS CHARACTER NO-UNDO.
+DEFINE VARIABLE iSeq     AS INTEGER   NO-UNDO.
+
+  /* Code placed here will execute PRIOR to standard behavior. */
+  IF AVAILABLE edivtran THEN 
+  ASSIGN  cPartner = edivtran.partner
+          iSeq     = edivtran.seq
+          .
+  /* Dispatch standard ADM method.                             */
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'delete-record':U ) .
+
+  /* Code placed here will execute AFTER standard behavior.    */
+  IF iSeq GT 0 THEN DO:
+   FOR EACH edivline EXCLUSIVE-LOCK
+      WHERE edivline.partner EQ cPartner
+        AND edivline.seq     EQ iSeq:
+      DELETE edivline.      
+   END.
+   FOR EACH edivaddon EXCLUSIVE-LOCK
+      WHERE edivaddon.partner EQ cPartner
+        AND edivaddon.seq     EQ iSeq:
+      DELETE edivaddon.      
+   END.
+  END.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

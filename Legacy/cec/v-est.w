@@ -117,6 +117,9 @@ DO:
    END.
 END.
 
+
+
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -3150,8 +3153,10 @@ PROCEDURE local-assign-record :
   RUN one-eb-on-ef (ROWID(ef), OUTPUT ll-one-eb-on-ef).
 
   IF ll-one-eb-on-ef AND ll-blank-size-changed THEN DO:
-    MESSAGE "Do you wish to reset layout screen?"
-        VIEW-AS ALERT-BOX BUTTON YES-NO UPDATE ll-ans2 AS LOG.
+      
+          MESSAGE "Do you wish to reset layout screen?"
+              VIEW-AS ALERT-BOX BUTTON YES-NO UPDATE ll-ans2 AS LOG.
+     
 
     ef.lsh-lock = NO.    
     IF ll-ans2 THEN RUN update-sheet.    
@@ -3172,11 +3177,13 @@ PROCEDURE local-assign-record :
     FIND CURRENT b-est NO-LOCK.
   END.
 
-  IF ll-blank-size-changed                       OR
-     (cestyle-log AND eb.style NE lv-prev-style) THEN DO:
+  IF ll-blank-size-changed OR (cestyle-log AND eb.style NE lv-prev-style)
+         THEN DO: 
     ll-ans2 = NO.
+    
     MESSAGE "Do you wish to reset box design?"
         VIEW-AS ALERT-BOX BUTTON YES-NO UPDATE ll-ans2.
+    
     IF ll-ans2 THEN
        lv-box-des = "B".
     ELSE
@@ -3207,14 +3214,16 @@ PROCEDURE local-assign-record :
          RUN tokenize-proc(box-design-hdr.lscore).
 
          DO v-count = 1 TO 30:
-
-            ASSIGN
-               v-dec = {sys/inc/k16v.i eb.k-len-array2[v-count]}
-               v-dec2 = {sys/inc/k16v.i eb.k-wid-array2[v-count]}.
-
-            IF v-l-array[v-count] NE v-dec OR
-               v-w-array[v-count] NE v-dec2 THEN
+             
+                 ASSIGN
+                     v-dec = {sys/inc/k16v.i eb.k-len-array2[v-count]}
+                     v-dec2 = {sys/inc/k16v.i eb.k-wid-array2[v-count]}.
+             
+          
+            IF  v-l-array[v-count] NE v-dec OR
+               v-w-array[v-count] NE v-dec2  THEN
                DO:
+                
                   MESSAGE "Do you wish to reset box design?"
                      VIEW-AS ALERT-BOX BUTTON YES-NO UPDATE ll-ans2.
 
@@ -4938,7 +4947,7 @@ PROCEDURE valid-wid-len :
 
   {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
-    lv-handle = IF LOOKUP(FOCUS:NAME,"style,len") GT 0 THEN FOCUS ELSE ?.
+    lv-handle = IF LOOKUP(FOCUS:NAME,"style,len") GT 0 THEN FOCUS ELSE ? NO-ERROR.
     IF NOT VALID-HANDLE(lv-handle) THEN lv-handle = eb.wid:HANDLE.
 
     IF ll-warn AND ll-wid-len-warned EQ NO                         AND

@@ -20,16 +20,16 @@
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
 
-DEFINE VARIABLE progressINI AS CHARACTER NO-UNDO.
-
-IF SEARCH('nosweat.r') EQ ? THEN DO:
-  GET-KEY-VALUE SECTION 'STARTUP'
-    KEY 'DLC'
-    VALUE progressINI.
-  progressINI = progressINI + '\bin\progress'.
-  LOAD progressINI.
-  USE progressINI.
-END.
+/*DEFINE VARIABLE progressINI AS CHARACTER NO-UNDO.*/
+/*                                                 */
+/*IF SEARCH('nosweat.r') EQ ? THEN DO:             */
+/*  GET-KEY-VALUE SECTION 'STARTUP'                */
+/*    KEY 'DLC'                                    */
+/*    VALUE progressINI.                           */
+/*  progressINI = progressINI + '\bin\progress'.   */
+/*  LOAD progressINI.                              */
+/*  USE progressINI.                               */
+/*END.                                             */
 
 /* Create an unnamed pool to store all the widgets created 
      by this procedure. This is a good default which assures
@@ -541,8 +541,8 @@ DO:
   /* This ADM code must be left here in order for the SmartWindow
      and its descendents to terminate properly on exit. */
   APPLY "CLOSE":U TO THIS-PROCEDURE.
-  IF SEARCH('nosweat.r') EQ ? THEN
-  UNLOAD progressINI.
+/*  IF SEARCH('nosweat.r') EQ ? THEN*/
+/*  UNLOAD progressINI.             */
   RETURN NO-APPLY.
 END.
 

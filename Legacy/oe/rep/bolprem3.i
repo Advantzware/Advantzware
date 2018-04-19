@@ -55,7 +55,7 @@ FOR EACH tt-boll,
             RUN cXMLOutput (clXMLOutput,'/ShipNoticeItem','','Row').
        /* rstark 05291402 */
         END.
-      IF v-printline >= 40 THEN DO:
+      IF v-printline >= 38 THEN DO:
          v-printline = 0.
          PAGE {1}.
          {oe/rep/bolprem2.i}
@@ -174,7 +174,7 @@ FOR EACH tt-boll,
          v-grand-total-cases  = v-grand-total-cases + w2.cases
          v-printline = v-printline + 1.
          
-         IF v-printline >= 40 THEN DO:
+         IF v-printline >= 38 THEN DO:
             v-printline = 0.
             PAGE {1}.
             {oe/rep/bolprem2.i}
@@ -210,7 +210,7 @@ FOR EACH tt-boll,
             ELSE IF i EQ 4 THEN v-part-dscr = oe-ordl.part-dscr2.
 
             IF v-part-dscr NE "" OR v-ord-po-no NE "" OR i LE 2 THEN DO:
-              IF v-printline >= 40 THEN DO:
+              IF v-printline >= 38 THEN DO:
                  v-printline = 0.
                  PAGE {1}.
                  {oe/rep/bolprem2.i}
@@ -255,7 +255,7 @@ FOR EACH tt-boll,
       
             {sys/inc/part-qty.i v-part-qty fg-set}
 
-            IF v-printline >= 40 THEN DO:
+            IF v-printline >= 38 THEN DO:
                v-printline = 0.
                PAGE {1}.
                {oe/rep/bolprem2.i}

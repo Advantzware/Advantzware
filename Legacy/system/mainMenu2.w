@@ -78,7 +78,7 @@ DEFINE TEMP-TABLE ttblMenu NO-UNDO
     FIELD menuName  AS CHARACTER 
     FIELD menuCount AS INTEGER 
     FIELD menuGuid  AS CHARACTER 
-    FIELD mneumonic AS CHARACTER 
+    FIELD mnemonic  AS CHARACTER 
         INDEX ttblMenu IS PRIMARY UNIQUE menuName
         INDEX menuCount menuCount
         .
@@ -87,7 +87,7 @@ DEFINE TEMP-TABLE ttblItem NO-UNDO
     FIELD menu1      AS CHARACTER FORMAT "x(12)"
     FIELD menu2      AS CHARACTER 
     FIELD seq        AS INTEGER 
-    FIELD mneumonic  AS CHARACTER
+    FIELD mnemonic   AS CHARACTER
     FIELD level      AS INTEGER
     FIELD mainMenu   AS LOGICAL
     FIELD imageFile  AS CHARACTER
@@ -96,7 +96,7 @@ DEFINE TEMP-TABLE ttblItem NO-UNDO
     FIELD hEditor    AS HANDLE
         INDEX ttblItems IS PRIMARY UNIQUE menuOrder menu2
         INDEX menu2 menu2 menuOrder
-        INDEX mneumonic menu2 mneumonic
+        INDEX mnemonic menu2 mnemonic
         INDEX seq menu2 seq
         .
 DEFINE TEMP-TABLE ttblImage NO-UNDO
@@ -115,13 +115,15 @@ DEFINE VARIABLE cEulaVersion  AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lUserExit     AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cSourceMenu   AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cUserName     AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cMneumonic    AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cMnemonic     AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cImageFolder  AS CHARACTER NO-UNDO.
 DEFINE VARIABLE dObjectHeight AS DECIMAL   NO-UNDO.
 DEFINE VARIABLE iHiCount      AS INTEGER   NO-UNDO.
 DEFINE VARIABLE iMenuSize     AS INTEGER   NO-UNDO.
 DEFINE VARIABLE iLanguage     AS INTEGER   NO-UNDO.
 DEFINE VARIABLE lOK           AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE hExitWidget   AS HANDLE    NO-UNDO.
+DEFINE VARIABLE hMenuLink     AS HANDLE    NO-UNDO EXTENT 8.
 
 ASSIGN
     g_company = ""
@@ -155,9 +157,9 @@ CREATE WIDGET-POOL "MainMenuPool".
 &Scoped-define FRAME-NAME FRAME-USER
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS imageSettings svLink 
+&Scoped-Define ENABLED-OBJECTS imageSettings imageCompany menuLinkZoHo 
 &Scoped-Define DISPLAYED-OBJECTS company_name loc_loc users_user_id ~
-Mneumonic svLink 
+Mnemonic 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -189,18 +191,6 @@ FUNCTION fSetColor RETURNS LOGICAL
 DEFINE VAR MAINMENU AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON btnLanguage-1  NO-FOCUS FLAT-BUTTON
-     LABEL "Lang 1" 
-     SIZE 9 BY 1.67.
-
-DEFINE BUTTON btnLanguage-2  NO-FOCUS FLAT-BUTTON
-     LABEL "Lang 2" 
-     SIZE 9 BY 1.67.
-
-DEFINE BUTTON btnLanguage-3  NO-FOCUS FLAT-BUTTON
-     LABEL "Lang 3" 
-     SIZE 9 BY 1.67.
-
 DEFINE VARIABLE company_name AS CHARACTER FORMAT "X(256)":U 
       VIEW-AS TEXT 
      SIZE 35 BY .62
@@ -211,15 +201,10 @@ DEFINE VARIABLE loc_loc AS CHARACTER FORMAT "X(256)":U
      SIZE 9 BY .62
      FONT 6 NO-UNDO.
 
-DEFINE VARIABLE Mneumonic AS CHARACTER FORMAT "X(256)":U 
+DEFINE VARIABLE Mnemonic AS CHARACTER FORMAT "X(256)":U 
       VIEW-AS TEXT 
      SIZE 5 BY .62
      FONT 6 NO-UNDO.
-
-DEFINE VARIABLE svLink AS CHARACTER FORMAT "X(256)":U INITIAL "www.Advantzware.com" 
-      VIEW-AS TEXT 
-     SIZE 23 BY .62
-     BGCOLOR 1 FGCOLOR 15  NO-UNDO.
 
 DEFINE VARIABLE users_user_id AS CHARACTER FORMAT "X(256)":U 
       VIEW-AS TEXT 
@@ -228,7 +213,11 @@ DEFINE VARIABLE users_user_id AS CHARACTER FORMAT "X(256)":U
 
 DEFINE IMAGE boxes
      FILENAME "Graphics/advantzware_logo.jpg":U
-     SIZE 97 BY 20.48.
+     SIZE 108 BY 17.86.
+
+DEFINE IMAGE imageCompany
+     FILENAME "Graphics/32x32/office_building.png":U TRANSPARENT
+     SIZE 6.4 BY 1.52 TOOLTIP "Change Company/Location".
 
 DEFINE IMAGE imageSettings
      FILENAME "Graphics/32x32/gearwheels.ico":U TRANSPARENT
@@ -238,14 +227,43 @@ DEFINE IMAGE menu-image
      FILENAME "Graphics/logo1.bmp":U CONVERT-3D-COLORS
      SIZE 95 BY 4.52.
 
-DEFINE RECTANGLE linkRect
-     EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
-     SIZE 27 BY 1.19
-     BGCOLOR 1 FGCOLOR 15 .
+DEFINE IMAGE menuLink-1
+     SIZE 12 BY 2.29.
+
+DEFINE IMAGE menuLink-2
+     SIZE 12 BY 2.29.
+
+DEFINE IMAGE menuLink-3
+     SIZE 12 BY 2.29.
+
+DEFINE IMAGE menuLink-4
+     SIZE 12 BY 2.29.
+
+DEFINE IMAGE menuLink-5
+     SIZE 12 BY 2.29.
+
+DEFINE IMAGE menuLink-6
+     SIZE 12 BY 2.29.
+
+DEFINE IMAGE menuLink-7
+     SIZE 12 BY 2.29.
+
+DEFINE IMAGE menuLink-8
+     SIZE 12 BY 2.29.
+
+DEFINE IMAGE menuLinkASI TRANSPARENT
+     SIZE 7 BY 1.67 TOOLTIP "Advantzware Link".
+
+DEFINE IMAGE menuLinkZoHo TRANSPARENT
+     SIZE 7 BY 1.67 TOOLTIP "Advantzware Help Tickets".
 
 DEFINE RECTANGLE RECT-10
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
      SIZE 97 BY 5.
+
+DEFINE RECTANGLE RECT-11
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 10 BY 5.
 
 DEFINE RECTANGLE RECT-2
      EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
@@ -259,12 +277,12 @@ DEFINE RECTANGLE RECT-5
 
 DEFINE RECTANGLE RECT-6
      EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
-     SIZE 38 BY 1.19
+     SIZE 39 BY 1.19
      BGCOLOR 15 .
 
 DEFINE RECTANGLE RECT-7
      EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
-     SIZE 48 BY 1.19
+     SIZE 40 BY 1.19
      BGCOLOR 15 .
 
 DEFINE RECTANGLE RECT-8
@@ -281,14 +299,10 @@ DEFINE RECTANGLE RECT-9
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME FRAME-USER
-     btnLanguage-1 AT ROW 3.62 COL 150 WIDGET-ID 24
-     btnLanguage-2 AT ROW 5.29 COL 150 WIDGET-ID 26
-     btnLanguage-3 AT ROW 6.95 COL 150 WIDGET-ID 28
      company_name AT ROW 1.71 COL 13 COLON-ALIGNED NO-LABEL
      loc_loc AT ROW 1.71 COL 76 COLON-ALIGNED NO-LABEL
      users_user_id AT ROW 1.71 COL 117 COLON-ALIGNED NO-LABEL
-     Mneumonic AT ROW 1.71 COL 140 COLON-ALIGNED NO-LABEL WIDGET-ID 2
-     svLink AT ROW 4.1 COL 15 NO-LABEL WIDGET-ID 34
+     Mnemonic AT ROW 1.71 COL 141 COLON-ALIGNED NO-LABEL WIDGET-ID 2
      "User ID:" VIEW-AS TEXT
           SIZE 8 BY .62 AT ROW 1.71 COL 110
      "Company:" VIEW-AS TEXT
@@ -298,14 +312,25 @@ DEFINE FRAME FRAME-USER
      boxes AT ROW 8.86 COL 52
      menu-image AT ROW 3.86 COL 53
      RECT-2 AT ROW 1 COL 1
-     linkRect AT ROW 3.86 COL 13 WIDGET-ID 36
      RECT-5 AT ROW 1.48 COL 3 WIDGET-ID 38
      RECT-6 AT ROW 1.48 COL 101 WIDGET-ID 40
-     RECT-7 AT ROW 1.48 COL 52 WIDGET-ID 42
-     RECT-8 AT ROW 1.48 COL 140 WIDGET-ID 44
+     RECT-7 AT ROW 1.48 COL 60 WIDGET-ID 42
+     RECT-8 AT ROW 1.48 COL 141 WIDGET-ID 44
      RECT-9 AT ROW 3.29 COL 1 WIDGET-ID 46
      RECT-10 AT ROW 3.62 COL 52 WIDGET-ID 48
      imageSettings AT ROW 1.24 COL 152 WIDGET-ID 52
+     imageCompany AT ROW 1.24 COL 52 WIDGET-ID 54
+     menuLinkASI AT ROW 4.1 COL 152 WIDGET-ID 56
+     RECT-11 AT ROW 3.62 COL 150 WIDGET-ID 58
+     menuLinkZoHo AT ROW 6.24 COL 152 WIDGET-ID 64
+     menuLink-1 AT ROW 26.95 COL 148 WIDGET-ID 66
+     menuLink-2 AT ROW 26.95 COL 135 WIDGET-ID 68
+     menuLink-3 AT ROW 26.95 COL 122 WIDGET-ID 70
+     menuLink-4 AT ROW 26.95 COL 109 WIDGET-ID 72
+     menuLink-5 AT ROW 26.95 COL 96 WIDGET-ID 74
+     menuLink-6 AT ROW 26.95 COL 83 WIDGET-ID 76
+     menuLink-7 AT ROW 26.95 COL 70 WIDGET-ID 78
+     menuLink-8 AT ROW 26.95 COL 57 WIDGET-ID 80
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
@@ -366,36 +391,72 @@ IF NOT MAINMENU:LOAD-ICON("Graphics/asiicon.ico":U) THEN
    FRAME-NAME                                                           */
 /* SETTINGS FOR IMAGE boxes IN FRAME FRAME-USER
    NO-ENABLE                                                            */
-/* SETTINGS FOR BUTTON btnLanguage-1 IN FRAME FRAME-USER
-   NO-ENABLE                                                            */
-ASSIGN 
-       btnLanguage-1:HIDDEN IN FRAME FRAME-USER           = TRUE.
-
-/* SETTINGS FOR BUTTON btnLanguage-2 IN FRAME FRAME-USER
-   NO-ENABLE                                                            */
-ASSIGN 
-       btnLanguage-2:HIDDEN IN FRAME FRAME-USER           = TRUE.
-
-/* SETTINGS FOR BUTTON btnLanguage-3 IN FRAME FRAME-USER
-   NO-ENABLE                                                            */
-ASSIGN 
-       btnLanguage-3:HIDDEN IN FRAME FRAME-USER           = TRUE.
-
 /* SETTINGS FOR FILL-IN company_name IN FRAME FRAME-USER
    NO-ENABLE                                                            */
+ASSIGN 
+       imageCompany:PRIVATE-DATA IN FRAME FRAME-USER     = 
+                "Change Company/Location".
+
 ASSIGN 
        imageSettings:PRIVATE-DATA IN FRAME FRAME-USER     = 
                 "Settings".
 
-/* SETTINGS FOR RECTANGLE linkRect IN FRAME FRAME-USER
-   NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN loc_loc IN FRAME FRAME-USER
    NO-ENABLE                                                            */
 /* SETTINGS FOR IMAGE menu-image IN FRAME FRAME-USER
    NO-ENABLE                                                            */
-/* SETTINGS FOR FILL-IN Mneumonic IN FRAME FRAME-USER
+/* SETTINGS FOR IMAGE menuLink-1 IN FRAME FRAME-USER
+   NO-ENABLE                                                            */
+ASSIGN 
+       menuLink-1:HIDDEN IN FRAME FRAME-USER           = TRUE.
+
+/* SETTINGS FOR IMAGE menuLink-2 IN FRAME FRAME-USER
+   NO-ENABLE                                                            */
+ASSIGN 
+       menuLink-2:HIDDEN IN FRAME FRAME-USER           = TRUE.
+
+/* SETTINGS FOR IMAGE menuLink-3 IN FRAME FRAME-USER
+   NO-ENABLE                                                            */
+ASSIGN 
+       menuLink-3:HIDDEN IN FRAME FRAME-USER           = TRUE.
+
+/* SETTINGS FOR IMAGE menuLink-4 IN FRAME FRAME-USER
+   NO-ENABLE                                                            */
+ASSIGN 
+       menuLink-4:HIDDEN IN FRAME FRAME-USER           = TRUE.
+
+/* SETTINGS FOR IMAGE menuLink-5 IN FRAME FRAME-USER
+   NO-ENABLE                                                            */
+ASSIGN 
+       menuLink-5:HIDDEN IN FRAME FRAME-USER           = TRUE.
+
+/* SETTINGS FOR IMAGE menuLink-6 IN FRAME FRAME-USER
+   NO-ENABLE                                                            */
+ASSIGN 
+       menuLink-6:HIDDEN IN FRAME FRAME-USER           = TRUE.
+
+/* SETTINGS FOR IMAGE menuLink-7 IN FRAME FRAME-USER
+   NO-ENABLE                                                            */
+ASSIGN 
+       menuLink-7:HIDDEN IN FRAME FRAME-USER           = TRUE.
+
+/* SETTINGS FOR IMAGE menuLink-8 IN FRAME FRAME-USER
+   NO-ENABLE                                                            */
+ASSIGN 
+       menuLink-8:HIDDEN IN FRAME FRAME-USER           = TRUE.
+
+/* SETTINGS FOR IMAGE menuLinkASI IN FRAME FRAME-USER
+   NO-ENABLE                                                            */
+ASSIGN 
+       menuLinkASI:HIDDEN IN FRAME FRAME-USER           = TRUE
+       menuLinkASI:PRIVATE-DATA IN FRAME FRAME-USER     = 
+                "Advantzware Link".
+
+/* SETTINGS FOR FILL-IN Mnemonic IN FRAME FRAME-USER
    NO-ENABLE                                                            */
 /* SETTINGS FOR RECTANGLE RECT-10 IN FRAME FRAME-USER
+   NO-ENABLE                                                            */
+/* SETTINGS FOR RECTANGLE RECT-11 IN FRAME FRAME-USER
    NO-ENABLE                                                            */
 /* SETTINGS FOR RECTANGLE RECT-2 IN FRAME FRAME-USER
    NO-ENABLE                                                            */
@@ -409,11 +470,6 @@ ASSIGN
    NO-ENABLE                                                            */
 /* SETTINGS FOR RECTANGLE RECT-9 IN FRAME FRAME-USER
    NO-ENABLE                                                            */
-/* SETTINGS FOR FILL-IN svLink IN FRAME FRAME-USER
-   ALIGN-L                                                              */
-ASSIGN 
-       svLink:READ-ONLY IN FRAME FRAME-USER        = TRUE.
-
 /* SETTINGS FOR FILL-IN users_user_id IN FRAME FRAME-USER
    NO-ENABLE                                                            */
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(MAINMENU)
@@ -459,36 +515,11 @@ DO:
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME btnLanguage-1
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnLanguage-1 MAINMENU
-ON CHOOSE OF btnLanguage-1 IN FRAME FRAME-USER /* Lang 1 */
+&Scoped-define SELF-NAME imageCompany
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL imageCompany MAINMENU
+ON MOUSE-SELECT-CLICK OF imageCompany IN FRAME FRAME-USER
 DO:
-    cLabelLanguage = SELF:LABEL.
-    RUN pReset.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME btnLanguage-2
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnLanguage-2 MAINMENU
-ON CHOOSE OF btnLanguage-2 IN FRAME FRAME-USER /* Lang 2 */
-DO:
-    cLabelLanguage = SELF:LABEL.
-    RUN pReset.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME btnLanguage-3
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnLanguage-3 MAINMENU
-ON CHOOSE OF btnLanguage-3 IN FRAME FRAME-USER /* Lang 3 */
-DO:
-    cLabelLanguage = SELF:LABEL.
-    RUN pReset.
+    RUN custom/comp_loc.w.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -499,6 +530,9 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL imageSettings MAINMENU
 ON MOUSE-SELECT-CLICK OF imageSettings IN FRAME FRAME-USER
 DO:
+    /*
+    RUN system/sysCtrlUsage.w.
+    */
     RUN system/userSettings.w (
         INPUT-OUTPUT iMenuSize,
         INPUT-OUTPUT iLanguage,
@@ -515,11 +549,110 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME svLink
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svLink MAINMENU
-ON LEFT-MOUSE-CLICK OF svLink IN FRAME FRAME-USER
+&Scoped-define SELF-NAME menuLink-1
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL menuLink-1 MAINMENU
+ON MOUSE-SELECT-CLICK OF menuLink-1 IN FRAME FRAME-USER
 DO:
-    OS-COMMAND NO-WAIT START VALUE(svLink).
+    RUN pMenuLinkClick (1).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME menuLink-2
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL menuLink-2 MAINMENU
+ON MOUSE-SELECT-CLICK OF menuLink-2 IN FRAME FRAME-USER
+DO:
+    RUN pMenuLinkClick (2).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME menuLink-3
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL menuLink-3 MAINMENU
+ON MOUSE-SELECT-CLICK OF menuLink-3 IN FRAME FRAME-USER
+DO:
+    RUN pMenuLinkClick (3).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME menuLink-4
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL menuLink-4 MAINMENU
+ON MOUSE-SELECT-CLICK OF menuLink-4 IN FRAME FRAME-USER
+DO:
+    RUN pMenuLinkClick (4).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME menuLink-5
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL menuLink-5 MAINMENU
+ON MOUSE-SELECT-CLICK OF menuLink-5 IN FRAME FRAME-USER
+DO:
+    RUN pMenuLinkClick (5).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME menuLink-6
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL menuLink-6 MAINMENU
+ON MOUSE-SELECT-CLICK OF menuLink-6 IN FRAME FRAME-USER
+DO:
+    RUN pMenuLinkClick (6).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME menuLink-7
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL menuLink-7 MAINMENU
+ON MOUSE-SELECT-CLICK OF menuLink-7 IN FRAME FRAME-USER
+DO:
+    RUN pMenuLinkClick (7).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME menuLink-8
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL menuLink-8 MAINMENU
+ON MOUSE-SELECT-CLICK OF menuLink-8 IN FRAME FRAME-USER
+DO:
+    RUN pMenuLinkClick (8).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME menuLinkASI
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL menuLinkASI MAINMENU
+ON MOUSE-SELECT-CLICK OF menuLinkASI IN FRAME FRAME-USER
+DO:
+    OS-COMMAND NO-WAIT START VALUE(menuLinkasi:PRIVATE-DATA).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME menuLinkZoHo
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL menuLinkZoHo MAINMENU
+ON MOUSE-SELECT-CLICK OF menuLinkZoHo IN FRAME FRAME-USER
+DO:
+    OS-COMMAND NO-WAIT START VALUE(menuLinkZoHo:PRIVATE-DATA).
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -549,7 +682,7 @@ ON WINDOW-CLOSE OF {&WINDOW-NAME}
 DO:  
     closeMenu = YES.
     IF USERID("ASI") NE "Nosweat" THEN
-        MESSAGE 'Exit AdvantzWare?' VIEW-AS ALERT-BOX
+        MESSAGE 'Exit Advantzware?' VIEW-AS ALERT-BOX
             QUESTION BUTTONS YES-NO UPDATE closeMenu.
     IF NOT closeMenu THEN RETURN NO-APPLY.        
     RUN system/userLogOut.p.        
@@ -565,21 +698,6 @@ END.
 ON ANY-PRINTABLE OF FRAME {&FRAME-NAME} ANYWHERE
 DO:
     RUN pKeyPress (LASTKEY).
-END.
-
-ON "ALT-1" OF FRAME {&FRAME-NAME} ANYWHERE
-DO:
-    RUN pSelectLanguage (1).    
-END.
-
-ON "ALT-2" OF FRAME {&FRAME-NAME} ANYWHERE
-DO:
-    RUN pSelectLanguage (2).
-END.
-
-ON "ALT-3" OF FRAME {&FRAME-NAME} ANYWHERE
-DO:
-    RUN pSelectLanguage (3).    
 END.
 
 {sys/inc/f3helpm.i} /* ASI F3 key include */
@@ -650,9 +768,9 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY company_name loc_loc users_user_id Mneumonic svLink 
+  DISPLAY company_name loc_loc users_user_id Mnemonic 
       WITH FRAME FRAME-USER IN WINDOW MAINMENU.
-  ENABLE imageSettings svLink 
+  ENABLE imageSettings imageCompany menuLinkZoHo 
       WITH FRAME FRAME-USER IN WINDOW MAINMENU.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-USER}
   VIEW MAINMENU.
@@ -674,13 +792,14 @@ PROCEDURE pClick :
     
     DEFINE BUFFER bttblItem FOR ttblItem.
     
+    RUN pSetFocus.
     IF VALID-HANDLE(iphObjectHandle) THEN DO:
         IF iphObjectHandle:NAME EQ 'Exit' THEN
         APPLY 'WINDOW-CLOSE':U TO {&WINDOW-NAME}.
 
         FIND FIRST ttblItem
-             WHERE ttblItem.menu1     EQ iphObjectHandle:NAME
-               AND ttblItem.mneumonic EQ iphObjectHandle:TOOLTIP.
+             WHERE ttblItem.menu1    EQ iphObjectHandle:NAME
+               AND ttblItem.mnemonic EQ iphObjectHandle:TOOLTIP.
         ASSIGN
             boxes:HIDDEN IN FRAME {&FRAME-NAME} = YES
             menu-image:HIDDEN = YES
@@ -700,8 +819,8 @@ PROCEDURE pClick :
     
         ASSIGN
             dObjectCol = ttblItem.hRectangle:COLUMN + {&objectWidth} + {&objectGap}
-            cMneumonic = ttblItem.mneumonic
-            Mneumonic:SCREEN-VALUE IN FRAME {&FRAME-NAME} = cMneumonic
+            cMnemonic  = ttblItem.mnemonic
+            mnemonic:SCREEN-VALUE IN FRAME {&FRAME-NAME} = cMnemonic
             .    
         IF INDEX(iphObjectHandle:NAME,'.') EQ 0 THEN
         RUN pCreateMenuObjects (iphObjectHandle:NAME).
@@ -766,6 +885,11 @@ PROCEDURE pCreateEditor :
     IF VALID-HANDLE(hWidget) THEN DO:
         ttblItem.hEditor = hWidget.
         hWidget:MOVE-TO-TOP().
+        hWidget:LOAD-MOUSE-POINTER("ARROW").
+        IF ipcName EQ "Exit" THEN DO:
+            hExitWidget = hWidget.
+            RUN pSetFocus.
+        END.
     END.
 
 END PROCEDURE.
@@ -875,7 +999,7 @@ PROCEDURE pCreateMenuObjects :
             {&FGColor},
             {&BGColor},
             cObjectLabel,
-            ttblItem.mneumonic,
+            ttblItem.mnemonic,
             "pClick",
             ttblItem.imageFile
             ).
@@ -1016,7 +1140,7 @@ PROCEDURE pGetMenu :
 ------------------------------------------------------------------------------*/
     DEFINE VARIABLE cPrgrm     AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cMenu      AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cMneumonic AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cMnemonic  AS CHARACTER NO-UNDO.
     DEFINE VARIABLE idx        AS INTEGER   NO-UNDO.
     DEFINE VARIABLE iLength    AS INTEGER   NO-UNDO.
     DEFINE VARIABLE dMaxWindow AS DECIMAL   NO-UNDO.
@@ -1036,10 +1160,10 @@ PROCEDURE pGetMenu :
         IF lMainMenu THEN cMenu = "file".
         
         FIND FIRST prgrms NO-LOCK WHERE prgrms.prgmname EQ cPrgrm NO-ERROR.
-        ASSIGN cMneumonic = SUBSTRING (prgrms.prgtitle,1,1) WHEN AVAILABLE prgrms.
+        ASSIGN cMnemonic = SUBSTRING (prgrms.prgtitle,1,1) WHEN AVAILABLE prgrms.
 
         FIND FIRST ttblMenu WHERE ttblMenu.menuName EQ cMenu NO-ERROR.
-        ASSIGN cMneumonic = ttblMenu.mneumonic + cMneumonic WHEN AVAILABLE ttblMenu.
+        ASSIGN cMnemonic = ttblMenu.mnemonic + cMnemonic WHEN AVAILABLE ttblMenu.
 
         IF INDEX (cPrgrm,".") EQ 0 THEN DO:
             FIND FIRST ttblMenu WHERE ttblMenu.menuName EQ cPrgrm NO-ERROR.
@@ -1047,7 +1171,7 @@ PROCEDURE pGetMenu :
                 CREATE ttblMenu.
                 ASSIGN
                     ttblMenu.menuName  = cPrgrm
-                    ttblMenu.mneumonic = cMneumonic 
+                    ttblMenu.mnemonic  = cMnemonic 
                    .
             END.
         END.
@@ -1056,8 +1180,8 @@ PROCEDURE pGetMenu :
         
         IF NOT CAN-FIND(FIRST prgrms WHERE prgrms.prgmname EQ cPrgrm) THEN NEXT.
 
-        IF LENGTH (cMneumonic) EQ 3 THEN
-        ASSIGN cMneumonic = SUBSTRING (cMneumonic,1,2) + ENTRY(ttblMenu.menuCount,cNumChars).
+        IF LENGTH (cMnemonic) EQ 3 THEN
+        ASSIGN cMnemonic = SUBSTRING (cMnemonic,1,2) + ENTRY(ttblMenu.menuCount,cNumChars).
 
         CREATE ttblItem.
         ASSIGN 
@@ -1066,28 +1190,29 @@ PROCEDURE pGetMenu :
             ttblItem.menuOrder = idx
             ttblItem.menu1     = cPrgrm
             ttblItem.menu2     = cMenu
-            ttblItem.mneumonic = cMneumonic
+            ttblItem.mnemonic  = cMnemonic
             ttblItem.mainMenu  = lMainMenu
             ttblItem.imageFile = fItemImage(cPrgrm)
             .            
     END. /* repeat */
+    IF AVAILABLE ttblMenu THEN
+    ttblMenu.menuCount = ttblMenu.menuCount + 1.
     CREATE ttblItem.
     ASSIGN 
         idx                = idx + 1
-        ttblMenu.menuCount = ttblMenu.menuCount + 1
         ttblItem.menuOrder = idx
         ttblItem.menu1     = "Exit"
         ttblItem.menu2     = "file"
-        ttblItem.mneumonic = "X"
+        ttblItem.mnemonic  = "X"
         ttblItem.mainMenu  = NO
         ttblItem.imageFile = fItemImage("Exit")
         .            
     FOR EACH ttblItem USE-INDEX menu2 BREAK BY ttblItem.menu2:
         IF FIRST-OF(ttblItem.menu2) THEN idx = 0.
         ASSIGN
-            idx           = idx + 1
-            ttblItem.seq  = idx
-            ttblItem.level = LENGTH(ttblItem.mneumonic)
+            idx            = idx + 1
+            ttblItem.seq   = idx
+            ttblItem.level = LENGTH(ttblItem.mnemonic)
            .
         IF ttblItem.level GT 3 THEN
         ttblItem.level = 3.
@@ -1098,19 +1223,20 @@ PROCEDURE pGetMenu :
     ASSIGN
         dMaxWindow = IF {&maxWindow} GE {&minWindowHeight} THEN {&maxWindow}
                      ELSE {&minWindowHeight}
-        {&WINDOW-NAME}:COLUMN = 3
-        {&WINDOW-NAME}:ROW = 1.5
+        {&WINDOW-NAME}:COLUMN = 1
+        {&WINDOW-NAME}:ROW = 1
         {&WINDOW-NAME}:VIRTUAL-HEIGHT = dMaxWindow
         {&WINDOW-NAME}:HEIGHT = dMaxWindow
         {&WINDOW-NAME}:MAX-HEIGHT = dMaxWindow
         FRAME {&FRAME-NAME}:VIRTUAL-HEIGHT = dMaxWindow
         FRAME {&FRAME-NAME}:HEIGHT = dMaxWindow
-        linkRect:ROW = {&WINDOW-NAME}:HEIGHT - .43
-        linkRect:COL = {&WINDOW-NAME}:WIDTH - 27
-        svLink:ROW = {&WINDOW-NAME}:HEIGHT - .19
-        svLink:COL = {&WINDOW-NAME}:WIDTH - 25
         iObjectCount = 0
         .
+    DO idx = 1 TO EXTENT(hMenuLink):
+        hMenuLink[idx]:ROW = FRAME {&FRAME-NAME}:HEIGHT - 1.86.
+        hMenuLink[idx]:MOVE-TO-TOP().
+    END. /* do idx */
+    
     RUN pCreateMenuObjects ("file").
 
 END PROCEDURE.
@@ -1186,6 +1312,7 @@ PROCEDURE pInit :
   Notes:       
 ------------------------------------------------------------------------------*/
     DEFINE VARIABLE cMenuExt AS CHARACTER NO-UNDO INITIAL "lst".
+    DEFINE VARIABLE idx      AS INTEGER   NO-UNDO.
     
     FIND FIRST sys-ctrl NO-LOCK
         WHERE sys-ctrl.company EQ g_company
@@ -1217,17 +1344,94 @@ PROCEDURE pInit :
     RUN pImages.
     
     DO WITH FRAME {&FRAME-NAME}:
-        IF cLanguageList NE '' THEN
-        DO i = 1 TO NUM-ENTRIES(cLanguageList):
-            {system/btnLanguage.i 1}
-            {system/btnLanguage.i 2}
-            {system/btnLanguage.i 3}
-        END. /* do i */
+        FIND FIRST sys-ctrl NO-LOCK
+             WHERE sys-ctrl.company EQ g_company
+               AND sys-ctrl.name    EQ "MENULINKASI"
+             NO-ERROR.
+        IF NOT AVAILABLE sys-ctrl THEN DO TRANSACTION:
+            CREATE sys-ctrl.
+            ASSIGN
+                sys-ctrl.name = "MENULINKASI"
+                sys-ctrl.descrip = "http://www.advantzware.com"
+                sys-ctrl.char-fld = "Graphics\asiicon.ico"
+                .
+        END. /* not avail */
+        IF SEARCH(sys-ctrl.char-fld) NE ? AND
+           sys-ctrl.descrip NE "" THEN DO:
+            ASSIGN
+                menuLinkASI:PRIVATE-DATA   = sys-ctrl.descrip
+                menuLinkASI:HIDDEN         = NO
+                menuLinkASI:STRETCH-TO-FIT = sys-ctrl.log-fld
+                menuLinkASI:TRANSPARENT    = sys-ctrl.int-fld EQ 1
+                .
+            menuLinkASI:LOAD-IMAGE(SEARCH(sys-ctrl.char-fld)).
+        END. /* if avail */
+        FIND FIRST sys-ctrl NO-LOCK
+             WHERE sys-ctrl.company EQ g_company
+               AND sys-ctrl.name    EQ "MENULINKZOHO"
+             NO-ERROR.
+        IF NOT AVAILABLE sys-ctrl THEN DO TRANSACTION:
+            CREATE sys-ctrl.
+            ASSIGN
+                sys-ctrl.name = "MENULINKZOHO"
+                sys-ctrl.descrip = "https://support.zoho.com/portal/advantzware/kb"
+                sys-ctrl.char-fld = "Graphics\32x32\question.ico"
+                .
+        END. /* not avail */
+        IF SEARCH(sys-ctrl.char-fld) NE ? AND
+           sys-ctrl.descrip NE "" THEN DO:
+            ASSIGN
+                menuLinkZoHo:PRIVATE-DATA   = sys-ctrl.descrip
+                menuLinkZoHo:HIDDEN         = NO
+                menuLinkZoHo:SENSITIVE      = YES
+                menuLinkZoHo:STRETCH-TO-FIT = sys-ctrl.log-fld
+                menuLinkZoHo:TRANSPARENT    = sys-ctrl.int-fld EQ 1
+                .
+            menuLinkZoHo:LOAD-IMAGE(SEARCH(sys-ctrl.char-fld)).
+        END. /* if avail */
         ASSIGN
+            hMenuLink[1] = menuLink-1:HANDLE IN FRAME {&FRAME-NAME}
+            hMenuLink[2] = menuLink-2:HANDLE
+            hMenuLink[3] = menuLink-3:HANDLE
+            hMenuLink[4] = menuLink-4:HANDLE
+            hMenuLink[5] = menuLink-5:HANDLE
+            hMenuLink[6] = menuLink-6:HANDLE
+            hMenuLink[7] = menuLink-7:HANDLE
+            hMenuLink[8] = menuLink-8:HANDLE
+            .
+        DO idx = 1 TO EXTENT(hMenuLink):
+            FIND FIRST sys-ctrl NO-LOCK
+                 WHERE sys-ctrl.company EQ g_company
+                   AND sys-ctrl.name    EQ "MENULINK" + STRING(idx)
+                 NO-ERROR.
+            IF NOT AVAILABLE sys-ctrl THEN DO TRANSACTION:
+                CREATE sys-ctrl.
+                sys-ctrl.name = "MENULINK" + STRING(idx).
+            END. /* not avail */
+            IF SEARCH(sys-ctrl.char-fld) NE ? AND
+               sys-ctrl.descrip NE "" THEN DO:
+                ASSIGN
+                    hMenuLink[idx]:PRIVATE-DATA   = sys-ctrl.descrip
+                    hMenuLink[idx]:HIDDEN         = NO
+                    hMenuLink[idx]:SENSITIVE      = YES
+                    hMenuLink[idx]:STRETCH-TO-FIT = sys-ctrl.log-fld
+                    hMenuLink[idx]:TOOLTIP        = sys-ctrl.descrip
+                    hMenuLink[idx]:TRANSPARENT    = sys-ctrl.int-fld EQ 1
+                    .
+                hMenuLink[idx]:LOAD-IMAGE(SEARCH(sys-ctrl.char-fld)).                
+            END. /* if avail */
+        END. /* do idx */
+    END. /* with frame */
+    
+    DO WITH FRAME {&FRAME-NAME}:
+        ASSIGN
+            cSourceMenu = ?
+            &IF DEFINED(addon) EQ 0 &THEN
             cSourceMenu = SEARCH("usermenu/" + USERID("ASI") + "/menu." + cMenuExt)
+            &ENDIF
             iLanguage = LOOKUP(cLabelLanguage,cLanguageList)
             .
-        IF cSourceMenu EQ ? THEN cSourceMenu = SEARCH("menu." + cMenuExt).
+        IF cSourceMenu EQ ? THEN cSourceMenu = SEARCH("{&addon}menu." + cMenuExt).
         INPUT FROM VALUE(cSourceMenu) NO-ECHO.
         RUN pGetMenu.
         INPUT CLOSE.
@@ -1254,36 +1458,36 @@ PROCEDURE pKeyPress :
     DEFINE VARIABLE idx   AS INTEGER   NO-UNDO.
 
     ASSIGN
-        cSave      = SUBSTR(cMneumonic,1,2)
-        cKey       = CAPS(KEYLABEL(ipiLastKey)) WHEN INDEX("{&validKeys}",KEYLABEL(ipiLastKey)) NE 0
-        cMneumonic = IF cKey NE "" THEN cSave + cKey ELSE ""
+        cSave     = SUBSTR(cMnemonic,1,2)
+        cKey      = CAPS(KEYLABEL(ipiLastKey)) WHEN INDEX("{&validKeys}",KEYLABEL(ipiLastKey)) NE 0
+        cMnemonic = IF cKey NE "" THEN cSave + cKey ELSE ""
         .
-    DO WHILE cMneumonic NE "":
+    DO WHILE cMnemonic NE "":
         idx = idx + 1.
         /* prevents endless loop */
         IF idx GT 5 THEN LEAVE.
         FIND FIRST ttblItem
-             WHERE ttblItem.mneumonic EQ cMneumonic
+             WHERE ttblItem.mnemonic EQ cMnemonic
              NO-ERROR.
         IF AVAILABLE ttblItem THEN DO:
-            Mneumonic:SCREEN-VALUE IN FRAME {&FRAME-NAME} = cmneumonic.
+            mnemonic:SCREEN-VALUE IN FRAME {&FRAME-NAME} = cMnemonic.
             RUN pClick (ttblItem.hRectangle).
-            cMneumonic = SUBSTR(cMneumonic,1,2).
+            cMnemonic = SUBSTR(cMnemonic,1,2).
             LEAVE.
         END.
         ELSE
         ASSIGN
-            cSave = SUBSTR(cSave,1,LENGTH(cSave) - 1)
-            cMneumonic = cSave + cKey
+            cSave     = SUBSTR(cSave,1,LENGTH(cSave) - 1)
+            cMnemonic = cSave + cKey
             .
     END. /* do idx */
     
-    IF cMneumonic EQ "" OR idx GT 5 THEN DO:
+    IF cMnemonic EQ "" OR idx GT 5 THEN DO:
         ASSIGN
             boxes:HIDDEN IN FRAME {&FRAME-NAME} = NO
             menu-image:HIDDEN = NO
             RECT-10:HIDDEN = NO
-            Mneumonic:SCREEN-VALUE = ""
+            mnemonic:SCREEN-VALUE = ""
             .
         FOR EACH ttblItem WHERE ttblItem.level GT 1:
             DELETE OBJECT ttblItem.hImage NO-ERROR.
@@ -1323,6 +1527,22 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pMenuLinkClick MAINMENU 
+PROCEDURE pMenuLinkClick :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipiLink AS INTEGER NO-UNDO.
+    
+    OS-COMMAND NO-WAIT START VALUE(hMenuLink[ipiLink]:PRIVATE-DATA).
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pReset MAINMENU 
 PROCEDURE pReset :
 /*------------------------------------------------------------------------------
@@ -1331,7 +1551,7 @@ PROCEDURE pReset :
   Notes:       
 ------------------------------------------------------------------------------*/
     ASSIGN
-        Mneumonic:SCREEN-VALUE IN FRAME {&FRAME-NAME} = ""
+        mnemonic:SCREEN-VALUE IN FRAME {&FRAME-NAME} = ""
         dObjectCol = {&startObjectCol}
         {&WINDOW-NAME}:TITLE = fTranslate({&WINDOW-NAME}:PRIVATE-DATA,NO)
                              + " {&awversion}"
@@ -1349,29 +1569,18 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSelectLanguage MAINMENU 
-PROCEDURE pSelectLanguage :
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSetFocus MAINMENU 
+PROCEDURE pSetFocus :
 /*------------------------------------------------------------------------------
   Purpose:     
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER ipiAltKey AS INTEGER NO-UNDO.
-    
-    CASE ipiAltKey:
-        WHEN 1 THEN
-        APPLY "CHOOSE":U TO btnLanguage-1 IN FRAME {&FRAME-NAME}.
-        WHEN 2 THEN
-        APPLY "CHOOSE":U TO btnLanguage-2 IN FRAME {&FRAME-NAME}.
-        WHEN 3 THEN
-        APPLY "CHOOSE":U TO btnLanguage-3 IN FRAME {&FRAME-NAME}.
-    END CASE.
-    ASSIGN
-        boxes:HIDDEN IN FRAME {&FRAME-NAME} = NO
-        menu-image:HIDDEN = NO
-        RECT-10:HIDDEN = NO
-        .
-    
+    IF VALID-HANDLE(hExitWidget) THEN DO:
+        APPLY "ENTRY":U TO hExitWidget.
+        hExitWidget:SET-SELECTION(1,256).
+    END.
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1462,8 +1671,8 @@ FUNCTION fItemImage RETURNS CHARACTER
     FIND FIRST ttblImage
          WHERE ttblImage.prgmName EQ ipcPrgmName
          NO-ERROR.
-  RETURN IF AVAILABLE ttblImage THEN ttblImage.imageFile
-         ELSE "Graphics/24x24/error.png".
+    RETURN IF AVAILABLE ttblImage THEN ttblImage.imageFile
+           ELSE cImageFolder + "error.png".
 
 END FUNCTION.
 

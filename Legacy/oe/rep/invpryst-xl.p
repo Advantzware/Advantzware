@@ -43,7 +43,7 @@ DEFINE        VARIABLE v-ans          AS LOGICAL   INITIAL NO NO-UNDO.
 DEFINE        VARIABLE v-date-ship    AS DATE      INITIAL TODAY NO-UNDO.
 DEFINE        VARIABLE v-del-no       AS INTEGER   FORMAT ">>>>>>" NO-UNDO.
 DEFINE        VARIABLE v-bol-cases    LIKE oe-boll.cases NO-UNDO.
-DEFINE        VARIABLE v-set-qty      AS INTEGER   NO-UNDO.
+DEFINE        VARIABLE v-set-qty      AS DECIMAL   NO-UNDO.
 DEFINE        VARIABLE v-part-qty     AS DECIMAL   FORMAT "999.9999" NO-UNDO.
 DEFINE        VARIABLE v-net          LIKE inv-head.t-inv-rev NO-UNDO.
 DEFINE        VARIABLE v-case-cnt     AS CHARACTER FORMAT "x(80)" EXTENT 5 NO-UNDO.
@@ -338,7 +338,7 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
                         FOR EACH fg-set NO-LOCK WHERE fg-set.company = xinv-line.company
                             AND fg-set.set-no = xinv-line.i-no:
                             ASSIGN 
-                                v-set-qty = v-set-qty + fg-set.part-qty.
+                                v-set-qty = v-set-qty + fg-set.QtyPerSet.
                         END.
                         IF v-set-qty = 0 THEN
                             ASSIGN v-set-qty = 1.
@@ -350,8 +350,8 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
                                 fg-set.set-no = xinv-line.i-no  AND
                                 fg-set.part-no = eb.stock-no NO-LOCK NO-ERROR.
 
-                            IF AVAILABLE fg-set AND fg-set.part-qty NE 0 THEN
-                                ASSIGN v-part-qty = fg-set.part-qty / v-set-qty.
+                            IF AVAILABLE fg-set AND fg-set.QtyPerSet NE 0 THEN
+                                ASSIGN v-part-qty = fg-set.QtyPerSet / v-set-qty.
                             ELSE
                                 ASSIGN v-part-qty = 1 / v-set-qty.
 

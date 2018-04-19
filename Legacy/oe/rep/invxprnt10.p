@@ -38,7 +38,7 @@ def var v-ans as logical initial no NO-UNDO.
 def var v-date-ship as date initial today NO-UNDO.
 def var v-del-no as int format ">>>>>>" NO-UNDO.
 def var v-bol-cases LIKE oe-boll.cases NO-UNDO.
-def var v-set-qty AS INT NO-UNDO.
+def var v-set-qty AS DECIMAL NO-UNDO.
 def var v-part-qty AS DEC FORMAT "999.9999" NO-UNDO.
 def var v-net like inv-head.t-inv-rev NO-UNDO.
 def var v-case-cnt as char format "x(80)" extent 5 NO-UNDO.
@@ -303,7 +303,7 @@ find first company where company.company eq cocode NO-LOCK.
              DO:
                FOR EACH fg-set NO-LOCK WHERE fg-set.company = xinv-line.company
                   AND fg-set.set-no = xinv-line.i-no:
-                 ASSIGN v-set-qty = v-set-qty + fg-set.part-qty.
+                 ASSIGN v-set-qty = v-set-qty + fg-set.QtyPerSet.
                END.
                IF v-set-qty = 0 THEN
                   ASSIGN v-set-qty = 1.
@@ -315,8 +315,8 @@ find first company where company.company eq cocode NO-LOCK.
                     fg-set.set-no = xinv-line.i-no  AND
                     fg-set.part-no = eb.stock-no NO-LOCK NO-ERROR.
 
-                 IF AVAIL fg-set AND fg-set.part-qty NE 0 THEN
-                   ASSIGN v-part-qty = fg-set.part-qty / v-set-qty.
+                 IF AVAIL fg-set AND fg-set.QtyPerSet NE 0 THEN
+                   ASSIGN v-part-qty = fg-set.QtyPerSet / v-set-qty.
                  ELSE
                    ASSIGN v-part-qty = 1 / v-set-qty.
 
@@ -545,7 +545,7 @@ find first company where company.company eq cocode NO-LOCK.
                 v-i-no  format "x(15)" SPACE(1)
                 v-i-dscr  format "x(25)" SPACE(1)
                 v-price  format "->>,>>9.99<<" SPACE(1)
-                v-price-head SPACE(1)
+                v-price-head 
                 inv-line.t-price  format "->>>,>>9.99"                     
                 SKIP.
 
@@ -557,11 +557,19 @@ find first company where company.company eq cocode NO-LOCK.
                             else
                             if v eq 2 then inv-line.part-dscr2
                             else           trim(lv-inv-list).
+              if v-part-info ne "" OR  (v = 1 AND inv-line.part-no <> "") then do:
+                 IF v = 1 THEN DO:
+                     
+                     IF LENGTH(inv-line.po-no) LE 8 THEN DO:
+                         PUT  SPACE(16) inv-line.po-no FORMAT "x(8)" SPACE(1)   inv-line.part-no SPACE v-part-info SKIP.
+                     END.
+                     ELSE DO: 
+                         PUT  SPACE(9) inv-line.po-no FORMAT "x(15)" SPACE(1)   inv-line.part-no SPACE v-part-info SKIP.
+                     END.
 
-              if v-part-info ne "" OR (v = 1 AND inv-line.part-no <> "") then do:
-                 IF v = 1 THEN PUT SPACE(25) inv-line.part-no SPACE v-part-info SKIP.
+                 END.
                  ELSE
-                 IF v = 2 THEN PUT SPACE(41) v-part-info SKIP.
+                 IF v = 2 THEN  PUT /*SPACE(10)  v-po-no FORMAT "x(15)"*/ SPACE(41) v-part-info SKIP.
                  ELSE          PUT SPACE(20) "Previous Invoice(s): " v-part-info SKIP.
                  v-printline = v-printline + 1.
               end.

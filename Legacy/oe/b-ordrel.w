@@ -655,7 +655,7 @@ DO:
               END.
          END.
          WHEN "carrier" THEN DO:
-              RUN windows/l-carrie.w (g_company, oe-rel.spare-char-1, lw-focus:SCREEN-VALUE, OUTPUT char-val).
+              RUN windows/l-carrie.w (g_company, oe-rel.spare-char-1:SCREEN-VALUE, lw-focus:SCREEN-VALUE, OUTPUT char-val).
               IF char-val <> "" THEN lw-focus:SCREEN-VALUE = ENTRY(1,char-val).
               RETURN NO-APPLY.
          END.
@@ -1470,7 +1470,7 @@ FOR EACH fg-set WHERE fg-set.set-no = oe-ordl.i-no
   oe-rel.s-code          = "S".     
 
   /* Set oe-rel quantity based on set part quantity */
-  oe-rel.tot-qty = ipiRelQty * fg-set.part-qty.
+  oe-rel.tot-qty = ipiRelQty * fg-set.qtyPerSet.
   oe-rel.rel-date = ipdtRelDate.
   IF ipcPoNo GT "" THEN
       oe-rel.po-no = ipcPoNo.
@@ -3045,6 +3045,7 @@ PROCEDURE create-report-record-1 :
                   AND sys-ctrl-ship.ship-id = "" NO-LOCK NO-ERROR.
      IF AVAIL sys-ctrl-shipto AND sys-ctrl-shipto.log-fld THEN v-reltype = sys-ctrl-shipto.char-fld.
      ELSE IF AVAIL sys-ctrl AND sys-ctrl.log-fld THEN v-reltype = sys-ctrl.char-fld.
+     ELSE v-reltype = "B" .
      IF v-relType <> "" THEN DO:
           IF oe-rel.s-code EQ '' THEN DO:
            FIND bf-oe-rel WHERE ROWID(bf-oe-rel) EQ ROWID(oe-rel)

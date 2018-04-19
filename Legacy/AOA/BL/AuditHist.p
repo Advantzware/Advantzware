@@ -80,6 +80,12 @@ FOR EACH AuditHdr
             ttAuditHistory.AuditKey         = AuditHdr.AuditKey
             .
     END. /* else */
-    IF lPurge THEN 
-    DELETE AuditHdr.
+    IF lPurge THEN DO:
+        FIND FIRST AuditStack EXCLUSIVE-LOCK
+             WHERE AuditStack.AuditStackID EQ AuditHdr.AuditStackID
+             NO-ERROR.
+        IF AVAILABLE AuditStack THEN
+        DELETE AuditStack.
+        DELETE AuditHdr.
+    END. /* if lpurge */
 END. /* EACH AuditHdr */

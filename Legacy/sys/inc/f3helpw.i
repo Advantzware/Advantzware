@@ -21,6 +21,6 @@ message "Help Win Debug: "  self:name "," self:type skip
         "          Frame: " frame-file "," frame-db "," frame-name
     SKIP "Program: " ls-prog-name view-as alert-box.
 */
-   run sys/ref/hlp.w (self:name, frame-file, frame-db,ls-prog-name, "English") .
+   run sys/ref/hlpd.w (self:name, frame-file, frame-db,ls-prog-name, "English") .
    return no-apply.
 end.

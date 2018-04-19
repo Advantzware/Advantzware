@@ -474,7 +474,7 @@ END.
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Browser-Table B-table-Win
-ON RETURN OF Browser-Table IN FRAME F-Main
+ON DEFAULT-ACTION OF Browser-Table IN FRAME F-Main
 DO:
    def var phandle as widget-handle no-undo.
    def var char-hdl as cha no-undo.   

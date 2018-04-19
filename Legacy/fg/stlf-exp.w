@@ -544,7 +544,7 @@ END.
 
 /* ***************************  Main Block  *************************** */
 
-{sys/inc/f3helpw.i}
+{sys/inc/f3helpd.i}
 /* Parent the dialog-box to the ACTIVE-WINDOW, if there is no parent.   */
 IF VALID-HANDLE(ACTIVE-WINDOW) AND FRAME {&FRAME-NAME}:PARENT eq ?
 THEN FRAME {&FRAME-NAME}:PARENT = ACTIVE-WINDOW.

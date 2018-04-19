@@ -1,0 +1,3742 @@
+ADD SEQUENCE "employee"
+  INITIAL 0
+  INCREMENT 1
+  CYCLE-ON-LIMIT yes
+  MIN-VAL 0
+  MAX-VAL 99999
+
+ADD TABLE "cmpltjob"
+  AREA "Schema Area"
+  LABEL "Completed Jobs"
+  DESCRIPTION "Completed Jobs"
+  DUMP-NAME "cmpltjob"
+  TABLE-TRIGGER "CREATE" OVERRIDE PROCEDURE "create.trg/cmpltjob.p" CRC "?" 
+  TABLE-TRIGGER "DELETE" OVERRIDE PROCEDURE "delete.trg/cmpltjob.p" CRC "?" 
+  TABLE-TRIGGER "WRITE" OVERRIDE PROCEDURE "write.trg/cmpltjob.p" CRC "?" 
+
+ADD FIELD "rec_key" OF "cmpltjob" AS character 
+  FORMAT "X(20)"
+  INITIAL ""
+  LABEL "Record Key"
+  POSITION 2
+  MAX-WIDTH 40
+  HELP "Enter Record Key Value"
+  ORDER 50
+
+ADD FIELD "job_number" OF "cmpltjob" AS character 
+  FORMAT "X(6)"
+  INITIAL ""
+  LABEL "Job Number"
+  POSITION 3
+  MAX-WIDTH 12
+  COLUMN-LABEL "Job"
+  HELP "Enter Job Number"
+  ORDER 30
+
+ADD FIELD "job_sub" OF "cmpltjob" AS integer 
+  FORMAT ">9"
+  INITIAL "0"
+  LABEL "Job Sub Number"
+  POSITION 4
+  MAX-WIDTH 4
+  COLUMN-LABEL "Sub"
+  HELP "Enter Job Sub Number"
+  ORDER 40
+
+ADD FIELD "company" OF "cmpltjob" AS character 
+  FORMAT "x(3)"
+  INITIAL ""
+  LABEL "Company"
+  POSITION 5
+  MAX-WIDTH 6
+  HELP "Enter Company Code"
+  ORDER 10
+
+ADD FIELD "machine" OF "cmpltjob" AS character 
+  FORMAT "x(6)"
+  INITIAL ""
+  LABEL "Machine"
+  POSITION 6
+  MAX-WIDTH 12
+  HELP "Enter Machine Code"
+  ORDER 20
+
+ADD FIELD "posted" OF "cmpltjob" AS logical 
+  FORMAT "yes/no"
+  INITIAL "no"
+  LABEL "Posted"
+  POSITION 7
+  MAX-WIDTH 1
+  VIEW-AS "VIEW-AS TOGGLE-BOX"
+  HELP "Enter Posted Indicator"
+  ORDER 41
+
+ADD FIELD "form_number" OF "cmpltjob" AS integer 
+  FORMAT ">>9"
+  INITIAL "0"
+  LABEL "Form Number"
+  POSITION 8
+  MAX-WIDTH 4
+  COLUMN-LABEL "Form"
+  HELP "Enter Form Number"
+  ORDER 60
+
+ADD FIELD "blank_number" OF "cmpltjob" AS integer 
+  FORMAT ">9"
+  INITIAL "0"
+  LABEL "Blank Number"
+  POSITION 9
+  MAX-WIDTH 4
+  COLUMN-LABEL "Blank"
+  HELP "Enter Blank Number"
+  ORDER 70
+
+ADD FIELD "pass_sequence" OF "cmpltjob" AS integer 
+  FORMAT ">>9"
+  INITIAL "0"
+  LABEL "Pass Sequence"
+  POSITION 10
+  MAX-WIDTH 4
+  COLUMN-LABEL "Pass"
+  HELP "Enter Pass Sequence"
+  ORDER 80
+
+ADD INDEX "cmpltjob" ON "cmpltjob" 
+  AREA "Schema Area"
+  PRIMARY
+  INDEX-FIELD "company" DESCENDING 
+  INDEX-FIELD "machine" DESCENDING 
+  INDEX-FIELD "job_number" DESCENDING 
+  INDEX-FIELD "job_sub" DESCENDING 
+  INDEX-FIELD "form_number" DESCENDING 
+  INDEX-FIELD "blank_number" DESCENDING 
+  INDEX-FIELD "pass_sequence" DESCENDING 
+
+ADD INDEX "pi-cmpltjob" ON "cmpltjob" 
+  AREA "Schema Area"
+  INDEX-FIELD "company" DESCENDING 
+  INDEX-FIELD "machine" DESCENDING 
+  INDEX-FIELD "job_number" DESCENDING 
+  INDEX-FIELD "job_sub" DESCENDING 
+
+ADD INDEX "si-machine" ON "cmpltjob" 
+  AREA "Schema Area"
+  DESCRIPTION "Completed Jobs Secondary Index by Machine"
+  INDEX-FIELD "machine" ASCENDING 
+
+ADD INDEX "si-posted" ON "cmpltjob" 
+  AREA "Schema Area"
+  DESCRIPTION "Completed Jobs Secondary Index by Posted Flag"
+  INDEX-FIELD "posted" ASCENDING 
+
+ADD INDEX "si-rec_key" ON "cmpltjob" 
+  AREA "Schema Area"
+  DESCRIPTION "Completed Jobs Secondary Index by rec_key"
+  INDEX-FIELD "rec_key" ASCENDING 
+
+ADD TABLE "contact"
+  AREA "Schema Area"
+  LABEL "Contacts"
+  DESCRIPTION "Contacts"
+  DUMP-NAME "contact"
+  TABLE-TRIGGER "CREATE" OVERRIDE PROCEDURE "create.trg/contact.p" CRC "?" 
+  TABLE-TRIGGER "DELETE" OVERRIDE PROCEDURE "delete.trg/contact.p" CRC "?" 
+  TABLE-TRIGGER "WRITE" OVERRIDE PROCEDURE "write.trg/contact.p" CRC "?" 
+
+ADD FIELD "company" OF "contact" AS character 
+  FORMAT "x(3)"
+  INITIAL ""
+  LABEL "Company"
+  POSITION 2
+  MAX-WIDTH 6
+  HELP "Enter Company Code"
+  ORDER 10
+
+ADD FIELD "cust-no" OF "contact" AS character 
+  FORMAT "X(8)"
+  INITIAL ""
+  LABEL "Customer Number"
+  POSITION 3
+  MAX-WIDTH 16
+  HELP "Enter Customer Number"
+  ORDER 20
+
+ADD FIELD "ship-id" OF "contact" AS character 
+  FORMAT "X(8)"
+  INITIAL ""
+  LABEL "Shipto ID"
+  POSITION 4
+  MAX-WIDTH 16
+  HELP "Enter Shipto ID"
+  ORDER 30
+
+ADD FIELD "first-name" OF "contact" AS character 
+  FORMAT "X(30)"
+  INITIAL ""
+  LABEL "First Name"
+  POSITION 5
+  MAX-WIDTH 60
+  HELP "Enter Contact First Name"
+  ORDER 50
+
+ADD FIELD "last-name" OF "contact" AS character 
+  FORMAT "X(30)"
+  INITIAL ""
+  LABEL "Last Name"
+  POSITION 6
+  MAX-WIDTH 60
+  HELP "Enter Contact Last Name"
+  ORDER 60
+
+ADD FIELD "middle-initial" OF "contact" AS character 
+  FORMAT "X(1)"
+  INITIAL ""
+  LABEL "Middle Initial"
+  POSITION 7
+  MAX-WIDTH 2
+  HELP "Enter Contact Middle Initial"
+  ORDER 70
+
+ADD FIELD "sirname" OF "contact" AS character 
+  FORMAT "X(4)"
+  INITIAL ""
+  LABEL "Sir Name"
+  POSITION 8
+  MAX-WIDTH 8
+  HELP "Enter Contact Sir Name"
+  ORDER 80
+
+ADD FIELD "contact-title" OF "contact" AS character 
+  FORMAT "X(50)"
+  INITIAL ""
+  LABEL "Title"
+  POSITION 9
+  MAX-WIDTH 100
+  HELP "Enter Contact Title"
+  ORDER 90
+
+ADD FIELD "maillist" OF "contact" AS logical 
+  FORMAT "yes/no"
+  INITIAL "no"
+  LABEL "Mail List"
+  POSITION 10
+  MAX-WIDTH 1
+  HELP "Put Contact on Mailing List?"
+  ORDER 100
+
+ADD FIELD "type" OF "contact" AS character 
+  FORMAT "X(3)"
+  INITIAL ""
+  LABEL "Type"
+  POSITION 11
+  MAX-WIDTH 6
+  HELP "Enter Contact Type"
+  ORDER 110
+
+ADD FIELD "contact-loc" OF "contact" AS character 
+  FORMAT "X(1)"
+  INITIAL ""
+  LABEL "Location"
+  POSITION 12
+  MAX-WIDTH 2
+  HELP "Enter Contact Location (i.e. ""C""ust, ""S""hipto or Blank)"
+  ORDER 120
+
+ADD FIELD "addr1" OF "contact" AS character 
+  FORMAT "X(30)"
+  INITIAL ""
+  LABEL "Address1"
+  POSITION 13
+  MAX-WIDTH 60
+  HELP "Enter Contact Address"
+  ORDER 140
+
+ADD FIELD "addr2" OF "contact" AS character 
+  FORMAT "X(30)"
+  INITIAL ""
+  LABEL "Address2"
+  POSITION 14
+  MAX-WIDTH 60
+  HELP "Enter Contact Address"
+  ORDER 150
+
+ADD FIELD "city" OF "contact" AS character 
+  FORMAT "X(15)"
+  INITIAL ""
+  LABEL "City"
+  POSITION 15
+  MAX-WIDTH 30
+  HELP "Enter Contact City"
+  ORDER 160
+
+ADD FIELD "state" OF "contact" AS character 
+  FORMAT "X(2)"
+  INITIAL ""
+  LABEL "State"
+  POSITION 16
+  MAX-WIDTH 4
+  HELP "Enter Contact State"
+  ORDER 170
+
+ADD FIELD "zip" OF "contact" AS character 
+  FORMAT "X(10)"
+  INITIAL ""
+  LABEL "Zip"
+  POSITION 17
+  MAX-WIDTH 20
+  HELP "Enter Contact Zip"
+  ORDER 180
+
+ADD FIELD "country" OF "contact" AS character 
+  FORMAT "X(20)"
+  INITIAL ""
+  LABEL "Country"
+  POSITION 18
+  MAX-WIDTH 40
+  HELP "Enter Contact Country"
+  ORDER 190
+
+ADD FIELD "county" OF "contact" AS character 
+  FORMAT "X(20)"
+  INITIAL ""
+  LABEL "County"
+  POSITION 19
+  MAX-WIDTH 40
+  HELP "Enter Contact County"
+  ORDER 200
+
+ADD FIELD "access-code" OF "contact" AS character 
+  FORMAT "X(20)"
+  INITIAL ""
+  LABEL "Access Code"
+  POSITION 20
+  MAX-WIDTH 40
+  HELP "Enter Contact Phone Access Code"
+  ORDER 220
+
+ADD FIELD "phone" OF "contact" AS character 
+  FORMAT "XXX-XXX-XXXX"
+  INITIAL ""
+  LABEL "Phone"
+  POSITION 21
+  MAX-WIDTH 24
+  HELP "Enter Contact Phone"
+  ORDER 230
+
+ADD FIELD "fax" OF "contact" AS character 
+  FORMAT "XXX-XXX-XXXX"
+  INITIAL ""
+  LABEL "Fax"
+  POSITION 22
+  MAX-WIDTH 24
+  HELP "Enter Contact Fax"
+  ORDER 250
+
+ADD FIELD "extension" OF "contact" AS character 
+  FORMAT "XXXXX"
+  INITIAL ""
+  LABEL "Extension"
+  POSITION 23
+  MAX-WIDTH 10
+  HELP "Enter Contact Extension"
+  ORDER 260
+
+ADD FIELD "email" OF "contact" AS character 
+  FORMAT "X(50)"
+  INITIAL ""
+  LABEL "Email"
+  POSITION 24
+  MAX-WIDTH 100
+  HELP "Enter Contact Email Address"
+  ORDER 270
+
+ADD FIELD "website" OF "contact" AS character 
+  FORMAT "X(50)"
+  INITIAL ""
+  LABEL "Website"
+  POSITION 25
+  MAX-WIDTH 100
+  HELP "Enter Contact Website"
+  ORDER 280
+
+ADD FIELD "sman" OF "contact" AS character 
+  FORMAT "X(3)"
+  INITIAL ""
+  LABEL "Salesman"
+  POSITION 26
+  MAX-WIDTH 6
+  HELP "Enter Contact Salesman"
+  ORDER 40
+
+ADD FIELD "rec_key" OF "contact" AS character 
+  FORMAT "X(20)"
+  INITIAL ""
+  LABEL "Record Key"
+  POSITION 27
+  MAX-WIDTH 40
+  HELP "Enter Record Key Value"
+  ORDER 290
+
+ADD FIELD "cust-name" OF "contact" AS character 
+  FORMAT "X(30)"
+  INITIAL ""
+  LABEL "Company"
+  POSITION 28
+  MAX-WIDTH 60
+  ORDER 130
+
+ADD FIELD "territory" OF "contact" AS character 
+  FORMAT "X(3)"
+  INITIAL ""
+  LABEL "Territory"
+  POSITION 29
+  MAX-WIDTH 6
+  HELP "Enter Contact Territory"
+  ORDER 210
+
+ADD FIELD "cell-phone" OF "contact" AS character 
+  FORMAT "XXX-XXX-XXXX"
+  INITIAL ""
+  LABEL "Cell Phone"
+  POSITION 30
+  MAX-WIDTH 24
+  HELP "Enter Contact Cell Phone"
+  ORDER 240
+
+ADD FIELD "list-no" OF "contact" AS integer 
+  FORMAT ">>>>>9"
+  INITIAL "0"
+  LABEL "List#"
+  POSITION 31
+  MAX-WIDTH 4
+  ORDER 300
+
+ADD FIELD "list-name" OF "contact" AS character 
+  FORMAT "x(30)"
+  INITIAL ""
+  LABEL "List Name"
+  POSITION 32
+  MAX-WIDTH 60
+  ORDER 310
+
+ADD INDEX "pi-contact" ON "contact" 
+  AREA "Schema Area"
+  PRIMARY
+  DESCRIPTION "Contact Primary Index"
+  INDEX-FIELD "company" ASCENDING 
+  INDEX-FIELD "cust-no" ASCENDING 
+  INDEX-FIELD "ship-id" ASCENDING 
+  INDEX-FIELD "last-name" ASCENDING 
+  INDEX-FIELD "first-name" ASCENDING 
+  INDEX-FIELD "middle-initial" ASCENDING 
+
+ADD INDEX "si-location" ON "contact" 
+  AREA "Schema Area"
+  DESCRIPTION "Contact Location Index"
+  INDEX-FIELD "company" ASCENDING 
+  INDEX-FIELD "contact-loc" ASCENDING 
+
+ADD INDEX "si-name" ON "contact" 
+  AREA "Schema Area"
+  DESCRIPTION "Contact Name Index"
+  INDEX-FIELD "company" ASCENDING 
+  INDEX-FIELD "last-name" ASCENDING 
+  INDEX-FIELD "first-name" ASCENDING 
+  INDEX-FIELD "middle-initial" ASCENDING 
+
+ADD INDEX "si-rec_key" ON "contact" 
+  AREA "Schema Area"
+  INDEX-FIELD "rec_key" ASCENDING 
+
+ADD INDEX "si-sman" ON "contact" 
+  AREA "Schema Area"
+  DESCRIPTION "Contact Salesman Index"
+  INDEX-FIELD "company" ASCENDING 
+  INDEX-FIELD "sman" ASCENDING 
+
+ADD INDEX "si-type" ON "contact" 
+  AREA "Schema Area"
+  DESCRIPTION "Contatct Type Index"
+  INDEX-FIELD "company" ASCENDING 
+  INDEX-FIELD "type" ASCENDING 
+
+ADD TABLE "emplogin"
+  AREA "Schema Area"
+  LABEL "Employee Login"
+  DESCRIPTION "Employee Login"
+  DUMP-NAME "emplogin"
+  TABLE-TRIGGER "CREATE" OVERRIDE PROCEDURE "create.trg/emplogin.p" CRC "?" 
+  TABLE-TRIGGER "DELETE" OVERRIDE PROCEDURE "delete.trg/emplogin.p" CRC "?" 
+  TABLE-TRIGGER "WRITE" OVERRIDE PROCEDURE "write.trg/emplogin.p" CRC "?" 
+
+ADD FIELD "company" OF "emplogin" AS character 
+  FORMAT "x(3)"
+  INITIAL ""
+  LABEL "Company"
+  POSITION 2
+  MAX-WIDTH 6
+  HELP "Enter Company Code"
+  ORDER 10
+
+ADD FIELD "employee" OF "emplogin" AS character 
+  FORMAT "x(5)"
+  INITIAL ""
+  LABEL "Emp ID"
+  POSITION 3
+  MAX-WIDTH 10
+  HELP "Enter Employee ID"
+  ORDER 20
+
+ADD FIELD "machine" OF "emplogin" AS character 
+  FORMAT "x(6)"
+  INITIAL ""
+  LABEL "Machine"
+  POSITION 4
+  MAX-WIDTH 12
+  HELP "Enter Machine Code"
+  ORDER 30
+
+ADD FIELD "start_time" OF "emplogin" AS integer 
+  FORMAT "->,>>>,>>9"
+  INITIAL "0"
+  LABEL "Start Time"
+  POSITION 5
+  MAX-WIDTH 4
+  HELP "Enter Login Start Time"
+  ORDER 40
+
+ADD FIELD "end_time" OF "emplogin" AS integer 
+  FORMAT "->,>>>,>>9"
+  INITIAL "0"
+  LABEL "End Time"
+  POSITION 6
+  MAX-WIDTH 4
+  HELP "Enter Login End Time"
+  ORDER 50
+
+ADD FIELD "start_date" OF "emplogin" AS date 
+  FORMAT "99/99/9999"
+  INITIAL "TODAY"
+  LABEL "Start Date"
+  POSITION 7
+  MAX-WIDTH 4
+  HELP "Enter Login Start Date"
+  ORDER 60
+
+ADD FIELD "end_date" OF "emplogin" AS date 
+  FORMAT "99/99/9999"
+  INITIAL ?
+  LABEL "End Date"
+  POSITION 8
+  MAX-WIDTH 4
+  HELP "Enter Login End Date"
+  ORDER 70
+
+ADD FIELD "total_time" OF "emplogin" AS integer 
+  FORMAT "->,>>>,>>9"
+  INITIAL "0"
+  LABEL "Total Time"
+  POSITION 9
+  MAX-WIDTH 4
+  HELP "Enter Total Login Time"
+  ORDER 90
+
+ADD FIELD "rec_key" OF "emplogin" AS character 
+  FORMAT "X(20)"
+  INITIAL ""
+  LABEL "Record Key"
+  POSITION 10
+  MAX-WIDTH 40
+  HELP "Enter Record Key Value"
+  ORDER 100
+
+ADD FIELD "shift" OF "emplogin" AS character 
+  FORMAT "X"
+  INITIAL ""
+  LABEL "Shift"
+  POSITION 13
+  MAX-WIDTH 2
+  HELP "Enter Shift"
+  ORDER 80
+
+ADD FIELD "login_time" OF "emplogin" AS integer 
+  FORMAT "->,>>>,>>9"
+  INITIAL "0"
+  LABEL "Login Time"
+  POSITION 14
+  MAX-WIDTH 4
+  HELP "Enter Login Start Time"
+  ORDER 110
+
+ADD FIELD "logout_time" OF "emplogin" AS integer 
+  FORMAT "->,>>>,>>9"
+  INITIAL "0"
+  LABEL "Logout Time"
+  POSITION 15
+  MAX-WIDTH 4
+  HELP "Enter Login End Time"
+  ORDER 120
+
+ADD INDEX "pi-emplogin" ON "emplogin" 
+  AREA "Schema Area"
+  UNIQUE
+  PRIMARY
+  DESCRIPTION "Employee Login Primary Index"
+  INDEX-FIELD "company" DESCENDING 
+  INDEX-FIELD "employee" DESCENDING 
+  INDEX-FIELD "start_date" DESCENDING 
+  INDEX-FIELD "start_time" DESCENDING 
+  INDEX-FIELD "machine" DESCENDING 
+
+ADD INDEX "endtime" ON "emplogin" 
+  AREA "Schema Area"
+  INDEX-FIELD "company" ASCENDING 
+  INDEX-FIELD "end_time" ASCENDING 
+  INDEX-FIELD "total_time" ASCENDING 
+
+ADD INDEX "si-employee" ON "emplogin" 
+  AREA "Schema Area"
+  DESCRIPTION "Employee Login Secondary Index by Company and Employee"
+  INDEX-FIELD "company" ASCENDING 
+  INDEX-FIELD "employee" ASCENDING 
+
+ADD INDEX "si-machine" ON "emplogin" 
+  AREA "Schema Area"
+  DESCRIPTION "Employee Login Secondary Index by Company and Machine"
+  INDEX-FIELD "company" ASCENDING 
+  INDEX-FIELD "machine" ASCENDING 
+
+ADD INDEX "si-rec_key" ON "emplogin" 
+  AREA "Schema Area"
+  DESCRIPTION "Employee Login Secondary Index by rec_key"
+  INDEX-FIELD "rec_key" ASCENDING 
+
+ADD TABLE "employee"
+  AREA "Schema Area"
+  LABEL "Employees"
+  DESCRIPTION "Employee Master File"
+  DUMP-NAME "employee"
+  TABLE-TRIGGER "CREATE" OVERRIDE PROCEDURE "create.trg/employee.p" CRC "?" 
+  TABLE-TRIGGER "DELETE" OVERRIDE PROCEDURE "delete.trg/employee.p" CRC "?" 
+  TABLE-TRIGGER "WRITE" OVERRIDE PROCEDURE "write.trg/employee.p" CRC "?" 
+
+ADD FIELD "actnum" OF "employee" AS character 
+  FORMAT "x(25)"
+  INITIAL ""
+  LABEL "GL Acct"
+  POSITION 2
+  MAX-WIDTH 50
+  HELP "Enter GL Account Number"
+  ORDER 110
+
+ADD FIELD "last_name" OF "employee" AS character 
+  FORMAT "x(15)"
+  INITIAL ""
+  LABEL "Last Name"
+  POSITION 3
+  MAX-WIDTH 30
+  HELP "Enter Employee Last Name"
+  ORDER 60
+
+ADD FIELD "first_name" OF "employee" AS character 
+  FORMAT "x(10)"
+  INITIAL ""
+  LABEL "First Name"
+  POSITION 4
+  MAX-WIDTH 20
+  HELP "Enter Employee First Name"
+  ORDER 40
+
+ADD FIELD "employee" OF "employee" AS character 
+  FORMAT "x(5)"
+  INITIAL ""
+  LABEL "Emp ID"
+  POSITION 5
+  MAX-WIDTH 10
+  HELP "Enter Employee ID"
+  ORDER 20
+
+ADD FIELD "company" OF "employee" AS character 
+  FORMAT "x(3)"
+  INITIAL ""
+  LABEL "Company"
+  POSITION 6
+  MAX-WIDTH 6
+  HELP "Enter Company Code"
+  ORDER 10
+
+ADD FIELD "emp_type" OF "employee" AS character 
+  FORMAT "x(5)"
+  INITIAL ""
+  LABEL "Employee Type"
+  POSITION 7
+  MAX-WIDTH 10
+  HELP "Enter Employee Type"
+  ORDER 100
+
+ADD FIELD "start_date" OF "employee" AS date 
+  FORMAT "99/99/9999"
+  INITIAL "TODAY"
+  LABEL "Start Date"
+  POSITION 8
+  MAX-WIDTH 4
+  HELP "Enter Employee Start Date"
+  ORDER 90
+
+ADD FIELD "ref_no" OF "employee" AS character 
+  FORMAT "x(20)"
+  INITIAL ""
+  LABEL "Reference Number"
+  POSITION 9
+  MAX-WIDTH 40
+  HELP "Enter Reference Number"
+  ORDER 80
+
+ADD FIELD "passwd" OF "employee" AS character 
+  FORMAT "X(12)"
+  INITIAL ""
+  LABEL "Password"
+  POSITION 10
+  MAX-WIDTH 24
+  HELP "Enter Password (Encoded)"
+  ORDER 70
+
+ADD FIELD "middle_name" OF "employee" AS character 
+  FORMAT "x(10)"
+  INITIAL ""
+  LABEL "Middle Name"
+  POSITION 11
+  MAX-WIDTH 20
+  HELP "Enter Employee Middle Name"
+  ORDER 50
+
+ADD FIELD "rate_usage" OF "employee" AS logical 
+  FORMAT "Shift/Machine"
+  INITIAL "Shift"
+  LABEL "Rate Use"
+  POSITION 12
+  MAX-WIDTH 1
+  HELP "Select Rate Usage"
+  ORDER 120
+
+ADD FIELD "soc_sec" OF "employee" AS character 
+  FORMAT "XXX-XX-XXXX"
+  INITIAL ""
+  LABEL "Social Security #"
+  POSITION 13
+  MAX-WIDTH 22
+  COLUMN-LABEL "Soc Sec #"
+  HELP "Enter Social Security Number"
+  ORDER 30
+
+ADD FIELD "rec_key" OF "employee" AS character 
+  FORMAT "X(20)"
+  INITIAL ""
+  LABEL "Record Key"
+  POSITION 14
+  MAX-WIDTH 40
+  HELP "Enter Record Key Value"
+  ORDER 140
+
+ADD FIELD "keyboard_type" OF "employee" AS character 
+  FORMAT "X(10)"
+  INITIAL ""
+  LABEL "Keyboard Type"
+  POSITION 15
+  MAX-WIDTH 20
+  COLUMN-LABEL "Keyboard"
+  HELP "Enter Keyboard Type"
+  ORDER 130
+
+ADD FIELD "dock-time" OF "employee" AS integer 
+  DESCRIPTION "Number of interval minute to dock an employee for late start or early end time."
+  FORMAT ">>9"
+  INITIAL "0"
+  LABEL "Dock Time"
+  POSITION 16
+  MAX-WIDTH 4
+  ORDER 150
+
+ADD FIELD "lunch_paid" OF "employee" AS logical 
+  FORMAT "yes/no"
+  INITIAL "no"
+  LABEL "Lunch Paid"
+  POSITION 17
+  MAX-WIDTH 1
+  HELP "Lunch Paid"
+  ORDER 160
+
+ADD FIELD "user_language" OF "employee" AS character 
+  DESCRIPTION "User Language"
+  FORMAT "X(8)"
+  INITIAL ""
+  LABEL "User Language"
+  POSITION 18
+  MAX-WIDTH 16
+  ORDER 170
+
+ADD INDEX "pi-employee" ON "employee" 
+  AREA "Schema Area"
+  UNIQUE
+  PRIMARY
+  DESCRIPTION "Employee Primary Index"
+  INDEX-FIELD "company" ASCENDING 
+  INDEX-FIELD "employee" ASCENDING 
+
+ADD INDEX "si-last-name" ON "employee" 
+  AREA "Schema Area"
+  DESCRIPTION "Employee Secondary Index by Last Name"
+  INDEX-FIELD "company" ASCENDING 
+  INDEX-FIELD "last_name" ASCENDING 
+  INDEX-FIELD "first_name" ASCENDING 
+
+ADD INDEX "si-rec_key" ON "employee" 
+  AREA "Schema Area"
+  DESCRIPTION "Employee Secondary Index by rec_key"
+  INDEX-FIELD "rec_key" ASCENDING 
+
+ADD INDEX "si-sec_soc" ON "employee" 
+  AREA "Schema Area"
+  DESCRIPTION "Employee Secondary Index by Social Security"
+  INDEX-FIELD "company" ASCENDING 
+  INDEX-FIELD "soc_sec" ASCENDING 
+
+ADD INDEX "wi-last-name" ON "employee" 
+  AREA "Schema Area"
+  WORD
+  DESCRIPTION "Employee Word Index by Last Name"
+  INDEX-FIELD "last_name" ASCENDING 
+
+ADD TABLE "empmach"
+  AREA "Schema Area"
+  LABEL "Employee Assigned Machines"
+  DESCRIPTION "Employee Assigned Machines"
+  DUMP-NAME "empmach"
+  TABLE-TRIGGER "CREATE" OVERRIDE PROCEDURE "create.trg/empmach.p" CRC "?" 
+  TABLE-TRIGGER "DELETE" OVERRIDE PROCEDURE "delete.trg/empmach.p" CRC "?" 
+  TABLE-TRIGGER "WRITE" OVERRIDE PROCEDURE "write.trg/empmach.p" CRC "?" 
+
+ADD FIELD "company" OF "empmach" AS character 
+  FORMAT "x(3)"
+  INITIAL ""
+  LABEL "Company"
+  POSITION 2
+  MAX-WIDTH 6
+  HELP "Enter Company Code"
+  ORDER 10
+
+ADD FIELD "employee" OF "empmach" AS character 
+  FORMAT "x(5)"
+  INITIAL ""
+  LABEL "Emp ID"
+  POSITION 3
+  MAX-WIDTH 10
+  HELP "Enter Employee ID"
+  ORDER 20
+
+ADD FIELD "machine" OF "empmach" AS character 
+  FORMAT "x(6)"
+  INITIAL ""
+  LABEL "Machine"
+  POSITION 4
+  MAX-WIDTH 12
+  HELP "Enter Machine Code"
+  ORDER 30
+
+ADD FIELD "rec_key" OF "empmach" AS character 
+  FORMAT "X(20)"
+  INITIAL ""
+  LABEL "Record Key"
+  POSITION 5
+  MAX-WIDTH 40
+  HELP "Enter Record Key Value"
+  ORDER 50
+
+ADD FIELD "gl_account" OF "empmach" AS character 
+  FORMAT "X(25)"
+  INITIAL ""
+  LABEL "G/L Account"
+  POSITION 6
+  MAX-WIDTH 50
+  HELP "Enter G/L Account"
+  ORDER 40
+
+ADD INDEX "pi-empmach" ON "empmach" 
+  AREA "Schema Area"
+  UNIQUE
+  PRIMARY
+  DESCRIPTION "Employee Assigned Machines Primary Index"
+  INDEX-FIELD "company" ASCENDING 
+  INDEX-FIELD "employee" ASCENDING 
+  INDEX-FIELD "machine" ASCENDING 
+
+ADD INDEX "si-rec_key" ON "empmach" 
+  AREA "Schema Area"
+  DESCRIPTION "Employee Assigned Machines Secondary Index by rec_key"
+  INDEX-FIELD "rec_key" ASCENDING 
+
+ADD TABLE "emp_type"
+  AREA "Schema Area"
+  LABEL "Employee Type"
+  DESCRIPTION "Employee Type"
+  DUMP-NAME "emp_type"
+  TABLE-TRIGGER "CREATE" OVERRIDE PROCEDURE "create.trg/emp_type.p" CRC "?" 
+  TABLE-TRIGGER "DELETE" OVERRIDE PROCEDURE "delete.trg/emp_type.p" CRC "?" 
+  TABLE-TRIGGER "WRITE" OVERRIDE PROCEDURE "write.trg/emp_type.p" CRC "?" 
+
+ADD FIELD "emp_type" OF "emp_type" AS character 
+  FORMAT "x(5)"
+  INITIAL ""
+  LABEL "Employee Type"
+  POSITION 2
+  MAX-WIDTH 10
+  HELP "Enter Employee Type"
+  ORDER 10
+
+ADD FIELD "description" OF "emp_type" AS character 
+  FORMAT "x(20)"
+  INITIAL ""
+  LABEL "Description"
+  POSITION 3
+  MAX-WIDTH 40
+  HELP "Enter Description"
+  ORDER 20
+
+ADD FIELD "rec_key" OF "emp_type" AS character 
+  FORMAT "X(20)"
+  INITIAL ""
+  LABEL "Record Key"
+  POSITION 4
+  MAX-WIDTH 40
+  HELP "Enter Record Key Value"
+  ORDER 30
+
+ADD INDEX "pi-emp_type" ON "emp_type" 
+  AREA "Schema Area"
+  UNIQUE
+  PRIMARY
+  DESCRIPTION "Employee Type Primary Index"
+  INDEX-FIELD "emp_type" ASCENDING 
+
+ADD INDEX "si-description" ON "emp_type" 
+  AREA "Schema Area"
+  DESCRIPTION "Employee Type Secondary Index by Description"
+  INDEX-FIELD "description" ASCENDING 
+
+ADD INDEX "si-rec_key" ON "emp_type" 
+  AREA "Schema Area"
+  DESCRIPTION "Employee Type Secondary Index by rec_key"
+  INDEX-FIELD "rec_key" ASCENDING 
+
+ADD INDEX "wi-description" ON "emp_type" 
+  AREA "Schema Area"
+  WORD
+  DESCRIPTION "Employee Type Word Index by Description"
+  INDEX-FIELD "description" ASCENDING 
+
+ADD TABLE "jobseq"
+  AREA "Schema Area"
+  LABEL "Job Sequence"
+  DESCRIPTION "Job Sequence"
+  DUMP-NAME "jobseq"
+  TABLE-TRIGGER "CREATE" OVERRIDE PROCEDURE "create.trg/jobseq.p" CRC "?" 
+  TABLE-TRIGGER "DELETE" OVERRIDE PROCEDURE "delete.trg/jobseq.p" CRC "?" 
+  TABLE-TRIGGER "WRITE" OVERRIDE PROCEDURE "write.trg/jobseq.p" CRC "?" 
+
+ADD FIELD "charge_code" OF "jobseq" AS character 
+  FORMAT "X(5)"
+  INITIAL ""
+  LABEL "Charge Code"
+  POSITION 2
+  MAX-WIDTH 10
+  COLUMN-LABEL "Charge"
+  HELP "Enter Charge Code"
+  ORDER 20
+
+ADD FIELD "rec_key" OF "jobseq" AS character 
+  FORMAT "X(20)"
+  INITIAL ""
+  LABEL "Record Key"
+  POSITION 3
+  MAX-WIDTH 40
+  HELP "Enter Record Key Value"
+  ORDER 30
+
+ADD FIELD "jobseq" OF "jobseq" AS integer 
+  FORMAT ">9"
+  INITIAL "0"
+  LABEL "Job Sequence"
+  POSITION 4
+  MAX-WIDTH 4
+  COLUMN-LABEL "Seq"
+  HELP "Enter Job Sequence"
+  ORDER 10
+
+ADD INDEX "pi-jobseq" ON "jobseq" 
+  AREA "Schema Area"
+  UNIQUE
+  PRIMARY
+  DESCRIPTION "Job Sequence Primary Index"
+  INDEX-FIELD "jobseq" ASCENDING 
+
+ADD INDEX "si-rec_key" ON "jobseq" 
+  AREA "Schema Area"
+  DESCRIPTION "Job Sequence Secondary Index by rec_key"
+  INDEX-FIELD "rec_key" ASCENDING 
+
+ADD TABLE "machchrg"
+  AREA "Schema Area"
+  LABEL "Machine Assigned Charge Codes"
+  DESCRIPTION "Machine Assigned Charge Codes"
+  DUMP-NAME "machchrg"
+  TABLE-TRIGGER "CREATE" OVERRIDE PROCEDURE "create.trg/machchrg.p" CRC "?" 
+  TABLE-TRIGGER "DELETE" OVERRIDE PROCEDURE "delete.trg/machchrg.p" CRC "?" 
+  TABLE-TRIGGER "WRITE" OVERRIDE PROCEDURE "write.trg/machchrg.p" CRC "?" 
+
+ADD FIELD "company" OF "machchrg" AS character 
+  FORMAT "x(3)"
+  INITIAL ""
+  LABEL "Company"
+  POSITION 2
+  MAX-WIDTH 6
+  HELP "Enter Company Code"
+  ORDER 10
+
+ADD FIELD "machine" OF "machchrg" AS character 
+  FORMAT "x(6)"
+  INITIAL ""
+  LABEL "Machine"
+  POSITION 3
+  MAX-WIDTH 12
+  HELP "Enter Machine Code"
+  ORDER 20
+
+ADD FIELD "charge_code" OF "machchrg" AS character 
+  FORMAT "X(5)"
+  INITIAL ""
+  LABEL "Charge Code"
+  POSITION 4
+  MAX-WIDTH 10
+  COLUMN-LABEL "Charge"
+  HELP "Enter Charge Code"
+  ORDER 30
+
+ADD FIELD "rec_key" OF "machchrg" AS character 
+  FORMAT "X(20)"
+  INITIAL ""
+  LABEL "Record Key"
+  POSITION 5
+  MAX-WIDTH 40
+  HELP "Enter Record Key Value"
+  ORDER 40
+
+ADD INDEX "pi-machchrg" ON "machchrg" 
+  AREA "Schema Area"
+  UNIQUE
+  PRIMARY
+  DESCRIPTION "Machine Assigned Charge Codes Primary Index"
+  INDEX-FIELD "company" ASCENDING 
+  INDEX-FIELD "machine" ASCENDING 
+  INDEX-FIELD "charge_code" ASCENDING 
+
+ADD INDEX "si-charge_code" ON "machchrg" 
+  AREA "Schema Area"
+  DESCRIPTION "Machine Assigned Charge Codes Secondary Index by Chage Code"
+  INDEX-FIELD "company" ASCENDING 
+  INDEX-FIELD "charge_code" ASCENDING 
+
+ADD INDEX "si-rec_key" ON "machchrg" 
+  AREA "Schema Area"
+  DESCRIPTION "Machine Assigned Charge Codes Secondary Index by rec_key"
+  INDEX-FIELD "rec_key" ASCENDING 
+
+ADD TABLE "machemp"
+  AREA "Schema Area"
+  LABEL "Machine Transaction Employees"
+  DESCRIPTION "Machine Transaction Employees"
+  DUMP-NAME "machemp"
+  TABLE-TRIGGER "CREATE" OVERRIDE PROCEDURE "create.trg/machemp.p" CRC "?" 
+  TABLE-TRIGGER "DELETE" OVERRIDE PROCEDURE "delete.trg/machemp.p" CRC "?" 
+  TABLE-TRIGGER "WRITE" OVERRIDE PROCEDURE "write.trg/machemp.p" CRC "?" 
+
+ADD FIELD "table_rec_key" OF "machemp" AS character 
+  FORMAT "X(20)"
+  INITIAL ""
+  LABEL "Table Record Key"
+  POSITION 2
+  MAX-WIDTH 40
+  HELP "Enter Table Record Key Value"
+  ORDER 10
+
+ADD FIELD "employee" OF "machemp" AS character 
+  FORMAT "x(5)"
+  INITIAL ""
+  LABEL "Emp ID"
+  POSITION 3
+  MAX-WIDTH 10
+  HELP "Enter Employee ID"
+  ORDER 20
+
+ADD FIELD "start_time" OF "machemp" AS integer 
+  FORMAT "->,>>>,>>9"
+  INITIAL "0"
+  LABEL "Start Time"
+  POSITION 4
+  MAX-WIDTH 4
+  HELP "Enter Login Start Time"
+  ORDER 30
+
+ADD FIELD "end_time" OF "machemp" AS integer 
+  FORMAT "->,>>>,>>9"
+  INITIAL "0"
+  LABEL "End Time"
+  POSITION 5
+  MAX-WIDTH 4
+  HELP "Enter Login End Time"
+  ORDER 40
+
+ADD FIELD "start_date" OF "machemp" AS date 
+  FORMAT "99/99/9999"
+  INITIAL "TODAY"
+  LABEL "Start Date"
+  POSITION 6
+  MAX-WIDTH 4
+  HELP "Enter Login Start Date"
+  ORDER 50
+
+ADD FIELD "end_date" OF "machemp" AS date 
+  FORMAT "99/99/9999"
+  INITIAL ?
+  LABEL "End Date"
+  POSITION 7
+  MAX-WIDTH 4
+  HELP "Enter Login End Date"
+  ORDER 60
+
+ADD FIELD "shift" OF "machemp" AS character 
+  FORMAT "X"
+  INITIAL ""
+  LABEL "Shift"
+  POSITION 8
+  MAX-WIDTH 2
+  HELP "Enter Shift"
+  ORDER 70
+
+ADD FIELD "rate" OF "machemp" AS decimal 
+  FORMAT ">>>>9.99<<<"
+  INITIAL "0"
+  LABEL "Rate"
+  POSITION 9
+  MAX-WIDTH 20
+  HELP "Enter Rate Amount"
+  DECIMALS 5
+  ORDER 110
+
+ADD FIELD "total_time" OF "machemp" AS integer 
+  FORMAT "->,>>>,>>9"
+  INITIAL "0"
+  LABEL "Total Time"
+  POSITION 10
+  MAX-WIDTH 4
+  HELP "Enter Total Login Time"
+  ORDER 80
+
+ADD FIELD "rec_key" OF "machemp" AS character 
+  FORMAT "X(20)"
+  INITIAL ""
+  LABEL "Record Key"
+  POSITION 11
+  MAX-WIDTH 40
+  HELP "Enter Record Key Value"
+  ORDER 130
+
+ADD FIELD "rate_usage" OF "machemp" AS logical 
+  FORMAT "Shift/Machine"
+  INITIAL "Shift"
+  LABEL "Rate Use"
+  POSITION 12
+  MAX-WIDTH 1
+  HELP "Select Rate Usage"
+  ORDER 90
+
+ADD FIELD "ratetype" OF "machemp" AS character 
+  FORMAT "X(12)"
+  INITIAL ""
+  LABEL "Type"
+  POSITION 13
+  MAX-WIDTH 24
+  HELP "Enter Rate Type"
+  ORDER 100
+
+ADD FIELD "posted" OF "machemp" AS logical 
+  FORMAT "yes/no"
+  INITIAL "no"
+  LABEL "Posted"
+  POSITION 14
+  MAX-WIDTH 1
+  VIEW-AS "VIEW-AS TOGGLE-BOX"
+  HELP "Enter Posted Indicator"
+  ORDER 120
+
+ADD FIELD "login_time" OF "machemp" AS integer 
+  FORMAT "->,>>>,>>9"
+  INITIAL "0"
+  LABEL "Login Time"
+  POSITION 15
+  MAX-WIDTH 4
+  HELP "Enter Login Start Time"
+  ORDER 140
+
+ADD FIELD "logout_time" OF "machemp" AS integer 
+  FORMAT "->,>>>,>>9"
+  INITIAL "0"
+  LABEL "Logout Time"
+  POSITION 16
+  MAX-WIDTH 4
+  HELP "Enter Login End Time"
+  ORDER 150
+
+ADD INDEX "pi-machemp" ON "machemp" 
+  AREA "Schema Area"
+  UNIQUE
+  PRIMARY
+  DESCRIPTION "Machine Transaction Employees Primary Index"
+  INDEX-FIELD "table_rec_key" ASCENDING 
+  INDEX-FIELD "employee" ASCENDING 
+  INDEX-FIELD "start_date" ASCENDING 
+  INDEX-FIELD "start_time" ASCENDING 
+
+ADD INDEX "employee" ON "machemp" 
+  AREA "Schema Area"
+  DESCRIPTION "Employee"
+  INDEX-FIELD "employee" ASCENDING 
+  INDEX-FIELD "start_date" ASCENDING 
+  INDEX-FIELD "end_date" ASCENDING 
+
+ADD INDEX "posted" ON "machemp" 
+  AREA "Schema Area"
+  DESCRIPTION "posted"
+  INDEX-FIELD "posted" ASCENDING 
+
+ADD INDEX "postemp" ON "machemp" 
+  AREA "Schema Area"
+  INDEX-FIELD "posted" ASCENDING 
+  INDEX-FIELD "employee" ASCENDING 
+  INDEX-FIELD "start_date" ASCENDING 
+  INDEX-FIELD "start_time" ASCENDING 
+
+ADD INDEX "si-rec_key" ON "machemp" 
+  AREA "Schema Area"
+  DESCRIPTION "Machine Transaction Employees Secondary Index by rec_key"
+  INDEX-FIELD "rec_key" ASCENDING 
+
+ADD TABLE "machseq"
+  AREA "Schema Area"
+  LABEL "Machine Sequence"
+  DESCRIPTION "Machine Sequence"
+  DUMP-NAME "machseq"
+  TABLE-TRIGGER "CREATE" OVERRIDE PROCEDURE "create.trg/machseq.p" CRC "?" 
+  TABLE-TRIGGER "DELETE" OVERRIDE PROCEDURE "delete.trg/machseq.p" CRC "?" 
+  TABLE-TRIGGER "WRITE" OVERRIDE PROCEDURE "write.trg/machseq.p" CRC "?" 
+
+ADD FIELD "company" OF "machseq" AS character 
+  FORMAT "x(3)"
+  INITIAL ""
+  LABEL "Company"
+  POSITION 2
+  MAX-WIDTH 6
+  HELP "Enter Company Code"
+  ORDER 10
+
+ADD FIELD "machine" OF "machseq" AS character 
+  FORMAT "x(6)"
+  INITIAL ""
+  LABEL "Machine"
+  POSITION 3
+  MAX-WIDTH 12
+  HELP "Enter Machine Code"
+  ORDER 20
+
+ADD FIELD "machseq" OF "machseq" AS integer 
+  FORMAT ">9"
+  INITIAL "0"
+  LABEL "Machine Sequence"
+  POSITION 4
+  MAX-WIDTH 4
+  COLUMN-LABEL "Seq"
+  HELP "Enter Machine Sequence"
+  ORDER 30
+
+ADD FIELD "charge_code" OF "machseq" AS character 
+  FORMAT "X(5)"
+  INITIAL ""
+  LABEL "Charge Code"
+  POSITION 5
+  MAX-WIDTH 10
+  COLUMN-LABEL "Charge"
+  HELP "Enter Charge Code"
+  ORDER 40
+
+ADD FIELD "rec_key" OF "machseq" AS character 
+  FORMAT "X(20)"
+  INITIAL ""
+  LABEL "Record Key"
+  POSITION 6
+  MAX-WIDTH 40
+  HELP "Enter Record Key Value"
+  ORDER 50
+
+ADD INDEX "pi-machseq" ON "machseq" 
+  AREA "Schema Area"
+  UNIQUE
+  PRIMARY
+  DESCRIPTION "Machine Sequence Primary Index"
+  INDEX-FIELD "company" ASCENDING 
+  INDEX-FIELD "machine" ASCENDING 
+  INDEX-FIELD "machseq" ASCENDING 
+
+ADD INDEX "si-rec_key" ON "machseq" 
+  AREA "Schema Area"
+  DESCRIPTION "Machine Sequence Secondary Index by rec_key"
+  INDEX-FIELD "rec_key" ASCENDING 
+
+ADD TABLE "machshft"
+  AREA "Schema Area"
+  LABEL "Machine Assigned Shifts"
+  DESCRIPTION "Machine Assigned Shifts"
+  DUMP-NAME "machshft"
+  TABLE-TRIGGER "CREATE" OVERRIDE PROCEDURE "create.trg/machshft.p" CRC "?" 
+  TABLE-TRIGGER "DELETE" OVERRIDE PROCEDURE "delete.trg/machshft.p" CRC "?" 
+  TABLE-TRIGGER "WRITE" OVERRIDE PROCEDURE "write.trg/machshft.p" CRC "?" 
+
+ADD FIELD "company" OF "machshft" AS character 
+  FORMAT "x(3)"
+  INITIAL ""
+  LABEL "Company"
+  POSITION 2
+  MAX-WIDTH 6
+  HELP "Enter Company Code"
+  ORDER 10
+
+ADD FIELD "machine" OF "machshft" AS character 
+  FORMAT "x(6)"
+  INITIAL ""
+  LABEL "Machine"
+  POSITION 3
+  MAX-WIDTH 12
+  HELP "Enter Machine Code"
+  ORDER 20
+
+ADD FIELD "shift" OF "machshft" AS character 
+  FORMAT "X"
+  INITIAL ""
+  LABEL "Shift"
+  POSITION 4
+  MAX-WIDTH 2
+  HELP "Enter Shift"
+  ORDER 30
+
+ADD FIELD "start_time" OF "machshft" AS integer 
+  FORMAT "->,>>>,>>9"
+  INITIAL "0"
+  LABEL "Start Time"
+  POSITION 5
+  MAX-WIDTH 4
+  HELP "Enter Shift Start Time"
+  ORDER 40
+
+ADD FIELD "end_time" OF "machshft" AS integer 
+  FORMAT "->,>>>,>>9"
+  INITIAL "0"
+  LABEL "End Time"
+  POSITION 6
+  MAX-WIDTH 4
+  HELP "Enter Shift End Time"
+  ORDER 50
+
+ADD FIELD "rec_key" OF "machshft" AS character 
+  FORMAT "X(20)"
+  INITIAL ""
+  LABEL "Record Key"
+  POSITION 7
+  MAX-WIDTH 40
+  HELP "Enter Record Key Value"
+  ORDER 60
+
+ADD INDEX "pi-machshft" ON "machshft" 
+  AREA "Schema Area"
+  UNIQUE
+  PRIMARY
+  DESCRIPTION "Machine Assigned Shifts Primary Index"
+  INDEX-FIELD "company" ASCENDING 
+  INDEX-FIELD "machine" ASCENDING 
+  INDEX-FIELD "shift" ASCENDING 
+
+ADD INDEX "si-rec_key" ON "machshft" 
+  AREA "Schema Area"
+  DESCRIPTION "Machine Assigned Shifts Secondary Index by rec_key"
+  INDEX-FIELD "rec_key" ASCENDING 
+
+ADD TABLE "machtran"
+  AREA "Schema Area"
+  LABEL "Machine Transactions"
+  DESCRIPTION "Machine Transactions"
+  DUMP-NAME "machtran"
+  TABLE-TRIGGER "CREATE" OVERRIDE PROCEDURE "create.trg/machtran.p" CRC "?" 
+  TABLE-TRIGGER "DELETE" OVERRIDE PROCEDURE "delete.trg/machtran.p" CRC "?" 
+  TABLE-TRIGGER "WRITE" OVERRIDE PROCEDURE "write.trg/machtran.p" CRC "?" 
+
+ADD FIELD "company" OF "machtran" AS character 
+  FORMAT "x(3)"
+  INITIAL ""
+  LABEL "Company"
+  POSITION 2
+  MAX-WIDTH 6
+  HELP "Enter Company Code"
+  ORDER 10
+
+ADD FIELD "machine" OF "machtran" AS character 
+  FORMAT "x(6)"
+  INITIAL ""
+  LABEL "Machine"
+  POSITION 3
+  MAX-WIDTH 12
+  HELP "Enter Machine Code"
+  ORDER 20
+
+ADD FIELD "charge_code" OF "machtran" AS character 
+  FORMAT "X(5)"
+  INITIAL ""
+  LABEL "Charge Code"
+  POSITION 4
+  MAX-WIDTH 10
+  COLUMN-LABEL "Charge"
+  HELP "Enter Charge Code"
+  ORDER 110
+
+ADD FIELD "start_time" OF "machtran" AS integer 
+  FORMAT "->,>>>,>>9"
+  INITIAL "0"
+  LABEL "Start Time"
+  POSITION 5
+  MAX-WIDTH 4
+  HELP "Enter Login Start Time"
+  ORDER 90
+
+ADD FIELD "end_time" OF "machtran" AS integer 
+  FORMAT "->,>>>,>>9"
+  INITIAL "0"
+  LABEL "End Time"
+  POSITION 6
+  MAX-WIDTH 4
+  HELP "Enter Login End Time"
+  ORDER 130
+
+ADD FIELD "start_date" OF "machtran" AS date 
+  FORMAT "99/99/9999"
+  INITIAL "TODAY"
+  LABEL "Start Date"
+  POSITION 7
+  MAX-WIDTH 4
+  HELP "Enter Login Start Date"
+  ORDER 80
+
+ADD FIELD "end_date" OF "machtran" AS date 
+  FORMAT "99/99/9999"
+  INITIAL ?
+  LABEL "End Date"
+  POSITION 8
+  MAX-WIDTH 4
+  HELP "Enter Login End Date"
+  ORDER 120
+
+ADD FIELD "total_time" OF "machtran" AS integer 
+  FORMAT "->,>>>,>>9"
+  INITIAL "0"
+  LABEL "Total Time"
+  POSITION 9
+  MAX-WIDTH 4
+  HELP "Enter Total Login Time"
+  ORDER 150
+
+ADD FIELD "job_number" OF "machtran" AS character 
+  FORMAT "X(6)"
+  INITIAL ""
+  LABEL "Job Number"
+  POSITION 10
+  MAX-WIDTH 12
+  COLUMN-LABEL "Job"
+  HELP "Enter Job Number"
+  ORDER 30
+
+ADD FIELD "job_sub" OF "machtran" AS integer 
+  FORMAT ">9"
+  INITIAL "0"
+  LABEL "Job Sub Number"
+  POSITION 11
+  MAX-WIDTH 4
+  COLUMN-LABEL "Sub"
+  HELP "Enter Job Sub Number"
+  ORDER 40
+
+ADD FIELD "form_number" OF "machtran" AS integer 
+  FORMAT ">>9"
+  INITIAL "0"
+  LABEL "Form Number"
+  POSITION 12
+  MAX-WIDTH 4
+  COLUMN-LABEL "Form"
+  HELP "Enter Form Number"
+  ORDER 50
+
+ADD FIELD "blank_number" OF "machtran" AS integer 
+  FORMAT ">9"
+  INITIAL "0"
+  LABEL "Blank Number"
+  POSITION 13
+  MAX-WIDTH 4
+  COLUMN-LABEL "Blank"
+  HELP "Enter Blank Number"
+  ORDER 60
+
+ADD FIELD "pass_sequence" OF "machtran" AS integer 
+  FORMAT ">>9"
+  INITIAL "0"
+  LABEL "Pass Sequence"
+  POSITION 14
+  MAX-WIDTH 4
+  COLUMN-LABEL "Pass"
+  HELP "Enter Pass Sequence"
+  ORDER 70
+
+ADD FIELD "run_qty" OF "machtran" AS decimal 
+  FORMAT "->>,>>>,>>9"
+  INITIAL "0"
+  LABEL "Run Quantity"
+  POSITION 15
+  MAX-WIDTH 15
+  COLUMN-LABEL "Run"
+  DECIMALS 0
+  ORDER 160
+
+ADD FIELD "waste_qty" OF "machtran" AS integer 
+  FORMAT "->>>>9"
+  INITIAL "0"
+  LABEL "Waste Quantity"
+  POSITION 16
+  MAX-WIDTH 4
+  COLUMN-LABEL "Waste"
+  HELP "Enter Waste Quantity"
+  ORDER 170
+
+ADD FIELD "rec_key" OF "machtran" AS character 
+  FORMAT "X(20)"
+  INITIAL ""
+  LABEL "Record Key"
+  POSITION 17
+  MAX-WIDTH 40
+  HELP "Enter Record Key Value"
+  ORDER 190
+
+ADD FIELD "jobseq" OF "machtran" AS integer 
+  FORMAT ">9"
+  INITIAL "0"
+  LABEL "Job Sequence"
+  POSITION 18
+  MAX-WIDTH 4
+  COLUMN-LABEL "Seq"
+  HELP "Enter Job Sequence"
+  ORDER 100
+
+ADD FIELD "shift" OF "machtran" AS character 
+  FORMAT "X"
+  INITIAL ""
+  LABEL "Shift"
+  POSITION 19
+  MAX-WIDTH 2
+  HELP "Enter Shift"
+  ORDER 140
+
+ADD FIELD "posted" OF "machtran" AS logical 
+  FORMAT "yes/no"
+  INITIAL "no"
+  LABEL "Posted"
+  POSITION 20
+  MAX-WIDTH 1
+  VIEW-AS "VIEW-AS TOGGLE-BOX"
+  HELP "Enter Posted Indicator"
+  ORDER 180
+
+ADD FIELD "completed" OF "machtran" AS logical 
+  FORMAT "yes/no"
+  INITIAL "no"
+  LABEL "Completed?"
+  POSITION 21
+  MAX-WIDTH 1
+  ORDER 200
+
+ADD FIELD "login_time" OF "machtran" AS integer 
+  FORMAT "->,>>>,>>9"
+  INITIAL "0"
+  LABEL "Login Time"
+  POSITION 22
+  MAX-WIDTH 4
+  HELP "Enter Login Start Time"
+  ORDER 210
+
+ADD FIELD "logout_time" OF "machtran" AS integer 
+  FORMAT "->,>>>,>>9"
+  INITIAL "0"
+  LABEL "Logout Time"
+  POSITION 23
+  MAX-WIDTH 4
+  HELP "Enter Login End Time"
+  ORDER 220
+
+ADD INDEX "pi-machtran" ON "machtran" 
+  AREA "Schema Area"
+  UNIQUE
+  PRIMARY
+  DESCRIPTION "Machine Transactions Primary Index"
+  INDEX-FIELD "company" ASCENDING 
+  INDEX-FIELD "machine" ASCENDING 
+  INDEX-FIELD "job_number" ASCENDING 
+  INDEX-FIELD "job_sub" ASCENDING 
+  INDEX-FIELD "form_number" ASCENDING 
+  INDEX-FIELD "blank_number" ASCENDING 
+  INDEX-FIELD "pass_sequence" ASCENDING 
+  INDEX-FIELD "start_date" ASCENDING 
+  INDEX-FIELD "start_time" ASCENDING 
+  INDEX-FIELD "jobseq" ASCENDING 
+  INDEX-FIELD "charge_code" ASCENDING 
+
+ADD INDEX "enddate" ON "machtran" 
+  AREA "Schema Area"
+  INDEX-FIELD "company" ASCENDING 
+  INDEX-FIELD "end_date" ASCENDING 
+  INDEX-FIELD "end_time" ASCENDING 
+  INDEX-FIELD "total_time" ASCENDING 
+
+ADD INDEX "menddate" ON "machtran" 
+  AREA "Schema Area"
+  INDEX-FIELD "company" ASCENDING 
+  INDEX-FIELD "machine" ASCENDING 
+  INDEX-FIELD "end_date" ASCENDING 
+  INDEX-FIELD "end_time" ASCENDING 
+  INDEX-FIELD "total_time" ASCENDING 
+
+ADD INDEX "si-joborder" ON "machtran" 
+  AREA "Schema Area"
+  DESCRIPTION "Job Order"
+  INDEX-FIELD "company" ASCENDING 
+  INDEX-FIELD "posted" ASCENDING 
+  INDEX-FIELD "job_number" ASCENDING 
+  INDEX-FIELD "start_date" ASCENDING 
+  INDEX-FIELD "start_time" ASCENDING 
+
+ADD INDEX "si-machorder" ON "machtran" 
+  AREA "Schema Area"
+  DESCRIPTION "Machine Order"
+  INDEX-FIELD "company" ASCENDING 
+  INDEX-FIELD "posted" ASCENDING 
+  INDEX-FIELD "machine" ASCENDING 
+  INDEX-FIELD "start_date" ASCENDING 
+  INDEX-FIELD "start_time" ASCENDING 
+
+ADD INDEX "si-rec_key" ON "machtran" 
+  AREA "Schema Area"
+  DESCRIPTION "Machine Transactions Secondary Index by rec_key"
+  INDEX-FIELD "rec_key" ASCENDING 
+
+ADD TABLE "mailcont"
+  AREA "Schema Area"
+  LABEL "Mail Contact"
+  DESCRIPTION "Mail contact list detail table"
+  DUMP-NAME "mailcont"
+  TABLE-TRIGGER "CREATE" NO-OVERRIDE PROCEDURE "create.trg\mailcont.p" CRC "?" 
+  TABLE-TRIGGER "DELETE" NO-OVERRIDE PROCEDURE "delete.trg\mailcont.p" CRC "?" 
+  TABLE-TRIGGER "WRITE" NO-OVERRIDE PROCEDURE "write.trg\mailcont.p" CRC "?" 
+
+ADD FIELD "list-no" OF "mailcont" AS integer 
+  FORMAT ">>>>>9"
+  INITIAL "0"
+  LABEL "List#"
+  POSITION 2
+  MAX-WIDTH 4
+  ORDER 10
+
+ADD FIELD "contact-rec" OF "mailcont" AS recid 
+  FORMAT ">>>>>>9"
+  INITIAL ?
+  LABEL "Contact Record"
+  POSITION 3
+  MAX-WIDTH 4
+  ORDER 20
+
+ADD FIELD "rec_key" OF "mailcont" AS character 
+  FORMAT "X(20)"
+  INITIAL ""
+  LABEL "Record Key"
+  POSITION 4
+  MAX-WIDTH 40
+  HELP "Enter Record Key Value"
+  ORDER 30
+
+ADD FIELD "cust-no" OF "mailcont" AS character 
+  FORMAT "X(8)"
+  INITIAL ""
+  LABEL "Customer Number"
+  POSITION 5
+  MAX-WIDTH 16
+  HELP "Enter Customer Number"
+  ORDER 40
+
+ADD FIELD "first-name" OF "mailcont" AS character 
+  FORMAT "X(30)"
+  INITIAL ""
+  LABEL "First Name"
+  POSITION 6
+  MAX-WIDTH 60
+  HELP "Enter Contact First Name"
+  ORDER 50
+
+ADD FIELD "last-name" OF "mailcont" AS character 
+  FORMAT "X(30)"
+  INITIAL ""
+  LABEL "Last Name"
+  POSITION 7
+  MAX-WIDTH 60
+  HELP "Enter Contact Last Name"
+  ORDER 60
+
+ADD FIELD "middle-initial" OF "mailcont" AS character 
+  FORMAT "X(1)"
+  INITIAL ""
+  LABEL "Middle Initial"
+  POSITION 8
+  MAX-WIDTH 2
+  HELP "Enter Contact Middle Initial"
+  ORDER 70
+
+ADD FIELD "cust-name" OF "mailcont" AS character 
+  FORMAT "X(30)"
+  INITIAL ""
+  LABEL "Company"
+  POSITION 9
+  MAX-WIDTH 60
+  ORDER 80
+
+ADD FIELD "contact-title" OF "mailcont" AS character 
+  FORMAT "X(50)"
+  INITIAL ""
+  LABEL "Title"
+  POSITION 10
+  MAX-WIDTH 100
+  HELP "Enter Contact Title"
+  ORDER 90
+
+ADD FIELD "sman" OF "mailcont" AS character 
+  FORMAT "X(3)"
+  INITIAL ""
+  LABEL "Salesman"
+  POSITION 11
+  MAX-WIDTH 6
+  HELP "Enter Contact Salesman"
+  ORDER 100
+
+ADD FIELD "maillist" OF "mailcont" AS logical 
+  FORMAT "yes/no"
+  INITIAL "no"
+  LABEL "Mail List"
+  POSITION 12
+  MAX-WIDTH 1
+  HELP "Put Contact on Mailing List?"
+  ORDER 110
+
+ADD INDEX "mailcont" ON "mailcont" 
+  AREA "Schema Area"
+  UNIQUE
+  PRIMARY
+  DESCRIPTION "Mail contact index"
+  INDEX-FIELD "list-no" ASCENDING 
+  INDEX-FIELD "contact-rec" ASCENDING 
+
+ADD TABLE "maillist"
+  AREA "Schema Area"
+  LABEL "Mail list"
+  DESCRIPTION "Contact mail list table"
+  DUMP-NAME "maillist"
+  TABLE-TRIGGER "CREATE" NO-OVERRIDE PROCEDURE "create.trg\maillist.p" CRC "?" 
+  TABLE-TRIGGER "DELETE" NO-OVERRIDE PROCEDURE "delete.trg\maillist.p" CRC "?" 
+  TABLE-TRIGGER "WRITE" NO-OVERRIDE PROCEDURE "write.trg\maillist.p" CRC "?" 
+
+ADD FIELD "list-no" OF "maillist" AS integer 
+  FORMAT ">>>>>9"
+  INITIAL "0"
+  LABEL "List#"
+  POSITION 2
+  MAX-WIDTH 4
+  ORDER 10
+
+ADD FIELD "list-name" OF "maillist" AS character 
+  FORMAT "x(30)"
+  INITIAL ""
+  LABEL "List Name"
+  POSITION 3
+  MAX-WIDTH 60
+  ORDER 20
+
+ADD FIELD "rec_key" OF "maillist" AS character 
+  FORMAT "X(20)"
+  INITIAL ""
+  LABEL "Record Key"
+  POSITION 4
+  MAX-WIDTH 40
+  HELP "Enter Record Key Value"
+  ORDER 30
+
+ADD FIELD "active" OF "maillist" AS logical 
+  FORMAT "yes/no"
+  INITIAL "no"
+  LABEL "Is Active?"
+  POSITION 5
+  MAX-WIDTH 1
+  ORDER 40
+
+ADD FIELD "purpose" OF "maillist" AS character 
+  FORMAT "x(30)"
+  INITIAL ""
+  LABEL "Purpose"
+  POSITION 6
+  MAX-WIDTH 60
+  ORDER 50
+
+ADD FIELD "list-date" OF "maillist" AS date 
+  FORMAT "99/99/9999"
+  INITIAL ?
+  LABEL "List Date"
+  POSITION 7
+  MAX-WIDTH 4
+  ORDER 60
+
+ADD FIELD "sman" OF "maillist" AS character 
+  FORMAT "X(3)"
+  INITIAL ""
+  LABEL "Salesman"
+  POSITION 8
+  MAX-WIDTH 6
+  HELP "Enter Contact Salesman"
+  ORDER 70
+
+ADD FIELD "list-for" OF "maillist" AS character 
+  FORMAT "x"
+  INITIAL ""
+  LABEL "List For"
+  POSITION 9
+  MAX-WIDTH 2
+  ORDER 80
+
+ADD INDEX "maillist" ON "maillist" 
+  AREA "Schema Area"
+  UNIQUE
+  PRIMARY
+  DESCRIPTION "maillist"
+  INDEX-FIELD "list-no" ASCENDING 
+
+ADD INDEX "rec_key" ON "maillist" 
+  AREA "Schema Area"
+  INDEX-FIELD "rec_key" ASCENDING 
+
+ADD TABLE "rate"
+  AREA "Schema Area"
+  LABEL "Employee Rates"
+  DESCRIPTION "Employee Rates"
+  DUMP-NAME "rate"
+  TABLE-TRIGGER "CREATE" OVERRIDE PROCEDURE "create.trg/rate.p" CRC "?" 
+  TABLE-TRIGGER "DELETE" OVERRIDE PROCEDURE "delete.trg/rate.p" CRC "?" 
+  TABLE-TRIGGER "WRITE" OVERRIDE PROCEDURE "write.trg/rate.p" CRC "?" 
+
+ADD FIELD "company" OF "rate" AS character 
+  FORMAT "x(3)"
+  INITIAL ""
+  LABEL "Company"
+  POSITION 2
+  MAX-WIDTH 6
+  HELP "Enter Company Code"
+  ORDER 10
+
+ADD FIELD "employee" OF "rate" AS character 
+  FORMAT "x(5)"
+  INITIAL ""
+  LABEL "Emp ID"
+  POSITION 3
+  MAX-WIDTH 10
+  HELP "Enter Employee ID"
+  ORDER 20
+
+ADD FIELD "rate" OF "rate" AS decimal 
+  FORMAT ">>>>9.99<<<"
+  INITIAL "0"
+  LABEL "Rate"
+  POSITION 5
+  MAX-WIDTH 20
+  HELP "Enter Rate Amount"
+  DECIMALS 5
+  ORDER 60
+
+ADD FIELD "ratetype" OF "rate" AS character 
+  FORMAT "X(12)"
+  INITIAL ""
+  LABEL "Type"
+  POSITION 6
+  MAX-WIDTH 24
+  HELP "Enter Rate Type"
+  ORDER 50
+
+ADD FIELD "factortype" OF "rate" AS character 
+  FORMAT "X(12)"
+  INITIAL ""
+  LABEL "Factor Type"
+  POSITION 7
+  MAX-WIDTH 24
+  HELP "Enter Factor Type"
+  ORDER 70
+
+ADD FIELD "machine" OF "rate" AS character 
+  FORMAT "x(6)"
+  INITIAL ""
+  LABEL "Machine"
+  POSITION 8
+  MAX-WIDTH 12
+  HELP "Enter Machine Code"
+  ORDER 40
+
+ADD FIELD "rate_usage" OF "rate" AS logical 
+  FORMAT "Shift/Machine"
+  INITIAL "Shift"
+  LABEL "Rate Use"
+  POSITION 9
+  MAX-WIDTH 1
+  HELP "Select Rate Usage"
+  ORDER 80
+
+ADD FIELD "rec_key" OF "rate" AS character 
+  FORMAT "X(20)"
+  INITIAL ""
+  LABEL "Record Key"
+  POSITION 10
+  MAX-WIDTH 40
+  HELP "Enter Record Key Value"
+  ORDER 90
+
+ADD FIELD "shift" OF "rate" AS character 
+  FORMAT "X"
+  INITIAL ""
+  LABEL "Shift"
+  POSITION 11
+  MAX-WIDTH 2
+  HELP "Enter Shift"
+  ORDER 30
+
+ADD INDEX "pi-rate" ON "rate" 
+  AREA "Schema Area"
+  UNIQUE
+  PRIMARY
+  DESCRIPTION "Employee Rate Primary Index"
+  INDEX-FIELD "company" ASCENDING 
+  INDEX-FIELD "employee" ASCENDING 
+  INDEX-FIELD "shift" ASCENDING 
+  INDEX-FIELD "machine" ASCENDING 
+  INDEX-FIELD "ratetype" ASCENDING 
+
+ADD INDEX "si-rec_key" ON "rate" 
+  AREA "Schema Area"
+  DESCRIPTION "Rates Secondary Index by rec_key"
+  INDEX-FIELD "rec_key" ASCENDING 
+
+ADD TABLE "shifts"
+  AREA "Schema Area"
+  LABEL "Shift"
+  DESCRIPTION "Work Shift Master File"
+  DUMP-NAME "shifts"
+  TABLE-TRIGGER "CREATE" OVERRIDE PROCEDURE "create.trg/shifts.p" CRC "?" 
+  TABLE-TRIGGER "DELETE" OVERRIDE PROCEDURE "delete.trg/shifts.p" CRC "?" 
+  TABLE-TRIGGER "WRITE" OVERRIDE PROCEDURE "write.trg/shifts.p" CRC "?" 
+
+ADD FIELD "lunch_start" OF "shifts" AS integer 
+  FORMAT "->,>>>,>>9"
+  INITIAL "0"
+  LABEL "Lunch Start Time"
+  POSITION 2
+  MAX-WIDTH 4
+  HELP "Enter Lunch Start Time"
+  ORDER 70
+
+ADD FIELD "end_time" OF "shifts" AS integer 
+  FORMAT "->,>>>,>>9"
+  INITIAL "0"
+  LABEL "End Time"
+  POSITION 3
+  MAX-WIDTH 4
+  HELP "Enter Shift End Time"
+  ORDER 50
+
+ADD FIELD "start_time" OF "shifts" AS integer 
+  FORMAT "->,>>>,>>9"
+  INITIAL "0"
+  LABEL "Start Time"
+  POSITION 4
+  MAX-WIDTH 4
+  HELP "Enter Shift Start Time"
+  ORDER 40
+
+ADD FIELD "description" OF "shifts" AS character 
+  FORMAT "x(20)"
+  INITIAL ""
+  LABEL "Description"
+  POSITION 5
+  MAX-WIDTH 40
+  HELP "Enter Description"
+  ORDER 30
+
+ADD FIELD "lunch_end" OF "shifts" AS integer 
+  FORMAT "->,>>>,>>9"
+  INITIAL "0"
+  LABEL "Lunch End Time"
+  POSITION 6
+  MAX-WIDTH 4
+  HELP "Enter Lunch End Time"
+  ORDER 80
+
+ADD FIELD "company" OF "shifts" AS character 
+  FORMAT "x(3)"
+  INITIAL ""
+  LABEL "Company"
+  POSITION 7
+  MAX-WIDTH 6
+  HELP "Enter Company Code"
+  ORDER 10
+
+ADD FIELD "rec_key" OF "shifts" AS character 
+  FORMAT "X(20)"
+  INITIAL ""
+  LABEL "Record Key"
+  POSITION 8
+  MAX-WIDTH 40
+  HELP "Enter Record Key Value"
+  ORDER 60
+
+ADD FIELD "shift" OF "shifts" AS character 
+  FORMAT "X"
+  INITIAL ""
+  LABEL "Shift"
+  POSITION 9
+  MAX-WIDTH 2
+  HELP "Enter Shift"
+  ORDER 20
+
+ADD FIELD "lunch_paid" OF "shifts" AS logical 
+  FORMAT "yes/no"
+  INITIAL "no"
+  LABEL "Lunch Paid"
+  POSITION 10
+  MAX-WIDTH 1
+  HELP "Lunch Paid"
+  ORDER 90
+
+ADD INDEX "pi-shifts" ON "shifts" 
+  AREA "Schema Area"
+  UNIQUE
+  PRIMARY
+  DESCRIPTION "Shifts Primary Index"
+  INDEX-FIELD "company" ASCENDING 
+  INDEX-FIELD "shift" ASCENDING 
+
+ADD INDEX "si-description" ON "shifts" 
+  AREA "Schema Area"
+  DESCRIPTION "Shifts Secondary Index by Description"
+  INDEX-FIELD "company" ASCENDING 
+  INDEX-FIELD "description" ASCENDING 
+
+ADD INDEX "si-rec_key" ON "shifts" 
+  AREA "Schema Area"
+  DESCRIPTION "Shifts Secondary Index by rec_key"
+  INDEX-FIELD "rec_key" ASCENDING 
+
+ADD INDEX "wi-description" ON "shifts" 
+  AREA "Schema Area"
+  WORD
+  DESCRIPTION "Shifts Word Index by Description"
+  INDEX-FIELD "description" ASCENDING 
+
+ADD TABLE "shift_break"
+  AREA "Schema Area"
+  LABEL "Shift Break"
+  DESCRIPTION "Shift Break"
+  DUMP-NAME "shift_br"
+  TABLE-TRIGGER "CREATE" OVERRIDE PROCEDURE "addon\create.trg\shift-break.p" CRC "?" 
+  TABLE-TRIGGER "DELETE" OVERRIDE PROCEDURE "addon\delete.trg\shift-break.p" CRC "?" 
+  TABLE-TRIGGER "WRITE" OVERRIDE PROCEDURE "addon\write.trg\shift-break.p" CRC "?" 
+
+ADD FIELD "company" OF "shift_break" AS character 
+  FORMAT "x(3)"
+  INITIAL ""
+  LABEL "Company"
+  POSITION 2
+  MAX-WIDTH 6
+  HELP "Enter Company Code"
+  ORDER 10
+
+ADD FIELD "shift" OF "shift_break" AS character 
+  FORMAT "X"
+  INITIAL ""
+  LABEL "Shift"
+  POSITION 3
+  MAX-WIDTH 2
+  HELP "Enter Shift"
+  ORDER 20
+
+ADD FIELD "rec_key" OF "shift_break" AS character 
+  FORMAT "X(20)"
+  INITIAL ""
+  LABEL "Record Key"
+  POSITION 4
+  MAX-WIDTH 40
+  HELP "Enter Record Key Value"
+  ORDER 60
+
+ADD FIELD "seq" OF "shift_break" AS integer 
+  FORMAT ">>9"
+  INITIAL "0"
+  LABEL "Seq#"
+  POSITION 5
+  MAX-WIDTH 4
+  ORDER 70
+
+ADD FIELD "start_time" OF "shift_break" AS integer 
+  FORMAT "->,>>>,>>9"
+  INITIAL "0"
+  LABEL "Start Time"
+  POSITION 6
+  MAX-WIDTH 4
+  HELP "Enter Shift Start Time"
+  ORDER 80
+
+ADD FIELD "end_time" OF "shift_break" AS integer 
+  FORMAT "->,>>>,>>9"
+  INITIAL "0"
+  LABEL "End Time"
+  POSITION 7
+  MAX-WIDTH 4
+  HELP "Enter Shift End Time"
+  ORDER 90
+
+ADD FIELD "description" OF "shift_break" AS character 
+  FORMAT "x(30)"
+  INITIAL ""
+  LABEL "Break Description"
+  POSITION 8
+  MAX-WIDTH 60
+  HELP "Enter Description"
+  ORDER 100
+
+ADD FIELD "charge_code" OF "shift_break" AS character 
+  FORMAT "X(5)"
+  INITIAL ""
+  LABEL "Charge Code"
+  POSITION 9
+  MAX-WIDTH 10
+  COLUMN-LABEL "Charge"
+  HELP "Enter Charge Code"
+  ORDER 110
+
+ADD INDEX "shift" ON "shift_break" 
+  AREA "Schema Area"
+  PRIMARY
+  INDEX-FIELD "company" ASCENDING 
+  INDEX-FIELD "shift" ASCENDING 
+  INDEX-FIELD "start_time" ASCENDING 
+
+ADD INDEX "code" ON "shift_break" 
+  AREA "Schema Area"
+  INDEX-FIELD "company" ASCENDING 
+  INDEX-FIELD "shift" ASCENDING 
+  INDEX-FIELD "charge_code" ASCENDING 
+
+ADD INDEX "rec_key" ON "shift_break" 
+  AREA "Schema Area"
+  INDEX-FIELD "rec_key" ASCENDING 
+
+ADD TABLE "TimeSheet"
+  AREA "Schema Area"
+  DUMP-NAME "timeshee"
+
+ADD FIELD "employee" OF "TimeSheet" AS character 
+  FORMAT "X(5)"
+  INITIAL ""
+  LABEL "Emp ID"
+  POSITION 2
+  MAX-WIDTH 10
+  HELP "Enter Employee ID"
+  ORDER 10
+
+ADD FIELD "WeekEnding" OF "TimeSheet" AS date 
+  FORMAT "99/99/99"
+  INITIAL ?
+  LABEL "WeekEnding"
+  POSITION 3
+  MAX-WIDTH 4
+  COLUMN-LABEL "WeekEnding"
+  ORDER 20
+
+ADD FIELD "SubmittedBy" OF "TimeSheet" AS character 
+  FORMAT "X(8)"
+  INITIAL ""
+  LABEL "Submitted By"
+  POSITION 4
+  MAX-WIDTH 16
+  COLUMN-LABEL "Submitted By"
+  ORDER 30
+
+ADD FIELD "SubmittedOn" OF "TimeSheet" AS date 
+  FORMAT "99/99/99"
+  INITIAL ?
+  LABEL "Submitted On"
+  POSITION 5
+  MAX-WIDTH 4
+  COLUMN-LABEL "Submitted On"
+  ORDER 40
+
+ADD FIELD "ApprovedOn" OF "TimeSheet" AS date 
+  FORMAT "99/99/99"
+  INITIAL ?
+  LABEL "Approved On"
+  POSITION 6
+  MAX-WIDTH 4
+  COLUMN-LABEL "Approved On"
+  ORDER 50
+
+ADD FIELD "ApprovedBy" OF "TimeSheet" AS character 
+  FORMAT "X(8)"
+  INITIAL ""
+  LABEL "Approved By"
+  POSITION 7
+  MAX-WIDTH 16
+  ORDER 60
+
+ADD FIELD "file-name" OF "TimeSheet" AS character 
+  FORMAT "X(8)"
+  INITIAL ""
+  LABEL "File"
+  POSITION 8
+  MAX-WIDTH 16
+  COLUMN-LABEL "File"
+  ORDER 70
+
+ADD FIELD "charfld" OF "TimeSheet" AS character 
+  FORMAT "X(8)"
+  INITIAL ""
+  POSITION 9
+  MAX-WIDTH 16
+  ORDER 80
+
+ADD FIELD "charfld2" OF "TimeSheet" AS character 
+  FORMAT "X(8)"
+  INITIAL ""
+  POSITION 10
+  MAX-WIDTH 16
+  ORDER 90
+
+ADD FIELD "charfld3" OF "TimeSheet" AS character 
+  FORMAT "X(8)"
+  INITIAL ""
+  POSITION 11
+  MAX-WIDTH 16
+  ORDER 100
+
+ADD FIELD "charfld4" OF "TimeSheet" AS character 
+  FORMAT "X(8)"
+  INITIAL ""
+  POSITION 12
+  MAX-WIDTH 16
+  ORDER 110
+
+ADD FIELD "decifld1" OF "TimeSheet" AS decimal 
+  FORMAT "->>,>>9.99"
+  INITIAL "0"
+  POSITION 13
+  MAX-WIDTH 17
+  DECIMALS 2
+  ORDER 120
+
+ADD FIELD "decifld2" OF "TimeSheet" AS decimal 
+  FORMAT "->>,>>9.99"
+  INITIAL "0"
+  POSITION 14
+  MAX-WIDTH 17
+  DECIMALS 2
+  ORDER 130
+
+ADD FIELD "decifld3" OF "TimeSheet" AS decimal 
+  FORMAT "->>,>>9.99"
+  INITIAL "0"
+  POSITION 15
+  MAX-WIDTH 17
+  DECIMALS 2
+  ORDER 140
+
+ADD FIELD "decifld4" OF "TimeSheet" AS decimal 
+  FORMAT "->>,>>9.99"
+  INITIAL "0"
+  POSITION 16
+  MAX-WIDTH 17
+  DECIMALS 2
+  ORDER 150
+
+ADD FIELD "logifld1" OF "TimeSheet" AS logical 
+  FORMAT "yes/no"
+  INITIAL "no"
+  POSITION 17
+  MAX-WIDTH 1
+  ORDER 160
+
+ADD FIELD "logifld2" OF "TimeSheet" AS logical 
+  FORMAT "yes/no"
+  INITIAL "no"
+  POSITION 18
+  MAX-WIDTH 1
+  ORDER 170
+
+ADD FIELD "datefld2" OF "TimeSheet" AS date 
+  FORMAT "99/99/99"
+  INITIAL ?
+  POSITION 19
+  MAX-WIDTH 4
+  ORDER 190
+
+ADD FIELD "datefld3" OF "TimeSheet" AS date 
+  FORMAT "99/99/99"
+  INITIAL ?
+  POSITION 20
+  MAX-WIDTH 4
+  ORDER 200
+
+ADD FIELD "datefld4" OF "TimeSheet" AS date 
+  FORMAT "99/99/99"
+  INITIAL ?
+  POSITION 21
+  MAX-WIDTH 4
+  ORDER 210
+
+ADD FIELD "datefld1" OF "TimeSheet" AS date 
+  FORMAT "99/99/99"
+  INITIAL ?
+  POSITION 22
+  MAX-WIDTH 4
+  ORDER 220
+
+ADD FIELD "MakeUp_Hrs" OF "TimeSheet" AS decimal 
+  FORMAT "->>,>>9.99"
+  INITIAL "0"
+  LABEL "Make Up Time"
+  POSITION 23
+  MAX-WIDTH 154
+  EXTENT 7
+  DECIMALS 2
+  ORDER 230
+
+ADD FIELD "PTO_VAC_Hrs" OF "TimeSheet" AS decimal 
+  FORMAT "->>,>>9.99"
+  INITIAL "0"
+  LABEL "PTO-VAC"
+  POSITION 24
+  MAX-WIDTH 154
+  EXTENT 7
+  DECIMALS 2
+  ORDER 240
+
+ADD FIELD "Reg_Hrs" OF "TimeSheet" AS decimal 
+  FORMAT "->>,>>9.99"
+  INITIAL "0"
+  POSITION 28
+  MAX-WIDTH 154
+  EXTENT 7
+  DECIMALS 2
+  ORDER 290
+
+ADD FIELD "DT_Hrs" OF "TimeSheet" AS decimal 
+  FORMAT "->>,>>9.99"
+  INITIAL "0"
+  POSITION 29
+  MAX-WIDTH 154
+  EXTENT 7
+  DECIMALS 2
+  ORDER 300
+
+ADD FIELD "OT_Hrs" OF "TimeSheet" AS decimal 
+  FORMAT "->>,>>9.99"
+  INITIAL "0"
+  POSITION 30
+  MAX-WIDTH 154
+  EXTENT 7
+  DECIMALS 2
+  ORDER 310
+
+ADD FIELD "Time_Login1" OF "TimeSheet" AS character 
+  FORMAT "X(8)"
+  INITIAL ""
+  POSITION 32
+  MAX-WIDTH 126
+  EXTENT 7
+  ORDER 320
+
+ADD FIELD "TIme_Logout1" OF "TimeSheet" AS character 
+  FORMAT "X(8)"
+  INITIAL ""
+  POSITION 33
+  MAX-WIDTH 126
+  EXTENT 7
+  ORDER 330
+
+ADD FIELD "Time_Login2" OF "TimeSheet" AS character 
+  FORMAT "X(8)"
+  INITIAL ""
+  POSITION 34
+  MAX-WIDTH 126
+  EXTENT 7
+  ORDER 340
+
+ADD FIELD "Time_Logout2" OF "TimeSheet" AS character 
+  FORMAT "X(8)"
+  INITIAL ""
+  POSITION 35
+  MAX-WIDTH 126
+  EXTENT 7
+  ORDER 350
+
+ADD FIELD "notes" OF "TimeSheet" AS character 
+  FORMAT "X(8)"
+  INITIAL ""
+  LABEL "Notes"
+  POSITION 36
+  MAX-WIDTH 16
+  COLUMN-LABEL "Notes"
+  ORDER 360
+
+ADD INDEX "pi-ts" ON "TimeSheet" 
+  AREA "Schema Area"
+  PRIMARY
+  INDEX-FIELD "employee" ASCENDING 
+  INDEX-FIELD "WeekEnding" ASCENDING 
+
+ADD TABLE "vend-code-cust-xref"
+  AREA "Schema Area"
+  DUMP-NAME "vend-code-cust-xref"
+  TABLE-TRIGGER "CREATE" OVERRIDE PROCEDURE "create.trg/vend-code-cust-xref.p" CRC "?" 
+  TABLE-TRIGGER "DELETE" OVERRIDE PROCEDURE "delete.trg/vend-code-cust-xref.p" CRC "?" 
+  TABLE-TRIGGER "WRITE" OVERRIDE PROCEDURE "write.trg/vend-code-cust-xref.p" CRC "?" 
+
+ADD FIELD "vendor-code" OF "vend-code-cust-xref" AS character 
+  DESCRIPTION "Customers A/P Code"
+  FORMAT "x(8)"
+  INITIAL ""
+  LABEL "Customer A/P Code"
+  POSITION 2
+  MAX-WIDTH 16
+  COLUMN-LABEL "Customers!A/P Code"
+  ORDER 20
+
+ADD FIELD "cust-no" OF "vend-code-cust-xref" AS character 
+  DESCRIPTION "Suppliers A/R Code"
+  FORMAT "x(8)"
+  INITIAL ""
+  LABEL "Suppliers A/R Code"
+  POSITION 3
+  MAX-WIDTH 16
+  COLUMN-LABEL "Suppliers!A/R Code"
+  ORDER 30
+
+ADD FIELD "cust-name" OF "vend-code-cust-xref" AS character 
+  DESCRIPTION "Customers A/P Description"
+  FORMAT "x(30)"
+  INITIAL ""
+  LABEL "Customers A/P Description"
+  POSITION 4
+  MAX-WIDTH 60
+  COLUMN-LABEL "Customers A/P Description"
+  ORDER 40
+
+ADD FIELD "company" OF "vend-code-cust-xref" AS character 
+  FORMAT "x(3)"
+  INITIAL ""
+  LABEL "Company"
+  POSITION 5
+  MAX-WIDTH 6
+  ORDER 10
+
+ADD FIELD "rec_key" OF "vend-code-cust-xref" AS character 
+  FORMAT "X(20)"
+  INITIAL ""
+  LABEL "Rec Key"
+  POSITION 9
+  MAX-WIDTH 40
+  ORDER 50
+
+ADD FIELD "zz-char" OF "vend-code-cust-xref" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  POSITION 10
+  MAX-WIDTH 90
+  EXTENT 5
+  ORDER 60
+
+ADD FIELD "zz-dec" OF "vend-code-cust-xref" AS decimal 
+  FORMAT "->>,>>9.99"
+  INITIAL "0"
+  POSITION 11
+  MAX-WIDTH 220
+  EXTENT 10
+  DECIMALS 2
+  ORDER 80
+
+ADD FIELD "zz-int" OF "vend-code-cust-xref" AS integer 
+  FORMAT "->,>>>,>>9"
+  INITIAL "0"
+  POSITION 12
+  MAX-WIDTH 110
+  EXTENT 5
+  ORDER 70
+
+ADD INDEX "vend-no" ON "vend-code-cust-xref" 
+  AREA "Schema Area"
+  PRIMARY
+  INDEX-FIELD "company" ASCENDING 
+  INDEX-FIELD "vendor-code" ASCENDING 
+
+ADD INDEX "cust-no" ON "vend-code-cust-xref" 
+  AREA "Schema Area"
+  INDEX-FIELD "company" ASCENDING 
+  INDEX-FIELD "cust-no" ASCENDING 
+
+ADD INDEX "rec_key" ON "vend-code-cust-xref" 
+  AREA "Schema Area"
+  INDEX-FIELD "rec_key" ASCENDING 
+
+ADD TABLE "vend-plant"
+  AREA "Schema Area"
+  DUMP-NAME "vend-plant"
+  TABLE-TRIGGER "CREATE" OVERRIDE PROCEDURE "create.trg\vend-plant.p" CRC "?" 
+  TABLE-TRIGGER "DELETE" OVERRIDE PROCEDURE "delete.trg\vend-plant.p" CRC "?" 
+  TABLE-TRIGGER "WRITE" OVERRIDE PROCEDURE "write.trg\vend-plant.p" CRC "?" 
+
+ADD FIELD "plant-id" OF "vend-plant" AS character 
+  DESCRIPTION "Customers Plant ID"
+  FORMAT "x(8)"
+  INITIAL ""
+  LABEL "Customers Plant ID"
+  POSITION 2
+  MAX-WIDTH 16
+  COLUMN-LABEL "Customers!Plant ID"
+  ORDER 60
+
+ADD FIELD "company" OF "vend-plant" AS character 
+  FORMAT "x(3)"
+  INITIAL ""
+  LABEL "Company"
+  POSITION 3
+  MAX-WIDTH 6
+  ORDER 10
+
+ADD FIELD "plant-name" OF "vend-plant" AS character 
+  DESCRIPTION "Customers Plant/Warehouse ID Description"
+  FORMAT "x(30)"
+  INITIAL ""
+  LABEL "Customers Plant Name"
+  POSITION 4
+  MAX-WIDTH 60
+  COLUMN-LABEL "Customers Plant Name"
+  ORDER 80
+
+ADD FIELD "cust-no" OF "vend-plant" AS character 
+  DESCRIPTION "Suppliers A/R Code"
+  FORMAT "x(8)"
+  INITIAL ""
+  LABEL "Suppliers A/R Code"
+  POSITION 5
+  MAX-WIDTH 16
+  COLUMN-LABEL "Suppliers!A/R Code"
+  ORDER 20
+
+ADD FIELD "rec_key" OF "vend-plant" AS character 
+  FORMAT "X(20)"
+  INITIAL ""
+  LABEL "Rec Key"
+  POSITION 6
+  MAX-WIDTH 40
+  ORDER 90
+
+ADD FIELD "ship-no" OF "vend-plant" AS integer 
+  FORMAT ">>9"
+  INITIAL "0"
+  LABEL "Ship To #"
+  POSITION 7
+  MAX-WIDTH 4
+  ORDER 40
+
+ADD FIELD "ship-id" OF "vend-plant" AS character 
+  DESCRIPTION "Suppliers Ship ID"
+  FORMAT "x(8)"
+  INITIAL ""
+  LABEL "Suppliers Ship ID"
+  POSITION 8
+  MAX-WIDTH 16
+  COLUMN-LABEL "Suppliers!Ship ID"
+  ORDER 30
+
+ADD FIELD "zz-char" OF "vend-plant" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  POSITION 9
+  MAX-WIDTH 90
+  EXTENT 5
+  ORDER 100
+
+ADD FIELD "zz-int" OF "vend-plant" AS integer 
+  FORMAT "->,>>>,>>9"
+  INITIAL "0"
+  POSITION 10
+  MAX-WIDTH 110
+  EXTENT 5
+  ORDER 110
+
+ADD FIELD "zz-dec" OF "vend-plant" AS decimal 
+  FORMAT "->>,>>9.99"
+  INITIAL "0"
+  POSITION 11
+  MAX-WIDTH 220
+  EXTENT 10
+  DECIMALS 2
+  ORDER 120
+
+ADD FIELD "vendor-code" OF "vend-plant" AS character 
+  DESCRIPTION "Customers A/P Code"
+  FORMAT "x(8)"
+  INITIAL ""
+  LABEL "Customers A/P Code"
+  POSITION 12
+  MAX-WIDTH 16
+  COLUMN-LABEL "Customers!A/P Code"
+  ORDER 50
+
+ADD FIELD "vendor-dept-code" OF "vend-plant" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  LABEL "Customers Dept Code"
+  POSITION 13
+  MAX-WIDTH 16
+  COLUMN-LABEL "Customers!Dept Code"
+  ORDER 70
+
+ADD INDEX "plant" ON "vend-plant" 
+  AREA "Schema Area"
+  PRIMARY
+  INDEX-FIELD "company" ASCENDING 
+  INDEX-FIELD "plant-id" ASCENDING 
+
+ADD INDEX "company" ON "vend-plant" 
+  AREA "Schema Area"
+  INDEX-FIELD "company" ASCENDING 
+
+ADD INDEX "rec-key" ON "vend-plant" 
+  AREA "Schema Area"
+  INDEX-FIELD "rec_key" ASCENDING 
+
+ADD TABLE "vend-whse-item"
+  AREA "Schema Area"
+  DUMP-NAME "vend-whse"
+  TABLE-TRIGGER "CREATE" OVERRIDE PROCEDURE "create.trg\vend-whse-item.p" CRC "?" 
+  TABLE-TRIGGER "DELETE" OVERRIDE PROCEDURE "delete.trg/vend-whse-item.p" CRC "?" 
+  TABLE-TRIGGER "WRITE" OVERRIDE PROCEDURE "write.trg/vend-whse-item.p" CRC "?" 
+
+ADD FIELD "company" OF "vend-whse-item" AS character 
+  FORMAT "x(3)"
+  INITIAL ""
+  LABEL "Company"
+  POSITION 5
+  MAX-WIDTH 6
+  ORDER 10
+
+ADD FIELD "vendor-code" OF "vend-whse-item" AS character 
+  DESCRIPTION "Customers A/P Code"
+  FORMAT "x(8)"
+  INITIAL ""
+  LABEL "Customers A/P Code"
+  POSITION 12
+  MAX-WIDTH 16
+  COLUMN-LABEL "Customers!A/P Code"
+  ORDER 20
+
+ADD FIELD "vendor-dept-code" OF "vend-whse-item" AS character 
+  DESCRIPTION "Customers Dept Code"
+  FORMAT "x(8)"
+  INITIAL ""
+  LABEL "Customers Dept Code"
+  POSITION 13
+  MAX-WIDTH 16
+  COLUMN-LABEL "Customers!Dept Code"
+  ORDER 40
+
+ADD FIELD "vendor-plant-code" OF "vend-whse-item" AS character 
+  DESCRIPTION "Customers Plant ID"
+  FORMAT "x(8)"
+  INITIAL ""
+  LABEL "Customers Plant ID"
+  POSITION 14
+  MAX-WIDTH 16
+  COLUMN-LABEL "Customers!Plant ID"
+  ORDER 30
+
+ADD FIELD "fg-item-no" OF "vend-whse-item" AS character 
+  DESCRIPTION "Suppliers FG Item number"
+  FORMAT "x(15)"
+  INITIAL ""
+  LABEL "Suppliers FG Item"
+  POSITION 15
+  MAX-WIDTH 32
+  COLUMN-LABEL "Suppliers!FG Item"
+  ORDER 60
+
+ADD FIELD "cust-part-no" OF "vend-whse-item" AS character 
+  DESCRIPTION "Customers Part number"
+  FORMAT "x(12)"
+  INITIAL ""
+  LABEL "Customers Part#"
+  POSITION 16
+  MAX-WIDTH 24
+  COLUMN-LABEL "Customers!Part#"
+  ORDER 70
+
+ADD FIELD "annual-usage-qty" OF "vend-whse-item" AS decimal 
+  DESCRIPTION "Customers Annual Usage Quantity"
+  FORMAT "->>>,>>>,>>9"
+  INITIAL "0"
+  LABEL "Cust. Annual Usage Qty"
+  POSITION 17
+  MAX-WIDTH 17
+  COLUMN-LABEL "Customers Annual!Usage Qty"
+  DECIMALS 2
+  ORDER 80
+
+ADD FIELD "item-line-no" OF "vend-whse-item" AS integer 
+  FORMAT "99"
+  INITIAL "0"
+  LABEL "Item Line Nr."
+  POSITION 18
+  MAX-WIDTH 4
+  ORDER 100
+
+ADD FIELD "plant-tot-oh-qty" OF "vend-whse-item" AS decimal 
+  FORMAT "->>>,>>>,>>9"
+  INITIAL "0"
+  LABEL "Cust. On Hand Qty"
+  POSITION 19
+  MAX-WIDTH 17
+  COLUMN-LABEL "Customers!On Hand Qty"
+  DECIMALS 2
+  ORDER 110
+
+ADD FIELD "weeks-in-inventory" OF "vend-whse-item" AS integer 
+  FORMAT ">,>>9"
+  INITIAL "0"
+  POSITION 20
+  MAX-WIDTH 4
+  ORDER 120
+
+ADD FIELD "new-weeks-in-inventory" OF "vend-whse-item" AS integer 
+  FORMAT ">,>>9"
+  INITIAL "0"
+  POSITION 21
+  MAX-WIDTH 4
+  ORDER 130
+
+ADD FIELD "qty-to-produce" OF "vend-whse-item" AS decimal 
+  FORMAT ">>>,>>>,>>9"
+  INITIAL "0"
+  POSITION 22
+  MAX-WIDTH 17
+  DECIMALS 2
+  ORDER 140
+
+ADD FIELD "qty-in-production" OF "vend-whse-item" AS decimal 
+  FORMAT ">>>,>>>,>>9"
+  INITIAL "0"
+  POSITION 23
+  MAX-WIDTH 17
+  DECIMALS 2
+  ORDER 150
+
+ADD FIELD "color-code" OF "vend-whse-item" AS character 
+  FORMAT "x(15)"
+  INITIAL ""
+  POSITION 24
+  MAX-WIDTH 640
+  EXTENT 20
+  ORDER 160
+
+ADD FIELD "po-qty-onhand" OF "vend-whse-item" AS decimal 
+  FORMAT "->>>,>>>,>>9"
+  INITIAL "0"
+  POSITION 25
+  MAX-WIDTH 17
+  DECIMALS 2
+  ORDER 170
+
+ADD FIELD "cust-no" OF "vend-whse-item" AS character 
+  DESCRIPTION "Suppliers A/R Code"
+  FORMAT "x(8)"
+  INITIAL ""
+  LABEL "Suppliers A/R Code"
+  POSITION 26
+  MAX-WIDTH 16
+  COLUMN-LABEL "Suppliers!A/R Code"
+  ORDER 50
+
+ADD FIELD "ship-no" OF "vend-whse-item" AS integer 
+  FORMAT ">>9"
+  INITIAL "0"
+  LABEL "Ship To #"
+  POSITION 27
+  MAX-WIDTH 4
+  ORDER 180
+
+ADD FIELD "ship-name" OF "vend-whse-item" AS character 
+  FORMAT "x(30)"
+  INITIAL ""
+  LABEL "Name"
+  POSITION 28
+  MAX-WIDTH 60
+  ORDER 190
+
+ADD FIELD "rec_key" OF "vend-whse-item" AS character 
+  FORMAT "X(20)"
+  INITIAL ""
+  LABEL "Rec Key"
+  POSITION 29
+  MAX-WIDTH 40
+  ORDER 200
+
+ADD FIELD "zz-char" OF "vend-whse-item" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  POSITION 30
+  MAX-WIDTH 90
+  EXTENT 5
+  ORDER 410
+
+ADD FIELD "zz-int" OF "vend-whse-item" AS integer 
+  FORMAT "->,>>>,>>9"
+  INITIAL "0"
+  POSITION 31
+  MAX-WIDTH 110
+  EXTENT 5
+  ORDER 420
+
+ADD FIELD "zz-dec" OF "vend-whse-item" AS decimal 
+  FORMAT "->>,>>9.99"
+  INITIAL "0"
+  POSITION 32
+  MAX-WIDTH 220
+  EXTENT 10
+  DECIMALS 2
+  ORDER 430
+
+ADD FIELD "est-annual-usage" OF "vend-whse-item" AS decimal 
+  FORMAT "->>,>>>,>>9"
+  INITIAL "0"
+  LABEL "Est. Annual Usage"
+  POSITION 33
+  MAX-WIDTH 17
+  DECIMALS 2
+  ORDER 90
+
+ADD FIELD "revision" OF "vend-whse-item" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  LABEL "REV."
+  POSITION 34
+  MAX-WIDTH 16
+  COLUMN-LABEL "REV."
+  ORDER 300
+
+ADD FIELD "ship-id" OF "vend-whse-item" AS character 
+  DESCRIPTION "Suppliers Ship ID"
+  FORMAT "x(8)"
+  INITIAL ""
+  LABEL "Suppliers Ship ID"
+  POSITION 35
+  MAX-WIDTH 16
+  COLUMN-LABEL "Suppliers!Ship ID"
+  ORDER 210
+
+ADD FIELD "upd-time" OF "vend-whse-item" AS integer 
+  FORMAT "->,>>>,>>9"
+  INITIAL "0"
+  POSITION 36
+  MAX-WIDTH 4
+  ORDER 220
+
+ADD FIELD "upd-date" OF "vend-whse-item" AS date 
+  FORMAT "99/99/99"
+  INITIAL ?
+  POSITION 37
+  MAX-WIDTH 4
+  ORDER 230
+
+ADD FIELD "upd-userid" OF "vend-whse-item" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  POSITION 38
+  MAX-WIDTH 16
+  ORDER 240
+
+ADD FIELD "create-time" OF "vend-whse-item" AS integer 
+  FORMAT "->,>>>,>>9"
+  INITIAL "0"
+  POSITION 39
+  MAX-WIDTH 4
+  ORDER 250
+
+ADD FIELD "create-date" OF "vend-whse-item" AS date 
+  FORMAT "99/99/99"
+  INITIAL ?
+  POSITION 40
+  MAX-WIDTH 4
+  ORDER 260
+
+ADD FIELD "create-userid" OF "vend-whse-item" AS character 
+  FORMAT "X(8)"
+  INITIAL ""
+  LABEL "User-Id"
+  POSITION 41
+  MAX-WIDTH 16
+  ORDER 270
+
+ADD FIELD "obsolete" OF "vend-whse-item" AS logical 
+  FORMAT "yes/no"
+  INITIAL "no"
+  LABEL "Obsolete"
+  POSITION 42
+  MAX-WIDTH 1
+  COLUMN-LABEL "Obsolete"
+  ORDER 280
+
+ADD FIELD "obsolete-date" OF "vend-whse-item" AS date 
+  FORMAT "99/99/99"
+  INITIAL ?
+  LABEL "Obsolete Date"
+  POSITION 43
+  MAX-WIDTH 4
+  COLUMN-LABEL "Obsolete Date"
+  ORDER 290
+
+ADD FIELD "pre-plant-tot-oh-qty" OF "vend-whse-item" AS decimal 
+  FORMAT "->>>,>>>,>>9"
+  INITIAL "0"
+  LABEL "Prevous Cust. On Hand Qty"
+  POSITION 44
+  MAX-WIDTH 17
+  COLUMN-LABEL "Prevous Cust.!On Hand Qty"
+  DECIMALS 2
+  ORDER 400
+
+ADD FIELD "caliper" OF "vend-whse-item" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  LABEL "Caliper"
+  POSITION 45
+  MAX-WIDTH 16
+  COLUMN-LABEL "Caliper"
+  ORDER 310
+
+ADD FIELD "no-of-colors" OF "vend-whse-item" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  LABEL "Number of Colors"
+  POSITION 46
+  MAX-WIDTH 16
+  COLUMN-LABEL "Number of Colors"
+  ORDER 320
+
+ADD FIELD "supplier-inv" OF "vend-whse-item" AS decimal 
+  DESCRIPTION "Suppliers Inventory"
+  FORMAT "->>>,>>>,>>9"
+  INITIAL "0"
+  LABEL "Suppliers Inventory"
+  POSITION 47
+  MAX-WIDTH 17
+  COLUMN-LABEL "Suppliers!Inventory"
+  DECIMALS 2
+  ORDER 330
+
+ADD FIELD "combined-mths" OF "vend-whse-item" AS decimal 
+  DESCRIPTION "Combined Mths at Supplier and Customer"
+  FORMAT "->>,>>9.99"
+  INITIAL "0"
+  LABEL "Combined Mths"
+  POSITION 48
+  MAX-WIDTH 17
+  COLUMN-LABEL "Combined Mths"
+  DECIMALS 2
+  ORDER 340
+
+ADD FIELD "eau-last-prod" OF "vend-whse-item" AS decimal 
+  FORMAT "->,>>>,>>9.99"
+  INITIAL "0"
+  LABEL "EAU at Last Prod"
+  POSITION 49
+  MAX-WIDTH 17
+  COLUMN-LABEL "EAU at!Last Prod"
+  DECIMALS 2
+  ORDER 350
+
+ADD FIELD "piap-scan" OF "vend-whse-item" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  LABEL "PIAP Scan Column"
+  POSITION 50
+  MAX-WIDTH 16
+  COLUMN-LABEL "PIAP Scan!Column"
+  ORDER 360
+
+ADD FIELD "eau-last-prod-date" OF "vend-whse-item" AS decimal 
+  FORMAT "->,>>>,>>9.99"
+  INITIAL "0"
+  LABEL "EAU at Last Prod Date"
+  POSITION 51
+  MAX-WIDTH 17
+  COLUMN-LABEL "EAU at!Last Prod Date"
+  DECIMALS 2
+  ORDER 370
+
+ADD FIELD "pre-annual-usage-qty" OF "vend-whse-item" AS decimal 
+  DESCRIPTION "Previuos Annual Usage Qty"
+  FORMAT "->>>,>>>,>>9"
+  INITIAL "0"
+  LABEL "Previuos Annual Usage Qty"
+  POSITION 52
+  MAX-WIDTH 17
+  COLUMN-LABEL "Previuos Annual!Usage Qty"
+  DECIMALS 2
+  ORDER 380
+
+ADD FIELD "pre-est-annual-usage" OF "vend-whse-item" AS decimal 
+  FORMAT "->>,>>>,>>9"
+  INITIAL "0"
+  LABEL "Previous Est. Annual Usage"
+  POSITION 53
+  MAX-WIDTH 17
+  COLUMN-LABEL "Previous Est. Annual Usage"
+  DECIMALS 2
+  ORDER 390
+
+ADD INDEX "cust-part-no" ON "vend-whse-item" 
+  AREA "Schema Area"
+  PRIMARY
+  INDEX-FIELD "company" ASCENDING 
+  INDEX-FIELD "vendor-code" ASCENDING 
+  INDEX-FIELD "vendor-plant-code" ASCENDING 
+  INDEX-FIELD "cust-part-no" ASCENDING 
+
+ADD INDEX "rec_key" ON "vend-whse-item" 
+  AREA "Schema Area"
+  INDEX-FIELD "rec_key" ASCENDING 
+
+ADD INDEX "vend-item-code" ON "vend-whse-item" 
+  AREA "Schema Area"
+  INDEX-FIELD "company" ASCENDING 
+  INDEX-FIELD "vendor-code" ASCENDING 
+  INDEX-FIELD "vendor-plant-code" ASCENDING 
+  INDEX-FIELD "fg-item-no" ASCENDING 
+
+ADD TABLE "vend-whse-trans"
+  AREA "Schema Area"
+  DUMP-NAME "vend-whse-trans"
+  TABLE-TRIGGER "CREATE" OVERRIDE PROCEDURE "create.trg/vend-whse-trans.p" CRC "?" 
+  TABLE-TRIGGER "DELETE" OVERRIDE PROCEDURE "delete.trg/vend-whse-trans.p" CRC "?" 
+  TABLE-TRIGGER "WRITE" OVERRIDE PROCEDURE "write.trg/vend-whse-trans.p" CRC "?" 
+
+ADD FIELD "company" OF "vend-whse-trans" AS character 
+  FORMAT "x(3)"
+  INITIAL ""
+  LABEL "Company"
+  POSITION 5
+  MAX-WIDTH 6
+  ORDER 10
+
+ADD FIELD "cust-part-no" OF "vend-whse-trans" AS character 
+  DESCRIPTION "Customers Part Number"
+  FORMAT "x(12)"
+  INITIAL ""
+  LABEL "Cust. Part#"
+  POSITION 6
+  MAX-WIDTH 24
+  COLUMN-LABEL "Customers!Part#"
+  ORDER 70
+
+ADD FIELD "item-line-no" OF "vend-whse-trans" AS integer 
+  DESCRIPTION "Suppliers Order Line Number"
+  FORMAT "99"
+  INITIAL "0"
+  LABEL "Line#"
+  POSITION 13
+  MAX-WIDTH 4
+  COLUMN-LABEL "Line#"
+  ORDER 90
+
+ADD FIELD "item-po-no" OF "vend-whse-trans" AS character 
+  DESCRIPTION "Customers PO Number"
+  FORMAT "x(9)"
+  INITIAL ""
+  LABEL "Cust. PO#"
+  POSITION 14
+  MAX-WIDTH 18
+  COLUMN-LABEL "Customers!PO#"
+  ORDER 50
+
+ADD FIELD "vend-job-no" OF "vend-whse-trans" AS character 
+  DESCRIPTION "Vendors Job Number"
+  FORMAT "x(6)"
+  INITIAL ""
+  LABEL "Vendors Job#"
+  POSITION 15
+  MAX-WIDTH 12
+  COLUMN-LABEL "Vendors!Job#"
+  ORDER 170
+
+ADD FIELD "vend-job-no2" OF "vend-whse-trans" AS integer 
+  FORMAT ">9"
+  INITIAL "0"
+  LABEL ""
+  POSITION 16
+  MAX-WIDTH 4
+  ORDER 180
+
+ADD FIELD "loc-bin" OF "vend-whse-trans" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  LABEL "Primary Bin Loc."
+  POSITION 17
+  MAX-WIDTH 16
+  ORDER 150
+
+ADD FIELD "plant-tot-oh-qty" OF "vend-whse-trans" AS decimal 
+  DESCRIPTION "Customers Plant On Hand Qty"
+  FORMAT "->>,>>>,>>9.9<<"
+  INITIAL "0"
+  LABEL "Cust. Plant On Hand Qty"
+  POSITION 18
+  MAX-WIDTH 17
+  COLUMN-LABEL "Cust. Plant!On Hand Qty"
+  DECIMALS 2
+  ORDER 120
+
+ADD FIELD "r-no" OF "vend-whse-trans" AS integer 
+  DESCRIPTION "Sequence Number"
+  FORMAT ">>>>>>>9"
+  INITIAL "0"
+  LABEL "Seq. #"
+  POSITION 19
+  MAX-WIDTH 4
+  COLUMN-LABEL "Seq. #"
+  ORDER 190
+
+ADD FIELD "rec_key" OF "vend-whse-trans" AS character 
+  FORMAT "X(20)"
+  INITIAL ""
+  LABEL "Rec Key"
+  POSITION 20
+  MAX-WIDTH 40
+  ORDER 140
+
+ADD FIELD "sell-price" OF "vend-whse-trans" AS decimal 
+  DESCRIPTION "Suppliers FG Item Sell Price"
+  FORMAT ">,>>>,>>9.99<<<<"
+  INITIAL "0"
+  LABEL "Suppliers Item Sell Price"
+  POSITION 21
+  MAX-WIDTH 21
+  COLUMN-LABEL "Suppliers Item!Sell Price"
+  DECIMALS 6
+  ORDER 110
+
+ADD FIELD "tag" OF "vend-whse-trans" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  POSITION 22
+  MAX-WIDTH 16
+  ORDER 160
+
+ADD FIELD "trans-date" OF "vend-whse-trans" AS date 
+  FORMAT "99/99/99"
+  INITIAL ?
+  POSITION 23
+  MAX-WIDTH 4
+  ORDER 220
+
+ADD FIELD "trans-qty" OF "vend-whse-trans" AS decimal 
+  FORMAT "->>,>>>,>>9.9<<"
+  INITIAL "0"
+  LABEL "Quantity Used"
+  POSITION 24
+  MAX-WIDTH 17
+  DECIMALS 2
+  ORDER 210
+
+ADD FIELD "upd-time" OF "vend-whse-trans" AS integer 
+  FORMAT "->,>>>,>>9"
+  INITIAL "0"
+  POSITION 25
+  MAX-WIDTH 4
+  ORDER 230
+
+ADD FIELD "trans-type" OF "vend-whse-trans" AS character 
+  FORMAT "x(1)"
+  INITIAL ""
+  POSITION 26
+  MAX-WIDTH 2
+  ORDER 200
+
+ADD FIELD "create-userid" OF "vend-whse-trans" AS character 
+  FORMAT "X(8)"
+  INITIAL ""
+  LABEL "User-Id"
+  POSITION 27
+  MAX-WIDTH 16
+  ORDER 280
+
+ADD FIELD "vend-ord-no" OF "vend-whse-trans" AS integer 
+  DESCRIPTION "Suppliers Order Number"
+  FORMAT ">>>>>9"
+  INITIAL "0"
+  LABEL "Suppliers Order#"
+  POSITION 29
+  MAX-WIDTH 4
+  COLUMN-LABEL "Suppliers!Order#"
+  ORDER 100
+
+ADD FIELD "vendor-code" OF "vend-whse-trans" AS character 
+  DESCRIPTION "Customers A/P Code"
+  FORMAT "x(8)"
+  INITIAL ""
+  LABEL "Customers A/P Code"
+  POSITION 30
+  MAX-WIDTH 16
+  COLUMN-LABEL "Customers!A/P Code"
+  ORDER 20
+
+ADD FIELD "vendor-dept-code" OF "vend-whse-trans" AS character 
+  DESCRIPTION "Customers Dept Code"
+  FORMAT "x(8)"
+  INITIAL ""
+  LABEL "Customers Dept Code"
+  POSITION 31
+  MAX-WIDTH 16
+  COLUMN-LABEL "Customers!Dept Code"
+  ORDER 40
+
+ADD FIELD "fg-item-no" OF "vend-whse-trans" AS character 
+  DESCRIPTION "Suppliers FG Item Number"
+  FORMAT "x(15)"
+  INITIAL ""
+  LABEL "Suppliers FG Item"
+  POSITION 32
+  MAX-WIDTH 32
+  COLUMN-LABEL "Suppliers!FG Item"
+  ORDER 60
+
+ADD FIELD "vendor-plant-code" OF "vend-whse-trans" AS character 
+  DESCRIPTION "Customers Plant Id"
+  FORMAT "x(8)"
+  INITIAL ""
+  LABEL "Customers Plant ID"
+  POSITION 33
+  MAX-WIDTH 16
+  COLUMN-LABEL "Customers!Plant ID"
+  ORDER 30
+
+ADD FIELD "upd-date" OF "vend-whse-trans" AS date 
+  FORMAT "99/99/99"
+  INITIAL ?
+  POSITION 34
+  MAX-WIDTH 4
+  ORDER 240
+
+ADD FIELD "upd-userid" OF "vend-whse-trans" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  POSITION 35
+  MAX-WIDTH 16
+  ORDER 250
+
+ADD FIELD "create-time" OF "vend-whse-trans" AS integer 
+  FORMAT "->,>>>,>>9"
+  INITIAL "0"
+  POSITION 36
+  MAX-WIDTH 4
+  ORDER 260
+
+ADD FIELD "create-date" OF "vend-whse-trans" AS date 
+  FORMAT "99/99/99"
+  INITIAL ?
+  POSITION 37
+  MAX-WIDTH 4
+  ORDER 270
+
+ADD FIELD "zz-char" OF "vend-whse-trans" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  POSITION 38
+  MAX-WIDTH 90
+  EXTENT 5
+  ORDER 320
+
+ADD FIELD "zz-int" OF "vend-whse-trans" AS integer 
+  FORMAT "->,>>>,>>9"
+  INITIAL "0"
+  POSITION 39
+  MAX-WIDTH 110
+  EXTENT 5
+  ORDER 330
+
+ADD FIELD "zz-dec" OF "vend-whse-trans" AS decimal 
+  FORMAT "->>,>>9.99"
+  INITIAL "0"
+  POSITION 40
+  MAX-WIDTH 220
+  EXTENT 10
+  DECIMALS 2
+  ORDER 340
+
+ADD FIELD "cust-no" OF "vend-whse-trans" AS character 
+  DESCRIPTION "Suppliers A/R Code"
+  FORMAT "x(8)"
+  INITIAL ""
+  LABEL "Suppliers A/R Code"
+  POSITION 41
+  MAX-WIDTH 16
+  COLUMN-LABEL "Suppliers!A/R Code"
+  ORDER 80
+
+ADD FIELD "est-annual-usage" OF "vend-whse-trans" AS decimal 
+  DESCRIPTION "Customers Estimated Annual Usage"
+  FORMAT "->>,>>>,>>9.9<<"
+  INITIAL "0"
+  LABEL "Est. Annual Usage"
+  POSITION 42
+  MAX-WIDTH 17
+  COLUMN-LABEL "Est. Annual Usage"
+  DECIMALS 2
+  ORDER 130
+
+ADD FIELD "vend-bol-no" OF "vend-whse-trans" AS integer 
+  DESCRIPTION "Vendors Bill of Lading Number"
+  FORMAT ">>>>>>>9"
+  INITIAL "0"
+  LABEL "Vendors Bill of Lading#"
+  POSITION 43
+  MAX-WIDTH 4
+  COLUMN-LABEL "Vendors!BOL No"
+  ORDER 290
+
+ADD FIELD "revision" OF "vend-whse-trans" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  LABEL "REV."
+  POSITION 44
+  MAX-WIDTH 16
+  COLUMN-LABEL "REV."
+  ORDER 300
+
+ADD FIELD "po-line-no" OF "vend-whse-trans" AS integer 
+  DESCRIPTION "Customers PO Line Number"
+  FORMAT "99"
+  INITIAL "0"
+  LABEL "Cust. PO Line#"
+  POSITION 45
+  MAX-WIDTH 4
+  COLUMN-LABEL "Customers!PO Line#"
+  ORDER 310
+
+ADD INDEX "r-no" ON "vend-whse-trans" 
+  AREA "Schema Area"
+  PRIMARY
+  INDEX-FIELD "company" ASCENDING 
+  INDEX-FIELD "r-no" ASCENDING 
+
+ADD INDEX "cust-part" ON "vend-whse-trans" 
+  AREA "Schema Area"
+  INDEX-FIELD "company" ASCENDING 
+  INDEX-FIELD "vendor-code" ASCENDING 
+  INDEX-FIELD "vendor-plant-code" ASCENDING 
+  INDEX-FIELD "cust-part-no" ASCENDING 
+  INDEX-FIELD "r-no" ASCENDING 
+
+ADD INDEX "date" ON "vend-whse-trans" 
+  AREA "Schema Area"
+  INDEX-FIELD "company" ASCENDING 
+  INDEX-FIELD "trans-date" ASCENDING 
+
+ADD INDEX "fg-code" ON "vend-whse-trans" 
+  AREA "Schema Area"
+  INDEX-FIELD "company" ASCENDING 
+  INDEX-FIELD "vendor-code" ASCENDING 
+  INDEX-FIELD "vendor-plant-code" ASCENDING 
+  INDEX-FIELD "fg-item-no" ASCENDING 
+  INDEX-FIELD "r-no" ASCENDING 
+
+ADD INDEX "rec_key" ON "vend-whse-trans" 
+  AREA "Schema Area"
+  INDEX-FIELD "rec_key" ASCENDING 
+
+ADD TABLE "vend-whse-trans-hist"
+  AREA "Schema Area"
+  DUMP-NAME "vend-whse-trans-hist"
+
+ADD FIELD "company" OF "vend-whse-trans-hist" AS character 
+  FORMAT "x(3)"
+  INITIAL ""
+  LABEL "Company"
+  POSITION 2
+  MAX-WIDTH 6
+  ORDER 10
+
+ADD FIELD "vendor-code" OF "vend-whse-trans-hist" AS character 
+  DESCRIPTION "Customers A/P Code"
+  FORMAT "x(8)"
+  INITIAL ""
+  LABEL "Customers A/P Code"
+  POSITION 3
+  MAX-WIDTH 16
+  COLUMN-LABEL "Customers!A/P Code"
+  ORDER 20
+
+ADD FIELD "vendor-plant-code" OF "vend-whse-trans-hist" AS character 
+  DESCRIPTION "Customers Plant Id"
+  FORMAT "x(8)"
+  INITIAL ""
+  LABEL "Customers Plant ID"
+  POSITION 4
+  MAX-WIDTH 16
+  COLUMN-LABEL "Customers!Plant ID"
+  ORDER 30
+
+ADD FIELD "vendor-dept-code" OF "vend-whse-trans-hist" AS character 
+  DESCRIPTION "Customers Dept Code"
+  FORMAT "x(8)"
+  INITIAL ""
+  LABEL "Customers Dept Code"
+  POSITION 5
+  MAX-WIDTH 16
+  COLUMN-LABEL "Customers!Dept Code"
+  ORDER 40
+
+ADD FIELD "item-po-no" OF "vend-whse-trans-hist" AS character 
+  DESCRIPTION "Customers PO Number"
+  FORMAT "x(9)"
+  INITIAL ""
+  LABEL "Cust. PO#"
+  POSITION 6
+  MAX-WIDTH 18
+  COLUMN-LABEL "Customers!PO#"
+  ORDER 50
+
+ADD FIELD "fg-item-no" OF "vend-whse-trans-hist" AS character 
+  DESCRIPTION "Suppliers FG Item Number"
+  FORMAT "x(15)"
+  INITIAL ""
+  LABEL "Suppliers FG Item"
+  POSITION 7
+  MAX-WIDTH 30
+  COLUMN-LABEL "Suppliers!FG Item"
+  ORDER 60
+
+ADD FIELD "cust-part-no" OF "vend-whse-trans-hist" AS character 
+  DESCRIPTION "Customers Part Number"
+  FORMAT "x(12)"
+  INITIAL ""
+  LABEL "Cust. Part#"
+  POSITION 8
+  MAX-WIDTH 24
+  COLUMN-LABEL "Customers!Part#"
+  ORDER 70
+
+ADD FIELD "cust-no" OF "vend-whse-trans-hist" AS character 
+  DESCRIPTION "Suppliers A/R Code"
+  FORMAT "x(8)"
+  INITIAL ""
+  LABEL "Suppliers A/R Code"
+  POSITION 9
+  MAX-WIDTH 16
+  COLUMN-LABEL "Suppliers!A/R Code"
+  ORDER 80
+
+ADD FIELD "item-line-no" OF "vend-whse-trans-hist" AS integer 
+  DESCRIPTION "Suppliers Order Line Number"
+  FORMAT "99"
+  INITIAL "0"
+  LABEL "Line#"
+  POSITION 10
+  MAX-WIDTH 4
+  COLUMN-LABEL "Line#"
+  ORDER 90
+
+ADD FIELD "vend-ord-no" OF "vend-whse-trans-hist" AS integer 
+  DESCRIPTION "Suppliers Order Number"
+  FORMAT ">>>>>9"
+  INITIAL "0"
+  LABEL "Suppliers Order#"
+  POSITION 11
+  MAX-WIDTH 4
+  COLUMN-LABEL "Suppliers!Order#"
+  ORDER 100
+
+ADD FIELD "sell-price" OF "vend-whse-trans-hist" AS decimal 
+  DESCRIPTION "Suppliers FG Item Sell Price"
+  FORMAT ">,>>>,>>9.99<<<<"
+  INITIAL "0"
+  LABEL "Suppliers Item Sell Price"
+  POSITION 12
+  MAX-WIDTH 21
+  COLUMN-LABEL "Suppliers Item!Sell Price"
+  DECIMALS 6
+  ORDER 110
+
+ADD FIELD "plant-tot-oh-qty" OF "vend-whse-trans-hist" AS decimal 
+  DESCRIPTION "Customers Plant On Hand Qty"
+  FORMAT "->>,>>>,>>9.9<<"
+  INITIAL "0"
+  LABEL "Cust. Plant On Hand Qty"
+  POSITION 13
+  MAX-WIDTH 17
+  COLUMN-LABEL "Cust. Plant!On Hand Qty"
+  DECIMALS 2
+  ORDER 120
+
+ADD FIELD "est-annual-usage" OF "vend-whse-trans-hist" AS decimal 
+  DESCRIPTION "Customers Estimated Annual Usage"
+  FORMAT "->>,>>>,>>9.9<<"
+  INITIAL "0"
+  LABEL "Est. Annual Usage"
+  POSITION 14
+  MAX-WIDTH 17
+  COLUMN-LABEL "Est. Annual Usage"
+  DECIMALS 2
+  ORDER 130
+
+ADD FIELD "rec_key" OF "vend-whse-trans-hist" AS character 
+  FORMAT "X(20)"
+  INITIAL ""
+  LABEL "Rec Key"
+  POSITION 15
+  MAX-WIDTH 40
+  ORDER 140
+
+ADD FIELD "loc-bin" OF "vend-whse-trans-hist" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  LABEL "Primary Bin Loc."
+  POSITION 16
+  MAX-WIDTH 16
+  ORDER 150
+
+ADD FIELD "tag" OF "vend-whse-trans-hist" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  POSITION 17
+  MAX-WIDTH 16
+  ORDER 160
+
+ADD FIELD "vend-job-no" OF "vend-whse-trans-hist" AS character 
+  DESCRIPTION "Vendors Job Number"
+  FORMAT "x(6)"
+  INITIAL ""
+  LABEL "Vendors Job#"
+  POSITION 18
+  MAX-WIDTH 12
+  COLUMN-LABEL "Vendors!Job#"
+  ORDER 170
+
+ADD FIELD "vend-job-no2" OF "vend-whse-trans-hist" AS integer 
+  FORMAT ">9"
+  INITIAL "0"
+  LABEL ""
+  POSITION 19
+  MAX-WIDTH 4
+  ORDER 180
+
+ADD FIELD "r-no" OF "vend-whse-trans-hist" AS integer 
+  DESCRIPTION "Sequence Number"
+  FORMAT ">>>>>>>9"
+  INITIAL "0"
+  LABEL "Seq. #"
+  POSITION 20
+  MAX-WIDTH 4
+  COLUMN-LABEL "Seq. #"
+  ORDER 190
+
+ADD FIELD "trans-type" OF "vend-whse-trans-hist" AS character 
+  FORMAT "x(1)"
+  INITIAL ""
+  POSITION 21
+  MAX-WIDTH 2
+  ORDER 200
+
+ADD FIELD "trans-qty" OF "vend-whse-trans-hist" AS decimal 
+  FORMAT "->>,>>>,>>9.9<<"
+  INITIAL "0"
+  LABEL "Quantity Used"
+  POSITION 22
+  MAX-WIDTH 17
+  DECIMALS 2
+  ORDER 210
+
+ADD FIELD "trans-date" OF "vend-whse-trans-hist" AS date 
+  FORMAT "99/99/99"
+  INITIAL ?
+  POSITION 23
+  MAX-WIDTH 4
+  ORDER 220
+
+ADD FIELD "upd-time" OF "vend-whse-trans-hist" AS integer 
+  FORMAT "->,>>>,>>9"
+  INITIAL "0"
+  POSITION 24
+  MAX-WIDTH 4
+  ORDER 230
+
+ADD FIELD "upd-date" OF "vend-whse-trans-hist" AS date 
+  FORMAT "99/99/99"
+  INITIAL ?
+  POSITION 25
+  MAX-WIDTH 4
+  ORDER 240
+
+ADD FIELD "upd-userid" OF "vend-whse-trans-hist" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  POSITION 26
+  MAX-WIDTH 16
+  ORDER 250
+
+ADD FIELD "create-time" OF "vend-whse-trans-hist" AS integer 
+  FORMAT "->,>>>,>>9"
+  INITIAL "0"
+  POSITION 27
+  MAX-WIDTH 4
+  ORDER 260
+
+ADD FIELD "create-date" OF "vend-whse-trans-hist" AS date 
+  FORMAT "99/99/99"
+  INITIAL ?
+  POSITION 28
+  MAX-WIDTH 4
+  ORDER 270
+
+ADD FIELD "create-userid" OF "vend-whse-trans-hist" AS character 
+  FORMAT "X(8)"
+  INITIAL ""
+  LABEL "User-Id"
+  POSITION 29
+  MAX-WIDTH 16
+  ORDER 280
+
+ADD FIELD "vend-bol-no" OF "vend-whse-trans-hist" AS integer 
+  DESCRIPTION "Vendors Bill of Lading Number"
+  FORMAT ">>>>>>>9"
+  INITIAL "0"
+  LABEL "Vendors Bill of Lading#"
+  POSITION 30
+  MAX-WIDTH 4
+  COLUMN-LABEL "Vendors!BOL No"
+  ORDER 290
+
+ADD FIELD "revision" OF "vend-whse-trans-hist" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  LABEL "REV."
+  POSITION 31
+  MAX-WIDTH 16
+  COLUMN-LABEL "REV."
+  ORDER 300
+
+ADD FIELD "po-line-no" OF "vend-whse-trans-hist" AS integer 
+  DESCRIPTION "Customers PO Line Number"
+  FORMAT "99"
+  INITIAL "0"
+  LABEL "Cust. PO Line#"
+  POSITION 32
+  MAX-WIDTH 4
+  COLUMN-LABEL "Customers!PO Line#"
+  ORDER 310
+
+ADD FIELD "zz-char" OF "vend-whse-trans-hist" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  POSITION 33
+  MAX-WIDTH 90
+  EXTENT 5
+  ORDER 320
+
+ADD FIELD "zz-int" OF "vend-whse-trans-hist" AS integer 
+  FORMAT "->,>>>,>>9"
+  INITIAL "0"
+  POSITION 34
+  MAX-WIDTH 110
+  EXTENT 5
+  ORDER 330
+
+ADD FIELD "zz-dec" OF "vend-whse-trans-hist" AS decimal 
+  FORMAT "->>,>>9.99"
+  INITIAL "0"
+  POSITION 35
+  MAX-WIDTH 220
+  EXTENT 10
+  DECIMALS 2
+  ORDER 340
+
+ADD INDEX "r-no" ON "vend-whse-trans-hist" 
+  AREA "Schema Area"
+  PRIMARY
+  INDEX-FIELD "company" ASCENDING 
+  INDEX-FIELD "r-no" ASCENDING 
+
+ADD INDEX "cust-part" ON "vend-whse-trans-hist" 
+  AREA "Schema Area"
+  INDEX-FIELD "company" ASCENDING 
+  INDEX-FIELD "vendor-code" ASCENDING 
+  INDEX-FIELD "vendor-plant-code" ASCENDING 
+  INDEX-FIELD "cust-no" ASCENDING 
+  INDEX-FIELD "r-no" ASCENDING 
+
+ADD INDEX "date" ON "vend-whse-trans-hist" 
+  AREA "Schema Area"
+  INDEX-FIELD "trans-date" ASCENDING 
+
+ADD INDEX "fg-code" ON "vend-whse-trans-hist" 
+  AREA "Schema Area"
+  INDEX-FIELD "company" ASCENDING 
+  INDEX-FIELD "vendor-code" ASCENDING 
+  INDEX-FIELD "vendor-plant-code" ASCENDING 
+  INDEX-FIELD "fg-item-no" ASCENDING 
+  INDEX-FIELD "r-no" ASCENDING 
+
+ADD INDEX "rec_key" ON "vend-whse-trans-hist" 
+  AREA "Schema Area"
+  INDEX-FIELD "company" ASCENDING 
+  INDEX-FIELD "rec_key" ASCENDING 
+
+.
+PSC
+cpstream=ISO8859-1
+.
+0000084805

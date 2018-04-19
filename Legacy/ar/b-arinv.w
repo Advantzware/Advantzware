@@ -109,7 +109,7 @@ DEFINE BUTTON Btn_Clear_Find
 DEFINE VARIABLE auto_find AS CHARACTER FORMAT "X(256)":U 
      LABEL "Auto Find" 
      VIEW-AS FILL-IN 
-     SIZE 60 BY 1 NO-UNDO.
+     SIZE 50 BY 1 NO-UNDO.
 
 DEFINE VARIABLE fi_sortby AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS FILL-IN 
@@ -120,7 +120,7 @@ DEFINE VARIABLE browse-order AS INTEGER
      VIEW-AS RADIO-SET HORIZONTAL
      RADIO-BUTTONS 
           "N/A", 1
-     SIZE 42 BY 1 NO-UNDO.
+     SIZE 49 BY 1 NO-UNDO.
 
 DEFINE RECTANGLE RECT-4
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
@@ -174,11 +174,11 @@ DEFINE FRAME F-Main
      browse-order AT ROW 19.71 COL 6 HELP
           "Select Browser Sort Order" NO-LABEL
      fi_sortby AT ROW 19.71 COL 43 COLON-ALIGNED NO-LABEL WIDGET-ID 2
-     auto_find AT ROW 19.71 COL 70 COLON-ALIGNED HELP
+     auto_find AT ROW 19.71 COL 80 COLON-ALIGNED HELP
           "Enter Auto Find Value"
      Btn_Clear_Find AT ROW 19.71 COL 132 HELP
           "CLEAR AUTO FIND Value"
-     TG_posted AT ROW 19.81 COL 47.6 WIDGET-ID 4
+     TG_posted AT ROW 19.81 COL 56.6 WIDGET-ID 4
      "By:" VIEW-AS TEXT
           SIZE 4 BY 1 AT ROW 19.71 COL 2
      RECT-4 AT ROW 19.48 COL 1
@@ -441,6 +441,33 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE New_record B-table-Win 
+PROCEDURE New_record :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEF INPUT PARAMETER ip-rowid AS ROWID NO-UNDO.
+ 
+  RUN local-open-query.
+
+  DO WITH FRAME {&frame-name}:      
+
+    REPOSITION {&browse-name} TO ROWID ip-rowid NO-ERROR.
+    RUN dispatch ('row-changed').
+
+    APPLY "value-changed" TO {&browse-name}.
+    RETURN NO-APPLY.  
+  END.
+  
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE send-records B-table-Win  _ADM-SEND-RECORDS
 PROCEDURE send-records :

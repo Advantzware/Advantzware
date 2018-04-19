@@ -59,7 +59,8 @@ PUT "<R26><C1><#5><FROM><R28><C80><RECT><||3>" SKIP
                 "<R26><C65><FROM><R28><C65><LINE><||3>" SKIP
                 "<R26><C69><FROM><R28><C69><LINE><||3>" SKIP
                 .   
-PUT "<FArial><=5><R+1>   Ordered     Shipped      Order      Item#/CustPart#                       Description                             Price       UOM             Amount" SKIP(1).
+PUT "<FArial><=5>"  space(37) " Order /" SKIP
+                   " Ordered     Shipped      Cust PO      Item#/CustPart#                       Description                             Price       UOM             Amount" SKIP(1).
 v-printline = v-printline + 4.
            
 

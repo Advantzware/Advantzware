@@ -1,27 +1,35 @@
 /* ariba.p */
 
-/* if certificate is needed, run firefox with URL service-2.ariba.com
-   click secure lock, go under service-2.ariba.com secure connection,
+&Scoped-define service service-2.ariba.com
+&Scoped-define port 443
+
+/* if certificate is needed, run firefox with URL {&service}
+   click secure lock, go under {&service} secure connection,
    then click more information, from the Page Info popup, select
    View Certificate, then click Details tab, click Export...
    Save it to the cXML folder.
    
    from PROENV (run as administrator), navigate to cXML folder and type
-   certutil -import service-2.ariba.com.crt (which generates a hash file
+   certutil -import {&service}.crt (which generates a hash file
    in %DLC%\certs folder)
    
-   Environment Variables:
-       set PSC_SSLCLIENT_PROTOCOLS=TLSv1.2
-       set PSC_SSLCLIENT_CIPHERS=ECDHE-ECDSA-AES256-GCM-SHA384
+   Environment Variable settings:
+       PSC_SSLCLIENT_PROTOCOLS=TLSv1.2
+       PSC_SSLCLIENT_CIPHERS=ECDHE-ECDSA-AES256-GCM-SHA384
+
+   To obtain the above values, from a PROENV session type:
+       sslc s_client -connect {&service}:{&port}
+
+   Updated: 4.3.2018 Ron Stark
 */
 
 DEFINE INPUT  PARAMETER ipcXMLFile     AS CHARACTER NO-UNDO.
 DEFINE INPUT  PARAMETER ipcXMLResponse AS CHARACTER NO-UNDO.
 DEFINE OUTPUT PARAMETER opcReturnValue AS CHARACTER NO-UNDO.
 
-DEFINE VARIABLE vcWebHost   AS CHARACTER NO-UNDO INITIAL "service-2.ariba.com".
-DEFINE VARIABLE vcWebPort   AS CHARACTER NO-UNDO INITIAL "443".
-DEFINE VARIABLE vcWSAgent   AS CHARACTER NO-UNDO INITIAL "service-2.ariba.com".
+DEFINE VARIABLE vcWebHost   AS CHARACTER NO-UNDO INITIAL "{&service}".
+DEFINE VARIABLE vcWebPort   AS CHARACTER NO-UNDO INITIAL "{&port}".
+DEFINE VARIABLE vcWSAgent   AS CHARACTER NO-UNDO INITIAL "{&service}".
 DEFINE VARIABLE vhWebSocket AS HANDLE    NO-UNDO.
 
 CREATE SOCKET vhWebSocket.
@@ -83,7 +91,7 @@ PROCEDURE PostRequest:
     DEFINE VARIABLE vcXMLText   AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cXMLLine    AS CHARACTER NO-UNDO.
   
-  &SCOPED-DEFINE endLine + CHR(13) + CHR(10)
+    &Scoped-define endLine + CHR(13) + CHR(10)
   
     INPUT FROM VALUE(ipcXMLFile) NO-ECHO.
     REPEAT:
@@ -95,18 +103,17 @@ PROCEDURE PostRequest:
     ASSIGN
         viXMLLength = LENGTH(vcXMLText)
         vcRequest   = 'POST https://'
-              + vcWSAgent
-              + '/service/transaction/cxml.asp '
-              + 'HTTP/1.1' {&endLine}
-    + 'Host: ' + vcWebHost {&endLine}
-        + 'User-Agent: Mozilla/4.0 (compatible; MSIE 6.0; MS Web Services Client Protocol 1.0.3705.288)' {&endLine}
-        + 'Content-type: text/xml; charset="UTF-8"' {&endLine}
-        + 'Content-Length: ' + STRING(viXMLLength) {&endLine}
-    {&endLine}
-    viRequest = LENGTH(vcRequest)
-    viMsg = viRequest + viXMLLength + 1
+                    + vcWSAgent
+                    + '/service/transaction/cxml.asp '
+                    + 'HTTP/1.1' {&endLine}
+                    + 'Host: ' + vcWebHost {&endLine}
+                    + 'User-Agent: Mozilla/4.0 (compatible; MSIE 6.0; MS Web Services Client Protocol 1.0.3705.288)' {&endLine}
+                    + 'Content-type: text/xml; charset="UTF-8"' {&endLine}
+                    + 'Content-Length: ' + STRING(viXMLLength) {&endLine}
+                      {&endLine}
+        viRequest   = LENGTH(vcRequest)
+        viMsg       = viRequest + viXMLLength + 1
         .
-
     SET-SIZE(mRequest) = 0.
     SET-SIZE(mRequest) = viMsg.
     SET-BYTE-ORDER(mRequest) = BIG-ENDIAN.

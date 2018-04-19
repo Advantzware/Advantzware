@@ -78,11 +78,11 @@ DEFINE QUERY external_tables FOR itemfg.
 &Scoped-define KEY-PHRASE TRUE
 
 /* Definitions for BROWSE br_table                                      */
-&Scoped-define FIELDS-IN-QUERY-br_table fg-set.part-qty fg-set.part-no ~
+&Scoped-define FIELDS-IN-QUERY-br_table fg-set.qtyPerSet fg-set.part-no ~
 get-itemfg () @ lv-i-name lv-q-onh @ lv-q-onh lv-q-ono @ lv-q-ono ~
 lv-q-all @ lv-q-all lv-q-bak @ lv-q-bak ~
 lv-q-onh + lv-q-ono - lv-q-all @ lv-q-avl 
-&Scoped-define ENABLED-FIELDS-IN-QUERY-br_table fg-set.part-qty ~
+&Scoped-define ENABLED-FIELDS-IN-QUERY-br_table fg-set.qtyPerSet ~
 fg-set.part-no 
 &Scoped-define ENABLED-TABLES-IN-QUERY-br_table fg-set
 &Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-br_table fg-set
@@ -178,8 +178,8 @@ DEFINE QUERY br_table FOR
 DEFINE BROWSE br_table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS br_table B-table-Win _STRUCTURED
   QUERY br_table NO-LOCK DISPLAY
-      fg-set.part-qty COLUMN-LABEL "Qty/Set" FORMAT "->>9":U
-            WIDTH 11.2
+      fg-set.qtyPerSet COLUMN-LABEL "Qty/Set" FORMAT "->>,>>9.99<<<<":U
+            WIDTH 13.2
       fg-set.part-no FORMAT "x(15)":U
       get-itemfg () @ lv-i-name COLUMN-LABEL "Name" FORMAT "x(25)":U
       lv-q-onh @ lv-q-onh COLUMN-LABEL "On Hand" FORMAT "->>>,>>9":U
@@ -192,7 +192,7 @@ DEFINE BROWSE br_table
       lv-q-onh + lv-q-ono - lv-q-all @ lv-q-avl COLUMN-LABEL "Available" FORMAT "->>>,>>9":U
             WIDTH 12.4
   ENABLE
-      fg-set.part-qty
+      fg-set.qtyPerSet
       fg-set.part-no
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -278,8 +278,8 @@ ASSIGN
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
      _JoinCode[1]      = "ASI.fg-set.company = ASI.itemfg.company
   AND ASI.fg-set.set-no = ASI.itemfg.i-no"
-     _FldNameList[1]   > ASI.fg-set.part-qty
-"fg-set.part-qty" "Qty per Set" "->>9" "integer" ? ? ? ? ? ? yes ? no no "15.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[1]   > ASI.fg-set.qtyPerSet
+"fg-set.qtyPerSet" "Qty per Set" "->>,>>9.99<<<<" "DECIMAL" ? ? ? ? ? ? yes ? no no "15.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > ASI.fg-set.part-no
 "fg-set.part-no" ? ? "character" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   > "_<CALC>"
@@ -539,20 +539,20 @@ PROCEDURE local-assign-record :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEF VAR li-qty AS INT NO-UNDO.
+  DEF VAR li-qty AS DECIMAL NO-UNDO.
   /* Code placed here will execute PRIOR to standard behavior. */
-  li-qty = IF AVAIL fg-set THEN fg-set.part-qty ELSE 0.
+  li-qty = IF AVAIL fg-set THEN fg-set.qtyPerSet ELSE 0.
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-record':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-  IF li-qty <> fg-set.part-qty THEN DO:
+  IF li-qty <> fg-set.qtyPerSet THEN DO:
 
      FIND eb WHERE eb.company = itemfg.company
                      AND eb.est-no = itemfg.est-no
                      AND eb.stock-no = fg-set.part-no NO-ERROR.
-     IF AVAIL eb AND eb.quantityPerSet <> DEC(fg-set.part-qty) THEN eb.quantityPerSet = fg-set.part-qty.
+     IF AVAIL eb AND eb.quantityPerSet <> DEC(fg-set.qtyPerSet) THEN eb.quantityPerSet = fg-set.qtyPerSet.
 
                     
   END.
@@ -824,7 +824,7 @@ PROCEDURE valid-part-no :
 
     IF lv-msg EQ "" THEN DO:
       FIND FIRST bf-fg-set NO-LOCK
-           WHERE fg-set.company EQ itemfg.company 
+           WHERE bf-fg-set.company EQ itemfg.company 
             AND bf-fg-set.set-no EQ itemfg.i-no
             AND bf-fg-set.part-no EQ fg-set.part-no:SCREEN-VALUE 
             AND ROWID(bf-fg-set) NE rowid(fg-set) NO-ERROR .
@@ -889,7 +889,7 @@ FUNCTION get-itemfg RETURNS CHARACTER
                   AND oe-rel.ord-no = oe-ordl.ord-no
                   AND oe-rel.i-no  = oe-ordl.i-no
                 NO-LOCK.
-          lv-q-all = lv-q-all + (b2-itemfg.q-alloc * fg-set.part-qty).
+          lv-q-all = lv-q-all + (b2-itemfg.q-alloc * fg-set.qtyPerSet).
           LEAVE. /* q-alloc contains qty for all orders */
         END.
       END.

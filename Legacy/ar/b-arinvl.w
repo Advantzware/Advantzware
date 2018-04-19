@@ -216,9 +216,10 @@ DEFINE BROWSE Browser-Table
       ar-invl.sman[3] COLUMN-LABEL "SlsRep" FORMAT "x(3)":U
       ar-invl.s-pct[3] COLUMN-LABEL "% of Sale" FORMAT ">>9.99":U
       ar-invl.s-comm[3] COLUMN-LABEL "Comm%" FORMAT ">>9.99":U
-      ar-invl.bol-no FORMAT ">>>>>>>9":U
+      ar-invl.bol-no COLUMN-LABEL "BOL #" FORMAT ">>>>>>>9":U
       ar-invl.ord-no FORMAT ">>>>>9":U
-      ar-invl.po-no FORMAT "x(15)":U
+      ar-invl.po-no COLUMN-LABEL "PO #" FORMAT "x(15)":U
+      
   ENABLE
       ar-invl.line
       ar-invl.actnum
@@ -399,11 +400,11 @@ ASSIGN
      _FldNameList[30]   > ASI.ar-invl.s-comm[3]
 "ar-invl.s-comm[3]" "Comm%" ? "decimal" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[31]   > ASI.ar-invl.bol-no
-"ar-invl.bol-no" ? ? "integer" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"ar-invl.bol-no" "Bol #" ? "integer" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[32]   > ASI.ar-invl.ord-no
 "ar-invl.ord-no" ? ? "integer" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[33]   > ASI.ar-invl.po-no
-"ar-invl.po-no" ? ? "character" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"ar-invl.po-no" "PO #" ? "character" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */
 &ANALYZE-RESUME
@@ -431,10 +432,15 @@ DO:
   RUN get-link-handle IN adm-broker-hdl
         (THIS-PROCEDURE,'TableIO-source':U,OUTPUT char-hdl).
   phandle = WIDGET-HANDLE(char-hdl).
-
-  RUN new-state in phandle ('update-begin':U).
-    
-  IF NOT ll-inquiry THEN RUN new-state in phandle ('update-begin':U).
+  
+  IF NOT ll-inquiry THEN do: /*RUN new-state in phandle ('update-begin':U).*/
+      RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"buttons-target",OUTPUT char-hdl).
+    IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) 
+       THEN RUN browser-dbclicked IN WIDGET-HANDLE(char-hdl).
+  END.
+  ELSE DO:
+      RUN new-state in phandle ('update-begin':U).
+  END.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -446,8 +452,26 @@ ON HELP OF Browser-Table IN FRAME F-Main
 DO:
    DEF VAR lv-handle AS HANDLE NO-UNDO.
    DEF VAR char-val AS cha NO-UNDO.
+   DEFINE VARIABLE op-rec-id AS RECID NO-UNDO .
+   DEFINE VARIABLE op-row-id AS ROWID NO-UNDO .
 
    CASE FOCUS:NAME:
+       when "i-no" then do:
+           RUN windows/l-itemfg.w (g_company, ar-inv.cust-no,ar-invl.i-no:SCREEN-VALUE IN BROWSE {&browse-name}, OUTPUT char-val).
+           IF char-val <> "" THEN ASSIGN ar-invl.i-no:SCREEN-VALUE IN BROWSE {&browse-name} = ENTRY(1,char-val).
+       END.
+       when "part-no" then do:
+           RUN windows/l-cpart.w (g_company,ar-inv.cust-no,FOCUS:SCREEN-VALUE, OUTPUT char-val,OUTPUT op-row-id).
+           IF char-val <> "" THEN ASSIGN FOCUS:SCREEN-VALUE = ENTRY(1,char-val).
+       END.
+       when "bol-no" then do:
+           RUN windows/l-bolhsp.w (g_company, ?,FOCUS:SCREEN-VALUE, OUTPUT char-val,OUTPUT op-rec-id).
+           IF char-val <> "" THEN ASSIGN FOCUS:SCREEN-VALUE = ENTRY(1,char-val).
+       END.
+       when "ord-no" then do:
+           RUN windows/l-ordno.w (g_company,ar-inv.cust-no ,"",FOCUS:SCREEN-VALUE, OUTPUT char-val,OUTPUT op-rec-id).
+           IF char-val <> "" THEN ASSIGN FOCUS:SCREEN-VALUE = ENTRY(1,char-val).
+       END.
        when "pr-qty-uom" then do:
            RUN windows/l-stduom.w (g_company, lv-uom-list,FOCUS:SCREEN-VALUE, OUTPUT char-val).
            IF char-val <> "" THEN ASSIGN FOCUS:SCREEN-VALUE = ENTRY(1,char-val).
@@ -574,10 +598,10 @@ DO:
              NO-ERROR.
        IF NOT AVAIL itemfg THEN DO:
           MESSAGE "Invalid FG Item Number." VIEW-AS ALERT-BOX ERROR.
-          RETURN NO-APPLY.
+          RETURN.
        END.
        ASSIGN
-         ar-invl.i-dscr:SCREEN-VALUE IN BROWSE {&browse-name} = itemfg.i-dscr
+         ar-invl.i-dscr:SCREEN-VALUE IN BROWSE {&browse-name} = itemfg.part-dscr1
          ar-invl.i-name:SCREEN-VALUE IN BROWSE {&browse-name} = itemfg.i-name.
     END.
 END.
@@ -740,7 +764,7 @@ DO:
                                 NO-LOCK NO-ERROR.
        IF NOT AVAIL oe-bolh THEN DO:
           MESSAGE "Invalid BOL Number." VIEW-AS ALERT-BOX ERROR.
-          RETURN NO-APPLY.
+          RETURN.
        END.
        ELSE DO:
         find FIRST oe-boll no-lock 
@@ -784,7 +808,7 @@ DO:
                                 NO-LOCK NO-ERROR.
        IF NOT AVAIL oe-ord THEN DO:
           MESSAGE "Invalid Order Number." VIEW-AS ALERT-BOX ERROR.
-          RETURN NO-APPLY.
+          RETURN.
        END.
        
     END.
@@ -988,7 +1012,20 @@ PROCEDURE local-assign-record :
    find first cust where cust.company eq g_company
                       and cust.cust-no eq ar-inv.cust-no no-lock no-error.
    ar-invl.tax = if ar-inv.tax-code ne "" and cust.sort eq "Y" then YES ELSE NO.
-
+ 
+  IF ar-invl.bol-no GT 0 
+    AND ar-invl.b-no EQ 0 THEN DO:
+    FIND FIRST oe-bolh NO-LOCK
+      WHERE oe-bolh.company EQ ar-invl.company
+        AND oe-bolh.bol-no EQ ar-invl.bol-no 
+      NO-ERROR.
+    IF AVAIL oe-bolh THEN DO:
+         
+      ar-invl.b-no = oe-bolh.b-no.
+      
+    END.
+      
+  END.
   {ar/ar-invk.i bf-inv}
 
 END PROCEDURE.
@@ -1182,21 +1219,8 @@ PROCEDURE local-update-record :
     
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
-  
-  IF ar-invl.bol-no GT 0 
-    AND ar-invl.b-no EQ 0 THEN DO:
-    FIND FIRST oe-bolh NO-LOCK
-      WHERE oe-bolh.company EQ ar-invl.company
-        AND oe-bolh.bol-no EQ ar-invl.bol-no 
-      NO-ERROR.
-    IF AVAIL oe-bolh THEN DO:
-      
-      find current ar-invl exclusive-lock. 
-      ar-invl.b-no = oe-bolh.b-no.
-      find current ar-invl no-lock.
-    end.
-      
-  END.
+ 
+
 
   /* Code placed here will execute AFTER standard behavior.    */
   RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"invhead-target", OUTPUT char-hdl).
@@ -1253,6 +1277,54 @@ PROCEDURE send-records :
   /* Deal with any unexpected table requests before closing.           */
   {src/adm/template/snd-end.i}
 
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE repo-query B-table-Win 
+PROCEDURE repo-query :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEF INPUT PARAM ip-rowid AS ROWID NO-UNDO.
+  
+  RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"invhead-target", OUTPUT char-hdl).
+  IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
+      RUN reopen-query IN WIDGET-HANDLE(char-hdl).
+
+  RUN dispatch ('open-query').
+
+  DO WITH FRAME {&FRAME-NAME}:
+    REPOSITION {&browse-name} TO ROWID ip-rowid NO-ERROR.
+  END.
+  
+ APPLY "VALUE-CHANGED":U TO BROWSE {&browse-name}.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE delete_item B-table-Win 
+PROCEDURE delete_item :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEF VAR ll-dumb AS LOG NO-UNDO.
+  DEF VAR char-hdl AS CHAR NO-UNDO.
+  DEF VAR lv-loc LIKE rm-rctd.loc NO-UNDO.
+  DEF VAR ll-renumber AS LOG NO-UNDO.
+  DEF BUFFER b-po-ordl FOR po-ordl.
+
+   RUN local-delete-record .
+  
+  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

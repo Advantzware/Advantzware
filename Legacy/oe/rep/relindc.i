@@ -43,7 +43,7 @@ DEFINE VARIABLE v-ship-i AS CHARACTER FORMAT "x(60)" EXTENT 4 NO-UNDO.
 DEFINE VARIABLE ll-display-comp AS LOGICAL NO-UNDO.  /* display company address */
 DEFINE VARIABLE ll-consol-rells AS LOGICAL NO-UNDO.
 DEFINE VARIABLE lv-comp-name AS CHARACTER FORMAT "x(30)" NO-UNDO.
-DEFINE VARIABLE lv-email AS CHARACTER FORMAT "x(30)" NO-UNDO.
+DEFINE VARIABLE lv-email AS CHARACTER FORMAT "x(56)" NO-UNDO.
 
 DEFINE VARIABLE lv-comp-color AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lv-other-color AS CHARACTER INITIAL "BLACK" NO-UNDO.
@@ -221,7 +221,7 @@ IF v-zone-p THEN v-zone-hdr = "Route No.:".
             FOR EACH fg-set NO-LOCK
                 WHERE fg-set.company EQ xoe-ordl.company
                   AND fg-set.set-no  EQ xoe-ordl.i-no:
-              v-set-qty = v-set-qty + fg-set.part-qty.
+              v-set-qty = v-set-qty + fg-set.QtyPerSet.
             END.
             IF v-set-qty EQ 0 THEN v-set-qty = 1.
             FOR EACH eb NO-LOCK
@@ -235,8 +235,8 @@ IF v-zone-p THEN v-zone-hdr = "Route No.:".
                    NO-ERROR.
 
               ASSIGN
-               v-part-qty = (IF AVAILABLE fg-set AND fg-set.part-qty NE 0 THEN
-                             fg-set.part-qty ELSE 1) / v-set-qty
+               v-part-qty = (IF AVAILABLE fg-set AND fg-set.QtyPerSet NE 0 THEN
+                             fg-set.QtyPerSet ELSE 1) / v-set-qty
                v-pallets = v-pallets +
                            (IF xoe-rell.qty-case NE 0 THEN
                               ROUND((xoe-rell.qty-case / eb.cas-pal) + .49, 0)

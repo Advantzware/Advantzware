@@ -24,7 +24,7 @@
 
 /* Parameters Definitions ---                                           */
 
-DEFINE INPUT PARAMETER ipcAuditStack AS CHARACTER NO-UNDO.
+DEFINE INPUT PARAMETER ipiAuditStackID AS INTEGER NO-UNDO.
 
 /* Local Variable Definitions ---                                       */
 
@@ -78,10 +78,10 @@ DEFINE VARIABLE eAuditStack AS CHARACTER
 DEFINE FRAME Dialog-Frame
      btnExit AT ROW 1 COL 95
      eAuditStack AT ROW 1 COL 1 NO-LABEL WIDGET-ID 2
-     SPACE(8.39) SKIP(0.00)
+     SPACE(8.40) SKIP(0.00)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
-         TITLE "Audit Program Stack Trace" WIDGET-ID 100.
+         TITLE "Audit Program Stack Trace ID:" WIDGET-ID 100.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -119,7 +119,7 @@ ASSIGN
 
 &Scoped-define SELF-NAME Dialog-Frame
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Dialog-Frame Dialog-Frame
-ON WINDOW-CLOSE OF FRAME Dialog-Frame /* Audit Program Stack Trace */
+ON WINDOW-CLOSE OF FRAME Dialog-Frame /* Audit Program Stack Trace ID: */
 DO:
   APPLY "END-ERROR":U TO SELF.
 END.
@@ -139,6 +139,9 @@ END.
 IF VALID-HANDLE(ACTIVE-WINDOW) AND FRAME {&FRAME-NAME}:PARENT eq ?
 THEN FRAME {&FRAME-NAME}:PARENT = ACTIVE-WINDOW.
 
+FRAME {&FRAME-NAME}:TITLE = FRAME {&FRAME-NAME}:TITLE + " "
+                          + STRING(ipiAuditStackID)
+                          .
 
 /* Now enable the interface and wait for the exit condition.            */
 /* (NOTE: handle ERROR and END-KEY so cleanup code will always fire.    */
@@ -146,13 +149,18 @@ MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
   RUN enable_UI.
-  DO idx = 1 TO NUM-ENTRIES(ipcAuditStack):
+  FIND FIRST AuditStack NO-LOCK
+       WHERE AuditStack.AuditStackID EQ ipiAuditStackID
+       NO-ERROR.
+  IF AVAILABLE AuditStack THEN
+  DO idx = 1 TO NUM-ENTRIES(AuditStack.AuditStack):
       eAuditStack:SCREEN-VALUE = eAuditStack:SCREEN-VALUE
                                + STRING(idx,"z9") + ". "
-                               + ENTRY(idx,ipcAuditStack)
+                               + ENTRY(idx,AuditStack.AuditStack)
                                + CHR(10)
                                .
   END. /* do idx */
+  ELSE eAuditStack:SCREEN-VALUE = "Stack Trace Unavailable".
   WAIT-FOR GO OF FRAME {&FRAME-NAME}.
 END.
 RUN disable_UI.

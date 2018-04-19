@@ -47,7 +47,7 @@ def var v-ans as log init no.
 def var v-date-ship as date init today.
 def var v-del-no as int format ">>>>>>".
 def var v-bol-cases like oe-boll.cases.
-def var v-set-qty as int.
+def var v-set-qty as DECIMAL.
 def var v-part-qty as dec format "999.9999".
 def var v-net like ar-inv.due.
 def var v-case-cnt as char format "x(80)" extent 5.
@@ -480,7 +480,7 @@ v-num-copies = sys-ctrl.int-fld.
                 (xar-invl.est-type eq 2 or xar-invl.est-type eq 6) then do:
                for each fg-set no-lock where fg-set.company eq xar-invl.company
                   and fg-set.set-no eq xar-invl.i-no:
-                 assign v-set-qty = v-set-qty + fg-set.part-qty.
+                 assign v-set-qty = v-set-qty + fg-set.qtyPerSet.
                end.
                if v-set-qty = 0 then
                   assign v-set-qty = 1.
@@ -492,8 +492,8 @@ v-num-copies = sys-ctrl.int-fld.
                     fg-set.set-no eq xar-invl.i-no  and
                     fg-set.part-no eq eb.stock-no no-lock no-error.
 
-                 if avail fg-set and fg-set.part-qty ne 0 then
-                   assign v-part-qty = fg-set.part-qty / v-set-qty.
+                 if avail fg-set and fg-set.qtyPerSet ne 0 then
+                   assign v-part-qty = fg-set.qtyPerSet / v-set-qty.
                  else
                    assign v-part-qty = 1 / v-set-qty.
 

@@ -107,7 +107,7 @@ FOR EACH eb WHERE eb.form-no NE 0,
            fg-set.part-no = b-eb.stock-no.
         END.
 
-        fg-set.part-qty = INTEGER(b-eb.quantityPerSet).
+        fg-set.QtyPerSet = INTEGER(b-eb.quantityPerSet).
       END.
     END.
   END.

@@ -3373,9 +3373,12 @@ PROCEDURE display-cust-detail :
             oe-ord.stat:screen-value = "H".
        end.*/
 
-      RUN oe/creditck.p (ROWID(cust), NO).
-      FIND CURRENT cust NO-LOCK NO-ERROR.
-      IF AVAIL cust AND cust.cr-hold THEN oe-ord.stat:SCREEN-VALUE = "H".      
+      IF cust.active NE "X" AND fi_type:screen-value NE "T" THEN DO:
+          RUN oe/creditck.p (ROWID(cust), NO).
+          FIND CURRENT cust NO-LOCK NO-ERROR.
+          IF AVAIL cust AND cust.cr-hold THEN oe-ord.stat:SCREEN-VALUE = "H".  
+      END.
+          
     END.   
   END.
 
@@ -3863,7 +3866,6 @@ PROCEDURE hold-approve :
     DEF BUFFER b-oe-ord  FOR oe-ord.
     DEF BUFFER b-oe-ordl FOR oe-ordl.
     DEF BUFFER b-cust    FOR cust.
-
 
     RELEASE cust.
 

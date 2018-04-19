@@ -626,7 +626,7 @@ END.
 
 &Scoped-define SELF-NAME copyFromUser
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL copyFromUser C-Win
-ON VALUE-CHANGED OF copyFromUser IN FRAME DEFAULT-FRAME /* User */
+ON VALUE-CHANGED OF copyFromUser IN FRAME DEFAULT-FRAME
 DO:
   ASSIGN
     {&SELF-NAME}
@@ -1086,7 +1086,7 @@ PROCEDURE pLoadMenu :
         IF loadMenu EQ "usermenu" THEN
         sourceMenu = SEARCH("usermenu/" + copyFromUser + "/menu.lst").
         ELSE
-        sourceMenu = SEARCH("stdMenu/menu" + loadMenu + ".lst").
+        sourceMenu = SEARCH("stdMenu/menuFiles/menu" + loadMenu + ".lst").
         IF sourceMenu NE ? THEN DO:
             INPUT FROM VALUE(sourceMenu) NO-ECHO.
             RUN pGetMenu.

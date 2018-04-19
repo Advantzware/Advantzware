@@ -411,8 +411,8 @@ PROCEDURE pOrdersBooked2:
                          AND bItemFG.i-no EQ fg-set.part-no
                        :
                        dSqft = dSqft + (dOrdQty
-                             * (IF fg-set.part-qty GE 0 THEN fg-set.part-qty
-                                ELSE (-1 / fg-set.part-qty))
+                             * (IF fg-set.qtyPerSet GE 0 THEN fg-set.qtyPerSet
+                                ELSE (-1 / fg-set.qtyPerSet))
                              * bItemFG.t-sqft / 1000)
                              .
                    END. /* each fg-set */

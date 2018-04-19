@@ -12,34 +12,7 @@
       "<=1><R+1><C25></B>"            SKIP
 
      SKIP.
-
- IF (AVAIL shipto AND shipto.broker EQ NO) OR NOT AVAIL shipto THEN
-    PUT "<C1><#1><R+9><C+45>" "<IMAGE#1=" ls-full-img1  SKIP 
-     "<=1><C11><FGCOLOR=" trim(lv-comp-color) + ">"
-     "<=1><C11><R+1><P20><B>" lv-comp-name "</B><FGCOLOR=" trim(lv-other-color) + ">" FORM "x(6)" 
-     "<P10></B>"
-     "<=1><R+2>" "<FGCOLOR=" + trim(lv-comp-color) + ">" FORM "x(15)"
-     "<P10><=1><R+3>"  
-     "<C11>" v-comp-add1 SKIP
-     "<C11>" v-comp-add2 SKIP
-     "<C11>" v-comp-add3 SKIP
-     "<C11>" v-comp-add4 SKIP
-     "<C11>" v-comp-add5 "<FGCOLOR=" + trim(lv-other-color) + ">" FORM "x(15)" SKIP
-     "<C11>" lv-email SKIP(1).      
-
- ELSE
-    PUT "<C1><#1><R+5><C+25>"  SKIP 
-     "<=1><C1><FGCOLOR=" trim(lv-comp-color) + ">"
-     "<=1><C1><R+1><P20><B>" lv-comp-name "</B><FGCOLOR=" trim(lv-other-color) + ">" FORM "x(6)" 
-     "<P10></B>"
-     "<=1><R+2>" "<FGCOLOR=" + trim(lv-comp-color) + ">" FORM "x(15)"
-     "<P10><=1><R+3>"  
-     "<C1>" v-comp-add1 SKIP
-     "<C1>" v-comp-add2 SKIP
-     "<C1>" v-comp-add3 SKIP
-     "<C1>" v-comp-add4 SKIP
-     "<C1>" v-comp-add5 "<FGCOLOR=" + trim(lv-other-color) + ">" FORM "x(15)" SKIP
-     "<C1>" lv-email SKIP(1).
+ PUT "<C2><R4><#1><R+8><C40><IMAGE#1=" ls-full-img1 SKIP.
      
  PUT "<FCourier New>"
      "Sold To: " v-phone SPACE(37) "Ship To: "  v-ship-phone SKIP

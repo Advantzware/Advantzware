@@ -430,7 +430,7 @@ PROCEDURE pCreateTempOeRell:
         ttoe-rell.deleted  = NO
         /** Set link to the planned releases **/
         ttoe-rell.link-no  = iRNo
-        ttoe-rell.s-code   = IF oe-rel.s-code <> "" THEN oe-rel.s-code ELSE
+        ttoe-rell.s-code   = IF AVAILABLE oe-rel AND oe-rel.s-code <> "" THEN oe-rel.s-code ELSE
                        IF fg-bin.cust-no GT ""                THEN "S"
                                                               ELSE
                        IF AVAILABLE oe-ctrl AND oe-ctrl.ship-from THEN "B" 

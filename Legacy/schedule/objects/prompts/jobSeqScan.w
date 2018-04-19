@@ -1322,11 +1322,14 @@ PROCEDURE getResources :
         IF iXCoord + 110 GT iMaxWidth THEN
         ASSIGN
             iYCoord = iYCoord + 93
-            iXCoord = 5
+            iXCoord = 265
             .
     END. /* repeat */
     INPUT CLOSE.
-    iJobYCoord = iYCoord + 90.
+    ASSIGN
+        iJobYCoord = iYCoord + 90
+        pendingText:Y IN FRAME {&FRAME-NAME} = iJobYCoord
+        .
 
     RUN LockWindowUpdate (0,OUTPUT i).
 

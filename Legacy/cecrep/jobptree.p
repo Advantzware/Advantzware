@@ -249,10 +249,9 @@ ASSIGN
                AND oe-ordl.ord-no  EQ job-hdr.ord-no
                AND oe-ordl.i-no    EQ job-hdr.i-no NO-LOCK NO-ERROR.
        IF AVAILABLE oe-ordl THEN         
-
-       ASSIGN
-       v-managed-order = IF oe-ordl.managed = true THEN "MANAGED   WAREHOUSE   ORDER"
-                         ELSE ""
+           v-managed-order = IF oe-ordl.managed = true THEN "MANAGED   WAREHOUSE   ORDER"
+                         ELSE "".
+                         
        v-break = FIRST-OF(job.job-no2).
 
       RELEASE xest.
