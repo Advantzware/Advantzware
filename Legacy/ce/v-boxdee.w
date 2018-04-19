@@ -460,6 +460,8 @@ def input parameter v-rebuild as char.
 def buffer xbox-design-hdr  for box-design-hdr.
 def buffer xbox-design-line for box-design-line.
 
+EMPTY TEMP-TABLE w-box-h .
+
 cocode = eb.company.
 find xeb where recid(xeb) = recid(eb) no-lock.               
 
