@@ -122,7 +122,7 @@ DEFINE VARIABLE iHiCount      AS INTEGER   NO-UNDO.
 DEFINE VARIABLE iMenuSize     AS INTEGER   NO-UNDO.
 DEFINE VARIABLE iLanguage     AS INTEGER   NO-UNDO.
 DEFINE VARIABLE lOK           AS LOGICAL   NO-UNDO.
-DEFINE VARIABLE hExitWidget   AS HANDLE    NO-UNDO.
+DEFINE VARIABLE hFocus        AS HANDLE    NO-UNDO.
 DEFINE VARIABLE hMenuLink     AS HANDLE    NO-UNDO EXTENT 8.
 
 ASSIGN
@@ -157,8 +157,9 @@ CREATE WIDGET-POOL "MainMenuPool".
 &Scoped-define FRAME-NAME FRAME-USER
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS imageSettings imageCompany menuLinkZoHo 
-&Scoped-Define DISPLAYED-OBJECTS company_name loc_loc users_user_id ~
+&Scoped-Define ENABLED-OBJECTS imageSettings imageCompany menuLinkZoHo ~
+svFocus 
+&Scoped-Define DISPLAYED-OBJECTS svFocus company_name loc_loc users_user_id ~
 Mnemonic 
 
 /* Custom List Definitions                                              */
@@ -205,6 +206,10 @@ DEFINE VARIABLE Mnemonic AS CHARACTER FORMAT "X(256)":U
       VIEW-AS TEXT 
      SIZE 5 BY .62
      FONT 6 NO-UNDO.
+
+DEFINE VARIABLE svFocus AS CHARACTER FORMAT "X(256)":U 
+     VIEW-AS FILL-IN 
+     SIZE .01 BY 2.29 NO-UNDO.
 
 DEFINE VARIABLE users_user_id AS CHARACTER FORMAT "X(256)":U 
       VIEW-AS TEXT 
@@ -299,6 +304,7 @@ DEFINE RECTANGLE RECT-9
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME FRAME-USER
+     svFocus AT ROW 4 COL 1 NO-LABEL WIDGET-ID 82
      company_name AT ROW 1.71 COL 13 COLON-ALIGNED NO-LABEL
      loc_loc AT ROW 1.71 COL 76 COLON-ALIGNED NO-LABEL
      users_user_id AT ROW 1.71 COL 117 COLON-ALIGNED NO-LABEL
@@ -470,6 +476,8 @@ ASSIGN
    NO-ENABLE                                                            */
 /* SETTINGS FOR RECTANGLE RECT-9 IN FRAME FRAME-USER
    NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN svFocus IN FRAME FRAME-USER
+   ALIGN-L                                                              */
 /* SETTINGS FOR FILL-IN users_user_id IN FRAME FRAME-USER
    NO-ENABLE                                                            */
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(MAINMENU)
@@ -727,6 +735,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     IF AVAILABLE sys-ctrl AND sys-ctrl.descrip NE "" THEN
         boxes:LOAD-IMAGE(sys-ctrl.descrip).
     {methods/mainmenu.i}
+    hFocus = svFocus:HANDLE.
     RUN pInit.
     IF NOT THIS-PROCEDURE:PERSISTENT THEN
         WAIT-FOR CLOSE OF THIS-PROCEDURE.
@@ -768,9 +777,9 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY company_name loc_loc users_user_id Mnemonic 
+  DISPLAY svFocus company_name loc_loc users_user_id Mnemonic 
       WITH FRAME FRAME-USER IN WINDOW MAINMENU.
-  ENABLE imageSettings imageCompany menuLinkZoHo 
+  ENABLE imageSettings imageCompany menuLinkZoHo svFocus 
       WITH FRAME FRAME-USER IN WINDOW MAINMENU.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-USER}
   VIEW MAINMENU.
@@ -887,7 +896,7 @@ PROCEDURE pCreateEditor :
         hWidget:MOVE-TO-TOP().
         hWidget:LOAD-MOUSE-POINTER("ARROW").
         IF ipcName EQ "Exit" THEN DO:
-            hExitWidget = hWidget.
+            hFocus = hWidget.
             RUN pSetFocus.
         END.
     END.
@@ -1197,6 +1206,7 @@ PROCEDURE pGetMenu :
     END. /* repeat */
     IF AVAILABLE ttblMenu THEN
     ttblMenu.menuCount = ttblMenu.menuCount + 1.
+/*
     CREATE ttblItem.
     ASSIGN 
         idx                = idx + 1
@@ -1207,6 +1217,7 @@ PROCEDURE pGetMenu :
         ttblItem.mainMenu  = NO
         ttblItem.imageFile = fItemImage("Exit")
         .            
+*/
     FOR EACH ttblItem USE-INDEX menu2 BREAK BY ttblItem.menu2:
         IF FIRST-OF(ttblItem.menu2) THEN idx = 0.
         ASSIGN
@@ -1231,6 +1242,7 @@ PROCEDURE pGetMenu :
         FRAME {&FRAME-NAME}:VIRTUAL-HEIGHT = dMaxWindow
         FRAME {&FRAME-NAME}:HEIGHT = dMaxWindow
         iObjectCount = 0
+        hFocus:ROW = FRAME {&FRAME-NAME}:HEIGHT - 1.86
         .
     DO idx = 1 TO EXTENT(hMenuLink):
         hMenuLink[idx]:ROW = FRAME {&FRAME-NAME}:HEIGHT - 1.86.
@@ -1457,6 +1469,9 @@ PROCEDURE pKeyPress :
     DEFINE VARIABLE cKey  AS CHARACTER NO-UNDO.
     DEFINE VARIABLE idx   AS INTEGER   NO-UNDO.
 
+    IF KEYLABEL(ipiLastKey) EQ "X" THEN
+    APPLY 'WINDOW-CLOSE':U TO {&WINDOW-NAME}.
+    
     ASSIGN
         cSave     = SUBSTR(cMnemonic,1,2)
         cKey      = CAPS(KEYLABEL(ipiLastKey)) WHEN INDEX("{&validKeys}",KEYLABEL(ipiLastKey)) NE 0
@@ -1576,9 +1591,9 @@ PROCEDURE pSetFocus :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    IF VALID-HANDLE(hExitWidget) THEN DO:
-        APPLY "ENTRY":U TO hExitWidget.
-        hExitWidget:SET-SELECTION(1,256).
+    IF VALID-HANDLE(hFocus) THEN DO:
+        hFocus:SCREEN-VALUE = "".
+        APPLY "ENTRY":U TO hFocus.
     END.
 
 END PROCEDURE.
