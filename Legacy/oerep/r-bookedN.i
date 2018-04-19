@@ -317,14 +317,16 @@ FORMAT wkrecap.procat
            tt-report.key-03  = STRING(i,"9")
            tt-report.rec-id  = RECID(oe-ordl).           
         END.    /* date in selected period */
-
+        
+        RUN fg/GetFGArea.p (ROWID(itemfg), "SF", OUTPUT v-sqft).
+  
         ASSIGN 
          v-pct  = oe-ordl.s-pct[i] / 100
          v-qty  = oe-ordl.qty * v-pct
-         v-sqft = itemfg.t-sqft * v-qty / 1000
+         v-sqft = v-sqft * v-qty / 1000
          v-tons = itemfg.weight-100 * v-qty / 100 / 2000
          v-amt  = oe-ordl.t-price * v-pct.
-
+        
         FIND FIRST wkrecap
             WHERE wkrecap.procat EQ IF AVAILABLE itemfg THEN itemfg.procat ELSE ?
             NO-ERROR.

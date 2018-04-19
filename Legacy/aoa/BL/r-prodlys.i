@@ -45,6 +45,7 @@ PROCEDURE pProductionAnalysis1:
     DEFINE VARIABLE iTotalUp   AS INTEGER   NO-UNDO.
     DEFINE VARIABLE cCheckCust AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cINo       AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE dMSF       AS DECIMAL   NO-UNDO.
 
     DEFINE BUFFER bMchAct FOR mch-act.
 
@@ -182,7 +183,7 @@ PROCEDURE pProductionAnalysis1:
                     iTotalUP = IF ef.spare-int-1 EQ 0 THEN ef.n-out * ef.n-out-l * ef.n-out-d
                              ELSE ef.spare-int-1.
 
-                    IF CAN-DO("R,S,B",mach.p-type) THEN DO:
+                    IF CAN-DO("R,S,B,A,P",mach.p-type) THEN DO:
                         FOR EACH job-mat NO-LOCK
                             WHERE job-mat.company EQ mch-act.company
                               AND job-mat.job     EQ mch-act.job
@@ -211,17 +212,30 @@ PROCEDURE pProductionAnalysis1:
                                                                    + (mch-act.qty * job-mat.wid * job-mat.len / 144000)
                                     .
                             END.
-                            ELSE DO:
-                                FIND FIRST itemfg NO-LOCK
-                                     WHERE itemfg.company EQ job-hdr.company
-                                       AND itemfg.i-no    EQ job-hdr.i-no
-                                     NO-ERROR.
-                                IF AVAILABLE itemfg THEN
+                            ELSE 
+                            DO:
+                                IF mach.p-type EQ "A" OR mach.p-type  EQ "P" THEN  /*if assembly use job header*/
+                                    FIND FIRST itemfg NO-LOCK 
+                                        WHERE itemfg.company EQ job-hdr.company
+                                        AND itemfg.i-no EQ job-hdr.i-no 
+                                        NO-ERROR.
+                                ELSE  /*use machine specific item*/
+                                    FIND FIRST itemfg NO-LOCK 
+                                        WHERE itemfg.company EQ mch-act.company
+                                        AND itemfg.i-no EQ mch-act.i-no
+                                        NO-ERROR.
+                                IF NOT AVAILABLE itemfg THEN /*if the above didn't find the correct item use job-hdr*/
+                                    FIND FIRST itemfg NO-LOCK 
+                                        WHERE itemfg.company EQ job-hdr.company
+                                        AND itemfg.i-no EQ job-hdr.i-no 
+                                        NO-ERROR.
+                                IF AVAILABLE itemfg THEN 
+                                    RUN fg/GetFGArea.p (ROWID(itemfg), "MSF", OUTPUT dMSF).
                                 ASSIGN
                                     ttProductionAnalysis.totalMSF  = ttProductionAnalysis.totalMSF
-                                                                   + mch-act.qty * itemfg.t-sqin / 144000
+                                                               + mch-act.qty * dMSF
                                     ttProductionAnalysis.totalTons = ttProductionAnalysis.totalTons
-                                                                   + (mch-act.qty * itemfg.t-sqin / 144000 * item.basis-w / 2000) 
+                                                               + (mch-act.qty * dMSF * item.basis-w / 2000) 
                                     .               
                             END.                                   
                             LEAVE.
