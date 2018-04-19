@@ -842,7 +842,7 @@ PROCEDURE local-disable :
 ------------------------------------------------------------------------------*/
 
   /* Code placed here will execute PRIOR to standard behavior. */
- message "disable fuield" view-as alert-box.
+ 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'disable':U ) .
 
