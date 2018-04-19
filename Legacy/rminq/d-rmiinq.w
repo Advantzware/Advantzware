@@ -859,6 +859,7 @@ PROCEDURE valid-po-no :
   
   {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
+   IF rm-rcpth.po-no:SCREEN-VALUE NE "" THEN do:
     IF NOT CAN-FIND(FIRST po-ord
                     WHERE po-ord.company EQ cocode
                        AND string(po-ord.po-no)   EQ rm-rcpth.po-no:SCREEN-VALUE )
@@ -868,6 +869,7 @@ PROCEDURE valid-po-no :
       APPLY "entry" TO rm-rcpth.po-no .
       RETURN ERROR.
     END.
+   END.
   END.
 
   {methods/lValidateError.i NO}
