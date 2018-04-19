@@ -214,6 +214,7 @@ PROCEDURE pProductionAnalysis1:
                             END.
                             ELSE 
                             DO:
+                                dMSF = 0.
                                 IF mach.p-type EQ "A" OR mach.p-type  EQ "P" THEN  /*if assembly use job header*/
                                     FIND FIRST itemfg NO-LOCK 
                                         WHERE itemfg.company EQ job-hdr.company

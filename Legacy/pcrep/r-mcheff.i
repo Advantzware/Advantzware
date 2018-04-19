@@ -1,6 +1,8 @@
    DEF VAR iTotalUp AS INT NO-UNDO.
    DEF VAR lGotRmRct AS LOG NO-UNDO.
    DEF VAR dQty AS DEC NO-UNDO.
+   DEFINE VARIABLE dMSF AS DECIMAL NO-UNDO.
+   DEFINE VARIABLE dSqFtBlank AS DECIMAL NO-UNDO.
 
    EMPTY TEMP-TABLE tt-srt.
 
@@ -184,7 +186,7 @@ IF trim(tt-srt.job-no) = "w8225" THEN
     AVAIL eb AVAIL ef job-hdr.est-no job-hdr.frm job-hdr.blank-no mch-act.qty tt-srt.qty-prod
     VIEW-AS ALERT-BOX INFO BUTTONS OK.
 */    
-                IF (mach.p-type = "R" OR mach.p-type = "S" OR mach.p-type = "B") THEN DO:   
+                IF CAN-DO("R,S,B,A,P",mach.p-type) THEN DO:   
                    FOR each job-mat WHERE job-mat.company = mch-act.company
                                      AND job-mat.job = mch-act.job
                                      AND job-mat.job-no = mch-act.job-no
@@ -207,24 +209,42 @@ IF trim(tt-srt.job-no) = "w8225" THEN
                                      (mch-act.qty * job-mat.wid * job-mat.len / 144000 * ITEM.basis-w / 2000)
                                tt-srt.qty-msf = tt-srt.qty-msf + (mch-act.qty * job-mat.wid * job-mat.len / 144000)
                                     .
-                        
-
-                       
                       END.
                       ELSE  DO:
-                          FIND itemfg WHERE itemfg.company = job-hdr.company
-                                        AND itemfg.i-no = job-hdr.i-no NO-LOCK NO-ERROR.
-                          ASSIGN tt-srt.qty-msf = tt-srt.qty-msf + mch-act.qty * itemfg.t-sqin / 144000
-                                 tt-srt.qty-ton = tt-srt.qty-ton + (mch-act.qty * itemfg.t-sqin / 144000 * ITEM.basis-w / 2000)
+                          dMSF = 0.
+                          IF mach.p-type EQ "A" OR mach.p-type  EQ "P" THEN  /*if assembly use job header*/
+                              FIND FIRST itemfg NO-LOCK 
+                                  WHERE itemfg.company EQ job-hdr.company
+                                  AND itemfg.i-no EQ job-hdr.i-no 
+                                  NO-ERROR.
+                          ELSE  /*use machine specific item*/
+                              FIND FIRST itemfg NO-LOCK 
+                                  WHERE itemfg.company EQ mch-act.company
+                                  AND itemfg.i-no EQ mch-act.i-no
+                                  NO-ERROR.
+                          IF NOT AVAILABLE itemfg THEN /*if the above didn't find the correct item use job-hdr*/
+                              FIND FIRST itemfg NO-LOCK 
+                                  WHERE itemfg.company EQ job-hdr.company
+                                  AND itemfg.i-no EQ job-hdr.i-no 
+                                  NO-ERROR.
+                          IF AVAILABLE itemfg THEN 
+                              RUN fg/GetFGArea.p (ROWID(itemfg), "MSF", OUTPUT dMSF).
+  
+                          ASSIGN tt-srt.qty-msf = tt-srt.qty-msf + mch-act.qty * dMSF
+                                 tt-srt.qty-ton = tt-srt.qty-ton + (mch-act.qty * dMSF * ITEM.basis-w / 2000)
                                     .               
-                      END.              
-                      FIND itemfg WHERE itemfg.company = job-hdr.company
-                                        AND itemfg.i-no = /*job-hdr.i-no*/ mch-act.i-no NO-LOCK NO-ERROR.
-                      tt-srt.sqFeet-Blank = /* tt-srt.sqFeet-Blank + */
-                           /*ROUND(job-mat.wid * job-mat.len / 144,3)*/
-                                                                  /*round(eb.t-sqin * .007,4)*/
-                                                                  round(itemfg.t-sqft,4). 
-/*  
+                      END.         
+                       dSqFtBlank = 0.
+                       FIND itemfg NO-LOCK
+                           WHERE itemfg.company EQ mch-act.company
+                           AND itemfg.i-no = mch-act.i-no 
+                           NO-ERROR.
+                       IF AVAILABLE itemfg THEN 
+                       DO:
+                           RUN fg/GetFGArea.p (ROWID(itemfg), "SF", OUTPUT dSqFtBlank).
+                           tt-srt.sqFeet-Blank = round(dSqFtBlank,4).
+                       END. 
+/*                    
 IF TRIM(tt-srt.job-no) = "w8225" THEN
     MESSAGE "calc:" itemfg.i-no job-hdr.job-no itemfg.t-sqft tt-srt.sqFeet-Blank
         VIEW-AS ALERT-BOX INFO BUTTONS OK.
