@@ -590,12 +590,7 @@ assign
                  v-printline = v-printline + 1.
               end.
             end.
-
-            IF ar-invl.disc NE 0 THEN
-              PUT SPACE(25) v-po-no FORMAT "x(15)" SPACE(1)
-                  "Less " + TRIM(STRING(ar-invl.disc,">>9.99%")) + " Discount" FORMAT "x(21)"
-                  v-price - ar-invl.amt FORMAT "->>>,>>9.99" TO 95.
-
+           
             put skip(1).
             v-printline = v-printline + 1.
        /*
