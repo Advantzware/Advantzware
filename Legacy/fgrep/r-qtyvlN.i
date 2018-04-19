@@ -216,6 +216,12 @@ FOR EACH tt-cust,
                          WHERE oe-ord.company EQ oe-ordl.company
                          AND oe-ord.ord-no EQ oe-ordl.ord-no NO-ERROR.
 
+                   IF AVAIL oe-ordl THEN
+                     FIND FIRST job NO-LOCK
+                       WHERE job.company = oe-ordl.company
+                       AND job.job-no = oe-ordl.job-no
+                       AND job.job-no2 = oe-ordl.job-no2 NO-ERROR.
+
                      v-sales-rep = "" .
 
                      RUN fg/fgSlsRep.p (INPUT itemfg.company,
@@ -270,6 +276,7 @@ FOR EACH tt-cust,
                           WHEN "fg-lot"   THEN cVarValue = cLotNum .
                           WHEN "cust-lot"   THEN cVarValue = cCustLotNum .
                           WHEN "due-date"    THEN cVarValue = IF AVAIL oe-ord AND oe-ord.due-date NE ? THEN STRING(oe-ord.due-date,"99/99/9999") ELSE "" . 
+                          WHEN "job-due-date"    THEN cVarValue = IF AVAIL job AND job.due-date NE ? THEN STRING(job.due-date,"99/99/9999") ELSE "" .                                       
 
                      END CASE.
                        
@@ -342,7 +349,8 @@ FOR EACH tt-cust,
                           WHEN "qty-case"   THEN cVarValue = "" .
                           WHEN "FG-lot"   THEN cVarValue = "" . 
                           WHEN "cust-lot"   THEN cVarValue = "" .
-                          WHEN "due-date"    THEN cVarValue = "" . 
+                          WHEN "due-date"    THEN cVarValue = "" .
+                          WHEN "job-due-date"    THEN cVarValue = "" .                                       
                      END CASE.
                        
                      cExcelVarValue = cVarValue.
@@ -382,7 +390,8 @@ FOR EACH tt-cust,
                           WHEN "qty-case"   THEN cVarValue = "" .
                           WHEN "FG-lot"   THEN cVarValue = "" . 
                           WHEN "cust-lot"   THEN cVarValue = "" . 
-                          WHEN "due-date" THEN cVarValue = "" . 
+                          WHEN "due-date" THEN cVarValue = "" .
+                          WHEN "job-due-date"    THEN cVarValue = "" .    
                      END CASE.
                        
                      cExcelVarValue = cVarValue.
