@@ -1669,9 +1669,10 @@ DO:
     
       RUN oe/oe-comm.p.  
     
-      RUN oe/calcordt.p (ROWID(oe-ord)).  
-    
-      IF ld-prev-t-price NE oe-ordl.t-price OR ip-type BEGINS "update-" THEN
+      RUN oe/calcordt.p (ROWID(oe-ord)). 
+
+      IF (ld-prev-t-price NE oe-ordl.t-price OR ip-type BEGINS "update-")
+           AND AVAIL cust AND cust.active NE "X" AND AVAIL oe-ord AND oe-ord.TYPE NE "T" THEN
          RUN oe/creditck.p (ROWID(oe-ord), YES).  
     
       IF oe-ordl.job-no NE "" THEN
