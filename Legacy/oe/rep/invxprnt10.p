@@ -79,7 +79,7 @@ def var v-bill-i as char format "x(25)" no-undo.
 def var v-ord-no like oe-ord.ord-no no-undo.
 def var v-ord-date like oe-ord.ord-date no-undo.
 def var v-ship-i as char format "x(25)" no-undo.
-def var v-rel-po-no like oe-rel.po-no no-undo.
+def var v-ord-po-no like oe-ord.po-no no-undo.
 def var v-price-head as char format "x(5)" no-undo.
 DEF VAR v-subtot-lines AS DEC NO-UNDO.
 def workfile w-tax
@@ -109,6 +109,7 @@ DEF VAR lv-comp-name AS cha FORM "x(30)" NO-UNDO.
 DEF VAR lv-comp-color AS cha NO-UNDO.
 DEF VAR lv-other-color AS cha INIT "BLACK" NO-UNDO.
 DEF VAR v-page-num AS INT NO-UNDO.
+DEFINE VARIABLE vRelPo like oe-rel.po-no no-undo.
 
 DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
@@ -360,8 +361,8 @@ find first company where company.company eq cocode NO-LOCK.
         find first oe-bolh where oe-bolh.company = inv-head.company and
                                  oe-bolh.bol-no = inv-head.bol-no
                                  USE-INDEX bol-no no-lock no-error.
-        if avail oe-bolh then
-          assign v-rel-po-no = oe-bolh.po-no.
+      /*  if avail oe-bolh then
+          assign v-rel-po-no = oe-bolh.po-no.*/
 
         find first inv-line where inv-line.r-no = inv-head.r-no
                                   no-lock no-error.
@@ -375,7 +376,8 @@ find first company where company.company eq cocode NO-LOCK.
           do:
             assign v-bill-i = oe-ord.bill-i[1]
                    v-ord-no = oe-ord.ord-no
-                   v-ord-date = oe-ord.ord-date.
+                   v-ord-date = oe-ord.ord-date
+                   v-ord-po-no = oe-ord.po-no.
           end.
           else
             assign v-price-head = inv-line.pr-uom.
@@ -462,6 +464,19 @@ find first company where company.company eq cocode NO-LOCK.
                              oe-ordl.t-ship-qty) < 0 then 0 else
                              (inv-line.qty - v-ship-qty -
                               oe-ordl.t-ship-qty).
+
+             ASSIGN vRelPo = "".
+             FOR EACH oe-rel NO-LOCK
+                WHERE oe-rel.company = cocode
+                AND oe-rel.ord-no = oe-ordl.ord-no
+                AND oe-rel.i-no = oe-ordl.i-no
+                AND oe-rel.LINE = oe-ordl.LINE :
+
+                IF oe-rel.po-no NE "" THEN DO:
+                  vRelPo = oe-rel.po-no. 
+                  LEAVE.
+                END.
+             END.
 
               IF NOT CAN-FIND(FIRST oe-boll
                               WHERE oe-boll.company EQ inv-line.company
@@ -560,11 +575,11 @@ find first company where company.company eq cocode NO-LOCK.
               if v-part-info ne "" OR  (v = 1 AND inv-line.part-no <> "") then do:
                  IF v = 1 THEN DO:
                      
-                     IF LENGTH(inv-line.po-no) LE 8 THEN DO:
-                         PUT  SPACE(16) inv-line.po-no FORMAT "x(8)" SPACE(1)   inv-line.part-no SPACE v-part-info SKIP.
+                     IF LENGTH(vRelPo) LE 8 THEN DO:
+                         PUT  SPACE(16) vRelPo FORMAT "x(8)" SPACE(1)   inv-line.part-no SPACE v-part-info SKIP.
                      END.
                      ELSE DO: 
-                         PUT  SPACE(9) inv-line.po-no FORMAT "x(15)" SPACE(1)   inv-line.part-no SPACE v-part-info SKIP.
+                         PUT  SPACE(9) vRelPo FORMAT "x(15)" SPACE(1)   inv-line.part-no SPACE v-part-info SKIP.
                      END.
 
                  END.

@@ -72,7 +72,7 @@ def var v-bill-i as char format "x(25)" no-undo.
 def var v-ord-no like oe-ord.ord-no no-undo.
 def var v-ord-date like oe-ord.ord-date no-undo.
 def var v-ship-i as char format "x(25)" no-undo.
-def var v-rel-po-no like oe-rel.po-no no-undo.
+def var v-ord-po-no like oe-ord.po-no no-undo.
 def var v-price-head as char format "x(5)" no-undo.
 DEF VAR v-subtot-lines AS DEC NO-UNDO.
 def TEMP-TABLE w-tax
@@ -107,6 +107,7 @@ DEF VAR v-page-num AS INT NO-UNDO.
 DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
 DEFINE VARIABLE ls-full-img1 AS CHAR FORMAT "x(200)" NO-UNDO.
+DEFINE VARIABLE vRelPo like oe-rel.po-no no-undo.
 
 RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormLogo", "C" /* Logical */, NO /* check by cust */, 
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
@@ -313,8 +314,10 @@ ELSE lv-comp-color = "BLACK".
         assign v-po-no = ar-inv.po-no
                v-bill-i = ar-inv.bill-i[1]
                v-ord-no = ar-inv.ord-no
-               v-ord-date = ar-inv.ord-date.
-
+               v-ord-date = ar-inv.ord-date
+               v-ord-po-no = ""
+               .
+        
         find first ar-invl
              where ar-invl.x-no  eq ar-inv.x-no  
                and (ar-invl.misc eq no or ar-invl.billable)
@@ -325,6 +328,13 @@ ELSE lv-comp-color = "BLACK".
                   v-po-no = IF ar-invl.po-no <> "" THEN ar-invl.po-no ELSE ar-inv.po-no
                   v-ord-no = ar-invl.ord-no
                   lv-bol-no = ar-invl.bol-no.
+         find first oe-ord where oe-ord.company = cocode and
+                                  oe-ord.ord-no = ar-invl.ord-no
+                                  no-lock no-error.   
+          if avail oe-ord then
+          do:
+            ASSIGN v-ord-po-no = oe-ord.po-no.
+          end.
         end.      
 
         /* display heder info 
@@ -360,6 +370,19 @@ ELSE lv-comp-color = "BLACK".
                                     oe-ordl.t-ship-qty) < 0 then 0 else
                                    (ar-invl.qty - v-ship-qty -
                                     oe-ordl.t-ship-qty).
+             ASSIGN vRelPo = "".
+             FOR EACH oe-rel NO-LOCK
+                WHERE oe-rel.company = cocode
+                AND oe-rel.ord-no = oe-ordl.ord-no
+                AND oe-rel.i-no = oe-ordl.i-no
+                AND oe-rel.LINE = oe-ordl.LINE :
+
+                IF oe-rel.po-no NE "" THEN DO:
+                  vRelPo = oe-rel.po-no.  
+                  LEAVE.
+                END.
+             END.
+
               IF NOT CAN-FIND(FIRST oe-boll
                               WHERE oe-boll.company EQ ar-invl.company
                                 AND oe-boll.b-no    EQ ar-invl.b-no
@@ -446,11 +469,11 @@ ELSE lv-comp-color = "BLACK".
               if v-part-info ne "" OR (v = 1 AND ar-invl.part-no <> "") then do:
                  IF v = 1 THEN DO:
 
-                     IF LENGTH(ar-invl.po-no) LE 8 THEN DO:
-                         PUT  SPACE(16) ar-invl.po-no FORMAT "x(8)" SPACE(1)   ar-invl.part-no SPACE v-part-info SKIP.
+                     IF LENGTH(vRelPo) LE 8 THEN DO:
+                         PUT  SPACE(16) vRelPo FORMAT "x(8)" SPACE(1)   ar-invl.part-no SPACE v-part-info SKIP.
                      END.
                      ELSE DO: 
-                         PUT  SPACE(9) ar-invl.po-no FORMAT "x(15)" SPACE(1)   ar-invl.part-no SPACE v-part-info SKIP.
+                         PUT  SPACE(9) vRelPo FORMAT "x(15)" SPACE(1)   ar-invl.part-no SPACE v-part-info SKIP.
                      END.
                  END.
                  ELSE 
