@@ -2927,11 +2927,12 @@ PROCEDURE display-fgitem :
             po-ordl.item-type:SCREEN-VALUE                     = "FG"
             fiCount:SCREEN-VALUE                               = STRING(itemfg.case-COUNT)
             v-op-type                                          = FALSE
-            v-len                                              = itemfg.t-len
-            v-wid                                              = itemfg.t-wid
-            v-dep                                              = 0
-            {po/calc16.i v-len}
-            {po/calc16.i v-wid}.
+            .
+            RUN po/GetFGDimsForPO.p (ROWID(itemfg), OUTPUT v-len, OUTPUT v-wid, OUTPUT v-dep).
+            ASSIGN  
+                {po/calc16.i v-len}
+                {po/calc16.i v-wid}
+                {po/calc16.i v-dep}.
 
         IF itemfg.taxable AND aptax-chr EQ "Item" THEN
             po-ordl.tax:SCREEN-VALUE = "yes".
