@@ -32,12 +32,18 @@ v-oecount = avail sys-ctrl and sys-ctrl.log-fld.
 
 /*if lookup(v-format,"Brick,TriState,RFC") gt 0 then do:
 */
-if xeb.est-type eq 6 THEN
+if xeb.est-type eq 6 THEN do:
       find first bf-xeb no-lock
           where bf-xeb.company EQ xeb.company 
             AND bf-xeb.est-no   eq xeb.est-no
             and bf-xeb.form-no eq 0
            no-error.
+      IF AVAIL bf-xeb AND NOT bf-xeb.pur-man THEN
+          find first bf-xeb no-lock
+          where bf-xeb.company EQ xeb.company 
+          AND ROWID(bf-xeb) EQ ROWID(xeb)
+          no-error.
+END.
 ELSE 
     find first bf-xeb no-lock
           where bf-xeb.company EQ xeb.company 
