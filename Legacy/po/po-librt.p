@@ -470,7 +470,7 @@ IF AVAILABLE cust AND liberty-log AND liberty-dir NE "" THEN
              
             IF AVAILABLE b-ref1 THEN DO:
                 
-                IF b-ref1.val[3] GT 0 THEN DO: 
+                IF b-ref1.val[3] GT 0 OR b-ref1.val[2] GT 0 OR b-ref1.val[1] GT 0 THEN DO: 
                     /* cDimensions = TRIM(STRING(b-ref1.val[1], ">>>>.99")) + " x " + TRIM(STRING(b-ref1.val[2], ">>>>.99")) + " x " + TRIM(STRING(b-ref1.val[3], ">>>>.99")). */
                     cDimensions = "".
                     DO icnt = 1 TO EXTENT(b-ref1.val):
@@ -486,8 +486,7 @@ IF AVAILABLE cust AND liberty-log AND liberty-dir NE "" THEN
                     IF cDimensions EQ "" THEN 
                         cDimensions = TRIM(STRING({sys/inc/k16.i po-ordl.s-wid}, ">>>>.99")).
                 END.
-                ELSE IF b-ref1.val[2] GT 0 THEN 
-                    cDimensions = TRIM(STRING(b-ref1.val[2], ">>>>.99")).
+
                 
                 /* If no dimensions, should just be the width */
                 IF cDimensions EQ "" THEN        
@@ -717,7 +716,7 @@ IF AVAILABLE cust AND liberty-log AND liberty-dir NE "" THEN
             fInsText("L",   547,    6, "AMC"         ). /* sheet plant abbreviation */
             fInsText("L",   554,   22,  STRING(po-ordl.po-no, "999999")).
             fInsText("L",   577,   30, ""         ). /* not used */
-            fInsText("L",   608,    2, "EA"       ). /* Price UOM */
+            fInsText("L",   608,    2, SUBSTRING(po-ordl.pr-uom, 1, 2)       ). /* Price UOM, Take the MS from MSF  */
             fInsText("L",   611,   30, ""         ). /* not used */
             fInsText("L",   642,   35, v-saddr[1] ).
             fInsText("L",   678,   35, v-saddr[2] ).
@@ -731,7 +730,7 @@ IF AVAILABLE cust AND liberty-log AND liberty-dir NE "" THEN
             fInsText("L",   807,   20, ""         ). /* not used */
             fInsText("L",   828,    2, "EA"       ).
             fInsText("L",   831,   12, ""         ). /* not used */
-            fInsText("R",   844,   13, STRING(po-ord.t-cost) ).
+            fInsText("R",   844,   13, STRING(po-ordl.cost) ).
             fInsText("L",   858,   30, ""         ). /* not used */
             fInsText("L",   889,   10, STRING(po-ord.due-date, "99/99/9999")). /* not used */
             cOutLine = TRIM(cOutLine, ",").
