@@ -1020,6 +1020,20 @@ PROCEDURE local-assign-record :
 
   /* Code placed here will execute PRIOR to standard behavior. */
   RUN pVendCostMtx ("ASSIGN").
+  DO WITH FRAME {&FRAME-NAME}:
+      ASSIGN
+        tb_sel-01
+        tb_sel-02
+        tb_sel-03
+        tb_sel-04
+        tb_sel-05
+        tb_sel-06
+        tb_sel-07
+        tb_sel-08
+        tb_sel-09
+        tb_sel-10
+        .
+  END.
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-record':U ) .
@@ -1059,6 +1073,22 @@ PROCEDURE local-assign-record :
                e-itemfg-vend.blank-no = eb.blank-no.
 
   END.
+  
+  MESSAGE 
+  "tb_sel-01:" tb_sel-01
+  VIEW-AS ALERT-BOX.
+  ASSIGN
+    e-itemfg-vend.selected[01] = tb_sel-01
+    e-itemfg-vend.selected[02] = tb_sel-02
+    e-itemfg-vend.selected[03] = tb_sel-03
+    e-itemfg-vend.selected[04] = tb_sel-04
+    e-itemfg-vend.selected[05] = tb_sel-05
+    e-itemfg-vend.selected[06] = tb_sel-06
+    e-itemfg-vend.selected[07] = tb_sel-07
+    e-itemfg-vend.selected[08] = tb_sel-08
+    e-itemfg-vend.selected[09] = tb_sel-09
+    e-itemfg-vend.selected[10] = tb_sel-10
+    .
 
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'display-fields':U ) .
 
