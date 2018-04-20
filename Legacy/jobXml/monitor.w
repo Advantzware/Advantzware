@@ -48,30 +48,7 @@ PROCEDURE postMonitor:
     
     cPathIn  = PrePressHotFolderIn-char.
     cPathOut = PrePressHotFolderOut-char.
-
-    /* Pausing because this monitor process outbound records as well as monitoring a folder */
-    /* so should not run every second                                                       */
-    WAITLOOP:
-    DO WHILE TRUE:    
-        
-        iWaitCount = iWaitCount + 1.
-
-        IF iWaitCount GE iWaitSeconds THEN 
-        DO:
-         iWaitCount = 0. 
-          /* RETURN. */
-          LEAVE WAITLOOP.
-        END.
-        
-        IF iWaitCount EQ 1 THEN 
-          RUN monitorActivity ('Pausing for ' + STRING(iWaitSeconds) + " seconds (To exit, click 'Close' in between pauses)",YES,'').
-        PROCESS EVENTS.
-        PAUSE 1.
-        PROCESS EVENTS.
-           
-    END. 
-    PROCESS EVENTS.
-
+ 
     RUN monitorActivity ('Check New Jobs ' + monitorImportDir,YES,'').
     FOR EACH job NO-LOCK WHERE job.company EQ g_company 
         AND job.opened EQ TRUE
