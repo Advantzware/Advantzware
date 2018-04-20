@@ -2030,6 +2030,9 @@ PROCEDURE show-param :
   def var i as int no-undo.
   def var lv-label as cha.
 
+  DEF VAR v-lstcnt AS INT NO-UNDO.
+  DEF VAR v-lstcnt2 AS INT NO-UNDO.
+
   lv-frame-hdl = frame {&frame-name}:handle.
   lv-group-hdl = lv-frame-hdl:first-child.
   lv-field-hdl = lv-group-hdl:first-child .
@@ -2064,7 +2067,26 @@ PROCEDURE show-param :
       "< Selection Parameters >"
       skip(1).
 
-  do i = 1 to num-entries(parm-fld-list,","):
+  ASSIGN v-lstcnt = NUM-ENTRIES(parm-fld-list,",").
+
+  IF v-lstcnt LT 0 THEN ASSIGN v-lstcnt = v-lstcnt  * -1.
+
+  IF NUM-ENTRIES(parm-fld-list,",") LT NUM-ENTRIES(parm-lbl-list,",") 
+    THEN DO v-lstcnt2 = 1 TO v-lstcnt:
+
+      ASSIGN
+       parm-fld-list = parm-fld-list + "," + " ".
+  END.
+
+  IF NUM-ENTRIES(parm-lbl-list,",") LT NUM-ENTRIES(parm-fld-list,",") 
+    THEN DO v-lstcnt2 = 1 TO v-lstcnt:
+
+      ASSIGN
+       parm-lbl-list = parm-lbl-list + "," + " ".
+  END.
+
+
+  do i = 1 to v-lstcnt:
     if entry(i,parm-fld-list) ne "" or
        entry(i,parm-lbl-list) ne "" then do:
 
