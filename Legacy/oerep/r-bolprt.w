@@ -3726,7 +3726,7 @@ PROCEDURE run-packing-list :
             IF v-print-fmt = "CCC" OR v-print-fmt EQ "CCCWPP" THEN
               PUT "<PRINTER?><LEFT=7mm>".
             ELSE IF v-print-fmt = "Carded" THEN
-              PUT "<PRINTER?><LEFT=2mm>".
+              PUT "<PRINTER?><LEFT=6mm>".
             ELSE
               PUT "<PRINTER?>".
           END.
@@ -3735,7 +3735,7 @@ PROCEDURE run-packing-list :
                IF v-print-fmt = "CCC" OR v-print-fmt EQ "CCCWPP" THEN
                    PUT "<PREVIEW><LEFT=7mm><MODAL=NO>".
                ELSE IF  v-print-fmt = "Carded"  THEN
-                   PUT "<PREVIEW><LEFT=2mm><MODAL=NO>".
+                   PUT "<PREVIEW><LEFT=6mm><MODAL=NO>".
                ELSE
                    PUT "<PREVIEW><MODAL=NO>". 
            END.
@@ -3743,7 +3743,7 @@ PROCEDURE run-packing-list :
              IF v-print-fmt = "CCC" OR v-print-fmt EQ "CCCWPP" THEN
                  PUT "<PREVIEW><LEFT=7mm>".
              ELSE IF v-print-fmt = "Carded" THEN
-                 PUT "<PREVIEW><LEFT=2mm>".
+                 PUT "<PREVIEW><LEFT=6mm>".
              ELSE
                  PUT "<PREVIEW>". 
            END.
@@ -3753,7 +3753,7 @@ PROCEDURE run-packing-list :
                 IF v-print-fmt = "CCC" OR v-print-fmt EQ "CCCWPP" THEN
                   PUT UNFORMATTED "<PRINTER?><LEFT=4mm><EXPORT=" Ls-fax-file ",BW>".
                 ELSE IF v-print-fmt = "Carded" THEN
-                  PUT UNFORMATTED "<PRINTER?><LEFT=2mm><EXPORT=" Ls-fax-file ",BW>".
+                  PUT UNFORMATTED "<PRINTER?><LEFT=6mm><EXPORT=" Ls-fax-file ",BW>".
                 ELSE
                   PUT UNFORMATTED "<PRINTER?><EXPORT=" Ls-fax-file ",BW>".
           END.
@@ -3763,7 +3763,7 @@ PROCEDURE run-packing-list :
               ELSE IF v-print-fmt EQ "PremierX" OR v-print-fmt EQ "PremierXFooter" OR v-print-fmt EQ "RFCX"  OR v-print-fmt = "PremierCX" OR v-print-fmt = "PremierPX" THEN
                    PUT "<PREVIEW><FORMAT=LETTER><PDF-EXCLUDE=MS Mincho><PDF-LEFT=5mm><PDF-TOP=7mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
               ELSE IF v-print-fmt EQ "CCC" OR v-print-fmt EQ "CCCWPP" THEN PUT "<PREVIEW><LEFT=4mm><PDF-LEFT=2mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
-              ELSE IF v-print-fmt EQ "Carded" THEN PUT "<PREVIEW><LEFT=2mm><PDF-LEFT=2mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
+              ELSE IF v-print-fmt EQ "Carded" THEN PUT "<PREVIEW><LEFT=6mm><PDF-LEFT=6mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
               ELSE  PUT "<PREVIEW><PDF-LEFT=2mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
           END.
       END CASE.
@@ -3890,7 +3890,7 @@ PROCEDURE run-report :
               IF v-print-fmt = "CCC" OR v-print-fmt EQ "CCCWPP" THEN
                   PUT "<PRINTER?><LEFT=7mm>".
               ELSE IF v-print-fmt = "Carded" THEN
-                  PUT "<PRINTER?><LEFT=2mm>".
+                  PUT "<PRINTER?><LEFT=6mm>".
               ELSE  PUT "<PRINTER?>".
           END.
           WHEN 2 THEN do:
@@ -3898,14 +3898,14 @@ PROCEDURE run-report :
                IF v-print-fmt = "CCC" OR v-print-fmt EQ "CCCWPP" THEN
                    PUT "<PREVIEW><LEFT=7mm><MODAL=NO>".
                ELSE IF v-print-fmt = "Carded" THEN
-                   PUT "<PREVIEW><LEFT=2mm><MODAL=NO>".
+                   PUT "<PREVIEW><LEFT=6mm><MODAL=NO>".
                ELSE PUT "<PREVIEW><MODAL=NO>".
            END.
            ELSE do:
                IF v-print-fmt = "CCC" OR  v-print-fmt EQ "CCCWPP" THEN
                    PUT "<PREVIEW><LEFT=7mm>".  
                ELSE IF v-print-fmt = "Carded" THEN
-                   PUT "<PREVIEW><LEFT=2mm>".
+                   PUT "<PREVIEW><LEFT=6mm>".
                ELSE
                    PUT "<PREVIEW>".  
            END.
@@ -3915,7 +3915,7 @@ PROCEDURE run-report :
                 IF v-print-fmt = "CCC" OR  v-print-fmt EQ "CCCWPP" THEN
                     PUT UNFORMATTED "<PRINTER?><LEFT=7mm><EXPORT=" Ls-fax-file ",BW>".
                 ELSE IF v-print-fmt = "Carded" THEN
-                    PUT UNFORMATTED "<PRINTER?><LEFT=2mm><EXPORT=" Ls-fax-file ",BW>".
+                    PUT UNFORMATTED "<PRINTER?><LEFT=6mm><EXPORT=" Ls-fax-file ",BW>".
                 ELSE PUT UNFORMATTED "<PRINTER?><EXPORT=" Ls-fax-file ",BW>".
           END.
           WHEN 5 THEN do:
@@ -3924,7 +3924,7 @@ PROCEDURE run-report :
               ELSE IF v-print-fmt EQ "PremierX" OR v-print-fmt EQ "PremierXFooter" OR v-print-fmt EQ "RFCX"  OR v-print-fmt = "PremierCX" OR v-print-fmt = "PremierPX" THEN
                    PUT "<PREVIEW><FORMAT=LETTER><PDF-EXCLUDE=MS Mincho><PDF-LEFT=5mm><PDF-TOP=7mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
               ELSE IF v-print-fmt EQ "CCC" OR  v-print-fmt EQ "CCCWPP" THEN PUT "<PREVIEW><LEFT=4mm><PDF-LEFT=2mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
-              ELSE IF v-print-fmt EQ "Carded" THEN PUT "<PREVIEW><LEFT=2mm><PDF-LEFT=2mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
+              ELSE IF v-print-fmt EQ "Carded" THEN PUT "<PREVIEW><LEFT=6mm><PDF-LEFT=6mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
               ELSE PUT "<PREVIEW><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
           END.
       END CASE.
@@ -4118,7 +4118,7 @@ ELSE IF is-xprint-form AND rd-dest = 1 THEN PUT "<PRINTER?>".
              IF v-print-fmt EQ "CCC" OR  v-print-fmt EQ "CCCWPP" THEN
                  PUT  "<PRINTER?><LEFT=4mm>".
              ELSE IF v-print-fmt EQ "Carded" THEN
-                 PUT  "<PRINTER?><LEFT=2mm>".
+                 PUT  "<PRINTER?><LEFT=6mm>".
              ELSE
                 PUT  "<PRINTER?>".
         END.
@@ -4127,7 +4127,7 @@ ELSE IF is-xprint-form AND rd-dest = 1 THEN PUT "<PRINTER?>".
                IF v-print-fmt EQ "CCC" OR  v-print-fmt EQ "CCCWPP" THEN
                    PUT "<PREVIEW><LEFT=4mm><MODAL=NO>". 
                ELSE IF v-print-fmt EQ "Carded" THEN
-                   PUT "<PREVIEW><LEFT=2mm><MODAL=NO>". 
+                   PUT "<PREVIEW><LEFT=6mm><MODAL=NO>". 
                ELSE
                    PUT "<PREVIEW><MODAL=NO>".  
            END.
@@ -4135,7 +4135,7 @@ ELSE IF is-xprint-form AND rd-dest = 1 THEN PUT "<PRINTER?>".
                IF v-print-fmt EQ "CCC" OR  v-print-fmt EQ "CCCWPP" THEN
                    PUT "<PREVIEW><LEFT=4mm>".
                ELSE IF v-print-fmt EQ "Carded" THEN
-                   PUT "<PREVIEW><LEFT=2mm>".
+                   PUT "<PREVIEW><LEFT=6mm>".
                ELSE
                    PUT "<PREVIEW>".
            END.
@@ -4145,7 +4145,7 @@ ELSE IF is-xprint-form AND rd-dest = 1 THEN PUT "<PRINTER?>".
               IF v-print-fmt EQ "CCC" OR  v-print-fmt EQ "CCCWPP" THEN
                   PUT UNFORMATTED "<PRINTER?><LEFT=4mm><EXPORT=" Ls-fax-file ",BW>".
               ELSE IF v-print-fmt EQ "Carded" THEN
-                  PUT UNFORMATTED "<PRINTER?><LEFT=2mm><EXPORT=" Ls-fax-file ",BW>".
+                  PUT UNFORMATTED "<PRINTER?><LEFT=6mm><EXPORT=" Ls-fax-file ",BW>".
               ELSE PUT UNFORMATTED "<PRINTER?><EXPORT=" Ls-fax-file ",BW>".
         END.
         WHEN 5 THEN do:
@@ -4154,7 +4154,7 @@ ELSE IF is-xprint-form AND rd-dest = 1 THEN PUT "<PRINTER?>".
                  ELSE IF v-print-fmt EQ "PremierX" OR v-print-fmt EQ "PremierXFooter" OR v-print-fmt EQ "RFCX"  OR v-print-fmt = "PremierCX" OR v-print-fmt = "PremierPX" THEN
                    PUT "<PREVIEW><FORMAT=LETTER><PDF-EXCLUDE=MS Mincho><PDF-LEFT=5mm><PDF-TOP=7mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
             ELSE IF v-print-fmt EQ "CCC" OR v-print-fmt EQ "CCCWPP" THEN PUT "<PREVIEW><LEFT=4mm><PDF-LEFT=2mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
-            ELSE IF v-print-fmt EQ "Carded" THEN PUT "<PREVIEW><LEFT=2mm><PDF-LEFT=2mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
+            ELSE IF v-print-fmt EQ "Carded" THEN PUT "<PREVIEW><LEFT=6mm><PDF-LEFT=6mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
             ELSE PUT "<PREVIEW><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
         END.
     END CASE.
@@ -4289,7 +4289,7 @@ PROCEDURE run-report-mail :
                    PUT "<PREVIEW><FORMAT=LETTER><PDF-EXCLUDE=MS Mincho><PDF-LEFT=5mm><PDF-TOP=7mm><PDF-OUTPUT=" + lv-pdf-file + vcBOLNums + ".pdf>" FORM "x(180)".
         ELSE IF v-print-fmt EQ "Prystup-Excel" THEN PUT "<PDF-OUTPUT=" + lv-pdf-file + vcBOLNums + ".pdf>" FORM "x(180)".
         ELSE IF v-print-fmt EQ "CCC" OR v-print-fmt EQ "CCCWPP" THEN PUT "<PREVIEW><LEFT=4mm><PDF-LEFT=2mm><PDF-OUTPUT=" + lv-pdf-file + vcBOLNums + ".pdf>" FORM "x(180)".
-        ELSE IF v-print-fmt EQ "Carded" THEN PUT "<PREVIEW><LEFT=2mm><PDF-LEFT=2mm><PDF-OUTPUT=" + lv-pdf-file + vcBOLNums + ".pdf>" FORM "x(180)".
+        ELSE IF v-print-fmt EQ "Carded" THEN PUT "<PREVIEW><LEFT=6mm><PDF-LEFT=6mm><PDF-OUTPUT=" + lv-pdf-file + vcBOLNums + ".pdf>" FORM "x(180)".
         ELSE PUT "<PREVIEW><PDF-OUTPUT=" + lv-pdf-file + vcBOLNums + ".pdf>" FORM "x(180)".
     END.
 
