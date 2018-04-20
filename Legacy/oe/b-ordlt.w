@@ -1506,8 +1506,12 @@ PROCEDURE delete-item :
   END.
 
   RUN oe/calcordt.p (ROWID(oe-ord)).
-
-  RUN oe/creditck.p (ROWID(oe-ord), YES).
+  FIND FIRST cust NO-LOCK
+      WHERE cust.company EQ cocode
+      AND cust.cust-no EQ oe-ord.cust-no
+      USE-INDEX cust  NO-ERROR.
+  IF AVAIL cust AND cust.active NE "X" AND AVAIL oe-ord AND oe-ord.TYPE NE "T" THEN
+    RUN oe/creditck.p (ROWID(oe-ord), YES).
 
   RUN refresh-releases.
 
@@ -1981,7 +1985,8 @@ PROCEDURE select-price :
 
    RUN oe/calcordt.p (ROWID(oe-ord)).
 
-   IF ld-prev-t-price NE oe-ordl.t-price THEN RUN oe/creditck.p (ROWID(oe-ord),YES).
+   IF (ld-prev-t-price NE oe-ordl.t-price) 
+       AND AVAIL cust AND cust.active NE "X" AND AVAIL oe-ord AND oe-ord.TYPE NE "T" THEN RUN oe/creditck.p (ROWID(oe-ord),YES).
    
 END PROCEDURE.
 
