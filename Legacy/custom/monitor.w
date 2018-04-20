@@ -34,13 +34,7 @@ CREATE WIDGET-POOL.
 
 /* Local Variable Definitions ---                                       */
 
-{methods/defines/globdefs.i}
-{methods/defines/hndldefs.i}
-{sys/inc/var.i "new shared"}
 
-ASSIGN
-  cocode = g_company
-  locode = g_loc.
 
 DEFINE VARIABLE labelLine AS CHARACTER NO-UNDO.
 DEFINE VARIABLE dataLine AS CHARACTER NO-UNDO.
@@ -57,7 +51,7 @@ PROPATH = ".\custom," + PROPATH.
 &IF DEFINED(FWD-VERSION) EQ 0 &THEN
    {methods/lockWindowUpdate.i}
 &ENDIF
-
+ {custom/resizdef.i}  /* resizing window definition include */ 
 SESSION:SET-WAIT-STATE('').
 
 /* _UIB-CODE-BLOCK-END */
@@ -268,6 +262,138 @@ END.
 &ANALYZE-RESUME
 
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
+ON WINDOW-MAXIMIZED OF C-Win /* {1} Monitor */
+DO:
+  
+        ASSIGN 
+            winstate = 1 NO-ERROR.
+        ASSIGN 
+            hcol = FRAME {&FRAME-NAME}:HANDLE NO-ERROR.
+  
+        FIND FIRST bf_size WHERE bf_size.wg_name = STRING(CURRENT-WINDOW) NO-ERROR.
+        IF AVAIL bf_size THEN 
+        DO:           
+      
+            FIND FIRST tt_size WHERE tt_size.wg_name = STRING(hcol) NO-ERROR.
+            IF NOT AVAIL tt_size THEN 
+            DO:
+                CREATE tt_size.
+                assign 
+                    tt_size.wg_name   = STRING(hcol)
+                    tt_size.wg_width  = hcol:WIDTH-PIXELS
+                    tt_size.wg_height = hcol:height-PIXELS
+                    tt_size.wg_xpos   = hcol:X
+                    tt_size.wg_ypos   = hcol:Y NO-ERROR.
+            END.
+            ASSIGN 
+                hcol:HEIGHT-PIXELS = (hcol:HEIGHT-PIXELS * CURRENT-WINDOW:HEIGHT-PIXELS) 
+                         / bf_size.wg_height
+                hcol:width-PIXELS  = (hcol:width-PIXELS * CURRENT-WINDOW:WIDTH-PIXELS) 
+                         / bf_size.wg_width
+                hcol:X             = (hcol:X * CURRENT-WINDOW:WIDTH-PIXELS) / bf_size.wg_width
+                hcol:Y             = (hcol:Y * CURRENT-WINDOW:height-PIXELS) / bf_size.wg_height NO-ERROR.      
+       
+            ASSIGN 
+                hcol = hcol:FIRST-CHILD NO-ERROR.
+            assign 
+                hcol = hcol:FIRST-CHILD NO-ERROR. 
+
+            DO WHILE VALID-HANDLE(hcol):
+                FIND FIRST tt_size WHERE tt_size.wg_name = STRING(hcol) NO-ERROR.
+                IF NOT AVAIL tt_size THEN 
+                DO:
+                    CREATE tt_size.
+                    assign 
+                        tt_size.wg_name   = STRING(hcol)
+                        tt_size.wg_width  = hcol:WIDTH-PIXELS
+                        tt_size.wg_height = hcol:height-PIXELS
+                        tt_size.wg_xpos   = hcol:X
+                        tt_size.wg_ypos   = hcol:Y NO-ERROR.
+             
+                END.
+                ASSIGN 
+                    hcol:HEIGHT-PIXELS = (hcol:HEIGHT-PIXELS * CURRENT-WINDOW:HEIGHT-PIXELS) 
+                             / bf_size.wg_height
+                    hcol:width-PIXELS  = (hcol:width-PIXELS * CURRENT-WINDOW:WIDTH-PIXELS) 
+                             / bf_size.wg_width 
+                    hcol:X             = (hcol:X * CURRENT-WINDOW:WIDTH-PIXELS) / bf_size.wg_width
+                    hcol:Y             = (hcol:Y * CURRENT-WINDOW:height-PIXELS) / bf_size.wg_height NO-ERROR.
+                 
+                ASSIGN 
+                    hcol = hcol:NEXT-SIBLING NO-ERROR.
+            END. /* do while */             
+       
+            /*  RUN set-size IN h_folder ( FRAME {&frame-name}:HEIGHT ,FRAME {&frame-name}:WIDTH ) NO-ERROR. */
+            /*
+            RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"container-target",OUTPUT charsiz-hdl).            
+            DO ii = 1 TO NUM-ENTRIES(charsiz-hdl):
+                RUN max-widget IN WIDGET-HANDLE(ENTRY(ii,charsiz-hdl)) NO-ERROR.
+            END.
+            */
+      
+        END.
+   
+
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
+ON WINDOW-RESTORED OF C-Win /* {1} Monitor */
+DO:
+  
+        IF winstate = 3 THEN ASSIGN winstate = 0 NO-ERROR.
+        ELSE 
+        DO:
+            IF winstate = 1 THEN 
+            DO:
+                ASSIGN 
+                    winstate = 0 NO-ERROR.
+            END.
+            ASSIGN 
+                hcol = FRAME {&FRAME-NAME}:HANDLE NO-ERROR.
+            FIND FIRST tt_size WHERE tt_size.wg_name = STRING(hcol) NO-ERROR.
+            IF AVAIL tt_size THEN 
+            DO:
+                ASSIGN 
+                    hcol:HEIGHT-PIXELS = tt_size.wg_height
+                    hcol:WIDTH-PIXELS  = tt_size.wg_width
+                    hcol:X             = tt_size.wg_xpos
+                    hcol:Y             = tt_size.wg_ypos NO-ERROR.
+            END.
+
+            ASSIGN 
+                hcol = hcol:FIRST-CHILD NO-ERROR.
+            ASSIGN 
+                hcol = hcol:FIRST-CHILD NO-ERROR.
+            DO WHILE VALID-HANDLE(hcol):
+           
+                FIND FIRST tt_size WHERE tt_size.wg_name = STRING(hcol) NO-ERROR.
+                IF AVAIL tt_size THEN 
+                DO:
+                    ASSIGN 
+                        hcol:HEIGHT-PIXELS = tt_size.wg_height
+                        hcol:WIDTH-PIXELS  = tt_size.wg_width
+                        hcol:X             = tt_size.wg_xpos
+                        hcol:Y             = tt_size.wg_ypos  NO-ERROR.
+               
+                END.
+                ASSIGN 
+                    hcol = hcol:NEXT-SIBLING NO-ERROR.
+            END.
+
+
+        END.
+
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME btnClearLog
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnClearLog C-Win
 ON CHOOSE OF btnClearLog IN FRAME DEFAULT-FRAME /* Clear/Archive Log */
@@ -335,6 +461,18 @@ END PROCEDURE.
 ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME} 
        THIS-PROCEDURE:CURRENT-WINDOW = {&WINDOW-NAME}.
 
+dEFINE VARIABLE adm-broker-hdl AS HANDLE. 
+
+{methods/defines/hndldefs.i} 
+{sys/inc/var.i "new shared"}
+ {methods/prgsecur.i "WIN"} 
+  ASSIGN
+    cocode = g_company
+    locode = g_loc. 
+ {methods/defines/winReSize.i}   
+ {methods/defines/noreckey.i}
+
+ 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
 ON CLOSE OF THIS-PROCEDURE 
@@ -525,25 +663,73 @@ PROCEDURE winReSize :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-&IF DEFINED(FWD-VERSION) EQ 0 &THEN
-  RUN LockWindowUpdate (ACTIVE-WINDOW:HWND,OUTPUT i).
-&ELSE
-  ACTIVE-WINDOW:DISABLE-REDRAW = TRUE.
-&ENDIF
-  ASSIGN
-    {&WINDOW-NAME}:WINDOW-STATE = 1
-    {&WINDOW-NAME}:HEIGHT-PIXELS = {&WINDOW-NAME}:HEIGHT-PIXELS - 30
-    {&WINDOW-NAME}:VIRTUAL-WIDTH-PIXELS = {&WINDOW-NAME}:WIDTH-PIXELS
-    {&WINDOW-NAME}:VIRTUAL-HEIGHT-PIXELS = {&WINDOW-NAME}:HEIGHT-PIXELS
-    FRAME {&FRAME-NAME}:WIDTH-PIXELS = {&WINDOW-NAME}:WIDTH-PIXELS
-    FRAME {&FRAME-NAME}:HEIGHT-PIXELS = {&WINDOW-NAME}:HEIGHT-PIXELS
-    monitorActivity:WIDTH-PIXELS = FRAME {&FRAME-NAME}:WIDTH-PIXELS - 2
-    monitorActivity:HEIGHT-PIXELS = FRAME {&FRAME-NAME}:HEIGHT-PIXELS - 45.
-&IF DEFINED(FWD-VERSION) EQ 0 &THEN
-  RUN LockWindowUpdate (0,OUTPUT i).
-&ELSE
-  ACTIVE-WINDOW:DISABLE-REDRAW = FALSE.
-&ENDIF
+  &IF DEFINED(winReSize) NE 0 &THEN
+    DEFINE VARIABLE hPixels       AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE wPixels       AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE noReSize      AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE noReSizeName  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE screenRatio   AS DECIMAL   NO-UNDO INITIAL 1.
+    DEFINE VARIABLE winReSizeDat  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE currentWidget AS HANDLE    NO-UNDO.
+    
+    IF {&WINDOW-NAME}:WINDOW-STATE NE 1 THEN RETURN.
+
+    winReSizeDat = 'users/' + USERID('NOSWEAT') + '/winReSize.dat'.
+    IF SEARCH(winReSizeDat) NE ? THEN 
+    DO:
+        INPUT FROM VALUE(winReSizeDat).
+        IMPORT ^ screenRatio.
+        INPUT CLOSE.
+    END.
+    
+    ASSIGN
+        hPixels                                   = FRAME {&FRAME-NAME}:HEIGHT-PIXELS
+        wPixels                                   = FRAME {&FRAME-NAME}:WIDTH-PIXELS
+        rowDiff                                   = FRAME {&FRAME-NAME}:HEIGHT
+        colDiff                                   = FRAME {&FRAME-NAME}:WIDTH
+        {&WINDOW-NAME}:HEIGHT-PIXELS              = hPixels + ({&WINDOW-NAME}:HEIGHT-PIXELS - hPixels) * screenRatio
+        {&WINDOW-NAME}:WIDTH-PIXELS               = wPixels + ({&WINDOW-NAME}:WIDTH-PIXELS - wPixels) * screenRatio
+        {&WINDOW-NAME}:HEIGHT-PIXELS              = {&WINDOW-NAME}:HEIGHT-PIXELS - 40
+        {&WINDOW-NAME}:VIRTUAL-HEIGHT-PIXELS      = {&WINDOW-NAME}:HEIGHT-PIXELS
+        {&WINDOW-NAME}:VIRTUAL-WIDTH-PIXELS       = {&WINDOW-NAME}:WIDTH-PIXELS
+        FRAME {&FRAME-NAME}:HEIGHT-PIXELS         = {&WINDOW-NAME}:HEIGHT-PIXELS
+        FRAME {&FRAME-NAME}:WIDTH-PIXELS          = {&WINDOW-NAME}:WIDTH-PIXELS
+        FRAME {&FRAME-NAME}:VIRTUAL-HEIGHT-PIXELS = FRAME {&FRAME-NAME}:HEIGHT-PIXELS
+        FRAME {&FRAME-NAME}:VIRTUAL-WIDTH-PIXELS  = FRAME {&FRAME-NAME}:WIDTH-PIXELS
+        hPixels                                   = FRAME {&FRAME-NAME}:HEIGHT-PIXELS - hPixels
+        wPixels                                   = FRAME {&FRAME-NAME}:WIDTH-PIXELS - wPixels
+        rowDiff                                   = FRAME {&FRAME-NAME}:HEIGHT - rowDiff
+        colDiff                                   = FRAME {&FRAME-NAME}:WIDTH - colDiff
+        FRAME message-frame:WIDTH-PIXELS          = FRAME message-frame:WIDTH-PIXELS + wPixels
+        /*
+        FRAME options-frame:WIDTH-PIXELS = FRAME options-frame:WIDTH-PIXELS + wPixels
+        */
+        .
+
+    IF VALID-HANDLE(h_folder) THEN
+        RUN set-size IN h_folder (FRAME {&FRAME-NAME}:HEIGHT - 1,FRAME {&FRAME-NAME}:WIDTH - 1) NO-ERROR.
+
+  &ENDIF
+
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE winSize C-Win 
+PROCEDURE winSize :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER opRowDiff AS DECIMAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opColDiff AS DECIMAL NO-UNDO.
+
+    ASSIGN
+        opRowDiff = rowDiff
+        opColDiff = colDiff.
 
 END PROCEDURE.
 
