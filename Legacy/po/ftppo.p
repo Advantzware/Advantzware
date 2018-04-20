@@ -96,7 +96,8 @@ DO:
     FILE-INFO:FILE-NAME = cWinScpIniFile.
     cWinScpIniFile = " /ini=" + FILE-INFO:FULL-PATHNAME.
 END.
-cWinScpXmlLog = ip-exp-file + ".xml".
+
+cWinScpXmlLog =ENTRY(1, ip-exp-file) + ".xml".
  
 RUN load-config.
 
