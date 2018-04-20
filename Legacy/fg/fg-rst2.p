@@ -2,6 +2,6 @@
 /* itemfg reset                                                               */
 /* -------------------------------------------------------------------------- */
 
-{sys/inc/fg-reset.i "itemfg."}
+    {sys/inc/fg-reset.i "itemfg."}
 
 /* end ---------------------------------- copr. 1997  advanced software, inc. */
