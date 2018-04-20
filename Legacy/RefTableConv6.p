@@ -129,5 +129,5 @@ END.
 OUTPUT STREAM sReport CLOSE.        
      
 MESSAGE 
-    "Reftable data migration complete."
+    "Reftable data migration 6 complete."
     VIEW-AS ALERT-BOX INFO. 
