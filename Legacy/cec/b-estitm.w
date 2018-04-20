@@ -2545,17 +2545,25 @@ PROCEDURE calc-blank-size :
                 .
       ELSE DO:
          RUN cec/descalc.p (RECID(xest),RECID(xeb)).
-
+          
          DO i = 1 TO EXTENT(xeb.k-wid-scr-type2):
            ASSIGN
             xeb.k-wid-scr-type2[i] = lv-k-wid-scr-type[i]
             xeb.k-len-scr-type2[i] = lv-k-len-scr-type[i].
          END.
-
+          
          IF v-lscore-c BEGINS "No" THEN
             ASSIGN  xeb.k-wid-array2[1] = xeb.t-wid
                     xeb.k-len-array2[1] = xeb.t-len.
-         ELSE DO:
+         ELSE IF xest.metric THEN DO:  /*Note - this may work for all*/
+            DO i = 1 TO EXTENT(dPanelsLength):
+                ASSIGN
+                xeb.k-wid-array2[i] = dPanelsWidth[i]
+                xeb.k-len-array2[i] = dPanelsLength[i].
+            END.
+             
+          END.
+           ELSE DO:
             i = 0.
             FOR EACH w-box-design-line:
               ASSIGN

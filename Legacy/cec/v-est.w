@@ -2517,6 +2517,10 @@ PROCEDURE calc-blank-size :
                 bf-eb.k-len-array2[1] = bf-eb.t-len
                 .
       else do:
+          ASSIGN /*initialize arrays*/ 
+          dPanelsLength = 0
+          dPanelsWidth = 0.
+          
          run cec/descalc.p (recid(xest),recid(xeb)).
 
          DO i = 1 TO EXTENT(xeb.k-wid-scr-type2):
@@ -2528,7 +2532,15 @@ PROCEDURE calc-blank-size :
          if v-lscore-c begins "No" then
             assign  xeb.k-wid-array2[1] = xeb.t-wid
                     xeb.k-len-array2[1] = xeb.t-len.
-         else do:
+          ELSE IF xest.metric THEN DO:  /*Note - this may work for all*/
+            DO i = 1 TO EXTENT(dPanelsLength):
+                ASSIGN
+                xeb.k-wid-array2[i] = dPanelsWidth[i]
+                xeb.k-len-array2[i] = dPanelsLength[i].
+            END.
+             
+          END.
+          else do:
            i = 0.
            for each w-box-design-line:
               i = i + 1.
