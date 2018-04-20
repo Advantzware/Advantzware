@@ -1421,6 +1421,26 @@ PROCEDURE calcMSF :
     ASSIGN
         bf-po-ordl.s-len = v-len
         bf-po-ordl.s-wid = v-wid.
+    IF v-dep GT 0 THEN DO:
+        FIND FIRST reftable WHERE
+            reftable.reftable EQ "POORDLDEPTH" AND
+            reftable.company  EQ cocode AND
+            reftable.loc      EQ STRING(bf-po-ordl.po-no) AND
+            reftable.code     EQ STRING(bf-po-ordl.LINE)
+            EXCLUSIVE-LOCK NO-ERROR.   
+        IF NOT AVAILABLE reftable THEN 
+        DO:
+            CREATE reftable.
+            ASSIGN
+                reftable.reftable = "POORDLDEPTH"
+                reftable.company  = cocode 
+                reftable.loc      = STRING(bf-po-ordl.po-no)
+                reftable.code     = STRING(po-ordl.LINE).
+        END.
+        reftable.code2 = STRING(v-dep).
+        FIND CURRENT reftable NO-LOCK NO-ERROR.
+        RELEASE reftable.
+    END.
     RELEASE bf-po-ordl.
 END PROCEDURE.
 
@@ -1460,7 +1480,8 @@ PROCEDURE calcOrdQty :
 
     ASSIGN
         v-len = bf-w-job-mat.len
-        v-wid = bf-w-job-mat.wid.
+        v-wid = bf-w-job-mat.wid
+        v-dep = bf-w-job-mat.dep.
 
     IF bf-po-ordl.s-num EQ 0 AND bf-po-ordl.b-num EQ 0 THEN
         ASSIGN bf-po-ordl.s-num = bf-w-job-mat.frm
@@ -4630,9 +4651,6 @@ PROCEDURE wJobFromttItemfg :
                 w-job-mat.isaset       = itemfg.isaset
                 w-job-mat.isacomponent = tt-itemfg.isacomponent
                 w-job-mat.this-is-a-rm = NO
-                w-job-mat.wid          = itemfg.t-wid
-                w-job-mat.len          = itemfg.t-len
-                w-job-mat.dep          = 0
                 w-job-mat.basis-w      = itemfg.t-wid * itemfg.t-len * 100
                 w-job-mat.basis-w      = itemfg.weight-100 /
                                 (IF v-corr THEN (w-job-mat.basis-w * .007)
@@ -4641,6 +4659,7 @@ PROCEDURE wJobFromttItemfg :
                 w-job-mat.qty-uom      = "EA"
                 w-job-mat.sc-uom       = itemfg.pur-uom
                 w-job-mat.qty          = tt-itemfg.qty.
+                RUN po/GetFGDimsForPO.p (ROWID(itemfg), OUTPUT w-job-mat.len, OUTPUT w-job-mat.wid, OUTPUT w-job-mat.dep).
   
         END. /* if q-avail is OK */
     END. /* each tt-itemfg */
