@@ -2181,7 +2181,7 @@ PROCEDURE valid-mach :
         IF NOT AVAILABLE mach THEN DO:
             IF (cMachType = "S" AND ( (sh-wid < sh-len AND  (dMachMaxLen LT sh-len OR dMachMaxWid LT sh-wid) ) OR (sh-wid > sh-len AND ( dMachMaxLen LT sh-len OR dMachMaxWid LT sh-wid)  ) )) THEN DO:
 
-                RUN custom/d-msg-mach.w ("Warning","","Estimate specifications outside machine limits ","",2,"Reverse Feed Direction,OK", OUTPUT v-msgreturn).         
+                RUN custom/d-msg-mach.w ("Warning","","Sheet size outside machine limits ","",2,"Reverse Feed Direction,OK", OUTPUT v-msgreturn).         
                 IF v-msgreturn = 1  THEN DO:
                     FIND FIRST bf-ef EXCLUSIVE-LOCK WHERE 
                                bf-ef.company EQ xef.company AND
@@ -2208,14 +2208,21 @@ PROCEDURE valid-mach :
                 END.
 
             END.  /* cMachType = "S" */   
-            ELSE IF cMachType = "B" AND est-op.spare-char-1:screen-value IN BROWSE {&browse-name} NE "R" THEN DO: 
-                  RUN custom/d-msg-mach.w ("Warning","","Estimate specifications outside machine limits ","",2,"Add Machine Anyway,OK", OUTPUT v-msgreturn).        
+            ELSE IF cMachType = "B" AND est-op.spare-char-1:screen-value IN BROWSE {&browse-name} NE "R" 
+            AND ( (sh-wid < sh-len AND  (dMachMaxLen LT sh-len OR dMachMaxWid LT sh-wid) ) OR (sh-wid > sh-len AND ( dMachMaxLen LT sh-len OR dMachMaxWid LT sh-wid)  ) ) THEN DO: 
+                  RUN custom/d-msg-mach.w ("Warning","","Blank size outside machine limits","",2,"Reverse Blank Feed,OK", OUTPUT v-msgreturn).        
                  IF v-msgreturn = 1  THEN DO:
                     est-op.spare-char-1:screen-value IN BROWSE {&browse-name} = "R" .
                     FIND FIRST mach
                         {sys/look/machW.i}
                         AND mach.m-code EQ est-op.m-code:screen-value IN BROWSE {&browse-name}
                         NO-LOCK NO-ERROR.
+                     {cec/mach-seq.i sh-len sh-wid sh-dep}
+                     IF NOT AVAILABLE mach THEN  DO:
+                        MESSAGE "Blank size outside machine limits, when reversed" VIEW-AS ALERT-BOX ERROR.
+                        APPLY "entry" TO est-op.m-code IN BROWSE {&browse-name}.
+                        RETURN ERROR.
+                     END.
                     LEAVE.
                  END.
                  
@@ -2230,6 +2237,12 @@ PROCEDURE valid-mach :
                     {sys/look/machW.i}
                     AND mach.m-code EQ est-op.m-code:screen-value IN BROWSE {&browse-name}
                     NO-LOCK NO-ERROR.
+                    {cec/mach-seq.i sh-len sh-wid sh-dep}
+                     IF NOT AVAILABLE mach THEN  DO:
+                        MESSAGE "Blank size outside machine limits, when reversed" VIEW-AS ALERT-BOX ERROR.
+                        APPLY "entry" TO est-op.m-code IN BROWSE {&browse-name}.
+                        RETURN ERROR.
+                     END.
                     LEAVE.
             END. 
             ELSE DO:
