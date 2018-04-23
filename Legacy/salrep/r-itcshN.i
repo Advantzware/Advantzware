@@ -868,8 +868,13 @@ END.
        v-amt[2] = 0.
     end.
     if v-det then do:
-        IF FIRST-OF(tt-report.key-02) AND LAST-OF(tt-report.key-02)  AND NOT LAST(tt-report.key-01) THEN
+        IF FIRST-OF(tt-report.key-02) AND LAST-OF(tt-report.key-02)  AND NOT LAST(tt-report.key-01) THEN DO:
             PUT SKIP(1) .
+            IF tb_excel THEN DO:
+                PUT STREAM excel UNFORMATTED  SKIP(1).
+            END.
+            
+        END.
     END.
 
     if last-of(tt-report.key-02) then do:
