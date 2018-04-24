@@ -829,7 +829,7 @@ END.
 ON LEAVE OF fg-rctd.tag IN BROWSE Browser-Table /* Tag# */
 DO:    
   DEF VAR lNegative AS LOG NO-UNDO.
-  IF LASTKEY NE -1 AND SELF:MODIFIED THEN DO:    
+  IF LASTKEY NE -1 THEN DO:    
     IF avail(fg-rctd) AND fg-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name} NE fg-rctd.tag THEN
       RUN valid-tag (FOCUS, OUTPUT lNegative) NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
@@ -888,7 +888,7 @@ DO:
   IF liDummy EQ 0 THEN
     RETURN.
 
-  IF LASTKEY NE -1 AND SELF:MODIFIED THEN DO:
+  IF LASTKEY NE -1 THEN DO:
       IF INT({&self-name}:SCREEN-VALUE IN BROWSE {&browse-name}) EQ 0 THEN
           {&self-name}:SCREEN-VALUE IN BROWSE {&browse-name} = "".
       IF {&self-name}:SCREEN-VALUE IN BROWSE {&browse-name} NE "" THEN DO:
@@ -982,7 +982,7 @@ DO:
   IF liDummy EQ 0 THEN
     RETURN.
 
-  IF LASTKEY NE -1 AND SELF:MODIFIED THEN DO:
+  IF LASTKEY NE -1 THEN DO:
     IF NOT fgRecptPassWord-log THEN
       RUN valid-job-no (INPUT YES) NO-ERROR.
     ELSE
@@ -1019,7 +1019,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rctd.job-no2 Browser-Table _BROWSE-COLUMN B-table-Win
 ON LEAVE OF fg-rctd.job-no2 IN BROWSE Browser-Table
 DO:
-  IF LASTKEY NE -1 AND SELF:MODIFIED THEN DO:
+  IF LASTKEY NE -1 THEN DO:
     RUN valid-job-no2 NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
@@ -1265,7 +1265,6 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rctd.std-cost Browser-Table _BROWSE-COLUMN B-table-Win
 ON LEAVE OF fg-rctd.std-cost IN BROWSE Browser-Table /* Cost/UOM */
 DO:
-    IF SELF:MODIFIED THEN
   RUN get-matrix (NO).
 END.
 
@@ -1295,7 +1294,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rctd.cost-uom Browser-Table _BROWSE-COLUMN B-table-Win
 ON LEAVE OF fg-rctd.cost-uom IN BROWSE Browser-Table /* UOM */
 DO:
-  IF LASTKEY NE -1 AND SELF:MODIFIED THEN DO:
+  IF LASTKEY NE -1 THEN DO:
     RUN valid-uom NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
@@ -1329,7 +1328,6 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rctd.frt-cost Browser-Table _BROWSE-COLUMN B-table-Win
 ON LEAVE OF fg-rctd.frt-cost IN BROWSE Browser-Table /* Freight Cost */
 DO:
-    IF SELF:MODIFIED THEN
   RUN get-matrix (NO).
 END.
 
