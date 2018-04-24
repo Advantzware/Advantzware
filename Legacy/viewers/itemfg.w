@@ -792,7 +792,7 @@ END.
 ON LEAVE OF itemfg.def-loc IN FRAME F-Main /* Warehse */
 DO:
     {&methods/lValidateError.i YES}
-    IF LASTKEY <> -1 AND itemfg.def-loc:SCREEN-VALUE <> "" AND
+    IF LASTKEY <> -1 AND 
     NOT CAN-FIND(FIRST loc WHERE loc.company = gcompany AND loc.loc = itemfg.def-loc:SCREEN-VALUE)
     THEN DO:
          IF itemfg.def-loc:SCREEN-VALUE EQ ""  THEN
@@ -813,7 +813,7 @@ END.
 ON LEAVE OF itemfg.def-loc-bin IN FRAME F-Main /* Bin */
 DO: 
     {&methods/lValidateError.i YES}
-    IF LASTKEY <> -1 AND itemfg.def-loc-bin:SCREEN-VALUE <> "" AND
+    IF LASTKEY <> -1 AND 
        NOT CAN-FIND(FIRST fg-bin WHERE fg-bin.company = gcompany AND fg-bin.loc = itemfg.def-loc:SCREEN-VALUE AND
                           fg-bin.loc-bin = itemfg.def-loc-bin:SCREEN-VALUE)
     THEN DO:
@@ -1928,8 +1928,7 @@ PROCEDURE local-update-record :
     RUN valid-type NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
-    IF itemfg.def-loc:SCREEN-VALUE <> "" AND
-       NOT CAN-FIND(FIRST loc WHERE loc.company = gcompany AND loc.loc = itemfg.def-loc:SCREEN-VALUE)
+    IF NOT CAN-FIND(FIRST loc WHERE loc.company = gcompany AND loc.loc = itemfg.def-loc:SCREEN-VALUE)
     THEN DO:
          IF itemfg.def-loc:SCREEN-VALUE EQ ""  THEN
              MESSAGE "Must enter a valid warehouse..." VIEW-AS ALERT-BOX ERROR.
@@ -1939,8 +1938,7 @@ PROCEDURE local-update-record :
          RETURN NO-APPLY.
     END.
 
-    IF itemfg.def-loc-bin:SCREEN-VALUE <> "" AND
-       NOT CAN-FIND(FIRST fg-bin WHERE fg-bin.company = gcompany AND fg-bin.loc = itemfg.def-loc:SCREEN-VALUE AND
+    IF NOT CAN-FIND(FIRST fg-bin WHERE fg-bin.company = gcompany AND fg-bin.loc = itemfg.def-loc:SCREEN-VALUE AND
                           fg-bin.loc-bin = itemfg.def-loc-bin:SCREEN-VALUE)
     THEN DO:
          IF itemfg.def-loc-bin:SCREEN-VALUE EQ ""  THEN
