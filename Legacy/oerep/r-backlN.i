@@ -308,20 +308,20 @@
                            WHEN "est"        THEN cVarValue = STRING(w-ord.est-no) .
                            WHEN "qty-due"    THEN cVarValue = STRING(w-ord.qty-due,"->>>,>>>,>>9") .
                            WHEN "status"     THEN cVarValue = STRING(w-ord.stat) .
-                           WHEN "std-cst"    THEN cVarValue = IF v-profit and security-flag THEN STRING(w-ord.cost,"->>>>,>>9.99") ELSE "".
+                           WHEN "std-cst"    THEN cVarValue = IF v-profit and security-flag THEN STRING(w-ord.cost,"->>>,>>>,>>9.99") ELSE "".
                            WHEN "uom"        THEN cVarValue = IF security-flag THEN STRING(v-uom) ELSE "".
-                           WHEN "gp-dolr"    THEN cVarValue = IF v-profit and security-flag THEN STRING(v-gpdollar,"->>>>,>>9.99") ELSE "".
-                           WHEN "gp"         THEN cVarValue = IF v-profit and security-flag THEN STRING(v-gp,"->>>>>>") ELSE "".
+                           WHEN "gp-dolr"    THEN cVarValue = IF v-profit and security-flag THEN STRING(v-gpdollar,"->>>,>>>,>>9.99") ELSE "".
+                           WHEN "gp"         THEN cVarValue = IF v-profit and security-flag THEN STRING(v-gp,"->>>>>>>>") ELSE "".
                            WHEN "lst-shp"    THEN cVarValue = IF v-last-shipid NE ? THEN STRING(v-last-shipid) ELSE "".
-                           WHEN "qty-oh"     THEN cVarValue = STRING(w-ord.qty-onh,"->,>>>,>>9") .
+                           WHEN "qty-oh"     THEN cVarValue = STRING(w-ord.qty-onh,"->>>,>>>,>>9") .
                            WHEN "ord-dt"     THEN cVarValue = IF w-ord.ord-date NE ? THEN STRING(w-ord.ord-date) ELSE "" .
                            WHEN "itm-no"     THEN cVarValue = STRING(w-ord.i-no) .
                            WHEN "rel-dt"     THEN cVarValue = IF w-ord.rel-date NE ? THEN STRING(w-ord.rel-date) ELSE "" .
-                           WHEN "prc-sal"    THEN cVarValue = IF security-flag THEN STRING(w-ord.price,">>,>>9.99") ELSE "" .
+                           WHEN "prc-sal"    THEN cVarValue = IF security-flag THEN STRING(w-ord.price,"->>>,>>>,>>9.99") ELSE "" .
                            WHEN "stat"       THEN cVarValue = STRING(w-ord.rel-stat,"X(4)") .
-                           WHEN "po-qty-rec" THEN cVarValue = STRING(w-ord.po-received,"->>,>>>,>>>") .
-                           WHEN "t-pric"     THEN cVarValue = IF security-flag THEN STRING(w-ord.t-price,">>>,>>9.99") ELSE "" .
-                           WHEN "ord-qty"     THEN cVarValue =  STRING(w-ord.qty,">>>,>>>,>>9").
+                           WHEN "po-qty-rec" THEN cVarValue = STRING(w-ord.po-received,"->>>,>>>,>>9") .
+                           WHEN "t-pric"     THEN cVarValue = IF security-flag THEN STRING(w-ord.t-price,"->>>,>>>,>>9.99") ELSE "" .
+                           WHEN "ord-qty"     THEN cVarValue =  STRING(w-ord.qty,"->>>,>>>,>>9").
                                                               
                       END CASE.
                         
@@ -384,10 +384,10 @@
                            WHEN "est"        THEN cVarValue = "" .
                            WHEN "qty-due"    THEN cVarValue = "" .
                            WHEN "status"     THEN cVarValue = "" .
-                           WHEN "std-cst"    THEN cVarValue = IF v-profit and security-flag THEN STRING(v-tot-cost[1],"->>>>,>>9.99") ELSE "".
+                           WHEN "std-cst"    THEN cVarValue = IF v-profit and security-flag THEN STRING(v-tot-cost[1],"->>>,>>>,>>9.99") ELSE "".
                            WHEN "uom"        THEN cVarValue =   "".
                            WHEN "gp-dolr"    THEN cVarValue = "".
-                           WHEN "gp"         THEN cVarValue = IF v-profit and security-flag THEN STRING(v-tot-pct,"->>>>>>") ELSE "".
+                           WHEN "gp"         THEN cVarValue = IF v-profit and security-flag THEN STRING(v-tot-pct,"->>>>>>>>") ELSE "".
                            WHEN "lst-shp"    THEN cVarValue =   "".
                            WHEN "qty-oh"     THEN cVarValue =   "" .
                            WHEN "ord-dt"     THEN cVarValue =   "" .
@@ -465,10 +465,10 @@
                            WHEN "est"        THEN cVarValue = "" .
                            WHEN "qty-due"    THEN cVarValue = "" .
                            WHEN "status"     THEN cVarValue = "" .
-                           WHEN "std-cst"    THEN cVarValue = IF v-profit and security-flag THEN STRING(v-tot-cost[2],"->>>>,>>9.99") ELSE "".
+                           WHEN "std-cst"    THEN cVarValue = IF v-profit and security-flag THEN STRING(v-tot-cost[2],"->>>,>>>,>>9.99") ELSE "".
                            WHEN "uom"        THEN cVarValue =   "".
                            WHEN "gp-dolr"    THEN cVarValue = "".
-                           WHEN "gp"         THEN cVarValue = IF v-profit and security-flag THEN STRING(v-tot-pct,"->>>>>>") ELSE "".
+                           WHEN "gp"         THEN cVarValue = IF v-profit and security-flag THEN STRING(v-tot-pct,"->>>>>>>>") ELSE "".
                            WHEN "lst-shp"    THEN cVarValue =   "".
                            WHEN "qty-oh"     THEN cVarValue =   "" .
                            WHEN "ord-dt"     THEN cVarValue =   "" .
@@ -477,8 +477,8 @@
                            WHEN "prc-sal"    THEN cVarValue =   "" .
                            WHEN "stat"       THEN cVarValue =   "" .
                            WHEN "po-qty-rec" THEN cVarValue =   "" .
-                           WHEN "t-pric"     THEN cVarValue =   IF v-profit and security-flag THEN STRING(v-tot-sales[2],">>>,>>9.99") ELSE "" .
-                            WHEN "ord-qty"     THEN cVarValue =  STRING(v-tot-qty[2],">>>,>>>,>>9").
+                           WHEN "t-pric"     THEN cVarValue =   IF v-profit and security-flag THEN STRING(v-tot-sales[2],"->>>,>>>,>>9.99") ELSE "" .
+                            WHEN "ord-qty"     THEN cVarValue =  STRING(v-tot-qty[2],"->>>,>>>,>>9").
                                                               
                       END CASE.
                         
