@@ -45,21 +45,28 @@ DEFINE TEMP-TABLE ttImportShipTo
     FIELD MemberID            AS CHARACTER FORMAT "x(20)" COLUMN-LABEL "Member ID" HELP "Optional - Size:20"
     FIELD DockID              AS CHARACTER FORMAT "x(20)" COLUMN-LABEL "Dock ID" HELP "Optional - Size:20"
     FIELD DockHours           AS CHARACTER FORMAT "x(20)" COLUMN-LABEL "Dock Hours" HELP "Optional - Size:20"
-    FIELD Charge              AS DECIMAL FORMAT ">,>>9.99<<" COLUMN-LABEL "Charge" HELP "Optional - Decimal"
-    FIELD DaysTransit         AS DECIMAL FORMAT ">>9" COLUMN-LABEL "Days Transit" HELP "Optional - Decimal"
-    FIELD DaysSamples         AS INTEGER FORMAT ">>9" COLUMN-LABEL "Days Samples" HELP "Optional - Integer"
-    FIELD DaysDockAppt        AS INTEGER FORMAT ">>9" COLUMN-LABEL "Days Dock Appointment" HELP "Optional - Integer"
-    FIELD DaysEarliestAllowed AS INTEGER FORMAT ">>9" COLUMN-LABEL "Days Earliest Allowed" HELP "Optional - Integer"
-    FIELD DaysLatestAllowed   AS INTEGER FORMAT ">>9" COLUMN-LABEL "Days Latest Allowed" HELP "Optional - Integer"
-    FIELD ShipByCaseAllowed   AS LOGICAL FORMAT "Yes/No" COLUMN-LABEL "Ship By Case Allowed" HELP "Optional - Logical"
-    FIELD Broker              AS LOGICAL FORMAT "Yes/No" COLUMN-LABEL "Broker" HELP "Optional - Logical"
-    FIELD Billable            AS LOGICAL FORMAT "Yes/No" COLUMN-LABEL "Billable" HELP "Optional - Logical"
+    FIELD Charge              AS DECIMAL   FORMAT ">,>>9.99<<" COLUMN-LABEL "Charge" HELP "Optional - Decimal"
+    FIELD DaysTransit         AS DECIMAL   FORMAT ">>9" COLUMN-LABEL "Days Transit" HELP "Optional - Decimal"
+    FIELD DaysSamples         AS INTEGER   FORMAT ">>9" COLUMN-LABEL "Days Samples" HELP "Optional - Integer"
+    FIELD DaysDockAppt        AS INTEGER   FORMAT ">>9" COLUMN-LABEL "Days Dock Appointment" HELP "Optional - Integer"
+    FIELD DaysEarliestAllowed AS INTEGER   FORMAT ">>9" COLUMN-LABEL "Days Earliest Allowed" HELP "Optional - Integer"
+    FIELD DaysLatestAllowed   AS INTEGER   FORMAT ">>9" COLUMN-LABEL "Days Latest Allowed" HELP "Optional - Integer"
+    FIELD ShipByCaseAllowed   AS LOGICAL   FORMAT "Yes/No" COLUMN-LABEL "Ship By Case Allowed" HELP "Optional - Logical"
+    FIELD Broker              AS LOGICAL   FORMAT "Yes/No" COLUMN-LABEL "Broker" HELP "Optional - Logical"
+    FIELD Billable            AS LOGICAL   FORMAT "Yes/No" COLUMN-LABEL "Billable" HELP "Optional - Logical"
     .
 
 DEFINE VARIABLE giIndexOffset AS INTEGER NO-UNDO INIT 2. /*Set to 1 if there is a Company field in temp-table since this will not be part of the import data*/
 
 
 /* ********************  Preprocessor Definitions  ******************** */
+
+/* ************************  Function Prototypes ********************** */
+
+
+FUNCTION fGetNextShipNo RETURNS INTEGER 
+    (ipcCompany AS CHARACTER,
+    ipcCustNo AS CHARACTER) FORWARD.
 
 
 /* ***************************  Main Block  *************************** */
@@ -175,9 +182,10 @@ PROCEDURE pValidate PRIVATE:
         IF NOT AVAILABLE carrier THEN 
             ASSIGN 
                 oplValid = NO 
-                opcNote = "Invalid Carrier"
+                opcNote  = "Invalid Carrier"
                 .
-        IF oplValid THEN DO:
+        IF oplValid THEN 
+        DO:
             FIND FIRST carr-mtx NO-LOCK 
                 WHERE carr-mtx.company EQ ipbf-ttImportShipTo.Company
                 AND carr-mtx.carrier EQ ipbf-ttImportShipTo.Carrier
@@ -186,10 +194,11 @@ PROCEDURE pValidate PRIVATE:
             IF NOT AVAILABLE carr-mtx THEN 
                 ASSIGN 
                     oplValid = NO 
-                    opcNote = "Invalid Zone for Carrier"
+                    opcNote  = "Invalid Zone for Carrier"
                     . 
         END.
-        IF oplValid THEN DO:
+        IF oplValid THEN 
+        DO:
             FIND FIRST loc NO-LOCK 
                 WHERE loc.company EQ ipbf-ttImportShipTo.Company
                 AND loc.loc EQ ipbf-ttImportShipTo.Warehouse
@@ -197,11 +206,12 @@ PROCEDURE pValidate PRIVATE:
             IF NOT AVAILABLE carrier THEN 
                 ASSIGN 
                     oplValid = NO 
-                    opcNote = "Invalid Warehouse"
+                    opcNote  = "Invalid Warehouse"
                     .
                     
         END.
-        IF oplValid THEN DO:
+        IF oplValid THEN 
+        DO:
             FIND FIRST fg-bin NO-LOCK 
                 WHERE fg-bin.company EQ ipbf-ttImportShipTo.Company
                 AND fg-bin.loc EQ ipbf-ttImportShipTo.Warehouse
@@ -211,11 +221,12 @@ PROCEDURE pValidate PRIVATE:
             IF NOT AVAILABLE fg-bin THEN 
                 ASSIGN 
                     oplValid = NO 
-                    opcNote = "Invalid Bin for Warehouse"
+                    opcNote  = "Invalid Bin for Warehouse"
                     .
                     
         END.
-        IF oplValid AND ipbf-ttImportShipTo.SalesRep NE "" THEN DO:
+        IF oplValid AND ipbf-ttImportShipTo.SalesRep NE "" THEN 
+        DO:
             FIND FIRST sman NO-LOCK 
                 WHERE sman.company EQ ipbf-ttImportShipTo.Company
                 AND sman.sman EQ ipbf-ttImportShipTo.SalesRep
@@ -223,11 +234,12 @@ PROCEDURE pValidate PRIVATE:
             IF NOT AVAILABLE sman THEN 
                 ASSIGN 
                     oplValid = NO 
-                    opcNote = "Invalid Sales Rep Code"
+                    opcNote  = "Invalid Sales Rep Code"
                     .
                 
         END.
-        IF oplValid AND ipbf-ttImportShipTo.TaxCode NE "" THEN DO:
+        IF oplValid AND ipbf-ttImportShipTo.TaxCode NE "" THEN 
+        DO:
             FIND FIRST stax NO-LOCK 
                 WHERE stax.company EQ ipbf-ttImportShipTo.Company
                 AND stax.tax-group EQ ipbf-ttImportShipTo.TaxCode
@@ -235,11 +247,12 @@ PROCEDURE pValidate PRIVATE:
             IF NOT AVAILABLE stax THEN 
                 ASSIGN 
                     oplValid = NO 
-                    opcNote = "Invalid TaxGroup"
+                    opcNote  = "Invalid TaxGroup"
                     .
                     
         END.
-        IF oplValid AND ipbf-ttImportShipTo.Pallet NE "" THEN DO:
+        IF oplValid AND ipbf-ttImportShipTo.Pallet NE "" THEN 
+        DO:
             FIND FIRST item NO-LOCK 
                 WHERE item.company EQ ipbf-ttImportShipTo.Company
                 AND item.i-no EQ ipbf-ttImportShipTo.Pallet
@@ -248,7 +261,7 @@ PROCEDURE pValidate PRIVATE:
             IF NOT AVAILABLE item THEN 
                 ASSIGN 
                     oplValid = NO 
-                    opcNote = "Invalid Pallet Code"
+                    opcNote  = "Invalid Pallet Code"
                     .
                     
         END.
@@ -269,51 +282,77 @@ PROCEDURE pProcessRecord PRIVATE:
         AND shipto.cust-no EQ ipbf-ttImportShipTo.CustomerID
         AND shipto.ship-id EQ ipbf-ttImportShipTo.ShipToID
         NO-ERROR.
-    IF NOT AVAILABLE shipto THEN DO:
+    IF NOT AVAILABLE shipto THEN 
+    DO:
         iopiAdded = iopiAdded + 1.
         CREATE shipto.
         ASSIGN
             shipto.company = ipbf-ttImportShipTo.Company
             shipto.cust-no = ipbf-ttImportShipTo.CustomerID
             shipto.ship-id = ipbf-ttImportShipTo.ShipToID
+            shipto.ship-no = fGetNextShipNo(shipto.company,shipto.cust-no)
             . 
     END.
     ASSIGN 
-        shipto.ship-name = ipbf-ttImportShipTo.ShipName
+        shipto.ship-name    = ipbf-ttImportShipTo.ShipName
         shipto.ship-addr[1] = ipbf-ttImportShipTo.ShipAddress1
         shipto.ship-addr[2] = ipbf-ttImportShipTo.ShipAddress2
-        shipto.ship-city = ipbf-ttImportShipTo.ShipCity
-        shipto.ship-state = ipbf-ttImportShipTo.ShipState
-        shipto.ship-zip = ipbf-ttImportShipTo.ShipCode
-        shipto.contact = ipbf-ttImportShipTo.Contact        
-        shipto.area-code = ipbf-ttImportShipTo.PhoneArea
-        shipto.phone = ipbf-ttImportShipTo.Phone
-        shipto.fax = ipbf-ttImportShipTo.Fax
+        shipto.ship-city    = ipbf-ttImportShipTo.ShipCity
+        shipto.ship-state   = ipbf-ttImportShipTo.ShipState
+        shipto.ship-zip     = ipbf-ttImportShipTo.ShipCode
+        shipto.contact      = ipbf-ttImportShipTo.Contact        
+        shipto.area-code    = ipbf-ttImportShipTo.PhoneArea
+        shipto.phone        = ipbf-ttImportShipTo.Phone
+        shipto.fax          = ipbf-ttImportShipTo.Fax
         shipto.spare-char-1 = ipbf-ttImportShipTo.SalesRep
-        shipto.tax-code = ipbf-ttImportShipTo.TaxCode
-        shipto.loc = ipbf-ttImportShipTo.Warehouse
-        shipto.loc-bin = ipbf-ttImportShipTo.Bin
-        shipto.carrier = ipbf-ttImportShipTo.Carrier
-        shipto.dest-code = ipbf-ttImportShipTo.Zone
-        shipto.pallet = ipbf-ttImportShipTo.Pallet
+        shipto.tax-code     = ipbf-ttImportShipTo.TaxCode
+        shipto.loc          = ipbf-ttImportShipTo.Warehouse
+        shipto.loc-bin      = ipbf-ttImportShipTo.Bin
+        shipto.carrier      = ipbf-ttImportShipTo.Carrier
+        shipto.dest-code    = ipbf-ttImportShipTo.Zone
+        shipto.pallet       = ipbf-ttImportShipTo.Pallet
         shipto.spare-char-4 = ipbf-ttImportShipTo.ShipperID
         shipto.spare-char-5 = ipbf-ttImportShipTo.MemberID
-        shipto.dock-loc = ipbf-ttImportShipTo.DockID
-        shipto.dock-hour = ipbf-ttImportShipTo.DockHours
-        shipto.del-chg = ipbf-ttImportShipTo.Charge
-        shipto.del-time = ipbf-ttImportShipTo.DaysTransit
-        shipto.spare-int-1 = ipbf-ttImportShipTo.DaysSamples
-        shipto.spare-int-2 = ipbf-ttImportShipTo.DaysDockAppt
-        shipto.spare-int-3 = ipbf-ttImportShipTo.DaysEarliestAllowed
-        shipto.spare-int-4 = ipbf-ttImportShipTo.DaysLatestAllowed
-        shipto.ship-meth = ipbf-ttImportShipTo.ShipByCaseAllowed
-        shipto.bill = ipbf-ttImportShipTo.Billable
-        shipto.broker = ipbf-ttImportShipTo.Broker
-        shipto.notes[1] = ipbf-ttImportShipTo.Note1
-        shipto.notes[2] = ipbf-ttImportShipTo.Note2
-        shipto.notes[3] = ipbf-ttImportShipTo.Note3
-        shipto.notes[4] = ipbf-ttImportShipTo.Note4
-       .
-    
+        shipto.dock-loc     = ipbf-ttImportShipTo.DockID
+        shipto.dock-hour    = ipbf-ttImportShipTo.DockHours
+        shipto.del-chg      = ipbf-ttImportShipTo.Charge
+        shipto.del-time     = ipbf-ttImportShipTo.DaysTransit
+        shipto.spare-int-1  = ipbf-ttImportShipTo.DaysSamples
+        shipto.spare-int-2  = ipbf-ttImportShipTo.DaysDockAppt
+        shipto.spare-int-3  = ipbf-ttImportShipTo.DaysEarliestAllowed
+        shipto.spare-int-4  = ipbf-ttImportShipTo.DaysLatestAllowed
+        shipto.ship-meth    = ipbf-ttImportShipTo.ShipByCaseAllowed
+        shipto.bill         = ipbf-ttImportShipTo.Billable
+        shipto.broker       = ipbf-ttImportShipTo.Broker
+        shipto.notes[1]     = ipbf-ttImportShipTo.Note1
+        shipto.notes[2]     = ipbf-ttImportShipTo.Note2
+        shipto.notes[3]     = ipbf-ttImportShipTo.Note3
+        shipto.notes[4]     = ipbf-ttImportShipTo.Note4
+        .
+    RELEASE shipto.
 END PROCEDURE.
+
+
+/* ************************  Function Implementations ***************** */
+
+FUNCTION fGetNextShipNo RETURNS INTEGER 
+    ( ipcCompany AS CHARACTER ,
+    ipcCustNo AS CHARACTER  ):
+    /*------------------------------------------------------------------------------
+     Purpose: Returns the next ship-no for a given customer 
+     Notes:
+    ------------------------------------------------------------------------------*/	
+
+    DEFINE VARIABLE iNextShipNo AS INTEGER NO-UNDO.
+
+    DEFINE BUFFER bf-shipto FOR shipto.
+    FIND LAST bf-shipto NO-LOCK 
+        WHERE bf-shipto.company EQ ipcCompany
+        AND bf-shipto.cust-no EQ ipcCustNo 
+        USE-INDEX ship-no
+        NO-ERROR.
+    iNextShipNo = IF AVAILABLE bf-shipto THEN bf-shipto.ship-no + 1 ELSE 1.
+    RETURN iNextShipNo.
+    
+END FUNCTION.
 
