@@ -119,7 +119,7 @@ PROCEDURE pZohoCRM:
     IF cAuthToken EQ "" THEN
     RETURN "Authorization Token Value is Blank".
     
-    RUN pGetConnection (OUTPUT cConnection).
+    RUN pGetConnection (ipcCompany, OUTPUT cConnection).
     IF cConnection EQ "" THEN
     RETURN "Web Service Connection is Blank".
     
