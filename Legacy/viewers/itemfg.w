@@ -2227,7 +2227,11 @@ PROCEDURE proc-copy :
          itemfg.def-loc:SCREEN-VALUE        = "" .
          itemfg.def-loc-bin:SCREEN-VALUE    = "" . /* task 25536 */
 
+
+
       RUN oeinq/d-cpyfg.w (OUTPUT v-cost, OUTPUT v-mat, OUTPUT v-cpyspc, OUTPUT v-begspc, OUTPUT v-endspc).
+      
+  
      IF NOT v-cost THEN
          ASSIGN
          itemfg.std-mat-cost:SCREEN-VALUE    = "0"
@@ -2238,7 +2242,9 @@ PROCEDURE proc-copy :
          itemfg.avg-cost:SCREEN-VALUE        = "0"
          itemfg.last-cost:SCREEN-VALUE       = "0"
          itemfg.spare-dec-1:SCREEN-VALUE     = "0" .
-
+     DO WITH FRAME {&FRAME-NAME}:
+        APPLY "entry" TO itemfg.i-no .
+     END.
 
   END. /*IF AVAIL itemfg THEN DO WITH  */
 
@@ -2641,6 +2647,13 @@ PROCEDURE valid-i-no :
                                  AND b-itemfg.i-no    EQ itemfg.i-no:SCREEN-VALUE
                                  AND ROWID(b-itemfg)  NE ROWID(itemfg))
     THEN v-msg = "already exists".
+    
+    IF v-msg EQ "" AND adm-new-record AND NOT adm-adding-record THEN DO:
+     IF CAN-FIND(FIRST b-itemfg WHERE b-itemfg.company EQ gcompany
+                                 AND b-itemfg.i-no    EQ itemfg.i-no:SCREEN-VALUE )
+    THEN v-msg = "already exists".
+
+    END.
 
     IF v-msg NE "" THEN DO:
       MESSAGE "Sorry, " + TRIM(itemfg.i-no:LABEL) + " " + TRIM(v-msg)
