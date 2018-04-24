@@ -25,6 +25,7 @@
 
 {methods/defines/globdefs.i &NEW="NEW GLOBAL"}
 {methods/defines/hndldefs.i &NEW="NEW"}
+{ed/sharedv.i "NEW GLOBAL"}
 
 DEFINE NEW SHARED        VARIABLE quit_login      AS LOGICAL   NO-UNDO.
 DEFINE                   VARIABLE m_id            AS CHAR NO-UNDO.
