@@ -94,8 +94,10 @@ IF tb_print-view THEN DO:
 
         PUT UNFORMATTED "<r13.7><#1><UNITS=INCHES><C39><FROM><c78><r16.2><BARCODE,TYPE=39,CHECKSUM=NONE,VALUE="
               tt-word-print.tag-no FORMAT "x(20)" ">"
-            "<C39>" "<b>Tag #  </b>" + string(tt-word-print.tag-no,"x(20)")  "<=#1><R+5>".
+            "<C46>" string(tt-word-print.tag-no,"x(20)")  "<=#1><R+5>".
         
+        PUT "<FArial><#1><R16.3><C39><C39><B><p15><b>Tag #  </b></B>" SKIP.
+
         PUT "<||><R13><C37><#2><FROM><R18><C80><RECT>" SKIP.
 
         PUT "<||><R19><C3><#4><FROM><R22><C80><RECT>" SKIP.            
@@ -122,17 +124,17 @@ IF tb_print-view THEN DO:
         PUT "<||><R31><C43><#8><FROM><R34><C80><RECT>" SKIP.            
         
         PUT "<FArial><=8><R-2><C43><B><p15> Production Date </B>" SKIP.
-        PUT "<FArial><=8><R31.3><C43><B><P20>  " (IF AVAIL oe-ord AND oe-ord.prod-date NE ? THEN STRING(oe-ord.prod-date,"99/99/9999") ELSE "") FORMAT "x(12)" "</B>"  SKIP.
+        PUT "<FArial><=8><R31.3><C43><B><P20>  " (IF AVAIL loadtag AND loadtag.tag-date NE ? THEN STRING(loadtag.tag-date,"99/99/9999") ELSE "") FORMAT "x(12)" "</B>"  SKIP.
 
         PUT "<||><R37><C3><#9><FROM><R40><C40><RECT>" SKIP.            
         
-        PUT "<FArial><=9><R-2><C3><B><p15> PO # </B>" SKIP.
-        PUT "<FArial><=9><R37.3><C3><B><P20>  " tt-word-print.cust-po-no FORMAT "x(15)" "</B>" SKIP.
+        PUT "<FArial><=9><R-2><C3><B><p15> Order PO # </B>" SKIP.
+        PUT "<FArial><=9><R37.3><C3><B><P20>  " (IF AVAIL oe-ord THEN string(oe-ord.po-no,"x(15)") ELSE "") FORMAT "x(15)" "</B>" SKIP.
 
         PUT "<||><R37><C43><#10><FROM><R40><C80><RECT>" SKIP.            
-        
-        PUT "<FArial><=10><R-2><C43><B><p15> PO # </B>" SKIP.
-        PUT "<FArial><=10><R37.3><C43><B><P20>  " tt-word-print.cust-po-no FORMAT "x(15)" "</B>" SKIP.
+       /* MESSAGE "test" VIEW-AS ALERT-BOX ERROR.*/
+        PUT "<FArial><=10><R-2><C43><B><p15> Line PO # </B>" SKIP.
+        PUT "<FArial><=10><R37.3><C43><B><P20>  " (IF AVAIL oe-ordl THEN string(oe-ordl.po-no,"x(15)") ELSE "") FORMAT "x(15)" "</B>" SKIP.
 
         PUT "<||><R43><C3><#11><FROM><R46><C40><RECT>" SKIP.            
         
@@ -204,7 +206,9 @@ ELSE DO:
 
         PUT UNFORMATTED "<r13.7><#1><UNITS=INCHES><C39><FROM><c78><r16.2><BARCODE,TYPE=39,CHECKSUM=NONE,VALUE="
               tt-word-print.tag-no FORMAT "x(20)" ">"
-            "<C39>" "<b>Tag #  </b>" + string(tt-word-print.tag-no,"x(20)")  "<=#1><R+5>".
+            "<C46>" string(tt-word-print.tag-no,"x(20)")  "<=#1><R+5>".
+        
+        PUT "<FArial><#1><R16.3><C39><C39><B><p15><b>Tag #  </b></B>" SKIP.
         
         PUT "<||><R13><C37><#2><FROM><R18><C80><RECT>" SKIP.
 
@@ -232,17 +236,17 @@ ELSE DO:
         PUT "<||><R31><C43><#8><FROM><R34><C80><RECT>" SKIP.            
         
         PUT "<FArial><=8><R-2><C43><B><p15> Production Date </B>" SKIP.
-        PUT "<FArial><=8><R31.3><C43><B><P20>  " (IF AVAIL oe-ord AND oe-ord.prod-date NE ? THEN STRING(oe-ord.prod-date,"99/99/9999") ELSE "") FORMAT "x(12)" "</B>"  SKIP.
+        PUT "<FArial><=8><R31.3><C43><B><P20>  " (IF AVAIL loadtag AND loadtag.tag-date NE ? THEN STRING(loadtag.tag-date,"99/99/9999") ELSE "") FORMAT "x(12)" "</B>"  SKIP.
 
         PUT "<||><R37><C3><#9><FROM><R40><C40><RECT>" SKIP.            
         
-        PUT "<FArial><=9><R-2><C3><B><p15> PO # </B>" SKIP.
-        PUT "<FArial><=9><R37.3><C3><B><P20>  " tt-word-print.cust-po-no FORMAT "x(15)" "</B>" SKIP.
+        PUT "<FArial><=9><R-2><C3><B><p15> Order PO # </B>" SKIP.
+        PUT "<FArial><=9><R37.3><C3><B><P20>  " (IF AVAIL oe-ord THEN string(oe-ord.po-no,"x(15)") ELSE "") FORMAT "x(15)" "</B>" SKIP.
 
         PUT "<||><R37><C43><#10><FROM><R40><C80><RECT>" SKIP.            
         
-        PUT "<FArial><=10><R-2><C43><B><p15> PO # </B>" SKIP.
-        PUT "<FArial><=10><R37.3><C43><B><P20>  " tt-word-print.cust-po-no FORMAT "x(15)" "</B>" SKIP.
+        PUT "<FArial><=10><R-2><C43><B><p15> Line PO # </B>" SKIP.
+        PUT "<FArial><=10><R37.3><C43><B><P20>  " (IF AVAIL oe-ordl THEN string(oe-ordl.po-no,"x(15)") ELSE "") FORMAT "x(15)" "</B>" SKIP.
 
         PUT "<||><R43><C3><#11><FROM><R46><C40><RECT>" SKIP.            
         
