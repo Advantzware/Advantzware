@@ -692,7 +692,11 @@ PROCEDURE runReport5:
 
     IF CAN-FIND(FIRST sys-ctrl-shipto WHERE
         sys-ctrl-shipto.company = cocode AND
-        sys-ctrl-shipto.NAME = "INVPRINT") THEN
+        sys-ctrl-shipto.NAME = "INVPRINT" AND
+        sys-ctrl-shipto.cust-vend = YES AND
+        sys-ctrl-shipto.cust-vend-no GE begin_cust AND
+        sys-ctrl-shipto.cust-vend-no LE end_cust 
+        ) THEN
     DO:
        
         FOR EACH buf-{&head} WHERE
@@ -776,7 +780,10 @@ PROCEDURE runReport5:
         ELSE                                          
             RUN SetInvForm(vcDefaultForm).
         v-print-fmt = vcDefaultForm.
-
+        
+        /* Make sure this is cleared  before run-report runs again */
+       EMPTY TEMP-TABLE tt-list.
+       
         RUN run-report("","", FALSE).
         IF lReportRecCreated THEN
           RUN GenerateReport IN hCallingProc (INPUT lv-fax-type,
