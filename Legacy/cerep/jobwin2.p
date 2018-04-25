@@ -60,6 +60,7 @@ DEF VAR v-skip AS LOG NO-UNDO.
 DEF VAR v-fill2 AS CHAR INIT "-" FORM "x(125)" NO-UNDO.
 DEF VAR v-spoil LIKE job-mch.wst-prct NO-UNDO.
 DEF VAR v-unit AS INT NO-UNDO.
+DEF VAR cSide AS CHARACTER NO-UNDO.
 DEF VAR v-spec-cnt AS INT NO-UNDO.
 DEF VAR v-prod-code AS cha NO-UNDO.
 DEF VAR li AS INT NO-UNDO.
@@ -73,6 +74,7 @@ DEF VAR li-qty LIKE c-qty NO-UNDO.
 DEFINE VARIABLE iCaseMult AS INTEGER NO-UNDO.
 DEF VAR v-t-win AS DEC DECIMALS 4 NO-UNDO.
 DEF VAR iv-li AS INT NO-UNDO.
+DEFINE VARIABLE cVendItem AS CHARACTER NO-UNDO .
 {ce/msfcalc.i}
 
 def TEMP-TABLE w-lo NO-UNDO
@@ -131,7 +133,8 @@ def new shared workfile wrk-ink
   field i-dscr as char format "x(20)"
   field i-qty as dec format ">,>>9.9<"
   field i-pass as dec
-  FIELD i-unit AS INT.
+  FIELD i-unit AS INT
+  FIELD side AS CHAR .
 
 def new shared workfile wrk-prep
   field code like est-prep.code
@@ -192,6 +195,7 @@ DEF VAR cpono-b LIKE oe-ordl.po-no EXTENT 10 NO-UNDO.
 DEF VAR v-part-no LIKE eb.part-no EXTENT 10 NO-UNDO.
 DEF VAR v-cas-pal LIKE eb.cas-cnt EXTENT 10 NO-UNDO.
 DEF VAR v-cas-cnt LIKE eb.cas-cnt EXTENT 10 NO-UNDO.
+DEF VAR v-tr-cas LIKE eb.tr-cas EXTENT 10 NO-UNDO.
 DEF VAR v-cust-name-extent AS CHAR EXTENT 10 NO-UNDO.
 DEF VAR v-ship1-extent AS CHAR EXTENT 10 NO-UNDO.
 DEF VAR v-ship2-extent AS CHAR EXTENT 10 NO-UNDO.
@@ -226,7 +230,8 @@ DEF TEMP-TABLE tt-fgitm NO-UNDO FIELD i-no AS cha FORM "x(15)"
                         FIELD shipto1 AS CHAR
                         FIELD shipto2 AS CHAR
                         FIELD shipto4 AS CHAR
-                        FIELD borker AS LOGICAL .
+                        FIELD borker AS LOGICAL 
+                        FIELD tr-cas LIKE eb.tr-cas .
 DEF VAR v-board-po LIKE oe-ordl.po-no-po NO-UNDO.
 DEF VAR v-plate-printed AS LOG NO-UNDO.
 DEF BUFFER xoe-ordl FOR oe-ordl.
@@ -817,6 +822,9 @@ END FUNCTION.
                                  ELSE
                                  IF AVAIL b-rt THEN b-rt.val[i - 12]
                                                ELSE 0.
+                         cSide = IF i LE 12 AND AVAIL reftable  THEN SUBSTRING(reftable.dscr,i,1)
+                              ELSE IF AVAIL b-rt THEN SUBSTRING(b-rt.dscr,i - 12,1)
+                                               ELSE "" .
                                    
                         if eb.i-code2[i] eq job-mat.i-no then do:
                              
@@ -835,7 +843,8 @@ END FUNCTION.
                                   wrk-ink.blank-no = eb.blank-no
                                   wrk-ink.i-dscr   = eb.i-dscr2[i]
                                   wrk-ink.i-pass   = eb.i-ps2[i]
-                                  wrk-ink.i-unit   = v-unit.
+                                  wrk-ink.i-unit   = v-unit
+                                  wrk-ink.side     = cSide .
                             end.
                         end.
                     end. /* loop i */
@@ -1056,7 +1065,7 @@ END FUNCTION.
                 */
 
                 PUT "<P10>" v-fill SKIP                 /*REQ'D*/
-                 "<B>BOARD CODE             SHEETS SHEET SIZE              BOARD PO# VENDOR#   DUE DATE   DIE# </B>" 
+                 "<B>ITEM#      NAME                  VENDOR ITEM   SHEETS SHEET SIZE              BOARD PO# VENDOR#   DUE DATE   DIE# </B>" 
                  SKIP.
             /** PRINT SHEET **/
 
@@ -1082,11 +1091,19 @@ END FUNCTION.
                       v-po-duedate = IF AVAIL po-ordl 
                                      THEN po-ordl.due-date 
                                      ELSE ?.
-                       IF FIRST-OF(wrk-sheet.form-no) THEN
+                       IF FIRST-OF(wrk-sheet.form-no) THEN 
                            cBoardCode = wrk-sheet.brd-dscr .
 
+                       FIND FIRST ITEM NO-LOCK 
+                            WHERE item.company eq cocode
+                              and item.i-no    eq wrk-sheet.i-no no-error.
+                        cVendItem = IF AVAIL ITEM THEN ITEM.vend-item ELSE "" .
+
                     display 
+                        wrk-sheet.i-no SPACE(1)
                         wrk-sheet.brd-dscr
+                        cVendItem FORMAT "x(12)" SPACE(1)
+                        
                         wrk-sheet.gsh-qty FORMAT ">>>>,>>9"
                         string(wrk-sheet.sh-wid) + "x" + string(wrk-sheet.sh-len) format "x(23)"
                         space(2) /*string(ef.trim-w) + "x" + string(ef.trim-l) FORM "x(16)"*/
@@ -1330,6 +1347,19 @@ END FUNCTION.
                 ENTRY(i,v-text,"`") FORMAT "X(80)" SKIP. 
             END.  
 
+          PUT v-thick  "<C1>Prepress Department Notes: "      SKIP .
+          ASSIGN v-text = FNformat(FNdeptnotes(vjobreckey,"PP",job-hdr.frm),80).
+             DO i = 1 TO NUM-ENTRIES(v-text,"`"):       
+               PUT "<C1>" 
+                ENTRY(i,v-text,"`") FORMAT "X(80)" SKIP. 
+            END.  
+            ASSIGN v-text = FNformat(FNdeptnotes(vjobreckey,"PP",0),80).
+             DO i = 1 TO NUM-ENTRIES(v-text,"`"):       
+               PUT "<C1>" 
+                ENTRY(i,v-text,"`") FORMAT "X(80)" SKIP. 
+            END.  
+
+
           PUT   "Quality Control Department Notes: " SKIP .
           ASSIGN v-text = FNformat(FNdeptnotes(vjobreckey,"QC",job-hdr.frm),80).
              DO i = 1 TO NUM-ENTRIES(v-text,"`"):       
@@ -1341,19 +1371,7 @@ END FUNCTION.
                PUT "<C1>" 
                 ENTRY(i,v-text,"`") FORMAT "X(80)" SKIP. 
             END.  
-
-
-          PUT   "Prepress Department Notes: "      SKIP .
-          ASSIGN v-text = FNformat(FNdeptnotes(vjobreckey,"PP",job-hdr.frm),80).
-             DO i = 1 TO NUM-ENTRIES(v-text,"`"):       
-               PUT "<C1>" 
-                ENTRY(i,v-text,"`") FORMAT "X(80)" SKIP. 
-            END.  
-            ASSIGN v-text = FNformat(FNdeptnotes(vjobreckey,"PP",0),80).
-             DO i = 1 TO NUM-ENTRIES(v-text,"`"):       
-               PUT "<C1>" 
-                ENTRY(i,v-text,"`") FORMAT "X(80)" SKIP. 
-            END.  
+          
 
           PUT   "Farm Out Department Notes:  "     SKIP .
           ASSIGN v-text = FNformat(FNdeptnotes(vjobreckey,"FO",job-hdr.frm),80).
@@ -1385,8 +1403,7 @@ END FUNCTION.
             IF ef.roll THEN
                 droll-len = ef.gsh-len .
             ELSE droll-len = 0 .
-            PUT "<b>Sheeter </b>" SKIP
-             "Board #:" cBoardCode FORMAT "x(15)" "Width:" ef.roll-wid SPACE(5) " Repeat Size:" droll-len   SKIP 
+            PUT v-thick "<C1><b>Sheeter </b>" SKIP
              "Approval & In-Process Inspection Checklist Complete :  <FROM><R+1><C+2><RECT><||3>" SKIP
              "Sheeter Department Notes:  " SKIP .
 
@@ -1417,7 +1434,6 @@ END FUNCTION.
                  " <=15>".
                  
         v-num-of-inks = 0. /* 1 thru 8 */
-   
 
         DO j = 1 TO 5:
           DO i = 0 TO 1:
@@ -1428,7 +1444,7 @@ END FUNCTION.
                 
             v-ink1 = IF AVAIL wrk-ink THEN
                        STRING(wrk-ink.i-code,"X(15)") + " " + 
-                       STRING(wrk-ink.i-dscr,"x(20)")
+                       STRING(wrk-ink.i-dscr,"x(20)") + " " + STRING(wrk-ink.side,"x(1)")
                      ELSE "".
 
             IF i EQ 1 THEN PUT "  ".
@@ -1444,14 +1460,15 @@ END FUNCTION.
         FOR EACH wrk-ink NO-LOCK 
             WHERE wrk-ink.i-unit = 0 BREAK BY wrk-ink.i-unit DESC:
           ASSIGN cInkCoatingLst = cInkCoatingLst + STRING(wrk-ink.i-code) + " - " + 
-                                  STRING(wrk-ink.i-dscr,"x(20)").
+                                  STRING(wrk-ink.i-dscr).
           IF NOT LAST(wrk-ink.i-unit) THEN
               ASSIGN cInkCoatingLst = cInkCoatingLst + ",".
         END.
         IF cInkCoatingLst NE "" THEN
             PUT "<B>Coatings: </B>" cInkCoatingLst FORMAT "x(300)".
         PUT "" SKIP 
-             "Approval & In-Process Inspection Checklist Complete : <FROM><R+1><C+2><RECT><||3> " SKIP.
+             "Approval & In-Process Inspection Checklist Complete : <FROM><R+1><C+2><RECT><||3> " SKIP
+             "<C1><R-1>UPC#:" eb.upc-no FORMAT "x(30)" SKIP .
 
         ASSIGN r = 1.
         PUT "<C1>Printing Department Notes:" SKIP.        
@@ -2011,7 +2028,9 @@ END FUNCTION.
                                      IF AVAIL xoe-ordl AND xoe-ordl.cas-cnt <> 0 THEN xoe-ordl.cas-cnt
                                      ELSE IF AVAIL b-eb THEN b-eb.cas-cnt
                                      ELSE 0
-                  tt-fgitm.cas-pal = IF AVAIL b-eb THEN b-eb.cas-pal ELSE 0
+                  tt-fgitm.cas-pal = IF AVAIL b-eb THEN b-eb.cas-pal  ELSE 0
+                  tt-fgitm.tr-cas = IF AVAIL b-eb THEN b-eb.tr-cas ELSE 0
+
                   tt-fgitm.seq = i
                   i = i + 1.
                   tt-fgitm.po-no-b = IF AVAIL xoe-ord THEN xoe-ord.po-no ELSE "" .
@@ -2097,6 +2116,7 @@ END FUNCTION.
                    v-part-no[i] = tt-fgitm.part-no
                    v-cas-cnt[i] = tt-fgitm.cas-cnt
                    v-cas-pal[i] = tt-fgitm.cas-pal
+                   v-tr-cas[i]  = tt-fgitm.tr-cas
                    v-cust-name-extent[i] = tt-fgitm.cust-name
                    v-ship1-extent[i] = tt-fgitm.shipto1
                    v-ship2-extent[i] = tt-fgitm.shipto2
@@ -2159,6 +2179,10 @@ END FUNCTION.
                    "Qty/Pal     :"  WHEN v-fgitm[2] <> "" AT 44 v-cas-pal[2]  WHEN v-fgitm[2] <> "" 
                    "Qty/Pal     :"  WHEN v-fgitm[3] <> "" AT 87  v-cas-pal[3] WHEN v-fgitm[3] <> "" 
                    SKIP
+                   "# of Layer  :" v-tr-cas[1]
+                   "# of Layer  :"  WHEN v-fgitm[2] <> "" AT 44 v-tr-cas[2]  WHEN v-fgitm[2] <> "" 
+                   "# of Layer  :"  WHEN v-fgitm[3] <> "" AT 87  v-tr-cas[3] WHEN v-fgitm[3] <> ""
+                    SKIP
                       WITH FRAME itmlblb NO-BOX NO-LABELS STREAM-IO WIDTH 180.
                     DOWN WITH FRAME itmlblb. 
                 END.
@@ -2197,6 +2221,10 @@ END FUNCTION.
                    "Qty/Pal     :"  WHEN v-fgitm[2] <> "" AT 44 v-cas-pal[2]  WHEN v-fgitm[2] <> "" 
                    "Qty/Pal     :"  WHEN v-fgitm[3] <> "" AT 87  v-cas-pal[3] WHEN v-fgitm[3] <> "" 
                    SKIP
+                   "# of Layer  :" v-tr-cas[1]
+                   "# of Layer  :"  WHEN v-fgitm[2] <> "" AT 44 v-tr-cas[2]  WHEN v-fgitm[2] <> "" 
+                   "# of Layer  :"  WHEN v-fgitm[3] <> "" AT 87  v-tr-cas[3] WHEN v-fgitm[3] <> ""
+                    SKIP
                       WITH FRAME itmlbl NO-BOX NO-LABELS STREAM-IO WIDTH 180.
                     DOWN WITH FRAME itmlbl. 
                 END.  /* not broker */
@@ -2292,6 +2320,7 @@ END FUNCTION.
                        v-cas-pal[1] = 0
                        v-cas-pal[2] = 0
                        v-cas-pal[3] = 0
+                       v-tr-cas  = 0
                        v-cust-name-extent[1] = ""
                        v-cust-name-extent[2] = ""
                        v-cust-name-extent[3] = ""
@@ -2373,6 +2402,10 @@ END FUNCTION.
                "Qty/Pal     :"  WHEN v-fgitm[2] <> "" AT 44 v-cas-pal[2]  WHEN v-fgitm[2] <> "" 
                "Qty/Pal     :"  WHEN v-fgitm[3] <> "" AT 87  v-cas-pal[3] WHEN v-fgitm[3] <> ""                               
                SKIP
+               "# of Layer  :" v-tr-cas[1]
+               "# of Layer  :"  WHEN v-fgitm[2] <> "" AT 44 v-tr-cas[2]  WHEN v-fgitm[2] <> "" 
+               "# of Layer  :"  WHEN v-fgitm[3] <> "" AT 87  v-tr-cas[3] WHEN v-fgitm[3] <> ""
+               SKIP
                WITH FRAME itmlbl2 NO-BOX NO-LABELS STREAM-IO WIDTH 180.
             ELSE DO:
 
@@ -2413,6 +2446,10 @@ END FUNCTION.
                "Qty/Pal     :" /*v-fgqty[1]*/ v-cas-pal[1]
                "Qty/Pal     :"  WHEN v-fgitm[2] <> "" AT 44 v-cas-pal[2]  WHEN v-fgitm[2] <> "" 
                "Qty/Pal     :"  WHEN v-fgitm[3] <> "" AT 87  v-cas-pal[3] WHEN v-fgitm[3] <> ""                               
+               SKIP
+               "# of Layer  :" v-tr-cas[1]
+               "# of Layer  :"  WHEN v-fgitm[2] <> "" AT 44 v-tr-cas[2]  WHEN v-fgitm[2] <> "" 
+               "# of Layer  :"  WHEN v-fgitm[3] <> "" AT 87  v-tr-cas[3] WHEN v-fgitm[3] <> ""
                SKIP
                WITH FRAME itmlbl4 NO-BOX NO-LABELS STREAM-IO WIDTH 180.
 
@@ -2594,7 +2631,7 @@ PROCEDURE PRprintfg:
                             AND itemfg.i-no = x-hdr.i-no NO-LOCK NO-ERROR.
         
       PUT UNFORMATTED "<C1>"  
-          itemfg.i-no FILL(" ", 15 - LENGTH(itemfg.i-no)) " " itemfg.i-name "a" SKIP. 
+          itemfg.i-no FILL(" ", 15 - LENGTH(itemfg.i-no)) " " itemfg.i-name  SKIP. 
                                   
      END. /* IF FIRST-OF(x-hdr.i-no) THEN DO: */                                      
    END. /* FOR EACH x-hdr WHERE x-hdr.company = job-hdr.company */         
@@ -2622,7 +2659,7 @@ PROCEDURE PRprintfg2:
            
            
            DO i = 1 TO NUM-ENTRIES(v-text,"`"):
-             IF i = 1 THEN PUT UNFORMATTED "<C1>" itemfg.i-no FILL(" ", 15 - LENGTH(itemfg.i-no)) " " itemfg.i-name "a" . 
+             IF i = 1 THEN PUT UNFORMATTED "<C1>" itemfg.i-no FILL(" ", 15 - LENGTH(itemfg.i-no)) " " itemfg.i-name  . 
 
               PUT "<C40>" ENTRY(i,v-text,"`") FORMAT "X(80)"  SKIP. 
               ACCUM 1 (COUNT).
@@ -2656,7 +2693,7 @@ PROCEDURE PRprintfg3:
            
            
            DO i = 1 TO NUM-ENTRIES(v-text,"`"):
-             IF i = 1 THEN PUT UNFORMATTED "<C1>" itemfg.i-no FILL(" ", 15 - LENGTH(itemfg.i-no)) " " itemfg.i-name "a" . 
+             IF i = 1 THEN PUT UNFORMATTED "<C1>" itemfg.i-no FILL(" ", 15 - LENGTH(itemfg.i-no)) " " itemfg.i-name  . 
 
               PUT "<C40>" ENTRY(i,v-text,"`") FORMAT "X(80)"  SKIP. 
               ACCUM 1 (COUNT).
