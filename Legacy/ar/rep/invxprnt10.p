@@ -108,6 +108,10 @@ DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
 DEFINE VARIABLE ls-full-img1 AS CHAR FORMAT "x(200)" NO-UNDO.
 DEFINE VARIABLE vRelPo like oe-rel.po-no no-undo.
+DEFINE VARIABLE iPoCheck AS LOGICAL NO-UNDO.
+DEFINE VARIABLE cPo-No AS CHARACTER NO-UNDO.
+DEFINE VARIABLE iCount AS INTEGER NO-UNDO.
+
 
 RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormLogo", "C" /* Logical */, NO /* check by cust */, 
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
@@ -212,6 +216,7 @@ ELSE lv-comp-color = "BLACK".
 
         assign v-tot-pallets = 0
                v-date-ship   = ar-inv.inv-date.
+        cPo-No = "".
         
        for each ar-invl NO-LOCK
            where ar-invl.x-no  eq ar-inv.x-no  
@@ -227,7 +232,22 @@ ELSE lv-comp-color = "BLACK".
                 v-t-weight = v-t-weight + (round(ar-invl.t-weight /
                             ar-invl.qty, 2) * ar-invl.inv-qty).
 
-         
+         find first oe-ordl where oe-ordl.company = cocode and
+                                     oe-ordl.ord-no = ar-invl.ord-no and
+                                     oe-ordl.i-no = ar-invl.i-no
+                           no-lock no-error.
+         IF AVAIL oe-ordl THEN
+         FOR EACH oe-rel NO-LOCK
+             WHERE oe-rel.company = cocode
+             AND oe-rel.ord-no = oe-ordl.ord-no
+             AND oe-rel.i-no = oe-ordl.i-no
+             AND oe-rel.LINE = oe-ordl.LINE :
+
+             IF oe-rel.po-no NE "" THEN DO:
+                 cPo-No = cPo-No + oe-rel.po-no + ",". 
+                 LEAVE.
+             END.
+         END. 
         
          FOR EACH oe-bolh NO-LOCK WHERE oe-bolh.b-no = ar-invl.b-no AND
              oe-bolh.ord-no = ar-invl.ord-no:
@@ -302,6 +322,9 @@ ELSE lv-comp-color = "BLACK".
              v-tot-qty = 0.
          end. /* last-of i-no */
         end. /* each ar-invl */
+        DO iCount = 1 TO NUM-ENTRIES(cPo-No):
+           IF ENTRY(1,cPo-No) NE ENTRY(iCount,cPo-No) and ENTRY(iCount,cPo-No) ne ""  THEN iPoCheck = YES. 
+       END.
     
                         /** Build Salesman Id String **/
         v-salesman = "".
@@ -333,7 +356,7 @@ ELSE lv-comp-color = "BLACK".
                                   no-lock no-error.   
           if avail oe-ord then
           do:
-            ASSIGN v-ord-po-no = oe-ord.po-no.
+            ASSIGN v-ord-po-no = IF iPoCheck EQ YES THEN "See below" ELSE oe-ord.po-no.
           end.
         end.      
 

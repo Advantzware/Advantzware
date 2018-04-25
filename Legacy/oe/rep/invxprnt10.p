@@ -110,6 +110,9 @@ DEF VAR lv-comp-color AS cha NO-UNDO.
 DEF VAR lv-other-color AS cha INIT "BLACK" NO-UNDO.
 DEF VAR v-page-num AS INT NO-UNDO.
 DEFINE VARIABLE vRelPo like oe-rel.po-no no-undo.
+DEFINE VARIABLE iPoCheck AS LOGICAL NO-UNDO.
+DEFINE VARIABLE cPo-No AS CHARACTER NO-UNDO.
+DEFINE VARIABLE iCount AS INTEGER NO-UNDO.
 
 DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
@@ -262,6 +265,7 @@ find first company where company.company eq cocode NO-LOCK.
                  v-tx-rate[3]  = stax.tax-rate[3].
 
         assign v-tot-pallets = 0.
+        cPo-No = "".
 
         
         for each xinv-line no-lock where xinv-line.r-no = inv-head.r-no
@@ -276,6 +280,22 @@ find first company where company.company eq cocode NO-LOCK.
          assign v-tot-qty = v-tot-qty + xinv-line.ship-qty
                 v-t-weight = v-t-weight + (round(xinv-line.t-weight /
                             xinv-line.qty, 2) * xinv-line.inv-qty).
+         find first oe-ordl where oe-ordl.company = cocode and
+                                     oe-ordl.ord-no = xinv-line.ord-no and
+                                     oe-ordl.i-no = xinv-line.i-no
+                           no-lock no-error.
+         IF AVAIL oe-ordl THEN
+         FOR EACH oe-rel NO-LOCK
+             WHERE oe-rel.company = cocode
+             AND oe-rel.ord-no = oe-ordl.ord-no
+             AND oe-rel.i-no = oe-ordl.i-no
+             AND oe-rel.LINE = oe-ordl.LINE :
+
+             IF oe-rel.po-no NE "" THEN DO:
+                 cPo-No = cPo-No + oe-rel.po-no + ",". 
+                 LEAVE.
+             END.
+         END. 
          
          FOR EACH oe-bolh NO-LOCK WHERE oe-bolh.b-no = xinv-line.b-no:
            FOR EACH oe-boll NO-LOCK WHERE oe-boll.company = oe-bolh.company AND
@@ -349,6 +369,10 @@ find first company where company.company eq cocode NO-LOCK.
              v-tot-qty = 0.
          end. /* last-of i-no */
         end. /* each xinv-line */
+
+        DO iCount = 1 TO NUM-ENTRIES(cPo-No):
+           IF ENTRY(1,cPo-No) NE ENTRY(iCount,cPo-No) and ENTRY(iCount,cPo-No) ne ""  THEN iPoCheck = YES. 
+       END.
     
         /** Build Salesman Id String **/
         v-salesman = "".
@@ -377,7 +401,7 @@ find first company where company.company eq cocode NO-LOCK.
             assign v-bill-i = oe-ord.bill-i[1]
                    v-ord-no = oe-ord.ord-no
                    v-ord-date = oe-ord.ord-date
-                   v-ord-po-no = oe-ord.po-no.
+                   v-ord-po-no = IF iPoCheck EQ YES THEN "See below" ELSE oe-ord.po-no.
           end.
           else
             assign v-price-head = inv-line.pr-uom.
