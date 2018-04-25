@@ -1746,7 +1746,11 @@ CLASS RefTableMigration:
                     EXCLUSIVE-LOCK NO-ERROR.
                 IF AVAILABLE oe-rel THEN    
                 DO: 
-                    IF oe-rel.s-code EQ "" THEN ASSIGN oe-rel.s-code = reftable.code. 
+/*                    27898 - remove test for blank s-code                                          */
+/*                    IF oe-rel.s-code EQ "" THEN ASSIGN oe-rel.s-code = reftable.code.             */
+/*                                                                                                  */
+                    ASSIGN oe-rel.s-code = reftable.code.             
+
                     ASSIGN iProcessCount = iProcessCount + 1.       
                 END    . 
                 FIND CURRENT oe-rel NO-LOCK NO-ERROR.    
