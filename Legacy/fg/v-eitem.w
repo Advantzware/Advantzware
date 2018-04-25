@@ -1074,6 +1074,20 @@ PROCEDURE local-assign-record :
   find first e-itemfg where recid(e-itemfg) = lv-recid NO-ERROR.
 
   RUN pVendCostMtx ("ASSIGN").
+  DO WITH FRAME {&FRAME-NAME}:
+      ASSIGN
+        tb_sel-01
+        tb_sel-02
+        tb_sel-03
+        tb_sel-04
+        tb_sel-05
+        tb_sel-06
+        tb_sel-07
+        tb_sel-08
+        tb_sel-09
+        tb_sel-10
+        .
+  END.
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-record':U ) .
@@ -1131,6 +1145,19 @@ PROCEDURE local-assign-record :
                e-itemfg-vend.blank-no = eb.blank-no.
 
   END.
+
+  ASSIGN
+    e-itemfg-vend.selected[01] = tb_sel-01
+    e-itemfg-vend.selected[02] = tb_sel-02
+    e-itemfg-vend.selected[03] = tb_sel-03
+    e-itemfg-vend.selected[04] = tb_sel-04
+    e-itemfg-vend.selected[05] = tb_sel-05
+    e-itemfg-vend.selected[06] = tb_sel-06
+    e-itemfg-vend.selected[07] = tb_sel-07
+    e-itemfg-vend.selected[08] = tb_sel-08
+    e-itemfg-vend.selected[09] = tb_sel-09
+    e-itemfg-vend.selected[10] = tb_sel-10
+    .
 
   FIND FIRST reftable WHERE
        reftable.reftable EQ 'e-itemfg-vend.markup' AND
