@@ -31,7 +31,7 @@
 /* Local Variable Definitions ---                                       */
 def output parameter op-char-val as cha no-undo. /* string i-code + i-name */
 
-def var v-codelst as cha init "Loadtag.xpr,Loadtag1.xpr,Loadtag2.xpr,Loadtag3.xpr,Loadtag4.xpr,Loadtag5.xpr,Loadtag6.xpr,Loadtag7.xpr,Loadtag8.xpr,Loadtag9.xpr,Loadtag10.xpr,Loadtag11.xpr" no-undo.
+def var v-codelst as cha init "Loadtag.xpr,Loadtag1.xpr,Loadtag2.xpr,Loadtag3.xpr,Loadtag4.xpr,Loadtag5.xpr,Loadtag6.xpr,Loadtag7.xpr,Loadtag8.xpr,Loadtag9.xpr,Loadtag10.xpr,Loadtag11.xpr,Loadtag12.xpr,Loadtag13.xpr" no-undo.
 def var v-dscrlst as cha init "" no-undo.
 
 def temp-table tt-table field code as cha form "x(20)"

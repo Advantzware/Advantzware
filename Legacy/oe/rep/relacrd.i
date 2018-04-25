@@ -199,7 +199,7 @@ if v-zone-p then v-zone-hdr = "Route No.:".
             and oe-ord.ord-no  eq xoe-rell.ord-no
           no-lock:
           
-          IF oe-rell.lot-no <> "" THEN
+          IF xoe-rell.lot-no <> "" THEN
              ASSIGN v-frt-pay = xoe-rell.frt-pay
                     v-fob-code = xoe-rell.fob-code. 
           

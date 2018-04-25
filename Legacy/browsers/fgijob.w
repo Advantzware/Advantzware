@@ -657,85 +657,49 @@ PROCEDURE build-table :
 ------------------------------------------------------------------------------*/
   EMPTY TEMP-TABLE w-jobs.
   EMPTY TEMP-TABLE w-job.
-
+DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
   FIND FIRST oe-ctrl WHERE oe-ctrl.company EQ itemfg.company NO-LOCK NO-ERROR.
 
-  for each fg-bin
-      where fg-bin.company eq itemfg.company
-        and fg-bin.i-no    eq itemfg.i-no
-        AND (fg-bin.tag     BEGINS lv-show-tag-no OR lv-show-tag-no = "" 
-             OR (INDEX(lv-show-tag-no,'*') NE 0 AND fg-bin.tag MATCHES lv-show-tag-no)  )
-        no-lock:
-
-      IF lv-show-tag-no <> ""  THEN
-          IF fg-bin.tag = "" THEN NEXT .
-
-      IF NOT (fg-bin.qty ne 0 or (ll-show-zero-bins AND lv-show-zero-bins)) THEN
-         NEXT.
-
-      create w-jobs.
-      assign w-jobs.job-no = fg-bin.job-no
-             w-jobs.job-no2 = fg-bin.job-no2
-             w-jobs.i-no  = itemfg.i-no
-             w-jobs.loc  = fg-bin.loc
-             w-jobs.loc-bin = fg-bin.loc-bin
-             w-jobs.tag = fg-bin.tag
-             w-jobs.cust-no = fg-bin.cust-no
-             w-jobs.cases = TRUNC((fg-bin.qty - fg-bin.partial-count) / fg-bin.case-count,0)
-             w-jobs.case-count = fg-bin.case-count
-             w-jobs.cases-unit = fg-bin.cases-unit
-             w-jobs.partial-count = fg-bin.partial-count
-             w-jobs.qty = fg-bin.qty
-             w-jobs.std-tot-cost = fg-bin.std-tot-cost
-             w-jobs.std-mat-cost = fg-bin.std-mat-cost
-             w-jobs.std-lab-cost = fg-bin.std-lab-cost
-             w-jobs.std-var-cost = fg-bin.std-var-cost
-             w-jobs.std-fix-cost = fg-bin.std-fix-cost
-             w-jobs.last-cost = fg-bin.last-cost
-             w-jobs.sell-uom = fg-bin.pur-uom
-             w-jobs.tot-wt  = fg-bin.tot-wt 
-             w-jobs.po-no   = fg-bin.po-no.
-      
-       find first job-hdr where job-hdr.company eq fg-bin.company
-                              and job-hdr.i-no    eq fg-bin.i-no
-                              and job-hdr.job-no  eq fg-bin.job-no
-                              and job-hdr.job-no2 eq fg-bin.job-no2
-                            use-index i-no no-lock no-error.
-       if avail job-hdr then assign w-jobs.j-no = job-hdr.j-no.
-       /*
-       FOR EACH fg-rcpth FIELDS(r-no rita-code po-no) WHERE
-           fg-rcpth.company EQ itemfg.company AND
-           fg-rcpth.i-no EQ itemfg.i-no AND
-           fg-rcpth.job-no EQ fg-bin.job-no AND
-           fg-rcpth.job-no2 EQ fg-bin.job-no2 AND
-           fg-rcpth.po-no NE ""
-           NO-LOCK,
-           FIRST fg-rdtlh fields() WHERE
-                 fg-rdtlh.r-no EQ fg-rcpth.r-no AND
-                 fg-rdtlh.rita-code EQ fg-rcpth.rita-code AND
-                 fg-rdtlh.loc EQ fg-bin.loc AND
-                 fg-rdtlh.loc-bin EQ fg-bin.loc-bin AND
-                 fg-rdtlh.tag EQ fg-bin.tag AND
-                 fg-rdtlh.cust-no EQ fg-bin.cust-no AND
-                 fg-rdtlh.bol-no EQ fg-bin.bol-no AND
-                 fg-rdtlh.inv-no EQ fg-bin.inv-no
-                 NO-LOCK
-           BY fg-rcpth.trans-date DESC
-           BY fg-rdtlh.trans-time DESC:
-
-           w-jobs.po-no = fg-rcpth.po-no.
-       END.
-        */
-       RELEASE w-jobs.
-  end. /* each fg-bin */
-
+IF lv-show-tag-no EQ "" THEN DO:
+    FOR EACH fg-bin
+        WHERE fg-bin.company eq itemfg.company
+        AND  fg-bin.i-no    eq itemfg.i-no
+        NO-LOCK:
+            
+        RUN createwjobs.
+    
+     END. /* each fg-bin */
+ END.
+ ELSE IF INDEX(lv-show-tag-no, '*') EQ 0 THEN DO:
+      FOR EACH fg-bin
+          WHERE fg-bin.company eq itemfg.company
+             AND  fg-bin.i-no    eq itemfg.i-no
+             AND fg-bin.tag     BEGINS lv-show-tag-no 
+        NO-LOCK:
+            
+          IF  fg-bin.i-no    eq itemfg.i-no THEN 
+             RUN createwjobs.
+    
+        END. /* each fg-bin */
+   END.
+   ELSE DO:
+      FOR EACH fg-bin
+          WHERE fg-bin.company eq itemfg.company         
+              AND  fg-bin.tag MATCHES lv-show-tag-no
+           NO-LOCK:
+                IF  fg-bin.i-no    eq itemfg.i-no THEN 
+                     RUN createwjobs.
+    
+      END. /* each fg-bin */
+  END.
+  
   IF ll-show-zero-bins THEN DO:
-    FOR EACH job-hdr NO-LOCK
+    FOR EACH job-hdr FIELDS(std-lab-cost std-mat-cost std-var-cost  std-fix-cost) NO-LOCK
         WHERE job-hdr.company EQ itemfg.company
           AND job-hdr.i-no    EQ itemfg.i-no
           AND job-hdr.opened  EQ YES
         USE-INDEX i-no,
-        FIRST job NO-LOCK
+        FIRST  job FIELDS(job-no job-no2 loc) NO-LOCK
         WHERE job.company EQ job-hdr.company
           AND job.job     EQ job-hdr.job
           AND job.job-no  EQ job-hdr.job-no
@@ -750,13 +714,13 @@ PROCEDURE build-table :
       RELEASE w-jobs.
     END.
 
-    FOR EACH reftable NO-LOCK
+    FOR EACH reftable FIELDS(val) NO-LOCK
         WHERE reftable.reftable EQ "jc/jc-calc.p"
           AND reftable.code2    EQ itemfg.i-no
           AND reftable.company  EQ itemfg.company
           AND reftable.loc      EQ ""
         USE-INDEX code2,
-        FIRST job NO-LOCK
+        FIRST job FIELDS(job-no job-no2 loc) NO-LOCK
         WHERE job.company EQ reftable.company
           AND job.job     EQ INT(reftable.code)
           AND job.opened  EQ YES
@@ -778,12 +742,12 @@ PROCEDURE build-table :
 
   EMPTY TEMP-TABLE tt-ids.
   IF lShowRecalcFields THEN DO:
-    FOR EACH oe-relh NO-LOCK
+    FOR EACH oe-relh FIELDS() NO-LOCK
         WHERE oe-relh.company EQ itemfg.company
           AND oe-relh.deleted EQ NO
           AND oe-relh.posted  EQ NO
         USE-INDEX delpost,
-        EACH oe-rell NO-LOCK
+        EACH oe-rell FIELDS() NO-LOCK
         WHERE oe-rell.company EQ oe-relh.company
           AND oe-rell.r-no    EQ oe-relh.r-no
           AND oe-rell.i-no    EQ itemfg.i-no:
@@ -791,12 +755,12 @@ PROCEDURE build-table :
       tt-rowid = ROWID(oe-rell).
     END.
   
-    FOR EACH oe-bolh NO-LOCK
+    FOR EACH oe-bolh FIELDS() NO-LOCK
         WHERE oe-bolh.company EQ itemfg.company
           AND oe-bolh.deleted EQ NO
           AND oe-bolh.posted  EQ NO
         USE-INDEX post,
-        EACH oe-boll NO-LOCK
+        EACH oe-boll FIELDS() NO-LOCK
         WHERE oe-boll.company EQ oe-bolh.company
           AND oe-boll.b-no    EQ oe-bolh.b-no
           AND oe-boll.i-no    EQ itemfg.i-no:
@@ -805,10 +769,10 @@ PROCEDURE build-table :
     END.
   
     IF AVAIL oe-ctrl AND NOT oe-ctrl.u-inv THEN
-    FOR EACH inv-line NO-LOCK
+    FOR EACH inv-line FIELDS() NO-LOCK
         WHERE inv-line.company EQ itemfg.company
           AND inv-line.i-no    EQ itemfg.i-no,
-        EACH oe-boll NO-LOCK
+        EACH oe-boll FIELDS() NO-LOCK
         WHERE oe-boll.company EQ inv-line.company
           AND oe-boll.b-no    EQ inv-line.b-no
           AND oe-boll.ord-no  EQ inv-line.ord-no
@@ -818,6 +782,7 @@ PROCEDURE build-table :
       tt-rowid = ROWID(oe-boll).
     END.
   END.
+  
   FOR EACH w-jobs BREAK BY w-jobs.job-no BY w-jobs.job-no2:
       CREATE w-job.
       ASSIGN w-job.job-no = w-jobs.job-no
@@ -852,31 +817,33 @@ PROCEDURE build-table :
         RELEASE oe-rell.
         RELEASE oe-boll.
         RELEASE inv-line.
-
-        FIND FIRST oe-rell NO-LOCK
+        lRecFound = NO.
+        FOR EACH  oe-rell FIELDS(qty) NO-LOCK
             WHERE ROWID(oe-rell)  EQ tt-rowid
               AND oe-rell.job-no  EQ w-job.job-no
               AND oe-rell.job-no2 EQ w-job.job-no2
               AND oe-rell.loc     EQ w-job.loc
               AND oe-rell.loc-bin EQ w-job.loc-bin
               AND oe-rell.tag     EQ w-job.tag
-              AND oe-rell.cust-no EQ w-job.cust-no
-            NO-ERROR.
-        IF AVAIL oe-rell THEN w-job.rel-qty = w-job.rel-qty + oe-rell.qty.
+              AND oe-rell.cust-no EQ w-job.cust-no:
+                  
+           w-job.rel-qty = w-job.rel-qty + oe-rell.qty.
+           lRecFound = YES.
+        END.
 
-        ELSE
-        FIND FIRST oe-boll NO-LOCK
-            WHERE ROWID(oe-boll)  EQ tt-rowid
-              AND oe-boll.job-no  EQ w-job.job-no
-              AND oe-boll.job-no2 EQ w-job.job-no2
-              AND oe-boll.loc     EQ w-job.loc
-              AND oe-boll.loc-bin EQ w-job.loc-bin
-              AND oe-boll.tag     EQ w-job.tag
-              AND oe-boll.cust-no EQ w-job.cust-no
-            NO-ERROR.
-        IF AVAIL oe-boll THEN w-job.bol-qty = w-job.bol-qty + oe-boll.qty.
-      END.
-
+        IF NOT lRecFound THEN DO:
+           FOR EACH oe-boll FIELDS(qty) NO-LOCK
+              WHERE ROWID(oe-boll)  EQ tt-rowid
+                AND oe-boll.job-no  EQ w-job.job-no
+                AND oe-boll.job-no2 EQ w-job.job-no2
+                AND oe-boll.loc     EQ w-job.loc
+                AND oe-boll.loc-bin EQ w-job.loc-bin
+                AND oe-boll.tag     EQ w-job.tag
+                AND oe-boll.cust-no EQ w-job.cust-no:
+              IF AVAIL oe-boll THEN w-job.bol-qty = w-job.bol-qty + oe-boll.qty.
+           END. /* each oe-boll */
+        END.  /* If not lRecFound */
+       END. /* each tt-ids */
       w-job.avl-qty = w-job.qty - w-job.rel-qty - w-job.bol-qty.
   END. /* each w-jobs */
 
@@ -920,6 +887,61 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE createWJobs B-table-Win
+PROCEDURE createWJobs:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    
+    IF lv-show-tag-no <> ""  THEN
+        IF fg-bin.tag = "" THEN RETURN .
+
+    IF NOT (fg-bin.qty ne 0 or (ll-show-zero-bins AND lv-show-zero-bins)) THEN
+        RETURN.
+
+    
+    create w-jobs.
+    assign 
+        w-jobs.job-no        = fg-bin.job-no
+        w-jobs.job-no2       = fg-bin.job-no2
+        w-jobs.i-no          = itemfg.i-no
+        w-jobs.loc           = fg-bin.loc
+        w-jobs.loc-bin       = fg-bin.loc-bin
+        w-jobs.tag           = fg-bin.tag
+        w-jobs.cust-no       = fg-bin.cust-no
+        w-jobs.cases         = TRUNC((fg-bin.qty - fg-bin.partial-count) / fg-bin.case-count,0)
+        w-jobs.case-count    = fg-bin.case-count
+        w-jobs.cases-unit    = fg-bin.cases-unit
+        w-jobs.partial-count = fg-bin.partial-count
+        w-jobs.qty           = fg-bin.qty
+        w-jobs.std-tot-cost  = fg-bin.std-tot-cost
+        w-jobs.std-mat-cost  = fg-bin.std-mat-cost
+        w-jobs.std-lab-cost  = fg-bin.std-lab-cost
+        w-jobs.std-var-cost  = fg-bin.std-var-cost
+        w-jobs.std-fix-cost  = fg-bin.std-fix-cost
+        w-jobs.last-cost     = fg-bin.last-cost
+        w-jobs.sell-uom      = fg-bin.pur-uom
+        w-jobs.tot-wt        = fg-bin.tot-wt 
+        w-jobs.po-no         = fg-bin.po-no.
+      
+    find first job-hdr where job-hdr.company eq fg-bin.company
+        and job-hdr.i-no    eq fg-bin.i-no
+        and job-hdr.job-no  eq fg-bin.job-no
+        and job-hdr.job-no2 eq fg-bin.job-no2
+        use-index i-no no-lock no-error.
+    if avail job-hdr then assign w-jobs.j-no = job-hdr.j-no.
+
+    RELEASE w-jobs.
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI B-table-Win  _DEFAULT-DISABLE
 PROCEDURE disable_UI :

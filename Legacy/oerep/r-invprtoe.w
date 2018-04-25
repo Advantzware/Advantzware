@@ -842,7 +842,11 @@ DO:
         IF tb_prt-zero-qty:HIDDEN = NO THEN
             ASSIGN tb_prt-zero-qty
                 s-print-zero-qty = tb_prt-zero-qty.
-
+                
+        /* In case this was set and now are printing to screen */
+        IF rd-dest EQ 2 OR rd-dest EQ 1 THEN
+           tb_splitPDF = NO.
+           
         IF fi_broker-bol:SENSITIVE AND
             fi_broker-bol:SCREEN-VALUE NE "" AND
             begin_inv NE end_inv THEN
@@ -1210,6 +1214,11 @@ ON VALUE-CHANGED OF rd-dest IN FRAME FRAME-A
 DO:
         ASSIGN {&self-name}.
         RUN SetEmailBoxes.
+    IF rd-dest EQ 2 THEN 
+      ASSIGN 
+          tb_splitPDF:HIDDEN    = YES
+          tb_splitPDF:SENSITIVE = NO
+          .        
     END.
 
 /* _UIB-CODE-BLOCK-END */

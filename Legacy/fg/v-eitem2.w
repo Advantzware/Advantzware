@@ -1074,9 +1074,6 @@ PROCEDURE local-assign-record :
 
   END.
   
-  MESSAGE 
-  "tb_sel-01:" tb_sel-01
-  VIEW-AS ALERT-BOX.
   ASSIGN
     e-itemfg-vend.selected[01] = tb_sel-01
     e-itemfg-vend.selected[02] = tb_sel-02

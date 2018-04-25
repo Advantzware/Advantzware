@@ -35,7 +35,7 @@
         fg-rcpth.company EQ itemfg.company AND 
         fg-rcpth.i-no EQ itemfg.i-no
         USE-INDEX tran,
-        EACH fg-rdtlh NO-LOCK WHERE 
+        EACH fg-rdtlh EXCLUSIVE WHERE 
             fg-rdtlh.r-no EQ fg-rcpth.r-no AND 
             fg-rdtlh.rita-code EQ fg-rcpth.rita-code
         BY fg-rcpth.trans-date
@@ -43,7 +43,7 @@
         BY fg-rcpth.r-no
         BY fg-rdtlh.rec_key:
 
-    FIND FIRST fg-bin WHERE 
+    FIND FIRST fg-bin EXCLUSIVE WHERE 
         fg-bin.company EQ fg-rcpth.company AND 
         fg-bin.i-no    EQ fg-rcpth.i-no AND 
         fg-bin.loc     EQ fg-rdtlh.loc AND 

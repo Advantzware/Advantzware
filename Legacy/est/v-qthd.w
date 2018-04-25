@@ -475,6 +475,13 @@ DO:
               END. 
               return no-apply.  
         END.
+        when "carrier" then do:
+           RUN windows/l-carrie.w (gcompany,gloc,quotehd.carrier:screen-value, OUTPUT char-val).
+           if char-val <> "" then 
+              assign quotehd.carrier:SCREEN-VALUE = entry(1,char-val).
+           return no-apply.  
+       end.
+
        otherwise do:
            lv-handle = focus:handle.
            run applhelp.p.

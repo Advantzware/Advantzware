@@ -72,8 +72,8 @@ ASSIGN cTextListToSelect = "Order No,Job Number,Due Date,Customer,Name,Rep,PO #,
                             "est,qty-due,status,std-cst,uom,gp-dolr,gp," +
                             "lst-shp,qty-oh,ord-dt,itm-no,rel-dt,prc-sal," +
                             "stat,po-qty-rec,t-pric,ord-qty"
-       cFieldLength = "8,10,10,8,30,3,15,30," + "8,12,6,12,5,12,7," + "12,10,10,15,10,9," +
-                      "4,11,10,11"
+       cFieldLength = "8,10,10,8,30,3,15,30," + "8,12,6,15,5,15,9," + "12,12,10,15,10,15," +
+                      "4,12,16,12"
        cFieldType = "c,c,c,c,c,c,c,c," + "c,i,c,i,c,i,i," + "c,i,c,c,c,i," + "c,i,i,i" 
     .
 

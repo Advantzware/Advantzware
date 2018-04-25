@@ -18,6 +18,10 @@ DEFINE VARIABLE dQtyPerSet AS DECIMAL NO-UNDO.
 DEFINE VARIABLE iCount AS INTEGER NO-UNDO.
 DEFINE VARIABLE iCountProcessed AS INTEGER NO-UNDO.
 DEFINE VARIABLE iCountInitialized AS INTEGER NO-UNDO.
+DEFINE VARIABLE iCountSets AS INTEGER NO-UNDO.
+DEFINE VARIABLE iCountFGSets AS INTEGER NO-UNDO.
+DEFINE VARIABLE iCountFGSetsProcessed AS INTEGER NO-UNDO.
+DEFINE VARIABLE iCountFGSetsInitialized AS INTEGER NO-UNDO.
 /* ********************  Preprocessor Definitions  ******************** */
 
 
@@ -51,6 +55,23 @@ FOR EACH company NO-LOCK
                 eb.quantityPerSet = 1
                 iCountInitialized = iCountInitialized + 1.
 END.
+FOR EACH company NO-LOCK 
+, EACH fg-set EXCLUSIVE-LOCK
+    WHERE fg-set.company EQ company.company:
+        iCountFGSets = iCountFGSets + 1.
+        IF fg-set.qtyPerSet EQ 0 AND fg-set.part-qty NE 0 THEN 
+            ASSIGN 
+                iCountFGSetsProcessed = iCountFGSetsProcessed + 1 
+                fg-set.qtyPerSet = fg-set.part-qty.
+        IF fg-set.qtyPerSet EQ 0 THEN 
+            ASSIGN 
+                iCountFGSetsInitialized = iCountFGSetsInitialized + 1 
+                fg-set.qtyPerSet = 1.
+END.     
 MESSAGE "Total Estimates: " iCount SKIP 
         "Converted from .yld-qty: " iCountProcessed SKIP
-        "Initialized to 1: " iCountInitialized VIEW-AS ALERT-BOX.
+        "Initialized to 1: " iCountInitialized SKIP(2) 
+        "Total Sets: " iCountFGSets SKIP 
+        "Sets Converted from .part-qty to .qtyPerSet: " iCountFGSetsProcessed SKIP 
+        "Sets Initialized to 1" iCountFGSetsInitialized 
+        VIEW-AS ALERT-BOX.

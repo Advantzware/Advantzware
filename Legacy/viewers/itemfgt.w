@@ -529,7 +529,6 @@ PROCEDURE local-assign-record :
   
    ASSIGN itemfg.factored = v-factor-item.
 
-   FIND CURRENT reftable NO-LOCK.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

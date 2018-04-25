@@ -864,11 +864,21 @@ PROCEDURE valid-po-no :
                     WHERE po-ord.company EQ cocode
                        AND string(po-ord.po-no)   EQ rm-rcpth.po-no:SCREEN-VALUE )
     THEN DO:
-      MESSAGE "invalid Purchase Order..." VIEW-AS ALERT-BOX ERROR.
+      MESSAGE "invalid Purchase Order..." VIEW-AS ALERT-BOX INFO.
       rm-rcpth.po-no:SCREEN-VALUE  = string(rm-rcpth.po-no).
       APPLY "entry" TO rm-rcpth.po-no .
       RETURN ERROR.
     END.
+    FIND FIRST po-ordl NO-LOCK
+         WHERE po-ordl.company EQ cocode
+           AND string(po-ordl.po-no) EQ rm-rcpth.po-no:SCREEN-VALUE
+           AND po-ordl.i-no EQ rm-rcpth.i-no:SCREEN-VALUE NO-ERROR .
+    IF NOT AVAIL po-ordl THEN DO:
+            MESSAGE "Purchage Order is not valid for:" rm-rcpth.i-no:SCREEN-VALUE  VIEW-AS ALERT-BOX INFO.
+            rm-rcpth.po-no:SCREEN-VALUE  = string(rm-rcpth.po-no).
+            APPLY "entry" TO rm-rcpth.po-no .
+            RETURN ERROR.
+     END.
    END.
   END.
 
