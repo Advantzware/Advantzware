@@ -43,7 +43,7 @@
         BY fg-rcpth.r-no
         BY fg-rdtlh.rec_key:
 
-    FIND FIRST fg-bin EXLCUSIVE WHERE 
+    FIND FIRST fg-bin EXCLUSIVE WHERE 
         fg-bin.company EQ fg-rcpth.company AND 
         fg-bin.i-no    EQ fg-rcpth.i-no AND 
         fg-bin.loc     EQ fg-rdtlh.loc AND 
