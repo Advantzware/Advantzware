@@ -65,18 +65,18 @@ if avail xest then do:
       where xef.company = xest.company AND xef.est-no   eq xest.est-no
         and xef.form-no eq w-ef.frm
       no-lock no-error.
-
+  
   if avail xef then do:
-    find first item
+    find first ITEM NO-LOCK
         where item.company eq cocode
           and item.i-no    eq xef.board
-          AND item.mat-type     EQ "B" NO-LOCK.
+          AND item.mat-type     EQ "B" NO-ERROR.
    
     v-adders = xef.adder[1] + " " + xef.adder[2] + " " + xef.adder[3] + " " +
                xef.adder[4] + " " + xef.adder[5] + " " + xef.adder[6].
 
     assign
-     v-form-code = caps(item.i-no)
+     v-form-code = if avail item THEN caps(item.i-no) ELSE ""
      v-form-dscr = if avail item then item.i-name else ""
      v-form-len  = xef.gsh-len
      v-form-wid  = xef.gsh-wid.
