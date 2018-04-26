@@ -1920,10 +1920,10 @@ END PROCEDURE.
 
 &ENDIF
 
-&IF DEFINED(EXCLUDE-update-start-date1) = 0 &THEN
+&IF DEFINED(EXCLUDE-update-start-date) = 0 &THEN
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE update-start-date1 Procedure 
-PROCEDURE update-start-date1 :
+PROCEDURE update-start-date :
 /*------------------------------------------------------------------------------
   Purpose:     
   Parameters:  <none>
