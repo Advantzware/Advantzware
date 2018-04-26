@@ -401,7 +401,7 @@ END PROCEDURE.
 
 /********************************************************************/
 
-PROCEDURE update-start-date1 :
+PROCEDURE update-start-date :
 /*------------------------------------------------------------------------------
   Purpose:     
   Parameters:  <none>
