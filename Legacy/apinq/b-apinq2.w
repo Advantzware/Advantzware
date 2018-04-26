@@ -1081,11 +1081,19 @@ PROCEDURE record-added :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-
+DEFINE INPUT PARAMETER ip-date-to AS DATE NO-UNDO .
   DO WITH FRAME {&FRAME-NAME}:
-    ll-first = YES.
-
-    RUN set-defaults.
+    ll-first = NO.
+    ASSIGN
+     tb_posted   = NO
+     tb_unposted = YES
+     fi_finv     = ""
+     fi_vend     = ""
+     fi_date     = TODAY - 180
+     fi_date-to = ip-date-to
+      .
+   
+   DISPLAY fi_date tb_posted tb_unposted fi_finv fi_vend  fi_date-to.
     
     RUN assign-all.
   END.

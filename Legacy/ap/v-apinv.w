@@ -1090,8 +1090,8 @@ PROCEDURE reopen-browser :
 ------------------------------------------------------------------------------*/
 
   RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"record-source",OUTPUT char-hdl).
-  IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN DO:
-    IF NOT ll-recur THEN RUN record-added IN WIDGET-HANDLE(char-hdl).
+  IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN DO: 
+    IF NOT ll-recur THEN RUN record-added IN WIDGET-HANDLE(char-hdl)(ap-inv.inv-date).
     RUN reopen-query1 IN WIDGET-HANDLE(char-hdl) (ROWID(ap-inv)).
   END.
 
