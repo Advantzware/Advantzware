@@ -44,6 +44,8 @@ DEF VAR lv-field-hdl AS HANDLE NO-UNDO.
 DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO .
 DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO .
 DEFINE VARIABLE lVendCostMtx AS LOGICAL NO-UNDO .
+DEFINE VARIABLE lCopyRecord AS LOGICAL NO-UNDO.
+
 {custom/gcompany.i}
 {custom/persist.i}
 
@@ -1132,6 +1134,29 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-copy-record V-table-Win
+PROCEDURE local-copy-record:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+
+  /* Code placed here will execute PRIOR to standard behavior. */
+
+  /* Dispatch standard ADM method.                             */
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'copy-record':U ) .
+
+  /* Code placed here will execute AFTER standard behavior.    */
+  lCopyRecord = YES.
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-create-record V-table-Win 
 PROCEDURE local-create-record :
 /*------------------------------------------------------------------------------
@@ -1232,8 +1257,12 @@ PROCEDURE local-display-fields :
 ------------------------------------------------------------------------------*/
   DEF BUFFER b-eiv FOR e-itemfg-vend.
 
-
   /* Code placed here will execute PRIOR to standard behavior. */
+  IF lCopyRecord THEN DO:
+      RUN pVendCostMtx ("ASSIGN").
+      lCopyRecord = NO.
+  END.
+
   IF AVAIL e-itemfg-vend AND e-itemfg-vend.setup NE 0 THEN DO TRANSACTION:
     FIND b-eiv WHERE ROWID(b-eiv) EQ ROWID(e-itemfg-vend).
     ASSIGN
@@ -1280,7 +1309,6 @@ PROCEDURE local-display-fields :
     tb_sel-09   = NO
     tb_sel-10   = NO
     .
-
   IF AVAIL e-itemfg-vend THEN
   ASSIGN
     tb_sel-01   = e-itemfg-vend.selected[01]

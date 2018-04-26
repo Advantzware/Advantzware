@@ -40,6 +40,7 @@ DEF VAR char-hdl AS CHAR NO-UNDO.
 DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO .
 DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO .
 DEFINE VARIABLE lVendCostMtx AS LOGICAL NO-UNDO .
+DEFINE VARIABLE lCopyRecord AS LOGICAL NO-UNDO.
 
 {custom/gcompany.i}
 {custom/persist.i}
@@ -1058,6 +1059,10 @@ PROCEDURE local-assign-record :
   DEF VAR char-hdl AS cha NO-UNDO.
 
   /* Code placed here will execute PRIOR to standard behavior. */
+  IF lCopyRecord THEN DO:
+      RUN pVendCostMtx ("ASSIGN").
+      lCopyRecord = NO.
+  END.
 
   DO WITH FRAME {&FRAME-NAME}:
      ASSIGN fi_oh-markup.
@@ -1221,6 +1226,29 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-copy-record V-table-Win
+PROCEDURE local-copy-record:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+
+  /* Code placed here will execute PRIOR to standard behavior. */
+
+  /* Dispatch standard ADM method.                             */
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'copy-record':U ) .
+
+  /* Code placed here will execute AFTER standard behavior.    */
+  lCopyRecord = YES.
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-create-record V-table-Win 
 PROCEDURE local-create-record :
