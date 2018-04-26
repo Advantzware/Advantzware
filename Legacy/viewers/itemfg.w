@@ -72,6 +72,7 @@ DEF TEMP-TABLE w-est-no
 
 RUN sys/ref/ordtypes.p (OUTPUT lv-type-codes, OUTPUT lv-type-dscrs).
 
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -791,17 +792,10 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL itemfg.def-loc V-table-Win
 ON LEAVE OF itemfg.def-loc IN FRAME F-Main /* Warehse */
 DO:
-    {&methods/lValidateError.i YES}
-    IF LASTKEY <> -1 AND 
-    NOT CAN-FIND(FIRST loc WHERE loc.company = gcompany AND loc.loc = itemfg.def-loc:SCREEN-VALUE)
-    THEN DO:
-         IF itemfg.def-loc:SCREEN-VALUE EQ ""  THEN
-             MESSAGE "Must enter a valid warehouse..." VIEW-AS ALERT-BOX ERROR.
-         ELSE
-         MESSAGE "Invalid Warehouse. Try Help." VIEW-AS ALERT-BOX ERROR.
-         RETURN NO-APPLY.
+    IF LASTKEY NE -1 THEN DO:
+    RUN valid-loc NO-ERROR.
+    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
     END.
-    {&methods/lValidateError.i NO}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -812,18 +806,11 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL itemfg.def-loc-bin V-table-Win
 ON LEAVE OF itemfg.def-loc-bin IN FRAME F-Main /* Bin */
 DO: 
-    {&methods/lValidateError.i YES}
-    IF LASTKEY <> -1 AND 
-       NOT CAN-FIND(FIRST fg-bin WHERE fg-bin.company = gcompany AND fg-bin.loc = itemfg.def-loc:SCREEN-VALUE AND
-                          fg-bin.loc-bin = itemfg.def-loc-bin:SCREEN-VALUE)
-    THEN DO:
-        IF itemfg.def-loc-bin:screen-value EQ "" THEN
-            MESSAGE "Must enter a valid Bin..." VIEW-AS ALERT-BOX ERROR.
-         ELSE
-         MESSAGE "Invalid Warehouse Bin. Try Help." VIEW-AS ALERT-BOX ERROR.
-         RETURN NO-APPLY.
-    END.
-    {&methods/lValidateError.i NO}
+    IF LASTKEY NE -1 THEN DO:
+    RUN valid-loc-bin NO-ERROR.
+    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+  END.
+   
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1264,6 +1251,7 @@ DO TRANSACTION:
    {sys/inc/graphic.i}
    {sys/inc/fgsecur.i}
    {sys/inc/custlistform.i ""IF1"" }
+   {sys/inc/fgmaster.i} 
 END.
 
 SESSION:DATA-ENTRY-RETURN = YES.
@@ -1744,8 +1732,7 @@ PROCEDURE local-create-record :
          itemfg.exempt-disc = NO
          itemfg.stat = "A"
          itemfg.setupDate = TODAY
-         itemfg.def-loc        = ""
-         itemfg.def-loc-bin    = "" .
+          .
 
   DO WITH FRAME {&FRAME-NAME}:
 
@@ -1764,7 +1751,7 @@ PROCEDURE local-create-record :
 /*      rd_status:SCREEN-VALUE      = "A"   */
 /*      tb_exempt-disc:SCREEN-VALUE = "no". */
   END.
-
+  RUN default-loc .
    
 
 END PROCEDURE.
@@ -1928,26 +1915,12 @@ PROCEDURE local-update-record :
     RUN valid-type NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
-    IF NOT CAN-FIND(FIRST loc WHERE loc.company = gcompany AND loc.loc = itemfg.def-loc:SCREEN-VALUE)
-    THEN DO:
-         IF itemfg.def-loc:SCREEN-VALUE EQ ""  THEN
-             MESSAGE "Must enter a valid warehouse..." VIEW-AS ALERT-BOX ERROR.
-         ELSE
-         MESSAGE "Invalid Warehouse. Try Help." VIEW-AS ALERT-BOX ERROR.
-         APPLY "entry" TO itemfg.def-loc.
-         RETURN NO-APPLY.
-    END.
+    RUN valid-loc NO-ERROR.
+    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
-    IF NOT CAN-FIND(FIRST fg-bin WHERE fg-bin.company = gcompany AND fg-bin.loc = itemfg.def-loc:SCREEN-VALUE AND
-                          fg-bin.loc-bin = itemfg.def-loc-bin:SCREEN-VALUE)
-    THEN DO:
-         IF itemfg.def-loc-bin:SCREEN-VALUE EQ ""  THEN
-             MESSAGE "Must enter a valid Bin..." VIEW-AS ALERT-BOX ERROR.
-         ELSE
-         MESSAGE "Invalid Warehouse Bin. Try Help." VIEW-AS ALERT-BOX ERROR.
-         APPLY "entry" TO itemfg.def-loc-bin.
-         RETURN NO-APPLY.
-    END.
+    RUN valid-loc-bin NO-ERROR.
+    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+    
       IF itemfg.prod-uom:VISIBLE = YES THEN 
       DO:
         IF (itemfg.i-code:SCREEN-VALUE = "S" AND can-do("EA,M",itemfg.prod-uom:SCREEN-VALUE )) OR
@@ -2222,11 +2195,7 @@ PROCEDURE proc-copy :
   DEF VAR v-cost AS LOG INIT YES NO-UNDO.
 
   IF AVAIL itemfg THEN DO WITH FRAME {&FRAME-NAME}:
-         itemfg.def-loc:SCREEN-VALUE        = "" .
-         itemfg.def-loc-bin:SCREEN-VALUE    = "" . /* task 25536 */
-
-
-
+       
       RUN oeinq/d-cpyfg.w (OUTPUT v-cost, OUTPUT v-mat, OUTPUT v-cpyspc, OUTPUT v-begspc, OUTPUT v-endspc).
       
   
@@ -2240,6 +2209,9 @@ PROCEDURE proc-copy :
          itemfg.avg-cost:SCREEN-VALUE        = "0"
          itemfg.last-cost:SCREEN-VALUE       = "0"
          itemfg.spare-dec-1:SCREEN-VALUE     = "0" .
+
+     RUN default-loc .
+
      DO WITH FRAME {&FRAME-NAME}:
         APPLY "entry" TO itemfg.i-no .
      END.
@@ -2691,4 +2663,95 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-loc V-table-Win 
+PROCEDURE valid-loc :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+
+  {methods/lValidateError.i YES}
+  DO WITH FRAME {&FRAME-NAME}:
+      MESSAGE "fgmaster-cha " STRING(fgmaster-cha) "  " itemfg.i-no:SCREEN-VALUE VIEW-AS ALERT-BOX ERROR .
+   IF itemfg.i-no:SCREEN-VALUE NE fgmaster-cha  THEN do:
+    FIND FIRST loc NO-LOCK 
+         WHERE loc.company = gcompany 
+          AND loc.loc = itemfg.def-loc:SCREEN-VALUE NO-ERROR .
+       IF NOT AVAIL loc THEN DO:
+         IF itemfg.def-loc:SCREEN-VALUE EQ ""  THEN
+             MESSAGE "Must enter a valid warehouse..." VIEW-AS ALERT-BOX ERROR.
+         ELSE
+         MESSAGE "Invalid Warehouse. Try Help." VIEW-AS ALERT-BOX ERROR.
+         APPLY "entry" TO itemfg.def-loc.
+         RETURN ERROR.
+       END.
+   END.
+  END.
+
+  {methods/lValidateError.i NO}
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-loc-bin V-table-Win 
+PROCEDURE valid-loc-bin :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+
+  {methods/lValidateError.i YES}
+  DO WITH FRAME {&FRAME-NAME}:
+      IF itemfg.i-no:SCREEN-VALUE NE fgmaster-cha  THEN do:
+        FIND FIRST fg-bin NO-LOCK
+             WHERE fg-bin.company = gcompany
+               AND fg-bin.loc = itemfg.def-loc:SCREEN-VALUE 
+               AND fg-bin.loc-bin = itemfg.def-loc-bin:SCREEN-VALUE NO-ERROR .
+        IF NOT AVAIL fg-bin THEN DO:
+            IF itemfg.def-loc-bin:screen-value EQ "" THEN
+                MESSAGE "Must enter a valid Bin..." VIEW-AS ALERT-BOX ERROR.
+             ELSE
+             MESSAGE "Invalid Warehouse Bin. Try Help." VIEW-AS ALERT-BOX ERROR.
+             RETURN ERROR.
+        END.
+      END.
+  END.
+  {methods/lValidateError.i NO}
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE default-loc V-table-Win 
+PROCEDURE default-loc :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+DEF BUFFER b-itemfg FOR itemfg.
+  
+  DO WITH FRAME {&FRAME-NAME}:
+   
+       IF fgmaster-cha NE "FGITEM" THEN
+           FIND FIRST b-itemfg NO-LOCK
+           WHERE b-itemfg.company EQ cocode
+            AND b-itemfg.i-no    EQ fgmaster-cha
+           NO-ERROR.
+
+       IF AVAIL b-itemfg THEN
+           ASSIGN
+           itemfg.def-loc:SCREEN-VALUE        = b-itemfg.def-loc
+           itemfg.def-loc-bin:SCREEN-VALUE    = b-itemfg.def-loc-bin .
+  END.
+ 
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
