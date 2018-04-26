@@ -232,22 +232,9 @@ ELSE lv-comp-color = "BLACK".
                 v-t-weight = v-t-weight + (round(ar-invl.t-weight /
                             ar-invl.qty, 2) * ar-invl.inv-qty).
 
-         find first oe-ordl where oe-ordl.company = cocode and
-                                     oe-ordl.ord-no = ar-invl.ord-no and
-                                     oe-ordl.i-no = ar-invl.i-no
-                           no-lock no-error.
-         IF AVAIL oe-ordl THEN
-         FOR EACH oe-rel NO-LOCK
-             WHERE oe-rel.company = cocode
-             AND oe-rel.ord-no = oe-ordl.ord-no
-             AND oe-rel.i-no = oe-ordl.i-no
-             AND oe-rel.LINE = oe-ordl.LINE :
-
-             IF oe-rel.po-no NE "" THEN DO:
-                 cPo-No = cPo-No + oe-rel.po-no + ",". 
-                 LEAVE.
-             END.
-         END. 
+         IF ar-invl.po-no NE "" THEN DO:
+                 cPo-No = cPo-No + ar-invl.po-no + ",". 
+         END.
         
          FOR EACH oe-bolh NO-LOCK WHERE oe-bolh.b-no = ar-invl.b-no AND
              oe-bolh.ord-no = ar-invl.ord-no:
@@ -350,14 +337,15 @@ ELSE lv-comp-color = "BLACK".
            assign v-price-head = ar-invl.pr-uom
                   v-po-no = IF ar-invl.po-no <> "" THEN ar-invl.po-no ELSE ar-inv.po-no
                   v-ord-no = ar-invl.ord-no
-                  lv-bol-no = ar-invl.bol-no.
-         find first oe-ord where oe-ord.company = cocode and
+                  lv-bol-no = ar-invl.bol-no
+                  v-ord-po-no = IF iPoCheck EQ YES THEN "See below" ELSE ar-invl.po-no.
+         /*find first oe-ord where oe-ord.company = cocode and
                                   oe-ord.ord-no = ar-invl.ord-no
                                   no-lock no-error.   
           if avail oe-ord then
           do:
             ASSIGN v-ord-po-no = IF iPoCheck EQ YES THEN "See below" ELSE oe-ord.po-no.
-          end.
+          end.*/
         end.      
 
         /* display heder info 
@@ -393,7 +381,7 @@ ELSE lv-comp-color = "BLACK".
                                     oe-ordl.t-ship-qty) < 0 then 0 else
                                    (ar-invl.qty - v-ship-qty -
                                     oe-ordl.t-ship-qty).
-             ASSIGN vRelPo = "".
+            /* ASSIGN vRelPo = "".
              FOR EACH oe-rel NO-LOCK
                 WHERE oe-rel.company = cocode
                 AND oe-rel.ord-no = oe-ordl.ord-no
@@ -404,7 +392,7 @@ ELSE lv-comp-color = "BLACK".
                   vRelPo = oe-rel.po-no.  
                   LEAVE.
                 END.
-             END.
+             END.*/
 
               IF NOT CAN-FIND(FIRST oe-boll
                               WHERE oe-boll.company EQ ar-invl.company
@@ -492,11 +480,11 @@ ELSE lv-comp-color = "BLACK".
               if v-part-info ne "" OR (v = 1 AND ar-invl.part-no <> "") then do:
                  IF v = 1 THEN DO:
 
-                     IF LENGTH(vRelPo) LE 8 THEN DO:
-                         PUT  SPACE(16) vRelPo FORMAT "x(8)" SPACE(1)   ar-invl.part-no SPACE v-part-info SKIP.
+                     IF LENGTH(ar-invl.po-no) LE 8 THEN DO:
+                         PUT  SPACE(16) ar-invl.po-no FORMAT "x(8)" SPACE(1)   ar-invl.part-no SPACE v-part-info SKIP.
                      END.
                      ELSE DO: 
-                         PUT  SPACE(9) vRelPo FORMAT "x(15)" SPACE(1)   ar-invl.part-no SPACE v-part-info SKIP.
+                         PUT  SPACE(9) ar-invl.po-no FORMAT "x(15)" SPACE(1)   ar-invl.part-no SPACE v-part-info SKIP.
                      END.
                  END.
                  ELSE 
