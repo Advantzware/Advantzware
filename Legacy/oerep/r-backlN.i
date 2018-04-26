@@ -396,7 +396,7 @@
                            WHEN "prc-sal"    THEN cVarValue =   "" .
                            WHEN "stat"       THEN cVarValue =   "" .
                            WHEN "po-qty-rec" THEN cVarValue =   "" .
-                           WHEN "t-pric"     THEN cVarValue =   IF v-profit and security-flag THEN STRING(v-tot-sales[1],">>>,>>9.99") ELSE "" .
+                           WHEN "t-pric"     THEN cVarValue =   IF v-profit and security-flag THEN STRING(v-tot-sales[1],"->>>,>>>,>>9.99") ELSE "" .
                             WHEN "ord-qty"     THEN cVarValue =  STRING(v-tot-qty[1],">>>,>>>,>>9").
                                                               
                       END CASE.
