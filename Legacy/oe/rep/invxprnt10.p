@@ -280,22 +280,10 @@ find first company where company.company eq cocode NO-LOCK.
          assign v-tot-qty = v-tot-qty + xinv-line.ship-qty
                 v-t-weight = v-t-weight + (round(xinv-line.t-weight /
                             xinv-line.qty, 2) * xinv-line.inv-qty).
-         find first oe-ordl where oe-ordl.company = cocode and
-                                     oe-ordl.ord-no = xinv-line.ord-no and
-                                     oe-ordl.i-no = xinv-line.i-no
-                           no-lock no-error.
-         IF AVAIL oe-ordl THEN
-         FOR EACH oe-rel NO-LOCK
-             WHERE oe-rel.company = cocode
-             AND oe-rel.ord-no = oe-ordl.ord-no
-             AND oe-rel.i-no = oe-ordl.i-no
-             AND oe-rel.LINE = oe-ordl.LINE :
 
-             IF oe-rel.po-no NE "" THEN DO:
-                 cPo-No = cPo-No + oe-rel.po-no + ",". 
-                 LEAVE.
-             END.
-         END. 
+         IF xinv-line.po-no NE "" THEN DO:
+                 cPo-No = cPo-No + xinv-line.po-no + ",". 
+         END.
          
          FOR EACH oe-bolh NO-LOCK WHERE oe-bolh.b-no = xinv-line.b-no:
            FOR EACH oe-boll NO-LOCK WHERE oe-boll.company = oe-bolh.company AND
@@ -401,7 +389,7 @@ find first company where company.company eq cocode NO-LOCK.
             assign v-bill-i = oe-ord.bill-i[1]
                    v-ord-no = oe-ord.ord-no
                    v-ord-date = oe-ord.ord-date
-                   v-ord-po-no = IF iPoCheck EQ YES THEN "See below" ELSE oe-ord.po-no.
+                   .
           end.
           else
             assign v-price-head = inv-line.pr-uom.
@@ -412,16 +400,16 @@ find first company where company.company eq cocode NO-LOCK.
             WHERE inv-line.r-no  EQ inv-head.r-no
               AND inv-line.po-no NE ""
             NO-LOCK NO-ERROR.
-        IF AVAIL inv-line 
-          THEN ASSIGN v-po-no = inv-line.po-no.
-          ELSE DO:
+        IF AVAIL inv-line THEN 
+           ASSIGN v-ord-po-no = IF iPoCheck EQ YES THEN "See below" ELSE inv-line.po-no.
+         /* ELSE DO:
              FIND FIRST inv-misc NO-LOCK 
                  WHERE inv-misc.r-no EQ xinv-head.r-no NO-ERROR.
              IF AVAIL inv-misc 
                THEN ASSIGN v-po-no = inv-misc.po-no.
                ELSE ASSIGN v-po-no = "".
 
-          END.
+          END.*/
 
         /* display heder info 
          view frame invhead-comp.  /* Print headers */
@@ -489,7 +477,7 @@ find first company where company.company eq cocode NO-LOCK.
                              (inv-line.qty - v-ship-qty -
                               oe-ordl.t-ship-qty).
 
-             ASSIGN vRelPo = "".
+           /*  ASSIGN vRelPo = "".
              FOR EACH oe-rel NO-LOCK
                 WHERE oe-rel.company = cocode
                 AND oe-rel.ord-no = oe-ordl.ord-no
@@ -500,7 +488,7 @@ find first company where company.company eq cocode NO-LOCK.
                   vRelPo = oe-rel.po-no. 
                   LEAVE.
                 END.
-             END.
+             END.*/
 
               IF NOT CAN-FIND(FIRST oe-boll
                               WHERE oe-boll.company EQ inv-line.company
@@ -599,11 +587,11 @@ find first company where company.company eq cocode NO-LOCK.
               if v-part-info ne "" OR  (v = 1 AND inv-line.part-no <> "") then do:
                  IF v = 1 THEN DO:
                      
-                     IF LENGTH(vRelPo) LE 8 THEN DO:
-                         PUT  SPACE(16) vRelPo FORMAT "x(8)" SPACE(1)   inv-line.part-no SPACE v-part-info SKIP.
+                     IF LENGTH(inv-line.po-no) LE 8 THEN DO:
+                         PUT  SPACE(16) inv-line.po-no FORMAT "x(8)" SPACE(1)   inv-line.part-no SPACE v-part-info SKIP.
                      END.
                      ELSE DO: 
-                         PUT  SPACE(9) vRelPo FORMAT "x(15)" SPACE(1)   inv-line.part-no SPACE v-part-info SKIP.
+                         PUT  SPACE(9) inv-line.po-no FORMAT "x(15)" SPACE(1)   inv-line.part-no SPACE v-part-info SKIP.
                      END.
 
                  END.
