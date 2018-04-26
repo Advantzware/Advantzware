@@ -662,7 +662,7 @@ END.
 SESSION:DATA-ENTRY-RETURN = YES.
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
-  &ENDIF         
+  &ENDIF 
 
   /************************ INTERNAL PROCEDURES ********************/
 
@@ -855,6 +855,28 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-cancel-record V-table-Win 
+PROCEDURE local-cancel-record :
+/*------------------------------------------------------------------------------
+  Purpose:     Override standard ADM method
+  Notes:       
+------------------------------------------------------------------------------*/
+
+  /* Code placed here will execute PRIOR to standard behavior. */
+
+  /* Dispatch standard ADM method.                             */
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'cancel-record':U ) .
+
+  /* Code placed here will execute AFTER standard behavior.    */
+          
+  DO WITH FRAME F-Main:
+    DISABLE tbEdiInvoice.
+  END.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-create-record V-table-Win 
 PROCEDURE local-create-record :
 /*------------------------------------------------------------------------------
@@ -913,7 +935,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-disable V-table-Win 
 PROCEDURE local-disable :
-  /* Code placed here will execute PRIOR to standard behavior. */
+/* Code placed here will execute PRIOR to standard behavior. */
  
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'disable':U ) .
@@ -1022,7 +1044,10 @@ PROCEDURE local-enable :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'enable':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-  
+           
+  DO WITH FRAME F-Main:
+    DISABLE tbEdiInvoice.
+  END.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1365,7 +1390,7 @@ PROCEDURE valid-due-date :
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME 
+&ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-inv-no V-table-Win 
 PROCEDURE valid-inv-no :
