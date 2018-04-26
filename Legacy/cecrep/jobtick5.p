@@ -433,6 +433,11 @@ if v-break then do:
   if (not v-standards) and avail xest then do:
     qty = job-hdr.qty.
     
+    find first xef no-lock
+      where xef.company = xest.company 
+        AND xef.est-no   eq xest.est-no
+       no-error.
+    
     if xest.est-type eq 5 then
       run cec/print4.p.
     else
