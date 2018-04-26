@@ -31,6 +31,8 @@ CREATE WIDGET-POOL.
 
 {sys/inc/var.i NEW SHARED}
 
+DEF BUFFER bitemfg FOR itemfg.
+
 DEF VAR old-est-no      LIKE itemfg.est-no NO-UNDO.
 DEF VAR old-part-no#    LIKE itemfg.part-no NO-UNDO.
 DEF VAR old-i-name      LIKE itemfg.i-name NO-UNDO.
@@ -48,23 +50,20 @@ DEF VAR lv-type-codes AS CHAR NO-UNDO.
 DEF VAR lv-type-dscrs AS CHAR NO-UNDO.
 DEF VAR v-mat AS LOG INIT YES NO-UNDO.
 DEF VAR cDefaultProdUom AS CHAR NO-UNDO.
-
+DEF VAR rFgMaster AS ROWID NO-UNDO.
+DEF VAR cDefWhse AS CHAR NO-UNDO.
+DEF VAR cDefBin AS CHAR NO-UNDO.
+DEF VAR cDefItem AS CHAR NO-UNDO.
+DEF VAR cDefCo AS CHAR NO-UNDO.
 DEF VAR v-cpyspc AS LOG NO-UNDO.
 DEF VAR v-begspc AS CHAR NO-UNDO.
 DEF VAR v-endspc AS CHAR NO-UNDO .
-
 DEF VAR lv-puruom       LIKE itemfg.pur-uom NO-UNDO.
-
-/* gdm - 11190901 */
 DEF VAR v-shpmet        LIKE itemfg.ship-meth NO-UNDO.
-DEFINE VARIABLE lCheckPurMan AS LOGICAL NO-UNDO .
+DEF VAR lCheckPurMan AS LOGICAL NO-UNDO .
 
 &scoped-define copy-proc proc-copy
 &SCOPED-DEFINE itemfg-maint itemfg-maint
-
-
-
-
 
 DEF TEMP-TABLE w-est-no
     FIELD w-est-no LIKE itemfg.est-no
@@ -96,25 +95,25 @@ RUN sys/ref/ordtypes.p (OUTPUT lv-type-codes, OUTPUT lv-type-dscrs).
 /* Need to scope the external tables to this procedure                  */
 DEFINE QUERY external_tables FOR itemfg.
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-FIELDS itemfg.spare-int-2 itemfg.setupDate itemfg.i-no itemfg.isaset ~
-itemfg.part-no itemfg.i-name itemfg.part-dscr1 itemfg.part-dscr2 ~
-itemfg.part-dscr3 itemfg.spare-char-1 itemfg.est-no itemfg.style ~
-itemfg.style-desc itemfg.die-no itemfg.plate-no itemfg.cad-no itemfg.spc-no ~
-itemfg.upc-no itemfg.cust-no itemfg.cust-name itemfg.stat itemfg.pur-man ~
-itemfg.ship-meth itemfg.i-code itemfg.sell-price itemfg.sell-uom ~
-itemfg.curr-code[1] itemfg.procat itemfg.procat-desc itemfg.type-code ~
-itemfg.def-loc itemfg.def-loc-bin itemfg.case-count itemfg.case-pall ~
-itemfg.weight-100 itemfg.frt-class itemfg.frt-class-dscr itemfg.class ~
-itemfg.cc-code itemfg.prod-code itemfg.prod-notes itemfg.std-mat-cost ~
-itemfg.std-lab-cost itemfg.std-var-cost itemfg.std-fix-cost ~
-itemfg.spare-dec-1 itemfg.total-std-cost itemfg.avg-cost itemfg.last-cost ~
-itemfg.prod-uom 
+&Scoped-Define ENABLED-FIELDS itemfg.spare-int-2 itemfg.setupDate ~
+itemfg.i-no itemfg.isaset itemfg.part-no itemfg.i-name itemfg.part-dscr1 ~
+itemfg.part-dscr2 itemfg.part-dscr3 itemfg.spare-char-1 itemfg.est-no ~
+itemfg.style itemfg.style-desc itemfg.die-no itemfg.plate-no itemfg.cad-no ~
+itemfg.spc-no itemfg.upc-no itemfg.cust-no itemfg.cust-name itemfg.stat ~
+itemfg.pur-man itemfg.ship-meth itemfg.i-code itemfg.sell-price ~
+itemfg.sell-uom itemfg.curr-code[1] itemfg.procat itemfg.procat-desc ~
+itemfg.type-code itemfg.def-loc itemfg.def-loc-bin itemfg.case-count ~
+itemfg.case-pall itemfg.weight-100 itemfg.frt-class itemfg.frt-class-dscr ~
+itemfg.class itemfg.cc-code itemfg.prod-code itemfg.prod-notes ~
+itemfg.std-mat-cost itemfg.std-lab-cost itemfg.std-var-cost ~
+itemfg.std-fix-cost itemfg.spare-dec-1 itemfg.total-std-cost ~
+itemfg.avg-cost itemfg.last-cost itemfg.prod-uom 
 &Scoped-define ENABLED-TABLES itemfg
 &Scoped-define FIRST-ENABLED-TABLE itemfg
 &Scoped-Define ENABLED-OBJECTS tg-Freeze-weight RECT-10 RECT-8 RECT-9 ~
 RECT-11 RECT-12 
-&Scoped-Define DISPLAYED-FIELDS itemfg.spare-int-2 itemfg.setupDate itemfg.i-no ~
-itemfg.isaset itemfg.part-no itemfg.i-name itemfg.part-dscr1 ~
+&Scoped-Define DISPLAYED-FIELDS itemfg.spare-int-2 itemfg.setupDate ~
+itemfg.i-no itemfg.isaset itemfg.part-no itemfg.i-name itemfg.part-dscr1 ~
 itemfg.part-dscr2 itemfg.part-dscr3 itemfg.spare-char-1 itemfg.exempt-disc ~
 itemfg.est-no itemfg.style itemfg.style-desc itemfg.die-no itemfg.plate-no ~
 itemfg.cad-no itemfg.spc-no itemfg.upc-no itemfg.cust-no itemfg.cust-name ~
@@ -214,8 +213,8 @@ DEFINE FRAME F-Main
           LABEL "Rel Seq" FORMAT ">>>>>>9"
           VIEW-AS FILL-IN 
           SIZE 16.4 BY 1
-    itemfg.setupDate AT ROW 16.91 COL 47 COLON-ALIGNED
-          LABEL "Setup Date" FORMAT "99/99/9999"
+     itemfg.setupDate AT ROW 16.91 COL 47 COLON-ALIGNED
+          LABEL "Setup Date"
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
      itemfg.i-no AT ROW 1.48 COL 15.4 COLON-ALIGNED
@@ -476,7 +475,7 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW V-table-Win ASSIGN
-         HEIGHT             = 17.33
+         HEIGHT             = 17.29
          WIDTH              = 145.8.
 /* END WINDOW DEFINITION */
                                                                         */
@@ -561,14 +560,14 @@ ASSIGN
    EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN itemfg.sell-uom IN FRAME F-Main
    EXP-LABEL EXP-FORMAT                                                 */
+/* SETTINGS FOR FILL-IN itemfg.setupDate IN FRAME F-Main
+   EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN itemfg.spare-char-1 IN FRAME F-Main
    EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN itemfg.spare-dec-1 IN FRAME F-Main
    EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN itemfg.spare-int-2 IN FRAME F-Main
    EXP-LABEL EXP-FORMAT EXP-HELP                                        */
-/* SETTINGS FOR FILL-IN itemfg.setupDate IN FRAME F-Main
-   EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN itemfg.spc-no IN FRAME F-Main
    EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR RADIO-SET itemfg.stat IN FRAME F-Main
@@ -792,14 +791,23 @@ END.
 ON LEAVE OF itemfg.def-loc IN FRAME F-Main /* Warehse */
 DO:
     {&methods/lValidateError.i YES}
-    IF LASTKEY <> -1 AND itemfg.def-loc:SCREEN-VALUE <> "" AND
-    NOT CAN-FIND(FIRST loc WHERE loc.company = gcompany AND loc.loc = itemfg.def-loc:SCREEN-VALUE)
+    IF LASTKEY <> -1 
+    AND itemfg.def-loc:SCREEN-VALUE <> "" 
+    AND NOT CAN-FIND(FIRST loc WHERE loc.company = gcompany AND loc.loc = itemfg.def-loc:SCREEN-VALUE)
     THEN DO:
          IF itemfg.def-loc:SCREEN-VALUE EQ ""  THEN
              MESSAGE "Must enter a valid warehouse..." VIEW-AS ALERT-BOX ERROR.
          ELSE
-         MESSAGE "Invalid Warehouse. Try Help." VIEW-AS ALERT-BOX ERROR.
+             MESSAGE "Invalid Warehouse. Try Help." VIEW-AS ALERT-BOX ERROR.
          RETURN NO-APPLY.
+    END.
+    ELSE IF LASTKEY <> -1 
+    AND (cDefItem NE itemfg.i-no:SCREEN-VALUE OR cDefCo NE cocode)
+    AND SELF:SCREEN-VALUE EQ "" THEN DO:
+        MESSAGE
+            "You must enter a default warehouse for this item."
+            VIEW-AS ALERT-BOX ERROR.
+        RETURN NO-APPLY.
     END.
     {&methods/lValidateError.i NO}
 END.
@@ -813,15 +821,28 @@ END.
 ON LEAVE OF itemfg.def-loc-bin IN FRAME F-Main /* Bin */
 DO: 
     {&methods/lValidateError.i YES}
-    IF LASTKEY <> -1 AND itemfg.def-loc-bin:SCREEN-VALUE <> "" AND
-       NOT CAN-FIND(FIRST fg-bin WHERE fg-bin.company = gcompany AND fg-bin.loc = itemfg.def-loc:SCREEN-VALUE AND
-                          fg-bin.loc-bin = itemfg.def-loc-bin:SCREEN-VALUE)
+    IF LASTKEY <> -1 
+    AND itemfg.def-loc-bin:SCREEN-VALUE <> "" 
+    AND NOT CAN-FIND(FIRST fg-bin WHERE 
+                        fg-bin.company = gcompany AND 
+                        fg-bin.loc = itemfg.def-loc:SCREEN-VALUE AND
+                        fg-bin.loc-bin = itemfg.def-loc-bin:SCREEN-VALUE)
     THEN DO:
-        IF itemfg.def-loc-bin:screen-value EQ "" THEN
-            MESSAGE "Must enter a valid Bin..." VIEW-AS ALERT-BOX ERROR.
-         ELSE
-         MESSAGE "Invalid Warehouse Bin. Try Help." VIEW-AS ALERT-BOX ERROR.
-         RETURN NO-APPLY.
+        IF itemfg.def-loc-bin:screen-value EQ "" THEN MESSAGE 
+            "Must enter a valid Bin..." 
+            VIEW-AS ALERT-BOX ERROR.
+        ELSE MESSAGE 
+            "Invalid Warehouse Bin. Try Help." 
+            VIEW-AS ALERT-BOX ERROR.
+        RETURN NO-APPLY.
+    END.
+    ELSE IF LASTKEY <> -1 
+    AND (cDefItem NE itemfg.i-no:SCREEN-VALUE OR cDefCo NE cocode)
+    AND SELF:SCREEN-VALUE EQ "" THEN DO:
+        MESSAGE
+            "You must enter a default bin for this item."
+            VIEW-AS ALERT-BOX ERROR.
+        RETURN NO-APPLY.
     END.
     {&methods/lValidateError.i NO}
 END.
@@ -1287,6 +1308,20 @@ SESSION:DATA-ENTRY-RETURN = YES.
 /*               itemfg.spare-dec-1:VISIBLE = NO           */
 /*               itemfg.prod-uom:VISIBLE = NO.             */
 /* END.                                                    */
+
+    FIND FIRST sys-ctrl NO-LOCK WHERE 
+        sys-ctrl.company EQ cocode AND 
+        sys-ctrl.NAME EQ "FGMASTER" NO-ERROR.
+    IF AVAIL sys-ctrl THEN FIND FIRST bitemfg NO-LOCK WHERE 
+        bitemfg.company EQ sys-ctrl.company AND 
+        bitemfg.i-no EQ trim(sys-ctrl.char-fld) NO-ERROR.
+    IF AVAIL bitemfg THEN ASSIGN 
+        rFgMaster = ROWID(bitemfg)
+        cDefCo = bitemfg.company
+        cDefItem = bitemfg.i-no
+        cDefWhse = bitemfg.def-loc
+        cDefBin = bitemfg.def-loc-bin.
+
 RUN hide-fgsecure-fields.
 tg-Freeze-weight:SENSITIVE = FALSE. /* Was enabled initially without doing update */
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
@@ -1744,8 +1779,8 @@ PROCEDURE local-create-record :
          itemfg.exempt-disc = NO
          itemfg.stat = "A"
          itemfg.setupDate = TODAY
-         itemfg.def-loc        = ""
-         itemfg.def-loc-bin    = "" .
+         itemfg.def-loc        = cDefWhse
+         itemfg.def-loc-bin    = cDefBin .
 
   DO WITH FRAME {&FRAME-NAME}:
 
@@ -1906,6 +1941,10 @@ PROCEDURE local-update-record :
 
   RUN valid-cust-part NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+  
+    RUN valid-loc NO-ERROR.
+    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+
   {&methods/lValidateError.i YES}
   DO WITH FRAME {&frame-name}:
     IF itemfg.style:SCREEN-VALUE <> "" AND
@@ -1928,28 +1967,7 @@ PROCEDURE local-update-record :
     RUN valid-type NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
-    IF itemfg.def-loc:SCREEN-VALUE <> "" AND
-       NOT CAN-FIND(FIRST loc WHERE loc.company = gcompany AND loc.loc = itemfg.def-loc:SCREEN-VALUE)
-    THEN DO:
-         IF itemfg.def-loc:SCREEN-VALUE EQ ""  THEN
-             MESSAGE "Must enter a valid warehouse..." VIEW-AS ALERT-BOX ERROR.
-         ELSE
-         MESSAGE "Invalid Warehouse. Try Help." VIEW-AS ALERT-BOX ERROR.
-         APPLY "entry" TO itemfg.def-loc.
-         RETURN NO-APPLY.
-    END.
-
-    IF itemfg.def-loc-bin:SCREEN-VALUE <> "" AND
-       NOT CAN-FIND(FIRST fg-bin WHERE fg-bin.company = gcompany AND fg-bin.loc = itemfg.def-loc:SCREEN-VALUE AND
-                          fg-bin.loc-bin = itemfg.def-loc-bin:SCREEN-VALUE)
-    THEN DO:
-         IF itemfg.def-loc-bin:SCREEN-VALUE EQ ""  THEN
-             MESSAGE "Must enter a valid Bin..." VIEW-AS ALERT-BOX ERROR.
-         ELSE
-         MESSAGE "Invalid Warehouse Bin. Try Help." VIEW-AS ALERT-BOX ERROR.
-         APPLY "entry" TO itemfg.def-loc-bin.
-         RETURN NO-APPLY.
-    END.
+    
       IF itemfg.prod-uom:VISIBLE = YES THEN 
       DO:
         IF (itemfg.i-code:SCREEN-VALUE = "S" AND can-do("EA,M",itemfg.prod-uom:SCREEN-VALUE )) OR
@@ -2656,6 +2674,57 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-loc V-table-Win 
+PROCEDURE valid-loc :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DO WITH FRAME {&FRAME-NAME}:
+        
+        /* If you're not modifying the FGMASTER item then blanks aren't allowed */
+        IF (cDefItem NE itemfg.i-no:SCREEN-VALUE OR cDefCo NE gcompany)
+        AND (itemfg.def-loc:SCREEN-VALUE EQ "" OR itemfg.def-loc-bin:SCREEN-VALUE EQ "")
+        THEN DO:
+            MESSAGE
+                "You must enter default values for Warehouse and Bin for this item."
+                VIEW-AS ALERT-BOX ERROR.
+            RETURN ERROR.
+        END.
+        /* Otherwise, whether or not FGMASTER item, invalid locs are bad */
+        ELSE DO:
+            IF itemfg.def-loc:SCREEN-VALUE <> "" 
+            AND NOT CAN-FIND(FIRST loc WHERE 
+                            loc.company = gcompany AND 
+                            loc.loc = itemfg.def-loc:SCREEN-VALUE)
+            THEN DO:
+                MESSAGE 
+                    "Invalid Warehouse. Try Help." 
+                    VIEW-AS ALERT-BOX ERROR.
+                APPLY "entry" TO itemfg.def-loc.
+                RETURN ERROR.
+            END.
+
+            IF itemfg.def-loc-bin:SCREEN-VALUE <> "" 
+            AND NOT CAN-FIND(FIRST fg-bin WHERE 
+                            fg-bin.company = gcompany AND 
+                            fg-bin.loc = itemfg.def-loc:SCREEN-VALUE AND
+                            fg-bin.loc-bin = itemfg.def-loc-bin:SCREEN-VALUE)
+            THEN DO:
+                MESSAGE 
+                    "Invalid Warehouse Bin. Try Help." 
+                    VIEW-AS ALERT-BOX ERROR.
+                APPLY "entry" TO itemfg.def-loc-bin.
+                RETURN ERROR.
+            END.
+        END.
+    END.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-type V-table-Win 
 PROCEDURE valid-type :
 /*------------------------------------------------------------------------------
@@ -2679,5 +2748,4 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 
