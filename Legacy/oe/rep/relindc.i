@@ -830,8 +830,8 @@ PROCEDURE calc-ext-cost:
            NO-LOCK NO-ERROR.
            
 
-      IF tt-rell.newSellPrice <> 0 THEN
-         lv-price = tt-rell.newSellPrice.
+      IF tt-rell.sell-price <> 0 THEN
+         lv-price = tt-rell.sell-price.
       ELSE
          lv-price = oe-ordl.price.
 
