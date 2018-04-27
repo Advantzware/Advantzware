@@ -434,7 +434,6 @@ DEFINE FRAME F-Main
      run-cost-05 AT ROW 10.86 COL 16.4 COLON-ALIGNED NO-LABEL WIDGET-ID 16
      setups-05 AT ROW 10.86 COL 33.4 COLON-ALIGNED NO-LABEL WIDGET-ID 56
      run-qty-06 AT ROW 11.81 COL 2.4 NO-LABEL WIDGET-ID 38
-     run-cost-06 AT ROW 11.81 COL 16.4 COLON-ALIGNED NO-LABEL WIDGET-ID 18
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -442,6 +441,7 @@ DEFINE FRAME F-Main
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME F-Main
+     run-cost-06 AT ROW 11.81 COL 16.4 COLON-ALIGNED NO-LABEL WIDGET-ID 18
      setups-06 AT ROW 11.81 COL 33.4 COLON-ALIGNED NO-LABEL WIDGET-ID 58
      run-qty-07 AT ROW 12.76 COL 2.4 NO-LABEL WIDGET-ID 40
      run-cost-07 AT ROW 12.76 COL 16.4 COLON-ALIGNED NO-LABEL WIDGET-ID 20
@@ -623,7 +623,7 @@ ASSIGN
 /* SETTINGS FOR FILL-IN e-itemfg.std-uom IN FRAME F-Main
    NO-ENABLE 1 2 EXP-LABEL                                              */
 /* SETTINGS FOR FILL-IN e-itemfg-vend.vend-no IN FRAME F-Main
-   EXP-FORMAT                                                           */
+   EXP-LABEL EXP-FORMAT                                                 */
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
@@ -959,7 +959,7 @@ PROCEDURE local-assign-record :
     DEF VAR char-hdl AS CHAR NO-UNDO.
 
     IF lCopyRecord THEN DO:
-        RUN pVendCostMtx ("ASSIGN").
+/*        RUN pVendCostMtx ("ASSIGN"). */
         ASSIGN 
             lCopyRecord = NO.
     END.
@@ -1293,6 +1293,7 @@ PROCEDURE local-display-fields :
             END.
             ASSIGN
                 fi_oh-markup = reftable.val[1].
+            RELEASE reftable.
         END.
     END.
 
