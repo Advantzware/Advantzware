@@ -110,17 +110,18 @@ IF AVAIL updfgdim-{1} THEN DO:
   IF ROWID(updfgdim-{1}) NE ROWID({1}) THEN
     {2}itemfg.t-len = {2}itemfg.t-len * 2.
 
-  ASSIGN /*take windowing out before weight calc*/
-   {2}itemfg.t-sqin = ({2}itemfg.t-wid * {2}itemfg.t-len) - updfgdim-{1}.t-win
-   {2}itemfg.t-sqft = IF v-corr THEN {2}itemfg.t-sqin * .007
-                                ELSE {2}itemfg.t-sqin / 144.
-
+  IF NOT {2}itemfg.spare-int-2 EQ 1 THEN 
+      ASSIGN /*take windowing out before weight calc*/
+       {2}itemfg.t-sqin = ({2}itemfg.t-wid * {2}itemfg.t-len) - updfgdim-{1}.t-win
+       {2}itemfg.t-sqft = IF v-corr THEN {2}itemfg.t-sqin * .007
+                                    ELSE {2}itemfg.t-sqin / 144.
+    
   IF AVAIL ef AND ef.board NE "" AND {2}itemfg.spare-int-1 NE 1 THEN
-    {2}itemfg.weight-100 = {2}itemfg.t-sqft * .1 * ef.weight.
-
-  ASSIGN
-   {2}itemfg.t-sqin = ({2}itemfg.t-wid * {2}itemfg.t-len)
-   {2}itemfg.t-sqft = IF v-corr THEN {2}itemfg.t-sqin * .007
-                                ELSE {2}itemfg.t-sqin / 144.
-
+       {2}itemfg.weight-100 = {2}itemfg.t-sqft * .1 * ef.weight.
+  
+  IF NOT {2}itemfg.spare-int-2 EQ 1 THEN   
+      ASSIGN
+       {2}itemfg.t-sqin = ({2}itemfg.t-wid * {2}itemfg.t-len)
+       {2}itemfg.t-sqft = IF v-corr THEN {2}itemfg.t-sqin * .007
+                                    ELSE {2}itemfg.t-sqin / 144.
 END.
