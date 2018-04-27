@@ -510,8 +510,8 @@ PROCEDURE pCreateOeRell:
     
    
       ASSIGN
-       oe-rell.newSellPrice = oe-rel.sell-price
-       oe-rell.newZeroPrice = oe-rel.zeroPrice.
+       oe-rell.sell-price = oe-rel.sell-price
+       oe-rell.zeroPrice = oe-rel.zeroPrice.
     
     IF iRelQtyToAssign GT 0 AND AVAILABLE oe-rel THEN 
     DO:
