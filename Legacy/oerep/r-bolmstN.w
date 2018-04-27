@@ -871,7 +871,7 @@ PROCEDURE SetBOLForm :
             ASSIGN 
                is-xprint-form = YES
                v-program      = "oe/rep/bolmindc.p".
-          WHEN "Wingate" THEN
+          WHEN "StdBOLMaster" THEN
               ASSIGN
                is-xprint-form = YES
                v-program      = "oe/rep/bolmwin.p".
