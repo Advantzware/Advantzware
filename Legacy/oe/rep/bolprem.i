@@ -390,6 +390,17 @@ for each xxreport where xxreport.term-id eq v-term-id,
 
     oe-boll.printed = YES.
   END.
+  j = 0.
+  
+  FOR EACH tt-boll BREAK BY tt-boll.po-no /* po-no first like premier */
+         BY tt-boll.i-no
+         BY tt-boll.ord-no
+         BY tt-boll.line
+         BY tt-boll.cases DESC:
+      IF FIRST-OF(tt-boll.LINE) THEN 
+      j = j + 1  .
+  END.
+  j = j * 5 .
 
   if last-of(oe-bolh.bol-no) then do:
      IF v-comp-addr[2] = "" THEN
