@@ -281,9 +281,16 @@ find first company where company.company eq cocode NO-LOCK.
                 v-t-weight = v-t-weight + (round(xinv-line.t-weight /
                             xinv-line.qty, 2) * xinv-line.inv-qty).
 
-         IF xinv-line.po-no NE "" THEN DO:
+         find first oe-ordl where oe-ordl.company = cocode and
+                                     oe-ordl.ord-no = xinv-line.ord-no and
+                                     oe-ordl.i-no = xinv-line.i-no
+                                     no-lock no-error.
+
+            IF AVAIL oe-ordl AND oe-ordl.po-no NE "" THEN
+                 cPo-No = cPo-No + oe-ordl.po-no + ",". 
+            ELSE 
                  cPo-No = cPo-No + xinv-line.po-no + ",". 
-         END.
+         
          
          FOR EACH oe-bolh NO-LOCK WHERE oe-bolh.b-no = xinv-line.b-no:
            FOR EACH oe-boll NO-LOCK WHERE oe-boll.company = oe-bolh.company AND
@@ -401,7 +408,7 @@ find first company where company.company eq cocode NO-LOCK.
               AND inv-line.po-no NE ""
             NO-LOCK NO-ERROR.
         IF AVAIL inv-line THEN 
-           ASSIGN v-ord-po-no = IF iPoCheck EQ YES THEN "See below" ELSE inv-line.po-no.
+           ASSIGN v-ord-po-no = IF iPoCheck EQ YES THEN "See below" ELSE ENTRY(1,cPo-No).
          /* ELSE DO:
              FIND FIRST inv-misc NO-LOCK 
                  WHERE inv-misc.r-no EQ xinv-head.r-no NO-ERROR.
@@ -466,18 +473,24 @@ find first company where company.company eq cocode NO-LOCK.
              lv-inv-list = ""
              v-ship-qty  = IF inv-line.ord-no EQ 0 THEN inv-line.inv-qty
                                                    ELSE inv-line.ship-qty.
+            ASSIGN vRelPo = "".
 
             find first oe-ordl where oe-ordl.company = cocode and
                                      oe-ordl.ord-no = inv-line.ord-no and
                                      oe-ordl.i-no = inv-line.i-no
                                      no-lock no-error.
+            IF AVAIL oe-ordl AND oe-ordl.po-no NE "" THEN
+                vRelPo = oe-ordl.po-no.
+            ELSE 
+                vRelPo = inv-line.po-no.
+
             if avail oe-ordl then DO:
               v-bo-qty = if (inv-line.qty - v-ship-qty -
                              oe-ordl.t-ship-qty) < 0 then 0 else
                              (inv-line.qty - v-ship-qty -
                               oe-ordl.t-ship-qty).
 
-           /*  ASSIGN vRelPo = "".
+            /*  ASSIGN vRelPo = "".
              FOR EACH oe-rel NO-LOCK
                 WHERE oe-rel.company = cocode
                 AND oe-rel.ord-no = oe-ordl.ord-no
@@ -587,11 +600,11 @@ find first company where company.company eq cocode NO-LOCK.
               if v-part-info ne "" OR  (v = 1 AND inv-line.part-no <> "") then do:
                  IF v = 1 THEN DO:
                      
-                     IF LENGTH(inv-line.po-no) LE 8 THEN DO:
-                         PUT  SPACE(16) inv-line.po-no FORMAT "x(8)" SPACE(1)   inv-line.part-no SPACE v-part-info SKIP.
+                     IF LENGTH(vRelPo) LE 8 THEN DO:
+                         PUT  SPACE(16) vRelPo FORMAT "x(8)" SPACE(1)   inv-line.part-no SPACE v-part-info SKIP.
                      END.
                      ELSE DO: 
-                         PUT  SPACE(9) inv-line.po-no FORMAT "x(15)" SPACE(1)   inv-line.part-no SPACE v-part-info SKIP.
+                         PUT  SPACE(9) vRelPo FORMAT "x(15)" SPACE(1)   inv-line.part-no SPACE v-part-info SKIP.
                      END.
 
                  END.
