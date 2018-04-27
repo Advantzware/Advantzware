@@ -708,9 +708,12 @@ do v-local-loop = 1 to v-local-copies:
                     v-under-run = trim(string(cust.under-pct,">>9.99%")) .
 
            PUT "<R3><C1><#15><C30><P16><B> SET HEADER<P7></B>" SKIP(2)
-               "Job #: " AT 3 v-job-prt "<C25>Our Order #: " v-ord-no 
-               "<C60>Our Date: " v-ord-date SKIP
-               "Est #: " AT 3 v-est-no "<C25>FG #: " v-fg-set "<C60>Due Date: " v-due-date SKIP
+               "Job #: <B>" AT 3 v-job-prt "</B>"
+               "<C25>Our Order #<B>: " v-ord-no "</B>"
+               "<C60>Our Date: <B>" v-ord-date "</B>" SKIP
+               "Est #: <B>" AT 3 v-est-no "</B>"
+               "<C25>FG #: <B>" v-fg-set "</B>"
+               "<C60>Due Date: <B>" v-due-date "</B>" SKIP
                "<=1><R+6><C2><From><R+5><C78><RECT><||3>" SKIP
                "<=1><R+6><C2>CUSTOMER INFORMATION <C25><b> ORDER INFORMATION </b><C53>ITEM DESCRIPTION" SKIP
                v-cus[1] AT 3 "<b> PO#: " v-po-no " Set Qty: "  v-set-qty "</b>"
