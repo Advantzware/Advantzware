@@ -1767,6 +1767,7 @@ FOR EACH ttRptSelected BY ttRptSelected.DisplayOrder:
 
  IF LOOKUP(ttRptSelected.TextList, "Std Cost,UOM,GP Dollars,GP%,Price,Sales $$") <> 0    THEN do:
   IF NOT security-flag THEN RUN sys/ref/d-passwd.w (3, OUTPUT security-flag).
+  LEAVE.
 end.
 END.
 SESSION:SET-WAIT-STATE ("general").
