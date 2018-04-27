@@ -82,7 +82,8 @@ DEF VAR v-prepaid AS cha NO-UNDO.
 /* === with xprint ====*/
 DEF VAR ls-image1 AS cha NO-UNDO.
 DEF VAR ls-full-img1 AS cha FORM "x(200)" NO-UNDO.
-
+DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lRecFound AS LOGICAL     NO-UNDO.
  
 find first sys-ctrl
       where sys-ctrl.company eq cocode
@@ -90,7 +91,12 @@ find first sys-ctrl
       no-lock no-error.
 ll-consol-bolls = AVAIL sys-ctrl AND sys-ctrl.int-fld NE 0.
 ll-consol-bolls = NO .
-ASSIGN ls-image1 = "images\Wingate_Master-BOL_Logo.jpg"
+
+RUN sys/ref/nk1look.p (INPUT cocode, "BOLImageFooter", "C" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+OUTPUT cRtnChar, OUTPUT lRecFound).
+IF lRecFound THEN
+    ls-image1 = cRtnChar NO-ERROR. 
                    
 
 FILE-INFO:FILE-NAME = ls-image1.
@@ -439,7 +445,7 @@ for each xxreport where xxreport.term-id eq v-term-id,
                 "<=11><R61><C54><p4>emergency response information was made available and/or carrier has the DOT "
                 "<=11><R61.5><C54><p4>emergency response guidebook or equivalent documentation in the vehicle, property "
                  "<=11><R62><C54><p4>            described above is received in good order,except as noted. "
-                "<R63><C28><#1><R+3><C+42><IMAGE#1=" ls-full-img1  SKIP
+                "<R63><C30><#1><R+3><C+44><IMAGE#1=" ls-full-img1  SKIP
                .
 
 
