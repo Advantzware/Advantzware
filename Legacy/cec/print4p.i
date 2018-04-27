@@ -330,7 +330,11 @@
          brd-l[3]   = xef.gsh-len
          brd-w[1]   = xeb.t-wid
          brd-w[2]   = xef.nsh-wid
-         brd-w[3]   = xef.gsh-wid.
+         brd-w[3]   = xef.gsh-wid
+         brd-d[1]   = xeb.t-dep
+         brd-d[2]   = xef.nsh-dep
+         brd-d[3]   = xef.gsh-dep
+         .
 
   if brd-l[3] = 0 and brd-w[3] = 0 then assign brd-l[3] = xef.lsh-len
                                              brd-w[3] = xef.lsh-wid.

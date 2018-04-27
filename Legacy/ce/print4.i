@@ -220,7 +220,8 @@ DEFINE {1} TEMP-TABLE brd NO-UNDO
     FIELD basis-w  LIKE job-mat.basis-w
     FIELD len      LIKE job-mat.len
     FIELD wid      LIKE job-mat.wid
-    FIELD amount   AS DECIMAL .
+    FIELD amount   AS DECIMAL 
+    FIELD dep      LIKE job-mat.dep.
 
 DEFINE {1} TEMP-TABLE op NO-UNDO
     FIELD form-no   LIKE ef.form-no

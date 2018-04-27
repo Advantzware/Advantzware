@@ -1298,6 +1298,7 @@ DO:
                 ASSIGN
                     job-mat.len      = brd.len
                     job-mat.wid      = brd.wid
+                    job-mat.dep      = brd.dep
                     job-mat.cost-m   = brd.cost-m
                     job-mat.basis-w  = brd.basis-w
                     job-mat.n-up     = v-up * v-out

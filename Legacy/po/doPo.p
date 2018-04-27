@@ -4343,6 +4343,8 @@ PROCEDURE wJobFromBJobMat :
             w-job-mat.i-no         = b-job-mat.i-no
             w-job-mat.qty-uom      = "EA"
             w-job-mat.n-up         = b-job-mat.n-up.
+            
+            IF w-job-mat.dep EQ 0 THEN w-job-mat.dep = b-job-mat.dep.
 
     END. /* for each b-job-mat */
 END PROCEDURE.
@@ -4422,6 +4424,7 @@ PROCEDURE wJobFromJobMat :
             w-job-mat.basis-w      = item.basis-w
             w-job-mat.fg-i-no      = IF AVAILABLE b-jc-calc THEN b-jc-calc.code2
                                                ELSE bf-ordl.i-no.
+        IF w-job-mat.dep EQ 0 THEN w-job-mat.dep = job-mat.dep.
     END. /* each job-mat */
 
 END PROCEDURE.

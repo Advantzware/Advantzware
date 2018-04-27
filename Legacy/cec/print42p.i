@@ -567,6 +567,7 @@ do vmcl = 1 to 28:   /* ??? 28 not 4*/
 
            assign brd-l[1] = xef.nsh-len
                   brd-w[1] = xef.nsh-wid
+                  brd-d[1] = xef.nsh-dep
                  /* calc. sheet dimensions & weight */
                   brd-l[2] = xef.gsh-len
                   brd-d[2] = xef.gsh-dep.
