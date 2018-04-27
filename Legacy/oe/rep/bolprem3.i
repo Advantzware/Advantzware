@@ -55,11 +55,23 @@ FOR EACH tt-boll,
             RUN cXMLOutput (clXMLOutput,'/ShipNoticeItem','','Row').
        /* rstark 05291402 */
         END.
-      IF v-printline >= 38 THEN DO:
-         v-printline = 0.
-         PAGE {1}.
-         {oe/rep/bolprem2.i}
-      END.
+        
+         IF j >= 30 THEN do:
+        IF v-printline >= 54 THEN DO:
+           v-printline = 0.
+           j = j - 30.
+           PAGE {1}.
+           {oe/rep/bolprem2.i}
+        END.
+        END.
+        ELSE do: 
+             IF v-printline >= 38 THEN DO:
+              v-printline = 0.
+              PAGE {1}.
+              {oe/rep/bolprem2.i}
+          END.
+        END.
+
       IF tt-boll.qty-case NE 0 AND tt-boll.cases NE 0 THEN DO:
          FIND FIRST w2 WHERE w2.cas-cnt EQ tt-boll.qty-case NO-ERROR.
          IF NOT AVAIL w2 THEN 
@@ -174,11 +186,21 @@ FOR EACH tt-boll,
          v-grand-total-cases  = v-grand-total-cases + w2.cases
          v-printline = v-printline + 1.
          
-         IF v-printline >= 38 THEN DO:
-            v-printline = 0.
-            PAGE {1}.
-            {oe/rep/bolprem2.i}
-         END.
+         IF j >= 30 THEN do:
+        IF v-printline >= 54 THEN DO:
+           v-printline = 0.
+           j = j - 30.
+           PAGE {1}.
+           {oe/rep/bolprem2.i}
+        END.
+        END.
+        ELSE do: 
+             IF v-printline >= 38 THEN DO:
+              v-printline = 0.
+              PAGE {1}.
+              {oe/rep/bolprem2.i}
+          END.
+        END. 
          v-tot-cases = v-tot-cases + (w2.cases * w2.cas-cnt).
          DELETE w2.    
       END. /* each w2 */
@@ -210,11 +232,21 @@ FOR EACH tt-boll,
             ELSE IF i EQ 4 THEN v-part-dscr = oe-ordl.part-dscr2.
 
             IF v-part-dscr NE "" OR v-ord-po-no NE "" OR i LE 2 THEN DO:
-              IF v-printline >= 38 THEN DO:
-                 v-printline = 0.
-                 PAGE {1}.
-                 {oe/rep/bolprem2.i}
-              END.
+              IF j >= 30 THEN do:
+                IF v-printline >= 54 THEN DO:
+                   v-printline = 0.
+                   j = j - 30.
+                   PAGE {1}.
+                   {oe/rep/bolprem2.i}
+                END.
+                END.
+                ELSE do: 
+                     IF v-printline >= 38 THEN DO:
+                      v-printline = 0.
+                      PAGE {1}.
+                      {oe/rep/bolprem2.i}
+                  END.
+                END.
 
               /* rstark 05181205 */
               XMLLineNumber = XMLLineNumber + 1.
@@ -255,10 +287,20 @@ FOR EACH tt-boll,
       
             {sys/inc/part-qty.i v-part-qty fg-set}
 
-            IF v-printline >= 38 THEN DO:
+            IF j >= 30 THEN do:
+            IF v-printline >= 54 THEN DO:
                v-printline = 0.
+               j = j - 30.
                PAGE {1}.
                {oe/rep/bolprem2.i}
+            END.
+            END.
+            ELSE do: 
+                 IF v-printline >= 38 THEN DO:
+                  v-printline = 0.
+                  PAGE {1}.
+                  {oe/rep/bolprem2.i}
+              END.
             END.
 
             /* rstark 05181205 */

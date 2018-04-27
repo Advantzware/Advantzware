@@ -168,12 +168,24 @@ IF FIRST-OF(tt-boll.LINE) THEN DO:
        /* rstark 05181205 */
 
     END.
-
-    IF v-printline >= 40 THEN DO:
-       v-printline = 0.
-       PAGE {1}.
-       {oe/rep/bolprem2.i}
+    
+   
+    IF j >= 30 THEN do:
+        IF v-printline >= 55 THEN DO:
+           v-printline = 0.
+           j = j - 30.
+           PAGE {1}.
+           {oe/rep/bolprem2.i}
+        END.
     END.
+    ELSE do: 
+         IF v-printline >= 38 THEN DO:
+          v-printline = 0.
+          PAGE {1}.
+          {oe/rep/bolprem2.i}
+      END.
+    END.
+
     ASSIGN
       v-tot-cases = v-tot-cases + w2.cases.
           /*delete w2. */
@@ -224,11 +236,21 @@ IF FIRST-OF(tt-boll.LINE) THEN DO:
         
       {sys/inc/part-qty.i v-part-qty fg-set}
   
-      IF v-printline >= 40 THEN DO:
-         v-printline = 0.
-         PAGE {1}.
-         {oe/rep/bolprem2.i}
+    IF j >= 30 THEN do:
+        IF v-printline >= 55 THEN DO:
+           v-printline = 0.
+           j = j - 30.
+           PAGE {1}.
+           {oe/rep/bolprem2.i}
+        END.
+    END.
+    ELSE do: 
+         IF v-printline >= 38 THEN DO:
+          v-printline = 0.
+          PAGE {1}.
+          {oe/rep/bolprem2.i}
       END.
+    END.
   
      /* rstark 05181205 */
      XMLLineNumber = XMLLineNumber + 1.

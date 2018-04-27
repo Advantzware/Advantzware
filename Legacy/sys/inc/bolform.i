@@ -34,7 +34,7 @@
           ASSIGN
              v-program      = "oe/rep/bolpremx.p"
              is-xprint-form = YES
-             lines-per-page = 66.
+             lines-per-page = 70.
        WHEN "RFCX" THEN
           ASSIGN
              v-program      = "oe/rep/bolrfcx.p"
