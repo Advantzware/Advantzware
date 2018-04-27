@@ -574,14 +574,16 @@ FOR EACH xef
   ASSIGN
    brd-l[1] = xef.trim-l
    brd-w[1] = xef.trim-w
-   brd-l[2] = xef.gsh-len.
+   brd-l[2] = xef.gsh-len
+   brd-d[2] = xef.gsh-dep.
 
   IF xef.roll THEN brd-l[3] = xef.trim-l.
   brd-w[2] = xef.gsh-wid.
   IF brd-l[2] EQ 0 AND brd-w[2] = 0 THEN
     ASSIGN
      brd-l[2] = xef.lsh-len
-     brd-w[2] = xef.lsh-wid.
+     brd-w[2] = xef.lsh-wid
+     brd-d[2] = xef.lsh-dep.
   brd-w[3] = IF xef.roll THEN xef.nsh-len ELSE 0.
   brd-sq[1] = brd-l[1] * brd-w[1].
   brd-sq[2] = brd-l[2] * brd-w[2].

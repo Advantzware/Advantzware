@@ -235,6 +235,7 @@ do with frame aaxx no-labels no-box:
         brd.cost = b-msh + (v-setup / b-qty)
         brd.len  = brd-l[3]
         brd.wid  = brd-w[3]
+        brd.dep  = brd-d[3]
         brd.cost-m = b-cost +
                      ((v-setup +
                       (b-cost * ((spo + r-spo[1]) * v-num-up * v-out / 1000))) /
