@@ -50,17 +50,14 @@ DEF VAR lv-type-codes AS CHAR NO-UNDO.
 DEF VAR lv-type-dscrs AS CHAR NO-UNDO.
 DEF VAR v-mat AS LOG INIT YES NO-UNDO.
 DEF VAR cDefaultProdUom AS CHAR NO-UNDO.
-DEF VAR rFgMaster AS ROWID NO-UNDO.
-DEF VAR cDefWhse AS CHAR NO-UNDO.
-DEF VAR cDefBin AS CHAR NO-UNDO.
-DEF VAR cDefItem AS CHAR NO-UNDO.
-DEF VAR cDefCo AS CHAR NO-UNDO.
+DEF VAR cFGMasterINo AS CHAR NO-UNDO.
 DEF VAR v-cpyspc AS LOG NO-UNDO.
 DEF VAR v-begspc AS CHAR NO-UNDO.
 DEF VAR v-endspc AS CHAR NO-UNDO .
 DEF VAR lv-puruom       LIKE itemfg.pur-uom NO-UNDO.
 DEF VAR v-shpmet        LIKE itemfg.ship-meth NO-UNDO.
 DEF VAR lCheckPurMan AS LOGICAL NO-UNDO .
+DEFINE VARIABLE lFound AS LOGICAL NO-UNDO.
 
 &scoped-define copy-proc proc-copy
 &SCOPED-DEFINE itemfg-maint itemfg-maint
@@ -791,23 +788,9 @@ END.
 ON LEAVE OF itemfg.def-loc IN FRAME F-Main /* Warehse */
 DO:
     {&methods/lValidateError.i YES}
-    IF LASTKEY <> -1 
-    AND itemfg.def-loc:SCREEN-VALUE <> "" 
-    AND NOT CAN-FIND(FIRST loc WHERE loc.company = gcompany AND loc.loc = itemfg.def-loc:SCREEN-VALUE)
-    THEN DO:
-         IF itemfg.def-loc:SCREEN-VALUE EQ ""  THEN
-             MESSAGE "Must enter a valid warehouse..." VIEW-AS ALERT-BOX ERROR.
-         ELSE
-             MESSAGE "Invalid Warehouse. Try Help." VIEW-AS ALERT-BOX ERROR.
-         RETURN NO-APPLY.
-    END.
-    ELSE IF LASTKEY <> -1 
-    AND (cDefItem NE itemfg.i-no:SCREEN-VALUE OR cDefCo NE cocode)
-    AND SELF:SCREEN-VALUE EQ "" THEN DO:
-        MESSAGE
-            "You must enter a default warehouse for this item."
-            VIEW-AS ALERT-BOX ERROR.
-        RETURN NO-APPLY.
+IF LASTKEY <> -1 THEN DO:
+        RUN valid-loc NO-ERROR.
+        IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
     END.
     {&methods/lValidateError.i NO}
 END.
@@ -821,28 +804,9 @@ END.
 ON LEAVE OF itemfg.def-loc-bin IN FRAME F-Main /* Bin */
 DO: 
     {&methods/lValidateError.i YES}
-    IF LASTKEY <> -1 
-    AND itemfg.def-loc-bin:SCREEN-VALUE <> "" 
-    AND NOT CAN-FIND(FIRST fg-bin WHERE 
-                        fg-bin.company = gcompany AND 
-                        fg-bin.loc = itemfg.def-loc:SCREEN-VALUE AND
-                        fg-bin.loc-bin = itemfg.def-loc-bin:SCREEN-VALUE)
-    THEN DO:
-        IF itemfg.def-loc-bin:screen-value EQ "" THEN MESSAGE 
-            "Must enter a valid Bin..." 
-            VIEW-AS ALERT-BOX ERROR.
-        ELSE MESSAGE 
-            "Invalid Warehouse Bin. Try Help." 
-            VIEW-AS ALERT-BOX ERROR.
-        RETURN NO-APPLY.
-    END.
-    ELSE IF LASTKEY <> -1 
-    AND (cDefItem NE itemfg.i-no:SCREEN-VALUE OR cDefCo NE cocode)
-    AND SELF:SCREEN-VALUE EQ "" THEN DO:
-        MESSAGE
-            "You must enter a default bin for this item."
-            VIEW-AS ALERT-BOX ERROR.
-        RETURN NO-APPLY.
+    IF LASTKEY <> -1 THEN DO:
+        RUN valid-loc NO-ERROR.
+        IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
     END.
     {&methods/lValidateError.i NO}
 END.
@@ -1308,19 +1272,17 @@ SESSION:DATA-ENTRY-RETURN = YES.
 /*               itemfg.spare-dec-1:VISIBLE = NO           */
 /*               itemfg.prod-uom:VISIBLE = NO.             */
 /* END.                                                    */
-
-    FIND FIRST sys-ctrl NO-LOCK WHERE 
-        sys-ctrl.company EQ cocode AND 
-        sys-ctrl.NAME EQ "FGMASTER" NO-ERROR.
-    IF AVAIL sys-ctrl THEN FIND FIRST bitemfg NO-LOCK WHERE 
-        bitemfg.company EQ sys-ctrl.company AND 
-        bitemfg.i-no EQ trim(sys-ctrl.char-fld) NO-ERROR.
-    IF AVAIL bitemfg THEN ASSIGN 
-        rFgMaster = ROWID(bitemfg)
-        cDefCo = bitemfg.company
-        cDefItem = bitemfg.i-no
-        cDefWhse = bitemfg.def-loc
-        cDefBin = bitemfg.def-loc-bin.
+     RUN sys/ref/nk1Look.p(INPUT cocode,
+                          INPUT "FGMASTER",
+                          INPUT "C",
+                          INPUT NO,
+                          INPUT NO,
+                          INPUT "",
+                          INPUT "",
+                          OUTPUT cFGMasterINo,
+                          OUTPUT lFound).
+    IF lFound AND cFGMasterINo EQ "FGITEM" THEN 
+        cFGMasterINo = "".
 
 RUN hide-fgsecure-fields.
 tg-Freeze-weight:SENSITIVE = FALSE. /* Was enabled initially without doing update */
@@ -1768,19 +1730,13 @@ PROCEDURE local-create-record :
   /* Code placed here will execute AFTER standard behavior.    */
   FIND FIRST oe-ctrl WHERE oe-ctrl.company = gcompany NO-LOCK NO-ERROR.
 
-  ASSIGN itemfg.company = gcompany
-         itemfg.loc = gloc
-/*          itemfg.sell-uom = "M" */
-/*       itemfg.alloc = 0 ??? logical */
+  ASSIGN      
          itemfg.i-code = IF AVAIL oe-ctrl AND oe-ctrl.i-code THEN "S" ELSE "C"
          itemfg.pur-uom = lv-puruom
          /* gdm - 11190901 */
          itemfg.ship-meth =  v-shpmet
-         itemfg.exempt-disc = NO
-         itemfg.stat = "A"
-         itemfg.setupDate = TODAY
-         itemfg.def-loc        = cDefWhse
-         itemfg.def-loc-bin    = cDefBin .
+         
+         .
 
   DO WITH FRAME {&FRAME-NAME}:
 
@@ -2684,46 +2640,45 @@ PROCEDURE valid-loc :
     DO WITH FRAME {&FRAME-NAME}:
         
         /* If you're not modifying the FGMASTER item then blanks aren't allowed */
-        IF (cDefItem NE itemfg.i-no:SCREEN-VALUE OR cDefCo NE gcompany)
-        AND (itemfg.def-loc:SCREEN-VALUE EQ "" OR itemfg.def-loc-bin:SCREEN-VALUE EQ "")
-        THEN DO:
-            MESSAGE
-                "You must enter default values for Warehouse and Bin for this item."
-                VIEW-AS ALERT-BOX ERROR.
-            RETURN ERROR.
-        END.
-        /* Otherwise, whether or not FGMASTER item, invalid locs are bad */
-        ELSE DO:
-            IF itemfg.def-loc:SCREEN-VALUE <> "" 
-            AND NOT CAN-FIND(FIRST loc WHERE 
-                            loc.company = gcompany AND 
-                            loc.loc = itemfg.def-loc:SCREEN-VALUE)
+        IF cFGMasterINo NE itemfg.i-no:SCREEN-VALUE THEN DO: 
+            IF  itemfg.def-loc:SCREEN-VALUE EQ "" 
             THEN DO:
-                MESSAGE 
-                    "Invalid Warehouse. Try Help." 
-                    VIEW-AS ALERT-BOX ERROR.
+                MESSAGE "Default Warehouse cannot be blank." VIEW-AS ALERT-BOX ERROR.
                 APPLY "entry" TO itemfg.def-loc.
                 RETURN ERROR.
             END.
-
-            IF itemfg.def-loc-bin:SCREEN-VALUE <> "" 
-            AND NOT CAN-FIND(FIRST fg-bin WHERE 
-                            fg-bin.company = gcompany AND 
-                            fg-bin.loc = itemfg.def-loc:SCREEN-VALUE AND
-                            fg-bin.loc-bin = itemfg.def-loc-bin:SCREEN-VALUE)
+            IF itemfg.def-loc-bin:SCREEN-VALUE EQ ""
             THEN DO:
-                MESSAGE 
-                    "Invalid Warehouse Bin. Try Help." 
-                    VIEW-AS ALERT-BOX ERROR.
+                MESSAGE "Default Bin Location cannot be blank." VIEW-AS ALERT-BOX ERROR.
                 APPLY "entry" TO itemfg.def-loc-bin.
                 RETURN ERROR.
             END.
         END.
-    END.
+        IF itemfg.def-loc:SCREEN-VALUE <> ""
+            AND NOT CAN-FIND(FIRST loc WHERE 
+                            loc.company = gcompany AND 
+                            loc.loc = itemfg.def-loc:SCREEN-VALUE)
+        THEN DO:
+            MESSAGE "Invalid Default Warehouse." VIEW-AS ALERT-BOX ERROR.
+            APPLY "entry" TO itemfg.def-loc.
+            RETURN ERROR.
+        END.
+        IF itemfg.def-loc-bin:SCREEN-VALUE <> "" 
+            AND NOT CAN-FIND(FIRST fg-bin WHERE 
+                            fg-bin.company = gcompany AND 
+                            fg-bin.loc = itemfg.def-loc:SCREEN-VALUE AND
+                            fg-bin.loc-bin = itemfg.def-loc-bin:SCREEN-VALUE)
+        THEN DO:
+            MESSAGE "Invalid Default Bin Location for Warehouse " itemfg.def-loc:SCREEN-VALUE VIEW-AS ALERT-BOX ERROR.
+            APPLY "entry" TO itemfg.def-loc-bin.
+            RETURN ERROR.
+        END.
+   END.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-type V-table-Win 
 PROCEDURE valid-type :
