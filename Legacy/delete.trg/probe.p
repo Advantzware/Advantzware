@@ -51,8 +51,10 @@ DO viDirCount = 1 TO 3:
       UNIX SILENT rm VALUE(tmp-dir + TRIM({&TABLENAME}.est-no) +   ".*" + STRING({&TABLENAME}.LINE,v-probe-fmt)).
    END.
    ELSE DO:
-      DOS SILENT DEL VALUE(tmp-dir + TRIM({&TABLENAME}.est-no) + "-*.*" + STRING({&TABLENAME}.LINE,v-probe-fmt)).
-      DOS SILENT DEL VALUE(tmp-dir + TRIM({&TABLENAME}.est-no) +   ".*" + STRING({&TABLENAME}.LINE,v-probe-fmt)).
+       if search((tmp-dir + TRIM({&TABLENAME}.est-no) + "-*.*" + STRING({&TABLENAME}.LINE,v-probe-fmt))) <> ? then   
+         DOS SILENT DEL VALUE(tmp-dir + TRIM({&TABLENAME}.est-no) + "-*.*" + STRING({&TABLENAME}.LINE,v-probe-fmt)).
+     if search((tmp-dir + TRIM({&TABLENAME}.est-no) +   ".*" + STRING({&TABLENAME}.LINE,v-probe-fmt))) <> ? then   
+        DOS SILENT DEL VALUE(tmp-dir + TRIM({&TABLENAME}.est-no) +   ".*" + STRING({&TABLENAME}.LINE,v-probe-fmt)).
    END.
 END.
 
