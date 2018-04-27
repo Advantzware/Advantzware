@@ -97,10 +97,7 @@ for each x-eb
      x-eb.stock-no         = v-item-no
      tt-cust-part.stock-no = x-eb.stock-no.
 
-    IF tt-cust-part.qty-set LT 1 THEN
-      fg-set.qtyPerSet = -1 / tt-cust-part.qty-set.
-    ELSE
-      fg-set.qtyPerSet = tt-cust-part.qty-set.
+     fg-set.qtyPerSet = tt-cust-part.qty-set.
   end.
 end. /* each eb */
 
