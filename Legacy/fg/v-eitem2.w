@@ -1160,6 +1160,7 @@ PROCEDURE local-copy-record:
 
   /* Code placed here will execute AFTER standard behavior.    */
   lCopyRecord = YES.
+  DISABLE {&farmFields} WITH FRAME {&FRAME-NAME}.
 
 END PROCEDURE.
 	

@@ -1152,11 +1152,14 @@ PROCEDURE local-copy-record :
  Notes:
 ------------------------------------------------------------------------------*/
 
+  /* Code placed here will execute PRIOR to standard behavior. */
+
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'copy-record':U ) .
 
-    ASSIGN 
-        lCopyRecord = YES.
+  /* Code placed here will execute AFTER standard behavior.    */
+  lCopyRecord = YES.
+  DISABLE {&farmFields} WITH FRAME {&FRAME-NAME}.
 
 END PROCEDURE.
 
