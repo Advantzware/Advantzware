@@ -1019,6 +1019,7 @@ PROCEDURE local-assign-record :
   def var i as int no-undo.
   def var lv-eb-recid as recid no-undo.
   DEF VAR char-hdl AS cha NO-UNDO.
+  DEFINE VARIABLE lCheckBox AS LOGICAL   NO-UNDO EXTENT 10.
 
   /* Code placed here will execute PRIOR to standard behavior. */
   RUN pVendCostMtx ("ASSIGN").
@@ -1034,6 +1035,16 @@ PROCEDURE local-assign-record :
         tb_sel-08
         tb_sel-09
         tb_sel-10
+        lCheckBox[1] = tb_sel-01
+        lCheckBox[2] = tb_sel-02
+        lCheckBox[3] = tb_sel-03
+        lCheckBox[4] = tb_sel-04
+        lCheckBox[5] = tb_sel-05
+        lCheckBox[6] = tb_sel-06
+        lCheckBox[7] = tb_sel-07
+        lCheckBox[8] = tb_sel-08
+        lCheckBox[9] = tb_sel-09
+        lCheckBox[10] = tb_sel-10
         .
   END.
 
@@ -1077,16 +1088,16 @@ PROCEDURE local-assign-record :
   END.
   
   ASSIGN
-    e-itemfg-vend.selected[01] = tb_sel-01
-    e-itemfg-vend.selected[02] = tb_sel-02
-    e-itemfg-vend.selected[03] = tb_sel-03
-    e-itemfg-vend.selected[04] = tb_sel-04
-    e-itemfg-vend.selected[05] = tb_sel-05
-    e-itemfg-vend.selected[06] = tb_sel-06
-    e-itemfg-vend.selected[07] = tb_sel-07
-    e-itemfg-vend.selected[08] = tb_sel-08
-    e-itemfg-vend.selected[09] = tb_sel-09
-    e-itemfg-vend.selected[10] = tb_sel-10
+    e-itemfg-vend.selected[01] = lCheckBox[1]
+    e-itemfg-vend.selected[02] = lCheckBox[2]
+    e-itemfg-vend.selected[03] = lCheckBox[3]
+    e-itemfg-vend.selected[04] = lCheckBox[4]
+    e-itemfg-vend.selected[05] = lCheckBox[5]
+    e-itemfg-vend.selected[06] = lCheckBox[6]
+    e-itemfg-vend.selected[07] = lCheckBox[7]
+    e-itemfg-vend.selected[08] = lCheckBox[8]
+    e-itemfg-vend.selected[09] = lCheckBox[9]
+    e-itemfg-vend.selected[10] = lCheckBox[10]
     .
 
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'display-fields':U ) .
