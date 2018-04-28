@@ -495,8 +495,8 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW V-table-Win ASSIGN
-         HEIGHT             = 16
-         WIDTH              = 105.6.
+         HEIGHT             = 15.71
+         WIDTH              = 99.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -693,6 +693,336 @@ ON RIGHT-MOUSE-CLICK OF qty-label IN FRAME F-Main
 DO:
   MESSAGE 0
   VIEW-AS ALERT-BOX.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME run-cost-01
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL run-cost-01 V-table-Win
+ON VALUE-CHANGED OF run-cost-01 IN FRAME F-Main
+DO:
+    ASSIGN {&SELF-NAME}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME run-cost-02
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL run-cost-02 V-table-Win
+ON VALUE-CHANGED OF run-cost-02 IN FRAME F-Main
+DO:
+    ASSIGN {&SELF-NAME}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME run-cost-03
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL run-cost-03 V-table-Win
+ON VALUE-CHANGED OF run-cost-03 IN FRAME F-Main
+DO:
+    ASSIGN {&SELF-NAME}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME run-cost-04
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL run-cost-04 V-table-Win
+ON VALUE-CHANGED OF run-cost-04 IN FRAME F-Main
+DO:
+    ASSIGN {&SELF-NAME}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME run-cost-05
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL run-cost-05 V-table-Win
+ON VALUE-CHANGED OF run-cost-05 IN FRAME F-Main
+DO:
+    ASSIGN {&SELF-NAME}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME run-cost-06
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL run-cost-06 V-table-Win
+ON VALUE-CHANGED OF run-cost-06 IN FRAME F-Main
+DO:
+    ASSIGN {&SELF-NAME}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME run-cost-07
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL run-cost-07 V-table-Win
+ON VALUE-CHANGED OF run-cost-07 IN FRAME F-Main
+DO:
+    ASSIGN {&SELF-NAME}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME run-cost-08
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL run-cost-08 V-table-Win
+ON VALUE-CHANGED OF run-cost-08 IN FRAME F-Main
+DO:
+    ASSIGN {&SELF-NAME}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME run-cost-09
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL run-cost-09 V-table-Win
+ON VALUE-CHANGED OF run-cost-09 IN FRAME F-Main
+DO:
+    ASSIGN {&SELF-NAME}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME run-cost-10
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL run-cost-10 V-table-Win
+ON VALUE-CHANGED OF run-cost-10 IN FRAME F-Main
+DO:
+    ASSIGN {&SELF-NAME}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME run-qty-01
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL run-qty-01 V-table-Win
+ON VALUE-CHANGED OF run-qty-01 IN FRAME F-Main
+DO:
+    ASSIGN {&SELF-NAME}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME run-qty-02
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL run-qty-02 V-table-Win
+ON VALUE-CHANGED OF run-qty-02 IN FRAME F-Main
+DO:
+    ASSIGN {&SELF-NAME}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME run-qty-03
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL run-qty-03 V-table-Win
+ON VALUE-CHANGED OF run-qty-03 IN FRAME F-Main
+DO:
+    ASSIGN {&SELF-NAME}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME run-qty-04
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL run-qty-04 V-table-Win
+ON VALUE-CHANGED OF run-qty-04 IN FRAME F-Main
+DO:
+    ASSIGN {&SELF-NAME}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME run-qty-05
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL run-qty-05 V-table-Win
+ON VALUE-CHANGED OF run-qty-05 IN FRAME F-Main
+DO:
+    ASSIGN {&SELF-NAME}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME run-qty-06
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL run-qty-06 V-table-Win
+ON VALUE-CHANGED OF run-qty-06 IN FRAME F-Main
+DO:
+    ASSIGN {&SELF-NAME}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME run-qty-07
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL run-qty-07 V-table-Win
+ON VALUE-CHANGED OF run-qty-07 IN FRAME F-Main
+DO:
+    ASSIGN {&SELF-NAME}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME run-qty-08
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL run-qty-08 V-table-Win
+ON VALUE-CHANGED OF run-qty-08 IN FRAME F-Main
+DO:
+    ASSIGN {&SELF-NAME}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME run-qty-09
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL run-qty-09 V-table-Win
+ON VALUE-CHANGED OF run-qty-09 IN FRAME F-Main
+DO:
+    ASSIGN {&SELF-NAME}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME run-qty-10
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL run-qty-10 V-table-Win
+ON VALUE-CHANGED OF run-qty-10 IN FRAME F-Main
+DO:
+    ASSIGN {&SELF-NAME}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME setups-01
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL setups-01 V-table-Win
+ON VALUE-CHANGED OF setups-01 IN FRAME F-Main
+DO:
+    ASSIGN {&SELF-NAME}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME setups-02
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL setups-02 V-table-Win
+ON VALUE-CHANGED OF setups-02 IN FRAME F-Main
+DO:
+    ASSIGN {&SELF-NAME}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME setups-03
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL setups-03 V-table-Win
+ON VALUE-CHANGED OF setups-03 IN FRAME F-Main
+DO:
+    ASSIGN {&SELF-NAME}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME setups-04
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL setups-04 V-table-Win
+ON VALUE-CHANGED OF setups-04 IN FRAME F-Main
+DO:
+    ASSIGN {&SELF-NAME}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME setups-05
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL setups-05 V-table-Win
+ON VALUE-CHANGED OF setups-05 IN FRAME F-Main
+DO:
+    ASSIGN {&SELF-NAME}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME setups-06
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL setups-06 V-table-Win
+ON VALUE-CHANGED OF setups-06 IN FRAME F-Main
+DO:
+    ASSIGN {&SELF-NAME}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME setups-07
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL setups-07 V-table-Win
+ON VALUE-CHANGED OF setups-07 IN FRAME F-Main
+DO:
+    ASSIGN {&SELF-NAME}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME setups-08
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL setups-08 V-table-Win
+ON VALUE-CHANGED OF setups-08 IN FRAME F-Main
+DO:
+    ASSIGN {&SELF-NAME}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME setups-09
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL setups-09 V-table-Win
+ON VALUE-CHANGED OF setups-09 IN FRAME F-Main
+DO:
+    ASSIGN {&SELF-NAME}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME setups-10
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL setups-10 V-table-Win
+ON VALUE-CHANGED OF setups-10 IN FRAME F-Main
+DO:
+    ASSIGN {&SELF-NAME}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1019,10 +1349,9 @@ PROCEDURE local-assign-record :
   def var i as int no-undo.
   def var lv-eb-recid as recid no-undo.
   DEF VAR char-hdl AS cha NO-UNDO.
-  DEFINE VARIABLE lCheckBox AS LOGICAL   NO-UNDO EXTENT 10.
+  DEFINE VARIABLE lCheckBox AS LOGICAL NO-UNDO EXTENT 10.
 
   /* Code placed here will execute PRIOR to standard behavior. */
-  RUN pVendCostMtx ("ASSIGN").
   DO WITH FRAME {&FRAME-NAME}:
       ASSIGN
         tb_sel-01
@@ -1101,6 +1430,8 @@ PROCEDURE local-assign-record :
     .
 
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'display-fields':U ) .
+  
+  RUN pVendCostMtx ("ASSIGN").
 
   IF eb.stock-no <> "" THEN DO:
      DEF VAR ldoAdd AS LOG NO-UNDO.
@@ -1145,9 +1476,8 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-copy-record V-table-Win
-PROCEDURE local-copy-record:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-copy-record V-table-Win 
+PROCEDURE local-copy-record :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -1160,14 +1490,11 @@ PROCEDURE local-copy-record:
 
   /* Code placed here will execute AFTER standard behavior.    */
   lCopyRecord = YES.
-  DISABLE {&farmFields} WITH FRAME {&FRAME-NAME}.
 
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-create-record V-table-Win 
 PROCEDURE local-create-record :
@@ -1270,11 +1597,6 @@ PROCEDURE local-display-fields :
   DEF BUFFER b-eiv FOR e-itemfg-vend.
 
   /* Code placed here will execute PRIOR to standard behavior. */
-  IF lCopyRecord THEN DO:
-      RUN pVendCostMtx ("ASSIGN").
-      lCopyRecord = NO.
-  END.
-
   IF AVAIL e-itemfg-vend AND e-itemfg-vend.setup NE 0 THEN DO TRANSACTION:
     FIND b-eiv WHERE ROWID(b-eiv) EQ ROWID(e-itemfg-vend).
     ASSIGN
@@ -1345,7 +1667,9 @@ PROCEDURE local-display-fields :
          qty-label    = "Qty " + STRING(lVendCostMtx,"FROM/TO")
          .
 
+  IF lCopyRecord EQ NO THEN
   RUN pVendCostMtx ("DISPLAY").
+  ELSE lCopyRecord = NO.
   
   RUN disp-vend-name.
 
