@@ -107,6 +107,7 @@ DEF VAR lActive AS LOG NO-UNDO.
 /* DEF VAR lv-last-cust  AS CHAR NO-UNDO.  */
 
 DEF BUFFER b-itemfg FOR itemfg.
+DEFINE BUFFER bff-oe-ord FOR oe-ord.
 
 ll-sort-asc = NOT oeinq.
 
@@ -1859,7 +1860,21 @@ PROCEDURE local-initialize :
       APPLY "entry" TO fi_i-no.
 
     END.
-    ELSE APPLY 'ENTRY':U TO fi_ord-no IN FRAME {&FRAME-NAME}.
+    ELSE do:
+         FIND bff-oe-ord WHERE ROWID(bff-oe-ord) EQ lv-rowid NO-LOCK NO-ERROR.
+         IF AVAIL bff-oe-ord THEN DO:
+             ASSIGN
+                 ll-first               = NO
+                 fi_ord-no:SCREEN-VALUE   = string(bff-oe-ord.ord-no)
+                 tb_open:SCREEN-VALUE   = STRING(ll-open EQ ? OR ll-open)
+                 tb_closed:SCREEN-VALUE = STRING(ll-open EQ ? OR NOT ll-open)
+                 tb_open:SENSITIVE      = NO
+                 tb_closed:SENSITIVE    = NO.
+             
+             APPLY "choose" TO btn_go.
+         END.
+         APPLY 'ENTRY':U TO fi_ord-no IN FRAME {&FRAME-NAME}.
+    END.
   END.
   ELSE APPLY 'ENTRY':U TO fi_ord-no IN FRAME {&FRAME-NAME}.
 
