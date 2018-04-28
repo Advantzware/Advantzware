@@ -2620,6 +2620,42 @@ CLASS RefTableMigration:
         END.  /*FOR EACH reftable*/  
         RETURN iCnt.
     END METHOD. /*DArtios*/ 
+    METHOD PUBLIC INTEGER Flute(INPUT ipCount AS INTEGER):
+        DEFINE VARIABLE iCnt AS INTEGER NO-UNDO.
+        DEFINE BUFFER reftable1 FOR reftable1.
+        DEFINE BUFFER Breftable FOR reftable. 
+        DEFINE BUFFER flute     FOR flute.
+        
+        DISABLE TRIGGERS FOR LOAD OF reftable.        
+        DISABLE TRIGGERS FOR LOAD OF flute.
+        ASSIGN iProcessCount = 0.
+        FOR EACH reftable WHERE reftable.reftable = "Flute"
+            NO-LOCK:
+            DO TRANSACTION:    
+                FIND FIRST flute WHERE flute.code = reftable.code         
+                    EXCLUSIVE-LOCK NO-ERROR.
+                IF AVAILABLE flute THEN    
+                    ASSIGN
+                        flute.thickness = IF flute.thickness = 0 AND reftable.val[1] NE 0 THEN reftable.val[1] ELSE flute.thickness
+                        flute.class = IF flute.class = "" AND reftable.code2 NE "" THEN reftable.code2 ELSE flute.class
+                        flute.dscr = IF flute.dscr = "" AND reftable.dscr NE "" THEN reftable.dscr ELSE flute.dscr
+                        . 
+                    ASSIGN iProcessCount = iProcessCount + 1.    
+                FIND CURRENT flute NO-LOCK NO-ERROR.    
+                RELEASE flute.      
+                CREATE reftable1.
+                BUFFER-COPY reftable TO reftable1.
+                RELEASE reftable1.
+                FIND Breftable WHERE ROWID(Breftable) = ROWID(reftable)
+                    EXCLUSIVE-LOCK NO-ERROR.
+                IF AVAILABLE Breftable THEN DELETE Breftable. 
+                RELEASE Breftable.   
+                iCnt = iCnt + 1.
+                IF iCnt >= ipCount THEN LEAVE.   
+            END.              
+        END.  /*FOR EACH reftable*/  
+        RETURN iCnt.
+    END METHOD.
 END CLASS.
 
 
