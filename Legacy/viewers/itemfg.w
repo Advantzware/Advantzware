@@ -2198,8 +2198,6 @@ PROCEDURE proc-copy :
   DEF VAR v-cost AS LOG INIT YES NO-UNDO.
 
   IF AVAIL itemfg THEN DO WITH FRAME {&FRAME-NAME}:
-         itemfg.def-loc:SCREEN-VALUE        = "" .
-         itemfg.def-loc-bin:SCREEN-VALUE    = "" . /* task 25536 */
 
       RUN oeinq/d-cpyfg.w (OUTPUT v-cost, OUTPUT v-mat, OUTPUT v-cpyspc, OUTPUT v-begspc, OUTPUT v-endspc).
      IF NOT v-cost THEN
