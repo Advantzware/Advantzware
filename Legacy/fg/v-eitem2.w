@@ -1381,6 +1381,7 @@ PROCEDURE local-assign-record :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-record':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
+  RUN pVendCostMtx ("ASSIGN").
 
   RUN reftable-values (NO).
   for each tmpfile: delete tmpfile .  end.
@@ -1431,8 +1432,6 @@ PROCEDURE local-assign-record :
 
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'display-fields':U ) .
   
-  RUN pVendCostMtx ("ASSIGN").
-
   IF eb.stock-no <> "" THEN DO:
      DEF VAR ldoAdd AS LOG NO-UNDO.
      lDoAdd = NOT CAN-FIND(FIRST bfEVend WHERE bfEVend.company = eb.company
