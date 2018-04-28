@@ -1669,11 +1669,14 @@ DO:
     
       RUN oe/oe-comm.p.  
     
-      RUN oe/calcordt.p (ROWID(oe-ord)). 
-
+      RUN oe/calcordt.p (ROWID(oe-ord)).
+      FIND FIRST cust NO-LOCK 
+          WHERE cust.company EQ cocode
+          AND cust.cust-no EQ oe-ord.cust-no NO-ERROR.
       IF (ld-prev-t-price NE oe-ordl.t-price OR ip-type BEGINS "update-")
-           AND AVAIL cust AND cust.active NE "X" AND AVAIL oe-ord AND oe-ord.TYPE NE "T" THEN
+           AND AVAIL cust AND cust.active NE "X" AND AVAIL oe-ord AND oe-ord.TYPE NE "T" THEN DO:
          RUN oe/creditck.p (ROWID(oe-ord), YES).  
+      END.
     
       IF oe-ordl.job-no NE "" THEN
          RUN oe/palchk.p(ROWID(oe-ord), oe-ordl.i-no).
