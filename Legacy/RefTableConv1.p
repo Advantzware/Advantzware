@@ -68,6 +68,8 @@ ASSIGN
     oRefTableMigration = NEW RefTableMigration().
 
     {refTableConv.i "FgRctdUserId" 'fg-rctd.user-id'}
+    {refTableConv.i "DArtios" 'cecrep/d-artios.w'}
+    {refTableConv.i "Flute" 'Flute'}
 
 
 /* Deferred for 16.7.0                                              */
