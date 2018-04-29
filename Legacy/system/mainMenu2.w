@@ -1363,6 +1363,7 @@ PROCEDURE pInit :
         IF NOT AVAILABLE sys-ctrl THEN DO TRANSACTION:
             CREATE sys-ctrl.
             ASSIGN
+                sys-ctrl.company = g_company
                 sys-ctrl.name = "MENULINKASI"
                 sys-ctrl.descrip = "http://www.advantzware.com"
                 sys-ctrl.char-fld = "Graphics\asiicon.ico"
@@ -1385,6 +1386,7 @@ PROCEDURE pInit :
         IF NOT AVAILABLE sys-ctrl THEN DO TRANSACTION:
             CREATE sys-ctrl.
             ASSIGN
+                sys-ctrl.company = g_company
                 sys-ctrl.name = "MENULINKZOHO"
                 sys-ctrl.descrip = "https://support.zoho.com/portal/advantzware/kb"
                 sys-ctrl.char-fld = "Graphics\32x32\question.ico"
@@ -1418,6 +1420,7 @@ PROCEDURE pInit :
                  NO-ERROR.
             IF NOT AVAILABLE sys-ctrl THEN DO TRANSACTION:
                 CREATE sys-ctrl.
+                sys-ctrl.company = g_company.
                 sys-ctrl.name = "MENULINK" + STRING(idx).
             END. /* not avail */
             IF SEARCH(sys-ctrl.char-fld) NE ? AND
