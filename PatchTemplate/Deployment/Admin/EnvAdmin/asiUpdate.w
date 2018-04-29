@@ -50,7 +50,9 @@ DEF TEMP-TABLE ttDatabases
     FIELD cName AS CHAR
     FIELD cDir AS CHAR
     FIELD cPort AS CHAR
-    FIELD cVer AS CHAR.
+    FIELD cVer AS CHAR
+    FIELD cAudName AS CHAR
+    FIELD cAudPort AS CHAR.
 
 DEF STREAM outStream.
 DEF STREAM logStream.
@@ -434,7 +436,6 @@ DO:
   /* This event will close the window and terminate the procedure.  */
   APPLY "CLOSE":U TO THIS-PROCEDURE.
   QUIT.
-  RETURN NO-APPLY.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -457,6 +458,8 @@ END.
 ON CHOOSE OF bUpdate IN FRAME DEFAULT-FRAME /* Update */
 DO:
     DEF VAR cConnect AS CHAR NO-UNDO.
+    DEF VAR cAudDB AS CHAR NO-UNDO.
+    DEF VAR cPort AS CHAR NO-UNDO.
     
     IF fiUserID:{&SV} EQ "asi" 
     AND fiPassword:{&SV} EQ "Package99" THEN ASSIGN
@@ -464,6 +467,14 @@ DO:
     ELSE IF fiUserID:{&SV} EQ "admin" 
     AND fiPassword:{&SV} EQ "installme" THEN ASSIGN
         iUserLevel = 6.
+        
+    FIND ttDatabases WHERE
+        ttDatabases.cName EQ slDBName:{&SV} AND
+        ttDatabases.cPort EQ fiPort:{&SV}
+        NO-ERROR.
+    IF AVAIL ttDatabases THEN ASSIGN
+        cAudDb = ttDatabases.cAudName
+        cPort = ttDatabases.cAudPort.
 
     IF DECIMAL(fiVersion:{&SV}) LT deMinLevel THEN DO:
         ASSIGN
@@ -482,6 +493,14 @@ DO:
                            " -S " + fiPort:{&SV} +
                            " -N tcp -ld ASI".
             CONNECT VALUE(cConnect).
+            IF cAudName NE "" THEN DO:
+                ASSIGN
+                    cConnect = "-db " + cAudName + 
+                               " -H " + chostName +
+                               " -S " + cPort +
+                               " -N tcp -ld Audit".
+                CONNECT VALUE(cConnect).
+            END.
             RUN asiUpdateENV.w (ttDatabases.cName,
                             ttDatabases.cPort,
                             ttDatabases.cDir,
@@ -500,6 +519,14 @@ DO:
                        " -S " + fiPort:{&SV} +
                        " -N tcp -ld ASI".
         CONNECT VALUE(cConnect).
+        IF cAudName NE "" THEN DO:
+            ASSIGN
+                cConnect = "-db " + cAudName + 
+                           " -H " + chostName +
+                           " -S " + cPort +
+                           " -N tcp -ld Audit".
+            CONNECT VALUE(cConnect).
+        END.
         RUN asiUpdateENV.w (ttDatabases.cName,
                         ttDatabases.cPort,
                         ttDatabases.cDir,
@@ -617,7 +644,9 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
             ttDatabases.cName = ENTRY(iCtr,cDBList)
             ttDatabases.cDir = ENTRY(iCtr,cDbDirList)
             ttDatabases.cPort = ENTRY(iCtr,cDBPortList)
-            ttDatabases.cVer = ENTRY(iCtr,cDBVerList).
+            ttDatabases.cVer = ENTRY(iCtr,cDBVerList)
+            ttDatabases.cAudName = ENTRY(iCtr,cAudDbList)
+            ttDatabases.cAudPort = ENTRY(iCtr,cAudPortList).
     END.
     
     FOR EACH ttDatabases:

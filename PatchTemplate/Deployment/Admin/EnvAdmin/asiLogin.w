@@ -295,13 +295,16 @@ END.
 /* Find the .ini file containing variables and values */
 RUN ipCreateTTIniFile.
 RUN ipFindIniFile.
+RUN ipFindUsrFile.
 
+/*
 ASSIGN
     FILE-INFO:FILE-NAME = cIniLoc
     cIniLoc = FILE-INFO:FULL-PATHNAME.
 ASSIGN
     FILE-INFO:FILE-NAME = cUsrLoc
     cUsrLoc = FILE-INFO:FULL-PATHNAME.
+*/
 
 
 IF cIniLoc EQ "" THEN DO:
@@ -585,6 +588,7 @@ DO:
             c-Win:VISIBLE = FALSE.
         IF NOT cbMode:{&SV} = "Monitor Users" THEN DO:
             /* Set current dir */
+
             RUN ipSetCurrentDir (cMapDir + "\" + cEnvDir + "\" + cbEnvironment:{&SV}). 
 
             IF INDEX(cRunPgm,"mainmenu") <> 0
@@ -993,7 +997,7 @@ PROCEDURE ipConnectDb :
     
     ASSIGN
         xdbName = cbDatabase:{&SV}
-        iLookup = LOOKUP(xdbName,cDbList)
+        iLookup = LOOKUP(cbEnvironment:{&SV},cEnvList)
         xDbName = ""
         xDbName = ENTRY(iLookup,cAudDbList)
         xdbPort = ENTRY(iLookup,cAudPortList)
@@ -1007,6 +1011,7 @@ PROCEDURE ipConnectDb :
                                " -H " + chostName +
                                " -S " + xdbPort + 
                                " -N tcp -ld AUDIT".
+
         IF connectStatement NE "" THEN DO:
             CONNECT VALUE(connectStatement).
             IF NOT CONNECTED(LDBNAME(2)) THEN DO:
@@ -1124,8 +1129,6 @@ PROCEDURE ipFindIniFile :
 ------------------------------------------------------------------------------*/
     /* Start guessing where the file might be */
     DO:
-        ASSIGN
-            cIniLoc = "advantzware.ini".
         IF SEARCH(cIniLoc) <> ? THEN DO:
             ASSIGN
                 cIniLoc = SEARCH(cIniLoc).
@@ -1232,7 +1235,7 @@ PROCEDURE ipFindUsrFile :
     /* Start guessing where the file might be */
     DO:
         ASSIGN
-            cUsrLoc = "advantzware.usr".
+            cUsrLoc = "n:\admin\advantzware.usr".
         IF SEARCH(cUsrLoc) <> ? THEN DO:
             ASSIGN
                 cUsrLoc = SEARCH(cUsrLoc).
@@ -1361,17 +1364,20 @@ PROCEDURE ipPreRun :
 
     RUN epUserRecordCheck IN hPreRun (OUTPUT lOK, OUTPUT g_track_usage).
     IF NOT lOK THEN QUIT.
-    
+
     RUN epUpdateUsrFile IN hPreRun (OUTPUT cUsrList).
+
     RUN ipUpdUsrFile IN THIS-PROCEDURE (cUsrList).
+
     RUN epGetUserGroups IN hPreRun (OUTPUT g_groups).
+
     IF INDEX(PDBNAME(1),"166") EQ 0 THEN RUN epSetUpEDI IN hPreRun.
-    
+
     IF fiUserID:{&SV} = "ASI" THEN RUN asiload.p.
 
     RUN epCheckExpiration IN hPreRun (OUTPUT lOK).
     IF NOT lOK THEN QUIT.
-    
+
     RUN epGetDeveloperList IN hPreRun (OUTPUT g_developer).
 
     RUN epGetUsercomp IN hPreRun (OUTPUT g_company, OUTPUT g_loc).

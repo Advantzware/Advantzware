@@ -34,8 +34,6 @@ r-postre. touchfm
 purgeemp. touchfm
 r-purge. touchfm
 purgezer. touchfm
-t2fm touchscr
-purgezer. t2fm
 fgtrans file
 rmtransa. fgtrans
 fgtransa. fgtrans

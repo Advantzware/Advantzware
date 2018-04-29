@@ -226,8 +226,8 @@ DEF VAR cDbPortList AS CHAR INITIAL "2826" NO-UNDO.
 DEF VAR cAudDirList AS CHAR INITIAL "Audit" NO-UNDO.
 DEF VAR cAudDBList AS CHAR INITIAL "audProd" NO-UNDO.
 DEF VAR cAudPortList AS CHAR INITIAL "2836" NO-UNDO.
-DEF VAR cEnvVerList AS CHAR INITIAL "16.7.0" NO-UNDO.
-DEF VAR cDbVerList AS CHAR INITIAL "16.7.0" NO-UNDO.
+DEF VAR cEnvVerList AS CHAR INITIAL "16.7.4" NO-UNDO.
+DEF VAR cDbVerList AS CHAR INITIAL "16.7.4" NO-UNDO.
 /* # Basic DB Elements */
 DEF VAR cAudDbName AS CHAR INITIAL "audProd" NO-UNDO.
 DEF VAR cAudDbPort AS CHAR INITIAL "2836" NO-UNDO.
@@ -487,7 +487,7 @@ DEFINE VARIABLE fiMapDir AS CHARACTER FORMAT "X(256)":U INITIAL "N:"
      VIEW-AS FILL-IN 
      SIZE 5 BY 1 NO-UNDO.
 
-DEFINE VARIABLE fiNewVer AS CHARACTER FORMAT "X(256)":U INITIAL "16.7.0" 
+DEFINE VARIABLE fiNewVer AS CHARACTER FORMAT "X(256)":U INITIAL "16.7.4" 
      LABEL "New Version" 
      VIEW-AS FILL-IN 
      SIZE 14 BY 1
@@ -3863,13 +3863,13 @@ PROCEDURE ipRelRnoSeq :
 
     RUN ipStatus ("    Data Fix InvRnoSeq...").
 
-message "0" view-as alert-box.
+
     /* Create oerel_rno_seq from last oe-rel by r-no */
     ASSIGN
         iTries = 0
         iCurrVal = 0
         CURRENT-VALUE(oerel_rno_seq) = 0.
-message "1" view-as alert-box.
+
     OEREL_RNO:
     DO WHILE iCurrVal EQ 0:
         FIND FIRST oe-rel NO-LOCK 
@@ -3898,7 +3898,6 @@ message "1" view-as alert-box.
             CURRENT-VALUE(oerel_rno_seq) = iLastDataValue
             iCurrVal = CURRENT-VALUE(oerel_rno_seq).
     END.    
-message "2" view-as alert-box.
 
     /* Create oerel_release_seq from last oe-relh by r-no (NOT by company) */
     ASSIGN
@@ -3933,7 +3932,6 @@ message "2" view-as alert-box.
             CURRENT-VALUE(oerel_release_seq) = iLastDataValue
             iCurrVal = CURRENT-VALUE(oerel_release_seq).       
     END.    
-message "3" view-as alert-box.
 
     /* Create oerel_release_seq from last oe-relh by r-no BY COMPANY */
     FOR EACH company:
@@ -4163,6 +4161,8 @@ PROCEDURE ipSetDispVars :
     APPLY 'value-changed' TO slDatabases.
 
     ASSIGN
+        slDatabases:{&SV} = ENTRY(1,slDatabases:LIST-ITEMS)
+        slEnvironments:{&SV} = ENTRY(1,slEnvironments:LIST-ITEMS)
         fiPatchDir:{&SV} = "PATCH" + fiNewVer:{&SV}.
 END PROCEDURE.
 
@@ -4848,6 +4848,19 @@ PROCEDURE ipUpdateNK1s :
         NO-ERROR.
     IF AVAIL sys-ctrl THEN ASSIGN
         sys-ctrl.char-fld = "-WSDL 'http:\\34.203.15.64/updatehelpServices/helpupdate.asmx?WSDL'".
+    FIND FIRST sys-ctrl WHERE
+        sys-ctrl.name EQ "UpdateService"
+        NO-ERROR.
+    IF AVAIL sys-ctrl THEN ASSIGN
+        sys-ctrl.char-fld = "-WSDL 'http:\\34.203.15.64/updatehelpServices/helpupdate.asmx?WSDL'".
+
+    /* Reports - set LV = true */
+    FIND FIRST sys-ctrl WHERE
+        sys-ctrl.name EQ "Reports"
+        NO-ERROR.
+    IF AVAIL sys-ctrl THEN ASSIGN
+        sys-ctrl.log-fld = TRUE.
+
         
     /* - future: update CustFile locations
     FOR EACH sys-ctrl WHERE

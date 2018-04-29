@@ -645,11 +645,11 @@
 PSC
 filename=module
 records=0000000000643
-ldbname=ASI
-timestamp=2018/03/18-08:08:54
+ldbname=asi
+timestamp=2018/04/28-22:57:39
 numformat=44,46
 dateformat=mdy-1950
 map=NO-MAP
 cpstream=ISO8859-1
 .
-0000035814
+0000037101
