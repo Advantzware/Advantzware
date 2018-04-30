@@ -1,7 +1,7 @@
 &ANALYZE-SUSPEND _VERSION-NUMBER UIB_v8r12 GUI
 &ANALYZE-RESUME
 /* Connected Databases 
-          asitest167       PROGRESS
+          asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 &Scoped-define FRAME-NAME Dialog-Frame
@@ -396,7 +396,7 @@ ASSIGN
 
 &ANALYZE-SUSPEND _QUERY-BLOCK DIALOG-BOX Dialog-Frame
 /* Query rebuild information for DIALOG-BOX Dialog-Frame
-     _TblList          = "asitest167.ar-invl,asitest167.ar-inv "
+     _TblList          = "asi.ar-invl,asi.ar-inv "
      _Options          = "SHARE-LOCK"
      _Where[1]         = "ASI.ar-invl.company eq cocode "
      _Where[2]         = "ASI.ar-invl.company eq ar-inv.company and ASI.ar-invl.inv-no eq ar-inv.inv-no
@@ -615,7 +615,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ar-invl.actnum Dialog-Frame
 ON LEAVE OF ar-invl.actnum IN FRAME Dialog-Frame /* Account Number */
 DO:
-    IF LASTKEY = -1 THEN RETURN.
+   IF LASTKEY = -1 THEN RETURN.
 
     IF ar-invl.actnum:SCREEN-VALUE GT ""  THEN DO:
        FIND FIRST account WHERE account.company = g_company AND
@@ -624,8 +624,8 @@ DO:
                                 NO-LOCK NO-ERROR.
        IF NOT AVAIL account THEN DO:
           MESSAGE "Invalid GL Account Number." VIEW-AS ALERT-BOX ERROR.
-          RETURN NO-APPLY.
-       END.
+       RETURN NO-APPLY.
+    END.
        fi_acc-desc:SCREEN-VALUE  = account.dscr.
     END.
 
@@ -692,7 +692,7 @@ DO:
 END.
 
 /* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME   
+&ANALYZE-RESUME
 
 
 &Scoped-define SELF-NAME ar-invl.inv-qty
@@ -708,12 +708,12 @@ END.
 &ANALYZE-RESUME
 
 &Scoped-define SELF-NAME ar-invl.unit-pr
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROLar-invl.unit-pr Dialog-Frame
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ar-invl.unit-pr Dialog-Frame
 ON VALUE-CHANGED OF ar-invl.unit-pr IN FRAME Dialog-Frame /* price */
 DO:
       IF LASTKEY = -1 THEN RETURN.
        RUN pCalcAmtMsf .
-    
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -910,7 +910,7 @@ END.
 ON LEAVE OF ar-invl.ord-no IN FRAME Dialog-Frame /* Order# */
 DO:
       IF LASTKEY = -1 THEN RETURN.
-
+    
     IF ar-invl.ord-no:MODIFIED 
      AND ar-invl.ord-no:screen-value NE "0" THEN DO:
        FIND FIRST oe-ord WHERE oe-ord.company = g_company AND                                
@@ -1020,7 +1020,9 @@ PROCEDURE update-ar-invl :
   END.
   
   ar-invl.qty = ar-invl.inv-qty.
-
+  
+  /* May need ship-qty to print on invoice and would otherwise be 0 */
+  ar-invl.ship-qty = ar-invl.inv-qty.
   run sys/ref/convsuom.p (ar-invl.cons-uom,
                           ar-invl.pr-qty-uom,
                           ar-invl.sf-sht,
@@ -1310,7 +1312,7 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
+     
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION get-itemfg-cost d-oeitem 
