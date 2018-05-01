@@ -212,8 +212,8 @@ DEF VAR cDbPortList AS CHAR INITIAL "2826" NO-UNDO.
 DEF VAR cAudDirList AS CHAR INITIAL "Audit" NO-UNDO.
 DEF VAR cAudDBList AS CHAR INITIAL "audProd" NO-UNDO.
 DEF VAR cAudPortList AS CHAR INITIAL "2836" NO-UNDO.
-DEF VAR cEnvVerList AS CHAR INITIAL "16.7.0" NO-UNDO.
-DEF VAR cDbVerList AS CHAR INITIAL "16.7.0" NO-UNDO.
+DEF VAR cEnvVerList AS CHAR INITIAL "16.7.4" NO-UNDO.
+DEF VAR cDbVerList AS CHAR INITIAL "16.7" NO-UNDO.
 /* # Basic DB Elements */
 DEF VAR cAudDbName AS CHAR INITIAL "audProd" NO-UNDO.
 DEF VAR cAudDbPort AS CHAR INITIAL "2836" NO-UNDO.
@@ -364,7 +364,7 @@ DEFINE VARIABLE fiMapDir AS CHARACTER FORMAT "X(256)":U INITIAL "N:"
      VIEW-AS FILL-IN 
      SIZE 5 BY 1 NO-UNDO.
 
-DEFINE VARIABLE fiNewVer AS CHARACTER FORMAT "X(256)":U INITIAL "16.7.0" 
+DEFINE VARIABLE fiNewVer AS CHARACTER FORMAT "X(256)":U INITIAL "16.7.4" 
      LABEL "New Version" 
      VIEW-AS FILL-IN 
      SIZE 14 BY 1
@@ -491,6 +491,7 @@ DEFINE FRAME DEFAULT-FRAME
 /* Settings for THIS-PROCEDURE
    Type: Window
    Allow: Basic,Browse,DB-Fields,Window,Query
+   Other Settings: COMPILE
  */
 &ANALYZE-RESUME _END-PROCEDURE-SETTINGS
 
@@ -672,12 +673,7 @@ DO:
     
     STATUS INPUT.
 
-    IF lSuccess THEN MESSAGE
-        "Congratulations!  You have successfully upgraded the selected" SKIP
-        "database to Advantzware Version " + fiNewVer:{&SV} + ".  Please contact" SKIP
-        "support@advantzware.com with any questions or issues."
-        VIEW-AS ALERT-BOX.
-    ELSE MESSAGE
+    IF NOT lSuccess THEN MESSAGE
         "There were no operations performed for this run."
         VIEW-AS ALERT-BOX.
         
@@ -695,10 +691,7 @@ END.
 ON VALUE-CHANGED OF tbUpgradeDBs IN FRAME DEFAULT-FRAME /* Upgrade Databases */
 DO:
     IF SELF:CHECKED THEN ASSIGN
-        tbBackupDBs:CHECKED = TRUE
-        tbBackupDBs:SENSITIVE = FALSE.
-    ELSE ASSIGN
-        tbBackupDBs:SENSITIVE = TRUE.
+        tbBackupDBs:CHECKED = TRUE.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -957,6 +950,11 @@ PROCEDURE ipCreateAudit :
         /* Disconnect it */
         RUN ipStatus ("  Disconnecting.").
         DISCONNECT VALUE("audDB" + STRING(iCtr)).
+        
+    MESSAGE
+        "You must manually add this database to the system with OE Explorer"
+        view-as alert-box.
+        
     
 END PROCEDURE.
 
@@ -1394,7 +1392,7 @@ PROCEDURE ipStatus :
     IF cUpdatesDir <> "Updates" THEN DO:
         IF INDEX(ipcStatus,"duplicate") EQ 0 THEN DO:
             ASSIGN
-                cLogFile = cUpdatesDir + "\" + "Patch" + fiNewVer:{&SV} + "\upgradeLog.txt"
+                cLogFile = cUpdatesDir + "\" + "Patch" + fiNewVer:{&SV} + "\installLog.txt"
                 iMsgCtr = iMsgCtr + 1
                 cMsgStr[iMsgCtr] = ipcStatus + "...".
             OUTPUT STREAM logStream TO VALUE(cLogFile) APPEND.
@@ -1473,12 +1471,14 @@ PROCEDURE ipUpgradeDBs :
             iListEntry = LOOKUP(cThisEntry,slDatabases:LIST-ITEMS).          
 
         IF DECIMAL(ENTRY(4,ENTRY(iCtr,slDatabases:{&SV}),"-")) * 10 LT iDbTgtVer THEN DO:
+            /*
             MESSAGE 
                 "Database " + ENTRY(2,ENTRY(iCtr,slDatabases:{&SV}),"-") + " is currently at version " +
                 STRING(DECIMAL(ENTRY(4,ENTRY(iCtr,slDatabases:{&SV}),"-"))) + "." SKIP
                 "You are about to upgrade it to version " + STRING(iDbTgtVer / 10) + "." SKIP
                 "Is this correct?" VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO UPDATE lUpdNow AS LOG.
-            IF lUpdNow THEN DO:
+            IF lUpdNow THEN */
+            DO:
                 RUN ipBackupDBs (ENTRY(iCtr,slDatabases:{&SV})).
                 RUN ipStatus ("Upgrading " + ENTRY(2,ENTRY(iCtr,slDatabases:{&SV}),"-")).
                 ASSIGN
@@ -1554,7 +1554,8 @@ PROCEDURE ipUpgradeDBs :
             "version level.  It should not be updated again"
             VIEW-AS ALERT-BOX INFO.
 
-        IF ENTRY(iListEntry,cAudDbList) = "x" THEN DO:
+        IF ENTRY(iListEntry,cAudDbList) = "x" 
+        OR ENTRY(iListEntry,cAudDbList) = "x" THEN DO:
             MESSAGE
                 "There is no audit database associated with database " + ENTRY(2,ENTRY(iCtr,slDatabases:{&SV}),"-") + "." SKIP
                 "Would you like to create one now?"
@@ -1564,7 +1565,7 @@ PROCEDURE ipUpgradeDBs :
             ASSIGN
                 ENTRY(iListEntry,cAudDbList) = "aud" + SUBSTRING(ENTRY(2,cThisEntry,"-"),1,8)
                 ENTRY(iListEntry,cAudDirList) = "Audit"
-                ENTRY(iListEntry,cAudPortList) = "0000".
+                ENTRY(iListEntry,cAudPortList) = string(integer(cAdminPort) + 10,"9999").
         END.
                     
     END.

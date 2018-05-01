@@ -447,6 +447,7 @@ END.
 ON CHOOSE OF bCancel IN FRAME DEFAULT-FRAME /* Cancel */
 DO:
     APPLY 'close' to this-procedure.
+    quit.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -537,6 +538,7 @@ DO:
     END.
         
     APPLY 'close' TO THIS-PROCEDURE.
+    QUIT.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -546,6 +548,7 @@ END.
 &Scoped-define SELF-NAME fiPassword
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiPassword C-Win
 ON LEAVE OF fiPassword IN FRAME DEFAULT-FRAME /* Password */
+OR RETURN of fiPassword
 DO:
     IF (fiUserID:{&SV} = "asi" AND fiPassword:{&SV} = "Package99")
     OR (fiUserID:{&SV} = "admin" AND fiPassword:{&SV} = "installme")
@@ -557,7 +560,7 @@ DO:
         bUpdate:SENSITIVE = FALSE.
 
     apply 'entry' to bUpdate.
-    return no-apply.
+    return.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -910,20 +913,6 @@ PROCEDURE ipReadIniFile :
         END.            
     END.
     INPUT CLOSE.
-    
-    /* This lets the advantzware.ini file "heal" itself when changes made to program but not local */
-    FOR EACH ttIniFile WHERE
-        NOT ttIniFile.cVarName BEGINS "#" AND
-        NOT ttIniFile.cVarName EQ "" AND
-        ttIniFile.cVarValue = "":
-        DISP 
-            ttIniFile.cVarName LABEL "Name" FORMAT "x(32)" WITH WIDTH 90 
-            FRAME dGetValue VIEW-AS DIALOG-BOX THREE-D CENTERED 
-            1 COLUMN SIDE-LABELS TITLE "Need .INI file value".
-        UPDATE 
-            ttIniFile.cVarValue LABEL "Value" FORMAT "x(60)"
-            WITH FRAME dGetValue.
-    END. 
     
     FOR EACH ttIniFile:
         CASE ttIniFile.cVarName:
