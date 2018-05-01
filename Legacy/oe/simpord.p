@@ -476,8 +476,12 @@ PROCEDURE BuildImpTable :
 
      INPUT FROM VALUE(ipFileName) NO-ECHO.
      REPEAT:
+          cInput = "".
           IMPORT UNFORMAT cInput.
           
+         /*  No way to process empty lines */
+         IF NUM-ENTRIES(cInput) LT 2 THEN 
+             NEXT.
           IF ENTRY(1,cInput) = "H" THEN DO:
               IF NOT CAN-FIND(cust WHERE cust.company = cocode AND cust.cust-no = entry(2,cInput))
                   THEN DO:
