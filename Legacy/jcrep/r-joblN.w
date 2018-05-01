@@ -267,7 +267,7 @@ DEFINE VARIABLE end_job-no2 AS CHARACTER FORMAT "-99":U INITIAL "99"
      VIEW-AS FILL-IN 
      SIZE 5 BY 1 NO-UNDO.
 
-DEFINE VARIABLE fi_file AS CHARACTER FORMAT "X(30)" INITIAL "c:~\tmp~\r-wipstd.csv" 
+DEFINE VARIABLE fi_file AS CHARACTER FORMAT "X(30)" INITIAL "c:~\tmp~\r-jobdetail.csv" 
      LABEL "If Yes, File Name" 
      VIEW-AS FILL-IN 
      SIZE 43 BY 1
