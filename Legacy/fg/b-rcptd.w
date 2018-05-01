@@ -1906,7 +1906,7 @@ PROCEDURE display-po :
 
     fg-rctd.std-cost:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(lv-cost).
 
-    FIND FIRST itemfg WHERE itemfg.company = fg-rctd.company AND
+    FIND FIRST itemfg WHERE itemfg.company = cocode AND
                         itemfg.i-no = po-ordl.i-no
                         NO-LOCK NO-ERROR.
     IF AVAIL itemfg THEN 
@@ -2695,7 +2695,7 @@ PROCEDURE get-matrix-all :
        FIND itemfg  WHERE itemfg.company EQ cocode
                 AND itemfg.i-no  EQ fg-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name}
                       USE-INDEX i-no NO-LOCK NO-ERROR.
-       FIND FIRST po-ordl WHERE po-ordl.company = fg-rctd.company
+       FIND FIRST po-ordl WHERE po-ordl.company = cocode
                        AND po-ordl.po-no = integer(fg-rctd.po-no:SCREEN-VALUE IN BROWSE {&browse-name}) 
                        AND po-ordl.i-no  = fg-rctd.i-no:screen-value
                        AND po-ordl.job-no = (fg-rctd.job-no:screen-value)
@@ -2719,7 +2719,7 @@ PROCEDURE get-matrix-all :
           END.
        END.
        ELSE IF fg-rctd.job-no:SCREEN-VALUE <> "" THEN DO:
-         FIND FIRST job-hdr WHERE job-hdr.company = fg-rctd.company                       
+         FIND FIRST job-hdr WHERE job-hdr.company = cocode                       
                        AND job-hdr.i-no  = fg-rctd.i-no:screen-value
                        AND job-hdr.job-no = (fg-rctd.job-no:screen-value)
                        AND job-hdr.job-no2 = integer(fg-rctd.job-no2:screen-value)
@@ -3832,7 +3832,7 @@ PROCEDURE new-job-no :
 
     IF fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name} NE "" THEN
     FOR EACH job-hdr NO-LOCK
-        WHERE job-hdr.company EQ fg-rctd.company
+        WHERE job-hdr.company EQ cocode
           AND job-hdr.job-no  EQ fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}
           AND job-hdr.job-no2 EQ INT(fg-rctd.job-no2:SCREEN-VALUE IN BROWSE {&browse-name})
         BREAK BY job-hdr.frm      DESC
@@ -4125,7 +4125,7 @@ gvcCurrentItem = fg-rctd.i-no.
        /* If current tag was not selected by user, delete it */
        IF fg-rctd.i-no = cSelectionItem THEN DO:
          
-         FIND CURRENT fg-rctd EXCLUSIVE-LOCK.
+         FIND CURRENT fg-rctd EXCLUSIVE-LOCK NO-ERROR.
 
          DELETE fg-rctd.
        END.
@@ -4425,14 +4425,14 @@ PROCEDURE tag-sequence :
 
   DO WHILE TRUE WITH FRAME {&FRAME-NAME}:
     FIND FIRST b-fg-rctd
-        WHERE b-fg-rctd.company EQ fg-rctd.company
+        WHERE b-fg-rctd.company EQ cocode
           AND b-fg-rctd.loc     GT v-locode
         NO-LOCK NO-ERROR.
 
     IF AVAIL b-fg-rctd THEN DO:
       v-locode = b-fg-rctd.loc.
 
-      FOR EACH b-fg-rctd WHERE b-fg-rctd.company EQ fg-rctd.company
+      FOR EACH b-fg-rctd WHERE b-fg-rctd.company EQ cocode
             AND b-fg-rctd.loc     EQ v-locode
             AND b-fg-rctd.tag     BEGINS string(int(fg-rctd.po-no:SCREEN-VALUE IN BROWSE {&browse-name}),"999999")
             USE-INDEX tag NO-LOCK
@@ -4745,7 +4745,7 @@ PROCEDURE valid-job-no2 :
 
     IF fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name} NE "" THEN DO:
       FOR EACH job-hdr
-          WHERE job-hdr.company EQ fg-rctd.company
+          WHERE job-hdr.company EQ cocode
             AND job-hdr.job-no  EQ fg-rctd.job-no:SCREEN-VALUE
             AND job-hdr.job-no2 EQ INT(fg-rctd.job-no2:SCREEN-VALUE)
           NO-LOCK,
@@ -4760,7 +4760,7 @@ PROCEDURE valid-job-no2 :
           
       IF NOT AVAIL job-hdr THEN
       FOR EACH job
-          WHERE job.company EQ fg-rctd.company
+          WHERE job.company EQ cocode
             AND job.job-no  EQ fg-rctd.job-no:SCREEN-VALUE
             AND job.job-no2 EQ INT(fg-rctd.job-no2:SCREEN-VALUE)
           NO-LOCK,
@@ -4863,7 +4863,7 @@ PROCEDURE valid-po-no :
       END.
 
       FIND FIRST po-ordl
-          WHERE po-ordl.company   EQ fg-rctd.company
+          WHERE po-ordl.company   EQ cocode
             AND po-ordl.po-no     EQ INT(fg-rctd.po-no:SCREEN-VALUE IN BROWSE {&browse-name})
             AND po-ordl.item-type EQ NO
             AND (po-ordl.i-no     EQ fg-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name} OR
