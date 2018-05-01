@@ -395,7 +395,35 @@ DO:
             VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
             UPDATE lv-post.
 
+    IF lv-post THEN DO:
+       FOR EACH ap-pay
+          WHERE ap-pay.company EQ cocode
+            AND ap-pay.memo    EQ YES
+            AND ap-pay.posted  EQ NO
+            AND ap-pay.check-date GE begin_date
+            AND ap-pay.check-date LE end_date,
+          FIRST vend
+          WHERE vend.company EQ ap-pay.company
+            AND vend.vend-no EQ ap-pay.vend-no,
+          EACH ap-payl WHERE ap-payl.c-no EQ ap-pay.c-no
+
+          break by ap-pay.vend-no by ap-payl.inv-no by ap-payl.line:
+
+         FIND FIRST ap-inv
+             WHERE ap-inv.company EQ cocode
+               AND ap-inv.vend-no EQ vend.vend-no
+               AND ap-inv.inv-no  EQ ap-payl.inv-no
+             NO-ERROR.
+         IF AVAIL ap-inv AND ap-inv.stat EQ "H" THEN
+             MESSAGE "Invoice is on hold - Are you sure you want it paid?"
+            VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
+            UPDATE lv-post.
+    END.
+    END.
+ 
+
     IF lv-post THEN do:
+
       RUN post-gl.
       RUN copy-report-to-audit-dir.
       MESSAGE "Posting Complete" VIEW-AS ALERT-BOX.     
