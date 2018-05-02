@@ -51,8 +51,6 @@ DEF VAR lv-num-rec AS INT NO-UNDO.
 DEF VAR v-prgmname LIKE prgrms.prgmname NO-UNDO.
 DEF VAR period_pos AS INTEGER NO-UNDO.
 
-DEF VAR cellColumn AS HANDLE NO-UNDO EXTENT 20.
-DEF VAR columnCount AS INT NO-UNDO.
 
 
 IF INDEX(PROGRAM-NAME(1),".uib") NE 0 OR
@@ -67,7 +65,6 @@ ASSIGN
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 
 &ANALYZE-SUSPEND _UIB-PREPROCESSOR-BLOCK 
 
@@ -508,6 +505,7 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-initialize D-Dialog 
 PROCEDURE local-initialize :
 /*------------------------------------------------------------------------------
@@ -518,6 +516,7 @@ PROCEDURE local-initialize :
   /* Code placed here will execute PRIOR to standard behavior. */
 
   /* Dispatch standard ADM method.                             */
+    
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'initialize':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
