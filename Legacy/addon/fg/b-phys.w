@@ -1224,6 +1224,17 @@ PROCEDURE local-assign-record :
         AND fg-bin.cust-no EQ fg-rctd.cust-no
       NO-LOCK NO-ERROR.
 
+   IF NOT AVAIL fg-bin THEN
+       FIND FIRST fg-bin 
+      WHERE fg-bin.company EQ fg-rctd.company
+        AND fg-bin.i-no    EQ fg-rctd.i-no
+        AND fg-bin.job-no  EQ fg-rctd.job-no
+        AND fg-bin.job-no2 EQ fg-rctd.job-no2
+        AND fg-bin.loc     EQ fg-rctd.loc
+        AND fg-bin.tag     EQ fg-rctd.tag
+        AND fg-bin.cust-no EQ fg-rctd.cust-no
+      NO-LOCK NO-ERROR.
+
   IF AVAIL fg-bin THEN
      ASSIGN
         fg-rctd.ext-cost = fg-rctd.t-qty /
