@@ -16,6 +16,8 @@ FIND edcode
 FIND edmast OF edcode
   /* WHERE RECID(edmast) = ws_edmast_rec */
   EXCLUSIVE-LOCK NO-ERROR.
+  IF NOT AVAILABLE EDMast THEN 
+    FIND FIRST EDMast WHERE EDMast.partner EQ ws_partner NO-LOCK NO-ERROR.
 IF NOT AVAIL edmast THEN
 DO:
   LEAVE.
