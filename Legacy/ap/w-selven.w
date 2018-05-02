@@ -1,3 +1,4 @@
+
 &ANALYZE-SUSPEND _VERSION-NUMBER UIB_v8r12 GUI ADM1
 &ANALYZE-RESUME
 /* Connected Databases 
@@ -59,6 +60,9 @@ DEF VAR lv-num-rec AS INT NO-UNDO.
 DEF VAR lv-in-update AS LOG NO-UNDO.
 DEF VAR lv-in-add AS LOG NO-UNDO.
 DEF VAR ll-continue AS LOG NO-UNDO.
+
+DEF VAR cellColumn AS HANDLE NO-UNDO EXTENT 20.
+DEF VAR columnCount AS INT NO-UNDO.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -402,6 +406,40 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL BROWSE-1 W-Win
+ON ROW-DISPLAY OF BROWSE-1 IN FRAME F-Main
+DO:
+  DEF VAR li AS INT NO-UNDO.
+  FIND FIRST ap-inv NO-LOCK
+       WHERE ap-inv.company = g_company 
+         AND ap-inv.vend-no = lv-vend-no
+         AND ap-inv.posted  = YES
+         AND ap-inv.inv-no = tt-sel.inv-no  NO-ERROR.
+  
+  
+  IF AVAIL ap-inv AND ap-inv.stat EQ "H" THEN
+  tt-sel.inv-no:BGCOLOR IN BROWSE {&browse-name} = 11.
+   
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Browser-Table W-Win
+ON VALUE-CHANGED OF BROWSE-1 IN FRAME F-Main
+DO:
+  /* This ADM trigger code must be preserved in order to notify other
+     objects when the browser's current row changes. */
+  {src/adm/template/brschnge.i}
+     
+/*  {methods/template/local/setvalue.i} itemfg is in noreckey.i */
+   
+  
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL BROWSE-1 W-Win
 ON START-SEARCH OF BROWSE-1 IN FRAME F-Main
@@ -659,7 +697,8 @@ DO:
               IF AVAIL bank THEN
                   lv-proamt:SCREEN-VALUE = STRING(bank.bal - lv-amount) .
           END.
-          
+          IF AVAIL ap-inv AND ap-inv.stat EQ "H" THEN
+           tt-sel.inv-no:BGCOLOR IN BROWSE {&browse-name} = 11.
  
 END.
 
@@ -750,7 +789,6 @@ DO:
         END.
         ELSE ASSIGN ap-sel.amt-paid = tt-sel.amt-paid
                     ap-sel.disc-amt = tt-sel.disc-amt.
-
         FIND CURRENT ap-sel NO-LOCK.
     END.
     
@@ -778,6 +816,7 @@ DO:
                    ap-chk.vend-no   = ap-sel.vend-no
                    ap-chk.check-no  = ?
                    ap-chk.man-check = NO.
+
          end.
 
          ap-chk.check-amt = ap-chk.check-amt + ap-sel.amt-paid.
@@ -957,6 +996,12 @@ DO:
        MESSAGE "Invalid Invoice Number. Try Help. " VIEW-AS ALERT-BOX.
        RETURN NO-APPLY.
     END.
+    IF AVAIL ap-inv AND ap-inv.stat EQ "H" THEN DO:
+        MESSAGE "Invoice is on hold - Are you sure you want it paid?"
+            VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO UPDATE ll AS LOG .
+        IF NOT ll THEN RETURN NO-APPLY.
+    END.
+
     IF lv-in-add THEN DO:
        FIND FIRST ap-sel WHERE ap-sel.company = g_company
                         AND ap-sel.vend-no = lv-vend-no
@@ -1301,6 +1346,28 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE getCellColumns W-Win 
+PROCEDURE getCellColumns :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEF VAR li AS INT NO-UNDO.
+
+
+  /*columnCount = {&BROWSE-NAME}:NUM-COLUMNS IN FRAME {&FRAME-NAME}.
+  DO li = 1 TO columnCount:
+    cellColumn[li] = {&BROWSE-NAME}:GET-BROWSE-COLUMN(li).
+  END.*/
+  IF AVAIL ap-inv AND ap-inv.stat EQ "H" THEN
+  tt-sel.inv-no:BGCOLOR IN BROWSE {&browse-name} = 11.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-exit W-Win 
 PROCEDURE local-exit :
 /* -----------------------------------------------------------
@@ -1331,6 +1398,7 @@ PROCEDURE local-initialize :
   /* Code placed here will execute PRIOR to standard behavior. */
     
   /* Dispatch standard ADM method.                             */
+  
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'initialize':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */

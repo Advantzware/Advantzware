@@ -419,6 +419,25 @@ END.
 &ANALYZE-RESUME
 
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL BROWSE-1 W-Win
+ON ROW-DISPLAY OF BROWSE-1 IN FRAME F-Main
+DO:
+  DEF VAR li AS INT NO-UNDO.
+  FIND FIRST ap-inv WHERE ap-inv.company = g_company 
+                        AND ap-inv.vend-no = tt-sel.vend-no
+                        AND ap-inv.posted  = YES
+                        AND ap-inv.inv-no = tt-sel.inv-no NO-LOCK NO-ERROR.
+  
+  
+  IF AVAIL ap-inv AND ap-inv.stat EQ "H" THEN
+  tt-sel.inv-no:BGCOLOR IN BROWSE {&browse-name} = 11.
+   
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME F-Main
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL F-Main W-Win
 ON HELP OF FRAME F-Main
@@ -735,6 +754,8 @@ DO:
               IF AVAIL bank THEN
                   lv-proamt:SCREEN-VALUE = STRING(bank.bal - fi_amt) .
           END.
+          IF AVAIL ap-inv AND ap-inv.stat EQ "H" THEN
+           tt-sel.inv-no:BGCOLOR IN BROWSE {&browse-name} = 11.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1034,6 +1055,11 @@ DO:
     IF NOT AVAIL ap-inv THEN DO:
        MESSAGE "Invalid invoice number. Try help. " VIEW-AS ALERT-BOX.
        RETURN NO-APPLY.
+    END.
+    IF AVAIL ap-inv AND ap-inv.stat EQ "H" THEN DO:
+        MESSAGE "Invoice is on hold - Are you sure you want it paid?"
+            VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO UPDATE ll AS LOG .
+        IF NOT ll THEN RETURN NO-APPLY.
     END.
     IF lv-in-add THEN DO:
        FIND FIRST ap-sel WHERE ap-sel.company = g_company
