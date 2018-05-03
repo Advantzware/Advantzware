@@ -109,7 +109,7 @@ IF tb_print-view THEN DO:
         PUT "<||><R25><C3><#5><FROM><R28><C40><RECT>" SKIP.            
         
         PUT "<FArial><=5><R-2><C3><B><p15> Description </B>" SKIP.
-        PUT "<FArial><=5><R25.3><C3><B><P20>  " tt-word-print.i-name FORMAT "x(25)" "</B>" SKIP.
+        PUT "<FArial><=5><R25.3><C3><B><P17>  " tt-word-print.i-name FORMAT "x(30)" "</B>" SKIP.
 
         PUT "<||><R25><C43><#6><FROM><R28><C80><RECT>" SKIP.            
         
@@ -221,7 +221,7 @@ ELSE DO:
         PUT "<||><R25><C3><#5><FROM><R28><C40><RECT>" SKIP.            
         
         PUT "<FArial><=5><R-2><C3><B><p15> Description </B>" SKIP.
-        PUT "<FArial><=5><R25.3><C3><B><P20>  " tt-word-print.i-name FORMAT "x(25)" "</B>" SKIP.
+        PUT "<FArial><=5><R25.3><C3><B><P17>  " tt-word-print.i-name FORMAT "x(30)" "</B>" SKIP.
 
         PUT "<||><R25><C43><#6><FROM><R28><C80><RECT>" SKIP.            
         

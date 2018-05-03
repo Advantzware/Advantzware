@@ -13,11 +13,11 @@ IF tb_print-view THEN do:
          
          PUT "<||><R7><C23><#4><FROM><R11><C80><RECT>" SKIP.            
         
-         PUT "<FArial><=4><R8><C3><B><P22> Customer: " "<C25>" tt-word-print.cust-name FORMAT "x(25)"  "</B>" SKIP.
+         PUT "<FArial><=4><R8><C3><B><P22> Customer: " "<C25>" tt-word-print.cust-name FORMAT "x(30)"  "</B>" SKIP.
         
          PUT "<||><R13><C23><#5><FROM><R17><C80><RECT>" SKIP.           
         
-         PUT "<FArial><=5><R14><C3><B><P22> MAX# " "<C25>" tt-word-print.cust-name FORMAT "x(25)"   "</B>" SKIP.
+         PUT "<FArial><=5><R14><C3><B><P22> MAX# " "<C25>" tt-word-print.cust-name FORMAT "x(30)"   "</B>" SKIP.
         
          PUT "<||><R19><C23><#6><FROM><R23><C80><RECT>" SKIP.            
         
@@ -68,11 +68,11 @@ ELSE DO:
          
          PUT "<||><R22><C23><#4><FROM><R26><C80><RECT>" SKIP.            
         
-         PUT "<FArial><=4><R23><C3><B><P22> Customer: " "<C25>" tt-word-print.cust-name FORMAT "x(25)"  "</B>" SKIP.
+         PUT "<FArial><=4><R23><C3><B><P22> Customer: " "<C25>" tt-word-print.cust-name FORMAT "x(30)"  "</B>" SKIP.
         
          PUT "<||><R28><C23><#5><FROM><R32><C80><RECT>" SKIP.            
         
-         PUT "<FArial><=5><R29><C3><B><P22> MAX# " "<C25>" tt-word-print.cust-name FORMAT "x(25)"   "</B>" SKIP.
+         PUT "<FArial><=5><R29><C3><B><P22> MAX# " "<C25>" tt-word-print.cust-name FORMAT "x(30)"   "</B>" SKIP.
         
          PUT "<||><R34><C23><#6><FROM><R38><C80><RECT>" SKIP.            
         
