@@ -2651,10 +2651,7 @@ PROCEDURE ipDataFix160704 :
     END. 
     
     /* If job-codes had been built with ID LT 100, fix them */
-    FIND FIRST job-code NO-LOCK WHERE
-        job-code.dmiID LT 100
-        NO-ERROR.
-    IF AVAIL job-code THEN FOR EACH job-code EXLCUSIVE:
+    IF CAN-FIND(FIRST job-code WHERE job-code.dmiID LT 100) THEN FOR EACH job-code EXCLUSIVE:
         ASSIGN
             job-code.dmiID = job-code.dmiID + 100.
     END.
