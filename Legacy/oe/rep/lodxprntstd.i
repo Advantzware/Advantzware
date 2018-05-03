@@ -29,19 +29,19 @@ IF tb_print-view THEN DO:
     
     PUT "<||><R23><C5><#4><FROM><R33><C70><RECT>" SKIP.     
     
-    PUT "<FArial><=4><R25><C6><P16><B>" company.NAME FORMAT "x(25)"  "</B>" SKIP.
-    PUT "<FArial><=4><R25><C40><P14> Phone: " cPhone FORMAT "x(15)"  "" SKIP(2).
-    PUT "<FArial><=4><R27><C6><P14>" company.addr[1] FORMAT "x(30)" "" .
-    PUT "<FArial><=4><R27><C40><P14> Fax: " cFax FORMAT "x(15)" "" SKIP(3).
-    PUT "<FArial><=4><R29><C6><P14>" STRING(company.city,"x(15)") " " company.state FORMAT "x(2)" " " company.zip "" .
-    PUT "<FArial><=4><R29><C40><P14> " cEmail FORMAT "x(30)"  "" SKIP(2).
+    PUT "<FArial><=4><R25><C6><P15><B>" company.NAME FORMAT "x(30)"  "</B>" SKIP.
+    PUT "<FArial><=4><R25><C40><P13> Phone: " cPhone FORMAT "x(15)"  "" SKIP(2).
+    PUT "<FArial><=4><R27><C6><P13>" company.addr[1] FORMAT "x(30)" "" .
+    PUT "<FArial><=4><R27><C40><P13> Fax: " cFax FORMAT "x(15)" "" SKIP(3).
+    PUT "<FArial><=4><R29><C6><P13>" company.city " " company.state FORMAT "x(2)" " " company.zip "" .
+    PUT "<FArial><=4><R29><C40><P13> " cEmail FORMAT "x(30)"  "" SKIP(2).
     
     PUT "<||><R34><C5><#4><FROM><R47><C70><RECT>" SKIP. 
     
-    PUT "<FArial><=5><R35><C6><P16> Customer:    " "<B><C20>" tt-word-print.cust-name FORMAT "x(27)" "</B>"   "" SKIP.
+    PUT "<FArial><=5><R35><C6><P16> Customer:    " "<B><C20>" tt-word-print.cust-name FORMAT "x(30)" "</B>"   "" SKIP.
     PUT "<FArial><=5><R37><C6><P16> PO#:            " "<B><C20>" tt-word-print.cust-po-no FORMAT "x(15)" "</B>"   "" SKIP.
     PUT "<FArial><=5><R39><C6><P16> Job#:            " "<B><C20>" tt-word-print.job-no FORMAT "x(6)" "-" STRING(tt-word-print.job-no2,"99") "</B>"   "" SKIP.
-    PUT "<FArial><=5><R41><C6><P16> Item Name:  " "<B><C20>" tt-word-print.i-name FORMAT "x(27)" "</B>"   "" SKIP.
+    PUT "<FArial><=5><R41><C6><P16> Item Name:  " "<B><C20>" tt-word-print.i-name FORMAT "x(30)" "</B>"   "" SKIP.
     PUT "<FArial><=5><R43><C6><P16> Part#:           " "<B><C20>" tt-word-print.cust-part-no FORMAT "x(15)" "</B>"   "" SKIP.
     PUT "<FArial><=5><R45><C6><P16> FG#:             " "<B><C20>" tt-word-print.i-no FORMAT "x(15)" "</B>"   "" SKIP.
     
@@ -106,20 +106,20 @@ ELSE DO:
         PUT "<||><R36><C5><#4><FROM><R46><C70><RECT>" SKIP. 
         
         
-        PUT "<FArial><=4><R38><C6><P16><B>" company.NAME FORMAT "x(25)"  "</B>" SKIP.
-        PUT "<FArial><=4><R38><C40><P14> Phone: " cPhone FORMAT "x(15)"  "" SKIP(2).
-        PUT "<FArial><=4><R40><C6><P14>" company.addr[1] FORMAT "x(30)" "" .
-        PUT "<FArial><=4><R40><C40><P14> Fax: " cFax FORMAT "x(15)" "" SKIP(3).
-        PUT "<FArial><=4><R42><C6><P14>" STRING(company.city,"x(15)") " " company.state FORMAT "x(2)" " " company.zip "" .
-        PUT "<FArial><=4><R42><C40><P14> " cEmail FORMAT "x(30)"  "" SKIP(2).
+        PUT "<FArial><=4><R38><C6><P15><B>" company.NAME FORMAT "x(30)"  "</B>" SKIP.
+        PUT "<FArial><=4><R38><C40><P13> Phone: " cPhone FORMAT "x(15)"  "" SKIP(2).
+        PUT "<FArial><=4><R40><C6><P13>" company.addr[1] FORMAT "x(30)" "" .
+        PUT "<FArial><=4><R40><C40><P13> Fax: " cFax FORMAT "x(15)" "" SKIP(3).
+        PUT "<FArial><=4><R42><C6><P13>" company.city " " company.state FORMAT "x(2)" " " company.zip "" .
+        PUT "<FArial><=4><R42><C40><P13> " cEmail FORMAT "x(30)"  "" SKIP(2).
         
               
         PUT "<||><R47><C5><#4><FROM><R60><C70><RECT>" SKIP. 
         
-        PUT "<FArial><=5><R48><C6><P16> Customer:    " "<B><C20>" tt-word-print.cust-name FORMAT "x(27)" "</B>"   "" SKIP.
+        PUT "<FArial><=5><R48><C6><P16> Customer:    " "<B><C20>" tt-word-print.cust-name FORMAT "x(30)" "</B>"   "" SKIP.
         PUT "<FArial><=5><R50><C6><P16> PO#:            " "<B><C20>" tt-word-print.cust-po-no FORMAT "x(15)" "</B>"   "" SKIP.
         PUT "<FArial><=5><R52><C6><P16> Job#:            " "<B><C20>" tt-word-print.job-no FORMAT "x(6)" "-" STRING(tt-word-print.job-no2,"99") "</B>"   "" SKIP.
-        PUT "<FArial><=5><R54><C6><P16> Item Name:  " "<B><C20>" tt-word-print.i-name FORMAT "x(27)" "</B>"   "" SKIP.
+        PUT "<FArial><=5><R54><C6><P16> Item Name:  " "<B><C20>" tt-word-print.i-name FORMAT "x(30)" "</B>"   "" SKIP.
         PUT "<FArial><=5><R56><C6><P16> Part#:           " "<B><C20>" tt-word-print.cust-part-no FORMAT "x(15)" "</B>"   "" SKIP.
         PUT "<FArial><=5><R58><C6><P16> FG#:             " "<B><C20>" tt-word-print.i-no FORMAT "x(15)" "</B>"   "" SKIP.
         

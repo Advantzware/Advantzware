@@ -26,11 +26,11 @@
         
         PUT "<||><R11><C3><#4><FROM><R18><C80><RECT>" SKIP. 
         
-        PUT "<FArial><=4><R+1><C5><B>" company.name FORMAT "x(25)"  "</B>" SKIP.
+        PUT "<FArial><=4><R+1><C5><B>" company.name FORMAT "x(30)"  "</B>" SKIP.
         PUT "<FArial><=4><R+1><C40><B> Email: " cEmail FORMAT "x(30)"  "</B>" SKIP(2).
-        PUT "<FArial><=4><R+3><C5><B>" company.addr[1] FORMAT "x(25)" "</B>" .
+        PUT "<FArial><=4><R+3><C5><B>" company.addr[1] FORMAT "x(30)" "</B>" .
         PUT "<FArial><=4><R+3><C40><B> Phone: " cPhone FORMAT "x(15)" "</B>" SKIP(2).
-        PUT "<FArial><=4><R+5><C5><B>" STRING(company.city,"x(15)") " " company.state FORMAT "x(2)" " " company.zip  "</B>" .
+        PUT "<FArial><=4><R+5><C5><B>" company.city " " company.state FORMAT "x(2)" " " company.zip  "</B>" .
         PUT "<FArial><=4><R+5><C40><B> Fax: " cFax FORMAT "x(15)" "</B>" SKIP(2).
         
         PUT "<||><R22><C3><#5><FROM><R25><C80><RECT>" SKIP. 
@@ -117,11 +117,11 @@
         
         PUT "<||><R33><C3><#4><FROM><R40><C80><RECT>" SKIP. 
         
-        PUT "<FArial><=4><R+1><C5><B>" company.name FORMAT "x(25)"  "</B>" SKIP.
+        PUT "<FArial><=4><R+1><C5><B>" company.name FORMAT "x(30)"  "</B>" SKIP.
         PUT "<FArial><=4><R+1><C40><B> Email: " cEmail FORMAT "x(30)"  "</B>" SKIP(2).
-        PUT "<FArial><=4><R+3><C5><B>" company.addr[1] FORMAT "x(25)" "</B>" .
+        PUT "<FArial><=4><R+3><C5><B>" company.addr[1] FORMAT "x(30)" "</B>" .
         PUT "<FArial><=4><R+3><C40><B> Phone: " cPhone FORMAT "x(15)" "</B>" SKIP(2).
-        PUT "<FArial><=4><R+5><C5><B>" STRING(company.city,"x(15)") " " company.state FORMAT "x(2)" " " company.zip  "</B>" .
+        PUT "<FArial><=4><R+5><C5><B>" company.city " " company.state FORMAT "x(2)" " " company.zip  "</B>" .
         PUT "<FArial><=4><R+5><C40><B> Fax: " cFax FORMAT "x(15)" "</B>" SKIP(2).
         
         PUT "<||><R44><C3><#5><FROM><R47><C80><RECT>" SKIP. 
