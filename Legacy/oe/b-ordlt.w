@@ -1984,7 +1984,9 @@ PROCEDURE select-price :
    REPOSITION {&browse-name} TO RECID lv-tmp-recid.
 
    RUN oe/calcordt.p (ROWID(oe-ord)).
-
+   FIND FIRST cust NO-LOCK 
+          WHERE cust.company EQ cocode
+          AND cust.cust-no EQ oe-ord.cust-no NO-ERROR.
    IF (ld-prev-t-price NE oe-ordl.t-price) 
        AND AVAIL cust AND cust.active NE "X" AND AVAIL oe-ord AND oe-ord.TYPE NE "T" THEN RUN oe/creditck.p (ROWID(oe-ord),YES).
    
