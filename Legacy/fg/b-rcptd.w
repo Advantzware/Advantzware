@@ -4126,8 +4126,8 @@ gvcCurrentItem = fg-rctd.i-no.
        IF fg-rctd.i-no = cSelectionItem THEN DO:
          
          FIND CURRENT fg-rctd EXCLUSIVE-LOCK NO-ERROR.
-
-         DELETE fg-rctd.
+         IF AVAIL fg-rctd THEN
+             DELETE fg-rctd.
        END.
      END.
      RELEASE fg-rctd.
