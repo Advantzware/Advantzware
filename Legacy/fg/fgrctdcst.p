@@ -55,11 +55,15 @@ IF vdCost EQ 0 AND vcPo-no GT "" THEN DO:
        
 END.
 
-IF vdCost GT 0 THEN
+IF vdCost GT 0 THEN do:
+    FIND FIRST itemfg NO-LOCK
+        WHERE itemfg.company EQ fg-rctd.company
+          AND itemfg.i-no EQ fg-rctd.i-no NO-ERROR .
     ASSIGN opd-ext-cost = ipi-t-qty * vdCost / IF vcUOM EQ "M" THEN 1000
         ELSE 1
            opd-cost     = vdCost
-           opc-uom      = IF vcUom GT "" THEN vcUOM ELSE "EA".
+           opc-uom      = IF vcUom GT "" THEN vcUOM ELSE IF AVAIL itemfg THEN itemfg.prod-uom ELSE "EA".
+END.
 ELSE
     ASSIGN opd-ext-cost = 0
        opd-cost         = 0
