@@ -51,6 +51,8 @@ DEF VAR lv-num-rec AS INT NO-UNDO.
 DEF VAR v-prgmname LIKE prgrms.prgmname NO-UNDO.
 DEF VAR period_pos AS INTEGER NO-UNDO.
 
+
+
 IF INDEX(PROGRAM-NAME(1),".uib") NE 0 OR
    INDEX(PROGRAM-NAME(1),".ab")  NE 0 OR
    INDEX(PROGRAM-NAME(1),".ped") NE 0 THEN
@@ -63,7 +65,6 @@ ASSIGN
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 
 &ANALYZE-SUSPEND _UIB-PREPROCESSOR-BLOCK 
 
@@ -258,6 +259,19 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL BROWSE-2 D-Dialog
+ON ROW-DISPLAY OF BROWSE-2 IN FRAME D-Dialog
+DO:
+  DEF VAR li AS INT NO-UNDO.
+  
+  IF AVAIL ap-inv AND ap-inv.stat EQ "H" THEN
+      ap-inv.inv-no:BGCOLOR IN BROWSE {&browse-name} = 11.
+
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 &Scoped-define SELF-NAME Btn_Deselect
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Deselect D-Dialog
@@ -275,12 +289,28 @@ END.
 ON CHOOSE OF Btn_OK IN FRAME D-Dialog /* OK */
 DO:
   DEF VAR li AS INT NO-UNDO.
-
+  DEF VAR ll AS LOG NO-UNDO.
+  DEF VAR lCheckMsg AS LOG NO-UNDO.
   IF {&browse-name}:NUM-SELECTED-ROWS GT 0 THEN DO:
-    MESSAGE "This will select all highlighted Invoices, " SKIP
-            "do you want to continue?" VIEW-AS ALERT-BOX QUESTION
-            BUTTON YES-NO UPDATE ll AS LOG.
+      
+      DO li = 1 TO {&browse-name}:NUM-SELECTED-ROWS:
+        {&browse-name}:FETCH-SELECTED-ROW (li) NO-ERROR.
+         IF AVAIL ap-inv AND ap-inv.stat EQ "H" THEN DO:
+             MESSAGE "One or more selected invoices is on hold (see highlighted lines)." SKIP
+                     "Are you sure you want to continue with payment of selected invoices?"
+                 VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO UPDATE ll .
+             lCheckMsg = YES.
+             LEAVE.
+         END.
+      END.
 
+      IF not(lCheckMsg) AND AVAIL ap-inv AND ap-inv.stat NE "H" THEN DO:
+             MESSAGE "Are you sure you want to continue with payment of selected invoices?" 
+                 VIEW-AS ALERT-BOX QUESTION
+                 BUTTON YES-NO UPDATE ll .
+             
+      END.
+      
     IF ll THEN DO:
       DO li = 1 TO {&browse-name}:NUM-SELECTED-ROWS:
         {&browse-name}:FETCH-SELECTED-ROW (li) NO-ERROR.
@@ -476,6 +506,7 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-initialize D-Dialog 
 PROCEDURE local-initialize :
 /*------------------------------------------------------------------------------
@@ -486,6 +517,7 @@ PROCEDURE local-initialize :
   /* Code placed here will execute PRIOR to standard behavior. */
 
   /* Dispatch standard ADM method.                             */
+    
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'initialize':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
