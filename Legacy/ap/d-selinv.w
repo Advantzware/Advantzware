@@ -296,7 +296,8 @@ DO:
       DO li = 1 TO {&browse-name}:NUM-SELECTED-ROWS:
         {&browse-name}:FETCH-SELECTED-ROW (li) NO-ERROR.
          IF AVAIL ap-inv AND ap-inv.stat EQ "H" THEN DO:
-             MESSAGE "Invoice is on hold - Are you sure you want it paid?"
+             MESSAGE "One or more selected invoices is on hold (see highlighted lines)." SKIP
+                     "Are you sure you want to continue with payment of selected invoices?"
                  VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO UPDATE ll .
              lCheckMsg = YES.
              LEAVE.
@@ -304,8 +305,8 @@ DO:
       END.
 
       IF not(lCheckMsg) AND AVAIL ap-inv AND ap-inv.stat NE "H" THEN DO:
-             MESSAGE "This will select all highlighted Invoices, " SKIP
-                 "do you want to continue?" VIEW-AS ALERT-BOX QUESTION
+             MESSAGE "Are you sure you want to continue with payment of selected invoices?" 
+                 VIEW-AS ALERT-BOX QUESTION
                  BUTTON YES-NO UPDATE ll .
              
       END.
