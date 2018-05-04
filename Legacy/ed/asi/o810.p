@@ -1083,9 +1083,10 @@ PROCEDURE edi-050.ip:
     DEFINE INPUT PARAMETER pItem AS CHARACTER NO-UNDO.   /* i-No */
     DEFINE VARIABLE iOrdLineNum AS INTEGER NO-UNDO.
     DEFINE VARIABLE iBolNum AS INTEGER NO-UNDO.
-    iBolNum = INTEGER(edivtran.bol-no) NO-ERROR.
+   
     IF AVAILABLE ar-invl THEN DO:
         /* In case or-ordl not found */
+        iBolNum = INTEGER(ar-invl.bol-no) NO-ERROR.
         iOrdLineNum = ar-invl.line.
         FIND FIRST oe-ordl NO-LOCK 
             WHERE oe-ordl.company EQ ar-invl.company
@@ -1095,6 +1096,8 @@ PROCEDURE edi-050.ip:
     END.
     ELSE IF AVAILABLE inv-line THEN 
         DO:
+            /* Used to check that there was a BOL for this inv-line */
+            iBolNum = INTEGER(inv-line.b-no) NO-ERROR.
             /* In case or-ordl not found */
             iOrdLineNum = inv-line.line.
             FIND FIRST oe-ordl NO-LOCK 
