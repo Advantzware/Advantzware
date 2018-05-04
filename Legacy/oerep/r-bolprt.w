@@ -3731,8 +3731,8 @@ PROCEDURE run-packing-list :
               PUT "<PRINTER?><LEFT=7mm>".
             ELSE IF v-print-fmt = "Carded" THEN
               PUT "<PRINTER?><LEFT=6mm>".
-            ELSE IF v-print-fmt = "bolfmt 1" OR v-print-fmt EQ "bolfmt 10" OR v-print-fmt = "bolfmt 2" OR v-print-fmt EQ "bolfmt 20" OR v-print-fmt = "bolfmt10-CAN" THEN 
-                  PUT "<PRINTER?><LEFT=" STRING(4 + d-print-fmt-dec) "mm>".
+            ELSE IF (v-print-fmt = "bolfmt 1" OR v-print-fmt EQ "bolfmt 10" OR v-print-fmt = "bolfmt 2" OR v-print-fmt EQ "bolfmt 20" OR v-print-fmt = "bolfmt10-CAN") AND d-print-fmt-dec > 0 THEN 
+                  PUT "<PRINTER?><LEFT=" STRING(d-print-fmt-dec) "mm>".
             ELSE
               PUT "<PRINTER?>".
           END.
@@ -3742,8 +3742,8 @@ PROCEDURE run-packing-list :
                    PUT "<PREVIEW><LEFT=7mm><MODAL=NO>".
                ELSE IF  v-print-fmt = "Carded"  THEN
                    PUT "<PREVIEW><LEFT=6mm><MODAL=NO>".
-               ELSE IF v-print-fmt = "bolfmt 1" OR v-print-fmt EQ "bolfmt 10" OR v-print-fmt = "bolfmt 2" OR v-print-fmt EQ "bolfmt 20" OR v-print-fmt = "bolfmt10-CAN" THEN
-                  PUT "<PREVIEW><LEFT=" string(4 + d-print-fmt-dec) "mm><MODAL=NO>".
+               ELSE IF (v-print-fmt = "bolfmt 1" OR v-print-fmt EQ "bolfmt 10" OR v-print-fmt = "bolfmt 2" OR v-print-fmt EQ "bolfmt 20" OR v-print-fmt = "bolfmt10-CAN") AND d-print-fmt-dec > 0 THEN
+                  PUT "<PREVIEW><LEFT=" string(d-print-fmt-dec) "mm><MODAL=NO>".
                ELSE
                    PUT "<PREVIEW><MODAL=NO>". 
            END.
@@ -3752,8 +3752,8 @@ PROCEDURE run-packing-list :
                  PUT "<PREVIEW><LEFT=7mm>".
              ELSE IF v-print-fmt = "Carded" THEN
                  PUT "<PREVIEW><LEFT=6mm>".
-             ELSE IF v-print-fmt = "bolfmt 1" OR v-print-fmt EQ "bolfmt 10" OR v-print-fmt = "bolfmt 2" OR v-print-fmt EQ "bolfmt 20" OR v-print-fmt = "bolfmt10-CAN" THEN
-                  PUT "<PREVIEW><LEFT=" STRING(4 + d-print-fmt-dec) "mm>".
+             ELSE IF (v-print-fmt = "bolfmt 1" OR v-print-fmt EQ "bolfmt 10" OR v-print-fmt = "bolfmt 2" OR v-print-fmt EQ "bolfmt 20" OR v-print-fmt = "bolfmt10-CAN") AND d-print-fmt-dec > 0 THEN
+                  PUT "<PREVIEW><LEFT=" STRING(d-print-fmt-dec) "mm>".
              ELSE
                  PUT "<PREVIEW>". 
            END.
@@ -3764,8 +3764,8 @@ PROCEDURE run-packing-list :
                   PUT UNFORMATTED "<PRINTER?><LEFT=4mm><EXPORT=" Ls-fax-file ",BW>".
                 ELSE IF v-print-fmt = "Carded" THEN
                   PUT UNFORMATTED "<PRINTER?><LEFT=6mm><EXPORT=" Ls-fax-file ",BW>".
-                ELSE IF v-print-fmt = "bolfmt 1" OR v-print-fmt EQ "bolfmt 10" OR v-print-fmt = "bolfmt 2" OR v-print-fmt EQ "bolfmt 20" OR v-print-fmt = "bolfmt10-CAN" THEN
-                  PUT UNFORMATTED "<PRINTER?><LEFT=" STRING(4 + d-print-fmt-dec) "mm><EXPORT=" Ls-fax-file ",BW>".
+                ELSE IF (v-print-fmt = "bolfmt 1" OR v-print-fmt EQ "bolfmt 10" OR v-print-fmt = "bolfmt 2" OR v-print-fmt EQ "bolfmt 20" OR v-print-fmt = "bolfmt10-CAN") AND d-print-fmt-dec > 0 THEN
+                  PUT UNFORMATTED "<PRINTER?><LEFT=" STRING(d-print-fmt-dec) "mm><EXPORT=" Ls-fax-file ",BW>".
                 ELSE
                   PUT UNFORMATTED "<PRINTER?><EXPORT=" Ls-fax-file ",BW>".
           END.
@@ -3776,8 +3776,8 @@ PROCEDURE run-packing-list :
                    PUT "<PREVIEW><FORMAT=LETTER><PDF-EXCLUDE=MS Mincho><PDF-LEFT=5mm><PDF-TOP=7mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
               ELSE IF v-print-fmt EQ "CCC" OR v-print-fmt EQ "CCCWPP" THEN PUT "<PREVIEW><LEFT=4mm><PDF-LEFT=2mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
               ELSE IF v-print-fmt EQ "Carded" THEN PUT "<PREVIEW><LEFT=6mm><PDF-LEFT=6mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
-              ELSE IF v-print-fmt = "bolfmt 1" OR v-print-fmt EQ "bolfmt 10" OR v-print-fmt = "bolfmt 2" OR v-print-fmt EQ "bolfmt 20" OR v-print-fmt = "bolfmt10-CAN" THEN
-                 PUT "<PREVIEW><LEFT=" string(4 + d-print-fmt-dec) "mm><PDF-LEFT=" string(4 + d-print-fmt-dec) "mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
+              ELSE IF (v-print-fmt = "bolfmt 1" OR v-print-fmt EQ "bolfmt 10" OR v-print-fmt = "bolfmt 2" OR v-print-fmt EQ "bolfmt 20" OR v-print-fmt = "bolfmt10-CAN") AND d-print-fmt-dec > 0 THEN
+                 PUT "<PREVIEW><LEFT=" string(d-print-fmt-dec) "mm><PDF-LEFT=" string(4 + d-print-fmt-dec) "mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
               ELSE  PUT "<PREVIEW><PDF-LEFT=2mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
           END.
       END CASE.
@@ -3905,8 +3905,8 @@ PROCEDURE run-report :
                   PUT "<PRINTER?><LEFT=7mm>".
               ELSE IF v-print-fmt = "Carded" THEN
                   PUT "<PRINTER?><LEFT=6mm>".
-              ELSE IF v-print-fmt = "bolfmt 1" OR v-print-fmt EQ "bolfmt 10" OR v-print-fmt = "bolfmt 2" OR v-print-fmt EQ "bolfmt 20" OR v-print-fmt = "bolfmt10-CAN" THEN 
-                  PUT "<PRINTER?><LEFT=" STRING(4 + d-print-fmt-dec) "mm>".
+              ELSE IF (v-print-fmt = "bolfmt 1" OR v-print-fmt EQ "bolfmt 10" OR v-print-fmt = "bolfmt 2" OR v-print-fmt EQ "bolfmt 20" OR v-print-fmt = "bolfmt10-CAN") AND d-print-fmt-dec > 0 THEN 
+                  PUT "<PRINTER?><LEFT=" STRING(d-print-fmt-dec) "mm>".
               ELSE  PUT "<PRINTER?>".
           END.
           WHEN 2 THEN do:
@@ -3915,8 +3915,8 @@ PROCEDURE run-report :
                    PUT "<PREVIEW><LEFT=7mm><MODAL=NO>".
                ELSE IF v-print-fmt = "Carded" THEN
                    PUT "<PREVIEW><LEFT=6mm><MODAL=NO>".
-               ELSE IF v-print-fmt = "bolfmt 1" OR v-print-fmt EQ "bolfmt 10" OR v-print-fmt = "bolfmt 2" OR v-print-fmt EQ "bolfmt 20" OR v-print-fmt = "bolfmt10-CAN" THEN
-                   PUT "<PREVIEW><LEFT=" string(4 + d-print-fmt-dec) "mm><MODAL=NO>".
+               ELSE IF (v-print-fmt = "bolfmt 1" OR v-print-fmt EQ "bolfmt 10" OR v-print-fmt = "bolfmt 2" OR v-print-fmt EQ "bolfmt 20" OR v-print-fmt = "bolfmt10-CAN") AND d-print-fmt-dec > 0 THEN
+                   PUT "<PREVIEW><LEFT=" string(d-print-fmt-dec) "mm><MODAL=NO>".
                ELSE PUT "<PREVIEW><MODAL=NO>".
            END.
            ELSE do:
@@ -3924,8 +3924,8 @@ PROCEDURE run-report :
                    PUT "<PREVIEW><LEFT=7mm>".  
                ELSE IF v-print-fmt = "Carded" THEN
                    PUT "<PREVIEW><LEFT=6mm>".
-               ELSE IF v-print-fmt = "bolfmt 1" OR v-print-fmt EQ "bolfmt 10" OR v-print-fmt = "bolfmt 2" OR v-print-fmt EQ "bolfmt 20" OR v-print-fmt = "bolfmt10-CAN" THEN 
-                  PUT "<PREVIEW><LEFT=" STRING(4 + d-print-fmt-dec) "mm>".
+               ELSE IF (v-print-fmt = "bolfmt 1" OR v-print-fmt EQ "bolfmt 10" OR v-print-fmt = "bolfmt 2" OR v-print-fmt EQ "bolfmt 20" OR v-print-fmt = "bolfmt10-CAN") AND d-print-fmt-dec > 0 THEN 
+                  PUT "<PREVIEW><LEFT=" STRING(d-print-fmt-dec) "mm>".
                ELSE
                    PUT "<PREVIEW>".  
            END.
@@ -3936,8 +3936,8 @@ PROCEDURE run-report :
                     PUT UNFORMATTED "<PRINTER?><LEFT=7mm><EXPORT=" Ls-fax-file ",BW>".
                 ELSE IF v-print-fmt = "Carded" THEN
                     PUT UNFORMATTED "<PRINTER?><LEFT=6mm><EXPORT=" Ls-fax-file ",BW>".
-                ELSE IF v-print-fmt = "bolfmt 1" OR v-print-fmt EQ "bolfmt 10" OR v-print-fmt = "bolfmt 2" OR v-print-fmt EQ "bolfmt 20" OR v-print-fmt = "bolfmt10-CAN" THEN
-                  PUT UNFORMATTED "<PRINTER?><LEFT=" STRING(4 + d-print-fmt-dec) "mm><EXPORT=" Ls-fax-file ",BW>".
+                ELSE IF (v-print-fmt = "bolfmt 1" OR v-print-fmt EQ "bolfmt 10" OR v-print-fmt = "bolfmt 2" OR v-print-fmt EQ "bolfmt 20" OR v-print-fmt = "bolfmt10-CAN") AND d-print-fmt-dec > 0 THEN
+                  PUT UNFORMATTED "<PRINTER?><LEFT=" STRING(d-print-fmt-dec) "mm><EXPORT=" Ls-fax-file ",BW>".
                 ELSE PUT UNFORMATTED "<PRINTER?><EXPORT=" Ls-fax-file ",BW>".
           END.
           WHEN 5 THEN do:
@@ -3947,8 +3947,8 @@ PROCEDURE run-report :
                    PUT "<PREVIEW><FORMAT=LETTER><PDF-EXCLUDE=MS Mincho><PDF-LEFT=5mm><PDF-TOP=7mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
               ELSE IF v-print-fmt EQ "CCC" OR  v-print-fmt EQ "CCCWPP" THEN PUT "<PREVIEW><LEFT=4mm><PDF-LEFT=2mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
               ELSE IF v-print-fmt EQ "Carded" THEN PUT "<PREVIEW><LEFT=6mm><PDF-LEFT=6mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
-              ELSE IF v-print-fmt = "bolfmt 1" OR v-print-fmt EQ "bolfmt 10" OR v-print-fmt = "bolfmt 2" OR v-print-fmt EQ "bolfmt 20" OR v-print-fmt = "bolfmt10-CAN" THEN
-                 PUT "<PREVIEW><LEFT=" string(4 + d-print-fmt-dec) "mm><PDF-LEFT=" string(4 + d-print-fmt-dec) "mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
+              ELSE IF (v-print-fmt = "bolfmt 1" OR v-print-fmt EQ "bolfmt 10" OR v-print-fmt = "bolfmt 2" OR v-print-fmt EQ "bolfmt 20" OR v-print-fmt = "bolfmt10-CAN") AND d-print-fmt-dec > 0 THEN
+                 PUT "<PREVIEW><LEFT=" string(d-print-fmt-dec) "mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
               ELSE PUT "<PREVIEW><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
           END.
       END CASE.
@@ -4143,6 +4143,8 @@ ELSE IF is-xprint-form AND rd-dest = 1 THEN PUT "<PRINTER?>".
                  PUT  "<PRINTER?><LEFT=4mm>".
              ELSE IF v-print-fmt EQ "Carded" THEN
                  PUT  "<PRINTER?><LEFT=6mm>".
+             ELSE IF (v-print-fmt = "bolfmt 1" OR v-print-fmt EQ "bolfmt 10" OR v-print-fmt = "bolfmt 2" OR v-print-fmt EQ "bolfmt 20" OR v-print-fmt = "bolfmt10-CAN") AND d-print-fmt-dec > 0 THEN 
+                  PUT "<PRINTER?><LEFT=" STRING(d-print-fmt-dec) "mm>".
              ELSE
                 PUT  "<PRINTER?>".
         END.
@@ -4152,6 +4154,8 @@ ELSE IF is-xprint-form AND rd-dest = 1 THEN PUT "<PRINTER?>".
                    PUT "<PREVIEW><LEFT=4mm><MODAL=NO>". 
                ELSE IF v-print-fmt EQ "Carded" THEN
                    PUT "<PREVIEW><LEFT=6mm><MODAL=NO>". 
+               ELSE IF (v-print-fmt = "bolfmt 1" OR v-print-fmt EQ "bolfmt 10" OR v-print-fmt = "bolfmt 2" OR v-print-fmt EQ "bolfmt 20" OR v-print-fmt = "bolfmt10-CAN") AND d-print-fmt-dec > 0 THEN 
+                  PUT "<PREVIEW><LEFT=" STRING(d-print-fmt-dec) "mm><MODAL=NO>".
                ELSE
                    PUT "<PREVIEW><MODAL=NO>".  
            END.
@@ -4160,6 +4164,8 @@ ELSE IF is-xprint-form AND rd-dest = 1 THEN PUT "<PRINTER?>".
                    PUT "<PREVIEW><LEFT=4mm>".
                ELSE IF v-print-fmt EQ "Carded" THEN
                    PUT "<PREVIEW><LEFT=6mm>".
+               ELSE IF (v-print-fmt = "bolfmt 1" OR v-print-fmt EQ "bolfmt 10" OR v-print-fmt = "bolfmt 2" OR v-print-fmt EQ "bolfmt 20" OR v-print-fmt = "bolfmt10-CAN") AND d-print-fmt-dec > 0 THEN 
+                  PUT "<PREVIEW><LEFT=" STRING(d-print-fmt-dec) "mm>".
                ELSE
                    PUT "<PREVIEW>".
            END.
@@ -4170,6 +4176,8 @@ ELSE IF is-xprint-form AND rd-dest = 1 THEN PUT "<PRINTER?>".
                   PUT UNFORMATTED "<PRINTER?><LEFT=4mm><EXPORT=" Ls-fax-file ",BW>".
               ELSE IF v-print-fmt EQ "Carded" THEN
                   PUT UNFORMATTED "<PRINTER?><LEFT=6mm><EXPORT=" Ls-fax-file ",BW>".
+              ELSE IF (v-print-fmt = "bolfmt 1" OR v-print-fmt EQ "bolfmt 10" OR v-print-fmt = "bolfmt 2" OR v-print-fmt EQ "bolfmt 20" OR v-print-fmt = "bolfmt10-CAN") AND d-print-fmt-dec > 0 THEN 
+                  PUT UNFORMATTED "<PRINTER?><LEFT=" STRING(d-print-fmt-dec) "mm><EXPORT=" Ls-fax-file ",BW>".
               ELSE PUT UNFORMATTED "<PRINTER?><EXPORT=" Ls-fax-file ",BW>".
         END.
         WHEN 5 THEN do:
@@ -4179,6 +4187,8 @@ ELSE IF is-xprint-form AND rd-dest = 1 THEN PUT "<PRINTER?>".
                    PUT "<PREVIEW><FORMAT=LETTER><PDF-EXCLUDE=MS Mincho><PDF-LEFT=5mm><PDF-TOP=7mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
             ELSE IF v-print-fmt EQ "CCC" OR v-print-fmt EQ "CCCWPP" THEN PUT "<PREVIEW><LEFT=4mm><PDF-LEFT=2mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
             ELSE IF v-print-fmt EQ "Carded" THEN PUT "<PREVIEW><LEFT=6mm><PDF-LEFT=6mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
+            ELSE IF (v-print-fmt = "bolfmt 1" OR v-print-fmt EQ "bolfmt 10" OR v-print-fmt = "bolfmt 2" OR v-print-fmt EQ "bolfmt 20" OR v-print-fmt = "bolfmt10-CAN") AND d-print-fmt-dec > 0 THEN 
+                  PUT "<PREVIEW><LEFT=" STRING(d-print-fmt-dec) "mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
             ELSE PUT "<PREVIEW><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
         END.
     END CASE.
@@ -4314,6 +4324,8 @@ PROCEDURE run-report-mail :
         ELSE IF v-print-fmt EQ "Prystup-Excel" THEN PUT "<PDF-OUTPUT=" + lv-pdf-file + vcBOLNums + ".pdf>" FORM "x(180)".
         ELSE IF v-print-fmt EQ "CCC" OR v-print-fmt EQ "CCCWPP" THEN PUT "<PREVIEW><LEFT=4mm><PDF-LEFT=2mm><PDF-OUTPUT=" + lv-pdf-file + vcBOLNums + ".pdf>" FORM "x(180)".
         ELSE IF v-print-fmt EQ "Carded" THEN PUT "<PREVIEW><LEFT=6mm><PDF-LEFT=6mm><PDF-OUTPUT=" + lv-pdf-file + vcBOLNums + ".pdf>" FORM "x(180)".
+        ELSE IF (v-print-fmt = "bolfmt 1" OR v-print-fmt EQ "bolfmt 10" OR v-print-fmt = "bolfmt 2" OR v-print-fmt EQ "bolfmt 20" OR v-print-fmt = "bolfmt10-CAN") AND d-print-fmt-dec > 0 THEN 
+                  PUT "<PREVIEW><LEFT=" STRING(d-print-fmt-dec) "mm><PDF-OUTPUT=" + lv-pdf-file + vcBOLNums + ".pdf>" FORM "x(180)".
         ELSE PUT "<PREVIEW><PDF-OUTPUT=" + lv-pdf-file + vcBOLNums + ".pdf>" FORM "x(180)".
     END.
 
