@@ -36,7 +36,8 @@ form skip(8)
 
     with frame b1 width 85 no-box no-labels stream-io no-attr-space.
 
-if v-print-mode ne "ALIGN" then do:         /* production mode */
+if v-print-mode ne "ALIGN" then do:       /* production mode */   
+  DISPLAY SKIP.
   for each ap-chk
       where ap-chk.company   eq cocode
         and ap-chk.vend-no   ge wvend-no
@@ -110,6 +111,7 @@ if v-print-mode ne "ALIGN" then do:         /* production mode */
     
    ll = 0.
    
+
    for each ap-sel
        where ap-sel.company   eq cocode
          and ap-sel.vend-no   eq ap-chk.vend-no
@@ -128,7 +130,7 @@ if v-print-mode ne "ALIGN" then do:         /* production mode */
 
     if ll eq 0 then do:
             
-      display skip(1)
+      display skip
               "Vendor ID: "
               v-vend-no
               space(8)
