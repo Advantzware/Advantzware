@@ -1253,6 +1253,8 @@ PROCEDURE local-change-page :
   DEF VAR l-spec-modified AS LOG NO-UNDO.
   /* Code placed here will execute PRIOR to standard behavior. */  
   DEFINE VARIABLE adm-current-page  AS INTEGER NO-UNDO.
+  DEF VAR hPgmSecurity AS HANDLE NO-UNDO.
+  DEF VAR lResult AS LOG NO-UNDO.
 
   RUN get-attribute IN THIS-PROCEDURE ('Current-Page':U).
   ASSIGN adm-current-page = INTEGER(RETURN-VALUE).
@@ -1335,6 +1337,14 @@ ELSE
          RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"initbtn-target",OUTPUT char-hdl).
          IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
           RUN reopen-init IN WIDGET-HANDLE(char-hdl) .
+  END.
+
+  IF li-page[1] = 2 THEN DO:
+         RUN "system/PgmMstrSecur.p" PERSISTENT SET hPgmSecurity.
+         RUN epCanAccess IN hPgmSecurity ("est/w-estc.w", "", OUTPUT lResult).
+         DELETE OBJECT hPgmSecurity.
+        IF NOT lResult THEN 
+            RUN disable-all IN h_vp-est .
   END.
  
   DO WITH FRAME {&FRAME-NAME}:
