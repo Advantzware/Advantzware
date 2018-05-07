@@ -839,10 +839,12 @@ PROCEDURE edi-040.ip:
         END.
 
         FIND edmast OF edcode EXCLUSIVE-LOCK NO-ERROR.
+        IF NOT AVAILABLE EDMast THEN 
+            FIND FIRST EDMast EXCLUSIVE-LOCK WHERE EDMast.partner EQ ws_partner NO-ERROR.
 
         RUN ed/gendoc.p (RECID(edcode), invoice_number, OUTPUT ws_eddoc_rec).
         FIND  eddoc WHERE RECID(eddoc) = ws_eddoc_rec EXCLUSIVE.
-    
+
         ASSIGN
             eddoc.userref         = "R-NO: " + string(pRel)
             eddoc.version         = STRING(edcode.version)
@@ -850,6 +852,7 @@ PROCEDURE edi-040.ip:
             eddoc.openitem        = TRUE
             eddoc.unique-order-no = INTEGER(pOrder)
             .
+
         /* returns zero if input param is alphanumeric */
         RUN rc/str2int.p (by_code, OUTPUT eddoc.docseq).
         CREATE edivtran.
