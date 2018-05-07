@@ -550,9 +550,17 @@ PROCEDURE pAddPriceHold PRIVATE:
                         
     RUN pSetBuffers(ipcCompany, ipcFGItemID, ipcCustID, BUFFER bf-itemfg, BUFFER bf-cust).            
     /*use internal procedure to find the matching matrix*/
-    RUN pGetPriceMatrix(BUFFER bf-itemfg, BUFFER bf-cust, BUFFER bf-oe-prmtx, ipcShipID, 
-        OUTPUT ttPriceHold.lMatrixMatch, OUTPUT ttPriceHold.cMatrixMatch).
-        
+    IF bf-itemfg.i-code EQ "S" THEN  
+        RUN pGetPriceMatrix(BUFFER bf-itemfg, BUFFER bf-cust, BUFFER bf-oe-prmtx, ipcShipID, 
+            OUTPUT ttPriceHold.lMatrixMatch, OUTPUT ttPriceHold.cMatrixMatch).
+    ELSE DO:
+        ASSIGN 
+            ttPriceHold.lPriceHold = NO
+            ttPriceHold.cPriceHoldDetail = ttPriceHold.cFGItemID + " ignored since it is Custom Box and not Stock"
+            ttPriceHold.cPriceHoldReason = "Not a Stock item"
+            .
+        RETURN.
+    END.
     IF NOT ttPriceHold.lMatrixMatch OR  NOT AVAILABLE bf-oe-prmtx THEN 
     DO:
         ASSIGN 
