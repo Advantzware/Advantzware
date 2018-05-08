@@ -1268,7 +1268,9 @@ PROCEDURE local-change-page :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-  
+   DEF VAR hPgmSecurity AS HANDLE NO-UNDO.
+   DEF VAR lResult AS LOG NO-UNDO.
+
   /* Code placed here will execute PRIOR to standard behavior. */  
   run get-attribute ("current-page").
    
@@ -1322,6 +1324,13 @@ PROCEDURE local-change-page :
          RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"initbtn-target",OUTPUT char-hdl).
          IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
           RUN reopen-init IN WIDGET-HANDLE(char-hdl) .
+  END.
+  IF li-page[1] = 2 THEN DO:
+         RUN "system/PgmMstrSecur.p" PERSISTENT SET hPgmSecurity.
+         RUN epCanAccess IN hPgmSecurity ("est/w-est.w", "", OUTPUT lResult).
+         DELETE OBJECT hPgmSecurity.
+        IF NOT lResult THEN 
+            RUN disable-all IN h_vp-est .
   END.
 END PROCEDURE.
 

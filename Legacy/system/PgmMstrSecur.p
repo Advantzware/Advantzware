@@ -41,6 +41,8 @@ PROCEDURE epCanAccess:
                 (ipProgName EQ "util/module.w" AND ipFunction EQ "") OR /*run util module*/
                 (ipProgName EQ "viewers/file-seq.w" AND ipFunction EQ "") OR /*NZ1 System ref Files */
                 (ipProgName EQ "viewers/vend.w" AND ipFunction EQ "") OR /*NK1 view control tab */
+                (ipProgName EQ "est/w-est.w" AND ipFunction EQ "") OR /*EF  view estimate security on mess delete,set and go button  */
+                (ipProgName EQ "est/w-estc.w" AND ipFunction EQ "") OR /*EC  view estimate security on mess delete,set and go button  */
                 
                 (ipProgName EQ "" AND ipFunction EQ "")
             ) THEN ASSIGN
