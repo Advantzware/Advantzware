@@ -1215,8 +1215,6 @@ PROCEDURE ipFindIniFile :
             cIniLoc = "".
     END.
     
-    IF cIniLoc EQ "" THEN
-        RUN ipStatus ("Cannot locate .ini file. Autocreating...").
     
 
            
@@ -1322,8 +1320,6 @@ PROCEDURE ipFindUsrFile :
             cUsrLoc = "".
     END.
     
-    IF cUsrLoc EQ "" THEN
-        RUN ipStatus ("Cannot locate .ini file. Aborting...").
     
     
 END PROCEDURE.
