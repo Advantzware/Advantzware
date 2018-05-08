@@ -6709,8 +6709,18 @@ PROCEDURE ok-button :
 
   APPLY "entry" TO fi_cas-lab IN FRAME {&FRAME-NAME}.
 
-  IF lv-ok-ran AND NOT tb_reprint-tag AND tb_close THEN
+  IF lv-ok-ran AND NOT tb_reprint-tag AND tb_close THEN do:
+     IF program-name(1) matches "*r-loadtg.*"
+        and not program-name(2) matches "*persist*" THEN DO:
+         FOR EACH userLog EXCLUSIVE-LOCK WHERE userLog.userStatus EQ "Logged In" 
+                AND  userLog.user_id EQ USERID(LDBNAME(1)):
+                ASSIGN 
+                    userLog.logoutDateTime = DATETIME(TODAY, MTIME)
+                    userLog.userStatus     = "User Logged Out".
+            END. 
+     END.
       APPLY "close" TO THIS-PROCEDURE.
+  END.
   /*
   case rd-dest:
        when 1 then run output-to-printer.
