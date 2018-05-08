@@ -266,7 +266,7 @@ if v-print-mode ne "ALIGN" then do:       /* production mode */
       if last(ap-sel.inv-no) then do: 
         display ap-chk.check-date ctot with frame b3.
                /*max-per-chk = 12 */
-        put skip(11 - lv-line-cnt).
+        put skip(10 - lv-line-cnt).
 
         assign
          stnum  = stnum + 1
@@ -275,8 +275,8 @@ if v-print-mode ne "ALIGN" then do:       /* production mode */
          cgross = 0
          dol    = "".
       end. 
-      ELSE IF ll-void THEN PUT SKIP(13 - lv-line-cnt) /* no total frame b3 */.
-      PUT UNFORMATTED CHR(12).
+      ELSE IF ll-void THEN PUT SKIP(12 - lv-line-cnt) /* no total frame b3 */.
+       PUT UNFORMATTED CHR(12). 
       ll = 0.
     end.
   end.
