@@ -30,14 +30,10 @@ def buffer bf-item for item.
 DEF BUFFER b-qty FOR reftable.
 DEF BUFFER b-cost FOR reftable.
 DEF BUFFER b-setup FOR reftable.
-DEF BUFFER b-blank-vend-qty FOR reftable.
-DEF BUFFER b-blank-vend-cost FOR reftable.
 
 DEF BUFFER b2-qty FOR reftable.
 DEF BUFFER b2-cost FOR reftable.
 DEF BUFFER b2-setup FOR reftable.
-DEF BUFFER b2-blank-vend-qty FOR reftable.
-DEF BUFFER b2-blank-vend-cost FOR reftable.
 
 DEF VAR v-copy-record AS LOG NO-UNDO.
 DEF VAR v-old-vend-no AS CHAR NO-UNDO.
@@ -1016,43 +1012,17 @@ PROCEDURE local-assign-record :
         
         IF e-item-vend.vend-no EQ "" THEN
         DO:
-           FIND FIRST b-blank-vend-qty WHERE
-                b-blank-vend-qty.reftable = "blank-vend-qty" AND
-                b-blank-vend-qty.company = e-item.company and
-                    b-blank-vend-qty.CODE    = e-item.i-no
-                NO-ERROR.
-
-           IF NOT AVAIL b-blank-vend-qty THEN
-           DO:
-              CREATE b-blank-vend-qty.
-              ASSIGN
-                 b-blank-vend-qty.reftable = "blank-vend-qty"
-                 b-blank-vend-qty.company = e-item.company
-                     b-blank-vend-qty.CODE    = e-item.i-no.
+           
+           DO v-count = 1 TO 10:
+                e-item.run-qty[v-count] = e-item-vend.runQtyXtra[v-count].
            END.
+
+ 
 
            DO v-count = 1 TO 10:
-                b-blank-vend-qty.val[v-count] = e-item-vend.runQtyXtra[v-count].
-           END.
+                e-item.run-cost[v-count] = e-item-vend.runCostXtra[v-count].
+           END. 
 
-           FIND FIRST b-blank-vend-cost WHERE
-                b-blank-vend-cost.reftable = "blank-vend-cost" AND
-                b-blank-vend-cost.company = e-item.company and
-                    b-blank-vend-cost.CODE    = e-item.i-no
-                NO-ERROR.
-
-           IF NOT AVAIL b-blank-vend-cost THEN
-           DO:
-              CREATE b-blank-vend-cost.
-              ASSIGN
-                 b-blank-vend-cost.reftable = "blank-vend-cost"
-                 b-blank-vend-cost.company = e-item.company
-                     b-blank-vend-cost.CODE    = e-item.i-no.
-           END.
-
-           DO v-count = 1 TO 10:
-                b-blank-vend-cost.val[v-count] = e-item-vend.runCostXtra[v-count].
-           END.
         END.
      END.
   END.
@@ -1084,19 +1054,6 @@ PROCEDURE local-assign-record :
   i = 1.
 
   IF e-item-vend.vend-no EQ "" THEN
-  DO:
-     FIND FIRST b-blank-vend-qty WHERE
-          b-blank-vend-qty.reftable = "blank-vend-qty" AND
-          b-blank-vend-qty.company = e-item.company AND
-          b-blank-vend-qty.CODE    = e-item.i-no
-          NO-ERROR.
-
-     FIND FIRST b-blank-vend-cost WHERE
-          b-blank-vend-cost.reftable = "blank-vend-cost" AND
-          b-blank-vend-cost.company = e-item.company AND
-          b-blank-vend-cost.CODE    = e-item.i-no
-          NO-ERROR.
-  END.
 
   for each tmpfile by tmpfile.qty:
       if tmpfile.qty = 0 then next.
@@ -1111,17 +1068,14 @@ PROCEDURE local-assign-record :
             e-item-vend.runCostXtra[i - 10] = tmpfile.siz
             e-item-vend.setupsXtra[i - 10] = tmpfile.setups.
 
-      IF i GT 10 AND AVAIL b-blank-vend-qty AND AVAIL b-blank-vend-cost THEN
+      IF i GT 10 AND AVAIL e-item THEN
          ASSIGN
-            b-blank-vend-qty.val[i - 10] = tmpfile.qty
-            b-blank-vend-cost.val[i - 10] = tmpfile.siz.
-
+            e-item.run-qty[i - 10] = tmpfile.qty
+            e-item.run-cost[i - 10] = tmpfile.siz.
       i = i + 1.       
   end.
 
-  RELEASE b-blank-vend-qty.
-  RELEASE b-blank-vend-cost.
-
+  
   IF e-item-vend.vend-no EQ "" THEN
      do i = 1 to 10:
         assign e-item.run-qty[i] = e-item-vend.run-qty[i]
@@ -1214,7 +1168,6 @@ PROCEDURE local-create-record :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEF BUFFER b-eiv FOR e-item-vend.
-  DEF BUFFER b-ref FOR reftable.
 
   def var lv-recid as recid no-undo.
   def var char-hdl as cha no-undo.

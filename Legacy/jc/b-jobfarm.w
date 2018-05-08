@@ -64,7 +64,7 @@ DEF VAR hHistory AS HANDLE NO-UNDO.
 
 {sys/inc/rmissue.i}
 
-DEF BUFFER b-cost FOR reftable.
+
 DEF BUFFER b-qty FOR reftable.
 DEF BUFFER b-setup FOR reftable.
 
@@ -1407,26 +1407,13 @@ PROCEDURE new-i-no PRIVATE :
                    tt-ei.run-cost[j] = e-itemfg.run-cost[j].
              END.
             
-             FIND FIRST b-qty WHERE
-                  b-qty.reftable = "blank-vend-qty" AND
-                  b-qty.company = e-itemfg.company AND
-                      b-qty.CODE    = e-itemfg.i-no
-                  NO-LOCK NO-ERROR.
-            
-             IF AVAIL b-qty THEN
-             DO:
-                FIND FIRST b-cost WHERE
-                     b-cost.reftable = "blank-vend-cost" AND
-                     b-cost.company = e-itemfg.company AND
-                         b-cost.CODE    = e-itemfg.i-no
-                     NO-LOCK NO-ERROR.
-            
-                DO j = 1 TO 10:
+
+               DO j = 1 TO 10:
                    ASSIGN
-                      tt-ei.run-qty[j + 10] = b-qty.val[j]
-                      tt-ei.run-cost[j + 10] = b-cost.val[j].
+                      tt-ei.run-qty[j + 10] = e-itemfg.run-qty[j]
+                      tt-ei.run-cost[j + 10] = e-itemfg.run-cost[j].
                 END.
-             END.
+
 
              DO j = 1 TO 20:
                 IF tt-ei.run-qty[j] GE v-qty THEN DO:
@@ -1435,12 +1422,6 @@ PROCEDURE new-i-no PRIVATE :
                 END.
              END.
           END.
-
-/*           IF AVAIL e-itemfg-vend THEN                                                      */
-/*             RUN est/dim-charge.p (e-itemfg-vend.rec_key,                                   */
-/*                                   DEC(job-farm.wid:SCREEN-VALUE IN BROWSE {&browse-name}), */
-/*                                   DEC(job-farm.len:SCREEN-VALUE IN BROWSE {&browse-name}), */
-/*                                   INPUT-OUTPUT v-cost).                                    */
         END.
 
         /* 02201203 */

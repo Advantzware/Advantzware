@@ -18,7 +18,6 @@ def shared buffer xef  for ef.
 def shared buffer xeb  for eb.
 
 DEF BUFFER b-qty FOR reftable.
-DEF BUFFER b-cost FOR reftable.
 DEF BUFFER b-setup FOR reftable.
 
 DEF TEMP-TABLE tt-ei NO-UNDO
@@ -342,26 +341,14 @@ if v-add-to-est AND
                tt-ei.run-cost[j] = e-item.run-cost[j].
          END.
          
-         FIND FIRST b-qty WHERE
-              b-qty.reftable = "blank-vend-qty" AND
-              b-qty.company = e-item.company AND
-              b-qty.CODE    = e-item.i-no
-              NO-LOCK NO-ERROR.
-         
-         IF AVAIL b-qty THEN
-         DO:
-            FIND FIRST b-cost WHERE
-                 b-cost.reftable = "blank-vend-cost" AND
-                 b-cost.company = e-item.company AND
-		         b-cost.CODE    = e-item.i-no
-                 NO-LOCK NO-ERROR.
-         
+
             DO j = 1 TO 10:
                ASSIGN
-                  tt-ei.run-qty[j + 10] = b-qty.val[j]
-                  tt-ei.run-cost[j + 10] = b-cost.val[j].
+                  tt-ei.run-qty[j + 10] = e-item.run-qty[j]
+                  tt-ei.run-cost[j + 10] = e-item.run-cost[j].
             END.
-         END.
+
+
         
          DO j = 1 TO 20:
             IF tt-ei.run-qty[j] LT gqty THEN NEXT.
@@ -450,26 +437,15 @@ if v-add-to-est AND
                tt-ei.run-cost[j] = e-item.run-cost[j].
          END.
          
-         FIND FIRST b-qty WHERE
-              b-qty.reftable = "blank-vend-qty" AND
-              b-qty.company = e-item.company AND
-	          b-qty.CODE    = e-item.i-no
-              NO-LOCK NO-ERROR.
-         
-         IF AVAIL b-qty THEN
-         DO:
-            FIND FIRST b-cost WHERE
-                 b-cost.reftable = "blank-vend-cost" AND
-                 b-cost.company = e-item.company AND
-		         b-cost.CODE    = e-item.i-no
-                 NO-LOCK NO-ERROR.
-         
+
             DO j = 1 TO 10:
                ASSIGN
-                  tt-ei.run-qty[j + 10] = b-qty.val[j]
-                  tt-ei.run-cost[j + 10] = b-cost.val[j].
+                  tt-ei.run-qty[j + 10] = e-item.run-qty[j]
+                  tt-ei.run-cost[j + 10] = e-item.run-cost[j].
             END.
-         END.
+
+
+
 
          DO j = 1 TO 20:
             IF tt-ei.run-qty[j] LT gqty THEN NEXT.

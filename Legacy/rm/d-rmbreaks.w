@@ -20,8 +20,7 @@ DEFINE INPUT PARAMETER ip-e-item AS ROWID NO-UNDO.
 /* Local Variable Definitions ---                                       */
 
 
-DEF BUFFER b-blank-vend-qty FOR reftable.
-DEF BUFFER b-blank-vend-cost FOR reftable.
+
 
 def temp-table tmpfile NO-UNDO
     field cost as DEC DECIMALS 4
@@ -617,34 +616,23 @@ DO:
 
             IF e-item-vend.vend-no EQ "" THEN
             DO:
-               FIND FIRST b-blank-vend-qty WHERE
-                    b-blank-vend-qty.reftable = "blank-vend-qty" AND
-                    b-blank-vend-qty.company = e-item.company AND
-                    b-blank-vend-qty.CODE    = e-item.i-no
-                    NO-ERROR.
 
-               FIND FIRST b-blank-vend-cost WHERE
-                    b-blank-vend-cost.reftable = "blank-vend-cost" AND
-                    b-blank-vend-cost.company = e-item.company AND
-                    b-blank-vend-cost.CODE    = e-item.i-no
-                    NO-ERROR.
-
-
-               IF AVAIL b-blank-vend-qty AND AVAIL b-blank-vend-cost THEN
+               FIND current e-item-vend EXCLUSIVE NO-ERROR.
+               IF AVAIL e-item THEN
                DO:
                   ASSIGN
                      i = 1
-                     b-blank-vend-qty.val = 0
-                     b-blank-vend-cost.val = 0.
+                     e-item.run-qty = 0
+                     e-item.run-cost = 0.
+
 
                   FOR EACH tmpfile WHERE tmpfile.qty GT 0 BREAK BY tmpfile.qty:
                       ASSIGN
-                         b-blank-vend-qty.val[i] = tmpfile.qty
-                         b-blank-vend-cost.val[i] = tmpfile.cost.
+                         e-item.run-qty[i] = tmpfile.qty
+                         e-item.run-cost[i] = tmpfile.cost.
 
                       IF LAST(tmpfile.qty) THEN
-                         b-blank-vend-qty.val[i] = 9999999.9.
-               
+                         e-item.run-qty[i] = 9999999.9.               
                       i = i + 1.
                   END.
                END.
@@ -654,11 +642,10 @@ DO:
             e-item-vend.updated-id[1] = USERID("NOSWEAT")
             e-item-vend.updated-date[1] = TODAY.
             FIND CURRENT e-item-vend NO-LOCK.
+            FIND CURRENT e-item NO-LOCK.
 
             
-            RELEASE b-blank-vend-qty.
-            RELEASE b-blank-vend-cost.
-            
+                        
             btn_update:LABEL = "Update".
 
             RUN init-proc.
@@ -800,37 +787,8 @@ PROCEDURE init-proc :
             fi-run-cost-6 fi-run-cost-7 fi-run-cost-8 fi-run-cost-9 fi-run-cost-10
             fi-setups-1 fi-setups-2 fi-setups-3 fi-setups-4 fi-setups-5 fi-setups-6
             fi-setups-7 fi-setups-8 fi-setups-9 fi-setups-10 WITH FRAME {&FRAME-NAME}.
-  END.
+  END. 
 
- 
-  IF e-item-vend.vend-no EQ "" THEN
-  DO:
-     IF NOT CAN-FIND(FIRST b-blank-vend-qty WHERE
-        b-blank-vend-qty.reftable = "blank-vend-qty" AND
-        b-blank-vend-qty.company = e-item.company and
-        b-blank-vend-qty.CODE    = e-item.i-no) THEN
-        DO:
-           CREATE b-blank-vend-qty.
-           ASSIGN
-              b-blank-vend-qty.reftable = "blank-vend-qty"
-              b-blank-vend-qty.company = e-item.company
-              b-blank-vend-qty.CODE    = e-item.i-no.
-           RELEASE b-blank-vend-qty.
-        END.
-
-     IF NOT CAN-FIND(FIRST b-blank-vend-cost WHERE
-        b-blank-vend-cost.reftable = "blank-vend-cost" AND
-        b-blank-vend-cost.company = e-item.company and
-        b-blank-vend-cost.CODE    = e-item.i-no) THEN
-        DO:
-           CREATE b-blank-vend-cost.
-           ASSIGN
-              b-blank-vend-cost.reftable = "blank-vend-cost"
-              b-blank-vend-cost.company = e-item.company
-              b-blank-vend-cost.CODE    = e-item.i-no.
-           RELEASE b-blank-vend-cost.
-        END.     
-  END.
 
 END PROCEDURE.
 

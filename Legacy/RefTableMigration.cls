@@ -2656,6 +2656,82 @@ CLASS RefTableMigration:
         END.  /*FOR EACH reftable*/  
         RETURN iCnt.
     END METHOD.
+    METHOD PUBLIC INTEGER BlankVendQty(INPUT ipCount AS INTEGER):
+        DEFINE VARIABLE iCnt AS INTEGER NO-UNDO.
+        DEFINE VARIABLE i AS INTEGER NO-UNDO.
+        DEFINE BUFFER reftable1 FOR reftable1.
+        DEFINE BUFFER Breftable FOR reftable. 
+        DEFINE BUFFER e-item  FOR e-item.
+        
+        DISABLE TRIGGERS FOR LOAD OF reftable.        
+        DISABLE TRIGGERS FOR LOAD OF e-item.
+        ASSIGN iProcessCount = 0.
+        FOR EACH reftable WHERE reftable.reftable = "blank-vend-qty"
+            NO-LOCK:
+            DO TRANSACTION:    
+                FIND FIRST e-item WHERE e-item.i-no     = reftable.code
+                                    AND e-item.company  = reftable.company                                         
+                    EXCLUSIVE-LOCK NO-ERROR.
+                IF AVAILABLE e-item THEN DO:   
+                    DO i = 1 to 10: 
+                        IF e-item.run-qty[i] EQ 0 THEN ASSIGN e-item.run-qty[i] = reftable.val[i]. 
+                                     
+                    END.
+                    ASSIGN iProcessCount = iProcessCount + 1.  
+                END.
+                FIND CURRENT e-item NO-LOCK NO-ERROR.    
+                RELEASE e-item.      
+                CREATE reftable1.
+                BUFFER-COPY reftable TO reftable1.
+                RELEASE reftable1.
+                FIND Breftable WHERE ROWID(Breftable) = ROWID(reftable)
+                    EXCLUSIVE-LOCK NO-ERROR.
+                IF AVAILABLE Breftable THEN DELETE Breftable. 
+                RELEASE Breftable.   
+                iCnt = iCnt + 1.
+                IF iCnt >= ipCount THEN LEAVE.   
+            END.              
+        END.  /*FOR EACH reftable*/          
+        RETURN iCnt.
+    END METHOD. /*e-item*/
+    METHOD PUBLIC INTEGER BlankVendCost(INPUT ipCount AS INTEGER):
+        DEFINE VARIABLE iCnt AS INTEGER NO-UNDO.
+        DEFINE VARIABLE i AS INTEGER NO-UNDO.
+        DEFINE BUFFER reftable1 FOR reftable1.
+        DEFINE BUFFER Breftable FOR reftable. 
+        DEFINE BUFFER e-item  FOR e-item.
+        
+        DISABLE TRIGGERS FOR LOAD OF reftable.        
+        DISABLE TRIGGERS FOR LOAD OF e-item.
+        ASSIGN iProcessCount = 0.
+        FOR EACH reftable WHERE reftable.reftable = "blank-vend-cost"
+            NO-LOCK:
+            DO TRANSACTION:    
+                FIND FIRST e-item WHERE e-item.i-no     = reftable.code
+                                    AND e-item.company  = reftable.company                                         
+                    EXCLUSIVE-LOCK NO-ERROR.
+                IF AVAILABLE e-item THEN DO:   
+                    DO i = 1 to 10: 
+                        IF e-item.run-cost[i] EQ 0 THEN ASSIGN e-item.run-cost[i] = reftable.val[i]. 
+                                     
+                    END.
+                    ASSIGN iProcessCount = iProcessCount + 1.  
+                END.
+                FIND CURRENT e-item NO-LOCK NO-ERROR.    
+                RELEASE e-item.      
+                CREATE reftable1.
+                BUFFER-COPY reftable TO reftable1.
+                RELEASE reftable1.
+                FIND Breftable WHERE ROWID(Breftable) = ROWID(reftable)
+                    EXCLUSIVE-LOCK NO-ERROR.
+                IF AVAILABLE Breftable THEN DELETE Breftable. 
+                RELEASE Breftable.   
+                iCnt = iCnt + 1.
+                IF iCnt >= ipCount THEN LEAVE.   
+            END.              
+        END.  /*FOR EACH reftable*/          
+        RETURN iCnt.
+    END METHOD. /*e-item*/
 END CLASS.
 
 
