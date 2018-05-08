@@ -48,6 +48,7 @@ DEF VAR lVendCostMtx AS LOG NO-UNDO.
 DEF VAR gTerm AS cha NO-UNDO.
 DEF VAR gNewVendor AS LOG NO-UNDO.
 DEF VAR lCopyRecord AS LOG NO-UNDO.
+DEF VAR lAddRecord AS LOG NO-UNDO.
 
 RUN sys/ref/nk1look.p ( g_company, 
                         "VendCostMatrix", 
@@ -1272,6 +1273,8 @@ PROCEDURE local-add-record :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'add-record':U ) .
 
     RUN dispatch ("display-fields").
+    RUN pVendCostMtx ("INIT").
+    lAddRecord = YES.
 
 END PROCEDURE.
 
@@ -1636,9 +1639,13 @@ PROCEDURE local-display-fields :
         ls-item-dscr = ""
         qty-label    = "Qty " + STRING(lVendCostMtx,"FROM/TO").
   
-    IF lCopyRecord EQ NO THEN
+    IF lAddRecord EQ NO AND lCopyRecord EQ NO THEN
     RUN pVendCostMtx ("DISPLAY").
-    ELSE lCopyRecord = NO.
+    ELSE
+    ASSIGN
+      lAddRecord  = NO
+      lCopyRecord = NO
+      .
   
     FIND FIRST vend NO-LOCK WHERE 
         vend.company EQ gcompany AND 

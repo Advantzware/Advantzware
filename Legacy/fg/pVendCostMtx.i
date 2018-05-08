@@ -57,6 +57,24 @@
                     END. /* do idx */
                 END. /* if avail */
             END. /* assign */
+            WHEN "INIT" THEN DO:
+                ASSIGN
+                    dRunQty    = 0
+                    dRunCost   = 0
+                    dSetups    = 0
+                    run-qty-01 = dRunQty[01] run-cost-01 = dRunCost[01] setups-01 = dSetups[01]
+                    run-qty-02 = dRunQty[02] run-cost-02 = dRunCost[02] setups-02 = dSetups[02]
+                    run-qty-03 = dRunQty[03] run-cost-03 = dRunCost[03] setups-03 = dSetups[03]
+                    run-qty-04 = dRunQty[04] run-cost-04 = dRunCost[04] setups-04 = dSetups[04]
+                    run-qty-05 = dRunQty[05] run-cost-05 = dRunCost[05] setups-05 = dSetups[05]
+                    run-qty-06 = dRunQty[06] run-cost-06 = dRunCost[06] setups-06 = dSetups[06]
+                    run-qty-07 = dRunQty[07] run-cost-07 = dRunCost[07] setups-07 = dSetups[07]
+                    run-qty-08 = dRunQty[08] run-cost-08 = dRunCost[08] setups-08 = dSetups[08]
+                    run-qty-09 = dRunQty[09] run-cost-09 = dRunCost[09] setups-09 = dSetups[09]
+                    run-qty-10 = dRunQty[10] run-cost-10 = dRunCost[10] setups-10 = dSetups[10]
+                    .
+                DISPLAY {&farmFields}.
+            END. /* init */
             WHEN "DISPLAY" THEN DO:
                 IF AVAILABLE e-itemfg-vend THEN
                 DO idx = 1 TO EXTENT(dRunQty):
