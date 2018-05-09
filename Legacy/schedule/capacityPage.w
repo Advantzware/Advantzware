@@ -1363,7 +1363,7 @@ PROCEDURE pLoadDowntime :
 
     EMPTY TEMP-TABLE ttblDowntime.
     DO idx = 1 TO NUM-ENTRIES(cListItems):
-        INPUT FROM "schedule/downtimes.ASI.Folding.dat" NO-ECHO.
+        INPUT FROM VALUE(SEARCH("schedule/" + ENTRY(idx,cListItems))) NO-ECHO.
         REPEAT:
             IMPORT tempDowntime.
             tempDowntime.dayID = tempDowntime.dayID MODULO 7.
