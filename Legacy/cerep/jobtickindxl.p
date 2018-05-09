@@ -526,7 +526,7 @@ PROCEDURE Dept_GL :
       run SetCellValue ("A97",  vcRMItem).
       run SetCellValue ("N98",  string (viPack, '->>,>>9')).
       run SetCellValue ("G96",  vcCase).
-      RUN SetCellValue ("A102",  vcBarCode).
+      RUN SetCellValue ("A102", vcBarCode).
     end.
   end case.
 
@@ -743,7 +743,7 @@ PROCEDURE Dept_WN :
       run SetCellValue ("AA24", string (job-mch.run-qty, '->>>,>>9')).
       run SetCellValue ("S26",  vcRMItem).
       run SetCellValue ("AF27", string (viPack, '->>,>>9')).
-      RUN SetCellValue ("Y25", vcCase).
+      RUN SetCellValue ("Y25",  vcCase).
       RUN SetCellValue ("S31",  vcBarCode).
     end.
 
@@ -760,7 +760,7 @@ PROCEDURE Dept_WN :
       run SetCellValue ("AA66", string (job-mch.run-qty, '->>>,>>9')).
       run SetCellValue ("S68",  vcRMItem).
       run SetCellValue ("AF69", string (viPack, '->>,>>9')).
-      RUN SetCellValue ("Y67", vcCase).
+      RUN SetCellValue ("Y67",  vcCase).
       RUN SetCellValue ("S73",  vcBarCode).
     end.
 
@@ -777,7 +777,7 @@ PROCEDURE Dept_WN :
       run SetCellValue ("AA80", string (job-mch.run-qty, '->>>,>>9')).
       run SetCellValue ("S82",  vcRMItem).
       run SetCellValue ("AF83", string (viPack, '->>,>>9')).
-      RUN SetCellValue ("Y81", vcCase).
+      RUN SetCellValue ("Y81",  vcCase).
       RUN SetCellValue ("S87",  vcBarCode).
     end.
 
@@ -794,8 +794,8 @@ PROCEDURE Dept_WN :
       run SetCellValue ("AA95", string (job-mch.run-qty, '->>>,>>9')).
       run SetCellValue ("S97",  vcRMItem).
       run SetCellValue ("AF98", string (viPack, '->>,>>9')).
-      RUN SetCellValue ("Y96", vcCase).
-      RUN SetCellValue ("S102",  vcBarCode).
+      RUN SetCellValue ("Y96",  vcCase).
+      RUN SetCellValue ("S102", vcBarCode).
     end.
 
   end case.
@@ -1292,6 +1292,13 @@ PROCEDURE MainLoop :
         
         run CalcNumUp.
   
+        vcBarCode =   TRIM(job-mch.job-no)   + "-"
+                  + STRING(job-mch.job-no2)  + "."
+                  + STRING(job-mch.frm)      + "."
+                  + STRING(job-mch.blank-no) + "."
+                  + STRING(job-mch.pass)
+                  .
+                          
         /* Process Each Dept. */
         case job-mch.dept:
           
