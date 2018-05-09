@@ -1416,7 +1416,9 @@ PROCEDURE local-assign-record :
         ASSIGN e-itemfg-vend.est-no = eb.est-no
                e-itemfg-vend.eqty = eb.eqty
                e-itemfg-vend.form-no = eb.form-no
-               e-itemfg-vend.blank-no = eb.blank-no.
+               e-itemfg-vend.blank-no = eb.blank-no
+               e-itemfg-vend.i-no = eb.stock-no
+               .
 
   END.
   

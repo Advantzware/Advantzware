@@ -1080,7 +1080,7 @@ END.
 ON LEAVE OF e-itemfg-vend.vend-no IN FRAME F-Main /* Vendor */
 DO:
     IF LASTKEY NE -1 THEN DO:
-        RUN valid-vend-no (FOCUS) NO-ERROR.
+        RUN valid-vend-no (e-itemfg-vend.vend-no:HANDLE) NO-ERROR.
         IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
     END.
 
