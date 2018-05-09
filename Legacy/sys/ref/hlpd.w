@@ -254,6 +254,16 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&Scoped-define SELF-NAME m_ProTools2
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL m_ProTools2 Dialog-Frame
+ON CHOOSE OF MENU-ITEM m_ProTools2 /* ProTools */
+DO:
+  RUN protools\_protool.w.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 &UNDEFINE SELF-NAME
 
