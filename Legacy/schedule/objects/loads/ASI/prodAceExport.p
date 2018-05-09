@@ -66,7 +66,7 @@ DO idx = 1 TO NUM-ENTRIES(ipcType):
                 PUT UNFORMATTED
                     STRING(mach.spare-int-2,'999') ',~"'
                     cMachine '","'
-                    ENTRY(NUM-ENTRIES(ipcID,'/'),ipcID,'/') '"'
+                    mach.dept[1] '"'
                     SKIP
                     .
             END. /* each mach */

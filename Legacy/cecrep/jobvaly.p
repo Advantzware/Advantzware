@@ -173,8 +173,10 @@ do v-local-loop = 1 to v-local-copies:
               v-loc-bin = "Bin: " + itemfg.def-loc-bin.
           end.
 
-        end. /*brick format*/
-
+        end. /*brick format*/ 
+        
+        IF NOT FIRST(w-ef.frm) THEN
+            PUT SKIP(1).
         view frame head.  /* factory header display  */
 
         IF AVAIL xeb THEN do:
@@ -547,25 +549,24 @@ do v-local-loop = 1 to v-local-copies:
                   fill("_",7)  format "x(7)"    to 97   when w-m.dscr ne ""
                   fill("_",8)  format "x(8)"        to 111  when w-m.dscr ne ""
                   fill("_",8)  format "x(8)"    to 120  when w-m.dscr ne ""
-              fill("_",8)  format "x(8)"    to 129  when w-m.dscr ne "" "</b>"               
+              fill("_",8)  format "x(8)"    to 129  when w-m.dscr ne ""                
               with no-box no-labels frame o1 width 132 no-attr-space down STREAM-IO.
                   
           else
-          DISPLAY "<b>" w-m.dscr AT 3
-                  w-m.s-hr when w-m.s-hr ne 0
-                  fill("_",7)  format "x(7)"    to 38   when w-m.dscr ne ""
-                  fill("_",7)  format "x(7)"    to 46   when w-m.dscr ne ""
-                  fill("_",7)  format "x(7)"    to 54   when w-m.dscr ne ""
-                  space(2)
-                  w-m.r-sp when w-m.r-sp ne 0
-                  fill("_",7)  format "x(7)"    to 69   when w-m.dscr ne ""
-                  fill("_",7)  format "x(7)"    to 77   when w-m.dscr ne ""
-                  fill("_",7)  format "x(7)"    to 85   when w-m.dscr ne ""
-                  fill("_",8)  format "x(8)"    to 99   when w-m.dscr ne ""
-                  fill("_",8)  format "x(8)"    to 108  when w-m.dscr ne ""
-                  fill("_",8)  format "x(8)"    to 117  when w-m.dscr ne ""
-                  fill("_",8)  format "x(8)"    to 129  when w-m.dscr ne "" "</b>"                 
-              with no-box no-labels frame o2 width 132 no-attr-space down STREAM-IO.
+          PUT "<c2><b>" w-m.dscr  
+                 "<c13.5>" IF w-m.s-hr ne 0 THEN string(w-m.s-hr,">>9.99") ELSE ""
+                 "<c18.5>" IF w-m.dscr ne "" THEN string(fill("_",7),"x(7)") ELSE "" 
+                 "<c23.5>" IF w-m.dscr ne "" THEN string(fill("_",7),"x(7)") ELSE "" 
+                 "<c28.5>" IF w-m.dscr ne "" THEN string(fill("_",7),"x(7)") ELSE "" 
+                 "<c33.5>" IF w-m.r-sp ne 0 THEN string(w-m.r-sp,">>>>9")  ELSE ""
+                 "<c37.1>" IF w-m.dscr ne "" THEN string(fill("_",7),"x(7)")  ELSE "" 
+                 "<c42>" IF w-m.dscr ne "" THEN string(fill("_",7),"x(7)") ELSE "" 
+                 "<c46.8>" IF w-m.dscr ne "" THEN string(fill("_",7),"x(7)") ELSE "" 
+                 "<c54.5>" IF w-m.dscr ne "" THEN string(fill("_",8),"x(8)") ELSE "" 
+                 "<c60>" IF w-m.dscr ne "" THEN string(fill("_",8),"x(8)") ELSE "" 
+                 "<c65.5>" IF w-m.dscr ne "" THEN string(fill("_",8),"x(8)") ELSE "" 
+                 "<c72>" IF w-m.dscr ne "" THEN string(fill("_",8),"x(8)") ELSE "" "</b>" SKIP.                 
+              
                   
           v-lines = v-lines + 1.
         end.

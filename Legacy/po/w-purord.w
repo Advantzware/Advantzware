@@ -504,8 +504,8 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_vp-poord ).
-       RUN set-position IN h_vp-poord ( 22.91 , 40.00 ) NO-ERROR.
-       /* Size in UIB:  ( 1.29 , 105.00 ) */
+       RUN set-position IN h_vp-poord ( 22.91 , 30.00 ) NO-ERROR.
+      /*RUN set-size IN h_vp-poord ( 1.29 , 105.00 )*/
 
        /* Initialize other pages that this page requires. */
        RUN init-pages IN THIS-PROCEDURE ('2':U) NO-ERROR.

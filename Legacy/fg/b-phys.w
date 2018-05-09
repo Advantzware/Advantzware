@@ -54,7 +54,7 @@ DEF VAR ll-crt-transfer AS LOG NO-UNDO.
 DEF VAR lv-org-loc AS cha NO-UNDO.
 DEF VAR lv-org-loc-bin AS cha NO-UNDO.
 DEF VAR lv-prv-i-no LIKE fg-rctd.i-no NO-UNDO.
-
+DEFINE VARIABLE lCheckCount AS LOGICAL NO-UNDO .
 ASSIGN
  cocode = g_company
  locode = g_loc.
@@ -701,7 +701,22 @@ DO:
         NO-LOCK NO-ERROR.
     IF AVAIL loadtag AND loadtag.po-no GT 0 THEN
         fg-rctd.po-no:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(loadtag.po-no).
+    
+    RUN validate-count .
 
+  END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME fg-rctd.tag
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rctd.tag Browser-Table _BROWSE-COLUMN B-table-Win
+ON VALUE-CHANGED OF fg-rctd.tag IN BROWSE Browser-Table /* Tag# */
+DO:
+  IF LASTKEY NE -1 THEN DO:
+   lCheckCount = NO .
   END.
 END.
 
@@ -1577,6 +1592,7 @@ PROCEDURE local-update-record :
   RUN valid-tag NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
  */
+  RUN validate-count .
 
   RUN valid-cust-no NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
@@ -2238,6 +2254,39 @@ PROCEDURE validate-record :
            END.
     END.
   END.
+
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE validate-count B-table-Win 
+PROCEDURE validate-count :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+
+IF NOT lCheckCount THEN do:
+    IF fg-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name} NE "" THEN DO:
+        FOR EACH fg-rcpth NO-LOCK
+             WHERE fg-rcpth.company EQ g_company 
+               AND fg-rcpth.i-no EQ fg-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name}
+               AND fg-rcpth.rita-code EQ "C"
+               AND fg-rcpth.trans-date EQ date(fg-rctd.rct-date:SCREEN-VALUE IN BROWSE {&browse-name})  , 
+            EACH fg-rdtlh WHERE fg-rdtlh.r-no EQ fg-rcpth.r-no 
+            AND fg-rdtlh.rita-code EQ fg-rcpth.rita-code
+            AND fg-rdtlh.tag EQ fg-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name} NO-LOCK: 
+            MESSAGE "Note: A count is already entered for this tag for the same date with a count of "
+                    STRING(fg-rdtlh.qty-case) VIEW-AS ALERT-BOX INFO .
+            lCheckCount = YES .
+            LEAVE .
+        END.
+    END.
+   END.
 
 
 END PROCEDURE.

@@ -1225,6 +1225,11 @@ PROCEDURE MainLoop :
       assign 
         vcJobNo           = job-hdr.job-no + '-' +  string (job-hdr.job-no2, '99') + '-' +
                                                     string (job-hdr.frm, '99')
+        vcBarCode         = job-hdr.job-no + "-"
+                          + STRING(job-hdr.job-no2) + "."
+                          + STRING(job-hdr.frm) + "."
+                          + STRING(job-hdr.blank-no) + "."
+                          + "1"
         vcMachines        = ''
         chWorkSheet       = chExcelApplication:Sheets:item(job-hdr.frm)
         chWorkSheet:name  = vcJobNo 
