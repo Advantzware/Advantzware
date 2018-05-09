@@ -1,7 +1,7 @@
  /* cec/quote/quoxpnt2.i */
  
  
- PUT "<R3><C2><#89><R+16><C+43><IMAGE#89=" ls-full-img1 FORMAT "x(200)". /* Abox logo */ 
+ PUT "<R1><C2><#89><R+16><C+43><IMAGE#89=" ls-full-img1 FORMAT "x(200)". /* Abox logo */ 
   PUT "<=1>" SKIP. 
   PUT "<C1><#2><Farial>"
       "<=2><R+3>" "<FGCOLOR=" + trim(lv-comp-color) + ">" FORM "x(15)"
