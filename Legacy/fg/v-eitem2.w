@@ -45,6 +45,7 @@ DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO .
 DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO .
 DEFINE VARIABLE lVendCostMtx AS LOGICAL NO-UNDO .
 DEFINE VARIABLE lCopyRecord AS LOGICAL NO-UNDO.
+DEFINE VARIABLE lAddRecord AS LOGICAL NO-UNDO.
 
 {custom/gcompany.i}
 {custom/persist.i}
@@ -1334,6 +1335,8 @@ PROCEDURE local-add-record :
 
   /* Code placed here will execute AFTER standard behavior.    */
   RUN dispatch ("display-fields").
+  RUN pVendCostMtx ("INIT").
+  lAddRecord = YES.
 
 END PROCEDURE.
 
@@ -1666,9 +1669,13 @@ PROCEDURE local-display-fields :
          qty-label    = "Qty " + STRING(lVendCostMtx,"FROM/TO")
          .
 
-  IF lCopyRecord EQ NO THEN
+  IF lAddRecord EQ NO AND lCopyRecord EQ NO THEN
   RUN pVendCostMtx ("DISPLAY").
-  ELSE lCopyRecord = NO.
+  ELSE
+  ASSIGN
+    lAddRecord  = NO
+    lCopyRecord = NO
+    .
   
   RUN disp-vend-name.
 
