@@ -116,6 +116,7 @@ define            variable CommandString        AS CHAR         NO-UNDO.
 define            variable WshNetwork           as com-handle.
 DEFINE            VARIABLE LvFirstTimePrint     AS LOGICAL      NO-UNDO   INIT no.
 DEFINE            VARIABLE vcTemplateFile       AS CHARACTER    NO-UNDO.
+DEFINE            VARIABLE vcBarCode            AS CHARACTER    NO-UNDO.
 
 /* Build a Table to keep sequence of pdf files */
 DEFINE new SHARED TEMP-TABLE tt-filelist
@@ -415,6 +416,7 @@ PROCEDURE Dept_DC :
   run SetCellValue ("E27",  vcMillNum2).
   run SetCellValue ("I27",  vcMillNum3).
   run SetCellValue ("M27",  vcMillNum4).
+  RUN SetCellValue ("A31",  vcBarCode).
 
 END PROCEDURE.
 
@@ -473,6 +475,7 @@ PROCEDURE Dept_GL :
       run SetCellValue ("A41",  vcRMItem).
       run SetCellValue ("N42",  string (viPack, '->>,>>9')).
       run SetCellValue ("G40",  vcCase).
+      RUN SetCellValue ("A46",  vcBarCode).
     end.
 
     when 2 then
@@ -489,6 +492,7 @@ PROCEDURE Dept_GL :
       run SetCellValue ("A68",  vcRMItem).
       run SetCellValue ("N69",  string (viPack, '->>,>>9')).
       run SetCellValue ("G67",  vcCase).
+      RUN SetCellValue ("A73",  vcBarCode).
     end.
 
     when 3 then
@@ -505,6 +509,7 @@ PROCEDURE Dept_GL :
       run SetCellValue ("A82",  vcRMItem).
       run SetCellValue ("N83",  string (viPack, '->>,>>9')).
       run SetCellValue ("G81",  vcCase).
+      RUN SetCellValue ("A87",  vcBarCode).
     end.
 
     when 4 then
@@ -521,6 +526,7 @@ PROCEDURE Dept_GL :
       run SetCellValue ("A97",  vcRMItem).
       run SetCellValue ("N98",  string (viPack, '->>,>>9')).
       run SetCellValue ("G96",  vcCase).
+      RUN SetCellValue ("A102",  vcBarCode).
     end.
   end case.
 
@@ -559,6 +565,7 @@ PROCEDURE Dept_PR :
   run SetCellValue ("AE11", vcMillNum4).
   run SetCellValue ("AE50", trim (string (job-mch.run-qty, '->>>,>>9'))).
   run SetCellValue ("AE59", GetLocBin(itemfg.die-no)).
+  RUN SetCellValue ("S15",  vcBarCode).
 
 END PROCEDURE.
 
@@ -616,6 +623,7 @@ PROCEDURE Dept_RS :
   run SetCellValue ("M52",  string (job-mch.run-qty, '->>>,>>9')).  
   run SetCellValue ("M51",  viNumUp).
   RUN SetCellValue ("O6",   STRING(vlPoly,"Yes/No")).
+  RUN SetCellValue ("A15",  vcBarCode).
 
 END PROCEDURE.
 
@@ -667,6 +675,7 @@ PROCEDURE Dept_SW :
   run SetCellValue ("S37",  vcItemDesc).
   run SetCellValue ("Y39",  string (job-mch.run-qty, '->>>,>>9')).
   run SetCellValue ("AF42", string (viPack, '->>,>>9')).
+  RUN SetCellValue ("S46",  vcBarCode).
 
 /*   run SetCellValue ("S17",  job-mch.m-code).                       */
 /*   run SetCellValue ("AE17", vcJobNo).                              */
@@ -735,6 +744,7 @@ PROCEDURE Dept_WN :
       run SetCellValue ("S26",  vcRMItem).
       run SetCellValue ("AF27", string (viPack, '->>,>>9')).
       RUN SetCellValue ("Y25", vcCase).
+      RUN SetCellValue ("S31",  vcBarCode).
     end.
 
     when 2 then
@@ -751,6 +761,7 @@ PROCEDURE Dept_WN :
       run SetCellValue ("S68",  vcRMItem).
       run SetCellValue ("AF69", string (viPack, '->>,>>9')).
       RUN SetCellValue ("Y67", vcCase).
+      RUN SetCellValue ("S73",  vcBarCode).
     end.
 
     when 3 then
@@ -767,6 +778,7 @@ PROCEDURE Dept_WN :
       run SetCellValue ("S82",  vcRMItem).
       run SetCellValue ("AF83", string (viPack, '->>,>>9')).
       RUN SetCellValue ("Y81", vcCase).
+      RUN SetCellValue ("S87",  vcBarCode).
     end.
 
     when 4 then
@@ -783,6 +795,7 @@ PROCEDURE Dept_WN :
       run SetCellValue ("S97",  vcRMItem).
       run SetCellValue ("AF98", string (viPack, '->>,>>9')).
       RUN SetCellValue ("Y96", vcCase).
+      RUN SetCellValue ("S102",  vcBarCode).
     end.
 
   end case.
@@ -1212,6 +1225,11 @@ PROCEDURE MainLoop :
       assign 
         vcJobNo           = job-hdr.job-no + '-' +  string (job-hdr.job-no2, '99') + '-' +
                                                     string (job-hdr.frm, '99')
+        vcBarCode         = job-hdr.job-no + "-"
+                          + STRING(job-hdr.job-no2) + "."
+                          + STRING(job-hdr.frm) + "."
+                          + STRING(job-hdr.blank-no) + "."
+                          + "1"
         vcMachines        = ''
         chWorkSheet       = chExcelApplication:Sheets:item(job-hdr.frm)
         chWorkSheet:name  = vcJobNo 
