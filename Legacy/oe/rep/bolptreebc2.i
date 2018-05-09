@@ -12,7 +12,7 @@
       "<=1><R+1><C25></B>"            SKIP
        "<UNITS=INCHES><AT=.60,6><FROM><AT=+.5,+2><BARCODE,TYPE=39,CHECKSUM=NONE,VALUE=" +
                     "*" + string(oe-bolh.bol-no) + "*" + ">" FORM "x(100)" "</B><P10>"
-       "<C1><R2><FROM><R12><C15><#89><AT=0.53,0.18>"
+       "<C1><R2><FROM><R12><C15><#89><AT=0.01,0.01>"
       .   
 
    IF (AVAIL shipto AND shipto.broker EQ NO) OR NOT AVAIL shipto THEN
