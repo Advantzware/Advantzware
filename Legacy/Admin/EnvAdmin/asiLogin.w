@@ -845,6 +845,7 @@ PROCEDURE ipChangeEnvironment :
         END.
         WHEN "16.7.0" OR
         WHEN "16.7.4" OR
+        WHEN "16.7.5" OR
         WHEN "16.7.8" THEN DO: 
             DO iCtr = 1 TO NUM-ENTRIES(cbDatabase:LIST-ITEMS):
                 IF INDEX(ENTRY(iCtr,cbDatabase:LIST-ITEMS),"167") <> 0 THEN DO:
