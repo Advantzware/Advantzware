@@ -222,8 +222,12 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btDataDigger Dialog-Frame
 ON CHOOSE OF btDataDigger IN FRAME Dialog-Frame /* Admin */
 DO:
-  MESSAGE "Datadigger is replaced with the query tool on the advantzware menu."
-  VIEW-AS ALERT-BOX.
+    RUN datadigger/datadigger.r.
+    /*
+    MESSAGE 
+        "Datadigger is replaced with the query tool on the advantzware menu."
+        VIEW-AS ALERT-BOX.
+    */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -259,6 +263,13 @@ END.
 ON CHOOSE OF MENU-ITEM m_ProTools2 /* ProTools */
 DO:
   RUN protools\_protool.w.
+END.
+
+&Scoped-define SELF-NAME m_Trans
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL m_Trans Dialog-Frame
+ON CHOOSE OF MENU-ITEM m_Trans /* Transactions and Locks Window */
+DO:
+  RUN util/wlockmon.r.
 END.
 
 /* _UIB-CODE-BLOCK-END */
