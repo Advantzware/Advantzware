@@ -152,6 +152,3 @@ FOR EACH ttResults:
 END.
 OUTPUT STREAM sReport CLOSE.        
      
-MESSAGE 
-    "Reftable data migration complete."
-    VIEW-AS ALERT-BOX INFO. 
