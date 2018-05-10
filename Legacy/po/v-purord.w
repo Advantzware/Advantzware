@@ -1226,7 +1226,7 @@ PROCEDURE hold-release :
         ELSE ASSIGN bf-po-ord.approved-date = ?
                   bf-po-ord.approved-id = ""
                   bf-po-ord.approved-time = 0.           
-        bf-po-ord.stat = IF bf-po-ord.stat EQ "H" THEN "O" ELSE "H".   
+        bf-po-ord.stat = IF bf-po-ord.stat EQ "H" AND trim(v-postatus-cha) EQ "Hold" THEN "N" ELSE IF bf-po-ord.stat EQ "H" THEN "O" ELSE "H".   
 
      END.
      FIND CURRENT bf-po-ord NO-LOCK NO-ERROR.
