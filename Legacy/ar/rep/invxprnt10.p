@@ -111,6 +111,9 @@ DEFINE VARIABLE vRelPo like oe-rel.po-no no-undo.
 DEFINE VARIABLE iPoCheck AS LOGICAL NO-UNDO.
 DEFINE VARIABLE cPo-No AS CHARACTER NO-UNDO.
 DEFINE VARIABLE iCount AS INTEGER NO-UNDO.
+DEF VAR cStockNotes AS cha FORM "x(80)" EXTENT 6 NO-UNDO.
+DEF BUFFER bf-cust FOR cust .
+
 
 
 RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormLogo", "C" /* Logical */, NO /* check by cust */, 
@@ -648,6 +651,20 @@ ELSE lv-comp-color = "BLACK".
                     THEN ar-inv.freight ELSE 0.    
                     /*ar-inv.t-inv-freight*/.
 
+ FOR EACH bf-cust NO-LOCK
+        WHERE bf-cust.company EQ cocode
+        AND bf-cust.ACTIVE EQ "X":
+
+        RUN pNotes(INPUT bf-cust.rec_key, OUTPUT cStockNotes).
+        
+        PUT "<p8><R58><C3>" cStockNotes[1] SKIP
+                "<R59><C3>" cStockNotes[2] SKIP
+                "<R60><C3>" cStockNotes[3] SKIP
+                "<R61><C3>" cStockNotes[4] SKIP
+                "<p10>".
+        
+ END.
+
 IF v-bot-lab[4] <> "" THEN
     PUT "<R58><C60><#8><FROM><R+8><C+20><RECT> " 
         "<=8> Sub Total  :" v-subtot-lines FORM "->>,>>9.99"
@@ -681,5 +698,52 @@ ELSE
     END. /* DO TRANSACTION avail ar-inv */ 
  
 end. /* each report, ar-inv */
+
+PROCEDURE pNotes:
+
+DEFINE INPUT PARAMETER reckey LIKE cust.rec_key NO-UNDO.
+DEFINE OUTPUT PARAMETER cNotes AS cha FORM "x(80)" EXTENT 6 NO-UNDO.
+    
+ASSIGN 
+       v-tmp-lines = 0
+       j = 0
+       K = 0
+       lv-got-return = 0.
+
+FOR EACH notes WHERE notes.rec_key = reckey 
+     AND notes.note_type = "G"
+     AND notes.note_group = "BN" NO-LOCK:
+
+    IF v-prev-note-rec <> ? AND
+       v-prev-note-rec <> RECID(notes) THEN v-prev-extent = /*v-prev-extent +*/ k.
+    DO i = 1 TO LENGTH(notes.note_text) :        
+           IF i - j >= lv-line-chars THEN ASSIGN j = i
+                                                 lv-got-return = lv-got-return + 1.
+                  
+           v-tmp-lines = ( i - j ) / lv-line-chars.
+           {SYS/INC/ROUNDUP.I v-tmp-lines}
+           k = v-tmp-lines + lv-got-return +
+               IF (v-prev-note-rec <> RECID(notes) AND v-prev-note-rec <> ?) THEN v-prev-extent ELSE 0.
+
+           IF k > 0 AND k <= 6 THEN cNotes[k] = cNotes[k] + 
+                                  IF SUBSTRING(notes.note_text,i,1) <> CHR(10) AND SUBSTRING(notes.note_text,i,1) <> CHR(13)
+                                  THEN SUBSTRING(notes.note_text,i,1)
+                                  ELSE "" .              
+           
+           IF SUBSTRING(note_text,i,1) = CHR(10) OR SUBSTRING(note_text,i,1) = CHR(13)                 
+           THEN do:
+                  lv-got-return = lv-got-return + 1.
+                  j = i.
+           END.
+    END.
+    ASSIGN v-prev-note-rec = RECID(notes)
+           j = 0
+           lv-got-return = 0.
+    
+    IF k > 6 THEN LEAVE.
+END.
+
+END PROCEDURE.
+
 
 /* END ---------------------------------- copr. 1996 Advanced Software, Inc. */
