@@ -499,12 +499,14 @@
           dPerSales = dPerSales + v-pct
           dPerAmt = dPerAmt + v-amt .
 
-      IF dPerSales GT 1 THEN
-              ASSIGN dPerSales = 1 .
-
-      assign
-       w-inv.amt = w-inv.amt + (dPerAmt  * dPerSales)
-       w-inv.msf = w-inv.msf - (v-sqft * dPerSales).
+     IF LAST-OF(tt-report.key-04) THEN DO:
+     
+          IF dPerSales GT 1 THEN
+                  ASSIGN dPerSales = 1 .
+          assign
+           w-inv.amt = w-inv.amt + (dPerAmt  * dPerSales)
+           w-inv.msf = w-inv.msf - (v-sqft * dPerSales).
+     END.
     end.
 
     form xskip no-label.
@@ -756,16 +758,18 @@
           dPerSales = dPerSales + v-pct
           dPerAmt = dPerAmt + v-amt .
 
-      IF dPerSales GT 1 THEN
-              ASSIGN dPerSales = 1 .
-
-      w-sum.amt-y = w-sum.amt-y + (dPerAmt * v-pct).
-
-      IF tt-report.ytd-only EQ NO THEN
-         ASSIGN
-          w-sum.amt = w-sum.amt + (dPerAmt  * v-pct)
-          w-sum.msf = w-sum.msf - (v-sqft * v-pct)
-          w-sum.wgt = w-sum.wgt - (v-wght * v-pct).
+      IF LAST-OF(tt-report.key-04) THEN do:
+          IF dPerSales GT 1 THEN
+                  ASSIGN dPerSales = 1 .
+    
+          w-sum.amt-y = w-sum.amt-y + (dPerAmt * v-pct).
+    
+          IF tt-report.ytd-only EQ NO THEN
+             ASSIGN
+              w-sum.amt = w-sum.amt + (dPerAmt  * v-pct)
+              w-sum.msf = w-sum.msf - (v-sqft * v-pct)
+              w-sum.wgt = w-sum.wgt - (v-wght * v-pct).
+      END.
     end.
 
     if last-of(tt-report.key-01) then do:
