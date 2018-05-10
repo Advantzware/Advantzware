@@ -66,6 +66,7 @@ DEF STREAM outStream.
 DEF STREAM logStream.
 DEF STREAM iniStream.
 
+DEF VAR lAutorun AS LOG NO-UNDO.
 DEF VAR delCtr AS INT NO-UNDO.
 DEF VAR dupCtr AS INT NO-UNDO.
 DEF VAR cIniVarList AS CHAR NO-UNDO.
@@ -862,14 +863,12 @@ DEFINE FRAME DEFAULT-FRAME
      fiUpdRelNotesDir AT ROW 30.29 COL 116 COLON-ALIGNED NO-LABEL WIDGET-ID 160
      fiUpdSqlDir AT ROW 31 COL 116 COLON-ALIGNED NO-LABEL WIDGET-ID 158
      fiUpdStructureDir AT ROW 31.71 COL 116 COLON-ALIGNED NO-LABEL WIDGET-ID 164
-     "Admin" VIEW-AS TEXT
-          SIZE 16 BY .76 AT ROW 25.29 COL 148 WIDGET-ID 198
+     "<EnvName>" VIEW-AS TEXT
+          SIZE 16 BY .76 AT ROW 14.57 COL 145 WIDGET-ID 242
+     "Environment tasks - will be performed once for each ENVIRONMENT selected above" VIEW-AS TEXT
+          SIZE 86 BY .62 AT ROW 23.38 COL 11 WIDGET-ID 500
      "Programs" VIEW-AS TEXT
           SIZE 16 BY .76 AT ROW 6 COL 145 WIDGET-ID 280
-     "Users" VIEW-AS TEXT
-          SIZE 16 BY .76 AT ROW 22.43 COL 147 WIDGET-ID 218
-     "SQLAccess" VIEW-AS TEXT
-          SIZE 16 BY .76 AT ROW 31 COL 148 WIDGET-ID 292
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
@@ -877,8 +876,10 @@ DEFINE FRAME DEFAULT-FRAME
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME DEFAULT-FRAME
-     "UserMenu" VIEW-AS TEXT
-          SIZE 16 BY .76 AT ROW 21.71 COL 147 WIDGET-ID 200
+     "PO" VIEW-AS TEXT
+          SIZE 16 BY .76 AT ROW 18.14 COL 147 WIDGET-ID 202
+     "Select one or more to upgrade." VIEW-AS TEXT
+          SIZE 32 BY .62 AT ROW 14.57 COL 10 WIDGET-ID 490
      "StructureUpdate" VIEW-AS TEXT
           SIZE 16 BY .76 AT ROW 31.71 COL 148 WIDGET-ID 296
      " (Defaults)" VIEW-AS TEXT
@@ -942,8 +943,6 @@ DEFINE FRAME DEFAULT-FRAME
           SIZE 16 BY .76 AT ROW 29.57 COL 148 WIDGET-ID 180
      "DataUpdate" VIEW-AS TEXT
           SIZE 16 BY .76 AT ROW 27.43 COL 148 WIDGET-ID 190
-     "Desktop" VIEW-AS TEXT
-          SIZE 16 BY .76 AT ROW 28.14 COL 148 WIDGET-ID 192
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
@@ -951,6 +950,8 @@ DEFINE FRAME DEFAULT-FRAME
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME DEFAULT-FRAME
+     "Desktop" VIEW-AS TEXT
+          SIZE 16 BY .76 AT ROW 28.14 COL 148 WIDGET-ID 192
      "Prod" VIEW-AS TEXT
           SIZE 16 BY .76 AT ROW 9.57 COL 145 WIDGET-ID 250
      "Override" VIEW-AS TEXT
@@ -966,6 +967,18 @@ DEFINE FRAME DEFAULT-FRAME
           FONT 6
      "Ship" VIEW-AS TEXT
           SIZE 16 BY .76 AT ROW 10.29 COL 145 WIDGET-ID 252
+     "Admin" VIEW-AS TEXT
+          SIZE 16 BY .76 AT ROW 25.29 COL 148 WIDGET-ID 198
+     "Users" VIEW-AS TEXT
+          SIZE 16 BY .76 AT ROW 22.43 COL 147 WIDGET-ID 218
+     "SQLAccess" VIEW-AS TEXT
+          SIZE 16 BY .76 AT ROW 31 COL 148 WIDGET-ID 292
+     "UserMenu" VIEW-AS TEXT
+          SIZE 16 BY .76 AT ROW 21.71 COL 147 WIDGET-ID 200
+     "Databases" VIEW-AS TEXT
+          SIZE 16 BY .76 AT ROW 7.43 COL 141 WIDGET-ID 282
+     "Addon" VIEW-AS TEXT
+          SIZE 16 BY .76 AT ROW 15.29 COL 147 WIDGET-ID 216
      " Patch Processing" VIEW-AS TEXT
           SIZE 23 BY .62 AT ROW 15.76 COL 8 WIDGET-ID 456
           FONT 6
@@ -975,21 +988,9 @@ DEFINE FRAME DEFAULT-FRAME
           SIZE 16 BY .76 AT ROW 18.86 COL 147 WIDGET-ID 204
      "Patch<n>" VIEW-AS TEXT
           SIZE 16 BY .76 AT ROW 24.57 COL 145 WIDGET-ID 196
-     "Environment tasks - will be performed once for each ENVIRONMENT selected above" VIEW-AS TEXT
-          SIZE 86 BY .62 AT ROW 23.38 COL 11 WIDGET-ID 500
      " General Variables" VIEW-AS TEXT
           SIZE 22 BY .62 AT ROW 1.48 COL 8 WIDGET-ID 356
           FONT 6
-     "Select one or more to upgrade." VIEW-AS TEXT
-          SIZE 32 BY .62 AT ROW 14.57 COL 10 WIDGET-ID 490
-     "PO" VIEW-AS TEXT
-          SIZE 16 BY .76 AT ROW 18.14 COL 147 WIDGET-ID 202
-     "<EnvName>" VIEW-AS TEXT
-          SIZE 16 BY .76 AT ROW 14.57 COL 145 WIDGET-ID 242
-     "Addon" VIEW-AS TEXT
-          SIZE 16 BY .76 AT ROW 15.29 COL 147 WIDGET-ID 216
-     "Databases" VIEW-AS TEXT
-          SIZE 16 BY .76 AT ROW 7.43 COL 141 WIDGET-ID 282
      RECT-1 AT ROW 1.71 COL 109 WIDGET-ID 354
      RECT-2 AT ROW 1.71 COL 5 WIDGET-ID 358
      RECT-3 AT ROW 10.29 COL 5 WIDGET-ID 362
@@ -1314,6 +1315,18 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME slEnvironments
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL slEnvironments C-Win
+ON VALUE-CHANGED OF slEnvironments IN FRAME DEFAULT-FRAME
+DO:
+    ASSIGN
+        fiCurrVer:{&SV} = ENTRY(2,SELF:{&SV},"-").
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &UNDEFINE SELF-NAME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK C-Win 
@@ -1374,6 +1387,8 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE
         APPLY 'leave' TO fiNewVer.
     END.
     
+    APPLY 'value-changed' TO slEnvironments.
+    
     ASSIGN
         tbBackupDBs:CHECKED = TRUE
         tbUserControl:CHECKED = TRUE
@@ -1393,6 +1408,16 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE
         tbInstallFiles:CHECKED = TRUE
         tbUpdateINI:CHECKED = TRUE
         .
+        
+    IF NUM-ENTRIES(slEnvironments:LIST-ITEMS) EQ 1 
+    AND NUM-ENTRIES(slDatabases:LIST-ITEMS) = 1
+    AND ipiLevel LT 10 THEN DO:
+        ASSIGN
+            lAutorun = TRUE.
+        DISABLE ALL EXCEPT bProcess WITH FRAME {&FRAME-NAME}.
+        APPLY 'choose' to bProcess.
+    END.
+    
     IF NOT THIS-PROCEDURE:PERSISTENT THEN
         WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -2233,6 +2258,9 @@ PROCEDURE ipConvQtyPerSet :
     
     RUN ipStatus ("Converting QtyPerSet records...").
 
+    DISABLE TRIGGERS FOR LOAD OF eb.
+    DISABLE TRIGGERS FOR LOAD OF fg-set.
+    
     FOR EACH company NO-LOCK, 
         EACH est NO-LOCK WHERE 
         est.company EQ company.company,
@@ -2640,8 +2668,8 @@ PROCEDURE ipDataFix160704 :
     RUN ipStatus ("  Data Fix 160704...").
 
     /* Ensure jobCode sequence is GT 100 */
-    IF NEXT-VALUE(jobCodeDMIseq) LT 100 THEN ASSIGN
-        NEXT-VALUE(jobCodeDMIseq) = NEXT-VALUE(jobCodeDMIseq) + 100.
+    IF CURRENT-VALUE(jobCodeDMIseq) LT 100 THEN ASSIGN
+        CURRENT-VALUE(jobCodeDMIseq) = CURRENT-VALUE(jobCodeDMIseq) + 100.
         
     /* If any empty job-codes, assign dmiID */
     FOR EACH job-code WHERE 
@@ -2655,8 +2683,6 @@ PROCEDURE ipDataFix160704 :
         ASSIGN
             job-code.dmiID = job-code.dmiID + 100.
     END.
-    
-    
     
     /* Ticket 27898 */
     FOR EACH reftable1 EXCLUSIVE WHERE
@@ -3884,20 +3910,22 @@ PROCEDURE ipRefTableConv :
     DEF VAR cNewPropath AS CHAR NO-UNDO.
     DEF VAR cThisElement AS CHAR NO-UNDO.
     
-    MESSAGE
-        "WARNING - RefTable Conversion Time:" SKIP(1)
-        "This operation can potentially take several hours to complete," SKIP
-        "depending on several factors including the size and age of your" SKIP
-        "database, the processing power and available resources of your" SKIP
-        "server, and other considerations.  You may consider running this" SKIP
-        "task separately from other upgrade choices, or you can run this" SKIP
-        "from within the Advantzware system using a conversion utility." SKIP
-        "Press 'Yes' to continue with the conversion, or 'No' to defer it."
-        VIEW-AS ALERT-BOX WARNING BUTTONS YES-NO update lContinue AS LOG.
-        
-    IF NOT lContinue THEN DO:
-        RUN ipStatus ("Reftable conversion was deferred").
-        RETURN.
+    IF ipiLevel GT 10 THEN DO:
+        MESSAGE
+            "WARNING - RefTable Conversion Time:" SKIP(1)
+            "This operation can potentially take several hours to complete," SKIP
+            "depending on several factors including the size and age of your" SKIP
+            "database, the processing power and available resources of your" SKIP
+            "server, and other considerations.  You may consider running this" SKIP
+            "task separately from other upgrade choices, or you can run this" SKIP
+            "from within the Advantzware system using a conversion utility." SKIP
+            "Press 'Yes' to continue with the conversion, or 'No' to defer it."
+            VIEW-AS ALERT-BOX WARNING BUTTONS YES-NO update lContinue AS LOG.
+            
+        IF NOT lContinue THEN DO:
+            RUN ipStatus ("Reftable conversion was deferred").
+            RETURN.
+        END.
     END.
 
     RUN ipStatus ("Converting Reftable records...").

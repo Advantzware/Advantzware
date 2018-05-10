@@ -338,7 +338,7 @@ DEFINE FRAME DEFAULT-FRAME
      fiDirectory AT ROW 10.29 COL 14 COLON-ALIGNED WIDGET-ID 8
      bUpdate AT ROW 11.71 COL 21 WIDGET-ID 14
      bCancel AT ROW 11.71 COL 46 WIDGET-ID 16
-     "Select a database to use during this upgrade session:" VIEW-AS TEXT
+     "Select an environment to upgrade:" VIEW-AS TEXT
           SIZE 53 BY .62 AT ROW 3.86 COL 6 WIDGET-ID 4
      "DB Name:" VIEW-AS TEXT
           SIZE 11 BY .62 AT ROW 5.05 COL 4 WIDGET-ID 6
@@ -445,122 +445,17 @@ END.
 &Scoped-define SELF-NAME bCancel
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL bCancel C-Win
 ON CHOOSE OF bCancel IN FRAME DEFAULT-FRAME /* Cancel */
+OR CHOOSE of bUpdate
 DO:
-    APPLY 'close' to this-procedure.
-    quit.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME bUpdate
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL bUpdate C-Win
-ON CHOOSE OF bUpdate IN FRAME DEFAULT-FRAME /* Update */
-DO:
-    DEF VAR cConnect AS CHAR NO-UNDO.
-    DEF VAR cAudDB AS CHAR NO-UNDO.
-    DEF VAR cPort AS CHAR NO-UNDO.
-    
-    IF fiUserID:{&SV} EQ "asi" 
-    AND fiPassword:{&SV} EQ "Package99" THEN ASSIGN
-        iUserLevel = 10.
-    ELSE IF fiUserID:{&SV} EQ "admin" 
-    AND fiPassword:{&SV} EQ "installme" THEN ASSIGN
-        iUserLevel = 6.
-        
-    FIND ttDatabases WHERE
-        ttDatabases.cName EQ slDBName:{&SV} AND
-        ttDatabases.cPort EQ fiPort:{&SV}
-        NO-ERROR.
-    IF AVAIL ttDatabases THEN ASSIGN
-        cAudDb = ttDatabases.cAudName
-        cPort = ttDatabases.cAudPort.
-
-    IF DECIMAL(fiVersion:{&SV}) LT deMinLevel THEN DO:
-        ASSIGN
-            c-Win:visible = false.
-        RUN asiUpdateDB.w (ttDatabases.cName,
-                        ttDatabases.cPort,
-                        ttDatabases.cDir,
-                        ttDatabases.cVer,
-                        iUserLevel,
-                        OUTPUT lSuccess)
-                        .
-        IF lSuccess THEN DO:
-            ASSIGN
-                cConnect = "-db " + slDBName:{&SV} + 
-                           " -H " + chostName +
-                           " -S " + fiPort:{&SV} +
-                           " -N tcp -ld ASI".
-            CONNECT VALUE(cConnect).
-            IF cAudName NE "" THEN DO:
-                ASSIGN
-                    cConnect = "-db " + cAudName + 
-                               " -H " + chostName +
-                               " -S " + cPort +
-                               " -N tcp -ld Audit".
-                CONNECT VALUE(cConnect).
-            END.
-            RUN asiUpdateENV.w (ttDatabases.cName,
-                            ttDatabases.cPort,
-                            ttDatabases.cDir,
-                            ttDatabases.cVer,
-                            iUserLevel,
-                            OUTPUT lSuccess)
-                            .
-        END.                        
-    END.
-    ELSE DO:
-        ASSIGN
-            c-Win:visible = false.
-        ASSIGN
-            cConnect = "-db " + slDBName:{&SV} + 
-                       " -H " + chostName +
-                       " -S " + fiPort:{&SV} +
-                       " -N tcp -ld ASI".
-        CONNECT VALUE(cConnect).
-        IF cAudName NE "" THEN DO:
-            ASSIGN
-                cConnect = "-db " + cAudName + 
-                           " -H " + chostName +
-                           " -S " + cPort +
-                           " -N tcp -ld Audit".
-            CONNECT VALUE(cConnect).
+    CASE SELF:NAME:
+        WHEN "bCancel" THEN DO:
+            APPLY 'close' TO THIS-PROCEDURE.
+            quit.
         END.
-        RUN asiUpdateENV.w (ttDatabases.cName,
-                        ttDatabases.cPort,
-                        ttDatabases.cDir,
-                        ttDatabases.cVer,
-                        iUserLevel,
-                        OUTPUT lSuccess)
-                        .
-    END.
-        
-    APPLY 'close' TO THIS-PROCEDURE.
-    QUIT.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME fiPassword
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiPassword C-Win
-ON LEAVE OF fiPassword IN FRAME DEFAULT-FRAME /* Password */
-OR RETURN of fiPassword
-DO:
-    IF (fiUserID:{&SV} = "asi" AND fiPassword:{&SV} = "Package99")
-    OR (fiUserID:{&SV} = "admin" AND fiPassword:{&SV} = "installme")
-    THEN ASSIGN
-        slDBName:SENSITIVE = TRUE
-        bUpdate:SENSITIVE = TRUE.
-    ELSE ASSIGN
-        slDBName:SENSITIVE = FALSE
-        bUpdate:SENSITIVE = FALSE.
-
-    apply 'entry' to bUpdate.
-    return.
+        WHEN "bUpdate" THEN DO:
+            RUN ipProcess IN THIS-PROCEDURE.
+        END.
+    END CASE.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -570,17 +465,36 @@ END.
 &Scoped-define SELF-NAME fiUserID
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiUserID C-Win
 ON LEAVE OF fiUserID IN FRAME DEFAULT-FRAME /* User ID */
+OR LEAVE OF fiPassword
+OR RETURN OF fiPassword
 DO:
     IF (fiUserID:{&SV} = "asi" AND fiPassword:{&SV} = "Package99")
-    OR (fiUserID:{&SV} = "admin" AND fiPassword:{&SV} = "installme")
-    THEN ASSIGN
-        slDBName:SENSITIVE = TRUE
+    OR (fiUserID:{&SV} = "admin" AND fiPassword:{&SV} = "installme") THEN ASSIGN
         bUpdate:SENSITIVE = TRUE.
+    ELSE DO: 
+        ASSIGN
+            bUpdate:SENSITIVE = FALSE.
+        RETURN.
+    END.
+        
+    IF bUpdate:SENSITIVE = TRUE
+    AND NUM-ENTRIES(slDBName:LIST-ITEMS) GT 1 THEN ASSIGN
+        slDbName:SENSITIVE = TRUE.
     ELSE ASSIGN
-        slDBName:SENSITIVE = FALSE
-        bUpdate:SENSITIVE = FALSE.
-
+        slDbName:SENSITIVE = FALSE.
+        
+    IF slDbName:SENSITIVE = TRUE THEN 
+        APPLY 'entry' TO slDBName.
+    ELSE APPLY 'entry' to bUpdate.
     
+    IF bUpdate:SENSITIVE EQ TRUE 
+    AND slDbName:SENSITIVE = FALSE
+    AND ((fiUserID:{&SV} = "asi" AND fiPassword:{&SV} = "Package99")
+        OR (fiUserID:{&SV} = "admin" AND fiPassword:{&SV} = "installme")) THEN
+        APPLY 'choose' TO bUpdate.
+        
+    RETURN NO-APPLY.
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -658,8 +572,17 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     slDBName:SCREEN-VALUE = ENTRY(1,slDBName:list-items).
     APPLY 'value-changed' to slDBName.
     
-    APPLY 'entry' to slDBName.
-        
+    IF NUM-ENTRIES(slDBName:LIST-ITEMS) EQ 1 THEN DO:
+        ASSIGN
+            slDBName:SENSITIVE = FALSE.
+        APPLY 'entry' TO fiUserID.          
+    END.
+    ELSE DO:
+        ASSIGN
+            slDBName:SENSITIVE = FALSE.
+        APPLY 'entry' TO fiUserID.          
+    END. 
+            
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -881,6 +804,123 @@ PROCEDURE ipFindIniFile :
             cIniLoc = "".
     END.
     
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipProcess C-Win 
+PROCEDURE ipProcess :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEF VAR cConnect AS CHAR NO-UNDO.
+    DEF VAR cAudDB AS CHAR NO-UNDO.
+    DEF VAR cPort AS CHAR NO-UNDO.
+    
+    IF fiUserID:{&SV} EQ "asi" 
+    AND fiPassword:{&SV} EQ "Package99" THEN ASSIGN
+        iUserLevel = 10.
+    ELSE IF fiUserID:{&SV} EQ "admin" 
+    AND fiPassword:{&SV} EQ "installme" THEN ASSIGN
+        iUserLevel = 6.
+        
+    FIND ttDatabases WHERE
+        ttDatabases.cName EQ slDBName:{&SV} AND
+        ttDatabases.cPort EQ fiPort:{&SV}
+        NO-ERROR.
+    IF AVAIL ttDatabases THEN ASSIGN
+        cAudDb = ttDatabases.cAudName
+        cPort = ttDatabases.cAudPort.
+
+    IF DECIMAL(fiVersion:{&SV}) LT deMinLevel THEN DO:
+        ASSIGN
+            c-Win:visible = false.
+        RUN asiUpdateDB.w (ttDatabases.cName,
+                        ttDatabases.cPort,
+                        ttDatabases.cDir,
+                        ttDatabases.cVer,
+                        iUserLevel,
+                        OUTPUT lSuccess)
+                        .
+
+        IF lSuccess THEN DO:
+            /* asiUpdateDB could change audit variables in ini file; must reread */
+            RUN ipReadIniFile.
+            RUN ipExpandVarNames.
+            EMPTY TEMP-TABLE ttDatabases.
+            DO iCtr = 1 to NUM-ENTRIES(cDbList):
+                CREATE ttDatabases.
+                ASSIGN
+                    ttDatabases.cName = ENTRY(iCtr,cDBList)
+                    ttDatabases.cDir = ENTRY(iCtr,cDbDirList)
+                    ttDatabases.cPort = ENTRY(iCtr,cDBPortList)
+                    ttDatabases.cVer = ENTRY(iCtr,cDBVerList)
+                    ttDatabases.cAudName = ENTRY(iCtr,cAudDbList)
+                    ttDatabases.cAudPort = ENTRY(iCtr,cAudPortList).
+            END.
+            FIND ttDatabases WHERE
+                ttDatabases.cName EQ slDBName:{&SV} AND
+                ttDatabases.cPort EQ fiPort:{&SV}
+                NO-ERROR.
+            IF AVAIL ttDatabases THEN ASSIGN
+                cAudDb = ttDatabases.cAudName
+                cPort = ttDatabases.cAudPort.
+
+            ASSIGN
+                cConnect = "-db " + slDBName:{&SV} + 
+                           " -H " + chostName +
+                           " -S " + fiPort:{&SV} +
+                           " -N tcp -ld ASI".
+            CONNECT VALUE(cConnect).
+            IF cAudName NE "" THEN DO:
+                ASSIGN
+                    cConnect = "-db " + cAudDb + 
+                               " -H " + chostName +
+                               " -S " + cPort +
+                               " -N tcp -ld Audit".
+                CONNECT VALUE(cConnect).
+            END.
+            RUN asiUpdateENV.w (ttDatabases.cName,
+                            ttDatabases.cPort,
+                            ttDatabases.cDir,
+                            ttDatabases.cVer,
+                            iUserLevel,
+                            OUTPUT lSuccess)
+                            .
+        END.                        
+    END.
+    ELSE DO:
+        ASSIGN
+            c-Win:visible = false.
+        ASSIGN
+            cConnect = "-db " + slDBName:{&SV} + 
+                       " -H " + chostName +
+                       " -S " + fiPort:{&SV} +
+                       " -N tcp -ld ASI".
+        CONNECT VALUE(cConnect).
+        IF cAudName NE "" THEN DO:
+            ASSIGN
+                cConnect = "-db " + cAudName + 
+                           " -H " + chostName +
+                           " -S " + cPort +
+                           " -N tcp -ld Audit".
+            CONNECT VALUE(cConnect).
+        END.
+        RUN asiUpdateENV.w (ttDatabases.cName,
+                        ttDatabases.cPort,
+                        ttDatabases.cDir,
+                        ttDatabases.cVer,
+                        iUserLevel,
+                        OUTPUT lSuccess)
+                        .
+    END.
+        
+    APPLY 'close' TO THIS-PROCEDURE.
+    QUIT.
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

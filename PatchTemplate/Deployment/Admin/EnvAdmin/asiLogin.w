@@ -297,14 +297,13 @@ RUN ipCreateTTIniFile.
 RUN ipFindIniFile.
 RUN ipFindUsrFile.
 
-/*
+
 ASSIGN
     FILE-INFO:FILE-NAME = cIniLoc
     cIniLoc = FILE-INFO:FULL-PATHNAME.
 ASSIGN
     FILE-INFO:FILE-NAME = cUsrLoc
     cUsrLoc = FILE-INFO:FULL-PATHNAME.
-*/
 
 
 IF cIniLoc EQ "" THEN DO:
