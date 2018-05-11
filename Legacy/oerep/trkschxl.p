@@ -275,21 +275,6 @@ PROCEDURE MainLoop :
          RUN SetCellValue ("J" + STRING(4 + viRowCount),STRING(tt-report.bol-no)).
 
       RUN SetCellValue ("I" + STRING(4 + viRowCount),STRING(tt-report.pallets)).
-
-      RUN SetCellValue ("O" + STRING(4 + viRowCount),string(tt-report.carrier)).
-      RUN SetCellValue ("P" + STRING(4 + viRowCount),tt-report.truck-code).
-      RUN SetCellValue ("R" + STRING(4 + viRowCount),tt-report.truck-dscr).
-      RUN SetCellValue ("S" + STRING(4 + viRowCount),string(tt-report.cust-no)).
-      RUN SetCellValue ("T" + STRING(4 + viRowCount),tt-report.city).
-      RUN SetCellValue ("U" + STRING(4 + viRowCount),tt-report.state).
-      RUN SetCellValue ("V" + STRING(4 + viRowCount),tt-report.zip).
-      RUN SetCellValue ("W" + STRING(4 + viRowCount),string(tt-report.no-units)).
-      RUN SetCellValue ("X" + STRING(4 + viRowCount),string(tt-report.tot-units)).
-      RUN SetCellValue ("Y" + STRING(4 + viRowCount),string(tt-report.msf)).
-      RUN SetCellValue ("Z" + STRING(4 + viRowCount),string(tt-report.tot-msf)).
-      RUN SetCellValue ("AA" + STRING(4 + viRowCount),string(tt-report.weight)).
-      RUN SetCellValue ("AB" + STRING(4 + viRowCount),string(tt-report.tot-weight)).
-      RUN SetCellValue ("AC" + STRING(4 + viRowCount),string(tt-report.release-type)).
   END.
 
   /* Go to the first Sheet. */
