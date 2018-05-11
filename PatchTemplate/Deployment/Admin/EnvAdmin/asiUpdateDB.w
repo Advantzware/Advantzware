@@ -471,31 +471,31 @@ DEFINE FRAME DEFAULT-FRAME
      bProcess AT ROW 12.43 COL 111 WIDGET-ID 404
      "This program will automatically close when completed." VIEW-AS TEXT
           SIZE 52 BY .62 AT ROW 14.57 COL 65 WIDGET-ID 576
-     "This is expected, and can be ignored." VIEW-AS TEXT
-          SIZE 41 BY .62 AT ROW 13.86 COL 65 WIDGET-ID 574
      "~"not responding~" message in the title bar~;" VIEW-AS TEXT
           SIZE 41 BY .62 AT ROW 13.14 COL 65 WIDGET-ID 572
-     "have to make some changes ~"under the" VIEW-AS TEXT
-          SIZE 41 BY .62 AT ROW 9.57 COL 65 WIDGET-ID 562
-     "hood.~"  We're going to back up the DB" VIEW-AS TEXT
-          SIZE 41 BY .62 AT ROW 10.29 COL 65 WIDGET-ID 564
-     "before we start, just to be sure nothing goes" VIEW-AS TEXT
-          SIZE 43 BY .62 AT ROW 11 COL 65 WIDGET-ID 566
-     "unexpectedly.  Then, we will apply some" VIEW-AS TEXT
-          SIZE 41 BY .62 AT ROW 11.71 COL 65 WIDGET-ID 568
-     " Databases" VIEW-AS TEXT
-          SIZE 15 BY .62 AT ROW 9.1 COL 9 WIDGET-ID 482
+     "Because of the age of your database, we" VIEW-AS TEXT
+          SIZE 41 BY .62 AT ROW 8.86 COL 65 WIDGET-ID 560
+     "changes to the database.  You may see a" VIEW-AS TEXT
+          SIZE 41 BY .62 AT ROW 12.43 COL 65 WIDGET-ID 570
+     " General Variables" VIEW-AS TEXT
+          SIZE 22 BY .62 AT ROW 1.48 COL 8 WIDGET-ID 356
           FONT 6
      " Your Directory Structure" VIEW-AS TEXT
           SIZE 30 BY .62 AT ROW 1.48 COL 107 WIDGET-ID 558
           FONT 6
-     " General Variables" VIEW-AS TEXT
-          SIZE 22 BY .62 AT ROW 1.48 COL 8 WIDGET-ID 356
+     " Databases" VIEW-AS TEXT
+          SIZE 15 BY .62 AT ROW 9.1 COL 9 WIDGET-ID 482
           FONT 6
-     "changes to the database.  You may see a" VIEW-AS TEXT
-          SIZE 41 BY .62 AT ROW 12.43 COL 65 WIDGET-ID 570
-     "Because of the age of your database, we" VIEW-AS TEXT
-          SIZE 41 BY .62 AT ROW 8.86 COL 65 WIDGET-ID 560
+     "unexpectedly.  Then, we will apply some" VIEW-AS TEXT
+          SIZE 41 BY .62 AT ROW 11.71 COL 65 WIDGET-ID 568
+     "before we start, just to be sure nothing goes" VIEW-AS TEXT
+          SIZE 43 BY .62 AT ROW 11 COL 65 WIDGET-ID 566
+     "hood.~"  We're going to back up the DB" VIEW-AS TEXT
+          SIZE 41 BY .62 AT ROW 10.29 COL 65 WIDGET-ID 564
+     "have to make some changes ~"under the" VIEW-AS TEXT
+          SIZE 41 BY .62 AT ROW 9.57 COL 65 WIDGET-ID 562
+     "This is expected, and can be ignored." VIEW-AS TEXT
+          SIZE 41 BY .62 AT ROW 13.86 COL 65 WIDGET-ID 574
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
@@ -894,9 +894,11 @@ PROCEDURE ipCreateAudit :
     DEF VAR cCmd AS CHAR NO-UNDO.
     DEF VAR cAudName AS CHAR NO-UNDO.
     DEF VAR cAudPort AS CHAR NO-UNDO.
-    
+    DEF VAR cStartString AS CHAR NO-UNDO.
+        
     RUN ipStatus ("Creating Audit database").
     
+    RUN ipSetCurrentDir (cDbDrive + "\" + cTopDir + "\databases\audit"). 
     ASSIGN
         cLocItem = ipcDbIdent
         cLocDir  = ENTRY(1,cLocItem,"-")
@@ -913,24 +915,24 @@ PROCEDURE ipCreateAudit :
 
     IF fiDbDrive:{&SV} EQ fiDrive:{&SV} THEN ASSIGN
         cCmdLine = fiDlcDir:{&SV} + '\bin\prostrct create ' + 
-                   cDbAuditDir + '\' + cAudName + ' ' + 
+                   cAudName + ' ' + 
                    cStructureST.
     ELSE ASSIGN
         cCmdLine = fiDlcDir:{&SV} + '\bin\prostrct create ' + 
-                   cDbAuditDir + '\' + cAudName + ' ' + 
+                   cAudName + ' ' + 
                    cStructureST.
- 
-    RUN ipSetCurrentDir (cDbAuditDir). 
+
     OS-COMMAND SILENT VALUE(cCmdLine).
+
     
     IF fiDbDrive:{&SV} EQ fiDrive:{&SV} THEN ASSIGN
         cCmdLine = fiDlcDir:{&SV} + "\bin\procopy " + 
                    fiDlcDir:{&SV} + "\empty4 " + 
-                   cDbAuditDir + "\" + cAudName.
+                   cAudName.
     ELSE ASSIGN
         cCmdLine = fiDlcDir:{&SV} + "\bin\procopy " + 
                    fiDlcDir:{&SV} + "\empty4 " + 
-                   cDbAuditDir + "\" + cAudName.
+                   cAudName.
 
     RUN ipStatus ("  Copying metaschema data...").
     OS-COMMAND SILENT VALUE(cCmdLine).
@@ -938,7 +940,7 @@ PROCEDURE ipCreateAudit :
         ASSIGN
             /* Single user connect statment */
             cStatement = "-db " + 
-                         cDbAuditDir + "\" + cAudName +
+                         cAudName +
                          " -1 -ld " + cAudName.
         /* Connect to the database single user */
         CONNECT VALUE(cStatement).
@@ -951,6 +953,57 @@ PROCEDURE ipCreateAudit :
         RUN ipStatus ("  Disconnecting.").
         DISCONNECT VALUE(cAudName).
         
+    /* Create/Write a txt file that can be loaded into conmgr.properties */
+    RUN ipStatus ("  Building conmgr file.").
+    OUTPUT TO c:\tmp\conmgrdelta.txt.
+    PUT UNFORMATTED "[configuration." + cAudName + ".defaultconfiguration]" + CHR(10).
+    PUT UNFORMATTED "    afterimageprocess=false" + CHR(10).
+    PUT UNFORMATTED "    asynchronouspagewriters=1" + CHR(10).
+    PUT UNFORMATTED "    beforeimageprocess=true" + CHR(10).
+    PUT UNFORMATTED "    blocksindatabasebuffers=32768" + CHR(10).
+    PUT UNFORMATTED "    database=" + cAudName + CHR(10).
+    PUT UNFORMATTED "    displayname=defaultConfiguration" + CHR(10).
+    PUT UNFORMATTED "    locktableentries=96000" + CHR(10).
+    PUT UNFORMATTED "    monitored=true" + CHR(10).
+    PUT UNFORMATTED "    otherargs=" + CHR(10).
+    PUT UNFORMATTED "    servergroups=" + cAudName + ".defaultconfiguration.defaultservergroup" + CHR(10).
+    PUT UNFORMATTED "    watchdogprocess=true" + CHR(10).
+    PUT UNFORMATTED "" + CHR(10).
+    PUT UNFORMATTED "[database." + cAudName + "]" + CHR(10).
+    PUT UNFORMATTED "    autostart=true" + CHR(10).
+    PUT UNFORMATTED "    configurations=" + cAudName + ".defaultconfiguration" + CHR(10).
+    PUT UNFORMATTED "    databasename=" + cDbDrive + "\" + cTopDir + "\Databases\Audit\" + cAudName + CHR(10).
+    PUT UNFORMATTED "    defaultconfiguration=" + cAudName + ".defaultconfiguration" + CHR(10).
+    PUT UNFORMATTED "    displayname=" + cAudName + CHR(10).
+    PUT UNFORMATTED "    monitorlicensed=true" + CHR(10).
+    PUT UNFORMATTED "" + CHR(10).
+    PUT UNFORMATTED "[servergroup." + cAudName + ".defaultconfiguration.defaultservergroup]" + CHR(10).
+    PUT UNFORMATTED "    configuration=" + cAudName + ".defaultconfiguration" + CHR(10).
+    PUT UNFORMATTED "    displayname=defaultServerGroup" + CHR(10).
+    PUT UNFORMATTED "    port=" + cAudPort + CHR(10).
+    PUT UNFORMATTED "    type=both" + CHR(10).
+    OUTPUT CLOSE.
+    
+    ASSIGN
+        cCmdLine     = fiDlcDir:{&SV} + "\bin\mergeprop -type database -action create -delta " + 
+                       "c:\tmp\conmgrdelta.txt -silent"
+        cStartString = fiDlcDir:{&SV} + "\bin\dbman" + 
+                       " -host " + fiHostName:{&SV} + 
+                       " -port " + cAdminPort + 
+                       " -database " + cAudName + 
+                       " -start".
+
+    RUN ipStatus ("  Merging conmgr info.").
+    OS-COMMAND SILENT VALUE(cCmdLine).
+    RUN ipStatus ("  Waiting for connection manager.").
+    PAUSE 10 NO-MESSAGE.
+    
+    RUN ipStatus ("  Serving " + cAudName).
+message cStartString view-as alert-box.
+    OS-COMMAND VALUE(cStartString).
+    pause 10 no-message.
+    
+    /*    
     MESSAGE
         "You should add this database to the system with the OE Explorer" SKIP
         "tool now.  The database name is '" + cAudName + "' and it is located in" SKIP
@@ -993,7 +1046,8 @@ PROCEDURE ipCreateAudit :
 
         RUN ipStatus("Need OE Explorer info added").
     END.
-
+    */
+    
     ASSIGN
         ENTRY(iListEntry,cAudDbList) = cAudName
         ENTRY(iListEntry,cAudPortList) = cAudPort.
