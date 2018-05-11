@@ -617,12 +617,6 @@ ELSE lv-comp-color = "BLACK".
                     THEN ar-inv.freight ELSE 0.    
                    /*ar-inv.t-inv-freight*/.
 PUT "<R57><c61>" "<B>FUNDS payable in " string(cCurCode,"x(3)") +  ".</B>" FORMAT "x(200)" .
-IF v-bot-lab[4] <> "" THEN
-    PUT "<R63><C20> TPS # 873134266"
-        "<R64><C20> TVQ # 1021552352".
-ELSE
-    PUT "<R61><C20> TPS # 873134266"
-        "<R62><C20> TVQ # 1021552352".
 
 FOR EACH bf-cust NO-LOCK
         WHERE bf-cust.company EQ cocode

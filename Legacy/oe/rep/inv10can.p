@@ -738,13 +738,7 @@ find first company where company.company eq cocode NO-LOCK.
     
     v-inv-freight = if inv-head.f-bill THEN inv-head.t-inv-freight ELSE 0.
     PUT "<R57><c61>" "<B>FUNDS payable in " string(cCurCode,"x(3)") +  ".</B>" FORMAT "x(200)" .
-    IF v-bot-lab[4] <> "" THEN
-      PUT "<R63><C20> TPS # 873134266"
-        "<R64><C20> TVQ # 1021552352".
-    ELSE
-     PUT "<R61><C20> TPS # 873134266"
-        "<R62><C20> TVQ # 1021552352".
-
+    
      FOR EACH bf-cust NO-LOCK
         WHERE bf-cust.company EQ cocode
         AND bf-cust.ACTIVE EQ "X":
