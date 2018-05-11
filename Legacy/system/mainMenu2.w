@@ -1375,6 +1375,7 @@ PROCEDURE pInit :
             ASSIGN
                 menuLinkASI:PRIVATE-DATA   = sys-ctrl.descrip
                 menuLinkASI:HIDDEN         = NO
+                menuLinkASI:SENSITIVE      = YES
                 menuLinkASI:STRETCH-TO-FIT = sys-ctrl.log-fld
                 menuLinkASI:TRANSPARENT    = sys-ctrl.int-fld EQ 1
                 .
