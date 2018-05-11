@@ -24,6 +24,8 @@ PROCEDURE epCanAccess:
                 (ipProgName EQ "methods/template/viewer4.i" AND ipFunction EQ "") OR  /*NK2 Help Editor - No Password*/
                 (ipProgName EQ "sys/ref/hlp-ctrl.w" AND ipFunction EQ "EnableHelpUpdate") OR  /*Update Help Button*/
                 (ipProgName EQ "sys/ref/hlp.w" AND ipFunction EQ "Access2") OR /*Update Help Button*/
+                (ipProgName EQ "sys/ref/hlp.w" AND ipFunction EQ "UpdateHelp") OR /*Update Help Button*/
+                (ipProgName EQ "sys/ref/hlp.w" AND ipFunction EQ "DataDigger") OR /*DataDigger Button*/
                 (ipProgName EQ "viewers/company.w" AND ipFunction EQ "") OR /*GF1 Add/Copy Company*/
                 (ipProgName EQ "viewers/usercontrol.w" AND ipFunction EQ "Access1") OR  /*NK5 User Control - Num Concurrent/Over limit*/
                 (ipProgName EQ "viewers/vp-rmov.w" AND ipFunction EQ "") OR /*MF1 Override Button (Inventory)*/
@@ -63,6 +65,8 @@ PROCEDURE epCanAccess:
                 (ipProgName EQ "jcinq/b-updmac.w" AND ipFunction EQ "") OR /* JQ1 Mach hrs Tab  */
                 (ipProgName EQ "jcinq/b-updmat.w" AND ipFunction EQ "") OR /* JQ1 MAterial Tab   */
                 (ipProgName EQ "rminq/b-rmiinq.w" AND ipFunction EQ "") OR /*MF1 or MF2 Hostory tab   */
+                (ipProgName EQ "sys/ref/hlp.w" AND ipFunction EQ "ProTools") OR /*ProTools Button*/
+                (ipProgName EQ "sys/ref/hlp.w" AND ipFunction EQ "LockMon") OR /*Lock Monitor Button*/
                 (ipProgName EQ "system/mainmenu.w" AND ipFunction EQ "Access1") OR /*Main menu load Run Custom Utility Program access*/
                 (ipProgName EQ "viewers/p-fg-bj-l.w" AND ipFunction EQ "") OR /*IF1 Bin/Jobs tab */
                 (ipProgName EQ "viewers/sys-ctrl.w" AND ipFunction EQ "") OR /*NK1 view control tab value security */
