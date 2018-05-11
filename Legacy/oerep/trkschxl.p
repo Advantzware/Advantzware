@@ -170,8 +170,8 @@ PROCEDURE InitializeExcel :
   RUN UTIL/CurrDir.p (output CurrDir).
   
   /* Set the Excel Template to be used. */
-  ASSIGN chFile = CurrDir + "\Template\TruckPlan.xlt" no-error.
-  
+  ASSIGN chFile = CurrDir + "\Template\TruckPlan2.xlt" no-error.
+
   /* Make Excel visible. */
   chExcelApplication:VISIBLE = TRUE.
   

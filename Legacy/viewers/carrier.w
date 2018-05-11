@@ -271,6 +271,20 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL carrier.carrier V-table-Win
+ON LEAVE OF carrier.carrier IN FRAME F-Main /* Location */
+DO:
+  IF LASTKEY NE -1 THEN DO:
+    RUN valid-carrier NO-ERROR.
+    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+  END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL carrier.loc V-table-Win
 ON VALUE-CHANGED OF carrier.loc IN FRAME F-Main /* Location */
@@ -535,6 +549,11 @@ PROCEDURE local-update-record :
   RUN valid-loc NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
+  RUN valid-carrier NO-ERROR.
+  IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+
+
+
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
 
@@ -618,3 +637,44 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-loc V-table-Win 
+PROCEDURE valid-carrier :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+DEF BUFFER b-carrier FOR carrier.
+
+  {methods/lValidateError.i YES}
+  DO WITH FRAME {&FRAME-NAME}:
+   IF adm-new-record AND adm-adding-record THEN 
+    IF CAN-FIND(FIRST b-carrier WHERE b-carrier.company EQ gcompany
+                                 AND b-carrier.carrier    EQ carrier.carrier:SCREEN-VALUE
+                                 AND ROWID(b-carrier)  NE ROWID(carrier)) 
+    THEN DO:
+      MESSAGE "Sorry, " + TRIM(carrier.carrier:LABEL) + " " + "already exists."
+          VIEW-AS ALERT-BOX ERROR.
+      APPLY "entry" TO carrier.carrier.
+      RETURN ERROR.
+    END.
+  
+
+  IF adm-new-record AND NOT adm-adding-record THEN 
+    IF CAN-FIND(FIRST b-carrier WHERE b-carrier.company EQ gcompany
+                                 AND b-carrier.carrier    EQ carrier.carrier:SCREEN-VALUE)
+    THEN DO:
+      MESSAGE "Sorry, " + TRIM(carrier.carrier:LABEL) + " " + "already exists."
+          VIEW-AS ALERT-BOX ERROR.
+      APPLY "entry" TO carrier.carrier.
+      RETURN ERROR.
+    END.
+  END.
+
+
+  {methods/lValidateError.i NO}
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
