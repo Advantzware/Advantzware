@@ -3,6 +3,7 @@
     DEF VAR pox AS INT NO-UNDO.
     DEF VAR v-rec-qty AS DEC NO-UNDO.
     DEF VAR ld AS DEC NO-UNDO.
+    def var lOverUnder as log no-error.
 
     DEF BUFFER xrm-rctd FOR rm-rctd.
 
@@ -65,8 +66,11 @@
         do:          
            message "The PO qty + overrun has been exceeded. Do you want to re-enter?"
                   VIEW-AS ALERT-BOX WARNING BUTTON YES-NO UPDATE ll-ans AS LOG.
+            assign
+                lOverUnder = ll-ans.
            IF ll-ans  THEN DO:
                APPLY "entry" TO rm-rctd.qty.
+               
                RETURN NO-APPLY.
            END.          
         end.
@@ -74,6 +78,8 @@
         DO:
            MESSAGE "The PO qty is less than the underrun. Do you want to re-enter?"
               VIEW-AS ALERT-BOX WARNING BUTTON YES-NO UPDATE ll-ans2 AS LOG.
+            assign
+                lOverUnder = ll-ans2.
            IF ll-ans2 THEN DO:
                APPLY "entry" TO rm-rctd.qty.
                RETURN NO-APPLY.
