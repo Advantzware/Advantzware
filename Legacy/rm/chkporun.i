@@ -3,7 +3,7 @@
     DEF VAR pox AS INT NO-UNDO.
     DEF VAR v-rec-qty AS DEC NO-UNDO.
     DEF VAR ld AS DEC NO-UNDO.
-    def var lOverUnder as log no-error.
+    def var lOverUnder as log no-undo.
 
     DEF BUFFER xrm-rctd FOR rm-rctd.
 
