@@ -1440,7 +1440,7 @@ PROCEDURE local-assign-record :
     e-itemfg-vend.selected[09] = lCheckBox[9]
     e-itemfg-vend.selected[10] = lCheckBox[10]
     .
-
+    
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'display-fields':U ) .
   
   IF eb.stock-no <> "" THEN DO:
@@ -1460,7 +1460,6 @@ PROCEDURE local-assign-record :
      IF lans THEN RUN UpdateFGItemVendCost.
 
   END.
-
 
 END PROCEDURE.
 
@@ -2058,20 +2057,20 @@ PROCEDURE UpdateFGItemVendCost :
                   AND bfRef.val[1]   = e-itemfg-vend.form-no
                   AND bfRef.val[2]   = e-itemfg-vend.blank-no
                 NO-LOCK NO-ERROR. 
-DO WITH FRAME {&FRAME-NAME}:
-   bfEvend.std-uom = fi_std-uom:SCREEN-VALUE.
-END.
+  DO WITH FRAME {&FRAME-NAME}:
+    bfEvend.std-uom = fi_std-uom:SCREEN-VALUE.
+  END.
 
-IF AVAIL bfRef AND bfRef.code2 NE "" AND bfEvend.std-uom EQ "" THEN
+  IF AVAIL bfRef AND bfRef.code2 NE "" AND bfEvend.std-uom EQ "" THEN
     bfEVend.std-uom = bfRef.code2.
 
-IF AVAIL bfEItemfg AND bfEItemfg.std-uom EQ "" THEN DO:
+  IF AVAIL bfEItemfg AND bfEItemfg.std-uom EQ "" THEN DO:
     FIND CURRENT bfEItemfg EXCLUSIVE-LOCK.
     bfEItemfg.std-uom = bfEVend.std-uom.
     FIND CURRENT bfEItemfg NO-LOCK.
-END.
+  END.
 
-
+  FIND CURRENT bfEVend NO-LOCK.
 
 END PROCEDURE.
 
