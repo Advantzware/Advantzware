@@ -35,14 +35,14 @@ CREATE WIDGET-POOL.
 /* Local Variable Definitions ---                                       */
 {custom/globdefs.i}
 
-DEF INPUT PARAMETER ip-field as cha no-undo.
-DEF INPUT PARAMETER ip-table as cha no-undo.
-DEF INPUT PARAMETER ip-db as cha no-undo.
-DEF INPUT PARAMETER ip-frame as cha no-undo.
-DEF INPUT PARAMETER ip-language as cha no-undo.
-DEF VAR is-frame-help as log no-undo.
+DEF INPUT PARAMETER ip-field AS CHAR NO-UNDO.
+DEF INPUT PARAMETER ip-table AS CHAR NO-UNDO.
+DEF INPUT PARAMETER ip-db AS CHAR NO-UNDO.
+DEF INPUT PARAMETER ip-frame AS CHAR NO-UNDO.
+DEF INPUT PARAMETER ip-language AS CHAR NO-UNDO.
+DEF VAR is-frame-help AS LOG NO-UNDO.
 DEF VAR ll-secure AS LOG NO-UNDO.
-DEF VAR list-name as cha no-undo.
+DEF VAR list-name AS CHAR NO-UNDO.
 DEF VAR init-dir AS CHARACTER NO-UNDO.
 DEF VAR tmp-dir AS CHAR NO-UNDO.
 
@@ -269,7 +269,8 @@ DO:
                 ed-text:SCREEN-VALUE FORMAT "x(10000)" .
             RUN custom/prntproc.p (list-name,INT(11),"P").
         END.
-        WHEN "btProTools" THEN.
+        WHEN "btProTools" THEN
+            RUN protools/_protool.r.
         WHEN "btUpdateHelp" THEN DO:
             ASSIGN 
                 op-ed-text = ed-text.
@@ -488,8 +489,6 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
     RUN epCanAccess IN hPgmSecurity ("sys/ref/hlp.w", "ProTools", OUTPUT lResult).
     IF NOT lResult THEN ASSIGN btProTools:VISIBLE = FALSE.
-    ELSE ASSIGN
-        btProTools:SENSITIVE = FALSE.
         
     RUN epCanAccess IN hPgmSecurity ("sys/ref/hlp.w", "LockMon", OUTPUT lResult).
     IF NOT lResult THEN ASSIGN btLockMon:VISIBLE = FALSE.
