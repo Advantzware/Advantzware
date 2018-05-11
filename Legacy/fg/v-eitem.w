@@ -159,7 +159,7 @@ DEFINE BUTTON btnShowVendCostMtx
 DEFINE VARIABLE fi_oh-markup AS INTEGER FORMAT ">,>>9":U INITIAL 0 
      LABEL "GS&&A O/H Markup %" 
      VIEW-AS FILL-IN 
-     SIZE 8 BY 1 NO-UNDO.
+     SIZE 14 BY 1 NO-UNDO.
 
 DEFINE VARIABLE ls-item-dscr AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS FILL-IN 
@@ -316,47 +316,47 @@ DEFINE VARIABLE tb_sel-01 AS LOGICAL INITIAL no
      SIZE 24 BY 1 NO-UNDO.
 
 DEFINE VARIABLE tb_sel-02 AS LOGICAL INITIAL no 
-     LABEL "tb_sel 2" 
+     LABEL "" 
      VIEW-AS TOGGLE-BOX
-     SIZE 4 BY 1 NO-UNDO.
+     SIZE 23 BY 1 NO-UNDO.
 
 DEFINE VARIABLE tb_sel-03 AS LOGICAL INITIAL no 
-     LABEL "tb_sel 3" 
+     LABEL "" 
      VIEW-AS TOGGLE-BOX
      SIZE 4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE tb_sel-04 AS LOGICAL INITIAL no 
-     LABEL "tb_sel 4" 
+     LABEL "" 
      VIEW-AS TOGGLE-BOX
      SIZE 4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE tb_sel-05 AS LOGICAL INITIAL no 
-     LABEL "tb_sel 5" 
+     LABEL "" 
      VIEW-AS TOGGLE-BOX
      SIZE 4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE tb_sel-06 AS LOGICAL INITIAL no 
-     LABEL "tb_sel 6" 
+     LABEL "" 
      VIEW-AS TOGGLE-BOX
      SIZE 4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE tb_sel-07 AS LOGICAL INITIAL no 
-     LABEL "tb_sel 7" 
+     LABEL "" 
      VIEW-AS TOGGLE-BOX
      SIZE 4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE tb_sel-08 AS LOGICAL INITIAL no 
-     LABEL "tb_sel 8" 
+     LABEL "" 
      VIEW-AS TOGGLE-BOX
      SIZE 4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE tb_sel-09 AS LOGICAL INITIAL no 
-     LABEL "tb_sel 9" 
+     LABEL "" 
      VIEW-AS TOGGLE-BOX
      SIZE 4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE tb_sel-10 AS LOGICAL INITIAL no 
-     LABEL "tb_sel 10" 
+     LABEL "" 
      VIEW-AS TOGGLE-BOX
      SIZE 4 BY 1 NO-UNDO.
 
@@ -395,30 +395,30 @@ DEFINE FRAME F-Main
      tb_sel-08 AT ROW 13.62 COL 53
      tb_sel-09 AT ROW 14.57 COL 53
      tb_sel-10 AT ROW 15.52 COL 53
-     e-itemfg-vend.spare-dec-1 AT ROW 14.52 COL 80 COLON-ALIGNED HELP
+     e-itemfg-vend.spare-dec-1 AT ROW 13.62 COL 81 COLON-ALIGNED HELP
           ""
           LABEL "Min. Charge"
           VIEW-AS FILL-IN 
-          SIZE 13.6 BY 1
-     fi_oh-markup AT ROW 15.76 COL 80 COLON-ALIGNED
+          SIZE 14 BY 1
+     fi_oh-markup AT ROW 14.81 COL 81 COLON-ALIGNED
      e-itemfg-vend.roll-w[27] AT ROW 17.43 COL 17 COLON-ALIGNED HELP
           "Enter Sheet Width Minimum"
           LABEL "Sheet Width"
           VIEW-AS FILL-IN 
-          SIZE 11.6 BY 1
-     e-itemfg-vend.roll-w[28] AT ROW 17.43 COL 29 COLON-ALIGNED HELP
+          SIZE 14 BY 1
+     e-itemfg-vend.roll-w[28] AT ROW 17.43 COL 31.2 COLON-ALIGNED HELP
           "Enter Sheet Width Maximum" NO-LABEL
           VIEW-AS FILL-IN 
-          SIZE 11.6 BY 1
-     e-itemfg-vend.roll-w[29] AT ROW 17.43 COL 52 COLON-ALIGNED HELP
+          SIZE 14 BY 1
+     e-itemfg-vend.roll-w[29] AT ROW 17.43 COL 55.4 COLON-ALIGNED HELP
           "Enter Sheet Length Minimum"
           LABEL "Length"
           VIEW-AS FILL-IN 
-          SIZE 11.6 BY 1
-     e-itemfg-vend.roll-w[30] AT ROW 17.43 COL 64 COLON-ALIGNED HELP
+          SIZE 14 BY 1
+     e-itemfg-vend.roll-w[30] AT ROW 17.43 COL 69.6 COLON-ALIGNED HELP
           "Enter Sheet Length Maximum" NO-LABEL
           VIEW-AS FILL-IN 
-          SIZE 11.6 BY 1
+          SIZE 14 BY 1
      qty-label AT ROW 6 COL 2.2 NO-LABEL
      run-qty-01 AT ROW 7.05 COL 2.4 NO-LABEL WIDGET-ID 28
      run-cost-01 AT ROW 7.05 COL 16.4 COLON-ALIGNED NO-LABEL WIDGET-ID 8
@@ -661,7 +661,7 @@ DO:
                                     focus:screen-value, 
                                     output char-val).
             IF char-val NE "" THEN ASSIGN
-                FOCUS:SCREEN-VALUE IN FRAME {&FRAME-NAME} = ENTRY(1,char-val).
+                e-itemfg.std-uom:SCREEN-VALUE IN FRAME {&FRAME-NAME} = ENTRY(1,char-val).
         END.
         WHEN "vend-no" THEN DO:
             RUN windows/l-vendno.w  (gcompany, 
@@ -669,7 +669,7 @@ DO:
                                     focus:screen-value, 
                                     output char-val).
             IF char-val NE "" THEN ASSIGN
-                FOCUS:SCREEN-VALUE IN FRAME {&FRAME-NAME} = ENTRY(1,char-val).
+                e-itemfg-vend.vend-no:SCREEN-VALUE IN FRAME {&FRAME-NAME} = ENTRY(1,char-val).
         END.
         WHEN "cust-no" THEN DO:
             RUN windows/l-cust.w    (gcompany, 
@@ -1206,7 +1206,7 @@ PROCEDURE delete-est-matrices-proc :
                 eb.stock-no EQ e-itemfg-vend.i-no AND
                 eb.pur-man EQ YES) THEN DO:
         MESSAGE 
-            "Delete Estimate Price Matrices With These Values?" 
+            "Delete matching Estimate Farm Tab entry?"
             VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO UPDATE ll-choice.
 
         IF ll-choice THEN DO:
@@ -1217,7 +1217,6 @@ PROCEDURE delete-est-matrices-proc :
                 eb.pur-man EQ YES,
                 FIRST b-e-itemfg-vend WHERE
                     b-e-itemfg-vend.company EQ e-itemfg-vend.company AND
-                    b-e-itemfg-vend.i-no EQ e-itemfg-vend.i-no AND
                     b-e-itemfg-vend.est-no EQ eb.est-no AND
                     b-e-itemfg-vend.form-no EQ eb.form-no AND
                     b-e-itemfg-vend.eqty EQ eb.eqty AND
@@ -1637,7 +1636,7 @@ PROCEDURE local-display-fields :
         ls-vend-name = ""  
         ls-item-name = ""
         ls-item-dscr = ""
-        qty-label    = "Qty " + STRING(lVendCostMtx,"FROM/TO").
+        qty-label    = "Qty " + STRING(lVendCostMtx,"From/To").
   
     IF lAddRecord EQ NO AND lCopyRecord EQ NO THEN
     RUN pVendCostMtx ("DISPLAY").
@@ -1952,7 +1951,10 @@ PROCEDURE update-est-matrices-proc :
                 eb.stock-no EQ e-itemfg-vend.i-no AND
                 eb.pur-man EQ YES) THEN DO:
         MESSAGE 
-            "Update Estimate Price Matrices With These Values?" 
+            "Update matching Estimate Farm Tab entry with these values?" SKIP(2) 
+             "Item #: " e-itemfg-vend.i-no SKIP 
+             "Vendor: " e-itemfg-vend.vend-no SKIP 
+             "Customer: " e-itemfg-vend.cust-no
             VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO UPDATE ll-choice.
 
         IF ll-choice THEN DO:
@@ -1964,7 +1966,6 @@ PROCEDURE update-est-matrices-proc :
 
                 FIND FIRST b-e-itemfg-vend WHERE
                      b-e-itemfg-vend.company EQ e-itemfg-vend.company AND
-                     b-e-itemfg-vend.i-no EQ e-itemfg-vend.i-no AND
                      b-e-itemfg-vend.est-no EQ eb.est-no AND
                      b-e-itemfg-vend.form-no EQ eb.form-no AND
                      b-e-itemfg-vend.eqty EQ eb.eqty AND
@@ -1974,7 +1975,7 @@ PROCEDURE update-est-matrices-proc :
                      NO-ERROR.
 
                 IF AVAIL b-e-itemfg-vend THEN
-                   BUFFER-COPY e-itemfg-vend EXCEPT i-no rec_key est-no eqty form-no blank-no
+                   BUFFER-COPY e-itemfg-vend EXCEPT rec_key est-no eqty form-no blank-no
                              TO b-e-itemfg-vend.
                 ELSE DO:
                    CREATE b-e-itemfg-vend.
@@ -2127,6 +2128,7 @@ PROCEDURE valid-vend-no :
     DEF VAR lv-msg AS CHAR NO-UNDO.
 
     {methods/lValidateError.i YES}
+    lv-msg = "".
     DO WITH FRAME {&FRAME-NAME}:
         IF ip-focus:SCREEN-VALUE NE "" THEN
             IF e-itemfg-vend.vend-no EQ "" AND NOT adm-new-record THEN ASSIGN
@@ -2134,11 +2136,11 @@ PROCEDURE valid-vend-no :
             ELSE IF NOT CAN-FIND(FIRST vend WHERE 
                             vend.company EQ e-itemfg.company AND 
                             vend.vend-no EQ ip-focus:SCREEN-VALUE) THEN ASSIGN
-                lv-msg = TRIM(ip-focus:LABEL) + " is invalid, try help".
+                lv-msg = TRIM(ip-focus:LABEL) + " " + ip-focus:SCREEN-VALUE +  " is invalid, try help".
 
         IF lv-msg NE "" THEN DO:
             MESSAGE 
-                TRIM(lv-msg) + "..."
+                TRIM(lv-msg)
                 VIEW-AS ALERT-BOX INFO BUTTONS OK.
             APPLY "entry" TO ip-focus.
             RETURN ERROR.
