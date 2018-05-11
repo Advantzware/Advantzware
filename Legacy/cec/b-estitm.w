@@ -7713,7 +7713,10 @@ PROCEDURE update-e-itemfg-vend :
 
        CREATE bf-e-itemfg-vend.
        BUFFER-COPY e-itemfg-vend TO bf-e-itemfg-vend.
-       ASSIGN bf-e-itemfg-vend.eqty = eb.eqty.
+       ASSIGN
+            bf-e-itemfg-vend.eqty = eb.eqty
+            bf-e-itemfg-vend.i-no = eb.stock-no
+            .
 
        FIND FIRST reftable WHERE reftable.reftable EQ "e-itemfg-vend.std-uom" 
               AND reftable.company  EQ e-itemfg-vend.company   
