@@ -35,15 +35,15 @@ CREATE WIDGET-POOL.
 /* Local Variable Definitions ---                                       */
 {custom/globdefs.i}
 
-def input param ip-field as cha no-undo.
-def input param ip-table as cha no-undo.
-def input param ip-db as cha no-undo.
-def input param ip-frame as cha no-undo.
-def input param ip-language as cha no-undo.
-def var is-frame-help as log no-undo.
+DEF INPUT PARAMETER ip-field as cha no-undo.
+DEF INPUT PARAMETER ip-table as cha no-undo.
+DEF INPUT PARAMETER ip-db as cha no-undo.
+DEF INPUT PARAMETER ip-frame as cha no-undo.
+DEF INPUT PARAMETER ip-language as cha no-undo.
+DEF VAR is-frame-help as log no-undo.
 DEF VAR ll-secure AS LOG NO-UNDO.
-def var list-name as cha no-undo.
-DEFINE VARIABLE init-dir AS CHARACTER NO-UNDO.
+DEF VAR list-name as cha no-undo.
+DEF VAR init-dir AS CHARACTER NO-UNDO.
 DEF VAR tmp-dir AS CHAR NO-UNDO.
 
 /* _UIB-CODE-BLOCK-END */
@@ -61,8 +61,8 @@ DEF VAR tmp-dir AS CHAR NO-UNDO.
 &Scoped-define FRAME-NAME DEFAULT-FRAME
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS ed-text Btn_OK btn-print btn-update ~
-btDataDigger 
+&Scoped-Define ENABLED-OBJECTS ed-text btProTools btLockMon btDataDigger ~
+btUpdateHelp btPrint BtOK 
 &Scoped-Define DISPLAYED-OBJECTS lv-help-title lv-program lv-frame-name ~
 ed-text 
 
@@ -79,30 +79,31 @@ ed-text
 /* Define the widget handle for the window                              */
 DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 
-/* Menu Definitions                                                     */
-DEFINE MENU POPUP-MENU-btDataDigger 
-       MENU-ITEM m_ProTools2    LABEL "ProTools"      
-       MENU-ITEM m_Program_Stack LABEL "Program Stack" 
-       MENU-ITEM m_Trans        LABEL "Transactions and Locks Window".
-
-
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btDataDigger 
-     LABEL "Admin" 
-     SIZE 11 BY 1.14.
+     LABEL "DataDigger" 
+     SIZE 14 BY 1.14.
 
-DEFINE BUTTON btn-print 
-     LABEL "Print" 
-     SIZE 15 BY 1.14.
+DEFINE BUTTON btLockMon 
+     LABEL "Lock Monitor" 
+     SIZE 14 BY 1.14.
 
-DEFINE BUTTON btn-update 
-     LABEL "Update Help" 
-     SIZE 18 BY 1.14.
-
-DEFINE BUTTON Btn_OK 
+DEFINE BUTTON BtOK 
      LABEL "OK" 
      SIZE 15 BY 1.14
      BGCOLOR 8 .
+
+DEFINE BUTTON btPrint 
+     LABEL "Print" 
+     SIZE 15 BY 1.14.
+
+DEFINE BUTTON btProTools 
+     LABEL "ProTools" 
+     SIZE 14 BY 1.14.
+
+DEFINE BUTTON btUpdateHelp 
+     LABEL "Update Help" 
+     SIZE 18 BY 1.14.
 
 DEFINE VARIABLE ed-text AS CHARACTER 
      VIEW-AS EDITOR MAX-CHARS 500000 SCROLLBAR-VERTICAL
@@ -130,10 +131,12 @@ DEFINE FRAME DEFAULT-FRAME
      lv-program AT ROW 1.24 COL 68 COLON-ALIGNED NO-LABEL WIDGET-ID 16
      lv-frame-name AT ROW 2.43 COL 2 NO-LABEL WIDGET-ID 12
      ed-text AT ROW 3.62 COL 2 NO-LABEL WIDGET-ID 10
-     Btn_OK AT ROW 22.43 COL 55 WIDGET-ID 8
-     btn-print AT ROW 22.43 COL 71 WIDGET-ID 4
-     btn-update AT ROW 22.43 COL 87 WIDGET-ID 6
-     btDataDigger AT ROW 22.43 COL 106 WIDGET-ID 2
+     btProTools AT ROW 22.43 COL 2 WIDGET-ID 2
+     btLockMon AT ROW 22.43 COL 17 WIDGET-ID 18
+     btDataDigger AT ROW 22.43 COL 32 WIDGET-ID 20
+     btUpdateHelp AT ROW 22.43 COL 47 WIDGET-ID 6
+     btPrint AT ROW 22.43 COL 86 WIDGET-ID 4
+     BtOK AT ROW 22.43 COL 102 WIDGET-ID 8
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
@@ -186,9 +189,6 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 /* SETTINGS FOR FRAME DEFAULT-FRAME
    FRAME-NAME                                                           */
 ASSIGN 
-       btDataDigger:POPUP-MENU IN FRAME DEFAULT-FRAME       = MENU POPUP-MENU-btDataDigger:HANDLE.
-
-ASSIGN 
        ed-text:RETURN-INSERTED IN FRAME DEFAULT-FRAME  = TRUE
        ed-text:READ-ONLY IN FRAME DEFAULT-FRAME        = TRUE.
 
@@ -238,99 +238,47 @@ END.
 
 &Scoped-define SELF-NAME btDataDigger
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btDataDigger C-Win
-ON CHOOSE OF btDataDigger IN FRAME DEFAULT-FRAME /* Admin */
+ON CHOOSE OF btDataDigger IN FRAME DEFAULT-FRAME /* DataDigger */
+OR CHOOSE OF btLockMon
+OR CHOOSE of btOK
+OR CHOOSE OF btPrint
+OR CHOOSE OF btProTools
+OR CHOOSE OF btUpdateHelp
 DO:
-    RUN datadigger/datadigger.r.
-    /*
-    MESSAGE 
-        "Datadigger is replaced with the query tool on the advantzware menu."
-        VIEW-AS ALERT-BOX.
-    */
-END.
 
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
+    DEF VAR op-ed-text AS CHAR NO-UNDO.
 
-
-&Scoped-define SELF-NAME btn-print
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-print C-Win
-ON CHOOSE OF btn-print IN FRAME DEFAULT-FRAME /* Print */
-DO:
-    {sys/inc/print1.i}
-    {sys/inc/outprint.i value(99)}
-
-    PUT SKIP SPACE(28)
-        lv-help-title 
-        SKIP
-        SPACE(28) lv-program  /*br*/
-        SKIP
-        SPACE(28) lv-frame-name  /*br*/ .
-
-    PUT SKIP(1)
-        ed-text:SCREEN-VALUE FORMAT "x(10000)" .
-
-     RUN custom/prntproc.p (list-name,INT(11),"P").
-    
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME btn-update
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-update C-Win
-ON CHOOSE OF btn-update IN FRAME DEFAULT-FRAME /* Update Help */
-DO:
-    /* need security check */
-    def var lv-password as cha no-undo.
-    DEF VAR op-ed-text AS cha NO-UNDO.
-    DEFINE VARIABLE hPgmSecurity AS HANDLE NO-UNDO.
-    DEFINE VARIABLE lResult AS LOG NO-UNDO.
-
-    ASSIGN op-ed-text = ed-text.
-
-    /* need security check */
-    RUN "system/PgmMstrSecur.p" PERSISTENT SET hPgmSecurity.
-    RUN epCanAccess IN hPgmSecurity ("sys/ref/hlp.w", "Access1", OUTPUT lResult).
-    DELETE OBJECT hPgmSecurity.
-    
-    /* If not automatically cleared by security level, ask for password */
-    IF lResult THEN DO:
-        run sys/ref/hlpupd.w (ip-field,ip-table,ip-db,ip-frame,ip-language,OUTPUT op-ed-text).
-    END.
-
-        ed-text = op-ed-text.
-        display ed-text with frame {&frame-name}.
-
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME Btn_OK
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_OK C-Win
-ON CHOOSE OF Btn_OK IN FRAME DEFAULT-FRAME /* OK */
-DO:
-  APPLY "CLOSE":U TO THIS-PROCEDURE.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME m_ProTools2
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL m_ProTools2 C-Win
-ON CHOOSE OF MENU-ITEM m_ProTools2 /* ProTools */
-DO:
-  RUN protools\_protool.w.
-END.
-
-&Scoped-define SELF-NAME m_Trans
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL m_Trans Dialog-Frame
-ON CHOOSE OF MENU-ITEM m_Trans /* Transactions and Locks Window */
-DO:
-  RUN util/wlockmon.r.
+    CASE SELF:NAME:
+        WHEN "btDataDigger" THEN
+            RUN datadigger/datadigger.r.
+        WHEN "btLockMon" THEN
+            RUN util/wlockmon.r.
+        WHEN "btOK" THEN DO:
+            APPLY "CLOSE":U TO THIS-PROCEDURE.
+        END.
+        WHEN "btPrint" THEN DO:
+            {sys/inc/print1.i}
+            {sys/inc/outprint.i value(99)}
+            PUT SKIP SPACE(28)
+                lv-help-title 
+                SKIP
+                SPACE(28) lv-program  /*br*/
+                SKIP
+                SPACE(28) lv-frame-name  /*br*/ .
+            PUT SKIP(1)
+                ed-text:SCREEN-VALUE FORMAT "x(10000)" .
+            RUN custom/prntproc.p (list-name,INT(11),"P").
+        END.
+        WHEN "btProTools" THEN.
+        WHEN "btUpdateHelp" THEN DO:
+            ASSIGN 
+                op-ed-text = ed-text.
+            RUN sys/ref/hlpupd.w (ip-field,ip-table,ip-db,ip-frame,ip-language,OUTPUT op-ed-text).
+            ASSIGN
+                ed-text = op-ed-text.
+            DISPLAY ed-text WITH FRAME {&frame-name}.
+        END.
+    END CASE.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -361,137 +309,175 @@ PAUSE 0 BEFORE-HIDE.
 MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
-is-frame-help = no.
-/* mod - sewa for Web Services task 08211210 */
-DEF VAR vconn AS CHAR  NO-UNDO.
-DEF VAR vclint AS CHAR NO-UNDO.
-DEFINE VARIABLE vhWebService AS HANDLE NO-UNDO.
-DEFINE VARIABLE vhSalesSoap AS HANDLE NO-UNDO.
-DEFINE VARIABLE parameters1 AS LONGCHAR NO-UNDO.
-DEFINE VARIABLE parameters2 AS LONGCHAR NO-UNDO.
-DEFINE VARIABLE fr-title  AS CHARACTER NO-UNDO.
-DEFINE VARIABLE fr-txt  AS CHARACTER NO-UNDO.
-DEFINE VARIABLE fr-fram  AS CHARACTER NO-UNDO.
-DEFINE VARIABLE fr-field  AS CHARACTER NO-UNDO.
-DEFINE VARIABLE fr-file  AS CHARACTER NO-UNDO.
-DEFINE VARIABLE fr-flags AS CHAR NO-UNDO.
-DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
-DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
 
-find first sys-ctrl NO-LOCK
-     WHERE sys-ctrl.name    eq "AsiHelpClientID"
-       AND sys-ctrl.company EQ g_company NO-ERROR .
-  IF AVAIL sys-ctrl THEN
-        vclint = sys-ctrl.char-fld  .
-  ELSE DO:
-      RUN sys/ref/nk1look.p (INPUT g_company, "AsiHelpClientID", "C" /* Logical */, NO /* check by cust */, 
-      INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
-      OUTPUT cRtnChar, OUTPUT lRecFound).
-  END.
-  RELEASE sys-ctrl .
+    is-frame-help = no.
 
-find first sys-ctrl NO-LOCK
-     WHERE sys-ctrl.name    eq "AsiHelpService"
-       AND sys-ctrl.company EQ g_company NO-ERROR.
-  IF AVAIL sys-ctrl THEN
-      ASSIGN vconn = sys-ctrl.char-fld .
-  ELSE do:
-      vconn = "".
-      RUN sys/ref/nk1look.p (INPUT g_company, "AsiHelpService", "C" /* Logical */, NO /* check by cust */, 
-      INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
-      OUTPUT cRtnChar, OUTPUT lRecFound).
-  END.
-  RELEASE sys-ctrl .
+    /* mod - sewa for Web Services task 08211210 */
+    DEF VAR vconn AS CHAR  NO-UNDO.
+    DEF VAR vclint AS CHAR NO-UNDO.
+    DEF VAR vhWebService AS HANDLE NO-UNDO.
+    DEF VAR vhSalesSoap AS HANDLE NO-UNDO.
+    DEF VAR parameters1 AS LONGCHAR NO-UNDO.
+    DEF VAR parameters2 AS LONGCHAR NO-UNDO.
+    DEF VAR fr-title  AS CHARACTER NO-UNDO.
+    DEF VAR fr-txt  AS CHARACTER NO-UNDO.
+    DEF VAR fr-fram  AS CHARACTER NO-UNDO.
+    DEF VAR fr-field  AS CHARACTER NO-UNDO.
+    DEF VAR fr-file  AS CHARACTER NO-UNDO.
+    DEF VAR fr-flags AS CHAR NO-UNDO.
+    DEF VAR cRtnChar AS CHARACTER NO-UNDO.
+    DEF VAR lRecFound AS LOGICAL NO-UNDO.
 
+    FIND FIRST sys-ctrl NO-LOCK WHERE 
+        sys-ctrl.name EQ "AsiHelpClientID" AND 
+        sys-ctrl.company EQ g_company NO-ERROR.
+    IF AVAIL sys-ctrl THEN ASSIGN
+        vclint = sys-ctrl.char-fld.
+    ELSE DO:
+        RUN sys/ref/nk1look.p (INPUT g_company, 
+                               "AsiHelpClientID", 
+                               "C" /* Logical */, 
+                               NO /* check by cust */, 
+                               YES /* use cust not vendor */, 
+                               "" /* cust */, 
+                               "" /* ship-to*/,
+                               OUTPUT cRtnChar, 
+                               OUTPUT lRecFound).
+    END.
+    RELEASE sys-ctrl .
 
-      CREATE SERVER vhWebService.
-      vhWebService:CONNECT(vconn) NO-ERROR.
+    FIND FIRST sys-ctrl NO-LOCK WHERE 
+        sys-ctrl.name EQ "AsiHelpService" AND 
+        sys-ctrl.company EQ g_company 
+        NO-ERROR.
+    IF AVAIL sys-ctrl THEN ASSIGN 
+        vconn = sys-ctrl.char-fld .
+    ELSE DO:
+        ASSIGN 
+            vconn = "".
+        RUN sys/ref/nk1look.p (INPUT g_company, 
+                                "AsiHelpService", 
+                                "C" /* Logical */, 
+                                NO /* check by cust */, 
+                                YES /* use cust not vendor */, 
+                                "" /* cust */, 
+                                "" /* ship-to*/,
+                                OUTPUT cRtnChar, 
+                                OUTPUT lRecFound).
+    END.
+    RELEASE sys-ctrl .
 
-IF NOT vhWebService:CONNECTED() THEN
-    DO: 
+    CREATE SERVER vhWebService.
+    vhWebService:CONNECT(vconn) NO-ERROR.
 
-    MESSAGE "Unable to connect to the Advantzware Documentation/Help Server." SKIP
+    IF NOT vhWebService:CONNECTED() THEN DO: 
+        MESSAGE 
+            "Unable to connect to the Advantzware Documentation/Help Server." SKIP
             "Please report the issue to Advantzware support" SKIP
             "AsiHelpService:" + STRING(vconn) 
-         VIEW-AS ALERT-BOX INFO .
+            VIEW-AS ALERT-BOX INFO .
 
-     find first hlp-head where hlp-head.fld-name = ip-field and
-                                 hlp-head.fil-name = ip-table and
-                                 hlp-head.frm-name = ip-frame
-                                 no-lock no-error.
-    if avail hlp-head then is-frame-help = yes.
-    else do:
-    find first hlp-head where hlp-head.fld-name = ip-field and
-                                     hlp-head.fil-name = ip-table
-                                     no-lock no-error.
-    if not avail hlp-head then do: /* program-name */    
-       find first hlp-head where hlp-head.fld-name = ip-field NO-LOCK NO-ERROR.
-       if not avail hlp-head then do:
-           find first hlp-head where hlp-head.fld-name matches ("*" +  ip-frame + "*")  no-lock no-error.
-           if not avail hlp-head then do: 
-              ip-frame = replace(ip-frame,".w",".r").
-              find first hlp-head where hlp-head.fld-name matches ("*" +  ip-frame + "*")  no-lock no-error.
-              if not avail hlp-head then do:           
-                    if ip-table <> "" then message "Help For " string(ip-table) + "." + string(ip-field) ": No Detail Help Information Available!." view-as alert-box error.
-                    else message "Help For "  string(ip-frame)  ": No Detail Help Information Available!." view-as alert-box error.
-                    return .                
-              end.
-           end.  
+        FIND FIRST hlp-head NO-LOCK WHERE
+            hlp-head.fld-name EQ ip-field AND
+            hlp-head.fil-name EQ ip-table AND
+            hlp-head.frm-name EQ ip-frame
+            NO-ERROR.
+        IF AVAIL hlp-head THEN ASSIGN
+            is-frame-help = yes.
+        ELSE DO:
+            FIND FIRST hlp-head NO-LOCK WHERE 
+                hlp-head.fld-name EQ ip-field AND
+                hlp-head.fil-name EQ ip-table
+                NO-ERROR.
+            IF NOT AVAIL hlp-head THEN DO: /* program-name */    
+                FIND FIRST hlp-head NO-LOCK WHERE 
+                    hlp-head.fld-name EQ ip-field 
+                    NO-ERROR.
+                IF NOT AVAIL hlp-head THEN DO:
+                    FIND FIRST hlp-head NO-LOCK WHERE
+                        hlp-head.fld-name matches ("*" +  ip-frame + "*")
+                        NO-ERROR.
+                    IF NOT AVAIL hlp-head THEN DO: 
+                        ASSIGN
+                            ip-frame = REPLACE(ip-frame,".w",".r").
+                        FIND FIRST hlp-head NO-LOCK WHERE 
+                            hlp-head.fld-name MATCHES ("*" +  ip-frame + "*")  
+                            NO-ERROR.
+                        IF NOT AVAIL hlp-head THEN DO:           
+                            IF ip-table <> "" THEN MESSAGE 
+                                "Help For " string(ip-table) + "." + string(ip-field) ": No Detail Help Information Available!." 
+                                VIEW-AS ALERT-BOX ERROR.
+                            ELSE MESSAGE
+                                "Help For "  string(ip-frame)  ": No Detail Help Information Available!." 
+                                VIEW-AS ALERT-BOX ERROR.
+                            RETURN.                
+                        END.
+                    END.  
+                END.
+                ASSIGN 
+                    is-frame-help = yes.
+            END.
+        END.  /* else no ip-frame */
+
+        IF is-frame-help THEN ASSIGN
+            lv-help-title = "Help For " + (if hlp-head.frm-title <> "" then hlp-head.frm-title
+                            else substring(hlp-head.help-txt,1,30) )
+                            + "   " + hlp-head.fil-name + "." + hlp-head.fld-name.
+        ELSE IF hlp-head.frm-title EQ "" THEN ASSIGN
+            lv-help-title = "Help For " + ip-db + "." + ip-table + "." + ip-field.
+                            else lv-help-title = "Help On " + hlp-head.frm-title +  " For " +
+                            ip-db + "." + ip-table + "." + ip-field.
+        ASSIGN 
+            lv-frame-name = "Frame Name: " + ip-frame
+            lv-program = "Procedure: " + substring(program-name(2),index(program-name(2)," "))
+            ed-text = hlp-head.help-txt.
+
+    END. /* WebService no conn*/
+    ELSE DO:  /* WebService conn*/ 
+        IF ip-table EQ ? THEN ASSIGN
+            ip-table = "" .
+        IF ip-field EQ ? THEN ASSIGN 
+            ip-field = "" .
+        IF ip-frame EQ ? THEN ASSIGN 
+            ip-frame = "" . 
+        RUN Service1Soap SET vhSalesSoap ON vhWebService .
+        RUN HelpMain IN vhSalesSoap(INPUT string(ip-field),INPUT STRING(ip-table),INPUT STRING(ip-frame), INPUT STRING(vclint),  OUTPUT parameters1,OUTPUT parameters2,OUTPUT fr-flags).
+
+        ASSIGN 
+            ed-text = parameters2
+            fr-field = STRING(entry(1,parameters1))
+            fr-file  = STRING(entry(3,parameters1))
+            fr-title = STRING(entry(4,parameters1))
+            fr-fram  = STRING(entry(2,parameters1))
+            fr-txt = parameters2 NO-ERROR.
+
+        IF fr-flags EQ "No" 
+        OR fr-flags EQ "" THEN DO:
+            MESSAGE 
+                "Support money not paid, can't access help." 
+                VIEW-AS ALERT-BOX ERROR.
+            RETURN.
         END.
-        is-frame-help = yes.
-     end.
-  end.  /* else no ip-frame */
 
-    if is-frame-help then  
-        lv-help-title = "Help For " + (if hlp-head.frm-title <> "" then hlp-head.frm-title
-                                 else substring(hlp-head.help-txt,1,30) )
-                                 + "   " + hlp-head.fil-name + "." + hlp-head.fld-name
-                                 .                    
-    else if hlp-head.frm-title = "" then 
-        lv-help-title = "Help For " + ip-db + "." + ip-table + "." + ip-field.
-    else lv-help-title = "Help On " + hlp-head.frm-title +  " For " +
-                    ip-db + "." + ip-table + "." + ip-field.
-    lv-frame-name = "Frame Name: " + ip-frame.
-    lv-program = "Procedure: " + substring(program-name(2),index(program-name(2)," ")).
-    ed-text = hlp-head.help-txt.
+        IF ip-field NE "" 
+        AND ip-table NE "" 
+        AND fr-fram = "" THEN ASSIGN
+            is-frame-help = NO.
+        ELSE ASSIGN 
+            is-frame-help = YES.
 
-END. /* WebService no conn*/
-
- ELSE DO:  /* WebService conn*/ 
-     IF ip-table EQ ? THEN ip-table = "" .
-     IF ip-field EQ ? THEN ip-field = "" .
-     IF ip-frame EQ ? THEN ip-frame = "" . 
-    RUN Service1Soap SET vhSalesSoap ON vhWebService .
-    RUN HelpMain IN vhSalesSoap(INPUT string(ip-field),INPUT STRING(ip-table),INPUT STRING(ip-frame), INPUT STRING(vclint),  OUTPUT parameters1,OUTPUT parameters2,OUTPUT fr-flags).
-
-    ed-text = parameters2.
-    fr-field = STRING(entry(1,parameters1)) NO-ERROR.
-    fr-file  = STRING(entry(3,parameters1)) NO-ERROR.
-    fr-title = STRING(entry(4,parameters1)) NO-ERROR.
-    fr-fram  = STRING(entry(2,parameters1)) NO-ERROR.
-    fr-txt = parameters2 .
-
-    IF fr-flags = "No" OR  fr-flags = "" THEN do:
-       MESSAGE "Support money not paid, can't access help" VIEW-AS ALERT-BOX ERROR.
-        RETURN.
-    END.
-
-    IF ip-field <> "" AND ip-table <> "" AND fr-fram = "" THEN
-        is-frame-help = NO.
-    ELSE is-frame-help = YES.
-
-         if is-frame-help then  
-             lv-help-title = "Help For " + (if fr-title <> "" then fr-title
-                 else substring(fr-txt,1,30) )
-                 + "   " + fr-file + "." + fr-field .                    
-
-                 else if fr-title = "" then 
-                     lv-help-title = "Help For " + ip-db + "." + ip-table + "." + ip-field.
-                 ELSE lv-help-title = "Help On " + fr-title +  " For " +
-                      ip-db + "." + ip-table + "." + ip-field .
+        IF is-frame-help THEN ASSIGN
+            lv-help-title = "Help For " + (if fr-title <> "" then fr-title
+                            else substring(fr-txt,1,30) )
+                        + "   " + fr-file + "." + fr-field .                    
+        ELSE IF fr-title EQ "" THEN ASSIGN 
+            lv-help-title = "Help For " + ip-db + "." + ip-table + "." + ip-field.
+        ELSE ASSIGN 
+            lv-help-title = "Help On " + fr-title +  " For " + ip-db + "." + ip-table + "." + ip-field .
                       
-                 lv-frame-name = "Frame Name: " + ip-frame.
-                 lv-program = "Procedure: " + substring(program-name(2),index(program-name(2)," ")).
+        ASSIGN
+            lv-frame-name = "Frame Name: " + ip-frame
+            lv-program = "Procedure: " + substring(program-name(2),index(program-name(2)," ")).
     END.  /* WebService is conn*/     /*mod-sewa  */
           
   RUN enable_UI.
@@ -499,12 +485,25 @@ END. /* WebService no conn*/
     DEF VAR hPgmSecurity AS HANDLE NO-UNDO.
     DEF VAR lResult AS LOG NO-UNDO.
     RUN "system/PgmMstrSecur.p" PERSISTENT SET hPgmSecurity.
-    RUN epCanAccess IN hPgmSecurity ("sys/ref/hlp.w", "Access2", OUTPUT lResult).
+
+    RUN epCanAccess IN hPgmSecurity ("sys/ref/hlp.w", "ProTools", OUTPUT lResult).
+    IF NOT lResult THEN ASSIGN btProTools:VISIBLE = FALSE.
+    ELSE ASSIGN
+        btProTools:SENSITIVE = FALSE.
+        
+    RUN epCanAccess IN hPgmSecurity ("sys/ref/hlp.w", "LockMon", OUTPUT lResult).
+    IF NOT lResult THEN ASSIGN btLockMon:VISIBLE = FALSE.
+
+    RUN epCanAccess IN hPgmSecurity ("sys/ref/hlp.w", "DataDigger", OUTPUT lResult).
+    IF NOT lResult THEN ASSIGN btDataDigger:VISIBLE = FALSE.
+
+    RUN epCanAccess IN hPgmSecurity ("sys/ref/hlp.w", "UpdateHelp", OUTPUT lResult).
+    IF NOT lResult THEN ASSIGN btUpdateHelp:VISIBLE = FALSE.
+
     DELETE OBJECT hPgmSecurity.
-    IF NOT lResult THEN ASSIGN
-        btn-update:VISIBLE IN FRAME {&frame-name} = NO.
-  IF NOT THIS-PROCEDURE:PERSISTENT THEN
-    WAIT-FOR CLOSE OF THIS-PROCEDURE.
+    
+    IF NOT THIS-PROCEDURE:PERSISTENT THEN
+        WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -545,7 +544,7 @@ PROCEDURE enable_UI :
 ------------------------------------------------------------------------------*/
   DISPLAY lv-help-title lv-program lv-frame-name ed-text 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
-  ENABLE ed-text Btn_OK btn-print btn-update btDataDigger 
+  ENABLE ed-text btProTools btLockMon btDataDigger btUpdateHelp btPrint BtOK 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
   VIEW C-Win.
