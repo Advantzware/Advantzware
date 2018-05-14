@@ -2143,8 +2143,8 @@ PROCEDURE valid-mach :
 
         IF mach.p-type EQ "B" THEN
           ASSIGN
-           sh-len = xeb.t-wid
-           sh-wid = xeb.t-len.
+           sh-len = xeb.t-len
+           sh-wid = xeb.t-wid.
 
         IF ll-foam THEN DO:
           sh-dep = xeb.t-dep.
