@@ -55,6 +55,8 @@ DEF VAR lv-under-run AS DECIMAL NO-UNDO.
 DEF VAR lv-over-run AS DECIMAL NO-UNDO.
 DEFINE VARIABLE ls-fgitem-img AS CHARACTER FORM "x(150)" NO-UNDO.
 DEFINE  SHARED VARIABLE s-prt-fgimage AS LOGICAL NO-UNDO.
+DEFINE  SHARED VARIABLE v-dept-codes AS CHAR NO-UNDO.
+DEFINE  SHARED VAR v-dept-log AS LOG NO-UNDO.
 DO TRANSACTION:
    {sys/inc/tspostfg.i}
 END.
@@ -563,8 +565,14 @@ do v-local-loop = 1 to v-local-copies:
                lv-got-return = 0
                v-dept-inst = "".
 
+       IF v-dept-log THEN DO:
         {custom/notespr2.i job v-inst2 6 "notes.rec_key = job.rec_key and
+                            (notes.note_form_no = w-ef.frm OR notes.note_form_no = 0) AND lookup(notes.note_code,v-dept-codes) NE 0" }
+       END.
+       ELSE DO:
+           {custom/notespr2.i job v-inst2 6 "notes.rec_key = job.rec_key and
                             (notes.note_form_no = w-ef.frm OR notes.note_form_no = 0)" }
+        END.
         DO i = 1 TO 6:
              v-dept-inst[i] = v-inst2[i].
         END.
