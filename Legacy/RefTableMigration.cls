@@ -2656,6 +2656,46 @@ CLASS RefTableMigration:
         END.  /*FOR EACH reftable*/  
         RETURN iCnt.
     END METHOD.
+    METHOD PUBLIC INTEGER StdUom(INPUT ipCount AS INTEGER):
+        DEFINE VARIABLE iCnt AS INTEGER NO-UNDO.
+        DEFINE VARIABLE i AS INTEGER NO-UNDO.
+        DEFINE BUFFER reftable1 FOR reftable1.
+        DEFINE BUFFER Breftable FOR reftable. 
+        DEFINE BUFFER e-itemfg-vend  FOR e-itemfg-vend.
+        
+        DISABLE TRIGGERS FOR LOAD OF reftable.        
+        DISABLE TRIGGERS FOR LOAD OF e-itemfg-vend.
+        ASSIGN iProcessCount = 0.        
+        FOR EACH reftable WHERE reftable.reftable = "e-itemfg-vend.std-uom"
+            NO-LOCK:
+            DO TRANSACTION:    
+                FIND FIRST e-itemfg-vend WHERE e-itemfg-vend.est-no = reftable.code
+                                         AND e-itemfg-vend.company  = reftable.company
+                                         AND e-itemfg-vend.form-no  = reftable.val[1]
+                                         AND e-itemfg-vend.blank-no = reftable.val[2]
+                    EXCLUSIVE-LOCK NO-ERROR.
+                IF AVAILABLE e-itemfg-vend THEN DO:   
+                    DO i = 1 to 10: 
+                        IF e-itemfg-vend.std-uom EQ "" THEN ASSIGN e-itemfg-vend.std-uom = reftable.code2. 
+                                     
+                    END.
+                    ASSIGN iProcessCount = iProcessCount + 1.  
+                END.
+                FIND CURRENT e-itemfg-vend NO-LOCK NO-ERROR.    
+                RELEASE e-itemfg-vend.      
+                CREATE reftable1.
+                BUFFER-COPY reftable TO reftable1.
+                RELEASE reftable1.
+                FIND Breftable WHERE ROWID(Breftable) = ROWID(reftable)
+                    EXCLUSIVE-LOCK NO-ERROR.
+                IF AVAILABLE Breftable THEN DELETE Breftable. 
+                RELEASE Breftable.   
+                iCnt = iCnt + 1.
+                IF iCnt >= ipCount THEN LEAVE.   
+            END.              
+        END.  /*FOR EACH reftable*/          
+        RETURN iCnt.
+    END METHOD. /*e-itemfg-vend*/
 END CLASS.
 
 

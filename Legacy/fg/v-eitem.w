@@ -31,7 +31,6 @@ CREATE WIDGET-POOL.
 
 DEF BUFFER bf-itemfg FOR itemfg.
 DEF BUFFER b-e-itemfg-vend FOR e-itemfg-vend.
-DEF BUFFER b-reftable-1 FOR reftable.
 
 DEF TEMP-TABLE tmpfile 
     FIELD siz AS DEC
@@ -1226,16 +1225,7 @@ PROCEDURE delete-est-matrices-proc :
 
                     DELETE b-e-itemfg-vend.
 
-                    FIND FIRST b-reftable-1 WHERE
-                        b-reftable-1.reftable EQ "e-itemfg-vend.std-uom" AND
-                        b-reftable-1.company  EQ b-e-itemfg-vend.company AND
-                        b-reftable-1.loc      EQ "" AND
-                        b-reftable-1.code     EQ b-e-itemfg-vend.est-no AND
-                        b-reftable-1.val[1]   EQ b-e-itemfg-vend.form-no AND
-                        b-reftable-1.val[2]   EQ b-e-itemfg-vend.blank-no
-                        NO-ERROR.
-                    IF AVAIL b-reftable-1 THEN
-                        DELETE b-reftable-1.
+                    
             END.
             SESSION:SET-WAIT-STATE("").
         END.
@@ -1988,38 +1978,6 @@ PROCEDURE update-est-matrices-proc :
                         b-e-itemfg-vend.blank-no = eb.blank-no.
                 END.
 
-                FIND FIRST b-reftable-1 WHERE
-                     b-reftable-1.reftable EQ "e-itemfg-vend.std-uom" AND
-                     b-reftable-1.company  EQ b-e-itemfg-vend.company AND
-                     b-reftable-1.loc      EQ "" AND
-                     b-reftable-1.code     EQ b-e-itemfg-vend.est-no AND
-                     b-reftable-1.val[1]   EQ b-e-itemfg-vend.form-no AND
-                     b-reftable-1.val[2]   EQ b-e-itemfg-vend.blank-no
-                     NO-ERROR.
-
-                IF AVAIL b-reftable-1 THEN DO:
-                    FIND FIRST e-itemfg NO-LOCK WHERE
-                        e-itemfg.company EQ b-e-itemfg-vend.company AND
-                        e-itemfg.i-no EQ b-e-itemfg-vend.i-no
-                        NO-ERROR.
-
-                    IF AVAIL e-itemfg THEN DO:
-                        ASSIGN 
-                            b-reftable-1.code2 = e-itemfg.std-uom.
-                        RELEASE e-itemfg.
-                    END.
-
-                    RELEASE b-reftable-1.
-                END.
-                ELSE DO:
-                    CREATE b-reftable-1.
-                    ASSIGN
-                        b-reftable-1.reftable = "e-itemfg-vend.std-uom"
-                        b-reftable-1.company  = b-e-itemfg-vend.company
-                        b-reftable-1.loc      = ""
-                        b-reftable-1.code     = b-e-itemfg-vend.est-no
-                        b-reftable-1.val[1]   = b-e-itemfg-vend.form-no
-                        b-reftable-1.val[2]   = b-e-itemfg-vend.blank-no.
 
                     FIND FIRST e-itemfg NO-LOCK WHERE
                         e-itemfg.company EQ b-e-itemfg-vend.company AND
@@ -2028,12 +1986,12 @@ PROCEDURE update-est-matrices-proc :
 
                     IF AVAIL e-itemfg THEN DO:
                         ASSIGN 
-                            b-reftable-1.code2 = e-itemfg.std-uom.
+                            b-e-itemfg-vend.std-uom = e-itemfg.std-uom.
                         RELEASE e-itemfg.
                     END.
-                    RELEASE b-reftable-1.
-                END.
-                RELEASE b-e-itemfg-vend.
+
+                    
+                                RELEASE b-e-itemfg-vend.
             END.
             SESSION:SET-WAIT-STATE("").
         END.

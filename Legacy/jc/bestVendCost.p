@@ -102,17 +102,7 @@ FOR EACH e-itemfg-vend NO-LOCK
                      cUOM           = e-itemfg-vend.std-uom
                      opcEstUOM      = e-itemfg-vend.std-uom.
       
-              FIND FIRST reftable 
-                WHERE reftable.reftable EQ "e-itemfg-vend.std-uom" 
-                  AND reftable.company  EQ e-itemfg-vend.company   
-                  AND reftable.loc      EQ ""                      
-                  AND reftable.code     EQ e-itemfg-vend.est-no    
-                  AND reftable.val[1]   EQ e-itemfg-vend.form-no   
-                  AND reftable.val[2]   EQ e-itemfg-vend.blank-no
-                NO-LOCK NO-ERROR.
-              IF AVAIL reftable THEN
-                  ASSIGN cUOM = reftable.code2
-                         opcEstUOM = reftable.code2.
+
               IF e-itemfg-vend.SELECTED[i] THEN
                   llSelectedFound = TRUE.
             END. /* if cost is lower or selected */
