@@ -1043,121 +1043,121 @@ PROCEDURE pPostGL:
                                     fg-rcpth.b-no = ap-invl.i-no
                                     .
                                 IF LAST(fg-rcpth.trans-date) AND iQty NE iQty1 THEN DO:
-                                    FIND FIRST fg-bin
-                                         WHERE fg-bin.company EQ ipcCompany
-                                           AND fg-bin.i-no    EQ fg-rcpth.i-no
-                                           AND fg-bin.loc     EQ fg-rdtlh.loc
-                                           AND fg-bin.loc-bin EQ fg-rdtlh.loc-bin
-                                           AND fg-bin.tag     EQ fg-rdtlh.tag
-                                           AND fg-bin.job-no  EQ fg-rcpth.job-no
-                                           AND fg-bin.job-no2 EQ fg-rcpth.job-no2
-                                         NO-ERROR.
-                                    IF NOT AVAILABLE fg-bin THEN DO:
-                                        CREATE fg-bin.
-                                        ASSIGN
-                                            fg-bin.company      = fg-rdtlh.company
-                                            fg-bin.job-no       = fg-rcpth.job-no
-                                            fg-bin.job-no2      = fg-rcpth.job-no2
-                                            fg-bin.loc          = fg-rdtlh.loc
-                                            fg-bin.loc-bin      = fg-rdtlh.loc-bin
-                                            fg-bin.tag          = fg-rdtlh.tag
-                                            fg-bin.i-no         = fg-rcpth.i-no
-                                            fg-bin.case-count   = itemfg.case-count
-                                            fg-bin.cases-unit   = 1
-                                            fg-bin.aging-date   = fg-rcpth.trans-date
-                                            fg-bin.pur-uom      = "M"
-                                            fg-bin.std-tot-cost = fg-rdtlh.cost
-                                            fg-bin.std-mat-cost = fg-bin.std-tot-cost
-                                            fg-bin.std-lab-cost = 0
-                                            fg-bin.std-var-cost = 0
-                                            fg-bin.std-fix-cost = 0
-                                            .
-                                    END. /* not avail fg-bin */
+/*                                    FIND FIRST fg-bin                                */
+/*                                         WHERE fg-bin.company EQ ipcCompany          */
+/*                                           AND fg-bin.i-no    EQ fg-rcpth.i-no       */
+/*                                           AND fg-bin.loc     EQ fg-rdtlh.loc        */
+/*                                           AND fg-bin.loc-bin EQ fg-rdtlh.loc-bin    */
+/*                                           AND fg-bin.tag     EQ fg-rdtlh.tag        */
+/*                                           AND fg-bin.job-no  EQ fg-rcpth.job-no     */
+/*                                           AND fg-bin.job-no2 EQ fg-rcpth.job-no2    */
+/*                                         NO-ERROR.                                   */
+/*                                    IF NOT AVAILABLE fg-bin THEN DO:                 */
+/*                                        CREATE fg-bin.                               */
+/*                                        ASSIGN                                       */
+/*                                            fg-bin.company      = fg-rdtlh.company   */
+/*                                            fg-bin.job-no       = fg-rcpth.job-no    */
+/*                                            fg-bin.job-no2      = fg-rcpth.job-no2   */
+/*                                            fg-bin.loc          = fg-rdtlh.loc       */
+/*                                            fg-bin.loc-bin      = fg-rdtlh.loc-bin   */
+/*                                            fg-bin.tag          = fg-rdtlh.tag       */
+/*                                            fg-bin.i-no         = fg-rcpth.i-no      */
+/*                                            fg-bin.case-count   = itemfg.case-count  */
+/*                                            fg-bin.cases-unit   = 1                  */
+/*                                            fg-bin.aging-date   = fg-rcpth.trans-date*/
+/*                                            fg-bin.pur-uom      = "M"                */
+/*                                            fg-bin.std-tot-cost = fg-rdtlh.cost      */
+/*                                            fg-bin.std-mat-cost = fg-bin.std-tot-cost*/
+/*                                            fg-bin.std-lab-cost = 0                  */
+/*                                            fg-bin.std-var-cost = 0                  */
+/*                                            fg-bin.std-fix-cost = 0                  */
+/*                                            .                                        */
+/*                                    END. /* not avail fg-bin */                      */
                                     ASSIGN
                                         iQty1         = iQty1 - iQty
                                         fg-rdtlh.qty   = fg-rdtlh.qty + iQty1
                                         fg-rdtlh.cases = trunc(fg-rdtlh.qty / fg-rdtlh.qty-case,0)
-                                        fg-bin.qty     = fg-bin.qty + iQty1
+/*                                        fg-bin.qty     = fg-bin.qty + iQty1          */
                                         itemfg.q-onh   = itemfg.q-onh + iQty1
                                         .
-                                    RUN fg/chkfgloc.p (INPUT itemfg.i-no, INPUT fg-bin.loc).
+                                    RUN fg/chkfgloc.p (INPUT itemfg.i-no, INPUT fg-rdtlh.loc).
                                     FIND FIRST itemfg-loc EXCLUSIVE-LOCK 
                                          WHERE itemfg-loc.company EQ itemfg.company
                                            AND itemfg-loc.i-no    EQ itemfg.i-no
-                                           AND itemfg-loc.loc     EQ fg-bin.loc
+                                           AND itemfg-loc.loc     EQ fg-rdtlh.loc
                                          NO-ERROR.
                                     IF AVAILABLE itemfg-loc THEN
                                     itemfg-loc.q-onh = itemfg-loc.q-onh + iQty1.
                                     FIND CURRENT itemfg-loc NO-LOCK NO-ERROR.
                                 END. /* last trans-date */
                             END. /* each fg-rcpth */
-                            FOR EACH fg-rcpth
-                                WHERE fg-rcpth.company   EQ ipcCompany
-                                  AND fg-rcpth.i-no      EQ po-ordl.i-no
-                                  AND fg-rcpth.po-no     EQ cPONum
-                                  AND fg-rcpth.rita-code EQ "R"
-                                USE-INDEX item-po NO-LOCK,
-                                EACH fg-rdtlh
-                                WHERE fg-rdtlh.r-no EQ fg-rcpth.r-no
-                                BREAK BY fg-rcpth.job-no
-                                      BY fg-rcpth.job-no2
-                                      BY fg-rdtlh.loc
-                                      BY fg-rdtlh.loc-bin
-                                      BY fg-rdtlh.tag
-                                :
-                                IF FIRST-OF(fg-rdtlh.tag) THEN
-                                ASSIGN
-                                    iQty  = 0
-                                    dCost = 0
-                                    .
-                                ASSIGN
-                                    iQty  = iQty + fg-rdtlh.qty
-                                    dCost = dCost + (fg-rdtlh.qty / 1000 * fg-rdtlh.cost)
-                                    .
-                                IF LAST-OF(fg-rdtlh.tag) THEN DO:
-                                    FIND FIRST fg-bin
-                                         WHERE fg-bin.company EQ ipcCompany
-                                           AND fg-bin.i-no    EQ fg-rcpth.i-no
-                                           AND fg-bin.loc     EQ fg-rdtlh.loc
-                                           AND fg-bin.loc-bin EQ fg-rdtlh.loc-bin
-                                           AND fg-bin.tag     EQ fg-rdtlh.tag
-                                           AND fg-bin.job-no  EQ fg-rcpth.job-no
-                                           AND fg-bin.job-no2 EQ fg-rcpth.job-no2
-                                         NO-ERROR.
-                                    IF NOT AVAILABLE fg-bin THEN DO:
-                                        CREATE fg-bin.
-                                        ASSIGN
-                                            fg-bin.company      = fg-rdtlh.company
-                                            fg-bin.job-no       = fg-rcpth.job-no
-                                            fg-bin.job-no2      = fg-rcpth.job-no2
-                                            fg-bin.loc          = fg-rdtlh.loc
-                                            fg-bin.loc-bin      = fg-rdtlh.loc-bin
-                                            fg-bin.tag          = fg-rdtlh.tag
-                                            fg-bin.i-no         = fg-rcpth.i-no
-                                            fg-bin.case-count   = itemfg.case-count
-                                            fg-bin.cases-unit   = 1
-                                            fg-bin.aging-date   = fg-rcpth.trans-date
-                                            fg-bin.pur-uom      = "M"
-                                            fg-bin.std-tot-cost = fg-rdtlh.cost
-                                            fg-bin.std-mat-cost = fg-bin.std-tot-cost
-                                            fg-bin.std-lab-cost = 0
-                                            fg-bin.std-var-cost = 0
-                                            fg-bin.std-fix-cost = 0
-                                            .
-                                    END. /* not avail fg-bin */
-                                    dCost = dCost / (iQty / 1000).
-                                    IF fg-bin.pur-uom EQ "M" THEN
-                                    fg-bin.std-tot-cost = dCost.
-                                    ELSE
-                                    RUN sys/ref/convcuom.p ("M", fg-bin.pur-uom, 0, 0, 0, 0, dCost, OUTPUT fg-bin.std-tot-cost).
-                                    ASSIGN
-                                        fg-bin.std-mat-cost = fg-bin.std-tot-cost
-                                        fg-bin.std-lab-cost = 0
-                                        fg-bin.std-var-cost = 0
-                                        fg-bin.std-fix-cost = 0
-                                        .
-                                END. /* last-of tag */
-                            END. /* each fg-rcpth */
+/*                            FOR EACH fg-rcpth                                                                                   */
+/*                                WHERE fg-rcpth.company   EQ ipcCompany                                                          */
+/*                                  AND fg-rcpth.i-no      EQ po-ordl.i-no                                                        */
+/*                                  AND fg-rcpth.po-no     EQ cPONum                                                              */
+/*                                  AND fg-rcpth.rita-code EQ "R"                                                                 */
+/*                                USE-INDEX item-po NO-LOCK,                                                                      */
+/*                                EACH fg-rdtlh                                                                                   */
+/*                                WHERE fg-rdtlh.r-no EQ fg-rcpth.r-no                                                            */
+/*                                BREAK BY fg-rcpth.job-no                                                                        */
+/*                                      BY fg-rcpth.job-no2                                                                       */
+/*                                      BY fg-rdtlh.loc                                                                           */
+/*                                      BY fg-rdtlh.loc-bin                                                                       */
+/*                                      BY fg-rdtlh.tag                                                                           */
+/*                                :                                                                                               */
+/*                                IF FIRST-OF(fg-rdtlh.tag) THEN                                                                  */
+/*                                ASSIGN                                                                                          */
+/*                                    iQty  = 0                                                                                   */
+/*                                    dCost = 0                                                                                   */
+/*                                    .                                                                                           */
+/*                                ASSIGN                                                                                          */
+/*                                    iQty  = iQty + fg-rdtlh.qty                                                                 */
+/*                                    dCost = dCost + (fg-rdtlh.qty / 1000 * fg-rdtlh.cost)                                       */
+/*                                    .                                                                                           */
+/*                                IF LAST-OF(fg-rdtlh.tag) THEN DO:                                                               */
+/*                                    FIND FIRST fg-bin                                                                           */
+/*                                         WHERE fg-bin.company EQ ipcCompany                                                     */
+/*                                           AND fg-bin.i-no    EQ fg-rcpth.i-no                                                  */
+/*                                           AND fg-bin.loc     EQ fg-rdtlh.loc                                                   */
+/*                                           AND fg-bin.loc-bin EQ fg-rdtlh.loc-bin                                               */
+/*                                           AND fg-bin.tag     EQ fg-rdtlh.tag                                                   */
+/*                                           AND fg-bin.job-no  EQ fg-rcpth.job-no                                                */
+/*                                           AND fg-bin.job-no2 EQ fg-rcpth.job-no2                                               */
+/*                                         NO-ERROR.                                                                              */
+/*                                    IF NOT AVAILABLE fg-bin THEN DO:                                                            */
+/*                                        CREATE fg-bin.                                                                          */
+/*                                        ASSIGN                                                                                  */
+/*                                            fg-bin.company      = fg-rdtlh.company                                              */
+/*                                            fg-bin.job-no       = fg-rcpth.job-no                                               */
+/*                                            fg-bin.job-no2      = fg-rcpth.job-no2                                              */
+/*                                            fg-bin.loc          = fg-rdtlh.loc                                                  */
+/*                                            fg-bin.loc-bin      = fg-rdtlh.loc-bin                                              */
+/*                                            fg-bin.tag          = fg-rdtlh.tag                                                  */
+/*                                            fg-bin.i-no         = fg-rcpth.i-no                                                 */
+/*                                            fg-bin.case-count   = itemfg.case-count                                             */
+/*                                            fg-bin.cases-unit   = 1                                                             */
+/*                                            fg-bin.aging-date   = fg-rcpth.trans-date                                           */
+/*                                            fg-bin.pur-uom      = "M"                                                           */
+/*                                            fg-bin.std-tot-cost = fg-rdtlh.cost                                                 */
+/*                                            fg-bin.std-mat-cost = fg-bin.std-tot-cost                                           */
+/*                                            fg-bin.std-lab-cost = 0                                                             */
+/*                                            fg-bin.std-var-cost = 0                                                             */
+/*                                            fg-bin.std-fix-cost = 0                                                             */
+/*                                            .                                                                                   */
+/*                                    END. /* not avail fg-bin */                                                                 */
+/*                                    dCost = dCost / (iQty / 1000).                                                              */
+/*                                    IF fg-bin.pur-uom EQ "M" THEN                                                               */
+/*                                    fg-bin.std-tot-cost = dCost.                                                                */
+/*                                    ELSE                                                                                        */
+/*                                    RUN sys/ref/convcuom.p ("M", fg-bin.pur-uom, 0, 0, 0, 0, dCost, OUTPUT fg-bin.std-tot-cost).*/
+/*                                    ASSIGN                                                                                      */
+/*                                        fg-bin.std-mat-cost = fg-bin.std-tot-cost                                               */
+/*                                        fg-bin.std-lab-cost = 0                                                                 */
+/*                                        fg-bin.std-var-cost = 0                                                                 */
+/*                                        fg-bin.std-fix-cost = 0                                                                 */
+/*                                        .                                                                                       */
+/*                                END. /* last-of tag */                                                                          */
+/*                            END. /* each fg-rcpth */                                                                            */
                         END. /* avail itemfg */
                         RUN fg/updfgcst.p (po-ordl.i-no).
                     END. /* if not po-ordl.item-type */
@@ -1192,7 +1192,7 @@ PROCEDURE pPostGL:
             FIND CURRENT vend     NO-LOCK NO-ERROR.
             FIND CURRENT po-ordl  NO-LOCK NO-ERROR.
             FIND CURRENT itemfg   NO-LOCK NO-ERROR.
-            FIND CURRENT fg-bin   NO-LOCK NO-ERROR.
+/*            FIND CURRENT fg-bin   NO-LOCK NO-ERROR.*/
             FIND CURRENT fg-rdtlh NO-LOCK NO-ERROR.
             FIND CURRENT fg-rcpth NO-LOCK NO-ERROR.
             CREATE ap-ledger.
