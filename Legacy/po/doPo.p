@@ -1546,7 +1546,8 @@ PROCEDURE checkZeroQty :
 
 
     DEFINE BUFFER bf-po-ordl FOR po-ordl.  
-    DEFINE BUFFER bf-po-ord  FOR po-ord.  
+    DEFINE BUFFER bf-po-ord  FOR po-ord.
+    DEFINE BUFFER bf-e-itemfg-vend  FOR e-itemfg-vend.  
 
     FIND bf-po-ordl WHERE ROWID(bf-po-ordl) EQ iprPoOrdl EXCLUSIVE-LOCK NO-ERROR.
     IF AVAILABLE bf-po-ordl THEN
@@ -1605,17 +1606,16 @@ PROCEDURE checkZeroQty :
                         bf-po-ordl.cons-cost, OUTPUT oe-ordl.cost).
             END. /* avail oe-ordl */
       
-            FIND FIRST reftable WHERE
-                reftable.reftable EQ 'e-itemfg-vend.markup' AND
-                reftable.company EQ bf-po-ordl.company AND
-                reftable.loc EQ bf-po-ordl.i-no AND
-                reftable.code EQ bf-po-ord.vend-no
-                NO-LOCK NO-ERROR.
-          
-            IF AVAILABLE reftable THEN
+
+            FIND FIRST bf-e-itemfg-vend WHERE
+                   bf-e-itemfg-vend.company EQ bf-po-ordl.company AND
+                   bf-e-itemfg-vend.i-no EQ bf-po-ordl.i-no AND
+                   bf-e-itemfg-vend.vend-no EQ bf-po-ord.vend-no
+                   NO-LOCK NO-ERROR.
+
+            IF AVAIL bf-e-itemfg-vend THEN
             DO:
-                oe-ordl.cost = oe-ordl.cost * (1 + (reftable.val[1]/ 100.0 )).
-                RELEASE reftable.
+                oe-ordl.cost = oe-ordl.cost * (1 + (bf-e-itemfg-vend.markup / 100.0 )).
             END. /* avail reftable */
 
             RELEASE oe-ordl.

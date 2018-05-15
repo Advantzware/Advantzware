@@ -2314,17 +2314,16 @@ PROCEDURE display-fgpart :
       NO-LOCK NO-ERROR.
       IF AVAIL po-ord THEN
       DO:
-        FIND FIRST reftable WHERE
-        reftable.reftable EQ 'e-itemfg-vend.markup' AND
-        reftable.company EQ po-ordl.company AND
-        reftable.loc EQ po-ordl.i-no AND
-        reftable.CODE EQ po-ord.vend-no
-        NO-LOCK NO-ERROR.
-        IF AVAIL reftable THEN
+        FIND FIRST e-itemfg-vend WHERE
+                   e-itemfg-vend.company EQ po-ordl.company AND
+                   e-itemfg-vend.i-no EQ po-ordl.i-no AND
+                   e-itemfg-vend.vend-no EQ po-ord.vend-no
+                   NO-LOCK NO-ERROR.
+
+              IF AVAIL e-itemfg-vend THEN
         DO:
-          set-sv("oe-ordl.cost", STRING(DEC(get-sv("oe-ordl.cost")) * (1 + (reftable.val[1] / 100.0 ))) ).
-          RELEASE reftable.
-        END.
+          set-sv("oe-ordl.cost", STRING(DEC(get-sv("oe-ordl.cost")) * (1 + (e-itemfg-vend.markup / 100.0 ))) ).
+          END.
         RELEASE po-ord.
       END.
     END.
@@ -3641,17 +3640,16 @@ PROCEDURE LEAVE_po_no_po :
                       po-ordl.cons-cost, OUTPUT ld-cost).
                       set-sv("oe-ordl.cost", STRING(ld-cost) ).
                     END.
-                    FIND FIRST reftable WHERE
-                    reftable.reftable EQ 'e-itemfg-vend.markup' AND
-                    reftable.company EQ po-ordl.company AND
-                    reftable.loc EQ po-ordl.i-no AND
-                    reftable.CODE EQ po-ord.vend-no
-                    NO-LOCK NO-ERROR.
-                    IF AVAIL reftable THEN
+                    FIND FIRST e-itemfg-vend WHERE
+                   e-itemfg-vend.company EQ po-ordl.company AND
+                   e-itemfg-vend.i-no EQ po-ordl.i-no AND
+                   e-itemfg-vend.vend-no EQ po-ord.vend-no
+                   NO-LOCK NO-ERROR.
+
+                   IF AVAIL e-itemfg-vend THEN
                     DO:
-                      set-sv("oe-ordl.cost", STRING(DEC(get-sv("oe-ordl.cost")) * (1 + (reftable.val[1]/ 100.0 ))) ).
-                      RELEASE reftable.
-                    END.
+                      set-sv("oe-ordl.cost", STRING(DEC(get-sv("oe-ordl.cost")) * (1 + (e-itemfg-vend.markup / 100.0 ))) ).
+                      END.
                   END.
   
 END PROCEDURE.
