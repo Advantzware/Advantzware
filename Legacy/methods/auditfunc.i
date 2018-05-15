@@ -6,7 +6,7 @@ FUNCTION fFormatValue RETURNS CHARACTER (iphTable AS HANDLE, ipcField AS CHARACT
     cStr = STRING(iphTable:BUFFER-FIELD(ipcField):BUFFER-VALUE(ipiExtent),
                   iphTable:BUFFER-FIELD(ipcField):FORMAT) NO-ERROR.
     /* error raised if invalid format for field value */
-    IF ERROR-STATUS:NUM-MESSAGES NE 0 THEN 
+    IF ERROR-STATUS:NUM-MESSAGES NE 0 OR iphTable:BUFFER-FIELD(ipcField):DATA-TYPE EQ "CHARACTER" THEN 
     cStr = iphTable:BUFFER-FIELD(ipcField):BUFFER-VALUE(ipiExtent).
     
     cStr = LEFT-TRIM(TRIM(cStr)).
