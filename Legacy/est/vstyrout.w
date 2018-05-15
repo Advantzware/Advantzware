@@ -1545,6 +1545,21 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&Scoped-define SELF-NAME routing-mtx.msf
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL routing-mtx.msf V-table-Win
+ON LEAVE OF routing-mtx.msf IN FRAME F-Main /* Routing Code[9] */
+DO:
+    if lastkey <> -1 and self:screen-value <> ""  THEN do:
+      RUN valid-msf NO-ERROR. 
+     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+    end.                 
+
+END.
+
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 &UNDEFINE SELF-NAME
 
@@ -1650,16 +1665,35 @@ PROCEDURE local-create-record :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-
+DEFINE BUFFER bf-routing-mtx FOR routing-mtx .
+DEFINE  VARIABLE cCheckMsf AS CHARACTER NO-UNDO .
+DEFINE VARIABLE dMsf AS DECIMAL NO-UNDO .
+DEFINE VARIABLE iCount AS INTEGER NO-UNDO .
   /* Code placed here will execute PRIOR to standard behavior. */
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'create-record':U ) .
-
+ 
+ IF AVAIL style THEN
+ FOR EACH bf-routing-mtx NO-LOCK 
+     WHERE bf-routing-mtx.company EQ style.company
+       AND bf-routing-mtx.loc EQ gloc
+       AND bf-routing-mtx.style EQ style.style :
+        cCheckMsf = cCheckMsf + STRING(bf-routing-mtx.msf) + "," .
+ END.
+ dMsf = 0 .
+  DO iCount = 1 TO NUM-ENTRIES(cCheckMsf):
+      IF ENTRY(iCount,cCheckMsf) NE "" AND decimal(ENTRY(iCount,cCheckMsf)) EQ dMsf THEN
+          dMsf = dMsf + 1 .
+  END.
+  
   /* Code placed here will execute AFTER standard behavior.    */
+  DO WITH FRAME {&FRAME-NAME}:
   assign routing-mtx.company = style.company
          routing-mtx.loc = gloc
-         routing-mtx.style = style.style.
+         routing-mtx.style = style.style
+         routing-mtx.msf   = dMsf .
+  END.
   disp routing-mtx.style with frame {&frame-name}.
 
 
@@ -1879,6 +1913,9 @@ PROCEDURE local-update-record :
 
   end.
 
+   RUN valid-msf NO-ERROR. 
+   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
 
@@ -1957,3 +1994,33 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-msf V-table-Win 
+PROCEDURE valid-msf :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+   DEFINE BUFFER bf-routing-mtx FOR routing-mtx .
+
+   {methods/lValidateError.i YES}
+ IF AVAIL style THEN
+  FIND FIRST bf-routing-mtx NO-LOCK 
+     WHERE bf-routing-mtx.company EQ style.company
+       AND bf-routing-mtx.loc EQ gloc
+       AND bf-routing-mtx.style EQ style.style 
+       AND bf-routing-mtx.msf EQ integer(routing-mtx.msf:SCREEN-VALUE IN FRAME {&FRAME-NAME})
+       AND ROWID(bf-routing-mtx) NE ROWID(routing-mtx) NO-ERROR .
+       
+    IF  AVAIL bf-routing-mtx THEN DO:
+       MESSAGE "MSF already used. Please enter different MSF..." VIEW-AS ALERT-BOX INFO.
+       APPLY "entry" TO routing-mtx.MSF .
+       RETURN ERROR.
+    END.
+
+  {methods/lValidateError.i NO}
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
