@@ -666,7 +666,8 @@ FORMAT wkrecap.procat
                  WHEN "cust-po" THEN cVarValue = IF AVAILABLE oe-ordl AND oe-ordl.cust-no NE "" THEN STRING(oe-ordl.po-no,"x(15)") ELSE STRING(oe-ord.po-no,"x(15)") . /* ticket 14966*/
                  WHEN "die-no" THEN cVarValue = IF AVAILABLE itemfg AND itemfg.die-no NE "" THEN STRING(itemfg.die-no,"x(15)") ELSE IF AVAILABLE eb THEN STRING(eb.die-no,"x(15)") ELSE "" . /* ticket 16188*/
                  WHEN "v-net-prct" THEN cVarValue = STRING(dNetprct,"->>9.99"). 
-                 WHEN "csrUser_id" THEN cVarValue = STRING(cUsers-id,"X(8)"). 
+                 WHEN "csrUser_id" THEN cVarValue = STRING(cUsers-id,"X(8)").
+                 WHEN "ack-date" THEN cVarValue = IF AVAIL oe-ord AND oe-ord.ack-prnt-date NE ? THEN STRING(oe-ord.ack-prnt-date) ELSE "".
             END CASE.
             IF cTmpField = "v-profit" AND NOT prt-profit THEN NEXT.
             cExcelVarValue = cVarValue.
@@ -743,6 +744,7 @@ FORMAT wkrecap.procat
                    WHEN "v-net-prct" THEN cVarValue = "". 
                    WHEN "w-data.shp-qty" THEN cVarValue = "" .
                    WHEN "csrUser_id" THEN cVarValue = "" .
+                   WHEN "ack-date" THEN cVarValue = "".
               END CASE.
               IF cTmpField = "v-profit" AND NOT prt-profit THEN NEXT.
               cExcelVarValue = cVarValue.
@@ -812,6 +814,7 @@ FORMAT wkrecap.procat
                    WHEN "v-net-prct" THEN cVarValue = "". 
                    WHEN "w-data.shp-qty" THEN cVarValue = "" .
                    WHEN "csrUser_id" THEN cVarValue = "" .
+                   WHEN "ack-date" THEN cVarValue = "".
               END CASE.
               IF cTmpField = "v-profit" AND NOT prt-profit THEN NEXT.
               cExcelVarValue = cVarValue.
@@ -880,7 +883,8 @@ FORMAT wkrecap.procat
                 WHEN "cust-po" THEN cVarValue = IF AVAILABLE oe-ordl AND oe-ordl.cust-no NE "" THEN STRING(oe-ordl.po-no,"x(15)") ELSE STRING(oe-ord.po-no,"x(15)") . /* ticket 14966*/
                 WHEN "die-no" THEN cVarValue = IF AVAILABLE itemfg AND itemfg.die-no NE "" THEN STRING(itemfg.die-no,"x(15)") ELSE IF AVAILABLE eb THEN STRING(eb.die-no,"x(15)") ELSE "" . /* ticket 16188*/
                 WHEN "v-net-prct" THEN cVarValue = STRING(dNetprct,"->>9.99").
-                WHEN "csrUser_id" THEN cVarValue = STRING(cUsers-id,"X(8)"). 
+                WHEN "csrUser_id" THEN cVarValue = STRING(cUsers-id,"X(8)").
+                WHEN "ack-date" THEN cVarValue = IF AVAIL oe-ord AND oe-ord.ack-prnt-date NE ? THEN STRING(oe-ord.ack-prnt-date) ELSE "".
             END CASE.
             IF cTmpField = "v-profit" AND NOT prt-profit THEN NEXT.  
             cExcelVarValue = cVarValue.
@@ -954,6 +958,7 @@ FORMAT wkrecap.procat
                    WHEN "v-net-prct" THEN cVarValue = "" .
                    WHEN "w-data.shp-qty" THEN cVarValue = "" .
                    WHEN "csrUser_id" THEN cVarValue = "" .
+                   WHEN "ack-date" THEN cVarValue = "".
               END CASE.
               IF cTmpField = "v-profit" AND NOT prt-profit THEN NEXT.
               cExcelVarValue = cVarValue.
@@ -1022,6 +1027,7 @@ FORMAT wkrecap.procat
                    WHEN "v-net-prct" THEN cVarValue = "" .
                    WHEN "w-data.shp-qty" THEN cVarValue = "" .
                    WHEN "csrUser_id" THEN cVarValue = "" .
+                   WHEN "ack-date" THEN cVarValue = "".
               END CASE.
               IF cTmpField = "v-profit" AND NOT prt-profit THEN NEXT.
               cExcelVarValue = cVarValue.
