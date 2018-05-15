@@ -6712,12 +6712,23 @@ PROCEDURE ok-button :
   IF lv-ok-ran AND NOT tb_reprint-tag AND tb_close THEN do:
      IF program-name(1) matches "*r-loadtg.*"
         and not program-name(2) matches "*persist*" THEN DO:
-         FOR EACH userLog EXCLUSIVE-LOCK WHERE userLog.userStatus EQ "Logged In" 
-                AND  userLog.user_id EQ USERID(LDBNAME(1)):
-                ASSIGN 
-                    userLog.logoutDateTime = DATETIME(TODAY, MTIME)
-                    userLog.userStatus     = "User Logged Out".
-            END. 
+         
+         FIND FIRST userLog NO-LOCK 
+             WHERE userLog.user_id     = USERID(LDBNAME(1))       
+             AND userLog.sessionID     = igsSessionID 
+             AND userLog.userStatus EQ "Logged In" 
+             USE-INDEX sessionID
+             NO-ERROR.
+
+         IF AVAILABLE  userLog THEN 
+          DO TRANSACTION:
+             FIND CURRENT userLog EXCLUSIVE-LOCK.  
+             ASSIGN 
+                 userLog.logoutDateTime = DATETIME(TODAY, MTIME)
+                 userLog.userStatus     = "User Logged Out".
+             
+             FIND CURRENT userLog NO-LOCK.
+          END.
      END.
       APPLY "close" TO THIS-PROCEDURE.
   END.
