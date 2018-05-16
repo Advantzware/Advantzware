@@ -1671,21 +1671,30 @@ DEFINE VARIABLE dMsf AS DECIMAL NO-UNDO .
 DEFINE VARIABLE iCount AS INTEGER NO-UNDO .
   /* Code placed here will execute PRIOR to standard behavior. */
 
+   FIND FIRST bf-routing-mtx NO-LOCK
+      WHERE bf-routing-mtx.company EQ style.company
+        AND bf-routing-mtx.loc EQ gloc
+        AND bf-routing-mtx.style EQ style.style
+        AND bf-routing-mtx.msf EQ 0 NO-ERROR .
+
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'create-record':U ) .
- 
- IF AVAIL style THEN
+
+  dMsf = 0 .
+
+ IF AVAIL style AND AVAIL bf-routing-mtx  THEN do:
  FOR EACH bf-routing-mtx NO-LOCK 
      WHERE bf-routing-mtx.company EQ style.company
        AND bf-routing-mtx.loc EQ gloc
        AND bf-routing-mtx.style EQ style.style :
         cCheckMsf = cCheckMsf + STRING(bf-routing-mtx.msf) + "," .
  END.
- dMsf = 0 .
+ 
   DO iCount = 1 TO NUM-ENTRIES(cCheckMsf):
       IF ENTRY(iCount,cCheckMsf) NE "" AND decimal(ENTRY(iCount,cCheckMsf)) EQ dMsf THEN
           dMsf = dMsf + 1 .
   END.
+ END.
   
   /* Code placed here will execute AFTER standard behavior.    */
   DO WITH FRAME {&FRAME-NAME}:
@@ -2014,7 +2023,7 @@ PROCEDURE valid-msf :
        AND ROWID(bf-routing-mtx) NE ROWID(routing-mtx) NO-ERROR .
        
     IF  AVAIL bf-routing-mtx THEN DO:
-       MESSAGE "MSF already used. Please enter different MSF..." VIEW-AS ALERT-BOX INFO.
+       MESSAGE "MSF " routing-mtx.msf:SCREEN-VALUE IN FRAME {&FRAME-NAME} " already Exist. Please enter different MSF..." VIEW-AS ALERT-BOX INFO.
        APPLY "entry" TO routing-mtx.MSF .
        RETURN ERROR.
     END.
