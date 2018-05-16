@@ -954,6 +954,7 @@ PROCEDURE done-in-2days :
         bf-machtran.waste_qty = waste-qty        
         bf-machtran.completed = v-completed
         bf-machtran.end_time = stoptime /* no shift change, close out current */
+        bf-machtran.posted = NO
         machtran_rec_id = RECID(bf-machtran).
      {custom/calctime.i &file="bf-machtran"}
 
@@ -1240,8 +1241,9 @@ PROCEDURE done-in-2days :
               machtran.shift = missingshift
               machtran.jobseq = IF AVAILABLE jobseq THEN jobseq.jobseq ELSE 0
               machtran.charge_code = charge_code
-              machtran.completed = v-completed.
-
+              machtran.completed = v-completed
+              machtran.posted = NO
+              .
              RUN touch/crt-memp.p (company_code,machine_code, ROWID(machtran)).
              {custom/calctime.i &file="machtran"}
              {addon/touch/do-break.i}
@@ -1275,8 +1277,9 @@ PROCEDURE done-in-2days :
             machtran.jobseq = IF AVAILABLE jobseq THEN jobseq.jobseq ELSE 0
             machtran.charge_code = charge_code
             machtran.completed = v-completed
-            machtran-rowid = ROWID(machtran).
-
+            machtran.posted = NO
+            machtran-rowid = ROWID(machtran)
+            .
             RUN touch/crt-memp.p (company_code,machine_code, ROWID(machtran)).
             {custom/calctime.i &file="machtran"}
             {addon/touch/do-break.i}
@@ -1314,6 +1317,7 @@ PROCEDURE done-in-2days :
            bf-machtran.waste_qty = waste-qty        
            bf-machtran.completed = v-completed
            bf-machtran.end_time = stoptime /* no shift change, close out current */
+           bf-machtran.posted = NO
            machtran_rec_id = RECID(bf-machtran).
 
         /* update machemp and create new machemp for 2nd day*/
@@ -1423,6 +1427,7 @@ PROCEDURE done-in-2days2 :
         bf-machtran.charge_code = machtran.charge_code        
         bf-machtran.completed = v-completed
         bf-machtran.shift = machtran.shift
+        bf-machtran.posted = NO
         machtran_rec_id = RECID(bf-machtran).
 
   /* update machemp and create new machemp for 2nd day*/
@@ -1516,8 +1521,9 @@ PROCEDURE done-in-2days2 :
          machtran.shift = missingshift
          machtran.jobseq = IF AVAILABLE jobseq THEN jobseq.jobseq ELSE 0
          machtran.charge_code = charge_code
-         machtran.completed = v-completed.
-    
+         machtran.completed = v-completed
+         machtran.posted = NO
+         .    
         {custom/calctime.i &file="machtran"}
     
         RUN touch/crt-memp.p (company_code,machine_code, ROWID(machtran)).
@@ -1555,7 +1561,9 @@ PROCEDURE done-in-2days2 :
       machtran.jobseq = IF AVAILABLE jobseq THEN jobseq.jobseq ELSE 0
       machtran.charge_code = charge_code
       machtran.completed = v-completed
-      machtran-rowid = ROWID(machtran).
+      machtran.posted = NO
+      machtran-rowid = ROWID(machtran)
+      .
       {custom/calctime.i &file="machtran"}
 
     RUN touch/crt-memp.p (company_code,machine_code, ROWID(machtran)).
@@ -1858,7 +1866,8 @@ PROCEDURE job-start :
         machtran.start_date = v-today
         machtran.start_time = time-hour * 3600 + time-minute * 60 + ampm
         machtran.jobseq = IF AVAILABLE jobseq THEN jobseq.jobseq ELSE 0
-        machtran.charge_code = charge_code        
+        machtran.charge_code = charge_code
+        machtran.posted = NO        
         machtran-rowid = ROWID(machtran)
         .      
       RUN Get-Shift (company_code,machine_code,machtran.start_time,job_sequence,
@@ -2068,7 +2077,9 @@ PROCEDURE Job_Data_Collection :
                   machtran.shift = missingshift
                   machtran.jobseq = IF AVAILABLE jobseq THEN jobseq.jobseq ELSE 0
                   machtran.charge_code = charge_code
-                  machtran.completed = v-completed.
+                  machtran.completed = v-completed
+                  machtran.posted = NO
+                  .
                  {custom/calctime.i &file="machtran"}
 
                  RUN touch/crt-memp.p (company_code,machine_code, ROWID(machtran)).
@@ -2103,7 +2114,9 @@ PROCEDURE Job_Data_Collection :
                 machtran.jobseq = IF AVAILABLE jobseq THEN jobseq.jobseq ELSE 0
                 machtran.charge_code = charge_code
                 machtran.completed = v-completed
-                machtran-rowid = ROWID(machtran).
+                machtran.posted = NO
+                machtran-rowid = ROWID(machtran)
+                .
               {custom/calctime.i &file="machtran"}
 
               RUN touch/crt-memp.p (company_code,machine_code, ROWID(machtran)).

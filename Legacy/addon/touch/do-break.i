@@ -135,11 +135,9 @@ IF AVAILABLE sys-ctrl AND sys-ctrl.log-fld THEN DO:
                                 machtran.shift         = lv-org-shift
                                 machtran.jobseq        = IF AVAILABLE jobseq THEN jobseq.jobseq ELSE 0
                                 machtran.charge_code   = charge_code
+                                machtran.posted        = NO
                                 machtran-rowid         = ROWID(machtran)
                                 .
-                            OUTPUT TO "logs\crt-break.log" APPEND.
-                            EXPORT machtran.
-                            OUTPUT CLOSE.    
                             RUN touch/crt-memp.p (company_code,machine_code, ROWID(machtran)).
                         END. 
                         ELSE IF AVAILABLE shift_break AND stoptime EQ shift_break.end_time THEN DO:
@@ -167,12 +165,10 @@ IF AVAILABLE sys-ctrl AND sys-ctrl.log-fld THEN DO:
                                         machtran.jobseq        = IF AVAILABLE jobseq THEN jobseq.jobseq ELSE 0
                                         machtran.charge_code   = charge_code
                                         /*machtran.completed = v-completed */
+                                        machtran.posted        = NO
                                         machtran-rowid         = ROWID(machtran)
                                         .
                                     {custom/calctime.i &file="machtran"} 
-                                    OUTPUT TO "logs\crt-break.log" APPEND.
-                                    EXPORT machtran.
-                                    OUTPUT CLOSE.    
                                     RUN touch/crt-memp.p (company_code,machine_code, ROWID(machtran)).
                                 END.
                                 ASSIGN 
@@ -216,12 +212,10 @@ IF AVAILABLE sys-ctrl AND sys-ctrl.log-fld THEN DO:
             machtran.jobseq        = IF AVAILABLE jobseq THEN jobseq.jobseq ELSE 0
             machtran.charge_code   = charge_code
             machtran.completed     = v-completed
+            machtran.posted        = NO
             machtran-rowid         = ROWID(machtran)
             .
             {custom/calctime.i &file="machtran"}
-            OUTPUT TO "logs\crt-break.log" APPEND.
-            EXPORT machtran.
-            OUTPUT CLOSE.    
         RUN touch/crt-memp.p (company_code,machine_code, ROWID(machtran)).
     END .
     ELSE IF lv-got-break AND stoptime LT lv-brk-end-time THEN DO:
