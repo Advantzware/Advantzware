@@ -44,24 +44,7 @@ DEFINE VARIABLE lvProdAceResource AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lvProdAceJob AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lvProdAceBlank AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lvProdAcePass AS CHARACTER NO-UNDO.
-/*DEFINE VARIABLE lvProdAceRun AS CHARACTER NO-UNDO.*/
-/*DEFINE VARIABLE lvProdAceForm AS CHARACTER NO-UNDO.*/
-/*DEFINE VARIABLE lvProdAceStart AS CHARACTER NO-UNDO.      */
-/*DEFINE VARIABLE lvProdAceStartDate AS DATE NO-UNDO.       */
-/*DEFINE VARIABLE lvProdAceStartTime AS INTEGER NO-UNDO.    */
-/*DEFINE VARIABLE lvProdAceEnd AS CHARACTER NO-UNDO.        */
-/*DEFINE VARIABLE lvProdAceEndDate AS DATE NO-UNDO.         */
-/*DEFINE VARIABLE lvProdAceEndTime AS INTEGER NO-UNDO.      */
-/*DEFINE VARIABLE lvProdAceDuration AS DECIMAL NO-UNDO.     */
-/*DEFINE VARIABLE lvProdAceMRRunQty AS INTEGER NO-UNDO.     */
-/*DEFINE VARIABLE lvprodAceTranRunQty AS INTEGER NO-UNDO.       */
-/*DEFINE VARIABLE lvprodAceTranRejectQty AS INTEGER NO-UNDO.    */
-/*DEFINE VARIABLE lvProdAceState AS CHARACTER NO-UNDO.      */
-/*DEFINE VARIABLE lvProdAceTranRunQty AS INTEGER NO-UNDO.   */
-/*DEFINE VARIABLE lvProdAceTranRejectQty AS INTEGER NO-UNDO.*/
 DEFINE VARIABLE lvProdAceOperator AS CHARACTER NO-UNDO EXTENT 10.
-/*DEFINE VARIABLE lvProdAceLastName AS CHARACTER NO-UNDO. */
-/*DEFINE VARIABLE lvProdAceFirstName AS CHARACTER NO-UNDO.*/
 DEFINE VARIABLE lvAttrList AS CHARACTER NO-UNDO FORMAT 'x(4)'.
 DEFINE VARIABLE lvFile AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lvTemp AS CHARACTER NO-UNDO.
@@ -70,11 +53,13 @@ DEFINE VARIABLE lvArchive AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lvErrorFile AS CHARACTER NO-UNDO.
 DEFINE VARIABLE jobMchRowID AS ROWID NO-UNDO.
 DEFINE VARIABLE lvShifts AS CHARACTER NO-UNDO INIT 'First,Second,Third,Fourth,Fifth,Sixth'.
-/*DEFINE VARIABLE lvTotalTime AS INTEGER NO-UNDO.*/
-/*DEFINE VARIABLE lvDateLoop AS DATE NO-UNDO.    */
 DEFINE VARIABLE lvPostProdAce AS LOGICAL NO-UNDO.
 DEFINE VARIABLE lvHoldFile AS CHARACTER NO-UNDO.
 
+DEFINE TEMP-TABLE ttToggleBox NO-UNDO
+    FIELD hToggleBox AS HANDLE
+    FIELD rResource AS ROWID
+    .
 DEFINE TEMP-TABLE ttblProductID NO-UNDO
     FIELD productID AS CHARACTER 
     FIELD dmiID AS INTEGER 
@@ -146,13 +131,14 @@ SESSION:SET-WAIT-STATE('').
 &Scoped-define FRAME-NAME DEFAULT-FRAME
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS btnExportMachines btnExportJobs ~
-btnExportEmployees btnExportShifts btnImport selectedShift ~
-selectedStartDate selectedEndDate btnPost btnNonPost btnCancel lvProdAceDir ~
-lvImportDir lvProdAceBlankEmployee lvResourceList btnSave btnReset btnExit 
-&Scoped-Define DISPLAYED-OBJECTS selectedShift selectedStartDate ~
-selectedEndDate lvProdAceDir lvImportDir lvProdAceType lvEmpLogin ~
-lvProdAceBlankEmployee lvResourceList 
+&Scoped-Define ENABLED-OBJECTS btnExportMachines setAllResources ~
+selectedShift selectedStartDate selectedEndDate btnPost btnNonPost ~
+btnCancel lvProdAceDir lvImportDir lvProdAceBlankEmployee lvResourceList ~
+btnSave btnReset btnExit btnExportJobs btnExportEmployees btnExportShifts ~
+btnImport 
+&Scoped-Define DISPLAYED-OBJECTS setAllResources selectedShift ~
+selectedStartDate selectedEndDate lvProdAceDir lvImportDir lvProdAceType ~
+lvEmpLogin lvProdAceBlankEmployee lvResourceList 
 
 /* Custom List Definitions                                              */
 /* ProdAceDatValues,List-2,List-3,List-4,List-5,List-6                  */
@@ -296,20 +282,19 @@ DEFINE RECTANGLE RECT-2
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   
      SIZE 16 BY 14.52.
 
+DEFINE VARIABLE setAllResources AS LOGICAL INITIAL yes 
+     LABEL "Set All Resources (set Resource Current Job)" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 47 BY .81 NO-UNDO.
+
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME DEFAULT-FRAME
      btnExportMachines AT ROW 4.1 COL 56 HELP
           "Export Machines to ProductionACE" WIDGET-ID 4
-     btnExportJobs AT ROW 1.24 COL 56 HELP
-          "Export Jobs to ProductionACE" WIDGET-ID 26
-     btnExportEmployees AT ROW 7.67 COL 56 HELP
-          "Export Employees to ProductionACE" WIDGET-ID 14
-     btnExportShifts AT ROW 10.52 COL 56 HELP
-          "Export Shifts to ProductionACE" WIDGET-ID 18
-     btnImport AT ROW 13.14 COL 56 HELP
-          "Import from Production Ace" WIDGET-ID 6
+     setAllResources AT ROW 1.24 COL 70 HELP
+          "Select to Toggle All Resources" WIDGET-ID 30
      selectedShift AT ROW 1.95 COL 2 HELP
           "Select Shift" NO-LABEL
      selectedStartDate AT ROW 1.95 COL 31 COLON-ALIGNED HELP
@@ -334,31 +319,39 @@ DEFINE FRAME DEFAULT-FRAME
           "Click to Reset Values"
      btnExit AT ROW 14.1 COL 45 HELP
           "Click to Cancel and Exit"
+     btnExportJobs AT ROW 1.24 COL 56 HELP
+          "Export Jobs to ProductionACE" WIDGET-ID 26
+     btnExportEmployees AT ROW 7.67 COL 56 HELP
+          "Export Employees to ProductionACE" WIDGET-ID 14
+     btnExportShifts AT ROW 10.52 COL 56 HELP
+          "Export Shifts to ProductionACE" WIDGET-ID 18
+     btnImport AT ROW 13.14 COL 56 HELP
+          "Import from Production Ace" WIDGET-ID 6
      "Jobs" VIEW-AS TEXT
           SIZE 5 BY .62 AT ROW 2.91 COL 57 WIDGET-ID 28
-     "Import" VIEW-AS TEXT
-          SIZE 7 BY .62 AT ROW 14.81 COL 57 WIDGET-ID 24
+     "Shifts" VIEW-AS TEXT
+          SIZE 6 BY .62 AT ROW 12.19 COL 57 WIDGET-ID 20
+     "Employees" VIEW-AS TEXT
+          SIZE 11 BY .62 AT ROW 9.33 COL 55 WIDGET-ID 16
+     "Charge Codes" VIEW-AS TEXT
+          SIZE 14 BY .62 AT ROW 6.48 COL 53 WIDGET-ID 12
+     "Machines &&" VIEW-AS TEXT
+          SIZE 11 BY .62 AT ROW 5.76 COL 54 WIDGET-ID 8
+     "Type:" VIEW-AS TEXT
+          SIZE 6 BY .81 AT ROW 9.1 COL 12
+     "Employee Login:" VIEW-AS TEXT
+          SIZE 16 BY .81 AT ROW 10.29 COL 2
      "Select Shift to Post ... Enter Date Range" VIEW-AS TEXT
           SIZE 49 BY .62 AT ROW 1.24 COL 2
           FONT 6
-     "Employee Login:" VIEW-AS TEXT
-          SIZE 16 BY .81 AT ROW 10.29 COL 2
-     "Type:" VIEW-AS TEXT
-          SIZE 6 BY .81 AT ROW 9.1 COL 12
-     "Machines &&" VIEW-AS TEXT
-          SIZE 11 BY .62 AT ROW 5.76 COL 54 WIDGET-ID 8
-     "Charge Codes" VIEW-AS TEXT
-          SIZE 14 BY .62 AT ROW 6.48 COL 53 WIDGET-ID 12
-     "Employees" VIEW-AS TEXT
-          SIZE 11 BY .62 AT ROW 9.33 COL 55 WIDGET-ID 16
-     "Shifts" VIEW-AS TEXT
-          SIZE 6 BY .62 AT ROW 12.19 COL 57 WIDGET-ID 20
+     "Import" VIEW-AS TEXT
+          SIZE 7 BY .62 AT ROW 14.81 COL 57 WIDGET-ID 24
      RECT-1 AT ROW 6.24 COL 1
      RECT-2 AT ROW 1 COL 52 WIDGET-ID 2
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 67.2 BY 14.57.
+         SIZE 160 BY 14.57.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -379,11 +372,11 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          HIDDEN             = YES
          TITLE              = "ProductionACE DMI"
          HEIGHT             = 14.57
-         WIDTH              = 67.2
+         WIDTH              = 160
          MAX-HEIGHT         = 14.57
-         MAX-WIDTH          = 67.2
+         MAX-WIDTH          = 160
          VIRTUAL-HEIGHT     = 14.57
-         VIRTUAL-WIDTH      = 67.2
+         VIRTUAL-WIDTH      = 160
          MIN-BUTTON         = no
          MAX-BUTTON         = no
          ALWAYS-ON-TOP      = yes
@@ -627,6 +620,20 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME setAllResources
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL setAllResources C-Win
+ON VALUE-CHANGED OF setAllResources IN FRAME DEFAULT-FRAME /* Set All Resources (set Resource Current Job) */
+DO:
+    ASSIGN {&SELF-NAME}.
+    FOR EACH ttToggleBox:
+        ttToggleBox.hToggleBox:CHECKED = {&SELF-NAME}.
+    END. /* each tttogglebox */
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &UNDEFINE SELF-NAME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK C-Win 
@@ -663,6 +670,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     selectedEndDate = TODAY
     .
   RUN enable_UI.
+  RUN createResourceToggleBoxes.
   IF iplAutoMonitor THEN DO:
     APPLY 'CHOOSE':U TO btnPost.
     RETURN.
@@ -797,6 +805,63 @@ PROCEDURE createMachEmp :
   IF machemp.total_time LT 0 OR machemp.total_time EQ ? THEN
      machemp.total_time = 0.
 
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE createResourceToggleBoxes C-Win 
+PROCEDURE createResourceToggleBoxes :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DELETE WIDGET-POOL "resourceTogglePool" NO-ERROR.
+    CREATE WIDGET-POOL "resourceTogglePool" PERSISTENT.
+
+    DEFINE VARIABLE dCol    AS DECIMAL NO-UNDO INITIAL 74.
+    DEFINE VARIABLE dRow    AS DECIMAL NO-UNDO INITIAL 2.4.
+    DEFINE VARIABLE hWidget AS HANDLE  NO-UNDO.
+    
+    FOR EACH ttblResource
+        WHERE ttblResource.dmiID GT 0
+        :
+        IF dRow + .95 GT FRAME {&FRAME-NAME}:HEIGHT THEN
+        ASSIGN
+            {&WINDOW-NAME}:VIRTUAL-HEIGHT = {&WINDOW-NAME}:VIRTUAL-HEIGHT + .95
+            {&WINDOW-NAME}:HEIGHT = {&WINDOW-NAME}:VIRTUAL-HEIGHT
+            FRAME {&FRAME-NAME}:VIRTUAL-HEIGHT = {&WINDOW-NAME}:HEIGHT
+            FRAME {&FRAME-NAME}:HEIGHT = FRAME {&FRAME-NAME}:VIRTUAL-HEIGHT
+            .
+        CREATE TOGGLE-BOX hWidget IN WIDGET-POOL "resourceTogglePool"
+            ASSIGN
+              FRAME = FRAME {&FRAME-NAME}:HANDLE
+              FORMAT = "X(256)"
+              ROW = dRow
+              COL = dCol
+              WIDTH = 70
+              HEIGHT = .81
+              SENSITIVE = YES
+              HIDDEN = NO
+              LABEL = ttblResource.resource + " - "
+                    + ttblResource.resourceDescription
+                    .
+        /*
+        TRIGGERS:
+          ON VALUE-CHANGE
+            PERSISTENT RUN pClick IN THIS-PROCEDURE (hWidget:HANDLE).
+        END TRIGGERS.
+        */
+        CREATE ttToggleBox.
+        ASSIGN
+          ttToggleBox.hToggleBox = hWidget
+          ttToggleBox.rResource = ROWID(ttblResource)
+          dRow = dRow + .95
+          hWidget:CHECKED = YES
+          .
+    END. /* each ttblresource */
+    
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1034,14 +1099,14 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY selectedShift selectedStartDate selectedEndDate lvProdAceDir 
-          lvImportDir lvProdAceType lvEmpLogin lvProdAceBlankEmployee 
-          lvResourceList 
+  DISPLAY setAllResources selectedShift selectedStartDate selectedEndDate 
+          lvProdAceDir lvImportDir lvProdAceType lvEmpLogin 
+          lvProdAceBlankEmployee lvResourceList 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
-  ENABLE btnExportMachines btnExportJobs btnExportEmployees btnExportShifts 
-         btnImport selectedShift selectedStartDate selectedEndDate btnPost 
-         btnNonPost btnCancel lvProdAceDir lvImportDir lvProdAceBlankEmployee 
-         lvResourceList btnSave btnReset btnExit 
+  ENABLE btnExportMachines setAllResources selectedShift selectedStartDate 
+         selectedEndDate btnPost btnNonPost btnCancel lvProdAceDir lvImportDir 
+         lvProdAceBlankEmployee lvResourceList btnSave btnReset btnExit 
+         btnExportJobs btnExportEmployees btnExportShifts btnImport 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
   VIEW C-Win.
@@ -1131,6 +1196,10 @@ PROCEDURE pExport :
                   BY ttblJob.jobSequence
             :
             IF FIRST-OF(ttblResource.dmiID) THEN DO:
+                FIND FIRST ttToggleBox
+                     WHERE ttToggleBox.rResource EQ ROWID(ttblResource)
+                     .
+                IF ttToggleBox.hToggleBox:CHECKED THEN
                 firstJobsList = firstJobsList
                               + STRING(ttblResource.dmiID,'999') + '|'
                               + ttblJob.job + ' '
