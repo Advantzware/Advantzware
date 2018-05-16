@@ -3544,10 +3544,10 @@ PROCEDURE printProbe :
      END.
 
      IF NOT is-xprint-form AND v-prt-note THEN RUN print-notes(LINE-COUNTER).
+
     INPUT CLOSE.
-    IF PAGE-NUM EQ 1 THEN
     OUTPUT CLOSE.
-    ELSE IF v-prt-box THEN OUTPUT CLOSE.
+    
   END.
   
   IF is-xprint-form THEN RUN print-box-est (lv-dest,lv-font,lv-ornt).
