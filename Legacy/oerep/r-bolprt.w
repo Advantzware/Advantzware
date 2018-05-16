@@ -4513,14 +4513,10 @@ PROCEDURE SetBOLForm :
                 is-xprint-form = NO
                 v-program = "oe/rep/cocacpi.p".
 
-         WHEN "CCC" OR WHEN "CCCWPP" THEN
+         WHEN "CCC" OR WHEN "CCCWPP" OR WHEN "CCC2" THEN
               ASSIGN 
                 is-xprint-form = NO
                 v-program = "oe/rep/cocccc.p".
-         WHEN "CCC2" THEN
-              ASSIGN 
-                is-xprint-form = NO
-                v-program = "oe/rep/cocccc2.p".
          WHEN "BOLCERT10" THEN
             ASSIGN
                is-xprint-form = YES
