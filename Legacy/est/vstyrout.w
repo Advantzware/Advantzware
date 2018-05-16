@@ -2014,6 +2014,12 @@ PROCEDURE valid-msf :
    DEFINE BUFFER bf-routing-mtx FOR routing-mtx .
 
    {methods/lValidateError.i YES}
+  IF integer(routing-mtx.msf:SCREEN-VALUE IN FRAME {&FRAME-NAME}) EQ 0 THEN do:
+    MESSAGE "MSF cannot be 0. Please enter valid MSF..." VIEW-AS ALERT-BOX INFO.
+       APPLY "entry" TO routing-mtx.MSF .
+       RETURN ERROR.
+  END.
+  
  IF AVAIL style THEN
   FIND FIRST bf-routing-mtx NO-LOCK 
      WHERE bf-routing-mtx.company EQ style.company
