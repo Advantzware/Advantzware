@@ -1442,49 +1442,49 @@ do transaction on error undo postit:
               if last(fg-rcpth.trans-date) and
                  v-qty ne v-qty1           then do:
 
-                find first fg-bin
-                    where fg-bin.company eq cocode
-                      and fg-bin.i-no    eq fg-rcpth.i-no
-                      and fg-bin.loc     eq fg-rdtlh.loc
-                      and fg-bin.loc-bin eq fg-rdtlh.loc-bin
-                      and fg-bin.tag     eq fg-rdtlh.tag
-                      and fg-bin.job-no  eq fg-rcpth.job-no
-                      and fg-bin.job-no2 eq fg-rcpth.job-no2
-                    no-error.  
-
-                if not avail fg-bin then do:
-                  create fg-bin.
-                  assign
-                   fg-bin.company      = fg-rdtlh.company
-                   fg-bin.job-no       = fg-rcpth.job-no
-                   fg-bin.job-no2      = fg-rcpth.job-no2
-                   fg-bin.loc          = fg-rdtlh.loc
-                   fg-bin.loc-bin      = fg-rdtlh.loc-bin
-                   fg-bin.tag          = fg-rdtlh.tag
-                   fg-bin.i-no         = fg-rcpth.i-no
-                   fg-bin.case-count   = itemfg.case-count
-                   fg-bin.cases-unit   = 1
-                   fg-bin.aging-date   = fg-rcpth.trans-date
-                   fg-bin.pur-uom      = "M"
-                   fg-bin.std-tot-cost = fg-rdtlh.cost
-                   fg-bin.std-mat-cost = fg-bin.std-tot-cost
-                   fg-bin.std-lab-cost = 0
-                   fg-bin.std-var-cost = 0
-                   fg-bin.std-fix-cost = 0.
-                end.
+/*                find first fg-bin                           */
+/*                    where fg-bin.company eq cocode          */
+/*                      and fg-bin.i-no    eq fg-rcpth.i-no   */
+/*                      and fg-bin.loc     eq fg-rdtlh.loc    */
+/*                      and fg-bin.loc-bin eq fg-rdtlh.loc-bin*/
+/*                      and fg-bin.tag     eq fg-rdtlh.tag    */
+/*                      and fg-bin.job-no  eq fg-rcpth.job-no */
+/*                      and fg-bin.job-no2 eq fg-rcpth.job-no2*/
+/*                    no-error.                               */
+/*                                                            */
+/*                if not avail fg-bin then do:                */
+/*                  create fg-bin.                            */
+/*                  assign                                    */
+/*                   fg-bin.company      = fg-rdtlh.company   */
+/*                   fg-bin.job-no       = fg-rcpth.job-no    */
+/*                   fg-bin.job-no2      = fg-rcpth.job-no2   */
+/*                   fg-bin.loc          = fg-rdtlh.loc       */
+/*                   fg-bin.loc-bin      = fg-rdtlh.loc-bin   */
+/*                   fg-bin.tag          = fg-rdtlh.tag       */
+/*                   fg-bin.i-no         = fg-rcpth.i-no      */
+/*                   fg-bin.case-count   = itemfg.case-count  */
+/*                   fg-bin.cases-unit   = 1                  */
+/*                   fg-bin.aging-date   = fg-rcpth.trans-date*/
+/*                   fg-bin.pur-uom      = "M"                */
+/*                   fg-bin.std-tot-cost = fg-rdtlh.cost      */
+/*                   fg-bin.std-mat-cost = fg-bin.std-tot-cost*/
+/*                   fg-bin.std-lab-cost = 0                  */
+/*                   fg-bin.std-var-cost = 0                  */
+/*                   fg-bin.std-fix-cost = 0.                 */
+/*                end.                                        */
 
                 assign
                  v-qty1         = v-qty1 - v-qty
                  fg-rdtlh.qty   = fg-rdtlh.qty + v-qty1
                  fg-rdtlh.cases = trunc(fg-rdtlh.qty / fg-rdtlh.qty-case,0)
-                 fg-bin.qty     = fg-bin.qty + v-qty1
+/*                 fg-bin.qty     = fg-bin.qty + v-qty1*/
                  itemfg.q-onh   = itemfg.q-onh + v-qty1.
 
-                RUN fg/chkfgloc.p (INPUT itemfg.i-no, INPUT fg-bin.loc).
+                RUN fg/chkfgloc.p (INPUT itemfg.i-no, INPUT fg-rdtlh.loc).
                 FIND FIRST itemfg-loc 
                     WHERE itemfg-loc.company EQ itemfg.company
                       AND itemfg-loc.i-no    EQ itemfg.i-no
-                      AND itemfg-loc.loc     EQ fg-bin.loc
+                      AND itemfg-loc.loc     EQ fg-rdtlh.loc
                     EXCLUSIVE-LOCK NO-ERROR.
                 IF AVAIL itemfg-loc THEN
                   itemfg-loc.q-onh = itemfg-loc.q-onh + v-qty1.
@@ -1516,52 +1516,52 @@ do transaction on error undo postit:
                v-qty  = v-qty + fg-rdtlh.qty
                v-cost = v-cost + (fg-rdtlh.qty / 1000 * fg-rdtlh.cost).
 
-              if last-of(fg-rdtlh.tag) then do:
-                find first fg-bin
-                    where fg-bin.company eq cocode
-                      and fg-bin.i-no    eq fg-rcpth.i-no
-                      and fg-bin.loc     eq fg-rdtlh.loc
-                      and fg-bin.loc-bin eq fg-rdtlh.loc-bin
-                      and fg-bin.tag     eq fg-rdtlh.tag
-                      and fg-bin.job-no  eq fg-rcpth.job-no
-                      and fg-bin.job-no2 eq fg-rcpth.job-no2
-                    no-error.  
-
-                if not avail fg-bin then do:
-                  create fg-bin.
-                  assign
-                   fg-bin.company      = fg-rdtlh.company
-                   fg-bin.job-no       = fg-rcpth.job-no
-                   fg-bin.job-no2      = fg-rcpth.job-no2
-                   fg-bin.loc          = fg-rdtlh.loc
-                   fg-bin.loc-bin      = fg-rdtlh.loc-bin
-                   fg-bin.tag          = fg-rdtlh.tag
-                   fg-bin.i-no         = fg-rcpth.i-no
-                   fg-bin.case-count   = itemfg.case-count
-                   fg-bin.cases-unit   = 1
-                   fg-bin.aging-date   = fg-rcpth.trans-date
-                   fg-bin.pur-uom      = "M"
-                   fg-bin.std-tot-cost = fg-rdtlh.cost
-                   fg-bin.std-mat-cost = fg-bin.std-tot-cost
-                   fg-bin.std-lab-cost = 0
-                   fg-bin.std-var-cost = 0
-                   fg-bin.std-fix-cost = 0.
-                end.
-
-                v-cost = v-cost / (v-qty / 1000).
-
-                if fg-bin.pur-uom eq "M" then
-                  fg-bin.std-tot-cost = v-cost.
-                else
-                  run sys/ref/convcuom.p ("M", fg-bin.pur-uom, 0, 0, 0, 0,
-                                          v-cost, output fg-bin.std-tot-cost).
-
-                assign
-                 fg-bin.std-mat-cost = fg-bin.std-tot-cost
-                 fg-bin.std-lab-cost = 0
-                 fg-bin.std-var-cost = 0
-                 fg-bin.std-fix-cost = 0.
-              end.
+/*              if last-of(fg-rdtlh.tag) then do:                               */
+/*                find first fg-bin                                             */
+/*                    where fg-bin.company eq cocode                            */
+/*                      and fg-bin.i-no    eq fg-rcpth.i-no                     */
+/*                      and fg-bin.loc     eq fg-rdtlh.loc                      */
+/*                      and fg-bin.loc-bin eq fg-rdtlh.loc-bin                  */
+/*                      and fg-bin.tag     eq fg-rdtlh.tag                      */
+/*                      and fg-bin.job-no  eq fg-rcpth.job-no                   */
+/*                      and fg-bin.job-no2 eq fg-rcpth.job-no2                  */
+/*                    no-error.                                                 */
+/*                                                                              */
+/*                if not avail fg-bin then do:                                  */
+/*                  create fg-bin.                                              */
+/*                  assign                                                      */
+/*                   fg-bin.company      = fg-rdtlh.company                     */
+/*                   fg-bin.job-no       = fg-rcpth.job-no                      */
+/*                   fg-bin.job-no2      = fg-rcpth.job-no2                     */
+/*                   fg-bin.loc          = fg-rdtlh.loc                         */
+/*                   fg-bin.loc-bin      = fg-rdtlh.loc-bin                     */
+/*                   fg-bin.tag          = fg-rdtlh.tag                         */
+/*                   fg-bin.i-no         = fg-rcpth.i-no                        */
+/*                   fg-bin.case-count   = itemfg.case-count                    */
+/*                   fg-bin.cases-unit   = 1                                    */
+/*                   fg-bin.aging-date   = fg-rcpth.trans-date                  */
+/*                   fg-bin.pur-uom      = "M"                                  */
+/*                   fg-bin.std-tot-cost = fg-rdtlh.cost                        */
+/*                   fg-bin.std-mat-cost = fg-bin.std-tot-cost                  */
+/*                   fg-bin.std-lab-cost = 0                                    */
+/*                   fg-bin.std-var-cost = 0                                    */
+/*                   fg-bin.std-fix-cost = 0.                                   */
+/*                end.                                                          */
+/*                                                                              */
+/*                v-cost = v-cost / (v-qty / 1000).                             */
+/*                                                                              */
+/*                if fg-bin.pur-uom eq "M" then                                 */
+/*                  fg-bin.std-tot-cost = v-cost.                               */
+/*                else                                                          */
+/*                  run sys/ref/convcuom.p ("M", fg-bin.pur-uom, 0, 0, 0, 0,    */
+/*                                          v-cost, output fg-bin.std-tot-cost).*/
+/*                                                                              */
+/*                assign                                                        */
+/*                 fg-bin.std-mat-cost = fg-bin.std-tot-cost                    */
+/*                 fg-bin.std-lab-cost = 0                                      */
+/*                 fg-bin.std-var-cost = 0                                      */
+/*                 fg-bin.std-fix-cost = 0.                                     */
+/*              end.                                                            */
             end.
           end.
 
@@ -1600,7 +1600,7 @@ do transaction on error undo postit:
     FIND CURRENT vend NO-LOCK NO-ERROR.
     FIND CURRENT po-ordl NO-LOCK NO-ERROR.
     FIND CURRENT itemfg NO-LOCK NO-ERROR.
-    FIND CURRENT fg-bin NO-LOCK NO-ERROR.
+/*    FIND CURRENT fg-bin NO-LOCK NO-ERROR.*/
     FIND CURRENT fg-rdtlh NO-LOCK NO-ERROR.
     FIND CURRENT fg-rcpth NO-LOCK NO-ERROR.
 
