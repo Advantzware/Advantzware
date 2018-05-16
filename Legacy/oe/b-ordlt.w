@@ -534,33 +534,7 @@ DO:
   RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"container-source",OUTPUT char-hdl).
   RUN pass-set-item-rec IN WIDGET-HANDLE(char-hdl) (INPUT RECID(oe-ord), INPUT RECID(oe-ordl))
       NO-ERROR.
-/*    IF AVAIL oe-ordl THEN DO:                                                            */
-/*      v-fgitem = oe-ordl.i-no.                                                           */
-/*      FIND FIRST oe-prmtx WHERE oe-prmtx.company = oe-ordl.company                       */
-/*                            AND oe-prmtx.cust-no EQ oe-ordl.cust-no                      */
-/*                            AND oe-prmtx.i-no    BEGINS v-fgitem                         */
-/*                          NO-LOCK NO-ERROR.                                              */
-/*      /* setCurrentCustomer is used in the matrix tab browser */                         */
-/*      IF AVAIL oe-prmtx THEN                                                             */
-/*        PUBLISH "setCurrentCustomer" (oe-ordl.cust-no, v-fgitem, THIS-PROCEDURE).        */
-/*      ELSE DO:                                                                           */
-/*        FIND FIRST oe-prmtx WHERE oe-prmtx.company = oe-ordl.company                     */
-/*                              AND (oe-prmtx.cust-no EQ "" OR oe-prmtx.cust-no = "Stock") */
-/*                              AND oe-prmtx.i-no    BEGINS v-fgitem                       */
-/*                            NO-LOCK NO-ERROR.                                            */
-/*        IF AVAIL oe-prmtx THEN                                                           */
-/*          PUBLISH "setCurrentCustomer" (oe-prmtx.cust-no, v-fgitem, THIS-PROCEDURE).     */
-/*        ELSE DO:                                                                         */
-/*          FIND FIRST oe-prmtx WHERE oe-prmtx.company = oe-ordl.company                   */
-/*                                AND oe-prmtx.cust-no EQ oe-ordl.cust-no                  */
-/*                              NO-LOCK NO-ERROR.                                          */
-/*          IF AVAIL(oe-prmtx) THEN                                                        */
-/*            PUBLISH "setCurrentCustomer" (oe-ordl.cust-no, "", THIS-PROCEDURE).          */
-/*          ELSE                                                                           */
-/*            PUBLISH "setCurrentCustomer" ("", "", THIS-PROCEDURE).                       */
-/*        END.                                                                             */
-/*      END.                                                                               */
-/*    END.                                                                                 */
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1665,34 +1639,7 @@ PROCEDURE local-row-available :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'row-available':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-/*                                                                                        */
-/*   IF AVAIL oe-ordl THEN DO:                                                            */
-/*     v-fgitem = oe-ordl.i-no.                                                           */
-/*     FIND FIRST oe-prmtx WHERE oe-prmtx.company = oe-ordl.company                       */
-/*                           AND oe-prmtx.cust-no EQ oe-ordl.cust-no                      */
-/*                           AND oe-prmtx.i-no    BEGINS v-fgitem                         */
-/*                         NO-LOCK NO-ERROR.                                              */
-/*     /* setCurrentCustomer is used in the matrix tab browser */                         */
-/*     IF AVAIL oe-prmtx THEN                                                             */
-/*       PUBLISH "setCurrentCustomer" (oe-ordl.cust-no, v-fgitem, THIS-PROCEDURE).        */
-/*     ELSE DO:                                                                           */
-/*       FIND FIRST oe-prmtx WHERE oe-prmtx.company = oe-ordl.company                     */
-/*                             AND (oe-prmtx.cust-no EQ "" OR oe-prmtx.cust-no = "Stock") */
-/*                             AND oe-prmtx.i-no    BEGINS v-fgitem                       */
-/*                           NO-LOCK NO-ERROR.                                            */
-/*       IF AVAIL oe-prmtx THEN                                                           */
-/*         PUBLISH "setCurrentCustomer" (oe-prmtx.cust-no, v-fgitem, THIS-PROCEDURE).     */
-/*       ELSE DO:                                                                         */
-/*         FIND FIRST oe-prmtx WHERE oe-prmtx.company = oe-ordl.company                   */
-/*                               AND oe-prmtx.cust-no EQ oe-ordl.cust-no                  */
-/*                             NO-LOCK NO-ERROR.                                          */
-/*         IF AVAIL(oe-prmtx) THEN                                                        */
-/*           PUBLISH "setCurrentCustomer" (oe-ordl.cust-no, "", THIS-PROCEDURE).          */
-/*         ELSE                                                                           */
-/*           PUBLISH "setCurrentCustomer" ("", "", THIS-PROCEDURE).                       */
-/*       END.                                                                             */
-/*     END.                                                                               */
-/*   END.                                                                                 */
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1965,7 +1912,7 @@ PROCEDURE select-price :
   ASSIGN v-i-qty = 0
          v-price-lev = 0.
   /* Get appropriate level */
-  RUN oe/oe-level.p.
+  RUN oe/oe-level.p(BUFFER xoe-ord, OUTPUT v-price-lev).
  
   REPEAT:
        MESSAGE "What Level should the Items be Repriced At?" UPDATE v-price-lev .
@@ -1979,7 +1926,7 @@ PROCEDURE select-price :
     lv-tmp-recid    = RECID(oe-ordl)
     ld-prev-t-price = oe-ordl.t-price.
    
-   RUN oe/oe-repr1.p.
+   RUN oe/oe-repr1.p(BUFFER xoe-ord, v-price-lev).
    {&open-query-{&browse-name}}
    REPOSITION {&browse-name} TO RECID lv-tmp-recid.
 

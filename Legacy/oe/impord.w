@@ -787,6 +787,7 @@ PROCEDURE CreateOrder :
          oe-ord.po-no = ttHeader.po-no
          oe-ord.est-no = ttHeader.Est#
          oe-ord.q-no = ttHeader.Quote#
+         oe-ord.ship-id = ttHeader.ShipTo
          .
 
        find cust WHERE cust.company = cocode
@@ -878,6 +879,7 @@ PROCEDURE CreateOrder :
                             oe-ordl.q-no = IF ttDetail.ItemQuote# <> 0 THEN ttDetail.ItemQuote# ELSE oe-ord.q-no
                             oe-ordl.managed = oe-ord.managed
                             oe-ordl.e-num = ttDetail.POLineNum
+                            oe-ordl.ship-id = oe-ord.ship-id
                             .
 
                   IF oe-ordl.price = 0 THEN DO:                      
