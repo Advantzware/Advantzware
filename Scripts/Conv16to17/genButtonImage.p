@@ -22,7 +22,7 @@ REPEAT:
 /* new comment3 */
 END.
 INPUT CLOSE.
-
+mqsfljqkd
 OUTPUT TO "c:\Advantzware\v16\Legacy17\methods\buttonImage.i".
 PUT UNFORMATTED
     "/* buttonImage.i - rstark - 2.22.2017 */" SKIP
@@ -40,7 +40,7 @@ FOR EACH ttButtonImages:
         "~&ELSEIF ~"~{2}~" EQ ~"" ttButtonImages.labelName
         "~" ~&THEN ~&GLOBAL-DEFINE imageName " ttButtonImages.imageName
         SKIP.
- /* new omemnt */
+ /* new omemnt 3 */
 END.
 PUT UNFORMATTED "~&ENDIF" SKIP.
 OUTPUT CLOSE.
