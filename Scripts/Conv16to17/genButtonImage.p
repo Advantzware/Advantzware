@@ -8,7 +8,8 @@ DEFINE TEMP-TABLE ttButtonImages NO-UNDO
     FIELD imageName AS CHARACTER
         INDEX ttButtonImage AS PRIMARY
               labelName.
-              
+/* My new comment explaining new feature */
+
 INPUT FROM "C:\Advantzware\v16\Scripts\Conv16to17\ScriptsDat\buttonImage.dat" NO-ECHO.
 IMPORT ^.
 REPEAT:
@@ -18,6 +19,7 @@ REPEAT:
         ttButtonImages.labelName = cLabel
         ttButtonImages.imageName = cImage
         .
+/* new comment */
 END.
 INPUT CLOSE.
 
