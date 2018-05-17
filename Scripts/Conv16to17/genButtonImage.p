@@ -22,7 +22,7 @@ REPEAT:
 /* new comment3 */
 END.
 INPUT CLOSE.
-mqsfljqkd
+mqsfljqkdmglfjqsmlgdjqkld
 OUTPUT TO "c:\Advantzware\v16\Legacy17\methods\buttonImage.i".
 PUT UNFORMATTED
     "/* buttonImage.i - rstark - 2.22.2017 */" SKIP
