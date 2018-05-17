@@ -19,7 +19,7 @@ REPEAT:
         ttButtonImages.labelName = cLabel
         ttButtonImages.imageName = cImage
         .
-/* new comment */
+/* new comment3 */
 END.
 INPUT CLOSE.
 
