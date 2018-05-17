@@ -314,16 +314,16 @@ PROCEDURE CalculateLinePrice:
             WHERE ROWID(oe-ordl) EQ ttItemLines.riLine
             NO-ERROR.
         IF AVAILABLE oe-ordl THEN DO: 
-            MESSAGE AVAILABLE oe-ordl SKIP 
-            ttItemLines.cFGItemID SKIP 
-            ttItemLines.dPrice SKIP 
-            ttItemLines.dPriceTotal VIEW-AS ALERT-BOX.
+/*            MESSAGE AVAILABLE oe-ordl SKIP            */
+/*            ttItemLines.cFGItemID SKIP                */
+/*            ttItemLines.dPrice SKIP                   */
+/*            ttItemLines.dPriceTotal VIEW-AS ALERT-BOX.*/
             
-/*            ASSIGN*/
-/*                oe-ordl.price = ttItemLines.dPrice       */
-/*                oe-ordl.pr-uom = ttItemLines.cPriceUOM   */
-/*                oe-ordl.t-price = ttItemLines.dPriceTotal*/
-/*                .                                        */
+            ASSIGN
+                oe-ordl.price = ttItemLines.dPrice
+                oe-ordl.pr-uom = ttItemLines.cPriceUOM
+                oe-ordl.t-price = ttItemLines.dPriceTotal
+                .
             RELEASE oe-ordl.
         END.
     END.
@@ -333,16 +333,16 @@ PROCEDURE CalculateLinePrice:
             WHERE ROWID(inv-line) EQ ttItemLines.riLine
             NO-ERROR.
         IF AVAILABLE inv-line THEN DO: 
-            MESSAGE AVAILABLE inv-line SKIP 
-            ttItemLines.cFGItemID SKIP 
-            ttItemLines.dPrice SKIP 
-            ttItemLines.dPriceTotal VIEW-AS ALERT-BOX.
-            
-/*            ASSIGN                                        */
-/*                inv-line.price = ttItemLines.dPrice       */
-/*                inv-line.pr-uom = ttItemLines.cPriceUOM   */
-/*                inv-line.t-price = ttItemLines.dPriceTotal*/
-/*                .                                         */
+/*            MESSAGE AVAILABLE inv-line SKIP           */
+/*            ttItemLines.cFGItemID SKIP                */
+/*            ttItemLines.dPrice SKIP                   */
+/*            ttItemLines.dPriceTotal VIEW-AS ALERT-BOX.*/
+
+            ASSIGN
+                inv-line.price = ttItemLines.dPrice
+                inv-line.pr-uom = ttItemLines.cPriceUOM
+                inv-line.t-price = ttItemLines.dPriceTotal
+                .
             RELEASE inv-line.
         END.
     END.
