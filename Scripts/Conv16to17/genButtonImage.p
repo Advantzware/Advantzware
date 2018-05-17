@@ -40,6 +40,7 @@ FOR EACH ttButtonImages:
         "~&ELSEIF ~"~{2}~" EQ ~"" ttButtonImages.labelName
         "~" ~&THEN ~&GLOBAL-DEFINE imageName " ttButtonImages.imageName
         SKIP.
+ /* new omemnt */
 END.
 PUT UNFORMATTED "~&ENDIF" SKIP.
 OUTPUT CLOSE.
