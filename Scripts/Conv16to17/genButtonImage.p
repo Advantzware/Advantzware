@@ -8,7 +8,8 @@ DEFINE TEMP-TABLE ttButtonImages NO-UNDO
     FIELD imageName AS CHARACTER
         INDEX ttButtonImage AS PRIMARY
               labelName.
-              
+/* My new comment explaining new feature */
+
 INPUT FROM "C:\Advantzware\v16\Scripts\Conv16to17\ScriptsDat\buttonImage.dat" NO-ECHO.
 IMPORT ^.
 REPEAT:
@@ -18,9 +19,10 @@ REPEAT:
         ttButtonImages.labelName = cLabel
         ttButtonImages.imageName = cImage
         .
+/* new comment3 */
 END.
 INPUT CLOSE.
-
+mqsfljqkdmglfjqsmlgdjqkld
 OUTPUT TO "c:\Advantzware\v16\Legacy17\methods\buttonImage.i".
 PUT UNFORMATTED
     "/* buttonImage.i - rstark - 2.22.2017 */" SKIP
@@ -38,6 +40,7 @@ FOR EACH ttButtonImages:
         "~&ELSEIF ~"~{2}~" EQ ~"" ttButtonImages.labelName
         "~" ~&THEN ~&GLOBAL-DEFINE imageName " ttButtonImages.imageName
         SKIP.
+ /* new omemnt 3 */
 END.
 PUT UNFORMATTED "~&ENDIF" SKIP.
 OUTPUT CLOSE.
