@@ -468,7 +468,7 @@ FOR EACH edivline OF edivtran EXCLUSIVE
             IF customer_item_number GT "" THEN 
                ASSIGN 
                   second_product_type    = "BP"
-                  second_description     = customer_item_number
+                  second_description     = SUBSTRING(customer_item_number, 1, 8)
                   .
                   
              ASSIGN 

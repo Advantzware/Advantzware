@@ -27,9 +27,11 @@ DEFINE VARIABLE cSubFolderName AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cReturnChar     AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lRecFound       AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cEdiFileLine AS CHARACTER NO-UNDO.
+DEFINE STREAM sLog.
+OUTPUT STREAM sLog TO.\custFiles\logs\loadAck.log.
 /* Default location if NK1 not defined */
 DEFINE VARIABLE cLogfolder     AS CHARACTER NO-UNDO 
-    INIT "C:\Program Files\RSSBus\RSSBus Connect\data\AmazonTest\Logs\Sent"
+    INIT "C:\Program Files\RSSBus\RSSBus Connect\data\Amazon\Logs\Sent"
     
     .
 DEFINE VARIABLE cSentFolder    AS CHARACTER NO-UNDO.
@@ -70,10 +72,16 @@ RUN sys/ref/nk1look.p (INPUT edco.company, "AmazonInvoice", "DS" /* Character*/,
     OUTPUT cReturnChar, 
     OUTPUT lRecFound).
 IF lRecFound THEN
-    cLogFolder= cReturnChar  .
-
+    cSentFolder= cReturnChar  .
+PUT STREAM sLog UNFORMATTED "cSentFolder " cSentFolder SKIP.
+PUT STREAM sLog UNFORMATTED 
+    "cLogFolder " cLogFolder SKIP.
+PUT STREAM sLog UNFORMATTED 
+    "cSentFolder Search Value" SEARCH(cSentFolder) SKIP.
+PUT STREAM sLog UNFORMATTED 
+    "cLogFolder Search Value" SEARCH(cLogFolder) SKIP.    
 OS-COMMAND SILENT VALUE("dir /s/b " + '"' + cLogfolder + "\" + "*.filename " + '"' + " > c:\temp\list.txt" ).
-
+PUT STREAM sLog UNFORMATTED "Done with os-command " SKIP.
 /* Read through list of file name placeholder files */
 INPUT stream sList from value("c:\temp\list.txt").
 REPEAT:
@@ -96,7 +104,8 @@ REPEAT:
     IMPORT STREAM sLog UNFORMATTED cLogFileName.
     cLogFile = cLogFileName. 
     INPUT stream sLog close.
- 
+    PUT STREAM sLog UNFORMATTED 
+        "Process Log file " cLogFile SKIP.
     /* Read the current log file to determine if transmission was successful */
     IF SEARCH(cLogFileName) NE ? THEN 
     DO:
@@ -147,7 +156,8 @@ INPUT stream sList close.
 
 
 FOR EACH ttInvoiceList.
-
+    PUT STREAM sLog UNFORMATTED 
+        "Process InvNum " ttInvoiceList.InvoiceNum SKIP.
     FIND FIRST inv-head NO-LOCK 
         WHERE inv-head.company EQ '001'
         AND inv-head.inv-no = ttInvoiceList.invoiceNum
@@ -176,9 +186,12 @@ FOR EACH ttInvoiceList.
             .
     END.
 END. /* Each ttInvoiceList */
+OUTPUT STREAM sLog CLOSE. 
 
 PROCEDURE getInvoiceNumbersInFile:
     DEFINE VARIABLE iInvoiceNum AS INTEGER NO-UNDO.
+    PUT STREAM sLog UNFORMATTED 
+        "getInvoiceNmbersInfile " cSentFolder +  cEdiFileName SKIP.
     INPUT stream sEDIFile from value(cSentFolder +  cEdiFileName).
     REPEAT:
         IMPORT STREAM sEDIFile UNFORMATTED cEdiFileLine.
