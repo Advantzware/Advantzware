@@ -1665,46 +1665,52 @@ PROCEDURE local-create-record :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-DEFINE BUFFER bf-routing-mtx FOR routing-mtx .
-DEFINE  VARIABLE cCheckMsf AS CHARACTER NO-UNDO .
-DEFINE VARIABLE dMsf AS DECIMAL NO-UNDO .
-DEFINE VARIABLE iCount AS INTEGER NO-UNDO .
-  /* Code placed here will execute PRIOR to standard behavior. */
-
-   FIND FIRST bf-routing-mtx NO-LOCK
-      WHERE bf-routing-mtx.company EQ style.company
-        AND bf-routing-mtx.loc EQ gloc
-        AND bf-routing-mtx.style EQ style.style
-        AND bf-routing-mtx.msf EQ 0 NO-ERROR .
-
+  
+    /* Code placed here will execute PRIOR to standard behavior. */
+   
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'create-record':U ) .
 
-  dMsf = 0 .
-
- IF AVAIL style AND AVAIL bf-routing-mtx  THEN do:
- FOR EACH bf-routing-mtx NO-LOCK 
-     WHERE bf-routing-mtx.company EQ style.company
-       AND bf-routing-mtx.loc EQ gloc
-       AND bf-routing-mtx.style EQ style.style :
-        cCheckMsf = cCheckMsf + STRING(bf-routing-mtx.msf) + "," .
- END.
- 
-  DO iCount = 1 TO NUM-ENTRIES(cCheckMsf):
-      IF ENTRY(iCount,cCheckMsf) NE "" AND decimal(ENTRY(iCount,cCheckMsf)) EQ dMsf THEN
-          dMsf = dMsf + 1 .
-  END.
- END.
-  
   /* Code placed here will execute AFTER standard behavior.    */
   DO WITH FRAME {&FRAME-NAME}:
   assign routing-mtx.company = style.company
          routing-mtx.loc = gloc
-         routing-mtx.style = style.style
-         routing-mtx.msf   = dMsf .
+         routing-mtx.style = style.style .
   END.
   disp routing-mtx.style with frame {&frame-name}.
 
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-add-record V-table-Win 
+PROCEDURE local-add-record :
+/*------------------------------------------------------------------------------
+  Purpose:     Override standard ADM method
+  Notes:       
+------------------------------------------------------------------------------*/
+DEFINE BUFFER bf-routing-mtx FOR routing-mtx .
+
+  /* Code placed here will execute PRIOR to standard behavior. */
+    IF AVAIL style THEN
+    FIND FIRST bf-routing-mtx NO-LOCK
+       WHERE bf-routing-mtx.company EQ style.company
+         AND bf-routing-mtx.loc EQ gloc
+         AND bf-routing-mtx.style EQ style.style
+         AND bf-routing-mtx.msf EQ 0 NO-ERROR .
+
+    IF AVAIL bf-routing-mtx THEN DO:
+        MESSAGE "A routing matrix with 0 MSF exists. Please change the MSF for that to something other than 0."
+                                        VIEW-AS ALERT-BOX INFO .
+        RETURN .
+    END.
+  /* Dispatch standard ADM method.                             */
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'add-record':U ) .
+
+  /* Code placed here will execute AFTER standard behavior.    */
 
 END PROCEDURE.
 
