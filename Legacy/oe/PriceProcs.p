@@ -4,9 +4,10 @@
     Purpose     : Replaces oe/GetPriceMatrix.p  
                            oe/GetPriceMatrixPrice.p 
                            oe/GetPriceTotal.p
-                           oe/oe-price.p
+                           oe/oe-price.i (contents)
                            oe/oe-pric1.i
                            oe/oe-pric2.i
+                           oe/oe-rpric.i (contents)
 
     Syntax      :
 
@@ -40,6 +41,7 @@ DEFINE TEMP-TABLE ttItemLines
     FIELD lMatrixExists   AS LOGICAL
     FIELD dDiscount       AS DECIMAL 
     FIELD iCaseCount      AS INTEGER
+    FIELD cTableType      AS CHARACTER 
     .
 
 {oe/ttPriceHold.i "SHARED"}
@@ -234,7 +236,7 @@ PROCEDURE CheckPriceMatrix:
 
 END PROCEDURE.
 
-PROCEDURE GetLinePrice:
+PROCEDURE CalculateLinePrice:
     /*------------------------------------------------------------------------------
      Purpose: Given an order line rowid, determine appropriate price from price matrix
      Can also pass FG Item ID and Qty since these may not be saved to the oe-ordl yet
@@ -305,8 +307,45 @@ PROCEDURE GetLinePrice:
             ttItemLines.dDiscount,
             OUTPUT ttItemLines.dPriceTotal).   
     END.
-   
- 
+    /*Assign order from ttItemLines*/
+    FOR EACH ttItemLines NO-LOCK 
+        WHERE ttItemLines.cTableType EQ "oe-ordl":
+        FIND FIRST oe-ordl EXCLUSIVE-LOCK 
+            WHERE ROWID(oe-ordl) EQ ttItemLines.riLine
+            NO-ERROR.
+        IF AVAILABLE oe-ordl THEN DO: 
+            MESSAGE AVAILABLE oe-ordl SKIP 
+            ttItemLines.cFGItemID SKIP 
+            ttItemLines.dPrice SKIP 
+            ttItemLines.dPriceTotal VIEW-AS ALERT-BOX.
+            
+/*            ASSIGN*/
+/*                oe-ordl.price = ttItemLines.dPrice       */
+/*                oe-ordl.pr-uom = ttItemLines.cPriceUOM   */
+/*                oe-ordl.t-price = ttItemLines.dPriceTotal*/
+/*                .                                        */
+            RELEASE oe-ordl.
+        END.
+    END.
+    FOR EACH ttItemLines NO-LOCK 
+        WHERE ttItemLines.cTableType EQ "inv-line":
+        FIND FIRST inv-line EXCLUSIVE-LOCK 
+            WHERE ROWID(inv-line) EQ ttItemLines.riLine
+            NO-ERROR.
+        IF AVAILABLE inv-line THEN DO: 
+            MESSAGE AVAILABLE inv-line SKIP 
+            ttItemLines.cFGItemID SKIP 
+            ttItemLines.dPrice SKIP 
+            ttItemLines.dPriceTotal VIEW-AS ALERT-BOX.
+            
+/*            ASSIGN                                        */
+/*                inv-line.price = ttItemLines.dPrice       */
+/*                inv-line.pr-uom = ttItemLines.cPriceUOM   */
+/*                inv-line.t-price = ttItemLines.dPriceTotal*/
+/*                .                                         */
+            RELEASE inv-line.
+        END.
+    END.
 
 END PROCEDURE.
 
@@ -559,6 +598,7 @@ PROCEDURE pAddLineTableItem PRIVATE:
     DEFINE INPUT PARAMETER ipdPrice AS DECIMAL NO-UNDO.
     DEFINE INPUT PARAMETER ipcPriceUOM AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipdDiscount AS DECIMAL NO-UNDO.
+    DEFINE INPUT PARAMETER ipcTableType AS CHARACTER NO-UNDO.
     
     FIND FIRST ttItemLines
         WHERE ttItemLines.riLine EQ ipriLine
@@ -579,6 +619,7 @@ PROCEDURE pAddLineTableItem PRIVATE:
             ttItemLines.cPriceUOM    = ipcPriceUOM
             ttItemLines.iCaseCount   = ipbf-itemfg.case-count
             ttItemLines.dDiscount    = ipdDiscount
+            ttItemLines.cTableType   = ipcTableType
             .
     END.
 

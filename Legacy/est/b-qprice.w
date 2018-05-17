@@ -270,13 +270,6 @@ FUNCTION f-cost RETURNS CHARACTER
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD f-price B-table-Win 
-FUNCTION f-price RETURNS DECIMAL
-  ( /* parameter-definitions */ )  FORWARD.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 
 /* ***********************  Control Definitions  ********************** */
 
@@ -942,18 +935,7 @@ DO:
       ASSIGN
         tt-ordl.sell-price:SCREEN-VALUE IN BROWSE {&browse-name}      = IF lMatrixExists THEN string(v-i-price) ELSE string(itemfg.sell-price)  
         tt-ordl.qt-uom:SCREEN-VALUE IN BROWSE {&browse-name}        = IF lMatrixExists THEN string(v-i-uom) ELSE itemfg.sell-uom .
-  IF DEC(tt-ordl.sell-price:SCREEN-VALUE) EQ 0 THEN DO:
-
-    RUN oe/pricelookup.p (INPUT cust.cust-no,
-                          INPUT itemfg.i-no,
-                          INPUT tt-ordl.e-qty,
-                          OUTPUT opPrice,
-                          OUTPUT opUom).
-
-    ASSIGN
-      tt-ordl.sell-price:SCREEN-VALUE IN BROWSE {&browse-name}      = string(opPrice)  
-      tt-ordl.qt-uom:SCREEN-VALUE IN BROWSE {&browse-name}          = opUom.
-  END.
+  
   IF DEC(tt-ordl.sell-price:SCREEN-VALUE) EQ 0 THEN DO:
     FIND LAST quoteitm WHERE quoteitm.company EQ itemfg.company
       AND quoteitm.i-no EQ itemfg.i-no
@@ -1740,34 +1722,6 @@ FUNCTION f-cost RETURNS CHARACTER
 
   RETURN f-cost.
 
-END FUNCTION.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION f-price B-table-Win 
-FUNCTION f-price RETURNS DECIMAL
-  ( /* parameter-definitions */ ) :
-/*------------------------------------------------------------------------------
-  Purpose:  
-    Notes:  
-------------------------------------------------------------------------------*/
-  def var ld-price as dec no-undo.
-  /* don't convert to uom ea
-  if itemfg.cons-uom = "EA" then ld-price = itemfg.total-std-cost.
-  else run custom/convcuom.p (itemfg.company,itemfg.cons-uom, "EA",0,0,0,0, itemfg.total-std-cost, output ld-price).
-  */
-  ld-price = itemfg.total-std-cost.
-  IF ld-price EQ 0 THEN DO:
-       
-DEF VAR opUom AS CHAR.
-RUN oe/pricelookup.p (INPUT cust.cust-no,
-                      INPUT itemfg.i-no,
-                      INPUT tt-ordl.e-qty,
-                      OUTPUT ld-price,
-                      OUTPUT opUom).
-  END.
-  return ld-price.
 END FUNCTION.
 
 /* _UIB-CODE-BLOCK-END */

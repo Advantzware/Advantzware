@@ -1431,19 +1431,6 @@ PROCEDURE delete-item :
       USE-INDEX cust NO-LOCK NO-ERROR.
 
   IF cust.auto-reprice THEN RUN oe/oe-rpric.p.
-/*  IF cust.auto-reprice THEN 
-      RUN oe/StockItemPrice.p(
-          INPUT oe-ordl.company,
-          INPUT ROWID(oe-ord),
-          INPUT ROWID(oe-ordl),
-          INPUT YES, /*do the update*/
-          INPUT NO, /*price inputted*/
-          INPUT oe-ordl.i-no, /*for determining auto-reprice class*/
-          INPUT oe-ordl.qty,
-          OUTPUT lMatrixExists,
-          OUTPUT dPrice,
-          OUTPUT cUom,
-          OUTPUT dTotalPrice). */
 
   RUN oe/oe-comm.p.
 
