@@ -1,5 +1,4 @@
 
-DEF BUFFER bf-oe-prmtx FOR oe-prmtx.
 DEF VAR lv-qty   LIKE {1}.qty   NO-UNDO.
 DEF VAR lv-price LIKE {1}.price NO-UNDO.
 DEF VAR lv-uom   LIKE {1}.uom   NO-UNDO.
@@ -29,23 +28,10 @@ DEFINE VARIABLE lMatrixExists AS LOGICAL     NO-UNDO.
     {sys/ref/custW.i}
       AND cust.cust-no eq quotehd.cust-no
     USE-INDEX cust NO-LOCK NO-ERROR.
-
-    RUN oe/GetPriceMatrix.p(BUFFER bf-oe-prmtx,
-                            INPUT ROWID(itemfg),
-                            INPUT ROWID(cust),
-                            INPUT NO,
-                            OUTPUT lMatrixExists).
-    IF AVAIL bf-oe-prmtx AND lMatrixExists THEN
-        RUN oe/GetPriceMatrixPrice.p (BUFFER bf-oe-prmtx,
-                                      INPUT lv-qty,
-                                      INPUT 0,
-                                      INPUT cust.cust-level,
-                                      INPUT itemfg.sell-price,
-                                      INPUT itemfg.sell-uom,
-                                      OUTPUT lv-price,
-                                      OUTPUT lv-uom).
-
-/*     {est/quopric2.i "lv-"} */
+    IF AVAILABLE cust THEN 
+        RUN GetPriceMatrixPriceSimple IN hdPriceProcs (itemfg.company, itemfg.i-no, cust.cust-no, "", DECIMAL(lv-qty),
+                                                      OUTPUT lMatrixExists, INPUT-OUTPUT lv-price, INPUT-OUTPUT lv-uom).
+ 
     ASSIGN
      {1}.price:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(lv-price)
      {1}.uom:SCREEN-VALUE IN BROWSE {&browse-name}   = lv-uom.

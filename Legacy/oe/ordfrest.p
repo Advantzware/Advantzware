@@ -370,6 +370,7 @@ PROCEDURE create-new-order.
            xoe-ord.carrier   = eb.carrier
            xoe-ord.frt-pay   = eb.chg-method
            xoe-ord.s-comm[1] = eb.comm
+           xoe-ord.ship-id   = eb.ship-id
            v-margin          = 0
            xoe-ord.s-pct[1]  = 100
            xoe-ord.est-type  = xest.est-type
@@ -468,6 +469,7 @@ PROCEDURE create-order-lines.
            oe-ordl.req-date   = xoe-ord.due-date
            oe-ordl.prom-date  = xoe-ord.due-date
            oe-ordl.managed    = xoe-ord.managed
+           oe-ordl.ship-id    = xoe-ord.ship-id
            oe-ordl.i-no       = IF v-est-type EQ 2 AND avail xeb THEN
                                   xeb.stock-no ELSE eb.stock-no
            oe-ordl.qty        = IF v-est-type EQ 3 OR v-est-type EQ 4 THEN eb.bl-qty ELSE lv-qty
