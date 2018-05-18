@@ -55,8 +55,8 @@ ASSIGN
   eddoc.isa           = ?
   eddoc.gs            = 0
   eddoc.st            = 0
-  edPartnerGrp.isa = edPartnerGrp.isa + 1 
-  eddoc.seq            = edPartnerGrp.isa
+  edPartnerGrp.st = edPartnerGrp.st + 1 
+  eddoc.seq            = edPartnerGrp.st
   eddoc.userref       = p_docid
   ws_eddoc_rec = RECID(eddoc)
   p_eddoc_rec = ws_eddoc_rec
