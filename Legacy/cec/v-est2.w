@@ -254,9 +254,11 @@ DEFINE FRAME Corr
      ef.xgrain AT ROW 1.48 COL 134 COLON-ALIGNED
           LABEL "Rev. Corr" FORMAT "X"
           VIEW-AS COMBO-BOX INNER-LINES 5
-          LIST-ITEMS "N","B","S" 
+          LIST-ITEM-PAIRS "None","N",
+                     "Sheet","S",
+                     "Blank","B"
           DROP-DOWN-LIST
-          SIZE 10 BY 1
+          SIZE 11.5 BY 1
      ef.board AT ROW 2.43 COL 12 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 16 BY 1
