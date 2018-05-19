@@ -34,10 +34,10 @@ CREATE WIDGET-POOL.
 
 DEF VAR listname AS cha NO-UNDO.
 listname = "v-impcom." .
-    DEF VAR lPriceImport AS LOG NO-UNDO.
-    DEF VAR lAccessClose AS LOG NO-UNDO.
-    DEF VAR cAccessList AS CHAR NO-UNDO.
-    DEF VAR v-can-update AS LOG NO-UNDO.
+    DEFINE VARIABLE lPriceImport AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lAccessClose AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE cAccessList AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE v-can-update AS LOGICAL NO-UNDO.
 /* Check if authorized to create PO's */
 RUN methods/prgsecur.p
     (INPUT listname, /* Set in definitions */
