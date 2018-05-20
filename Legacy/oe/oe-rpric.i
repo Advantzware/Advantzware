@@ -25,4 +25,4 @@ IF cust.auto-reprice THEN
 IF NOT AVAILABLE {1} THEN RETURN.
 
 RUN CalculateLinePrice IN hdPriceProcs (ROWID({1}), {1}.i-no, {1}.cust-no, {1}.ship-id, {1}.qty, 
-    OUTPUT matrixExists, INPUT-OUTPUT {1}.price, INPUT-OUTPUT {1}.pr-uom).
+    OUTPUT lMatrixExists, INPUT-OUTPUT {1}.price, INPUT-OUTPUT {1}.pr-uom).
