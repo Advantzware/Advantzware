@@ -890,6 +890,7 @@ PROCEDURE buildRptRecs :
                 report.key-05  = STRING((v-setup / v-qty-comp),"9999999999.9999")
                 report.key-06  = STRING(v-setup,"9999999999.9999")
                 report.key-07  = tt-eiv.vend-i-no
+                report.key-08  = tt-eiv.i-no
                 report.rec-id  = tt-eiv.rec-id.
 
         END. /* for each tt-eiv */
