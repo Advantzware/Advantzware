@@ -50,6 +50,7 @@ DEFINE VARIABLE Is-add-dup-inv AS CHARACTER NO-UNDO .
 DEFINE VARIABLE oeInvAddDate-Int AS INTEGER NO-UNDO .
 DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO .
 DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO .
+DEFINE VARIABLE lEDI810Enabled AS LOGICAL NO-UNDO.
 {sys/inc/VAR.i "new shared"}
 ASSIGN cocode = g_company
        locode = g_loc.
@@ -59,7 +60,10 @@ RUN sys/ref/nk1look.p (INPUT cocode, "InvAddDate", "I" /* Logical */, NO /* chec
 OUTPUT cRtnChar, OUTPUT lRecFound).
 IF lRecFound THEN
     oeInvAddDate-Int = INTEGER(cRtnChar) NO-ERROR.
-
+FIND FIRST edcode NO-LOCK WHERE edcode.setId EQ "810" NO-ERROR.
+IF AVAILABLE edcode THEN 
+  lEDI810Enabled = TRUE. 
+  
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -1234,7 +1238,8 @@ PROCEDURE proc-enable :
 ------------------------------------------------------------------------------*/
 
    DO WITH FRAME  {&FRAME-NAME}:
-     ENABLE tbEdiInvoice.
+     IF lEDI810Enabled THEN 
+       ENABLE tbEdiInvoice.
    END.
    IF NOT adm-new-record THEN
      IF ar-inv.posted THEN DO:
