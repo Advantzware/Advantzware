@@ -211,8 +211,8 @@ DEFINE FRAME fold
           LABEL "Xgrain" FORMAT "X"
           VIEW-AS COMBO-BOX INNER-LINES 5
           LIST-ITEM-PAIRS "None","N",
-                     "Sheet","S",
-                     "Blank","B"
+                     "Sheet","B",
+                     "Blank","S"
      /*     "N","S","B" */
           DROP-DOWN-LIST
           SIZE 12 BY 1
