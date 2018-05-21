@@ -1,4 +1,5 @@
 DEF PARAM BUFFER io-po-ordl FOR po-ordl.
+DEF PARAM BUFFER io-e-itemfg-vend FOR e-itemfg-vend.
 
 {sys/inc/var.i NEW SHARED}
 
@@ -181,18 +182,18 @@ IF AVAIL po-ord THEN DO:
         RUN sys/ref/convcuom.p (io-po-ordl.cons-uom, "M", 0, 0, 0, 0,
                                 io-po-ordl.cons-cost, OUTPUT oe-ordl.cost).
 
-      FIND FIRST reftable WHERE
-           reftable.reftable EQ 'e-itemfg-vend.markup' AND
-           reftable.company EQ io-po-ordl.company AND
-           reftable.loc EQ io-po-ordl.i-no AND
-           reftable.code EQ po-ord.vend-no
-           NO-LOCK NO-ERROR.
 
-      IF AVAIL reftable THEN
+      FIND FIRST io-e-itemfg-vend WHERE
+                   io-e-itemfg-vend.company EQ io-po-ordl.company AND
+                   io-e-itemfg-vend.i-no EQ io-po-ordl.i-no AND
+                   io-e-itemfg-vend.vend-no EQ po-ord.vend-no
+                   NO-LOCK NO-ERROR.
+
+              IF AVAIL io-e-itemfg-vend THEN
+
       DO:
-         oe-ordl.cost = oe-ordl.cost * (1 + (reftable.val[1]/ 100.0 )).
-         RELEASE reftable.
-      END.
+         oe-ordl.cost = oe-ordl.cost * (1 + (io-e-itemfg-vend.markup / 100.0 )).
+         END.
     END.
   END.
   /* Add scores data to ref table if required per NK1 value */

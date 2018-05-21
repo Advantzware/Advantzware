@@ -2560,17 +2560,16 @@ DO:
                  oe-ordl.cost:screen-value = STRING(ld-cost).                          
               END.
 
-              FIND FIRST reftable WHERE
-                   reftable.reftable EQ 'e-itemfg-vend.markup' AND
-                   reftable.company EQ po-ordl.company AND
-                   reftable.loc EQ po-ordl.i-no AND
-                   reftable.code EQ po-ord.vend-no
+              FIND FIRST e-itemfg-vend WHERE
+                   e-itemfg-vend.company EQ po-ordl.company AND
+                   e-itemfg-vend.i-no EQ po-ordl.i-no AND
+                   e-itemfg-vend.vend-no EQ po-ord.vend-no
                    NO-LOCK NO-ERROR.
 
-              IF AVAIL reftable THEN
+              IF AVAIL e-itemfg-vend THEN
+
               DO:
-                 oe-ordl.cost:SCREEN-VALUE = STRING(DEC(oe-ordl.cost:SCREEN-VALUE) * (1 + (reftable.val[1]/ 100.0 ))).
-                 RELEASE reftable.
+                 oe-ordl.cost:SCREEN-VALUE = STRING(DEC(oe-ordl.cost:SCREEN-VALUE) * (1 + (e-itemfg-vend.markup / 100.0 ))).
               END.
             END.
     END.
@@ -5504,18 +5503,16 @@ DO WITH FRAME {&frame-name}:
 
         IF AVAIL po-ord THEN
         DO:
-           FIND FIRST reftable WHERE
-                reftable.reftable EQ 'e-itemfg-vend.markup' AND
-                reftable.company EQ po-ordl.company AND
-                reftable.loc EQ po-ordl.i-no AND
-                reftable.code EQ po-ord.vend-no
-                NO-LOCK NO-ERROR.
-           
-           IF AVAIL reftable THEN
+           FIND FIRST e-itemfg-vend WHERE
+                   e-itemfg-vend.company EQ po-ordl.company AND
+                   e-itemfg-vend.i-no EQ po-ordl.i-no AND
+                   e-itemfg-vend.vend-no EQ po-ord.vend-no
+                   NO-LOCK NO-ERROR.
+
+              IF AVAIL e-itemfg-vend THEN
            DO:
-              oe-ordl.cost:SCREEN-VALUE = STRING(DEC(oe-ordl.cost:SCREEN-VALUE) * (1 + (reftable.val[1]/ 100.0 ))).
-              RELEASE reftable.
-           END.
+              oe-ordl.cost:SCREEN-VALUE = STRING(DEC(oe-ordl.cost:SCREEN-VALUE) * (1 + (e-itemfg-vend.markup / 100.0 ))).
+              END.
            RELEASE po-ord.
         END.
      END.
@@ -6605,18 +6602,16 @@ PROCEDURE itemfg-cost :
       
           IF AVAIL po-ord THEN
           DO:
-             FIND FIRST reftable WHERE
-                  reftable.reftable EQ 'e-itemfg-vend.markup' AND
-                  reftable.company EQ po-ordl.company AND
-                  reftable.loc EQ po-ordl.i-no AND
-                  reftable.code EQ po-ord.vend-no
-                  NO-LOCK NO-ERROR.
-             
-             IF AVAIL reftable THEN
+             FIND FIRST e-itemfg-vend WHERE
+                   e-itemfg-vend.company EQ po-ordl.company AND
+                   e-itemfg-vend.i-no EQ po-ordl.i-no AND
+                   e-itemfg-vend.vend-no EQ po-ord.vend-no
+                   NO-LOCK NO-ERROR.
+
+              IF AVAIL e-itemfg-vend THEN
              DO:
-                oe-ordl.cost:SCREEN-VALUE = STRING(DEC(oe-ordl.cost:SCREEN-VALUE) * (1 + (reftable.val[1]/ 100.0 ))).
-                RELEASE reftable.
-             END.
+                oe-ordl.cost:SCREEN-VALUE = STRING(DEC(oe-ordl.cost:SCREEN-VALUE) * (1 + (e-itemfg-vend.markup / 100.0 ))).
+                END.
              RELEASE po-ord.
           END.
        END.
