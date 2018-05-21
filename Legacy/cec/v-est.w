@@ -1575,6 +1575,18 @@ END.
 &ANALYZE-RESUME
 
 
+ &Scoped-define SELF-NAME eb.gluelap
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL eb.gluelap V-table-Win
+ON VALUE-CHANGED OF eb.gluelap IN FRAME Corr /* Tab */
+DO: 
+  IF ll-auto-calc-selected AND {&self-name} <> dec(self:SCREEN-VALUE )
+    THEN ll-style-is-valid = YES.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME eb.k-len
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL eb.k-len V-table-Win
 ON LEAVE OF eb.k-len IN FRAME Corr /* Scores on Length */
