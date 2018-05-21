@@ -255,8 +255,8 @@ DEFINE FRAME Corr
           LABEL "Rev. Corr" FORMAT "X"
           VIEW-AS COMBO-BOX INNER-LINES 5
           LIST-ITEM-PAIRS "None","N",
-                     "Sheet","S",
-                     "Blank","B"
+                     "Sheet","B",
+                     "Blank","S"
           DROP-DOWN-LIST
           SIZE 11.5 BY 1
      ef.board AT ROW 2.43 COL 12 COLON-ALIGNED
