@@ -1,5 +1,5 @@
 DEF PARAM BUFFER io-po-ordl FOR po-ordl.
-DEF BUFFER io-e-itemfg-vend FOR e-itemfg-vend.
+DEF BUFFER bf-e-itemfg-vend FOR e-itemfg-vend.
 
 {sys/inc/var.i NEW SHARED}
 
@@ -182,16 +182,16 @@ IF AVAIL po-ord THEN DO:
         RUN sys/ref/convcuom.p (io-po-ordl.cons-uom, "M", 0, 0, 0, 0,
                                 io-po-ordl.cons-cost, OUTPUT oe-ordl.cost).
 
-      FIND FIRST io-e-itemfg-vend WHERE
-                   io-e-itemfg-vend.company EQ io-po-ordl.company AND
-                   io-e-itemfg-vend.i-no EQ io-po-ordl.i-no AND
-                   io-e-itemfg-vend.vend-no EQ po-ord.vend-no AND
-                   io-e-itemfg-vend.est-no EQ ""
+      FIND FIRST bf-e-itemfg-vend WHERE
+                   bf-e-itemfg-vend.company EQ io-po-ordl.company AND
+                   bf-e-itemfg-vend.i-no EQ io-po-ordl.i-no AND
+                   bf-e-itemfg-vend.vend-no EQ po-ord.vend-no AND
+                   bf-e-itemfg-vend.est-no EQ ""
                    NO-LOCK NO-ERROR.
 
-              IF AVAIL io-e-itemfg-vend THEN
+              IF AVAIL bf-e-itemfg-vend THEN
       DO:
-         oe-ordl.cost = oe-ordl.cost * (1 + (io-e-itemfg-vend.markup / 100.0 )).
+         oe-ordl.cost = oe-ordl.cost * (1 + (bf-e-itemfg-vend.markup / 100.0 )).
          END.
     END.
   END.
