@@ -2658,7 +2658,6 @@ CLASS RefTableMigration:
     END METHOD.
     METHOD PUBLIC INTEGER ItemfgMarkup(INPUT ipCount AS INTEGER):
         DEFINE VARIABLE iCnt AS INTEGER NO-UNDO.
-        DEFINE VARIABLE i AS INTEGER NO-UNDO.
         DEFINE BUFFER reftable1 FOR reftable1.
         DEFINE BUFFER Breftable FOR reftable. 
         DEFINE BUFFER e-itemfg-vend  FOR e-itemfg-vend.
@@ -2674,11 +2673,8 @@ CLASS RefTableMigration:
                                          AND e-itemfg-vend.vend-no  = reftable.code
                                          AND e-itemfg-vend.est-no = ""
                     EXCLUSIVE-LOCK NO-ERROR.
-                IF AVAILABLE e-itemfg-vend THEN DO:   
-                    DO i = 1 to 10: 
-                        IF e-itemfg-vend.markup EQ 0 THEN ASSIGN e-itemfg-vend.markup = reftable.val[i]. 
-                                     
-                    END.
+                IF AVAILABLE e-itemfg-vend THEN DO:
+                        IF e-itemfg-vend.markup EQ 0 THEN ASSIGN e-itemfg-vend.markup = reftable.val[1].
                     ASSIGN iProcessCount = iProcessCount + 1.  
                 END.
                 FIND CURRENT e-itemfg-vend NO-LOCK NO-ERROR.    

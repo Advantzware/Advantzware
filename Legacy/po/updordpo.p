@@ -1,5 +1,5 @@
 DEF PARAM BUFFER io-po-ordl FOR po-ordl.
-DEF PARAM BUFFER io-e-itemfg-vend FOR e-itemfg-vend.
+DEF BUFFER io-e-itemfg-vend FOR e-itemfg-vend.
 
 {sys/inc/var.i NEW SHARED}
 
