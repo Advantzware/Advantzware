@@ -30,9 +30,6 @@ CREATE WIDGET-POOL.
 {sys/inc/VAR.i "new shared" }
 ASSIGN cocode = g_company
        locode = g_loc.
-DEFINE VARIABLE lSaveToTempfile AS LOGICAL NO-UNDO.
-DEFINE STREAM sTmpSaveInfo.
-DEFINE VARIABLE cTmpSaveFile AS CHARACTER NO-UNDO.
 
 {oe/oe-relp1.i NEW}
 
@@ -686,11 +683,6 @@ DO:
     RETURN .
 END.
 
-ON 'F6':U OF BROWSE {&browse-name} /* tt-relbol.release# */
-DO:
-    RUN restoreSavedRecs.
-END.
-
 ON 'leave':U OF tt-relbol.tag#
 DO:
    /* check release qty for the item */
@@ -1073,10 +1065,6 @@ RUN dispatch IN THIS-PROCEDURE ('initialize':U).
 &ENDIF
 
 /* Save entered data to text file in case of crash */
-cTmpSaveFile = "logs/Relbol" + STRING(TODAY, "999999") + STRING(TIME, "999999") + USERID("nosweat") + ".txt".
-lSaveToTempfile = FALSE.
-IF SEARCH("logs/RelBol.txt") NE ? THEN
-  lSaveToTempFile = TRUE.
   
 IF TRIM(ssbolscan-cha) EQ "" THEN
 DO:
@@ -1100,38 +1088,6 @@ DO:
 
 /* **********************  Internal Procedures  *********************** */
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE restoreSavedRecs B-table-Win
-PROCEDURE restoreSavedRecs:
-/*------------------------------------------------------------------------------
- Purpose:
- Notes:
-------------------------------------------------------------------------------*/
-/* RUN addon\bol\relfileselect.w (INPUT "relbol*", OUTPUT cTmpSaveFile). */
-/*  DEF VAR cTmpSaveFile AS CHAR NO-UNDO.*/
-  DEF VAR lFileSelected AS LOG NO-UNDO.
-  SYSTEM-DIALOG GET-FILE cTmpSaveFile   
-    FILTERS "restore (relbol*)" "relbol*"
-    INITIAL-DIR ".\logs"
-    UPDATE lFileSelected
-    MUST-EXIST
-    TITLE "Select Restore File". 
-     
-IF lFileSelected THEN DO: 
-    INPUT STREAM sTmpSaveInfo FROM VALUE(cTmpSaveFile).
-    REPEAT:
-        CREATE tt-relbol. 
-        IMPORT STREAM sTmpSaveInfo tt-relbol EXCEPT tt-relbol.oerell-row . 
-         
-    END.
-    INPUT STREAM sTmpSaveInfo CLOSE.
-    
-    RUN dispatch ('open-query').
-END.
-END PROCEDURE.
-	
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
 
 
 
@@ -2398,13 +2354,11 @@ PROCEDURE local-update-record :
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
 
-  /* Code placed here will execute AFTER standard behavior.    */
-  IF lSaveToTempFile THEN DO:
-      OUTPUT STREAM sTmpSaveInfo TO VALUE(cTmpSaveFile) APPEND.
-      EXPORT STREAM sTmpSaveInfo tt-relbol EXCEPT oerell-row.
-      OUTPUT STREAM sTmpSaveInfo CLOSE.   
-  END. 
-  
+    /* Code placed here will execute AFTER standard behavior.    */
+
+    /* Write out temp-table records that have changed */
+    RUN addon/bol/saverelbol.p(INPUT cocode, INPUT ?).
+    
   v-prev-rowid = ROWID(tt-relbol).
 
   RUN display-qtys.
@@ -2906,7 +2860,7 @@ PROCEDURE save-relbol :
   Notes:       
 ------------------------------------------------------------------------------*/
 
-   RUN addon/bol/saverelbol.p(INPUT cocode).
+   RUN addon/bol/saverelbol.p(INPUT cocode, INPUT ?).
    
 END PROCEDURE.
 
