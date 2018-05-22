@@ -1826,11 +1826,28 @@ PROCEDURE price-change :
     DEF VAR v-pct AS DEC NO-UNDO.
     DEF VAR i AS INT NO-UNDO.
     DEF VAR char-hdl AS CHAR NO-UNDO.
+    DEFINE VARIABLE ip-parms     AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE op-values    AS CHARACTER NO-UNDO.
 
     ASSIGN 
         v-pct = 0.
-    MESSAGE 
-        "By what percentage:" UPDATE v-pct.
+    
+    ip-parms = 
+    /* price percentage */
+    "|type=literal,name=label6,row=3.2,col=23,enable=false,width=38,scrval=" + "By what percentage:" + ",FORMAT=x(40)"
+    + "|type=fill-in,name=perprice,row=3,col=45,enable=true,width=16,data-type=decimal,initial=" + STRING(v-pct)
+    + "|type=image,image=webspeed\images\question.gif,name=im1,row=3,col=4,enable=true,width=12,height=3 " 
+    /* Box Title */
+    + "|type=win,name=fi3,enable=true,label=  Update Price?,FORMAT=X(30),height=9".
+
+
+    RUN custom/d-prompt.w (INPUT "", ip-parms, "", OUTPUT op-values).
+
+    IF op-values NE "" THEN
+        v-pct = DECIMAL(ENTRY(2, op-values)) .
+    ELSE 
+        RETURN .
+
 
     STATUS DEFAULT "Processing Raw Material: " + STRING(e-itemfg.i-no).
 
