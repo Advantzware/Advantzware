@@ -3666,6 +3666,13 @@ PROCEDURE ipLoadPrograms :
         AND NOT CAN-DO(prgrms.can_delete,"admin") THEN ASSIGN
             prgrms.can_delete = prgrms.can_delete + ",admin".
     END.
+    
+    /* Added usergrp test per BV request - same ticket */
+    FOR EACH usergrps:
+        IF CAN-DO(usergrps.users,"asi") 
+        AND NOT CAN-DO(usergrps.users,"admin") THEN ASSIGN
+            usergrps.users = usergrps.users + ",admin".
+    END.
 
 
 END PROCEDURE.
