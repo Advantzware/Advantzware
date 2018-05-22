@@ -769,21 +769,22 @@ PROCEDURE load-config:
 
   EMPTY TEMP-TABLE ttConfig.
 
-  IF SEARCH("custfiles/po/poexport.dat") NE ? THEN DO:
+  IF SEARCH("custfiles/EDIFiles\POs\poexport.dat") NE ? THEN DO:
 
-  INPUT FROM ./custfiles/po/poexport.dat.
-  REPEAT:
+      INPUT FROM ./custfiles/EDIFiles\POs\poexport.dat.
+      REPEAT:
+          
+          CREATE ttConfig.
+          IMPORT ttConfig.exportFormat ttConfig.destName ttConfig.ftp-site ttConfig.ftp-user ttConfig.ftp-passwd
+                 ttConfig.ftp-mode ttConfig.ftp-dir ttConfig.ftp-software
+                 ttConfig.ftp-binary ttConfig.ftp-script ttConfig.ftp-cmd.
+    
+          IF ttConfig.exportFormat BEGINS "#" OR ttConfig.exportFormat EQ "" THEN
+            DELETE ttConfig.
+    
+      END.
+      INPUT CLOSE.
       
-      CREATE ttConfig.
-      IMPORT ttConfig.exportFormat ttConfig.destName ttConfig.ftp-site ttConfig.ftp-user ttConfig.ftp-passwd
-             ttConfig.ftp-mode ttConfig.ftp-dir ttConfig.ftp-software
-             ttConfig.ftp-binary ttConfig.ftp-script ttConfig.ftp-cmd.
-
-      IF ttConfig.exportFormat BEGINS "#" OR ttConfig.exportFormat EQ "" THEN
-        DELETE ttConfig.
-
-  END.
-  INPUT CLOSE.
   END.
 END PROCEDURE. /* load-config */
 
