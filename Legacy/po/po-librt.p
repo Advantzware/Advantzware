@@ -173,7 +173,9 @@ IF AVAILABLE cust AND liberty-log AND liberty-dir NE "" THEN
                   substr(STRING(TIME,"HH:MM:SS"),7,2) + "_" +
                   cSenderID + ".DAT"
             v-outfile[4] = v-outfile[1] + v-outfile[2] + v-outfile[3].
-            
+        FILE-INFO:FILE-NAME = v-outfile[1].
+        IF INDEX(FILE-INFO:FILE-TYPE, "D") EQ 0 OR  INDEX(FILE-INFO:FILE-TYPE, "W") EQ 0 THEN 
+            OS-COMMAND SILENT "mkdir " + v-outfile[1].            
         cEDIPOHFile = v-outfile[4].       
         OUTPUT STREAM sEDIPOH to value(v-outfile[4]).
         
