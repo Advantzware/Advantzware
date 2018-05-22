@@ -1084,6 +1084,7 @@ PROCEDURE pGetQtyMatchInfo PRIVATE:
         oplQtyDistinctMatch = NO 
         ipiLevelStart       = IF ipiLevelStart EQ 0 THEN 1 ELSE ipiLevelStart
         .
+       IF NOT AVAIL ipbf-oe-prmtx THEN RETURN .
  
     /*process matrix array completely, one time*/
     DO iLevel = ipiLevelStart TO 10: /* IF customer has higher starting level set otherwise start with 1st level*/
