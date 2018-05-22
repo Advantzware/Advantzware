@@ -1409,7 +1409,7 @@ main-loop:
         and itemfg.cust-no le v-cust[2]
         and itemfg.procat  ge v-procat[1]
         and itemfg.procat  le v-procat[2]
-        and itemfg.setupDate  LT lvdCutOffDate
+        and (itemfg.setupDate  LT lvdCutOffDate OR itemfg.setupDate EQ ?)
         AND itemfg.q-onh   LE 0  /* Only want to inactivate items with no inventory */
       no-lock
 
