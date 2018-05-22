@@ -24,5 +24,5 @@ IF cust.auto-reprice THEN
     FIND FIRST {1} OF x{2} {3} NO-ERROR.  
 IF NOT AVAILABLE {1} THEN RETURN.
 
-RUN CalculateLinePrice IN hdPriceProcs (ROWID({1}), {1}.i-no, {1}.cust-no, {1}.ship-id, {1}.qty, 
+RUN CalculateLinePrice IN hdPriceProcs (ROWID({1}), {1}.i-no, {1}.cust-no, {1}.ship-id, {1}.qty, YES
     OUTPUT matrixExists, INPUT-OUTPUT {1}.price, INPUT-OUTPUT {1}.pr-uom).

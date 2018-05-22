@@ -19,7 +19,7 @@
 /* Parameters Definitions ---                                           */
 
 {oe/tt-item-qty-price.i} 
-{oe/ttPriceHold.i "NEW SHARED"}
+
 
 /* Local Variable Definitions ---                                       */
 DEF INPUT PARAMETER ip-recid AS RECID NO-UNDO.
@@ -160,7 +160,7 @@ DEFINE VARIABLE oeDateChange-log AS LOGICAL     NO-UNDO.
 DEFINE VARIABLE oeDateChange-chr AS CHARACTER   NO-UNDO.
 DEFINE VARIABLE gcLastDateChange AS CHARACTER   NO-UNDO.
 DEFINE VARIABLE hdPriceProcs AS HANDLE NO-UNDO.
-
+{oe/ttPriceHold.i "NEW SHARED"}
 RUN oe/PriceProcs.p PERSISTENT SET hdPriceProcs.
 
 cocode = g_company.
@@ -1360,6 +1360,8 @@ DO:
   DEFINE VARIABLE lPMPrompt AS LOGICAL.
   DEFINE VARIABLE cPMMessage AS CHARACTER.
   DEFINE VARIABLE lPMBlock AS LOGICAL.
+  DEFINE VARIABLE lPricehold AS LOGICAL.
+  DEFINE VARIABLE cPriceHoldMessage AS CHARACTER.
 
   DEF BUFFER b-oe-ordl FOR oe-ordl.
   DEF BUFFER b-oe-ord FOR oe-ord.
@@ -1461,7 +1463,13 @@ DO:
         MESSAGE cPMMessage VIEW-AS ALERT-BOX.
         IF lPMBlock THEN RETURN NO-APPLY.
    END.
-
+   
+   RUN CheckPriceHoldForOrder IN hdPriceProcs(ROWID(oe-ord),
+                                              YES, /*Prompt*/
+                                              YES, /*Set oe-ord hold fields*/
+                                              OUTPUT lPriceHold, 
+                                              OUTPUT cPriceHoldMessage).
+    
   IF oepricecheck-log AND oe-ordl.est-no:SCREEN-VALUE EQ "" AND
      ll-new-record THEN
      RUN prev-quote-proc(INPUT-OUTPUT lv-price,
@@ -9372,7 +9380,6 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 
 /* ************************  Function Implementations ***************** */
 
