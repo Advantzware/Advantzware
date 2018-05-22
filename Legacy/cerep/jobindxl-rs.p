@@ -1214,7 +1214,9 @@ PROCEDURE MainLoop :
   ASSIGN chWorkbook = chExcelApplication:Workbooks:Open(chfile)  no-error.
 
   /*Force add-in to load that defines the bar code conversion formula*/
-  chExcelApplication:Workbooks:OPEN("J:\Rcode\Template\BarCodeWizC128.xla") NO-ERROR.
+  chExcelApplication:Workbooks:OPEN("J:\Environments\Prod\Template\BarCodeWizC128.xla") NO-ERROR.
+  IF ERROR-STATUS:ERROR THEN
+    chExcelApplication:Workbooks:OPEN("J:\RCode\Template\BarCodeWizC128.xla") NO-ERROR.
   IF ERROR-STATUS:ERROR THEN
     chExcelApplication:Workbooks:OPEN("C:\Program Files (x86)\BarCodeWiz Code 128 Fonts\Addins\BarCodeWizC128.xla") NO-ERROR.
   IF ERROR-STATUS:ERROR THEN

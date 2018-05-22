@@ -910,12 +910,16 @@ for each quotehd
 
     break by quotehd.q-no:
 
-  IF begin_rm-no NE "" AND NOT END_rm-no BEGINS "zzzzz" AND quotehd.est-no NE "" THEN DO:
-      FIND FIRST eb
+    RELEASE eb .
+
+    IF quotehd.est-no NE "" THEN
+    FIND FIRST eb
           WHERE eb.company EQ quotehd.company
             AND eb.est-no EQ quotehd.est-no
             AND eb.part-no EQ  quoteitm.part-no
           NO-LOCK NO-ERROR.
+
+  IF begin_rm-no NE "" AND NOT END_rm-no BEGINS "zzzzz" AND quotehd.est-no NE "" THEN DO:
         IF NOT AVAIL eb THEN NEXT.
         IF NOT CAN-FIND(FIRST ef OF eb
             WHERE ef.board GE begin_rm-no
@@ -947,7 +951,13 @@ for each quotehd
   ELSE
     FIND itemfg WHERE ROWID(itemfg) EQ lv-rowid NO-LOCK NO-ERROR.
 
-  IF NOT AVAIL itemfg                                                 OR
+  IF ( NOT AVAIL itemfg AND 
+      CAN-FIND(FIRST eb
+              WHERE eb.company EQ quotehd.company
+                AND eb.est-no  EQ quotehd.est-no
+                AND eb.part-no EQ  quoteitm.part-no
+                AND eb.procat   GE begin_fg-cat
+                AND eb.procat   LE end_fg-cat) )                    OR
      CAN-FIND(FIRST itemfg
               WHERE ROWID(itemfg)   EQ lv-rowid
                 AND itemfg.procat   GE begin_fg-cat
@@ -1004,7 +1014,7 @@ for each quotehd
              '"' quotehd.est-no                                 '",'
              '"' quoteitm.part-no                               '",'
              '"' quoteitm.i-no                                  '",'
-             '"' itemfg.procat                                  '",'
+             '"' IF AVAIL itemfg THEN  itemfg.procat  ELSE IF AVAIL eb THEN eb.procat ELSE  ""        '",'
              '"' quoteqty.qty                                   '",'
              '"' quoteqty.price                                 '",'
              '"' tt-quoteqty.price                              '",'
@@ -1041,12 +1051,16 @@ for each quotehd
 
     break by quotehd.q-no:
 
-  IF begin_rm-no NE "" AND NOT END_rm-no BEGINS "zzzzz" AND quotehd.est-no NE "" THEN DO:
-      FIND FIRST eb
+    RELEASE eb .
+    IF quotehd.est-no NE "" THEN
+        FIND FIRST eb
           WHERE eb.company EQ quotehd.company
             AND eb.est-no EQ quotehd.est-no
             AND eb.part-no EQ  quoteitm.part-no
           NO-LOCK NO-ERROR.
+
+  IF begin_rm-no NE "" AND NOT END_rm-no BEGINS "zzzzz" AND quotehd.est-no NE "" THEN DO:
+      
         IF NOT AVAIL eb THEN NEXT.
         IF NOT CAN-FIND(FIRST ef OF eb
             WHERE ef.board GE begin_rm-no
@@ -1078,7 +1092,13 @@ for each quotehd
   ELSE
     FIND itemfg WHERE ROWID(itemfg) EQ lv-rowid NO-LOCK NO-ERROR.
 
-  IF NOT AVAIL itemfg                                                 OR
+  IF ( NOT AVAIL itemfg AND 
+      CAN-FIND(FIRST eb
+              WHERE eb.company EQ quotehd.company
+                AND eb.est-no  EQ quotehd.est-no
+                AND eb.part-no EQ  quoteitm.part-no
+                AND eb.procat   GE begin_fg-cat
+                AND eb.procat   LE end_fg-cat) )                      OR
      CAN-FIND(FIRST itemfg
               WHERE ROWID(itemfg)   EQ lv-rowid
                 AND itemfg.procat   GE begin_fg-cat

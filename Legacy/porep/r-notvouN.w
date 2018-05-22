@@ -1632,6 +1632,10 @@ display "" with frame r-top.
                     (((IF v-qty-r LT 0 THEN -1 ELSE 1) * v-qty-r) +
                      ((IF v-qty-i LT 0 THEN -1 ELSE 1) * v-qty-i)).
 
+       IF po-ordl.pr-qty-uom NE "EA" THEN
+                 RUN sys/ref/convcuom.p( po-ordl.pr-qty-uom, "EA", 0, 0, 0, 0,
+                               v-cost, OUTPUT v-cost).
+
            CREATE temp-po-rec.
            ASSIGN
               temp-po-rec.vend-no = v-vend-no
@@ -1644,7 +1648,7 @@ display "" with frame r-top.
               temp-po-rec.qty-to-inv = v-qty-r - v-qty-i
               temp-po-rec.whse = po-ord.loc
               temp-po-rec.cost-each = v-cost
-              temp-po-rec.amt-to-inv = v-amt-r - v-amt-i.
+              temp-po-rec.amt-to-inv = /*v-amt-r -*/ v-amt-i.
            RELEASE temp-po-rec.
          end.
       END.
@@ -2003,6 +2007,10 @@ display "" with frame r-top.
                         (((IF v-qty-r LT 0 THEN -1 ELSE 1) * v-qty-r) +
                          ((IF v-qty-i LT 0 THEN -1 ELSE 1) * v-qty-i)).
 
+                     IF po-ordl.pr-qty-uom NE "EA" THEN
+                         RUN sys/ref/convcuom.p( po-ordl.pr-qty-uom, "EA", 0, 0, 0, 0,
+                                                 v-cost, OUTPUT v-cost).
+
                CREATE temp-po-rec.
                ASSIGN
                   temp-po-rec.vend-no = v-vend-no
@@ -2015,7 +2023,7 @@ display "" with frame r-top.
                   temp-po-rec.qty-to-inv = v-qty-r - v-qty-i
                   temp-po-rec.whse = po-ord.loc
                   temp-po-rec.cost-each = v-cost
-                  temp-po-rec.amt-to-inv = v-amt-r - v-amt-i.
+                  temp-po-rec.amt-to-inv = /*v-amt-r -*/ v-amt-i.
                RELEASE temp-po-rec.
             end.
             ELSE

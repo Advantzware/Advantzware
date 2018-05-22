@@ -66,6 +66,7 @@ DEF STREAM outStream.
 DEF STREAM logStream.
 DEF STREAM iniStream.
 
+DEF VAR lAutorun AS LOG NO-UNDO.
 DEF VAR delCtr AS INT NO-UNDO.
 DEF VAR dupCtr AS INT NO-UNDO.
 DEF VAR cIniVarList AS CHAR NO-UNDO.
@@ -226,8 +227,8 @@ DEF VAR cDbPortList AS CHAR INITIAL "2826" NO-UNDO.
 DEF VAR cAudDirList AS CHAR INITIAL "Audit" NO-UNDO.
 DEF VAR cAudDBList AS CHAR INITIAL "audProd" NO-UNDO.
 DEF VAR cAudPortList AS CHAR INITIAL "2836" NO-UNDO.
-DEF VAR cEnvVerList AS CHAR INITIAL "16.7.4" NO-UNDO.
-DEF VAR cDbVerList AS CHAR INITIAL "16.7.4" NO-UNDO.
+DEF VAR cEnvVerList AS CHAR INITIAL "16.7.5" NO-UNDO.
+DEF VAR cDbVerList AS CHAR INITIAL "16.7" NO-UNDO.
 /* # Basic DB Elements */
 DEF VAR cAudDbName AS CHAR INITIAL "audProd" NO-UNDO.
 DEF VAR cAudDbPort AS CHAR INITIAL "2836" NO-UNDO.
@@ -487,7 +488,7 @@ DEFINE VARIABLE fiMapDir AS CHARACTER FORMAT "X(256)":U INITIAL "N:"
      VIEW-AS FILL-IN 
      SIZE 5 BY 1 NO-UNDO.
 
-DEFINE VARIABLE fiNewVer AS CHARACTER FORMAT "X(256)":U INITIAL "16.7.4" 
+DEFINE VARIABLE fiNewVer AS CHARACTER FORMAT "X(256)":U INITIAL "16.7.5" 
      LABEL "New Version" 
      VIEW-AS FILL-IN 
      SIZE 14 BY 1
@@ -862,14 +863,14 @@ DEFINE FRAME DEFAULT-FRAME
      fiUpdRelNotesDir AT ROW 30.29 COL 116 COLON-ALIGNED NO-LABEL WIDGET-ID 160
      fiUpdSqlDir AT ROW 31 COL 116 COLON-ALIGNED NO-LABEL WIDGET-ID 158
      fiUpdStructureDir AT ROW 31.71 COL 116 COLON-ALIGNED NO-LABEL WIDGET-ID 164
-     "Admin" VIEW-AS TEXT
-          SIZE 16 BY .76 AT ROW 25.29 COL 148 WIDGET-ID 198
-     "Databases" VIEW-AS TEXT
-          SIZE 16 BY .76 AT ROW 7.43 COL 141 WIDGET-ID 282
+     "<EnvName>" VIEW-AS TEXT
+          SIZE 16 BY .76 AT ROW 14.57 COL 145 WIDGET-ID 242
      "Programs" VIEW-AS TEXT
           SIZE 16 BY .76 AT ROW 6 COL 145 WIDGET-ID 280
-     "Users" VIEW-AS TEXT
-          SIZE 16 BY .76 AT ROW 22.43 COL 147 WIDGET-ID 218
+     "PO" VIEW-AS TEXT
+          SIZE 16 BY .76 AT ROW 18.14 COL 147 WIDGET-ID 202
+     "Select one or more to upgrade." VIEW-AS TEXT
+          SIZE 32 BY .62 AT ROW 14.57 COL 10 WIDGET-ID 490
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
@@ -877,21 +878,9 @@ DEFINE FRAME DEFAULT-FRAME
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME DEFAULT-FRAME
-     "SQLAccess" VIEW-AS TEXT
-          SIZE 16 BY .76 AT ROW 31 COL 148 WIDGET-ID 292
-     "Addon" VIEW-AS TEXT
-          SIZE 16 BY .76 AT ROW 15.29 COL 147 WIDGET-ID 216
-     "<EnvName>" VIEW-AS TEXT
-          SIZE 16 BY .76 AT ROW 14.57 COL 145 WIDGET-ID 242
-     "PO" VIEW-AS TEXT
-          SIZE 16 BY .76 AT ROW 18.14 COL 147 WIDGET-ID 202
-     "Select one or more to upgrade." VIEW-AS TEXT
-          SIZE 32 BY .62 AT ROW 14.57 COL 10 WIDGET-ID 490
      " General Variables" VIEW-AS TEXT
           SIZE 22 BY .62 AT ROW 1.48 COL 8 WIDGET-ID 356
           FONT 6
-     "Environment tasks - will be performed once for each ENVIRONMENT selected above" VIEW-AS TEXT
-          SIZE 86 BY .62 AT ROW 23.38 COL 11 WIDGET-ID 500
      "Patch<n>" VIEW-AS TEXT
           SIZE 16 BY .76 AT ROW 24.57 COL 145 WIDGET-ID 196
      "Programs" VIEW-AS TEXT
@@ -901,6 +890,18 @@ DEFINE FRAME DEFAULT-FRAME
      " Patch Processing" VIEW-AS TEXT
           SIZE 23 BY .62 AT ROW 15.76 COL 8 WIDGET-ID 456
           FONT 6
+     "Addon" VIEW-AS TEXT
+          SIZE 16 BY .76 AT ROW 15.29 COL 147 WIDGET-ID 216
+     "Databases" VIEW-AS TEXT
+          SIZE 16 BY .76 AT ROW 7.43 COL 141 WIDGET-ID 282
+     "UserMenu" VIEW-AS TEXT
+          SIZE 16 BY .76 AT ROW 21.71 COL 147 WIDGET-ID 200
+     "SQLAccess" VIEW-AS TEXT
+          SIZE 16 BY .76 AT ROW 31 COL 148 WIDGET-ID 292
+     "Users" VIEW-AS TEXT
+          SIZE 16 BY .76 AT ROW 22.43 COL 147 WIDGET-ID 218
+     "Admin" VIEW-AS TEXT
+          SIZE 16 BY .76 AT ROW 25.29 COL 148 WIDGET-ID 198
      "Ship" VIEW-AS TEXT
           SIZE 16 BY .76 AT ROW 10.29 COL 145 WIDGET-ID 252
      " Databases" VIEW-AS TEXT
@@ -945,6 +946,8 @@ DEFINE FRAME DEFAULT-FRAME
           SIZE 16 BY .76 AT ROW 19.57 COL 147 WIDGET-ID 206
      "Select ONE and ONLY ONE to upgrade~\back up." VIEW-AS TEXT
           SIZE 49 BY .62 AT ROW 14.57 COL 55 WIDGET-ID 492
+     "Customer" VIEW-AS TEXT
+          SIZE 16 BY .76 AT ROW 16.71 COL 147 WIDGET-ID 212
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
@@ -952,8 +955,6 @@ DEFINE FRAME DEFAULT-FRAME
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME DEFAULT-FRAME
-     "Customer" VIEW-AS TEXT
-          SIZE 16 BY .76 AT ROW 16.71 COL 147 WIDGET-ID 212
      "CustFiles" VIEW-AS TEXT
           SIZE 16 BY .76 AT ROW 16 COL 147 WIDGET-ID 210
      "MenuFiles" VIEW-AS TEXT
@@ -988,8 +989,8 @@ DEFINE FRAME DEFAULT-FRAME
           FONT 6
      "StructureUpdate" VIEW-AS TEXT
           SIZE 16 BY .76 AT ROW 31.71 COL 148 WIDGET-ID 296
-     "UserMenu" VIEW-AS TEXT
-          SIZE 16 BY .76 AT ROW 21.71 COL 147 WIDGET-ID 200
+     "Environment tasks - will be performed once for each ENVIRONMENT selected above" VIEW-AS TEXT
+          SIZE 86 BY .62 AT ROW 23.38 COL 11 WIDGET-ID 500
      RECT-1 AT ROW 1.71 COL 109 WIDGET-ID 354
      RECT-2 AT ROW 1.71 COL 5 WIDGET-ID 358
      RECT-3 AT ROW 10.29 COL 5 WIDGET-ID 362
@@ -1314,6 +1315,18 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME slEnvironments
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL slEnvironments C-Win
+ON VALUE-CHANGED OF slEnvironments IN FRAME DEFAULT-FRAME
+DO:
+    ASSIGN
+        fiCurrVer:{&SV} = ENTRY(2,SELF:{&SV},"-").
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &UNDEFINE SELF-NAME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK C-Win 
@@ -1374,6 +1387,8 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE
         APPLY 'leave' TO fiNewVer.
     END.
     
+    APPLY 'value-changed' TO slEnvironments.
+    
     ASSIGN
         tbBackupDBs:CHECKED = TRUE
         tbUserControl:CHECKED = TRUE
@@ -1393,6 +1408,16 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE
         tbInstallFiles:CHECKED = TRUE
         tbUpdateINI:CHECKED = TRUE
         .
+        
+    IF NUM-ENTRIES(slEnvironments:LIST-ITEMS) EQ 1 
+    AND NUM-ENTRIES(slDatabases:LIST-ITEMS) = 1
+    AND ipiLevel LT 10 THEN DO:
+        ASSIGN
+            lAutorun = TRUE.
+        DISABLE ALL EXCEPT bProcess WITH FRAME {&FRAME-NAME}.
+        APPLY 'choose' to bProcess.
+    END.
+    
     IF NOT THIS-PROCEDURE:PERSISTENT THEN
         WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -2212,6 +2237,84 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipConvQtyPerSet C-Win 
+PROCEDURE ipConvQtyPerSet :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEF VAR cOrigPropath AS CHAR NO-UNDO.
+    DEF VAR cNewPropath AS CHAR NO-UNDO.
+    DEF VAR cThisElement AS CHAR NO-UNDO.
+    DEF VAR dQtyPerSet AS DECIMAL NO-UNDO.
+    DEF VAR iCount AS INTEGER NO-UNDO.
+    DEF VAR iCountProcessed AS INTEGER NO-UNDO.
+    DEF VAR iCountInitialized AS INTEGER NO-UNDO.
+    DEF VAR iCountSets AS INTEGER NO-UNDO.
+    DEF VAR iCountFGSets AS INTEGER NO-UNDO.
+    DEF VAR iCountFGSetsProcessed AS INTEGER NO-UNDO.
+    DEF VAR iCountFGSetsInitialized AS INTEGER NO-UNDO.
+    
+    RUN ipStatus ("Converting QtyPerSet records...").
+
+    DISABLE TRIGGERS FOR LOAD OF eb.
+    DISABLE TRIGGERS FOR LOAD OF fg-set.
+    
+    FOR EACH company NO-LOCK, 
+        EACH est NO-LOCK WHERE 
+        est.company EQ company.company,
+        EACH eb OF est EXCLUSIVE-LOCK:
+        ASSIGN
+            iCount = iCount + 1.
+        CASE est.est-type:
+            WHEN 5 OR WHEN 6 THEN DO:
+                IF eb.quantityPerSet EQ 0 THEN DO: 
+                    ASSIGN 
+                        iCountProcessed = iCountProcessed + 1 
+                        dQtyPerSet = eb.yld-qty
+                        .
+                    IF dQtyPerSet LT 0 THEN dQtyPerSet = -1 / dQtyPerSet.
+                    IF dQtyPerSet EQ 0 THEN dQtyPerSet = 1.
+                    eb.quantityPerSet = dQtyPerSet.   
+                END.
+            END.
+  
+            /*Folding carton uses %-cust - out of scope for ticket 25146*/     
+/*          WHEN 1 OR WHEN 2 THEN      */
+/*                dQtyPerSet = eb.cust-%.*/
+/*                                       */
+        END CASE.
+        IF eb.quantityPerSet EQ 0 THEN ASSIGN 
+            eb.quantityPerSet = 1
+            iCountInitialized = iCountInitialized + 1.
+    END.
+
+    FOR EACH company NO-LOCK, 
+        EACH fg-set EXCLUSIVE-LOCK WHERE 
+            fg-set.company EQ company.company:
+        ASSIGN
+            iCountFGSets = iCountFGSets + 1.
+        IF fg-set.qtyPerSet EQ 0 AND fg-set.part-qty NE 0 THEN ASSIGN 
+            iCountFGSetsProcessed = iCountFGSetsProcessed + 1 
+            fg-set.qtyPerSet = fg-set.part-qty.
+        IF fg-set.qtyPerSet EQ 0 THEN ASSIGN 
+            iCountFGSetsInitialized = iCountFGSetsInitialized + 1 
+            fg-set.qtyPerSet = 1.
+    END.     
+
+    RUN ipStatus ("   Total Estimates: "  + STRING(iCount)).
+    RUN ipStatus ("   Converted from .yld-qty: " + STRING(iCountProcessed)).
+    RUN ipStatus ("   Initialized to 1: " + STRING(iCountInitialized)).
+    RUN ipStatus ("   Total Sets: " + STRING(iCountFGSets)).
+    RUN ipStatus ("   Sets Converted from .part-qty to .qtyPerSet: " + STRING(iCountFGSetsProcessed)).
+    RUN ipStatus ("   Sets Initialized to 1: " + STRING(iCountFGSetsInitialized )).
+    
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipCopyDirs C-Win 
 PROCEDURE ipCopyDirs :
 /*------------------------------------------------------------------------------
@@ -2564,11 +2667,22 @@ PROCEDURE ipDataFix160704 :
        
     RUN ipStatus ("  Data Fix 160704...").
 
+    /* Ensure jobCode sequence is GT 100 */
+    IF CURRENT-VALUE(jobCodeDMIseq) LT 100 THEN ASSIGN
+        CURRENT-VALUE(jobCodeDMIseq) = CURRENT-VALUE(jobCodeDMIseq) + 100.
+        
+    /* If any empty job-codes, assign dmiID */
     FOR EACH job-code WHERE 
         job-code.dmiID EQ 0:
         ASSIGN
             job-code.dmiID = NEXT-VALUE(jobCodeDMIseq).
     END. 
+    
+    /* If job-codes had been built with ID LT 100, fix them */
+    IF CAN-FIND(FIRST job-code WHERE job-code.dmiID LT 100) THEN FOR EACH job-code EXCLUSIVE:
+        ASSIGN
+            job-code.dmiID = job-code.dmiID + 100.
+    END.
     
     /* Ticket 27898 */
     FOR EACH reftable1 EXCLUSIVE WHERE
@@ -2581,6 +2695,8 @@ PROCEDURE ipDataFix160704 :
             reftable1.val[1] = 1
             oe-rel.s-code = reftable1.code.
     END.
+    
+    RUN ipConvQtyPerSet.
     
 END PROCEDURE.
 
@@ -3154,6 +3270,29 @@ PROCEDURE ipInvRnoSeq :
     END.
 
 
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipLoadAuditRecs C-Win 
+PROCEDURE ipLoadAuditRecs :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    RUN ipStatus ("Loading AuditTbl Records").
+
+    DISABLE TRIGGERS FOR LOAD OF audittbl.
+    
+    INPUT FROM VALUE(cUpdDataDir + "\audittbl.d") NO-ECHO.
+    REPEAT:
+        CREATE AuditTbl.
+        IMPORT AuditTbl.
+    END.
+    INPUT CLOSE.
+        
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -3794,20 +3933,22 @@ PROCEDURE ipRefTableConv :
     DEF VAR cNewPropath AS CHAR NO-UNDO.
     DEF VAR cThisElement AS CHAR NO-UNDO.
     
-    MESSAGE
-        "WARNING - RefTable Conversion Time:" SKIP(1)
-        "This operation can potentially take several hours to complete," SKIP
-        "depending on several factors including the size and age of your" SKIP
-        "database, the processing power and available resources of your" SKIP
-        "server, and other considerations.  You may consider running this" SKIP
-        "task separately from other upgrade choices, or you can run this" SKIP
-        "from within the Advantzware system using a conversion utility." SKIP
-        "Press 'Yes' to continue with the conversion, or 'No' to defer it."
-        VIEW-AS ALERT-BOX WARNING BUTTONS YES-NO update lContinue AS LOG.
-        
-    IF NOT lContinue THEN DO:
-        RUN ipStatus ("Reftable conversion was deferred").
-        RETURN.
+    IF ipiLevel GT 10 THEN DO:
+        MESSAGE
+            "WARNING - RefTable Conversion Time:" SKIP(1)
+            "This operation can potentially take several hours to complete," SKIP
+            "depending on several factors including the size and age of your" SKIP
+            "database, the processing power and available resources of your" SKIP
+            "server, and other considerations.  You may consider running this" SKIP
+            "task separately from other upgrade choices, or you can run this" SKIP
+            "from within the Advantzware system using a conversion utility." SKIP
+            "Press 'Yes' to continue with the conversion, or 'No' to defer it."
+            VIEW-AS ALERT-BOX WARNING BUTTONS YES-NO update lContinue AS LOG.
+            
+        IF NOT lContinue THEN DO:
+            RUN ipStatus ("Reftable conversion was deferred").
+            RETURN.
+        END.
     END.
 
     RUN ipStatus ("Converting Reftable records...").
@@ -4815,6 +4956,10 @@ PROCEDURE ipUpdateMaster :
     IF SEARCH(cUpdDataDir + "\module.d") <> ? THEN
         RUN ipLoadModules IN THIS-PROCEDURE.
 
+    IF NOT CAN-FIND(FIRST audit.audittbl) 
+    AND SEARCH(cUpdDataDir + "\audittbl.d") <> ? THEN
+        RUN ipLoadAuditRecs IN THIS-PROCEDURE.
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -4855,6 +5000,14 @@ PROCEDURE ipUpdateNK1s :
         NO-ERROR.
     IF AVAIL sys-ctrl THEN ASSIGN
         sys-ctrl.log-fld = TRUE.
+
+    /* RelType - set Default to "B" */
+    FIND FIRST sys-ctrl WHERE
+        sys-ctrl.name EQ "RelType"
+        NO-ERROR.
+    IF AVAIL sys-ctrl 
+    AND sys-ctrl.char-fld EQ "" THEN ASSIGN
+        sys-ctrl.char-fld = "Bill and Ship".
 
         
     /* - future: update CustFile locations

@@ -41,7 +41,6 @@ DEFINE INPUT PARAMETER pcpoTo       AS CHARACTER NO-UNDO.
 DEFINE VARIABLE list-name AS cha NO-UNDO.
 DEFINE VARIABLE init-dir AS CHARACTER NO-UNDO.
 
-DEFINE BUFFER m-oe-prmtx FOR oe-prmtx.
 
 DEFINE VARIABLE v-prgmname AS CHARACTER NO-UNDO.
 DEFINE VARIABLE period_pos AS INTEGER NO-UNDO.
@@ -1067,7 +1066,7 @@ PROCEDURE run-report :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-DEFINE BUFFER b-oe-prmtx FOR oe-prmtx.
+
 DEFINE VARIABLE str-tit4 AS cha NO-UNDO.
 DEFINE VARIABLE str-tit5 AS cha NO-UNDO.
 DEFINE VARIABLE str-line AS cha FORM "x(300)" NO-UNDO.

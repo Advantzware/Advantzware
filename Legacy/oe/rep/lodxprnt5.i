@@ -21,16 +21,16 @@ FIND FIRST cust NO-LOCK
         
          PUT "<R17><C3><P25><FROM><R17><C80><LINE>" SKIP.
         
-         PUT "<FArial><R15><C3><p12><B>" company.addr[1] FORMAT "x(30)"  "</B>" .
-         PUT "<FArial><=4><R15><C27><p11><B>" STRING(company.city,"x(15)") " " company.state FORMAT "x(2)" " " company.zip "</B>" .
+         PUT "<FArial><R15><C3><p10><B>" company.addr[1] FORMAT "x(30)"  "</B>" .
+         PUT "<FArial><=4><R15><C27><p10><B>" company.city " " company.state FORMAT "x(2)" " " company.zip "</B>" .
         
-         PUT "<FArial><=4><R15><C44><p12><B>        Phone: " cPhone FORMAT "x(15)"  "</B>" .
-         PUT "<FArial><=4><R15><C64><p12><B>   Fax: " cFax FORMAT "x(15)"  "</B>" SKIP.
+         PUT "<FArial><=4><R15><C44><p10><B>        Phone: " cPhone FORMAT "x(15)"  "</B>" .
+         PUT "<FArial><=4><R15><C64><p10><B>   Fax: " cFax FORMAT "x(15)"  "</B>" SKIP.
         
          PUT "<||><R20><C3><#4><FROM><R25><C80><RECT>" SKIP.            
         
         PUT "<FArial><=4><R18><C3><B><p15> Customer Name </B>" SKIP.
-        PUT "<FArial><=4><R21.2><C3><B><P24>  " tt-word-print.cust-name FORMAT "x(27)" "</B>" SKIP.
+        PUT "<FArial><=4><R21.2><C3><B><P24>  " tt-word-print.cust-name FORMAT "x(30)" "</B>" SKIP.
         
         PUT "<||><R28><C3><#5><FROM><R33><C40><RECT>" SKIP.            
         
@@ -40,7 +40,7 @@ FIND FIRST cust NO-LOCK
         
         PUT "<||><R28><C45><#6><FROM><R33><C80><RECT>" SKIP.            
         
-        PUT "<FArial><=6><R29.5><C46><B><P17>  " tt-word-print.i-name FORMAT "x(25)"   "</B>" SKIP.
+        PUT "<FArial><=6><R29.5><C45><B><P16>  " tt-word-print.i-name FORMAT "x(30)"   "</B>" SKIP.
         
         PUT "<||><R36><C3><#7><FROM><R41><C40><RECT>" SKIP.            
         
@@ -86,16 +86,16 @@ FIND FIRST cust NO-LOCK
         
          PUT "<R32><C3><P25><FROM><R32><C80><LINE>" SKIP.
         
-         PUT "<FArial><R30><C3><p12><B>" company.addr[1] FORMAT "x(30)"  "</B>" .
-         PUT "<FArial><=4><R30><C27><p11><B>" STRING(company.city,"x(15)") " " company.state FORMAT "x(2)" " " company.zip "</B>" .
+         PUT "<FArial><R30><C3><p10><B>" company.addr[1] FORMAT "x(30)"  "</B>" .
+         PUT "<FArial><=4><R30><C27><p10><B>" company.city " " company.state FORMAT "x(2)" " " company.zip "</B>" .
         
-         PUT "<FArial><=4><R30><C44><p12><B>        Phone: " cPhone FORMAT "x(15)"  "</B>" .
-         PUT "<FArial><=4><R30><C64><p12><B>   Fax: " cFax FORMAT "x(15)"  "</B>" SKIP.
+         PUT "<FArial><=4><R30><C44><p10><B>        Phone: " cPhone FORMAT "x(15)"  "</B>" .
+         PUT "<FArial><=4><R30><C64><p10><B>   Fax: " cFax FORMAT "x(15)"  "</B>" SKIP.
         
          PUT "<||><R35><C3><#4><FROM><R40><C80><RECT>" SKIP.            
         
         PUT "<FArial><=4><R33><C3><B><p15> Customer Name </B>" SKIP.
-        PUT "<FArial><=4><R36.2><C3><B><P24>  " tt-word-print.cust-name FORMAT "x(27)" "</B>" SKIP.
+        PUT "<FArial><=4><R36.2><C3><B><P24>  " tt-word-print.cust-name FORMAT "x(30)" "</B>" SKIP.
         
         PUT "<||><R43><C3><#5><FROM><R48><C40><RECT>" SKIP.            
         
@@ -105,7 +105,7 @@ FIND FIRST cust NO-LOCK
         
         PUT "<||><R43><C45><#6><FROM><R48><C80><RECT>" SKIP.            
         
-        PUT "<FArial><=6><R44.5><C46><B><P17>  " tt-word-print.i-name FORMAT "x(25)"   "</B>" SKIP.
+        PUT "<FArial><=6><R44.5><C45><B><P16>  " tt-word-print.i-name FORMAT "x(30)"   "</B>" SKIP.
         
         PUT "<||><R51><C3><#7><FROM><R56><C40><RECT>" SKIP.            
         

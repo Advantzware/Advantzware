@@ -87,36 +87,36 @@ oe-prmtx.qty[10] oe-prmtx.uom[10]
 &Scoped-define ENABLED-TABLES oe-prmtx
 &Scoped-define FIRST-ENABLED-TABLE oe-prmtx
 &Scoped-Define ENABLED-OBJECTS RECT-1 RECT-5 
-&Scoped-Define DISPLAYED-FIELDS oe-prmtx.cust-no oe-prmtx.custype ~
-oe-prmtx.i-no oe-prmtx.procat oe-prmtx.eff-date oe-prmtx.exp-date oe-prmtx.meth ~
-oe-prmtx.qty[1] oe-prmtx.price[1] oe-prmtx.discount[1] oe-prmtx.uom[1] ~
-oe-prmtx.qty[2] oe-prmtx.price[2] oe-prmtx.discount[2] oe-prmtx.uom[2] ~
-oe-prmtx.qty[3] oe-prmtx.price[3] oe-prmtx.discount[3] oe-prmtx.uom[3] ~
-oe-prmtx.qty[4] oe-prmtx.price[4] oe-prmtx.discount[4] oe-prmtx.uom[4] ~
-oe-prmtx.qty[5] oe-prmtx.price[5] oe-prmtx.discount[5] oe-prmtx.uom[5] ~
-oe-prmtx.qty[6] oe-prmtx.price[6] oe-prmtx.discount[6] oe-prmtx.uom[6] ~
-oe-prmtx.qty[7] oe-prmtx.price[7] oe-prmtx.discount[7] oe-prmtx.uom[7] ~
-oe-prmtx.qty[8] oe-prmtx.price[8] oe-prmtx.discount[8] oe-prmtx.uom[8] ~
-oe-prmtx.qty[9] oe-prmtx.price[9] oe-prmtx.discount[9] oe-prmtx.uom[9] ~
-oe-prmtx.qty[10] oe-prmtx.price[10] oe-prmtx.discount[10] oe-prmtx.uom[10] 
+&Scoped-Define DISPLAYED-FIELDS oe-prmtx.cust-no oe-prmtx.custShipID ~
+oe-prmtx.custype oe-prmtx.i-no oe-prmtx.procat oe-prmtx.eff-date ~
+oe-prmtx.exp-date oe-prmtx.meth oe-prmtx.qty[1] oe-prmtx.price[1] ~
+oe-prmtx.discount[1] oe-prmtx.uom[1] oe-prmtx.qty[2] oe-prmtx.price[2] ~
+oe-prmtx.discount[2] oe-prmtx.uom[2] oe-prmtx.qty[3] oe-prmtx.price[3] ~
+oe-prmtx.discount[3] oe-prmtx.uom[3] oe-prmtx.qty[4] oe-prmtx.price[4] ~
+oe-prmtx.discount[4] oe-prmtx.uom[4] oe-prmtx.qty[5] oe-prmtx.price[5] ~
+oe-prmtx.discount[5] oe-prmtx.uom[5] oe-prmtx.qty[6] oe-prmtx.price[6] ~
+oe-prmtx.discount[6] oe-prmtx.uom[6] oe-prmtx.qty[7] oe-prmtx.price[7] ~
+oe-prmtx.discount[7] oe-prmtx.uom[7] oe-prmtx.qty[8] oe-prmtx.price[8] ~
+oe-prmtx.discount[8] oe-prmtx.uom[8] oe-prmtx.qty[9] oe-prmtx.price[9] ~
+oe-prmtx.discount[9] oe-prmtx.uom[9] oe-prmtx.qty[10] oe-prmtx.price[10] ~
+oe-prmtx.discount[10] oe-prmtx.uom[10] 
 &Scoped-define DISPLAYED-TABLES oe-prmtx
 &Scoped-define FIRST-DISPLAYED-TABLE oe-prmtx
-&Scoped-Define DISPLAYED-OBJECTS F1 F-2 F-3 F-4 F-5 
+
 
 /* Custom List Definitions                                              */
 /* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,ROW-AVAILABLE,DISPLAY-FIELD,List-5,F1 */
-&Scoped-define ADM-CREATE-FIELDS oe-prmtx.cust-no oe-prmtx.custype ~
-oe-prmtx.i-no oe-prmtx.procat 
-&Scoped-define ADM-ASSIGN-FIELDS oe-prmtx.cust-no oe-prmtx.custype ~
-oe-prmtx.i-no oe-prmtx.procat oe-prmtx.eff-date oe-prmtx.exp-date oe-prmtx.price[1] ~
-oe-prmtx.discount[1] oe-prmtx.price[2] oe-prmtx.discount[2] ~
-oe-prmtx.price[3] oe-prmtx.discount[3] oe-prmtx.price[4] ~
-oe-prmtx.discount[4] oe-prmtx.price[5] oe-prmtx.discount[5] ~
-oe-prmtx.price[6] oe-prmtx.discount[6] oe-prmtx.price[7] ~
-oe-prmtx.discount[7] oe-prmtx.price[8] oe-prmtx.discount[8] ~
-oe-prmtx.price[9] oe-prmtx.discount[9] oe-prmtx.price[10] ~
-oe-prmtx.discount[10] 
-&Scoped-define F1 F1 F-2 F-3 F-4 F-5 
+&Scoped-define ADM-CREATE-FIELDS oe-prmtx.cust-no oe-prmtx.custShipID ~
+oe-prmtx.custype oe-prmtx.i-no oe-prmtx.procat 
+&Scoped-define ADM-ASSIGN-FIELDS oe-prmtx.cust-no oe-prmtx.custShipID ~
+oe-prmtx.custype oe-prmtx.i-no oe-prmtx.procat oe-prmtx.eff-date ~
+oe-prmtx.exp-date oe-prmtx.price[1] oe-prmtx.discount[1] oe-prmtx.price[2] ~
+oe-prmtx.discount[2] oe-prmtx.price[3] oe-prmtx.discount[3] ~
+oe-prmtx.price[4] oe-prmtx.discount[4] oe-prmtx.price[5] ~
+oe-prmtx.discount[5] oe-prmtx.price[6] oe-prmtx.discount[6] ~
+oe-prmtx.price[7] oe-prmtx.discount[7] oe-prmtx.price[8] ~
+oe-prmtx.discount[8] oe-prmtx.price[9] oe-prmtx.discount[9] ~
+oe-prmtx.price[10] oe-prmtx.discount[10] 
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
@@ -149,31 +149,6 @@ RUN set-attribute-list (
 
 
 /* Definitions of the field level widgets                               */
-DEFINE VARIABLE F-2 AS CHARACTER FORMAT "X(256)":U INITIAL "F1" 
-      VIEW-AS TEXT 
-     SIZE 2.2 BY .52
-     BGCOLOR 0 FGCOLOR 15 FONT 4 NO-UNDO.
-
-DEFINE VARIABLE F-3 AS CHARACTER FORMAT "X(256)":U INITIAL "F1" 
-      VIEW-AS TEXT 
-     SIZE 2.2 BY .52
-     BGCOLOR 0 FGCOLOR 15 FONT 4 NO-UNDO.
-
-DEFINE VARIABLE F-4 AS CHARACTER FORMAT "X(256)":U INITIAL "F1" 
-      VIEW-AS TEXT 
-     SIZE 2.2 BY .52
-     BGCOLOR 0 FGCOLOR 15 FONT 4 NO-UNDO.
-
-DEFINE VARIABLE F-5 AS CHARACTER FORMAT "X(256)":U INITIAL "F1" 
-      VIEW-AS TEXT 
-     SIZE 2.2 BY .52
-     BGCOLOR 0 FGCOLOR 15 FONT 4 NO-UNDO.
-
-DEFINE VARIABLE F1 AS CHARACTER FORMAT "X(256)":U INITIAL "F1" 
-      VIEW-AS TEXT 
-     SIZE 2.2 BY .52
-     BGCOLOR 0 FGCOLOR 15 FONT 4 NO-UNDO.
-
 DEFINE RECTANGLE RECT-1
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 142 BY 16.19.
@@ -186,16 +161,19 @@ DEFINE RECTANGLE RECT-5
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     oe-prmtx.cust-no AT ROW 1.24 COL 26 COLON-ALIGNED
+     oe-prmtx.cust-no AT ROW 1.24 COL 12 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 12 BY 1
-     oe-prmtx.custype AT ROW 1.24 COL 51 COLON-ALIGNED
+     oe-prmtx.custShipID AT ROW 1.24 COL 35 COLON-ALIGNED WIDGET-ID 2
+          VIEW-AS FILL-IN 
+          SIZE 15 BY 1
+     oe-prmtx.custype AT ROW 1.24 COL 59 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 12 BY 1
-     oe-prmtx.i-no AT ROW 1.24 COL 78 COLON-ALIGNED
+     oe-prmtx.i-no AT ROW 1.24 COL 85 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 24 BY 1
-     oe-prmtx.procat AT ROW 1.24 COL 115 COLON-ALIGNED
+     oe-prmtx.procat AT ROW 1.24 COL 124 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 13 BY 1
      oe-prmtx.eff-date AT ROW 2.43 COL 78 COLON-ALIGNED
@@ -215,7 +193,7 @@ DEFINE FRAME F-Main
      oe-prmtx.qty[1] AT ROW 4.57 COL 33 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 14 BY 1
-     oe-prmtx.price[1] FORMAT "->>,>>>,>>9.9999<<" AT ROW 4.57 COL 55 COLON-ALIGNED NO-LABEL
+     oe-prmtx.price[1] AT ROW 4.57 COL 55 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 18.8 BY 1
      oe-prmtx.discount[1] AT ROW 4.57 COL 87 COLON-ALIGNED NO-LABEL
@@ -227,7 +205,7 @@ DEFINE FRAME F-Main
      oe-prmtx.qty[2] AT ROW 5.76 COL 33 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 14 BY 1
-     oe-prmtx.price[2] FORMAT "->>,>>>,>>9.9999<<" AT ROW 5.76 COL 55 COLON-ALIGNED NO-LABEL
+     oe-prmtx.price[2] AT ROW 5.76 COL 55 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 18.8 BY 1
      oe-prmtx.discount[2] AT ROW 5.76 COL 87 COLON-ALIGNED NO-LABEL
@@ -239,7 +217,7 @@ DEFINE FRAME F-Main
      oe-prmtx.qty[3] AT ROW 6.95 COL 33 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 14 BY 1
-     oe-prmtx.price[3] FORMAT "->>,>>>,>>9.9999<<" AT ROW 6.95 COL 55 COLON-ALIGNED NO-LABEL
+     oe-prmtx.price[3] AT ROW 6.95 COL 55 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 18.8 BY 1
      oe-prmtx.discount[3] AT ROW 6.95 COL 87 COLON-ALIGNED NO-LABEL
@@ -251,7 +229,7 @@ DEFINE FRAME F-Main
      oe-prmtx.qty[4] AT ROW 8.14 COL 33 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 14 BY 1
-     oe-prmtx.price[4] FORMAT "->>,>>>,>>9.9999<<" AT ROW 8.14 COL 55 COLON-ALIGNED NO-LABEL
+     oe-prmtx.price[4] AT ROW 8.14 COL 55 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 18.8 BY 1
      oe-prmtx.discount[4] AT ROW 8.14 COL 87 COLON-ALIGNED NO-LABEL
@@ -263,21 +241,12 @@ DEFINE FRAME F-Main
      oe-prmtx.qty[5] AT ROW 9.33 COL 33 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 14 BY 1
-     oe-prmtx.price[5] FORMAT "->>,>>>,>>9.9999<<" AT ROW 9.33 COL 55 COLON-ALIGNED NO-LABEL
+     oe-prmtx.price[5] AT ROW 9.33 COL 55 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 18.8 BY 1
      oe-prmtx.discount[5] AT ROW 9.33 COL 87 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 10.4 BY 1
-     oe-prmtx.uom[5] AT ROW 9.33 COL 109 COLON-ALIGNED NO-LABEL
-          VIEW-AS FILL-IN 
-          SIZE 8.6 BY 1
-     oe-prmtx.qty[6] AT ROW 10.52 COL 33 COLON-ALIGNED NO-LABEL
-          VIEW-AS FILL-IN 
-          SIZE 14 BY 1
-     oe-prmtx.price[6] FORMAT "->>,>>>,>>9.9999<<" AT ROW 10.52 COL 55 COLON-ALIGNED NO-LABEL
-          VIEW-AS FILL-IN 
-          SIZE 18.8 BY 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -285,6 +254,15 @@ DEFINE FRAME F-Main
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME F-Main
+     oe-prmtx.uom[5] AT ROW 9.33 COL 109 COLON-ALIGNED NO-LABEL
+          VIEW-AS FILL-IN 
+          SIZE 8.6 BY 1
+     oe-prmtx.qty[6] AT ROW 10.52 COL 33 COLON-ALIGNED NO-LABEL
+          VIEW-AS FILL-IN 
+          SIZE 14 BY 1
+     oe-prmtx.price[6] AT ROW 10.52 COL 55 COLON-ALIGNED NO-LABEL
+          VIEW-AS FILL-IN 
+          SIZE 18.8 BY 1
      oe-prmtx.discount[6] AT ROW 10.52 COL 87 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 10.4 BY 1
@@ -294,7 +272,7 @@ DEFINE FRAME F-Main
      oe-prmtx.qty[7] AT ROW 11.71 COL 33 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 14 BY 1
-     oe-prmtx.price[7] FORMAT "->>,>>>,>>9.9999<<" AT ROW 11.71 COL 55 COLON-ALIGNED NO-LABEL
+     oe-prmtx.price[7] AT ROW 11.71 COL 55 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 18.8 BY 1
      oe-prmtx.discount[7] AT ROW 11.71 COL 87 COLON-ALIGNED NO-LABEL
@@ -306,7 +284,7 @@ DEFINE FRAME F-Main
      oe-prmtx.qty[8] AT ROW 12.91 COL 33 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 14 BY 1
-     oe-prmtx.price[8] FORMAT "->>,>>>,>>9.9999<<" AT ROW 12.91 COL 55 COLON-ALIGNED NO-LABEL
+     oe-prmtx.price[8] AT ROW 12.91 COL 55 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 18.8 BY 1
      oe-prmtx.discount[8] AT ROW 12.91 COL 87 COLON-ALIGNED NO-LABEL
@@ -318,7 +296,7 @@ DEFINE FRAME F-Main
      oe-prmtx.qty[9] AT ROW 14.1 COL 33 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 14 BY 1
-     oe-prmtx.price[9] FORMAT "->>,>>>,>>9.9999<<" AT ROW 14.1 COL 55 COLON-ALIGNED NO-LABEL
+     oe-prmtx.price[9] AT ROW 14.1 COL 55 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 18.8 BY 1
      oe-prmtx.discount[9] AT ROW 14.1 COL 87 COLON-ALIGNED NO-LABEL
@@ -330,7 +308,7 @@ DEFINE FRAME F-Main
      oe-prmtx.qty[10] AT ROW 15.29 COL 33 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 14 BY 1
-     oe-prmtx.price[10] FORMAT "->>,>>>,>>9.9999<<" AT ROW 15.29 COL 55 COLON-ALIGNED NO-LABEL
+     oe-prmtx.price[10] AT ROW 15.29 COL 55 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 18.8 BY 1
      oe-prmtx.discount[10] AT ROW 15.29 COL 87 COLON-ALIGNED NO-LABEL
@@ -339,23 +317,29 @@ DEFINE FRAME F-Main
      oe-prmtx.uom[10] AT ROW 15.29 COL 109 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 8.6 BY 1
-     F1 AT ROW 1.24 COL 40 NO-LABEL
-     F-2 AT ROW 1.24 COL 65 NO-LABEL
-     F-3 AT ROW 1.24 COL 100 NO-LABEL
-     F-4 AT ROW 1.24 COL 126 NO-LABEL
-     F-5 AT ROW 4.57 COL 120 NO-LABEL
+     "Discount" VIEW-AS TEXT
+          SIZE 12 BY .62 AT ROW 3.86 COL 89
+     "Price" VIEW-AS TEXT
+          SIZE 18 BY .62 AT ROW 3.86 COL 57
+     "UOM" VIEW-AS TEXT
+          SIZE 8 BY .62 AT ROW 3.86 COL 114
      "Quantity" VIEW-AS TEXT
           SIZE 14 BY .62 AT ROW 3.86 COL 35
      "3" VIEW-AS TEXT
           SIZE 8 BY .62 AT ROW 7.19 COL 20
-     "Discount" VIEW-AS TEXT
-          SIZE 12 BY .62 AT ROW 3.86 COL 89
      "5" VIEW-AS TEXT
           SIZE 8 BY .62 AT ROW 9.57 COL 20
      "Level" VIEW-AS TEXT
           SIZE 8 BY .62 AT ROW 3.86 COL 20
      "7" VIEW-AS TEXT
           SIZE 8 BY .62 AT ROW 11.95 COL 20
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 1 SCROLLABLE 
+         FONT 6.
+
+/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
+DEFINE FRAME F-Main
      "8" VIEW-AS TEXT
           SIZE 8 BY .62 AT ROW 13.14 COL 20
      "Price Basis:" VIEW-AS TEXT
@@ -364,23 +348,12 @@ DEFINE FRAME F-Main
           SIZE 8 BY .62 AT ROW 14.33 COL 20
      "4" VIEW-AS TEXT
           SIZE 8 BY .62 AT ROW 8.38 COL 20
-    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1 SCROLLABLE 
-         FONT 6.
-
-/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
-DEFINE FRAME F-Main
      "1" VIEW-AS TEXT
           SIZE 8 BY .62 AT ROW 4.81 COL 20
      "2" VIEW-AS TEXT
           SIZE 8 BY .62 AT ROW 6 COL 20
      "6" VIEW-AS TEXT
           SIZE 8 BY .62 AT ROW 10.76 COL 20
-     "UOM" VIEW-AS TEXT
-          SIZE 8 BY .62 AT ROW 3.86 COL 114
-     "Price" VIEW-AS TEXT
-          SIZE 18 BY .62 AT ROW 3.86 COL 57
      "10" VIEW-AS TEXT
           SIZE 8 BY .62 AT ROW 15.52 COL 20
      RECT-1 AT ROW 1 COL 1
@@ -428,7 +401,7 @@ END.
 /* ************************* Included-Libraries *********************** */
 
 {src/adm/method/viewer.i}
-{methods/template/viewer4.i}  /* task 10301314  */
+{methods/template/viewer4.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -448,6 +421,8 @@ ASSIGN
        FRAME F-Main:HIDDEN           = TRUE.
 
 /* SETTINGS FOR FILL-IN oe-prmtx.cust-no IN FRAME F-Main
+   NO-ENABLE 1 2                                                        */
+/* SETTINGS FOR FILL-IN oe-prmtx.custShipID IN FRAME F-Main
    NO-ENABLE 1 2                                                        */
 /* SETTINGS FOR FILL-IN oe-prmtx.custype IN FRAME F-Main
    NO-ENABLE 1 2                                                        */
@@ -475,39 +450,14 @@ ASSIGN
    NO-ENABLE 2 EXP-LABEL                                                */
 /* SETTINGS FOR FILL-IN oe-prmtx.exp-date IN FRAME F-Main
    NO-ENABLE 2 EXP-LABEL                                                */
-/* SETTINGS FOR FILL-IN F-2 IN FRAME F-Main
-   NO-ENABLE ALIGN-L 6                                                  */
-ASSIGN 
-       F-2:HIDDEN IN FRAME F-Main           = TRUE.
-
-/* SETTINGS FOR FILL-IN F-3 IN FRAME F-Main
-   NO-ENABLE ALIGN-L 6                                                  */
-ASSIGN 
-       F-3:HIDDEN IN FRAME F-Main           = TRUE.
-
-/* SETTINGS FOR FILL-IN F-4 IN FRAME F-Main
-   NO-ENABLE ALIGN-L 6                                                  */
-ASSIGN 
-       F-4:HIDDEN IN FRAME F-Main           = TRUE.
-
-/* SETTINGS FOR FILL-IN F-5 IN FRAME F-Main
-   NO-ENABLE ALIGN-L 6                                                  */
-ASSIGN 
-       F-5:HIDDEN IN FRAME F-Main           = TRUE.
-
-/* SETTINGS FOR FILL-IN F1 IN FRAME F-Main
-   NO-ENABLE ALIGN-L 6                                                  */
-ASSIGN 
-       F1:HIDDEN IN FRAME F-Main           = TRUE.
-
 /* SETTINGS FOR FILL-IN oe-prmtx.i-no IN FRAME F-Main
    NO-ENABLE 1 2                                                        */
 /* SETTINGS FOR FILL-IN oe-prmtx.price[10] IN FRAME F-Main
    NO-ENABLE 2                                                          */
 /* SETTINGS FOR FILL-IN oe-prmtx.price[1] IN FRAME F-Main
-   NO-ENABLE 2                                                          */
+   NO-ENABLE 2 EXP-FORMAT                                               */
 /* SETTINGS FOR FILL-IN oe-prmtx.price[2] IN FRAME F-Main
-   NO-ENABLE 2                                                          */
+   NO-ENABLE 2 EXP-FORMAT                                               */
 /* SETTINGS FOR FILL-IN oe-prmtx.price[3] IN FRAME F-Main
    NO-ENABLE 2                                                          */
 /* SETTINGS FOR FILL-IN oe-prmtx.price[4] IN FRAME F-Main
@@ -537,7 +487,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -548,16 +498,25 @@ ASSIGN
 ON HELP OF FRAME F-Main
 DO:
   def var char-val as cha no-undo.
+  DEFINE VARIABLE riLookup AS RECID NO-UNDO.
   def var lv-handle as handle no-undo.
 
   {&methods/lValidateError.i YES}
-  case focus:name :
+  case FOCUS:NAME :
     when "uom" then do:
       run windows/l-stduom.w (cocode, uom-list, focus:screen-value, output char-val).
       if char-val ne "" then 
         focus:screen-value in frame {&frame-name} = entry(1,char-val).
     end.
-
+    WHEN "custShipId" THEN DO:
+        IF oe-prmtx.cust-no:SCREEN-VALUE NE "" THEN DO: 
+            RUN windows/l-shipt2.w (g_company, g_loc, oe-prmtx.cust-no:SCREEN-VALUE, oe-prmtx.custShipID:SCREEN-VALUE, OUTPUT char-val, OUTPUT riLookup).
+            IF char-val NE "" THEN 
+                FOCUS:SCREEN-VALUE IN FRAME {&frame-name} = ENTRY(1,char-val).
+        END.
+        ELSE 
+            MESSAGE "Please enter customer before looking up Ship ID" VIEW-AS ALERT-BOX.         
+    END.
     otherwise do:
       lv-handle = focus:handle.
       run applhelp.p.
@@ -570,7 +529,6 @@ DO:
   end case.  
   {&methods/lValidateError.i NO}
 END.
-
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -614,24 +572,6 @@ DO:
   {&methods/lValidateError.i NO}
 END.
 
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-prmtx.exp-date V-table-Win
-ON LEAVE OF oe-prmtx.exp-date IN FRAME F-Main /* Item No */
-DO:
-   IF LASTKEY <> -1 THEN DO:
-     RUN valid-expdate NO-ERROR.
-     IF ERROR-STATUS:ERROR THEN DO:
-        RETURN NO-APPLY.
-     END.
-  END.
-    
-  
-  
-END.
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -660,6 +600,24 @@ DO:
   {&methods/lValidateError.i NO}
 END.
 
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME oe-prmtx.exp-date
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-prmtx.exp-date V-table-Win
+ON LEAVE OF oe-prmtx.exp-date IN FRAME F-Main /* Expiration Date */
+DO:
+   IF LASTKEY <> -1 THEN DO:
+     RUN valid-expdate NO-ERROR.
+     IF ERROR-STATUS:ERROR THEN DO:
+        RETURN NO-APPLY.
+     END.
+  END.
+    
+  
+  
+END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1405,7 +1363,38 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-  &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-expdate V-table-Win 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-entry V-table-Win 
+PROCEDURE valid-entry :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+
+  {methods/lValidateError.i YES}
+
+   FIND FIRST bf-oe-prmtx NO-LOCK 
+      WHERE bf-oe-prmtx.company EQ g_company
+        AND bf-oe-prmtx.cust-no EQ oe-prmtx.cust-no:SCREEN-VALUE IN FRAME {&FRAME-NAME}
+        AND bf-oe-prmtx.i-no EQ oe-prmtx.i-no:SCREEN-VALUE IN FRAME {&FRAME-NAME}
+        AND bf-oe-prmtx.procat EQ oe-prmtx.procat:SCREEN-VALUE IN FRAME {&FRAME-NAME}
+        AND bf-oe-prmtx.custype EQ oe-prmtx.custype:SCREEN-VALUE IN FRAME {&FRAME-NAME}
+        AND bf-oe-prmtx.eff-date EQ date(oe-prmtx.eff-date:SCREEN-VALUE IN FRAME {&FRAME-NAME})
+      AND rowid(bf-oe-prmtx) NE rowid(oe-prmtx) NO-ERROR .
+
+  IF AVAIL bf-oe-prmtx THEN DO:
+      MESSAGE "This record is a duplicate of a previous entry; please adjust." VIEW-AS ALERT-BOX ERROR.
+      APPLY "entry" TO oe-prmtx.cust-no.
+      RETURN ERROR.
+  END.
+
+  {methods/lValidateError.i NO}
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-expdate V-table-Win 
 PROCEDURE valid-expdate :
 /*------------------------------------------------------------------------------
   Purpose:     
@@ -1441,38 +1430,6 @@ PROCEDURE valid-i-no :
   THEN DO:
       MESSAGE "Invalid Item#. Try Help." VIEW-AS ALERT-BOX ERROR.
       APPLY "entry" TO oe-prmtx.i-no.
-      RETURN ERROR.
-  END.
-
-  {methods/lValidateError.i NO}
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-i-no V-table-Win 
-PROCEDURE valid-entry :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-
-  {methods/lValidateError.i YES}
-
-   FIND FIRST bf-oe-prmtx NO-LOCK 
-      WHERE bf-oe-prmtx.company EQ g_company
-        AND bf-oe-prmtx.cust-no EQ oe-prmtx.cust-no:SCREEN-VALUE IN FRAME {&FRAME-NAME}
-        AND bf-oe-prmtx.i-no EQ oe-prmtx.i-no:SCREEN-VALUE IN FRAME {&FRAME-NAME}
-        AND bf-oe-prmtx.procat EQ oe-prmtx.procat:SCREEN-VALUE IN FRAME {&FRAME-NAME}
-        AND bf-oe-prmtx.custype EQ oe-prmtx.custype:SCREEN-VALUE IN FRAME {&FRAME-NAME}
-        AND bf-oe-prmtx.eff-date EQ date(oe-prmtx.eff-date:SCREEN-VALUE IN FRAME {&FRAME-NAME})
-      AND rowid(bf-oe-prmtx) NE rowid(oe-prmtx) NO-ERROR .
-
-  IF AVAIL bf-oe-prmtx THEN DO:
-      MESSAGE "This record is a duplicate of a previous entry; please adjust." VIEW-AS ALERT-BOX ERROR.
-      APPLY "entry" TO oe-prmtx.cust-no.
       RETURN ERROR.
   END.
 

@@ -168,6 +168,7 @@ DEFINE VARIABLE xQtyPerCaseTail LIKE oe-boll.qty-case NO-UNDO.
 DEFINE VARIABLE iNoteLine AS INTEGER     NO-UNDO.
 DEFINE VARIABLE iInkCount AS INTEGER     NO-UNDO.
 DEFINE VARIABLE v-ord-fb  AS CHAR FORMAT "x(13)" NO-UNDO.
+DEF VAR cBolcert-char AS CHAR FORMAT "X(200)" NO-UNDO.
 
 DEFINE BUFFER bf-oe-boll FOR oe-boll.
 DEFINE BUFFER bf-job-mat FOR job-mat.
@@ -176,6 +177,10 @@ DEFINE BUFFER bf-job FOR job.
 
 RUN PrepareReportTT.
 RUN PrepareExcelFile(OUTPUT iWorksheetTotal).
+
+FIND FIRST sys-ctrl where sys-ctrl.company = cocode
+                      and sys-ctrl.NAME = "BOLCERT" NO-LOCK NO-ERROR.
+IF AVAIL sys-ctrl THEN cBolcert-char = sys-ctrl.char-fld.
 
 ASSIGN
    iWorksheetCount = 0.
@@ -270,8 +275,28 @@ FOR EACH report
                       AND bf-item.i-no EQ bf-job-mat.rm-i-no
                       AND bf-item.mat-type EQ "B"
                     NO-LOCK:
+                    IF cBolcert-char EQ "CCC2" THEN DO:
+                       IF AVAIL bf-item AND bf-item.i-code EQ "R" THEN DO:
+                        ASSIGN  cBoard =(IF bf-item.cal NE 0 THEN STRING(bf-item.cal,"9.99999") ELSE "") + " - " + STRING(bf-item.i-no,"X(10)").
+                        IF  bf-item.s-len NE 0 OR bf-item.r-wid NE 0 OR  bf-item.s-wid NE 0 THEN 
+                            cBoard = cBoard + " - " + STRING(bf-item.s-len,"9999.9999") + " X " +
+                            (if bf-item.r-wid ne 0 then STRING(bf-item.r-wid,"9999.9999") ELSE STRING(bf-item.s-wid,"9999.9999")).
+                        
+                       END.
+                       ELSE DO:
+                        ASSIGN  cBoard = (IF bf-item.cal NE 0 THEN STRING(bf-item.cal,"9.99999") ELSE "") + " - " + STRING(bf-item.i-no,"X(15)").
+                        IF bf-job-mat.len NE 0 OR bf-job-mat.wid NE 0 THEN 
+                                cBoard = cBoard + " - " + string(bf-job-mat.len,"9999.9999") + " X " + STRING(bf-job-mat.wid,"9999.9999").
+                                                
+                       END.
+
+                    END.
+                    ELSE DO:
+                      ASSIGN cBoard = bf-item.i-name.
+                    END.
+
                     ASSIGN 
-                        cBoard = bf-item.i-name
+                        /*cBoard = bf-item.i-name*/
                         dWeight = bf-job-mat.basis-w.
                     LEAVE.
                 END. /*eacb bf-job-mat, bf-item*/

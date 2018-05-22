@@ -52,6 +52,7 @@ DEF TEMP-TABLE tt-oe-prmtxx LIKE oe-prmtx
    FIELD refcode  AS CHAR.
 DEFINE VARIABLE fi_eff-date AS DATE FORMAT "99/99/9999":U INITIAL TODAY .
 DEFINE VARIABLE cCustomer AS CHARACTER NO-UNDO .
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -69,15 +70,6 @@ DEFINE VARIABLE cCustomer AS CHARACTER NO-UNDO .
 &Scoped-define FRAME-NAME F-Main
 &Scoped-define BROWSE-NAME Browser-Table
 
-&Scoped-define QUERY-NAME Query-Main
-
-/* External Tables                                                      */
-&Scoped-define EXTERNAL-TABLES oe-ordl
-&Scoped-define FIRST-EXTERNAL-TABLE oe-ordl
-
-/* Need to scope the external tables to this procedure                  */
-DEFINE QUERY external_tables FOR oe-ordl.
-
 /* Internal Tables (found by Frame, Query & Browse Queries)             */
 &Scoped-define INTERNAL-TABLES oe-prmtx
 
@@ -86,16 +78,16 @@ DEFINE QUERY external_tables FOR oe-ordl.
 
 /* Definitions for BROWSE Browser-Table                                 */
 &Scoped-define FIELDS-IN-QUERY-Browser-Table oe-prmtx.cust-no ~
-oe-prmtx.custype oe-prmtx.i-no oe-prmtx.procat oe-prmtx.eff-date ~
-oe-prmtx.price[1] oe-prmtx.price[2] oe-prmtx.price[3] oe-prmtx.price[4] ~
-oe-prmtx.price[5] oe-prmtx.price[6] oe-prmtx.price[7] oe-prmtx.price[8] ~
-oe-prmtx.price[9] oe-prmtx.price[10] 
+oe-prmtx.custype oe-prmtx.custShipID oe-prmtx.i-no oe-prmtx.procat ~
+oe-prmtx.eff-date oe-prmtx.exp-date oe-prmtx.price[1] oe-prmtx.price[2] ~
+oe-prmtx.price[3] oe-prmtx.price[4] oe-prmtx.price[5] oe-prmtx.price[6] ~
+oe-prmtx.price[7] oe-prmtx.price[8] oe-prmtx.price[9] oe-prmtx.price[10] 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table 
 &Scoped-define QUERY-STRING-Browser-Table FOR EACH oe-prmtx WHERE ~{&KEY-PHRASE} ~
-      AND oe-prmtx.company = cocode AND (oe-prmtx.cust-no = oe-ordl.cust-no OR  oe-ordl.cust-no = "" OR (oe-prmtx.cust-no EQ "" AND cCustomer EQ "") ) NO-LOCK ~
+      AND oe-prmtx.company = cocode NO-LOCK ~
     ~{&SORTBY-PHRASE}
 &Scoped-define OPEN-QUERY-Browser-Table OPEN QUERY Browser-Table FOR EACH oe-prmtx WHERE ~{&KEY-PHRASE} ~
-      AND oe-prmtx.company = cocode AND (oe-prmtx.cust-no = oe-ordl.cust-no OR  oe-ordl.cust-no = "" OR (oe-prmtx.cust-no EQ "" AND cCustomer EQ "") ) NO-LOCK ~
+      AND oe-prmtx.company = cocode NO-LOCK ~
     ~{&SORTBY-PHRASE}.
 &Scoped-define TABLES-IN-QUERY-Browser-Table oe-prmtx
 &Scoped-define FIRST-TABLE-IN-QUERY-Browser-Table oe-prmtx
@@ -156,9 +148,11 @@ DEFINE QUERY Browser-Table FOR
       oe-prmtx
     FIELDS(oe-prmtx.cust-no
       oe-prmtx.custype
+      oe-prmtx.custShipID
       oe-prmtx.i-no
       oe-prmtx.procat
       oe-prmtx.eff-date
+      oe-prmtx.exp-date
       oe-prmtx.price[1]
       oe-prmtx.price[2]
       oe-prmtx.price[3]
@@ -180,9 +174,11 @@ DEFINE BROWSE Browser-Table
   QUERY Browser-Table NO-LOCK DISPLAY
       oe-prmtx.cust-no FORMAT "x(8)":U LABEL-BGCOLOR 14
       oe-prmtx.custype FORMAT "x(8)":U LABEL-BGCOLOR 14
+      oe-prmtx.custShipID FORMAT "x(8)":U WIDTH 11.2
       oe-prmtx.i-no FORMAT "x(15)":U LABEL-BGCOLOR 14
       oe-prmtx.procat COLUMN-LABEL "Cat" FORMAT "x(5)":U LABEL-BGCOLOR 14
       oe-prmtx.eff-date FORMAT "99/99/9999":U
+      oe-prmtx.exp-date FORMAT "99/99/9999":U WIDTH 14
       oe-prmtx.price[1] COLUMN-LABEL "Price01" FORMAT ">>>,>>9.99<<":U
       oe-prmtx.price[2] COLUMN-LABEL "Price02" FORMAT ">>>,>>9.99<<":U
       oe-prmtx.price[3] COLUMN-LABEL "Price03" FORMAT ">>>,>>9.99<<":U
@@ -273,7 +269,7 @@ END.
   NOT-VISIBLE,,RUN-PERSISTENT                                           */
 /* SETTINGS FOR FRAME F-Main
    NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
-/* BROWSE-TAB Browser-Table TEXT-1 F-Main */
+/* BROWSE-TAB Browser-Table 1 F-Main */
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
@@ -305,30 +301,34 @@ ASSIGN
 "cust-no" ? ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > ASI.oe-prmtx.custype
 "custype" ? ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[3]   > ASI.oe-prmtx.i-no
+     _FldNameList[3]   > ASI.oe-prmtx.custShipID
+"custShipID" ? ? "character" ? ? ? ? ? ? no ? no no "11.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[4]   > ASI.oe-prmtx.i-no
 "i-no" ? ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[4]   > ASI.oe-prmtx.procat
+     _FldNameList[5]   > ASI.oe-prmtx.procat
 "procat" "Cat" ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[5]   = ASI.oe-prmtx.eff-date
-     _FldNameList[6]   > ASI.oe-prmtx.price[1]
+     _FldNameList[6]   = ASI.oe-prmtx.eff-date
+     _FldNameList[7]   > ASI.oe-prmtx.exp-date
+"exp-date" ? ? "date" ? ? ? ? ? ? no ? no no "14" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[8]   > ASI.oe-prmtx.price[1]
 "price[1]" "Price01" ">>>,>>9.99<<" "decimal" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[7]   > ASI.oe-prmtx.price[2]
+     _FldNameList[9]   > ASI.oe-prmtx.price[2]
 "price[2]" "Price02" ">>>,>>9.99<<" "decimal" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[8]   > ASI.oe-prmtx.price[3]
+     _FldNameList[10]   > ASI.oe-prmtx.price[3]
 "price[3]" "Price03" ">>>,>>9.99<<" "decimal" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[9]   > ASI.oe-prmtx.price[4]
+     _FldNameList[11]   > ASI.oe-prmtx.price[4]
 "price[4]" "Price04" ">>>,>>9.99<<" "decimal" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[10]   > ASI.oe-prmtx.price[5]
+     _FldNameList[12]   > ASI.oe-prmtx.price[5]
 "price[5]" "Price05" ">>>,>>9.99<<" "decimal" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[11]   > ASI.oe-prmtx.price[6]
+     _FldNameList[13]   > ASI.oe-prmtx.price[6]
 "price[6]" "Price06" ">>>,>>9.99<<" "decimal" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[12]   > ASI.oe-prmtx.price[7]
+     _FldNameList[14]   > ASI.oe-prmtx.price[7]
 "price[7]" "Price07" ">>>,>>9.99<<" "decimal" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[13]   > ASI.oe-prmtx.price[8]
+     _FldNameList[15]   > ASI.oe-prmtx.price[8]
 "price[8]" "Price08" ">>>,>>9.99<<" "decimal" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[14]   > ASI.oe-prmtx.price[9]
+     _FldNameList[16]   > ASI.oe-prmtx.price[9]
 "price[9]" "Price09" ">>>,>>9.99<<" "decimal" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[15]   > ASI.oe-prmtx.price[10]
+     _FldNameList[17]   > ASI.oe-prmtx.price[10]
 "price[10]" "Price10" ">>>,>>9.99<<" "decimal" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */
@@ -428,15 +428,6 @@ PROCEDURE adm-row-available :
 
   /* Define variables needed by this internal procedure.             */
   {src/adm/template/row-head.i}
-
-  /* Create a list of all the tables that we need to get.            */
-  {src/adm/template/row-list.i "oe-ordl"}
-
-  /* Get the record ROWID's from the RECORD-SOURCE.                  */
-  {src/adm/template/row-get.i}
-
-  /* FIND each record specified by the RECORD-SOURCE.                */
-  {src/adm/template/row-find.i "oe-ordl"}  
 
   /* Process the newly available records (i.e. display fields,
      open queries, and/or pass records on to any RECORD-TARGETS).    */

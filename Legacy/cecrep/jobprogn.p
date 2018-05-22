@@ -400,7 +400,7 @@ do v-local-loop = 1 to v-local-copies:
            NO-LOCK:
            ASSIGN
              v-po-num[j]    =  STRING(po-ordl.po-no)     
-             v-po-vendor[j]  =  po-ordl.vend-no          
+             v-po-vendor[j]  =  po-ord.vend-no          
              v-po-duedate[j] =  po-ordl.due-date
              v-po-qty[j]     =  string(po-ordl.ord-qty, "->>,>>>,>>9.9<") 
          j = j + 1.
@@ -423,7 +423,7 @@ do v-local-loop = 1 to v-local-copies:
              NO-LOCK:
            ASSIGN
                v-po-num[j]    =  STRING(po-ordl.po-no)     
-               v-po-vendor[j]  =  po-ordl.vend-no          
+               v-po-vendor[j]  =  po-ord.vend-no          
                v-po-duedate[j] =  po-ordl.due-date
                v-po-qty[j]     =  string(po-ordl.ord-qty, "->>,>>>,>>9.9<") 
            j = j + 1.

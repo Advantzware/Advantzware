@@ -280,7 +280,7 @@ voverall(1) @ voverall probe.probe-date reftable.val[2] reftable.val[3] ~
 reftable.val[4] reftable.val[5] probe.probe-user vtot-msf() @ vtot-msf ~
 cvt-time(probe.probe-time) @ ls-probetime reftable.val[8] reftable.val[9] ~
 reftable.val[10] probe.line probe.spare-dec-1 ~
-fDirectMatPctSellPrice() @ dMatPctSellPrice 
+fDirectMatPctSellPrice(1) @ dMatPctSellPrice 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-br_table probe.full-cost ~
 probe.market-price probe.gross-profit reftable.val[11] probe.net-profit ~
 probe.sell-price probe.do-quote reftable.val[3] reftable.val[4] ~
@@ -326,7 +326,7 @@ voverall(1) @ voverall probe.probe-date reftable.val[2] reftable.val[3] ~
 reftable.val[4] reftable.val[5] probe.probe-user vtot-msf() @ vtot-msf ~
 cvt-time(probe.probe-time) @ ls-probetime reftable.val[8] reftable.val[9] ~
 reftable.val[10] probe.line probe.spare-dec-1 ~
-fDirectMatPctSellPrice() @ dMatPctSellPrice 
+fDirectMatPctSellPrice(1) @ dMatPctSellPrice 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-br_table-2 probe.full-cost ~
 probe.market-price probe.gross-profit reftable.val[11] probe.net-profit ~
 probe.sell-price probe.do-quote reftable.val[3] reftable.val[4] ~
@@ -466,7 +466,7 @@ FUNCTION display-gp RETURNS DECIMAL
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fDirectMatPctSellPrice B-table-Win 
 FUNCTION fDirectMatPctSellPrice RETURNS DECIMAL
-  (  ) FORWARD.
+  ( INPUT ip-type AS INTEGER ) FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -551,7 +551,7 @@ DEFINE BROWSE br_table
       probe.line FORMAT ">>9":U
       probe.spare-dec-1 COLUMN-LABEL "Direct!Material" FORMAT "->>>,>>9.99":U
             WIDTH 15
-      fDirectMatPctSellPrice() @ dMatPctSellPrice COLUMN-LABEL "Dir. Mat%"
+      fDirectMatPctSellPrice(1) @ dMatPctSellPrice COLUMN-LABEL "Dir. Mat%"
   ENABLE
       probe.full-cost
       probe.market-price
@@ -614,7 +614,7 @@ DEFINE BROWSE br_table-2
       probe.line FORMAT ">>9":U
       probe.spare-dec-1 COLUMN-LABEL "Direct!Material" FORMAT "->>>,>>9.99":U
             WIDTH 15
-      fDirectMatPctSellPrice() @ dMatPctSellPrice COLUMN-LABEL "Dir. Mat%"
+      fDirectMatPctSellPrice(1) @ dMatPctSellPrice COLUMN-LABEL "Dir. Mat%"
   ENABLE
       probe.full-cost
       probe.market-price
@@ -786,7 +786,7 @@ reftable.code2    EQ STRING(probe.line,""9999999999"")"
      _FldNameList[27]   > ASI.probe.spare-dec-1
 "probe.spare-dec-1" "Direct!Material" "->>>,>>9.99" "decimal" ? ? ? ? ? ? no ? no no "15" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[28]   > "_<CALC>"
-"fDirectMatPctSellPrice() @ dMatPctSellPrice" "Dir. Mat%" ? ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"fDirectMatPctSellPrice(1) @ dMatPctSellPrice" "Dir. Mat%" ? ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE br_table */
 &ANALYZE-RESUME
@@ -859,7 +859,7 @@ reftable.code2    EQ STRING(probe.line,""9999999999"")"
      _FldNameList[27]   > ASI.probe.spare-dec-1
 "probe.spare-dec-1" "Direct!Material" "->>>,>>9.99" "decimal" ? ? ? ? ? ? no ? no no "15" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[28]   > "_<CALC>"
-"fDirectMatPctSellPrice() @ dMatPctSellPrice" "Dir. Mat%" ? ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"fDirectMatPctSellPrice(1) @ dMatPctSellPrice" "Dir. Mat%" ? ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE br_table-2 */
 &ANALYZE-RESUME
@@ -1673,7 +1673,7 @@ PROCEDURE calc-fields :
 
     DO WITH FRAME {&FRAME-NAME}:
       voverall:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(voverall (0)).
-      dMatPctSellPrice:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(fDirectMatPctSellPrice()).
+      dMatPctSellPrice:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(fDirectMatPctSellPrice(2)).
       IF lv-changed2 NE "S" THEN 
         probe.gross-profit:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(display-gp (0)).
     END.
@@ -3544,10 +3544,10 @@ PROCEDURE printProbe :
      END.
 
      IF NOT is-xprint-form AND v-prt-note THEN RUN print-notes(LINE-COUNTER).
+
     INPUT CLOSE.
-    IF PAGE-NUM EQ 1 THEN
     OUTPUT CLOSE.
-    ELSE IF v-prt-box THEN OUTPUT CLOSE.
+    
   END.
   
   IF is-xprint-form THEN RUN print-box-est (lv-dest,lv-font,lv-ornt).
@@ -4428,7 +4428,7 @@ END FUNCTION.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fDirectMatPctSellPrice B-table-Win 
 FUNCTION fDirectMatPctSellPrice RETURNS DECIMAL
-  (  ):
+  ( INPUT ip-type AS INT ):
 /*------------------------------------------------------------------------------
  Purpose:  Calculates Mat %
  Notes: Ticket 24941 
@@ -4439,10 +4439,18 @@ FUNCTION fDirectMatPctSellPrice RETURNS DECIMAL
     ASSIGN 
         dPrice = 0
         dMatPct = 0.
-    IF AVAILABLE probe THEN 
-        dPrice = DEC(probe.sell-price).
-    IF dPrice GT 0 THEN 
-        dMatPct = probe.spare-dec-1 / dPrice * 100.
+    IF ip-type EQ 2 THEN do:
+        IF AVAILABLE probe THEN 
+            dPrice = DEC(probe.sell-price:SCREEN-VALUE IN BROWSE {&browse-name}).
+        IF dPrice GT 0 THEN 
+            dMatPct = DECIMAL(probe.spare-dec-1:SCREEN-VALUE IN BROWSE {&browse-name}) / dPrice * 100.
+    END.
+    ELSE DO:
+        IF AVAILABLE probe THEN 
+            dPrice = DEC(probe.sell-price).
+        IF dPrice GT 0 THEN 
+            dMatPct = probe.spare-dec-1 / dPrice * 100.
+    END.
     
     RETURN dMatPct.
 

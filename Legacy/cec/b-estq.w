@@ -2201,6 +2201,8 @@ PROCEDURE navigate-browser :
   IF ROWID(ar-invl) EQ lv-frst-rowid THEN
     op-nav-type = IF op-nav-type EQ "L" THEN "B" ELSE "F".
 
+    APPLY "value-changed" TO BROWSE {&browse-name}.
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2239,6 +2241,8 @@ PROCEDURE navigate-browser2 :
       
   IF ROWID(ar-inv) EQ lv-frst-rowid2 THEN
     op-nav-type = IF op-nav-type EQ "L" THEN "B" ELSE "F".
+    
+    APPLY "value-changed" TO BROWSE {&browse-name}.
 
 END PROCEDURE.
 

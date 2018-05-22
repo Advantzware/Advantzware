@@ -68,6 +68,16 @@ DEF VAR iColumnLength AS INT NO-UNDO.
 DEF BUFFER b-itemfg FOR itemfg .
 DEF VAR cTextListToDefault AS cha NO-UNDO.
 
+DEFINE TEMP-TABLE tt-cust-sales 
+   FIELD  cust-no        AS CHARACTER       
+   FIELD op-zero-ty      AS LOGICAL    
+   FIELD data-string-ty  AS CHARACTER
+   FIELD excel-string-ty AS CHARACTER
+   FIELD dTotSales       AS DECIMAL
+   FIELD op-zero-ly      AS LOGICAL 
+   FIELD data-string-ly  AS CHARACTER
+   FIELD excel-string-ly AS CHARACTER   
+    .
 
 ASSIGN cTextListToSelect = "Period 1,Period 2,Period 3,Period 4,Period 5,Period 6,Period 7,Period 8,Period 9,Period 10,Period 11,Period 12,TOTAL" 
 
@@ -97,14 +107,14 @@ ASSIGN cTextListToDefault  = "Period 1,Period 2,Period 3,Period 4,Period 5,Perio
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-6 RECT-7 tb_cust-list btnCustList ~
-begin_cust-no end_cust-no as-of-date tb_last-year tb_prt-cust sl_avail ~
-Btn_Def sl_selected Btn_Add Btn_Remove btn_Up btn_down rd-dest lv-ornt ~
-lines-per-page lv-font-no td-show-parm tb_excel tb_runExcel fi_file btn-ok ~
-btn-cancel 
+begin_cust-no end_cust-no as-of-date tb_last-year tb_prt-cust tb_tot-rnu ~
+sl_avail Btn_Def sl_selected Btn_Add Btn_Remove btn_Up btn_down rd-dest ~
+lv-ornt lines-per-page lv-font-no td-show-parm tb_excel tb_runExcel fi_file ~
+btn-ok btn-cancel 
 &Scoped-Define DISPLAYED-OBJECTS tb_cust-list begin_cust-no end_cust-no ~
-as-of-date tb_last-year tb_prt-cust sl_avail sl_selected rd-dest lv-ornt ~
-lines-per-page lv-font-no lv-font-name td-show-parm tb_excel tb_runExcel ~
-fi_file 
+as-of-date tb_last-year tb_prt-cust tb_tot-rnu sl_avail sl_selected rd-dest ~
+lv-ornt lines-per-page lv-font-no lv-font-name td-show-parm tb_excel ~
+tb_runExcel fi_file 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -129,7 +139,7 @@ FUNCTION GEtFieldValue RETURNS CHARACTER
 DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON btn-cancel /*AUTO-END-KEY */
+DEFINE BUTTON btn-cancel 
      LABEL "&Cancel" 
      SIZE 15 BY 1.14.
 
@@ -216,11 +226,11 @@ DEFINE VARIABLE rd-dest AS INTEGER INITIAL 2
 
 DEFINE RECTANGLE RECT-6
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 93 BY 9.52.
+     SIZE 93 BY 8.86.
 
 DEFINE RECTANGLE RECT-7
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 93 BY 6.91.
+     SIZE 93 BY 7.62.
 
 DEFINE VARIABLE sl_avail AS CHARACTER 
      VIEW-AS SELECTION-LIST MULTIPLE SCROLLBAR-VERTICAL 
@@ -257,6 +267,11 @@ DEFINE VARIABLE tb_runExcel AS LOGICAL INITIAL no
      SIZE 21 BY .81
      BGCOLOR 3  NO-UNDO.
 
+DEFINE VARIABLE tb_tot-rnu AS LOGICAL INITIAL NO 
+     LABEL "Sort by Total Revenue?" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 36 BY 1 NO-UNDO.
+
 DEFINE VARIABLE td-show-parm AS LOGICAL INITIAL no 
      LABEL "Show Parameters?" 
      VIEW-AS TOGGLE-BOX
@@ -274,18 +289,19 @@ DEFINE FRAME FRAME-A
           "Enter Ending Customer Number"
      as-of-date AT ROW 4 COL 28 COLON-ALIGNED HELP
           "Enter As Of Date"
-     tb_last-year AT ROW 5.62 COL 29.8
-     tb_prt-cust AT ROW 6.62 COL 29.8
-     sl_avail AT ROW 8.95 COL 3 NO-LABEL WIDGET-ID 26
-     Btn_Def AT ROW 8.95 COL 39 HELP
+     tb_last-year AT ROW 5.52 COL 29.8
+     tb_prt-cust AT ROW 6.48 COL 29.8
+     tb_tot-rnu AT ROW 7.48 COL 29.8 WIDGET-ID 58
+     sl_avail AT ROW 9.52 COL 3 NO-LABEL WIDGET-ID 26
+     Btn_Def AT ROW 9.52 COL 39 HELP
           "Add Selected Table to Tables to Audit" WIDGET-ID 56
-     sl_selected AT ROW 8.95 COL 58.4 NO-LABEL WIDGET-ID 28
-     Btn_Add AT ROW 9.95 COL 39 HELP
+     sl_selected AT ROW 9.52 COL 58.4 NO-LABEL WIDGET-ID 28
+     Btn_Add AT ROW 10.52 COL 39 HELP
           "Add Selected Table to Tables to Audit" WIDGET-ID 32
-     Btn_Remove AT ROW 10.95 COL 39 HELP
+     Btn_Remove AT ROW 11.52 COL 39 HELP
           "Remove Selected Table from Tables to Audit" WIDGET-ID 34
-     btn_Up AT ROW 12 COL 39 WIDGET-ID 40
-     btn_down AT ROW 13 COL 39 WIDGET-ID 42
+     btn_Up AT ROW 12.57 COL 39 WIDGET-ID 40
+     btn_down AT ROW 13.57 COL 39 WIDGET-ID 42
      rd-dest AT ROW 16.05 COL 6 NO-LABEL
      lv-ornt AT ROW 16.29 COL 31 NO-LABEL
      lines-per-page AT ROW 16.29 COL 84 COLON-ALIGNED
@@ -299,15 +315,15 @@ DEFINE FRAME FRAME-A
      btn-ok AT ROW 24.76 COL 19
      btn-cancel AT ROW 24.76 COL 57
      "Selected Columns(In Display Order)" VIEW-AS TEXT
-          SIZE 34 BY .62 AT ROW 8.24 COL 58.4 WIDGET-ID 44
+          SIZE 34 BY .62 AT ROW 8.81 COL 58.4 WIDGET-ID 44
+     "Available Columns" VIEW-AS TEXT
+          SIZE 29 BY .62 AT ROW 8.81 COL 3.8 WIDGET-ID 38
+     "Output Destination" VIEW-AS TEXT
+          SIZE 18 BY .62 AT ROW 14.95 COL 5
      "Selection Parameters" VIEW-AS TEXT
           SIZE 21 BY .71 AT ROW 1.24 COL 5
           BGCOLOR 2 
-     "Output Destination" VIEW-AS TEXT
-          SIZE 18 BY .62 AT ROW 15.1 COL 5
-     "Available Columns" VIEW-AS TEXT
-          SIZE 29 BY .62 AT ROW 8.24 COL 3.8 WIDGET-ID 38
-     RECT-6 AT ROW 14.62 COL 2
+     RECT-6 AT ROW 15.29 COL 2
      RECT-7 AT ROW 1 COL 2
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -366,16 +382,6 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME                                                           */
-ASSIGN
-       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "ribbon-button".
-
-
-ASSIGN
-       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "ribbon-button".
-
-
 ASSIGN 
        as-of-date:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
@@ -383,6 +389,14 @@ ASSIGN
 ASSIGN 
        begin_cust-no:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
+
+ASSIGN 
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+ASSIGN 
+       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
 
 ASSIGN 
        end_cust-no:PRIVATE-DATA IN FRAME FRAME-A     = 
@@ -418,13 +432,17 @@ ASSIGN
        tb_runExcel:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
+ASSIGN 
+       tb_tot-rnu:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
+
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
 THEN C-Win:HIDDEN = no.
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -468,6 +486,21 @@ END.
 
 
 &Scoped-define SELF-NAME begin_cust-no
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_cust-no C-Win
+ON HELP OF begin_cust-no IN FRAME FRAME-A /* Beginning Customer# */
+DO:
+    DEF VAR char-val AS cha NO-UNDO.
+
+    RUN WINDOWS/l-cust.w (cocode,{&SELF-NAME}:SCREEN-VALUE, OUTPUT char-val).
+    IF char-val <> "" THEN ASSIGN {&SELF-NAME}:SCREEN-VALUE = ENTRY(1,char-val)
+                                  .
+
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_cust-no C-Win
 ON LEAVE OF begin_cust-no IN FRAME FRAME-A /* Beginning Customer# */
 DO:
@@ -645,6 +678,20 @@ END.
 
 &Scoped-define SELF-NAME end_cust-no
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_cust-no C-Win
+ON HELP OF end_cust-no IN FRAME FRAME-A /* Ending Customer# */
+DO:
+    DEF VAR char-val AS cha NO-UNDO.
+
+    RUN WINDOWS/l-cust.w (cocode,{&SELF-NAME}:SCREEN-VALUE, OUTPUT char-val).
+    IF char-val <> "" THEN ASSIGN {&SELF-NAME}:SCREEN-VALUE = ENTRY(1,char-val) .
+
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_cust-no C-Win
 ON LEAVE OF end_cust-no IN FRAME FRAME-A /* Ending Customer# */
 DO:
      assign {&self-name}.
@@ -691,35 +738,6 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&Scoped-define SELF-NAME begin_cust-no
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_cust-no C-Win
-ON HELP OF begin_cust-no IN FRAME FRAME-A /* Font */
-DO:
-    DEF VAR char-val AS cha NO-UNDO.
-
-    RUN WINDOWS/l-cust.w (cocode,{&SELF-NAME}:SCREEN-VALUE, OUTPUT char-val).
-    IF char-val <> "" THEN ASSIGN {&SELF-NAME}:SCREEN-VALUE = ENTRY(1,char-val)
-                                  .
-
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME end_cust-no
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_cust-no C-Win
-ON HELP OF end_cust-no IN FRAME FRAME-A /* Font */
-DO:
-    DEF VAR char-val AS cha NO-UNDO.
-
-    RUN WINDOWS/l-cust.w (cocode,{&SELF-NAME}:SCREEN-VALUE, OUTPUT char-val).
-    IF char-val <> "" THEN ASSIGN {&SELF-NAME}:SCREEN-VALUE = ENTRY(1,char-val) .
-
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lv-font-no C-Win
 ON LEAVE OF lv-font-no IN FRAME FRAME-A /* Font */
@@ -875,6 +893,17 @@ END.
 &Scoped-define SELF-NAME tb_runExcel
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_runExcel C-Win
 ON VALUE-CHANGED OF tb_runExcel IN FRAME FRAME-A /* Auto Run Excel? */
+DO:
+  assign {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME tb_tot-rnu
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_tot-rnu C-Win
+ON VALUE-CHANGED OF tb_tot-rnu IN FRAME FRAME-A /* sort by Total Revenue? */
 DO:
   assign {&self-name}.
 END.
@@ -1190,13 +1219,15 @@ PROCEDURE enable_UI :
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
   DISPLAY tb_cust-list begin_cust-no end_cust-no as-of-date tb_last-year 
-          tb_prt-cust sl_avail sl_selected rd-dest lv-ornt lines-per-page 
-          lv-font-no lv-font-name td-show-parm tb_excel tb_runExcel fi_file 
+          tb_prt-cust tb_tot-rnu sl_avail sl_selected rd-dest lv-ornt 
+          lines-per-page lv-font-no lv-font-name td-show-parm tb_excel 
+          tb_runExcel fi_file 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   ENABLE RECT-6 RECT-7 tb_cust-list btnCustList begin_cust-no end_cust-no 
-         as-of-date tb_last-year tb_prt-cust sl_avail Btn_Def sl_selected 
-         Btn_Add Btn_Remove btn_Up btn_down rd-dest lv-ornt lines-per-page 
-         lv-font-no td-show-parm tb_excel tb_runExcel fi_file btn-ok btn-cancel 
+         as-of-date tb_last-year tb_prt-cust tb_tot-rnu sl_avail Btn_Def 
+         sl_selected Btn_Add Btn_Remove btn_Up btn_down rd-dest lv-ornt 
+         lines-per-page lv-font-no td-show-parm tb_excel tb_runExcel fi_file 
+         btn-ok btn-cancel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.
@@ -1219,6 +1250,7 @@ PROCEDURE generate-data :
   DEFINE OUTPUT PARAMETER op-zero AS LOG INIT YES NO-UNDO.
   DEFINE OUTPUT PARAMETER op-data-string AS CHAR FORMAT "X(198)" NO-UNDO.
   DEFINE OUTPUT PARAMETER op-excel-string AS CHAR FORMAT "X(198)" NO-UNDO.
+  DEFINE OUTPUT PARAMETER op-amount AS DECIMAL NO-UNDO.
 
   DEF VAR v-amt     AS   DEC  EXTENT 14 NO-UNDO.
   DEF VAR v-slsp    LIKE ar-invl.s-pct EXTENT 1 NO-UNDO.
@@ -1404,7 +1436,7 @@ PROCEDURE generate-data :
             IF tb_excel THEN DO:
                    op-excel-string = cExcelDisplay .
              END.
-
+     op-amount = v-amt[14] .
   /* op-data-string = op-data-string + STRING(v-amt[14],"$->>>,>>>,>>9").
 
    IF tb_excel THEN
@@ -1595,12 +1627,15 @@ DEF VAR cFieldName AS cha NO-UNDO.
 DEF VAR str-tit4 AS cha FORM "x(200)" NO-UNDO.
 DEF VAR str-tit5 AS cha FORM "x(200)" NO-UNDO.
 DEF VAR str-line AS cha FORM "x(200)" NO-UNDO.
-
+DEFINE VARIABLE dTotSales AS DECIMAL NO-UNDO .
+DEFINE VARIABLE dTotSales2 AS DECIMAL NO-UNDO .
 /*{sys/form/r-top5DL3.f} */
 cSelectedList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
 DEFINE VARIABLE excelheader AS CHARACTER  NO-UNDO.
 DEF VAR lSelected AS LOG INIT YES NO-UNDO.
 {custom/statusMsg.i "'Processing...'"} 
+  
+EMPTY TEMP-TABLE tt-cust-sales .
 
 FORM cust-string FORMAT "X(40)"
      WITH NO-BOX NO-LABELS FRAME custs DOWN STREAM-IO WIDTH 200.
@@ -1791,7 +1826,8 @@ FOR each cust FIELDS(NAME cust-no sman) WHERE
                       INPUT v1,
                       OUTPUT op-zero-ty,
                       OUTPUT data-string-ty,
-                      OUTPUT excel-string-ty).
+                      OUTPUT excel-string-ty,
+                      OUTPUT dTotSales ).
 
     IF tb_last-year THEN
        RUN generate-data(INPUT "LAST YEAR",
@@ -1800,9 +1836,25 @@ FOR each cust FIELDS(NAME cust-no sman) WHERE
                          INPUT v1-ly,
                          OUTPUT op-zero-ly,
                          OUTPUT data-string-ly,
-                         OUTPUT excel-string-ly).
+                         OUTPUT excel-string-ly,
+                         OUTPUT dTotSales2).
 
-    IF tb_prt-cust OR (NOT tb_prt-cust AND NOT(op-zero-ty AND op-zero-ly)) THEN
+     CREATE tt-cust-sales .
+         ASSIGN
+             tt-cust-sales.cust-no         = cust.cust-no 
+             tt-cust-sales.op-zero-ty      = op-zero-ty
+             tt-cust-sales.data-string-ty  = data-string-ty
+             tt-cust-sales.excel-string-ty = excel-string-ty
+             tt-cust-sales.dTotSales       = dTotSales
+             tt-cust-sales.op-zero-ly      = op-zero-ly
+             tt-cust-sales.data-string-ly  = data-string-ly
+             tt-cust-sales.excel-string-ly = excel-string-ly .
+         IF NOT tb_tot-rnu THEN
+                tt-cust-sales.dTotSales = 0 .
+
+
+
+   /* IF tb_prt-cust OR (NOT tb_prt-cust AND NOT(op-zero-ty AND op-zero-ly)) THEN
     DO:
        DISPLAY cust.NAME + "/" + cust.cust-no @ cust-string SKIP(1) WITH FRAME custs.
 
@@ -1844,8 +1896,56 @@ FOR each cust FIELDS(NAME cust-no sman) WHERE
               PUT STREAM excel UNFORMATTED
                   excel-string-ly SKIP(1).
        END.
-    END.
+    END.*/
 end.
+
+FOR EACH tt-cust-sales NO-LOCK BREAK BY tt-cust-sales.dTotSales DESC :
+    FIND FIRST cust NO-LOCK
+        WHERE cust.company EQ cocode 
+          AND cust.cust-no EQ tt-cust-sales.cust-no  NO-ERROR .
+
+     IF tb_prt-cust OR (NOT tb_prt-cust AND NOT(tt-cust-sales.op-zero-ty AND tt-cust-sales.op-zero-ly)) THEN
+    DO:
+       DISPLAY cust.NAME + "/" + cust.cust-no @ cust-string SKIP(1) WITH FRAME custs.
+
+       IF tb_excel THEN
+          PUT STREAM excel UNFORMATTED
+              '"' cust.NAME + "/" + cust.cust-no '",'
+              SKIP(1).
+
+       DISPLAY "THIS YEAR" @ ip-mode FORM "X(9)" SKIP(1) WITH FRAME mode.
+
+       IF tb_excel THEN
+          PUT STREAM excel UNFORMATTED
+              '"' "THIS YEAR" '",'
+              SKIP(1)
+              excelheader SKIP
+              tt-cust-sales.excel-string-ty  SKIP(1).
+      
+       DISPLAY str-tit4 SKIP
+           str-tit5 SKIP
+           tt-cust-sales.data-string-ty @ data-string-ty FORM "X(198)" skip(1) WITH FRAME custx .
+
+       IF tb_last-year THEN
+       DO:
+          DISPLAY "LAST YEAR" @ ip-mode FORM "X(9)" SKIP(1) WITH FRAME mode.
+
+          IF tb_excel THEN
+             PUT STREAM excel UNFORMATTED
+                 '"' "LAST YEAR" '",'
+                 SKIP(1)
+                 excelheader SKIP.
+      
+            DISPLAY str-tit4 SKIP
+                str-tit5 SKIP
+               tt-cust-sales.data-string-ly @ data-string-ty FORM "X(198)" skip(1) WITH FRAME custx .
+
+           IF tb_excel THEN
+              PUT STREAM excel UNFORMATTED
+                  tt-cust-sales.excel-string-ly SKIP(1).
+       END.
+    END.
+END. /* for each tt-cust-sales*/
 
 IF tb_excel THEN DO:
   OUTPUT STREAM excel CLOSE.
@@ -1863,7 +1963,6 @@ end procedure.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE SetCustRange C-Win 
 PROCEDURE SetCustRange :

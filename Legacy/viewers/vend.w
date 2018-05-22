@@ -1,7 +1,7 @@
 &ANALYZE-SUSPEND _VERSION-NUMBER UIB_v8r12 GUI ADM1
 &ANALYZE-RESUME
 /* Connected Databases 
-          asi              PROGRESS
+          asi       PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
@@ -123,28 +123,29 @@ DEFINE QUERY external_tables FOR vend.
 &Scoped-Define ENABLED-FIELDS vend.active vend.name vend.add1 vend.add2 ~
 vend.city vend.state vend.zip vend.country vend.Postal vend.tax-id ~
 vend.remit vend.r-add1 vend.r-add2 vend.r-city vend.r-state vend.r-zip ~
-vend.r-country vend.r-postal vend.check-memo vend.type vend.contact ~
-vend.buyer vend.area-code vend.phone vend.fax-area vend.fax vend.fax-prefix ~
-vend.fax-country vend.over-pct vend.under-pct vend.actnum vend.curr-code ~
-vend.tax-gr vend.code-1099 vend.an-edi-vend cb_paytype vend.terms vend.disc-% ~
-vend.rebate-% vend.frt-pay vend.disc-days vend.carrier vend.fob-code ~
-vend.loc 
+vend.r-country vend.r-postal vend.check-memo vend.Bank-Acct vend.SwiftBIC ~
+vend.Bank-RTN vend.type vend.contact vend.buyer vend.area-code vend.phone ~
+vend.fax-area vend.fax vend.fax-prefix vend.fax-country vend.over-pct ~
+vend.under-pct vend.actnum vend.curr-code vend.tax-gr vend.code-1099 cb_paytype cb_codetype ~
+vend.an-edi-vend vend.terms vend.disc-% vend.rebate-% vend.frt-pay ~
+vend.disc-days vend.carrier vend.fob-code vend.loc 
 &Scoped-define ENABLED-TABLES vend
 &Scoped-define FIRST-ENABLED-TABLE vend
-&Scoped-Define ENABLED-OBJECTS RECT-1 RECT-29 RECT-30 RECT-31 
+&Scoped-Define ENABLED-OBJECTS  RECT-1 RECT-29 RECT-30 RECT-31
 &Scoped-Define DISPLAYED-FIELDS vend.vend-no vend.active vend.name ~
 vend.add1 vend.add2 vend.city vend.state vend.zip vend.country vend.Postal ~
 vend.tax-id vend.remit vend.r-add1 vend.r-add2 vend.r-city vend.r-state ~
-vend.r-zip vend.r-country vend.r-postal vend.check-memo vend.type ~
-vend.contact vend.buyer vend.area-code vend.phone vend.fax-area vend.fax ~
-vend.fax-prefix vend.fax-country vend.over-pct vend.under-pct vend.actnum ~
-vend.actdscr vend.curr-code vend.tax-gr vend.code-1099 vend.an-edi-vend cb_paytype ~
-vend.terms vend.disc-% vend.po-export vend.rebate-% vend.frt-pay ~
-vend.disc-days vend.carrier vend.fob-code vend.loc 
+vend.r-zip vend.r-country vend.r-postal vend.check-memo vend.Bank-Acct ~
+vend.SwiftBIC vend.Bank-RTN vend.type vend.contact vend.buyer ~
+vend.area-code vend.phone vend.fax-area vend.fax vend.fax-prefix ~
+vend.fax-country vend.over-pct vend.under-pct vend.actnum vend.actdscr ~
+vend.curr-code vend.tax-gr vend.code-1099 cb_paytype cb_codetype vend.an-edi-vend  vend.terms ~
+vend.disc-% vend.po-export vend.rebate-% vend.frt-pay vend.disc-days ~
+vend.carrier vend.fob-code vend.loc 
 &Scoped-define DISPLAYED-TABLES vend
 &Scoped-define FIRST-DISPLAYED-TABLE vend
-&Scoped-Define DISPLAYED-OBJECTS ventype_Dscr buyer_buyer-n ~
-terms_dscr carrier_dscr curr_dscr 
+&Scoped-Define DISPLAYED-OBJECTS ventype_Dscr ~
+buyer_buyer-n terms_dscr carrier_dscr curr_dscr 
 
 /* Custom List Definitions                                              */
 /* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,ROW-AVAILABLE,DISPLAY-FIELD,List-5,F1 */
@@ -183,6 +184,12 @@ RUN set-attribute-list (
 
 
 /* Definitions of the field level widgets                               */
+DEFINE VARIABLE cb_codetype AS CHARACTER FORMAT "X(256)":U 
+     LABEL "" 
+     VIEW-AS COMBO-BOX INNER-LINES 5
+     DROP-DOWN-LIST
+     SIZE 41.2 BY 1 NO-UNDO.
+
 DEFINE VARIABLE cb_paytype AS CHARACTER FORMAT "X(256)":U 
      LABEL "Pay Type" 
      VIEW-AS COMBO-BOX INNER-LINES 5
@@ -206,7 +213,7 @@ DEFINE VARIABLE curr_dscr AS CHARACTER FORMAT "x(30)"
 
 DEFINE VARIABLE terms_dscr AS CHARACTER FORMAT "x(30)" 
      VIEW-AS FILL-IN 
-     SIZE 31 BY 1
+     SIZE 25 BY 1
      BGCOLOR 7 FGCOLOR 15 FONT 4.
 
 DEFINE VARIABLE ventype_Dscr AS CHARACTER FORMAT "x(30)" 
@@ -220,11 +227,11 @@ DEFINE RECTANGLE RECT-1
 
 DEFINE RECTANGLE RECT-29
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 65 BY 8.57.
+     SIZE 65 BY 8.91.
 
 DEFINE RECTANGLE RECT-30
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 81 BY 3.81.
+     SIZE 81 BY 4.14.
 
 DEFINE RECTANGLE RECT-31
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
@@ -234,7 +241,6 @@ DEFINE RECTANGLE RECT-31
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     cb_paytype AT ROW 10.05 COL 124.6 COLON-ALIGNED WIDGET-ID 12
      vend.vend-no AT ROW 1.24 COL 10 COLON-ALIGNED
           LABEL "Vendor"
           VIEW-AS FILL-IN 
@@ -284,44 +290,66 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 32 BY 1
           BGCOLOR 15 
-     vend.remit AT ROW 10.76 COL 12 COLON-ALIGNED FORMAT "x(40)"
+     vend.remit AT ROW 9.52 COL 12 COLON-ALIGNED FORMAT "x(40)"
           VIEW-AS FILL-IN 
           SIZE 51 BY 1
           BGCOLOR 15 FONT 4
-     vend.r-add1 AT ROW 11.71 COL 12 COLON-ALIGNED
+     vend.r-add1 AT ROW 10.48 COL 12 COLON-ALIGNED
           LABEL "Address"
           VIEW-AS FILL-IN 
           SIZE 38 BY 1
           BGCOLOR 15 FONT 4
-     vend.r-add2 AT ROW 12.67 COL 12 COLON-ALIGNED NO-LABEL
+     vend.r-add2 AT ROW 11.43 COL 12 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 38 BY 1
           BGCOLOR 15 FONT 4
-     vend.r-city AT ROW 13.62 COL 12 COLON-ALIGNED
+     vend.r-city AT ROW 12.38 COL 12 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 21.2 BY 1
           BGCOLOR 15 FONT 4
-     vend.r-state AT ROW 13.62 COL 34 COLON-ALIGNED NO-LABEL
+     vend.r-state AT ROW 12.38 COL 34 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 6 BY 1
           BGCOLOR 15 FONT 4
-     vend.r-zip AT ROW 13.62 COL 41 COLON-ALIGNED NO-LABEL
+     vend.r-zip AT ROW 12.38 COL 41 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 19 BY 1
           BGCOLOR 15 FONT 4
-     vend.r-country AT ROW 14.57 COL 12 COLON-ALIGNED
+     vend.r-country AT ROW 13.33 COL 12 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 14 BY 1
           BGCOLOR 15 FONT 4
-     vend.r-postal AT ROW 14.57 COL 45 COLON-ALIGNED
+     vend.r-postal AT ROW 13.33 COL 45 COLON-ALIGNED
           LABEL "Postal Code"
           VIEW-AS FILL-IN 
           SIZE 15.2 BY 1
           BGCOLOR 15 FONT 4
-     vend.check-memo AT ROW 16 COL 18 COLON-ALIGNED
+     vend.check-memo AT ROW 14.52 COL 18 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 42 BY 1
           BGCOLOR 15 
+     vend.Bank-Acct AT ROW 15.52 COL 18 COLON-ALIGNED
+          LABEL "Account#" FORMAT "x(18)"
+          VIEW-AS FILL-IN 
+          SIZE 16 BY 1
+          BGCOLOR 15 FONT 4
+     vend.SwiftBIC AT ROW 15.52 COL 47 COLON-ALIGNED
+          LABEL "Swift Code" FORMAT "x(11)"
+          VIEW-AS FILL-IN 
+          SIZE 16 BY 1
+          BGCOLOR 15 FONT 4
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE NO-VALIDATE THREE-D 
+         AT COL 1 ROW 1 SCROLLABLE 
+         FONT 6.
+
+/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
+DEFINE FRAME F-Main
+     vend.Bank-RTN AT ROW 16.52 COL 18 COLON-ALIGNED
+          LABEL "Routing" FORMAT ">>>>>>>>9"
+          VIEW-AS FILL-IN 
+          SIZE 16 BY 1
+          BGCOLOR 15 FONT 4
      vend.type AT ROW 1.24 COL 83 COLON-ALIGNED
           LABEL "Type"
           VIEW-AS FILL-IN 
@@ -332,13 +360,6 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 45 BY 1
           BGCOLOR 15 FONT 4
-    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE NO-VALIDATE THREE-D 
-         AT COL 1 ROW 1 SCROLLABLE 
-         FONT 6.
-
-/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
-DEFINE FRAME F-Main
      vend.buyer AT ROW 3.19 COL 83 COLON-ALIGNED
           LABEL "Buyer"
           VIEW-AS FILL-IN 
@@ -388,6 +409,10 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 7 BY 1
           BGCOLOR 15 
+     vend.an-edi-vend AT ROW 9.05 COL 134.4
+          LABEL "EDI"
+          VIEW-AS TOGGLE-BOX
+          SIZE 8.2 BY 1.05
      vend.tax-gr AT ROW 10.05 COL 72.2 COLON-ALIGNED
           LABEL "Tax" FORMAT "x(4)"
           VIEW-AS FILL-IN 
@@ -397,15 +422,13 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 4.4 BY 1
           BGCOLOR 15 FONT 4
-     vend.an-edi-vend AT ROW 10.05 COL 104.8
-          LABEL "EDI"
-          VIEW-AS TOGGLE-BOX
-          SIZE 8.2 BY 1.05
+     cb_codetype AT ROW 10.1 COL 103.4 COLON-ALIGNED WIDGET-ID 12
      vend.terms AT ROW 11.24 COL 74.8 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 11 BY 1
           BGCOLOR 15 FONT 4
      terms_dscr AT ROW 11.24 COL 87 COLON-ALIGNED NO-LABEL
+     cb_paytype AT ROW 11.19 COL 124.6 COLON-ALIGNED WIDGET-ID 12
      vend.disc-% AT ROW 12.29 COL 80 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 11 BY 1
@@ -414,6 +437,13 @@ DEFINE FRAME F-Main
           LABEL "POEXPORT" FORMAT "X(50)"
           VIEW-AS FILL-IN 
           SIZE 28 BY 1
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE NO-VALIDATE THREE-D 
+         AT COL 1 ROW 1 SCROLLABLE 
+         FONT 6.
+
+/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
+DEFINE FRAME F-Main
      vend.rebate-% AT ROW 13.71 COL 112.4 COLON-ALIGNED HELP
           "" WIDGET-ID 2
           LABEL "Max PO Cost" FORMAT ">>>,>>>,>>9.99"
@@ -429,13 +459,6 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 7 BY 1
           BGCOLOR 15 FONT 4
-    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE NO-VALIDATE THREE-D 
-         AT COL 1 ROW 1 SCROLLABLE 
-         FONT 6.
-
-/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
-DEFINE FRAME F-Main
      vend.carrier AT ROW 16.24 COL 83 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 15 BY 1
@@ -458,7 +481,7 @@ DEFINE FRAME F-Main
           SIZE 17 BY .71 AT ROW 7.67 COL 57
           FGCOLOR 9 FONT 6
      "Remit to Address" VIEW-AS TEXT
-          SIZE 21 BY .62 AT ROW 9.33 COL 5
+          SIZE 21 BY .62 AT ROW 8.76 COL 5
           FGCOLOR 9 FONT 6
      "Shipping Information" VIEW-AS TEXT
           SIZE 25 BY .62 AT ROW 13.62 COL 72
@@ -543,6 +566,10 @@ ASSIGN
    EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN vend.area-code IN FRAME F-Main
    EXP-LABEL EXP-FORMAT                                                 */
+/* SETTINGS FOR FILL-IN vend.Bank-Acct IN FRAME F-Main
+   EXP-LABEL EXP-FORMAT                                                 */
+/* SETTINGS FOR FILL-IN vend.Bank-RTN IN FRAME F-Main
+   EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN vend.buyer IN FRAME F-Main
    4 EXP-LABEL                                                          */
 /* SETTINGS FOR FILL-IN buyer_buyer-n IN FRAME F-Main
@@ -581,6 +608,8 @@ ASSIGN
    EXP-LABEL EXP-FORMAT EXP-HELP                                        */
 /* SETTINGS FOR FILL-IN vend.remit IN FRAME F-Main
    EXP-FORMAT                                                           */
+/* SETTINGS FOR FILL-IN vend.SwiftBIC IN FRAME F-Main
+   EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN vend.tax-gr IN FRAME F-Main
    EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN vend.tax-id IN FRAME F-Main
@@ -608,7 +637,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -738,6 +767,26 @@ DO:
   IF LASTKEY NE -1 THEN DO:
     RUN valid-code-1099 NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+  END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME vend.code-1099
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL vend.code-1099 V-table-Win
+ON VALUE-CHANGED OF vend.code-1099 IN FRAME F-Main /* 1099 Code */
+DO:
+  IF LASTKEY NE -1 THEN DO:
+   IF vend.code-1099:SCREEN-VALUE EQ "N" THEN do:
+   cb_codetype:SCREEN-VALUE IN FRAME {&frame-name} = "No 1099" .
+   cb_codetype:SENSITIVE IN FRAME {&frame-name} = NO .
+   END.
+   ELSE
+       ASSIGN
+           cb_codetype:SENSITIVE IN FRAME {&frame-name} = YES
+           cb_codetype:SCREEN-VALUE IN FRAME {&frame-name} = "1 - Early IRA distribution (Over 59 1/2)" .
   END.
 END.
 
@@ -1088,6 +1137,7 @@ PROCEDURE assignCC :
 ------------------------------------------------------------------------------*/
 DO WITH FRAME {&FRAME-NAME}:
    vend.payment-type = cb_paytype:SCREEN-VALUE IN FRAME {&frame-name}.
+   vend.spare-char-1 = cb_codetype:SCREEN-VALUE IN FRAME {&frame-name}.
 END.
 
 END PROCEDURE.
@@ -1103,12 +1153,19 @@ PROCEDURE build-payment-type-list :
 ------------------------------------------------------------------------------*/
    DEFINE VARIABLE ilogic AS LOG NO-UNDO.
    cb_paytype:LIST-ITEMS IN FRAME {&frame-name} = "".
+   cb_codetype:LIST-ITEMS IN FRAME {&frame-name} = "".
 
    FOR EACH payment-type NO-LOCK WHERE payment-type.company = cocode.
        ilogic = cb_paytype:ADD-LAST (payment-type.type) IN FRAME {&frame-name}.
    END.
 
    cb_payType:SCREEN-VALUE = cb_payType:ENTRY (1).
+
+    
+   cb_codetype:LIST-ITEMS IN FRAME {&frame-name} = "No 1099,1 - Early IRA distribution (Over 59 1/2),2 - Early IRA distribution (under age 59 1/2),3 - Disability,4 - Death,5 - Prohibited transaction," 
+      +  "6 - Section 1035 exchange,7 - Normal distribution,8 - Excess contributions,9 - Life insurance Cost,A - 10-year tax option,B - Roth account distribution,D - Annuity payments,E - Distributions (EPCRS),"
+      +  "F - Charitable gift,G - Direct IRA rollover,H - Direct Roth rollover,J - Early Roth distribution,L - Loans as distributions,N - Recharacterized IRA,P - Excess contributions,Q - Qualified Roth distribution,"
+      +  "R - Recharacterized IRA ,S - Early SIMPLE IRA,T - Roth IRA distribution,U - ESOP Dividend,W - Qualified long-term care" .
 
 END PROCEDURE.
 
@@ -1181,7 +1238,7 @@ PROCEDURE displayCC :
 ------------------------------------------------------------------------------*/
 DO WITH FRAME {&FRAME-NAME}:
   IF AVAILABLE vend THEN cb_paytype:SCREEN-VALUE IN FRAME {&frame-name} = vend.payment-type. 
-
+  IF AVAILABLE vend THEN cb_codetype:SCREEN-VALUE IN FRAME {&frame-name} = vend.spare-char-1.
 END.
 
 END PROCEDURE.
@@ -1730,7 +1787,6 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-po-sec V-table-Win 
 PROCEDURE valid-po-sec :

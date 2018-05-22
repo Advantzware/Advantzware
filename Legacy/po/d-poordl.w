@@ -1783,6 +1783,14 @@ DO:
                 AND e-itemfg-vend.cust-no EQ po-ordl.cust-no:SCREEN-VALUE
                 AND e-itemfg-vend.est-no eq "" 
                 NO-ERROR.
+        IF po-ord.cust-no NE "" AND NOT AVAILABLE e-itemfg-vend THEN
+            FIND FIRST e-itemfg-vend NO-LOCK
+                WHERE e-itemfg-vend.company EQ e-itemfg.company
+                AND e-itemfg-vend.i-no    EQ e-itemfg.i-no
+                AND e-itemfg-vend.vend-no EQ po-ord.vend-no
+                AND e-itemfg-vend.cust-no EQ po-ord.cust-no
+                AND e-itemfg-vend.est-no eq "" 
+                NO-ERROR.
 
         /* gdm - 06040918 - check for vendor */
         IF NOT AVAILABLE e-itemfg-vend THEN
@@ -6254,6 +6262,7 @@ PROCEDURE vend-cost :
                 CREATE tt-ei.
                 ASSIGN 
                     tt-ei.std-uom = e-itemfg.std-uom.
+                RELEASE e-itemfg-vend . 
                 IF po-ordl.cust-no:SCREEN-VALUE NE "" THEN
                     FIND FIRST e-itemfg-vend NO-LOCK
                         WHERE e-itemfg-vend.company EQ e-itemfg.company
@@ -6261,7 +6270,16 @@ PROCEDURE vend-cost :
                         AND e-itemfg-vend.vend-no EQ po-ord.vend-no
                         AND e-itemfg-vend.cust-no EQ po-ordl.cust-no:SCREEN-VALUE
                         AND e-itemfg-vend.est-no EQ "" /*23592 avoid farm Tab costs from estimating*/
+                        NO-ERROR.  
+                IF NOT AVAILABLE e-itemfg-vend AND po-ord.cust-no NE "" THEN
+                    FIND FIRST e-itemfg-vend NO-LOCK
+                        WHERE e-itemfg-vend.company EQ e-itemfg.company
+                        AND e-itemfg-vend.i-no    EQ e-itemfg.i-no
+                        AND e-itemfg-vend.vend-no EQ po-ord.vend-no
+                        AND e-itemfg-vend.cust-no EQ po-ord.cust-no
+                        AND e-itemfg-vend.est-no EQ "" /*23592 avoid farm Tab costs from estimating*/
                         NO-ERROR.
+
                 IF NOT AVAILABLE e-itemfg-vend THEN 
                     FIND FIRST e-itemfg-vend NO-LOCK
                         WHERE e-itemfg-vend.company EQ e-itemfg.company

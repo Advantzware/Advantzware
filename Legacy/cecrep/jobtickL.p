@@ -65,6 +65,8 @@ DEF BUFFER b-eb FOR eb.
 DEF VAR v-job-cust AS LOG NO-UNDO.
 DEFINE VARIABLE ls-fgitem-img AS CHARACTER FORM "x(150)" NO-UNDO.
 DEF  SHARED VAR s-prt-fgimage AS LOG NO-UNDO.
+DEFINE  SHARED VARIABLE v-dept-codes AS CHAR NO-UNDO.
+DEFINE  SHARED VAR v-dept-log AS LOG NO-UNDO.
 DO TRANSACTION:
    {sys/inc/tspostfg.i}
 END.
@@ -503,12 +505,13 @@ do v-local-loop = 1 to v-local-copies:
            lv-got-return = 0
            v-dept-note = "" 
            v-prev-note-rec = ?.
-
+   
         FOR EACH notes WHERE notes.rec_key = job.rec_key and
-                    (notes.note_form_no = w-ef.frm OR notes.note_form_no = 0)
+                    (notes.note_form_no = w-ef.frm OR notes.note_form_no = 0) AND
+                    ((v-dept-log AND lookup(notes.note_code,v-dept-codes) NE 0) OR NOT v-dept-log)
                  NO-LOCK:
             IF v-prev-note-rec <> ? AND
-               v-prev-note-rec <> RECID(notes) THEN v-prev-extent = v-prev-extent + k.
+               v-prev-note-rec <> RECID(notes) THEN v-prev-extent = /*v-prev-extent +*/ k.
 
             DO i = 1 TO LENGTH(notes.note_text):
                IF i - j >= v-note-length THEN ASSIGN j = i

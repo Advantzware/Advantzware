@@ -90,7 +90,6 @@ DEF VAR v-hide-cost AS LOG NO-UNDO.
 DEF VAR lv-sort-by AS CHAR  NO-UNDO.
 DEF VAR lv-sort-by-lab AS CHAR  NO-UNDO.
 DEF VAR ll-sort-asc AS LOG NO-UNDO.
-DEF BUFFER bf-oe-prmtx FOR oe-prmtx.
 DEF VAR lMatrixExists AS LOGICAL NO-UNDO.
 DEF VAR v-i-price AS DECIMAL NO-UNDO.
 DEF VAR v-i-uom AS CHAR NO-UNDO.
@@ -98,6 +97,9 @@ DEF VAR rCurTTRow AS ROWID NO-UNDO.
 DEF VAR rCurItemRow AS ROWID NO-UNDO.
 DEFINE VARIABLE rPrevItemRow AS ROWID       NO-UNDO.
 DEFINE VARIABLE rPrevTTRow  AS ROWID       NO-UNDO.
+DEFINE VARIABLE hdPriceProcs AS HANDLE NO-UNDO.
+{oe/ttPriceHold.i "NEW SHARED"}
+RUN oe/PriceProcs.p PERSISTENT SET hdPriceProcs.
 /*&SCOPED-DEFINE SORTBY-PHRASE  BY itemfg.last-count*/
 gcompany = g_company.
 {sys/inc/fgbrowse.i}
@@ -263,13 +265,6 @@ RUN set-attribute-list (
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD f-cost B-table-Win 
 FUNCTION f-cost RETURNS CHARACTER
-  ( /* parameter-definitions */ )  FORWARD.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD f-price B-table-Win 
-FUNCTION f-price RETURNS DECIMAL
   ( /* parameter-definitions */ )  FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
@@ -891,6 +886,7 @@ END.
 
 
 /* ***************************  Main Block  *************************** */
+
 ON LEAVE OF tt-ordl.qt-uom IN BROWSE br_table /* Item */
 DO:
   IF tt-ordl.IS-SELECTED:SCREEN-VALUE IN BROWSE {&browse-name} = "YES" THEN
@@ -933,37 +929,13 @@ DO:
     MESSAGE "Quantity must be greater than 0" VIEW-AS ALERT-BOX.
     RETURN NO-APPLY.
   END.*/
+  RUN GetPriceMatrixPriceSimple IN hdPriceProcs (itemfg.company, itemfg.i-no, cust.cust-no, "", DECIMAL(tt-ordl.e-qty:SCREEN-VALUE IN BROWSE {&browse-name}),
+                                          OUTPUT lMatrixExists, INPUT-OUTPUT v-i-price, INPUT-OUTPUT v-i-uom).
 
-  RUN oe/GetPriceMatrix.p (BUFFER bf-oe-prmtx,
-                          INPUT ROWID(itemfg),
-                          INPUT ROWID(cust),
-                          INPUT NO,
-                          OUTPUT lMatrixExists).
-  IF lMatrixExists AND AVAIL bf-oe-prmtx THEN
-      RUN oe/GetPriceMatrixPrice.p (BUFFER bf-oe-prmtx,                                
-                                INPUT DECIMAL(tt-ordl.e-qty:SCREEN-VALUE IN BROWSE {&browse-name}),
-                                INPUT 0,
-                                INPUT cust.cust-level,
-                                INPUT itemfg.sell-price,
-                                INPUT itemfg.sell-uom,
-                                OUTPUT v-i-price,
-                                OUTPUT v-i-uom).
-/*         {est/mtx-price.i} */
       ASSIGN
         tt-ordl.sell-price:SCREEN-VALUE IN BROWSE {&browse-name}      = IF lMatrixExists THEN string(v-i-price) ELSE string(itemfg.sell-price)  
         tt-ordl.qt-uom:SCREEN-VALUE IN BROWSE {&browse-name}        = IF lMatrixExists THEN string(v-i-uom) ELSE itemfg.sell-uom .
-  IF DEC(tt-ordl.sell-price:SCREEN-VALUE) EQ 0 THEN DO:
-
-    RUN oe/pricelookup.p (INPUT cust.cust-no,
-                          INPUT itemfg.i-no,
-                          INPUT tt-ordl.e-qty,
-                          OUTPUT opPrice,
-                          OUTPUT opUom).
-
-    ASSIGN
-      tt-ordl.sell-price:SCREEN-VALUE IN BROWSE {&browse-name}      = string(opPrice)  
-      tt-ordl.qt-uom:SCREEN-VALUE IN BROWSE {&browse-name}          = opUom.
-  END.
+  
   IF DEC(tt-ordl.sell-price:SCREEN-VALUE) EQ 0 THEN DO:
     FIND LAST quoteitm WHERE quoteitm.company EQ itemfg.company
       AND quoteitm.i-no EQ itemfg.i-no
@@ -1750,34 +1722,6 @@ FUNCTION f-cost RETURNS CHARACTER
 
   RETURN f-cost.
 
-END FUNCTION.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION f-price B-table-Win 
-FUNCTION f-price RETURNS DECIMAL
-  ( /* parameter-definitions */ ) :
-/*------------------------------------------------------------------------------
-  Purpose:  
-    Notes:  
-------------------------------------------------------------------------------*/
-  def var ld-price as dec no-undo.
-  /* don't convert to uom ea
-  if itemfg.cons-uom = "EA" then ld-price = itemfg.total-std-cost.
-  else run custom/convcuom.p (itemfg.company,itemfg.cons-uom, "EA",0,0,0,0, itemfg.total-std-cost, output ld-price).
-  */
-  ld-price = itemfg.total-std-cost.
-  IF ld-price EQ 0 THEN DO:
-       
-DEF VAR opUom AS CHAR.
-RUN oe/pricelookup.p (INPUT cust.cust-no,
-                      INPUT itemfg.i-no,
-                      INPUT tt-ordl.e-qty,
-                      OUTPUT ld-price,
-                      OUTPUT opUom).
-  END.
-  return ld-price.
 END FUNCTION.
 
 /* _UIB-CODE-BLOCK-END */

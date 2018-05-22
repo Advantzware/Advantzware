@@ -25,11 +25,11 @@
         
         PUT "<||><R10><C3><#4><FROM><R17><C80><RECT>" SKIP.            
         
-        PUT "<FArial><=4><R11><C5><P18><B>" company.NAME FORMAT "x(25)"  "</B>" SKIP.
-        PUT "<FArial><=4><R11><C44><P18><B>" company.NAME FORMAT "x(25)"  "</B>" SKIP.
+        PUT "<FArial><=4><R11><C5><P17><B>" company.NAME FORMAT "x(30)"  "</B>" SKIP.
+        PUT "<FArial><=4><R11><C44><P17><B>" company.NAME FORMAT "x(30)"  "</B>" SKIP.
         PUT "<FArial><=4><R13><C5><P15><B>" company.addr[1] FORMAT "x(30)" "</B>" .
         PUT "<FArial><=4><R13><C44><P15><B> Phone: " cPhone FORMAT "x(15)"  "</B>" SKIP(2).
-        PUT "<FArial><=4><R15><C5><P15><B>" STRING(company.city,"x(15)") " " company.state FORMAT "x(2)" " " company.zip "</B>" .
+        PUT "<FArial><=4><R15><C5><P15><B>" company.city " " company.state FORMAT "x(2)" " " company.zip "</B>" .
         PUT "<FArial><=4><R15><C44><P15><B> Fax: " cFax FORMAT "x(15)" "</B>" SKIP(2).
         
         PUT "<||><R20><C3><#5><FROM><R25><C80><RECT>" SKIP.            
@@ -101,11 +101,11 @@
         
         PUT "<||><R30><C3><#4><FROM><R37><C80><RECT>" SKIP.            
         
-        PUT "<FArial><=4><R31><C5><P18><B>" company.NAME FORMAT "x(25)"  "</B>" SKIP.
-        PUT "<FArial><=4><R31><C44><P18><B>" company.NAME FORMAT "x(25)"  "</B>" SKIP.
+        PUT "<FArial><=4><R31><C5><P17><B>" company.NAME FORMAT "x(30)"  "</B>" SKIP.
+        PUT "<FArial><=4><R31><C44><P17><B>" company.NAME FORMAT "x(30)"  "</B>" SKIP.
         PUT "<FArial><=4><R33><C5><P15><B>" company.addr[1] FORMAT "x(30)" "</B>" .
         PUT "<FArial><=4><R33><C44><P15><B> Phone: " cPhone FORMAT "x(15)"  "</B>" SKIP(2).
-        PUT "<FArial><=4><R35><C5><P15><B>" STRING(company.city,"x(15)") " " company.state FORMAT "x(2)" " " company.zip "</B>" .
+        PUT "<FArial><=4><R35><C5><P15><B>" company.city " " company.state FORMAT "x(2)" " " company.zip "</B>" .
         PUT "<FArial><=4><R35><C44><P15><B> Fax: " cFax FORMAT "x(15)" "</B>" SKIP(2).
         
         PUT "<||><R40><C3><#5><FROM><R45><C80><RECT>" SKIP.            

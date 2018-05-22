@@ -10,7 +10,7 @@ DEFINE VARIABLE cellColumnDat AS CHARACTER NO-UNDO.
 &SCOPED-DEFINE cellColumnDat {&FIRST-TABLE-IN-QUERY-{&BROWSE-NAME}}
 &ENDIF
 
-cellColumnDat = './users/' + USERID('nosweat') + '/{&cellColumnDat}.dat'.
+cellColumnDat = './users/' + USERID('ASI') + '/{&cellColumnDat}.dat'.
 
 PROCEDURE setCellColumns:
   DEFINE VARIABLE userColumn AS CHARACTER NO-UNDO EXTENT 200.
@@ -86,6 +86,7 @@ PROCEDURE local-destroy:
     MESSAGE 'Save Column Changes?' VIEW-AS ALERT-BOX
       QUESTION BUTTONS YES-NO UPDATE saveChanges AS LOGICAL.
     IF saveChanges THEN DO:
+      OS-CREATE-DIR VALUE("./users/" + USERID("ASI")). 
       OUTPUT TO VALUE(cellColumnDat).
       DO j = 1 TO {&BROWSE-NAME}:NUM-COLUMNS IN FRAME {&FRAME-NAME}:
         EXPORT {&BROWSE-NAME}:GET-BROWSE-COLUMN(j):NAME {&BROWSE-NAME}:GET-BROWSE-COLUMN(j):WIDTH-PIXELS.

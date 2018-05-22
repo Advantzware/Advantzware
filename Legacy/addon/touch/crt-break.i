@@ -17,9 +17,7 @@ ASSIGN
     bf-machtran.jobseq        = IF AVAILABLE jobseq THEN jobseq.jobseq ELSE 0
     bf-machtran.charge_code   = shift_break.charge_code
     bf-machtran.completed     = v-completed
+    bf-machtran.posted        = NO
     .
 {custom/calctime.i &file="bf-machtran"}
-OUTPUT TO "logs\crt-break.log" APPEND.
-EXPORT bf-machtran.
-OUTPUT CLOSE.
 RUN touch/crt-memp.p (company_code,machine_code, ROWID(bf-machtran)).

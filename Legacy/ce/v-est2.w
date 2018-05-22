@@ -210,7 +210,10 @@ DEFINE FRAME fold
      ef.xgrain AT ROW 1.24 COL 133 COLON-ALIGNED
           LABEL "Xgrain" FORMAT "X"
           VIEW-AS COMBO-BOX INNER-LINES 5
-          LIST-ITEMS "N","S","B" 
+          LIST-ITEM-PAIRS "None","N",
+                     "Sheet","B",
+                     "Blank","S"
+     /*     "N","S","B" */
           DROP-DOWN-LIST
           SIZE 12 BY 1
      ef.board AT ROW 2.43 COL 12 COLON-ALIGNED

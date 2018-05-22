@@ -60,8 +60,8 @@ CREATE WIDGET-POOL.
 DEFINE QUERY external_tables FOR cust.
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-8 
-&Scoped-Define DISPLAYED-FIELDS cust.cust-no cust.name cust.hibal ~
-cust.hibal-date cust.cr-hold cust.lpay cust.lpay-date cust.cr-lim ~
+&Scoped-Define DISPLAYED-FIELDS cust.cust-no cust.NAME cust.bank-acct cust.Bank-RTN  ~
+cust.hibal cust.hibal-date cust.cr-hold cust.lpay cust.lpay-date cust.cr-lim ~
 cust.acc-bal cust.ord-lim cust.ord-bal cust.on-account 
 &Scoped-define DISPLAYED-TABLES cust
 &Scoped-define FIRST-DISPLAYED-TABLE cust
@@ -126,7 +126,15 @@ DEFINE FRAME F-Main
           SIZE 16 BY 1
      cust.name AT ROW 1.48 COL 31 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
-          SIZE 85 BY 1
+          SIZE 46 BY 1 
+    cust.bank-acct AT ROW 1.48 COL 90 COLON-ALIGNED 
+          LABEL "Account#"
+          VIEW-AS FILL-IN 
+          SIZE 24 BY 1
+    cust.bank-RTN AT ROW 1.48 COL 127 COLON-ALIGNED 
+          LABEL "Routing#"
+          VIEW-AS FILL-IN 
+          SIZE 18 BY 1
      cust.hibal AT ROW 2.91 COL 26 COLON-ALIGNED
           LABEL "High Balance"
           VIEW-AS FILL-IN 
@@ -254,6 +262,10 @@ ASSIGN
    NO-ENABLE EXP-LABEL                                                  */
 /* SETTINGS FOR FILL-IN cust.ord-lim IN FRAME F-Main
    NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN cust.bank-acct IN FRAME F-Main
+   NO-ENABLE EXP-LABEL                                                  */
+/* SETTINGS FOR FILL-IN cust.bank-rtn IN FRAME F-Main
+   NO-ENABLE EXP-LABEL                                                  */
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 

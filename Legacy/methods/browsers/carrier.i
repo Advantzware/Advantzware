@@ -27,10 +27,11 @@
 &Global-define SORTBY-2 
 &Global-define IDXNAME2 
 &Global-define DESCRIP2 Description
-&Global-define FLDNAME3 
-&Global-define SORTBY-3 
+&Global-define FLDNAME3 carrier.loc 
+&Global-define FORMAT-3 X(5)
+&Global-define SORTBY-3   
 &Global-define IDXNAME3 
-&Global-define DESCRIP3 
+&Global-define DESCRIP3 Location 
 &Global-define FLDNAME4 
 &Global-define SORTBY-4 
 &Global-define IDXNAME4 
