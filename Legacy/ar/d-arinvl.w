@@ -60,20 +60,20 @@ DEF VAR ll-inquiry AS LOG NO-UNDO.
 /* Definitions for DIALOG-BOX Dialog-Frame                              */
 &Scoped-define FIELDS-IN-QUERY-Dialog-Frame ar-invl.line ar-invl.actnum ~
 ar-invl.i-no ar-invl.part-no ar-invl.i-name ar-invl.i-dscr ar-invl.lot-no ~
-ar-invl.inv-qty ar-invl.cons-uom ar-invl.sf-sht ar-invl.unit-pr ~
-ar-invl.pr-qty-uom ar-invl.disc ar-invl.amt ar-invl.amt-msf ar-invl.cost ~
-ar-invl.dscr[1] ar-invl.sman[1] ar-invl.s-pct[1] ar-invl.s-comm[1] ~
-ar-invl.sman[2] ar-invl.s-pct[2] ar-invl.s-comm[2] ar-invl.sman[3] ~
-ar-invl.s-pct[3] ar-invl.s-comm[3] ar-invl.bol-no ar-invl.ord-no ~
-ar-invl.po-no ar-invl.ship-qty 
-&Scoped-define ENABLED-FIELDS-IN-QUERY-Dialog-Frame ar-invl.line ~
-ar-invl.actnum ar-invl.i-no ar-invl.part-no ar-invl.i-name ar-invl.i-dscr ~
-ar-invl.lot-no ar-invl.inv-qty ar-invl.cons-uom ar-invl.sf-sht ~
+ar-invl.inv-qty ar-invl.cons-uom ar-invl.ship-qty ar-invl.sf-sht ~
 ar-invl.unit-pr ar-invl.pr-qty-uom ar-invl.disc ar-invl.amt ar-invl.amt-msf ~
 ar-invl.cost ar-invl.dscr[1] ar-invl.sman[1] ar-invl.s-pct[1] ~
 ar-invl.s-comm[1] ar-invl.sman[2] ar-invl.s-pct[2] ar-invl.s-comm[2] ~
 ar-invl.sman[3] ar-invl.s-pct[3] ar-invl.s-comm[3] ar-invl.bol-no ~
-ar-invl.ord-no ar-invl.po-no ar-invl.ship-qty 
+ar-invl.ord-no ar-invl.po-no 
+&Scoped-define ENABLED-FIELDS-IN-QUERY-Dialog-Frame ar-invl.line ~
+ar-invl.actnum ar-invl.i-no ar-invl.part-no ar-invl.i-name ar-invl.i-dscr ~
+ar-invl.lot-no ar-invl.inv-qty ar-invl.cons-uom ar-invl.ship-qty ~
+ar-invl.sf-sht ar-invl.unit-pr ar-invl.pr-qty-uom ar-invl.disc ar-invl.amt ~
+ar-invl.amt-msf ar-invl.cost ar-invl.dscr[1] ar-invl.sman[1] ~
+ar-invl.s-pct[1] ar-invl.s-comm[1] ar-invl.sman[2] ar-invl.s-pct[2] ~
+ar-invl.s-comm[2] ar-invl.sman[3] ar-invl.s-pct[3] ar-invl.s-comm[3] ~
+ar-invl.bol-no ar-invl.ord-no ar-invl.po-no 
 &Scoped-define ENABLED-TABLES-IN-QUERY-Dialog-Frame ar-invl
 &Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-Dialog-Frame ar-invl
 &Scoped-define QUERY-STRING-Dialog-Frame FOR EACH ar-invl ~
@@ -88,24 +88,24 @@ ar-invl.ord-no ar-invl.po-no ar-invl.ship-qty
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-FIELDS ar-invl.line ar-invl.actnum ar-invl.i-no ~
 ar-invl.part-no ar-invl.i-name ar-invl.i-dscr ar-invl.lot-no ~
-ar-invl.inv-qty ar-invl.cons-uom ar-invl.sf-sht ar-invl.unit-pr ~
-ar-invl.pr-qty-uom ar-invl.disc ar-invl.amt ar-invl.amt-msf ar-invl.cost ~
-ar-invl.dscr[1] ar-invl.sman[1] ar-invl.s-pct[1] ar-invl.s-comm[1] ~
-ar-invl.sman[2] ar-invl.s-pct[2] ar-invl.s-comm[2] ar-invl.sman[3] ~
-ar-invl.s-pct[3] ar-invl.s-comm[3] ar-invl.bol-no ar-invl.ord-no ~
-ar-invl.po-no ar-invl.ship-qty 
+ar-invl.inv-qty ar-invl.cons-uom ar-invl.ship-qty ar-invl.sf-sht ~
+ar-invl.unit-pr ar-invl.pr-qty-uom ar-invl.disc ar-invl.amt ar-invl.amt-msf ~
+ar-invl.cost ar-invl.dscr[1] ar-invl.sman[1] ar-invl.s-pct[1] ~
+ar-invl.s-comm[1] ar-invl.sman[2] ar-invl.s-pct[2] ar-invl.s-comm[2] ~
+ar-invl.sman[3] ar-invl.s-pct[3] ar-invl.s-comm[3] ar-invl.bol-no ~
+ar-invl.ord-no ar-invl.po-no 
 &Scoped-define ENABLED-TABLES ar-invl
 &Scoped-define FIRST-ENABLED-TABLE ar-invl
 &Scoped-Define ENABLED-OBJECTS fi_acc-desc Btn_OK Btn_Done Btn_Cancel ~
 RECT-21 RECT-38 
 &Scoped-Define DISPLAYED-FIELDS ar-invl.line ar-invl.actnum ar-invl.i-no ~
 ar-invl.part-no ar-invl.i-name ar-invl.i-dscr ar-invl.lot-no ~
-ar-invl.inv-qty ar-invl.cons-uom ar-invl.sf-sht ar-invl.unit-pr ~
-ar-invl.pr-qty-uom ar-invl.disc ar-invl.amt ar-invl.amt-msf ar-invl.cost ~
-ar-invl.dscr[1] ar-invl.sman[1] ar-invl.s-pct[1] ar-invl.s-comm[1] ~
-ar-invl.sman[2] ar-invl.s-pct[2] ar-invl.s-comm[2] ar-invl.sman[3] ~
-ar-invl.s-pct[3] ar-invl.s-comm[3] ar-invl.bol-no ar-invl.ord-no ~
-ar-invl.po-no ar-invl.ship-qty 
+ar-invl.inv-qty ar-invl.cons-uom ar-invl.ship-qty ar-invl.sf-sht ~
+ar-invl.unit-pr ar-invl.pr-qty-uom ar-invl.disc ar-invl.amt ar-invl.amt-msf ~
+ar-invl.cost ar-invl.dscr[1] ar-invl.sman[1] ar-invl.s-pct[1] ~
+ar-invl.s-comm[1] ar-invl.sman[2] ar-invl.s-pct[2] ar-invl.s-comm[2] ~
+ar-invl.sman[3] ar-invl.s-pct[3] ar-invl.s-comm[3] ar-invl.bol-no ~
+ar-invl.ord-no ar-invl.po-no 
 &Scoped-define DISPLAYED-TABLES ar-invl
 &Scoped-define FIRST-DISPLAYED-TABLE ar-invl
 &Scoped-Define DISPLAYED-OBJECTS fi_acc-desc 
@@ -207,6 +207,10 @@ DEFINE FRAME Dialog-Frame
           LABEL "Cons UOM"
           VIEW-AS FILL-IN 
           SIZE 7 BY 1
+     ar-invl.ship-qty AT ROW 2.91 COL 85 COLON-ALIGNED WIDGET-ID 8
+          LABEL "Ship Quantity"
+          VIEW-AS FILL-IN 
+          SIZE 18.8 BY 1
      ar-invl.sf-sht AT ROW 3.86 COL 85 COLON-ALIGNED FORMAT "->>,>>9.99<<"
           VIEW-AS FILL-IN 
           SIZE 18.6 BY 1
@@ -256,15 +260,15 @@ DEFINE FRAME Dialog-Frame
      ar-invl.s-comm[2] AT ROW 12.48 COL 51.6 COLON-ALIGNED NO-LABEL FORMAT ">>9.99"
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
-     ar-invl.sman[3] AT ROW 13.48 COL 8.4 COLON-ALIGNED NO-LABEL FORMAT "x(3)"
-          VIEW-AS FILL-IN 
-          SIZE 17 BY 1
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
          FONT 6.
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME Dialog-Frame
+     ar-invl.sman[3] AT ROW 13.48 COL 8.4 COLON-ALIGNED NO-LABEL FORMAT "x(3)"
+          VIEW-AS FILL-IN 
+          SIZE 17 BY 1
      ar-invl.s-pct[3] AT ROW 13.48 COL 33 COLON-ALIGNED NO-LABEL FORMAT ">>9.99"
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
@@ -287,10 +291,6 @@ DEFINE FRAME Dialog-Frame
      Btn_OK AT ROW 17.05 COL 37
      Btn_Done AT ROW 17 COL 57
      Btn_Cancel AT ROW 17 COL 77.2
-     ar-invl.ship-qty AT ROW 2.91 COL 85 COLON-ALIGNED WIDGET-ID 8
-          LABEL "Ship Quantity"
-          VIEW-AS FILL-IN 
-          SIZE 18.8 BY 1
      "Sales Rep" VIEW-AS TEXT
           SIZE 12 BY .62 AT ROW 10.76 COL 11.6 WIDGET-ID 2
      "% of Sales" VIEW-AS TEXT
@@ -1135,22 +1135,22 @@ PROCEDURE enable_UI :
   IF AVAILABLE ar-invl THEN 
     DISPLAY ar-invl.line ar-invl.actnum ar-invl.i-no ar-invl.part-no 
           ar-invl.i-name ar-invl.i-dscr ar-invl.lot-no ar-invl.inv-qty 
-          ar-invl.cons-uom ar-invl.sf-sht ar-invl.unit-pr ar-invl.pr-qty-uom 
-          ar-invl.disc ar-invl.amt ar-invl.amt-msf ar-invl.cost ar-invl.dscr[1] 
-          ar-invl.sman[1] ar-invl.s-pct[1] ar-invl.s-comm[1] ar-invl.sman[2] 
-          ar-invl.s-pct[2] ar-invl.s-comm[2] ar-invl.sman[3] ar-invl.s-pct[3] 
-          ar-invl.s-comm[3] ar-invl.bol-no ar-invl.ord-no ar-invl.po-no 
-          ar-invl.ship-qty 
+          ar-invl.cons-uom ar-invl.ship-qty ar-invl.sf-sht ar-invl.unit-pr 
+          ar-invl.pr-qty-uom ar-invl.disc ar-invl.amt ar-invl.amt-msf 
+          ar-invl.cost ar-invl.dscr[1] ar-invl.sman[1] ar-invl.s-pct[1] 
+          ar-invl.s-comm[1] ar-invl.sman[2] ar-invl.s-pct[2] ar-invl.s-comm[2] 
+          ar-invl.sman[3] ar-invl.s-pct[3] ar-invl.s-comm[3] ar-invl.bol-no 
+          ar-invl.ord-no ar-invl.po-no 
       WITH FRAME Dialog-Frame.
   ENABLE ar-invl.line ar-invl.actnum ar-invl.i-no ar-invl.part-no 
          ar-invl.i-name ar-invl.i-dscr ar-invl.lot-no ar-invl.inv-qty 
-         ar-invl.cons-uom ar-invl.sf-sht ar-invl.unit-pr ar-invl.pr-qty-uom 
-         ar-invl.disc ar-invl.amt ar-invl.amt-msf ar-invl.cost ar-invl.dscr[1] 
-         ar-invl.sman[1] ar-invl.s-pct[1] ar-invl.s-comm[1] ar-invl.sman[2] 
-         ar-invl.s-pct[2] ar-invl.s-comm[2] ar-invl.sman[3] ar-invl.s-pct[3] 
-         ar-invl.s-comm[3] ar-invl.bol-no ar-invl.ord-no ar-invl.po-no 
-         fi_acc-desc Btn_OK Btn_Done Btn_Cancel ar-invl.ship-qty RECT-21 
-         RECT-38 
+         ar-invl.cons-uom ar-invl.ship-qty ar-invl.sf-sht ar-invl.unit-pr 
+         ar-invl.pr-qty-uom ar-invl.disc ar-invl.amt ar-invl.amt-msf 
+         ar-invl.cost ar-invl.dscr[1] ar-invl.sman[1] ar-invl.s-pct[1] 
+         ar-invl.s-comm[1] ar-invl.sman[2] ar-invl.s-pct[2] ar-invl.s-comm[2] 
+         ar-invl.sman[3] ar-invl.s-pct[3] ar-invl.s-comm[3] ar-invl.bol-no 
+         ar-invl.ord-no ar-invl.po-no fi_acc-desc Btn_OK Btn_Done Btn_Cancel 
+         RECT-21 RECT-38 
       WITH FRAME Dialog-Frame.
   VIEW FRAME Dialog-Frame.
   {&OPEN-BROWSERS-IN-QUERY-Dialog-Frame}
