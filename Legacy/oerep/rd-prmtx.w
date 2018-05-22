@@ -676,7 +676,7 @@ DO WITH FRAME {&FRAME-NAME}:
 v-excelheader = "Eff. Date,Customer,Type,Category,Item Code,Price Basis,Qty1,Price1,Dsc1,UOM1,Qty2,Price2,Dsc2,UOM2,"+
                 "Qty3,Price3,Dsc3,UOM3,Qty4,Price4,Dsc4,UOM4,Qty5,Price5,Dsc5,UOM5,Qty6,Price6,Dsc6,UOM6," + 
                 "Qty7,Price7,Dsc7,UOM7,Qty8,Price8,Dsc8,UOM8,Qty9,Price9,Dsc9,UOM9,Qty10,Price10,Dsc10,UOM10," +
-                "Customer Part #,Item Name,Item Description 1,Exp Date,ShipTo".
+                "Exp Date,ShipTo,Customer Part #,Item Name,Item Description 1".
 
 SESSION:SET-WAIT-STATE ("general").
 
@@ -768,11 +768,11 @@ IF tb_excel THEN
             v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(b-oe-prmtx.price[10]   ))
             v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(b-oe-prmtx.discount[10]))
             v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(b-oe-prmtx.uom[10]     )) 
+            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(IF b-oe-prmtx.exp-date NE ? THEN  STRING(b-oe-prmtx.exp-date,"99/99/9999") ELSE "")
+            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(b-oe-prmtx.custShipID))
             v-excel-detail-lines = v-excel-detail-lines + appendXLLine(cCustPart) 
             v-excel-detail-lines = v-excel-detail-lines + appendXLLine(cIName) 
             v-excel-detail-lines = v-excel-detail-lines + appendXLLine(cIDesc1) 
-            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(IF b-oe-prmtx.exp-date NE ? THEN  STRING(b-oe-prmtx.exp-date,"99/99/9999") ELSE "")
-            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(b-oe-prmtx.custShipID))
             .
 
        PUT STREAM excel UNFORMATTED v-excel-detail-lines SKIP.
