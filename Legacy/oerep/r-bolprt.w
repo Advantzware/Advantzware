@@ -984,7 +984,7 @@ DO:
                          RUN SetBolForm(sys-ctrl-shipto.char-fld).
                          v-print-fmt = sys-ctrl-shipto.char-fld.
                          d-print-fmt-dec = sys-ctrl-shipto.dec-fld.
-
+                            
                       END.
                       ELSE
                       DO:
@@ -3722,7 +3722,6 @@ PROCEDURE run-packing-list :
   v-term-id = v-term.
 
   run build-work ('').
-
   IF IS-xprint-form THEN DO:
 
       CASE rd-dest:
