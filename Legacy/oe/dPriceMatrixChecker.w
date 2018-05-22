@@ -343,7 +343,7 @@ IF AVAILABLE oe-ord THEN DO:
                 ttPriceResults.cPriceUOM = oe-ordl.pr-uom
                 ttPriceResults.cPriceOldUOM = oe-ordl.pr-uom
                 .
-        RUN GetLinePrice IN hdPriceProcs (ttPriceResults.riLine,ttPriceResults.cFGItemID, ttPriceResults.cCustID, ttPriceResults.cShipID, ttPriceResults.dQuantity,
+        RUN CalculateLinePrice IN hdPriceProcs (ttPriceResults.riLine,ttPriceResults.cFGItemID, ttPriceResults.cCustID, ttPriceResults.cShipID, ttPriceResults.dQuantity, NO,
                             OUTPUT ttPriceResults.lMatrixMatch, INPUT-OUTPUT ttPriceResults.dPrice, INPUT-OUTPUT ttPriceResults.cPriceUOM).
         
     END.

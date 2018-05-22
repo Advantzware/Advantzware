@@ -159,7 +159,11 @@ PROCEDURE pAddFarm:
         
     IF ipbf-ttImportEstimate.VendorID NE "" THEN 
     DO:
-        IF NOT CAN-FIND(FIRST e-itemfg WHERE e-itemfg.company EQ ipbf-ttImportEstimate.Company AND e-itemfg.i-no EQ ipcFGItemID) THEN 
+        FIND FIRST e-itemfg EXCLUSIVE-LOCK 
+            WHERE e-itemfg.company EQ ipbf-ttImportEstimate.Company 
+            AND e-itemfg.i-no EQ ipcFGItemID
+            NO-ERROR.
+        IF NOT AVAILABLE e-itemfg THEN 
         DO:
             CREATE e-itemfg.
             ASSIGN 
@@ -168,7 +172,18 @@ PROCEDURE pAddFarm:
                 e-itemfg.std-uom = IF ipbf-ttImportEstimate.VendorCostUOM EQ "" THEN "EA" ELSE ipbf-ttImportEstimate.VendorCostUOM 
                 .
         END.
-        IF NOT CAN-FIND(FIRST e-itemfg-vend WHERE e-itemfg-vend.company EQ ipbf-ttImportEstimate.Company AND e-itemfg-vend.i-no EQ ipcFGItemID AND e-itemfg-vend.vend-no EQ "") THEN 
+        
+        /*find blank Vend on IF1*/
+        FIND FIRST e-itemfg-vend NO-LOCK  
+            WHERE e-itemfg-vend.company EQ ipbf-ttImportEstimate.Company 
+            AND e-itemfg-vend.i-no EQ ipcFGItemID
+            AND e-itemfg-vend.est-no EQ ""
+            AND e-itemfg-vend.form-no EQ ipbf-eb.form-no
+            AND e-itemfg-vend.blank-no EQ ipbf-eb.blank-no
+            AND e-itemfg-vend.eqty EQ  ipbf-eb.eqty 
+            AND e-itemfg-vend.vend-no EQ ""
+            NO-ERROR.
+        IF NOT AVAILABLE e-itemfg-vend THEN 
         DO:
             CREATE e-itemfg-vend.
             ASSIGN 
@@ -177,42 +192,112 @@ PROCEDURE pAddFarm:
                 e-itemfg-vend.run-qty[1]  = dQty1
                 e-itemfg-vend.run-qty[2]  = dQty2
                 e-itemfg-vend.run-cost[1] = dPrice1
-                e-itemfg-vend.run-cost[2] = dPrice2        
+                e-itemfg-vend.run-cost[2] = dPrice2     
+                e-itemfg-vend.est-no      = ""  
                 e-itemfg-vend.form-no     = ipbf-eb.form-no
                 e-itemfg-vend.blank-no    = ipbf-eb.blank-no
                 e-itemfg-vend.eqty        = ipbf-eb.eqty
+                e-itemfg-vend.std-uom     = ipbf-ttImportEstimate.VendorCostUOM
+                e-itemfg-vend.vend-item   = ipbf-ttImportEstimate.VendorItemID
+                e-itemfg-vend.vend-no     = ""
+                e-itemfg-vend.item-type   = NO
                 .
         END.
-        CREATE e-itemfg-vend.
-        ASSIGN 
-            e-itemfg-vend.company     = ipbf-ttImportEstimate.Company
-            e-itemfg-vend.i-no        = ipcFGItemID
-            e-itemfg-vend.vend-no     = ipbf-ttImportEstimate.VendorID
-            e-itemfg-vend.vend-item   = ipbf-ttImportEstimate.VendorItemID
-            e-itemfg-vend.run-qty[1]  = dQty1
-            e-itemfg-vend.run-qty[2]  = dQty2
-            e-itemfg-vend.run-cost[1] = dPrice1
-            e-itemfg-vend.run-cost[2] = dPrice2        
-            e-itemfg-vend.form-no     = ipbf-eb.form-no
-            e-itemfg-vend.blank-no    = ipbf-eb.blank-no
-            e-itemfg-vend.eqty        = ipbf-eb.eqty
-            .
-        CREATE e-itemfg-vend.
-        ASSIGN 
-            e-itemfg-vend.company     = ipbf-ttImportEstimate.Company
-            e-itemfg-vend.i-no        = ipcFGItemID
-            e-itemfg-vend.vend-no     = ipbf-ttImportEstimate.VendorID
-            e-itemfg-vend.vend-item   = ipbf-ttImportEstimate.VendorItemID
-            e-itemfg-vend.run-qty[1]  = dQty1
-            e-itemfg-vend.run-qty[2]  = dQty2
-            e-itemfg-vend.run-cost[1] = dPrice1
-            e-itemfg-vend.run-cost[2] = dPrice2        
-            e-itemfg-vend.est-no      = ipbf-eb.est-no
-            e-itemfg-vend.form-no     = ipbf-eb.form-no
-            e-itemfg-vend.blank-no    = ipbf-eb.blank-no
-            e-itemfg-vend.eqty        = ipbf-eb.eqty
-            .
-    END.    
+        RELEASE e-itemfg-vend.
+        
+        /*find blank Vend on est*/
+        FIND FIRST e-itemfg-vend NO-LOCK  
+            WHERE e-itemfg-vend.company EQ ipbf-ttImportEstimate.Company 
+            AND e-itemfg-vend.i-no EQ ipcFGItemID
+            AND e-itemfg-vend.est-no EQ ipbf-eb.est-no
+            AND e-itemfg-vend.form-no EQ ipbf-eb.form-no
+            AND e-itemfg-vend.blank-no EQ ipbf-eb.blank-no
+            AND e-itemfg-vend.eqty EQ  ipbf-eb.eqty 
+            AND e-itemfg-vend.vend-no EQ ""
+            NO-ERROR.
+        IF NOT AVAILABLE e-itemfg-vend THEN 
+        DO:
+            CREATE e-itemfg-vend.
+            ASSIGN 
+                e-itemfg-vend.company     = ipbf-ttImportEstimate.Company
+                e-itemfg-vend.i-no        = ipcFGItemID
+                e-itemfg-vend.run-qty[1]  = dQty1
+                e-itemfg-vend.run-qty[2]  = dQty2
+                e-itemfg-vend.run-cost[1] = dPrice1
+                e-itemfg-vend.run-cost[2] = dPrice2     
+                e-itemfg-vend.est-no      = ipbf-eb.est-no   
+                e-itemfg-vend.form-no     = ipbf-eb.form-no
+                e-itemfg-vend.blank-no    = ipbf-eb.blank-no
+                e-itemfg-vend.eqty        = ipbf-eb.eqty
+                e-itemfg-vend.std-uom     = ipbf-ttImportEstimate.VendorCostUOM
+                e-itemfg-vend.vend-item   = ipbf-ttImportEstimate.VendorItemID
+                e-itemfg-vend.vend-no     = ""
+                e-itemfg-vend.item-type   = NO
+                .
+        END.
+        RELEASE e-itemfg-vend.
+        /*find imported Vend on est*/
+        FIND FIRST e-itemfg-vend NO-LOCK  
+            WHERE e-itemfg-vend.company EQ ipbf-ttImportEstimate.Company 
+            AND e-itemfg-vend.i-no EQ ipcFGItemID
+            AND e-itemfg-vend.est-no EQ ipbf-eb.est-no
+            AND e-itemfg-vend.form-no EQ ipbf-eb.form-no
+            AND e-itemfg-vend.blank-no EQ ipbf-eb.blank-no
+            AND e-itemfg-vend.vend-no EQ ipbf-ttImportEstimate.VendorID
+            NO-ERROR.
+        IF NOT AVAILABLE e-itemfg-vend THEN 
+        DO:
+            CREATE e-itemfg-vend.
+            ASSIGN 
+                e-itemfg-vend.company     = ipbf-ttImportEstimate.Company
+                e-itemfg-vend.i-no        = ipcFGItemID
+                e-itemfg-vend.run-qty[1]  = dQty1
+                e-itemfg-vend.run-qty[2]  = dQty2
+                e-itemfg-vend.run-cost[1] = dPrice1
+                e-itemfg-vend.run-cost[2] = dPrice2     
+                e-itemfg-vend.est-no      = ipbf-eb.est-no   
+                e-itemfg-vend.form-no     = ipbf-eb.form-no
+                e-itemfg-vend.blank-no    = ipbf-eb.blank-no
+                e-itemfg-vend.eqty        = ipbf-eb.eqty
+                e-itemfg-vend.std-uom     = ipbf-ttImportEstimate.VendorCostUOM
+                e-itemfg-vend.vend-item   = ipbf-ttImportEstimate.VendorItemID
+                e-itemfg-vend.vend-no     = ipbf-ttImportEstimate.VendorID
+                e-itemfg-vend.item-type   = NO
+                .
+        END.
+        RELEASE e-itemfg-vend.
+        
+        /*find imported Vend on IF1*/
+        FIND FIRST e-itemfg-vend NO-LOCK  
+            WHERE e-itemfg-vend.company EQ ipbf-ttImportEstimate.Company 
+            AND e-itemfg-vend.i-no EQ ipcFGItemID
+            AND e-itemfg-vend.est-no EQ ""
+            AND e-itemfg-vend.form-no EQ ipbf-eb.form-no
+            AND e-itemfg-vend.blank-no EQ ipbf-eb.blank-no
+            AND e-itemfg-vend.vend-no EQ ipbf-ttImportEstimate.VendorID
+            NO-ERROR.
+        IF NOT AVAILABLE e-itemfg-vend THEN 
+        DO:
+            CREATE e-itemfg-vend.
+            ASSIGN 
+                e-itemfg-vend.company     = ipbf-ttImportEstimate.Company
+                e-itemfg-vend.i-no        = ipcFGItemID
+                e-itemfg-vend.run-qty[1]  = dQty1
+                e-itemfg-vend.run-qty[2]  = dQty2
+                e-itemfg-vend.run-cost[1] = dPrice1
+                e-itemfg-vend.run-cost[2] = dPrice2     
+                e-itemfg-vend.est-no      = ""  
+                e-itemfg-vend.form-no     = ipbf-eb.form-no
+                e-itemfg-vend.blank-no    = ipbf-eb.blank-no
+                e-itemfg-vend.eqty        = ipbf-eb.eqty
+                e-itemfg-vend.std-uom     = ipbf-ttImportEstimate.VendorCostUOM
+                e-itemfg-vend.vend-item   = ipbf-ttImportEstimate.VendorItemID
+                e-itemfg-vend.vend-no     = ipbf-ttImportEstimate.VendorID
+                e-itemfg-vend.item-type   = NO
+                .
+        END.
+        RELEASE e-itemfg-vend.
+    END. /*ipbf-ttImportEstimate.VendorID ne ""*/
 
 END PROCEDURE.
 

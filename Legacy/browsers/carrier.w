@@ -119,11 +119,11 @@ DEFINE VARIABLE browse-order AS INTEGER
      VIEW-AS RADIO-SET HORIZONTAL
      RADIO-BUTTONS 
           "N/A", 1
-     SIZE 35 BY 1 NO-UNDO.
+     SIZE 50 BY 1 NO-UNDO.
 
 DEFINE RECTANGLE RECT-4
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 79 BY 1.43.
+     SIZE 88 BY 1.43.
 
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
@@ -145,7 +145,7 @@ DEFINE BROWSE Browser-Table
       carrier.chg-method FORMAT "!":U LABEL-BGCOLOR 14
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ASSIGN SEPARATORS SIZE 79 BY 18.1
+    WITH NO-ASSIGN SEPARATORS SIZE 88 BY 18.1
          FONT 2.
 
 
@@ -157,9 +157,9 @@ DEFINE FRAME F-Main
      browse-order AT ROW 19.33 COL 6 HELP
           "Select Browser Sort Order" NO-LABEL
      fi_sortby AT ROW 19.33 COL 8 COLON-ALIGNED NO-LABEL WIDGET-ID 2
-     auto_find AT ROW 19.33 COL 50 COLON-ALIGNED HELP
+     auto_find AT ROW 19.33 COL 59 COLON-ALIGNED HELP
           "Enter Auto Find Value"
-     Btn_Clear_Find AT ROW 19.33 COL 66 HELP
+     Btn_Clear_Find AT ROW 19.33 COL 75 HELP
           "CLEAR AUTO FIND Value"
      "By:" VIEW-AS TEXT
           SIZE 4 BY 1 AT ROW 19.33 COL 2

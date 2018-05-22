@@ -1,7 +1,7 @@
 &ANALYZE-SUSPEND _VERSION-NUMBER UIB_v8r12 GUI
 &ANALYZE-RESUME
 /* Connected Databases 
-          asitest167       PROGRESS
+          asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 &Scoped-define FRAME-NAME Dialog-Frame
@@ -65,7 +65,7 @@ ar-invl.pr-qty-uom ar-invl.disc ar-invl.amt ar-invl.amt-msf ar-invl.cost ~
 ar-invl.dscr[1] ar-invl.sman[1] ar-invl.s-pct[1] ar-invl.s-comm[1] ~
 ar-invl.sman[2] ar-invl.s-pct[2] ar-invl.s-comm[2] ar-invl.sman[3] ~
 ar-invl.s-pct[3] ar-invl.s-comm[3] ar-invl.bol-no ar-invl.ord-no ~
-ar-invl.po-no 
+ar-invl.po-no ar-invl.ship-qty 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Dialog-Frame ar-invl.line ~
 ar-invl.actnum ar-invl.i-no ar-invl.part-no ar-invl.i-name ar-invl.i-dscr ~
 ar-invl.lot-no ar-invl.inv-qty ar-invl.cons-uom ar-invl.sf-sht ~
@@ -73,13 +73,13 @@ ar-invl.unit-pr ar-invl.pr-qty-uom ar-invl.disc ar-invl.amt ar-invl.amt-msf ~
 ar-invl.cost ar-invl.dscr[1] ar-invl.sman[1] ar-invl.s-pct[1] ~
 ar-invl.s-comm[1] ar-invl.sman[2] ar-invl.s-pct[2] ar-invl.s-comm[2] ~
 ar-invl.sman[3] ar-invl.s-pct[3] ar-invl.s-comm[3] ar-invl.bol-no ~
-ar-invl.ord-no ar-invl.po-no 
+ar-invl.ord-no ar-invl.po-no ar-invl.ship-qty 
 &Scoped-define ENABLED-TABLES-IN-QUERY-Dialog-Frame ar-invl
 &Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-Dialog-Frame ar-invl
 &Scoped-define QUERY-STRING-Dialog-Frame FOR EACH ar-invl ~
-      WHERE ASI.ar-invl.company eq cocode  SHARE-LOCK
+      WHERE ar-invl.company eq cocode  SHARE-LOCK
 &Scoped-define OPEN-QUERY-Dialog-Frame OPEN QUERY Dialog-Frame FOR EACH ar-invl ~
-      WHERE ASI.ar-invl.company eq cocode  SHARE-LOCK.
+      WHERE ar-invl.company eq cocode  SHARE-LOCK.
 &Scoped-define TABLES-IN-QUERY-Dialog-Frame ar-invl ar-inv
 &Scoped-define FIRST-TABLE-IN-QUERY-Dialog-Frame ar-invl
 &Scoped-define SECOND-TABLE-IN-QUERY-Dialog-Frame ar-inv
@@ -93,7 +93,7 @@ ar-invl.pr-qty-uom ar-invl.disc ar-invl.amt ar-invl.amt-msf ar-invl.cost ~
 ar-invl.dscr[1] ar-invl.sman[1] ar-invl.s-pct[1] ar-invl.s-comm[1] ~
 ar-invl.sman[2] ar-invl.s-pct[2] ar-invl.s-comm[2] ar-invl.sman[3] ~
 ar-invl.s-pct[3] ar-invl.s-comm[3] ar-invl.bol-no ar-invl.ord-no ~
-ar-invl.po-no 
+ar-invl.po-no ar-invl.ship-qty 
 &Scoped-define ENABLED-TABLES ar-invl
 &Scoped-define FIRST-ENABLED-TABLE ar-invl
 &Scoped-Define ENABLED-OBJECTS fi_acc-desc Btn_OK Btn_Done Btn_Cancel ~
@@ -105,7 +105,7 @@ ar-invl.pr-qty-uom ar-invl.disc ar-invl.amt ar-invl.amt-msf ar-invl.cost ~
 ar-invl.dscr[1] ar-invl.sman[1] ar-invl.s-pct[1] ar-invl.s-comm[1] ~
 ar-invl.sman[2] ar-invl.s-pct[2] ar-invl.s-comm[2] ar-invl.sman[3] ~
 ar-invl.s-pct[3] ar-invl.s-comm[3] ar-invl.bol-no ar-invl.ord-no ~
-ar-invl.po-no 
+ar-invl.po-no ar-invl.ship-qty 
 &Scoped-define DISPLAYED-TABLES ar-invl
 &Scoped-define FIRST-DISPLAYED-TABLE ar-invl
 &Scoped-Define DISPLAYED-OBJECTS fi_acc-desc 
@@ -116,9 +116,10 @@ ar-invl.po-no
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
 
+
 /* ************************  Function Prototypes ********************** */
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD get-itemfg-cost d-oeitem 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD get-itemfg-cost Dialog-Frame 
 FUNCTION get-itemfg-cost RETURNS DECIMAL
   ( ipv-item AS CHAR /* parameter-definitions */ )  FORWARD.
 
@@ -153,7 +154,7 @@ DEFINE VARIABLE fi_acc-desc AS CHARACTER FORMAT "X(15)":U
 
 DEFINE RECTANGLE RECT-21
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 137.5 BY 3.38.
+     SIZE 137.6 BY 3.38.
 
 DEFINE RECTANGLE RECT-38
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
@@ -206,34 +207,34 @@ DEFINE FRAME Dialog-Frame
           LABEL "Cons UOM"
           VIEW-AS FILL-IN 
           SIZE 7 BY 1
-     ar-invl.sf-sht AT ROW 2.95 COL 85 COLON-ALIGNED FORMAT "->>,>>9.99<<"
+     ar-invl.sf-sht AT ROW 3.86 COL 85 COLON-ALIGNED FORMAT "->>,>>9.99<<"
           VIEW-AS FILL-IN 
           SIZE 18.6 BY 1
-     ar-invl.unit-pr AT ROW 3.95 COL 85 COLON-ALIGNED
+     ar-invl.unit-pr AT ROW 4.86 COL 85 COLON-ALIGNED
           LABEL "Price"
           VIEW-AS FILL-IN 
           SIZE 25.6 BY 1
-     ar-invl.pr-qty-uom AT ROW 3.86 COL 120.2 COLON-ALIGNED
+     ar-invl.pr-qty-uom AT ROW 4.76 COL 120.2 COLON-ALIGNED
           LABEL "UOM" FORMAT "x(4)"
           VIEW-AS FILL-IN 
           SIZE 7 BY 1
-     ar-invl.disc AT ROW 4.95 COL 85 COLON-ALIGNED
+     ar-invl.disc AT ROW 5.86 COL 85 COLON-ALIGNED
           LABEL "Dsct%"
           VIEW-AS FILL-IN 
           SIZE 18.6 BY 1
-     ar-invl.amt AT ROW 5.95 COL 85 COLON-ALIGNED
+     ar-invl.amt AT ROW 6.86 COL 85 COLON-ALIGNED
           LABEL "Amount"
           VIEW-AS FILL-IN 
           SIZE 25.6 BY 1
-     ar-invl.amt-msf AT ROW 6.95 COL 85 COLON-ALIGNED
+     ar-invl.amt-msf AT ROW 7.86 COL 85 COLON-ALIGNED
           LABEL "Amt MSF#"
           VIEW-AS FILL-IN 
           SIZE 18.6 BY 1
-     ar-invl.cost AT ROW 7.95 COL 85 COLON-ALIGNED
+     ar-invl.cost AT ROW 8.86 COL 85 COLON-ALIGNED
           LABEL "Cost" FORMAT "->>>,>>>,>>9.99<<<<"
           VIEW-AS FILL-IN 
           SIZE 25.6 BY 1
-     ar-invl.dscr[1] AT ROW 7.91 COL 125 COLON-ALIGNED
+     ar-invl.dscr[1] AT ROW 8.81 COL 125 COLON-ALIGNED
           LABEL "Cost UOM" FORMAT "x(4)"
           VIEW-AS FILL-IN 
           SIZE 7 BY 1
@@ -270,15 +271,15 @@ DEFINE FRAME Dialog-Frame
      ar-invl.s-comm[3] AT ROW 13.48 COL 51.6 COLON-ALIGNED NO-LABEL FORMAT ">>9.99"
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
-     ar-invl.bol-no AT ROW 9.71 COL 86.2 COLON-ALIGNED
+     ar-invl.bol-no AT ROW 10.62 COL 86.2 COLON-ALIGNED
           LABEL "BOL #" FORMAT ">>>>>>>9"
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
-     ar-invl.ord-no AT ROW 11.05 COL 86.2 COLON-ALIGNED
+     ar-invl.ord-no AT ROW 11.95 COL 86.2 COLON-ALIGNED
           LABEL "Order #" FORMAT ">>>>>9"
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
-     ar-invl.po-no AT ROW 12.38 COL 86.2 COLON-ALIGNED
+     ar-invl.po-no AT ROW 13.29 COL 86.2 COLON-ALIGNED
           LABEL "PO #" FORMAT "x(15)"
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
@@ -286,6 +287,10 @@ DEFINE FRAME Dialog-Frame
      Btn_OK AT ROW 17.05 COL 37
      Btn_Done AT ROW 17 COL 57
      Btn_Cancel AT ROW 17 COL 77.2
+     ar-invl.ship-qty AT ROW 2.91 COL 85 COLON-ALIGNED WIDGET-ID 8
+          LABEL "Ship Quantity"
+          VIEW-AS FILL-IN 
+          SIZE 18.8 BY 1
      "Sales Rep" VIEW-AS TEXT
           SIZE 12 BY .62 AT ROW 10.76 COL 11.6 WIDGET-ID 2
      "% of Sales" VIEW-AS TEXT
@@ -380,6 +385,8 @@ ASSIGN
    EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN ar-invl.sf-sht IN FRAME Dialog-Frame
    EXP-FORMAT                                                           */
+/* SETTINGS FOR FILL-IN ar-invl.ship-qty IN FRAME Dialog-Frame
+   EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN ar-invl.sman[1] IN FRAME Dialog-Frame
    EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN ar-invl.sman[2] IN FRAME Dialog-Frame
@@ -396,7 +403,7 @@ ASSIGN
 
 &ANALYZE-SUSPEND _QUERY-BLOCK DIALOG-BOX Dialog-Frame
 /* Query rebuild information for DIALOG-BOX Dialog-Frame
-     _TblList          = "asitest167.ar-invl,asitest167.ar-inv "
+     _TblList          = "asi.ar-invl,asi.ar-inv "
      _Options          = "SHARE-LOCK"
      _Where[1]         = "ASI.ar-invl.company eq cocode "
      _Where[2]         = "ASI.ar-invl.company eq ar-inv.company and ASI.ar-invl.inv-no eq ar-inv.inv-no
@@ -413,7 +420,7 @@ ASSIGN
 
 &Scoped-define SELF-NAME Dialog-Frame
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Dialog-Frame Dialog-Frame
-ON HELP OF FRAME Dialog-Frame /* Order Release Item Update */
+ON HELP OF FRAME Dialog-Frame /* Customer Invoice Item Update */
 DO:
     DEFINE VARIABLE char-val  AS CHARACTER     NO-UNDO.
     DEFINE VARIABLE hlp-recid AS RECID         NO-UNDO.
@@ -477,7 +484,7 @@ END.
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Dialog-Frame Dialog-Frame
-ON RETURN OF FRAME Dialog-Frame /* Order Release Item Update */
+ON RETURN OF FRAME Dialog-Frame /* Customer Invoice Item Update */
 ANYWHERE
 DO:
     APPLY "tab" TO SELF.
@@ -489,9 +496,77 @@ END.
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Dialog-Frame Dialog-Frame
-ON WINDOW-CLOSE OF FRAME Dialog-Frame /* Order Release Item Update */
+ON WINDOW-CLOSE OF FRAME Dialog-Frame /* Customer Invoice Item Update */
 DO:
   APPLY "END-ERROR":U TO SELF.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME ar-invl.actnum
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ar-invl.actnum Dialog-Frame
+ON LEAVE OF ar-invl.actnum IN FRAME Dialog-Frame /* Account Number */
+DO:
+    IF LASTKEY = -1 THEN RETURN.
+
+    IF ar-invl.actnum:SCREEN-VALUE GT ""  THEN DO:
+       FIND FIRST account WHERE account.company = g_company AND
+                                account.TYPE <> "T" AND
+                                account.actnum = ar-invl.actnum:SCREEN-VALUE
+                                NO-LOCK NO-ERROR.
+       IF NOT AVAIL account THEN DO:
+          MESSAGE "Invalid GL Account Number." VIEW-AS ALERT-BOX ERROR.
+          RETURN NO-APPLY.
+       END.
+       fi_acc-desc:SCREEN-VALUE  = account.dscr.
+    END.
+
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME ar-invl.bol-no
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ar-invl.bol-no Dialog-Frame
+ON LEAVE OF ar-invl.bol-no IN FRAME Dialog-Frame /* BOL # */
+DO:
+    IF LASTKEY = -1 THEN RETURN.
+
+    IF ar-invl.bol-no:MODIFIED  
+     AND ar-invl.bol-no:SCREEN-VALUE GT "" THEN DO:
+       FIND FIRST oe-bolh WHERE oe-bolh.company = g_company AND                                
+                                oe-bolh.bol-no = INTEGER(ar-invl.bol-no:SCREEN-VALUE)
+                                NO-LOCK NO-ERROR.
+       IF NOT AVAIL oe-bolh THEN DO:
+          MESSAGE "Invalid BOL Number." VIEW-AS ALERT-BOX ERROR.
+          RETURN.
+       END.
+       ELSE DO:
+        find FIRST oe-boll no-lock 
+         WHERE oe-boll.company EQ oe-bolh.company
+          AND oe-boll.bol-no EQ oe-bolh.bol-no
+          and oe-boll.i-no EQ ar-invl.i-no:screen-value
+         no-error.
+        IF avail oe-boll and INTEGER(ar-invl.ord-no:SCREEN-VALUE) EQ 0 THEN
+         assign
+         ar-invl.ord-no:screen-value = string(oe-boll.ord-no)
+         ar-invl.po-no:screen-value = string(oe-boll.po-no)
+         .
+        if avail oe-boll then
+         find first oe-ordl no-lock 
+          where oe-ordl.company eq oe-boll.company
+            and oe-ordl.ord-no eq oe-boll.ord-no
+            and oe-ordl.i-no eq oe-boll.i-no
+          no-error.
+          if avail oe-ordl then
+         ar-invl.part-no:screen-value = oe-ordl.part-no
+         .
+       END.
+    END.
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -610,25 +685,15 @@ END.
 &ANALYZE-RESUME
 
 
-
-&Scoped-define SELF-NAME ar-invl.actnum
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ar-invl.actnum Dialog-Frame
-ON LEAVE OF ar-invl.actnum IN FRAME Dialog-Frame /* Account Number */
+&Scoped-define SELF-NAME ar-invl.dscr[1]
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ar-invl.dscr[1] Dialog-Frame
+ON LEAVE OF ar-invl.dscr[1] IN FRAME Dialog-Frame /* Cost UOM */
 DO:
-    IF LASTKEY = -1 THEN RETURN.
-
-    IF ar-invl.actnum:SCREEN-VALUE GT ""  THEN DO:
-       FIND FIRST account WHERE account.company = g_company AND
-                                account.TYPE <> "T" AND
-                                account.actnum = ar-invl.actnum:SCREEN-VALUE
-                                NO-LOCK NO-ERROR.
-       IF NOT AVAIL account THEN DO:
-          MESSAGE "Invalid GL Account Number." VIEW-AS ALERT-BOX ERROR.
-          RETURN NO-APPLY.
-       END.
-       fi_acc-desc:SCREEN-VALUE  = account.dscr.
+   IF LASTKEY = -1 THEN RETURN.
+    IF LOOKUP(ar-invl.dscr[1]:SCREEN-VALUE ,"EA,M") <= 0 THEN DO:
+       MESSAGE "Invalid Unit of Measure.  EA or M is valid." VIEW-AS ALERT-BOX ERROR.
+       RETURN NO-APPLY.
     END.
-
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -659,7 +724,7 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&Scoped-define SELF-NAME ar-invl.i-no
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ar-invl.i-no Dialog-Frame
 ON VALUE-CHANGED OF ar-invl.i-no IN FRAME Dialog-Frame /* Item No */
 DO:
@@ -692,12 +757,12 @@ DO:
 END.
 
 /* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME   
+&ANALYZE-RESUME
 
 
 &Scoped-define SELF-NAME ar-invl.inv-qty
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ar-invl.inv-qty Dialog-Frame
-ON VALUE-CHANGED OF ar-invl.inv-qty IN FRAME Dialog-Frame /* quantity */
+ON VALUE-CHANGED OF ar-invl.inv-qty IN FRAME Dialog-Frame /* Invoice Qty */
 DO:
       IF LASTKEY = -1 THEN RETURN.
        RUN pCalcAmtMsf .
@@ -707,13 +772,24 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&Scoped-define SELF-NAME ar-invl.unit-pr
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROLar-invl.unit-pr Dialog-Frame
-ON VALUE-CHANGED OF ar-invl.unit-pr IN FRAME Dialog-Frame /* price */
+
+&Scoped-define SELF-NAME ar-invl.ord-no
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ar-invl.ord-no Dialog-Frame
+ON LEAVE OF ar-invl.ord-no IN FRAME Dialog-Frame /* Order # */
 DO:
       IF LASTKEY = -1 THEN RETURN.
-       RUN pCalcAmtMsf .
-    
+
+    IF ar-invl.ord-no:MODIFIED 
+     AND ar-invl.ord-no:screen-value NE "0" THEN DO:
+       FIND FIRST oe-ord WHERE oe-ord.company = g_company AND                                
+                                oe-ord.ord-no = INTEGER(ar-invl.ord-no:SCREEN-VALUE)
+                                NO-LOCK NO-ERROR.
+       IF NOT AVAIL oe-ord THEN DO:
+          MESSAGE "Invalid Order Number." VIEW-AS ALERT-BOX ERROR.
+          RETURN.
+       END.
+       
+    END.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -735,24 +811,9 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME ar-invl.dscr[1]
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ar-invl.dscr[1] Dialog-Frame
-ON LEAVE OF ar-invl.dscr[1] IN FRAME Dialog-Frame /* Cost!UOM */
-DO:
-   IF LASTKEY = -1 THEN RETURN.
-    IF LOOKUP(ar-invl.dscr[1]:SCREEN-VALUE ,"EA,M") <= 0 THEN DO:
-       MESSAGE "Invalid Unit of Measure.  EA or M is valid." VIEW-AS ALERT-BOX ERROR.
-       RETURN NO-APPLY.
-    END.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
 &Scoped-define SELF-NAME ar-invl.sman[1]
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ar-invl.sman[1] Dialog-Frame
-ON HELP OF ar-invl.sman[1] IN FRAME Dialog-Frame /* SlsRep */
+ON HELP OF ar-invl.sman[1] IN FRAME Dialog-Frame /* Salesman Code[1] */
 DO:
    DEF VAR char-val AS CHAR NO-UNDO.
 
@@ -766,7 +827,7 @@ END.
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ar-invl.sman[1] Dialog-Frame
-ON LEAVE OF ar-invl.sman[1] IN FRAME Dialog-Frame /* SlsRep */
+ON LEAVE OF ar-invl.sman[1] IN FRAME Dialog-Frame /* Salesman Code[1] */
 DO:
    IF LASTKEY = -1 THEN RETURN.
 
@@ -789,7 +850,7 @@ END.
 
 &Scoped-define SELF-NAME ar-invl.sman[2]
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ar-invl.sman[2] Dialog-Frame
-ON HELP OF ar-invl.sman[2] IN FRAME Dialog-Frame /* SlsRep */
+ON HELP OF ar-invl.sman[2] IN FRAME Dialog-Frame /* Salesman Code[2] */
 DO:
    DEF VAR char-val AS CHAR NO-UNDO.
 
@@ -803,7 +864,7 @@ END.
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ar-invl.sman[2] Dialog-Frame
-ON LEAVE OF ar-invl.sman[2] IN FRAME Dialog-Frame /* SlsRep */
+ON LEAVE OF ar-invl.sman[2] IN FRAME Dialog-Frame /* Salesman Code[2] */
 DO:
    IF LASTKEY = -1 THEN RETURN.
 
@@ -826,7 +887,7 @@ END.
 
 &Scoped-define SELF-NAME ar-invl.sman[3]
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ar-invl.sman[3] Dialog-Frame
-ON HELP OF ar-invl.sman[3] IN FRAME Dialog-Frame /* SlsRep */
+ON HELP OF ar-invl.sman[3] IN FRAME Dialog-Frame /* Salesman Code[3] */
 DO:
    DEF VAR char-val AS CHAR NO-UNDO.
 
@@ -840,7 +901,7 @@ END.
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ar-invl.sman[3] Dialog-Frame
-ON LEAVE OF ar-invl.sman[3] IN FRAME Dialog-Frame /* SlsRep */
+ON LEAVE OF ar-invl.sman[3] IN FRAME Dialog-Frame /* Salesman Code[3] */
 DO:
    IF LASTKEY = -1 THEN RETURN.
 
@@ -861,67 +922,13 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME ar-invl.bol-no
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ar-invl.bol-no Dialog-Frame
-ON LEAVE OF ar-invl.bol-no IN FRAME Dialog-Frame /* Bill Of Lading Number */
-DO:
-    IF LASTKEY = -1 THEN RETURN.
-
-    IF ar-invl.bol-no:MODIFIED  
-     AND ar-invl.bol-no:SCREEN-VALUE GT "" THEN DO:
-       FIND FIRST oe-bolh WHERE oe-bolh.company = g_company AND                                
-                                oe-bolh.bol-no = INTEGER(ar-invl.bol-no:SCREEN-VALUE)
-                                NO-LOCK NO-ERROR.
-       IF NOT AVAIL oe-bolh THEN DO:
-          MESSAGE "Invalid BOL Number." VIEW-AS ALERT-BOX ERROR.
-          RETURN.
-       END.
-       ELSE DO:
-        find FIRST oe-boll no-lock 
-         WHERE oe-boll.company EQ oe-bolh.company
-          AND oe-boll.bol-no EQ oe-bolh.bol-no
-          and oe-boll.i-no EQ ar-invl.i-no:screen-value
-         no-error.
-        IF avail oe-boll and INTEGER(ar-invl.ord-no:SCREEN-VALUE) EQ 0 THEN
-         assign
-         ar-invl.ord-no:screen-value = string(oe-boll.ord-no)
-         ar-invl.po-no:screen-value = string(oe-boll.po-no)
-         .
-        if avail oe-boll then
-         find first oe-ordl no-lock 
-          where oe-ordl.company eq oe-boll.company
-            and oe-ordl.ord-no eq oe-boll.ord-no
-            and oe-ordl.i-no eq oe-boll.i-no
-          no-error.
-          if avail oe-ordl then
-         ar-invl.part-no:screen-value = oe-ordl.part-no
-         .
-       END.
-    END.
-
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME ar-invl.ord-no
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ar-invl.ord-no Dialog-Frame
-ON LEAVE OF ar-invl.ord-no IN FRAME Dialog-Frame /* Order# */
+&Scoped-define SELF-NAME ar-invl.unit-pr
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ar-invl.unit-pr Dialog-Frame
+ON VALUE-CHANGED OF ar-invl.unit-pr IN FRAME Dialog-Frame /* Price */
 DO:
       IF LASTKEY = -1 THEN RETURN.
-
-    IF ar-invl.ord-no:MODIFIED 
-     AND ar-invl.ord-no:screen-value NE "0" THEN DO:
-       FIND FIRST oe-ord WHERE oe-ord.company = g_company AND                                
-                                oe-ord.ord-no = INTEGER(ar-invl.ord-no:SCREEN-VALUE)
-                                NO-LOCK NO-ERROR.
-       IF NOT AVAIL oe-ord THEN DO:
-          MESSAGE "Invalid Order Number." VIEW-AS ALERT-BOX ERROR.
-          RETURN.
-       END.
-       
-    END.
+       RUN pCalcAmtMsf .
+    
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -998,66 +1005,6 @@ RUN disable_UI.
 
 
 /* **********************  Internal Procedures  *********************** */
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE update-ar-invl Dialog-Frame 
-PROCEDURE update-ar-invl :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  DEFINE INPUT PARAMETER ipAmount AS DECIMAL NO-UNDO .
-  DEF VAR out-qty LIKE ar-invl.qty NO-UNDO.
-  DEF BUFFER bf-inv FOR ar-inv.
-
-  /* Code placed here will execute PRIOR to standard behavior. */
-  FIND bf-inv WHERE RECID(bf-inv) = RECID(ar-inv) .
-  
-  IF  ip-type EQ "update"  THEN do:  /* update */
-  
-    ASSIGN bf-inv.gross = bf-inv.gross - ipAmount
-           bf-inv.net   = bf-inv.net - ipAmount .
-  END.
-  
-  ar-invl.qty = ar-invl.inv-qty.
-
-  run sys/ref/convsuom.p (ar-invl.cons-uom,
-                          ar-invl.pr-qty-uom,
-                          ar-invl.sf-sht,
-                          ar-invl.qty,
-                          OUTPUT out-qty).
-
-  assign
-   ar-invl.amt     = if   (out-qty * ar-invl.unit-pr) eq 0
-                     then (ar-invl.qty * ar-invl.unit-pr)
-                     else (out-qty * ar-invl.unit-pr)
-   ar-invl.amt-msf = ((ar-invl.qty * ar-invl.sf-sht) / 1000.0)
-   bf-inv.gross    = bf-inv.gross + ar-invl.amt
-   bf-inv.net      = bf-inv.net + ar-invl.amt.
- 
-   find first cust where cust.company eq g_company
-                      and cust.cust-no eq ar-inv.cust-no no-lock no-error.
-   ar-invl.tax = if ar-inv.tax-code ne "" and cust.sort eq "Y" then YES ELSE NO.
- 
-  IF ar-invl.bol-no GT 0 
-    AND ar-invl.b-no EQ 0 THEN DO:
-    FIND FIRST oe-bolh NO-LOCK
-      WHERE oe-bolh.company EQ ar-invl.company
-        AND oe-bolh.bol-no EQ ar-invl.bol-no 
-      NO-ERROR.
-    IF AVAIL oe-bolh THEN DO:
-         
-      ar-invl.b-no = oe-bolh.b-no.
-      
-    END.
-      
-  END.
-  {ar/ar-invk.i bf-inv}
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE create-item Dialog-Frame 
 PROCEDURE create-item :
@@ -1154,7 +1101,7 @@ PROCEDURE display-item :
                ar-invl.dscr[1] ar-invl.sman[1] ar-invl.s-pct[1] ar-invl.s-comm[1]
                ar-invl.sman[2] ar-invl.s-pct[2] ar-invl.s-comm[2] ar-invl.sman[3] 
                ar-invl.s-pct[3] ar-invl.s-comm[3] ar-invl.bol-no ar-invl.ord-no
-               ar-invl.po-no  fi_acc-desc 
+               ar-invl.po-no  fi_acc-desc ar-invl.ship-qty 
             WITH FRAME Dialog-Frame.
     END.
 
@@ -1171,32 +1118,6 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE show-comm Dialog-Frame 
-PROCEDURE show-comm :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  DEF INPUT PARAM ip-visible AS LOG NO-UNDO.
-
-
-  DO WITH FRAME {&FRAME-NAME}:
-    ASSIGN
-     ar-invl.s-pct[1]:VISIBLE   = ip-visible
-     ar-invl.s-pct[2]:VISIBLE   = ip-visible
-     ar-invl.s-pct[3]:VISIBLE   = ip-visible
-     ar-invl.s-comm[1]:VISIBLE  = ip-visible
-     ar-invl.s-comm[2]:VISIBLE  = ip-visible
-     ar-invl.s-comm[3]:VISIBLE  = ip-visible.
-  END.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE enable_UI Dialog-Frame  _DEFAULT-ENABLE
 PROCEDURE enable_UI :
@@ -1219,6 +1140,7 @@ PROCEDURE enable_UI :
           ar-invl.sman[1] ar-invl.s-pct[1] ar-invl.s-comm[1] ar-invl.sman[2] 
           ar-invl.s-pct[2] ar-invl.s-comm[2] ar-invl.sman[3] ar-invl.s-pct[3] 
           ar-invl.s-comm[3] ar-invl.bol-no ar-invl.ord-no ar-invl.po-no 
+          ar-invl.ship-qty 
       WITH FRAME Dialog-Frame.
   ENABLE ar-invl.line ar-invl.actnum ar-invl.i-no ar-invl.part-no 
          ar-invl.i-name ar-invl.i-dscr ar-invl.lot-no ar-invl.inv-qty 
@@ -1227,7 +1149,8 @@ PROCEDURE enable_UI :
          ar-invl.sman[1] ar-invl.s-pct[1] ar-invl.s-comm[1] ar-invl.sman[2] 
          ar-invl.s-pct[2] ar-invl.s-comm[2] ar-invl.sman[3] ar-invl.s-pct[3] 
          ar-invl.s-comm[3] ar-invl.bol-no ar-invl.ord-no ar-invl.po-no 
-         fi_acc-desc Btn_OK Btn_Done Btn_Cancel RECT-21 RECT-38 
+         fi_acc-desc Btn_OK Btn_Done Btn_Cancel ar-invl.ship-qty RECT-21 
+         RECT-38 
       WITH FRAME Dialog-Frame.
   VIEW FRAME Dialog-Frame.
   {&OPEN-BROWSERS-IN-QUERY-Dialog-Frame}
@@ -1235,8 +1158,6 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE get-iteminfo Dialog-Frame 
 PROCEDURE get-iteminfo :
@@ -1278,7 +1199,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCalcAmtMsf Dialog-Frame 
 PROCEDURE pCalcAmtMsf :
 /*------------------------------------------------------------------------------
@@ -1310,10 +1230,94 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE show-comm Dialog-Frame 
+PROCEDURE show-comm :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEF INPUT PARAM ip-visible AS LOG NO-UNDO.
 
 
+  DO WITH FRAME {&FRAME-NAME}:
+    ASSIGN
+     ar-invl.s-pct[1]:VISIBLE   = ip-visible
+     ar-invl.s-pct[2]:VISIBLE   = ip-visible
+     ar-invl.s-pct[3]:VISIBLE   = ip-visible
+     ar-invl.s-comm[1]:VISIBLE  = ip-visible
+     ar-invl.s-comm[2]:VISIBLE  = ip-visible
+     ar-invl.s-comm[3]:VISIBLE  = ip-visible.
+  END.
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION get-itemfg-cost d-oeitem 
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE update-ar-invl Dialog-Frame 
+PROCEDURE update-ar-invl :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEFINE INPUT PARAMETER ipAmount AS DECIMAL NO-UNDO .
+  DEF VAR out-qty LIKE ar-invl.qty NO-UNDO.
+  DEF BUFFER bf-inv FOR ar-inv.
+
+  /* Code placed here will execute PRIOR to standard behavior. */
+  FIND bf-inv WHERE RECID(bf-inv) = RECID(ar-inv) .
+  
+  IF  ip-type EQ "update"  THEN do:  /* update */
+  
+    ASSIGN bf-inv.gross = bf-inv.gross - ipAmount
+           bf-inv.net   = bf-inv.net - ipAmount .
+  END.
+  
+  ar-invl.qty = ar-invl.inv-qty.
+
+  run sys/ref/convsuom.p (ar-invl.cons-uom,
+                          ar-invl.pr-qty-uom,
+                          ar-invl.sf-sht,
+                          ar-invl.qty,
+                          OUTPUT out-qty).
+
+  assign
+   ar-invl.amt     = if   (out-qty * ar-invl.unit-pr) eq 0
+                     then (ar-invl.qty * ar-invl.unit-pr)
+                     else (out-qty * ar-invl.unit-pr)
+   ar-invl.amt-msf = ((ar-invl.qty * ar-invl.sf-sht) / 1000.0)
+   bf-inv.gross    = bf-inv.gross + ar-invl.amt
+   bf-inv.net      = bf-inv.net + ar-invl.amt.
+ 
+   find first cust where cust.company eq g_company
+                      and cust.cust-no eq ar-inv.cust-no no-lock no-error.
+   ar-invl.tax = if ar-inv.tax-code ne "" and cust.sort eq "Y" then YES ELSE NO.
+ 
+  IF ar-invl.bol-no GT 0 
+    AND ar-invl.b-no EQ 0 THEN DO:
+    FIND FIRST oe-bolh NO-LOCK
+      WHERE oe-bolh.company EQ ar-invl.company
+        AND oe-bolh.bol-no EQ ar-invl.bol-no 
+      NO-ERROR.
+    IF AVAIL oe-bolh THEN DO:
+         
+      ar-invl.b-no = oe-bolh.b-no.
+      
+    END.
+      
+  END.
+  {ar/ar-invk.i bf-inv}
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+/* ************************  Function Implementations ***************** */
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION get-itemfg-cost Dialog-Frame 
 FUNCTION get-itemfg-cost RETURNS DECIMAL
   ( ipv-item AS CHAR /* parameter-definitions */ ) :
 /*------------------------------------------------------------------------------

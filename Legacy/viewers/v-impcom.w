@@ -32,6 +32,24 @@ CREATE WIDGET-POOL.
 
 /* Local Variable Definitions ---                                       */
 
+DEF VAR listname AS cha NO-UNDO.
+listname = "v-impcom." .
+    DEFINE VARIABLE lPriceImport AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lAccessClose AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE cAccessList AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE v-can-update AS LOGICAL NO-UNDO.
+/* Check if authorized to create PO's */
+RUN methods/prgsecur.p
+    (INPUT listname, /* Set in definitions */
+     INPUT "ALL", /* based on run, create, update, delete or all */
+     INPUT NO,    /* use the directory in addition to the program */
+     INPUT NO,    /* Show a message if not authorized */
+     INPUT NO,    /* Group overrides user security? */
+     OUTPUT lPriceImport, /* Allowed? Yes/NO */
+     OUTPUT lAccessClose, /* used in template/windows.i  */
+     OUTPUT cAccessList). /* list 1's and 0's indicating yes or no to run, create, update, delete */
+    v-can-update = lPriceImport.
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -203,7 +221,14 @@ END.
 
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
-  &ENDIF         
+  &ENDIF     
+      
+  IF NOT v-can-update THEN
+      ASSIGN
+      btn-excel:HIDDEN IN FRAME  {&frame-name} = YES 
+      RECT-40:HIDDEN IN FRAME  {&frame-name} = YES .
+  
+
   
   /************************ INTERNAL PROCEDURES ********************/
 
@@ -289,4 +314,3 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-

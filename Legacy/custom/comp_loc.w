@@ -114,8 +114,7 @@ usercomp.loc NE "" AND ~
     ~{&OPEN-QUERY-locations}
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS companies locations Btn_Cancel sysdate ~
-Btn_OK 
+&Scoped-Define ENABLED-OBJECTS companies Btn_Cancel locations Btn_OK 
 &Scoped-Define DISPLAYED-OBJECTS sysdate 
 
 /* Custom List Definitions                                              */
@@ -144,7 +143,8 @@ DEFINE BUTTON Btn_OK
 
 DEFINE VARIABLE sysdate AS DATE FORMAT "99/99/9999":U 
      VIEW-AS FILL-IN 
-     SIZE 16 BY 1 NO-UNDO.
+     SIZE 16 BY 1
+     BGCOLOR 15  NO-UNDO.
 
 DEFINE RECTANGLE RECT-1
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
@@ -186,10 +186,10 @@ DEFINE BROWSE locations
 DEFINE FRAME DEFAULT-FRAME
      companies AT ROW 1 COL 1 HELP
           "Select Company"
-     locations AT ROW 1 COL 46 HELP
-          "Select Department"
      Btn_Cancel AT ROW 5.29 COL 100 HELP
           "CANCEL Select Company/Department"
+     locations AT ROW 1 COL 46 HELP
+          "Select Department"
      sysdate AT ROW 2.43 COL 90 COLON-ALIGNED HELP
           "Enter System Date" NO-LABEL
      Btn_OK AT ROW 5.29 COL 92 HELP
@@ -265,6 +265,8 @@ ASSIGN
                 "ribbon-button".
 
 /* SETTINGS FOR RECTANGLE RECT-1 IN FRAME DEFAULT-FRAME
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN sysdate IN FRAME DEFAULT-FRAME
    NO-ENABLE                                                            */
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
 THEN C-Win:HIDDEN = no.
@@ -494,7 +496,7 @@ PROCEDURE enable_UI :
 ------------------------------------------------------------------------------*/
   DISPLAY sysdate 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
-  ENABLE companies locations Btn_Cancel sysdate Btn_OK 
+  ENABLE companies Btn_Cancel locations Btn_OK 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
   VIEW C-Win.

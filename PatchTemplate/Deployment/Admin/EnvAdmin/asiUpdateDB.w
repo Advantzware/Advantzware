@@ -53,6 +53,10 @@ DEF STREAM outStream.
 DEF STREAM logStream.
 DEF STREAM iniStream.
 
+DEF VAR cCurrDir AS CHAR NO-UNDO.
+DEF VAR ptrToString      AS MEMPTR    NO-UNDO.
+DEF VAR intBufferSize    AS INTEGER   NO-UNDO INITIAL 256.
+DEF VAR intResult        AS INTEGER   NO-UNDO.
 DEF VAR delCtr AS INT NO-UNDO.
 DEF VAR dupCtr AS INT NO-UNDO.
 DEF VAR cIniVarList AS CHAR NO-UNDO.
@@ -108,6 +112,7 @@ DEF VAR cfrom AS CHAR.
 DEF VAR cTo AS CHAR.
 DEF VAR iDBCurrVer AS INT NO-UNDO.
 DEF VAR iDBTgtVer AS INT NO-UNDO.
+DEF VAR iInstance AS INT NO-UNDO.
 
 /* Ensure that these lists always match, 'c' is always the prefix */
 ASSIGN cIniVarList = 
@@ -212,7 +217,7 @@ DEF VAR cDbPortList AS CHAR INITIAL "2826" NO-UNDO.
 DEF VAR cAudDirList AS CHAR INITIAL "Audit" NO-UNDO.
 DEF VAR cAudDBList AS CHAR INITIAL "audProd" NO-UNDO.
 DEF VAR cAudPortList AS CHAR INITIAL "2836" NO-UNDO.
-DEF VAR cEnvVerList AS CHAR INITIAL "16.7.4" NO-UNDO.
+DEF VAR cEnvVerList AS CHAR INITIAL "16.7.5" NO-UNDO.
 DEF VAR cDbVerList AS CHAR INITIAL "16.7" NO-UNDO.
 /* # Basic DB Elements */
 DEF VAR cAudDbName AS CHAR INITIAL "audProd" NO-UNDO.
@@ -249,6 +254,16 @@ PROCEDURE GetLastError EXTERNAL "kernel32.dll":
     DEFINE RETURN PARAMETER iReturnValue AS LONG.
 END.
 
+PROCEDURE ShellExecuteA EXTERNAL "shell32" :
+    define input parameter hwnd as long.
+    define input parameter lpOperation as char.
+    define input parameter lpFile as char.
+    define input parameter lpParameters as char.
+    define input parameter lpDirectory as char.
+    define input parameter nShowCmd as long.
+    define return parameter hInstance as long.
+END.
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -264,14 +279,13 @@ END.
 &Scoped-define FRAME-NAME DEFAULT-FRAME
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-2 RECT-3 slDatabases tbUpgradeDBs ~
-tbBackupDBs bProcess 
+&Scoped-Define ENABLED-OBJECTS RECT-2 RECT-3 tbBackupDBs tbUpgradeDBs ~
+slDatabases bProcess 
 &Scoped-Define DISPLAYED-OBJECTS fiCurrVer fiVerDate fiNewVer fiBackupDir ~
 fiDbBackup fiSiteName fiHostname fiPgmBackup fiResBackup fiDrive fiTopDir ~
 fiMapDir fiDbDir fiDlcDir fiDBDrive fiDbAuditDir fiDbDataDir ~
-fiDeltaFilename fiDbProdDir fiDbShipDir fiDbStructDir fiDbTestDir ~
-slDatabases tbComp-17 tbUpgradeDBs fiUpdatesDir tbComp-10 tbBackupDBs ~
-fiPatchDir 
+fiDeltaFilename tbBackupDBs tbUpgradeDBs fiDbProdDir fiDbShipDir ~
+fiDbStructDir fiDbTestDir slDatabases fiUpdatesDir fiPatchDir 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -289,7 +303,7 @@ DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON bProcess AUTO-END-KEY 
      LABEL "Start  Update" 
-     SIZE 21 BY 2.43
+     SIZE 21 BY 1.43
      FONT 6.
 
 DEFINE VARIABLE fiBackupDir AS CHARACTER FORMAT "X(256)":U 
@@ -364,7 +378,7 @@ DEFINE VARIABLE fiMapDir AS CHARACTER FORMAT "X(256)":U INITIAL "N:"
      VIEW-AS FILL-IN 
      SIZE 5 BY 1 NO-UNDO.
 
-DEFINE VARIABLE fiNewVer AS CHARACTER FORMAT "X(256)":U INITIAL "16.7.4" 
+DEFINE VARIABLE fiNewVer AS CHARACTER FORMAT "X(256)":U INITIAL "16.7.5" 
      LABEL "New Version" 
      VIEW-AS FILL-IN 
      SIZE 14 BY 1
@@ -403,35 +417,25 @@ DEFINE VARIABLE fiVerDate AS DATE FORMAT "99/99/99":U INITIAL 10/01/17
 
 DEFINE RECTANGLE RECT-2
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 101 BY 7.14.
+     SIZE 101 BY 6.91.
 
 DEFINE RECTANGLE RECT-3
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 101 BY 5.71.
+     SIZE 54 BY 5.71.
 
 DEFINE VARIABLE slDatabases AS CHARACTER 
      VIEW-AS SELECTION-LIST SINGLE SCROLLBAR-VERTICAL 
      SIZE 43 BY 4.29 NO-UNDO.
 
 DEFINE VARIABLE tbBackupDBs AS LOGICAL INITIAL no 
-     LABEL "Backup Databases" 
+     LABEL "Backup Database" 
      VIEW-AS TOGGLE-BOX
-     SIZE 34 BY .81 NO-UNDO.
-
-DEFINE VARIABLE tbComp-10 AS LOGICAL INITIAL no 
-     LABEL "" 
-     VIEW-AS TOGGLE-BOX
-     SIZE 4 BY .81 NO-UNDO.
-
-DEFINE VARIABLE tbComp-17 AS LOGICAL INITIAL no 
-     LABEL "" 
-     VIEW-AS TOGGLE-BOX
-     SIZE 4 BY .81 NO-UNDO.
+     SIZE 23 BY 1 NO-UNDO.
 
 DEFINE VARIABLE tbUpgradeDBs AS LOGICAL INITIAL no 
      LABEL "Upgrade Databases" 
      VIEW-AS TOGGLE-BOX
-     SIZE 34 BY .81 NO-UNDO.
+     SIZE 26 BY 1 NO-UNDO.
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -455,27 +459,51 @@ DEFINE FRAME DEFAULT-FRAME
      fiDbAuditDir AT ROW 6 COL 113 COLON-ALIGNED NO-LABEL WIDGET-ID 504
      fiDbDataDir AT ROW 6.71 COL 113 COLON-ALIGNED NO-LABEL WIDGET-ID 508
      fiDeltaFilename AT ROW 7.19 COL 25 COLON-ALIGNED WIDGET-ID 50
+     tbBackupDBs AT ROW 7.19 COL 49 WIDGET-ID 384
+     tbUpgradeDBs AT ROW 7.19 COL 75 WIDGET-ID 494
      fiDbProdDir AT ROW 7.43 COL 113 COLON-ALIGNED NO-LABEL WIDGET-ID 512
      fiDbShipDir AT ROW 8.14 COL 113 COLON-ALIGNED NO-LABEL WIDGET-ID 514
      fiDbStructDir AT ROW 8.86 COL 113 COLON-ALIGNED NO-LABEL WIDGET-ID 516
      fiDbTestDir AT ROW 9.57 COL 113 COLON-ALIGNED NO-LABEL WIDGET-ID 518
      slDatabases AT ROW 10.05 COL 11 NO-LABEL WIDGET-ID 484
-     tbComp-17 AT ROW 10.05 COL 57 WIDGET-ID 496
-     tbUpgradeDBs AT ROW 10.05 COL 63 WIDGET-ID 494
      fiUpdatesDir AT ROW 10.29 COL 109 COLON-ALIGNED NO-LABEL WIDGET-ID 548
-     tbComp-10 AT ROW 11 COL 57 WIDGET-ID 428
-     tbBackupDBs AT ROW 11 COL 63 WIDGET-ID 384
      fiPatchDir AT ROW 11 COL 113 COLON-ALIGNED NO-LABEL WIDGET-ID 546
-     bProcess AT ROW 12.43 COL 112 WIDGET-ID 404
-     " Databases" VIEW-AS TEXT
-          SIZE 15 BY .62 AT ROW 9.1 COL 9 WIDGET-ID 482
-          FONT 6
+     bProcess AT ROW 12.43 COL 111 WIDGET-ID 404
+     "This program will automatically close when completed." VIEW-AS TEXT
+          SIZE 52 BY .62 AT ROW 14.57 COL 65 WIDGET-ID 576
+     "~"not responding~" message in the title bar~;" VIEW-AS TEXT
+          SIZE 41 BY .62 AT ROW 13.14 COL 65 WIDGET-ID 572
+     "Because of the age of your database, we" VIEW-AS TEXT
+          SIZE 41 BY .62 AT ROW 8.86 COL 65 WIDGET-ID 560
+     "changes to the database.  You may see a" VIEW-AS TEXT
+          SIZE 41 BY .62 AT ROW 12.43 COL 65 WIDGET-ID 570
      " General Variables" VIEW-AS TEXT
           SIZE 22 BY .62 AT ROW 1.48 COL 8 WIDGET-ID 356
           FONT 6
      " Your Directory Structure" VIEW-AS TEXT
           SIZE 30 BY .62 AT ROW 1.48 COL 107 WIDGET-ID 558
           FONT 6
+     " Databases" VIEW-AS TEXT
+          SIZE 15 BY .62 AT ROW 9.1 COL 9 WIDGET-ID 482
+          FONT 6
+     "unexpectedly.  Then, we will apply some" VIEW-AS TEXT
+          SIZE 41 BY .62 AT ROW 11.71 COL 65 WIDGET-ID 568
+     "before we start, just to be sure nothing goes" VIEW-AS TEXT
+          SIZE 43 BY .62 AT ROW 11 COL 65 WIDGET-ID 566
+     "hood.~"  We're going to back up the DB" VIEW-AS TEXT
+          SIZE 41 BY .62 AT ROW 10.29 COL 65 WIDGET-ID 564
+     "have to make some changes ~"under the" VIEW-AS TEXT
+          SIZE 41 BY .62 AT ROW 9.57 COL 65 WIDGET-ID 562
+     "This is expected, and can be ignored." VIEW-AS TEXT
+          SIZE 41 BY .62 AT ROW 13.86 COL 65 WIDGET-ID 574
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 1
+         SIZE 166.2 BY 32.57
+         DEFAULT-BUTTON bProcess WIDGET-ID 100.
+
+/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
+DEFINE FRAME DEFAULT-FRAME
      RECT-2 AT ROW 1.71 COL 5 WIDGET-ID 358
      RECT-3 AT ROW 9.33 COL 5 WIDGET-ID 362
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
@@ -504,10 +532,10 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          TITLE              = "ASI Database Upgrade Processor"
          HEIGHT             = 14.33
          WIDTH              = 136.4
-         MAX-HEIGHT         = 34.29
-         MAX-WIDTH          = 180.6
-         VIRTUAL-HEIGHT     = 34.29
-         VIRTUAL-WIDTH      = 180.6
+         MAX-HEIGHT         = 39.29
+         MAX-WIDTH          = 320
+         VIRTUAL-HEIGHT     = 39.29
+         VIRTUAL-WIDTH      = 320
          RESIZE             = yes
          SCROLL-BARS        = no
          STATUS-AREA        = yes
@@ -578,10 +606,6 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN fiVerDate IN FRAME DEFAULT-FRAME
    NO-ENABLE                                                            */
-/* SETTINGS FOR TOGGLE-BOX tbComp-10 IN FRAME DEFAULT-FRAME
-   NO-ENABLE                                                            */
-/* SETTINGS FOR TOGGLE-BOX tbComp-17 IN FRAME DEFAULT-FRAME
-   NO-ENABLE                                                            */
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
 THEN C-Win:HIDDEN = no.
 
@@ -636,50 +660,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL bProcess C-Win
 ON CHOOSE OF bProcess IN FRAME DEFAULT-FRAME /* Start  Update */
 DO:
-    RUN ipStatus ("Beginning Patch Application").
-    ASSIGN
-        SELF:LABEL = "Processing..."
-        SELF:SENSITIVE = FALSE.
-
-    RUN ipStatus ("Connecting selected database").
-    
-    IF tbBackupDBs:CHECKED IN FRAME {&FRAME-NAME} 
-    AND tbBackupDBs:SENSITIVE THEN DO:
-        DO iCtr = 1 TO NUM-ENTRIES(slDatabases:{&SV}):
-            RUN ipBackupDBs (ENTRY(iCtr,slDatabases:{&SV})).
-            ASSIGN
-                tbComp-10:CHECKED = TRUE.
-        END.        
-        
-    END.
-    
-    IF tbUpgradeDbs:CHECKED THEN DO:
-        RUN ipUpgradeDBs.
-        ASSIGN
-            tbComp-17:CHECKED = TRUE.
-    END.
-    
-    
-    RUN ipStatus ("Database Schema Update Complete").
-    RUN ipWriteIniFile.
-
-    ASSIGN
-        SELF:LABEL = "Start Update"
-        SELF:SENSITIVE = TRUE
-        fiCurrVer:{&SV} = fiNewVer:{&SV}
-        fiVerDate:{&SV} = STRING(TODAY,"99/99/99").
-        
-    APPLY 'leave' to fiCurrVer.
-    
-    STATUS INPUT.
-
-    IF NOT lSuccess THEN MESSAGE
-        "There were no operations performed for this run."
-        VIEW-AS ALERT-BOX.
-        
-    ASSIGN
-        oplSuccess = lSuccess.
-                
+    RUN ipProcessRequest IN THIS-PROCEDURE.              
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -732,10 +713,22 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE
         QUIT.
     END.
     
+    /* Get the initial directory for later resetting */
+    SET-SIZE(ptrToString) = 256.
+    RUN GetCurrentDirectoryA (INPUT        intBufferSize,
+                              INPUT-OUTPUT ptrToString,
+                              OUTPUT       intResult).
+    ASSIGN 
+        cCurrDir = GET-STRING(ptrToString,1).    
+    
     RUN ipCreateTTiniFile.
     RUN ipFindIniFile.
-    IF cIniLoc NE "" THEN 
+    IF cIniLoc NE "" THEN DO:
+        ASSIGN
+            FILE-INFO:FILE-NAME = cIniLoc
+            cIniLoc = FILE-INFO:FULL-PATHNAME.
         RUN ipReadIniFile.
+    END.
     RUN ipExpandVarNames.
     RUN ipSetDispVars.
 
@@ -756,6 +749,16 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE
     APPLY 'value-changed' TO tbUpgradeDBs.
     
     APPLY 'entry' TO bProcess.
+    
+    IF NUM-ENTRIES(slDatabases:LIST-ITEMS) EQ 1 THEN DO:
+        DISABLE
+            slDatabases
+            tbUpgradeDbs
+            tbBackupDbs
+            WITH FRAME {&FRAME-NAME}.
+        STATUS INPUT "Upgrading selected database...".
+        APPLY 'choose' TO bProcess.
+    END.
     
     IF NOT THIS-PROCEDURE:PERSISTENT THEN
         WAIT-FOR CLOSE OF THIS-PROCEDURE.
@@ -802,10 +805,10 @@ PROCEDURE enable_UI :
   DISPLAY fiCurrVer fiVerDate fiNewVer fiBackupDir fiDbBackup fiSiteName 
           fiHostname fiPgmBackup fiResBackup fiDrive fiTopDir fiMapDir fiDbDir 
           fiDlcDir fiDBDrive fiDbAuditDir fiDbDataDir fiDeltaFilename 
-          fiDbProdDir fiDbShipDir fiDbStructDir fiDbTestDir slDatabases 
-          tbComp-17 tbUpgradeDBs fiUpdatesDir tbComp-10 tbBackupDBs fiPatchDir 
+          tbBackupDBs tbUpgradeDBs fiDbProdDir fiDbShipDir fiDbStructDir 
+          fiDbTestDir slDatabases fiUpdatesDir fiPatchDir 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
-  ENABLE RECT-2 RECT-3 slDatabases tbUpgradeDBs tbBackupDBs bProcess 
+  ENABLE RECT-2 RECT-3 tbBackupDBs tbUpgradeDBs slDatabases bProcess 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
   VIEW C-Win.
@@ -828,7 +831,7 @@ PROCEDURE ipBackupDBs :
     DEF VAR cLocName AS CHAR NO-UNDO.
     DEF VAR cLocPort AS CHAR NO-UNDO.
     
-    RUN ipStatus ("Backing Up Selected Databases").
+    RUN ipStatus ("Backing Up database").
     
         ASSIGN
             cLocItem = ipcDbIdent
@@ -857,8 +860,6 @@ PROCEDURE ipBackupDBs :
                        STRING(MONTH(TODAY),"99") +
                        STRING(DAY(TODAY),"99") + ".bak".
     
-        RUN ipStatus ("  Backing Up " + ENTRY(2,ipcDbIdent,"-")).
-        RUN ipStatus ("  using command " + cCmdLine).
         OS-COMMAND SILENT VALUE(cCmdLine).
         
         IF SEARCH(cDbBackup + "\" + cLocName + 
@@ -890,9 +891,14 @@ PROCEDURE ipCreateAudit :
     DEF VAR cStructureST AS CHAR NO-UNDO.    
     DEF VAR cAuditDF AS CHAR NO-UNDO.
     DEF VAR cStatement AS CHAR NO-UNDO.
+    DEF VAR cCmd AS CHAR NO-UNDO.
+    DEF VAR cAudName AS CHAR NO-UNDO.
+    DEF VAR cAudPort AS CHAR NO-UNDO.
+    DEF VAR cStartString AS CHAR NO-UNDO.
+        
+    RUN ipStatus ("Creating Audit database").
     
-    RUN ipStatus ("Creating associatated AUDIT database").
-    
+    RUN ipSetCurrentDir (cDbDrive + "\" + cTopDir + "\databases\audit"). 
     ASSIGN
         cLocItem = ipcDbIdent
         cLocDir  = ENTRY(1,cLocItem,"-")
@@ -903,33 +909,30 @@ PROCEDURE ipCreateAudit :
                    "StructureUpdate\STFiles\audit.st"
         cAuditDf = fiDrive:{&SV} + "\" + fiTopDir:{&SV} + "\" +
                    fiUpdatesDir:{&SV} + "\" + fiPatchDir:{&SV} + "\" +
-                   "StructureUpdate\DFFiles\asiAudit.df".
+                   "StructureUpdate\DFFiles\asiAudit.df"
+        cAudName = "aud" + SUBSTRING(cLocName,4,8)
+        cAudPort = STRING(INT(cLocPort) + 10,"9999").
 
     IF fiDbDrive:{&SV} EQ fiDrive:{&SV} THEN ASSIGN
         cCmdLine = fiDlcDir:{&SV} + '\bin\prostrct create ' + 
-                   cDbAuditDir + '\aud' +
-                   SUBSTRING(cLocName,1,8) + ' "' + 
-                   cStructureST + '"'.
+                   cAudName + ' ' + 
+                   cStructureST.
     ELSE ASSIGN
         cCmdLine = fiDlcDir:{&SV} + '\bin\prostrct create ' + 
-                   cDbAuditDir + '\aud' +
-                   SUBSTRING(cLocName,1,8) + ' "' + 
-                   cStructureST + '"'.
- 
-    RUN ipSetCurrentDir (cDbAuditDir). 
-    RUN ipStatus ("  Creating audit db aud" + SUBSTRING(ENTRY(2,ipcDbIdent,"-"),1,8)).
+                   cAudName + ' ' + 
+                   cStructureST.
+
     OS-COMMAND SILENT VALUE(cCmdLine).
+
     
     IF fiDbDrive:{&SV} EQ fiDrive:{&SV} THEN ASSIGN
         cCmdLine = fiDlcDir:{&SV} + "\bin\procopy " + 
                    fiDlcDir:{&SV} + "\empty4 " + 
-                   cDbAuditDir + "\aud" +
-                   SUBSTRING(cLocName,1,8).
+                   cAudName.
     ELSE ASSIGN
         cCmdLine = fiDlcDir:{&SV} + "\bin\procopy " + 
                    fiDlcDir:{&SV} + "\empty4 " + 
-                   cDbAuditDir + "\aud" +
-                   SUBSTRING(cLocName,1,8).
+                   cAudName.
 
     RUN ipStatus ("  Copying metaschema data...").
     OS-COMMAND SILENT VALUE(cCmdLine).
@@ -937,23 +940,118 @@ PROCEDURE ipCreateAudit :
         ASSIGN
             /* Single user connect statment */
             cStatement = "-db " + 
-                         cDbAuditDir + "\aud" +
-                         SUBSTRING(cLocName,1,8) +
-                         " -1 -ld audDB" + STRING(iCtr).
+                         cAudName +
+                         " -1 -ld " + cAudName.
         /* Connect to the database single user */
         CONNECT VALUE(cStatement).
-        CREATE ALIAS DICTDB FOR DATABASE VALUE("audDB" + STRING(iCtr)).
+        CREATE ALIAS DICTDB FOR DATABASE VALUE(cAudName).
         /* Load the delta */
         RUN ipStatus ("  Loading schema...").
         RUN prodict/load_df.p (cAuditDf). 
                 
         /* Disconnect it */
         RUN ipStatus ("  Disconnecting.").
-        DISCONNECT VALUE("audDB" + STRING(iCtr)).
+        DISCONNECT VALUE(cAudName).
         
+    /* Create/Write a txt file that can be loaded into conmgr.properties */
+    RUN ipStatus ("  Building conmgr file.").
+    OUTPUT TO c:\tmp\conmgrdelta.txt.
+    PUT UNFORMATTED "[configuration." + cAudName + ".defaultconfiguration]" + CHR(10).
+    PUT UNFORMATTED "    afterimageprocess=false" + CHR(10).
+    PUT UNFORMATTED "    asynchronouspagewriters=1" + CHR(10).
+    PUT UNFORMATTED "    beforeimageprocess=true" + CHR(10).
+    PUT UNFORMATTED "    blocksindatabasebuffers=32768" + CHR(10).
+    PUT UNFORMATTED "    database=" + cAudName + CHR(10).
+    PUT UNFORMATTED "    displayname=defaultConfiguration" + CHR(10).
+    PUT UNFORMATTED "    locktableentries=96000" + CHR(10).
+    PUT UNFORMATTED "    monitored=true" + CHR(10).
+    PUT UNFORMATTED "    otherargs=" + CHR(10).
+    PUT UNFORMATTED "    servergroups=" + cAudName + ".defaultconfiguration.defaultservergroup" + CHR(10).
+    PUT UNFORMATTED "    watchdogprocess=true" + CHR(10).
+    PUT UNFORMATTED "" + CHR(10).
+    PUT UNFORMATTED "[database." + cAudName + "]" + CHR(10).
+    PUT UNFORMATTED "    autostart=true" + CHR(10).
+    PUT UNFORMATTED "    configurations=" + cAudName + ".defaultconfiguration" + CHR(10).
+    PUT UNFORMATTED "    databasename=" + cDbDrive + "\" + cTopDir + "\Databases\Audit\" + cAudName + CHR(10).
+    PUT UNFORMATTED "    defaultconfiguration=" + cAudName + ".defaultconfiguration" + CHR(10).
+    PUT UNFORMATTED "    displayname=" + cAudName + CHR(10).
+    PUT UNFORMATTED "    monitorlicensed=true" + CHR(10).
+    PUT UNFORMATTED "" + CHR(10).
+    PUT UNFORMATTED "[servergroup." + cAudName + ".defaultconfiguration.defaultservergroup]" + CHR(10).
+    PUT UNFORMATTED "    configuration=" + cAudName + ".defaultconfiguration" + CHR(10).
+    PUT UNFORMATTED "    displayname=defaultServerGroup" + CHR(10).
+    PUT UNFORMATTED "    port=" + cAudPort + CHR(10).
+    PUT UNFORMATTED "    type=both" + CHR(10).
+    OUTPUT CLOSE.
+    
+    ASSIGN
+        cCmdLine     = fiDlcDir:{&SV} + "\bin\mergeprop -type database -action create -delta " + 
+                       "c:\tmp\conmgrdelta.txt -silent"
+        cStartString = fiDlcDir:{&SV} + "\bin\dbman" + 
+                       " -host " + fiHostName:{&SV} + 
+                       " -port " + cAdminPort + 
+                       " -database " + cAudName + 
+                       " -start".
+
+    RUN ipStatus ("  Merging conmgr info.").
+    OS-COMMAND SILENT VALUE(cCmdLine).
+    RUN ipStatus ("  Waiting for connection manager.").
+    PAUSE 10 NO-MESSAGE.
+    
+    RUN ipStatus ("  Serving " + cAudName).
+message cStartString view-as alert-box.
+    OS-COMMAND VALUE(cStartString).
+    pause 10 no-message.
+    
+    /*    
     MESSAGE
-        "You must manually add this database to the system with OE Explorer"
-        view-as alert-box.
+        "You should add this database to the system with the OE Explorer" SKIP
+        "tool now.  The database name is '" + cAudName + "' and it is located in" SKIP
+        "the '" + cDbAuditDir + "' directory.  It should have port number '" + cAudPort "'." SKIP
+        "YOU SHOULD WRITE THESE VALUES DOWN NOW!" SKIP
+        "NAME: " + cAudName SKIP
+        "LOCATION: " + cDbAuditDir SKIP
+        "PORT: " + cAudPort SKIP
+        "Would you like me to start this tool for you?"
+        view-as alert-box question buttons yes-no update lStart AS LOG.
+    
+    IF lStart THEN DO:
+        ASSIGN 
+            cCmd = cDLCDir + "oemgmt\fathom.url".
+        RUN ShellExecuteA IN THIS-PROCEDURE
+            (0,
+            "open",
+            ccmd,
+            "",
+            "",
+            8,
+            output iInstance).
+         MESSAGE
+            "Press OK when you have completed the OE Explorer operation."
+            VIEW-AS ALERT-BOX.
+    END.
+    ELSE DO:
+        MESSAGE
+            "You should create the OE Explorer data as soon as possible. For now," skip
+            "I will generate the needed information to continue the update."
+            VIEW-AS ALERT-BOX INFO.
+            
+        cCmdLine = fiDlcDir:{&SV} + "\bin\proserve " + 
+                   "-db " + cDbAuditDir + "\" + cAudName + 
+                   " -H " + cHostName +
+                   " -S " + cAudPort +
+                   " -ld audit -L 96000 -B 32768".
+        RUN ipStatus ("  Starting audit with PROSERVE").
+        OS-COMMAND SILENT VALUE(cCmdLine).
+
+        RUN ipStatus("Need OE Explorer info added").
+    END.
+    */
+    
+    ASSIGN
+        ENTRY(iListEntry,cAudDbList) = cAudName
+        ENTRY(iListEntry,cAudPortList) = cAudPort.
+    RUN ipSetCurrentDir (cCurrDir). 
         
     
 END PROCEDURE.
@@ -1142,6 +1240,54 @@ PROCEDURE ipFindIniFile :
             cIniLoc = "".
     END.
     
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipProcessRequest C-Win 
+PROCEDURE ipProcessRequest :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    RUN ipStatus ("Beginning Patch Application").
+    ASSIGN
+        SELF:LABEL = "Processing..."
+        SELF:SENSITIVE = FALSE.
+
+    RUN ipStatus ("Connecting selected database").
+    
+    IF tbBackupDBs:CHECKED IN FRAME {&FRAME-NAME} 
+    AND tbBackupDBs:SENSITIVE THEN DO:
+        DO iCtr = 1 TO NUM-ENTRIES(slDatabases:{&SV}):
+            RUN ipBackupDBs (ENTRY(iCtr,slDatabases:{&SV})).
+        END.        
+        
+    END.
+    
+    IF tbUpgradeDbs:CHECKED THEN DO:
+        RUN ipUpgradeDBs.
+    END.
+    
+    
+    RUN ipStatus ("Database Schema Update Complete").
+    RUN ipWriteIniFile.
+
+    ASSIGN
+        SELF:LABEL = "Start Update"
+        SELF:SENSITIVE = TRUE
+        fiCurrVer:{&SV} = fiNewVer:{&SV}
+        fiVerDate:{&SV} = STRING(TODAY,"99/99/99").
+        
+    APPLY 'leave' to fiCurrVer.
+    
+    STATUS INPUT.
+
+    ASSIGN
+        oplSuccess = lSuccess.
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1512,24 +1658,24 @@ PROCEDURE ipUpgradeDBs :
                                  ENTRY(2,ENTRY(iCtr,slDatabases:{&SV}),"-") + ".lk".
                 
                 /* Unserve the database */
-                RUN ipStatus ("  Stopping database service using string " + cStopString).
+                RUN ipStatus ("  Stopping database service").
                 OS-COMMAND SILENT VALUE(cStopString).
                 /* May have to wait for DB to shut down */
                 DO WHILE SEARCH(cLockFile) NE ?:
-                    RUN ipStatus ("  Waiting for removal of lock file " + cLockFile).
+                    RUN ipStatus ("  Waiting for removal of lock file").
                     PAUSE 2 NO-MESSAGE.
                 END.
                 /* Connect to the database single user */
-                RUN ipStatus ("  Connecting single-user using string " + cStatement).
+                RUN ipStatus ("  Connecting single-user mode").
                 CONNECT VALUE(cStatement).
-                RUN ipStatus ("  Creating DICTDB alias for updDB " + STRING(iCtr)).
+                RUN ipStatus ("  Creating DICTDB alias").
                 CREATE ALIAS DICTDB FOR DATABASE VALUE("updDB" + STRING(iCtr)).
                 /* Load the delta */
                 RUN ipStatus ("  Loading delta " + STRING(cDeltaDf)).
                 RUN prodict/load_df.p (cDeltaDf). 
                 
                 /* Disconnect it */
-                RUN ipStatus ("  Disconnecting " + ENTRY(2,ENTRY(iCtr,slDatabases:{&SV}),"-")).
+                RUN ipStatus ("  Disconnecting").
                 DISCONNECT VALUE("updDB" + STRING(iCtr)).
                 
                 /* Re-Serve it */
@@ -1555,23 +1701,27 @@ PROCEDURE ipUpgradeDBs :
             VIEW-AS ALERT-BOX INFO.
 
         IF ENTRY(iListEntry,cAudDbList) = "x" 
-        OR ENTRY(iListEntry,cAudDbList) = "x" THEN DO:
+        OR ENTRY(iListEntry,cAudDbList) = "" THEN DO:
+            /*
             MESSAGE
                 "There is no audit database associated with database " + ENTRY(2,ENTRY(iCtr,slDatabases:{&SV}),"-") + "." SKIP
+                "The upgrade process requires an audit database to complete normally." SKIP
                 "Would you like to create one now?"
                 VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO UPDATE lCreate AS LOG.
-            IF lCreate THEN
+            */
+            DO:
                 RUN ipCreateAudit (cThisEntry, iListEntry).
-            ASSIGN
-                ENTRY(iListEntry,cAudDbList) = "aud" + SUBSTRING(ENTRY(2,cThisEntry,"-"),1,8)
-                ENTRY(iListEntry,cAudDirList) = "Audit"
-                ENTRY(iListEntry,cAudPortList) = string(integer(cAdminPort) + 10,"9999").
+            END.
+            /*
+            ELSE DO:
+                RUN ipStatus("No audit db...aborting").
+                ASSIGN
+                    lSuccess = FALSE.
+            END.
+            */
         END.
                     
     END.
-
-    ASSIGN
-        tbComp-17:CHECKED = TRUE.
 
 END PROCEDURE.
 
@@ -1587,7 +1737,7 @@ PROCEDURE ipWriteIniFile :
 ------------------------------------------------------------------------------*/
     DEF VAR cThisElement AS CHAR NO-UNDO.
 
-    RUN ipStatus ("Writing modified advantzware.ini file...").
+    RUN ipStatus ("Writing advantzware.ini file...").
 
     FIND ttIniFile WHERE ttIniFile.cVarName = "dbDirList" NO-ERROR.
     ASSIGN ttIniFile.cVarValue = "".

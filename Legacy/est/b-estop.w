@@ -2217,7 +2217,7 @@ PROCEDURE valid-mach :
                         {sys/look/machW.i}
                         AND mach.m-code EQ est-op.m-code:screen-value IN BROWSE {&browse-name}
                         NO-LOCK NO-ERROR.
-                     {cec/mach-seq.i sh-len sh-wid sh-dep}
+                     {cec/mach-seq.i sh-wid sh-len sh-dep}
                      IF NOT AVAILABLE mach THEN  DO:
                         MESSAGE "Blank size outside machine limits, when reversed" VIEW-AS ALERT-BOX ERROR.
                         APPLY "entry" TO est-op.m-code IN BROWSE {&browse-name}.
@@ -2237,7 +2237,7 @@ PROCEDURE valid-mach :
                     {sys/look/machW.i}
                     AND mach.m-code EQ est-op.m-code:screen-value IN BROWSE {&browse-name}
                     NO-LOCK NO-ERROR.
-                    {cec/mach-seq.i sh-len sh-wid sh-dep}
+                    {cec/mach-seq.i sh-wid sh-len sh-dep}
                      IF NOT AVAILABLE mach THEN  DO:
                         MESSAGE "Blank size outside machine limits, when reversed" VIEW-AS ALERT-BOX ERROR.
                         APPLY "entry" TO est-op.m-code IN BROWSE {&browse-name}.

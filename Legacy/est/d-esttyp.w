@@ -250,7 +250,7 @@ IF AVAIL est THEN DO:
 
   IF NOT AVAIL eb                       OR
      (io-type EQ 1 AND eb.cust-%  GT 1) OR
-     (li-type EQ 5 AND eb.yld-qty GT 1) OR
+     (io-type EQ 5 AND eb.quantityPerSet GT 1) OR
      io-type EQ 6 OR
      io-type EQ 2 THEN DO:
 

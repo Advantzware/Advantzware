@@ -197,7 +197,8 @@ PROCEDURE edi-ar.ip:
 
     FOR EACH ar-invl 
         WHERE ar-invl.x-no = ar-inv.x-no
-            AND (ar-invl.inv-qty NE 0 AND NOT ar-invl.misc):
+           /* Service invoices may not have a qty */
+            AND (/* ar-invl.inv-qty NE 0  AND */  NOT ar-invl.misc):
 
         IF top-debug THEN
             RUN rc/debugrec.s ("", RECID(ar-invl)) "ar-invl".
@@ -839,10 +840,12 @@ PROCEDURE edi-040.ip:
         END.
 
         FIND edmast OF edcode EXCLUSIVE-LOCK NO-ERROR.
+        IF NOT AVAILABLE EDMast THEN 
+            FIND FIRST EDMast EXCLUSIVE-LOCK WHERE EDMast.partner EQ ws_partner NO-ERROR.
 
         RUN ed/gendoc.p (RECID(edcode), invoice_number, OUTPUT ws_eddoc_rec).
         FIND  eddoc WHERE RECID(eddoc) = ws_eddoc_rec EXCLUSIVE.
-    
+
         ASSIGN
             eddoc.userref         = "R-NO: " + string(pRel)
             eddoc.version         = STRING(edcode.version)
@@ -850,6 +853,7 @@ PROCEDURE edi-040.ip:
             eddoc.openitem        = TRUE
             eddoc.unique-order-no = INTEGER(pOrder)
             .
+
         /* returns zero if input param is alphanumeric */
         RUN rc/str2int.p (by_code, OUTPUT eddoc.docseq).
         CREATE edivtran.
@@ -1079,9 +1083,11 @@ PROCEDURE edi-050.ip:
     DEFINE INPUT PARAMETER pLine AS INTEGER NO-UNDO.
     DEFINE INPUT PARAMETER pItem AS CHARACTER NO-UNDO.   /* i-No */
     DEFINE VARIABLE iOrdLineNum AS INTEGER NO-UNDO.
-
+    DEFINE VARIABLE iBolNum AS INTEGER NO-UNDO.
+   
     IF AVAILABLE ar-invl THEN DO:
         /* In case or-ordl not found */
+        iBolNum = INTEGER(ar-invl.bol-no) NO-ERROR.
         iOrdLineNum = ar-invl.line.
         FIND FIRST oe-ordl NO-LOCK 
             WHERE oe-ordl.company EQ ar-invl.company
@@ -1091,6 +1097,8 @@ PROCEDURE edi-050.ip:
     END.
     ELSE IF AVAILABLE inv-line THEN 
         DO:
+            /* Used to check that there was a BOL for this inv-line */
+            iBolNum = INTEGER(inv-line.b-no) NO-ERROR.
             /* In case or-ordl not found */
             iOrdLineNum = inv-line.line.
             FIND FIRST oe-ordl NO-LOCK 
@@ -1163,7 +1171,8 @@ PROCEDURE edi-050.ip:
             edivline.Description[1]   = inv-line.i-name /* part-dscr1 */
             edivline.Description[2]   = inv-line.part-dscr1 /* 2 */
             edivline.unit-price       = inv-line.price
-            edivline.qty-shipped      = (IF inv-line.inv-qty NE 0 THEN inv-line.inv-qty ELSE 1)
+            /* For a service invoice with no BOL, qty can be set to 1 */
+            edivline.qty-shipped      = (IF inv-line.inv-qty NE 0 OR iBolNum GT 0 THEN inv-line.inv-qty ELSE 1)
             /* 9804 CAH> was inv-line.qty, which appears to be original ordered */
             edivline.Qty-ord-orig     = IF AVAILABLE oe-ordl THEN oe-ordl.qty ELSE inv-line.qty
             edivline.qty-var          = edivline.qty-ord-orig - edivline.qty-shipped
@@ -1236,7 +1245,8 @@ PROCEDURE edi-050.ip:
                 edivline.Description[1]   = ar-invl.i-name /* part-dscr1 */
                 edivline.Description[2]   = ar-invl.part-dscr1 /* 2 */
                 edivline.unit-price       = ar-invl.unit-pr
-                edivline.qty-shipped      = (IF ar-invl.inv-qty NE 0 THEN ar-invl.inv-qty ELSE 1)
+                /* For a service invoice with no BOl, qty can be set to 1 */
+                edivline.qty-shipped      = (IF ar-invl.inv-qty NE 0 OR iBolNum GT 0 THEN ar-invl.inv-qty ELSE 1)
                 /* 9804 CAH> was ar-invl.qty, which appears to be original ordered */
                 edivline.Qty-ord-orig     = IF AVAILABLE oe-ordl THEN oe-ordl.qty ELSE ar-invl.qty
                 edivline.qty-var          = edivline.qty-ord-orig - edivline.qty-shipped

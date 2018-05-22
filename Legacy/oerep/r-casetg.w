@@ -2798,7 +2798,7 @@ ASSIGN
             "SHIPNAME,SHIPADD1,SHIPADD2,SHIPCITY,SHIPSTATE,SHIPZIP,SHIPCOUNTRY," +
             "DUEDATE,RELDATE,UPCNO,LENGTH,WIDTH,DEPTH,FLUTE,TEST,VENDOR,GROSSWGT," +
             "TAREWGT,NETWGT,SHEETWGT,UOM,MIDDLESEXJOBNUMBER,MIDDLESEXCUSTPONO," +
-            "TAG#,PARTIAL,CASECODE,COLOR,CODE,CASEWGT,FG LOT#,RELLOT#,DRAWING#,POLINE#,PONO,FORM,BLANK,".
+            "TAG#,PARTIAL,CASECODE,COLOR,CODE,CASEWGT,FG LOT#,RELLOT#,DRAWING#,POLINE#,PONO,FORM,BLANK,CURRENTDATE,CURRENTTIME".
         PUT SKIP.
     END.
 
@@ -2959,7 +2959,10 @@ ASSIGN
             w-ord.linenum ","
             w-ord.po-no ","
             "~""  v-frm-no  "~","
-            "~""  v-blnk-no  "~","  .
+            "~""  v-blnk-no  "~"," 
+            "~""  TODAY  "~","
+            "~""  STRING(TIME,'hh:mm am')  "~","
+               .
             put skip.
         end.
       end.

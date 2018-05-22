@@ -3797,13 +3797,13 @@ PROCEDURE local-create-record :
                 oe-rel.ship-state   = shipto.ship-state
                 oe-rel.ship-zip     = shipto.ship-zip
                 oe-rel.ship-no      = shipto.ship-no
-                oe-rel.ship-id      = IF v-first-ship-id <> "" THEN v-first-ship-id ELSE shipto.ship-id
+                oe-rel.ship-id      = IF v-first-ship-id <> "" THEN v-first-ship-id ELSE oe-ord.ship-id
                 oe-rel.ship-i[1]    = shipto.notes[1]
                 oe-rel.ship-i[2]    = shipto.notes[2]
                 oe-rel.ship-i[3]    = shipto.notes[3]
                 oe-rel.ship-i[4]    = shipto.notes[4].
         ELSE ASSIGN oe-rel.ship-no   = oe-ord.sold-no
-                oe-rel.ship-id   = IF v-first-ship-id <> "" THEN v-first-ship-id ELSE oe-ord.sold-id
+                oe-rel.ship-id   = IF v-first-ship-id <> "" THEN v-first-ship-id ELSE oe-ord.ship-id
                 oe-rel.ship-i[1] = oe-ord.ship-i[1]
                 oe-rel.ship-i[2] = oe-ord.ship-i[2]
                 oe-rel.ship-i[3] = oe-ord.ship-i[3]

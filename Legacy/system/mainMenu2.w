@@ -309,12 +309,12 @@ DEFINE FRAME FRAME-USER
      loc_loc AT ROW 1.71 COL 76 COLON-ALIGNED NO-LABEL
      users_user_id AT ROW 1.71 COL 117 COLON-ALIGNED NO-LABEL
      Mnemonic AT ROW 1.71 COL 141 COLON-ALIGNED NO-LABEL WIDGET-ID 2
+     "Location:" VIEW-AS TEXT
+          SIZE 9 BY .62 AT ROW 1.71 COL 68
      "User ID:" VIEW-AS TEXT
           SIZE 8 BY .62 AT ROW 1.71 COL 110
      "Company:" VIEW-AS TEXT
           SIZE 10 BY .62 AT ROW 1.71 COL 4
-     "Location:" VIEW-AS TEXT
-          SIZE 9 BY .62 AT ROW 1.71 COL 68
      boxes AT ROW 8.86 COL 52
      menu-image AT ROW 3.86 COL 53
      RECT-2 AT ROW 1 COL 1
@@ -706,6 +706,7 @@ END.
 ON ANY-PRINTABLE OF FRAME {&FRAME-NAME} ANYWHERE
 DO:
     RUN pKeyPress (LASTKEY).
+    RETURN NO-APPLY.
 END.
 
 {sys/inc/f3helpm.i} /* ASI F3 key include */
@@ -794,7 +795,7 @@ PROCEDURE pClick :
       Purpose:     
       Parameters:  <none>
       Notes:       
-    ------------------------------------------------------------------------------*/
+------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER iphObjectHandle AS WIDGET-HANDLE NO-UNDO.
     
     DEFINE VARIABLE lAccess AS LOGICAL NO-UNDO.
@@ -837,7 +838,7 @@ PROCEDURE pClick :
             /* check module license first before run it YSK 08/24/04 TASK# 08060406 */
             RUN util/CheckModule.p ("ASI", iphObjectHandle:NAME, YES, OUTPUT lAccess) NO-ERROR.
             IF lAccess THEN 
-            RUN Get_Procedure IN Persistent-Handle(iphObjectHandle:NAME,OUTPUT run-proc,YES).        
+            RUN Get_Procedure IN Persistent-Handle(iphObjectHandle:NAME,OUTPUT run-proc,YES).
         END. /* else */
     END. /* if valid handle */
     
@@ -1374,6 +1375,7 @@ PROCEDURE pInit :
             ASSIGN
                 menuLinkASI:PRIVATE-DATA   = sys-ctrl.descrip
                 menuLinkASI:HIDDEN         = NO
+                menuLinkASI:SENSITIVE      = YES
                 menuLinkASI:STRETCH-TO-FIT = sys-ctrl.log-fld
                 menuLinkASI:TRANSPARENT    = sys-ctrl.int-fld EQ 1
                 .
@@ -1420,8 +1422,10 @@ PROCEDURE pInit :
                  NO-ERROR.
             IF NOT AVAILABLE sys-ctrl THEN DO TRANSACTION:
                 CREATE sys-ctrl.
-                sys-ctrl.company = g_company.
-                sys-ctrl.name = "MENULINK" + STRING(idx).
+                ASSIGN 
+                    sys-ctrl.company = g_company
+                    sys-ctrl.name    = "MENULINK" + STRING(idx)
+                    .
             END. /* not avail */
             IF SEARCH(sys-ctrl.char-fld) NE ? AND
                sys-ctrl.descrip NE "" THEN DO:
@@ -1498,7 +1502,7 @@ PROCEDURE pKeyPress :
             cSave     = SUBSTR(cSave,1,LENGTH(cSave) - 1)
             cMnemonic = cSave + cKey
             .
-    END. /* do idx */
+    END. /* while true */
     
     IF cMnemonic EQ "" OR idx GT 5 THEN DO:
         ASSIGN
@@ -1516,8 +1520,8 @@ PROCEDURE pKeyPress :
             fSetColor(ttblItem.hEditor,NO).
             fSetColor(ttblItem.hRectangle,NO).
         END.
-    END. /* if blank */
-
+    END. /* if blank */    
+    
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
