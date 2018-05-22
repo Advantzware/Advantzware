@@ -164,9 +164,9 @@ DEFINE FRAME F-Main
      oe-prmtx.cust-no AT ROW 1.24 COL 12 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 12 BY 1
-     oe-prmtx.custShipID AT ROW 1.24 COL 37 COLON-ALIGNED WIDGET-ID 2
+     oe-prmtx.custShipID AT ROW 1.24 COL 35 COLON-ALIGNED WIDGET-ID 2
           VIEW-AS FILL-IN 
-          SIZE 12 BY 1
+          SIZE 15 BY 1
      oe-prmtx.custype AT ROW 1.24 COL 59 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 12 BY 1
@@ -317,6 +317,12 @@ DEFINE FRAME F-Main
      oe-prmtx.uom[10] AT ROW 15.29 COL 109 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 8.6 BY 1
+     "Discount" VIEW-AS TEXT
+          SIZE 12 BY .62 AT ROW 3.86 COL 89
+     "Price" VIEW-AS TEXT
+          SIZE 18 BY .62 AT ROW 3.86 COL 57
+     "UOM" VIEW-AS TEXT
+          SIZE 8 BY .62 AT ROW 3.86 COL 114
      "Quantity" VIEW-AS TEXT
           SIZE 14 BY .62 AT ROW 3.86 COL 35
      "3" VIEW-AS TEXT
@@ -327,12 +333,6 @@ DEFINE FRAME F-Main
           SIZE 8 BY .62 AT ROW 3.86 COL 20
      "7" VIEW-AS TEXT
           SIZE 8 BY .62 AT ROW 11.95 COL 20
-     "8" VIEW-AS TEXT
-          SIZE 8 BY .62 AT ROW 13.14 COL 20
-     "Price Basis:" VIEW-AS TEXT
-          SIZE 14 BY .62 AT ROW 2.67 COL 14
-     "9" VIEW-AS TEXT
-          SIZE 8 BY .62 AT ROW 14.33 COL 20
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -340,6 +340,12 @@ DEFINE FRAME F-Main
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME F-Main
+     "8" VIEW-AS TEXT
+          SIZE 8 BY .62 AT ROW 13.14 COL 20
+     "Price Basis:" VIEW-AS TEXT
+          SIZE 14 BY .62 AT ROW 2.67 COL 14
+     "9" VIEW-AS TEXT
+          SIZE 8 BY .62 AT ROW 14.33 COL 20
      "4" VIEW-AS TEXT
           SIZE 8 BY .62 AT ROW 8.38 COL 20
      "1" VIEW-AS TEXT
@@ -348,14 +354,8 @@ DEFINE FRAME F-Main
           SIZE 8 BY .62 AT ROW 6 COL 20
      "6" VIEW-AS TEXT
           SIZE 8 BY .62 AT ROW 10.76 COL 20
-     "UOM" VIEW-AS TEXT
-          SIZE 8 BY .62 AT ROW 3.86 COL 114
-     "Price" VIEW-AS TEXT
-          SIZE 18 BY .62 AT ROW 3.86 COL 57
      "10" VIEW-AS TEXT
           SIZE 8 BY .62 AT ROW 15.52 COL 20
-     "Discount" VIEW-AS TEXT
-          SIZE 12 BY .62 AT ROW 3.86 COL 89
      RECT-1 AT ROW 1 COL 1
      RECT-5 AT ROW 3.62 COL 15
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
@@ -455,9 +455,9 @@ ASSIGN
 /* SETTINGS FOR FILL-IN oe-prmtx.price[10] IN FRAME F-Main
    NO-ENABLE 2                                                          */
 /* SETTINGS FOR FILL-IN oe-prmtx.price[1] IN FRAME F-Main
-   NO-ENABLE 2                                                          */
+   NO-ENABLE 2 EXP-FORMAT                                               */
 /* SETTINGS FOR FILL-IN oe-prmtx.price[2] IN FRAME F-Main
-   NO-ENABLE 2                                                          */
+   NO-ENABLE 2 EXP-FORMAT                                               */
 /* SETTINGS FOR FILL-IN oe-prmtx.price[3] IN FRAME F-Main
    NO-ENABLE 2                                                          */
 /* SETTINGS FOR FILL-IN oe-prmtx.price[4] IN FRAME F-Main
