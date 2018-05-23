@@ -334,7 +334,8 @@ PROCEDURE initializeObject :
 
   /* Where are we running from? */
   FILE-INFO:FILE-NAME = THIS-PROCEDURE:FILE-NAME.
-  gcProgramDir = REPLACE(FILE-INFO:FULL-PATHNAME,"\","/").
+  gcProgramDir = IF FILE-INFO:FULL-PATHNAME NE ? THEN REPLACE(FILE-INFO:FULL-PATHNAME,"\","/")
+                 ELSE REPLACE(FILE-INFO:FILE-NAME,"\","/").
   gcProgramDir = SUBSTRING(gcProgramDir,1,R-INDEX(gcProgramDir,'/')).
 
   /* Add program dir to propath (if not already in) */
