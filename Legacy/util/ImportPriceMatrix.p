@@ -1,14 +1,14 @@
 
 /*------------------------------------------------------------------------
-    File        : ImportShipTo.p
+    File        : ImportPriceMatrix.p
     Purpose     : 
 
     Syntax      :
 
-    Description : Import Program (Persistent) for Configuring and Processing the Import for Ship Tos	
+    Description : Import Program (Persistent) for Configuring and Processing the Import for Price Matrix	
 
-    Author(s)   : BV
-    Created     : Fri Nov 24 16:18:38 EST 2017
+    Author(s)   : SEWA
+    Created     : Wed May 23 2018
     Notes       :
   ----------------------------------------------------------------------*/
 
