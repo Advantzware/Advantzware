@@ -61,7 +61,8 @@ OUTPUT cRtnChar, OUTPUT lRecFound).
 IF lRecFound THEN
     oeInvAddDate-Int = INTEGER(cRtnChar) NO-ERROR.
 
-RUN sys/ref/moduleActive.p (INPUT "EdIvTran.", OUTPUT lEDI810Visible).
+RUN util/checkModule.p (INPUT "", INPUT "EdIvTran.", INPUT NO, OUTPUT lEDI810Visible).
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
