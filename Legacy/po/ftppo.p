@@ -37,6 +37,10 @@ DEFINE VARIABLE lConfigBased AS LOG NO-UNDO.
 DEFINE VARIABLE lConfigIdentified AS LOGICAL NO-UNDO.
 DEFINE VARIABLE cSingleFile AS CHARACTER NO-UNDO.
 DEFINE VARIABLE iCnt AS INTEGER NO-UNDO.
+DEFINE VARIABLE cReturnChar AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lRecFound   AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cPoConfigDir AS CHARACTER NO-UNDO.
+
 DEF TEMP-TABLE ttConfig FIELD exportFormat  AS CHAR
                       FIELD destName AS CHAR FORMAT "x(20)"
                       FIELD ftp-site AS CHAR FORMAT "x(30)"
@@ -55,7 +59,17 @@ DEF TEMP-TABLE ttConfig FIELD exportFormat  AS CHAR
 
 RELEASE sys-ctrl.
 
-
+RUN sys/ref/nk1look.p (INPUT cocode,  "POConfigDir", "C" /* Character*/, 
+    INPUT NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */,
+    INPUT "" /* cust */, 
+    INPUT "" /* ship-to*/,
+    OUTPUT cReturnChar, 
+    OUTPUT lRecFound).
+IF lRecFound THEN 
+    cPoConfigDir = cReturnChar  .
+ELSE 
+    cPoConfigDir  = ".\custfiles\EDIFiles\POs".
 FUNCTION getWinScpFile RETURNS CHARACTER
     (  ) :
     /*------------------------------------------------------------------------------
@@ -88,7 +102,7 @@ FUNCTION getWinScpFile RETURNS CHARACTER
 
 END FUNCTION.
 
-cWinScpIniFile = SEARCH(".\custfiles\EDIFiles\POs\winscp.ini").
+cWinScpIniFile = SEARCH(cPoConfigDir + "\winscp.ini").
 IF cWinScpIniFile EQ ? THEN 
     cWinScpIniFile = "".
 ELSE 
@@ -100,8 +114,6 @@ END.
 cWinScpXmlLog =ENTRY(1, ip-exp-file) + ".xml".
  
 RUN load-config.
-
-
 
 IF poexport-int EQ 0 THEN
   FIND FIRST sys-ctrl NO-LOCK
@@ -126,7 +138,7 @@ lConfigIdentified = NO.
 
 IF ip-ftp-where EQ "Corr-U-KraftII" THEN DO:
   lConfigIdentified = TRUE. 
-  OUTPUT TO VALUE(".\custfiles\EDIFiles\POs\ftpcmd2.txt").    /* ftp text file */
+  OUTPUT TO VALUE(cPoConfigDir + "\ftpcmd2.txt").    /* ftp text file */
 
   PUT UNFORMATTED 
       "open edi.ftp.sunclipse.com" SKIP   /* ftp server ip address */
@@ -137,12 +149,12 @@ IF ip-ftp-where EQ "Corr-U-KraftII" THEN DO:
       "quit" .
   OUTPUT CLOSE.
 
-  OS-COMMAND VALUE("ftp -v -i -s:.\custfiles\EDIFiles\POs\ftpcmd2.txt").
+  OS-COMMAND VALUE("ftp -v -i -s:"+ cPoConfigDir + "\ftpcmd2.txt").
 END. /* Corr-U-KraftII */
 
 ELSE
 IF ip-ftp-where EQ "kiwi" THEN DO:
-  OUTPUT TO VALUE(".\custfiles\EDIFiles\POs\ftpkiwi.txt").    /* ftp text file */
+  OUTPUT TO VALUE(cPoConfigDir + "\ftpkiwi.txt").    /* ftp text file */
 
   IF INDEX(ip-exp-file,"TL_kiwi") > 0 THEN DO:
      lConfigIdentified = TRUE.
@@ -164,14 +176,14 @@ IF ip-ftp-where EQ "kiwi" THEN DO:
   END.
   OUTPUT CLOSE.
 
-  OS-COMMAND VALUE("ftp -v -i -s:.\custfiles\EDIFiles\POs\ftpkiwi.txt").
+  OS-COMMAND VALUE("ftp -v -i -s:"+ cPoConfigDir + "\ftpkiwi.txt").
 END. /* Kiwi */
 
  
 
 
 /*IF ip-ftp-where EQ "Welsh" THEN DO:                              */
-/*  OUTPUT TO VALUE(".\custfiles\EDIFiles\POs\ftpWelsh.txt").    /* ftp text file */   */
+/*  OUTPUT TO VALUE(cPoConfigDir + "\ftpWelsh.txt").    /* ftp text file */   */
 /*                                                                 */
 /*  PUT UNFORMATTED                                                */
 /*      "open ftp.corrchain.com" SKIP   /* ftp server ip address */*/
@@ -182,14 +194,14 @@ END. /* Kiwi */
 /*      "quit" .                                                   */
 /*  OUTPUT CLOSE.                                                  */
 /*                                                                 */
-/*  OS-COMMAND VALUE("ftp -v -i -s:.\custfiles\EDIFiles\POs\ftpWelsh.txt").            */
+/*  OS-COMMAND VALUE("ftp -v -i -s:"+ cPoConfigDir + "\ftpWelsh.txt").            */
 /*END. /* Welsh */                                                 */
 /*                                                                 */
 /*ELSE                                                             */
 IF AVAIL sys-ctrl THEN DO:
 
   IF ip-ftp-where EQ "CorSuply" THEN DO:
-    OUTPUT TO VALUE(".\custfiles\EDIFiles\POs\ftpcorr.txt").    /* ftp text file */
+    OUTPUT TO VALUE(cPoConfigDir + "\ftpcorr.txt").    /* ftp text file */
 
     IF sys-ctrl.char-fld EQ "Southpak" THEN DO: /* South Pak */
       lConfigIdentified = TRUE.
@@ -230,7 +242,7 @@ IF AVAIL sys-ctrl THEN DO:
 /*                                                                       */
 /*    OS-COPY VALUE(ip-exp-file) VALUE(v-ftp-file).                      */
 /*                                                                       */
-/*    OUTPUT TO VALUE(".\custfiles\EDIFiles\POs\ftphrms.txt").    /* ftp text file */        */
+/*    OUTPUT TO VALUE(cPoConfigDir + "\ftphrms.txt").    /* ftp text file */        */
 /*                                                                       */
 /*    PUT UNFORMATTED                                                    */
 /*        "open 216.127.228.181"       SKIP   /* ftp server ip address */*/
@@ -248,7 +260,7 @@ IF AVAIL sys-ctrl THEN DO:
 
     OS-COPY VALUE(ip-exp-file) VALUE(v-ftp-file).
 
-    OUTPUT TO VALUE(".\custfiles\EDIFiles\POs\ftppratt.txt").    /* ftp text file */
+    OUTPUT TO VALUE(cPoConfigDir + "\ftppratt.txt").    /* ftp text file */
     lConfigIdentified = TRUE.
     PUT UNFORMATTED 
         "open ftp.lovebox.com"       SKIP   /* ftp server ip address */
@@ -264,7 +276,7 @@ IF AVAIL sys-ctrl THEN DO:
   IF ip-ftp-where EQ "GP" THEN DO:
     IF LOOKUP(sys-ctrl.char-fld, "PremierPkg,Woodland,Trilakes,Michcor,ST.Clair,NStock") GT 0 THEN DO:
         lConfigIdentified = TRUE.
-      OUTPUT TO VALUE(".\custfiles\EDIFiles\POs\ftpcmdgp.txt").   /* ftp text file */
+      OUTPUT TO VALUE(cPoConfigDir + "\ftpcmdgp.txt").   /* ftp text file */
   
   
       /* New Destination in 2015 */
@@ -322,7 +334,7 @@ IF AVAIL sys-ctrl THEN DO:
   END. /* GP  */
   ELSE
      IF ip-ftp-where EQ "Smurfit" THEN DO:
-        OUTPUT TO VALUE(".\custfiles\EDIFiles\POs\ftpsmur.txt").    /* ftp text file */
+        OUTPUT TO VALUE(cPoConfigDir + "\ftpsmur.txt").    /* ftp text file */
         lConfigIdentified = TRUE.
         PUT UNFORMATTED 
             "open gwftpe.smurfit.com" SKIP  /* ftp server ip address */
@@ -337,7 +349,7 @@ IF AVAIL sys-ctrl THEN DO:
   ELSE
      IF ip-ftp-where EQ "CorrChoice" THEN DO:
 
-        OUTPUT TO VALUE(".\custfiles\EDIFiles\POs\ftpcc.txt").    /* ftp text file */
+        OUTPUT TO VALUE(cPoConfigDir + "\ftpcc.txt").    /* ftp text file */
 
         IF sys-ctrl.char-fld EQ "PremierPkg" THEN DO: /* PremierPkg */
             lConfigIdentified = TRUE.
@@ -400,7 +412,7 @@ IF AVAIL sys-ctrl THEN DO:
    ELSE
      IF ip-ftp-where EQ "AlliFlutes" THEN DO:
          
-         OUTPUT TO VALUE(".\custfiles\EDIFiles\POs\ftpaf.txt").    /* ftp text file */
+         OUTPUT TO VALUE(cPoConfigDir + "\ftpaf.txt").    /* ftp text file */
          IF sys-ctrl.char-fld EQ "PremierPkg" THEN 
          DO: /* PremierPkg */
              lConfigIdentified = TRUE.
@@ -521,9 +533,9 @@ IF AVAIL sys-ctrl THEN DO:
       IF lConfigBased AND lConfigIdentified THEN 
       DO:
           /* Preferred method - Based on poexport.dat */
-          IF SEARCH(".\custfiles\EDIFiles\POs\" + ttConfig.ftp-script) EQ ? THEN 
+          IF SEARCH(cPoConfigDir + "\" + ttConfig.ftp-script) EQ ? THEN 
           DO:
-              MESSAGE "File to transfer was not found: " ".\custfiles\EDIFiles\POs\" + ttConfig.ftp-script 
+              MESSAGE "File to transfer was not found: " cPoConfigDir + "\" + ttConfig.ftp-script 
                   VIEW-AS ALERT-BOX. 
               RETURN.
           END. 
@@ -542,7 +554,7 @@ IF AVAIL sys-ctrl THEN DO:
               IF cWinScpIniFile GT "" THEN 
                   cExec = cExec + " " + "/ini=" + cWinScpIniFile + " " + "/xmllog=" + cWinScpXmlLog.  
                 
-              OS-COMMAND NO-WAIT VALUE(cExec + " /script=.\custfiles\EDIFiles\POs\" + ttConfig.ftp-script).
+              OS-COMMAND NO-WAIT VALUE(cExec + " /script="+ cPoConfigDir + "\" + ttConfig.ftp-script).
                
           END. 
       END.
@@ -553,7 +565,7 @@ IF AVAIL sys-ctrl THEN DO:
           /* Original method - hard-coded */
           WHEN "HRMS" THEN DO:
               
-            /* OS-COMMAND VALUE("ftp -v -i -s:.\custfiles\EDIFiles\POs\ftphrms.txt"). */ 
+            /* OS-COMMAND VALUE("ftp -v -i -s:"+ cPoConfigDir + "\ftphrms.txt"). */ 
             IF AVAIL(sys-ctrl) /* AND sys-ctrl.int-fld EQ 1 */ 
                 AND  getWinScpFile() NE ?
                 THEN 
@@ -563,19 +575,19 @@ IF AVAIL sys-ctrl THEN DO:
                 IF cWinScpIniFile GT "" THEN 
                     cExec = cExec + " " + "/ini=" + cWinScpIniFile + " " + "/xmllog=" + cWinScpXmlLog.  
                 
-                OS-COMMAND VALUE(cExec + " /script=.\custfiles\EDIFiles\POs\ftphrms.txt").
+                OS-COMMAND VALUE(cExec + " /script="+ cPoConfigDir + "\ftphrms.txt").
             END.
             ELSE
-                OS-COMMAND VALUE("ftp -v -i -s:.\custfiles\EDIFiles\POs\ftphrms.txt").
+                OS-COMMAND VALUE("ftp -v -i -s:"+ cPoConfigDir + "\ftphrms.txt").
           END.
           WHEN "Pratt" THEN
-            OS-COMMAND VALUE("ftp -v -i -s:.\custfiles\EDIFiles\POs\ftppratt.txt").
+            OS-COMMAND VALUE("ftp -v -i -s:"+ cPoConfigDir + "\ftppratt.txt").
       
           WHEN "CorSuply" THEN
-            OS-COMMAND VALUE("ftp -v -i -s:.\custfiles\EDIFiles\POs\ftpcorr.txt").
+            OS-COMMAND VALUE("ftp -v -i -s:"+ cPoConfigDir + "\ftpcorr.txt").
       
           WHEN "Smurfit" THEN
-            OS-COMMAND VALUE("ftp -v -i -s:.\custfiles\EDIFiles\POs\ftpsmur.txt").
+            OS-COMMAND VALUE("ftp -v -i -s:"+ cPoConfigDir + "\ftpsmur.txt").
       
           WHEN "GP" THEN DO:     
             
@@ -587,20 +599,20 @@ IF AVAIL sys-ctrl THEN DO:
                 IF cWinScpIniFile GT "" THEN 
                   cExec = cExec + " " + "/ini=" + cWinScpIniFile + " " + "/xmllog=" + cWinScpXmlLog.  
                 
-                OS-COMMAND VALUE(cExec + " /script=.\custfiles\EDIFiles\POs\ftpcmdgp.txt").
+                OS-COMMAND VALUE(cExec + " /script="+ cPoConfigDir + "\ftpcmdgp.txt").
             END.
             ELSE
-              OS-COMMAND VALUE("ftp -v -i -s:.\custfiles\EDIFiles\POs\ftpcmdgp.txt").
+              OS-COMMAND VALUE("ftp -v -i -s:"+ cPoConfigDir + "\ftpcmdgp.txt").
           END.
           WHEN "CorrChoice" THEN DO:
             IF sys-ctrl.char-fld EQ "PremierPkg" AND cExec NE ? AND cExec NE "" THEN DO:      
               cExec = getWinScpFile().
               IF cWinScpIniFile GT "" THEN 
                   cExec = cExec + " " + "/ini=" + cWinScpIniFile + " " + "/xmllog=" + cWinScpXmlLog.          
-              OS-COMMAND SILENT VALUE(cExec + " /script=.\custfiles\EDIFiles\POs\ftpcc.txt").
+              OS-COMMAND SILENT VALUE(cExec + " /script="+ cPoConfigDir + "\ftpcc.txt").
             END.
             ELSE
-              OS-COMMAND VALUE("ftp -v -i -s:.\custfiles\EDIFiles\POs\ftpcc.txt").
+              OS-COMMAND VALUE("ftp -v -i -s:"+ cPoConfigDir + "\ftpcc.txt").
           END.
           WHEN "AlliFlutes" THEN 
             DO:
@@ -611,10 +623,10 @@ IF AVAIL sys-ctrl THEN DO:
                     
                     IF cWinScpIniFile GT "" THEN 
                         cExec = cExec + " " + "/ini=" + cWinScpIniFile + " " + "/xmllog=" + cWinScpXmlLog.          
-                    OS-COMMAND SILENT VALUE(cExec + " /script=.\custfiles\EDIFiles\POs\ftpaf.txt").
+                    OS-COMMAND SILENT VALUE(cExec + " /script="+ cPoConfigDir + "\ftpaf.txt").
                 END.
                 ELSE
-                    OS-COMMAND VALUE("ftp -v -i -s:.\custfiles\EDIFiles\POs\ftpaf.txt").
+                    OS-COMMAND VALUE("ftp -v -i -s:"+ cPoConfigDir + "\ftpaf.txt").
             END.
           WHEN "ipaper" THEN DO:     
             
@@ -625,10 +637,10 @@ IF AVAIL sys-ctrl THEN DO:
                 IF cWinScpIniFile GT "" THEN 
                   cExec = cExec + " " + "/ini=" + cWinScpIniFile + " " + "/xmllog=" + cWinScpXmlLog.  
                 
-                OS-COMMAND VALUE(cExec + " /script=.\custfiles\EDIFiles\POs\ftpip.txt").
+                OS-COMMAND VALUE(cExec + " /script="+ cPoConfigDir + "\ftpip.txt").
             END.
             ELSE
-              OS-COMMAND VALUE("ftp -v -i -s:.\custfiles\EDIFiles\POs\ftpcmdip.txt").
+              OS-COMMAND VALUE("ftp -v -i -s:"+ cPoConfigDir + "\ftpcmdip.txt").
           END.        
           WHEN "Welsh" THEN DO:
        
@@ -637,10 +649,10 @@ IF AVAIL sys-ctrl THEN DO:
               IF cWinScpIniFile GT "" THEN 
                   cExec = cExec + " " + "/ini=" + cWinScpIniFile + " " + "/xmllog=" + cWinScpXmlLog.    
                  
-              OS-COMMAND SILENT VALUE(cExec + " /script=.\custfiles\EDIFiles\POs\ftpct.txt").
+              OS-COMMAND SILENT VALUE(cExec + " /script="+ cPoConfigDir + "\ftpct.txt").
             END.
             ELSE
-              OS-COMMAND VALUE("ftp -v -i -s:.\custfiles\EDIFiles\POs\ftpcc.txt").
+              OS-COMMAND VALUE("ftp -v -i -s:"+ cPoConfigDir + "\ftpcc.txt").
           END.      
         END CASE.
     END.
@@ -680,7 +692,7 @@ PROCEDURE config-based-script:
         IF ttConfig.ftp-software EQ "FTP" THEN DO:
             
             
-            OUTPUT TO VALUE(".\custfiles\EDIFiles\POs\" + ttConfig.ftp-script).    /* ftp text file */
+            OUTPUT TO VALUE(cPoConfigDir + "\" + ttConfig.ftp-script).    /* ftp text file */
             
             PUT UNFORMATTED 
                 "open " + ttConfig.ftp-site  SKIP   /* ftp server ip address */
@@ -713,7 +725,7 @@ PROCEDURE config-based-script:
     
         IF ttConfig.ftp-software EQ "winSCP" THEN 
         DO:
-            cWinScpIniFile = SEARCH(".\custfiles\EDIFiles\POs\winscp.ini").
+            cWinScpIniFile = SEARCH(cPoConfigDir + "\winscp.ini").
             cExec = getWinScpFile().
             IF cWinScpIniFile EQ ? THEN 
                 cWinScpIniFile = "".
@@ -723,7 +735,7 @@ PROCEDURE config-based-script:
                 cWinScpIniFile = " /ini=" + FILE-INFO:FULL-PATHNAME.
             END.
             
-            OUTPUT TO VALUE(".\custfiles\EDIFiles\POs\" + ttConfig.ftp-script). 
+            OUTPUT TO VALUE(cPoConfigDir + "\" + ttConfig.ftp-script). 
             
     
             PUT UNFORMATTED 
@@ -769,9 +781,9 @@ PROCEDURE load-config:
 
   EMPTY TEMP-TABLE ttConfig.
 
-  IF SEARCH("custfiles/EDIFiles\POs\poexport.dat") NE ? THEN DO:
+  IF SEARCH(cPoConfigDir + "\poexport.dat") NE ? THEN DO:
 
-      INPUT FROM ./custfiles/EDIFiles\POs\poexport.dat.
+      INPUT FROM VALUE(cPoConfigDir + "\poexport.dat").
       REPEAT:
           
           CREATE ttConfig.
