@@ -3727,32 +3727,32 @@ PROCEDURE run-packing-list :
       CASE rd-dest:
           WHEN 1 THEN DO: 
             IF v-print-fmt = "CCC" OR v-print-fmt EQ "CCCWPP" OR v-print-fmt EQ "CCC2" THEN
-              PUT "<PRINTER?><LEFT=" STRING(7 + d-print-fmt-dec) "mm>".
+              PUT "<PRINTER?><LEFT=" + trim(STRING(7 + d-print-fmt-dec)) + "mm>" FORMAT "x(120)".
             ELSE IF v-print-fmt = "Carded" THEN
-              PUT "<PRINTER?><LEFT=" STRING(6 + d-print-fmt-dec) "mm>".
+              PUT "<PRINTER?><LEFT=" + trim(STRING(6 + d-print-fmt-dec)) + "mm>" FORMAT "x(120)".
             ELSE IF d-print-fmt-dec > 0 THEN
-              PUT "<PRINTER?><LEFT=" STRING(d-print-fmt-dec) "mm>".
+              PUT "<PRINTER?><LEFT=" + trim(STRING(d-print-fmt-dec)) + "mm>" FORMAT "x(120)".
             ELSE
               PUT "<PRINTER?>".
           END.
           WHEN 2 THEN do:
            IF NOT lBussFormModle THEN do:
                IF v-print-fmt = "CCC" OR v-print-fmt EQ "CCCWPP" OR v-print-fmt EQ "CCC2" THEN
-                   PUT "<PREVIEW><LEFT=" STRING(7 + d-print-fmt-dec) "mm><MODAL=NO>".
+                   PUT "<PREVIEW><LEFT=" + trim(STRING(7 + d-print-fmt-dec)) + "mm><MODAL=NO>" FORMAT "x(120)".
                ELSE IF  v-print-fmt = "Carded"  THEN
-                   PUT "<PREVIEW><LEFT=" STRING(6 + d-print-fmt-dec) "mm><MODAL=NO>".
+                   PUT "<PREVIEW><LEFT=" + trim(STRING(6 + d-print-fmt-dec)) + "mm><MODAL=NO>" FORMAT "x(120)".
                ELSE IF d-print-fmt-dec > 0 THEN
-                   PUT "<PREVIEW><LEFT=" string(d-print-fmt-dec) "mm><MODAL=NO>".
+                   PUT "<PREVIEW><LEFT=" + trim(string(d-print-fmt-dec)) + "mm><MODAL=NO>" FORMAT "x(120)".
                ELSE
                    PUT "<PREVIEW><MODAL=NO>". 
            END.
            ELSE DO:
              IF v-print-fmt = "CCC" OR v-print-fmt EQ "CCCWPP" OR v-print-fmt EQ "CCC2" THEN
-                 PUT "<PREVIEW><LEFT=" STRING(7 + d-print-fmt-dec) "mm>".
+                 PUT "<PREVIEW><LEFT=" + trim(STRING(7 + d-print-fmt-dec)) + "mm>" FORMAT "x(120)".
              ELSE IF v-print-fmt = "Carded" THEN
-                 PUT "<PREVIEW><LEFT=" STRING(6 + d-print-fmt-dec) "mm>".
+                 PUT "<PREVIEW><LEFT=" + trim(STRING(6 + d-print-fmt-dec)) + "mm>" FORMAT "x(120)".
              ELSE IF d-print-fmt-dec > 0 THEN
-                 PUT "<PREVIEW><LEFT=" STRING(d-print-fmt-dec) "mm>".
+                 PUT "<PREVIEW><LEFT=" + trim(STRING(d-print-fmt-dec)) + "mm>" FORMAT "x(120)".
              ELSE
                  PUT "<PREVIEW>". 
            END.
@@ -3760,22 +3760,22 @@ PROCEDURE run-packing-list :
           WHEN 4 THEN do:
                 ls-fax-file = "c:\tmp\fax" + STRING(TIME) + ".tif".
                 IF v-print-fmt = "CCC" OR v-print-fmt EQ "CCCWPP" OR v-print-fmt EQ "CCC2" THEN
-                  PUT UNFORMATTED "<PRINTER?><LEFT=" STRING(4 + d-print-fmt-dec) "mm><EXPORT=" Ls-fax-file ",BW>".
+                  PUT UNFORMATTED "<PRINTER?><LEFT=" + trim(STRING(4 + d-print-fmt-dec)) + "mm><EXPORT=" Ls-fax-file ",BW>" FORMAT "x(120)".
                 ELSE IF v-print-fmt = "Carded" THEN
-                  PUT UNFORMATTED "<PRINTER?><LEFT=" STRING(6 + d-print-fmt-dec) "mm><EXPORT=" Ls-fax-file ",BW>".
+                  PUT UNFORMATTED "<PRINTER?><LEFT=" + trim(STRING(6 + d-print-fmt-dec)) + "mm><EXPORT=" Ls-fax-file ",BW>" FORMAT "x(120)".
                 ELSE IF d-print-fmt-dec > 0 THEN
-                  PUT UNFORMATTED "<PRINTER?><LEFT=" STRING(d-print-fmt-dec) "mm><EXPORT=" Ls-fax-file ",BW>".
+                  PUT UNFORMATTED "<PRINTER?><LEFT=" + trim(STRING(d-print-fmt-dec)) + "mm><EXPORT=" Ls-fax-file ",BW>" FORMAT "x(120)".
                 ELSE
                   PUT UNFORMATTED "<PRINTER?><EXPORT=" Ls-fax-file ",BW>".
           END.
           WHEN 5 THEN do:
               IF v-print-fmt = "Century" THEN /*<PDF-LEFT=5mm><PDF-TOP=10mm>*/
-                   PUT "<PREVIEW><PDF-EXCLUDE=MS Mincho><PDF-LEFT=" STRING(2.5 + d-print-fmt-dec) "mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
+                   PUT "<PREVIEW><PDF-EXCLUDE=MS Mincho><PDF-LEFT=" + trim(STRING(2.5 + d-print-fmt-dec)) + "mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
               ELSE IF v-print-fmt EQ "PremierX" OR v-print-fmt EQ "PremierXFooter" OR v-print-fmt EQ "RFCX"  OR v-print-fmt = "PremierCX" OR v-print-fmt = "PremierPX" THEN
-                   PUT "<PREVIEW><FORMAT=LETTER><PDF-EXCLUDE=MS Mincho><PDF-LEFT=" STRING(5 + d-print-fmt-dec) "mm><PDF-TOP=7mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
-              ELSE IF v-print-fmt EQ "CCC" OR v-print-fmt EQ "CCCWPP" OR v-print-fmt EQ "CCC2" THEN PUT "<PREVIEW><LEFT=" STRING(4 + d-print-fmt-dec) "mm><PDF-LEFT=" STRING(2 + d-print-fmt-dec) "mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
-              ELSE IF v-print-fmt EQ "Carded" THEN PUT "<PREVIEW><LEFT=" STRING(6 + d-print-fmt-dec) "mm><PDF-LEFT=" STRING(6 + d-print-fmt-dec) "mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
-              ELSE IF d-print-fmt-dec > 0 THEN PUT "<PREVIEW><LEFT=" string(d-print-fmt-dec) "mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
+                   PUT "<PREVIEW><FORMAT=LETTER><PDF-EXCLUDE=MS Mincho><PDF-LEFT=" + trim(STRING(5 + d-print-fmt-dec)) + "mm><PDF-TOP=7mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
+              ELSE IF v-print-fmt EQ "CCC" OR v-print-fmt EQ "CCCWPP" OR v-print-fmt EQ "CCC2" THEN PUT "<PREVIEW><LEFT=" + trim(STRING(4 + d-print-fmt-dec)) + "mm><PDF-LEFT=" + trim(STRING(2 + d-print-fmt-dec)) + "mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
+              ELSE IF v-print-fmt EQ "Carded" THEN PUT "<PREVIEW><LEFT=" + trim(STRING(6 + d-print-fmt-dec)) + "mm><PDF-LEFT=" + trim(STRING(6 + d-print-fmt-dec)) + "mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
+              ELSE IF d-print-fmt-dec > 0 THEN PUT "<PREVIEW><LEFT=" + trim(string(d-print-fmt-dec)) + "mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
               ELSE  PUT "<PREVIEW><PDF-LEFT=2mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
           END.
       END CASE.
@@ -3839,7 +3839,6 @@ PROCEDURE run-report :
 /* -------------------------------------------------------------------------- */
   DEFINE INPUT PARAMETER ip-cust-no AS CHAR NO-UNDO.
   DEFINE INPUT PARAMETER ip-sys-ctrl-ship-to AS LOG NO-UNDO.
-
   {sys/form/r-top.i}
 
   assign
@@ -3900,30 +3899,30 @@ PROCEDURE run-report :
       CASE rd-dest:
           WHEN 1 THEN do: 
               IF v-print-fmt = "CCC" OR v-print-fmt EQ "CCCWPP" OR v-print-fmt EQ "CCC2" THEN
-                  PUT "<PRINTER?><LEFT=" STRING(7 + d-print-fmt-dec) "mm>".
+                  PUT "<PRINTER?><LEFT=" + trim(STRING(7 + d-print-fmt-dec)) + "mm>" FORMAT "x(120)".
               ELSE IF v-print-fmt = "Carded" THEN
-                  PUT "<PRINTER?><LEFT=" STRING(6 + d-print-fmt-dec) "mm>".
+                  PUT "<PRINTER?><LEFT=" + trim(STRING(6 + d-print-fmt-dec)) + "mm>" FORMAT "x(120)".
               ELSE IF d-print-fmt-dec > 0 THEN
-                  PUT "<PRINTER?><LEFT=" STRING(d-print-fmt-dec) "mm>".
+                  PUT "<PRINTER?><LEFT=" + trim(STRING(d-print-fmt-dec)) + "mm>" FORMAT "x(120)".
               ELSE  PUT "<PRINTER?>".
           END.
           WHEN 2 THEN do:
            IF NOT lBussFormModle THEN do:
                IF v-print-fmt = "CCC" OR v-print-fmt EQ "CCCWPP" OR v-print-fmt EQ "CCC2" THEN
-                   PUT "<PREVIEW><LEFT=" STRING(7 + d-print-fmt-dec) "mm><MODAL=NO>".
+                   PUT "<PREVIEW><LEFT=" + trim(STRING(7 + d-print-fmt-dec)) + "mm><MODAL=NO>" FORMAT "x(120)".
                ELSE IF v-print-fmt = "Carded" THEN
-                   PUT "<PREVIEW><LEFT=" STRING(6 + d-print-fmt-dec) "mm><MODAL=NO>".
-               ELSE IF d-print-fmt-dec > 0 THEN
-                   PUT "<PREVIEW><LEFT=" string(d-print-fmt-dec) "mm><MODAL=NO>".
+                   PUT "<PREVIEW><LEFT=" + trim(STRING(6 + d-print-fmt-dec)) + "mm><MODAL=NO>" FORMAT "x(120)".
+               ELSE IF d-print-fmt-dec > 0 THEN 
+                   PUT "<PREVIEW><LEFT=" + trim(string(d-print-fmt-dec)) + "mm><MODAL=NO>" FORMAT "x(120)".
                ELSE PUT "<PREVIEW><MODAL=NO>".
            END.
            ELSE do:
                IF v-print-fmt = "CCC" OR  v-print-fmt EQ "CCCWPP" OR v-print-fmt EQ "CCC2" THEN
-                   PUT "<PREVIEW><LEFT=" STRING(7 + d-print-fmt-dec) "mm>". 
+                   PUT "<PREVIEW><LEFT=" + trim(STRING(7 + d-print-fmt-dec)) + "mm>" FORMAT "x(120)". 
                ELSE IF v-print-fmt = "Carded" THEN
-                   PUT "<PREVIEW><LEFT=" STRING(6 + d-print-fmt-dec) "mm>".
+                   PUT "<PREVIEW><LEFT=" + trim(STRING(6 + d-print-fmt-dec)) + "mm>" FORMAT "x(120)".
                ELSE IF d-print-fmt-dec > 0 THEN
-                   PUT "<PREVIEW><LEFT=" STRING(d-print-fmt-dec) "mm>".
+                   PUT "<PREVIEW><LEFT=" + trim(STRING(d-print-fmt-dec)) + "mm>" FORMAT "x(120)".
                ELSE
                    PUT "<PREVIEW>".  
            END.
@@ -3931,21 +3930,21 @@ PROCEDURE run-report :
           WHEN 4 THEN do:
                 ls-fax-file = "c:\tmp\fax" + STRING(TIME) + ".tif".
                 IF v-print-fmt = "CCC" OR  v-print-fmt EQ "CCCWPP" OR v-print-fmt EQ "CCC2" THEN
-                    PUT UNFORMATTED "<PRINTER?><LEFT=" STRING(7 + d-print-fmt-dec) "mm><EXPORT=" Ls-fax-file ",BW>".
+                    PUT UNFORMATTED "<PRINTER?><LEFT=" + trim(STRING(7 + d-print-fmt-dec)) + "mm><EXPORT=" Ls-fax-file ",BW>" FORMAT "x(120)".
                 ELSE IF v-print-fmt = "Carded" THEN
-                    PUT UNFORMATTED "<PRINTER?><LEFT=" STRING(6 + d-print-fmt-dec) "mm><EXPORT=" Ls-fax-file ",BW>".
+                    PUT UNFORMATTED "<PRINTER?><LEFT=" + trim(STRING(6 + d-print-fmt-dec)) + "mm><EXPORT=" Ls-fax-file ",BW>" FORMAT "x(120)".
                 ELSE IF d-print-fmt-dec > 0 THEN
-                    PUT UNFORMATTED "<PRINTER?><LEFT=" STRING(d-print-fmt-dec) "mm><EXPORT=" Ls-fax-file ",BW>".
+                    PUT UNFORMATTED "<PRINTER?><LEFT=" + trim(STRING(d-print-fmt-dec)) + "mm><EXPORT=" Ls-fax-file ",BW>" FORMAT "x(120)".
                 ELSE PUT UNFORMATTED "<PRINTER?><EXPORT=" Ls-fax-file ",BW>".
           END.
           WHEN 5 THEN do:
               IF v-print-fmt = "Century" THEN /*<PDF-LEFT=5mm><PDF-TOP=10mm>*/
-                   PUT "<PREVIEW><PDF-EXCLUDE=MS Mincho><PDF-LEFT=" STRING(2.5 + d-print-fmt-dec) "mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
+                   PUT "<PREVIEW><PDF-EXCLUDE=MS Mincho><PDF-LEFT=" + trim(STRING(2.5 + d-print-fmt-dec)) + "mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
               ELSE IF v-print-fmt EQ "PremierX" OR v-print-fmt EQ "PremierXFooter" OR v-print-fmt EQ "RFCX"  OR v-print-fmt = "PremierCX" OR v-print-fmt = "PremierPX" THEN
-                   PUT "<PREVIEW><FORMAT=LETTER><PDF-EXCLUDE=MS Mincho><PDF-LEFT=" STRING(5 + d-print-fmt-dec) "mm><PDF-TOP=7mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
-              ELSE IF v-print-fmt EQ "CCC" OR  v-print-fmt EQ "CCCWPP" OR v-print-fmt EQ "CCC2" THEN PUT "<PREVIEW><LEFT=" STRING(4 + d-print-fmt-dec) "mm><PDF-LEFT=" STRING(2 + d-print-fmt-dec) "mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
-              ELSE IF v-print-fmt EQ "Carded" THEN PUT "<PREVIEW><LEFT=" STRING(6 + d-print-fmt-dec) "mm><PDF-LEFT=" STRING(6 + d-print-fmt-dec) "mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
-              ELSE IF d-print-fmt-dec > 0 THEN PUT "<PREVIEW><LEFT=" string(d-print-fmt-dec) "mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
+                   PUT "<PREVIEW><FORMAT=LETTER><PDF-EXCLUDE=MS Mincho><PDF-LEFT=" + trim(STRING(5 + d-print-fmt-dec)) + "mm><PDF-TOP=7mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
+              ELSE IF v-print-fmt EQ "CCC" OR  v-print-fmt EQ "CCCWPP" OR v-print-fmt EQ "CCC2" THEN PUT "<PREVIEW><LEFT=" + trim(STRING(4 + d-print-fmt-dec)) + "mm><PDF-LEFT=" + trim(STRING(2 + d-print-fmt-dec)) + "mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
+              ELSE IF v-print-fmt EQ "Carded" THEN PUT "<PREVIEW><LEFT=" + trim(STRING(6 + d-print-fmt-dec)) + "mm><PDF-LEFT=" + trim(STRING(6 + d-print-fmt-dec)) + "mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
+              ELSE IF d-print-fmt-dec > 0 THEN PUT "<PREVIEW><LEFT=" + trim(string(d-print-fmt-dec)) + "mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
               ELSE PUT "<PREVIEW><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
           END.
       END CASE.
@@ -4137,32 +4136,32 @@ ELSE IF is-xprint-form AND rd-dest = 1 THEN PUT "<PRINTER?>".
     CASE rd-dest:
         WHEN 1 THEN do:
              IF v-print-fmt EQ "CCC" OR  v-print-fmt EQ "CCCWPP" OR v-print-fmt EQ "CCC2" THEN
-                 PUT  "<PRINTER?><LEFT=" STRING(4 + d-print-fmt-dec) "mm>".
+                 PUT  "<PRINTER?><LEFT=" + trim(STRING(4 + d-print-fmt-dec)) + "mm>" FORMAT "x(120)".
              ELSE IF v-print-fmt EQ "Carded" THEN
-                 PUT  "<PRINTER?><LEFT=" STRING(6 + d-print-fmt-dec) "mm>".
+                 PUT  "<PRINTER?><LEFT=" + trim(STRING(6 + d-print-fmt-dec)) + "mm>" FORMAT "x(120)".
              ELSE IF d-print-fmt-dec > 0 THEN
-                 PUT "<PRINTER?><LEFT=" STRING(d-print-fmt-dec) "mm>".
+                 PUT "<PRINTER?><LEFT=" + trim(STRING(d-print-fmt-dec)) + "mm>" FORMAT "x(120)".
              ELSE
                 PUT  "<PRINTER?>".
         END.
         WHEN 2 THEN do:
            IF NOT lBussFormModle THEN do:
                IF v-print-fmt EQ "CCC" OR  v-print-fmt EQ "CCCWPP" OR v-print-fmt EQ "CCC2" THEN
-                   PUT "<PREVIEW><LEFT=" STRING(4 + d-print-fmt-dec) "mm><MODAL=NO>". 
+                   PUT "<PREVIEW><LEFT=" + trim(STRING(4 + d-print-fmt-dec)) + "mm><MODAL=NO>" FORMAT "x(120)". 
                ELSE IF v-print-fmt EQ "Carded" THEN
-                   PUT "<PREVIEW><LEFT=" STRING(6 + d-print-fmt-dec) "mm><MODAL=NO>".
+                   PUT "<PREVIEW><LEFT=" + trim(STRING(6 + d-print-fmt-dec)) + "mm><MODAL=NO>" FORMAT "x(120)".
                ELSE IF d-print-fmt-dec > 0 THEN
-                   PUT "<PREVIEW><LEFT=" STRING(d-print-fmt-dec) "mm><MODAL=NO>".
+                   PUT "<PREVIEW><LEFT=" + trim(STRING(d-print-fmt-dec)) + "mm><MODAL=NO>" FORMAT "x(120)".
                ELSE
                    PUT "<PREVIEW><MODAL=NO>".  
            END.
            ELSE do:
                IF v-print-fmt EQ "CCC" OR  v-print-fmt EQ "CCCWPP" OR v-print-fmt EQ "CCC2" THEN
-                   PUT "<PREVIEW><LEFT=" STRING(4 + d-print-fmt-dec) "mm>".
+                   PUT "<PREVIEW><LEFT=" + trim(STRING(4 + d-print-fmt-dec)) + "mm>" FORMAT "x(120)".
                ELSE IF v-print-fmt EQ "Carded" THEN
-                   PUT "<PREVIEW><LEFT=" STRING(6 + d-print-fmt-dec) "mm>".
+                   PUT "<PREVIEW><LEFT=" + trim(STRING(6 + d-print-fmt-dec)) + "mm>" FORMAT "x(120)".
                ELSE IF d-print-fmt-dec > 0 THEN
-                   PUT "<PREVIEW><LEFT=" STRING(d-print-fmt-dec) "mm>".
+                   PUT "<PREVIEW><LEFT=" + trim(STRING(d-print-fmt-dec)) + "mm>" FORMAT "x(120)".
                ELSE
                    PUT "<PREVIEW>".
            END.
@@ -4170,22 +4169,22 @@ ELSE IF is-xprint-form AND rd-dest = 1 THEN PUT "<PRINTER?>".
         WHEN  4 THEN do:
               ls-fax-file = "c:\tmp\fax" + STRING(TIME) + ".tif".
               IF v-print-fmt EQ "CCC" OR  v-print-fmt EQ "CCCWPP" OR v-print-fmt EQ "CCC2" THEN
-                  PUT UNFORMATTED "<PRINTER?><LEFT=" STRING(4 + d-print-fmt-dec) "mm><EXPORT=" Ls-fax-file ",BW>".
+                  PUT UNFORMATTED "<PRINTER?><LEFT=" + trim(STRING(4 + d-print-fmt-dec)) + "mm><EXPORT=" Ls-fax-file ",BW>" FORMAT "x(120)".
               ELSE IF v-print-fmt EQ "Carded" THEN
-                  PUT UNFORMATTED "<PRINTER?><LEFT=" STRING(6 + d-print-fmt-dec) "mm><EXPORT=" Ls-fax-file ",BW>".
+                  PUT UNFORMATTED "<PRINTER?><LEFT=" + trim(STRING(6 + d-print-fmt-dec)) + "mm><EXPORT=" Ls-fax-file ",BW>" FORMAT "x(120)".
               ELSE IF d-print-fmt-dec > 0 THEN
-                  PUT UNFORMATTED "<PRINTER?><LEFT=" STRING(d-print-fmt-dec) "mm><EXPORT=" Ls-fax-file ",BW>".
+                  PUT UNFORMATTED "<PRINTER?><LEFT=" + trim(STRING(d-print-fmt-dec)) + "mm><EXPORT=" Ls-fax-file ",BW>" FORMAT "x(120)".
               ELSE PUT UNFORMATTED "<PRINTER?><EXPORT=" Ls-fax-file ",BW>".
         END.
         WHEN 5 THEN do:
             IF v-print-fmt = "Century" THEN /*<PDF-LEFT=5mm><PDF-TOP=10mm>*/
-                 PUT "<PREVIEW><PDF-EXCLUDE=MS Mincho><PDF-LEFT=" STRING(2.5 + d-print-fmt-dec) "mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
+                 PUT "<PREVIEW><PDF-EXCLUDE=MS Mincho><PDF-LEFT=" + trim(STRING(2.5 + d-print-fmt-dec)) + "mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
                  ELSE IF v-print-fmt EQ "PremierX" OR v-print-fmt EQ "PremierXFooter" OR v-print-fmt EQ "RFCX"  OR v-print-fmt = "PremierCX" OR v-print-fmt = "PremierPX" THEN
-                   PUT "<PREVIEW><FORMAT=LETTER><PDF-EXCLUDE=MS Mincho><PDF-LEFT=" STRING(5 + d-print-fmt-dec) "mm><PDF-TOP=7mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
-            ELSE IF v-print-fmt EQ "CCC" OR v-print-fmt EQ "CCCWPP" OR v-print-fmt EQ "CCC2" THEN PUT "<PREVIEW><LEFT=" STRING(4 + d-print-fmt-dec) "mm><PDF-LEFT=" STRING(2 + d-print-fmt-dec) "mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
-            ELSE IF v-print-fmt EQ "Carded" THEN PUT "<PREVIEW><LEFT=" STRING(6 + d-print-fmt-dec) "mm><PDF-LEFT=" STRING(6 + d-print-fmt-dec) "mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
+                   PUT "<PREVIEW><FORMAT=LETTER><PDF-EXCLUDE=MS Mincho><PDF-LEFT=" + trim(STRING(5 + d-print-fmt-dec)) + "mm><PDF-TOP=7mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
+            ELSE IF v-print-fmt EQ "CCC" OR v-print-fmt EQ "CCCWPP" OR v-print-fmt EQ "CCC2" THEN PUT "<PREVIEW><LEFT=" + trim(STRING(4 + d-print-fmt-dec)) + "mm><PDF-LEFT=" + trim(STRING(2 + d-print-fmt-dec)) + "mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
+            ELSE IF v-print-fmt EQ "Carded" THEN PUT "<PREVIEW><LEFT=" + trim(STRING(6 + d-print-fmt-dec)) + "mm><PDF-LEFT=" + trim(STRING(6 + d-print-fmt-dec)) + "mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
             ELSE IF d-print-fmt-dec > 0 THEN
-                PUT "<PREVIEW><LEFT=" STRING(d-print-fmt-dec) "mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
+                PUT "<PREVIEW><LEFT=" + trim(STRING(d-print-fmt-dec)) + "mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
             ELSE PUT "<PREVIEW><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
         END.
     END CASE.
@@ -4315,14 +4314,14 @@ PROCEDURE run-report-mail :
 
     IF IS-xprint-form THEN DO:
       IF v-print-fmt = "Century"                     /*<PDF-LEFT=5mm><PDF-TOP=10mm>*/
-        THEN PUT "<PREVIEW><PDF-EXCLUDE=MS Mincho><PDF-LEFT=" STRING(2.5 + d-print-fmt-dec) "mm><PDF-OUTPUT=" + lv-pdf-file + vcBOLNums + ".pdf>" FORM "x(180)".
+        THEN PUT "<PREVIEW><PDF-EXCLUDE=MS Mincho><PDF-LEFT=" + trim(STRING(2.5 + d-print-fmt-dec)) + "mm><PDF-OUTPUT=" + lv-pdf-file + vcBOLNums + ".pdf>" FORM "x(180)".
         ELSE IF v-print-fmt EQ "PremierX" OR v-print-fmt EQ "PremierXFooter" OR v-print-fmt EQ "RFCX"  OR v-print-fmt = "PremierCX" OR v-print-fmt = "PremierPX" THEN
-                   PUT "<PREVIEW><FORMAT=LETTER><PDF-EXCLUDE=MS Mincho><PDF-LEFT=" STRING(5 + d-print-fmt-dec) "mm><PDF-TOP=7mm><PDF-OUTPUT=" + lv-pdf-file + vcBOLNums + ".pdf>" FORM "x(180)".
+                   PUT "<PREVIEW><FORMAT=LETTER><PDF-EXCLUDE=MS Mincho><PDF-LEFT=" + trim(STRING(5 + d-print-fmt-dec)) + "mm><PDF-TOP=7mm><PDF-OUTPUT=" + lv-pdf-file + vcBOLNums + ".pdf>" FORM "x(180)".
         ELSE IF v-print-fmt EQ "Prystup-Excel" THEN PUT "<PDF-OUTPUT=" + lv-pdf-file + vcBOLNums + ".pdf>" FORM "x(180)".
-        ELSE IF v-print-fmt EQ "CCC" OR v-print-fmt EQ "CCCWPP" OR v-print-fmt EQ "CCC2" THEN PUT "<PREVIEW><LEFT=" STRING(4 + d-print-fmt-dec) "mm><PDF-LEFT=" STRING(2 + d-print-fmt-dec) "mm><PDF-OUTPUT=" + lv-pdf-file + vcBOLNums + ".pdf>" FORM "x(180)".
-        ELSE IF v-print-fmt EQ "Carded" THEN PUT "<PREVIEW><LEFT=" STRING(6 + d-print-fmt-dec) "mm><PDF-LEFT=" STRING(6 + d-print-fmt-dec) "mm><PDF-OUTPUT=" + lv-pdf-file + vcBOLNums + ".pdf>" FORM "x(180)".
+        ELSE IF v-print-fmt EQ "CCC" OR v-print-fmt EQ "CCCWPP" OR v-print-fmt EQ "CCC2" THEN PUT "<PREVIEW><LEFT=" + trim(STRING(4 + d-print-fmt-dec)) + "mm><PDF-LEFT=" + trim(STRING(2 + d-print-fmt-dec)) + "mm><PDF-OUTPUT=" + lv-pdf-file + vcBOLNums + ".pdf>" FORM "x(180)".
+        ELSE IF v-print-fmt EQ "Carded" THEN PUT "<PREVIEW><LEFT=" + trim(STRING(6 + d-print-fmt-dec)) + "mm><PDF-LEFT=" + trim(STRING(6 + d-print-fmt-dec)) + "mm><PDF-OUTPUT=" + lv-pdf-file + vcBOLNums + ".pdf>" FORM "x(180)".
         ELSE IF d-print-fmt-dec > 0 THEN
-            PUT "<PREVIEW><LEFT=" STRING(d-print-fmt-dec) "mm><PDF-OUTPUT=" + lv-pdf-file + vcBOLNums + ".pdf>" FORM "x(180)".
+            PUT "<PREVIEW><LEFT=" + trim(STRING(d-print-fmt-dec)) + "mm><PDF-OUTPUT=" + lv-pdf-file + vcBOLNums + ".pdf>" FORM "x(180)".
         ELSE PUT "<PREVIEW><PDF-OUTPUT=" + lv-pdf-file + vcBOLNums + ".pdf>" FORM "x(180)".
     END.
 
