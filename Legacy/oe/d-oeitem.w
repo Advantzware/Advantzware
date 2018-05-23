@@ -3387,12 +3387,11 @@ oplRelFlg2 = llRelFlg2.
         FOR EACH shipto
           WHERE shipto.company EQ cocode
              AND shipto.cust-no EQ oe-ord.cust-no
+             AND shipto.ship-id = oe-ord.ship-id
           NO-LOCK
           BREAK BY shipto.ship-no DESC:
-          IF shipto.ship-id EQ oe-ord.cust-no THEN DO:
             v-ship-id = shipto.ship-id.
             LEAVE.
-          END.
         END.
 
     END.
