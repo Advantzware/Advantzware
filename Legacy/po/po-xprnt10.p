@@ -832,9 +832,11 @@ FOR EACH notes WHERE notes.rec_key = po-ord.rec_key NO-LOCK:
     "<=8><R+3> "  " " /*PST        :" inv-head.t-inv-tax FORM "->>,>>9.99"*/
                 /*v-bot-lab[2] */
     "<=8><R+4> Grand Total:" po-ord.t-cost FORM "->>,>>9.99" .
-
-PUT "<FArial><R58><C1><P12><B> Terms and Conditions </B> <P9> " SKIP
-     " " SKIP
+  IF v-print-terms THEN
+     PUT "<FArial><R58><C1><P12><B> Terms and Conditions </B> <P9> " SKIP.
+  ELSE
+     PUT "<FArial><R58><C1> <P9> " SKIP.
+     PUT " " SKIP
      " " SKIP
      " " SKIP(1)     
      "  I acknowledge the pricing on this P.O. is correct. _________________________(please sign and fax)" SKIP
