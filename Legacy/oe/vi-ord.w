@@ -35,6 +35,7 @@ CREATE WIDGET-POOL.
 
 /* Local Variable Definitions ---                                       */
 
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -60,12 +61,13 @@ CREATE WIDGET-POOL.
 DEFINE QUERY external_tables FOR oe-ord.
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-FIELDS oe-ord.ord-no oe-ord.ord-date oe-ord.type ~
-oe-ord.est-no oe-ord.job-no oe-ord.job-no2 oe-ord.stat 
+oe-ord.est-no oe-ord.job-no oe-ord.job-no2 
 &Scoped-define ENABLED-TABLES oe-ord
 &Scoped-define FIRST-ENABLED-TABLE oe-ord
-&Scoped-Define ENABLED-OBJECTS RECT-1 
+&Scoped-Define ENABLED-OBJECTS RECT-1
+&Scoped-Define DISPLAYED-OBJECTS cStatus  
 &Scoped-Define DISPLAYED-FIELDS oe-ord.ord-no oe-ord.ord-date oe-ord.type ~
-oe-ord.est-no oe-ord.job-no oe-ord.job-no2 oe-ord.stat 
+oe-ord.est-no oe-ord.job-no oe-ord.job-no2 
 &Scoped-define DISPLAYED-TABLES oe-ord
 &Scoped-define FIRST-DISPLAYED-TABLE oe-ord
 
@@ -106,7 +108,10 @@ RUN set-attribute-list (
 DEFINE RECTANGLE RECT-1
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL 
      SIZE 144 BY 1.43.
-
+DEFINE VARIABLE cStatus AS CHARACTER FORMAT "X(256)":U 
+     VIEW-AS FILL-IN 
+     SIZE 25 BY 1
+     NO-UNDO.
 
 /* ************************  Frame Definitions  *********************** */
 
@@ -129,10 +134,10 @@ DEFINE FRAME F-Main
      oe-ord.job-no2 AT ROW 1.24 COL 121 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 4.4 BY 1
-     oe-ord.stat AT ROW 1.24 COL 138 COLON-ALIGNED
+     cStatus AT ROW 1.24 COL 110 COLON-ALIGNED
           LABEL "Status"
           VIEW-AS FILL-IN 
-          SIZE 3.2 BY 1
+          SIZE 25 BY 1
      RECT-1 AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -204,8 +209,8 @@ ASSIGN
 ASSIGN 
        oe-ord.job-no2:HIDDEN IN FRAME F-Main           = TRUE.
 
-/* SETTINGS FOR FILL-IN oe-ord.stat IN FRAME F-Main
-   EXP-LABEL                                                            */
+/* SETTINGS FOR FILL-IN cStatus IN FRAME F-Main
+   NO-ENABLE                                                            */
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
@@ -264,6 +269,51 @@ PROCEDURE adm-row-available :
   /* Process the newly available records (i.e. display fields,
      open queries, and/or pass records on to any RECORD-TARGETS).    */
   {src/adm/template/row-end.i}
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+  &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-display-fields V-table-Win 
+PROCEDURE local-display-fields :
+/*------------------------------------------------------------------------------
+  Purpose:     Override standard ADM method
+  Notes:       
+------------------------------------------------------------------------------*/
+
+  /* Code placed here will execute PRIOR to standard behavior. */
+
+  /* Dispatch standard ADM method.                             */
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'display-fields':U ) .
+
+  /* Code placed here will execute AFTER standard behavior.    */
+  DO WITH FRAME {&FRAME-NAME}:
+    IF oe-ord.stat EQ "N" THEN
+        cStatus:SCREEN-VALUE = oe-ord.stat + "- New". 
+    IF oe-ord.stat EQ "D" THEN
+        cStatus:SCREEN-VALUE = oe-ord.stat + "- Deleted". 
+    IF oe-ord.stat EQ "H" THEN
+        cStatus:SCREEN-VALUE = oe-ord.stat + "- Credit Hold". 
+    IF oe-ord.stat EQ "A" THEN
+        cStatus:SCREEN-VALUE = oe-ord.stat + "- Approved". 
+    IF oe-ord.stat EQ "R" THEN
+        cStatus:SCREEN-VALUE = oe-ord.stat + "- Release". 
+    IF oe-ord.stat EQ "I" THEN
+        cStatus:SCREEN-VALUE = oe-ord.stat + "- Invoiced". 
+    IF oe-ord.stat EQ "O" THEN
+        cStatus:SCREEN-VALUE = oe-ord.stat + "- Original Invoice". 
+    IF oe-ord.stat EQ "S" THEN
+        cStatus:SCREEN-VALUE = oe-ord.stat + "- Ship Only". 
+    IF oe-ord.stat EQ "X" THEN
+        cStatus:SCREEN-VALUE = oe-ord.stat + "- InvPrinted". 
+    IF oe-ord.stat EQ "P" THEN
+        cStatus:SCREEN-VALUE = oe-ord.stat + "- Partial". 
+    IF oe-ord.stat EQ "C" THEN
+        cStatus:SCREEN-VALUE = oe-ord.stat + "- Closed".
+    IF oe-ord.stat EQ "U" THEN
+        cStatus:SCREEN-VALUE = oe-ord.stat + "- Updated".
+  END.
 
 END PROCEDURE.
 
