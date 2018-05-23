@@ -114,6 +114,7 @@ PROCEDURE CheckPriceHoldForOrder:
     ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipriOeOrd AS ROWID NO-UNDO.
     DEFINE INPUT PARAMETER iplPrompt AS LOGICAL NO-UNDO.
+    DEFINE INPUT PARAMETER iplUpdateDB AS LOGICAL NO-UNDO.
     DEFINE OUTPUT PARAMETER oplPriceHold AS LOGICAL NO-UNDO.
     DEFINE OUTPUT PARAMETER opcPriceHoldReason AS CHARACTER NO-UNDO.
 
@@ -152,7 +153,7 @@ PROCEDURE CheckPriceHoldForOrder:
     FIND FIRST ttPriceHold NO-LOCK
         WHERE ttPriceHold.lPriceHold
         NO-ERROR.
-    IF AVAILABLE ttPriceHold THEN 
+    IF AVAILABLE ttPriceHold THEN
         ASSIGN 
             oplPriceHold       = YES
             opcPriceHoldReason = ttPriceHold.cPriceHoldReason
@@ -162,15 +163,30 @@ PROCEDURE CheckPriceHoldForOrder:
             oplPriceHold       = NO
             opcPriceHoldReason = ""
             .
-
+    IF iplPrompt AND oplPriceHold THEN 
+        RUN oe/dPriceHoldPrompt.w.
+    IF iplUpdateDB THEN 
+    DO:
+        FIND FIRST bf-oe-ord EXCLUSIVE-LOCK 
+            WHERE ROWID(bf-oe-ord) EQ ipriOeOrd
+            NO-ERROR.
+        IF AVAILABLE bf-oe-ord THEN 
+            ASSIGN          
+                bf-oe-ord.priceHold       = oplPriceHold
+                bf-oe-ord.priceHoldReason = opcPriceHoldReason
+                .
+        FIND CURRENT bf-oe-ord NO-LOCK.
+    END.
+    RELEASE bf-oe-ord.
+    
 END PROCEDURE.
 
 PROCEDURE CheckPriceMatrix:
-/*------------------------------------------------------------------------------
- Purpose:  Performs Check based on OEPriceMatrixCheck NK1
-    Returns information to prompt or not and to block entry to just warn
- Notes:
-------------------------------------------------------------------------------*/
+    /*------------------------------------------------------------------------------
+     Purpose:  Performs Check based on OEPriceMatrixCheck NK1
+        Returns information to prompt or not and to block entry to just warn
+     Notes:
+    ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.  /*Company*/
     DEFINE INPUT PARAMETER ipcFGItemID AS CHARACTER NO-UNDO.  /*FG Item ID*/
     DEFINE INPUT PARAMETER ipcCustID AS CHARACTER NO-UNDO.  /*Customer Scope of FG Item*/
@@ -185,33 +201,37 @@ PROCEDURE CheckPriceMatrix:
     DEFINE BUFFER bf-itemfg   FOR itemfg.
     DEFINE BUFFER bf-cust     FOR cust.
         
-    DEFINE VARIABLE lMatrixFound AS LOGICAL NO-UNDO.
-    DEFINE VARIABLE lQtyMatch    AS LOGICAL NO-UNDO.
-    DEFINE VARIABLE cMessage     AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE iLevel       AS INTEGER NO-UNDO. 
-    DEFINE VARIABLE lCheckActive AS LOGICAL NO-UNDO.
-    DEFINE VARIABLE lAllowMax    AS LOGICAL NO-UNDO .
+    DEFINE VARIABLE lMatrixFound   AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE lQtyMatch      AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage       AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iLevel         AS INTEGER   NO-UNDO. 
+    DEFINE VARIABLE lCheckActive   AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE lAllowMax      AS LOGICAL   NO-UNDO .
     DEFINE VARIABLE cCheckCriteria AS CHARACTER NO-UNDO .
-    DEFINE VARIABLE lLessThanMax AS LOGICAL NO-UNDO.
-    DEFINE VARIABLE lBlockEntry AS LOGICAL NO-UNDO.
-    DEFINE VARIABLE dPriceMtx    AS DECIMAL NO-UNDO .
-    DEFINE VARIABLE cPriceUOM    AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lLessThanMax   AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE lBlockEntry    AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE dPriceMtx      AS DECIMAL   NO-UNDO .
+    DEFINE VARIABLE cPriceUOM      AS CHARACTER NO-UNDO.
     
     RUN pGetOEPriceMatrixCheckSettings(ipcCompany, OUTPUT oplPrompt, OUTPUT lAllowMax, OUTPUT oplBlockEntry).
-    IF oplPrompt THEN DO:
+    IF oplPrompt THEN 
+    DO:
         RUN pSetBuffers(ipcCompany, ipcFGItemID, ipcCustID, BUFFER bf-itemfg, BUFFER bf-cust).
         RUN pGetPriceMatrix(BUFFER bf-itemfg, BUFFER bf-cust, BUFFER bf-oe-prmtx, ipcShipID, OUTPUT lMatrixFound, OUTPUT cMessage).
-        IF lMatrixFound THEN DO:
+        IF lMatrixFound THEN 
+        DO:
             RUN pGetQtyMatchInfo(BUFFER bf-oe-prmtx, ipdQuantity, 0, OUTPUT iLevel, OUTPUT lQtyMatch).
             RUN pGetPriceAtLevel(BUFFER bf-oe-prmtx, iLevel, bf-itemfg.sell-price, bf-itemfg.sell-uom, OUTPUT dPriceMtx, OUTPUT cPriceUOM).
             IF dPriceMtx NE ipdPrice THEN 
-                    opcMessage = cMessage + " but price should be " + STRING(dPriceMtx) + " not " + STRING(ipdPrice).
-            ELSE DO:                
-                IF NOT lQtyMatch THEN DO:
+                opcMessage = cMessage + " but price should be " + STRING(dPriceMtx) + " not " + STRING(ipdPrice).
+            ELSE 
+            DO:                
+                IF NOT lQtyMatch THEN 
+                DO:
                     IF bf-oe-prmtx.qty[iLevel] GE 99999999 AND lAllowMax THEN 
                         ASSIGN 
-                            opcMessage = cMessage + " and Quantity of " + STRING(ipdQuantity) + " matched at max level"
-                            oplPrompt = NO
+                            opcMessage    = cMessage + " and Quantity of " + STRING(ipdQuantity) + " matched at max level"
+                            oplPrompt     = NO
                             oplBlockEntry = NO.
                     ELSE 
                         ASSIGN 
@@ -219,8 +239,8 @@ PROCEDURE CheckPriceMatrix:
                 END.    
                 ELSE 
                     ASSIGN 
-                        opcMessage = cMessage + " and Quantity of " + STRING(ipdQuantity) + " matched at level " + string(iLevel)
-                        oplPrompt = NO
+                        opcMessage    = cMessage + " and Quantity of " + STRING(ipdQuantity) + " matched at level " + string(iLevel)
+                        oplPrompt     = NO
                         oplBlockEntry = NO.
             END.
         END.
@@ -229,8 +249,8 @@ PROCEDURE CheckPriceMatrix:
     END.
     ELSE 
         ASSIGN 
-            oplPrompt = NO
-            opcMessage = "OEPriceMatrixCheck not active"
+            oplPrompt     = NO
+            opcMessage    = "OEPriceMatrixCheck not active"
             oplBlockEntry = NO.
        
 
@@ -247,6 +267,7 @@ PROCEDURE CalculateLinePrice:
     DEFINE INPUT PARAMETER ipcCustID AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcShipID AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipdQuantity AS DECIMAL NO-UNDO.
+    DEFINE INPUT PARAMETER iplUpdateDB AS LOGICAL NO-UNDO.
     DEFINE OUTPUT PARAMETER oplMatrixExists AS LOGICAL NO-UNDO.
     DEFINE INPUT-OUTPUT PARAMETER iopdPrice AS DECIMAL NO-UNDO.
     DEFINE INPUT-OUTPUT PARAMETER iopcPriceUOM AS CHARACTER NO-UNDO.
@@ -307,45 +328,40 @@ PROCEDURE CalculateLinePrice:
             ttItemLines.dDiscount,
             OUTPUT ttItemLines.dPriceTotal).   
     END.
-    /*Assign order from ttItemLines*/
-    FOR EACH ttItemLines NO-LOCK 
-        WHERE ttItemLines.cTableType EQ "oe-ordl":
-        FIND FIRST oe-ordl EXCLUSIVE-LOCK 
-            WHERE ROWID(oe-ordl) EQ ttItemLines.riLine
-            NO-ERROR.
-        IF AVAILABLE oe-ordl THEN DO: 
-/*            MESSAGE AVAILABLE oe-ordl SKIP            */
-/*            ttItemLines.cFGItemID SKIP                */
-/*            ttItemLines.dPrice SKIP                   */
-/*            ttItemLines.dPriceTotal VIEW-AS ALERT-BOX.*/
-            
-            ASSIGN
-                oe-ordl.price = ttItemLines.dPrice
-                oe-ordl.pr-uom = ttItemLines.cPriceUOM
-                oe-ordl.t-price = ttItemLines.dPriceTotal
-                .
-            RELEASE oe-ordl.
+    IF iplUpdateDB THEN 
+    DO:
+        /*Assign order from ttItemLines*/
+        FOR EACH ttItemLines NO-LOCK 
+            WHERE ttItemLines.cTableType EQ "oe-ordl":
+            FIND FIRST oe-ordl EXCLUSIVE-LOCK 
+                WHERE ROWID(oe-ordl) EQ ttItemLines.riLine
+                NO-ERROR.
+            IF AVAILABLE oe-ordl THEN 
+            DO: 
+                ASSIGN
+                    oe-ordl.price   = ttItemLines.dPrice
+                    oe-ordl.pr-uom  = ttItemLines.cPriceUOM
+                    oe-ordl.t-price = ttItemLines.dPriceTotal
+                    .
+                RELEASE oe-ordl.
+            END.
         END.
-    END.
-    FOR EACH ttItemLines NO-LOCK 
-        WHERE ttItemLines.cTableType EQ "inv-line":
-        FIND FIRST inv-line EXCLUSIVE-LOCK 
-            WHERE ROWID(inv-line) EQ ttItemLines.riLine
-            NO-ERROR.
-        IF AVAILABLE inv-line THEN DO: 
-/*            MESSAGE AVAILABLE inv-line SKIP           */
-/*            ttItemLines.cFGItemID SKIP                */
-/*            ttItemLines.dPrice SKIP                   */
-/*            ttItemLines.dPriceTotal VIEW-AS ALERT-BOX.*/
-
-            ASSIGN
-                inv-line.price = ttItemLines.dPrice
-                inv-line.pr-uom = ttItemLines.cPriceUOM
-                inv-line.t-price = ttItemLines.dPriceTotal
-                .
-            RELEASE inv-line.
+        FOR EACH ttItemLines NO-LOCK 
+            WHERE ttItemLines.cTableType EQ "inv-line":
+            FIND FIRST inv-line EXCLUSIVE-LOCK 
+                WHERE ROWID(inv-line) EQ ttItemLines.riLine
+                NO-ERROR.
+            IF AVAILABLE inv-line THEN 
+            DO: 
+                ASSIGN
+                    inv-line.price   = ttItemLines.dPrice
+                    inv-line.pr-uom  = ttItemLines.cPriceUOM
+                    inv-line.t-price = ttItemLines.dPriceTotal
+                    .
+                RELEASE inv-line.
+            END.
         END.
-    END.
+    END. /*iplUpdateDB*/
 
 END PROCEDURE.
 
@@ -660,9 +676,10 @@ PROCEDURE pAddPriceHold PRIVATE:
     IF bf-itemfg.i-code EQ "S" THEN  
         RUN pGetPriceMatrix(BUFFER bf-itemfg, BUFFER bf-cust, BUFFER bf-oe-prmtx, ipcShipID, 
             OUTPUT ttPriceHold.lMatrixMatch, OUTPUT ttPriceHold.cMatrixMatch).
-    ELSE DO:
+    ELSE 
+    DO:
         ASSIGN 
-            ttPriceHold.lPriceHold = NO
+            ttPriceHold.lPriceHold       = NO
             ttPriceHold.cPriceHoldDetail = ttPriceHold.cFGItemID + " ignored since it is Custom Box and not Stock"
             ttPriceHold.cPriceHoldReason = "Not a Stock item"
             .
@@ -851,10 +868,10 @@ PROCEDURE pGetLastPrice PRIVATE:
 END PROCEDURE.
 
 PROCEDURE pGetOEPriceMatrixCheckSettings PRIVATE:
-/*------------------------------------------------------------------------------
- Purpose:
- Notes:
-------------------------------------------------------------------------------*/
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
     /*------------------------------------------------------------------------------
      Purpose: Returns Price hold Criteria Settings
      Notes:
@@ -864,40 +881,41 @@ PROCEDURE pGetOEPriceMatrixCheckSettings PRIVATE:
     DEFINE OUTPUT PARAMETER oplAllowMax AS LOGICAL NO-UNDO.
     DEFINE OUTPUT PARAMETER oplBlockEntry AS LOGICAL NO-UNDO.
     
-    DEFINE VARIABLE lFound    AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE lFound  AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE cReturn AS CHARACTER NO-UNDO. 
    
     
     RUN sys/ref/nk1look.p (ipcCompany, 
-                           "OEPriceMatrixCheck",
-                           "L" /* Logical */,
-                           NO /* check by cust */,
-                           YES /* use cust not vendor */,
-                           "" /* cust */,
-                           "" /* ship-to*/,
-                           OUTPUT cReturn, 
-                           OUTPUT lFound).
+        "OEPriceMatrixCheck",
+        "L" /* Logical */,
+        NO /* check by cust */,
+        YES /* use cust not vendor */,
+        "" /* cust */,
+        "" /* ship-to*/,
+        OUTPUT cReturn, 
+        OUTPUT lFound).
     oplCheckMatrix = (lFound AND cReturn EQ "YES").
-    IF oplCheckMatrix THEN DO:
+    IF oplCheckMatrix THEN 
+    DO:
         RUN sys/ref/nk1look.p (ipcCompany,
-                              "OEPriceMatrixCheck", 
-                              "I" /* Logical */,
-                              NO /* check by cust */,
-                              YES /* use cust not vendor */,
-                              "" /* cust */,
-                              "" /* ship-to*/,
-                              OUTPUT cReturn,
-                              OUTPUT lFound).
+            "OEPriceMatrixCheck", 
+            "I" /* Logical */,
+            NO /* check by cust */,
+            YES /* use cust not vendor */,
+            "" /* cust */,
+            "" /* ship-to*/,
+            OUTPUT cReturn,
+            OUTPUT lFound).
         oplAllowMax = (lFound AND INT(cReturn) EQ 1).
         RUN sys/ref/nk1look.p (ipcCompany, 
-                               "OEPriceMatrixCheck", 
-                               "C" /* Logical */,
-                               NO /* check by cust */,
-                               YES /* use cust not vendor */,
-                               "" /* cust */,
-                               "" /* ship-to*/,
-                               OUTPUT cReturn,
-                               OUTPUT lFound).
+            "OEPriceMatrixCheck", 
+            "C" /* Logical */,
+            NO /* check by cust */,
+            YES /* use cust not vendor */,
+            "" /* cust */,
+            "" /* ship-to*/,
+            OUTPUT cReturn,
+            OUTPUT lFound).
         oplBlockEntry =  (lFound AND cReturn EQ "Block Entry").
     END.
 END PROCEDURE.
@@ -980,13 +998,13 @@ PROCEDURE pGetPriceMatrix PRIVATE:
         END.
     END.
     IF ipbf-itemfg.i-code NE "S" THEN 
-     DO:
-            ASSIGN 
-                opcMatchDetail = "FG Item is not 'Stock'"
-                oplMatchFound  = NO 
-                .
-            RETURN.
-        END.
+    DO:
+        ASSIGN 
+            opcMatchDetail = "FG Item is not 'Stock'"
+            oplMatchFound  = NO 
+            .
+        RETURN.
+    END.
     /*Find match */  
     FOR EACH opbf-oe-prmtx NO-LOCK 
         WHERE opbf-oe-prmtx.company EQ ipbf-itemfg.company
@@ -1036,18 +1054,18 @@ PROCEDURE pGetPriceMatrix PRIVATE:
             oplMatchFound = YES
             .
         ASSIGN 
-        opcMatchDetail = "Match "
-        cMsgItemFG     = "FGItemID="
-        cMsgItemProcat = "FGProdCat="
-        cMsgCustID     = "CustID="
-        cMsgCustType   = "CustType="
-        cMsgShipID     = "ShipID="
-        cMsgCustID = IF opbf-oe-prmtx.cust-no EQ "" THEN cMsgCustID + cMsgBlankInd ELSE cMsgCustID + opbf-oe-prmtx.cust-no
-        cMsgItemFG = IF opbf-oe-prmtx.i-no EQ "" THEN cMsgItemFG + cMsgBlankInd ELSE cMsgItemFG + opbf-oe-prmtx.i-no
-        cMsgItemProcat = IF opbf-oe-prmtx.procat EQ "" THEN cMsgItemProcat + cMsgBlankInd ELSE cMsgItemProcat + opbf-oe-prmtx.procat
-        cMsgCustType = IF opbf-oe-prmtx.custype EQ "" THEN cMsgCustType + cMsgBlankInd ELSE cMsgCustType + opbf-oe-prmtx.custype 
-        cMsgShipID = IF opbf-oe-prmtx.custShipID EQ "" THEN cMsgShipID + cMsgBlankInd ELSE cMsgShipID + opbf-oe-prmtx.custShipID
-        .
+            opcMatchDetail = "Match "
+            cMsgItemFG     = "FGItemID="
+            cMsgItemProcat = "FGProdCat="
+            cMsgCustID     = "CustID="
+            cMsgCustType   = "CustType="
+            cMsgShipID     = "ShipID="
+            cMsgCustID     = IF opbf-oe-prmtx.cust-no EQ "" THEN cMsgCustID + cMsgBlankInd ELSE cMsgCustID + opbf-oe-prmtx.cust-no
+            cMsgItemFG     = IF opbf-oe-prmtx.i-no EQ "" THEN cMsgItemFG + cMsgBlankInd ELSE cMsgItemFG + opbf-oe-prmtx.i-no
+            cMsgItemProcat = IF opbf-oe-prmtx.procat EQ "" THEN cMsgItemProcat + cMsgBlankInd ELSE cMsgItemProcat + opbf-oe-prmtx.procat
+            cMsgCustType   = IF opbf-oe-prmtx.custype EQ "" THEN cMsgCustType + cMsgBlankInd ELSE cMsgCustType + opbf-oe-prmtx.custype 
+            cMsgShipID     = IF opbf-oe-prmtx.custShipID EQ "" THEN cMsgShipID + cMsgBlankInd ELSE cMsgShipID + opbf-oe-prmtx.custShipID
+            .
     END.    
     ELSE 
         ASSIGN 
@@ -1084,6 +1102,7 @@ PROCEDURE pGetQtyMatchInfo PRIVATE:
         oplQtyDistinctMatch = NO 
         ipiLevelStart       = IF ipiLevelStart EQ 0 THEN 1 ELSE ipiLevelStart
         .
+       IF NOT AVAIL ipbf-oe-prmtx THEN RETURN .
  
     /*process matrix array completely, one time*/
     DO iLevel = ipiLevelStart TO 10: /* IF customer has higher starting level set otherwise start with 1st level*/

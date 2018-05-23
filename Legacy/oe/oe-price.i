@@ -51,7 +51,7 @@ ELSE DO:
         NO-ERROR.
     IF AVAILABLE bf-oe-ordl THEN cShipID = bf-oe-ordl.ship-id.
 END.    
-RUN CalculateLinePrice IN hdPriceProcs (ROWID({1}), v-i-item, cust.cust-no, cShipID, v-i-qty, 
+RUN CalculateLinePrice IN hdPriceProcs (ROWID({1}), v-i-item, cust.cust-no, cShipID, v-i-qty, YES,
     OUTPUT matrixExists, INPUT-OUTPUT {1}.price, INPUT-OUTPUT {1}.pr-uom).
     
  

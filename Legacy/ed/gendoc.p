@@ -10,18 +10,25 @@
 DEF INPUT PARAM p_edcode_rec AS RECID.
 DEF INPUT PARAM p_docid AS CHAR NO-UNDO.
 DEF OUTPUT PARAM p_eddoc_rec AS RECID.
-
-FIND edcode
-  WHERE RECID(edcode) = p_edcode_rec NO-LOCK NO-ERROR.
-FIND edmast OF edcode
-  /* WHERE RECID(edmast) = ws_edmast_rec */
-  EXCLUSIVE-LOCK NO-ERROR.
-  IF NOT AVAILABLE EDMast THEN 
+DEFINE BUFFER bf-edmast FOR edmast.
+FIND edcode NO-LOCK
+  WHERE RECID(edcode) = p_edcode_rec  NO-ERROR.
+FIND edmast EXCLUSIVE-LOCK OF edcode  
+   NO-ERROR.
+    
+IF NOT AVAILABLE EDMast THEN 
     FIND FIRST EDMast EXCLUSIVE-LOCK WHERE EDMast.partner EQ ws_partner NO-ERROR.
-IF NOT AVAIL edmast THEN
+    
+FIND FIRST edPartnerGrp EXCLUSIVE-LOCK WHERE edPartnerGrp.partnerGrp EQ ws_partner NO-ERROR.
+
+IF NOT AVAILABLE edPartnerGrp AND AVAILABLE(edmast) THEN 
+    FIND FIRST edPartnerGrp EXCLUSIVE-LOCK WHERE edPartnerGrp.partnerGrp EQ edmast.partnerGrp NO-ERROR.
+    
+IF NOT AVAIL edmast OR NOT AVAILABLE edPartnerGrp THEN
 DO:
   LEAVE.
 END.
+
 
 CREATE eddoc.
 ASSIGN
@@ -48,16 +55,12 @@ ASSIGN
   eddoc.isa           = ?
   eddoc.gs            = 0
   eddoc.st            = 0
-  /*
-  eddoc.fgsender      = rms_header_partner
-  eddoc.fgrecvid      = rms_header_company-id
-  eddoc.version       = rms_header_std-ver
-  */
-  EDMast.Seq = EDMast.Seq + 1 
-  eddoc.seq           = EDMast.Seq
+  edPartnerGrp.st = edPartnerGrp.st + 1 
+  eddoc.seq            = edPartnerGrp.st
   eddoc.userref       = p_docid
   ws_eddoc_rec = RECID(eddoc)
   p_eddoc_rec = ws_eddoc_rec
-  no-error.
-  
+   .
+
   RELEASE EDMast.
+  RELEASE edPartnerGrp.

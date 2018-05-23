@@ -19,7 +19,7 @@
 /* Parameters Definitions ---                                           */
 
 {oe/tt-item-qty-price.i} 
-{oe/ttPriceHold.i "NEW SHARED"}
+
 
 /* Local Variable Definitions ---                                       */
 DEF INPUT PARAMETER ip-recid AS RECID NO-UNDO.
@@ -160,7 +160,7 @@ DEFINE VARIABLE oeDateChange-log AS LOGICAL     NO-UNDO.
 DEFINE VARIABLE oeDateChange-chr AS CHARACTER   NO-UNDO.
 DEFINE VARIABLE gcLastDateChange AS CHARACTER   NO-UNDO.
 DEFINE VARIABLE hdPriceProcs AS HANDLE NO-UNDO.
-
+{oe/ttPriceHold.i "NEW SHARED"}
 RUN oe/PriceProcs.p PERSISTENT SET hdPriceProcs.
 
 cocode = g_company.
@@ -1360,6 +1360,8 @@ DO:
   DEFINE VARIABLE lPMPrompt AS LOGICAL.
   DEFINE VARIABLE cPMMessage AS CHARACTER.
   DEFINE VARIABLE lPMBlock AS LOGICAL.
+  DEFINE VARIABLE lPricehold AS LOGICAL.
+  DEFINE VARIABLE cPriceHoldMessage AS CHARACTER.
 
   DEF BUFFER b-oe-ordl FOR oe-ordl.
   DEF BUFFER b-oe-ord FOR oe-ord.
@@ -1461,7 +1463,13 @@ DO:
         MESSAGE cPMMessage VIEW-AS ALERT-BOX.
         IF lPMBlock THEN RETURN NO-APPLY.
    END.
-
+   
+   RUN CheckPriceHoldForOrder IN hdPriceProcs(ROWID(oe-ord),
+                                              YES, /*Prompt*/
+                                              YES, /*Set oe-ord hold fields*/
+                                              OUTPUT lPriceHold, 
+                                              OUTPUT cPriceHoldMessage).
+    
   IF oepricecheck-log AND oe-ordl.est-no:SCREEN-VALUE EQ "" AND
      ll-new-record THEN
      RUN prev-quote-proc(INPUT-OUTPUT lv-price,
@@ -2560,18 +2568,17 @@ DO:
                  oe-ordl.cost:screen-value = STRING(ld-cost).                          
               END.
 
-              FIND FIRST reftable WHERE
-                   reftable.reftable EQ 'e-itemfg-vend.markup' AND
-                   reftable.company EQ po-ordl.company AND
-                   reftable.loc EQ po-ordl.i-no AND
-                   reftable.code EQ po-ord.vend-no
+              FIND FIRST e-itemfg-vend WHERE
+                   e-itemfg-vend.company EQ po-ordl.company AND
+                   e-itemfg-vend.i-no EQ po-ordl.i-no AND
+                   e-itemfg-vend.vend-no EQ po-ord.vend-no AND
+                   e-itemfg-vend.est-no EQ ""
                    NO-LOCK NO-ERROR.
 
-              IF AVAIL reftable THEN
+              IF AVAIL e-itemfg-vend THEN
               DO:
-                 oe-ordl.cost:SCREEN-VALUE = STRING(DEC(oe-ordl.cost:SCREEN-VALUE) * (1 + (reftable.val[1]/ 100.0 ))).
-                 RELEASE reftable.
-              END.
+                 oe-ordl.cost:SCREEN-VALUE = STRING(DEC(oe-ordl.cost:SCREEN-VALUE) * (1 + (e-itemfg-vend.markup / 100.0 ))).
+                 END.
             END.
     END.
     ELSE IF SELF:screen-value EQ "0" THEN
@@ -5504,18 +5511,17 @@ DO WITH FRAME {&frame-name}:
 
         IF AVAIL po-ord THEN
         DO:
-           FIND FIRST reftable WHERE
-                reftable.reftable EQ 'e-itemfg-vend.markup' AND
-                reftable.company EQ po-ordl.company AND
-                reftable.loc EQ po-ordl.i-no AND
-                reftable.code EQ po-ord.vend-no
-                NO-LOCK NO-ERROR.
-           
-           IF AVAIL reftable THEN
+           FIND FIRST e-itemfg-vend WHERE
+                   e-itemfg-vend.company EQ po-ordl.company AND
+                   e-itemfg-vend.i-no EQ po-ordl.i-no AND
+                   e-itemfg-vend.vend-no EQ po-ord.vend-no AND
+                   e-itemfg-vend.est-no EQ ""
+                   NO-LOCK NO-ERROR.
+
+              IF AVAIL e-itemfg-vend THEN
            DO:
-              oe-ordl.cost:SCREEN-VALUE = STRING(DEC(oe-ordl.cost:SCREEN-VALUE) * (1 + (reftable.val[1]/ 100.0 ))).
-              RELEASE reftable.
-           END.
+              oe-ordl.cost:SCREEN-VALUE = STRING(DEC(oe-ordl.cost:SCREEN-VALUE) * (1 + (e-itemfg-vend.markup / 100.0 ))).
+              END.
            RELEASE po-ord.
         END.
      END.
@@ -6605,18 +6611,17 @@ PROCEDURE itemfg-cost :
       
           IF AVAIL po-ord THEN
           DO:
-             FIND FIRST reftable WHERE
-                  reftable.reftable EQ 'e-itemfg-vend.markup' AND
-                  reftable.company EQ po-ordl.company AND
-                  reftable.loc EQ po-ordl.i-no AND
-                  reftable.code EQ po-ord.vend-no
-                  NO-LOCK NO-ERROR.
-             
-             IF AVAIL reftable THEN
+             FIND FIRST e-itemfg-vend WHERE
+                   e-itemfg-vend.company EQ po-ordl.company AND
+                   e-itemfg-vend.i-no EQ po-ordl.i-no AND
+                   e-itemfg-vend.vend-no EQ po-ord.vend-no AND
+                   e-itemfg-vend.est-no EQ ""
+                   NO-LOCK NO-ERROR.
+
+              IF AVAIL e-itemfg-vend THEN
              DO:
-                oe-ordl.cost:SCREEN-VALUE = STRING(DEC(oe-ordl.cost:SCREEN-VALUE) * (1 + (reftable.val[1]/ 100.0 ))).
-                RELEASE reftable.
-             END.
+                oe-ordl.cost:SCREEN-VALUE = STRING(DEC(oe-ordl.cost:SCREEN-VALUE) * (1 + (e-itemfg-vend.markup / 100.0 ))).
+                END.
              RELEASE po-ord.
           END.
        END.
@@ -9372,7 +9377,6 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 
 /* ************************  Function Implementations ***************** */
 

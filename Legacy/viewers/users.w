@@ -1152,7 +1152,7 @@ PROCEDURE ipWriteUsrFile :
     OUTPUT TO VALUE(cUsrLoc).
     FOR EACH ttUsers:
         PUT UNFORMATTED
-            ttUsers.ttfPdbname + "|" +
+            "*|" +
             ttUsers.ttfUserAlias + "|" +
             ttUsers.ttfUserID + "|" +
             ttUsers.ttfEnvList + "|" +
@@ -1358,7 +1358,7 @@ PROCEDURE local-delete-record :
     END.
     
     FIND ttUsers EXCLUSIVE WHERE
-        ttUsers.ttfPdbname = PDBNAME(1) AND
+        ttUsers.ttfPdbname = "*" AND
         ttUsers.ttfUserID = users.user_id:SCREEN-VALUE IN FRAME {&FRAME-NAME}
         NO-ERROR.
     IF AVAIL ttUsers THEN DO:
@@ -1408,13 +1408,13 @@ PROCEDURE local-display-fields :
     
     IF AVAIL users THEN DO:
         FIND FIRST ttUsers WHERE
-            ttUsers.ttfPdbName = PDBNAME(1) AND
+            ttUsers.ttfPdbName = "*" AND
             ttUsers.ttfUserID = users.user_id
             NO-ERROR.
         IF NOT AVAIL ttUsers THEN DO:
             CREATE ttUsers.
             ASSIGN
-                ttUsers.ttfPdbName = PDBNAME(1)
+                ttUsers.ttfPdbName = "*"
                 ttUsers.ttfUserID = users.user_id
                 ttUsers.ttfEnvList = slEnvironments:list-items in FRAME {&FRAME-NAME}
                 ttUsers.ttfDbList = slDatabases:list-items
@@ -1729,13 +1729,13 @@ PROCEDURE local-update-record :
     END.
 
     FIND ttUsers EXCLUSIVE WHERE
-        ttUsers.ttfPdbname = PDBNAME(1) AND
+        ttUsers.ttfPdbName = "*" AND
         ttUsers.ttfUserID = users.user_id:SCREEN-VALUE
         NO-ERROR.
     IF NOT AVAIL ttUsers THEN DO:
         CREATE ttUsers.
         ASSIGN
-            ttUsers.ttfPdbname = PDBNAME(1)
+            ttUsers.ttfPdbname = "*"
             ttUsers.ttfUserID = users.user_id:SCREEN-VALUE.
     END.
     ASSIGN

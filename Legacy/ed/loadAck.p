@@ -29,7 +29,7 @@ DEFINE VARIABLE lRecFound       AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cEdiFileLine AS CHARACTER NO-UNDO.
 /* Default location if NK1 not defined */
 DEFINE VARIABLE cLogfolder     AS CHARACTER NO-UNDO 
-    INIT "C:\Program Files\RSSBus\RSSBus Connect\data\AmazonTest\Logs\Sent"
+    INIT "C:\Program Files\RSSBus\RSSBus Connect\data\Amazon\Logs\Sent"
     
     .
 DEFINE VARIABLE cSentFolder    AS CHARACTER NO-UNDO.
@@ -52,7 +52,7 @@ IF NOT AVAILABLE edco OR edco.company EQ "" THEN
   RETURN.
 
 
-RUN sys/ref/nk1look.p (INPUT edco.company, "AmazonInvoice", "C" /* Character*/, 
+RUN sys/ref/nk1look.p (INPUT edco.company, "EDILogs", "DS" /* Character*/, 
     INPUT NO /* check by cust */, 
     INPUT YES /* use cust not vendor */,
     INPUT "" /* cust */, 
@@ -62,7 +62,7 @@ RUN sys/ref/nk1look.p (INPUT edco.company, "AmazonInvoice", "C" /* Character*/,
 IF lRecFound THEN 
     cLogFolder= cReturnChar  .
 
-RUN sys/ref/nk1look.p (INPUT edco.company, "AmazonInvoice", "DS" /* Character*/, 
+RUN sys/ref/nk1look.p (INPUT edco.company, "EDILogs", "C" /* Character*/, 
     INPUT NO /* check by cust */, 
     INPUT YES /* use cust not vendor */,
     INPUT "" /* cust */, 
@@ -70,7 +70,7 @@ RUN sys/ref/nk1look.p (INPUT edco.company, "AmazonInvoice", "DS" /* Character*/,
     OUTPUT cReturnChar, 
     OUTPUT lRecFound).
 IF lRecFound THEN
-    cLogFolder= cReturnChar  .
+    cSentFolder = cReturnChar  .
 
 OS-COMMAND SILENT VALUE("dir /s/b " + '"' + cLogfolder + "\" + "*.filename " + '"' + " > c:\temp\list.txt" ).
 
@@ -96,7 +96,7 @@ REPEAT:
     IMPORT STREAM sLog UNFORMATTED cLogFileName.
     cLogFile = cLogFileName. 
     INPUT stream sLog close.
- 
+
     /* Read the current log file to determine if transmission was successful */
     IF SEARCH(cLogFileName) NE ? THEN 
     DO:
@@ -176,9 +176,14 @@ FOR EACH ttInvoiceList.
             .
     END.
 END. /* Each ttInvoiceList */
+OUTPUT STREAM sLog CLOSE. 
 
 PROCEDURE getInvoiceNumbersInFile:
     DEFINE VARIABLE iInvoiceNum AS INTEGER NO-UNDO.
+
+    IF SEARCH(cSentFolder +  cEdiFileName) EQ ? THEN
+      RETURN.
+
     INPUT stream sEDIFile from value(cSentFolder +  cEdiFileName).
     REPEAT:
         IMPORT STREAM sEDIFile UNFORMATTED cEdiFileLine.

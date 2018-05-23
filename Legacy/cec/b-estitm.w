@@ -3083,7 +3083,7 @@ PROCEDURE check-for-set :
               UPDATE ll-rol.
     END.
 
-    ll-set = eb.yld-qty GT 1 AND NOT ll-rol.
+    ll-set = eb.quantityPerSet GT 1 AND NOT ll-rol.
   END.
 
   FIND FIRST bf-eb

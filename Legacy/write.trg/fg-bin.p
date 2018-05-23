@@ -18,9 +18,10 @@ cocode = {&TABLENAME}.company.
 IF {&TABLENAME}.case-count LT 0 THEN
   {&TABLENAME}.case-count = {&TABLENAME}.case-count * -1.
 
-IF {&TABLENAME}.case-count NE old-{&TABLENAME}.case-count AND
-   old-{&TABLENAME}.case-count EQ old-{&TABLENAME}.qty    THEN
-  {&TABLENAME}.partial-count = {&TABLENAME}.partial-count + old-{&TABLENAME}.qty.
+/*  Removing for 28873 - do not know the purpose of this code calculation          */
+/*IF {&TABLENAME}.case-count NE old-{&TABLENAME}.case-count AND                    */
+/*   old-{&TABLENAME}.case-count EQ old-{&TABLENAME}.qty    THEN                   */
+/*  {&TABLENAME}.partial-count = {&TABLENAME}.partial-count + old-{&TABLENAME}.qty.*/
 
 IF {&TABLENAME}.qty EQ 0 THEN
   ASSIGN

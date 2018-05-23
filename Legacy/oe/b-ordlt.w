@@ -1891,7 +1891,8 @@ PROCEDURE select-price :
 ------------------------------------------------------------------------------*/
  DEFINE VARIABLE lv-tmp-recid AS RECID NO-UNDO.
  DEFINE VARIABLE ld-prev-t-price LIKE oe-ordl.t-price NO-UNDO.
-
+ DEFINE VARIABLE ip-parms     AS CHARACTER NO-UNDO.
+ DEFINE VARIABLE op-values    AS CHARACTER NO-UNDO.
  
  FIND xoe-ord WHERE xoe-ord.company = oe-ordl.company AND
                      xoe-ord.ord-no = oe-ordl.ord-no NO-LOCK NO-ERROR.
@@ -1900,15 +1901,36 @@ PROCEDURE select-price :
          v-price-lev = 0.
   /* Get appropriate level */
   RUN oe/oe-level.p(BUFFER xoe-ord, OUTPUT v-price-lev).
- 
+
+  ip-parms = 
+    /* price percentage */
+    "|type=literal,name=label6,row=3.2,col=20,enable=false,width=44,scrval=" + "What Level should the Items be Repriced At?:" + ",FORMAT=x(60)"
+    + "|type=fill-in,name=perprice,row=3,col=65,enable=true,width=16,data-type=integer,initial=" + STRING(v-price-lev)
+    + "|type=image,image=webspeed\images\question.gif,name=im1,row=3,col=4,enable=true,width=12,height=3 " 
+    /* Box Title */
+    + "|type=win,name=fi3,enable=true,label=  Update Price?,FORMAT=X(30),height=9".
+  
   REPEAT:
-       MESSAGE "What Level should the Items be Repriced At?" UPDATE v-price-lev .
+       /*MESSAGE "What Level should the Items be Repriced At?" UPDATE v-price-lev .*/
+       RUN custom/d-prompt.w (INPUT "", ip-parms, "", OUTPUT op-values).
+       
+       IF op-values NE "" THEN
+        v-price-lev = INTEGER(ENTRY(2, op-values)) .
+       
+       IF op-values NE "" THEN
+       IF ENTRY(4, op-values) EQ "Cancel" THEN LEAVE .
+       
+
        IF v-price-lev LE 0 OR v-price-lev GE 11 THEN DO:
          MESSAGE "Level must be Between 1 and 10.  Please ReEnter." VIEW-AS ALERT-BOX ERROR.
          NEXT.
        END.
        LEAVE.
    END.
+
+   IF v-price-lev LE 0 THEN RETURN .
+
+   IF AVAIL oe-ordl THEN
    ASSIGN
     lv-tmp-recid    = RECID(oe-ordl)
     ld-prev-t-price = oe-ordl.t-price.
@@ -1917,6 +1939,7 @@ PROCEDURE select-price :
    {&open-query-{&browse-name}}
    REPOSITION {&browse-name} TO RECID lv-tmp-recid.
 
+   IF AVAIL oe-ord THEN
    RUN oe/calcordt.p (ROWID(oe-ord)).
    FIND FIRST cust NO-LOCK 
           WHERE cust.company EQ cocode

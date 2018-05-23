@@ -500,7 +500,18 @@ PROCEDURE import-excel :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-   RUN oe/PriceMatrixImport.p (INPUT cocode).
+    DEFINE VARIABLE lAccess AS LOGICAL NO-UNDO.
+
+    RUN util/CheckModule.p ("ASI","ImpPMtx.", NO, OUTPUT lAccess).
+        IF lAccess THEN 
+            RUN util/Importer.w (INPUT cocode, 
+                INPUT locode, 
+                INPUT "ttImportPriceMatrix", INPUT ?).
+        ELSE 
+            RUN oe/PriceMatrixImport.p (INPUT cocode).
+
+
+   
 
    RUN dispatch ('open-query'). 
 

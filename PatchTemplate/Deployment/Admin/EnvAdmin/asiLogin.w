@@ -651,14 +651,16 @@ END.
 ON LEAVE OF fiUserID IN FRAME DEFAULT-FRAME /* User ID */
 DO:
     FIND FIRST ttUsers NO-LOCK WHERE
-        ttUsers.ttfUserID = SELF:{&SV} AND
-        ttUsers.ttfPdbName = cbDatabase:{&SV}
+        ttUsers.ttfPdbName = "*" AND
+        ttUsers.ttfUserID = SELF:{&SV} 
         NO-ERROR.
     IF NOT AVAIL ttUsers THEN DO:
         FIND FIRST ttUsers NO-LOCK WHERE
+            ttUsers.ttfPdbName = "*" AND
             ttUsers.ttfUserAlias = SELF:{&SV}
             NO-ERROR.
     END.
+    
     IF NOT AVAIL ttUsers THEN DO:
         MESSAGE
             "Unable to locate this user in the advantzware.usr file." SKIP
@@ -949,21 +951,12 @@ PROCEDURE ipConnectDb :
     DEF VAR xdbName AS CHAR NO-UNDO.
     DEF VAR xdbPort AS CHAR NO-UNDO.
 
-    IF cPassword <> "" THEN
-        CONNECT VALUE(cStatement + 
+    CONNECT VALUE(cStatement + 
                   " -U " + cUser + 
                   " -P '" + cPassword + 
-                  "' -ct 2") NO-ERROR.
-    ELSE
-            CONNECT VALUE(cStatement + 
-                  " -U " + cUser + 
-                  " -ct 2") NO-ERROR.
-    IF LDBNAME(1) = ? THEN DO:
-        cStatement = REPLACE(cStatement,"-H " + cHostName,"-H LOCALHOST").
-        CONNECT VALUE(cStatement + 
-                      " -U " + cUser + 
-                      " -P '" + cPassword + "'") NO-ERROR.
-    END.
+                  "' -ct 2").
+    IF NOT CONNECTED(LDBNAME(1)) THEN RETURN.                  
+
     IF CONNECTED(LDBNAME(1))
     AND LDBNAME(1) = "ASI" THEN DO:
         CREATE ALIAS nosweat FOR DATABASE VALUE(LDBNAME(1)).
@@ -1596,21 +1589,20 @@ PROCEDURE ipUpdUsrFile :
     
     DO iCtr = 1 TO NUM-ENTRIES(ipcUserList):
         FIND FIRST ttUsers WHERE
-            ttUsers.ttfPdbname = PDBNAME(1) AND
+            ttUsers.ttfPdbName = "*"
             ttUsers.ttfUserID = ENTRY(iCtr,ipcUserList)
             NO-LOCK NO-ERROR.
         IF NOT AVAIL ttUsers THEN DO:
             CREATE ttUsers.
             ASSIGN
                 lUpdUsr = TRUE
-                ttUsers.ttfPdbname = PDBNAME(1)
+                ttUsers.ttfPdbname = "*"
                 ttUsers.ttfUserID = ENTRY(iCtr,ipcUserList)
                 ttUsers.ttfUserAlias = ENTRY(iCtr,ipcUserList)
                 .
         END.
     END.
-    FOR EACH ttUsers WHERE
-        ttUsers.ttfPdbname = PDBNAME(1):
+    FOR EACH ttUsers:
         IF LOOKUP(ttUsers.ttfUserID,ipcUserList) = 0 THEN DO:
             DELETE ttUsers.
         END.
@@ -1619,7 +1611,7 @@ PROCEDURE ipUpdUsrFile :
         OUTPUT STREAM usrStream TO VALUE(cUsrLoc).
         FOR EACH ttUsers BY ttUsers.ttfPdbname by ttUsers.ttfUserID:
             ASSIGN cOutString = 
-                ttUsers.ttfPdbname + "|" +
+                "*|" +
                 ttUsers.ttfUserAlias + "|" + 
                 ttUsers.ttfUserID + "|" + 
                 ttUsers.ttfEnvList + "|" +
