@@ -949,21 +949,12 @@ PROCEDURE ipConnectDb :
     DEF VAR xdbName AS CHAR NO-UNDO.
     DEF VAR xdbPort AS CHAR NO-UNDO.
 
-    IF cPassword <> "" THEN
-        CONNECT VALUE(cStatement + 
+    CONNECT VALUE(cStatement + 
                   " -U " + cUser + 
                   " -P '" + cPassword + 
-                  "' -ct 2") NO-ERROR.
-    ELSE
-            CONNECT VALUE(cStatement + 
-                  " -U " + cUser + 
-                  " -ct 2") NO-ERROR.
-    IF LDBNAME(1) = ? THEN DO:
-        cStatement = REPLACE(cStatement,"-H " + cHostName,"-H LOCALHOST").
-        CONNECT VALUE(cStatement + 
-                      " -U " + cUser + 
-                      " -P '" + cPassword + "'") NO-ERROR.
-    END.
+                  "' -ct 2").
+    IF NOT CONNECTED(LDBNAME(1)) THEN RETURN.                  
+
     IF CONNECTED(LDBNAME(1))
     AND LDBNAME(1) = "ASI" THEN DO:
         CREATE ALIAS nosweat FOR DATABASE VALUE(LDBNAME(1)).
