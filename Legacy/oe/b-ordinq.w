@@ -2779,35 +2779,12 @@ FUNCTION getstat RETURNS CHARACTER
     Notes:  
 ------------------------------------------------------------------------------*/
     DEFINE VARIABLE lc-result AS CHARACTER NO-UNDO.
-    lc-result = "".
+    DEFINE VARIABLE cResult AS CHARACTER NO-UNDO.
     
-     IF oe-ord.stat EQ "N" THEN
-        lc-result = oe-ord.stat + "- New". 
-    ELSE IF oe-ord.stat EQ "D" THEN
-        lc-result = oe-ord.stat + "- Deleted". 
-    ELSE IF oe-ord.stat EQ "H" THEN
-        lc-result = oe-ord.stat + "- Credit Hold". 
-    ELSE IF oe-ord.stat EQ "A" THEN
-        lc-result = oe-ord.stat + "- Approved". 
-    ELSE IF oe-ord.stat EQ "R" THEN
-        lc-result = oe-ord.stat + "- Release". 
-    ELSE IF oe-ord.stat EQ "I" THEN
-        lc-result = oe-ord.stat + "- Invoiced". 
-    ELSE IF oe-ord.stat EQ "O" THEN
-        lc-result = oe-ord.stat + "- Original Invoice". 
-    ELSE IF oe-ord.stat EQ "S" THEN
-        lc-result = oe-ord.stat + "- Ship Only". 
-    ELSE IF oe-ord.stat EQ "X" THEN
-        lc-result = oe-ord.stat + "- InvPrinted". 
-    ELSE IF oe-ord.stat EQ "P" THEN
-        lc-result = oe-ord.stat + "- Partial". 
-    ELSE IF oe-ord.stat EQ "C" THEN
-        lc-result = oe-ord.stat + "- Closed".
-    ELSE IF oe-ord.stat EQ "U" THEN
-        lc-result = oe-ord.stat + "- Updated".
-    ELSE 
-        lc-result = oe-ord.stat .
-
+    lc-result = oe-ord.stat .
+    RUN oe/getStatusDesc.p( INPUT oe-ord.stat, OUTPUT cResult) .
+    IF cResult NE "" THEN
+       lc-result  = cResult .
     RETURN lc-result.   /* Function return value. */
 
 END FUNCTION.

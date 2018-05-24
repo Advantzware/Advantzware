@@ -281,7 +281,7 @@ PROCEDURE local-display-fields :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-
+ DEFINE VARIABLE cResultStat AS CHARACTER NO-UNDO .
   /* Code placed here will execute PRIOR to standard behavior. */
 
   /* Dispatch standard ADM method.                             */
@@ -289,30 +289,10 @@ PROCEDURE local-display-fields :
 
   /* Code placed here will execute AFTER standard behavior.    */
   DO WITH FRAME {&FRAME-NAME}:
-    IF oe-ord.stat EQ "N" THEN
-        cStatus:SCREEN-VALUE = oe-ord.stat + "- New". 
-    IF oe-ord.stat EQ "D" THEN
-        cStatus:SCREEN-VALUE = oe-ord.stat + "- Deleted". 
-    IF oe-ord.stat EQ "H" THEN
-        cStatus:SCREEN-VALUE = oe-ord.stat + "- Credit Hold". 
-    IF oe-ord.stat EQ "A" THEN
-        cStatus:SCREEN-VALUE = oe-ord.stat + "- Approved". 
-    IF oe-ord.stat EQ "R" THEN
-        cStatus:SCREEN-VALUE = oe-ord.stat + "- Release". 
-    IF oe-ord.stat EQ "I" THEN
-        cStatus:SCREEN-VALUE = oe-ord.stat + "- Invoiced". 
-    IF oe-ord.stat EQ "O" THEN
-        cStatus:SCREEN-VALUE = oe-ord.stat + "- Original Invoice". 
-    IF oe-ord.stat EQ "S" THEN
-        cStatus:SCREEN-VALUE = oe-ord.stat + "- Ship Only". 
-    IF oe-ord.stat EQ "X" THEN
-        cStatus:SCREEN-VALUE = oe-ord.stat + "- InvPrinted". 
-    IF oe-ord.stat EQ "P" THEN
-        cStatus:SCREEN-VALUE = oe-ord.stat + "- Partial". 
-    IF oe-ord.stat EQ "C" THEN
-        cStatus:SCREEN-VALUE = oe-ord.stat + "- Closed".
-    IF oe-ord.stat EQ "U" THEN
-        cStatus:SCREEN-VALUE = oe-ord.stat + "- Updated".
+     cStatus:SCREEN-VALUE = oe-ord.stat .
+     RUN oe/getStatusDesc.p( INPUT oe-ord.stat, OUTPUT cResultStat) .
+     IF cResultStat NE "" THEN
+        cStatus:SCREEN-VALUE = cResultStat .
   END.
 
 END PROCEDURE.
