@@ -207,7 +207,7 @@ DEFINE FRAME fold
           LABEL "Side-Side"
           VIEW-AS FILL-IN 
           SIZE 11.6 BY 1
-     ef.xgrain AT ROW 1.24 COL 132.5 COLON-ALIGNED
+     ef.xgrain AT ROW 1.24 COL 132 COLON-ALIGNED
           LABEL "Xgrain" FORMAT "X"
           VIEW-AS COMBO-BOX INNER-LINES 5
           LIST-ITEM-PAIRS "Normal","N",
