@@ -374,7 +374,13 @@ DEFINE BROWSE br_table
   QUERY br_table NO-LOCK DISPLAY
       tt-report.opened COLUMN-LABEL "Prt" FORMAT "Y/N":U WIDTH 5.4
             COLUMN-FONT 0
-      oe-rel.s-code COLUMN-LABEL "S/I" FORMAT "!":U
+      oe-rel.s-code COLUMN-LABEL "S/I" FORMAT "X(12)":U
+      VIEW-AS COMBO-BOX INNER-LINES 4 
+          LIST-ITEM-PAIRS "B-Both","B",
+                     "S-Ship","S",
+                     "I-Invoice","I",
+                     "T-Transfer","T"
+          DROP-DOWN-LIST
       oe-rel.ship-id COLUMN-LABEL "Ship To" FORMAT "x(8)":U COLUMN-FONT 0
       oe-rel.stat COLUMN-LABEL "S" FORMAT "X":U WIDTH 2
       oe-rel.carrier COLUMN-LABEL "Via" FORMAT "x(5)":U COLUMN-FONT 0
