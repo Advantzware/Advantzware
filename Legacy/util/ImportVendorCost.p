@@ -286,9 +286,6 @@ PROCEDURE pProcessRecord PRIVATE:
                 AND bf-e-itemfg-vend.vend-no EQ ipbf-ttImportVendCost.cVendorID NO-ERROR.
             IF NOT AVAILABLE bf-e-itemfg-vend THEN 
             DO:
-              
-                iopiAdded = iopiAdded + 1.
-                
                 CREATE bf-e-itemfg-vend.
                 ASSIGN
                     bf-e-itemfg-vend.company   = ipbf-ttImportVendCost.Company
