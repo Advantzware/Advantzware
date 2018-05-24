@@ -289,10 +289,12 @@ PROCEDURE local-display-fields :
 
   /* Code placed here will execute AFTER standard behavior.    */
   DO WITH FRAME {&FRAME-NAME}:
-     cStatus:SCREEN-VALUE = oe-ord.stat .
-     RUN oe/getStatusDesc.p( INPUT oe-ord.stat, OUTPUT cResultStat) .
-     IF cResultStat NE "" THEN
-        cStatus:SCREEN-VALUE = cResultStat .
+     IF AVAILABLE oe-ord THEN DO:
+        cStatus:SCREEN-VALUE = oe-ord.stat .
+        RUN oe/getStatusDesc.p( INPUT oe-ord.stat, OUTPUT cResultStat) .
+        IF cResultStat NE "" THEN
+            cStatus:SCREEN-VALUE = cResultStat .
+    END.
   END.
 
 END PROCEDURE.
