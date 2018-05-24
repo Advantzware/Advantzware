@@ -138,6 +138,7 @@ DEF VAR OESellPriceXfer-log AS LOG NO-UNDO.
 DEF VAR lv-multi-select        AS LOG NO-UNDO INIT NO.
 DEF VAR llOEFGAdd-sec AS LOG NO-UNDO.
 DEF VAR llAutoadd-sec AS LOG NO-UNDO.
+DEFINE VARIABLE llOEPrcChg-sec AS LOGICAL NO-UNDO.
 DEF VAR oeDateAuto-log AS LOG NO-UNDO.
 DEF VAR oeDateAuto-char AS CHAR NO-UNDO.
 DEF VAR v-access-close AS LOG NO-UNDO.
@@ -307,14 +308,24 @@ RUN methods/prgsecur.p
 
 RUN methods/prgsecur.p
     (INPUT "OEFGAdd",
+    INPUT "ALL", /* based on run, create, update, delete or all */
+    INPUT NO,    /* use the directory in addition to the program */
+    INPUT NO,    /* Show a message if not authorized */
+    INPUT NO,    /* Group overrides user security? */
+    OUTPUT llOEFGAdd-sec, /* Allowed? Yes/NO */
+    OUTPUT v-access-close, /* used in template/windows.i  */
+    OUTPUT v-access-list). /* list 1's and 0's indicating yes or no to run, create, update, delete */
+
+RUN methods/prgsecur.p
+    (INPUT "OEPrcChg",
      INPUT "ALL", /* based on run, create, update, delete or all */
      INPUT NO,    /* use the directory in addition to the program */
      INPUT NO,    /* Show a message if not authorized */
      INPUT NO,    /* Group overrides user security? */
-     OUTPUT llOEFGAdd-sec, /* Allowed? Yes/NO */
+     OUTPUT llOEPrcChg-sec, /* Allowed? Yes/NO */
      OUTPUT v-access-close, /* used in template/windows.i  */
      OUTPUT v-access-list). /* list 1's and 0's indicating yes or no to run, create, update, delete */
-
+     
 DEF VAR lcReturn AS CHAR NO-UNDO.
 DEF VAR llRecFound AS LOG NO-UNDO.
 DEF VAR llOeShipFromLog AS LOG NO-UNDO.
@@ -3283,7 +3294,12 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
           ENABLE oe-ordl.qty.
       END. /* webupdate */
 
-  END.
+    END.
+ 
+    IF llOEPrcChg-sec THEN  
+       oe-ordl.price:SENSITIVE  IN FRAME {&FRAME-NAME} = YES.
+    ELSE 
+       oe-ordl.price:SENSITIVE  IN FRAME {&FRAME-NAME} = NO.
 
   IF fgsecurity-log THEN
   DO:
