@@ -5712,7 +5712,7 @@ PROCEDURE valid-part-no :
            WHERE  b-eb.est-no EQ eb.est-no 
              AND  b-eb.company EQ eb.company
              AND  b-eb.part-no EQ lv-part-no
-             AND  ( b-eb.form-no NE 0 OR adm-new-record )
+             AND  b-eb.form-no EQ eb.form-no
              AND (ROWID(b-eb) NE ROWID(eb) OR ll-is-copy-record) NO-ERROR  . 
        IF lv-part-no EQ "" OR AVAIL b-eb THEN
            lv-msg = IF lv-part-no EQ "" THEN "may not be blank"
