@@ -173,7 +173,7 @@ RUN methods/prgsecur.p
     OUTPUT v-access-list). /* list 1's and 0's indicating yes or no to run, create, update, delete */
 
 RUN methods/prgsecur.p
-    (INPUT "OEPrcChg",
+    (INPUT "OEPrcHld",
      INPUT "ALL", /* based on run, create, update, delete or all */
      INPUT NO,    /* use the directory in addition to the program */
      INPUT NO,    /* Show a message if not authorized */
