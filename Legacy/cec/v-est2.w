@@ -241,24 +241,24 @@ DEFINE FRAME Corr
      ef.m-dscr AT ROW 1.48 COL 25 NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 35 BY 1
-     ef.lsh-wid AT ROW 1.48 COL 80.4 COLON-ALIGNED HELP
+     ef.lsh-wid AT ROW 1.48 COL 77.4 COLON-ALIGNED HELP
           "This is the Machine Length, Pulled from Machine file"
           LABEL "Front-Back" FORMAT ">>>>9.99"
           VIEW-AS FILL-IN 
           SIZE 14.6 BY 1
-     ef.lsh-len AT ROW 1.48 COL 107 COLON-ALIGNED HELP
+     ef.lsh-len AT ROW 1.48 COL 105 COLON-ALIGNED HELP
           "This is the Machine Width, Pulled from Machine file"
           LABEL "Side-Side" FORMAT ">>>>9.99"
           VIEW-AS FILL-IN 
           SIZE 14.6 BY 1
-     ef.xgrain AT ROW 1.48 COL 134 COLON-ALIGNED
+     ef.xgrain AT ROW 1.48 COL 132 COLON-ALIGNED
           LABEL "Rev. Corr" FORMAT "X"
           VIEW-AS COMBO-BOX INNER-LINES 5
-          LIST-ITEM-PAIRS "None","N",
+          LIST-ITEM-PAIRS "Normal","N",
                      "Sheet","B",
                      "Blank","S"
           DROP-DOWN-LIST
-          SIZE 11.5 BY 1
+          SIZE 13 BY 1
      ef.board AT ROW 2.43 COL 12 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 16 BY 1
