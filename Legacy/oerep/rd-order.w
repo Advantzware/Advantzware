@@ -232,12 +232,13 @@ DEFINE VARIABLE fi_file AS CHARACTER FORMAT "X(30)" INITIAL "c:~\tmp~\r-order.cs
      SIZE 43 BY 1
      FGCOLOR 9 .
 
-DEFINE VARIABLE RS-open-closed AS INTEGER INITIAL 1 
+DEFINE VARIABLE RS-open-closed AS CHARACTER INITIAL "Both" 
      VIEW-AS RADIO-SET HORIZONTAL
      RADIO-BUTTONS 
-          "Open", 1,
-"Closed", 2
-     SIZE 22.6 BY .95 NO-UNDO.
+          "Open", "Open",
+"Closed", "Closed",
+    "Both", "Both"
+     SIZE 36.6 BY .96 NO-UNDO.
 
 DEFINE VARIABLE RS-ord-stat AS INTEGER INITIAL 1 
      VIEW-AS RADIO-SET HORIZONTAL
@@ -1122,11 +1123,6 @@ SESSION:SET-WAIT-STATE ("general").
 /* {sys/inc/print1.i}                         */
 /* {sys/inc/outprint.i value(lines-per-page)} */
 
-IF RS-open-closed = 1 THEN
-   v-open-closed = YES.
-ELSE
-   v-open-closed = NO.
-   
 IF tb_excel THEN
    OUTPUT STREAM excel TO VALUE(fi_file).
     
@@ -1154,7 +1150,6 @@ IF tb_excel THEN
 
    /*   IF v-excelheader NE "" THEN
          PUT STREAM excel UNFORMATTED v-excelheader SKIP. */
-
    FOR EACH oe-ordl NO-LOCK WHERE 
             oe-ordl.company EQ cocode AND 
            (oe-ordl.cust-no >= begin_cust-no AND oe-ordl.cust-no <= end_cust-no) AND 
@@ -1163,9 +1158,9 @@ IF tb_excel THEN
            (oe-ordl.part-no >= begin_part AND oe-ordl.part-no <= end_part) AND
            (oe-ordl.ord-no >= int(begin_order) AND oe-ordl.ord-no <= int(end_order)) AND
             /* end stacey */
-            oe-ordl.opened EQ v-open-closed AND 
-          ((oe-ordl.stat NE "C" AND v-open-closed = YES) OR 
-           (oe-ordl.stat EQ "C" AND v-open-closed = NO) OR oe-ordl.stat EQ ""),
+            (RS-open-closed EQ "Both" OR
+               (oe-ordl.opened AND RS-open-closed EQ "Open" )       OR
+               (NOT oe-ordl.opened AND RS-open-closed EQ "Closed")),
       FIRST oe-ord OF oe-ordl WHERE oe-ord.stat NE "W" AND
            (oe-ord.ord-date >= date(begin_date) AND oe-ord.ord-date <= date(end_date)) AND
        ((oe-ord.stat NE "H" AND RS-ord-stat = 3) OR 
