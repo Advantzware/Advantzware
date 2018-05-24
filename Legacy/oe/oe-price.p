@@ -4,7 +4,7 @@
 /*                   FOR STOCK BOXES ONLY                                     */
 /* -------------------------------------------------------------------------- */
 
-{oe/oe-price.i oe-ordl oe-ord "use-index ord-no" "qty"}
+{oe/oe-price.i oe-ordl oe-ord}
 
 /* end ---------------------------------- copr. 1992  advanced software, inc. */
 

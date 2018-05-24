@@ -1,0 +1,2314 @@
+<?xml version="1.0"?>
+<ttTable xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <ttTableRow>
+    <cDatabase>AUDIT</cDatabase>
+    <cTableName>AuditDtl</cTableName>
+    <cCrc>13707</cCrc>
+    <cCacheId>AUDIT.AuditDtl.13707</cCacheId>
+    <lShowInList>false</lShowInList>
+    <cTableDesc>Audit Detail</cTableDesc>
+    <cFields>AuditAfterValue,AuditBeforeValue,AuditExtent,AuditField,AuditID,AuditIdxField</cFields>
+    <lHidden>false</lHidden>
+    <lFrozen>false</lFrozen>
+    <iNumQueries>0</iNumQueries>
+    <tLastUsed xsi:nil="true"/>
+    <lFavourite>false</lFavourite>
+    <lCached>false</lCached>
+    <iFileNumber>1</iFileNumber>
+    <cCategory>Normal</cCategory>
+  </ttTableRow>
+  <ttTableRow>
+    <cDatabase>AUDIT</cDatabase>
+    <cTableName>AuditHdr</cTableName>
+    <cCrc>54601</cCrc>
+    <cCacheId>AUDIT.AuditHdr.54601</cCacheId>
+    <lShowInList>false</lShowInList>
+    <cTableDesc>Audit Header</cTableDesc>
+    <cFields>AuditDateTime,AuditDB,AuditID,AuditKey,AuditRecKey,AuditStackID,AuditTable,AuditType,AuditUser</cFields>
+    <lHidden>false</lHidden>
+    <lFrozen>false</lFrozen>
+    <iNumQueries>0</iNumQueries>
+    <tLastUsed xsi:nil="true"/>
+    <lFavourite>false</lFavourite>
+    <lCached>false</lCached>
+    <iFileNumber>2</iFileNumber>
+    <cCategory>Normal</cCategory>
+  </ttTableRow>
+  <ttTableRow>
+    <cDatabase>AUDIT</cDatabase>
+    <cTableName>AuditStack</cTableName>
+    <cCrc>29527</cCrc>
+    <cCacheId>AUDIT.AuditStack.29527</cCacheId>
+    <lShowInList>false</lShowInList>
+    <cTableDesc>Audit Stack Trace</cTableDesc>
+    <cFields>AuditStack,AuditStackID</cFields>
+    <lHidden>false</lHidden>
+    <lFrozen>false</lFrozen>
+    <iNumQueries>0</iNumQueries>
+    <tLastUsed xsi:nil="true"/>
+    <lFavourite>false</lFavourite>
+    <lCached>false</lCached>
+    <iFileNumber>3</iFileNumber>
+    <cCategory>Normal</cCategory>
+  </ttTableRow>
+  <ttTableRow>
+    <cDatabase>AUDIT</cDatabase>
+    <cTableName>AuditTbl</cTableName>
+    <cCrc>30106</cCrc>
+    <cCacheId>AUDIT.AuditTbl.30106</cCacheId>
+    <lShowInList>false</lShowInList>
+    <cTableDesc>Audit Table Name from ASI Database</cTableDesc>
+    <cFields>AuditCreate,AuditDelete,AuditStack,AuditTable,AuditUpdate</cFields>
+    <lHidden>false</lHidden>
+    <lFrozen>false</lFrozen>
+    <iNumQueries>0</iNumQueries>
+    <tLastUsed xsi:nil="true"/>
+    <lFavourite>false</lFavourite>
+    <lCached>false</lCached>
+    <iFileNumber>4</iFileNumber>
+    <cCategory>Normal</cCategory>
+  </ttTableRow>
+  <ttTableRow>
+    <cDatabase>AUDIT</cDatabase>
+    <cTableName>_ActAILog</cTableName>
+    <cCrc>7405</cCrc>
+    <cCacheId>AUDIT._ActAILog.7405</cCacheId>
+    <lShowInList>false</lShowInList>
+    <cTableDesc/>
+    <cFields>_AiLog-AIWWrites,_AiLog-BBuffWaits,_AiLog-BytesWritn,_AiLog-ForceWaits,_AiLog-Id,_AiLog-Misc,_AiLog-NoBufAvail,_AiLog-PartialWrt,_AiLog-RecWriten,_AiLog-TotWrites,_AiLog-Trans,_AiLog-UpTime</cFields>
+    <lHidden>true</lHidden>
+    <lFrozen>true</lFrozen>
+    <iNumQueries>0</iNumQueries>
+    <tLastUsed xsi:nil="true"/>
+    <lFavourite>false</lFavourite>
+    <lCached>false</lCached>
+    <iFileNumber>-16400</iFileNumber>
+    <cCategory>VST</cCategory>
+  </ttTableRow>
+  <ttTableRow>
+    <cDatabase>AUDIT</cDatabase>
+    <cTableName>_ActBILog</cTableName>
+    <cCrc>27931</cCrc>
+    <cCacheId>AUDIT._ActBILog.27931</cCacheId>
+    <lShowInList>false</lShowInList>
+    <cTableDesc/>
+    <cFields>_BiLog-BBuffWaits,_BiLog-BIWWrites,_BiLog-BOBufHit,_BiLog-BytesRead,_BiLog-BytesWrtn,_BiLog-ClstrClose,_BiLog-EBuffWaits,_BiLog-ForceWaits,_BiLog-ForceWrts,_BiLog-Id,_BiLog-InputBufHit,_BiLog-Misc,_BiLog-ModBufHit,_BiLog-OutputBufHit,_BiLog-PartialWrts,_BiLog-RecRead,_BiLog-RecWriten,_BiLog-TotalWrts,_BiLog-TotReads,_BiLog-Trans,_BiLog-UpTime</cFields>
+    <lHidden>true</lHidden>
+    <lFrozen>true</lFrozen>
+    <iNumQueries>0</iNumQueries>
+    <tLastUsed xsi:nil="true"/>
+    <lFavourite>false</lFavourite>
+    <lCached>false</lCached>
+    <iFileNumber>-16399</iFileNumber>
+    <cCategory>VST</cCategory>
+  </ttTableRow>
+  <ttTableRow>
+    <cDatabase>AUDIT</cDatabase>
+    <cTableName>_ActBuffer</cTableName>
+    <cCrc>20532</cCrc>
+    <cCacheId>AUDIT._ActBuffer.20532</cCacheId>
+    <lShowInList>false</lShowInList>
+    <cTableDesc/>
+    <cFields>_Buffer-APWEnq,_Buffer-Chkpts,_Buffer-Deferred,_Buffer-Flushed,_Buffer-Id,_Buffer-LogicRds,_Buffer-LogicWrts,_Buffer-LRUEnabled,_Buffer-LRUSkips,_Buffer-LRUWrts,_Buffer-Marked,_Buffer-Misc,_Buffer-OSRds,_Buffer-OSWrts,_Buffer-Trans,_Buffer-UpTime</cFields>
+    <lHidden>true</lHidden>
+    <lFrozen>true</lFrozen>
+    <iNumQueries>0</iNumQueries>
+    <tLastUsed xsi:nil="true"/>
+    <lFavourite>false</lFavourite>
+    <lCached>false</lCached>
+    <iFileNumber>-16397</iFileNumber>
+    <cCategory>VST</cCategory>
+  </ttTableRow>
+  <ttTableRow>
+    <cDatabase>AUDIT</cDatabase>
+    <cTableName>_ActIndex</cTableName>
+    <cCrc>35379</cCrc>
+    <cCacheId>AUDIT._ActIndex.35379</cCacheId>
+    <lShowInList>false</lShowInList>
+    <cTableDesc/>
+    <cFields>_Index-Create,_Index-Delete,_Index-Find,_Index-Free,_Index-Id,_Index-Misc,_Index-PartitionId,_Index-Remove,_Index-Splits,_Index-Trans,_Index-UpTime</cFields>
+    <lHidden>true</lHidden>
+    <lFrozen>true</lFrozen>
+    <iNumQueries>0</iNumQueries>
+    <tLastUsed xsi:nil="true"/>
+    <lFavourite>false</lFavourite>
+    <lCached>false</lCached>
+    <iFileNumber>-16405</iFileNumber>
+    <cCategory>VST</cCategory>
+  </ttTableRow>
+  <ttTableRow>
+    <cDatabase>AUDIT</cDatabase>
+    <cTableName>_ActIOFile</cTableName>
+    <cCrc>11098</cCrc>
+    <cCacheId>AUDIT._ActIOFile.11098</cCacheId>
+    <lShowInList>false</lShowInList>
+    <cTableDesc/>
+    <cFields>_IOFile-BufReads,_IOFile-BufWrites,_IOFile-Extends,_IOFile-FileName,_IOFile-Id,_IOFile-Misc,_IOFile-Reads,_IOFile-Trans,_IOFile-UbufReads,_IOFile-UbufWrites,_IOFile-UpTime,_IOFile-Writes</cFields>
+    <lHidden>true</lHidden>
+    <lFrozen>true</lFrozen>
+    <iNumQueries>0</iNumQueries>
+    <tLastUsed xsi:nil="true"/>
+    <lFavourite>false</lFavourite>
+    <lCached>false</lCached>
+    <iFileNumber>-16403</iFileNumber>
+    <cCategory>VST</cCategory>
+  </ttTableRow>
+  <ttTableRow>
+    <cDatabase>AUDIT</cDatabase>
+    <cTableName>_ActIOType</cTableName>
+    <cCrc>3987</cCrc>
+    <cCacheId>AUDIT._ActIOType.3987</cCacheId>
+    <lShowInList>false</lShowInList>
+    <cTableDesc/>
+    <cFields>_IOType-AiRds,_IOType-AiWrts,_IOType-BiRds,_IOType-BiWrts,_IOType-DataReads,_IOType-DataWrts,_IOType-Id,_IOType-IdxRds,_IOType-IdxWrts,_IOType-Misc,_IOType-Trans,_IOType-UpTime</cFields>
+    <lHidden>true</lHidden>
+    <lFrozen>true</lFrozen>
+    <iNumQueries>0</iNumQueries>
+    <tLastUsed xsi:nil="true"/>
+    <lFavourite>false</lFavourite>
+    <lCached>false</lCached>
+    <iFileNumber>-16402</iFileNumber>
+    <cCategory>VST</cCategory>
+  </ttTableRow>
+  <ttTableRow>
+    <cDatabase>AUDIT</cDatabase>
+    <cTableName>_ActLock</cTableName>
+    <cCrc>20844</cCrc>
+    <cCacheId>AUDIT._ActLock.20844</cCacheId>
+    <lShowInList>false</lShowInList>
+    <cTableDesc/>
+    <cFields>_Lock-CanclReq,_Lock-Downgrade,_Lock-ExclFind,_Lock-ExclLock,_Lock-ExclReq,_Lock-ExclWait,_Lock-Id,_Lock-Misc,_Lock-RecGetLock,_Lock-RecGetReq,_Lock-RecGetWait,_Lock-RedReq,_Lock-ShrFind,_Lock-ShrLock,_Lock-ShrReq,_Lock-ShrWait,_Lock-Trans,_Lock-UpgLock,_Lock-UpgReq,_Lock-UpgWait,_Lock-UpTime</cFields>
+    <lHidden>true</lHidden>
+    <lFrozen>true</lFrozen>
+    <iNumQueries>0</iNumQueries>
+    <tLastUsed xsi:nil="true"/>
+    <lFavourite>false</lFavourite>
+    <lCached>false</lCached>
+    <iFileNumber>-16401</iFileNumber>
+    <cCategory>VST</cCategory>
+  </ttTableRow>
+  <ttTableRow>
+    <cDatabase>AUDIT</cDatabase>
+    <cTableName>_ActOther</cTableName>
+    <cCrc>42368</cCrc>
+    <cCacheId>AUDIT._ActOther.42368</cCacheId>
+    <lShowInList>false</lShowInList>
+    <cTableDesc/>
+    <cFields>_Other-Commit,_Other-FlushMblk,_Other-Id,_Other-Misc,_Other-NBWait,_Other-SemLatWait,_Other-Trans,_Other-Undo,_Other-UpTime,_Other-Wait</cFields>
+    <lHidden>true</lHidden>
+    <lFrozen>true</lFrozen>
+    <iNumQueries>0</iNumQueries>
+    <tLastUsed xsi:nil="true"/>
+    <lFavourite>false</lFavourite>
+    <lCached>false</lCached>
+    <iFileNumber>-16407</iFileNumber>
+    <cCategory>VST</cCategory>
+  </ttTableRow>
+  <ttTableRow>
+    <cDatabase>AUDIT</cDatabase>
+    <cTableName>_ActPWs</cTableName>
+    <cCrc>10498</cCrc>
+    <cCacheId>AUDIT._ActPWs.10498</cCacheId>
+    <lShowInList>false</lShowInList>
+    <cTableDesc/>
+    <cFields>_PW-ApwQWrites,_PW-BuffsScaned,_PW-BufsCkp,_PW-Checkpoints,_PW-CkpQWrites,_PW-DBWrites,_PW-Flushed,_PW-Id,_PW-Marked,_PW-Misc,_PW-ScanCycles,_PW-ScanWrites,_PW-TotDBWrites,_PW-Trans,_PW-UpTime</cFields>
+    <lHidden>true</lHidden>
+    <lFrozen>true</lFrozen>
+    <iNumQueries>0</iNumQueries>
+    <tLastUsed xsi:nil="true"/>
+    <lFavourite>false</lFavourite>
+    <lCached>false</lCached>
+    <iFileNumber>-16398</iFileNumber>
+    <cCategory>VST</cCategory>
+  </ttTableRow>
+  <ttTableRow>
+    <cDatabase>AUDIT</cDatabase>
+    <cTableName>_ActRecord</cTableName>
+    <cCrc>33721</cCrc>
+    <cCacheId>AUDIT._ActRecord.33721</cCacheId>
+    <lShowInList>false</lShowInList>
+    <cTableDesc/>
+    <cFields>_Record-BytesCreat,_Record-BytesDel,_Record-BytesRead,_Record-BytesUpd,_Record-FragCreat,_Record-FragDel,_Record-FragRead,_Record-FragUpd,_Record-Id,_Record-Misc,_Record-RecCreat,_Record-RecDel,_Record-RecRead,_Record-RecUpd,_Record-Trans,_Record-UpTime</cFields>
+    <lHidden>true</lHidden>
+    <lFrozen>true</lFrozen>
+    <iNumQueries>0</iNumQueries>
+    <tLastUsed xsi:nil="true"/>
+    <lFavourite>false</lFavourite>
+    <lCached>false</lCached>
+    <iFileNumber>-16406</iFileNumber>
+    <cCategory>VST</cCategory>
+  </ttTableRow>
+  <ttTableRow>
+    <cDatabase>AUDIT</cDatabase>
+    <cTableName>_ActServer</cTableName>
+    <cCrc>13520</cCrc>
+    <cCacheId>AUDIT._ActServer.13520</cCacheId>
+    <lShowInList>false</lShowInList>
+    <cTableDesc/>
+    <cFields>_Server-ByteRec,_Server-ByteSent,_Server-Id,_Server-Misc,_Server-MsgRec,_Server-MsgSent,_Server-QryRec,_Server-RecRec,_Server-RecSent,_Server-TimeSlice,_Server-Trans,_Server-UpTime</cFields>
+    <lHidden>true</lHidden>
+    <lFrozen>true</lFrozen>
+    <iNumQueries>0</iNumQueries>
+    <tLastUsed xsi:nil="true"/>
+    <lFavourite>false</lFavourite>
+    <lCached>false</lCached>
+    <iFileNumber>-16396</iFileNumber>
+    <cCategory>VST</cCategory>
+  </ttTableRow>
+  <ttTableRow>
+    <cDatabase>AUDIT</cDatabase>
+    <cTableName>_ActSpace</cTableName>
+    <cCrc>24194</cCrc>
+    <cCacheId>AUDIT._ActSpace.24194</cCacheId>
+    <lShowInList>false</lShowInList>
+    <cTableDesc/>
+    <cFields>_Space-AllocNewRm,_Space-BackAdd,_Space-BytesAlloc,_Space-DbExd,_Space-Examined,_Space-FromFree,_Space-FromRm,_Space-Front2Back,_Space-FrontAdd,_Space-Id,_Space-Locked,_Space-Misc,_Space-Removed,_Space-RetFree,_Space-TakeFree,_Space-Trans,_Space-UpTime</cFields>
+    <lHidden>true</lHidden>
+    <lFrozen>true</lFrozen>
+    <iNumQueries>0</iNumQueries>
+    <tLastUsed xsi:nil="true"/>
+    <lFavourite>false</lFavourite>
+    <lCached>false</lCached>
+    <iFileNumber>-16404</iFileNumber>
+    <cCategory>VST</cCategory>
+  </ttTableRow>
+  <ttTableRow>
+    <cDatabase>AUDIT</cDatabase>
+    <cTableName>_ActSummary</cTableName>
+    <cCrc>23657</cCrc>
+    <cCacheId>AUDIT._ActSummary.23657</cCacheId>
+    <lShowInList>false</lShowInList>
+    <cTableDesc/>
+    <cFields>_Summary-AiWrites,_Summary-BiReads,_Summary-BiWrites,_Summary-Chkpts,_Summary-Commits,_Summary-DbAccesses,_Summary-DbReads,_Summary-DbWrites,_Summary-Flushed,_Summary-Id,_Summary-Misc,_Summary-RecCreat,_Summary-RecDel,_Summary-RecLock,_Summary-RecReads,_Summary-RecUpd,_Summary-RecWait,_Summary-TransComm,_Summary-Undos,_Summary-UpTime</cFields>
+    <lHidden>true</lHidden>
+    <lFrozen>true</lFrozen>
+    <iNumQueries>0</iNumQueries>
+    <tLastUsed xsi:nil="true"/>
+    <lFavourite>false</lFavourite>
+    <lCached>false</lCached>
+    <iFileNumber>-16395</iFileNumber>
+    <cCategory>VST</cCategory>
+  </ttTableRow>
+  <ttTableRow>
+    <cDatabase>AUDIT</cDatabase>
+    <cTableName>_Area</cTableName>
+    <cCrc>65219</cCrc>
+    <cCacheId>AUDIT._Area.65219</cCacheId>
+    <lShowInList>false</lShowInList>
+    <cTableDesc/>
+    <cFields>_Area-attrib,_Area-block,_Area-blocksize,_Area-clustersize,_Area-extents,_Area-misc,_Area-name,_Area-number,_Area-recbits,_Area-type,_Area-version</cFields>
+    <lHidden>true</lHidden>
+    <lFrozen>true</lFrozen>
+    <iNumQueries>0</iNumQueries>
+    <tLastUsed xsi:nil="true"/>
+    <lFavourite>false</lFavourite>
+    <lCached>false</lCached>
+    <iFileNumber>-71</iFileNumber>
+    <cCategory>Schema</cCategory>
+  </ttTableRow>
+  <ttTableRow>
+    <cDatabase>AUDIT</cDatabase>
+    <cTableName>_AreaExtent</cTableName>
+    <cCrc>6996</cCrc>
+    <cCacheId>AUDIT._AreaExtent.6996</cCacheId>
+    <lShowInList>false</lShowInList>
+    <cTableDesc/>
+    <cFields>_Area-number,_Area-recid,_Extent-attrib,_Extent-misc,_Extent-number,_Extent-path,_Extent-size,_Extent-system,_Extent-type,_Extent-version</cFields>
+    <lHidden>true</lHidden>
+    <lFrozen>true</lFrozen>
+    <iNumQueries>0</iNumQueries>
+    <tLastUsed xsi:nil="true"/>
+    <lFavourite>false</lFavourite>
+    <lCached>false</lCached>
+    <iFileNumber>-72</iFileNumber>
+    <cCategory>Schema</cCategory>
+  </ttTableRow>
+  <ttTableRow>
+    <cDatabase>AUDIT</cDatabase>
+    <cTableName>_AreaStatus</cTableName>
+    <cCrc>7288</cCrc>
+    <cCacheId>AUDIT._AreaStatus.7288</cCacheId>
+    <lShowInList>false</lShowInList>
+    <cTableDesc/>
+    <cFields>_AreaStatus-Areaname,_AreaStatus-Areanum,_AreaStatus-Extents,_AreaStatus-Freenum,_AreaStatus-Hiwater,_AreaStatus-Id,_AreaStatus-Lastextent,_AreaStatus-Rmnum,_AreaStatus-Totblocks</cFields>
+    <lHidden>true</lHidden>
+    <lFrozen>true</lFrozen>
+    <iNumQueries>0</iNumQueries>
+    <tLastUsed xsi:nil="true"/>
+    <lFavourite>false</lFavourite>
+    <lCached>false</lCached>
+    <iFileNumber>-16423</iFileNumber>
+    <cCategory>VST</cCategory>
+  </ttTableRow>
+  <ttTableRow>
+    <cDatabase>AUDIT</cDatabase>
+    <cTableName>_AreaThreshold</cTableName>
+    <cCrc>22611</cCrc>
+    <cCacheId>AUDIT._AreaThreshold.22611</cCacheId>
+    <lShowInList>false</lShowInList>
+    <cTableDesc/>
+    <cFields>_AreaThreshold,_AreaThreshold-ID,_AreaThresholdArea</cFields>
+    <lHidden>true</lHidden>
+    <lFrozen>true</lFrozen>
+    <iNumQueries>0</iNumQueries>
+    <tLastUsed xsi:nil="true"/>
+    <lFavourite>false</lFavourite>
+    <lCached>false</lCached>
+    <iFileNumber>-16429</iFileNumber>
+    <cCategory>VST</cCategory>
+  </ttTableRow>
+  <ttTableRow>
+    <cDatabase>AUDIT</cDatabase>
+    <cTableName>_Block</cTableName>
+    <cCrc>63587</cCrc>
+    <cCacheId>AUDIT._Block.63587</cCacheId>
+    <lShowInList>false</lShowInList>
+    <cTableDesc/>
+    <cFields>_Block-Area,_Block-BkupCtr,_Block-Block,_Block-ChainType,_Block-Dbkey,_Block-Id,_Block-Misc,_Block-NextDbkey,_Block-Type,_Block-Update</cFields>
+    <lHidden>true</lHidden>
+    <lFrozen>true</lFrozen>
+    <iNumQueries>0</iNumQueries>
+    <tLastUsed xsi:nil="true"/>
+    <lFavourite>false</lFavourite>
+    <lCached>false</lCached>
+    <iFileNumber>-16408</iFileNumber>
+    <cCategory>VST</cCategory>
+  </ttTableRow>
+  <ttTableRow>
+    <cDatabase>AUDIT</cDatabase>
+    <cTableName>_BuffStatus</cTableName>
+    <cCrc>15795</cCrc>
+    <cCacheId>AUDIT._BuffStatus.15795</cCacheId>
+    <lShowInList>false</lShowInList>
+    <cTableDesc/>
+    <cFields>_BfStatus-APWQ,_BfStatus-CKPMarked,_BfStatus-CKPQ,_BfStatus-HashSize,_BfStatus-Id,_BfStatus-LastCkpNum,_BfStatus-LRU,_BfStatus-LRU-Skips,_BfStatus-LRU2,_BfStatus-LRU2-Skips,_BfStatus-Misc,_BfStatus-ModBuffs,_BfStatus-TotBufs,_BfStatus-UsedBuffs</cFields>
+    <lHidden>true</lHidden>
+    <lFrozen>true</lFrozen>
+    <iNumQueries>0</iNumQueries>
+    <tLastUsed xsi:nil="true"/>
+    <lFavourite>false</lFavourite>
+    <lCached>false</lCached>
+    <iFileNumber>-16388</iFileNumber>
+    <cCategory>VST</cCategory>
+  </ttTableRow>
+  <ttTableRow>
+    <cDatabase>AUDIT</cDatabase>
+    <cTableName>_Checkpoint</cTableName>
+    <cCrc>36319</cCrc>
+    <cCacheId>AUDIT._Checkpoint.36319</cCacheId>
+    <lShowInList>false</lShowInList>
+    <cTableDesc/>
+    <cFields>_Checkpoint-ApwQ,_Checkpoint-B-Write-Time,_Checkpoint-Bi-Write-Time,_Checkpoint-Bi-Writes,_Checkpoint-Buffers,_Checkpoint-CptQ,_Checkpoint-Dirty,_Checkpoint-Duration,_Checkpoint-Flush,_Checkpoint-Id,_Checkpoint-Len,_Checkpoint-Misc,_Checkpoint-Scan,_Checkpoint-SyncTime,_Checkpoint-Time</cFields>
+    <lHidden>true</lHidden>
+    <lFrozen>true</lFrozen>
+    <iNumQueries>0</iNumQueries>
+    <tLastUsed xsi:nil="true"/>
+    <lFavourite>false</lFavourite>
+    <lCached>false</lCached>
+    <iFileNumber>-16411</iFileNumber>
+    <cCategory>VST</cCategory>
+  </ttTableRow>
+  <ttTableRow>
+    <cDatabase>AUDIT</cDatabase>
+    <cTableName>_Client-Session</cTableName>
+    <cCrc>7139</cCrc>
+    <cCacheId>AUDIT._Client-Session.7139</cCacheId>
+    <lShowInList>false</lShowInList>
+    <cTableDesc>This table records a client authenticated session information. It stores information about the client session and the methods used to authenticate the client. Its primary purpose is to provide additional information for auditing for the purposes of non repudiation, i.e. to provide extra information as to exactly who the user was.
+
+This table is part of a blank empty database as it has other uses beyond auditing. When used for auditing, the client session UUID will be used to associate the authenticated client session with the audit events.
+
+An authenticated client session may not always be available when recording auditing events, e.g. in the case of an appserver connecting to a database outside of the context of an authenticated session.
+
+The data in this table can be sealed with a Message Digest or MAC for non-repudiation.
+
+Note that the data in this table must be copied to the archive database as part of the archive process, but the contents will not be deleted as part of the same process as the client session information could be used for other purposes than auditing.
+</cTableDesc>
+    <cFields>_Audit-data-security-level,_Authentication-date-time,_Authentication-domain-name,_Authentication-domain-type,_Client-name,_Client-session-uuid,_Data-seal,_Db-guid,_Server-uuid,_Session-custom-detail,_User-id</cFields>
+    <lHidden>true</lHidden>
+    <lFrozen>true</lFrozen>
+    <iNumQueries>0</iNumQueries>
+    <tLastUsed xsi:nil="true"/>
+    <lFavourite>false</lFavourite>
+    <lCached>false</lCached>
+    <iFileNumber>-200</iFileNumber>
+    <cCategory>Other</cCategory>
+  </ttTableRow>
+  <ttTableRow>
+    <cDatabase>AUDIT</cDatabase>
+    <cTableName>_Code-Feature</cTableName>
+    <cCrc>4035</cCrc>
+    <cCacheId>AUDIT._Code-Feature.4035</cCacheId>
+    <lShowInList>false</lShowInList>
+    <cTableDesc/>
+    <cFields>_CodeFeature-ID,_CodeFeature-Res01,_CodeFeature-Res02,_CodeFeature_Name,_CodeFeature_Required,_CodeFeature_Supported</cFields>
+    <lHidden>true</lHidden>
+    <lFrozen>true</lFrozen>
+    <iNumQueries>0</iNumQueries>
+    <tLastUsed xsi:nil="true"/>
+    <lFavourite>false</lFavourite>
+    <lCached>false</lCached>
+    <iFileNumber>-16428</iFileNumber>
+    <cCategory>VST</cCategory>
+  </ttTableRow>
+  <ttTableRow>
+    <cDatabase>AUDIT</cDatabase>
+    <cTableName>_Codepage</cTableName>
+    <cCrc>13498</cCrc>
+    <cCacheId>AUDIT._Codepage.13498</cCacheId>
+    <lShowInList>false</lShowInList>
+    <cTableDesc/>
+    <cFields>_Cp-Attr,_Cp-Dbrecid,_Cp-Name,_Cp-Sequence</cFields>
+    <lHidden>true</lHidden>
+    <lFrozen>true</lFrozen>
+    <iNumQueries>0</iNumQueries>
+    <tLastUsed xsi:nil="true"/>
+    <lFavourite>false</lFavourite>
+    <lCached>false</lCached>
+    <iFileNumber>-68</iFileNumber>
+    <cCategory>Schema</cCategory>
+  </ttTableRow>
+  <ttTableRow>
+    <cDatabase>AUDIT</cDatabase>
+    <cTableName>_Collation</cTableName>
+    <cCrc>39492</cCrc>
+    <cCacheId>AUDIT._Collation.39492</cCacheId>
+    <lShowInList>false</lShowInList>
+    <cTableDesc/>
+    <cFields>_Coll-CIData,_Coll-Cp,_Coll-CSData,_Coll-CXData,_Coll-Data,_Coll-Name,_Coll-Segment,_Coll-Sequence,_Coll-Tran-Subtype,_Coll-Tran-Version</cFields>
+    <lHidden>true</lHidden>
+    <lFrozen>true</lFrozen>
+    <iNumQueries>0</iNumQueries>
+    <tLastUsed xsi:nil="true"/>
+    <lFavourite>false</lFavourite>
+    <lCached>false</lCached>
+    <iFileNumber>-69</iFileNumber>
+    <cCategory>Schema</cCategory>
+  </ttTableRow>
+  <ttTableRow>
+    <cDatabase>AUDIT</cDatabase>
+    <cTableName>_Connect</cTableName>
+    <cCrc>16764</cCrc>
+    <cCacheId>AUDIT._Connect.16764</cCacheId>
+    <lShowInList>false</lShowInList>
+    <cTableDesc/>
+    <cFields>_Connect-2phase,_Connect-Batch,_Connect-CacheInfo,_Connect-CacheInfoType,_Connect-CacheLastUpdate,_Connect-CacheLineNumber,_Connect-CachingType,_Connect-ClientType,_Connect-Device,_Connect-Disconnect,_Connect-DomainId,_Connect-Id,_Connect-Interrupt,_Connect-IPAddress,_Connect-Misc,_Connect-Name,_Connect-PartitionId,_Connect-Pid,_Connect-Resync,_Connect-semid,_Connect-SemNum,_Connect-Server,_Connect-TenantId,_Connect-Time,_Connect-Timestamp,_Connect-TransId,_Connect-Type,_Connect-Usr,_Connect-Wait,_Connect-Wait1,_Connect-Wait2</cFields>
+    <lHidden>true</lHidden>
+    <lFrozen>true</lFrozen>
+    <iNumQueries>0</iNumQueries>
+    <tLastUsed xsi:nil="true"/>
+    <lFavourite>false</lFavourite>
+    <lCached>false</lCached>
+    <iFileNumber>-16385</iFileNumber>
+    <cCategory>VST</cCategory>
+  </ttTableRow>
+  <ttTableRow>
+    <cDatabase>AUDIT</cDatabase>
+    <cTableName>_Constraint</cTableName>
+    <cCrc>47434</cCrc>
+    <cCacheId>AUDIT._Constraint.47434</cCacheId>
+    <lShowInList>false</lShowInList>
+    <cTableDesc>This table holds information about foreign table constraint definitions.</cTableDesc>
+    <cFields>_C-Res1,_C-Res2,_Con-Active,_Con-Desc,_Con-Expr,_Con-Misc1,_Con-Misc2,_Con-Name,_Con-num,_Con-Status,_Con-Type,_Db-recid,_Field-Recid,_File-recid,_For-Name,_Index-parent-recid,_Index-recid</cFields>
+    <lHidden>true</lHidden>
+    <lFrozen>true</lFrozen>
+    <iNumQueries>0</iNumQueries>
+    <tLastUsed xsi:nil="true"/>
+    <lFavourite>false</lFavourite>
+    <lCached>false</lCached>
+    <iFileNumber>-360</iFileNumber>
+    <cCategory>Other</cCategory>
+  </ttTableRow>
+  <ttTableRow>
+    <cDatabase>AUDIT</cDatabase>
+    <cTableName>_Constraint-Keys</cTableName>
+    <cCrc>55779</cCrc>
+    <cCacheId>AUDIT._Constraint-Keys.55779</cCacheId>
+    <lShowInList>false</lShowInList>
+    <cTableDesc>This table holds information about virtual keys associated with foreign table constraints.</cTableDesc>
+    <cFields>_Ascending,_C-Res1,_C-Res2,_Con-Key-Con-Recid,_Con-Key-Fld-Order,_Con-Key-Parent-Ind,_Con-Misc1,_Con-Misc2,_Con-recid,_Field-Recid</cFields>
+    <lHidden>true</lHidden>
+    <lFrozen>true</lFrozen>
+    <iNumQueries>0</iNumQueries>
+    <tLastUsed xsi:nil="true"/>
+    <lFavourite>false</lFavourite>
+    <lCached>false</lCached>
+    <iFileNumber>-361</iFileNumber>
+    <cCategory>Other</cCategory>
+  </ttTableRow>
+  <ttTableRow>
+    <cDatabase>AUDIT</cDatabase>
+    <cTableName>_Database-Feature</cTableName>
+    <cCrc>47668</cCrc>
+    <cCacheId>AUDIT._Database-Feature.47668</cCacheId>
+    <lShowInList>false</lShowInList>
+    <cTableDesc/>
+    <cFields>_DBFeature-ID,_DBFeature-Res01,_DBFeature-Res02,_DBFeature_Active,_DBFeature_Enabled,_DBFeature_Name</cFields>
+    <lHidden>true</lHidden>
+    <lFrozen>true</lFrozen>
+    <iNumQueries>0</iNumQueries>
+    <tLastUsed xsi:nil="true"/>
+    <lFavourite>false</lFavourite>
+    <lCached>false</lCached>
+    <iFileNumber>-16427</iFileNumber>
+    <cCategory>VST</cCategory>
+  </ttTableRow>
+  <ttTableRow>
+    <cDatabase>AUDIT</cDatabase>
+    <cTableName>_Db</cTableName>
+    <cCrc>1066</cCrc>
+    <cCacheId>AUDIT._Db.1066</cCacheId>
+    <lShowInList>false</lShowInList>
+    <cTableDesc/>
+    <cFields>_Db-addr,_Db-coll-name,_Db-collate,_Db-comm,_Db-guid,_Db-local,_Db-misc1,_Db-misc2,_Db-name,_Db-res1,_Db-res2,_Db-revision,_Db-slave,_Db-type,_Db-xl-name,_Db-xlate,_User-Misc</cFields>
+    <lHidden>true</lHidden>
+    <lFrozen>true</lFrozen>
+    <iNumQueries>0</iNumQueries>
+    <tLastUsed xsi:nil="true"/>
+    <lFavourite>false</lFavourite>
+    <lCached>false</lCached>
+    <iFileNumber>-6</iFileNumber>
+    <cCategory>Schema</cCategory>
+  </ttTableRow>
+  <ttTableRow>
+    <cDatabase>AUDIT</cDatabase>
+    <cTableName>_Db-Detail</cTableName>
+    <cCrc>51126</cCrc>
+    <cCacheId>AUDIT._Db-Detail.51126</cCacheId>
+    <lShowInList>false</lShowInList>
+    <cTableDesc>This is an extension to the _db database table to hold auditing specific information. The join to _db is on the _Db-guid foreign key. The primary reason to use an additional table for the auditing information is to facilitate multiple record entries to accomodate different database GUIDs, e.g. when copying the contents of this table to an archive database for long term storage where the archive database contains audit data from multiple databases.
+
+Note that the join from the _db table is not physically shown due to the fact that this data is copied with the archive process and therefore the record in the _db table may be for a different database, breaking the referential integrity.
+
+The details in this table provide a meaningful description of the database associated with a GUID and as this is the only means to describe what the database is where the audit data contains entries for multiple databases, the contents of this table must be copied with the audit data.
+
+Additionally this table records the MAC key used to secure / seal the audit data. Without the MAC key the data in the audit table could not be used, and so the MAC key needs to be copied with the audit data. If the MAC key is ever modified for a particular database, then a new database GUID must be created as a database GUID can only ever have a single MAC key. It is the combination of the database GUID and the MAC key that facilitates access to sealed audit data. 
+
+Also, if the database GUID ever changes, a new record must be created in this table with the current MAC key and a meaningful description of the database associated with the GUID.
+
+As mentioned above, the contents of this table must be copied as part of the archive process as the data is needed to describe the database / unseal the audit data. The contents however must not be deleted as part of the archive process, only copied to the archive database.
+</cTableDesc>
+    <cFields>_Db-custom-detail,_Db-description,_Db-guid,_Db-mac-key</cFields>
+    <lHidden>true</lHidden>
+    <lFrozen>true</lFrozen>
+    <iNumQueries>0</iNumQueries>
+    <tLastUsed xsi:nil="true"/>
+    <lFavourite>false</lFavourite>
+    <lCached>false</lCached>
+    <iFileNumber>-201</iFileNumber>
+    <cCategory>Other</cCategory>
+  </ttTableRow>
+  <ttTableRow>
+    <cDatabase>AUDIT</cDatabase>
+    <cTableName>_Db-Option</cTableName>
+    <cCrc>13853</cCrc>
+    <cCacheId>AUDIT._Db-Option.13853</cCacheId>
+    <lShowInList>false</lShowInList>
+    <cTableDesc>This tables provides an extension to the _db database table for additional database options (user defined fields). It is joined to the _db table via the _db-recid field as the RECID of the database never changes, whereas the database GUID does, which would result in lost database options.
+
+This is really a generic table to make the _db metadata extensible. The use of option types upto 32,000 are reserved for Progress internal use.
+
+An example entry in this table would be for a database option that controls whether to record authenticated client sessions or not in the _client-session table.
+</cTableDesc>
+    <cFields>_Db-option-code,_Db-option-description,_Db-option-type,_Db-option-value,_Db-recid</cFields>
+    <lHidden>true</lHidden>
+    <lFrozen>true</lFrozen>
+    <iNumQueries>0</iNumQueries>
+    <tLastUsed xsi:nil="true"/>
+    <lFavourite>false</lFavourite>
+    <lCached>false</lCached>
+    <iFileNumber>-202</iFileNumber>
+    <cCategory>Other</cCategory>
+  </ttTableRow>
+  <ttTableRow>
+    <cDatabase>AUDIT</cDatabase>
+    <cTableName>_DbParams</cTableName>
+    <cCrc>57152</cCrc>
+    <cCacheId>AUDIT._DbParams.57152</cCacheId>
+    <lShowInList>false</lShowInList>
+    <cTableDesc/>
+    <cFields>_DbParams-Desc,_DbParams-dtype,_DbParams-Id,_DbParams-Is-Default,_DbParams-Is-Modifiable,_DbParams-Misc,_DbParams-Msg-Num,_DbParams-Name,_DbParams-Value</cFields>
+    <lHidden>true</lHidden>
+    <lFrozen>true</lFrozen>
+    <iNumQueries>0</iNumQueries>
+    <tLastUsed xsi:nil="true"/>
+    <lFavourite>false</lFavourite>
+    <lCached>false</lCached>
+    <iFileNumber>-16432</iFileNumber>
+    <cCategory>VST</cCategory>
+  </ttTableRow>
+  <ttTableRow>
+    <cDatabase>AUDIT</cDatabase>
+    <cTableName>_DbServiceManager</cTableName>
+    <cCrc>16067</cCrc>
+    <cCacheId>AUDIT._DbServiceManager.16067</cCacheId>
+    <lShowInList>false</lShowInList>
+    <cTableDesc/>
+    <cFields>_DbSvcMgr-AccessCollisions,_DbSvcMgr-AccessCount,_DbSvcMgr-CommunicationAreaSize,_DbSvcMgr-FreeMsgEntries,_DbSvcMgr-Id,_DbSvcMgr-LatchHolder,_DbSvcMgr-LockPID,_DbSvcMgr-LockUserNumber,_DbSvcMgr-LockUserType,_DbSvcMgr-MessageHWM,_DbSvcMgr-PicaFilled,_DbSvcMgr-ReservedChar,_DbSvcMgr-ReservedInt,_DbSvcMgr-TotalMsgEntries,_DbSvcMgr-UsedMsgEntries</cFields>
+    <lHidden>true</lHidden>
+    <lFrozen>true</lFrozen>
+    <iNumQueries>0</iNumQueries>
+    <tLastUsed xsi:nil="true"/>
+    <lFavourite>false</lFavourite>
+    <lCached>false</lCached>
+    <iFileNumber>-16435</iFileNumber>
+    <cCategory>VST</cCategory>
+  </ttTableRow>
+  <ttTableRow>
+    <cDatabase>AUDIT</cDatabase>
+    <cTableName>_DbServiceManagerObjects</cTableName>
+    <cCrc>30742</cCrc>
+    <cCacheId>AUDIT._DbServiceManagerObjects.30742</cCacheId>
+    <lShowInList>false</lShowInList>
+    <cTableDesc/>
+    <cFields>_DbSvcMgrObj-Id,_DbSvcMgrObj-LockPID,_DbSvcMgrObj-LockUserNumber,_DbSvcMgrObj-LockUserType,_DbSvcMgrObj-Msgs,_DbSvcMgrObj-Name,_DbSvcMgrObj-Ready,_DbSvcMgrObj-ReservedChar,_DbSvcMgrObj-ReservedInt,_DbSvcMgrObj-Status</cFields>
+    <lHidden>true</lHidden>
+    <lFrozen>true</lFrozen>
+    <iNumQueries>0</iNumQueries>
+    <tLastUsed xsi:nil="true"/>
+    <lFavourite>false</lFavourite>
+    <lCached>false</lCached>
+    <iFileNumber>-16436</iFileNumber>
+    <cCategory>VST</cCategory>
+  </ttTableRow>
+  <ttTableRow>
+    <cDatabase>AUDIT</cDatabase>
+    <cTableName>_DbStatus</cTableName>
+    <cCrc>13835</cCrc>
+    <cCacheId>AUDIT._DbStatus.13835</cCacheId>
+    <lShowInList>false</lShowInList>
+    <cTableDesc/>
+    <cFields>_DbStatus-AiBlkSize,_DbStatus-BiBlkSize,_DbStatus-BiClSize,_DbStatus-BiOpen,_DbStatus-BiSize,_DbStatus-BiTrunc,_DbStatus-CacheStamp,_DbStatus-Changed,_DbStatus-ClVersMinor,_DbStatus-Codepage,_DbStatus-Collation,_DbStatus-CreateDate,_DbStatus-DbBlkSize,_DbStatus-DbVers,_DbStatus-DbVersMinor,_DbStatus-EmptyBlks,_DbStatus-fbDate,_DbStatus-FreeBlks,_DbStatus-HiWater,_DbStatus-ibDate,_DbStatus-ibSeq,_DbStatus-Id,_DbStatus-Integrity,_DbStatus-IntFlags,_DbStatus-LastOpen,_DbStatus-LastTable,_DbStatus-LastTran,_DbStatus-Misc,_DbStatus-MostLocks,_DbStatus-NumAreas,_DbStatus-NumLocks,_DbStatus-NumSems,_DbStatus-PrevOpen,_DbStatus-RestrictMode,_DbStatus-RMFreeBlks,_DbStatus-SharedMemVer,_DbStatus-ShmVers,_DbStatus-starttime,_DbStatus-state,_DbStatus-tainted,_DbStatus-TotalBlks</cFields>
+    <lHidden>true</lHidden>
+    <lFrozen>true</lFrozen>
+    <iNumQueries>0</iNumQueries>
+    <tLastUsed xsi:nil="true"/>
+    <lFavourite>false</lFavourite>
+    <lCached>false</lCached>
+    <iFileNumber>-16387</iFileNumber>
+    <cCategory>VST</cCategory>
+  </ttTableRow>
+  <ttTableRow>
+    <cDatabase>AUDIT</cDatabase>
+    <cTableName>_Field</cTableName>
+    <cCrc>44454</cCrc>
+    <cCacheId>AUDIT._Field.44454</cCacheId>
+    <lShowInList>false</lShowInList>
+    <cTableDesc/>
+    <cFields>_Attributes1,_Can-Read,_Can-Write,_Charset,_Col-label,_Col-label-SA,_Collation,_Data-Type,_Decimals,_Desc,_dtype,_Extent,_Fetch-Type,_Field-Attributes,_Field-Name,_Field-Physpos,_field-rpos,_File-recid,_Fld-case,_Fld-misc1,_Fld-misc2,_Fld-Misc3,_Fld-Misc4,_Fld-res1,_Fld-res2,_Fld-stdtype,_Fld-stlen,_Fld-stoff,_For-Allocated,_For-Id,_For-Itype,_For-Maxsize,_For-Name,_For-Primary,_For-Retrieve,_For-Scale,_For-Separator,_For-Spacing,_For-Type,_For-Xpos,_Format,_Format-SA,_Help,_Help-SA,_Initial,_Initial-SA,_Label,_Label-SA,_Last-modified,_Mandatory,_Mod-sequence,_Order,_sys-field,_User-Misc,_Valexp,_Valmsg,_Valmsg-SA,_View-As,_Width</cFields>
+    <lHidden>true</lHidden>
+    <lFrozen>true</lFrozen>
+    <iNumQueries>0</iNumQueries>
+    <tLastUsed xsi:nil="true"/>
+    <lFavourite>false</lFavourite>
+    <lCached>false</lCached>
+    <iFileNumber>-2</iFileNumber>
+    <cCategory>Schema</cCategory>
+  </ttTableRow>
+  <ttTableRow>
+    <cDatabase>AUDIT</cDatabase>
+    <cTableName>_Field-Trig</cTableName>
+    <cCrc>17076</cCrc>
+    <cCacheId>AUDIT._Field-Trig.17076</cCacheId>
+    <lShowInList>false</lShowInList>
+    <cTableDesc/>
+    <cFields>_Event,_Field-Recid,_Field-Rpos,_File-Recid,_Last-modified,_Mod-sequence,_Override,_Proc-Name,_Trig-Crc</cFields>
+    <lHidden>true</lHidden>
+    <lFrozen>true</lFrozen>
+    <iNumQueries>0</iNumQueries>
+    <tLastUsed xsi:nil="true"/>
+    <lFavourite>false</lFavourite>
+    <lCached>false</lCached>
+    <iFileNumber>-66</iFileNumber>
+    <cCategory>Schema</cCategory>
+  </ttTableRow>
+  <ttTableRow>
+    <cDatabase>AUDIT</cDatabase>
+    <cTableName>_File</cTableName>
+    <cCrc>56200</cCrc>
+    <cCacheId>AUDIT._File.56200</cCacheId>
+    <lShowInList>false</lShowInList>
+    <cTableDesc/>
+    <cFields>_Cache,_Can-Create,_Can-Delete,_Can-Dump,_Can-Load,_Can-Read,_Can-Write,_category,_CRC,_Creator,_DB-lang,_Db-recid,_Desc,_dft-pk,_Dump-name,_Field-map,_Fil-misc1,_Fil-misc2,_Fil-Misc3,_Fil-Misc4,_Fil-res1,_Fil-res2,_File-Attributes,_File-Label,_File-Label-SA,_File-Name,_File-Number,_For-Cnt1,_For-Cnt2,_For-Flag,_For-Format,_For-Id,_For-Info,_For-Name,_For-Number,_For-Owner,_For-Size,_For-Type,_Frozen,_Has-Ccnstrs,_Has-Fcnstrs,_Has-Pcnstrs,_Has-Ucnstrs,_Hidden,_ianum,_Last-change,_Last-modified,_Mod-sequence,_numfld,_numkcomp,_numkey,_numkfld,_Owner,_Prime-Index,_Rssid,_Tbl-Status,_Tbl-Type,_Template,_User-Misc,_Valexp,_Valmsg,_Valmsg-SA,_Version</cFields>
+    <lHidden>true</lHidden>
+    <lFrozen>true</lFrozen>
+    <iNumQueries>0</iNumQueries>
+    <tLastUsed xsi:nil="true"/>
+    <lFavourite>false</lFavourite>
+    <lCached>false</lCached>
+    <iFileNumber>-1</iFileNumber>
+    <cCategory>Schema</cCategory>
+  </ttTableRow>
+  <ttTableRow>
+    <cDatabase>AUDIT</cDatabase>
+    <cTableName>_File-Trig</cTableName>
+    <cCrc>11123</cCrc>
+    <cCacheId>AUDIT._File-Trig.11123</cCacheId>
+    <lShowInList>false</lShowInList>
+    <cTableDesc/>
+    <cFields>_Event,_File-Recid,_Last-modified,_Mod-sequence,_Override,_Proc-Name,_Trig-Crc</cFields>
+    <lHidden>true</lHidden>
+    <lFrozen>true</lFrozen>
+    <iNumQueries>0</iNumQueries>
+    <tLastUsed xsi:nil="true"/>
+    <lFavourite>false</lFavourite>
+    <lCached>false</lCached>
+    <iFileNumber>-65</iFileNumber>
+    <cCategory>Schema</cCategory>
+  </ttTableRow>
+  <ttTableRow>
+    <cDatabase>AUDIT</cDatabase>
+    <cTableName>_Filelist</cTableName>
+    <cCrc>25916</cCrc>
+    <cCacheId>AUDIT._Filelist.25916</cCacheId>
+    <lShowInList>false</lShowInList>
+    <cTableDesc/>
+    <cFields>_FileList-BlkSize,_FileList-Extend,_FileList-Id,_FileList-LogicalSz,_FileList-Misc,_FileList-Name,_FileList-Openmode,_FileList-Size</cFields>
+    <lHidden>true</lHidden>
+    <lFrozen>true</lFrozen>
+    <iNumQueries>0</iNumQueries>
+    <tLastUsed xsi:nil="true"/>
+    <lFavourite>false</lFavourite>
+    <lCached>false</lCached>
+    <iFileNumber>-16393</iFileNumber>
+    <cCategory>VST</cCategory>
+  </ttTableRow>
+  <ttTableRow>
+    <cDatabase>AUDIT</cDatabase>
+    <cTableName>_Index</cTableName>
+    <cCrc>17868</cCrc>
+    <cCacheId>AUDIT._Index.17868</cCacheId>
+    <lShowInList>false</lShowInList>
+    <cTableDesc/>
+    <cFields>_Active,_Desc,_File-recid,_For-Name,_For-Type,_I-misc1,_I-misc2,_I-res1,_I-res2,_ianum,_Idx-CRC,_idx-num,_Idxmethod,_Idxowner,_Index-Attributes,_Index-Name,_Last-modified,_Mod-sequence,_Mode,_num-comp,_Unique,_User-Misc,_Word-Rules,_Wordidx</cFields>
+    <lHidden>true</lHidden>
+    <lFrozen>true</lFrozen>
+    <iNumQueries>0</iNumQueries>
+    <tLastUsed xsi:nil="true"/>
+    <lFavourite>false</lFavourite>
+    <lCached>false</lCached>
+    <iFileNumber>-3</iFileNumber>
+    <cCategory>Schema</cCategory>
+  </ttTableRow>
+  <ttTableRow>
+    <cDatabase>AUDIT</cDatabase>
+    <cTableName>_Index-Field</cTableName>
+    <cCrc>3085</cCrc>
+    <cCacheId>AUDIT._Index-Field.3085</cCacheId>
+    <lShowInList>false</lShowInList>
+    <cTableDesc/>
+    <cFields>_Abbreviate,_Ascending,_Coll-Strength,_Collation,_Field-recid,_If-Attributes,_If-misc1,_If-misc2,_If-res1,_If-res2,_Index-recid,_Index-Seq,_KeyValue-expr,_Last-modified,_Mod-sequence,_Unsorted,_User-Misc</cFields>
+    <lHidden>true</lHidden>
+    <lFrozen>true</lFrozen>
+    <iNumQueries>0</iNumQueries>
+    <tLastUsed xsi:nil="true"/>
+    <lFavourite>false</lFavourite>
+    <lCached>false</lCached>
+    <iFileNumber>-4</iFileNumber>
+    <cCategory>Schema</cCategory>
+  </ttTableRow>
+  <ttTableRow>
+    <cDatabase>AUDIT</cDatabase>
+    <cTableName>_IndexStat</cTableName>
+    <cCrc>20756</cCrc>
+    <cCacheId>AUDIT._IndexStat.20756</cCacheId>
+    <lShowInList>false</lShowInList>
+    <cTableDesc/>
+    <cFields>_IndexStat-blockdelete,_IndexStat-create,_IndexStat-delete,_IndexStat-id,_IndexStat-OsRead,_IndexStat-PartitionId,_IndexStat-read,_IndexStat-split</cFields>
+    <lHidden>true</lHidden>
+    <lFrozen>true</lFrozen>
+    <iNumQueries>0</iNumQueries>
+    <tLastUsed xsi:nil="true"/>
+    <lFavourite>false</lFavourite>
+    <lCached>false</lCached>
+    <iFileNumber>-16416</iFileNumber>
+    <cCategory>VST</cCategory>
+  </ttTableRow>
+  <ttTableRow>
+    <cDatabase>AUDIT</cDatabase>
+    <cTableName>_KeyEvent</cTableName>
+    <cCrc>1107</cCrc>
+    <cCacheId>AUDIT._KeyEvent.1107</cCacheId>
+    <lShowInList>false</lShowInList>
+    <cTableDesc>The purpose of this table is to store key events in the database. Key events are events such as database startup parameters, certain error messages, structural changes to the database, utilities run on the database, etc. that provide a history that can be reviewed by tech support. Such a history is useful when diagnosing customer issues especially when the database log file is missing or has been truncated.</cTableDesc>
+    <cFields>_KeyEvent-Date,_KeyEvent-Event,_KeyEvent-MsgId,_KeyEvent-Procid,_KeyEvent-Spare1,_KeyEvent-Spare2,_KeyEvent-ThreadId,_KeyEvent-Usrnum</cFields>
+    <lHidden>true</lHidden>
+    <lFrozen>true</lFrozen>
+    <iNumQueries>0</iNumQueries>
+    <tLastUsed xsi:nil="true"/>
+    <lFavourite>false</lFavourite>
+    <lCached>false</lCached>
+    <iFileNumber>-208</iFileNumber>
+    <cCategory>Other</cCategory>
+  </ttTableRow>
+  <ttTableRow>
+    <cDatabase>AUDIT</cDatabase>
+    <cTableName>_Latch</cTableName>
+    <cCrc>54477</cCrc>
+    <cCacheId>AUDIT._Latch.54477</cCacheId>
+    <lShowInList>false</lShowInList>
+    <cTableDesc/>
+    <cFields>_Latch-Busy,_Latch-Hold,_Latch-HoldTenantId,_Latch-Id,_Latch-Lock,_Latch-LockedT,_Latch-LockT,_Latch-Name,_Latch-Owner,_Latch-Qhold,_Latch-QHoldTenantId,_Latch-Spin,_Latch-Type,_Latch-Wait,_Latch-WaitT</cFields>
+    <lHidden>true</lHidden>
+    <lFrozen>true</lFrozen>
+    <iNumQueries>0</iNumQueries>
+    <tLastUsed xsi:nil="true"/>
+    <lFavourite>false</lFavourite>
+    <lCached>false</lCached>
+    <iFileNumber>-16417</iFileNumber>
+    <cCategory>VST</cCategory>
+  </ttTableRow>
+  <ttTableRow>
+    <cDatabase>AUDIT</cDatabase>
+    <cTableName>_License</cTableName>
+    <cCrc>9679</cCrc>
+    <cCacheId>AUDIT._License.9679</cCacheId>
+    <lShowInList>false</lShowInList>
+    <cTableDesc/>
+    <cFields>_Lic-ActiveConns,_Lic-BatchConns,_Lic-CurrConns,_Lic-Id,_Lic-MaxActive,_Lic-MaxBatch,_Lic-MaxCurrent,_Lic-MinActive,_Lic-MinBatch,_Lic-MinCurrent,_Lic-ValidUsers</cFields>
+    <lHidden>true</lHidden>
+    <lFrozen>true</lFrozen>
+    <iNumQueries>0</iNumQueries>
+    <tLastUsed xsi:nil="true"/>
+    <lFavourite>false</lFavourite>
+    <lCached>false</lCached>
+    <iFileNumber>-16414</iFileNumber>
+    <cCategory>VST</cCategory>
+  </ttTableRow>
+  <ttTableRow>
+    <cDatabase>AUDIT</cDatabase>
+    <cTableName>_Lock</cTableName>
+    <cCrc>47896</cCrc>
+    <cCacheId>AUDIT._Lock.47896</cCacheId>
+    <lShowInList>false</lShowInList>
+    <cTableDesc/>
+    <cFields>_Lock-Chain,_Lock-DomainId,_Lock-Flags,_Lock-Id,_Lock-Misc,_Lock-Name,_Lock-PartitionId,_Lock-RecId,_Lock-Table,_Lock-TenantId,_Lock-Trans-Flags,_Lock-Trans-State,_Lock-TransId,_Lock-Tty,_Lock-Type,_Lock-Usr</cFields>
+    <lHidden>true</lHidden>
+    <lFrozen>true</lFrozen>
+    <iNumQueries>0</iNumQueries>
+    <tLastUsed xsi:nil="true"/>
+    <lFavourite>false</lFavourite>
+    <lCached>false</lCached>
+    <iFileNumber>-16412</iFileNumber>
+    <cCategory>VST</cCategory>
+  </ttTableRow>
+  <ttTableRow>
+    <cDatabase>AUDIT</cDatabase>
+    <cTableName>_LockReq</cTableName>
+    <cCrc>28054</cCrc>
+    <cCacheId>AUDIT._LockReq.28054</cCacheId>
+    <lShowInList>false</lShowInList>
+    <cTableDesc/>
+    <cFields>_LockReq-ExclFind,_LockReq-Id,_LockReq-Misc,_LockReq-Name,_LockReq-Num,_LockReq-RecLock,_LockReq-RecWait,_LockReq-SchLock,_LockReq-SchWait,_LockReq-ShrFind,_LockReq-TenantId,_LockReq-TrnLock,_LockReq-TrnWait</cFields>
+    <lHidden>true</lHidden>
+    <lFrozen>true</lFrozen>
+    <iNumQueries>0</iNumQueries>
+    <tLastUsed xsi:nil="true"/>
+    <lFavourite>false</lFavourite>
+    <lCached>false</lCached>
+    <iFileNumber>-16410</iFileNumber>
+    <cCategory>VST</cCategory>
+  </ttTableRow>
+  <ttTableRow>
+    <cDatabase>AUDIT</cDatabase>
+    <cTableName>_Logging</cTableName>
+    <cCrc>23227</cCrc>
+    <cCacheId>AUDIT._Logging.23227</cCacheId>
+    <lShowInList>false</lShowInList>
+    <cTableDesc/>
+    <cFields>_Logging-2PC,_Logging-2PCNickName,_Logging-2PCPriority,_Logging-AiBegin,_Logging-AiBlkSize,_Logging-AiBuffs,_Logging-AiCurrExt,_Logging-AiExtents,_Logging-AiGenNum,_Logging-AiIO,_Logging-AiJournal,_Logging-AiLogSize,_Logging-AiNew,_Logging-AiOpen,_Logging-BiBlkSize,_Logging-BiBuffs,_Logging-BiBytesFree,_Logging-BiClAge,_Logging-BiClSize,_Logging-BiExtents,_Logging-BiFullBuffs,_Logging-BiIO,_Logging-BiLogSize,_Logging-CommitDelay,_Logging-CrashProt,_Logging-Id,_Logging-LastCkp,_Logging-Misc</cFields>
+    <lHidden>true</lHidden>
+    <lFrozen>true</lFrozen>
+    <iNumQueries>0</iNumQueries>
+    <tLastUsed xsi:nil="true"/>
+    <lFavourite>false</lFavourite>
+    <lCached>false</lCached>
+    <iFileNumber>-16389</iFileNumber>
+    <cCategory>VST</cCategory>
+  </ttTableRow>
+  <ttTableRow>
+    <cDatabase>AUDIT</cDatabase>
+    <cTableName>_MstrBlk</cTableName>
+    <cCrc>47220</cCrc>
+    <cCacheId>AUDIT._MstrBlk.47220</cCacheId>
+    <lShowInList>false</lShowInList>
+    <cTableDesc/>
+    <cFields>_MstrBlk-aiblksize,_MstrBlk-biblksize,_MstrBlk-biopen,_MstrBlk-biprev,_MstrBlk-bistate,_MstrBlk-cfilnum,_MstrBlk-crdate,_MstrBlk-dbstate,_MstrBlk-dbvers,_MstrBlk-fbdate,_MstrBlk-hiwater,_MstrBlk-ibdate,_MstrBlk-ibseq,_MstrBlk-Id,_MstrBlk-integrity,_MstrBlk-lasttask,_MstrBlk-Misc,_MstrBlk-oppdate,_MstrBlk-oprdate,_MstrBlk-rlclsize,_MstrBlk-rltime,_MstrBlk-tainted,_MstrBlk-timestamp,_MstrBlk-totblks</cFields>
+    <lHidden>true</lHidden>
+    <lFrozen>true</lFrozen>
+    <iNumQueries>0</iNumQueries>
+    <tLastUsed xsi:nil="true"/>
+    <lFavourite>false</lFavourite>
+    <lCached>false</lCached>
+    <iFileNumber>-16386</iFileNumber>
+    <cCategory>VST</cCategory>
+  </ttTableRow>
+  <ttTableRow>
+    <cDatabase>AUDIT</cDatabase>
+    <cTableName>_MyConnection</cTableName>
+    <cCrc>38909</cCrc>
+    <cCacheId>AUDIT._MyConnection.38909</cCacheId>
+    <lShowInList>false</lShowInList>
+    <cTableDesc/>
+    <cFields>_MyConn-Id,_MyConn-NumSeqBuffers,_MyConn-Pid,_MyConn-TenantId,_MyConn-UsedSeqBuffers,_MyConn-UserId</cFields>
+    <lHidden>true</lHidden>
+    <lFrozen>true</lFrozen>
+    <iNumQueries>0</iNumQueries>
+    <tLastUsed xsi:nil="true"/>
+    <lFavourite>false</lFavourite>
+    <lCached>false</lCached>
+    <iFileNumber>-16422</iFileNumber>
+    <cCategory>VST</cCategory>
+  </ttTableRow>
+  <ttTableRow>
+    <cDatabase>AUDIT</cDatabase>
+    <cTableName>_Partition-Set</cTableName>
+    <cCrc>50005</cCrc>
+    <cCacheId>AUDIT._Partition-Set.50005</cCacheId>
+    <lShowInList>false</lShowInList>
+    <cTableDesc>This table holds information for managing in a multi-tenant database.</cTableDesc>
+    <cFields>_Object-Number,_Object-Type,_PSet-Allocation-default,_PSet-Attributes,_PSet-DataArea-default,_PSet-Description,_PSet-IndexArea-default,_PSet-LobArea-default,_PSet-Name,_PSet-Type,_PSetId</cFields>
+    <lHidden>true</lHidden>
+    <lFrozen>true</lFrozen>
+    <iNumQueries>0</iNumQueries>
+    <tLastUsed xsi:nil="true"/>
+    <lFavourite>false</lFavourite>
+    <lCached>false</lCached>
+    <iFileNumber>-350</iFileNumber>
+    <cCategory>Other</cCategory>
+  </ttTableRow>
+  <ttTableRow>
+    <cDatabase>AUDIT</cDatabase>
+    <cTableName>_Partition-Set-Detail</cTableName>
+    <cCrc>5507</cCrc>
+    <cCacheId>AUDIT._Partition-Set-Detail.5507</cCacheId>
+    <lShowInList>false</lShowInList>
+    <cTableDesc>This table holds information for managing in a multi-tenant database.</cTableDesc>
+    <cFields>_Object-Number,_Object-Type,_Permissions,_PSetId,_TenantId</cFields>
+    <lHidden>true</lHidden>
+    <lFrozen>true</lFrozen>
+    <iNumQueries>0</iNumQueries>
+    <tLastUsed xsi:nil="true"/>
+    <lFavourite>false</lFavourite>
+    <lCached>false</lCached>
+    <iFileNumber>-351</iFileNumber>
+    <cCategory>Other</cCategory>
+  </ttTableRow>
+  <ttTableRow>
+    <cDatabase>AUDIT</cDatabase>
+    <cTableName>_Repl-Agent</cTableName>
+    <cCrc>59975</cCrc>
+    <cCacheId>AUDIT._Repl-Agent.59975</cCacheId>
+    <lShowInList>false</lShowInList>
+    <cTableDesc/>
+    <cFields>_ReplAgt-AgentID,_ReplAgt-AgentName,_ReplAgt-BlocksACK,_ReplAgt-BlocksProcessed,_ReplAgt-BlocksReceived,_ReplAgt-CommStatus,_ReplAgt-ConnectTime,_ReplAgt-Critical,_ReplAgt-DatabaseRole,_ReplAgt-DBName,_ReplAgt-LastTRID,_ReplAgt-MaxDelayInterval,_ReplAgt-MaxMsgSize,_ReplAgt-Method,_ReplAgt-MinDelayInterval,_ReplAgt-NotesProcessed,_ReplAgt-Port,_ReplAgt-ReservedChar,_ReplAgt-ReservedInt,_ReplAgt-ServerHost,_ReplAgt-Status,_ReplAgt-TimeoutLimit,_ReplAgt-TransitionType</cFields>
+    <lHidden>true</lHidden>
+    <lFrozen>true</lFrozen>
+    <iNumQueries>0</iNumQueries>
+    <tLastUsed xsi:nil="true"/>
+    <lFavourite>false</lFavourite>
+    <lCached>false</lCached>
+    <iFileNumber>-16426</iFileNumber>
+    <cCategory>VST</cCategory>
+  </ttTableRow>
+  <ttTableRow>
+    <cDatabase>AUDIT</cDatabase>
+    <cTableName>_Repl-AgentActivity</cTableName>
+    <cCrc>4114</cCrc>
+    <cCacheId>AUDIT._Repl-AgentActivity.4114</cCacheId>
+    <lShowInList>false</lShowInList>
+    <cTableDesc/>
+    <cFields>_ReplAgtAct-AgentID,_ReplAgtAct-AgentName,_ReplAgtAct-BlocksACK,_ReplAgtAct-BlocksProcessed,_ReplAgtAct-BlocksReceived,_ReplAgtAct-CommStatus,_ReplAgtAct-ConnectTime,_ReplAgtAct-CurDelayInterval,_ReplAgtAct-LastBlockBlock,_ReplAgtAct-LastBlockReceived,_ReplAgtAct-LastBlockSeq,_ReplAgtAct-LastSyncDelta,_ReplAgtAct-LastSyncTimeSrc,_ReplAgtAct-LastSyncTimeTgt,_ReplAgtAct-LastTRID,_ReplAgtAct-NotesProcessed,_ReplAgtAct-Ready,_ReplAgtAct-ReservedChar,_ReplAgtAct-ReservedInt,_ReplAgtAct-ServerLag,_ReplAgtAct-SourceTRID,_ReplAgtAct-SrcRDBMSBlock,_ReplAgtAct-SrcRDBMSSeq,_ReplAgtAct-State,_ReplAgtAct-Status,_ReplAgtAct-SyncPoints,_ReplAgtAct-TimeToTransition,_ReplAgtAct-TransEnded,_ReplAgtAct-TransStarted,_ReplAgtAct-WaitingFor</cFields>
+    <lHidden>true</lHidden>
+    <lFrozen>true</lFrozen>
+    <iNumQueries>0</iNumQueries>
+    <tLastUsed xsi:nil="true"/>
+    <lFavourite>false</lFavourite>
+    <lCached>false</lCached>
+    <iFileNumber>-16434</iFileNumber>
+    <cCategory>VST</cCategory>
+  </ttTableRow>
+  <ttTableRow>
+    <cDatabase>AUDIT</cDatabase>
+    <cTableName>_Repl-AgentControl</cTableName>
+    <cCrc>37733</cCrc>
+    <cCacheId>AUDIT._Repl-AgentControl.37733</cCacheId>
+    <lShowInList>false</lShowInList>
+    <cTableDesc/>
+    <cFields>_ReplAgtCtl-AgentID,_ReplAgtCtl-AgentName,_ReplAgtCtl-BlocksACK,_ReplAgtCtl-BlocksSent,_ReplAgtCtl-CommStatus,_ReplAgtCtl-ConnectionTimeout,_ReplAgtCtl-ConnectTime,_ReplAgtCtl-Critical,_ReplAgtCtl-LastBlockSentAt,_ReplAgtCtl-MaxMsgSize,_ReplAgtCtl-Method,_ReplAgtCtl-Port,_ReplAgtCtl-RemoteDBName,_ReplAgtCtl-RemoteHost,_ReplAgtCtl-ReservedChar,_ReplAgtCtl-ReservedInt,_ReplAgtCtl-status,_ReplAgtCtl-TimeoutLimit,_ReplAgtCtl-TransitionType</cFields>
+    <lHidden>true</lHidden>
+    <lFrozen>true</lFrozen>
+    <iNumQueries>0</iNumQueries>
+    <tLastUsed xsi:nil="true"/>
+    <lFavourite>false</lFavourite>
+    <lCached>false</lCached>
+    <iFileNumber>-16425</iFileNumber>
+    <cCategory>VST</cCategory>
+  </ttTableRow>
+  <ttTableRow>
+    <cDatabase>AUDIT</cDatabase>
+    <cTableName>_Repl-AgentControlActivity</cTableName>
+    <cCrc>11534</cCrc>
+    <cCacheId>AUDIT._Repl-AgentControlActivity.11534</cCacheId>
+    <lShowInList>false</lShowInList>
+    <cTableDesc/>
+    <cFields>_ReplAgtCtlAct-AgentID,_ReplAgtCtlAct-AgentName,_ReplAgtCtlAct-BlocksACK,_ReplAgtCtlAct-BlocksSent,_ReplAgtCtlAct-CommStatus,_ReplAgtCtlAct-ConnectTime,_ReplAgtCtlAct-CurRDBMSBlock,_ReplAgtCtlAct-CurRDBMSSeq,_ReplAgtCtlAct-LastBlockBlock,_ReplAgtCtlAct-LastBlockSentAt,_ReplAgtCtlAct-LastBlockSeq,_ReplAgtCtlAct-LoadChkInt,_ReplAgtCtlAct-LoadChkResp,_ReplAgtCtlAct-LoadInterval,_ReplAgtCtlAct-RecoveryState,_ReplAgtCtlAct-ReservedChar,_ReplAgtCtlAct-ReservedInt,_ReplAgtCtlAct-State,_ReplAgtCtlAct-Status,_ReplAgtCtlAct-SyncPoints,_ReplAgtCtlAct-WaitingFor</cFields>
+    <lHidden>true</lHidden>
+    <lFrozen>true</lFrozen>
+    <iNumQueries>0</iNumQueries>
+    <tLastUsed xsi:nil="true"/>
+    <lFavourite>false</lFavourite>
+    <lCached>false</lCached>
+    <iFileNumber>-16433</iFileNumber>
+    <cCategory>VST</cCategory>
+  </ttTableRow>
+  <ttTableRow>
+    <cDatabase>AUDIT</cDatabase>
+    <cTableName>_Repl-Server</cTableName>
+    <cCrc>25934</cCrc>
+    <cCacheId>AUDIT._Repl-Server.25934</cCacheId>
+    <lShowInList>false</lShowInList>
+    <cTableDesc/>
+    <cFields>_ReplSrv-AgentCount,_ReplSrv-AgentsConnected,_ReplSrv-AgentsInSync,_ReplSrv-BlocksSent,_ReplSrv-ConnectAttempts,_ReplSrv-CurDelayInterval,_ReplSrv-Database,_ReplSrv-DatabaseRole,_ReplSrv-DeferAgentConnUntil,_ReplSrv-DeferAgentExpire,_ReplSrv-id,_ReplSrv-LastBlockSentAt,_ReplSrv-MaxDelayInterval,_ReplSrv-MinDelayInterval,_ReplSrv-NextConnectIn,_ReplSrv-RecAgentsConnected,_ReplSrv-RecAgentsToRecover,_ReplSrv-RecoveryState,_ReplSrv-ReservedChar,_ReplSrv-ReservedInt,_ReplSrv-ServerState,_ReplSrv-StartTime,_ReplSrv-TransitionTimeout,_ReplSrv-TransitionType</cFields>
+    <lHidden>true</lHidden>
+    <lFrozen>true</lFrozen>
+    <iNumQueries>0</iNumQueries>
+    <tLastUsed xsi:nil="true"/>
+    <lFavourite>false</lFavourite>
+    <lCached>false</lCached>
+    <iFileNumber>-16424</iFileNumber>
+    <cCategory>VST</cCategory>
+  </ttTableRow>
+  <ttTableRow>
+    <cDatabase>AUDIT</cDatabase>
+    <cTableName>_Resrc</cTableName>
+    <cCrc>50740</cCrc>
+    <cCacheId>AUDIT._Resrc.50740</cCacheId>
+    <lShowInList>false</lShowInList>
+    <cTableDesc/>
+    <cFields>_Resrc-Id,_Resrc-lock,_Resrc-Name,_Resrc-time,_Resrc-wait</cFields>
+    <lHidden>true</lHidden>
+    <lFrozen>true</lFrozen>
+    <iNumQueries>0</iNumQueries>
+    <tLastUsed xsi:nil="true"/>
+    <lFavourite>false</lFavourite>
+    <lCached>false</lCached>
+    <iFileNumber>-16418</iFileNumber>
+    <cCategory>VST</cCategory>
+  </ttTableRow>
+  <ttTableRow>
+    <cDatabase>AUDIT</cDatabase>
+    <cTableName>_sec-authentication-domain</cTableName>
+    <cCrc>29018</cCrc>
+    <cCacheId>AUDIT._sec-authentication-domain.29018</cCacheId>
+    <lShowInList>false</lShowInList>
+    <cTableDesc>This table registers the valid authentication system domains for this database that can be used to authenticate or validate the authentication of a user account.
+
+The authentication domain must be for a valid trusted authentication system as defined in the _sec-authentication-system table, e.g. LDAP, RSA, KEON, KERBOS, Internal, etc.
+
+The details in this table are installation specific and will be maintained by the DBA.</cTableDesc>
+    <cFields>_Auditing-context,_Domain-access-code,_Domain-category,_Domain-custom-detail,_Domain-description,_Domain-enabled,_Domain-Id,_Domain-name,_Domain-runtime-options,_Domain-type,_PAM-actions,_PAM-control,_PAM-library-path,_PAM-options,_Tenant-Name</cFields>
+    <lHidden>true</lHidden>
+    <lFrozen>true</lFrozen>
+    <iNumQueries>0</iNumQueries>
+    <tLastUsed xsi:nil="true"/>
+    <lFavourite>false</lFavourite>
+    <lCached>false</lCached>
+    <iFileNumber>-207</iFileNumber>
+    <cCategory>Other</cCategory>
+  </ttTableRow>
+  <ttTableRow>
+    <cDatabase>AUDIT</cDatabase>
+    <cTableName>_sec-authentication-system</cTableName>
+    <cCrc>57690</cCrc>
+    <cCacheId>AUDIT._sec-authentication-system.57690</cCacheId>
+    <lShowInList>false</lShowInList>
+    <cTableDesc>The purpose of this table is to define the supported and trusted authentication systems for this database, e.g. LDAP, RSA, KEON, KERBOS, Internal, etc.
+
+If the authentication system is a PAM module plug-in then details of the supported plug-in behavior are also recorded. If the authentication system is not a PAM plug-in then the method is simply a registered and therefore trusted valid authentication system for this database.
+
+An authentication system must be registered in this table and installation specific domain information defined in the _sec-authentication-domain table in order to use this authentication system for application or database access.
+
+This table facilitates the central definition and deployment of the supported authentication systems to simplify the job of the DBA for an installation so that the DBA just has to capture installation specific information for the authentication systems being used.
+</cTableDesc>
+    <cFields>_Custom-detail,_Domain-type,_Domain-type-description,_Key-store-id,_PAM-callback-procedure,_PAM-library-checksum,_PAM-module-name,_PAM-plug-in</cFields>
+    <lHidden>true</lHidden>
+    <lFrozen>true</lFrozen>
+    <iNumQueries>0</iNumQueries>
+    <tLastUsed xsi:nil="true"/>
+    <lFavourite>false</lFavourite>
+    <lCached>false</lCached>
+    <iFileNumber>-206</iFileNumber>
+    <cCategory>Other</cCategory>
+  </ttTableRow>
+  <ttTableRow>
+    <cDatabase>AUDIT</cDatabase>
+    <cTableName>_sec-granted-role</cTableName>
+    <cCrc>66</cCrc>
+    <cCacheId>AUDIT._sec-granted-role.66</cCacheId>
+    <lShowInList>false</lShowInList>
+    <cTableDesc>This table defines the roles that are granted to specific users or to other roles for the purpose of grouping roles. The _Grantee is therefore either a user or a role.
+
+The SQL standard states that a role cannot be defined with the same name as a user account and vice-versa. This constraint is generally useful and is enforced in all cases, thereby avoiding the need to record whether a granted role is for a user or for a role.
+
+The definition of roles in the _sec-role table is optional as only the role name is required, but if roles are defined then validation will be implemented to ensure that only a valid role is used.
+
+The grant sequence defines the order that any privileges associated with the role should be applied in order to resolve conflicting privileges in multiple granted roles. The grant sequence is not important for SQL roles because in SQL all privileges are positive in nature and therefore conflicts are not an issue. Privileges simply accumulate in SQL for the user and their roles. Despite this the sequence field would still be specified to support the granting of a role to a user multiple times.
+
+A role may be granted according to a pre-determined condition, e.g. the role may only be valid when the user logs into a specific company or module or between certain hours. The grant condition could contain tokens that could be checked at runtime against the authenticated credentials. This concept does not exist in SQL and so for SQL would be ignored.
+
+Specifically to support SQL, when a role is granted to a user or role, it can optionally be specified with admin rights that additionally grant the ability to pass the role onto other users or roles. This concept however could also be useful for non-SQL applications.
+</cTableDesc>
+    <cFields>_Custom-grant-detail,_Grant-rights,_Granted-role-guid,_Grantee,_Grantor,_Role-name</cFields>
+    <lHidden>true</lHidden>
+    <lFrozen>true</lFrozen>
+    <iNumQueries>0</iNumQueries>
+    <tLastUsed xsi:nil="true"/>
+    <lFavourite>false</lFavourite>
+    <lCached>false</lCached>
+    <iFileNumber>-204</iFileNumber>
+    <cCategory>Other</cCategory>
+  </ttTableRow>
+  <ttTableRow>
+    <cDatabase>AUDIT</cDatabase>
+    <cTableName>_sec-granted-role-condition</cTableName>
+    <cCrc>9974</cCrc>
+    <cCacheId>AUDIT._sec-granted-role-condition.9974</cCacheId>
+    <lShowInList>false</lShowInList>
+    <cTableDesc>This table is not supported for SQL and is only applicable to application defined roles, i.e. roles that do not begin with an underscore. This will not be checked for internal roles.
+
+This table extends the functionality for PVM (4GL client) specific application roles by facilitating the allocation of the role according to a pre-defined set of conditions. The role will therefore only be granted if all of the conditions are true using a logical AND operator. The failing of a grant condition is the equivalent of revoking the role.
+
+Example grant conditions could include only granting the role if the user authenticates to a specific login company, accesses a specific module of the application, or gains access between certain operating hours, etc.
+
+The grant condition attributes could be automatically checked at runtime during authentication against the authenticated credentials and the list of associated roles adjusted accordingly.
+</cTableDesc>
+    <cFields>_Conditional-attribute,_Conditional-value,_Custom-condition-detail,_Granted-role-guid,_Logical-operator</cFields>
+    <lHidden>true</lHidden>
+    <lFrozen>true</lFrozen>
+    <iNumQueries>0</iNumQueries>
+    <tLastUsed xsi:nil="true"/>
+    <lFavourite>false</lFavourite>
+    <lCached>false</lCached>
+    <iFileNumber>-205</iFileNumber>
+    <cCategory>Other</cCategory>
+  </ttTableRow>
+  <ttTableRow>
+    <cDatabase>AUDIT</cDatabase>
+    <cTableName>_sec-role</cTableName>
+    <cCrc>8113</cCrc>
+    <cCacheId>AUDIT._sec-role.8113</cCacheId>
+    <lShowInList>false</lShowInList>
+    <cTableDesc>This table defines the roles that are available to control authorized access to resources. The use of roles for authorization provides high scalability by minimizing the need to setup specific permissions against individual user accounts, with restrictions on specific user accounts being the exception case.
+
+The definition of a role in this table is mandatory and a role cannot be granted to a user or other role until it is created in this table. This table therefore provides a registry of the available roles and can be used to validate rules such as the inability for a user to have the same name as a role and the limitation that a user can never authenticate as a role name.
+
+The SQL standard states that a role cannot be defined with the same name as a user account and vice-versa. This constraint is generally useful and is enforced in all cases, thereby avoiding the need to record whether a granted role is for a user or for a role.
+
+The role name will be defined with a namespace to avoid conflicts. The role name will be case insensitive and will be limited to 32 characters.
+
+The role itself can be used as a permission and the fact the user is granted the role can drive authorized behavior. This concept will be used for internal system roles, e.g. a DBA or Audit Administrator. As far as possible however permissions for system roles will be explicit (defined in ACLs). System roles will follow a standard naming convention in that they will all start with an underscore and a code to determine which clients the system role is applicable to as follows;
+
+_SYS - Internal system role applicable to all clients
+_PVM - Internal PVM specific role. This role is only valid for 4GL clients
+_SQL - Internal SQL specific role. This role is only valid for SQL clients
+In addition, for application defined roles they cannot begin with an underscore but can follow a similar convention, namely:
+
+SYS - Application defined role applicable to all clients
+4GL - Application defined role applicable to 4GL clients only
+SQL - Application defined role applicable to SQL clients only
+
+If there is no such prefix to the role name then it will be assumed to be an application role applicable to all clients.
+
+Note that the above rules are purely a convention and not currently enforced by the database, or the SQL/4GL clients. It is strongly recommended that the convention is followed however to support future migration in the event that behavior is added later that uses this convention.
+
+As mentioned above, the fact a user or role is granted membership of a role can be useful in itself for authorizing actions on resources, but to support a finer level of detailed permissions to be defined, roles can have explicit permissions granted or denied via the _sec-access-control-entry table used to define ACLs.
+
+Sample rolenames could include;
+
+_sys.audit.admin
+_sys.audit.archive
+_sys.audit.insert
+</cTableDesc>
+    <cFields>_Custom-role-detail,_Role-creator,_Role-description,_Role-name</cFields>
+    <lHidden>true</lHidden>
+    <lFrozen>true</lFrozen>
+    <iNumQueries>0</iNumQueries>
+    <tLastUsed xsi:nil="true"/>
+    <lFavourite>false</lFavourite>
+    <lCached>false</lCached>
+    <iFileNumber>-203</iFileNumber>
+    <cCategory>Other</cCategory>
+  </ttTableRow>
+  <ttTableRow>
+    <cDatabase>AUDIT</cDatabase>
+    <cTableName>_Segments</cTableName>
+    <cCrc>46609</cCrc>
+    <cCacheId>AUDIT._Segments.46609</cCacheId>
+    <lShowInList>false</lShowInList>
+    <cTableDesc/>
+    <cFields>_Segment-ByteFree,_Segment-BytesUsed,_Segment-Id,_Segment-Misc,_Segment-SegId,_Segment-SegSize</cFields>
+    <lHidden>true</lHidden>
+    <lFrozen>true</lFrozen>
+    <iNumQueries>0</iNumQueries>
+    <tLastUsed xsi:nil="true"/>
+    <lFavourite>false</lFavourite>
+    <lCached>false</lCached>
+    <iFileNumber>-16390</iFileNumber>
+    <cCategory>VST</cCategory>
+  </ttTableRow>
+  <ttTableRow>
+    <cDatabase>AUDIT</cDatabase>
+    <cTableName>_Sequence</cTableName>
+    <cCrc>60752</cCrc>
+    <cCacheId>AUDIT._Sequence.60752</cCacheId>
+    <lShowInList>false</lShowInList>
+    <cTableDesc/>
+    <cFields>_Cycle-Ok,_Db-recid,_Seq-Attributes,_Seq-Incr,_Seq-Init,_Seq-Max,_Seq-Min,_Seq-Misc,_Seq-Name,_Seq-Num,_Seq-Owner,_User-Misc</cFields>
+    <lHidden>true</lHidden>
+    <lFrozen>true</lFrozen>
+    <iNumQueries>0</iNumQueries>
+    <tLastUsed xsi:nil="true"/>
+    <lFavourite>false</lFavourite>
+    <lCached>false</lCached>
+    <iFileNumber>-67</iFileNumber>
+    <cCategory>Schema</cCategory>
+  </ttTableRow>
+  <ttTableRow>
+    <cDatabase>AUDIT</cDatabase>
+    <cTableName>_Servers</cTableName>
+    <cCrc>51995</cCrc>
+    <cCacheId>AUDIT._Servers.51995</cCacheId>
+    <lShowInList>false</lShowInList>
+    <cTableDesc/>
+    <cFields>_Server-Broker-Pid,_Server-CurrUsers,_Server-Id,_Server-Logins,_Server-MaxUsers,_Server-Misc,_Server-Num,_Server-PendConn,_Server-Pid,_Server-PortNum,_Server-Protocol,_Server-Type,_SrvParam-Desc,_SrvParam-dtype,_SrvParam-Is-Default,_SrvParam-Is-Modifiable,_SrvParam-Msg-Num,_SrvParam-Name,_SrvParam-Value</cFields>
+    <lHidden>true</lHidden>
+    <lFrozen>true</lFrozen>
+    <iNumQueries>0</iNumQueries>
+    <tLastUsed xsi:nil="true"/>
+    <lFavourite>false</lFavourite>
+    <lCached>false</lCached>
+    <iFileNumber>-16391</iFileNumber>
+    <cCategory>VST</cCategory>
+  </ttTableRow>
+  <ttTableRow>
+    <cDatabase>AUDIT</cDatabase>
+    <cTableName>_SQL_Properties</cTableName>
+    <cCrc>41814</cCrc>
+    <cCacheId>AUDIT._SQL_Properties.41814</cCacheId>
+    <lShowInList>false</lShowInList>
+    <cTableDesc/>
+    <cFields>_Attribute,_Property,_Value_ch,_Value_n</cFields>
+    <lHidden>true</lHidden>
+    <lFrozen>true</lFrozen>
+    <iNumQueries>0</iNumQueries>
+    <tLastUsed xsi:nil="true"/>
+    <lFavourite>false</lFavourite>
+    <lCached>false</lCached>
+    <iFileNumber>-126</iFileNumber>
+    <cCategory>Other</cCategory>
+  </ttTableRow>
+  <ttTableRow>
+    <cDatabase>AUDIT</cDatabase>
+    <cTableName>_Startup</cTableName>
+    <cCrc>58066</cCrc>
+    <cCacheId>AUDIT._Startup.58066</cCacheId>
+    <lShowInList>false</lShowInList>
+    <cTableDesc/>
+    <cFields>_Startup-AiBuffs,_Startup-AiName,_Startup-Alternate_Buffs,_Startup-APWBuffs,_Startup-APWMaxWrites,_Startup-APWQTime,_Startup-APWSTime,_Startup-BiBuffs,_Startup-BiDelay,_Startup-BiIO,_Startup-BiName,_Startup-BiTrunc,_Startup-Buffs,_Startup-CrashProt,_Startup-Directio,_Startup-Id,_Startup-LGovernor,_Startup-LockTable,_Startup-LRU-Skips,_Startup-LRU2-Skips,_Startup-MaxClients,_Startup-MaxServers,_Startup-MaxUsers,_Startup-MemOverflow,_Startup-Misc,_Startup-nGovernor,_Startup-NmsgWait,_Startup-Prefetch-Delay,_Startup-Prefetch-Factor,_Startup-Prefetch-Num-Recs,_Startup-Prefetch-Priority,_Startup-Spin</cFields>
+    <lHidden>true</lHidden>
+    <lFrozen>true</lFrozen>
+    <iNumQueries>0</iNumQueries>
+    <tLastUsed xsi:nil="true"/>
+    <lFavourite>false</lFavourite>
+    <lCached>false</lCached>
+    <iFileNumber>-16392</iFileNumber>
+    <cCategory>VST</cCategory>
+  </ttTableRow>
+  <ttTableRow>
+    <cDatabase>AUDIT</cDatabase>
+    <cTableName>_StatBase</cTableName>
+    <cCrc>47037</cCrc>
+    <cCacheId>AUDIT._StatBase.47037</cCacheId>
+    <lShowInList>false</lShowInList>
+    <cTableDesc/>
+    <cFields>_IndexBase,_StatBase-id,_TableBase</cFields>
+    <lHidden>true</lHidden>
+    <lFrozen>true</lFrozen>
+    <iNumQueries>0</iNumQueries>
+    <tLastUsed xsi:nil="true"/>
+    <lFavourite>false</lFavourite>
+    <lCached>false</lCached>
+    <iFileNumber>-16420</iFileNumber>
+    <cCategory>VST</cCategory>
+  </ttTableRow>
+  <ttTableRow>
+    <cDatabase>AUDIT</cDatabase>
+    <cTableName>_StorageObject</cTableName>
+    <cCrc>3637</cCrc>
+    <cCacheId>AUDIT._StorageObject.3637</cCacheId>
+    <lShowInList>false</lShowInList>
+    <cTableDesc/>
+    <cFields>_Area-number,_CollationId,_Create-Limit,_Db-recid,_Object-associate,_Object-associate-type,_Object-attrib,_Object-block,_Object-misc,_Object-number,_Object-root,_Object-state,_Object-system,_Object-type,_PartitionId,_Toss-Limit</cFields>
+    <lHidden>true</lHidden>
+    <lFrozen>true</lFrozen>
+    <iNumQueries>0</iNumQueries>
+    <tLastUsed xsi:nil="true"/>
+    <lFavourite>false</lFavourite>
+    <lCached>false</lCached>
+    <iFileNumber>-70</iFileNumber>
+    <cCategory>Schema</cCategory>
+  </ttTableRow>
+  <ttTableRow>
+    <cDatabase>AUDIT</cDatabase>
+    <cTableName>_Sysautostats</cTableName>
+    <cCrc>11452</cCrc>
+    <cCacheId>AUDIT._Sysautostats.11452</cCacheId>
+    <lShowInList>false</lShowInList>
+    <cTableDesc>This table holds information on statistics.</cTableDesc>
+    <cFields>_IntervalType,_IntervalValue,_Misc,_PolicyType,_TableId,_TenantId</cFields>
+    <lHidden>true</lHidden>
+    <lFrozen>true</lFrozen>
+    <iNumQueries>0</iNumQueries>
+    <tLastUsed xsi:nil="true"/>
+    <lFavourite>false</lFavourite>
+    <lCached>false</lCached>
+    <iFileNumber>-127</iFileNumber>
+    <cCategory>SQL</cCategory>
+  </ttTableRow>
+  <ttTableRow>
+    <cDatabase>AUDIT</cDatabase>
+    <cTableName>_Sysbigintstat</cTableName>
+    <cCrc>1593</cCrc>
+    <cCacheId>AUDIT._Sysbigintstat.1593</cCacheId>
+    <lShowInList>false</lShowInList>
+    <cTableDesc/>
+    <cFields>_Attribute,_Colid,_PartitionId,_Property,_Tblid,_Value</cFields>
+    <lHidden>true</lHidden>
+    <lFrozen>true</lFrozen>
+    <iNumQueries>0</iNumQueries>
+    <tLastUsed xsi:nil="true"/>
+    <lFavourite>false</lFavourite>
+    <lCached>false</lCached>
+    <iFileNumber>-117</iFileNumber>
+    <cCategory>SQL</cCategory>
+  </ttTableRow>
+  <ttTableRow>
+    <cDatabase>AUDIT</cDatabase>
+    <cTableName>_Syscalctable</cTableName>
+    <cCrc>237</cCrc>
+    <cCacheId>AUDIT._Syscalctable.237</cCacheId>
+    <lShowInList>false</lShowInList>
+    <cTableDesc/>
+    <cFields>_Fld</cFields>
+    <lHidden>true</lHidden>
+    <lFrozen>true</lFrozen>
+    <iNumQueries>0</iNumQueries>
+    <tLastUsed xsi:nil="true"/>
+    <lFavourite>false</lFavourite>
+    <lCached>false</lCached>
+    <iFileNumber>-92</iFileNumber>
+    <cCategory>SQL</cCategory>
+  </ttTableRow>
+  <ttTableRow>
+    <cDatabase>AUDIT</cDatabase>
+    <cTableName>_Syscharstat</cTableName>
+    <cCrc>5007</cCrc>
+    <cCacheId>AUDIT._Syscharstat.5007</cCacheId>
+    <lShowInList>false</lShowInList>
+    <cTableDesc/>
+    <cFields>_Attribute,_Colid,_PartitionId,_Property,_Tblid,_Value</cFields>
+    <lHidden>true</lHidden>
+    <lFrozen>true</lFrozen>
+    <iNumQueries>0</iNumQueries>
+    <tLastUsed xsi:nil="true"/>
+    <lFavourite>false</lFavourite>
+    <lCached>false</lCached>
+    <iFileNumber>-113</iFileNumber>
+    <cCategory>SQL</cCategory>
+  </ttTableRow>
+  <ttTableRow>
+    <cDatabase>AUDIT</cDatabase>
+    <cTableName>_Syschkcolusage</cTableName>
+    <cCrc>47342</cCrc>
+    <cCacheId>AUDIT._Syschkcolusage.47342</cCacheId>
+    <lShowInList>false</lShowInList>
+    <cTableDesc/>
+    <cFields>_Cnstrname,_Colname,_Owner,_Tblname</cFields>
+    <lHidden>true</lHidden>
+    <lFrozen>true</lFrozen>
+    <iNumQueries>0</iNumQueries>
+    <tLastUsed xsi:nil="true"/>
+    <lFavourite>false</lFavourite>
+    <lCached>false</lCached>
+    <iFileNumber>-90</iFileNumber>
+    <cCategory>SQL</cCategory>
+  </ttTableRow>
+  <ttTableRow>
+    <cDatabase>AUDIT</cDatabase>
+    <cTableName>_Syschkconstrs</cTableName>
+    <cCrc>30371</cCrc>
+    <cCacheId>AUDIT._Syschkconstrs.30371</cCacheId>
+    <lShowInList>false</lShowInList>
+    <cTableDesc/>
+    <cFields>_Chkclause,_Chkseq,_Cnstrname,_Owner,_Tblname</cFields>
+    <lHidden>true</lHidden>
+    <lFrozen>true</lFrozen>
+    <iNumQueries>0</iNumQueries>
+    <tLastUsed xsi:nil="true"/>
+    <lFavourite>false</lFavourite>
+    <lCached>false</lCached>
+    <iFileNumber>-88</iFileNumber>
+    <cCategory>SQL</cCategory>
+  </ttTableRow>
+  <ttTableRow>
+    <cDatabase>AUDIT</cDatabase>
+    <cTableName>_Syschkconstr_Name_Map</cTableName>
+    <cCrc>15894</cCrc>
+    <cCacheId>AUDIT._Syschkconstr_Name_Map.15894</cCacheId>
+    <lShowInList>false</lShowInList>
+    <cTableDesc/>
+    <cFields>_Cnstrname,_Name_loc,_Owner,_Seq,_Tblname</cFields>
+    <lHidden>true</lHidden>
+    <lFrozen>true</lFrozen>
+    <iNumQueries>0</iNumQueries>
+    <tLastUsed xsi:nil="true"/>
+    <lFavourite>false</lFavourite>
+    <lCached>false</lCached>
+    <iFileNumber>-123</iFileNumber>
+    <cCategory>SQL</cCategory>
+  </ttTableRow>
+  <ttTableRow>
+    <cDatabase>AUDIT</cDatabase>
+    <cTableName>_Syscolauth</cTableName>
+    <cCrc>55743</cCrc>
+    <cCacheId>AUDIT._Syscolauth.55743</cCacheId>
+    <lShowInList>false</lShowInList>
+    <cTableDesc/>
+    <cFields>_Col,_Grantee,_Grantee-DomainId,_Grantor,_Grantor-DomainId,_Ref,_Sel,_Tbl,_Tblowner,_Upd</cFields>
+    <lHidden>true</lHidden>
+    <lFrozen>true</lFrozen>
+    <iNumQueries>0</iNumQueries>
+    <tLastUsed xsi:nil="true"/>
+    <lFavourite>false</lFavourite>
+    <lCached>false</lCached>
+    <iFileNumber>-83</iFileNumber>
+    <cCategory>SQL</cCategory>
+  </ttTableRow>
+  <ttTableRow>
+    <cDatabase>AUDIT</cDatabase>
+    <cTableName>_Syscolstat</cTableName>
+    <cCrc>9891</cCrc>
+    <cCacheId>AUDIT._Syscolstat.9891</cCacheId>
+    <lShowInList>false</lShowInList>
+    <cTableDesc/>
+    <cFields>_Attribute,_Colid,_PartitionId,_Property,_Tblid,_Value,_Val_ts</cFields>
+    <lHidden>true</lHidden>
+    <lFrozen>true</lFrozen>
+    <iNumQueries>0</iNumQueries>
+    <tLastUsed xsi:nil="true"/>
+    <lFavourite>false</lFavourite>
+    <lCached>false</lCached>
+    <iFileNumber>-104</iFileNumber>
+    <cCategory>SQL</cCategory>
+  </ttTableRow>
+  <ttTableRow>
+    <cDatabase>AUDIT</cDatabase>
+    <cTableName>_Sysdatatypes</cTableName>
+    <cCrc>6392</cCrc>
+    <cCacheId>AUDIT._Sysdatatypes.6392</cCacheId>
+    <lShowInList>false</lShowInList>
+    <cTableDesc/>
+    <cFields>_Autoincr,_Casesensitive,_Createparams,_Datatype,_Dhtypename,_Literalprefix,_Literalsuffix,_Localtypename,_Nullable,_Odbcmoney,_Searchable,_Typeprecision,_Unsignedattr</cFields>
+    <lHidden>true</lHidden>
+    <lFrozen>true</lFrozen>
+    <iNumQueries>0</iNumQueries>
+    <tLastUsed xsi:nil="true"/>
+    <lFavourite>false</lFavourite>
+    <lCached>false</lCached>
+    <iFileNumber>-91</iFileNumber>
+    <cCategory>SQL</cCategory>
+  </ttTableRow>
+  <ttTableRow>
+    <cDatabase>AUDIT</cDatabase>
+    <cTableName>_Sysdatestat</cTableName>
+    <cCrc>30163</cCrc>
+    <cCacheId>AUDIT._Sysdatestat.30163</cCacheId>
+    <lShowInList>false</lShowInList>
+    <cTableDesc/>
+    <cFields>_Attribute,_Colid,_PartitionId,_Property,_Tblid,_Value</cFields>
+    <lHidden>true</lHidden>
+    <lFrozen>true</lFrozen>
+    <iNumQueries>0</iNumQueries>
+    <tLastUsed xsi:nil="true"/>
+    <lFavourite>false</lFavourite>
+    <lCached>false</lCached>
+    <iFileNumber>-109</iFileNumber>
+    <cCategory>SQL</cCategory>
+  </ttTableRow>
+  <ttTableRow>
+    <cDatabase>AUDIT</cDatabase>
+    <cTableName>_Sysdbauth</cTableName>
+    <cCrc>54216</cCrc>
+    <cCacheId>AUDIT._Sysdbauth.54216</cCacheId>
+    <lShowInList>false</lShowInList>
+    <cTableDesc/>
+    <cFields>_Dbaacc,_Grantee,_Grantee-DomainId,_Resacc</cFields>
+    <lHidden>true</lHidden>
+    <lFrozen>true</lFrozen>
+    <iNumQueries>0</iNumQueries>
+    <tLastUsed xsi:nil="true"/>
+    <lFavourite>false</lFavourite>
+    <lCached>false</lCached>
+    <iFileNumber>-81</iFileNumber>
+    <cCategory>SQL</cCategory>
+  </ttTableRow>
+  <ttTableRow>
+    <cDatabase>AUDIT</cDatabase>
+    <cTableName>_Sysfloatstat</cTableName>
+    <cCrc>4594</cCrc>
+    <cCacheId>AUDIT._Sysfloatstat.4594</cCacheId>
+    <lShowInList>false</lShowInList>
+    <cTableDesc/>
+    <cFields>_Attribute,_Colid,_PartitionId,_Property,_Tblid,_Value</cFields>
+    <lHidden>true</lHidden>
+    <lFrozen>true</lFrozen>
+    <iNumQueries>0</iNumQueries>
+    <tLastUsed xsi:nil="true"/>
+    <lFavourite>false</lFavourite>
+    <lCached>false</lCached>
+    <iFileNumber>-110</iFileNumber>
+    <cCategory>SQL</cCategory>
+  </ttTableRow>
+  <ttTableRow>
+    <cDatabase>AUDIT</cDatabase>
+    <cTableName>_Sysidxstat</cTableName>
+    <cCrc>26840</cCrc>
+    <cCacheId>AUDIT._Sysidxstat.26840</cCacheId>
+    <lShowInList>false</lShowInList>
+    <cTableDesc/>
+    <cFields>_Attribute,_Idxid,_PartitionId,_Property,_Tblid,_Value,_Val_ts</cFields>
+    <lHidden>true</lHidden>
+    <lFrozen>true</lFrozen>
+    <iNumQueries>0</iNumQueries>
+    <tLastUsed xsi:nil="true"/>
+    <lFavourite>false</lFavourite>
+    <lCached>false</lCached>
+    <iFileNumber>-94</iFileNumber>
+    <cCategory>SQL</cCategory>
+  </ttTableRow>
+  <ttTableRow>
+    <cDatabase>AUDIT</cDatabase>
+    <cTableName>_Sysintstat</cTableName>
+    <cCrc>26108</cCrc>
+    <cCacheId>AUDIT._Sysintstat.26108</cCacheId>
+    <lShowInList>false</lShowInList>
+    <cTableDesc/>
+    <cFields>_Attribute,_Colid,_PartitionId,_Property,_Tblid,_Value</cFields>
+    <lHidden>true</lHidden>
+    <lFrozen>true</lFrozen>
+    <iNumQueries>0</iNumQueries>
+    <tLastUsed xsi:nil="true"/>
+    <lFavourite>false</lFavourite>
+    <lCached>false</lCached>
+    <iFileNumber>-107</iFileNumber>
+    <cCategory>SQL</cCategory>
+  </ttTableRow>
+  <ttTableRow>
+    <cDatabase>AUDIT</cDatabase>
+    <cTableName>_Syskeycolusage</cTableName>
+    <cCrc>60850</cCrc>
+    <cCacheId>AUDIT._Syskeycolusage.60850</cCacheId>
+    <lShowInList>false</lShowInList>
+    <cTableDesc/>
+    <cFields>_Cnstrname,_Colname,_Colposition,_Owner,_Tblname</cFields>
+    <lHidden>true</lHidden>
+    <lFrozen>true</lFrozen>
+    <iNumQueries>0</iNumQueries>
+    <tLastUsed xsi:nil="true"/>
+    <lFavourite>false</lFavourite>
+    <lCached>false</lCached>
+    <iFileNumber>-86</iFileNumber>
+    <cCategory>SQL</cCategory>
+  </ttTableRow>
+  <ttTableRow>
+    <cDatabase>AUDIT</cDatabase>
+    <cTableName>_Sysncharstat</cTableName>
+    <cCrc>5164</cCrc>
+    <cCacheId>AUDIT._Sysncharstat.5164</cCacheId>
+    <lShowInList>false</lShowInList>
+    <cTableDesc/>
+    <cFields>_Attribute,_Colid,_PartitionId,_Property,_Tblid,_Value</cFields>
+    <lHidden>true</lHidden>
+    <lFrozen>true</lFrozen>
+    <iNumQueries>0</iNumQueries>
+    <tLastUsed xsi:nil="true"/>
+    <lFavourite>false</lFavourite>
+    <lCached>false</lCached>
+    <iFileNumber>-118</iFileNumber>
+    <cCategory>SQL</cCategory>
+  </ttTableRow>
+  <ttTableRow>
+    <cDatabase>AUDIT</cDatabase>
+    <cTableName>_Sysnumstat</cTableName>
+    <cCrc>27512</cCrc>
+    <cCacheId>AUDIT._Sysnumstat.27512</cCacheId>
+    <lShowInList>false</lShowInList>
+    <cTableDesc/>
+    <cFields>_Attribute,_Colid,_PartitionId,_Property,_Tblid,_Value</cFields>
+    <lHidden>true</lHidden>
+    <lFrozen>true</lFrozen>
+    <iNumQueries>0</iNumQueries>
+    <tLastUsed xsi:nil="true"/>
+    <lFavourite>false</lFavourite>
+    <lCached>false</lCached>
+    <iFileNumber>-108</iFileNumber>
+    <cCategory>SQL</cCategory>
+  </ttTableRow>
+  <ttTableRow>
+    <cDatabase>AUDIT</cDatabase>
+    <cTableName>_Sysnvarcharstat</cTableName>
+    <cCrc>56063</cCrc>
+    <cCacheId>AUDIT._Sysnvarcharstat.56063</cCacheId>
+    <lShowInList>false</lShowInList>
+    <cTableDesc/>
+    <cFields>_Attribute,_Colid,_PartitionId,_Property,_Tblid,_Value</cFields>
+    <lHidden>true</lHidden>
+    <lFrozen>true</lFrozen>
+    <iNumQueries>0</iNumQueries>
+    <tLastUsed xsi:nil="true"/>
+    <lFavourite>false</lFavourite>
+    <lCached>false</lCached>
+    <iFileNumber>-119</iFileNumber>
+    <cCategory>SQL</cCategory>
+  </ttTableRow>
+  <ttTableRow>
+    <cDatabase>AUDIT</cDatabase>
+    <cTableName>_Sysprocbin</cTableName>
+    <cCrc>21878</cCrc>
+    <cCacheId>AUDIT._Sysprocbin.21878</cCacheId>
+    <lShowInList>false</lShowInList>
+    <cTableDesc/>
+    <cFields>_Id,_Procbin,_Proctype,_Rssid,_Seq</cFields>
+    <lHidden>true</lHidden>
+    <lFrozen>true</lFrozen>
+    <iNumQueries>0</iNumQueries>
+    <tLastUsed xsi:nil="true"/>
+    <lFavourite>false</lFavourite>
+    <lCached>false</lCached>
+    <iFileNumber>-102</iFileNumber>
+    <cCategory>SQL</cCategory>
+  </ttTableRow>
+  <ttTableRow>
+    <cDatabase>AUDIT</cDatabase>
+    <cTableName>_Sysproccolumns</cTableName>
+    <cCrc>117</cCrc>
+    <cCacheId>AUDIT._Sysproccolumns.117</cCacheId>
+    <lShowInList>false</lShowInList>
+    <cTableDesc/>
+    <cFields>_Argtype,_Col,_Datatype,_Dfltvalue,_Id,_Nullflag,_Procid,_Rssid,_Scale,_Width</cFields>
+    <lHidden>true</lHidden>
+    <lFrozen>true</lFrozen>
+    <iNumQueries>0</iNumQueries>
+    <tLastUsed xsi:nil="true"/>
+    <lFavourite>false</lFavourite>
+    <lCached>false</lCached>
+    <iFileNumber>-97</iFileNumber>
+    <cCategory>SQL</cCategory>
+  </ttTableRow>
+  <ttTableRow>
+    <cDatabase>AUDIT</cDatabase>
+    <cTableName>_Sysprocedures</cTableName>
+    <cCrc>45144</cCrc>
+    <cCacheId>AUDIT._Sysprocedures.45144</cCacheId>
+    <lShowInList>false</lShowInList>
+    <cTableDesc/>
+    <cFields>_Creator,_Hasresultset,_Hasreturnval,_Lang,_Owner,_Procid,_Procname,_Proctype,_Rssid</cFields>
+    <lHidden>true</lHidden>
+    <lFrozen>true</lFrozen>
+    <iNumQueries>0</iNumQueries>
+    <tLastUsed xsi:nil="true"/>
+    <lFavourite>false</lFavourite>
+    <lCached>false</lCached>
+    <iFileNumber>-96</iFileNumber>
+    <cCategory>SQL</cCategory>
+  </ttTableRow>
+  <ttTableRow>
+    <cDatabase>AUDIT</cDatabase>
+    <cTableName>_Sysproctext</cTableName>
+    <cCrc>60542</cCrc>
+    <cCacheId>AUDIT._Sysproctext.60542</cCacheId>
+    <lShowInList>false</lShowInList>
+    <cTableDesc/>
+    <cFields>_Id,_Proctext,_Proctype,_Rssid,_Seq</cFields>
+    <lHidden>true</lHidden>
+    <lFrozen>true</lFrozen>
+    <iNumQueries>0</iNumQueries>
+    <tLastUsed xsi:nil="true"/>
+    <lFavourite>false</lFavourite>
+    <lCached>false</lCached>
+    <iFileNumber>-103</iFileNumber>
+    <cCategory>SQL</cCategory>
+  </ttTableRow>
+  <ttTableRow>
+    <cDatabase>AUDIT</cDatabase>
+    <cTableName>_Sysrealstat</cTableName>
+    <cCrc>10687</cCrc>
+    <cCacheId>AUDIT._Sysrealstat.10687</cCacheId>
+    <lShowInList>false</lShowInList>
+    <cTableDesc/>
+    <cFields>_Attribute,_Colid,_PartitionId,_Property,_Tblid,_Value</cFields>
+    <lHidden>true</lHidden>
+    <lFrozen>true</lFrozen>
+    <iNumQueries>0</iNumQueries>
+    <tLastUsed xsi:nil="true"/>
+    <lFavourite>false</lFavourite>
+    <lCached>false</lCached>
+    <iFileNumber>-114</iFileNumber>
+    <cCategory>SQL</cCategory>
+  </ttTableRow>
+  <ttTableRow>
+    <cDatabase>AUDIT</cDatabase>
+    <cTableName>_Sysrefconstrs</cTableName>
+    <cCrc>31938</cCrc>
+    <cCacheId>AUDIT._Sysrefconstrs.31938</cCacheId>
+    <lShowInList>false</lShowInList>
+    <cTableDesc/>
+    <cFields>_Cnstrname,_Deleterule,_Owner,_Refcnstrname,_Refowner,_Reftblname,_Tblname</cFields>
+    <lHidden>true</lHidden>
+    <lFrozen>true</lFrozen>
+    <iNumQueries>0</iNumQueries>
+    <tLastUsed xsi:nil="true"/>
+    <lFavourite>false</lFavourite>
+    <lCached>false</lCached>
+    <iFileNumber>-87</iFileNumber>
+    <cCategory>SQL</cCategory>
+  </ttTableRow>
+  <ttTableRow>
+    <cDatabase>AUDIT</cDatabase>
+    <cTableName>_Sysroles</cTableName>
+    <cCrc>7955</cCrc>
+    <cCacheId>AUDIT._Sysroles.7955</cCacheId>
+    <lShowInList>false</lShowInList>
+    <cTableDesc/>
+    <cFields>_Admin,_Grantee,_Grantor,_Rolename</cFields>
+    <lHidden>true</lHidden>
+    <lFrozen>true</lFrozen>
+    <iNumQueries>0</iNumQueries>
+    <tLastUsed xsi:nil="true"/>
+    <lFavourite>false</lFavourite>
+    <lCached>false</lCached>
+    <iFileNumber>-124</iFileNumber>
+    <cCategory>SQL</cCategory>
+  </ttTableRow>
+  <ttTableRow>
+    <cDatabase>AUDIT</cDatabase>
+    <cTableName>_Sysschemas</cTableName>
+    <cCrc>10559</cCrc>
+    <cCacheId>AUDIT._Sysschemas.10559</cCacheId>
+    <lShowInList>false</lShowInList>
+    <cTableDesc/>
+    <cFields>_Owner,_Schemaname</cFields>
+    <lHidden>true</lHidden>
+    <lFrozen>true</lFrozen>
+    <iNumQueries>0</iNumQueries>
+    <tLastUsed xsi:nil="true"/>
+    <lFavourite>false</lFavourite>
+    <lCached>false</lCached>
+    <iFileNumber>-125</iFileNumber>
+    <cCategory>SQL</cCategory>
+  </ttTableRow>
+  <ttTableRow>
+    <cDatabase>AUDIT</cDatabase>
+    <cTableName>_Sysseqauth</cTableName>
+    <cCrc>13723</cCrc>
+    <cCacheId>AUDIT._Sysseqauth.13723</cCacheId>
+    <lShowInList>false</lShowInList>
+    <cTableDesc/>
+    <cFields>_Grantee,_Grantee-DomainId,_Grantor,_Grantor-DomainId,_Ref,_Sel,_Seq-Name,_Seq-Owner,_Upd</cFields>
+    <lHidden>true</lHidden>
+    <lFrozen>true</lFrozen>
+    <iNumQueries>0</iNumQueries>
+    <tLastUsed xsi:nil="true"/>
+    <lFavourite>false</lFavourite>
+    <lCached>false</lCached>
+    <iFileNumber>-121</iFileNumber>
+    <cCategory>SQL</cCategory>
+  </ttTableRow>
+  <ttTableRow>
+    <cDatabase>AUDIT</cDatabase>
+    <cTableName>_Syssmintstat</cTableName>
+    <cCrc>30095</cCrc>
+    <cCacheId>AUDIT._Syssmintstat.30095</cCacheId>
+    <lShowInList>false</lShowInList>
+    <cTableDesc/>
+    <cFields>_Attribute,_Colid,_PartitionId,_Property,_Tblid,_Value</cFields>
+    <lHidden>true</lHidden>
+    <lFrozen>true</lFrozen>
+    <iNumQueries>0</iNumQueries>
+    <tLastUsed xsi:nil="true"/>
+    <lFavourite>false</lFavourite>
+    <lCached>false</lCached>
+    <iFileNumber>-106</iFileNumber>
+    <cCategory>SQL</cCategory>
+  </ttTableRow>
+  <ttTableRow>
+    <cDatabase>AUDIT</cDatabase>
+    <cTableName>_Syssynonyms</cTableName>
+    <cCrc>64042</cCrc>
+    <cCacheId>AUDIT._Syssynonyms.64042</cCacheId>
+    <lShowInList>false</lShowInList>
+    <cTableDesc/>
+    <cFields>_Ispublic,_Screator,_Sname,_Sowner,_Sremdb,_Stbl,_Stblowner</cFields>
+    <lHidden>true</lHidden>
+    <lFrozen>true</lFrozen>
+    <iNumQueries>0</iNumQueries>
+    <tLastUsed xsi:nil="true"/>
+    <lFavourite>false</lFavourite>
+    <lCached>false</lCached>
+    <iFileNumber>-84</iFileNumber>
+    <cCategory>SQL</cCategory>
+  </ttTableRow>
+  <ttTableRow>
+    <cDatabase>AUDIT</cDatabase>
+    <cTableName>_Systabauth</cTableName>
+    <cCrc>3115</cCrc>
+    <cCacheId>AUDIT._Systabauth.3115</cCacheId>
+    <lShowInList>false</lShowInList>
+    <cTableDesc/>
+    <cFields>_Alt,_Del,_Exe,_Grantee,_Grantee-DomainId,_Grantor,_Grantor-DomainId,_Ins,_Ndx,_Ref,_Sel,_Tbl,_Tblowner,_Upd</cFields>
+    <lHidden>true</lHidden>
+    <lFrozen>true</lFrozen>
+    <iNumQueries>0</iNumQueries>
+    <tLastUsed xsi:nil="true"/>
+    <lFavourite>false</lFavourite>
+    <lCached>false</lCached>
+    <iFileNumber>-82</iFileNumber>
+    <cCategory>SQL</cCategory>
+  </ttTableRow>
+  <ttTableRow>
+    <cDatabase>AUDIT</cDatabase>
+    <cTableName>_Systblconstrs</cTableName>
+    <cCrc>28778</cCrc>
+    <cCacheId>AUDIT._Systblconstrs.28778</cCacheId>
+    <lShowInList>false</lShowInList>
+    <cTableDesc/>
+    <cFields>_Cnstrname,_Cnstrtype,_Idxname,_Owner,_Tblname</cFields>
+    <lHidden>true</lHidden>
+    <lFrozen>true</lFrozen>
+    <iNumQueries>0</iNumQueries>
+    <tLastUsed xsi:nil="true"/>
+    <lFavourite>false</lFavourite>
+    <lCached>false</lCached>
+    <iFileNumber>-89</iFileNumber>
+    <cCategory>SQL</cCategory>
+  </ttTableRow>
+  <ttTableRow>
+    <cDatabase>AUDIT</cDatabase>
+    <cTableName>_Systblstat</cTableName>
+    <cCrc>21676</cCrc>
+    <cCacheId>AUDIT._Systblstat.21676</cCacheId>
+    <lShowInList>false</lShowInList>
+    <cTableDesc/>
+    <cFields>_Attribute,_PartitionId,_Property,_Tblid,_Value,_Val_ts</cFields>
+    <lHidden>true</lHidden>
+    <lFrozen>true</lFrozen>
+    <iNumQueries>0</iNumQueries>
+    <tLastUsed xsi:nil="true"/>
+    <lFavourite>false</lFavourite>
+    <lCached>false</lCached>
+    <iFileNumber>-93</iFileNumber>
+    <cCategory>SQL</cCategory>
+  </ttTableRow>
+  <ttTableRow>
+    <cDatabase>AUDIT</cDatabase>
+    <cTableName>_Systimestat</cTableName>
+    <cCrc>61916</cCrc>
+    <cCacheId>AUDIT._Systimestat.61916</cCacheId>
+    <lShowInList>false</lShowInList>
+    <cTableDesc/>
+    <cFields>_Attribute,_Colid,_PartitionId,_Property,_Tblid,_Value</cFields>
+    <lHidden>true</lHidden>
+    <lFrozen>true</lFrozen>
+    <iNumQueries>0</iNumQueries>
+    <tLastUsed xsi:nil="true"/>
+    <lFavourite>false</lFavourite>
+    <lCached>false</lCached>
+    <iFileNumber>-112</iFileNumber>
+    <cCategory>SQL</cCategory>
+  </ttTableRow>
+  <ttTableRow>
+    <cDatabase>AUDIT</cDatabase>
+    <cTableName>_Systinyintstat</cTableName>
+    <cCrc>5538</cCrc>
+    <cCacheId>AUDIT._Systinyintstat.5538</cCacheId>
+    <lShowInList>false</lShowInList>
+    <cTableDesc/>
+    <cFields>_Attribute,_Colid,_PartitionId,_Property,_Tblid,_Value</cFields>
+    <lHidden>true</lHidden>
+    <lFrozen>true</lFrozen>
+    <iNumQueries>0</iNumQueries>
+    <tLastUsed xsi:nil="true"/>
+    <lFavourite>false</lFavourite>
+    <lCached>false</lCached>
+    <iFileNumber>-116</iFileNumber>
+    <cCategory>SQL</cCategory>
+  </ttTableRow>
+  <ttTableRow>
+    <cDatabase>AUDIT</cDatabase>
+    <cTableName>_Systrigcols</cTableName>
+    <cCrc>41656</cCrc>
+    <cCacheId>AUDIT._Systrigcols.41656</cCacheId>
+    <lShowInList>false</lShowInList>
+    <cTableDesc/>
+    <cFields>_Colid,_Owner,_Triggername</cFields>
+    <lHidden>true</lHidden>
+    <lFrozen>true</lFrozen>
+    <iNumQueries>0</iNumQueries>
+    <tLastUsed xsi:nil="true"/>
+    <lFavourite>false</lFavourite>
+    <lCached>false</lCached>
+    <iFileNumber>-99</iFileNumber>
+    <cCategory>SQL</cCategory>
+  </ttTableRow>
+  <ttTableRow>
+    <cDatabase>AUDIT</cDatabase>
+    <cTableName>_Systrigger</cTableName>
+    <cCrc>26684</cCrc>
+    <cCacheId>AUDIT._Systrigger.26684</cCacheId>
+    <lShowInList>false</lShowInList>
+    <cTableDesc/>
+    <cFields>_Fire_4GL,_Owner,_Referstonew,_Referstoold,_Rssid,_Statementorrow,_Tbl,_Tblowner,_Triggerevent,_Triggerid,_Triggername,_Triggertime</cFields>
+    <lHidden>true</lHidden>
+    <lFrozen>true</lFrozen>
+    <iNumQueries>0</iNumQueries>
+    <tLastUsed xsi:nil="true"/>
+    <lFavourite>false</lFavourite>
+    <lCached>false</lCached>
+    <iFileNumber>-98</iFileNumber>
+    <cCategory>SQL</cCategory>
+  </ttTableRow>
+  <ttTableRow>
+    <cDatabase>AUDIT</cDatabase>
+    <cTableName>_Systsstat</cTableName>
+    <cCrc>8941</cCrc>
+    <cCacheId>AUDIT._Systsstat.8941</cCacheId>
+    <lShowInList>false</lShowInList>
+    <cTableDesc/>
+    <cFields>_Attribute,_Colid,_PartitionId,_Property,_Tblid,_Value</cFields>
+    <lHidden>true</lHidden>
+    <lFrozen>true</lFrozen>
+    <iNumQueries>0</iNumQueries>
+    <tLastUsed xsi:nil="true"/>
+    <lFavourite>false</lFavourite>
+    <lCached>false</lCached>
+    <iFileNumber>-115</iFileNumber>
+    <cCategory>SQL</cCategory>
+  </ttTableRow>
+  <ttTableRow>
+    <cDatabase>AUDIT</cDatabase>
+    <cTableName>_Syststzstat</cTableName>
+    <cCrc>22758</cCrc>
+    <cCacheId>AUDIT._Syststzstat.22758</cCacheId>
+    <lShowInList>false</lShowInList>
+    <cTableDesc/>
+    <cFields>_Attribute,_Colid,_PartitionId,_Property,_Tblid,_Value</cFields>
+    <lHidden>true</lHidden>
+    <lFrozen>true</lFrozen>
+    <iNumQueries>0</iNumQueries>
+    <tLastUsed xsi:nil="true"/>
+    <lFavourite>false</lFavourite>
+    <lCached>false</lCached>
+    <iFileNumber>-120</iFileNumber>
+    <cCategory>SQL</cCategory>
+  </ttTableRow>
+  <ttTableRow>
+    <cDatabase>AUDIT</cDatabase>
+    <cTableName>_Sysvarcharstat</cTableName>
+    <cCrc>31501</cCrc>
+    <cCacheId>AUDIT._Sysvarcharstat.31501</cCacheId>
+    <lShowInList>false</lShowInList>
+    <cTableDesc/>
+    <cFields>_Attribute,_Colid,_PartitionId,_Property,_Tblid,_Value</cFields>
+    <lHidden>true</lHidden>
+    <lFrozen>true</lFrozen>
+    <iNumQueries>0</iNumQueries>
+    <tLastUsed xsi:nil="true"/>
+    <lFavourite>false</lFavourite>
+    <lCached>false</lCached>
+    <iFileNumber>-105</iFileNumber>
+    <cCategory>SQL</cCategory>
+  </ttTableRow>
+  <ttTableRow>
+    <cDatabase>AUDIT</cDatabase>
+    <cTableName>_Sysviews</cTableName>
+    <cCrc>39028</cCrc>
+    <cCacheId>AUDIT._Sysviews.39028</cCacheId>
+    <lShowInList>false</lShowInList>
+    <cTableDesc/>
+    <cFields>_Creator,_Owner,_Seq,_Viewname,_Viewtext</cFields>
+    <lHidden>true</lHidden>
+    <lFrozen>true</lFrozen>
+    <iNumQueries>0</iNumQueries>
+    <tLastUsed xsi:nil="true"/>
+    <lFavourite>false</lFavourite>
+    <lCached>false</lCached>
+    <iFileNumber>-80</iFileNumber>
+    <cCategory>SQL</cCategory>
+  </ttTableRow>
+  <ttTableRow>
+    <cDatabase>AUDIT</cDatabase>
+    <cTableName>_Sysviews_Name_Map</cTableName>
+    <cCrc>51583</cCrc>
+    <cCacheId>AUDIT._Sysviews_Name_Map.51583</cCacheId>
+    <lShowInList>false</lShowInList>
+    <cTableDesc/>
+    <cFields>_Name_loc,_Owner,_Seq,_Viewname</cFields>
+    <lHidden>true</lHidden>
+    <lFrozen>true</lFrozen>
+    <iNumQueries>0</iNumQueries>
+    <tLastUsed xsi:nil="true"/>
+    <lFavourite>false</lFavourite>
+    <lCached>false</lCached>
+    <iFileNumber>-122</iFileNumber>
+    <cCategory>SQL</cCategory>
+  </ttTableRow>
+  <ttTableRow>
+    <cDatabase>AUDIT</cDatabase>
+    <cTableName>_TableStat</cTableName>
+    <cCrc>55300</cCrc>
+    <cCacheId>AUDIT._TableStat.55300</cCacheId>
+    <lShowInList>false</lShowInList>
+    <cTableDesc/>
+    <cFields>_TableStat-create,_TableStat-delete,_TableStat-id,_TableStat-OsRead,_TableStat-PartitionId,_TableStat-read,_TableStat-update</cFields>
+    <lHidden>true</lHidden>
+    <lFrozen>true</lFrozen>
+    <iNumQueries>0</iNumQueries>
+    <tLastUsed xsi:nil="true"/>
+    <lFavourite>false</lFavourite>
+    <lCached>false</lCached>
+    <iFileNumber>-16415</iFileNumber>
+    <cCategory>VST</cCategory>
+  </ttTableRow>
+  <ttTableRow>
+    <cDatabase>AUDIT</cDatabase>
+    <cTableName>_Tenant</cTableName>
+    <cCrc>11791</cCrc>
+    <cCacheId>AUDIT._Tenant.11791</cCacheId>
+    <lShowInList>false</lShowInList>
+    <cTableDesc>This table holds information for each tenant in a multi-tenant database.</cTableDesc>
+    <cFields>_Tenant-Allocation-default,_Tenant-Attributes,_Tenant-DataArea-default,_Tenant-Description,_Tenant-ExtId,_Tenant-IndexArea-default,_Tenant-LobArea-default,_Tenant-Name,_Tenant-Sequence-Block,_Tenant-Type,_TenantId</cFields>
+    <lHidden>true</lHidden>
+    <lFrozen>true</lFrozen>
+    <iNumQueries>0</iNumQueries>
+    <tLastUsed xsi:nil="true"/>
+    <lFavourite>false</lFavourite>
+    <lCached>false</lCached>
+    <iFileNumber>-340</iFileNumber>
+    <cCategory>Other</cCategory>
+  </ttTableRow>
+  <ttTableRow>
+    <cDatabase>AUDIT</cDatabase>
+    <cTableName>_Trans</cTableName>
+    <cCrc>39797</cCrc>
+    <cCacheId>AUDIT._Trans.39797</cCacheId>
+    <lShowInList>false</lShowInList>
+    <cTableDesc/>
+    <cFields>_Trans-Coord,_Trans-CoordTx,_Trans-counter,_Trans-Duration,_Trans-Flags,_Trans-Id,_Trans-Misc,_Trans-Num,_Trans-State,_Trans-TenantId,_Trans-txtime,_Trans-Usrnum</cFields>
+    <lHidden>true</lHidden>
+    <lFrozen>true</lFrozen>
+    <iNumQueries>0</iNumQueries>
+    <tLastUsed xsi:nil="true"/>
+    <lFavourite>false</lFavourite>
+    <lCached>false</lCached>
+    <iFileNumber>-16413</iFileNumber>
+    <cCategory>VST</cCategory>
+  </ttTableRow>
+  <ttTableRow>
+    <cDatabase>AUDIT</cDatabase>
+    <cTableName>_TxeLock</cTableName>
+    <cCrc>12333</cCrc>
+    <cCacheId>AUDIT._TxeLock.12333</cCacheId>
+    <lShowInList>false</lShowInList>
+    <cTableDesc/>
+    <cFields>_Txe-Id,_Txe-Locks,_Txe-Lockss,_Txe-Time,_Txe-Type,_Txe-Wait-Time,_Txe-Waits,_Txe-Waitss</cFields>
+    <lHidden>true</lHidden>
+    <lFrozen>true</lFrozen>
+    <iNumQueries>0</iNumQueries>
+    <tLastUsed xsi:nil="true"/>
+    <lFavourite>false</lFavourite>
+    <lCached>false</lCached>
+    <iFileNumber>-16419</iFileNumber>
+    <cCategory>VST</cCategory>
+  </ttTableRow>
+  <ttTableRow>
+    <cDatabase>AUDIT</cDatabase>
+    <cTableName>_User</cTableName>
+    <cCrc>45110</cCrc>
+    <cCacheId>AUDIT._User.45110</cCacheId>
+    <lShowInList>false</lShowInList>
+    <cTableDesc/>
+    <cFields>_Account_expires,_Create_date,_Description,_Disabled,_Domain-Name,_Email,_Given_name,_Group_number,_Last_login,_Logins,_Login_failures,_Max_logins,_Max_tries,_Middle_initial,_Password,_Pwd_duration,_Pwd_expires,_Spare1,_Spare2,_Spare3,_Spare4,_sql-only-user,_Surname,_Telephone,_TenantId,_U-misc1,_U-misc2,_User-Misc,_User-Name,_Userid,_User_number</cFields>
+    <lHidden>true</lHidden>
+    <lFrozen>true</lFrozen>
+    <iNumQueries>0</iNumQueries>
+    <tLastUsed xsi:nil="true"/>
+    <lFavourite>false</lFavourite>
+    <lCached>false</lCached>
+    <iFileNumber>-5</iFileNumber>
+    <cCategory>Schema</cCategory>
+  </ttTableRow>
+  <ttTableRow>
+    <cDatabase>AUDIT</cDatabase>
+    <cTableName>_UserIndexStat</cTableName>
+    <cCrc>15879</cCrc>
+    <cCacheId>AUDIT._UserIndexStat.15879</cCacheId>
+    <lShowInList>false</lShowInList>
+    <cTableDesc/>
+    <cFields>_UserIndexStat-blockdelete,_UserIndexStat-Conn,_UserIndexStat-create,_UserIndexStat-delete,_UserIndexStat-Id,_UserIndexStat-Num,_UserIndexStat-PartitionId,_UserIndexStat-read,_UserIndexStat-split,_UserIndexStat-TenantId</cFields>
+    <lHidden>true</lHidden>
+    <lFrozen>true</lFrozen>
+    <iNumQueries>0</iNumQueries>
+    <tLastUsed xsi:nil="true"/>
+    <lFavourite>false</lFavourite>
+    <lCached>false</lCached>
+    <iFileNumber>-16431</iFileNumber>
+    <cCategory>VST</cCategory>
+  </ttTableRow>
+  <ttTableRow>
+    <cDatabase>AUDIT</cDatabase>
+    <cTableName>_UserIO</cTableName>
+    <cCrc>15442</cCrc>
+    <cCacheId>AUDIT._UserIO.15442</cCacheId>
+    <lShowInList>false</lShowInList>
+    <cTableDesc/>
+    <cFields>_UserIO-AiRead,_UserIO-AiWrite,_UserIO-BiRead,_UserIO-BiWrite,_UserIO-DbAccess,_UserIO-DbRead,_UserIO-DbWrite,_UserIO-Id,_UserIO-Misc,_UserIO-Name,_UserIO-TenantId,_UserIO-Usr</cFields>
+    <lHidden>true</lHidden>
+    <lFrozen>true</lFrozen>
+    <iNumQueries>0</iNumQueries>
+    <tLastUsed xsi:nil="true"/>
+    <lFavourite>false</lFavourite>
+    <lCached>false</lCached>
+    <iFileNumber>-16409</iFileNumber>
+    <cCategory>VST</cCategory>
+  </ttTableRow>
+  <ttTableRow>
+    <cDatabase>AUDIT</cDatabase>
+    <cTableName>_UserLock</cTableName>
+    <cCrc>42924</cCrc>
+    <cCacheId>AUDIT._UserLock.42924</cCacheId>
+    <lShowInList>false</lShowInList>
+    <cTableDesc/>
+    <cFields>_UserLock-Chain,_UserLock-Flags,_UserLock-Id,_UserLock-Misc,_UserLock-Name,_UserLock-PartitionId,_UserLock-Recid,_UserLock-Table,_UserLock-TenantId,_UserLock-Total,_UserLock-Total-EXCL,_UserLock-Total-IS,_UserLock-Total-IX,_UserLock-Total-Partition,_UserLock-Total-Purge,_UserLock-Total-RecGet,_UserLock-Total-Record,_UserLock-Total-SHR,_UserLock-Total-SIX,_UserLock-Total-Table,_UserLock-Type,_UserLock-Usr</cFields>
+    <lHidden>true</lHidden>
+    <lFrozen>true</lFrozen>
+    <iNumQueries>0</iNumQueries>
+    <tLastUsed xsi:nil="true"/>
+    <lFavourite>false</lFavourite>
+    <lCached>false</lCached>
+    <iFileNumber>-16394</iFileNumber>
+    <cCategory>VST</cCategory>
+  </ttTableRow>
+  <ttTableRow>
+    <cDatabase>AUDIT</cDatabase>
+    <cTableName>_UserStatus</cTableName>
+    <cCrc>57433</cCrc>
+    <cCacheId>AUDIT._UserStatus.57433</cCacheId>
+    <lShowInList>false</lShowInList>
+    <cTableDesc/>
+    <cFields>_UserStatus-Counter,_UserStatus-ObjectId,_UserStatus-ObjectType,_UserStatus-Operation,_UserStatus-State,_UserStatus-Target,_UserStatus-TenantId,_UserStatus-UserId</cFields>
+    <lHidden>true</lHidden>
+    <lFrozen>true</lFrozen>
+    <iNumQueries>0</iNumQueries>
+    <tLastUsed xsi:nil="true"/>
+    <lFavourite>false</lFavourite>
+    <lCached>false</lCached>
+    <iFileNumber>-16421</iFileNumber>
+    <cCategory>VST</cCategory>
+  </ttTableRow>
+  <ttTableRow>
+    <cDatabase>AUDIT</cDatabase>
+    <cTableName>_UserTableStat</cTableName>
+    <cCrc>54692</cCrc>
+    <cCacheId>AUDIT._UserTableStat.54692</cCacheId>
+    <lShowInList>false</lShowInList>
+    <cTableDesc/>
+    <cFields>_UserTableStat-Conn,_UserTableStat-create,_UserTableStat-delete,_UserTableStat-Id,_UserTableStat-Num,_UserTableStat-PartitionId,_UserTableStat-read,_UserTableStat-TenantId,_UserTableStat-update</cFields>
+    <lHidden>true</lHidden>
+    <lFrozen>true</lFrozen>
+    <iNumQueries>0</iNumQueries>
+    <tLastUsed xsi:nil="true"/>
+    <lFavourite>false</lFavourite>
+    <lCached>false</lCached>
+    <iFileNumber>-16430</iFileNumber>
+    <cCategory>VST</cCategory>
+  </ttTableRow>
+  <ttTableRow>
+    <cDatabase>AUDIT</cDatabase>
+    <cTableName>_View</cTableName>
+    <cCrc>1904</cCrc>
+    <cCacheId>AUDIT._View.1904</cCacheId>
+    <lShowInList>false</lShowInList>
+    <cTableDesc/>
+    <cFields>_Auth-Id,_Base-Tables,_Can-Create,_Can-Delete,_Can-Read,_Can-Write,_Desc,_Group-By,_Updatable,_View-Def,_View-Name,_Where-Cls</cFields>
+    <lHidden>true</lHidden>
+    <lFrozen>true</lFrozen>
+    <iNumQueries>0</iNumQueries>
+    <tLastUsed xsi:nil="true"/>
+    <lFavourite>false</lFavourite>
+    <lCached>false</lCached>
+    <iFileNumber>-30</iFileNumber>
+    <cCategory>Schema</cCategory>
+  </ttTableRow>
+  <ttTableRow>
+    <cDatabase>AUDIT</cDatabase>
+    <cTableName>_View-Col</cTableName>
+    <cCrc>30144</cCrc>
+    <cCacheId>AUDIT._View-Col.30144</cCacheId>
+    <lShowInList>false</lShowInList>
+    <cTableDesc/>
+    <cFields>_Auth-Id,_Base-Col,_Can-Create,_Can-Write,_Col-Name,_Vcol-Order,_View-Name</cFields>
+    <lHidden>true</lHidden>
+    <lFrozen>true</lFrozen>
+    <iNumQueries>0</iNumQueries>
+    <tLastUsed xsi:nil="true"/>
+    <lFavourite>false</lFavourite>
+    <lCached>false</lCached>
+    <iFileNumber>-31</iFileNumber>
+    <cCategory>Schema</cCategory>
+  </ttTableRow>
+  <ttTableRow>
+    <cDatabase>AUDIT</cDatabase>
+    <cTableName>_View-Ref</cTableName>
+    <cCrc>25330</cCrc>
+    <cCacheId>AUDIT._View-Ref.25330</cCacheId>
+    <lShowInList>false</lShowInList>
+    <cTableDesc/>
+    <cFields>_Auth-Id,_Base-Col,_Ref-Table,_View-Name</cFields>
+    <lHidden>true</lHidden>
+    <lFrozen>true</lFrozen>
+    <iNumQueries>0</iNumQueries>
+    <tLastUsed xsi:nil="true"/>
+    <lFavourite>false</lFavourite>
+    <lCached>false</lCached>
+    <iFileNumber>-32</iFileNumber>
+    <cCategory>Schema</cCategory>
+  </ttTableRow>
+  <ttTableRow>
+    <cDatabase>AUDIT</cDatabase>
+    <cTableName>_Word-rule</cTableName>
+    <cCrc>42609</cCrc>
+    <cCacheId>AUDIT._Word-rule.42609</cCacheId>
+    <lShowInList>false</lShowInList>
+    <cTableDesc/>
+    <cFields>_Wr-Attr,_Wr-Cp,_Wr-Name,_Wr-Number,_Wr-Segment,_Wr-Type,_Wr-Version</cFields>
+    <lHidden>true</lHidden>
+    <lFrozen>true</lFrozen>
+    <iNumQueries>0</iNumQueries>
+    <tLastUsed xsi:nil="true"/>
+    <lFavourite>false</lFavourite>
+    <lCached>false</lCached>
+    <iFileNumber>-79</iFileNumber>
+    <cCategory>Schema</cCategory>
+  </ttTableRow>
+</ttTable>

@@ -52,7 +52,8 @@ DO:
             ipdQuantity,
             itemfg.sell-price,
             itemfg.sell-uom,
-            {&LineTable}.disc).  
+            {&LineTable}.disc,
+            "{&LineTable}").  
     END.
     IF oplReprice THEN 
     DO:  
@@ -70,7 +71,8 @@ DO:
                     bf-{&LineTable}.{&LineQuantity},
                     itemfg.sell-price,
                     itemfg.sell-uom,
-                    bf-{&LineTable}.disc).
+                    bf-{&LineTable}.disc,
+                    "{&LineTable}").
                 
         END. /*each bf-{&LineTable}*/
     END. /*oplReprice*/

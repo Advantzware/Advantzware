@@ -90,8 +90,8 @@ DEFINE QUERY external_tables FOR ar-inv.
 &Scoped-define FIELDS-IN-QUERY-Browser-Table ar-invl.line ar-invl.actnum ~
 get-actdscr() @ v-actdscr ar-invl.i-no ar-invl.part-no ar-invl.i-name ~
 get-i-dscr () @ ar-invl.i-dscr ar-invl.i-dscr ar-invl.lot-no ~
-ar-invl.inv-qty ar-invl.cons-uom ar-invl.sf-sht ar-invl.unit-pr ~
-ar-invl.pr-qty-uom ar-invl.disc calc-amt () @ ar-invl.amt ~
+ar-invl.inv-qty ar-invl.ship-qty ar-invl.cons-uom ar-invl.sf-sht ~
+ar-invl.unit-pr ar-invl.pr-qty-uom ar-invl.disc calc-amt () @ ar-invl.amt ~
 calc-amt () @ ar-invl.amt ar-invl.amt ar-invl.amt-msf ar-invl.cost ~
 ar-invl.dscr[1] ar-invl.sman[1] ar-invl.s-pct[1] ar-invl.s-comm[1] ~
 ar-invl.sman[2] ar-invl.s-pct[2] ar-invl.s-comm[2] ar-invl.sman[3] ~
@@ -99,11 +99,11 @@ ar-invl.s-pct[3] ar-invl.s-comm[3] ar-invl.bol-no ar-invl.ord-no ~
 ar-invl.po-no 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table ar-invl.line ~
 ar-invl.actnum ar-invl.i-no ar-invl.part-no ar-invl.i-name ar-invl.i-dscr ~
-ar-invl.lot-no ar-invl.inv-qty ar-invl.sf-sht ar-invl.unit-pr ~
-ar-invl.pr-qty-uom ar-invl.cost ar-invl.dscr[1] ar-invl.sman[1] ~
-ar-invl.s-pct[1] ar-invl.s-comm[1] ar-invl.sman[2] ar-invl.s-pct[2] ~
-ar-invl.s-comm[2] ar-invl.sman[3] ar-invl.s-pct[3] ar-invl.s-comm[3] ~
-ar-invl.bol-no ar-invl.ord-no ar-invl.po-no 
+ar-invl.lot-no ar-invl.inv-qty ar-invl.ship-qty ar-invl.sf-sht ~
+ar-invl.unit-pr ar-invl.pr-qty-uom ar-invl.cost ar-invl.dscr[1] ~
+ar-invl.sman[1] ar-invl.s-pct[1] ar-invl.s-comm[1] ar-invl.sman[2] ~
+ar-invl.s-pct[2] ar-invl.s-comm[2] ar-invl.sman[3] ar-invl.s-pct[3] ~
+ar-invl.s-comm[3] ar-invl.bol-no ar-invl.ord-no ar-invl.po-no 
 &Scoped-define ENABLED-TABLES-IN-QUERY-Browser-Table ar-invl
 &Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-Browser-Table ar-invl
 &Scoped-define QUERY-STRING-Browser-Table FOR EACH ar-invl WHERE ar-invl.x-no = ar-inv.x-no NO-LOCK ~
@@ -196,6 +196,7 @@ DEFINE BROWSE Browser-Table
       ar-invl.i-dscr FORMAT "x(30)":U
       ar-invl.lot-no FORMAT "x(15)":U
       ar-invl.inv-qty COLUMN-LABEL "Invoice Qty" FORMAT "->>,>>>,>>9.9<":U
+      ar-invl.ship-qty COLUMN-LABEL "Ship Quantity" FORMAT "->>,>>>,>>9.99":U
       ar-invl.cons-uom FORMAT "x(4)":U
       ar-invl.sf-sht COLUMN-LABEL "SqFt" FORMAT "->>,>>9.99<<":U
       ar-invl.unit-pr FORMAT "->>,>>>,>>9.99<<<<":U
@@ -216,10 +217,9 @@ DEFINE BROWSE Browser-Table
       ar-invl.sman[3] COLUMN-LABEL "SlsRep" FORMAT "x(3)":U
       ar-invl.s-pct[3] COLUMN-LABEL "% of Sale" FORMAT ">>9.99":U
       ar-invl.s-comm[3] COLUMN-LABEL "Comm%" FORMAT ">>9.99":U
-      ar-invl.bol-no COLUMN-LABEL "BOL #" FORMAT ">>>>>>>9":U
+      ar-invl.bol-no COLUMN-LABEL "Bol #" FORMAT ">>>>>>>9":U
       ar-invl.ord-no FORMAT ">>>>>9":U
       ar-invl.po-no COLUMN-LABEL "PO #" FORMAT "x(15)":U
-      
   ENABLE
       ar-invl.line
       ar-invl.actnum
@@ -229,6 +229,7 @@ DEFINE BROWSE Browser-Table
       ar-invl.i-dscr
       ar-invl.lot-no
       ar-invl.inv-qty
+      ar-invl.ship-qty
       ar-invl.sf-sht
       ar-invl.unit-pr
       ar-invl.pr-qty-uom
@@ -325,7 +326,7 @@ END.
   NOT-VISIBLE,,RUN-PERSISTENT                                           */
 /* SETTINGS FOR FRAME F-Main
    NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
-/* BROWSE-TAB Browser-Table 1 F-Main */
+/* BROWSE-TAB Browser-Table TEXT-1 F-Main */
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
@@ -361,49 +362,51 @@ ASSIGN
 "ar-invl.lot-no" ? ? "character" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[10]   > ASI.ar-invl.inv-qty
 "ar-invl.inv-qty" "Invoice Qty" "->>,>>>,>>9.9<" "decimal" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[11]   = ASI.ar-invl.cons-uom
-     _FldNameList[12]   > ASI.ar-invl.sf-sht
+     _FldNameList[11]   > ASI.ar-invl.ship-qty
+"ar-invl.ship-qty" "Ship Quantity" ? "decimal" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[12]   = ASI.ar-invl.cons-uom
+     _FldNameList[13]   > ASI.ar-invl.sf-sht
 "ar-invl.sf-sht" "SqFt" "->>,>>9.99<<" "decimal" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[13]   > ASI.ar-invl.unit-pr
+     _FldNameList[14]   > ASI.ar-invl.unit-pr
 "ar-invl.unit-pr" ? "->>,>>>,>>9.99<<<<" "decimal" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[14]   > ASI.ar-invl.pr-qty-uom
+     _FldNameList[15]   > ASI.ar-invl.pr-qty-uom
 "ar-invl.pr-qty-uom" "UOM" ? "character" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[15]   > ASI.ar-invl.disc
+     _FldNameList[16]   > ASI.ar-invl.disc
 "ar-invl.disc" "Dsct%" ">>9.99" "decimal" ? ? ? ? ? ? no ? no no "8" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[16]   > "_<CALC>"
-"calc-amt () @ ar-invl.amt" ? ? ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[17]   > "_<CALC>"
 "calc-amt () @ ar-invl.amt" ? ? ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[18]   > ASI.ar-invl.amt
+     _FldNameList[18]   > "_<CALC>"
+"calc-amt () @ ar-invl.amt" ? ? ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[19]   > ASI.ar-invl.amt
 "ar-invl.amt" "Amount" ? "decimal" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[19]   = ASI.ar-invl.amt-msf
-     _FldNameList[20]   > ASI.ar-invl.cost
+     _FldNameList[20]   = ASI.ar-invl.amt-msf
+     _FldNameList[21]   > ASI.ar-invl.cost
 "ar-invl.cost" "Cost" ? "decimal" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[21]   > ASI.ar-invl.dscr[1]
+     _FldNameList[22]   > ASI.ar-invl.dscr[1]
 "ar-invl.dscr[1]" "Cost!UOM" "x(4)" "character" ? ? ? ? ? ? yes "Enter Cost Unit of Measure" no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[22]   > ASI.ar-invl.sman[1]
+     _FldNameList[23]   > ASI.ar-invl.sman[1]
 "ar-invl.sman[1]" "SlsRep" ? "character" ? ? ? ? ? ? yes "Enter Salesrep's Intitials or Number" no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[23]   > ASI.ar-invl.s-pct[1]
+     _FldNameList[24]   > ASI.ar-invl.s-pct[1]
 "ar-invl.s-pct[1]" "% of Sale" ? "decimal" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[24]   > ASI.ar-invl.s-comm[1]
+     _FldNameList[25]   > ASI.ar-invl.s-comm[1]
 "ar-invl.s-comm[1]" "Comm%" ? "decimal" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[25]   > ASI.ar-invl.sman[2]
+     _FldNameList[26]   > ASI.ar-invl.sman[2]
 "ar-invl.sman[2]" "SlsRep" ? "character" ? ? ? ? ? ? yes "Enter Salesrep's Intitials or Number" no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[26]   > ASI.ar-invl.s-pct[2]
+     _FldNameList[27]   > ASI.ar-invl.s-pct[2]
 "ar-invl.s-pct[2]" "% of Sale" ? "decimal" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[27]   > ASI.ar-invl.s-comm[2]
+     _FldNameList[28]   > ASI.ar-invl.s-comm[2]
 "ar-invl.s-comm[2]" "Comm%" ? "decimal" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[28]   > ASI.ar-invl.sman[3]
+     _FldNameList[29]   > ASI.ar-invl.sman[3]
 "ar-invl.sman[3]" "SlsRep" ? "character" ? ? ? ? ? ? yes "Enter Salesrep's Intitials or Number" no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[29]   > ASI.ar-invl.s-pct[3]
+     _FldNameList[30]   > ASI.ar-invl.s-pct[3]
 "ar-invl.s-pct[3]" "% of Sale" ? "decimal" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[30]   > ASI.ar-invl.s-comm[3]
+     _FldNameList[31]   > ASI.ar-invl.s-comm[3]
 "ar-invl.s-comm[3]" "Comm%" ? "decimal" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[31]   > ASI.ar-invl.bol-no
+     _FldNameList[32]   > ASI.ar-invl.bol-no
 "ar-invl.bol-no" "Bol #" ? "integer" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[32]   > ASI.ar-invl.ord-no
+     _FldNameList[33]   > ASI.ar-invl.ord-no
 "ar-invl.ord-no" ? ? "integer" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[33]   > ASI.ar-invl.po-no
+     _FldNameList[34]   > ASI.ar-invl.po-no
 "ar-invl.po-no" "PO #" ? "character" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */
@@ -753,7 +756,7 @@ END.
 
 &Scoped-define SELF-NAME ar-invl.bol-no
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ar-invl.bol-no Browser-Table _BROWSE-COLUMN B-table-Win
-ON LEAVE OF ar-invl.bol-no IN BROWSE Browser-Table /* Bill Of Lading Number */
+ON LEAVE OF ar-invl.bol-no IN BROWSE Browser-Table /* Bol # */
 DO:
     IF LASTKEY = -1 THEN RETURN.
 
@@ -908,6 +911,27 @@ PROCEDURE auto-copy :
   IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
     RUN auto-copy IN WIDGET-HANDLE(char-hdl).
 
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE delete_item B-table-Win 
+PROCEDURE delete_item :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEF VAR ll-dumb AS LOG NO-UNDO.
+  DEF VAR char-hdl AS CHAR NO-UNDO.
+  DEF VAR lv-loc LIKE rm-rctd.loc NO-UNDO.
+  DEF VAR ll-renumber AS LOG NO-UNDO.
+  DEF BUFFER b-po-ordl FOR po-ordl.
+
+   RUN local-delete-record .
+  
+  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1259,30 +1283,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE send-records B-table-Win  _ADM-SEND-RECORDS
-PROCEDURE send-records :
-/*------------------------------------------------------------------------------
-  Purpose:     Send record ROWID's for all tables used by
-               this file.
-  Parameters:  see template/snd-head.i
-------------------------------------------------------------------------------*/
-
-  /* Define variables needed by this internal procedure.               */
-  {src/adm/template/snd-head.i}
-
-  /* For each requested table, put it's ROWID in the output list.      */
-  {src/adm/template/snd-list.i "ar-inv"}
-  {src/adm/template/snd-list.i "ar-invl"}
-
-  /* Deal with any unexpected table requests before closing.           */
-  {src/adm/template/snd-end.i}
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE repo-query B-table-Win 
 PROCEDURE repo-query :
 /*------------------------------------------------------------------------------
@@ -1308,23 +1308,24 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE delete_item B-table-Win 
-PROCEDURE delete_item :
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE send-records B-table-Win  _ADM-SEND-RECORDS
+PROCEDURE send-records :
 /*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
+  Purpose:     Send record ROWID's for all tables used by
+               this file.
+  Parameters:  see template/snd-head.i
 ------------------------------------------------------------------------------*/
-  DEF VAR ll-dumb AS LOG NO-UNDO.
-  DEF VAR char-hdl AS CHAR NO-UNDO.
-  DEF VAR lv-loc LIKE rm-rctd.loc NO-UNDO.
-  DEF VAR ll-renumber AS LOG NO-UNDO.
-  DEF BUFFER b-po-ordl FOR po-ordl.
 
-   RUN local-delete-record .
-  
-  
+  /* Define variables needed by this internal procedure.               */
+  {src/adm/template/snd-head.i}
+
+  /* For each requested table, put it's ROWID in the output list.      */
+  {src/adm/template/snd-list.i "ar-inv"}
+  {src/adm/template/snd-list.i "ar-invl"}
+
+  /* Deal with any unexpected table requests before closing.           */
+  {src/adm/template/snd-end.i}
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

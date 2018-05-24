@@ -150,6 +150,7 @@ PROCEDURE assignOrderHeader:
       oe-ord.sold-id = billToID
       oe-ord.po-no = orderID
       oe-ord.spare-char-3 = payLoadID
+      oe-ord.ship-id       = shipToID
       oe-ord.cust-name     = cust.name
       oe-ord.addr[1]       = cust.addr[1]
       oe-ord.addr[2]       = cust.addr[2]
@@ -370,6 +371,7 @@ PROCEDURE genOrderLines:
         oe-ordl.req-date  = dRequestedDeliveryDate
         oe-ordl.prom-code = oe-ord.due-code
         oe-ordl.prom-date = oe-ord.due-date
+        oe-ordl.ship-id   = oe-ord.ship-id
         oe-ordl.disc      = cust.disc
         oe-ordl.tax       = cust.sort EQ 'Y' AND oe-ord.tax-gr NE ''
         oe-ordl.over-pct  = oe-ord.over-pct   

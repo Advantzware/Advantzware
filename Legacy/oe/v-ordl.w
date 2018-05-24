@@ -2224,7 +2224,7 @@ PROCEDURE select-price :
   assign v-i-qty = 0
          v-price-lev = 0.
   /* Get appropriate level */
-  run oe/oe-level.p.
+  run oe/oe-level.p (BUFFER xoe-ord, OUTPUT v-price-lev).
 
   repeat:
        message "What Level should the Items be Repriced At?" update v-price-lev .
@@ -2235,7 +2235,7 @@ PROCEDURE select-price :
        leave.
    end.
 
-   run oe/oe-repr1.p.
+   run oe/oe-repr1.p (BUFFER xoe-ord, v-price-lev).
 
 END PROCEDURE.
 

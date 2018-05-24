@@ -54,12 +54,12 @@ DEF VAR cTextListToDefault AS cha NO-UNDO.
 
 ASSIGN cTextListToSelect = "CUSTOMER,JOB#,S,B,DIE#,Plate#,DUE DATE,COMPLETION DATE,STYLE," +
                            "QTY GLUING,SHEETED,PRINTED,DIE CUT,GLUED,GLUE HRS,ORD MFG DATE,RELEASE DATE," +
-                           "ORDER #,ORDER DATE,FG ITEM#,PO#,PRIMARY CONTACT"             
+                           "ORDER #,ORDER DATE,FG ITEM#,PO#,PRIMARY CONTACT,CSR"             
        cFieldListToSelect = "cust,job,frm,blnk,die,palt,due-dt,comp-dt,styl," +
                             "qty-glu,sht,prntd,die-cut,glue,glu-hrs,mfg-date,rel-date," +
-                            "order-no,ord-date,fg-item,po-no,pri-contact"
-       cFieldLength = "8,10,1,1,20,15,10,15,7," + "13,7,7,7,5,14,11,12," + "7,10,15,15,25" 
-       cFieldType = "c,c,c,c,c,c,c,c,c," + "i,i,i,i,i,i,c,c," + "c,c,c,c,c"
+                            "order-no,ord-date,fg-item,po-no,pri-contact,csr"
+       cFieldLength = "8,10,1,1,20,15,10,15,7," + "13,7,7,7,5,14,11,12," + "7,10,15,15,25,8" 
+       cFieldType = "c,c,c,c,c,c,c,c,c," + "i,i,i,i,i,i,c,c," + "c,c,c,c,c,c"
     .
 
 {sys/inc/ttRptSel.i}
@@ -1639,6 +1639,7 @@ SESSION:SET-WAIT-STATE ("general").
                          WHEN "fg-item"      THEN cVarValue =  IF AVAIL oe-ordl THEN STRING(oe-ordl.i-no,"x(15)") ELSE ""      .
                          WHEN "po-no"        THEN cVarValue =  IF AVAIL oe-ordl THEN STRING(oe-ordl.po-no,"x(15)") ELSE ""      .
                          WHEN "pri-contact"  THEN cVarValue =   STRING(cPrim-Contact,"x(25)")   .
+                         WHEN "csr"          THEN cVarValue =   IF AVAILABLE oe-ord AND oe-ord.csrUser_id NE "" THEN STRING(oe-ord.csrUser_id,"x(8)") ELSE ""   .
                     END CASE.  
 
                     cExcelVarValue = cVarValue.

@@ -87,8 +87,10 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
                   substr(string(time,"HH:MM:SS"),4,2) +
                   substr(string(time,"HH:MM:SS"),7,2) + ".dat"
    v-outfile[4] = v-outfile[1] + v-outfile[3].
-    
-  output to value(v-outfile[2]).
+   FILE-INFO:FILE-NAME = v-outfile[1].
+    IF FILE-INFO:FILE-TYPE EQ ?  THEN        
+        OS-COMMAND SILENT  "mkdir " + value(v-outfile[1]).
+   output to value(v-outfile[2]).
 
   if po-ord.stat eq "N" then po-ord.stat = "O".
 
@@ -259,13 +261,13 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
               and xitem.mat-type eq "A"
             no-lock
             
-                  /*,
-                  
-                  FIRST reftable
-                  WHERE reftable.reftable EQ "util/b-hrms-x.w"
-                    AND reftable.company  EQ xitem.company
-                    AND reftable.code2    EQ xitem.i-no
-                  NO-LOCK*/   :
+                    /*,
+                    
+                    FIRST reftable
+                    WHERE reftable.reftable EQ "util/b-hrms-x.w"
+                      AND reftable.company  EQ xitem.company
+                      AND reftable.code2    EQ xitem.i-no
+                    NO-LOCK*/   :
               
           assign
            i          = i + 1

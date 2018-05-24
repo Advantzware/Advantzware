@@ -75,6 +75,7 @@ DEFINE VARIABLE search-return AS CHARACTER NO-UNDO.
 DEFINE VARIABLE v-col-move AS LOG INIT YES NO-UNDO.
 DEFINE VARIABLE v-rec-key-list AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lc-rs AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cStatus AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lc-mi AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lr-rel-lib AS HANDLE NO-UNDO.
 DEFINE VARIABLE dTotQtyRet AS DECIMAL NO-UNDO.
@@ -149,7 +150,7 @@ ll-sort-asc = NO /*oeinq*/.
 
 &SCOPED-DEFINE sortby-log ~
     IF lv-sort-by EQ 'ord-no'    THEN STRING(oe-ordl.ord-no,'9999999999') ELSE ~
-    IF lv-sort-by EQ 'stat'      THEN oe-ord.stat ELSE ~
+    IF lv-sort-by EQ 'cStatus'   THEN oe-ord.stat ELSE ~
     IF lv-sort-by EQ 'lc-rs'     THEN getRS() ELSE ~
     IF lv-sort-by EQ 'lc-mi'     THEN getMI() ELSE ~
     IF lv-sort-by EQ 'ord-date'  THEN STRING(YEAR(oe-ord.ord-date),'9999') + STRING(MONTH(oe-ord.ord-date),'99') + STRING(DAY(oe-ord.ord-date),'99') ELSE ~
@@ -205,7 +206,7 @@ ll-initial = browser-log.
 
 /* Definitions for BROWSE Browser-Table                                 */
 &Scoped-define FIELDS-IN-QUERY-Browser-Table oe-ordl.ord-no oe-ordl.cust-no ~
-getRS() @ lc-rs getMI() @ lc-mi oe-ord.stat oe-ord.ord-date ~
+getRS() @ lc-rs getMI() @ lc-mi getStat() @ cStatus oe-ord.ord-date ~
 oe-ordl.req-date oe-ord.cust-name oe-ordl.i-no oe-ordl.part-no ~
 oe-ordl.po-no oe-ordl.lot-no oe-ordl.est-no oe-ordl.job-no oe-ordl.job-no2 ~
 itemfg.cad-no oe-ordl.qty get-prod(li-bal) @ li-prod oe-ordl.ship-qty ~
@@ -218,7 +219,7 @@ getReturnedInv() @ dTotRetInv oe-ordl.s-man[1] ~
 fget-qty-nothand(get-act-rel-qty() + get-act-bol-qty(),li-qoh) @ iHandQtyNoalloc ~
 oe-ordl.managed 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table oe-ordl.ord-no ~
-oe-ordl.cust-no oe-ord.stat oe-ord.ord-date oe-ordl.req-date ~
+oe-ordl.cust-no oe-ord.ord-date oe-ordl.req-date ~
 oe-ord.cust-name oe-ordl.i-no oe-ordl.part-no oe-ordl.po-no oe-ordl.est-no ~
 oe-ordl.job-no oe-ordl.job-no2 
 &Scoped-define ENABLED-TABLES-IN-QUERY-Browser-Table oe-ordl oe-ord
@@ -351,6 +352,14 @@ FUNCTION getReturnedInv RETURNS DECIMAL
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD getRS B-table-Win 
 FUNCTION getRS RETURNS CHARACTER
+  ( /* parameter-definitions */ )  FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD getstat B-table-Win 
+FUNCTION getstat RETURNS CHARACTER
   ( /* parameter-definitions */ )  FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
@@ -494,7 +503,7 @@ DEFINE BROWSE Browser-Table
             LABEL-BGCOLOR 14
       getRS() @ lc-rs COLUMN-LABEL "R&S" FORMAT "X":U WIDTH 4 LABEL-BGCOLOR 14
       getMI() @ lc-mi COLUMN-LABEL "MI" FORMAT "X":U WIDTH 4 LABEL-BGCOLOR 14
-      oe-ord.stat COLUMN-LABEL "Status" FORMAT "x":U LABEL-BGCOLOR 14
+      getStat() @ cStatus COLUMN-LABEL "Status" FORMAT "x(16)":U LABEL-BGCOLOR 14
       oe-ord.ord-date COLUMN-LABEL "Order Date" FORMAT "99/99/9999":U
             WIDTH 14.4 LABEL-BGCOLOR 14
       oe-ordl.req-date COLUMN-LABEL "Due Date" FORMAT "99/99/9999":U
@@ -537,7 +546,6 @@ DEFINE BROWSE Browser-Table
   ENABLE
       oe-ordl.ord-no
       oe-ordl.cust-no
-      oe-ord.stat
       oe-ord.ord-date
       oe-ordl.req-date
       oe-ord.cust-name
@@ -710,8 +718,8 @@ AND itemfg.i-no EQ oe-ordl.i-no"
 "getRS() @ lc-rs" "R&S" "X" ? ? ? ? 14 ? ? no ? no no "4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[4]   > "_<CALC>"
 "getMI() @ lc-mi" "MI" "X" ? ? ? ? 14 ? ? no ? no no "4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[5]   > ASI.oe-ord.stat
-"oe-ord.stat" "Status" ? "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[5]   > "_<CALC>"
+"getstat" "Status" ? "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[6]   > ASI.oe-ord.ord-date
 "oe-ord.ord-date" "Order Date" ? "date" ? ? ? 14 ? ? yes ? no no "14.4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[7]   > ASI.oe-ordl.req-date
@@ -1617,7 +1625,6 @@ PROCEDURE local-initialize :
   /* Code placed here will execute AFTER standard behavior.    */
   ASSIGN
       oe-ordl.ord-no:READ-ONLY IN BROWSE {&browse-name} = YES
-      oe-ord.stat:READ-ONLY IN BROWSE {&browse-name} = YES
       oe-ord.ord-date:READ-ONLY IN BROWSE {&browse-name} = YES
       oe-ordl.req-date:READ-ONLY IN BROWSE {&browse-name} = YES
       oe-ordl.cust-no:READ-ONLY IN BROWSE {&browse-name} = YES
@@ -2756,6 +2763,28 @@ FUNCTION getRS RETURNS CHARACTER
     lc-result = "".
     IF oe-ordl.whsed THEN lc-result = "X".
 
+    RETURN lc-result.   /* Function return value. */
+
+END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION getstat B-table-Win 
+FUNCTION getstat RETURNS CHARACTER
+  ( /* parameter-definitions */ ) :
+/*------------------------------------------------------------------------------
+  Purpose:  
+    Notes:  
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE lc-result AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cResult AS CHARACTER NO-UNDO.
+    
+    lc-result = oe-ord.stat .
+    RUN oe/getStatusDesc.p( INPUT oe-ord.stat, OUTPUT cResult) .
+    IF cResult NE "" THEN
+       lc-result  = cResult .
     RETURN lc-result.   /* Function return value. */
 
 END FUNCTION.

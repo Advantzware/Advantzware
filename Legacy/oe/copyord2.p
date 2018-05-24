@@ -1414,371 +1414,395 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE create-rel Procedure 
 PROCEDURE create-rel :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-   DEFINE VARIABLE v-qty-sum    AS INTEGER        NO-UNDO.
-  DEFINE VARIABLE v-nxt-r-no   AS INTEGER        INIT 1 NO-UNDO.
-  DEFINE VARIABLE v-lst-rel    AS DATE           NO-UNDO.
-  DEFINE VARIABLE v-pct-chg    AS DECIMAL        NO-UNDO.
-  DEFINE VARIABLE v-ship-id    LIKE oe-rel.ship-id NO-UNDO.
-  DEFINE VARIABLE v-num-shipto AS INTEGER        NO-UNDO.
-  DEFINE VARIABLE v-relType    AS cha            NO-UNDO.
-  DEFINE VARIABLE cShipSlsRep  AS CHARACTER   NO-UNDO.
-  DEFINE VARIABLE gv-ship-from  AS CHARACTER NO-UNDO.
-  DEF VAR dCalcDueDate  AS DATE NO-UNDO.
-  DEF VAR dCalcPromDate AS DATE NO-UNDO.
+    /*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+    /*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE v-qty-sum     AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE v-nxt-r-no    AS INTEGER   INIT 1 NO-UNDO.
+    DEFINE VARIABLE v-lst-rel     AS DATE      NO-UNDO.
+    DEFINE VARIABLE v-pct-chg     AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE v-ship-id     LIKE oe-rel.ship-id NO-UNDO.
+    DEFINE VARIABLE v-num-shipto  AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE v-relType     AS cha       NO-UNDO.
+    DEFINE VARIABLE cShipSlsRep   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE gv-ship-from  AS CHARACTER NO-UNDO.
+    DEF    VAR      dCalcDueDate  AS DATE      NO-UNDO.
+    DEF    VAR      dCalcPromDate AS DATE      NO-UNDO.
     
-  DEFINE VARIABLE v-relflg2    AS LOGICAL        INIT YES NO-UNDO.
-  DEF BUFFER bf-ordl FOR oe-ordl.
-  DEF BUFFER bf-rel FOR oe-rel.
-  DEF BUFFER bf-oe-rel FOR oe-rel.
+    DEFINE VARIABLE v-relflg2     AS LOGICAL   INIT YES NO-UNDO.
+    DEF BUFFER bf-ordl   FOR oe-ordl.
+    DEF BUFFER bf-rel    FOR oe-rel.
+    DEF BUFFER bf-oe-rel FOR oe-rel.
 
-  DEF VAR lcReturn AS CHAR NO-UNDO.
-  DEF VAR llRecFound AS LOG NO-UNDO.
-  DEF VAR llOeShipFromLog AS LOG NO-UNDO.
-  RUN sys/ref/nk1look.p (cocode, "OESHIPFROM", "L", NO, NO, "", "", 
-                          OUTPUT lcReturn, OUTPUT llRecFound).
-  IF llRecFound THEN
-   llOeShipFromLog = LOGICAL(lcReturn) NO-ERROR.
+    DEF VAR lcReturn        AS CHAR NO-UNDO.
+    DEF VAR llRecFound      AS LOG  NO-UNDO.
+    DEF VAR llOeShipFromLog AS LOG  NO-UNDO.
+    RUN sys/ref/nk1look.p (cocode, "OESHIPFROM", "L", NO, NO, "", "", 
+        OUTPUT lcReturn, OUTPUT llRecFound).
+    IF llRecFound THEN
+        llOeShipFromLog = LOGICAL(lcReturn) NO-ERROR.
 
-  ASSIGN v-qty-sum  = 0.
+    ASSIGN 
+        v-qty-sum = 0.
 
-FIND FIRST oe-rel WHERE oe-rel.company EQ cocode
-     AND oe-rel.ord-no EQ b-oe-ord.ord-no 
-   NO-LOCK NO-ERROR.
+    FIND FIRST oe-rel WHERE oe-rel.company EQ cocode
+        AND oe-rel.ord-no EQ b-oe-ord.ord-no 
+        NO-LOCK NO-ERROR.
 
-IF gv-ship-from EQ "" AND AVAIL oe-rel AND oe-rel.spare-char-1 NE "" THEN
-  gv-ship-from = oe-rel.spare-char-1.
+    IF gv-ship-from EQ "" AND AVAIL oe-rel AND oe-rel.spare-char-1 NE "" THEN
+        gv-ship-from = oe-rel.spare-char-1.
 
-/* when OESHIPTO then retaining same shipid for next prompt */
-IF NOT oeship-cha = "OESHIPTO" THEN 
-   v-ship-id = "".
+    /* when OESHIPTO then retaining same shipid for next prompt */
+    IF NOT oeship-cha = "OESHIPTO" THEN 
+        v-ship-id = "".
 
-  IF b-oe-ordl.est-no NE "" THEN
-      FOR EACH eb
-        WHERE eb.company  EQ b-oe-ordl.company
-        AND eb.est-no   EQ b-oe-ordl.est-no
-        AND eb.cust-no  EQ b-oe-ord.cust-no
-        AND eb.ship-id  NE ""
-        NO-LOCK
-          BREAK BY eb.stock-no DESC:
-          IF LAST(eb.stock-no)           OR
-          eb.stock-no EQ b-oe-ordl.i-no THEN DO:
-          v-ship-id = eb.ship-id.
-          LEAVE.
-          END.
+    IF oe-ord.ship-id EQ "" AND b-oe-ordl.est-no NE "" THEN
+        FOR EACH eb
+            WHERE eb.company  EQ b-oe-ordl.company
+            AND eb.est-no   EQ b-oe-ordl.est-no
+            AND eb.cust-no  EQ b-oe-ord.cust-no
+            AND eb.ship-id  NE ""
+            NO-LOCK
+            BREAK BY eb.stock-no DESC:
+            IF LAST(eb.stock-no)           OR
+                eb.stock-no EQ b-oe-ordl.i-no THEN 
+            DO:
+                v-ship-id = eb.ship-id.
+                LEAVE.
+            END.
         END.
         
-        ELSE
+    ELSE IF oe-ord.ship-id EQ "" THEN 
         FOR EACH shipto
             WHERE shipto.company EQ cocode
             AND shipto.cust-no EQ b-oe-ord.cust-no
             NO-LOCK
             BREAK BY shipto.ship-no DESC:
-            IF shipto.ship-id EQ b-oe-ord.cust-no THEN DO:
+            IF shipto.ship-id EQ b-oe-ord.cust-no THEN 
+            DO:
                 v-ship-id = shipto.ship-id.
                 LEAVE.
             END.
         END.
+    ELSE 
+        v-ship-id = oe-ord.ship-id.
 
-        IF v-ship-id EQ "" THEN DO:
-            /* In case no default shipto exists for this cust */
-            FIND FIRST shipto
-                WHERE shipto.company EQ cocode
-                AND shipto.cust-no EQ b-oe-ord.cust-no
-                NO-LOCK NO-ERROR.
-            IF AVAIL shipto THEN
-                v-ship-id = shipto.ship-id.
-        END.
-        IF v-ship-id NE "" THEN DO:
-          FIND FIRST shipto WHERE shipto.company EQ cocode
-              AND shipto.ship-id EQ v-ship-id
-              NO-LOCK NO-ERROR.
-          IF AVAIL shipto AND gv-ship-from EQ "" THEN
-              gv-ship-from = shipto.loc.
-        END.
-        RUN oe/d-shipid.w (INPUT b-oe-ordl.cust-no,
-                   INPUT-OUTPUT v-ship-id,
-                   INPUT-OUTPUT gv-ship-from).
+    IF v-ship-id EQ "" THEN 
+    DO:
+        /* In case no default shipto exists for this cust */
+        FIND FIRST shipto
+            WHERE shipto.company EQ cocode
+            AND shipto.cust-no EQ b-oe-ord.cust-no
+            NO-LOCK NO-ERROR.
+        IF AVAIL shipto THEN
+            v-ship-id = shipto.ship-id.
+    END.
+    IF v-ship-id NE "" THEN 
+    DO:
+        FIND FIRST shipto WHERE shipto.company EQ cocode
+            AND shipto.ship-id EQ v-ship-id
+            NO-LOCK NO-ERROR.
+        IF AVAIL shipto AND gv-ship-from EQ "" THEN
+            gv-ship-from = shipto.loc.
+    END.
+    RUN oe/d-shipid.w (INPUT b-oe-ordl.cust-no,
+        INPUT-OUTPUT v-ship-id,
+        INPUT-OUTPUT gv-ship-from).
 
-        v-num-shipto = 0.
-        FOR EACH shipto WHERE shipto.company EQ cocode
-            AND shipto.cust-no EQ b-oe-ordl.cust-no
-            NO-LOCK:
-            ASSIGN v-num-shipto = v-num-shipto + 1.
-        END.
+    v-num-shipto = 0.
+    FOR EACH shipto WHERE shipto.company EQ cocode
+        AND shipto.cust-no EQ b-oe-ordl.cust-no
+        NO-LOCK:
+        ASSIGN 
+            v-num-shipto = v-num-shipto + 1.
+    END.
   
 
     {oe/oe-rel.a &fil="b-oe-ordl"}.
  
-ASSIGN /* v-ship-id = "" */
-lv-qty = b-oe-ordl.qty.
+    ASSIGN /* v-ship-id = "" */
+        lv-qty = b-oe-ordl.qty.
 
-FIND FIRST xoe-rel WHERE xoe-rel.company EQ cocode
-    AND xoe-rel.ord-no  EQ b-oe-ordl.ord-no
-    AND RECID(xoe-rel)  NE RECID(oe-rel)
-    AND xoe-rel.link-no EQ 0
-  NO-LOCK NO-ERROR.
+    FIND FIRST xoe-rel WHERE xoe-rel.company EQ cocode
+        AND xoe-rel.ord-no  EQ b-oe-ordl.ord-no
+        AND RECID(xoe-rel)  NE RECID(oe-rel)
+        AND xoe-rel.link-no EQ 0
+        NO-LOCK NO-ERROR.
 
-IF TRUE OR ( NOT AVAIL xoe-rel OR b-oe-ordl.est-no NE "" ) THEN DO:
+    IF TRUE OR ( NOT AVAIL xoe-rel OR b-oe-ordl.est-no NE "" ) THEN 
+    DO:
 
 
-  /* Calculate number of shipto records for this customer in ask-release-questions */
-/*   FOR EACH shipto WHERE shipto.company EQ cocode */
-/*     AND shipto.cust-no EQ oe-ordl.cust-no:       */
-/*     ASSIGN v-num-shipto = v-num-shipto + 1.      */
-/*   END.                                           */
+        /* Calculate number of shipto records for this customer in ask-release-questions */
+        /*   FOR EACH shipto WHERE shipto.company EQ cocode */
+        /*     AND shipto.cust-no EQ oe-ordl.cust-no:       */
+        /*     ASSIGN v-num-shipto = v-num-shipto + 1.      */
+        /*   END.                                           */
   
-  IF v-num-shipto GT 1 THEN
-  DO:
-    /* More than one ship-to for this customer ... */
+        IF v-num-shipto GT 1 THEN
+        DO:
+            /* More than one ship-to for this customer ... */
 
-    /* gdm - 06220908*/
-    IF v-relflg2 OR llOeShipFromLog THEN
-    ASSIGN oe-rel.ship-id = TRIM(v-ship-id).
+            /* gdm - 06220908*/
+            IF v-relflg2 OR llOeShipFromLog THEN
+                ASSIGN oe-rel.ship-id = TRIM(v-ship-id).
     
-    FIND FIRST shipto WHERE shipto.company = cocode AND
-    shipto.cust-no = xoe-ord.cust-no  AND
-    shipto.ship-id = v-ship-id
-    USE-INDEX ship-id NO-LOCK NO-ERROR.
-    IF AVAIL shipto THEN DO:
+            FIND FIRST shipto WHERE shipto.company = cocode AND
+                shipto.cust-no = xoe-ord.cust-no  AND
+                shipto.ship-id = v-ship-id
+                USE-INDEX ship-id NO-LOCK NO-ERROR.
+            IF AVAIL shipto THEN 
+            DO:
 
-      ASSIGN v-ship-id           = shipto.ship-id.
+                ASSIGN 
+                    v-ship-id = shipto.ship-id.
 
-      IF v-shiptorep-log AND AVAIL shipto THEN DO:  /* task 05301401 */
-         IF shipto.spare-char-1 <> "" THEN DO:
-             FIND CURRENT b-oe-ordl EXCLUSIVE-LOCK NO-ERROR.
-             FIND CURRENT b-oe-ord EXCLUSIVE-LOCK NO-ERROR.
-              ASSIGN
-              b-oe-ordl.s-man[1] = shipto.spare-char-1
-              b-oe-ord.sman[1]   = shipto.spare-char-1 .
+                IF v-shiptorep-log AND AVAIL shipto THEN 
+                DO:  /* task 05301401 */
+                    IF shipto.spare-char-1 <> "" THEN 
+                    DO:
+                        FIND CURRENT b-oe-ordl EXCLUSIVE-LOCK NO-ERROR.
+                        FIND CURRENT b-oe-ord EXCLUSIVE-LOCK NO-ERROR.
+                        ASSIGN
+                            b-oe-ordl.s-man[1] = shipto.spare-char-1
+                            b-oe-ord.sman[1]   = shipto.spare-char-1 .
 
-              FIND sman WHERE sman.company = b-oe-ord.company
-                  AND sman.sman = b-oe-ordl.s-man[1]
-                  NO-LOCK NO-ERROR.
-              IF AVAIL sman THEN ASSIGN b-oe-ord.sname[1] = sman.sname
-                                        b-oe-ord.s-comm[1] = (sman.scomm)
-                                        b-oe-ordl.s-comm[1] = (sman.scomm).
-              FIND CURRENT b-oe-ordl NO-LOCK NO-ERROR.
-              FIND CURRENT b-oe-ord NO-LOCK NO-ERROR.
-          END.
-      END.
+                        FIND sman WHERE sman.company = b-oe-ord.company
+                            AND sman.sman = b-oe-ordl.s-man[1]
+                            NO-LOCK NO-ERROR.
+                        IF AVAIL sman THEN ASSIGN b-oe-ord.sname[1]   = sman.sname
+                                b-oe-ord.s-comm[1]  = (sman.scomm)
+                                b-oe-ordl.s-comm[1] = (sman.scomm).
+                        FIND CURRENT b-oe-ordl NO-LOCK NO-ERROR.
+                        FIND CURRENT b-oe-ord NO-LOCK NO-ERROR.
+                    END.
+                END.
       
-      /* gdm - 06220908 */
-      IF v-relflg2 THEN
-      ASSIGN oe-rel.ship-no      = shipto.ship-no
-      oe-rel.ship-id      = shipto.ship-id
-      oe-rel.ship-addr[1] = shipto.ship-addr[1]
-      oe-rel.ship-addr[2] = shipto.ship-addr[2]
-      oe-rel.ship-city    = shipto.ship-city
-      oe-rel.ship-state   = shipto.ship-state
-      oe-rel.ship-zip     = shipto.ship-zip
-      oe-rel.ship-i[1] = shipto.notes[1]
-      oe-rel.ship-i[2] = shipto.notes[2]
-      oe-rel.ship-i[3] = shipto.notes[3]
-      oe-rel.ship-i[4] = shipto.notes[4]
-      oe-rel.spare-char-1 = shipto.loc.
+                /* gdm - 06220908 */
+                IF v-relflg2 THEN
+                    ASSIGN oe-rel.ship-no      = shipto.ship-no
+                        oe-rel.ship-id      = shipto.ship-id
+                        oe-rel.ship-addr[1] = shipto.ship-addr[1]
+                        oe-rel.ship-addr[2] = shipto.ship-addr[2]
+                        oe-rel.ship-city    = shipto.ship-city
+                        oe-rel.ship-state   = shipto.ship-state
+                        oe-rel.ship-zip     = shipto.ship-zip
+                        oe-rel.ship-i[1]    = shipto.notes[1]
+                        oe-rel.ship-i[2]    = shipto.notes[2]
+                        oe-rel.ship-i[3]    = shipto.notes[3]
+                        oe-rel.ship-i[4]    = shipto.notes[4]
+                        oe-rel.spare-char-1 = shipto.loc.
       
-      FIND FIRST sys-ctrl WHERE sys-ctrl.company EQ cocode
-      AND sys-ctrl.NAME    EQ "OECARIER"
-      NO-LOCK NO-ERROR.
-      IF NOT AVAIL sys-ctrl THEN DO:
-        CREATE sys-ctrl.
-        ASSIGN
-        sys-ctrl.company  = cocode
-        sys-ctrl.NAME     = "OECARIER"
-        sys-ctrl.descrip  = "Default carrier from Header or ShipTo:"
-        sys-ctrl.char-fld = "ShipTo".
+                FIND FIRST sys-ctrl WHERE sys-ctrl.company EQ cocode
+                    AND sys-ctrl.NAME    EQ "OECARIER"
+                    NO-LOCK NO-ERROR.
+                IF NOT AVAIL sys-ctrl THEN 
+                DO:
+                    CREATE sys-ctrl.
+                    ASSIGN
+                        sys-ctrl.company  = cocode
+                        sys-ctrl.NAME     = "OECARIER"
+                        sys-ctrl.descrip  = "Default carrier from Header or ShipTo:"
+                        sys-ctrl.char-fld = "ShipTo".
         
-        DO WHILE TRUE:
-          MESSAGE "Default Shipping Carrier from Header or Shipto?"
-          UPDATE sys-ctrl.char-fld.
-          IF sys-ctrl.char-fld = "Header" OR sys-ctrl.char-fld = "ShipTo" THEN LEAVE.
-        END.
-      END.
+                    DO WHILE TRUE:
+                        MESSAGE "Default Shipping Carrier from Header or Shipto?"
+                            UPDATE sys-ctrl.char-fld.
+                        IF sys-ctrl.char-fld = "Header" OR sys-ctrl.char-fld = "ShipTo" THEN LEAVE.
+                    END.
+                END.
       
-      /* gdm - 06220908 */
-      IF v-relflg2 THEN
-      ASSIGN oe-rel.carrier = IF sys-ctrl.char-fld = "Shipto"
+                /* gdm - 06220908 */
+                IF v-relflg2 THEN
+                    ASSIGN oe-rel.carrier = IF sys-ctrl.char-fld = "Shipto"
       THEN shipto.carrier
       ELSE xoe-ord.carrier.
       
-      IF oeDateAuto-log AND OeDateAuto-Char = "Colonial" THEN 
-      DO:
+                IF oeDateAuto-log AND OeDateAuto-Char = "Colonial" THEN 
+                DO:
 
-        RUN oe/dueDateCalc.p (INPUT b-oe-ordl.cust-no,
-            INPUT b-oe-ordl.req-date,
-            INPUT b-oe-ordl.prom-date,
-            INPUT "DueDate",
-            INPUT ROWID(b-oe-ordl),
-            OUTPUT dCalcDueDate,
-            OUTPUT dCalcPromDate).
-        FIND CURRENT b-oe-ordl EXCLUSIVE-LOCK NO-ERROR.
-        b-oe-ordl.prom-date = dCalcPromDate.
-        FIND CURRENT b-oe-ordl NO-LOCK NO-ERROR.
+                    RUN oe/dueDateCalc.p (INPUT b-oe-ordl.cust-no,
+                        INPUT b-oe-ordl.req-date,
+                        INPUT b-oe-ordl.prom-date,
+                        INPUT "DueDate",
+                        INPUT ROWID(b-oe-ordl),
+                        OUTPUT dCalcDueDate,
+                        OUTPUT dCalcPromDate).
+                    FIND CURRENT b-oe-ordl EXCLUSIVE-LOCK NO-ERROR.
+                    b-oe-ordl.prom-date = dCalcPromDate.
+                    FIND CURRENT b-oe-ordl NO-LOCK NO-ERROR.
 
-      END.
+                END.
       
-    END.
-    IF gv-ship-from GT "" THEN
-      oe-rel.spare-char-1 = gv-ship-from.
+            END.
+            IF gv-ship-from GT "" THEN
+                oe-rel.spare-char-1 = gv-ship-from.
     
-    /* Run Freight calculation  */
-    RUN oe/oe-frtcl.p.
+            /* Run Freight calculation  */
+            RUN oe/oe-frtcl.p.
     
-  END.  /* multi ship to */
-  ELSE DO:
-    /* If not multi ship-to */
-    FIND FIRST shipto WHERE shipto.company EQ cocode AND
-        shipto.cust-no EQ xoe-ord.cust-no AND
-        shipto.ship-id EQ v-ship-id
-      NO-LOCK NO-ERROR.
-    IF NOT AVAIL shipto THEN
-      FIND FIRST shipto WHERE shipto.company EQ cocode 
-         AND shipto.cust-no EQ xoe-ord.cust-no
-      NO-LOCK NO-ERROR.
-    IF AVAIL shipto THEN DO:
+        END.  /* multi ship to */
+        ELSE 
+        DO:
+            /* If not multi ship-to */
+            FIND FIRST shipto WHERE shipto.company EQ cocode AND
+                shipto.cust-no EQ xoe-ord.cust-no AND
+                shipto.ship-id EQ v-ship-id
+                NO-LOCK NO-ERROR.
+            IF NOT AVAIL shipto THEN
+                FIND FIRST shipto WHERE shipto.company EQ cocode 
+                    AND shipto.cust-no EQ xoe-ord.cust-no
+                    NO-LOCK NO-ERROR.
+            IF AVAIL shipto THEN 
+            DO:
       
-      /* gdm - 06220908 */
-      IF v-relflg2 THEN
-      ASSIGN  oe-rel.ship-no      = shipto.ship-no
-              oe-rel.ship-id      = shipto.ship-id
-              oe-rel.ship-addr[1] = shipto.ship-addr[1]
-              oe-rel.ship-addr[2] = shipto.ship-addr[2]
-              oe-rel.ship-city    = shipto.ship-city
-              oe-rel.ship-state   = shipto.ship-state
-              oe-rel.ship-zip     = shipto.ship-zip
-              oe-rel.ship-i[1] = shipto.notes[1]
-              oe-rel.ship-i[2] = shipto.notes[2]
-              oe-rel.ship-i[3] = shipto.notes[3]
-              oe-rel.ship-i[4] = shipto.notes[4]
-              oe-rel.spare-char-1 = shipto.loc.
+                /* gdm - 06220908 */
+                IF v-relflg2 THEN
+                    ASSIGN  oe-rel.ship-no      = shipto.ship-no
+                        oe-rel.ship-id      = shipto.ship-id
+                        oe-rel.ship-addr[1] = shipto.ship-addr[1]
+                        oe-rel.ship-addr[2] = shipto.ship-addr[2]
+                        oe-rel.ship-city    = shipto.ship-city
+                        oe-rel.ship-state   = shipto.ship-state
+                        oe-rel.ship-zip     = shipto.ship-zip
+                        oe-rel.ship-i[1]    = shipto.notes[1]
+                        oe-rel.ship-i[2]    = shipto.notes[2]
+                        oe-rel.ship-i[3]    = shipto.notes[3]
+                        oe-rel.ship-i[4]    = shipto.notes[4]
+                        oe-rel.spare-char-1 = shipto.loc.
       
-      /* check that itemfg-loc exists */
-      IF oe-rel.spare-char-1 GT "" THEN
-        RUN fg/chkfgloc.p (INPUT oe-rel.i-no, INPUT oe-rel.spare-char-1).
+                /* check that itemfg-loc exists */
+                IF oe-rel.spare-char-1 GT "" THEN
+                    RUN fg/chkfgloc.p (INPUT oe-rel.i-no, INPUT oe-rel.spare-char-1).
       
-      /* if add mode then use default carrier */
-     /* IF ll-new-record /* and NOT oe-rel.carrier ENTERED */ THEN DO:*/
-        FIND FIRST sys-ctrl WHERE sys-ctrl.company EQ cocode
-            AND sys-ctrl.NAME    EQ "OECARIER"
-          NO-LOCK NO-ERROR.
-        IF NOT AVAIL sys-ctrl THEN DO:
-          CREATE sys-ctrl.
-          ASSIGN sys-ctrl.company  = cocode
-          sys-ctrl.NAME     = "OECARIER"
-          sys-ctrl.descrip  = "Default carrier from Header or ShipTo~:"
-          sys-ctrl.char-fld = "ShipTo".
+                /* if add mode then use default carrier */
+                /* IF ll-new-record /* and NOT oe-rel.carrier ENTERED */ THEN DO:*/
+                FIND FIRST sys-ctrl WHERE sys-ctrl.company EQ cocode
+                    AND sys-ctrl.NAME    EQ "OECARIER"
+                    NO-LOCK NO-ERROR.
+                IF NOT AVAIL sys-ctrl THEN 
+                DO:
+                    CREATE sys-ctrl.
+                    ASSIGN 
+                        sys-ctrl.company  = cocode
+                        sys-ctrl.NAME     = "OECARIER"
+                        sys-ctrl.descrip  = "Default carrier from Header or ShipTo~:"
+                        sys-ctrl.char-fld = "ShipTo".
           
-          DO WHILE TRUE:
-            MESSAGE "Default Shipping Carrier from Header or Shipto?"
-            UPDATE sys-ctrl.char-fld.
-            IF sys-ctrl.char-fld = "Header" OR sys-ctrl.char-fld = "Sh~ipTo" THEN LEAVE.
-          END.
-        END.
-        /* gdm - 06220908 */
-        IF v-relflg2 THEN
-        oe-rel.carrier   = IF sys-ctrl.char-fld = "Shipto" THEN shipto~.carrier
+                    DO WHILE TRUE:
+                        MESSAGE "Default Shipping Carrier from Header or Shipto?"
+                            UPDATE sys-ctrl.char-fld.
+                        IF sys-ctrl.char-fld = "Header" OR sys-ctrl.char-fld = "Sh~ipTo" THEN LEAVE.
+                    END.
+                END.
+                /* gdm - 06220908 */
+                IF v-relflg2 THEN
+                    oe-rel.carrier   = IF sys-ctrl.char-fld = "Shipto" THEN shipto~.carrier
         ELSE xoe-ord.carrier.
         
-        /* sman by itemfg overrides that of the shipto */
-        RUN itemfg-sman.
+                /* sman by itemfg overrides that of the shipto */
+                RUN itemfg-sman.
         
-     /* END.*/
-    END. /* avail shipto */
-  END. /* not multi */
-  IF gv-ship-from GT "" THEN
-    oe-rel.spare-char-1 = gv-ship-from.
+            /* END.*/
+            END. /* avail shipto */
+        END. /* not multi */
+        IF gv-ship-from GT "" THEN
+            oe-rel.spare-char-1 = gv-ship-from.
 
-END. /* if no oe-rel was found */
-ELSE DO:
-  /* If oe-rel was already available */
-  FIND FIRST shipto WHERE shipto.company = cocode AND
-  shipto.cust-no = xoe-ord.cust-no  AND
-  shipto.ship-id = xoe-rel.ship-id
-  USE-INDEX ship-id NO-LOCK NO-ERROR.
-  IF AVAIL shipto THEN DO:
-    /* gdm - 06220908 */
-    IF v-relflg2 THEN
-    ASSIGN oe-rel.ship-no      = shipto.ship-no
-    oe-rel.ship-id      = shipto.ship-id
-    oe-rel.ship-addr[1] = shipto.ship-addr[1]
-    oe-rel.ship-addr[2] = shipto.ship-addr[2]
-    oe-rel.ship-city    = shipto.ship-city
-    oe-rel.ship-state   = shipto.ship-state
-    oe-rel.ship-zip     = shipto.ship-zip
-    oe-rel.ship-i[1] = shipto.notes[1]
-    oe-rel.ship-i[2] = shipto.notes[2]
-    oe-rel.ship-i[3] = shipto.notes[3]
-    oe-rel.ship-i[4] = shipto.notes[4]
-    oe-rel.spare-char-1 = shipto.loc.
+    END. /* if no oe-rel was found */
+    ELSE 
+    DO:
+        /* If oe-rel was already available */
+        FIND FIRST shipto WHERE shipto.company = cocode AND
+            shipto.cust-no = xoe-ord.cust-no  AND
+            shipto.ship-id = xoe-rel.ship-id
+            USE-INDEX ship-id NO-LOCK NO-ERROR.
+        IF AVAIL shipto THEN 
+        DO:
+            /* gdm - 06220908 */
+            IF v-relflg2 THEN
+                ASSIGN oe-rel.ship-no      = shipto.ship-no
+                    oe-rel.ship-id      = shipto.ship-id
+                    oe-rel.ship-addr[1] = shipto.ship-addr[1]
+                    oe-rel.ship-addr[2] = shipto.ship-addr[2]
+                    oe-rel.ship-city    = shipto.ship-city
+                    oe-rel.ship-state   = shipto.ship-state
+                    oe-rel.ship-zip     = shipto.ship-zip
+                    oe-rel.ship-i[1]    = shipto.notes[1]
+                    oe-rel.ship-i[2]    = shipto.notes[2]
+                    oe-rel.ship-i[3]    = shipto.notes[3]
+                    oe-rel.ship-i[4]    = shipto.notes[4]
+                    oe-rel.spare-char-1 = shipto.loc.
     
 
-      FIND FIRST sys-ctrl WHERE sys-ctrl.company EQ cocode
-      AND sys-ctrl.NAME    EQ "OECARIER"
-      NO-LOCK NO-ERROR.
-      IF NOT AVAIL sys-ctrl THEN DO:
-        CREATE sys-ctrl.
-        ASSIGN sys-ctrl.company  = cocode
-        sys-ctrl.NAME     = "OECARIER"
-        sys-ctrl.descrip  = "Default carrier from Header or ShipTo~:"
-        sys-ctrl.char-fld = "ShipTo".
+            FIND FIRST sys-ctrl WHERE sys-ctrl.company EQ cocode
+                AND sys-ctrl.NAME    EQ "OECARIER"
+                NO-LOCK NO-ERROR.
+            IF NOT AVAIL sys-ctrl THEN 
+            DO:
+                CREATE sys-ctrl.
+                ASSIGN 
+                    sys-ctrl.company  = cocode
+                    sys-ctrl.NAME     = "OECARIER"
+                    sys-ctrl.descrip  = "Default carrier from Header or ShipTo~:"
+                    sys-ctrl.char-fld = "ShipTo".
         
-        DO WHILE TRUE:
-          MESSAGE "Default Shipping Carrier from Header or Shipto?"
-          UPDATE sys-ctrl.char-fld.
-          IF sys-ctrl.char-fld = "Header" OR sys-ctrl.char-fld = "Sh~ipTo" THEN LEAVE.
-        END.
-      END.
-      /* gdm - 06220908 */
-      IF v-relflg2 THEN
-      oe-rel.carrier   = IF sys-ctrl.char-fld = "Shipto" THEN shipto~.carrier
+                DO WHILE TRUE:
+                    MESSAGE "Default Shipping Carrier from Header or Shipto?"
+                        UPDATE sys-ctrl.char-fld.
+                    IF sys-ctrl.char-fld = "Header" OR sys-ctrl.char-fld = "Sh~ipTo" THEN LEAVE.
+                END.
+            END.
+            /* gdm - 06220908 */
+            IF v-relflg2 THEN
+                oe-rel.carrier   = IF sys-ctrl.char-fld = "Shipto" THEN shipto~.carrier
       ELSE xoe-ord.carrier.
     
-  END. /* if avail shipto */
-END. /* ... else (if oe-rel was already available */
+        END. /* if avail shipto */
+    END. /* ... else (if oe-rel was already available */
 
 
-/* Update reftable for order type */
-IF v-relflg2 THEN DO:
+    /* Update reftable for order type */
+    IF v-relflg2 THEN 
+    DO:
   
-  /* task 04011103*/
-  FIND FIRST sys-ctrl WHERE sys-ctrl.company EQ cocode
-    AND sys-ctrl.NAME EQ "RelType" NO-LOCK NO-ERROR.
-  IF AVAIL sys-ctrl THEN
-    FIND FIRST sys-ctrl-shipto OF sys-ctrl WHERE sys-ctrl-shipto.cust-vend-no = b-oe-ordl.cust-no
-      AND sys-ctrl-ship.ship-id = oe-rel.ship-id NO-LOCK NO-ERROR.
-  IF NOT AVAIL sys-ctrl-shipto THEN
-    FIND FIRST sys-ctrl-shipto OF sys-ctrl WHERE sys-ctrl-shipto.cust-vend-no = b-oe-ordl.cust-no
-      AND sys-ctrl-ship.ship-id = "" NO-LOCK NO-ERROR.
-  IF AVAIL sys-ctrl-shipto AND sys-ctrl-shipto.log-fld THEN v-reltype = sys-ctrl-shipto.char-fld.
-      ELSE IF AVAIL sys-ctrl AND sys-ctrl.log-fld THEN v-reltype = sys-ctrl.char-fld.
+        /* task 04011103*/
+        FIND FIRST sys-ctrl WHERE sys-ctrl.company EQ cocode
+            AND sys-ctrl.NAME EQ "RelType" NO-LOCK NO-ERROR.
+        IF AVAIL sys-ctrl THEN
+            FIND FIRST sys-ctrl-shipto OF sys-ctrl WHERE sys-ctrl-shipto.cust-vend-no = b-oe-ordl.cust-no
+                AND sys-ctrl-ship.ship-id = oe-rel.ship-id NO-LOCK NO-ERROR.
+        IF NOT AVAIL sys-ctrl-shipto THEN
+            FIND FIRST sys-ctrl-shipto OF sys-ctrl WHERE sys-ctrl-shipto.cust-vend-no = b-oe-ordl.cust-no
+                AND sys-ctrl-ship.ship-id = "" NO-LOCK NO-ERROR.
+        IF AVAIL sys-ctrl-shipto AND sys-ctrl-shipto.log-fld THEN v-reltype = sys-ctrl-shipto.char-fld.
+        ELSE IF AVAIL sys-ctrl AND sys-ctrl.log-fld THEN v-reltype = sys-ctrl.char-fld.
   
-  IF v-relType <> "" THEN DO:
+        IF v-relType <> "" THEN 
+        DO:
     
-      FIND bf-oe-rel WHERE ROWID(bf-oe-rel) EQ ROWID(oe-rel)
-        EXCLUSIVE-LOCK.
-      bf-oe-rel.s-code = IF b-oe-ordl.is-a-component THEN "S"
-                                ELSE SUBSTRING(v-relType,1,1).
-      IF b-oe-ord.TYPE = "T" THEN
-        ASSIGN bf-oe-rel.s-code = "T".      
-      RELEASE bf-oe-rel.      
+            FIND bf-oe-rel WHERE ROWID(bf-oe-rel) EQ ROWID(oe-rel)
+                EXCLUSIVE-LOCK.
+            bf-oe-rel.s-code = IF b-oe-ordl.is-a-component THEN "S"
+            ELSE SUBSTRING(v-relType,1,1).
+            IF b-oe-ord.TYPE = "T" THEN
+                ASSIGN bf-oe-rel.s-code = "T".      
+            RELEASE bf-oe-rel.      
     
-  END. /* v-reltype <> "" */
-END. /* if v-relflg2 */
+        END. /* v-reltype <> "" */
+    END. /* if v-relflg2 */
 
-/* Assign qty to itemfg-loc */
-RUN fg/fgitmloc.p (INPUT b-oe-ordl.i-no, INPUT ROWID(b-oe-ordl)).
+    /* Assign qty to itemfg-loc */
+    RUN fg/fgitmloc.p (INPUT b-oe-ordl.i-no, INPUT ROWID(b-oe-ordl)).
 
-RELEASE oe-rel.
+    RELEASE oe-rel.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
