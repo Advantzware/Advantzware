@@ -323,7 +323,7 @@ FIND FIRST oe-ord NO-LOCK
     NO-ERROR.    
 IF AVAILABLE oe-ord THEN DO:
     /*builds the shared temp table ttPriceHold*/
-    RUN CheckPriceHoldForOrder IN hdPriceProcs (ROWID(oe-ord), NO, OUTPUT lHold, OUTPUT cReason).
+    RUN CheckPriceHoldForOrder IN hdPriceProcs (ROWID(oe-ord), NO, NO, OUTPUT lHold, OUTPUT cReason).
     ASSIGN 
         fiHold = STRING(lHold)
         fiReason = STRING(cReason)
@@ -343,7 +343,7 @@ IF AVAILABLE oe-ord THEN DO:
                 ttPriceResults.cPriceUOM = oe-ordl.pr-uom
                 ttPriceResults.cPriceOldUOM = oe-ordl.pr-uom
                 .
-        RUN CalculateLinePrice IN hdPriceProcs (ttPriceResults.riLine,ttPriceResults.cFGItemID, ttPriceResults.cCustID, ttPriceResults.cShipID, ttPriceResults.dQuantity, NO,
+        RUN CalculateLinePrice IN hdPriceProcs (ttPriceResults.riLine, ttPriceResults.cFGItemID, ttPriceResults.cCustID, ttPriceResults.cShipID, ttPriceResults.dQuantity, NO,
                             OUTPUT ttPriceResults.lMatrixMatch, INPUT-OUTPUT ttPriceResults.dPrice, INPUT-OUTPUT ttPriceResults.cPriceUOM).
         
     END.

@@ -1463,12 +1463,6 @@ DO:
         MESSAGE cPMMessage VIEW-AS ALERT-BOX.
         IF lPMBlock THEN RETURN NO-APPLY.
    END.
-   
-   RUN CheckPriceHoldForOrder IN hdPriceProcs(ROWID(oe-ord),
-                                              YES, /*Prompt*/
-                                              YES, /*Set oe-ord hold fields*/
-                                              OUTPUT lPriceHold, 
-                                              OUTPUT cPriceHoldMessage).
     
   IF oepricecheck-log AND oe-ordl.est-no:SCREEN-VALUE EQ "" AND
      ll-new-record THEN
@@ -1511,7 +1505,12 @@ DO:
     END.
 
   END.
-
+  RUN CheckPriceHoldForOrder IN hdPriceProcs(ROWID(oe-ord),
+                                              YES, /*Prompt*/
+                                              YES, /*Set oe-ord hold fields*/
+                                              OUTPUT lPriceHold, 
+                                              OUTPUT cPriceHoldMessage).
+                                              
   FIND xoe-ord WHERE RECID(xoe-ord) = recid(oe-ord) EXCLUSIVE.
   FIND FIRST itemfg WHERE itemfg.company EQ cocode
                       AND itemfg.i-no EQ oe-ordl.i-no NO-LOCK NO-ERROR.
