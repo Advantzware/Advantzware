@@ -424,17 +424,7 @@ DEFINE FRAME F-Main
      fiCustAddress AT ROW 3.71 COL 10.8 COLON-ALIGNED NO-LABEL WIDGET-ID 18
      fiHoldType AT ROW 9.33 COL 114 COLON-ALIGNED NO-LABEL WIDGET-ID 20
      fiShipName AT ROW 6.86 COL 23.8 COLON-ALIGNED NO-LABEL WIDGET-ID 28
-     oe-ord.priceHold AT ROW 11 COL 103.2 RIGHT-ALIGNED WIDGET-ID 22
-          VIEW-AS TOGGLE-BOX
-          SIZE 16 BY .81
-     oe-ord.priceHoldReason AT ROW 10.91 COL 114 COLON-ALIGNED WIDGET-ID 32
-          LABEL "Reason"
-          VIEW-AS FILL-IN 
-          SIZE 35 BY 1
-     oe-ord.ship-id AT ROW 6.86 COL 10.8 COLON-ALIGNED WIDGET-ID 16
-          LABEL "Ship To"
-          VIEW-AS FILL-IN 
-          SIZE 13 BY 1
+     
      oe-ord.ord-no AT ROW 1.24 COL 10 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 10.4 BY 1
@@ -443,13 +433,17 @@ DEFINE FRAME F-Main
      oe-ord.est-no AT ROW 1.24 COL 47.2 COLON-ALIGNED FORMAT "x(8)"
           VIEW-AS FILL-IN 
           SIZE 13 BY 1
-     oe-ord.job-no AT ROW 1.24 COL 72.8 COLON-ALIGNED
-          LABEL "Job Num" FORMAT "x(6)"
+     oe-ord.job-no AT ROW 1.24 COL 76.8 COLON-ALIGNED
+          LABEL "Job Number" FORMAT "x(6)"
           VIEW-AS FILL-IN 
           SIZE 16.6 BY 1
-     oe-ord.job-no2 AT ROW 1.24 COL 89.8 COLON-ALIGNED NO-LABEL
+     oe-ord.job-no2 AT ROW 1.24 COL 93.8 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 4.8 BY 1
+     oe-ord.po-no AT ROW 1.24 COL 124 COLON-ALIGNED
+          LABEL "Cust PO#"
+          VIEW-AS FILL-IN 
+          SIZE 21.6 BY 1
      oe-ord.user-id AT ROW 3.86 COL 93 COLON-ALIGNED
           LABEL "Last User"
           VIEW-AS FILL-IN 
@@ -470,6 +464,14 @@ DEFINE FRAME F-Main
           LABEL "Sold To"
           VIEW-AS FILL-IN 
           SIZE 13 BY 1
+     oe-ord.ship-id AT ROW 6.86 COL 10.8 COLON-ALIGNED WIDGET-ID 16
+          LABEL "Ship To"
+          VIEW-AS FILL-IN 
+          SIZE 13 BY 1
+     oe-ord.contact AT ROW 2.67 COL 86 COLON-ALIGNED
+          LABEL "Contact"
+          VIEW-AS FILL-IN 
+          SIZE 24 BY 1
      oe-ord.csrUser_id AT ROW 5.05 COL 93 COLON-ALIGNED
           LABEL "CSR"
           VIEW-AS FILL-IN 
@@ -499,14 +501,8 @@ DEFINE FRAME F-Main
           LABEL "Production"
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
-     oe-ord.po-no AT ROW 1.24 COL 124 COLON-ALIGNED
-          LABEL "Cust PO#"
-          VIEW-AS FILL-IN 
-          SIZE 21.6 BY 1
-     oe-ord.contact AT ROW 2.67 COL 86 COLON-ALIGNED
-          LABEL "Contact"
-          VIEW-AS FILL-IN 
-          SIZE 24 BY 1
+     
+     
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -535,24 +531,15 @@ DEFINE FRAME F-Main
      oe-ord.managed AT ROW 11.38 COL 50
           VIEW-AS TOGGLE-BOX
           SIZE 26 BY 1
-     oe-ord.frt-pay AT ROW 12.91 COL 100 NO-LABEL
-          VIEW-AS RADIO-SET HORIZONTAL
-          RADIO-BUTTONS 
-                    "Prepaid", "P":U,
-"Collect", "C":U,
-"Bill", "B":U,
-"3rd Party", "T":U
-          SIZE 50 BY .95
-     oe-ord.carrier AT ROW 13.95 COL 88 COLON-ALIGNED
+     oe-ord.priceHold AT ROW 11 COL 103.2 RIGHT-ALIGNED WIDGET-ID 22
+          VIEW-AS TOGGLE-BOX
+          SIZE 16 BY .81
+     oe-ord.priceHoldReason AT ROW 10.91 COL 114 COLON-ALIGNED WIDGET-ID 32
+          LABEL "Reason"
           VIEW-AS FILL-IN 
-          SIZE 13 BY 1
-     oe-ord.fob-code AT ROW 13.95 COL 120 NO-LABEL
-          VIEW-AS RADIO-SET HORIZONTAL
-          RADIO-BUTTONS 
-                    "DEST", "DEST":U,
-"ORIG", "ORIG":U
-          SIZE 23 BY .95
-     oe-ord.sman[1] AT ROW 14.76 COL 2.8 COLON-ALIGNED NO-LABEL FORMAT "x(3)"
+          SIZE 35 BY 1
+
+    oe-ord.sman[1] AT ROW 14.76 COL 2.8 COLON-ALIGNED NO-LABEL FORMAT "x(3)"
           VIEW-AS FILL-IN 
           SIZE 8.6 BY 1
      oe-ord.sname[1] AT ROW 14.76 COL 12.2 COLON-ALIGNED NO-LABEL
@@ -588,14 +575,37 @@ DEFINE FRAME F-Main
      oe-ord.s-comm[3] AT ROW 17.14 COL 63.2 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 10.4 BY 1
+
+     oe-ord.frt-pay AT ROW 12.91 COL 100 NO-LABEL
+          VIEW-AS RADIO-SET HORIZONTAL
+          RADIO-BUTTONS 
+                    "Prepaid", "P":U,
+"Collect", "C":U,
+"Bill", "B":U,
+"3rd Party", "T":U
+          SIZE 50 BY .95
+     oe-ord.carrier AT ROW 13.95 COL 88 COLON-ALIGNED
+          VIEW-AS FILL-IN 
+          SIZE 13 BY 1
+     oe-ord.fob-code AT ROW 13.95 COL 120 NO-LABEL
+          VIEW-AS RADIO-SET HORIZONTAL
+          RADIO-BUTTONS 
+                    "DEST", "DEST":U,
+"ORIG", "ORIG":U
+          SIZE 23 BY .95
+     
      oe-ord.cc-type AT ROW 15.76 COL 90 COLON-ALIGNED
           LABEL "Pay Type"
           VIEW-AS FILL-IN 
           SIZE 13.6 BY 1
      oe-ord.cc-expiration AT ROW 15.76 COL 111 COLON-ALIGNED
-          LABEL "Exp:"
+          LABEL "Exp"
           VIEW-AS FILL-IN 
           SIZE 16 BY 1
+     oe-ord.spare-char-1 AT ROW 15.76 COL 142 COLON-ALIGNED WIDGET-ID 4
+          LABEL "VCode" FORMAT "x(3)"
+          VIEW-AS FILL-IN 
+          SIZE 7 BY 1
      oe-ord.cc-num AT ROW 16.95 COL 90 COLON-ALIGNED
           LABEL "Account #"
           VIEW-AS FILL-IN 
@@ -620,10 +630,7 @@ DEFINE FRAME F-Main
      btnCalendar-3 AT ROW 4.71 COL 147.2
      btnCalendar-4 AT ROW 5.81 COL 147.2
      btnCalendar-5 AT ROW 15.76 COL 129
-     oe-ord.spare-char-1 AT ROW 15.76 COL 142 COLON-ALIGNED WIDGET-ID 4
-          LABEL "VCode" FORMAT "x(3)"
-          VIEW-AS FILL-IN 
-          SIZE 7 BY 1
+     
      oe-ord.approved-date AT ROW 6.86 COL 128 COLON-ALIGNED HELP
           "Enter the date this order was approved" WIDGET-ID 10
           LABEL "Hold/Appr Date"
@@ -921,8 +928,8 @@ DO:
               IF AVAIL shipto AND lw-focus:SCREEN-VALUE NE shipto.ship-id THEN DO:
                  ASSIGN 
                     oe-ord.ship-id:SCREEN-VALUE = shipto.ship-id
-                    fiShipName = shipto.ship-name
-                    fiShipAddress = fBuildAddress(shipto.ship-addr[1],
+                    fiShipName:SCREEN-VALUE = shipto.ship-name
+                    fiShipAddress:SCREEN-VALUE = fBuildAddress(shipto.ship-addr[1],
                                                                shipto.ship-addr[2],
                                                                shipto.ship-city,
                                                                shipto.ship-state,
@@ -1516,13 +1523,13 @@ DO:
     IF AVAIL shipto THEN DO:
        ASSIGN            
              oe-ord.ship-id:SCREEN-VALUE      = shipto.ship-id
-             fiShipName          = shipto.ship-name
-             fiShipAddress       = fBuildAddress(shipto.ship-addr[1],
+             fiShipName:SCREEN-VALUE          = shipto.ship-name
+             fiShipAddress:SCREEN-VALUE       = fBuildAddress(shipto.ship-addr[1],
                                                                shipto.ship-addr[2],
                                                                shipto.ship-city,
                                                                shipto.ship-state,
                                                                 shipto.ship-zip).
-            DISPLAY fiShipName fiShipAddress.                                                                
+            
        END.      
     ELSE DO:
          MESSAGE "Invalid Ship To. Try help. " VIEW-AS ALERT-BOX ERROR.
@@ -4862,6 +4869,10 @@ PROCEDURE local-create-record :
   DO WITH FRAME {&FRAME-NAME}:
      ASSIGN
         fi_type:SCREEN-VALUE = oe-ord.TYPE
+        fiSoldAddress:SCREEN-VALUE = ""
+        fiShipName:SCREEN-VALUE = ""
+        fiShipAddress:SCREEN-VALUE = ""
+        fiCustAddress:SCREEN-VALUE = "" 
         fi_prev_order:SCREEN-VALUE = IF oe-ord.po-no2 NE "" THEN oe-ord.po-no2
                                      ELSE STRING(oe-ord.pord-no).
   END.
