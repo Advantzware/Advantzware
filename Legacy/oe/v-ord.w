@@ -107,6 +107,7 @@ DEFINE VARIABLE copyRowID AS ROWID NO-UNDO.
 DEF VAR l-update-reason-perms AS LOG NO-UNDO.
 DEF VAR v-access-close AS LOG.
 DEF VAR v-access-list AS CHAR.
+DEFINE VARIABLE llUpdatePrcHld AS LOGICAL NO-UNDO.
 DEF VAR v-margin AS DEC NO-UNDO.
 DEFINE VARIABLE OEPO#Xfer-log AS LOGICAL     NO-UNDO.
 DEFINE VARIABLE lv-change-inv-po AS LOGICAL     NO-UNDO.
@@ -163,14 +164,24 @@ ASSIGN
 
 RUN methods/prgsecur.p
     (INPUT "OEDateChg",
+    INPUT "ALL", /* based on run, create, update, delete or all */
+    INPUT NO,    /* use the directory in addition to the program */
+    INPUT NO,    /* Show a message if not authorized */
+    INPUT NO,    /* Group overrides user security? */
+    OUTPUT l-update-reason-perms, /* Allowed? Yes/NO */
+    OUTPUT v-access-close, /* used in template/windows.i  */
+    OUTPUT v-access-list). /* list 1's and 0's indicating yes or no to run, create, update, delete */
+
+RUN methods/prgsecur.p
+    (INPUT "OEPrcHld",
      INPUT "ALL", /* based on run, create, update, delete or all */
      INPUT NO,    /* use the directory in addition to the program */
      INPUT NO,    /* Show a message if not authorized */
      INPUT NO,    /* Group overrides user security? */
-     OUTPUT l-update-reason-perms, /* Allowed? Yes/NO */
+     OUTPUT llUpdatePrcHld, /* Allowed? Yes/NO */
      OUTPUT v-access-close, /* used in template/windows.i  */
      OUTPUT v-access-list). /* list 1's and 0's indicating yes or no to run, create, update, delete */
-
+     
 DEF VAR cRtnChar AS CHAR NO-UNDO.
 DEFINE VARIABLE lRecFound AS LOGICAL     NO-UNDO.
 RUN sys/ref/nk1look.p (INPUT cocode, "OEPO#Xfer", "L" /* Logical */, NO /* check by cust */, 
@@ -5138,14 +5149,18 @@ PROCEDURE local-enable-fields :
 
     ENABLE fi_type fi_prev_order.
     IF NOT job#-log THEN DISABLE oe-ord.job-no oe-ord.job-no2.
-    IF adm-new-record THEN
-        ENABLE oe-ord.due-date.
-    ELSE
+      IF adm-new-record THEN
+          ENABLE oe-ord.due-date.
+      ELSE      
         IF l-update-reason-perms THEN 
             ENABLE oe-ord.due-date.
         ELSE
             DISABLE oe-ord.due-date. 
-
+            
+      IF llUpdatePrcHld THEN 
+            ENABLE oe-ord.priceHold.
+      ELSE
+            DISABLE oe-ord.PriceHold.     
 /*     RUN process-status(""). */
     /* If status is hold, enable status type, else disable status type. */
     ASSIGN oe-ord.spare-char-2:SENSITIVE = (IF oe-ord.stat:SCREEN-VALUE = "H" THEN TRUE ELSE FALSE).
