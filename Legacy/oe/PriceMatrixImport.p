@@ -215,8 +215,10 @@ PROCEDURE ImportExcelData :
             tt-oe-prmtx.qty[10]            = chWorkSheet:Range("AQ" + STRING(iRowCount)):VALUE NO-ERROR.
             tt-oe-prmtx.price[10]          = chWorkSheet:Range("AR" + STRING(iRowCount)):VALUE NO-ERROR.
             tt-oe-prmtx.discount[10]       = chWorkSheet:Range("AS" + STRING(iRowCount)):VALUE NO-ERROR.
-            tt-oe-prmtx.uom[10]            = chWorkSheet:Range("AS" + STRING(iRowCount)):VALUE NO-ERROR.
-            tt-oe-prmtx.exp-date           = chWorkSheet:Range("AX" + STRING(iRowCount)):VALUE NO-ERROR.
+            tt-oe-prmtx.uom[10]            = chWorkSheet:Range("AT" + STRING(iRowCount)):VALUE NO-ERROR.
+            tt-oe-prmtx.exp-date           = chWorkSheet:Range("AU" + STRING(iRowCount)):VALUE NO-ERROR.
+            tt-oe-prmtx.custShipID         = chWorkSheet:Range("AV" + STRING(iRowCount)):VALUE NO-ERROR.
+            
             
             ASSIGN
                 opiTotalCount      = opiTotalCount + 1
@@ -408,7 +410,7 @@ PROCEDURE ProcessImportedData :
             dtEffDate = IF tt-oe-prmtx.refcode NE "" THEN DATE(tt-oe-prmtx.refcode) ELSE TODAY.
             cEffDate = STRING(YEAR(dtEffDate),"9999") +
                 STRING(MONTH(dtEffDate),"99")  +
-                STRING(DAY(dtEffDate),"99"). 
+                STRING(DAY(dtEffDate),"99").
             FIND FIRST bf-oe-prmtx 
                 WHERE bf-oe-prmtx.company EQ tt-oe-prmtx.company
                 AND bf-oe-prmtx.cust-no EQ  TRIM(tt-oe-prmtx.cust-no)
@@ -487,7 +489,9 @@ PROCEDURE ProcessImportedData :
                     bf-oe-prmtx.discount[10] = tt-oe-prmtx.discount[10] 
                     bf-oe-prmtx.uom[10]      = tt-oe-prmtx.uom[10]  
                     bf-oe-prmtx.eff-date     = dtEffDate
-                    bf-oe-prmtx.exp-date     = tt-oe-prmtx.exp-date . 
+                    bf-oe-prmtx.exp-date     = tt-oe-prmtx.exp-date
+                    bf-oe-prmtx.custShipID     = tt-oe-prmtx.custShipID .
+                
             END.  /* avail bf-oe-prmtx*/
         END.   /* tt-item-comm.valid = TRUE*/
         ELSE  opiCountNotOK = opiCountNotOK + 1.
