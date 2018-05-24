@@ -2781,12 +2781,14 @@ FUNCTION getstat RETURNS CHARACTER
     DEFINE VARIABLE lc-result AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cResult AS CHARACTER NO-UNDO.
     
-    lc-result = oe-ord.stat .
-    RUN oe/getStatusDesc.p( INPUT oe-ord.stat, OUTPUT cResult) .
-    IF cResult NE "" THEN
-       lc-result  = cResult .
+    IF AVAILABLE oe-ord THEN DO: 
+        lc-result = oe-ord.stat .
+        RUN oe/getStatusDesc.p( INPUT oe-ord.stat, OUTPUT cResult) .
+        IF cResult NE "" THEN
+            lc-result  = cResult .
+    END.
     RETURN lc-result.   /* Function return value. */
-
+    
 END FUNCTION.
 
 /* _UIB-CODE-BLOCK-END */
