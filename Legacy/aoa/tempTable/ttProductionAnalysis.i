@@ -54,5 +54,5 @@ DEFINE TEMP-TABLE ttProductionAnalysis NO-UNDO
     FIELD xxTotRunHrs    AS DECIMAL   LABEL "Total MR Hrs"    FORMAT "->>>9.99"
     FIELD xxJob          AS INTEGER   LABEL "Unique Job"      FORMAT ">>>>>>9"
     FIELD xxSort         AS CHARACTER LABEL "Sort"            FORMAT "x(100)"
-        INDEX sortBy IS PRIMARY rowType xxSort
+        INDEX sortBy IS PRIMARY /*rowType*/ xxSort
         .
