@@ -81,15 +81,15 @@ DEFINE VARIABLE iColumnLength AS INTEGER NO-UNDO.
 ASSIGN cTextListToSelect  = "Invoice#,Bol#,Customer,Cust Name,Inv Date,GL Account#,Acc Desc,FG Item#,Item Name," +
                             "Item Desccription,Cust Part#,Order#,Cust Po#,Est#,Shipto,Tax Code,Term Code,Term Desc," +
                             "Due Date,Discount%,Discount,Disc Days,Carrier,Invoice Amt,Freight,Tax,Amount Paid," +
-                            "Balance Due,Line,Customer Lot#,Invoice Qty,Cons Uom,Sqft,Price,Uom,Dsct%,Amount,Amount MSF,Cost," +
+                            "Balance Due,Line,Customer Lot#,Invoice Qty,Ship Qty,Cons Uom,Sqft,Price,Uom,Dsct%,Amount,Amount MSF,Cost," +
                             "Cost UOM,Sls Rep,% of Sales,Comm,Sls Rep2,% of Sales2,Comm2,Sls Rep3,% of Sales3,Comm3," + 
                             "Line Amount,Line Cost,Total Amount,Total Cost,Line Discount,Total Discount"
 
        cFieldListToSelect = "ar-invl.inv-no,ar-invl.bol-no,ar-invl.cust-no,ar-inv.cust-name,ar-inv.inv-date,ar-invl.actnum,actdscr,ar-invl.i-no,ar-invl.i-name," +
                             "ar-invl.i-dscr,ar-invl.part-no,ar-invl.ord-no,ar-invl.po-no,ar-invl.est-no,ar-inv.ship-id,ar-inv.tax-code,ar-inv.terms,ar-inv.terms-d," +
                             "ar-inv.due-date,ar-inv.disc-%,ar-inv.disc-taken,ar-inv.disc-days,ar-inv.carrier,ar-inv.gross,ar-inv.freight,ar-inv.tax-amt,ar-inv.paid," +
-                            "ar-inv.due,ar-invl.LINE,ar-invl.lot-no,ar-invl.inv-qty,ar-invl.cons-uom,ar-invl.sf-sht,ar-invl.unit-pr,ar-invl.pr-qty-uom,ar-invl.disc,amount,ar-invl.amt-msf,ar-invl.cost," +
-                            "dscr[1],sman[1],s-pct[1],s-comm[1],sman[2],s-pct[2],s-comm[2],sman[3],s-pct[3],s-comm[3]," + 
+                            "ar-inv.due,ar-invl.LINE,ar-invl.lot-no,ar-invl.inv-qty,ar-invl.ship-qty,ar-invl.cons-uom,ar-invl.sf-sht,ar-invl.unit-pr,ar-invl.pr-qty-uom," +
+                            "ar-invl.disc,amount,ar-invl.amt-msf,ar-invl.cost,dscr[1],sman[1],s-pct[1],s-comm[1],sman[2],s-pct[2],s-comm[2],sman[3],s-pct[3],s-comm[3]," + 
                             "line-amt,line-cst,total-amt,total-cst,line-dis,total-dis"
                             
         cFieldLength = "15,15,15,20,15,30,15,15,20," + "15,15,15,20,15,30,15,15,20," + "15,15,15,20,15,30,15,15,20," + "15,15,15,20,15,30,15,15,20,15,15,15," + 
@@ -1222,6 +1222,7 @@ IF tb_excel THEN
                   WHEN "ar-invl.LINE" THEN cVarValue      = STRING(ar-invl.LINE).
                   WHEN "ar-invl.lot-no" THEN cVarValue    = STRING(ar-invl.lot-no).
                   WHEN "ar-invl.inv-qty" THEN cVarValue   = STRING(ar-invl.inv-qty).
+                  WHEN "ar-invl.ship-qty" THEN cVarValue = STRING(ar-invl.ship-qty).
                   WHEN "ar-invl.cons-uom" THEN cVarValue  = STRING(ar-invl.cons-uom).
                   WHEN "ar-invl.sf-sht" THEN cVarValue    = STRING(ar-invl.sf-sht) .
                   WHEN "ar-invl.unit-pr" THEN cVarValue   = STRING(ar-invl.unit-pr).
