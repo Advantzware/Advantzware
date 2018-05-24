@@ -31,9 +31,10 @@ DEFINE VARIABLE gchWshNetwork AS COM-HANDLE NO-UNDO.
 DEFINE VARIABLE gchWorkBook  AS COM-HANDLE   NO-UNDO.
 DEFINE VARIABLE gchWorksheet AS COM-HANDLE   NO-UNDO.
 
-DEFINE VARIABLE gcTempDir AS CHARACTER FORMAT "X(80)" NO-UNDO.
+DEFINE VARIABLE gcTempDir AS CHARACTER FORMAT "X(200)" NO-UNDO.
 DEFINE VARIABLE gcFile AS CHARACTER NO-UNDO.
 DEF VAR lv-print-img AS LOG NO-UNDO.
+DEF VAR cBolcert-char AS CHAR FORMAT "X(200)" NO-UNDO.
 
 DEFINE NEW SHARED TEMP-TABLE tt-filelist
     FIELD tt-FileCtr         AS INT
@@ -168,7 +169,6 @@ DEFINE VARIABLE xQtyPerCaseTail LIKE oe-boll.qty-case NO-UNDO.
 DEFINE VARIABLE iNoteLine AS INTEGER     NO-UNDO.
 DEFINE VARIABLE iInkCount AS INTEGER     NO-UNDO.
 DEFINE VARIABLE v-ord-fb  AS CHAR FORMAT "x(13)" NO-UNDO.
-DEF VAR cBolcert-char AS CHAR FORMAT "X(200)" NO-UNDO.
 
 DEFINE BUFFER bf-oe-boll FOR oe-boll.
 DEFINE BUFFER bf-job-mat FOR job-mat.
@@ -178,9 +178,9 @@ DEFINE BUFFER bf-job FOR job.
 RUN PrepareReportTT.
 RUN PrepareExcelFile(OUTPUT iWorksheetTotal).
 
-FIND FIRST sys-ctrl where sys-ctrl.company = cocode
+/*FIND FIRST sys-ctrl where sys-ctrl.company = cocode
                       and sys-ctrl.NAME = "BOLCERT" NO-LOCK NO-ERROR.
-IF AVAIL sys-ctrl THEN cBolcert-char = sys-ctrl.char-fld.
+IF AVAIL sys-ctrl THEN cBolcert-char = sys-ctrl.char-fld.*/
 
 ASSIGN
    iWorksheetCount = 0.
@@ -468,6 +468,8 @@ IF LvOutputSelection = "email" THEN
   
 FIND FIRST sys-ctrl where sys-ctrl.company = cocode
                       and sys-ctrl.NAME = "BOLCERT" NO-LOCK NO-ERROR.
+IF AVAIL sys-ctrl THEN
+    cBolcert-char = sys-ctrl.char-fld .
 IF AVAIL sys-ctrl AND sys-ctrl.char-fld = "CCCWPP" THEN lv-print-img = YES.
     ELSE lv-print-img = NO.
 
@@ -481,10 +483,12 @@ FOR EACH report
             WHERE sys-ctrl-shipto.company EQ cocode
             AND sys-ctrl-shipto.NAME EQ "BOLCERT"
             AND sys-ctrl-shipto.cust-vend-no = oe-bolh.cust-no NO-ERROR.
-        IF AVAIL sys-ctrl-shipto THEN
+        IF AVAIL sys-ctrl-shipto THEN do:
+            cBolcert-char = sys-ctrl-shipto.char-fld .
             IF sys-ctrl-shipto.char-fld = "CCCWPP" THEN
                 lv-print-img = YES.
             ELSE lv-print-img = NO.
+        END.
     END. /*end of Do block to test for CCCWPP per customer*/ 
     LEAVE .
  END.
