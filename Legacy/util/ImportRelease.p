@@ -1,14 +1,14 @@
 
 /*------------------------------------------------------------------------
-    File        : ImportShipTo.p
+    File        : ImportRelease.p
     Purpose     : 
 
     Syntax      :
 
-    Description : Import Program (Persistent) for Configuring and Processing the Import for Ship Tos	
+    Description : Import Program (Persistent) for Configuring and Processing the Import for Releases	
 
-    Author(s)   : BV
-    Created     : Fri Nov 24 16:18:38 EST 2017
+    Author(s)   : Sewa
+    Created     : 
     Notes       :
   ----------------------------------------------------------------------*/
 
@@ -23,15 +23,15 @@ DEFINE TEMP-TABLE ttImportRelease
     FIELD cReleaseType       AS CHARACTER FORMAT "!" INITIAL "B" COLUMN-LABEL "Release Type" HELP "Optional - Must be valid - Defaults to B - Size:1"
     FIELD cShipTo            AS CHARACTER FORMAT "x(8)" COLUMN-LABEL "Ship To" HELP "Required - Field Validated - Size:8"
     FIELD cShipFrom          AS CHARACTER FORMAT "x(5)" COLUMN-LABEL "Ship From" HELP "Required - Field Validated - size:5"
-    FIELD cCarrier           AS CHARACTER FORMAT "x(5)" COLUMN-LABEL "Carrier" HELP "Required - Must be valid-based on Ship From - size:5"
+    FIELD cCarrier           AS CHARACTER FORMAT "x(5)" COLUMN-LABEL "Carrier" HELP "Required - Must be valid-based on Ship From - Size:5"
     FIELD dQuantityScheduled AS DECIMAL   FORMAT "->>,>>>,>>9" COLUMN-LABEL "Sched Qty" HELP "Optional - Size:11"
-    FIELD cCustomerPO        AS CHARACTER FORMAT "x(15)" COLUMN-LABEL "Customer PO#" HELP "Required - Field Validated - Size:15"
+    FIELD cCustomerPO        AS CHARACTER FORMAT "x(15)" COLUMN-LABEL "Customer PO# " HELP "Optional - Field Validated - Size:15"
     FIELD cCustomerLot       AS CHARACTER FORMAT "x(15)" COLUMN-LABEL "Customer Lot #" HELP "Optional - Size:15"
     FIELD dReleaseDate       AS DATE      INITIAL TODAY FORMAT "99/99/9999" COLUMN-LABEL "Rel Date" HELP "Defaults to Today - Field Validated"
-    FIELD dSellPrice         AS DECIMAL   FORMAT ">>,>>>,>>9.99<<<<" COLUMN-LABEL "Sell Price" HELP "optional - decimal"
-    FIELD dSellPriceIsZero   AS DECIMAL   FORMAT "9" COLUMN-LABEL "$0" INITIAL 0 HELP "Required - size:1"
-    FIELD cFreightPay        AS CHARACTER FORMAT "x(1)" COLUMN-LABEL "Frt Pay" HELP "Optional - Must be P,C,B,T"
-    FIELD cFOB               AS CHARACTER FORMAT "x(1)" COLUMN-LABEL "FOB" HELP "Optional - Must be D(est) or O(rig)".
+    FIELD dSellPrice         AS DECIMAL   FORMAT ">>,>>>,>>9.99<<<<" COLUMN-LABEL "Sell Price" HELP "Optional - Decimal"
+    FIELD lSellPriceIsZero   AS LOGICAL   FORMAT "Y/N" COLUMN-LABEL "Zero Dollar Price" HELP "Optional - Y/N (default = N)"
+    FIELD cFreightPay        AS CHARACTER FORMAT "x(1)" COLUMN-LABEL "Frt Pay" HELP "Optional - Must be P C B or T"
+    FIELD cFOB               AS CHARACTER FORMAT "x(1)" COLUMN-LABEL "FOB  " HELP "Optional - Must be 'D'estination or 'O'rigin".
     
 
 DEFINE VARIABLE giIndexOffset AS INTEGER NO-UNDO INIT 2. /*Set to 1 if there is a Company field in temp-table since this will not be part of the import data*/
@@ -72,7 +72,9 @@ PROCEDURE pValidate PRIVATE:
 
     RUN util/Validate.p PERSISTENT SET hdValidator.
     
-    oplValid = YES.
+    ASSIGN 
+        oplValid = YES
+        opcNote = "Add Record".
     IF oplValid THEN 
     DO:
         IF ipbf-ttImportRelease.Company EQ '' THEN 
@@ -441,7 +443,7 @@ PROCEDURE pProcessRecord PRIVATE:
             oe-rel.qty          = 0 
             oe-rel.fob-code     = ipbf-ttImportRelease.cFOB
             oe-rel.frt-pay      = ipbf-ttImportRelease.cFreightPay
-            oe-rel.zeroPrice    = ipbf-ttImportRelease.dSellPriceIsZero
+            oe-rel.zeroPrice    = IF ipbf-ttImportRelease.lSellPriceIsZero THEN 1.0 ELSE 0.0
             oe-rel.sell-price   = ipbf-ttImportRelease.dSellPrice
             oe-rel.lot-no       = ipbf-ttImportRelease.cCustomerLot
             oe-rel.rel-date     = ipbf-ttImportRelease.dReleaseDate
@@ -503,7 +505,7 @@ PROCEDURE pProcessRecord PRIVATE:
         IF NOT CAN-FIND(FIRST shipto 
             WHERE shipto.company EQ ipbf-ttImportRelease.Company
             AND shipto.ship-id EQ oe-rel.ship-id) THEN 
-        do:
+        DO:
             
             FOR EACH shipto NO-LOCK
                 WHERE shipto.company EQ ipbf-ttImportRelease.Company
