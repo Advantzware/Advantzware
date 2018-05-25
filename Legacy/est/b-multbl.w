@@ -651,19 +651,6 @@ END.
 &ANALYZE-RESUME
 
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL eb.part-no br_table _BROWSE-COLUMN B-table-Win
-ON LEAVE OF eb.part-no IN BROWSE br_table /* # on Width */
-DO:
-  IF LASTKEY NE -1 THEN DO:
-    RUN valid-part-no NO-ERROR.
-    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-  END.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL eb.num-wid br_table _BROWSE-COLUMN B-table-Win
 ON VALUE-CHANGED OF eb.num-wid IN BROWSE br_table /* # on Width */
 DO:
@@ -1174,9 +1161,6 @@ PROCEDURE local-update-record :
   RUN valid-blank-no NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
-   RUN valid-part-no NO-ERROR.
-  IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-
   RUN valid-bl-yld-up NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
@@ -1415,45 +1399,6 @@ PROCEDURE valid-blank-no :
       APPLY "entry" TO reftable.val[2] IN BROWSE {&browse-name}.
       RETURN ERROR.
     END.
-  END.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-part-no B-table-Win 
-PROCEDURE valid-part-no :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-DEFINE BUFFER b-eb FOR eb.
-DEFINE VARIABLE lv-msg AS CHARACTER NO-UNDO.
-  DO WITH FRAME {&FRAME-NAME}:
-    
-        FIND FIRST b-eb NO-LOCK 
-           WHERE  b-eb.est-no EQ eb.est-no 
-             AND  b-eb.company EQ eb.company
-             AND  b-eb.part-no EQ eb.part-no:SCREEN-VALUE IN BROWSE {&browse-name}
-             AND  b-eb.form-no EQ eb.form-no
-             AND 
-            ROWID(b-eb) NE ROWID(eb) NO-ERROR  .
-
-        IF eb.part-no:SCREEN-VALUE IN BROWSE {&browse-name} EQ "" OR AVAIL b-eb THEN
-           lv-msg = IF eb.part-no:SCREEN-VALUE IN BROWSE {&browse-name} EQ "" THEN "may not be blank"
-                                   ELSE "already exists on Blank #" +
-                                        TRIM(STRING(b-eb.blank-no,">>9")).
-
-        IF lv-msg NE "" THEN DO:
-            MESSAGE TRIM(eb.part-no:LABEL IN BROWSE {&browse-name}) + " " +
-                TRIM(lv-msg) + "..." VIEW-AS ALERT-BOX ERROR.
-            APPLY "entry" TO eb.part-no IN BROWSE {&browse-name}.
-            RETURN ERROR.
-         END.
-     
   END.
 
 END PROCEDURE.
