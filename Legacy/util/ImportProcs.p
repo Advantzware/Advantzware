@@ -200,7 +200,9 @@ PROCEDURE pLoad:
     DO:
         INPUT STREAM sImport FROM VALUE(ipcFile).
         REPEAT:
-            iCount = iCount + 1.
+            ASSIGN 
+                iCount = iCount + 1
+                cData = "".
             IMPORT STREAM sImport DELIMITER ','
                 cData
                 . 
