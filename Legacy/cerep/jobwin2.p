@@ -75,6 +75,7 @@ DEFINE VARIABLE iCaseMult AS INTEGER NO-UNDO.
 DEF VAR v-t-win AS DEC DECIMALS 4 NO-UNDO.
 DEF VAR iv-li AS INT NO-UNDO.
 DEFINE VARIABLE cVendItem AS CHARACTER NO-UNDO .
+DEFINE VARIABLE lLinearFeet AS LOGICAL NO-UNDO .
 {ce/msfcalc.i}
 
 def TEMP-TABLE w-lo NO-UNDO
@@ -1063,10 +1064,22 @@ END FUNCTION.
                 need to remove  blank line between dashed line (v-fill) and header line. 
                 cannot find.
                 */
-
+                for each wrk-sheet break by wrk-sheet.form-no:
+                    FIND FIRST ITEM NO-LOCK 
+                        WHERE item.company eq cocode
+                        and item.i-no    eq wrk-sheet.i-no no-error.
+                    IF AVAIL ITEM AND item.mat-type EQ "R" THEN
+                    ASSIGN lLinearFeet = YES .
+                END.
+                IF lLinearFeet THEN
+                PUT "<P10>" v-fill SKIP                 /*REQ'D*/
+                 "<B>ITEM#      NAME                  VENDOR ITEM   L/FEET SHEET SIZE              BOARD PO# VENDOR#   DUE DATE   DIE# </B>" 
+                 SKIP.
+                ELSE
                 PUT "<P10>" v-fill SKIP                 /*REQ'D*/
                  "<B>ITEM#      NAME                  VENDOR ITEM   SHEETS SHEET SIZE              BOARD PO# VENDOR#   DUE DATE   DIE# </B>" 
                  SKIP.
+
             /** PRINT SHEET **/
 
                 x = 2.
@@ -1098,6 +1111,9 @@ END FUNCTION.
                             WHERE item.company eq cocode
                               and item.i-no    eq wrk-sheet.i-no no-error.
                         cVendItem = IF AVAIL ITEM THEN ITEM.vend-item ELSE "" .
+                        
+                   IF AVAIL ITEM AND item.mat-type EQ "R" THEN
+                        wrk-sheet.gsh-qty = wrk-sheet.gsh-qty * wrk-sheet.sh-len / 12 .
 
                     display 
                         wrk-sheet.i-no SPACE(1)
