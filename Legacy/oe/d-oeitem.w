@@ -6768,7 +6768,7 @@ PROCEDURE leave-qty :
    
        oe-ordl.qty:SCREEN-VALUE = FILL(" ",8 - LENGTH(TRIM(oe-ordl.qty:SCREEN-VALUE))) + TRIM(oe-ordl.qty:SCREEN-VALUE).
 
-       li-prev-qty = oe-ordl.qty.
+       li-prev-qty = INT(oe-ordl.qty:SCREEN-VALUE).
        
        /* If case count is too high, this will get picked up on OK button */
        IF INT(oe-ordl.qty:SCREEN-VALUE) GT 0 THEN
