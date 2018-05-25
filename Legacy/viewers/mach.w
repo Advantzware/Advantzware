@@ -247,9 +247,13 @@ DEFINE FRAME F-Main
           "Enter (R)oll, (S)heet, (B)lank, (Parts) Fed or (A)ssemble Sets"
           LABEL "Feed"
           VIEW-AS COMBO-BOX INNER-LINES 5
-          LIST-ITEMS "R","S","B","P","A" 
+          LIST-ITEM-PAIRS "R- Roll", "R",
+                          "S- Sheet", "S",
+                          "B- Blank", "B",
+                          "P- Partition", "P",
+                          "A- Assembly", "A" 
           DROP-DOWN-LIST
-          SIZE 11 BY 1
+          SIZE 19 BY 1
      mach.run-spoil AT ROW 3.14 COL 60 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 9 BY 1
