@@ -72,8 +72,15 @@ DEF VAR lv-line-print AS INT INIT 44 NO-UNDO.
 DEF VAR lv-due-date AS DATE NO-UNDO.
 DEF VAR lv-due-code AS CHAR NO-UNDO.
 DEF SHARED VAR v-print-due AS LOG NO-UNDO.
+DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
 def var v-duelist as cha init "AM,ASAP,BY,CPU,CR,DOS,HFR,HOLD,HOT,INK,MH,MUST,NB4,OE,ON,PPR,RWRK,RUSH,TOOL,WO,$$$" no-undo. /* Task 04081403 */
 def var v-duedscr as cha init "AM Delivery,As Soon As Possible,BY,Customer P/U,Credit Hold,On Due Date or Sooner,Hold For Release,Hold,Hot,W/F Ink,Make & Hold,Must,Not Before,Or Earlier,On,Partial Production Run,Rework,Rush,Tooling,Work Order,$$$" no-undo.
+
+RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormLogo", "C" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+OUTPUT cRtnChar, OUTPUT lRecFound).
+ASSIGN ls-full-img1 = cRtnChar + ">" .
 
 find first sys-ctrl where sys-ctrl.company eq cocode
                       and sys-ctrl.name    eq "ACKHEAD" no-lock no-error.
