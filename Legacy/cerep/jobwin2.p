@@ -1064,6 +1064,7 @@ END FUNCTION.
                 need to remove  blank line between dashed line (v-fill) and header line. 
                 cannot find.
                 */
+                lLinearFeet = NO .
                 for each wrk-sheet break by wrk-sheet.form-no:
                     FIND FIRST ITEM NO-LOCK 
                         WHERE item.company eq cocode
