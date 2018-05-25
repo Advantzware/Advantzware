@@ -967,7 +967,7 @@ DO:
                    
                        IF oescreen-cha EQ "item-qty" THEN
                          APPLY "entry" TO oe-ordl.qty.
-                       ELSE
+                       ELSE IF oe-ordl.price:SENSITIVE THEN 
                          APPLY "entry" TO oe-ordl.price.
                    END.
                  END.
@@ -985,7 +985,8 @@ DO:
                  IF oe-ordl.i-no:SCREEN-VALUE = "" OR oe-ordl.i-no:SCREEN-VALUE = "0" 
                       THEN oe-ordl.i-no:SCREEN-VALUE = ENTRY(4,char-val).
                  RUN display-fgpart (look-recid).
-                 APPLY "entry" TO oe-ordl.price.
+                 IF oe-ordl.price:SENSITIVE THEN 
+                   APPLY "entry" TO oe-ordl.price.
               END.
          END.
          WHEN "s-man" THEN DO:
@@ -1165,7 +1166,7 @@ DO:
           IF ip-type NE 'Update' THEN
             ASSIGN oe-ordl.i-no:SCREEN-VALUE = b-oe-ordl.i-no
             
-                                /* oe-ordl.i-no = b-oe-ordl.i-no */.
+                      /* oe-ordl.i-no = b-oe-ordl.i-no */.
           
           FIND FIRST itemfg NO-LOCK
                             WHERE itemfg.company EQ cocode
@@ -1239,7 +1240,8 @@ DO:
         ll-ok-i-no = NO
         historyButton = YES.
         APPLY 'LEAVE' TO oe-ordl.i-no.
-        APPLY 'ENTRY' TO oe-ordl.price.
+        IF oe-ordl.price:SENSITIVE   THEN 
+          APPLY 'ENTRY' TO oe-ordl.price.
         
       END. /* if li = 1 */
       ELSE DO:
@@ -2135,7 +2137,12 @@ DO:
   IF oescreen-log 
      AND asi.oe-ordl.est-no:SCREEN-VALUE EQ ""
     AND oescreen-cha EQ "item-qty" THEN DO:
-    APPLY "entry" TO oe-ordl.price.
+
+    IF oe-ordl.price:SENSITIVE  THEN 
+      APPLY "entry" TO oe-ordl.price.
+    ELSE
+      APPLY "entry" TO oe-ordl.pr-uom.
+    
     RETURN NO-APPLY.
   END.
 END.
@@ -2297,7 +2304,10 @@ DO:
     IF oescreen-cha NE "item-qty" 
       AND oescreen-log 
       AND asi.oe-ordl.est-no:SCREEN-VALUE EQ "" THEN DO:
-      APPLY "entry" TO oe-ordl.price.
+      IF oe-ordl.price:SENSITIVE  THEN
+        APPLY "entry" TO oe-ordl.price.
+      ELSE 
+        APPLY "entry" TO oe-ordl.pr-uom.
       RETURN NO-APPLY.
     END.
     IF ll-new-record THEN
@@ -2426,8 +2436,11 @@ DO:
 
       RUN display-fgpart (RECID(itemfg)) NO-ERROR.
       IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-      
-      APPLY "entry" TO oe-ordl.price.
+      IF oe-ordl.price:SENSITIVE  THEN 
+        APPLY "entry" TO oe-ordl.price.
+      ELSE
+        APPLY "entry" TO oe-ordl.pr-uom.
+                     
       RETURN NO-APPLY.
   END.
   IF SELF:screen-value EQ "" THEN
@@ -3298,8 +3311,9 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
  
     IF llOEPrcChg-sec THEN  
        oe-ordl.price:SENSITIVE  IN FRAME {&FRAME-NAME} = YES.
-    ELSE 
+    ELSE DO:        
        oe-ordl.price:SENSITIVE  IN FRAME {&FRAME-NAME} = NO.
+    END.
 
   IF fgsecurity-log THEN
   DO:
