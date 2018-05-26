@@ -32,12 +32,18 @@ v-oecount = avail sys-ctrl and sys-ctrl.log-fld.
 
 /*if lookup(v-format,"Brick,TriState,RFC") gt 0 then do:
 */
-if xeb.est-type eq 6 THEN
+if xeb.est-type eq 6 THEN do:
       find first bf-xeb no-lock
           where bf-xeb.company EQ xeb.company 
             AND bf-xeb.est-no   eq xeb.est-no
             and bf-xeb.form-no eq 0
            no-error.
+      IF AVAIL bf-xeb AND NOT bf-xeb.pur-man THEN
+          find first bf-xeb no-lock
+          where bf-xeb.company EQ xeb.company 
+          AND ROWID(bf-xeb) EQ ROWID(xeb)
+          no-error.
+END.
 ELSE 
     find first bf-xeb no-lock
           where bf-xeb.company EQ xeb.company 
@@ -120,7 +126,7 @@ ELSE
   if bf-xeb.stack-code ne "" then v-stackcode = bf-xeb.stack-code.
      
   
-     if v-stackcode ne "" then v-stackcode = "Pattern:" + trim(v-stackcode).
+     if v-stackcode ne "" then v-stackcode = "Pattern:<b>" + trim(v-stackcode) + "</b>"  .
 
      if bf-xeb.stacks eq 0 then do:
        if bf-xeb.tr-cas ne 0 then do:
@@ -132,29 +138,29 @@ ELSE
      else v-numstacks = bf-xeb.stacks.
   
      if v-numstacks ne 0 and bf-xeb.tr-cas ne 0 then
-       v-stackcode = (IF v-stackcode <> "" THEN (v-stackcode + ",") ELSE "") +
+       v-stackcode = (IF v-stackcode <> "" THEN (v-stackcode + ",") ELSE "") + "<b>" +
                      trim(string(v-numstacks,">>9")) + " Stack/" +
-                     trim(string(bf-xeb.tr-cas,">>9")) + " Layer".
+                     trim(string(bf-xeb.tr-cas,">>9")) + " Layer" + "</b>"  .
 
   
-  display /*v-line[7]                 at 2 
+  PUT /*v-line[7]                 at 2 
           "P"                       at 1
           chr(124) format "x"       at 2 not for xprint */ SKIP(1) 
           "P" AT 1
           "UNITIZING" AT 3
-          bf-xeb.tr-no when avail bf-xeb
+          IF avail bf-xeb THEN bf-xeb.tr-no  ELSE ""
           /*chr(124) format "x"       at 28*/
-          chr(124) format "x"       at 55
-          "Date"                    at 63
-          "Sheets Received"         at 79
-          "Units"                   at 104
-          "Complete"                at 119
+          "<c32>" chr(124) format "x" 
+          "<c36.5>" "Date"                    
+          "<c45>" "Sheets Received"         
+          "<c60.5>" "Units"                   
+          "<c69>" "Complete"                
           /*chr(124) format "x"       at 131 */
 
           "A"                       at 1
           /*chr(124) format "x"       at 2 */
-          "# Per Bndl:"                 AT 3
-          bf-xeb.cas-cnt when avail bf-xeb
+          "# Per Bndl:<b>"                 AT 3
+          IF avail bf-xeb THEN bf-xeb.cas-cnt ELSE 0  "</b>" 
           /*xoe-ordl.cas-cnt when avail xoe-ordl and v-oecount @ xeb.cas-cnt : task# 04130507*/
           /*"#/BNDL:" AT 3
           xeb.cas-cnt when avail xeb
@@ -164,51 +170,57 @@ ELSE
           xoe-ordl.cas-cnt when avail xoe-ordl and not v-oecount @ xeb.tr-cnt 
           */
           /*chr(124) format "x"       at 28 */
-          chr(124) format "x"       at 55
-          v-rec-alf[1]              at 57     format "x(16)"
-          v-rec-alf[5]              at 76     format "x(21)"
-          fill("_",13)              at 100    format "x(13)"
-          fill("_",14)              at 116    format "x(14)"
+          "<c32>" chr(124) format "x" 
+          "<c33.5>" v-rec-alf[1] format "x(16)"
+          "<c44.5>" v-rec-alf[5] format "x(19)"
+          "<c57.6>" fill("_",13) format "x(12)"
+          "<c67>" fill("_",14)  FORMAT "x(14)"
+          
+         /* "<c33.5>" v-rec-alf[1] format "x(16)"
+          "<c44.5>" v-rec-alf[5] format "x(21)"
+          "<c57.5>" fill("_",13) format "x(13)"
+          "<c65>" fill("_",14)   format "x(14)"*/
           /*chr(124) format "x"       at 131     */
 
           "C"                       at 1
           /*chr(124) format "x"       at 2    */
-          "# Per Unit:" AT 3
-          bf-xeb.tr-cnt when avail bf-xeb
+          "# Per Unit:<b>" AT 3
+          IF avail bf-xeb THEN bf-xeb.tr-cnt ELSE 0 "</b>"
           /*xoe-ordl.cas-cnt when avail xoe-ordl and not v-oecount @ xeb.tr-cnt   : task# 04130507*/        
           /*chr(124) format "x"       at 28     */
-          chr(124) format "x"       at 55
-          v-rec-alf[2]              at 57     format "x(16)"
-          v-rec-alf[6]              at 76     format "x(21)"
-          fill("_",13)              at 100    format "x(13)"
+          "<c32>" chr(124) format "x" 
+          "<c33.5>" v-rec-alf[2] format "x(16)"
+          "<c44.5>" v-rec-alf[6] format "x(19)"
+          "<c57.6>" fill("_",13) format "x(12)"
         /*  chr(124) format "x"       at 131 */
 
           "K"                       at 1
           /*chr(124) format "x"       at 2 */ 
-          v-stackcode          AT 3     format "x(28)"
+           v-stackcode          AT 3     format "x(28)"
           /*chr(124) format "x"       at 28*/
-          chr(124) format "x"       at 55
-          v-rec-alf[3]              at 57     format "x(16)"
-          v-rec-alf[7]              at 76     format "x(21)"
-          fill("_",13)              at 100    format "x(13)"
-          "   Partial"              at 116    format "x(14)"
+          "<c32>" chr(124) format "x" 
+          "<c33.5>" v-rec-alf[3] format "x(16)"
+          "<c44.5>" v-rec-alf[7] format "x(19)"
+          "<c57.6>" fill("_",13) format "x(12)"
+          
+          "<c69>Partial"    format "x(14)"
           /*chr(124) format "x"       at 131     */
 
           /*chr(124) format "x"       at 2 */
-          "Pallet:" AT 3
-          trim(string({sys/inc/k16v.i bf-xeb.tr-len},">,>>9")) + " x " +
-          trim(string({sys/inc/k16v.i bf-xeb.tr-wid},">,>>9"))
-                                                   when avail bf-xeb format "x(15)"
+          "Pallet:<b>" AT 3
+         IF avail bf-xeb THEN ( trim(string({sys/inc/k16v.i bf-xeb.tr-len},">,>>9")) + " x " +
+          trim(string({sys/inc/k16v.i bf-xeb.tr-wid},">,>>9"))) ELSE ""
+                                                     format "x(15)" "</b>"
           /*chr(124) format "x"       at 28    */
-          chr(124) format "x"       at 55
-          "     Totals"             at 57     format "x(16)"
-          v-rec-alf[8]              at 76     format "x(21)"
-          fill("_",13)              at 100    format "x(13)"
-          fill("_",14)              at 116    format "x(14)"
+          "<c32>" chr(124) format "x" 
+          "<c36.5>" "Totals" format "x(16)"
+          "<c44.5>" v-rec-alf[8] format "x(19)"
+          "<c57.6>" fill("_",13) format "x(12)"
+           "<c67>" fill("_",14)  FORMAT "x(14)".
           /*chr(124) format "x"       at 131
           v-line[8]                 at 2   */
 
-      with no-box no-labels frame m6 width 132 NO-ATTR-SPACE STREAM-IO.
+     /* with no-box no-labels frame m6 width 132 NO-ATTR-SPACE STREAM-IO.*/
         
       IF AVAIL bf-xeb THEN DO:
         /* rstark 05181205 */
@@ -274,3 +286,4 @@ else
       with no-box no-labels frame m7 width 132 no-attr-space STREAM-IO.
 */
 /* end ---------------------------------- copr. 1998  advanced software, inc. */
+

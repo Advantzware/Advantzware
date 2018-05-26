@@ -111,7 +111,7 @@ FOR EACH xef
         ASSIGN
             iIndex     = 0
             v-yld = IF xest.form-qty EQ 1 THEN 1 ELSE
-              (IF xeb.yld-qty LT 0 THEN -1 / xeb.yld-qty ELSE xeb.yld-qty)
+              (IF xeb.quantityPerSet LT 0 THEN -1 / xeb.quantityPerSet ELSE xeb.quantityPerSet)
             dMSF = ipiQty * v-yld * xeb.t-len * xeb.t-wid
             dMSF = (IF v-corr THEN (dMSF * .007) ELSE (dMSF / 144)) / 1000.
 

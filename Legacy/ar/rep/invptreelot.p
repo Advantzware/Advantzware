@@ -35,7 +35,7 @@ def var v-ans as logical initial no NO-UNDO.
 def var v-date-ship as date initial today NO-UNDO.
 def var v-del-no as int format ">>>>>>" NO-UNDO.
 def var v-bol-cases LIKE oe-boll.cases NO-UNDO.
-def var v-set-qty AS INT NO-UNDO.
+def var v-set-qty AS DECIMAL NO-UNDO.
 def var v-part-qty AS DEC FORMAT "999.9999" NO-UNDO.
 def var v-net like ar-inv.gross NO-UNDO.
 def var tmp1 as dec NO-UNDO.
@@ -88,12 +88,20 @@ DEF VAR v-soldto-name   AS CHAR FORMAT "x(30)" NO-UNDO.
 DEF VAR v-soldto-addr   AS CHAR FORMAT "x(30)" extent 2 NO-UNDO.
 DEF VAR ls-image1 AS cha NO-UNDO.
 DEF VAR ls-full-img1 AS cha FORM "x(200)" NO-UNDO.
+DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
 
-ASSIGN
+/*ASSIGN
    
    ls-image1 = "images\Peachtree_logo_2018.png"
    FILE-INFO:FILE-NAME = ls-image1
-   ls-full-img1 = FILE-INFO:FULL-PATHNAME + ">".
+   ls-full-img1 = FILE-INFO:FULL-PATHNAME + ">".*/
+
+RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormLogo", "C" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+OUTPUT cRtnChar, OUTPUT lRecFound).
+
+ASSIGN ls-full-img1 = cRtnChar + ">" .
 
 DEF VAR v-tel AS cha FORM "x(30)" NO-UNDO.
 DEF VAR v-fax AS cha FORM "x(30)" NO-UNDO.
@@ -211,7 +219,7 @@ DEF VAR v-rel AS CHAR FORMAT "x(1)" NO-UNDO.
         DO:
           FOR EACH fg-set NO-LOCK WHERE fg-set.company = ar-invl.company
              AND fg-set.set-no = ar-invl.i-no:
-            ASSIGN v-set-qty = v-set-qty + fg-set.part-qty.
+            ASSIGN v-set-qty = v-set-qty + fg-set.qtyPerSet.
           END.
           IF v-set-qty = 0 THEN
              ASSIGN v-set-qty = 1.
@@ -223,8 +231,8 @@ DEF VAR v-rel AS CHAR FORMAT "x(1)" NO-UNDO.
                fg-set.set-no = ar-invl.i-no  AND
                fg-set.part-no = eb.stock-no NO-LOCK NO-ERROR.
 
-            IF AVAIL fg-set AND fg-set.part-qty NE 0 THEN
-              ASSIGN v-part-qty = fg-set.part-qty / v-set-qty.
+            IF AVAIL fg-set AND fg-set.qtyPerSet NE 0 THEN
+              ASSIGN v-part-qty = fg-set.qtyPerSet / v-set-qty.
             ELSE
               ASSIGN v-part-qty = 1 / v-set-qty.
 

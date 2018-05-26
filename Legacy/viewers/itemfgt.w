@@ -69,7 +69,7 @@ itemfg.w-score[50] itemfg.t-wid itemfg.d-score[50] itemfg.t-sqin ~
 itemfg.t-sqft itemfg.spare-char-3 
 &Scoped-define ENABLED-TABLES itemfg
 &Scoped-define FIRST-ENABLED-TABLE itemfg
-&Scoped-Define ENABLED-OBJECTS RECT-3 
+&Scoped-Define ENABLED-OBJECTS RECT-3 tb_LockArea 
 &Scoped-Define DISPLAYED-FIELDS itemfg.q-ptd itemfg.q-ord-ytd itemfg.u-ord ~
 itemfg.q-prod-ptd itemfg.q-prod-ytd itemfg.u-prod itemfg.q-ship-ptd ~
 itemfg.q-ship-ytd itemfg.u-ship itemfg.q-inv-ptd itemfg.q-inv-ytd ~
@@ -78,12 +78,12 @@ itemfg.t-len itemfg.w-score[50] itemfg.t-wid itemfg.d-score[50] ~
 itemfg.t-sqin itemfg.t-sqft itemfg.spare-char-3 
 &Scoped-define DISPLAYED-TABLES itemfg
 &Scoped-define FIRST-DISPLAYED-TABLE itemfg
-&Scoped-Define DISPLAYED-OBJECTS ld-ptd-msf fi_blank-len v-factor-item ~
-fi_blank-wid fiSlsRepName 
+&Scoped-Define DISPLAYED-OBJECTS ld-ptd-msf tb_LockArea fi_blank-len ~
+v-factor-item fi_blank-wid fiSlsRepName 
 
 /* Custom List Definitions                                              */
 /* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,List-3,List-4,List-5,List-6      */
-&Scoped-define ADM-ASSIGN-FIELDS v-factor-item 
+&Scoped-define ADM-ASSIGN-FIELDS v-factor-item tb_lockArea
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
@@ -137,6 +137,11 @@ DEFINE VARIABLE ld-ptd-msf AS DECIMAL FORMAT "->>>,>>>,>>9" INITIAL 0
 DEFINE RECTANGLE RECT-3
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 99 BY 14.52.
+
+DEFINE VARIABLE tb_LockArea LIKE itemfg.lockWeight
+     LABEL "Lock" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 10 BY .81 TOOLTIP "Check this to prevent recalculation of the MSF and Weight" NO-UNDO.
 
 DEFINE VARIABLE v-factor-item AS LOGICAL INITIAL no 
      LABEL "Factor Invoice?" 
@@ -217,11 +222,13 @@ DEFINE FRAME F-Main
           LABEL "Total Square Inches" FORMAT "->>,>>9.999<<"
           VIEW-AS FILL-IN 
           SIZE 14.6 BY 1
+     tb_LockArea AT ROW 11 COL 89 HELP
+          "" WIDGET-ID 10
+          LABEL "Lock"
      itemfg.t-sqft AT ROW 11.48 COL 72 COLON-ALIGNED
           LABEL "Total Sq Feet" FORMAT "->>,>>9.999<<"
           VIEW-AS FILL-IN 
           SIZE 14.6 BY 1
-     fi_blank-len AT ROW 11.95 COL 30 COLON-ALIGNED WIDGET-ID 2
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -229,6 +236,7 @@ DEFINE FRAME F-Main
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME F-Main
+     fi_blank-len AT ROW 11.95 COL 30 COLON-ALIGNED WIDGET-ID 2
      v-factor-item AT ROW 12.67 COL 74
      fi_blank-wid AT ROW 12.95 COL 30 COLON-ALIGNED WIDGET-ID 4
      itemfg.spare-char-3 AT ROW 14.33 COL 30 COLON-ALIGNED HELP
@@ -348,6 +356,8 @@ ASSIGN
    EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN itemfg.t-wid IN FRAME F-Main
    EXP-LABEL EXP-FORMAT                                                 */
+/* SETTINGS FOR TOGGLE-BOX tb_LockArea IN FRAME F-Main
+   LIKE = asi.itemfg.lockWeight EXP-LABEL EXP-HELP EXP-SIZE             */
 /* SETTINGS FOR FILL-IN itemfg.u-inv IN FRAME F-Main
    NO-ENABLE EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN itemfg.u-ord IN FRAME F-Main
@@ -375,7 +385,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -428,11 +438,12 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL itemfg.t-wid V-table-Win
 ON LEAVE OF itemfg.t-wid IN FRAME F-Main /* Style Sq. In. Width */
 DO:
-    message "Do you want to calculate Sq Inches?" view-as alert-box question
-            button yes-no update ll-ans as log.
-    if ll-ans then itemfg.t-sqin:screen-value = string(dec(itemfg.t-len:screen-value) *
-                                                       dec(itemfg.t-wid:screen-value) ).         
-
+    IF NOT tb_lockArea:CHECKED THEN DO:
+        message "Do you want to calculate Sq Inches?" view-as alert-box question
+                button yes-no update ll-ans as log.
+        if ll-ans then itemfg.t-sqin:screen-value = string(dec(itemfg.t-len:screen-value) *
+                                                           dec(itemfg.t-wid:screen-value) ).         
+    END.
 
 END.
 
@@ -527,9 +538,10 @@ PROCEDURE local-assign-record :
                             else itemfg.t-sqin / 144 .
 
   
-   ASSIGN itemfg.factored = v-factor-item.
+   ASSIGN 
+    itemfg.factored = v-factor-item
+    itemfg.spare-int-2 =  IF tb_LockArea THEN 1 ELSE 0.
 
-   FIND CURRENT reftable NO-LOCK.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -573,10 +585,11 @@ PROCEDURE local-display-fields :
   END.
 
   ASSIGN 
-      fi_blank-len:SCREEN-VALUE IN FRAME {&FRAME-NAME} = cLength.
-      fi_blank-wid:SCREEN-VALUE IN FRAME {&FRAME-NAME} = cWidth.
+      fi_blank-len:SCREEN-VALUE IN FRAME {&FRAME-NAME} = cLength
+      fi_blank-wid:SCREEN-VALUE IN FRAME {&FRAME-NAME} = cWidth
 /*      v-factor-item:SCREEN-VALUE IN FRAME {&FRAME-NAME} = IF AVAIL reftable THEN reftable.code2 ELSE "NO".*/
-      v-factor-item:SCREEN-VALUE IN FRAME {&FRAME-NAME} = IF AVAIL itemfg THEN STRING(itemfg.factored) ELSE "NO".
+      v-factor-item:SCREEN-VALUE IN FRAME {&FRAME-NAME} = IF AVAIL itemfg THEN STRING(itemfg.factored) ELSE "NO"
+      tb_lockArea:SCREEN-VALUE IN FRAME {&FRAME-NAME} = IF AVAILABLE itemfg AND itemfg.spare-int-2 EQ 1 THEN "YES" ELSE "NO".
 
   IF v-cecscrn-char = "Decimal" THEN
      ASSIGN
@@ -686,11 +699,13 @@ PROCEDURE local-enable-fields :
             b-itemfg.case-count = IF eb.tr-cnt NE 0 THEN eb.tr-cnt
                                   ELSE (eb.cas-cnt * eb.cas-pal).
 
-          IF b-itemfg.isaset AND eb.form-no EQ 0 THEN
-            RUN fg/updsetdm.p (RECID(eb)).
-          ELSE DO:
-            {sys/inc/updfgdim.i "eb" "b-"}
-          END.
+          IF NOT b-itemfg.lockWeight THEN DO:
+              IF b-itemfg.isaset AND eb.form-no EQ 0 THEN
+                RUN fg/updsetdm.p (RECID(eb)).
+              ELSE DO:
+                {sys/inc/updfgdim.i "eb" "b-"}
+              END.
+          END. /*Not lockWeight*/
         END.
       END.  /* for each b-itemfg */
     END.
@@ -700,7 +715,7 @@ PROCEDURE local-enable-fields :
   END.
 
   ELSE
-  if avail itemfg and itemfg.isaset and
+  if avail itemfg and itemfg.isaset AND NOT itemfg.lockWeight AND
                       can-find(fg-set where fg-set.company EQ g_company and
                                             fg-set.set-no EQ itemfg.i-no AND
                                             fg-set.part-no NE itemfg.i-no)
@@ -718,7 +733,7 @@ PROCEDURE local-enable-fields :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'enable-fields':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-  ENABLE v-factor-item WITH FRAME {&FRAME-NAME}.
+  ENABLE v-factor-item tb_lockArea WITH FRAME {&FRAME-NAME}.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -768,7 +783,7 @@ PROCEDURE local-update-record :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-  disABLE v-factor-item WITH FRAME {&FRAME-NAME}.
+  disABLE v-factor-item tb_lockArea WITH FRAME {&FRAME-NAME}.
 
 
 END PROCEDURE.

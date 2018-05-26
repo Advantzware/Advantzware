@@ -50,6 +50,13 @@ DEFINE    VARIABLE      v-billto-addr   AS CHARACTER      FORMAT "x(30)" EXTENT 
 DEFINE    VARIABLE      v-billto-city   AS CHARACTER      FORMAT "x(15)" NO-UNDO.
 DEFINE    VARIABLE      v-billto-state  AS CHARACTER      FORMAT "x(2)" NO-UNDO.
 DEFINE    VARIABLE      v-billto-zip    AS CHARACTER      FORMAT "x(10)" NO-UNDO.
+DEFINE VARIABLE v-inv-freight     AS DECIMAL NO-UNDO.
+DEFINE VARIABLE v-subtot-lines AS DECIMAL NO-UNDO.
+DEFINE VARIABLE v-inv-total   AS DECIMAL NO-UNDO.
+DEFINE BUFFER bf-ar-invl FOR ar-invl.
+DEFINE TEMP-TABLE ttAddons
+  FIELD addline AS int
+  INDEX i1 addline.
 
 FUNCTION fUOM-CF RETURNS DECIMAL (INPUT pUOM AS CHARACTER):
     DEFINE VARIABLE UOM-cf AS DECIMAL NO-UNDO DECIMALS 10.
@@ -125,7 +132,26 @@ RETURN RETURN-VALUE.
 
 /* ------------------------  Internal Procedures ------------------------- */
 
+
+
+/* **********************  Internal Procedures  *********************** */
+
+
 PROCEDURE edi-ar.ip:
+    /*
+    DEFINE VARIABLE lInvalidBol AS LOGICAL NO-UNDO.
+    lInvalidBol = NO.
+    FOR EACH ar-invl 
+        WHERE ar-invl.x-no = ar-inv.x-no
+        AND (ar-invl.inv-qty NE 0 OR ar-invl.misc):
+            
+        FIND oe-bolh OF ar-invl NO-LOCK NO-ERROR.
+        IF NOT AVAILABLE oe-bolh THEN  
+            lInvalidBol = YES.
+    END.
+    IF lInvalidBol THEN 
+        RETURN "Invalid BOL#".
+        */     
 
     IF top-debug THEN RUN rc/debugmsg.p ("...start of ar-inv invoice").
     ASSIGN  
@@ -166,10 +192,13 @@ PROCEDURE edi-ar.ip:
     IF RETURN-VALUE > "" THEN 
     DO:
         RETURN RETURN-VALUE.
-    END.    
+    END.
+   
 
     FOR EACH ar-invl 
-        WHERE ar-invl.x-no = ar-inv.x-no:
+        WHERE ar-invl.x-no = ar-inv.x-no
+           /* Service invoices may not have a qty */
+            AND (/* ar-invl.inv-qty NE 0  AND */  NOT ar-invl.misc):
 
         IF top-debug THEN
             RUN rc/debugrec.s ("", RECID(ar-invl)) "ar-invl".
@@ -178,7 +207,7 @@ PROCEDURE edi-ar.ip:
   
 
         FIND oe-bolh OF ar-invl NO-LOCK NO-ERROR.
-
+ 
         /* ar-inv* records cannot be linked to a release ... 
       
         /* 03.24.2004 CAH to provide a source for ship-date */
@@ -203,6 +232,7 @@ PROCEDURE edi-ar.ip:
         IF AVAILABLE oe-bolh
             THEN
         DO:
+            
             IF top-debug THEN
                 RUN rc/debugrec.s ("", RECID(oe-bolh)) "oe-bolh".
             FIND FIRST oe-boll
@@ -272,7 +302,7 @@ PROCEDURE edi-ar.ip:
             ?,  /* rel-no */
             INPUT ar-inv.terms
             ).
-    
+
         RUN edi-050.ip (
             ar-invl.line,
             ar-invl.i-no
@@ -338,7 +368,25 @@ PROCEDURE edi-ar.ip:
             "Invoice Level Taxes"
             ).
     END.
-
+    
+    /* Process the misc records that came from inv-misc */
+    FOR EACH ar-invl 
+        WHERE ar-invl.x-no = ar-inv.x-no
+        AND  ar-invl.misc:
+        
+           
+        RUN gen-addon.ip (
+            ws_eddoc_rec, 
+            0,      
+            ar-invl.prep-charge,
+            ar-invl.Dscr[1],
+            ar-invl.amt,
+            0,             /* rate */
+            (IF ar-invl.billable THEN "Y" ELSE "N"),
+            "ESTIMATE# " + ar-invl.est-no
+            ).            
+    END.
+     
     IF top-debug THEN
         RUN rc/debugrec.s ("Bottom of Program", RECID(edivtran)) "edivtran".
 
@@ -367,31 +415,60 @@ PROCEDURE gen-addon.ip:
         WHERE edivtran.partner      = eddoc.partner
           AND   edivtran.seq          = eddoc.seq
         NO-ERROR.
+    IF AVAILABLE eddoc THEN 
+    IF pLine EQ 0 THEN DO:
+        FIND FIRST edivaddon NO-LOCK WHERE 
+          edivaddon.partner = eddoc.partner
+          AND edivaddon.seq = eddoc.seq
+          AND edivaddon.Description[1]   eq pDesc
+          NO-ERROR.
+        IF AVAILABLE edivaddon THEN 
+          pLine = edivaddon.line.
+        ELSE  
+        DO:
+          /* If a different addon exists, make sure not to use the same line number */  
+            FIND LAST edivaddon NO-LOCK WHERE 
+                edivaddon.partner = ws_partner
+                AND edivaddon.seq = eddoc.seq                
+               NO-ERROR.
+          IF AVAILABLE edivaddon THEN 
+            pLine = edivaddon.line + 1.
     
+        END.
+    END.
     IF pLine > 0 THEN 
         FIND FIRST edivline OF edivtran
             WHERE edivline.line         = pLine
             NO-LOCK NO-ERROR.
 
     FIND FIRST EDIVAddon EXCLUSIVE-LOCK
-        WHERE edivaddon.partner     = eddoc.partner
+        WHERE edivaddon.partner     = ws_partner
           AND edivaddon.seq  = eddoc.seq
-          AND edivaddon.line        = pline
+          AND edivaddon.Description[1]   = pDesc
         NO-ERROR.
-
     IF NOT AVAILABLE edivaddon THEN
     DO:
-        FIND LAST bAddon NO-LOCK OF edivtran
+        FIND LAST bAddon NO-LOCK 
+           WHERE bAddon.partner = ws_partner 
+             AND bAddon.seq = eddoc.seq
             NO-ERROR.
         ws_int =
             (IF AVAILABLE edivaddon THEN
             edivaddon.addon-line ELSE
             0) + 1.
+        FIND LAST ttAddons NO-ERROR.
+        IF AVAILABLE ttAddons AND ws_int LE ttAddons.addline + 1 THEN 
+          ws_int = ttAddons.addline + 1.
+
+        /* ### if both of the above fail then this addon will be an orphan */
+        CREATE ttAddons.
+        ASSIGN 
+          ttAddons.addline = ws_int.
 
         /* ### if both of the above fail then this addon will be an orphan */
         CREATE edivaddon.
         ASSIGN
-            edivaddon.partner    = edmast.partner
+            edivaddon.partner    = ws_partner
             edivaddon.company    = edivtran.company
             edivaddon.invoice-no = edivtran.invoice-no
             edivaddon.line       = pline
@@ -746,7 +823,9 @@ PROCEDURE edi-040.ip:
           AND   edivtran.invoice-no = invoice_number
           AND   edivtran.cust-po    = purchase_order_number /* 03.26.2004 CAH: inv-line.po-no */
         NO-ERROR.
-
+/*    IF AVAILABLE edivtran THEN 
+      RUN ipDeleteEdiInvoice. */
+      
     IF NOT AVAILABLE edivtran THEN
     DO:
         FIND FIRST edcode NO-LOCK
@@ -761,10 +840,12 @@ PROCEDURE edi-040.ip:
         END.
 
         FIND edmast OF edcode EXCLUSIVE-LOCK NO-ERROR.
+        IF NOT AVAILABLE EDMast THEN 
+            FIND FIRST EDMast EXCLUSIVE-LOCK WHERE EDMast.partner EQ ws_partner NO-ERROR.
 
         RUN ed/gendoc.p (RECID(edcode), invoice_number, OUTPUT ws_eddoc_rec).
         FIND  eddoc WHERE RECID(eddoc) = ws_eddoc_rec EXCLUSIVE.
-    
+
         ASSIGN
             eddoc.userref         = "R-NO: " + string(pRel)
             eddoc.version         = STRING(edcode.version)
@@ -772,6 +853,7 @@ PROCEDURE edi-040.ip:
             eddoc.openitem        = TRUE
             eddoc.unique-order-no = INTEGER(pOrder)
             .
+
         /* returns zero if input param is alphanumeric */
         RUN rc/str2int.p (by_code, OUTPUT eddoc.docseq).
         CREATE edivtran.
@@ -826,7 +908,24 @@ PROCEDURE edi-040.ip:
                 edivtran.FOB-Qual      =                 (IF inv-head.fob-code = "DEST" THEN "DE" ELSE "OR")   /* origin */
                 edivtran.contact-name  = inv-head.contact
                 .
-        ELSE IF AVAILABLE ar-inv THEN ASSIGN
+                
+
+        
+        ELSE IF AVAILABLE ar-inv THEN DO: 
+                ASSIGN v-subtot-lines = 0
+                       v-inv-freight  = 0
+                       v-inv-total    = 0
+                       .
+                ASSIGN        
+                       v-inv-freight = if ar-inv.f-bill THEN ar-inv.freight ELSE 0.
+                FOR EACH bf-ar-invl NO-LOCK  
+                    WHERE bf-ar-invl.x-no = ar-inv.x-no
+                      AND (bf-ar-invl.inv-qty NE 0 OR bf-ar-invl.misc) :
+                    v-subtot-lines = v-subtot-lines + bf-ar-invl.amt.
+                END.
+                v-inv-total = v-subtot-lines + ar-inv.tax-amt + v-inv-freight.
+
+                 ASSIGN
                     edivtran.Invoice-date  = ar-inv.Inv-date
                     edivtran.BOL-No        = ?   
                     edivtran.terms         = ar-inv.terms
@@ -836,7 +935,7 @@ PROCEDURE edi-040.ip:
                     edivtran.routing[2]    = ar-inv.ship-i[2]
                     edivtran.routing[3]    = ar-inv.ship-i[3]
                     edivtran.routing[4]    = ar-inv.ship-i[4]
-                    edivtran.tot-Gross     = ar-inv.gross
+                    edivtran.tot-Gross     = v-inv-total /* ar-inv.gross to match printout */
                     edivtran.tot-frt       = ar-inv.freight
                     edivtran.tot-wght      = ar-inv.t-weight
                     edivtran.ship-stat     = ar-inv.stat
@@ -846,7 +945,7 @@ PROCEDURE edi-040.ip:
                     edivtran.FOB-Qual      =                     (IF ar-inv.fob-code = "DEST" THEN "DE" ELSE "OR")   /* origin */
                     edivtran.contact-name  = ar-inv.contact
                     .
-
+        END. /* If avail ar-inv */
         FIND FIRST asi.terms NO-LOCK 
           WHERE asi.terms.company = ws_company
             AND asi.terms.t-code = pTerms 
@@ -983,9 +1082,37 @@ END PROCEDURE.
 PROCEDURE edi-050.ip:
     DEFINE INPUT PARAMETER pLine AS INTEGER NO-UNDO.
     DEFINE INPUT PARAMETER pItem AS CHARACTER NO-UNDO.   /* i-No */
-
+    DEFINE VARIABLE iOrdLineNum AS INTEGER NO-UNDO.
+    DEFINE VARIABLE iBolNum AS INTEGER NO-UNDO.
+   
+    IF AVAILABLE ar-invl THEN DO:
+        /* In case or-ordl not found */
+        iBolNum = INTEGER(ar-invl.bol-no) NO-ERROR.
+        iOrdLineNum = ar-invl.line.
+        FIND FIRST oe-ordl NO-LOCK 
+            WHERE oe-ordl.company EQ ar-invl.company
+            AND oe-ordl.ord-no  EQ ar-invl.ord-no 
+            AND oe-ordl.i-no    EQ ar-invl.i-no 
+            NO-ERROR.
+    END.
+    ELSE IF AVAILABLE inv-line THEN 
+        DO:
+            /* Used to check that there was a BOL for this inv-line */
+            iBolNum = INTEGER(inv-line.b-no) NO-ERROR.
+            /* In case or-ordl not found */
+            iOrdLineNum = inv-line.line.
+            FIND FIRST oe-ordl NO-LOCK 
+                WHERE oe-ordl.company EQ inv-line.company
+                AND oe-ordl.ord-no  EQ inv-line.ord-no 
+                AND oe-ordl.i-no    EQ inv-line.i-no 
+                NO-ERROR.
+        END.    
+        
+    IF AVAILABLE oe-ordl THEN 
+      iOrdLineNum = (IF oe-ordl.e-num GT 0 THEN oe-ordl.e-num ELSE oe-ordl.line).
+    
     FIND edivline
-        WHERE edivline.partner      = edivtran.partner
+        WHERE edivline.partner    = edivtran.partner
         AND edivline.seq          = edivtran.seq
         AND edivline.line         = pLine
         EXCLUSIVE-LOCK NO-ERROR.
@@ -1026,11 +1153,12 @@ PROCEDURE edi-050.ip:
     ELSE IF AVAILABLE edpoline AND edpoline.upc > "" THEN edpoline.upc ELSE "")
         edivline.sf-code      = IF AVAILABLE oe-bolh THEN oe-bolh.loc ELSE ""
         edivline.cust-po-line = (IF AVAILABLE edpoline AND edpoline.cust-po-line > "" THEN edpoline.cust-po-line ELSE
-    IF vcCustpoLine > "" THEN vcCustPoLine ELSE
-    IF AVAILABLE edpoline THEN STRING(edpoline.line) ELSE
-    IF AVAILABLE oe-ordl THEN STRING(oe-ordl.line)
-    ELSE STRING(pLine))
-        .
+                                 IF vcCustpoLine > "" THEN vcCustPoLine ELSE
+                                 IF AVAILABLE edpoline THEN STRING(edpoline.line) ELSE
+                                 IF AVAILABLE inv-line THEN STRING(iOrdLineNum) ELSE
+                                 IF AVAILABLE ar-invl THEN  STRING(iOrdLineNum)                                
+                                 ELSE STRING(pLine))
+                                 .
     
     IF AVAILABLE inv-line THEN 
     DO:      /* specific to inv-line */
@@ -1043,7 +1171,8 @@ PROCEDURE edi-050.ip:
             edivline.Description[1]   = inv-line.i-name /* part-dscr1 */
             edivline.Description[2]   = inv-line.part-dscr1 /* 2 */
             edivline.unit-price       = inv-line.price
-            edivline.qty-shipped      = inv-line.inv-qty
+            /* For a service invoice with no BOL, qty can be set to 1 */
+            edivline.qty-shipped      = (IF inv-line.inv-qty NE 0 OR iBolNum GT 0 THEN inv-line.inv-qty ELSE 1)
             /* 9804 CAH> was inv-line.qty, which appears to be original ordered */
             edivline.Qty-ord-orig     = IF AVAILABLE oe-ordl THEN oe-ordl.qty ELSE inv-line.qty
             edivline.qty-var          = edivline.qty-ord-orig - edivline.qty-shipped
@@ -1116,7 +1245,8 @@ PROCEDURE edi-050.ip:
                 edivline.Description[1]   = ar-invl.i-name /* part-dscr1 */
                 edivline.Description[2]   = ar-invl.part-dscr1 /* 2 */
                 edivline.unit-price       = ar-invl.unit-pr
-                edivline.qty-shipped      = ar-invl.inv-qty
+                /* For a service invoice with no BOl, qty can be set to 1 */
+                edivline.qty-shipped      = (IF ar-invl.inv-qty NE 0 OR iBolNum GT 0 THEN ar-invl.inv-qty ELSE 1)
                 /* 9804 CAH> was ar-invl.qty, which appears to be original ordered */
                 edivline.Qty-ord-orig     = IF AVAILABLE oe-ordl THEN oe-ordl.qty ELSE ar-invl.qty
                 edivline.qty-var          = edivline.qty-ord-orig - edivline.qty-shipped
@@ -1414,3 +1544,30 @@ PROCEDURE edi-oe.ip:
     RETURN "".  /* 03.22.2004 CAH, CALLER LOOKS FOR THIS */
 
 END PROCEDURE.  /* edi-oe.ip */
+
+PROCEDURE ipDeleteEdiInvoice:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    FIND FIRST edivtran EXCLUSIVE-LOCK
+        WHERE edivtran.company = ws_company
+        AND   edivtran.invoice-no = invoice_number
+        AND   edivtran.cust-po    = purchase_order_number /* 03.26.2004 CAH: inv-line.po-no */
+        NO-ERROR.
+    IF AVAILABLE edivtran THEN DO:
+        FOR EACH edIvLine 
+          WHERE edIvLine.partner EQ edivtran.partner
+            AND edIvLine.seq     EQ edivtran.seq:
+          DELETE edIvLine.
+        END.
+        FOR EACH edIvAddon
+            WHERE edIvAddon.partner EQ edivtran.partner
+            AND edIvAddon.seq     EQ edivtran.seq:
+            DELETE edIvAddon.
+        END.
+        DELETE edivtran.
+    END.
+
+END PROCEDURE.
+

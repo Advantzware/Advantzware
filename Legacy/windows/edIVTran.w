@@ -54,16 +54,18 @@ DEFINE VARIABLE lAccess AS LOGICAL NO-UNDO.
 
 &Scoped-define ADM-CONTAINER WINDOW
 
+&Scoped-define ADM-SUPPORTED-LINKS Record-Source
+
 /* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME F-Main
 
 /* External Tables                                                      */
-&Scoped-define EXTERNAL-TABLES loc
-&Scoped-define FIRST-EXTERNAL-TABLE loc
+&Scoped-define EXTERNAL-TABLES EDIVTran
+&Scoped-define FIRST-EXTERNAL-TABLE EDIVTran
 
 
 /* Need to scope the external tables to this procedure                  */
-DEFINE QUERY external_tables FOR loc.
+DEFINE QUERY external_tables FOR EDIVTran.
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
 
@@ -103,18 +105,18 @@ DEFINE FRAME F-Main
          SIZE 159.4 BY 31.33
          BGCOLOR 15 .
 
+DEFINE FRAME OPTIONS-FRAME
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 1
+         SIZE 159 BY 2.14
+         BGCOLOR 15 .
+
 DEFINE FRAME message-frame
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 10 ROW 1
          SIZE 24 BY 1.67
-         BGCOLOR 15 .
-
-DEFINE FRAME OPTIONS-FRAME
-    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1
-         SIZE 113 BY 2.14
          BGCOLOR 15 .
 
 
@@ -123,9 +125,9 @@ DEFINE FRAME OPTIONS-FRAME
 &ANALYZE-SUSPEND _PROCEDURE-SETTINGS
 /* Settings for THIS-PROCEDURE
    Type: SmartWindow
-   External Tables: ASI.loc
+   External Tables: ASI.EDIVTran
    Allow: Basic,Browse,DB-Fields,Query,Smart,Window
-   Design Page: 5
+   Design Page: 1
  */
 &ANALYZE-RESUME _END-PROCEDURE-SETTINGS
 
@@ -301,7 +303,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME OPTIONS-FRAME:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_f-add ).
-       RUN set-position IN h_f-add ( 1.00 , 42.20 ) NO-ERROR.
+       RUN set-position IN h_f-add ( 1.00 , 86.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.81 , 7.80 ) */
 
        RUN init-object IN THIS-PROCEDURE (
@@ -309,7 +311,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME OPTIONS-FRAME:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_options ).
-       RUN set-position IN h_options ( 1.00 , 50.00 ) NO-ERROR.
+       RUN set-position IN h_options ( 1.00 , 94.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.81 , 55.80 ) */
 
        RUN init-object IN THIS-PROCEDURE (
@@ -317,7 +319,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME OPTIONS-FRAME:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_exit ).
-       RUN set-position IN h_exit ( 1.00 , 106.00 ) NO-ERROR.
+       RUN set-position IN h_exit ( 1.00 , 151.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.81 , 7.80 ) */
 
        RUN init-object IN THIS-PROCEDURE (
@@ -326,8 +328,8 @@ PROCEDURE adm-create-objects :
              INPUT  'FOLDER-LABELS = ':U + 'Brws Invoices|View Invoices|Brws Inv line|view Inv Line|Invoice Addon' + ',
                      FOLDER-TAB-TYPE = 1':U ,
              OUTPUT h_folder ).
-       RUN set-position IN h_folder ( 3.38 , 3.00 ) NO-ERROR.
-       RUN set-size IN h_folder ( 28.81 , 156.00 ) NO-ERROR.
+       RUN set-position IN h_folder ( 2.91 , 1.00 ) NO-ERROR.
+       RUN set-size IN h_folder ( 29.29 , 158.00 ) NO-ERROR.
 
        /* Links to SmartFolder h_folder. */
        RUN add-link IN adm-broker-hdl ( h_folder , 'Page':U , THIS-PROCEDURE ).
@@ -346,14 +348,15 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_edivtran ).
-       RUN set-position IN h_edivtran ( 4.76 , 3.80 ) NO-ERROR.
-       RUN set-size IN h_edivtran ( 19.52 , 145.00 ) NO-ERROR.
+       RUN set-position IN h_edivtran ( 4.81 , 3.00 ) NO-ERROR.
+       RUN set-size IN h_edivtran ( 26.43 , 154.00 ) NO-ERROR.
 
        /* Initialize other pages that this page requires. */
        RUN init-pages IN THIS-PROCEDURE ('2':U) NO-ERROR.
 
        /* Links to SmartNavBrowser h_edivtran. */
        RUN add-link IN adm-broker-hdl ( h_p-navico , 'Navigation':U , h_edivtran ).
+       RUN add-link IN adm-broker-hdl ( h_edivtran , 'Record':U , THIS-PROCEDURE ).
 
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_edivtran ,
@@ -409,8 +412,8 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_edivline-2 ).
-       RUN set-position IN h_edivline-2 ( 4.81 , 3.00 ) NO-ERROR.
-       RUN set-size IN h_edivline-2 ( 19.52 , 145.00 ) NO-ERROR.
+       RUN set-position IN h_edivline-2 ( 5.05 , 3.00 ) NO-ERROR.
+       RUN set-size IN h_edivline-2 ( 26.67 , 154.00 ) NO-ERROR.
 
        /* Initialize other pages that this page requires. */
        RUN init-pages IN THIS-PROCEDURE ('1':U) NO-ERROR.
@@ -428,8 +431,8 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_edivline-3 ).
-       RUN set-position IN h_edivline-3 ( 5.10 , 9.80 ) NO-ERROR.
-       /* Size in UIB:  ( 17.14 , 144.00 ) */
+       RUN set-position IN h_edivline-3 ( 5.05 , 9.00 ) NO-ERROR.
+       /* Size in UIB:  ( 17.14 , 144.20 ) */
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'adm/objects/p-updsav.r':U ,
@@ -438,7 +441,7 @@ PROCEDURE adm-create-objects :
                      SmartPanelType = Update,
                      AddFunction = One-Record':U ,
              OUTPUT h_p-updsav-3 ).
-       RUN set-position IN h_p-updsav-3 ( 22.43 , 43.00 ) NO-ERROR.
+       RUN set-position IN h_p-updsav-3 ( 22.43 , 54.00 ) NO-ERROR.
        RUN set-size IN h_p-updsav-3 ( 2.14 , 56.00 ) NO-ERROR.
 
        /* Initialize other pages that this page requires. */
@@ -460,16 +463,16 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_edivaddon-2 ).
-       RUN set-position IN h_edivaddon-2 ( 5.29 , 6.00 ) NO-ERROR.
-       RUN set-size IN h_edivaddon-2 ( 9.05 , 145.00 ) NO-ERROR.
+       RUN set-position IN h_edivaddon-2 ( 5.05 , 3.00 ) NO-ERROR.
+       RUN set-size IN h_edivaddon-2 ( 14.05 , 154.00 ) NO-ERROR.
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'viewers/edivaddon.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_edivaddon-3 ).
-       RUN set-position IN h_edivaddon-3 ( 15.19 , 6.00 ) NO-ERROR.
-       /* Size in UIB:  ( 9.29 , 147.00 ) */
+       RUN set-position IN h_edivaddon-3 ( 19.33 , 5.00 ) NO-ERROR.
+       /* Size in UIB:  ( 9.52 , 147.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'p-updsav.w':U ,
@@ -478,7 +481,7 @@ PROCEDURE adm-create-objects :
                      SmartPanelType = Update,
                      AddFunction = One-Record':U ,
              OUTPUT h_p-updsav-4 ).
-       RUN set-position IN h_p-updsav-4 ( 24.57 , 42.00 ) NO-ERROR.
+       RUN set-position IN h_p-updsav-4 ( 29.67 , 52.00 ) NO-ERROR.
        RUN set-size IN h_p-updsav-4 ( 2.14 , 59.00 ) NO-ERROR.
 
        /* Initialize other pages that this page requires. */
@@ -524,13 +527,13 @@ PROCEDURE adm-row-available :
   {src/adm/template/row-head.i}
 
   /* Create a list of all the tables that we need to get.            */
-  {src/adm/template/row-list.i "loc"}
+  {src/adm/template/row-list.i "EDIVTran"}
 
   /* Get the record ROWID's from the RECORD-SOURCE.                  */
   {src/adm/template/row-get.i}
 
   /* FIND each record specified by the RECORD-SOURCE.                */
-  {src/adm/template/row-find.i "loc"}
+  {src/adm/template/row-find.i "EDIVTran"}
 
   /* Process the newly available records (i.e. display fields,
      open queries, and/or pass records on to any RECORD-TARGETS).    */
@@ -649,7 +652,7 @@ PROCEDURE send-records :
   {src/adm/template/snd-head.i}
 
   /* For each requested table, put it's ROWID in the output list.      */
-  {src/adm/template/snd-list.i "loc"}
+  {src/adm/template/snd-list.i "EDIVTran"}
 
   /* Deal with any unexpected table requests before closing.           */
   {src/adm/template/snd-end.i}

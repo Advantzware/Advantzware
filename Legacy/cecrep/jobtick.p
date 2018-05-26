@@ -55,6 +55,8 @@ DEF VAR lv-under-run AS DECIMAL NO-UNDO.
 DEF VAR lv-over-run AS DECIMAL NO-UNDO.
 DEFINE VARIABLE ls-fgitem-img AS CHARACTER FORM "x(150)" NO-UNDO.
 DEFINE  SHARED VARIABLE s-prt-fgimage AS LOGICAL NO-UNDO.
+DEFINE  SHARED VARIABLE v-dept-codes AS CHAR NO-UNDO.
+DEFINE  SHARED VAR v-dept-log AS LOG NO-UNDO.
 DO TRANSACTION:
    {sys/inc/tspostfg.i}
 END.
@@ -133,8 +135,8 @@ do v-local-loop = 1 to v-local-copies:
           
           {cec/rollfac.i}
           v-pqty = if v-rollfac OR xeb.est-type EQ 8 then 1 else
-                   if xeb.yld-qty lt 0 then (-1 / xeb.yld-qty)
-                                       else xeb.yld-qty.
+                   if xeb.quantityPerSet lt 0 then (-1 / xeb.quantityPerSet)
+                                       else xeb.quantityPerSet.
         end.
         
         assign
@@ -563,8 +565,14 @@ do v-local-loop = 1 to v-local-copies:
                lv-got-return = 0
                v-dept-inst = "".
 
+       IF v-dept-log THEN DO:
         {custom/notespr2.i job v-inst2 6 "notes.rec_key = job.rec_key and
+                            (notes.note_form_no = w-ef.frm OR notes.note_form_no = 0) AND lookup(notes.note_code,v-dept-codes) NE 0" }
+       END.
+       ELSE DO:
+           {custom/notespr2.i job v-inst2 6 "notes.rec_key = job.rec_key and
                             (notes.note_form_no = w-ef.frm OR notes.note_form_no = 0)" }
+        END.
         DO i = 1 TO 6:
              v-dept-inst[i] = v-inst2[i].
         END.
@@ -692,7 +700,7 @@ do v-local-loop = 1 to v-local-copies:
            FOR EACH xeb WHERE xeb.company = est.company
                            AND xeb.est-no = est.est-no
                            AND xeb.form-no > 0 NO-LOCK:
-               PUT xeb.stock-no AT 3 space(14) xeb.part-dscr1 space(5) xeb.yld-qty SKIP.
+               PUT xeb.stock-no AT 3 space(14) xeb.part-dscr1 space(5) xeb.quantityPerSet SKIP.
                v-tmp-line = v-tmp-line + 1.
            END.
            v-tmp-line = v-tmp-line + 1.

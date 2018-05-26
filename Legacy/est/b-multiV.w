@@ -1406,13 +1406,13 @@ PROCEDURE local-initialize :
             cEstNo   = eb.est-no
             cCompany = eb.company
             .
-        FIND FIRST est NO-LOCK  OF eb NO-ERROR.
-        IF AVAILABLE est AND (est.est-type EQ 2 OR
-            est.est-type EQ 5 OR
-            est.est-type EQ 6) THEN 
-        DO WITH FRAME {&FRAME-NAME}:
-            tt-eb.yld-qty:LABEL IN BROWSE {&browse-name} = "Qty/Set".
-        END.
+/*        FIND FIRST est NO-LOCK  OF eb NO-ERROR.                      */
+/*        IF AVAILABLE est AND (est.est-type EQ 2 OR                   */
+/*            est.est-type EQ 5 OR                                     */
+/*            est.est-type EQ 6) THEN                                  */
+/*        DO WITH FRAME {&FRAME-NAME}:                                 */
+/*            tt-eb.yld-qty:LABEL IN BROWSE {&browse-name} = "Qty/Set".*/
+/*        END.                                                         */
     END.
 
     RUN loadTempTable (INPUT cCompany, INPUT cEstNo).

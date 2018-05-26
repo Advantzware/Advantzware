@@ -104,7 +104,7 @@ DEF VAR v-q-no LIKE oe-ord.q-no NO-UNDO.
 DEF VAR v-printline AS INT NO-UNDO.
 DEF VAR lv-display-comp AS LOG NO-UNDO.  /* display company address */
 DEF VAR lv-comp-name AS cha FORM "x(30)" NO-UNDO.
-DEF VAR lv-email AS cha FORM "x(30)" NO-UNDO.
+DEF VAR lv-email AS cha FORM "x(56)" NO-UNDO.
 
 DEF VAR lv-comp-color AS cha NO-UNDO.
 DEF VAR lv-other-color AS cha INIT "BLACK" NO-UNDO.
@@ -126,6 +126,15 @@ DEF VAR cOrderDate          AS CHAR NO-UNDO.
 DEF VAR dOrigQty            AS DEC NO-UNDO.
 DEF VAR cOrigUom            AS CHAR NO-UNDO.
 DEFINE VARIABLE cXMLShipTo AS CHARACTER   NO-UNDO.
+DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lRecFound AS LOGICAL     NO-UNDO.
+DEFINE VARIABLE cImageFooter AS CHARACTER FORMAT "x(200)" NO-UNDO.
+
+RUN sys/ref/nk1look.p (INPUT cocode, "BOLImageFooter", "C" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+OUTPUT cRtnChar, OUTPUT lRecFound).
+IF lRecFound THEN
+    cImageFooter = cRtnChar NO-ERROR. 
 
 form 
      w2.i-no                         format "x(15)"
@@ -381,6 +390,17 @@ for each xxreport where xxreport.term-id eq v-term-id,
 
     oe-boll.printed = YES.
   END.
+  j = 0.
+  
+  FOR EACH tt-boll BREAK BY tt-boll.po-no /* po-no first like premier */
+         BY tt-boll.i-no
+         BY tt-boll.ord-no
+         BY tt-boll.line
+         BY tt-boll.cases DESC:
+      IF FIRST-OF(tt-boll.LINE) THEN 
+      j = j + 1  .
+  END.
+  j = j * 5 .
 
   if last-of(oe-bolh.bol-no) then do:
      IF v-comp-addr[2] = "" THEN
@@ -497,6 +517,10 @@ for each xxreport where xxreport.term-id eq v-term-id,
   IF cSignatureFile NE "" THEN
       cSignatureFile = cSignatureFile + ">".
 
+ IF v-footer THEN do:
+     PUT "<FArial><C2><R46><#3><R+5><C+160><IMAGE#3=" cImageFooter + ">" FORMAT "x(200)"  .
+ END.
+
   PUT "<R52><C53><#8><FROM><R+4><C+27><RECT> " 
       "<=8><R+1> Total Units       :" v-grand-total-cases
       "<=8><R+3> Total Weight      :" v-tot-wt FORM ">>,>>9.99".
@@ -552,6 +576,7 @@ for each xxreport where xxreport.term-id eq v-term-id,
       "<R66> <C28>Charges"
       "<R67><C28><P6>advanced:$ <P7><C45>  PER"
       "<RESTORE=LPI>".
+ 
 
   v-printline = v-printline + 14. 
   

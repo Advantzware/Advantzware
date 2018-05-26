@@ -475,8 +475,8 @@ DO bo-try = 1 TO 2:
 
 
     ASSIGN
-       xoe-rell.newSellPrice = v-new-sell-price
-       xoe-rell.newZeroPrice = DECIMAL(v-new-zero-price).
+       xoe-rell.sell-price = v-new-sell-price
+       xoe-rell.zeroPrice = DECIMAL(v-new-zero-price).
   END.
 END.
 

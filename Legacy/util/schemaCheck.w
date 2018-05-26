@@ -67,9 +67,9 @@ DEFINE STREAM monitorStrm.
 IF INDEX(PROPATH,".\custom") EQ 0 THEN
     PROPATH = ".\custom," + PROPATH.
 
-
-
-{methods/lockWindowUpdate.i}
+&IF DEFINED(FWD-VERSION) EQ 0 &THEN
+   {methods/lockWindowUpdate.i}
+&ENDIF
 
 SESSION:SET-WAIT-STATE('').
 
@@ -677,7 +677,11 @@ PROCEDURE winReSize :
       Parameters:  <none>
       Notes:       
     ------------------------------------------------------------------------------*/
+&IF DEFINED(FWD-VERSION) EQ 0 &THEN
     RUN LockWindowUpdate (ACTIVE-WINDOW:HWND,OUTPUT i).
+&ELSE
+  ACTIVE-WINDOW:DISABLE-REDRAW = TRUE.
+&ENDIF
     ASSIGN
         {&WINDOW-NAME}:WINDOW-STATE          = 1
         {&WINDOW-NAME}:HEIGHT-PIXELS         = {&WINDOW-NAME}:HEIGHT-PIXELS - 30
@@ -686,7 +690,11 @@ PROCEDURE winReSize :
         FRAME {&FRAME-NAME}:WIDTH-PIXELS     = {&WINDOW-NAME}:WIDTH-PIXELS
         FRAME {&FRAME-NAME}:HEIGHT-PIXELS    = {&WINDOW-NAME}:HEIGHT-PIXELS
         .
+&IF DEFINED(FWD-VERSION) EQ 0 &THEN
     RUN LockWindowUpdate (0,OUTPUT i).
+&ELSE
+    ACTIVE-WINDOW:DISABLE-REDRAW = FALSE.
+&ENDIF
 
 END PROCEDURE.
 

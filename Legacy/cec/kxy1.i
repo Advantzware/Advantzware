@@ -111,7 +111,7 @@ FOR EACH eb NO-LOCK
   IF xef.est-type EQ 6 THEN
   DO:
      ASSIGN
-        v-yld = IF eb.yld-qty GT 0 THEN eb.yld-qty ELSE (-1 / eb.yld-qty)
+        v-yld = IF eb.quantityPerSet GT 0 THEN eb.quantityPerSet ELSE (-1 / eb.quantityPerSet)
         ld-parts[1] = ld-parts[1] + v-yld
         v-count = v-count + 1.
 
@@ -159,13 +159,13 @@ IF INDEX("AP",mach.p-type) GT 0 THEN DO:
   IF mach.p-type EQ "A" THEN v-yld = 1.
 
   ELSE
-  FOR EACH eb FIELDS(yld-qty)
+  FOR EACH eb FIELDS(quantityPerSet)
       WHERE eb.company EQ xest.company
         AND eb.est-no  EQ xest.est-no
         AND eb.form-no NE 0
       NO-LOCK:
     v-yld = v-yld +
-            (IF eb.yld-qty LT 0 THEN (-1 / eb.yld-qty) ELSE eb.yld-qty).
+            (IF eb.quantityPerSet LT 0 THEN (-1 / eb.quantityPerSet) ELSE eb.quantityPerSet).
   END.
 END.
 
@@ -178,7 +178,7 @@ ELSE DO:
 
   v-yld = IF xeb.est-type EQ 8 THEN 1
           ELSE
-          IF xeb.yld-qty LT 0 THEN (-1 / xeb.yld-qty) ELSE xeb.yld-qty.
+          IF xeb.quantityPerSet LT 0 THEN (-1 / xeb.quantityPerSet) ELSE xeb.quantityPerSet.
 END.
 IF AVAIL est-op AND est-op.spare-char-1 = "R" THEN
     ASSIGN

@@ -37,6 +37,8 @@ FIND FIRST fgcat
     USE-INDEX fgcat NO-LOCK NO-ERROR.
 
 ASSIGN
+ {&TABLENAME}.company      = g_company
+ {&TABLENAME}.loc          = g_loc
  {&TABLENAME}.def-loc      = g_loc
  {&TABLENAME}.def-loc-bin  = IF AVAIL fg-bin THEN fg-bin.loc-bin ELSE ""
  {&TABLENAME}.procat       = IF AVAIL fgcat THEN fgcat.procat ELSE ""
@@ -46,9 +48,26 @@ ASSIGN
  {&TABLENAME}.i-no = "               " + {&TABLENAME}.rec_key
  {&TABLENAME}.prod-uom     = "M"
  {&TABLENAME}.stat         = "A"
+ {&TABLENAME}.exempt-disc  = NO
+ {&TABLENAME}.setupDate    = TODAY
  {&tablename}.spare-char-5 = USERID("Nosweat") + " " + STRING(TODAY) 
                              + " " + STRING(TIME, "hh:mm") 
-                             + " " + cPgmStack.
+                             + " " + cPgmStack
+                             .
+
+IF {&TABLENAME}.def-loc EQ ""     AND
+   {&TABLENAME}.def-loc-bin EQ "" THEN DO:
+  FIND FIRST cust
+      WHERE cust.company EQ cocode
+        AND cust.active  EQ "X"
+      NO-LOCK NO-ERROR.
+  IF AVAIL cust THEN
+  FIND FIRST shipto OF cust NO-LOCK NO-ERROR.
+  IF AVAIL shipto THEN
+    ASSIGN
+     {&TABLENAME}.def-loc     = CAPS(shipto.loc)
+     {&TABLENAME}.def-loc-bin = CAPS(shipto.loc-bin).
+END.
 
 {sys/inc/fgmaster.i}
 
@@ -84,16 +103,4 @@ IF AVAIL b-{&TABLENAME} THEN DO:
  
 END.
 
-IF {&TABLENAME}.def-loc EQ ""     AND
-   {&TABLENAME}.def-loc-bin EQ "" THEN DO:
-  FIND FIRST cust
-      WHERE cust.company EQ cocode
-        AND cust.active  EQ "X"
-      NO-LOCK NO-ERROR.
-  IF AVAIL cust THEN
-  FIND FIRST shipto OF cust NO-LOCK NO-ERROR.
-  IF AVAIL shipto THEN
-    ASSIGN
-     {&TABLENAME}.def-loc     = CAPS(shipto.loc)
-     {&TABLENAME}.def-loc-bin = CAPS(shipto.loc-bin).
-END.
+

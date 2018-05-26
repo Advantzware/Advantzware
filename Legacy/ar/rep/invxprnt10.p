@@ -34,7 +34,7 @@ def var v-ans as logical initial no NO-UNDO.
 def var v-date-ship as date initial today NO-UNDO.
 def var v-del-no as int format ">>>>>>" NO-UNDO.
 def var v-bol-cases LIKE oe-boll.cases NO-UNDO.
-def var v-set-qty AS INT NO-UNDO.
+def var v-set-qty AS DECIMAL NO-UNDO.
 def var v-part-qty AS DEC FORMAT "999.9999" NO-UNDO.
 def var v-net like inv-head.t-inv-rev NO-UNDO.
 def var v-case-cnt as char format "x(80)" extent 5 NO-UNDO.
@@ -72,7 +72,7 @@ def var v-bill-i as char format "x(25)" no-undo.
 def var v-ord-no like oe-ord.ord-no no-undo.
 def var v-ord-date like oe-ord.ord-date no-undo.
 def var v-ship-i as char format "x(25)" no-undo.
-def var v-rel-po-no like oe-rel.po-no no-undo.
+def var v-ord-po-no like oe-ord.po-no no-undo.
 def var v-price-head as char format "x(5)" no-undo.
 DEF VAR v-subtot-lines AS DEC NO-UNDO.
 def TEMP-TABLE w-tax
@@ -107,6 +107,14 @@ DEF VAR v-page-num AS INT NO-UNDO.
 DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
 DEFINE VARIABLE ls-full-img1 AS CHAR FORMAT "x(200)" NO-UNDO.
+DEFINE VARIABLE vRelPo like oe-rel.po-no no-undo.
+DEFINE VARIABLE iPoCheck AS LOGICAL NO-UNDO.
+DEFINE VARIABLE cPo-No AS CHARACTER NO-UNDO.
+DEFINE VARIABLE iCount AS INTEGER NO-UNDO.
+DEF VAR cStockNotes AS cha FORM "x(80)" EXTENT 6 NO-UNDO.
+DEF BUFFER bf-cust FOR cust .
+
+
 
 RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormLogo", "C" /* Logical */, NO /* check by cust */, 
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
@@ -211,6 +219,7 @@ ELSE lv-comp-color = "BLACK".
 
         assign v-tot-pallets = 0
                v-date-ship   = ar-inv.inv-date.
+        cPo-No = "".
         
        for each ar-invl NO-LOCK
            where ar-invl.x-no  eq ar-inv.x-no  
@@ -226,7 +235,9 @@ ELSE lv-comp-color = "BLACK".
                 v-t-weight = v-t-weight + (round(ar-invl.t-weight /
                             ar-invl.qty, 2) * ar-invl.inv-qty).
 
-         
+         IF ar-invl.po-no NE "" THEN DO:
+                 cPo-No = cPo-No + ar-invl.po-no + ",". 
+         END.
         
          FOR EACH oe-bolh NO-LOCK WHERE oe-bolh.b-no = ar-invl.b-no AND
              oe-bolh.ord-no = ar-invl.ord-no:
@@ -258,7 +269,7 @@ ELSE lv-comp-color = "BLACK".
              DO:
                FOR EACH fg-set NO-LOCK WHERE fg-set.company = ar-invl.company
                                        AND fg-set.set-no = ar-invl.i-no:
-                    ASSIGN v-set-qty = v-set-qty + fg-set.part-qty.
+                    ASSIGN v-set-qty = v-set-qty + fg-set.qtyPerSet.
                END.
                IF v-set-qty = 0 THEN ASSIGN v-set-qty = 1.
                FOR EACH eb NO-LOCK WHERE eb.company = ar-invl.company AND
@@ -268,8 +279,8 @@ ELSE lv-comp-color = "BLACK".
                     fg-set.set-no = ar-invl.i-no  AND
                     fg-set.part-no = eb.stock-no NO-LOCK NO-ERROR.
 
-                 IF AVAIL fg-set AND fg-set.part-qty NE 0 THEN
-                   ASSIGN v-part-qty = fg-set.part-qty / v-set-qty.
+                 IF AVAIL fg-set AND fg-set.qtyPerSet NE 0 THEN
+                   ASSIGN v-part-qty = fg-set.qtyPerSet / v-set-qty.
                  ELSE
                    ASSIGN v-part-qty = 1 / v-set-qty.
 
@@ -301,6 +312,9 @@ ELSE lv-comp-color = "BLACK".
              v-tot-qty = 0.
          end. /* last-of i-no */
         end. /* each ar-invl */
+        DO iCount = 1 TO NUM-ENTRIES(cPo-No):
+           IF ENTRY(1,cPo-No) NE ENTRY(iCount,cPo-No) and ENTRY(iCount,cPo-No) ne ""  THEN iPoCheck = YES. 
+       END.
     
                         /** Build Salesman Id String **/
         v-salesman = "".
@@ -313,8 +327,10 @@ ELSE lv-comp-color = "BLACK".
         assign v-po-no = ar-inv.po-no
                v-bill-i = ar-inv.bill-i[1]
                v-ord-no = ar-inv.ord-no
-               v-ord-date = ar-inv.ord-date.
-
+               v-ord-date = ar-inv.ord-date
+               v-ord-po-no = ""
+               .
+        
         find first ar-invl
              where ar-invl.x-no  eq ar-inv.x-no  
                and (ar-invl.misc eq no or ar-invl.billable)
@@ -324,7 +340,15 @@ ELSE lv-comp-color = "BLACK".
            assign v-price-head = ar-invl.pr-uom
                   v-po-no = IF ar-invl.po-no <> "" THEN ar-invl.po-no ELSE ar-inv.po-no
                   v-ord-no = ar-invl.ord-no
-                  lv-bol-no = ar-invl.bol-no.
+                  lv-bol-no = ar-invl.bol-no
+                  v-ord-po-no = IF iPoCheck EQ YES THEN "See below" ELSE ar-invl.po-no.
+         /*find first oe-ord where oe-ord.company = cocode and
+                                  oe-ord.ord-no = ar-invl.ord-no
+                                  no-lock no-error.   
+          if avail oe-ord then
+          do:
+            ASSIGN v-ord-po-no = IF iPoCheck EQ YES THEN "See below" ELSE oe-ord.po-no.
+          end.*/
         end.      
 
         /* display heder info 
@@ -360,6 +384,18 @@ ELSE lv-comp-color = "BLACK".
                                     oe-ordl.t-ship-qty) < 0 then 0 else
                                    (ar-invl.qty - v-ship-qty -
                                     oe-ordl.t-ship-qty).
+            /* ASSIGN vRelPo = "".
+             FOR EACH oe-rel NO-LOCK
+                WHERE oe-rel.company = cocode
+                AND oe-rel.ord-no = oe-ordl.ord-no
+                AND oe-rel.i-no = oe-ordl.i-no
+                AND oe-rel.LINE = oe-ordl.LINE :
+
+                IF oe-rel.po-no NE "" THEN DO:
+                  vRelPo = oe-rel.po-no.  
+                  LEAVE.
+                END.
+             END.*/
 
               IF NOT CAN-FIND(FIRST oe-boll
                               WHERE oe-boll.company EQ ar-invl.company
@@ -445,8 +481,16 @@ ELSE lv-comp-color = "BLACK".
                             else           trim(lv-inv-list).
 
               if v-part-info ne "" OR (v = 1 AND ar-invl.part-no <> "") then do:
-                 IF v = 1 THEN PUT SPACE(25) ar-invl.part-no SPACE v-part-info SKIP.
-                 ELSE
+                 IF v = 1 THEN DO:
+
+                     IF LENGTH(ar-invl.po-no) LE 8 THEN DO:
+                         PUT  SPACE(16) ar-invl.po-no FORMAT "x(8)" SPACE(1)   ar-invl.part-no SPACE v-part-info SKIP.
+                     END.
+                     ELSE DO: 
+                         PUT  SPACE(9) ar-invl.po-no FORMAT "x(15)" SPACE(1)   ar-invl.part-no SPACE v-part-info SKIP.
+                     END.
+                 END.
+                 ELSE 
                  IF v = 2 THEN PUT SPACE(41) v-part-info SKIP.
                  ELSE          PUT SPACE(20) "Previous Invoice(s): " v-part-info SKIP.
                  v-printline = v-printline + 1.
@@ -607,6 +651,20 @@ ELSE lv-comp-color = "BLACK".
                     THEN ar-inv.freight ELSE 0.    
                     /*ar-inv.t-inv-freight*/.
 
+ FOR EACH bf-cust NO-LOCK
+        WHERE bf-cust.company EQ cocode
+        AND bf-cust.ACTIVE EQ "X":
+
+        RUN pNotes(INPUT bf-cust.rec_key, OUTPUT cStockNotes).
+        
+        PUT "<p8><R58><C3>" cStockNotes[1] SKIP
+                "<R59><C3>" cStockNotes[2] SKIP
+                "<R60><C3>" cStockNotes[3] SKIP
+                "<R61><C3>" cStockNotes[4] SKIP
+                "<p10>".
+        
+ END.
+
 IF v-bot-lab[4] <> "" THEN
     PUT "<R58><C60><#8><FROM><R+8><C+20><RECT> " 
         "<=8> Sub Total  :" v-subtot-lines FORM "->>,>>9.99"
@@ -640,5 +698,52 @@ ELSE
     END. /* DO TRANSACTION avail ar-inv */ 
  
 end. /* each report, ar-inv */
+
+PROCEDURE pNotes:
+
+DEFINE INPUT PARAMETER reckey LIKE cust.rec_key NO-UNDO.
+DEFINE OUTPUT PARAMETER cNotes AS cha FORM "x(80)" EXTENT 6 NO-UNDO.
+    
+ASSIGN 
+       v-tmp-lines = 0
+       j = 0
+       K = 0
+       lv-got-return = 0.
+
+FOR EACH notes WHERE notes.rec_key = reckey 
+     AND notes.note_type = "G"
+     AND notes.note_group = "BN" NO-LOCK:
+
+    IF v-prev-note-rec <> ? AND
+       v-prev-note-rec <> RECID(notes) THEN v-prev-extent = /*v-prev-extent +*/ k.
+    DO i = 1 TO LENGTH(notes.note_text) :        
+           IF i - j >= lv-line-chars THEN ASSIGN j = i
+                                                 lv-got-return = lv-got-return + 1.
+                  
+           v-tmp-lines = ( i - j ) / lv-line-chars.
+           {SYS/INC/ROUNDUP.I v-tmp-lines}
+           k = v-tmp-lines + lv-got-return +
+               IF (v-prev-note-rec <> RECID(notes) AND v-prev-note-rec <> ?) THEN v-prev-extent ELSE 0.
+
+           IF k > 0 AND k <= 6 THEN cNotes[k] = cNotes[k] + 
+                                  IF SUBSTRING(notes.note_text,i,1) <> CHR(10) AND SUBSTRING(notes.note_text,i,1) <> CHR(13)
+                                  THEN SUBSTRING(notes.note_text,i,1)
+                                  ELSE "" .              
+           
+           IF SUBSTRING(note_text,i,1) = CHR(10) OR SUBSTRING(note_text,i,1) = CHR(13)                 
+           THEN do:
+                  lv-got-return = lv-got-return + 1.
+                  j = i.
+           END.
+    END.
+    ASSIGN v-prev-note-rec = RECID(notes)
+           j = 0
+           lv-got-return = 0.
+    
+    IF k > 6 THEN LEAVE.
+END.
+
+END PROCEDURE.
+
 
 /* END ---------------------------------- copr. 1996 Advanced Software, Inc. */

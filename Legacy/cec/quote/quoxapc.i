@@ -227,7 +227,7 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
         IF est.est-type EQ 6 THEN
            put eb.part-no AT 8 FORM "x(21)"
                "  Qty Per Set "
-               TRIM(STRING(eb.yld-qty,"->>>,>>>"))
+               TRIM(STRING(eb.quantityPerSet,"->>>,>>>"))
                SKIP.
         ELSE
            put eb.part-no AT 8 FORM "x(21)"

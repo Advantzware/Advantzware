@@ -193,6 +193,7 @@ END.
 
 DEF VAR viEQtyPrev AS INT NO-UNDO.
 DEFINE VARIABLE lCheckPurMan AS LOGICAL NO-UNDO .
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -232,14 +233,15 @@ eb.len display-cw-dim(yes,eb.len) @ eb.len ~
 display-cw-dim(yes,eb.wid) @ eb.wid eb.wid ~
 display-cw-dim(yes,eb.wid) @ eb.wid display-cw-dim(yes,eb.dep) @ eb.dep ~
 eb.dep display-cw-dim(yes,eb.dep) @ eb.dep eb.form-no eb.blank-no eb.i-col ~
-eb.i-pass eb.i-coat eb.i-coat-p eb.yld-qty ef.f-col ef.f-pass ef.f-coat ~
-ef.f-coat-p eb.pur-man est.est-date display-set() @ eb.spare-char-2 ~
-eb.spare-char-2 display-tab() @ eb.tab-in eb.spare-char-1 
+eb.i-pass eb.i-coat eb.i-coat-p eb.yld-qty eb.quantityPerSet ef.f-col ~
+ef.f-pass ef.f-coat ef.f-coat-p eb.pur-man est.est-date ~
+display-set() @ eb.spare-char-2 eb.spare-char-2 display-tab() @ eb.tab-in ~
+eb.spare-char-1 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-br-estitm est.est-no eb.cust-no ~
 eb.part-no eb.ship-id eb.part-dscr1 eb.stock-no eb.style est-qty.eqty ~
 eb.flute eb.test eb.tab-in ef.board ef.cal eb.procat eb.len eb.wid eb.dep ~
-eb.i-col eb.i-pass eb.i-coat eb.i-coat-p eb.yld-qty eb.pur-man est.est-date ~
-eb.spare-char-2 eb.spare-char-1 
+eb.i-col eb.i-pass eb.i-coat eb.i-coat-p eb.yld-qty eb.quantityPerSet ~
+eb.pur-man est.est-date eb.spare-char-2 eb.spare-char-1 
 &Scoped-define ENABLED-TABLES-IN-QUERY-br-estitm est eb est-qty ef
 &Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-br-estitm est
 &Scoped-define SECOND-ENABLED-TABLE-IN-QUERY-br-estitm eb
@@ -384,22 +386,23 @@ DEFINE BROWSE br-estitm
       ef.board FORMAT "x(12)":U COLUMN-FONT 2
       ef.cal FORMAT ">9.99999<":U COLUMN-FONT 2
       eb.procat FORMAT "x(5)":U COLUMN-FONT 2
-      display-cw-dim(YES,eb.len) @ eb.len
+      display-cw-dim(yes,eb.len) @ eb.len
       eb.len FORMAT ">>9.99":U COLUMN-FONT 2
-      display-cw-dim(YES,eb.len) @ eb.len
-      display-cw-dim(YES,eb.wid) @ eb.wid
+      display-cw-dim(yes,eb.len) @ eb.len
+      display-cw-dim(yes,eb.wid) @ eb.wid
       eb.wid FORMAT ">>9.99":U COLUMN-FONT 2
-      display-cw-dim(YES,eb.wid) @ eb.wid
-      display-cw-dim(YES,eb.dep) @ eb.dep
+      display-cw-dim(yes,eb.wid) @ eb.wid
+      display-cw-dim(yes,eb.dep) @ eb.dep
       eb.dep FORMAT ">>9.99":U COLUMN-FONT 2
-      display-cw-dim(YES,eb.dep) @ eb.dep
+      display-cw-dim(yes,eb.dep) @ eb.dep
       eb.form-no FORMAT ">9":U
       eb.blank-no FORMAT ">9":U
       eb.i-col FORMAT ">9":U
       eb.i-pass FORMAT ">9":U
       eb.i-coat FORMAT ">9":U
       eb.i-coat-p COLUMN-LABEL "Coat Passes" FORMAT ">9":U WIDTH 12
-      eb.yld-qty COLUMN-LABEL "Qty/Set" FORMAT "->>>>>>>9":U
+      eb.yld-qty FORMAT "->>>>>>>9":U
+      eb.quantityPerSet FORMAT ">>>>9.9<<<<":U
       ef.f-col COLUMN-LABEL "Inks/Form" FORMAT ">>":U
       ef.f-pass COLUMN-LABEL "Passes/Form" FORMAT ">>":U
       ef.f-coat COLUMN-LABEL "Coatings/Form" FORMAT ">>":U
@@ -433,6 +436,7 @@ DEFINE BROWSE br-estitm
       eb.i-coat
       eb.i-coat-p
       eb.yld-qty
+      eb.quantityPerSet HELP "Enter Quantity Per Set for this component"
       eb.pur-man
       est.est-date
       eb.spare-char-2
@@ -591,26 +595,28 @@ ASSIGN
      _FldNameList[31]   > ASI.eb.i-coat-p
 "eb.i-coat-p" "Coat Passes" ? "integer" ? ? ? ? ? ? yes ? no no "12" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[32]   > ASI.eb.yld-qty
-"eb.yld-qty" "Qty/Set" "->>>>>>>9" "integer" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[33]   > ASI.ef.f-col
+"eb.yld-qty" ? "->>>>>>>9" "integer" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[33]   > ASI.eb.quantityPerSet
+"eb.quantityPerSet" ? ? "decimal" ? ? ? ? ? ? yes "Enter Quantity Per Set for this component" no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[34]   > ASI.ef.f-col
 "ef.f-col" "Inks/Form" ">>" "integer" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[34]   > ASI.ef.f-pass
+     _FldNameList[35]   > ASI.ef.f-pass
 "ef.f-pass" "Passes/Form" ">>" "integer" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[35]   > ASI.ef.f-coat
+     _FldNameList[36]   > ASI.ef.f-coat
 "ef.f-coat" "Coatings/Form" ">>" "integer" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[36]   > ASI.ef.f-coat-p
+     _FldNameList[37]   > ASI.ef.f-coat-p
 "ef.f-coat-p" "Coat Passes/Form" ">>" "integer" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[37]   > ASI.eb.pur-man
+     _FldNameList[38]   > ASI.eb.pur-man
 "eb.pur-man" "Purch/Manuf" ? "logical" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[38]   > ASI.est.est-date
+     _FldNameList[39]   > ASI.est.est-date
 "est.est-date" ? ? "date" ? ? 2 ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[39]   > "_<CALC>"
+     _FldNameList[40]   > "_<CALC>"
 "display-set() @ eb.spare-char-2" ? ? ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[40]   > ASI.eb.spare-char-2
+     _FldNameList[41]   > ASI.eb.spare-char-2
 "eb.spare-char-2" "Set?" "!" "character" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[41]   > "_<CALC>"
+     _FldNameList[42]   > "_<CALC>"
 "display-tab() @ eb.tab-in" ? ? ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[42]   > ASI.eb.spare-char-1
+     _FldNameList[43]   > ASI.eb.spare-char-1
 "eb.spare-char-1" "Designer Name" "x(25)" "character" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE br-estitm */
@@ -1210,7 +1216,7 @@ DO:
               ELSE ""
          eb.procat:SCREEN-VALUE = tt-eb-set-part.procat
          eb.style:SCREEN-VALUE = tt-eb-set-part.style-1
-         eb.yld-qty:SCREEN-VALUE = STRING(tt-eb-set-part.qty-set-1)
+         eb.quantityPerSet:SCREEN-VALUE = STRING(tt-eb-set-part.qty-set-1)
          est-qty.eqty:SCREEN-VALUE = STRING(tt-eb-set-part.est-qty)
          eb.len:SCREEN-VALUE = STRING(tt-eb-set-part.len)
          eb.wid:SCREEN-VALUE = STRING(tt-eb-set-part.dep)
@@ -1497,7 +1503,7 @@ DO:
       IF AVAIL style THEN DO:
         /* task 12011101 - to update this even on an update */
         IF style.qty-per-set NE 0 THEN
-            eb.yld-qty:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(style.qty-per-set).
+            eb.quantityPerSet:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(style.qty-per-set).
         IF adm-adding-record THEN DO:
           IF ef.board:SCREEN-VALUE EQ "" THEN DO:
             ef.board:SCREEN-VALUE IN BROWSE {&browse-name} = style.material[1].
@@ -2065,6 +2071,33 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME eb.pur-man
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL eb.pur-man br-estitm _BROWSE-COLUMN B-table-Win
+ON VALUE-CHANGED OF eb.pur-man IN BROWSE br-estitm /* Purch/Manuf */
+DO:
+   DEFINE VARIABLE lChackLog AS LOGICAL NO-UNDO .
+   DEFINE BUFFER bf-itemfg FOR itemfg .
+    FIND FIRST bf-itemfg NO-LOCK
+        WHERE bf-itemfg.company EQ cocode
+          AND bf-itemfg.i-no EQ eb.stock:SCREEN-VALUE IN BROWSE br-estitm NO-ERROR .
+   
+    lChackLog = IF eb.pur-man:SCREEN-VALUE IN BROWSE br-estitm EQ "P" THEN TRUE ELSE FALSE .
+    IF AVAIL bf-itemfg AND eb.pur-man:SCREEN-VALUE IN BROWSE br-estitm NE ""
+        AND bf-itemfg.pur-man NE lChackLog AND NOT bf-itemfg.isaset THEN do:
+        MESSAGE "Purchased / Manufactured Field" SKIP 
+                "Estimate Does Not Match Finished Goods." SKIP
+                "Reset Both? "
+            VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
+            UPDATE lCheckPurMan . 
+    END.
+    ELSE lCheckPurMan = NO .
+
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME est.est-date
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL est.est-date br-estitm _BROWSE-COLUMN B-table-Win
 ON ENTRY OF est.est-date IN BROWSE br-estitm /* Est Date */
@@ -2109,31 +2142,6 @@ DO:
       FOCUS = lv-set-widget.
 
   END.
-
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL eb.pur-man br-estitm _BROWSE-COLUMN B-table-Win
-ON VALUE-CHANGED OF eb.pur-man IN BROWSE br-estitm /* Set? */
-DO:
-   DEFINE VARIABLE lChackLog AS LOGICAL NO-UNDO .
-   DEFINE BUFFER bf-itemfg FOR itemfg .
-    FIND FIRST bf-itemfg NO-LOCK
-        WHERE bf-itemfg.company EQ cocode
-          AND bf-itemfg.i-no EQ eb.stock:SCREEN-VALUE IN BROWSE br-estitm NO-ERROR .
-   
-    lChackLog = IF eb.pur-man:SCREEN-VALUE IN BROWSE br-estitm EQ "P" THEN TRUE ELSE FALSE .
-    IF AVAIL bf-itemfg AND eb.pur-man:SCREEN-VALUE IN BROWSE br-estitm NE ""
-        AND bf-itemfg.pur-man NE lChackLog AND NOT bf-itemfg.isaset THEN do:
-        MESSAGE "Purchased / Manufactured Field" SKIP 
-                "Estimate Does Not Match Finished Goods." SKIP
-                "Reset Both? "
-            VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
-            UPDATE lCheckPurMan . 
-    END.
-    ELSE lCheckPurMan = NO .
 
 END.
 
@@ -2537,17 +2545,25 @@ PROCEDURE calc-blank-size :
                 .
       ELSE DO:
          RUN cec/descalc.p (RECID(xest),RECID(xeb)).
-
+          
          DO i = 1 TO EXTENT(xeb.k-wid-scr-type2):
            ASSIGN
             xeb.k-wid-scr-type2[i] = lv-k-wid-scr-type[i]
             xeb.k-len-scr-type2[i] = lv-k-len-scr-type[i].
          END.
-
+          
          IF v-lscore-c BEGINS "No" THEN
             ASSIGN  xeb.k-wid-array2[1] = xeb.t-wid
                     xeb.k-len-array2[1] = xeb.t-len.
-         ELSE DO:
+         ELSE IF xest.metric THEN DO:  /*Note - this may work for all*/
+            DO i = 1 TO EXTENT(dPanelsLength):
+                ASSIGN
+                xeb.k-wid-array2[i] = dPanelsWidth[i]
+                xeb.k-len-array2[i] = dPanelsLength[i].
+            END.
+             
+          END.
+           ELSE DO:
             i = 0.
             FOR EACH w-box-design-line:
               ASSIGN
@@ -3067,7 +3083,7 @@ PROCEDURE check-for-set :
               UPDATE ll-rol.
     END.
 
-    ll-set = eb.yld-qty GT 1 AND NOT ll-rol.
+    ll-set = eb.quantityPerSet GT 1 AND NOT ll-rol.
   END.
 
   FIND FIRST bf-eb
@@ -3099,7 +3115,7 @@ PROCEDURE check-for-set :
                         AND fg-set.set-no = bf-eb.stock-no
                         AND fg-set.part-no = eb.stock-no NO-ERROR.
     IF AVAIL fg-set THEN DO:
-      fg-set.part-qty = eb.yld-qty.
+      fg-set.qtyPerSet = eb.quantityPerSet.
       FIND CURRENT fg-set NO-LOCK NO-ERROR.
     END.
   END.
@@ -3919,7 +3935,7 @@ PROCEDURE createESTfromArtios :
             ef.eqty = tt-artios.setqty
             est-qty.eqty = tt-artios.setqty   
             eb.procat = tt-artios.procat
-            eb.yld-qty = tt-artios.CompQty   
+            eb.quantityPerSet = tt-artios.CompQty   
             eb.die-no = tt-artios.dienum
             ef.die-in = tt-artios.die-in
             est.est-qty[1] = tt-artios.setqty  /* request qty */
@@ -4179,7 +4195,7 @@ PROCEDURE createEstFromImpact :
             ef.eqty = tt-artios.setqty
             est-qty.eqty = tt-artios.setqty   
             eb.procat = tt-artios.procat
-            eb.yld-qty = tt-artios.CompQty   
+            eb.quantityPerSet = tt-artios.CompQty   
             eb.die-no = tt-artios.dienum
             ef.die-in = tt-artios.die-in
             est.est-qty[1] = tt-artios.setqty  /* request qty */
@@ -4437,7 +4453,7 @@ FIND FIRST cust  WHERE cust.company EQ gcompany
 
 IF (xest.est-type EQ 2 OR xest.est-type EQ 6)       AND
    CAN-FIND(b-eb OF xest WHERE b-eb.form-no NE 0
-                           AND b-eb.yld-qty GE 2)   AND
+                           AND b-eb.quantityPerSet GE 2)   AND
    CAN-FIND(b-eb OF xest WHERE b-eb.form-no  EQ 0
                            AND b-eb.stock-no EQ "") THEN DO:
   FIND FIRST xeb OF xest WHERE xeb.form-no EQ 0.
@@ -4469,7 +4485,8 @@ ASSIGN
  itemfg.isaset     = (xest.est-type EQ 2 OR xest.est-type EQ 6) AND
                      xeb.form-no EQ 0
  itemfg.pur-man    = xeb.pur-man 
- itemfg.alloc      = xeb.set-is-assembled.
+ itemfg.alloc      = xeb.set-is-assembled
+ itemfg.setupDate  = TODAY.
  RUN fg/chkfgloc.p (INPUT itemfg.i-no, INPUT "").
 
  {oe/fgfreighta.i xeb}
@@ -4598,7 +4615,7 @@ PROCEDURE crt-new-set :
         eb.part-dscr2 = v-part-desc4
         eb.style = v-style2
         eb.stock-no = v-stock-no2
-        eb.yld-qty = v-qty-set-2
+        eb.quantityPerSet = v-qty-set-2
         eb.len = v-wid-2
         eb.wid = v-height-2.
      RUN set-lv-foam.
@@ -4615,7 +4632,7 @@ PROCEDURE crt-new-set :
           eb.style eb.part-dscr1
           eb.cust-no eb.ship-id eb.part-no eb.tab-in 
           eb.len eb.wid eb.dep eb.procat
-          eb.yld-qty eb.flute ef.board eb.test
+          eb.quantityPerSet eb.flute ef.board eb.test
       WITH BROWSE {&browse-name}.
   
   RUN est/blks-frm.p (ROWID(ef)).
@@ -5242,14 +5259,14 @@ PROCEDURE local-assign-record :
      AND CAN-FIND(FIRST b-eb WHERE b-eb.company = est.company AND b-eb.est-no = est.est-no AND b-eb.form-no = 0 AND
                            b-eb.part-no = eb.part-no AND b-eb.stock-no = eb.stock-no AND b-eb.part-dscr1 = eb.part-dscr1
                            AND b-eb.len = eb.len AND b-eb.wid = eb.wid AND b-eb.dep = eb.dep)
-              /* OR  (est.est-type EQ 5 AND eb.yld-qty GE 2) */   
+              /* OR  (est.est-type EQ 5 AND eb.quantityPerSet GE 2) */   
   THEN ASSIGN is2PieceBox = YES.
        
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-record':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-  ll-2pc = eb.yld-qty GT 1 AND
+  ll-2pc = eb.quantityPerSet GT 1 AND
            NOT CAN-FIND(FIRST bf-eb
                         WHERE bf-eb.company EQ eb.company
                           AND bf-eb.est-no  EQ eb.est-no
@@ -5717,13 +5734,13 @@ PROCEDURE local-cancel-record :
                      AND b-eb.est-no  EQ est.est-no) THEN DO:
       ASSIGN
           est-qty.eqty:LABEL IN BROWSE {&browse-name} = "Est Qty"
-          eb.yld-qty:LABEL IN BROWSE {&browse-name}   = "Qty/Set".
+          eb.yld-qty:HIDDEN IN BROWSE {&browse-name}   = YES.
      
       FOR EACH bff-eb
           WHERE bff-eb.company EQ est.company
             AND bff-eb.est-no  EQ est.est-no
             AND bff-eb.form-no NE 0:
-          bff-eb.yld-qty = 1 .
+          bff-eb.quantityPerSet = 1 .
       END.
 
      FIND CURRENT est.
@@ -5857,7 +5874,7 @@ PROCEDURE local-create-record :
       ll-dumb = {&browse-name}:REFRESH() IN FRAME {&FRAME-NAME}.
       RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,'TableIO-source':U,OUTPUT char-hdl).
       RUN new-state IN WIDGET-HANDLE(char-hdl) ('update-begin':U).  /* to have save button */
-      DISPLAY est.est-no est.est-date eb.yld-qty WITH BROWSE {&browse-name}.
+      DISPLAY est.est-no est.est-date eb.yld-qty eb.quantityPerSet WITH BROWSE {&browse-name}.
     END.
 
     {est/d-cadcam.i}
@@ -6724,9 +6741,8 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCreateFormFromImport B-table-Win
-PROCEDURE pCreateFormFromImport:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCreateFormFromImport B-table-Win 
+PROCEDURE pCreateFormFromImport :
 /*------------------------------------------------------------------------------
  Purpose: Processes ttInputEst temp-table, adding forms to the estimate in context
  Notes:
@@ -6751,11 +6767,9 @@ PROCEDURE pCreateFormFromImport:
   
 
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE redisplay-blanks B-table-Win 
 PROCEDURE redisplay-blanks :
@@ -6898,7 +6912,7 @@ PROCEDURE reset-est-type :
     END.
 
   IF (op-est-type EQ 6 AND li-form-no EQ 1 AND li-blank-no EQ 1) OR
-     (op-est-type EQ 5 AND eb.yld-qty GE 2) THEN DO:
+     (op-est-type EQ 5 AND eb.quantityPerSet GE 2) THEN DO:
     /*MESSAGE "Is this estimate a two piece box set?"
             VIEW-AS ALERT-BOX QUESTION
             BUTTON YES-NO UPDATE ll.
@@ -6915,7 +6929,7 @@ PROCEDURE reset-est-type :
       END.
 
       ELSE
-      IF NOT adm-new-record AND eb.yld-qty EQ 1 THEN DO:
+      IF NOT adm-new-record AND eb.quantityPerSet EQ 1 THEN DO:
         ll = ll-mass-del.
         IF NOT ll THEN
           MESSAGE "Change back to a single item estimate? "
@@ -6941,7 +6955,7 @@ PROCEDURE reset-est-type :
      
         IF v-set-header THEN
            ASSIGN
-              bf-eb.bl-qty  = est-qty.eqty * bf-eb.yld-qty
+              bf-eb.bl-qty  = est-qty.eqty * bf-eb.quantityPerSet
               bf-eb.yld-qty = bf-eb.bl-qty.
         ELSE
            IF bf-eb.yld-qty LE 1 THEN bf-eb.yld-qty = bf-eb.bl-qty.
@@ -6965,7 +6979,7 @@ PROCEDURE reset-est-type :
   FOR EACH bf-eb
       WHERE bf-eb.company EQ bf-est.company
         AND bf-eb.est-no  EQ bf-est.est-no:
-    bf-eb.yld-qty = 1.
+    bf-eb.quantityPerSet = 1.
   END.
   
   IF op-est-type <> ? THEN DO:  
@@ -7362,7 +7376,7 @@ PROCEDURE set-or-combo :
           b-eb.yld-qty = ld * b-eb.num-up.
         END.
         ELSE
-        IF est.est-type EQ 6 THEN b-eb.yld-qty = 1.
+        IF est.est-type EQ 6 THEN b-eb.quantityPerSet = 1.
       END.
     END.
   END.
@@ -7699,7 +7713,10 @@ PROCEDURE update-e-itemfg-vend :
 
        CREATE bf-e-itemfg-vend.
        BUFFER-COPY e-itemfg-vend TO bf-e-itemfg-vend.
-       ASSIGN bf-e-itemfg-vend.eqty = eb.eqty.
+       ASSIGN
+            bf-e-itemfg-vend.eqty = eb.eqty
+            bf-e-itemfg-vend.i-no = eb.stock-no
+            .
 
        FIND FIRST reftable WHERE reftable.reftable EQ "e-itemfg-vend.std-uom" 
               AND reftable.company  EQ e-itemfg-vend.company   
@@ -7891,7 +7908,7 @@ PROCEDURE update-set :
               AND bf-eb.form-no NE 0:
           ld = bf-eb.yld-qty / lv-yld-qty.
           {sys/inc/roundup.i ld}
-          bf-eb.yld-qty = ld.
+          bf-eb.quantityPerSet = ld.
         END.
      END.
 
@@ -8021,7 +8038,7 @@ PROCEDURE valid-eb-reckey :
                           RECID(bf-eb) <> RECID(eb) NO-LOCK NO-ERROR.
    IF AVAIL bf-eb OR eb.rec_key = "" THEN DO:
       ls-key = STRING(TODAY,"99999999") +
-               string(NEXT-VALUE(rec_key_seq,nosweat),"99999999").
+               string(NEXT-VALUE(rec_key_seq,asi),"99999999").
       FIND CURRENT eb.
       eb.rec_key = ls-key.
       FIND CURRENT eb NO-LOCK.               
@@ -8110,14 +8127,28 @@ PROCEDURE valid-part-no :
      lv-part-no = eb.part-no:SCREEN-VALUE IN BROWSE {&browse-name}
      lv-msg     = "".
 
-    IF lv-part-no EQ ""                                                     OR
-       (CAN-FIND(FIRST b-eb OF ef
-                 WHERE b-eb.part-no EQ lv-part-no
-                   AND (ROWID(b-eb) NE ROWID(eb) OR ll-is-copy-record)) AND
-        (lv-copy-what NE "form" OR NOT ll-is-copy-record))                  THEN
-      lv-msg = IF lv-part-no EQ "" THEN "may not be blank"
+    IF est.est-type EQ 5 OR est.est-type EQ 8  THEN do: 
+        IF lv-part-no EQ ""                                                     OR
+           (CAN-FIND(FIRST b-eb OF ef
+                     WHERE b-eb.part-no EQ lv-part-no
+                       AND (ROWID(b-eb) NE ROWID(eb) OR ll-is-copy-record)) AND
+            (lv-copy-what NE "form" OR NOT ll-is-copy-record))                  THEN
+          lv-msg = IF lv-part-no EQ "" THEN "may not be blank"
+                                       ELSE "already exists on Form #" +
+                                            TRIM(STRING(ef.form-no,">>>")).
+    END.
+    ELSE DO: 
+       FIND FIRST b-eb NO-LOCK 
+           WHERE  b-eb.est-no EQ eb.est-no 
+             AND  b-eb.company EQ eb.company
+             AND  b-eb.part-no EQ lv-part-no
+             AND  b-eb.form-no EQ eb.form-no
+             AND (ROWID(b-eb) NE ROWID(eb) OR ll-is-copy-record) NO-ERROR  . 
+       IF lv-part-no EQ "" OR AVAIL b-eb THEN
+           lv-msg = IF lv-part-no EQ "" THEN "may not be blank"
                                    ELSE "already exists on Form #" +
-                                        TRIM(STRING(ef.form-no,">>>")).
+                                        TRIM(STRING(b-eb.form-no,">>9")).
+    END. 
 
     IF lv-msg NE "" THEN DO:
       MESSAGE TRIM(eb.part-no:LABEL IN BROWSE {&browse-name}) + " " +

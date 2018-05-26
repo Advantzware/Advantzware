@@ -98,7 +98,9 @@ DEF TEMP-TABLE ttDetail
       FIELD ShipToState AS CHARACTER
       FIELD ShipToZip AS CHARACTER
       FIELD ShipToPhone AS CHARACTER
-      FIELD ShipToContact AS CHARACTER .
+      FIELD ShipToContact AS CHARACTER 
+      FIELD POLineNum AS INTEGER 
+      .
 
 DO TRANSACTION:
     {sys/inc/oereleas.i}
@@ -474,8 +476,12 @@ PROCEDURE BuildImpTable :
 
      INPUT FROM VALUE(ipFileName) NO-ECHO.
      REPEAT:
+          cInput = "".
           IMPORT UNFORMAT cInput.
           
+         /*  No way to process empty lines */
+         IF NUM-ENTRIES(cInput) LT 2 THEN 
+             NEXT.
           IF ENTRY(1,cInput) = "H" THEN DO:
               IF NOT CAN-FIND(cust WHERE cust.company = cocode AND cust.cust-no = entry(2,cInput))
                   THEN DO:
@@ -552,7 +558,8 @@ PROCEDURE BuildImpTable :
                          ttDetail.ShipToPhone = ENTRY(19,cInput).
             IF NUM-ENTRIES(cInput) >= 20 THEN
                          ttDetail.ShipToContact = ENTRY(20,cInput).
-    
+            IF NUM-ENTRIES(cInput) >= 21 THEN
+                         ttDetail.POLineNum = INTEGER(ENTRY(21,cInput)) NO-ERROR.
           END.
      END.
     
@@ -752,6 +759,7 @@ PROCEDURE CreateOrder :
          oe-ord.po-no = ttHeader.po-no
          oe-ord.est-no = ttHeader.Est#
          oe-ord.q-no = ttHeader.Quote# 
+         oe-ord.ship-id = ttHeader.ShipTo
          .
 
        find cust WHERE cust.company = cocode
@@ -844,6 +852,8 @@ PROCEDURE CreateOrder :
                             oe-ordl.whsed = IF oe-ordl.est-no <> "" THEN YES ELSE NO
                             oe-ordl.managed = oe-ord.managed
                             oe-ordl.q-no = IF ttDetail.ItemQuote# <> 0 THEN ttDetail.ItemQuote# ELSE oe-ord.q-no
+                            oe-ordl.e-num = ttDetail.POLineNum
+                            oe-ordl.ship-id = ttDetail.ShipTo
                             .
                   IF oe-ordl.price = 0 THEN DO:
                      FIND FIRST xoe-ord OF oe-ord NO-LOCK.

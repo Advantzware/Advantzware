@@ -60,7 +60,9 @@ DEFINE BUFFER bPendingJob FOR pendingJob.
 /* configuration version procedures */
 {{&includes}/configVersion.i}
 
+&IF DEFINED(FWD-VERSION) EQ 0 &THEN
 {{&includes}/lockWindowUpdate.i}
+&ENDIF
 {{&viewers}/includes/pendingJob.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -1515,7 +1517,11 @@ PROCEDURE setSize :
 
   DEFINE VARIABLE i AS INTEGER NO-UNDO.
 
+&IF DEFINED(FWD-VERSION) EQ 0 &THEN
   RUN lockWindowUpdate (ACTIVE-WINDOW:HWND,OUTPUT i).
+&ELSE
+  ACTIVE-WINDOW:DISABLE-REDRAW = TRUE.
+&ENDIF
   ASSIGN
     pendingJob:HIDDEN IN FRAME {&FRAME-NAME} = YES
     jobID:HIDDEN = YES
@@ -1527,7 +1533,11 @@ PROCEDURE setSize :
     RECT-1:HIDDEN = NO
     jobID:HIDDEN = NO
     pendingJob:HIDDEN = NO.
+&IF DEFINED(FWD-VERSION) EQ 0 &THEN
   RUN lockWindowUpdate (0,OUTPUT i).
+&ELSE
+  ACTIVE-WINDOW:DISABLE-REDRAW = FALSE.
+&ENDIF
 
 END PROCEDURE.
 

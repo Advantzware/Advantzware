@@ -53,8 +53,12 @@ assign
 
 DEF TEMP-TABLE tt-rowid NO-UNDO FIELD row-id AS ROWID
                                 INDEX row-id row-id.
+DEFINE TEMP-TABLE tt-quoteqty LIKE quoteqty .
 
 ll-new-file = CAN-FIND(FIRST asi._file WHERE asi._file._file-name EQ "cust-part").
+
+DEF STREAM excel.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -74,11 +78,11 @@ ll-new-file = CAN-FIND(FIRST asi._file WHERE asi._file._file-name EQ "cust-part"
 &Scoped-Define ENABLED-OBJECTS RECT-17 begin_cust end_cust begin_date ~
 end_date begin_part-no end_part-no begin_fg-cat end_fg-cat begin_rm-no ~
 end_rm-no percent_chg rd_i-code rd_pur-man rd_round-EA rd_round tb_prmtx ~
-tb_undo btn-process btn-cancel 
+tb_undo fi_file btn-process btn-cancel 
 &Scoped-Define DISPLAYED-OBJECTS begin_cust end_cust begin_date end_date ~
 begin_part-no end_part-no begin_fg-cat end_fg-cat begin_rm-no end_rm-no ~
 percent_chg rd_i-code lbl_i-code rd_pur-man lbl_pur-man rd_round-EA ~
-rd_round tb_prmtx tb_undo 
+rd_round tb_prmtx tb_undo fi_file
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -213,6 +217,12 @@ DEFINE VARIABLE tb_undo AS LOGICAL INITIAL no
      VIEW-AS TOGGLE-BOX
      SIZE 32 BY 1 NO-UNDO.
 
+DEFINE VARIABLE fi_file AS CHARACTER FORMAT "X(30)" INITIAL "c:~\tmp~\r-priceitm.csv" 
+     LABEL "File Name" 
+     VIEW-AS FILL-IN 
+     SIZE 43 BY 1
+     FGCOLOR 9 .
+
 
 /* ************************  Frame Definitions  *********************** */
 
@@ -246,6 +256,8 @@ DEFINE FRAME FRAME-A
      rd_round AT ROW 12.81 COL 38 NO-LABEL
      tb_prmtx AT ROW 14.05 COL 35
      tb_undo AT ROW 15.24 COL 35
+     fi_file AT ROW 15.24 COL 28 COLON-ALIGNED HELP
+          "Enter File Name"
      btn-process AT ROW 17.38 COL 23
      btn-cancel AT ROW 17.38 COL 55
      "For all other UOM, round up to:" VIEW-AS TEXT
@@ -402,6 +414,9 @@ ASSIGN
 ASSIGN 
        tb_undo:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
+ASSIGN 
+       fi_file:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
 
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
 THEN C-Win:HIDDEN = no.
@@ -496,6 +511,17 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME fi_file
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_file C-Win
+ON LEAVE OF fi_file IN FRAME FRAME-A /* If Yes, File Name */
+DO:
+     assign {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME btn-process
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-process C-Win
 ON CHOOSE OF btn-process IN FRAME FRAME-A /* Start Process */
@@ -507,11 +533,11 @@ DO:
     ASSIGN {&displayed-objects}.
   END.
 
-  message "Are you sure you want to change the Quote Price(s) within the " +
+  /*message "Are you sure you want to change the Quote Price(s) within the " +
           "selection parameters?"
-          view-as alert-box question button yes-no update v-process.
+          view-as alert-box question button yes-no update v-process.*/
 
-  if v-process then run run-process.
+  /*if v-process then*/ run run-process.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -699,12 +725,12 @@ PROCEDURE enable_UI :
   DISPLAY begin_cust end_cust begin_date end_date begin_part-no end_part-no 
           begin_fg-cat end_fg-cat begin_rm-no end_rm-no percent_chg rd_i-code 
           lbl_i-code rd_pur-man lbl_pur-man rd_round-EA rd_round tb_prmtx 
-          tb_undo 
+          tb_undo fi_file
       WITH FRAME FRAME-A IN WINDOW C-Win.
   ENABLE RECT-17 begin_cust end_cust begin_date end_date begin_part-no 
          end_part-no begin_fg-cat end_fg-cat begin_rm-no end_rm-no percent_chg 
-         rd_i-code rd_pur-man rd_round-EA rd_round tb_prmtx tb_undo btn-process 
-         btn-cancel 
+         rd_i-code rd_pur-man rd_round-EA rd_round tb_prmtx tb_undo fi_file  
+         btn-process btn-cancel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.
@@ -825,7 +851,8 @@ DEF VAR lv-rowid AS ROWID NO-UNDO.
 DEF VAR ll AS LOG EXTENT 2 NO-UNDO.
 DEF VAR lv-reft LIKE reftable.reftable NO-UNDO.
 DEF VAR lv-dscr LIKE reftable.dscr NO-UNDO.
-
+DEF VAR excelheader AS CHAR NO-UNDO.
+def var v-process as log INIT NO no-undo.
 DEF BUFFER bf-quoteitm FOR quoteitm.
 
 assign
@@ -841,6 +868,7 @@ assign
 session:set-wait-state("General").
 
 EMPTY TEMP-TABLE tt-rowid.
+EMPTY TEMP-TABLE tt-quoteqty .
 
 lv-reft = "est/globquot.w"              + " " +
           STRING(cocode,"x(10)")        + " " +
@@ -856,6 +884,12 @@ RUN get-params (OUTPUT lv-dscr).
 
 v = index("DP",v-round).
 v-EA = index("DP",v-round-EA).
+
+OUTPUT STREAM excel TO VALUE(fi_file).
+   excelheader = "Quote,Customer,Estimate,cust part,Item No,Product Category,Qty,Old Price,New Price"
+               .
+
+   PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
 
 for each quotehd
     where quotehd.company  eq cocode
@@ -876,12 +910,16 @@ for each quotehd
 
     break by quotehd.q-no:
 
-  IF begin_rm-no NE "" AND NOT END_rm-no BEGINS "zzzzz" AND quotehd.est-no NE "" THEN DO:
-      FIND FIRST eb
+    RELEASE eb .
+
+    IF quotehd.est-no NE "" THEN
+    FIND FIRST eb
           WHERE eb.company EQ quotehd.company
             AND eb.est-no EQ quotehd.est-no
             AND eb.part-no EQ  quoteitm.part-no
           NO-LOCK NO-ERROR.
+
+  IF begin_rm-no NE "" AND NOT END_rm-no BEGINS "zzzzz" AND quotehd.est-no NE "" THEN DO:
         IF NOT AVAIL eb THEN NEXT.
         IF NOT CAN-FIND(FIRST ef OF eb
             WHERE ef.board GE begin_rm-no
@@ -913,7 +951,154 @@ for each quotehd
   ELSE
     FIND itemfg WHERE ROWID(itemfg) EQ lv-rowid NO-LOCK NO-ERROR.
 
-  IF NOT AVAIL itemfg                                                 OR
+  IF ( NOT AVAIL itemfg AND 
+      CAN-FIND(FIRST eb
+              WHERE eb.company EQ quotehd.company
+                AND eb.est-no  EQ quotehd.est-no
+                AND eb.part-no EQ  quoteitm.part-no
+                AND eb.procat   GE begin_fg-cat
+                AND eb.procat   LE end_fg-cat) )                    OR
+     CAN-FIND(FIRST itemfg
+              WHERE ROWID(itemfg)   EQ lv-rowid
+                AND itemfg.procat   GE begin_fg-cat
+                AND itemfg.procat   LE end_fg-cat
+                AND (itemfg.i-code  EQ rd_i-code OR rd_i-code EQ "A")
+                AND (itemfg.pur-man EQ rd_pur-man OR rd_pur-man EQ ?)
+                AND lv-rowid        NE ?)                             OR
+     CAN-FIND(FIRST itemfg
+              WHERE itemfg.company  EQ quoteitm.company
+                AND itemfg.part-no  EQ quoteitm.part-no
+                AND itemfg.part-no  NE ""
+                AND (itemfg.cust-no EQ quotehd.cust-no OR
+                     itemfg.i-code  EQ "S")
+                AND itemfg.procat   GE begin_fg-cat
+                AND itemfg.procat   LE end_fg-cat
+                AND (itemfg.i-code  EQ rd_i-code OR rd_i-code EQ "A")
+                AND (itemfg.pur-man EQ rd_pur-man OR rd_pur-man EQ ?)
+                AND lv-rowid        EQ ?)                             THEN
+  for each quoteqty
+      where quoteqty.company eq quoteitm.company
+        and quoteqty.loc     eq quoteitm.loc
+        and quoteqty.q-no    eq quoteitm.q-no
+        and quoteqty.line    eq quoteitm.line
+        AND NOT CAN-FIND(FIRST tt-rowid
+                         WHERE tt-rowid.row-id EQ ROWID(quoteqty))
+      BREAK BY quoteqty.qty:
+
+    ll = YES.
+    
+     BUFFER-COPY  quoteqty TO  tt-quoteqty.
+
+    v-orig-price = quoteqty.price.
+    if v-undo then
+      tt-quoteqty.price = tt-quoteqty.price / (1 - (v-pct / 100)).
+    else
+      tt-quoteqty.price = tt-quoteqty.price + (tt-quoteqty.price * v-pct / 100).
+    v-orig-price = tt-quoteqty.price.
+
+    /* Perform rounding */
+    IF NOT v-round = "N" AND tt-quoteqty.uom NE "EA" THEN DO:
+        tt-quoteqty.price = ROUND(tt-quoteqty.price, v).    
+        IF tt-quoteqty.price LT v-orig-price THEN
+          RUN round-up (INPUT v-orig-price, INPUT tt-quoteqty.price, INPUT v-round, OUTPUT tt-quoteqty.price).
+    END.
+    IF NOT v-round-EA = "N" AND tt-quoteqty.uom EQ "EA" THEN DO:
+        tt-quoteqty.price = ROUND(tt-quoteqty.price, v-EA).    
+        IF tt-quoteqty.price LT v-orig-price THEN
+          RUN round-up (INPUT v-orig-price, INPUT tt-quoteqty.price, INPUT v-round-EA, OUTPUT tt-quoteqty.price).
+    END.
+
+    PUT STREAM excel UNFORMATTED
+             '"' tt-quoteqty.q-no                              '",'
+             '"' quotehd.cust-no                                '",'
+             '"' quotehd.est-no                                 '",'
+             '"' quoteitm.part-no                               '",'
+             '"' quoteitm.i-no                                  '",'
+             '"' IF AVAIL itemfg THEN  itemfg.procat  ELSE IF AVAIL eb THEN eb.procat ELSE  ""        '",'
+             '"' quoteqty.qty                                   '",'
+             '"' quoteqty.price                                 '",'
+             '"' tt-quoteqty.price                              '",'
+             SKIP.
+     
+  end.
+end.
+
+OUTPUT STREAM excel CLOSE.
+OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
+
+ message "Are you sure you want to commit these changes"
+     view-as alert-box question button yes-no update v-process.
+ 
+ IF NOT v-process THEN RETURN .
+
+IF v-process THEN
+for each quotehd
+    where quotehd.company  eq cocode
+      and quotehd.loc      eq locode
+      and quotehd.cust-no  ge fcust
+      and quotehd.cust-no  le tcust
+      and quotehd.quo-date ge fdate
+      and quotehd.quo-date le tdate
+    use-index cust2,
+
+    each quoteitm
+    where quoteitm.company eq quotehd.company
+      and quoteitm.loc     eq quotehd.loc
+      and quoteitm.q-no    eq quotehd.q-no
+      and quoteitm.part-no ge begin_part-no
+      and quoteitm.part-no le end_part-no
+    no-lock
+
+    break by quotehd.q-no:
+
+    RELEASE eb .
+    IF quotehd.est-no NE "" THEN
+        FIND FIRST eb
+          WHERE eb.company EQ quotehd.company
+            AND eb.est-no EQ quotehd.est-no
+            AND eb.part-no EQ  quoteitm.part-no
+          NO-LOCK NO-ERROR.
+
+  IF begin_rm-no NE "" AND NOT END_rm-no BEGINS "zzzzz" AND quotehd.est-no NE "" THEN DO:
+      
+        IF NOT AVAIL eb THEN NEXT.
+        IF NOT CAN-FIND(FIRST ef OF eb
+            WHERE ef.board GE begin_rm-no
+              AND ef.board LE END_rm-no) 
+            THEN NEXT.
+  END.
+  IF FIRST-OF(quotehd.q-no) THEN ll[1] = NO.
+
+  ASSIGN
+   ll[2]    = NO
+   lv-rowid = ?.
+
+  RELEASE itemfg.
+
+  IF ll-new-file THEN DO:
+    lv-part-no = quoteitm.part-no.
+    RUN custom/getcpart.p (quotehd.company, quotehd.cust-no,
+                           INPUT-OUTPUT lv-part-no, INPUT-OUTPUT lv-rowid).
+  END.
+
+  IF lv-rowid EQ ? THEN
+    FIND FIRST itemfg
+        WHERE itemfg.company  EQ quoteitm.company
+          AND itemfg.part-no  EQ quoteitm.part-no
+          AND itemfg.part-no  NE ""
+          AND (itemfg.cust-no EQ quotehd.cust-no OR
+               itemfg.i-code  EQ "S")
+        NO-LOCK NO-ERROR.
+  ELSE
+    FIND itemfg WHERE ROWID(itemfg) EQ lv-rowid NO-LOCK NO-ERROR.
+
+  IF ( NOT AVAIL itemfg AND 
+      CAN-FIND(FIRST eb
+              WHERE eb.company EQ quotehd.company
+                AND eb.est-no  EQ quotehd.est-no
+                AND eb.part-no EQ  quoteitm.part-no
+                AND eb.procat   GE begin_fg-cat
+                AND eb.procat   LE end_fg-cat) )                      OR
      CAN-FIND(FIRST itemfg
               WHERE ROWID(itemfg)   EQ lv-rowid
                 AND itemfg.procat   GE begin_fg-cat
@@ -1004,7 +1189,7 @@ for each quotehd
   IF tb_prmtx AND ll[2] THEN RUN oe/updprmtx.p (ROWID(quoteitm), "", 0, "", 0).
 
   IF LAST-OF(quotehd.q-no) AND ll[1] THEN quotehd.quo-date = TODAY.
-end.
+end. 
 
 RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
 

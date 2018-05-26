@@ -78,7 +78,7 @@ DEFINE VARIABLE v-q-no           LIKE oe-ord.q-no NO-UNDO.
 DEFINE VARIABLE v-printline      AS INTEGER   NO-UNDO.
 DEFINE VARIABLE lv-display-comp  AS LOG       NO-UNDO.
 DEFINE VARIABLE lv-comp-name     AS cha       FORM "x(30)" NO-UNDO.
-DEFINE VARIABLE lv-email         AS cha       FORM "x(40)" NO-UNDO.
+DEFINE VARIABLE lv-email         AS cha       FORM "x(56)" NO-UNDO.
 DEFINE VARIABLE v-cusx-add1      AS cha       NO-UNDO.
 DEFINE VARIABLE v-cusx-add2      AS cha       NO-UNDO.
 DEFINE VARIABLE v-cusx-add3      AS cha       NO-UNDO.

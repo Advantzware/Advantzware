@@ -58,7 +58,7 @@ FOR EACH tt-comp:
                             AND eb.est-no = tt-comp.est-no
                             AND eb.form-no = tt-comp.form-no 
                             AND eb.stock-no = tt-comp.i-no NO-ERROR.
-    tt-comp.set-qty = v-rcv-qty / IF AVAIL eb THEN eb.yld-qty ELSE 1.  
+    tt-comp.set-qty = v-rcv-qty / IF AVAIL eb THEN eb.quantityPerSet ELSE 1.  
     v-set-qty = tt-comp.set-qty.
 END.
 

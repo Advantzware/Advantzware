@@ -103,10 +103,12 @@ FOR EACH oe-ord NO-LOCK
                     tt-report.key-03  = STRING(i,"9")
                     tt-report.rec-id  = RECID(oe-ordl).           
             END.  /* if oe-ord.ord-date */
+            RUN fg/GetFGArea.p (ROWID(itemfg), "SF", OUTPUT dTotalSqft).
+            
             ASSIGN
                 dPct         = oe-ordl.s-pct[i] / 100
                 dOrdQty      = oe-ordl.qty * dPct
-                dTotalSqft   = itemfg.t-sqft * dOrdQty / 1000
+                dTotalSqft   = dTotalSqft * dOrdQty / 1000
                 dTotTons     = itemfg.weight-100 * dOrdQty / 100 / 2000
                 dPriceAmount = oe-ordl.t-price * dPct
                 .
@@ -401,22 +403,12 @@ PROCEDURE pOrdersBooked2:
                     dPriceAmount = oe-ordl.t-price * dPct
                     dTons        = IF AVAILABLE itemfg THEN (itemfg.weight-100 * dOrdQty / 100 / 2000) ELSE 0
                     .
-                IF AVAILABLE itemfg AND itemfg.isaset THEN DO:
-                   dSqft = 0.
-                   FOR EACH fg-set FIELDS(part-no part-qty) NO-LOCK
-                       WHERE fg-set.company EQ itemfg.company
-                         AND fg-set.set-no  EQ itemfg.i-no,
-                       FIRST bItemFG FIELDS(t-sqft) NO-LOCK
-                       WHERE bItemFG.company EQ itemfg.company
-                         AND bItemFG.i-no EQ fg-set.part-no
-                       :
-                       dSqft = dSqft + (dOrdQty
-                             * (IF fg-set.part-qty GE 0 THEN fg-set.part-qty
-                                ELSE (-1 / fg-set.part-qty))
-                             * bItemFG.t-sqft / 1000).
-                   END. /* each fg-set */
-                END.
-                ELSE dSqft = IF AVAILABLE itemfg THEN (itemfg.t-sqft * dOrdQty / 1000) ELSE 0.
+                IF AVAILABLE itemfg THEN 
+                    RUN fg/GetFGArea.p (ROWID(itemfg), "MSF", OUTPUT dSqft).  
+                ELSE 
+                    dSqft = 0.          
+                dSqft = dSqft * dOrdQty.
+                
                 CREATE w-data.
                 ASSIGN
                     w-data.sman   = tt-report.key-01

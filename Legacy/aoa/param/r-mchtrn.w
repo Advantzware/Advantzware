@@ -244,7 +244,7 @@ DEFINE FRAME F-Main
      svSubRpt_EmployeeTransactions AT ROW 21.43 COL 25 HELP
           "Select to Show Employee Transactions" WIDGET-ID 88
      "Sort By:" VIEW-AS TEXT
-          SIZE 8 BY 1 AT ROW 20.05 COL 17 WIDGET-ID 90
+          SIZE 8 BY 1 AT ROW 17.43 COL 17 WIDGET-ID 90
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1

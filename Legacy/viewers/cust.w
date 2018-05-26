@@ -51,6 +51,9 @@ DEF VAR v-cust-length AS INT NO-UNDO.
 DEF VAR v-inv-fmt AS CHAR NO-UNDO.
 DEF VAR v-cust-fmt AS CHAR NO-UNDO.
 DEF VAR v-cust-log AS LOGICAL NO-UNDO.
+DEFINE VARIABLE cAccount AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cShift   AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cRouting AS INTEGER NO-UNDO.
 
 /* gdm - 05050903 */
 DEF BUFFER bf-cust FOR cust.
@@ -131,7 +134,7 @@ DEF VAR v-zipflg AS LOG NO-UNDO.
 /* Need to scope the external tables to this procedure                  */
 DEFINE QUERY external_tables FOR cust.
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-FIELDS cust.log-field[1] cust.active cust.name ~
+&Scoped-Define ENABLED-FIELDS cust.active cust.NAME  ~
 cust.addr[1] cust.addr[2] cust.city cust.state cust.zip cust.terms ~
 cust.cr-use cust.cr-rating cust.cr-lim cust.ord-lim cust.disc ~
 cust.curr-code cust.cr-hold-invdays cust.cr-hold-invdue cust.cust-level ~
@@ -142,11 +145,11 @@ cust.area-code cust.phone cust.scomm cust.fax-prefix cust.fax-country ~
 cust.frt-pay cust.fob-code cust.ship-part cust.loc cust.carrier ~
 cust.del-zone cust.terr cust.under-pct cust.over-pct cust.markup ~
 cust.ship-days cust.manf-day cust.spare-int-1 cust.pallet cust.case-bundle ~
-cust.int-field[1] cust.po-mandatory cust.show-set 
+cust.int-field[1] cust.po-mandatory cust.show-set cust.log-field[1] 
 &Scoped-define ENABLED-TABLES cust
 &Scoped-define FIRST-ENABLED-TABLE cust
-&Scoped-Define ENABLED-OBJECTS RECT-2 RECT-3 RECT-4 
-&Scoped-Define DISPLAYED-FIELDS cust.log-field[1] cust.cust-no cust.active ~
+&Scoped-Define ENABLED-OBJECTS RECT-2 RECT-3 RECT-4 btn_bank-info
+&Scoped-Define DISPLAYED-FIELDS cust.cust-no cust.active ~
 cust.name cust.addr[1] cust.addr[2] cust.city cust.state cust.zip ~
 cust.terms cust.cr-use cust.cr-rating cust.cr-lim cust.ord-lim cust.disc ~
 cust.curr-code cust.cr-hold-invdays cust.cr-hold-invdue cust.cust-level ~
@@ -157,12 +160,12 @@ cust.area-code cust.phone cust.scomm cust.fax-prefix cust.fax-country ~
 cust.frt-pay cust.fob-code cust.ship-part cust.loc cust.carrier ~
 cust.del-zone cust.terr cust.under-pct cust.over-pct cust.markup ~
 cust.ship-days cust.manf-day cust.spare-int-1 cust.pallet cust.case-bundle ~
-cust.int-field[1] cust.po-mandatory cust.show-set 
+cust.int-field[1] cust.po-mandatory cust.show-set cust.log-field[1] 
 &Scoped-define DISPLAYED-TABLES cust
 &Scoped-define FIRST-DISPLAYED-TABLE cust
 &Scoped-Define DISPLAYED-OBJECTS fl_custemail terms_dscr rd_inv-meth ~
 stax_tax-dscr custype_dscr sman_sname fi_flat-comm faxAreaCode faxNumber ~
-loc_dscr carrier_dscr carr-mtx_del-dscr terr_dscr 
+loc_dscr carrier_dscr carr-mtx_del-dscr terr_dscr btn_bank-info
 
 /* Custom List Definitions                                              */
 /* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,ROW-AVAILABLE,DISPLAY-FIELD,faxFields,F1 */
@@ -274,6 +277,11 @@ DEFINE VARIABLE rd_inv-meth AS LOGICAL
 "Group by Date", ?
      SIZE 46 BY .81 NO-UNDO.
 
+DEFINE BUTTON btn_bank-info 
+     LABEL "Bank Info" 
+     SIZE 16.4 BY 1.00 
+      BGCOLOR 15 FONT 4.
+
 DEFINE RECTANGLE RECT-2
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 71 BY 8.57.
@@ -290,11 +298,7 @@ DEFINE RECTANGLE RECT-4
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     cust.log-field[1] AT ROW 18.14 COL 114.6 HELP
-          "" WIDGET-ID 16
-          LABEL "Paperless Invoice?"
-          VIEW-AS TOGGLE-BOX
-          SIZE 26.4 BY .81
+     
      cust.cust-no AT ROW 1 COL 12 COLON-ALIGNED
           LABEL "Customer"
           VIEW-AS FILL-IN 
@@ -458,6 +462,7 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 44 BY 1
           BGCOLOR 15 FONT 4
+     btn_bank-info AT ROW 2.95 COL 127.2 COLON-ALIGNED
      cust.sman AT ROW 3.86 COL 73 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 8 BY 1
@@ -591,6 +596,11 @@ DEFINE FRAME F-Main
      cust.show-set AT ROW 17.38 COL 114.6
           VIEW-AS TOGGLE-BOX
           SIZE 23 BY .81
+     cust.log-field[1] AT ROW 18.14 COL 114.6 HELP
+          "" WIDGET-ID 16
+          LABEL "Paperless Invoice?"
+          VIEW-AS TOGGLE-BOX
+          SIZE 26.4 BY .81
      "Taxable:" VIEW-AS TEXT
           SIZE 10 BY .62 AT ROW 16.14 COL 11
      "Tax Information" VIEW-AS TEXT
@@ -1541,6 +1551,26 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME btn_bank-info
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn_bank-info C-Win
+ON CHOOSE OF btn_bank-info IN FRAME F-Main /* button bank info */
+DO:
+   IF AVAIL cust THEN
+    ASSIGN cAccount = cust.bank-acct
+           cShift   = cust.SwiftBIC
+           cRouting = cust.Bank-RTN .
+
+    IF cust.NAME:SENSITIVE IN FRAME {&FRAME-NAME} EQ NO THEN
+     RUN custom/d-bankinfo.w ("View" ,INPUT-OUTPUT cAccount, INPUT-OUTPUT cShift, INPUT-OUTPUT cRouting).
+    ELSE
+     RUN custom/d-bankinfo.w ("update" ,INPUT-OUTPUT cAccount, INPUT-OUTPUT cShift, INPUT-OUTPUT cRouting).
+
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &UNDEFINE SELF-NAME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK V-table-Win 
@@ -2065,6 +2095,11 @@ PROCEDURE local-assign-record :
          RUN cust-update-log.
    END.
 
+   ASSIGN
+    cust.bank-acct =  cAccount
+    cust.SwiftBIC  =  cShift  
+    cust.Bank-RTN  =  cRouting .
+
    /*IF adm-new-record AND NOT adm-adding-record THEN DO: /* copy*/
      FIND FIRST b-cust WHERE RECID(b-cust) = v-cust-recid-prev NO-LOCK NO-ERROR.
      FOR EACH b-shipto OF b-cust NO-LOCK.
@@ -2236,6 +2271,12 @@ PROCEDURE local-display-fields :
   END.
 
   RUN display-active.
+
+  IF AVAIL cust THEN
+      ASSIGN
+    cAccount = cust.bank-acct   
+    cShift   = cust.SwiftBIC    
+    cRouting = cust.Bank-RTN  .
 
 END PROCEDURE.
 

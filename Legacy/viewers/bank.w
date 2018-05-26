@@ -1,7 +1,7 @@
 &ANALYZE-SUSPEND _VERSION-NUMBER UIB_v8r12 GUI ADM1
 &ANALYZE-RESUME
 /* Connected Databases 
-          asi              PROGRESS
+          asi       PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
@@ -74,15 +74,17 @@ DEFINE QUERY external_tables FOR bank.
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-FIELDS bank.bank-code bank.bank-name bank.addr[1] ~
 bank.addr[2] bank.city bank.state bank.zip bank.phone bank.contact ~
-bank.bk-act bank.actnum bank.last-chk bank.spare-int-1 bank.bal bank.o-chk ~
-bank.dep-tr bank.serv bank.curr-code[1] 
+bank.bk-act bank.actnum bank.last-chk bank.spare-int-1 bank.bal ~
+bank.pay-type  bank.o-chk bank.RTN bank.dep-tr bank.ODFI bank.serv ~
+bank.ACHID bank.curr-code[1] bank.SwiftBIC  bank.Bank-ID 
 &Scoped-define ENABLED-TABLES bank
 &Scoped-define FIRST-ENABLED-TABLE bank
 &Scoped-Define ENABLED-OBJECTS RECT-1 RECT-5 RECT-7 
 &Scoped-Define DISPLAYED-FIELDS bank.bank-code bank.bank-name bank.addr[1] ~
 bank.addr[2] bank.city bank.state bank.zip bank.phone bank.contact ~
-bank.bk-act bank.actnum bank.last-chk bank.spare-int-1 bank.bal bank.o-chk ~
-bank.dep-tr bank.serv bank.curr-code[1] 
+bank.bk-act bank.actnum bank.last-chk bank.spare-int-1 bank.bal ~
+bank.pay-type bank.o-chk bank.RTN bank.dep-tr bank.ODFI bank.serv ~
+bank.ACHID bank.curr-code[1] bank.SwiftBIC  bank.Bank-ID
 &Scoped-define DISPLAYED-TABLES bank
 &Scoped-define FIRST-DISPLAYED-TABLE bank
 &Scoped-Define DISPLAYED-OBJECTS account_dscr 
@@ -129,15 +131,15 @@ DEFINE VARIABLE account_dscr AS CHARACTER FORMAT "x(45)"
 
 DEFINE RECTANGLE RECT-1
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 114 BY 6.91.
+     SIZE 118 BY 6.6.
 
 DEFINE RECTANGLE RECT-5
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 114 BY 3.1.
+     SIZE 118 BY 2.62.
 
 DEFINE RECTANGLE RECT-7
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 114 BY 7.14.
+     SIZE 118 BY 7.86.
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -180,53 +182,87 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 35 BY 1
           FONT 4
-     bank.bk-act AT ROW 8.62 COL 44 COLON-ALIGNED FORMAT "X(14)"
+     bank.bk-act AT ROW 8.1 COL 44 COLON-ALIGNED FORMAT "X(14)"
           VIEW-AS FILL-IN 
           SIZE 27 BY 1
           FONT 4
-     bank.actnum AT ROW 9.57 COL 44 COLON-ALIGNED
+     bank.actnum AT ROW 9.05 COL 44 COLON-ALIGNED
           LABEL "G/L Account #"
           VIEW-AS FILL-IN 
           SIZE 32 BY 1
           FONT 4
-     account_dscr AT ROW 9.57 COL 76 COLON-ALIGNED NO-LABEL
-     bank.last-chk AT ROW 11.48 COL 44 COLON-ALIGNED
+     account_dscr AT ROW 9.05 COL 76 COLON-ALIGNED NO-LABEL
+     bank.last-chk AT ROW 10.76 COL 44 COLON-ALIGNED
           LABEL "Last Check # Used"
           VIEW-AS FILL-IN 
           SIZE 25 BY 1
           FONT 4
-     bank.spare-int-1 AT ROW 11.48 COL 88 COLON-ALIGNED WIDGET-ID 2
+     bank.spare-int-1 AT ROW 10.76 COL 86 COLON-ALIGNED WIDGET-ID 2
           LABEL "ACH Check #" FORMAT ">>>>>>>9"
           VIEW-AS FILL-IN 
           SIZE 25 BY 1
           FONT 4
-     bank.bal AT ROW 12.43 COL 44 COLON-ALIGNED
+     bank.bal AT ROW 11.71 COL 44 COLON-ALIGNED
           LABEL "Account Balance"
           VIEW-AS FILL-IN 
           SIZE 25 BY 1
-          FONT 4
-     bank.o-chk AT ROW 13.76 COL 44 COLON-ALIGNED
+          FONT 4                 
+    bank.pay-type AT ROW 11.71 COL 86 COLON-ALIGNED
+          LABEL "Pay Type" FORMAT "x(25)"
+          VIEW-AS COMBO-BOX INNER-LINES 5
+          LIST-ITEMS "PC-Payment Card","CC-Credit Card","DC-Debit Card","DD-Direct Deposit","BD-Direct Business Debit", "WT-Wire Transfer","EP-Electronic Payment","ET-Electronic Transfer","VC-Virtual Currency","BC-Bitcoin" 
+          DROP-DOWN-LIST
+          SIZE 32 BY 1 TOOLTIP "PC-Payment Card,CC-Credit Card,DC-Debit Card,DD-Direct Deposit,BD-Direct Business Debit,WT-Wire Transfer,EP-Electronic Payment,ET-Electronic Transfer,VC-Virtual Currency,BC-Bitcoin"
+          BGCOLOR 15 
+     
+     bank.o-chk AT ROW 12.95 COL 44 COLON-ALIGNED
           LABEL "Outstanding Balance"
           VIEW-AS FILL-IN 
           SIZE 25 BY 1
           FONT 4
-     bank.dep-tr AT ROW 14.71 COL 44 COLON-ALIGNED
+    bank.RTN AT ROW 12.95 COL 86 COLON-ALIGNED
+          LABEL "Routing#" FORMAT ">>>>>>>>>"
+          VIEW-AS FILL-IN 
+          SIZE 25 BY 1
+          FONT 4
+    
+     bank.dep-tr AT ROW 13.91 COL 44 COLON-ALIGNED
           LABEL "Deposits in Transit"
           VIEW-AS FILL-IN 
           SIZE 25 BY 1
           FONT 4
-     bank.serv AT ROW 15.67 COL 44 COLON-ALIGNED
+    bank.ODFI AT ROW 13.91 COL 86 COLON-ALIGNED
+          LABEL "ODFI"
+          VIEW-AS TOGGLE-BOX
+          SIZE 25 BY 1
+          FONT 4
+     bank.serv AT ROW 14.86 COL 44 COLON-ALIGNED
           LABEL "Service charge"
           VIEW-AS FILL-IN 
           SIZE 25 BY 1
           FONT 4
-     bank.curr-code[1] AT ROW 16.95 COL 44 COLON-ALIGNED
+    bank.ACHID AT ROW 14.86 COL 86 COLON-ALIGNED
+          LABEL "ACH Payment" FORMAT ">>>>>>>>>"
+          VIEW-AS FILL-IN 
+          SIZE 25 BY 1
+          FONT 4
+     bank.curr-code[1] AT ROW 15.95 COL 44 COLON-ALIGNED
           LABEL "Currency Code"
           VIEW-AS FILL-IN 
           SIZE 10 BY 1
+    bank.SwiftBIC AT ROW 15.95 COL 86 COLON-ALIGNED
+          LABEL "Swift Code" FORMAT "x(11)"
+          VIEW-AS FILL-IN 
+          SIZE 25 BY 1
+          FONT 4
+     bank.Bank-ID AT ROW 16.95 COL 86 COLON-ALIGNED
+          LABEL "Bank ID" FORMAT "x(9)"
+          VIEW-AS FILL-IN 
+          SIZE 25 BY 1
+          FONT 4
      RECT-1 AT ROW 1.24 COL 3
-     RECT-5 AT ROW 8.14 COL 3
-     RECT-7 AT ROW 11.24 COL 3
+     RECT-5 AT ROW 7.86 COL 3
+     RECT-7 AT ROW 10.52 COL 3
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -299,6 +335,8 @@ ASSIGN
    EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN bank.bank-code IN FRAME F-Main
    1                                                                    */
+/* SETTINGS FOR FILL-IN bank.Bank-ID IN FRAME F-Main
+   EXP-LABEL EXP-FORMAT                                                           */
 /* SETTINGS FOR FILL-IN bank.bk-act IN FRAME F-Main
    EXP-FORMAT                                                           */
 /* SETTINGS FOR FILL-IN bank.curr-code[1] IN FRAME F-Main
@@ -313,6 +351,16 @@ ASSIGN
    EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN bank.spare-int-1 IN FRAME F-Main
    EXP-LABEL EXP-FORMAT                                                 */
+/* SETTINGS FOR FILL-IN bank.SwiftBIC IN FRAME F-Main
+   EXP-LABEL  EXP-FORMAT                                                 */
+/* SETTINGS FOR FILL-IN bank.pay-type IN FRAME F-Main
+   EXP-LABEL                                                            */
+/* SETTINGS FOR FILL-IN bank.RTN IN FRAME F-Main
+   EXP-LABEL  EXP-FORMAT                                                */
+/* SETTINGS FOR FILL-IN bank.ODFI IN FRAME F-Main
+   EXP-LABEL                                                            */
+/* SETTINGS FOR FILL-IN bank.ACHID IN FRAME F-Main
+   EXP-LABEL EXP-FORMAT                                                 */
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
@@ -326,7 +374,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -468,6 +516,55 @@ PROCEDURE local-create-record :
 
   /* Code placed here will execute AFTER standard behavior.    */
   {methods/viewers/create/bank.i}
+
+  RUN display-paytype.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-assign-record V-table-Win 
+PROCEDURE local-assign-record :
+/*------------------------------------------------------------------------------
+  Purpose:     Override standard ADM method
+  Notes:       
+------------------------------------------------------------------------------*/
+
+  /* Code placed here will execute PRIOR to standard behavior. */
+  
+
+  /* Dispatch standard ADM method.                             */
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-record':U ) .
+
+  /* Code placed here will execute AFTER standard behavior.    */
+ 
+
+  assign
+   bank.pay-type   = substr(bank.pay-type,1,2) .
+  
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-display-fields V-table-Win 
+PROCEDURE local-display-fields :
+/*------------------------------------------------------------------------------
+  Purpose:     Override standard ADM method
+  Notes:       
+------------------------------------------------------------------------------*/
+
+  /* Code placed here will execute PRIOR to standard behavior. */
+  
+    /* Dispatch standard ADM method.                             */
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'display-fields':U ) .
+
+  /* Code placed here will execute AFTER standard behavior.    */
+  
+  RUN display-paytype.
 
 END PROCEDURE.
 
@@ -613,3 +710,33 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE display-paytype V-table-Win 
+PROCEDURE display-paytype :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+
+  DO WITH FRAME {&FRAME-NAME}:
+
+    if not avail bank then return.
+
+    case bank.pay-type:
+      when "PC" then bank.pay-type:screen-value in frame {&frame-name} = "PC-Payment Card".
+      when "CC" then bank.pay-type:screen-value in frame {&frame-name} = "CC-Credit Card".
+      when "DC" then bank.pay-type:screen-value in frame {&frame-name} = "DC-Debit Card".
+      when "DD" then bank.pay-type:screen-value in frame {&frame-name} = "DD-Direct Deposit".     
+      when "BD" then bank.pay-type:screen-value in frame {&frame-name} = "BD-Direct Business Debit".  
+      when "WT" then bank.pay-type:screen-value in frame {&frame-name} = "WT-Wire Transfer".
+      when "EP" then bank.pay-type:screen-value in frame {&frame-name} = "EP-Electronic Payment".
+      when "ET" then bank.pay-type:screen-value in frame {&frame-name} = "ET-Electronic Transfer".
+      when "VC" then bank.pay-type:screen-value in frame {&frame-name} = "VC-Virtual Currency".     
+      when "BC" then bank.pay-type:screen-value in frame {&frame-name} = "BC-Bitcoin".  
+    end case.
+  END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME

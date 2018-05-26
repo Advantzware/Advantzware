@@ -41,7 +41,6 @@ DEFINE INPUT PARAMETER pcpoTo       AS CHARACTER NO-UNDO.
 DEFINE VARIABLE list-name AS cha NO-UNDO.
 DEFINE VARIABLE init-dir AS CHARACTER NO-UNDO.
 
-DEFINE BUFFER m-oe-prmtx FOR oe-prmtx.
 
 DEFINE VARIABLE v-prgmname AS CHARACTER NO-UNDO.
 DEFINE VARIABLE period_pos AS INTEGER NO-UNDO.
@@ -82,15 +81,15 @@ DEFINE VARIABLE iColumnLength AS INTEGER NO-UNDO.
 ASSIGN cTextListToSelect  = "Invoice#,Bol#,Customer,Cust Name,Inv Date,GL Account#,Acc Desc,FG Item#,Item Name," +
                             "Item Desccription,Cust Part#,Order#,Cust Po#,Est#,Shipto,Tax Code,Term Code,Term Desc," +
                             "Due Date,Discount%,Discount,Disc Days,Carrier,Invoice Amt,Freight,Tax,Amount Paid," +
-                            "Balance Due,Line,Customer Lot#,Invoice Qty,Cons Uom,Sqft,Price,Uom,Dsct%,Amount,Amount MSF,Cost," +
+                            "Balance Due,Line,Customer Lot#,Invoice Qty,Ship Qty,Cons Uom,Sqft,Price,Uom,Dsct%,Amount,Amount MSF,Cost," +
                             "Cost UOM,Sls Rep,% of Sales,Comm,Sls Rep2,% of Sales2,Comm2,Sls Rep3,% of Sales3,Comm3," + 
                             "Line Amount,Line Cost,Total Amount,Total Cost,Line Discount,Total Discount"
 
        cFieldListToSelect = "ar-invl.inv-no,ar-invl.bol-no,ar-invl.cust-no,ar-inv.cust-name,ar-inv.inv-date,ar-invl.actnum,actdscr,ar-invl.i-no,ar-invl.i-name," +
                             "ar-invl.i-dscr,ar-invl.part-no,ar-invl.ord-no,ar-invl.po-no,ar-invl.est-no,ar-inv.ship-id,ar-inv.tax-code,ar-inv.terms,ar-inv.terms-d," +
                             "ar-inv.due-date,ar-inv.disc-%,ar-inv.disc-taken,ar-inv.disc-days,ar-inv.carrier,ar-inv.gross,ar-inv.freight,ar-inv.tax-amt,ar-inv.paid," +
-                            "ar-inv.due,ar-invl.LINE,ar-invl.lot-no,ar-invl.inv-qty,ar-invl.cons-uom,ar-invl.sf-sht,ar-invl.unit-pr,ar-invl.pr-qty-uom,ar-invl.disc,amount,ar-invl.amt-msf,ar-invl.cost," +
-                            "dscr[1],sman[1],s-pct[1],s-comm[1],sman[2],s-pct[2],s-comm[2],sman[3],s-pct[3],s-comm[3]," + 
+                            "ar-inv.due,ar-invl.LINE,ar-invl.lot-no,ar-invl.inv-qty,ar-invl.ship-qty,ar-invl.cons-uom,ar-invl.sf-sht,ar-invl.unit-pr,ar-invl.pr-qty-uom," +
+                            "ar-invl.disc,amount,ar-invl.amt-msf,ar-invl.cost,dscr[1],sman[1],s-pct[1],s-comm[1],sman[2],s-pct[2],s-comm[2],sman[3],s-pct[3],s-comm[3]," + 
                             "line-amt,line-cst,total-amt,total-cst,line-dis,total-dis"
                             
         cFieldLength = "15,15,15,20,15,30,15,15,20," + "15,15,15,20,15,30,15,15,20," + "15,15,15,20,15,30,15,15,20," + "15,15,15,20,15,30,15,15,20,15,15,15," + 
@@ -832,7 +831,7 @@ END.
 
 
 /* ***************************  Main Block  *************************** */
-{sys/inc/f3helpw.i}
+{sys/inc/f3helpd.i}
 /* Parent the dialog-box to the ACTIVE-WINDOW, if there is no parent.   */
 IF VALID-HANDLE(ACTIVE-WINDOW) AND FRAME {&FRAME-NAME}:PARENT EQ ?
 THEN FRAME {&FRAME-NAME}:PARENT = ACTIVE-WINDOW.
@@ -1067,7 +1066,7 @@ PROCEDURE run-report :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-DEFINE BUFFER b-oe-prmtx FOR oe-prmtx.
+
 DEFINE VARIABLE str-tit4 AS cha NO-UNDO.
 DEFINE VARIABLE str-tit5 AS cha NO-UNDO.
 DEFINE VARIABLE str-line AS cha FORM "x(300)" NO-UNDO.
@@ -1096,6 +1095,7 @@ DEFINE VARIABLE cVarValue AS cha NO-UNDO.
 DEFINE VARIABLE cExcelVarValue AS cha NO-UNDO.
 DEFINE VARIABLE cFieldName AS cha NO-UNDO.
 DEFINE VARIABLE cSelectedList AS cha NO-UNDO.
+DEFINE VARIABLE lLineTotal AS LOGICAL NO-UNDO .
 cSelectedList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
 
 DO WITH FRAME {&FRAME-NAME}:
@@ -1121,6 +1121,9 @@ IF tb_excel THEN
           excelheader = excelHeader + ttRptSelected.TextList + ","
           .        
           cSlist = cSlist + ttRptSelected.FieldList + ",".
+          IF LOOKUP(ttRptSelected.TextList, "Line Amount,Line Cost,Line Discount") <> 0    THEN
+          lLineTotal = TRUE .
+          ELSE lLineTotal = FALSE .
  END.
 
 
@@ -1144,40 +1147,42 @@ IF tb_excel THEN
        FIRST ar-inv NO-LOCK 
        WHERE ar-inv.x-no = ar-invl.x-no 
          AND ar-inv.inv-date GE begin_date
-         AND ar-inv.inv-date LE end_date  
+         AND ar-inv.inv-date LE end_date
          BREAK BY ar-invl.inv-no DESCENDING :
-            
+
+      
          ASSIGN
              amount = 0
              amount = IF NOT ar-invl.billable AND ar-invl.misc THEN 0 ELSE ar-invl.amt.
              
-        IF FIRST-OF(ar-invl.inv-no) THEN
+        
+
+         IF lLineTotal THEN do:
+           IF FIRST-OF(ar-invl.inv-no) THEN
             ASSIGN
             distot[2]    = 0 
             Amounttot[2] = 0
             costot[2]    = 0.
 
-         IF FIRST-OF(ar-invl.inv-no) THEN
-         FOR EACH bf-ar-invl WHERE bf-ar-invl.company = ar-invl.company 
-             AND bf-ar-invl.inv-no = ar-invl.inv-no NO-LOCK:
-             ASSIGN
-             chk-amount = 0
-             chk-amount = IF NOT bf-ar-invl.billable AND bf-ar-invl.misc THEN 0 ELSE bf-ar-invl.amt.
-            ASSIGN
-                distot[2] = distot[2] + ar-inv.disc-taken 
-                Amounttot[2] = Amounttot[2] + chk-amount 
-                costot[2] = costot[2] + bf-ar-invl.cost .
+           IF FIRST-OF(ar-invl.inv-no) THEN
+             FOR EACH bf-ar-invl WHERE bf-ar-invl.company = ar-invl.company 
+                 AND bf-ar-invl.inv-no = ar-invl.inv-no NO-LOCK:
+                 ASSIGN
+                 chk-amount = 0
+                 chk-amount = IF NOT bf-ar-invl.billable AND bf-ar-invl.misc THEN 0 ELSE bf-ar-invl.amt.
+                ASSIGN
+                    distot[2] = distot[2] + ar-inv.disc-taken 
+                    Amounttot[2] = Amounttot[2] + chk-amount 
+                    costot[2] = costot[2] + bf-ar-invl.cost .
+             END.
          END.
                 
-        ASSIGN cDisplay = ""
+       ASSIGN cDisplay = ""
            cTmpField = ""
            cVarValue = ""
            cExcelDisplay = ""
            cExcelVarValue = "".
-     IF AVAILABLE ar-invl THEN
-     BUFFER b-ar-invl:FIND-BY-ROWID(ROWID(ar-invl), NO-LOCK) .
-     IF AVAILABLE ar-inv THEN
-       BUFFER bar-inv:FIND-BY-ROWID(ROWID(ar-inv), NO-LOCK) .
+     
        ASSIGN
        distot[1] = distot[1] + ar-inv.disc-taken 
        Amounttot[1] = Amounttot[1] + amount 
@@ -1185,46 +1190,64 @@ IF tb_excel THEN
 
      DO i = 1 TO NUM-ENTRIES(cSelectedlist):                             
        cTmpField = ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
-
-       IF INDEX(cTmpField,".") > 0 THEN DO:
-            cFieldName = cTmpField .
-           cTmpField = SUBSTRING(cTmpField,INDEX(cTmpField,".") + 1).
-            
-           IF cFieldName BEGINS "ar-invl" THEN hField = BUFFER b-ar-invl:BUFFER-FIELD(cTmpField) .
-           ELSE IF cFieldName BEGINS "ar-inv" THEN hField = BUFFER bar-inv:BUFFER-FIELD(cTmpField).
-          IF hField <> ? THEN DO:                      
-           cTmpField = SUBSTRING(GetFieldValue(hField),1,int(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength))).
-               cDisplay = cDisplay + cTmpField + 
-                   FILL(" ",int(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cTmpField)).
-
-           cExcelDisplay = cExcelDisplay + quoter(GetFieldValue(hField)) + ",".    
-          END.
-          ELSE DO:
-                    cTmpField = SUBSTRING(cFieldName,1,int( ENTRY( getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength) ) ).                  
-                    cDisplay = cDisplay + FILL(" ",int(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 ).
-                    cExcelDisplay = cExcelDisplay + quoter(" ")  /*GetFieldValue(hField))*/ + ",".
-                 END.
-        END.
-          ELSE DO:      
+        
              CASE cTmpField:
-                  WHEN "actdscr" THEN cVarValue   =  STRING( get-actdscr() ).
-                  WHEN "amount" THEN cVarValue    =  STRING(amount).
-                  WHEN "dscr[1]" THEN cVarValue = STRING(ar-invl.dscr[1]). 
-                  WHEN "sman[1]" THEN cVarValue = STRING(ar-invl.sman[1]). 
-                  WHEN "sman[2]" THEN cVarValue = STRING(ar-invl.sman[2]). 
-                  WHEN "sman[3]" THEN cVarValue = STRING(ar-invl.sman[3]). 
-                  WHEN "s-pct[1]" THEN cVarValue = STRING(ar-invl.s-pct[1]).
-                  WHEN "s-pct[2]" THEN cVarValue = STRING(ar-invl.s-pct[2]).
-                  WHEN "s-pct[3]" THEN cVarValue = STRING(ar-invl.s-pct[3]) .
-                  WHEN "s-comm[1]" THEN cVarValue = STRING(ar-invl.s-comm[1]).
-                  WHEN "s-comm[2]" THEN cVarValue = STRING(ar-invl.s-comm[2]).
-                  WHEN "s-comm[3]" THEN cVarValue = STRING(ar-invl.s-comm[3]).
-                  WHEN "line-amt" THEN cVarValue = STRING(Amounttot[2]).
-                  WHEN "line-cst" THEN cVarValue  = STRING(costot[2]) .
-                  WHEN "total-amt" THEN cVarValue = STRING(Amounttot[1]).
-                  WHEN "total-cst" THEN cVarValue = STRING(costot[1]) .
-                  WHEN "line-dis" THEN cVarValue    =  STRING(distot[2]).
-                  WHEN "total-dis" THEN cVarValue    =  STRING(distot[1]).
+                  WHEN "ar-invl.inv-no"  THEN cVarValue   = STRING(ar-invl.inv-no,">>>>>>9" ).
+                  WHEN "ar-invl.bol-no"  THEN cVarValue   = STRING(ar-invl.bol-no,">>>>>>9").
+                  WHEN "ar-invl.cust-no" THEN cVarValue   = STRING(ar-invl.cust-no,"x(8)"). 
+                  WHEN "ar-inv.cust-name" THEN cVarValue  = STRING(ar-inv.cust-name). 
+                  WHEN "ar-inv.inv-date" THEN cVarValue   = IF ar-inv.inv-date NE ? THEN STRING(ar-inv.inv-date) ELSE "". 
+                  WHEN "ar-invl.actnum"  THEN cVarValue   = STRING(ar-invl.actnum). 
+                  WHEN "ar-invl.i-no"    THEN cVarValue   = STRING(ar-invl.i-no).
+                  WHEN "ar-invl.i-name" THEN cVarValue    = STRING(ar-invl.i-name).
+                  WHEN "ar-invl.i-dscr" THEN cVarValue    = STRING(ar-invl.i-dscr) .
+                  WHEN "ar-invl.part-no" THEN cVarValue   = STRING(ar-invl.part-no).
+                  WHEN "ar-invl.ord-no" THEN cVarValue    = STRING(ar-invl.ord-no).
+                  WHEN "ar-invl.po-no" THEN cVarValue     = STRING(ar-invl.po-no).
+                  WHEN "ar-invl.est-no" THEN cVarValue    = STRING(ar-invl.est-no).
+                  WHEN "ar-inv.ship-id" THEN cVarValue    = STRING(ar-inv.ship-id) .
+                  WHEN "ar-inv.tax-code" THEN cVarValue   = STRING(ar-inv.tax-code).
+                  WHEN "ar-inv.terms" THEN cVarValue      = STRING(ar-inv.terms) .
+                  WHEN "ar-inv.terms-d" THEN cVarValue    = STRING(ar-inv.terms-d).
+                  WHEN "ar-inv.due-date" THEN cVarValue   = IF ar-inv.due-date NE ? THEN  STRING(ar-inv.due-date) ELSE "" .
+                  WHEN "ar-inv.disc-%" THEN cVarValue     = STRING( ar-inv.disc-% ).
+                  WHEN "ar-inv.disc-taken" THEN cVarValue = STRING(ar-inv.disc-taken).
+                  WHEN "ar-inv.disc-days" THEN cVarValue  = STRING(ar-inv.disc-days). 
+                  WHEN "ar-inv.carrier" THEN cVarValue    = STRING(ar-inv.carrier). 
+                  WHEN "ar-inv.gross" THEN cVarValue      = STRING(ar-inv.gross). 
+                  WHEN "ar-inv.freight" THEN cVarValue    = STRING(ar-inv.freight). 
+                  WHEN "ar-inv.tax-amt" THEN cVarValue    = STRING(ar-inv.tax-amt).
+                  WHEN "ar-inv.paid" THEN cVarValue       = STRING(ar-inv.paid).
+                  WHEN "ar-inv.due" THEN cVarValue        = STRING(ar-inv.due) .
+                  WHEN "ar-invl.LINE" THEN cVarValue      = STRING(ar-invl.LINE).
+                  WHEN "ar-invl.lot-no" THEN cVarValue    = STRING(ar-invl.lot-no).
+                  WHEN "ar-invl.inv-qty" THEN cVarValue   = STRING(ar-invl.inv-qty).
+                  WHEN "ar-invl.ship-qty" THEN cVarValue = STRING(ar-invl.ship-qty).
+                  WHEN "ar-invl.cons-uom" THEN cVarValue  = STRING(ar-invl.cons-uom).
+                  WHEN "ar-invl.sf-sht" THEN cVarValue    = STRING(ar-invl.sf-sht) .
+                  WHEN "ar-invl.unit-pr" THEN cVarValue   = STRING(ar-invl.unit-pr).
+                  WHEN "ar-invl.pr-qty-uom" THEN cVarValue = STRING(ar-invl.pr-qty-uom) .
+                  WHEN "ar-invl.disc" THEN cVarValue      = STRING(ar-invl.disc).
+                  WHEN "ar-invl.amt-msf" THEN cVarValue   = STRING(ar-invl.amt-msf).
+                  WHEN "ar-invl.cost" THEN cVarValue      = STRING(ar-invl.cost).
+                  WHEN "actdscr" THEN cVarValue           = STRING( get-actdscr() ).
+                  WHEN "amount" THEN cVarValue            = STRING(amount).
+                  WHEN "dscr[1]" THEN cVarValue           = STRING(ar-invl.dscr[1]). 
+                  WHEN "sman[1]" THEN cVarValue           = STRING(ar-invl.sman[1]). 
+                  WHEN "sman[2]" THEN cVarValue           = STRING(ar-invl.sman[2]). 
+                  WHEN "sman[3]" THEN cVarValue           = STRING(ar-invl.sman[3]). 
+                  WHEN "s-pct[1]" THEN cVarValue          = STRING(ar-invl.s-pct[1]).
+                  WHEN "s-pct[2]" THEN cVarValue          = STRING(ar-invl.s-pct[2]).
+                  WHEN "s-pct[3]" THEN cVarValue          = STRING(ar-invl.s-pct[3]) .
+                  WHEN "s-comm[1]" THEN cVarValue         = STRING(ar-invl.s-comm[1]).
+                  WHEN "s-comm[2]" THEN cVarValue         = STRING(ar-invl.s-comm[2]).
+                  WHEN "s-comm[3]" THEN cVarValue         = STRING(ar-invl.s-comm[3]).
+                  WHEN "line-amt" THEN cVarValue          = STRING(Amounttot[2]).
+                  WHEN "line-cst" THEN cVarValue          = STRING(costot[2]) .
+                  WHEN "total-amt" THEN cVarValue         = STRING(Amounttot[1]).
+                  WHEN "total-cst" THEN cVarValue         = STRING(costot[1]) .
+                  WHEN "line-dis" THEN cVarValue          = STRING(distot[2]).
+                  WHEN "total-dis" THEN cVarValue         = STRING(distot[1]).
 
              END CASE.
 
@@ -1232,7 +1255,7 @@ IF tb_excel THEN
              cDisplay = cDisplay + cVarValue +
                                    FILL(" ",int(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
                        cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
-         END.
+        
       END.
       
      IF tb_excel THEN DO:

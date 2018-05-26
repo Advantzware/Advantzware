@@ -49,7 +49,7 @@ IF AVAIL job THEN DO:
 
            
     IF job.opened                           AND
-       (ll-set OR (CAN-FIND(FIRST b-itemfg
+       (NOT ll-set OR (CAN-FIND(FIRST b-itemfg
                                     WHERE b-itemfg.company EQ job-hdr.company
                                       AND b-itemfg.i-no    EQ job-hdr.i-no
                                       AND b-itemfg.isaset  EQ YES

@@ -58,7 +58,7 @@ FOR EACH fg-set WHERE fg-set.company = itemfg.company
             CREATE tt-job-hdr.
             BUFFER-COPY job-hdr EXCEPT i-no TO tt-job-hdr.
             ASSIGN tt-job-hdr.i-no = fg-set.part-no
-                   tt-job-hdr.qty  = tt-job-hdr.qty * fg-set.part-qty.
+                   tt-job-hdr.qty  = tt-job-hdr.qty * fg-set.qtyPerSet.
     END.
 
 END.

@@ -1,4 +1,4 @@
- /* oe/rep/bolptree2c.i */  
+ /* oe/rep/bolptree2c.i */   
 
    IF vll-is-transfer THEN 
       vlc-transfer  = "TRANSFER ".
@@ -16,34 +16,9 @@
       "<=1><R+1><C25></B>"            SKIP.
    PUT
       "<=1><R+4><C25><B><C50>Bill of Lading #: " oe-bolh.bol-no   "</B>"
-      "<C1><R2><FROM><R12><C15><#89><AT=0.53,0.18>".   
+      "<C1><R2><FROM><R12><C15><#89><AT=0.01,0.01>". 
 
-   IF (AVAIL shipto AND shipto.broker EQ NO) OR NOT AVAIL shipto THEN
-      PUT "<IMAGE#89=" ls-full-img1 SKIP
-          "<=1><C15><FGCOLOR=" trim(lv-comp-color) + ">"
-          "<=1><C15><R+2><P16><B>" lv-comp-name "</B><FGCOLOR=" trim(lv-other-color) + ">" FORM "x(6)"
-          "<P10></B>"
-          "<=1><R+2>" "<FGCOLOR=" + trim(lv-comp-color) + ">" FORM "x(15)"
-          "<P10><=1><R+4>"
-          "<C15>" v-comp-add1 SKIP
-          "<C15>" v-comp-add2 SKIP
-          "<C15>" v-comp-add3 SKIP
-          "<C15>" v-comp-add4 SKIP
-          "<C15>" v-comp-add5 "<FGCOLOR=" + trim(lv-other-color) + ">" FORM "x(15)" SKIP
-          "<C15>" lv-email SKIP.
-   ELSE
-      PUT SKIP
-          "<=1><C1><FGCOLOR=" trim(lv-comp-color) + ">"
-          "<=1><C1><R+2><P16><B>" lv-comp-name "</B><FGCOLOR=" trim(lv-other-color) + ">" FORM "x(6)"
-          "<P10></B>"
-          "<=1><R+2>" "<FGCOLOR=" + trim(lv-comp-color) + ">" FORM "x(15)"
-          "<P10><=1><R+4>"
-          "<C1>" v-comp-add1 SKIP
-          "<C1>" v-comp-add2 SKIP
-          "<C1>" v-comp-add3 SKIP
-          "<C1>" v-comp-add4 SKIP
-          "<C1>" v-comp-add5 "<FGCOLOR=" + trim(lv-other-color) + ">" FORM "x(15)" SKIP
-          "<C1>" lv-email SKIP.
+   PUT "<C2><R4><#1><R+7><C40><IMAGE#1=" ls-full-img1 SKIP.
 
    PUT "<FCourier New>"
       "Bill To: " v-phone SPACE(36) "Ship To: " v-ship-phone SKIP

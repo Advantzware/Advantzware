@@ -69,28 +69,14 @@
            v-qty  = oe-ordl.qty * v-pct
            v-amt  = oe-ordl.t-price * v-pct
            v-tons = if avail itemfg then (itemfg.weight-100 * v-qty / 100 / 2000) else 0.
-
-          IF AVAIL itemfg AND itemfg.isaset THEN
-          DO:
-             v-sqft = 0.
-
-             FOR EACH fg-set FIELDS(part-no part-qty) WHERE
-                 fg-set.company = itemfg.company AND
-                 fg-set.set-no = itemfg.i-no
-                 NO-LOCK,
-                 FIRST b-itemfg FIELDS(t-sqft) WHERE
-                       b-itemfg.company EQ itemfg.company AND
-                       b-itemfg.i-no EQ fg-set.part-no
-                       NO-LOCK:
-
-                 v-sqft = v-sqft + (v-qty * (IF fg-set.part-qty GE 0 THEN fg-set.part-qty ELSE (-1 / fg-set.part-qty))
-                                    * b-itemfg.t-sqft / 1000).
-             END.
-          END.
-          ELSE
-             ASSIGN
-                v-sqft = if avail itemfg then (itemfg.t-sqft * v-qty / 1000) else 0.
-
+          
+          IF AVAILABLE itemfg THEN 
+                RUN fg/GetFGArea.p (ROWID(itemfg), "MSF", OUTPUT v-sqft).  
+          ELSE 
+            v-sqft = 0.
+          
+          v-sqft = v-sqft * v-qty.
+          
           create w-data.
           assign
            w-data.sman     = tt-report.key-01

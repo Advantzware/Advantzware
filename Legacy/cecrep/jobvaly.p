@@ -139,8 +139,8 @@ do v-local-loop = 1 to v-local-copies:
           
           {cec/rollfac.i}
           v-pqty = if v-rollfac OR xeb.est-type EQ 8 then 1 else
-                   if xeb.yld-qty lt 0 then (-1 / xeb.yld-qty)
-                                       else xeb.yld-qty.
+                   if xeb.quantityPerSet lt 0 then (-1 / xeb.quantityPerSet)
+                                       else xeb.quantityPerSet.
         end.
         
         assign
@@ -173,8 +173,10 @@ do v-local-loop = 1 to v-local-copies:
               v-loc-bin = "Bin: " + itemfg.def-loc-bin.
           end.
 
-        end. /*brick format*/
-
+        end. /*brick format*/ 
+        
+        IF NOT FIRST(w-ef.frm) THEN
+            PUT SKIP(1).
         view frame head.  /* factory header display  */
 
         IF AVAIL xeb THEN do:
@@ -198,13 +200,13 @@ do v-local-loop = 1 to v-local-copies:
            v-i-line[4] = itemfg.part-dscr3.
         else
           assign
-           v-i-line[1] = "ITEM DESCRIPTION"
-           v-i-line[2] = "Style: " + if avail xstyle then xstyle.dscr else ""
-           v-i-line[3] = "Size: "  + if avail xeb    then
+          v-i-line[1] = "ITEM DESCRIPTION"
+           v-i-line[2] = "Style: <b>" + (if avail xstyle then xstyle.dscr else "") + "</b>" 
+           v-i-line[3] = "Size: <b>"  + (if avail xeb    then
                      trim(string({sys/inc/k16v.i xeb.len},">,>>9.99")) + " x " +
                      trim(string({sys/inc/k16v.i xeb.wid},">,>>9.99")) + " x " +
-                     trim(string({sys/inc/k16v.i xeb.dep},">,>>9.99")) else ""
-           v-i-line[4] = "Joint: " + if avail xeb then v-joint-dscr else "".
+                     trim(string({sys/inc/k16v.i xeb.dep},">,>>9.99")) else "") + "</b>" 
+           v-i-line[4] = "Joint: <b>" + if avail xeb then v-joint-dscr else "" .
    
        /*===== for xprint */
 
@@ -249,12 +251,12 @@ do v-local-loop = 1 to v-local-copies:
                               w-ef.frm, OUTPUT v-po-no).
 
 
-        DISP "<=#2> CUSTOMER INFORMATION" SKIP
+        DISP "<=#2> CUSTOMER INFORMATION<b>" SKIP
               v-cus[1] AT 3 SKIP
               v-cus[2] AT 3 SKIP
               v-cus[3] AT 3 SKIP
               v-cus[4] AT 3 SKIP
-            "<=#3><R-7><b> ORDER INFORMATION"
+            "</b><=#3><R-7><b> ORDER INFORMATION"
             "<=#3><R-6> PO #:" 
             xoe-ord.po-no WHEN AVAIL xoe-ord
             "Set Qty:"
@@ -286,15 +288,15 @@ do v-local-loop = 1 to v-local-copies:
      
      PUT UNFORMATTED
             "<=#4> " v-i-line[1] FORM "x(40)"
-            "<=#4><R+1> " "FG Cat: " cProcat FORM "x(40)"
-            "<=#4><R+2> " v-i-line[2] FORM "x(40)"
+            "<=#4><R+1> " "FG Cat: <b>" cProcat FORM "x(40)"
+            "</b><=#4><R+2> " v-i-line[2] FORM "x(40)"
             "<=#4><R+3> " v-i-line[3] FORM "x(40)"
             "<=#4><R+4> " v-i-line[4] FORM "x(40)"
-            "<=#4><R+5> Adders:".
+            "</b><=#4><R+5> Adders:<b>".
             IF trim(v-adder-desc) NE "" THEN
             PUT  SUBSTRING(v-adder-desc,1,16) FORMAT "x(16)"  ", "  SUBSTRING(v-adder-desc,17,16) FORMAT "x(16)" .
             IF SUBSTRING(v-adder-desc,33,64) NE "" THEN
-            PUT "<=#4><R+6>        " SUBSTRING(v-adder-desc,33,16) FORMAT "x(16)"  ", "  SUBSTRING(v-adder-desc,49,16) FORMAT "x(16)".
+            PUT "<=#4><R+6>        " SUBSTRING(v-adder-desc,33,16) FORMAT "x(16)"  ", "  SUBSTRING(v-adder-desc,49,16) FORMAT "x(16)" "</b>".
             
                     
         v-form-sqft = round(if v-corr then (v-form-len * v-form-wid * .007)
@@ -305,15 +307,15 @@ do v-local-loop = 1 to v-local-copies:
              xxprep.code eq xeb.plate-no
              no-lock no-error.
 
-        display "<=#5> Shts Req'd:"
+        display "</b><=#5> Shts Req'd:<b>"
                 trim(string(v-sht-qty))   format "x(9)"
-                " Sq Ft:"
+                "</b> Sq Ft:<b>"
                 trim(string(v-form-sqft)) format "x(7)"
-                "<=#6><R-6> PLATE #:"
+                "</b><=#6><R-6> PLATE #:<b>"
                 xeb.plate-no FORMAT "X(15)" when avail xeb
-                "Loc: "
+                "</b>Loc: <b>"
                 xxprep.loc-bin FORMAT "X(8)" WHEN AVAIL xxprep
-                "<=#7> DIE CUTTING, SLIT, & SAW"                
+                "<=#7> DIE CUTTING, SLIT, & SAW</b>"                
             with no-box no-labels frame m2 width 145 NO-ATTR-SPACE STREAM-IO.
 
         i = 0.
@@ -338,7 +340,6 @@ do v-local-loop = 1 to v-local-copies:
                                                                 format "x(25)"
                 "MSF:"  +
                 trim(string(v-sht-qty * v-form-sqft / 1000,">>>9.9<"))
-                                                                format "x(11)"
                 "<=#6><R-5> 1:"
                 w-i.i-code
                 w-i.i-qty when w-i.i-qty ne 0
@@ -402,66 +403,65 @@ do v-local-loop = 1 to v-local-copies:
         END.
 
         ELSE DO:
-        display "<=#5><R+1>"
-                "W: " + trim(string({sys/inc/k16v.i v-form-wid},">,>>9.99")) +
-                "   " +
-                "L: " + trim(string({sys/inc/k16v.i v-form-len},">,>>9.99"))
+                PUT "<=#5><R+1><b>"
+                    " W: " + trim(string({sys/inc/k16v.i v-form-wid},">,>>9.99")) +
+                    "   " +
+                    "L: " + trim(string({sys/inc/k16v.i v-form-len},">,>>9.99"))
                                                                 format "x(25)"
-                "MSF:"  +
-                trim(string(v-sht-qty * v-form-sqft / 1000,">>>9.9<"))
-                                                                format "x(11)"
-                "<=#6><R-5> Ink 1:"
-                w-i.i-dscr
-                w-i.i-qty when w-i.i-qty ne 0
-                "LBS" when w-i.i-dscr ne ""
-                "<=#7><R+1> Die #:"
-                xeb.die-no when avail xeb
-                " Loc:"   /*v-die-loc */ 
-                xxprep.loc-bin when avail xeb and avail xxprep      
-            with no-box no-labels frame i5 width 150 no-attr-space STREAM-IO.
-        find next w-i.        
-        display "<=#5><R+2> Board:"
-                v-form-code FORMAT "x(15)" " PO:" v-po-no
-                "<=#6><R-4> Ink 2:"
-                w-i.i-dscr
-                w-i.i-qty when w-i.i-qty ne 0
-                "LBS" when w-i.i-dscr ne ""
-                "<=#7><R+2> Blank Size:"
-                "W:" TRIM(string({sys/inc/k16v.i xeb.t-wid},">,>>9.99")) WHEN AVAIL xeb 
-                "L:" TRIM(string({sys/inc/k16v.i xeb.t-len},">,>>9.99")) when avail xeb 
-            with no-box no-labels frame i6 width 155 no-attr-space STREAM-IO.
+                    "</b>MSF:<b>"  +
+                    trim(string(v-sht-qty * v-form-sqft / 1000,">>>9.9<"))
+                                                                format "x(11)".
+               PUT "</b><=#6><R-5> Ink 1:<b>"
+                   w-i.i-dscr
+                   IF string(w-i.i-qty) ne "0" THEN string(w-i.i-qty) ELSE ""
+                   IF w-i.i-dscr ne "" THEN "LBS" ELSE "".
 
-        find next w-i.
-        display "<=#5><R+3><C+5> " v-form-dscr
-                "<=#6><R-3> Ink 3:"
-                w-i.i-dscr
-                w-i.i-qty when w-i.i-qty ne 0
-                "LBS" when w-i.i-dscr ne ""
-                "<=#7><R+3> Up:"
-                "W:" v-upl FORM ">9" 
-                "  L:"  v-upw FORM ">9"
-                "Slit:  W:"  v-outw FORM ">9"
-                "L:"  v-outl FORM ">9"                                          
-            with no-box no-labels frame i7 width 155 no-attr-space STREAM-IO.
+              PUT  "</b><=#7><R+1> Die #:<b>"
+                   "" IF avail xeb THEN xeb.die-no ELSE "" FORMAT "x(15)"
+                   "</b> Loc:<b>"   
+                   IF AVAIL xeb AND AVAIL xxprep then xxprep.loc-bin ELSE "" .
+            
+             find next w-i.        
+             PUT "<=#5><R+2> Board:<b>"
+                     v-form-code FORMAT "x(15)" "</b> PO:<b>" v-po-no.
+             PUT     "</b><=#6><R-4> Ink 2:<b>"
+                     w-i.i-dscr
+                     IF string(w-i.i-qty) ne "0" THEN string(w-i.i-qty) ELSE ""
+                     IF w-i.i-dscr ne "" THEN "LBS" ELSE "".
+             PUT     "</b><=#7><R+2> Blank Size:<b>"
+                     "</b><c61>W: <b>" IF AVAIL xeb THEN TRIM(string({sys/inc/k16v.i xeb.t-wid},">,>>9.99")) ELSE ""
+                     "</b><c68>L: <b>" IF AVAIL xeb THEN TRIM(string({sys/inc/k16v.i xeb.t-len},">,>>9.99")) ELSE "" 
+                     "</b>".
+            
+    
+             find next w-i.
+             PUT     "<=#5><R+3><C+5> <b>" v-form-dscr.
+             PUT     "</b><=#6><R-3> Ink 3:<b>"
+                     w-i.i-dscr
+                     IF string(w-i.i-qty) ne "0" THEN string(w-i.i-qty) ELSE ""
+                     IF w-i.i-dscr ne "" THEN "LBS" ELSE "".
+             PUT     "</b><=#7><R+3> Up:<b>"
+                     "</b><c56>W:<b>" v-upl FORM ">9" 
+                     "</b>  <c61>L:<b>"  v-upw FORM ">9"
+                     "</b><c65>Slit:  W:<b>"  v-outw FORM ">9"
+                     "</b><c73>L:<b>"  v-outl FORM ">9"   "</b>" .                                       
+            
         
-        find next w-i.
-        display "<=#5><R+4> Score:"
-                 v-len-score     WHEN xstyle.TYPE <> "F"  format "x(32)"
-                "<=#6><R-2> Ink 4:"
-                w-i.i-dscr
-                w-i.i-qty when w-i.i-qty ne 0
-                "LBS" when w-i.i-dscr ne ""
-                "<=#7><R+4> Impressions:"
-                trim(string(v-dc-qty))    format "x(7)"
+             find next w-i.
+             PUT     "<=#5><R+4> Score:<b>"
+                     IF xstyle.TYPE <> "F" THEN v-len-score ELSE "" format "x(32)".
+             PUT     "</b><=#6><R-2> Ink 4:<b>"
+                     w-i.i-dscr
+                     IF string(w-i.i-qty) ne "0" THEN string(w-i.i-qty) ELSE ""
+                    IF w-i.i-dscr ne "" THEN "LBS" ELSE "".
+             PUT    "</b><=#7><R+4> Impressions: <b><c63>"
+                        trim(string(v-dc-qty))    format "x(7)"
                 " To: " +
-                trim(string({sys/inc/k16v.i xef.nsh-wid},">>9.99")) +
+               IF avail xef and (xef.nsh-wid ne xef.gsh-wid OR xef.nsh-len ne xef.gsh-len) THEN
+                   (trim(string({sys/inc/k16v.i xef.nsh-wid},">>9.99")) +
                 "x" +
-                trim(string({sys/inc/k16v.i xef.nsh-len},">>9.99"))
-                          when avail xef and 
-                               (xef.nsh-wid ne xef.gsh-wid or
-                                xef.nsh-len ne xef.gsh-len)
-                                          format "x(17)"
-            with no-box no-labels frame i8 width 155 no-attr-space STREAM-IO.
+                trim(string({sys/inc/k16v.i xef.nsh-len},">>9.99"))) ELSE "" format "x(17)" "</b>".
+            
         END.
             
         IF CAN-DO("TriState,RFC,Boxtech,Brick,Corrugat,ASI,Xprint,Pacific,TriLakes",v-format) THEN do:
@@ -484,8 +484,8 @@ do v-local-loop = 1 to v-local-copies:
             v-qty-or-sup = v-qty-or-sup + TRIM(v-vend-no).
             
             IF v-po-no NE 0 THEN
-              v-qty-or-sup = v-qty-or-sup + "  PO#: " +
-                             TRIM(STRING(v-po-no,">>>>>>>>>>")).
+              v-qty-or-sup = v-qty-or-sup + "  PO#: <b>" +
+                             TRIM(STRING(v-po-no,">>>>>>>>>>")) + "</b>".
           END.
           
           /*v-qty-or-sup = v-qty-or-sup + fill("_",38 - length(v-qty-or-sup)). */
@@ -496,8 +496,8 @@ do v-local-loop = 1 to v-local-copies:
       /* for xprint */
         display "<=#5><R+5>" v-qty-or-sup
                      "<=#6><R-1> Color Desc:"
-                     "<=#6><R-1><C+12> " xeb.i-coldscr when avail xeb
-                     "<=#7><R+5> D/C Style:"                             
+                     "<=#6><R-1><C+12> <b>" xeb.i-coldscr when avail xeb
+                     "</b><=#7><R+5> D/C Style:"                             
                          with no-box no-labels frame m3 width 132 no-attr-space STREAM-IO.
         i = 0.
         for each w-m:
@@ -536,7 +536,7 @@ do v-local-loop = 1 to v-local-copies:
           v-letter = substr("UTE",i,1).
 
           if v-format eq "Brick" OR v-format = "ASI" then
-          display lv-m-dscr AT 3
+          DISPLAY "<b>" lv-m-dscr AT 3
                   w-m.s-hr                              when w-m.s-hr ne 0
                   fill("_",7)  format "x(7)"    to 38   when w-m.dscr ne ""
                   fill("_",7)  format "x(7)"    to 46   when w-m.dscr ne ""
@@ -553,21 +553,20 @@ do v-local-loop = 1 to v-local-copies:
               with no-box no-labels frame o1 width 132 no-attr-space down STREAM-IO.
                   
           else
-          display w-m.dscr AT 3
-                  w-m.s-hr when w-m.s-hr ne 0
-                  fill("_",7)  format "x(7)"    to 38   when w-m.dscr ne ""
-                  fill("_",7)  format "x(7)"    to 46   when w-m.dscr ne ""
-                  fill("_",7)  format "x(7)"    to 54   when w-m.dscr ne ""
-                  space(2)
-                  w-m.r-sp when w-m.r-sp ne 0
-                  fill("_",7)  format "x(7)"    to 69   when w-m.dscr ne ""
-                  fill("_",7)  format "x(7)"    to 77   when w-m.dscr ne ""
-                  fill("_",7)  format "x(7)"    to 85   when w-m.dscr ne ""
-                  fill("_",8)  format "x(8)"    to 99   when w-m.dscr ne ""
-                  fill("_",8)  format "x(8)"    to 108  when w-m.dscr ne ""
-                  fill("_",8)  format "x(8)"    to 117  when w-m.dscr ne ""
-                  fill("_",8)  format "x(8)"    to 129  when w-m.dscr ne ""                 
-              with no-box no-labels frame o2 width 132 no-attr-space down STREAM-IO.
+          PUT "<c2><b>" w-m.dscr  
+                 "<c13.5>" IF w-m.s-hr ne 0 THEN string(w-m.s-hr,">>9.99") ELSE ""
+                 "<c18.5>" IF w-m.dscr ne "" THEN string(fill("_",7),"x(7)") ELSE "" 
+                 "<c23.5>" IF w-m.dscr ne "" THEN string(fill("_",7),"x(7)") ELSE "" 
+                 "<c28.5>" IF w-m.dscr ne "" THEN string(fill("_",7),"x(7)") ELSE "" 
+                 "<c33.5>" IF w-m.r-sp ne 0 THEN string(w-m.r-sp,">>>>9")  ELSE ""
+                 "<c37.1>" IF w-m.dscr ne "" THEN string(fill("_",7),"x(7)")  ELSE "" 
+                 "<c42>" IF w-m.dscr ne "" THEN string(fill("_",7),"x(7)") ELSE "" 
+                 "<c46.8>" IF w-m.dscr ne "" THEN string(fill("_",7),"x(7)") ELSE "" 
+                 "<c54.5>" IF w-m.dscr ne "" THEN string(fill("_",8),"x(8)") ELSE "" 
+                 "<c60>" IF w-m.dscr ne "" THEN string(fill("_",8),"x(8)") ELSE "" 
+                 "<c65.5>" IF w-m.dscr ne "" THEN string(fill("_",8),"x(8)") ELSE "" 
+                 "<c72>" IF w-m.dscr ne "" THEN string(fill("_",8),"x(8)") ELSE "" "</b>" SKIP.                 
+              
                   
           v-lines = v-lines + 1.
         end.
@@ -619,9 +618,9 @@ do v-local-loop = 1 to v-local-copies:
         
         display "<=#10><R-1>" /* -1*/
                 "N"                      AT 1
-                "SPECIAL INSTRUCTIONS.." AT 3
-                chr(124) format "x"       at 87
-               /* chr(124) format "x"       at 90
+                "SPECIAL INSTRUCTIONS..<b>" AT 3
+                "<c50.5>" chr(124) format "x"       
+                /* chr(124) format "x"       at 90
                 "SHIPPING INFO"
                 "      Ship To #:"
                 xoe-ord.sold-id when avail xoe-ord
@@ -653,7 +652,7 @@ do v-local-loop = 1 to v-local-copies:
                 "Item PO #:"
                 xoe-ordl.po-no when avail xoe-ordl*/
                 v-dept-inst[6] format "x(128)" AT 3
-                skip(1)
+                "</b>" skip(1)
             with no-box no-labels frame m8 width 132 no-attr-space STREAM-IO.
    
         if print-box and avail xest then do:            
@@ -669,7 +668,7 @@ do v-local-loop = 1 to v-local-copies:
             ls-fgitem-img = itemfg.box-image.
 
             PUT UNFORMATTED "<#12><C1><FROM><C81><R+55><RECT><||3><C81>" /*v-qa-text*/ SKIP
-                "<=12><R+1><C5>FG Item: " itemfg.i-no " " itemfg.i-name
+                "<=12><R+1><C5>FG Item: <b>" itemfg.i-no " " itemfg.i-name "</b>"
                 "<=12><R+3><C1><FROM><C81><LINE><||3>"
                 "<=12><R+5><C5><#21><R+45><C+80><IMAGE#21=" ls-fgitem-img ">" SKIP. 
             PAGE.
@@ -710,9 +709,12 @@ do v-local-loop = 1 to v-local-copies:
                     v-under-run = trim(string(cust.under-pct,">>9.99%")) .
 
            PUT "<R3><C1><#15><C30><P16><B> SET HEADER<P7></B>" SKIP(2)
-               "Job #: " AT 3 v-job-prt "<C25>Our Order #: " v-ord-no 
-               "<C60>Our Date: " v-ord-date SKIP
-               "Est #: " AT 3 v-est-no "<C25>FG #: " v-fg-set "<C60>Due Date: " v-due-date SKIP
+               "Job #: <B>" AT 3 v-job-prt "</B>"
+               "<C25>Our Order #<B>: " v-ord-no "</B>"
+               "<C60>Our Date: <B>" v-ord-date "</B>" SKIP
+               "Est #: <B>" AT 3 v-est-no "</B>"
+               "<C25>FG #: <B>" v-fg-set "</B>"
+               "<C60>Due Date: <B>" v-due-date "</B>" SKIP
                "<=1><R+6><C2><From><R+5><C78><RECT><||3>" SKIP
                "<=1><R+6><C2>CUSTOMER INFORMATION <C25><b> ORDER INFORMATION </b><C53>ITEM DESCRIPTION" SKIP
                v-cus[1] AT 3 "<b> PO#: " v-po-no " Set Qty: "  v-set-qty "</b>"
@@ -736,7 +738,7 @@ do v-local-loop = 1 to v-local-copies:
            FOR EACH xeb WHERE xeb.company = est.company
                            AND xeb.est-no = est.est-no
                            AND xeb.form-no > 0 NO-LOCK:
-               PUT xeb.stock-no AT 3 space(14) xeb.part-dscr1 space(5) xeb.yld-qty SKIP.
+               PUT xeb.stock-no AT 3 space(14) xeb.part-dscr1 space(5) xeb.quantityPerSet SKIP.
                v-tmp-line = v-tmp-line + 1.
            END.
            v-tmp-line = v-tmp-line + 1.
@@ -856,3 +858,4 @@ PROCEDURE stackImage:
     "<R-13>".
 END PROCEDURE.
 /* end ---------------------------------- copr. 1997  advanced software, inc. */
+

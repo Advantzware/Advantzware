@@ -1783,6 +1783,14 @@ DO:
                 AND e-itemfg-vend.cust-no EQ po-ordl.cust-no:SCREEN-VALUE
                 AND e-itemfg-vend.est-no eq "" 
                 NO-ERROR.
+        IF po-ord.cust-no NE "" AND NOT AVAILABLE e-itemfg-vend THEN
+            FIND FIRST e-itemfg-vend NO-LOCK
+                WHERE e-itemfg-vend.company EQ e-itemfg.company
+                AND e-itemfg-vend.i-no    EQ e-itemfg.i-no
+                AND e-itemfg-vend.vend-no EQ po-ord.vend-no
+                AND e-itemfg-vend.cust-no EQ po-ord.cust-no
+                AND e-itemfg-vend.est-no eq "" 
+                NO-ERROR.
 
         /* gdm - 06040918 - check for vendor */
         IF NOT AVAILABLE e-itemfg-vend THEN
@@ -2927,11 +2935,12 @@ PROCEDURE display-fgitem :
             po-ordl.item-type:SCREEN-VALUE                     = "FG"
             fiCount:SCREEN-VALUE                               = STRING(itemfg.case-COUNT)
             v-op-type                                          = FALSE
-            v-len                                              = itemfg.t-len
-            v-wid                                              = itemfg.t-wid
-            v-dep                                              = 0
-            {po/calc16.i v-len}
-            {po/calc16.i v-wid}.
+            .
+            RUN po/GetFGDimsForPO.p (ROWID(itemfg), OUTPUT v-len, OUTPUT v-wid, OUTPUT v-dep).
+            ASSIGN  
+                {po/calc16.i v-len}
+                {po/calc16.i v-wid}
+                {po/calc16.i v-dep}.
 
         IF itemfg.taxable AND aptax-chr EQ "Item" THEN
             po-ordl.tax:SCREEN-VALUE = "yes".
@@ -3398,30 +3407,30 @@ PROCEDURE display-job-mat :
                     IF AVAILABLE est AND (est.est-type EQ 2 OR est.est-type EQ 6) THEN
                     DO:
                         IF tt-job-mat.frm NE ? THEN
-                            FOR EACH eb FIELDS(yld-qty) NO-LOCK
+                            FOR EACH eb FIELDS(quantityPerSet) NO-LOCK
                                 WHERE eb.company EQ job.company
                                 AND eb.est-no  EQ job.est-no
                                 AND eb.form-no EQ tt-job-mat.frm
                                 :
                   
                                 ld-part-qty = ld-part-qty +
-                                    (ld-line-qty * IF eb.yld-qty LT 0 THEN (-1 / eb.yld-qty)
-                                    ELSE eb.yld-qty).
+                                    (ld-line-qty * IF eb.quantityPerSet LT 0 THEN (-1 / eb.quantityPerSet)
+                                    ELSE eb.quantityPerSet).
                             END.
                         ELSE
                             FOR EACH w-po-ordl
                                 BREAK BY w-po-ordl.s-num:
                     
                                 IF FIRST-OF(w-po-ordl.s-num) THEN
-                                    FOR EACH eb FIELDS(yld-qty) WHERE
+                                    FOR EACH eb FIELDS(quantityPerSet) WHERE
                                         eb.company EQ job.company AND
                                         eb.est-no  EQ job.est-no AND
                                         eb.form-no EQ w-po-ordl.s-num
                                         NO-LOCK:
                     
                                         ld-part-qty = ld-part-qty +
-                                            (ld-line-qty * IF eb.yld-qty LT 0 THEN (-1 / eb.yld-qty)
-                                            ELSE eb.yld-qty).
+                                            (ld-line-qty * IF eb.quantityPerSet LT 0 THEN (-1 / eb.quantityPerSet)
+                                            ELSE eb.quantityPerSet).
                                     END.
                             END.
                  
@@ -6253,6 +6262,7 @@ PROCEDURE vend-cost :
                 CREATE tt-ei.
                 ASSIGN 
                     tt-ei.std-uom = e-itemfg.std-uom.
+                RELEASE e-itemfg-vend . 
                 IF po-ordl.cust-no:SCREEN-VALUE NE "" THEN
                     FIND FIRST e-itemfg-vend NO-LOCK
                         WHERE e-itemfg-vend.company EQ e-itemfg.company
@@ -6260,7 +6270,16 @@ PROCEDURE vend-cost :
                         AND e-itemfg-vend.vend-no EQ po-ord.vend-no
                         AND e-itemfg-vend.cust-no EQ po-ordl.cust-no:SCREEN-VALUE
                         AND e-itemfg-vend.est-no EQ "" /*23592 avoid farm Tab costs from estimating*/
+                        NO-ERROR.  
+                IF NOT AVAILABLE e-itemfg-vend AND po-ord.cust-no NE "" THEN
+                    FIND FIRST e-itemfg-vend NO-LOCK
+                        WHERE e-itemfg-vend.company EQ e-itemfg.company
+                        AND e-itemfg-vend.i-no    EQ e-itemfg.i-no
+                        AND e-itemfg-vend.vend-no EQ po-ord.vend-no
+                        AND e-itemfg-vend.cust-no EQ po-ord.cust-no
+                        AND e-itemfg-vend.est-no EQ "" /*23592 avoid farm Tab costs from estimating*/
                         NO-ERROR.
+
                 IF NOT AVAILABLE e-itemfg-vend THEN 
                     FIND FIRST e-itemfg-vend NO-LOCK
                         WHERE e-itemfg-vend.company EQ e-itemfg.company

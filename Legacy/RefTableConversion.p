@@ -1528,7 +1528,23 @@ ASSIGN
     
             
 
-
+    ASSIGN cError = ""
+           startTime = MTIME
+           iCount = 0
+           iProcessCount = 0
+           .
+    ASSIGN
+        iCount = oRefTableMigration:DArtios(iRecordLimit)
+        iProcessCount = oRefTableMigration:iProcessCount NO-ERROR.
+    IF ERROR-STATUS:ERROR THEN ASSIGN cError = "Error occured while reftable conversion.".
+    CREATE ttResults.
+    ASSIGN
+        ttResults.cReftable    = "cecrep/d-artios.w"
+        ttResults.iTotalCount  = iCount
+        ttResults.iChangeCount = iProcessCount
+        ttResults.cConvError   = cError
+        ttResults.timetaken    = (MTIME - startTime) / 1000
+        .   
 
 
 

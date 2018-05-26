@@ -25,17 +25,17 @@ IF tb_print-view THEN do:
         
         PUT "<||><R10><C3><#4><FROM><R17><C80><RECT>" SKIP.           
         
-        PUT "<FArial><=4><R11><C18><P20><B>"    company.NAME FORMAT "x(25)"   "</B>" SKIP.
+        PUT "<FArial><=4><R11><C18><P20><B>"    company.NAME FORMAT "x(30)"   "</B>" SKIP.
         
-        PUT "<FArial><=4><R13><C5><P16><B>"  company.addr[1] FORMAT "x(25)"   "</B>" .
+        PUT "<FArial><=4><R13><C5><P16><B>"  company.addr[1] FORMAT "x(30)"   "</B>" .
         PUT "<FArial><=4><R13><C48><P16><B> Phone: " cPhone FORMAT "x(15)"    "</B>" SKIP(2).
-        PUT "<FArial><=4><R15><C5><P16><B>" STRING(company.city,"x(15)") " " company.state FORMAT "x(2)" " "  company.zip "</B>" .
+        PUT "<FArial><=4><R15><C5><P16><B>" company.city " " company.state FORMAT "x(2)" " " company.zip "</B>" .
         PUT "<FArial><=4><R15><C48><P16><B> Fax: " cFax FORMAT "x(15)"  "</B>" SKIP(2).
         
         PUT "<||><R20><C3><#5><FROM><R25><C80><RECT>" SKIP.            
         
         PUT "<FArial><=5><R-2><B><p14> Customer Name </B>" SKIP.
-        PUT "<FArial><=5><R+1><B><P27>  " tt-word-print.cust-name FORMAT "x(25)"  "</B>" SKIP.
+        PUT "<FArial><=5><R+1><B><P27>  " tt-word-print.cust-name FORMAT "x(30)"  "</B>" SKIP.
         
         PUT "<||><R28><C3><#6><FROM><R32><C80><RECT>" SKIP.            
         
@@ -45,7 +45,7 @@ IF tb_print-view THEN do:
         PUT "<||><R35><C3><#7><FROM><R39><C80><RECT>" SKIP.            
         
         PUT "<FArial><=7><R-2><B><P14> Item Name </B>" SKIP.
-        PUT "<FArial><=7><R35.5><C2><B><P30>  " tt-word-print.i-name FORMAT "x(25)"  "</B>" SKIP.
+        PUT "<FArial><=7><R35.5><C2><B><P30>  " tt-word-print.i-name FORMAT "x(30)"  "</B>" SKIP.
         
         PUT "<||><R42><C3><#8><FROM><R48><C80><RECT>" SKIP.            
         
@@ -88,17 +88,17 @@ ELSE DO:
         
         PUT "<||><R30><C3><#4><FROM><R37><C80><RECT>" SKIP.            
         
-        PUT "<FArial><=4><R31><C18><P20><B>"    company.NAME FORMAT "x(25)"   "</B>" SKIP.
+        PUT "<FArial><=4><R31><C18><P20><B>"    company.NAME FORMAT "x(30)"   "</B>" SKIP.
         
-        PUT "<FArial><=4><R33><C5><P16><B>"  company.addr[1] FORMAT "x(25)"   "</B>" .
+        PUT "<FArial><=4><R33><C5><P16><B>"  company.addr[1] FORMAT "x(30)"   "</B>" .
         PUT "<FArial><=4><R33><C48><P16><B> Phone: " cPhone FORMAT "x(15)"    "</B>" SKIP(2).
-        PUT "<FArial><=4><R35><C5><P16><B>" STRING(company.city,"x(15)") " " company.state FORMAT "x(2)" " "  company.zip "</B>" .
+        PUT "<FArial><=4><R35><C5><P16><B>" company.city " " company.state FORMAT "x(2)" " " company.zip "</B>" .
         PUT "<FArial><=4><R35><C48><P16><B> Fax: " cFax FORMAT "x(15)"  "</B>" SKIP(2).
         
         PUT "<||><R40><C3><#5><FROM><R45><C80><RECT>" SKIP.           
         
         PUT "<FArial><=5><R-2><B><p14> Customer Name </B>" SKIP.
-        PUT "<FArial><=5><R+1><B><P27>  " tt-word-print.cust-name FORMAT "x(25)"  "</B>" SKIP.
+        PUT "<FArial><=5><R+1><B><P27>  " tt-word-print.cust-name FORMAT "x(30)"  "</B>" SKIP.
         
         PUT "<||><R48><C3><#6><FROM><R52><C80><RECT>" SKIP.            
         
@@ -108,7 +108,7 @@ ELSE DO:
         PUT "<||><R55><C3><#7><FROM><R59><C80><RECT>" SKIP.            
         
         PUT "<FArial><=7><R-2><B><P14> Item Name </B>" SKIP.
-        PUT "<FArial><=7><R55.5><C2><B><P30>  " tt-word-print.i-name FORMAT "x(25)"  "</B>" SKIP.
+        PUT "<FArial><=7><R55.5><C2><B><P30>  " tt-word-print.i-name FORMAT "x(30)"  "</B>" SKIP.
         
         PUT "<||><R62><C3><#8><FROM><R68><C80><RECT>" SKIP.            
         

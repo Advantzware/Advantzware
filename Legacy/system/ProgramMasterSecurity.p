@@ -56,7 +56,9 @@ PROCEDURE getSecurity:
           WHEN "viewers/file-seq.w" OR
           WHEN "viewers/company.w" OR
           WHEN "sys/help/w-head.w" THEN
-             ASSIGN opCanAccess = IF users.securityLevel LE 999 THEN TRUE ELSE FALSE.             
+             ASSIGN opCanAccess = IF users.securityLevel LE 999 THEN TRUE ELSE FALSE.  
+          WHEN "oerep/r-acknow.w" THEN
+             ASSIGN opCanAccess = IF users.securityLevel GE 1000 THEN TRUE ELSE FALSE.    
       END CASE.
   END.  /*IF AVAIL users THEN DO:*/  
   ELSE ASSIGN opCanAccess = FALSE.

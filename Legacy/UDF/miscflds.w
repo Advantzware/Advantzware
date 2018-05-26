@@ -84,7 +84,9 @@ TRIGGERS: ~
     PERSISTENT RUN resizeWidget IN THIS-PROCEDURE (dynWidget:HANDLE). ~
 END TRIGGERS.
 
-{methods/lockWindowUpdate.i}
+&IF DEFINED(FWD-VERSION) EQ 0 &THEN
+   {methods/lockWindowUpdate.i}
+&ENDIF
 
 SESSION:SET-WAIT-STATE("").
 
@@ -2436,7 +2438,11 @@ PROCEDURE createTabs :
 ------------------------------------------------------------------------------*/
   DEFINE VARIABLE i AS INTEGER NO-UNDO.
 
+&IF DEFINED(FWD-VERSION) EQ 0 &THEN
   RUN LockWindowUpdate (ACTIVE-WINDOW:HWND,OUTPUT i).
+&ELSE
+  ACTIVE-WINDOW:DISABLE-REDRAW = TRUE.
+&ENDIF
   DO WITH FRAME {&FRAME-NAME}:
     FIND ttMFGroup
          WHERE ttMFGroup.mfgroup_data EQ mfgroupList:SCREEN-VALUE
@@ -2539,7 +2545,11 @@ PROCEDURE createTabs :
     ldummy = tabImage[currentTab]:MOVE-TO-TOP()
     ldummy = tabLabel[currentTab]:MOVE-TO-TOP()
     .
+&IF DEFINED(FWD-VERSION) EQ 0 &THEN
   RUN LockWindowUpdate (0,OUTPUT i).
+&ELSE
+  ACTIVE-WINDOW:DISABLE-REDRAW = FALSE.
+&ENDIF
 
 END PROCEDURE.
 
@@ -2555,7 +2565,11 @@ PROCEDURE createWidgets :
 ------------------------------------------------------------------------------*/
   DEFINE VARIABLE i AS INTEGER NO-UNDO.
 
+&IF DEFINED(FWD-VERSION) EQ 0 &THEN
   RUN LockWindowUpdate (ACTIVE-WINDOW:HWND,OUTPUT i).
+&ELSE
+  ACTIVE-WINDOW:DISABLE-REDRAW = TRUE.
+&ENDIF
   DELETE WIDGET-POOL "{&widgetPoolName}" NO-ERROR.
   CREATE WIDGET-POOL "{&widgetPoolName}" PERSISTENT.
   RUN createTabs.
@@ -2567,7 +2581,11 @@ PROCEDURE createWidgets :
     RUN dynamicWidget.
     IF lError THEN LEAVE.
   END.
+&IF DEFINED(FWD-VERSION) EQ 0 &THEN
   RUN LockWindowUpdate (0,OUTPUT i).
+&ELSE
+  ACTIVE-WINDOW:DISABLE-REDRAW = TRUE.
+&ENDIF
   IF lError THEN DO:
     MESSAGE
       "Design Screen Resolution is too Small for this UDF Layout!"

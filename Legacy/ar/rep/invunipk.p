@@ -37,7 +37,7 @@ def var v-ans as logical initial no NO-UNDO.
 def var v-date-ship as date NO-UNDO.
 def var v-del-no as int format ">>>>>>" NO-UNDO.
 def var v-bol-cases LIKE oe-boll.cases NO-UNDO.
-def var v-set-qty AS INT NO-UNDO.
+def var v-set-qty AS DECIMAL NO-UNDO.
 def var v-part-qty AS DEC FORMAT "999.9999" NO-UNDO.
 def var v-net like ar-inv.due NO-UNDO.
 def var v-case-cnt as char format "x(80)" extent 5 NO-UNDO.
@@ -309,7 +309,7 @@ assign
              DO:
                FOR EACH fg-set NO-LOCK WHERE fg-set.company = ar-invl.company
                   AND fg-set.set-no = ar-invl.i-no:
-                 ASSIGN v-set-qty = v-set-qty + fg-set.part-qty.
+                 ASSIGN v-set-qty = v-set-qty + fg-set.qtyPerSet.
                END.
                IF v-set-qty = 0 THEN
                   ASSIGN v-set-qty = 1.
@@ -321,8 +321,8 @@ assign
                     fg-set.set-no = ar-invl.i-no  AND
                     fg-set.part-no = eb.stock-no NO-LOCK NO-ERROR.
 
-                 IF AVAIL fg-set AND fg-set.part-qty NE 0 THEN
-                   ASSIGN v-part-qty = fg-set.part-qty / v-set-qty.
+                 IF AVAIL fg-set AND fg-set.qtyPerSet NE 0 THEN
+                   ASSIGN v-part-qty = fg-set.qtyPerSet / v-set-qty.
                  ELSE
                    ASSIGN v-part-qty = 1 / v-set-qty.
 
@@ -380,6 +380,19 @@ assign
           assign v-rel-po-no = oe-bolh.po-no.
         */
         find first ar-invl where ar-invl.x-no = ar-inv.x-no no-lock no-error.
+        IF AVAIL ar-invl THEN
+        find first oe-bolh no-lock
+            where oe-bolh.company eq cocode
+            and oe-bolh.b-no    eq ar-invl.b-no no-error.
+        if avail oe-bolh then 
+            find first oe-boll no-lock
+            where oe-boll.company eq cocode
+            and oe-boll.b-no    eq oe-bolh.b-no
+            and oe-boll.i-no    eq ar-invl.i-no no-error.
+
+        if avail oe-boll then
+          assign v-rel-po-no = oe-boll.po-no.
+        
         if avail ar-invl then
         do:
          assign v-price-head = ar-invl.pr-uom
@@ -577,12 +590,7 @@ assign
                  v-printline = v-printline + 1.
               end.
             end.
-
-            IF ar-invl.disc NE 0 THEN
-              PUT SPACE(25) v-po-no FORMAT "x(15)" SPACE(1)
-                  "Less " + TRIM(STRING(ar-invl.disc,">>9.99%")) + " Discount" FORMAT "x(21)"
-                  v-price - ar-invl.amt FORMAT "->>>,>>9.99" TO 95.
-
+           
             put skip(1).
             v-printline = v-printline + 1.
        /*
@@ -704,13 +712,13 @@ assign
                     THEN ar-inv.freight ELSE 0.    
                     /*ar-inv.t-inv-freight*/.
    
-    PUT "<R58><C60><#8><FROM><R+5><C+20><RECT> " 
-        "<=8> Sub Total  :" v-subtot-lines FORM "->>,>>9.99"
+    PUT "<R58><C60><#8><FROM><R+5><C+21><RECT> " 
+        "<=8> Sub Total  :" v-subtot-lines FORM "->>>,>>9.99"
         "<=8><R+1> Freight    :" v-inv-freight
         "<=8><R+2> " v-bot-lab[1] 
         "<=8><R+3> " /*PST        :" ar-inv.t-inv-tax FORM "->>,>>9.99"*/
                     v-bot-lab[2]
-        "<=8><R+4> Grand Total:" v-subtot-lines + v-t-tax[1] + v-t-tax[2] + v-t-tax[3] + v-inv-freight  FORM "->>,>>9.99" 
+        "<=8><R+4> Grand Total:" v-subtot-lines + v-t-tax[1] + v-t-tax[2] + v-t-tax[3] + v-inv-freight  FORM "->>>,>>9.99" 
         /*v-subtot-lines + v-t-tax[1] + v-t-tax[2] + v-t-tax[3] + v-inv-freight */.
 
     PUT "<R58><C1><#9><FROM><R+4><C+30><RECT> " 

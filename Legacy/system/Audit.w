@@ -113,7 +113,8 @@ OR cAfterValueFilter EQ "") NO-LOCK ~
 /* Definitions for BROWSE AuditHeader                                   */
 &Scoped-define FIELDS-IN-QUERY-AuditHeader AuditHdr.AuditID ~
 AuditHdr.AuditType AuditHdr.AuditDateTime AuditHdr.AuditDB ~
-AuditHdr.AuditTable AuditHdr.AuditUser AuditHdr.AuditKey 
+AuditHdr.AuditTable AuditHdr.AuditUser AuditHdr.AuditKey ~
+AuditHdr.AuditStackID 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-AuditHeader 
 &Scoped-define QUERY-STRING-AuditHeader FOR EACH AuditHdr ~
       WHERE AuditHdr.AuditDateTime GE dtStartDateTime ~
@@ -207,20 +208,20 @@ DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btnAfterValueFilterClear 
-     IMAGE-UP FILE "Graphics/16x16/keyboard_key_x.gif":U NO-FOCUS
+     IMAGE-UP FILE "Graphics/16x16/navigate_cross.png":U NO-FOCUS
      LABEL "" 
-     SIZE 4 BY .95 TOOLTIP "Clear After Value Filter".
+     SIZE 4.4 BY 1.05 TOOLTIP "Clear After Value Filter".
 
 DEFINE BUTTON btnAuditTables 
-     IMAGE-UP FILE "Graphics/32x32/indent_increase.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/checks.ico":U NO-FOCUS FLAT-BUTTON
      LABEL "" 
      SIZE 8.4 BY 2 TOOLTIP "Select Tables to Audit"
      FONT 4.
 
 DEFINE BUTTON btnBeforeValueFilterClear 
-     IMAGE-UP FILE "Graphics/16x16/keyboard_key_x.gif":U NO-FOCUS
+     IMAGE-UP FILE "Graphics/16x16/navigate_cross.png":U NO-FOCUS
      LABEL "" 
-     SIZE 4 BY .95 TOOLTIP "Clear Before Value Filter".
+     SIZE 4.4 BY 1.05 TOOLTIP "Clear Before Value Filter".
 
 DEFINE BUTTON btnCalendar-1 
      IMAGE-UP FILE "Graphics/16x16/calendar.bmp":U
@@ -401,6 +402,7 @@ DEFINE BROWSE AuditHeader
       AuditHdr.AuditTable FORMAT "x(16)":U LABEL-BGCOLOR 14
       AuditHdr.AuditUser FORMAT "x(16)":U LABEL-BGCOLOR 14
       AuditHdr.AuditKey FORMAT "x(40)":U LABEL-BGCOLOR 14
+      AuditHdr.AuditStackID FORMAT "->,>>>,>>9":U
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ROW-MARKERS SEPARATORS SIZE 96 BY 23.1
@@ -423,61 +425,6 @@ DEFINE FRAME DEFAULT-FRAME
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
          SIZE 238.2 BY 28.57 WIDGET-ID 100.
-
-DEFINE FRAME AuditSearch
-     btnAuditTables AT ROW 2.67 COL 118 HELP
-          "Click to Access Tables to Audit" WIDGET-ID 288
-     svType AT ROW 1.24 COL 8 COLON-ALIGNED HELP
-          "Select Audit Type Filter" WIDGET-ID 6
-     svStartDate AT ROW 1.24 COL 36 COLON-ALIGNED HELP
-          "Enter From Date" WIDGET-ID 20
-     btnCalendar-1 AT ROW 1.24 COL 54 WIDGET-ID 272
-     svStartDateOption AT ROW 1.24 COL 59 HELP
-          "Select Start Date Option" NO-LABEL WIDGET-ID 74
-     svDB AT ROW 1.24 COL 89 COLON-ALIGNED HELP
-          "Select Audit DB Filter" WIDGET-ID 14
-     maxRows AT ROW 1.24 COL 128 COLON-ALIGNED WIDGET-ID 290
-     AuditHdr.AuditKey AT ROW 1.24 COL 161.6 COLON-ALIGNED WIDGET-ID 26
-          LABEL "Audit Key" FORMAT "x(256)"
-          VIEW-AS FILL-IN 
-          SIZE 70.4 BY 1
-          BGCOLOR 15 
-     svUser AT ROW 2.43 COL 8 COLON-ALIGNED HELP
-          "Select User Filter" WIDGET-ID 12
-     svEndDate AT ROW 2.43 COL 36 COLON-ALIGNED HELP
-          "Enter To Date" WIDGET-ID 22
-     btnCalendar-2 AT ROW 2.43 COL 54 WIDGET-ID 274
-     svEndDateOption AT ROW 2.43 COL 59 HELP
-          "Select End Date Option" NO-LABEL WIDGET-ID 70
-     svTable AT ROW 2.43 COL 89 COLON-ALIGNED HELP
-          "Select Audit Table Filter" WIDGET-ID 16
-     svBeforeValueFilter AT ROW 2.43 COL 161.6 COLON-ALIGNED HELP
-          "Enter Before Value to Filter" WIDGET-ID 36
-     svField AT ROW 3.62 COL 89 COLON-ALIGNED HELP
-          "Select Audit Field Filter" WIDGET-ID 18
-     svAfterValueFilter AT ROW 3.62 COL 161.6 COLON-ALIGNED HELP
-          "Enter After Value to Filter" WIDGET-ID 38
-     btnClear AT ROW 2.67 COL 127 HELP
-          "Click to Clear Filters" WIDGET-ID 284
-     btnAfterValueFilterClear AT ROW 3.62 COL 234 HELP
-          "Click to Clear After Value Filter" WIDGET-ID 42
-     btnSearch AT ROW 2.67 COL 136 HELP
-          "Click to Apply Filter Selections" WIDGET-ID 286
-     btnBeforeValueFilterClear AT ROW 2.43 COL 234 HELP
-          "Click to Clear Before Value Filter" WIDGET-ID 40
-     btnFilterAfterValue AT ROW 3.62 COL 145 HELP
-          "Select to Filter by After Value" WIDGET-ID 34
-     btnFilterAuditKey AT ROW 1.24 COL 145 HELP
-          "Select to Filter by Audit Key" WIDGET-ID 28
-     btnFilterBeforeValue AT ROW 2.43 COL 145 HELP
-          "Select to Filter by Before Value" WIDGET-ID 32
-     btnHistory AT ROW 1.24 COL 234 HELP
-          "Click to View History" WIDGET-ID 30
-    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1
-         SIZE 238 BY 4.76
-         TITLE "Search Filters" WIDGET-ID 500.
 
 DEFINE FRAME AuditView
      AuditHdr.AuditDB AT ROW 1.24 COL 6 COLON-ALIGNED WIDGET-ID 16
@@ -538,6 +485,61 @@ DEFINE FRAME AuditView
          AT COL 97 ROW 24.57
          SIZE 142 BY 4.81
          TITLE BGCOLOR 15 "Audit Detail View" WIDGET-ID 400.
+
+DEFINE FRAME AuditSearch
+     svType AT ROW 1.24 COL 8 COLON-ALIGNED HELP
+          "Select Audit Type Filter" WIDGET-ID 6
+     svStartDate AT ROW 1.24 COL 36 COLON-ALIGNED HELP
+          "Enter From Date" WIDGET-ID 20
+     btnCalendar-1 AT ROW 1.24 COL 54 WIDGET-ID 272
+     btnAuditTables AT ROW 2.67 COL 118 HELP
+          "Click to Access Tables to Audit" WIDGET-ID 288
+     svStartDateOption AT ROW 1.24 COL 59 HELP
+          "Select Start Date Option" NO-LABEL WIDGET-ID 74
+     svDB AT ROW 1.24 COL 89 COLON-ALIGNED HELP
+          "Select Audit DB Filter" WIDGET-ID 14
+     maxRows AT ROW 1.24 COL 128 COLON-ALIGNED WIDGET-ID 290
+     AuditHdr.AuditKey AT ROW 1.24 COL 161.6 COLON-ALIGNED WIDGET-ID 26
+          LABEL "Audit Key" FORMAT "x(256)"
+          VIEW-AS FILL-IN 
+          SIZE 70.4 BY 1
+          BGCOLOR 15 
+     svUser AT ROW 2.43 COL 8 COLON-ALIGNED HELP
+          "Select User Filter" WIDGET-ID 12
+     svEndDate AT ROW 2.43 COL 36 COLON-ALIGNED HELP
+          "Enter To Date" WIDGET-ID 22
+     btnCalendar-2 AT ROW 2.43 COL 54 WIDGET-ID 274
+     svEndDateOption AT ROW 2.43 COL 59 HELP
+          "Select End Date Option" NO-LABEL WIDGET-ID 70
+     svTable AT ROW 2.43 COL 89 COLON-ALIGNED HELP
+          "Select Audit Table Filter" WIDGET-ID 16
+     svBeforeValueFilter AT ROW 2.43 COL 161.6 COLON-ALIGNED HELP
+          "Enter Before Value to Filter" WIDGET-ID 36
+     svField AT ROW 3.62 COL 89 COLON-ALIGNED HELP
+          "Select Audit Field Filter" WIDGET-ID 18
+     svAfterValueFilter AT ROW 3.62 COL 161.6 COLON-ALIGNED HELP
+          "Enter After Value to Filter" WIDGET-ID 38
+     btnAfterValueFilterClear AT ROW 3.62 COL 234 HELP
+          "Click to Clear After Value Filter" WIDGET-ID 42
+     btnBeforeValueFilterClear AT ROW 2.43 COL 234 HELP
+          "Click to Clear Before Value Filter" WIDGET-ID 40
+     btnClear AT ROW 2.67 COL 127 HELP
+          "Click to Clear Filters" WIDGET-ID 284
+     btnSearch AT ROW 2.67 COL 136 HELP
+          "Click to Apply Filter Selections" WIDGET-ID 286
+     btnFilterAfterValue AT ROW 3.62 COL 145 HELP
+          "Select to Filter by After Value" WIDGET-ID 34
+     btnFilterAuditKey AT ROW 1.24 COL 145 HELP
+          "Select to Filter by Audit Key" WIDGET-ID 28
+     btnFilterBeforeValue AT ROW 2.43 COL 145 HELP
+          "Select to Filter by Before Value" WIDGET-ID 32
+     btnHistory AT ROW 1.24 COL 234 HELP
+          "Click to View History" WIDGET-ID 30
+    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 1
+         SIZE 238 BY 4.76
+         TITLE "Search Filters" WIDGET-ID 500.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -604,24 +606,68 @@ ASSIGN
        maxRows:PRIVATE-DATA IN FRAME AuditSearch     = 
                 "NoUserPrint".
 
+ASSIGN 
+       svAfterValueFilter:PRIVATE-DATA IN FRAME AuditSearch     = 
+                "parameter".
+
+ASSIGN 
+       svBeforeValueFilter:PRIVATE-DATA IN FRAME AuditSearch     = 
+                "parameter".
+
 /* SETTINGS FOR COMBO-BOX svDB IN FRAME AuditSearch
    1                                                                    */
+ASSIGN 
+       svDB:PRIVATE-DATA IN FRAME AuditSearch     = 
+                "parameter".
+
 /* SETTINGS FOR FILL-IN svEndDate IN FRAME AuditSearch
    1                                                                    */
+ASSIGN 
+       svEndDate:PRIVATE-DATA IN FRAME AuditSearch     = 
+                "parameter".
+
 /* SETTINGS FOR COMBO-BOX svEndDateOption IN FRAME AuditSearch
    ALIGN-L 1                                                            */
+ASSIGN 
+       svEndDateOption:PRIVATE-DATA IN FRAME AuditSearch     = 
+                "parameter".
+
 /* SETTINGS FOR COMBO-BOX svField IN FRAME AuditSearch
    1                                                                    */
+ASSIGN 
+       svField:PRIVATE-DATA IN FRAME AuditSearch     = 
+                "parameter".
+
 /* SETTINGS FOR FILL-IN svStartDate IN FRAME AuditSearch
    1                                                                    */
+ASSIGN 
+       svStartDate:PRIVATE-DATA IN FRAME AuditSearch     = 
+                "parameter".
+
 /* SETTINGS FOR COMBO-BOX svStartDateOption IN FRAME AuditSearch
    ALIGN-L 1                                                            */
+ASSIGN 
+       svStartDateOption:PRIVATE-DATA IN FRAME AuditSearch     = 
+                "parameter".
+
 /* SETTINGS FOR COMBO-BOX svTable IN FRAME AuditSearch
    1                                                                    */
+ASSIGN 
+       svTable:PRIVATE-DATA IN FRAME AuditSearch     = 
+                "parameter".
+
 /* SETTINGS FOR COMBO-BOX svType IN FRAME AuditSearch
    1                                                                    */
+ASSIGN 
+       svType:PRIVATE-DATA IN FRAME AuditSearch     = 
+                "parameter".
+
 /* SETTINGS FOR COMBO-BOX svUser IN FRAME AuditSearch
    1                                                                    */
+ASSIGN 
+       svUser:PRIVATE-DATA IN FRAME AuditSearch     = 
+                "parameter".
+
 /* SETTINGS FOR FRAME AuditView
                                                                         */
 /* SETTINGS FOR FILL-IN AuditDtl.AuditAfterValue IN FRAME AuditView
@@ -739,6 +785,7 @@ OR cAfterValueFilter EQ """")"
 "AuditHdr.AuditUser" ? ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[7]   > audit.AuditHdr.AuditKey
 "AuditHdr.AuditKey" ? "x(40)" "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[8]   = audit.AuditHdr.AuditStackID
      _Query            is OPENED
 */  /* BROWSE AuditHeader */
 &ANALYZE-RESUME
@@ -1070,6 +1117,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnPrint C-Win
 ON CHOOSE OF btnPrint IN FRAME DEFAULT-FRAME
 DO:
+    RUN pUserPrint.
     RUN AOA/AuditHist.w.
 END.
 
@@ -1102,7 +1150,7 @@ END.
 ON CHOOSE OF btnStack IN FRAME DEFAULT-FRAME
 DO:
     IF AVAILABLE AuditHdr THEN
-    RUN system\AuditStack.w (AuditHdr.AuditStack).
+    RUN system\AuditStack.w (AuditHdr.AuditStackID).
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1348,6 +1396,8 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     RUN pGetSettings.
     &ENDIF
     {&OPEN-QUERY-AuditHeader}
+    APPLY 'VALUE-CHANGED':U TO svStartDateOption.
+    APPLY 'VALUE-CHANGED':U TO svEndDateOption.
     APPLY 'VALUE-CHANGED':U TO BROWSE AuditHeader.
   END. /* if lcontinue */
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
@@ -1401,10 +1451,10 @@ PROCEDURE enable_UI :
   IF AVAILABLE AuditHdr THEN 
     DISPLAY AuditHdr.AuditKey 
       WITH FRAME AuditSearch IN WINDOW C-Win.
-  ENABLE btnAuditTables svType svStartDate btnCalendar-1 svStartDateOption svDB 
+  ENABLE svType svStartDate btnCalendar-1 btnAuditTables svStartDateOption svDB 
          maxRows svUser svEndDate btnCalendar-2 svEndDateOption svTable 
-         svBeforeValueFilter svField svAfterValueFilter btnClear 
-         btnAfterValueFilterClear btnSearch btnBeforeValueFilterClear 
+         svBeforeValueFilter svField svAfterValueFilter 
+         btnAfterValueFilterClear btnBeforeValueFilterClear btnClear btnSearch 
          btnFilterAfterValue btnFilterAuditKey btnFilterBeforeValue btnHistory 
       WITH FRAME AuditSearch IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-AuditSearch}
@@ -1947,6 +1997,53 @@ PROCEDURE pSaveSettings :
         user-print.field-label[idx] = "Height"
         user-print.field-value[idx] = STRING({&WINDOW-NAME}:HEIGHT)
         .
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pUserPrint C-Win 
+PROCEDURE pUserPrint :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE hWidget AS HANDLE  NO-UNDO.
+    DEFINE VARIABLE idx     AS INTEGER NO-UNDO.
+    
+    FIND FIRST user-print EXCLUSIVE-LOCK
+         WHERE user-print.company    EQ g_company
+           AND user-print.program-id EQ "AuditHist."
+           AND user-print.user-id    EQ USERID("ASI")
+         NO-ERROR.
+    IF NOT AVAILABLE user-print THEN DO:
+        CREATE user-print.
+        ASSIGN
+            user-print.company    = g_company
+            user-print.program-id = "AuditHist."
+            user-print.user-id    = USERID("ASI")
+            .
+    END. /* not avail */
+    ASSIGN
+        user-print.field-name[1]  = "Company"
+        user-print.field-label[1] = "Company"
+        user-print.field-value[1] = g_company
+        hWidget = FRAME AuditSearch:FIRST-CHILD
+        hWidget = hWidget:FIRST-CHILD
+        .
+    DO WHILE VALID-HANDLE(hWidget):
+        IF hWidget:PRIVATE-DATA EQ "parameter" THEN
+        ASSIGN
+            idx = idx + 1
+            user-print.field-name[idx]  = hWidget:NAME
+            user-print.field-label[idx] = hWidget:LABEL
+            user-print.field-value[idx] = hWidget:SCREEN-VALUE
+            .
+        hWidget = hWidget:NEXT-SIBLING.
+    END. /* do while */
+    FIND CURRENT user-print NO-LOCK.
 
 END PROCEDURE.
 

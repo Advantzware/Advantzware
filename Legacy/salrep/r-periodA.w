@@ -937,6 +937,7 @@ def var v-sqft as dec.
 def var v-wght as dec.
 def var v-pct as dec format "99.99" no-undo.
 DEFINE VARIABLE dPerSales AS DECIMAL FORMAT "99.99" NO-UNDO.
+DEFINE VARIABLE dPerAmt AS DECIMAL FORMAT "99.99" NO-UNDO.
 DEF VAR ld-inv-pct AS DEC NO-UNDO.
 DEF VAR ld-amt-msf AS DEC NO-UNDO.
 DEF VAR ld-wgt-msf AS DEC NO-UNDO.

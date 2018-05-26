@@ -37,7 +37,7 @@ PUT "<FArial><P12><=#3><R-2> <B>Invoice#: " ar-inv.inv-no "</B><P10>            
     "<=#3><R+4> Customer PO                  Invoice Date <FCourier New>"    
     "<=3><R+1> " ar-inv.cust-no  space(7) cust.contact
     "<=3><R+3> " cust.area-code + cust.phone format "(999)999-9999" space(5) cust.fax
-    "<=3><R+5> " v-po-no space(3) v-inv-date .
+    "<=3><R+5> " v-ord-po-no space(3) v-inv-date .
 
     
 PUT "<R21><C1><#4><FROM><R25><C80><RECT><||3>" SKIP
@@ -72,7 +72,8 @@ PUT "<R26><C1><#5><FROM><R28><C80><RECT><||3>" SKIP
                 "<R26><C65><FROM><R28><C65><LINE><||3>" SKIP
                 "<R26><C69><FROM><R28><C69><LINE><||3>" SKIP
                 .   
-PUT "<FArial><=5><R+1>   Ordered     Shipped      Order      Item#/CustPart#                       Description                             Price       UOM             Amount" SKIP(1).
+PUT "<FArial><=5>"  space(37) " Order /" SKIP
+                   " Ordered     Shipped      Cust PO      Item#/CustPart#                       Description                             Price       UOM             Amount" SKIP(1).
 v-printline = v-printline + 4.
            
 

@@ -62,6 +62,7 @@ r-bolpst. b3
 r-bolsum. b3
 r-trksch. b3
 r-BOLtag. b3
+bolpcklst. b3
 b4 b
 w-oeinv. b4
 r-invedt. b4
@@ -615,5 +616,3 @@ parmfile. system est
 parmfil_. system est
 help mainmenu est
 about. help est
-aoaRpt. file
-aoaDash. file

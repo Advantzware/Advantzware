@@ -15,7 +15,7 @@ then detail area.
 *****************************************************************************
 \***************************************************************************/
 {ed/sharedv.i}
-{ed/edivars.i       "new shared"}
+{ed/edivars.i       "shared"}
 {ed/tdf/sharedv.i   "new shared"}
 {rc/stringv.i       "new shared"}
 {rc/fcurrent.i}
@@ -36,7 +36,6 @@ DEFINE VARIABLE lPathIsGood            AS LOGICAL      NO-UNDO.
 
 ws_filetype = "EDI".
 
-
 ASSIGN
   header_segment_list =
   "000,000,BIG,002,CUR,003,REF,004,PER,005,N1,006,N2,007,N3,008,N4,009,ITD,010,DTM,011,FOB,012,PID,017"
@@ -56,7 +55,17 @@ ASSIGN
                 
 FIND FIRST EDMast NO-LOCK WHERE EDMast.Partner EQ ws_partner NO-ERROR.
 IF NOT AVAILABLE EDMast THEN 
-    RETURN. 
+    RETURN.
+FIND FIRST edcode NO-LOCK WHERE edcode.partner EQ EDMast.partner
+    AND edcode.setid = "810"
+    NO-ERROR.    
+IF NOT AVAILABLE edcode THEN 
+  FIND FIRST edcode NO-LOCK WHERE edcode.partner EQ EDMast.partnerGrp
+    AND edcode.setid = "810"  
+    NO-ERROR.
+
+IF NOT AVAILABLE edcode THEN 
+  RETURN. 
 FIND first ediPartnerSegment NO-LOCK  
      WHERE ediPartnerSegment.partnerGrp EQ EDMast.partnerGrp
      NO-ERROR.
@@ -95,12 +104,14 @@ ASSIGN
 FIND FIRST eddoc NO-LOCK
   WHERE eddoc.setid = edcode.setid
     AND eddoc.partner = ws_partner
-  AND eddoc.error-count = 0
-  AND eddoc.posted = FALSE
-  AND NOT eddoc.status-flag = "DEL"   /* 9809 CAH */
-  AND eddoc.direction = edcode.direction NO-ERROR.
+    AND eddoc.error-count = 0
+    AND eddoc.posted = FALSE
+    AND NOT eddoc.status-flag = "DEL"   /* 9809 CAH */
+    AND eddoc.direction = edcode.direction 
+  NO-ERROR.
+  
 IF NOT AVAIL eddoc THEN
-RETURN. /* nothing to do */
+  RETURN. /* nothing to do */
 {rc/hdg-wide.i "ed/tdf/o8103060.p" "OUTBOUND INVOICE EDIT LIST" "(s-out)"}
 {rc/hdg-noco.i}
 ASSIGN
@@ -110,20 +121,25 @@ ASSIGN
 FORM
   WITH FRAME f-det DOWN WIDTH 144.
   
-ws_edi_path = ws_edi_path +  fOutputFileName().
+ws_edi_path = ws_edi_path +  (IF AVAILABLE eddoc THEN eddoc.docID + "_" ELSE "") + fOutputFileName().
+
 lPathIsGood = fCheckFolderOfPath(ws_edi_path).
+
 IF NOT lPathIsGood THEN 
   RETURN.
 OUTPUT STREAM s-edi TO VALUE(ws_edi_path).
 
 START = TIME.
 FOR EACH eddoc EXCLUSIVE
-    WHERE eddoc.setid = edcode.setid
-      AND eddoc.partner = ws_partner
-    AND eddoc.error-count = 0
-    AND eddoc.posted = FALSE
-    AND eddoc.direction = edcode.direction
-AND NOT eddoc.status-flag = "DEL"   /* 9809 CAH */:
+    WHERE eddoc.setid       EQ edcode.setid
+      AND eddoc.partner     EQ ws_partner
+      AND eddoc.error-count EQ 0
+      AND eddoc.posted      EQ FALSE
+      AND eddoc.direction   EQ edcode.direction
+AND NOT eddoc.status-flag EQ "DEL"   /* 9809 CAH */
+    AND (eddoc.docid EQ invoice_number OR invoice_number EQ ""):
+    /* Set immediately so doesn't get picked up by another user */
+    eddoc.posted = TRUE.
   ws_section = 10.
   /*
   DISPLAY
@@ -150,6 +166,7 @@ AND NOT eddoc.status-flag = "DEL"   /* 9809 CAH */:
     {rc/incr.i ws_recs_inerror}.
     RETURN.
   END.
+  
     FIND FIRST edshipto
         WHERE edshipto.partner = EDIVTran.Partner
         AND edshipto.ref-type = "BT"
@@ -164,18 +181,18 @@ AND NOT eddoc.status-flag = "DEL"   /* 9809 CAH */:
       AND edpotran.cust-po = edivtran.cust-po NO-LOCK NO-ERROR.
     IF AVAIL edpotran
       THEN
-    DO:
-      CASE ws_partner:
-      WHEN "SEARS" THEN
-      ASSIGN
-        afe_number =
-        IF edpotran.ref2-code = "AE" THEN edpotran.ref2 ELSE "14257680".
-      /* 9810 CAH no zz-code in ASI schema ...
-      edpotran.zz-code.    /* there is no afe-code right now */
-      */
-    END CASE.
-  END.    /* avail edpotran */
-END.  /* lookup po */
+        DO:
+          CASE ws_partner:
+          WHEN "SEARS" THEN
+          ASSIGN
+            afe_number =
+            IF edpotran.ref2-code = "AE" THEN edpotran.ref2 ELSE "14257680".
+          /* 9810 CAH no zz-code in ASI schema ...
+          edpotran.zz-code.    /* there is no afe-code right now */
+          */
+        END CASE.
+       END.    /* avail edpotran */
+  END.  /* lookup po */
 
  ASSIGN
   /* BIG */
@@ -388,7 +405,8 @@ DO:
         city     = IF AVAILABLE EDShipto THEN EDShipto.City ELSE ""
         country  = IF AVAILABLE EDShipto THEN EDShipto.Country ELSE ""
         state  = IF AVAILABLE EDShipto THEN EDShipto.state ELSE ""
-        zip      = IF AVAILABLE EDShipto THEN EDShipto.Zip ELSE "".
+        zip      = IF AVAILABLE EDShipto THEN EDShipto.Zip ELSE ""
+        .
     ws_section = 24.    
     RUN write_segments.ip ("N1,006").
     RUN write_segments.ip ("N3,008").
@@ -402,13 +420,18 @@ END CASE.
 ASSIGN ref_qual = "" ref_number = "".
 /* Amazon does not have this on BIG */
 ASSIGN 
- purchase_order_number           = edivtran.cust-po
+  purchase_order_number           = edivtran.cust-po
   purchase_order_date#            = edivtran.cust-po-date
   . 
+  
 ws_section = 30.
 ws_line = 0.
 FOR EACH edivline OF edivtran EXCLUSIVE
-    WHERE edivline.qty-shipped <> 0:
+    WHERE edivline.qty-shipped <> 0
+    BY INTEGER(edivline.cust-po-line) :
+        
+
+  
   ASSIGN
     product_characteristic_code = "08"
     item_description_type       = "F"
@@ -421,32 +444,47 @@ FOR EACH edivline OF edivtran EXCLUSIVE
     unit_of_measure             = edivline.uom-code
     weight_unit_measure         = "LB"
     volume_unit_measure         = "CF"
-    ws_line = ws_line + 1
-  item_assigned_id            = string(ws_line)
+    second_product_type         = ""
+    second_description          = ""    
+    .
+    
+    IF INTEGER(edivline.cust-po-line) GT 0 THEN 
+      ws_line = INTEGER(edivline.cust-po-line).
+    ELSE
+      ws_line = ws_line + 1.
+    
+    item_assigned_id            = STRING(ws_line)
     .
     
   /* 9810 CAH ... */
-        CASE ws_partner_grp:
-            WHEN "SEARS" THEN 
-                DO:
-    if unit_of_measure = "" 
-    or unit_of_measure = "CT" 
-    or unit_of_measure = "CS"
-    then unit_of_measure = "EA".
-  end.
-      when "AMAZ" then 
-          do:
+    CASE ws_partner_grp:
+        WHEN "SEARS" THEN DO:
+            IF unit_of_measure = "" 
+              OR unit_of_measure = "CT" 
+              OR unit_of_measure = "CS"
+            THEN unit_of_measure = "EA".
+        END.
+        WHEN "AMAZ" THEN DO:
+            IF customer_item_number GT "" THEN 
+               ASSIGN 
+                  second_product_type    = "BP"
+                  second_description     = SUBSTRING(customer_item_number, 1, 8)
+                  .
+                  
              ASSIGN 
+
                item_product_qualifier = "PO"
-               product_id = purchase_order_number
+               product_id             = purchase_order_number
                .
+               
+               
              IF unit_of_measure EQ "M" THEN 
                ASSIGN
                   unit_of_measure = "EA"
                   unit_price = unit_price / 1000
                   .
-          end.
-  end case.
+        END.
+  END CASE .
   RUN write_segments.ip (detail_segment_list).
 END.
 
@@ -454,7 +492,10 @@ ws_section = 40.
 ws_line = 0.
 n_recs = 0.
 /* Freight, etc */
-FOR EACH edivaddon OF edivtran EXCLUSIVE WHERE EDIVAddon.Agency-code NE "TAX":  
+FOR EACH edivaddon EXCLUSIVE-LOCK 
+  WHERE edivaddon.seq = edivtran.seq
+    AND EDIVAddon.Agency-code NE "TAX"
+    AND edivaddon.partner EQ edivtran.partner:  
      
   ASSIGN
    allow_charge_indicator = "C"
@@ -462,13 +503,17 @@ FOR EACH edivaddon OF edivtran EXCLUSIVE WHERE EDIVAddon.Agency-code NE "TAX":
    sac_agency_qualifier = ""
    sac_agency_code = ""
    sac_reference_id   = STRING(EDIVAddon.Amount)
-   . 
+   .
+    PUT STREAM s-out unformatted "edivaddon " + STRING(edivaddon.amount) SKIP.
   RUN write_segments.ip ("SAC,027").
 END.
 
 /* Tax */
-FOR EACH edivaddon OF edivtran EXCLUSIVE WHERE EDIVAddon.Agency-code EQ "TAX":    
-        
+FOR EACH edivaddon  EXCLUSIVE 
+    WHERE edivaddon.seq EQ edivtran.seq 
+      AND EDIVAddon.Agency-code EQ "TAX"
+      AND edivaddon.partner EQ edivtran.partner:    
+     
    ASSIGN     
         tax_type = "ST"
         total_tax_dollars = EDIVAddon.amount
@@ -494,7 +539,7 @@ ASSIGN
   {rc/stampcht.i eddoc}
   eddoc.openitem = FALSE
   eddoc.stat = 9
-  eddoc.status-flag = "SNT"
+  eddoc.status-flag = "NEW"
   eddoc.posted = TRUE
   {rc/incr.i ws_recs_changed}
   ws_line = ws_line + 1
@@ -520,6 +565,7 @@ ACCUMULATE
 IF error-status:error OR ws_erc <> 0
   THEN
 {rc/incr.i ws_recs_inerror}.
+
 {rc/accum.i ws_amt_changed edivtran.tot-gross}.
 /* 9810 CAH: was causing screen flip ...
 {rc/statsdis.i}

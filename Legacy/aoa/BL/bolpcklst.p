@@ -79,6 +79,16 @@ FOR EACH oe-bolh NO-LOCK
          NO-ERROR.
     IF AVAILABLE rfidtag AND LENGTH(rfidtag.rfidtag) GT 5 THEN
     ttBOLPackingList.ticket = SUBSTR(rfidtag.rfidtag,LENGTH(rfidtag.rfidtag) - 5).
+    FIND FIRST itemfg NO-LOCK 
+        WHERE itemfg.company EQ oe-boll.company
+        AND itemfg.i-no EQ oe-boll.i-no
+        NO-ERROR.
+    IF AVAILABLE itemfg THEN DO:
+        RUN fg/GetFGArea.p (ROWID(itemfg), "MSF", OUTPUT ttBOLPackingList.msfPrice).
+        ttBOLPackingList.msfPrice = ttBOLPackingList.msfPrice * (ttBOLPackingList.qtyCase * ttBOLPackingList.caseBundle + ttBOLPackingList.partial ).
+    END.
+    
 END. /* each oe-bolh */
+
 
 {aoa/BL/pBuildCustList.i}

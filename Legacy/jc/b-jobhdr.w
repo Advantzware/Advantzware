@@ -881,6 +881,9 @@ PROCEDURE local-enable-fields :
 
   /* Code placed here will execute AFTER standard behavior.    */
   DO WITH FRAME {&FRAME-NAME}:
+      IF NOT adm-new-record AND job.est-no NE "" THEN
+      APPLY "entry" TO job-hdr.qty IN BROWSE {&browse-name}.
+      ELSE
      APPLY "entry" TO job-hdr.frm IN BROWSE {&browse-name}.
      RETURN NO-APPLY.
   END.

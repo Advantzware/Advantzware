@@ -37,7 +37,7 @@ PROCEDURE List-Logic:
   END CASE.
   GET FIRST prep-query.
   DO WHILE AVAILABLE(prep)
-      WITH FRAME {&FRAME-NAME} NO-BOX WIDTH 132 STREAM-IO DOWN:
+      WITH FRAME {&FRAME-NAME} NO-BOX WIDTH 150 STREAM-IO DOWN:
     {methods/lstlogic/custom/prep_.i}
     DOWN.
     GET NEXT prep-query.

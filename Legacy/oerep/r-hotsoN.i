@@ -296,7 +296,7 @@
           tt-fg-set.ord-no EQ oe-ordl.ord-no AND
           tt-fg-set.LINE EQ oe-ordl.LINE:
 
-          ASSIGN s-b-line = "S/B: " + STRING(tt-fg-set.part-qty) + "/"
+          ASSIGN s-b-line = "S/B: " + STRING(tt-fg-set.QtyPerSet) + "/"
                           + STRING(tt-fg-set.part-qty-dec).
 
        

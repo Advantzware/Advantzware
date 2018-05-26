@@ -941,7 +941,7 @@ def var v-tot-weight like inv-head.t-inv-weight no-undo.  /* total weight shippe
 def var v-line-price like inv-line.price no-undo.
 def var v-line-cost like inv-line.t-price no-undo.
 def var v-line-freight like inv-line.t-freight no-undo.
-def var v-set-qty as INT no-undo.
+def var v-set-qty as DECIMAL no-undo.
 def var v-part-qty as dec format "999.9999" no-undo.
 def var v-bol-cases like oe-boll.cases no-undo.
 def var v-line-tot  like inv-line.t-price no-undo.

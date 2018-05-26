@@ -38,7 +38,7 @@ for each x-eb
 
     assign
      v-item-no  = tt-cust-part.stock-no
-     v-part-qty = if x-eb.cust-% ne 0 then x-eb.cust-% else x-eb.yld-qty.
+     v-part-qty = if x-eb.cust-% ne 0 then x-eb.cust-% else x-eb.quantityPerSet.
 
     IF v-part-qty LT 0 THEN v-part-qty = -1 / v-part-qty.
 
@@ -97,10 +97,7 @@ for each x-eb
      x-eb.stock-no         = v-item-no
      tt-cust-part.stock-no = x-eb.stock-no.
 
-    IF tt-cust-part.qty-set LT 1 THEN
-      fg-set.part-qty = -1 / tt-cust-part.qty-set.
-    ELSE
-      fg-set.part-qty = tt-cust-part.qty-set.
+     fg-set.qtyPerSet = tt-cust-part.qty-set.
   end.
 end. /* each eb */
 

@@ -13,7 +13,7 @@ FOR EACH eb WHERE eb.form-no NE 0,
     BREAK BY eb.company
           BY eb.est-no:
 
-  IF FIRST-OF(eb.est-no) AND (NOT LAST-OF(eb.est-no) OR eb.yld-qty GT 1) THEN DO:
+  IF FIRST-OF(eb.est-no) AND (NOT LAST-OF(eb.est-no) OR eb.quantityPerSet GT 1) THEN DO:
     est.est-type = 6.
 
     FOR EACH ef OF est:
@@ -107,7 +107,7 @@ FOR EACH eb WHERE eb.form-no NE 0,
            fg-set.part-no = b-eb.stock-no.
         END.
 
-        fg-set.part-qty = b-eb.yld-qty.
+        fg-set.QtyPerSet = INTEGER(b-eb.quantityPerSet).
       END.
     END.
   END.

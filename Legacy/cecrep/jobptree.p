@@ -249,10 +249,9 @@ ASSIGN
                AND oe-ordl.ord-no  EQ job-hdr.ord-no
                AND oe-ordl.i-no    EQ job-hdr.i-no NO-LOCK NO-ERROR.
        IF AVAILABLE oe-ordl THEN         
-
-       ASSIGN
-       v-managed-order = IF oe-ordl.managed = true THEN "MANAGED   WAREHOUSE   ORDER"
-                         ELSE ""
+           v-managed-order = IF oe-ordl.managed = true THEN "MANAGED   WAREHOUSE   ORDER"
+                         ELSE "".
+                         
        v-break = FIRST-OF(job.job-no2).
 
       RELEASE xest.
@@ -292,8 +291,8 @@ ASSIGN
           lv-fg-name = IF AVAILABLE xoe-ordl AND xoe-ordl.i-no EQ job-hdr.i-no THEN xoe-ordl.i-name ELSE itemfg.i-name.
           {cec/rollfac.i}
           v-pqty = IF v-rollfac OR xeb.est-type EQ 8 THEN 1 ELSE
-                   IF xeb.yld-qty LT 0 THEN (-1 / xeb.yld-qty)
-                                       ELSE xeb.yld-qty.
+                   IF xeb.quantityPerSet LT 0 THEN (-1 / xeb.quantityPerSet)
+                                       ELSE xeb.quantityPerSet.
           FIND FIRST sman WHERE sman.company = xeb.company AND
                                 sman.sman = xeb.sman NO-LOCK NO-ERROR.
           v-sman = IF AVAILABLE sman THEN sman.sname ELSE xeb.sman.
@@ -1116,11 +1115,11 @@ ASSIGN
              /* each components */
         
              v-tmp-line = 0.
-             FOR EACH xeb FIELDS(stock-no part-dscr1 yld-qty) WHERE
+             FOR EACH xeb FIELDS(stock-no part-dscr1 quantityPerSet) WHERE
                  xeb.company = est.company AND
                  xeb.est-no = est.est-no AND
                  xeb.form-no > 0 NO-LOCK:
-                 PUT xeb.stock-no AT 3 SPACE(14) xeb.part-dscr1 SPACE(5) xeb.yld-qty FORMAT "->>>>>9" SKIP.
+                 PUT xeb.stock-no AT 3 SPACE(14) xeb.part-dscr1 SPACE(5) xeb.quantityPerSet FORMAT "->>>>>9" SKIP.
                  v-tmp-line = v-tmp-line + 1.
              END.
              v-tmp-line = v-tmp-line + 1.

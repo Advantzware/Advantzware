@@ -429,6 +429,7 @@ DO v-j = 1 TO 2:
         v-lcum-score-d[i] = (IF i GT 1 THEN v-lcum-score-d[i - 1] ELSE 0) +
                              v-lscore-d[i].
      END.
+
      DO i = 1 TO v-lscore-fld-num:
        DO j = 1 TO v-lscore-fld-num:
          IF v-lscore-fld-id[j] EQ i THEN DO:
@@ -438,7 +439,7 @@ DO v-j = 1 TO 2:
          END.
        END.
      END.
-    
+     dPanelsLength = v-lscor2-d.
      DO i = 1 TO v-lscore-fld-num:
 
        IF v-box-uom EQ "Inches"                      OR
@@ -590,7 +591,8 @@ DO v-j = 1 TO 2:
            w-box-design-line.wscore-d     = ROUND(v-wscore-d[i]     * 25.4,0)
            w-box-design-line.wcum-score-d = ROUND(v-wcum-score-d[i] * 25.4,0).
     END.
-
+    dPanelsWidth = v-wscore-d.
+    
     FIND FIRST w-box-design-line NO-ERROR.
     IF AVAIL w-box-design-line THEN
     DO:

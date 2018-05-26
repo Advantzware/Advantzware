@@ -330,7 +330,11 @@
          brd-l[3]   = xef.gsh-len
          brd-w[1]   = xeb.t-wid
          brd-w[2]   = xef.nsh-wid
-         brd-w[3]   = xef.gsh-wid.
+         brd-w[3]   = xef.gsh-wid
+         brd-d[1]   = xeb.t-dep
+         brd-d[2]   = xef.nsh-dep
+         brd-d[3]   = xef.gsh-dep
+         .
 
   if brd-l[3] = 0 and brd-w[3] = 0 then assign brd-l[3] = xef.lsh-len
                                              brd-w[3] = xef.lsh-wid.
@@ -432,7 +436,7 @@
       end.
     end.
 
-    qty = qtty[k] * IF xeb.yld-qty EQ 0 THEN 1 ELSE xeb.yld-qty.
+    qty = qtty[k] * IF xeb.quantityPerSet EQ 0 THEN 1 ELSE xeb.quantityPerSet.
     if qty = 0 then leave loupe.
     vmcl = k.
     iMasterQuantity = qtty[k].
@@ -443,7 +447,7 @@
 
     ASSIGN
        k = maxpage /* k used in kmr-run.i */
-       qty = qtty[k] * xeb.yld-qty.
+       qty = qtty[k] * xeb.quantityPerSet.
 
     /*find first xop where xop.company = xest.company and xop.est-no = xest.est-no and xop.line >= 500 no-lock no-error.*/
     find first item {sys/look/itemW.i} and item.i-no = xef.board no-lock no-error.
@@ -491,7 +495,7 @@
 
     display /*skip(1)*/
             " --Qty---- --- Description ------ -- Size / Color ----- --- Style / Part No ---"
-            qty / xeb.yld-qty format ">>,>>>,>>9"
+            qty / xeb.quantityPerSet format ">>,>>>,>>9"
             dsc[1] space(1) sizcol[1] space(2) stypart[1] skip
             space(11)
             dsc[2] space(1) sizcol[2] space(2) stypart[2] skip
@@ -500,7 +504,7 @@
             with no-box no-labels color value(col-norm) stream-io width 80 frame aa1 .
 
     ASSIGN
-     v-yld-qty   = xeb.yld-qty
+     v-yld-qty   = xeb.quantityPerSet
      v-hdr-depth = IF xeb.t-dep   EQ 0 AND
                       xef.nsh-dep EQ 0 AND
                       xef.gsh-dep EQ 0 THEN "" ELSE "Depth".
@@ -758,27 +762,17 @@
               ls-outfile = tmp-dir + trim(est.est-no) + ".p" + string(probe.line,"999").
 
     if search(outfile1) <> ? then do:       
-       dos silent  type value(outfile3) > value(ls-outfile).
-       dos silent  type value(outfile2) >> value(ls-outfile).    
+       os-copy value(outfile3) value(ls-outfile).
+       os-append value(outfile2) value(ls-outfile).
     end.
     else next.
                  
     if not vprint then DO TRANSACTION:
 
       IF probe.LINE LT 100 THEN
-      DO:
-         if opsys = "unix" then
-           unix silent rm value(tmp-dir + trim(xest.est-no) + ".*" + string(probe.line,"99")).
-         else
-           dos silent del value(tmp-dir + trim(xest.est-no) + ".*" + string(probe.line,"99")).
-      END.
+         os-delete value(tmp-dir + trim(xest.est-no) + ".*" + string(probe.line,"99")).
       ELSE
-      DO:
-         if opsys = "unix" then
-           unix silent rm value(tmp-dir + trim(xest.est-no) + ".*" + string(probe.line,"999")).
-         else
-           dos silent del value(tmp-dir + trim(xest.est-no) + ".*" + string(probe.line,"999")).
-      END.
+         os-delete value(tmp-dir + trim(xest.est-no) + ".*" + string(probe.line,"999")).
 
       FIND CURRENT probe.
       DELETE probe.

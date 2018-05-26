@@ -460,6 +460,8 @@ def input parameter v-rebuild as char.
 def buffer xbox-design-hdr  for box-design-hdr.
 def buffer xbox-design-line for box-design-line.
 
+EMPTY TEMP-TABLE w-box-h .
+
 cocode = eb.company.
 find xeb where recid(xeb) = recid(eb) no-lock.               
 
@@ -495,6 +497,7 @@ find first style where style.company eq xeb.company
                  no-lock no-error.
 if avail style then
   find first xbox-design-hdr where xbox-design-hdr.design-no eq style.design-no
+  	                           and xbox-design-hdr.company   eq style.company 				
                                and xbox-design-hdr.est-no    eq ""
              no-lock no-error.
 

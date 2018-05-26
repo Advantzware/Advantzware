@@ -57,7 +57,7 @@ DEF VAR cTextListToDefault AS cha NO-UNDO.
 
 
 ASSIGN cTextListToSelect = "Vendor,Vendor Name,Invoice#,Inv Date,Due Date,1Gross,1Disc,2Gross,2Disc," +
-			   "3Gross,3Disc,Old Gross,Old Disc,Total Gross,Total Disc,Company,Terms,Days Old,CC/ACH"
+                           "3Gross,3Disc,Old Gross,Old Disc,Total Gross,Total Disc,Company,Terms,Days Old,CC/ACH"
        cFieldListToSelect = "ap-inv.vend-no,vend-name,ap-inv.inv-no,ap-inv.inv-date,due-date,inv-t1,inv-d1,inv-t2,inv-d2," +
                             "inv-t3,inv-d3,inv-t4,inv-d4,ws_gross,ws_disc-avail,ap-inv.company,terms,dy-old,cc-ach"
        cFieldLength = "8,30,12,10,10,11,8,11,8," +
@@ -65,7 +65,7 @@ ASSIGN cTextListToSelect = "Vendor,Vendor Name,Invoice#,Inv Date,Due Date,1Gross
        cFieldType   = "c,c,c,c,c,i,i,i,i," + "i,i,i,i,i,i,c,c,c,c"
        .
 ASSIGN cTextListToDefault  = "Vendor,Vendor Name,Invoice#,Inv Date,Due Date,1Gross,1Disc,2Gross,2Disc," +
-			     "3Gross,3Disc,Old Gross,Old Disc,Total Gross,Total Disc,Company".
+                             "3Gross,3Disc,Old Gross,Old Disc,Total Gross,Total Disc,Company".
 {sys/inc/ttRptSel.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -84,12 +84,12 @@ ASSIGN cTextListToDefault  = "Vendor,Vendor Name,Invoice#,Inv Date,Due Date,1Gro
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-6 RECT-7 begin_company end_company ~
-begin_date-1 tb_sort begin_date-2 tb_disc-date begin_date-3 ~
-Btn_Def sl_avail sl_selected Btn_Add Btn_Remove btn_Up btn_down lv-ornt ~
+begin_date-1 tb_disc-date begin_date-2 begin_date-3 rd_sort2 Btn_Def ~
+sl_avail sl_selected Btn_Add Btn_Remove btn_Up btn_down lv-ornt ~
 lines-per-page rd-dest lv-font-no td-show-parm tb_excel tb_runExcel fi_file ~
 btn-cancel btn-ok 
 &Scoped-Define DISPLAYED-OBJECTS begin_company end_company begin_date-1 ~
-tb_sort begin_date-2 tb_disc-date begin_date-3 sl_avail ~
+tb_disc-date begin_date-2 begin_date-3 lbl_sort2 rd_sort2 sl_avail ~
 sl_selected lv-ornt lines-per-page rd-dest lv-font-no lv-font-name ~
 td-show-parm tb_excel tb_runExcel fi_file 
 
@@ -175,6 +175,10 @@ DEFINE VARIABLE fi_file AS CHARACTER FORMAT "X(30)" INITIAL "c:~\tmp~\r-cashrq.c
      SIZE 43 BY 1
      FGCOLOR 9 .
 
+DEFINE VARIABLE lbl_sort2 AS CHARACTER FORMAT "X(256)":U INITIAL "Sort by?" 
+     VIEW-AS FILL-IN 
+     SIZE 8 BY 1 NO-UNDO.
+
 DEFINE VARIABLE lines-per-page AS INTEGER FORMAT ">>":U INITIAL 99 
      LABEL "Lines Per Page" 
      VIEW-AS FILL-IN 
@@ -207,13 +211,22 @@ DEFINE VARIABLE rd-dest AS INTEGER INITIAL 2
 "To Port Directly", 6
      SIZE 19 BY 6.67 NO-UNDO.
 
+DEFINE VARIABLE rd_sort2 AS CHARACTER INITIAL "Vendor" 
+     VIEW-AS RADIO-SET HORIZONTAL
+     RADIO-BUTTONS 
+          "Vendor", "Vendor",
+"Vend Name", "Vend Name",
+"Invoice#", "Invoice#",
+"Inv Date", "Inv Date"
+     SIZE 57 BY 1 NO-UNDO.
+
 DEFINE RECTANGLE RECT-6
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 93 BY 9.76.
 
 DEFINE RECTANGLE RECT-7
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 94 BY 12.88 .
+     SIZE 94 BY 14.29.
 
 DEFINE VARIABLE sl_avail AS CHARACTER 
      VIEW-AS SELECTION-LIST MULTIPLE SCROLLBAR-VERTICAL 
@@ -240,12 +253,6 @@ DEFINE VARIABLE tb_runExcel AS LOGICAL INITIAL no
      SIZE 21 BY .81
      BGCOLOR 3  NO-UNDO.
 
-
-DEFINE VARIABLE tb_sort AS LOGICAL INITIAL no 
-     LABEL "Sort By Vendor Name?" 
-     VIEW-AS TOGGLE-BOX
-     SIZE 32 BY 1 NO-UNDO.
-
 DEFINE VARIABLE td-show-parm AS LOGICAL INITIAL no 
      LABEL "Show Parameters?" 
      VIEW-AS TOGGLE-BOX
@@ -259,52 +266,53 @@ DEFINE FRAME FRAME-A
      end_company AT ROW 2.91 COL 63 COLON-ALIGNED
      begin_date-1 AT ROW 4.33 COL 28.2 COLON-ALIGNED HELP
           "Enter First Date"
-     tb_sort AT ROW 4.52 COL 55.4
+     tb_disc-date AT ROW 4.33 COL 55.4
      begin_date-2 AT ROW 5.52 COL 28.2 COLON-ALIGNED HELP
           "Enter the Second Date"
-     tb_disc-date AT ROW 5.57 COL 55.4
      begin_date-3 AT ROW 6.71 COL 28.2 COLON-ALIGNED HELP
           "Enter the Third Date"
-     Btn_Def AT ROW 8.57 COL 40.8 HELP
+     lbl_sort2 AT ROW 8.14 COL 19 COLON-ALIGNED NO-LABEL WIDGET-ID 58
+     rd_sort2 AT ROW 8.14 COL 29 NO-LABEL WIDGET-ID 60
+     Btn_Def AT ROW 10.19 COL 40.8 HELP
           "Default Selected Table to Tables to Audit" WIDGET-ID 56
-     sl_avail AT ROW 8.62 COL 2.4 NO-LABEL WIDGET-ID 26
-     sl_selected AT ROW 8.62 COL 60.6 NO-LABEL WIDGET-ID 28
-     Btn_Add AT ROW 9.52 COL 40.8 HELP
+     sl_avail AT ROW 10.24 COL 2.4 NO-LABEL WIDGET-ID 26
+     sl_selected AT ROW 10.24 COL 60.6 NO-LABEL WIDGET-ID 28
+     Btn_Add AT ROW 11.14 COL 40.8 HELP
           "Add Selected Table to Tables to Audit" WIDGET-ID 32
-     Btn_Remove AT ROW 10.48 COL 40.8 HELP
+     Btn_Remove AT ROW 12.1 COL 40.8 HELP
           "Remove Selected Table from Tables to Audit" WIDGET-ID 34
-     btn_Up AT ROW 11.43 COL 40.8 WIDGET-ID 40
-     btn_down AT ROW 12.38 COL 40.8 WIDGET-ID 42
-     lv-ornt AT ROW 15.1 COL 31 NO-LABEL
-     lines-per-page AT ROW 15.1 COL 83 COLON-ALIGNED
-     rd-dest AT ROW 15.19 COL 5 NO-LABEL
-     lv-font-no AT ROW 17 COL 35 COLON-ALIGNED
-     lv-font-name AT ROW 18.38 COL 29 COLON-ALIGNED NO-LABEL
-     td-show-parm AT ROW 19.57 COL 31
-     tb_excel AT ROW 20.76 COL 51 RIGHT-ALIGNED
-     tb_runExcel AT ROW 20.76 COL 72 RIGHT-ALIGNED
-     fi_file AT ROW 22.05 COL 29 COLON-ALIGNED HELP
+     btn_Up AT ROW 13.05 COL 40.8 WIDGET-ID 40
+     btn_down AT ROW 14 COL 40.8 WIDGET-ID 42
+     lv-ornt AT ROW 16.57 COL 31 NO-LABEL
+     lines-per-page AT ROW 16.57 COL 83 COLON-ALIGNED
+     rd-dest AT ROW 16.67 COL 5 NO-LABEL
+     lv-font-no AT ROW 18.48 COL 35 COLON-ALIGNED
+     lv-font-name AT ROW 19.86 COL 29 COLON-ALIGNED NO-LABEL
+     td-show-parm AT ROW 21.05 COL 31
+     tb_excel AT ROW 22.24 COL 51 RIGHT-ALIGNED
+     tb_runExcel AT ROW 22.24 COL 72 RIGHT-ALIGNED
+     fi_file AT ROW 23.52 COL 29 COLON-ALIGNED HELP
           "Enter File Name"
-     btn-cancel AT ROW 24.24 COL 58.2
-     btn-ok AT ROW 24.29 COL 17
+     btn-cancel AT ROW 25.71 COL 58.2
+     btn-ok AT ROW 25.76 COL 17
      "Cash Needed On:":U VIEW-AS TEXT
           SIZE 24 BY 1 AT ROW 1.71 COL 37
           BGCOLOR 8 FGCOLOR 9 FONT 5
+     "Output Destination" VIEW-AS TEXT
+          SIZE 18 BY .62 AT ROW 15.81 COL 2
+     "Selected Columns(In Display Order)" VIEW-AS TEXT
+          SIZE 34 BY .62 AT ROW 9.57 COL 60.6 WIDGET-ID 44
+     "Available Columns" VIEW-AS TEXT
+          SIZE 22 BY .62 AT ROW 9.57 COL 3 WIDGET-ID 38
      "Selection Parameters" VIEW-AS TEXT
           SIZE 21 BY .71 AT ROW 1.24 COL 3
           BGCOLOR 2 
-     "Available Columns" VIEW-AS TEXT
-          SIZE 22 BY .62 AT ROW 7.95 COL 3 WIDGET-ID 38
-     "Selected Columns(In Display Order)" VIEW-AS TEXT
-          SIZE 34 BY .62 AT ROW 7.95 COL 60.6 WIDGET-ID 44
-     "Output Destination" VIEW-AS TEXT
-          SIZE 18 BY .62 AT ROW 14.33 COL 2
-     RECT-6 AT ROW 14 COL 2
+     RECT-6 AT ROW 15.48 COL 2
      RECT-7 AT ROW 1 COL 1
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1.6 ROW 1.24
-         SIZE 95.2 BY 24.95.
+         SIZE 95.2 BY 26.29.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -324,7 +332,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW C-Win ASSIGN
          HIDDEN             = YES
          TITLE              = "AP Cash Requirements Report"
-         HEIGHT             = 25.19
+         HEIGHT             = 26.52
          WIDTH              = 96
          MAX-HEIGHT         = 33.29
          MAX-WIDTH          = 204.8
@@ -358,22 +366,30 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME                                                           */
-ASSIGN
+ASSIGN 
        btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "ribbon-button".
 
-
-ASSIGN
+ASSIGN 
        btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "ribbon-button".
-
 
 ASSIGN 
        fi_file:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
+/* SETTINGS FOR FILL-IN lbl_sort2 IN FRAME FRAME-A
+   NO-ENABLE                                                            */
+ASSIGN 
+       lbl_sort2:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "rd_sort2".
+
 /* SETTINGS FOR FILL-IN lv-font-name IN FRAME FRAME-A
    NO-ENABLE                                                            */
+ASSIGN 
+       rd_sort2:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
+
 ASSIGN 
        tb_disc-date:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
@@ -390,18 +406,13 @@ ASSIGN
        tb_runExcel:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
-
-ASSIGN 
-       tb_sort:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "parm".
-
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
 THEN C-Win:HIDDEN = no.
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -686,6 +697,17 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME rd_sort2
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rd_sort2 C-Win
+ON VALUE-CHANGED OF rd_sort2 IN FRAME FRAME-A
+DO:
+  assign {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME sl_avail
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL sl_avail C-Win
 ON DEFAULT-ACTION OF sl_avail IN FRAME FRAME-A
@@ -774,17 +796,6 @@ END.
 &Scoped-define SELF-NAME tb_runExcel
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_runExcel C-Win
 ON VALUE-CHANGED OF tb_runExcel IN FRAME FRAME-A /* Auto Run Excel? */
-DO:
-  assign {&self-name}.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME tb_sort
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_sort C-Win
-ON VALUE-CHANGED OF tb_sort IN FRAME FRAME-A /* Sort By Vendor Name? */
 DO:
   assign {&self-name}.
 END.
@@ -990,16 +1001,15 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY begin_company end_company begin_date-1 tb_sort begin_date-2 
-          tb_disc-date begin_date-3 sl_avail sl_selected lv-ornt 
+  DISPLAY begin_company end_company begin_date-1 tb_disc-date begin_date-2 
+          begin_date-3 lbl_sort2 rd_sort2 sl_avail sl_selected lv-ornt 
           lines-per-page rd-dest lv-font-no lv-font-name td-show-parm tb_excel 
           tb_runExcel fi_file 
       WITH FRAME FRAME-A IN WINDOW C-Win.
-  ENABLE RECT-6 RECT-7 begin_company end_company begin_date-1 tb_sort 
-         begin_date-2 tb_disc-date begin_date-3 Btn_Def 
-         sl_avail sl_selected Btn_Add Btn_Remove btn_Up btn_down lv-ornt 
-         lines-per-page rd-dest lv-font-no td-show-parm tb_excel tb_runExcel 
-         fi_file btn-cancel btn-ok 
+  ENABLE RECT-6 RECT-7 begin_company end_company begin_date-1 tb_disc-date 
+         begin_date-2 begin_date-3 rd_sort2 Btn_Def sl_avail sl_selected 
+         Btn_Add Btn_Remove btn_Up btn_down lv-ornt lines-per-page rd-dest 
+         lv-font-no td-show-parm tb_excel tb_runExcel fi_file btn-cancel btn-ok 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.
@@ -1175,7 +1185,7 @@ def var m3 as char format "x(20)" no-undo.
 def var first-time as log init yes no-undo.
 def var ws_disc-avail as dec no-undo column-label "Disc"
     format '->>>>.99'.
-def var v-sort as log init no no-undo.
+def var v-sort as CHARACTER  no-undo.
 def var v-disc as log init no no-undo.
 def var v-disc-date as date no-undo.
 def var v-company as log init no no-undo.
@@ -1244,10 +1254,9 @@ assign
  d1[1]  = begin_date-1
  d1[2]  = begin_date-2
  d1[3]  = begin_date-3
- v-sort = tb_sort
+ v-sort = rd_sort2
  v-disc = tb_disc-date
  . 
-
 {sys/inc/print1.i}
 
 {sys/inc/outprint.i value(lines-per-page)}
@@ -1339,7 +1348,13 @@ SESSION:SET-WAIT-STATE ("general").
       {custom/statusMsg.i " 'Processing Invoice#  '  + string(ap-inv.inv-no) "}
     create tt-report.
     assign
-     tt-report.key-01  = if v-sort then vend.name else ""
+     tt-report.key-01  = if v-sort EQ "Vendor" THEN vend.vend-no
+                         ELSE IF v-sort EQ "Vend Name" THEN vend.name
+                         ELSE IF v-sort EQ "Invoice#" THEN ap-inv.inv-no
+                         ELSE IF v-sort EQ "Inv Date" THEN STRING((YEAR(ap-inv.inv-date) * 10000) +
+                                                       (MONTH(ap-inv.inv-date) * 100)  +
+                                                       DAY(ap-inv.inv-date))
+                         ELSE ""
      tt-report.key-02  = vend.vend-no
      tt-report.key-03  = ap-inv.inv-no
      tt-report.rec-id  = recid(ap-inv).

@@ -74,15 +74,15 @@ ASSIGN cTextListToSelect = "Job Qty OH,Tot Qty OH,Customer Name,Ship To,PO#,Orde
                            "Del Zone,Terr,Credit Rating,Routing,Skid Qty,OH-Rel Qty," +
                            "Sample Date,Dock Date,Early Date,Late Date,Transit Days,State,Total Alloc,Total Avail,Ship From,Dock Note," +
                            "Sal Rep,Last User ID,Ship To Add1,Ship To Add2,ShipTo City,ShipTo State,Ship To Zip,Ship To Name,Due Date,Style,Run Complete,FG Category,OverRun %," +
-                           "Job Hold Code,Job Hold Desc,Order Date"
+                           "Job Hold Code,Job Hold Desc,Order Date,Order MFG Date,Completion Date"
            cFieldListToSelect = "w-ord.onh-qty,w-ord.tot-qty,w-ord.cust-name,w-ord.ship-id,w-ord.po-num,w-ord.ord-no,w-ord.rel-no,w-ord.i-no,w-ord.i-name," +
                                 "w-ord.rel-qty,w-ord.xls-rel-date,w-ord.prom-code,w-ord.carrier,w-ord.t-price,w-ord.ord-qty,w-ord.msf,w-ord.job,w-ord.shp-qty,w-ord.xls-status,w-ord.cust-no,w-ord.part-no," +
                                 "v-del-zone,v-terr,v-crRate,routing,w-ord.palls,oh-relqty," +
                                 "sa-ship-date,dock-ship-date,ear-ship-date,lat-ship-date,trans-day,stat,ttl-alc,ttl-avl,w-ord.ship-from,notes," +
                                 "w-ord.sman,w-ord.upd-user,ship-add1,ship-add2,ship-cty,ship-stat,ship-zip,ship-name,due-dt,style,run-comp,fg-cat,over-run," +
-                                "job-h-code,job-h-desc,ord-date" 
-           cFieldLength = "10,10,15,8,15,6,6,15,15," + "11,8,9,7,11,13,8,9,14,8,9,15," + "8,4,13,35,8,11," + "11,10,10,10,12,5,11,11,11,20," + "7,12,30,30,15,12,15,30,10,5,12,11,9," + "13,15,10"
-           cFieldType = "i,i,c,c,c,i,i,c,c," + "i,c,c,c,i,i,i,c,i,c,c,c," + "c,c,c,c,i,i," + "c,c,c,c,i,c,i,i,c,c,"  + "c,c,c,c,c,c,c,c,c,c,c,c,i," + "c,c,c"
+                                "job-h-code,job-h-desc,ord-date,mfg-date,comp-date" 
+           cFieldLength = "10,10,15,8,15,6,6,15,15," + "11,8,9,7,11,13,8,9,14,8,9,15," + "8,4,13,35,8,11," + "11,10,10,10,12,5,11,11,11,20," + "7,12,30,30,15,12,15,30,10,5,12,11,9," + "13,15,10,14,15"
+           cFieldType = "i,i,c,c,c,i,i,c,c," + "i,c,c,c,i,i,i,c,i,c,c,c," + "c,c,c,c,i,i," + "c,c,c,c,i,c,i,i,c,c,"  + "c,c,c,c,c,c,c,c,c,c,c,c,i," + "c,c,c,c,c"
            .
 
 {sys/inc/ttRptSel.i}
@@ -2030,6 +2030,9 @@ PROCEDURE show-param :
   def var i as int no-undo.
   def var lv-label as cha.
 
+  DEF VAR v-lstcnt AS INT NO-UNDO.
+  DEF VAR v-lstcnt2 AS INT NO-UNDO.
+
   lv-frame-hdl = frame {&frame-name}:handle.
   lv-group-hdl = lv-frame-hdl:first-child.
   lv-field-hdl = lv-group-hdl:first-child .
@@ -2064,7 +2067,26 @@ PROCEDURE show-param :
       "< Selection Parameters >"
       skip(1).
 
-  do i = 1 to num-entries(parm-fld-list,","):
+  ASSIGN v-lstcnt = NUM-ENTRIES(parm-fld-list,",").
+
+  IF v-lstcnt LT 0 THEN ASSIGN v-lstcnt = v-lstcnt  * -1.
+
+  IF NUM-ENTRIES(parm-fld-list,",") LT NUM-ENTRIES(parm-lbl-list,",") 
+    THEN DO v-lstcnt2 = 1 TO v-lstcnt:
+
+      ASSIGN
+       parm-fld-list = parm-fld-list + "," + " ".
+  END.
+
+  IF NUM-ENTRIES(parm-lbl-list,",") LT NUM-ENTRIES(parm-fld-list,",") 
+    THEN DO v-lstcnt2 = 1 TO v-lstcnt:
+
+      ASSIGN
+       parm-lbl-list = parm-lbl-list + "," + " ".
+  END.
+
+
+  do i = 1 to v-lstcnt:
     if entry(i,parm-fld-list) ne "" or
        entry(i,parm-lbl-list) ne "" then do:
 

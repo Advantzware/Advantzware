@@ -21,7 +21,7 @@ def {1} temp-table tt-artios NO-UNDO
     field blank-num as int     
     field die-in as decimal     
     field setQty as int
-    field CompQty as int
+    field CompQty as DECIMAL
     field procat as cha
     field cust-no as cha
     field dienum as cha

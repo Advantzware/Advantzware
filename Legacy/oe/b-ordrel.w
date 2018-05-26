@@ -374,7 +374,13 @@ DEFINE BROWSE br_table
   QUERY br_table NO-LOCK DISPLAY
       tt-report.opened COLUMN-LABEL "Prt" FORMAT "Y/N":U WIDTH 5.4
             COLUMN-FONT 0
-      oe-rel.s-code COLUMN-LABEL "S/I" FORMAT "!":U
+      oe-rel.s-code COLUMN-LABEL "S/I" FORMAT "X(12)":U
+      VIEW-AS COMBO-BOX INNER-LINES 4 
+          LIST-ITEM-PAIRS "B-Both","B",
+                     "S-Ship","S",
+                     "I-Invoice","I",
+                     "T-Transfer","T"
+          DROP-DOWN-LIST
       oe-rel.ship-id COLUMN-LABEL "Ship To" FORMAT "x(8)":U COLUMN-FONT 0
       oe-rel.stat COLUMN-LABEL "S" FORMAT "X":U WIDTH 2
       oe-rel.carrier COLUMN-LABEL "Via" FORMAT "x(5)":U COLUMN-FONT 0
@@ -655,7 +661,7 @@ DO:
               END.
          END.
          WHEN "carrier" THEN DO:
-              RUN windows/l-carrie.w (g_company, g_loc, lw-focus:SCREEN-VALUE, OUTPUT char-val).
+              RUN windows/l-carrie.w (g_company, oe-rel.spare-char-1:SCREEN-VALUE, lw-focus:SCREEN-VALUE, OUTPUT char-val).
               IF char-val <> "" THEN lw-focus:SCREEN-VALUE = ENTRY(1,char-val).
               RETURN NO-APPLY.
          END.
@@ -1470,7 +1476,7 @@ FOR EACH fg-set WHERE fg-set.set-no = oe-ordl.i-no
   oe-rel.s-code          = "S".     
 
   /* Set oe-rel quantity based on set part quantity */
-  oe-rel.tot-qty = ipiRelQty * fg-set.part-qty.
+  oe-rel.tot-qty = ipiRelQty * fg-set.qtyPerSet.
   oe-rel.rel-date = ipdtRelDate.
   IF ipcPoNo GT "" THEN
       oe-rel.po-no = ipcPoNo.
@@ -3045,6 +3051,7 @@ PROCEDURE create-report-record-1 :
                   AND sys-ctrl-ship.ship-id = "" NO-LOCK NO-ERROR.
      IF AVAIL sys-ctrl-shipto AND sys-ctrl-shipto.log-fld THEN v-reltype = sys-ctrl-shipto.char-fld.
      ELSE IF AVAIL sys-ctrl AND sys-ctrl.log-fld THEN v-reltype = sys-ctrl.char-fld.
+     ELSE v-reltype = "B" .
      IF v-relType <> "" THEN DO:
           IF oe-rel.s-code EQ '' THEN DO:
            FIND bf-oe-rel WHERE ROWID(bf-oe-rel) EQ ROWID(oe-rel)
@@ -3796,13 +3803,13 @@ PROCEDURE local-create-record :
                 oe-rel.ship-state   = shipto.ship-state
                 oe-rel.ship-zip     = shipto.ship-zip
                 oe-rel.ship-no      = shipto.ship-no
-                oe-rel.ship-id      = IF v-first-ship-id <> "" THEN v-first-ship-id ELSE shipto.ship-id
+                oe-rel.ship-id      = IF v-first-ship-id <> "" THEN v-first-ship-id ELSE oe-ord.ship-id
                 oe-rel.ship-i[1]    = shipto.notes[1]
                 oe-rel.ship-i[2]    = shipto.notes[2]
                 oe-rel.ship-i[3]    = shipto.notes[3]
                 oe-rel.ship-i[4]    = shipto.notes[4].
         ELSE ASSIGN oe-rel.ship-no   = oe-ord.sold-no
-                oe-rel.ship-id   = IF v-first-ship-id <> "" THEN v-first-ship-id ELSE oe-ord.sold-id
+                oe-rel.ship-id   = IF v-first-ship-id <> "" THEN v-first-ship-id ELSE oe-ord.ship-id
                 oe-rel.ship-i[1] = oe-ord.ship-i[1]
                 oe-rel.ship-i[2] = oe-ord.ship-i[2]
                 oe-rel.ship-i[3] = oe-ord.ship-i[3]

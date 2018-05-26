@@ -54,12 +54,12 @@ DEF VAR cTextListToDefault AS cha NO-UNDO.
 
 ASSIGN cTextListToSelect = "CUSTOMER,JOB#,S,B,DIE#,Plate#,DUE DATE,COMPLETION DATE,STYLE," +
                            "QTY GLUING,SHEETED,PRINTED,DIE CUT,GLUED,GLUE HRS,ORD MFG DATE,RELEASE DATE," +
-                           "ORDER #,ORDER DATE,FG ITEM#,PO#"             
+                           "ORDER #,ORDER DATE,FG ITEM#,PO#,PRIMARY CONTACT,CSR"             
        cFieldListToSelect = "cust,job,frm,blnk,die,palt,due-dt,comp-dt,styl," +
                             "qty-glu,sht,prntd,die-cut,glue,glu-hrs,mfg-date,rel-date," +
-                            "order-no,ord-date,fg-item,po-no"
-       cFieldLength = "8,10,1,1,20,15,10,15,7," + "13,7,7,7,5,14,11,12," + "7,10,15,15" 
-       cFieldType = "c,c,c,c,c,c,c,c,c," + "i,i,i,i,i,i,c,c," + "c,c,c,c"
+                            "order-no,ord-date,fg-item,po-no,pri-contact,csr"
+       cFieldLength = "8,10,1,1,20,15,10,15,7," + "13,7,7,7,5,14,11,12," + "7,10,15,15,25,8" 
+       cFieldType = "c,c,c,c,c,c,c,c,c," + "i,i,i,i,i,i,c,c," + "c,c,c,c,c,c"
     .
 
 {sys/inc/ttRptSel.i}
@@ -1275,7 +1275,7 @@ DEF VAR cPrepDscr AS cha FORM "x(25)" NO-UNDO.
 {sys/form/r-top5DL3.f} 
 cSelectedList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
 DEF VAR excelheader AS CHAR NO-UNDO.
-
+DEFINE VARIABLE cPrim-Contact AS CHARACTER NO-UNDO .
 {custom/statusMsg.i " 'Processing...   '"}
 
 /*form header v-hdr skip with frame r-top WIDTH 230.*/
@@ -1594,6 +1594,19 @@ SESSION:SET-WAIT-STATE ("general").
                      v-rel-date = IF AVAIL oe-relh THEN oe-relh.rel-date ELSE oe-rel.rel-date.
                         LEAVE.
                  END.
+                ASSIGN cPrim-Contact = "" .
+                FIND FIRST cust NO-LOCK
+                     WHERE cust.company EQ cocode
+                       AND cust.cust-no EQ tt-report.key-02 NO-ERROR .
+                IF AVAIL cust THEN
+                FOR EACH empalert NO-LOCK
+                    WHERE  empalert.table_rec_key = cust.rec_key
+                      AND  empalert.spare-char-1 EQ "Yes" , 
+                    FIRST users WHERE users.user_id = empalert.user-id
+                     NO-LOCK BY users.user_id  :
+                    cPrim-Contact = users.user_name .
+                    LEAVE .
+                END.
 
              ASSIGN cDisplay = ""
                    cTmpField = ""
@@ -1625,7 +1638,8 @@ SESSION:SET-WAIT-STATE ("general").
                          WHEN "ord-date"     THEN cVarValue =  IF AVAIL oe-ord AND oe-ord.ord-date NE ? THEN STRING(oe-ord.ord-date,"99/99/9999") ELSE ""      .
                          WHEN "fg-item"      THEN cVarValue =  IF AVAIL oe-ordl THEN STRING(oe-ordl.i-no,"x(15)") ELSE ""      .
                          WHEN "po-no"        THEN cVarValue =  IF AVAIL oe-ordl THEN STRING(oe-ordl.po-no,"x(15)") ELSE ""      .
-
+                         WHEN "pri-contact"  THEN cVarValue =   STRING(cPrim-Contact,"x(25)")   .
+                         WHEN "csr"          THEN cVarValue =   IF AVAILABLE oe-ord AND oe-ord.csrUser_id NE "" THEN STRING(oe-ord.csrUser_id,"x(8)") ELSE ""   .
                     END CASE.  
 
                     cExcelVarValue = cVarValue.

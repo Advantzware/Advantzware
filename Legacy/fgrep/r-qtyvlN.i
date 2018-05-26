@@ -1,5 +1,6 @@
 DEFINE VARIABLE iCommited AS INTEGER.
 DEFINE VARIABLE cLotNum AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cCustLotNum AS CHARACTER NO-UNDO.
 EMPTY TEMP-TABLE tt-cust.
 
 FOR EACH cust
@@ -210,7 +211,16 @@ FOR EACH tt-cust,
 
                      IF AVAIL oe-ordl THEN
                        v-ext-job = (oe-ordl.t-price / oe-ordl.qty) * v-qty-job.
-       
+                   IF AVAIL oe-ordl THEN
+                     FIND FIRST oe-ord NO-LOCK 
+                         WHERE oe-ord.company EQ oe-ordl.company
+                         AND oe-ord.ord-no EQ oe-ordl.ord-no NO-ERROR.
+
+                   IF AVAIL oe-ordl THEN
+                     FIND FIRST job NO-LOCK
+                       WHERE job.company = oe-ordl.company
+                       AND job.job-no = oe-ordl.job-no
+                       AND job.job-no2 = oe-ordl.job-no2 NO-ERROR.
 
                      v-sales-rep = "" .
 
@@ -227,15 +237,17 @@ FOR EACH tt-cust,
                          ASSIGN v-sell-price = itemfg.sell-price .
 
                      ASSIGN iCommited = 0
-                           /* cLotNum   = "" */.
+                            cCustLotNum   = "" .
                      FOR EACH oe-rel NO-LOCK WHERE oe-rel.company EQ oe-ordl.company
                          AND oe-rel.ord-no EQ oe-ordl.ord-no
                          AND oe-rel.i-no EQ oe-ordl.i-no 
-                         AND oe-rel.LINE EQ oe-ordl.LINE 
-                         AND oe-rel.link-no EQ 0 :
+                         AND oe-rel.LINE EQ oe-ordl.LINE :
+
+                         IF oe-rel.link-no EQ 0 THEN
                          iCommited = iCommited + oe-rel.tot-qty .
-                       /*  IF oe-rel.lot-no NE "" AND cLotNum EQ "" THEN
-                           cLotNum  =  string(oe-rel.lot-no,"x(15)") . */
+                        
+                         IF oe-rel.lot-no NE "" AND cCustLotNum EQ "" THEN
+                           cCustLotNum  =  string(oe-rel.lot-no,"x(15)") . 
                      END.
                        
 
@@ -261,7 +273,10 @@ FOR EACH tt-cust,
                           WHEN "ttl-val"    THEN cVarValue = STRING(v-ext-job,"->>>,>>>,>>9.99") .
                           WHEN "commtd"     THEN cVarValue = STRING(iCommited,"->>,>>>,>>9") .  
                           WHEN "qty-case"   THEN cVarValue = STRING(itemfg.case-count,"->>,>>9") . 
-                          WHEN "cust-lot"   THEN cVarValue = cLotNum . 
+                          WHEN "fg-lot"   THEN cVarValue = cLotNum .
+                          WHEN "cust-lot"   THEN cVarValue = cCustLotNum .
+                          WHEN "due-date"    THEN cVarValue = IF AVAIL oe-ord AND oe-ord.due-date NE ? THEN STRING(oe-ord.due-date,"99/99/9999") ELSE "" . 
+                          WHEN "job-due-date"    THEN cVarValue = IF AVAIL job AND job.due-date NE ? THEN STRING(job.due-date,"99/99/9999") ELSE "" .                                       
 
                      END CASE.
                        
@@ -332,7 +347,10 @@ FOR EACH tt-cust,
                           WHEN "ttl-val"    THEN cVarValue = STRING(v-tot-ext,"->>>,>>>,>>9.99") .
                           WHEN "commtd"     THEN cVarValue = "" .  
                           WHEN "qty-case"   THEN cVarValue = "" .
-                          WHEN "cust-lot"   THEN cVarValue = "" . 
+                          WHEN "FG-lot"   THEN cVarValue = "" . 
+                          WHEN "cust-lot"   THEN cVarValue = "" .
+                          WHEN "due-date"    THEN cVarValue = "" .
+                          WHEN "job-due-date"    THEN cVarValue = "" .                                       
                      END CASE.
                        
                      cExcelVarValue = cVarValue.
@@ -370,7 +388,10 @@ FOR EACH tt-cust,
                           WHEN "ttl-val"    THEN cVarValue = STRING(v-grand-tot-ext,"->>>,>>>,>>9.99") . 
                           WHEN "commtd"     THEN cVarValue = "" .  
                           WHEN "qty-case"   THEN cVarValue = "" .
+                          WHEN "FG-lot"   THEN cVarValue = "" . 
                           WHEN "cust-lot"   THEN cVarValue = "" . 
+                          WHEN "due-date" THEN cVarValue = "" .
+                          WHEN "job-due-date"    THEN cVarValue = "" .    
                      END CASE.
                        
                      cExcelVarValue = cVarValue.

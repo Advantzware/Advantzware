@@ -37,7 +37,8 @@
        itemfg.isaset      = xeb.form-no eq 0
        itemfg.pur-man     = xeb.pur-man
        itemfg.alloc       = xeb.set-is-assembled
-       itemfg.type-code   = "O".
+       itemfg.type-code   = "O"
+       itemfg.setupDate   = TODAY.
 
       IF itemfg.alloc NE ? THEN itemfg.alloc = NOT itemfg.alloc.
 

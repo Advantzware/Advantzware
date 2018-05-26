@@ -11,5 +11,5 @@ WHEN "v-vend-name" THEN cVarValue = substring(v-Vend-name,1,30).
 WHEN "lv-uom" THEN cVarValue = lv-uom.
 WHEN "v-wid" THEN cVarValue = string(po-ordl.s-wid,">>,>>9.99<<<").
 WHEN "v-len" THEN cVarValue = string(po-ordl.s-len,">>,>>9.99<<<").
-WHEN "v-job-no" THEN cVarValue = IF po-ordl.job-no <> "" then po-ordl.job-no + "-" + STRING(po-ordl.job-no2,"99") ELSE "".
+WHEN "v-job-no" THEN cVarValue = IF po-ordl.job-no <> "" then po-ordl.job-no + "-" + STRING(po-ordl.job-no2,"99") + "-" + STRING(po-ordl.s-num,"99") ELSE "".
 WHEN "v-jobDueDate" THEN cVarValue = IF v-JobDueDate <> ? THEN string(v-jobDueDate) ELSE "".

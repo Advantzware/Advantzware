@@ -261,26 +261,7 @@ ASSIGN
 /* Setting information for Queries and Browse Widgets fields            */
 
 &ANALYZE-SUSPEND _QUERY-BLOCK BROWSE BROWSE-1
-/* Query rebuild information for BROWSE BROWSE-1
-     _START_FREEFORM
-IF ll-sort-asc THEN
-   OPEN QUERY {&SELF-NAME} FOR EACH tt-report WHERE tt-report.term-id eq v-term NO-LOCK,
-              first po-ordl WHERE RECID(po-ordl) = tt-report.rec-id NO-LOCK,
-                  FIRST po-ord WHERE po-ord.company = po-ordl.company AND
-                              po-ord.po-no = po-ordl.po-no ~{&sortby-phrase-asc}.
-else
-   OPEN QUERY {&SELF-NAME} FOR EACH tt-report WHERE tt-report.term-id eq v-term NO-LOCK,
-              first po-ordl WHERE RECID(po-ordl) = tt-report.rec-id NO-LOCK,
-                  FIRST po-ord WHERE po-ord.company = po-ordl.company AND
-                              po-ord.po-no = po-ordl.po-no ~{&sortby-phrase-desc}.
-     _END_FREEFORM
-     _Options          = "NO-LOCK"
-     _Where[1]         = "ASI.reftable.reftable = ""Flute"" and 
-ASI.reftable.company  = """" and
-ASI.reftable.loc = """"
-"
-     _Query            is OPENED
-*/  /* BROWSE BROWSE-1 */
+  /* BROWSE BROWSE-1 */
 &ANALYZE-RESUME
 
  

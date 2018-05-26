@@ -483,6 +483,7 @@ PROCEDURE pImport :
     DEFINE VARIABLE cLength       AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cWidth        AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cSkipImport   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cMaterial     AS CHARACTER NO-UNDO.
 
     cImportFormat = fGetImportFormat(ipcCompany).
     cFile = ipcFileName.
@@ -501,6 +502,7 @@ PROCEDURE pImport :
                             cLength = ""
                             cWidth = ""
                             cSkipImport = ""
+                            cMaterial = ""
                             .
                         IMPORT DELIMITER ","
                             cForm
@@ -510,9 +512,10 @@ PROCEDURE pImport :
                             cLength
                             cWidth
                             cSkipImport
+                            cMaterial
                             .
                        
-                        IF NOT TRIM(cSkipImport) BEGINS "Y" THEN DO:           
+                        IF NOT TRIM(cSkipImport) BEGINS "Y" AND cPartID NE "" THEN DO:           
                             iLines = iLines + 1.
                             IF iLines = 1 AND lHeaderRow THEN NEXT.
                             IF iLines EQ 100 THEN 

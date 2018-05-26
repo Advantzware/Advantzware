@@ -1545,6 +1545,21 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&Scoped-define SELF-NAME routing-mtx.msf
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL routing-mtx.msf V-table-Win
+ON LEAVE OF routing-mtx.msf IN FRAME F-Main /* Routing Code[9] */
+DO:
+    if lastkey <> -1 and self:screen-value <> ""  THEN do:
+      RUN valid-msf NO-ERROR. 
+     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+    end.                 
+
+END.
+
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 &UNDEFINE SELF-NAME
 
@@ -1650,18 +1665,52 @@ PROCEDURE local-create-record :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-
-  /* Code placed here will execute PRIOR to standard behavior. */
-
+  
+    /* Code placed here will execute PRIOR to standard behavior. */
+   
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'create-record':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
+  DO WITH FRAME {&FRAME-NAME}:
   assign routing-mtx.company = style.company
          routing-mtx.loc = gloc
-         routing-mtx.style = style.style.
+         routing-mtx.style = style.style .
+  END.
   disp routing-mtx.style with frame {&frame-name}.
 
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-add-record V-table-Win 
+PROCEDURE local-add-record :
+/*------------------------------------------------------------------------------
+  Purpose:     Override standard ADM method
+  Notes:       
+------------------------------------------------------------------------------*/
+DEFINE BUFFER bf-routing-mtx FOR routing-mtx .
+
+  /* Code placed here will execute PRIOR to standard behavior. */
+    IF AVAIL style THEN
+    FIND FIRST bf-routing-mtx NO-LOCK
+       WHERE bf-routing-mtx.company EQ style.company
+         AND bf-routing-mtx.loc EQ gloc
+         AND bf-routing-mtx.style EQ style.style
+         AND bf-routing-mtx.msf EQ 0 NO-ERROR .
+
+    IF AVAIL bf-routing-mtx THEN DO:
+        MESSAGE "A routing matrix with 0 MSF exists. Please change the MSF for that to something other than 0."
+                                        VIEW-AS ALERT-BOX INFO .
+        RETURN .
+    END.
+  /* Dispatch standard ADM method.                             */
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'add-record':U ) .
+
+  /* Code placed here will execute AFTER standard behavior.    */
 
 END PROCEDURE.
 
@@ -1879,6 +1928,9 @@ PROCEDURE local-update-record :
 
   end.
 
+   RUN valid-msf NO-ERROR. 
+   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
 
@@ -1957,3 +2009,39 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-msf V-table-Win 
+PROCEDURE valid-msf :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+   DEFINE BUFFER bf-routing-mtx FOR routing-mtx .
+
+   {methods/lValidateError.i YES}
+  IF integer(routing-mtx.msf:SCREEN-VALUE IN FRAME {&FRAME-NAME}) EQ 0 THEN do:
+    MESSAGE "MSF cannot be 0. Please enter valid MSF..." VIEW-AS ALERT-BOX INFO.
+       APPLY "entry" TO routing-mtx.MSF .
+       RETURN ERROR.
+  END.
+  
+ IF AVAIL style THEN
+  FIND FIRST bf-routing-mtx NO-LOCK 
+     WHERE bf-routing-mtx.company EQ style.company
+       AND bf-routing-mtx.loc EQ gloc
+       AND bf-routing-mtx.style EQ style.style 
+       AND bf-routing-mtx.msf EQ integer(routing-mtx.msf:SCREEN-VALUE IN FRAME {&FRAME-NAME})
+       AND ROWID(bf-routing-mtx) NE ROWID(routing-mtx) NO-ERROR .
+       
+    IF  AVAIL bf-routing-mtx THEN DO:
+       MESSAGE "MSF " routing-mtx.msf:SCREEN-VALUE IN FRAME {&FRAME-NAME} " already Exist. Please enter different MSF..." VIEW-AS ALERT-BOX INFO.
+       APPLY "entry" TO routing-mtx.MSF .
+       RETURN ERROR.
+    END.
+
+  {methods/lValidateError.i NO}
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME

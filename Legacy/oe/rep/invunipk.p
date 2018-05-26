@@ -35,7 +35,7 @@ def var v-ans as logical initial no NO-UNDO.
 def var v-date-ship as date initial today NO-UNDO.
 def var v-del-no as int format ">>>>>>" NO-UNDO.
 def var v-bol-cases LIKE oe-boll.cases NO-UNDO.
-def var v-set-qty AS INT NO-UNDO.
+def var v-set-qty AS DECIMAL NO-UNDO.
 def var v-part-qty AS DEC FORMAT "999.9999" NO-UNDO.
 def var v-net like inv-head.t-inv-rev NO-UNDO.
 def var v-case-cnt as char format "x(80)" extent 5 NO-UNDO.
@@ -292,7 +292,7 @@ assign
              DO:
                FOR EACH fg-set NO-LOCK WHERE fg-set.company = xinv-line.company
                   AND fg-set.set-no = xinv-line.i-no:
-                 ASSIGN v-set-qty = v-set-qty + fg-set.part-qty.
+                 ASSIGN v-set-qty = v-set-qty + fg-set.QtyPerSet.
                END.
                IF v-set-qty = 0 THEN
                   ASSIGN v-set-qty = 1.
@@ -304,8 +304,8 @@ assign
                     fg-set.set-no = xinv-line.i-no  AND
                     fg-set.part-no = eb.stock-no NO-LOCK NO-ERROR.
 
-                 IF AVAIL fg-set AND fg-set.part-qty NE 0 THEN
-                   ASSIGN v-part-qty = fg-set.part-qty / v-set-qty.
+                 IF AVAIL fg-set AND fg-set.QtyPerSet NE 0 THEN
+                   ASSIGN v-part-qty = fg-set.QtyPerSet / v-set-qty.
                  ELSE
                    ASSIGN v-part-qty = 1 / v-set-qty.
 
@@ -353,15 +353,21 @@ assign
             assign v-salesman = v-salesman + w-sman.sman.
           delete w-sman.
         end.
+        
+        find first inv-line where inv-line.r-no = inv-head.r-no no-lock no-error.
+        IF AVAIL inv-line THEN
+        find first oe-bolh no-lock
+            where oe-bolh.company eq cocode
+            and oe-bolh.b-no    eq inv-line.b-no no-error.
+        if avail oe-bolh then 
+            find first oe-boll no-lock
+            where oe-boll.company eq cocode
+            and oe-boll.b-no    eq oe-bolh.b-no
+            and oe-boll.i-no    eq inv-line.i-no no-error.
 
-        find first oe-bolh where oe-bolh.company = inv-head.company and
-                                 oe-bolh.bol-no = inv-head.bol-no
-                                 USE-INDEX bol-no no-lock no-error.
-        if avail oe-bolh then
-          assign v-rel-po-no = oe-bolh.po-no.
+        if avail oe-boll then
+          assign v-rel-po-no = oe-boll.po-no.
 
-        find first inv-line where inv-line.r-no = inv-head.r-no
-                                  no-lock no-error.
         if avail inv-line then
         do:
           assign v-price-head = inv-line.pr-uom.
@@ -557,11 +563,6 @@ assign
                  v-printline = v-printline + 1.
               end.
             end.
-
-            IF inv-line.disc NE 0 OR v-po-no NE "" THEN
-              PUT SPACE(25) v-po-no FORMAT "x(15)" SPACE(1)
-                  "Less " + TRIM(STRING(inv-line.disc,">>9.99%")) + " Discount" FORMAT "x(21)"
-                  v-price - inv-line.t-price FORMAT "->>>,>>9.99" TO 95.
 
             put skip(1).
             v-printline = v-printline + 1.

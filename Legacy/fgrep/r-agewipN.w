@@ -205,6 +205,8 @@ DEF VAR lv-last-fld AS   CHAR FORMAT "x(13)" EXTENT 2 NO-UNDO.
 DEF VAR lv-sname    LIKE sman.sname NO-UNDO.
 DEF VAR excelheader AS   CHAR NO-UNDO.
 DEF VAR alt-days    AS   INT NO-UNDO.
+DEFINE VARIABLE lIncludeInactive AS LOGICAL FORMAT "Yes/No"  INITIAL YES NO-UNDO.
+
 DEFINE VARIABLE invalidChars AS CHARACTER NO-UNDO INITIAL "~",#".
 DEFINE VARIABLE replaceChars AS CHARACTER NO-UNDO INITIAL "'',".
 
@@ -287,13 +289,13 @@ begin_job-no begin_job-no2 end_job-no end_job-no2 begin_whse end_whse ~
 begin_loc-bin end_loc-bin list_class rd_sort tb_cust-whse tb_curr rd-dest ~
 lv-ornt lines-per-page lv-font-no td-show-parm tb_excel tb_runExcel fi_file ~
 btn-ok btn-cancel sl_avail Btn_Def Btn_Add sl_selected Btn_Remove btn_Up ~
-btn_down tb_zeroqty RECT-6 RECT-7 
+btn_down tb_zeroqty RECT-6 RECT-7 tb_inactive 
 &Scoped-Define DISPLAYED-OBJECTS tb_cust-list as-of-date begin_slm end_slm ~
 begin_cust-no end_cust-no begin_i-no end_i-no begin_job-no begin_job-no2 ~
 end_job-no end_job-no2 begin_whse end_whse begin_loc-bin end_loc-bin ~
 list_class lbl_sort rd_sort tb_cust-whse tb_curr rd-dest lv-ornt ~
 lines-per-page lv-font-no lv-font-name td-show-parm tb_excel tb_runExcel ~
-fi_file sl_avail sl_selected tb_zeroqty 
+fi_file sl_avail sl_selected tb_zeroqty tb_inactive 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -318,7 +320,7 @@ FUNCTION removeChars RETURNS CHARACTER
 DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON btn-cancel /*AUTO-END-KEY */
+DEFINE BUTTON btn-cancel 
      LABEL "&Cancel" 
      SIZE 15 BY 1.14.
 
@@ -535,6 +537,11 @@ DEFINE VARIABLE tb_excel AS LOGICAL INITIAL yes
      SIZE 21 BY .81
      BGCOLOR 3 FGCOLOR 15  NO-UNDO.
 
+DEFINE VARIABLE tb_inactive AS LOGICAL INITIAL no 
+     LABEL "Include Inactive Items?" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 28.6 BY 1 NO-UNDO.
+
 DEFINE VARIABLE tb_runExcel AS LOGICAL INITIAL no 
      LABEL "Auto Run Excel?" 
      VIEW-AS TOGGLE-BOX
@@ -619,6 +626,7 @@ DEFINE FRAME FRAME-A
      btn_Up AT ROW 18.95 COL 41 WIDGET-ID 40
      btn_down AT ROW 19.91 COL 41 WIDGET-ID 42
      tb_zeroqty AT ROW 14.1 COL 8 WIDGET-ID 46
+     tb_inactive AT ROW 14.05 COL 58 WIDGET-ID 58
      "Output Destination" VIEW-AS TEXT
           SIZE 18 BY .62 AT ROW 21.19 COL 3
      "(Blank for all Inventory Classes)" VIEW-AS TEXT
@@ -696,16 +704,6 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   NOT-VISIBLE,,RUN-PERSISTENT                                           */
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME Custom                                                    */
-ASSIGN
-       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "ribbon-button".
-
-
-ASSIGN
-       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "ribbon-button".
-
-
 /* SETTINGS FOR FILL-IN aged-days-1 IN FRAME FRAME-A
    NO-DISPLAY NO-ENABLE                                                 */
 ASSIGN 
@@ -765,6 +763,14 @@ ASSIGN
 ASSIGN 
        begin_whse:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
+
+ASSIGN 
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+ASSIGN 
+       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
 
 ASSIGN 
        end_cust-no:PRIVATE-DATA IN FRAME FRAME-A     = 
@@ -832,6 +838,10 @@ ASSIGN
        tb_excel:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
+ASSIGN 
+       tb_inactive:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
+
 /* SETTINGS FOR TOGGLE-BOX tb_runExcel IN FRAME FRAME-A
    ALIGN-R                                                              */
 ASSIGN 
@@ -848,7 +858,7 @@ THEN C-Win:HIDDEN = yes.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -1429,6 +1439,17 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME tb_inactive
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_inactive C-Win
+ON VALUE-CHANGED OF tb_inactive IN FRAME FRAME-A /* Include Inactive Items? */
+DO:
+  ASSIGN {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME tb_runExcel
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_runExcel C-Win
 ON VALUE-CHANGED OF tb_runExcel IN FRAME FRAME-A /* Auto Run Excel? */
@@ -1773,6 +1794,10 @@ DEF INPUT PARAMETER tb_val-cust AS LOGICAL INITIAL no
 
 DEF INPUT PARAMETER td-show-parm AS LOGICAL INITIAL yes 
      LABEL "Show Parameters?" NO-UNDO.
+
+DEFINE INPUT PARAMETER tb_inactive AS LOGICAL INITIAL no 
+     LABEL "Include Inactive Items?" NO-UNDO.
+
 ASSIGN
  v-qohg = 0
  v-cst   = 0
@@ -2087,7 +2112,7 @@ PROCEDURE enable_UI :
           begin_whse end_whse begin_loc-bin end_loc-bin list_class lbl_sort 
           rd_sort tb_cust-whse tb_curr rd-dest lv-ornt lines-per-page lv-font-no 
           lv-font-name td-show-parm tb_excel tb_runExcel fi_file sl_avail 
-          sl_selected tb_zeroqty 
+          sl_selected tb_zeroqty tb_inactive 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   ENABLE tb_cust-list btnCustList as-of-date begin_slm end_slm begin_cust-no 
          end_cust-no begin_i-no end_i-no begin_job-no begin_job-no2 end_job-no 
@@ -2095,7 +2120,7 @@ PROCEDURE enable_UI :
          rd_sort tb_cust-whse tb_curr rd-dest lv-ornt lines-per-page lv-font-no 
          td-show-parm tb_excel tb_runExcel fi_file btn-ok btn-cancel sl_avail 
          Btn_Def Btn_Add sl_selected Btn_Remove btn_Up btn_down tb_zeroqty 
-         RECT-6 RECT-7 
+         RECT-6 RECT-7 tb_inactive 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
 END PROCEDURE.
@@ -3104,7 +3129,8 @@ PROCEDURE produce-report :
     v-label    = "" /*STRING(v-q-or-v," Qty/ Value")*/
     v-class    = list_class
     list_class = ""
-    sort-opt   = SUBSTR(rd_sort,1,1) .
+    sort-opt   = SUBSTR(rd_sort,1,1)
+    lIncludeInactive = tb_Inactive  .
 
   DO li = 1 TO NUM-ENTRIES(v-class):
     list_class = list_class + " " + (IF ENTRY(li,v-class) EQ "" THEN "Spaces"
@@ -3137,6 +3163,7 @@ PROCEDURE produce-report :
         WHERE itemfg.company        EQ cocode
           AND itemfg.i-no           GE fitm
           AND itemfg.i-no           LE titm
+          AND (itemfg.stat EQ "A" OR lIncludeInactive)
         USE-INDEX i-no.
           {custom/statusMsg.i " 'Processing FG Item#  '  + itemfg.i-no "}
         CREATE tt-items.
@@ -3160,6 +3187,7 @@ PROCEDURE produce-report :
             AND itemfg.cust-no        EQ cust.cust-no
             AND itemfg.i-no           GE fitm
             AND itemfg.i-no           LE titm
+            AND (itemfg.stat EQ "A" OR lIncludeInactive)
             USE-INDEX customer:
           {custom/statusMsg.i " 'Processing FG Item#  '  + itemfg.i-no "}
           CREATE tt-items.
@@ -3664,7 +3692,8 @@ FOR EACH tt-items.
         no,
         tb_runExcel,
         no,
-        td-show-parm).
+        td-show-parm,
+        tb_Inactive).
 
   SESSION:SET-WAIT-STATE ("").
 

@@ -138,7 +138,7 @@ DEFINE QUERY external_tables FOR job.
 &Scoped-define FIRST-ENABLED-TABLE job
 &Scoped-Define ENABLED-OBJECTS RECT-1 
 &Scoped-Define DISPLAYED-FIELDS job.job-no job.job-no2 job.est-no job.stat ~
-job.start-date job.close-date job.user-id job.loc job.due-date job.csrUser_id 
+job.start-date job.close-date job.user-id job.loc job.due-date job.csrUser_id job.create-date
 &Scoped-define DISPLAYED-TABLES job
 &Scoped-define FIRST-DISPLAYED-TABLE job
 
@@ -146,8 +146,8 @@ job.start-date job.close-date job.user-id job.loc job.due-date job.csrUser_id
 /* Custom List Definitions                                              */
 /* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,ROW-AVAILABLE,DISPLAY-FIELD,List-5,F1 */
 &Scoped-define ADM-ASSIGN-FIELDS job.job-no job.job-no2 job.est-no ~
-job.start-date job.close-date job.due-date 
-&Scoped-define DISPLAY-FIELD job.start-date job.close-date job.due-date 
+job.start-date job.close-date job.due-date job.create-date 
+&Scoped-define DISPLAY-FIELD job.start-date job.close-date job.due-date job.create-date 
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
@@ -210,6 +210,11 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 16 BY 1
      vHoldReason AT ROW 2.43 COL 79 COLON-ALIGNED WIDGET-ID 4
+
+     job.create-date AT ROW 2.43 COL 65 COLON-ALIGNED
+          LABEL "Created"
+          VIEW-AS FILL-IN 
+          SIZE 16 BY 1
      job.csrUser_id AT ROW 2.43 COL 101 COLON-ALIGNED
           LABEL "CSR"
           VIEW-AS FILL-IN 
@@ -309,6 +314,8 @@ ASSIGN
    NO-ENABLE EXP-LABEL                                                  */
 /* SETTINGS FOR FILL-IN job.csrUser_id IN FRAME F-Main
    NO-ENABLE EXP-LABEL                                                  */
+/* SETTINGS FOR FILL-IN job.create-date IN FRAME F-Main
+   NO-ENABLE 2 4 EXP-LABEL                                              */
 /* SETTINGS FOR FILL-IN vHoldReason IN FRAME F-Main
    NO-DISPLAY NO-ENABLE                                                 */
 ASSIGN 
@@ -925,6 +932,14 @@ PROCEDURE local-copy-record :
     job.start-date:SCREEN-VALUE IN FRAME {&FRAME-NAME} = ''
     job.due-date:SCREEN-VALUE = ''.
 
+  FIND CURRENT job EXCLUSIVE-LOCK NO-ERROR.
+  ASSIGN
+      job.create-date = TODAY
+      job.create-date:SCREEN-VALUE IN FRAME {&FRAME-NAME} = string(TODAY).
+  FIND CURRENT job NO-LOCK NO-ERROR.
+  
+     
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1104,7 +1119,7 @@ DEFINE VARIABLE char-hdl AS cha NO-UNDO.
 
   RUN get-start-date (NO). 
 
-/*   DISP job.start-date WITH FRAME {&FRAME-NAME}. */
+ /*  DISP job.start-date WITH FRAME {&FRAME-NAME}. */
 
 
 

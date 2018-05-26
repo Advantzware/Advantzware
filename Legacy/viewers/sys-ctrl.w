@@ -44,6 +44,8 @@ DEF VAR v-msg    AS CHAR FORMAT  "x(100)" NO-UNDO.
 /* User can select multiple values for these, and validation is on */
 /* each value they select                                          */
 DEF VAR gvcMultiSelect AS CHAR NO-UNDO INIT "OEDateChange,SSBOLEMAIL".
+DEF VAR hPgmSecurity AS HANDLE NO-UNDO.
+DEF VAR lResult AS LOG NO-UNDO.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -401,11 +403,11 @@ PROCEDURE check-flg :
 DEF VAR v-flg AS LOG INIT YES NO-UNDO.
 
   v-valid = YES.
-
-  FIND FIRST users NO-LOCK
-     WHERE users.user_id EQ USERID(LDBNAME(1)) NO-ERROR.
-
-IF AVAIL users AND users.securityLevel GE 1000 THEN
+  
+    RUN "system/PgmMstrSecur.p" PERSISTENT SET hPgmSecurity.
+    RUN epCanAccess IN hPgmSecurity ("viewers/sys-ctrl.w", "", OUTPUT lResult).
+    DELETE OBJECT hPgmSecurity.
+IF lResult THEN
     ASSIGN v-secure = YES.
 
   DO WITH FRAME {&frame-name}:    
@@ -629,18 +631,6 @@ PROCEDURE post-enable :
      sys-ctrl.NAME:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "TSPOSTFG" 
   THEN DO:
       DISABLE sys-ctrl.log-fld WITH FRAME {&FRAME-NAME}.
-
-  END.
-  IF sys-ctrl.NAME:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "SECURITY"  
-  THEN DO:
-      FIND FIRST users NO-LOCK
-     WHERE users.user_id EQ USERID(LDBNAME(1)) NO-ERROR.
-
-      IF AVAIL users AND users.securityLevel GE 1000 THEN
-          ENABLE  sys-ctrl.log-fld WITH FRAME {&FRAME-NAME}.
-      ELSE
-          DISABLE sys-ctrl.char-fld sys-ctrl.date-fld sys-ctrl.dec-fld sys-ctrl.int-fld 
-                  sys-ctrl.log-fld sys-ctrl.descrip sys-ctrl.module WITH FRAME {&FRAME-NAME}.
 
   END.
 
@@ -877,6 +867,23 @@ PROCEDURE valid-log-fld :
   {sys/ref/valid-log-fld.i}
 
   {methods/lValidateError.i NO}
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE get-sys-ctrl-value V-table-Win 
+PROCEDURE get-sys-ctrl-value :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEFINE OUTPUT PARAMETER opSysName AS CHARACTER NO-UNDO.
+    IF AVAIL sys-ctrl THEN
+        opSysName = sys-ctrl.NAME.
+    ELSE opSysName = "".
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

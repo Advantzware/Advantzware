@@ -243,11 +243,11 @@ PROCEDURE pExportJSON:
     DEFINE VARIABLE lRetOK      AS LOGICAL   NO-UNDO.
 
 
-    /* Code to populate the temp-table */  
-    ASSIGN  
-        cTargetType = "file" 
-        lFormatted  = TRUE. 
-    lRetOK = TEMP-TABLE ttCostHeader:WRITE-JSON(cTargetType, ipcFile, lFormatted).
+    MESSAGE "JSON Output Not currently Supported - Set NK1 CECostSave integer value to 1 for CSV or 2 for XML" VIEW-AS ALERT-BOX.
+    ASSIGN
+        cTargetType = "file"
+        lFormatted  = TRUE.
+/*    lRetOK = TEMP-TABLE ttCostHeader:WRITE-JSON(cTargetType, ipcFile, lFormatted).  <-Not supported in FWD*/
 
 END PROCEDURE.
 

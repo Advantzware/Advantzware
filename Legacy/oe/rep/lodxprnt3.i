@@ -14,7 +14,7 @@ IF tb_print-view THEN DO:
         
          PUT "<R38><C29><P25><FROM><R38><C80><LINE>" SKIP.
         
-         PUT "<FArial><=9><R35> <B><P22> DESCRIPTION: "   "<C29>" tt-word-print.i-name FORMAT "x(25)"  "</B>" SKIP.
+         PUT "<FArial><=9><R35> <B><P22> DESCRIPTION: "   "<C29>" tt-word-print.i-name FORMAT "x(30)"  "</B>" SKIP.
         
          PUT "<R42><C3><P25><FROM><R42><C80><LINE>" SKIP.
         
@@ -24,7 +24,7 @@ IF tb_print-view THEN DO:
         
          PUT "<R48><C51><P25><FROM><R48><C80><LINE>".
         
-         PUT "<FArial><=9><R45><C40> <B><P23> FG#: "    "<C52>" tt-word-print.i-no FORMAT "x(15)"  "</B>" SKIP.
+         PUT "<FArial><=9><R45><C40> <B><P22> FG#: "    "<C51.5>" tt-word-print.i-no FORMAT "x(15)"  "</B>" SKIP.
         
         
          PUT "<R54><C17><P25><FROM><R54><C37><LINE>" SKIP.
@@ -55,7 +55,7 @@ ELSE DO:
         
          PUT "<R58><C29><P25><FROM><R58><C80><LINE>" SKIP.
         
-         PUT "<FArial><=9><R55> <B><P22> DESCRIPTION: "   "<C29>" tt-word-print.i-name FORMAT "x(25)"  "</B>" SKIP.
+         PUT "<FArial><=9><R55> <B><P22> DESCRIPTION: "   "<C29>" tt-word-print.i-name FORMAT "x(30)"  "</B>" SKIP.
         
          PUT "<R62><C3><P25><FROM><R62><C80><LINE>" SKIP.
         
@@ -65,7 +65,7 @@ ELSE DO:
         
          PUT "<R68><C51><P25><FROM><R68><C80><LINE>".
         
-         PUT "<FArial><=9><R65><C40> <B><P23> FG#: "    "<C52>" tt-word-print.i-no FORMAT "x(15)"  "</B>" SKIP.
+         PUT "<FArial><=9><R65><C40> <B><P22> FG#: "    "<C51.5>" tt-word-print.i-no FORMAT "x(15)"  "</B>" SKIP.
         
         
          PUT "<R74><C17><P25><FROM><R74><C37><LINE>" SKIP.

@@ -46,8 +46,8 @@ ASSIGN cocode = g_company
 &SCOPED-DEFINE proc-enable proc-enable
 &SCOPED-DEFINE users-rowavail proc-rowavail
 
-DEFINE NEW GLOBAL SHARED VAR cIniLoc AS CHAR NO-UNDO.
-DEFINE NEW GLOBAL SHARED VAR cUsrLoc AS CHAR NO-UNDO.
+DEFINE SHARED VAR cIniLoc AS CHAR NO-UNDO.
+DEFINE SHARED VAR cUsrLoc AS CHAR NO-UNDO.
 
 DEFINE SHARED VARIABLE h_users AS HANDLE NO-UNDO.
 
@@ -1089,18 +1089,20 @@ PROCEDURE ipReadIniFile :
 ------------------------------------------------------------------------------*/
     DEF VAR cIniLine AS CHAR NO-UNDO.
     
-    INPUT FROM VALUE(SEARCH(cIniLoc)).
-    REPEAT:
-        IMPORT UNFORMATTED cIniLine.
-        IF cIniLine BEGINS "envList" THEN ASSIGN
-            cEnvList = ENTRY(2,cIniLine,"=").
-        ELSE IF cIniLine BEGINS "dbList" THEN ASSIGN
-            cDbList = ENTRY(2,cIniLine,"=").
-        IF cIniLine BEGINS "modeList" THEN ASSIGN
-            cModeList = ENTRY(2,cIniLine,"=").
-        ELSE NEXT.
+    IF SEARCH(cIniLoc) NE ? THEN do:
+        INPUT FROM VALUE(SEARCH(cIniLoc)) .
+        REPEAT:
+            IMPORT UNFORMATTED cIniLine.
+            IF cIniLine BEGINS "envList" THEN ASSIGN
+                cEnvList = ENTRY(2,cIniLine,"=").
+            ELSE IF cIniLine BEGINS "dbList" THEN ASSIGN
+                cDbList = ENTRY(2,cIniLine,"=").
+            IF cIniLine BEGINS "modeList" THEN ASSIGN
+                cModeList = ENTRY(2,cIniLine,"=").
+            ELSE NEXT.
+        END.
+        INPUT CLOSE.
     END.
-    INPUT CLOSE.
 
 END PROCEDURE.
 
@@ -1115,21 +1117,25 @@ PROCEDURE ipReadUsrFile :
   Notes:       
 ------------------------------------------------------------------------------*/
     DEF VAR cUsrLine AS CHAR NO-UNDO.
-    INPUT FROM VALUE(SEARCH(cUsrLoc)).
-    REPEAT:
-        IMPORT UNFORMATTED cUsrLine.
-        IF INDEX(cUsrLine,"|") = 0 THEN NEXT.
-        CREATE ttUsers.
-        ASSIGN
-            ttUsers.ttfPdbname = ENTRY(1,cUsrLine,"|")
-            ttUsers.ttfUserAlias = ENTRY(2,cUsrLine,"|")
-            ttUsers.ttfUserID = ENTRY(3,cUsrLine,"|")
-            ttUsers.ttfEnvList = ENTRY(4,cUsrLine,"|")
-            ttUsers.ttfDbList = ENTRY(5,cUsrLine,"|")
-            ttUsers.ttfModeList = ENTRY(6,cUsrLine,"|")
-            .
+    
+    IF SEARCH(cUsrLoc) NE ? THEN do:
+
+        INPUT FROM VALUE(SEARCH(cUsrLoc)).
+        REPEAT:
+            IMPORT UNFORMATTED cUsrLine.
+            IF INDEX(cUsrLine,"|") = 0 THEN NEXT.
+            CREATE ttUsers.
+            ASSIGN
+                ttUsers.ttfPdbname = ENTRY(1,cUsrLine,"|")
+                ttUsers.ttfUserAlias = ENTRY(2,cUsrLine,"|")
+                ttUsers.ttfUserID = ENTRY(3,cUsrLine,"|")
+                ttUsers.ttfEnvList = ENTRY(4,cUsrLine,"|")
+                ttUsers.ttfDbList = ENTRY(5,cUsrLine,"|")
+                ttUsers.ttfModeList = ENTRY(6,cUsrLine,"|")
+                .
+        END.
+        INPUT CLOSE.
     END.
-    INPUT CLOSE.
 
 END PROCEDURE.
 
@@ -1146,7 +1152,7 @@ PROCEDURE ipWriteUsrFile :
     OUTPUT TO VALUE(cUsrLoc).
     FOR EACH ttUsers:
         PUT UNFORMATTED
-            ttUsers.ttfPdbname + "|" +
+            "*|" +
             ttUsers.ttfUserAlias + "|" +
             ttUsers.ttfUserID + "|" +
             ttUsers.ttfEnvList + "|" +
@@ -1352,7 +1358,7 @@ PROCEDURE local-delete-record :
     END.
     
     FIND ttUsers EXCLUSIVE WHERE
-        ttUsers.ttfPdbname = PDBNAME(1) AND
+        ttUsers.ttfPdbname = "*" AND
         ttUsers.ttfUserID = users.user_id:SCREEN-VALUE IN FRAME {&FRAME-NAME}
         NO-ERROR.
     IF AVAIL ttUsers THEN DO:
@@ -1402,13 +1408,13 @@ PROCEDURE local-display-fields :
     
     IF AVAIL users THEN DO:
         FIND FIRST ttUsers WHERE
-            ttUsers.ttfPdbName = PDBNAME(1) AND
+            ttUsers.ttfPdbName = "*" AND
             ttUsers.ttfUserID = users.user_id
             NO-ERROR.
         IF NOT AVAIL ttUsers THEN DO:
             CREATE ttUsers.
             ASSIGN
-                ttUsers.ttfPdbName = PDBNAME(1)
+                ttUsers.ttfPdbName = "*"
                 ttUsers.ttfUserID = users.user_id
                 ttUsers.ttfEnvList = slEnvironments:list-items in FRAME {&FRAME-NAME}
                 ttUsers.ttfDbList = slDatabases:list-items
@@ -1723,13 +1729,13 @@ PROCEDURE local-update-record :
     END.
 
     FIND ttUsers EXCLUSIVE WHERE
-        ttUsers.ttfPdbname = PDBNAME(1) AND
+        ttUsers.ttfPdbName = "*" AND
         ttUsers.ttfUserID = users.user_id:SCREEN-VALUE
         NO-ERROR.
     IF NOT AVAIL ttUsers THEN DO:
         CREATE ttUsers.
         ASSIGN
-            ttUsers.ttfPdbname = PDBNAME(1)
+            ttUsers.ttfPdbname = "*"
             ttUsers.ttfUserID = users.user_id:SCREEN-VALUE.
     END.
     ASSIGN

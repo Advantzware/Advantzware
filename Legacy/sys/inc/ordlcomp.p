@@ -133,7 +133,9 @@ FOR EACH tt-fg-set WHERE tt-fg-set.part-no NE itemfg.i-no,
        b-oe-rel.line    = b-oe-ordl.line
        b-oe-rel.qty     = 0 /*oe-rel.qty * 
           (IF AVAIL eb AND eb.spare-char-2 = "Y" THEN 1.0 ELSE tt-fg-set.part-qty-dec) */
-       b-oe-rel.tot-qty = b-oe-ordl.qty /*b-oe-rel.qty*/.
+       b-oe-rel.tot-qty = b-oe-ordl.qty /*b-oe-rel.qty*/
+       b-oe-rel.s-code  = IF b-oe-ordl.is-a-component THEN "S" ELSE b-oe-rel.s-code
+       .
   
       IF LAST(tt-fg-set.part-no) THEN DO: 
 

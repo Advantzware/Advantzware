@@ -582,8 +582,10 @@ DO:
                  sys-ctrl-shipto.char-fld > ''
                  NO-LOCK NO-ERROR.
 
-            IF AVAIL sys-ctrl-shipto THEN do:
+            IF AVAIL sys-ctrl-shipto THEN
                v-stmt-char = sys-ctrl-shipto.char-fld.
+            ELSE 
+               v-stmt-char = sys-ctrl.char-fld.
             /*ELSE
                v-stmt-char = vcDefaultForm.*/
                FIND FIRST ttCustList NO-LOCK
@@ -639,7 +641,7 @@ DO:
                     WHERE ttCustList.cust-no EQ b-cust.cust-no :
                    ASSIGN ttCustList.log-fld = NO  .
             END.
-           END. /* if avail sys-ctrl-shipto */
+           
         END. /*each b-cust*/
 
      END. /*if sys-ctrl-shipto found*/
@@ -703,7 +705,7 @@ DO:
 
 
   IF CAN-FIND(FIRST ttCustList WHERE
-     ttCustList.cust-no NE "" AND ttCustList.log-fld = YES ) AND rd-dest NE 5 THEN
+     ttCustList.cust-no NE "" AND ttCustList.log-fld = YES ) THEN
   DO: 
 
      IF v-stmt-char EQ "ASIExcel" THEN

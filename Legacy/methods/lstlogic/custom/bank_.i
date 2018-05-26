@@ -44,12 +44,13 @@ END.
 IF bank.city + bank.state + bank.zip NE '' THEN
 DO:
   DOWN.
-  DISPLAY bank.city + ', ' + bank.state + ' ' + bank.zip @ bank.addr[1].
+  DISPLAY bank.city + ', ' + bank.state + ' ' + bank.zip @ bank.addr[1] .
 END.
-IF bank.phone NE '' THEN
+IF bank.phone NE '' or bank.swiftbic ne '' or bank.RTN ne 0 THEN
 DO:
   DOWN.
-  DISPLAY 'Phone: ' + bank.phone @ bank.addr[1].
+  DISPLAY 'Phone: ' + bank.phone @ bank.addr[1]
+   "Swift Code:" @ bank.bk-area bank.swiftbic @ bank.bk-act "Routing#:" + string(bank.RTN) @ bank.actnum.
 END.
 IF bank.contact NE '' THEN
 DO:

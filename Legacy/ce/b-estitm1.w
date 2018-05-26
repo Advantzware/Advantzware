@@ -2238,7 +2238,7 @@ PROCEDURE check-for-set :
                         AND fg-set.set-no = bf-eb.stock-no
                         AND fg-set.part-no = eb.stock-no NO-ERROR.
     IF AVAIL fg-set THEN DO:
-      fg-set.part-qty = eb.yld-qty.
+      fg-set.qtyPerSet = eb.cust-%.  
       FIND CURRENT fg-set NO-LOCK NO-ERROR.
     END.
   END.
@@ -2950,7 +2950,8 @@ ASSIGN
  itemfg.isaset     = (xest.est-type EQ 2 OR xest.est-type EQ 6) AND
                      xeb.form-no EQ 0
  itemfg.pur-man    = xeb.pur-man  
- itemfg.alloc      = xeb.set-is-assembled.
+ itemfg.alloc      = xeb.set-is-assembled
+ itemfg.setupDate  = TODAY.
 
  RUN fg/chkfgloc.p (INPUT itemfg.i-no, INPUT "").
  RUN fg/chkfgloc.p (INPUT itemfg.i-no, INPUT xeb.loc).
@@ -5695,15 +5696,29 @@ PROCEDURE valid-part-no :
     ASSIGN
      lv-part-no = eb.part-no:SCREEN-VALUE IN BROWSE {&browse-name}
      lv-msg     = "".
-
-    IF lv-part-no EQ ""                                                     OR
-       (CAN-FIND(FIRST b-eb OF ef
-                 WHERE b-eb.part-no EQ lv-part-no
-                   AND (ROWID(b-eb) NE ROWID(eb) OR ll-is-copy-record)) AND
-        (lv-copy-what NE "form" OR NOT ll-is-copy-record))                  THEN
-      lv-msg = IF lv-part-no EQ "" THEN "may not be blank"
+  
+    IF est.est-type EQ 5 OR est.est-type EQ 8  THEN do: 
+        IF lv-part-no EQ ""                                                     OR
+           (CAN-FIND(FIRST b-eb OF ef
+                     WHERE b-eb.part-no EQ lv-part-no
+                       AND (ROWID(b-eb) NE ROWID(eb) OR ll-is-copy-record)) AND
+            (lv-copy-what NE "form" OR NOT ll-is-copy-record))                  THEN
+          lv-msg = IF lv-part-no EQ "" THEN "may not be blank"
+                                       ELSE "already exists on Form #" +
+                                            TRIM(STRING(ef.form-no,">>>")).
+    END.
+    ELSE DO:
+       FIND FIRST b-eb NO-LOCK 
+           WHERE  b-eb.est-no EQ eb.est-no 
+             AND  b-eb.company EQ eb.company
+             AND  b-eb.part-no EQ lv-part-no
+             AND  b-eb.form-no EQ eb.form-no
+             AND (ROWID(b-eb) NE ROWID(eb) OR ll-is-copy-record) NO-ERROR  . 
+       IF lv-part-no EQ "" OR AVAIL b-eb THEN
+           lv-msg = IF lv-part-no EQ "" THEN "may not be blank"
                                    ELSE "already exists on Form #" +
-                                        TRIM(STRING(ef.form-no,">>>")).
+                                        TRIM(STRING(b-eb.form-no,">>>")).
+    END. 
 
     IF lv-msg NE "" THEN DO:
       MESSAGE TRIM(eb.part-no:LABEL IN BROWSE {&browse-name}) + " " +

@@ -909,7 +909,7 @@ PROCEDURE capacityPage:
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-    RUN schedule/capacityPage.p ("Job", ROWID(job), job.company).
+    RUN schedule/capacityPage.w ("Job", ROWID(job), job.company).
 /*    RUN schedule/sbHTML.p ("Job", ROWID(job), job.company).*/
 
 END PROCEDURE.

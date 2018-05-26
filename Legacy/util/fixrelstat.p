@@ -276,8 +276,8 @@ IF v-none THEN DO TRANSACTION:
    RELEASE bf-oe-rel.  
 
     ASSIGN
-       oe-rell.newSellPrice = oe-rel.sell-price
-       oe-rell.newZeroPrice = oe-rel.zeroPrice.
+       oe-rell.sell-price = oe-rel.sell-price
+       oe-rell.zeroPrice = oe-rel.zeroPrice.
 
   if v-whse eq "SHIPTO" then do:
     find first shipto

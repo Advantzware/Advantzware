@@ -63,8 +63,8 @@ DEF VAR v-eb-dep2 LIKE eb.len NO-UNDO.
 
 DEF VAR v-slot1  AS INT FORMAT ">>,>>9" NO-UNDO.
 DEF VAR v-slot2  AS INT FORMAT ">>,>>9" NO-UNDO.
-DEF VAR v-strips1 LIKE eb.yld-qty  NO-UNDO.
-DEF VAR v-strips2 LIKE eb.yld-qty NO-UNDO.
+DEF VAR v-strips1 LIKE eb.quantityPerSet  NO-UNDO.
+DEF VAR v-strips2 LIKE eb.quantityPerSet NO-UNDO.
 DEF VAR v-caliper1 AS CHAR FORMAT "x(15)" NO-UNDO.
 DEF VAR v-caliper2 AS CHAR FORMAT "x(15)" NO-UNDO.
 DEF VAR v-part     AS CHAR FORMAT "x(15)" NO-UNDO.
@@ -264,7 +264,7 @@ DO:
       scr-end-cell-l1 = {sys/inc/k16.i b-eb1.k-len-array2[1]}
       scr-end-cell-l2 = {sys/inc/k16.i b-eb1.k-len-array2[v-int]}
       scr-in-cell-length = {sys/inc/k16.i b-eb1.k-len-array2[2]}
-      v-strips1 = b-eb1.yld-qty.
+      v-strips1 = b-eb1.quantityPerSet.
 
    ASSIGN
    v-eb-len1 = {sys/inc/k16.i b-eb1.len}
@@ -286,7 +286,7 @@ DO:
       scr-end-cell-w1 = {sys/inc/k16.i b-eb2.k-len-array2[1]}
       scr-end-cell-w2 = {sys/inc/k16.i b-eb2.k-len-array2[v-int]}
       scr-in-cell-width = {sys/inc/k16.i b-eb2.k-len-array2[2]}
-      v-strips2 = b-eb2.yld-qty       .
+      v-strips2 = b-eb2.quantityPerSet       .
    iCnt = 0.
    FOR EACH ef WHERE ef.company = b-eb2.company
                  AND ef.est-no  = b-eb2.est-no

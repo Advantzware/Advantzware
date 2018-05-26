@@ -200,7 +200,7 @@ DEFINE VARIABLE cBarCodeProgram AS CHARACTER NO-UNDO .
 DEFINE VARIABLE i-bardir-int AS INTEGER NO-UNDO .
 DEFINE VARIABLE i-xprint-int AS INTEGER NO-UNDO .
 DEF VAR ls-image1 AS cha NO-UNDO.
-DEF VAR ls-full-img1 AS cha FORM "x(150)" NO-UNDO.
+DEF VAR ls-full-img1 AS cha FORM "x(200)" NO-UNDO.
 DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
 DEFINE VARIABLE lBussFormModle AS LOGICAL NO-UNDO.
@@ -4325,6 +4325,7 @@ DEFINE INPUT  PARAMETER ipiJobNo2 AS INTEGER     NO-UNDO.
 DEFINE INPUT  PARAMETER ipiForm AS INTEGER     NO-UNDO.
 DEFINE INPUT  PARAMETER ipiBlank AS INTEGER     NO-UNDO.
 DEFINE INPUT  PARAMETER iplCheckBar AS LOGICAL     NO-UNDO.
+DEFINE INPUT  PARAMETER iplCheckBarBlank AS LOGICAL     NO-UNDO.
 DEFINE OUTPUT PARAMETER oplCheckBar AS LOGICAL     NO-UNDO.
 
 DEF BUFFER bf-job FOR job.
@@ -4349,7 +4350,7 @@ DO WITH FRAME {&FRAME-NAME}:
             AND bf-job-hdr-2.job-no  EQ bf-job.job-no
             AND bf-job-hdr-2.job-no2 EQ bf-job.job-no2
             AND ( bf-job-hdr-2.frm EQ ipiForm OR NOT iplCheckBar )
-            AND ( bf-job-hdr-2.blank-no EQ ipiBlank OR NOT iplCheckBar )
+            AND ( bf-job-hdr-2.blank-no EQ ipiBlank OR NOT iplCheckBarBlank )
            BREAK BY bf-job-hdr-2.i-no:
 
            v-lncnt = v-lncnt + 1.
@@ -4365,7 +4366,7 @@ DO WITH FRAME {&FRAME-NAME}:
             AND bf-job-hdr-2.job-no  EQ bf-job.job-no
             AND bf-job-hdr-2.job-no2 EQ bf-job.job-no2
             AND ( bf-job-hdr-2.frm EQ ipiForm OR NOT iplCheckBar )
-            AND ( bf-job-hdr-2.blank-no EQ ipiBlank OR NOT iplCheckBar )
+            AND ( bf-job-hdr-2.blank-no EQ ipiBlank OR NOT iplCheckBarBlank )
            BREAK BY bf-job-hdr-2.ord-no:
 
            IF FIRST-OF(bf-job-hdr-2.ord-no) THEN
@@ -5548,6 +5549,7 @@ DEF VAR lcForm AS CHAR NO-UNDO.
 DEFINE VARIABLE iForm AS CHARACTER NO-UNDO .
 DEFINE VARIABLE iBlank-no AS CHARACTER NO-UNDO .
 DEFINE VARIABLE lCheckForm AS LOGICAL INIT YES NO-UNDO .
+DEFINE VARIABLE lCheckBlank AS LOGICAL INIT YES NO-UNDO .
 DEFINE VARIABLE oplCheckForm AS LOGICAL INIT NO NO-UNDO .
 
 DEF BUFFER bf-job FOR job.
@@ -5579,11 +5581,13 @@ DEF BUFFER bf-job-hdr-2 FOR job-hdr.
    END.
    IF iForm EQ "" THEN
        lCheckForm = NO .
+   IF iBlank-no EQ "" THEN
+       lCheckBlank = NO .
 
    ASSIGN
       lv-job-no = FILL(" ",6 - LENGTH(TRIM(lv-job-no))) + lv-job-no
       v-job2 = INT(lv-job-no2).
-   RUN dispJobInfo (INPUT cocode, INPUT lv-job-no, INPUT v-job2,INPUT iForm, INPUT iBlank-no, INPUT lCheckForm, OUTPUT oplCheckForm ).
+   RUN dispJobInfo (INPUT cocode, INPUT lv-job-no, INPUT v-job2,INPUT iForm, INPUT iBlank-no, INPUT lCheckForm, INPUT lCheckBlank, OUTPUT oplCheckForm ).
   IF lCheckForm AND oplCheckForm THEN
       APPLY "choose" TO btn-ok.
   IF NOT oplCheckForm THEN do:
@@ -6340,7 +6344,7 @@ PROCEDURE leave-job-label :
          IF AVAIL job-hdr THEN DO:
            v-cust-no = job-hdr.cust-no.
            IF begin_i-no:SCREEN-VALUE EQ "" THEN
-             RUN dispJobInfo (INPUT cocode, INPUT v-job-no, INPUT INT(begin_job2:SCREEN-VALUE), 0,0, NO, OUTPUT oplCheckForm).
+             RUN dispJobInfo (INPUT cocode, INPUT v-job-no, INPUT INT(begin_job2:SCREEN-VALUE), 0,0, NO,NO, OUTPUT oplCheckForm).
          END.
 
 
@@ -6477,7 +6481,7 @@ PROCEDURE leave-job-label :
    v-job-no = FILL(" ",6 - LENGTH(TRIM(begin_job:SCREEN-VALUE)))
          + TRIM(begin_job:SCREEN-VALUE).
    IF begin_i-no:SCREEN-VALUE EQ "" THEN
-     RUN dispJobInfo (INPUT cocode, INPUT v-job-no, INPUT INT(begin_job2:SCREEN-VALUE),0,0,NO,OUTPUT oplCheckForm).
+     RUN dispJobInfo (INPUT cocode, INPUT v-job-no, INPUT INT(begin_job2:SCREEN-VALUE),0,0,NO,NO,OUTPUT oplCheckForm).
 
 
    v-job-no = FILL(" ",6 - LENGTH(TRIM(begin_job:SCREEN-VALUE)))
@@ -6705,8 +6709,13 @@ PROCEDURE ok-button :
 
   APPLY "entry" TO fi_cas-lab IN FRAME {&FRAME-NAME}.
 
-  IF lv-ok-ran AND NOT tb_reprint-tag AND tb_close THEN
+  IF lv-ok-ran AND NOT tb_reprint-tag AND tb_close THEN do:
+     IF program-name(1) matches "*r-loadtg.*"
+        and not program-name(2) matches "*persist*" THEN DO:
+         RUN system/userLogOut.p.
+     END.
       APPLY "close" TO THIS-PROCEDURE.
+  END.
   /*
   case rd-dest:
        when 1 then run output-to-printer.
@@ -7080,6 +7089,9 @@ DEFINE VARIABLE cFax   AS CHARACTER NO-UNDO.
            END.
            ELSE IF scr-label-file:SCREEN-VALUE EQ "loadtag12.xpr" THEN DO:
                {oe/rep/lodxprnt12.i}
+           END.
+           ELSE IF scr-label-file:SCREEN-VALUE EQ "loadtag13.xpr" THEN DO:
+               {oe/rep/lodxprnt13.i}
            END.
     
          IF NOT LAST(tt-word-print.i-no) THEN PAGE .

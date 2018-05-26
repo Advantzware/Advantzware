@@ -865,7 +865,10 @@ PROCEDURE stackImage:
   IF v-stackcode EQ '' THEN RETURN.
   FIND FIRST stackPattern NO-LOCK
        WHERE stackPattern.stackCode EQ SUBSTR(v-stackcode,9,1) NO-ERROR.
-  IF AVAILABLE pattern AND SEARCH(stackPattern.stackImage) NE ? THEN
+
+/* bad code - reftable remnant */
+/*  IF AVAILABLE pattern AND SEARCH(stackPattern.stackImage) NE ? THEN  */
+  IF AVAILABLE stackPattern AND SEARCH(stackPattern.stackImage) NE ? THEN
   PUT UNFORMATTED
     "<#stackImage><C27><R+1><FROM><C2><R+12>"
     "<IMAGE#stackImage=" stackPattern.stackImage ">"

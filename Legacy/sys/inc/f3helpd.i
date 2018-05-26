@@ -25,7 +25,7 @@ message "Help Object Debug: self - "  self:name "," self:type skip
 
    if can-do("Browse,Frame",self:type) then
                          /* self:name or focus:name */
-            run sys/ref/hlpd.p (self:name, frame-file, frame-db,ls-prog-name, "English") .
-   else run sys/ref/hlpd.p (focus:name, focus:table, focus:dbname,"{&frame-name}", "English") .
+            run sys/ref/hlpd.w (self:name, frame-file, frame-db,ls-prog-name, "English") .
+   else run sys/ref/hlpd.w (focus:name, focus:table, focus:dbname,"{&frame-name}", "English") .
    return no-apply.
 end.

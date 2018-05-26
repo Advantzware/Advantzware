@@ -22,17 +22,17 @@ IF tb_print-view THEN do:
                "<C4><R3><#1><R+9><C+70><IMAGE#1=" ls-full-img1.
         PUT "<R17><C3><P25><FROM><R17><C80><LINE>" SKIP.
         
-         PUT "<FArial><R15><C3><p12><B>" company.addr[1] FORMAT "x(30)"  "</B>" .
-         PUT "<FArial><=4><R15><C27><p11><B>" STRING(company.city,"x(15)") " " company.state FORMAT "x(2)" " " company.zip "</B>" .
+         PUT "<FArial><R15><C3><p10><B>" company.addr[1] FORMAT "x(30)"  "</B>" .
+         PUT "<FArial><=4><R15><C27><p10><B>" company.city " " company.state FORMAT "x(2)" " " company.zip "</B>" .
         
-         PUT "<FArial><=4><R15><C44><p12><B>        Phone: " cPhone FORMAT "x(15)"  "</B>" .
-         PUT "<FArial><=4><R15><C64><p12><B>   Fax: " cFax FORMAT "x(15)"  "</B>" SKIP.
+         PUT "<FArial><=4><R15><C44><p10><B>        Phone: " cPhone FORMAT "x(15)"  "</B>" .
+         PUT "<FArial><=4><R15><C64><p10><B>   Fax: " cFax FORMAT "x(15)"  "</B>" SKIP.
         
         PUT "<||><R20><C3><#5><FROM><R25><C80><RECT>" SKIP.           
         
         PUT "<FArial><=5><R-2><B><p14> Customer Name                                                Ship To:</B>" SKIP.
-        PUT "<FArial><=5><R21.6><B><P15>  " tt-word-print.cust-name FORMAT "x(27)"  "</B>" SKIP.
-        PUT "<FArial><=5><R21.6><C43><B><P15>  " tt-word-print.ship-name FORMAT "x(27)"    "</B>" SKIP.
+        PUT "<FArial><=5><R21.6><B><P15>  " tt-word-print.cust-name FORMAT "x(30)"  "</B>" SKIP.
+        PUT "<FArial><=5><R21.6><C43><B><P15>  " tt-word-print.ship-name FORMAT "x(30)"    "</B>" SKIP.
         
         PUT "<||><R28><C3><#6><FROM><R32><C80><RECT>" SKIP.           
         
@@ -42,7 +42,7 @@ IF tb_print-view THEN do:
         PUT "<||><R35><C3><#7><FROM><R39><C80><RECT>" SKIP.            
         
         PUT "<FArial><=7><R-2><B><P14> Item Name </B>" SKIP.
-        PUT "<FArial><=7><R35.5><C2><B><P30>  " tt-word-print.i-name FORMAT "x(25)"   "</B>" SKIP.
+        PUT "<FArial><=7><R35.5><C2><B><P30>  " tt-word-print.i-name FORMAT "x(30)"   "</B>" SKIP.
         
         PUT "<||><R42><C3><#8><FROM><R48><C80><RECT>" SKIP.            
         
@@ -93,17 +93,17 @@ ELSE DO:
                "<C4><R23><#1><R+9><C+70><IMAGE#1=" ls-full-img1.
         PUT "<R37><C3><P25><FROM><R37><C80><LINE>" SKIP.
         
-         PUT "<FArial><R35><C3><p12><B>" company.addr[1] FORMAT "x(30)"  "</B>" .
-         PUT "<FArial><=4><R35><C27><p11><B>" STRING(company.city,"x(15)") " " company.state FORMAT "x(2)" " " company.zip "</B>" .
+         PUT "<FArial><R35><C3><p10><B>" company.addr[1] FORMAT "x(30)"  "</B>" .
+         PUT "<FArial><=4><R35><C27><p10><B>" company.city " " company.state FORMAT "x(2)" " " company.zip "</B>" .
         
-         PUT "<FArial><=4><R35><C44><p12><B>        Phone: " cPhone FORMAT "x(15)"  "</B>" .
-         PUT "<FArial><=4><R35><C64><p12><B>   Fax: " cFax FORMAT "x(15)"  "</B>" SKIP.
+         PUT "<FArial><=4><R35><C44><p10><B>        Phone: " cPhone FORMAT "x(15)"  "</B>" .
+         PUT "<FArial><=4><R35><C64><p10><B>   Fax: " cFax FORMAT "x(15)"  "</B>" SKIP.
         
         PUT "<||><R40><C3><#5><FROM><R45><C80><RECT>" SKIP.            
         
         PUT "<FArial><=5><R-2><B><p14> Customer Name                                                Ship To:</B>" SKIP.
-        PUT "<FArial><=5><R41.6><B><P15>  " tt-word-print.cust-name FORMAT "x(27)"  "</B>" SKIP.
-        PUT "<FArial><=5><R41.6><C43><B><P15>  " tt-word-print.ship-name FORMAT "x(27)"    "</B>" SKIP.
+        PUT "<FArial><=5><R41.6><B><P15>  " tt-word-print.cust-name FORMAT "x(30)"  "</B>" SKIP.
+        PUT "<FArial><=5><R41.6><C43><B><P15>  " tt-word-print.ship-name FORMAT "x(30)"    "</B>" SKIP.
         
         PUT "<||><R48><C3><#6><FROM><R52><C80><RECT>" SKIP.            
         
@@ -113,7 +113,7 @@ ELSE DO:
         PUT "<||><R55><C3><#7><FROM><R59><C80><RECT>" SKIP.           
         
         PUT "<FArial><=7><R-2><B><P14> Item Name </B>" SKIP.
-        PUT "<FArial><=7><R55.5><C2><B><P30>  " tt-word-print.i-name FORMAT "x(25)"   "</B>" SKIP.
+        PUT "<FArial><=7><R55.5><C2><B><P30>  " tt-word-print.i-name FORMAT "x(30)"   "</B>" SKIP.
         
         PUT "<||><R62><C3><#8><FROM><R68><C80><RECT>" SKIP.            
         

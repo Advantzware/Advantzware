@@ -79,11 +79,17 @@ DEFINE BUFFER b-rm-rctd FOR rm-rctd.
 DEF VAR lAllowRmAdd AS LOG NO-UNDO.
 DEF VAR lcReturn   AS CHAR NO-UNDO.
 DEF VAR llRecFound AS LOG  NO-UNDO.
+DEFINE VARIABLE lRMOverrunCost AS LOGICAL NO-UNDO .
 
 RUN sys/ref/nk1look.p (cocode, "RMAllowAdd", "L", NO, NO, "", "", 
     OUTPUT lcReturn, OUTPUT llRecFound).
 
    lAllowRmAdd = LOGICAL(lcReturn) NO-ERROR.
+
+RUN sys/ref/nk1look.p (cocode, "RMOverrunCostProtection", "L", NO, NO, "", "", 
+    OUTPUT lcReturn, OUTPUT llRecFound).
+
+   lRMOverrunCost = LOGICAL(lcReturn) NO-ERROR.
 
 DEFINE TEMP-TABLE tt-eiv NO-UNDO
     FIELD run-qty  AS DECIMAL DECIMALS 3 EXTENT 20
@@ -245,74 +251,74 @@ FUNCTION display-setup-screen RETURNS DECIMAL
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON Btn_Clear_Find 
-    LABEL "&Clear" 
-    SIZE 8 BY 1
-    FONT 4.
+     LABEL "&Clear" 
+     SIZE 8 BY 1
+     FONT 4.
 
-DEFINE VARIABLE auto_find    AS CHARACTER FORMAT "X(256)":U 
-    VIEW-AS FILL-IN 
-    SIZE 22 BY 1 NO-UNDO.
+DEFINE VARIABLE auto_find AS CHARACTER FORMAT "X(256)":U 
+     VIEW-AS FILL-IN 
+     SIZE 22 BY 1 NO-UNDO.
 
-DEFINE VARIABLE fi_sortby    AS CHARACTER FORMAT "X(256)":U 
-    VIEW-AS FILL-IN 
-    SIZE 32 BY 1
-    BGCOLOR 14 FONT 6 NO-UNDO.
+DEFINE VARIABLE fi_sortby AS CHARACTER FORMAT "X(256)":U 
+     VIEW-AS FILL-IN 
+     SIZE 32 BY 1
+     BGCOLOR 14 FONT 6 NO-UNDO.
 
 DEFINE VARIABLE browse-order AS INTEGER 
-    VIEW-AS RADIO-SET HORIZONTAL
-    RADIO-BUTTONS 
-    "N/A", 1
-    SIZE 75 BY 1 NO-UNDO.
+     VIEW-AS RADIO-SET HORIZONTAL
+     RADIO-BUTTONS 
+          "N/A", 1
+     SIZE 75 BY 1 NO-UNDO.
 
 DEFINE RECTANGLE RECT-4
-    EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-    SIZE 145 BY 1.43.
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
+     SIZE 145 BY 1.43.
 
 DEFINE RECTANGLE RECT-5
-    EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-    SIZE 146 BY 17.14.
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
+     SIZE 146 BY 17.14.
 
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
 DEFINE QUERY Browser-Table FOR 
-    rm-rctd SCROLLING.
+      rm-rctd SCROLLING.
 &ANALYZE-RESUME
 
 /* Browse definitions                                                   */
 DEFINE BROWSE Browser-Table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS Browser-Table B-table-Win _STRUCTURED
-    QUERY Browser-Table NO-LOCK DISPLAY
-    rm-rctd.r-no COLUMN-LABEL "Seq#" FORMAT ">>>>>>>9":U LABEL-BGCOLOR 14
-    rm-rctd.rct-date FORMAT "99/99/9999":U LABEL-BGCOLOR 14
-    rm-rctd.po-no FORMAT "x(6)":U WIDTH 9 LABEL-BGCOLOR 14
-    rm-rctd.job-no FORMAT "x(6)":U LABEL-BGCOLOR 14
-    rm-rctd.job-no2 FORMAT "99":U
-    rm-rctd.s-num COLUMN-LABEL "S" FORMAT ">9":U
-    rm-rctd.b-num COLUMN-LABEL "B" FORMAT ">9":U
-    rm-rctd.i-no COLUMN-LABEL "Item" FORMAT "x(10)":U LABEL-BGCOLOR 14
-    rm-rctd.i-name COLUMN-LABEL "Name/Desc" FORMAT "x(30)":U
-    LABEL-BGCOLOR 14
-    rm-rctd.loc COLUMN-LABEL "Whse" FORMAT "x(5)":U LABEL-BGCOLOR 14
-    rm-rctd.loc-bin COLUMN-LABEL "Bin" FORMAT "x(8)":U LABEL-BGCOLOR 14
-    rm-rctd.tag COLUMN-LABEL "Tag#" FORMAT "x(20)":U LABEL-BGCOLOR 14
-    rm-rctd.qty COLUMN-LABEL "Qty" FORMAT "->>>,>>>,>>9.9<<":U
-    WIDTH 22 LABEL-BGCOLOR 14
-    rm-rctd.pur-uom COLUMN-LABEL "PUOM" FORMAT "x(4)":U WIDTH 7
-    LABEL-BGCOLOR 14
-    rm-rctd.cost COLUMN-LABEL "Cost" FORMAT "->,>>>,>>9.99<<<<":U
-    LABEL-BGCOLOR 14
-    rm-rctd.cost-uom COLUMN-LABEL "CUOM" FORMAT "x(4)":U WIDTH 7
-    LABEL-BGCOLOR 14
-    calc-ext-cost() @ ext-cost COLUMN-LABEL "Ext.Amount" FORMAT "->,>>>,>>9.99<<":U
-    WIDTH 20.2 COLUMN-BGCOLOR 14
-    display-dimension('W') @ lv-po-wid COLUMN-LABEL "Width"
-    display-dimension('L') @ lv-po-len COLUMN-LABEL "Length"
-    display-setup() @ lv-setup COLUMN-LABEL "Setup" FORMAT ">>,>>9.99":U
-    display-adder() @ lv-adder COLUMN-LABEL "Adder Cost/MSF" FORMAT "-z,zz9.9999":U
-    display-msf() @ lv-msf COLUMN-LABEL "MSF" FORMAT "->>>>,>>9.999":U
-    rm-rctd.user-id COLUMN-LABEL "User ID" FORMAT "x(8)":U WIDTH 15
-    rm-rctd.tag2 COLUMN-LABEL "Cert/Lot/Mill#" FORMAT "x(30)":U
-    WIDTH 40
+  QUERY Browser-Table NO-LOCK DISPLAY
+      rm-rctd.r-no COLUMN-LABEL "Seq#" FORMAT ">>>>>>>9":U LABEL-BGCOLOR 14
+      rm-rctd.rct-date FORMAT "99/99/9999":U LABEL-BGCOLOR 14
+      rm-rctd.po-no FORMAT "x(6)":U WIDTH 9 LABEL-BGCOLOR 14
+      rm-rctd.job-no FORMAT "x(6)":U LABEL-BGCOLOR 14
+      rm-rctd.job-no2 FORMAT "99":U
+      rm-rctd.s-num COLUMN-LABEL "S" FORMAT ">9":U
+      rm-rctd.b-num COLUMN-LABEL "B" FORMAT ">9":U
+      rm-rctd.i-no COLUMN-LABEL "Item" FORMAT "x(10)":U LABEL-BGCOLOR 14
+      rm-rctd.i-name COLUMN-LABEL "Name/Desc" FORMAT "x(30)":U
+            LABEL-BGCOLOR 14
+      rm-rctd.loc COLUMN-LABEL "Whse" FORMAT "x(5)":U LABEL-BGCOLOR 14
+      rm-rctd.loc-bin COLUMN-LABEL "Bin" FORMAT "x(8)":U LABEL-BGCOLOR 14
+      rm-rctd.tag COLUMN-LABEL "Tag#" FORMAT "x(20)":U LABEL-BGCOLOR 14
+      rm-rctd.qty COLUMN-LABEL "Qty" FORMAT "->>>,>>>,>>9.9<<":U
+            WIDTH 22 LABEL-BGCOLOR 14
+      rm-rctd.pur-uom COLUMN-LABEL "PUOM" FORMAT "x(4)":U WIDTH 7
+            LABEL-BGCOLOR 14
+      rm-rctd.cost COLUMN-LABEL "Cost" FORMAT "->,>>>,>>9.99<<<<":U
+            LABEL-BGCOLOR 14
+      rm-rctd.cost-uom COLUMN-LABEL "CUOM" FORMAT "x(4)":U WIDTH 7
+            LABEL-BGCOLOR 14
+      calc-ext-cost() @ ext-cost COLUMN-LABEL "Ext.Amount" FORMAT "->,>>>,>>9.99<<":U
+            WIDTH 20.2 COLUMN-BGCOLOR 14
+      display-dimension('W') @ lv-po-wid COLUMN-LABEL "Width"
+      display-dimension('L') @ lv-po-len COLUMN-LABEL "Length"
+      display-setup() @ lv-setup COLUMN-LABEL "Setup" FORMAT ">>,>>9.99":U
+      display-adder() @ lv-adder COLUMN-LABEL "Adder Cost/MSF" FORMAT "-z,zz9.9999":U
+      display-msf() @ lv-msf COLUMN-LABEL "MSF" FORMAT "->>>>,>>9.999":U
+      rm-rctd.user-id COLUMN-LABEL "User ID" FORMAT "x(8)":U WIDTH 15
+      rm-rctd.tag2 COLUMN-LABEL "Cert/Lot/Mill#" FORMAT "x(30)":U
+            WIDTH 40
   ENABLE
       rm-rctd.rct-date
       rm-rctd.po-no
@@ -339,23 +345,23 @@ DEFINE BROWSE Browser-Table
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-    Browser-Table AT ROW 1 COL 2 HELP
-    "Use Home, End, Page-Up, Page-Down, & Arrow Keys to Navigate"
-    browse-order AT ROW 16.71 COL 7 HELP
-    "Select Browser Sort Order" NO-LABELS
-    fi_sortby AT ROW 16.71 COL 80.6 COLON-ALIGNED NO-LABELS
-    auto_find AT ROW 16.71 COL 113.4 COLON-ALIGNED HELP
-    "Enter Auto Find Value" NO-LABELS
-    Btn_Clear_Find AT ROW 16.71 COL 138 HELP
-    "CLEAR AUTO FIND Value"
-    "By:" VIEW-AS TEXT
-    SIZE 4 BY 1 AT ROW 16.71 COL 3
-    RECT-4 AT ROW 16.48 COL 2
-    RECT-5 AT ROW 1 COL 1
+     Browser-Table AT ROW 1 COL 2 HELP
+          "Use Home, End, Page-Up, Page-Down, & Arrow Keys to Navigate"
+     browse-order AT ROW 16.71 COL 7 HELP
+          "Select Browser Sort Order" NO-LABEL
+     fi_sortby AT ROW 16.71 COL 80.6 COLON-ALIGNED NO-LABEL
+     auto_find AT ROW 16.71 COL 113.4 COLON-ALIGNED HELP
+          "Enter Auto Find Value" NO-LABEL
+     Btn_Clear_Find AT ROW 16.71 COL 138 HELP
+          "CLEAR AUTO FIND Value"
+     "By:" VIEW-AS TEXT
+          SIZE 4 BY 1 AT ROW 16.71 COL 3
+     RECT-4 AT ROW 16.48 COL 2
+     RECT-5 AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
-    SIDE-LABELS NO-UNDERLINE THREE-D 
-    AT COL 1 ROW 1 SCROLLABLE 
-    BGCOLOR 8 FGCOLOR 0 .
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 1 SCROLLABLE 
+         BGCOLOR 8 FGCOLOR 0 .
 
 
 /* *********************** Procedure Settings ************************ */
@@ -371,11 +377,10 @@ DEFINE FRAME F-Main
 
 /* This procedure should always be RUN PERSISTENT.  Report the error,  */
 /* then cleanup and return.                                            */
-IF NOT THIS-PROCEDURE:PERSISTENT THEN 
-DO:
-    MESSAGE "{&FILE-NAME} should only be RUN PERSISTENT.":U
-        VIEW-AS ALERT-BOX ERROR BUTTONS OK.
-    RETURN.
+IF NOT THIS-PROCEDURE:PERSISTENT THEN DO:
+  MESSAGE "{&FILE-NAME} should only be RUN PERSISTENT.":U
+          VIEW-AS ALERT-BOX ERROR BUTTONS OK.
+  RETURN.
 END.
 
 &ANALYZE-RESUME _END-PROCEDURE-SETTINGS
@@ -414,16 +419,16 @@ END.
    NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
 /* BROWSE-TAB Browser-Table RECT-5 F-Main */
 ASSIGN 
-    FRAME F-Main:SCROLLABLE = FALSE
-    FRAME F-Main:HIDDEN     = TRUE.
+       FRAME F-Main:SCROLLABLE       = FALSE
+       FRAME F-Main:HIDDEN           = TRUE.
 
 ASSIGN 
-    Browser-Table:ALLOW-COLUMN-SEARCHING IN FRAME F-Main = TRUE.
+       Browser-Table:ALLOW-COLUMN-SEARCHING IN FRAME F-Main = TRUE.
 
 /* SETTINGS FOR FILL-IN fi_sortby IN FRAME F-Main
    NO-ENABLE                                                            */
 ASSIGN 
-    fi_sortby:READ-ONLY IN FRAME F-Main = TRUE.
+       fi_sortby:READ-ONLY IN FRAME F-Main        = TRUE.
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -506,7 +511,7 @@ rm-rctd.rita-code = ""R"""
 &Scoped-define SELF-NAME Browser-Table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Browser-Table B-table-Win
 ON DEFAULT-ACTION OF Browser-Table IN FRAME F-Main
-    DO:
+DO:
         RUN update-begin.
     END.
 
@@ -516,7 +521,7 @@ ON DEFAULT-ACTION OF Browser-Table IN FRAME F-Main
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Browser-Table B-table-Win
 ON ENTRY OF Browser-Table IN FRAME F-Main
-    DO:
+DO:
         RUN get-matrix (YES).
     END.
 
@@ -526,7 +531,7 @@ ON ENTRY OF Browser-Table IN FRAME F-Main
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Browser-Table B-table-Win
 ON HELP OF Browser-Table IN FRAME F-Main
-    DO: 
+DO: 
         DEFINE VARIABLE ll-tag#    AS LOG           NO-UNDO.
         DEFINE VARIABLE help-recid AS RECID         NO-UNDO.
         DEFINE VARIABLE help-rowid AS ROWID         NO-UNDO.
@@ -717,7 +722,7 @@ ON HELP OF Browser-Table IN FRAME F-Main
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Browser-Table B-table-Win
 ON RETURN OF Browser-Table IN FRAME F-Main
-    DO:
+DO:
         RUN update-begin.
     END.
 
@@ -727,7 +732,7 @@ ON RETURN OF Browser-Table IN FRAME F-Main
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Browser-Table B-table-Win
 ON ROW-ENTRY OF Browser-Table IN FRAME F-Main
-    DO:
+DO:
         /* This code displays initial values for newly added or copied rows. */
         {src/adm/template/brsentry.i}
   
@@ -743,7 +748,7 @@ ON ROW-ENTRY OF Browser-Table IN FRAME F-Main
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Browser-Table B-table-Win
 ON ROW-LEAVE OF Browser-Table IN FRAME F-Main
-    DO:
+DO:
         /* Do not disable this code or no updates will take place except
          by pressing the Save button on an Update SmartPanel. */
         /*  {src/adm/template/brsleave.i}  */
@@ -769,7 +774,7 @@ ON ROW-LEAVE OF Browser-Table IN FRAME F-Main
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Browser-Table B-table-Win
 ON START-SEARCH OF Browser-Table IN FRAME F-Main
-    DO:
+DO:
         RUN startSearch.
     END.
 
@@ -779,7 +784,7 @@ ON START-SEARCH OF Browser-Table IN FRAME F-Main
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Browser-Table B-table-Win
 ON VALUE-CHANGED OF Browser-Table IN FRAME F-Main
-    DO:
+DO:
         /* This ADM trigger code must be preserved in order to notify other
            objects when the browser's current row changes. */
         {src/adm/template/brschnge.i}
@@ -798,7 +803,7 @@ ON VALUE-CHANGED OF Browser-Table IN FRAME F-Main
 &Scoped-define SELF-NAME rm-rctd.rct-date
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rm-rctd.rct-date Browser-Table _BROWSE-COLUMN B-table-Win
 ON ENTRY OF rm-rctd.rct-date IN BROWSE Browser-Table /* Receipt Date */
-    DO:
+DO:
         IF v-copy-mode-dec-1 THEN
         DO:
             APPLY "TAB" TO rm-rctd.rct-date IN BROWSE {&browse-name}.
@@ -812,7 +817,7 @@ ON ENTRY OF rm-rctd.rct-date IN BROWSE Browser-Table /* Receipt Date */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rm-rctd.rct-date Browser-Table _BROWSE-COLUMN B-table-Win
 ON LEAVE OF rm-rctd.rct-date IN BROWSE Browser-Table /* Receipt Date */
-    DO:
+DO:
         IF LASTKEY NE -1 THEN 
         DO:
             {custom/currentDatePrompt.i SELF:SCREEN-VALUE}
@@ -826,7 +831,7 @@ ON LEAVE OF rm-rctd.rct-date IN BROWSE Browser-Table /* Receipt Date */
 &Scoped-define SELF-NAME rm-rctd.po-no
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rm-rctd.po-no Browser-Table _BROWSE-COLUMN B-table-Win
 ON ENTRY OF rm-rctd.po-no IN BROWSE Browser-Table /* PO# */
-    DO:
+DO:
         IF v-copy-mode-dec-1 THEN
         DO:
             APPLY "TAB" TO rm-rctd.po-no IN BROWSE {&browse-name}.
@@ -840,7 +845,7 @@ ON ENTRY OF rm-rctd.po-no IN BROWSE Browser-Table /* PO# */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rm-rctd.po-no Browser-Table _BROWSE-COLUMN B-table-Win
 ON LEAVE OF rm-rctd.po-no IN BROWSE Browser-Table /* PO# */
-    DO:
+DO:
         IF LASTKEY NE -1 THEN 
         DO:
             IF rmrecpt-cha NE "POPUP"                                        AND
@@ -877,7 +882,7 @@ END.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rm-rctd.po-no Browser-Table _BROWSE-COLUMN B-table-Win
 ON VALUE-CHANGED OF rm-rctd.po-no IN BROWSE Browser-Table /* PO# */
-    DO:
+DO:
         ll-warned = NO.
         IF INT({&self-name}:SCREEN-VALUE IN BROWSE {&browse-name}) EQ 0 THEN
     {&self-name}:SCREEN-VALUE IN BROWSE {&browse-name} = "".
@@ -890,7 +895,7 @@ ON VALUE-CHANGED OF rm-rctd.po-no IN BROWSE Browser-Table /* PO# */
 &Scoped-define SELF-NAME rm-rctd.job-no
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rm-rctd.job-no Browser-Table _BROWSE-COLUMN B-table-Win
 ON ENTRY OF rm-rctd.job-no IN BROWSE Browser-Table /* Job # */
-    DO:
+DO:
         lv-job-no = rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}.
 
         IF CAN-FIND(FIRST tt-rm-rctd WHERE tt-rm-rctd.tt-rowid EQ ROWID(rm-rctd)) THEN
@@ -913,7 +918,7 @@ ON ENTRY OF rm-rctd.job-no IN BROWSE Browser-Table /* Job # */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rm-rctd.job-no Browser-Table _BROWSE-COLUMN B-table-Win
 ON LEAVE OF rm-rctd.job-no IN BROWSE Browser-Table /* Job # */
-    DO:
+DO:
         IF LASTKEY NE -1 THEN 
         DO:
             IF {&self-name}:MODIFIED IN BROWSE {&browse-name} THEN DO:
@@ -952,7 +957,7 @@ END.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rm-rctd.job-no Browser-Table _BROWSE-COLUMN B-table-Win
 ON VALUE-CHANGED OF rm-rctd.job-no IN BROWSE Browser-Table /* Job # */
-    DO:
+DO:
         ll-warned = NO.
     END.
 
@@ -963,7 +968,7 @@ ON VALUE-CHANGED OF rm-rctd.job-no IN BROWSE Browser-Table /* Job # */
 &Scoped-define SELF-NAME rm-rctd.job-no2
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rm-rctd.job-no2 Browser-Table _BROWSE-COLUMN B-table-Win
 ON ENTRY OF rm-rctd.job-no2 IN BROWSE Browser-Table
-    DO:
+DO:
         /*IF INT(rm-rctd.po-no:SCREEN-VALUE IN BROWSE {&browse-name}) EQ 0 THEN DO:
           APPLY "leave" TO {&self-name}.
           RETURN NO-APPLY.
@@ -982,7 +987,7 @@ ON ENTRY OF rm-rctd.job-no2 IN BROWSE Browser-Table
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rm-rctd.job-no2 Browser-Table _BROWSE-COLUMN B-table-Win
 ON LEAVE OF rm-rctd.job-no2 IN BROWSE Browser-Table
-    DO:
+DO:
         IF LASTKEY NE -1 THEN 
         DO:
             IF {&self-name}:MODIFIED IN BROWSE {&browse-name} THEN DO:
@@ -1022,7 +1027,7 @@ END.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rm-rctd.job-no2 Browser-Table _BROWSE-COLUMN B-table-Win
 ON VALUE-CHANGED OF rm-rctd.job-no2 IN BROWSE Browser-Table
-    DO:
+DO:
         ll-warned = NO.
     END.
 
@@ -1033,7 +1038,7 @@ ON VALUE-CHANGED OF rm-rctd.job-no2 IN BROWSE Browser-Table
 &Scoped-define SELF-NAME rm-rctd.s-num
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rm-rctd.s-num Browser-Table _BROWSE-COLUMN B-table-Win
 ON ENTRY OF rm-rctd.s-num IN BROWSE Browser-Table /* S */
-    DO:
+DO:
         /*IF INT(rm-rctd.po-no:SCREEN-VALUE IN BROWSE {&browse-name}) EQ 0 THEN DO:
           APPLY "leave" TO {&self-name}.
           RETURN NO-APPLY.
@@ -1052,7 +1057,7 @@ ON ENTRY OF rm-rctd.s-num IN BROWSE Browser-Table /* S */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rm-rctd.s-num Browser-Table _BROWSE-COLUMN B-table-Win
 ON LEAVE OF rm-rctd.s-num IN BROWSE Browser-Table /* S */
-    DO:
+DO:
         IF LASTKEY NE -1 THEN 
         DO:
             IF {&self-name}:MODIFIED IN BROWSE {&browse-name} THEN DO:
@@ -1093,7 +1098,7 @@ END.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rm-rctd.s-num Browser-Table _BROWSE-COLUMN B-table-Win
 ON VALUE-CHANGED OF rm-rctd.s-num IN BROWSE Browser-Table /* S */
-    DO:
+DO:
         ll-warned = NO.
     END.
 
@@ -1104,7 +1109,7 @@ ON VALUE-CHANGED OF rm-rctd.s-num IN BROWSE Browser-Table /* S */
 &Scoped-define SELF-NAME rm-rctd.b-num
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rm-rctd.b-num Browser-Table _BROWSE-COLUMN B-table-Win
 ON ENTRY OF rm-rctd.b-num IN BROWSE Browser-Table /* B */
-    DO:
+DO:
         IF v-copy-mode-dec-1 THEN
         DO:
             APPLY "TAB" TO rm-rctd.b-num IN BROWSE {&browse-name}.
@@ -1118,7 +1123,7 @@ ON ENTRY OF rm-rctd.b-num IN BROWSE Browser-Table /* B */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rm-rctd.b-num Browser-Table _BROWSE-COLUMN B-table-Win
 ON LEAVE OF rm-rctd.b-num IN BROWSE Browser-Table /* B */
-    DO:
+DO:
         IF LASTKEY NE -1 THEN 
         DO:
             IF {&self-name}:MODIFIED IN BROWSE {&browse-name} THEN DO:
@@ -1160,7 +1165,7 @@ END.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rm-rctd.b-num Browser-Table _BROWSE-COLUMN B-table-Win
 ON VALUE-CHANGED OF rm-rctd.b-num IN BROWSE Browser-Table /* B */
-    DO:
+DO:
         ll-warned = NO.
     END.
 
@@ -1171,7 +1176,7 @@ ON VALUE-CHANGED OF rm-rctd.b-num IN BROWSE Browser-Table /* B */
 &Scoped-define SELF-NAME rm-rctd.i-no
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rm-rctd.i-no Browser-Table _BROWSE-COLUMN B-table-Win
 ON ENTRY OF rm-rctd.i-no IN BROWSE Browser-Table /* Item */
-    DO:
+DO:
         IF v-copy-mode-dec-1 THEN
         DO:
             APPLY "TAB" TO rm-rctd.i-no IN BROWSE {&browse-name}.
@@ -1185,7 +1190,7 @@ ON ENTRY OF rm-rctd.i-no IN BROWSE Browser-Table /* Item */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rm-rctd.i-no Browser-Table _BROWSE-COLUMN B-table-Win
 ON LEAVE OF rm-rctd.i-no IN BROWSE Browser-Table /* Item */
-    DO:
+DO:
         IF LASTKEY NE -1 THEN 
         DO:
             IF {&self-name}:MODIFIED IN BROWSE {&browse-name} THEN DO:
@@ -1236,7 +1241,7 @@ END.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rm-rctd.i-no Browser-Table _BROWSE-COLUMN B-table-Win
 ON VALUE-CHANGED OF rm-rctd.i-no IN BROWSE Browser-Table /* Item */
-    DO:
+DO:
         ll-warned = NO.
         FIND item NO-LOCK
             WHERE item.company EQ rm-rctd.company
@@ -1258,7 +1263,7 @@ ON VALUE-CHANGED OF rm-rctd.i-no IN BROWSE Browser-Table /* Item */
 &Scoped-define SELF-NAME rm-rctd.i-name
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rm-rctd.i-name Browser-Table _BROWSE-COLUMN B-table-Win
 ON ENTRY OF rm-rctd.i-name IN BROWSE Browser-Table /* Name/Desc */
-    DO:
+DO:
         IF v-copy-mode-dec-1 THEN
         DO:
             APPLY "TAB" TO rm-rctd.i-name IN BROWSE {&browse-name}.
@@ -1273,7 +1278,7 @@ ON ENTRY OF rm-rctd.i-name IN BROWSE Browser-Table /* Name/Desc */
 &Scoped-define SELF-NAME rm-rctd.loc
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rm-rctd.loc Browser-Table _BROWSE-COLUMN B-table-Win
 ON ENTRY OF rm-rctd.loc IN BROWSE Browser-Table /* Whse */
-    DO:
+DO:
         IF v-copy-mode-dec-1 THEN
         DO:
             APPLY "TAB" TO rm-rctd.loc IN BROWSE {&browse-name}.
@@ -1287,7 +1292,7 @@ ON ENTRY OF rm-rctd.loc IN BROWSE Browser-Table /* Whse */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rm-rctd.loc Browser-Table _BROWSE-COLUMN B-table-Win
 ON LEAVE OF rm-rctd.loc IN BROWSE Browser-Table /* Whse */
-    DO:
+DO:
         IF LASTKEY NE -1 THEN 
         DO:
             RUN valid-loc (FOCUS) NO-ERROR.
@@ -1302,7 +1307,7 @@ ON LEAVE OF rm-rctd.loc IN BROWSE Browser-Table /* Whse */
 &Scoped-define SELF-NAME rm-rctd.loc-bin
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rm-rctd.loc-bin Browser-Table _BROWSE-COLUMN B-table-Win
 ON ENTRY OF rm-rctd.loc-bin IN BROWSE Browser-Table /* Bin */
-    DO:
+DO:
         IF v-copy-mode-dec-1 THEN
         DO:
             APPLY "TAB" TO rm-rctd.loc-bin IN BROWSE {&browse-name}.
@@ -1316,7 +1321,7 @@ ON ENTRY OF rm-rctd.loc-bin IN BROWSE Browser-Table /* Bin */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rm-rctd.loc-bin Browser-Table _BROWSE-COLUMN B-table-Win
 ON LEAVE OF rm-rctd.loc-bin IN BROWSE Browser-Table /* Bin */
-    DO:
+DO:
         IF LASTKEY NE -1 THEN 
         DO:
             RUN valid-loc-bin (FOCUS) NO-ERROR.
@@ -1331,7 +1336,7 @@ ON LEAVE OF rm-rctd.loc-bin IN BROWSE Browser-Table /* Bin */
 &Scoped-define SELF-NAME rm-rctd.tag
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rm-rctd.tag Browser-Table _BROWSE-COLUMN B-table-Win
 ON ENTRY OF rm-rctd.tag IN BROWSE Browser-Table /* Tag# */
-    DO:
+DO:
         IF v-copy-mode-dec-1 THEN
             v-copy-mode-dec-1 = NO.
     END.
@@ -1342,7 +1347,7 @@ ON ENTRY OF rm-rctd.tag IN BROWSE Browser-Table /* Tag# */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rm-rctd.tag Browser-Table _BROWSE-COLUMN B-table-Win
 ON LEAVE OF rm-rctd.tag IN BROWSE Browser-Table /* Tag# */
-    DO:
+DO:
         IF LASTKEY NE -1 THEN 
         DO:
             RUN valid-tag (FOCUS) NO-ERROR.
@@ -1357,7 +1362,7 @@ ON LEAVE OF rm-rctd.tag IN BROWSE Browser-Table /* Tag# */
 &Scoped-define SELF-NAME rm-rctd.qty
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rm-rctd.qty Browser-Table _BROWSE-COLUMN B-table-Win
 ON ENTRY OF rm-rctd.qty IN BROWSE Browser-Table /* Qty */
-    DO:
+DO:
         lv-entry-qty = DEC(rm-rctd.qty:SCREEN-VALUE IN BROWSE {&browse-name}).
     END.
 
@@ -1367,20 +1372,19 @@ ON ENTRY OF rm-rctd.qty IN BROWSE Browser-Table /* Qty */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rm-rctd.qty Browser-Table _BROWSE-COLUMN B-table-Win
 ON LEAVE OF rm-rctd.qty IN BROWSE Browser-Table /* Qty */
-    DO:
+DO:
         IF lv-entry-qty NE DEC(rm-rctd.qty:SCREEN-VALUE IN BROWSE {&browse-name}) THEN
             RUN po-cost.
 
         IF LASTKEY NE -1 THEN 
         DO:
             RUN valid-qty (FOCUS, OUTPUT op-error).
-
             IF op-error THEN
                 RETURN NO-APPLY.
-            ELSE
-            DO:
-                RUN get-matrix (NO).
 
+            RUN get-matrix (NO).
+
+            IF NOT ll-qty-valid THEN DO:
                 IF rm-rctd.qty NE DEC(rm-rctd.qty:SCREEN-VALUE IN BROWSE {&browse-name}) THEN
                     lv-adder:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(display-adder-screen()).
             END.
@@ -1394,7 +1398,7 @@ ON LEAVE OF rm-rctd.qty IN BROWSE Browser-Table /* Qty */
 &Scoped-define SELF-NAME rm-rctd.pur-uom
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rm-rctd.pur-uom Browser-Table _BROWSE-COLUMN B-table-Win
 ON ENTRY OF rm-rctd.pur-uom IN BROWSE Browser-Table /* PUOM */
-    DO:
+DO:
         lv-entry-qty-uom = rm-rctd.pur-uom:SCREEN-VALUE IN BROWSE {&browse-name}.
     END.
 
@@ -1404,7 +1408,7 @@ ON ENTRY OF rm-rctd.pur-uom IN BROWSE Browser-Table /* PUOM */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rm-rctd.pur-uom Browser-Table _BROWSE-COLUMN B-table-Win
 ON LEAVE OF rm-rctd.pur-uom IN BROWSE Browser-Table /* PUOM */
-    DO:
+DO:
         IF lv-entry-qty-uom NE rm-rctd.pur-uom:SCREEN-VALUE IN BROWSE {&browse-name} THEN
             RUN po-cost.
 
@@ -1430,7 +1434,7 @@ ON LEAVE OF rm-rctd.pur-uom IN BROWSE Browser-Table /* PUOM */
 &Scoped-define SELF-NAME rm-rctd.cost
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rm-rctd.cost Browser-Table _BROWSE-COLUMN B-table-Win
 ON ENTRY OF rm-rctd.cost IN BROWSE Browser-Table /* Cost */
-    DO:
+DO:
         lv-save-fld[1] = {&self-name}:SCREEN-VALUE IN BROWSE {&browse-name}.
     END.
 
@@ -1440,7 +1444,7 @@ ON ENTRY OF rm-rctd.cost IN BROWSE Browser-Table /* Cost */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rm-rctd.cost Browser-Table _BROWSE-COLUMN B-table-Win
 ON LEAVE OF rm-rctd.cost IN BROWSE Browser-Table /* Cost */
-    DO:
+DO:
         RUN get-matrix (NO).
     END.
 
@@ -1451,7 +1455,7 @@ ON LEAVE OF rm-rctd.cost IN BROWSE Browser-Table /* Cost */
 &Scoped-define SELF-NAME rm-rctd.cost-uom
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rm-rctd.cost-uom Browser-Table _BROWSE-COLUMN B-table-Win
 ON ENTRY OF rm-rctd.cost-uom IN BROWSE Browser-Table /* CUOM */
-    DO:
+DO:
         lv-save-fld[2] = {&self-name}:SCREEN-VALUE IN BROWSE {&browse-name}.
     END.
 
@@ -1461,7 +1465,7 @@ ON ENTRY OF rm-rctd.cost-uom IN BROWSE Browser-Table /* CUOM */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rm-rctd.cost-uom Browser-Table _BROWSE-COLUMN B-table-Win
 ON LEAVE OF rm-rctd.cost-uom IN BROWSE Browser-Table /* CUOM */
-    DO:
+DO:
         IF LASTKEY NE -1 THEN 
         DO:
             RUN valid-uom (FOCUS) NO-ERROR.
@@ -1528,20 +1532,20 @@ RUN dispatch IN THIS-PROCEDURE ('initialize':U).
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE adm-row-available B-table-Win  _ADM-ROW-AVAILABLE
 PROCEDURE adm-row-available :
-    /*------------------------------------------------------------------------------
-      Purpose:     Dispatched to this procedure when the Record-
-                   Source has a new row available.  This procedure
-                   tries to get the new row (or foriegn keys) from
-                   the Record-Source and process it.
-      Parameters:  <none>
-    ------------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------
+  Purpose:     Dispatched to this procedure when the Record-
+               Source has a new row available.  This procedure
+               tries to get the new row (or foriegn keys) from
+               the Record-Source and process it.
+  Parameters:  <none>
+------------------------------------------------------------------------------*/
 
-    /* Define variables needed by this internal procedure.             */
-    {src/adm/template/row-head.i}
+  /* Define variables needed by this internal procedure.             */
+  {src/adm/template/row-head.i}
 
-    /* Process the newly available records (i.e. display fields,
-       open queries, and/or pass records on to any RECORD-TARGETS).    */
-    {src/adm/template/row-end.i}
+  /* Process the newly available records (i.e. display fields,
+     open queries, and/or pass records on to any RECORD-TARGETS).    */
+  {src/adm/template/row-end.i}
 
 END PROCEDURE.
 
@@ -1550,7 +1554,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE auto-add B-table-Win 
 PROCEDURE auto-add :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -1568,7 +1572,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE auto-add-tt B-table-Win 
 PROCEDURE auto-add-tt :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -1583,7 +1587,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE cancel-item B-table-Win 
 PROCEDURE cancel-item :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -1597,7 +1601,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE check-for-job-mat B-table-Win 
 PROCEDURE check-for-job-mat :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -1632,7 +1636,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE convert-vend-comp-curr B-table-Win 
 PROCEDURE convert-vend-comp-curr :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -1685,7 +1689,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE create-from-po B-table-Win 
 PROCEDURE create-from-po :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -1738,9 +1742,29 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE create-item B-table-Win 
+PROCEDURE create-item :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+     CREATE ITEM.
+     ASSIGN ITEM.company = cocode
+            ITEM.loc = locode
+            ITEM.i-no = rm-rctd.i-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}
+            ITEM.i-code = "R".
+
+    /* run rm/item.p */
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE create-neg-rctd B-table-Win 
 PROCEDURE create-neg-rctd :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -1772,1544 +1796,9 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE delete-tt B-table-Win 
-PROCEDURE delete-tt :
-    /*------------------------------------------------------------------------------
-      Purpose:     
-      Parameters:  <none>
-      Notes:       
-    ------------------------------------------------------------------------------*/
-
-    IF AVAILABLE rm-rctd THEN 
-    DO:
-        FIND FIRST tt-rm-rctd WHERE tt-rm-rctd.tt-rowid EQ ROWID(rm-rctd) NO-ERROR.
-        IF AVAILABLE tt-rm-rctd THEN DELETE tt-rm-rctd.
-    END.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE create-item B-table-Win 
-PROCEDURE create-item :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-     CREATE ITEM.
-     ASSIGN ITEM.company = cocode
-            ITEM.loc = locode
-            ITEM.i-no = rm-rctd.i-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}
-            ITEM.i-code = "R".
-
-    /* run rm/item.p */
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI B-table-Win  _DEFAULT-DISABLE
-PROCEDURE disable_UI :
-    /*------------------------------------------------------------------------------
-      Purpose:     DISABLE the User Interface
-      Parameters:  <none>
-      Notes:       Here we clean-up the user-interface by deleting
-                   dynamic widgets we have created and/or hide 
-                   frames.  This procedure is usually called when
-                   we are ready to "clean-up" after running.
-    ------------------------------------------------------------------------------*/
-    /* Hide all frames. */
-    HIDE FRAME F-Main.
-    IF THIS-PROCEDURE:PERSISTENT THEN DELETE PROCEDURE THIS-PROCEDURE.
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE display-item B-table-Win 
-PROCEDURE display-item :
-    /*------------------------------------------------------------------------------
-      Purpose:     
-      Parameters:  <none>
-      Notes:       
-    ------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER ip-recid AS RECID NO-UNDO.
-
-
-    FIND ITEM WHERE RECID(ITEM) EQ ip-recid NO-LOCK NO-ERROR.
-
-    DO WITH FRAME {&FRAME-NAME}:
-        IF AVAILABLE item THEN 
-        DO:
-            ASSIGN
-                rm-rctd.i-name:SCREEN-VALUE IN BROWSE {&browse-name}  = item.i-name
-                rm-rctd.pur-uom:SCREEN-VALUE IN BROWSE {&browse-name} = item.cons-uom.
-            IF v-bin NE "user entered" THEN
-            ASSIGN
-                rm-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}     = item.loc
-                rm-rctd.loc-bin:SCREEN-VALUE IN BROWSE {&browse-name} = item.loc-bin.
-
-            IF INT(rm-rctd.po-no:SCREEN-VALUE IN BROWSE {&browse-name}) NE 0 THEN
-                RUN update-from-po-line.
-            ELSE
-                IF rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name} EQ "" OR
-                    item.i-code EQ "R"                                         THEN 
-                DO:
-                    {rm/avgcost.i}
-
-                    ASSIGN
-                        /*rm-rctd.pur-uom:SCREEN-VALUE IN BROWSE {&browse-name} = item.cons-uom */
-                        rm-rctd.cost:SCREEN-VALUE IN BROWSE {&browse-name}     = IF DEC(rm-rctd.cost:SCREEN-VALUE IN BROWSE {&browse-name}) EQ 0 THEN
-             IF v-avgcost THEN STRING(item.avg-cost)
-             ELSE STRING(item.last-cost)
-           ELSE rm-rctd.cost:SCREEN-VALUE IN BROWSE {&browse-name}
-                        rm-rctd.cost-uom:SCREEN-VALUE IN BROWSE {&browse-name} = item.cons-uom. 
-                END.
-        END.
-
-        IF (rm-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}     EQ "" OR
-            rm-rctd.loc-bin:SCREEN-VALUE IN BROWSE {&browse-name} EQ "") AND v-bin NE "user entered" THEN 
-        DO:
-            FIND FIRST cust
-                WHERE cust.company EQ cocode
-                AND cust.active  EQ "X" 
-                NO-LOCK NO-ERROR.
-            IF AVAILABLE cust THEN 
-            DO:
-                FIND FIRST shipto
-                    WHERE shipto.company EQ cocode
-                    AND shipto.cust-no EQ cust.cust-no
-                    NO-LOCK NO-ERROR.
-                IF AVAILABLE shipto THEN
-                    ASSIGN   
-                        rm-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}     = shipto.loc
-                        rm-rctd.loc-bin:SCREEN-VALUE IN BROWSE {&browse-name} = shipto.loc-bin.
-            END.
-        END.
-
-        IF v-bin NE "" AND v-bin NE 'RMITEM' AND v-bin NE "user entered" THEN
-            ASSIGN
-                rm-rctd.loc:screen-value IN BROWSE {&browse-name}     = SUBSTR(v-bin,1,5)
-                rm-rctd.loc-bin:screen-value IN BROWSE {&browse-name} = SUBSTR(v-bin,6).
-    END.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE display-jobmat B-table-Win 
-PROCEDURE display-jobmat :
-    /*------------------------------------------------------------------------------
-      Purpose:     
-      Parameters:  <none>
-      Notes:       
-    ------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER ip-recid AS RECID NO-UNDO.
-
-
-    DO WITH FRAME {&FRAME-NAME}:
-        FIND job-mat WHERE RECID(job-mat) EQ ip-recid NO-LOCK NO-ERROR.
-        IF AVAILABLE job-mat THEN 
-        DO:
-            FIND job-mat WHERE RECID(job-mat) EQ ip-recid NO-LOCK.
-
-            ASSIGN
-                rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}   = job-mat.job-no
-                rm-rctd.job-no2:SCREEN-VALUE IN BROWSE {&browse-name}  = STRING(job-mat.job-no2)
-                rm-rctd.s-num:SCREEN-VALUE IN BROWSE {&browse-name}    = STRING(job-mat.frm)
-                rm-rctd.b-num:SCREEN-VALUE IN BROWSE {&browse-name}    = STRING(job-mat.blank-no)
-                rm-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name}     = job-mat.i-no
-                rm-rctd.cost:SCREEN-VALUE IN BROWSE {&browse-name}     = STRING(job-mat.std-cost)
-                rm-rctd.cost-uom:SCREEN-VALUE IN BROWSE {&browse-name} = job-mat.sc-uom.
-
-            FIND FIRST item 
-                WHERE item.company EQ cocode
-                AND item.i-no    EQ rm-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name}
-                NO-LOCK NO-ERROR.
-
-            IF AVAILABLE item THEN RUN display-item (RECID(item)).
-        END.
-    END.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE display-po-info B-table-Win 
-PROCEDURE display-po-info :
-    /*------------------------------------------------------------------------------
-      Purpose:     
-      Parameters:  <none>
-      Notes:       
-    ------------------------------------------------------------------------------*/
-    DEFINE BUFFER b-rm-rctd FOR rm-rctd.
-  
-    DEFINE VARIABLE lv-i-no    LIKE rm-rctd.i-no NO-UNDO.
-    DEFINE VARIABLE lv-locode  LIKE locode.
-    DEFINE VARIABLE li-tag-seq AS INTEGER.
-    DEFINE VARIABLE cNewTag    AS CHARACTER NO-UNDO.
-
-
-    FIND po-ordl WHERE ROWID(po-ordl) EQ lv-rowid NO-LOCK NO-ERROR.
-
-    IF AVAILABLE po-ordl THEN 
-    DO WITH FRAME {&FRAME-NAME}:
-        ASSIGN
-            lv-i-no                                                = rm-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name}
-
-            rm-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name}     = po-ordl.i-no
-            rm-rctd.i-name:SCREEN-VALUE IN BROWSE {&browse-name}   = po-ordl.i-name
-            rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}   = po-ordl.job-no
-            rm-rctd.job-no2:SCREEN-VALUE IN BROWSE {&browse-name}  = STRING(po-ordl.job-no2)
-            rm-rctd.s-num:SCREEN-VALUE IN BROWSE {&browse-name}    = STRING(po-ordl.s-num)
-            rm-rctd.b-num:SCREEN-VALUE IN BROWSE {&browse-name}    = STRING(po-ordl.b-num)
-            rm-rctd.pur-uom:SCREEN-VALUE IN BROWSE {&browse-name}  = po-ordl.pr-qty-uom
-            rm-rctd.cost-uom:SCREEN-VALUE IN BROWSE {&browse-name} = po-ordl.pr-uom
-            lv-setup                                               = po-ordl.setup
-            ll-warned                                              = NO.
-
-        RUN po-cost.
-
-        lv-adder = display-adder-screen().
-
-        RUN convert-vend-comp-curr(INPUT-OUTPUT lv-setup).
-    
-        DISPLAY lv-setup lv-adder WITH BROWSE {&browse-name}.
-
-        IF rm-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name} NE lv-i-no THEN 
-        DO:
-            FIND FIRST ITEM
-                WHERE item.company EQ rm-rctd.company
-                AND item.i-no    EQ rm-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name}
-                NO-LOCK NO-ERROR. 
-            IF AVAILABLE ITEM THEN RUN display-item (RECID(ITEM)).
-        END.
-
-        IF ll-tag-meth AND adm-new-record THEN 
-        DO:
-            RUN pGetTagSequence(cocode, po-ordl.po-no, OUTPUT cNewTag).
-            rm-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name} = cNewTag.
-        END.
-    /*        DO:                                                                                                                  */
-    /*            ASSIGN                                                                                                           */
-    /*                li-tag-seq = 0                                                                                               */
-    /*                lv-locode  = "".                                                                                             */
-    /*                                                                                                                             */
-    /*            DO WHILE TRUE:                                                                                                   */
-    /*                FIND FIRST b-rm-rctd                                                                                         */
-    /*                    WHERE b-rm-rctd.company EQ cocode                                                                        */
-    /*                    AND b-rm-rctd.loc     GT lv-locode                                                                       */
-    /*                    NO-LOCK NO-ERROR.                                                                                        */
-    /*                                                                                                                             */
-    /*                IF AVAILABLE b-rm-rctd THEN                                                                                  */
-    /*                DO:                                                                                                          */
-    /*                    lv-locode = b-rm-rctd.loc.                                                                               */
-    /*                                                                                                                             */
-    /*                    FOR EACH b-rm-rctd                                                                                       */
-    /*                        WHERE b-rm-rctd.company EQ cocode                                                                    */
-    /*                        AND b-rm-rctd.loc     EQ lv-locode                                                                   */
-    /*                        AND b-rm-rctd.tag     BEGINS STRING(po-ordl.po-no,"999999")                                          */
-    /*                        USE-INDEX tag NO-LOCK                                                                                */
-    /*                        BY b-rm-rctd.tag DESCENDING:                                                                         */
-    /*                                                                                                                             */
-    /*                        IF INT(SUBSTR(b-rm-rctd.tag,7,2)) GT li-tag-seq THEN                                                 */
-    /*                            li-tag-seq = INT(SUBSTR(b-rm-rctd.tag,7,2)).                                                     */
-    /*                        LEAVE.                                                                                               */
-    /*                    END.                                                                                                     */
-    /*                END.                                                                                                         */
-    /*                                                                                                                             */
-    /*                ELSE LEAVE.                                                                                                  */
-    /*            END.                                                                                                             */
-    /*                                                                                                                             */
-    /*            IF li-tag-seq EQ 0 THEN                                                                                          */
-    /*            DO:                                                                                                              */
-    /*                FIND LAST rm-rdtlh NO-LOCK                                                                                   */
-    /*                    WHERE rm-rdtlh.company EQ cocode                                                                         */
-    /*                    AND rm-rdtlh.tag     BEGINS STRING(po-ordl.po-no,"999999")                                               */
-    /*                    AND INT(SUBSTR(rm-rdtlh.tag,7,2)) GT li-tag-seq                                                          */
-    /*                    USE-INDEX tag NO-ERROR.                                                                                  */
-    /*                IF AVAILABLE rm-rdtlh THEN li-tag-seq = INT(SUBSTR(rm-rdtlh.tag,7,2)).                                       */
-    /*            END.                                                                                                             */
-    /*                                                                                                                             */
-    /*            ASSIGN                                                                                                           */
-    /*                li-tag-seq                                        = li-tag-seq + 1                                           */
-    /*                rm-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(po-ordl.po-no,"999999") + STRING(li-tag-seq,"99").*/
-    /*        END.                                                                                                                 */
-    END.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE display-po-job B-table-Win 
-PROCEDURE display-po-job :
-    /*------------------------------------------------------------------------------
-      Purpose:     
-      Parameters:  <none>
-      Notes:       
-    ------------------------------------------------------------------------------*/
-    DEFINE VARIABLE li-po-cnt AS INTEGER NO-UNDO.
-    DEFINE VARIABLE po-list   AS cha     NO-UNDO .
-    DEFINE VARIABLE v-date    AS DATE    NO-UNDO .
-    DO WITH FRAME {&FRAME-NAME}:
-        lv-rowid = ?.
-        FOR EACH po-ordl
-            WHERE po-ordl.company   EQ rm-rctd.company
-            AND po-ordl.po-no     EQ INT(rm-rctd.po-no:SCREEN-VALUE IN BROWSE {&browse-name}) 
-            AND po-ordl.item-type EQ YES
-            AND ((po-ordl.job-no  EQ FILL(" ",6 - LENGTH(TRIM(rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}))) + TRIM(rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}) AND
-            po-ordl.job-no2 EQ INT(rm-rctd.job-no2:SCREEN-VALUE IN BROWSE {&browse-name})                                                                                    AND
-            po-ordl.i-no    EQ rm-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name}) OR
-            adm-adding-record)
-            NO-LOCK:
-            ASSIGN
-                li-po-cnt = li-po-cnt + 1
-                lv-rowid  = ROWID(po-ordl).
-            IF li-po-cnt GT 1 THEN LEAVE.
-        END.
- 
-        IF li-po-cnt GT 1 THEN 
-        DO:
-            lv-rowid = ?.
-            EMPTY TEMP-TABLE tt-selected.
-            RUN windows/l-poitmf.w (YES, rm-rctd.company, rm-rctd.po-no:SCREEN-VALUE IN BROWSE {&browse-name},
-                YES, rm-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name},
-                ROWID(rm-rctd), OUTPUT lv-rowid, OUTPUT po-list).
-      
-            IF po-list <> ""  THEN 
-            DO:
-                v-date = DATE(rm-rctd.rct-date:SCREEN-VALUE IN BROWSE {&browse-name}) .
-                RUN dispatch ('cancel-record').
-                RUN create-rcptd(po-list,v-date) .
-                RETURN.
-            END.
-        END.
-
-    /*
-       IF li-po-cnt >= 2 THEN RUN rm/d-selpo.w (rm-rctd.company,
-                                             INT(rm-rctd.po-no:SCREEN-VALUE IN BROWSE {&browse-name}),
-                                             "",
-                                             0,
-                                             "",
-                                             OUTPUT lv-rowid
-                                             ).
-    END.
-    ELSE DO:
-        
-       IF li-po-cnt >= 2 THEN RUN rm/d-selpo.w (rm-rctd.company,
-                                             INT(rm-rctd.po-no:SCREEN-VALUE IN BROWSE {&browse-name}),
-                                             FILL(" ",6 - LENGTH(TRIM(rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}))) + TRIM(rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}),
-                                             INT(rm-rctd.job-no2:SCREEN-VALUE IN BROWSE {&browse-name}),
-                                             rm-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name},
-                                             OUTPUT lv-rowid
-                                             ).
-    END.
-    */
-    END.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE find-exact-po B-table-Win 
-PROCEDURE find-exact-po :
-    /*------------------------------------------------------------------------------
-      Purpose:     
-      Parameters:  <none>
-      Notes:       
-    ------------------------------------------------------------------------------*/
-
-    DO WITH FRAME {&FRAME-NAME}:
-        FIND FIRST po-ordl NO-LOCK
-            WHERE po-ordl.company   EQ rm-rctd.company
-            AND po-ordl.po-no     EQ INT(rm-rctd.po-no:SCREEN-VALUE IN BROWSE {&browse-name})
-            AND po-ordl.job-no    EQ FILL(" ",6 - LENGTH(TRIM(rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}))) + TRIM(rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name})
-            AND po-ordl.job-no2   EQ INT(rm-rctd.job-no2:SCREEN-VALUE IN BROWSE {&browse-name})
-            AND po-ordl.s-num     EQ INT(rm-rctd.s-num:SCREEN-VALUE IN BROWSE {&browse-name})
-            AND po-ordl.b-num     EQ INT(rm-rctd.b-num:SCREEN-VALUE IN BROWSE {&browse-name})
-            AND po-ordl.i-no      EQ rm-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name}
-            AND po-ordl.item-type EQ YES
-            USE-INDEX item-ordno NO-ERROR.
-        lv-rowid = IF AVAILABLE po-ordl THEN ROWID(po-ordl) ELSE ?.
-    END.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE get-matrix B-table-Win 
-PROCEDURE get-matrix :
-    /*------------------------------------------------------------------------------
-      Purpose:     
-      Parameters:  <none>
-      Notes:       
-    ------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER ip-first-disp AS LOG NO-UNDO.
-  
-    DEFINE VARIABLE v-len       LIKE po-ordl.s-len NO-UNDO.
-    DEFINE VARIABLE v-wid       LIKE po-ordl.s-len NO-UNDO.
-    DEFINE VARIABLE v-dep       LIKE po-ordl.s-len NO-UNDO. 
-    DEFINE VARIABLE v-bwt       LIKE po-ordl.s-len NO-UNDO.
-    DEFINE VARIABLE lv-out-qty  LIKE rm-rctd.qty NO-UNDO.
-    DEFINE VARIABLE lv-out-cost LIKE rm-rctd.cost NO-UNDO.
-    DEFINE VARIABLE lv-qty-uom  LIKE rm-rctd.pur-uom NO-UNDO.
-    DEFINE VARIABLE lv-cost-uom LIKE rm-rctd.cost-uom NO-UNDO.
-    DEFINE VARIABLE lv-cost     AS DECIMAL DECIMALS 10 NO-UNDO.
-
-    /* gdm - 07210901 */
-    DEFINE VARIABLE v-po-cost   LIKE po-ordl.cost NO-UNDO.
-    DEFINE VARIABLE v-po-cuom   LIKE lv-cost-uom NO-UNDO. 
-  
-    IF AVAILABLE rm-rctd THEN
-        IF ip-first-disp AND
-            rm-rctd.i-no NE "" THEN 
-        DO: /* for row-display */
-            FIND item  WHERE item.company EQ cocode                           /* no screen-value used */
-                AND item.i-no  EQ rm-rctd.i-no /*:screen-value in browse {&browse-name}*/
-                USE-INDEX i-no NO-ERROR.
-            IF NOT AVAILABLE item THEN LEAVE.
-
-            IF item.cons-uom EQ "" THEN item.cons-uom = rm-rctd.pur-uom.
-
-            FIND CURRENT ITEM NO-LOCK.
-
-            ASSIGN
-                lv-qty-uom  = item.cons-uom
-                lv-cost-uom = item.cons-uom
-                v-dep       = item.s-dep.
-
-            FIND FIRST po-ordl WHERE po-ordl.company = rm-rctd.company
-                AND po-ordl.po-no = integer(rm-rctd.po-no)
-                AND po-ordl.i-no  = rm-rctd.i-no
-                AND po-ordl.job-no = rm-rctd.job-no
-                AND po-ordl.job-no2 = rm-rctd.job-no2
-                AND po-ordl.item-type = YES 
-                AND po-ordl.s-num = rm-rctd.s-num
-                AND po-ordl.b-num = rm-rctd.b-num
-                NO-LOCK NO-ERROR.
-            /*if not avail po-ordl then return.  */
-            IF AVAILABLE po-ordl THEN 
-            DO:
-                ASSIGN  
-                    v-len = po-ordl.s-len
-                    v-wid = po-ordl.s-wid
-                    v-bwt = 0.     
-                {rm/pol-dims.i}
-            END.
-            ELSE 
-            DO:
-                ASSIGN 
-                    lv-qty-uom  = rm-rctd.pur-uom
-                    lv-cost-uom = rm-rctd.cost-uom.
-                FIND FIRST job WHERE job.company EQ cocode
-                    AND job.job-no  EQ rm-rctd.job-no
-                    AND job.job-no2 EQ rm-rctd.job-no2
-                    NO-LOCK NO-ERROR.
-                IF AVAILABLE job THEN 
-                DO :
-                    FIND FIRST job-mat WHERE job-mat.company  EQ cocode
-                        AND job-mat.job      EQ job.job
-                        AND job-mat.i-no     EQ rm-rctd.i-no
-                        AND job-mat.frm      EQ rm-rctd.s-num
-                        AND job-mat.blank-no EQ rm-rctd.b-num
-                        NO-LOCK NO-ERROR.
-                    IF AVAILABLE job-mat THEN ASSIGN v-len       = job-mat.len
-                            v-wid       = job-mat.wid
-                            v-bwt       = job-mat.basis-w
-                            lv-out-cost = job-mat.std-cost
-                            lv-cost-uom = job-mat.sc-uom.
-                END.
-                IF v-len EQ 0 THEN v-len = IF AVAILABLE item THEN item.s-len ELSE 0.
-                IF v-wid EQ 0 THEN v-wid = IF AVAILABLE item AND item.r-wid NE 0 THEN item.r-wid ELSE IF AVAILABLE item THEN item.s-wid ELSE 0.
-                IF v-bwt EQ 0 THEN v-bwt = IF AVAILABLE item THEN item.basis-w ELSE 0.    
-            END.
-  
-            /* convert qty    pr-qty-uom or po-ordl.pr-uom cons-uom*/
-            /* run rm/convquom.p(rm-rctd.pur-uom,
-                               po-ordl.cons-uom,
-                                    v-bwt,
-                                    v-len,
-                                    input v-wid,
-                                    input v-dep,
-                                    input rm-rctd.qty,
-                                    output lv-out-qty).
-             
-             /* convert cost pr-uom*/
-             run rm/convcuom.p(rm-rctd.cost-uom, po-ordl.cons-uom,
-                               v-bwt, v-len, v-wid, v-dep,
-                                          rm-rctd.cost, output lv-out-cost).
-             */
-            /*SYS/REF/ */
-            IF rm-rctd.pur-uom EQ lv-qty-uom THEN
-                lv-out-qty = rm-rctd.qty.
-            ELSE
-                RUN custom/convquom.p (cocode,
-                    rm-rctd.pur-uom,
-                    lv-qty-uom,
-                    v-bwt,
-                    v-len,
-                    INPUT v-wid,
-                    INPUT v-dep,
-                    INPUT rm-rctd.qty,
-                    OUTPUT lv-out-qty).
-
-            /* convert cost pr-uom*/
-            /*sys/ref/convcuom.p*/
-            IF rm-rctd.cost-uom EQ "L" THEN
-                lv-out-cost = rm-rctd.cost / lv-out-qty.
-            ELSE
-                IF rm-rctd.cost-uom EQ lv-cost-uom THEN
-                    lv-out-cost = rm-rctd.cost.
-                ELSE
-                    RUN custom/convcuom.p (cocode,
-                        rm-rctd.cost-uom, lv-cost-uom,                    
-                        v-bwt, v-len, v-wid, v-dep,
-                        rm-rctd.cost, OUTPUT lv-out-cost).
-
-            IF lv-out-qty  EQ ? THEN lv-out-qty  = 0.
-            IF lv-out-cost EQ ? THEN lv-out-cost = 0.
-
-            IF ll-add-setup AND lv-out-qty NE 0 THEN
-                lv-out-cost = lv-out-cost + (lv-setup / lv-out-qty).
-
-            ext-cost = ROUND(lv-out-qty * lv-out-cost,2).
-  
-        END.
-
-        ELSE
-            IF NOT ip-first-disp                                        AND
-                rm-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name} <> "" THEN 
-            DO: /* in update mode - use screen-value */
-                FIND item  WHERE item.company EQ cocode
-                    AND item.i-no  EQ rm-rctd.i-no:screen-value IN BROWSE {&browse-name}
-                    USE-INDEX i-no NO-ERROR.
-                IF NOT AVAILABLE item THEN LEAVE.
-
-                IF item.cons-uom EQ "" THEN item.cons-uom = rm-rctd.pur-uom:SCREEN-VALUE IN BROWSE {&browse-name}.
-
-                FIND CURRENT ITEM NO-LOCK.
-
-                ASSIGN
-                    lv-qty-uom  = item.cons-uom
-                    lv-cost-uom = item.cons-uom
-                    v-dep       = item.s-dep.
-
-                FIND FIRST po-ordl WHERE po-ordl.company = rm-rctd.company
-                    AND po-ordl.po-no = integer(rm-rctd.po-no:screen-value IN BROWSE {&browse-name})
-                    AND po-ordl.i-no  = rm-rctd.i-no:screen-value
-                    AND po-ordl.job-no = (rm-rctd.job-no:screen-value)
-                    AND po-ordl.job-no2 = integer(rm-rctd.job-no2:screen-value)
-                    AND po-ordl.item-type = YES
-                    AND po-ordl.s-num = integer(rm-rctd.s-num:screen-value)
-                    AND po-ordl.b-num = integer(rm-rctd.b-num:screen-value)
-                    NO-LOCK NO-ERROR.
-  
-                IF AVAILABLE po-ordl THEN 
-                DO:
-                    ASSIGN  
-                        v-len     = po-ordl.s-len
-                        v-wid     = po-ordl.s-wid
-                        v-bwt     = 0
-
-                        /* gdm - 07210901 */
-                        v-po-cost = po-ordl.cost
-                        v-po-cuom = po-ordl.pr-uom.
-
-                    {rm/pol-dims.i}
-                END.
-                ELSE 
-                DO:
-                    ASSIGN 
-                        lv-qty-uom  = item.cons-uom
-                        lv-cost-uom = ITEM.cons-uom .
-                    FIND FIRST job WHERE job.company EQ cocode
-                        AND job.job-no  EQ rm-rctd.job-no:screen-value
-                        AND job.job-no2 EQ integer(rm-rctd.job-no2:screen-value)
-                        NO-LOCK NO-ERROR.
-                    IF AVAILABLE job THEN 
-                    DO :
-                        FIND FIRST job-mat WHERE job-mat.company  EQ cocode
-                            AND job-mat.job      EQ job.job
-                            AND job-mat.i-no     EQ rm-rctd.i-no:screen-value
-                            AND job-mat.frm      EQ integer(rm-rctd.s-num:screen-value)
-                            AND job-mat.blank-no EQ integer(rm-rctd.b-num:screen-value)
-                            NO-LOCK NO-ERROR.
-                        IF AVAILABLE job-mat THEN ASSIGN v-len       = job-mat.len
-                                v-wid       = job-mat.wid
-                                v-bwt       = job-mat.basis-w
-                                lv-out-cost = job-mat.std-cost
-                                lv-cost-uom = job-mat.sc-uom.
-                    END.
-                    IF v-len EQ 0 THEN v-len = IF AVAILABLE item THEN item.s-len ELSE 0.
-                    IF v-wid EQ 0 THEN v-wid = IF AVAILABLE item AND item.r-wid NE 0 THEN item.r-wid ELSE IF AVAILABLE item THEN item.s-wid ELSE 0.
-                    IF v-bwt EQ 0 THEN v-bwt = IF AVAILABLE item THEN item.basis-w ELSE 0.
-
-                    /* gdm - 07210901 */
-                    ASSIGN  
-                        v-po-cost = lv-out-cost 
-                        v-po-cuom = lv-cost-uom .
-                END.
-    
-                /* convert qty */
-
-                IF rm-rctd.pur-uom:screen-value IN BROWSE {&browse-name} EQ lv-qty-uom THEN
-                    lv-out-qty = DEC(rm-rctd.qty:screen-value IN BROWSE {&browse-name}).
-                ELSE
-                    /*IF ITEM.mat-type <> "P" THEN*/
-                    RUN custom/convquom.p (cocode,
-                        rm-rctd.pur-uom:screen-value IN BROWSE {&browse-name} ,
-                        lv-qty-uom,
-                        v-bwt,
-                        v-len,
-                        INPUT v-wid,
-                        INPUT v-dep,
-                        DEC(rm-rctd.qty:screen-value IN BROWSE {&browse-name}),
-                        OUTPUT lv-out-qty).
-                /*ELSE
-                  run custom/convquom.p (cocode,
-                                         item.cons-uom ,
-                                         lv-qty-uom,
-                                         v-bwt,
-                                         v-len,
-                                         input v-wid,
-                                         input v-dep,
-                                         DEC(rm-rctd.qty:screen-value in browse {&browse-name}),
-                                         output lv-out-qty).*/
-
-                /* convert cost */
-                IF rm-rctd.cost-uom:SCREEN-VALUE IN BROWSE {&browse-name} EQ "L" THEN
-                    lv-out-cost = DEC(rm-rctd.cost:SCREEN-VALUE IN BROWSE {&browse-name}) / lv-out-qty .
-                ELSE
-                    /* gdm - 07210901 */
-                    IF v-po-cuom EQ "L" THEN
-                        lv-out-cost = DEC(v-po-cost) / lv-out-qty .
-                    ELSE
-                        IF rm-rctd.cost-uom:SCREEN-VALUE IN BROWSE {&browse-name} EQ lv-cost-uom THEN
-                            lv-out-cost = DEC(rm-rctd.cost:SCREEN-VALUE IN BROWSE {&browse-name}).
-                        ELSE
-                            RUN custom/convcuom.p (cocode,
-                                rm-rctd.cost-uom:screen-value IN BROWSE {&browse-name},
-                                lv-cost-uom,
-                                v-bwt, v-len, v-wid, v-dep,
-                                dec(rm-rctd.cost:screen-value IN BROWSE {&browse-name}),
-                                OUTPUT lv-out-cost).
- 
-                /*
-                /*add in setup charge*/
-                IF lv-setup NE 0 AND lv-out-qty NE 0 AND
-                  ((TRIM(rm-rctd.cost-uom:SCREEN-VALUE IN BROWSE {&browse-name}) NE
-                  TRIM(rm-rctd.cost-uom)) OR
-                  (DEC(rm-rctd.cost:SCREEN-VALUE IN BROWSE {&browse-name}) NE rm-rctd.cost)) THEN DO:
-              
-                  lv-out-cost = lv-out-cost + (lv-setup / lv-out-qty).
-                END. */
-
-                IF lv-out-qty  EQ ? THEN lv-out-qty  = 0.
-                IF lv-out-cost EQ ? THEN lv-out-cost = 0.
-
-                IF ll-add-setup AND lv-out-qty NE 0 THEN
-                    lv-out-cost = lv-out-cost + (lv-setup / lv-out-qty).
-
-                ASSIGN 
-                    ext-cost                      = ROUND(lv-out-qty * lv-out-cost,2)
-                    rm-rctd.cost:SCREEN-VALUE     = STRING(lv-out-cost)
-                    rm-rctd.cost-uom:SCREEN-VALUE = lv-cost-uom
-                    rm-rctd.qty:SCREEN-VALUE      = STRING(lv-out-qty)
-                    rm-rctd.pur-uom:SCREEN-VALUE  = lv-qty-uom
-                    lv-msf                        = display-msf-screen()
-                    lv-adder                      = display-adder-screen().
-
-                DISPLAY ext-cost lv-setup lv-msf lv-adder WITH BROWSE {&browse-name}.
-            END.
-
-    IF ll-add-setup THEN
-        ASSIGN
-            ll-add-setup   = NO
-            lv-save-fld[1] = rm-rctd.cost:SCREEN-VALUE
-            lv-save-fld[2] = rm-rctd.cost-uom:SCREEN-VALUE.
-
-/* ======================================================================= */
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE get-remain-qty B-table-Win 
-PROCEDURE get-remain-qty :
-    /*------------------------------------------------------------------------------
-      Purpose:     
-      Parameters:  <none>
-      Notes:       
-    ------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER ip-rowid AS ROWID NO-UNDO.
-    DEFINE OUTPUT PARAMETER op-remain-qty AS DECIMAL NO-UNDO.
-
-    DEFINE VARIABLE lv-rowid AS ROWID NO-UNDO.
-
-
-    FIND po-ordl WHERE ROWID(po-ordl) EQ ip-rowid NO-LOCK NO-ERROR.
-
-    IF AVAILABLE po-ordl THEN 
-    DO:
-        FIND FIRST item
-            WHERE item.company EQ po-ordl.company
-            AND item.i-no    EQ po-ordl.i-no
-            NO-LOCK NO-ERROR.
-
-        op-remain-qty = po-ordl.cons-qty.
-
-        RUN windows/l-poitmw.w (NO, po-ordl.company, STRING(po-ordl.po-no),
-            YES, "", ROWID(rm-rctd), OUTPUT lv-rowid).
-
-        FIND FIRST tt-report WHERE tt-report.rec-id EQ RECID(po-ordl) NO-ERROR.
-
-        IF AVAILABLE tt-report THEN op-remain-qty = DEC(tt-report.key-01).
-
-        IF AVAILABLE ITEM                                                                AND
-            po-ordl.cons-uom NE rm-rctd.pur-uom:SCREEN-VALUE IN BROWSE {&browse-name} THEN
-            RUN custom/convquom.p (cocode,
-                po-ordl.cons-uom,
-                rm-rctd.pur-uom:SCREEN-VALUE IN BROWSE {&browse-name},
-                item.basis-w, po-ordl.s-len, po-ordl.s-wid, item.s-dep,
-                op-remain-qty, OUTPUT op-remain-qty).
-    END.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-assign-record B-table-Win 
-PROCEDURE local-assign-record :
-    /*------------------------------------------------------------------------------
-      Purpose:     Override standard ADM method
-      Notes:       
-    ------------------------------------------------------------------------------*/
-
-    /* Code placed here will execute PRIOR to standard behavior. */
-    ASSIGN
-        v-copy-mode       = NO
-        v-copy-mode-dec-1 = NO.
-
-    /* Dispatch standard ADM method.                             */
-    RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-record':U ) .
-
-/* Code placed here will execute AFTER standard behavior.    */
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-cancel-record B-table-Win 
-PROCEDURE local-cancel-record :
-    /*------------------------------------------------------------------------------
-      Purpose:     Override standard ADM method
-      Notes:       
-    ------------------------------------------------------------------------------*/
-
-    /* Code placed here will execute PRIOR to standard behavior. */
-
-    /* Dispatch standard ADM method.                             */
-    RUN dispatch IN THIS-PROCEDURE ( INPUT 'cancel-record':U ) .
-
-    /* Code placed here will execute AFTER standard behavior.    */
-    ASSIGN
-        v-copy-mode       = NO
-        v-copy-mode-dec-1 = NO
-        v-new-mode        = NO.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-copy-record B-table-Win 
-PROCEDURE local-copy-record :
-    /*------------------------------------------------------------------------------
-      Purpose:     Override standard ADM method
-      Notes:       
-    ------------------------------------------------------------------------------*/
-
-    /* Code placed here will execute PRIOR to standard behavior. */
-
-    /* Dispatch standard ADM method.                             */
-    RUN dispatch IN THIS-PROCEDURE ( INPUT 'copy-record':U ) .
-
-    /* Code placed here will execute AFTER standard behavior.    */
-    ASSIGN
-        v-copy-mode = YES
-        v-new-mode  = YES.
-
-    IF rmrecpt-dec = 1 THEN
-        v-copy-mode-dec-1 = YES.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-create-record B-table-Win 
-PROCEDURE local-create-record :
-    /*------------------------------------------------------------------------------
-      Purpose:     Override standard ADM method
-      Notes:       
-    ------------------------------------------------------------------------------*/
-    DEFINE VARIABLE lv-rno LIKE fg-rctd.r-no NO-UNDO.
-    DEFINE BUFFER b-rm-rctd FOR rm-rctd.
- 
-    /* Code placed here will execute PRIOR to standard behavior. */
-  
-    FIND LAST b-rm-rctd USE-INDEX rm-rctd NO-LOCK NO-ERROR.
-
-    IF AVAILABLE b-rm-rctd AND b-rm-rctd.r-no GT lv-rno THEN lv-rno = b-rm-rctd.r-no.
-
-    FIND LAST rm-rcpth USE-INDEX r-no NO-LOCK NO-ERROR.
-    IF AVAILABLE rm-rcpth AND rm-rcpth.r-no GT lv-rno THEN lv-rno = rm-rcpth.r-no.
-
-
-    /* Dispatch standard ADM method.                             */
-    RUN dispatch IN THIS-PROCEDURE ( INPUT 'create-record':U ) .
-
-    /* Code placed here will execute AFTER standard behavior.    */
-
-    RUN sys/ref/asiseq.p (INPUT g_company, INPUT "rm_rcpt_seq", OUTPUT lv-rno) NO-ERROR.
-    IF ERROR-STATUS:ERROR THEN
-        MESSAGE "Could not obtain next sequence #, please contact ASI: " RETURN-VALUE
-            VIEW-AS ALERT-BOX INFORMATION BUTTONS OK.
-
-    FIND FIRST tt-rm-rctd NO-ERROR.
-
-    IF AVAILABLE tt-rm-rctd THEN 
-    DO:
-        BUFFER-COPY tt-rm-rctd EXCEPT rec_key TO rm-rctd.
-        tt-rm-rctd.tt-rowid = ROWID(rm-rctd).
-    END.
-
-    ASSIGN
-        v-new-mode        = YES
-        rm-rctd.company   = cocode
-        rm-rctd.r-no      = lv-rno
-        rm-rctd.rita-code = "R".
-
-    IF adm-adding-record THEN 
-    DO:
-        ASSIGN
-           /* rm-rctd.loc                                         = gloc*/
-            rm-rctd.s-num                                       = 0
-            rm-rctd.s-num:screen-value IN BROWSE {&browse-name} = "0"
-            rm-rctd.b-num                                       = 0
-            rm-rctd.b-num:screen-value IN BROWSE {&browse-name} = "0"  
-            .
-
-        /*FIND FIRST sys-ctrl WHERE sys-ctrl.company EQ gcompany
-                              AND sys-ctrl.name    EQ "RMWHSBIN" NO-LOCK NO-ERROR.
-     
-        IF NOT AVAIL sys-ctrl THEN DO:
-         CREATE sys-ctrl.
-         ASSIGN
-          sys-ctrl.company  = gcompany
-          sys-ctrl.name     = "RMWHSBIN"
-          sys-ctrl.descrip  = "Default Location for RM Warehouse / Bin?"
-          sys-ctrl.char-fld = "RMITEM".
-        END.*/
-
-  IF v-bin NE "user entered" THEN
-    ASSIGN
-        rm-rctd.loc-bin = SUBSTR(v-bin,6)
-        rm-rctd.loc = SUBSTR(v-bin,1,5).
-    
-        FIND FIRST b-rm-rctd WHERE b-rm-rctd.company = cocode
-            AND b-rm-rctd.rita-code = "R"
-            AND recid(b-rm-rctd) <> RECID(rm-rctd) NO-LOCK NO-ERROR.
-        IF AVAILABLE b-rm-rctd AND rm-rctd.rct-date EQ ? THEN rm-rctd.rct-date = b-rm-rctd.rct-date.
-        IF rm-rctd.rct-date EQ ? THEN
-            rm-rctd.rct-date     = TODAY .
-
-        DISPLAY rm-rctd.rct-date rm-rctd.loc-bin WITH BROWSE {&browse-name}.
-    END.
-
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-delete-record B-table-Win 
-PROCEDURE local-delete-record :
-    /*------------------------------------------------------------------------------
-      Purpose:     Override standard ADM method
-      Notes:       
-    ------------------------------------------------------------------------------*/
-
-    /* Code placed here will execute PRIOR to standard behavior. */
-  
-    ASSIGN
-        v-copy-mode       = NO
-        v-copy-mode-dec-1 = NO
-        v-new-mode        = NO.
-
-    /* WFK - don't know why rm-rctd is not available here, but it isn't */
-    IF NOT AVAILABLE rm-rctd THEN
-        FIND FIRST rm-rctd WHERE rm-rctd.r-no EQ
-            INTEGER(rm-rctd.r-no:SCREEN-VALUE IN BROWSE {&browse-name})
-            EXCLUSIVE-LOCK NO-ERROR.
- 
-    IF NOT adm-new-record THEN 
-    DO:
-        {custom/askdel.i}
-    END.
-
-    RUN delete-tt.
-
-    /* Dispatch standard ADM method.                             */
-    RUN dispatch IN THIS-PROCEDURE ( INPUT 'delete-record':U ) .
-
-/* Code placed here will execute AFTER standard behavior.    */
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-disable-fields B-table-Win 
-PROCEDURE local-disable-fields :
-    /*------------------------------------------------------------------------------
-      Purpose:     Override standard ADM method
-      Notes:       
-    ------------------------------------------------------------------------------*/
-
-    /* Code placed here will execute PRIOR to standard behavior. */
-
-    /* Dispatch standard ADM method.                             */
-    RUN dispatch IN THIS-PROCEDURE ( INPUT 'disable-fields':U ) .
-
-    /* Code placed here will execute AFTER standard behavior.    */
-    IF VALID-HANDLE(hd-post-child) THEN  hd-post-child:SENSITIVE = YES.
-/* value assigned from local-enable-fields*/
-  
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-enable-fields B-table-Win 
-PROCEDURE local-enable-fields :
-    /*------------------------------------------------------------------------------
-      Purpose:     Override standard ADM method
-      Notes:       
-    ------------------------------------------------------------------------------*/
-    DEFINE VARIABLE out-hd-lst AS cha           NO-UNDO.
-    DEFINE VARIABLE li         AS INTEGER       NO-UNDO.
-    DEFINE VARIABLE hd-next    AS WIDGET-HANDLE NO-UNDO.
-
-
-    /* Code placed here will execute PRIOR to standard behavior. */
-    RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"record-target", OUTPUT out-hd-lst).
-    hd-post = WIDGET-HANDLE(out-hd-lst).  /* procedure */
-    IF VALID-HANDLE(WIDGET-HANDLE(out-hd-lst)) THEN 
-    DO:
-        hd-post-child = hd-post:CURRENT-WINDOW.    
-        /*  
-         do while valid-handle(hd-post-child):
-            ii = ii + 1.
-            hd-post-child = hd-post-child:first-child.  /* frame */
-           /* if hd-post-child:type = "field-group" 
-               then hd-next = hd-post-child:next-sibling.
-           */
-           message ii valid-handle(hd-post-child) hd-post-child:name hd-post-child:type.   
-         end. 
-        */ 
-        hd-post-child = hd-post-child:FIRST-CHILD.  /* frame */
-        hd-post-child = hd-post-child:FIRST-CHILD. /* field-group */
-        hd-post-child = hd-post-child:FIRST-CHILD.  /* field */
-        /*   message valid-handle(hd-post-child) hd-post-child:name hd-post-child:type.
-        */
-        hd-post-child:SENSITIVE = NO.
-    END.
-    /* Dispatch standard ADM method.                             */
-    RUN dispatch IN THIS-PROCEDURE ( INPUT 'enable-fields':U ) .
-
-    /* Code placed here will execute AFTER standard behavior.    */
-    DO WITH FRAME {&FRAME-NAME}:
-        {&BROWSE-NAME}:READ-ONLY = NO.
-
-        APPLY "entry" TO rm-rctd.rct-date IN BROWSE {&browse-name}.
-
-        DO li = 1 TO {&BROWSE-NAME}:NUM-COLUMNS:
-            APPLY 'cursor-left' TO {&BROWSE-NAME}.
-        END.
-    END.
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-open-query B-table-Win 
-PROCEDURE local-open-query :
-    /*------------------------------------------------------------------------------
-      Purpose:     Override standard ADM method
-      Notes:       
-    ------------------------------------------------------------------------------*/
-
-    /* Code placed here will execute PRIOR to standard behavior. */
-
-    /* Dispatch standard ADM method.                             */
-    RUN dispatch IN THIS-PROCEDURE ( INPUT 'open-query':U ) .
-
-/* Code placed here will execute AFTER standard behavior.    */
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-update-record B-table-Win 
-PROCEDURE local-update-record :
-    /*------------------------------------------------------------------------------
-      Purpose:     Override standard ADM method
-      Notes:       
-    ------------------------------------------------------------------------------*/
-    DEFINE VARIABLE li AS INTEGER NO-UNDO.
-    
-
-    /* Code placed here will execute PRIOR to standard behavior. */
-    RUN valid-all NO-ERROR.
-    IF ERROR-STATUS:ERROR THEN RETURN ERROR.
-
-    /* Dispatch standard ADM method.                             */
-    RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
-
-    /* Code placed here will execute AFTER standard behavior.    */
-
-    /* create a negative receipt for NON INVENTORY items item.inv-by-cust = yes */
-    FIND CURRENT ITEM NO-LOCK NO-ERROR.
-    IF AVAILABLE ITEM AND ITEM.inv-by-cust AND v-new-mode THEN 
-    DO:
-        RUN create-neg-rctd (INPUT RECID(rm-rctd)).                       
-        ASSIGN 
-            v-new-mode = NO.
-    END.
-
-    RUN delete-tt.
-
-    RUN repo-query (ROWID(rm-rctd)).
-
-    DO WITH FRAME {&FRAME-NAME}:
-        DO li = 1 TO {&BROWSE-NAME}:NUM-COLUMNS:
-            APPLY 'cursor-left' TO {&BROWSE-NAME}.
-        END.
-    END.
-
-    IF rmrecpt-dec = 1 THEN
-    DO:
-        CASE browse-order:
-
-            WHEN 1 THEN
-                FOR EACH b-rm-rctd WHERE
-                    b-rm-rctd.company EQ cocode AND
-                    b-rm-rctd.rita-code = "R"
-                    NO-LOCK
-                    BY b-rm-rctd.r-no DESCENDING:
-               
-                    RUN repo-query(ROWID(b-rm-rctd)) NO-ERROR.
-                    LEAVE.
-                END.
-            WHEN 2 THEN
-                FOR EACH b-rm-rctd WHERE
-                    b-rm-rctd.company EQ cocode AND
-                    b-rm-rctd.rita-code = "R"
-                    NO-LOCK
-                    BY b-rm-rctd.tag DESCENDING
-                    BY b-rm-rctd.r-no DESCENDING:
-
-                    RUN repo-query(ROWID(b-rm-rctd)) NO-ERROR.
-                    LEAVE.
-                END.
-            WHEN 3 THEN
-                FOR EACH b-rm-rctd WHERE
-                    b-rm-rctd.company EQ cocode AND
-                    b-rm-rctd.rita-code = "R"
-                    NO-LOCK
-                    BY b-rm-rctd.rct-date DESCENDING
-                    BY b-rm-rctd.r-no DESCENDING:
-
-                    RUN repo-query(ROWID(b-rm-rctd)) NO-ERROR.
-                    LEAVE.
-                END.
-            WHEN 4 THEN
-                FOR EACH b-rm-rctd WHERE
-                    b-rm-rctd.company EQ cocode AND
-                    b-rm-rctd.rita-code = "R"
-                    NO-LOCK
-                    BY b-rm-rctd.po-no DESCENDING 
-                    BY b-rm-rctd.r-no DESCENDING:
-
-                    RUN repo-query(ROWID(b-rm-rctd)) NO-ERROR.
-                    LEAVE.
-                END.
-            WHEN 5 THEN
-                FOR EACH b-rm-rctd WHERE
-                    b-rm-rctd.company EQ cocode AND
-                    b-rm-rctd.rita-code = "R"
-                    NO-LOCK
-                    BY b-rm-rctd.i-no DESCENDING
-                    BY b-rm-rctd.r-no DESCENDING:
-
-                    RUN repo-query(ROWID(b-rm-rctd)) NO-ERROR.
-                    LEAVE.
-                END.
-            WHEN 6 THEN
-                FOR EACH b-rm-rctd WHERE
-                    b-rm-rctd.company EQ cocode AND
-                    b-rm-rctd.rita-code = "R"
-                    NO-LOCK
-                    BY b-rm-rctd.loc DESCENDING
-                    BY b-rm-rctd.r-no DESCENDING:
-
-                    RUN repo-query(ROWID(b-rm-rctd)) NO-ERROR.
-                    LEAVE.
-                END.
-        END CASE.
-    END.
-
-    RUN auto-add-tt.
-    
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetTagSequence B-table-Win
-PROCEDURE pGetTagSequence:
-    /*------------------------------------------------------------------------------
-     Purpose: Returns the next available tag sequence for a given PO
-     Notes: This is logic for N-K TAG# Logical Value = Yes
-     Usage: RUN pGetTagSequence(cocode, po-ordl.po-no, rm-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name})
-    ------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipiPoNo LIKE po-ordl.po-no NO-UNDO.
-    DEFINE OUTPUT PARAMETER opcSequence AS CHARACTER NO-UNDO.
-
-    DEFINE BUFFER bf-rm-rctd FOR rm-rctd.
-    DEFINE VARIABLE cLocation AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE iSeq      AS INTEGER   NO-UNDO.
-    
-    ASSIGN
-        iSeq      = 0
-        cLocation = "".
-
-    DO WHILE TRUE:
-        FIND FIRST bf-rm-rctd
-            WHERE bf-rm-rctd.company EQ ipcCompany
-            AND bf-rm-rctd.loc     GT cLocation
-            NO-LOCK NO-ERROR.
-
-        IF AVAILABLE bf-rm-rctd THEN 
-        DO:
-            cLocation = bf-rm-rctd.loc.
-
-            FOR EACH bf-rm-rctd
-                WHERE bf-rm-rctd.company EQ ipcCompany
-                AND bf-rm-rctd.loc     EQ cLocation
-                AND bf-rm-rctd.tag     BEGINS STRING(ipiPoNo,"999999")
-                USE-INDEX tag NO-LOCK
-                BY bf-rm-rctd.tag DESCENDING:
-
-                IF INT(SUBSTR(bf-rm-rctd.tag,7,2)) GT iSeq THEN
-                    iSeq = INT(SUBSTR(bf-rm-rctd.tag,7,2)).
-                LEAVE.
-            END.
-        END.
-
-        ELSE LEAVE. /*no more locations*/
-    END.
-
-    IF iSeq GT 0 THEN 
-    DO:
-        FIND LAST rm-rdtlh NO-LOCK
-            WHERE rm-rdtlh.company EQ ipcCompany
-            AND rm-rdtlh.tag     BEGINS STRING(ipiPoNo,"999999")
-            AND INT(SUBSTR(rm-rdtlh.tag,7,2)) GT iSeq
-            USE-INDEX tag NO-ERROR.
-        IF AVAILABLE rm-rdtlh THEN 
-            iSeq = INT(SUBSTR(rm-rdtlh.tag,7,2)).
-    END.
-
-    ASSIGN
-        iSeq        = iSeq + 1
-        opcSequence = STRING(ipiPoNo,"999999") + STRING(iSeq,"99").
-
-END PROCEDURE.
-	
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE po-cost B-table-Win 
-PROCEDURE po-cost :
-    /*------------------------------------------------------------------------------
-      Purpose:     
-      Parameters:  <none>
-      Notes:       
-     ------------------------------------------------------------------------------*/
-    DEFINE VARIABLE lv-cost    AS DECIMAL DECIMALS 10 NO-UNDO.
-    DEFINE VARIABLE v-len      LIKE po-ordl.s-len NO-UNDO.
-    DEFINE VARIABLE v-wid      LIKE po-ordl.s-len NO-UNDO.
-    DEFINE VARIABLE v-dep      LIKE po-ordl.s-len NO-UNDO. 
-    DEFINE VARIABLE v-bwt      LIKE po-ordl.s-len NO-UNDO.
-    DEFINE VARIABLE lv-out-qty LIKE rm-rctd.qty NO-UNDO.
-    DEFINE VARIABLE lv-qty-uom LIKE rm-rctd.pur-uom NO-UNDO.
-
-    IF AVAILABLE po-ordl THEN 
-    DO WITH FRAME {&FRAME-NAME}:
-        IF po-ordl.i-no NE rm-rctd.i-no:screen-value IN BROWSE {&browse-name} THEN
-            RUN find-exact-po.
-        IF NOT AVAILABLE po-ordl THEN
-            LEAVE.
-      
-        FIND FIRST ITEM WHERE
-            item.company EQ cocode AND
-            item.i-no EQ rm-rctd.i-no:screen-value IN BROWSE {&browse-name}
-            USE-INDEX i-no
-            NO-LOCK NO-ERROR.
-
-        IF NOT AVAILABLE item THEN
-            LEAVE.
-
-        ASSIGN
-            lv-qty-uom = po-ordl.pr-qty-uom
-            v-len      = po-ordl.s-len
-            v-wid      = po-ordl.s-wid
-            v-bwt      = 0.
-
-        {rm/pol-dims.i}
-
-        IF rm-rctd.pur-uom:screen-value IN BROWSE {&browse-name} EQ lv-qty-uom THEN
-            lv-out-qty = DEC(rm-rctd.qty:screen-value IN BROWSE {&browse-name}).
-        ELSE
-            RUN custom/convquom.p (INPUT cocode,
-                INPUT rm-rctd.pur-uom:screen-value IN BROWSE {&browse-name},
-                INPUT lv-qty-uom,
-                INPUT v-bwt,
-                INPUT v-len,
-                INPUT v-wid,
-                INPUT v-dep,
-                INPUT DEC(rm-rctd.qty:screen-value IN BROWSE {&browse-name}),
-                OUTPUT lv-out-qty).
-
-        /*have to take into account receipt quantity when dividing setup into
-          p.o. cost*/
-
-        FIND FIRST po-ord WHERE
-            po-ord.company EQ cocode AND
-            po-ord.po-no EQ po-ordl.po-no
-            NO-LOCK NO-ERROR.
-
-        ll-add-setup = NO.
-
-        IF lv-out-qty LT po-ordl.ord-qty THEN
-            lv-cost = po-ordl.cost +
-                (po-ordl.setup /
-                ((po-ordl.t-cost - po-ordl.setup) / po-ordl.cost)).
-        ELSE
-            ASSIGN
-                lv-cost      = po-ordl.cost
-                ll-add-setup = IF AVAILABLE po-ord AND po-ord.type NE "S" THEN YES
-                         ELSE NO.
-
-        rm-rctd.cost-uom:SCREEN-VALUE IN BROWSE {&browse-name} = po-ordl.pr-uom.
-
-        RUN rm/getpocst.p (BUFFER po-ordl,
-            rm-rctd.cost-uom:SCREEN-VALUE IN BROWSE {&browse-name},
-            INPUT-OUTPUT lv-cost).
-
-        RUN convert-vend-comp-curr(INPUT-OUTPUT lv-cost).
-
-        rm-rctd.cost:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(lv-cost).
-    END.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE repo-query B-table-Win 
-PROCEDURE repo-query :
-    /*------------------------------------------------------------------------------
-      Purpose:     
-      Parameters:  <none>
-      Notes:       
-    ------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER ip-rowid AS ROWID NO-UNDO.
-
-    DO WITH FRAME {&FRAME-NAME}:    
-        RUN clear_auto_find.
-        RUN change-order (browse-order:SCREEN-VALUE).
-        REPOSITION {&browse-name} TO ROWID ip-rowid NO-ERROR.
-        RUN dispatch ("row-changed").
-    END.
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE send-records B-table-Win  _ADM-SEND-RECORDS
-PROCEDURE send-records :
-    /*------------------------------------------------------------------------------
-      Purpose:     Send record ROWID's for all tables used by
-                   this file.
-      Parameters:  see template/snd-head.i
-    ------------------------------------------------------------------------------*/
-
-    /* Define variables needed by this internal procedure.               */
-    {src/adm/template/snd-head.i}
-
-    /* For each requested table, put it's ROWID in the output list.      */
-    {src/adm/template/snd-list.i "rm-rctd"}
-
-    /* Deal with any unexpected table requests before closing.           */
-    {src/adm/template/snd-end.i}
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE state-changed B-table-Win 
-PROCEDURE state-changed :
-    /* -----------------------------------------------------------
-      Purpose:     
-      Parameters:  <none>
-      Notes:       
-    -------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER p-issuer-hdl AS HANDLE    NO-UNDO.
-    DEFINE INPUT PARAMETER p-state      AS CHARACTER NO-UNDO.
-
-    CASE p-state:
-        /* Object instance CASEs can go here to replace standard behavior
-           or add new cases. */
-        {src/adm/template/bstates.i}
-    END CASE.
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE tag-method B-table-Win 
-PROCEDURE tag-method :
-    /*------------------------------------------------------------------------------
-      Purpose:     
-      Parameters:  <none>
-      Notes:       
-    ------------------------------------------------------------------------------*/
-    DEFINE OUTPUT PARAMETER op-tag# AS LOG NO-UNDO.
-  
-    {rm/tag#.i}
-    op-tag# = v-tag#.
-  
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE tag-sequence B-table-Win 
-PROCEDURE tag-sequence :
-    /*------------------------------------------------------------------------------
-      Purpose:
-      Parameters:  <none>
-      Notes:
-    ------------------------------------------------------------------------------*/
-    DEFINE VARIABLE v-tag-seq AS INTEGER NO-UNDO.
-    DEFINE VARIABLE v-locode  AS cha     NO-UNDO.
-    DEFINE BUFFER xrm-rctd FOR rm-rctd.
-
-    ASSIGN
-        v-tag-seq = 0
-        v-locode  = "".
-
-    DO WHILE TRUE:
-        FIND FIRST xrm-rctd
-            WHERE xrm-rctd.company EQ rm-rctd.company
-            AND xrm-rctd.loc     GT v-locode
-            NO-LOCK NO-ERROR.
-
-        IF AVAILABLE xrm-rctd THEN
-        DO:
-            v-locode = xrm-rctd.loc.
-
-            FOR EACH xrm-rctd WHERE xrm-rctd.company EQ rm-rctd.company
-                AND xrm-rctd.loc     EQ v-locode
-                AND xrm-rctd.tag     BEGINS string(int(rm-rctd.po-no:screen-value IN BROWSE {&browse-name}),"999999")
-                USE-INDEX tag NO-LOCK
-                BY xrm-rctd.tag DESCENDING:
-
-                IF int(substr(xrm-rctd.tag,7,2)) GT v-tag-seq THEN
-                    v-tag-seq = int(substr(xrm-rctd.tag,7,2)).
-                LEAVE.
-            END.
-        END.
-
-        ELSE LEAVE.
-    END.  /* do while */
-    /* ======= may not need any more
-      v-locode = "".
-      if v-tag-seq eq 0 then do while true:
-        find first rm-rctdh where rm-rctdh.company eq rm-rcth.company
-              and rm-rctdh.loc     gt v-locode
-            no-lock no-error.
-
-        if avail rm-rctdh then do:
-          v-locode = rm-rctdh.loc.
-
-          for each rm-rctdh
-              where rm-rctdh.company eq cocode
-                and rm-rctdh.loc     eq v-locode
-                and rm-rctdh.tag     begins string(int(rm-rctd.po-no),"999999")
-              use-index tag no-lock
-              by rm-rctdh.tag desc:
-
-            if int(substr(rm-rctdh.tag,7,2)) gt v-tag-seq then
-              v-tag-seq = int(substr(rm-rctdh.tag,7,2)).
-            leave.
-          end.
-        end.
-
-        else leave.
-      end.
-    ============================== */
-    ASSIGN
-        v-tag-seq = v-tag-seq + 1
-        /* rm-rctd.tag:screen-value in browse {&browse-name}
-         = string(int(rm-rctd.po-no:screen-value in browse {&browse-name}),"999999") + string(v-tag-seq,"99").
-          */
-        .
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE update-begin B-table-Win 
-PROCEDURE update-begin :
-    /*------------------------------------------------------------------------------
-      Purpose:     
-      Parameters:  <none>
-      Notes:       
-    ------------------------------------------------------------------------------*/
-    DEFINE VARIABLE phandle  AS WIDGET-HANDLE NO-UNDO.
-    DEFINE VARIABLE char-hdl AS cha           NO-UNDO.   
-    RUN get-link-handle IN adm-broker-hdl
-        (THIS-PROCEDURE,'TableIO-source':U,OUTPUT char-hdl).
-    phandle = WIDGET-HANDLE(char-hdl).
-   
-    RUN new-state IN phandle ('update-begin':U).
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE update-from-po-line B-table-Win 
-PROCEDURE update-from-po-line :
-    /*------------------------------------------------------------------------------
-      Purpose:     
-      Parameters:  <none>
-      Notes:       
-    ------------------------------------------------------------------------------*/
-    DEFINE VARIABLE lv-ord-qty LIKE po-ordl.ord-qty NO-UNDO.
-
-
-    DO WITH FRAME {&FRAME-NAME}:
-        ASSIGN
-            rm-rctd.s-num:SCREEN-VALUE IN BROWSE {&browse-name}    = STRING(po-ordl.s-num)
-            rm-rctd.b-num:SCREEN-VALUE IN BROWSE {&browse-name}    = STRING(po-ordl.b-num)
-            rm-rctd.pur-uom:SCREEN-VALUE IN BROWSE {&browse-name}  = po-ordl.pr-qty-uom
-            rm-rctd.cost-uom:SCREEN-VALUE IN BROWSE {&browse-name} = po-ordl.pr-uom
-            lv-po-wid:SCREEN-VALUE IN BROWSE {&browse-name}        = STRING(po-ordl.s-wid)
-            lv-po-len:SCREEN-VALUE IN BROWSE {&browse-name}        = STRING(po-ordl.s-len)
-            ll-warned                                              = NO
-            lv-setup                                               = po-ordl.setup
-            lv-adder                                               = display-adder-screen().
-
-        RUN convert-vend-comp-curr(INPUT-OUTPUT lv-setup).
-
-        DISPLAY lv-setup lv-adder WITH BROWSE {&browse-name}.
-
-        RUN po-cost.
-    END.
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE update-tt B-table-Win 
-PROCEDURE update-tt :
-    /*------------------------------------------------------------------------------
-      Purpose:     
-      Parameters:  <none>
-      Notes:       
-    ------------------------------------------------------------------------------*/
-
-    DO WITH FRAME {&frame-name}:
-        FIND FIRST tt-rm-rctd NO-ERROR.
-        IF AVAILABLE tt-rm-rctd THEN 
-        DO:
-            lv-rowid = tt-rm-rctd.po-rowid.
-            RUN display-po-info.
-        /*RUN show-bin-info.*/
-        END.
-
-        /*IF li-pos EQ 1 THEN*/
-        APPLY "entry" TO rm-rctd.qty IN BROWSE {&browse-name}.
-    /*ELSE
-      RUN dispatch ("update-record").*/
-    END.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE update-ttt B-table-Win 
-PROCEDURE update-ttt :
-    /*------------------------------------------------------------------------------
-      Purpose:     
-      Parameters:  <none>
-      Notes:       
-    ------------------------------------------------------------------------------*/
-
-    FIND FIRST tt-rm-rctd NO-ERROR.
-
-    IF AVAILABLE tt-rm-rctd THEN 
-    DO WITH FRAME {&FRAME-NAME}:
-        ASSIGN
-            rm-rctd.po-no:SCREEN-VALUE IN BROWSE {&browse-name} = tt-rm-rctd.po-no
-            rm-rctd.i-no:SCREEN-VALUE  IN BROWSE {&browse-name} = tt-rm-rctd.i-no
-            rm-rctd.qty:SCREEN-VALUE IN BROWSE {&browse-name}   = STRING(tt-rm-rctd.qty)
-            tt-rm-rctd.tt-rowid                                 = ROWID(rm-rctd).
-    END.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE create-rcptd B-table-Win 
 PROCEDURE create-rcptd :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -3468,9 +1957,1558 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE delete-tt B-table-Win 
+PROCEDURE delete-tt :
+/*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+
+    IF AVAILABLE rm-rctd THEN 
+    DO:
+        FIND FIRST tt-rm-rctd WHERE tt-rm-rctd.tt-rowid EQ ROWID(rm-rctd) NO-ERROR.
+        IF AVAILABLE tt-rm-rctd THEN DELETE tt-rm-rctd.
+    END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI B-table-Win  _DEFAULT-DISABLE
+PROCEDURE disable_UI :
+/*------------------------------------------------------------------------------
+  Purpose:     DISABLE the User Interface
+  Parameters:  <none>
+  Notes:       Here we clean-up the user-interface by deleting
+               dynamic widgets we have created and/or hide 
+               frames.  This procedure is usually called when
+               we are ready to "clean-up" after running.
+------------------------------------------------------------------------------*/
+  /* Hide all frames. */
+  HIDE FRAME F-Main.
+  IF THIS-PROCEDURE:PERSISTENT THEN DELETE PROCEDURE THIS-PROCEDURE.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE display-item B-table-Win 
+PROCEDURE display-item :
+/*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ip-recid AS RECID NO-UNDO.
+
+
+    FIND ITEM WHERE RECID(ITEM) EQ ip-recid NO-LOCK NO-ERROR.
+
+    DO WITH FRAME {&FRAME-NAME}:
+        IF AVAILABLE item THEN 
+        DO:
+            ASSIGN
+                rm-rctd.i-name:SCREEN-VALUE IN BROWSE {&browse-name}  = item.i-name
+                rm-rctd.pur-uom:SCREEN-VALUE IN BROWSE {&browse-name} = item.cons-uom.
+            IF v-bin NE "user entered" THEN
+            ASSIGN
+                rm-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}     = item.loc
+                rm-rctd.loc-bin:SCREEN-VALUE IN BROWSE {&browse-name} = item.loc-bin.
+
+            IF INT(rm-rctd.po-no:SCREEN-VALUE IN BROWSE {&browse-name}) NE 0 THEN
+                RUN update-from-po-line.
+            ELSE
+                IF rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name} EQ "" OR
+                    item.i-code EQ "R"                                         THEN 
+                DO:
+                    {rm/avgcost.i}
+
+                    ASSIGN
+                        /*rm-rctd.pur-uom:SCREEN-VALUE IN BROWSE {&browse-name} = item.cons-uom */
+                        rm-rctd.cost:SCREEN-VALUE IN BROWSE {&browse-name}     = IF DEC(rm-rctd.cost:SCREEN-VALUE IN BROWSE {&browse-name}) EQ 0 THEN
+             IF v-avgcost THEN STRING(item.avg-cost)
+             ELSE STRING(item.last-cost)
+           ELSE rm-rctd.cost:SCREEN-VALUE IN BROWSE {&browse-name}
+                        rm-rctd.cost-uom:SCREEN-VALUE IN BROWSE {&browse-name} = item.cons-uom. 
+                END.
+        END.
+
+        IF (rm-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}     EQ "" OR
+            rm-rctd.loc-bin:SCREEN-VALUE IN BROWSE {&browse-name} EQ "") AND v-bin NE "user entered" THEN 
+        DO:
+            FIND FIRST cust
+                WHERE cust.company EQ cocode
+                AND cust.active  EQ "X" 
+                NO-LOCK NO-ERROR.
+            IF AVAILABLE cust THEN 
+            DO:
+                FIND FIRST shipto
+                    WHERE shipto.company EQ cocode
+                    AND shipto.cust-no EQ cust.cust-no
+                    NO-LOCK NO-ERROR.
+                IF AVAILABLE shipto THEN
+                    ASSIGN   
+                        rm-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}     = shipto.loc
+                        rm-rctd.loc-bin:SCREEN-VALUE IN BROWSE {&browse-name} = shipto.loc-bin.
+            END.
+        END.
+
+        IF v-bin NE "" AND v-bin NE 'RMITEM' AND v-bin NE "user entered" THEN
+            ASSIGN
+                rm-rctd.loc:screen-value IN BROWSE {&browse-name}     = SUBSTR(v-bin,1,5)
+                rm-rctd.loc-bin:screen-value IN BROWSE {&browse-name} = SUBSTR(v-bin,6).
+    END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE display-jobmat B-table-Win 
+PROCEDURE display-jobmat :
+/*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ip-recid AS RECID NO-UNDO.
+
+
+    DO WITH FRAME {&FRAME-NAME}:
+        FIND job-mat WHERE RECID(job-mat) EQ ip-recid NO-LOCK NO-ERROR.
+        IF AVAILABLE job-mat THEN 
+        DO:
+            FIND job-mat WHERE RECID(job-mat) EQ ip-recid NO-LOCK.
+
+            ASSIGN
+                rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}   = job-mat.job-no
+                rm-rctd.job-no2:SCREEN-VALUE IN BROWSE {&browse-name}  = STRING(job-mat.job-no2)
+                rm-rctd.s-num:SCREEN-VALUE IN BROWSE {&browse-name}    = STRING(job-mat.frm)
+                rm-rctd.b-num:SCREEN-VALUE IN BROWSE {&browse-name}    = STRING(job-mat.blank-no)
+                rm-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name}     = job-mat.i-no
+                rm-rctd.cost:SCREEN-VALUE IN BROWSE {&browse-name}     = STRING(job-mat.std-cost)
+                rm-rctd.cost-uom:SCREEN-VALUE IN BROWSE {&browse-name} = job-mat.sc-uom.
+
+            FIND FIRST item 
+                WHERE item.company EQ cocode
+                AND item.i-no    EQ rm-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name}
+                NO-LOCK NO-ERROR.
+
+            IF AVAILABLE item THEN RUN display-item (RECID(item)).
+        END.
+    END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE display-po-info B-table-Win 
+PROCEDURE display-po-info :
+/*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+    DEFINE BUFFER b-rm-rctd FOR rm-rctd.
+  
+    DEFINE VARIABLE lv-i-no    LIKE rm-rctd.i-no NO-UNDO.
+    DEFINE VARIABLE lv-locode  LIKE locode.
+    DEFINE VARIABLE li-tag-seq AS INTEGER.
+    DEFINE VARIABLE cNewTag    AS CHARACTER NO-UNDO.
+
+
+    FIND po-ordl WHERE ROWID(po-ordl) EQ lv-rowid NO-LOCK NO-ERROR.
+
+    IF AVAILABLE po-ordl THEN 
+    DO WITH FRAME {&FRAME-NAME}:
+        ASSIGN
+            lv-i-no                                                = rm-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name}
+
+            rm-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name}     = po-ordl.i-no
+            rm-rctd.i-name:SCREEN-VALUE IN BROWSE {&browse-name}   = po-ordl.i-name
+            rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}   = po-ordl.job-no
+            rm-rctd.job-no2:SCREEN-VALUE IN BROWSE {&browse-name}  = STRING(po-ordl.job-no2)
+            rm-rctd.s-num:SCREEN-VALUE IN BROWSE {&browse-name}    = STRING(po-ordl.s-num)
+            rm-rctd.b-num:SCREEN-VALUE IN BROWSE {&browse-name}    = STRING(po-ordl.b-num)
+            rm-rctd.pur-uom:SCREEN-VALUE IN BROWSE {&browse-name}  = po-ordl.pr-qty-uom
+            rm-rctd.cost-uom:SCREEN-VALUE IN BROWSE {&browse-name} = po-ordl.pr-uom
+            lv-setup                                               = po-ordl.setup
+            ll-warned                                              = NO.
+
+        RUN po-cost.
+
+        lv-adder = display-adder-screen().
+
+        RUN convert-vend-comp-curr(INPUT-OUTPUT lv-setup).
+    
+        DISPLAY lv-setup lv-adder WITH BROWSE {&browse-name}.
+
+        IF rm-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name} NE lv-i-no THEN 
+        DO:
+            FIND FIRST ITEM
+                WHERE item.company EQ rm-rctd.company
+                AND item.i-no    EQ rm-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name}
+                NO-LOCK NO-ERROR. 
+            IF AVAILABLE ITEM THEN RUN display-item (RECID(ITEM)).
+        END.
+
+        IF ll-tag-meth AND adm-new-record THEN 
+        DO:
+            RUN pGetTagSequence(cocode, po-ordl.po-no, OUTPUT cNewTag).
+            rm-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name} = cNewTag.
+        END.
+    /*        DO:                                                                                                                  */
+    /*            ASSIGN                                                                                                           */
+    /*                li-tag-seq = 0                                                                                               */
+    /*                lv-locode  = "".                                                                                             */
+    /*                                                                                                                             */
+    /*            DO WHILE TRUE:                                                                                                   */
+    /*                FIND FIRST b-rm-rctd                                                                                         */
+    /*                    WHERE b-rm-rctd.company EQ cocode                                                                        */
+    /*                    AND b-rm-rctd.loc     GT lv-locode                                                                       */
+    /*                    NO-LOCK NO-ERROR.                                                                                        */
+    /*                                                                                                                             */
+    /*                IF AVAILABLE b-rm-rctd THEN                                                                                  */
+    /*                DO:                                                                                                          */
+    /*                    lv-locode = b-rm-rctd.loc.                                                                               */
+    /*                                                                                                                             */
+    /*                    FOR EACH b-rm-rctd                                                                                       */
+    /*                        WHERE b-rm-rctd.company EQ cocode                                                                    */
+    /*                        AND b-rm-rctd.loc     EQ lv-locode                                                                   */
+    /*                        AND b-rm-rctd.tag     BEGINS STRING(po-ordl.po-no,"999999")                                          */
+    /*                        USE-INDEX tag NO-LOCK                                                                                */
+    /*                        BY b-rm-rctd.tag DESCENDING:                                                                         */
+    /*                                                                                                                             */
+    /*                        IF INT(SUBSTR(b-rm-rctd.tag,7,2)) GT li-tag-seq THEN                                                 */
+    /*                            li-tag-seq = INT(SUBSTR(b-rm-rctd.tag,7,2)).                                                     */
+    /*                        LEAVE.                                                                                               */
+    /*                    END.                                                                                                     */
+    /*                END.                                                                                                         */
+    /*                                                                                                                             */
+    /*                ELSE LEAVE.                                                                                                  */
+    /*            END.                                                                                                             */
+    /*                                                                                                                             */
+    /*            IF li-tag-seq EQ 0 THEN                                                                                          */
+    /*            DO:                                                                                                              */
+    /*                FIND LAST rm-rdtlh NO-LOCK                                                                                   */
+    /*                    WHERE rm-rdtlh.company EQ cocode                                                                         */
+    /*                    AND rm-rdtlh.tag     BEGINS STRING(po-ordl.po-no,"999999")                                               */
+    /*                    AND INT(SUBSTR(rm-rdtlh.tag,7,2)) GT li-tag-seq                                                          */
+    /*                    USE-INDEX tag NO-ERROR.                                                                                  */
+    /*                IF AVAILABLE rm-rdtlh THEN li-tag-seq = INT(SUBSTR(rm-rdtlh.tag,7,2)).                                       */
+    /*            END.                                                                                                             */
+    /*                                                                                                                             */
+    /*            ASSIGN                                                                                                           */
+    /*                li-tag-seq                                        = li-tag-seq + 1                                           */
+    /*                rm-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(po-ordl.po-no,"999999") + STRING(li-tag-seq,"99").*/
+    /*        END.                                                                                                                 */
+    END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE display-po-job B-table-Win 
+PROCEDURE display-po-job :
+/*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE li-po-cnt AS INTEGER NO-UNDO.
+    DEFINE VARIABLE po-list   AS cha     NO-UNDO .
+    DEFINE VARIABLE v-date    AS DATE    NO-UNDO .
+    DO WITH FRAME {&FRAME-NAME}:
+        lv-rowid = ?.
+        FOR EACH po-ordl
+            WHERE po-ordl.company   EQ rm-rctd.company
+            AND po-ordl.po-no     EQ INT(rm-rctd.po-no:SCREEN-VALUE IN BROWSE {&browse-name}) 
+            AND po-ordl.item-type EQ YES
+            AND ((po-ordl.job-no  EQ FILL(" ",6 - LENGTH(TRIM(rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}))) + TRIM(rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}) AND
+            po-ordl.job-no2 EQ INT(rm-rctd.job-no2:SCREEN-VALUE IN BROWSE {&browse-name})                                                                                    AND
+            po-ordl.i-no    EQ rm-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name}) OR
+            adm-adding-record)
+            NO-LOCK:
+            ASSIGN
+                li-po-cnt = li-po-cnt + 1
+                lv-rowid  = ROWID(po-ordl).
+            IF li-po-cnt GT 1 THEN LEAVE.
+        END.
+ 
+        IF li-po-cnt GT 1 THEN 
+        DO:
+            lv-rowid = ?.
+            EMPTY TEMP-TABLE tt-selected.
+            RUN windows/l-poitmf.w (YES, rm-rctd.company, rm-rctd.po-no:SCREEN-VALUE IN BROWSE {&browse-name},
+                YES, rm-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name},
+                ROWID(rm-rctd), OUTPUT lv-rowid, OUTPUT po-list).
+      
+            IF po-list <> ""  THEN 
+            DO:
+                v-date = DATE(rm-rctd.rct-date:SCREEN-VALUE IN BROWSE {&browse-name}) .
+                RUN dispatch ('cancel-record').
+                RUN create-rcptd(po-list,v-date) .
+                RETURN.
+            END.
+        END.
+
+    /*
+       IF li-po-cnt >= 2 THEN RUN rm/d-selpo.w (rm-rctd.company,
+                                             INT(rm-rctd.po-no:SCREEN-VALUE IN BROWSE {&browse-name}),
+                                             "",
+                                             0,
+                                             "",
+                                             OUTPUT lv-rowid
+                                             ).
+    END.
+    ELSE DO:
+        
+       IF li-po-cnt >= 2 THEN RUN rm/d-selpo.w (rm-rctd.company,
+                                             INT(rm-rctd.po-no:SCREEN-VALUE IN BROWSE {&browse-name}),
+                                             FILL(" ",6 - LENGTH(TRIM(rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}))) + TRIM(rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}),
+                                             INT(rm-rctd.job-no2:SCREEN-VALUE IN BROWSE {&browse-name}),
+                                             rm-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name},
+                                             OUTPUT lv-rowid
+                                             ).
+    END.
+    */
+    END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE find-exact-po B-table-Win 
+PROCEDURE find-exact-po :
+/*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+
+    DO WITH FRAME {&FRAME-NAME}:
+        FIND FIRST po-ordl NO-LOCK
+            WHERE po-ordl.company   EQ rm-rctd.company
+            AND po-ordl.po-no     EQ INT(rm-rctd.po-no:SCREEN-VALUE IN BROWSE {&browse-name})
+            AND po-ordl.job-no    EQ FILL(" ",6 - LENGTH(TRIM(rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}))) + TRIM(rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name})
+            AND po-ordl.job-no2   EQ INT(rm-rctd.job-no2:SCREEN-VALUE IN BROWSE {&browse-name})
+            AND po-ordl.s-num     EQ INT(rm-rctd.s-num:SCREEN-VALUE IN BROWSE {&browse-name})
+            AND po-ordl.b-num     EQ INT(rm-rctd.b-num:SCREEN-VALUE IN BROWSE {&browse-name})
+            AND po-ordl.i-no      EQ rm-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name}
+            AND po-ordl.item-type EQ YES
+            USE-INDEX item-ordno NO-ERROR.
+        lv-rowid = IF AVAILABLE po-ordl THEN ROWID(po-ordl) ELSE ?.
+    END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE get-matrix B-table-Win 
+PROCEDURE get-matrix :
+/*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ip-first-disp AS LOG NO-UNDO.
+  
+    DEFINE VARIABLE v-len       LIKE po-ordl.s-len NO-UNDO.
+    DEFINE VARIABLE v-wid       LIKE po-ordl.s-len NO-UNDO.
+    DEFINE VARIABLE v-dep       LIKE po-ordl.s-len NO-UNDO. 
+    DEFINE VARIABLE v-bwt       LIKE po-ordl.s-len NO-UNDO.
+    DEFINE VARIABLE lv-out-qty  LIKE rm-rctd.qty NO-UNDO.
+    DEFINE VARIABLE lv-out-cost LIKE rm-rctd.cost NO-UNDO.
+    DEFINE VARIABLE lv-qty-uom  LIKE rm-rctd.pur-uom NO-UNDO.
+    DEFINE VARIABLE lv-cost-uom LIKE rm-rctd.cost-uom NO-UNDO.
+    DEFINE VARIABLE lv-cost     AS DECIMAL DECIMALS 10 NO-UNDO.
+
+    /* gdm - 07210901 */
+    DEFINE VARIABLE v-po-cost   LIKE po-ordl.cost NO-UNDO.
+    DEFINE VARIABLE v-po-cuom   LIKE lv-cost-uom NO-UNDO. 
+    DEFINE VARIABLE dOverPer AS DECIMAL NO-UNDO .
+    DEFINE VARIABLE dConsumQty AS DECIMAL NO-UNDO .
+    DEFINE VARIABLE dPoQty AS DECIMAL NO-UNDO .
+    DEFINE VARIABLE dRecQty AS DECIMAL NO-UNDO .
+  
+    IF AVAILABLE rm-rctd THEN
+        IF ip-first-disp AND
+            rm-rctd.i-no NE "" THEN 
+        DO: /* for row-display */
+            FIND item  WHERE item.company EQ cocode                           /* no screen-value used */
+                AND item.i-no  EQ rm-rctd.i-no /*:screen-value in browse {&browse-name}*/
+                USE-INDEX i-no NO-ERROR.
+            IF NOT AVAILABLE item THEN LEAVE.
+
+            IF item.cons-uom EQ "" THEN item.cons-uom = rm-rctd.pur-uom.
+
+            FIND CURRENT ITEM NO-LOCK.
+
+            ASSIGN
+                lv-qty-uom  = item.cons-uom
+                lv-cost-uom = item.cons-uom
+                v-dep       = item.s-dep.
+
+            FIND FIRST po-ordl WHERE po-ordl.company = rm-rctd.company
+                AND po-ordl.po-no = integer(rm-rctd.po-no)
+                AND po-ordl.i-no  = rm-rctd.i-no
+                AND po-ordl.job-no = rm-rctd.job-no
+                AND po-ordl.job-no2 = rm-rctd.job-no2
+                AND po-ordl.item-type = YES 
+                AND po-ordl.s-num = rm-rctd.s-num
+                AND po-ordl.b-num = rm-rctd.b-num
+                NO-LOCK NO-ERROR.
+            /*if not avail po-ordl then return.  */
+            IF AVAILABLE po-ordl THEN 
+            DO:
+                ASSIGN  
+                    v-len = po-ordl.s-len
+                    v-wid = po-ordl.s-wid
+                    v-bwt = 0
+                    dOverPer = po-ordl.over-pct
+                    dPoQty = po-ordl.ord-qty  . 
+                    dConsumQty =  dPoQty +  (dPoQty  * ( dOverPer / 100) ) .
+                {rm/pol-dims.i}
+            END.
+            ELSE 
+            DO:
+                ASSIGN 
+                    lv-qty-uom  = rm-rctd.pur-uom
+                    lv-cost-uom = rm-rctd.cost-uom.
+                FIND FIRST job WHERE job.company EQ cocode
+                    AND job.job-no  EQ rm-rctd.job-no
+                    AND job.job-no2 EQ rm-rctd.job-no2
+                    NO-LOCK NO-ERROR.
+                IF AVAILABLE job THEN 
+                DO :
+                    FIND FIRST job-mat WHERE job-mat.company  EQ cocode
+                        AND job-mat.job      EQ job.job
+                        AND job-mat.i-no     EQ rm-rctd.i-no
+                        AND job-mat.frm      EQ rm-rctd.s-num
+                        AND job-mat.blank-no EQ rm-rctd.b-num
+                        NO-LOCK NO-ERROR.
+                    IF AVAILABLE job-mat THEN ASSIGN v-len       = job-mat.len
+                            v-wid       = job-mat.wid
+                            v-bwt       = job-mat.basis-w
+                            lv-out-cost = job-mat.std-cost
+                            lv-cost-uom = job-mat.sc-uom.
+                END.
+                IF v-len EQ 0 THEN v-len = IF AVAILABLE item THEN item.s-len ELSE 0.
+                IF v-wid EQ 0 THEN v-wid = IF AVAILABLE item AND item.r-wid NE 0 THEN item.r-wid ELSE IF AVAILABLE item THEN item.s-wid ELSE 0.
+                IF v-bwt EQ 0 THEN v-bwt = IF AVAILABLE item THEN item.basis-w ELSE 0.    
+            END.
+  
+            /* convert qty    pr-qty-uom or po-ordl.pr-uom cons-uom*/
+            /* run rm/convquom.p(rm-rctd.pur-uom,
+                               po-ordl.cons-uom,
+                                    v-bwt,
+                                    v-len,
+                                    input v-wid,
+                                    input v-dep,
+                                    input rm-rctd.qty,
+                                    output lv-out-qty).
+             
+             /* convert cost pr-uom*/
+             run rm/convcuom.p(rm-rctd.cost-uom, po-ordl.cons-uom,
+                               v-bwt, v-len, v-wid, v-dep,
+                                          rm-rctd.cost, output lv-out-cost).
+             */
+            /*SYS/REF/ */
+            IF rm-rctd.pur-uom EQ lv-qty-uom THEN
+                lv-out-qty = rm-rctd.qty.
+            ELSE
+                RUN custom/convquom.p (cocode,
+                    rm-rctd.pur-uom,
+                    lv-qty-uom,
+                    v-bwt,
+                    v-len,
+                    INPUT v-wid,
+                    INPUT v-dep,
+                    INPUT rm-rctd.qty,
+                    OUTPUT lv-out-qty).
+
+           /* convert cost pr-uom*/
+                /*sys/ref/convcuom.p*/
+                IF rm-rctd.cost-uom EQ "L" THEN
+                    lv-out-cost = rm-rctd.cost / lv-out-qty.
+                ELSE
+                    IF rm-rctd.cost-uom EQ lv-cost-uom THEN
+                        lv-out-cost = rm-rctd.cost.
+                    ELSE
+                        RUN custom/convcuom.p (cocode,
+                            rm-rctd.cost-uom, lv-cost-uom,                    
+                            v-bwt, v-len, v-wid, v-dep,
+                            rm-rctd.cost, OUTPUT lv-out-cost).
+    
+                IF lv-out-qty  EQ ? THEN lv-out-qty  = 0.
+                IF lv-out-cost EQ ? THEN lv-out-cost = 0.
+               
+                 IF lRMOverrunCost AND NOT AVAIL po-ordl THEN
+                    dConsumQty = lv-out-qty . 
+
+                 IF ll-add-setup AND lv-out-qty NE 0 THEN
+                           lv-out-cost = lv-out-cost + (lv-setup / lv-out-qty).
+           
+                IF lRMOverrunCost THEN do:
+                   IF lv-out-qty GT dConsumQty   THEN DO:
+                       ext-cost = ROUND(dConsumQty * lv-out-cost,2).
+                   END.
+                   ELSE DO:
+                    ext-cost = ROUND(lv-out-qty * lv-out-cost,2).
+                   END.
+                END.
+                ELSE do:
+                     ext-cost = ROUND(lv-out-qty * lv-out-cost,2).
+                END.   
+        END.
+
+        ELSE
+            IF NOT ip-first-disp                                        AND
+                rm-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name} <> "" THEN 
+            DO: /* in update mode - use screen-value */
+                FIND item  WHERE item.company EQ cocode
+                    AND item.i-no  EQ rm-rctd.i-no:screen-value IN BROWSE {&browse-name}
+                    USE-INDEX i-no NO-ERROR.
+                IF NOT AVAILABLE item THEN LEAVE.
+
+                IF item.cons-uom EQ "" THEN item.cons-uom = rm-rctd.pur-uom:SCREEN-VALUE IN BROWSE {&browse-name}.
+
+                FIND CURRENT ITEM NO-LOCK.
+
+                ASSIGN
+                    lv-qty-uom  = item.cons-uom
+                    lv-cost-uom = item.cons-uom
+                    v-dep       = item.s-dep.
+
+                FIND FIRST po-ordl WHERE po-ordl.company = rm-rctd.company
+                    AND po-ordl.po-no = integer(rm-rctd.po-no:screen-value IN BROWSE {&browse-name})
+                    AND po-ordl.i-no  = rm-rctd.i-no:screen-value
+                    AND po-ordl.job-no = (rm-rctd.job-no:screen-value)
+                    AND po-ordl.job-no2 = integer(rm-rctd.job-no2:screen-value)
+                    AND po-ordl.item-type = YES
+                    AND po-ordl.s-num = integer(rm-rctd.s-num:screen-value)
+                    AND po-ordl.b-num = integer(rm-rctd.b-num:screen-value)
+                    NO-LOCK NO-ERROR.
+  
+                IF AVAILABLE po-ordl THEN 
+                DO:
+                    ASSIGN  
+                        v-len     = po-ordl.s-len
+                        v-wid     = po-ordl.s-wid
+                        v-bwt     = 0
+
+                        /* gdm - 07210901 */
+                        v-po-cost = po-ordl.cost
+                        v-po-cuom = po-ordl.pr-uom
+                        dOverPer = po-ordl.over-pct
+                        dPoQty = po-ordl.ord-qty .
+                        dConsumQty =  dPoQty +  (dPoQty  * ( dOverPer / 100) ) .
+
+                    {rm/pol-dims.i}
+                END.
+                ELSE 
+                DO:
+                    ASSIGN 
+                        lv-qty-uom  = item.cons-uom
+                        lv-cost-uom = ITEM.cons-uom .
+                    FIND FIRST job WHERE job.company EQ cocode
+                        AND job.job-no  EQ rm-rctd.job-no:screen-value
+                        AND job.job-no2 EQ integer(rm-rctd.job-no2:screen-value)
+                        NO-LOCK NO-ERROR.
+                    IF AVAILABLE job THEN 
+                    DO :
+                        FIND FIRST job-mat WHERE job-mat.company  EQ cocode
+                            AND job-mat.job      EQ job.job
+                            AND job-mat.i-no     EQ rm-rctd.i-no:screen-value
+                            AND job-mat.frm      EQ integer(rm-rctd.s-num:screen-value)
+                            AND job-mat.blank-no EQ integer(rm-rctd.b-num:screen-value)
+                            NO-LOCK NO-ERROR.
+                        IF AVAILABLE job-mat THEN ASSIGN v-len       = job-mat.len
+                                v-wid       = job-mat.wid
+                                v-bwt       = job-mat.basis-w
+                                lv-out-cost = job-mat.std-cost
+                                lv-cost-uom = job-mat.sc-uom.
+                    END.
+                    IF v-len EQ 0 THEN v-len = IF AVAILABLE item THEN item.s-len ELSE 0.
+                    IF v-wid EQ 0 THEN v-wid = IF AVAILABLE item AND item.r-wid NE 0 THEN item.r-wid ELSE IF AVAILABLE item THEN item.s-wid ELSE 0.
+                    IF v-bwt EQ 0 THEN v-bwt = IF AVAILABLE item THEN item.basis-w ELSE 0.
+
+                    /* gdm - 07210901 */
+                    ASSIGN  
+                        v-po-cost = lv-out-cost 
+                        v-po-cuom = lv-cost-uom .
+                END.
+    
+                /* convert qty */
+
+                IF rm-rctd.pur-uom:screen-value IN BROWSE {&browse-name} EQ lv-qty-uom THEN
+                    lv-out-qty = DEC(rm-rctd.qty:screen-value IN BROWSE {&browse-name}).
+                ELSE
+                    /*IF ITEM.mat-type <> "P" THEN*/
+                    RUN custom/convquom.p (cocode,
+                        rm-rctd.pur-uom:screen-value IN BROWSE {&browse-name} ,
+                        lv-qty-uom,
+                        v-bwt,
+                        v-len,
+                        INPUT v-wid,
+                        INPUT v-dep,
+                        DEC(rm-rctd.qty:screen-value IN BROWSE {&browse-name}),
+                        OUTPUT lv-out-qty).
+                /*ELSE
+                  run custom/convquom.p (cocode,
+                                         item.cons-uom ,
+                                         lv-qty-uom,
+                                         v-bwt,
+                                         v-len,
+                                         input v-wid,
+                                         input v-dep,
+                                         DEC(rm-rctd.qty:screen-value in browse {&browse-name}),
+                                         output lv-out-qty).*/
+                 
+                /* convert cost */
+                IF rm-rctd.cost-uom:SCREEN-VALUE IN BROWSE {&browse-name} EQ "L" THEN
+                    lv-out-cost = DEC(rm-rctd.cost:SCREEN-VALUE IN BROWSE {&browse-name}) / lv-out-qty .
+                ELSE
+                    /* gdm - 07210901 */
+                    IF v-po-cuom EQ "L" THEN
+                        lv-out-cost = DEC(v-po-cost) / lv-out-qty .
+                    ELSE
+                        IF rm-rctd.cost-uom:SCREEN-VALUE IN BROWSE {&browse-name} EQ lv-cost-uom THEN
+                            lv-out-cost = DEC(rm-rctd.cost:SCREEN-VALUE IN BROWSE {&browse-name}).
+                        ELSE
+                            RUN custom/convcuom.p (cocode,
+                                rm-rctd.cost-uom:screen-value IN BROWSE {&browse-name},
+                                lv-cost-uom,
+                                v-bwt, v-len, v-wid, v-dep,
+                                dec(rm-rctd.cost:screen-value IN BROWSE {&browse-name}),
+                                OUTPUT lv-out-cost).
+ 
+                /*
+                /*add in setup charge*/
+                IF lv-setup NE 0 AND lv-out-qty NE 0 AND
+                  ((TRIM(rm-rctd.cost-uom:SCREEN-VALUE IN BROWSE {&browse-name}) NE
+                  TRIM(rm-rctd.cost-uom)) OR
+                  (DEC(rm-rctd.cost:SCREEN-VALUE IN BROWSE {&browse-name}) NE rm-rctd.cost)) THEN DO:
+              
+                  lv-out-cost = lv-out-cost + (lv-setup / lv-out-qty).
+                END. */
+
+                IF lv-out-qty  EQ ? THEN lv-out-qty  = 0.
+                IF lv-out-cost EQ ? THEN lv-out-cost = 0.
+
+                IF lRMOverrunCost AND NOT AVAIL po-ordl THEN
+                    dConsumQty = lv-out-qty .
+        
+                 IF ll-add-setup AND lv-out-qty NE 0 THEN
+                           lv-out-cost = lv-out-cost + (lv-setup / lv-out-qty).
+               
+                
+                IF lRMOverrunCost THEN do:
+                   IF lv-out-qty GT dConsumQty   THEN DO:
+                      
+                       ext-cost = ROUND(dConsumQty * lv-out-cost,2).
+                   END.
+                   ELSE DO:
+                    ext-cost = ROUND(lv-out-qty * lv-out-cost,2).
+                   END.
+                END.
+                ELSE do:
+                     ext-cost = ROUND(lv-out-qty * lv-out-cost,2).
+                END.   
+
+                ASSIGN
+                    rm-rctd.cost:SCREEN-VALUE     = STRING(lv-out-cost)
+                    rm-rctd.cost-uom:SCREEN-VALUE = lv-cost-uom
+                    rm-rctd.qty:SCREEN-VALUE      = STRING(lv-out-qty)
+                    rm-rctd.pur-uom:SCREEN-VALUE  = lv-qty-uom
+                    lv-msf                        = display-msf-screen()
+                    lv-adder                      = display-adder-screen().
+
+                DISPLAY ext-cost lv-setup lv-msf lv-adder WITH BROWSE {&browse-name}.
+            END.
+
+    IF ll-add-setup THEN
+        ASSIGN
+            ll-add-setup   = NO
+            lv-save-fld[1] = rm-rctd.cost:SCREEN-VALUE
+            lv-save-fld[2] = rm-rctd.cost-uom:SCREEN-VALUE.
+
+/* ======================================================================= */
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE get-remain-qty B-table-Win 
+PROCEDURE get-remain-qty :
+/*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ip-rowid AS ROWID NO-UNDO.
+    DEFINE OUTPUT PARAMETER op-remain-qty AS DECIMAL NO-UNDO.
+
+    DEFINE VARIABLE lv-rowid AS ROWID NO-UNDO.
+
+
+    FIND po-ordl WHERE ROWID(po-ordl) EQ ip-rowid NO-LOCK NO-ERROR.
+
+    IF AVAILABLE po-ordl THEN 
+    DO:
+        FIND FIRST item
+            WHERE item.company EQ po-ordl.company
+            AND item.i-no    EQ po-ordl.i-no
+            NO-LOCK NO-ERROR.
+
+        op-remain-qty = po-ordl.cons-qty.
+
+        RUN windows/l-poitmw.w (NO, po-ordl.company, STRING(po-ordl.po-no),
+            YES, "", ROWID(rm-rctd), OUTPUT lv-rowid).
+
+        FIND FIRST tt-report WHERE tt-report.rec-id EQ RECID(po-ordl) NO-ERROR.
+
+        IF AVAILABLE tt-report THEN op-remain-qty = DEC(tt-report.key-01).
+
+        IF AVAILABLE ITEM                                                                AND
+            po-ordl.cons-uom NE rm-rctd.pur-uom:SCREEN-VALUE IN BROWSE {&browse-name} THEN
+            RUN custom/convquom.p (cocode,
+                po-ordl.cons-uom,
+                rm-rctd.pur-uom:SCREEN-VALUE IN BROWSE {&browse-name},
+                item.basis-w, po-ordl.s-len, po-ordl.s-wid, item.s-dep,
+                op-remain-qty, OUTPUT op-remain-qty).
+    END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-assign-record B-table-Win 
+PROCEDURE local-assign-record :
+/*------------------------------------------------------------------------------
+      Purpose:     Override standard ADM method
+      Notes:       
+    ------------------------------------------------------------------------------*/
+
+    /* Code placed here will execute PRIOR to standard behavior. */
+    ASSIGN
+        v-copy-mode       = NO
+        v-copy-mode-dec-1 = NO.
+
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-record':U ) .
+
+/* Code placed here will execute AFTER standard behavior.    */
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-cancel-record B-table-Win 
+PROCEDURE local-cancel-record :
+/*------------------------------------------------------------------------------
+      Purpose:     Override standard ADM method
+      Notes:       
+    ------------------------------------------------------------------------------*/
+
+    /* Code placed here will execute PRIOR to standard behavior. */
+
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'cancel-record':U ) .
+
+    /* Code placed here will execute AFTER standard behavior.    */
+    ASSIGN
+        v-copy-mode       = NO
+        v-copy-mode-dec-1 = NO
+        v-new-mode        = NO.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-copy-record B-table-Win 
+PROCEDURE local-copy-record :
+/*------------------------------------------------------------------------------
+      Purpose:     Override standard ADM method
+      Notes:       
+    ------------------------------------------------------------------------------*/
+
+    /* Code placed here will execute PRIOR to standard behavior. */
+
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'copy-record':U ) .
+
+    /* Code placed here will execute AFTER standard behavior.    */
+    ASSIGN
+        v-copy-mode = YES
+        v-new-mode  = YES.
+
+    IF rmrecpt-dec = 1 THEN
+        v-copy-mode-dec-1 = YES.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-create-record B-table-Win 
+PROCEDURE local-create-record :
+/*------------------------------------------------------------------------------
+      Purpose:     Override standard ADM method
+      Notes:       
+    ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE lv-rno LIKE fg-rctd.r-no NO-UNDO.
+    DEFINE BUFFER b-rm-rctd FOR rm-rctd.
+ 
+    /* Code placed here will execute PRIOR to standard behavior. */
+  
+    FIND LAST b-rm-rctd USE-INDEX rm-rctd NO-LOCK NO-ERROR.
+
+    IF AVAILABLE b-rm-rctd AND b-rm-rctd.r-no GT lv-rno THEN lv-rno = b-rm-rctd.r-no.
+
+    FIND LAST rm-rcpth USE-INDEX r-no NO-LOCK NO-ERROR.
+    IF AVAILABLE rm-rcpth AND rm-rcpth.r-no GT lv-rno THEN lv-rno = rm-rcpth.r-no.
+
+
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'create-record':U ) .
+
+    /* Code placed here will execute AFTER standard behavior.    */
+
+    RUN sys/ref/asiseq.p (INPUT g_company, INPUT "rm_rcpt_seq", OUTPUT lv-rno) NO-ERROR.
+    IF ERROR-STATUS:ERROR THEN
+        MESSAGE "Could not obtain next sequence #, please contact ASI: " RETURN-VALUE
+            VIEW-AS ALERT-BOX INFORMATION BUTTONS OK.
+
+    FIND FIRST tt-rm-rctd NO-ERROR.
+
+    IF AVAILABLE tt-rm-rctd THEN 
+    DO:
+        BUFFER-COPY tt-rm-rctd EXCEPT rec_key TO rm-rctd.
+        tt-rm-rctd.tt-rowid = ROWID(rm-rctd).
+    END.
+
+    ASSIGN
+        v-new-mode        = YES
+        rm-rctd.company   = cocode
+        rm-rctd.r-no      = lv-rno
+        rm-rctd.rita-code = "R".
+
+    IF adm-adding-record THEN 
+    DO:
+        ASSIGN
+           /* rm-rctd.loc                                         = gloc*/
+            rm-rctd.s-num                                       = 0
+            rm-rctd.s-num:screen-value IN BROWSE {&browse-name} = "0"
+            rm-rctd.b-num                                       = 0
+            rm-rctd.b-num:screen-value IN BROWSE {&browse-name} = "0"  
+            .
+
+        /*FIND FIRST sys-ctrl WHERE sys-ctrl.company EQ gcompany
+                              AND sys-ctrl.name    EQ "RMWHSBIN" NO-LOCK NO-ERROR.
+     
+        IF NOT AVAIL sys-ctrl THEN DO:
+         CREATE sys-ctrl.
+         ASSIGN
+          sys-ctrl.company  = gcompany
+          sys-ctrl.name     = "RMWHSBIN"
+          sys-ctrl.descrip  = "Default Location for RM Warehouse / Bin?"
+          sys-ctrl.char-fld = "RMITEM".
+        END.*/
+
+  IF v-bin NE "user entered" THEN
+    ASSIGN
+        rm-rctd.loc-bin = SUBSTR(v-bin,6)
+        rm-rctd.loc = SUBSTR(v-bin,1,5).
+    
+        FIND FIRST b-rm-rctd WHERE b-rm-rctd.company = cocode
+            AND b-rm-rctd.rita-code = "R"
+            AND recid(b-rm-rctd) <> RECID(rm-rctd) NO-LOCK NO-ERROR.
+        IF AVAILABLE b-rm-rctd AND rm-rctd.rct-date EQ ? THEN rm-rctd.rct-date = b-rm-rctd.rct-date.
+        IF rm-rctd.rct-date EQ ? THEN
+            rm-rctd.rct-date     = TODAY .
+
+        DISPLAY rm-rctd.rct-date rm-rctd.loc-bin WITH BROWSE {&browse-name}.
+    END.
+
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-delete-record B-table-Win 
+PROCEDURE local-delete-record :
+/*------------------------------------------------------------------------------
+      Purpose:     Override standard ADM method
+      Notes:       
+    ------------------------------------------------------------------------------*/
+
+    /* Code placed here will execute PRIOR to standard behavior. */
+  
+    ASSIGN
+        v-copy-mode       = NO
+        v-copy-mode-dec-1 = NO
+        v-new-mode        = NO.
+
+    /* WFK - don't know why rm-rctd is not available here, but it isn't */
+    IF NOT AVAILABLE rm-rctd THEN
+        FIND FIRST rm-rctd WHERE rm-rctd.r-no EQ
+            INTEGER(rm-rctd.r-no:SCREEN-VALUE IN BROWSE {&browse-name})
+            EXCLUSIVE-LOCK NO-ERROR.
+ 
+    IF NOT adm-new-record THEN 
+    DO:
+        {custom/askdel.i}
+    END.
+
+    RUN delete-tt.
+
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'delete-record':U ) .
+
+/* Code placed here will execute AFTER standard behavior.    */
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-disable-fields B-table-Win 
+PROCEDURE local-disable-fields :
+/*------------------------------------------------------------------------------
+      Purpose:     Override standard ADM method
+      Notes:       
+    ------------------------------------------------------------------------------*/
+
+    /* Code placed here will execute PRIOR to standard behavior. */
+
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'disable-fields':U ) .
+
+    /* Code placed here will execute AFTER standard behavior.    */
+    IF VALID-HANDLE(hd-post-child) THEN  hd-post-child:SENSITIVE = YES.
+/* value assigned from local-enable-fields*/
+  
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-enable-fields B-table-Win 
+PROCEDURE local-enable-fields :
+/*------------------------------------------------------------------------------
+      Purpose:     Override standard ADM method
+      Notes:       
+    ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE out-hd-lst AS cha           NO-UNDO.
+    DEFINE VARIABLE li         AS INTEGER       NO-UNDO.
+    DEFINE VARIABLE hd-next    AS WIDGET-HANDLE NO-UNDO.
+
+
+    /* Code placed here will execute PRIOR to standard behavior. */
+    RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"record-target", OUTPUT out-hd-lst).
+    hd-post = WIDGET-HANDLE(out-hd-lst).  /* procedure */
+    IF VALID-HANDLE(WIDGET-HANDLE(out-hd-lst)) THEN 
+    DO:
+        hd-post-child = hd-post:CURRENT-WINDOW.    
+        /*  
+         do while valid-handle(hd-post-child):
+            ii = ii + 1.
+            hd-post-child = hd-post-child:first-child.  /* frame */
+           /* if hd-post-child:type = "field-group" 
+               then hd-next = hd-post-child:next-sibling.
+           */
+           message ii valid-handle(hd-post-child) hd-post-child:name hd-post-child:type.   
+         end. 
+        */ 
+        hd-post-child = hd-post-child:FIRST-CHILD.  /* frame */
+        hd-post-child = hd-post-child:FIRST-CHILD. /* field-group */
+        hd-post-child = hd-post-child:FIRST-CHILD.  /* field */
+        /*   message valid-handle(hd-post-child) hd-post-child:name hd-post-child:type.
+        */
+        hd-post-child:SENSITIVE = NO.
+    END.
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'enable-fields':U ) .
+
+    /* Code placed here will execute AFTER standard behavior.    */
+    DO WITH FRAME {&FRAME-NAME}:
+        {&BROWSE-NAME}:READ-ONLY = NO.
+
+        APPLY "entry" TO rm-rctd.rct-date IN BROWSE {&browse-name}.
+
+        DO li = 1 TO {&BROWSE-NAME}:NUM-COLUMNS:
+            APPLY 'cursor-left' TO {&BROWSE-NAME}.
+        END.
+    END.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-open-query B-table-Win 
+PROCEDURE local-open-query :
+/*------------------------------------------------------------------------------
+      Purpose:     Override standard ADM method
+      Notes:       
+    ------------------------------------------------------------------------------*/
+
+    /* Code placed here will execute PRIOR to standard behavior. */
+
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'open-query':U ) .
+
+/* Code placed here will execute AFTER standard behavior.    */
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-update-record B-table-Win 
+PROCEDURE local-update-record :
+/*------------------------------------------------------------------------------
+      Purpose:     Override standard ADM method
+      Notes:       
+    ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE li AS INTEGER NO-UNDO.
+    
+
+    /* Code placed here will execute PRIOR to standard behavior. */
+    RUN valid-all NO-ERROR.
+    IF ERROR-STATUS:ERROR THEN RETURN ERROR.
+
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
+
+    /* Code placed here will execute AFTER standard behavior.    */
+
+    /* create a negative receipt for NON INVENTORY items item.inv-by-cust = yes */
+    FIND CURRENT ITEM NO-LOCK NO-ERROR.
+    IF AVAILABLE ITEM AND ITEM.inv-by-cust AND v-new-mode THEN 
+    DO:
+        RUN create-neg-rctd (INPUT RECID(rm-rctd)).                       
+        ASSIGN 
+            v-new-mode = NO.
+    END.
+
+    RUN delete-tt.
+
+    RUN repo-query (ROWID(rm-rctd)).
+
+    DO WITH FRAME {&FRAME-NAME}:
+        DO li = 1 TO {&BROWSE-NAME}:NUM-COLUMNS:
+            APPLY 'cursor-left' TO {&BROWSE-NAME}.
+        END.
+    END.
+
+    IF rmrecpt-dec = 1 THEN
+    DO:
+        CASE browse-order:
+
+            WHEN 1 THEN
+                FOR EACH b-rm-rctd WHERE
+                    b-rm-rctd.company EQ cocode AND
+                    b-rm-rctd.rita-code = "R"
+                    NO-LOCK
+                    BY b-rm-rctd.r-no DESCENDING:
+               
+                    RUN repo-query(ROWID(b-rm-rctd)) NO-ERROR.
+                    LEAVE.
+                END.
+            WHEN 2 THEN
+                FOR EACH b-rm-rctd WHERE
+                    b-rm-rctd.company EQ cocode AND
+                    b-rm-rctd.rita-code = "R"
+                    NO-LOCK
+                    BY b-rm-rctd.tag DESCENDING
+                    BY b-rm-rctd.r-no DESCENDING:
+
+                    RUN repo-query(ROWID(b-rm-rctd)) NO-ERROR.
+                    LEAVE.
+                END.
+            WHEN 3 THEN
+                FOR EACH b-rm-rctd WHERE
+                    b-rm-rctd.company EQ cocode AND
+                    b-rm-rctd.rita-code = "R"
+                    NO-LOCK
+                    BY b-rm-rctd.rct-date DESCENDING
+                    BY b-rm-rctd.r-no DESCENDING:
+
+                    RUN repo-query(ROWID(b-rm-rctd)) NO-ERROR.
+                    LEAVE.
+                END.
+            WHEN 4 THEN
+                FOR EACH b-rm-rctd WHERE
+                    b-rm-rctd.company EQ cocode AND
+                    b-rm-rctd.rita-code = "R"
+                    NO-LOCK
+                    BY b-rm-rctd.po-no DESCENDING 
+                    BY b-rm-rctd.r-no DESCENDING:
+
+                    RUN repo-query(ROWID(b-rm-rctd)) NO-ERROR.
+                    LEAVE.
+                END.
+            WHEN 5 THEN
+                FOR EACH b-rm-rctd WHERE
+                    b-rm-rctd.company EQ cocode AND
+                    b-rm-rctd.rita-code = "R"
+                    NO-LOCK
+                    BY b-rm-rctd.i-no DESCENDING
+                    BY b-rm-rctd.r-no DESCENDING:
+
+                    RUN repo-query(ROWID(b-rm-rctd)) NO-ERROR.
+                    LEAVE.
+                END.
+            WHEN 6 THEN
+                FOR EACH b-rm-rctd WHERE
+                    b-rm-rctd.company EQ cocode AND
+                    b-rm-rctd.rita-code = "R"
+                    NO-LOCK
+                    BY b-rm-rctd.loc DESCENDING
+                    BY b-rm-rctd.r-no DESCENDING:
+
+                    RUN repo-query(ROWID(b-rm-rctd)) NO-ERROR.
+                    LEAVE.
+                END.
+        END CASE.
+    END.
+
+    RUN auto-add-tt.
+    
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetTagSequence B-table-Win 
+PROCEDURE pGetTagSequence :
+/*------------------------------------------------------------------------------
+     Purpose: Returns the next available tag sequence for a given PO
+     Notes: This is logic for N-K TAG# Logical Value = Yes
+     Usage: RUN pGetTagSequence(cocode, po-ordl.po-no, rm-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name})
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiPoNo LIKE po-ordl.po-no NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcSequence AS CHARACTER NO-UNDO.
+
+    DEFINE BUFFER bf-rm-rctd FOR rm-rctd.
+    DEFINE VARIABLE cLocation AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iSeq      AS INTEGER   NO-UNDO.
+    
+    ASSIGN
+        iSeq      = 0
+        cLocation = "".
+
+    DO WHILE TRUE:
+        FIND FIRST bf-rm-rctd
+            WHERE bf-rm-rctd.company EQ ipcCompany
+            AND bf-rm-rctd.loc     GT cLocation
+            NO-LOCK NO-ERROR.
+
+        IF AVAILABLE bf-rm-rctd THEN 
+        DO:
+            cLocation = bf-rm-rctd.loc.
+
+            FOR EACH bf-rm-rctd
+                WHERE bf-rm-rctd.company EQ ipcCompany
+                AND bf-rm-rctd.loc     EQ cLocation
+                AND bf-rm-rctd.tag     BEGINS STRING(ipiPoNo,"999999")
+                USE-INDEX tag NO-LOCK
+                BY bf-rm-rctd.tag DESCENDING:
+
+                IF INT(SUBSTR(bf-rm-rctd.tag,7,2)) GT iSeq THEN
+                    iSeq = INT(SUBSTR(bf-rm-rctd.tag,7,2)).
+                LEAVE.
+            END.
+        END.
+
+        ELSE LEAVE. /*no more locations*/
+    END.
+
+    IF iSeq GT 0 THEN 
+    DO:
+        FIND LAST rm-rdtlh NO-LOCK
+            WHERE rm-rdtlh.company EQ ipcCompany
+            AND rm-rdtlh.tag     BEGINS STRING(ipiPoNo,"999999")
+            AND INT(SUBSTR(rm-rdtlh.tag,7,2)) GT iSeq
+            USE-INDEX tag NO-ERROR.
+        IF AVAILABLE rm-rdtlh THEN 
+            iSeq = INT(SUBSTR(rm-rdtlh.tag,7,2)).
+    END.
+
+    ASSIGN
+        iSeq        = iSeq + 1
+        opcSequence = STRING(ipiPoNo,"999999") + STRING(iSeq,"99").
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE po-cost B-table-Win 
+PROCEDURE po-cost :
+/*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+     ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE lv-cost    AS DECIMAL DECIMALS 10 NO-UNDO.
+    DEFINE VARIABLE v-len      LIKE po-ordl.s-len NO-UNDO.
+    DEFINE VARIABLE v-wid      LIKE po-ordl.s-len NO-UNDO.
+    DEFINE VARIABLE v-dep      LIKE po-ordl.s-len NO-UNDO. 
+    DEFINE VARIABLE v-bwt      LIKE po-ordl.s-len NO-UNDO.
+    DEFINE VARIABLE lv-out-qty LIKE rm-rctd.qty NO-UNDO.
+    DEFINE VARIABLE lv-qty-uom LIKE rm-rctd.pur-uom NO-UNDO.
+
+    IF AVAILABLE po-ordl THEN 
+    DO WITH FRAME {&FRAME-NAME}:
+        IF po-ordl.i-no NE rm-rctd.i-no:screen-value IN BROWSE {&browse-name} THEN
+            RUN find-exact-po.
+        IF NOT AVAILABLE po-ordl THEN
+            LEAVE.
+      
+        FIND FIRST ITEM WHERE
+            item.company EQ cocode AND
+            item.i-no EQ rm-rctd.i-no:screen-value IN BROWSE {&browse-name}
+            USE-INDEX i-no
+            NO-LOCK NO-ERROR.
+
+        IF NOT AVAILABLE item THEN
+            LEAVE.
+
+        ASSIGN
+            lv-qty-uom = po-ordl.pr-qty-uom
+            v-len      = po-ordl.s-len
+            v-wid      = po-ordl.s-wid
+            v-bwt      = 0.
+
+        {rm/pol-dims.i}
+
+        IF rm-rctd.pur-uom:screen-value IN BROWSE {&browse-name} EQ lv-qty-uom THEN
+            lv-out-qty = DEC(rm-rctd.qty:screen-value IN BROWSE {&browse-name}).
+        ELSE
+            RUN custom/convquom.p (INPUT cocode,
+                INPUT rm-rctd.pur-uom:screen-value IN BROWSE {&browse-name},
+                INPUT lv-qty-uom,
+                INPUT v-bwt,
+                INPUT v-len,
+                INPUT v-wid,
+                INPUT v-dep,
+                INPUT DEC(rm-rctd.qty:screen-value IN BROWSE {&browse-name}),
+                OUTPUT lv-out-qty).
+
+        /*have to take into account receipt quantity when dividing setup into
+          p.o. cost*/
+
+        FIND FIRST po-ord WHERE
+            po-ord.company EQ cocode AND
+            po-ord.po-no EQ po-ordl.po-no
+            NO-LOCK NO-ERROR.
+
+        ll-add-setup = NO.
+
+        IF lv-out-qty LT po-ordl.ord-qty THEN
+            lv-cost = po-ordl.cost +
+                (po-ordl.setup /
+                ((po-ordl.t-cost - po-ordl.setup) / po-ordl.cost)).
+        ELSE
+            ASSIGN
+                lv-cost      = po-ordl.cost
+                ll-add-setup = IF AVAILABLE po-ord AND po-ord.type NE "S" THEN YES
+                         ELSE NO.
+
+        rm-rctd.cost-uom:SCREEN-VALUE IN BROWSE {&browse-name} = po-ordl.pr-uom.
+
+        RUN rm/getpocst.p (BUFFER po-ordl,
+            rm-rctd.cost-uom:SCREEN-VALUE IN BROWSE {&browse-name},
+            INPUT-OUTPUT lv-cost).
+
+        RUN convert-vend-comp-curr(INPUT-OUTPUT lv-cost).
+
+        rm-rctd.cost:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(lv-cost).
+    END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE repo-query B-table-Win 
+PROCEDURE repo-query :
+/*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ip-rowid AS ROWID NO-UNDO.
+
+    DO WITH FRAME {&FRAME-NAME}:    
+        RUN clear_auto_find.
+        RUN change-order (browse-order:SCREEN-VALUE).
+        REPOSITION {&browse-name} TO ROWID ip-rowid NO-ERROR.
+        RUN dispatch ("row-changed").
+    END.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE send-records B-table-Win  _ADM-SEND-RECORDS
+PROCEDURE send-records :
+/*------------------------------------------------------------------------------
+  Purpose:     Send record ROWID's for all tables used by
+               this file.
+  Parameters:  see template/snd-head.i
+------------------------------------------------------------------------------*/
+
+  /* Define variables needed by this internal procedure.               */
+  {src/adm/template/snd-head.i}
+
+  /* For each requested table, put it's ROWID in the output list.      */
+  {src/adm/template/snd-list.i "rm-rctd"}
+
+  /* Deal with any unexpected table requests before closing.           */
+  {src/adm/template/snd-end.i}
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE state-changed B-table-Win 
+PROCEDURE state-changed :
+/* -----------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    -------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER p-issuer-hdl AS HANDLE    NO-UNDO.
+    DEFINE INPUT PARAMETER p-state      AS CHARACTER NO-UNDO.
+
+    CASE p-state:
+        /* Object instance CASEs can go here to replace standard behavior
+           or add new cases. */
+        {src/adm/template/bstates.i}
+    END CASE.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE tag-method B-table-Win 
+PROCEDURE tag-method :
+/*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER op-tag# AS LOG NO-UNDO.
+  
+    {rm/tag#.i}
+    op-tag# = v-tag#.
+  
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE tag-sequence B-table-Win 
+PROCEDURE tag-sequence :
+/*------------------------------------------------------------------------------
+      Purpose:
+      Parameters:  <none>
+      Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE v-tag-seq AS INTEGER NO-UNDO.
+    DEFINE VARIABLE v-locode  AS cha     NO-UNDO.
+    DEFINE BUFFER xrm-rctd FOR rm-rctd.
+
+    ASSIGN
+        v-tag-seq = 0
+        v-locode  = "".
+
+    DO WHILE TRUE:
+        FIND FIRST xrm-rctd
+            WHERE xrm-rctd.company EQ rm-rctd.company
+            AND xrm-rctd.loc     GT v-locode
+            NO-LOCK NO-ERROR.
+
+        IF AVAILABLE xrm-rctd THEN
+        DO:
+            v-locode = xrm-rctd.loc.
+
+            FOR EACH xrm-rctd WHERE xrm-rctd.company EQ rm-rctd.company
+                AND xrm-rctd.loc     EQ v-locode
+                AND xrm-rctd.tag     BEGINS string(int(rm-rctd.po-no:screen-value IN BROWSE {&browse-name}),"999999")
+                USE-INDEX tag NO-LOCK
+                BY xrm-rctd.tag DESCENDING:
+
+                IF int(substr(xrm-rctd.tag,7,2)) GT v-tag-seq THEN
+                    v-tag-seq = int(substr(xrm-rctd.tag,7,2)).
+                LEAVE.
+            END.
+        END.
+
+        ELSE LEAVE.
+    END.  /* do while */
+    /* ======= may not need any more
+      v-locode = "".
+      if v-tag-seq eq 0 then do while true:
+        find first rm-rctdh where rm-rctdh.company eq rm-rcth.company
+              and rm-rctdh.loc     gt v-locode
+            no-lock no-error.
+
+        if avail rm-rctdh then do:
+          v-locode = rm-rctdh.loc.
+
+          for each rm-rctdh
+              where rm-rctdh.company eq cocode
+                and rm-rctdh.loc     eq v-locode
+                and rm-rctdh.tag     begins string(int(rm-rctd.po-no),"999999")
+              use-index tag no-lock
+              by rm-rctdh.tag desc:
+
+            if int(substr(rm-rctdh.tag,7,2)) gt v-tag-seq then
+              v-tag-seq = int(substr(rm-rctdh.tag,7,2)).
+            leave.
+          end.
+        end.
+
+        else leave.
+      end.
+    ============================== */
+    ASSIGN
+        v-tag-seq = v-tag-seq + 1
+        /* rm-rctd.tag:screen-value in browse {&browse-name}
+         = string(int(rm-rctd.po-no:screen-value in browse {&browse-name}),"999999") + string(v-tag-seq,"99").
+          */
+        .
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE update-begin B-table-Win 
+PROCEDURE update-begin :
+/*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE phandle  AS WIDGET-HANDLE NO-UNDO.
+    DEFINE VARIABLE char-hdl AS cha           NO-UNDO.   
+    RUN get-link-handle IN adm-broker-hdl
+        (THIS-PROCEDURE,'TableIO-source':U,OUTPUT char-hdl).
+    phandle = WIDGET-HANDLE(char-hdl).
+   
+    RUN new-state IN phandle ('update-begin':U).
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE update-from-po-line B-table-Win 
+PROCEDURE update-from-po-line :
+/*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE lv-ord-qty LIKE po-ordl.ord-qty NO-UNDO.
+
+
+    DO WITH FRAME {&FRAME-NAME}:
+        ASSIGN
+            rm-rctd.s-num:SCREEN-VALUE IN BROWSE {&browse-name}    = STRING(po-ordl.s-num)
+            rm-rctd.b-num:SCREEN-VALUE IN BROWSE {&browse-name}    = STRING(po-ordl.b-num)
+            rm-rctd.pur-uom:SCREEN-VALUE IN BROWSE {&browse-name}  = po-ordl.pr-qty-uom
+            rm-rctd.cost-uom:SCREEN-VALUE IN BROWSE {&browse-name} = po-ordl.pr-uom
+            lv-po-wid:SCREEN-VALUE IN BROWSE {&browse-name}        = STRING(po-ordl.s-wid)
+            lv-po-len:SCREEN-VALUE IN BROWSE {&browse-name}        = STRING(po-ordl.s-len)
+            ll-warned                                              = NO
+            lv-setup                                               = po-ordl.setup
+            lv-adder                                               = display-adder-screen().
+
+        RUN convert-vend-comp-curr(INPUT-OUTPUT lv-setup).
+
+        DISPLAY lv-setup lv-adder WITH BROWSE {&browse-name}.
+
+        RUN po-cost.
+    END.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE update-tt B-table-Win 
+PROCEDURE update-tt :
+/*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+
+    DO WITH FRAME {&frame-name}:
+        FIND FIRST tt-rm-rctd NO-ERROR.
+        IF AVAILABLE tt-rm-rctd THEN 
+        DO:
+            lv-rowid = tt-rm-rctd.po-rowid.
+            RUN display-po-info.
+        /*RUN show-bin-info.*/
+        END.
+
+        /*IF li-pos EQ 1 THEN*/
+        APPLY "entry" TO rm-rctd.qty IN BROWSE {&browse-name}.
+    /*ELSE
+      RUN dispatch ("update-record").*/
+    END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE update-ttt B-table-Win 
+PROCEDURE update-ttt :
+/*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+
+    FIND FIRST tt-rm-rctd NO-ERROR.
+
+    IF AVAILABLE tt-rm-rctd THEN 
+    DO WITH FRAME {&FRAME-NAME}:
+        ASSIGN
+            rm-rctd.po-no:SCREEN-VALUE IN BROWSE {&browse-name} = tt-rm-rctd.po-no
+            rm-rctd.i-no:SCREEN-VALUE  IN BROWSE {&browse-name} = tt-rm-rctd.i-no
+            rm-rctd.qty:SCREEN-VALUE IN BROWSE {&browse-name}   = STRING(tt-rm-rctd.qty)
+            tt-rm-rctd.tt-rowid                                 = ROWID(rm-rctd).
+    END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-all B-table-Win 
 PROCEDURE valid-all :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -3529,7 +3567,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-b-num B-table-Win 
 PROCEDURE valid-b-num :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -3585,7 +3623,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-i-no B-table-Win 
 PROCEDURE valid-i-no :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -3720,7 +3758,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-job-no B-table-Win 
 PROCEDURE valid-job-no :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -3772,7 +3810,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-job-no2 B-table-Win 
 PROCEDURE valid-job-no2 :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -3821,7 +3859,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-loc B-table-Win 
 PROCEDURE valid-loc :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -3849,7 +3887,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-loc-bin B-table-Win 
 PROCEDURE valid-loc-bin :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -3879,7 +3917,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-po-no B-table-Win 
 PROCEDURE valid-po-no :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -3943,7 +3981,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-qty B-table-Win 
 PROCEDURE valid-qty :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -3958,6 +3996,10 @@ PROCEDURE valid-qty :
             APPLY "entry" TO ip-focus.
             op-error = YES.
         END.
+
+                {rm/chkporun.i}
+                ll-qty-valid = YES.
+
     END.
   
 END PROCEDURE.
@@ -3967,7 +4009,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-s-num B-table-Win 
 PROCEDURE valid-s-num :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -4021,7 +4063,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-tag B-table-Win 
 PROCEDURE valid-tag :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -4124,7 +4166,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-uom B-table-Win 
 PROCEDURE valid-uom :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -4164,7 +4206,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE validate-item B-table-Win 
 PROCEDURE validate-item :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       

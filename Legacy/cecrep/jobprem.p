@@ -174,8 +174,8 @@ do v-local-loop = 1 to v-local-copies:
           
           {cec/rollfac.i}
           v-pqty = if v-rollfac OR xeb.est-type EQ 8 then 1 else
-                   if xeb.yld-qty lt 0 then (-1 / xeb.yld-qty)
-                                       else xeb.yld-qty.
+                   if xeb.quantityPerSet lt 0 then (-1 / xeb.quantityPerSet)
+                                       else xeb.quantityPerSet.
 
 /*         FIND first eb WHERE eb.company     EQ job-hdr.company                      */
 /*                         AND eb.est-no      eq job-hdr.est-no                       */
@@ -841,12 +841,12 @@ do v-local-loop = 1 to v-local-copies:
            FOR EACH xeb WHERE xeb.company = est.company
                            AND xeb.est-no = est.est-no
                            AND xeb.form-no > 0 NO-LOCK:
-               PUT xeb.stock-no AT 3 space(14) xeb.part-dscr1 space(5) xeb.yld-qty SKIP.
+               PUT xeb.stock-no AT 3 space(14) xeb.part-dscr1 space(5) xeb.quantityPerSet SKIP.
                /* rstark 05181205 */
                RUN XMLOutput (lXMLOutput,'JobTicketSetComponent','','Row').
                RUN XMLOutput (lXMLOutput,'FG_Number',xeb.stock-no,'Col').
                RUN XMLOutput (lXMLOutput,'FG_Description',xeb.part-dscr1,'Col').
-               RUN XMLOutput (lXMLOutput,'Ratio_Per_Set',xeb.yld-qty,'Col').
+               RUN XMLOutput (lXMLOutput,'Ratio_Per_Set',xeb.quantityPerSet,'Col').
                RUN XMLOutput (lXMLOutput,'/JobTicketSetComponent','','Row').
                /* rstark 05181205 */
                v-tmp-line = v-tmp-line + 1.

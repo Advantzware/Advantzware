@@ -811,7 +811,7 @@ PROCEDURE run-report :
 
   {sys/inc/print1.i}
   
-  {sys/inc/outprint.i value(76)}
+  {sys/inc/outprint.i value(99)}
 
   SESSION:SET-WAIT-STATE ("general").
    
@@ -871,7 +871,10 @@ PROCEDURE SetBOLForm :
             ASSIGN 
                is-xprint-form = YES
                v-program      = "oe/rep/bolmindc.p".
-        
+          WHEN "StdBOLMaster" THEN
+              ASSIGN
+               is-xprint-form = YES
+               v-program      = "oe/rep/bolmwin.p".
          OTHERWISE
             ASSIGN
                is-xprint-form = YES

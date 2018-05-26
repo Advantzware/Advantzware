@@ -57,6 +57,7 @@ DEF VAR lv-termPath AS CHAR NO-UNDO.
 DEF VAR v-fmt-int AS INT INIT 0 NO-UNDO.
 DEF VAR v-ack-master AS LOG INIT NO NO-UNDO .
 DEF VAR lv-attach-push AS cha NO-UNDO.
+DEFINE VARIABLE lAsiUser AS LOGICAL NO-UNDO .
 
 {oe/rep/acknowl.i new}
 {custom/xprint.i}
@@ -88,10 +89,17 @@ DEF BUFFER b2-oe-ord FOR oe-ord.
 
 {jcrep/r-ticket.i "new shared"}
 
-FIND FIRST users WHERE
-     users.user_id EQ USERID("NOSWEAT")
-     NO-LOCK NO-ERROR.
+DEF VAR hPgmSecurity AS HANDLE NO-UNDO.
+DEF VAR lResult AS LOG NO-UNDO.
+RUN "system/ProgramMasterSecurity.p" PERSISTENT SET hPgmSecurity.
+RUN getSecurity IN hPgmSecurity ("oerep/r-acknow.w", USERID(LDBNAME(1)), "", OUTPUT lResult).
+DELETE OBJECT hPgmSecurity.
 
+IF lResult THEN ASSIGN lAsiUser = YES .
+
+FIND FIRST users WHERE
+     users.user_id EQ USERID("ASI")
+     NO-LOCK NO-ERROR.
 IF AVAIL users AND users.user_program[2] NE "" THEN
    v-dir = users.user_program[2] + "\".
 ELSE
@@ -146,7 +154,7 @@ RS_whs-mths tb_sch-rel tb_inst tb_ship-to tb_act-rel tb_prt-revise ~
 tb_prt-bom tb_billnotes tb_terms tb_itempo TG_print-pen-notes tb_untcnt ~
 tb_print-component TG_print-due-cd tb_hide_sell tb_itm-tot tb_shpnot ~
 spec-code lv-termFile dept-code rd-dest lv-ornt lines-per-page lv-font-no ~
-sel-attch TG_eml-push-att TG_preview td-show-parm btn-ok btn-cancel 
+sel-attch TG_eml-push-att TG_preview td-show-parm run_format btn-ok btn-cancel 
 &Scoped-Define DISPLAYED-OBJECTS rd_ack-ordmst begin_ord-no end_ord-no ~
 begin_cust-no end_cust-no begin_due-date end_due-date begin_relnum ~
 end_relnum tb_reprint TG_cons_form TG_whs-mths RS_whs-mths tb_sch-rel ~
@@ -154,7 +162,7 @@ tb_inst tb_ship-to tb_act-rel tb_prt-revise tb_prt-bom tb_billnotes ~
 tb_terms tb_itempo TG_print-pen-notes tb_untcnt tb_print-component ~
 TG_print-due-cd tb_hide_sell tb_itm-tot tb_shpnot spec-code lv-termFile ~
 dept-code rd-dest lv-ornt lines-per-page lv-font-no lv-font-name sel-attch ~
-TG_eml-push-att TG_preview td-show-parm 
+TG_eml-push-att TG_preview td-show-parm run_format
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -406,6 +414,12 @@ DEFINE VARIABLE TG_whs-mths AS LOGICAL INITIAL NO
      VIEW-AS TOGGLE-BOX
      SIZE 25 BY .81 NO-UNDO.
 
+DEFINE VARIABLE run_format AS CHARACTER FORMAT "X(30)":U 
+     LABEL "Format" 
+     VIEW-AS FILL-IN /*COMBO-BOX INNER-LINES 5
+     DROP-DOWN-LIST*/
+     SIZE 25 BY 1 NO-UNDO.
+
 
 /* ************************  Frame Definitions  *********************** */
 
@@ -458,6 +472,7 @@ DEFINE FRAME FRAME-A
      TG_eml-push-att AT ROW 20.62 COL 28.6 WIDGET-ID 48
      TG_preview AT ROW 21.62 COL 28.6 WIDGET-ID 36
      td-show-parm AT ROW 22.67 COL 28.6
+     run_format AT ROW 22.67 COL 65 COLON-ALIGNED WIDGET-ID 12
      btn-ok AT ROW 24.1 COL 20
      btn-cancel AT ROW 24.1 COL 60
      "Print Options" VIEW-AS TEXT
@@ -1125,7 +1140,19 @@ END.
 ON VALUE-CHANGED OF rd_ack-ordmst IN FRAME FRAME-A
 DO:
     ASSIGN {&self-name}.
-    IF rd_ack-ordmst = "M"  THEN ASSIGN
+    IF rd_ack-ordmst = "M"  THEN do:
+        FIND FIRST sys-ctrl NO-LOCK
+                 WHERE sys-ctrl.company EQ cocode
+                 AND sys-ctrl.name    EQ "ACKMASTER"
+                 NO-ERROR.
+             IF AVAIL sys-ctrl THEN
+                 ASSIGN
+                 v-print-fmt  = sys-ctrl.char-fld
+                 v-print-head = sys-ctrl.log-fld
+                 vcDefaultForm = v-print-fmt
+                 v-fmt-int = sys-ctrl.int-fld
+                 run_format:SCREEN-VALUE = v-print-fmt . 
+        ASSIGN
     tb_reprint:SENSITIVE = NO 
     TG_cons_form:SENSITIVE = NO 
     TG_whs-mths:SENSITIVE = NO
@@ -1147,7 +1174,19 @@ DO:
     tb_itempo:SENSITIVE = NO                           
     tb_untcnt:SENSITIVE = NO 
     tb_shpnot:SENSITIVE = NO.
+    END.
     ELSE DO:  
+        FIND FIRST sys-ctrl NO-LOCK
+                 WHERE sys-ctrl.company EQ cocode
+                 AND sys-ctrl.name    EQ "ACKHEAD"
+                 NO-ERROR.
+             IF AVAIL sys-ctrl THEN
+                 ASSIGN
+                 v-print-fmt  = sys-ctrl.char-fld
+                 v-print-head = sys-ctrl.log-fld
+                 vcDefaultForm = v-print-fmt
+                 v-fmt-int = sys-ctrl.int-fld
+                 run_format:SCREEN-VALUE = v-print-fmt .
         ASSIGN
             tb_reprint:SENSITIVE = YES 
             TG_cons_form:SENSITIVE = YES 
@@ -1647,7 +1686,6 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 &Scoped-define SELF-NAME TG_whs-mths
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL TG_whs-mths C-Win
 ON VALUE-CHANGED OF TG_whs-mths IN FRAME FRAME-A /* Warehouse Months */
@@ -1658,6 +1696,47 @@ DO:
       ENABLE RS_whs-mths WITH FRAME {&FRAME-NAME}.
    ELSE 
       DISABLE RS_whs-mths WITH FRAME {&FRAME-NAME}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME run_format
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL run_format C-Win
+ON LEAVE OF run_format IN FRAME FRAME-A /* Warehouse Months */
+DO:
+   ASSIGN run_format.
+
+   IF v-print-fmt NE run_format THEN DO:
+       ASSIGN v-print-fmt =  run_format
+              vcDefaultForm = v-print-fmt.
+      RUN  RUN_format-value-changed .
+   END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME run_format
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL run_format C-Win
+ON HELP OF run_format IN FRAME FRAME-A /* Font */
+DO:
+    DEFINE VARIABLE char-val AS CHARACTER NO-UNDO .
+    IF rd_ack-ordmst:SCREEN-VALUE = "M" THEN
+        RUN windows/l-syschrL.w (gcompany,"ACKMASTER",run_format:SCREEN-VALUE,OUTPUT char-val).
+    ELSE
+        RUN windows/l-syschrL.w (gcompany,"ACKHEAD",run_format:SCREEN-VALUE,OUTPUT char-val).
+
+     IF char-val NE '' THEN
+      run_format:SCREEN-VALUE = ENTRY(1,char-val).
+
+     IF v-print-fmt NE run_format:SCREEN-VALUE THEN DO:
+       ASSIGN v-print-fmt =  run_format
+              vcDefaultForm = v-print-fmt.
+      RUN  RUN_format-value-changed .
+     END.
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1925,7 +2004,19 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
          IF AckMst-log = TRUE THEN DO:
              rd_ack-ordmst:HIDDEN IN FRAME {&FRAME-NAME} = NO.
-             IF rd_ack-ordmst:SCREEN-VALUE = "M"  THEN ASSIGN
+             IF rd_ack-ordmst:SCREEN-VALUE = "M"  THEN do:
+                 FIND FIRST sys-ctrl NO-LOCK
+                 WHERE sys-ctrl.company EQ cocode
+                 AND sys-ctrl.name    EQ "ACKMASTER"
+                 NO-ERROR.
+             IF AVAIL sys-ctrl THEN
+                 ASSIGN
+                 v-print-fmt  = sys-ctrl.char-fld
+                 v-print-head = sys-ctrl.log-fld
+                 vcDefaultForm = v-print-fmt
+                 v-fmt-int = sys-ctrl.int-fld .
+ 
+                 ASSIGN
                  tb_reprint:SENSITIVE = NO 
                  TG_cons_form:SENSITIVE = NO 
                  TG_whs-mths:SENSITIVE = NO                         
@@ -1946,7 +2037,8 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
                  tb_itempo:SENSITIVE = NO                           
                  tb_untcnt:SENSITIVE = NO  
                  tb_terms:SENSITIVE = NO 
-                 tb_shpnot:SENSITIVE = NO.                                         
+                 tb_shpnot:SENSITIVE = NO.     
+             END.
          END.
          ELSE
              rd_ack-ordmst:HIDDEN IN FRAME {&FRAME-NAME} = YES .
@@ -1958,7 +2050,14 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     RUN get-cust-attch .
 
 
+    IF NOT lAsiUser THEN
+         RUN_format:HIDDEN IN FRAME FRAME-A = YES .
+     ELSE 
+         RUN_format:SCREEN-VALUE IN FRAME FRAME-A = v-print-fmt .
+
     APPLY "entry" TO begin_ord-no.
+
+
   END.
 
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
@@ -2251,7 +2350,7 @@ PROCEDURE enable_UI :
           TG_print-pen-notes tb_untcnt tb_print-component TG_print-due-cd 
           tb_hide_sell tb_itm-tot tb_shpnot spec-code lv-termFile dept-code 
           rd-dest lv-ornt lines-per-page lv-font-no lv-font-name sel-attch 
-          TG_eml-push-att TG_preview td-show-parm 
+          TG_eml-push-att TG_preview td-show-parm run_format
       WITH FRAME FRAME-A IN WINDOW C-Win.
   ENABLE RECT-6 RECT-8 RECT-9 rd_ack-ordmst begin_ord-no end_ord-no 
          begin_cust-no end_cust-no begin_due-date end_due-date begin_relnum 
@@ -2260,7 +2359,7 @@ PROCEDURE enable_UI :
          tb_terms tb_itempo TG_print-pen-notes tb_untcnt tb_print-component 
          TG_print-due-cd tb_hide_sell tb_itm-tot tb_shpnot spec-code 
          lv-termFile dept-code rd-dest lv-ornt lines-per-page lv-font-no 
-         sel-attch TG_eml-push-att TG_preview td-show-parm btn-ok btn-cancel 
+         sel-attch TG_eml-push-att TG_preview td-show-parm run_format btn-ok btn-cancel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.
@@ -2791,6 +2890,13 @@ ASSIGN
  v-print-tot = tb_itm-tot 
     .
 
+ IF lAsiUser THEN DO:
+     ASSIGN v-print-fmt =  run_format
+         vcDefaultForm = v-print-fmt.
+     RUN SetOEAckForm(v-print-fmt).
+     viDefaultLinesPerPage = lines-per-page.
+  END.
+
 IF ip-sys-ctrl-shipto THEN
    ASSIGN
       fcust = icCustNo
@@ -2859,7 +2965,7 @@ IF IS-xprint-form THEN DO:
        END.
    END CASE.
    PUT "</PROGRESS>".
-END.
+END.       
 clXMLOutput = YES /* rstark 05291402 */.
 IF v-ack-master THEN DO:
     RUN VALUE(v-program).
@@ -3134,6 +3240,209 @@ PROCEDURE show-param :
   PUT FILL("-",80) FORMAT "x(80)" SKIP.
   PAGE.
 
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE RUN_format-value-changed C-Win 
+PROCEDURE RUN_format-value-changed :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DO WITH FRAME {&FRAME-NAME}:
+
+      RUN SetOEAckForm(v-print-fmt).
+      viDefaultLinesPerPage = lines-per-page.
+      IF LOOKUP(v-print-fmt,"Century,Fibrex,Allwest") = 0 THEN 
+      ASSIGN
+       tb_prt-bom = NO
+       tb_prt-bom:SENSITIVE = NO
+       tb_prt-bom:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "NO".
+
+    IF v-print-fmt EQ "Allwest" THEN ASSIGN TG_cons_form:SENSITIVE  = YES.
+
+    IF v-print-fmt EQ "Indiana" THEN
+      ASSIGN
+       tb_sch-rel = NO
+       tb_sch-rel:SENSITIVE = NO
+       tb_sch-rel:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "NO"
+       tb_act-rel = NO
+       tb_act-rel:SENSITIVE = NO
+       tb_act-rel:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "NO".
+
+    IF v-print-fmt = "Dee" THEN
+      ASSIGN
+         TG_whs-mths:SENSITIVE = YES. 
+
+    IF v-print-fmt EQ "Albert" THEN
+       ASSIGN
+         tb_prt-revise:SENSITIVE = NO
+         tb_prt-revise = NO
+         tb_prt-revise:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "NO".
+    /* gdm - 11091105*/
+    ASSIGN tb_prt-revise:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "NO".
+
+/*     /* task 05121402 */                           */
+/*     IF v-print-fmt EQ "Badger" AND v-fmt-int EQ 1 */
+/*       THEN ASSIGN                                 */
+/*              TG_print-pdf-view:HIDDEN     = NO    */
+/*              TG_print-pdf-view:SENSITIVE  = YES.  */
+/*     ELSE                                          */
+/*         ASSIGN                                    */
+/*              TG_print-pdf-view:HIDDEN     = YES   */
+/*              TG_print-pdf-view:SENSITIVE  = NO.   */
+
+
+    /* gdm - 04160907*/
+    IF v-print-fmt NE "Simkins" 
+      THEN ASSIGN 
+             tb_terms:HIDDEN       = YES
+             lv-termFile:HIDDEN    = YES
+             tb_terms:SENSITIVE    = NO
+             lv-termFile:SENSITIVE = NO
+             TG_print-pen-notes:HIDDEN     = YES
+             TG_print-pen-notes:SENSITIVE  = YES.
+
+    IF v-print-fmt EQ "PremierX" OR v-print-fmt = "ACPI" OR v-print-fmt EQ "PremierCX"
+         THEN ASSIGN
+           tb_itempo:HIDDEN = NO
+           tb_hide_sell:HIDDEN = NO. 
+        ELSE ASSIGN 
+           tb_itempo:HIDDEN = YES
+           tb_hide_sell:HIDDEN = YES .
+
+    IF v-print-fmt EQ "PremierX" OR v-print-fmt EQ "PremierCX" THEN
+        ASSIGN
+        tb_itm-tot:HIDDEN = NO . 
+    ELSE
+        tb_itm-tot:HIDDEN = YES  . 
+
+
+    IF v-print-fmt EQ "PremierX" OR v-print-fmt EQ "PremierCX"
+         THEN ASSIGN
+           tb_untcnt:HIDDEN = NO .
+        ELSE ASSIGN 
+           tb_untcnt:HIDDEN = YES .
+
+    IF v-print-fmt EQ "PremierX"
+            THEN ASSIGN
+            tb_shpnot:HIDDEN = NO .
+        ELSE ASSIGN 
+            tb_shpnot:HIDDEN = YES . 
+
+    IF v-print-fmt EQ "Badger"
+         THEN ASSIGN
+           TG_print-due-cd:HIDDEN = NO. 
+        ELSE ASSIGN 
+           TG_print-due-cd:HIDDEN = YES .
+/*                                  */
+/*     IF v-print-fmt EQ "ACPI"     */
+/*          THEN ASSIGN             */
+/*             tb_itempo:HIDDEN = NO. */
+
+    IF v-print-fmt EQ "Soule" OR v-print-fmt EQ "SouleUOM"
+      THEN ASSIGN 
+             tb_print-component:HIDDEN       = NO .
+        ELSE
+             tb_print-component:HIDDEN       = YES .
+
+    IF v-print-fmt EQ "Axis"
+      THEN ASSIGN 
+             tb_billnotes:HIDDEN       = NO .
+        ELSE
+             tb_billnotes:HIDDEN       = YES .
+
+    IF v-print-fmt EQ "Simkins" THEN DO:      
+
+      ASSIGN           
+          lv-termFile =  lv-termFile:SCREEN-VALUE
+          lv-termFile:SCREEN-VALUE = lv-termFile.
+
+      IF TRIM(lv-termFile) EQ "" THEN DO:
+        FIND FIRST sys-ctrl-shipto NO-LOCK
+          WHERE sys-ctrl-shipto.company      EQ cocode
+            AND sys-ctrl-shipto.NAME         EQ "ACKHEAD" 
+            AND sys-ctrl-shipto.cust-vend    EQ YES 
+            AND sys-ctrl-shipto.char-fld     NE '' NO-ERROR.
+        IF AVAIL sys-ctrl-shipto 
+          THEN ASSIGN lv-termFile = sys-ctrl-shipto.char-fld.
+      END.
+
+      ASSIGN 
+        tb_terms                 = NO
+        tb_terms:SENSITIVE       = YES.
+
+      IF TRIM(cocode) EQ "011"  OR
+         TRIM(cocode) EQ "11" /* Landrum */
+       THEN ASSIGN lv-termFile:SCREEN-VALUE = lv-termPath + "QuoteTerms11.txt".
+       ELSE 
+        IF TRIM(cocode) EQ "012" OR
+           TRIM(cocode) EQ "12" /* Marietta */
+         THEN ASSIGN lv-termFile:SCREEN-VALUE = lv-termPath + "QuoteTerms12.txt".
+         ELSE 
+          IF TRIM(cocode) EQ "060" OR
+             TRIM(cocode) EQ "60" /* Harvard Folding Box */
+            THEN ASSIGN lv-termFile:SCREEN-VALUE = lv-termPath + "QuoteTerms60.txt".
+            ELSE 
+                IF TRIM(cocode) EQ "062" OR
+                   TRIM(cocode) EQ "62" /* Ideal */
+                  THEN ASSIGN lv-termFile:SCREEN-VALUE = lv-termPath + "QuoteTerms62.txt".
+                  ELSE ASSIGN lv-termFile:SCREEN-VALUE = lv-termFile.
+
+
+      ASSIGN lv-termFile:SCREEN-VALUE = lv-termFile
+             lv-termFile:SENSITIVE = NO.
+
+      IF tb_terms:SCREEN-VALUE EQ "YES" 
+        THEN lv-termFile:SENSITIVE = YES.
+
+    END.
+    ELSE ASSIGN
+          tb_terms:SENSITIVE       = NO
+          lv-termFile:SCREEN-VALUE = ""
+          lv-termFile              = ""
+          lv-termFile:SENSITIVE    = NO.
+
+
+    IF LOOKUP(v-print-fmt,"Soule,SouleUOM,ContSvc") = 0 THEN DO:
+        IF tb_sch-rel:SCREEN-VALUE EQ "NO" AND
+            tb_act-rel:SCREEN-VALUE EQ "NO" THEN
+            ASSIGN
+                tb_ship-to:SENSITIVE = NO
+                tb_ship-to:SCREEN-VALUE = "NO".
+    END.
+    IF LOOKUP(v-print-fmt,"PremierX") <> 0 THEN DO:
+        IF tb_sch-rel:SCREEN-VALUE EQ "NO" AND
+            tb_act-rel:SCREEN-VALUE EQ "NO" THEN
+            ASSIGN
+                tb_shpnot:SENSITIVE = NO
+                tb_shpnot:SCREEN-VALUE = "NO".
+    END.
+    IF v-print-fmt EQ "Accord" THEN DO:
+         ASSIGN 
+             TG_print-pen-notes:HIDDEN     = NO
+             TG_print-pen-notes:SENSITIVE  = YES.
+
+            IF tb_inst:SCREEN-VALUE EQ "Yes" THEN
+             spec-code:HIDDEN IN FRAME FRAME-A = NO .
+            ELSE
+             spec-code:HIDDEN IN FRAME FRAME-A = YES .
+
+             IF TG_print-pen-notes:SCREEN-VALUE EQ "Yes" THEN
+                dept-code:HIDDEN IN FRAME FRAME-A = NO .
+            ELSE
+                dept-code:HIDDEN IN FRAME FRAME-A = YES .
+     END.
+     ELSE
+         ASSIGN spec-code:HIDDEN IN FRAME FRAME-A = YES 
+                    dept-code:HIDDEN IN FRAME FRAME-A = YES .
+       
+    END.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

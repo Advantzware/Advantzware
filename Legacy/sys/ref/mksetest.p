@@ -22,7 +22,7 @@ def buffer b-boxl   for box-design-line.
 def buffer b-notes  for notes.
 
 def var v-est-no        like est.est-no NO-UNDO.
-def var v-qty           like fg-set.part-qty NO-UNDO.
+def var v-qty           like fg-set.QtyPerSet NO-UNDO.
 def var choice          as   LOG NO-UNDO.
 DEF VAR v-rowid         AS   ROWID NO-UNDO.
 DEF VAR v               AS   INT NO-UNDO.
@@ -189,7 +189,7 @@ if avail itemfg and itemfg.isaset then do transaction:
       create w-part.
       assign
        w-part.part-no  = fg-set.part-no
-       w-part.part-qty = fg-set.part-qty.
+       w-part.QtyPerSet = fg-set.QtyPerSet.
     end.
 
     do while true:
@@ -223,7 +223,7 @@ if avail itemfg and itemfg.isaset then do transaction:
           create w-part1.
           assign
            w-part1.part-no  = fg-set.part-no
-           w-part1.part-qty = fg-set.part-qty * w-part.part-qty.
+           w-part1.part-qty = fg-set.QtyPerSet * w-part.QtyPerSet.
            
           if last(fg-set.set-no) then delete w-part.
         end.
@@ -300,7 +300,7 @@ if avail itemfg and itemfg.isaset then do transaction:
        b-eb.form-no      = b-est.form-qty
        b-eb.blank-no     = 1
        b-eb.part-no      = lv-part-no
-       b-eb.yld-qty      = tt-fg-set.part-qty.
+       b-eb.quantityPerSet      = tt-fg-set.QtyPerSet.
      
       IF v-first-blank THEN
       DO:

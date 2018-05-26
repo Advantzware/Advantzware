@@ -38,7 +38,7 @@ def var v-ans as logical initial no NO-UNDO.
 def var v-date-ship as date initial today NO-UNDO.
 def var v-del-no as int format ">>>>>>" NO-UNDO.
 def var v-bol-cases LIKE oe-boll.cases NO-UNDO.
-def var v-set-qty AS INT NO-UNDO.
+def var v-set-qty AS DECIMAL NO-UNDO.
 def var v-part-qty AS DEC FORMAT "999.9999" NO-UNDO.
 def var v-net like inv-head.t-inv-rev NO-UNDO.
 def var v-case-cnt as char format "x(80)" extent 5 NO-UNDO.
@@ -117,6 +117,8 @@ DEF VAR ls-full-img1 AS cha FORM "x(200)" NO-UNDO.
 DEF VAR ls-full-img2 AS cha FORM "x(200)" NO-UNDO.
 DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
+DEF VAR cStockNotes AS cha FORM "x(80)" EXTENT 6 NO-UNDO.
+DEF BUFFER bf-cust FOR cust .
 
 RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormLogo", "C" /* Logical */, NO /* check by cust */, 
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
@@ -309,7 +311,7 @@ find first company where company.company eq cocode NO-LOCK.
              DO:
                FOR EACH fg-set NO-LOCK WHERE fg-set.company = xinv-line.company
                   AND fg-set.set-no = xinv-line.i-no:
-                 ASSIGN v-set-qty = v-set-qty + fg-set.part-qty.
+                 ASSIGN v-set-qty = v-set-qty + fg-set.QtyPerSet.
                END.
                IF v-set-qty = 0 THEN
                   ASSIGN v-set-qty = 1.
@@ -321,8 +323,8 @@ find first company where company.company eq cocode NO-LOCK.
                     fg-set.set-no = xinv-line.i-no  AND
                     fg-set.part-no = eb.stock-no NO-LOCK NO-ERROR.
 
-                 IF AVAIL fg-set AND fg-set.part-qty NE 0 THEN
-                   ASSIGN v-part-qty = fg-set.part-qty / v-set-qty.
+                 IF AVAIL fg-set AND fg-set.QtyPerSet NE 0 THEN
+                   ASSIGN v-part-qty = fg-set.QtyPerSet / v-set-qty.
                  ELSE
                    ASSIGN v-part-qty = 1 / v-set-qty.
 
@@ -708,7 +710,7 @@ find first company where company.company eq cocode NO-LOCK.
            inv-head.f-bill AND inv-head.t-inv-freight <> 0 AND AVAIL stax THEN
         do i = 1 to 5:
 
-           if stax.tax-code1[i] ne "" AND stax.tax-frt[i] EQ YES then do:
+           if stax.tax-code1[i] ne "" AND stax.tax-frt1[i] EQ YES then do:
                 create w-tax.
                 assign
                  w-dsc      = stax.tax-dscr1[i]
@@ -733,14 +735,23 @@ find first company where company.company eq cocode NO-LOCK.
                        fill(" ",6) + ":" +
                        string(v-t-tax[i],"->>>>>9.99")) else "".
     end.
+    
     v-inv-freight = if inv-head.f-bill THEN inv-head.t-inv-freight ELSE 0.
     PUT "<R57><c61>" "<B>FUNDS payable in " string(cCurCode,"x(3)") +  ".</B>" FORMAT "x(200)" .
-    IF v-bot-lab[4] <> "" THEN
-      PUT "<R61><C20> TPS # 873134266"
-        "<R62><C20> TVQ # 1021552352".
-    ELSE
-     PUT "<R59><C20> TPS # 873134266"
-        "<R60><C20> TVQ # 1021552352".
+    
+     FOR EACH bf-cust NO-LOCK
+        WHERE bf-cust.company EQ cocode
+        AND bf-cust.ACTIVE EQ "X":
+
+        RUN pNotes(INPUT bf-cust.rec_key, OUTPUT cStockNotes).
+        
+        PUT "<P8><R57><C3>" cStockNotes[1] SKIP
+            "<R58><C3>" cStockNotes[2] SKIP
+            "<R59><C3>" cStockNotes[3] SKIP
+            "<R60><C3>" cStockNotes[4] SKIP
+            "<P10>".
+        
+    END.
 
     IF v-bot-lab[4] <> "" THEN
     PUT "<R58><C60><#8><FROM><R+8><C+20><RECT> " 
@@ -767,5 +778,51 @@ ELSE
     page.
  
     end. /* each xinv-head */
+
+PROCEDURE pNotes:
+
+DEFINE INPUT PARAMETER reckey LIKE cust.rec_key NO-UNDO.
+DEFINE OUTPUT PARAMETER cNotes AS cha FORM "x(80)" EXTENT 6 NO-UNDO.
+ DEF VARIABLE iCount AS INTEGER NO-UNDO.   
+ASSIGN 
+       v-tmp-lines = 0
+       j = 0
+       K = 0
+       lv-got-return = 0.
+
+FOR EACH notes WHERE notes.rec_key = reckey 
+     AND notes.note_type = "G"
+     AND notes.note_group = "BN" NO-LOCK:
+
+    IF v-prev-note-rec <> ? AND
+       v-prev-note-rec <> RECID(notes) THEN v-prev-extent = /*v-prev-extent +*/ k.
+    DO iCount = 1 TO LENGTH(notes.note_text) :        
+           IF iCount - j >= lv-line-chars THEN ASSIGN j = iCount
+                                                 lv-got-return = lv-got-return + 1.
+                  
+           v-tmp-lines = ( iCount - j ) / lv-line-chars.
+           {SYS/INC/ROUNDUP.I v-tmp-lines}
+           k = v-tmp-lines + lv-got-return +
+               IF (v-prev-note-rec <> RECID(notes) AND v-prev-note-rec <> ?) THEN v-prev-extent ELSE 0.
+
+           IF k > 0 AND k <= 6 THEN cNotes[k] = cNotes[k] + 
+                                  IF SUBSTRING(notes.note_text,iCount,1) <> CHR(10) AND SUBSTRING(notes.note_text,iCount,1) <> CHR(13)
+                                  THEN SUBSTRING(notes.note_text,iCount,1)
+                                  ELSE "" .              
+           
+           IF SUBSTRING(note_text,iCount,1) = CHR(10) OR SUBSTRING(note_text,iCount,1) = CHR(13)                 
+           THEN do:
+                  lv-got-return = lv-got-return + 1.
+                  j = iCount.
+           END.
+    END.
+    ASSIGN v-prev-note-rec = RECID(notes)
+           j = 0
+           lv-got-return = 0.
+    
+    IF k > 6 THEN LEAVE.
+END.
+
+END PROCEDURE.
 
 /* END ---------------------------------- copr. 1996 Advanced Software, Inc. */

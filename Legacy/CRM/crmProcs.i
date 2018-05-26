@@ -22,11 +22,12 @@ PROCEDURE pGetConnection:
   Parameters:  output web service connection
   Notes:       
 ------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany    AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER opcConnection AS CHARACTER NO-UNDO.
 
     DEFINE VARIABLE lFound AS LOGICAL NO-UNDO.
 
-    RUN sys/ref/nk1look.p ("", "ASIHelpService", "C", NO, NO, "", "",
+    RUN sys/ref/nk1look.p (ipcCompany, "ASIHelpService", "C", NO, NO, "", "",
                            OUTPUT opcConnection, OUTPUT lFound).
     RETURN opcConnection.
 END PROCEDURE.

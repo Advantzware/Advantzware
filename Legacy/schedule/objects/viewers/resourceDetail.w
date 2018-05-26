@@ -56,7 +56,9 @@ DEFINE VARIABLE updateEnabled AS LOGICAL NO-UNDO.
 /* configuration version procedures */
 {{&includes}/configVersion.i}
 
+&IF DEFINED(FWD-VERSION) EQ 0 &THEN
 {{&includes}/lockWindowUpdate.i}
+&ENDIF
 
 ON 'CTRL-L':U ANYWHERE
 DO:

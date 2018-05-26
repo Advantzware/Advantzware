@@ -157,23 +157,7 @@ ASSIGN
 /* Setting information for Queries and Browse Widgets fields            */
 
 &ANALYZE-SUSPEND _QUERY-BLOCK BROWSE BROWSE-1
-/* Query rebuild information for BROWSE BROWSE-1
-     _START_FREEFORM
-OPEN QUERY {&SELF-NAME}
-  FOR EACH tt-report
-      WHERE (tt-report.term-id EQ ""
-        AND  (tt-report.key-01 EQ "work-line" OR
-              tt-report.key-01 EQ "work-misc" OR
-              tt-report.key-01 EQ "work-tax"))
-      NO-LOCK.
-     _END_FREEFORM
-     _Options          = "NO-LOCK"
-     _Where[1]         = "ASI.reftable.reftable = ""Flute"" and 
-ASI.reftable.company  = """" and
-ASI.reftable.loc = """"
-"
-     _Query            is OPENED
-*/  /* BROWSE BROWSE-1 */
+ /* BROWSE BROWSE-1 */
 &ANALYZE-RESUME
 
  

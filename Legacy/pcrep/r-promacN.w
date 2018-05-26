@@ -62,13 +62,13 @@ DEF VAR cTextListToDefault AS cha NO-UNDO.
 ASSIGN cTextListToSelect = "M Code,FG Item,Job #,Cust#,MR Std,MR Acl,MR Eff%,RUN Std,RUN Acl," +
                            "RUN Eff%,MR&RUN Std,MR&RUN Acl,MR&RUN Eff%,D/T Acl,D/T Eff%,Acl Qty,Exptd Qty,MR-C,RUNC," +
                            "Total Machine Hours,Total Labor Hours,Pieces per Hour,MSF,MSF per Hour,Number On," +
-                           "Kicks per Hour,Pieces per Man Hour,MR Waste,Run Waste,Total Waste,% Waste" 
+                           "Kicks per Hour,Pieces per Man Hour,MR Waste,Run Waste,Total Waste,% Waste,Date,User ID" 
        cFieldListToSelect = "m-cod,ino,job,cust-no,mr-stn,mr-acl,mr-eff,run-stnd,run-acl," +
                             "run-eff,mr&-stnd,mr&-acl,mr&-eff,dt-acl,dt-eff,acl-qty,exp-qty,mr-comp,run-comp," +
                             "ttl-mch-hrs,ttl-lbr-hrs,pic-per-hrs,msf,msf-per-hrs,nbr-on," +
-                            "kik-per-hrs,pic-per-man-hrs,mr-wst,run-wst,ttl-wst,%wst"
-       cFieldLength = "6,15,10,8,8,8,8,8,8," + "8,10,10,11,8,8,11,11,4,4," + "19,17,15,9,12,10," + "14,19,9,9,11,9"
-       cFieldType = "c,c,c,c,i,i,i,i,i," + "i,i,i,i,i,i,i,i,c,c," + "i,i,i,i,i,i," + "i,i,i,i,i,i"
+                            "kik-per-hrs,pic-per-man-hrs,mr-wst,run-wst,ttl-wst,%wst,date,user-id"
+       cFieldLength = "6,15,10,8,8,8,8,8,8," + "8,10,10,11,8,8,11,11,4,4," + "19,17,15,9,12,10," + "14,19,9,9,11,9,10,10"
+       cFieldType = "c,c,c,c,i,i,i,i,i," + "i,i,i,i,i,i,i,i,c,c," + "i,i,i,i,i,i," + "i,i,i,i,i,i,c,c"
     .
 
 {sys/inc/ttRptSel.i}
@@ -90,12 +90,12 @@ ASSIGN cTextListToDefault  = "M Code,FG Item,Job #,MR Std,MR Acl,MR Eff%,RUN Std
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-6 RECT-7 begin_dept end_dept begin_mach ~
-end_mach begin_date end_date tb_sel-per tb_donotcarry sl_avail Btn_Def ~
+end_mach begin_date end_date begin_user-id end_user-id tb_sel-per tb_donotcarry sl_avail Btn_Def ~
 sl_selected Btn_Add Btn_Remove btn_Up btn_down rd-dest lv-ornt ~
 lines-per-page lv-font-no td-show-parm tb_excel tb_runExcel fi_file btn-ok ~
 btn-cancel rd-job-timedt
 &Scoped-Define DISPLAYED-OBJECTS begin_dept end_dept begin_mach end_mach ~
-begin_date end_date tb_sel-per tb_donotcarry sl_avail sl_selected rd-dest ~
+begin_date end_date begin_user-id end_user-id tb_sel-per tb_donotcarry sl_avail sl_selected rd-dest ~
 lv-ornt lines-per-page lv-font-no lv-font-name td-show-parm tb_excel ~
 tb_runExcel fi_file rd-job-timedt
 
@@ -163,6 +163,11 @@ DEFINE VARIABLE begin_mach AS CHARACTER FORMAT "X(6)"
      VIEW-AS FILL-IN 
      SIZE 17 BY 1.
 
+DEFINE VARIABLE begin_user-id AS CHARACTER FORMAT "X(10)" 
+     LABEL "Beginning Userid" 
+     VIEW-AS FILL-IN 
+     SIZE 17 BY 1.
+
 DEFINE VARIABLE end_date AS DATE FORMAT "99/99/9999":U INITIAL 12/31/9999 
      LABEL "Ending Date" 
      VIEW-AS FILL-IN 
@@ -175,6 +180,11 @@ DEFINE VARIABLE end_dept AS CHARACTER FORMAT "X(4)" INITIAL "zzzz"
 
 DEFINE VARIABLE end_mach AS CHARACTER FORMAT "X(6)" INITIAL "zzzzzz" 
      LABEL "Ending Machine" 
+     VIEW-AS FILL-IN 
+     SIZE 17 BY 1.
+
+DEFINE VARIABLE end_user-id AS CHARACTER FORMAT "X(10)" INITIAL "zzzzzzzzzz" 
+     LABEL "Ending Userid" 
      VIEW-AS FILL-IN 
      SIZE 17 BY 1.
 
@@ -232,7 +242,7 @@ DEFINE RECTANGLE RECT-6
 
 DEFINE RECTANGLE RECT-7
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 96 BY 7.62.
+     SIZE 96 BY 8.62.
 
 DEFINE VARIABLE sl_avail AS CHARACTER 
      VIEW-AS SELECTION-LIST MULTIPLE SCROLLBAR-VERTICAL 
@@ -285,41 +295,45 @@ DEFINE FRAME FRAME-A
           "Enter Beginning Date"
      end_date AT ROW 4.43 COL 68 COLON-ALIGNED HELP
           "Enter Ending Date"
-     tb_sel-per AT ROW 5.54 COL 30
-     tb_donotcarry AT ROW 6.50 COL 30 WIDGET-ID 2
-     rd-job-timedt AT ROW 7.50 COL 30 NO-LABEL
-     sl_avail AT ROW 9.48 COL 5.2 NO-LABEL WIDGET-ID 26
-     Btn_Def AT ROW 9.48 COL 41.2 HELP
+     begin_user-id AT ROW 5.35 COL 25 COLON-ALIGNED HELP
+          "Enter Beginning User ID"
+     end_user-id AT ROW 5.35 COL 68 COLON-ALIGNED HELP
+          "Enter Ending User ID"
+     tb_sel-per AT ROW 6.54 COL 30
+     tb_donotcarry AT ROW 7.50 COL 30 WIDGET-ID 2
+     rd-job-timedt AT ROW 8.50 COL 30 NO-LABEL
+     sl_avail AT ROW 10.48 COL 5.2 NO-LABEL WIDGET-ID 26
+     Btn_Def AT ROW 10.48 COL 41.2 HELP
           "Add Selected Table to Tables to Audit" WIDGET-ID 56
-     sl_selected AT ROW 9.48 COL 60.6 NO-LABEL WIDGET-ID 28
-     Btn_Add AT ROW 10.48 COL 41.2 HELP
+     sl_selected AT ROW 10.48 COL 60.6 NO-LABEL WIDGET-ID 28
+     Btn_Add AT ROW 11.48 COL 41.2 HELP
           "Add Selected Table to Tables to Audit" WIDGET-ID 32
-     Btn_Remove AT ROW 11.48 COL 41.2 HELP
+     Btn_Remove AT ROW 12.48 COL 41.2 HELP
           "Remove Selected Table from Tables to Audit" WIDGET-ID 34
-     btn_Up AT ROW 12.52 COL 41.2 WIDGET-ID 40
-     btn_down AT ROW 13.52 COL 41.2 WIDGET-ID 42
-     rd-dest AT ROW 15.76 COL 6 NO-LABEL
-     lv-ornt AT ROW 16.48 COL 31 NO-LABEL
-     lines-per-page AT ROW 16.48 COL 84 COLON-ALIGNED
-     lv-font-no AT ROW 18.14 COL 35 COLON-ALIGNED
-     lv-font-name AT ROW 19.33 COL 29 COLON-ALIGNED NO-LABEL
-     td-show-parm AT ROW 21.24 COL 28
-     tb_excel AT ROW 21.24 COL 70.2 RIGHT-ALIGNED
-     tb_runExcel AT ROW 21.24 COL 94 RIGHT-ALIGNED
-     fi_file AT ROW 22.33 COL 48 COLON-ALIGNED HELP
+     btn_Up AT ROW 13.52 COL 41.2 WIDGET-ID 40
+     btn_down AT ROW 14.52 COL 41.2 WIDGET-ID 42
+     rd-dest AT ROW 16.76 COL 6 NO-LABEL
+     lv-ornt AT ROW 17.48 COL 31 NO-LABEL
+     lines-per-page AT ROW 17.48 COL 84 COLON-ALIGNED
+     lv-font-no AT ROW 19.14 COL 35 COLON-ALIGNED
+     lv-font-name AT ROW 20.33 COL 29 COLON-ALIGNED NO-LABEL
+     td-show-parm AT ROW 22.24 COL 28
+     tb_excel AT ROW 22.24 COL 70.2 RIGHT-ALIGNED
+     tb_runExcel AT ROW 22.24 COL 94 RIGHT-ALIGNED
+     fi_file AT ROW 23.33 COL 48 COLON-ALIGNED HELP
           "Enter File Name"
-     btn-ok AT ROW 24.19 COL 22
-     btn-cancel AT ROW 24.19 COL 60
+     btn-ok AT ROW 24.75 COL 22
+     btn-cancel AT ROW 24.75 COL 60
      "Selected Columns(In Display Order)" VIEW-AS TEXT
-          SIZE 34 BY .62 AT ROW 8.76 COL 60.6 WIDGET-ID 44
+          SIZE 34 BY .62 AT ROW 9.76 COL 60.6 WIDGET-ID 44
      "Output Destination" VIEW-AS TEXT
-          SIZE 18 BY .62 AT ROW 15.05 COL 3
+          SIZE 18 BY .62 AT ROW 16.05 COL 3
      "Selection Parameters" VIEW-AS TEXT
           SIZE 21 BY .71 AT ROW 1.24 COL 5
           BGCOLOR 2 
      "Available Columns" VIEW-AS TEXT
-          SIZE 29 BY .62 AT ROW 8.76 COL 6 WIDGET-ID 38
-     RECT-6 AT ROW 14.81 COL 2
+          SIZE 29 BY .62 AT ROW 9.76 COL 6 WIDGET-ID 38
+     RECT-6 AT ROW 15.81 COL 2
      RECT-7 AT ROW 1 COL 1
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -389,6 +403,9 @@ ASSIGN
 ASSIGN 
        begin_mach:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
+ASSIGN 
+       begin_user-id:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
 
 ASSIGN 
        end_date:PRIVATE-DATA IN FRAME FRAME-A     = 
@@ -400,6 +417,10 @@ ASSIGN
 
 ASSIGN 
        end_mach:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
+
+ASSIGN 
+       end_user-id:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
 ASSIGN 
@@ -487,6 +508,29 @@ END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME begin_user-id
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_user-id C-Win
+ON LEAVE OF begin_user-id IN FRAME FRAME-A /* Beginning Department */
+DO:
+   assign {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME end_user-id
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_user-id C-Win
+ON LEAVE OF end_user-id IN FRAME FRAME-A /* Beginning Department */
+DO:
+   assign {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 
 &Scoped-define SELF-NAME begin_mach
@@ -1093,14 +1137,14 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY begin_dept end_dept begin_mach end_mach begin_date end_date tb_sel-per 
-          tb_donotcarry sl_avail sl_selected rd-dest lv-ornt lines-per-page 
+  DISPLAY begin_dept end_dept begin_mach end_mach begin_date end_date begin_user-id end_user-id  
+          tb_sel-per tb_donotcarry sl_avail sl_selected rd-dest lv-ornt lines-per-page 
           lv-font-no lv-font-name td-show-parm tb_excel tb_runExcel fi_file rd-job-timedt
       WITH FRAME FRAME-A IN WINDOW C-Win.
   ENABLE RECT-6 RECT-7 begin_dept end_dept begin_mach end_mach begin_date 
-         end_date tb_sel-per tb_donotcarry sl_avail Btn_Def sl_selected Btn_Add 
-         Btn_Remove btn_Up btn_down rd-dest lv-ornt lines-per-page lv-font-no 
-         td-show-parm tb_excel tb_runExcel fi_file btn-ok btn-cancel rd-job-timedt
+         end_date begin_user-id end_user-id tb_sel-per tb_donotcarry sl_avail Btn_Def  
+         sl_selected Btn_Add Btn_Remove btn_Up btn_down rd-dest lv-ornt lines-per-page  
+         lv-font-no td-show-parm tb_excel tb_runExcel fi_file btn-ok btn-cancel rd-job-timedt
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.
@@ -1315,6 +1359,8 @@ DEF VAR v-mrcomp AS CHAR NO-UNDO.
 DEF VAR v-runcomp AS CHAR NO-UNDO .
 DEF VAR v-mrwaste AS DEC NO-UNDO .
 DEF VAR v-runwaste AS DEC NO-UNDO .
+DEFINE VARIABLE dt-date AS DATE NO-UNDO .
+DEFINE VARIABLE cUserId AS CHARACTER NO-UNDO .
 
 DEF VAR cDisplay AS cha NO-UNDO.
 DEF VAR cExcelDisplay AS cha NO-UNDO.
@@ -1495,7 +1541,9 @@ END.
       mch-act.op-date ge v-date[1] and
       mch-act.op-date le v-date[2] and
       mch-act.dept    ge v-dept[1] and
-      mch-act.dept    le v-dept[2]
+      mch-act.dept    le v-dept[2] AND
+      mch-act.USER-ID GE begin_user-id AND
+      mch-act.USER-ID LE end_user-id  
       use-index dly-idx
       no-lock,
       first mach where
@@ -1840,7 +1888,10 @@ END.
 
      ASSIGN v-runwaste = 0 
             v-mrwaste = 0 
-            v-act-lab-cost = 0. 
+            v-act-lab-cost = 0
+            dt-date = ? 
+            cUserId = "".
+            
      FOR EACH bf-mch-act WHERE
            bf-mch-act.company EQ cocode AND
            bf-mch-act.dept EQ tt-mch-srt.dept AND
@@ -1865,6 +1916,8 @@ END.
              v-mrwaste = v-mrwaste + bf-mch-act.waste .
 
             v-act-lab-cost = v-act-lab-cost + (bf-mch-act.hours * bf-mch-act.crew) .
+            dt-date = bf-mch-act.op-date .
+            cUserId = IF AVAIL bf-mch-act THEN  bf-mch-act.USER-ID ELSE "".
 
      END. /* FOR EACH bf-mch-act W */
 
@@ -1941,6 +1994,8 @@ END.
                          WHEN "run-wst"           THEN cVarValue = STRING(v-runwaste,"->,>>9.99") .   
                          WHEN "ttl-wst"           THEN cVarValue =  STRING(v-mrwaste + v-runwaste,"->,>>9.99") .
                          WHEN "%wst"              THEN cVarValue =  IF v-wst NE ? THEN STRING(v-wst,"->,>>9.99") ELSE "".
+                         WHEN "date"              THEN cVarValue =  IF dt-date NE ? THEN STRING(dt-date) ELSE "".
+                         WHEN "user-id"           THEN cVarValue = IF cUserId NE "" THEN STRING(cUserId,"x(10)") ELSE "" .
                          
                     END CASE.
                       
@@ -1989,25 +2044,7 @@ END.
                            no-lock no-error.
                {pc/rep/mchprdhr.i "mch"}
 
-          /* display fill("-", 136) format "x(136)" at 7 skip
-                   "*" at 5
-                   mach.m-dscr at 7 format "x(10)" when available mach
-                   mch-mr-std  at 25
-                   mch-mr-act
-                   mr-eff
-                   mch-run-std at 51
-                   mch-run-act
-                   run-eff
-                   tot-std-hrs at 77
-                   tot-act-hrs
-                   tot-eff
-                   mch-dt-act  at 103
-                   dt-eff
-                   mch-qty-prod
-                   mch-qty-expect skip
-                   fill("-", 136) format "x(136)" at 7
-                   
-               with frame detm STREAM-IO width 180 no-labels no-box. */
+         
 
             PUT SKIP str-line SKIP .
            ASSIGN cDisplay = ""
@@ -2048,6 +2085,8 @@ END.
                          WHEN "run-wst"           THEN cVarValue = "" .
                          WHEN "ttl-wst"           THEN cVarValue =  "" .
                          WHEN "%wst"              THEN cVarValue =  "" .
+                         WHEN "date"              THEN cVarValue =  "" .
+                         WHEN "user-id"           THEN cVarValue = "" .
                          
                     END CASE.
                       
@@ -2077,24 +2116,6 @@ END.
                               dept.cod     eq tt-mch-srt.dept
                               no-lock no-error.
            {pc/rep/mchprdhr.i "dpt"}
-
-          /* display "**" at 4 dept.dscr at 7 format "x(10)" when available dept
-                   dpt-mr-std  at 25
-                   dpt-mr-act
-                   mr-eff
-                   dpt-run-std at 51
-                   dpt-run-act
-                   run-eff
-                   tot-std-hrs at 77
-                   tot-act-hrs
-                   tot-eff
-                   dpt-dt-act  at 103
-                   dt-eff
-                   dpt-qty-prod
-                   dpt-qty-expect skip
-                   fill("=", 142) format "x(142)"
-                   
-               with frame detd STREAM-IO width 180 no-labels no-box. */
 
            PUT SKIP str-line SKIP .
            ASSIGN cDisplay = ""
@@ -2135,6 +2156,8 @@ END.
                          WHEN "run-wst"           THEN cVarValue = "" .
                          WHEN "ttl-wst"           THEN cVarValue =  "" .
                          WHEN "%wst"              THEN cVarValue =  "" .
+                         WHEN "date"              THEN cVarValue =  "" .
+                         WHEN "user-id"           THEN cVarValue = "" .
                          
                     END CASE.
                       

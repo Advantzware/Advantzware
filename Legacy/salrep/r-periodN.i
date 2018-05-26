@@ -6,7 +6,8 @@
 
   ASSIGN
    li = YEAR(as-of-date)
-   ld = as-of-date.
+   ld = as-of-date
+   dPerAmt = 0 .
 
   FIND FIRST period
       WHERE period.company EQ cocode
@@ -34,13 +35,13 @@
         where ar-inv.company  eq cocode
           and ar-inv.posted   eq yes
           and ar-inv.inv-date ge ld[1]
-          and ar-inv.inv-date le ld[3]
-          and (ar-inv.type    ne "FC" or v-inc-fc)
+          and ar-inv.inv-date le ld[3] 
+          and (ar-inv.type    ne "FC" or v-inc-fc)   /*AND ar-inv.cust-no EQ "ABB1000"*/
         use-index inv-date no-lock,
 
         FIRST cust
         WHERE cust.company EQ ar-inv.company
-          AND cust.cust-no EQ ar-inv.cust-no
+          AND cust.cust-no EQ ar-inv.cust-no 
         NO-LOCK,
 
         each ar-invl
@@ -68,7 +69,7 @@
       end.
     end.
 
-    for each cust where cust.company eq cocode no-lock,
+    for each cust where cust.company eq cocode /*AND cust.cust-no EQ "ABB1000"*/  no-lock,
 
         each ar-cash
         where ar-cash.company    eq cocode
@@ -384,15 +385,20 @@
       if v-pct le 0 or v-pct eq ? then v-pct = 1.
       
       IF FIRST-OF(tt-report.key-04) THEN
-          dPerSales = v-pct .
-      ELSE dPerSales = dPerSales + v-pct .
-      
+          ASSIGN
+          dPerSales = v-pct
+          dPerAmt = v-amt .
+      ELSE ASSIGN 
+          dPerSales = dPerSales + v-pct .
+
       IF LAST-OF(tt-report.key-04) THEN DO:
           IF dPerSales GT 1 THEN
               ASSIGN dPerSales = 1 .
-       w-inv.amt = w-inv.amt + (v-amt  * dPerSales) .
+       w-inv.amt = w-inv.amt + (dPerAmt  * dPerSales) .
        w-inv.msf = w-inv.msf + (v-sqft * dPerSales).
+       
        END.
+       
       /*assign
        w-inv.amt = w-inv.amt + (v-amt  * v-pct)
        w-inv.msf = w-inv.msf + (v-sqft * v-pct). */
@@ -487,25 +493,31 @@
         if v-pct le 0 or v-pct eq ? then v-pct = 1.
       end.
 
-      assign
-       w-inv.amt = w-inv.amt + (v-amt  * v-pct)
-       w-inv.msf = w-inv.msf - (v-sqft * v-pct).
+      IF FIRST-OF(tt-report.key-04) THEN
+          ASSIGN
+          dPerSales = v-pct
+          dPerAmt = v-amt .
+      ELSE ASSIGN 
+          dPerSales = dPerSales + v-pct
+          dPerAmt = dPerAmt + v-amt .
+
+      IF LAST-OF(tt-report.key-04) THEN do:
+          IF dPerSales GT 1 THEN
+                  ASSIGN dPerSales = 1 .
+          
+          assign
+           w-inv.amt = w-inv.amt + (dPerAmt  * dPerSales)
+           w-inv.msf = w-inv.msf - (v-sqft * dPerSales).
+      END.
+      
     end.
 
     form xskip no-label.
 
-    if last-of(tt-report.key-03) then do:
+    if last-of(tt-report.key-04) then do:
       ld-amt-msf = w-inv.amt / w-inv.msf.
       IF ld-amt-msf EQ ? THEN ld-amt-msf = 0.
-
-     /* display w-inv.inv-no label "Inv #"
-              w-inv.inv-date
-              w-inv.pst-date
-              w-inv.cust-no
-              w-inv.name
-              w-inv.amt
-              w-inv.msf
-              ld-amt-msf label "$/MSF" format "->,>>>,>>9.99". */  
+     
        ASSIGN cDisplay = ""
                    cTmpField = ""
                    cVarValue = ""
@@ -543,11 +555,11 @@
        v-msf = v-msf + w-inv.msf.
 
       if sort-by-inv then do:
-        xskip = "".
+       /* xskip = "".
         if linv = 0 then linv = w-inv.inv-no.
         else if linv + 1 ne w-inv.inv-no then xskip = "*".
         /*display xskip.*/
-        linv = w-inv.inv-no.
+        linv = w-inv.inv-no.*/
       end.
 
       delete w-inv.
@@ -602,7 +614,7 @@
 
   RELEASE tt-report.
 
-  for each tt-report
+ for each tt-report
       where tt-report.term-id eq "",
 
       first cust
@@ -616,20 +628,23 @@
 
   RELEASE tt-report.
 
+ASSIGN dPerAmt = 0 .
   for each tt-report
       where tt-report.term-id eq ""
-        AND CAN-FIND(FIRST b-tt-report
+         AND tt-report.ytd-only EQ NO   
+       /* AND CAN-FIND(FIRST b-tt-report
                      WHERE b-tt-report.term-id  EQ ""
                        AND b-tt-report.key-09   EQ tt-report.key-09
                        AND b-tt-report.ytd-only EQ NO
-                     USE-INDEX ytd-only)
+                     USE-INDEX ytd-only)*/
 
-      break by tt-report.key-01
+      BREAK by tt-report.key-01
+            by tt-report.key-02
             by tt-report.key-03
             by tt-report.key-04
 
       with title "SUMMARY":
-
+ 
     find first w-sum no-error.
 
     if not avail w-sum then do:
@@ -638,6 +653,8 @@
        w-sum.cust-no = tt-report.key-09
        w-sum.name    = tt-report.key-01.
     end.
+
+
 
     if tt-report.key-10 eq "ar-invl" then do:
       find ar-invl where recid(ar-invl) eq tt-report.rec-id no-lock.
@@ -680,20 +697,29 @@
 
       if v-pct le 0 or v-pct eq ? then v-pct = 1.
      
-      IF FIRST-OF(tt-report.key-04) THEN
-          dPerSales = v-pct .
-      ELSE dPerSales = dPerSales + v-pct .
-      
+      IF FIRST-OF(tt-report.key-04) THEN do:
+          assign
+          dPerSales = v-pct 
+          dPerAmt =  v-amt.
+          
+      END.
+      ELSE do:
+           ASSIGN
+           dPerSales = dPerSales + v-pct .
+         
+      END.
+     
         IF LAST-OF(tt-report.key-04) THEN DO:
             IF dPerSales GT 1 THEN
                 ASSIGN dPerSales = 1 .
-           w-sum.amt-y = w-sum.amt-y + (v-amt * dPerSales).
-          IF tt-report.ytd-only EQ NO THEN DO:
+           w-sum.amt-y = w-sum.amt-y + (dPerAmt * dPerSales ).
+         /* IF tt-report.ytd-only EQ NO THEN DO:*/
             assign
-                w-sum.amt = w-sum.amt + (v-amt  * dPerSales)
-                w-sum.msf = w-sum.msf + (v-sqft * dPerSales)
-                w-sum.wgt = w-sum.wgt + (v-wght * dPerSales).
-          END.
+                w-sum.amt = w-sum.amt + (dPerAmt  * dPerSales )
+                w-sum.msf = w-sum.msf + (v-sqft * dPerSales )
+                w-sum.wgt = w-sum.wgt + (v-wght * dPerSales ).
+            
+         /* END.*/  
       END.
     end.
 
@@ -778,13 +804,25 @@
         if v-pct le 0 or v-pct eq ? then v-pct = 1.
       end.
 
-      w-sum.amt-y = w-sum.amt-y + (v-amt * v-pct).
-
-      IF tt-report.ytd-only EQ NO THEN
-         ASSIGN
-          w-sum.amt = w-sum.amt + (v-amt  * v-pct)
-          w-sum.msf = w-sum.msf - (v-sqft * v-pct)
-          w-sum.wgt = w-sum.wgt - (v-wght * v-pct).
+      IF FIRST-OF(tt-report.key-04) THEN
+          ASSIGN
+          dPerSales = v-pct
+          dPerAmt = v-amt .
+      ELSE ASSIGN 
+          dPerSales = dPerSales + v-pct
+          dPerAmt = dPerAmt + v-amt .
+      IF LAST-OF(tt-report.key-04) THEN do:
+          IF dPerSales GT 1 THEN
+                  ASSIGN dPerSales = 1 .
+    
+          w-sum.amt-y = w-sum.amt-y + (dPerAmt * v-pct).
+    
+          /*IF tt-report.ytd-only EQ NO THEN*/
+             ASSIGN
+              w-sum.amt = w-sum.amt + (dPerAmt  * v-pct)
+              w-sum.msf = w-sum.msf - (v-sqft * v-pct)
+              w-sum.wgt = w-sum.wgt - (v-wght * v-pct). 
+      END.
     end.
 
     if last-of(tt-report.key-01) then do:

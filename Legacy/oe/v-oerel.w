@@ -474,12 +474,15 @@ DO:
                  RUN new-ship-id.
               END.       
           end.  
-          when "carrier" then do:
-              run windows/l-carrie.w (g_company,g_loc, focus:screen-value, output char-val).
-              if char-val <> "" then do:
-                 focus:screen-value = entry(1,char-val).
-              end.       
-          end.  
+          WHEN "carrier" THEN DO:
+              FIND FIRST oe-rell NO-LOCK 
+                WHERE oe-rell.company EQ oe-relh.company
+                  AND oe-rell.r-no    EQ oe-relh.r-no NO-ERROR.
+              RUN windows/l-carrie.w (g_company,oe-rell.loc, FOCUS:SCREEN-VALUE, OUTPUT char-val).
+              IF char-val NE "" AND entry(1,char-val) NE FOCUS:SCREEN-VALUE IN FRAME {&FRAME-NAME} THEN DO:
+                 FOCUS:SCREEN-VALUE = ENTRY(1,char-val).
+              END.       
+          END.  
           /* gdm - */
           WHEN "trailer" THEN DO:              
              RUN browsers/l-truck2.w (g_company,
@@ -1476,12 +1479,14 @@ PROCEDURE local-update-record :
         oe-relh.spare-char-3 = "". 
   END.
 
-  run dispatch ('row-changed').
+  /*run dispatch ('row-changed').*/
   ll-got-ship-id = no.
   IF lv-adding-record THEN DO:
      DEF VAR char-hdl AS cha NO-UNDO.
      RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"record-target",OUTPUT char-hdl).
      RUN add-line IN WIDGET-HANDLE(char-hdl).
+     adm-new-record = NO .
+     adm-adding-record = NO .
   END.
 
 END PROCEDURE.

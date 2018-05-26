@@ -1,4 +1,19 @@
-/* Convert delimited file to valid EDI format */
+
+/*------------------------------------------------------------------------
+    File        : postProcessEDI.p
+    Purpose     : Convert delimited file to valid EDI format 
+
+    Syntax      :
+
+    Description : 
+
+    Author(s)   : 
+    Created     : Sat Mar 24 12:53:55 EDT 2018
+    Notes       :
+  ----------------------------------------------------------------------*/
+
+/* ***************************  Definitions  ************************** */
+
 DEFINE INPUT  PARAMETER ipcSetId AS CHARACTER NO-UNDO.
 DEFINE INPUT  PARAMETER ipcInPath AS CHARACTER NO-UNDO.
 DEFINE INPUT  PARAMETER ipcPartner AS CHARACTER NO-UNDO.
@@ -25,14 +40,20 @@ DEFINE VARIABLE cSetID         AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cQualifier     AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cPartnerName   AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lFolderIsGood  AS LOGICAL NO-UNDO.
+DEFINE VARIABLE iPos       AS INTEGER   NO-UNDO.
+DEFINE VARIABLE cOutFolder AS CHARACTER NO-UNDO.
+DEFINE VARIABLE iNumerPos AS INTEGER.
 
 lFolderIsGood = fCheckFolderOfPath(ipcOutPath).
 IF NOT lFolderIsGood THEN 
   RETURN.
+  
 IF SEARCH(ipcOutPath) NE ? THEN 
     RETURN.  /* File already exists */
+    
 IF SEARCH(ipcInPath) EQ ? THEN 
   RETURN.
+  
 INPUT from VALUE(ipcInPath).
 
 lISASent = NO.
@@ -71,6 +92,8 @@ IF AVAILABLE eddoc THEN
 RELEASE eddoc.
 
 DEFINE STREAM sOutput.
+
+/* final EDI file */
 OUTPUT stream sOutput to value(ipcOutPath).
  
 FIND FIRST EDMast NO-LOCK WHERE EDMast.Partner EQ ipcPartner NO-ERROR.
@@ -82,6 +105,7 @@ IF AVAILABLE edPartnerGrp THEN
   cPartnerName = edPartnerGrp.PartnerGrpName.
 else
   cPartnerName = "AMAZON".
+  
 GET-NEXT-LINE:
 REPEAT:
     ASSIGN
@@ -95,10 +119,11 @@ REPEAT:
       iCurrentElem = 0
       cQualifier   = ""
       .
+      
     DO iDelimPos = 1 TO NUM-ENTRIES(inln, "*"):
         
         cElem = "".
-    
+        /* Records come in with extra columns */
         IF iDelimPos = 1 OR
             iDelimPos = 2 OR
             iDelimPos = 4 OR 
@@ -127,11 +152,20 @@ REPEAT:
                 cElem = STRING(INTEGER(cElem)).
                 
             /* Convert from implied decimal to decimal format */    
-            IF cSegment EQ "IT1" AND iCurrentElem EQ 4 THEN 
-                ASSIGN
+            IF cSegment EQ "IT1" AND iCurrentElem EQ 4 THEN DO:
+                iNumerPos = INTEGER(SUBSTRING(cElem, 1, 1)).
+
+                IF iNumerPos = 5 THEN
+                    ASSIGN
+                        cElem = SUBSTRING(cElem, 2, 12) + "." + 
+                  substring(cElem, 14, 5)
+                        cElem = STRING(DECIMAL(cElem)).
+                ELSE                 
+                  ASSIGN
                     cElem = SUBSTRING(cElem, 2, 11) + "." + 
-                  substring(cElem, 13, 6)
+                            SUBSTRING(cElem, 13, 6)
                     cElem = STRING(DECIMAL(cElem)).
+            END.
             IF cSegment EQ "N1" AND iCurrentElem EQ 1 THEN 
               cQualifier = cElem.
               
@@ -185,6 +219,7 @@ REPEAT:
  
     IF NOT lISASEnt THEN 
     DO:
+        /* Insert ISA, GS, ST Header wrappers */
         cISASeg = "ISA" + cEleDelim + 
             "00"  + cEleDelim + 
             fill(" ", 10) + cEleDelim  +
@@ -245,6 +280,7 @@ END.
 
 IF lISASent THEN 
 DO:
+    /* Insert ending segments of ISA, GS & ST */
     iSegmentCount = iSegmentCount + 2.
     PUT STREAM sOutput UNFORMATTED 
         "SE" + cEleDelim +
@@ -271,4 +307,13 @@ DO:
         .                         
 END.
 OUTPUT stream sOutput close.
-/* DOS SILENT notepad value(ipcOutPath). */ 
+
+ 
+iPos = r-index(ipcOutPath, "\").
+cOutFolder = SUBSTRING(ipcOutPath, 1, iPos - 1).
+FILE-INFO:FILE-NAME = ipcOutPath.
+IF FILE-INFO:FILE-SIZE GT 0 THEN 
+  OS-COPY value(ipcOutPath) VALUE(cOutFolder + "\Send").
+OS-DELETE VALUE(ipcOutPath).
+OS-DELETE VALUE(ipcInPath). 
+ 

@@ -104,7 +104,7 @@ DEF VAR v-q-no LIKE oe-ord.q-no NO-UNDO.
 DEF VAR v-printline AS INT NO-UNDO.
 DEF VAR lv-display-comp AS LOG NO-UNDO.  /* display company address */
 DEF VAR lv-comp-name AS cha FORM "x(30)" NO-UNDO.
-DEF VAR lv-email AS cha FORM "x(30)" NO-UNDO.
+DEF VAR lv-email AS cha FORM "x(56)" NO-UNDO.
 def var v-job-po            as   CHAR NO-UNDO.
 DEF VAR v-case-tot AS INT NO-UNDO.
 DEF BUFFER bf-ttboll FOR tt-boll.

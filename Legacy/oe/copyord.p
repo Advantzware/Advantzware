@@ -254,7 +254,7 @@ PROCEDURE copyJob:
                hld-nufile = nufile
                fil_id     = RECID(oe-ordl).
              
-              RUN po/do-po.p.
+              RUN po/doPo.p (YES).
               /* check oe-ordl.due-date and calc promised date and job's start-date */
 
               IF oe-ordl.est-no NE "" AND v-run-schedule THEN RUN update-start-date.
@@ -401,7 +401,7 @@ END PROCEDURE.
 
 /********************************************************************/
 
-PROCEDURE update-start-date1 :
+PROCEDURE update-start-date :
 /*------------------------------------------------------------------------------
   Purpose:     
   Parameters:  <none>

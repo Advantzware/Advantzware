@@ -68,7 +68,9 @@ TRIGGERS: ~
     PERSISTENT RUN widgetLeave IN THIS-PROCEDURE (dynWidget:HANDLE). ~
 END TRIGGERS.
 
-{methods/lockWindowUpdate.i}
+&IF DEFINED(FWD-VERSION) EQ 0 &THEN
+   {methods/lockWindowUpdate.i}
+&ENDIF
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -469,7 +471,11 @@ PROCEDURE createTabs :
 ------------------------------------------------------------------------------*/
   DEFINE VARIABLE i AS INTEGER NO-UNDO.
 
+&IF DEFINED(FWD-VERSION) EQ 0 &THEN
   RUN LockWindowUpdate (ACTIVE-WINDOW:HWND,OUTPUT i).
+&ELSE
+  ACTIVE-WINDOW:DISABLE-REDRAW = TRUE.
+&ENDIF
   DELETE WIDGET-POOL "widget-pool-tabs" NO-ERROR.
   CREATE WIDGET-POOL "widget-pool-tabs" PERSISTENT.
   FIND {&dbnm}mfgroup NO-LOCK
@@ -533,7 +539,11 @@ PROCEDURE createTabs :
     ldummy = tabImage[currentTab]:MOVE-TO-TOP()
     ldummy = tabLabel[currentTab]:MOVE-TO-TOP()
     .
+&IF DEFINED(FWD-VERSION) EQ 0 &THEN
   RUN LockWindowUpdate (0,OUTPUT i).
+&ELSE
+  ACTIVE-WINDOW:DISABLE-REDRAW = FALSE.
+&ENDIF
 
 END PROCEDURE.
 
@@ -856,7 +866,11 @@ PROCEDURE labelTrigger :
 ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER tabno AS INTEGER NO-UNDO.
     
+&IF DEFINED(FWD-VERSION) EQ 0 &THEN
     RUN LockWindowUpdate (ACTIVE-WINDOW:HWND,OUTPUT i).
+&ELSE
+    ACTIVE-WINDOW:DISABLE-REDRAW = TRUE.
+&ENDIF
     ASSIGN
         tabImage[currentTab]:HEIGHT-PIXEL = 24
         ldummy = tabImage[currentTab]:LOAD-IMAGE("adeicon/ts-dn72")
@@ -872,7 +886,11 @@ PROCEDURE labelTrigger :
         ldummy = tabLabel[currentTab]:MOVE-TO-TOP()
         .
     RUN moveObjects.
+&IF DEFINED(FWD-VERSION) EQ 0 &THEN
     RUN LockWindowUpdate (0,OUTPUT i).
+&ELSE
+    ACTIVE-WINDOW:DISABLE-REDRAW = FALSE.
+&ENDIF
 
 END PROCEDURE.
 

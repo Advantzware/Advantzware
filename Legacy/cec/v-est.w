@@ -117,6 +117,9 @@ DO:
    END.
 END.
 
+
+
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -1572,6 +1575,18 @@ END.
 &ANALYZE-RESUME
 
 
+ &Scoped-define SELF-NAME eb.gluelap
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL eb.gluelap V-table-Win
+ON VALUE-CHANGED OF eb.gluelap IN FRAME Corr /* Tab */
+DO: 
+  IF ll-auto-calc-selected AND {&self-name} <> dec(self:SCREEN-VALUE )
+    THEN ll-style-is-valid = YES.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME eb.k-len
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL eb.k-len V-table-Win
 ON LEAVE OF eb.k-len IN FRAME Corr /* Scores on Length */
@@ -2514,6 +2529,10 @@ PROCEDURE calc-blank-size :
                 bf-eb.k-len-array2[1] = bf-eb.t-len
                 .
       else do:
+          ASSIGN /*initialize arrays*/ 
+          dPanelsLength = 0
+          dPanelsWidth = 0.
+          
          run cec/descalc.p (recid(xest),recid(xeb)).
 
          DO i = 1 TO EXTENT(xeb.k-wid-scr-type2):
@@ -2525,7 +2544,15 @@ PROCEDURE calc-blank-size :
          if v-lscore-c begins "No" then
             assign  xeb.k-wid-array2[1] = xeb.t-wid
                     xeb.k-len-array2[1] = xeb.t-len.
-         else do:
+          ELSE IF xest.metric THEN DO:  /*Note - this may work for all*/
+            DO i = 1 TO EXTENT(dPanelsLength):
+                ASSIGN
+                xeb.k-wid-array2[i] = dPanelsWidth[i]
+                xeb.k-len-array2[i] = dPanelsLength[i].
+            END.
+             
+          END.
+          else do:
            i = 0.
            for each w-box-design-line:
               i = i + 1.
@@ -2801,7 +2828,8 @@ assign
  itemfg.isaset     = (xest.est-type eq 2 or xest.est-type eq 6) and
                      xeb.form-no eq 0
  itemfg.pur-man    = xeb.pur-man  
- itemfg.alloc      = xeb.set-is-assembled.
+ itemfg.alloc      = xeb.set-is-assembled
+ itemfg.setupDate  = TODAY.
 
  IF itemfg.alloc NE ? THEN itemfg.alloc = NOT itemfg.alloc.
 
@@ -3149,8 +3177,10 @@ PROCEDURE local-assign-record :
   RUN one-eb-on-ef (ROWID(ef), OUTPUT ll-one-eb-on-ef).
 
   IF ll-one-eb-on-ef AND ll-blank-size-changed THEN DO:
-    MESSAGE "Do you wish to reset layout screen?"
-        VIEW-AS ALERT-BOX BUTTON YES-NO UPDATE ll-ans2 AS LOG.
+      
+          MESSAGE "Do you wish to reset layout screen?"
+              VIEW-AS ALERT-BOX BUTTON YES-NO UPDATE ll-ans2 AS LOG.
+     
 
     ef.lsh-lock = NO.    
     IF ll-ans2 THEN RUN update-sheet.    
@@ -3171,11 +3201,13 @@ PROCEDURE local-assign-record :
     FIND CURRENT b-est NO-LOCK.
   END.
 
-  IF ll-blank-size-changed                       OR
-     (cestyle-log AND eb.style NE lv-prev-style) THEN DO:
+  IF ll-blank-size-changed OR (cestyle-log AND eb.style NE lv-prev-style)
+         THEN DO: 
     ll-ans2 = NO.
+    
     MESSAGE "Do you wish to reset box design?"
         VIEW-AS ALERT-BOX BUTTON YES-NO UPDATE ll-ans2.
+    
     IF ll-ans2 THEN
        lv-box-des = "B".
     ELSE
@@ -3206,14 +3238,16 @@ PROCEDURE local-assign-record :
          RUN tokenize-proc(box-design-hdr.lscore).
 
          DO v-count = 1 TO 30:
-
-            ASSIGN
-               v-dec = {sys/inc/k16v.i eb.k-len-array2[v-count]}
-               v-dec2 = {sys/inc/k16v.i eb.k-wid-array2[v-count]}.
-
-            IF v-l-array[v-count] NE v-dec OR
-               v-w-array[v-count] NE v-dec2 THEN
+             
+                 ASSIGN
+                     v-dec = {sys/inc/k16v.i eb.k-len-array2[v-count]}
+                     v-dec2 = {sys/inc/k16v.i eb.k-wid-array2[v-count]}.
+             
+          
+            IF  v-l-array[v-count] NE v-dec OR
+               v-w-array[v-count] NE v-dec2  THEN
                DO:
+                
                   MESSAGE "Do you wish to reset box design?"
                      VIEW-AS ALERT-BOX BUTTON YES-NO UPDATE ll-ans2.
 
@@ -3402,7 +3436,7 @@ PROCEDURE local-assign-statement :
 
     /* task 12011101 - to update this even on an update */
     IF avail(style) AND style.qty-per-set NE 0 THEN
-      eb.yld-qty = style.qty-per-set.
+      eb.quantityPerSet = style.qty-per-set.
   END.
 
 END PROCEDURE.
@@ -3539,7 +3573,7 @@ PROCEDURE local-display-fields :
                    IF eb.tab-in EQ NO  THEN "Out" ELSE ""
        fi_per-set = IF eb.est-type GE 7 THEN 1
                     ELSE
-                    IF eb.yld-qty LT 0 THEN -1 / eb.yld-qty ELSE eb.yld-qty
+                    IF eb.quantityPerSet LT 0 THEN -1 / eb.quantityPerSet ELSE eb.quantityPerSet
        fi_msf     = (IF eb.est-type GE 7 THEN eb.bl-qty
                      ELSE (est-qty.eqty * fi_per-set)) *
                     (IF v-corr THEN (eb.t-sqin * .007)
@@ -4937,7 +4971,7 @@ PROCEDURE valid-wid-len :
 
   {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
-    lv-handle = IF LOOKUP(FOCUS:NAME,"style,len") GT 0 THEN FOCUS ELSE ?.
+    lv-handle = IF LOOKUP(FOCUS:NAME,"style,len") GT 0 THEN FOCUS ELSE ? NO-ERROR.
     IF NOT VALID-HANDLE(lv-handle) THEN lv-handle = eb.wid:HANDLE.
 
     IF ll-warn AND ll-wid-len-warned EQ NO                         AND

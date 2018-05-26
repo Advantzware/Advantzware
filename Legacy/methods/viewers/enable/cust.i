@@ -31,6 +31,7 @@ DO WITH FRAME {&FRAME-NAME}:
         AND NOT b-inv-head.multi-invoice
       NO-ERROR.
   IF NOT AVAIL b-inv-head THEN ENABLE rd_inv-meth.
+APPLY 'ENTRY' TO cust.name .
 END.
 &ENDIF
 

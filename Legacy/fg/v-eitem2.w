@@ -44,6 +44,9 @@ DEF VAR lv-field-hdl AS HANDLE NO-UNDO.
 DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO .
 DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO .
 DEFINE VARIABLE lVendCostMtx AS LOGICAL NO-UNDO .
+DEFINE VARIABLE lCopyRecord AS LOGICAL NO-UNDO.
+DEFINE VARIABLE lAddRecord AS LOGICAL NO-UNDO.
+
 {custom/gcompany.i}
 {custom/persist.i}
 
@@ -94,9 +97,10 @@ e-itemfg-vend.roll-w[29] e-itemfg-vend.roll-w[30]
 &Scoped-Define ENABLED-OBJECTS tb_sel-02 tb_sel-03 tb_sel-04 tb_sel-05 ~
 tb_sel-06 tb_sel-07 tb_sel-08 tb_sel-09 tb_sel-10 tb_sel-01 tb_sel RECT-24 ~
 RECT-26 
-&Scoped-Define DISPLAYED-FIELDS e-itemfg-vend.i-no e-itemfg-vend.vend-no ~
-e-itemfg-vend.vend-item e-itemfg-vend.spare-dec-1 e-itemfg-vend.roll-w[27] ~
-e-itemfg-vend.roll-w[28] e-itemfg-vend.roll-w[29] e-itemfg-vend.roll-w[30] 
+&Scoped-Define DISPLAYED-FIELDS e-itemfg-vend.cust-no e-itemfg-vend.i-no ~
+e-itemfg-vend.vend-no e-itemfg-vend.vend-item e-itemfg-vend.spare-dec-1 ~
+e-itemfg-vend.roll-w[27] e-itemfg-vend.roll-w[28] e-itemfg-vend.roll-w[29] ~
+e-itemfg-vend.roll-w[30] 
 &Scoped-define DISPLAYED-TABLES e-itemfg-vend
 &Scoped-define FIRST-DISPLAYED-TABLE e-itemfg-vend
 &Scoped-Define DISPLAYED-OBJECTS ls-item-name ls-item-dscr fi_std-uom ~
@@ -155,7 +159,7 @@ DEFINE BUTTON btnShowVendCostMtx
 DEFINE VARIABLE fi_std-uom AS CHARACTER FORMAT "x(3)" 
      LABEL "Cost UOM" 
      VIEW-AS FILL-IN 
-     SIZE 16 BY 1.
+     SIZE 13 BY 1.
 
 DEFINE VARIABLE ls-item-dscr AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS FILL-IN 
@@ -312,47 +316,47 @@ DEFINE VARIABLE tb_sel-01 AS LOGICAL INITIAL no
      SIZE 24 BY 1 NO-UNDO.
 
 DEFINE VARIABLE tb_sel-02 AS LOGICAL INITIAL no 
-     LABEL "tb_sel 2" 
+     LABEL "" 
      VIEW-AS TOGGLE-BOX
      SIZE 4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE tb_sel-03 AS LOGICAL INITIAL no 
-     LABEL "tb_sel 3" 
+     LABEL "" 
      VIEW-AS TOGGLE-BOX
      SIZE 4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE tb_sel-04 AS LOGICAL INITIAL no 
-     LABEL "tb_sel 4" 
+     LABEL "" 
      VIEW-AS TOGGLE-BOX
      SIZE 4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE tb_sel-05 AS LOGICAL INITIAL no 
-     LABEL "tb_sel 5" 
+     LABEL "" 
      VIEW-AS TOGGLE-BOX
      SIZE 4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE tb_sel-06 AS LOGICAL INITIAL no 
-     LABEL "tb_sel 6" 
+     LABEL "" 
      VIEW-AS TOGGLE-BOX
      SIZE 4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE tb_sel-07 AS LOGICAL INITIAL no 
-     LABEL "tb_sel 7" 
+     LABEL "" 
      VIEW-AS TOGGLE-BOX
      SIZE 4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE tb_sel-08 AS LOGICAL INITIAL no 
-     LABEL "tb_sel 8" 
+     LABEL "" 
      VIEW-AS TOGGLE-BOX
      SIZE 4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE tb_sel-09 AS LOGICAL INITIAL no 
-     LABEL "tb_sel 9" 
+     LABEL "" 
      VIEW-AS TOGGLE-BOX
      SIZE 4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE tb_sel-10 AS LOGICAL INITIAL no 
-     LABEL "tb_sel 10" 
+     LABEL "" 
      VIEW-AS TOGGLE-BOX
      SIZE 4 BY 1 NO-UNDO.
 
@@ -360,20 +364,23 @@ DEFINE VARIABLE tb_sel-10 AS LOGICAL INITIAL no
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
+     e-itemfg-vend.cust-no AT ROW 3.29 COL 82 COLON-ALIGNED WIDGET-ID 10
+          VIEW-AS FILL-IN 
+          SIZE 14.6 BY 1
      btnShowVendCostMtx AT ROW 5.67 COL 15 WIDGET-ID 8
      e-itemfg-vend.i-no AT ROW 1.24 COL 14 COLON-ALIGNED FORMAT "x(15)"
           VIEW-AS FILL-IN 
           SIZE 26 BY 1
      ls-item-name AT ROW 1.24 COL 41 COLON-ALIGNED NO-LABEL
      ls-item-dscr AT ROW 2.19 COL 41 COLON-ALIGNED NO-LABEL
-     fi_std-uom AT ROW 3.19 COL 14 COLON-ALIGNED
+     fi_std-uom AT ROW 3.24 COL 14 COLON-ALIGNED
      e-itemfg-vend.vend-no AT ROW 4.43 COL 14 COLON-ALIGNED FORMAT "x(8)"
           VIEW-AS FILL-IN 
           SIZE 16 BY 1
      ls-vend-name AT ROW 4.43 COL 30 COLON-ALIGNED NO-LABEL
-     e-itemfg-vend.vend-item AT ROW 3.29 COL 50.8 COLON-ALIGNED WIDGET-ID 2
+     e-itemfg-vend.vend-item AT ROW 3.29 COL 47 COLON-ALIGNED WIDGET-ID 2
           VIEW-AS FILL-IN 
-          SIZE 21.2 BY 1
+          SIZE 24 BY 1
      run-qty-01 AT ROW 6.57 COL 2 NO-LABEL
      run-cost-01 AT ROW 6.57 COL 16 COLON-ALIGNED NO-LABEL
      setups-01 AT ROW 6.57 COL 33 COLON-ALIGNED NO-LABEL
@@ -418,20 +425,15 @@ DEFINE FRAME F-Main
           LABEL "Min. Charge"
           VIEW-AS FILL-IN 
           SIZE 13.6 BY 1
-     e-itemfg-vend.roll-w[27] AT ROW 10.52 COL 71 COLON-ALIGNED HELP
+     e-itemfg-vend.roll-w[27] AT ROW 10.52 COL 68.8 COLON-ALIGNED HELP
           "Enter Sheet Width Minimum"
-          LABEL "Sheet Width"
+          LABEL "Width"
           VIEW-AS FILL-IN 
-          SIZE 11.6 BY 1
+          SIZE 14 BY 1
      e-itemfg-vend.roll-w[28] AT ROW 10.52 COL 83 COLON-ALIGNED HELP
           "Enter Sheet Width Maximum" NO-LABEL
           VIEW-AS FILL-IN 
-          SIZE 11.6 BY 1
-     e-itemfg-vend.roll-w[29] AT ROW 12.67 COL 71 COLON-ALIGNED HELP
-          "Enter Sheet Length Minimum"
-          LABEL "Length"
-          VIEW-AS FILL-IN 
-          SIZE 11.6 BY 1
+          SIZE 14 BY 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -439,10 +441,15 @@ DEFINE FRAME F-Main
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME F-Main
+     e-itemfg-vend.roll-w[29] AT ROW 12.67 COL 68.8 COLON-ALIGNED HELP
+          "Enter Sheet Length Minimum"
+          LABEL "Length"
+          VIEW-AS FILL-IN 
+          SIZE 14 BY 1
      e-itemfg-vend.roll-w[30] AT ROW 12.67 COL 83 COLON-ALIGNED HELP
           "Enter Sheet Length Maximum" NO-LABEL
           VIEW-AS FILL-IN 
-          SIZE 11.6 BY 1
+          SIZE 14 BY 1
      tb_sel-01 AT ROW 6.57 COL 52
      tb_sel AT ROW 5.62 COL 52
      qty-label AT ROW 5.62 COL 2.2 NO-LABEL
@@ -493,8 +500,8 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW V-table-Win ASSIGN
-         HEIGHT             = 16
-         WIDTH              = 105.6.
+         HEIGHT             = 15.71
+         WIDTH              = 101.6.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -526,6 +533,8 @@ ASSIGN
 ASSIGN 
        btnShowVendCostMtx:HIDDEN IN FRAME F-Main           = TRUE.
 
+/* SETTINGS FOR FILL-IN e-itemfg-vend.cust-no IN FRAME F-Main
+   NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN fi_std-uom IN FRAME F-Main
    NO-ENABLE 2                                                          */
 /* SETTINGS FOR FILL-IN e-itemfg-vend.i-no IN FRAME F-Main
@@ -697,6 +706,336 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME run-cost-01
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL run-cost-01 V-table-Win
+ON VALUE-CHANGED OF run-cost-01 IN FRAME F-Main
+DO:
+    ASSIGN {&SELF-NAME}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME run-cost-02
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL run-cost-02 V-table-Win
+ON VALUE-CHANGED OF run-cost-02 IN FRAME F-Main
+DO:
+    ASSIGN {&SELF-NAME}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME run-cost-03
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL run-cost-03 V-table-Win
+ON VALUE-CHANGED OF run-cost-03 IN FRAME F-Main
+DO:
+    ASSIGN {&SELF-NAME}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME run-cost-04
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL run-cost-04 V-table-Win
+ON VALUE-CHANGED OF run-cost-04 IN FRAME F-Main
+DO:
+    ASSIGN {&SELF-NAME}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME run-cost-05
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL run-cost-05 V-table-Win
+ON VALUE-CHANGED OF run-cost-05 IN FRAME F-Main
+DO:
+    ASSIGN {&SELF-NAME}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME run-cost-06
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL run-cost-06 V-table-Win
+ON VALUE-CHANGED OF run-cost-06 IN FRAME F-Main
+DO:
+    ASSIGN {&SELF-NAME}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME run-cost-07
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL run-cost-07 V-table-Win
+ON VALUE-CHANGED OF run-cost-07 IN FRAME F-Main
+DO:
+    ASSIGN {&SELF-NAME}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME run-cost-08
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL run-cost-08 V-table-Win
+ON VALUE-CHANGED OF run-cost-08 IN FRAME F-Main
+DO:
+    ASSIGN {&SELF-NAME}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME run-cost-09
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL run-cost-09 V-table-Win
+ON VALUE-CHANGED OF run-cost-09 IN FRAME F-Main
+DO:
+    ASSIGN {&SELF-NAME}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME run-cost-10
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL run-cost-10 V-table-Win
+ON VALUE-CHANGED OF run-cost-10 IN FRAME F-Main
+DO:
+    ASSIGN {&SELF-NAME}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME run-qty-01
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL run-qty-01 V-table-Win
+ON VALUE-CHANGED OF run-qty-01 IN FRAME F-Main
+DO:
+    ASSIGN {&SELF-NAME}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME run-qty-02
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL run-qty-02 V-table-Win
+ON VALUE-CHANGED OF run-qty-02 IN FRAME F-Main
+DO:
+    ASSIGN {&SELF-NAME}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME run-qty-03
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL run-qty-03 V-table-Win
+ON VALUE-CHANGED OF run-qty-03 IN FRAME F-Main
+DO:
+    ASSIGN {&SELF-NAME}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME run-qty-04
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL run-qty-04 V-table-Win
+ON VALUE-CHANGED OF run-qty-04 IN FRAME F-Main
+DO:
+    ASSIGN {&SELF-NAME}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME run-qty-05
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL run-qty-05 V-table-Win
+ON VALUE-CHANGED OF run-qty-05 IN FRAME F-Main
+DO:
+    ASSIGN {&SELF-NAME}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME run-qty-06
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL run-qty-06 V-table-Win
+ON VALUE-CHANGED OF run-qty-06 IN FRAME F-Main
+DO:
+    ASSIGN {&SELF-NAME}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME run-qty-07
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL run-qty-07 V-table-Win
+ON VALUE-CHANGED OF run-qty-07 IN FRAME F-Main
+DO:
+    ASSIGN {&SELF-NAME}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME run-qty-08
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL run-qty-08 V-table-Win
+ON VALUE-CHANGED OF run-qty-08 IN FRAME F-Main
+DO:
+    ASSIGN {&SELF-NAME}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME run-qty-09
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL run-qty-09 V-table-Win
+ON VALUE-CHANGED OF run-qty-09 IN FRAME F-Main
+DO:
+    ASSIGN {&SELF-NAME}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME run-qty-10
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL run-qty-10 V-table-Win
+ON VALUE-CHANGED OF run-qty-10 IN FRAME F-Main
+DO:
+    ASSIGN {&SELF-NAME}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME setups-01
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL setups-01 V-table-Win
+ON VALUE-CHANGED OF setups-01 IN FRAME F-Main
+DO:
+    ASSIGN {&SELF-NAME}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME setups-02
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL setups-02 V-table-Win
+ON VALUE-CHANGED OF setups-02 IN FRAME F-Main
+DO:
+    ASSIGN {&SELF-NAME}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME setups-03
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL setups-03 V-table-Win
+ON VALUE-CHANGED OF setups-03 IN FRAME F-Main
+DO:
+    ASSIGN {&SELF-NAME}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME setups-04
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL setups-04 V-table-Win
+ON VALUE-CHANGED OF setups-04 IN FRAME F-Main
+DO:
+    ASSIGN {&SELF-NAME}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME setups-05
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL setups-05 V-table-Win
+ON VALUE-CHANGED OF setups-05 IN FRAME F-Main
+DO:
+    ASSIGN {&SELF-NAME}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME setups-06
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL setups-06 V-table-Win
+ON VALUE-CHANGED OF setups-06 IN FRAME F-Main
+DO:
+    ASSIGN {&SELF-NAME}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME setups-07
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL setups-07 V-table-Win
+ON VALUE-CHANGED OF setups-07 IN FRAME F-Main
+DO:
+    ASSIGN {&SELF-NAME}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME setups-08
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL setups-08 V-table-Win
+ON VALUE-CHANGED OF setups-08 IN FRAME F-Main
+DO:
+    ASSIGN {&SELF-NAME}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME setups-09
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL setups-09 V-table-Win
+ON VALUE-CHANGED OF setups-09 IN FRAME F-Main
+DO:
+    ASSIGN {&SELF-NAME}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME setups-10
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL setups-10 V-table-Win
+ON VALUE-CHANGED OF setups-10 IN FRAME F-Main
+DO:
+    ASSIGN {&SELF-NAME}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME tb_sel
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_sel V-table-Win
 ON VALUE-CHANGED OF tb_sel IN FRAME F-Main /* Check to pre-select this quantity/ */
@@ -721,7 +1060,7 @@ END.
 
 &Scoped-define SELF-NAME tb_sel-02
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_sel-02 V-table-Win
-ON VALUE-CHANGED OF tb_sel-02 IN FRAME F-Main /* tb_sel 2 */
+ON VALUE-CHANGED OF tb_sel-02 IN FRAME F-Main
 DO:
   RUN new-sel.
 END.
@@ -732,7 +1071,7 @@ END.
 
 &Scoped-define SELF-NAME tb_sel-03
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_sel-03 V-table-Win
-ON VALUE-CHANGED OF tb_sel-03 IN FRAME F-Main /* tb_sel 3 */
+ON VALUE-CHANGED OF tb_sel-03 IN FRAME F-Main
 DO:
   RUN new-sel.
 END.
@@ -743,7 +1082,7 @@ END.
 
 &Scoped-define SELF-NAME tb_sel-04
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_sel-04 V-table-Win
-ON VALUE-CHANGED OF tb_sel-04 IN FRAME F-Main /* tb_sel 4 */
+ON VALUE-CHANGED OF tb_sel-04 IN FRAME F-Main
 DO:
   RUN new-sel.
 END.
@@ -754,7 +1093,7 @@ END.
 
 &Scoped-define SELF-NAME tb_sel-05
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_sel-05 V-table-Win
-ON VALUE-CHANGED OF tb_sel-05 IN FRAME F-Main /* tb_sel 5 */
+ON VALUE-CHANGED OF tb_sel-05 IN FRAME F-Main
 DO:
   RUN new-sel.
 END.
@@ -765,7 +1104,7 @@ END.
 
 &Scoped-define SELF-NAME tb_sel-06
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_sel-06 V-table-Win
-ON VALUE-CHANGED OF tb_sel-06 IN FRAME F-Main /* tb_sel 6 */
+ON VALUE-CHANGED OF tb_sel-06 IN FRAME F-Main
 DO:
   RUN new-sel.
 END.
@@ -776,7 +1115,7 @@ END.
 
 &Scoped-define SELF-NAME tb_sel-07
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_sel-07 V-table-Win
-ON VALUE-CHANGED OF tb_sel-07 IN FRAME F-Main /* tb_sel 7 */
+ON VALUE-CHANGED OF tb_sel-07 IN FRAME F-Main
 DO:
   RUN new-sel.
 END.
@@ -787,7 +1126,7 @@ END.
 
 &Scoped-define SELF-NAME tb_sel-08
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_sel-08 V-table-Win
-ON VALUE-CHANGED OF tb_sel-08 IN FRAME F-Main /* tb_sel 8 */
+ON VALUE-CHANGED OF tb_sel-08 IN FRAME F-Main
 DO:
   RUN new-sel.
 END.
@@ -798,7 +1137,7 @@ END.
 
 &Scoped-define SELF-NAME tb_sel-09
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_sel-09 V-table-Win
-ON VALUE-CHANGED OF tb_sel-09 IN FRAME F-Main /* tb_sel 9 */
+ON VALUE-CHANGED OF tb_sel-09 IN FRAME F-Main
 DO:
   RUN new-sel.
 END.
@@ -809,7 +1148,7 @@ END.
 
 &Scoped-define SELF-NAME tb_sel-10
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_sel-10 V-table-Win
-ON VALUE-CHANGED OF tb_sel-10 IN FRAME F-Main /* tb_sel 10 */
+ON VALUE-CHANGED OF tb_sel-10 IN FRAME F-Main
 DO:
   RUN new-sel.
 END.
@@ -1002,6 +1341,8 @@ PROCEDURE local-add-record :
 
   /* Code placed here will execute AFTER standard behavior.    */
   RUN dispatch ("display-fields").
+  RUN pVendCostMtx ("INIT").
+  lAddRecord = YES.
 
 END PROCEDURE.
 
@@ -1017,14 +1358,39 @@ PROCEDURE local-assign-record :
   def var i as int no-undo.
   def var lv-eb-recid as recid no-undo.
   DEF VAR char-hdl AS cha NO-UNDO.
+  DEFINE VARIABLE lCheckBox AS LOGICAL NO-UNDO EXTENT 10.
 
   /* Code placed here will execute PRIOR to standard behavior. */
-  RUN pVendCostMtx ("ASSIGN").
+  DO WITH FRAME {&FRAME-NAME}:
+      ASSIGN
+        tb_sel-01
+        tb_sel-02
+        tb_sel-03
+        tb_sel-04
+        tb_sel-05
+        tb_sel-06
+        tb_sel-07
+        tb_sel-08
+        tb_sel-09
+        tb_sel-10
+        lCheckBox[1] = tb_sel-01
+        lCheckBox[2] = tb_sel-02
+        lCheckBox[3] = tb_sel-03
+        lCheckBox[4] = tb_sel-04
+        lCheckBox[5] = tb_sel-05
+        lCheckBox[6] = tb_sel-06
+        lCheckBox[7] = tb_sel-07
+        lCheckBox[8] = tb_sel-08
+        lCheckBox[9] = tb_sel-09
+        lCheckBox[10] = tb_sel-10
+        .
+  END.
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-record':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
+  RUN pVendCostMtx ("ASSIGN").
 
   RUN reftable-values (NO).
   for each tmpfile: delete tmpfile .  end.
@@ -1056,12 +1422,27 @@ PROCEDURE local-assign-record :
         ASSIGN e-itemfg-vend.est-no = eb.est-no
                e-itemfg-vend.eqty = eb.eqty
                e-itemfg-vend.form-no = eb.form-no
-               e-itemfg-vend.blank-no = eb.blank-no.
+               e-itemfg-vend.blank-no = eb.blank-no
+               e-itemfg-vend.i-no = eb.stock-no
+               .
 
   END.
-
+  
+  ASSIGN
+    e-itemfg-vend.selected[01] = lCheckBox[1]
+    e-itemfg-vend.selected[02] = lCheckBox[2]
+    e-itemfg-vend.selected[03] = lCheckBox[3]
+    e-itemfg-vend.selected[04] = lCheckBox[4]
+    e-itemfg-vend.selected[05] = lCheckBox[5]
+    e-itemfg-vend.selected[06] = lCheckBox[6]
+    e-itemfg-vend.selected[07] = lCheckBox[7]
+    e-itemfg-vend.selected[08] = lCheckBox[8]
+    e-itemfg-vend.selected[09] = lCheckBox[9]
+    e-itemfg-vend.selected[10] = lCheckBox[10]
+    .
+    
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'display-fields':U ) .
-
+  
   IF eb.stock-no <> "" THEN DO:
      DEF VAR ldoAdd AS LOG NO-UNDO.
      lDoAdd = NOT CAN-FIND(FIRST bfEVend WHERE bfEVend.company = eb.company
@@ -1071,14 +1452,14 @@ PROCEDURE local-assign-record :
                                      AND bfEVend.est-no = "").          
 
      MESSAGE (IF lDoAdd THEN "Create" ELSE "Update")
-           " FG Item Vend Cost Table for that Vendor for that specific FG Item?"
-         /* SKIP
-         eb.company ":" e-itemfg.i-no ":" eb.stock-no ":" e-itemfg-vend.vend-no*/
+           " matching FG Item Vend Cost table for these values?" SKIP(2) 
+             "Item #: " e-itemfg-vend.i-no SKIP 
+             "Vendor: " e-itemfg-vend.vend-no SKIP 
+             "Customer: " e-itemfg-vend.cust-no
          VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO UPDATE lans AS LOG.
      IF lans THEN RUN UpdateFGItemVendCost.
 
   END.
-
 
 END PROCEDURE.
 
@@ -1099,6 +1480,26 @@ PROCEDURE local-cancel-record :
 
   /* Code placed here will execute AFTER standard behavior.    */
   RUN disable-fields.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-copy-record V-table-Win 
+PROCEDURE local-copy-record :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+
+  /* Code placed here will execute PRIOR to standard behavior. */
+
+  /* Dispatch standard ADM method.                             */
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'copy-record':U ) .
+
+  /* Code placed here will execute AFTER standard behavior.    */
+  lCopyRecord = YES.
 
 END PROCEDURE.
 
@@ -1172,7 +1573,7 @@ PROCEDURE local-delete-record :
   IF NOT adm-new-record THEN DO:
     {custom/askdel.i}
   END.
-
+  
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'delete-record':U ) .
 
@@ -1204,7 +1605,6 @@ PROCEDURE local-display-fields :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEF BUFFER b-eiv FOR e-itemfg-vend.
-
 
   /* Code placed here will execute PRIOR to standard behavior. */
   IF AVAIL e-itemfg-vend AND e-itemfg-vend.setup NE 0 THEN DO TRANSACTION:
@@ -1253,7 +1653,6 @@ PROCEDURE local-display-fields :
     tb_sel-09   = NO
     tb_sel-10   = NO
     .
-
   IF AVAIL e-itemfg-vend THEN
   ASSIGN
     tb_sel-01   = e-itemfg-vend.selected[01]
@@ -1275,10 +1674,16 @@ PROCEDURE local-display-fields :
   ASSIGN ls-vend-name = ""  
          ls-item-name = ""
          ls-item-dscr = ""
-         qty-label    = "Qty " + STRING(lVendCostMtx,"FROM/TO")
+         qty-label    = "Qty " + STRING(lVendCostMtx,"From/To")
          .
 
+  IF lAddRecord EQ NO AND lCopyRecord EQ NO THEN
   RUN pVendCostMtx ("DISPLAY").
+  ELSE
+  ASSIGN
+    lAddRecord  = NO
+    lCopyRecord = NO
+    .
   
   RUN disp-vend-name.
 
@@ -1629,7 +2034,9 @@ PROCEDURE UpdateFGItemVendCost :
                        AND bfEVend.item-type = NO
                        AND bfEvend.i-no = eb.stock-no /*e-itemfg.i-no*/
                        AND bfEVend.vend-no = e-itemfg-vend.vend-no
-                       AND bfEVend.est-no = "" NO-ERROR.
+                       AND bfEVend.est-no = "" 
+                       AND bfEVend.cust-no EQ e-itemfg-vend.cust-no 
+                       NO-ERROR.
 
   IF NOT AVAIL bfEVend THEN DO: 
      CREATE bfEVend.            
@@ -1650,37 +2057,20 @@ PROCEDURE UpdateFGItemVendCost :
                   AND bfRef.val[1]   = e-itemfg-vend.form-no
                   AND bfRef.val[2]   = e-itemfg-vend.blank-no
                 NO-LOCK NO-ERROR. 
-DO WITH FRAME {&FRAME-NAME}:
-   bfEvend.std-uom = fi_std-uom:SCREEN-VALUE.
-END.
+  DO WITH FRAME {&FRAME-NAME}:
+    bfEvend.std-uom = fi_std-uom:SCREEN-VALUE.
+  END.
 
-IF AVAIL bfRef AND bfRef.code2 NE "" AND bfEvend.std-uom EQ "" THEN
+  IF AVAIL bfRef AND bfRef.code2 NE "" AND bfEvend.std-uom EQ "" THEN
     bfEVend.std-uom = bfRef.code2.
 
-IF AVAIL bfEItemfg AND bfEItemfg.std-uom EQ "" THEN DO:
+  IF AVAIL bfEItemfg AND bfEItemfg.std-uom EQ "" THEN DO:
     FIND CURRENT bfEItemfg EXCLUSIVE-LOCK.
     bfEItemfg.std-uom = bfEVend.std-uom.
     FIND CURRENT bfEItemfg NO-LOCK.
-END.
-
-
-
-  /* there is no GS&A markup % in EST
-  FIND FIRST bfRef WHERE bfRef.bfRef EQ 'e-itemfg-vend.markup' AND
-                         bfRef.company EQ e-itemfg-vend.company AND
-                         bfRef.loc EQ e-itemfg-vend.i-no AND
-                         bfRef.code EQ e-itemfg-vend.vend-no EXCLUSIVE-LOCK NO-ERROR.
-  IF NOT AVAILABLE bfRef THEN DO:
-    CREATE bfRef.
-    ASSIGN
-      bfRef.bfRef = 'e-itemfg-vend.markup'
-      bfRef.company = e-itemfg-vend.company
-      bfRef.loc = e-itemfg-vend.i-no
-      bfRef.code = e-itemfg-vend.vend-no.
   END.
 
-  bfRef.val[1] = INT(fi_oh-markup:SCREEN-VALUE IN FRAME {&FRAME-NAME}).
-  */
+  FIND CURRENT bfEVend NO-LOCK.
 
 END PROCEDURE.
 

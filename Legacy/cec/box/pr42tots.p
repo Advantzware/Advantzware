@@ -55,6 +55,7 @@ DEFINE VARIABLE Mclean2Qty AS DECIMAL NO-UNDO.
 DEFINE BUFFER bf-eb FOR eb.
 DEFINE VARIABLE isUnitized AS LOG NO-UNDO.
 
+
 {cec/msfcalc.i}
 
 DO TRANSACTION:
@@ -94,12 +95,12 @@ FOR EACH car WHERE car.snum NE 0:
         fg-wt$     = fg-wt$ + (car.qty / 100 * ld-fg-rate)
         fg-wt      = fg-wt + car.qty.
 
-    FOR EACH eb FIELDS(form-no yld-qty) WHERE
+    FOR EACH eb FIELDS(form-no quantityPerSet) WHERE
         eb.company = xest.company AND
         eb.est-no = xest.est-no AND
         eb.form-no > 0 AND eb.form-no <= v-form-no        NO-LOCK:
         ASSIGN
-            mclean2yld = IF eb.yld-qty LT 0 THEN -1 / eb.yld-qty ELSE eb.yld-qty
+            mclean2yld = IF eb.quantityPerSet LT 0 THEN -1 / eb.quantityPerSet ELSE eb.quantityPerSet
             mclean2Qty = mclean2Qty + (qtty[vmcl] * mclean2yld).
     END.
     IF CAN-FIND(FIRST xeb
@@ -140,14 +141,14 @@ FOR EACH car
     BREAK BY car.id:
 
     z = 0.
-    FOR EACH eb FIELDS(form-no yld-qty) WHERE
+    FOR EACH eb FIELDS(form-no quantityPerSet) WHERE
         eb.company = xest.company AND
         eb.est-no = xest.est-no AND
         eb.part-no = car.id
         NO-LOCK:
         ASSIGN
             v-yld = IF eb.form-no EQ 0 THEN 1 ELSE
-                     IF eb.yld-qty LT 0 THEN -1 / eb.yld-qty ELSE eb.yld-qty
+                     IF eb.quantityPerSet LT 0 THEN -1 / eb.quantityPerSet ELSE eb.quantityPerSet
             z     = z + (qtty[vmcl] * v-yld).
     END.
     FIND FIRST xeb WHERE xeb.company = xest.company AND
@@ -176,7 +177,7 @@ FOR EACH car
         v-cust-no = xeb.cust-no.
 
     ASSIGN 
-        yyy     = 0  /* use for rate per cwt */
+        dFreightTemp = 0
         vcarqty = car.qty
         vcarmsf = car.msf.
 
@@ -196,16 +197,16 @@ FOR EACH car
     END.
      
     IF xeb.fr-out-c NE 0 THEN
-        yyy = yyy + (xeb.fr-out-c * (vcarqty / 100)).
+        dFreightTemp = dFreightTemp + (xeb.fr-out-c * (vcarqty / 100)).
     ELSE
         IF xeb.fr-out-m NE 0 THEN
-            yyy = yyy + (xeb.fr-out-m * (z / 1000)).
+            dFreightTemp = dFreightTemp + (xeb.fr-out-m * (z / 1000)).
         ELSE
             IF AVAILABLE carr-mtx THEN 
             DO:
                 IF carrier.chg-method EQ "W" THEN
                 DO i = 1 TO 10:
-                    yyy = carr-mtx.rate[i] * vcarqty / 100.          
+                    dFreightTemp = carr-mtx.rate[i] * vcarqty / 100.          
                     IF carr-mtx.weight[i] GE vcarqty THEN LEAVE.
                 END.
         
@@ -228,7 +229,7 @@ FOR EACH car
                                 p-qty = p-qty + cas.qty.            
                             END.
                         DO i = 1 TO 10:
-                            yyy = carr-mtx.rate[i] * p-qty.            
+                            dFreightTemp = carr-mtx.rate[i] * p-qty.            
                             IF carr-mtx.weight[i] GE p-qty THEN LEAVE.
                         END.
                     END.
@@ -236,14 +237,10 @@ FOR EACH car
                     ELSE 
                     DO:  /*Ticket 20329 was only calculating the last form on a set with MSF calculation*/
                         DO i = 1 TO 10:
-                            dFreightTemp = 0.
                             dFreightTemp = carr-mtx.rate[i] * vcarmsf.          
                             IF carr-mtx.weight[i] GE vcarmsf THEN LEAVE.
                         END.
-                        IF vmclean2 THEN
-                            fr-tot = dFreightTemp. /*vmclean2 = SETPRINT=MCLEAN - separates totals per component*/
-                        ELSE IF car.snum NE 0 THEN 
-                                fr-tot = fr-tot + dFreightTemp.  /*SETPRINT=ASI - aggregates totals for set*/
+                      
                     END.
         
                 /*         find first bf-eb where bf-eb.company = xest.company and */
@@ -253,32 +250,38 @@ FOR EACH car
         
 
                 /*##BL: Compare total rate vs. rate min rate * all shipments*/
-                IF yyy LT carr-mtx.min-rate * rels[vmcl] THEN yyy = carr-mtx.min-rate  * rels[vmcl].
-                IF isUnitized THEN yyy = yyy / xest.form-qty.
-
+                IF dFreightTemp LT carr-mtx.min-rate * rels[vmcl] THEN 
+                    dFreightTemp = carr-mtx.min-rate  * rels[vmcl].
+                IF isUnitized THEN dFreightTemp = dFreightTemp / xest.form-qty.
+            
             END.
+            IF vmclean2 THEN
+                fr-tot = dFreightTemp. /*vmclean2 = SETPRINT=MCLEAN - separates totals per component*/
+            ELSE IF car.snum NE 0 THEN 
+                fr-tot = fr-tot + dFreightTemp.  /*SETPRINT=ASI - aggregates totals for set*/  
+    
     /* wfk - 05251304 - 2 pc box, only include freight for form 0 */
     /*       find first bf-eb where bf-eb.company = xest.company and */
     /*                          bf-eb.est-no    = xest.est-no and    */
     /*                          bf-eb.form-no = 0 NO-LOCK NO-ERROR.  */
     /*       isUnitized = AVAIL bf-eb AND bf-eb.pur-man.             */
     /*Note This condition was change with ticket 20329 since this appears to include form 0 (header) msf when it shouldn't*/
-
-    IF carrier.chg-method NE "M" AND  NOT (xest.est-type EQ 6
+    
+    IF NOT (xest.est-type EQ 6
         AND avail(bf-eb) 
         AND bf-eb.pur-man = YES 
         AND bf-eb.set-is-assembled 
         AND bf-eb.stock-no EQ xeb.stock-no
         AND xeb.FORM-no NE 0) THEN      
         ASSIGN
-            car.cost = car.cost + yyy
-            fr-tot   = fr-tot + yyy.           
-      
+            car.cost = car.cost + dFreightTemp
+            fr-tot   = fr-tot + dFreightTemp.           
+        
     FIND FIRST blk
         WHERE (blk.id = car.id AND blk.snum = car.snum AND blk.bnum = car.bnum)
         OR (blk.snum = xest.form-qty AND car.snum = 0)
         NO-ERROR.
-    blk.sell = blk.sell + yyy . /* use sell for freight costs for now */
+    blk.sell = blk.sell + dFreightTemp . /* use sell for freight costs for now */
 END.
 
 IF fg-wt$ > 0 THEN PUT "Finished Goods Handling" fg-wt$ TO 80 SKIP.
@@ -289,13 +292,13 @@ ASSIGN
     .
 
 IF xest.form-qty EQ 1 OR vmclean2 THEN
-    FOR EACH eb FIELDS(yld-qty)
+    FOR EACH eb FIELDS(quantityPerSet)
         WHERE eb.company EQ xest.company
         AND eb.est-no  EQ xest.est-no
         AND eb.form-no EQ v-form-no
         NO-LOCK:
         ASSIGN
-            v-yld = IF eb.yld-qty LT 0 THEN -1 / eb.yld-qty ELSE eb.yld-qty
+            v-yld = IF eb.quantityPerSet LT 0 THEN -1 / eb.quantityPerSet ELSE eb.quantityPerSet
             v-qty = v-qty + (qtty[vmcl] * v-yld)     
             .
 
@@ -375,7 +378,7 @@ FIND FIRST xeb WHERE xeb.company = xest.company
     AND xeb.form-no NE 0 NO-ERROR.
 
 ASSIGN
-    v-yld   = IF xeb.yld-qty LT 0 THEN -1 / xeb.yld-qty ELSE xeb.yld-qty
+    v-yld   = IF xeb.quantityPerSet LT 0 THEN -1 / xeb.quantityPerSet ELSE xeb.quantityPerSet
     qm      = qtty[vmcl] /* * (if vmclean2 then v-yld else 1) */ / 1000
     fac-tot = dm-tot[5] + op-tot[5] +
            tprep-mat + tprep-lab + mis-tot[1] + mis-tot[3].

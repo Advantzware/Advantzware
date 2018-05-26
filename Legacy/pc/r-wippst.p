@@ -704,6 +704,37 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&Scoped-define SELF-NAME begin_job-no
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_job-no C-Win
+ON HELP OF begin_job-no IN FRAME FRAME-A /* Font */
+DO:
+    DEF VAR char-val AS cha NO-UNDO.
+
+    RUN WINDOWS/l-pcprdd.w (cocode,begin_job-no:SCREEN-VALUE, OUTPUT char-val).
+    IF char-val <> "" THEN ASSIGN begin_job-no:SCREEN-VALUE = ENTRY(1,char-val)
+                                  begin_job-no2:SCREEN-VALUE = ENTRY(2,char-val)
+                                  end_job-no:SCREEN-VALUE = ENTRY(1,char-val)
+                                  end_job-no2:SCREEN-VALUE = ENTRY(2,char-val).
+
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME end_job-no
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_job-no C-Win
+ON HELP OF end_job-no IN FRAME FRAME-A /* Font */
+DO:
+    DEF VAR char-val AS cha NO-UNDO.
+
+    RUN WINDOWS/l-pcprdd.w (cocode,end_job-no:SCREEN-VALUE, OUTPUT char-val).
+    IF char-val <> "" THEN ASSIGN end_job-no:SCREEN-VALUE = ENTRY(1,char-val)
+                                  end_job-no2:SCREEN-VALUE = ENTRY(2,char-val).
+
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lv-font-no C-Win
 ON LEAVE OF lv-font-no IN FRAME FRAME-A /* Font */

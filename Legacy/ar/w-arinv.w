@@ -403,7 +403,8 @@ PROCEDURE adm-create-objects :
        RUN set-size IN h_p-navico ( 1.43 , 53.00 ) NO-ERROR.
 
        RUN init-object IN THIS-PROCEDURE (
-             INPUT  'panels/p-cashl.w':U ,
+             /*INPUT  'panels/p-cashl.w':U ,*/
+             INPUT  'ar/vp-arinvl.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Edge-Pixels = 2,
                      SmartPanelType = Update,
@@ -425,6 +426,9 @@ PROCEDURE adm-create-objects :
        RUN add-link IN adm-broker-hdl ( h_p-cashl , 'TableIO':U , h_b-arinvl ).
        RUN add-link IN adm-broker-hdl ( h_v-arinv , 'Record':U , h_b-arinvl ).
        RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'add-line':U , h_b-arinvl ).
+
+       RUN add-link IN adm-broker-hdl ( h_b-arinvl , 'buttons':U , h_p-cashl ).
+       RUN add-link IN adm-broker-hdl ( h_b-arinvl  , 'Record':U , h_p-cashl ).
 
        /* Links to SmartPanel h_p-cashl. */
        RUN add-link IN adm-broker-hdl ( h_v-arinv , 'add-line':U , h_p-cashl ).

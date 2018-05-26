@@ -68,17 +68,17 @@ DEF TEMP-TABLE tt-cust
     INDEX i1 cust-no 
     INDEX i2 cust-row.
 
-ASSIGN cTextListToSelect = "CUSTOMER,PO #,REP,ITEM #,CUST PART #,DESCRIPTION,JOB," +
-                           "QTY ONHAND,RECT. DATE,SELL PRICE,TOTAL VALUE,COMMITTED,QTY/CASE,FG LOT #"
+ASSIGN cTextListToSelect = "Customer,Po #,Rep,Item #,Cust Part #,Description,Job," +
+                           "Qty Onhand,Rect. Date,Sell Price,Total Value,Committed,Qty/Case,FG Lot #,Customer Lot #,Order Due Date,Job Due Date"
        cFieldListToSelect = "cust,po,sman,itm,cust-prt,dscr,job," +
-                            "qty-oh,rcpt-dt,sel-prc,ttl-val,commtd,qty-case,cust-lot"
-       cFieldLength = "8,15,4,15,15,15,10," + "12,10,13,15,12,7,20"  
-       cFieldType = "c,c,c,c,c,c,c," + "i,c,i,i,i,i,c" 
+                            "qty-oh,rcpt-dt,sel-prc,ttl-val,commtd,qty-case,fg-lot,cust-lot,due-date,job-due-date"
+       cFieldLength = "8,15,4,15,15,15,10," + "12,10,13,15,12,7,20,15,14,12"  
+       cFieldType = "c,c,c,c,c,c,c," + "i,c,i,i,i,i,c,c,c,c" 
     .
 
 {sys/inc/ttRptSel.i}
-ASSIGN cTextListToDefault  = "CUSTOMER,PO #,REP,ITEM #,CUST PART #,DESCRIPTION,JOB," +
-                           "QTY ONHAND,RECT. DATE,SELL PRICE,TOTAL VALUE,COMMITTED,QTY/CASE" .
+ASSIGN cTextListToDefault  = "Customer,Po #,Rep,Item #,Cust Part #,Description,Job," +
+                           "Qty Onhand,Rect. Date,Sell Price,Total Value,Committed,Qty/Case" .
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

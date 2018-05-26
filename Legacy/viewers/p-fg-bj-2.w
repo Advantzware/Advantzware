@@ -220,8 +220,10 @@ DO:
   RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE, "container-source", 
                                         OUTPUT char-hdl).
   hContainer = HANDLE(char-hdl).
-  IF VALID-HANDLE(hContainer) THEN
-    RUN filterTagBins IN hContainer (INPUT tg_showZeroBins, INPUT fi_tag#).
+
+/*  IF VALID-HANDLE(hContainer) THEN                                         */
+/*    RUN filterTagBins IN hContainer (INPUT tg_showZeroBins, INPUT fi_tag#).*/
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -233,7 +235,7 @@ ON RETURN OF fi_tag# IN FRAME F-Main /* Tag# */
 DO: 
   DEF VAR char-hdl AS CHAR NO-UNDO.
   DEF VAR hContainer AS HANDLE NO-UNDO.
-  ASSIGN tg_showZeroBins.
+  ASSIGN tg_showZeroBins fi_tag#.
   RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE, "container-source", 
                                         OUTPUT char-hdl).
   hContainer = HANDLE(char-hdl).

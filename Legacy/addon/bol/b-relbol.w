@@ -30,9 +30,6 @@ CREATE WIDGET-POOL.
 {sys/inc/VAR.i "new shared" }
 ASSIGN cocode = g_company
        locode = g_loc.
-DEFINE VARIABLE lSaveToTempfile AS LOGICAL NO-UNDO.
-DEFINE STREAM sTmpSaveInfo.
-DEFINE VARIABLE cTmpSaveFile AS CHARACTER NO-UNDO.
 
 {oe/oe-relp1.i NEW}
 
@@ -148,13 +145,29 @@ DEFINE VARIABLE lvrOeOrd          AS ROWID            NO-UNDO.
 DEFINE VARIABLE lvlReturnNoApply  AS LOGICAL          NO-UNDO.
 DEFINE VARIABLE lvlReturnCancel   AS LOGICAL          NO-UNDO.
 DEFINE VARIABLE gvlCheckOrdStat   AS LOGICAL     NO-UNDO.
-
+DEFINE VARIABLE lsecurity-flag AS LOGICAL NO-UNDO.
 /* bol print/post */
 DEF NEW SHARED VAR out-recid AS RECID NO-UNDO.
 DEFINE VARIABLE BolPostLog AS LOGICAL NO-UNDO.
 DEF STREAM logFile.
+DEF VAR cRtnChar AS CHAR NO-UNDO.
+DEFINE VARIABLE lRecFound AS LOGICAL     NO-UNDO.
+DEFINE VARIABLE lSSBOLPassword AS LOGICAL NO-UNDO.
+DEFINE VARIABLE cSSBOLPassword AS CHARACTER NO-UNDO.
 
 v-hold-list = "Royal,Superior,ContSrvc,BlueRidg,Danbury".
+
+RUN sys/ref/nk1look.p (INPUT cocode, "SSBOLPassword", "L" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+OUTPUT cRtnChar, OUTPUT lRecFound). 
+lSSBOLPassword = LOGICAL(cRtnChar) NO-ERROR .
+RUN sys/ref/nk1look.p (INPUT cocode, "SSBOLPassword", "C" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+OUTPUT cRtnChar, OUTPUT lRecFound). 
+  cSSBOLPassword = cRtnChar NO-ERROR .
+
+IF NOT lSSBOLPassword OR cSSBOLPassword EQ ""  THEN
+ lsecurity-flag = YES .
 
 /* Include file contains transaction keyword */
 {sys/ref/relpost.i}
@@ -670,11 +683,6 @@ DO:
     RETURN .
 END.
 
-ON 'F6':U OF BROWSE {&browse-name} /* tt-relbol.release# */
-DO:
-    RUN restoreSavedRecs.
-END.
-
 ON 'leave':U OF tt-relbol.tag#
 DO:
    /* check release qty for the item */
@@ -1057,10 +1065,6 @@ RUN dispatch IN THIS-PROCEDURE ('initialize':U).
 &ENDIF
 
 /* Save entered data to text file in case of crash */
-cTmpSaveFile = "logs/Relbol" + STRING(TODAY, "999999") + STRING(TIME, "999999") + USERID("nosweat") + ".txt".
-lSaveToTempfile = FALSE.
-IF SEARCH("logs/RelBol.txt") NE ? THEN
-  lSaveToTempFile = TRUE.
   
 IF TRIM(ssbolscan-cha) EQ "" THEN
 DO:
@@ -1084,38 +1088,6 @@ DO:
 
 /* **********************  Internal Procedures  *********************** */
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE restoreSavedRecs B-table-Win
-PROCEDURE restoreSavedRecs:
-/*------------------------------------------------------------------------------
- Purpose:
- Notes:
-------------------------------------------------------------------------------*/
-/* RUN addon\bol\relfileselect.w (INPUT "relbol*", OUTPUT cTmpSaveFile). */
-/*  DEF VAR cTmpSaveFile AS CHAR NO-UNDO.*/
-  DEF VAR lFileSelected AS LOG NO-UNDO.
-  SYSTEM-DIALOG GET-FILE cTmpSaveFile   
-    FILTERS "restore (relbol*)" "relbol*"
-    INITIAL-DIR ".\logs"
-    UPDATE lFileSelected
-    MUST-EXIST
-    TITLE "Select Restore File". 
-     
-IF lFileSelected THEN DO: 
-    INPUT STREAM sTmpSaveInfo FROM VALUE(cTmpSaveFile).
-    REPEAT:
-        CREATE tt-relbol. 
-        IMPORT STREAM sTmpSaveInfo tt-relbol EXCEPT tt-relbol.oerell-row . 
-         
-    END.
-    INPUT STREAM sTmpSaveInfo CLOSE.
-    
-    RUN dispatch ('open-query').
-END.
-END PROCEDURE.
-	
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
 
 
 
@@ -1446,7 +1418,11 @@ END.
   LOAD "l-font.ini" DIR cDir BASE-KEY "INI".
   USE "l-font.ini".
 
+IF NOT lsecurity-flag THEN RUN sys/ref/d-passwd.w (9, OUTPUT lsecurity-flag).
+        
+IF lsecurity-flag THEN
 RUN custom/d-prompt.w (INPUT ipcButtonList, ip-parms, "", OUTPUT op-values).
+ELSE  op-values =  "DEFAULT" + "," + "No" .
 
 /* Load original ini for original font set */
 UNLOAD "l-font.ini" NO-ERROR.
@@ -2032,9 +2008,12 @@ ELSE DO:
           USE "l-font.ini".
 
         END.
+
+        IF NOT lsecurity-flag THEN RUN sys/ref/d-passwd.w (9, OUTPUT lsecurity-flag).
         
-        /* New Logic */
-        RUN custom/d-prompt.w (INPUT "yes-no-cancel", ip-parms, "", OUTPUT op-values).
+        IF lsecurity-flag THEN
+        RUN custom/d-prompt.w (INPUT "yes-no-cancel", ip-parms, "", OUTPUT op-values). /* New Logic */
+        ELSE  op-values =  "DEFAULT" + "," + "No" .
         
         /* Load original ini for original font set */
         UNLOAD "l-font.ini" NO-ERROR.
@@ -2375,13 +2354,11 @@ PROCEDURE local-update-record :
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
 
-  /* Code placed here will execute AFTER standard behavior.    */
-  IF lSaveToTempFile THEN DO:
-      OUTPUT STREAM sTmpSaveInfo TO VALUE(cTmpSaveFile) APPEND.
-      EXPORT STREAM sTmpSaveInfo tt-relbol EXCEPT oerell-row.
-      OUTPUT STREAM sTmpSaveInfo CLOSE.   
-  END. 
-  
+    /* Code placed here will execute AFTER standard behavior.    */
+
+    /* Write out temp-table records that have changed */
+    RUN addon/bol/saverelbol.p(INPUT cocode, INPUT ?).
+    
   v-prev-rowid = ROWID(tt-relbol).
 
   RUN display-qtys.
@@ -2883,7 +2860,7 @@ PROCEDURE save-relbol :
   Notes:       
 ------------------------------------------------------------------------------*/
 
-   RUN addon/bol/saverelbol.p(INPUT cocode).
+   RUN addon/bol/saverelbol.p(INPUT cocode, INPUT ?).
    
 END PROCEDURE.
 

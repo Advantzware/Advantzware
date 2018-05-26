@@ -134,7 +134,7 @@
            tt-report.key-02  = (trim(job.job-no) + "-" +
                                   string(job.job-no2,"99"))
            tt-report.key-03  = job-hdr.i-no
-           tt-report.key-04  = string(v-qty[1] - v-qty[2],"9999999999")
+           tt-report.key-04  = IF v-qty[2] GT v-qty[1] THEN "0" ELSE string(v-qty[1] - v-qty[2],"9999999999")
            tt-report.key-05  = job-hdr.cust-no
            tt-report.rec-id  = recid(job).
         end.
@@ -285,6 +285,8 @@
               v-gpdollar = (w-ord.t-price - w-ord.cost)
               v-gp       = round(v-gpdollar / w-ord.t-price * 100,2).
           IF v-gp = ?  THEN ASSIGN v-gp = 0.
+
+          IF w-ord.t-price LT 0 THEN w-ord.t-price = 0.
     
               ASSIGN cDisplay = ""
                      cTmpField = ""
@@ -306,20 +308,20 @@
                            WHEN "est"        THEN cVarValue = STRING(w-ord.est-no) .
                            WHEN "qty-due"    THEN cVarValue = STRING(w-ord.qty-due,"->>>,>>>,>>9") .
                            WHEN "status"     THEN cVarValue = STRING(w-ord.stat) .
-                           WHEN "std-cst"    THEN cVarValue = IF v-profit and security-flag THEN STRING(w-ord.cost,"->>>>,>>9.99") ELSE "".
+                           WHEN "std-cst"    THEN cVarValue = IF v-profit and security-flag THEN STRING(w-ord.cost,"->>>,>>>,>>9.99") ELSE "".
                            WHEN "uom"        THEN cVarValue = IF security-flag THEN STRING(v-uom) ELSE "".
-                           WHEN "gp-dolr"    THEN cVarValue = IF v-profit and security-flag THEN STRING(v-gpdollar,"->>>>,>>9.99") ELSE "".
-                           WHEN "gp"         THEN cVarValue = IF v-profit and security-flag THEN STRING(v-gp,"->>>>>>") ELSE "".
+                           WHEN "gp-dolr"    THEN cVarValue = IF v-profit and security-flag THEN STRING(v-gpdollar,"->>>,>>>,>>9.99") ELSE "".
+                           WHEN "gp"         THEN cVarValue = IF v-profit and security-flag THEN STRING(v-gp,"->>>>>>>>") ELSE "".
                            WHEN "lst-shp"    THEN cVarValue = IF v-last-shipid NE ? THEN STRING(v-last-shipid) ELSE "".
-                           WHEN "qty-oh"     THEN cVarValue = STRING(w-ord.qty-onh,"->,>>>,>>9") .
+                           WHEN "qty-oh"     THEN cVarValue = STRING(w-ord.qty-onh,"->>>,>>>,>>9") .
                            WHEN "ord-dt"     THEN cVarValue = IF w-ord.ord-date NE ? THEN STRING(w-ord.ord-date) ELSE "" .
                            WHEN "itm-no"     THEN cVarValue = STRING(w-ord.i-no) .
                            WHEN "rel-dt"     THEN cVarValue = IF w-ord.rel-date NE ? THEN STRING(w-ord.rel-date) ELSE "" .
-                           WHEN "prc-sal"    THEN cVarValue = IF security-flag THEN STRING(w-ord.price,">>,>>9.99") ELSE "" .
+                           WHEN "prc-sal"    THEN cVarValue = IF security-flag THEN STRING(w-ord.price,"->>>,>>>,>>9.99") ELSE "" .
                            WHEN "stat"       THEN cVarValue = STRING(w-ord.rel-stat,"X(4)") .
-                           WHEN "po-qty-rec" THEN cVarValue = STRING(w-ord.po-received,"->>,>>>,>>>") .
-                           WHEN "t-pric"     THEN cVarValue = IF security-flag THEN STRING(w-ord.t-price,">>>,>>9.99") ELSE "" .
-                           WHEN "ord-qty"     THEN cVarValue =  STRING(w-ord.qty,">>>,>>>,>>9").
+                           WHEN "po-qty-rec" THEN cVarValue = STRING(w-ord.po-received,"->>>,>>>,>>9") .
+                           WHEN "t-pric"     THEN cVarValue = IF security-flag THEN STRING(w-ord.t-price,"->>>,>>>,>>9.99") ELSE "" .
+                           WHEN "ord-qty"     THEN cVarValue =  STRING(w-ord.qty,"->>>,>>>,>>9").
                                                               
                       END CASE.
                         
@@ -348,7 +350,7 @@
                 v-tot-pct = if v-tot-sales[1] ne 0 
                             THEN (v-tot-sales[1] - v-tot-cost[1]) / v-tot-sales[1] * 100 
                             ELSE 0.
-                IF v-tot-pct = ?  THEN v-tot-pct = 0.
+                IF v-tot-pct = ? THEN v-tot-pct = 0.
                /* put skip(1)
                     "Order Qty"    to 42
                     "Cost"         to 58
@@ -382,10 +384,10 @@
                            WHEN "est"        THEN cVarValue = "" .
                            WHEN "qty-due"    THEN cVarValue = "" .
                            WHEN "status"     THEN cVarValue = "" .
-                           WHEN "std-cst"    THEN cVarValue = IF v-profit and security-flag THEN STRING(v-tot-cost[1],"->>>>,>>9.99") ELSE "".
+                           WHEN "std-cst"    THEN cVarValue = IF v-profit and security-flag THEN STRING(v-tot-cost[1],"->>>,>>>,>>9.99") ELSE "".
                            WHEN "uom"        THEN cVarValue =   "".
                            WHEN "gp-dolr"    THEN cVarValue = "".
-                           WHEN "gp"         THEN cVarValue = IF v-profit and security-flag THEN STRING(v-tot-pct,"->>>>>>") ELSE "".
+                           WHEN "gp"         THEN cVarValue = IF v-profit and security-flag THEN STRING(v-tot-pct,"->>>>>>>>") ELSE "".
                            WHEN "lst-shp"    THEN cVarValue =   "".
                            WHEN "qty-oh"     THEN cVarValue =   "" .
                            WHEN "ord-dt"     THEN cVarValue =   "" .
@@ -394,7 +396,7 @@
                            WHEN "prc-sal"    THEN cVarValue =   "" .
                            WHEN "stat"       THEN cVarValue =   "" .
                            WHEN "po-qty-rec" THEN cVarValue =   "" .
-                           WHEN "t-pric"     THEN cVarValue =   IF v-profit and security-flag THEN STRING(v-tot-sales[1],">>>,>>9.99") ELSE "" .
+                           WHEN "t-pric"     THEN cVarValue =   IF v-profit and security-flag THEN STRING(v-tot-sales[1],"->>>,>>>,>>9.99") ELSE "" .
                             WHEN "ord-qty"     THEN cVarValue =  STRING(v-tot-qty[1],">>>,>>>,>>9").
                                                               
                       END CASE.
@@ -463,10 +465,10 @@
                            WHEN "est"        THEN cVarValue = "" .
                            WHEN "qty-due"    THEN cVarValue = "" .
                            WHEN "status"     THEN cVarValue = "" .
-                           WHEN "std-cst"    THEN cVarValue = IF v-profit and security-flag THEN STRING(v-tot-cost[2],"->>>>,>>9.99") ELSE "".
+                           WHEN "std-cst"    THEN cVarValue = IF v-profit and security-flag THEN STRING(v-tot-cost[2],"->>>,>>>,>>9.99") ELSE "".
                            WHEN "uom"        THEN cVarValue =   "".
                            WHEN "gp-dolr"    THEN cVarValue = "".
-                           WHEN "gp"         THEN cVarValue = IF v-profit and security-flag THEN STRING(v-tot-pct,"->>>>>>") ELSE "".
+                           WHEN "gp"         THEN cVarValue = IF v-profit and security-flag THEN STRING(v-tot-pct,"->>>>>>>>") ELSE "".
                            WHEN "lst-shp"    THEN cVarValue =   "".
                            WHEN "qty-oh"     THEN cVarValue =   "" .
                            WHEN "ord-dt"     THEN cVarValue =   "" .
@@ -475,8 +477,8 @@
                            WHEN "prc-sal"    THEN cVarValue =   "" .
                            WHEN "stat"       THEN cVarValue =   "" .
                            WHEN "po-qty-rec" THEN cVarValue =   "" .
-                           WHEN "t-pric"     THEN cVarValue =   IF v-profit and security-flag THEN STRING(v-tot-sales[2],">>>,>>9.99") ELSE "" .
-                            WHEN "ord-qty"     THEN cVarValue =  STRING(v-tot-qty[2],">>>,>>>,>>9").
+                           WHEN "t-pric"     THEN cVarValue =   IF v-profit and security-flag THEN STRING(v-tot-sales[2],"->>>,>>>,>>9.99") ELSE "" .
+                            WHEN "ord-qty"     THEN cVarValue =  STRING(v-tot-qty[2],"->>>,>>>,>>9").
                                                               
                       END CASE.
                         

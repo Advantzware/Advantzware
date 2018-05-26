@@ -1303,8 +1303,12 @@ END.
   RELEASE xoe-ord.
   
   RUN oe/calcordt.p (ROWID(oe-ord)).
-
-  IF oe-ordm.bill NE "N" AND ld-prev-amt NE oe-ordm.amt THEN
+  FIND FIRST cust NO-LOCK
+      WHERE cust.company EQ cocode
+      AND cust.cust-no EQ oe-ord.cust-no
+      USE-INDEX cust  NO-ERROR.
+  IF (oe-ordm.bill NE "N" AND ld-prev-amt NE oe-ordm.amt)
+       AND AVAIL cust AND cust.active NE "X" AND AVAIL oe-ord AND oe-ord.TYPE NE "T" THEN
     RUN oe/creditck.p (ROWID(oe-ord), YES).
   
   /* create reftable for prep */

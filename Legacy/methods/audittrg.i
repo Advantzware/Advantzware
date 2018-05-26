@@ -8,25 +8,32 @@ DEFINE VARIABLE cIdxFields  AS CHARACTER NO-UNDO.
 
 {methods/auditfunc.i}
 
-&IF "{&ACTION}" = "UPDATE" &THEN
-IF old-{&TABLENAME}.rec_key NE "" THEN DO:
-    /* update */
-    IF CAN-FIND(FIRST config WHERE CAN-DO(config.audit_tables,"{&TABLENAME}")) THEN DO:
-        hTable[2] = BUFFER old-{&TABLENAME}:HANDLE.
-        RUN pCreateAuditHdr ("UPDATE").
-        RUN pAuditDetail ("UPDATE").
-    END. /* if can-find */
-END. /* if old-rec_key */
-ELSE DO:
-    /* create */
-    RUN pCreateAuditHdr ("CREATE").
-    RUN pAuditDetail ("CREATE").
-END. /* else */
-&ELSE
-/* delete */
-RUN pCreateAuditHdr ("DELETE").
-RUN pAuditDetail ("DELETE").
-&ENDIF
+FIND FIRST AuditTbl NO-LOCK 
+     WHERE AuditTbl.AuditTable EQ "{&TABLENAME}"
+     NO-ERROR.
+IF AVAILABLE AuditTbl THEN DO: 
+    &IF "{&ACTION}" = "UPDATE" &THEN
+    IF old-{&TABLENAME}.rec_key NE "" THEN DO:
+        /* update */
+        IF AuditTbl.AuditUpdate THEN DO:
+            hTable[2] = BUFFER old-{&TABLENAME}:HANDLE.
+            RUN pCreateAuditHdr ("UPDATE").
+            RUN pAuditDetail ("UPDATE").
+        END. /* if can-find */
+    END. /* if old-rec_key */
+    ELSE IF AuditTbl.AuditCreate THEN DO:
+        /* create */
+        RUN pCreateAuditHdr ("CREATE").
+        RUN pAuditDetail ("CREATE").
+    END. /* else */
+    &ELSE
+    IF AuditTbl.AuditDelete THEN DO:
+        /* delete */
+        RUN pCreateAuditHdr ("DELETE").
+        RUN pAuditDetail ("DELETE").
+    END.
+    &ENDIF
+END. /* avail audittbl */
 
 PROCEDURE pAuditDetail:
     DEFINE INPUT PARAMETER ipcType AS CHARACTER NO-UNDO.
@@ -80,7 +87,8 @@ END PROCEDURE.
 PROCEDURE pCreateAuditHdr:
     DEFINE INPUT PARAMETER ipcType AS CHARACTER NO-UNDO.
     
-    DEFINE VARIABLE idx AS INTEGER NO-UNDO INITIAL 2.
+    DEFINE VARIABLE cStack AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE idx    AS INTEGER   NO-UNDO INITIAL 2.
 
     CREATE AuditHdr.
     ASSIGN
@@ -92,12 +100,25 @@ PROCEDURE pCreateAuditHdr:
         AuditHdr.AuditUser     = USERID("ASI")
         AuditHdr.AuditRecKey   = {&TABLENAME}.rec_key
         .
-    DO WHILE TRUE:
-        ASSIGN 
-            AuditHdr.AuditStack = AuditHdr.AuditStack + PROGRAM-NAME(idx) + ","
-            idx = idx + 1
-            .
-        IF PROGRAM-NAME(idx) EQ ? THEN LEAVE. 
-    END. /* do while true */
-    AuditHdr.AuditStack = TRIM(AuditHdr.AuditStack,",").
+    IF AuditTbl.AuditStack THEN DO:
+        DO WHILE TRUE:
+            ASSIGN 
+                cStack = cStack + PROGRAM-NAME(idx) + ","
+                idx = idx + 1
+                .
+            IF PROGRAM-NAME(idx) EQ ? THEN LEAVE. 
+        END. /* do while true */
+        cStack = TRIM(cStack,",").
+        FIND FIRST AuditStack NO-LOCK
+             WHERE AuditStack.AuditStack EQ cStack
+             NO-ERROR.
+        IF NOT AVAILABLE AuditStack THEN DO:
+            CREATE AuditStack.
+            ASSIGN
+                AuditStack.AuditStackID = NEXT-VALUE(stack_trace) 
+                AuditStack.AuditStack   = cStack
+                .
+        END. /* not avail */
+        AuditHdr.AuditStackID  = AuditStack.AuditStackID.
+    END. /* if auditstack */
 END PROCEDURE.

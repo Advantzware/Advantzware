@@ -132,10 +132,11 @@ ap-inv.due ap-inv.stat ap-inv.user-id
 /* Definitions for FRAME F-Main                                         */
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-1 fi_date tb_posted fi_finv fi_vend ~
-fi_date-to tb_unposted btn_go btn_show Browser-Table 
+&Scoped-Define ENABLED-OBJECTS RECT-1  fi_date tb_posted fi_finv fi_vend ~
+fi_date-to tb_unposted btn_go btn_show  Browser-Table btnCalendar-1 btnCalendar-2
 &Scoped-Define DISPLAYED-OBJECTS fi_date tb_posted fi_finv fi_vend ~
 fi_date-to tb_unposted fi_sort-by FI_moveCol 
+&Scoped-define calendarPopup btnCalendar-1 btnCalendar-2
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -206,6 +207,16 @@ DEFINE VARIABLE tb_unposted AS LOGICAL INITIAL yes
      VIEW-AS TOGGLE-BOX
      SIZE 20 BY 1 NO-UNDO.
 
+DEFINE BUTTON btnCalendar-1 
+     IMAGE-UP FILE "Graphics/16x16/calendar.bmp":U
+     LABEL "" 
+     SIZE 4.6 BY 1.05 TOOLTIP "PopUp Calendar".
+
+DEFINE BUTTON btnCalendar-2 
+     IMAGE-UP FILE "Graphics/16x16/calendar.bmp":U
+     LABEL "" 
+     SIZE 4.6 BY 1.05 TOOLTIP "PopUp Calendar".
+
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
 DEFINE QUERY Browser-Table FOR 
@@ -248,10 +259,12 @@ DEFINE BROWSE Browser-Table
 
 DEFINE FRAME F-Main
      fi_date AT ROW 1.19 COL 120.2 COLON-ALIGNED
+     btnCalendar-1 AT ROW 1.19 COL 138
      tb_posted AT ROW 1.24 COL 4
      fi_finv AT ROW 1.95 COL 39 COLON-ALIGNED
      fi_vend AT ROW 1.95 COL 82 COLON-ALIGNED
      fi_date-to AT ROW 2.29 COL 120.2 COLON-ALIGNED WIDGET-ID 8
+     btnCalendar-2 AT ROW 2.29 COL 138
      tb_unposted AT ROW 2.43 COL 4
      fi_sort-by AT ROW 3.76 COL 61 COLON-ALIGNED
      FI_moveCol AT ROW 3.76 COL 132.6 COLON-ALIGNED NO-LABEL WIDGET-ID 4
@@ -513,17 +526,46 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 &Scoped-define SELF-NAME fi_date
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_date B-table-Win
-ON VALUE-CHANGED OF fi_date IN FRAME F-Main /* From Inv Date */
+ON HELP OF fi_date IN FRAME F-Main /* Ack. Date */
 DO:
-  fi_date-to:SCREEN-VALUE = fi_date:SCREEN-VALUE.   
+  {methods/calendar.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&Scoped-define SELF-NAME btnCalendar-1
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnCalendar-1 B-table-Win
+ON CHOOSE OF btnCalendar-1 IN FRAME F-Main
+DO:
+  {methods/btnCalendar.i fi_date}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME fi_date-to
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_date-to B-table-Win
+ON HELP OF fi_date-to IN FRAME F-Main /* Ack. Date */
+DO:
+  {methods/calendar.i}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME btnCalendar-2
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnCalendar-2 B-table-Win
+ON CHOOSE OF btnCalendar-2 IN FRAME F-Main
+DO:
+  {methods/btnCalendar.i fi_date-to}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME  
 
 &Scoped-define SELF-NAME fi_vend
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_vend B-table-Win
@@ -1039,11 +1081,19 @@ PROCEDURE record-added :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-
+DEFINE INPUT PARAMETER ip-date-to AS DATE NO-UNDO .
   DO WITH FRAME {&FRAME-NAME}:
-    ll-first = YES.
-
-    RUN set-defaults.
+    ll-first = NO.
+    ASSIGN
+     tb_posted   = NO
+     tb_unposted = YES
+     fi_finv     = ""
+     fi_vend     = ""
+     fi_date     = TODAY - 180
+     fi_date-to = ip-date-to
+      .
+   
+   DISPLAY fi_date tb_posted tb_unposted fi_finv fi_vend  fi_date-to.
     
     RUN assign-all.
   END.
@@ -1110,10 +1160,12 @@ PROCEDURE set-defaults :
      fi_finv     = ""
      fi_vend     = ""
      fi_date     = TODAY - 180
-     fi_date-to  = TODAY
-     .
-
-    DISPLAY tb_posted tb_unposted fi_finv fi_vend fi_date fi_date-to.
+     fi_date-to = TODAY  + 180
+      .
+   
+   DISPLAY fi_date tb_posted tb_unposted fi_finv fi_vend  fi_date-to.
+     
+     
   END.
 
 END PROCEDURE.

@@ -354,6 +354,7 @@ IF tb_excel THEN
                          WHEN "est-brd"     THEN cVarValue = IF v-mat-est[1] NE ? THEN string(v-mat-est[1],"->>>>>9.99") ELSE "" .
                          WHEN "act-brd"     THEN cVarValue = IF v-mat-act[1] NE ? THEN string(v-mat-act[1],"->>>>>9.99") ELSE "" .
                          WHEN "act-mat"     THEN cVarValue = string(v-mat-var,"->>>9.99") .
+                         WHEN "fg-item"      THEN cVarValue = IF AVAILABLE itemfg THEN itemfg.i-no ELSE "" .
                     END CASE.
                       
                     cExcelVarValue = cVarValue.
@@ -399,6 +400,7 @@ IF tb_excel THEN
                          WHEN "est-brd"     THEN cVarValue = "" .
                          WHEN "act-brd"     THEN cVarValue = "" .
                          WHEN "act-mat"     THEN cVarValue = "" .
+                         WHEN "fg-item"     THEN cVarValue = "" .
                     END CASE.
                       
                     cExcelVarValue = cVarValue.
@@ -439,6 +441,7 @@ IF tb_excel THEN
                          WHEN "est-brd"     THEN cVarValue = "" .
                          WHEN "act-brd"     THEN cVarValue = "" .
                          WHEN "act-mat"     THEN cVarValue = "" .
+                         WHEN "fg-item"     THEN cVarValue = "" .
                     END CASE.
                       
                     cExcelVarValue = cVarValue.
@@ -481,6 +484,7 @@ IF tb_excel THEN
                          WHEN "est-brd"     THEN cVarValue = "" .
                          WHEN "act-brd"     THEN cVarValue = "" .
                          WHEN "act-mat"     THEN cVarValue = "" .
+                         WHEN "fg-item"     THEN cVarValue = "" .
                     END CASE.
                       
                     cExcelVarValue = cVarValue.
@@ -589,6 +593,7 @@ IF tb_excel THEN
                          WHEN "est-brd"     THEN cVarValue = IF v-mat-est[2] NE ? THEN string(v-mat-est[2],"->>>>>9.99") ELSE "" .
                          WHEN "act-brd"     THEN cVarValue = IF v-mat-act[2] NE ? THEN string(v-mat-act[2],"->>>>>9.99") ELSE "" .
                          WHEN "act-mat"     THEN cVarValue = string(v-mat-var,"->>>9.99") .
+                         WHEN "fg-item"     THEN cVarValue = "" .
                     END CASE.
                       
                     cExcelVarValue = cVarValue.
@@ -629,6 +634,7 @@ IF tb_excel THEN
                          WHEN "est-brd"     THEN cVarValue = "" .
                          WHEN "act-brd"     THEN cVarValue = "" .
                          WHEN "act-mat"     THEN cVarValue = "" .
+                         WHEN "fg-item"     THEN cVarValue = "" .
                     END CASE.
                       
                     cExcelVarValue = cVarValue.
@@ -670,6 +676,7 @@ IF tb_excel THEN
                          WHEN "est-brd"     THEN cVarValue = "" .
                          WHEN "act-brd"     THEN cVarValue = "" .
                          WHEN "act-mat"     THEN cVarValue = "" .
+                         WHEN "fg-item"     THEN cVarValue = "" .
                     END CASE.
                       
                     cExcelVarValue = cVarValue.
@@ -710,6 +717,7 @@ IF tb_excel THEN
                          WHEN "est-brd"     THEN cVarValue = "" .
                          WHEN "act-brd"     THEN cVarValue = "" .
                          WHEN "act-mat"     THEN cVarValue = "" .
+                         WHEN "fg-item"     THEN cVarValue = "" .
                     END CASE.
                       
                     cExcelVarValue = cVarValue.
@@ -822,6 +830,7 @@ IF tb_excel THEN
                          WHEN "est-brd"     THEN cVarValue = IF v-mat-est[3] NE ? THEN string(v-mat-est[3],"->>>>>9.99") ELSE "" .
                          WHEN "act-brd"     THEN cVarValue = IF v-mat-act[3] NE ? THEN string(v-mat-act[3],"->>>>>9.99") ELSE "" .
                          WHEN "act-mat"     THEN cVarValue = string(v-mat-var,"->>>9.99") .
+                         WHEN "fg-item"     THEN cVarValue = "" .
                     END CASE.
                       
                     cExcelVarValue = cVarValue.
@@ -862,6 +871,7 @@ IF tb_excel THEN
                          WHEN "est-brd"     THEN cVarValue = "" .
                          WHEN "act-brd"     THEN cVarValue = "" .
                          WHEN "act-mat"     THEN cVarValue = "" .
+                         WHEN "fg-item"     THEN cVarValue = "" .
                     END CASE.
                       
                     cExcelVarValue = cVarValue.
@@ -901,6 +911,7 @@ IF tb_excel THEN
                          WHEN "est-brd"     THEN cVarValue = "" .
                          WHEN "act-brd"     THEN cVarValue = "" .
                          WHEN "act-mat"     THEN cVarValue = "" .
+                         WHEN "fg-item"     THEN cVarValue = "" .
                     END CASE.
                       
                     cExcelVarValue = cVarValue.
@@ -940,6 +951,7 @@ IF tb_excel THEN
                          WHEN "est-brd"     THEN cVarValue = "" .
                          WHEN "act-brd"     THEN cVarValue = "" .
                          WHEN "act-mat"     THEN cVarValue = "" .
+                         WHEN "fg-item"     THEN cVarValue = "" .
                     END CASE.
                       
                     cExcelVarValue = cVarValue.

@@ -497,6 +497,7 @@ PROCEDURE local-create-record :
          pc-prdd.op-time = TIME
          pc-prdd.opn = YES
          pc-prdd.shift = 1
+         pc-prdd.USER-ID = USERID(LDBNAME(1)) 
          .
 
 END PROCEDURE.

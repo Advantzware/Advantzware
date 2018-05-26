@@ -21,7 +21,7 @@ def var v-sht-dec as dec no-undo.
 def var v-op-qty  as int no-undo.
 def var v-on-f    as dec no-undo.
 DEF VAR v-len     LIKE xef.gsh-len NO-UNDO.
-DEF VAR v-yld-qty LIKE eb.yld-qty NO-UNDO.
+DEF VAR v-yld-qty LIKE eb.quantityPerSet NO-UNDO.
 DEF VAR v-n-out   AS INT NO-UNDO.
 
 {sys/inc/notes.i}
@@ -65,18 +65,18 @@ if avail xest then do:
       where xef.company = xest.company AND xef.est-no   eq xest.est-no
         and xef.form-no eq w-ef.frm
       no-lock no-error.
-
+  
   if avail xef then do:
-    find first item
+    find first ITEM NO-LOCK
         where item.company eq cocode
           and item.i-no    eq xef.board
-          AND item.mat-type     EQ "B" NO-LOCK.
+          AND item.mat-type     EQ "B" NO-ERROR.
    
     v-adders = xef.adder[1] + " " + xef.adder[2] + " " + xef.adder[3] + " " +
                xef.adder[4] + " " + xef.adder[5] + " " + xef.adder[6].
 
     assign
-     v-form-code = caps(item.i-no)
+     v-form-code = if avail item THEN caps(item.i-no) ELSE ""
      v-form-dscr = if avail item then item.i-name else ""
      v-form-len  = xef.gsh-len
      v-form-wid  = xef.gsh-wid.
@@ -424,7 +424,7 @@ IF v-net-shts THEN
    v-yld-qty = IF AVAIL xeb THEN
                  IF xeb.est-type EQ 2 THEN xeb.cust-%
                  ELSE
-                 IF xeb.est-type EQ 6 THEN xeb.yld-qty
+                 IF xeb.est-type EQ 6 THEN xeb.quantityPerSet
                  ELSE 1
                ELSE 1
    v-sht-dec = v-sht-dec *

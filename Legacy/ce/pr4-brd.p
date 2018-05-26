@@ -175,7 +175,8 @@ if xef.board ne "" then do with frame aaxx no-labels no-box:
                   (b-cost * ((spo + r-spo[1]) * v-num-up * v-out / 1000))) /
                   (hld-qty / 1000))
     brd.len = xef.gsh-len
-    brd.wid = xef.gsh-wid.
+    brd.wid = xef.gsh-wid
+    brd.dep = xef.gsh-dep.
   END.
 
   zzz = 0. /* now used for freight charges */

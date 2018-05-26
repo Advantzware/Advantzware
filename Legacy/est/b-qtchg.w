@@ -178,7 +178,7 @@ DEFINE BROWSE br_table
             COLUMN-FONT 0
       quotechg.prep-qty FORMAT ">>>,>>>,>>9.9<":U WIDTH 21
       quotechg.cost FORMAT ">>,>>9.99":U COLUMN-FONT 0
-      quotechg.mkup FORMAT ">>9.99<<":U WIDTH 11 COLUMN-FONT 0
+      quotechg.mkup FORMAT ">>9.9999":U WIDTH 11 COLUMN-FONT 0
       quotechg.spare-dec-1 COLUMN-LABEL "Price" FORMAT "->>,>>9.99":U
       quotechg.amtz FORMAT ">>9.99":U
       quotechg.amt COLUMN-LABEL "Total" FORMAT ">>,>>9.99":U COLUMN-FONT 0
@@ -308,7 +308,7 @@ ASSIGN
      _FldNameList[7]   > ASI.quotechg.cost
 "quotechg.cost" ? ">>,>>9.99" "decimal" ? ? 0 ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[8]   > ASI.quotechg.mkup
-"quotechg.mkup" ? ">>9.99<<" "decimal" ? ? 0 ? ? ? yes ? no no "11" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"quotechg.mkup" ? ">>9.9999" "decimal" ? ? 0 ? ? ? yes ? no no "11" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[9]   > ASI.quotechg.spare-dec-1
 "quotechg.spare-dec-1" "Price" ? "decimal" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[10]   > ASI.quotechg.amtz

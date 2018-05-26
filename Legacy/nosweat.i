@@ -23,9 +23,9 @@
     Note: gettime.p used in addon/touchscr.p
 */
 
-
 {methods/defines/globdefs.i &NEW="NEW GLOBAL"}
 {methods/defines/hndldefs.i &NEW="NEW"}
+{ed/sharedv.i "NEW GLOBAL"}
 
 DEFINE NEW SHARED        VARIABLE quit_login      AS LOGICAL   NO-UNDO.
 DEFINE                   VARIABLE m_id            AS CHAR NO-UNDO.
@@ -45,8 +45,8 @@ DEFINE                   VARIABLE cTsLogin        AS CHARACTER   NO-UNDO.
 
 ASSIGN
     ldummy    = SESSION:SET-WAIT-STATE("GENERAL")
-    g_version = "2.1A-8.2A".
-
+    g_version = "16.7-11.6"
+    .
 /* Need databases connect to find nk1 values */
 &IF "{&connectDatabases}" EQ "YES"  &THEN
 RUN connectDatabases.
@@ -66,7 +66,6 @@ END.
 /* Need to obtain the nk1 value without a company # */
 IF "{&appName}" EQ "Touchscreen" THEN
   RUN sys/inc/tslogin.p (OUTPUT tslogin-log).
-
 
 /* If a login procedure is specified */
 &IF DEFINED(loginProcedure) NE 0  &THEN
@@ -96,9 +95,7 @@ RUN asiload.p.
 
 RUN chkdate.p.
   
-IF CONNECTED(LDBNAME(1)) THEN
-DO:
-
+IF CONNECTED(LDBNAME(1)) THEN DO:
     &IF "{&createSingleUserPFs}" EQ "YES" &THEN          
       /* Decided this was not needed */
       /* RUN createSingleUserPFs. */
@@ -109,7 +106,6 @@ DO:
     &IF DEFINED(getCompanyProc) NE 0  &THEN
     RUN getCompanyProc.
     &ENDIF
-
 
     &IF "{&addonPersist}" EQ "YES"  &THEN
       RUN addon/nosweat/persist.p PERSISTENT SET Persistent-Handle.
@@ -122,15 +118,12 @@ DO:
     &IF "{&checkUserCount}" EQ "YES"  &THEN
 
     /* IF NOT (LDBNAME(1) EQ "ASI" OR LDBNAME(2) EQ "ASI" OR LDBNAME(3) EQ "ASI") THEN  */
-    DO TRANSACTION:
-            
+    DO TRANSACTION:            
         /* Check EULA and number of sessions here using combined db or in mainmenu if ASI is physically connected */
         RUN system/userLogin.p (OUTPUT lExit).
-
         IF lExit THEN 
             QUIT. 
     END.
-    
     &ENDIF
     
     &IF "{&checkExpiredLicense}" EQ "YES"  &THEN
@@ -142,8 +135,6 @@ DO:
     
     RUN setUserGroups.
     
-    
-    
     &IF DEFINED(overrideCompany) NE 0  &THEN
     RUN setCompanyOverride (INPUT "{&overrideCompany}").
     &ENDIF
@@ -154,8 +145,7 @@ DO:
     
     &IF "{&checkBlankCompany}" EQ "YES"  &THEN
     RUN checkBlankCompany.
-    IF ERROR-STATUS:ERROR THEN 
-    DO: 
+    IF ERROR-STATUS:ERROR THEN DO: 
         ldummy = SESSION:SET-WAIT-STATE("").
         QUIT.
     END.
@@ -168,30 +158,22 @@ DO:
     &IF DEFINED(nonPersistProgram) NE 0  &THEN
     RUN startNonPersistentMenu.
     &ENDIF
-    
-        
 END.
-ELSE
-DO:
+ELSE DO:
     ldummy = SESSION:SET-WAIT-STATE("").
     MESSAGE "CONNECT to NOSWEAT'S Database Failed" SKIP(1)
         "Contact Systems Manager" VIEW-AS ALERT-BOX ERROR.
 END. 
-
     
 DO TRANSACTION:
   RUN system/userLogOut.p.
 END.
-ldummy = SESSION:SET-WAIT-STATE("").
+SESSION:SET-WAIT-STATE("").
 QUIT.
-
 /* End Main Block */
 
-
-
 PROCEDURE checkBlankCompany:
-    IF g_company = "" THEN 
-    DO:
+    IF g_company EQ "" THEN DO:
         MESSAGE
             "No Default Company or Location Exists. Please contact system administrator for help."
             VIEW-AS ALERT-BOX ERROR.
@@ -199,18 +181,14 @@ PROCEDURE checkBlankCompany:
     END.    
 END PROCEDURE.
 
-
 PROCEDURE connectDatabases:
-    
     FOR EACH parmfile NO-LOCK:
-
         IF SEARCH (parmfile.parmfile) > "" THEN 
             CONNECT -pf VALUE(parmfile.parmfile) NO-ERROR.
         ELSE 
             IF SEARCH (REPLACE (parmfile.parmfile, ".~\", "")) > "" THEN   
                 CONNECT -pf VALUE(SEARCH(REPLACE (parmfile.parmfile, ".~\", ""))) NO-ERROR.
-            ELSE 
-            DO:
+            ELSE DO:
                 MESSAGE "Cannot find .pf file: " parmfile.parmfile SKIP 
                     REPLACE (parmfile.parmfile, ".~\", "")
                     VIEW-AS ALERT-BOX ERROR .
@@ -224,9 +202,7 @@ PROCEDURE connectDatabases:
                 VIEW-AS ALERT-BOX ERROR.
         END.
     END.
-    
     IF CONNECTED("asihelp") AND NOT CONNECTED("asihlp") THEN CREATE ALIAS asihlp FOR DATABASE asihelp.
-    
 END PROCEDURE.
 
 PROCEDURE createSingleUserPFs:
@@ -254,20 +230,16 @@ PROCEDURE setUserGroups:
 END PROCEDURE.
 
 PROCEDURE setCompanyOverride:
-    
     DEFINE INPUT  PARAMETER ipcCompany AS CHARACTER NO-UNDO.
     
     /* Replaces g_company = "012" */
     g_company = ipcCompany.
-
 END PROCEDURE.
-
 
 PROCEDURE setDefaultUser:
     /* {&defaultUser} */
     IF SETUSERID("{&overrideUserID}","{&overrideUserPasswd}",LDBNAME(1)) THEN.
 END PROCEDURE. 
-   
 
 PROCEDURE setLocOverride:
   DEFINE INPUT  PARAMETER ipcLoc AS CHARACTER NO-UNDO.
@@ -277,10 +249,8 @@ END PROCEDURE.
     
 PROCEDURE setUserProc:
     /* Touchscreen may not prompt so check for tslogin for touch programs */
-    IF "{&appName}" NE "touchscreen"  
-        OR ("{&appName}" EQ "touchscreen" AND tslogin-log )         
-      THEN    
-    DO:
+    IF "{&appName}" NE "touchscreen" OR
+      ("{&appName}" EQ "touchscreen" AND tslogin-log ) THEN DO:
         m_id = OS-GETENV("opsysid").
 
         IF m_id = ? THEN m_id = "".
@@ -288,39 +258,31 @@ PROCEDURE setUserProc:
         IF NOT SETUSERID(m_id,"",LDBNAME(1)) OR m_id EQ "" THEN
             RUN VALUE("{&loginProcedure}").
     END.              
-            
-END. 
+END PROCEDURE.
 
 PROCEDURE startNonPersistentMenu:
-
       IF "{&appName}" EQ "touchscreen" THEN
         RUN custom/gettime.p.
       RUN VALUE("{&nonPersistProgram}").
-    
 END PROCEDURE.
 
 PROCEDURE startPersistentMenu:
-        
     init_menu = YES.
     DO WHILE init_menu:
         init_menu = NO.
         RUN Get_Procedure IN Persistent-Handle ("{&execProgram}",OUTPUT run-proc,YES).
     END.
-    
 END PROCEDURE.
 
 PROCEDURE userRecordCheck:
-
     FIND users WHERE users.user_id = USERID(LDBNAME(1)) NO-LOCK NO-ERROR.
     IF NOT AVAILABLE users THEN 
         FIND users WHERE users.user_id = USERID(LDBNAME(2)) NO-LOCK NO-ERROR.
-    IF NOT AVAILABLE users THEN
-    DO:     
+    IF NOT AVAILABLE users THEN DO:     
         ldummy = SESSION:SET-WAIT-STATE("").
         MESSAGE "User Login Does Not Exist in Users File" SKIP(1)
             "Contact Systems Manager" VIEW-AS ALERT-BOX ERROR.
         QUIT.
     END.
     g_track_usage = users.track_usage.
-    
 END PROCEDURE.

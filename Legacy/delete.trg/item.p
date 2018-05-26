@@ -19,10 +19,7 @@ for each e-item-vend where e-item-vend.company = item.company and
                            e-item-vend.i-no = item.i-no:
     delete e-item-vend.
 end.    
-for each /*  old reftable where reftable.reftable eq "FLUTE"
-                  and reftable.company  eq ""
-                  and reftable.loc      eq ""
-                  */
+for each 
                flute  no-lock,
           each stack-flute  where stack-flute.company eq item.company
                               and stack-flute.loc     eq item.loc

@@ -20,16 +20,16 @@
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
 
-DEFINE VARIABLE progressINI AS CHARACTER NO-UNDO.
-
-IF SEARCH('nosweat.r') EQ ? THEN DO:
-  GET-KEY-VALUE SECTION 'STARTUP'
-    KEY 'DLC'
-    VALUE progressINI.
-  progressINI = progressINI + '\bin\progress'.
-  LOAD progressINI.
-  USE progressINI.
-END.
+/*DEFINE VARIABLE progressINI AS CHARACTER NO-UNDO.*/
+/*                                                 */
+/*IF SEARCH('nosweat.r') EQ ? THEN DO:             */
+/*  GET-KEY-VALUE SECTION 'STARTUP'                */
+/*    KEY 'DLC'                                    */
+/*    VALUE progressINI.                           */
+/*  progressINI = progressINI + '\bin\progress'.   */
+/*  LOAD progressINI.                              */
+/*  USE progressINI.                               */
+/*END.                                             */
 
 /* Create an unnamed pool to store all the widgets created 
      by this procedure. This is a good default which assures
@@ -77,7 +77,9 @@ SESSION:SET-WAIT-STATE('').
 IF LDBNAME(1) NE ? THEN
 SESSION:TIME-SOURCE = LDBNAME(1).
 
+&IF DEFINED(FWD-VERSION) EQ 0 &THEN
 {{&includes}/lockWindowUpdate.i}
+&ENDIF
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -539,8 +541,8 @@ DO:
   /* This ADM code must be left here in order for the SmartWindow
      and its descendents to terminate properly on exit. */
   APPLY "CLOSE":U TO THIS-PROCEDURE.
-  IF SEARCH('nosweat.r') EQ ? THEN
-  UNLOAD progressINI.
+/*  IF SEARCH('nosweat.r') EQ ? THEN*/
+/*  UNLOAD progressINI.             */
   RETURN NO-APPLY.
 END.
 
@@ -1640,7 +1642,11 @@ PROCEDURE local-initialize :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'initialize':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
+&IF DEFINED(FWD-VERSION) EQ 0 &THEN
   RUN LockWindowUpdate (ACTIVE-WINDOW:HWND,OUTPUT i).
+&ELSE
+  ACTIVE-WINDOW:DISABLE-REDRAW = TRUE.
+&ENDIF
   RUN select-page IN THIS-PROCEDURE (4).
   RUN containerHandle IN h_resources (THIS-PROCEDURE:HANDLE,'{&Board}').
   RUN select-page IN THIS-PROCEDURE (3).
@@ -1649,7 +1655,11 @@ PROCEDURE local-initialize :
   RUN containerHandle IN h_config (THIS-PROCEDURE:HANDLE,'{&Board}').
   RUN select-page IN THIS-PROCEDURE (1).
   RUN containerHandle IN h_board (THIS-PROCEDURE:HANDLE,h_downtime:HANDLE).
+&IF DEFINED(FWD-VERSION) EQ 0 &THEN
   RUN LockWindowUpdate (0,OUTPUT i).
+&ELSE
+  ACTIVE-WINDOW:DISABLE-REDRAW = FALSE.
+&ENDIF
   RUN winReSize.
   RUN getSize IN h_config (OUTPUT configFrameH,OUTPUT configFrameW).
   ASSIGN

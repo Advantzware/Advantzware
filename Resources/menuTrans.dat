@@ -1,0 +1,717 @@
+English,Espanol (Spanish),Français (French)
+Graphics\32x32\usa_32.ico,Graphics\32x32\mexico_32.ico,Graphics\32x32\france_32.ico
+1099-MISC,1099-Varios,1099-Divers
+2 Scheduler View,2 Vista de programador,2 Vue du planificateur
+3 Scheduler Pro,3 Programador Pro,3 Planificateur Pro
+A/R Control,Control de A/R,Contrôle A/R
+About,Sobre,Sur
+Accounts Payable Control,Control de cuentas por pagar,Contrôle des comptes fournisseurs
+Accounts Receivable,Cuentas por cobrar,Comptes débiteurs
+Acknowledgements,Expresiones de gratitud,Remerciements
+Actual Releases,Lanzamientos reales,Communiqués de presse
+Add/Edit DB/CR Memos,Añadir/Editar DB/CR Memorándum,Ajouter / Modifier des mémos DB / CR
+Aged Inventory,Inventario envejecido,Inventaire vieilli
+Aged Inventory w/WIP,Inventario envejecido w/WIP,Inventaire vieilli avec WIP
+Aged Receivables,Cuentas por cobrar envejecidas,Créances vieillies
+Aged Receivables Totals,Totales de cuentas por cobrar,Aged Receivables Totals
+Alphabetic Item List,Lista de elementos alfabéticos,Liste alphabétique des objets
+AP Accounts by Vendor,Cuentas AP por proveedor,Comptes AP par fournisseur
+AP Cash Requirements,Requisitos de efectivo de AP,Exigences de trésorerie AP
+AP Check Register,AP Check Register,AP Check Registre
+AP Credit/Debit Memos,Memorándums de crédito/débito de AP,AP Mémos de crédit/débit
+AP Invoice Inquiry,Consulta de factura de AP,AP Demande de facture
+AP Invoice Posting,Publicación de facturas AP,AP Facturation
+AP Invoices by Vendor,Facturas de AP por vendedor,AP Factures par le fournisseur
+AP Mailing List,Lista de correo AP,AP Factures par le fournisseur
+AP Vendor Analysis,Análisis de proveedores AP,Analyse du fournisseur AP
+Apply/Reapply Cash/Memos,Aplicar/Volver a solicitar efectivo,Appliquer/Réappliquer Cash/Memos
+Approve Jobs,Aprobar trabajos,Les mémos approuvent les travaux
+AR Accounts by Customer,Cuentas AR por cliente,Comptes AR par client
+AR Cash Requirements,AR Requisitos de efectivo,AR Exigences de trésorerie
+AR Credit/Debit Memos,Membresías de crédito/débito AR,AR Crédits/Débit			
+AR Invoice Edit List,Lista de Edición de Factura de AR,AR Facture Modifier la liste
+AR Invoice Inquiry,Consulta de factura de AR,AR Invoice Inquiry
+AR Mailing List,Lista de correo de AR,Liste de diffusion AR
+Archive/Delete Estimates,Archivar/Eliminar estimaciones,Archiver/Supprimer les estimations
+ASI Version (Patch History),Versión de ASI (historial de parches),Version ASI (historique des correctifs)
+Assign WIP Tags To Machine,Asignar etiquetas WIP a la máquina,Affecter des tags WIP à la machine
+Audit History,Historial de auditoría,Historique d'audit
+Bank Deposit Report,Informe de depósito bancario,Rapport de dépôt bancaire
+Bank Reconciliation,Reconciliación bancaria,Rapprochement bancaire
+Banks,Bancos,Banques
+Barcode Sharp Shooter,Código de barras Sharp Shooter,Tireur pointu de code à barres
+Batch Procedure Maintenance,Mantenimiento del procedimiento por lotes,Maintenance de la procédure par lots
+Batch Running Procedure,Procedimiento de ejecución por lotes,Procédure en cours d'exécution
+Batch Spool Requests,Solicitudes de envío por lotes,Demandes de spool par lots
+Bill Finance Charges,Cargos de Bill Finance,Frais de financement du projet de loi
+Bill Of Lading Creation,Creación de Bill of Lading,Création de connaissement
+Bill of Lading Transaction,Bill of Lading Transaction,Transaction de connaissement
+Bill of Materials Print,Bill of Materials Print,Nomenclature Imprimer
+Billing / Counter Sales,Facturación/Ventas de mostrador,Billing/Counter Sales
+Billing Detail Sales Journal,Diario de ventas de detalle de facturación,Journal des ventes de détail de facturation
+Board Reconciliation,Reconciliación de la Junta,Rapprochement du conseil
+Board/Paper To Order,Tablero/Papel a pedido,Conseil / Papier à commander
+BOL Edit List,Lista de BOL Edit,BOL Modifier la liste
+BOL Packing List,BOL Lista de embalaje,BOL Liste d'emballage
+Bookings Highlights,Reservas Destacados,Faits saillants des réservations
+Box Designs,Diseños de cajas,Conception de boîte
+Build Estimate Files,Crear archivos de estimación,Créer des fichiers d'estimation
+Build FG Warehouse/Bin,Build FG Warehouse/Bin,Construire un entrepôt FG
+Build Flute/Test Counts,Build Flute/Test Counts,Construire des comptes de flûte/test
+Build Payment Selection List,Crear lista de selección de pago,Créer une liste de sélection de paiement
+Build Security by Menu,Crear seguridad por menú,Générer la sécurité par menu
+Business Documents,Documentos de negocios,Documents d'affaires
+Buyers,Compradores,Acheteurs
+Carrier List,Lista de portadores,Liste des transporteurs
+Case Label Creation,Creación de etiqueta de caso,Création d'étiquettes de cas
+Cash Receipts,Recibos de efectivo,Les recettes monétaires
+Cash Receipts by Sales Rep,Recibos de efectivo por representante de ventas,Encaissements par représentant des ventes
+Cash Receipts by SalesRep Name,Recibos de efectivo por nombre del representante de ventas,Entrées de caisse par nom de représentant des ventes
+Cash Receipts Processing,Cash Receipts Processing,Nom du traitement des encaissements
+Change Price of Posted Invoice,Cambiar el precio de la factura publicada,Modifier le prix de la facture publiée
+Change User Groups,Cambiar grupos de usuarios,Modifier les groupes d'utilisateurs
+Chart of Accounts,Catálogo de cuentas,Plan comptable
+Check Processing,Cheque procesamiento,Chèque le traitement
+Check Register,Cheque registro,Chèque l'enregistrement
+Check Register by GL#,Cheque Registrarse por GL#,Chèque Inscrivez-vous par GL #
+Check Register Import,Cheque Registrar importación,Chèque l'importation du registre
+Checks/Invoices,Cheques/Facturas,Chèques/Factures
+Close / Reopen Jobs,Cerrar/volver a abrir trabajos,Close/Reopen Jobs
+Close / Reopen Orders,Close/reopen orders,Fermer/Rouvrir les commandes
+Close / Reopen POs,Cerrar/reabrir órdenes de compra,Fermer/rouvrir les bons de commande
+Close Month,Mes cerrado,Mois de fermeture
+Closed Job Analysis,Análisis de trabajo cerrado,Analyse d'emploi fermée
+Codes,Códigos,Codes
+Codes Listings,Listados de Códigos,Listes de codes
+Comm Cost By Item,Costo de comunicación por artículo,Comm Coût par article
+Company,Empresa,Société
+Commission by Item Cost,Comisión por coste de artículo,Commission par article coût
+Commission Cash Receipt,Recibo de caja de la Comisión,Récépissé de la Commission
+Commissions,Comisiones,Commissions
+Commissions using Comm Cost by Company,Comisiones que usan Comm Cost por compañía,Commissions utilisant Comm Comm coût par entreprise
+Completed Machine Jobs,Trabajos de máquina terminados,Travaux de machine terminés
+Completed Machine Jobs List,Lista completa de trabajos de la máquina,Liste des travaux de machine complétés
+Configurations,Configuraciones,Configurations
+Contact List,Lista de contactos,Liste de contacts
+Contact Marketing,Mercado de contacto,Contact marché
+Control File,Archivo de control,Fichier de contrôle
+Controls,Controles,Contrôles
+Copy Curr Bal to Budgets,Copia Curr Bal a Presupuestos,Copier Curr Bal dans les budgets
+Copy Customer Notes,Copie las notas del cliente,Copier les notes du client
+Copy Customers to Contact Mgr.,Copie clientes para contactar a Mgr.,Copier les clients à Contact Mgr.
+Copy Order,Copiar orden,Copy Customers to Contact Mgr.
+CorrTrim Downloading Inquiry,Consulta de descarga de CorrTrim,Demande de téléchargement CorrTrim
+CorrTrim Downloading Program,Programa de descarga CorrTrim,Programme de téléchargement CorrTrim
+CorrTrim Uploading History Inquiry,CorrTrim Uploading historial de investigación,CorrTrim Uploading enquête d'histoire
+CorrTrim Uploading Program,CorrTrim Cargando Programa,CorrTrim Uploading Program
+Corrugated / Foam Materials,Materiales corrugados/espuma,Matériaux ondulés/mousse
+Corrugated Box Estimate,Estimación de Caja Corrugada,Estimation de la boîte en carton ondulé
+Corrugated Styles,Estilos acanalados,Styles ondulés
+Cost Estimate Control,Control de estimación de costos,Contrôle des coûts
+Count Finished Goods,Recuento de productos terminados,Compter les marchandises finies
+Count Raw Goods Inventory,Contar inventario de productos sin procesar,Comptabiliser l'inventaire des marchandises brutes
+CR/DB Memo Edit List,CR/DB lista de edición memo,CR/DB Memo Modifier la liste
+Create Bill of Lading,Crear conocimiento de embarque,Créer un connaissement
+Create FG Receipt from BOLs,Crear recibo FG desde BOLs,Créer un reçu FG à partir de BOL
+Credit Hold / Approve Orders,Retención de Crédito/Aprobar Órdenes,Attente de crédit/Approbation d'ordres
+CRM Contacts,Contactos de CRM,Contacts CRM
+CRM Customers,Clientes de CRM,Clients CRM
+Cross References,Referencias cruzadas,Références croisées
+Currency Code,Código de moneda,Code de devise
+Current Month Detail,Detalle del mes actual,Détail du mois en cours
+Current Period To Date Sales,Periodo actual hasta la fecha de ventas,Ventes courantes à ce jour
+Customer Activity,Actividad del cliente,Activité client
+Customer Inventory,Inventario del cliente,Inventaire des clients
+Customer Inventory Report 1,Informe de inventario del cliente 1,Rapport d'inventaire client 1
+Customer Inventory Report 2,Informe de inventario del cliente 2,Rapport d'inventaire client 2
+Customer List,Lista de clientes,Liste de clients
+Customer Matl. Usage,Uso del material del cliente,Utilisation du matériel client
+Customer Shipto List,Cliente Enviar a la lista,Client Ship to List
+Customer Snapshot Totals,Totales de instantáneas del cliente,Customer Snapshot Totals
+Customer Types,Tipos de clientes,Types de clients
+Customer/ShipTo List,Lista de clientes/buques,Liste des clients/ShipTo
+Customers,Clientes,Les clients
+Cycle Count Code Report,Informe de código de recuento de ciclos,Rapport de code de compte de cycle
+Daily Summary by Employee,Resumen diario por empleado,Résumé quotidien par employé
+Daily Transactions,Transacciones diarias,Transactions quotidiennes
+Data Collection / Login,Recopilación de datos/Login,Collecte de données/Connexion
+Data Collection Waste By Dep.,Recolección de datos Residuos por Dep.,Collecte de données Déchets par Dep.
+Data Collection,Recopilación de datos,Collecte de données
+Date Change Reasons,Razones para cambiar la fecha,Raisons de changement de date
+Debit/Credit Register,Registro de débito/crédito,Registre de débit/crédit
+Delete Zero Qty FG Bins,Eliminar contenedores Zero Qty FG,Supprimer les bacs FG Zero Qty
+Delete Zero Qty RM Bins,Eliminar contenedores Zero Qty RM,Supprimer Zero Qty RM Bins
+Departments,Departamentos,Départements
+Detail Cash History Report,Informe detallado del historial de efectivo,Détail de l'historique de trésorerie
+Detail Invoice Report,Informe de factura detallada,Détail du rapport de facturation
+Detail Misc Cash History Rpt,Detalle Misc Cash History Rpt,Détail Divers Cash Historique Rpt
+Disbursements Register,Desembolsos Registrarse,Registre des décaissements
+DL-Mat-GSA by Whs/Bin/Tag,DL-Mat-GSA por Whs/Bin/Tag,DL-Mat-GSA par Whs/Bin/Tag
+Document Controls,Controles de documentos,Contrôles de documents
+Download Contacts,Descargar Contactos,Télécharger les contacts
+Download to Laptop,Descargar a Laptop,Télécharger sur ordinateur portable
+EDI,EDI,EDI
+EDI 810 Invoices,EDI 810 Facturas,EDI 810 Factures
+EDI ASN (856),EDI ASN (856),EDI ASN (856)
+EDI Customer Master Settings,Configuración de maestro de cliente EDI,Paramètres de base du client EDI
+EDI Customer Part Translation,Traducción de parte del cliente EDI,Traduction de la partie client EDI
+EDI Order Acks (855),EDI Orden Acks (855),Commandes de commande EDI (855)
+EDI Orders (850),Pedidos EDI (850),Commandes EDI (850)
+EDI Orders (850) Import/Monitor,Importación/monitor de órdenes EDI (850),Commandes EDI (850) importer/surveiller
+EDI Release Create/BOL Load,Lanzamiento Crear/BOL Carga,Libération EDI Créer/Charge BOL
+EDI Segments per Partner Group,Segmentos EDI por grupo de socios,Segments EDI par groupe de partenaires
+EDI Shipto,EDI Shipto,Navire EDI à
+EDI Transaction Setup,Configuración de transacción EDI,Configuration des transactions EDI
+Edit Error Codes,Editar códigos de error,Modifier les codes d'erreur
+Edit/Post AR Applied Items,Editar/publicar elementos aplicados AR,Modifier/poster des articles appliqués AR
+Edit/Post AR Cash Receipts,Editar/publicar recibos de efectivo de AR,Modifier/poster des reçus de trésorerie AR
+Edit/Post AR Misc. Receipts,Editar/Publicar AR Misc. Ingresos,Modifier / Poster AR Divers Recettes
+Email Codes,Códigos de correo electrónico,Codes Email
+Employee Default Rates,Tasas predeterminadas del empleado,Taux de défaut des employés
+Employee Time by Job and Machi,Tiempo del empleado por trabajo y máquina,Temps employé par le travail et la machine
+Employee Time Sheet,Hoja de tiempo del empleado,Feuille de temps des employés
+Employee Transaction Summary,Resumen de transacciones del empleado,Récapitulatif des transactions des employés
+Employee Transactions,Transacciones de empleados,Transactions des employés
+Employee Types,Tipos de empleados,Types d'employés
+Employee Types List,Lista de tipos de empleados,Liste des types d'employés
+Employees,Empleados,Des employés
+Employees List,Lista de empleados,Liste des employés
+Enter Misc. Receipts,Ingresa Misc. Ingresos,Entrez Misc. Recettes
+Enter/Edit AP Invoices,Ingresa Misc. Ingresos,Entrer/Modifier les factures AP
+Enter/Edit AR Invoices,Ingresar/editar facturas de AR,Entrer/Modifier les factures AR
+Enter/Edit BOL,Entrar/Editar BOL,Entrer / Modifier BOL
+Enter/Edit Cash Receipts,Ingresar/Editar recibos de efectivo,Entrer/Modifier les entrées de trésorerie
+Enter/Edit CR/DB Memos,Ingresar/editar notas de CR/DB,Entrer/Modifier les mémos CR/DBEntrer/Modifier les mémos CR/DB
+Enter/Edit Disbursements,Ingresar/Editar desembolsos,Entrer/Modifier les débours
+Enter/Edit Invoices,Ingresar/Editar Facturas,Entrer/Modifier les factures
+Enter/Edit Journal Entries,Ingresar/editar entradas de diario,Entrer/Modifier les entrées de journal
+Enter/Edit POs,Enter/Edit POs,Entrer/Modifier les bons de commande
+Enter/Edit Recurring AP Invcs,Ingresar/editar convocatorias de AP recurrentes,Entrer/Modifier les demandes d'AP récurrentes
+Enter/Edit Recurring Journals,Ingrese/edite diarios recurrentes,Entrer/Modifier les journaux récurrents
+Enter/Edit Releases,Ingresar/Editar Versiones,Entrer/Modifier les versions
+Enter/Edit Returns,Ingresar/Editar devoluciones,Entrer/Modifier les retours
+Estimates by Size,Estimaciones por tamaño,Estimations par taille
+Estimates List,Lista de estimaciones,Liste des estimations
+Estimates List w/Margins,Lista de estimaciones con márgenes,Liste des estimations avec marges
+Estimating / Quotes,Estimar/Cotizaciones,Estimation/Citations
+Excel Reports,Informes de Excel,Rapports Excel
+Exceptions Report,Informe de excepciones,Rapport d'exceptions
+Exit,Salida,Sortie
+Export Electronic Invoices,Exportar facturas electrónicas,Exporter des factures électroniques
+Export Estimates,Exportar facturas electrónicas,Estimations d'exportation
+Factory Ticket Print,Impresión del boleto de fábrica,Impression de billet d'usine
+FG Category Product Sales,FG Categoría Ventas de productos,Catégorie FG Ventes de produits
+FG Consolidate Tags,Consolidar etiquetas,FG Consolider les tags
+FG Daily Activity,FG Actividad diaria,Activité quotidienne FG
+FG Enter/Modify Adjustments,FG Ingrese/Modifique los ajustes,FG Entrer/Modifier les ajustements
+FG Enter/Modify Physical Count,FG Ingrese/Modifique el Conteo Físico,FG Entrer/Modifier le nombre physique
+FG Enter/Modify Receipts,FG Ingresar/Modificar recibos,FG Entrer/Modifier les reçus
+FG Enter/Modify Transfers,FG Entrer/Modifier les transferts,FG Entrer/Modifier les transferts
+FG Export to Excel,FG Exportar a Excel,FG Export vers Excel
+FG History,Historia de FG,Histoire de FG
+FG Issue,FG Issue,FG Issue
+FG Item Ship Method Update,FG Item Ship Method Method Update,Mise à jour de la méthode d'expédition d'article FG
+FG Item Value/Cost Summary,FG Valor del artículo/Resumen de costos,Valeur de l'article FG/Résumé des coûts
+FG Packing Detail,Detalle de empaque FG,FG Détail d'emballage
+FG Posting Report By Date,Informe de contabilización de FG por fecha,FG Posting Report par date
+FG Purchase Requirements,Requisitos de compra FG,Exigences d'achat FG
+FG Rebuild Bins/Reset Bal,FG Rebuild Bins/Reset Bal,FG Rebuild Bins/Reset Bal
+FG Sell Price/Bin Cost,Costo de venta de FG/costo de Bin,FG Prix de vente/Bin Bin
+File,Archivo,Fichier
+File Cleanup,Archivo,Nettoyage de fichier
+File Maint. Cont'd for TS,File Maint. Continúa para TS,Fichier Maint. Suite pour TS
+File Maintenance,Mantenimiento de archivo,Maintenance du fichier
+File Maintenance for Contact,Mantenimiento de archivos para contacto,Fichier Maintenance pour Contact
+File Maintenance for Customers,Mantenimiento de archivos para clientes,Maintenance de fichiers pour les clients
+File Maintenance for G/L,Mantenimiento de archivo para G/L,Fichier de maintenance pour G/L
+File Maintenance for Items,Mantenimiento de archivos para artículos,Maintenance de fichiers pour les éléments
+File Maintenance for Jobs,Mantenimiento de archivos para trabajos,Fichier Maintenance pour les travaux
+File Maintenance for Orders,Mantenimiento de archivos para pedidos,Maintenance de fichiers pour les commandes
+File Maintenance for Purchases,Mantenimiento de archivos para compras,Fichier Maintenance pour les achats
+File Maintenance for Raw Goods,Mantenimiento de archivos para productos sin procesar,Maintenance de fichiers pour les marchandises brutes
+File Maintenance for RFQ,Mantenimiento de archivos para RFQ,Fichier Maintenance pour RFQ
+File Maintenance for TS,Mantenimiento de archivos para TS,Fichier de maintenance pour TS
+File Maintenance for Vendors,Mantenimiento de archivos para proveedores,Maintenance de fichiers pour les fournisseurs
+Financial Statements,Estados financieros,États financiers
+Finished Good Item,Buen artículo terminado,Bon article fini
+Finished Goods,Productos terminados,Marchandises finies
+Finished Goods Categories,Categorías de productos terminados,Finished Goods Categories
+Finished Goods Control,Control de productos terminados,Contrôle des marchandises finies
+Fix A/R Invoice Date,Corregir fecha de factura de A/R,Fixer la date de facturation A/R
+Fix Cash Receipt Date,Fijar fecha de recibo de efectivo,Fixer la date de réception de l'argent
+Fix FG Hist Cost,Arreglar el costo de historial FG,Correction du coût de l'historique FG
+Fix Invoice Cost,Fijar el costo de la factura,Fixer le coût de la facture
+Fix RM Hist Cost,Fijar el costo de RM Hist,Fixer le coût d'histogramme RM
+Floor Reporting at Machine,Informes de piso en la máquina,Rapport d'étage à la machine
+Flute and Unit Counts,Flauta y unidad cuenta,Flûte et nombre d'unités
+Folding Carton Materials,Materiales de cartón plegables,Matériaux de carton pliant
+Folding Estimates,Estimaciones plegables,Estimations pliantes
+Folding Styles,Estilos plegables,Styles de pliage
+Freight Class,Clase de carga,Classe de fret
+Freight Report,Informe de carga,Rapport de fret
+General Ledger Control,Control de libro mayor,Contrôle de la comptabilité générale
+General Ledger,Contabilidad general,Comptabilité générale
+GL Accounts,Cuentas GL,Comptes GL
+GL Auto Distribution,GL Distribución automática,GL Distribution automatique
+GL History,Historia GL,Histoire de GL
+GL Invoice Summary,Resumen de la factura GL,GL Récapitulatif des factures
+GL Posting Check,Verificación de contabilización GL,GL Posting Check
+GL Posting Register,GL Registro de publicaciones,Registre de publication GL
+Global FG Price Change,Cambio global del precio de FG,Changement de prix Global FG
+Global Price Increase,Aumento global de precios,Augmentation globale des prix
+Global Quote Price Change,Cambio de precio de cotización global,Changement de prix global
+Global RM Price Change,Cambio de precio global de RM,Global RM Changement de prix
+Help,Ayuda,Aide
+Help Maintenance,Ayuda Mantenimiento,Aide à la maintenance
+High Sales (This Yr vs. Last),Ventas altas (este año contra el último),Ventes élevées (cet an vs dernier)
+High Sales by Date Ranges,Altas ventas por rangos de fechas,Ventes élevées par plages de dates
+High Sales Tracking,Seguimiento de ventas elevadas,Suivi des ventes élevé
+History of Sales,Historia de las ventas,Histoire des ventes
+Holidays,Vacaciones,Vacances
+Hots List,Lista de calientes,Liste de Hot
+Hots List by Open Order,Lista de Hots por orden abierta,Hots List par ordre ouvert
+Hots List by Release Number,Lista de Hots por número de lanzamiento,Liste des points d'accès par numéro de version
+Hots List2 by Open Order,Hots List 2 por orden abierta,Liste des points d'accès par numéro de version
+Import Estimates,Estimaciones de importación,Estimations d'importation
+Import GL Account Budgets,Importar presupuestos de cuenta GL,Importation de budgets de compte GL
+Import Order,Orden de importación,Commande d'importation
+Import Payroll Entries,Importar entradas de nómina,Importer des entrées de paie
+In/Out Transaction Report,Informe de transacción de entrada/salida,Rapport de transaction In / Out
+Inbound Processing,Procesamiento entrante,Traitement entrant
+Income Statement Ratios,Proporciones del estado de ingresos,Ratios du compte de résultat
+Ink/Glue Consumption,Ink/Glue Consumption,Consommation d'encre/de colle
+Inks by Machine,Tintas por máquina,Encres par machine
+Inventory / Finished Goods,Inventario/Productos acabados,Inventaire/Produits finis
+Inventory Balances,Balances de inventario,Soldes d'inventaire
+Inventory by Bin/Tag,Inventario por contenedor/etiqueta,Inventaire par bin / tag
+Inventory by Item Name,Inventario por nombre del artículo,Inventaire par nom d'article
+Inventory Status by Job,Estado del inventario por trabajo,État de l'inventaire par emploi
+Invoice Balances,Balances de factura,Soldes de factures
+Invoice Highlights,Aspectos destacados de la factura,Faits saillants des factures
+Invoice Post / Update GL,Factura/Actualización GL,Facture Post/Mise à jour GL
+Invoices (810),Facturas (810),Factures (810)
+Issue Materials to Jobs,Emitir materiales a trabajos,Emettre des matériaux aux emplois
+Item File Maintenance,Mantenimiento del archivo del artículo,Maintenance du fichier d'article
+Item List by Customer,Lista de artículos por cliente,Liste d'articles par clientfs
+Item Receipt,Item Receipt,Reçu de l'objet
+Item Usage,Item Usage,Utilisation de l'article
+Job Actual Cost Detail,Job Actual Cost Detail,Détail des coûts réels
+Job Backlog by Machine,Job Backlog por máquina,Carnet de travail par machine
+Job Backlog by MSF/Kicks,Job Backlog by MSF/Kicks,Job Backlog par MSF/Kicks
+Job Categories,Categorías de trabajo,Catégories d'emploi
+Job Cost Control,Control de costo de trabajo,Contrôle des coûts d'emploi
+Job Costing,Costeo del trabajo,Coût du travail
+Job Hold Reasons,Razones de la retención de trabajo,Raisons d'emploi
+Job Log,Registro de trabajo,Journal des tâches
+Job Material/Machine Report,Material del trabajo/informe de la máquina,Rapport de matériel/machine
+Job Sequence,Secuencia de trabajo,Séquence de travail
+Job Summary,Resumen del trabajo,Résumé du poste
+Job Tick w/Order Printed?,Tick de trabajo w/orden impresa?,Job Tick w/Commande imprimée?
+Job Variance,Variación de trabajo,Variance d'emploi
+Job/Est/PO Audit,Auditoría de trabajo/este/po,Job/Est/PO Audit
+Job/Vendor Analysis,Análisis de trabajo/proveedor,Analyse Job/Vendor
+Jobs Due Tracking,Seguimiento de trabajos debidos,Emplois Due Tracking
+Journal Entries Report,Informe de entradas de diario,Rapport d'entrées de journal
+K-Control Parameters,Parámetros del K-control,Paramètres K-Control
+Kopy Estimate,Estimación Kopy,Kopy Estimation
+L. More Reports for Receivables,L. Más informes por cobrar,L. Plus de rapports pour Receivable
+Label Menu,Menú etiqueta,Menu Étiquette
+Labor / Misc. Material Costs,Costos de trabajo/Misc. material,Travail/Divers Coût des matériaux
+Labor Hours by Charge Code,Horas de trabajo por código de carga,Heures de main-d'œuvre par code de charge
+Labor Hours vs Estimated,Horas de trabajo vs estimadas,Heures de travail vs estimations
+Labor Report,Informe laboral,Rapport de travail
+Laptop/Server Link,Acoplamiento del ordenador portátil/del servidor,Ordinateur portable/Serveur Lien
+Last Year vs. This Year,El año pasado contra este año,L'année dernière par rapport à cette année
+Levy F.G. Returns / Credits,Levy F.G. devoluciones/créditos,Levy F.G. Retours/Crédits
+List Cash Disbursements,Lista de desembolsos en efectivo,Liste des décaissements
+List Management,Gestión de listas,Gestion de liste
+List More Reports,Listar más informes,Lister plus de rapports
+List Request for Quotes,Lista de solicitudes de cotizaciones,Liste des demandes de devis
+Lists More Reports,Enumera más informes,Listes de plus de rapports
+Load Estimates,Estimaciones de carga,Estimations de charge
+Load Reconciliation File,Cargar archivo de reconciliación,Charger le fichier de rapprochement
+Loadtag Creation,Creación Loadtag,Création de Loadtag
+Machine Assigned Charge Codes,Códigos de carga asignados por máquina,Codes de taxation attribués à la machine
+Machine Assigned Chrg Cds List,Lista de códigos de carga asignados por la máquina,Liste des codes de facturation attribués à la machine
+Machine Assigned Shifts,Turnos asignados por máquina,Changements assignés à la machine
+Machine Assigned Shifts List,Lista de turnos asignados por máquina,Liste de décalages assignés à la machine
+Machine Attachments/Adders,Adjuntos de la máquina/víboras,Attachements de machine/additionneurs
+Machine Backlog Analysis,Análisis de la acumulación de máquinas,Analyse de l'arriéré de machines
+Machine Backlog By Kicks,Acumulación de máquinas por patadas,Retard de machine par coups de pied
+Machine Charge Codes,Códigos de carga de máquina,Codes de charge de la machine
+Machine Cost By Job,Costo de la máquina por trabajo,Coût de la machine par emploi
+Machine Efficiency,Eficacia de la máquina,Efficacité de la machine
+Machine Efficiency - Excel,Eficacia de la máquina-Excel,Efficacité de la machine - Excel
+Machine File,Archivo de máquina,Fichier machine
+Machine File List,Lista de archivos de máquina,Liste des fichiers machine
+Machine Notes Report,Informe de notas de máquina,Rapport sur les notes d'ordinateur
+Machine Productivity,Productividad de la máquina,Productivité de la machine
+Machine Routings,Enrutamiento de máquinas,Routages de la machine
+Machine Transaction Summary,Resumen de transacciones de máquina,Récapitulatif de la transaction machine
+Machine Transactions,Transacciones de máquinas,Transactions de la machine
+Machines MSF Produced by Job,Máquinas MSF producidas por Job,Machines MSF produites par Job
+Mail List Label,Etiqueta de lista de correo,Étiquette de la liste
+Mail List Merge,Combinar lista de correo,Fusion de liste de courrier
+Main Menu - Advantzware version,Menú Principal - Advantzware versión,Menu Principal - Advantzware version
+Management Dashboard,Panel de administración,Tableau de bord de gestion
+Management Highlights,Aspectos destacados de la gestión,Points saillants de la gestion
+Management Highlights Summary,Resumen de la gestión,Résumé des faits saillants de la gestion
+Manual Checks,Controles manuales,Vérifications manuelles
+Markup Matrix,Matriz de marcado,Matrice de balisage
+Master BOL Print,Master bol impresiones,Master BOL Impression
+Margin Matrix,Matriz de márgenes,Matrice de marge
+Material Cost Types,Tipos de costos de material,Types de coûts matériels
+Material Receipts History,Historial de recibos de material,Historique des recettes matérielles
+Material Required for Job,Material requerido para el trabajo,Matériel requis pour le travail
+Material Types,Tipos de material,Types de matériaux
+Materials,Materiales,Matériaux
+Materials / Raw Goods,Materiales/Mercancías crudas,Matériaux/Produits bruts
+Materials Allocation,Asignación de materiales,Répartition des matériaux
+Misc Surcharges,Suplementos Misceláneos,Surtaxes diverses
+Miscellaneous Edit List,Lista de edición Miscelánea,Divers Modifier la liste
+Miscellaneous Entry/Maint,Entrada Miscelánea/maint,Entrée/Maint Divers
+Monthly Tax,Impuesto mensual,Taxe mensuelle
+Move FG To Board/Misc RM,Mover FG a Board/Misc RM,Déplacer FG vers Board/Misc RM
+MSF by Job,MSF por Job,MSF par Job
+MTD Destination Subtotals,Subtotales de destino de MTD,Sous-totaux de destination MTD
+Network / System Administrator,Administrador de sistemas y redes,Administrateur réseau/système
+New License Code Entry,Nueva entrada de código de licencia,Nouvelle entrée de code de licence
+Next Ship Date and Value,Fecha y valor de la próxima nave,Next Ship Date and Value
+OE Invoice Edit List,Lista de edición de facturas OE,Liste de modification de la facture d'origine
+On-Time Deliveries,Entregas puntuales,Livraisons à temps
+On-Time Deliveries for Jobs,Entregas puntuales para trabajos,Livraisons à temps pour les emplois
+Open Jobs Backlog Report,Informe de cartera de trabajos abiertos,Rapport sur l'arriéré des offres d'emploi
+Open Jobs by Due Date/Cust,Abrir trabajos por fecha de vencimiento/cliente,Ouvrir les emplois par échéance/Cust
+Open Order Report,Abrir informe de pedido,Ouvrir le rapport de commande
+Order Backlog,Pedidos atrasados,Carnet de commandes
+Order Backlog by Part Number,Pedidos por número de pieza,Commander le carnet de commandes par numéro de pièce
+Order Balance by PO / Job,Saldo de pedido por PO/Job,Solde de la commande par PO/Job
+Order Balance by PO#,Orden de saldo por PO #,Solde de la commande par numéro d'ordre
+Order Edit List,Ordenar lista de edición,Commande Modifier la liste
+Order Entry,Entrada de pedido,La saisie des commandes
+Order Entry Control,Control de entrada de pedidos,Contrôle d'entrée de commande
+Order Post/Purge Deleted,Orden post/purgado eliminado,Ordre de poste/Purge supprimé
+Order Processing,Proceso de la orden,Traitement des commandes
+Order Status,Estado del pedido,Statut de la commande
+Orders Booked,Pedidos reservados,Commandes réservées
+Orders Booked by Due Date,Pedidos reservados por fecha de vencimiento,Commandes réservées par date d'échéance
+Orders Booked by Order No,Pedidos reservados por orden No,Commandes réservées par commande No
+Organization Struct (816),Estructura de la organización (816),Structure de l'Organisation (816)
+Outbound Processing,Procesamiento saliente,Traitement sortant
+Pallet Tag for BOL,Pallet Tag para Bol,Palette pour BOL
+Parameter Files,Archivos de parámetros,Fichiers de paramètres
+Parameter Files Listing,Listado de archivos de parámetros,Liste des fichiers de paramètres
+Past Due Aging,Envejecimiento vencido,Après vieillissement
+Partner Groups,Grupos de socios,Groupes de partenaires
+Payment Terms,Condiciones de pago,Modalités de paiement
+Payment Type,Tipo de pago,Type de paiement
+Physical Count Processing,Procesamiento de conteo físico,Traitement du nombre physique
+Physical Count Report,Informe de conteo físico,Rapport de comptage physique
+Plant File Maintenance,Mantenimiento de archivos de plantas,Maintenance du fichier d'installation
+PO FG/RM History,Historia de po FG/RM,PO FG/RM Histoire
+PO FG/RM History by Customer,Historia del Po FG/RM por el cliente,PO FG/RM Historique par client
+PO Inquiry,Consulta po,Demande de PO
+PO Purchased Variance,Varianza comprada po,Variance achetée par PO
+PO Receipts Not Vouchered,Recibos de po no vouchered,Reçus de bons de commande non envoyés
+PO Rejection Codes,Códigos de rechazo po,Codes de rejet de PO
+PO Vendor Analysis,Análisis de proveedores po,Analyse du fournisseur de PO
+PO's  Vouchered by FG Category,Vouchered de po por categoría FG,PO's Vouchered par FG Catégorie
+Popup Menu Maintenance,Mantenimiento del menú emergente,Maintenance du menu contextuel
+Post AR Invoices,Contabilizar facturas de ar,Post AR Factures
+Post BOL / Create Invoices,Post BOL/Crear facturas,Publier BOL/Créer des factures
+Post Counts to Finished Goods,Contabilizar conteos a productos acabados,La poste compte pour les produits finis
+Post Credit/Debit Memos,Contabilizar abonos/débitos,Post-crédit/notes de débit
+Post Physical Counts,Contabilizar conteos físicos,Compte physique
+Post Returns,Post devoluciones,Retours post
+Post to Finished Goods Files,Publicar en archivos de productos terminados,Publier dans les fichiers de marchandise finie
+Post to Raw Material Files,Publicar en archivos de materia prima,Publier sur les fichiers matières premières
+Post TouchData to ASI Database,Post TouchData a la base de datos asi,Post TouchData à la base de données ASI
+Prep and Die File,Archivo Prep y Die,Fichier Prep and Die
+Prep Charge Report,Informe de carga de Prep,Rapport de frais de préparation
+Prep File,Archivo Prep,Fichier de préparation
+Prep List by Mat'l Type,Lista de preparación por tipo material,Liste de préparation par Mat'l Type
+Preparation Material Types,Tipos de material de preparación,Types de matériaux de préparation
+Print AP Checks,Imprimir cheques AP,Imprimer les chèques AP
+Print AR Credit/Debit Memos,Imprimir notas de crédito/débito,Imprimer des notes de crédit/débit AR
+Print AR Invoices,Imprimir facturas de ar,Imprimer les factures AR
+Print Bills of Lading,Imprimir los gastos de embarque,Imprimer les connaissements
+Print Finished Goods Edit List,Imprimir lista de edición de productos acabados,Imprimer les produits finis Modifier la liste
+Print OE Invoices,Imprimir facturas OE,Imprimer les factures OE
+Print PO Edit List,Imprimir lista de edición de Po,Imprimer PO Modifier la liste
+Print POs,Imprimir pos,Imprimer les bons de commande
+Print Raw Material Edit List,Imprimir lista de edición de materia prima,Imprimer la liste de modification des matières premières
+Print Release Tickets,Imprimir entradas de publicación,Imprimer les billets
+Print/Post Journal Entries,Imprimir/contabilizar entradas de diario,Imprimer/publier des entrées de journal
+Product Line GL Accounts,Cuentas GL de la línea de productos,Gamme de produits GL Accounts
+Product Catalog (832),Catálogo de productos (832),Catalogue de produits (832)
+Production Analysis,Análisis de producción,Analyse de production
+Production by Department,Producción por departamento,Production par département
+Production by Machine,Producción por máquina,Production par machine
+Production Highlights,Destacados de la producción,Faits saillants de production
+Production Report,Informe de producción,Rapport de production
+Profit by Invoice,Ganancia por factura,Profit par facture
+Profit by ProdCat/Slsrep,Beneficio de la categoría Prod/representante SLS,Profit par ProdCat/Slsrep
+Profit w/Freight,Ganancia w/flete,Profit w/Fret
+Program Master,Maestro de programa,Maître du programme
+Program Master List,Lista maestra de programa,Liste principale du programme
+Prospects and Customers Names,Prospectos y nombres de clientes,Prospects et noms de clients
+Purchase Order Control Menu,Menú control orden de compra,Menu Contrôle des commandes d'achat
+Purchase Orders (850),Pedidos de compra (850),Commandes d'achat (850)
+Purchasing,Compra,Achat
+Purge Customers,Purgar clientes,Purger les clients
+Purge Documents,Purgar documentos,Purger les documents
+Purge Employee Transaction,Purgar transacción de empleado,Purger les transactions des employés
+Purge FG History,Purgar historia FG,Purger l'historique FG
+Purge Finished Goods,Purgar productos acabados,Purger les produits finis
+Purge GL Accounts,Purgar cuentas GL,Purger les comptes GL
+Purge Jobs,Purgar trabajos,Purge Jobs
+Purge Options,Opciones de purga,Options de purge
+Purge Orders,Purgar órdenes,Purger les commandes
+Purge Paid AP Invoices,Purgar facturas AP pagadas,Purge des factures AP payées
+Purge Paid AR Invoices,Purgar facturas de ar pagadas,Purge des factures AR payées
+Purge POs,Purgar pos,Purger les bons de commande
+Purge Quotes,Purgar cotizaciones,Purge Quotes
+Purge Raw Materials,Purgar materias primas,Purger les matières premières
+Purge Report File,Purgar archivo de informe,Purger le fichier de rapport
+Purge Touch Data,Purgar datos táctiles,Purger les données tactiles
+Purge Unship/Post/Closed Rels,Purgar desembarque/post/Closed Rels,Purge Unship/Post/Closed Rels
+Purge Zero Posted AR,Purgar cero contabilizado ar,Purge Zero Publié AR
+Purge Zero Time Transaction,Purgar transacción de tiempo cero,Purger la transaction de temps zéro
+Qty On Hand/Shipd by SMan,Qty en la mano/shipd por SMan,Quantité en stock / Expédié par SMan
+QTY Totals by Cust/Item,Cantidad total por MOV/Item,Qté Totaux par Cust
+Qty/Value by Cust and Job,Cantidad/valor por MOV y Job,Quantité / Valeur par Cust et Job
+Query Accounts Payable,Cuentas por pagar de consultas,Requête de comptes payables
+Query Accounts Receivables,Consultar cuentas por cobrar,Interroger les comptes clients
+Query Builder,Generador de consultas,Générateur de requêtes
+Query Data Collection,Colección de datos de consulta,Collecte de données de requête
+Query Finished Goods,Consultar productos acabados,Requête de produits finis
+Query General Ledger History,Historial de consultas de contabilidad general,Historique des requêtes générales
+Query Jobs,Trabajos de consulta,Requête Jobs
+Query Orders,Pedidos de consulta,Commandes de requête
+Query Purchase Orders,Pedidos de compra de consultas,Requêtes d'achat de requête
+Query Raw Goods,Consulta de productos crudos,Requête des marchandises brutes
+Quick Fixes,Correcciones rápidas,Réparations rapides
+Quote Requests,Solicitudes de cotización,Demandes de devis
+Quoted Price List,Lista de precios cotizada,Liste de prix citée
+Quotes,Cotizaciones,Citations
+Quotes List,Lista de cotizaciones,Liste de citations
+Raw Materials Categories,Categorías de materias primas,Catégories de matières premières
+Raw Materials Control,Control de materias primas,Contrôle des matières premières
+Raw Materials Cost List,Lista de costos de materias primas,Liste des coûts des matières premières
+Recap Product Category,Categoría de producto recapitulativo,Liste des coûts des matières premières
+Receipts Overages for Credit,Recibos por encima de la edad para el crédito,Recettes Overages pour crédit
+Reconciliation Register,Registro de reconciliación,Registre de rapprochement
+Reconciliation Report,Informe de reconciliación,Rapport de rapprochement
+Red Flag Report,Informe de la bandera roja,Rapport Red Flag
+Reference Date vs Posting Date,Fecha de referencia vs fecha de contabilización,Date de référence vs date de publication
+Release Edit List,Liberar lista de edición,Libérer la liste de modification
+Reorder Advice By Ship-to,Reordene el Consejo por barco-a,Réorganiser les conseils par bateau
+Reorder Requirements,Reordenar requisitos,Réorganiser les exigences
+Reordering Advice,Consejos para reordenar,Réordonner les conseils
+Report Maintenance,Mantenimiento de informes,Rapport Maintenance
+Reports,Informes,Rapports
+Reports continued...,Informes continuados...,Rapports suite...
+Reports for Admins,Informes para admins,Rapports pour les admins
+Reports for Contacts,Informes para contactos,Rapports pour les contacts
+Reports for Data Collection,Informes para la recopilación de datos,Rapports pour la collecte de données
+Reports for Estimates,Informes para estimaciones,Rapports pour le Budget des dépenses
+Reports for Finished Goods,Informes de productos acabados,Rapports pour les produits finis
+Reports for General Ledger,Informes para contabilidad general,Rapports pour les grands livres
+Reports for Job Costing,Informes para el costo del trabajo,Rapports pour l'établissement des coûts de l'emploi
+Reports for Orders,Informes para pedidos,Rapports pour les commandes
+Reports for Payables,Informes para cuentas a pagar,Rapports pour les commandes
+Reports for Purchasing,Informes para la compra,Reports for Purchasing
+Reports for Raw Goods,Informes para las mercancías crudas,Rapports pour les marchandises brutes
+Reports for Receivables,Informes para cuentas a cobrar,Rapports pour les comptes débiteurs
+Reports for SS Report,Informes para el informe SS,Rapports pour le rapport SS
+Reports for Touch Screen,Informes para la pantalla táctil,Rapports pour l'écran tactile
+RePost TouchData to ASI Databa,RePost TouchData to ASI Databa,RePost TouchData à ASI Databa
+Request For Quotes,Solicitud de cotizaciones,Demande de devis
+Returns Edit List,Devuelve la lista de edición,Retour Modifier la liste
+RFQ File Maintenance,Mantenimiento de archivos de presupuestos,Maintenance du fichier RFQ
+RFQ List,Lista de presupuestos,Liste de RFQ
+RM Allocated by Job,RM asignado por Job,RM Attribué par Job
+RM Enter/Modify Adjustments,RM entrar/modificar ajustes,RM Entrer/Modifier les ajustements
+RM Enter/Modify Receipts,RM entrar/modificar recibos,RM Entrer/Modifier les reçus
+RM Enter/Modify Transfers,RM entrar/modificar transferencias,RM Entrer/Modifier les transferts
+RM History,Historia de RM,Histoire de RM
+RM Loadtag Creation,Creación de RM Loadtag,Création de chargements RM
+RM Rebuild Bins/Reset Balances,Contenedores de reconstrucción de RM/saldos de restablecimiento,RM Rebuild Bins/Réinitialiser les balances
+RM/FG Specifications,Especificaciones de RM/FG,RM/FG Spécifications
+Roll Stock Consumed Report,Informe consumido de stock de rollo,Rapport sur le stock de roulement
+Roll Stock Cost,Coste de la acción del rodillo,Coût du stock de rouleau
+Roll Stock Lot/Tag Report,Porción común del rodillo/informe de la etiqueta,Rapport de lot / étiquette de rouleau de rouleau
+Run Custom Utility Program,Ejecutar programa de utilidad personalizada,Exécuter un programme d'utilitaire personnalisé
+Sales Analysis (852),Análisis de ventas (852),Analyse des ventes (852)
+Sales by Cust/Item/PO,Ventas por MOV/Item/po,Ventes par Cust/Item/PO
+Sales by Customer Zip,Ventas por cliente zip,Ventes par client Zip
+Sales by Invoice/Cat/Shipto,Ventas por factura/categoría/buque a,Ventes par facture/CAT/Shipto
+Sales by Item/Cust/Ship,Ventas por artículo/cliente/nave,Ventes par article/Cust/Ship
+Sales by Period,Ventas por periodo,Ventes par période
+Sales by Product w/Cost,Ventas por producto w/cost,Ventes par produit avec coût
+Sales by Shipping Carrier,Ventas por transportista,Ventes par transporteur
+Sales Comparison/Sales Rep,Comparación de ventas/representante de ventas,Comparaison des ventes/Représentant des ventes
+Sales Price Matrix,Matriz de precios de venta,Matrice de prix de vente
+Sales Rep / Commissions,Representante de ventas/comisiones,Représentant des ventes/Commissions
+Sales Rep Highlights,Destacados del representante de ventas,Points saillants des ventes
+Sales Rep Performance,Rendimiento del REP de ventas,Représentant des ventes
+Sales Tax Codes,Códigos de impuesto de ventas,Codes de taxe de vente
+Sales Territories,Territorios de ventas,Territoires de vente
+Sales Value by Slsmn by Cust,Valor de ventas por Slsmn por el cliente,Valeur des ventes par Slsmn by Cust
+Sales Values by Cust/Item,Valores de ventas por cliente/artículo,Valeurs de ventes par client/article
+Sales vs. Budget,Ventas contra el presupuesto,Ventes et budget
+Sales with Multiple Sorts,Ventas con varias clases,Ventes avec plusieurs types
+Sales/Value by Cust and Tag,Ventas/valor por cliente y tag,Ventes/Valeur par Cust et Tag
+Schedule Ticket Print,Imprimir boleto de programación,Planifier l'impression du billet
+Scheduled Receipts,Recibos programados,Reçus planifiés
+Scheduled Receipts with Orders,Recibos programados con pedidos,Reçus planifiés avec commandes
+Scheduled Releases,Lanzamientos programados,Sorties planifiées
+Scheduled Releases by Ship-To,Lanzamientos programados por buque-a,Rejets planifiés par navire
+Scheduled Releases w/Job,Lanzamientos programados por buque-a,Sorties programmées w/Job
+Scheduled Ship vs. QOH,Barco programado contra QOH,Navire prévu vs QOH
+Scheduled Ship vs. Qty On-Hand,Barco programado contra Qty en la mano,Navire prévu et quantité en main
+Scheduling,Programación,Planification
+Score Types,Tipos de puntuación,Types de score
+Scrap Report,Scrap Report,Rapport Scrap
+Scrap Report by Machine,Reporte de chatarra por máquina,Scrap Report par Machine
+Search for Estimates,Buscar estimaciones,Rechercher des estimations
+Select Tables to Audit,Seleccionar tablas para auditar,Sélectionnez les tables à auditer
+Select by Due Date,Seleccionar por fecha de vencimiento,Sélectionner par date d'échéance
+Select by Vendor,Seleccionar por proveedor,Sélectionner par le fournisseur
+Selection Register,Registro de selección,Registre de sélection
+Set Company/Location,Establecer empresa/ubicación,Définir Société/Lieu
+Set FG Blank Warehouse/Bin,Fije el almacén/el compartimiento en blanco de FG,Définir FG Blank Warehouse/Bin
+Set FG Item Warehouse/Bin,Fije el almacén/el compartimiento del artículo de FG,Définir l'article FG Warehouse/Bin
+Set FG On-Hand Qty to Zero,Fije el qty de la mano de FG a cero,Définir la quantité de main-d'œuvre FG sur zéro
+Set FG On-Order Qty to Zero,Fije el Qty del en-orden de FG a cero,Définir FG sur commande Qté à zéro
+Set ID Codes,Establecer códigos de identificación,Définir les codes d'identification
+Set Maintenance,Establecer mantenimiento,Définir la maintenance
+Set RM On-Hand to Zero,Establecer RM a mano a cero,Réglez RM sur Main à Zéro
+Set Salesman Commission,Comisión del vendedor del sistema,Définir la Commission des vendeurs
+Set Taxable FG Default,Set imponible FG default,Définir FG imposable par défaut
+Sheets on Order,Hojas en orden,Feuilles sur commande
+Shifts,Cambios,Changements
+Shifts List,Lista de cambios,Liste des changements
+Ship To Inquiry,Enviar a la investigación,Expédier à l'enquête
+Ship Notices (856),Avisos de la nave (856),Avis de navire (856)
+Ship via to SCAC Code XRef,Enviar a través de SCAC código XREF,Expédier via à SCAC code Xréf
+Shipment Approval Report,Informe de aprobación de envío,Rapport d'approbation de l'envoi
+Shipment By Customer Part,Shipment By Customer Part,Envoi par pièce client
+Shipments by Item/Cust,Envíos por artículo/cliente,Envois par article/Cust
+Shipping / Bill of Lading,Envío/factura de embarque,Expédition/connaissement
+Shutdown SpoolRequest Monitor,Monitor de solicitud de carrete Shutdown,Arrêter le moniteur de demande de spouleur
+Single RFQ List,Lista de presupuestos individuales,Liste de DD unique
+Stacking Matrix,Matriz de apilamiento,Matrice d'empilement
+Stacking Patterns,Patrones de apilamiento,Empilage de motifs
+Standards Matrix,Matriz de estándares,Matrice des normes
+State and Province Abbrev List,Lista abrev estado y provincia,Liste des abréviations des états et des provinces
+State and Province Abbreviations,Abreviaturas del estado y de la provincia,Abréviations des états et des provinces
+Statements,Declaraciones,Déclarations
+Status,Estado,Statut
+Status Checkoff,Estado Marcar,Statut précompte
+Style File,Archivo de estilo,Fichier de style
+Summary Invoice Cost,Costo de factura sumario,Coût facturé récapitulatif
+System,Sistema,Système
+System Listings,Listados de sistemas,Listes du système
+System Control Parameters,Parámetros de control del sistema,Paramètres de contrôle du système
+System Reference Files,Archivos de referencia del sistema,Fichiers de référence du système
+Tax Distribution Schedule,Calendario de distribución de impuestos,Calendrier de distribution des taxes
+Tax Schedule By Customer,Horario de impuestos por cliente,Calendrier des taxes par client
+Taxing Authority Codes,Códigos de autoridad tributaria,Codes d'autorité fiscale
+Tickets for Releases,Entradas para lanzamientos,Billets pour les sorties
+Title Codes,Códigos de título,Codes de titre
+Title Codes List,Lista de códigos de título,Liste des codes de titre
+Tools for Sales,Herramientas para ventas,Outils pour la vente
+Total Weight and  Sales by 1st,Peso total y ventas por 1er,Poids total et ventes au 1er
+Totals by Salesrep  DD/MM/YY,Totales por Salesrep DD/MM/AA,Totaux par Salesrep DD/MM/YY
+Touch Screen,Pantalla táctil,Écran tactile
+Track Bank Reconciliation,Rastrear la conciliación bancaria,Suivre le rapprochement bancaire
+Track Usage List,Seguir la lista de uso,Suivre la liste d'utilisation
+Trading Partners,Socios comerciales,Partenaires commerciaux
+Transaction by TON/MSF,Transacción por TON/MSF,Transaction par TON/MSF
+Transaction History,Historial de transacciones,Historique des transactions
+Transaction Report,Reporte de transacción,Rapport de transaction
+Transactions by Order,Transacciones por orden,Transactions par commande
+Transfer Misc. Costs to Job,Transferir Misc. Costos para el trabajo,Transfert Divers Coûts à l'emploi
+Transfer Transaction BOL,Transacción de transferencia BOL,Transfert Transaction BOL
+Transfer WIP to Job Cost,Transferir WIP al costo del trabajo,Transfert WIP au coût de l'emploi
+Trial Balance,Balance de prueba,Balance de vérification
+Truck / Common Carriers,Camión/vehículos comunes,Camions/transporteurs publics
+Truck Plan Selection,Selección de plan de camión,Sélection du plan de camion
+Truckload BOL Summary,Truckload BOL Resumen,Récapitulatif du bon de livraison
+Units of Measure,Unidades de medida,Unités de mesure
+Unreported Labor Report,Informe laboral no reportado,Rapport sur le travail non déclaré
+Unshipped FG Detail,Detalle de FG no enviado,Détail FG non expédié
+Unshipped FG Summary,Resumen FG no enviado,Résumé FG non expédié
+Update / Add Orders,Actualizar/Agregar pedidos,Mettre à jour/ajouter des commandes
+Update / Enter A/R Invoices,Actualizar/Ingresar Facturas de Facturación,Mettre à jour/Entrer les factures A/R
+Update / Enter Job,Actualizar/Ingresar trabajo,Mettre à jour/Entrer le travail
+Update / Enter Jobs,Actualizar/introducir trabajos,Mettre à jour/entrer des travaux
+Update / Enter Purchase Orders,Actualizar/Ingresar órdenes de compra,Mettre à jour/entrer des commandes d'achat
+Update / Enter Vendor Invoices,Actualizar/Ingresar facturas de proveedor,Mettre à jour/entrer les factures des fournisseurs
+Update / Journal Entries,Actualizar/entradas de diario,Update/Journal Entries
+Update AP Invoice,Actualizar factura de AP,Mettre à jour la facture AP
+Update AR/OE Inv Cost and Comm,Actualizar el costo y la comunicación de INV/OE Inv,Mettre à jour le coût de l'AR/OE Inv et Comm
+Update Customer Number,Actualizar número de cliente,Mettre à jour le numéro client
+Update Est SlsmnComm/PallCase,Actualizar Est SlsmnComm/PallCase,Mettre à jour Est SlsmnComm/PallCase
+Update Estimate Labor Rates,Actualizar estimaciones de tasas de mano de obra,Mise à jour des estimations de la main-d'œuvre
+Update FG Item Code,Actualizar código de artículo de FG,Mettre à jour le code article FG
+Update Materials Transactions,Actualizar transacciones de materiales,Mettre à jour les transactions de matériaux
+Update RM Item Code,Actualizar código de artículo de RM,Mettre à jour le code article RM
+Update Vendor Number,Actualizar el número de proveedor,Mettre à jour le numéro du fournisseur
+Update Warehouse Transactions,Actualizar transacciones de almacén,Mettre à jour les transactions d'entrepôt
+Update/Add Hours via Job Card,Actualizar/Agregar Horas a través de la Tarjeta de Trabajo,Mettre à jour/ajouter des heures via la carte de travail
+Upload to Server,Subir al servidor,Télécharger sur le serveur
+User,Usuario,Utilisateur
+User Groups List,Lista de grupos de usuarios,Liste des groupes d'utilisateurs
+User Control,Control de usuario,Contrôle de l'utilisateur
+User Defined Fields Builder,Constructor de campos definidos por el usuario,Générateur de champs définis par l'utilisateur
+User's Menu Structure,Estructura del menú del usuario,Structure du menu de l'utilisateur
+Users,Usuarios,Utilisateurs
+Users List,Lista de usuarios,Liste des utilisateurs
+Value/Cost by Whs/Bin/Tag,Valor/Costo por Whs/Bin/Tag,Valeur/Coût par Whs/Bin/Tag
+Value/Profit by Item,Valor/beneficio por artículo,Valeur/Profit par article
+Vendor 1099 Report,Informe del vendedor 1099,Rapport du fournisseur 1099
+Vendor Aging,Vendor del vendedor,Vieillissement du vendeur
+Vendor Cross Reference,Referencia cruzada del vendedor,Référence croisée du fournisseur
+Vendor Master List,Lista maestra de proveedores,Liste maîtresse des fournisseurs
+Vendor Price List,Lista de precios del proveedor,Liste des prix du fournisseur
+Vendor Types,Tipos de proveedores,Types de fournisseurs
+Vendors,Vendedores,Vendeurs
+Visual Data Collection,Colección de datos visuales,Collecte de données visuelles
+Void AP Checks,Comprobaciones de AP anuladas,Vérifications AP vides
+Void Cash Receipts,Recibos de efectivo vacíos,Reçus d'espèces
+Voided Cash Receipt Register,Registro de recibo de efectivo anulado,Registre des entrées de trésorerie annulées
+Voided Check Register,Registro de cheques sin fondos,Registre de vérification annulé
+Vouchers / Payables,Vales/Cuentas por pagar,Bons/Fournisseurs
+W.I.P. Daily Summary,W.I.P. Resumen diario,W.I.P. Résumé quotidien
+W.I.P. Job Audit Trail,W.I.P. Rastro de auditoría de trabajo,W.I.P. Sentier de vérification des emplois
+Warehouse History,Historia del almacén,Historique de l'entrepôt
+Warehouse Item Audit List,Lista de auditoría de artículos de almacén,Liste d'audit des éléments d'entrepôt
+Warehouse Management,Gestión de almacenes,Gestion des entrepôts
+Waste Analysis by Job,Análisis de desechos por trabajo,Analyse des déchets par emploi
+Web Orders Transfer/Approve,Web Orders Transfer/Approve,Commandes Web Transférer/Approuver
+Whse / Bin Locations,Ubicaciones Whse/Bin,Whse/Bin Lieux
+WIP by Product Category,WIP por categoría de producto,WIP par catégorie de produit
+WIP Hours Preposted Edit List,Lista de horas de publicación preprogramadas de WIP,WIP Hours Preposted Edit List
+WIP Job Audit Trail,WIP Job Audit Trail,Sentier d'audit des emplois du WIP
+WIP Standards Detail,Detalle de estándares de WIP,Détail des normes WIP
+WIP Tag Creation,Creación de etiquetas WIP,Création de balises WIP
+WIP Tag Maintenance,Mantenimiento de etiquetas WIP,Maintenance des balises WIP
+WIP TAG Report,Informe TAG WIP,Rapport WAG TAG
+WIP Value of Sheeted Inventory,Valor de WIP del inventario cubierto,Valeur WIP de l'inventaire en feuilles
+With $/MSF Totals by Salesrep,Con totales de $/MSF por Salesrep,With $/MSF Totals by Salesrep
+Write AP Credit/Debit Memos,Escribir notas de crédito/débito de AP,Write AP Credit/Debit Memos
+Write AR Credit/Debit Memos,Escribir notas de crédito/débito de AR,Write AR Credit/Debit Memos
+Write End of Period Totals,Escribir los totales del final del período,Write End of Period Totals
+Write Financial Statements,Escribir estados financieros,Rédiger des états financiers
+Y More File Cleanup,Y Más limpieza de archivos,Y Plus de nettoyage de fichiers
+Year End,Fin de año,Fin de l'année
+Yearly Sales Volume,Volumen de ventas anual,Volume des ventes annuel
+YTD Cost/Sales by Cust,Costo YTD/Ventas por Cust,Coût/ventes par Cust depuis le début de l'année
+Z System Reference Files,Archivos de referencia del sistema Z,Fichiers de référence du système Z
+Z. More Lists for Orders,Z. Más listas para pedidos,Fichiers de référence du système Z
+Z. Sales by Customer Invoice,Z. Ventas por factura del cliente,Z. Ventes par facture client
+Zip Codes,Códigos ZIP,Codes ZIP
+Zip Codes List,Lista de códigos postales,Liste des codes postaux
+Zip Codes Loader,Cargador de postales de postales,Zip Codes Loader

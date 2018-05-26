@@ -38,7 +38,7 @@ if avail oe-ordl then do:
    w-ord.i-no      = oe-ordl.i-no
    w-ord.i-name    = oe-ordl.i-name
    w-ord.part-no   = oe-ordl.part-no
-   w-ord.qty-due   = oe-ordl.qty - li-ship-qty
+   w-ord.qty-due   = IF li-ship-qty GT oe-ordl.qty THEN 0 ELSE oe-ordl.qty - li-ship-qty
    w-ord.qty       = oe-ordl.qty
    w-ord.cost      = (w-ord.qty-due / 1000) * oe-ordl.cost
    w-ord.price     = oe-ordl.price
@@ -83,7 +83,7 @@ if avail oe-ordl then do:
         and oe-rel.ord-no  eq oe-ordl.ord-no
         and oe-rel.i-no    eq oe-ordl.i-no
         and oe-rel.line    eq oe-ordl.line
-        AND oe-rel.s-code  EQ "T"
+        AND oe-rel.s-code  NE "T"
       no-lock:
       
     {oe/rel-stat.i v-stat}
@@ -226,7 +226,7 @@ if avail itemfg then do:
        find first oe-ord of oe-ordl no-lock.
        IF AVAIL oe-ord THEN
        RUN oe/ordlsqty.p (ROWID(oe-ordl), OUTPUT li-inv-qty, OUTPUT li-ship-qty).
-       w-ord.qty-due   = oe-ordl.qty - li-ship-qty .
+       w-ord.qty-due   = IF li-ship-qty GT oe-ordl.qty THEN 0 ELSE oe-ordl.qty - li-ship-qty .
    END.
    ELSE
        w-ord.qty-due   = 0 .  /* Task 04261307 */

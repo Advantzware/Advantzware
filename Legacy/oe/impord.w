@@ -94,6 +94,7 @@ DEF TEMP-TABLE ttDetail
       FIELD ShipToZip AS CHARACTER
       FIELD ShipToPhone AS CHARACTER
       FIELD ShipToContact AS CHARACTER 
+      FIELD POLineNum AS INTEGER 
       .
 
 /* rstark 05291402 */
@@ -502,8 +503,11 @@ PROCEDURE BuildImpTable :
  IF ipFileName NE '' THEN DO: /* 05291402 */
    INPUT FROM VALUE(ipFileName) NO-ECHO.
    REPEAT:
+       cInput = "".
         IMPORT UNFORMAT cInput.
-
+        /*  No way to process empty lines */
+        IF NUM-ENTRIES(cInput) LT 2 THEN 
+          NEXT.
         IF ENTRY(1,cInput) = "H" THEN DO:
             IF NOT CAN-FIND(cust WHERE cust.company = cocode AND cust.cust-no = entry(2,cInput))
                 THEN DO:
@@ -564,7 +568,7 @@ PROCEDURE BuildImpTable :
             IF NUM-ENTRIES(cInput) >= 11 THEN
                          ttDetail.ShipTo = ENTRY(11,cInput).
             IF NUM-ENTRIES(cInput) >= 12  THEN
-                             ttDetail.ItemQuote# = int(ENTRY(12,cInput)) NO-ERROR.
+                             ttDetail.ItemQuote# = INTEGER(ENTRY(12,cInput)) NO-ERROR.
             IF NUM-ENTRIES(cInput) >= 13 THEN
                          ttDetail.ShipFrom = ENTRY(13,cInput).
             IF NUM-ENTRIES(cInput) >= 14 THEN
@@ -581,6 +585,8 @@ PROCEDURE BuildImpTable :
                          ttDetail.ShipToPhone = ENTRY(19,cInput).
             IF NUM-ENTRIES(cInput) >= 20 THEN
                          ttDetail.ShipToContact = ENTRY(20,cInput).
+            IF NUM-ENTRIES(cInput) >= 21 THEN
+                         ttDetail.POLineNum = INTEGER(ENTRY(21,cInput)) NO-ERROR.
         END.
    END.
    INPUT CLOSE.
@@ -781,6 +787,7 @@ PROCEDURE CreateOrder :
          oe-ord.po-no = ttHeader.po-no
          oe-ord.est-no = ttHeader.Est#
          oe-ord.q-no = ttHeader.Quote#
+         oe-ord.ship-id = ttHeader.ShipTo
          .
 
        find cust WHERE cust.company = cocode
@@ -871,6 +878,8 @@ PROCEDURE CreateOrder :
                             oe-ordl.whsed = IF oe-ordl.est-no <> "" THEN YES ELSE NO
                             oe-ordl.q-no = IF ttDetail.ItemQuote# <> 0 THEN ttDetail.ItemQuote# ELSE oe-ord.q-no
                             oe-ordl.managed = oe-ord.managed
+                            oe-ordl.e-num = ttDetail.POLineNum
+                            oe-ordl.ship-id = oe-ord.ship-id
                             .
 
                   IF oe-ordl.price = 0 THEN DO:                      

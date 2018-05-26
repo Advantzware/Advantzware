@@ -64,18 +64,18 @@ DEF VAR cTextListToDefault AS cha NO-UNDO.
     ASSIGN 
         cTextListToSelect = "Release#,Order#,Customer PO,Cust #,Cust Name,Cust Part#,Ship To," + /*7*/
                             "FG Item#,Release Date,Job#,Job#2,Printed,Release Qty,Carrier,Tag," + /*8*/
-                            "Whse,Bin,S/I,Units,Qty/Unit,Partial"  /*6*/
+                            "Whse,Bin,S/I,Units,Qty/Unit,Partial,Qty On Hand"  /*6*/
                             
         cFieldListToSelect = "rel-no,ord-no,po-no,cust,cust-name,cust-part,ship-to," +
                             "i-no,rel-date,job-no,job-no2,printed,qty,carr,tag," +
-                            "loc,loc-bin,s-code,cases,qty-case,partial" 
+                            "loc,loc-bin,s-code,cases,qty-case,partial,qty-oh" 
                              .
 
 
 {sys/inc/ttRptSel.i}
     ASSIGN cTextListToDefault  = "Release#,Order#,Customer PO,Cust #,Cust Name,Cust Part#,Ship To," + /*7*/
                             "FG Item#,Release Date,Job#,Job#2,Printed,Release Qty,Carrier,Tag," + /*8*/
-                            "Whse,Bin,S/I,Units,Qty/Unit,Partial"  /*6*/ .
+                            "Whse,Bin,S/I,Units,Qty/Unit,Partial,Qty On Hand"  /*6*/ .
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -816,7 +816,7 @@ END.
 
 /* ***************************  Main Block  *************************** */
 
-{sys/inc/f3helpw.i}
+{sys/inc/f3helpd.i}
 /* Parent the dialog-box to the ACTIVE-WINDOW, if there is no parent.   */
 IF VALID-HANDLE(ACTIVE-WINDOW) AND FRAME {&FRAME-NAME}:PARENT eq ?
 THEN FRAME {&FRAME-NAME}:PARENT = ACTIVE-WINDOW.
@@ -1297,6 +1297,16 @@ FUNCTION getValue-itemfg RETURNS CHARACTER
             END.
             ELSE lc-return = "" .
         END.
+
+        WHEN "qty-oh" THEN DO:
+            FIND itemfg WHERE itemfg.company EQ cocode
+                AND itemfg.i-no EQ ipb-oe-rell.i-no NO-LOCK NO-ERROR.
+            IF AVAIL ITEMfg THEN do:
+                ASSIGN 
+               lc-return = STRING(itemfg.q-onh)    .
+            END.
+            ELSE lc-return = "" .
+        END. 
 
        
         OTHERWISE DO:

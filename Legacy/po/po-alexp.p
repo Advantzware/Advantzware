@@ -78,7 +78,10 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
                     substr(string(time,"HH:MM:SS"),4,2) +
                     substr(string(time,"HH:MM:SS"),7,2) + ".dat"
      v-outfile[4] = v-outfile[1] + v-outfile[3].
-    
+      FILE-INFO:FILE-NAME = v-outfile[1].
+      IF FILE-INFO:FILE-TYPE EQ ?  THEN        
+          OS-COMMAND SILENT  "mkdir " + value(v-outfile[1]).
+   
     output to value(v-outfile[2]).
 
     /* Order Download Specification - BEGIN */

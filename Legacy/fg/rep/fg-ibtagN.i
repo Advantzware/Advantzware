@@ -552,7 +552,7 @@
                 WHEN "sell-value-fg" THEN cVarValue = STRING(lv-sell-value-fg-s,"->>,>>>,>>9.99") .           /*Task# 01101401*/
                 WHEN "custno" THEN cVarValue = STRING(tt-fg-bin.cust-no,"x(8)") .   
                 WHEN "set-header" THEN cVarValue = IF AVAIL fg-set AND v-job-no <> "" THEN STRING(fg-set.set-no,"X(15)") ELSE "" .
-                WHEN "qty-per-set" THEN cVarValue = IF AVAIL fg-set AND v-job-no <> "" THEN STRING(fg-set.part-qty,"->>,>>>,>>9") ELSE "" .
+                WHEN "qty-per-set" THEN cVarValue = IF AVAIL fg-set AND v-job-no <> "" THEN STRING(fg-set.qtyPerSet) ELSE "" .
                 WHEN "cust-name" THEN cVarValue = STRING(v-cust-name,"X(30)") .
                 
             END CASE.
@@ -624,7 +624,7 @@
                 WHEN "sell-value-fg" THEN cVarValue = STRING(lv-sell-value-fg,"->>,>>>,>>9.99") .
                 WHEN "custno" THEN cVarValue = STRING(tt-fg-bin.cust-no,"x(8)") .
                 WHEN "set-header" THEN cVarValue = IF AVAIL fg-set AND v-job-no <> "" THEN STRING(fg-set.set-no,"X(15)") ELSE "" .
-                WHEN "qty-per-set" THEN cVarValue = IF AVAIL fg-set AND v-job-no <> "" THEN STRING(fg-set.part-qty,"->>,>>>,>>9") ELSE "" .
+                WHEN "qty-per-set" THEN cVarValue = IF AVAIL fg-set AND v-job-no <> "" THEN STRING(fg-set.qtyPerSet) ELSE "" .
                 WHEN "cust-name" THEN cVarValue = STRING(v-cust-name,"X(30)") .
                    
             END CASE.

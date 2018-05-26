@@ -26,31 +26,41 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
-def buffer bf-itemfg for itemfg.
-DEF BUFFER b-e-itemfg-vend FOR e-itemfg-vend.
-DEF BUFFER b-reftable-1 FOR reftable.
-
-def temp-table tmpfile field siz as dec
-                       field qty as dec
-                       field setups as dec.
-def var lv-roll-w like e-itemfg.roll-w no-undo.
-DEF VAR lv-group-hdl AS HANDLE NO-UNDO.
-DEF VAR lv-field-hdl AS HANDLE NO-UNDO.
-DEF VAR char-hdl AS CHAR NO-UNDO.
-DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO .
-DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO .
-DEFINE VARIABLE lVendCostMtx AS LOGICAL NO-UNDO .
-
 {custom/gcompany.i}
 {custom/persist.i}
 
+DEF BUFFER bf-itemfg FOR itemfg.
+DEF BUFFER b-e-itemfg-vend FOR e-itemfg-vend.
+DEF BUFFER b-reftable-1 FOR reftable.
+
+DEF TEMP-TABLE tmpfile 
+    FIELD siz AS DEC
+    FIELD qty AS DEC
+    FIELD setups AS DEC.
+
+DEF VAR lv-roll-w LIKE e-itemfg.roll-w NO-UNDO.
+DEF VAR lv-group-hdl AS HANDLE NO-UNDO.
+DEF VAR lv-field-hdl AS HANDLE NO-UNDO.
+DEF VAR char-hdl AS CHAR NO-UNDO.
+DEF VAR cRtnChar AS CHAR NO-UNDO.
+DEF VAR lRecFound AS LOG NO-UNDO.
+DEF VAR lVendCostMtx AS LOG NO-UNDO.
 DEF VAR gTerm AS cha NO-UNDO.
 DEF VAR gNewVendor AS LOG NO-UNDO.
+DEF VAR lCopyRecord AS LOG NO-UNDO.
+DEF VAR lAddRecord AS LOG NO-UNDO.
 
-RUN sys/ref/nk1look.p (INPUT g_company, "VendCostMatrix", "L" /* Logical */, NO /* check by cust */, 
-    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
-OUTPUT cRtnChar, OUTPUT lRecFound).
-ASSIGN lVendCostMtx = LOGICAL(cRtnChar) NO-ERROR .
+RUN sys/ref/nk1look.p ( g_company, 
+                        "VendCostMatrix", 
+                        "L" /* Logical */, 
+                        NO /* check by cust */, 
+                        YES /* use cust not vendor */, 
+                        "" /* cust */, 
+                        "" /* ship-to*/,
+                        OUTPUT cRtnChar, 
+                        OUTPUT lRecFound).
+ASSIGN 
+    lVendCostMtx = LOGICAL(cRtnChar) NO-ERROR .
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -149,7 +159,7 @@ DEFINE BUTTON btnShowVendCostMtx
 DEFINE VARIABLE fi_oh-markup AS INTEGER FORMAT ">,>>9":U INITIAL 0 
      LABEL "GS&&A O/H Markup %" 
      VIEW-AS FILL-IN 
-     SIZE 8 BY 1 NO-UNDO.
+     SIZE 14 BY 1 NO-UNDO.
 
 DEFINE VARIABLE ls-item-dscr AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS FILL-IN 
@@ -306,47 +316,47 @@ DEFINE VARIABLE tb_sel-01 AS LOGICAL INITIAL no
      SIZE 24 BY 1 NO-UNDO.
 
 DEFINE VARIABLE tb_sel-02 AS LOGICAL INITIAL no 
-     LABEL "tb_sel 2" 
+     LABEL "" 
      VIEW-AS TOGGLE-BOX
-     SIZE 4 BY 1 NO-UNDO.
+     SIZE 23 BY 1 NO-UNDO.
 
 DEFINE VARIABLE tb_sel-03 AS LOGICAL INITIAL no 
-     LABEL "tb_sel 3" 
+     LABEL "" 
      VIEW-AS TOGGLE-BOX
      SIZE 4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE tb_sel-04 AS LOGICAL INITIAL no 
-     LABEL "tb_sel 4" 
+     LABEL "" 
      VIEW-AS TOGGLE-BOX
      SIZE 4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE tb_sel-05 AS LOGICAL INITIAL no 
-     LABEL "tb_sel 5" 
+     LABEL "" 
      VIEW-AS TOGGLE-BOX
      SIZE 4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE tb_sel-06 AS LOGICAL INITIAL no 
-     LABEL "tb_sel 6" 
+     LABEL "" 
      VIEW-AS TOGGLE-BOX
      SIZE 4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE tb_sel-07 AS LOGICAL INITIAL no 
-     LABEL "tb_sel 7" 
+     LABEL "" 
      VIEW-AS TOGGLE-BOX
      SIZE 4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE tb_sel-08 AS LOGICAL INITIAL no 
-     LABEL "tb_sel 8" 
+     LABEL "" 
      VIEW-AS TOGGLE-BOX
      SIZE 4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE tb_sel-09 AS LOGICAL INITIAL no 
-     LABEL "tb_sel 9" 
+     LABEL "" 
      VIEW-AS TOGGLE-BOX
      SIZE 4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE tb_sel-10 AS LOGICAL INITIAL no 
-     LABEL "tb_sel 10" 
+     LABEL "" 
      VIEW-AS TOGGLE-BOX
      SIZE 4 BY 1 NO-UNDO.
 
@@ -369,7 +379,8 @@ DEFINE FRAME F-Main
      e-itemfg-vend.cust-no AT ROW 3.38 COL 83.8 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 12.6 BY 1
-     e-itemfg-vend.vend-no AT ROW 4.57 COL 14 COLON-ALIGNED FORMAT "x(8)"
+     e-itemfg-vend.vend-no AT ROW 4.57 COL 14 COLON-ALIGNED
+          LABEL "Vendor" FORMAT "x(8)"
           VIEW-AS FILL-IN 
           SIZE 16 BY 1
      ls-vend-name AT ROW 4.57 COL 30 COLON-ALIGNED NO-LABEL
@@ -384,30 +395,30 @@ DEFINE FRAME F-Main
      tb_sel-08 AT ROW 13.62 COL 53
      tb_sel-09 AT ROW 14.57 COL 53
      tb_sel-10 AT ROW 15.52 COL 53
-     e-itemfg-vend.spare-dec-1 AT ROW 14.52 COL 80 COLON-ALIGNED HELP
+     e-itemfg-vend.spare-dec-1 AT ROW 13.62 COL 81 COLON-ALIGNED HELP
           ""
           LABEL "Min. Charge"
           VIEW-AS FILL-IN 
-          SIZE 13.6 BY 1
-     fi_oh-markup AT ROW 15.76 COL 80 COLON-ALIGNED
+          SIZE 14 BY 1
+     fi_oh-markup AT ROW 14.81 COL 81 COLON-ALIGNED
      e-itemfg-vend.roll-w[27] AT ROW 17.43 COL 17 COLON-ALIGNED HELP
           "Enter Sheet Width Minimum"
           LABEL "Sheet Width"
           VIEW-AS FILL-IN 
-          SIZE 11.6 BY 1
-     e-itemfg-vend.roll-w[28] AT ROW 17.43 COL 29 COLON-ALIGNED HELP
+          SIZE 14 BY 1
+     e-itemfg-vend.roll-w[28] AT ROW 17.43 COL 31.2 COLON-ALIGNED HELP
           "Enter Sheet Width Maximum" NO-LABEL
           VIEW-AS FILL-IN 
-          SIZE 11.6 BY 1
-     e-itemfg-vend.roll-w[29] AT ROW 17.43 COL 52 COLON-ALIGNED HELP
+          SIZE 14 BY 1
+     e-itemfg-vend.roll-w[29] AT ROW 17.43 COL 55.4 COLON-ALIGNED HELP
           "Enter Sheet Length Minimum"
           LABEL "Length"
           VIEW-AS FILL-IN 
-          SIZE 11.6 BY 1
-     e-itemfg-vend.roll-w[30] AT ROW 17.43 COL 64 COLON-ALIGNED HELP
+          SIZE 14 BY 1
+     e-itemfg-vend.roll-w[30] AT ROW 17.43 COL 69.6 COLON-ALIGNED HELP
           "Enter Sheet Length Maximum" NO-LABEL
           VIEW-AS FILL-IN 
-          SIZE 11.6 BY 1
+          SIZE 14 BY 1
      qty-label AT ROW 6 COL 2.2 NO-LABEL
      run-qty-01 AT ROW 7.05 COL 2.4 NO-LABEL WIDGET-ID 28
      run-cost-01 AT ROW 7.05 COL 16.4 COLON-ALIGNED NO-LABEL WIDGET-ID 8
@@ -425,7 +436,6 @@ DEFINE FRAME F-Main
      run-cost-05 AT ROW 10.86 COL 16.4 COLON-ALIGNED NO-LABEL WIDGET-ID 16
      setups-05 AT ROW 10.86 COL 33.4 COLON-ALIGNED NO-LABEL WIDGET-ID 56
      run-qty-06 AT ROW 11.81 COL 2.4 NO-LABEL WIDGET-ID 38
-     run-cost-06 AT ROW 11.81 COL 16.4 COLON-ALIGNED NO-LABEL WIDGET-ID 18
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -433,6 +443,7 @@ DEFINE FRAME F-Main
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME F-Main
+     run-cost-06 AT ROW 11.81 COL 16.4 COLON-ALIGNED NO-LABEL WIDGET-ID 18
      setups-06 AT ROW 11.81 COL 33.4 COLON-ALIGNED NO-LABEL WIDGET-ID 58
      run-qty-07 AT ROW 12.76 COL 2.4 NO-LABEL WIDGET-ID 40
      run-cost-07 AT ROW 12.76 COL 16.4 COLON-ALIGNED NO-LABEL WIDGET-ID 20
@@ -496,8 +507,8 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW V-table-Win ASSIGN
-         HEIGHT             = 19.43
-         WIDTH              = 118.
+         HEIGHT             = 17.62
+         WIDTH              = 99.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -614,7 +625,7 @@ ASSIGN
 /* SETTINGS FOR FILL-IN e-itemfg.std-uom IN FRAME F-Main
    NO-ENABLE 1 2 EXP-LABEL                                              */
 /* SETTINGS FOR FILL-IN e-itemfg-vend.vend-no IN FRAME F-Main
-   EXP-FORMAT                                                           */
+   EXP-LABEL EXP-FORMAT                                                 */
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
@@ -638,33 +649,36 @@ ASSIGN
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL F-Main V-table-Win
 ON HELP OF FRAME F-Main
 DO:
-    def var char-val as cha no-undo.
-    def var uom-list as cha init "C,CS,EA,L,M," no-undo.
+    DEF VAR char-val AS CHAR NO-UNDO.
+    DEF VAR uom-list AS CHAR INIT "C,CS,EA,L,M," NO-UNDO.
 
-
-    case focus:name :
-        when "std-uom" then do:
-             /*find bf-itemfg of e-item no-lock no-error.*/
-             RUN sys/ref/uom-fg.p  (NO, OUTPUT uom-list).
-             run windows/l-stduom.w (gcompany,uom-list, focus:screen-value, output char-val).
-             if char-val <> "" then 
-                assign focus:screen-value in frame {&frame-name} = entry(1,char-val)
-                       .
-        end.
-        when "vend-no" then do:
-             run windows/l-vendno.w (gcompany, "", focus:screen-value, output char-val).
-             if char-val <> "" then 
-                assign focus:screen-value in frame {&frame-name} = entry(1,char-val)
-                       .
-        end.
-
+    CASE FOCUS:NAME:
+        WHEN "std-uom" THEN DO:
+            RUN sys/ref/uom-fg.p    (NO, 
+                                    OUTPUT uom-list).
+            RUN windows/l-stduom.w  (gcompany,
+                                    uom-list, 
+                                    focus:screen-value, 
+                                    output char-val).
+            IF char-val NE "" THEN ASSIGN
+                e-itemfg.std-uom:SCREEN-VALUE IN FRAME {&FRAME-NAME} = ENTRY(1,char-val).
+        END.
+        WHEN "vend-no" THEN DO:
+            RUN windows/l-vendno.w  (gcompany, 
+                                    "", 
+                                    focus:screen-value, 
+                                    output char-val).
+            IF char-val NE "" THEN ASSIGN
+                e-itemfg-vend.vend-no:SCREEN-VALUE IN FRAME {&FRAME-NAME} = ENTRY(1,char-val).
+        END.
         WHEN "cust-no" THEN DO:
-             RUN windows/l-cust.w (gcompany, e-itemfg-vend.cust-no:SCREEN-VALUE, OUTPUT char-val).
-             IF char-val NE "" THEN
+            RUN windows/l-cust.w    (gcompany, 
+                                    e-itemfg-vend.cust-no:SCREEN-VALUE, 
+                                    OUTPUT char-val).
+            IF char-val NE "" THEN ASSIGN
                 e-itemfg-vend.cust-no:SCREEN-VALUE IN FRAME {&FRAME-NAME} = ENTRY(1,char-val).
         END.
-    end.    
-
+    END.    
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -686,10 +700,340 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL e-itemfg-vend.cust-no V-table-Win
 ON LEAVE OF e-itemfg-vend.cust-no IN FRAME F-Main /* Cust. # */
 DO:
-   IF LASTKEY NE -1 THEN DO:
-      RUN valid-cust-no NO-ERROR.
-      IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-   END.
+    IF LASTKEY NE -1 THEN DO:
+        RUN valid-cust-no NO-ERROR.
+        IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+    END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME run-cost-01
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL run-cost-01 V-table-Win
+ON VALUE-CHANGED OF run-cost-01 IN FRAME F-Main
+DO:
+    ASSIGN {&SELF-NAME}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME run-cost-02
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL run-cost-02 V-table-Win
+ON VALUE-CHANGED OF run-cost-02 IN FRAME F-Main
+DO:
+    ASSIGN {&SELF-NAME}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME run-cost-03
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL run-cost-03 V-table-Win
+ON VALUE-CHANGED OF run-cost-03 IN FRAME F-Main
+DO:
+    ASSIGN {&SELF-NAME}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME run-cost-04
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL run-cost-04 V-table-Win
+ON VALUE-CHANGED OF run-cost-04 IN FRAME F-Main
+DO:
+    ASSIGN {&SELF-NAME}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME run-cost-05
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL run-cost-05 V-table-Win
+ON VALUE-CHANGED OF run-cost-05 IN FRAME F-Main
+DO:
+    ASSIGN {&SELF-NAME}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME run-cost-06
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL run-cost-06 V-table-Win
+ON VALUE-CHANGED OF run-cost-06 IN FRAME F-Main
+DO:
+    ASSIGN {&SELF-NAME}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME run-cost-07
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL run-cost-07 V-table-Win
+ON VALUE-CHANGED OF run-cost-07 IN FRAME F-Main
+DO:
+    ASSIGN {&SELF-NAME}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME run-cost-08
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL run-cost-08 V-table-Win
+ON VALUE-CHANGED OF run-cost-08 IN FRAME F-Main
+DO:
+    ASSIGN {&SELF-NAME}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME run-cost-09
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL run-cost-09 V-table-Win
+ON VALUE-CHANGED OF run-cost-09 IN FRAME F-Main
+DO:
+    ASSIGN {&SELF-NAME}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME run-cost-10
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL run-cost-10 V-table-Win
+ON VALUE-CHANGED OF run-cost-10 IN FRAME F-Main
+DO:
+    ASSIGN {&SELF-NAME}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME run-qty-01
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL run-qty-01 V-table-Win
+ON VALUE-CHANGED OF run-qty-01 IN FRAME F-Main
+DO:
+    ASSIGN {&SELF-NAME}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME run-qty-02
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL run-qty-02 V-table-Win
+ON VALUE-CHANGED OF run-qty-02 IN FRAME F-Main
+DO:
+    ASSIGN {&SELF-NAME}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME run-qty-03
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL run-qty-03 V-table-Win
+ON VALUE-CHANGED OF run-qty-03 IN FRAME F-Main
+DO:
+    ASSIGN {&SELF-NAME}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME run-qty-04
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL run-qty-04 V-table-Win
+ON VALUE-CHANGED OF run-qty-04 IN FRAME F-Main
+DO:
+    ASSIGN {&SELF-NAME}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME run-qty-05
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL run-qty-05 V-table-Win
+ON VALUE-CHANGED OF run-qty-05 IN FRAME F-Main
+DO:
+    ASSIGN {&SELF-NAME}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME run-qty-06
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL run-qty-06 V-table-Win
+ON VALUE-CHANGED OF run-qty-06 IN FRAME F-Main
+DO:
+    ASSIGN {&SELF-NAME}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME run-qty-07
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL run-qty-07 V-table-Win
+ON VALUE-CHANGED OF run-qty-07 IN FRAME F-Main
+DO:
+    ASSIGN {&SELF-NAME}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME run-qty-08
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL run-qty-08 V-table-Win
+ON VALUE-CHANGED OF run-qty-08 IN FRAME F-Main
+DO:
+    ASSIGN {&SELF-NAME}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME run-qty-09
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL run-qty-09 V-table-Win
+ON VALUE-CHANGED OF run-qty-09 IN FRAME F-Main
+DO:
+    ASSIGN {&SELF-NAME}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME run-qty-10
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL run-qty-10 V-table-Win
+ON VALUE-CHANGED OF run-qty-10 IN FRAME F-Main
+DO:
+    ASSIGN {&SELF-NAME}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME setups-01
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL setups-01 V-table-Win
+ON VALUE-CHANGED OF setups-01 IN FRAME F-Main
+DO:
+    ASSIGN {&SELF-NAME}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME setups-02
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL setups-02 V-table-Win
+ON VALUE-CHANGED OF setups-02 IN FRAME F-Main
+DO:
+    ASSIGN {&SELF-NAME}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME setups-03
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL setups-03 V-table-Win
+ON VALUE-CHANGED OF setups-03 IN FRAME F-Main
+DO:
+    ASSIGN {&SELF-NAME}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME setups-04
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL setups-04 V-table-Win
+ON VALUE-CHANGED OF setups-04 IN FRAME F-Main
+DO:
+    ASSIGN {&SELF-NAME}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME setups-05
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL setups-05 V-table-Win
+ON VALUE-CHANGED OF setups-05 IN FRAME F-Main
+DO:
+    ASSIGN {&SELF-NAME}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME setups-06
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL setups-06 V-table-Win
+ON VALUE-CHANGED OF setups-06 IN FRAME F-Main
+DO:
+    ASSIGN {&SELF-NAME}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME setups-07
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL setups-07 V-table-Win
+ON VALUE-CHANGED OF setups-07 IN FRAME F-Main
+DO:
+    ASSIGN {&SELF-NAME}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME setups-08
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL setups-08 V-table-Win
+ON VALUE-CHANGED OF setups-08 IN FRAME F-Main
+DO:
+    ASSIGN {&SELF-NAME}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME setups-09
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL setups-09 V-table-Win
+ON VALUE-CHANGED OF setups-09 IN FRAME F-Main
+DO:
+    ASSIGN {&SELF-NAME}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME setups-10
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL setups-10 V-table-Win
+ON VALUE-CHANGED OF setups-10 IN FRAME F-Main
+DO:
+    ASSIGN {&SELF-NAME}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -700,10 +1044,10 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL e-itemfg.std-uom V-table-Win
 ON LEAVE OF e-itemfg.std-uom IN FRAME F-Main /* Cost UOM */
 DO:
-  IF LASTKEY NE -1 THEN DO:
-    RUN valid-std-uom NO-ERROR.
-    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-  END.
+    IF LASTKEY NE -1 THEN DO:
+        RUN valid-std-uom NO-ERROR.
+        IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+    END.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -713,116 +1057,16 @@ END.
 &Scoped-define SELF-NAME tb_sel
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_sel V-table-Win
 ON VALUE-CHANGED OF tb_sel IN FRAME F-Main /* Check to pre-select this quantity/ */
-DO:
-  RUN new-sel.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME tb_sel-01
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_sel-01 V-table-Win
-ON VALUE-CHANGED OF tb_sel-01 IN FRAME F-Main /* cost by vendor */
-DO:
-  RUN new-sel.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME tb_sel-02
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_sel-02 V-table-Win
-ON VALUE-CHANGED OF tb_sel-02 IN FRAME F-Main /* tb_sel 2 */
-DO:
-  RUN new-sel.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME tb_sel-03
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_sel-03 V-table-Win
-ON VALUE-CHANGED OF tb_sel-03 IN FRAME F-Main /* tb_sel 3 */
-DO:
-  RUN new-sel.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME tb_sel-04
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_sel-04 V-table-Win
-ON VALUE-CHANGED OF tb_sel-04 IN FRAME F-Main /* tb_sel 4 */
-DO:
-  RUN new-sel.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME tb_sel-05
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_sel-05 V-table-Win
-ON VALUE-CHANGED OF tb_sel-05 IN FRAME F-Main /* tb_sel 5 */
-DO:
-  RUN new-sel.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME tb_sel-06
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_sel-06 V-table-Win
-ON VALUE-CHANGED OF tb_sel-06 IN FRAME F-Main /* tb_sel 6 */
-DO:
-  RUN new-sel.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME tb_sel-07
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_sel-07 V-table-Win
-ON VALUE-CHANGED OF tb_sel-07 IN FRAME F-Main /* tb_sel 7 */
-DO:
-  RUN new-sel.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME tb_sel-08
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_sel-08 V-table-Win
-ON VALUE-CHANGED OF tb_sel-08 IN FRAME F-Main /* tb_sel 8 */
-DO:
-  RUN new-sel.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME tb_sel-09
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_sel-09 V-table-Win
-ON VALUE-CHANGED OF tb_sel-09 IN FRAME F-Main /* tb_sel 9 */
-DO:
-  RUN new-sel.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME tb_sel-10
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_sel-10 V-table-Win
-ON VALUE-CHANGED OF tb_sel-10 IN FRAME F-Main /* tb_sel 10 */
+OR VALUE-CHANGED OF tb_sel-01
+OR VALUE-CHANGED OF tb_sel-02
+OR VALUE-CHANGED OF tb_sel-03
+OR VALUE-CHANGED OF tb_sel-04
+OR VALUE-CHANGED OF tb_sel-05
+OR VALUE-CHANGED OF tb_sel-06
+OR VALUE-CHANGED OF tb_sel-07
+OR VALUE-CHANGED OF tb_sel-08
+OR VALUE-CHANGED OF tb_sel-09
+OR VALUE-CHANGED OF tb_sel-10
 DO:
   RUN new-sel.
 END.
@@ -835,16 +1079,22 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL e-itemfg-vend.vend-no V-table-Win
 ON LEAVE OF e-itemfg-vend.vend-no IN FRAME F-Main /* Vendor */
 DO:
-  IF LASTKEY NE -1 THEN DO:
-    RUN valid-vend-no (FOCUS) NO-ERROR.
-    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-  END.
+    IF LASTKEY NE -1 THEN DO:
+        RUN valid-vend-no (e-itemfg-vend.vend-no:HANDLE) NO-ERROR.
+        IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+    END.
 
-  ls-vend-name = "".
-  FIND FIRST vend WHERE vend.company = e-itemfg.company
-                    AND vend.vend-no = e-itemfg-vend.vend-no:SCREEN-VALUE NO-LOCK NO-ERROR.
-  IF AVAIL vend THEN ls-vend-name = vend.NAME.
-  DISP ls-vend-name WITH FRAME {&FRAME-NAME}.
+    ASSIGN
+        ls-vend-name = "".
+    FIND FIRST vend NO-LOCK WHERE 
+        vend.company = e-itemfg.company AND 
+        vend.vend-no = e-itemfg-vend.vend-no:SCREEN-VALUE 
+        NO-ERROR.
+    IF AVAIL vend THEN ASSIGN
+        ls-vend-name = vend.NAME.
+    DISP 
+        ls-vend-name 
+        WITH FRAME {&FRAME-NAME}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -857,15 +1107,14 @@ END.
 
 
 /* ***************************  Main Block  *************************** */
-{sys/inc/f3help.i}  /* asi field contents help */
-run get-company (output gcompany).
-session:data-entry-return = yes. 
+    {sys/inc/f3help.i}  /* asi field contents help */
+    RUN get-company (output gcompany).
+    ASSIGN
+        SESSION:DATA-ENTRY-RETURN = TRUE. 
 
 &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
-  &ENDIF         
-
-  /************************ INTERNAL PROCEDURES ********************/
+&ENDIF
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -880,27 +1129,30 @@ PROCEDURE add-vend-cost :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  /*called from windows/d-vndcfg.w*/
+    /*called from windows/d-vndcfg.w*/
+    DEF INPUT PARAMETER ip-recid-eitem AS RECID NO-UNDO.
+    DEF INPUT PARAMETER ip-recid-eitem-vend AS RECID NO-UNDO.
+    DEF INPUT PARAMETER ip-recid-bf AS RECID NO-UNDO.
+    DEF INPUT PARAMETER v-term LIKE report.term-id NO-UNDO.
 
-  DEFINE INPUT PARAMETER ip-recid-eitem AS RECID NO-UNDO.
-  DEFINE INPUT PARAMETER ip-recid-eitem-vend AS RECID NO-UNDO.
-  DEFINE INPUT PARAMETER ip-recid-bf AS RECID NO-UNDO.
-  def input param v-term like report.term-id no-undo.
-
-  find bf-itemfg where recid(bf-itemfg) = ip-recid-bf.
-
-  FIND e-itemfg WHERE recid(e-itemfg) = ip-recid-eitem NO-LOCK.
-  FIND e-itemfg-vend WHERE RECID(e-itemfg-vend) = ip-recid-eitem-vend NO-LOCK.
+    FIND bf-itemfg NO-LOCK WHERE 
+        RECID(bf-itemfg) = ip-recid-bf
+        NO-ERROR.
+    FIND e-itemfg NO-LOCK WHERE 
+        RECID(e-itemfg) = ip-recid-eitem 
+        NO-ERROR.
+    FIND e-itemfg-vend NO-LOCK WHERE 
+        RECID(e-itemfg-vend) = ip-recid-eitem-vend 
+        NO-ERROR.
 
   RUN dispatch ("display-fields").
 
-  RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE, "tableio-source", OUTPUT char-hdl).
+    RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE, "tableio-source", OUTPUT char-hdl).
+    RUN set-buttons IN WIDGET-HANDLE(char-hdl) ("action-chosen").
 
-  RUN set-buttons IN WIDGET-HANDLE(char-hdl) ("action-chosen").
-
-  ASSIGN gTerm = v-term
+    ASSIGN 
+        gTerm = v-term
         gNewVendor = YES.
-
 
 END PROCEDURE.
 
@@ -947,52 +1199,47 @@ PROCEDURE delete-est-matrices-proc :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-   DEF VAR ll-choice AS LOG NO-UNDO.
+    DEF VAR ll-choice AS LOG NO-UNDO.
 
-   IF CAN-FIND(FIRST eb WHERE
-      eb.company EQ e-itemfg-vend.company AND
-      eb.stock-no EQ e-itemfg-vend.i-no AND
-      eb.pur-man EQ YES) THEN
-      DO:
-         MESSAGE "Delete Estimate Price Matrices With These Values?" 
-            VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO UPDATE ll-choice.
-
-         IF ll-choice THEN
-         DO:
-            session:set-wait-state("GENERAL").
-            FOR EACH eb WHERE
+    IF CAN-FIND(FIRST eb WHERE
                 eb.company EQ e-itemfg-vend.company AND
                 eb.stock-no EQ e-itemfg-vend.i-no AND
-                eb.pur-man EQ YES
-                NO-LOCK,
+                eb.pur-man EQ YES) THEN DO:
+        MESSAGE 
+            "Delete matching Estimate Farm Tab entry?"
+            VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO UPDATE ll-choice.
+
+        IF ll-choice THEN DO:
+            SESSION:SET-WAIT-STATE("GENERAL").
+            FOR EACH eb NO-LOCK WHERE
+                eb.company EQ e-itemfg-vend.company AND
+                eb.stock-no EQ e-itemfg-vend.i-no AND
+                eb.pur-man EQ YES,
                 FIRST b-e-itemfg-vend WHERE
-                     b-e-itemfg-vend.company EQ e-itemfg-vend.company AND
-                     b-e-itemfg-vend.i-no EQ e-itemfg-vend.i-no AND
-                     b-e-itemfg-vend.est-no EQ eb.est-no AND
-                     b-e-itemfg-vend.form-no EQ eb.form-no AND
-                     b-e-itemfg-vend.eqty EQ eb.eqty AND
-                     b-e-itemfg-vend.blank-no EQ eb.blank-no AND
-                     b-e-itemfg-vend.vend-no EQ e-itemfg-vend.vend-no AND
-                     b-e-itemfg-vend.cust-no EQ e-itemfg-vend.cust-no:
+                    b-e-itemfg-vend.company EQ e-itemfg-vend.company AND
+                    b-e-itemfg-vend.est-no EQ eb.est-no AND
+                    b-e-itemfg-vend.form-no EQ eb.form-no AND
+                    b-e-itemfg-vend.eqty EQ eb.eqty AND
+                    b-e-itemfg-vend.blank-no EQ eb.blank-no AND
+                    b-e-itemfg-vend.vend-no EQ e-itemfg-vend.vend-no AND
+                    b-e-itemfg-vend.cust-no EQ e-itemfg-vend.cust-no:
 
-                  DELETE b-e-itemfg-vend.
+                    DELETE b-e-itemfg-vend.
 
-                  FIND FIRST b-reftable-1 WHERE
-                       b-reftable-1.reftable EQ "e-itemfg-vend.std-uom" AND
-                       b-reftable-1.company  EQ b-e-itemfg-vend.company AND
-                       b-reftable-1.loc      EQ "" AND
-                       b-reftable-1.code     EQ b-e-itemfg-vend.est-no AND
-                       b-reftable-1.val[1]   EQ b-e-itemfg-vend.form-no AND
-                       b-reftable-1.val[2]   EQ b-e-itemfg-vend.blank-no
-                       NO-ERROR.
-
-                  IF AVAIL b-reftable-1 THEN
-                     DELETE b-reftable-1.
+                    FIND FIRST b-reftable-1 WHERE
+                        b-reftable-1.reftable EQ "e-itemfg-vend.std-uom" AND
+                        b-reftable-1.company  EQ b-e-itemfg-vend.company AND
+                        b-reftable-1.loc      EQ "" AND
+                        b-reftable-1.code     EQ b-e-itemfg-vend.est-no AND
+                        b-reftable-1.val[1]   EQ b-e-itemfg-vend.form-no AND
+                        b-reftable-1.val[2]   EQ b-e-itemfg-vend.blank-no
+                        NO-ERROR.
+                    IF AVAIL b-reftable-1 THEN
+                        DELETE b-reftable-1.
             END.
-
-            session:set-wait-state("").
-         END.
-      END.
+            SESSION:SET-WAIT-STATE("").
+        END.
+    END.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1022,24 +1269,11 @@ PROCEDURE local-add-record :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-  /*def buffer bf-e-vend for e-itemfg-vend.
-  def var char-hdl as cha no-undo.*/
-
-  /* Code placed here will execute PRIOR to standard behavior. */
- /*find first bf-e-vend where bf-e-vend.company = e-itemfg.company
-                          and bf-e-vend.i-no = e-itemfg.i-no   
-                          and bf-e-vend.vend-no = ""
-                          no-lock no-error.
-  if avail bf-e-vend then do:
-     message "Vendor# Blank already exists. Check existing vendor first." view-as alert-box error.
-     return error.
-  end.                        
-*/
-  /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'add-record':U ) .
 
-  /* Code placed here will execute AFTER standard behavior.    */
-  RUN dispatch ("display-fields").
+    RUN dispatch ("display-fields").
+    RUN pVendCostMtx ("INIT").
+    lAddRecord = YES.
 
 END PROCEDURE.
 
@@ -1052,123 +1286,150 @@ PROCEDURE local-assign-record :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-  def var i as int no-undo.
-  def var lv-recid as recid no-undo.
-  def var lv-eb-recid as recid no-undo.
-  DEF VAR char-hdl AS cha NO-UNDO.
+    DEF VAR i AS INT NO-UNDO.
+    DEF VAR lv-recid AS RECID NO-UNDO.
+    DEF VAR lv-eb-recid AS RECID NO-UNDO.
+    DEF VAR char-hdl AS CHAR NO-UNDO.
 
-  /* Code placed here will execute PRIOR to standard behavior. */
+    DO WITH FRAME {&FRAME-NAME}:
+        ASSIGN fi_oh-markup.
+    END.
 
-  DO WITH FRAME {&FRAME-NAME}:
-     ASSIGN fi_oh-markup.
-  END.
-
-  IF AVAIL e-itemfg THEN lv-recid = recid(e-itemfg).
-  ELSE DO:
-     CREATE e-itemfg.
-     ASSIGN e-itemfg.company = g_company
-            e-itemfg.i-no = "".    
+    IF AVAIL e-itemfg THEN ASSIGN 
+        lv-recid = RECID(e-itemfg).
+    ELSE DO:
+        CREATE e-itemfg.
+        ASSIGN 
+            e-itemfg.company = g_company
+            e-itemfg.i-no = ""
             lv-recid = RECID(e-itemfg).
-  END.
-  /*IF NOT AVAIL e-itemfg then*/
-  find first e-itemfg where recid(e-itemfg) = lv-recid NO-ERROR.
+    END.
 
-  RUN pVendCostMtx ("ASSIGN").
+    FIND FIRST e-itemfg WHERE 
+        RECID(e-itemfg) = lv-recid 
+        NO-ERROR.
+
+    DO WITH FRAME {&FRAME-NAME}:
+        ASSIGN
+            tb_sel-01
+            tb_sel-02
+            tb_sel-03
+            tb_sel-04
+            tb_sel-05
+            tb_sel-06
+            tb_sel-07
+            tb_sel-08
+            tb_sel-09
+            tb_sel-10
+            .
+    END.
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-record':U ) .
 
-  /* Code placed here will execute AFTER standard behavior.    */
+    RUN pVendCostMtx ("ASSIGN").
+  
+    FOR EACH tmpfile: 
+        DELETE tmpfile.  
+    END.
 
-  for each tmpfile: delete tmpfile .  end.
-
-  do i = 1 to 30:
-     if e-itemfg.roll-w[i] <> 0 then do:
-        create tmpfile.
-        assign tmpfile.siz = e-itemfg.roll-w[i]
-               e-itemfg.roll-w[i] = 0.
-     end.
-  end.
-  i = 1.
-  for each tmpfile by tmpfile.siz :
-      assign e-itemfg.roll-w[i] = tmpfile.siz
-             i = i + 1.
-  end.
-  for each tmpfile: delete tmpfile .  end.
-  do i = 1 to 10:
-     create tmpfile.
-     assign tmpfile.qty = e-itemfg-vend.run-qty[i]
+    DO i = 1 TO 30:
+        IF e-itemfg.roll-w[i] NE 0 THEN DO:
+            CREATE tmpfile.
+            ASSIGN
+                tmpfile.siz = e-itemfg.roll-w[i]
+                e-itemfg.roll-w[i] = 0.
+        END.
+    END.
+    
+    ASSIGN
+        i = 1.
+    FOR EACH tmpfile BY tmpfile.siz :
+        ASSIGN
+            e-itemfg.roll-w[i] = tmpfile.siz
+            i = i + 1.
+    END.
+  
+    FOR EACH tmpfile: 
+        DELETE tmpfile.  
+    END.
+  
+    DO i = 1 TO 10:
+        CREATE tmpfile.
+        ASSIGN 
+            tmpfile.qty = e-itemfg-vend.run-qty[i]
             tmpfile.siz = e-itemfg-vend.run-cost[i]
             tmpfile.setups = e-itemfg-vend.setups[i]
             e-itemfg-vend.run-qty[i] = 0
             e-itemfg-vend.run-cost[i] = 0
             e-itemfg-vend.setups[i] = 0.
-  end.
-  i = 1.
-  for each tmpfile by tmpfile.qty:
-      if tmpfile.qty = 0 then next.
-      assign e-itemfg-vend.run-qty[i] = tmpfile.qty
-             e-itemfg-vend.run-cost[i] = tmpfile.siz
-             e-itemfg-vend.setups[i] = tmpfile.setups.
-      i = i + 1.       
-  end.
-
-  do i = 1 to 10:
-     assign e-itemfg.run-qty[i] = e-itemfg-vend.run-qty[i]
-            e-itemfg.run-cost[i] = e-itemfg-vend.run-cost[i]
-            .
-  end.
-
-  IF e-itemfg-vend.i-no = "" THEN DO:
-     run get-link-handle in adm-broker-hdl(this-procedure,"record-source", output char-hdl).
-     run get-link-handle in adm-broker-hdl(widget-handle(char-hdl),"record-source", output char-hdl).
-     run get-eb-record in widget-handle(char-hdl) (output lv-eb-recid).
-     FIND FIRST eb WHERE RECID(eb) = lv-eb-recid NO-LOCK NO-ERROR.
-     IF AVAIL eb THEN
-        ASSIGN e-itemfg-vend.est-no = eb.est-no
-               e-itemfg-vend.eqty = eb.eqty
-               e-itemfg-vend.form-no = eb.form-no
-               e-itemfg-vend.blank-no = eb.blank-no.
-
-  END.
-
-  FIND FIRST reftable WHERE
-       reftable.reftable EQ 'e-itemfg-vend.markup' AND
-       reftable.company EQ e-itemfg-vend.company AND
-       reftable.loc EQ e-itemfg-vend.i-no AND
-       reftable.code EQ e-itemfg-vend.vend-no
-       EXCLUSIVE-LOCK NO-ERROR.
-
-  IF NOT AVAILABLE reftable THEN DO:
-    CREATE reftable.
+    END.
+  
     ASSIGN
-      reftable.reftable = 'e-itemfg-vend.markup'
-      reftable.company = e-itemfg-vend.company
-      reftable.loc = e-itemfg-vend.i-no
-      reftable.code = e-itemfg-vend.vend-no.
-  END.
+        i = 1.
+    FOR EACH tmpfile BY tmpfile.qty:
+        IF tmpfile.qty EQ 0 THEN NEXT.
+        ASSIGN
+            e-itemfg-vend.run-qty[i] = tmpfile.qty
+            e-itemfg-vend.run-cost[i] = tmpfile.siz
+            e-itemfg-vend.setups[i] = tmpfile.setups
+            i = i + 1.       
+    END.
 
-  reftable.val[1] = INT(fi_oh-markup:SCREEN-VALUE IN FRAME {&FRAME-NAME}).
-  FIND CURRENT reftable NO-LOCK.
-  FIND CURRENT e-itemfg NO-LOCK.
+    DO i = 1 TO 10:
+        ASSIGN
+            e-itemfg.run-qty[i] = e-itemfg-vend.run-qty[i]
+            e-itemfg.run-cost[i] = e-itemfg-vend.run-cost[i].
+    END.
 
-  IF gNewVendor THEN DO:
-     /* costs zeroed out to indicate they need to be recalculated */
-     CREATE report.
-     ASSIGN
-       report.term-id = gTerm
-       report.key-01  = STRING(e-itemfg-vend.run-cost[1])
-       report.key-02  = ""
-       report.key-03  = e-itemfg-vend.vend-no
-       report.key-04  = string(e-itemfg-vend.run-qty[1]) 
-       report.key-05  = ""
-       report.key-06  = string(e-itemfg-vend.setups[1])
-       report.key-08  = "RECALC"
-       report.rec-id  = recid(e-itemfg-vend).
-       RELEASE report.
-  END.
+    IF e-itemfg-vend.i-no = "" THEN DO:
+        run get-link-handle in adm-broker-hdl(this-procedure,"record-source", output char-hdl).
+        run get-link-handle in adm-broker-hdl(widget-handle(char-hdl),"record-source", output char-hdl).
+        run get-eb-record in widget-handle(char-hdl) (output lv-eb-recid).
+        FIND FIRST eb NO-LOCK WHERE 
+            RECID(eb) EQ lv-eb-recid 
+            NO-ERROR.
+        IF AVAIL eb THEN ASSIGN 
+            e-itemfg-vend.est-no = eb.est-no
+            e-itemfg-vend.eqty = eb.eqty
+            e-itemfg-vend.form-no = eb.form-no
+            e-itemfg-vend.blank-no = eb.blank-no.
+    END.
 
-  RUN dispatch IN THIS-PROCEDURE ( INPUT 'display-fields':U ) .
+    ASSIGN
+        e-itemfg-vend.selected[01] = tb_sel-01
+        e-itemfg-vend.selected[02] = tb_sel-02
+        e-itemfg-vend.selected[03] = tb_sel-03
+        e-itemfg-vend.selected[04] = tb_sel-04
+        e-itemfg-vend.selected[05] = tb_sel-05
+        e-itemfg-vend.selected[06] = tb_sel-06
+        e-itemfg-vend.selected[07] = tb_sel-07
+        e-itemfg-vend.selected[08] = tb_sel-08
+        e-itemfg-vend.selected[09] = tb_sel-09
+        e-itemfg-vend.selected[10] = tb_sel-10
+        e-itemfg-vend.markup = INT(fi_oh-markup:SCREEN-VALUE IN FRAME {&FRAME-NAME})
+        .
+
+    
+    FIND CURRENT e-itemfg NO-LOCK.
+
+    IF gNewVendor THEN DO:
+        /* costs zeroed out to indicate they need to be recalculated */
+        CREATE report.
+        ASSIGN
+            report.term-id = gTerm
+            report.key-01  = STRING(e-itemfg-vend.run-cost[1])
+            report.key-02  = ""
+            report.key-03  = e-itemfg-vend.vend-no
+            report.key-04  = string(e-itemfg-vend.run-qty[1]) 
+            report.key-05  = ""
+            report.key-06  = string(e-itemfg-vend.setups[1])
+            report.key-08  = "RECALC"
+            report.rec-id  = recid(e-itemfg-vend).
+        RELEASE report.
+    END.
+
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'display-fields':U ) .
 
 END PROCEDURE.
 
@@ -1181,15 +1442,35 @@ PROCEDURE local-cancel-record :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
+  /* Dispatch standard ADM method.                             */
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'cancel-record':U ) .
+
+    DISABLE
+        e-itemfg.std-uom 
+        fi_oh-markup 
+        {&farmFields} 
+        WITH FRAME {&FRAME-NAME}.
+  
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-copy-record V-table-Win 
+PROCEDURE local-copy-record :
+/*------------------------------------------------------------------------------
+  Purpose:     Override standard ADM method
+  Notes:       
+------------------------------------------------------------------------------*/
 
   /* Code placed here will execute PRIOR to standard behavior. */
 
   /* Dispatch standard ADM method.                             */
-  RUN dispatch IN THIS-PROCEDURE ( INPUT 'cancel-record':U ) .
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'copy-record':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-  disable e-itemfg.std-uom fi_oh-markup {&farmFields} WITH FRAME {&FRAME-NAME}.
-  
+  lCopyRecord = YES.
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1201,43 +1482,37 @@ PROCEDURE local-create-record :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-  def var lv-recid as recid no-undo.
-  def var char-hdl as cha no-undo.
-  def var i as int no-undo.
-  DEF BUFFER bf-eitemfg FOR e-itemfg.
+    DEF BUFFER bf-eitemfg FOR e-itemfg.
 
-  /* Code placed here will execute PRIOR to standard behavior. */
+    DEF VAR lv-recid AS RECID NO-UNDO.
+    DEF VAR char-hdl AS CHAR NO-UNDO.
+    DEF VAR i AS INT NO-UNDO.
 
-   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'create-record':U ) .
 
-  /* Code placed here will execute AFTER standard behavior.    */
- run get-link-handle in adm-broker-hdl(this-procedure,"record-source", output char-hdl).
- run get-item-record in widget-handle(char-hdl) (output lv-recid).
- find bf-itemfg where recid(bf-itemfg) = lv-recid no-error.
+    RUN get-link-handle in adm-broker-hdl(this-procedure,"record-source", output char-hdl).
+    RUN get-item-record in widget-handle(char-hdl) (output lv-recid).
+ 
+    FIND 
+        bf-itemfg WHERE RECID(bf-itemfg) EQ lv-recid 
+        NO-ERROR.
 
- ASSIGN e-itemfg-vend.company = IF AVAIL e-itemfg THEN e-itemfg.company ELSE g_company
+    ASSIGN 
+        e-itemfg-vend.company = IF AVAIL e-itemfg THEN e-itemfg.company ELSE g_company
         e-itemfg-vend.i-no = IF AVAIL e-itemfg THEN e-itemfg.i-no ELSE ""
-        e-itemfg-vend.item-type = NO 
-        /*e-itemfg-vend.roll-w[28] = 999
-        e-itemfg-vend.roll-w[30] = 999*/  .  /* for finished good */
+        e-itemfg-vend.item-type = NO.
 
- /*
- bf-itemfg.min-sqft = 0.       
- */
- do i = 1 to 10:
-     assign e-itemfg-vend.run-qty[i] = IF AVAIL e-itemfg THEN e-itemfg.run-qty[i] ELSE 0
-            e-itemfg-vend.run-cost[i] = IF AVAIL e-itemfg THEN e-itemfg.run-cost[i] ELSE 0
-            .
-  end.
+    DO i = 1 TO 10:
+        ASSIGN 
+            e-itemfg-vend.run-qty[i] = IF AVAIL e-itemfg THEN e-itemfg.run-qty[i] ELSE 0
+            e-itemfg-vend.run-cost[i] = IF AVAIL e-itemfg THEN e-itemfg.run-cost[i] ELSE 0.
+    END.
 
-  DO WITH FRAME {&FRAME-NAME}:
-
-     IF adm-adding-record THEN
-        ASSIGN
-           e-itemfg-vend.vend-no:screen-value = ""
-           fi_oh-markup:SCREEN-VALUE = "0".
-  END.
+    DO WITH FRAME {&FRAME-NAME}:
+        IF adm-adding-record THEN ASSIGN
+            e-itemfg-vend.vend-no:screen-value = ""
+            fi_oh-markup:SCREEN-VALUE = "0".
+    END.
 
 END PROCEDURE.
 
@@ -1250,39 +1525,21 @@ PROCEDURE local-delete-record :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
+    DEF VAR char-hdl AS CHAR NO-UNDO.
 
-  /* Code placed here will execute PRIOR to standard behavior. */
-  IF NOT adm-new-record THEN DO:
-    {custom/askdel.i}
-  END.
+    IF NOT adm-new-record THEN DO:
+        {custom/askdel.i}
+    END.
 
-  RUN delete-est-matrices-proc.
+    RUN delete-est-matrices-proc.
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'delete-record':U ) .
 
-  /* Code placed here will execute AFTER standard behavior.    */
-/*  find first e-itemfg-vend of e-itemfg no-lock no-error.
-  if not avail e-itemfg-vend then do:  /* no e-itemfg-vend then delete e-itemfg */
-     def buffer bf-e-itemfg for e-itemfg.
-
-     find bf-e-itemfg  where recid(bf-e-itemfg) = recid(e-itemfg) no-error.
-     if avail bf-e-itemfg then delete bf-e-itemfg.
-
-  end.
-*/  
-/* gdm - 08040903 - THIS IS FOR e-itemfg - FINISHGOODS  
-                                e-item  - is for RAW MATERIALS
- */
-
-if not avail e-itemfg then do:
-   def var char-hdl as cha no-undo.
-   run get-link-handle in adm-broker-hdl(this-procedure, "record-source", output char-hdl).
-   run dispatch in widget-handle(char-hdl) ("open-query").
-end.
-
-
-
+    IF NOT AVAIL e-itemfg THEN DO:
+        RUN get-link-handle in adm-broker-hdl(this-procedure, "record-source", output char-hdl).
+        RUN dispatch in widget-handle(char-hdl) ("open-query").
+    END.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1294,91 +1551,95 @@ PROCEDURE local-display-fields :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEF BUFFER b-eiv FOR e-itemfg-vend.
-  DEF VAR lv-markup AS CHAR NO-UNDO.
+    DEF BUFFER b-eiv FOR e-itemfg-vend.
+    
+    DEF VAR lv-markup AS CHAR NO-UNDO.
 
-  /* Code placed here will execute PRIOR to standard behavior. */
-  IF AVAIL e-itemfg-vend AND e-itemfg-vend.setup NE 0 THEN DO TRANSACTION:
-    FIND b-eiv WHERE ROWID(b-eiv) EQ ROWID(e-itemfg-vend).
-    ASSIGN
-     b-eiv.setups[1] = e-itemfg-vend.setup
-     b-eiv.setup     = 0.
-  END.
+    IF AVAIL e-itemfg-vend 
+    AND e-itemfg-vend.setup NE 0 THEN DO TRANSACTION:
+        FIND b-eiv EXCLUSIVE WHERE 
+            ROWID(b-eiv) EQ ROWID(e-itemfg-vend)
+            NO-ERROR.
+        IF AVAIL b-eiv THEN ASSIGN
+            b-eiv.setups[1] = e-itemfg-vend.setup
+            b-eiv.setup     = 0.
+    END.
 
-  DO WITH FRAME {&FRAME-NAME}:
-    ASSIGN
-     lv-group-hdl = FRAME {&FRAME-NAME}:FIRST-CHILD
-     lv-field-hdl = lv-group-hdl:FIRST-CHILD.
-
-     IF NOT lVendCostMtx THEN
-         e-itemfg-vend.spare-dec-1:HIDDEN = TRUE.
-     ELSE 
-         e-itemfg-vend.spare-dec-1:HIDDEN = FALSE.
-
-    DO WHILE VALID-HANDLE(lv-field-hdl):
-      IF lv-field-hdl:NAME BEGINS "tb_sel" THEN
+    DO WITH FRAME {&FRAME-NAME}:
         ASSIGN
-         lv-field-hdl:SENSITIVE = NO
-         lv-field-hdl:HIDDEN = NOT AVAIL e-itemfg-vend OR
-                               e-itemfg-vend.est-no EQ "".
+            lv-group-hdl = FRAME {&FRAME-NAME}:FIRST-CHILD
+            lv-field-hdl = lv-group-hdl:FIRST-CHILD.
 
-      lv-field-hdl = lv-field-hdl:NEXT-SIBLING.
+        IF NOT lVendCostMtx THEN ASSIGN
+            e-itemfg-vend.spare-dec-1:HIDDEN = TRUE.
+        ELSE ASSIGN
+            e-itemfg-vend.spare-dec-1:HIDDEN = FALSE.
+
+        DO WHILE VALID-HANDLE(lv-field-hdl):
+            IF lv-field-hdl:NAME BEGINS "tb_sel" THEN ASSIGN
+                lv-field-hdl:SENSITIVE = NO
+                lv-field-hdl:HIDDEN = NOT AVAIL e-itemfg-vend OR
+                                       e-itemfg-vend.est-no EQ "".
+            ASSIGN
+                lv-field-hdl = lv-field-hdl:NEXT-SIBLING.
+        END.
+
+        IF adm-new-record 
+        AND adm-adding-record THEN ASSIGN 
+            lv-markup = fi_oh-markup:SCREEN-VALUE.
+
+        IF AVAIL e-itemfg-vend 
+        AND NOT adm-new-record THEN DO:
+            
+            ASSIGN
+                fi_oh-markup = e-itemfg-vend.markup.
+            END.
     END.
-
-    IF adm-new-record AND adm-adding-record THEN lv-markup = fi_oh-markup:SCREEN-VALUE.
-
-    IF AVAIL e-itemfg-vend AND NOT adm-new-record THEN
-    DO:
-       FIND FIRST reftable WHERE
-            reftable.reftable EQ 'e-itemfg-vend.markup' AND
-            reftable.company EQ e-itemfg-vend.company AND
-            reftable.loc EQ e-itemfg-vend.i-no AND
-            reftable.code EQ e-itemfg-vend.vend-no
-            NO-LOCK NO-ERROR.
-
-       IF NOT AVAILABLE reftable THEN
-       DO:
-          CREATE reftable.
-          ASSIGN
-             reftable.reftable = 'e-itemfg-vend.markup'
-             reftable.company = e-itemfg-vend.company
-             reftable.loc = e-itemfg-vend.i-no
-             reftable.code = e-itemfg-vend.vend-no.
-       END.
-
-       fi_oh-markup = reftable.val[1].
-
-    END.
-  END.
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'display-fields':U ) .
 
-  IF adm-new-record AND adm-adding-record THEN
-     fi_oh-markup:SCREEN-VALUE = lv-markup.
-  /* Code placed here will execute AFTER standard behavior.    */
-  /*task# 07190509*/
-  ASSIGN ls-vend-name = ""  
-         ls-item-name = ""
-         ls-item-dscr = ""
-         qty-label    = "Qty " + STRING(lVendCostMtx,"FROM/TO")
-         .
-  
-  RUN pVendCostMtx ("DISPLAY").
-  
-  FIND FIRST vend WHERE vend.company = gcompany
-                    AND vend.vend-no = e-itemfg-vend.vend-no:SCREEN-VALUE NO-LOCK NO-ERROR.
-  IF AVAIL vend THEN ls-vend-name = vend.NAME.
-  DISP ls-vend-name WITH FRAME {&FRAME-NAME}.
+    IF adm-new-record AND adm-adding-record THEN ASSIGN
+        fi_oh-markup:SCREEN-VALUE = lv-markup.
 
-  /*task# 07190509*/
-  IF AVAIL e-itemfg THEN
-     FIND itemfg WHERE itemfg.company = gcompany AND itemfg.i-no = e-itemfg.i-no NO-LOCK NO-ERROR.
-  IF AVAIL itemfg THEN ASSIGN ls-item-name = itemfg.i-name
-                              ls-item-dscr = itemfg.part-dscr1.
-  DISP ls-item-name ls-item-dscr qty-label WITH FRAME {&FRAME-NAME}.
+    ASSIGN 
+        ls-vend-name = ""  
+        ls-item-name = ""
+        ls-item-dscr = ""
+        qty-label    = "Qty " + STRING(lVendCostMtx,"From/To").
+  
+    IF lAddRecord EQ NO AND lCopyRecord EQ NO THEN
+    RUN pVendCostMtx ("DISPLAY").
+    ELSE
+    ASSIGN
+      lAddRecord  = NO
+      lCopyRecord = NO
+      .
+  
+    FIND FIRST vend NO-LOCK WHERE 
+        vend.company EQ gcompany AND 
+        vend.vend-no EQ e-itemfg-vend.vend-no:SCREEN-VALUE 
+        NO-ERROR.
+    IF AVAIL vend THEN ASSIGN
+        ls-vend-name = vend.NAME.
+    DISP 
+        ls-vend-name 
+        WITH FRAME {&FRAME-NAME}.
 
-  RUN new-sel.
+    IF AVAIL e-itemfg THEN FIND itemfg NO-LOCK WHERE 
+        itemfg.company = gcompany AND 
+        itemfg.i-no = e-itemfg.i-no 
+        NO-ERROR.
+    IF AVAIL itemfg THEN ASSIGN 
+        ls-item-name = itemfg.i-name
+        ls-item-dscr = itemfg.part-dscr1.
+    DISP 
+        ls-item-name 
+        ls-item-dscr 
+        qty-label 
+        WITH FRAME {&FRAME-NAME}.
+
+    RUN new-sel.
 
 END PROCEDURE.
 
@@ -1391,37 +1652,36 @@ PROCEDURE local-enable-fields :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-  def var char-hdl as cha no-undo.
-  def var lv-recid as recid no-undo.
+    DEF VAR char-hdl as cha NO-UNDO.
+    DEF VAR lv-recid as recid NO-UNDO.
+  
+    RUN get-link-handle in adm-broker-hdl(this-procedure,"record-source", output char-hdl).
+    RUN get-item-record in widget-handle(char-hdl) (output lv-recid).
+  
+    FIND bf-itemfg NO-LOCK WHERE 
+        RECID(bf-itemfg) EQ lv-recid 
+        NO-ERROR.
 
-
-  /* Code placed here will execute PRIOR to standard behavior. */
-  run get-link-handle in adm-broker-hdl(this-procedure,"record-source", output char-hdl).
-  run get-item-record in widget-handle(char-hdl) (output lv-recid).
-  find bf-itemfg where recid(bf-itemfg) eq lv-recid no-lock no-error.
-
-  /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'enable-fields':U ) .
 
-  /* Code placed here will execute AFTER standard behavior.    */
+    DO WITH FRAME {&FRAME-NAME}:
+        ASSIGN
+            lv-group-hdl = FRAME {&FRAME-NAME}:FIRST-CHILD
+            lv-field-hdl = lv-group-hdl:FIRST-CHILD.
+        IF AVAIL e-itemfg-vend THEN DO WHILE VALID-HANDLE(lv-field-hdl):
+            IF lv-field-hdl:NAME BEGINS "tb_sel" THEN ASSIGN
+                lv-field-hdl:SENSITIVE = e-itemfg-vend.est-no NE "".
+            ASSIGN
+                lv-field-hdl = lv-field-hdl:NEXT-SIBLING.
+        END.
 
-  DO WITH FRAME {&FRAME-NAME}:
-    ASSIGN
-     lv-group-hdl = FRAME {&FRAME-NAME}:FIRST-CHILD
-     lv-field-hdl = lv-group-hdl:FIRST-CHILD.
+        ENABLE 
+            e-itemfg.std-uom 
+            fi_oh-markup 
+            {&farmFields}.
 
-    IF AVAIL e-itemfg-vend THEN
-    DO WHILE VALID-HANDLE(lv-field-hdl):
-      IF lv-field-hdl:NAME BEGINS "tb_sel" THEN
-        lv-field-hdl:SENSITIVE = e-itemfg-vend.est-no NE "".
-
-      lv-field-hdl = lv-field-hdl:NEXT-SIBLING.
+        APPLY "entry" TO e-itemfg.std-uom.
     END.
-
-    ENABLE e-itemfg.std-uom fi_oh-markup {&farmFields}.
-
-    APPLY "entry" TO e-itemfg.std-uom.
-  END.
 
 END PROCEDURE.
 
@@ -1434,63 +1694,62 @@ PROCEDURE local-update-record :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-  def buffer bf-evend for e-itemfg-vend.
-  DEF VAR v-add-record AS LOG NO-UNDO.
-  DEF VAR char-hdl AS cha NO-UNDO.
+    DEF BUFFER bf-evend FOR e-itemfg-vend.
 
-  /* Code placed here will execute PRIOR to standard behavior. */
-  /* ============= validateion ================= */
-  DO WITH FRAME {&FRAME-NAME}:
-    RUN valid-vend-no (e-itemfg-vend.vend-no:HANDLE) NO-ERROR.
-    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-  END.
+    DEF VAR v-add-record AS LOG NO-UNDO.
+    DEF VAR char-hdl AS cha NO-UNDO.
 
-  RUN valid-std-uom NO-ERROR.
-  IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+    DO WITH FRAME {&FRAME-NAME}:
+        RUN valid-vend-no (e-itemfg-vend.vend-no:HANDLE) NO-ERROR.
+        IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
-  RUN valid-cust-no NO-ERROR.
-  IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-  {&methods/lValidateError.i YES}
-  DO WITH FRAME {&FRAME-NAME}:
-    IF e-itemfg-vend.vend-no:SCREEN-VALUE EQ "" THEN DO:
-       FIND FIRST bf-evend
-           WHERE bf-evend.company   EQ e-itemfg-vend.company
-             AND bf-evend.i-no      EQ e-itemfg-vend.i-no
-             AND bf-evend.item-type EQ NO
-             AND bf-evend.vend-no   EQ ""
-             AND bf-evend.est-no    EQ e-itemfg-vend.est-no
-             AND bf-evend.eqty      EQ e-itemfg-vend.eqty
-             AND bf-evend.form-no   EQ e-itemfg-vend.form-no
-             AND bf-evend.blank-no  EQ e-itemfg-vend.blank-no
-             AND ROWID(bf-evend)    NE ROWID(e-itemfg-vend)
-           NO-LOCK NO-ERROR.
-       IF AVAIL bf-evend THEN DO:
-         MESSAGE "Blank vendor exists..." 
-             VIEW-AS ALERT-BOX ERROR.
-         APPLY "entry" to e-itemfg-vend.vend-no.
-         RETURN NO-APPLY. 
-       END.
-     END.
-  END.
-  {&methods/lValidateError.i NO}
+        RUN valid-std-uom NO-ERROR.
+        IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
-  /* ============= end of validation ================*/
-  v-add-record = adm-adding-record.
+        RUN valid-cust-no NO-ERROR.
+        IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+    
+        IF e-itemfg-vend.vend-no:SCREEN-VALUE EQ "" THEN DO:
+            FIND FIRST bf-evend NO-LOCK WHERE 
+                bf-evend.company   EQ e-itemfg-vend.company AND 
+                bf-evend.i-no      EQ e-itemfg-vend.i-no AND 
+                bf-evend.item-type EQ NO AND 
+                bf-evend.vend-no   EQ "" AND 
+                bf-evend.est-no    EQ e-itemfg-vend.est-no AND 
+                bf-evend.eqty      EQ e-itemfg-vend.eqty AND 
+                bf-evend.form-no   EQ e-itemfg-vend.form-no AND 
+                bf-evend.blank-no  EQ e-itemfg-vend.blank-no AND 
+                ROWID(bf-evend)    NE ROWID(e-itemfg-vend)
+                NO-ERROR.
+            IF AVAIL bf-evend THEN DO:
+                MESSAGE 
+                    "Blank vendor exists..." 
+                    VIEW-AS ALERT-BOX ERROR.
+                APPLY "entry" to e-itemfg-vend.vend-no.
+                RETURN. 
+            END.
+        END.
+    END.
+
+    ASSIGN 
+        v-add-record = adm-adding-record.
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
 
-  /* Code placed here will execute AFTER standard behavior.    */
-  IF v-add-record THEN DO:
-      RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"record-source",OUTPUT char-hdl).
-      RUN repos-query IN WIDGET-HANDLE(char-hdl) (ROWID(e-itemfg)).
-  END.
+    IF v-add-record THEN DO:
+        RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"record-source",OUTPUT char-hdl).
+        RUN repos-query IN WIDGET-HANDLE(char-hdl) (ROWID(e-itemfg)).
+    END.
+    ELSE RUN dispatch ("display-fields").
 
-  ELSE RUN dispatch ("display-fields").
+    DISABLE 
+        e-itemfg.std-uom 
+        fi_oh-markup 
+        {&farmFields} 
+        WITH FRAME {&FRAME-NAME}.
 
-  disable e-itemfg.std-uom fi_oh-markup {&farmFields} WITH FRAME {&FRAME-NAME}.
-
-  RUN update-est-matrices-proc.
+    RUN update-est-matrices-proc.
 
 END PROCEDURE.
 
@@ -1504,41 +1763,50 @@ PROCEDURE new-sel :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEF VAR lv-sel AS CHAR NO-UNDO.
-  DEF VAR lv-sel-all AS CHAR NO-UNDO.
-  DEF VAR lv-test-valid-widget AS CHAR NO-UNDO.
-  DEF VAR lv-error-on-widget AS LOG NO-UNDO.
-  DO WITH FRAME {&FRAME-NAME}:
-      lv-test-valid-widget = FOCUS:NAME NO-ERROR.
-      IF ERROR-STATUS:ERROR THEN
-          RETURN.
+    DEF VAR lv-sel AS CHAR NO-UNDO.
+    DEF VAR lv-sel-all AS CHAR NO-UNDO.
+    DEF VAR lv-test-valid-widget AS CHAR NO-UNDO.
+    DEF VAR lv-error-on-widget AS LOG NO-UNDO.
+  
+    DO WITH FRAME {&FRAME-NAME}:
+        ASSIGN 
+            lv-test-valid-widget = FOCUS:NAME NO-ERROR.
+        IF ERROR-STATUS:ERROR THEN
+            RETURN.
 
-    IF FOCUS:NAME EQ "tb_sel" THEN lv-sel-all = FOCUS:SCREEN-VALUE.
-    ELSE
-    IF FOCUS:NAME BEGINS "tb_sel" THEN lv-sel = FOCUS:SCREEN-VALUE.
-    ELSE lv-sel = tb_sel-01:SCREEN-VALUE.
+        IF FOCUS:NAME EQ "tb_sel" THEN ASSIGN 
+            lv-sel-all = FOCUS:SCREEN-VALUE.
+        ELSE IF FOCUS:NAME BEGINS "tb_sel" THEN ASSIGN 
+            lv-sel = FOCUS:SCREEN-VALUE.
+        ELSE ASSIGN 
+            lv-sel = tb_sel-01:SCREEN-VALUE.
 
-    ASSIGN
-     lv-group-hdl = FRAME {&FRAME-NAME}:FIRST-CHILD
-     lv-field-hdl = lv-group-hdl:FIRST-CHILD.
-    {&methods/lValidateError.i YES}
-    DO WHILE VALID-HANDLE(lv-field-hdl):
-      lv-test-valid-widget = lv-field-hdl:NAME NO-ERROR.
-      IF ERROR-STATUS:ERROR THEN
-          RETURN.
-      IF lv-field-hdl:NAME BEGINS "tb_sel" THEN
-        IF lv-sel-all NE "" THEN
-          lv-field-hdl:SCREEN-VALUE = lv-sel-all.
-        ELSE
-        IF lv-field-hdl:NAME NE "tb_sel"       AND
-           lv-field-hdl:SCREEN-VALUE NE lv-sel THEN lv-sel = "".
+        ASSIGN
+            lv-group-hdl = FRAME {&FRAME-NAME}:FIRST-CHILD
+            lv-field-hdl = lv-group-hdl:FIRST-CHILD.
+    
+        {&methods/lValidateError.i YES}
+        DO WHILE VALID-HANDLE(lv-field-hdl):
+            ASSIGN 
+                lv-test-valid-widget = lv-field-hdl:NAME NO-ERROR.
+            IF ERROR-STATUS:ERROR THEN
+                RETURN.
+            IF lv-field-hdl:NAME BEGINS "tb_sel" THEN
+                IF lv-sel-all NE "" THEN ASSIGN
+                    lv-field-hdl:SCREEN-VALUE = lv-sel-all.
+                ELSE IF lv-field-hdl:NAME NE "tb_sel"
+                AND lv-field-hdl:SCREEN-VALUE NE lv-sel THEN ASSIGN 
+                    lv-sel = "".
 
-      lv-field-hdl = lv-field-hdl:NEXT-SIBLING.
-    END.
-    {&methods/lValidateError.i NO}
-    IF lv-sel NE "" THEN lv-sel-all = lv-sel.
-
-    IF lv-sel-all NE "" THEN tb_sel:SCREEN-VALUE = lv-sel-all.
+            ASSIGN 
+                lv-field-hdl = lv-field-hdl:NEXT-SIBLING.
+        END.
+        {&methods/lValidateError.i NO}
+    
+        IF lv-sel NE "" THEN ASSIGN 
+            lv-sel-all = lv-sel.
+        IF lv-sel-all NE "" THEN ASSIGN 
+            tb_sel:SCREEN-VALUE = lv-sel-all.
   END.
 
 END PROCEDURE.
@@ -1553,26 +1821,46 @@ PROCEDURE price-change :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-   def var v-pct as dec no-undo.
-   def var i as int no-undo.
-   def var char-hdl as cha no-undo.
-   def buffer bf-e-itemfg-vend for e-itemfg-vend.
+    DEF BUFFER bf-e-itemfg-vend FOR e-itemfg-vend.
+
+    DEF VAR v-pct AS DEC NO-UNDO.
+    DEF VAR i AS INT NO-UNDO.
+    DEF VAR char-hdl AS CHAR NO-UNDO.
+    DEFINE VARIABLE ip-parms     AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE op-values    AS CHARACTER NO-UNDO.
+
+    ASSIGN 
+        v-pct = 0.
+    
+    ip-parms = 
+    /* price percentage */
+    "|type=literal,name=label6,row=3.2,col=23,enable=false,width=38,scrval=" + "By what percentage:" + ",FORMAT=x(40)"
+    + "|type=fill-in,name=perprice,row=3,col=45,enable=true,width=16,data-type=decimal,initial=" + STRING(v-pct)
+    + "|type=image,image=webspeed\images\question.gif,name=im1,row=3,col=4,enable=true,width=12,height=3 " 
+    /* Box Title */
+    + "|type=win,name=fi3,enable=true,label=  Update Price?,FORMAT=X(30),height=9".
 
 
-   v-pct = 0.
-   message "By what percentage:" update v-pct .
+    RUN custom/d-prompt.w (INPUT "", ip-parms, "", OUTPUT op-values).
 
-   status default "Processing Raw Material: " + string(e-itemfg.i-no).
+    IF op-values NE "" THEN
+        v-pct = DECIMAL(ENTRY(2, op-values)) .
+    ELSE 
+        RETURN .
 
-   find bf-e-itemfg-vend where recid(bf-e-itemfg-vend) = recid(e-itemfg-vend).
 
-   do i = 1 to 10:
-      bf-e-itemfg-vend.run-cost[i] = e-itemfg-vend.run-cost[i] + 
+    STATUS DEFAULT "Processing Raw Material: " + STRING(e-itemfg.i-no).
+
+    FIND bf-e-itemfg-vend EXCLUSIVE WHERE 
+        RECID(bf-e-itemfg-vend) = RECID(e-itemfg-vend).
+    DO i = 1 TO 10:
+        ASSIGN 
+            bf-e-itemfg-vend.run-cost[i] = e-itemfg-vend.run-cost[i] + 
                                 (e-itemfg-vend.run-cost[i] * v-pct / 100).
-   end.
+    END.
 
-   run get-link-handle in adm-broker-hdl (this-procedure, "record-source", output char-hdl).
-   run reopen-and-repo in widget-handle(char-hdl) (rowid(bf-e-itemfg-vend)).
+    RUN get-link-handle in adm-broker-hdl (this-procedure, "record-source", output char-hdl).
+    RUN reopen-and-repo in widget-handle(char-hdl) (rowid(bf-e-itemfg-vend)).
 
 END PROCEDURE.
 
@@ -1623,14 +1911,14 @@ PROCEDURE state-changed :
   Parameters:  <none>
   Notes:       
 -------------------------------------------------------------*/
-  DEFINE INPUT PARAMETER p-issuer-hdl AS HANDLE    NO-UNDO.
-  DEFINE INPUT PARAMETER p-state      AS CHARACTER NO-UNDO.
-
-  CASE p-state:
+    DEF INPUT PARAMETER p-issuer-hdl AS HANDLE    NO-UNDO.
+    DEF INPUT PARAMETER p-state      AS CHARACTER NO-UNDO.
+      
+    CASE p-state:
       /* Object instance CASEs can go here to replace standard behavior
          or add new cases. */
       {src/adm/template/vstates.i}
-  END CASE.
+    END CASE.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1643,28 +1931,28 @@ PROCEDURE update-est-matrices-proc :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-   DEF VAR ll-choice AS LOG NO-UNDO.
+    DEF VAR ll-choice AS LOG NO-UNDO.
 
-   IF CAN-FIND(FIRST eb WHERE
-      eb.company EQ e-itemfg-vend.company AND
-      eb.stock-no EQ e-itemfg-vend.i-no AND
-      eb.pur-man EQ YES) THEN
-      DO:
-         MESSAGE "Update Estimate Price Matrices With These Values?" 
-            VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO UPDATE ll-choice.
-
-         IF ll-choice THEN
-         DO:
-            session:set-wait-state("GENERAL").
-            FOR EACH eb WHERE
+    IF CAN-FIND(FIRST eb WHERE
                 eb.company EQ e-itemfg-vend.company AND
                 eb.stock-no EQ e-itemfg-vend.i-no AND
-                eb.pur-man EQ YES
-                NO-LOCK:
+                eb.pur-man EQ YES) THEN DO:
+        MESSAGE 
+            "Update matching Estimate Farm Tab entry with these values?" SKIP(2) 
+             "Item #: " e-itemfg-vend.i-no SKIP 
+             "Vendor: " e-itemfg-vend.vend-no SKIP 
+             "Customer: " e-itemfg-vend.cust-no
+            VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO UPDATE ll-choice.
+
+        IF ll-choice THEN DO:
+            SESSION:SET-WAIT-STATE("GENERAL").
+            FOR EACH eb NO-LOCK WHERE
+                eb.company EQ e-itemfg-vend.company AND
+                eb.stock-no EQ e-itemfg-vend.i-no AND
+                eb.pur-man EQ YES:
 
                 FIND FIRST b-e-itemfg-vend WHERE
                      b-e-itemfg-vend.company EQ e-itemfg-vend.company AND
-                     b-e-itemfg-vend.i-no EQ e-itemfg-vend.i-no AND
                      b-e-itemfg-vend.est-no EQ eb.est-no AND
                      b-e-itemfg-vend.form-no EQ eb.form-no AND
                      b-e-itemfg-vend.eqty EQ eb.eqty AND
@@ -1674,17 +1962,17 @@ PROCEDURE update-est-matrices-proc :
                      NO-ERROR.
 
                 IF AVAIL b-e-itemfg-vend THEN
-                   BUFFER-COPY e-itemfg-vend EXCEPT i-no rec_key est-no eqty form-no blank-no
+                   BUFFER-COPY e-itemfg-vend EXCEPT rec_key est-no eqty form-no blank-no
                              TO b-e-itemfg-vend.
-                ELSE
-                DO:
+                ELSE DO:
                    CREATE b-e-itemfg-vend.
                    BUFFER-COPY e-itemfg-vend EXCEPT rec_key est-no eqty form-no blank-no
                              TO b-e-itemfg-vend
-                     ASSIGN b-e-itemfg-vend.est-no = eb.est-no
-                            b-e-itemfg-vend.eqty = eb.eqty
-                            b-e-itemfg-vend.form-no = eb.form-no
-                            b-e-itemfg-vend.blank-no = eb.blank-no.
+                    ASSIGN 
+                        b-e-itemfg-vend.est-no = eb.est-no
+                        b-e-itemfg-vend.eqty = eb.eqty
+                        b-e-itemfg-vend.form-no = eb.form-no
+                        b-e-itemfg-vend.blank-no = eb.blank-no.
                 END.
 
                 FIND FIRST b-reftable-1 WHERE
@@ -1696,52 +1984,48 @@ PROCEDURE update-est-matrices-proc :
                      b-reftable-1.val[2]   EQ b-e-itemfg-vend.blank-no
                      NO-ERROR.
 
-                IF AVAIL b-reftable-1 THEN
-                DO:
-                   FIND FIRST e-itemfg WHERE
+                IF AVAIL b-reftable-1 THEN DO:
+                    FIND FIRST e-itemfg NO-LOCK WHERE
                         e-itemfg.company EQ b-e-itemfg-vend.company AND
                         e-itemfg.i-no EQ b-e-itemfg-vend.i-no
-                        NO-LOCK NO-ERROR.
+                        NO-ERROR.
 
-                   IF AVAIL e-itemfg THEN
-                   DO:
-                      b-reftable-1.code2 = e-itemfg.std-uom.
-                      RELEASE e-itemfg.
-                   END.
+                    IF AVAIL e-itemfg THEN DO:
+                        ASSIGN 
+                            b-reftable-1.code2 = e-itemfg.std-uom.
+                        RELEASE e-itemfg.
+                    END.
 
-                   RELEASE b-reftable-1.
+                    RELEASE b-reftable-1.
                 END.
-                ELSE
-                DO:
-                   CREATE b-reftable-1.
-                   ASSIGN
-                      b-reftable-1.reftable = "e-itemfg-vend.std-uom"
-                      b-reftable-1.company  = b-e-itemfg-vend.company
-                      b-reftable-1.loc      = ""
-                      b-reftable-1.code     = b-e-itemfg-vend.est-no
-                      b-reftable-1.val[1]   = b-e-itemfg-vend.form-no
-                      b-reftable-1.val[2]   = b-e-itemfg-vend.blank-no.
+                ELSE DO:
+                    CREATE b-reftable-1.
+                    ASSIGN
+                        b-reftable-1.reftable = "e-itemfg-vend.std-uom"
+                        b-reftable-1.company  = b-e-itemfg-vend.company
+                        b-reftable-1.loc      = ""
+                        b-reftable-1.code     = b-e-itemfg-vend.est-no
+                        b-reftable-1.val[1]   = b-e-itemfg-vend.form-no
+                        b-reftable-1.val[2]   = b-e-itemfg-vend.blank-no.
 
-                   FIND FIRST e-itemfg WHERE
+                    FIND FIRST e-itemfg NO-LOCK WHERE
                         e-itemfg.company EQ b-e-itemfg-vend.company AND
                         e-itemfg.i-no EQ b-e-itemfg-vend.i-no
-                        NO-LOCK NO-ERROR.
+                        NO-ERROR.
 
-                   IF AVAIL e-itemfg THEN
-                   DO:
-                      b-reftable-1.code2 = e-itemfg.std-uom.
-                      RELEASE e-itemfg.
-                   END.
-
-                   RELEASE b-reftable-1.
+                    IF AVAIL e-itemfg THEN DO:
+                        ASSIGN 
+                            b-reftable-1.code2 = e-itemfg.std-uom.
+                        RELEASE e-itemfg.
+                    END.
+                    RELEASE b-reftable-1.
                 END.
-
                 RELEASE b-e-itemfg-vend.
             END.
-
-            session:set-wait-state("").
-         END.
-      END.
+            SESSION:SET-WAIT-STATE("").
+        END.
+    END.
+    
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1754,20 +2038,21 @@ PROCEDURE valid-cust-no :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  {methods/lValidateError.i YES}
-   DO WITH FRAME {&FRAME-NAME}:
-      IF e-itemfg-vend.cust-no:SCREEN-VALUE NE "" AND
-         NOT CAN-FIND(FIRST cust WHERE
-             cust.company EQ gcompany AND
-             cust.cust-no EQ e-itemfg-vend.cust-no:SCREEN-VALUE) THEN
-      DO:
-         MESSAGE "Invalid Cust. #, try help..."
-             VIEW-AS ALERT-BOX ERROR.
-         APPLY "entry" TO e-itemfg-vend.cust-no.
-         RETURN ERROR.
-      END.
-  END.
-  {methods/lValidateError.i NO}
+    {methods/lValidateError.i YES}
+    DO WITH FRAME {&FRAME-NAME}:
+        IF e-itemfg-vend.cust-no:SCREEN-VALUE NE "" 
+        AND NOT CAN-FIND(FIRST cust WHERE
+                        cust.company EQ gcompany AND
+                        cust.cust-no EQ e-itemfg-vend.cust-no:SCREEN-VALUE) THEN DO:
+            MESSAGE 
+                "Invalid Cust. #, try help..."
+                VIEW-AS ALERT-BOX ERROR.
+            APPLY "entry" TO e-itemfg-vend.cust-no.
+            RETURN ERROR.
+        END.
+    END.
+    {methods/lValidateError.i NO}
+    
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1780,38 +2065,39 @@ PROCEDURE valid-std-uom :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEF VAR uom-list AS CHAR INIT "" NO-UNDO.
+    DEF VAR uom-list AS CHAR INIT "" NO-UNDO.
 
+    {methods/lValidateError.i YES}
+    DO WITH FRAME {&FRAME-NAME}:
+        ASSIGN 
+            e-itemfg.std-uom:SCREEN-VALUE = CAPS(e-itemfg.std-uom:SCREEN-VALUE).
 
-  {methods/lValidateError.i YES}
-  DO WITH FRAME {&FRAME-NAME}:
-    e-itemfg.std-uom:SCREEN-VALUE = CAPS(e-itemfg.std-uom:SCREEN-VALUE).
+        RUN sys/ref/uom-fg.p (NO, 
+                              OUTPUT uom-list).
 
-    RUN sys/ref/uom-fg.p (NO, OUTPUT uom-list).
-
-    IF LOOKUP(e-itemfg.std-uom:SCREEN-VALUE,uom-list) LE 0 OR 
-       (e-itemfg.std-uom:SCREEN-VALUE EQ "MSF" AND
-        NOT CAN-FIND(FIRST bf-itemfg
-                     WHERE bf-itemfg.company EQ e-itemfg.company
-                       AND bf-itemfg.i-no    EQ e-itemfg.i-no
-                       AND ((bf-itemfg.t-len NE 0 AND bf-itemfg.t-wid NE 0) OR
+        IF LOOKUP(e-itemfg.std-uom:SCREEN-VALUE,uom-list) LE 0 
+        OR (e-itemfg.std-uom:SCREEN-VALUE EQ "MSF" AND
+            NOT CAN-FIND(FIRST bf-itemfg WHERE 
+                        bf-itemfg.company EQ e-itemfg.company AND 
+                        bf-itemfg.i-no    EQ e-itemfg.i-no AND 
+                            ((bf-itemfg.t-len NE 0 AND bf-itemfg.t-wid NE 0) OR
                             bf-itemfg.t-sqin NE 0                           OR
-                            bf-itemfg.t-sqft NE 0)))     THEN DO:
+                            bf-itemfg.t-sqft NE 0))) THEN DO:
 
-      IF e-itemfg.std-uom:SCREEN-VALUE EQ "MSF" THEN
-        MESSAGE "When " + TRIM(e-itemfg.std-uom:LABEL) + " is MSF, " +
+            IF e-itemfg.std-uom:SCREEN-VALUE EQ "MSF" THEN MESSAGE 
+                "When " + TRIM(e-itemfg.std-uom:LABEL) + " is MSF, " +
                 "FG Item must have valid Blank Length & Width, SqIn, or SqFt..."
-            VIEW-AS ALERT-BOX ERROR.
-      ELSE
-        MESSAGE TRIM(e-itemfg.std-uom:LABEL) +
+                VIEW-AS ALERT-BOX ERROR.
+            ELSE MESSAGE 
+                TRIM(e-itemfg.std-uom:LABEL) +
                 " must be " + TRIM(uom-list)
-            VIEW-AS ALERT-BOX ERROR.
-      APPLY "entry" TO e-itemfg.std-uom.
-      RETURN ERROR.
+                VIEW-AS ALERT-BOX ERROR.
+            APPLY "entry" TO e-itemfg.std-uom.
+            RETURN ERROR.
+        END.
     END.
-  END.
-
-  {methods/lValidateError.i NO}
+    {methods/lValidateError.i NO}
+    
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1824,32 +2110,31 @@ PROCEDURE valid-vend-no :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEF INPUT PARAM ip-focus AS HANDLE NO-UNDO.
+    DEF INPUT PARAM ip-focus AS HANDLE NO-UNDO.
 
-  DEF VAR lv-msg AS CHAR NO-UNDO.
+    DEF VAR lv-msg AS CHAR NO-UNDO.
 
+    {methods/lValidateError.i YES}
+    lv-msg = "".
+    DO WITH FRAME {&FRAME-NAME}:
+        IF ip-focus:SCREEN-VALUE NE "" THEN
+            IF e-itemfg-vend.vend-no EQ "" AND NOT adm-new-record THEN ASSIGN
+                lv-msg = "Sorry, you cannot change the 'Blank Vendor', please use copy button".
+            ELSE IF NOT CAN-FIND(FIRST vend WHERE 
+                            vend.company EQ e-itemfg.company AND 
+                            vend.vend-no EQ ip-focus:SCREEN-VALUE) THEN ASSIGN
+                lv-msg = TRIM(ip-focus:LABEL) + " " + ip-focus:SCREEN-VALUE +  " is invalid, try help".
 
-  {methods/lValidateError.i YES}
-  DO WITH FRAME {&FRAME-NAME}:
-    IF ip-focus:SCREEN-VALUE NE "" THEN
-      IF e-itemfg-vend.vend-no EQ "" AND NOT adm-new-record THEN
-        lv-msg = "Sorry, you cannot change the 'Blank Vendor', please use copy button".
-
-      ELSE
-      IF NOT CAN-FIND(FIRST vend
-                      WHERE vend.company EQ e-itemfg.company
-                        AND vend.vend-no EQ ip-focus:SCREEN-VALUE) THEN
-        lv-msg = TRIM(ip-focus:LABEL) + " is invalid, try help".
-
-    IF lv-msg NE "" THEN DO:
-      MESSAGE TRIM(lv-msg) + "..."
-          VIEW-AS ALERT-BOX INFO BUTTONS OK.
-      APPLY "entry" TO ip-focus.
-      RETURN ERROR.
+        IF lv-msg NE "" THEN DO:
+            MESSAGE 
+                TRIM(lv-msg)
+                VIEW-AS ALERT-BOX INFO BUTTONS OK.
+            APPLY "entry" TO ip-focus.
+            RETURN ERROR.
+        END.
     END.
-  END.
-
-  {methods/lValidateError.i NO}
+    {methods/lValidateError.i NO}
+    
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

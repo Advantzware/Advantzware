@@ -189,10 +189,7 @@ IF cerunf EQ "Dee" THEN
 
 tt-tot = tt-tot + v-nman.
   
-IF OPSYS EQ "unix" THEN
-    UNIX SILENT COPY VALUE(outfile1) VALUE(outfile3).
-ELSE
-    DOS SILENT COPY VALUE(outfile1) VALUE(outfile3).
+os-copy VALUE(outfile1) VALUE(outfile3).
 
 OUTPUT TO VALUE(outfile3) APPEND.
 
@@ -328,21 +325,21 @@ DO TRANSACTION:
 
         IF ce-ctrl.sell-by EQ "S" THEN
             PUT "Markup on Fact Cost"         FORMAT "x(19)"
-                STRING(v-pct-s,"->>9.99%")    TO 29
+                STRING(v-pct-s,"->>>9.99%")    TO 29
                 v-prf-s                       TO 48 FORMAT "->>,>>9.99"
                 v-prf-s * qm                  TO 80 FORMAT "->>>,>>9.99"
                 SKIP.
 
         ELSE
             PUT "Net Profit "                         FORMAT "x(19)"
-                STRING(v-pct[1],"->>9.99%")              TO 29
+                STRING(v-pct[1],"->>>9.99%")              TO 29
                 probe.sell-price * (v-pct[1] / 100)      TO 48 FORMAT "->>,>>9.99"
                 probe.sell-price * (v-pct[1] / 100) * qm TO 80 FORMAT "->>>,>>9.99"
                 SKIP.
 
         IF cerunf EQ "Fibre" THEN
             PUT "Available Margin"                   FORMAT "x(19)"
-                STRING(probe.market-price,"->>9.99%") TO 29
+                STRING(probe.market-price,"->>>9.99%") TO 29
                 probe.sell-price * (probe.market-price / 100)      TO 48 FORMAT "->>,>>9.99"
                 probe.sell-price * (probe.market-price / 100) * qm TO 80 FORMAT "->>>,>>9.99"
                 SKIP.

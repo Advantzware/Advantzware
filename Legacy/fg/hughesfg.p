@@ -9,6 +9,7 @@ DEF OUTPUT PARAM op-i-no  LIKE itemfg.i-no NO-UNDO INIT "".
 
 DEF BUFFER b-eb FOR eb.
 DEF BUFFER bb   FOR eb.
+DEF BUFFER bf-eb FOR eb.
 
 DEF VAR li AS INT NO-UNDO.
 DEF VAR li1 AS INT NO-UNDO.
@@ -27,9 +28,20 @@ FOR FIRST b-eb FIELDS(company est-no form-no) WHERE
       AND est.est-no  EQ b-eb.est-no
     NO-LOCK:
 
-  ASSIGN
-     op-i-no = SUBSTR(eb.procat,1,1) + SUBSTR(eb.cust-no,1,6)
-     v-len   = LENGTH(op-i-no) + 1.
+    IF est.est-type  EQ 2 OR est.est-type EQ 6 THEN DO: 
+        FIND FIRST bf-eb NO-LOCK  
+            WHERE bf-eb.company EQ b-eb.company
+            AND bf-eb.est-no  EQ b-eb.est-no
+            AND bf-eb.form-no EQ 0 NO-ERROR.
+        IF AVAILABLE bf-eb THEN
+            ASSIGN
+            op-i-no = SUBSTR(bf-eb.procat,1,1) + SUBSTR(eb.cust-no,1,6)
+            v-len   = LENGTH(op-i-no) + 1.
+    END.
+    ELSE DO:
+        op-i-no = SUBSTR(eb.procat,1,1) + SUBSTR(eb.cust-no,1,6).
+        v-len   = LENGTH(op-i-no) + 1.
+    END.
 
   FOR EACH itemfg
       WHERE itemfg.company          EQ eb.company

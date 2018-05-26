@@ -430,7 +430,7 @@ PROCEDURE pCreateTempOeRell:
         ttoe-rell.deleted  = NO
         /** Set link to the planned releases **/
         ttoe-rell.link-no  = iRNo
-        ttoe-rell.s-code   = IF oe-rel.s-code <> "" THEN oe-rel.s-code ELSE
+        ttoe-rell.s-code   = IF AVAILABLE oe-rel AND oe-rel.s-code <> "" THEN oe-rel.s-code ELSE
                        IF fg-bin.cust-no GT ""                THEN "S"
                                                               ELSE
                        IF AVAILABLE oe-ctrl AND oe-ctrl.ship-from THEN "B" 
@@ -510,8 +510,8 @@ PROCEDURE pCreateOeRell:
     
    
       ASSIGN
-       oe-rell.newSellPrice = oe-rel.sell-price
-       oe-rell.newZeroPrice = oe-rel.zeroPrice.
+       oe-rell.sell-price = oe-rel.sell-price
+       oe-rell.zeroPrice = oe-rel.zeroPrice.
     
     IF iRelQtyToAssign GT 0 AND AVAILABLE oe-rel THEN 
     DO:

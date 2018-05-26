@@ -971,7 +971,8 @@ ASSIGN
  itemfg.pur-uom    = IF xeb.pur-man THEN "EA" ELSE "M"
  itemfg.prod-uom   = IF xeb.pur-man THEN "EA" ELSE "M"
  itemfg.alloc      = v-alloc
- itemfg.stocked    = YES.
+ itemfg.stocked    = YES
+ itemfg.setupDate  = TODAY.
   /* Create an itemfg-loc for the default warehouse */
   RUN fg/chkfgloc.p (INPUT itemfg.i-no, INPUT "").   
 IF v-graphic-char NE "" THEN 
@@ -1958,6 +1959,7 @@ PROCEDURE lib-create-record :
          oe-ord.user-id = USERID("nosweat")
          oe-ord.type = ip-type
          oe-ord.cust-no = bf-orig-ord.cust-no
+         oe-ord.ship-id = bf-orig-ord.cust-no
          oe-ord.due-date = bf-orig-ord.due-date
          oe-ord.due-code = "ON".
 

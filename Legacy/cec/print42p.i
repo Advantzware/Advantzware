@@ -511,7 +511,7 @@ do vmcl = 1 to 28:   /* ??? 28 not 4*/
                      assign kli.ship-add[2] = kli.ship-add[3]
                             kli.ship-add[3] = kli.ship-add[4] kli.ship-add[4] = "".
               end.  /* not avail kli */
-              assign v-yld = if xeb.yld-qty lt 0 then -1 / xeb.yld-qty else xeb.yld-qty
+              assign v-yld = if xeb.quantityPerSet lt 0 then -1 / xeb.quantityPerSet else xeb.quantityPerSet
                      qty   = qtty[vmcl] * v-yld.
               find first blk where blk.snum eq xeb.form-no and
                                    blk.bnum eq xeb.blank-no no-error.
@@ -567,6 +567,7 @@ do vmcl = 1 to 28:   /* ??? 28 not 4*/
 
            assign brd-l[1] = xef.nsh-len
                   brd-w[1] = xef.nsh-wid
+                  brd-d[1] = xef.nsh-dep
                  /* calc. sheet dimensions & weight */
                   brd-l[2] = xef.gsh-len
                   brd-d[2] = xef.gsh-dep.
@@ -613,7 +614,7 @@ do vmcl = 1 to 28:   /* ??? 28 not 4*/
                BREAK BY xeb.blank-no:
 
              ASSIGN
-             v-yld = if xeb.yld-qty lt 0 then -1 / xeb.yld-qty else xeb.yld-qty
+             v-yld = if xeb.quantityPerSet lt 0 then -1 / xeb.quantityPerSet else xeb.quantityPerSet
              /* set total # of blanks on all forms */
              tt-blk = qtty[vmcl].
              /* set total # of blanks on this form */
@@ -769,7 +770,7 @@ do vmcl = 1 to 28:   /* ??? 28 not 4*/
                           and xeb.form-no eq xef.form-no
                NO-LOCK
                        with frame blk no-box no-labels width 80 down stream-io:
-              v-yld = if xeb.yld-qty lt 0 then -1 / xeb.yld-qty else xeb.yld-qty.
+              v-yld = if xeb.quantityPerSet lt 0 then -1 / xeb.quantityPerSet else xeb.quantityPerSet.
               find first style  where  style.company eq cocode and
                                        style.style eq xeb.style no-lock no-error.
               ASSIGN
@@ -925,11 +926,7 @@ do vmcl = 1 to 28:   /* ??? 28 not 4*/
 
       run cec/box/pr42mis2.p (INPUT LAST(ef.form-no)).
 
-      if opsys eq "unix" then
-         unix silent copy value(outfile1) value(outfile3).
-      else /* if opsys eq "MSDOS" then */
-         /*dos silent copy value(outfile1) value(outfile3).*/
-         OS-COPY value(outfile1) value(outfile3).
+      os-copy value(outfile1) value(outfile3).
 
       assign   v-tt-tot[v-form-no]   = tt-tot
                v-fac-tot[v-form-no]  = fac-tot
@@ -985,25 +982,13 @@ do vmcl = 1 to 28:   /* ??? 28 not 4*/
 
      IF probe.LINE LT 100 THEN
      DO:
-        if opsys eq "unix" then do:
-           unix silent rm value(tmp-dir + TRIM(xest.est-no) + "-*.*" + string(probe.line,"99")).
-           unix silent rm value(tmp-dir + TRIM(xest.est-no) +   ".*" + string(probe.line,"99")).
-        end.
-        else DO:
-           OS-DELETE value(tmp-dir + TRIM(xest.est-no) + "-*.*" + string(probe.line,"99")).
-           OS-DELETE value(tmp-dir + TRIM(xest.est-no) +   ".*" + string(probe.line,"99")).
-        end.
+        OS-DELETE value(tmp-dir + TRIM(xest.est-no) + "-*.*" + string(probe.line,"99")).
+        OS-DELETE value(tmp-dir + TRIM(xest.est-no) +   ".*" + string(probe.line,"99")).
      END.
      ELSE
      DO:
-        if opsys eq "unix" then do:
-           unix silent rm value(tmp-dir + TRIM(xest.est-no) + "-*.*" + string(probe.line,"999")).
-           unix silent rm value(tmp-dir + TRIM(xest.est-no) +   ".*" + string(probe.line,"999")).
-        end.
-        else DO:
-           OS-DELETE value(tmp-dir + TRIM(xest.est-no) + "-*.*" + string(probe.line,"999")).
-           OS-DELETE value(tmp-dir + TRIM(xest.est-no) +   ".*" + string(probe.line,"999")).
-        end.
+        OS-DELETE value(tmp-dir + TRIM(xest.est-no) + "-*.*" + string(probe.line,"999")).
+        OS-DELETE value(tmp-dir + TRIM(xest.est-no) +   ".*" + string(probe.line,"999")).
      END.
         
      FIND CURRENT probe.

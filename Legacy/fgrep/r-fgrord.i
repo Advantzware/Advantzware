@@ -128,7 +128,7 @@ for each itemfg
             AND oe-rel.i-no     EQ oe-ordl.i-no
             AND oe-rel.line     EQ oe-ordl.line
             AND oe-rel.rel-date LE v-date
-            AND oe-rel.s-code EQ "T"
+            AND oe-rel.s-code   NE "T"
           USE-INDEX ord-item:
           
         RUN oe/rel-stat.p (ROWID(oe-rel), OUTPUT v-stat).

@@ -494,7 +494,17 @@ DO:
               if char-val <> "" then assign lw-focus:screen-value = entry(1,char-val).
          end.         
          when "carrier" then do:
-              run windows/l-carrie.w (g_company,g_loc, lw-focus:screen-value, output char-val).
+             FIND FIRST inv-line NO-LOCK 
+                WHERE inv-line.company EQ inv-head.company
+                  AND inv-line.r-no    EQ inv-head.r-no NO-ERROR.
+             IF AVAIL inv-line THEN 
+                 FIND FIRST oe-boll NO-LOCK WHERE oe-boll.company EQ inv-line.company
+                        AND oe-boll.b-no    EQ inv-line.b-no
+                        AND oe-boll.ord-no  EQ inv-line.ord-no
+                        AND oe-boll.i-no    EQ inv-line.i-no
+                        AND oe-boll.line    EQ inv-line.line
+                        AND oe-boll.po-no   EQ inv-line.po-no NO-ERROR.
+              run windows/l-carrie.w (g_company,oe-boll.loc, lw-focus:screen-value, output char-val).
               if char-val <> "" then assign lw-focus:screen-value = entry(1,char-val).
          end.
          when "terms" then do:
