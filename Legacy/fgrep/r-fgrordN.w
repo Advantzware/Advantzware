@@ -74,12 +74,12 @@ DEFINE VARIABLE cItemLoc AS CHARACTER NO-UNDO .
 ASSIGN cTextListToSelect = "ITEM #,CUST PART #,DESC,PROD CAT,UOM,REORD LVL,QTY ON HAND,WHSE," + 
                            "QTY ALLOC,QTY ORD,MIN ORD QTY,MAX ORD QTY,QTY AVAIL,SELL PRC,SUGT REORDER QTY," +
                            "VENDOR ITEM#,HISTORY,WHS DAYS,LAST SHIP,PO DUE DATE,JOB DUE DATE,CUSTOMER#,SALES REP,COST,COST UOM," +
-                           "5 MO AVG,SUGT - AVG,SUGT REORDER MSF"
+                           "5 MO AVG,SUGT - AVG,SUGT REORDER MSF,STOCK STATUS"
        cFieldListToSelect = "itemfg.i-no,itemfg.part-no,itemfg.i-name,itemfg.procat,itemfg.sell-uom,itemfg.ord-level,v-qty-onh,whse," +
                             "v-alloc-qty,itemfg.q-ono,itemfg.ord-min,itemfg.ord-max,v-qty-avail,itemfg.sell-price,v-reord-qty," +
                             "itemfg.vend-item,li-hist,whs-day,last-ship,po-due-dt,job-due-dt,itemfg.cust-no,v-rep,itemfg.total-std-cost,itemfg.prod-uom," +
-                            "mo-avg,sug-avg,msf-reord"
-       cFieldLength = "15,15,20,8,3,12,13,5,11,9,12,12,9,9,16,17,47,8,10,11,12,9,20,11,8," + "8,10,16"  .
+                            "mo-avg,sug-avg,msf-reord,itemfg.stat"
+       cFieldLength = "15,15,20,8,3,12,13,5,11,9,12,12,9,9,16,17,47,8,10,11,12,9,20,11,8," + "8,10,16,12"  .
 
 {sys/inc/ttRptSel.i}
 ASSIGN cTextListToDefault  = "ITEM #,CUST PART #,DESC,PROD CAT,UOM,REORD LVL,QTY ON HAND," + 
