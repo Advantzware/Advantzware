@@ -130,7 +130,7 @@ stackPattern.
 DEFINE BROWSE Browser-Table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS Browser-Table B-table-Win _FREEFORM
   QUERY Browser-Table NO-LOCK DISPLAY
-      stackPattern.stackCode
+      stackPattern.stackCode FORMAT "x(1)"
       stackPattern.stackDescription 
       stackPattern.stackCount label "Stacks" form ">9"
       stackPattern.strapCount label "Straps"    form ">9"
