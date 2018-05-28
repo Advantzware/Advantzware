@@ -130,7 +130,7 @@ stackPattern.
 DEFINE BROWSE Browser-Table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS Browser-Table B-table-Win _FREEFORM
   QUERY Browser-Table NO-LOCK DISPLAY
-      stackPattern.stackCode FORMAT "x(1)"
+      stackPattern.stackCode 
       stackPattern.stackDescription 
       stackPattern.stackCount label "Stacks" form ">9"
       stackPattern.strapCount label "Straps"    form ">9"
@@ -337,12 +337,16 @@ END.
 ON LEAVE OF stackPattern.stackCode IN BROWSE Browser-Table
 DO:
   IF LASTKEY NE -1 THEN DO:
-    IF adm-new-record THEN
+
+      RUN valid-stack-code NO-ERROR.
+      IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+
+   /* IF adm-new-record THEN
     IF LENGTH(stackPattern.stackCode:SCREEN-VALUE IN BROWSE {&browse-name}) > 1 THEN DO:
         MESSAGE " Two character stacking code cannot be added to the flute's stacking matrix. The stack matrix only supports 1 character stacking pattern. " 
             + "The estimate imports the stacking pattern from the stacking matrix. Please note, you can manaully add a 2 character pattern on the estimate Inks/Pak Tab."
             VIEW-AS ALERT-BOX WARNING.
-    END.
+    END.*/
   END.
 END.
 ON 'help':U OF stackPattern.stackImage IN BROWSE browser-table
@@ -584,7 +588,10 @@ PROCEDURE local-update-record :
      APPLY "entry" TO stackPattern.stackCode.
      RETURN.
   END.
-     
+
+  RUN valid-stack-code NO-ERROR.
+  IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+
   RUN valid-code2 NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
@@ -638,6 +645,32 @@ PROCEDURE state-changed :
          or add new cases. */
       {src/adm/template/bstates.i}
   END CASE.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-stack-code B-table-Win 
+PROCEDURE valid-stack-code :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+
+  DO WITH FRAME {&FRAME-NAME}:
+    stackPattern.stackCode:SCREEN-VALUE IN BROWSE {&browse-name} =
+        CAPS(stackPattern.stackCode:SCREEN-VALUE IN BROWSE {&browse-name}).
+
+     IF LENGTH(stackPattern.stackCode:SCREEN-VALUE IN BROWSE {&browse-name}) > 1 THEN DO:
+        MESSAGE " Multi character stacking code cannot be added to the flute's stacking matrix. The stack matrix only supports 1 character stacking pattern. " 
+            VIEW-AS ALERT-BOX INFO.
+    
+        APPLY "entry" TO stackPattern.stackCode IN BROWSE {&browse-name}.
+        RETURN ERROR.
+    END.
+  END.
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
