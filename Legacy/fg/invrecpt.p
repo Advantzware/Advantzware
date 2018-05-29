@@ -146,7 +146,7 @@ IF AVAILABLE oe-ord THEN DO TRANSACTION:
             bf-fg-rctd.CreateInvoice      = ll 
             bf-fg-rctd.BillableFreightAmt = dBillAmt
             .  
-          IF lInvFrt THEN 
+          /*IF lInvFrt THEN */
             bf-fg-rctd.EmailBOL           = lEmailBol .
             
         IF ll AND bf-fg-rctd.spare-char-1 EQ "" THEN DO:
@@ -588,14 +588,13 @@ DEF VAR lCreateInvoice AS LOG NO-UNDO.
 
 DEFINE VARIABLE lvErrMsg     AS CHARACTER   NO-UNDO.
 
-
   ip-parms = 
    /* Box Title */
    "type=literal,name=label11,row=2,col=18,enable=false,width=58,scrval=" + lcUserPrompt + ",FORMAT=X(58)" 
    
     /* Create an Invoice? */
     /*+ "|type=literal,name=label10,row=2.2,col=26,enable=false,width=38,font=5,scrval=" + "Create Invoice for Drop Shipped Purchase Order?" + ",FORMAT=X(58)" */
-    + "|type=toggle,name=tb_addinv,row=2.2,col=23,enable=true,width=42,font=5,data-type=logical,scrval=yes,label=Create Invoice for Drop Shipped Purchase Order?"
+    + "|type=toggle,name=tb_addinv,row=2.2,col=23,enable=true,width=60,font=5,data-type=logical,scrval=yes,label=Create Invoice for Drop Shipped Purchase Order?"
 
    
 
