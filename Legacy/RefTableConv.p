@@ -139,6 +139,7 @@ ASSIGN
     {refTableConv.i "DArtios" 'cecrep/d-artios.w'}
     {refTableConv.i "Flute" 'Flute'}
     {refTableConv.i "ItemfgMarkup" 'e-itemfg-vend.markup'}
+    {refTableConv.i "aoaReport" 'aoaReport'}
 
 /* Deferred for 16.7.0                                              */
 /*    {refTableConv.i "STYFLU" 'STYFLU'}                            */

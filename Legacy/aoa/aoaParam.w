@@ -2136,21 +2136,8 @@ PROCEDURE pSchedule :
             user-print.last-date    = TODAY
             user-print.last-time    = TIME
             .
-        FIND FIRST reftable EXCLUSIVE-LOCK
-             WHERE reftable.reftable EQ "aoaReport"
-               AND reftable.code     EQ cProgramID
-             NO-ERROR.
-        IF NOT AVAILABLE reftable THEN DO:
-             CREATE reftable.
-             ASSIGN
-                 reftable.reftable = "aoaReport"
-                 reftable.code     = cProgramID
-                 reftable.code2    = aoaProgramID
-                 .
-        END. /* not avail */
-        ASSIGN reftable.dscr = aoaID.
+
     END. /* do transaction */
-    RELEASE reftable.
 
     IF AVAILABLE user-print THEN
     FIND CURRENT user-print NO-LOCK.
