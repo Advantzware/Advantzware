@@ -3009,7 +3009,7 @@ PROCEDURE display-fgitem :
         FIND FIRST reftable NO-LOCK WHERE reftable.reftable EQ "chargecode"
             AND reftable.company  EQ itemfg.company
             AND reftable.loc      EQ itemfg.procat
-            AND reftable.code     EQ v-charge
+            /*AND reftable.code     EQ v-charge*/
             /* AND reftable.code2 = "" */
             NO-ERROR.
         IF AVAILABLE reftable AND reftable.dscr <> "" THEN 
