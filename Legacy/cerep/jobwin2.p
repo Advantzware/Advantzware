@@ -1065,13 +1065,15 @@ END FUNCTION.
                 cannot find.
                 */
                 lLinearFeet = NO .
-                for each wrk-sheet break by wrk-sheet.form-no:
-                    FIND FIRST ITEM NO-LOCK 
-                        WHERE item.company eq cocode
-                        and item.i-no    eq wrk-sheet.i-no no-error.
-                    IF AVAIL ITEM AND item.mat-type EQ "R" THEN
+                FOR EACH wrk-op WHERE wrk-op.s-num = job-hdr.frm BREAK by wrk-op.d-seq by wrk-op.b-num:
+                    FIND FIRST mach NO-LOCK 
+                        WHERE mach.company eq cocode
+                        and mach.m-code    eq wrk-op.m-code no-error.
+                   
+                    IF AVAIL mach AND mach.p-type EQ "R" AND LOOKUP("PR", string(mach.dept[1] + "," + mach.dept[2] + "," + mach.dept[3] + "," + mach.dept[4])) GT 0 THEN
                     ASSIGN lLinearFeet = YES .
                 END.
+
                 IF lLinearFeet THEN
                 PUT "<P10>" v-fill SKIP                 /*REQ'D*/
                  "<B>ITEM#      NAME                  VENDOR ITEM   L/FEET SHEET SIZE              BOARD PO# VENDOR#   DUE DATE   DIE# </B>" 
@@ -1113,7 +1115,7 @@ END FUNCTION.
                               and item.i-no    eq wrk-sheet.i-no no-error.
                         cVendItem = IF AVAIL ITEM THEN ITEM.vend-item ELSE "" .
                         
-                   IF AVAIL ITEM AND item.mat-type EQ "R" THEN
+                   IF lLinearFeet THEN
                         wrk-sheet.gsh-qty = wrk-sheet.gsh-qty * wrk-sheet.sh-len / 12 .
 
                     display 
