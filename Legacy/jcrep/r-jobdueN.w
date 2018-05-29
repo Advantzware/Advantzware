@@ -1364,7 +1364,7 @@ SESSION:SET-WAIT-STATE ("general").
     END.
     ELSE DO:
 
-      FOR EACH job-hdr
+      FOR EACH job-hdr NO-LOCK 
           WHERE job-hdr.company EQ cocode
         {jc/rep/jc-back4.i}
 
