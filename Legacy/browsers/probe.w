@@ -142,6 +142,11 @@ DEFINE NEW SHARED VARIABLE lv-cebrowse-dir AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cerunc-dec AS DECIMAL NO-UNDO.
 DEFINE VARIABLE v-dir AS CHARACTER FORMAT "X(80)" NO-UNDO.
 DEFINE VARIABLE v-cestcalc AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lv-sort-by AS CHAR INIT "probe-date" NO-UNDO.
+DEFINE VARIABLE lv-sort-by-lab AS CHAR INIT "Probe Date" NO-UNDO.
+DEFINE VARIABLE ll-sort-asc AS LOG NO-UNDO.
+DEFINE VARIABLE v-col-move AS LOGICAL INITIAL TRUE NO-UNDO.
+DEFINE VARIABLE v-called-setCellColumns AS LOGICAL NO-UNDO.
 
 {custom/xprint.i}
 
@@ -241,6 +246,55 @@ END.
 {sys/inc/ceprep.i}
 {sys/inc/f16to32.i}
 
+ &SCOPED-DEFINE for-each1    ~
+    FOR EACH probe WHERE probe.company = eb.company and ~
+    ASI.probe.est-no = eb.est-no ~
+    AND probe.probe-date ne ?, ~
+    FIRST reftable WHERE reftable.reftable EQ "probe.board" AND ~
+    reftable.company  EQ probe.company AND ~
+    reftable.loc      EQ ""            AND ~
+    reftable.code     EQ probe.est-no  AND ~
+    reftable.code2    EQ STRING(probe.line,"9999999999") NO-LOCK
+
+&SCOPED-DEFINE sortby-log                                                                                   ~
+    IF lv-sort-by EQ "est-qty"         THEN STRING(9999999999.99 + probe.est-qty,"-9999999999.99")         ELSE ~
+    IF lv-sort-by EQ "fact-cost"       THEN STRING(probe.fact-cost,"-9999999999.99999")                    ELSE ~
+    IF lv-sort-by EQ "full-cost"       THEN STRING(probe.full-cost,"-9999999999.99999")                    ELSE ~
+    IF lv-sort-by EQ "market-price"    THEN string(probe.market-price)                                     ELSE ~
+    IF lv-sort-by EQ "gross-profit"    THEN string(probe.gross-profit)                                     ELSE ~
+    IF lv-sort-by EQ "val[11]"         THEN string(reftable.val[11])                                       ELSE ~
+    IF lv-sort-by EQ "comm"            THEN string(probe.comm)                                             ELSE ~
+    IF lv-sort-by EQ "net-profit"      THEN string(probe.net-profit)                                       ELSE ~
+    IF lv-sort-by EQ "sell-price"      THEN string(probe.sell-price,"-9999999999.99")                      ELSE ~
+    IF lv-sort-by EQ "gsh-qty"         THEN string(9999999999.99 + probe.gsh-qty,"-9999999999.99")         ELSE ~
+    IF lv-sort-by EQ "do-quote"        THEN string(probe.do-quote)                                         ELSE ~
+    IF lv-sort-by EQ "probe-date"      THEN STRING(INT(probe.probe-date),"9999999999")                     ELSE ~
+    IF lv-sort-by EQ "val[2]"          THEN string(reftable.val[2])                                        ELSE ~
+    IF lv-sort-by EQ "val[3]"          THEN string(reftable.val[3])                                        ELSE ~
+    IF lv-sort-by EQ "val[4]"          THEN string(reftable.val[4])                                        ELSE ~
+    IF lv-sort-by EQ "val[5]"          THEN string(reftable.val[5])                                        ELSE ~
+    IF lv-sort-by EQ "probe-user"      THEN string(probe.probe-user)                                       ELSE ~
+    IF lv-sort-by EQ "vtot-msf"        THEN string(vtot-msf())                                             ELSE ~
+    IF lv-sort-by EQ "ls-probetime"    THEN string(cvt-time(probe.probe-time))                             ELSE ~
+    IF lv-sort-by EQ "val[8]"          THEN string(reftable.val[8])                                        ELSE ~
+    IF lv-sort-by EQ "val[9]"          THEN string(reftable.val[9])                                        ELSE ~
+    IF lv-sort-by EQ "val[10]"         THEN string(reftable.val[10])                                       ELSE ~
+    IF lv-sort-by EQ "line"            THEN string(probe.LINE)                                             ELSE ~
+    IF lv-sort-by EQ "spare-dec-1"      THEN string(probe.spare-dec-1)                                     ELSE ~
+    IF lv-sort-by EQ "dMatPctSellPrice"    THEN string(fDirectMatPctSellPrice(1))                          ELSE ~
+        STRING(INT(probe.probe-date),"9999999999")
+
+
+  &SCOPED-DEFINE sortby BY probe.probe-date BY probe.est-qty 
+
+&SCOPED-DEFINE sortby-phrase-asc  ~
+    BY ({&sortby-log})            ~
+    {&sortby}
+
+&SCOPED-DEFINE sortby-phrase-desc ~
+    BY ({&sortby-log}) DESC       ~
+    {&sortby}
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -296,10 +350,7 @@ reftable.company  EQ probe.company AND ~
 reftable.loc      EQ ""            AND ~
 reftable.code     EQ probe.est-no  AND ~
 reftable.code2    EQ STRING(probe.line,"9999999999") NO-LOCK ~
-    BY probe.company ~
-       BY probe.est-no ~
-        BY probe.probe-date ~
-         BY probe.est-qty
+    ~{&SORTBY-PHRASE}
 &Scoped-define OPEN-QUERY-br_table OPEN QUERY br_table FOR EACH probe WHERE probe.company = eb.company and ~
 ASI.probe.est-no = eb.est-no ~
       AND probe.probe-date ne ? NO-LOCK, ~
@@ -308,10 +359,7 @@ reftable.company  EQ probe.company AND ~
 reftable.loc      EQ ""            AND ~
 reftable.code     EQ probe.est-no  AND ~
 reftable.code2    EQ STRING(probe.line,"9999999999") NO-LOCK ~
-    BY probe.company ~
-       BY probe.est-no ~
-        BY probe.probe-date ~
-         BY probe.est-qty.
+    ~{&SORTBY-PHRASE}.
 &Scoped-define TABLES-IN-QUERY-br_table probe reftable
 &Scoped-define FIRST-TABLE-IN-QUERY-br_table probe
 &Scoped-define SECOND-TABLE-IN-QUERY-br_table reftable
@@ -367,6 +415,7 @@ reftable.code2    EQ STRING(probe.line,"9999999999") NO-LOCK ~
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS br_table-2 br_table 
+&Scoped-Define DISPLAYED-OBJECTS fi_sort-by FI_moveCol
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -495,6 +544,15 @@ FUNCTION vtot-msf RETURNS DECIMAL
 
 /* ***********************  Control Definitions  ********************** */
 
+DEFINE VARIABLE FI_moveCol AS CHARACTER FORMAT "X(4)":U 
+     VIEW-AS FILL-IN 
+     SIZE 13 BY 1
+     BGCOLOR 14 FONT 6 NO-UNDO.
+
+DEFINE VARIABLE fi_sort-by AS CHARACTER FORMAT "X(256)":U 
+     VIEW-AS FILL-IN 
+     SIZE 31 BY 1
+     BGCOLOR 14 FONT 6 NO-UNDO.
 
 /* Definitions of the field level widgets                               */
 /* Query definitions                                                    */
@@ -641,6 +699,14 @@ DEFINE BROWSE br_table-2
 DEFINE FRAME F-Main
      br_table-2 AT ROW 1 COL 1 WIDGET-ID 100
      br_table AT ROW 1 COL 1
+     fi_sort-by AT ROW 14.20 COL 73 COLON-ALIGNED NO-LABEL
+     "Browser Col. Mode:" VIEW-AS TEXT
+          SIZE 22.6 BY .62 AT ROW 14.40 COL 107 WIDGET-ID 6
+          FONT 6
+     "Sort By:" VIEW-AS TEXT
+          SIZE 9.4 BY 1 AT ROW 14.20 COL 65
+          FONT 6
+     FI_moveCol AT ROW 14.20 COL 128 COLON-ALIGNED NO-LABEL WIDGET-ID 4
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -707,6 +773,12 @@ ASSIGN
 ASSIGN 
        probe.comm:VISIBLE IN BROWSE br_table = FALSE
        probe.sell-price:AUTO-RESIZE IN BROWSE br_table = TRUE.
+
+/* SETTINGS FOR FILL-IN FI_moveCol IN FRAME F-Main
+   NO-ENABLE                                                            */
+
+/* SETTINGS FOR FILL-IN fi_sort-by IN FRAME F-Main
+   NO-ENABLE                                                            */
 
 ASSIGN 
        probe.comm:VISIBLE IN BROWSE br_table-2 = FALSE
@@ -862,7 +934,7 @@ reftable.code2    EQ STRING(probe.line,""9999999999"")"
 "fDirectMatPctSellPrice(1) @ dMatPctSellPrice" "Dir. Mat%" ? ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE br_table-2 */
-&ANALYZE-RESUME
+&ANALYZE-RESUME 
 
 &ANALYZE-SUSPEND _QUERY-BLOCK FRAME F-Main
 /* Query rebuild information for FRAME F-Main
@@ -942,6 +1014,37 @@ END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table B-table-Win
+ON START-SEARCH OF br_table IN FRAME F-Main
+DO:
+  DEF VAR lh-column AS HANDLE NO-UNDO.
+  DEF VAR lv-column-nam AS CHAR NO-UNDO.
+  DEF VAR lv-column-lab AS CHAR NO-UNDO.
+
+  
+  ASSIGN
+   lh-column     = {&BROWSE-NAME}:CURRENT-COLUMN 
+   lv-column-nam = lh-column:NAME
+   lv-column-lab = lh-column:LABEL.
+
+  IF lv-sort-by EQ lv-column-nam THEN ll-sort-asc = NOT ll-sort-asc.
+
+  ELSE
+    ASSIGN
+     lv-sort-by     = lv-column-nam
+     lv-sort-by-lab = lv-column-lab .
+
+  APPLY 'END-SEARCH' TO {&BROWSE-NAME}.
+
+  /*APPLY "choose" TO btn_go.*/
+  RUN resort-query .
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table B-table-Win
@@ -1353,6 +1456,13 @@ END.
 
 /* ***************************  Main Block  *************************** */
 {sys/inc/f3help.i}
+
+&SCOPED-DEFINE cellColumnDat probe
+
+{methods/browsers/setCellColumnsLabel.i}
+
+  FI_moveCol = "Sort".
+  DISPLAY FI_moveCol WITH FRAME {&FRAME-NAME}.
 
 &IF DEFINED(UIB_IS_RUNNING) NE 0 &THEN          
 RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
@@ -2729,6 +2839,16 @@ PROCEDURE local-display-fields :
 
   /* Code placed here will execute AFTER standard behavior.    */
 
+  DO WITH FRAME {&FRAME-NAME}:
+    fi_sort-by:SCREEN-VALUE = TRIM(lv-sort-by-lab)               + " " +
+                              TRIM(STRING(ll-sort-asc,"As/Des")) + "cending".
+  END.
+
+  IF v-called-setCellColumns = NO THEN DO:
+      RUN setCellColumns.
+      v-called-setCellColumns = YES.
+  END.
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2853,6 +2973,51 @@ PROCEDURE local-open-query :
   vmclean2 = AVAILABLE sys-ctrl AND LOOKUP(sys-ctrl.char-fld,"McLEAN,CERunC 2") NE 0 /*sys-ctrl.char-fld EQ "McLean"*/ AND est.est-type EQ 6.
   IF vmclean2 THEN v-match-up = sys-ctrl.dec-fld.
  
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE resort-query B-table-Win 
+PROCEDURE resort-query :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+ 
+ 
+
+  &SCOPED-DEFINE open-query          ~
+       OPEN QUERY {&browse-name}     ~
+            {&for-each1}        
+              
+   
+   IF ll-sort-asc THEN {&open-query} {&sortby-phrase-asc}.
+                  ELSE {&open-query} {&sortby-phrase-desc}.
+ 
+   RUN dispatch ("row-changed").
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE move-columns B-table-Win 
+PROCEDURE move-columns :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+   DO WITH FRAME {&FRAME-NAME}:
+      ASSIGN
+         br_table:COLUMN-MOVABLE = v-col-move
+         br_table:COLUMN-RESIZABLE = v-col-move
+         v-col-move = NOT v-col-move.
+      FI_moveCol = IF v-col-move = NO THEN "Move" ELSE "Sort".
+      DISPLAY FI_moveCol.
+   END.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
