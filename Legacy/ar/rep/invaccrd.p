@@ -583,7 +583,7 @@ ELSE lv-comp-color = "BLACK".
                 v-ship-qty  format "->>>>>>>" SPACE(1)
               /*  v-bo-qty  format "->>>>>9" SPACE(1)
                 v-i-no  format "x(15)" SPACE(1)  space(13)  */                             
-                v-price  format ">>>>9.9999" SPACE(1)               
+                v-price  format ">>>>>9.999<" SPACE(1)               
                 ar-invl.amt  format "->>>,>>9.99"                
                 SKIP
                 SPACE(1) v-ord-no FORM ">>>>>>" SPACE(9)
@@ -773,13 +773,13 @@ ELSE lv-comp-color = "BLACK".
                 /*  - (v-t-tax[1] + v-t-tax[2] + v-t-tax[3]) */ .
 
     PUT "<R58><C58><#8><FROM><R+5><C+22><RECT> " 
-        "<=8> Sub Total    :" v-subtot-lines FORM "->>,>>9.99"
-        "<=8><R+1> Freight      :" v-inv-freight
+        "<=8> Sub Total    :" v-subtot-lines FORM "->>>,>>9.99"
+        "<=8><R+1> Freight      :" v-inv-freight FORM "->>>,>>9.99"
         /*"<=8><R+2> ""  " v-bot-lab[1]  */
-        "<=8><R+2> Sales Tax    :" ar-inv.tax-amt FORM "->>,>>9.99"
+        "<=8><R+2> Sales Tax    :" ar-inv.tax-amt FORM "->>>,>>9.99"
                   /*  v-bot-lab[2] */
         "<=8><R+3>" "" 
-        "<=8><R+4> Total Invoice:" v-inv-total FORM "->>,>>9.99" . /* ar-inv.gross*/
+        "<=8><R+4> Total Invoice:" v-inv-total FORM "->>>,>>9.99" . /* ar-inv.gross*/
 
 
     PUT "<FArial><R58><C1><#9><P12><B> THANK YOU. </B> <P9> " SKIP
