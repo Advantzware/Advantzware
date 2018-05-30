@@ -63,7 +63,7 @@ ASSIGN
 
 ASSIGN cocode = ip-company .
 
-IF  PROGRAM-NAME(2) MATCHES "*/cust.w*"   THEN
+IF  PROGRAM-NAME(2) MATCHES "*/cust.w*"  OR  PROGRAM-NAME(2) MATCHES "*/cust-exp.*" THEN
     v-check-page = YES .
 
 DO TRANSACTION:

@@ -976,6 +976,19 @@ PROCEDURE local-row-available :
 
   /* Code placed here will execute PRIOR to standard behavior. */
 
+    DEF VAR lAllow AS LOG NO-UNDO.
+    DEF VAR v-access-close AS LOG NO-UNDO.
+    DEF VAR v-access-list AS CHAR NO-UNDO.
+    RUN methods/prgsecur.p
+    (INPUT "cust-exp.",
+     INPUT "ALL", /* based on run, create, update, delete or all */
+     INPUT NO,    /* use the directory in addition to the program */
+     INPUT NO,    /* Show a message if not authorized */
+     INPUT NO,    /* Group overrides user security? */
+     OUTPUT lAllow, /* Allowed? Yes/NO */
+     OUTPUT v-access-close, /* used in template/windows.i  */
+     OUTPUT v-access-list). /* list 1's and 0's indicating yes or no to run, create, update, delete */
+
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'row-available':U ) .
 
@@ -988,9 +1001,12 @@ PROCEDURE local-row-available :
           ATTACH.est-no EQ "").
 
   RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE, 'attach-target':U, OUTPUT char-hdl).
-  
+ 
   IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
      RUN pushpin-image IN WIDGET-HANDLE(char-hdl) (INPUT v-att).
+    
+ IF NOT lAllow THEN
+     RUN disable-button IN  h_export .
 
 END PROCEDURE.
 
