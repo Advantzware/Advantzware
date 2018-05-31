@@ -365,8 +365,26 @@ assign
             and oe-boll.b-no    eq oe-bolh.b-no
             and oe-boll.i-no    eq inv-line.i-no no-error.
 
-        if avail oe-boll then
+        if avail oe-boll AND oe-boll.po-no NE "" THEN DO:
           assign v-rel-po-no = oe-boll.po-no.
+          MESSAGE "test" string(v-rel-po-no) VIEW-AS ALERT-BOX ERROR.
+        END.
+        IF v-rel-po-no EQ "" THEN DO:
+            FIND FIRST inv-line NO-LOCK
+                WHERE inv-line.r-no  EQ inv-head.r-no
+                AND inv-line.po-no NE "" NO-ERROR.
+            IF AVAIL inv-line THEN
+                 ASSIGN v-rel-po-no = inv-line.po-no.
+            
+        END.
+        IF v-rel-po-no EQ "" THEN 
+            for each inv-misc no-lock
+                  where inv-misc.company EQ inv-head.company
+                  AND inv-misc.r-no EQ inv-head.r-no
+                  AND inv-misc.po-no NE "" :
+               ASSIGN v-rel-po-no = inv-misc.po-no.
+               LEAVE.
+        END.
 
         if avail inv-line then
         do:
