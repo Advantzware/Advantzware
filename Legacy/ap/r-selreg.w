@@ -55,11 +55,17 @@ def var t1          like v1 NO-UNDO.
 def var t2          like v2 NO-UNDO.
 def var t3          like v3 NO-UNDO.
 
+DEF TEMP-TABLE tt-report NO-UNDO LIKE report
+    FIELD vend-no LIKE ap-sel.vend-no
+    .
+
 def var xtrnum      as INT NO-UNDO.
 def var v-tot-chks  as int format ">>>,>>9" NO-UNDO.
 
 def TEMP-TABLE xtemp NO-UNDO field vend-no like vend.vend-no.
 DEFINE VARIABLE vcDefaultForm AS CHAR NO-UNDO.
+
+DEF STREAM excel.
 
 ASSIGN
 time_stamp = string(time,"hh:mmam")
@@ -70,8 +76,7 @@ find first sys-ctrl NO-LOCK
      and sys-ctrl.name    eq "CHKFMT" 
     no-error.
   IF AVAIL sys-ctrl THEN
-      vcDefaultForm = sys-ctrl.char-fld. 
-
+      vcDefaultForm = sys-ctrl.char-fld.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -84,14 +89,16 @@ find first sys-ctrl NO-LOCK
 &Scoped-define PROCEDURE-TYPE Window
 &Scoped-define DB-AWARE no
 
-/* Name of first Frame and/or Browse and/or first Query                 */
+/* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME FRAME-A
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS tran-date rd-dest lv-ornt lines-per-page ~
-td-show-parm btn-ok btn-cancel RECT-6 RECT-7 
-&Scoped-Define DISPLAYED-OBJECTS tran-date tran-period rd-dest lv-ornt ~
-lines-per-page lv-font-no lv-font-name td-show-parm 
+&Scoped-Define ENABLED-OBJECTS RECT-6 RECT-7 tran-date rd_sort rd-dest ~
+lv-ornt lines-per-page td-show-parm tb_excel tb_runExcel fi_file btn-ok ~
+btn-cancel 
+&Scoped-Define DISPLAYED-OBJECTS tran-date tran-period lbl_sort rd_sort ~
+rd-dest lv-ornt lines-per-page lv-font-no lv-font-name td-show-parm ~
+tb_excel tb_runExcel fi_file 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -114,6 +121,16 @@ DEFINE BUTTON btn-cancel AUTO-END-KEY
 DEFINE BUTTON btn-ok 
      LABEL "&OK" 
      SIZE 15 BY 1.14.
+
+DEFINE VARIABLE fi_file AS CHARACTER FORMAT "X(30)" INITIAL "c:~\tmp~\r-selreg.csv" 
+     LABEL "If Yes, File Name" 
+     VIEW-AS FILL-IN 
+     SIZE 43 BY 1
+     FGCOLOR 9 .
+
+DEFINE VARIABLE lbl_sort AS CHARACTER FORMAT "X(256)":U INITIAL "Sort by?" 
+     VIEW-AS FILL-IN 
+     SIZE 10 BY 1 NO-UNDO.
 
 DEFINE VARIABLE lines-per-page AS INTEGER FORMAT ">>":U INITIAL 99 
      LABEL "Lines Per Page" 
@@ -154,13 +171,32 @@ DEFINE VARIABLE rd-dest AS INTEGER INITIAL 2
 "To File", 3
      SIZE 23 BY 3.81 NO-UNDO.
 
+DEFINE VARIABLE rd_sort AS CHARACTER INITIAL "Vendor Code" 
+     VIEW-AS RADIO-SET HORIZONTAL
+     RADIO-BUTTONS 
+          "Vendor Code", "Vendor Code",
+"Vendor Name", "Vendor Name"
+     SIZE 35 BY 1 NO-UNDO.
+
 DEFINE RECTANGLE RECT-6
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL 
-     SIZE 94 BY 6.43.
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
+     SIZE 94 BY 9.52.
 
 DEFINE RECTANGLE RECT-7
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL 
-     SIZE 94 BY 9.05.
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
+     SIZE 94 BY 8.57.
+
+DEFINE VARIABLE tb_excel AS LOGICAL INITIAL yes 
+     LABEL "Export To Excel?" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 21 BY .81
+     BGCOLOR 3  NO-UNDO.
+
+DEFINE VARIABLE tb_runExcel AS LOGICAL INITIAL no 
+     LABEL "Auto Run Excel?" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 21 BY .81
+     BGCOLOR 3  NO-UNDO.
 
 DEFINE VARIABLE td-show-parm AS LOGICAL INITIAL no 
      LABEL "Show Parameters?" 
@@ -173,25 +209,31 @@ DEFINE VARIABLE td-show-parm AS LOGICAL INITIAL no
 DEFINE FRAME FRAME-A
      tran-date AT ROW 4.57 COL 39 COLON-ALIGNED
      tran-period AT ROW 5.76 COL 39 COLON-ALIGNED
-     rd-dest AT ROW 11.95 COL 9 NO-LABEL
-     lv-ornt AT ROW 12.19 COL 30 NO-LABEL
-     lines-per-page AT ROW 12.19 COL 83 COLON-ALIGNED
-     lv-font-no AT ROW 13.62 COL 33 COLON-ALIGNED
-     lv-font-name AT ROW 14.57 COL 27 COLON-ALIGNED NO-LABEL
-     td-show-parm AT ROW 15.76 COL 9
-     btn-ok AT ROW 18.38 COL 23
-     btn-cancel AT ROW 18.38 COL 58
-     RECT-6 AT ROW 10.52 COL 1
-     RECT-7 AT ROW 1 COL 1
+     lbl_sort AT ROW 7.67 COL 21.6 COLON-ALIGNED NO-LABEL WIDGET-ID 8
+     rd_sort AT ROW 7.67 COL 34.6 NO-LABEL WIDGET-ID 10
+     rd-dest AT ROW 11.52 COL 9 NO-LABEL
+     lv-ornt AT ROW 11.76 COL 30 NO-LABEL
+     lines-per-page AT ROW 11.76 COL 83 COLON-ALIGNED
+     lv-font-no AT ROW 12.91 COL 33 COLON-ALIGNED
+     lv-font-name AT ROW 13.86 COL 27 COLON-ALIGNED NO-LABEL
+     td-show-parm AT ROW 15.33 COL 29.2
+     tb_excel AT ROW 16.33 COL 49.4 RIGHT-ALIGNED WIDGET-ID 4
+     tb_runExcel AT ROW 16.33 COL 70.4 RIGHT-ALIGNED WIDGET-ID 6
+     fi_file AT ROW 17.14 COL 27.2 COLON-ALIGNED HELP
+          "Enter File Name" WIDGET-ID 2
+     btn-ok AT ROW 19.86 COL 23
+     btn-cancel AT ROW 19.86 COL 58
+     "Output Destination" VIEW-AS TEXT
+          SIZE 18 BY .62 AT ROW 10.57 COL 4
      "Selection Parameters" VIEW-AS TEXT
           SIZE 21 BY .71 AT ROW 1.24 COL 5
           BGCOLOR 2 
-     "Output Destination" VIEW-AS TEXT
-          SIZE 18 BY .62 AT ROW 11 COL 4
+     RECT-6 AT ROW 9.86 COL 1
+     RECT-7 AT ROW 1 COL 1
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1.6 ROW 1.24
-         SIZE 95.2 BY 19.71.
+         SIZE 95.2 BY 21.19.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -211,7 +253,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW C-Win ASSIGN
          HIDDEN             = YES
          TITLE              = "Payment Selection Edit Register"
-         HEIGHT             = 20.19
+         HEIGHT             = 21.81
          WIDTH              = 95.4
          MAX-HEIGHT         = 33.29
          MAX-WIDTH          = 204.8
@@ -244,21 +286,45 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
 /* SETTINGS FOR WINDOW C-Win
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
-                                                                        */
-ASSIGN
+   FRAME-NAME                                                           */
+ASSIGN 
        btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "ribbon-button".
 
-
-ASSIGN
+ASSIGN 
        btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "ribbon-button".
 
+ASSIGN 
+       fi_file:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
+
+/* SETTINGS FOR FILL-IN lbl_sort IN FRAME FRAME-A
+   NO-ENABLE                                                            */
+ASSIGN 
+       lbl_sort:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "rd_sort".
 
 /* SETTINGS FOR FILL-IN lv-font-name IN FRAME FRAME-A
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN lv-font-no IN FRAME FRAME-A
    NO-ENABLE                                                            */
+ASSIGN 
+       rd_sort:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
+
+/* SETTINGS FOR TOGGLE-BOX tb_excel IN FRAME FRAME-A
+   ALIGN-R                                                              */
+ASSIGN 
+       tb_excel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
+
+/* SETTINGS FOR TOGGLE-BOX tb_runExcel IN FRAME FRAME-A
+   ALIGN-R                                                              */
+ASSIGN 
+       tb_runExcel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
+
 ASSIGN 
        tran-date:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
@@ -280,7 +346,7 @@ THEN C-Win:HIDDEN = no.
 */  /* FRAME FRAME-A */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -379,6 +445,17 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME fi_file
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_file C-Win
+ON LEAVE OF fi_file IN FRAME FRAME-A /* If Yes, File Name */
+DO:
+     ASSIGN {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME lines-per-page
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lines-per-page C-Win
 ON LEAVE OF lines-per-page IN FRAME FRAME-A /* Lines Per Page */
@@ -442,6 +519,39 @@ END.
 ON VALUE-CHANGED OF rd-dest IN FRAME FRAME-A
 DO:
   assign {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME rd_sort
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rd_sort C-Win
+ON VALUE-CHANGED OF rd_sort IN FRAME FRAME-A
+DO:
+  ASSIGN {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME tb_excel
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_excel C-Win
+ON VALUE-CHANGED OF tb_excel IN FRAME FRAME-A /* Export To Excel? */
+DO:
+  ASSIGN {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME tb_runExcel
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_runExcel C-Win
+ON VALUE-CHANGED OF tb_runExcel IN FRAME FRAME-A /* Auto Run Excel? */
+DO:
+  ASSIGN {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -597,11 +707,11 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY tran-date tran-period rd-dest lv-ornt lines-per-page lv-font-no 
-          lv-font-name td-show-parm 
+  DISPLAY tran-date tran-period lbl_sort rd_sort rd-dest lv-ornt lines-per-page 
+          lv-font-no lv-font-name td-show-parm tb_excel tb_runExcel fi_file 
       WITH FRAME FRAME-A IN WINDOW C-Win.
-  ENABLE tran-date rd-dest lv-ornt lines-per-page td-show-parm btn-ok 
-         btn-cancel RECT-6 RECT-7 
+  ENABLE RECT-6 RECT-7 tran-date rd_sort rd-dest lv-ornt lines-per-page 
+         td-show-parm tb_excel tb_runExcel fi_file btn-ok btn-cancel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.
@@ -688,6 +798,7 @@ PROCEDURE run-report :
 {sys/form/r-top3w.f}
 DEFINE VARIABLE iVoidpage AS INTEGER NO-UNDO .
 DEFINE VARIABLE iCount    AS INTEGER NO-UNDO .
+DEF VAR excelheader AS CHAR NO-UNDO.
 form header
    "Vendor#  Name                           Invoice#     Inv Date  Due Date  Dsc Date            Amount    Discount            Paid" skip
    fill("-",130) format "x(130)"
@@ -700,7 +811,7 @@ ASSIGN t1 = 0
        iVoidpage = 1.
 
 SESSION:SET-WAIT-STATE("general").
-
+EMPTY TEMP-TABLE tt-report.
   assign
    str-tit  = coname + " - " + loname
    str-tit2 = "PAYMENT SELECTION REGISTER "
@@ -711,6 +822,13 @@ SESSION:SET-WAIT-STATE("general").
    str-tit2 = fill(" ",x) + str-tit2
    x = (132 - length(str-tit3)) / 2
    str-tit3 = fill(" ",x) + str-tit3 .
+
+  IF tb_excel THEN DO:
+      OUTPUT STREAM excel TO VALUE(fi_file).
+      excelheader = "Vendor#,Name,Invoice#,Inv Date,Due Date,"
+          + "Dsc Date,Amount,Discount,Paid".
+      PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
+  END.
 
   {sys/inc/print1.i}
 
@@ -728,19 +846,54 @@ SESSION:SET-WAIT-STATE("general").
       break by ap-sel.vend-no
             by ap-sel.inv-no:
 
+      find first vend WHERE vend.company = cocode
+                      and vend.vend-no eq ap-sel.vend-no
+          no-lock no-error.
+
+
+      CREATE tt-report.
+      ASSIGN
+       tt-report.rec-id    = RECID(ap-sel)
+       tt-report.key-01    = (IF rd_sort EQ "Vendor Code" THEN ap-sel.vend-no ELSE vend.NAME)
+       tt-report.key-02   =  string(ap-sel.inv-no,"99999999")
+       .
+  END.
+
+
+  FOR EACH tt-report NO-LOCK
+      BREAK BY tt-report.key-01
+            BY tt-report.key-02
+            :
+     FIND FIRST ap-sel NO-LOCK
+       where ap-sel.company   eq cocode
+       AND RECID(ap-sel) EQ tt-report.rec-id 
+       NO-ERROR.
+
     find first ap-inv
         where ap-inv.company eq cocode
           and ap-inv.vend-no eq ap-sel.vend-no
           and ap-inv.inv-no  eq ap-sel.inv-no
         no-lock no-error.
 
-    if first-of(ap-sel.vend-no) then do:
+    if first-of(tt-report.key-01) then do:
       find first vend WHERE vend.company = cocode
                       and vend.vend-no eq ap-sel.vend-no
           no-lock no-error.
 
       put vend.vend-no space(1) vend.name.
+      IF tb_excel THEN
+       PUT STREAM excel UNFORMATTED
+           '"' vend.vend-no                  '",'
+           '"' vend.name                     '",'
+           .
     end.
+    ELSE DO:
+        IF tb_excel THEN
+        PUT STREAM excel UNFORMATTED
+           '"' ""                    '",'
+           '"' ""                    '",'
+           .
+    END.
 
     put ap-sel.inv-no  at 41 space(1)
         ap-inv.inv-date      space(2)
@@ -749,6 +902,17 @@ SESSION:SET-WAIT-STATE("general").
         ap-sel.inv-bal       space(2)
         ap-sel.disc-amt      space(2)
         ap-sel.amt-paid      skip.
+
+    IF tb_excel THEN DO:
+        PUT STREAM excel UNFORMATTED
+            '"' ap-sel.inv-no                                               '",'
+            '"' ap-inv.inv-date                                             '",'
+            '"' ap-inv.due-date                                             '",'
+            '"' STRING((ap-inv.inv-date + ap-inv.disc-days),"99/99/99")     '",'
+            '"' ap-sel.inv-bal                                              '",'
+            '"' ap-sel.disc-amt                                             '",'
+            '"' ap-sel.amt-paid                                             '",' SKIP.
+  END.
 
     assign
      v1 = v1 + ap-sel.inv-bal
@@ -765,7 +929,7 @@ SESSION:SET-WAIT-STATE("general").
     IF AVAIL sys-ctrl-shipto THEN
         vcDefaultForm = sys-ctrl-shipto.char-fld .
 
-    IF FIRST-OF(ap-sel.vend-no) THEN iCount = 0 .
+    IF FIRST-OF(tt-report.key-01) THEN iCount = 0 .
     ASSIGN iCount = iCount + 1.
           
     IF vcDefaultForm EQ "Woodland"  THEN DO:
@@ -774,15 +938,27 @@ SESSION:SET-WAIT-STATE("general").
             iVoidpage = iVoidpage + 1
             iCount = 0 .
     END.
-
-    
-    if last-of(ap-sel.vend-no) then do:
+    if last-of(tt-report.key-01) then do:
       put  "** VENDOR TOTALS"   to 83
            v1                   to 99
            v2                   to 111
            v3                   to 127
            " *"
            skip(1).
+
+      IF tb_excel THEN
+       PUT STREAM excel UNFORMATTED
+           SKIP(1)
+           '"' ""                            '",'
+           '"' ""                            '",'
+           '"' ""                            '",'
+           '"' ""                            '",'
+           '"' "** VENDOR TOTALS **"            '",'
+           '"' ""                            '",'
+           '"' v1                            '",'
+           '"' v2                            '",'
+           '"' v3                            '",'
+           SKIP(1).
 
       if v1 lt 0 then do:
         message "Negative Check Calculated - Please adjust invoices".
@@ -807,7 +983,7 @@ SESSION:SET-WAIT-STATE("general").
        iCount = 0 .
     end.
 
-    if last(ap-sel.vend-no) then do:
+    if last(tt-report.key-01) then do:
       put "** GRAND TOTALS" to 83
           t1                to 99
           t2                to 111
@@ -819,6 +995,22 @@ SESSION:SET-WAIT-STATE("general").
           v-tot-chks to 127
           " ***"
           skip(1).
+
+      IF tb_excel THEN
+          PUT STREAM excel UNFORMATTED
+          '"' ""                             '",'
+          '"' ""                             '",'
+          '"' ""                             '",'
+          '"' ""                             '",'
+          '"' "*** GRAND TOTALS ***"         '",'
+          '"' ""                             '",'
+          '"' t1                             '",'
+          '"' t2                             '",'
+          '"' t3                             '",'
+       SKIP.
+
+
+
     end.
   end.
 
@@ -830,6 +1022,11 @@ SESSION:SET-WAIT-STATE("general").
       delete ap-sel.
     end.
   end.
+  IF tb_excel THEN DO:
+  OUTPUT STREAM excel CLOSE.
+  IF tb_runExcel THEN
+    OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
+END.
 
 RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
 
