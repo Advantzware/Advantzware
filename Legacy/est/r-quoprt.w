@@ -1441,7 +1441,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     DISABLE lines-per-page.
     IF NOT AVAIL est OR est.est-type LE 4 THEN DISABLE tb_note tb_comm.
     IF NOT AVAIL est OR est.est-type LE 4 OR 
-      (v-print-fmt NE "XPrint" AND v-print-fmt NE "quoprint 1" AND v-print-fmt NE "quoprint 2" AND v-print-fmt NE "quoprint 10" AND v-print-fmt NE "quoprint 20" AND v-print-fmt NE "Printers"  AND v-print-fmt NE "Hughes" AND v-print-fmt NE "Simkins" AND v-print-fmt NE "Oklahoma")
+      (v-print-fmt NE "XPrint" AND v-print-fmt NE "quoprint 1" AND v-print-fmt NE "quoprint 2" AND v-print-fmt NE "quoprint 10" AND v-print-fmt NE "quoprint 11" AND v-print-fmt NE "quoprint 20" AND v-print-fmt NE "Printers"  AND v-print-fmt NE "Hughes" AND v-print-fmt NE "Simkins" AND v-print-fmt NE "Oklahoma")
       THEN DO:
       ASSIGN
         tb_boardDescription:SCREEN-VALUE = 'Est'
@@ -2584,7 +2584,7 @@ PROCEDURE SetQuoForm :
   Notes:       
 ------------------------------------------------------------------------------*/
    DEFINE INPUT PARAM icPrintFormat AS CHAR NO-UNDO.
-   IF INDEX("Pacific,Xprint,quoprint 1,quoprint 2,quoprint 10,quoprint 20,Printers,Hughes,SouthPak,ABox,Midwest,Axis,MWFIBRE,century,Concepts,oracle,Harwell,quoprint10-CAN,PremierX,Elite,Unipak,Ottpkg,Frankstn,Mirpkg,APC,Perform,FibreX,Boss,Protagon,Loylang,LoylangBSF,PPI,Packrite,Xprint30,StClair,AllWest,Soule,Sultana,SouleMed,Simkins,CCC,Peachtree,Oklahoma,Accord",icPrintFormat) > 0 THEN
+   IF INDEX("Pacific,Xprint,quoprint 1,quoprint 2,quoprint 10,quoprint 11,quoprint 20,Printers,Hughes,SouthPak,ABox,Midwest,Axis,MWFIBRE,century,Concepts,oracle,Harwell,quoprint10-CAN,PremierX,Elite,Unipak,Ottpkg,Frankstn,Mirpkg,APC,Perform,FibreX,Boss,Protagon,Loylang,LoylangBSF,PPI,Packrite,Xprint30,StClair,AllWest,Soule,Sultana,SouleMed,Simkins,CCC,Peachtree,Oklahoma,Accord",icPrintFormat) > 0 THEN
       is-xprint-form = YES.     
    ELSE is-xprint-form = NO.
 
@@ -2603,6 +2603,7 @@ PROCEDURE SetQuoForm :
        WHEN "Abox" THEN ASSIGN v-program = "cec/quote/quoabox.p" lines-per-page = 66.
        WHEN "Xprint" OR WHEN "quoprint 1" OR WHEN "quoprint 2" THEN ASSIGN v-program = "cec/quote/quoxprnt.p" lines-per-page = 66.
        WHEN "quoprint 10" OR WHEN "quoprint 20" THEN ASSIGN v-program = "cec/quote/quoxprnt10.p" lines-per-page = 66.
+       WHEN "quoprint 11" THEN ASSIGN v-program = "cec/quote/quoxprnt11.p" lines-per-page = 66.
        WHEN "Printers" THEN ASSIGN v-program = "cec/quote/quoprnts.p" lines-per-page = 66.
        WHEN "Hughes" THEN ASSIGN v-program = "cec/quote/quohughes.p" lines-per-page = 66.
        WHEN "Oklahoma" THEN ASSIGN v-program = "cec/quote/quookla.p" lines-per-page = 66.
