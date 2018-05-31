@@ -367,7 +367,6 @@ assign
 
         if avail oe-boll AND oe-boll.po-no NE "" THEN DO:
           assign v-rel-po-no = oe-boll.po-no.
-          MESSAGE "test" string(v-rel-po-no) VIEW-AS ALERT-BOX ERROR.
         END.
         IF v-rel-po-no EQ "" THEN DO:
             FIND FIRST inv-line NO-LOCK
