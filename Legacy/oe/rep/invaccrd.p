@@ -538,7 +538,7 @@ ELSE lv-comp-color = "BLACK".
                 v-ship-qty  format "->>>>>>9" SPACE(1)
               /*  v-bo-qty  format "->>>>>9" SPACE(1)
                 v-i-no  format "x(15)" SPACE(1)  space(13)   */                            
-                v-price  format ">>>>9.9999" SPACE(1)               
+                v-price  format ">>>>>9.999<" SPACE(1)               
                 inv-line.t-price  format "->>>,>>9.99"                
                 SKIP
                 v-ord-no SPACE(10)
@@ -709,13 +709,13 @@ ELSE lv-comp-color = "BLACK".
                     /*inv-head.t-inv-freight*/.
 
     PUT "<R58><C58><#8><FROM><R+5><C+22><RECT> " 
-        "<=8> Sub Total    :" v-subtot-lines FORM "->>,>>9.99"
-        "<=8><R+1> Freight      :" v-inv-freight
+        "<=8> Sub Total    :" v-subtot-lines FORM "->>>,>>9.99"
+        "<=8><R+1> Freight      :" v-inv-freight FORM "->>>,>>9.99"
         /*"<=8><R+2> ""  " v-bot-lab[1]  */
-        "<=8><R+2> Sales Tax    :" inv-head.t-inv-tax FORM "->>,>>9.99"
+        "<=8><R+2> Sales Tax    :" inv-head.t-inv-tax FORM "->>>,>>9.99"
                   /*  v-bot-lab[2] */
         "<=8><R+3>" "" 
-        "<=8><R+4> Total Invoice:" inv-head.t-inv-rev FORM "->>,>>9.99" .
+        "<=8><R+4> Total Invoice:" inv-head.t-inv-rev FORM "->>>,>>9.99" .
 
     PUT "<FArial><R58><C1><P12><B> THANK YOU. </B> <P9> " SKIP
    /*      "  Your business is greatly appreciated! Thank You!"SKIP
