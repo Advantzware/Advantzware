@@ -93,11 +93,11 @@ find first sys-ctrl NO-LOCK
 &Scoped-define FRAME-NAME FRAME-A
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-6 RECT-7 tran-date rd_sort rd-dest ~
-lv-ornt lines-per-page td-show-parm tb_excel tb_runExcel fi_file btn-ok ~
+&Scoped-Define ENABLED-OBJECTS RECT-6 RECT-7 tran-date rd_sort lv-ornt ~
+lines-per-page rd-dest td-show-parm tb_excel tb_runExcel fi_file btn-ok ~
 btn-cancel 
 &Scoped-Define DISPLAYED-OBJECTS tran-date tran-period lbl_sort rd_sort ~
-rd-dest lv-ornt lines-per-page lv-font-no lv-font-name td-show-parm ~
+lv-ornt lines-per-page rd-dest lv-font-no lv-font-name td-show-parm ~
 tb_excel tb_runExcel fi_file 
 
 /* Custom List Definitions                                              */
@@ -175,16 +175,17 @@ DEFINE VARIABLE rd_sort AS CHARACTER INITIAL "Vendor Code"
      VIEW-AS RADIO-SET HORIZONTAL
      RADIO-BUTTONS 
           "Vendor Code", "Vendor Code",
-"Vendor Name", "Vendor Name"
-     SIZE 35 BY 1 NO-UNDO.
+"Vendor Name", "Vendor Name",
+"Invoice", "Invoice"
+     SIZE 50 BY 1 NO-UNDO.
 
 DEFINE RECTANGLE RECT-6
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 94 BY 9.52.
+     SIZE 94 BY 8.1.
 
 DEFINE RECTANGLE RECT-7
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 94 BY 8.57.
+     SIZE 94 BY 9.29.
 
 DEFINE VARIABLE tb_excel AS LOGICAL INITIAL yes 
      LABEL "Export To Excel?" 
@@ -211,9 +212,9 @@ DEFINE FRAME FRAME-A
      tran-period AT ROW 5.76 COL 39 COLON-ALIGNED
      lbl_sort AT ROW 7.67 COL 21.6 COLON-ALIGNED NO-LABEL WIDGET-ID 8
      rd_sort AT ROW 7.67 COL 34.6 NO-LABEL WIDGET-ID 10
-     rd-dest AT ROW 11.52 COL 9 NO-LABEL
-     lv-ornt AT ROW 11.76 COL 30 NO-LABEL
-     lines-per-page AT ROW 11.76 COL 83 COLON-ALIGNED
+     lv-ornt AT ROW 11.38 COL 30 NO-LABEL
+     lines-per-page AT ROW 12.48 COL 83 COLON-ALIGNED
+     rd-dest AT ROW 12.81 COL 9 NO-LABEL
      lv-font-no AT ROW 12.91 COL 33 COLON-ALIGNED
      lv-font-name AT ROW 13.86 COL 27 COLON-ALIGNED NO-LABEL
      td-show-parm AT ROW 15.33 COL 29.2
@@ -224,11 +225,11 @@ DEFINE FRAME FRAME-A
      btn-ok AT ROW 19.86 COL 23
      btn-cancel AT ROW 19.86 COL 58
      "Output Destination" VIEW-AS TEXT
-          SIZE 18 BY .62 AT ROW 10.57 COL 4
+          SIZE 18 BY .62 AT ROW 11.48 COL 4
      "Selection Parameters" VIEW-AS TEXT
           SIZE 21 BY .71 AT ROW 1.24 COL 5
           BGCOLOR 2 
-     RECT-6 AT ROW 9.86 COL 1
+     RECT-6 AT ROW 10.76 COL 1
      RECT-7 AT ROW 1 COL 1
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -707,10 +708,10 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY tran-date tran-period lbl_sort rd_sort rd-dest lv-ornt lines-per-page 
+  DISPLAY tran-date tran-period lbl_sort rd_sort lv-ornt lines-per-page rd-dest 
           lv-font-no lv-font-name td-show-parm tb_excel tb_runExcel fi_file 
       WITH FRAME FRAME-A IN WINDOW C-Win.
-  ENABLE RECT-6 RECT-7 tran-date rd_sort rd-dest lv-ornt lines-per-page 
+  ENABLE RECT-6 RECT-7 tran-date rd_sort lv-ornt lines-per-page rd-dest 
          td-show-parm tb_excel tb_runExcel fi_file btn-ok btn-cancel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
@@ -854,8 +855,8 @@ EMPTY TEMP-TABLE tt-report.
       CREATE tt-report.
       ASSIGN
        tt-report.rec-id    = RECID(ap-sel)
-       tt-report.key-01    = (IF rd_sort EQ "Vendor Code" THEN ap-sel.vend-no ELSE vend.NAME)
-       tt-report.key-02   =  string(ap-sel.inv-no,"99999999")
+       tt-report.key-01    = (IF rd_sort EQ "Vendor Code" THEN ap-sel.vend-no ELSE IF rd_sort EQ "Vendor Name" THEN vend.NAME ELSE ap-sel.inv-no )
+       tt-report.key-02   =  string(ap-sel.inv-no)
        .
   END.
 
