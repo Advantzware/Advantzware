@@ -324,6 +324,14 @@ ELSE DO:
     RUN ipReadIniFile.
 END.
 
+IF SEARCH(cDrive + "\" + cTopDir + "\.") EQ ? THEN DO:
+    MESSAGE
+        "There is a problem with your network connections." SKIP
+        "Please contact your local System Administrator."
+        VIEW-AS ALERT-BOX ERROR.
+    RETURN.
+END.
+
 /* Find the .usr file containing user-level settings */
 IF cUsrLoc EQ "" THEN DO:
     MESSAGE
