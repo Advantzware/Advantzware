@@ -706,13 +706,13 @@ ON LEAVE OF ar-invl.i-no IN FRAME Dialog-Frame /* Item No */
 DO:
       IF LASTKEY = -1 THEN RETURN.
 
-    IF ar-invl.i-no:MODIFIED THEN DO:
+    IF ar-invl.i-no:SCREEN-VALUE NE "" THEN DO:
        FIND FIRST itemfg NO-LOCK
              WHERE itemfg.company = g_company 
                AND itemfg.i-no = ar-invl.i-no:SCREEN-VALUE
              NO-ERROR.
        IF NOT AVAIL itemfg THEN DO:
-          MESSAGE "Invalid FG Item Number." VIEW-AS ALERT-BOX ERROR.
+          MESSAGE "Invalid FG Item Number." VIEW-AS ALERT-BOX INFO.
           RETURN.
        END.
        ASSIGN
@@ -1049,7 +1049,16 @@ PROCEDURE create-item :
             ar-invl.dscr[1] = "EA"
             /*ar-invl.actnum = IF AVAIL ar-ctrl THEN ar-ctrl.sales ELSE ""*/
             ar-invl.sman[1] = IF AVAIL cust THEN cust.sman ELSE ""
-            ar-invl.s-pct[1] = IF ar-invl.sman[1] NE "" THEN 100 ELSE 0.
+            ar-invl.s-pct[1] = IF ar-invl.sman[1] NE "" THEN 100 ELSE 0
+            ar-invl.actnum =  ar-ctrl.sales
+                .
+
+         FIND FIRST account WHERE account.company = g_company
+             AND account.actnum = ar-invl.actnum NO-LOCK NO-ERROR.
+     
+        IF AVAILABLE account THEN
+            ASSIGN fi_acc-desc = account.dscr .
+
 
         ASSIGN lv-item-recid = RECID(ar-invl).
             ll-new-record = YES.
