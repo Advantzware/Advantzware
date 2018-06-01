@@ -2076,6 +2076,11 @@ ASSIGN
  IF rs_note:HIDDEN EQ NO THEN
     s-note-mode = rs_note.
 
+ IF v-program EQ "cec/quote/quoasi.p" THEN DO:  
+    MESSAGE "Format is invalid or not found - Set the proper format in NK1 - "  v-print-fmt VIEW-AS ALERT-BOX INFO.
+    RETURN.
+ END.
+
 {sys/inc/outprint.i value(lines-per-page)}
 
 if td-show-parm then run show-param.
@@ -2350,6 +2355,11 @@ DEFINE INPUT PARAMETER icCustNo AS CHAR NO-UNDO.
 ASSIGN
    fcust = icCustNo
    tcust = icCustNo.
+
+ IF v-program EQ "cec/quote/quoasi.p" THEN DO:  
+    MESSAGE "Format is invalid or not found - Set the proper format in NK1 - "  v-print-fmt VIEW-AS ALERT-BOX INFO.
+    RETURN.
+ END.
 
 {sys/inc/print1.i}
 
@@ -2657,7 +2667,7 @@ PROCEDURE SetQuoForm :
 
           ELSE
              ASSIGN
-                v-program = "ce/quote/quoasi.p"
+                v-program = "cec/quote/quoasi.p"
                 lines-per-page = IF v-log THEN 50 ELSE 56.
        END.
    END.
