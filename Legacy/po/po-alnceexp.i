@@ -630,7 +630,7 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
     /* D6 */
 
     /* SPECIAL INSTRUCTIONS */
-    v-instr = "".
+    v-instr = " ".
     
     /* Nk1 alliflutes integer EQ 1  indicates using the po line item descriptions here */
    IF   iUseItemDesc EQ 1 THEN 
