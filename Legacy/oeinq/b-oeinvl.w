@@ -44,6 +44,7 @@ DEF VAR lv-last-rowid AS ROWID NO-UNDO.
 DEF VAR lv-frst-rowid2 AS ROWID NO-UNDO.
 DEF VAR lv-last-rowid2 AS ROWID NO-UNDO.
 DEF VAR ld-cost LIKE ar-invl.cost NO-UNDO.
+DEFINE VARIABLE d-ord-cost AS DECIMAL NO-UNDO .
 DEF VAR ld-cost-uom AS CHAR NO-UNDO.
 DEF VAR lv-sort-by AS CHAR INIT "inv-date" NO-UNDO.
 DEF VAR lv-sort-by-lab AS CHAR INIT "Inv Date" NO-UNDO.
@@ -138,7 +139,8 @@ DEFINE QUERY external_tables FOR oe-ordl.
 &Scoped-define FIELDS-IN-QUERY-Browser-Table ar-invl.inv-no ar-invl.bol-no ~
 ar-invl.cust-no ar-inv.inv-date ar-invl.actnum ar-invl.i-no ar-invl.part-no ~
 ar-invl.ord-no ar-invl.po-no ar-invl.est-no get-price-disc() @ ld-price ~
-ar-invl.inv-qty ar-invl.pr-qty-uom getCost() @ ld-cost getCostUOM() @ ld-cost-uom 
+ar-invl.inv-qty ar-invl.pr-qty-uom getCost() @ ld-cost getCostUOM() @ ld-cost-uom ~
+getOrdCost() @ d-ord-cost
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table ar-invl.inv-no ~
 ar-invl.bol-no ar-invl.cust-no ar-inv.inv-date ar-invl.actnum ar-invl.i-no ~
 ar-invl.part-no ar-invl.ord-no ar-invl.po-no ar-invl.est-no ~
@@ -190,6 +192,13 @@ FUNCTION get-price-disc RETURNS DECIMAL
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD getCost B-table-Win 
 FUNCTION getCost RETURNS DECIMAL
+  ( /* parameter-definitions */ )  FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD getOrdCost B-table-Win 
+FUNCTION getOrdCost RETURNS DECIMAL
   ( /* parameter-definitions */ )  FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
@@ -330,8 +339,9 @@ DEFINE BROWSE Browser-Table
       get-price-disc() @ ld-price FORMAT ">>,>>>,>>9.99<<<<":U
 	ar-invl.inv-qty COLUMN-LABEL "Qty" FORMAT ">>>>>>>>":U WIDTH 9 LABEL-BGCOLOR 14
       ar-invl.pr-qty-uom FORMAT "x(4)":U WIDTH 7
-      getCost() @ ld-cost
+      getCost() @ ld-cost COLUMN-LABEL "Invoice Cost"
       getCostUOM() @ ld-cost-uom COLUMN-LABEL "Cost!UOM" WIDTH 6
+      getOrdCost() @ d-ord-cost COLUMN-LABEL "Order Cost"
   ENABLE
       ar-invl.inv-no
       ar-invl.bol-no
@@ -495,9 +505,11 @@ ASSIGN
      _FldNameList[12]   > asi.ar-invl.pr-qty-uom
 "ar-invl.pr-qty-uom" ? ? "character" ? ? ? ? ? ? yes ? no no "7" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[13]   > "_<CALC>"
-"getCost() @ ld-cost" ? ? ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"getCost() @ ld-cost" "Invoice Cost" ? ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[14]   > "_<CALC>"
 "getCostUOM() @ ld-cost-uom" "Cost!UOM" ? ? ? ? ? ? ? ? no ? no no "6" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+  _FldNameList[13]   > "_<CALC>"
+"getOrdCost() @ d-ord-cost" "Order Cost" ? ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */
 &ANALYZE-RESUME
@@ -1314,6 +1326,24 @@ FUNCTION getCost RETURNS DECIMAL
                      WHERE sys-ctrl.company EQ ar-invl.company
                        AND sys-ctrl.name EQ 'OECOMM'
                        AND sys-ctrl.log-fld EQ YES) THEN ar-invl.cost ELSE ?.
+
+END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION getOrdCost B-table-Win 
+FUNCTION getOrdCost RETURNS DECIMAL
+  ( /* parameter-definitions */ ) :
+/*------------------------------------------------------------------------------
+  Purpose:  
+    Notes:  
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE d-ret-cost AS DECIMAL NO-UNDO .
+    IF AVAIL oe-ordl THEN
+        d-ret-cost = oe-ordl.cost .
+
+    RETURN d-ret-cost .
 
 END FUNCTION.
 
