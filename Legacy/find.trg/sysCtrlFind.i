@@ -1,6 +1,4 @@
-/* sysCtrlFind.p */
-
-TRIGGER PROCEDURE FOR FIND OF sys-ctrl.
+/* sysCtrlFind.i */
 
 DEFINE VARIABLE cProgram AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cUserID  AS CHARACTER NO-UNDO.
@@ -32,16 +30,26 @@ IF cUserID EQ "" THEN cUserID = "NoSweat".
 OUTPUT TO VALUE("users\" + cUserID + "\sysCtrlFind.dat") APPEND.
 EXPORT
     cProgram
-    sys-ctrl.company
-    sys-ctrl.module
-    sys-ctrl.name
-    sys-ctrl.char-fld
-    sys-ctrl.date-fld
-    sys-ctrl.dec-fld
-    sys-ctrl.int-fld
-    sys-ctrl.log-fld
-    sys-ctrl.descrip
+    {&tableName}.company
+    {&tableName}.module
+    {&tableName}.name
+    {&tableName}.char-fld
+    {&tableName}.date-fld
+    {&tableName}.dec-fld
+    {&tableName}.int-fld
+    {&tableName}.log-fld
+    {&tableName}.descrip
     USERID(LDBNAME(1))
     NOW
+&IF "{&tableName}" EQ "sys-ctrl-shipto" &THEN
+    {&tableName}.category
+    {&tableName}.cust-vend
+    {&tableName}.cust-vend-no
+    {&tableName}.seqNo
+    {&tableName}.ship-id
+    {&tableName}.subCategory
+    {&tableName}.sysCtrlID
+    {&tableName}.typeCode
+&ENDIF
     .
 OUTPUT CLOSE.

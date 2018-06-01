@@ -309,12 +309,12 @@ DEFINE FRAME FRAME-USER
      loc_loc AT ROW 1.71 COL 76 COLON-ALIGNED NO-LABEL
      users_user_id AT ROW 1.71 COL 117 COLON-ALIGNED NO-LABEL
      Mnemonic AT ROW 1.71 COL 141 COLON-ALIGNED NO-LABEL WIDGET-ID 2
-     "Location:" VIEW-AS TEXT
-          SIZE 9 BY .62 AT ROW 1.71 COL 68
      "User ID:" VIEW-AS TEXT
           SIZE 8 BY .62 AT ROW 1.71 COL 110
      "Company:" VIEW-AS TEXT
           SIZE 10 BY .62 AT ROW 1.71 COL 4
+     "Location:" VIEW-AS TEXT
+          SIZE 9 BY .62 AT ROW 1.71 COL 68
      boxes AT ROW 8.86 COL 52
      menu-image AT ROW 3.86 COL 53
      RECT-2 AT ROW 1 COL 1
@@ -538,9 +538,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL imageSettings MAINMENU
 ON MOUSE-SELECT-CLICK OF imageSettings IN FRAME FRAME-USER
 DO:
-    /*
     RUN system/sysCtrlUsage.w.
-    */
+    /*
     RUN system/userSettings.w (
         INPUT-OUTPUT iMenuSize,
         INPUT-OUTPUT iLanguage,
@@ -551,6 +550,7 @@ DO:
         RUN pSetUserSettings.
         RUN pReset.
     END. /* if ok */
+    */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1324,8 +1324,10 @@ PROCEDURE pInit :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    DEFINE VARIABLE cMenuExt AS CHARACTER NO-UNDO INITIAL "lst".
-    DEFINE VARIABLE idx      AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE cMenuExt  AS CHARACTER NO-UNDO INITIAL "lst".
+    DEFINE VARIABLE cNK1Value AS CHARACTER NO-UNDO EXTENT 4.
+    DEFINE VARIABLE idx       AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE lFound    AS LOGICAL   NO-UNDO.
     
     FIND FIRST sys-ctrl NO-LOCK
         WHERE sys-ctrl.company EQ g_company
@@ -1357,54 +1359,61 @@ PROCEDURE pInit :
     RUN pImages.
     
     DO WITH FRAME {&FRAME-NAME}:
-        FIND FIRST sys-ctrl NO-LOCK
-             WHERE sys-ctrl.company EQ g_company
-               AND sys-ctrl.name    EQ "MENULINKASI"
-             NO-ERROR.
-        IF NOT AVAILABLE sys-ctrl THEN DO TRANSACTION:
-            CREATE sys-ctrl.
+        RUN sys/ref/nk1look.p (
+            g_company,"MENULINKASI","C",NO,NO,"","",
+            OUTPUT cNK1Value[1],OUTPUT lFound
+            ).
+        RUN sys/ref/nk1look.p (
+            g_company,"MENULINKASI","DS",NO,NO,"","",
+            OUTPUT cNK1Value[2],OUTPUT lFound
+            ).
+        RUN sys/ref/nk1look.p (
+            g_company,"MENULINKASI","I",NO,NO,"","",
+            OUTPUT cNK1Value[3],OUTPUT lFound
+            ).
+        RUN sys/ref/nk1look.p (
+            g_company,"MENULINKASI","L",NO,NO,"","",
+            OUTPUT cNK1Value[4],OUTPUT lFound
+            ).
+        IF SEARCH(cNK1Value[1]) NE ? AND
+           cNK1Value[2] NE "" THEN DO:
             ASSIGN
-                sys-ctrl.company = g_company
-                sys-ctrl.name = "MENULINKASI"
-                sys-ctrl.descrip = "http://www.advantzware.com"
-                sys-ctrl.char-fld = "Graphics\asiicon.ico"
-                .
-        END. /* not avail */
-        IF SEARCH(sys-ctrl.char-fld) NE ? AND
-           sys-ctrl.descrip NE "" THEN DO:
-            ASSIGN
-                menuLinkASI:PRIVATE-DATA   = sys-ctrl.descrip
+                menuLinkASI:PRIVATE-DATA   = cNK1Value[2]
                 menuLinkASI:HIDDEN         = NO
                 menuLinkASI:SENSITIVE      = YES
-                menuLinkASI:STRETCH-TO-FIT = sys-ctrl.log-fld
-                menuLinkASI:TRANSPARENT    = sys-ctrl.int-fld EQ 1
+                menuLinkASI:STRETCH-TO-FIT = cNK1Value[4] EQ "YES"
+                menuLinkASI:TRANSPARENT    = cNK1Value[3] EQ "1"
                 .
-            menuLinkASI:LOAD-IMAGE(SEARCH(sys-ctrl.char-fld)).
+            menuLinkASI:LOAD-IMAGE(SEARCH(cNK1Value[1])).
         END. /* if avail */
-        FIND FIRST sys-ctrl NO-LOCK
-             WHERE sys-ctrl.company EQ g_company
-               AND sys-ctrl.name    EQ "MENULINKZOHO"
-             NO-ERROR.
-        IF NOT AVAILABLE sys-ctrl THEN DO TRANSACTION:
-            CREATE sys-ctrl.
+        RUN sys/ref/nk1look.p (
+            g_company,"MENULINKZOHO","C",NO,NO,"","",
+            OUTPUT cNK1Value[1],OUTPUT lFound
+            ).
+        RUN sys/ref/nk1look.p (
+            g_company,"MENULINKZOHO","DS",NO,NO,"","",
+            OUTPUT cNK1Value[2],OUTPUT lFound
+            ).
+        RUN sys/ref/nk1look.p (
+            g_company,"MENULINKZOHO","I",NO,NO,"","",
+            OUTPUT cNK1Value[3],OUTPUT lFound
+            ).
+        RUN sys/ref/nk1look.p (
+            g_company,"MENULINKZOHO","L",NO,NO,"","",
+            OUTPUT cNK1Value[4],OUTPUT lFound
+            ).
+        IF SEARCH(cNK1Value[1]) NE ? AND
+           cNK1Value[2] NE "" THEN DO:
             ASSIGN
-                sys-ctrl.company = g_company
-                sys-ctrl.name = "MENULINKZOHO"
-                sys-ctrl.descrip = "https://support.zoho.com/portal/advantzware/kb"
-                sys-ctrl.char-fld = "Graphics\32x32\question.ico"
-                .
-        END. /* not avail */
-        IF SEARCH(sys-ctrl.char-fld) NE ? AND
-           sys-ctrl.descrip NE "" THEN DO:
-            ASSIGN
-                menuLinkZoHo:PRIVATE-DATA   = sys-ctrl.descrip
+                menuLinkZoHo:PRIVATE-DATA   = cNK1Value[2]
                 menuLinkZoHo:HIDDEN         = NO
                 menuLinkZoHo:SENSITIVE      = YES
-                menuLinkZoHo:STRETCH-TO-FIT = sys-ctrl.log-fld
-                menuLinkZoHo:TRANSPARENT    = sys-ctrl.int-fld EQ 1
+                menuLinkZoHo:STRETCH-TO-FIT = cNK1Value[4] EQ "YES"
+                menuLinkZoHo:TRANSPARENT    = cNK1Value[3] EQ "1"
                 .
-            menuLinkZoHo:LOAD-IMAGE(SEARCH(sys-ctrl.char-fld)).
+            menuLinkZoHo:LOAD-IMAGE(SEARCH(cNK1Value[1])).
         END. /* if avail */
+
         ASSIGN
             hMenuLink[1] = menuLink-1:HANDLE IN FRAME {&FRAME-NAME}
             hMenuLink[2] = menuLink-2:HANDLE
@@ -1416,28 +1425,33 @@ PROCEDURE pInit :
             hMenuLink[8] = menuLink-8:HANDLE
             .
         DO idx = 1 TO EXTENT(hMenuLink):
-            FIND FIRST sys-ctrl NO-LOCK
-                 WHERE sys-ctrl.company EQ g_company
-                   AND sys-ctrl.name    EQ "MENULINK" + STRING(idx)
-                 NO-ERROR.
-            IF NOT AVAILABLE sys-ctrl THEN DO TRANSACTION:
-                CREATE sys-ctrl.
-                ASSIGN 
-                    sys-ctrl.company = g_company
-                    sys-ctrl.name    = "MENULINK" + STRING(idx)
-                    .
-            END. /* not avail */
-            IF SEARCH(sys-ctrl.char-fld) NE ? AND
-               sys-ctrl.descrip NE "" THEN DO:
+            RUN sys/ref/nk1look.p (
+                g_company,"MENULINK" + STRING(idx),"C",NO,NO,"","",
+                OUTPUT cNK1Value[1],OUTPUT lFound
+                ).
+            RUN sys/ref/nk1look.p (
+                g_company,"MENULINK" + STRING(idx),"DS",NO,NO,"","",
+                OUTPUT cNK1Value[2],OUTPUT lFound
+                ).
+            RUN sys/ref/nk1look.p (
+                g_company,"MENULINK" + STRING(idx),"I",NO,NO,"","",
+                OUTPUT cNK1Value[3],OUTPUT lFound
+                ).
+            RUN sys/ref/nk1look.p (
+                g_company,"MENULINK" + STRING(idx),"L",NO,NO,"","",
+                OUTPUT cNK1Value[4],OUTPUT lFound
+                ).
+            IF SEARCH(cNK1Value[1]) NE ? AND
+               cNK1Value[2] NE "" THEN DO:
                 ASSIGN
-                    hMenuLink[idx]:PRIVATE-DATA   = sys-ctrl.descrip
+                    hMenuLink[idx]:PRIVATE-DATA   = cNK1Value[2]
                     hMenuLink[idx]:HIDDEN         = NO
                     hMenuLink[idx]:SENSITIVE      = YES
-                    hMenuLink[idx]:STRETCH-TO-FIT = sys-ctrl.log-fld
-                    hMenuLink[idx]:TOOLTIP        = sys-ctrl.descrip
-                    hMenuLink[idx]:TRANSPARENT    = sys-ctrl.int-fld EQ 1
+                    hMenuLink[idx]:STRETCH-TO-FIT = cNK1Value[4] EQ "YES"
+                    hMenuLink[idx]:TOOLTIP        = cNK1Value[2]
+                    hMenuLink[idx]:TRANSPARENT    = cNK1Value[3] EQ "1"
                     .
-                hMenuLink[idx]:LOAD-IMAGE(SEARCH(sys-ctrl.char-fld)).                
+                hMenuLink[idx]:LOAD-IMAGE(SEARCH(cNK1Value[1])).
             END. /* if avail */
         END. /* do idx */
     END. /* with frame */
