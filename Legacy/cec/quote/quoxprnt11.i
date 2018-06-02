@@ -17,8 +17,10 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
     FOR EACH xqqty OF xqitm NO-LOCK:
         numfit = numfit + 1.
     END.
-
-    RUN printHeader (12, OUTPUT v-printline).
+    IF LAST(xqitm.part-no) THEN
+    RUN printHeader (20, OUTPUT v-printline).
+    ELSE
+        RUN printHeader (12, OUTPUT v-printline).
          
     RELEASE eb.
     RELEASE ef.
@@ -240,19 +242,19 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
                                         ELSE IF AVAILABLE eb THEN eb.stock-no
                                         ELSE xqitm.i-no.
          
-                                    PUT "<C20>FG#: " + lv-fg#  FORM "x(30)" .
+                                    PUT "<C7>FG#: " + lv-fg#  FORM "x(30)" .
       
                                 END.
 
                                 ELSE
                                     IF i EQ 8  THEN 
                                     DO:  
-                                        PUT "<C20>DIE#: " + (IF AVAILABLE eb THEN eb.die-no ELSE "") FORM "x(30)"  .
+                                        PUT "<C7>DIE#: " + (IF AVAILABLE eb THEN eb.die-no ELSE "") FORM "x(30)"  .
                                     END.
                                     ELSE
                                         IF i EQ 9  THEN 
                                         DO: 
-                                            PUT "<C20>CAD#: " + (IF AVAILABLE eb THEN eb.cad-no ELSE "")  FORM "x(30)" .
+                                            PUT "<C7>CAD#: " + (IF AVAILABLE eb THEN eb.cad-no ELSE "")  FORM "x(30)" .
                                         END.
                                         ELSE
                                             IF i EQ 10  THEN 
@@ -267,7 +269,7 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
                                                 v-board = SUBSTRING(v-board,1,LENGTH(v-board) - 1).
        
                                                 IF v-board NE "" THEN 
-                                                    PUT "<C20>" v-board FORMAT "x(72)".
+                                                    PUT "<C7>" v-board FORMAT "x(72)".
       
                                             END.
 
@@ -329,7 +331,7 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
         FIND NEXT xqqty OF xqitm NO-LOCK NO-ERROR.
    
 
-        RUN printHeader (12, OUTPUT v-printline).
+        /*RUN printHeader (12, OUTPUT v-printline).*/
    
     END. /* do numfit */
 
