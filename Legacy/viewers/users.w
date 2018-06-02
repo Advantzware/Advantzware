@@ -78,7 +78,10 @@ DEF TEMP-TABLE ttUsers
     FIELD ttfUserAlias AS CHAR
     FIELD ttfEnvList AS CHAR
     FIELD ttfDbList AS CHAR
-    FIELD ttfModeList AS CHAR.
+    FIELD ttfModeList AS CHAR
+    INDEX iUserID IS UNIQUE ttfUserID ttfPdbName
+    INDEX iDatabase IS UNIQUE ttfPdbName ttfUserID.
+DEF BUFFER bttUsers FOR ttUsers.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -385,6 +388,15 @@ DEFINE FRAME F-Main
      "Environments:" VIEW-AS TEXT
           SIZE 16 BY .62 AT ROW 11.24 COL 91 WIDGET-ID 58
           FONT 4
+     "(Use CTRL-click to select multiple items)" VIEW-AS TEXT
+          SIZE 39 BY .62 AT ROW 16.48 COL 98 WIDGET-ID 76
+          FONT 1
+     "Phone: (Country)" VIEW-AS TEXT
+          SIZE 20 BY 1 AT ROW 4.1 COL 10 WIDGET-ID 92
+     "FAX: (Country)" VIEW-AS TEXT
+          SIZE 16 BY 1 AT ROW 5.29 COL 13 WIDGET-ID 94
+     "(Area)" VIEW-AS TEXT
+          SIZE 8 BY 1 AT ROW 4.1 COL 38 WIDGET-ID 96
      " At Login User Can Select:" VIEW-AS TEXT
           SIZE 26 BY .62 AT ROW 4.81 COL 91 WIDGET-ID 56
           FONT 4
@@ -404,15 +416,6 @@ DEFINE FRAME F-Main
           SIZE 4 BY 1 AT ROW 5.29 COL 54 WIDGET-ID 110
      "Phone/Fax Appear on:" VIEW-AS TEXT
           SIZE 27 BY .62 AT ROW 11.71 COL 51 WIDGET-ID 24
-     "(Use CTRL-click to select multiple items)" VIEW-AS TEXT
-          SIZE 39 BY .62 AT ROW 16.48 COL 98 WIDGET-ID 76
-          FONT 1
-     "Phone: (Country)" VIEW-AS TEXT
-          SIZE 20 BY 1 AT ROW 4.1 COL 10 WIDGET-ID 92
-     "FAX: (Country)" VIEW-AS TEXT
-          SIZE 16 BY 1 AT ROW 5.29 COL 13 WIDGET-ID 94
-     "(Area)" VIEW-AS TEXT
-          SIZE 8 BY 1 AT ROW 4.1 COL 38 WIDGET-ID 96
      RECT-5 AT ROW 5.05 COL 88 WIDGET-ID 78
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -732,7 +735,7 @@ DO:
             NO-ERROR.
         IF AVAIL lUsers THEN DO:
             MESSAGE
-                "Duplicate alias detected. Please enter a different value."
+                "Duplicate alias detected with user " + lUsers.user_id + ". Please enter a different value."
                 VIEW-AS ALERT-BOX ERROR.
             ASSIGN
                 SELF:SCREEN-VALUE = "".
@@ -1010,6 +1013,25 @@ PROCEDURE ipCheckPwd :
     ASSIGN
         lPwdOK = YES.
         
+    DO iCtr = 1 TO LENGTH(fiPassword:SCREEN-VALUE IN FRAME {&FRAME-NAME}):
+        IF ASC(SUBSTRING(fiPassword:SCREEN-VALUE,iCtr,1)) LE 31 
+        OR ASC(SUBSTRING(fiPassword:SCREEN-VALUE,iCtr,1)) EQ 34 /* dbl-quote */
+        OR ASC(SUBSTRING(fiPassword:SCREEN-VALUE,iCtr,1)) EQ 39 /* apostrophe */
+        OR ASC(SUBSTRING(fiPassword:SCREEN-VALUE,iCtr,1)) EQ 40 /* left paren */
+        OR ASC(SUBSTRING(fiPassword:SCREEN-VALUE,iCtr,1)) EQ 41 /* right paren */
+        THEN DO:
+            ASSIGN
+                lPwdOK = FALSE.
+            MESSAGE
+                "Your Password contains invalid characters.  Please limit your password to" skip
+                "letters (A-Z,a-z), numbers (0-9), or the following valid characters:" skip
+                "!,@,#,$,%,^,*,-,_,+,=,[,],{,},/,\,<,>,?,|,`,~,;,:,comma(,),period(.)" skip
+                "(NOTE - apostrophe, dbl-quote marks and parentheses are NOT allowed.)"
+                VIEW-AS ALERT-BOX.
+            RETURN.
+        END.
+    END.
+
     /* Verify password restrictions and display */
     IF usercontrol.minLC > 0 
     OR usercontrol.minUC > 0 
@@ -1119,20 +1141,20 @@ PROCEDURE ipReadUsrFile :
     DEF VAR cUsrLine AS CHAR NO-UNDO.
     
     IF SEARCH(cUsrLoc) NE ? THEN do:
-
         INPUT FROM VALUE(SEARCH(cUsrLoc)).
         REPEAT:
             IMPORT UNFORMATTED cUsrLine.
-            IF INDEX(cUsrLine,"|") = 0 THEN NEXT.
-            CREATE ttUsers.
-            ASSIGN
-                ttUsers.ttfPdbname = ENTRY(1,cUsrLine,"|")
-                ttUsers.ttfUserAlias = ENTRY(2,cUsrLine,"|")
-                ttUsers.ttfUserID = ENTRY(3,cUsrLine,"|")
-                ttUsers.ttfEnvList = ENTRY(4,cUsrLine,"|")
-                ttUsers.ttfDbList = ENTRY(5,cUsrLine,"|")
-                ttUsers.ttfModeList = ENTRY(6,cUsrLine,"|")
-                .
+            IF INDEX(cUsrLine,"|") NE 0 THEN DO:
+                CREATE ttUsers.
+                ASSIGN
+                    ttUsers.ttfUserID = ENTRY(1,cUsrLine,"|")
+                    ttUsers.ttfPdbname = ENTRY(2,cUsrLine,"|")
+                    ttUsers.ttfUserAlias = ENTRY(3,cUsrLine,"|")
+                    ttUsers.ttfEnvList = ENTRY(4,cUsrLine,"|")
+                    ttUsers.ttfDbList = ENTRY(5,cUsrLine,"|")
+                    ttUsers.ttfModeList = ENTRY(6,cUsrLine,"|")
+                    .
+            END.
         END.
         INPUT CLOSE.
     END.
@@ -1149,17 +1171,20 @@ PROCEDURE ipWriteUsrFile :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+    DEF VAR cOutString AS CHAR.
+
     OUTPUT TO VALUE(cUsrLoc).
-    FOR EACH ttUsers:
-        PUT UNFORMATTED
-            "*|" +
-            ttUsers.ttfUserAlias + "|" +
-            ttUsers.ttfUserID + "|" +
-            ttUsers.ttfEnvList + "|" +
-            ttUsers.ttfDbList + "|" +
-            ttUsers.ttfModeList + CHR(10).
+    FOR EACH ttUsers BY ttUsers.ttfPdbname by ttUsers.ttfUserID:
+        ASSIGN cOutString = 
+                ttUsers.ttfUserID + "|" + 
+                ttUsers.ttfPdbName + "|" +
+                ttUsers.ttfUserAlias + "|" + 
+                ttUsers.ttfEnvList + "|" +
+                ttUsers.ttfDbList + "|" +
+                ttUsers.ttfModeList.
+        PUT UNFORMATTED cOutString + CHR(10).
     END.
-    INPUT CLOSE.
+    OUTPUT CLOSE.
 
 END PROCEDURE.
 
@@ -1407,6 +1432,7 @@ PROCEDURE local-display-fields :
     RUN dispatch IN THIS-PROCEDURE ( INPUT 'display-fields':U ) .
     
     IF AVAIL users THEN DO:
+        /* Most elements come from the 'generic' ttUser (ttfPdbname = '*') */
         FIND FIRST ttUsers WHERE
             ttUsers.ttfPdbName = "*" AND
             ttUsers.ttfUserID = users.user_id
@@ -1418,7 +1444,6 @@ PROCEDURE local-display-fields :
                 ttUsers.ttfUserID = users.user_id
                 ttUsers.ttfEnvList = slEnvironments:list-items in FRAME {&FRAME-NAME}
                 ttUsers.ttfDbList = slDatabases:list-items
-                ttUsers.ttfModeList = slModes:list-items
                 ttUsers.ttfUserAlias = users.userAlias:SCREEN-VALUE.
         END.
 
@@ -1430,12 +1455,25 @@ PROCEDURE local-display-fields :
             cbUserType:screen-value = users.userType
             slEnvironments:screen-value = if ttUsers.ttfEnvList <> "" THEN ttUsers.ttfEnvList else slEnvironments:list-items
             slDatabases:screen-value = if ttUsers.ttfDbList <> "" THEN ttUsers.ttfDbList else slDatabases:list-items
+            users.userAlias:SCREEN-VALUE = ttUsers.ttfUserAlias
+            .
+
+        /* But mode-list has a by-db component (ttfPdbname = pdbname(1)) */
+        FIND FIRST ttUsers WHERE
+            ttUsers.ttfPdbName = PDBNAME(1) AND
+            ttUsers.ttfUserID = users.user_id
+            NO-ERROR.
+        IF NOT AVAIL ttUsers THEN DO:
+            CREATE ttUsers.
+            ASSIGN
+                ttUsers.ttfPdbName = PDBNAME(1)
+                ttUsers.ttfUserID = users.user_id
+                ttUsers.ttfModeList = slModes:list-items.
+        END.
+        ASSIGN 
             slModes:screen-value = if ttUsers.ttfModeList <> "" THEN ttUsers.ttfModeList else slModes:list-items
             .
 
-        IF users.userAlias:SCREEN-VALUE NE ttUsers.ttfUserAlias THEN ASSIGN
-            users.userAlias:SCREEN-VALUE = ttUsers.ttfUserAlias.
-        
         FIND _user NO-LOCK WHERE 
             _user._userid = users.user_id
             NO-ERROR.
@@ -1728,24 +1766,44 @@ PROCEDURE local-update-record :
             rThisUser = ROWID(users).
     END.
 
-    FIND ttUsers EXCLUSIVE WHERE
-        ttUsers.ttfPdbName = "*" AND
-        ttUsers.ttfUserID = users.user_id:SCREEN-VALUE
-        NO-ERROR.
-    IF NOT AVAIL ttUsers THEN DO:
-        CREATE ttUsers.
+        /* Most elements come from the 'generic' ttUser (ttfPdbname = '*') */
+        FIND ttUsers WHERE
+            ttUsers.ttfPdbName = "*" AND
+            ttUsers.ttfUserID = users.user_id
+            NO-ERROR.
+        IF NOT AVAIL ttUsers THEN DO:
+            CREATE ttUsers.
+            ASSIGN
+                ttUsers.ttfPdbName = "*"
+                ttUsers.ttfUserID = users.user_id.
+        END.
         ASSIGN
-            ttUsers.ttfPdbname = "*"
-            ttUsers.ttfUserID = users.user_id:SCREEN-VALUE.
-    END.
-    ASSIGN
-        ttUsers.ttfUserAlias = users.userAlias:SCREEN-VALUE
-        ttUsers.ttfEnvList = if users.envList <> slEnvironments:list-items then users.envList else ""
-        ttUsers.ttfDbList = if users.dbList <> slDatabases:list-items then users.dbList else ""
-        ttUsers.ttfModeList = if users.modeList <> slModes:list-items then users.modeList else "".
+            ttUsers.ttfUserAlias = users.userAlias:SCREEN-VALUE
+            ttUsers.ttfEnvList = if slEnvironments:SCREEN-VALUE <> slEnvironments:list-items then slEnvironments:SCREEN-VALUE else ""
+            ttUsers.ttfDbList = if slDatabases:SCREEN-VALUE <> slDatabases:list-items then slDatabases:SCREEN-VALUE else ""
+            ttUsers.ttfModeList = ""
+            .
+
+        /* But mode-list has a by-db component (ttfPdbname = pdbname(1)) */
+        FIND ttUsers WHERE
+            ttUsers.ttfPdbName = PDBNAME(1) AND
+            ttUsers.ttfUserID = users.user_id
+            NO-ERROR.
+        IF NOT AVAIL ttUsers THEN DO:
+            CREATE ttUsers.
+            ASSIGN
+                ttUsers.ttfPdbName = PDBNAME(1)
+                ttUsers.ttfUserID = users.user_id.
+        END.
+        ASSIGN
+            ttUsers.ttfModeList = if slModes:SCREEN-VALUE <> slModes:list-items then slModes:SCREEN-VALUE else ""
+            ttUsers.ttfEnvList = ""
+            ttUsers.ttfDbList = ""
+            ttUsers.ttfUserAlias = ""
+            .
+
     RUN ipWriteUsrFile.
    
-
     DISABLE 
         fiPassword
         fi_phone-area 

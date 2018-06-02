@@ -94,6 +94,9 @@ DEFINE VARIABLE ptrToString      AS MEMPTR    NO-UNDO.
 
 DEF VAR cVarName AS CHAR EXTENT 100 NO-UNDO.
 DEF VAR cVarValue AS CHAR EXTENT 100 NO-UNDO.
+DEF VAR cUserID AS CHAR NO-UNDO.
+DEF VAR cValidDBs AS CHAR NO-UNDO.
+DEF VAR cValidEnvs AS CHAR NO-UNDO.
 DEF VAR iCtr AS INT NO-UNDO.
 DEF VAR jCtr AS INT NO-UNDO.
 DEF VAR iNumUsers AS INT NO-UNDO.
@@ -117,6 +120,8 @@ DEF VAR iTries AS INT NO-UNDO.
 DEF VAR iLockoutTries AS INT NO-UNDO.
 DEF VAR cIniVarList AS CHAR NO-UNDO.
 DEF VAR cPatchNo AS CHAR NO-UNDO.
+DEF VAR iDbVer AS INT NO-UNDO.
+DEF VAR iEnvVer AS INT NO-UNDO.
 
 /* Ensure that these lists always match, 'c' is always the prefix */
 ASSIGN cIniVarList = 
@@ -256,7 +261,10 @@ DEF TEMP-TABLE ttUsers
     FIELD ttfUserAlias AS CHAR
     FIELD ttfEnvList AS CHAR
     FIELD ttfDbList AS CHAR
-    FIELD ttfModeList AS CHAR.
+    FIELD ttfModeList AS CHAR
+    INDEX iUserID IS UNIQUE ttfUserID ttfPdbName
+    INDEX iDatabase IS UNIQUE ttfPdbName ttfUserID.
+DEF BUFFER bttUsers FOR ttUsers.
 
 PROCEDURE GetCurrentDirectoryA EXTERNAL "KERNEL32.DLL":
     DEFINE INPUT        PARAMETER intBufferSize AS LONG.
@@ -305,7 +313,6 @@ ASSIGN
     FILE-INFO:FILE-NAME = cUsrLoc
     cUsrLoc = FILE-INFO:FULL-PATHNAME.
 
-
 IF cIniLoc EQ "" THEN DO:
     MESSAGE
         "Unable to locate an 'advantzware.ini' file." SKIP
@@ -317,8 +324,15 @@ ELSE DO:
     RUN ipReadIniFile.
 END.
 
+IF SEARCH(cDrive + "\" + cTopDir + "\.") EQ ? THEN DO:
+    MESSAGE
+        "There is a problem with your network connections." SKIP
+        "Please contact your local System Administrator."
+        VIEW-AS ALERT-BOX ERROR.
+    RETURN.
+END.
+
 /* Find the .usr file containing user-level settings */
-RUN ipFindUsrFile.
 IF cUsrLoc EQ "" THEN DO:
     MESSAGE
         "Unable to locate an 'advantzware.usr' file." SKIP
@@ -356,6 +370,15 @@ cbDatabase
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
 
+
+/* ************************  Function Prototypes ********************** */
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD intVer C-Win 
+FUNCTION intVer RETURNS INTEGER
+  ( INPUT cVerString AS CHAR )  FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 
 /* ***********************  Control Definitions  ********************** */
@@ -543,6 +566,19 @@ DO:
     DEF VAR lError AS LOG NO-UNDO.
     DEF VAR cMessage AS CHAR NO-UNDO.
     DEF VAR cCmdString AS CHAR NO-UNDO.
+    DEF VAR iPos AS INT NO-UNDO.
+    DEF VAR iEnvLevel AS INT NO-UNDO.
+    DEF VAR iDbLevel AS INT NO-UNDO.
+    DEF VAR iTruncLevel AS INT NO-UNDO.
+
+    ASSIGN
+        iPos = LOOKUP(cbEnvironment:{&SV},cbEnvironment:LIST-ITEMS)
+        iEnvLevel = intVer(ENTRY(iPos,cEnvVerList))
+        iPos = LOOKUP(cbDatabase:{&SV},cbDatabase:LIST-ITEMS)
+        iDbLevel = intVer(ENTRY(iPos,cDbVerList))
+        iTruncLevel = iDbLevel / 10000
+        .
+    /* Here the format for both is 16070400 */
 
     IF connectStatement <> "" THEN DO:
         IF VALID-HANDLE(hPreRun) THEN DO:
@@ -555,20 +591,12 @@ DO:
         ELSE DO:
             RUN ipDisconnectDB IN THIS-PROCEDURE.
             RUN ipConnectDB in THIS-PROCEDURE (connectStatement,
-                                               ttUsers.ttfUserID,
-                                               fiPassword:{&SV},
                                                OUTPUT lError).
 
             IF CONNECTED(LDBNAME(1)) THEN DO:
-                IF INDEX(PDBNAME(1),"165") <> 0 THEN
-                    RUN preRun165.p PERSISTENT SET hPreRun.
-                ELSE IF INDEX(PDBNAME(1),"166") <> 0 
-                OR INDEX(PDBNAME(1),"PremTest") <> 0 THEN
-                    RUN preRun166.p PERSISTENT SET hPreRun.
-                ELSE IF INDEX(PDBNAME(1),"167") <> 0 THEN
-                    RUN preRun167.p PERSISTENT SET hPreRun.
-                ELSE
-                    RUN preRun.p PERSISTENT SET hPreRun.
+                IF SEARCH("preRun" + STRING(iTruncLevel,"9999") + ".r") NE ? THEN
+                    RUN VALUE("preRun" + STRING(iTruncLevel,"9999") + ".p") PERSISTENT SET hPreRun.
+                ELSE RUN VALUE("prerun.p") PERSISTENT SET hPreRun.
             END.
             ELSE DO:
                 MESSAGE 
@@ -579,15 +607,15 @@ DO:
             END.
         END.
     END.
+
     ASSIGN
-        lUserOK = SETUSERID(ttUsers.ttfUserID,fiPassword:{&SV},LDBNAME(1)).
+        lUserOK = SETUSERID(cUserID,fiPassword:{&SV},LDBNAME(1)).
     IF lUserOK = TRUE THEN DO:
         RUN ipPreRun.
         ASSIGN
             c-Win:VISIBLE = FALSE.
         IF NOT cbMode:{&SV} = "Monitor Users" THEN DO:
             /* Set current dir */
-
             RUN ipSetCurrentDir (cMapDir + "\" + cEnvDir + "\" + cbEnvironment:{&SV}). 
 
             IF INDEX(cRunPgm,"mainmenu") <> 0
@@ -616,30 +644,20 @@ END.
 &Scoped-define SELF-NAME cbDatabase
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cbDatabase C-Win
 ON VALUE-CHANGED OF cbDatabase IN FRAME DEFAULT-FRAME /* Database */
+OR VALUE-CHANGED OF cbEnvironment
+OR VALUE-CHANGED OF cbMode
 DO:
-    RUN ipChangeDatabase.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME cbEnvironment
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cbEnvironment C-Win
-ON VALUE-CHANGED OF cbEnvironment IN FRAME DEFAULT-FRAME /* Environment */
-DO:
-    RUN ipChangeEnvironment.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME cbMode
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cbMode C-Win
-ON VALUE-CHANGED OF cbMode IN FRAME DEFAULT-FRAME /* Mode */
-DO:
-    RUN ipChangeMode.
+    CASE SELF:NAME:
+        WHEN "cbDatabase" THEN DO:
+            RUN ipChangeDatabase.
+        END.
+        WHEN "cbEnvironment" THEN DO:
+            RUN ipChangeEnvironment.
+        END.
+        WHEN "cbMode" THEN DO:
+            RUN ipChangeMode.
+        END.
+    END CASE.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -650,16 +668,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiUserID C-Win
 ON LEAVE OF fiUserID IN FRAME DEFAULT-FRAME /* User ID */
 DO:
-    FIND FIRST ttUsers NO-LOCK WHERE
-        ttUsers.ttfPdbName = "*" AND
-        ttUsers.ttfUserID = SELF:{&SV} 
-        NO-ERROR.
-    IF NOT AVAIL ttUsers THEN DO:
-        FIND FIRST ttUsers NO-LOCK WHERE
-            ttUsers.ttfPdbName = "*" AND
-            ttUsers.ttfUserAlias = SELF:{&SV}
-            NO-ERROR.
-    END.
+    RUN ipFindUser IN THIS-PROCEDURE.
     
     IF NOT AVAIL ttUsers THEN DO:
         MESSAGE
@@ -670,8 +679,8 @@ DO:
     END.
     ELSE DO:
         ASSIGN
-            cbEnvironment:LIST-ITEMS = IF ttUsers.ttfEnvList <> "" THEN ttUsers.ttfEnvList ELSE cEnvList
-            cbDatabase:LIST-ITEMS = IF ttUsers.ttfDbList <> "" THEN ttUsers.ttfDbList ELSE cDbList
+            cbEnvironment:LIST-ITEMS = IF cValidEnvs <> "" THEN cValidEnvs ELSE IF ttUsers.ttfEnvList <> "" THEN ttUsers.ttfEnvList ELSE cEnvList
+            cbDatabase:LIST-ITEMS = IF cValidDbs <> "" THEN cValidDbs ELSE IF ttUsers.ttfDbList <> "" THEN ttUsers.ttfDbList ELSE cDbList
             cbMode:LIST-ITEMS = IF ttUsers.ttfModeList <> "" THEN ttUsers.ttfModeList ELSE cModeList
             cbEnvironment:SCREEN-VALUE = ENTRY(1,cbEnvironment:LIST-ITEMS)
             cbDatabase:SCREEN-VALUE = ENTRY(1,cbDatabase:LIST-ITEMS)
@@ -679,10 +688,6 @@ DO:
         APPLY 'value-changed' TO cbEnvironment.
         APPLY 'value-changed' to cbDatabase.
         APPLY 'value-changed' TO cbMode.
-        IF ttUsers.ttfUserId = "Admin" 
-        OR ttUsers.ttfUserId = "ASI"  THEN
-            ENABLE cbDatabase WITH FRAME {&FRAME-NAME}.
-
     END.
         
 END.
@@ -731,10 +736,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         cbMode:SCREEN-VALUE = ENTRY(1,cbMode:LIST-ITEMS)
         fiUserID:SCREEN-VALUE = OS-GETENV("USERNAME").
         
-    APPLY 'value-changed' TO cbEnvironment.
-    APPLY 'value-changed' TO cbMode.
     APPLY 'entry' TO fiUserID.
-    
 
     IF NOT THIS-PROCEDURE:PERSISTENT THEN
         WAIT-FOR CLOSE OF THIS-PROCEDURE.
@@ -798,6 +800,16 @@ PROCEDURE ipChangeDatabase :
     DEF VAR iLookup AS INT NO-UNDO.
     DEF VAR xdbName AS CHAR NO-UNDO.
     DEF VAR xdbPort AS CHAR NO-UNDO.
+
+    RUN ipFindUser IN THIS-PROCEDURE.
+    IF NOT AVAIL ttUsers THEN DO:
+        MESSAGE
+            "Unable to locate this user in the advantzware.usr file." SKIP
+            "Please contact your system administrator for assistance."
+            VIEW-AS ALERT-BOX ERROR.
+        RETURN NO-APPLY.
+    END.
+
     ASSIGN
         connectStatement = ""
         xdbName = cbDatabase:{&SV}
@@ -834,6 +846,17 @@ PROCEDURE ipChangeEnvironment :
     DEF VAR preProPath AS CHAR NO-UNDO.
     DEF VAR iLookup AS INT NO-UNDO.
     DEF VAR iCtr AS INT NO-UNDO.
+    DEF VAR iPos AS INT NO-UNDO.
+    DEF VAR iEnvLevel AS INT NO-UNDO.
+    DEF VAR iDbLevel AS INT NO-UNDO.
+    
+    ASSIGN
+        iPos = LOOKUP(cbEnvironment:{&SV},cbEnvironment:LIST-ITEMS)
+        iEnvLevel = intVer(ENTRY(iPos,cEnvVerList))
+        iPos = LOOKUP(cbDatabase:{&SV},cbDatabase:LIST-ITEMS)
+        iDbLevel = intVer(ENTRY(iPos,cDbVerList))
+        .
+    /* Here the format for both is 16070400 */
     
     CASE cbEnvironment:SCREEN-VALUE IN FRAME {&FRAME-NAME}:
         WHEN "Prod" THEN DO:
@@ -854,34 +877,52 @@ PROCEDURE ipChangeEnvironment :
                 END.
             END.
         END.
-        WHEN "16.7.0" OR
-        WHEN "16.7.4" OR
-        WHEN "16.7.5" OR
-        WHEN "16.7.8" THEN DO: 
-            DO iCtr = 1 TO NUM-ENTRIES(cbDatabase:LIST-ITEMS):
-                IF INDEX(ENTRY(iCtr,cbDatabase:LIST-ITEMS),"167") <> 0 THEN DO:
+        OTHERWISE DO:
+            IF iEnvLevel LT 16060000 THEN DO iCtr = 1 TO NUM-ENTRIES(cbDatabase:LIST-ITEMS):
+                ASSIGN
+                    iDbLevel = intVer(ENTRY(iCtr,cDbVerList)).
+                IF iDbLevel GE 16050000
+                AND iDbLevel LT 16060000 THEN DO:
                     ASSIGN
                         cbDatabase:SCREEN-VALUE = ENTRY(iCtr,cbDatabase:LIST-ITEMS).
                     LEAVE.
                 END.
             END.
-        END.
-        WHEN "16.6.0" OR
-        WHEN "16.6.4" OR
-        WHEN "16.6.8" THEN DO: 
-            DO iCtr = 1 TO NUM-ENTRIES(cbDatabase:LIST-ITEMS):
-                IF INDEX(ENTRY(iCtr,cbDatabase:LIST-ITEMS),"166") <> 0 THEN DO:
+            ELSE IF iEnvLevel LT 16070000 THEN DO iCtr = 1 TO NUM-ENTRIES(cbDatabase:LIST-ITEMS):
+                ASSIGN
+                    iDbLevel = intVer(ENTRY(iCtr,cDbVerList)).
+                IF iDbLevel GE 16060000
+                AND iDbLevel LT 16070000 THEN DO:
                     ASSIGN
                         cbDatabase:SCREEN-VALUE = ENTRY(iCtr,cbDatabase:LIST-ITEMS).
                     LEAVE.
                 END.
             END.
-        END.
-        WHEN "16.5.8" OR 
-        WHEN "16.5.4" OR 
-        WHEN "16.5.0" THEN DO:
-            DO iCtr = 1 TO NUM-ENTRIES(cbDatabase:LIST-ITEMS):
-                IF INDEX(ENTRY(iCtr,cbDatabase:LIST-ITEMS),"165") <> 0 THEN DO:
+            ELSE IF iEnvLevel LT 16080000 THEN DO iCtr = 1 TO NUM-ENTRIES(cbDatabase:LIST-ITEMS):
+                ASSIGN
+                    iDbLevel = intVer(ENTRY(iCtr,cDbVerList)).
+                IF iDbLevel GE 16070000
+                AND iDbLevel LT 16080000 THEN DO:
+                    ASSIGN
+                        cbDatabase:SCREEN-VALUE = ENTRY(iCtr,cbDatabase:LIST-ITEMS).
+                    LEAVE.
+                END.
+            END.
+            ELSE IF iEnvLevel LT 16090000 THEN DO iCtr = 1 TO NUM-ENTRIES(cbDatabase:LIST-ITEMS):
+                ASSIGN
+                    iDbLevel = intVer(ENTRY(iCtr,cDbVerList)).
+                IF iDbLevel GE 16080000
+                AND iDbLevel LT 16090000 THEN DO:
+                    ASSIGN
+                        cbDatabase:SCREEN-VALUE = ENTRY(iCtr,cbDatabase:LIST-ITEMS).
+                    LEAVE.
+                END.
+            END.
+            ELSE IF iEnvLevel LT 16100000 THEN DO iCtr = 1 TO NUM-ENTRIES(cbDatabase:LIST-ITEMS):
+                ASSIGN
+                    iDbLevel = intVer(ENTRY(iCtr,cDbVerList)).
+                IF iDbLevel GE 16090000
+                AND iDbLevel LT 16100000 THEN DO:
                     ASSIGN
                         cbDatabase:SCREEN-VALUE = ENTRY(iCtr,cbDatabase:LIST-ITEMS).
                     LEAVE.
@@ -943,19 +984,13 @@ PROCEDURE ipConnectDb :
   Notes:       
 ------------------------------------------------------------------------------*/
     DEF INPUT PARAMETER cStatement AS CHAR NO-UNDO.
-    DEF INPUT PARAMETER cUser AS CHAR NO-UNDO.
-    DEF INPUT PARAMETER cPassword AS CHAR NO-UNDO.
     DEF OUTPUT PARAMETER lError AS LOG NO-UNDO.
 
     DEF VAR iLookup AS INT NO-UNDO.
     DEF VAR xdbName AS CHAR NO-UNDO.
     DEF VAR xdbPort AS CHAR NO-UNDO.
 
-    CONNECT VALUE(cStatement + 
-                  " -U " + cUser + 
-                  " -P '" + cPassword + 
-                  "' -ct 2").
-    IF NOT CONNECTED(LDBNAME(1)) THEN RETURN.                  
+    CONNECT VALUE(cStatement) NO-ERROR.
 
     IF CONNECTED(LDBNAME(1))
     AND LDBNAME(1) = "ASI" THEN DO:
@@ -977,35 +1012,27 @@ PROCEDURE ipConnectDb :
                 VIEW-AS ALERT-BOX ERROR.
             QUIT.
         END.
+        RETURN ERROR.
     END.
 
     ASSIGN
-        lConnectAudit = IF INDEX(cConnectAudit,"Y") NE 0 OR INDEX(cConnectAudit,"T") NE 0 THEN TRUE ELSE FALSE
-        lError = NOT CONNECTED(LDBNAME(1)).
-    IF lError THEN
-        RETURN.
+        lConnectAudit = IF INDEX(cConnectAudit,"Y") NE 0 OR INDEX(cConnectAudit,"T") NE 0 THEN TRUE ELSE FALSE.
 
-    IF CONNECTED(LDBNAME(1))
-    AND lConnectAudit THEN DO:
-    
-    ASSIGN
-        xdbName = cbDatabase:{&SV}
-        iLookup = LOOKUP(cbEnvironment:{&SV},cEnvList)
-        xDbName = ""
-        xDbName = ENTRY(iLookup,cAudDbList)
-        xdbPort = ENTRY(iLookup,cAudPortList)
-        connectStatement = "".
-    
-        IF INDEX(PDBNAME(1),"165") <> 0 
-        OR INDEX(PDBNAME(1),"ship") <> 0 THEN ASSIGN
+    IF lConnectAudit THEN DO:
+        ASSIGN
+            xdbName = cbDatabase:{&SV}
+            iLookup = LOOKUP(cbDatabase:{&SV},cDbList)
+            xDbName = ENTRY(iLookup,cAudDbList)
+            xdbPort = ENTRY(iLookup,cAudPortList)
             connectStatement = "".
-        ELSE IF xDbName NE "" THEN ASSIGN
-            connectStatement = "-db " + xDbName + 
-                               " -H " + chostName +
-                               " -S " + xdbPort + 
-                               " -N tcp -ld AUDIT".
+    
+        IF xDbName NE "" THEN DO:
+            ASSIGN
+                connectStatement = "-db " + xDbName + 
+                                   " -H " + chostName +
+                                   " -S " + xdbPort + 
+                                   " -N tcp -ld AUDIT".
 
-        IF connectStatement NE "" THEN DO:
             CONNECT VALUE(connectStatement).
             IF NOT CONNECTED(LDBNAME(2)) THEN DO:
                 MESSAGE
@@ -1016,8 +1043,7 @@ PROCEDURE ipConnectDb :
             END.
         END.
     END.
-
-        
+    
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1216,6 +1242,99 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipFindUser C-Win 
+PROCEDURE ipFindUser :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    /* First get the 'generic' part of the user - alias, db list, env list */
+    FIND FIRST ttUsers NO-LOCK WHERE
+        ttUsers.ttfUserID = fiUserID:{&SV} AND
+        ttUsers.ttfPdbName = "*"
+        NO-ERROR.
+    IF NOT AVAIL ttUsers THEN FIND FIRST ttUsers NO-LOCK WHERE
+        ttUsers.ttfUserAlias = fiUserID:{&SV} AND
+        ttUsers.ttfPdbName = "*"
+        NO-ERROR.
+    /* If this has not yet been built, build off of any DB */
+    IF NOT AVAIL ttUsers THEN DO:
+        FIND FIRST ttUsers NO-LOCK WHERE
+            ttUsers.ttfUserID = fiUserID:{&SV} 
+            NO-ERROR.
+        IF NOT AVAIL ttUsers THEN FIND FIRST ttUsers NO-LOCK WHERE
+            ttUsers.ttfUserAlias = fiUserID:{&SV}
+            NO-ERROR.
+        IF NOT AVAIL ttUsers THEN DO:
+            MESSAGE
+                "Unable to locate this user in the advantzware.usr file." SKIP
+                "Please contact your system administrator for assistance."
+                VIEW-AS ALERT-BOX ERROR.
+            QUIT.
+        END.
+        ELSE DO:
+            CREATE bttUsers.
+            BUFFER-COPY ttUsers EXCEPT 
+                ttfPdbname 
+                ttfModeLIst 
+                TO bttUsers.
+            ASSIGN
+                bttUsers.ttfPdbName = "*".
+            FIND ttUsers NO-LOCK WHERE
+                ROWID(ttUsers) EQ ROWID(bttUsers).
+        END.
+    END.
+    IF AVAIL ttUsers THEN ASSIGN
+        cUserID = ttUsers.ttfUserID
+        cValidDbs = ttUsers.ttfDbList
+        cValidEnvs = ttUsers.ttfEnvList.
+    ELSE RETURN.
+            
+    FIND FIRST ttUsers NO-LOCK WHERE
+        ttUsers.ttfUserID = cUserID AND
+        ttUsers.ttfPdbName = cbDataBase:{&SV} 
+        NO-ERROR.
+
+    /* Can't find by DB, is there a generic one? (db = '*') */
+    IF NOT AVAIL ttUsers THEN DO:
+        FIND FIRST ttUsers NO-LOCK WHERE
+            ttUsers.ttfUserID = fiUserID:{&SV} AND
+            ttUsers.ttfPdbName = "*"
+            NO-ERROR.
+        IF NOT AVAIL ttUsers THEN FIND FIRST ttUsers NO-LOCK WHERE
+            ttUsers.ttfUserAlias = fiUserID:{&SV} AND
+            ttUsers.ttfPdbName = "*"
+            NO-ERROR.
+        /* If so, copy it (the generic one) to by-DB */
+        IF AVAIL ttUsers THEN DO:
+            CREATE bttUsers.
+            ASSIGN
+                bttUsers.ttfUserID = ttUsers.ttfUserID
+                bttUsers.ttfPdbName = cbDataBase:{&SV}.
+        END.
+        FIND ttUsers NO-LOCK WHERE
+            ROWID(ttUsers) EQ ROWID(bttUsers).
+    END.
+    /* If we STILL don't have a user, see if there is one for any database */
+    IF NOT AVAIL ttUsers THEN DO:
+        FIND FIRST ttUsers NO-LOCK WHERE
+            ttUsers.ttfUserID = fiUserID:{&SV} 
+            NO-ERROR.
+        IF NOT AVAIL ttUsers THEN FIND FIRST ttUsers NO-LOCK WHERE
+            ttUsers.ttfUserAlias = fiUserID:{&SV}
+            NO-ERROR.
+    END.    
+    IF AVAIL ttUsers THEN ASSIGN
+        cUserID = IF cUserID EQ "" THEN ttUsers.ttfUserID ELSE cUserID
+        cValidDbs = IF cValidDbs EQ "" THEN ttUsers.ttfDbList ELSE cValidDbs
+        cValidEnvs = IF cValidEnvs EQ "" THEN ttUsers.ttfEnvList ELSE cValidEnvs.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipFindUsrFile C-Win 
 PROCEDURE ipFindUsrFile :
 /*------------------------------------------------------------------------------
@@ -1225,8 +1344,6 @@ PROCEDURE ipFindUsrFile :
 ------------------------------------------------------------------------------*/
     /* Start guessing where the file might be */
     DO:
-        ASSIGN
-            cUsrLoc = "n:\admin\advantzware.usr".
         IF SEARCH(cUsrLoc) <> ? THEN DO:
             ASSIGN
                 cUsrLoc = SEARCH(cUsrLoc).
@@ -1530,16 +1647,17 @@ PROCEDURE ipReadUsrFile :
     INPUT FROM VALUE(SEARCH(cUsrLoc)).
     REPEAT:
         IMPORT UNFORMATTED cUsrLine.
-        IF INDEX(cUsrLine,"|") = 0 THEN NEXT.
-        CREATE ttUsers.
-        ASSIGN
-            ttUsers.ttfPdbname = ENTRY(1,cUsrLine,"|")
-            ttUsers.ttfUserAlias = ENTRY(2,cUsrLine,"|")
-            ttUsers.ttfUserID = ENTRY(3,cUsrLine,"|")
-            ttUsers.ttfEnvList = ENTRY(4,cUsrLine,"|")
-            ttUsers.ttfDbList = ENTRY(5,cUsrLine,"|")
-            ttUsers.ttfModeList = ENTRY(6,cUsrLine,"|")
-            iCtr = iCtr + 1.
+        IF INDEX(cUsrLine,"|") NE 0 THEN DO:
+            CREATE ttUsers.
+            ASSIGN
+                ttUsers.ttfUserID = ENTRY(1,cUsrLine,"|")
+                ttUsers.ttfPdbname = ENTRY(2,cUsrLine,"|")
+                ttUsers.ttfUserAlias = ENTRY(3,cUsrLine,"|")
+                ttUsers.ttfEnvList = ENTRY(4,cUsrLine,"|")
+                ttUsers.ttfDbList = ENTRY(5,cUsrLine,"|")
+                ttUsers.ttfModeList = ENTRY(6,cUsrLine,"|")
+                iCtr = iCtr + 1.
+        END.
     END.
     INPUT CLOSE.
     ASSIGN
@@ -1581,15 +1699,18 @@ PROCEDURE ipUpdUsrFile :
 /*------------------------------------------------------------------------------
   Purpose:     
   Parameters:  <none>
-  Notes:       
+  Notes:       The ONLY reason to run this is if in "healing" mode; i.e there's been
+               a change to the structure of the .usr file or the ttUsers temp-table
 ------------------------------------------------------------------------------*/
     DEF INPUT PARAMETER ipcUserList AS CHAR NO-UNDO.
     DEF VAR iCtr AS INT NO-UNDO.
     DEF VAR cOutString AS CHAR.
     
+    /* ipcUserList is a list of all _user records in the connected DB; we need
+    one ttUser for the generics (ttfPdbName = "*") and one for the specific. */
     DO iCtr = 1 TO NUM-ENTRIES(ipcUserList):
         FIND FIRST ttUsers WHERE
-            ttUsers.ttfPdbName = "*"
+            ttUsers.ttfPdbName = "*" AND
             ttUsers.ttfUserID = ENTRY(iCtr,ipcUserList)
             NO-LOCK NO-ERROR.
         IF NOT AVAIL ttUsers THEN DO:
@@ -1601,9 +1722,23 @@ PROCEDURE ipUpdUsrFile :
                 ttUsers.ttfUserAlias = ENTRY(iCtr,ipcUserList)
                 .
         END.
+        FIND FIRST ttUsers WHERE
+            ttUsers.ttfPdbName = cbDatabase:{&SV} AND
+            ttUsers.ttfUserID = ENTRY(iCtr,ipcUserList)
+            NO-LOCK NO-ERROR.
+        IF NOT AVAIL ttUsers THEN DO:
+            CREATE ttUsers.
+            ASSIGN
+                lUpdUsr = TRUE
+                ttUsers.ttfPdbname = cbDatabase:{&SV}
+                ttUsers.ttfUserID = ENTRY(iCtr,ipcUserList)
+                .
+        END.
     END.
-    FOR EACH ttUsers:
+    FOR EACH ttUsers WHERE ttUsers.ttfPdbName = cbDatabase:{&SV}:
         IF LOOKUP(ttUsers.ttfUserID,ipcUserList) = 0 THEN DO:
+            ASSIGN
+                lUpdUsr = TRUE.
             DELETE ttUsers.
         END.
     END.
@@ -1611,9 +1746,9 @@ PROCEDURE ipUpdUsrFile :
         OUTPUT STREAM usrStream TO VALUE(cUsrLoc).
         FOR EACH ttUsers BY ttUsers.ttfPdbname by ttUsers.ttfUserID:
             ASSIGN cOutString = 
-                "*|" +
-                ttUsers.ttfUserAlias + "|" + 
                 ttUsers.ttfUserID + "|" + 
+                ttUsers.ttfPdbName + "|" +
+                ttUsers.ttfUserAlias + "|" + 
                 ttUsers.ttfEnvList + "|" +
                 ttUsers.ttfDbList + "|" +
                 ttUsers.ttfModeList.
@@ -1625,6 +1760,36 @@ PROCEDURE ipUpdUsrFile :
     
     
 END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+/* ************************  Function Implementations ***************** */
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION intVer C-Win 
+FUNCTION intVer RETURNS INTEGER
+  ( INPUT cVerString AS CHAR ) :
+/*------------------------------------------------------------------------------
+  Purpose:  
+    Notes:  
+------------------------------------------------------------------------------*/
+    DEF VAR cStrVal AS CHAR EXTENT 4 NO-UNDO.
+    DEF VAR iIntVal AS INT EXTENT 4 NO-UNDO.
+    DEF VAR iIntVer AS INT NO-UNDO.
+    ASSIGN
+        cStrVal[1] = IF NUM-ENTRIES(cVerString,".") GE 1 THEN ENTRY(1,cVerString,".") ELSE "00"
+        cStrVal[2] = IF NUM-ENTRIES(cVerString,".") GE 2 THEN ENTRY(2,cVerString,".") ELSE "00"
+        cStrVal[3] = IF NUM-ENTRIES(cVerString,".") GE 3 THEN ENTRY(3,cVerString,".") ELSE "00"
+        cStrVal[4] = IF NUM-ENTRIES(cVerString,".") GE 4 THEN ENTRY(4,cVerString,".") ELSE "00"
+        iIntVal[1] = INT(cStrVal[1])
+        iIntVal[2] = INT(cStrVal[2])
+        iIntVal[3] = INT(cStrVal[3])
+        iIntVal[4] = INT(cStrVal[4])
+        iIntVer = (iIntVal[1] * 1000000) + (iIntVal[2] * 10000) + (iIntVal[3] * 100) + iIntVal[4]
+        NO-ERROR.
+  RETURN iIntVer.   /* Function return value. */
+
+END FUNCTION.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
