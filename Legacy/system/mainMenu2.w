@@ -104,26 +104,33 @@ DEFINE TEMP-TABLE ttblImage NO-UNDO
     FIELD imageFile AS CHARACTER
         INDEX ttblImage IS PRIMARY prgmName
         .
-DEFINE VARIABLE closeMenu     AS LOGICAL   NO-UNDO.
-DEFINE VARIABLE hButtonWidget AS HANDLE    NO-UNDO.
-DEFINE VARIABLE dObjectRow    AS DECIMAL   NO-UNDO.
-DEFINE VARIABLE dObjectCol    AS DECIMAL   NO-UNDO INITIAL {&startObjectCol}.
-DEFINE VARIABLE iObjectCount  AS INTEGER   NO-UNDO.
-DEFINE VARIABLE cEulaFile     AS CHARACTER NO-UNDO.
-DEFINE VARIABLE lEulaAccepted AS LOGICAL   NO-UNDO.
-DEFINE VARIABLE cEulaVersion  AS CHARACTER NO-UNDO.
-DEFINE VARIABLE lUserExit     AS LOGICAL   NO-UNDO.
-DEFINE VARIABLE cSourceMenu   AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cUserName     AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cMnemonic     AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cImageFolder  AS CHARACTER NO-UNDO.
-DEFINE VARIABLE dObjectHeight AS DECIMAL   NO-UNDO.
-DEFINE VARIABLE iHiCount      AS INTEGER   NO-UNDO.
-DEFINE VARIABLE iMenuSize     AS INTEGER   NO-UNDO.
-DEFINE VARIABLE iLanguage     AS INTEGER   NO-UNDO.
-DEFINE VARIABLE lOK           AS LOGICAL   NO-UNDO.
-DEFINE VARIABLE hFocus        AS HANDLE    NO-UNDO.
-DEFINE VARIABLE hMenuLink     AS HANDLE    NO-UNDO EXTENT 8.
+DEFINE VARIABLE closeMenu         AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE hButtonWidget     AS HANDLE    NO-UNDO.
+DEFINE VARIABLE dObjectRow        AS DECIMAL   NO-UNDO.
+DEFINE VARIABLE dObjectCol        AS DECIMAL   NO-UNDO INITIAL {&startObjectCol}.
+DEFINE VARIABLE iObjectCount      AS INTEGER   NO-UNDO.
+DEFINE VARIABLE cEulaFile         AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lEulaAccepted     AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cEulaVersion      AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lUserExit         AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cSourceMenu       AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cUserName         AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cMnemonic         AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cImageFolder      AS CHARACTER NO-UNDO.
+DEFINE VARIABLE dObjectHeight     AS DECIMAL   NO-UNDO.
+DEFINE VARIABLE iHiCount          AS INTEGER   NO-UNDO.
+DEFINE VARIABLE iMenuSize         AS INTEGER   NO-UNDO.
+DEFINE VARIABLE iLanguage         AS INTEGER   NO-UNDO.
+DEFINE VARIABLE lOK               AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE hFocus            AS HANDLE    NO-UNDO.
+DEFINE VARIABLE hMenuLink         AS HANDLE    NO-UNDO EXTENT 8.
+DEFINE VARIABLE iEditorBGColor    AS INTEGER   NO-UNDO INITIAL {&BGColor}.
+DEFINE VARIABLE iEditorFGColor    AS INTEGER   NO-UNDO INITIAL {&FGColor}.
+DEFINE VARIABLE iEditorFont       AS INTEGER   NO-UNDO INITIAL ?.
+DEFINE VARIABLE iFrameBGColor     AS INTEGER   NO-UNDO INITIAL {&BGColor}.
+DEFINE VARIABLE iFrameFGColor     AS INTEGER   NO-UNDO INITIAL {&FGColor}.
+DEFINE VARIABLE iRectangleBGColor AS INTEGER   NO-UNDO INITIAL {&BGColor}.
+DEFINE VARIABLE iRectangleFGColor AS INTEGER   NO-UNDO INITIAL {&FGColor}.
 
 ASSIGN
     g_company = ""
@@ -863,6 +870,7 @@ PROCEDURE pCreateEditor :
     DEFINE INPUT PARAMETER ipdHeight   AS DECIMAL   NO-UNDO.
     DEFINE INPUT PARAMETER ipiFGColor  AS INTEGER   NO-UNDO.
     DEFINE INPUT PARAMETER ipiBGColor  AS INTEGER   NO-UNDO.
+    DEFINE INPUT PARAMETER ipiFont     AS INTEGER   NO-UNDO.
     DEFINE INPUT PARAMETER ipcText     AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcToolTip  AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcClick    AS CHARACTER NO-UNDO.
@@ -880,6 +888,7 @@ PROCEDURE pCreateEditor :
             HEIGHT = ipdHeight - .34
             FGCOLOR = ipiFGColor
             BGCOLOR = ipiBGColor
+            FONT = ipiFont
             SCROLLBAR-HORIZONTAL = NO
             SCROLLBAR-VERTICAL = NO
             WORD-WRAP = YES
@@ -1006,8 +1015,6 @@ PROCEDURE pCreateMenuObjects :
             dObjectRow,
             {&objectWidth},
             dObjectHeight,
-            {&FGColor},
-            {&BGColor},
             cObjectLabel,
             ttblItem.mnemonic,
             "pClick",
@@ -1017,7 +1024,7 @@ PROCEDURE pCreateMenuObjects :
         dObjectRow = dObjectRow + dObjectHeight + {&objectGap}.       
     END. /* each ttblItem */
     FRAME {&FRAME-NAME}:HIDDEN = NO.
-
+    
     RUN LockWindowUpdate (0,OUTPUT i).
     SESSION:SET-WAIT-STATE("").
 
@@ -1040,8 +1047,6 @@ PROCEDURE pCreateObject :
     DEFINE INPUT PARAMETER ipdRow      AS DECIMAL   NO-UNDO.
     DEFINE INPUT PARAMETER ipdWidth    AS DECIMAL   NO-UNDO.
     DEFINE INPUT PARAMETER ipdHeight   AS DECIMAL   NO-UNDO.
-    DEFINE INPUT PARAMETER ipiFGColor  AS INTEGER   NO-UNDO.
-    DEFINE INPUT PARAMETER ipiBGColor  AS INTEGER   NO-UNDO.
     DEFINE INPUT PARAMETER ipcText     AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcToolTip  AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcClick    AS CHARACTER NO-UNDO.
@@ -1055,8 +1060,8 @@ PROCEDURE pCreateObject :
         ipdRow,
         ipdWidth,
         ipdHeight,
-        ipiFGColor,
-        ipiBGColor,
+        iRectangleFGColor,
+        iRectangleBGColor,
         ipcTooltip,
         ipcClick
         ).            
@@ -1069,8 +1074,9 @@ PROCEDURE pCreateObject :
         ipdRow,
         ipdWidth,
         ipdHeight,
-        ipiFGColor,
-        ipiBGColor,
+        iEditorFGColor,
+        iEditorBGColor,
+        iEditorFont,
         ipcText,
         ipcTooltip,
         ipcClick
@@ -1283,6 +1289,40 @@ PROCEDURE pGetUserSettings :
     IF iLanguage LT 1 THEN iLanguage = 1.
     IF iMenuSize LT 1 THEN iMenuSize = 1.
     cLabelLanguage = ENTRY(iLanguage,cLanguageList).
+    
+    FIND FIRST prgrms NO-LOCK
+         WHERE prgrms.prgmname EQ "mainmenu2."
+         NO-ERROR.
+    IF AVAILABLE prgrms THEN DO:
+        IF prgrms.use_fonts THEN
+        iEditorFont           = prgrms.widget_font[5].
+        IF prgrms.use_colors THEN
+        ASSIGN
+            iEditorBGColor    = prgrms.widget_bgc[5]
+            iEditorFGColor    = prgrms.widget_fgc[5]
+            iFrameBGColor     = prgrms.widget_bgc[7]
+            iFrameFGColor     = prgrms.widget_fgc[7]
+            iRectangleBGColor = prgrms.widget_bgc[11]
+            iRectangleFGColor = prgrms.widget_fgc[11]
+            .
+    END. /* avail prgrms */
+    
+    FIND FIRST users NO-LOCK
+         WHERE users.user_id EQ USERID("ASI")
+         NO-ERROR.
+    IF AVAILABLE users THEN DO:
+        IF users.use_fonts THEN
+        iEditorFont           = users.widget_font[5].
+        IF users.use_colors THEN
+        ASSIGN
+            iEditorBGColor    = users.widget_bgc[5]
+            iEditorFGColor    = users.widget_fgc[5]
+            iFrameBGColor     = users.widget_bgc[7]
+            iFrameFGColor     = users.widget_fgc[7]
+            iRectangleBGColor = users.widget_bgc[11]
+            iRectangleFGColor = users.widget_fgc[11]
+            .
+    END. /* avail users */
 
 END PROCEDURE.
 
@@ -1709,12 +1749,17 @@ FUNCTION fSetColor RETURNS LOGICAL
     Notes:  
 ------------------------------------------------------------------------------*/
     IF VALID-HANDLE(iphObject) THEN DO:
-        ASSIGN
-            iphObject:BGCOLOR = IF iplSet THEN {&highlightColor} ELSE {&BGColor}
-            iphObject:FGCOLOR = IF iplSet THEN 15 ELSE ?
-            .
         IF iphObject:TYPE EQ "Editor" THEN
-        iphObject:FONT = IF iplSet THEN 6 ELSE ?.
+        ASSIGN
+            iphObject:BGCOLOR = IF iplSet THEN {&highlightColor} ELSE iEditorBGColor
+            iphObject:FGCOLOR = IF iplSet THEN 15 ELSE iEditorFGColor
+            iphObject:FONT    = IF iplSet THEN 6  ELSE iEditorFont
+            .
+        ELSE IF iphObject:TYPE EQ "Rectangle" THEN
+        ASSIGN
+            iphObject:BGCOLOR = IF iplSet THEN {&highlightColor} ELSE iRectangleBGColor
+            iphObject:FGCOLOR = IF iplSet THEN 15 ELSE iRectangleFGColor
+            .
     END.
     
     RETURN TRUE.
