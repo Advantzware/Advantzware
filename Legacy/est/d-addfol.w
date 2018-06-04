@@ -318,8 +318,9 @@ DO:
     FIND FIRST sys-ctrl WHERE sys-ctrl.company EQ cocode
                           AND sys-ctrl.name    EQ "CADCAM" NO-LOCK NO-ERROR.
 
-    assign ls-add-what = IF AVAIL sys-ctrl AND sys-ctrl.char-fld = "Arden" THEN "estImpact"
-                         ELSE IF AVAIL sys-ctrl AND sys-ctrl.char-fld = "Artios2" THEN "estCadNew"
+    assign ls-add-what = IF AVAILABLE sys-ctrl AND sys-ctrl.char-fld = "Arden" THEN "estImpact"
+                         ELSE IF AVAILABLE sys-ctrl AND sys-ctrl.char-fld = "Artios2" THEN "estCadNew"
+                         ELSE IF AVAILABLE sys-ctrl AND sys-ctrl.char-fld = "ArtiosTest" THEN "estCadTest"
                          ELSE "estCad".
 
     apply "window-close" to this-procedure.

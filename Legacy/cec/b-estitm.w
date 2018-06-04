@@ -5099,7 +5099,7 @@ PROCEDURE local-add-record :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEF BUFFER b-eb FOR eb.
-
+  DEFINE VARIABLE lDummy AS LOGICAL NO-UNDO.
 
   /* Code placed here will execute PRIOR to standard behavior. */
   ASSIGN
@@ -5146,6 +5146,14 @@ PROCEDURE local-add-record :
     EMPTY TEMP-TABLE tt-artios.
     RUN est/d-artioscad.w (cocode).
     RUN createESTfromArtios.
+  END.
+  ELSE IF ls-add-what = "estCadNew" THEN DO:
+    RUN util/impEsko.p.
+    RUN dispatch('open-query').
+    lDummy = {&browse-name}:REFRESH() IN FRAME {&FRAME-NAME}.
+  END.
+  ELSE IF ls-add-what = "estCadTest" THEN DO:
+    RUN est/d-ArtiosCadSimple.w (cocode).
   END.
   ELSE IF ls-add-what = "estImpact" THEN DO:
      EMPTY TEMP-TABLE tt-artios.
