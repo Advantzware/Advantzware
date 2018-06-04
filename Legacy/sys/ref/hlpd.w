@@ -335,15 +335,13 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
                                "" /* cust */, "" /* ship-to*/,
                                OUTPUT cRtnChar, OUTPUT lRecFound).
         vclint = cRtnChar .
-        MESSAGE "vclint " STRING(vclint) VIEW-AS ALERT-BOX ERROR .
     
         RUN sys/ref/nk1look.p (INPUT g_company, "AsiHelpService", "C" /* Logical */, 
                                NO /* check by cust */, YES /* use cust not vendor */, 
                                "" /* cust */, "" /* ship-to*/,
                                OUTPUT cRtnChar, OUTPUT lRecFound).
-     vconn = cRtnChar .
-     MESSAGE "cRtnChar " STRING(cRtnChar) VIEW-AS ALERT-BOX ERROR .
-
+        vconn = cRtnChar .
+     
     CREATE SERVER vhWebService.
     vhWebService:CONNECT(vconn) NO-ERROR.
 

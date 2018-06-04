@@ -214,10 +214,10 @@ CASE ip-nk1-value:
                           INPUT "Prompt for Reason when Job Placed on Hold",
                           INPUT "" /* Char Value */, INPUT 0 /* Int value */,
                           INPUT NO /* Logical value */).
-    WHEN "ASIHelpService" THEN
+    WHEN "ASIHelpService" THEN 
     RUN sys/inc/addnk1.p (INPUT "", INPUT ip-nk1-value, INPUT NO /* Prompt? */,
                           INPUT "ASI Help Services",
-                          INPUT "-WSDL 'http:\\74.95.161.77/asihelpServices/helpmaintenance.asmx?WSDL'" /* Char Value */, INPUT 0 /* Int value */,
+                          INPUT "-WSDL 'http:\\34.203.15.64/asihelpServices/helpmaintenance.asmx?WSDL'" /* Char Value */, INPUT 0 /* Int value */,
                           INPUT NO /* Logical value */).
     WHEN "CRMAuthToken" THEN
     RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
@@ -299,7 +299,7 @@ CASE ip-nk1-value:
     WHEN "AsiHelpClientID" THEN 
     RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
                            INPUT "Asi Help Client ID ",
-                           INPUT "" /* Char Value */, INPUT 0 /* Int value */,
+                           INPUT "ASI" /* Char Value */, INPUT 0 /* Int value */,
                            INPUT YES /* Logical value */).
     WHEN "CEGotoCalc" THEN 
     RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
