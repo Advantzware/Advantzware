@@ -3387,10 +3387,27 @@ FUNCTION get-cost RETURNS DECIMAL
   Purpose:  
     Notes:  
 ------------------------------------------------------------------------------*/
-  FIND FIRST ar-invl NO-LOCK WHERE ar-invl.company EQ oe-ord.company
+   DEFINE VARIABLE dRetCost AS DECIMAL NO-UNDO .
+   FIND FIRST ar-invl NO-LOCK WHERE ar-invl.company EQ oe-ord.company
                                AND ar-invl.ord-no EQ oe-ord.ord-no
                                AND ar-invl.i-no EQ oe-ordl.i-no NO-ERROR.
-  RETURN IF AVAILABLE ar-invl THEN ar-invl.cost ELSE 0.
+  /* Ticket 29556*/
+  IF AVAIL ar-invl THEN
+      FOR EACH fg-rcpth FIELDS(r-no rita-code) NO-LOCK
+        WHERE fg-rcpth.company   EQ cocode
+        AND fg-rcpth.i-no      EQ ar-invl.i-no
+        AND fg-rcpth.b-no      EQ ar-invl.b-no,
+        EACH fg-rdtlh FIELDS(qty cost) NO-LOCK WHERE
+        fg-rdtlh.r-no      EQ fg-rcpth.r-no AND
+        fg-rdtlh.rita-code EQ fg-rcpth.rita-code:
+
+        dRetCost = dRetCost + fg-rdtlh.cost .
+        
+  END.  /* Ticket 29556*/
+
+  IF AVAIL ar-invl AND dRetCost EQ 0 THEN
+      dRetCost = ar-invl.cost .
+  RETURN dRetCost  .
 
 END FUNCTION.
 
