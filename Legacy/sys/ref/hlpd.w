@@ -329,44 +329,20 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     DEF VAR cRtnChar AS CHARACTER NO-UNDO.
     DEF VAR lRecFound AS LOGICAL NO-UNDO.
 
-    FIND FIRST sys-ctrl NO-LOCK WHERE 
-        sys-ctrl.name EQ "AsiHelpClientID" AND 
-        sys-ctrl.company EQ g_company NO-ERROR.
-    IF AVAIL sys-ctrl THEN ASSIGN
-        vclint = sys-ctrl.char-fld.
-    ELSE DO:
-        RUN sys/ref/nk1look.p (INPUT g_company, 
-                               "AsiHelpClientID", 
-                               "C" /* Logical */, 
-                               NO /* check by cust */, 
-                               YES /* use cust not vendor */, 
-                               "" /* cust */, 
-                               "" /* ship-to*/,
-                               OUTPUT cRtnChar, 
-                               OUTPUT lRecFound).
-    END.
-    RELEASE sys-ctrl .
-
-    FIND FIRST sys-ctrl NO-LOCK WHERE 
-        sys-ctrl.name EQ "AsiHelpService" AND 
-        sys-ctrl.company EQ g_company 
-        NO-ERROR.
-    IF AVAIL sys-ctrl THEN ASSIGN 
-        vconn = sys-ctrl.char-fld .
-    ELSE DO:
-        ASSIGN 
-            vconn = "".
-        RUN sys/ref/nk1look.p (INPUT g_company, 
-                                "AsiHelpService", 
-                                "C" /* Logical */, 
-                                NO /* check by cust */, 
-                                YES /* use cust not vendor */, 
-                                "" /* cust */, 
-                                "" /* ship-to*/,
-                                OUTPUT cRtnChar, 
-                                OUTPUT lRecFound).
-    END.
-    RELEASE sys-ctrl .
+   
+        RUN sys/ref/nk1look.p (INPUT g_company, "AsiHelpClientID", "C" /* Logical */, 
+                               NO /* check by cust */, YES /* use cust not vendor */, 
+                               "" /* cust */, "" /* ship-to*/,
+                               OUTPUT cRtnChar, OUTPUT lRecFound).
+        vclint = cRtnChar .
+        MESSAGE "vclint " STRING(vclint) VIEW-AS ALERT-BOX ERROR .
+    
+        RUN sys/ref/nk1look.p (INPUT g_company, "AsiHelpService", "C" /* Logical */, 
+                               NO /* check by cust */, YES /* use cust not vendor */, 
+                               "" /* cust */, "" /* ship-to*/,
+                               OUTPUT cRtnChar, OUTPUT lRecFound).
+     vconn = cRtnChar .
+     MESSAGE "cRtnChar " STRING(cRtnChar) VIEW-AS ALERT-BOX ERROR .
 
     CREATE SERVER vhWebService.
     vhWebService:CONNECT(vconn) NO-ERROR.
