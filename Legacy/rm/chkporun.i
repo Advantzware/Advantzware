@@ -61,28 +61,27 @@
 
            v-rec-qty = v-rec-qty + ld.
         end.
-
-        if rmunderover-log AND v-rec-qty gt po-ordl.cons-qty * (1 + (po-ordl.over-pct / 100)) THEN
+        if rmunderover-log AND (rmunderover-cha EQ "OverRuns Only" OR rmunderover-cha EQ "UnderRuns and OverRun") AND v-rec-qty gt po-ordl.cons-qty * (1 + (po-ordl.over-pct / 100)) THEN
         do:          
-           message "The PO qty + overrun has been exceeded. Do you want to re-enter?"
-                  VIEW-AS ALERT-BOX WARNING BUTTON YES-NO UPDATE ll-ans AS LOG.
+            message "The PO qty + overrun has been exceeded. Do you want to re-enter?"
+                VIEW-AS ALERT-BOX WARNING BUTTON YES-NO UPDATE ll-ans AS LOG.
             assign
                 lOverUnder = ll-ans.
-           IF ll-ans  THEN DO:
-               APPLY "entry" TO rm-rctd.qty.
-               
-               RETURN NO-APPLY.
-           END.          
-        end.
-        ELSE IF rmunderover-log AND rmunderover-cha EQ "UnderRuns and OverRun" AND v-rec-qty LT po-ordl.cons-qty - (po-ordl.cons-qty * po-ordl.under-pct / 100) THEN
-        DO:
-           MESSAGE "The PO qty is less than the underrun. Do you want to re-enter?"
-              VIEW-AS ALERT-BOX WARNING BUTTON YES-NO UPDATE ll-ans2 AS LOG.
+            IF ll-ans  THEN DO:
+                APPLY "entry" TO rm-rctd.qty.
+                RETURN NO-APPLY.
+            END.
+        END.
+        ELSE IF rmunderover-log AND (rmunderover-cha EQ "UnderRuns Only" OR rmunderover-cha EQ "UnderRuns and OverRun") AND v-rec-qty LT po-ordl.cons-qty - (po-ordl.cons-qty * po-ordl.under-pct / 100) THEN
+            DO:
+            MESSAGE "The PO qty is less than the underrun. Do you want to re-enter?"
+                VIEW-AS ALERT-BOX WARNING BUTTON YES-NO UPDATE ll-ans2 AS LOG.
             assign
                 lOverUnder = ll-ans2.
-           IF ll-ans2 THEN DO:
-               APPLY "entry" TO rm-rctd.qty.
-               RETURN NO-APPLY.
-           END.
+            IF ll-ans2 THEN DO:
+                APPLY "entry" TO rm-rctd.qty.
+                RETURN NO-APPLY.
+                end.
         END.
-    end.
+    END.
+    
