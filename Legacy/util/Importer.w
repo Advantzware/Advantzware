@@ -25,7 +25,8 @@ DEFINE INPUT PARAMETER ipcTypes AS CHARACTER NO-UNDO.
 DEFINE INPUT PARAMETER ipriContext AS ROWID NO-UNDO.
 
 {util\ttImport.i NEW SHARED}
-DEFINE VARIABLE ghdImportProcs AS HANDLE NO-UNDO.
+DEFINE VARIABLE ghdImportProcs AS HANDLE    NO-UNDO.
+DEFINE VARIABLE gcFileType  AS CHARACTER NO-UNDO.
 
 /* Local Variable Definitions ---                                       */
 
@@ -447,7 +448,7 @@ DO:
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnBrowse C-Win
 ON CHOOSE OF btnBrowse IN FRAME FRAME-A /* Find File */
 DO:
-        RUN pFileBrowse(fiFileName:HANDLE).  
+        RUN pFileBrowse(fiFileName:HANDLE, gcFileType).  
     END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -458,7 +459,7 @@ DO:
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnBrowseFolder C-Win
 ON CHOOSE OF btnBrowseFolder IN FRAME FRAME-A /* Select Log Folder */
 DO:
-        RUN pFolderBrowse(fiLogFolder:HANDLE).  
+        RUN pFolderBrowse(fiLogFolder:HANDLE, "").  
     END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -536,7 +537,7 @@ DO:
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiFileName C-Win
 ON HELP OF fiFileName IN FRAME FRAME-A /* Import File */
 DO:
-        RUN pFileBrowse(fiFileName:HANDLE).
+        RUN pFileBrowse(fiFileName:HANDLE, gcFileType).
     END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -629,9 +630,9 @@ END PROCEDURE.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCheckContinue C-Win 
 PROCEDURE pCheckContinue :
 /*------------------------------------------------------------------------------
-             Purpose: Prompts to continue and returns logical
-             Notes:
-            ------------------------------------------------------------------------------*/
+                 Purpose: Prompts to continue and returns logical
+                 Notes:
+                ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipcMessage AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER iplGo AS LOGICAL NO-UNDO.
 
@@ -646,9 +647,9 @@ END PROCEDURE.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pExportTemplate C-Win 
 PROCEDURE pExportTemplate :
 /*------------------------------------------------------------------------------
-     Purpose: Generates a template in the required format for input
-     Notes:
-    ------------------------------------------------------------------------------*/
+         Purpose: Generates a template in the required format for input
+         Notes:
+        ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipcType AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER iplIncludeHelp AS LOGICAL NO-UNDO.
 
@@ -670,27 +671,47 @@ END PROCEDURE.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pFileBrowse C-Win 
 PROCEDURE pFileBrowse :
 /*------------------------------------------------------------------------------
-                     Purpose: Launches window lookup file browser and sets screen value of passed object
-                     Notes:
-                    ------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER iphdFileEntry AS HANDLE.
-
+                         Purpose: Launches window lookup file browser and sets screen value of passed object
+                         Notes:
+                        ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER iphdFileEntry AS HANDLE NO-UNDO.
+    DEFINE INPUT PARAMETER ipcType AS CHARACTER NO-UNDO.
+    
     DEFINE VARIABLE cFileName AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lOK       AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE cDefault  AS CHARACTER NO-UNDO.
         
     cDefault = fGetDefaultImportFolder(ipcCompany).
-    SYSTEM-DIALOG GET-FILE cFileName 
-        TITLE "Select File to Import"
-        FILTERS "Valid File Types (*.csv,*.xls,*.xlsx)" "*.csv,*.xls,*.xlsx",
-        "Excel Files (*.xls,*.xlsx)" "*.xls,*.xlsx",
-        "Comma Separated Files (*.csv)" "*.csv",
-        "All Files    (*.*) " "*.*"
-        INITIAL-DIR  cDefault
-        MUST-EXIST
-        USE-FILENAME
-        UPDATE lOK.
-      
+    CASE ipcType:
+        WHEN "ARD" THEN 
+        DO:
+            SYSTEM-DIALOG GET-FILE cFileName 
+                TITLE "Select .ard File to Import"
+                FILTERS "Artios .ard Files (*.ard)" "*.ard",
+                        "All Files    (*.*) " "*.*"
+                INITIAL-DIR  cDefault
+                MUST-EXIST
+                USE-FILENAME
+                UPDATE lOK.
+        END.
+        WHEN "FOL" THEN 
+        DO:
+            RUN pFolderBrowse(iphdFileEntry,ipcType).
+        END.
+        OTHERWISE 
+        DO: 
+            SYSTEM-DIALOG GET-FILE cFileName 
+                TITLE "Select File to Import"
+                FILTERS "Valid File Types (*.csv,*.xls,*.xlsx)" "*.csv,*.xls,*.xlsx",
+                "Excel Files (*.xls,*.xlsx)" "*.xls,*.xlsx",
+                "Comma Separated Files (*.csv)" "*.csv",
+                "All Files    (*.*) " "*.*"
+                INITIAL-DIR  cDefault
+                MUST-EXIST
+                USE-FILENAME
+                UPDATE lOK.
+        END.
+    END CASE.
     IF lOK THEN iphdFileEntry:SCREEN-VALUE = cFileName.
 
 END PROCEDURE.
@@ -701,18 +722,29 @@ END PROCEDURE.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pFolderBrowse C-Win 
 PROCEDURE pFolderBrowse :
 /*------------------------------------------------------------------------------
-             Purpose: Launches Windows Lookup for folder browser and sets creen value of passed object
-             Notes:
-            ------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER iphdFolderEntry AS HANDLE.
+                 Purpose: Launches Windows Lookup for folder browser and sets creen value of passed object
+                 Notes:
+                ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER iphdFolderEntry AS HANDLE NO-UNDO.
+    DEFINE INPUT PARAMETER ipcType AS CHARACTER NO-UNDO.
     
     DEFINE VARIABLE cFolder AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lOK     AS LOGICAL   NO-UNDO.
         
-    SYSTEM-DIALOG GET-DIR cFolder 
-        TITLE "Select Folder for Log File"
-        UPDATE lOK.
-      
+    CASE ipcType:
+        WHEN "" THEN
+        DO:
+            SYSTEM-DIALOG GET-DIR cFolder 
+                TITLE "Select Artios Project Folder"
+                UPDATE lOK.
+        END.
+        OTHERWISE
+        DO:
+            SYSTEM-DIALOG GET-DIR cFolder 
+                TITLE "Select Folder for Log File"
+                UPDATE lOK.
+        END.  
+    END CASE.
     IF lOK THEN iphdFolderEntry:SCREEN-VALUE = cFolder.
 
 END PROCEDURE.
@@ -723,9 +755,9 @@ END PROCEDURE.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pInitializeTypes C-Win 
 PROCEDURE pInitializeTypes :
 /*------------------------------------------------------------------------------
-                         Purpose: Initializes the Type Option Selection
-                         Notes:
-                        ------------------------------------------------------------------------------*/
+                             Purpose: Initializes the Type Option Selection
+                             Notes:
+                            ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER iphdCombo AS HANDLE NO-UNDO.
     DEFINE INPUT PARAMETER ipcTypesList AS CHARACTER NO-UNDO.
 
@@ -759,11 +791,11 @@ END PROCEDURE.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pLoad C-Win 
 PROCEDURE pLoad :
 /*------------------------------------------------------------------------------
-             Purpose: Loads the contents of the import file into temp-table
-             Notes: Validates file first
-            ------------------------------------------------------------------------------*/
+                 Purpose: Loads the contents of the import file into temp-table
+                 Notes: Validates file first
+                ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER iphdImportFileName AS HANDLE.
-    DEFINE INPUT PARAMETER cType AS CHARACTER.
+    DEFINE INPUT PARAMETER ipcType AS CHARACTER.
     
     DEFINE VARIABLE lGo               AS LOGICAL   NO-UNDO. 
     DEFINE VARIABLE cFile             AS CHARACTER NO-UNDO.
@@ -776,11 +808,11 @@ PROCEDURE pLoad :
     IF lGo THEN 
     DO:
         SESSION:SET-WAIT-STATE("general").   
-        RUN pSetType IN ghdImportProcs (cbType).
+        RUN pSetType IN ghdImportProcs (ipcType).
         RUN pConvertExceltoCSV IN ghdImportProcs (cFile, OUTPUT cFile).
         RUN pCheckContinue("load import data from " + cFile, OUTPUT lGo).
         IF lGo THEN 
-            RUN pLoad IN ghdImportProcs (ipcCompany, ipcLocation, cFile, lHeaderRow, lUpdateDuplicates, lFieldValidation, OUTPUT lGo).
+            RUN pLoad IN ghdImportProcs (ipcCompany, ipcLocation, cFile, lHeaderRow, lUpdateDuplicates, lFieldValidation, gcFileType, OUTPUT lGo).
         IF lGo THEN 
         DO:
             RUN pShowPreview.
@@ -802,9 +834,9 @@ END PROCEDURE.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pRunProcess C-Win 
 PROCEDURE pRunProcess :
 /*------------------------------------------------------------------------------
-         Purpose:  Executes the Load of the Data in Preview
-         Notes:
-        ------------------------------------------------------------------------------*/ 
+             Purpose:  Executes the Load of the Data in Preview
+             Notes:
+            ------------------------------------------------------------------------------*/ 
     DEFINE INPUT PARAMETER iplGenerateLogOnly AS LOGICAL NO-UNDO.
     DEFINE INPUT PARAMETER iplLogErrorsOnly AS LOGICAL NO-UNDO.
     
@@ -848,9 +880,9 @@ END PROCEDURE.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSetType C-Win 
 PROCEDURE pSetType :
 /*------------------------------------------------------------------------------
-         Purpose:  Sets the type of the Import
-         Notes:
-        ------------------------------------------------------------------------------*/
+             Purpose:  Sets the type of the Import
+             Notes:
+            ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipcTypeToSet AS CHARACTER NO-UNDO.
 
     DEFINE VARIABLE hdBrowse     AS HANDLE.
@@ -859,6 +891,14 @@ PROCEDURE pSetType :
     DEFINE VARIABLE cFormat      AS CHARACTER NO-UNDO.
     DEFINE VARIABLE iColumnIndex AS INTEGER   NO-UNDO.
 
+    CASE ipcTypeToSet:
+        WHEN "ttImportEstimateARD" THEN  
+            gcFileType = "ARD".
+        WHEN "ttImportEstimateARDP" THEN 
+            gcFileType = "FOL".
+        OTHERWISE 
+            gcFileType = "CSV".
+    END CASE.        
     RUN pSetType IN ghdImportProcs (ipcTypeToSet).
     hdBrowse = brPreview:HANDLE IN FRAME {&FRAME-NAME}.
     
@@ -866,8 +906,7 @@ PROCEDURE pSetType :
         hdColumn = hdBrowse:GET-BROWSE-COLUMN (iColumnIndex).
         hdColumn:LABEL = "".
     END.
-    FOR EACH ttImportMap
-        WHERE ttImportMap.cType EQ ipcTypeToSet:
+    FOR EACH ttImportMap:
         hdColumn = hdBrowse:GET-BROWSE-COLUMN (ttImportMap.iImportIndex + 2).
         iWidth = ttImportMap.iColumnWidth.
         
@@ -884,9 +923,9 @@ END PROCEDURE.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pShowPreview C-Win 
 PROCEDURE pShowPreview :
 /*------------------------------------------------------------------------------
-         Purpose:
-         Notes:
-        ------------------------------------------------------------------------------*/
+             Purpose:
+             Notes:
+            ------------------------------------------------------------------------------*/
     DO WITH FRAME {&FRAME-NAME}:
         {&OPEN-QUERY-brPreview}
 
@@ -900,9 +939,9 @@ END PROCEDURE.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pValidFile C-Win 
 PROCEDURE pValidFile :
 /*------------------------------------------------------------------------------
-             Purpose: Returns logical if file or folder is available
-             Notes:
-            ------------------------------------------------------------------------------*/
+                 Purpose: Returns logical if file or folder is available
+                 Notes:
+                ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipcTestFile AS CHARACTER.
     DEFINE OUTPUT PARAMETER oplValid AS LOGICAL.
     
