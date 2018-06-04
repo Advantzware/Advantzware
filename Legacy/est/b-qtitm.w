@@ -1295,6 +1295,12 @@ PROCEDURE valid-part-no :
        lv-rowid   = ?.
       RUN custom/getcpart.p (cocode, quotehd.cust-no,
                              INPUT-OUTPUT lv-part-no, INPUT-OUTPUT lv-rowid).
+      FIND itemfg WHERE ROWID(itemfg) EQ lv-rowid NO-LOCK NO-ERROR.
+      IF AVAIL itemfg AND itemfg.stat EQ "I" THEN DO:
+          MESSAGE "Item status is Inactive..." VIEW-AS ALERT-BOX ERROR.
+          APPLY "entry" TO quoteitm.part-no IN BROWSE {&browse-name}. 
+          RETURN ERROR.
+      END.
     END.
 
     IF NOT CAN-FIND(itemfg WHERE ROWID(itemfg) EQ lv-rowid) AND
@@ -1309,7 +1315,6 @@ PROCEDURE valid-part-no :
       APPLY "entry" TO quoteitm.part-no IN BROWSE {&browse-name}. 
       RETURN ERROR.
     END.
-    
   END.
 
 END PROCEDURE.
