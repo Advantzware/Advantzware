@@ -48,7 +48,6 @@ ASSIGN          /*     1           2             3             4              5 
     gcTypePrograms = "ImportAP.p,ImportCash.p,ImportShipTo.p,ImportEstimate.p,ImportFG.p,ImportVend.p,ImportCust.p,ImportAR.p,ImportGL.p,ImportBin.p,importRelease.p,ImportVendorCost.p,ImportPriceMatrix.p,ImportEstimate.p,ImportEstimate.p "
     .
                           
-
 /* ********************  Preprocessor Definitions  ******************** */
 
 

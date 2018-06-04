@@ -13,7 +13,7 @@
   ----------------------------------------------------------------------*/
 
 /* ***************************  Definitions  ************************** */
-DEFINE {1} TEMP-TABLE ttArtiosAttributes
+DEFINE {1} {2} TEMP-TABLE ttArtiosAttributes
     FIELD CadFile AS CHARACTER
     FIELD Attribute AS CHARACTER
     FIELD AttributeType AS CHARACTER

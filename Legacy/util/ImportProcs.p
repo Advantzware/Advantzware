@@ -214,7 +214,7 @@ PROCEDURE pInitializeType:
     DEFINE INPUT PARAMETER ipcTypeToInit AS CHARACTER NO-UNDO.
     
     DEFINE VARIABLE cProgram AS CHARACTER NO-UNDO.
-    
+   
     EMPTY TEMP-TABLE ttImportMap.
     /*gc global variables defined in ttImport.i*/
     cProgram = gcTypeProgramsFolder + ENTRY(LOOKUP(ipcTypeToInit,gcTypeList),gcTypePrograms).
@@ -254,7 +254,7 @@ PROCEDURE pLoad:
                     .
                 IF SEARCH(ipcFile) NE ? THEN 
                 DO:
-                    RUN pLoadARD(ipcCompany, ipcLocation, ipcFile, OUTPUT oplSuccess).
+                    RUN pLoadARD(ipcCompany, ipcLocation, ipcFile, INPUT-OUTPUT iCount, INPUT-OUTPUT oplSuccess).
                 END.    
             END.
         WHEN "ARDFolder" THEN 
@@ -263,7 +263,7 @@ PROCEDURE pLoad:
                 FOR EACH ttFile:
                     IF SEARCH(ipcFile) NE ? THEN 
                     DO:
-                        RUN pLoadARD(ipcCompany, ipcLocation, ttFile.cFile, OUTPUT oplSuccess).
+                        RUN pLoadARD(ipcCompany, ipcLocation, ttFile.cFile, INPUT-OUTPUT iCount, INPUT-OUTPUT oplSuccess).
                     END.    
                 END.
             END.
@@ -337,7 +337,7 @@ PROCEDURE pLoadArd PRIVATE:
     DEFINE INPUT PARAMETER ipcLocation AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcFile AS CHARACTER NO-UNDO.
     DEFINE INPUT-OUTPUT PARAMETER iopiCount AS INTEGER NO-UNDO.
-    DEFINE OUTPUT PARAMETER oplSuccess AS LOGICAL NO-UNDO.
+    DEFINE INPUT-OUTPUT PARAMETER oplSuccess AS LOGICAL NO-UNDO.
     
     DEFINE VARIABLE hdArtiosProcs AS HANDLE.
     DEFINE VARIABLE cData LIKE ttImportData.cData.
