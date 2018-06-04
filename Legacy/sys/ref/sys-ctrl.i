@@ -203,7 +203,7 @@ ASSIGN
  str-init[120] = "" 
  str-init[121] = ""
  str-init[122] = "ASIJobCL,MidYorkJobCL,CentBoxJobCL,ASIJobCR,ACPIJobCor"
- str-init[123] = "UnderRuns and OverRun,OverRuns Only"
+ str-init[123] = "UnderRuns and OverRun,OverRuns Only,UnderRuns Only"
  str-init[124] = "Profit,Cost Markup"
  str-init[128] = "BolCreation,Fixed Time"
  .
