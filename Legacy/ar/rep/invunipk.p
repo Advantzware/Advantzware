@@ -396,19 +396,11 @@ assign
         IF v-rel-po-no EQ "" THEN DO:
             FIND FIRST ar-invl NO-LOCK
                 WHERE ar-invl.x-no  EQ ar-inv.x-no
+                AND ar-invl.misc EQ YES
                 AND ar-invl.po-no NE "" NO-ERROR.
             IF AVAIL ar-invl THEN 
                 ASSIGN v-rel-po-no = ar-invl.po-no.
         END.
-       IF v-rel-po-no EQ "" THEN 
-           for each inv-misc no-lock
-             where inv-misc.company EQ ar-inv.company
-              AND inv-misc.r-no EQ ar-inv.r-no
-              AND inv-misc.bill EQ "Y"
-              AND inv-misc.po-no NE "":
-               ASSIGN v-rel-po-no = inv-misc.po-no.
-               LEAVE.
-       END.
 
         if avail ar-invl then
         do:
