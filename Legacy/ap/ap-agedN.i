@@ -31,7 +31,8 @@ FOR EACH ap-inv NO-LOCK
      cust-t[5]  = 0
      m3 = vend.area-code + vend.phone
      m2 = vend.cont
-     ni = 0.
+     ni = 0
+     lPutHeader = NO .
   END.
 
   ASSIGN 
@@ -74,22 +75,6 @@ FOR EACH ap-inv NO-LOCK
                RELEASE xap-ledger.
             END.
          END.
-         
-/*          IF v-idate THEN DO:                                                */
-/*              FIND FIRST xap-ledger                                          */
-/*                 WHERE xap-ledger.company  eq vend.company                   */
-/*                   AND xap-ledger.vend-no  eq ap-pay.vend-no                 */
-/*                   AND xap-ledger.ref-date EQ ap-pay.check-date              */
-/*                   AND ((xap-ledger.refnum BEGINS "MEMO" AND ap-pay.memo) OR */
-/*                     (NOT xap-ledger.refnum BEGINS "MEMO" AND                */
-/*                      NOT xap-ledger.refnum BEGINS "INV#"                    */
-/*                      AND NOT ap-pay.memo))                                  */
-/*              NO-LOCK NO-ERROR.                                              */
-/*              IF AVAIL xap-ledger THEN DO:                                   */
-/*                  v-check-date = xap-ledger.tr-date.                         */
-/*                  RELEASE xap-ledger.                                        */
-/*              END.                                                           */
-/*          END.                                                               */
 
        IF v-check-date LE as_of_date THEN DO:
 
@@ -113,12 +98,23 @@ FOR EACH ap-inv NO-LOCK
 
   /* IF days old less then 0 make equal to 0 */
   IF d LT 0 THEN ASSIGN d = 0.
-  
-  IF v-amt NE 0 THEN DO:
-   
-      FIND FIRST terms NO-LOCK WHERE terms.company EQ vend.company AND
+  v-terms = "" .
+  FIND FIRST terms NO-LOCK WHERE terms.company EQ vend.company AND
           terms.t-code EQ vend.terms NO-ERROR.
       IF AVAILABLE terms THEN v-terms = terms.dscr.
+
+   IF lPrintHead AND NOT lPutHeader AND v-amt NE 0 THEN do:     
+    PUT cVendHeader  FORMAT "x(60)" SKIP
+        cVendHeadLine FORMAT "x(60)" SKIP
+        vend.vend-no FORMAT "x(11)"  vend.NAME FORMAT "x(30)" SKIP
+        STRING(v-terms,"x(30)") SKIP
+        STRING(m3,"(999) 999-9999") SKIP(1)
+        str-tit4 FORMAT "x(250)" SKIP
+        str-tit5 FORMAT "x(250)" SKIP .
+    lPutHeader = YES .
+   END.
+  
+  IF v-amt NE 0 THEN DO:
       
     ASSIGN cDisplay = ""
                    cTmpField = ""
