@@ -111,6 +111,16 @@ FOR EACH ap-inv NO-LOCK
         STRING(m3,"(999) 999-9999") SKIP(1)
         str-tit4 FORMAT "x(250)" SKIP
         str-tit5 FORMAT "x(250)" SKIP .
+       IF tb_excel THEN DO:
+           PUT STREAM excel UNFORMATTED SKIP(1)
+                '"'  "VENDOR"                                  '",'
+                '"'  "VENDOR NAME"                                '",' SKIP 
+                '"' vend.vend-no FORMAT "x(11)"                                 '",'
+                '"' vend.NAME FORMAT "x(30)"                                  '",' SKIP
+                '"' STRING(v-terms,"x(30)")                                   '",' SKIP
+                '"' STRING(m3,"(999) 999-9999")                               '",' SKIP .
+           PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
+       END.
     lPutHeader = YES .
    END.
   

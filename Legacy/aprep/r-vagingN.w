@@ -1777,7 +1777,7 @@ ELSE VIEW FRAME r-top .
                         + STRING(period-days-3) + "," + STRING(period-days-3 + 1) + "-" 
                         + STRING(period-days-4) + "," + STRING(period-days-4 + 1) + "+" 
                         + " ".
-
+     IF NOT lPrintHead THEN
      PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
   END.
 
