@@ -18,6 +18,7 @@ DEF VAR lv-rowid AS ROWID.
 DEF SHARED VAR qty AS INT NO-UNDO.
 DEF SHARED VAR v-shared-rel AS INT NO-UNDO.
 
+
 {sys/inc/VAR.i SHARED}
 
 {jcrep/r-ticket.i "shared"}
@@ -139,7 +140,11 @@ end.
 assign
  i      = 0
  v-ship = ""
- v-cus  = "".
+ v-cus  = ""
+ cShpNote[1] = ''
+ cShpNote[2] = ''
+ cShpNote[3] = ''
+ cShpNote[4] = ''.
 
 if cust.name ne "" then
   assign
@@ -194,7 +199,7 @@ if avail xoe-ordl then do:
    v-cus[i] = trim(xoe-ord.city) + ", " +
               xoe-ord.state + "  " + xoe-ord.zip.
 
-  IF CAN-DO("Triad,Brick,Corrugat,RFC,ASI,Xprint,Pacific,Hughes,P&P,MWBox,ARTIOS,Suthrlnd,TriLakes,TriLakes2,LoyLang,Peachtree,BlueRidg,Delta",v-format) THEN
+  IF CAN-DO("Triad,Brick,Corrugat,RFC,ASI,Xprint,Pacific,Hughes,P&P,MWBox,ARTIOS,Suthrlnd,TriLakes,TriLakes2,LoyLang,Peachtree,BlueRidg,Delta,Michcor",v-format) THEN
   FIND FIRST xoe-rel
       WHERE xoe-rel.company EQ xoe-ordl.company
         AND xoe-rel.ord-no  EQ xoe-ordl.ord-no
@@ -263,8 +268,18 @@ if avail xoe-ordl then do:
 
     do i = 1 to 4:
       if xoe-rel.ship-i[i] ne "" then do:
-        if v-ship eq "" then v-ship = "Shipping:".
-        v-ship = trim(v-ship) + " " + xoe-rel.ship-i[i].
+          IF v-format EQ "Michcor" THEN DO:
+           ASSIGN  cShpNote[1] = xoe-rel.ship-i[1]
+                   cShpNote[2] = xoe-rel.ship-i[2]
+                   cShpNote[3] = xoe-rel.ship-i[3] 
+                   cShpNote[4] = xoe-rel.ship-i[4].
+          END.
+          ELSE DO:
+             if v-ship eq "" then v-ship = "Shipping:".
+             v-ship = trim(v-ship) + " " + xoe-rel.ship-i[i].
+          END.
+
+
       end.
     end.
   end.
@@ -367,7 +382,7 @@ if avail xest then do:
      v-shp[i] = trim(xeb.ship-city) + ", " +
                 xeb.ship-state + "  " + xeb.ship-zip.
 
-    if v-format eq "Triad" or v-format eq "Brick" OR v-format = "ASI" 
+    if v-format eq "Triad" or v-format eq "Brick" OR v-format = "ASI" OR v-format EQ "Michcor" 
        AND v-format = "xprint" 
     then do:
       find first shipto
@@ -384,8 +399,16 @@ if avail xest then do:
       if avail shipto then do:
         do i = 1 to 4:
           if shipto.notes[i] ne "" then do:
-            if v-ship eq "" then v-ship = "Shipping:".
-            v-ship = trim(v-ship) + " " + shipto.notes[i].
+              IF v-format EQ "Michcor" THEN DO:
+                 ASSIGN  cShpNote[1] =shipto.notes[1]
+                   cShpNote[2] = shipto.notes[2]
+                   cShpNote[3] = shipto.notes[3] 
+                   cShpNote[4] = shipto.notes[4].
+              END.
+              ELSE DO:
+                  if v-ship eq "" then v-ship = "Shipping:".
+                  v-ship = trim(v-ship) + " " + shipto.notes[i].
+              END.
           end.
         end.
       end.
