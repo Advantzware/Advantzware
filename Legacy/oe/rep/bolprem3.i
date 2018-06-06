@@ -57,7 +57,7 @@ FOR EACH tt-boll,
         END.
         
          IF j >= 30 THEN do:
-        IF v-printline >= 54 THEN DO:
+        IF v-printline >= 50 THEN DO:
            v-printline = 0.
            j = j - 30.
            PAGE {1}.
@@ -187,7 +187,7 @@ FOR EACH tt-boll,
          v-printline = v-printline + 1.
          
          IF j >= 30 THEN do:
-        IF v-printline >= 54 THEN DO:
+        IF v-printline >= 50 THEN DO:
            v-printline = 0.
            j = j - 30.
            PAGE {1}.
@@ -232,8 +232,9 @@ FOR EACH tt-boll,
             ELSE IF i EQ 4 THEN v-part-dscr = oe-ordl.part-dscr2.
 
             IF v-part-dscr NE "" OR v-ord-po-no NE "" OR i LE 2 THEN DO:
+                
               IF j >= 30 THEN do:
-                IF v-printline >= 54 THEN DO:
+                IF v-printline >= 50 THEN DO:
                    v-printline = 0.
                    j = j - 30.
                    PAGE {1}.
@@ -288,7 +289,7 @@ FOR EACH tt-boll,
             {sys/inc/part-qty.i v-part-qty fg-set}
 
             IF j >= 30 THEN do:
-            IF v-printline >= 54 THEN DO:
+            IF v-printline >= 50 THEN DO:
                v-printline = 0.
                j = j - 30.
                PAGE {1}.
@@ -372,7 +373,7 @@ FOR EACH tt-boll,
              "Total" AT 34
              v-tot-cases             FORMAT "->>,>>>,>>z"       AT 85
              SKIP(1).
-         v-printline = v-printline + 2.
+         v-printline = v-printline + 3.
          
       END.
       
