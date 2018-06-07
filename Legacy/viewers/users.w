@@ -1025,7 +1025,7 @@ PROCEDURE ipCheckPwd :
             MESSAGE
                 "Your Password contains invalid characters.  Please limit your password to" skip
                 "letters (A-Z,a-z), numbers (0-9), or the following valid characters:" skip
-                "!,@,#,$,%,^,*,-,_,+,=,[,],{,},/,\,<,>,?,|,`,~,;,:,comma(,),period(.)" skip
+                "!,@,#,$,%,^,*,-,_,+,=,[,],/,\,<,>,?,|,;,:,comma,period" skip
                 "(NOTE - apostrophe, dbl-quote marks and parentheses are NOT allowed.)"
                 VIEW-AS ALERT-BOX.
             RETURN.
@@ -1803,6 +1803,8 @@ PROCEDURE local-update-record :
             .
 
     RUN ipWriteUsrFile.
+    EMPTY TEMP-TABLE ttUsers.
+    RUN ipReadUsrFile.
    
     DISABLE 
         fiPassword
