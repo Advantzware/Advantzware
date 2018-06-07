@@ -140,6 +140,7 @@ ASSIGN
     {refTableConv.i "Flute" 'Flute'}
     {refTableConv.i "ItemfgMarkup" 'e-itemfg-vend.markup'}
     {refTableConv.i "aoaReport" 'aoaReport'}
+    {refTableConv.i "relcredconv" 'relcredconv'}
     {refTableConv.i "Arcashhold" 'ARCASHHOLD'}
 
 /* Deferred for 16.7.0                                              */

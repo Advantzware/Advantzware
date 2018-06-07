@@ -12,9 +12,7 @@ IF SEARCH("sys/convert/stax-10.r") <> ?
 OR SEARCH("sys/convert/stax-10.p") <> ? THEN 
    RUN sys/convert/stax-10.p NO-ERROR.
 
-IF SEARCH("sys/convert/relcred.r") <> ?
-OR SEARCH("sys/convert/relcred.p") <> ? THEN 
-   RUN sys/convert/relcred.p NO-ERROR.
+
 /* END MAIN BLOCK operative instantiation code */
 
 
