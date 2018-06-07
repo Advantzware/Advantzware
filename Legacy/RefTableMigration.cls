@@ -2736,7 +2736,7 @@ CLASS RefTableMigration:
                 IF iCnt >= ipCount THEN LEAVE.   
             END.              
         END.  /*FOR EACH reftable*/  
-        RETURN iCnt.=======
+        RETURN iCnt.
     END METHOD. /*relcredconv*/  
     METHOD PUBLIC INTEGER Arcashhold(INPUT ipCount AS INTEGER):
         DEFINE VARIABLE iCnt AS INTEGER NO-UNDO.
