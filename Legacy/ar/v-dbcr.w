@@ -590,29 +590,15 @@ PROCEDURE reftable-values :
     DEF INPUT PARAM ip-display AS LOG NO-UNDO.
 
     IF AVAIL ar-cash THEN DO:
-      FIND FIRST reftable WHERE
-           reftable.reftable = "ARCASHHOLD" AND
-           reftable.rec_key = ar-cash.rec_key
-           USE-INDEX rec_key
-           EXCLUSIVE-LOCK NO-ERROR.
-
-      IF NOT AVAIL reftable THEN DO:
-        CREATE reftable.
-        ASSIGN
-         reftable.reftable = "ARCASHHOLD"
-         reftable.rec_key  = ar-cash.rec_key
-         reftable.CODE     = "N".
-      END.
+        
+      IF ar-cash.stat = "" THEN ar-cash.stat = "N".      
 
       IF ip-display THEN
-        lv-status:SCREEN-VALUE = IF reftable.CODE EQ "H" THEN "ON HOLD"
+        lv-status:SCREEN-VALUE = IF ar-cash.stat EQ "H" THEN "ON HOLD"
                                  ELSE "RELEASED".
       ELSE
-        reftable.code = IF lv-status:SCREEN-VALUE EQ "ON HOLD" THEN "H"
+        ar-cash.stat = IF lv-status:SCREEN-VALUE EQ "ON HOLD" THEN "H"
                         ELSE "R".
-
-     /* gdm - 07010902 */
-     RELEASE reftable.
 
     END.
   END.
