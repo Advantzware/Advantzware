@@ -2759,6 +2759,18 @@ CLASS RefTableMigration:
                 END.
                 FIND CURRENT ar-cash NO-LOCK NO-ERROR.    
                 RELEASE ar-cash.      
+                CREATE reftable1.
+                BUFFER-COPY reftable TO reftable1.
+                RELEASE reftable1.
+                FIND Breftable WHERE ROWID(Breftable) = ROWID(reftable)
+                    EXCLUSIVE-LOCK NO-ERROR.
+                IF AVAILABLE Breftable THEN DELETE Breftable. 
+                RELEASE Breftable.   
+                iCnt = iCnt + 1.
+                IF iCnt >= ipCount THEN LEAVE.   
+            END.              
+        END.  /*FOR EACH reftable*/  
+        RETURN iCnt.
     END METHOD. /*ar-cash*/
 END CLASS.
 
