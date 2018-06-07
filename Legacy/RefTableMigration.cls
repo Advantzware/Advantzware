@@ -2714,7 +2714,7 @@ CLASS RefTableMigration:
             END.              
         END.  /*FOR EACH reftable*/  
         RETURN iCnt.
-    END METHOD. /*aoaReport*/
+    END METHOD. /*aoaReport*/ 
     METHOD PUBLIC INTEGER relcredconv(INPUT ipCount AS INTEGER):
         DEFINE VARIABLE iCnt AS INTEGER NO-UNDO.
         DEFINE BUFFER reftable1 FOR reftable1.
@@ -2736,8 +2736,30 @@ CLASS RefTableMigration:
                 IF iCnt >= ipCount THEN LEAVE.   
             END.              
         END.  /*FOR EACH reftable*/  
-        RETURN iCnt.
+        RETURN iCnt.=======
     END METHOD. /*relcredconv*/  
+    METHOD PUBLIC INTEGER Arcashhold(INPUT ipCount AS INTEGER):
+        DEFINE VARIABLE iCnt AS INTEGER NO-UNDO.
+        DEFINE VARIABLE i AS INTEGER NO-UNDO.
+        DEFINE BUFFER reftable1 FOR reftable1.
+        DEFINE BUFFER Breftable FOR reftable. 
+        DEFINE BUFFER ar-cash  FOR ar-cash.
+        
+        DISABLE TRIGGERS FOR LOAD OF reftable.        
+        DISABLE TRIGGERS FOR LOAD OF ar-cash.
+        ASSIGN iProcessCount = 0.        
+        FOR EACH reftable WHERE reftable.reftable = "ARCASHHOLD"
+            NO-LOCK:
+            DO TRANSACTION:    
+                FIND FIRST ar-cash WHERE ar-cash.rec_key = reftable.rec_key
+                    EXCLUSIVE-LOCK NO-ERROR.
+                IF AVAILABLE ar-cash THEN DO:
+                        IF ar-cash.stat EQ "" THEN ASSIGN ar-cash.stat = reftable.code. 
+                    ASSIGN iProcessCount = iProcessCount + 1.  
+                END.
+                FIND CURRENT ar-cash NO-LOCK NO-ERROR.    
+                RELEASE ar-cash.      
+    END METHOD. /*ar-cash*/
 END CLASS.
 
 

@@ -123,16 +123,11 @@ FOR EACH ar-cash
     BREAK BY ar-cash.cust-no
           BY ar-cash.check-no:
 
-    FIND FIRST reftable NO-LOCK
-        WHERE reftable.reftable = "ARCASHHOLD" 
-          AND reftable.rec_key = ar-cash.rec_key 
-        USE-INDEX rec_key NO-ERROR.
-    IF AVAIL reftable AND 
-        reftable.CODE EQ "H" THEN DO:
-        
-        RELEASE reftable.
+
+    IF ar-cash.stat EQ "H" THEN
         NEXT.
-    END.
+
+
     RELEASE reftable NO-ERROR.
 
     IF CAN-FIND(FIRST ar-cashl WHERE ar-cashl.company = cocode 

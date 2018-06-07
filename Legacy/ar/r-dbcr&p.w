@@ -977,18 +977,10 @@ postit:
           and reftable.code     eq string(ar-cash.c-no,"9999999999")
         use-index CODE on error undo postit, leave postit:
 
-      FIND FIRST b-reftable2 WHERE
-           b-reftable2.reftable = "ARCASHHOLD" AND
-           b-reftable2.rec_key = ar-cash.rec_key
-           USE-INDEX rec_key
-           NO-LOCK NO-ERROR.
 
-     /*skip on hold cms*/
-      IF AVAIL b-reftable2 AND b-reftable2.CODE EQ "H" THEN
-      DO:
-         RELEASE b-reftable2.
-         NEXT.
-      END.
+      IF ar-cash.stat EQ "H" THEN
+        NEXT.
+
 
       delete reftable.
 
@@ -1084,18 +1076,10 @@ FORMAT HEADER
       IF LOOKUP(ar-cash.cust-no,cCustStatCheck) EQ 0 THEN
         ASSIGN cCustStatCheck = cCustStatCheck + ar-cash.cust-no + "," .
 
-    FIND FIRST reftable WHERE
-         reftable.reftable = "ARCASHHOLD" AND
-         reftable.rec_key = ar-cash.rec_key
-         USE-INDEX rec_key
-         NO-LOCK NO-ERROR.
 
-    /*skip on hold cms*/
-    IF AVAIL reftable AND reftable.CODE EQ "H" THEN
-    DO:
-      RELEASE reftable.
-      NEXT.
-    END.
+    IF ar-cash.stat EQ "H" THEN
+       NEXT.
+
 
     RELEASE reftable no-error.
 
@@ -1193,18 +1177,10 @@ FORMAT HEADER
                   AND ar-cash.memo USE-INDEX c-no NO-LOCK NO-ERROR.
     IF AVAILABLE ar-cash THEN
     DO:
-       FIND FIRST reftable WHERE
-            reftable.reftable = "ARCASHHOLD" AND
-            reftable.rec_key = ar-cash.rec_key
-            USE-INDEX rec_key
-            NO-LOCK NO-ERROR.
 
-       /*skip on hold cms*/
-       IF AVAIL reftable AND reftable.CODE EQ "H" THEN
-       DO:
-          RELEASE reftable.
-          NEXT.
-       END.
+    IF ar-cash.stat EQ "H" THEN
+       NEXT.
+
 
        RELEASE reftable no-error.
 
