@@ -1,6 +1,6 @@
 &ANALYZE-SUSPEND _VERSION-NUMBER UIB_v8r12 GUI
 &ANALYZE-RESUME
-&SCOPED-DEFINE WINDOW-NAME C-Win
+&Scoped-define WINDOW-NAME C-Win
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS C-Win 
 /*------------------------------------------------------------------------
 
@@ -110,24 +110,25 @@ ASSIGN cTextListToDefault  = "CURRENCY,VENDOR#,VENDOR NAME,PHONE,TYPE,TERMS,INVO
 
 /* ********************  Preprocessor Definitions  ******************** */
 
-&SCOPED-DEFINE PROCEDURE-TYPE WINDOW
-&SCOPED-DEFINE DB-AWARE NO
+&Scoped-define PROCEDURE-TYPE Window
+&Scoped-define DB-AWARE no
 
 /* Name of designated FRAME-NAME and/or first browse and/or first query */
-&SCOPED-DEFINE FRAME-NAME FRAME-A
+&Scoped-define FRAME-NAME FRAME-A
 
 /* Standard List Definitions                                            */
-&SCOPED-DEFINE ENABLED-OBJECTS RECT-6 RECT-7 begin_comp end_comp begin_vend ~
+&Scoped-Define ENABLED-OBJECTS RECT-6 RECT-7 begin_comp end_comp begin_vend ~
 end_vend begin_curr end_curr begin_type end_type tb_elect tb_non-elect ~
 as_of_date rd_date period-days-1 period-days-2 period-days-3 period-days-4 ~
-rd_sort tb_detailed sl_avail Btn_Def sl_selected Btn_Add Btn_Remove btn_Up ~
-btn_down lv-ornt lines-per-page rd-dest lv-font-no td-show-parm tb_excel ~
-tb_runExcel fi_file btn-ok btn-cancel 
-&SCOPED-DEFINE DISPLAYED-OBJECTS begin_comp end_comp begin_vend end_vend ~
+rd_sort tb_detailed tb_print-head sl_avail Btn_Def sl_selected Btn_Add ~
+Btn_Remove btn_Up btn_down lv-ornt lines-per-page rd-dest lv-font-no ~
+td-show-parm tb_excel tb_runExcel fi_file btn-ok btn-cancel 
+&Scoped-Define DISPLAYED-OBJECTS begin_comp end_comp begin_vend end_vend ~
 begin_curr end_curr begin_type end_type tb_elect tb_non-elect as_of_date ~
 lbl_date rd_date period-days-1 period-days-2 period-days-3 period-days-4 ~
-lbl_sort rd_sort tb_detailed sl_avail sl_selected lv-ornt lines-per-page ~
-rd-dest lv-font-no lv-font-name td-show-parm tb_excel tb_runExcel fi_file 
+lbl_sort rd_sort tb_detailed tb_print-head sl_avail sl_selected lv-ornt ~
+lines-per-page rd-dest lv-font-no lv-font-name td-show-parm tb_excel ~
+tb_runExcel fi_file 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -311,7 +312,7 @@ DEFINE RECTANGLE RECT-6
 
 DEFINE RECTANGLE RECT-7
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 94 BY 10.95.
+     SIZE 94 BY 12.14.
 
 DEFINE VARIABLE sl_avail AS CHARACTER 
      VIEW-AS SELECTION-LIST MULTIPLE SCROLLBAR-VERTICAL 
@@ -321,34 +322,39 @@ DEFINE VARIABLE sl_selected AS CHARACTER
      VIEW-AS SELECTION-LIST MULTIPLE SCROLLBAR-VERTICAL 
      SIZE 33 BY 5.19 NO-UNDO.
 
-DEFINE VARIABLE tb_non-elect AS LOGICAL INITIAL no 
-     LABEL "Non-Electronic" 
-     VIEW-AS TOGGLE-BOX
-     SIZE 26 BY .95 NO-UNDO.
-
-DEFINE VARIABLE tb_elect AS LOGICAL INITIAL NO  
-     LABEL "Electronic" 
-     VIEW-AS TOGGLE-BOX
-     SIZE 24 BY .95 NO-UNDO.
-
-DEFINE VARIABLE tb_detailed AS LOGICAL INITIAL NO  
+DEFINE VARIABLE tb_detailed AS LOGICAL INITIAL no 
      LABEL "Detailed?" 
      VIEW-AS TOGGLE-BOX
      SIZE 17 BY .95 NO-UNDO.
 
-DEFINE VARIABLE tb_excel AS LOGICAL INITIAL YES    
+DEFINE VARIABLE tb_elect AS LOGICAL INITIAL no 
+     LABEL "Electronic" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 24 BY .95 NO-UNDO.
+
+DEFINE VARIABLE tb_excel AS LOGICAL INITIAL yes 
      LABEL "Export To Excel?" 
      VIEW-AS TOGGLE-BOX
      SIZE 21 BY .81
      BGCOLOR 3  NO-UNDO.
 
-DEFINE VARIABLE tb_runExcel AS LOGICAL INITIAL NO  
+DEFINE VARIABLE tb_non-elect AS LOGICAL INITIAL no 
+     LABEL "Non-Electronic" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 26 BY .95 NO-UNDO.
+
+DEFINE VARIABLE tb_print-head AS LOGICAL INITIAL no 
+     LABEL "Print Vendor Header?" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 30 BY .95 NO-UNDO.
+
+DEFINE VARIABLE tb_runExcel AS LOGICAL INITIAL no 
      LABEL "Auto Run Excel?" 
      VIEW-AS TOGGLE-BOX
      SIZE 21 BY .81
      BGCOLOR 3  NO-UNDO.
 
-DEFINE VARIABLE td-show-parm AS LOGICAL INITIAL NO  
+DEFINE VARIABLE td-show-parm AS LOGICAL INITIAL no 
      LABEL "Show Parameters?" 
      VIEW-AS TOGGLE-BOX
      SIZE 24 BY .81 NO-UNDO.
@@ -357,70 +363,71 @@ DEFINE VARIABLE td-show-parm AS LOGICAL INITIAL NO
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME FRAME-A
-     begin_comp AT ROW 2.52 COLUMN 23 COLON-ALIGNED
-     end_comp AT ROW 2.52 COLUMN 63 COLON-ALIGNED
-     begin_vend AT ROW 3.48 COLUMN 23 COLON-ALIGNED HELP
+     begin_comp AT ROW 2.52 COL 23 COLON-ALIGNED
+     end_comp AT ROW 2.52 COL 63 COLON-ALIGNED
+     begin_vend AT ROW 3.48 COL 23 COLON-ALIGNED HELP
           "Enter Beginning Vendor"
-     end_vend AT ROW 3.48 COLUMN 63 COLON-ALIGNED HELP
+     end_vend AT ROW 3.48 COL 63 COLON-ALIGNED HELP
           "Enter Ending Vendor"
-     begin_curr AT ROW 4.43 COLUMN 23 COLON-ALIGNED HELP
+     begin_curr AT ROW 4.43 COL 23 COLON-ALIGNED HELP
           "Enter Beginning Currency Code"
-     end_curr AT ROW 4.43 COLUMN 63 COLON-ALIGNED HELP
+     end_curr AT ROW 4.43 COL 63 COLON-ALIGNED HELP
           "Enter Ending Currency Code"
-     begin_type AT ROW 5.38 COLUMN 23 COLON-ALIGNED HELP
+     begin_type AT ROW 5.38 COL 23 COLON-ALIGNED HELP
           "Enter Beginning Currency Code" WIDGET-ID 10
-     end_type AT ROW 5.38 COLUMN 63 COLON-ALIGNED HELP
+     end_type AT ROW 5.38 COL 63 COLON-ALIGNED HELP
           "Enter Beginning Currency Code" WIDGET-ID 12
-     tb_elect AT ROW 6.71 COLUMN 25 WIDGET-ID 14
-     tb_non-elect AT ROW 6.71 COLUMN 52.4 WIDGET-ID 16
-     as_of_date AT ROW 7.91 COLUMN 23 COLON-ALIGNED HELP
+     tb_elect AT ROW 6.71 COL 25 WIDGET-ID 14
+     tb_non-elect AT ROW 6.71 COL 52.4 WIDGET-ID 16
+     as_of_date AT ROW 7.91 COL 23 COLON-ALIGNED HELP
           "Enter As od date"
-     lbl_date AT ROW 7.91 COLUMN 47 COLON-ALIGNED NO-LABEL
-     rd_date AT ROW 7.91 COLUMN 64 NO-LABEL
-     period-days-1 AT ROW 9.24 COLUMN 23 COLON-ALIGNED WIDGET-ID 2
-     period-days-2 AT ROW 9.24 COLUMN 35 COLON-ALIGNED WIDGET-ID 4
-     period-days-3 AT ROW 9.24 COLUMN 48 COLON-ALIGNED WIDGET-ID 6
-     period-days-4 AT ROW 9.24 COLUMN 61 COLON-ALIGNED WIDGET-ID 8
-     lbl_sort AT ROW 10.81 COLUMN 23 COLON-ALIGNED NO-LABEL
-     rd_sort AT ROW 10.81 COLUMN 35 NO-LABEL
-     tb_detailed AT ROW 10.86 COLUMN 74.8
-     sl_avail AT ROW 12.81 COLUMN 4.8 NO-LABEL WIDGET-ID 26
-     Btn_Def AT ROW 12.81 COLUMN 40.8 HELP
+     lbl_date AT ROW 7.91 COL 47 COLON-ALIGNED NO-LABEL
+     rd_date AT ROW 7.91 COL 64 NO-LABEL
+     period-days-1 AT ROW 9.24 COL 23 COLON-ALIGNED WIDGET-ID 2
+     period-days-2 AT ROW 9.24 COL 35 COLON-ALIGNED WIDGET-ID 4
+     period-days-3 AT ROW 9.24 COL 48 COLON-ALIGNED WIDGET-ID 6
+     period-days-4 AT ROW 9.24 COL 61 COLON-ALIGNED WIDGET-ID 8
+     lbl_sort AT ROW 10.81 COL 23 COLON-ALIGNED NO-LABEL
+     rd_sort AT ROW 10.81 COL 35 NO-LABEL
+     tb_detailed AT ROW 10.86 COL 74.8
+     tb_print-head AT ROW 12 COL 25 WIDGET-ID 58
+     sl_avail AT ROW 14 COL 4.8 NO-LABEL WIDGET-ID 26
+     Btn_Def AT ROW 14 COL 40.8 HELP
           "Add Selected Table to Tables to Audit" WIDGET-ID 56
-     sl_selected AT ROW 12.81 COLUMN 60.2 NO-LABEL WIDGET-ID 28
-     Btn_Add AT ROW 13.81 COLUMN 40.8 HELP
+     sl_selected AT ROW 14 COL 60.2 NO-LABEL WIDGET-ID 28
+     Btn_Add AT ROW 15 COL 40.8 HELP
           "Add Selected Table to Tables to Audit" WIDGET-ID 32
-     Btn_Remove AT ROW 14.81 COLUMN 40.8 HELP
+     Btn_Remove AT ROW 16 COL 40.8 HELP
           "Remove Selected Table from Tables to Audit" WIDGET-ID 34
-     btn_Up AT ROW 15.86 COLUMN 40.8 WIDGET-ID 40
-     btn_down AT ROW 16.86 COLUMN 40.8 WIDGET-ID 42
-     lv-ornt AT ROW 19.38 COLUMN 31 NO-LABEL
-     lines-per-page AT ROW 19.38 COLUMN 84 COLON-ALIGNED
-     rd-dest AT ROW 19.43 COLUMN 6 NO-LABEL
-     lv-font-no AT ROW 21.29 COLUMN 37 COLON-ALIGNED
-     lv-font-name AT ROW 22.52 COLUMN 31 COLON-ALIGNED NO-LABEL
-     td-show-parm AT ROW 23.71 COLUMN 33
-     tb_excel AT ROW 25.05 COLUMN 53 RIGHT-ALIGNED
-     tb_runExcel AT ROW 25.05 COLUMN 74 RIGHT-ALIGNED
-     fi_file AT ROW 25.86 COLUMN 31 COLON-ALIGNED HELP
+     btn_Up AT ROW 17.05 COL 40.8 WIDGET-ID 40
+     btn_down AT ROW 18.05 COL 40.8 WIDGET-ID 42
+     lv-ornt AT ROW 20.57 COL 31 NO-LABEL
+     lines-per-page AT ROW 20.57 COL 84 COLON-ALIGNED
+     rd-dest AT ROW 20.62 COL 6 NO-LABEL
+     lv-font-no AT ROW 22.48 COL 37 COLON-ALIGNED
+     lv-font-name AT ROW 23.71 COL 31 COLON-ALIGNED NO-LABEL
+     td-show-parm AT ROW 24.91 COL 33
+     tb_excel AT ROW 26.24 COL 53 RIGHT-ALIGNED
+     tb_runExcel AT ROW 26.24 COL 74 RIGHT-ALIGNED
+     fi_file AT ROW 27.05 COL 31 COLON-ALIGNED HELP
           "Enter File Name"
-     btn-ok AT ROW 27.57 COLUMN 19
-     btn-cancel AT ROW 27.57 COLUMN 58
+     btn-ok AT ROW 28.71 COL 19
+     btn-cancel AT ROW 28.71 COL 58
      "Selected Columns(In Display Order)" VIEW-AS TEXT
-          SIZE 34 BY .62 AT ROW 12.1 COLUMN 60.2 WIDGET-ID 44
-     "Selection Parameters" VIEW-AS TEXT
-          SIZE 21 BY .71 AT ROW 1.24 COLUMN 5
-          BGCOLOR 2 
-     "Output Destination" VIEW-AS TEXT
-          SIZE 18 BY .62 AT ROW 18.43 COLUMN 4
+          SIZE 34 BY .62 AT ROW 13.29 COL 60.2 WIDGET-ID 44
      "Available Columns" VIEW-AS TEXT
-          SIZE 29 BY .62 AT ROW 12.1 COLUMN 5.6 WIDGET-ID 38
-     RECT-6 AT ROW 18.86 COLUMN 2
-     RECT-7 AT ROW 1 COLUMN 1
+          SIZE 29 BY .62 AT ROW 13.29 COL 5.6 WIDGET-ID 38
+     "Output Destination" VIEW-AS TEXT
+          SIZE 18 BY .62 AT ROW 19.62 COL 4
+     "Selection Parameters" VIEW-AS TEXT
+          SIZE 21 BY .71 AT ROW 1.24 COL 5
+          BGCOLOR 2 
+     RECT-6 AT ROW 20.05 COL 2
+     RECT-7 AT ROW 1 COL 1
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COLUMN 1.6 ROW 1.24
-         SIZE 95 BY 28.1.
+         AT COL 1.6 ROW 1.24
+         SIZE 95 BY 29.29.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -440,21 +447,21 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW C-Win ASSIGN
          HIDDEN             = YES
          TITLE              = "Vendor Aging"
-         HEIGHT             = 28.33
+         HEIGHT             = 29.52
          WIDTH              = 96
          MAX-HEIGHT         = 33.29
          MAX-WIDTH          = 204.8
          VIRTUAL-HEIGHT     = 33.29
          VIRTUAL-WIDTH      = 204.8
-         RESIZE             = YES 
-         SCROLL-BARS        = NO 
-         STATUS-AREA        = YES 
+         RESIZE             = yes
+         SCROLL-BARS        = no
+         STATUS-AREA        = yes
          BGCOLOR            = ?
          FGCOLOR            = ?
-         KEEP-FRAME-Z-ORDER = YES 
-         THREE-D            = YES 
-         MESSAGE-AREA       = NO 
-         SENSITIVE          = YES.
+         KEEP-FRAME-Z-ORDER = yes
+         THREE-D            = yes
+         MESSAGE-AREA       = no
+         SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 &IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
@@ -474,16 +481,6 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME                                                           */
-ASSIGN
-       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "ribbon-button".
-
-
-ASSIGN
-       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "ribbon-button".
-
-
 ASSIGN 
        as_of_date:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
@@ -503,6 +500,14 @@ ASSIGN
 ASSIGN 
        begin_vend:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
+
+ASSIGN 
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+ASSIGN 
+       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
 
 ASSIGN 
        end_comp:PRIVATE-DATA IN FRAME FRAME-A     = 
@@ -563,21 +568,25 @@ ASSIGN
                 "parm".
 
 ASSIGN 
-       tb_non-elect:PRIVATE-DATA IN FRAME FRAME-A     = 
+       tb_detailed:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
 ASSIGN 
        tb_elect:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
-ASSIGN 
-       tb_detailed:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "parm".
-
 /* SETTINGS FOR TOGGLE-BOX tb_excel IN FRAME FRAME-A
    ALIGN-R                                                              */
 ASSIGN 
        tb_excel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
+
+ASSIGN 
+       tb_non-elect:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
+
+ASSIGN 
+       tb_print-head:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
 /* SETTINGS FOR TOGGLE-BOX tb_runExcel IN FRAME FRAME-A
@@ -592,13 +601,13 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
 /* ************************  Control Triggers  ************************ */
 
-&SCOPED-DEFINE SELF-NAME C-Win
+&Scoped-define SELF-NAME C-Win
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
 ON END-ERROR OF C-Win /* Vendor Aging */
 OR ENDKEY OF {&WINDOW-NAME} ANYWHERE DO:
@@ -624,7 +633,7 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME as_of_date
+&Scoped-define SELF-NAME as_of_date
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL as_of_date C-Win
 ON LEAVE OF as_of_date IN FRAME FRAME-A /* As of */
 DO:
@@ -635,7 +644,7 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME begin_curr
+&Scoped-define SELF-NAME begin_curr
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_curr C-Win
 ON LEAVE OF begin_curr IN FRAME FRAME-A /* Beginning Currency */
 DO:
@@ -646,7 +655,7 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME begin_type
+&Scoped-define SELF-NAME begin_type
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_type C-Win
 ON LEAVE OF begin_type IN FRAME FRAME-A /* Beginning Vendor Type */
 DO:
@@ -657,7 +666,7 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME begin_vend
+&Scoped-define SELF-NAME begin_vend
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_vend C-Win
 ON LEAVE OF begin_vend IN FRAME FRAME-A /* Beginning Vendor# */
 DO:  
@@ -668,7 +677,7 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME btn-cancel
+&Scoped-define SELF-NAME btn-cancel
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-cancel C-Win
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
@@ -679,7 +688,7 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME btn-ok
+&Scoped-define SELF-NAME btn-ok
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-ok C-Win
 ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
 DO:
@@ -730,7 +739,7 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME Btn_Add
+&Scoped-define SELF-NAME Btn_Add
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Add C-Win
 ON CHOOSE OF Btn_Add IN FRAME FRAME-A /* Add >> */
 DO:
@@ -756,7 +765,7 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME Btn_Def
+&Scoped-define SELF-NAME Btn_Def
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Def C-Win
 ON CHOOSE OF Btn_Def IN FRAME FRAME-A /* Default */
 DO:
@@ -771,7 +780,7 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME btn_down
+&Scoped-define SELF-NAME btn_down
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn_down C-Win
 ON CHOOSE OF btn_down IN FRAME FRAME-A /* Move Down */
 DO:
@@ -782,7 +791,7 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME Btn_Remove
+&Scoped-define SELF-NAME Btn_Remove
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Remove C-Win
 ON CHOOSE OF Btn_Remove IN FRAME FRAME-A /* << Remove */
 DO:
@@ -798,7 +807,7 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME btn_Up
+&Scoped-define SELF-NAME btn_Up
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn_Up C-Win
 ON CHOOSE OF btn_Up IN FRAME FRAME-A /* Move Up */
 DO:
@@ -809,7 +818,7 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME end_curr
+&Scoped-define SELF-NAME end_curr
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_curr C-Win
 ON LEAVE OF end_curr IN FRAME FRAME-A /* Ending Currency */
 DO:
@@ -820,7 +829,7 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME end_type
+&Scoped-define SELF-NAME end_type
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_type C-Win
 ON LEAVE OF end_type IN FRAME FRAME-A /* Ending Vendor Type */
 DO:
@@ -831,7 +840,7 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME end_vend
+&Scoped-define SELF-NAME end_vend
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_vend C-Win
 ON LEAVE OF end_vend IN FRAME FRAME-A /* Ending Vendor# */
 DO:
@@ -842,7 +851,7 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME fi_file
+&Scoped-define SELF-NAME fi_file
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_file C-Win
 ON LEAVE OF fi_file IN FRAME FRAME-A /* If Yes, File Name */
 DO:
@@ -853,7 +862,7 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME lines-per-page
+&Scoped-define SELF-NAME lines-per-page
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lines-per-page C-Win
 ON LEAVE OF lines-per-page IN FRAME FRAME-A /* Lines Per Page */
 DO:
@@ -864,7 +873,7 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME lv-font-no
+&Scoped-define SELF-NAME lv-font-no
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lv-font-no C-Win
 ON HELP OF lv-font-no IN FRAME FRAME-A /* Font */
 DO:
@@ -890,7 +899,7 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME lv-ornt
+&Scoped-define SELF-NAME lv-ornt
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lv-ornt C-Win
 ON LEAVE OF lv-ornt IN FRAME FRAME-A
 DO:
@@ -911,7 +920,7 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME period-days-1
+&Scoped-define SELF-NAME period-days-1
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL period-days-1 C-Win
 ON LEAVE OF period-days-1 IN FRAME FRAME-A /* Period Days 1 */
 DO:
@@ -922,7 +931,7 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME period-days-2
+&Scoped-define SELF-NAME period-days-2
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL period-days-2 C-Win
 ON LEAVE OF period-days-2 IN FRAME FRAME-A /* 2 */
 DO:
@@ -933,7 +942,7 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME period-days-3
+&Scoped-define SELF-NAME period-days-3
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL period-days-3 C-Win
 ON LEAVE OF period-days-3 IN FRAME FRAME-A /* 3 */
 DO:
@@ -944,7 +953,7 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME period-days-4
+&Scoped-define SELF-NAME period-days-4
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL period-days-4 C-Win
 ON LEAVE OF period-days-4 IN FRAME FRAME-A /* 4 */
 DO:
@@ -955,7 +964,7 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME rd-dest
+&Scoped-define SELF-NAME rd-dest
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rd-dest C-Win
 ON VALUE-CHANGED OF rd-dest IN FRAME FRAME-A
 DO:
@@ -966,7 +975,7 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME rd_sort
+&Scoped-define SELF-NAME rd_sort
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rd_sort C-Win
 ON VALUE-CHANGED OF rd_sort IN FRAME FRAME-A
 DO:
@@ -977,7 +986,7 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME sl_avail
+&Scoped-define SELF-NAME sl_avail
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL sl_avail C-Win
 ON DEFAULT-ACTION OF sl_avail IN FRAME FRAME-A
 DO:
@@ -1016,7 +1025,7 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME sl_selected
+&Scoped-define SELF-NAME sl_selected
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL sl_selected C-Win
 ON DEFAULT-ACTION OF sl_selected IN FRAME FRAME-A
 DO:
@@ -1040,25 +1049,20 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME tb_non-elect
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_non-elect C-Win
-ON VALUE-CHANGED OF tb_non-elect IN FRAME FRAME-A /* Exclude ACH Vendors */
+&Scoped-define SELF-NAME tb_detailed
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_detailed C-Win
+ON VALUE-CHANGED OF tb_detailed IN FRAME FRAME-A /* Detailed? */
 DO:
   ASSIGN {&self-name}.
-  IF NOT tb_elect AND NOT tb_non-elect THEN 
-      ASSIGN 
-        tb_elect = YES
-        tb_elect:SCREEN-VALUE = "Yes".
-
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME tb_elect
+&Scoped-define SELF-NAME tb_elect
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_elect C-Win
-ON VALUE-CHANGED OF tb_elect IN FRAME FRAME-A /* ACH Vendors Only */
+ON VALUE-CHANGED OF tb_elect IN FRAME FRAME-A /* Electronic */
 DO:
   ASSIGN {&self-name}.
   IF NOT tb_elect AND NOT tb_non-elect THEN 
@@ -1072,18 +1076,7 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME tb_detailed
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_detailed C-Win
-ON VALUE-CHANGED OF tb_detailed IN FRAME FRAME-A /* Detailed? */
-DO:
-  ASSIGN {&self-name}.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&SCOPED-DEFINE SELF-NAME tb_excel
+&Scoped-define SELF-NAME tb_excel
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_excel C-Win
 ON VALUE-CHANGED OF tb_excel IN FRAME FRAME-A /* Export To Excel? */
 DO:
@@ -1094,7 +1087,34 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME tb_runExcel
+&Scoped-define SELF-NAME tb_non-elect
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_non-elect C-Win
+ON VALUE-CHANGED OF tb_non-elect IN FRAME FRAME-A /* Non-Electronic */
+DO:
+  ASSIGN {&self-name}.
+  IF NOT tb_elect AND NOT tb_non-elect THEN 
+      ASSIGN 
+        tb_elect = YES
+        tb_elect:SCREEN-VALUE = "Yes".
+
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME tb_print-head
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_print-head C-Win
+ON VALUE-CHANGED OF tb_print-head IN FRAME FRAME-A /* Print Vendor Header? */
+DO:
+  ASSIGN {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME tb_runExcel
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_runExcel C-Win
 ON VALUE-CHANGED OF tb_runExcel IN FRAME FRAME-A /* Auto Run Excel? */
 DO:
@@ -1105,7 +1125,7 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME td-show-parm
+&Scoped-define SELF-NAME td-show-parm
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL td-show-parm C-Win
 ON VALUE-CHANGED OF td-show-parm IN FRAME FRAME-A /* Show Parameters? */
 DO:
@@ -1334,16 +1354,16 @@ PROCEDURE enable_UI :
   DISPLAY begin_comp end_comp begin_vend end_vend begin_curr end_curr begin_type 
           end_type tb_elect tb_non-elect as_of_date lbl_date rd_date 
           period-days-1 period-days-2 period-days-3 period-days-4 lbl_sort 
-          rd_sort tb_detailed sl_avail sl_selected lv-ornt lines-per-page 
-          rd-dest lv-font-no lv-font-name td-show-parm tb_excel tb_runExcel 
-          fi_file 
+          rd_sort tb_detailed tb_print-head sl_avail sl_selected lv-ornt 
+          lines-per-page rd-dest lv-font-no lv-font-name td-show-parm tb_excel 
+          tb_runExcel fi_file 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   ENABLE RECT-6 RECT-7 begin_comp end_comp begin_vend end_vend begin_curr 
-         end_curr begin_type end_type tb_elect tb_non-elect as_of_date 
-         rd_date period-days-1 period-days-2 period-days-3 period-days-4 
-         rd_sort tb_detailed sl_avail Btn_Def sl_selected Btn_Add Btn_Remove 
-         btn_Up btn_down lv-ornt lines-per-page rd-dest lv-font-no td-show-parm 
-         tb_excel tb_runExcel fi_file btn-ok btn-cancel 
+         end_curr begin_type end_type tb_elect tb_non-elect as_of_date rd_date 
+         period-days-1 period-days-2 period-days-3 period-days-4 rd_sort 
+         tb_detailed tb_print-head sl_avail Btn_Def sl_selected Btn_Add 
+         Btn_Remove btn_Up btn_down lv-ornt lines-per-page rd-dest lv-font-no 
+         td-show-parm tb_excel tb_runExcel fi_file btn-ok btn-cancel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.
@@ -1513,13 +1533,16 @@ DEFINE VARIABLE cFieldName AS CHARACTER NO-UNDO.
 DEFINE VARIABLE str-tit4 AS CHARACTER FORM "x(200)" NO-UNDO.
 DEFINE VARIABLE str-tit5 AS CHARACTER FORM "x(200)" NO-UNDO.
 DEFINE VARIABLE str-line AS CHARACTER FORM "x(300)" NO-UNDO.
+DEFINE VARIABLE lPrintHead AS LOGICAL FORMAT "yes/no"  INITIAL yes.
 
 {sys/form/r-top5L3.f} 
 cSelectedList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
 DEFINE VARIABLE excelheader AS CHARACTER  NO-UNDO.
 DEFINE VARIABLE cPaymentList AS CHARACTER NO-UNDO.
 DEFINE BUFFER xap-ledger FOR ap-ledger.
-
+DEFINE VARIABLE cVendHeader AS CHAR NO-UNDO .
+DEFINE VARIABLE cVendHeadLine AS CHAR NO-UNDO .
+DEFINE VARIABLE lPutHeader AS LOGICAL NO-UNDO .
 FORM HEADER SKIP(1)
      lv-page-break FORMAT "x(200)"
 WITH PAGE-TOP FRAME r-top-1 STREAM-IO WIDTH 200 NO-BOX.
@@ -1534,6 +1557,21 @@ FORM HEADER SKIP(1)
                                                                            STRING(period-days-4 + 1) + "+"  + FILL(" ",10) FORMAT "x(131)"
      SKIP FILL("_",131) FORMAT "x(131)"
 WITH PAGE-TOP FRAME r-top-2 STREAM-IO WIDTH 200 NO-BOX.
+
+form header 
+     skip(1)
+     day_str
+     str-tit format "x(112)"
+     "Page" at 123
+     page-number format ">>9"
+     skip
+     tim_str
+     str-tit2 format "x(300)"
+     skip
+     str-tit3 format "x(300)"
+     skip
+     with frame r-top-vend row 1 column 1 stream-io width 340
+     no-labels no-box no-underline page-top.
 
 FORM HEADER
      SPACE(10)
@@ -1566,9 +1604,26 @@ ASSIGN
  v-days[2] = period-days-2
  v-days[3] = period-days-3
  v-days[4] = period-days-4
+ lPrintHead =  tb_print-head
 
  str-tit3 = "Company From: " + STRING(begin_comp) + " To: " + STRING(end_comp) + "      " + "As of Date: " + STRING(v-date)
  {sys/inc/ctrtext.i str-tit3 132}.
+
+IF lPrintHead THEN do:
+    cSelectedList = "" .
+    FOR EACH ttRptSelected BREAK BY ttRptSelected.DisplayOrder:
+     IF LOOKUP(ttRptSelected.TextList, "VENDOR#,VENDOR NAME,PHONE,TERMS") NE 0    THEN
+         DELETE ttRptSelected .
+     ELSE do:
+         IF NOT LAST(ttRptSelected.DisplayOrder) THEN
+         cSelectedList = cSelectedList + string(ttRptSelected.TextList) + "," .
+         ELSE
+             cSelectedList = cSelectedList + string(ttRptSelected.TextList) .
+
+     END.
+    END.
+END.
+
 DEFINE VARIABLE cslist AS CHARACTER NO-UNDO.
  FOR EACH ttRptSelected BY ttRptSelected.DisplayOrder:
 
@@ -1630,13 +1685,19 @@ DO WITH FRAME {&FRAME-NAME}:
    period-days-4.
 END.
 
+ASSIGN cVendHeader = "VENDOR     VENDOR NAME"
+       cVendHeadLine = "---------- ------------------------------" .
+
 {sys/inc/print1.i}
 
 {sys/inc/outprint.i VALUE(lines-per-page)}
 
 IF td-show-parm THEN RUN show-param.
 
-VIEW FRAME r-top.
+IF lPrintHead THEN
+    VIEW FRAME r-top-vend .
+ELSE VIEW FRAME r-top .
+
 
   ASSIGN grand-t = 0.
 
@@ -1716,7 +1777,7 @@ VIEW FRAME r-top.
                         + STRING(period-days-3) + "," + STRING(period-days-3 + 1) + "-" 
                         + STRING(period-days-4) + "," + STRING(period-days-4 + 1) + "+" 
                         + " ".
-
+     IF NOT lPrintHead THEN
      PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
   END.
 
@@ -1729,6 +1790,7 @@ VIEW FRAME r-top.
       lv-page-break = "Currency: " + TRIM(tt-vend.curr-code).
 
       IF ll-mult-curr OR FIRST(tt-vend.curr-code) THEN PAGE.
+      
     END.
 
     {ap/ap-agedN.i}
