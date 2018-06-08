@@ -91,6 +91,7 @@ DEFINE VARIABLE origDirectoryName AS CHARACTER NO-UNDO FORMAT "X(256)".
 DEFINE VARIABLE intBufferSize    AS INTEGER   NO-UNDO INITIAL 256.
 DEFINE VARIABLE intResult        AS INTEGER   NO-UNDO.
 DEFINE VARIABLE ptrToString      AS MEMPTR    NO-UNDO.
+DEF VAR cUsrFileName AS CHAR NO-UNDO.
 
 DEF VAR cVarName AS CHAR EXTENT 100 NO-UNDO.
 DEF VAR cVarValue AS CHAR EXTENT 100 NO-UNDO.
@@ -303,7 +304,8 @@ END.
 /* Find the .ini file containing variables and values */
 RUN ipCreateTTIniFile.
 RUN ipFindIniFile.
-RUN ipFindUsrFile.
+
+RUN ipFindUsrFile ("advantzware.usr").
 
 
 ASSIGN
@@ -608,6 +610,15 @@ DO:
         END.
     END.
 
+    IF iEnvLevel LT 16071200 THEN DO:
+        MESSAGE
+            "Changes to user aliases, mode, environments and databases will not be saved with this version."
+            VIEW-AS ALERT-BOX INFO.
+
+    ASSIGN
+            cUsrLoc = replace(cUsrLoc,".usr",".nul").
+    END.
+    
     ASSIGN
         lUserOK = SETUSERID(cUserID,fiPassword:{&SV},LDBNAME(1)).
     IF lUserOK = TRUE THEN DO:
@@ -1342,6 +1353,11 @@ PROCEDURE ipFindUsrFile :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+    DEF INPUT PARAMETER ipUserFileName AS CHAR.
+    
+    ASSIGN
+        cUsrLoc = ipUserFileName.
+        
     /* Start guessing where the file might be */
     DO:
         IF SEARCH(cUsrLoc) <> ? THEN DO:
@@ -1350,77 +1366,77 @@ PROCEDURE ipFindUsrFile :
             LEAVE.
         END.
         ELSE ASSIGN
-            cUsrLoc = "..\advantzware.usr".
+            cUsrLoc = "..\" + ipUserFileName.
         IF SEARCH(cUsrLoc) <> ? THEN DO:
             ASSIGN
                 cUsrLoc = SEARCH(cUsrLoc).
             LEAVE.
         END.
         ASSIGN
-            cUsrLoc = "N:\Admin\advantzware.usr".
+            cUsrLoc = "N:\Admin\" + ipUserFileName.
         IF SEARCH(cUsrLoc) <> ? THEN DO:
             ASSIGN
                 cUsrLoc = SEARCH(cUsrLoc).
             LEAVE.
         END.
         ASSIGN
-            cUsrLoc = "P:\Admin\advantzware.usr".
+            cUsrLoc = "P:\Admin\" + ipUserFileName.
         IF SEARCH(cUsrLoc) <> ? THEN DO:
             ASSIGN
                 cUsrLoc = SEARCH(cUsrLoc).
             LEAVE.
         END.
         ASSIGN
-            cUsrLoc = "C:\ASIGUI\Admin\advantzware.usr.".
+            cUsrLoc = "C:\ASIGUI\Admin\" + ipUserFileName.
         IF SEARCH(cUsrLoc) <> ? THEN DO:
             ASSIGN
                 cUsrLoc = SEARCH(cUsrLoc).
             LEAVE.
         END.
         ASSIGN
-            cUsrLoc = "C:\ASI\Admin\advantzware.usr".
+            cUsrLoc = "C:\ASI\Admin\" + ipUserFileName.
         IF SEARCH(cUsrLoc) <> ? THEN DO:
             ASSIGN
                 cUsrLoc = SEARCH(cUsrLoc).
             LEAVE.
         END.
         ASSIGN
-            cUsrLoc = "D:\ASIGUI\Admin\advantzware.usr.".
+            cUsrLoc = "D:\ASIGUI\Admin\" + ipUserFileName.
         IF SEARCH(cUsrLoc) <> ? THEN DO:
             ASSIGN
                 cUsrLoc = SEARCH(cUsrLoc).
             LEAVE.
         END.
         ASSIGN
-            cUsrLoc = "D:\ASI\Admin\advantzware.usr".
+            cUsrLoc = "D:\ASI\Admin\" + ipUserFileName.
         IF SEARCH(cUsrLoc) <> ? THEN DO:
             ASSIGN
                 cUsrLoc = SEARCH(cUsrLoc).
             LEAVE.
         END.
         ASSIGN
-            cUsrLoc = "E:\ASIGUI\Admin\advantzware.usr.".
+            cUsrLoc = "E:\ASIGUI\Admin\" + ipUserFileName.
         IF SEARCH(cUsrLoc) <> ? THEN DO:
             ASSIGN
                 cUsrLoc = SEARCH(cUsrLoc).
             LEAVE.
         END.
         ASSIGN
-            cUsrLoc = "E:\ASI\Admin\advantzware.usr".
+            cUsrLoc = "E:\ASI\Admin\" + ipUserFileName.
         IF SEARCH(cUsrLoc) <> ? THEN DO:
             ASSIGN
                 cUsrLoc = SEARCH(cUsrLoc).
             LEAVE.
         END.
         ASSIGN
-            cUsrLoc = "F:\ASIGUI\Admin\advantzware.usr.".
+            cUsrLoc = "F:\ASIGUI\Admin\" + ipUserFileName.
         IF SEARCH(cUsrLoc) <> ? THEN DO:
             ASSIGN
                 cUsrLoc = SEARCH(cUsrLoc).
             LEAVE.
         END.
         ASSIGN
-            cUsrLoc = "F:\ASI\Admin\advantzware.usr".
+            cUsrLoc = "F:\ASI\Admin\" + ipUserFileName.
         IF SEARCH(cUsrLoc) <> ? THEN DO:
             ASSIGN
                 cUsrLoc = SEARCH(cUsrLoc).
