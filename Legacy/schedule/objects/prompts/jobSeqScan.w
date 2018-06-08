@@ -1357,7 +1357,7 @@ PROCEDURE moveJob :
                 ttJob.jobSequence = ipiMove
                 rRowID            = ROWID(ttJob)
                 .
-            RUN sequenceJobs.
+            RUN sequenceJobs (svResource).
         END. /* top or bottom */
         OTHERWISE DO:
             /* already at top */
@@ -1382,7 +1382,7 @@ PROCEDURE moveJob :
                 ttJob.jobSequence  = ttJob.jobSequence + ipiMove
                 rRowID             = ROWID(ttJob)
                 .
-            RUN sequenceJobs.
+            RUN sequenceJobs (svResource).
         END. /* otherwise */
     END CASE.
     {&OPEN-QUERY-{&BROWSE-NAME}}
@@ -1425,7 +1425,7 @@ PROCEDURE moveToPending :
             ttJob.endDate = ?
             ttJOb.endTime = 0
             .
-        RUN sequenceJobs.
+        RUN sequenceJobs (svResource).
     END. /* else */
     lSave = YES.
     RUN getJobs (svResource).
@@ -1806,9 +1806,9 @@ PROCEDURE processScan :
                 ELSE svMode = "Insert".
                 svMode:SCREEN-VALUE = FILL(" ",25) + "Mode: " + CAPS(svMode).
             END. /* if not add and not insert */
-            IF ENTRY(1,svJOb,":") EQ "Mode" THEN DO:
+            IF ENTRY(1,svJob,":") EQ "Mode" THEN DO:
                 ASSIGN
-                    svMode = ENTRY(2,svJOb,":")
+                    svMode = ENTRY(2,svJob,":")
                     svMode:SCREEN-VALUE = FILL(" ",25) + "Mode: " + CAPS(svMode)
                     svJob = ""
                     svJob:SCREEN-VALUE = svJob
@@ -1898,8 +1898,10 @@ PROCEDURE scheduleJob :
 ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipcType AS CHARACTER NO-UNDO.
     
-    DEFINE VARIABLE rRowID AS ROWID   NO-UNDO.
-    DEFINE VARIABLE iSeq   AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE rRowID        AS ROWID     NO-UNDO.
+    DEFINE VARIABLE iSeq          AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE cResourceList AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cResource     AS CHARACTER NO-UNDO.
     
     IF ipcType EQ "Insert" THEN DO:
         IF NOT AVAILABLE ttJob THEN RETURN.
@@ -1918,6 +1920,50 @@ PROCEDURE scheduleJob :
              WHERE ttJob.resource EQ svResource
                AND ttJob.job EQ svJob
              NO-ERROR.
+        IF NOT AVAILABLE ttJob THEN DO:
+            /* transfer? */
+            FOR EACH ttJob
+                WHERE ttJob.job EQ svJob,
+                FIRST mach NO-LOCK
+                WHERE mach.company EQ ipcCompany
+                  AND mach.m-code  EQ ttJob.resource
+                BY ttJob.resource:
+                /* list of resource(s) where job exists */
+                cResourceList = cResourceList
+                              + ttJob.resource
+                              + (IF AVAILABLE mach THEN " - " + mach.m-dscr ELSE "") + ","
+                              + ttJob.resource + ","
+                              .
+            END. /* each ttjob */
+            IF cResourceList NE "" THEN DO:
+                /* found job on other resource(s) */
+                ASSIGN
+                    cResourceList = TRIM(cResourceList,",")
+                    cResource     = ENTRY(1,cResourceList)
+                    .
+                /* prompt for which resource to transfer from */
+                IF NUM-ENTRIES(cResourceList) GT 1 THEN 
+                RUN {&prompts}/jobSeqScanTrans.w (cResourceList, OUTPUT cResource).
+                IF cResource EQ ? THEN RETURN. /* user canceled */
+                /* scan has leading +, remove it */
+                cResource = REPLACE(cResource,"+","").
+                FIND FIRST ttJob
+                     WHERE ttJob.resource EQ cResource
+                       AND ttJob.job EQ svJob
+                     NO-ERROR.
+                IF AVAILABLE ttJob THEN DO:
+                    /* move job to pending */
+                    ASSIGN 
+                        ttJob.resource = svResource
+                        ttJob.jobType  = "P"
+                        rRowID         = ROWID(ttJob)
+                        .
+                    /* resequence resource where job transferred from */
+                    RUN sequenceJobs (cResource).
+                    FIND ttJob WHERE ROWID(ttJob) EQ rRowID.
+                END. /* avail ttjob */
+            END. /* cresourcelist not empty */
+        END. /* not avail */
     END. /* else */    
     IF AVAILABLE ttJob THEN DO:
         rRowID = ROWID(ttJob).
@@ -1926,7 +1972,7 @@ PROCEDURE scheduleJob :
                 ttJob.jobType = "S"
                 ttJob.jobSequence = iSeq
                 .
-            RUN sequenceJobs.
+            RUN sequenceJobs (svResource).
             RUN getJobs (svResource).
         END. /* if jobtype P */
         REPOSITION {&BROWSE-NAME} TO ROWID(rRowID).
@@ -1944,13 +1990,15 @@ PROCEDURE sequenceJobs :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcResource AS CHARACTER NO-UNDO.
+    
     DEFINE VARIABLE dtStartDate AS DATE    NO-UNDO.
     DEFINE VARIABLE iStartTime  AS INTEGER NO-UNDO.
     DEFINE VARIABLE iSeq        AS INTEGER NO-UNDO.
     
     FIND FIRST ttJob
          WHERE ttJob.jobType     EQ "S"
-           AND ttJob.resource    EQ svResource
+           AND ttJob.resource    EQ ipcResource
            AND ttJob.jobSequence GE 0
          NO-ERROR.
     IF AVAILABLE ttJob THEN DO:
@@ -1965,7 +2013,7 @@ PROCEDURE sequenceJobs :
             .
         FOR EACH ttJob
             WHERE ttJob.jobType  EQ "S"
-              AND ttJob.resource EQ svResource
+              AND ttJob.resource EQ ipcResource
               AND ttJob.jobFlag  EQ NO
             :
              ttJob.jobFlag = YES.
@@ -1973,7 +2021,7 @@ PROCEDURE sequenceJobs :
         
         FOR EACH ttJob
             WHERE ttJob.jobType  EQ "S"
-              AND ttJob.resource EQ svResource
+              AND ttJob.resource EQ ipcResource
               AND ttJob.jobFlag  EQ YES
             :
             ASSIGN
