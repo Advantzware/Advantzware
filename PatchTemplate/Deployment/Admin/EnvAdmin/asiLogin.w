@@ -644,7 +644,7 @@ DO:
     ELSE MESSAGE
         "Unable to login with that User ID and Password."
         VIEW-AS ALERT-BOX ERROR.
-    QUIT.
+    RETURN.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1286,7 +1286,7 @@ PROCEDURE ipFindUser :
                 "Unable to locate this user in the advantzware.usr file." SKIP
                 "Please contact your system administrator for assistance."
                 VIEW-AS ALERT-BOX ERROR.
-            QUIT.
+            RETURN.
         END.
         ELSE DO:
             CREATE bttUsers.
