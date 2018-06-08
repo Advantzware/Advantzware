@@ -123,7 +123,9 @@ def new shared workfile wrk-ink
   field i-qty as dec format ">,>>9.9<"
   field i-pass as dec
   FIELD i-unit AS DEC
-  FIELD i-% AS INT  .
+  FIELD i-% AS INT
+  FIELD job-no AS CHARACTER
+  FIELD job-no2 AS INTEGER  .
 
 def new shared workfile wrk-prep
   field code like est-prep.code
@@ -758,6 +760,8 @@ for each job-hdr NO-LOCK
                       and wrk-ink.blank-no eq eb.blank-no
                       AND wrk-ink.i-pass   EQ eb.i-ps2[i]
                       AND wrk-ink.i-unit   EQ v-unit
+                      AND wrk-ink.job-no   EQ job-hdr.job-no
+                      AND wrk-ink.job-no2  EQ job-hdr.job-no2
                     no-error.
 
                 if not avail wrk-ink then do:
@@ -769,7 +773,9 @@ for each job-hdr NO-LOCK
                    wrk-ink.i-dscr   = eb.i-dscr2[i]
                    wrk-ink.i-pass   = eb.i-ps2[i]
                    wrk-ink.i-unit   = v-unit
-                   wrk-ink.i-% = eb.i-%2[i]   .
+                   wrk-ink.i-% = eb.i-%2[i]  
+                   wrk-ink.job-no = job-hdr.job-no
+                   wrk-ink.job-no2 = job-hdr.job-no2  .
                 end.
               end.
             end. /* loop i */
@@ -777,6 +783,8 @@ for each job-hdr NO-LOCK
             find first wrk-ink
                 where wrk-ink.i-code    eq job-mat.i-no
                   and wrk-ink.form-no   eq job-mat.frm
+                  AND wrk-ink.job-no   EQ job-hdr.job-no
+                  AND wrk-ink.job-no2  EQ job-hdr.job-no2
                   and (wrk-ink.blank-no eq job-mat.blank-no or
                        est.est-type     eq 4)
                 no-error.
@@ -791,7 +799,9 @@ for each job-hdr NO-LOCK
                wrk-ink.blank-no = eb.blank-no
                wrk-ink.i-dscr   = item.est-dscr
                wrk-ink.i-unit = 0 
-               wrk-ink.i-pass   = 1.
+               wrk-ink.i-pass   = 1
+               wrk-ink.job-no = job-hdr.job-no
+               wrk-ink.job-no2 = job-hdr.job-no2.
             end.
 
             /*if avail wrk-ink then wrk-ink.i-qty = wrk-ink.i-qty + job-mat.qty.*/
@@ -799,9 +809,7 @@ for each job-hdr NO-LOCK
                ((est.est-type eq 4 and eb.form-no = job-mat.frm AND eb.blank-no = job-mat.blank-no) OR
                  est.est-type <> 4 ) 
                  then wrk-ink.i-qty = wrk-ink.i-qty + job-mat.qty.  
-/*IF AVAIL wrk-ink THEN
-    MESSAGE wrk-ink.form-no wrk-ink.blank-no skip
-    wrk-ink.i-code wrk-ink.i-unit wrk-ink.i-pass wrk-ink.i-qty VIEW-AS ALERT-BOX.*/
+
           end. /* JOB-MAT */
 
           if eb.est-type eq 4 then v-fac = eb.yld-qty / v-est-qty.
@@ -950,6 +958,8 @@ for each job-hdr NO-LOCK
              v-ink3 = "".
 
              for each wrk-ink WHERE wrk-ink.form-no = eb.form-no
+                      AND wrk-ink.job-no EQ job-hdr.job-no
+                      AND wrk-ink.job-no2 EQ job-hdr.job-no2
                 BREAK /* by wrk-ink.i-pass
                       BY wrk-ink.i-code
                       BY wrk-ink.i-unit
@@ -1617,6 +1627,12 @@ for each job-hdr NO-LOCK
                WITH FRAME itmlbl2 NO-BOX NO-LABELS STREAM-IO WIDTH 180.
             i = 0.
         END.
+       
+          FIND FIRST eb NO-LOCK 
+              WHERE eb.company  = job-hdr.company
+                AND eb.est-no   = job-hdr.est-no
+                AND eb.stock-no = job-hdr.i-no  NO-ERROR.
+        
         IF AVAIL eb THEN
         FIND FIRST itemfg NO-LOCK
             WHERE itemfg.company EQ eb.company
