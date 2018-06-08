@@ -123,6 +123,10 @@ DEF VAR cIniVarList AS CHAR NO-UNDO.
 DEF VAR cPatchNo AS CHAR NO-UNDO.
 DEF VAR iDbVer AS INT NO-UNDO.
 DEF VAR iEnvVer AS INT NO-UNDO.
+DEF VAR iPos AS INT NO-UNDO.
+DEF VAR iEnvLevel AS INT NO-UNDO.
+DEF VAR iDbLevel AS INT NO-UNDO.
+DEF VAR iTruncLevel AS INT NO-UNDO.
 
 /* Ensure that these lists always match, 'c' is always the prefix */
 ASSIGN cIniVarList = 
@@ -325,15 +329,15 @@ END.
 ELSE DO:
     RUN ipReadIniFile.
 END.
-/*
-IF SEARCH(cDrive + "\" + cTopDir + "\.") EQ ? THEN DO:
+
+IF SEARCH(cMapDir + "\" + cAdminDir + "\advantzware.ini") EQ ? THEN DO:
     MESSAGE
         "There is a problem with your network connections." SKIP
         "Please contact your local System Administrator."
         VIEW-AS ALERT-BOX ERROR.
-    RETURN.
+    QUIT.
 END.
-*/
+
 /* Find the .usr file containing user-level settings */
 IF cUsrLoc EQ "" THEN DO:
     MESSAGE
@@ -568,10 +572,6 @@ DO:
     DEF VAR lError AS LOG NO-UNDO.
     DEF VAR cMessage AS CHAR NO-UNDO.
     DEF VAR cCmdString AS CHAR NO-UNDO.
-    DEF VAR iPos AS INT NO-UNDO.
-    DEF VAR iEnvLevel AS INT NO-UNDO.
-    DEF VAR iDbLevel AS INT NO-UNDO.
-    DEF VAR iTruncLevel AS INT NO-UNDO.
 
     ASSIGN
         iPos = LOOKUP(cbEnvironment:{&SV},cbEnvironment:LIST-ITEMS)
@@ -614,8 +614,7 @@ DO:
         MESSAGE
             "Changes to user aliases, mode, environments and databases will not be saved with this version."
             VIEW-AS ALERT-BOX INFO.
-
-    ASSIGN
+        ASSIGN
             cUsrLoc = replace(cUsrLoc,".usr",".nul").
     END.
     
@@ -857,9 +856,6 @@ PROCEDURE ipChangeEnvironment :
     DEF VAR preProPath AS CHAR NO-UNDO.
     DEF VAR iLookup AS INT NO-UNDO.
     DEF VAR iCtr AS INT NO-UNDO.
-    DEF VAR iPos AS INT NO-UNDO.
-    DEF VAR iEnvLevel AS INT NO-UNDO.
-    DEF VAR iDbLevel AS INT NO-UNDO.
     
     ASSIGN
         iPos = LOOKUP(cbEnvironment:{&SV},cbEnvironment:LIST-ITEMS)
@@ -1000,7 +996,7 @@ PROCEDURE ipConnectDb :
     DEF VAR iLookup AS INT NO-UNDO.
     DEF VAR xdbName AS CHAR NO-UNDO.
     DEF VAR xdbPort AS CHAR NO-UNDO.
-
+    
     CONNECT VALUE(cStatement) NO-ERROR.
 
     IF CONNECTED(LDBNAME(1))
@@ -1027,7 +1023,11 @@ PROCEDURE ipConnectDb :
     END.
 
     ASSIGN
-        lConnectAudit = IF INDEX(cConnectAudit,"Y") NE 0 OR INDEX(cConnectAudit,"T") NE 0 THEN TRUE ELSE FALSE.
+        lConnectAudit = IF INDEX(cConnectAudit,"Y") NE 0 OR INDEX(cConnectAudit,"T") NE 0 THEN TRUE ELSE FALSE
+        iPos = LOOKUP(cbEnvironment:{&SV},cbEnvironment:LIST-ITEMS)
+        iEnvLevel = intVer(ENTRY(iPos,cEnvVerList)).
+    IF iEnvLevel LT 16070000 THEN ASSIGN
+        lConnectAudit = FALSE.
 
     IF lConnectAudit THEN DO:
         ASSIGN
@@ -1037,6 +1037,10 @@ PROCEDURE ipConnectDb :
             xdbPort = ENTRY(iLookup,cAudPortList)
             connectStatement = "".
     
+        IF iEnvLEvel EQ 16070000 THEN ASSIGN
+            xDBName = "audTest166"
+            xdbPort = "2837".
+            
         IF xDbName NE "" THEN DO:
             ASSIGN
                 connectStatement = "-db " + xDbName + 
@@ -1463,7 +1467,16 @@ PROCEDURE ipPreRun :
     DEF VAR lOK AS LOG INITIAL TRUE NO-UNDO.
     DEF VAR lExit AS LOG INITIAL TRUE NO-UNDO.
 
-    IF INDEX(PDBNAME(1),"165") EQ 0 
+    ASSIGN
+        iPos = LOOKUP(cbEnvironment:{&SV},cbEnvironment:LIST-ITEMS)
+        iEnvLevel = intVer(ENTRY(iPos,cEnvVerList))
+        iPos = LOOKUP(cbDatabase:{&SV},cbDatabase:LIST-ITEMS)
+        iDbLevel = intVer(ENTRY(iPos,cDbVerList))
+        iTruncLevel = iDbLevel / 10000
+        .
+    /* Here the format for both is 16070400 */
+
+    IF iDbLevel GT 16050000
     AND USERID(LDBNAME(1)) NE "asi" THEN DO:
         RUN epCheckPwdExpire IN hPreRun (INPUT-OUTPUT lOK).
         IF NOT lOK THEN QUIT.
@@ -1475,7 +1488,8 @@ PROCEDURE ipPreRun :
     IF NOT VALID-HANDLE(listlogic-handle) THEN
         RUN lstlogic/persist.p PERSISTENT SET ListLogic-Handle.
 
-    IF cbMode:{&SV} NE "Monitor Users" 
+    IF iDbLevel GT 16050000
+    AND cbMode:{&SV} NE "Monitor Users" 
     AND cbMode:{&SV} NE "Editor" THEN DO:
         RUN epUserLogin IN hPreRun (OUTPUT lExit).
         IF lExit THEN QUIT.
@@ -1493,9 +1507,11 @@ PROCEDURE ipPreRun :
 
     RUN epGetUserGroups IN hPreRun (OUTPUT g_groups).
 
-    IF INDEX(PDBNAME(1),"166") EQ 0 THEN RUN epSetUpEDI IN hPreRun.
+    IF iDbLevel GT 16050000 THEN 
+        RUN epSetUpEDI IN hPreRun.
 
-    IF fiUserID:{&SV} = "ASI" THEN RUN asiload.p.
+    IF fiUserID:{&SV} = "ASI" THEN 
+        RUN asiload.p.
 
     RUN epCheckExpiration IN hPreRun (OUTPUT lOK).
     IF NOT lOK THEN QUIT.
