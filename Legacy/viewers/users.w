@@ -1231,7 +1231,7 @@ PROCEDURE local-assign-record :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-record':U ) .
 
     /* {methods/viewers/assign/{&FIRST-EXTERNAL-TABLE}.i}  */
-    
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1457,6 +1457,7 @@ PROCEDURE local-display-fields :
             slEnvironments:screen-value = if ttUsers.ttfEnvList <> "" THEN ttUsers.ttfEnvList else slEnvironments:list-items
             slDatabases:screen-value = if ttUsers.ttfDbList <> "" THEN ttUsers.ttfDbList else slDatabases:list-items
             users.userAlias:SCREEN-VALUE = ttUsers.ttfUserAlias
+            users.userAlias:modified = false
             .
 
         /* But mode-list has a by-db component (ttfPdbname = pdbname(1)) */
@@ -1503,6 +1504,7 @@ PROCEDURE local-enable-fields :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'enable-fields':U ) .
 
     {methods/template/local/enable.i}
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'reset-record':U ) .
 
 END PROCEDURE.
 
