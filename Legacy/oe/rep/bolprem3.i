@@ -57,7 +57,7 @@ FOR EACH tt-boll,
         END.
         
          IF j >= 30 THEN do:
-        IF v-printline >= 50 THEN DO:
+        IF v-printline >= 52 THEN DO:
            v-printline = 0.
            j = j - 30.
            PAGE {1}.
@@ -187,7 +187,7 @@ FOR EACH tt-boll,
          v-printline = v-printline + 1.
          
          IF j >= 30 THEN do:
-        IF v-printline >= 50 THEN DO:
+        IF v-printline >= 52 THEN DO:
            v-printline = 0.
            j = j - 30.
            PAGE {1}.
@@ -234,7 +234,7 @@ FOR EACH tt-boll,
             IF v-part-dscr NE "" OR v-ord-po-no NE "" OR i LE 2 THEN DO:
                 
               IF j >= 30 THEN do:
-                IF v-printline >= 50 THEN DO:
+                IF v-printline >= 52 THEN DO:
                    v-printline = 0.
                    j = j - 30.
                    PAGE {1}.
@@ -275,7 +275,7 @@ FOR EACH tt-boll,
       PUT {1} SKIP(1).
 
       ASSIGN
-         v-printline = v-printline + 1
+         v-printline = v-printline + 2
          tt-boll.printed = yes.
   
       IF v-print-components AND itemfg.alloc NE YES THEN DO:
@@ -289,7 +289,7 @@ FOR EACH tt-boll,
             {sys/inc/part-qty.i v-part-qty fg-set}
 
             IF j >= 30 THEN do:
-            IF v-printline >= 50 THEN DO:
+            IF v-printline >= 52 THEN DO:
                v-printline = 0.
                j = j - 30.
                PAGE {1}.
