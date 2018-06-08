@@ -729,13 +729,14 @@ END.
 ON LEAVE OF users.userAlias IN FRAME F-Main /* Login Alias */
 DO:
     IF SELF:SCREEN-VALUE <> "" THEN DO:
-        FIND FIRST lUsers NO-LOCK WHERE 
-            lUsers.userAlias = SELF:SCREEN-VALUE AND
-            lUsers.user_id NE users.user_id
+        FIND FIRST ttUsers NO-LOCK WHERE 
+            ttUsers.ttfuserAlias = SELF:SCREEN-VALUE AND
+            ttUsers.ttfpdbname = "*" AND
+            ttUsers.ttfuserid NE users.user_id
             NO-ERROR.
-        IF AVAIL lUsers THEN DO:
+        IF AVAIL ttUsers THEN DO:
             MESSAGE
-                "Duplicate alias detected with user " + lUsers.user_id + ". Please enter a different value."
+                "Duplicate alias detected with user " + ttUsers.ttfuserid + ". Please enter a different value."
                 VIEW-AS ALERT-BOX ERROR.
             ASSIGN
                 SELF:SCREEN-VALUE = "".
@@ -1172,7 +1173,7 @@ PROCEDURE ipWriteUsrFile :
   Notes:       
 ------------------------------------------------------------------------------*/
     DEF VAR cOutString AS CHAR.
-
+    
     OUTPUT TO VALUE(cUsrLoc).
     FOR EACH ttUsers BY ttUsers.ttfPdbname by ttUsers.ttfUserID:
         ASSIGN cOutString = 
