@@ -591,6 +591,8 @@ DO:
     RUN valid-issued-tag NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
+    lvTag = rm-rctd.tag:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}.
+
     {addon/loadtags/disptagr.i "RMItem" lvTag}
     
     rm-rctd.po-no:SCREEN-VALUE = ''.
@@ -2288,13 +2290,27 @@ PROCEDURE valid-issued-tag :
 ------------------------------------------------------------------------------*/
   DEF VAR lv-valid-tag AS LOG NO-UNDO.
 
-  FOR FIRST loadtag WHERE
-      loadtag.company = cocode and
-      loadtag.item-type = YES and
-      loadtag.tag-no = rm-rctd.tag:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}
-      NO-LOCK,
-      EACH rm-rdtlh FIELDS(r-no) WHERE
-           rm-rdtlh.company EQ loadtag.company AND
+   FIND FIRST loadtag NO-LOCK
+       WHERE loadtag.company = cocode and
+       loadtag.item-type = YES and
+       loadtag.tag-no = rm-rctd.tag:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}
+      NO-ERROR.
+
+    IF NOT AVAIL loadtag THEN DO:
+        FIND FIRST loadtag NO-LOCK
+            WHERE loadtag.company EQ g_company 
+            AND loadtag.item-type EQ YES 
+            AND loadtag.misc-char[1] EQ rm-rctd.tag:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}
+             NO-ERROR.
+
+    IF AVAIL loadtag THEN
+       rm-rctd.tag:SCREEN-VALUE IN BROWSE {&BROWSE-NAME} = loadtag.tag-no.
+     
+    END.
+
+    IF AVAIL loadtag THEN
+      FOR EACH rm-rdtlh FIELDS(r-no) WHERE
+           rm-rdtlh.company EQ cocode AND
            rm-rdtlh.loc EQ loadtag.loc AND
            rm-rdtlh.loc-bin EQ loadtag.loc-bin AND
            rm-rdtlh.tag EQ loadtag.tag-no
@@ -2303,10 +2319,10 @@ PROCEDURE valid-issued-tag :
            rm-rcpth.r-no    EQ rm-rdtlh.r-no AND
            rm-rcpth.i-no    EQ loadtag.i-no
            NO-LOCK:
-
+  
            lv-valid-tag = YES.
            LEAVE.
-  END.
+      END.
 
   IF NOT lv-valid-tag THEN
   DO:
