@@ -205,6 +205,8 @@
         AND oe-ord.ord-no  EQ oe-ordl.ord-no
         AND oe-ord.cust-no GE v-fcust[1]
         AND oe-ord.cust-no LE v-fcust[2]
+        AND oe-ord.csrUser_id GE begin_csr
+        AND oe-ord.csrUser_id LE end_csr
       NO-LOCK,
       
       FIRST cust
