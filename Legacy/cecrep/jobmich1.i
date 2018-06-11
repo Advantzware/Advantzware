@@ -58,6 +58,7 @@ def {1} var v-loc-bin       as   char format "x(14)"                    no-undo.
 def {1} var v-set-hdr       as   char format "x(25)"                    no-undo.
 def {1} var v-board-code    as   char format "x(15)"                    no-undo.
 def {1} var v-board-dscr     as   char format "x(32)"                   NO-UNDO.
+DEF {1} VARIABLE cShpNote    AS CHARACTER FORMAT 'x(47)' EXTENT 4 NO-UNDO.
 
 def {1} workfile w-m no-undo
   FIELD m-code LIKE mach.m-code
