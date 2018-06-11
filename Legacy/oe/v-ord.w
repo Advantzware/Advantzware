@@ -122,6 +122,7 @@ DEF NEW SHARED BUFFER xest FOR est.
 DEF NEW SHARED BUFFER xeb FOR eb.
 DEF NEW SHARED BUFFER xef FOR ef.
 DEFINE VARIABLE hdPriceProcs AS HANDLE NO-UNDO.
+DEFINE VARIABLE lCreditAccSec AS LOGICAL NO-UNDO .
 {oe/ttPriceHold.i "NEW SHARED"}
 RUN oe/PriceProcs.p PERSISTENT SET hdPriceProcs.
 
@@ -208,6 +209,16 @@ IF lRecFound THEN
  {sys/inc/ceprepprice.i} 
 {sys/inc/funcToWorkDay.i}
 RUN sys/ref/ordtypes.p (OUTPUT lv-type-codes, OUTPUT lv-type-dscrs).
+
+RUN methods/prgsecur.p
+    (INPUT "CreditAccS",
+     INPUT "ALL", /* based on run, create, update, delete or all */
+     INPUT NO,    /* use the directory in addition to the program */
+     INPUT NO,    /* Show a message if not authorized */
+     INPUT NO,    /* Group overrides user security? */
+     OUTPUT lCreditAccSec, /* Allowed? Yes/NO */
+     OUTPUT v-access-close, /* used in template/windows.i  */
+     OUTPUT v-access-list). /* list 1's and 0's indicating yes or no to run, create, update, delete */
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -5169,7 +5180,9 @@ PROCEDURE local-enable-fields :
         DISABLE {&ENABLED-FIELDS} {&nonWebField}.
         ENABLE {&webField}.
     END. /* web orders */
-    
+
+   IF NOT lCreditAccSec THEN
+       DISABLE oe-ord.cc-type oe-ord.cc-expiration oe-ord.spare-char-1 oe-ord.cc-num oe-ord.cc-auth .
   END.
 
   ASSIGN
