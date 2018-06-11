@@ -8128,8 +8128,9 @@ PROCEDURE valid-part-no :
 
   DEF VAR lv-part-no LIKE eb.part-no NO-UNDO.
   DEF VAR lv-msg AS CHAR NO-UNDO.
-
-
+  DEFINE VARIABLE iFormNo AS INTEGER NO-UNDO .
+  DEFINE BUFFER bff-ef FOR ef .
+  
   DO WITH FRAME {&FRAME-NAME}:
     ASSIGN
      lv-part-no = eb.part-no:SCREEN-VALUE IN BROWSE {&browse-name}
@@ -8146,11 +8147,21 @@ PROCEDURE valid-part-no :
                                             TRIM(STRING(ef.form-no,">>>")).
     END.
     ELSE DO: 
+      IF lv-copy-what EQ "Form" AND ll-is-copy-record THEN do:
+          FIND LAST bff-ef NO-LOCK
+              WHERE bff-ef.company EQ cocode 
+                AND bff-ef.est-no EQ est.est-no NO-ERROR.
+          IF AVAIL bff-ef THEN
+           iFormNo = bff-ef.form-no + 1 .
+      END.
+      ELSE
+          iFormNo = eb.form-no .
+     
        FIND FIRST b-eb NO-LOCK 
            WHERE  b-eb.est-no EQ eb.est-no 
              AND  b-eb.company EQ eb.company
              AND  b-eb.part-no EQ lv-part-no
-             AND  b-eb.form-no EQ eb.form-no
+             AND  b-eb.form-no EQ iFormNo
              AND (ROWID(b-eb) NE ROWID(eb) OR ll-is-copy-record) NO-ERROR  . 
        IF lv-part-no EQ "" OR AVAIL b-eb THEN
            lv-msg = IF lv-part-no EQ "" THEN "may not be blank"
