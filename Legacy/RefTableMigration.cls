@@ -2772,6 +2772,65 @@ CLASS RefTableMigration:
         END.  /*FOR EACH reftable*/  
         RETURN iCnt.
     END METHOD. /*ar-cash*/
+    METHOD PUBLIC INTEGER Machcrew(INPUT ipCount AS INTEGER):
+        DEFINE VARIABLE iCnt AS INTEGER NO-UNDO.
+        DEFINE VARIABLE i AS INTEGER NO-UNDO.
+        DEFINE BUFFER reftable1 FOR reftable1.
+        DEFINE BUFFER Breftable FOR reftable. 
+        DEFINE BUFFER mach  FOR mach.
+        
+        DISABLE TRIGGERS FOR LOAD OF reftable.        
+        DISABLE TRIGGERS FOR LOAD OF mach.
+        ASSIGN iProcessCount = 0.        
+        FOR EACH reftable WHERE reftable.reftable = "MACH-CREW"
+            NO-LOCK:
+            DO TRANSACTION:    
+                FIND FIRST mach WHERE mach.company = reftable.company
+                                  AND mach.loc     = reftable.loc
+                                  AND mach.m-code  = reftable.code
+                    EXCLUSIVE-LOCK NO-ERROR.
+                IF AVAILABLE mach THEN DO:
+                    IF reftable.code2 = "M R-QTY" THEN DO:
+                        DO i = 1 TO 20:
+                            IF mach.mr-crusiz-qty[i] EQ 0 THEN ASSIGN mach.mr-crusiz-qty[i] = reftable.val[i].
+                        END.
+                    END. /*IF reftable.code2 = "M R-QTY" THEN DO:*/
+                    
+                    IF reftable.code2 = "M R-CST" THEN DO:
+                        DO i = 1 TO 20:
+                            IF mach.mr-crusiz-qty[i] EQ 0 THEN ASSIGN mach.mr-crusiz-cst[i] = reftable.val[i].
+                        END.
+                    END. /*IF reftable.code2 = "M R-CST" THEN DO:*/
+                    
+                    IF reftable.code2 = "RUN-QTY" THEN DO:
+                        DO i = 1 TO 20:
+                            IF mach.mr-crusiz-qty[i] EQ 0 THEN ASSIGN mach.run-crusiz-qty[i] = reftable.val[i].
+                        END.
+                    END. /*IF reftable.code2 = "RUN-QTY" THEN DO:*/
+                    
+                    IF reftable.code2 = "RUN-CST" THEN DO:
+                        DO i = 1 TO 20:
+                            IF mach.mr-crusiz-qty[i] EQ 0 THEN ASSIGN mach.run-crusiz-cst[i] = reftable.val[i].
+                        END.
+                    END. /*IF reftable.code2 = "RUN-CST" THEN DO:*/
+                    
+                    ASSIGN iProcessCount = iProcessCount + 1.  
+                END.
+                FIND CURRENT mach NO-LOCK NO-ERROR.    
+                RELEASE mach.      
+                CREATE reftable1.
+                BUFFER-COPY reftable TO reftable1.
+                RELEASE reftable1.
+                FIND Breftable WHERE ROWID(Breftable) = ROWID(reftable)
+                    EXCLUSIVE-LOCK NO-ERROR.
+                IF AVAILABLE Breftable THEN DELETE Breftable. 
+                RELEASE Breftable.   
+                iCnt = iCnt + 1.
+                IF iCnt >= ipCount THEN LEAVE.   
+            END.              
+        END.  /*FOR EACH reftable*/  
+        RETURN iCnt.
+    END METHOD. /*mach*/
 END CLASS.
 
 
