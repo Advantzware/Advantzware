@@ -174,14 +174,14 @@ FIND FIRST users NO-LOCK WHERE users.user_id EQ cCurrentUserID NO-ERROR.
 IF AVAILABLE users THEN 
     cUserName = users.user_name.
 IF NOT oplExit THEN DO TRANSACTION:
-    
+    FIND FIRST asi._myconnection NO-LOCK NO-ERROR.
     CREATE userLog.
     ASSIGN 
         userLog.user_id       = cCurrentUserID       
         userLog.sessionID     = igsSessionID 
         userLog.userName      = cUserName
         userLog.IpAddress     = OS-GETENV("userDomain")
-        userLog.deviceName    = OS-GETENV("computerName")    
+        userLog.deviceName    = OS-GETENV("computerName")  + (IF AVAIL(asi._myconnection) THEN "-" + STRING(asi._myconnection._myconn-userid) ELSE "")
         userLog.EulaVersion   = DECIMAL(cEulaVersion)
         userLog.userStatus    = "Logged In"
         userLog.loginDateTime = DATETIME(TODAY, MTIME)

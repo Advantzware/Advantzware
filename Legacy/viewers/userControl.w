@@ -61,15 +61,19 @@ CREATE WIDGET-POOL.
 DEFINE QUERY external_tables FOR userControl.
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-FIELDS userControl.maxAllowedUsers ~
-userControl.numUsersOverLimit userControl.maxSessionsPerUser 
+userControl.numUsersOverLimit userControl.maxSessionsPerUser ~
+userControl.autoLogoutTime userControl.adminEmailAddr 
 &Scoped-define ENABLED-TABLES userControl
 &Scoped-define FIRST-ENABLED-TABLE userControl
-&Scoped-Define ENABLED-OBJECTS RECT-1 
+&Scoped-Define ENABLED-OBJECTS RECT-2 RECT-3 tgLockedAccounts tgAutoLogout ~
+tgDisableEmail 
 &Scoped-Define DISPLAYED-FIELDS userControl.maxAllowedUsers ~
-userControl.numUsersOverLimit userControl.maxSessionsPerUser 
+userControl.numUsersOverLimit userControl.maxSessionsPerUser ~
+userControl.autoLogoutTime userControl.adminEmailAddr 
 &Scoped-define DISPLAYED-TABLES userControl
 &Scoped-define FIRST-DISPLAYED-TABLE userControl
-
+&Scoped-Define DISPLAYED-OBJECTS tgLockedAccounts tgAutoLogout ~
+tgDisableEmail 
 
 /* Custom List Definitions                                              */
 /* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,ROW-AVAILABLE,DISPLAY-FIELD,List-5,F1 */
@@ -104,27 +108,64 @@ RUN set-attribute-list (
 
 
 /* Definitions of the field level widgets                               */
-DEFINE RECTANGLE RECT-1
+DEFINE RECTANGLE RECT-2
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 79 BY 17.14.
+     SIZE 108 BY 5.71.
+
+DEFINE RECTANGLE RECT-3
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
+     SIZE 108 BY 6.67.
+
+DEFINE VARIABLE tgAutoLogout AS LOGICAL INITIAL yes 
+     LABEL "Auto Logout" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 19 BY .81 NO-UNDO.
+
+DEFINE VARIABLE tgDisableEmail AS LOGICAL INITIAL no 
+     LABEL "Disable" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 13.4 BY .81 NO-UNDO.
+
+DEFINE VARIABLE tgLockedAccounts AS LOGICAL INITIAL no 
+     LABEL "Locked Accounts" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 25 BY .81 NO-UNDO.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     userControl.maxAllowedUsers AT ROW 5.38 COL 45.2 COLON-ALIGNED WIDGET-ID 8
+     userControl.maxAllowedUsers AT ROW 2.33 COL 46.6 COLON-ALIGNED WIDGET-ID 8
           LABEL "Number Concurrent Users"
           VIEW-AS FILL-IN 
           SIZE 12 BY 1
-     userControl.numUsersOverLimit AT ROW 6.48 COL 45.2 COLON-ALIGNED WIDGET-ID 12
+     userControl.numUsersOverLimit AT ROW 3.43 COL 46.6 COLON-ALIGNED WIDGET-ID 12
           LABEL "Concurrent Users Allowed Over Limit"
           VIEW-AS FILL-IN 
           SIZE 12 BY 1
-     userControl.maxSessionsPerUser AT ROW 8.62 COL 45.2 COLON-ALIGNED WIDGET-ID 14
+     userControl.maxSessionsPerUser AT ROW 5.57 COL 46.6 COLON-ALIGNED WIDGET-ID 14
           LABEL "Max Sessions Per User"
           VIEW-AS FILL-IN 
           SIZE 12 BY 1
-     RECT-1 AT ROW 1 COL 2
+     userControl.autoLogoutTime AT ROW 8.86 COL 31 COLON-ALIGNED WIDGET-ID 20
+          LABEL "Max Session Time (hrs)"
+          VIEW-AS FILL-IN 
+          SIZE 10.4 BY 1
+     userControl.adminEmailAddr AT ROW 9.91 COL 31 COLON-ALIGNED WIDGET-ID 18
+          LABEL "Notification Email List"
+          VIEW-AS FILL-IN 
+          SIZE 78 BY 1
+     tgLockedAccounts AT ROW 11.24 COL 33 WIDGET-ID 28
+     tgAutoLogout AT ROW 12.19 COL 33 WIDGET-ID 30
+     tgDisableEmail AT ROW 13.14 COL 33 WIDGET-ID 32
+     "Notification Types:" VIEW-AS TEXT
+          SIZE 22 BY .62 AT ROW 11.33 COL 10 WIDGET-ID 34
+     "Auto Logout Parameters" VIEW-AS TEXT
+          SIZE 28 BY .62 AT ROW 7.67 COL 6 WIDGET-ID 26
+     "License Counts" VIEW-AS TEXT
+          SIZE 19 BY .62 AT ROW 1.48 COL 6 WIDGET-ID 24
+     RECT-2 AT ROW 1.71 COL 4 WIDGET-ID 16
+     RECT-3 AT ROW 7.91 COL 4 WIDGET-ID 22
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -158,8 +199,8 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW V-table-Win ASSIGN
-         HEIGHT             = 17.14
-         WIDTH              = 81.6.
+         HEIGHT             = 14.91
+         WIDTH              = 117.2.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -187,6 +228,10 @@ ASSIGN
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
 
+/* SETTINGS FOR FILL-IN userControl.adminEmailAddr IN FRAME F-Main
+   EXP-LABEL                                                            */
+/* SETTINGS FOR FILL-IN userControl.autoLogoutTime IN FRAME F-Main
+   EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN userControl.maxAllowedUsers IN FRAME F-Main
    EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN userControl.maxSessionsPerUser IN FRAME F-Main
@@ -275,28 +320,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE send-records V-table-Win  _ADM-SEND-RECORDS
-PROCEDURE send-records :
-/*------------------------------------------------------------------------------
-  Purpose:     Send record ROWID's for all tables used by
-               this file.
-  Parameters:  see template/snd-head.i
-------------------------------------------------------------------------------*/
-
-  /* Define variables needed by this internal procedure.               */
-  {src/adm/template/snd-head.i}
-
-  /* For each requested table, put it's ROWID in the output list.      */
-  {src/adm/template/snd-list.i "userControl"}
-
-  /* Deal with any unexpected table requests before closing.           */
-  {src/adm/template/snd-end.i}
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE proc-enable V-table-Win 
 PROCEDURE proc-enable :
 /*------------------------------------------------------------------------------
@@ -325,6 +348,28 @@ PROCEDURE proc-enable :
     ELSE ASSIGN
         userControl.maxSessionsPerUser:SENSITIVE IN FRAME {&FRAME-NAME} = NO  .
     
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE send-records V-table-Win  _ADM-SEND-RECORDS
+PROCEDURE send-records :
+/*------------------------------------------------------------------------------
+  Purpose:     Send record ROWID's for all tables used by
+               this file.
+  Parameters:  see template/snd-head.i
+------------------------------------------------------------------------------*/
+
+  /* Define variables needed by this internal procedure.               */
+  {src/adm/template/snd-head.i}
+
+  /* For each requested table, put it's ROWID in the output list.      */
+  {src/adm/template/snd-list.i "userControl"}
+
+  /* Deal with any unexpected table requests before closing.           */
+  {src/adm/template/snd-end.i}
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

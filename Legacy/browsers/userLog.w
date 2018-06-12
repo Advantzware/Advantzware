@@ -43,6 +43,19 @@ CREATE WIDGET-POOL.
 {custom/globdefs.i}
 {sys/inc/var.i new shared}
 {sys/inc/varasgn.i}
+DEFINE VARIABLE cReturnChar     AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lRecFound       AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cLogoutFolder   AS CHARACTER NO-UNDO.
+
+RUN sys/ref/nk1look.p (INPUT g_company, "Userlogout", "C" /* Character*/, 
+    INPUT NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */,
+    INPUT "" /* cust */, 
+    INPUT "" /* ship-to*/,
+    OUTPUT cReturnChar, 
+    OUTPUT lRecFound).
+IF lRecFound THEN 
+    cLogoutFolder = cReturnChar  .
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -313,7 +326,9 @@ DO:
   DEFINE VARIABLE lAns AS LOGICAL     NO-UNDO.
   DEFINE VARIABLE hPgmSecurity AS HANDLE NO-UNDO.
   DEFINE VARIABLE lResult AS LOG NO-UNDO.
-
+  DEFINE VARIABLE cUserKillFile AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE iLoginUserNum     AS INTEGER  NO-UNDO.
+  DEFINE VARIABLE iAsiConnectPid      AS INTEGER NO-UNDO.
         RUN "system/PgmMstrSecur.p" PERSISTENT SET hPgmSecurity.
         RUN epCanAccess IN hPgmSecurity ("browsers/userlog.w", "", OUTPUT lResult).
     DELETE OBJECT hPgmSecurity.
@@ -335,10 +350,31 @@ DO:
       DO li = 1 TO {&browse-name}:NUM-SELECTED-ROWS:
         {&browse-name}:FETCH-SELECTED-ROW (li) NO-ERROR.
         IF AVAIL userLog THEN DO:
-          FIND FIRST bf-userLog EXCLUSIVE-LOCK WHERE ROWID(bf-userLog) EQ ROWID(userLog)
-             NO-ERROR.
-          IF AVAIL bf-userLog THEN
-            DELETE bf-userlog.
+        
+          IF INDEX(userLog.deviceName, "-") GT 0 THEN DO:
+            iLoginUserNum = INTEGER(SUBSTRING(userLog.deviceName, R-INDEX(userLog.deviceName,"-") + 1)) NO-ERROR.
+            IF NOT ERROR-STATUS:ERROR THEN DO:
+              
+              /* _connect id is one more than the database user number shown in _myconnection */
+              FIND FIRST asi._connect NO-LOCK WHERE asi._connect._connect-id EQ iLoginUserNum + 1 NO-ERROR.
+              IF AVAILABLE asi._connect AND asi._connect._connect-name EQ userLog.userName THEN DO:
+                iAsiConnectPid = asi._connect._connect-pid.
+        
+                FIND FIRST bf-userLog EXCLUSIVE-LOCK WHERE ROWID(bf-userLog) EQ ROWID(userLog)
+                  NO-ERROR.
+                IF AVAIL bf-userLog THEN DO:
+                  cUserKillFile = bf-userLog.userName 
+                                 + bf-userLog.user_id 
+                                 + STRING(iLoginUserNum)
+                                 + STRING(TODAY) + STRING(TIME) + ".TXT".
+                  OUTPUT TO VALUE(cLogoutFolder + "/" + cUserkillFile).
+                  PUT UNFORMATTED "ASI" bf-userlog.user_id iLoginUserNum iAsiConnectPid.
+                  OUTPUT CLOSE.
+                  DELETE bf-userlog.
+                END. /* Avail bf-user log */
+              END. /* If avail _connect */
+            END. /* If no error converting to integer */
+          END. /* iF Devicename contains a dash */
         END. /* if avail userlog */
       END. /* do li ... */
       RUN dispatch ('open-query').
