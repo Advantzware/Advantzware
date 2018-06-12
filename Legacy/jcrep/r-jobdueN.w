@@ -54,12 +54,14 @@ DEF VAR cTextListToDefault AS cha NO-UNDO.
 
 ASSIGN cTextListToSelect = "CUSTOMER,JOB#,S,B,DIE#,Plate#,DUE DATE,COMPLETION DATE,STYLE," +
                            "QTY GLUING,SHEETED,PRINTED,DIE CUT,GLUED,GLUE HRS,ORD MFG DATE,RELEASE DATE," +
-                           "ORDER #,ORDER DATE,FG ITEM#,PO#,PRIMARY CONTACT,CSR,SALES REP,SALES REP NAME,CONTACT NAME"             
+                           "ORDER #,ORDER DATE,FG ITEM#,PO#,PRIMARY CONTACT,CSR,SALES REP,SALES REP NAME,CONTACT NAME," +            
+                           "FG CATEGORY,SHIP TO"
        cFieldListToSelect = "cust,job,frm,blnk,die,palt,due-dt,comp-dt,styl," +
                             "qty-glu,sht,prntd,die-cut,glue,glu-hrs,mfg-date,rel-date," +
-                            "order-no,ord-date,fg-item,po-no,pri-contact,csr,sales-rep,rep-name,contact-name"
-       cFieldLength = "8,10,1,1,20,15,10,15,7," + "13,7,7,7,5,14,11,12," + "7,10,15,15,25,8,9,20,30" 
-       cFieldType = "c,c,c,c,c,c,c,c,c," + "i,i,i,i,i,i,c,c," + "c,c,c,c,c,c,c,c,c"
+                            "order-no,ord-date,fg-item,po-no,pri-contact,csr,sales-rep,rep-name,contact-name," +
+                            "fg-cat,shipto"
+       cFieldLength = "8,10,1,1,20,15,10,15,7," + "13,7,7,7,5,14,11,12," + "7,10,15,15,25,8,9,20,30," + "11,8" 
+       cFieldType = "c,c,c,c,c,c,c,c,c," + "i,i,i,i,i,i,c,c," + "c,c,c,c,c,c,c,c,c," + "c,c"
     .
 
 {sys/inc/ttRptSel.i}
@@ -1255,6 +1257,7 @@ def var v-dc      as   char format "x(7)" NO-UNDO.
 def var v-pr      as   char format "x(7)" NO-UNDO.
 DEF VAR v-die-no  LIKE eb.die-no NO-UNDO.
 DEF VAR v-rel-date AS DATE NO-UNDO .
+DEFINE VARIABLE cShipTo AS CHARACTER NO-UNDO .
 DEF VAR lv-stat AS CHAR NO-UNDO.
 def var v-stat  as   char format "!" init "A".
 
@@ -1581,7 +1584,8 @@ SESSION:SET-WAIT-STATE ("general").
           END.
           ELSE
              v-run-end-date = ?.
-          ASSIGN v-rel-date = ? .
+          ASSIGN v-rel-date = ? 
+                 cShipTo    = "" .
 
              IF AVAIL oe-ordl THEN
                  FOR EACH oe-rel NO-LOCK
@@ -1593,6 +1597,7 @@ SESSION:SET-WAIT-STATE ("general").
                  {oe/rel-stat.i v-stat}
 
                      v-rel-date = IF AVAIL oe-relh THEN oe-relh.rel-date ELSE oe-rel.rel-date.
+                     cShipTo = oe-rel.ship-id .
                         LEAVE.
                  END.
                 ASSIGN cPrim-Contact = "" .
@@ -1617,6 +1622,11 @@ SESSION:SET-WAIT-STATE ("general").
                 IF AVAIL sman THEN
                     cSalesRep = sman.sNAME .
                 END.
+             
+             IF AVAIL oe-ordl THEN
+              FIND FIRST itemfg NO-LOCK 
+                  WHERE itemfg.company EQ cocode
+                    AND itemfg.i-no EQ oe-ordl.i-no NO-ERROR .
 
 
              ASSIGN cDisplay = ""
@@ -1654,6 +1664,8 @@ SESSION:SET-WAIT-STATE ("general").
                          WHEN "sales-rep"    THEN cVarValue =   IF AVAILABLE cust THEN STRING(cust.sman,"x(8)") ELSE ""   .
                          WHEN "rep-name"     THEN cVarValue =   STRING(cSalesRep,"x(20)")   .
                          WHEN "contact-name" THEN cVarValue =   IF AVAILABLE cust THEN STRING(cust.contact,"x(30)") ELSE ""   .
+                         WHEN "fg-cat"       THEN cVarValue =   IF AVAIL oe-ordl AND avail itemfg THEN STRING(itemfg.procat,"x(11)") ELSE ""    .
+                         WHEN "shipto"       THEN cVarValue =    STRING(cShipTo,"x(8)")   .
 
                     END CASE.  
 
