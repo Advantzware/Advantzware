@@ -63,6 +63,7 @@ def var v as int.
 def var v-bo-qty as int format "99999" no-undo.
 def var v-inv-qty as dec no-undo.
 def var v-ship-qty as int format "99999" no-undo.
+DEFINE VARIABLE v-ord-qty as int format "99999" no-undo.
 def var v-i-no as char format "x(15)" no-undo.
 def var v-i-dscr as char format "x(18)" no-undo.
 def var v-price as dec format ">>>>9.9999" no-undo.
@@ -112,6 +113,7 @@ DEFINE VARIABLE iPoCheck AS LOGICAL NO-UNDO.
 DEFINE VARIABLE cPo-No AS CHARACTER NO-UNDO.
 DEFINE VARIABLE iCount AS INTEGER NO-UNDO.
 DEF VAR cStockNotes AS cha FORM "x(80)" EXTENT 6 NO-UNDO.
+DEFINE SHARED VARIABLE lPrintQtyAll  as LOGICAL no-undo .
 DEF BUFFER bf-cust FOR cust .
 
 
@@ -379,6 +381,7 @@ ELSE lv-comp-color = "BLACK".
                                      oe-ordl.ord-no = ar-invl.ord-no and
                                      oe-ordl.i-no = ar-invl.i-no
                                      no-lock no-error.
+            v-ord-qty   = IF AVAIL oe-ordl THEN oe-ordl.qty ELSE 0 .
             if avail oe-ordl THEN DO:
               assign v-bo-qty = if (ar-invl.qty - v-ship-qty -
                                     oe-ordl.t-ship-qty) < 0 then 0 else
@@ -436,6 +439,9 @@ ELSE lv-comp-color = "BLACK".
                    v-price = ar-invl.unit-pr * (1 - (ar-invl.disc / 100))
                    v-t-price = ar-invl.amt
                    v-subtot-lines = v-subtot-lines + ar-invl.amt.
+                
+              IF lPrintQtyAll THEN
+                   v-inv-qty = ar-invl.inv-qty .
 
                 if ar-invl.tax and avail stax then
                 do i = 1 to 5:
@@ -460,7 +466,7 @@ ELSE lv-comp-color = "BLACK".
                    v-lines   = v-lines + 1.
                 end.
             
-            
+          IF NOT lPrintQtyAll THEN do:  
             PUT space(1)        /*"->>>>9.9<"*/
                 v-inv-qty format  "->>>>>9" SPACE(1)
                 v-ship-qty  format "->>>>>9" SPACE(1)
@@ -472,6 +478,21 @@ ELSE lv-comp-color = "BLACK".
                 v-price-head SPACE(1)
                 ar-invl.amt  format "->>>,>>9.99"                
                 SKIP.
+          END.
+          ELSE DO:
+              PUT space(1)        /*"->>>>9.9<"*/
+                v-ord-qty format  "->>>>>9" SPACE(1)
+                v-inv-qty  format "->>>>>9" SPACE(1)
+                /*v-bo-qty  format "->>>>>9" SPACE(1) */
+                ar-invl.ord-no FORM ">>>>>>9" SPACE(1)
+                v-i-no  format "x(15)" SPACE(1)
+                v-i-dscr  format "x(25)" SPACE(1)
+                v-price  format "->,>>9.99<<" SPACE(2)
+                v-price-head SPACE(1)
+                ar-invl.amt  format "->>>,>>9.99"                
+                SKIP.
+
+          END.    /* else do */
              v-printline = v-printline + 1.
       
             do v = 1 to 3:
@@ -483,12 +504,25 @@ ELSE lv-comp-color = "BLACK".
               if v-part-info ne "" OR (v = 1 AND ar-invl.part-no <> "") then do:
                  IF v = 1 THEN DO:
 
-                     IF LENGTH(ar-invl.po-no) LE 8 THEN DO:
-                         PUT  SPACE(16) ar-invl.po-no FORMAT "x(8)" SPACE(1)   ar-invl.part-no SPACE v-part-info SKIP.
-                     END.
-                     ELSE DO: 
-                         PUT  SPACE(9) ar-invl.po-no FORMAT "x(15)" SPACE(1)   ar-invl.part-no SPACE v-part-info SKIP.
-                     END.
+                     IF lPrintQtyAll THEN do:
+                      PUT SPACE(1) v-ship-qty FORMAT ">>>>>>9" .
+
+                         IF LENGTH(ar-invl.po-no) LE 8 THEN DO:
+                             PUT  SPACE(8) ar-invl.po-no FORMAT "x(8)" SPACE(1)   ar-invl.part-no SPACE v-part-info SKIP.
+                         END.
+                         ELSE DO: 
+                             PUT  SPACE(1) ar-invl.po-no FORMAT "x(15)" SPACE(1)   ar-invl.part-no SPACE v-part-info SKIP.
+                         END.
+                     END. /* lPrintQtyAll*/
+                     ELSE DO:
+                         IF LENGTH(ar-invl.po-no) LE 8 THEN DO:
+                             PUT  SPACE(16) ar-invl.po-no FORMAT "x(8)" SPACE(1)   ar-invl.part-no SPACE v-part-info SKIP.
+                         END.
+                         ELSE DO: 
+                             PUT  SPACE(9) ar-invl.po-no FORMAT "x(15)" SPACE(1)   ar-invl.part-no SPACE v-part-info SKIP.
+                         END.
+
+                     END.    /* else do */
                  END.
                  ELSE 
                  IF v = 2 THEN PUT SPACE(41) v-part-info SKIP.
