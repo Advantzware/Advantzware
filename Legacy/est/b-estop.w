@@ -898,6 +898,26 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&Scoped-define SELF-NAME est-op.spare-char-1    
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL est-op.spare-char-1 br_table _BROWSE-COLUMN B-table-Win
+ON VALUE-CHANGED OF est-op.spare-char-1 IN BROWSE br_table /* Spare char 1 Changes */
+DO:
+    
+  DO WITH FRAME {&FRAME-NAME}:
+   IF est-op.spare-char-1:SCREEN-VALUE IN  BROWSE {&browse-name} NE "" AND 
+        est-op.spare-char-1:SCREEN-VALUE IN  BROWSE {&browse-name} NE "R" THEN DO:
+       MESSAGE "FEED only accept a blank or R ." VIEW-AS ALERT-BOX INFO .
+       est-op.spare-char-1:SCREEN-VALUE IN  BROWSE {&browse-name} = "" .
+       APPLY "Entry" TO est-op.spare-char-1 IN BROWSE {&browse-name}.
+        RETURN NO-APPLY.
+   END.
+  END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &UNDEFINE SELF-NAME
 
