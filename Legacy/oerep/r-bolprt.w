@@ -1798,7 +1798,8 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
        v-print-fmt EQ "Printers" OR
        v-print-fmt EQ "Printers2" OR
        v-print-fmt = "Multicell" OR 
-       v-print-fmt = "SouleMed"
+       v-print-fmt = "SouleMed"  OR
+       v-print-fmt = "Soule"
       THEN tb_print-shipnote:SENSITIVE = YES.
       ELSE tb_print-shipnote:SENSITIVE = NO.
 

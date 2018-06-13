@@ -3331,16 +3331,7 @@ PROCEDURE create-e-itemfg-vend :
             ASSIGN e-itemfg-vend.est-no = eb.est-no
                  e-itemfg-vend.eqty = eb.eqty
                  e-itemfg-vend.form-no = eb.form-no
-                 e-itemfg-vend.blank-no = eb.blank-no.
-
-            CREATE reftable.
-            ASSIGN
-               reftable.reftable = "e-itemfg-vend.std-uom"
-               reftable.company  = e-itemfg-vend.company
-               reftable.loc      = ""
-               reftable.code     = e-itemfg-vend.est-no
-               reftable.val[1]   = e-itemfg-vend.form-no
-               reftable.val[2]   = e-itemfg-vend.blank-no.
+                 e-itemfg-vend.blank-no = eb.blank-no.            
 
             FIND FIRST bf-e-itemfg WHERE
                  bf-e-itemfg.company EQ bf-e-itemfg-vend.company AND
@@ -3349,7 +3340,7 @@ PROCEDURE create-e-itemfg-vend :
 
             IF AVAIL bf-e-itemfg THEN
             DO:
-               reftable.code2 = bf-e-itemfg.std-uom.
+               e-itemfg-vend.std-uom = bf-e-itemfg.std-uom.
                RELEASE bf-e-itemfg.
             END.
 
@@ -5099,7 +5090,7 @@ PROCEDURE local-add-record :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEF BUFFER b-eb FOR eb.
-
+  DEFINE VARIABLE lDummy AS LOGICAL NO-UNDO.
 
   /* Code placed here will execute PRIOR to standard behavior. */
   ASSIGN
@@ -5146,6 +5137,14 @@ PROCEDURE local-add-record :
     EMPTY TEMP-TABLE tt-artios.
     RUN est/d-artioscad.w (cocode).
     RUN createESTfromArtios.
+  END.
+  ELSE IF ls-add-what = "estCadNew" THEN DO:
+    RUN util/impEsko.p.
+    RUN dispatch('open-query').
+    lDummy = {&browse-name}:REFRESH() IN FRAME {&FRAME-NAME}.
+  END.
+  ELSE IF ls-add-what = "estCadTest" THEN DO:
+    RUN est/d-ArtiosCadSimple.w (cocode).
   END.
   ELSE IF ls-add-what = "estImpact" THEN DO:
      EMPTY TEMP-TABLE tt-artios.
@@ -7616,22 +7615,6 @@ PROCEDURE update-e-itemfg-vend :
    DEF VAR i AS INT NO-UNDO.
 
    IF est.est-type > 5 THEN DO: /* set est - copy for all forms*/
-/* WFK - 09181206 - this was causing previous vendor setup to be erased */
-/*        FOR EACH e-itemfg-vend                                                     */
-/*                    WHERE e-itemfg-vend.company EQ eb.company                      */
-/*                      AND e-itemfg-vend.est-no = eb.est-no                         */
-/*                      AND e-itemfg-vend.eqty = eb.eqty.                            */
-/*            FIND FIRST reftable WHERE reftable.reftable EQ "e-itemfg-vend.std-uom" */
-/*               AND reftable.company  EQ e-itemfg-vend.company                      */
-/*               AND reftable.loc      EQ ""                                         */
-/*               AND reftable.code     EQ e-itemfg-vend.est-no                       */
-/*               AND reftable.val[1]   EQ e-itemfg-vend.form-no                      */
-/*               AND reftable.val[2]   EQ e-itemfg-vend.blank-no                     */
-/*               NO-ERROR.                                                           */
-/*                                                                                   */
-/*            IF AVAIL reftable THEN DELETE reftable.                                */
-/*            DELETE e-itemfg-vend.                                                  */
-/*        END.                                                                       */
 
     EMPTY TEMP-TABLE tt-e-vend .
     FOR EACH e-itemfg-vend NO-LOCK
@@ -7655,39 +7638,9 @@ PROCEDURE update-e-itemfg-vend :
 
        CREATE bf-e-itemfg-vend.
        BUFFER-COPY e-itemfg-vend TO bf-e-itemfg-vend.
-       ASSIGN bf-e-itemfg-vend.eqty = eb.eqty.
+       ASSIGN bf-e-itemfg-vend.eqty = eb.eqty.       
 
-
-       FIND FIRST reftable WHERE reftable.reftable EQ "e-itemfg-vend.std-uom" 
-              AND reftable.company  EQ e-itemfg-vend.company   
-              AND reftable.loc      EQ ""                      
-              AND reftable.code     EQ e-itemfg-vend.est-no    
-              AND reftable.val[1]   EQ e-itemfg-vend.form-no   
-              AND reftable.val[2]   EQ e-itemfg-vend.blank-no
-              NO-ERROR.
-
-       IF AVAIL reftable THEN vcUOM = reftable.code2.
-
-       DELETE e-itemfg-vend.
-
-       FIND FIRST reftable WHERE reftable.reftable EQ "e-itemfg-vend.std-uom" 
-              AND reftable.company  EQ bf-e-itemfg-vend.company   
-              AND reftable.loc      EQ ""                      
-              AND reftable.code     EQ bf-e-itemfg-vend.est-no    
-              AND reftable.val[1]   EQ bf-e-itemfg-vend.form-no   
-              AND reftable.val[2]   EQ bf-e-itemfg-vend.blank-no
-              NO-ERROR.
-              
-       IF NOT AVAIL reftable THEN DO:
-          CREATE reftable.
-          ASSIGN
-               reftable.reftable = "e-itemfg-vend.std-uom"
-               reftable.company  = bf-e-itemfg-vend.company
-               reftable.loc      = ""
-               reftable.code     = bf-e-itemfg-vend.est-no
-               reftable.val[1]   = bf-e-itemfg-vend.form-no
-               reftable.val[2]   = bf-e-itemfg-vend.blank-no.
-       END.
+       DELETE e-itemfg-vend.       
 
        /*FIND FIRST bf-e-itemfg WHERE
                  bf-e-itemfg.company EQ bf-e-itemfg-vend.company AND
@@ -7695,10 +7648,7 @@ PROCEDURE update-e-itemfg-vend :
                  NO-LOCK NO-ERROR.
 
        IF AVAIL bf-e-itemfg THEN reftable.code2 = bf-e-itemfg.std-uom.*/
-       reftable.code2 = vcUOM.
-       FIND CURRENT reftable NO-LOCK.
        FIND CURRENT bf-e-itemfg-vend NO-LOCK.
-       RELEASE reftable.
        RELEASE bf-e-itemfg-vend.
       END.
    END.   /* end of set est */
@@ -7716,38 +7666,9 @@ PROCEDURE update-e-itemfg-vend :
        ASSIGN
             bf-e-itemfg-vend.eqty = eb.eqty
             bf-e-itemfg-vend.i-no = eb.stock-no
-            .
+            .       
 
-       FIND FIRST reftable WHERE reftable.reftable EQ "e-itemfg-vend.std-uom" 
-              AND reftable.company  EQ e-itemfg-vend.company   
-              AND reftable.loc      EQ ""                      
-              AND reftable.code     EQ e-itemfg-vend.est-no    
-              AND reftable.val[1]   EQ e-itemfg-vend.form-no   
-              AND reftable.val[2]   EQ e-itemfg-vend.blank-no
-              NO-ERROR.
-
-       IF AVAIL reftable THEN vcUOM = reftable.code2.
-
-       DELETE e-itemfg-vend.
-
-       FIND FIRST reftable WHERE reftable.reftable EQ "e-itemfg-vend.std-uom" 
-              AND reftable.company  EQ bf-e-itemfg-vend.company   
-              AND reftable.loc      EQ ""                      
-              AND reftable.code     EQ bf-e-itemfg-vend.est-no    
-              AND reftable.val[1]   EQ bf-e-itemfg-vend.form-no   
-              AND reftable.val[2]   EQ bf-e-itemfg-vend.blank-no
-              NO-ERROR.
-              
-       IF NOT AVAIL reftable THEN DO:
-          CREATE reftable.
-          ASSIGN
-               reftable.reftable = "e-itemfg-vend.std-uom"
-               reftable.company  = bf-e-itemfg-vend.company
-               reftable.loc      = ""
-               reftable.code     = bf-e-itemfg-vend.est-no
-               reftable.val[1]   = bf-e-itemfg-vend.form-no
-               reftable.val[2]   = bf-e-itemfg-vend.blank-no.
-       END.
+       DELETE e-itemfg-vend.       
 
        /*FIND FIRST bf-e-itemfg WHERE
                  bf-e-itemfg.company EQ bf-e-itemfg-vend.company AND
@@ -7755,11 +7676,8 @@ PROCEDURE update-e-itemfg-vend :
                  NO-LOCK NO-ERROR.
 
        IF AVAIL bf-e-itemfg THEN reftable.code2 = bf-e-itemfg.std-uom.*/
-       reftable.code2 = vcUOM.
-
-       FIND CURRENT reftable NO-LOCK.
+       
        FIND CURRENT bf-e-itemfg-vend NO-LOCK.
-       RELEASE reftable.
        RELEASE bf-e-itemfg-vend.
    END.
 

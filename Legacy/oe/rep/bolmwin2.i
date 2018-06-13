@@ -71,7 +71,7 @@ lv-class = IF itemfg.frt-class = "" THEN "70" ELSE itemfg.frt-class.
 
 j = j + 1 .
 
-PUT "<C5> "     tt-boll.ord-no 
+PUT "<C5> "  v-job-no 
     "<C14>" oe-ordl.i-no 
             oe-ordl.part-dscr1
     "<C41>" lv-pal-tot SPACE(1)

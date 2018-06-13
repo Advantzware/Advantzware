@@ -7449,7 +7449,6 @@ DEF BUFFER b-oe-ordl FOR oe-ordl.
 DEF BUFFER b-upd-oe-ordl FOR oe-ordl.
 DEF BUFFER b-eb2 FOR eb.
 DEF BUFFER b-e-itemfg-vend FOR e-itemfg-vend.
-DEF BUFFER b-reftable-1 FOR reftable.
 DEF VAR v-cost-updated AS LOG NO-UNDO.
 
 IF NOT AVAIL oe-ord THEN
@@ -7701,31 +7700,19 @@ IF AVAIL itemfg THEN DO:
               
               IF v-cost-updated THEN
               DO:
-                 FIND FIRST b-reftable-1 WHERE
-                      b-reftable-1.reftable EQ "e-itemfg-vend.std-uom" AND
-                      b-reftable-1.company  EQ e-itemfg-vend.company AND
-                      b-reftable-1.loc      EQ "" AND
-                      b-reftable-1.code     EQ e-itemfg-vend.est-no AND
-                      b-reftable-1.val[1]   EQ e-itemfg-vend.form-no AND
-                      b-reftable-1.val[2]   EQ e-itemfg-vend.blank-no
-                      NO-LOCK NO-ERROR.
-                
-                 IF AVAIL b-reftable-1 THEN
-                 DO:
-                    FIND FIRST e-itemfg WHERE
+
+                 FIND FIRST e-itemfg WHERE
                          e-itemfg.company EQ e-itemfg-vend.company AND
                          e-itemfg.i-no EQ itemfg.i-no
                          NO-ERROR.
                 
                     IF AVAIL e-itemfg THEN
                     DO:
-                       e-itemfg.std-uom = b-reftable-1.code2.
+                       e-itemfg.std-uom = e-itemfg-vend.std-uom.
                        RELEASE e-itemfg.
                     END.
-                
-                    RELEASE b-reftable-1.
                  END.
-              END.
+
 
               RELEASE b-e-itemfg-vend.
      END.

@@ -6,6 +6,13 @@ DEFINE VARIABLE iWaitSeconds AS INTEGER INIT 30 NO-UNDO.
 {custom/monitor.w "jobXml" "jobXml"}
 {XMLOutput/XMLOutput.i &Company=cocode &NEW=NEW}
 lXmlOutput = TRUE.
+
+
+/* ************************  Function Prototypes ********************** */
+
+FUNCTION fnCheckFolderExists RETURNS LOGICAL 
+    (INPUT cPathName AS CHARACTER  ) FORWARD.
+
 PROCEDURE postMonitor:
     /*------------------------------------------------------------------------------
       Purpose:     import montiored file, create receipt record, post
@@ -49,6 +56,19 @@ PROCEDURE postMonitor:
     cPathIn  = PrePressHotFolderIn-char.
     cPathOut = PrePressHotFolderOut-char.
 
+    /* Check for path being accessible */    
+    IF  fnCheckFolderExists(cPathIn) EQ NO  THEN DO:
+        RUN monitorActivity ("Path in is not accessible " + cPathIn,YES,'').
+        RETURN.
+     END.
+
+    /* Check for path being accessible */    
+    IF  fnCheckFolderExists(cPathOut) EQ NO  THEN 
+    DO:
+        RUN monitorActivity ("Path in is not accessible " + cPathOut,YES,'').
+        RETURN.
+    END.
+     
     /* Pausing because this monitor process outbound records as well as monitoring a folder */
     /* so should not run every second                                                       */
     WAITLOOP:
@@ -178,4 +198,26 @@ PROCEDURE processResultXML:
             
     RUN monitorActivity ('Processing Result XML' ,YES,'').
 END PROCEDURE.
+
+
+/* ************************  Function Implementations ***************** */
+
+FUNCTION fnCheckFolderExists RETURNS LOGICAL 
+	(INPUT cPathName AS CHARACTER   ):
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/	
+
+		DEFINE VARIABLE lResult AS LOGICAL NO-UNDO.
+       FILE-INFO:FILE-NAME = cPathName.
+       IF FILE-INFO:FILE-TYPE EQ ? THEN 
+         lResult = FALSE.
+       ELSE 
+         lResult = TRUE.  
+		RETURN lResult.
+
+
+		
+END FUNCTION.
 

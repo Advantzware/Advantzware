@@ -127,15 +127,16 @@ DEF BUFFER b-quotehd-2 FOR quotehd.
 begin_quo# end_quo# tb_booked tb_inst tb_notesSpanPage begin_dept end_dept ~
 rd_sort rs_note tb_note tb_prt-box tb_prt-desc1 tb_boardDescription tb_comm ~
 tb_prt-comp tb_fg-desc2 tb_fg-desc3 tb_print-2nd-dscr tb_prt-item ~
-tb_prt-quoimage tb_prt-shp2 lv-termFile tb_terms tb_BatchMail tb_HideDialog ~
-tb_page rd-dest lv-ornt td-show-parm lines-per-page lv-font-no btn-ok ~
-btn-cancel 
+tb_prt-quoimage tb_prt-shp2 rs-act-inact lv-termFile tb_terms tb_BatchMail ~
+tb_HideDialog tb_page rd-dest lv-ornt td-show-parm lines-per-page ~
+lv-font-no btn-ok btn-cancel lbl_Item-status 
 &Scoped-Define DISPLAYED-OBJECTS v-quo-list begin_cust end_cust begin_quo# ~
 end_quo# tb_booked tb_inst tb_notesSpanPage begin_dept end_dept lbl_sort-3 ~
 rd_sort rs_note tb_note tb_prt-box tb_prt-desc1 tb_boardDescription tb_comm ~
 tb_prt-comp tb_fg-desc2 tb_fg-desc3 tb_print-2nd-dscr tb_prt-item ~
-tb_prt-quoimage tb_prt-shp2 lv-termFile tb_terms tb_BatchMail tb_HideDialog ~
-tb_page rd-dest lv-ornt td-show-parm lines-per-page lv-font-no lv-font-name 
+tb_prt-quoimage tb_prt-shp2 lbl_Item-status rs-act-inact lv-termFile tb_terms tb_BatchMail ~
+tb_HideDialog tb_page rd-dest lv-ornt td-show-parm lines-per-page ~
+lv-font-no lv-font-name lbl_Item-status 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -193,6 +194,11 @@ DEFINE VARIABLE end_quo# AS INTEGER FORMAT ">>>>>>>>" INITIAL 99999999
      VIEW-AS FILL-IN 
      SIZE 17 BY 1.
 
+DEFINE VARIABLE lbl_Item-status AS CHARACTER FORMAT "X(256)":U INITIAL "Item Status:" 
+     LABEL "" 
+      VIEW-AS TEXT 
+     SIZE 13.4 BY 1 NO-UNDO.
+
 DEFINE VARIABLE lbl_sort-3 AS CHARACTER FORMAT "X(256)":U INITIAL "Sort by?" 
      VIEW-AS FILL-IN 
      SIZE 10 BY 1 NO-UNDO.
@@ -247,6 +253,14 @@ DEFINE VARIABLE rd_sort AS CHARACTER INITIAL "Quote#"
 "Quote#", "Quote#",
 "As Entered", "As Entered"
      SIZE 64 BY 1 NO-UNDO.
+
+DEFINE VARIABLE rs-act-inact AS CHARACTER INITIAL "Both" 
+     VIEW-AS RADIO-SET HORIZONTAL
+     RADIO-BUTTONS 
+          "Active", "Active",
+"Inactive", "Inactive",
+"Both", "Both"
+     SIZE 36.6 BY .95 NO-UNDO.
 
 DEFINE VARIABLE rs_note AS CHARACTER INITIAL "Corr" 
      VIEW-AS RADIO-SET VERTICAL
@@ -403,6 +417,7 @@ DEFINE FRAME FRAME-A
      tb_prt-item AT ROW 13.95 COL 37.2
      tb_prt-quoimage AT ROW 13.95 COL 60
      tb_prt-shp2 AT ROW 14.81 COL 3 WIDGET-ID 6
+     rs-act-inact AT ROW 15 COL 16.4 NO-LABEL WIDGET-ID 24
      lv-termFile AT ROW 15 COL 63.8 COLON-ALIGNED WIDGET-ID 18
      tb_terms AT ROW 15.1 COL 37.2 WIDGET-ID 20
      tb_BatchMail AT ROW 17 COL 30
@@ -418,6 +433,7 @@ DEFINE FRAME FRAME-A
           "Enter Email Title"
      btn-ok AT ROW 24.81 COL 31
      btn-cancel AT ROW 24.81 COL 65
+     lbl_Item-status AT ROW 14.91 COL 1 COLON-ALIGNED WIDGET-ID 124
      "Output Destination" VIEW-AS TEXT
           SIZE 18 BY .62 AT ROW 16.91 COL 2.4
      " Enter Quotes separated by comma" VIEW-AS TEXT
@@ -485,16 +501,6 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME                                                           */
-ASSIGN
-       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "ribbon-button".
-
-
-ASSIGN
-       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "ribbon-button".
-
-
 ASSIGN 
        begin_cust:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
@@ -506,6 +512,14 @@ ASSIGN
 ASSIGN 
        begin_quo#:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
+
+ASSIGN 
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+ASSIGN 
+       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
 
 ASSIGN 
        end_cust:PRIVATE-DATA IN FRAME FRAME-A     = 
@@ -534,6 +548,12 @@ ASSIGN
 ASSIGN 
        tb_booked:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
+
+/* SETTINGS FOR FILL-IN lbl_Item-status IN FRAME FRAME-A
+   NO-ENABLE                                                            */
+ASSIGN 
+       lbl_Item-status:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "rs-act-inact".
 
 /* SETTINGS FOR TOGGLE-BOX tb_comm IN FRAME FRAME-A
    ALIGN-R                                                              */
@@ -606,7 +626,7 @@ THEN C-Win:HIDDEN = no.
 */  /* FRAME FRAME-A */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -794,6 +814,9 @@ DO:
         v-prt-shp2 = tb_prt-shp2
         v-terms    = tb_terms
         v-termfile = lv-termFile.
+
+     IF rs-act-inact:HIDDEN EQ NO THEN
+     cItemStatus = SUBSTRING(rs-act-inact,1,1).
 
      IF rs_note:HIDDEN EQ NO THEN
         s-note-mode = rs_note.
@@ -1071,6 +1094,16 @@ END.
 &Scoped-define SELF-NAME rd_sort
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rd_sort C-Win
 ON VALUE-CHANGED OF rd_sort IN FRAME FRAME-A
+DO:
+  assign {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME rs-act-inact
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rs-act-inact C-Win
+ON VALUE-CHANGED OF rs-act-inact IN FRAME FRAME-A
 DO:
   assign {&self-name}.
 END.
@@ -1441,7 +1474,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     DISABLE lines-per-page.
     IF NOT AVAIL est OR est.est-type LE 4 THEN DISABLE tb_note tb_comm.
     IF NOT AVAIL est OR est.est-type LE 4 OR 
-      (v-print-fmt NE "XPrint" AND v-print-fmt NE "quoprint 1" AND v-print-fmt NE "quoprint 2" AND v-print-fmt NE "quoprint 10" AND v-print-fmt NE "quoprint 20" AND v-print-fmt NE "Printers"  AND v-print-fmt NE "Hughes" AND v-print-fmt NE "Simkins" AND v-print-fmt NE "Oklahoma")
+      (v-print-fmt NE "XPrint" AND v-print-fmt NE "quoprint 1" AND v-print-fmt NE "quoprint 2" AND v-print-fmt NE "quoprint 10" AND v-print-fmt NE "quoprint 11" AND v-print-fmt NE "quoprint 20" AND v-print-fmt NE "Printers"  AND v-print-fmt NE "Hughes" AND v-print-fmt NE "Simkins" AND v-print-fmt NE "Oklahoma")
       THEN DO:
       ASSIGN
         tb_boardDescription:SCREEN-VALUE = 'Est'
@@ -1490,6 +1523,17 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         /*OR v-print-fmt EQ "Bell-Excel"*/
       THEN 
        ASSIGN rd_sort:SENSITIVE = NO.
+
+
+     IF v-print-fmt EQ "Peachtree" THEN
+         ASSIGN rs-act-inact:HIDDEN = NO
+                rs-act-inact:SENSITIVE = YES
+                lbl_Item-status:HIDDEN = NO.
+     ELSE
+         ASSIGN rs-act-inact:HIDDEN = YES
+                lbl_Item-status:HIDDEN = YES.
+                .
+
 
     IF v-print-fmt EQ "Simkins" THEN DO:
 
@@ -1831,17 +1875,17 @@ PROCEDURE enable_UI :
           tb_notesSpanPage begin_dept end_dept lbl_sort-3 rd_sort rs_note 
           tb_note tb_prt-box tb_prt-desc1 tb_boardDescription tb_comm 
           tb_prt-comp tb_fg-desc2 tb_fg-desc3 tb_print-2nd-dscr tb_prt-item 
-          tb_prt-quoimage tb_prt-shp2 lv-termFile tb_terms tb_BatchMail 
-          tb_HideDialog tb_page rd-dest lv-ornt td-show-parm lines-per-page 
-          lv-font-no lv-font-name 
+          tb_prt-quoimage tb_prt-shp2 lbl_Item-status rs-act-inact lv-termFile tb_terms 
+          tb_BatchMail tb_HideDialog tb_page rd-dest lv-ornt td-show-parm 
+          lines-per-page lv-font-no lv-font-name lbl_Item-status 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   ENABLE RECT-6 RECT-7 v-quo-list begin_cust end_cust begin_quo# end_quo# 
          tb_booked tb_inst tb_notesSpanPage begin_dept end_dept rd_sort rs_note 
          tb_note tb_prt-box tb_prt-desc1 tb_boardDescription tb_comm 
          tb_prt-comp tb_fg-desc2 tb_fg-desc3 tb_print-2nd-dscr tb_prt-item 
-         tb_prt-quoimage tb_prt-shp2 lv-termFile tb_terms tb_BatchMail 
-         tb_HideDialog tb_page rd-dest lv-ornt td-show-parm lines-per-page 
-         lv-font-no btn-ok btn-cancel 
+         tb_prt-quoimage tb_prt-shp2 rs-act-inact lv-termFile tb_terms 
+         tb_BatchMail tb_HideDialog tb_page rd-dest lv-ornt td-show-parm 
+         lines-per-page lv-font-no btn-ok btn-cancel lbl_Item-status 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.
@@ -2072,6 +2116,9 @@ ASSIGN
  v-boardDescription = tb_boardDescription
  s-print-2nd-dscr = tb_print-2nd-dscr
  v-prt-shp2 = tb_prt-shp2.
+
+  IF rs-act-inact:HIDDEN EQ NO THEN
+     cItemStatus = SUBSTRING(rs-act-inact,1,1).
 
  IF rs_note:HIDDEN EQ NO THEN
     s-note-mode = rs_note.
@@ -2584,7 +2631,7 @@ PROCEDURE SetQuoForm :
   Notes:       
 ------------------------------------------------------------------------------*/
    DEFINE INPUT PARAM icPrintFormat AS CHAR NO-UNDO.
-   IF INDEX("Pacific,Xprint,quoprint 1,quoprint 2,quoprint 10,quoprint 20,Printers,Hughes,SouthPak,ABox,Midwest,Axis,MWFIBRE,century,Concepts,oracle,Harwell,quoprint10-CAN,PremierX,Elite,Unipak,Ottpkg,Frankstn,Mirpkg,APC,Perform,FibreX,Boss,Protagon,Loylang,LoylangBSF,PPI,Packrite,Xprint30,StClair,AllWest,Soule,Sultana,SouleMed,Simkins,CCC,Peachtree,Oklahoma,Accord",icPrintFormat) > 0 THEN
+   IF INDEX("Pacific,Xprint,quoprint 1,quoprint 2,quoprint 10,quoprint 11,quoprint 20,Printers,Hughes,SouthPak,ABox,Midwest,Axis,MWFIBRE,century,Concepts,oracle,Harwell,quoprint10-CAN,PremierX,Elite,Unipak,Ottpkg,Frankstn,Mirpkg,APC,Perform,FibreX,Boss,Protagon,Loylang,LoylangBSF,PPI,Packrite,Xprint30,StClair,AllWest,Soule,Sultana,SouleMed,Simkins,CCC,Peachtree,Oklahoma,Accord",icPrintFormat) > 0 THEN
       is-xprint-form = YES.     
    ELSE is-xprint-form = NO.
 
@@ -2603,6 +2650,7 @@ PROCEDURE SetQuoForm :
        WHEN "Abox" THEN ASSIGN v-program = "cec/quote/quoabox.p" lines-per-page = 66.
        WHEN "Xprint" OR WHEN "quoprint 1" OR WHEN "quoprint 2" THEN ASSIGN v-program = "cec/quote/quoxprnt.p" lines-per-page = 66.
        WHEN "quoprint 10" OR WHEN "quoprint 20" THEN ASSIGN v-program = "cec/quote/quoxprnt10.p" lines-per-page = 66.
+       WHEN "quoprint 11" THEN ASSIGN v-program = "cec/quote/quoxprnt11.p" lines-per-page = 66.
        WHEN "Printers" THEN ASSIGN v-program = "cec/quote/quoprnts.p" lines-per-page = 66.
        WHEN "Hughes" THEN ASSIGN v-program = "cec/quote/quohughes.p" lines-per-page = 66.
        WHEN "Oklahoma" THEN ASSIGN v-program = "cec/quote/quookla.p" lines-per-page = 66.

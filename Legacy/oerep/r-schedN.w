@@ -111,8 +111,8 @@ tb_scheduled tb_late tb_invoiceable tb_actual tb_backordered tb_posted ~
 tb_invoice tb_completed rd_sort tb_subt tb_oh-rlqty tb_stats tb_notes ~
 begin_spec end_spec rd-dest lv-ornt lv-font-no lines-per-page td-show-parm ~
 tb_excel tb_runExcel fi_file btn-ok btn-cancel sl_avail Btn_Def Btn_Add ~
-sl_selected Btn_Remove btn_Up btn_down begin_shipfrom end_shipfrom RECT-6 ~
-RECT-7 RECT-8 RECT-11 RECT-42 tb_neg-avail 
+sl_selected Btn_Remove btn_Up btn_down begin_shipfrom end_shipfrom ~
+tb_neg-avail RECT-6 RECT-7 RECT-8 RECT-11 RECT-42 begin_csr end_csr 
 &Scoped-Define DISPLAYED-OBJECTS rd_printOnhand begin_cust-no end_cust-no ~
 begin_ord-no end_ord-no begin_i-no end_i-no begin_loc end_loc begin_slsmn ~
 end_slsmn begin_date end_date begin_carr end_carr begin_cat end_cat ~
@@ -120,7 +120,7 @@ tb_scheduled tb_late tb_invoiceable tb_actual tb_backordered tb_posted ~
 tb_invoice tb_completed rd_sort tb_subt tb_oh-rlqty tb_stats tb_notes ~
 begin_spec end_spec lv-font-name rd-dest lv-ornt lv-font-no lines-per-page ~
 td-show-parm tb_excel tb_runExcel fi_file lbl-print-2 sl_avail sl_selected ~
-begin_shipfrom end_shipfrom tb_neg-avail 
+begin_shipfrom end_shipfrom tb_neg-avail begin_csr end_csr 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -183,6 +183,11 @@ DEFINE VARIABLE begin_cat AS CHARACTER FORMAT "X(5)":U
      VIEW-AS FILL-IN 
      SIZE 17 BY 1 NO-UNDO.
 
+DEFINE VARIABLE begin_csr AS CHARACTER FORMAT "X(10)":U 
+     LABEL "Beginning CSR" 
+     VIEW-AS FILL-IN 
+     SIZE 17 BY 1 NO-UNDO.
+
 DEFINE VARIABLE begin_cust-no AS CHARACTER FORMAT "X(8)" 
      LABEL "Beginning Customer#" 
      VIEW-AS FILL-IN 
@@ -230,6 +235,11 @@ DEFINE VARIABLE end_carr AS CHARACTER FORMAT "X(5)":U INITIAL "zzzzz"
 
 DEFINE VARIABLE end_cat AS CHARACTER FORMAT "X(5)":U INITIAL "zzzzz" 
      LABEL "Ending Prod. Category" 
+     VIEW-AS FILL-IN 
+     SIZE 17 BY 1 NO-UNDO.
+
+DEFINE VARIABLE end_csr AS CHARACTER FORMAT "X(10)":U INITIAL "zzzzzzzzzz" 
+     LABEL "Ending CSR" 
      VIEW-AS FILL-IN 
      SIZE 17 BY 1 NO-UNDO.
 
@@ -376,7 +386,7 @@ DEFINE RECTANGLE RECT-11
 
 DEFINE RECTANGLE RECT-42
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 72 BY 8.1.
+     SIZE 72 BY 7.76.
 
 DEFINE RECTANGLE RECT-6
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
@@ -384,7 +394,7 @@ DEFINE RECTANGLE RECT-6
 
 DEFINE RECTANGLE RECT-7
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 132 BY 21.19.
+     SIZE 132 BY 21.67.
 
 DEFINE RECTANGLE RECT-8
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
@@ -494,7 +504,7 @@ DEFINE VARIABLE tg-print-due AS LOGICAL INITIAL yes
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME FRAME-A
-     rd_printOnhand AT ROW 11.1 COL 47 NO-LABEL WIDGET-ID 128
+     rd_printOnhand AT ROW 11.81 COL 47 NO-LABEL WIDGET-ID 128
      lbl-print AT ROW 10.05 COL 140 COLON-ALIGNED NO-LABEL WIDGET-ID 114
      begin_cust-no AT ROW 1.95 COL 40 COLON-ALIGNED HELP
           "Enter Beginning Customer Number"
@@ -520,94 +530,98 @@ DEFINE FRAME FRAME-A
           "Enter Beginning Date"
      end_date AT ROW 6.71 COL 90 COLON-ALIGNED HELP
           "Enter Ending Date"
-     begin_carr AT ROW 7.67 COL 40 COLON-ALIGNED HELP
+     begin_carr AT ROW 7.62 COL 40 COLON-ALIGNED HELP
           "Enter Beginning Carrier Number"
      end_carr AT ROW 7.67 COL 90 COLON-ALIGNED HELP
           "Enter Ending Carrier Number"
-     begin_cat AT ROW 8.71 COL 40 COLON-ALIGNED HELP
+     begin_cat AT ROW 8.57 COL 40 COLON-ALIGNED HELP
           "Enter Beginning Product Category"
-     end_cat AT ROW 8.71 COL 90 COLON-ALIGNED HELP
+     end_cat AT ROW 8.62 COL 90 COLON-ALIGNED HELP
           "Enter Ending Product Category"
-     tb_scheduled AT ROW 12.1 COL 2.6 WIDGET-ID 78
-     tb_late AT ROW 13.1 COL 2.6 WIDGET-ID 68
-     tb_invoiceable AT ROW 14.1 COL 2.6 WIDGET-ID 66
-     tb_actual AT ROW 15.33 COL 2.6 WIDGET-ID 56
-     tb_backordered AT ROW 16.33 COL 2.6 WIDGET-ID 58
-     tb_posted AT ROW 17.57 COL 2.6 WIDGET-ID 74
-     tb_invoice AT ROW 18.57 COL 2.6 WIDGET-ID 64
-     tb_completed AT ROW 19.67 COL 2.6 WIDGET-ID 60
-     rd_sort AT ROW 12.05 COL 42 NO-LABEL WIDGET-ID 32
+     tb_scheduled AT ROW 12.81 COL 2.6 WIDGET-ID 78
+     tb_late AT ROW 13.81 COL 2.6 WIDGET-ID 68
+     tb_invoiceable AT ROW 14.81 COL 2.6 WIDGET-ID 66
+     tb_actual AT ROW 16.05 COL 2.6 WIDGET-ID 56
+     tb_backordered AT ROW 17.05 COL 2.6 WIDGET-ID 58
+     tb_posted AT ROW 18.29 COL 2.6 WIDGET-ID 74
+     tb_invoice AT ROW 19.29 COL 2.6 WIDGET-ID 64
+     tb_completed AT ROW 20.38 COL 2.6 WIDGET-ID 60
+     rd_sort AT ROW 12.76 COL 42 NO-LABEL WIDGET-ID 32
      rd_print AT ROW 17.67 COL 138 NO-LABEL WIDGET-ID 24
      rs-item-option AT ROW 21.71 COL 136 NO-LABEL WIDGET-ID 48
      rs_qty AT ROW 24.33 COL 137 NO-LABEL WIDGET-ID 52
      tg-print-due AT ROW 11 COL 143 WIDGET-ID 94
      tb_po-no AT ROW 11.71 COL 143 WIDGET-ID 72
-     tb_subt AT ROW 13.71 COL 102.6 WIDGET-ID 82
-     tb_oh-rlqty AT ROW 15.29 COL 102.6 WIDGET-ID 156
-     tb_stats AT ROW 20.62 COL 103 WIDGET-ID 80
+     tb_subt AT ROW 14.43 COL 102.6 WIDGET-ID 82
+     tb_oh-rlqty AT ROW 16 COL 102.6 WIDGET-ID 156
+     tb_stats AT ROW 21.33 COL 103 WIDGET-ID 80
      rd_rel AT ROW 13.86 COL 135 NO-LABEL WIDGET-ID 28
-     tb_notes AT ROW 16.81 COL 104 WIDGET-ID 70
-     begin_spec AT ROW 18 COL 119 COLON-ALIGNED HELP
+     tb_notes AT ROW 17.52 COL 104 WIDGET-ID 70
+     begin_spec AT ROW 18.71 COL 119 COLON-ALIGNED HELP
           "Enter Beginning Carrier Number" WIDGET-ID 2
-     end_spec AT ROW 18.95 COL 119 COLON-ALIGNED HELP
+     end_spec AT ROW 19.67 COL 119 COLON-ALIGNED HELP
           "Enter Ending Carrier Number" WIDGET-ID 4
-     lv-font-name AT ROW 27.67 COL 2.4 NO-LABEL WIDGET-ID 96
-     rd-dest AT ROW 23.24 COL 2.2 NO-LABEL WIDGET-ID 16
-     lv-ornt AT ROW 25.1 COL 2.2 NO-LABEL WIDGET-ID 12
-     lv-font-no AT ROW 26.29 COL 5.8 COLON-ALIGNED WIDGET-ID 10
-     lines-per-page AT ROW 26.29 COL 30.8 COLON-ALIGNED WIDGET-ID 8
-     td-show-parm AT ROW 23.71 COL 93.4 WIDGET-ID 84
-     tb_excel AT ROW 25.76 COL 100 RIGHT-ALIGNED WIDGET-ID 62
+     lv-font-name AT ROW 28.24 COL 2.4 NO-LABEL WIDGET-ID 96
+     rd-dest AT ROW 23.81 COL 2.2 NO-LABEL WIDGET-ID 16
+     lv-ornt AT ROW 25.67 COL 2.2 NO-LABEL WIDGET-ID 12
+     lv-font-no AT ROW 26.86 COL 5.8 COLON-ALIGNED WIDGET-ID 10
+     lines-per-page AT ROW 26.86 COL 30.8 COLON-ALIGNED WIDGET-ID 8
+     td-show-parm AT ROW 24.29 COL 93.4 WIDGET-ID 84
+     tb_excel AT ROW 26.33 COL 100 RIGHT-ALIGNED WIDGET-ID 62
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 227.2 BY 30.1.
+         SIZE 227.2 BY 30.67.
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME FRAME-A
-     tb_runExcel AT ROW 25.76 COL 121.6 RIGHT-ALIGNED WIDGET-ID 76
-     fi_file AT ROW 26.86 COL 77.6 COLON-ALIGNED HELP
+     tb_runExcel AT ROW 26.33 COL 121.6 RIGHT-ALIGNED WIDGET-ID 76
+     fi_file AT ROW 27.43 COL 77.6 COLON-ALIGNED HELP
           "Enter File Name" WIDGET-ID 6
-     btn-ok AT ROW 29.76 COL 32
-     btn-cancel AT ROW 29.57 COL 87
-     lbl-print-2 AT ROW 12.29 COL 26 COLON-ALIGNED NO-LABEL WIDGET-ID 124
-     sl_avail AT ROW 14.91 COL 30 NO-LABEL WIDGET-ID 146
-     Btn_Def AT ROW 15.1 COL 59 HELP
+     btn-ok AT ROW 30.05 COL 32
+     btn-cancel AT ROW 29.86 COL 87
+     lbl-print-2 AT ROW 13 COL 26 COLON-ALIGNED NO-LABEL WIDGET-ID 124
+     sl_avail AT ROW 15.62 COL 30 NO-LABEL WIDGET-ID 146
+     Btn_Def AT ROW 15.81 COL 59 HELP
           "Add Selected Table to Tables to Audit" WIDGET-ID 56
-     Btn_Add AT ROW 16.29 COL 59 HELP
+     Btn_Add AT ROW 17 COL 59 HELP
           "Add Selected Table to Tables to Audit" WIDGET-ID 138
-     sl_selected AT ROW 14.91 COL 75 NO-LABEL WIDGET-ID 148
-     Btn_Remove AT ROW 17.48 COL 59 HELP
+     sl_selected AT ROW 15.62 COL 75 NO-LABEL WIDGET-ID 148
+     Btn_Remove AT ROW 18.19 COL 59 HELP
           "Remove Selected Table from Tables to Audit" WIDGET-ID 142
-     btn_Up AT ROW 18.67 COL 59 WIDGET-ID 144
-     btn_down AT ROW 19.86 COL 59 WIDGET-ID 140
-     begin_shipfrom AT ROW 9.81 COL 40 COLON-ALIGNED HELP
+     btn_Up AT ROW 19.38 COL 59 WIDGET-ID 144
+     btn_down AT ROW 20.57 COL 59 WIDGET-ID 140
+     begin_shipfrom AT ROW 9.52 COL 40 COLON-ALIGNED HELP
           "Enter starting ship from location." WIDGET-ID 158
-     end_shipfrom AT ROW 9.81 COL 90 COLON-ALIGNED HELP
+     end_shipfrom AT ROW 9.57 COL 90 COLON-ALIGNED HELP
           "Enter ending ship from location." WIDGET-ID 160
-     tb_neg-avail AT ROW 14.48 COL 102.6 WIDGET-ID 162
+     tb_neg-avail AT ROW 15.19 COL 102.6 WIDGET-ID 162
+     begin_csr AT ROW 10.48 COL 40 COLON-ALIGNED HELP
+          "Enter starting CSR." WIDGET-ID 164
+     end_csr AT ROW 10.52 COL 90 COLON-ALIGNED HELP
+          "Enter ending CSR." WIDGET-ID 166
      "Selection Parameters" VIEW-AS TEXT
           SIZE 21 BY .71 AT ROW 1.24 COL 5
           BGCOLOR 2 
      "Print OH Qty?" VIEW-AS TEXT
-          SIZE 14 BY .62 AT ROW 11.33 COL 29 WIDGET-ID 136
+          SIZE 14 BY .62 AT ROW 12.05 COL 29 WIDGET-ID 136
      "Available Columns" VIEW-AS TEXT
-          SIZE 20 BY .62 AT ROW 13.86 COL 31 WIDGET-ID 150
+          SIZE 20 BY .62 AT ROW 14.57 COL 31 WIDGET-ID 150
      "Selected Columns(In Display Order)" VIEW-AS TEXT
-          SIZE 34 BY .62 AT ROW 13.86 COL 67 WIDGET-ID 152
+          SIZE 34 BY .62 AT ROW 14.57 COL 67 WIDGET-ID 152
      "Release Types:" VIEW-AS TEXT
-          SIZE 15 BY .71 AT ROW 11.19 COL 2 WIDGET-ID 86
+          SIZE 15 BY .71 AT ROW 11.91 COL 2 WIDGET-ID 86
      "Output Destination" VIEW-AS TEXT
-          SIZE 18.8 BY .76 AT ROW 22.43 COL 2.2 WIDGET-ID 88
-     RECT-6 AT ROW 22.24 COL 1 WIDGET-ID 40
+          SIZE 18.8 BY .76 AT ROW 23 COL 2.2 WIDGET-ID 88
+     RECT-6 AT ROW 22.81 COL 1 WIDGET-ID 40
      RECT-7 AT ROW 1 COL 1 WIDGET-ID 42
-     RECT-8 AT ROW 11.33 COL 26 WIDGET-ID 44
-     RECT-11 AT ROW 16.33 COL 103 WIDGET-ID 100
-     RECT-42 AT ROW 13.71 COL 29 WIDGET-ID 154
+     RECT-8 AT ROW 12.05 COL 26 WIDGET-ID 44
+     RECT-11 AT ROW 17.05 COL 103 WIDGET-ID 100
+     RECT-42 AT ROW 14.43 COL 29 WIDGET-ID 154
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 227.2 BY 30.1.
+         SIZE 227.2 BY 30.67.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -627,11 +641,11 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW C-Win ASSIGN
          HIDDEN             = YES
          TITLE              = "Scheduled Releases"
-         HEIGHT             = 30.1
+         HEIGHT             = 30.67
          WIDTH              = 132.4
-         MAX-HEIGHT         = 30.1
+         MAX-HEIGHT         = 30.67
          MAX-WIDTH          = 230
-         VIRTUAL-HEIGHT     = 30.1
+         VIRTUAL-HEIGHT     = 30.67
          VIRTUAL-WIDTH      = 230
          RESIZE             = yes
          SCROLL-BARS        = no
@@ -661,22 +675,16 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME Custom                                                    */
-ASSIGN
-       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "ribbon-button".
-
-
-ASSIGN
-       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "ribbon-button".
-
-
 ASSIGN 
        begin_carr:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
 ASSIGN 
        begin_cat:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
+
+ASSIGN 
+       begin_csr:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
 ASSIGN 
@@ -712,11 +720,23 @@ ASSIGN
                 "parm".
 
 ASSIGN 
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+ASSIGN 
+       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+ASSIGN 
        end_carr:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
 ASSIGN 
        end_cat:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
+
+ASSIGN 
+       end_csr:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
 ASSIGN 
@@ -884,7 +904,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -930,6 +950,17 @@ END.
 &Scoped-define SELF-NAME begin_cat
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_cat C-Win
 ON LEAVE OF begin_cat IN FRAME FRAME-A /* Beginning Prod. Category */
+DO:
+  assign {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME begin_csr
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_csr C-Win
+ON LEAVE OF begin_csr IN FRAME FRAME-A /* Beginning CSR */
 DO:
   assign {&self-name}.
 END.
@@ -1192,6 +1223,17 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME end_csr
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_csr C-Win
+ON LEAVE OF end_csr IN FRAME FRAME-A /* Ending CSR */
+DO:
+  assign {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME end_cust-no
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_cust-no C-Win
 ON LEAVE OF end_cust-no IN FRAME FRAME-A /* Ending Customer# */
@@ -1311,6 +1353,35 @@ DO:
     RUN WINDOWS/l-fonts.w (FOCUS:SCREEN-VALUE, OUTPUT char-val).
     IF char-val <> "" THEN ASSIGN FOCUS:SCREEN-VALUE = ENTRY(1,char-val)
                                   LV-FONT-NAME:SCREEN-VALUE = ENTRY(2,char-val).
+
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME begin_csr
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_csr C-Win
+ON HELP OF begin_csr IN FRAME FRAME-A /* Font */
+DO:
+    DEF VAR char-val AS cha NO-UNDO.
+
+    run windows/l-users.w ("", output char-val).
+    IF char-val <> "" THEN ASSIGN begin_csr:SCREEN-VALUE = ENTRY(1,char-val) .
+
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME end_csr
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_csr C-Win
+ON HELP OF end_csr IN FRAME FRAME-A /* Font */
+DO:
+    DEF VAR char-val AS cha NO-UNDO.
+
+    run windows/l-users.w ("", output char-val).
+    IF char-val <> "" THEN ASSIGN end_csr:SCREEN-VALUE = ENTRY(1,char-val) .
 
 END.
 
@@ -1822,7 +1893,7 @@ PROCEDURE enable_UI :
           tb_completed rd_sort tb_subt tb_oh-rlqty tb_stats tb_notes begin_spec 
           end_spec lv-font-name rd-dest lv-ornt lv-font-no lines-per-page 
           td-show-parm tb_excel tb_runExcel fi_file lbl-print-2 sl_avail 
-          sl_selected begin_shipfrom end_shipfrom tb_neg-avail 
+          sl_selected begin_shipfrom end_shipfrom tb_neg-avail begin_csr end_csr 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   ENABLE rd_printOnhand begin_cust-no end_cust-no begin_ord-no end_ord-no 
          begin_i-no end_i-no begin_loc end_loc begin_slsmn end_slsmn begin_date 
@@ -1832,7 +1903,8 @@ PROCEDURE enable_UI :
          end_spec rd-dest lv-ornt lv-font-no lines-per-page td-show-parm 
          tb_excel tb_runExcel fi_file btn-ok btn-cancel sl_avail Btn_Def 
          Btn_Add sl_selected Btn_Remove btn_Up btn_down begin_shipfrom 
-         end_shipfrom RECT-6 RECT-7 RECT-8 RECT-11 RECT-42 tb_neg-avail 
+         end_shipfrom tb_neg-avail RECT-6 RECT-7 RECT-8 RECT-11 RECT-42 
+         begin_csr end_csr 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.

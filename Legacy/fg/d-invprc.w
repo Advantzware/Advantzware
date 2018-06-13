@@ -68,7 +68,7 @@ END.
 &Scoped-define INTERNAL-TABLES tt-inv ar-invl itemfg
 
 /* Definitions for BROWSE BROWSE-2                                      */
-&Scoped-define FIELDS-IN-QUERY-BROWSE-2 ar-invl.i-no itemfg.i-name ar-invl.inv-qty ar-invl.unit-pr ar-invl.pr-qty-uom   
+&Scoped-define FIELDS-IN-QUERY-BROWSE-2 ar-invl.i-no itemfg.i-name ar-invl.inv-qty ar-invl.unit-pr ar-invl.pr-qty-uom itemfg.stat  
 &Scoped-define ENABLED-FIELDS-IN-QUERY-BROWSE-2   
 &Scoped-define SELF-NAME BROWSE-2
 &Scoped-define QUERY-STRING-BROWSE-2 FOR EACH tt-inv, ~
@@ -113,7 +113,7 @@ DEFINE BUTTON Btn_Deselect
      LABEL "Unselect All" 
      SIZE 15 BY 1.14.
 
-DEFINE BUTTON Btn_OK AUTO-GO 
+DEFINE BUTTON Btn_OK  
      LABEL "OK" 
      SIZE 15 BY 1.14
      BGCOLOR 8 .
@@ -139,9 +139,10 @@ DEFINE BROWSE BROWSE-2
       ar-invl.inv-qty       COLUMN-LABEL "Qty Invoiced" LABEL-BGCOLOR 14
       ar-invl.unit-pr       COLUMN-LABEL "Last Price" LABEL-BGCOLOR 14
       ar-invl.pr-qty-uom    COLUMN-LABEL "UOM" LABEL-BGCOLOR 14
+      itemfg.stat           COLUMN-LABEL "Item Status" LABEL-BGCOLOR 14
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ROW-MARKERS SEPARATORS MULTIPLE SIZE 94 BY 12.38
+    WITH NO-ROW-MARKERS SEPARATORS MULTIPLE SIZE 105 BY 12.38
          BGCOLOR 8  FIT-LAST-COLUMN.
 
 
@@ -279,8 +280,14 @@ DO:
     IF ll-ans THEN
     DO li = 1 TO {&browse-name}:NUM-SELECTED-ROWS:
       {&browse-name}:FETCH-SELECTED-ROW (li) NO-ERROR.
-
-      IF AVAIL tt-inv THEN tt-inv.selekt = YES.
+      IF itemfg.stat:SCREEN-VALUE IN BROWSE {&browse-name} EQ "I" THEN DO:
+          MESSAGE "Item status is Inactive..." VIEW-AS ALERT-BOX ERROR.
+          RETURN NO-APPLY.
+      END.
+      ELSE DO:
+        IF AVAIL tt-inv THEN tt-inv.selekt = YES.
+      APPLY "go" TO FRAME {&FRAME-NAME}.
+      END.
     END.
   END.
 END.

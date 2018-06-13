@@ -2655,43 +2655,7 @@ CLASS RefTableMigration:
             END.              
         END.  /*FOR EACH reftable*/  
         RETURN iCnt.
-    END METHOD.
-    METHOD PUBLIC INTEGER ItemfgMarkup(INPUT ipCount AS INTEGER):
-        DEFINE VARIABLE iCnt AS INTEGER NO-UNDO.
-        DEFINE BUFFER reftable1 FOR reftable1.
-        DEFINE BUFFER Breftable FOR reftable. 
-        DEFINE BUFFER e-itemfg-vend  FOR e-itemfg-vend.
-        
-        DISABLE TRIGGERS FOR LOAD OF reftable.        
-        DISABLE TRIGGERS FOR LOAD OF e-itemfg-vend.
-        ASSIGN iProcessCount = 0.        
-        FOR EACH reftable WHERE reftable.reftable = "e-itemfg-vend.markup"
-            NO-LOCK:
-            DO TRANSACTION:    
-                FIND FIRST e-itemfg-vend WHERE e-itemfg-vend.i-no     = reftable.loc
-                                         AND e-itemfg-vend.company  = reftable.company
-                                         AND e-itemfg-vend.vend-no  = reftable.code
-                                         AND e-itemfg-vend.est-no = ""
-                    EXCLUSIVE-LOCK NO-ERROR.
-                IF AVAILABLE e-itemfg-vend THEN DO:
-                        IF e-itemfg-vend.markup EQ 0 THEN ASSIGN e-itemfg-vend.markup = reftable.val[1].
-                    ASSIGN iProcessCount = iProcessCount + 1.  
-                END.
-                FIND CURRENT e-itemfg-vend NO-LOCK NO-ERROR.    
-                RELEASE e-itemfg-vend.      
-                CREATE reftable1.
-                BUFFER-COPY reftable TO reftable1.
-                RELEASE reftable1.
-                FIND Breftable WHERE ROWID(Breftable) = ROWID(reftable)
-                    EXCLUSIVE-LOCK NO-ERROR.
-                IF AVAILABLE Breftable THEN DELETE Breftable. 
-                RELEASE Breftable.   
-                iCnt = iCnt + 1.
-                IF iCnt >= ipCount THEN LEAVE.   
-            END.              
-        END.  /*FOR EACH reftable*/  
-        RETURN iCnt.
-    END METHOD. /*e-itemfg-vend*/
+    END METHOD.    
     METHOD PUBLIC INTEGER aoaReport(INPUT ipCount AS INTEGER):
         DEFINE VARIABLE iCnt AS INTEGER NO-UNDO.
         DEFINE BUFFER reftable1 FOR reftable1.
@@ -2715,6 +2679,31 @@ CLASS RefTableMigration:
         END.  /*FOR EACH reftable*/  
         RETURN iCnt.
     END METHOD. /*aoaReport*/ 
+    
+    METHOD PUBLIC INTEGER relcredconv(INPUT ipCount AS INTEGER):
+        DEFINE VARIABLE iCnt AS INTEGER NO-UNDO.
+        DEFINE BUFFER reftable1 FOR reftable1.
+        DEFINE BUFFER Breftable FOR reftable.
+        
+        DISABLE TRIGGERS FOR LOAD OF reftable.
+        ASSIGN iProcessCount = 0.
+        FOR EACH reftable WHERE reftable.reftable = "relcredconv"
+            NO-LOCK:
+            DO TRANSACTION:
+                CREATE reftable1.
+                BUFFER-COPY reftable TO reftable1.
+                RELEASE reftable1.
+                FIND Breftable WHERE ROWID(Breftable) = ROWID(reftable)
+                    EXCLUSIVE-LOCK NO-ERROR.
+                IF AVAILABLE Breftable THEN DELETE Breftable. 
+                RELEASE Breftable.   
+                iCnt = iCnt + 1.
+                IF iCnt >= ipCount THEN LEAVE.   
+            END.              
+        END.  /*FOR EACH reftable*/  
+        RETURN iCnt.
+    END METHOD. /*relcredconv*/  
+
     METHOD PUBLIC INTEGER StdUom(INPUT ipCount AS INTEGER):
         DEFINE VARIABLE iCnt AS INTEGER NO-UNDO.
         DEFINE VARIABLE i AS INTEGER NO-UNDO.
@@ -2740,6 +2729,31 @@ CLASS RefTableMigration:
                 ASSIGN iProcessCount = iProcessCount + 1.              
                 FIND CURRENT e-itemfg-vend NO-LOCK NO-ERROR.    
                 RELEASE e-itemfg-vend.      
+                
+    END METHOD. /*e-itemfg-vend*/
+
+    METHOD PUBLIC INTEGER Arcashhold(INPUT ipCount AS INTEGER):
+        DEFINE VARIABLE iCnt AS INTEGER NO-UNDO.
+        DEFINE VARIABLE i AS INTEGER NO-UNDO.
+        DEFINE BUFFER reftable1 FOR reftable1.
+        DEFINE BUFFER Breftable FOR reftable. 
+
+        DEFINE BUFFER ar-cash  FOR ar-cash.
+        
+        DISABLE TRIGGERS FOR LOAD OF reftable.        
+        DISABLE TRIGGERS FOR LOAD OF ar-cash.
+        ASSIGN iProcessCount = 0.        
+        FOR EACH reftable WHERE reftable.reftable = "ARCASHHOLD"
+            NO-LOCK:
+            DO TRANSACTION:    
+                FIND FIRST ar-cash WHERE ar-cash.rec_key = reftable.rec_key
+                    EXCLUSIVE-LOCK NO-ERROR.
+                IF AVAILABLE ar-cash THEN DO:
+                        IF ar-cash.stat EQ "" THEN ASSIGN ar-cash.stat = reftable.code. 
+                    ASSIGN iProcessCount = iProcessCount + 1.  
+                END.
+                FIND CURRENT ar-cash NO-LOCK NO-ERROR.    
+                RELEASE ar-cash.      
                 CREATE reftable1.
                 BUFFER-COPY reftable TO reftable1.
                 RELEASE reftable1.
@@ -2752,7 +2766,7 @@ CLASS RefTableMigration:
             END.              
         END.  /*FOR EACH reftable*/  
         RETURN iCnt.
-    END METHOD. /*e-itemfg-vend*/
+    END METHOD. /*ar-cash*/
 END CLASS.
 
 

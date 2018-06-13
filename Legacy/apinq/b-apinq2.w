@@ -1089,8 +1089,8 @@ DEFINE INPUT PARAMETER ip-date-to AS DATE NO-UNDO .
      tb_unposted = YES
      fi_finv     = ""
      fi_vend     = ""
-     fi_date     = TODAY - 180
-     fi_date-to = ip-date-to
+     fi_date     = ip-date-to 
+     fi_date-to  = ip-date-to
       .
    
    DISPLAY fi_date tb_posted tb_unposted fi_finv fi_vend  fi_date-to.

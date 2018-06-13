@@ -77,14 +77,14 @@ DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btn-clock-in 
-     IMAGE-UP FILE "../images/clockin.jpg":U
-     IMAGE-INSENSITIVE FILE "../images/clockin.jpg":U
+     IMAGE-UP FILE "./CustFiles/images/misc/clockin.jpg":U
+     IMAGE-INSENSITIVE FILE "./CustFiles/images/misc/clockin.jpg":U
      LABEL "Clock &In" 
      SIZE 60 BY 5.52
      FONT 6.
 
 DEFINE BUTTON btn-clock-out 
-     IMAGE-UP FILE "../images/clockout.jpg":U
+     IMAGE-UP FILE "./CustFiles/images/misc/clockout.jpg":U
      LABEL "Clock &Out" 
      SIZE 60 BY 5.52
      BGCOLOR 12 FONT 6.
