@@ -2736,7 +2736,6 @@ CLASS RefTableMigration:
         END.  /*FOR EACH reftable*/  
         RETURN iCnt.
     END METHOD. /*ar-cash*/
->>>>>>> develop
 END CLASS.
 
 
