@@ -1102,18 +1102,8 @@ SESSION:SET-WAIT-STATE("general").
       break by ar-cash.cust-no
             by ar-cash.check-no with frame a1:
 
-    FIND FIRST reftable WHERE
-         reftable.reftable = "ARCASHHOLD" AND
-         reftable.rec_key = ar-cash.rec_key
-         USE-INDEX rec_key
-         NO-LOCK NO-ERROR.
-
-    /*skip on hold cms*/
-    IF AVAIL reftable AND reftable.CODE EQ "H" THEN
-    DO:
-      RELEASE reftable.
-      NEXT.
-    END.
+    IF ar-cash.stat EQ "H" THEN
+        NEXT.
 
     release reftable no-error.
 

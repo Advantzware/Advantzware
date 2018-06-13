@@ -216,6 +216,7 @@ DEF VAR dOpRun AS DEC NO-UNDO.
 DEF VAR dSheeterSpeed AS DEC NO-UNDO.
 DEF VAR dPrinterSpeed AS DEC NO-UNDO.
 DEF VAR dCutterSpeed AS DEC NO-UNDO.
+DEF VAR dFlatPackSpeed AS DEC NO-UNDO.
 DEF VAR dGluerSpeed AS DEC NO-UNDO.
 
 DEF STREAM st2nd.
@@ -478,7 +479,7 @@ for each job-hdr NO-LOCK
           IF wrk-op.dept = "RS" THEN dSheeterSpeed = job-mch.speed.
           ELSE IF wrk-op.dept = "PR" THEN dPrinterSpeed = job-mch.speed.
           ELSE IF wrk-op.dept = "DC" THEN dCutterSpeed = job-mch.speed.
-/*           ELSE IF wrk-op.dept = "GL" THEN dGluerSpeed = job-mch.speed. */
+          ELSE IF wrk-op.dept = "FP" THEN dFlatPackSpeed = job-mch.speed. 
         end.
         IF AVAIL est THEN
             FIND FIRST est-op WHERE est-op.company = est.company
@@ -1063,6 +1064,7 @@ for each job-hdr NO-LOCK
          RUN BuildExcelDataSheet (24,2,dPrinterSpeed).
          RUN BuildExcelDataSheet (28,2,dCutterSpeed).
          RUN BuildExcelDataSheet (32,2,dGluerSpeed).
+         RUN BuildExcelDataSheet (36,2,dFlatPackSpeed).
          
          FOR EACH wrk-op WHERE /*wrk-op.s-num = job-hdr.frm*/ BREAK by wrk-op.d-seq by wrk-op.b-num:             
 
@@ -1148,11 +1150,11 @@ for each job-hdr NO-LOCK
         IF ENTRY(2,cOpRun2[4],"/") <> "" THEN
            RUN BuildExcelDataSheet (34,2,entry(2,cOpRun2[4],"/")). /* Gluer  Run*/
         IF ENTRY(1,cOpRun2[5],"/") <> "" THEN
-           RUN BuildExcelDataSheet (36,2,entry(1,cOpRun2[5],"/")). /* Flat Pack MR*/
+           RUN BuildExcelDataSheet (37,2,entry(1,cOpRun2[5],"/")). /* Flat Pack MR*/
         IF ENTRY(2,cOpRun2[5],"/") <> "" THEN
-           RUN BuildExcelDataSheet (37,2,entry(2,cOpRun2[5],"/")). /*Flat Pack Run*/
+           RUN BuildExcelDataSheet (38,2,entry(2,cOpRun2[5],"/")). /*Flat Pack Run*/
                 
-        RUN BuildExcelDataSheet (38,2,cTotalSheet). /*Flat Pack Run*/
+        RUN BuildExcelDataSheet (39,2,cTotalSheet). /*Flat Pack Run*/ 
         
         /*
           PUT UNFORMATTED 

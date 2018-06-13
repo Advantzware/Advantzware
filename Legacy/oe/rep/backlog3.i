@@ -69,7 +69,7 @@ if avail oe-ordl then do:
         and oe-rel.ord-no  eq oe-ordl.ord-no
         and oe-rel.i-no    eq oe-ordl.i-no
         and oe-rel.line    eq oe-ordl.line
-        AND oe-rel.s-code  EQ "T"
+        AND oe-rel.s-code  NE "T"
       no-lock:
       
     {oe/rel-stat.i v-stat}

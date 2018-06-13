@@ -1,6 +1,7 @@
 /* sys\inc\rmunderover.i */
 
 DEF VAR rmunderover-cha AS CHAR NO-UNDO.
+DEF VAR rmunderover-log AS LOGICAL NO-UNDO.
 
 FIND FIRST sys-ctrl NO-LOCK
     WHERE sys-ctrl.company EQ cocode
@@ -14,5 +15,6 @@ IF NOT AVAIL sys-ctrl THEN DO:
    sys-ctrl.descrip  = "Check Overrun and Underrun Method"
    sys-ctrl.char-fld = "UnderRuns and OverRun".
 END.
-
-rmunderover-cha = sys-ctrl.char-fld.
+assign
+rmunderover-cha = sys-ctrl.char-fld
+rmunderover-log = sys-ctrl.log-fld.

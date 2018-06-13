@@ -1255,7 +1255,7 @@ DEF VAR cslist AS cha NO-UNDO.
           cSlist = cSlist + ttRptSelected.FieldList + ",".
 
 
-        IF LOOKUP(ttRptSelected.TextList, "Line Amount") <> 0    THEN
+        IF LOOKUP(ttRptSelected.TextList, "Line Amount,Amount") <> 0    THEN
             ASSIGN
             str-line = str-line + FILL("-",ttRptSelected.FieldLength) + " " .
         ELSE
@@ -1362,13 +1362,12 @@ END.
 
 
           lv-total[1] = lv-total[1] + ap-invl.amt.
+          IF FIRST-OF(tt-ap-inv.inv-no) THEN
           lv-gtotal[1] = lv-gtotal[1] + tt-ap-inv.net.
 
-          IF NOT FIRST-OF(tt-ap-inv.vend-no) THEN ll-total[1] = YES.
-
+          
           IF LAST-OF(tt-ap-inv.vend-no) THEN DO:
-            IF ll-total[1] THEN DO:
-
+            
                 PUT SKIP str-line SKIP .
                 ASSIGN cDisplay = ""
                    cTmpField = ""
@@ -1385,7 +1384,7 @@ END.
                         WHEN "ven-nam"   THEN  cVarValue = "" .
                          WHEN "dscr"            THEN cVarValue = "".
                          WHEN "date"                   THEN cVarValue = "".
-                         WHEN "amt"              THEN cVarValue = "" /*STRING(lv-gtotal[1],"->>>,>>>,>>>,>>9.99")*/ .
+                         WHEN "amt"              THEN cVarValue =  STRING(lv-gtotal[1],"->>>,>>>,>>>,>>9.99") .
                          WHEN "line-amt"           THEN cVarValue = STRING(lv-total[1],"->>>,>>>,>>>,>>9.99") .
 
                     END CASE.
@@ -1395,21 +1394,26 @@ END.
                                FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
                     cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
             END.
-
-            PUT UNFORMATTED "  Vendor Total" substring(cDisplay,15,300) SKIP.
-            IF tb_excel THEN DO:
-                PUT STREAM excel UNFORMATTED  
-                    "Vendor Total " + substring(cExcelDisplay,3,300) SKIP.
+            IF str-line NE "" THEN do:
+                PUT UNFORMATTED "  Vendor Total" substring(cDisplay,15,300) SKIP.
+                IF tb_excel THEN DO:
+                    PUT STREAM excel UNFORMATTED  
+                        "Vendor Total " + substring(cExcelDisplay,3,300) SKIP.
+                END.
             END.
-
-            END.
+           
             PUT SKIP(2).
+
+            IF LAST-OF(tt-ap-inv.inv-no) THEN
+              lv-gtotal[2] = lv-gtotal[2] + lv-gtotal[1] .
+
             ASSIGN
              lv-total[2] = lv-total[2] + lv-total[1]
-             lv-gtotal[2] = lv-gtotal[2] + lv-gtotal[1]
+             
              lv-total[1] = 0
              lv-gtotal[1] = 0
-             ll-total[1] = NO.
+             .
+
             IF NOT LAST(tt-ap-inv.vend-no) THEN ll-total[2] = YES.
           END.
 
@@ -1428,10 +1432,10 @@ END.
                          WHEN "inv"                  THEN cVarValue = "".
                          WHEN "act"             THEN cVarValue = "".
                          WHEN "vend"                THEN cVarValue = "".
-                        WHEN "ven-nam"   THEN  cVarValue = "" .
+                         WHEN "ven-nam"   THEN  cVarValue = "" .
                          WHEN "dscr"            THEN cVarValue = "".
                          WHEN "date"                   THEN cVarValue = "".
-                         WHEN "amt"              THEN cVarValue = ""  /*STRING(lv-gtotal[2],"->>>,>>>,>>>,>>9.99")*/ .
+                         WHEN "amt"              THEN cVarValue =  STRING(lv-gtotal[2],"->>>,>>>,>>>,>>9.99") .
                          WHEN "line-amt"           THEN cVarValue = STRING(lv-total[2],"->>>,>>>,>>>,>>9.99") .
 
                     END CASE.
@@ -1441,11 +1445,12 @@ END.
                                FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
                     cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
             END.
-
-            PUT UNFORMATTED "   Grand Total" substring(cDisplay,15,300) SKIP.
-            IF tb_excel THEN DO:
-                PUT STREAM excel UNFORMATTED  
-                    "Grand Total " + substring(cExcelDisplay,3,300) SKIP.
+            IF str-line NE "" THEN do:
+                PUT UNFORMATTED "   Grand Total" substring(cDisplay,15,300) SKIP.
+                IF tb_excel THEN DO:
+                    PUT STREAM excel UNFORMATTED  
+                        "Grand Total " + substring(cExcelDisplay,3,300) SKIP.
+                END.
             END.
           END.
     END. /*each tt-ap-inv*/

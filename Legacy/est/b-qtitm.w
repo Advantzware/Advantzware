@@ -51,6 +51,9 @@ cocode = g_company.
 
 DEF TEMP-TABLE tt-quoteitm FIELD row-id AS ROWID INDEX row-id row-id.
 DEF VAR v-quoflg AS LOG NO-UNDO.
+DEFINE VARIABLE hdPriceProcs AS HANDLE.
+{oe/ttPriceHold.i "NEW SHARED"}
+RUN oe/PriceProcs.p PERSISTENT SET hdPriceProcs.
 
 ll-new-file = CAN-FIND(FIRST asi._file WHERE asi._file._file-name EQ "cust-part").
 
@@ -287,7 +290,7 @@ END.
   NOT-VISIBLE,,RUN-PERSISTENT                                           */
 /* SETTINGS FOR FRAME F-Main
    NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
-/* BROWSE-TAB Browser-Table 1 F-Main */
+/* BROWSE-TAB Browser-Table TEXT-1 F-Main */
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
@@ -660,9 +663,8 @@ RUN dispatch IN THIS-PROCEDURE ('initialize':U).
 
 /* **********************  Internal Procedures  *********************** */
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE add-items-by-selecting B-table-Win
-PROCEDURE add-items-by-selecting:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE add-items-by-selecting B-table-Win 
+PROCEDURE add-items-by-selecting :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -731,11 +733,9 @@ PROCEDURE add-items-by-selecting:
 
 
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE adm-row-available B-table-Win  _ADM-ROW-AVAILABLE
 PROCEDURE adm-row-available :
@@ -1160,7 +1160,6 @@ PROCEDURE new-part-no :
   DEF VAR v-i-price LIKE itemfg.sell-price NO-UNDO.
   DEF VAR v-i-uom LIKE itemfg.sell-uom NO-UNDO.
 
-  DEF BUFFER bf-oe-prmtx FOR oe-prmtx.
 
   DO WITH FRAME {&FRAME-NAME}:
     RELEASE itemfg.
@@ -1187,21 +1186,8 @@ PROCEDURE new-part-no :
         FIND FIRST cust WHERE cust.company = itemfg.company
             AND cust.cust-no = itemfg.cust-no NO-LOCK NO-ERROR.
         IF AVAIL cust THEN
-        RUN oe/GetPriceMatrix.p (BUFFER bf-oe-prmtx,
-                                INPUT ROWID(itemfg),
-                                INPUT ROWID(cust),
-                                INPUT NO,
-                                OUTPUT lMatrixExists).
-        IF lMatrixExists AND AVAIL bf-oe-prmtx THEN
-            RUN oe/GetPriceMatrixPrice.p (BUFFER bf-oe-prmtx,
-                                      INPUT 0,
-                                      INPUT 0,
-                                      INPUT cust.cust-level,
-                                      INPUT itemfg.sell-price,
-                                      INPUT itemfg.sell-uom,
-                                      OUTPUT v-i-price,
-                                      OUTPUT v-i-uom).
-/*         {est/mtx-price.i} */
+            RUN GetPriceMatrixPriceSimple IN hdPriceProcs (itemfg.company, itemfg.i-no, cust.cust-no, "", DECIMAL(v-i-qty),
+                                          OUTPUT lMatrixExists, INPUT-OUTPUT v-i-price, INPUT-OUTPUT v-i-uom).
       ASSIGN
        quoteitm.part-dscr1:SCREEN-VALUE IN BROWSE {&browse-name} = itemfg.i-name
        quoteitm.style:SCREEN-VALUE IN BROWSE {&browse-name}      = itemfg.style
@@ -1229,6 +1215,22 @@ PROCEDURE new-part-no :
     END. /* avail itemfg */
   END. /* with frame {&frame-name} */
 
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE quoteitm-check-new B-table-Win 
+PROCEDURE quoteitm-check-new :
+/*------------------------------------------------------------------------------
+   Purpose:     
+   Parameters:  <none>
+   Notes:       
+------------------------------------------------------------------------------*/
+DEF OUTPUT PARAMETER oplExists AS LOG NO-UNDO.
+ 
+ASSIGN oplExists = adm-new-record .
+ 
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1293,6 +1295,12 @@ PROCEDURE valid-part-no :
        lv-rowid   = ?.
       RUN custom/getcpart.p (cocode, quotehd.cust-no,
                              INPUT-OUTPUT lv-part-no, INPUT-OUTPUT lv-rowid).
+      FIND itemfg WHERE ROWID(itemfg) EQ lv-rowid NO-LOCK NO-ERROR.
+      IF AVAIL itemfg AND itemfg.stat EQ "I" THEN DO:
+          MESSAGE "Item status is Inactive..." VIEW-AS ALERT-BOX ERROR.
+          APPLY "entry" TO quoteitm.part-no IN BROWSE {&browse-name}. 
+          RETURN ERROR.
+      END.
     END.
 
     IF NOT CAN-FIND(itemfg WHERE ROWID(itemfg) EQ lv-rowid) AND
@@ -1307,7 +1315,6 @@ PROCEDURE valid-part-no :
       APPLY "entry" TO quoteitm.part-no IN BROWSE {&browse-name}. 
       RETURN ERROR.
     END.
-    
   END.
 
 END PROCEDURE.
@@ -1345,23 +1352,6 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE quoteitm-exists V-table-Win 
-PROCEDURE quoteitm-check-new :
-/*------------------------------------------------------------------------------
-   Purpose:     
-   Parameters:  <none>
-   Notes:       
-------------------------------------------------------------------------------*/
-DEF OUTPUT PARAMETER oplExists AS LOG NO-UNDO.
- 
-ASSIGN oplExists = adm-new-record .
- 
-END PROCEDURE.
- 
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
- 
 
 /* ************************  Function Implementations ***************** */
 

@@ -21,6 +21,7 @@
 -nb 255             # Max nested blocks
 -noincrwarn         # Suppress auto-increment warnings
 -rand 2             # Random number generator
+-strictEntityResolution 0	#required for Premier, ok for others
 # Internationalization Parameters
 -cpstream ibm850    # Stream codepage
 -d mdy              # Date format

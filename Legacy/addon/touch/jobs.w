@@ -942,10 +942,13 @@ IF ip-sort-by = "JOB" THEN
         lv-stat[1] = lv-stat[2]
         lv-stat[2] = if i eq 1 then "C" else "Z".
 
-     for each job
+     for each job no-lock
          where job.company eq company_code /*'001'*/
            and job.stat    gt lv-stat[1]
-           and job.stat    lt lv-stat[2]       no-lock
+           and job.stat    lt lv-stat[2]
+           AND CAN-FIND(FIRST job-hdr WHERE job-hdr.company = job.company 
+                        AND job-hdr.job = job.job AND job-hdr.job-no = job.job-no
+                        AND job-hdr.job-no2 = job.job-no2)
            BREAK BY job.start-date BY job.job-no BY job.job-no2:
          
         IF FIRST-OF(job.job-no2) THEN DO:

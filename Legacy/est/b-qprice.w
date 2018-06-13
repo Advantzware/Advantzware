@@ -90,7 +90,6 @@ DEF VAR v-hide-cost AS LOG NO-UNDO.
 DEF VAR lv-sort-by AS CHAR  NO-UNDO.
 DEF VAR lv-sort-by-lab AS CHAR  NO-UNDO.
 DEF VAR ll-sort-asc AS LOG NO-UNDO.
-DEF BUFFER bf-oe-prmtx FOR oe-prmtx.
 DEF VAR lMatrixExists AS LOGICAL NO-UNDO.
 DEF VAR v-i-price AS DECIMAL NO-UNDO.
 DEF VAR v-i-uom AS CHAR NO-UNDO.
@@ -98,6 +97,9 @@ DEF VAR rCurTTRow AS ROWID NO-UNDO.
 DEF VAR rCurItemRow AS ROWID NO-UNDO.
 DEFINE VARIABLE rPrevItemRow AS ROWID       NO-UNDO.
 DEFINE VARIABLE rPrevTTRow  AS ROWID       NO-UNDO.
+DEFINE VARIABLE hdPriceProcs AS HANDLE NO-UNDO.
+{oe/ttPriceHold.i "NEW SHARED"}
+RUN oe/PriceProcs.p PERSISTENT SET hdPriceProcs.
 /*&SCOPED-DEFINE SORTBY-PHRASE  BY itemfg.last-count*/
 gcompany = g_company.
 {sys/inc/fgbrowse.i}
@@ -129,6 +131,7 @@ END.
     IF lv-sort-by EQ "Name"        THEN string(itemfg.i-NAME,"x(20)")                         ELSE ~
     IF lv-sort-by EQ "Cust. #"     THEN string(tt-ordl.cust-no,"x(12)")                         ELSE ~
     IF lv-sort-by EQ "part"        THEN string(tt-ordl.part-no,"x(12)")                         ELSE ~
+    IF lv-sort-by EQ "Item Status"        THEN string(itemfg.stat,"x(1)")                              ELSE ~
         ""
 
 &SCOPED-DEFINE sortby BY itemfg.i-no
@@ -183,7 +186,7 @@ DEFINE QUERY external_tables FOR cust.
 &Scoped-define KEY-PHRASE TRUE
 
 /* Definitions for BROWSE br_table                                      */
-&Scoped-define FIELDS-IN-QUERY-br_table tt-ordl.IS-SELECTED itemfg.i-no itemfg.i-name tt-ordl.e-qty tt-ordl.sell-price tt-ordl.qt-uom tt-ordl.cust-no tt-ordl.part-no   
+&Scoped-define FIELDS-IN-QUERY-br_table tt-ordl.IS-SELECTED itemfg.i-no itemfg.i-name tt-ordl.e-qty tt-ordl.sell-price tt-ordl.qt-uom tt-ordl.cust-no tt-ordl.part-no itemfg.stat   
 &Scoped-define ENABLED-FIELDS-IN-QUERY-br_table tt-ordl.e-qty tt-ordl.sell-price tt-ordl.qt-uom tt-ordl.IS-SELECTED   
 &Scoped-define ENABLED-TABLES-IN-QUERY-br_table tt-ordl
 &Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-br_table tt-ordl
@@ -268,13 +271,6 @@ FUNCTION f-cost RETURNS CHARACTER
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD f-price B-table-Win 
-FUNCTION f-price RETURNS DECIMAL
-  ( /* parameter-definitions */ )  FORWARD.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 
 /* ***********************  Control Definitions  ********************** */
 
@@ -349,7 +345,8 @@ DEFINE BROWSE br_table
       tt-ordl.qt-uom     COLUMN-LABEL "UOM"
       tt-ordl.cust-no     COLUMN-LABEL "Cust. #" LABEL-BGCOLOR 14
       tt-ordl.part-no     COLUMN-LABEL "Part" LABEL-BGCOLOR 14
-      ENABLE tt-ordl.e-qty tt-ordl.sell-price tt-ordl.qt-uom tt-ordl.IS-SELECTED
+      itemfg.stat         COLUMN-LABEL "Item Status"
+      ENABLE tt-ordl.e-qty tt-ordl.sell-price tt-ordl.qt-uom tt-ordl.IS-SELECTED 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ASSIGN SEPARATORS SIZE 169 BY 16.19
@@ -891,6 +888,7 @@ END.
 
 
 /* ***************************  Main Block  *************************** */
+
 ON LEAVE OF tt-ordl.qt-uom IN BROWSE br_table /* Item */
 DO:
   IF tt-ordl.IS-SELECTED:SCREEN-VALUE IN BROWSE {&browse-name} = "YES" THEN
@@ -933,37 +931,13 @@ DO:
     MESSAGE "Quantity must be greater than 0" VIEW-AS ALERT-BOX.
     RETURN NO-APPLY.
   END.*/
+  RUN GetPriceMatrixPriceSimple IN hdPriceProcs (itemfg.company, itemfg.i-no, cust.cust-no, "", DECIMAL(tt-ordl.e-qty:SCREEN-VALUE IN BROWSE {&browse-name}),
+                                          OUTPUT lMatrixExists, INPUT-OUTPUT v-i-price, INPUT-OUTPUT v-i-uom).
 
-  RUN oe/GetPriceMatrix.p (BUFFER bf-oe-prmtx,
-                          INPUT ROWID(itemfg),
-                          INPUT ROWID(cust),
-                          INPUT NO,
-                          OUTPUT lMatrixExists).
-  IF lMatrixExists AND AVAIL bf-oe-prmtx THEN
-      RUN oe/GetPriceMatrixPrice.p (BUFFER bf-oe-prmtx,                                
-                                INPUT DECIMAL(tt-ordl.e-qty:SCREEN-VALUE IN BROWSE {&browse-name}),
-                                INPUT 0,
-                                INPUT cust.cust-level,
-                                INPUT itemfg.sell-price,
-                                INPUT itemfg.sell-uom,
-                                OUTPUT v-i-price,
-                                OUTPUT v-i-uom).
-/*         {est/mtx-price.i} */
       ASSIGN
         tt-ordl.sell-price:SCREEN-VALUE IN BROWSE {&browse-name}      = IF lMatrixExists THEN string(v-i-price) ELSE string(itemfg.sell-price)  
         tt-ordl.qt-uom:SCREEN-VALUE IN BROWSE {&browse-name}        = IF lMatrixExists THEN string(v-i-uom) ELSE itemfg.sell-uom .
-  IF DEC(tt-ordl.sell-price:SCREEN-VALUE) EQ 0 THEN DO:
-
-    RUN oe/pricelookup.p (INPUT cust.cust-no,
-                          INPUT itemfg.i-no,
-                          INPUT tt-ordl.e-qty,
-                          OUTPUT opPrice,
-                          OUTPUT opUom).
-
-    ASSIGN
-      tt-ordl.sell-price:SCREEN-VALUE IN BROWSE {&browse-name}      = string(opPrice)  
-      tt-ordl.qt-uom:SCREEN-VALUE IN BROWSE {&browse-name}          = opUom.
-  END.
+  
   IF DEC(tt-ordl.sell-price:SCREEN-VALUE) EQ 0 THEN DO:
     FIND LAST quoteitm WHERE quoteitm.company EQ itemfg.company
       AND quoteitm.i-no EQ itemfg.i-no
@@ -1332,7 +1306,7 @@ PROCEDURE get-row-id :
   
   RELEASE itemfg.
   DO WITH FRAME f-main:
-   ASSIGN {&DISPLAYED-OBJECTS}.
+   ASSIGN {&DISPLAYED-OBJECTS}. 
       IF AVAIL tt-ordl THEN
       FIND FIRST itemfg WHERE RECID(itemfg) EQ tt-ordl.tt-recid NO-LOCK NO-ERROR.
 
@@ -1355,11 +1329,14 @@ PROCEDURE get-row-id :
              RETURN ERROR .
          END.
      END.
+     IF itemfg.stat:SCREEN-VALUE IN BROWSE {&browse-name} EQ "I" THEN DO:
+          MESSAGE "Item status is Inactive..." VIEW-AS ALERT-BOX ERROR.
+          RETURN ERROR.
+      END.
 
       FOR EACH tt-ordl WHERE tt-ordl.IS-SELECTED  :
 
           FIND FIRST itemfg WHERE RECID(itemfg) EQ tt-ordl.tt-recid NO-LOCK NO-ERROR.
-
           IF AVAIL itemfg THEN
             ASSIGN op-rowid-list = op-rowid-list + string(ROWID(itemfg)) + ","
                    op-qty-list = op-qty-list + string(tt-ordl.e-qty) + ","
@@ -1750,34 +1727,6 @@ FUNCTION f-cost RETURNS CHARACTER
 
   RETURN f-cost.
 
-END FUNCTION.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION f-price B-table-Win 
-FUNCTION f-price RETURNS DECIMAL
-  ( /* parameter-definitions */ ) :
-/*------------------------------------------------------------------------------
-  Purpose:  
-    Notes:  
-------------------------------------------------------------------------------*/
-  def var ld-price as dec no-undo.
-  /* don't convert to uom ea
-  if itemfg.cons-uom = "EA" then ld-price = itemfg.total-std-cost.
-  else run custom/convcuom.p (itemfg.company,itemfg.cons-uom, "EA",0,0,0,0, itemfg.total-std-cost, output ld-price).
-  */
-  ld-price = itemfg.total-std-cost.
-  IF ld-price EQ 0 THEN DO:
-       
-DEF VAR opUom AS CHAR.
-RUN oe/pricelookup.p (INPUT cust.cust-no,
-                      INPUT itemfg.i-no,
-                      INPUT tt-ordl.e-qty,
-                      OUTPUT ld-price,
-                      OUTPUT opUom).
-  END.
-  return ld-price.
 END FUNCTION.
 
 /* _UIB-CODE-BLOCK-END */

@@ -83,6 +83,8 @@ def var ls-outfile as cha no-undo.
 def var ls-notefile as cha no-undo.
 DEF VAR ls-xfile AS CHAR NO-UNDO.
 def var ls-probetime as cha no-undo.  /* time display */
+DEFINE VARIABLE v-col-move AS LOGICAL INITIAL TRUE NO-UNDO.
+DEFINE VARIABLE v-called-setCellColumns AS LOGICAL NO-UNDO.
 
 def new shared workfile w-form
     field form-no like ef.form-no
@@ -144,6 +146,9 @@ DEF VAR v-dir AS CHAR FORMAT "X(80)" NO-UNDO.
 DEF VAR v-tmp-int AS INT NO-UNDO.
 DEF VAR v-can-update AS LOG NO-UNDO.
 DEF NEW SHARED VAR gEstSummaryOnly AS LOG NO-UNDO.
+DEFINE VARIABLE lv-sort-by AS CHAR INIT "tag" NO-UNDO.
+DEFINE VARIABLE lv-sort-by-lab AS CHAR INIT "Tag" NO-UNDO.
+DEFINE VARIABLE ll-sort-asc AS LOG NO-UNDO.
 {custom/xprint.i}
 
 ASSIGN
@@ -219,6 +224,42 @@ END.
 {sys/inc/ceprep.i}
 {sys/inc/ceprepprice.i}
 
+&SCOPED-DEFINE for-each1    ~
+    FOR EACH probe WHERE probe.company = eb.company and ~
+    ASI.probe.est-no = eb.est-no ~
+    AND probe.probe-date ne ?
+
+&SCOPED-DEFINE sortby-log                                                                                   ~
+    IF lv-sort-by EQ "est-qty"         THEN STRING(9999999999.99 + probe.est-qty,"-9999999999.99")         ELSE ~
+    IF lv-sort-by EQ "fact-cost"       THEN STRING(probe.fact-cost,"-9999999999.99999")                    ELSE ~
+    IF lv-sort-by EQ "full-cost"       THEN STRING(probe.full-cost,"-9999999999.99999")                    ELSE ~
+    IF lv-sort-by EQ "market-price"    THEN string(probe.market-price)                                     ELSE ~
+    IF lv-sort-by EQ "gross-profit"    THEN string(probe.gross-profit)                                     ELSE ~
+    IF lv-sort-by EQ "comm"            THEN string(probe.comm)                                             ELSE ~
+    IF lv-sort-by EQ "net-profit"      THEN string(probe.net-profit)                                       ELSE ~
+    IF lv-sort-by EQ "sell-price"      THEN string(probe.sell-price,"-9999999999.99")                   ELSE ~
+    IF lv-sort-by EQ "gsh-qty"         THEN string(9999999999.99 + probe.gsh-qty,"-9999999999.99")         ELSE ~
+    IF lv-sort-by EQ "do-quote"        THEN string(probe.do-quote)                                         ELSE ~
+    IF lv-sort-by EQ "probe-date"      THEN STRING(INT(probe.probe-date),"9999999999")                     ELSE ~
+    IF lv-sort-by EQ "probe-user"      THEN string(probe.probe-user)                                       ELSE ~
+    IF lv-sort-by EQ "vtot-lbs"        THEN string(probe.tot-lbs,"-9999999999.99")                        ELSE ~
+    IF lv-sort-by EQ "vtot-msf"        THEN string(vtot-msf())                                             ELSE ~
+    IF lv-sort-by EQ "ls-probetime"    THEN string(cvt-time(probe.probe-time))                             ELSE ~
+    IF lv-sort-by EQ "spare-dec-1"      THEN string(probe.spare-dec-1)                                     ELSE ~
+    IF lv-sort-by EQ "dMatPctSellPrice"    THEN string(fDirectMatPctSellPrice(1))                          ELSE ~
+        STRING(INT(probe.probe-date),"9999999999")
+
+
+  &SCOPED-DEFINE sortby BY probe.probe-date BY probe.est-qty 
+
+&SCOPED-DEFINE sortby-phrase-asc  ~
+    BY ({&sortby-log})            ~
+    {&sortby}
+
+&SCOPED-DEFINE sortby-phrase-desc ~
+    BY ({&sortby-log}) DESC       ~
+    {&sortby}
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -266,17 +307,11 @@ probe.do-quote
 &Scoped-define QUERY-STRING-br_table FOR EACH probe WHERE probe.company = eb.company and ~
 ASI.probe.est-no = eb.est-no ~
       AND probe.probe-date ne ? NO-LOCK ~
-    BY probe.company ~
-       BY probe.est-no ~
-        BY probe.probe-date ~
-         BY probe.est-qty
+    ~{&SORTBY-PHRASE}
 &Scoped-define OPEN-QUERY-br_table OPEN QUERY br_table FOR EACH probe WHERE probe.company = eb.company and ~
 ASI.probe.est-no = eb.est-no ~
       AND probe.probe-date ne ? NO-LOCK ~
-    BY probe.company ~
-       BY probe.est-no ~
-        BY probe.probe-date ~
-         BY probe.est-qty.
+    ~{&SORTBY-PHRASE}.
 &Scoped-define TABLES-IN-QUERY-br_table probe
 &Scoped-define FIRST-TABLE-IN-QUERY-br_table probe
 
@@ -285,6 +320,7 @@ ASI.probe.est-no = eb.est-no ~
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS br_table 
+&Scoped-Define DISPLAYED-OBJECTS br_table FI_moveCol 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -387,6 +423,13 @@ FUNCTION vtot-msf RETURNS DECIMAL
 
 
 /* Definitions of the field level widgets                               */
+
+DEFINE VARIABLE FI_moveCol AS CHARACTER FORMAT "X(4)":U 
+     VIEW-AS FILL-IN 
+     SIZE 13 BY 1
+     BGCOLOR 14 FONT 6 NO-UNDO.
+
+
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
 DEFINE QUERY br_table FOR 
@@ -441,6 +484,10 @@ DEFINE BROWSE br_table
 
 DEFINE FRAME F-Main
      br_table AT ROW 1 COL 143 RIGHT-ALIGNED
+    "Browser Col. Mode:" VIEW-AS TEXT
+          SIZE 22.6 BY .62 AT ROW 14.20 COL 107 WIDGET-ID 6
+          FONT 6
+     FI_moveCol AT ROW 14.20 COL 128 COLON-ALIGNED NO-LABEL WIDGET-ID 4
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -507,6 +554,8 @@ ASSIGN
    ALIGN-R                                                              */
 ASSIGN 
        probe.comm:VISIBLE IN BROWSE br_table = FALSE.
+/* SETTINGS FOR FILL-IN FI_moveCol IN FRAME F-Main
+   NO-ENABLE                                                            */
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -644,6 +693,37 @@ END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table B-table-Win
+ON START-SEARCH OF br_table IN FRAME F-Main
+DO:
+  DEF VAR lh-column AS HANDLE NO-UNDO.
+  DEF VAR lv-column-nam AS CHAR NO-UNDO.
+  DEF VAR lv-column-lab AS CHAR NO-UNDO.
+
+  
+  ASSIGN
+   lh-column     = {&BROWSE-NAME}:CURRENT-COLUMN 
+   lv-column-nam = lh-column:NAME
+   lv-column-lab = lh-column:LABEL.
+
+  IF lv-sort-by EQ lv-column-nam THEN ll-sort-asc = NOT ll-sort-asc.
+
+  ELSE
+    ASSIGN
+     lv-sort-by     = lv-column-nam
+     lv-sort-by-lab = lv-column-lab .
+
+  APPLY 'END-SEARCH' TO {&BROWSE-NAME}.
+
+  /*APPLY "choose" TO btn_go.*/
+  RUN resort-query .
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table B-table-Win
@@ -854,11 +934,20 @@ END.
 /* ***************************  Main Block  *************************** */
 {sys/inc/f3help.i}
 
+&SCOPED-DEFINE cellColumnDat probe
+
+{methods/browsers/setCellColumnsLabel.i}
+
+  FI_moveCol = "Sort".
+  DISPLAY FI_moveCol WITH FRAME {&FRAME-NAME}.
+
+  
 &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN    
 RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
 &ENDIF
 
 {methods/winReSize.i}
+    
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -2435,6 +2524,11 @@ PROCEDURE local-display-fields :
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'display-fields':U ) .
 
+  IF v-called-setCellColumns = NO THEN DO:
+     RUN setCellColumns.
+     v-called-setCellColumns = YES.
+  END.
+
   /* Code placed here will execute AFTER standard behavior.    */
 
 END PROCEDURE.
@@ -2531,6 +2625,54 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE resort-query B-table-Win 
+PROCEDURE resort-query :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+ 
+ 
+
+  &SCOPED-DEFINE open-query          ~
+      OPEN QUERY {&browse-name}     ~
+           {&for-each1}        
+             
+  
+  IF ll-sort-asc THEN {&open-query} {&sortby-phrase-asc}.
+                 ELSE {&open-query} {&sortby-phrase-desc}.
+
+  RUN dispatch ("row-changed").
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE move-columns B-table-Win 
+PROCEDURE move-columns :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+   DO WITH FRAME {&FRAME-NAME}:
+      ASSIGN
+         br_table:COLUMN-MOVABLE = v-col-move
+         br_table:COLUMN-RESIZABLE = v-col-move
+         v-col-move = NOT v-col-move.
+      FI_moveCol = IF v-col-move = NO THEN "Move" ELSE "Sort".
+      DISPLAY FI_moveCol.
+   END.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-update-record B-table-Win 
 PROCEDURE local-update-record :

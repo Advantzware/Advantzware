@@ -4,6 +4,6 @@
 /*                   FOR STOCK BOXES ONLY                                     */
 /* -------------------------------------------------------------------------- */
 
-{oe/oe-price.i inv-line inv-head "use-index r-no" "inv-qty"}
+{oe/oe-price.i inv-line inv-head}
 
 /* end ---------------------------------- copr. 1992  advanced software, inc. */

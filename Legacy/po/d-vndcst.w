@@ -156,7 +156,7 @@ DEFINE BROWSE BROWSE-2
       tt-report.vend-name LABEL "Name" WIDTH 30
       tt-report.key-04 LABEL "Tons"    WIDTH 10
       tt-report.key-02                 WIDTH 10
-      tt-report.report-cost LABEL "Cost"
+      tt-report.report-cost LABEL "Cost" FORMAT "->>,>>>,>>9.9999"
       tt-report.cost-uom LABEL "UOM" WIDTH 6
       tt-report.disc-days LABEL "Lead"
       tt-report.ext-price LABEL "Ext Cost" FORMAT "->>,>>>,>>9.99"
@@ -479,14 +479,13 @@ PROCEDURE build-table :
       ELSE IF AVAILABLE e-itemfg-vend THEN
           cUom = e-itemfg-vend.std-uom.
       dCalcCost = DECIMAL(report.key-01).
-      IF cUom EQ "" AND AVAILABLE e-item-vend THEN DO:
-          
-          FIND FIRST e-itemfg NO-LOCK WHERE e-itemfg.company EQ e-itemfg-vend.company
-              AND e-itemfg.i-no EQ e-itemfg-vend.vend-no
+
+      IF cUom EQ "" THEN DO:
+          FIND FIRST e-itemfg NO-LOCK WHERE e-itemfg.company EQ cocode
+              AND e-itemfg.i-no EQ report.key-08
                NO-ERROR.
           IF AVAILABLE e-itemfg THEN
               cUom = e-itemfg.std-uom.
-
       END.
                
       IF report.key-08 EQ "RECALC" AND AVAILABLE(e-itemfg-vend) AND ipdQty GT 0 THEN DO:

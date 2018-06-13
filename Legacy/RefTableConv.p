@@ -138,7 +138,9 @@ ASSIGN
     {refTableConv.i "VendSetup" 'vend-setup'}
     {refTableConv.i "DArtios" 'cecrep/d-artios.w'}
     {refTableConv.i "Flute" 'Flute'}
-    {refTableConv.i "StdUom" 'e-itemfg-vend.std-uom'}
+    {refTableConv.i "aoaReport" 'aoaReport'}
+    {refTableConv.i "relcredconv" 'relcredconv'}
+    {refTableConv.i "Arcashhold" 'ARCASHHOLD'}
 
 /* Deferred for 16.7.0                                              */
 /*    {refTableConv.i "STYFLU" 'STYFLU'}                            */

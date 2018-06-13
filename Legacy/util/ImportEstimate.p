@@ -59,7 +59,7 @@ DEFINE TEMP-TABLE ttImportEstimate
     FIELD WidthDie        AS DECIMAL   FORMAT ">>>>>.99" COLUMN-LABEL "Die W" HELP "Optional - Decimal"
     FIELD LengthDie       AS DECIMAL   FORMAT ">>>>>.99" COLUMN-LABEL "Die L" HELP "Optional - Decimal"
     FIELD InkDescription  AS CHARACTER FORMAT "x(30)" COLUMN-LABEL "Ink Description" HELP "Optional - Size:30"
-    FIELD InkColors       AS INTEGER   FORMAT ">>" COLUMN-LABEL "Colors"  HELP "Optional - If not provided, derived from provided Ink Codes or 0"
+    FIELD InkColors       AS INTEGER   FORMAT ">>" COLUMN-LABEL "Colors" HELP "Optional - If not provided, derived from provided Ink Codes or 0"
     FIELD Ink1Code        AS CHARACTER FORMAT "x(10)" COLUMN-LABEL "Ink 1 Code" HELP "Optional - Field Validated - Size:10"
     FIELD Ink1Coverage    AS DECIMAL   FORMAT ">>.99" COLUMN-LABEL "Ink 1 Coverage" HELP "Optional - Decimal"
     FIELD Ink1Unit        AS INTEGER   FORMAT ">>" COLUMN-LABEL "Ink 1 Unit" HELP "Optional - Integer"
@@ -84,7 +84,7 @@ DEFINE TEMP-TABLE ttImportEstimate
     FIELD Ink5Coverage    AS DECIMAL   FORMAT ">>.99" COLUMN-LABEL "Ink 5 Coverage" HELP "Optional - Decimal"
     FIELD Ink5Unit        AS INTEGER   FORMAT ">>" COLUMN-LABEL "Ink 5 Unit" HELP "Optional - Integer"
     FIELD Ink5Pass        AS INTEGER   FORMAT ">>" COLUMN-LABEL "Ink 5 Pass" HELP "Optional - Integer"
-    FIELD Ink5Side        AS CHARACTER FORMAT "X(2)" COLUMN-LABEL "Ink 5 Side"  HELP "Optional - F or B"  
+    FIELD Ink5Side        AS CHARACTER FORMAT "X(2)" COLUMN-LABEL "Ink 5 Side" HELP "Optional - F or B"  
     FIELD EstNote1Group   AS CHARACTER FORMAT "X(3)" COLUMN-LABEL "Est Note 1 Group" HELP "Optional - Size:3"
     FIELD EstNote1Title   AS CHARACTER FORMAT "X(30)" COLUMN-LABEL "Est Note 1 Title" HELP "Optional - Size:60"
     FIELD EstNote1Note    AS CHARACTER FORMAT "X(200)" COLUMN-LABEL "Est Note 1 Note" HELP "Optional - Size:Large"
@@ -113,6 +113,11 @@ DEFINE TEMP-TABLE ttImportEstimate
     FIELD VendorCost      AS DECIMAL   FORMAT ">>>>>>.99" COLUMN-LABEL "Vendor Cost" HELP "Optional - Decimal"
     FIELD VendorCostUOM   AS CHARACTER FORMAT "X(3)" COLUMN-LABEL "Vendor Cost UOM" HELP "Optional - Field Validate - Size:3"
     FIELD VendorItemID    AS CHARACTER FORMAT "X(15)" COLUMN-LABEL "Vendor Item" HELP "Optional - Size:15"
+    FIELD QuantityPerSet  AS DECIMAL   FORMAT ">>>>>>>.99" COLUMN-LABEL "Quantity Per Set" HELP "Optional - Defaults to 1 - Decimal"
+    FIELD NumberUpLength  AS INTEGER   FORMAT ">>>>>>>" COLUMN-LABEL "Num Up L" HELP "Optional - Defaults to 1 - Integer"
+    FIELD NumberUpWidth   AS INTEGER   FORMAT ">>>>>>>" COLUMN-LABEL "Num Up W" HELP "Optional - Defaults to 1 - Integer"
+    FIELD Direction       AS CHARACTER FORMAT "x(1)" COLUMN-LABEL "Direction" HELP "Optional - N B or S"
+    FIELD ImageBoxDesign  AS CHARACTER FORMAT "X(200)" COLUMN-LABEL "Box Design" HELP "Optional - Size:Large"
     .
 DEFINE VARIABLE giIndexOffset AS INTEGER NO-UNDO INIT 3. /*Set to 1 if there is a Company field in temp-table since this will not be part of the import data*/
 
@@ -125,6 +130,85 @@ DEFINE VARIABLE giIndexOffset AS INTEGER NO-UNDO INIT 3. /*Set to 1 if there is 
 /* **********************  Internal Procedures  *********************** */
  /*This Include Initializes the ttImportMap based on the temp-table definition - Procedure pInitialize*/
 {util/ImportProcs.i &ImportTempTable = "ttImportEstimate"}
+
+PROCEDURE pAddBoxDesign:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE PARAMETER BUFFER ipbf-eb FOR eb.
+    DEFINE INPUT PARAMETER ipcImageFile AS CHARACTER NO-UNDO.
+
+    DEFINE BUFFER bf-box-design-hdr  FOR box-design-hdr.
+    DEFINE BUFFER bf-box-design-line FOR box-design-line.
+    
+    FIND FIRST box-design-hdr EXCLUSIVE-LOCK 
+        WHERE box-design-hdr.company EQ ipbf-eb.company
+        AND box-design-hdr.design-no EQ 0 
+        AND box-design-hdr.est-no EQ  ipbf-eb.est-no
+        AND box-design-hdr.form-no   EQ ipbf-eb.form-no
+        AND box-design-hdr.blank-no  EQ ipbf-eb.blank-no
+        NO-ERROR.
+    IF NOT AVAILABLE box-design-hdr THEN 
+    DO:
+        FIND FIRST style NO-LOCK  
+            WHERE style.company EQ ipbf-eb.company
+            AND style.style   EQ ipbf-eb.style
+            NO-ERROR.
+        IF AVAILABLE style THEN
+            FIND FIRST bf-box-design-hdr NO-LOCK  
+                WHERE bf-box-design-hdr.design-no EQ style.design-no
+                AND bf-box-design-hdr.company   EQ style.company   
+                AND bf-box-design-hdr.est-no    EQ ""
+                NO-ERROR.
+        IF AVAILABLE bf-box-design-hdr THEN 
+        DO:
+            /*            RUN cec/descalc.p (RECID(xest), RECID(ipbf-eb)).*/
+     
+            CREATE box-design-hdr.
+            ASSIGN  
+                box-design-hdr.design-no    = 0
+                box-design-hdr.company      = ipbf-eb.company
+                box-design-hdr.est-no       = ipbf-eb.est-no
+                box-design-hdr.form-no      = ipbf-eb.form-no
+                box-design-hdr.blank-no     = ipbf-eb.blank-no
+                box-design-hdr.description  = IF AVAILABLE bf-box-design-hdr THEN
+                                             bf-box-design-hdr.description ELSE ""
+                /*                    box-design-hdr.lscore       = v-lscore-c    */
+                /*                    box-design-hdr.lcum-score   = v-lcum-score-c*/
+                box-design-hdr.wscore       = bf-box-design-hdr.wscore
+                box-design-hdr.wcum-score   = bf-box-design-hdr.wcum-score
+                box-design-hdr.box-text     = bf-box-design-hdr.box-text
+                box-design-hdr.box-image    = bf-box-design-hdr.box-image
+                box-design-hdr.box-3d-image = bf-box-design-hdr.box-3d-image
+                .
+           
+            FOR EACH bf-box-design-line OF bf-box-design-hdr NO-LOCK:
+                CREATE box-design-line.
+                ASSIGN 
+                    box-design-line.design-no = box-design-hdr.design-no
+                    box-design-line.company   = box-design-hdr.company
+                    box-design-line.est-no    = box-design-hdr.est-no
+                    box-design-line.form-no   = box-design-hdr.form-no
+                    box-design-line.blank-no  = box-design-hdr.blank-no
+                    box-design-line.line-no   = bf-box-design-line.line-no
+                    box-design-line.line-text = bf-box-design-line.line-text.
+     
+                /*                FIND FIRST w-box-design-line                                              */
+                /*                    WHERE w-box-design-line.line-no EQ box-design-line.line-no   NO-ERROR.*/
+                /*                                                                                          */
+                /*                IF AVAILABLE w-box-design-line THEN                                       */
+                /*                    ASSIGN  box-design-line.wscore     = w-box-design-line.wscore-c       */
+                /*                        box-design-line.wcum-score = w-box-design-line.wcum-score-c.      */
+
+                RELEASE box-design-line.
+            END.
+        END.
+    END.
+    IF ipcImageFile NE "" THEN 
+        box-design-hdr.box-image = ipcImageFile.
+    
+END PROCEDURE.
 
 PROCEDURE pAddFarm:
     /*------------------------------------------------------------------------------
@@ -159,7 +243,11 @@ PROCEDURE pAddFarm:
         
     IF ipbf-ttImportEstimate.VendorID NE "" THEN 
     DO:
-        IF NOT CAN-FIND(FIRST e-itemfg WHERE e-itemfg.company EQ ipbf-ttImportEstimate.Company AND e-itemfg.i-no EQ ipcFGItemID) THEN 
+        FIND FIRST e-itemfg EXCLUSIVE-LOCK 
+            WHERE e-itemfg.company EQ ipbf-ttImportEstimate.Company 
+            AND e-itemfg.i-no EQ ipcFGItemID
+            NO-ERROR.
+        IF NOT AVAILABLE e-itemfg THEN 
         DO:
             CREATE e-itemfg.
             ASSIGN 
@@ -168,7 +256,18 @@ PROCEDURE pAddFarm:
                 e-itemfg.std-uom = IF ipbf-ttImportEstimate.VendorCostUOM EQ "" THEN "EA" ELSE ipbf-ttImportEstimate.VendorCostUOM 
                 .
         END.
-        IF NOT CAN-FIND(FIRST e-itemfg-vend WHERE e-itemfg-vend.company EQ ipbf-ttImportEstimate.Company AND e-itemfg-vend.i-no EQ ipcFGItemID AND e-itemfg-vend.vend-no EQ "") THEN 
+        
+        /*find blank Vend on IF1*/
+        FIND FIRST e-itemfg-vend NO-LOCK  
+            WHERE e-itemfg-vend.company EQ ipbf-ttImportEstimate.Company 
+            AND e-itemfg-vend.i-no EQ ipcFGItemID
+            AND e-itemfg-vend.est-no EQ ""
+            AND e-itemfg-vend.form-no EQ ipbf-eb.form-no
+            AND e-itemfg-vend.blank-no EQ ipbf-eb.blank-no
+            AND e-itemfg-vend.eqty EQ  ipbf-eb.eqty 
+            AND e-itemfg-vend.vend-no EQ ""
+            NO-ERROR.
+        IF NOT AVAILABLE e-itemfg-vend THEN 
         DO:
             CREATE e-itemfg-vend.
             ASSIGN 
@@ -177,42 +276,112 @@ PROCEDURE pAddFarm:
                 e-itemfg-vend.run-qty[1]  = dQty1
                 e-itemfg-vend.run-qty[2]  = dQty2
                 e-itemfg-vend.run-cost[1] = dPrice1
-                e-itemfg-vend.run-cost[2] = dPrice2        
+                e-itemfg-vend.run-cost[2] = dPrice2     
+                e-itemfg-vend.est-no      = ""  
                 e-itemfg-vend.form-no     = ipbf-eb.form-no
                 e-itemfg-vend.blank-no    = ipbf-eb.blank-no
                 e-itemfg-vend.eqty        = ipbf-eb.eqty
+                e-itemfg-vend.std-uom     = ipbf-ttImportEstimate.VendorCostUOM
+                e-itemfg-vend.vend-item   = ipbf-ttImportEstimate.VendorItemID
+                e-itemfg-vend.vend-no     = ""
+                e-itemfg-vend.item-type   = NO
                 .
         END.
-        CREATE e-itemfg-vend.
-        ASSIGN 
-            e-itemfg-vend.company     = ipbf-ttImportEstimate.Company
-            e-itemfg-vend.i-no        = ipcFGItemID
-            e-itemfg-vend.vend-no     = ipbf-ttImportEstimate.VendorID
-            e-itemfg-vend.vend-item   = ipbf-ttImportEstimate.VendorItemID
-            e-itemfg-vend.run-qty[1]  = dQty1
-            e-itemfg-vend.run-qty[2]  = dQty2
-            e-itemfg-vend.run-cost[1] = dPrice1
-            e-itemfg-vend.run-cost[2] = dPrice2        
-            e-itemfg-vend.form-no     = ipbf-eb.form-no
-            e-itemfg-vend.blank-no    = ipbf-eb.blank-no
-            e-itemfg-vend.eqty        = ipbf-eb.eqty
-            .
-        CREATE e-itemfg-vend.
-        ASSIGN 
-            e-itemfg-vend.company     = ipbf-ttImportEstimate.Company
-            e-itemfg-vend.i-no        = ipcFGItemID
-            e-itemfg-vend.vend-no     = ipbf-ttImportEstimate.VendorID
-            e-itemfg-vend.vend-item   = ipbf-ttImportEstimate.VendorItemID
-            e-itemfg-vend.run-qty[1]  = dQty1
-            e-itemfg-vend.run-qty[2]  = dQty2
-            e-itemfg-vend.run-cost[1] = dPrice1
-            e-itemfg-vend.run-cost[2] = dPrice2        
-            e-itemfg-vend.est-no      = ipbf-eb.est-no
-            e-itemfg-vend.form-no     = ipbf-eb.form-no
-            e-itemfg-vend.blank-no    = ipbf-eb.blank-no
-            e-itemfg-vend.eqty        = ipbf-eb.eqty
-            .
-    END.    
+        RELEASE e-itemfg-vend.
+        
+        /*find blank Vend on est*/
+        FIND FIRST e-itemfg-vend NO-LOCK  
+            WHERE e-itemfg-vend.company EQ ipbf-ttImportEstimate.Company 
+            AND e-itemfg-vend.i-no EQ ipcFGItemID
+            AND e-itemfg-vend.est-no EQ ipbf-eb.est-no
+            AND e-itemfg-vend.form-no EQ ipbf-eb.form-no
+            AND e-itemfg-vend.blank-no EQ ipbf-eb.blank-no
+            AND e-itemfg-vend.eqty EQ  ipbf-eb.eqty 
+            AND e-itemfg-vend.vend-no EQ ""
+            NO-ERROR.
+        IF NOT AVAILABLE e-itemfg-vend THEN 
+        DO:
+            CREATE e-itemfg-vend.
+            ASSIGN 
+                e-itemfg-vend.company     = ipbf-ttImportEstimate.Company
+                e-itemfg-vend.i-no        = ipcFGItemID
+                e-itemfg-vend.run-qty[1]  = dQty1
+                e-itemfg-vend.run-qty[2]  = dQty2
+                e-itemfg-vend.run-cost[1] = dPrice1
+                e-itemfg-vend.run-cost[2] = dPrice2     
+                e-itemfg-vend.est-no      = ipbf-eb.est-no   
+                e-itemfg-vend.form-no     = ipbf-eb.form-no
+                e-itemfg-vend.blank-no    = ipbf-eb.blank-no
+                e-itemfg-vend.eqty        = ipbf-eb.eqty
+                e-itemfg-vend.std-uom     = ipbf-ttImportEstimate.VendorCostUOM
+                e-itemfg-vend.vend-item   = ipbf-ttImportEstimate.VendorItemID
+                e-itemfg-vend.vend-no     = ""
+                e-itemfg-vend.item-type   = NO
+                .
+        END.
+        RELEASE e-itemfg-vend.
+        /*find imported Vend on est*/
+        FIND FIRST e-itemfg-vend NO-LOCK  
+            WHERE e-itemfg-vend.company EQ ipbf-ttImportEstimate.Company 
+            AND e-itemfg-vend.i-no EQ ipcFGItemID
+            AND e-itemfg-vend.est-no EQ ipbf-eb.est-no
+            AND e-itemfg-vend.form-no EQ ipbf-eb.form-no
+            AND e-itemfg-vend.blank-no EQ ipbf-eb.blank-no
+            AND e-itemfg-vend.vend-no EQ ipbf-ttImportEstimate.VendorID
+            NO-ERROR.
+        IF NOT AVAILABLE e-itemfg-vend THEN 
+        DO:
+            CREATE e-itemfg-vend.
+            ASSIGN 
+                e-itemfg-vend.company     = ipbf-ttImportEstimate.Company
+                e-itemfg-vend.i-no        = ipcFGItemID
+                e-itemfg-vend.run-qty[1]  = dQty1
+                e-itemfg-vend.run-qty[2]  = dQty2
+                e-itemfg-vend.run-cost[1] = dPrice1
+                e-itemfg-vend.run-cost[2] = dPrice2     
+                e-itemfg-vend.est-no      = ipbf-eb.est-no   
+                e-itemfg-vend.form-no     = ipbf-eb.form-no
+                e-itemfg-vend.blank-no    = ipbf-eb.blank-no
+                e-itemfg-vend.eqty        = ipbf-eb.eqty
+                e-itemfg-vend.std-uom     = ipbf-ttImportEstimate.VendorCostUOM
+                e-itemfg-vend.vend-item   = ipbf-ttImportEstimate.VendorItemID
+                e-itemfg-vend.vend-no     = ipbf-ttImportEstimate.VendorID
+                e-itemfg-vend.item-type   = NO
+                .
+        END.
+        RELEASE e-itemfg-vend.
+        
+        /*find imported Vend on IF1*/
+        FIND FIRST e-itemfg-vend NO-LOCK  
+            WHERE e-itemfg-vend.company EQ ipbf-ttImportEstimate.Company 
+            AND e-itemfg-vend.i-no EQ ipcFGItemID
+            AND e-itemfg-vend.est-no EQ ""
+            AND e-itemfg-vend.form-no EQ ipbf-eb.form-no
+            AND e-itemfg-vend.blank-no EQ ipbf-eb.blank-no
+            AND e-itemfg-vend.vend-no EQ ipbf-ttImportEstimate.VendorID
+            NO-ERROR.
+        IF NOT AVAILABLE e-itemfg-vend THEN 
+        DO:
+            CREATE e-itemfg-vend.
+            ASSIGN 
+                e-itemfg-vend.company     = ipbf-ttImportEstimate.Company
+                e-itemfg-vend.i-no        = ipcFGItemID
+                e-itemfg-vend.run-qty[1]  = dQty1
+                e-itemfg-vend.run-qty[2]  = dQty2
+                e-itemfg-vend.run-cost[1] = dPrice1
+                e-itemfg-vend.run-cost[2] = dPrice2     
+                e-itemfg-vend.est-no      = ""  
+                e-itemfg-vend.form-no     = ipbf-eb.form-no
+                e-itemfg-vend.blank-no    = ipbf-eb.blank-no
+                e-itemfg-vend.eqty        = ipbf-eb.eqty
+                e-itemfg-vend.std-uom     = ipbf-ttImportEstimate.VendorCostUOM
+                e-itemfg-vend.vend-item   = ipbf-ttImportEstimate.VendorItemID
+                e-itemfg-vend.vend-no     = ipbf-ttImportEstimate.VendorID
+                e-itemfg-vend.item-type   = NO
+                .
+        END.
+        RELEASE e-itemfg-vend.
+    END. /*ipbf-ttImportEstimate.VendorID ne ""*/
 
 END PROCEDURE.
 
@@ -681,7 +850,7 @@ PROCEDURE pProcessRecord PRIVATE:
         est.est-qty[1] = eb.eqty
         ef.eqty        = eb.eqty
         est-qty.qty[1] = eb.eqty
-        eb.bl-qty = eb.eqty
+        eb.bl-qty      = eb.eqty
         .
 
     ASSIGN 
@@ -712,7 +881,10 @@ PROCEDURE pProcessRecord PRIVATE:
     IF ipbf-ttImportEstimate.Category NE '' THEN 
         eb.procat       = ipbf-ttImportEstimate.Category.
     
-    eb.quantityPerSet = 1.
+    IF ipbf-ttImportEstimate.QuantityPerSet NE 0 THEN
+        eb.quantityPerSet = ipbf-ttImportEstimate.QuantityPerSet.
+    ELSE  
+        eb.quantityPerSet = 1.
     
     IF ipbf-ttImportEstimate.QuantityYield GT 0 THEN 
         eb.yld-qty      = ipbf-ttImportEstimate.QuantityYield.
@@ -764,9 +936,22 @@ PROCEDURE pProcessRecord PRIVATE:
         eb.t-len = ipbf-ttImportEstimate.LengthBlank.
     IF ipbf-ttImportEstimate.WidthBlank GT 0 THEN 
         eb.t-wid = ipbf-ttImportEstimate.WidthBlank.    
-    
+    IF ipbf-ttImportEstimate.NumberUpLength GT 0 THEN 
+        eb.num-len = ipbf-ttImportEstimate.NumberUpLength.
+    ELSE 
+        eb.num-len = 1.
+    IF ipbf-ttImportEstimate.NumberUpWidth GT 0 THEN 
+        eb.num-wid = ipbf-ttImportEstimate.NumberUpWidth.
+    ELSE 
+        eb.num-wid = 1.
+        
     RUN pAssignInks (BUFFER eb, BUFFER ipbf-ttImportEstimate).
 
+    IF ipbf-ttImportEstimate.Direction NE '' THEN 
+        ef.xgrain = ipbf-ttImportEstimate.Direction.
+    ELSE 
+        ef.xgrain = 'N'.
+        
     IF ef.board EQ '' THEN 
     DO:
         FIND FIRST ITEM NO-LOCK 
@@ -829,6 +1014,8 @@ PROCEDURE pProcessRecord PRIVATE:
         RUN pAddFarm(BUFFER ipbf-ttImportEstimate, BUFFER eb, itemfg.i-no).
             
     END. 
+    IF ipbf-ttImportEstimate.ImageBoxDesign NE "" THEN 
+        RUN pAddBoxDesign(BUFFER eb, ipbf-ttImportEstimate.ImageBoxDesign).
     
 END PROCEDURE.
 

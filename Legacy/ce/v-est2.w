@@ -207,12 +207,15 @@ DEFINE FRAME fold
           LABEL "Side-Side"
           VIEW-AS FILL-IN 
           SIZE 11.6 BY 1
-     ef.xgrain AT ROW 1.24 COL 133 COLON-ALIGNED
+     ef.xgrain AT ROW 1.24 COL 132 COLON-ALIGNED
           LABEL "Xgrain" FORMAT "X"
           VIEW-AS COMBO-BOX INNER-LINES 5
-          LIST-ITEMS "N","S","B" 
+          LIST-ITEM-PAIRS "Normal","N",
+                     "Blank","B",
+                     "Sheet","S"
+     /*     "N","S","B" */
           DROP-DOWN-LIST
-          SIZE 12 BY 1
+          SIZE 13 BY 1
      ef.board AT ROW 2.43 COL 12 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 16 BY 1

@@ -1959,6 +1959,7 @@ PROCEDURE lib-create-record :
          oe-ord.user-id = USERID("nosweat")
          oe-ord.type = ip-type
          oe-ord.cust-no = bf-orig-ord.cust-no
+         oe-ord.ship-id = bf-orig-ord.cust-no
          oe-ord.due-date = bf-orig-ord.due-date
          oe-ord.due-code = "ON".
 

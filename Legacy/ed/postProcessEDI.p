@@ -316,4 +316,6 @@ IF FILE-INFO:FILE-SIZE GT 0 THEN
   OS-COPY value(ipcOutPath) VALUE(cOutFolder + "\Send").
 OS-DELETE VALUE(ipcOutPath).
 OS-DELETE VALUE(ipcInPath). 
+IF SEARCH("custfiles/EDIfiles/Invoices/Amazon/keep.txt") NE ? THEN 
+   OS-COMMAND SILENT MOVE VALUE(cOutFolder + "\Send\*.edi") VALUE("D:\asigui\Environments\Prod\CustFiles\EDIFiles\Invoices\Amazon\Send").
  

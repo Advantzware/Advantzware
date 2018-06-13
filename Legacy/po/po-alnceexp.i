@@ -42,6 +42,8 @@ DEF VAR v-rtn-char  AS CHAR NO-UNDO.
 DEF VAR v-rec-found AS LOG  NO-UNDO.
 DEF VAR AlliFlutes-dir LIKE sys-ctrl.descrip NO-UNDO.
 DEF VAR AlliFlutes-log LIKE sys-ctrl.log-fld NO-UNDO.
+DEFINE VARIABLE   iUseItemDesc AS INTEGER NO-UNDO.
+
 
 RUN sys/ref/nk1look.p (cocode, "AlliFlutes", "L", NO, NO, "", "", 
     OUTPUT v-rtn-char, OUTPUT v-rec-found).
@@ -54,6 +56,12 @@ RUN sys/ref/nk1look.p (cocode, "AlliFlutes", "DS", NO, NO, "", "",
     
 IF v-rec-found THEN
     AlliFlutes-dir = v-rtn-char NO-ERROR.
+    
+RUN sys/ref/nk1look.p (cocode, "AlliFlutes", "I", NO, NO, "", "", 
+    OUTPUT v-rtn-char, OUTPUT v-rec-found).
+/* Integer 1 means to use the item description in the notes field */
+IF v-rec-found THEN
+    iUseItemDesc = INTEGER(v-rtn-char)  NO-ERROR.    
     
 {sys/inc/poexport.i}
 
@@ -107,8 +115,11 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
                   substr(STRING(TIME,"HH:MM:SS"),4,2) +
                   substr(STRING(TIME,"HH:MM:SS"),7,2) + ".dat"
    v-outfile[4] = v-outfile[1] + v-outfile[3].
-
-  OUTPUT to value(v-outfile[2]).
+   FILE-INFO:FILE-NAME = v-outfile[1].
+    IF FILE-INFO:FILE-TYPE EQ ?  THEN        
+             OS-COMMAND SILENT  "mkdir " + value(v-outfile[1]).
+    
+   OUTPUT to value(v-outfile[2]).
 
   IF po-ord.stat EQ "N" THEN po-ord.stat = "O".
 
@@ -279,13 +290,13 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
               AND xitem.mat-type EQ "A"
             NO-LOCK
             
-                  /*,
-                        
-                  FIRST reftable
-                  WHERE reftable.reftable EQ "util/b-hrms-x.w"
-                    AND reftable.company  EQ xitem.company
-                    AND reftable.code2    EQ xitem.i-no
-                  NO-LOCK*/   :
+                    /*,
+                          
+                    FIRST reftable
+                    WHERE reftable.reftable EQ "util/b-hrms-x.w"
+                      AND reftable.company  EQ xitem.company
+                      AND reftable.code2    EQ xitem.i-no
+                    NO-LOCK*/   :
               
           ASSIGN
            i          = i + 1
@@ -619,8 +630,12 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
     /* D6 */
 
     /* SPECIAL INSTRUCTIONS */
-    v-instr = "".
-
+    v-instr = " ".
+    
+    /* Nk1 alliflutes integer EQ 1  indicates using the po line item descriptions here */
+   IF   iUseItemDesc EQ 1 THEN 
+      v-instr = v-instr + po-ordl.dscr[1] + " "  + po-ordl.dscr[2].
+     
     FOR EACH notes WHERE notes.rec_key EQ po-ordl.rec_key NO-LOCK:
       v-instr = v-instr + " " + trim(notes.note_text).
     END.

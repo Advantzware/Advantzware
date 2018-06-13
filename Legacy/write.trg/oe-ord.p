@@ -105,7 +105,9 @@ FOR EACH b-oe-ordl NO-LOCK
   FIND oe-ordl WHERE ROWID(oe-ordl) EQ ROWID(b-oe-ordl) EXCLUSIVE NO-ERROR NO-WAIT.
 
   IF AVAIL oe-ordl THEN DO:
-    oe-ordl.cust-no = {&TABLENAME}.cust-no.
+    ASSIGN 
+        oe-ordl.cust-no = {&TABLENAME}.cust-no
+        oe-ordl.ship-id = {&TABLENAME}.ship-id.
 
     IF {&TABLENAME}.t-freight NE old-{&TABLENAME}.t-freight AND
        old-{&TABLENAME}.t-freight NE 0                      THEN

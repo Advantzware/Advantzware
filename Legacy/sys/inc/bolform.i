@@ -340,6 +340,11 @@
              v-program      = "oe/rep/bolfibrex.p"
              is-xprint-form = YES
              lines-per-page = 66.
+       WHEN "BOLfmt15" THEN
+          ASSIGN
+             v-program      = "oe/rep/bolfiftn.p"
+             is-xprint-form = YES
+             lines-per-page = 66.
        WHEN "Michcor" THEN
           ASSIGN
              v-program = "oe/rep/bolmich.p"

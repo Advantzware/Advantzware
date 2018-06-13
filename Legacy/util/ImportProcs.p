@@ -18,6 +18,11 @@ DEFINE VARIABLE ghdImportProcForType AS HANDLE    NO-UNDO.
 
 {util\ttImport.i SHARED}
 
+DEFINE TEMP-TABLE ttFile
+    FIELD cFile AS CHARACTER 
+    FIELD cType AS CHARACTER
+    .
+    
 DEFINE STREAM sImport.
 DEFINE STREAM sTemplate.
 DEFINE STREAM sLog.
@@ -37,6 +42,48 @@ FUNCTION fIsExcel RETURNS LOGICAL
 /* ***************************  Main Block  *************************** */
 
 /* **********************  Internal Procedures  *********************** */
+
+PROCEDURE pBuildFileList:
+    /*------------------------------------------------------------------------------
+     Purpose: Recursively processes all sub folders below 
+        a given directly and builds a list of all files of a particular extension in
+        that directory
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcStartingDirectory AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcExtension AS CHARACTER NO-UNDO.
+
+    DEFINE VARIABLE cFileName AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cFilePath AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cAttrib   AS CHARACTER NO-UNDO. 
+    DEFINE VARIABLE iExtensionLength AS INTEGER NO-UNDO. 
+    DEFINE VARIABLE iCharLength AS INTEGER NO-UNDO.
+    
+    iExtensionLength = LENGTH(ipcExtension).
+    INPUT FROM OS-DIR (ipcStartingDirectory).
+    REPEAT:
+        IMPORT cFileName.
+        IF cFileName = '.' OR cFileName = '..' OR cFileName = ? THEN NEXT.
+        FILE-INFO:FILE-NAME = ipcStartingDirectory + cFileName.
+        IF NOT FILE-INFO:FILE-TYPE BEGINS "D" THEN DO:
+            iCharLength = LENGTH(cFileName).
+            IF SUBSTRING(cFileName, iCharLength - iExtensionLength + 1, iExtensionLength) EQ ipcExtension THEN DO:
+                CREATE ttFile.
+                ASSIGN 
+                    ttFile.cFile = FILE-INFO:FULL-PATHNAME
+                    ttFile.cType = ipcExtension
+                    .
+            END.
+        END.
+        ELSE IF FILE-INFO:FULL-PATHNAME <> ? THEN 
+        DO:
+            RUN pBuildFileList(INPUT FILE-INFO:FULL-PATHNAME + "\", ipcExtension).
+        END.
+    END.
+
+
+END PROCEDURE.
+
 
 PROCEDURE pConvertExceltoCSV:
     /*------------------------------------------------------------------------------
@@ -141,7 +188,8 @@ PROCEDURE pGenerateTemplate:
             PUT STREAM sTemplate UNFORMATTED ttImportMap.cColumnLabel ',' .
         END.
         PUT STREAM sTemplate SKIP.
-        IF iplIncludeHelp THEN DO:
+        IF iplIncludeHelp THEN 
+        DO:
             FOR EACH ttImportMap:
                 PUT STREAM sTemplate UNFORMATTED ttImportMap.cHelp ',' .
             END.
@@ -166,7 +214,7 @@ PROCEDURE pInitializeType:
     DEFINE INPUT PARAMETER ipcTypeToInit AS CHARACTER NO-UNDO.
     
     DEFINE VARIABLE cProgram AS CHARACTER NO-UNDO.
-    
+   
     EMPTY TEMP-TABLE ttImportMap.
     /*gc global variables defined in ttImport.i*/
     cProgram = gcTypeProgramsFolder + ENTRY(LOOKUP(ipcTypeToInit,gcTypeList),gcTypePrograms).
@@ -189,6 +237,7 @@ PROCEDURE pLoad:
     DEFINE INPUT PARAMETER iplHeader AS LOGICAL NO-UNDO.
     DEFINE INPUT PARAMETER iplUpdateDuplicates AS LOGICAL NO-UNDO.
     DEFINE INPUT PARAMETER iplFieldValidation AS LOGICAL NO-UNDO.
+    DEFINE INPUT PARAMETER ipcFileType AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER oplSuccess AS LOGICAL NO-UNDO.
     
     DEFINE VARIABLE iCount AS INTEGER   NO-UNDO.
@@ -196,39 +245,69 @@ PROCEDURE pLoad:
 
     EMPTY TEMP-TABLE ttImportData.
     oplSuccess = YES.
-    IF SEARCH(ipcFile) NE ? THEN 
-    DO:
-        INPUT STREAM sImport FROM VALUE(ipcFile).
-        REPEAT:
-            iCount = iCount + 1.
-            IMPORT STREAM sImport DELIMITER ','
-                cData
-                . 
-            CREATE ttImportData.
-            ASSIGN
-                ttImportData.cData  = cData 
-                ttImportData.lValid = YES 
-                ttImportData.iCount = iCount.    
-                
-            IF TRIM(ttImportData.cData[1]) EQ '' THEN
-                ASSIGN 
-                    ttImportData.lValid      = NO 
-                    ttImportData.cImportNote = 'No Data in First Column'
-                    .
-            ELSE 
+    
+    CASE ipcFileType:
+        WHEN "ARD" THEN 
             DO:
-                IF (iplHeader AND iCount GT 1) OR NOT iplHeader THEN 
-                    RUN pAddRecord IN ghdImportProcForType(ipcCompany,
-                        ipcLocation,
-                        ttImportData.cData, 
-                        iplUpdateDuplicates,
-                        iplFieldValidation,
-                        OUTPUT ttImportData.lValid, 
-                        OUTPUT ttImportDAta.cImportNote).
+                ASSIGN 
+                    iplHeader = NO 
+                    .
+                IF SEARCH(ipcFile) NE ? THEN 
+                DO:
+                    RUN pLoadARD(ipcCompany, ipcLocation, ipcFile, INPUT-OUTPUT iCount, INPUT-OUTPUT oplSuccess).
+                END.    
             END.
-        END.
-        OUTPUT STREAM sImport CLOSE.
-    END.
+        WHEN "ARDFolder" THEN 
+            DO:
+                RUN pBuildFileList(ipcFile, ".ard").
+                FOR EACH ttFile:
+                    IF SEARCH(ipcFile) NE ? THEN 
+                    DO:
+                        RUN pLoadARD(ipcCompany, ipcLocation, ttFile.cFile, INPUT-OUTPUT iCount, INPUT-OUTPUT oplSuccess).
+                    END.    
+                END.
+            END.
+        OTHERWISE
+        DO:
+            IF SEARCH(ipcFile) NE ? THEN 
+            DO:
+        
+                INPUT STREAM sImport FROM VALUE(ipcFile).
+                REPEAT:
+                    ASSIGN 
+                        iCount = iCount + 1
+                        cData  = "".
+                    IMPORT STREAM sImport DELIMITER ','
+                        cData
+                        . 
+                    CREATE ttImportData.
+                    ASSIGN
+                        ttImportData.cData  = cData 
+                        ttImportData.lValid = YES 
+                        ttImportData.iCount = iCount.    
+                
+                    IF TRIM(ttImportData.cData[1]) EQ '' THEN
+                        ASSIGN 
+                            ttImportData.lValid      = NO 
+                            ttImportData.cImportNote = 'No Data in First Column'
+                            .
+                    ELSE 
+                    DO:
+                        IF (iplHeader AND iCount GT 1) OR NOT iplHeader THEN 
+                            RUN pAddRecord IN ghdImportProcForType(ipcCompany,
+                                ipcLocation,
+                                ttImportData.cData, 
+                                iplUpdateDuplicates,
+                                iplFieldValidation,
+                                OUTPUT ttImportData.lValid, 
+                                OUTPUT ttImportDAta.cImportNote).
+                    END.
+                END.
+                OUTPUT STREAM sImport CLOSE.
+            END.
+        END.     
+    END CASE.
+   
     FOR EACH ttImportData
         WHERE NOT ttImportData.lValid
         AND ttImportData.cImportNote EQ '':
@@ -245,6 +324,47 @@ PROCEDURE pLoad:
                 ttImportData.lValid      = NO 
                 ttImportData.cImportNote = 'Header Row'
                 ttImportData.lheader     = YES. 
+    END.
+    
+END PROCEDURE.
+
+PROCEDURE pLoadArd PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose: Accepts a file and creates a ttImportData record for a given file
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO. 
+    DEFINE INPUT PARAMETER ipcLocation AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcFile AS CHARACTER NO-UNDO.
+    DEFINE INPUT-OUTPUT PARAMETER iopiCount AS INTEGER NO-UNDO.
+    DEFINE INPUT-OUTPUT PARAMETER oplSuccess AS LOGICAL NO-UNDO.
+    
+    DEFINE VARIABLE hdArtiosProcs AS HANDLE.
+    DEFINE VARIABLE cData LIKE ttImportData.cData.
+    
+    RUN est/ArtiosProcs.p PERSISTENT SET hdArtiosProcs.
+
+    iopiCount = iopiCount + 1.
+    CREATE ttImportData.
+    ASSIGN
+        ttImportData.lValid = YES 
+        ttImportData.iCount = iopiCount
+        .
+    RUN pSetArtiosData IN hdArtiosProcs (ipcCompany, ipcFile, OUTPUT ttImportData.cData).
+    IF TRIM(ttImportData.cData[1]) EQ '' THEN
+        ASSIGN 
+            ttImportData.lValid      = NO 
+            ttImportData.cImportNote = 'No Data in First Column'
+            .
+    ELSE 
+    DO:
+        RUN pAddRecord IN ghdImportProcForType(ipcCompany,
+            ipcLocation,
+            ttImportData.cData, 
+            NO,
+            YES,
+            OUTPUT ttImportData.lValid, 
+            OUTPUT ttImportDAta.cImportNote).
     END.
     
 END PROCEDURE.

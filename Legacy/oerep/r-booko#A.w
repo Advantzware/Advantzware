@@ -47,7 +47,9 @@ DEFINE VARIABLE init-dir AS CHARACTER NO-UNDO.
 {custom/getloc.i}
 
 {sys/inc/var.i new shared}
-
+DEFINE VARIABLE hdPriceProcs  AS HANDLE.
+{oe/ttPriceHold.i "NEW SHARED"}
+RUN oe/PriceProcs.p PERSISTENT SET hdPriceProcs.
 assign
  cocode = gcompany
  locode = gloc.
@@ -1105,47 +1107,13 @@ for each oe-ord
          find first itemfg {sys/look/itemfgrlW.i} 
                    and itemfg.i-no eq oe-ordl.i-no no-lock no-error.
 
-        RUN  oe/GetPriceTotal.p(
-          INPUT oe-ordl.qty,
-          INPUT oe-ordl.price,
-          INPUT oe-ordl.pr-uom,
-          INPUT ( IF AVAIL itemfg THEN itemfg.case-count ELSE 0),
-          INPUT oe-ordl.disc,
-          OUTPUT v-ext-price
-          ).  /* task 01241601 */
-
-        /*if oe-ordl.pr-uom begins "L" then
-          v-ext-price = 
-            oe-ordl.price - round((oe-ordl.price * oe-ordl.disc) / 100, 2).
-        else if oe-ordl.pr-uom eq "CS" then 
-        do:
-            find first itemfg {sys/look/itemfgrlW.i} 
-                   and itemfg.i-no eq oe-ordl.i-no
-                no-lock no-error.
-
-            if avail itemfg and itemfg.case-count ne 0 then
-              v-ext-price = ((v-qty-lft / itemfg.case-count) * oe-ordl.price) -
-                      round((((v-qty-lft / itemfg.case-count) *
-                              oe-ordl.price) * oe-ordl.disc) / 100, 2).
-            else
-              v-ext-price = (v-qty-lft * oe-ordl.price) -
-                      round(((v-qty-lft * oe-ordl.price) *
-                             oe-ordl.disc) / 100, 2).
-        end.
-        else if oe-ordl.pr-uom eq "C" then
-          v-ext-price = ((v-qty-lft / 100) * oe-ordl.price) -
-                    round((((v-qty-lft / 100) *
-                            oe-ordl.price) * oe-ordl.disc) / 100, 2).
-
-        else if oe-ordl.pr-uom eq "EA" then
-          v-ext-price = (v-qty-lft * oe-ordl.price) -
-                    round(((v-qty-lft * oe-ordl.price) *
-                           oe-ordl.disc) / 100, 2).
-
-        else /** DEFAULT PER THOUSAND **/
-          v-ext-price = ((v-qty-lft / 1000) * oe-ordl.price) -
-                    round((((v-qty-lft / 1000) *
-                            oe-ordl.price) * oe-ordl.disc) / 100, 2).*/
+        RUN GetPriceTotal IN hdPriceProcs (oe-ordl.qty,
+                                       oe-ordl.price,
+                                       oe-ordl.pr-uom,
+                                       itemfg.case-count,
+                                       ( IF AVAIL itemfg THEN itemfg.case-count ELSE 0),
+                                       OUTPUT v-ext-price).
+        
 
        /** CALCULATE FREIGHT CHARGES **/
         v-tot-freight = v-tot-freight +

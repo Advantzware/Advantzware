@@ -123,7 +123,9 @@ def new shared workfile wrk-ink
   field i-qty as dec format ">,>>9.9<"
   field i-pass as dec
   FIELD i-unit AS DEC
-  FIELD i-% AS INT  .
+  FIELD i-% AS INT
+  FIELD job-no AS CHARACTER
+  FIELD job-no2 AS INTEGER  .
 
 def new shared workfile wrk-prep
   field code like est-prep.code
@@ -170,6 +172,7 @@ DEF VAR v-item AS cha EXTENT 20 NO-UNDO.
 DEF VAR v-i-qty AS DEC EXTENT 20 NO-UNDO.
 DEF VAR v-ink1 AS cha EXTENT 20 NO-UNDO.
 DEF VAR v-ink2 AS cha EXTENT 20 NO-UNDO.
+DEFINE VARIABLE v-ink3 AS CHARACTER EXTENT 20 NO-UNDO.
 DEF VAR v-ink10 AS cha EXTENT 20 NO-UNDO.
 DEF VAR v-ink20 AS cha EXTENT 20 NO-UNDO.
 DEF VAR v-po-no AS CHAR  NO-UNDO.
@@ -242,7 +245,7 @@ format HEADER
        "CSR:<B>" cCsr "</B>"
        "<C80>JOB START DATE:"  v-start-date skip
        "JOB NUMBER:<B>" v-job-no space(0) "-" space(0) v-job-no2 format "99" "</B>"
-       "<B><P14>F A C T O R Y   T I C K E T</B><P12>" at 52  "<C80>  PROMISE DATE:" dPromDate skip
+       "<B><P14></B><P12>" at 52  "<C80>  PROMISE DATE:" dPromDate skip
        v-fill
     with no-box frame head no-labels stream-io width 155.
 
@@ -514,10 +517,10 @@ for each job-hdr NO-LOCK
        
         PUT "<R-1><#1><C91.5>Date/Time Generated:" SKIP
             "<B>CUSTOMER NAME:</B>" v-cust-name "<B> DUE DATE:     ESTIMATE:" "<C91.5>" lv-prt-date space(1) lv-prt-time SKIP
-            "SHIPTO:</B>" v-shipto[1] "<C44>" v-due-date "<C57>" trim(job-hdr.est-no) FORM "x(8)" 
+            "<C34.5>" v-due-date "<C46>" trim(job-hdr.est-no) FORM "x(8)" 
             "<C91.9>Status" SKIP
-            v-shipto[2] AT 7 "<C91.9>" lv-prt-sts SKIP
-            v-shipto[4] AT 7 SKIP
+            "<C91.9>" lv-prt-sts SKIP
+            SKIP(1)
             v-fill SKIP.     
         /* barcode print */
         PUT UNFORMATTED "<r-5.6><#1><UNITS=INCHES><C70.5><FROM><c90.8><r+3.5><BARCODE,TYPE=39,CHECKSUM=NONE,VALUE="
@@ -757,6 +760,8 @@ for each job-hdr NO-LOCK
                       and wrk-ink.blank-no eq eb.blank-no
                       AND wrk-ink.i-pass   EQ eb.i-ps2[i]
                       AND wrk-ink.i-unit   EQ v-unit
+                      AND wrk-ink.job-no   EQ job-hdr.job-no
+                      AND wrk-ink.job-no2  EQ job-hdr.job-no2
                     no-error.
 
                 if not avail wrk-ink then do:
@@ -768,7 +773,9 @@ for each job-hdr NO-LOCK
                    wrk-ink.i-dscr   = eb.i-dscr2[i]
                    wrk-ink.i-pass   = eb.i-ps2[i]
                    wrk-ink.i-unit   = v-unit
-                   wrk-ink.i-% = eb.i-%2[i]   .
+                   wrk-ink.i-% = eb.i-%2[i]  
+                   wrk-ink.job-no = job-hdr.job-no
+                   wrk-ink.job-no2 = job-hdr.job-no2  .
                 end.
               end.
             end. /* loop i */
@@ -776,6 +783,8 @@ for each job-hdr NO-LOCK
             find first wrk-ink
                 where wrk-ink.i-code    eq job-mat.i-no
                   and wrk-ink.form-no   eq job-mat.frm
+                  AND wrk-ink.job-no   EQ job-hdr.job-no
+                  AND wrk-ink.job-no2  EQ job-hdr.job-no2
                   and (wrk-ink.blank-no eq job-mat.blank-no or
                        est.est-type     eq 4)
                 no-error.
@@ -790,7 +799,9 @@ for each job-hdr NO-LOCK
                wrk-ink.blank-no = eb.blank-no
                wrk-ink.i-dscr   = item.est-dscr
                wrk-ink.i-unit = 0 
-               wrk-ink.i-pass   = 1.
+               wrk-ink.i-pass   = 1
+               wrk-ink.job-no = job-hdr.job-no
+               wrk-ink.job-no2 = job-hdr.job-no2.
             end.
 
             /*if avail wrk-ink then wrk-ink.i-qty = wrk-ink.i-qty + job-mat.qty.*/
@@ -798,9 +809,7 @@ for each job-hdr NO-LOCK
                ((est.est-type eq 4 and eb.form-no = job-mat.frm AND eb.blank-no = job-mat.blank-no) OR
                  est.est-type <> 4 ) 
                  then wrk-ink.i-qty = wrk-ink.i-qty + job-mat.qty.  
-/*IF AVAIL wrk-ink THEN
-    MESSAGE wrk-ink.form-no wrk-ink.blank-no skip
-    wrk-ink.i-code wrk-ink.i-unit wrk-ink.i-pass wrk-ink.i-qty VIEW-AS ALERT-BOX.*/
+
           end. /* JOB-MAT */
 
           if eb.est-type eq 4 then v-fac = eb.yld-qty / v-est-qty.
@@ -826,7 +835,7 @@ for each job-hdr NO-LOCK
             v-upc-lbl = "    QC#".
             IF FIRST-OF(eb.form-no) THEN
               PUT  /*"<R-1>" "Case" AT 97 SKIP */
-                "<P10><B>F/B <C5>FG ITEM# <C21>O/U%<C29>JOB QTY<C38>PO#<C49>STYLE<C55>CARTON SIZE<C69>COUNT<C77>CASE CODE<C93.5>#UP" "<C98>" v-upc-lbl "</B>" SKIP.
+                "<P10><B>F/B <C5>FG ITEM# <C21>O/U%<C29>JOB QTY<C38>PO#<C55>STYLE<C69>CARTON SIZE<C85>#UP" "<C92>" v-upc-lbl "</B>" SKIP.
             /*else
               put fill("-",132) format "x(132)". */
             v-job-qty = 0.
@@ -869,14 +878,14 @@ for each job-hdr NO-LOCK
                     "<C5>" eb.stock-no FORM "x(15)" /* was 19, b4 that 21*/
                     "<C21>"  v-ovund FORMAT "x(7)"  
                     "<C29>"  v-job-qty FORMAT "->>>>>>>>9" 
-                    "<C38>"  v-po-no  FORMat "x(10)" 
-                    "<C49>"  eb.style FORMAT "x(6)" /*v-stypart */
-                    "<C55>"  v-size[1] FORM "x(19)"
-                    "<C69>"  dCasCnt FORM ">>>>>9" 
-                    "<C77>" eb.cas-no /*v-case-size*/  FORM "x(19)" /* was 15 */ 
-                    "<C92.5>" v-up   
+                    "<C38>"  v-po-no  FORMat "x(15)" 
+                    "<C55>"  eb.style FORMAT "x(6)" /*v-stypart */
+                    "<C69>"  v-size[1] FORM "x(19)"
+                   /* "<C69>"  dCasCnt FORM ">>>>>9" 
+                    "<C77>" eb.cas-no /*v-case-size*/  FORM "x(19)" /* was 15 */ */
+                    "<C84>" v-up   
                     
-                    "<C98>" v-upc-no FORM "x(15)"
+                    "<C92>" v-upc-no FORM "x(15)"
                     skip.
              PUT "<C5>" v-dsc[1] FORMAT "x(30)" SKIP.
              v-itm-printed = v-itm-printed + 1.    
@@ -946,7 +955,11 @@ for each job-hdr NO-LOCK
              i = 1.
              v-ink1 = "".
              v-ink2 = "".
+             v-ink3 = "".
+
              for each wrk-ink WHERE wrk-ink.form-no = eb.form-no
+                      AND wrk-ink.job-no EQ job-hdr.job-no
+                      AND wrk-ink.job-no2 EQ job-hdr.job-no2
                 BREAK /* by wrk-ink.i-pass
                       BY wrk-ink.i-code
                       BY wrk-ink.i-unit
@@ -997,9 +1010,9 @@ for each job-hdr NO-LOCK
 
                         IF wrk-ink.i-unit = i THEN  
                             v-ink1[i] =   string(wrk-ink.i-code,"X(10)") + " " + 
-                                          string(wrk-ink.i-dscr,"x(20)") + " " + /*string(wrk-ink.i-%,">>9%")*/ STRING(v-i-qty[i],"->>>,>>9.99").
+                                          string(wrk-ink.i-dscr,"x(18)") + " " + /*string(wrk-ink.i-%,">>9%")*/ STRING(v-i-qty[i],"->>>>9.99").
                         ELSE IF wrk-ink.i-unit > 0 AND wrk-ink.i-unit <= 8 THEN v-ink1[int(wrk-ink.i-unit)] = string(wrk-ink.i-code,"X(10)") + " " + 
-                                          string(wrk-ink.i-dscr,"x(20)")  + " " + /*string(wrk-ink.i-%,">>9%")*/ STRING(v-i-qty[i],"->>>,>>9.99").
+                                          string(wrk-ink.i-dscr,"x(18)")  + " " + /*string(wrk-ink.i-%,">>9%")*/ STRING(v-i-qty[i],"->>>>9.99").
                         i = i + 1         . 
                     END.
                     ELSE IF wrk-ink.i-pass = 2 THEN DO:
@@ -1008,9 +1021,19 @@ for each job-hdr NO-LOCK
                                          */
                         IF wrk-ink.i-unit = i THEN  
                             v-ink2[i] =   string(wrk-ink.i-code,"X(10)") + " " + 
-                                          string(wrk-ink.i-dscr,"x(20)") + " " + /*string(wrk-ink.i-%,">>9%")*/ STRING(v-i-qty[i],"->>>,>>9.99").
+                                          string(wrk-ink.i-dscr,"x(18)") + " " + /*string(wrk-ink.i-%,">>9%")*/ STRING(v-i-qty[i],"->>>>9.99").
                         ELSE IF wrk-ink.i-unit <= 8 THEN v-ink2[int(wrk-ink.i-unit)] = string(wrk-ink.i-code,"X(10)") + " " + 
-                                          string(wrk-ink.i-dscr,"x(20)") + " " + /*string(wrk-ink.i-%,">>9%")*/ STRING(v-i-qty[i],"->>>,>>9.99").
+                                          string(wrk-ink.i-dscr,"x(18)") + " " + /*string(wrk-ink.i-%,">>9%")*/ STRING(v-i-qty[i],"->>>>9.99").
+                              i = i + 1.           
+                    END.
+                    ELSE IF wrk-ink.i-pass = 3 THEN DO:
+                        IF wrk-ink.i-unit = i THEN  
+                            v-ink3[i] =   string(wrk-ink.i-code,"X(10)") + " " +
+                                          string(wrk-ink.i-dscr,"x(11)") + " " + 
+                                          STRING(v-i-qty[i],"->>>>9.99").
+                        ELSE IF wrk-ink.i-unit <= 8 THEN v-ink3[int(wrk-ink.i-unit)] = string(wrk-ink.i-code,"X(10)") + " " +
+                                          string(wrk-ink.i-dscr,"x(11)") + " " +                     
+                                          STRING(v-i-qty[i],"->>>>9.99").
                               i = i + 1.           
                     END.
                 END.
@@ -1022,13 +1045,16 @@ for each job-hdr NO-LOCK
              v-num-of-inks = 0.
              DO j = 1 TO 7:
                 IF TRIM(v-ink1[j]) = "-" THEN v-ink1[j] = "".               
-                IF TRIM(v-ink2[j]) = "-" THEN v-ink2[j] = "".               
+                IF TRIM(v-ink2[j]) = "-" THEN v-ink2[j] = "".
+                IF TRIM(v-ink3[j]) = "-" THEN v-ink3[j] = "". 
                 IF v-ink1[j] <> "" THEN v-num-of-inks = v-num-of-inks + 1.
                 IF v-ink2[j] <> "" THEN v-num-of-inks = v-num-of-inks + 1.
+                IF v-ink3[j] <> "" THEN v-num-of-inks = v-num-of-inks + 1.
              END.
              IF v-num-of-inks <= 14 THEN DO j = v-num-of-inks + 1 TO 14:
                 IF v-ink1[j] = "" THEN v-ink1[j] = "UNIT".  
-                IF v-ink2[j] = "" THEN v-ink2[j] = "UNIT".  
+                IF v-ink2[j] = "" THEN v-ink2[j] = "UNIT".
+                IF v-ink3[j] = "" THEN v-ink3[j] = "UNIT".
              END.
              /*======================*/
              ASSIGN v-ink10 = ""
@@ -1076,8 +1102,9 @@ for each job-hdr NO-LOCK
              put v-fill at 1 skip.
              ===*/
              PUT "<#15><FROM><R+7><C105><RECT><||3>"
-                 "<FGColor=White><BGColor=Black><=15><R-1><#16><FROM><R+1><C105><FILLRECT#16><=16>PASS 1 <C45>PASS 2<FGColor=Black><BGColor=White>" 
-                 "<=15><C44><FROM><R+7><C44><LINE><||3>" 
+                 "<FGColor=White><BGColor=Black><=15><R-1><#16><FROM><R+1><C105><FILLRECT#16><=16>PASS 1 <C38>PASS 2<C75>PASS 3<FGColor=Black><BGColor=White>" 
+                 "<=15><C37><FROM><R+7><C37><LINE><||3>" 
+                 "<=15><C74><FROM><R+7><C74><LINE><||3>" 
                  "<=15><R+1><C1><FROM><C105><LINE><||3> "
                  "<=15><R+2><C1><FROM><C105><LINE><||3> "
                  "<=15><R+3><C1><FROM><C105><LINE><||3> "
@@ -1093,14 +1120,16 @@ for each job-hdr NO-LOCK
                   v-num-of-inks = v-num-of-inks + 1.
                   IF v-ink1[j] = "UNIT" THEN v-ink1[j] = "".
                   IF v-ink2[j] = "UNIT" THEN v-ink2[j] = "".
-                  PUT  "UNIT" v-num-of-inks FORM ">9: "
-                       v-ink1[j] FORM "x(43)" 
-                      "<C45>" "  UNIT"  v-num-of-inks FORM ">9: "
-                       v-ink2[j] FORM "x(43)" .
-                  IF j = 1 THEN PUT    "<C90>PRE-PRESS:"   SKIP.
-                  ELSE IF j = 2 THEN PUT "<C90>" eb.plate-no SKIP.
+                  IF v-ink3[j] = "UNIT" THEN v-ink3[j] = "".
+                  PUT  "<P10>UNIT" v-num-of-inks FORM ">9: "
+                       v-ink1[j] FORM "x(39)" 
+                      "<C37>" "  UNIT"  v-num-of-inks FORM ">9: "
+                       v-ink2[j] FORM "x(39)" 
+                      "<C74>" "  UNIT"  v-num-of-inks FORM ">9: "
+                       v-ink3[j] FORM "x(32)" "<p11>" .
+                  IF j = 1 THEN PUT   SKIP.
                   ELSE PUT  SKIP.
-                /*  PUT v-fill AT 1 "<R-1>" SKIP.*/
+                  /*  PUT v-fill AT 1 "<R-1>" SKIP.*/
                /*END.*/
              END.
              /*
@@ -1597,7 +1626,36 @@ for each job-hdr NO-LOCK
                SKIP
                WITH FRAME itmlbl2 NO-BOX NO-LABELS STREAM-IO WIDTH 180.
             i = 0.
-          END. /* i <= 3 */
+        END.
+       
+          FIND FIRST eb NO-LOCK 
+              WHERE eb.company  = job-hdr.company
+                AND eb.est-no   = job-hdr.est-no
+                AND eb.stock-no = job-hdr.i-no  NO-ERROR.
+        
+        IF AVAIL eb THEN
+        FIND FIRST itemfg NO-LOCK
+            WHERE itemfg.company EQ eb.company
+            AND itemfg.i-no    EQ eb.stock-no
+            AND eb.stock-no    NE "" NO-ERROR.
+        IF AVAIL eb THEN
+        FIND FIRST ITEM NO-LOCK
+            WHERE item.company EQ eb.company
+            AND ITEM.i-no    EQ eb.tr-no
+            NO-ERROR.
+          
+        PUT SKIP(2)
+              "<B><U>SHIPPING INFORMATION</U>" SKIP
+              "Ship TO: " v-shipto[1] SKIP
+              "Address: " v-shipto[2] SKIP
+              "                 " v-shipto[4] SKIP
+              "Count: " dCasCnt FORM ">>>>>9" SKIP
+             "Case Code: " IF AVAIL eb THEN string(eb.cas-no,"x(19)") ELSE "" SKIP
+              "Pallet#: " IF AVAIL eb THEN eb.tr-no ELSE "" SKIP
+                  "Pallet#: " IF AVAIL eb THEN eb.tr-no ELSE "" SKIP
+              "cases/Pallet: " IF AVAIL eb THEN eb.cas-pal ELSE 0 SKIP
+              "Description: " IF AVAIL ITEM THEN string(item.i-name,"x(30)") ELSE "" SKIP
+              "Pack Note: " IF AVAIL itemfg THEN itemfg.prod-notes ELSE "" SKIP .
 
           lv-pg-num2 = lv-pg-num2 + 1.
           /* print die# image */

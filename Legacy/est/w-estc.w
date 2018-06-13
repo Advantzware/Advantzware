@@ -97,6 +97,7 @@ DEFINE VARIABLE h_exit AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_farmnav AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_folder AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_movecol AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_movecol-2 AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_options3 AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_p-box23d AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_p-dieimg AS HANDLE NO-UNDO.
@@ -917,6 +918,12 @@ PROCEDURE adm-create-objects :
 
     WHEN 9 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
+             INPUT  'viewers/movecol.w':U ,
+             INPUT  FRAME OPTIONS-FRAME:HANDLE ,
+             INPUT  'Layout = ':U ,
+             OUTPUT h_movecol-2 ).
+       RUN set-position IN h_movecol-2 ( 1.00 , 8.00 ) NO-ERROR.
+       RUN init-object IN THIS-PROCEDURE (
              INPUT  'cec/vp-spec.w':U ,
              INPUT  FRAME est:HANDLE ,
              INPUT  'Layout = ':U ,
@@ -960,6 +967,8 @@ PROCEDURE adm-create-objects :
 
        /* Initialize other pages that this page requires. */
        RUN init-pages IN THIS-PROCEDURE ('2':U) NO-ERROR.
+
+       RUN add-link IN adm-broker-hdl ( h_probe , 'move-columns':U , h_movecol-2 ).
 
        /* Links to SmartBrowser h_probe. */
        RUN add-link IN adm-broker-hdl ( h_b-estitm , 'Record':U , h_probe ).

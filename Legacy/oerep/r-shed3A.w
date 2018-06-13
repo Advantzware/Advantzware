@@ -1365,6 +1365,16 @@ DEF BUFFER b-oe-ordl FOR oe-ordl.
                                 STRING(DAY(oe-relh.rel-date),"99"))
                              ELSE
                              IF v-sort EQ "N" THEN oe-ordl.i-name
+                             ELSE
+                             IF v-sort EQ "C" THEN oe-relh.cust-no
+                             ELSE
+                             IF v-sort EQ "I" OR v-sort EQ "D" THEN oe-rell.i-no
+                             ELSE
+                             IF v-sort EQ "T" THEN cust.terr
+                             ELSE
+                             IF v-sort EQ "A" THEN oe-relh.carrier
+                             ELSE
+                             IF v-sort EQ "CR" THEN cust.cr-rating
                              ELSE ""
          tt-report.key-02  = IF v-sort EQ "I" OR v-sort EQ "D" THEN oe-rell.i-no
                              ELSE
@@ -1373,12 +1383,14 @@ DEF BUFFER b-oe-ordl FOR oe-ordl.
                              IF v-sort EQ "A" THEN oe-relh.carrier
                              ELSE
                              IF v-sort EQ "CR" THEN cust.cr-rating
+                             ELSE
+                             IF v-sort EQ "R" THEN  string(oe-relh.release#,"9999999999")
                              ELSE oe-relh.cust-no
          tt-report.key-03  = IF v-sort NE "R" THEN
                                (STRING(YEAR(oe-relh.rel-date),"9999") +
                                 STRING(MONTH(oe-relh.rel-date),"99")  +
                                 STRING(DAY(oe-relh.rel-date),"99"))
-                             ELSE ""
+                             ELSE STRING(oe-ord.ord-no,"9999999999")
          tt-report.key-04  = STRING(IF v-sort EQ "A" THEN oe-relh.cust-no
                                                      ELSE " ","x(10)") +
                              STRING(oe-ord.ord-no,"9999999999")
@@ -1437,8 +1449,8 @@ DEF BUFFER b-oe-ordl FOR oe-ordl.
         and cust.cust-no eq oe-ord.cust-no
       no-lock
       break by tt-report.key-01
-            by tt-report.key-02
-            by tt-report.key-03
+            by tt-report.key-02 DESC
+            by tt-report.key-03 DESC
             by tt-report.key-04:
 
     IF v-sort EQ "CR" AND FIRST-OF(tt-report.key-02) THEN DO:
@@ -1454,10 +1466,10 @@ DEF BUFFER b-oe-ordl FOR oe-ordl.
 
     create w-ord.
 
-    find first itemfg
+    find first itemfg NO-LOCK
         where itemfg.company eq cocode
           and itemfg.i-no    eq oe-ordl.i-no
-        no-lock.
+        NO-ERROR.
 
     assign
      w-ord.ord-no    = oe-ord.ord-no
@@ -1483,7 +1495,7 @@ DEF BUFFER b-oe-ordl FOR oe-ordl.
      w-ord.po-num    = oe-rell.po-no
      w-ord.ord-qty   = oe-ordl.qty
      w-ord.shp-qty   = oe-ordl.ship-qty
-     w-ord.msf       = w-ord.rel-qty * itemfg.t-sqft / 1000
+     w-ord.msf       = w-ord.rel-qty * (IF AVAIL itemfg THEN itemfg.t-sqft ELSE 0) / 1000
      w-ord.prom-code = oe-ordl.prom-code
      w-ord.last-date = oe-ord.last-date
      w-ord.carrier   = oe-relh.carrier
@@ -1500,7 +1512,7 @@ DEF BUFFER b-oe-ordl FOR oe-ordl.
 
     IF NOT FIRST-OF(tt-report.key-02) AND v-sort EQ "C" THEN w-ord.cust-name = "".
 
-    IF v-comps AND itemfg.isaset THEN DO:
+    IF v-comps AND AVAIL itemfg AND itemfg.isaset THEN DO:
       RUN fg/fullset.p (ROWID(itemfg)).
 
       FOR EACH tt-fg-set,

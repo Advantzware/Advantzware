@@ -101,7 +101,9 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
                   substr(STRING(TIME,"HH:MM:SS"),7,2) + ".dat"
    v-outfile[4] = v-outfile[1] + v-outfile[3].
    
-   
+    FILE-INFO:FILE-NAME = v-outfile[1].
+    IF FILE-INFO:FILE-TYPE EQ ?  THEN        
+        OS-COMMAND SILENT  "mkdir " + value(v-outfile[1]).
   OUTPUT to value(v-outfile[2]).
 
   IF po-ord.stat EQ "N" THEN po-ord.stat = "O".

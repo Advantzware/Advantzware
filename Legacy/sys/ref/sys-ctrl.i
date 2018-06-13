@@ -26,7 +26,7 @@ ASSIGN
                 "Frankstn,Mirpkg,APC,FibreX,PPI,Fibre-Excel,Packrite,Nosco-Excel," + 
                 "MSPACK-Excel,AllWest,Simkins,CCC,Soule,SouleMed,MWFIBRE,Loylang,Protagon," +
                 "PeachTree,LoylangBSF,Premier-Excel,Oklahoma,Accord,Hughes,Sultana,CCC-Excel,Axis,Boss,Bell-Excel,Perform," +
-                "Printers,quoprint 1,quoprint 2,quoprint 10,quoprint 20,quoprint10-CAN,Premier-excel-mci"
+                "Printers,quoprint 1,quoprint 2,quoprint 10,quoprint 20,quoprint10-CAN,Premier-excel-mci,quoprint 11"
  str-init[2]  = "Capitol,ASI,Beeler,Argrov,ILWalker,1/2 Page,Phoenix,Color,Interpac,Royal,Keystone," +
                 "Livngstn,ContSrvc,Rudd,Premier,MultiWll,Imperial,PAC 1/2," +
                 "Colonial,Clev 1/2,Triad,Danbury,TriState,Blueridg,Sonoco," +  
@@ -68,7 +68,7 @@ ASSIGN
                 "Allwest,COLOR,Badger,LoyLang,Carded,Metro,Nosco,CSC-GA,KDWILLSX,Peachtree,Protagon," +
                 "PremierCX,PeachTreeBC,ACCORDBC,Soule,NSTOCK,TrilakesLot#,Multicell,MetroTags,AllPkg2,PremierBroker,SouleMed,Chillicothe," +
                 "CapitolBC,CardedBC,Axis,BadgerSoldTo,PeachtreeLotPO,Lakeside,CSCINStamp,CCCWPP,Prystup-Excel,Printers,Printers2,RFCX," +
-                "bolfmt 1,bolfmt 2,bolfmt 10,bolfmt 20,bolfmt10-CAN,PremierXFooter,Wingate-BOL"
+                "bolfmt 1,bolfmt 2,bolfmt 10,bolfmt 20,bolfmt10-CAN,PremierXFooter,Wingate-BOL,BOLfmt15"
  str-init[11] = "ASI,Laser,P&P,n,Raritan,ContSrvc,Royal,Triad,Rudd,"   +
                 "Hartford,AIHalper,Brick,Fibre,Herman,ASILaser,TriadLas,"      +
                 "Chillic,Middlesx,Hughes,ASI2000,Unipak,RFC,Inland,Prefered,"  +
@@ -100,7 +100,7 @@ ASSIGN
  str-init[27] = "QOH>QEst,AllItems,QAvail>0"
  str-init[28] = "Penny,Dollar"
  str-init[29] = ",Brick,Xprint,Unipak-XL,PremierPkg,ACPI,PremierPkgU,PremierPkgM,PremierBroker,CCC,LoyLang,CCCWPP,Prystup," +
-                "bolcert 1,bolcert 2,BOLCERT10"
+                "bolcert 1,bolcert 2,BOLCERT10,CCC2"
  str-init[30] = "ASI,Clevelnd,McLean,Suthrlnd,Brick,Fibre,Protagon,cerunc 1,cerunc 2,cerunc 3"
  str-init[31] = "ASI,McLean,HOP,Dee,Fibre,cerunf 1,cerunf 2"
  str-init[32] = "XPRINT,Pacific,RFC,Hughes,HPB,MWFIBRE,ARTIOS,P&,MWBox," +
@@ -203,7 +203,7 @@ ASSIGN
  str-init[120] = "" 
  str-init[121] = ""
  str-init[122] = "ASIJobCL,MidYorkJobCL,CentBoxJobCL,ASIJobCR,ACPIJobCor"
- str-init[123] = "UnderRuns and OverRun,OverRuns Only"
+ str-init[123] = "UnderRuns and OverRun,OverRuns Only,UnderRuns Only"
  str-init[124] = "Profit,Cost Markup"
  str-init[128] = "BolCreation,Fixed Time"
  .
@@ -244,13 +244,13 @@ ASSIGN str-init[125] = "Ship Only,Invoice Only,Bill and Ship,Transfer Only"
 	
 IF PROGRAM-NAME(1) MATCHES "*windows/l-syschr.w*" THEN DO:
      ASSIGN
-	   str-init[1]  = "quoprint 1,quoprint 2,quoprint 10,quoprint 20,quoprint10-CAN"
+	   str-init[1]  = "quoprint 1,quoprint 2,quoprint 10,quoprint 11,quoprint 20,quoprint10-CAN"
        str-init[2]  = "invprint 1,invprint 2,invprint 10,invprint 20,invprint10-CAN"
        str-init[8]  = "poprint 1,poprint 2,poprint 10,poprint 20,POPrint10-CAN"
        str-init[9]  = "relprint 1,relprint 2,relprint 10"
-       str-init[10] = "bolfmt 1,bolfmt 2,bolfmt 10,bolfmt 20,bolfmt10-CAN"
+       str-init[10] = "bolfmt 1,bolfmt 2,bolfmt 10,bolfmt 20,bolfmt10-CAN,BOLfmt15"
        str-init[11] = "chkfmt 1,chkfmt 2,APChkFmt1"
-       str-init[13] = "ackhead 1,ackhead 2,ackhead 10,ackhead 20,ackhead10-CAN,Shamrock-Ack"
+       str-init[13] = "ackhead 1,ackhead 2,ackhead 10,ackhead 20,ackhead10-CAN"
        str-init[29] = "bolcert 1,bolcert 2,BOLCERT10"
        str-init[30] = "cerunc 1,cerunc 2,cerunc 3"
        str-init[31] = "cerunf 1,cerunf 2"

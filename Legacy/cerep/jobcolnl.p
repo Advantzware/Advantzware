@@ -953,7 +953,7 @@ FOR EACH job-hdr NO-LOCK
              v-po-duedate = IF AVAILABLE po-ordl THEN po-ordl.due-date ELSE ?.
 
              PUT "<P10>" v-fill SKIP
-                 "<B>BOARD CODE                   GRAIN     SHEETS       LF   SHEET SIZE    NET SHEET     DIE SIZE         DIE#              </B>" 
+                 "<B>BOARD CODE                    STOCK CODE GRAIN     SHEETS      LF    SHEET SIZE    NET SHEET     DIE SIZE          DIE#              </B>" 
                  SKIP.
             /** PRINT SHEET **/
              x = 2.
@@ -970,6 +970,7 @@ FOR EACH job-hdr NO-LOCK
                v-dept-title = IF AVAILABLE notes THEN notes.note_title ELSE "".
 
                DISPLAY ITEM.i-name FORMAT "x(28)" SPACE(2)
+                    TRIM(wrk-sheet.i-no) FORMAT "X(10)" SPACE(2)
                     ef.xgrain FORMAT "x(2)"
                     wrk-sheet.gsh-qty 
                     v-lbs

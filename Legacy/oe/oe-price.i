@@ -6,61 +6,52 @@
 
 {sys/inc/var.i shared}
 
-define shared buffer x{2} for {2}. /* BUFFER WITH ORDER HEADER */
+DEFINE SHARED BUFFER x{2} FOR {2}. /* BUFFER WITH ORDER HEADER */
 
-DEF BUFFER tmp-{1}    FOR {1}.
-DEF BUFFER b-oe-ord   FOR oe-ord.
-DEF BUFFER b-oe-ordl  FOR oe-ordl.
-DEF BUFFER b-ar-inv   FOR ar-inv.
-DEF BUFFER b-ar-invl  FOR ar-invl.
-DEF BUFFER b-inv-head FOR inv-head.
-DEF BUFFER b-inv-line FOR inv-line.
+DEFINE SHARED VARIABLE save_id      AS RECID  NO-UNDO.  /* RECORD ID FOR ORDER LINE */
+DEFINE SHARED VARIABLE v-i-item     LIKE itemfg.i-no NO-UNDO. /* INPUT ITEM */
+DEFINE SHARED VARIABLE v-i-qty      LIKE {1}.qty NO-UNDO. /* INPUT QUANTITY */
+DEFINE SHARED VARIABLE price-ent    AS LOG    NO-UNDO.
+DEFINE SHARED VARIABLE matrixExists AS LOG    NO-UNDO.
 
-define shared var save_id as recid no-undo.  /* RECORD ID FOR ORDER LINE */
-define shared var v-i-item like itemfg.i-no no-undo. /* INPUT ITEM */
-define shared var v-i-qty like {1}.qty no-undo. /* INPUT QUANTITY */
-define shared var price-ent as log NO-UNDO.
-DEFINE SHARED VAR matrixExists AS LOG NO-UNDO.
-
-define var class-qty as int extent 13 no-undo.
-DEF VAR ldt AS DATE NO-UNDO.
-DEF VAR lv-i-no LIKE v-i-item NO-UNDO.
-DEF VAR lv-date AS CHAR NO-UNDO.
-
-{sys/inc/sellpric.i}
-
-ASSIGN
- lv-date = STRING(YEAR(TODAY),"9999") +
-           STRING(MONTH(TODAY),"99")  +
-           STRING(DAY(TODAY),"99")
- lv-i-no = v-i-item.
+DEFINE        VARIABLE hdPriceProcs AS HANDLE NO-UNDO.
+{oe/ttPriceHold.i "NEW SHARED"}
+RUN oe/PriceProcs.p PERSISTENT SET hdPriceProcs.
+DEFINE VARIABLE cShipID   AS CHARACTER NO-UNDO.
+DEFINE BUFFER bf-inv-line FOR inv-line . 
+DEFINE BUFFER bf-oe-ordl FOR oe-ordl.
 
 DISABLE TRIGGERS FOR LOAD OF {1}.
-DISABLE TRIGGERS FOR LOAD OF tmp-{1}.
 
-if save_id ne ? then
-  find {1} where recid({1}) = save_id no-error.
-
-find first cust
-    {sys/ref/custW.i}
-      and cust.cust-no eq x{2}.cust-no
-   use-index cust no-lock.
-
-{oe/oe-pric1.i "{1}" "{2}" "{3}" "{4}"}
-
-if cust.auto-reprice then do:
-  for each tmp-{1} of x{2}
-      where RECID(tmp-{1}) <> RECID({1})
-      {3}:
-    v-i-item = tmp-{1}.i-no.
-    {oe/oe-pric2.i "tmp-{1}" "{2}" "{4}"}
-  end.
-end.
-
-v-i-item = lv-i-no.
-
-IF v-i-item EQ "" THEN v-i-item = {1}.i-no.
-
-{oe/oe-pric2.i "{1}" "{2}" "{4}"}
-
-/* end ---------------------------------- copr. 1992  advanced software, inc. */
+IF save_id NE ? THEN
+    FIND {1} WHERE RECID({1}) EQ save_id NO-ERROR.
+  
+IF NOT AVAILABLE {1} THEN RETURN.
+FIND FIRST cust NO-LOCK 
+    WHERE cust.company EQ x{2}.company
+    AND cust.cust-no EQ x{2}.cust-no
+    USE-INDEX cust NO-ERROR.
+IF NOT AVAILABLE cust THEN RETURN.
+   
+IF "{1}" EQ "inv-line" THEN 
+DO:  /*called from oe-ipric.p*/
+/*get ship id from Bol for invoice if possible*/
+    FIND FIRST bf-inv-line NO-LOCK 
+        WHERE ROWID(bf-inv-line) EQ ROWID({1})
+        NO-ERROR.
+    IF AVAILABLE bf-inv-line THEN 
+        FIND FIRST oe-bolh NO-LOCK 
+            WHERE oe-bolh.b-no EQ bf-inv-line.b-no
+            NO-ERROR.
+    IF AVAILABLE oe-bolh THEN cShipID = oe-bolh.ship-id.
+END.
+ELSE DO:
+    FIND FIRST bf-oe-ordl NO-LOCK 
+        WHERE ROWID(bf-oe-ordl) EQ ROWID({1})
+        NO-ERROR.
+    IF AVAILABLE bf-oe-ordl THEN cShipID = bf-oe-ordl.ship-id.
+END.    
+RUN CalculateLinePrice IN hdPriceProcs (ROWID({1}), v-i-item, cust.cust-no, cShipID, v-i-qty, YES,
+    OUTPUT matrixExists, INPUT-OUTPUT {1}.price, INPUT-OUTPUT {1}.pr-uom).
+    
+ 

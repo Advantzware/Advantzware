@@ -18,11 +18,4 @@ FOR EACH ar-cashl WHERE ar-cashl.c-no EQ {&TABLENAME}.c-no:
   DELETE ar-cashl.
 END.
 
-FIND FIRST reftable WHERE
-     reftable.reftable = "ARCASHHOLD" AND
-     reftable.rec_key = ar-cash.rec_key
-     USE-INDEX rec_key
-     EXCLUSIVE-LOCK NO-ERROR.
 
-IF AVAIL reftable THEN
-   DELETE reftable.

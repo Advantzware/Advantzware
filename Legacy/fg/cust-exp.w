@@ -45,6 +45,8 @@ DEFINE VARIABLE init-dir AS CHARACTER NO-UNDO.
 DEFINE {&NEW} SHARED VARIABLE g_batch AS LOGICAL NO-UNDO.
 DEFINE {&NEW} SHARED VARIABLE g_batch-rowid AS rowid NO-UNDO.
 DEFINE VARIABLE v-prgmname LIKE prgrms.prgmname NO-UNDO.
+DEFINE VARIABLE lActive AS LOGICAL NO-UNDO .
+DEFINE VARIABLE ou-log AS LOGICAL NO-UNDO .
 {sys/inc/var.i new shared}
 
  v-prgmname = SUBSTRING(PROGRAM-NAME(1), R-INDEX(PROGRAM-NAME(1), "/") + 1).
@@ -53,6 +55,10 @@ DEFINE VARIABLE v-prgmname LIKE prgrms.prgmname NO-UNDO.
 assign
  cocode = g_company
  /*locode = gloc*/ .
+
+DO TRANSACTION:
+     {sys/ref/CustList.i NEW}
+END.
 
 DEFINE STREAM excel.
 
@@ -662,7 +668,14 @@ THEN FRAME {&FRAME-NAME}:PARENT = ACTIVE-WINDOW.
 MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
-    
+
+ 
+RUN sys/ref/CustList.p (INPUT cocode,
+                            INPUT 'AF1',
+                            INPUT YES,
+                            OUTPUT lActive).
+{sys/inc/chblankcust.i ""AF1""} 
+
   RUN DisplaySelectionList.
   RUN enable_UI.
    {methods/nowait.i}
@@ -930,6 +943,7 @@ IF v-excelheader NE "" THEN PUT STREAM excel UNFORMATTED v-excelheader SKIP.
 FOR EACH b-cust WHERE b-cust.company = cocode
         AND b-cust.cust-no GE begin_cust-type
         AND b-cust.cust-no LE end_cust-type
+        AND ( lookup(b-cust.cust-no,custcount) <> 0 OR custcount = "")
         NO-LOCK:
 
     v-excel-detail-lines = "".

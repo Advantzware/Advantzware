@@ -315,6 +315,7 @@ FOR EACH eddoc
           oe-ord.frt-pay   = cust.frt-pay /* (P)repaid, (C)ollect or (B)ill */
           oe-ord.tax-gr    = cust.tax-gr
           oe-ord.carrier   = cust.carrier
+          oe-ord.ship-id   = cust.cust-no
           oe-ord.sman[1]       = cust.sman
           oe-ord.sman[2]       = ""
           oe-ord.sman[3]       = ""

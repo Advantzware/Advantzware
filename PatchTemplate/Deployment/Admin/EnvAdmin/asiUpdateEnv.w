@@ -227,7 +227,7 @@ DEF VAR cDbPortList AS CHAR INITIAL "2826" NO-UNDO.
 DEF VAR cAudDirList AS CHAR INITIAL "Audit" NO-UNDO.
 DEF VAR cAudDBList AS CHAR INITIAL "audProd" NO-UNDO.
 DEF VAR cAudPortList AS CHAR INITIAL "2836" NO-UNDO.
-DEF VAR cEnvVerList AS CHAR INITIAL "16.7.5" NO-UNDO.
+DEF VAR cEnvVerList AS CHAR INITIAL "16.7.8" NO-UNDO.
 DEF VAR cDbVerList AS CHAR INITIAL "16.7" NO-UNDO.
 /* # Basic DB Elements */
 DEF VAR cAudDbName AS CHAR INITIAL "audProd" NO-UNDO.
@@ -488,7 +488,7 @@ DEFINE VARIABLE fiMapDir AS CHARACTER FORMAT "X(256)":U INITIAL "N:"
      VIEW-AS FILL-IN 
      SIZE 5 BY 1 NO-UNDO.
 
-DEFINE VARIABLE fiNewVer AS CHARACTER FORMAT "X(256)":U INITIAL "16.7.5" 
+DEFINE VARIABLE fiNewVer AS CHARACTER FORMAT "X(256)":U INITIAL "16.7.8" 
      LABEL "New Version" 
      VIEW-AS FILL-IN 
      SIZE 14 BY 1
@@ -865,10 +865,13 @@ DEFINE FRAME DEFAULT-FRAME
      fiUpdStructureDir AT ROW 31.71 COL 116 COLON-ALIGNED NO-LABEL WIDGET-ID 164
      "<EnvName>" VIEW-AS TEXT
           SIZE 16 BY .76 AT ROW 14.57 COL 145 WIDGET-ID 242
-     "Environment tasks - will be performed once for each ENVIRONMENT selected above" VIEW-AS TEXT
-          SIZE 86 BY .62 AT ROW 23.38 COL 11 WIDGET-ID 500
-     "Programs" VIEW-AS TEXT
-          SIZE 16 BY .76 AT ROW 6 COL 145 WIDGET-ID 280
+     "PO" VIEW-AS TEXT
+          SIZE 16 BY .76 AT ROW 18.14 COL 147 WIDGET-ID 202
+     "Select one or more to upgrade." VIEW-AS TEXT
+          SIZE 32 BY .62 AT ROW 14.57 COL 10 WIDGET-ID 490
+     " General Variables" VIEW-AS TEXT
+          SIZE 22 BY .62 AT ROW 1.48 COL 8 WIDGET-ID 356
+          FONT 6
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
@@ -876,10 +879,8 @@ DEFINE FRAME DEFAULT-FRAME
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME DEFAULT-FRAME
-     "PO" VIEW-AS TEXT
-          SIZE 16 BY .76 AT ROW 18.14 COL 147 WIDGET-ID 202
-     "Select one or more to upgrade." VIEW-AS TEXT
-          SIZE 32 BY .62 AT ROW 14.57 COL 10 WIDGET-ID 490
+     "Environment tasks - will be performed once for each ENVIRONMENT selected above" VIEW-AS TEXT
+          SIZE 86 BY .62 AT ROW 23.38 COL 11 WIDGET-ID 500
      "StructureUpdate" VIEW-AS TEXT
           SIZE 16 BY .76 AT ROW 31.71 COL 148 WIDGET-ID 296
      " (Defaults)" VIEW-AS TEXT
@@ -988,9 +989,8 @@ DEFINE FRAME DEFAULT-FRAME
           SIZE 16 BY .76 AT ROW 18.86 COL 147 WIDGET-ID 204
      "Patch<n>" VIEW-AS TEXT
           SIZE 16 BY .76 AT ROW 24.57 COL 145 WIDGET-ID 196
-     " General Variables" VIEW-AS TEXT
-          SIZE 22 BY .62 AT ROW 1.48 COL 8 WIDGET-ID 356
-          FONT 6
+     "Programs" VIEW-AS TEXT
+          SIZE 16 BY .76 AT ROW 6 COL 145 WIDGET-ID 280
      RECT-1 AT ROW 1.71 COL 109 WIDGET-ID 354
      RECT-2 AT ROW 1.71 COL 5 WIDGET-ID 358
      RECT-3 AT ROW 10.29 COL 5 WIDGET-ID 362
@@ -3275,6 +3275,29 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipLoadAuditRecs C-Win 
+PROCEDURE ipLoadAuditRecs :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    RUN ipStatus ("Loading AuditTbl Records").
+
+    DISABLE TRIGGERS FOR LOAD OF audittbl.
+    
+    INPUT FROM VALUE(cUpdDataDir + "\audittbl.d") NO-ECHO.
+    REPEAT:
+        CREATE AuditTbl.
+        IMPORT AuditTbl.
+    END.
+    INPUT CLOSE.
+        
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipLoadEmailCodes C-Win 
 PROCEDURE ipLoadEmailCodes :
 /*------------------------------------------------------------------------------
@@ -3625,6 +3648,33 @@ PROCEDURE ipLoadPrograms :
         prgrms.run_persistent = YES
         prgrms.menu_item = YES
         .
+        
+    /* Ensure 'admin' user has same privileges as 'asi' */
+    /* This is better handled with new security, but eliminates some access issues */
+    /* See ticket 27968 */
+    FOR EACH prgrms:
+        IF CAN-DO(prgrms.can_run,"asi") 
+        AND NOT CAN-DO(prgrms.can_run,"admin") THEN ASSIGN
+            prgrms.can_run = prgrms.can_run + ",admin".
+        IF CAN-DO(prgrms.can_create,"asi") 
+        AND NOT CAN-DO(prgrms.can_create,"admin") THEN ASSIGN
+            prgrms.can_create = prgrms.can_create + ",admin".
+        IF CAN-DO(prgrms.can_update,"asi") 
+        AND NOT CAN-DO(prgrms.can_update,"admin") THEN ASSIGN
+            prgrms.can_update = prgrms.can_update + ",admin".
+        IF CAN-DO(prgrms.can_delete,"asi") 
+        AND NOT CAN-DO(prgrms.can_delete,"admin") THEN ASSIGN
+            prgrms.can_delete = prgrms.can_delete + ",admin".
+    END.
+    
+    /* Added usergrp test per BV request - same ticket */
+    DISABLE TRIGGERS FOR LOAD OF usergrps.
+    FOR EACH usergrps:
+        IF CAN-DO(usergrps.users,"asi") 
+        AND NOT CAN-DO(usergrps.users,"admin") THEN ASSIGN
+            usergrps.users = usergrps.users + ",admin".
+    END.
+
 
 END PROCEDURE.
 
@@ -4932,6 +4982,10 @@ PROCEDURE ipUpdateMaster :
         RUN ipLoadUtilNotes IN THIS-PROCEDURE.
     IF SEARCH(cUpdDataDir + "\module.d") <> ? THEN
         RUN ipLoadModules IN THIS-PROCEDURE.
+
+    IF NOT CAN-FIND(FIRST audit.audittbl) 
+    AND SEARCH(cUpdDataDir + "\audittbl.d") <> ? THEN
+        RUN ipLoadAuditRecs IN THIS-PROCEDURE.
 
 END PROCEDURE.
 

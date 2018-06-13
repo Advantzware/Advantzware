@@ -219,7 +219,7 @@ DEFINE BROWSE br_table
       est-op.m-code COLUMN-LABEL "Machine" FORMAT "x(6)":U COLUMN-FONT 0
             LABEL-BGCOLOR 14
       est-op.m-dscr FORMAT "x(20)":U COLUMN-FONT 0 LABEL-BGCOLOR 14
-      est-op.n-out COLUMN-LABEL "Out" FORMAT ">>9":U
+      est-op.n-out COLUMN-LABEL "Out" FORMAT ">>>9":U
       est-op.op-mr COLUMN-LABEL "MR-Hrs." FORMAT ">>9.99":U
       est-op.op-waste FORMAT ">>>>>9":U
       est-op.op-speed FORMAT ">>>>9":U
@@ -357,7 +357,7 @@ ASSIGN
      _FldNameList[4]   > ASI.est-op.m-dscr
 "est-op.m-dscr" ? ? "character" ? ? 0 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[5]   > ASI.est-op.n-out
-"est-op.n-out" "Out" ? "integer" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"est-op.n-out" "Out" ">>>9" "integer" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[6]   > ASI.est-op.op-mr
 "est-op.op-mr" "MR-Hrs." ? "decimal" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[7]   > ASI.est-op.op-waste

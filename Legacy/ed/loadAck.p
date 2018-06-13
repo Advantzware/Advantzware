@@ -27,9 +27,10 @@ DEFINE VARIABLE cSubFolderName AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cReturnChar     AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lRecFound       AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cEdiFileLine AS CHARACTER NO-UNDO.
+DEFINE BUFFER bf-Eddoc FOR eddoc.
 /* Default location if NK1 not defined */
 DEFINE VARIABLE cLogfolder     AS CHARACTER NO-UNDO 
-    INIT "C:\Program Files\RSSBus\RSSBus Connect\data\AmazonTest\Logs\Sent"
+    INIT "C:\Program Files\RSSBus\RSSBus Connect\data\Amazon\Logs\Sent"
     
     .
 DEFINE VARIABLE cSentFolder    AS CHARACTER NO-UNDO.
@@ -52,7 +53,7 @@ IF NOT AVAILABLE edco OR edco.company EQ "" THEN
   RETURN.
 
 
-RUN sys/ref/nk1look.p (INPUT edco.company, "AmazonInvoice", "C" /* Character*/, 
+RUN sys/ref/nk1look.p (INPUT edco.company, "EDILogs", "DS" /* Character*/, 
     INPUT NO /* check by cust */, 
     INPUT YES /* use cust not vendor */,
     INPUT "" /* cust */, 
@@ -62,7 +63,7 @@ RUN sys/ref/nk1look.p (INPUT edco.company, "AmazonInvoice", "C" /* Character*/,
 IF lRecFound THEN 
     cLogFolder= cReturnChar  .
 
-RUN sys/ref/nk1look.p (INPUT edco.company, "AmazonInvoice", "DS" /* Character*/, 
+RUN sys/ref/nk1look.p (INPUT edco.company, "EDILogs", "C" /* Character*/, 
     INPUT NO /* check by cust */, 
     INPUT YES /* use cust not vendor */,
     INPUT "" /* cust */, 
@@ -70,7 +71,7 @@ RUN sys/ref/nk1look.p (INPUT edco.company, "AmazonInvoice", "DS" /* Character*/,
     OUTPUT cReturnChar, 
     OUTPUT lRecFound).
 IF lRecFound THEN
-    cLogFolder= cReturnChar  .
+    cSentFolder = cReturnChar  .
 
 OS-COMMAND SILENT VALUE("dir /s/b " + '"' + cLogfolder + "\" + "*.filename " + '"' + " > c:\temp\list.txt" ).
 
@@ -96,7 +97,7 @@ REPEAT:
     IMPORT STREAM sLog UNFORMATTED cLogFileName.
     cLogFile = cLogFileName. 
     INPUT stream sLog close.
- 
+
     /* Read the current log file to determine if transmission was successful */
     IF SEARCH(cLogFileName) NE ? THEN 
     DO:
@@ -162,23 +163,30 @@ FOR EACH ttInvoiceList.
     IF AVAILABLE ar-inv THEN
         FIND FIRST edmast NO-LOCK WHERE edmast.cust EQ ar-inv.cust-no NO-ERROR.
     IF AVAILABLE edmast THEN    
-        FIND FIRST eddoc
+        FIND FIRST eddoc NO-LOCK 
             WHERE eddoc.setID EQ "810"
             AND eddoc.partner EQ edmast.partner
             AND eddoc.docID EQ STRING(ttInvoiceList.invoiceNum) 
             NO-ERROR.
-    IF AVAILABLE eddoc THEN 
+    IF AVAILABLE eddoc AND eddoc.status-flag NE ttInvoiceList.invoiceStatus THEN 
     DO:
-        
+        FIND bf-eddoc EXCLUSIVE-LOCK WHERE ROWID(bf-eddoc) EQ ROWID(eddoc) NO-ERROR NO-WAIT. 
+        IF AVAILABLE bf-eddoc THEN 
         ASSIGN 
-            eddoc.c-FAdate    = TODAY
-            eddoc.status-flag = ttInvoiceList.invoiceStatus
+            bf-eddoc.c-FAdate    = TODAY
+            bf-eddoc.status-flag = ttInvoiceList.invoiceStatus
             .
+        FIND CURRENT bf-eddoc NO-LOCK.
     END.
 END. /* Each ttInvoiceList */
+OUTPUT STREAM sLog CLOSE. 
 
 PROCEDURE getInvoiceNumbersInFile:
     DEFINE VARIABLE iInvoiceNum AS INTEGER NO-UNDO.
+
+    IF SEARCH(cSentFolder +  cEdiFileName) EQ ? THEN
+      RETURN.
+
     INPUT stream sEDIFile from value(cSentFolder +  cEdiFileName).
     REPEAT:
         IMPORT STREAM sEDIFile UNFORMATTED cEdiFileLine.

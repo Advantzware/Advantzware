@@ -50,6 +50,7 @@ DEFINE VARIABLE Is-add-dup-inv AS CHARACTER NO-UNDO .
 DEFINE VARIABLE oeInvAddDate-Int AS INTEGER NO-UNDO .
 DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO .
 DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO .
+DEFINE VARIABLE lEDI810Visible AS LOGICAL NO-UNDO.
 {sys/inc/VAR.i "new shared"}
 ASSIGN cocode = g_company
        locode = g_loc.
@@ -59,6 +60,8 @@ RUN sys/ref/nk1look.p (INPUT cocode, "InvAddDate", "I" /* Logical */, NO /* chec
 OUTPUT cRtnChar, OUTPUT lRecFound).
 IF lRecFound THEN
     oeInvAddDate-Int = INTEGER(cRtnChar) NO-ERROR.
+
+RUN util/checkModule.p (INPUT "", INPUT "EdIvTran.", INPUT NO, OUTPUT lEDI810Visible).
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1047,6 +1050,8 @@ PROCEDURE local-enable :
            
   DO WITH FRAME F-Main:
     DISABLE tbEdiInvoice.
+      IF NOT  lEDI810Visible THEN 
+          tbEdiInvoice:VISIBLE = FALSE.
   END.
 END PROCEDURE.
 
@@ -1234,7 +1239,10 @@ PROCEDURE proc-enable :
 ------------------------------------------------------------------------------*/
 
    DO WITH FRAME  {&FRAME-NAME}:
-     ENABLE tbEdiInvoice.
+     IF lEDI810Visible THEN 
+       ENABLE tbEdiInvoice.
+     ELSE 
+       tbEDIInvoice:VISIBLE = FALSE.
    END.
    IF NOT adm-new-record THEN
      IF ar-inv.posted THEN DO:
