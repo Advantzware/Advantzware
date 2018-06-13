@@ -215,7 +215,7 @@ CASE ip-nk1-value:
                           INPUT "" /* Char Value */, INPUT 0 /* Int value */,
                           INPUT NO /* Logical value */).
     WHEN "ASIHelpService" THEN 
-    RUN sys/inc/addnk1.p (INPUT "", INPUT ip-nk1-value, INPUT NO /* Prompt? */,
+    RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
                           INPUT "ASI Help Services",
                           INPUT "-WSDL 'http:\\34.203.15.64/asihelpServices/helpmaintenance.asmx?WSDL'" /* Char Value */, INPUT 0 /* Int value */,
                           INPUT NO /* Logical value */).
