@@ -139,6 +139,8 @@ ASSIGN
     {refTableConv.i "DArtios" 'cecrep/d-artios.w'}
     {refTableConv.i "Flute" 'Flute'}
     {refTableConv.i "aoaReport" 'aoaReport'}
+    {refTableConv.i "ItemfgMarkup" 'e-itemfg-vend.markup'}
+    {refTableConv.i "StdUom" 'e-itemfg-vend.std-uom'}
     {refTableConv.i "relcredconv" 'relcredconv'}
     {refTableConv.i "Arcashhold" 'ARCASHHOLD'}
 
