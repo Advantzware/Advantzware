@@ -1229,37 +1229,7 @@ PROCEDURE run-process :
           AND e-itemfg-vend.blank-no EQ eb.blank-no
         BREAK BY e-itemfg-vend.vend-no:
 
-      IF FIRST(e-itemfg-vend.vend-no) THEN DO:
-        FIND FIRST reftable
-            WHERE reftable.reftable EQ "e-itemfg-vend.std-uom"
-              AND reftable.company  EQ e-itemfg-vend.company
-              AND reftable.loc      EQ ""
-              AND reftable.code     EQ e-itemfg-vend.est-no
-              AND reftable.val[1]   EQ e-itemfg-vend.form-no
-              AND reftable.val[2]   EQ e-itemfg-vend.blank-no
-            NO-LOCK NO-ERROR.
 
-        IF AVAIL reftable THEN DO:
-          CREATE kref.
-          BUFFER-COPY reftable EXCEPT rec_key TO kref
-          ASSIGN
-           kref.company = keb.company
-           kref.code    = keb.est-no.
-        END.
-/*          task 10231204 - Was causing an error message and doesn't make sense */
-/*                                                                              */
-/*         IF NOT CAN-FIND(FIRST kei                                            */
-/*                         WHERE kei.company EQ keb.company                     */
-/*                           AND kei.i-no    EQ keb.stock-no) THEN DO:          */
-/*           CREATE kei.                                                        */
-/*           BUFFER-COPY e-item-vend EXCEPT rec_key TO kei                      */
-/*           ASSIGN                                                             */
-/*            kei.company = keb.company                                         */
-/*            kei.i-no    = keb.stock-no                                        */
-/*            kei.std-uom = IF AVAIL reftable THEN reftable.code2 ELSE "EA".    */
-/*         END.                                                                 */
-/*                                                                              */
-      END.
 
       CREATE keiv.
       BUFFER-COPY e-itemfg-vend EXCEPT rec_key TO keiv

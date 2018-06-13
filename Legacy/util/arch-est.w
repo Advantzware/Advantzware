@@ -1002,22 +1002,7 @@ if v-process then do:
 
         delete reftable.
     END.
-
-    FOR EACH reftable WHERE
-        reftable.reftable EQ "e-itemfg-vend.std-uom" AND
-        reftable.company  EQ e-itemfg-vend.company AND
-        reftable.loc      EQ "" AND
-        reftable.code     EQ e-itemfg-vend.est-no
-        EXCLUSIVE WITH FRAME f-std-uom:
-
-        if archive then do:
-           output to value(v-file-path + "reftable" + STRING(est.est-no,"X(8)") + ".d") APPEND.
-           export reftable.
-           output close.
-        end.
-
-        delete reftable.
-    END.
+    
 
     FOR EACH reftable WHERE
         reftable.reftable EQ "est/probeset.i" AND
