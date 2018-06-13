@@ -396,14 +396,15 @@ PROCEDURE epSetUpEDI :
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-FIND FIRST module NO-LOCK 
-      WHERE module.module EQ "m"
-        AND module.is-used EQ TRUE
-        AND module.expire-date GE TODAY
-  NO-ERROR.
-IF AVAILABLE module 
-AND SEARCH("rc/genrcvar.r") NE  ? THEN 
-  RUN rc/genrcvar.p. 
+    FIND FIRST module NO-LOCK WHERE 
+        module.module EQ "m" AND 
+        module.is-used EQ TRUE AND 
+        module.expire-date GE TODAY
+        NO-ERROR.
+
+    IF AVAILABLE module 
+    AND SEARCH("rc/genrcvar.r") NE ? THEN 
+        RUN rc/genrcvar.p. 
      
 
 END PROCEDURE.
