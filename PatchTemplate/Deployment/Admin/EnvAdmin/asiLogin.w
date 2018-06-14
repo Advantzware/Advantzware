@@ -1036,7 +1036,7 @@ PROCEDURE ipClickOk :
         END.
     END.
 
-    IF iEnvLevel LT 16071200 THEN DO:
+    IF iEnvLevel LT 16070800 THEN DO:
         MESSAGE
             "Changes to user aliases, mode, environments and databases will not be saved with this version."
             VIEW-AS ALERT-BOX INFO.
@@ -1367,7 +1367,7 @@ PROCEDURE ipFindUser :
         ttUsers.ttfPdbName = "*"
         NO-ERROR.
         
-        if avail ttusers then 
+       
          
     /* If this has not yet been built, build off of any DB */
     IF NOT AVAIL ttUsers THEN DO:
