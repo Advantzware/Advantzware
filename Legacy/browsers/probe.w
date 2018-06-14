@@ -659,6 +659,9 @@ ASSIGN
        probe.comm:VISIBLE IN BROWSE br_table = FALSE
        probe.sell-price:AUTO-RESIZE IN BROWSE br_table = TRUE.
 
+ASSIGN 
+       probe.market-price:VISIBLE IN BROWSE br_table = FALSE. /* ticket 28698*/
+
 /* SETTINGS FOR FILL-IN FI_moveCol IN FRAME F-Main
    NO-ENABLE                                                            */
 
@@ -2613,7 +2616,7 @@ PROCEDURE local-enable-fields :
 
   DO WITH FRAME {&FRAME-NAME}:
     probe.do-quote:SCREEN-VALUE IN BROWSE {&browse-name} = "Y".
-    APPLY "entry" TO probe.market-price IN BROWSE {&browse-name} .
+    APPLY "entry" TO probe.full-cost IN BROWSE {&browse-name} .
   END.
   ll-no-valid = NO.
 
