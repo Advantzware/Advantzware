@@ -804,6 +804,7 @@ PROCEDURE pProcessRecord PRIVATE:
      Notes:
     ------------------------------------------------------------------------------*/
     DEFINE PARAMETER BUFFER ipbf-ttImportEstimate FOR ttImportEstimate.
+    DEFINE INPUT PARAMETER iplIgnoreBlanks AS LOGICAL NO-UNDO.
     DEFINE INPUT-OUTPUT PARAMETER iopiAdded AS INTEGER NO-UNDO.
 
 

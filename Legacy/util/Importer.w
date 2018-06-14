@@ -66,10 +66,10 @@ DEFINE VARIABLE gcFileType     AS CHARACTER NO-UNDO.
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-19 cbType btnTemplate ~
 lIncludeHelpInTemplate fiFileName btnBrowse lHeaderRow lFieldValidation ~
-rdDuplicates btnLoad brPreview fiLogFolder btnBrowseFolder lLogOnly ~
-lLogOnlyErrors btnProcess btnCancel 
+rdDuplicates rdBlanks btnLoad brPreview fiLogFolder btnBrowseFolder ~
+lLogOnly lLogOnlyErrors btnProcess btnCancel 
 &Scoped-Define DISPLAYED-OBJECTS cbType lIncludeHelpInTemplate fiFileName ~
-lHeaderRow lFieldValidation rdDuplicates fiLogFolder lLogOnly ~
+lHeaderRow lFieldValidation rdDuplicates rdBlanks fiLogFolder lLogOnly ~
 lLogOnlyErrors 
 
 /* Custom List Definitions                                              */
@@ -150,38 +150,45 @@ DEFINE VARIABLE fiLogFolder AS CHARACTER FORMAT "X(256)":U
      VIEW-AS FILL-IN 
      SIZE 69 BY 1 TOOLTIP "Enter the file folder where the log will be generated" NO-UNDO.
 
-DEFINE VARIABLE rdDuplicates AS INTEGER 
+DEFINE VARIABLE rdBlanks AS INTEGER 
+     VIEW-AS RADIO-SET HORIZONTAL
+     RADIO-BUTTONS 
+          "Write blank and 0 fields", 1,
+"Ignore blank and 0 fields", 2
+     SIZE 80 BY .71 NO-UNDO.
+
+DEFINE VARIABLE rdDuplicates AS INTEGER INITIAL 2 
      VIEW-AS RADIO-SET HORIZONTAL
      RADIO-BUTTONS 
           "Overwrite data for duplicates", 1,
 "Skip Records if duplicate exists", 2
-     SIZE 87 BY .71 NO-UNDO.
+     SIZE 82 BY .71 NO-UNDO.
 
 DEFINE RECTANGLE RECT-19
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 157 BY 7.14.
 
-DEFINE VARIABLE lFieldValidation AS LOGICAL INITIAL YES 
+DEFINE VARIABLE lFieldValidation AS LOGICAL INITIAL yes 
      LABEL "Perform Field Level Validation (may be slow)" 
      VIEW-AS TOGGLE-BOX
      SIZE 61 BY .81 NO-UNDO.
 
-DEFINE VARIABLE lHeaderRow AS LOGICAL INITIAL YES 
+DEFINE VARIABLE lHeaderRow AS LOGICAL INITIAL yes 
      LABEL "First Row is Header" 
      VIEW-AS TOGGLE-BOX
      SIZE 30 BY .81 NO-UNDO.
 
-DEFINE VARIABLE lIncludeHelpInTemplate AS LOGICAL INITIAL NO 
+DEFINE VARIABLE lIncludeHelpInTemplate AS LOGICAL INITIAL no 
      LABEL "Include Help Row in Template" 
      VIEW-AS TOGGLE-BOX
      SIZE 39 BY .81 NO-UNDO.
 
-DEFINE VARIABLE lLogOnly AS LOGICAL INITIAL NO 
+DEFINE VARIABLE lLogOnly AS LOGICAL INITIAL no 
      LABEL "Generate Log Only" 
      VIEW-AS TOGGLE-BOX
      SIZE 30 BY .81 NO-UNDO.
 
-DEFINE VARIABLE lLogOnlyErrors AS LOGICAL INITIAL NO 
+DEFINE VARIABLE lLogOnlyErrors AS LOGICAL INITIAL no 
      LABEL "Only Log Errors" 
      VIEW-AS TOGGLE-BOX
      SIZE 30 BY .81 NO-UNDO.
@@ -313,9 +320,10 @@ DEFINE FRAME FRAME-A
      fiFileName AT ROW 3.38 COL 19 COLON-ALIGNED HELP
           "Enter file name to import order"
      btnBrowse AT ROW 3.38 COL 90 WIDGET-ID 20
-     lHeaderRow AT ROW 4.81 COL 21 WIDGET-ID 4
-     lFieldValidation AT ROW 6 COL 21 WIDGET-ID 24
-     rdDuplicates AT ROW 7.19 COL 21 NO-LABEL WIDGET-ID 30
+     lHeaderRow AT ROW 4.57 COL 21 WIDGET-ID 4
+     lFieldValidation AT ROW 5.52 COL 21 WIDGET-ID 24
+     rdDuplicates AT ROW 6.48 COL 21 NO-LABEL WIDGET-ID 30
+     rdBlanks AT ROW 7.43 COL 21 NO-LABEL WIDGET-ID 42
      btnLoad AT ROW 8.38 COL 4 WIDGET-ID 18
      brPreview AT ROW 10.76 COL 4 WIDGET-ID 100
      fiLogFolder AT ROW 23.86 COL 26 COLON-ALIGNED WIDGET-ID 14
@@ -355,16 +363,16 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          MAX-WIDTH          = 169.2
          VIRTUAL-HEIGHT     = 28.19
          VIRTUAL-WIDTH      = 169.2
-         RESIZE             = YES
-         SCROLL-BARS        = NO
-         STATUS-AREA        = YES
+         RESIZE             = yes
+         SCROLL-BARS        = no
+         STATUS-AREA        = yes
          BGCOLOR            = ?
          FGCOLOR            = ?
-         KEEP-FRAME-Z-ORDER = YES
-         THREE-D            = YES
+         KEEP-FRAME-Z-ORDER = yes
+         THREE-D            = yes
          FONT               = 6
-         MESSAGE-AREA       = NO
-         SENSITIVE          = YES.
+         MESSAGE-AREA       = no
+         SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 &IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
@@ -393,7 +401,7 @@ ASSIGN
                 "parm".
 
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
-THEN C-Win:HIDDEN = YES.
+THEN C-Win:HIDDEN = yes.
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -496,10 +504,12 @@ DO:
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnProcess C-Win
 ON CHOOSE OF btnProcess IN FRAME FRAME-A /* 2. Process Import */
 DO:
+    DEFINE VARIABLE lIgnoreBlanks AS LOGICAL NO-UNDO.
         DO WITH FRAME {&FRAME-NAME}:
             ASSIGN {&DISPLAYED-OBJECTS}.
         END.
-        RUN pRunProcess(lLogOnly, lLogOnlyErrors).
+        lIgnoreBlanks = rdBlanks EQ 2.
+        RUN pRunProcess(lLogOnly, lLogOnlyErrors, lIgnoreBlanks).
     END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -615,11 +625,12 @@ PROCEDURE enable_UI :
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
   DISPLAY cbType lIncludeHelpInTemplate fiFileName lHeaderRow lFieldValidation 
-          rdDuplicates fiLogFolder lLogOnly lLogOnlyErrors 
+          rdDuplicates rdBlanks fiLogFolder lLogOnly lLogOnlyErrors 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   ENABLE RECT-19 cbType btnTemplate lIncludeHelpInTemplate fiFileName btnBrowse 
-         lHeaderRow lFieldValidation rdDuplicates btnLoad brPreview fiLogFolder 
-         btnBrowseFolder lLogOnly lLogOnlyErrors btnProcess btnCancel 
+         lHeaderRow lFieldValidation rdDuplicates rdBlanks btnLoad brPreview 
+         fiLogFolder btnBrowseFolder lLogOnly lLogOnlyErrors btnProcess 
+         btnCancel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.
@@ -844,6 +855,7 @@ PROCEDURE pRunProcess :
                 ------------------------------------------------------------------------------*/ 
     DEFINE INPUT PARAMETER iplGenerateLogOnly AS LOGICAL NO-UNDO.
     DEFINE INPUT PARAMETER iplLogErrorsOnly AS LOGICAL NO-UNDO.
+    DEFINE INPUT PARAMETER iplIgnoreBlanks AS LOGICAL NO-UNDO.
     
     DEFINE VARIABLE cLogFile AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lProcess AS LOGICAL   NO-UNDO.
@@ -864,7 +876,7 @@ PROCEDURE pRunProcess :
             RUN pGenerateLog IN ghdImportProcs (cLogFile, iplLogErrorsOnly).
             IF NOT iplGenerateLogOnly THEN 
             DO:
-                RUN pProcessImport IN ghdImportProcs(OUTPUT iUpdated, OUTPUT iAdded).
+                RUN pProcessImport IN ghdImportProcs(iplIgnoreBlanks, OUTPUT iUpdated, OUTPUT iAdded).
             END.
             MESSAGE "Import process completed." SKIP 
                 iUpdated " records updated" SKIP 
@@ -886,20 +898,21 @@ END PROCEDURE.
 PROCEDURE pSetDisplay :
 /*------------------------------------------------------------------------------
  Purpose: Sets display elements of the UI based on type integer
- Notes:  0 = default, 1 = Artios
+ Notes:  0 = default, 1 = Artios, 2 = Updates Allowed
 ------------------------------------------------------------------------------*/
 DEFINE INPUT PARAMETER ipiType AS INTEGER NO-UNDO.
 
-DEFINE VARIABLE lHideObjects AS LOGICAL NO-UNDO.
+DEFINE VARIABLE lHideOptions AS LOGICAL NO-UNDO.
 DEFINE VARIABLE cLoadLabel AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cProcessLabel AS CHARACTER NO-UNDO.
-
+DEFINE VARIABLE lHideUpdateOptions AS LOGICAL NO-UNDO.
 
     CASE ipiType:
         WHEN 1 THEN 
         DO:
             ASSIGN 
-                lHideObjects = YES
+                lHideOptions = YES
+                lHideUpdateOptions = YES
                 cLoadLabel = "1. Load ARD File"
                 cProcessLabel = "2. Create Estimate"
                 .
@@ -908,23 +921,26 @@ DEFINE VARIABLE cProcessLabel AS CHARACTER NO-UNDO.
         OTHERWISE 
         DO:
             ASSIGN 
-                lHideObjects = NO
+                lHideOptions = NO
+                lHideUpdateOptions = ipiType NE 2
                 cLoadLabel = "1. Load Import File"
                 cProcessLabel = "2. Process Import"
                 .
+            
         END.    
     END CASE.
 DO WITH FRAME {&FRAME-NAME}:
     ASSIGN 
         btnLoad:LABEL = cLoadLabel
         btnProcess:LABEL = cProcessLabel
-        lHeaderRow:HIDDEN = lHideObjects
-        btnTemplate:HIDDEN = lHideObjects
-        lIncludeHelpInTemplate:HIDDEN = lHideObjects
-        rdDuplicates:HIDDEN = lHideObjects
-        lFieldValidation:HIDDEN = lHideObjects
+        lHeaderRow:HIDDEN = lHideOptions
+        btnTemplate:HIDDEN = lHideOptions
+        lIncludeHelpInTemplate:HIDDEN = lHideOptions
+        rdDuplicates:HIDDEN = lHideUpdateOptions
+        lFieldValidation:HIDDEN = lHideOptions
+        rdBlanks:HIDDEN = lHideUpdateOptions
         .
-        
+    
 END.
 END PROCEDURE.
 
@@ -958,7 +974,10 @@ PROCEDURE pSetType :
             END.
         OTHERWISE 
         DO:
-            RUN pSetDisplay(0).
+            IF LOOKUP(ipcTypeToSet,gcUpdatesAllowedTypes) GT 0 THEN
+                RUN pSetDisplay(2). 
+            ELSE                 
+                RUN pSetDisplay(0).
             gcFileType = "CSV".
         END.
     END CASE.        

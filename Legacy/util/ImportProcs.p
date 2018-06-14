@@ -374,11 +374,12 @@ PROCEDURE pProcessImport:
      Purpose: Processes the Import Data TempTable for the active type
      Notes:
     ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER iplIgnoreBlanks AS LOGICAL NO-UNDO.
     DEFINE OUTPUT PARAMETER opiUpdateCount AS INTEGER NO-UNDO.
     DEFINE OUTPUT PARAMETER opiAddCount AS INTEGER NO-UNDO.
 
 
-    RUN pProcessImport IN ghdImportProcForType (OUTPUT opiUpdateCount, OUTPUT opiAddCount).
+    RUN pProcessImport IN ghdImportProcForType (iplIgnoreBlanks, OUTPUT opiUpdateCount, OUTPUT opiAddCount).
 
 END PROCEDURE.
 

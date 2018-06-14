@@ -295,6 +295,7 @@ PROCEDURE pProcessRecord PRIVATE:
      Notes:
     ------------------------------------------------------------------------------*/
     DEFINE PARAMETER BUFFER ipbf-ttImportAR FOR ttImportAR.
+    DEFINE INPUT PARAMETER iplIgnoreBlanks AS LOGICAL NO-UNDO.
     DEFINE INPUT-OUTPUT PARAMETER iopiAdded AS INTEGER NO-UNDO.
 
     DEFINE VARIABLE riARInv  AS ROWID .
