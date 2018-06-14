@@ -737,6 +737,7 @@ DO:
         FOR EACH tt-rctd,
             FIRST rm-rctd WHERE ROWID(rm-rctd) EQ tt-rctd.rm-row-id
             AND rm-rctd.rita-code = "I"
+            AND rm-rctd.tag NE ""
             NO-LOCK
             BREAK BY rm-rctd.i-no
             BY rm-rctd.loc
