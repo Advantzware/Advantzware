@@ -74,6 +74,7 @@ DEF VAR v-rec-key-list AS CHAR NO-UNDO.
 DEF NEW SHARED VAR fil_id AS RECID NO-UNDO.
 DEF VAR v-prgmname LIKE prgrms.prgmname NO-UNDO.
 DEF VAR period_pos AS INTEGER NO-UNDO.
+DEFINE VARIABLE lInquery AS LOGICAL INIT NO NO-UNDO .
 
     IF INDEX(PROGRAM-NAME(1),".uib") NE 0 OR
        INDEX(PROGRAM-NAME(1),".ab")  NE 0 OR
@@ -96,7 +97,7 @@ DEF VAR v-paidflg AS LOG NO-UNDO.
           AND (IF fi_vend-no BEGINS '*' THEN po-ordl.vend-no MATCHES fi_vend-no   ~
               ELSE po-ordl.vend-no BEGINS fi_vend-no) ~
           AND (IF fi_i-no BEGINS '*' THEN po-ordl.i-no MATCHES fi_i-no      ~
-              ELSE po-ordl.i-no BEGINS fi_i-no) ~
+              ELSE IF lInquery THEN po-ordl.i-no EQ fi_i-no ELSE po-ordl.i-no BEGINS fi_i-no) ~
           AND (IF fi_vend-i-no BEGINS '*' THEN po-ordl.vend-i-no MATCHES fi_vend-i-no ~
               ELSE po-ordl.vend-i-no BEGINS fi_vend-i-no) ~
           AND po-ordl.job-no    BEGINS fi_job-no    ~
@@ -1533,7 +1534,8 @@ PROCEDURE local-initialize :
        fi_i-no:SCREEN-VALUE   = itemfg.i-no
        tb_open:SCREEN-VALUE   = STRING(ll-open EQ ? OR ll-open)
        tb_closed:SCREEN-VALUE = STRING(ll-open EQ ? OR NOT ll-open)
-       tb_paid:SCREEN-VALUE = STRING(ll-open EQ ? OR ll-open)  
+       tb_paid:SCREEN-VALUE = STRING(ll-open EQ ? OR ll-open) 
+       lInquery = YES .
        .
 
       APPLY "choose" TO btn_go.
