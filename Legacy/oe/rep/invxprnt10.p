@@ -475,7 +475,7 @@ find first company where company.company eq cocode NO-LOCK.
                                      oe-ordl.ord-no = inv-line.ord-no and
                                      oe-ordl.i-no = inv-line.i-no
                                      no-lock no-error.
-            v-ord-qty   = IF AVAIL oe-ordl THEN oe-ordl.qty ELSE 0 .
+
             if avail oe-ordl then DO:
               v-bo-qty = if (inv-line.qty - v-ship-qty -
                              oe-ordl.t-ship-qty) < 0 then 0 else
@@ -544,7 +544,8 @@ find first company where company.company eq cocode NO-LOCK.
                    v-i-dscr = inv-line.i-name
                    v-price = inv-line.price * (1 - (inv-line.disc / 100))
                    v-t-price = inv-line.t-price
-                   v-subtot-lines = v-subtot-lines + inv-line.t-price.
+                   v-subtot-lines = v-subtot-lines + inv-line.t-price
+                   v-ord-qty = inv-line.qty .
             
             IF lPrintQtyAll THEN
                    v-inv-qty = inv-line.inv-qty .
