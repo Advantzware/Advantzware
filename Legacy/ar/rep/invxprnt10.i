@@ -71,9 +71,15 @@ PUT "<R26><C1><#5><FROM><R28><C80><RECT><||3>" SKIP
                 "<R26><C56><FROM><R28><C56><LINE><||3>" SKIP
                 "<R26><C65><FROM><R28><C65><LINE><||3>" SKIP
                 "<R26><C69><FROM><R28><C69><LINE><||3>" SKIP
-                .   
+                . 
+IF NOT lPrintQtyAll THEN DO:  
 PUT "<FArial><=5>"  space(37) " Order /" SKIP
-                   " Ordered     Shipped      Cust PO      Item#/CustPart#                       Description                             Price       UOM             Amount" SKIP(1).
+                   " Ordered     Shipped      Cust PO      Item#/CustPart#                       Description                             Price      UOM              Amount" SKIP(1).
+END.
+ELSE DO:
+PUT "<FArial><=5>" " Ordered" space(25)  " Order /" SKIP
+                   " Shipped     Invoiced      Cust PO      Item#/CustPart#                       Description                             Price      UOM              Amount" SKIP(1).
+END.
 v-printline = v-printline + 4.
            
 
