@@ -284,3 +284,25 @@ PROCEDURE pIsValidFromList:
         opcMessage = CHR(34) + ipcInputValue + CHR(34) + " for " + CHR(34) + ipcField + CHR(34) + " is not in one of " + CHR(34) + ipcValidList + CHR(34) .
 
 END PROCEDURE.
+
+PROCEDURE pIsValidUserId:
+    /*------------------------------------------------------------------------------
+     Purpose:  Validates vendor type
+     Notes: Input 1 = vendor type
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcInputValue AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER iplRequire AS LOGICAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplIsValid AS LOGICAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
+    
+     FIND FIRST users NO-LOCK
+             WHERE users.user_id EQ ipcInputValue
+             NO-ERROR.
+     IF NOT AVAIL users THEN
+         ASSIGN
+           oplIsValid = NO 
+            opcMessage = "CSR is not valid." .
+     ELSE oplIsValid = YES .
+    
+
+END PROCEDURE. 
