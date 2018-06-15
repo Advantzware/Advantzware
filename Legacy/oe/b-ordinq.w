@@ -82,7 +82,7 @@ DEFINE VARIABLE dTotQtyRet AS DECIMAL NO-UNDO.
 DEFINE VARIABLE dTotRetInv AS DECIMAL NO-UNDO.
 DEFINE VARIABLE iHandQtyNoalloc AS INTEGER NO-UNDO .
 DEFINE VARIABLE lActive AS LOG NO-UNDO.
-
+DEFINE VARIABLE lSwitchToWeb AS LOG NO-UNDO.
 DEFINE TEMP-TABLE ttRelease NO-UNDO
     FIELD ordlRecID AS RECID
     FIELD lot-no AS CHARACTER
@@ -146,7 +146,9 @@ ll-sort-asc = NO /*oeinq*/.
       AND itemfg.i-no EQ oe-ordl.i-no ~
       AND itemfg.cad-no BEGINS fi_cad-no
 
-&SCOPED-DEFINE for-each3 FIRST oe-ord OF oe-ordl WHERE oe-ord.stat NE 'W' USE-INDEX ord-no NO-LOCK
+&SCOPED-DEFINE for-each3 FIRST oe-ord OF oe-ordl WHERE ~
+   (tb_web EQ NO and oe-ord.stat NE 'W') OR (tb_web AND oe-ord.stat EQ 'W') ~
+   USE-INDEX ord-no NO-LOCK
 
 &SCOPED-DEFINE sortby-log ~
     IF lv-sort-by EQ 'ord-no'    THEN STRING(oe-ordl.ord-no,'9999999999') ELSE ~
@@ -969,8 +971,13 @@ DO:
       fi_cad-no
       fi_sman
       .
-
-    ll-first = NO.
+      
+    IF lSwitchToWeb THEN
+      ASSIGN lSwitchToWeb = NO
+             ll-first     = YES /* for performance */
+             .
+    ELSE 
+      ll-first = NO.      
     RUN dispatch ("open-query").
     GET FIRST Browser-Table .
      IF NOT AVAILABLE oe-ord THEN DO:
@@ -1211,9 +1218,12 @@ END.
 ON VALUE-CHANGED OF tb_web IN FRAME F-Main /* WebOrders */
 DO:
     ASSIGN {&SELF-NAME}.
+    /* Indicates to run first-query for performanc4e */
+    lSwitchToWeb = YES.
+
     APPLY 'CHOOSE':U TO btn_go.
-    IF {&SELF-NAME} EQ YES THEN
-    RUN util/fixcXMLDuplicates.p.
+    IF {&SELF-NAME} EQ YES  THEN
+       RUN util/fixcXMLDuplicates.p.
 END.
 
 /* _UIB-CODE-BLOCK-END */
