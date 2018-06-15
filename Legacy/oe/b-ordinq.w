@@ -374,6 +374,14 @@ FUNCTION getTotalReturned RETURNS DECIMAL
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD isFilterBlank B-table-Win
+FUNCTION isFilterBlank RETURNS LOGICAL 
+  (  ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 /* ***********************  Control Definitions  ********************** */
 
@@ -972,10 +980,12 @@ DO:
       fi_sman
       .
       
-    IF lSwitchToWeb THEN
-      ASSIGN lSwitchToWeb = NO
-             ll-first     = YES /* for performance */
-             .
+    IF lSwitchToWeb THEN DO:
+          lSwitchToWeb = NO.
+          IF  isFilterBlank() THEN 
+             ll-first     = YES.     /* for performance */
+             
+     END.
     ELSE 
       ll-first = NO.      
     RUN dispatch ("open-query").
@@ -2824,4 +2834,37 @@ END FUNCTION.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION isFilterBlank B-table-Win
+FUNCTION isFilterBlank RETURNS LOGICAL 
+  (  ):
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+		DEFINE VARIABLE lResult AS LOGICAL NO-UNDO.
+		/* Determine if first-query can be used since no filters are applied */
+		DO WITH FRAME {&frame-name}:
+            IF  fi_cad-no:SCREEN-VALUE EQ "" AND
+                fi_cust-no:SCREEN-VALUE EQ "" AND
+                fi_est-no:SCREEN-VALUE EQ "" AND
+                fi_i-name:SCREEN-VALUE EQ "" AND
+                fi_i-no:SCREEN-VALUE EQ "" AND
+                fi_job-no:SCREEN-VALUE EQ "" AND
+                fi_job-no2:SCREEN-VALUE EQ "" AND
+                fi_ord-no:SCREEN-VALUE EQ "" AND
+                fi_part-no:SCREEN-VALUE EQ "" AND
+                fi_po-no1:SCREEN-VALUE EQ "" AND
+                fi_sman:SCREEN-VALUE EQ "" THEN 
+                lResult = TRUE. 
+             ELSE 
+               lResult = FALSE. 
+         END.
+		RETURN lResult.
+
+END FUNCTION.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
