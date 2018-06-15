@@ -745,6 +745,7 @@ FORMAT wkrecap.procat
                    WHEN "w-data.shp-qty" THEN cVarValue = "" .
                    WHEN "csrUser_id" THEN cVarValue = "" .
                    WHEN "ack-date" THEN cVarValue = "".
+                   WHEN "oe-ordl.pr-uom" THEN cVarValue = "".
               END CASE.
               IF cTmpField = "v-profit" AND NOT prt-profit THEN NEXT.
               cExcelVarValue = cVarValue.
@@ -815,6 +816,8 @@ FORMAT wkrecap.procat
                    WHEN "w-data.shp-qty" THEN cVarValue = "" .
                    WHEN "csrUser_id" THEN cVarValue = "" .
                    WHEN "ack-date" THEN cVarValue = "".
+	           WHEN "oe-ordl.pr-uom" THEN cVarValue = "".
+		
               END CASE.
               IF cTmpField = "v-profit" AND NOT prt-profit THEN NEXT.
               cExcelVarValue = cVarValue.
@@ -959,6 +962,7 @@ FORMAT wkrecap.procat
                    WHEN "w-data.shp-qty" THEN cVarValue = "" .
                    WHEN "csrUser_id" THEN cVarValue = "" .
                    WHEN "ack-date" THEN cVarValue = "".
+                   WHEN "oe-ordl.pr-uom" THEN cVarValue = "".
               END CASE.
               IF cTmpField = "v-profit" AND NOT prt-profit THEN NEXT.
               cExcelVarValue = cVarValue.
@@ -1028,6 +1032,7 @@ FORMAT wkrecap.procat
                    WHEN "w-data.shp-qty" THEN cVarValue = "" .
                    WHEN "csrUser_id" THEN cVarValue = "" .
                    WHEN "ack-date" THEN cVarValue = "".
+                   WHEN "oe-ordl.pr-uom" THEN cVarValue = "".
               END CASE.
               IF cTmpField = "v-profit" AND NOT prt-profit THEN NEXT.
               cExcelVarValue = cVarValue.

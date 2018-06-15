@@ -30,7 +30,7 @@ v-std-list = "LoadTagSSCC,IR12,OEDateChange,FGRecptPassWord,InvStatus,BOLQtyPopu
             + "KiwiT,BusinessFormModal,LoadTagXprintImage,AsiHelpClientID,CEGotoCalc,FGKEEPZEROBIN,RMKEEPZEROBIN,PrePressHotFolderIn,"
             + "PrePressHotFolderOut,METRIC,CEImportForm,CEImportFormFolder,BusinessFormLogo,CalcBtnImage,CalcBtnLink,DCClosedJobs,"
             + "ImportFolder,ImportLog,TagFormat,FgItemHideCalcFields,VendCostMatrix,RelSkipRecalc,RMAllowAdd,CECostSave,RMOverrunCostProtection,"
-            + "SSBOLPassword,BOLImageFooter,InvAddDate,POFGDims,OEPriceHold,POConfigDir,EDILogs,AutoLogout,AutoLogoutLocal" .
+            + "SSBOLPassword,BOLImageFooter,InvAddDate,POFGDims,OEPriceHold,POConfigDir,EDILogs,AutoLogout,AutoLogoutLocal,RMTagValidation" .
 
 IF CAN-DO(v-std-list,ip-nk1-value) THEN
 CASE ip-nk1-value:
@@ -215,7 +215,7 @@ CASE ip-nk1-value:
                           INPUT "" /* Char Value */, INPUT 0 /* Int value */,
                           INPUT NO /* Logical value */).
     WHEN "ASIHelpService" THEN 
-    RUN sys/inc/addnk1.p (INPUT "", INPUT ip-nk1-value, INPUT NO /* Prompt? */,
+    RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
                           INPUT "ASI Help Services",
                           INPUT "-WSDL 'http:\\34.203.15.64/asihelpServices/helpmaintenance.asmx?WSDL'" /* Char Value */, INPUT 0 /* Int value */,
                           INPUT NO /* Logical value */).
@@ -446,6 +446,11 @@ CASE ip-nk1-value:
         INPUT "Folder to write disconnect instructions from local client",
         INPUT "custfiles\userControl" /* Char Value */, INPUT 0 /* Int value */,
         INPUT NO /* Logical value */).       
+    WHEN "RMTagValidation" THEN   
+    RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
+        INPUT "Validates the tag number upon issue Material Posting",
+        INPUT "" /* Char Value */, INPUT 0 /* Int value */,
+        INPUT NO /* Logical value */).
 END CASE.
 ELSE
 CASE ip-nk1-value:

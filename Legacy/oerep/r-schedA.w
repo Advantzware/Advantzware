@@ -1159,6 +1159,36 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&Scoped-define SELF-NAME begin_csr
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_csr C-Win
+ON HELP OF begin_csr IN FRAME FRAME-A /* Font */
+DO:
+    DEF VAR char-val AS cha NO-UNDO.
+
+    run windows/l-users.w ("", output char-val).
+    IF char-val <> "" THEN ASSIGN begin_csr:SCREEN-VALUE = ENTRY(1,char-val) .
+
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME end_csr
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_csr C-Win
+ON HELP OF end_csr IN FRAME FRAME-A /* Font */
+DO:
+    DEF VAR char-val AS cha NO-UNDO.
+
+    run windows/l-users.w ("", output char-val).
+    IF char-val <> "" THEN ASSIGN end_csr:SCREEN-VALUE = ENTRY(1,char-val) .
+
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lv-font-no C-Win
 ON LEAVE OF lv-font-no IN FRAME FRAME-A /* Font */
@@ -1578,6 +1608,9 @@ PROCEDURE run-report :
 /* -------------------------------------------------oe/rep/schdrel.p 8/93 rd */
 /* Schedule Release Report                                                   */
 /* -------------------------------------------------------------------------- */
+
+ASSIGN cBeginCsr = begin_csr
+       cEndCsr   = end_csr .
 
 {oe/rep/schdrel2.i}
 

@@ -169,12 +169,12 @@ v-prgmname = ipcPrgmnameOverride.
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-6 RECT-7 begin_cust end_cust begin_inv ~
 end_inv begin_date end_date tb_reprint tb_posted tb_setcomp tb_prt-inst ~
-rd_sort tb_BatchMail tb_HideDialog tb_attachBOL rd-dest lv-ornt ~
+tb_qty-all rd_sort tb_BatchMail tb_HideDialog tb_attachBOL rd-dest lv-ornt ~
 lines-per-page lv-font-no tb_email-orig tb_override-email td-show-parm ~
 btn-ok btn-cancel 
 &Scoped-Define DISPLAYED-OBJECTS begin_cust end_cust begin_inv end_inv ~
-begin_date end_date tb_reprint tb_posted tb_setcomp tb_prt-inst lbl_sort ~
-rd_sort tb_BatchMail tb_HideDialog tb_attachBOL rd-dest lv-ornt ~
+begin_date end_date tb_reprint tb_posted tb_setcomp tb_prt-inst tb_qty-all ~
+lbl_sort rd_sort tb_BatchMail tb_HideDialog tb_attachBOL rd-dest lv-ornt ~
 lines-per-page lv-font-no lv-font-name tb_email-orig tb_override-email ~
 td-show-parm tb_splitPDF fiEndDateLabel fiBeginDateLabel 
 
@@ -392,6 +392,11 @@ DEFINE VARIABLE tb_prt-zero-qty AS LOGICAL INITIAL yes
      VIEW-AS TOGGLE-BOX
      SIZE 28.8 BY 1 NO-UNDO.
 
+DEFINE VARIABLE tb_qty-all AS LOGICAL INITIAL no 
+     LABEL "Print Enhanced Quantities (Ordered, Shipped, Invoiced)?" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 61 BY .81 NO-UNDO.
+
 DEFINE VARIABLE tb_reprint AS LOGICAL INITIAL no 
      LABEL "Reprint Invoices?" 
      VIEW-AS TOGGLE-BOX
@@ -447,6 +452,7 @@ DEFINE FRAME FRAME-A
      tb_print-dept AT ROW 9.95 COL 49 RIGHT-ALIGNED
      fi_depts AT ROW 9.95 COL 48.4 COLON-ALIGNED HELP
           "Enter Departments separated by commas" NO-LABEL
+     tb_qty-all AT ROW 10.14 COL 28 WIDGET-ID 28
      tb_prt-zero-qty AT ROW 10.95 COL 56 RIGHT-ALIGNED WIDGET-ID 12
      lbl_sort AT ROW 12 COL 26.2 COLON-ALIGNED NO-LABEL
      rd_sort AT ROW 12 COL 39 NO-LABEL
@@ -940,7 +946,8 @@ DO:
             tb_sman-copy       ,
             td-show-parm       ,
             tbPostedAR         ,
-            tb_splitPDF
+            tb_splitPDF        ,
+            tb_qty-all
             ).
 
         IF begin_bol EQ end_bol THEN 
@@ -1397,6 +1404,17 @@ DO:
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME tb_qty-all
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_qty-all C-Win
+ON VALUE-CHANGED OF tb_qty-all IN FRAME FRAME-A /* Print Enhanced Quantities (Ordered, Shipped, Invoiced)? */
+DO:
+        ASSIGN {&self-name}.
+    END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME tb_reprint
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_reprint C-Win
 ON VALUE-CHANGED OF tb_reprint IN FRAME FRAME-A /* Reprint Invoices? */
@@ -1536,7 +1554,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
              tbPostedAr:HIDDEN = YES
              tbPostedAR:SENSITIVE = NO
              .
-    
+     
     IF LOOKUP(v-print-fmt,"Boxtech,Imperial") GT 0 THEN lv-prt-bypass = YES.
 
     IF v-print-fmt EQ "XPRINT" OR v-print-fmt EQ "lovepac" OR v-print-fmt EQ "invprint10-CAN" OR v-print-fmt EQ "Boss" OR v-print-fmt EQ "Simkins" OR v-print-fmt EQ "CapCityIn" THEN
@@ -1615,6 +1633,9 @@ ELSE
      tb_splitPDF:HIDDEN = YES
      tb_splitPDF:SENSITIVE = NO
      .        
+  IF v-print-fmt EQ "invprint 10" OR v-print-fmt EQ  "invprint 20" THEN
+         ASSIGN tb_qty-all:HIDDEN = NO .
+     ELSE tb_qty-all:HIDDEN = YES .
 
 lines-per-page:SCREEN-VALUE = STRING(lines-per-page).
 IF glPaperless THEN 
@@ -1712,16 +1733,16 @@ PROCEDURE enable_UI :
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
   DISPLAY begin_cust end_cust begin_inv end_inv begin_date end_date tb_reprint 
-          tb_posted tb_setcomp tb_prt-inst lbl_sort rd_sort tb_BatchMail 
-          tb_HideDialog tb_attachBOL rd-dest lv-ornt lines-per-page lv-font-no 
-          lv-font-name tb_email-orig tb_override-email td-show-parm tb_splitPDF 
-          fiEndDateLabel fiBeginDateLabel 
+          tb_posted tb_setcomp tb_prt-inst tb_qty-all lbl_sort rd_sort 
+          tb_BatchMail tb_HideDialog tb_attachBOL rd-dest lv-ornt lines-per-page 
+          lv-font-no lv-font-name tb_email-orig tb_override-email td-show-parm 
+          tb_splitPDF fiEndDateLabel fiBeginDateLabel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   ENABLE RECT-6 RECT-7 begin_cust end_cust begin_inv end_inv begin_date 
-         end_date tb_reprint tb_posted tb_setcomp tb_prt-inst rd_sort 
-         tb_BatchMail tb_HideDialog tb_attachBOL rd-dest lv-ornt lines-per-page 
-         lv-font-no tb_email-orig tb_override-email td-show-parm btn-ok 
-         btn-cancel 
+         end_date tb_reprint tb_posted tb_setcomp tb_prt-inst tb_qty-all 
+         rd_sort tb_BatchMail tb_HideDialog tb_attachBOL rd-dest lv-ornt 
+         lines-per-page lv-font-no tb_email-orig tb_override-email td-show-parm 
+         btn-ok btn-cancel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.
