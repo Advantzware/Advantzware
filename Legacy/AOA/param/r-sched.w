@@ -58,7 +58,7 @@ svStartShipFrom svEndShipFrom svSubRpt_PrintSpecNotes svStartSpecNote ~
 svEndSpecNote svPrintOHQty svSort svSubTotalByCustomerNo ~
 svOnlyNegativeAvailable svOnlyNegOHRelQty svSubRpt_PrintScheduleStats ~
 svScheduled svLate svPastLastShipDate svActual svBackorder svBillOfLading ~
-svInvoiceUnposted svCompleted 
+svInvoiceUnposted svCompleted svAllCSR svStartCSR svEndCSR
 &Scoped-Define DISPLAYED-OBJECTS svCompany svLocation svCustList ~
 svAllCustNo svStartCustNo svEndCustNo svAllOrderNo svStartOrderNo ~
 svEndOrderNo svAllItemNo svStartItemNo svEndItemNo svAllLoc svStartLoc ~
@@ -72,7 +72,8 @@ startCustName endCustName startLocName endLocName startProdCategoryName ~
 endProdCategoryName startItemName endItemName svPrintOHQty svSort ~
 svSubTotalByCustomerNo svOnlyNegativeAvailable svOnlyNegOHRelQty ~
 svSubRpt_PrintScheduleStats svScheduled svLate svPastLastShipDate svActual ~
-svBackorder svBillOfLading svInvoiceUnposted svCompleted 
+svBackorder svBillOfLading svInvoiceUnposted svCompleted startCSRName ~
+endCSRName svAllCSR svStartCSR svEndCSR
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -137,6 +138,10 @@ DEFINE VARIABLE endSalesRepName AS CHARACTER FORMAT "X(30)"
      VIEW-AS FILL-IN 
      SIZE 42 BY 1.
 
+DEFINE VARIABLE endCSRName AS CHARACTER FORMAT "X(30)" 
+     VIEW-AS FILL-IN 
+     SIZE 42 BY 1.
+
 DEFINE VARIABLE startCarrierName AS CHARACTER FORMAT "X(30)" 
      VIEW-AS FILL-IN 
      SIZE 42 BY 1.
@@ -158,6 +163,10 @@ DEFINE VARIABLE startProdCategoryName AS CHARACTER FORMAT "X(30)"
      SIZE 35 BY 1.
 
 DEFINE VARIABLE startSalesRepName AS CHARACTER FORMAT "X(30)" 
+     VIEW-AS FILL-IN 
+     SIZE 42 BY 1.
+
+DEFINE VARIABLE startCSRName AS CHARACTER FORMAT "X(30)" 
      VIEW-AS FILL-IN 
      SIZE 42 BY 1.
 
@@ -216,6 +225,11 @@ DEFINE VARIABLE svEndSpecNote AS CHARACTER FORMAT "X(3)"
      VIEW-AS FILL-IN 
      SIZE 8 BY 1.
 
+DEFINE VARIABLE svEndCSR AS CHARACTER FORMAT "x(10)" INITIAL 0 
+     LABEL "End CSR" 
+     VIEW-AS FILL-IN 
+     SIZE 15 BY 1.
+
 DEFINE VARIABLE svLocation AS CHARACTER FORMAT "X(5)" 
      LABEL "Location" 
      VIEW-AS FILL-IN 
@@ -270,6 +284,11 @@ DEFINE VARIABLE svStartSpecNote AS CHARACTER FORMAT "X(3)"
      LABEL "Start Spec" 
      VIEW-AS FILL-IN 
      SIZE 8 BY 1.
+
+DEFINE VARIABLE svStartCSR AS CHARACTER FORMAT "x(10)" INITIAL 0 
+     LABEL "Start CSR" 
+     VIEW-AS FILL-IN 
+     SIZE 15 BY 1.
 
 DEFINE VARIABLE svPrintOHQty AS CHARACTER 
      VIEW-AS RADIO-SET VERTICAL
@@ -402,6 +421,11 @@ DEFINE VARIABLE svSubTotalByCustomerNo AS LOGICAL INITIAL no
      VIEW-AS TOGGLE-BOX
      SIZE 23 BY 1 NO-UNDO.
 
+DEFINE VARIABLE svAllCSR AS LOGICAL INITIAL yes 
+     LABEL "All CSR" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 13 BY .95 NO-UNDO.
+
 
 /* ************************  Frame Definitions  *********************** */
 
@@ -481,6 +505,12 @@ DEFINE FRAME F-Main
           "Enter Start Spec Note" WIDGET-ID 352
      svEndSpecNote AT ROW 29.1 COL 60 COLON-ALIGNED HELP
           "Enter End Spec Note" WIDGET-ID 350
+     svAllCSR AT ROW 30 COL 19 HELP
+          "All Orders?" 
+     svStartCSR AT ROW 31 COL 17 COLON-ALIGNED HELP
+          "Enter Start CSR" 
+     svEndCSR AT ROW 32 COL 17 COLON-ALIGNED HELP
+          "Enter End CSR" 
      startSalesRepName AT ROW 16.24 COL 26 COLON-ALIGNED NO-LABEL WIDGET-ID 106
      endSalesRepName AT ROW 17.43 COL 26 COLON-ALIGNED NO-LABEL WIDGET-ID 104
      startCarrierName AT ROW 21.95 COL 26 COLON-ALIGNED NO-LABEL WIDGET-ID 326
@@ -493,6 +523,8 @@ DEFINE FRAME F-Main
      endProdCategoryName AT ROW 26.71 COL 33 COLON-ALIGNED NO-LABEL WIDGET-ID 208
      startItemName AT ROW 9.1 COL 40 COLON-ALIGNED NO-LABEL WIDGET-ID 172
      endItemName AT ROW 10.29 COL 40 COLON-ALIGNED NO-LABEL WIDGET-ID 170
+     startCSRName AT ROW 31 COL 35 COLON-ALIGNED NO-LABEL 
+     endCSRName AT ROW 32 COL 35 COLON-ALIGNED NO-LABEL 
      svPrintOHQty AT ROW 2.43 COL 71 HELP
           "Select Sort Option" NO-LABEL WIDGET-ID 340
      svSort AT ROW 6.95 COL 71 HELP
@@ -1011,6 +1043,26 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&Scoped-define SELF-NAME svStartCSR
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svStartCSR sObject
+ON LEAVE OF svStartCSR IN FRAME F-Main /* Start Sales Rep */
+DO:
+    startCSRName:SCREEN-VALUE = {aoa/includes/fSetDescription.i}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME svEndCSR
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svEndCSR sObject
+ON LEAVE OF svEndCSR IN FRAME F-Main /* Start Sales Rep */
+DO:
+    endCSRName:SCREEN-VALUE = {aoa/includes/fSetDescription.i}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 &Scoped-define SELF-NAME svSubRpt_PrintScheduleStats
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svSubRpt_PrintScheduleStats sObject
@@ -1042,6 +1094,16 @@ ON VALUE-CHANGED OF svSubTotalByCustomerNo IN FRAME F-Main /* Sub By Customer No
 DO:
     IF {&SELF-NAME}:SCREEN-VALUE EQ "yes" THEN
     svSort:SCREEN-VALUE = "Customer No".
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME svAllCSR
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svAllCSR sObject
+ON VALUE-CHANGED OF svAllCSR IN FRAME F-Main /* All Orders */
+DO:
+    {aoa/includes/svAllValueChanged.i svStartCSR svEndCSR}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1130,6 +1192,10 @@ PROCEDURE pInitialize :
         APPLY "VALUE-CHANGED":U TO svAllCarrier.
         APPLY "LEAVE":U TO svStartCarrier.
         APPLY "LEAVE":U TO svEndCarrier.
+
+        APPLY "VALUE-CHANGED":U TO svAllCSR.
+        APPLY "LEAVE":U TO svStartCSR.
+        APPLY "LEAVE":U TO svEndCSR.
         
         APPLY "VALUE-CHANGED":U TO svAllShipFrom.
     END.
