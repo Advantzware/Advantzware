@@ -570,18 +570,12 @@ FOR EACH itemfg NO-LOCK
     ELSE DO:
         IF INDEX("CRTS", fg-rdtlh.rita-code) GT 0
             AND fg-rdtlh.tag NE "" THEN DO:
-                FOR EACH bf-fg-rcpth NO-LOCK
-                    WHERE bf-fg-rcpth.company EQ fg-rcpth.company
-                    AND bf-fg-rcpth.i-no EQ fg-rcpth.i-no
-                    AND bf-fg-rcpth.rita-code EQ "R"
-                    USE-INDEX i-no,
-                    EACH bf-fg-rdtlh NO-LOCK 
-                    WHERE bf-fg-rdtlh.r-no EQ bf-fg-rcpth.r-no
-                    AND bf-fg-rdtlh.rita-code EQ bf-fg-rcpth.rita-code 
-                    AND bf-fg-rdtlh.tag EQ fg-rdtlh.tag
-                    USE-INDEX rm-rdtl:
-                        LEAVE.                     
-                END.
+                FIND FIRST bf-fg-rdtlh NO-LOCK 
+                    WHERE bf-fg-rdtlh.company EQ fg-rcpth.company
+                      AND bf-fg-rdtlh.i-no EQ fg-rcpth.i-no
+                      AND bf-fg-rdtlh.rita-code EQ "R"
+                      AND bf-fg-rdtlh.tag EQ fg-rdtlh.tag
+                      NO-ERROR.
                 IF AVAILABLE bf-fg-rdtlh THEN 
                     ASSIGN 
                         lv-cost[5] = bf-fg-rdtlh.cost
