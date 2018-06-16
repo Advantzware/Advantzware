@@ -29,5 +29,6 @@ DEFINE TEMP-TABLE ttOrdersBooked NO-UNDO
     FIELD vUserID      AS CHARACTER LABEL "User ID"        FORMAT "x(8)"
     FIELD xxCost       AS DECIMAL   LABEL "Cost"           FORMAT "->>,>>9.99"
     FIELD xxSort       AS CHARACTER LABEL "Sort"           FORMAT "x(100)"
+    FIELD pruom        AS CHARACTER LABEL "UOM"            FORMAT  "x(6)" 
         INDEX ttOrdersBooked IS PRIMARY rowType xxSort
         .
