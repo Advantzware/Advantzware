@@ -60,5 +60,6 @@ DEFINE TEMP-TABLE ttScheduledReleases NO-UNDO
     FIELD xxSort02        AS CHARACTER LABEL "Sort02 By"        FORMAT "x(50)"
     FIELD xxSort03        AS CHARACTER LABEL "Sort03 By"        FORMAT "x(50)"
     FIELD xxSort04        AS CHARACTER LABEL "Sort04 By"        FORMAT "x(50)"
+    FIELD csrUser_id      AS CHARACTER LABEL "CSR"              FORMAT "x(10)"
         INDEX xxSort IS PRIMARY xxSort01 xxSort02 xxSort03 xxSort04
         .

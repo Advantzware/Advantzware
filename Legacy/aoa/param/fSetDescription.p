@@ -112,7 +112,7 @@ CASE iphObject:NAME:
              NO-ERROR.
         IF AVAILABLE terms THEN opcDescription = terms.dscr.
     END.
-    WHEN "svStartUserID" OR WHEN "svEndUserID" THEN DO:
+    WHEN "svStartUserID" OR WHEN "svEndUserID" OR WHEN "svStartCSR" OR WHEN "svEndCSR" THEN DO:
         cRange = REPLACE(cRange,"UserID","").
         FIND FIRST users NO-LOCK
              WHERE users.user_id EQ iphObject:SCREEN-VALUE

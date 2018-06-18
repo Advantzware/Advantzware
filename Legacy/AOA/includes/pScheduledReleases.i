@@ -54,6 +54,10 @@
     DEFINE VARIABLE cAvailableColumns AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cSelectedColumns AS CHARACTER NO-UNDO.
 
+    DEFINE VARIABLE lAllCSR AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE cStartCSR AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cEndCSR AS CHARACTER NO-UNDO.
+
     /* locate parameter values record */
     RUN pGetParamValues (ipcCompany, "r-sched.", ipcUserID, ipiBatch).
 
@@ -111,6 +115,11 @@
         lSecure = DYNAMIC-FUNCTION("fGetParamValue","svSecure") EQ "yes"
         cAvailableColumns = DYNAMIC-FUNCTION("fGetParamValue","svAvailableColumns")
         cSelectedColumns = DYNAMIC-FUNCTION("fGetParamValue","svSelectedColumns")
+
+        lAllCSR = DYNAMIC-FUNCTION("fGetParamValue","svAllCSR") EQ "yes"
+        cStartCSR = DYNAMIC-FUNCTION("fGetParamValue","svStartCSR")
+        cEndCSR = DYNAMIC-FUNCTION("fGetParamValue","svEndCSR")
+
         .
 
     RUN pGetColumns (TEMP-TABLE ttScheduledReleases:HANDLE, cAvailableColumns, cSelectedColumns).
@@ -161,6 +170,12 @@
     ASSIGN
         cStartShipFrom = CHR(32)
         cEndShipFrom   = CHR(254)
+        .
+
+    IF lAllCSR THEN
+    ASSIGN
+        cStartCSR = CHR(32)
+        cEndCSR   = CHR(254)
         .
 
     IF lCustList THEN
