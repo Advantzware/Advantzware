@@ -323,7 +323,8 @@ FIND FIRST oe-ord NO-LOCK
     NO-ERROR.    
 IF AVAILABLE oe-ord THEN DO:
     /*builds the shared temp table ttPriceHold*/
-    RUN CheckPriceHoldForOrder IN hdPriceProcs (ROWID(oe-ord), NO, NO, OUTPUT lHold, OUTPUT cReason).
+    RUN CheckPriceHoldForOrder IN hdPriceProcs (ROWID(oe-ord),  "", "", "",  0,  
+    NO, NO, OUTPUT lHold, OUTPUT cReason).
     ASSIGN 
         fiHold = STRING(lHold)
         fiReason = STRING(cReason)

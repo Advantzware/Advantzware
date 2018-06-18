@@ -2186,8 +2186,10 @@ PROCEDURE CheckPriceHold:
 DEFINE VARIABLE lPriceHold AS LOGICAL NO-UNDO.
 DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
 
-IF oe-ord.priceHold AND NOT oe-ord.priceHold:CHECKED IN FRAME {&FRAME-NAME} THEN DO:
-    RUN CheckPriceHoldForOrder IN hdPriceProcs (ROWID(oe-ord), NO, NO, OUTPUT lPriceHold, OUTPUT cMessage).
+IF oe-ord.priceHold AND NOT oe-ord.priceHold:CHECKED IN FRAME {&FRAME-NAME} THEN 
+DO:
+    RUN CheckPriceHoldForOrder IN hdPriceProcs (ROWID(oe-ord),  "",  "",  "",  0,   
+    NO, NO, OUTPUT lPriceHold, OUTPUT cMessage).
     IF lPriceHold THEN 
         MESSAGE "Warning: Order still qualifies for Price Hold and may be reset to Price Hold on a change to the order line. " SKIP(2)
             "Price Hold Reason: " cMessage
