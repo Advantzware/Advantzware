@@ -394,6 +394,8 @@ PROCEDURE adm-create-objects :
        /* Links to SmartViewer h_v-nav2. */
        RUN add-link IN adm-broker-hdl ( h_b-rcrinq , 'nav-itm':U , h_v-nav2 ).
 
+       RUN add-link IN adm-broker-hdl ( h_b-rcrinq , 'inquiryaq':U , h_b-cashl ).
+
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_v-cash ,
              h_folder , 'AFTER':U ).

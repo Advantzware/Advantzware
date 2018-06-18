@@ -1165,6 +1165,11 @@ PROCEDURE local-open-query :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'open-query':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
+  RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"inquiryaq-source",OUTPUT char-hdl).
+
+  IF AVAIL ar-cashl AND VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN DO WITH FRAME {&FRAME-NAME}:
+        ar-cashl.amt-due:LABEL IN  BROWSE {&browse-name} = "Original Balance" .
+  END.
 
   IF AVAIL ar-cashl THEN
   DO:
