@@ -82,7 +82,7 @@ DEFINE VARIABLE dTotQtyRet AS DECIMAL NO-UNDO.
 DEFINE VARIABLE dTotRetInv AS DECIMAL NO-UNDO.
 DEFINE VARIABLE iHandQtyNoalloc AS INTEGER NO-UNDO .
 DEFINE VARIABLE lActive AS LOG NO-UNDO.
-
+DEFINE VARIABLE lSwitchToWeb AS LOG NO-UNDO.
 DEFINE TEMP-TABLE ttRelease NO-UNDO
     FIELD ordlRecID AS RECID
     FIELD lot-no AS CHARACTER
@@ -146,7 +146,9 @@ ll-sort-asc = NO /*oeinq*/.
       AND itemfg.i-no EQ oe-ordl.i-no ~
       AND itemfg.cad-no BEGINS fi_cad-no
 
-&SCOPED-DEFINE for-each3 FIRST oe-ord OF oe-ordl WHERE oe-ord.stat NE 'W' USE-INDEX ord-no NO-LOCK
+&SCOPED-DEFINE for-each3 FIRST oe-ord OF oe-ordl WHERE ~
+   (tb_web EQ NO and oe-ord.stat NE 'W') OR (tb_web AND oe-ord.stat EQ 'W') ~
+   USE-INDEX ord-no NO-LOCK
 
 &SCOPED-DEFINE sortby-log ~
     IF lv-sort-by EQ 'ord-no'    THEN STRING(oe-ordl.ord-no,'9999999999') ELSE ~
@@ -371,6 +373,14 @@ FUNCTION getTotalReturned RETURNS DECIMAL
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD isFilterBlank B-table-Win
+FUNCTION isFilterBlank RETURNS LOGICAL 
+  (  ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 
 /* ***********************  Control Definitions  ********************** */
@@ -969,8 +979,15 @@ DO:
       fi_cad-no
       fi_sman
       .
-
-    ll-first = NO.
+      
+    IF lSwitchToWeb THEN DO:
+          lSwitchToWeb = NO.
+          IF  isFilterBlank() THEN 
+             ll-first     = YES.     /* for performance */
+             
+     END.
+    ELSE 
+      ll-first = NO.      
     RUN dispatch ("open-query").
     GET FIRST Browser-Table .
      IF NOT AVAILABLE oe-ord THEN DO:
@@ -1211,9 +1228,12 @@ END.
 ON VALUE-CHANGED OF tb_web IN FRAME F-Main /* WebOrders */
 DO:
     ASSIGN {&SELF-NAME}.
+    /* Indicates to run first-query for performanc4e */
+    lSwitchToWeb = YES.
+
     APPLY 'CHOOSE':U TO btn_go.
-    IF {&SELF-NAME} EQ YES THEN
-    RUN util/fixcXMLDuplicates.p.
+    IF {&SELF-NAME} EQ YES  THEN
+       RUN util/fixcXMLDuplicates.p.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2814,4 +2834,37 @@ END FUNCTION.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION isFilterBlank B-table-Win
+FUNCTION isFilterBlank RETURNS LOGICAL 
+  (  ):
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+		DEFINE VARIABLE lResult AS LOGICAL NO-UNDO.
+		/* Determine if first-query can be used since no filters are applied */
+		DO WITH FRAME {&frame-name}:
+            IF  fi_cad-no:SCREEN-VALUE EQ "" AND
+                fi_cust-no:SCREEN-VALUE EQ "" AND
+                fi_est-no:SCREEN-VALUE EQ "" AND
+                fi_i-name:SCREEN-VALUE EQ "" AND
+                fi_i-no:SCREEN-VALUE EQ "" AND
+                fi_job-no:SCREEN-VALUE EQ "" AND
+                fi_job-no2:SCREEN-VALUE EQ "" AND
+                fi_ord-no:SCREEN-VALUE EQ "" AND
+                fi_part-no:SCREEN-VALUE EQ "" AND
+                fi_po-no1:SCREEN-VALUE EQ "" AND
+                fi_sman:SCREEN-VALUE EQ "" THEN 
+                lResult = TRUE. 
+             ELSE 
+               lResult = FALSE. 
+         END.
+		RETURN lResult.
+
+END FUNCTION.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
