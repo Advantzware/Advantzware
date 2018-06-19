@@ -751,12 +751,12 @@ PROCEDURE ipAssignSV :
     ASSIGN
       fiUserID 
       fiPassword 
-      cbEnvironment
-      cbMode       
-      cbDatabase   
-      cEnvironmentList = cbEnvironment:{&SV}
-      cDatabaseList = cbDatabase:{&SV}
-      cModeScrList = cbMode:{&SV}
+      cbEnvironment = cbEnvironment:{&SV}
+      cbMode = cbMode:{&SV}      
+      cbDatabase = cbDatabase:{&SV}  
+      cEnvironmentList = cbEnvironment:LIST-ITEMS
+      cDatabaseList = cbDatabase:LIST-ITEMS
+      cModeScrList = cbMode:LIST-ITEMS
       .
  END.
 END PROCEDURE.
@@ -1603,7 +1603,7 @@ PROCEDURE ipPreRun :
 
     RUN epGetUserGroups IN hPreRun (OUTPUT g_groups).
 
-    IF iDbLevel GT 16050000 THEN 
+    IF iDbLevel GT 16061200 THEN 
         RUN epSetUpEDI IN hPreRun.
 
     IF fiUserID = "ASI" THEN 
