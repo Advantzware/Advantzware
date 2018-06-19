@@ -517,13 +517,14 @@ PROCEDURE pOrdersBooked2:
             ttOrdersBooked.orderDate    = oe-ord.ord-date
             ttOrdersBooked.vUserID      = oe-ord.user-id                  
             ttOrdersBooked.custPartNo   = IF AVAILABLE oe-ordl THEN oe-ordl.part-no ELSE ""
+            ttOrdersBooked.pruom        = IF AVAILABLE oe-ordl THEN oe-ordl.pr-uom ELSE ""
             ttOrdersBooked.dieNo        = IF AVAILABLE itemfg AND itemfg.die-no NE "" THEN itemfg.die-no
                                      ELSE IF AVAILABLE eb THEN eb.die-no
                                      ELSE ""
             ttOrdersBooked.xxCost       = w-data.cost
             ttOrdersBooked.xxSort       = ttOrdersBooked.salesRep
                                         + STRING(ttOrdersBooked.dueDate,"99/99/9999")
-                                        + STRING(ttOrdersBooked.orderNo)
+                                        + STRING(ttOrdersBooked.orderNo)            
             . 
         DELETE w-data.
     END.  /* for each tt-report */
