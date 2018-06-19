@@ -327,6 +327,7 @@ for each {1}report where {1}report.term-id eq v-term,
                      
                      WHEN "job-qty"    THEN cVarValue = IF v-job-all NE ? AND v-cmtd THEN STRING(v-job-all,"->>>>,>>>,>>9.99") ELSE STRING(0,"->>>>,>>>,>>9.99")  .
                      WHEN "rm-qty"   THEN cVarValue = IF v-job-all ne ? AND v-cmtd THEN STRING(v-rm-all,"->>>,>>>,>>9.99") ELSE STRING(0,"->>>,>>>,>>9.99") .
+                     WHEN "job-due-date"   THEN cVarValue = IF avail job and job.due-date ne ? then string(job.due-date) else "" .
                      
                 END CASE.
                   
@@ -413,8 +414,8 @@ for each {1}report where {1}report.term-id eq v-term,
                      WHEN "name"  THEN cVarValue = IF AVAIL vend THEN STRING(vend.NAME,"x(20)") ELSE ""  .
                      WHEN "cmtd"   THEN cVarValue = IF v-itm ne "" THEN STRING(v-cmtd)  ELSE "" .
                      WHEN "job-qty"    THEN cVarValue = IF v-job-all NE ? AND v-cmtd THEN STRING(v-job-all,"->>>>,>>>,>>9.99") ELSE STRING(0,"->>>>,>>>,>>9.99")  .
-                     WHEN "rm-qty"   THEN cVarValue = IF v-job-all ne ? AND v-cmtd THEN  STRING(v-rm-all,"->>>,>>>,>>9.99") ELSE STRING(0,"->>>,>>>,>>9.99") .
-                     
+                     WHEN "rm-qty"   THEN cVarValue = IF v-job-all ne ? AND v-cmtd THEN  STRING(v-rm-all,"->>>,>>>,>>9.99") ELSE STRING(0,"->>>,>>>,>>9.99") . 
+                     WHEN "job-due-date"   THEN cVarValue = IF avail job and job.due-date ne ? then string(job.due-date) else "" .
                 END CASE.
                   
                 cExcelVarValue = cVarValue.
