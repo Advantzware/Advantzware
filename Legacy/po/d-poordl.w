@@ -1483,8 +1483,11 @@ ON LEAVE OF po-ordl.job-no IN FRAME Dialog-Frame /* Job # */
                     ASSIGN 
                         v-len                      = b-job-mat.len
                         v-wid                      = b-job-mat.wid
-                        v-dep                      = IF AVAILABLE b-item AND CAN-DO("C,5,6,D",b-item.mat-type) THEN b-item.case-d
-                       ELSE IF AVAILABLE b-item THEN b-item.s-dep ELSE 0
+                        v-dep                      = b-job-mat.dep.
+                    IF v-dep EQ 0 THEN 
+                        v-dep                      = IF AVAILABLE b-item AND CAN-DO("C,5,6,D",b-item.mat-type) THEN b-item.case-d ELSE IF AVAILABLE b-item THEN b-item.s-dep ELSE 0
+                       .
+                   ASSIGN 
                         {po/calc16.i v-len}
                         {po/calc16.i v-wid}
                         {po/calc16.i v-dep}
