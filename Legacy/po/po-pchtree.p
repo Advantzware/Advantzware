@@ -62,6 +62,7 @@ DEF VAR v-disp-adder AS CHAR FORMAT "x(18)" NO-UNDO.
 DEF VAR v-vend-i-no AS CHAR FORMAT "x(20)" NO-UNDO.
 DEFINE VARIABLE lv-Format AS CHARACTER  NO-UNDO.
 DEFINE VARIABLE lv-Ord-Qty LIKE po-ordl.ord-qty NO-UNDO.
+DEFINE VARIABLE cMachCode AS CHARACTER NO-UNDO.
 
 DEF VAR ls-image1 AS cha NO-UNDO.
 DEF VAR ls-image2 AS cha NO-UNDO.
@@ -430,6 +431,15 @@ v-printline = 0.
            v-printline = 0.
            {po/po-pchtree.i}
         END.
+        cMachCode = "" .
+        FOR EACH job-mch WHERE job-mch.company EQ cocode
+            AND job-mch.job-no EQ po-ordl.job-no
+            AND job-mch.job-no2 EQ po-ordl.job-no2
+            AND job-mch.frm EQ po-ordl.s-num use-index line-idx NO-LOCK:
+
+            ASSIGN cMachCode = job-mch.m-code .
+            LEAVE.
+        END.
 
         ASSIGN
         lv-ord-qty = po-ordl.ord-qty
@@ -609,8 +619,9 @@ v-printline = 0.
         ELSE
             v-vend-i-no = po-ordl.vend-i-no.
 
-        IF v-vend-i-no <> "" THEN DO:
-            put  v-vend-i-no  FORM "x(20)" AT 24 skip.
+        IF v-vend-i-no <> "" OR cMachCode NE ""  THEN DO:
+            put  v-vend-i-no  FORM "x(20)" AT 24
+                 cMachCode FORMAT "x(6)" AT 45  skip.
             ASSIGN
             v-line-number = v-line-number + 1
             v-printline = v-printline + 1.
