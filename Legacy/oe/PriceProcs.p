@@ -67,10 +67,10 @@ PROCEDURE CheckPriceHold:
      Purpose: Checks Price Hold for passed criteria.  Adds record to ttPriceHold table.
      Notes:
     ------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcCompany  AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcFGItemID AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipcCustID AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipcShipID AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcCustID   AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcShipID   AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipdQuantity AS DECIMAL NO-UNDO.
     DEFINE OUTPUT PARAMETER oplPriceHold AS LOGICAL NO-UNDO.
     DEFINE OUTPUT PARAMETER opcPriceHoldReason AS CHARACTER NO-UNDO.
@@ -145,7 +145,8 @@ PROCEDURE CheckPriceHoldForOrder:
     IF AVAILABLE bf-oe-ord THEN 
     DO:
         EMPTY TEMP-TABLE ttPriceHold.
-        FOR EACH bf-oe-ordl OF bf-oe-ord NO-LOCK:
+        FOR EACH bf-oe-ordl OF bf-oe-ord WHERE bf-oe-ordl.i-no NE "" NO-LOCK:
+
             RUN pAddPriceHold(ROWID(bf-oe-ordl), bf-oe-ordl.company, bf-oe-ordl.i-no, bf-oe-ordl.cust-no, bf-oe-ordl.ship-id, bf-oe-ordl.qty,
                 lQtyMatch, lQtyInRange, lEffectiveDateAge, iEffectiveDateAgeDays).
         END.
