@@ -49,12 +49,10 @@ DO bo-try = 1 TO 2:
       ELSE v-rel-qty = v-rel-qty + oe-rell.qty.
     
       IF oe-rell.b-ord-no NE 0 THEN DO:
-
-        REPEAT:
-        
+               
            FIND b-itemfg WHERE
                 ROWID(b-itemfg) EQ ROWID(itemfg)
-                EXCLUSIVE-LOCK NO-ERROR NO-WAIT.
+                EXCLUSIVE-LOCK NO-ERROR.
           
            IF AVAIL b-itemfg THEN
            DO:
@@ -73,17 +71,14 @@ DO bo-try = 1 TO 2:
                   b-itemfg.q-back = 0.
                   IF AVAIL(itemfg-loc) THEN
                     itemfg-loc.q-back = 0.
-              END.
-
-              
+              END.            
               
               FIND CURRENT itemfg-loc NO-LOCK NO-ERROR.
               FIND CURRENT b-itemfg NO-LOCK NO-ERROR.
-              LEAVE.
-           END.
-        END.
-      END.
-    END.
+              
+           END. /* If avail itemfg */        
+      END. /* If b-ord ne 0 */
+    END. /* Each oe-rell */
   
     v-rel-qty = v-rel-qty - v-bol-qty.
   END.
