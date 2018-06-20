@@ -24,3 +24,6 @@ message "Help Win Debug: "  self:name "," self:type skip
    run sys/ref/hlpd.w (self:name, frame-file, frame-db,ls-prog-name, "English") .
    return no-apply.
 end.
+
+IF INDEX({&WINDOW-NAME}:TITLE,"{&awversion}") EQ 0 THEN
+{&WINDOW-NAME}:TITLE = {&WINDOW-NAME}:TITLE + " - {&awversion}".
