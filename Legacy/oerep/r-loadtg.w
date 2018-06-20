@@ -3552,7 +3552,7 @@ PROCEDURE create-text-file :
 
       PUT UNFORMATTED ",DUEDATEJOBLINE,DUEDATEJOB,LINE#,UnitWt,PalletWt,FGdesc1,FGdesc2,FGdesc3,FG Lot#,"
                        "PalletCode,PalletID,TagCounter,TagCountTotal,"
-                       "RN1,RN2,RN3,RN4,WareHouse,Bin".
+                       "RN1,RN2,RN3,RN4,WareHouse,Bin,JobQty".
 
       /* rstark - */
       IF lSSCC THEN PUT UNFORMATTED ",SSCC".
@@ -3840,6 +3840,7 @@ PROCEDURE create-w-ord :
          w-ord.due-date-jobhdr = IF b-job-hdr.due-date <> ? THEN STRING(b-job-hdr.due-date, "99/99/9999") ELSE "".
       IF AVAIL b-job THEN
          w-ord.due-date-job = IF b-job.due-date <> ? THEN STRING(b-job.due-date, "99/99/9999") ELSE "".
+        w-ord.job-qty = IF AVAIL b-job AND AVAIL b-job-hdr THEN b-job-hdr.qty ELSE 0 . 
 
       RUN get-rel-info (OUTPUT w-ord.cust-po-no,
                         OUTPUT w-ord.rel-date,
@@ -3951,6 +3952,7 @@ PROCEDURE create-w-ord :
             w-ord.mult         = IF AVAIL cust AND cust.int-field[1] ne 0 AND NOT glOverrideMult THEN
                                    cust.int-field[1] else v-mult
             w-ord.lot          = loadtag.misc-char[2].
+            w-ord.job-qty      = job-hdr.qty   .
 
           IF AVAIL itemfg THEN
              ASSIGN
@@ -4584,6 +4586,7 @@ PROCEDURE from-job :
             num-rec            = num-rec + 1
             w-ord.due-date-job = IF job.due-date <> ? THEN STRING(job.due-date, "99/99/9999") ELSE "".
             w-ord.due-date-jobhdr = IF job-hdr.due-date <> ? THEN STRING(job-hdr.due-date, "99/99/9999") ELSE "".
+            w-ord.job-qty      = job-hdr.qty  .
             FOR EACH cust-part NO-LOCK 
              WHERE cust-part.company EQ cocode   
                AND cust-part.i-no EQ itemfg.i-no 
@@ -4878,7 +4881,8 @@ DEF INPUT PARAM ip-rowid AS ROWID NO-UNDO.
             num-rec            = num-rec + 1.
 
           IF AVAIL b-job-hdr THEN
-             w-ord.due-date-jobhdr = IF b-job-hdr.due-date <> ? THEN STRING(b-job-hdr.due-date, "99/99/9999") ELSE "".
+              w-ord.due-date-jobhdr = IF b-job-hdr.due-date <> ? THEN STRING(b-job-hdr.due-date, "99/99/9999") ELSE "".
+              w-ord.job-qty = IF AVAIL b-job AND AVAIL b-job-hdr THEN b-job-hdr.qty ELSE 0 .
           IF AVAIL b-job THEN
              w-ord.due-date-job = IF b-job.due-date <> ? THEN STRING(b-job.due-date, "99/99/9999") ELSE "".
           IF w-ord.job-no EQ "" AND fi_cas-lab:SCREEN-VALUE IN FRAME {&FRAME-NAME} NE "" THEN
@@ -7734,6 +7738,7 @@ PROCEDURE write-loadtag-line :
      "~"" replace(w-ord.ship-notes[4],'"', '') "~","
      "~"" loadtag.loc "~","
      "~"" loadtag.loc-bin "~""
+     "~"" w-ord.job-qty "~""
       .
  /* rstark - zoho13731 */
  IF lSSCC THEN PUT UNFORMATTED ",~"" w-ord.sscc "~"".
