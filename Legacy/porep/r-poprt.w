@@ -114,7 +114,6 @@ OUTPUT cRtnChar, OUTPUT lRecFound).
 IF lRecFound THEN
     lBussFormModle = LOGICAL(cRtnChar) NO-ERROR.
 
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -132,13 +131,13 @@ IF lRecFound THEN
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-6 RECT-7 begin_po-no end_po-no ~
 begin_vend-no end_vend-no tb_reprint tb_reprint-closed tb_delete ~
-tb_print-terms tb_spec tb_attachments tb_corr tb_group-notes ~
+tb_print-terms tb_spec tb_attachments tb_cust-code tb_corr tb_group-notes ~
 tb_Summarize-by-item tb_itemDescription tb_score-types tb_metric ~
 tb_print-prices rd-dest lv-ornt lines-per-page lv-font-no td-show-parm ~
 btn-ok btn-cancel 
 &Scoped-Define DISPLAYED-OBJECTS begin_po-no end_po-no begin_vend-no ~
 end_vend-no tb_reprint tb_reprint-closed tb_delete tb_print-terms tb_spec ~
-tb_attachments tb_corr tb_group-notes tb_Summarize-by-item ~
+tb_attachments tb_cust-code tb_corr tb_group-notes tb_Summarize-by-item ~
 tb_itemDescription tb_score-types tb_metric tb_print-prices rd-dest lv-ornt ~
 lines-per-page lv-font-no lv-font-name td-show-parm 
 
@@ -162,7 +161,7 @@ FUNCTION AttachmentExists RETURNS LOGICAL
 /* ***********************  Control Definitions  ********************** */
 
 /* Define the widget handle for the window                              */
-DEFINE VARIABLE C-Win AS WIDGET-HANDLE NO-UNDO.
+DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btn-cancel AUTO-END-KEY 
@@ -233,72 +232,77 @@ DEFINE RECTANGLE RECT-7
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 95 BY 13.33.
 
-DEFINE VARIABLE tb_attachments AS LOGICAL INITIAL NO 
+DEFINE VARIABLE tb_attachments AS LOGICAL INITIAL no 
      LABEL "Email Attachments" 
      VIEW-AS TOGGLE-BOX
      SIZE 22 BY .81 NO-UNDO.
 
-DEFINE VARIABLE tb_corr AS LOGICAL INITIAL NO 
+DEFINE VARIABLE tb_corr AS LOGICAL INITIAL no 
      LABEL "Transfer to Corrugator?" 
      VIEW-AS TOGGLE-BOX
      SIZE 27 BY .81 NO-UNDO.
 
-DEFINE VARIABLE tb_delete AS LOGICAL INITIAL NO 
+DEFINE VARIABLE tb_cust-code AS LOGICAL INITIAL no 
+     LABEL "Print Customer Code for each PO Line?" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 41.8 BY .81 NO-UNDO.
+
+DEFINE VARIABLE tb_delete AS LOGICAL INITIAL no 
      LABEL "Do you want to print deleted line items?" 
      VIEW-AS TOGGLE-BOX
      SIZE 41 BY .81 NO-UNDO.
 
-DEFINE VARIABLE tb_group-notes AS LOGICAL INITIAL NO 
+DEFINE VARIABLE tb_group-notes AS LOGICAL INITIAL no 
      LABEL "Group Notes on Same Page?" 
      VIEW-AS TOGGLE-BOX
      SIZE 33 BY .81 NO-UNDO.
 
-DEFINE VARIABLE tb_itemDescription AS LOGICAL INITIAL NO 
+DEFINE VARIABLE tb_itemDescription AS LOGICAL INITIAL no 
      LABEL "Print FG Item Description 3 Line?" 
      VIEW-AS TOGGLE-BOX
      SIZE 39.4 BY .81 NO-UNDO.
 
-DEFINE VARIABLE tb_metric AS LOGICAL INITIAL NO 
+DEFINE VARIABLE tb_metric AS LOGICAL INITIAL no 
      LABEL "Print Metric?" 
      VIEW-AS TOGGLE-BOX
      SIZE 17 BY .81 NO-UNDO.
 
-DEFINE VARIABLE tb_print-prices AS LOGICAL INITIAL NO 
+DEFINE VARIABLE tb_print-prices AS LOGICAL INITIAL no 
      LABEL "Print Prices?" 
      VIEW-AS TOGGLE-BOX
      SIZE 17 BY .81 NO-UNDO.
 
-DEFINE VARIABLE tb_print-terms AS LOGICAL INITIAL NO 
+DEFINE VARIABLE tb_print-terms AS LOGICAL INITIAL no 
      LABEL "Print Terms and Conditions?" 
      VIEW-AS TOGGLE-BOX
      SIZE 31 BY .81 NO-UNDO.
 
-DEFINE VARIABLE tb_reprint AS LOGICAL INITIAL NO 
+DEFINE VARIABLE tb_reprint AS LOGICAL INITIAL no 
      LABEL "Do you want to reprint the PO's?" 
      VIEW-AS TOGGLE-BOX
      SIZE 35 BY .81 NO-UNDO.
 
-DEFINE VARIABLE tb_reprint-closed AS LOGICAL INITIAL NO 
+DEFINE VARIABLE tb_reprint-closed AS LOGICAL INITIAL no 
      LABEL "Do you want to reprint closed PO's?" 
      VIEW-AS TOGGLE-BOX
      SIZE 39 BY .81 NO-UNDO.
 
-DEFINE VARIABLE tb_score-types AS LOGICAL INITIAL NO 
+DEFINE VARIABLE tb_score-types AS LOGICAL INITIAL no 
      LABEL "Print Score Types?" 
      VIEW-AS TOGGLE-BOX
      SIZE 23 BY .81 NO-UNDO.
 
-DEFINE VARIABLE tb_spec AS LOGICAL INITIAL YES 
+DEFINE VARIABLE tb_spec AS LOGICAL INITIAL yes 
      LABEL "Print Specification Notes?" 
      VIEW-AS TOGGLE-BOX
      SIZE 29 BY .81 NO-UNDO.
 
-DEFINE VARIABLE tb_Summarize-by-item AS LOGICAL INITIAL NO 
+DEFINE VARIABLE tb_Summarize-by-item AS LOGICAL INITIAL no 
      LABEL "Summarize by Item Code/Job?" 
      VIEW-AS TOGGLE-BOX
      SIZE 34 BY .81 NO-UNDO.
 
-DEFINE VARIABLE td-show-parm AS LOGICAL INITIAL NO 
+DEFINE VARIABLE td-show-parm AS LOGICAL INITIAL no 
      LABEL "Show Parameters?" 
      VIEW-AS TOGGLE-BOX
      SIZE 24 BY .81 NO-UNDO.
@@ -321,6 +325,7 @@ DEFINE FRAME FRAME-A
      tb_print-terms AT ROW 6 COL 53
      tb_spec AT ROW 6.95 COL 10.6
      tb_attachments AT ROW 6.95 COL 53 WIDGET-ID 2
+     tb_cust-code AT ROW 7.86 COL 53 WIDGET-ID 4
      tb_corr AT ROW 7.91 COL 10.6
      tb_group-notes AT ROW 8.86 COL 10.6
      tb_Summarize-by-item AT ROW 9.81 COL 10.6
@@ -328,11 +333,11 @@ DEFINE FRAME FRAME-A
      tb_score-types AT ROW 11.71 COL 10.6
      tb_metric AT ROW 12.67 COL 10.6
      tb_print-prices AT ROW 13.62 COL 10.6
-     rd-dest AT ROW 15.76 COL 6 NO-LABELS
-     lv-ornt AT ROW 16 COL 31 NO-LABELS
+     rd-dest AT ROW 15.76 COL 6 NO-LABEL
+     lv-ornt AT ROW 16 COL 31 NO-LABEL
      lines-per-page AT ROW 16 COL 84 COLON-ALIGNED
      lv-font-no AT ROW 17.91 COL 34 COLON-ALIGNED
-     lv-font-name AT ROW 18.86 COL 28 COLON-ALIGNED NO-LABELS
+     lv-font-name AT ROW 18.86 COL 28 COLON-ALIGNED NO-LABEL
      td-show-parm AT ROW 21.48 COL 31
      btn-ok AT ROW 23.62 COL 22
      btn-cancel AT ROW 23.62 COL 61
@@ -372,15 +377,15 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          MAX-WIDTH          = 256
          VIRTUAL-HEIGHT     = 46.48
          VIRTUAL-WIDTH      = 256
-         RESIZE             = YES
-         SCROLL-BARS        = NO
-         STATUS-AREA        = YES
+         RESIZE             = yes
+         SCROLL-BARS        = no
+         STATUS-AREA        = yes
          BGCOLOR            = ?
          FGCOLOR            = ?
-         KEEP-FRAME-Z-ORDER = YES
-         THREE-D            = YES
-         MESSAGE-AREA       = NO
-         SENSITIVE          = YES.
+         KEEP-FRAME-Z-ORDER = yes
+         THREE-D            = yes
+         MESSAGE-AREA       = no
+         SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 &IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
@@ -400,16 +405,6 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME                                                           */
-ASSIGN
-       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "ribbon-button".
-
-
-ASSIGN
-       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "ribbon-button".
-
-
 ASSIGN 
        begin_po-no:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
@@ -417,6 +412,14 @@ ASSIGN
 ASSIGN 
        begin_vend-no:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
+
+ASSIGN 
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+ASSIGN 
+       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
 
 ASSIGN 
        end_po-no:PRIVATE-DATA IN FRAME FRAME-A     = 
@@ -434,6 +437,10 @@ ASSIGN
 
 ASSIGN 
        tb_corr:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
+
+ASSIGN 
+       tb_cust-code:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
 ASSIGN 
@@ -481,12 +488,12 @@ ASSIGN
                 "parm".
 
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
-THEN C-Win:HIDDEN = NO.
+THEN C-Win:HIDDEN = no.
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -597,7 +604,8 @@ DO:
     v-metric            = tb_metric
     s-print-prices      = tb_print-prices
     v-print-terms       = tb_print-terms
-    lv-attachments      = tb_attachments.
+    lv-attachments      = tb_attachments
+    cCustCode           =  tb_cust-code.
 
   IF CAN-FIND(FIRST sys-ctrl-shipto WHERE
      sys-ctrl-shipto.company = cocode AND
@@ -784,6 +792,17 @@ END.
 &Scoped-define SELF-NAME tb_corr
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_corr C-Win
 ON VALUE-CHANGED OF tb_corr IN FRAME FRAME-A /* Transfer to Corrugator? */
+DO:
+  ASSIGN {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME tb_cust-code
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_cust-code C-Win
+ON VALUE-CHANGED OF tb_cust-code IN FRAME FRAME-A /* Print Customer Code for each PO Line? */
 DO:
   ASSIGN {&self-name}.
 END.
@@ -1040,6 +1059,9 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     IF v-print-fmt NE "Indiana" THEN
      ASSIGN tb_print-prices:SCREEN-VALUE = "NO"
             tb_print-prices:SENSITIVE = NO.
+   
+    IF LOOKUP(v-print-fmt,"poprint 10,poprint 20,POPrint10-CAN") = 0 THEN 
+       DISABLE tb_cust-code.
 
     IF NOT poPaperClip-log THEN 
         ASSIGN tb_attachments:SCREEN-VALUE = "NO"
@@ -1108,15 +1130,16 @@ PROCEDURE enable_UI :
 ------------------------------------------------------------------------------*/
   DISPLAY begin_po-no end_po-no begin_vend-no end_vend-no tb_reprint 
           tb_reprint-closed tb_delete tb_print-terms tb_spec tb_attachments 
-          tb_corr tb_group-notes tb_Summarize-by-item tb_itemDescription 
-          tb_score-types tb_metric tb_print-prices rd-dest lv-ornt 
-          lines-per-page lv-font-no lv-font-name td-show-parm 
+          tb_cust-code tb_corr tb_group-notes tb_Summarize-by-item 
+          tb_itemDescription tb_score-types tb_metric tb_print-prices rd-dest 
+          lv-ornt lines-per-page lv-font-no lv-font-name td-show-parm 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   ENABLE RECT-6 RECT-7 begin_po-no end_po-no begin_vend-no end_vend-no 
          tb_reprint tb_reprint-closed tb_delete tb_print-terms tb_spec 
-         tb_attachments tb_corr tb_group-notes tb_Summarize-by-item 
-         tb_itemDescription tb_score-types tb_metric tb_print-prices rd-dest 
-         lv-ornt lines-per-page lv-font-no td-show-parm btn-ok btn-cancel 
+         tb_attachments tb_cust-code tb_corr tb_group-notes 
+         tb_Summarize-by-item tb_itemDescription tb_score-types tb_metric 
+         tb_print-prices rd-dest lv-ornt lines-per-page lv-font-no td-show-parm 
+         btn-ok btn-cancel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.
@@ -1487,7 +1510,8 @@ PROCEDURE run-report :
     v-metric            = tb_metric
     s-print-prices      = tb_print-prices
     v-print-terms       = tb_print-terms
-    lv-attachments      = tb_attachments.
+    lv-attachments      = tb_attachments
+    cCustCode           =  tb_cust-code.
 
   IF ip-sys-ctrl-shipto THEN
      ASSIGN
