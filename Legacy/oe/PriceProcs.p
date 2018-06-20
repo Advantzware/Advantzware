@@ -674,7 +674,7 @@ PROCEDURE pAddPriceHold PRIVATE:
                         
     RUN pSetBuffers(ipcCompany, ipcFGItemID, ipcCustID, BUFFER bf-itemfg, BUFFER bf-cust).            
     /*use internal procedure to find the matching matrix*/
-    IF bf-itemfg.i-code EQ "S" THEN  
+    IF AVAIL bf-itemfg AND bf-itemfg.i-code EQ "S" THEN  
         RUN pGetPriceMatrix(BUFFER bf-itemfg, BUFFER bf-cust, BUFFER bf-oe-prmtx, ipcShipID, 
             OUTPUT ttPriceHold.lMatrixMatch, OUTPUT ttPriceHold.cMatrixMatch).
     ELSE 
