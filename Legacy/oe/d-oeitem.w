@@ -6686,14 +6686,10 @@ PROCEDURE OnSaveButton:
         END.
 
         RUN CheckPriceHoldForOrder IN hdPriceProcs(ROWID(oe-ord),
-            oe-ordl.cust-no,
-            oe-ordl.i-no,
-            oe-ordl.ship-id,
-            oe-ordl.qty,            
-            YES, /*Prompt*/
-            YES, /*Set oe-ord hold fields*/
-            OUTPUT lPriceHold, 
-            OUTPUT cPriceHoldMessage).
+                                              YES, /*Prompt*/
+                                              YES, /*Set oe-ord hold fields*/
+                                              OUTPUT lPriceHold, 
+                                              OUTPUT cPriceHoldMessage).
                                               
         FIND xoe-ord WHERE RECID(xoe-ord) = recid(oe-ord) EXCLUSIVE.
         FIND FIRST itemfg WHERE itemfg.company EQ cocode

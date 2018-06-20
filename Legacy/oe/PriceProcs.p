@@ -113,10 +113,6 @@ PROCEDURE CheckPriceHoldForOrder:
      Notes:
     ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipriOeOrd AS ROWID NO-UNDO.
-    DEFINE INPUT  PARAMETER ipcCustNo LIKE oe-ordl.cust-no NO-UNDO.
-    DEFINE INPUT  PARAMETER  ipcIno LIKE oe-ordl.i-no NO-UNDO.   
-    DEFINE INPUT  PARAMETER ipcShipId LIKE oe-ordl.ship-id NO-UNDO.
-    DEFINE INPUT  PARAMETER ipdQty LIKE oe-ordl.qty NO-UNDO.
     DEFINE INPUT PARAMETER iplPrompt AS LOGICAL NO-UNDO.
     DEFINE INPUT PARAMETER iplUpdateDB AS LOGICAL NO-UNDO.
     DEFINE OUTPUT PARAMETER oplPriceHold AS LOGICAL NO-UNDO.
@@ -149,14 +145,11 @@ PROCEDURE CheckPriceHoldForOrder:
     IF AVAILABLE bf-oe-ord THEN 
     DO:
         EMPTY TEMP-TABLE ttPriceHold.
-        FOR EACH bf-oe-ordl OF bf-oe-ord WHERE bf-oe-ordl.i-no GT "" NO-LOCK:
-            
+        FOR EACH bf-oe-ordl OF bf-oe-ord WHERE bf-oe-ordl.i-no NE "" NO-LOCK:
+
             RUN pAddPriceHold(ROWID(bf-oe-ordl), bf-oe-ordl.company, bf-oe-ordl.i-no, bf-oe-ordl.cust-no, bf-oe-ordl.ship-id, bf-oe-ordl.qty,
                 lQtyMatch, lQtyInRange, lEffectiveDateAge, iEffectiveDateAgeDays).
         END.
-        IF ipcIno GT "" THEN 
-            RUN pAddPriceHold(ROWID(bf-oe-ordl), bf-oe-ord.company, ipcIno, ipcCustNo, ipcShipId, ipdQty,
-                lQtyMatch, lQtyInRange, lEffectiveDateAge, iEffectiveDateAgeDays).        
     END.
     FIND FIRST ttPriceHold NO-LOCK
         WHERE ttPriceHold.lPriceHold
@@ -680,7 +673,6 @@ PROCEDURE pAddPriceHold PRIVATE:
 
                         
     RUN pSetBuffers(ipcCompany, ipcFGItemID, ipcCustID, BUFFER bf-itemfg, BUFFER bf-cust).            
-    
     /*use internal procedure to find the matching matrix*/
     IF bf-itemfg.i-code EQ "S" THEN  
         RUN pGetPriceMatrix(BUFFER bf-itemfg, BUFFER bf-cust, BUFFER bf-oe-prmtx, ipcShipID, 
