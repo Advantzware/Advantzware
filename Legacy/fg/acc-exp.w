@@ -985,7 +985,7 @@ FUNCTION getValue-itemfg RETURNS CHARACTER
                     lc-return = "Title".
         END.
         WHEN "term-disc"  THEN DO:
-            IF account.terms-discount EQ YES THEN
+            IF ipb-itemfg.terms-discount EQ YES THEN
                 lc-return = "Yes".
             ELSE
                 lc-return = "No".
