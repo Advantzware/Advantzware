@@ -74,12 +74,12 @@ DEF VAR cColumnInit AS LOG INIT YES NO-UNDO.
 
 
 ASSIGN cTextListToSelect = "Job No,Item No,UOM,Required,Ordered,Received,Vendor,"
-                         + "Width,Length,Scoring,Date Due,Balance,P/O No,Name,Committed," 
-                         + "Job Qty Allocated,RM Qty Allocated" 
+                         + "Width,Length,Scoring,Po Due Date,Balance,P/O No,Name,Committed," 
+                         + "Job Qty Allocated,RM Qty Allocated,Job Due Date" 
        cFieldListToSelect = "job,ino,uom,reqr,ord,rece,vend," +
-                            "wid,len,scr,dt,bal,po,name,cmtd," + "job-qty,rm-qty" 
-       cFieldLength = "10,15,3,15,15,15,8," + "8,8,40,10,15,6,20,9," + "17,16"
-       cFieldType = "c,c,c,i,i,i,c," + "i,i,c,c,i,c,c,c," + "c,c"  
+                            "wid,len,scr,dt,bal,po,name,cmtd," + "job-qty,rm-qty,job-due-date" 
+       cFieldLength = "10,15,3,15,15,15,8," + "8,8,40,11,15,6,20,9," + "17,16,12"
+       cFieldType = "c,c,c,i,i,i,c," + "i,i,c,c,i,c,c,c," + "c,c,c"  
     .
 
 {sys/inc/ttRptSel.i}
