@@ -214,7 +214,7 @@ CASE ip-nk1-value:
                           INPUT "Prompt for Reason when Job Placed on Hold",
                           INPUT "" /* Char Value */, INPUT 0 /* Int value */,
                           INPUT NO /* Logical value */).
-    WHEN "ASIHelpService" THEN 
+    WHEN "ASIHelpService" THEN
     RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
                           INPUT "ASI Help Services",
                           INPUT "-WSDL 'http:\\34.203.15.64/asihelpServices/helpmaintenance.asmx?WSDL'" /* Char Value */, INPUT 0 /* Int value */,
@@ -651,4 +651,17 @@ CASE ip-nk1-value:
     WHEN "xmlorder" THEN DO: {sys\inc\xmlorder.i} END.
     WHEN "OverwriteJobPlan" THEN DO: {sys\inc\overwriteJobPlan.i} END.
     WHEN "CapacityPage" THEN DO: {sys\inc\capacityPage.i} END.
+    WHEN "MenuLink1" THEN DO: {sys\inc\menuLink.i 1} END.
+    WHEN "MenuLink2" THEN DO: {sys\inc\menuLink.i 2} END.
+    WHEN "MenuLink3" THEN DO: {sys\inc\menuLink.i 3} END.
+    WHEN "MenuLink4" THEN DO: {sys\inc\menuLink.i 4} END.
+    WHEN "MenuLink5" THEN DO: {sys\inc\menuLink.i 5} END.
+    WHEN "MenuLink6" THEN DO: {sys\inc\menuLink.i 6} END.
+    WHEN "MenuLink7" THEN DO: {sys\inc\menuLink.i 7} END.
+    WHEN "MenuLink8" THEN DO: {sys\inc\menuLink.i 8} END.
+    WHEN "MenuLinkASI" THEN DO: {sys\inc\menuLinkASI.i} END.
+    WHEN "MenuLinkZoHo" THEN DO: {sys\inc\menuLinkZoHo.i} END.
+    WHEN "MenuLinkUpgrade" THEN DO: {sys\inc\menuLinkUpgrade.i} END.
+    WHEN "BitMap" THEN DO: {sys\inc\BitMap.i} END.
+    WHEN "CEMenu" THEN DO: {sys\inc\ceMenu.i} END.
 END CASE.
