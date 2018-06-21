@@ -108,7 +108,7 @@ ASSIGN
                 "TriLakes,TriLakes2,Spectrum,Michcor,CapCity,colonialPL," +
                 "Allwest,LoyLang,Badger,Delta,PQP,RFC2,Peachtree,BlueRidg," +
                 "Oklahoma,Protagon,TriState,Soule,Adapt,Freedman,BELL,VINELAND,Axis,Lakeside,PFS," +
-                "jobcardc 1,jobcardc 2,Printers,Valley" 
+                "jobcardc 1,jobcardc 2,Printers,Valley,jobcardc 20" 
  str-init[33] = "ASI,HOP,Fibre,Century,Interpac,FibreFC,HPB,Dayton,Livngstn,CentBox,Metro,Keystone,Frankstn,Colonial,Unipak,OTTPkg,Shelby,CCC,Indiana-XL,PPI,Accord,Knight,MidYork,Dee,Badger,Rosmar,Carded,Carded2,PackRite,Prystup,Knight***,Coburn," + /*MWFibre=Keystone*/
                 "jobcardf 1,jobcardf 2,xml,Wingate"
  str-init[34] = "Manual,Matrix"
@@ -254,7 +254,7 @@ IF PROGRAM-NAME(1) MATCHES "*windows/l-syschr.w*" THEN DO:
        str-init[29] = "bolcert 1,bolcert 2,BOLCERT10"
        str-init[30] = "cerunc 1,cerunc 2,cerunc 3"
        str-init[31] = "cerunf 1,cerunf 2"
-       str-init[32] = "jobcardc 1,jobcardc 2"
+       str-init[32] = "jobcardc 1,jobcardc 2,jobcardc 20"
        str-init[33] = "jobcardf 1,jobcardf 2"
        str-init[89] = "stmtprint 1,stmtprint 2,StdStatement10"  /*stmtprin*/
        str-init[141] = "AckMaster 1,AckMaster 2" /*"3CPack"*/
