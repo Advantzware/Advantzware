@@ -780,7 +780,7 @@ v-printline = 0.
         END.
      END.  /* v-print-sn */
 
-     IF cCustCode THEN DO:
+     IF lCustCode THEN DO:
          PUT po-ordl.cust-no FORM "x(8)"  SKIP.
          v-printline = v-printline + 1.
          IF v-printline > 46 THEN DO:         

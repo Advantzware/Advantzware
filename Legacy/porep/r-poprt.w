@@ -605,7 +605,7 @@ DO:
     s-print-prices      = tb_print-prices
     v-print-terms       = tb_print-terms
     lv-attachments      = tb_attachments
-    cCustCode           =  tb_cust-code.
+    lCustCode           =  tb_cust-code.
 
   IF CAN-FIND(FIRST sys-ctrl-shipto WHERE
      sys-ctrl-shipto.company = cocode AND
@@ -1511,7 +1511,7 @@ PROCEDURE run-report :
     s-print-prices      = tb_print-prices
     v-print-terms       = tb_print-terms
     lv-attachments      = tb_attachments
-    cCustCode           =  tb_cust-code.
+    lCustCode           =  tb_cust-code.
 
   IF ip-sys-ctrl-shipto THEN
      ASSIGN
