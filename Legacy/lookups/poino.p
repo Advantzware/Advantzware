@@ -26,7 +26,7 @@
 &Scoped-define height-size 19
 &Scoped-define width-size 68
 &Scoped-define show-fields po-ordl.po-no po-ordl.i-no  po-ordl.i-name
-&Scoped-define show-fields-yellow 14 po-ordl.po-no LABEL-BGCOLOR  po-ordl.i-no LABEL-BGCOLOR 14  po-ordl.i-name LABEL-BGCOLOR 14
+&Scoped-define show-fields-yellow  po-ordl.po-no LABEL-BGCOLOR 14 po-ordl.i-no LABEL-BGCOLOR 14  po-ordl.i-name LABEL-BGCOLOR 14
 &Scoped-define frame-title Item By PO#
 &Scoped-define top-include ~{custom/getcmpny.i} ~{sys/inc/varasgn.i}
 &Scoped-define def-include ~{custom/gcompany.i} ~{sys/inc/var.i new shared}
