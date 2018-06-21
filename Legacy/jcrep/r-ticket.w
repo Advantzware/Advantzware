@@ -1891,6 +1891,21 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     IF NOT tb_prt-set-header:SENSITIVE THEN
       tb_prt-set-header:SCREEN-VALUE = "no".
 
+    IF LOOKUP(lv-format-c,"jobcardc 20") > 0 THEN
+     ASSIGN tb_fgimage:SENSITIVE = NO
+            tb_fgimage:SCREEN-VALUE = "yes" 
+            tb_box:SENSITIVE = NO
+            tb_box:SCREEN-VALUE = "yes" 
+            tb_prt-shipto:HIDDEN = YES 
+            tb_prt-label:HIDDEN = YES 
+            tb_freeze-note:HIDDEN = YES 
+            tb_prt-sellprc:HIDDEN = YES 
+            tb_committed:SCREEN-VALUE = "No"
+            tb_committed:HIDDEN  = YES 
+            tb_prompt-ship:HIDDEN = YES 
+            tb_prt-set-header:HIDDEN = YES 
+        .
+    
     IF TRIM(begin_job1:SCREEN-VALUE) NE ""                          AND
        TRIM(begin_job1:SCREEN-VALUE) EQ TRIM(end_job1:SCREEN-VALUE) AND
        INT(begin_job2:SCREEN-VALUE)  EQ INT(end_job2:SCREEN-VALUE)  THEN DO:
