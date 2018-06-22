@@ -586,9 +586,9 @@ v-printline = 0.
                   RUN sys\inc\decfrac2.p(INPUT DEC(IF AVAILABLE item AND CAN-DO("C,5,6,D",item.mat-type) THEN item.case-d
                        ELSE IF AVAILABLE item THEN item.s-dep ELSE 0), INPUT 32, OUTPUT v-dep-frac).
 
-                PUT "W: " AT 25 v-wid-frac FORMAT "x(10)" SPACE(1).
-                IF po-ordl.s-len GT 0 THEN
-                    PUT "L: "  v-len-frac FORMAT "x(10)" SPACE(1).
+                   IF po-ordl.s-len GT 0 THEN
+                    PUT "L: " AT 25 v-len-frac FORMAT "x(10)" SPACE(1).
+                    PUT "W: "  v-wid-frac FORMAT "x(10)" SPACE(1).
                 IF lv-dep GT 0 THEN
                     PUT "D: "  v-dep-frac FORMAT "x(10)" SPACE(1).
              END.
@@ -602,19 +602,67 @@ v-printline = 0.
                len-score = "".
        
         IF po-ordl.item-type THEN do:
-            
                  run po/po-ordls.p (recid(po-ordl)).                          
                                                                      
-                 {po/poprints.i}
-              if len-score ne ""  AND v-score-types then do:
-                put 
-                    "Score: " AT 25
-                    len-score format "x(80)" SKIP .
-               
+                 {po/po-ordls.i}
+
+            IF AVAIL b-ref1 OR AVAIL b-ref2 THEN 
+            DO:
+                ASSIGN
+                    lv-val = 0
+                    lv-typ = "".
+
+                IF AVAIL b-ref1 THEN
+                DO x = 1 TO 12:
+                    ASSIGN
+                        lv-val[x] = b-ref1.val[x]
+                        lv-typ[x] = SUBSTR(b-ref1.dscr,x,1).
                 END.
-               END.
-              END.
-            end.
+
+                IF AVAIL b-ref2 THEN
+                DO x = 1 TO 8:
+                    ASSIGN
+                        lv-val[x + 12] = b-ref2.val[x]
+                        lv-typ[x + 12] = SUBSTR(b-ref2.dscr,x,1).
+                END.
+
+                DO lv-int = 0 TO 1:
+                    ASSIGN
+                        v-lscore-c = ""
+                        len-score  = "".
+
+                    DO x = 1 TO 10:
+                        IF lv-val[(lv-int * 10) + x] GT 9999 THEN
+                            RUN sys\inc\decfrac2.p(INPUT DEC(STRING(lv-val[(lv-int * 10) + x],">>>>>")), INPUT 32, OUTPUT len-score).
+                        ELSE
+                            IF lv-val[(lv-int * 10) + x] GT 999 THEN
+                                RUN sys\inc\decfrac2.p(INPUT DEC(STRING(lv-val[(lv-int * 10) + x],">>>>")), INPUT 32, OUTPUT len-score).
+                            ELSE
+                                RUN sys\inc\decfrac2.p(INPUT DEC(STRING(lv-val[(lv-int * 10) + x],">>>.99")), INPUT 32, OUTPUT len-score).
+                        
+                         IF lv-val[(lv-int * 10) + x] NE 0 THEN 
+                              v-lscore-c = v-lscore-c + len-score + "   " .
+
+                        /* print score type for Premier */
+                        IF v-score-types AND lv-typ[(lv-int * 10) + x] NE "" THEN DO:
+                            RUN sys\inc\decfrac2.p(INPUT DEC(lv-typ[(lv-int * 10) + x]), INPUT 32, OUTPUT len-score).
+                            v-lscore-c = v-lscore-c + len-score + " ". 
+                        END.
+                        ELSE DO:
+                            v-lscore-c = v-lscore-c + " ".
+                        END.
+                    END.
+ 
+                    IF v-lscore-c NE "" THEN 
+                    DO:
+                        if v-lscore-c ne ""  AND v-score-types then do:
+                            put 
+                                "Score: " AT 25
+                                v-lscore-c format "x(80)" SKIP .
+                        END.
+                    END.
+                END.
+            END.
             ASSIGN
                   v-line-number = v-line-number + 1
                   v-printline = v-printline + 1.
@@ -644,11 +692,12 @@ v-printline = 0.
                   RUN sys\inc\decfrac2.p(INPUT DEC(itemfg.l-score[50]), INPUT 32, OUTPUT v-len-frac).
                   RUN sys\inc\decfrac2.p(INPUT DEC(itemfg.d-score[50]), INPUT 32, OUTPUT v-dep-frac).
 
-                  PUT "W: " AT 25  v-wid-frac FORMAT "x(10)" SPACE(1).
                   IF itemfg.l-score[50] GT 0 THEN
-                      PUT "L: "   v-len-frac FORMAT "x(10)" SPACE(1).
+                      PUT "L: " AT 25   v-len-frac FORMAT "x(10)" SPACE(1).
+                  PUT "W: " AT 25  v-wid-frac FORMAT "x(10)" SPACE(1).
                   IF itemfg.d-score[50] GT 0 THEN
                       PUT "D: "   v-dep-frac FORMAT "x(10)" SPACE(1).
+
                   PUT SKIP .
                   ASSIGN
               v-line-number = v-line-number + 1
