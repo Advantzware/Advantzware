@@ -19,6 +19,9 @@ DEFINE VARIABLE dOrderRevenueNew    LIKE oe-ord.t-revenue NO-UNDO.
 DEFINE VARIABLE dOrderTaxNew        LIKE oe-ord.tax NO-UNDO.
 DEFINE VARIABLE dOrderWeightNew     LIKE oe-ord.t-weight NO-UNDO.
 DEFINE VARIABLE dOrderFreightNew    LIKE oe-ord.t-freight NO-UNDO.
+DEFINE VARIABLE dOrderRevenueOld    LIKE dOrderRevenueNew NO-UNDO.
+DEFINE VARIABLE dOrderTaxOld        LIKE dOrderTaxNew NO-UNDO.
+DEFINE VARIABLE dOrderBalanceChange AS DECIMAL NO-UNDO.
 
 FIND oe-ord WHERE ROWID(oe-ord) EQ ipriOeOrd NO-LOCK NO-ERROR.
 
@@ -49,7 +52,10 @@ DO:
         dOrderRevenueNew = 0
         dOrderTaxNew     = 0
         dOrderWeightNew  = 0
-        dOrderFreightNew = 0.
+        dOrderFreightNew = 0
+        dOrderRevenueOld = 0
+        dOrderTaxOld     = 0
+        dOrderBalanceChange = 0.
 
     /*Recalculate Order line cost*/
     FOR EACH bf-oe-ordl OF oe-ord NO-LOCK:
@@ -60,7 +66,7 @@ DO:
                 WHERE ROWID(oe-ordl) EQ ROWID(bf-oe-ordl)
             NO-ERROR NO-WAIT.
       
-            IF NOT AVAILABLE oe-ordl THEN NEXT.
+            IF NOT AVAILABLE oe-ordl OR LOCKED oe-ordl THEN NEXT.
   
             oe-ordl.t-cost = oe-ordl.cost * (oe-ordl.qty / 1000).
         END.
@@ -139,6 +145,10 @@ DO:
         oe-ord.t-weight   NE dOrderWeightNew    OR
         oe-ord.t-freight  NE dOrderFreightNew  THEN 
     DO:
+        ASSIGN 
+            dOrderRevenueOld = oe-ord.t-revenue
+            dOrderTaxOld = oe-ord.tax
+            .
         FIND bf-oe-ord WHERE ROWID(bf-oe-ord) EQ ROWID(oe-ord)
             EXCLUSIVE-LOCK.
         ASSIGN
@@ -148,40 +158,23 @@ DO:
             bf-oe-ord.t-weight  = dOrderWeightNew  
             bf-oe-ord.t-freight = dOrderFreightNew  .
         RELEASE bf-oe-ord.
+         dOrderBalanceChange = dOrderRevenueNew - dOrderRevenueOld + dOrderTaxNew - dOrderTaxOld.
     END.
-
-
+    
     /*Update customer order balance*/
-    IF oe-ord.cust-no NE "" AND
-        lCalledFromJC EQ NO AND
-        AVAILABLE cust AND 
-        (oe-ord.t-revenue NE dOrderRevenueNew OR oe-ord.tax NE dOrderTaxNew) THEN
+    IF oe-ord.cust-no NE "" 
+        AND lCalledFromJC EQ NO 
+        AND dOrderBalanceChange NE 0 THEN
     DO:
-        REPEAT:
-       
-            FIND FIRST cust EXCLUSIVE-LOCK 
-                WHERE cust.company EQ oe-ord.company
-                AND cust.cust-no EQ oe-ord.cust-no
-                NO-ERROR NO-WAIT.
-       
-            IF AVAILABLE cust THEN
-            DO:
-                cust.ord-bal = cust.ord-bal - oe-ord.t-revenue - oe-ord.tax.
-                cust.ord-bal = cust.ord-bal + dOrderRevenueNew + dOrderTaxNew.
-                FIND CURRENT cust NO-LOCK.
-                LEAVE.
-            END.
-       
-            IF lLockFirst THEN
-            DO:
-                /*MESSAGE "Customer record in use, waiting for release..."
-                    VIEW-AS ALERT-BOX ERROR BUTTONS OK.*/
-       
-                SESSION:SET-WAIT-STATE("General").
-                lLockFirst = NO.
-            END.
-        END. /* Repeat */
-
-        SESSION:SET-WAIT-STATE("").
+        FIND FIRST cust EXCLUSIVE-LOCK 
+            WHERE cust.company EQ oe-ord.company
+            AND cust.cust-no EQ oe-ord.cust-no
+            NO-ERROR.
+   
+        IF AVAILABLE cust THEN
+        DO:
+            cust.ord-bal = cust.ord-bal + dOrderBalanceChange.
+            FIND CURRENT cust NO-LOCK.
+        END.
     END. /* avail cust */
 END. /* if avail oe-ord */
