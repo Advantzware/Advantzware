@@ -75,10 +75,11 @@ DEFINE QUERY external_tables FOR reftable.
 &Scoped-Define ENABLED-FIELDS reftable.code reftable.loc 
 &Scoped-define ENABLED-TABLES reftable
 &Scoped-define FIRST-ENABLED-TABLE reftable
-&Scoped-Define ENABLED-OBJECTS RECT-1 
+&Scoped-Define ENABLED-OBJECTS RECT-1 btnCalendar-1
 &Scoped-Define DISPLAYED-FIELDS reftable.code reftable.loc 
 &Scoped-define DISPLAYED-TABLES reftable
 &Scoped-define FIRST-DISPLAYED-TABLE reftable
+&Scoped-define calendarPopup btnCalendar-1
 
 
 /* Custom List Definitions                                              */
@@ -119,6 +120,11 @@ DEFINE RECTANGLE RECT-1
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 87 BY 1.91.
 
+DEFINE BUTTON btnCalendar-1 
+     IMAGE-UP FILE "Graphics/16x16/calendar.bmp":U
+     LABEL "" 
+     SIZE 4.6 BY 1.05 TOOLTIP "PopUp Calendar".
+
 
 /* ************************  Frame Definitions  *********************** */
 
@@ -130,10 +136,11 @@ DEFINE FRAME F-Main
           SIZE 40 BY 1
           FONT 4
      reftable.loc AT ROW 1.71 COL 64 COLON-ALIGNED
-          LABEL "Date" FORMAT "x(12)"
+          LABEL "Date" FORMAT "x(10)"
           VIEW-AS FILL-IN 
           SIZE 18 BY 1
           FONT 4
+     btnCalendar-1 AT ROW 1.71 COL 81
      RECT-1 AT ROW 1.24 COL 3
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -201,6 +208,8 @@ ASSIGN
    EXP-LABEL EXP-FORMAT EXP-HELP                                        */
 /* SETTINGS FOR FILL-IN reftable.loc IN FRAME F-Main
    1 EXP-LABEL EXP-FORMAT                                               */
+/* SETTINGS FOR BUTTON btnCalendar-1 IN FRAME F-Main
+   3                                                                    */
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
@@ -235,6 +244,26 @@ DO:
   {&methods/lValidateError.i NO}
 END.
 
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+  &Scoped-define SELF-NAME reftable.loc
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL reftable.loc V-table-Win
+ON HELP OF reftable.loc IN FRAME F-Main /* Ack. Date */
+DO:
+  {methods/calendar.i}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+  &Scoped-define SELF-NAME btnCalendar-1
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnCalendar-1 V-table-Win
+ON CHOOSE OF btnCalendar-1 IN FRAME F-Main
+DO:
+  {methods/btnCalendar.i reftable.loc}
+END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
