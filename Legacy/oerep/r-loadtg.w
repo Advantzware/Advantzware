@@ -7638,7 +7638,7 @@ PROCEDURE write-loadtag-line :
         "," /*85  Critical Operation 6 text   5 characters    LC06                                                                                        */
         "," /*86  1st Miscellaneous Billing Message   18 characters   MiscMsg1                                                                            */
         "," /*87  2nd Miscellaneous Billing Message   18 characters   MiscMsg2                                                                             */
-        w-ord.part-dscr2 FORMAT "X(30)"  /* 88 Part Description 2                                                                                                         */
+        removeChars(w-ord.part-dscr2) FORMAT "X(30)"  /* 88 Part Description 2                                                                                                         */
          .
  END.
  ELSE DO:
