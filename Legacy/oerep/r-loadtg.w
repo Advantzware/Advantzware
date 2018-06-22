@@ -3901,7 +3901,8 @@ PROCEDURE create-w-ord :
              w-ord.pcs    = eb.cas-cnt
              w-ord.bundle = eb.cas-pal
              w-ord.cas-no = eb.cas-no
-             w-ord.pallt-no = eb.tr-no.
+             w-ord.pallt-no = eb.tr-no
+             w-ord.part-dscr2 = eb.part-dscr2.
 
           ASSIGN w-ord.total-tags = 1
             w-ord.ord-qty = loadtag.qty 
@@ -4023,7 +4024,8 @@ PROCEDURE create-w-ord :
              w-ord.total-unit = w-ord.pcs * w-ord.bundle
              w-ord.partial    = 0 /* w-ord.ord-qty - w-ord.total-unit*/
              w-ord.cas-no     = eb.cas-no
-             w-ord.pallt-no   = eb.tr-no.
+             w-ord.pallt-no   = eb.tr-no
+             w-ord.part-dscr2 = eb.part-dscr2.
 
           ASSIGN w-ord.total-tags = 1
             w-ord.ord-qty = loadtag.qty 
@@ -4112,7 +4114,8 @@ PROCEDURE create-w-ord :
                     w-ord.pcs = eb.cas-cnt
                     w-ord.bundle = eb.cas-pal
                     w-ord.cas-no = eb.cas-no
-                    w-ord.pallt-no = eb.tr-no.
+                    w-ord.pallt-no = eb.tr-no
+                    w-ord.part-dscr2 = eb.part-dscr2.
          IF v-ship-id EQ "" THEN v-ship-id = po-ord.cust-no.
          FIND FIRST shipto NO-LOCK WHERE shipto.company EQ cocode
                                   AND shipto.cust-no EQ po-ord.cust-no
@@ -4694,7 +4697,8 @@ PROCEDURE from-job :
              w-ord.total-unit = w-ord.pcs * w-ord.bundle
              w-ord.partial    = 0 /* w-ord.ord-qty - w-ord.total-unit*/
              w-ord.cas-no     = eb.cas-no
-             w-ord.pallt-no   = eb.tr-no.
+             w-ord.pallt-no   = eb.tr-no
+             w-ord.part-dscr2 = eb.part-dscr2.
 
           IF NOT v-oecount THEN
             ASSIGN
@@ -4952,7 +4956,8 @@ DEF INPUT PARAM ip-rowid AS ROWID NO-UNDO.
              w-ord.bundle = eb.cas-pal
              w-ord.cas-no = eb.cas-no
              w-ord.form-no = eb.form-no
-             w-ord.pallt-no = eb.tr-no.
+             w-ord.pallt-no = eb.tr-no
+             w-ord.part-dscr2 = eb.part-dscr2.
 
           /* get it from order    task# 04120602 */
           ASSIGN w-ord.pcs    = oe-ordl.cas-cnt
@@ -5159,7 +5164,8 @@ DEF INPUT PARAM ip-rowid AS ROWID NO-UNDO.
            w-ord.flute  = eb.flute
            w-ord.test   = eb.test
            w-ord.cas-no = eb.cas-no
-           w-ord.pallt-no = eb.tr-no. 
+           w-ord.pallt-no = eb.tr-no
+           w-ord.part-dscr2 = eb.part-dscr2 . 
 
         RUN oe/custxship.p (oe-rel.company,
                             oe-rel.cust-no,
@@ -5312,7 +5318,8 @@ PROCEDURE from-po :
         w-ord.pcs = eb.cas-cnt
         w-ord.bundle = eb.cas-pal
         w-ord.cas-no = eb.cas-no
-        w-ord.pallt-no = eb.tr-no.
+        w-ord.pallt-no = eb.tr-no
+        w-ord.part-dscr2 = eb.part-dscr2.
       IF NOT tb_ship-id THEN v-ship-id = po-ord.ship-id.
       FIND FIRST shipto NO-LOCK
           WHERE shipto.company EQ cocode
@@ -7585,8 +7592,8 @@ PROCEDURE write-loadtag-line :
         w-ord.pcs  "," /*39  Number per bundle   5 characters    numberperbndl                                                                                       */
         "," /*40  Broker number   5 characters    brokernumber                                                                                            */
           loadtag.tag-no "," /*41  Order entry message line 7  64 characters   msg7                                                                                        */
-        "," /*42  Order entry message line 8  64 characters   msg8                                                                                        */
-        "," /*43  Order entry message line 9  64 characters   msg9                                                                                        */
+        removeChars(w-ord.i-name) FORMAT "X(30)" "," /*42  Order entry message line 8  64 characters   msg8                                                                                        */
+        caps(removeChars(w-ord.i-no))  FORMAT "x(15)" "," /*43  Order entry message line 9  64 characters   msg9                                                                                        */
         '"' +  removeChars(w-ord.style-desc) + '"' "," /*44  Style description   15 characters   styledesc                                                                                           */
           w-ord.box-len FORMAT ">>>9.99<<<" "," /*45  Box length  9 characters    boxlen                                                                                                      */
           w-ord.box-wid FORMAT ">>>9.99<<<" "," /*46  Box width   9 characters    boxwid                                                                                                      */
@@ -7630,7 +7637,8 @@ PROCEDURE write-loadtag-line :
         "," /*84  Critical Operation 5 text   5 characters    LC05                                                                                        */
         "," /*85  Critical Operation 6 text   5 characters    LC06                                                                                        */
         "," /*86  1st Miscellaneous Billing Message   18 characters   MiscMsg1                                                                            */
-        "" /*87  2nd Miscellaneous Billing Message   18 characters   MiscMsg2                                                                            */
+        "," /*87  2nd Miscellaneous Billing Message   18 characters   MiscMsg2                                                                             */
+        removeChars(w-ord.part-dscr2) FORMAT "X(30)"  /* 88 Part Description 2                                                                                                         */
          .
  END.
  ELSE DO:
