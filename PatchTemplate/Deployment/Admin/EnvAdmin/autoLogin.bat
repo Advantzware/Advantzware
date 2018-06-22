@@ -9,7 +9,7 @@ SETLOCAL ENABLEDELAYEDEXPANSION
 SET DLC=%DLCDir%
 !Drive!
 CD \!topDir!\!adminDir!\!envAdmin!
-START !DLC!\bin\prowin -basekey INI -ininame dbms.ini -pf advantzware.pf -p asiLogin.w -param "asi,Package99,16.7.12,Advantzware,asiTest167"
+START !DLC!\bin\prowin -basekey INI -ininame dbms.ini -pf advantzware.pf -p asiLogin.w -param "admin,admin,16.7.12,Advantzware,asiTest167"
 GOTO :EXIT
 
 :EXIT
