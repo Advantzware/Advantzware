@@ -1376,7 +1376,9 @@ ON LEAVE OF po-ordl.i-no IN FRAME Dialog-Frame /* Item# */
 
             IF ip-type EQ "add" AND (v-poscreen-char = "Job-Item" ) THEN 
             DO:
-                APPLY "entry" TO po-ordl.s-num /* po-ordl.due-date*/ .                         
+                IF po-ordl.s-num:SENSITIVE EQ YES  THEN
+                APPLY "entry" TO po-ordl.s-num /* po-ordl.due-date*/ . 
+                ELSE  APPLY "entry" TO po-ordl.due-date  . 
                 RETURN NO-APPLY.
             END.
 
