@@ -1129,22 +1129,7 @@ if v-process then do:
 
         delete reftable.
     END.
-
-    FOR EACH reftable WHERE
-        reftable.reftable EQ "est\d-multbl.w" AND
-        reftable.company  EQ est.company AND
-        reftable.loc      EQ est.loc AND
-        reftable.code     EQ est.est-no
-        EXCLUSIVE WITH FRAME f-dmultbl:
-
-        if archive then do:
-           output to value(v-file-path + "reftable" + STRING(est.est-no,"X(8)") + ".d") APPEND.
-           export reftable.
-           output close.
-        end.
-
-        delete reftable.
-    END.
+    
 
     FOR EACH reftable WHERE
         reftable.reftable EQ "est/d-grpcst.w" AND

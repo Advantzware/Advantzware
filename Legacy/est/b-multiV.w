@@ -73,7 +73,7 @@ DEFINE BUFFER xest  FOR est.
 DEFINE BUFFER xef   FOR ef.
 DEFINE BUFFER xeb   FOR eb.
 
-DEFINE BUFFER b-ref FOR reftable.
+
 
 DEFINE VARIABLE ll-first      AS LOG       INIT YES NO-UNDO.
 DEFINE VARIABLE ll-new-form   AS LOG       NO-UNDO.
@@ -97,7 +97,19 @@ DEFINE VARIABLE CHAR-hdl      AS cha       NO-UNDO.
 
 DEFINE BUFFER bf-tt-eb    FOR tt-eb.
 
-DEFINE BUFFER multbl      FOR reftable.
+DEFINE NEW SHARED TEMP-TABLE multbl NO-UNDO
+    FIELD company AS CHARACTER
+    FIELD loc AS CHARACTER
+    FIELD est-no like est.est-no
+    FIELD board like ef.board
+    FIELD brd-dscr like ef.brd-dscr
+    FIELD form-no like eb.form-no
+    FIELD blank-no like eb.blank-no
+    FIELD eb-recid as recid
+    .
+
+DEFINE BUFFER b-multbl FOR multbl.
+
 DEFINE BUFFER xeb-form-ef FOR ef.
 DEFINE BUFFER b-ef        FOR ef.
 DEFINE BUFFER b-eb        FOR eb.
@@ -110,10 +122,9 @@ RUN sys/ref/nk1look.p (INPUT cocode, "CEGOTOCALC", "C" /* Char */, NO, NO /* che
     OUTPUT cCEGOTOCALC, OUTPUT lRecFound).
 lManualRecalc = (IF cCEGOTOCALC EQ "AUTOCALC" THEN NO ELSE YES).
 
-&SCOPED-DEFINE where-multbl WHERE multbl.reftable EQ "est\d-multbl.w" ~
-                              AND multbl.company  EQ est.company      ~
+&SCOPED-DEFINE where-multbl WHERE multbl.company  EQ est.company      ~
                               AND multbl.loc      EQ est.loc          ~
-                              AND multbl.code     EQ est.est-no
+                              AND multbl.est-no   EQ est.est-no
 
 &SCOPED-DEFINE SORTBY-PHRASE BY tt-eb.form-no BY tt-eb.blank-no
 
@@ -648,18 +659,18 @@ DO:
         WHERE eb.company EQ est.company
         AND eb.est-no  EQ ef.est-no
         AND eb.form-no EQ ef.form-no:
-        CREATE multbl.
-        ASSIGN
-            multbl.reftable = "est\d-multbl.w"
-            multbl.company  = est.company
-            multbl.loc      = est.loc
-            multbl.code     = est.est-no
-            multbl.code2    = ef.board
-            multbl.dscr     = ef.brd-dscr
-            multbl.val[1]   = eb.form-no
-            multbl.val[2]   = eb.blank-no
-            multbl.val[3]   = DEC(RECID(eb)).
-        RELEASE multbl.
+    CREATE multbl.
+    ASSIGN
+     multbl.company  = est.company
+     multbl.loc      = est.loc
+     multbl.est-no     = est.est-no
+     multbl.board    = ef.board
+     multbl.brd-dscr     = ef.brd-dscr
+     multbl.form-no   = eb.form-no
+     multbl.blank-no   = eb.blank-no
+     multbl.eb-recid   = RECID(eb).
+    RELEASE multbl.
+
     END.
 END.
 
@@ -707,13 +718,14 @@ PROCEDURE apply-go :
     DEFINE VARIABLE op-fb-changed AS LOG       NO-UNDO.
     DEFINE VARIABLE li            AS INTEGER   NO-UNDO.
     DEFINE VARIABLE io-rowid      AS ROWID     NO-UNDO.
-    FOR EACH multbl NO-LOCK {&where-multbl} USE-INDEX reftable,
+    FOR EACH multbl NO-LOCK {&where-multbl},
       FIRST eb NO-LOCK
-      WHERE RECID(eb)    EQ INT(multbl.val[3])
-        AND (eb.form-no  NE multbl.val[1] OR
-             eb.blank-no NE multbl.val[2]):
+      WHERE RECID(eb)    EQ multbl.eb-recid   
+        AND (eb.form-no  NE multbl.form-no OR
+             eb.blank-no NE multbl.blank-no):
     ll-fb-changed = YES.
     LEAVE.
+
 END.
 
 op-fb-changed = ll-fb-changed.
@@ -722,26 +734,26 @@ IF ll-fb-changed THEN
 DO:
     RUN new-forms.
 
-    FOR EACH multbl {&where-multbl} USE-INDEX reftable,
+    FOR EACH multbl {&where-multbl},
         FIRST eb
-        WHERE RECID(eb)    EQ INT(multbl.val[3])
-          AND eb.blank-no  LT 999
-          AND (eb.form-no  NE multbl.val[1] OR
-               eb.blank-no NE multbl.val[2]):
+        WHERE RECID(eb)    EQ multbl.eb-recid 
+          AND  eb.blank-no LT 999
+          AND (eb.form-no  NE multbl.form-no OR
+               eb.blank-no NE multbl.blank-no):
 
-    IF eb.form-no NE multbl.val[1] THEN 
+    IF eb.form-no NE multbl.form-no THEN 
     DO:
-    {sys/inc/xeb-form.i "eb." "0" "multbl.val[1]" "0"}
+    {sys/inc/xeb-form.i "eb." "0" "multbl.form-no" "0"}
     END.
 
-    multbl.val[2] = (multbl.val[2] * 1000) +
-        (1 * (IF multbl.val[2] LT eb.blank-no THEN -1 ELSE 1)).
+    multbl.blank-no = (multbl.blank-no * 1000) +
+                      (1 * (IF multbl.blank-no LT eb.blank-no THEN -1 ELSE 1)).
 
-    {sys/inc/xeb-form.i "eb." "eb.blank-no" "multbl.val[1]" "multbl.val[2] * 1000"}
+    {sys/inc/xeb-form.i "eb." "eb.blank-no" "multbl.form-no" "multbl.blank-no * 1000"}
 
     ASSIGN
-        eb.form-no  = multbl.val[1]
-        eb.blank-no = multbl.val[2] * 1000.
+        eb.form-no  = multbl.form-no
+        eb.blank-no = multbl.blank-no * 1000.
 
     RUN update-ef-board-proc.
 END.
@@ -768,7 +780,7 @@ FOR EACH est-op
         est-op.line = li
         .
      
-    IF AVAILABLE reftable THEN reftable.loc = STRING(est-op.line,"9999999999"). 
+    multbl.loc = STRING(est-op.line,"9999999999"). 
 END.
 END.
 
@@ -876,7 +888,7 @@ PROCEDURE createReftable :
     ------------------------------------------------------------------------------*/
     DEFINE BUFFER bf-tt-eb FOR tt-eb.
 
-    FOR EACH multbl {&where-multbl} USE-INDEX reftable:
+    FOR EACH multbl {&where-multbl}:
     DELETE multbl.
 END.
 
@@ -893,15 +905,14 @@ FOR EACH ef FIELDS(est-no form-no board brd-dscr) NO-LOCK
   
     CREATE multbl.
     ASSIGN
-        multbl.reftable = "est\d-multbl.w"
-        multbl.company  = est.company
-        multbl.loc      = est.loc
-        multbl.code     = est.est-no
-        multbl.code2    = ef.board
-        multbl.dscr     = ef.brd-dscr
-        multbl.val[1]   = bf-tt-eb.form-no
-        multbl.val[2]   = bf-tt-eb.blank-no
-        multbl.val[3]   = DEC(RECID(eb)).
+     multbl.company  = est.company
+     multbl.loc      = est.loc
+     multbl.est-no     = est.est-no
+     multbl.board    = ef.board
+     multbl.brd-dscr     = ef.brd-dscr
+     multbl.form-no   = eb.form-no
+     multbl.blank-no   = eb.blank-no
+     multbl.eb-recid   = RECID(eb).
     RELEASE multbl.
 END.
 
@@ -918,7 +929,7 @@ PROCEDURE del-ref-records :
       Notes:       
     ------------------------------------------------------------------------------*/
 
-    FOR EACH multbl {&where-multbl} USE-INDEX reftable:
+    FOR EACH multbl {&where-multbl}:
     DELETE multbl.
 END.
 
@@ -1044,36 +1055,34 @@ PROCEDURE finish-assign :
     /*   IF ll-die-changed THEN RUN est/updefdie.p (ROWID(ef)).                                       */
 
     FOR EACH multbl
-        WHERE multbl.reftable EQ "est\d-multbl.w"
-          AND multbl.company  EQ est.company
+        WHERE multbl.company  EQ est.company
           AND multbl.loc      EQ est.loc
-          AND multbl.code     EQ est.est-no
-        BY multbl.val[1] DESCENDING
-        BY multbl.val[2] DESCENDING:
+          AND multbl.est-no     EQ est.est-no
+        BY multbl.form-no DESCENDING
+        BY multbl.blank-no DESCENDING:
 
         ASSIGN
-            multbl.val[1] = (multbl.val[1] * 1000) +
-                     (1 * (IF multbl.val[1] LT v-form-no THEN -1 ELSE 1))
-            multbl.val[2] = (multbl.val[2] * 1000) +
-                     (1 * (IF multbl.val[2] LT v-blank-no THEN -1 ELSE 1)).
+            multbl.form-no = (multbl.form-no * 1000) +
+                     (1 * (IF multbl.form-no LT v-form-no THEN -1 ELSE 1))
+            multbl.blank-no = (multbl.blank-no * 1000) +
+                     (1 * (IF multbl.blank-no LT v-blank-no THEN -1 ELSE 1)).
     END.
 
     FOR EACH multbl
-        WHERE multbl.reftable EQ "est\d-multbl.w"
-          AND multbl.company  EQ est.company
+        WHERE multbl.company  EQ est.company
           AND multbl.loc      EQ est.loc
-          AND multbl.code     EQ est.est-no
-        BREAK BY multbl.val[1]
-        BY multbl.val[2]:
+          AND multbl.est-no     EQ est.est-no
+        BREAK BY multbl.form-no
+        BY multbl.blank-no:
 
-        IF FIRST-OF(multbl.val[1]) THEN lv-frm = lv-frm + 1.
+        IF FIRST-OF(multbl.form-no) THEN lv-frm = lv-frm + 1.
 
         ASSIGN
             lv-blk        = lv-blk + 1
-            multbl.val[1] = lv-frm
-            multbl.val[2] = lv-blk.
+            multbl.form-no = lv-frm
+            multbl.blank-no = lv-blk.
 
-        IF LAST-OF(multbl.val[1]) THEN lv-blk = 0.
+        IF LAST-OF(multbl.form-no) THEN lv-blk = 0.
     END.
 
 END PROCEDURE.
@@ -1116,15 +1125,14 @@ PROCEDURE initializeMulti :
 
         CREATE multbl.
         ASSIGN
-            multbl.reftable = "est\d-multbl.w"
-            multbl.company  = est.company
-            multbl.loc      = est.loc
-            multbl.code     = est.est-no
-            multbl.code2    = ef.board
-            multbl.dscr     = ef.brd-dscr
-            multbl.val[1]   = eb.form-no
-            multbl.val[2]   = eb.blank-no
-            multbl.val[3]   = DEC(RECID(eb)).
+         multbl.company  = est.company
+         multbl.loc      = est.loc
+         multbl.est-no     = est.est-no
+         multbl.board    = ef.board
+         multbl.brd-dscr     = ef.brd-dscr
+         multbl.form-no   = eb.form-no
+         multbl.blank-no   = eb.blank-no
+         multbl.eb-recid   = RECID(eb).
         RELEASE multbl.
     END.
 END PROCEDURE.
@@ -1246,16 +1254,15 @@ PROCEDURE local-assign-statement :
                 tt-eb.yld-qty = lv-yld-qty.
     END.
 
-    FOR EACH b-ref NO-LOCK
-        WHERE b-ref.reftable EQ reftable.reftable
-        AND b-ref.company  EQ reftable.company
-        AND b-ref.loc      EQ reftable.loc
-        AND b-ref.code     EQ reftable.code
-        AND b-ref.val[1]   EQ reftable.val[1]
-        AND b-ref.val[2]   GE reftable.val[2]
-        AND ROWID(b-ref)   NE ROWID(reftable)
-        BY b-ref.val[2] DESCENDING:
-        b-ref.val[2] = b-ref.val[2] + 1.
+    FOR EACH b-multbl NO-LOCK
+        WHERE b-multbl.company  EQ multbl.company
+        AND b-multbl.loc      EQ multbl.loc
+        AND b-multbl.est-no     EQ multbl.est-no
+        AND b-multbl.form-no   EQ multbl.form-no
+        AND b-multbl.blank-no   GE multbl.blank-no
+        AND b-multbl.eb-recid   NE multbl.eb-recid
+        BY b-multbl.blank-no DESCENDING:
+        b-multbl.blank-no = b-multbl.blank-no + 1.
     END.
 
 END PROCEDURE.
@@ -1491,50 +1498,49 @@ PROCEDURE new-forms :
       Parameters:  <none>
       Notes:       Run on submit
     ------------------------------------------------------------------------------*/
-    DEFINE BUFFER b-ref FOR reftable.
+    DEFINE BUFFER b-multbl FOR multbl.
 
     DEFINE VARIABLE li AS INTEGER NO-UNDO.
 
   
-    FOR EACH multbl {&where-multbl} USE-INDEX reftable,
+    FOR EACH multbl {&where-multbl},
       FIRST eb EXCLUSIVE-LOCK
-      WHERE RECID(eb) EQ INT(multbl.val[3])
+      WHERE RECID(eb) EQ multbl.eb-recid
         AND NOT CAN-FIND(FIRST ef
                          WHERE ef.company EQ eb.company
                            AND ef.est-no  EQ eb.est-no
-                           AND ef.form-no EQ multbl.val[1]),
+                           AND ef.form-no EQ multbl.form-no),
       FIRST ef EXCLUSIVE-LOCK
       WHERE ef.company EQ eb.company
         AND ef.est-no  EQ eb.est-no
         AND ef.form-no EQ eb.form-no
-      BREAK BY multbl.val[1]
-            BY multbl.val[2]:
+      BREAK BY multbl.form-no
+            BY multbl.blank-no:
 
-    IF FIRST-OF(multbl.val[1]) THEN
-        IF CAN-FIND(FIRST b-ref
-            WHERE b-ref.reftable EQ multbl.reftable
-            AND b-ref.company  EQ multbl.company
-            AND b-ref.loc      EQ multbl.loc
-            AND b-ref.code     EQ multbl.code
-            AND b-ref.val[1]   EQ ef.form-no
-            AND ROWID(b-ref)   NE ROWID(multbl)) THEN 
+    IF FIRST-OF(multbl.form-no) THEN
+        IF CAN-FIND(FIRST b-multbl
+            WHERE b-multbl.company  EQ multbl.company
+            AND b-multbl.loc      EQ multbl.loc
+            AND b-multbl.est-no     EQ multbl.est-no
+            AND b-multbl.form-no   EQ ef.form-no
+            AND b-multbl.eb-recid   NE multbl.eb-recid) THEN 
         DO:
             CREATE b-ef.
             BUFFER-COPY ef EXCEPT rec_key TO b-ef
                 ASSIGN
-                b-ef.form-no   = multbl.val[1]
+                b-ef.form-no   = multbl.form-no
                 b-ef.blank-qty = 1.
 
-        {sys/inc/xeb-form.i "eb." "0" "multbl.val[1]" "0"}
+        {sys/inc/xeb-form.i "eb." "0" "multbl.form-no" "0"}
         END.
 
         ELSE 
         DO:
 
 
-        {sys/inc/xeb-form.i "eb." "0" "multbl.val[1]" "0"}
+        {sys/inc/xeb-form.i "eb." "0" "multbl.form-no" "0"}
 
-            ef.form-no  = multbl.val[1].
+            ef.form-no  = multbl.form-no.
 
         END.
 END.
@@ -1556,11 +1562,11 @@ PROCEDURE process-new-forms :
     DEFINE VARIABLE ll-fb-changed AS LOG       NO-UNDO.
     DEFINE VARIABLE li            AS INTEGER   NO-UNDO.
 
-    FOR EACH multbl NO-LOCK {&where-multbl} USE-INDEX reftable,
+    FOR EACH multbl NO-LOCK {&where-multbl},
       FIRST eb NO-LOCK
-      WHERE RECID(eb)    EQ INT(multbl.val[3])
-        AND (eb.form-no  NE multbl.val[1] OR
-             eb.blank-no NE multbl.val[2]):
+      WHERE RECID(eb)    EQ multbl.eb-recid
+        AND (eb.form-no  NE multbl.form-no OR
+             eb.blank-no NE multbl.blank-no):
       ll-fb-changed = YES.
       LEAVE.
     END.
@@ -1571,26 +1577,26 @@ PROCEDURE process-new-forms :
     DO:
         RUN new-forms.
     
-        FOR EACH multbl {&where-multbl} USE-INDEX reftable,
+        FOR EACH multbl {&where-multbl},
             FIRST eb EXCLUSIVE-LOCK
-            WHERE RECID(eb)    EQ INT(multbl.val[3])
+            WHERE RECID(eb)    EQ multbl.eb-recid
               AND eb.blank-no  LT 999
-              AND (eb.form-no  NE multbl.val[1] OR
-                   eb.blank-no NE multbl.val[2]):
+              AND (eb.form-no  NE multbl.form-no OR
+                   eb.blank-no NE multbl.blank-no):
     
-            IF eb.form-no NE multbl.val[1] THEN 
+            IF eb.form-no NE multbl.form-no THEN 
             DO:
-                {sys/inc/xeb-form.i "eb." "0" "multbl.val[1]" "0"}
+                {sys/inc/xeb-form.i "eb." "0" "multbl.form-no" "0"}
             END.
         
-            multbl.val[2] = (multbl.val[2] * 1000) +
-                (1 * (IF multbl.val[2] LT eb.blank-no THEN -1 ELSE 1)).
+            multbl.blank-no = (multbl.blank-no * 1000) +
+                (1 * (IF multbl.blank-no LT eb.blank-no THEN -1 ELSE 1)).
         
-              {sys/inc/xeb-form.i "eb." "eb.blank-no" "multbl.val[1]" "multbl.val[2] * 1000"}
+              {sys/inc/xeb-form.i "eb." "eb.blank-no" "multbl.form-no" "multbl.blank-no * 1000"}
         
             ASSIGN
-                eb.form-no  = multbl.val[1]
-                eb.blank-no = multbl.val[2] * 1000.
+                eb.form-no  = multbl.form-no
+                eb.blank-no = multbl.blank-no * 1000.
         
             RUN update-ef-board-proc.
         END.
@@ -1616,7 +1622,7 @@ PROCEDURE process-new-forms :
                 li          = li + 1
                 est-op.line = li.
              
-            IF AVAILABLE reftable THEN reftable.loc = STRING(est-op.line,"9999999999"). 
+            multbl.loc = STRING(est-op.line,"9999999999"). 
         END. /* each est-op */
     END. /* If changed */
 
@@ -1704,8 +1710,8 @@ PROCEDURE recalcAllNumUp :
     DEFINE VARIABLE lv-frm         LIKE eb.form-no INIT 0 NO-UNDO.
     DEFINE VARIABLE lv-blk         LIKE eb.blank-no INIT 0 NO-UNDO.
     DEFINE VARIABLE li-num-up      AS INTEGER NO-UNDO.
-    DEFINE BUFFER multbl FOR reftable.
-
+    DEFINE BUFFER b-multbl FOR multbl.
+    
 
     FIND CURRENT eb.
     FIND CURRENT est.
@@ -1726,7 +1732,7 @@ PROCEDURE recalcAllNumUp :
         FIND FIRST xef
             WHERE xef.company EQ eb.company
             AND xef.est-no  EQ eb.est-no
-            AND xef.form-no EQ reftable.val[1]
+            AND xef.form-no EQ multbl.form-no
             NO-LOCK NO-ERROR.
 
     IF AVAILABLE xef THEN 
@@ -2025,7 +2031,7 @@ PROCEDURE saveFormBlankChanges :
 
   
     /* Create a multbl for each eb of estimate to process form and blank changes */                              
-    FOR EACH multbl {&where-multbl} USE-INDEX reftable:
+    FOR EACH multbl {&where-multbl}:
     DELETE multbl.
 END.
   
@@ -2042,15 +2048,14 @@ FOR EACH ef FIELDS(est-no form-no board brd-dscr) NO-LOCK
 
     CREATE multbl.
     ASSIGN
-        multbl.reftable = "est\d-multbl.w"
         multbl.company  = est.company
         multbl.loc      = est.loc
-        multbl.code     = est.est-no
-        multbl.code2    = ef.board
-        multbl.dscr     = ef.brd-dscr
-        multbl.val[1]   = tt-eb.form-no
-        multbl.val[2]   = tt-eb.blank-no
-        multbl.val[3]   = DEC(RECID(eb))
+        multbl.est-no     = est.est-no
+        multbl.board    = ef.board
+        multbl.brd-dscr     = ef.brd-dscr
+        multbl.form-no   = tt-eb.form-no
+        multbl.blank-no   = tt-eb.blank-no
+        multbl.eb-recid   = RECID(eb)
         .
         
     RELEASE multbl.
@@ -2081,18 +2086,17 @@ FOR EACH tt-eb:
 
         /* Lines below the current have negative values, Lines above the current have positive values */
         FOR EACH multbl EXCLUSIVE-LOCK
-            WHERE multbl.reftable EQ "est\d-multbl.w"
-            AND multbl.company  EQ est.company
+            WHERE multbl.company  EQ est.company
             AND multbl.loc      EQ est.loc
-            AND multbl.code     EQ est.est-no
-            BY multbl.val[1] DESCENDING
-            BY multbl.val[2] DESCENDING:
+            AND multbl.est-no     EQ est.est-no
+            BY multbl.form-no DESCENDING
+            BY multbl.blank-no DESCENDING:
     
             ASSIGN
-                multbl.val[1] = (multbl.val[1] * 1000) +
-                         (1 * (IF multbl.val[1] LT v-form-no THEN -1 ELSE 1))
-                multbl.val[2] = (multbl.val[2] * 1000) +
-                         (1 * (IF multbl.val[2] LT v-blank-no THEN -1 ELSE 1)).
+                multbl.form-no = (multbl.form-no * 1000) +
+                         (1 * (IF multbl.form-no LT v-form-no THEN -1 ELSE 1))
+                multbl.blank-no = (multbl.blank-no * 1000) +
+                         (1 * (IF multbl.blank-no LT v-blank-no THEN -1 ELSE 1)).
         END.
     
       
@@ -2102,21 +2106,20 @@ FOR EACH tt-eb:
             lv-blk = 0
             .
         FOR EACH multbl EXCLUSIVE-LOCK
-            WHERE multbl.reftable EQ "est\d-multbl.w"
-            AND multbl.company  EQ est.company
+            WHERE multbl.company  EQ est.company
             AND multbl.loc      EQ est.loc
-            AND multbl.code     EQ est.est-no
-            BREAK BY multbl.val[1]
-            BY multbl.val[2]:
+            AND multbl.est-no     EQ est.est-no
+            BREAK BY multbl.form-no
+            BY multbl.blank-no:
     
-            IF FIRST-OF(multbl.val[1]) THEN lv-frm = lv-frm + 1.
+            IF FIRST-OF(multbl.form-no) THEN lv-frm = lv-frm + 1.
     
             ASSIGN
                 lv-blk        = lv-blk + 1
-                multbl.val[1] = lv-frm
-                multbl.val[2] = lv-blk.
+                multbl.form-no = lv-frm
+                multbl.blank-no = lv-blk.
     
-            IF LAST-OF(multbl.val[1]) THEN lv-blk = 0.
+            IF LAST-OF(multbl.form-no) THEN lv-blk = 0.
         END. /* Each multbl to renumber form and blank */
     END. /* If a change was made */
 END.
@@ -2124,11 +2127,11 @@ END.
 
 /* Save Form/Blank changes to all tables */
 
-FOR EACH multbl NO-LOCK {&where-multbl} USE-INDEX reftable,
+FOR EACH multbl NO-LOCK {&where-multbl},
       FIRST eb NO-LOCK
-      WHERE RECID(eb)    EQ INT(multbl.val[3])
-        AND (eb.form-no  NE multbl.val[1] OR
-             eb.blank-no NE multbl.val[2]):
+      WHERE RECID(eb)    EQ multbl.eb-recid
+        AND (eb.form-no  NE multbl.form-no OR
+             eb.blank-no NE multbl.blank-no):
 ll-fb-changed = YES.
 LEAVE.
 END.
@@ -2139,29 +2142,29 @@ IF ll-fb-changed THEN
 DO:
     RUN new-forms.
 
-    FOR EACH multbl EXCLUSIVE-LOCK {&where-multbl} USE-INDEX reftable,
+    FOR EACH multbl EXCLUSIVE-LOCK {&where-multbl},
         FIRST eb EXCLUSIVE-LOCK
-        WHERE RECID(eb)    EQ INT(multbl.val[3])
+        WHERE RECID(eb)    EQ multbl.eb-recid
           AND eb.blank-no  LT 999
-          AND (eb.form-no  NE multbl.val[1] OR
-               eb.blank-no NE multbl.val[2]):
+          AND (eb.form-no  NE multbl.form-no OR
+               eb.blank-no NE multbl.blank-no):
 
-        IF eb.form-no NE multbl.val[1] THEN 
+        IF eb.form-no NE multbl.form-no THEN 
         DO:
-            {sys/inc/xeb-form.i "eb." "0" "multbl.val[1]" "0"}
+            {sys/inc/xeb-form.i "eb." "0" "multbl.form-no" "0"}
         END.
     
-        multbl.val[2] = (multbl.val[2] * 1000) +
-            (1 * (IF multbl.val[2] LT eb.blank-no THEN -1 ELSE 1)).
+        multbl.blank-no = (multbl.blank-no * 1000) +
+            (1 * (IF multbl.blank-no LT eb.blank-no THEN -1 ELSE 1)).
     
          /* Assigns blank-no below, but this gets reset by est/resetf&b */
          /* Updates est-flm and xeb-form-ef */
-          {sys/inc/xeb-form.i "eb." "eb.blank-no" "multbl.val[1]" "multbl.val[2] * 1000"}
+          {sys/inc/xeb-form.i "eb." "eb.blank-no" "multbl.form-no" "multbl.blank-no * 1000"}
           
           
         ASSIGN
-            eb.form-no  = multbl.val[1]
-            eb.blank-no = multbl.val[2] * 1000
+            eb.form-no  = multbl.form-no
+            eb.blank-no = multbl.blank-no * 1000
             .
         
         RUN update-ef-board-proc.
@@ -2188,7 +2191,7 @@ FOR EACH est-op EXCLUSIVE-LOCK
         li          = li + 1
         est-op.line = li.
      
-    IF AVAILABLE reftable THEN reftable.loc = STRING(est-op.line,"9999999999"). 
+    multbl.loc = STRING(est-op.line,"9999999999"). 
 END.
 END. /* If form or blank changed */
 
@@ -2296,8 +2299,8 @@ PROCEDURE update-ef-board-proc :
     IF AVAILABLE ef THEN
     DO:
         ASSIGN
-            ef.board    = multbl.code2
-            ef.brd-dscr = multbl.dscr.
+            ef.board    = multbl.board
+            ef.brd-dscr = multbl.brd-dscr.
         RELEASE ef.
     END.
 
@@ -2336,18 +2339,17 @@ PROCEDURE valid-bl-yld-up :
     DEFINE VARIABLE ll-one-bl-per-form AS LOG     NO-UNDO.
     DEFINE VARIABLE li-first-bl        AS INTEGER NO-UNDO.
     DEFINE VARIABLE li-cnt             AS INTEGER NO-UNDO.
-    DEFINE BUFFER b-ref FOR reftable.
+    DEFINE BUFFER b-multbl FOR multbl.
     
     ll-one-bl-per-form = YES.
 
     /* Check if one board per form */
-    FOR EACH b-ref NO-LOCK
-        WHERE b-ref.reftable EQ "est\d-multbl.w"
-        AND b-ref.company  EQ est.company
-        AND b-ref.loc      EQ est.loc
-        AND b-ref.code     EQ est.est-no:  
+    FOR EACH b-multbl NO-LOCK
+        WHERE b-multbl.company  EQ est.company
+        AND b-multbl.loc      EQ est.loc
+        AND b-multbl.est-no     EQ est.est-no:  
 
-        IF b-ref.val[2] GT 1 THEN 
+        IF b-multbl.blank-no GT 1 THEN 
         DO:
             ll-one-bl-per-form = NO.
             LEAVE.
@@ -2460,17 +2462,16 @@ PROCEDURE valid-form-no :
 
   
         lRefExists = FALSE.
-        FIND FIRST b-ref NO-LOCK NO-ERROR.
-        IF AVAIL b-ref THEN
+        FIND FIRST b-multbl NO-LOCK NO-ERROR.
+        IF AVAIL b-multbl THEN
           lRefExists = TRUE.
-        FIND FIRST b-ref NO-LOCK
-            WHERE b-ref.reftable EQ "est\d-multbl.w"
-            AND b-ref.company  EQ est.company
-            AND b-ref.loc      EQ est.loc
-            AND b-ref.code     EQ est.est-no
-            AND b-ref.val[1]   EQ INT(tt-eb.form-no:SCREEN-VALUE IN BROWSE {&browse-name}) 
+        FIND FIRST b-multbl NO-LOCK
+            WHERE b-multbl.company  EQ est.company
+            AND b-multbl.loc      EQ est.loc
+            AND b-multbl.est-no     EQ est.est-no
+            AND b-multbl.form-no   EQ INT(tt-eb.form-no:SCREEN-VALUE IN BROWSE {&browse-name}) 
             NO-ERROR.
-        IF NOT AVAILABLE b-ref AND lRefExists THEN 
+        IF NOT AVAILABLE b-multbl AND lRefExists THEN 
         DO:
             IF NOT ll-new-form THEN
                 MESSAGE "Form# does not exist on this estimate, add a new one?"
@@ -2494,19 +2495,18 @@ PROCEDURE valid-form-no :
             IF INT(tt-eb.form-no:SCREEN-VALUE IN BROWSE {&browse-name}) NE
                 INT(lv-prev-val-1) THEN 
             DO:
-                FOR EACH b-ref NO-LOCK
-                    WHERE b-ref.reftable EQ "est\d-multbl.w"
-                    AND b-ref.company  EQ est.company
-                    AND b-ref.loc      EQ est.loc
-                    AND b-ref.code     EQ est.est-no
-                    AND b-ref.val[1]   EQ INT(tt-eb.form-no:SCREEN-VALUE IN BROWSE {&browse-name})
-                    AND ROWID(b-ref)   NE ROWID(reftable)  
-                    BY b-ref.val[2] DESCENDING:
+                FOR EACH b-multbl NO-LOCK
+                    WHERE b-multbl.company  EQ est.company
+                    AND b-multbl.loc      EQ est.loc
+                    AND b-multbl.est-no     EQ est.est-no
+                    AND b-multbl.form-no   EQ INT(tt-eb.form-no:SCREEN-VALUE IN BROWSE {&browse-name})
+                    AND b-multbl.eb-recid   NE multbl.eb-recid  
+                    BY b-multbl.blank-no DESCENDING:
                     LEAVE.
                 END.
 
                 tt-eb.blank-no:SCREEN-VALUE IN BROWSE {&browse-name} =
-                    STRING((IF AVAILABLE b-ref THEN b-ref.val[2] ELSE 0) + 1).
+                    STRING((IF AVAILABLE b-multbl THEN b-multbl.blank-no ELSE 0) + 1).
             END.  
 
         lv-prev-val-1 = tt-eb.form-no:SCREEN-VALUE IN BROWSE {&browse-name}. 

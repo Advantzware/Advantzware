@@ -44,7 +44,18 @@ DEF BUFFER xest FOR est.
 DEF BUFFER xef FOR ef.
 DEF BUFFER xeb FOR eb.
 
-DEF BUFFER b-ref FOR reftable.
+DEFINE SHARED TEMP-TABLE multbl NO-UNDO
+    FIELD company AS CHARACTER
+    FIELD loc AS CHARACTER
+    FIELD est-no like est.est-no
+    FIELD board like ef.board
+    FIELD brd-dscr like ef.brd-dscr
+    FIELD form-no like eb.form-no
+    FIELD blank-no like eb.blank-no
+    FIELD eb-recid as recid
+    .
+
+
 
 DEF VAR ll-first AS LOG INIT YES NO-UNDO.
 DEF VAR ll-new-form AS LOG NO-UNDO.
@@ -57,7 +68,7 @@ DEF VAR v-blank-no LIKE eb.blank-no NO-UNDO.
 DEF VAR v-num-up LIKE eb.num-up NO-UNDO.
 DEF VAR lv-prev-val-1 AS CHAR NO-UNDO.
 
-&SCOPED-DEFINE sortby-phrase BY reftable.val[1] BY reftable.val[2]
+&SCOPED-DEFINE sortby-phrase BY multbl.form-no BY multbl.blank-no
 
 /* gdm - 07310904 */
 &SCOPED-DEFINE yellowColumnsName b-multbl
@@ -89,23 +100,23 @@ DEF VAR lv-prev-val-1 AS CHAR NO-UNDO.
 /* Need to scope the external tables to this procedure                  */
 DEFINE QUERY external_tables FOR est.
 /* Internal Tables (found by Frame, Query & Browse Queries)             */
-&Scoped-define INTERNAL-TABLES eb ef reftable
+&Scoped-define INTERNAL-TABLES eb ef multbl
 
 /* Define KEY-PHRASE in case it is used by any query. */
 &Scoped-define KEY-PHRASE TRUE
 
 /* Definitions for BROWSE br_table                                      */
-&Scoped-define FIELDS-IN-QUERY-br_table reftable.val[1] reftable.val[2] ~
+&Scoped-define FIELDS-IN-QUERY-br_table multbl.form-no multbl.blank-no ~
 eb.part-no display-bl-qty () @ eb.bl-qty eb.bl-qty ~
 display-bl-qty () @ eb.bl-qty display-yld-qty () @ eb.yld-qty eb.yld-qty ~
 display-yld-qty () @ eb.yld-qty eb.yrprice display-num-wid () @ eb.num-wid ~
 eb.num-wid display-num-wid () @ eb.num-wid display-num-len () @ eb.num-len ~
 eb.num-len display-num-len () @ eb.num-len eb.num-up 
-&Scoped-define ENABLED-FIELDS-IN-QUERY-br_table reftable.val[1] ~
-reftable.val[2] eb.part-no eb.bl-qty eb.yld-qty eb.yrprice eb.num-wid ~
+&Scoped-define ENABLED-FIELDS-IN-QUERY-br_table multbl.form-no ~
+multbl.blank-no eb.part-no eb.bl-qty eb.yld-qty eb.yrprice eb.num-wid ~
 eb.num-len 
-&Scoped-define ENABLED-TABLES-IN-QUERY-br_table reftable eb
-&Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-br_table reftable
+&Scoped-define ENABLED-TABLES-IN-QUERY-br_table multbl eb
+&Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-br_table multbl
 &Scoped-define SECOND-ENABLED-TABLE-IN-QUERY-br_table eb
 &Scoped-define QUERY-STRING-br_table FOR EACH eb WHERE eb.company = est.company ~
   AND eb.loc = est.loc ~
@@ -114,11 +125,10 @@ eb.num-len
   AND ef.loc = eb.loc ~
   AND ef.est-no = eb.est-no ~
   AND ef.form-no = eb.form-no NO-LOCK, ~
-      FIRST reftable WHERE reftable.reftable eq "est\d-multbl.w" and ~
-reftable.company  eq eb.company       and ~
-reftable.loc      eq eb.loc           and ~
-reftable.code     eq eb.est-no        and ~
-reftable.val[3]   eq dec(recid(eb)) NO-LOCK ~
+      FIRST multbl WHERE multbl.company  eq eb.company       and ~
+multbl.loc      eq eb.loc           and ~
+multbl.est-no     eq eb.est-no        and ~
+multbl.eb-recid   eq recid(eb) NO-LOCK ~
     ~{&SORTBY-PHRASE}
 &Scoped-define OPEN-QUERY-br_table OPEN QUERY br_table FOR EACH eb WHERE eb.company = est.company ~
   AND eb.loc = est.loc ~
@@ -127,16 +137,15 @@ reftable.val[3]   eq dec(recid(eb)) NO-LOCK ~
   AND ef.loc = eb.loc ~
   AND ef.est-no = eb.est-no ~
   AND ef.form-no = eb.form-no NO-LOCK, ~
-      FIRST reftable WHERE reftable.reftable eq "est\d-multbl.w" and ~
-reftable.company  eq eb.company       and ~
-reftable.loc      eq eb.loc           and ~
-reftable.code     eq eb.est-no        and ~
-reftable.val[3]   eq dec(recid(eb)) NO-LOCK ~
+      FIRST multbl WHERE multbl.company  eq eb.company       and ~
+multbl.loc      eq eb.loc           and ~
+multbl.est-no     eq eb.est-no        and ~
+multbl.eb-recid   eq recid(eb) NO-LOCK ~
     ~{&SORTBY-PHRASE}.
-&Scoped-define TABLES-IN-QUERY-br_table eb ef reftable
+&Scoped-define TABLES-IN-QUERY-br_table eb ef multbl
 &Scoped-define FIRST-TABLE-IN-QUERY-br_table eb
 &Scoped-define SECOND-TABLE-IN-QUERY-br_table ef
-&Scoped-define THIRD-TABLE-IN-QUERY-br_table reftable
+&Scoped-define THIRD-TABLE-IN-QUERY-br_table multbl
 
 
 /* Definitions for FRAME F-Main                                         */
@@ -238,16 +247,16 @@ FUNCTION display-yld-qty RETURNS INTEGER
 DEFINE QUERY br_table FOR 
       eb, 
       ef, 
-      reftable SCROLLING.
+      multbl SCROLLING.
 &ANALYZE-RESUME
 
 /* Browse definitions                                                   */
 DEFINE BROWSE br_table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS br_table B-table-Win _STRUCTURED
   QUERY br_table NO-LOCK DISPLAY
-      reftable.val[1] COLUMN-LABEL "Form#" FORMAT ">>>>>>>>>>":U
+      multbl.form-no COLUMN-LABEL "Form#" FORMAT ">>>>>>>>>>":U
             WIDTH 7 LABEL-BGCOLOR 14
-      reftable.val[2] COLUMN-LABEL "Blank#" FORMAT ">>>>>>>>>>":U
+      multbl.blank-no COLUMN-LABEL "Blank#" FORMAT ">>>>>>>>>>":U
             WIDTH 7 LABEL-BGCOLOR 14
       eb.part-no COLUMN-LABEL "Customer Part#" FORMAT "x(15)":U
             WIDTH 20 LABEL-BGCOLOR 14
@@ -268,8 +277,8 @@ DEFINE BROWSE br_table
       display-num-len () @ eb.num-len
       eb.num-up COLUMN-LABEL "No. Up" FORMAT ">>>,>>9":U LABEL-BGCOLOR 14
   ENABLE
-      reftable.val[1]
-      reftable.val[2]
+      multbl.form-no
+      multbl.blank-no
       eb.part-no
       eb.bl-qty
       eb.yld-qty
@@ -475,7 +484,7 @@ ON ROW-ENTRY OF br_table IN FRAME F-Main
 DO:
   /* This code displays initial values for newly added or copied rows. */
   {src/adm/template/brsentry.i}  
-  lv-prev-val-1 = reftable.val[1]:SCREEN-VALUE IN BROWSE {&browse-name}.
+  lv-prev-val-1 = multbl.form-no:SCREEN-VALUE IN BROWSE {&browse-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -517,9 +526,9 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME reftable.val[1]
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL reftable.val[1] br_table _BROWSE-COLUMN B-table-Win
-ON LEAVE OF reftable.val[1] IN BROWSE br_table /* Form# */
+&Scoped-define SELF-NAME multbl.form-no
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL multbl.form-no br_table _BROWSE-COLUMN B-table-Win
+ON LEAVE OF multbl.form-no IN BROWSE br_table /* Form# */
 DO:
   IF LASTKEY NE -1 THEN DO:
     RUN valid-form-no NO-ERROR.
@@ -531,9 +540,9 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME reftable.val[2]
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL reftable.val[2] br_table _BROWSE-COLUMN B-table-Win
-ON ENTRY OF reftable.val[2] IN BROWSE br_table /* Blank# */
+&Scoped-define SELF-NAME multbl.blank-no
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL multbl.blank-no br_table _BROWSE-COLUMN B-table-Win
+ON ENTRY OF multbl.blank-no IN BROWSE br_table /* Blank# */
 DO:
   IF ll-new-form THEN DO:
     APPLY "tab" TO {&self-name} IN BROWSE {&browse-name}.
@@ -545,8 +554,8 @@ END.
 &ANALYZE-RESUME
 
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL reftable.val[2] br_table _BROWSE-COLUMN B-table-Win
-ON LEAVE OF reftable.val[2] IN BROWSE br_table /* Blank# */
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL multbl.blank-no br_table _BROWSE-COLUMN B-table-Win
+ON LEAVE OF multbl.blank-no IN BROWSE br_table /* Blank# */
 DO:
   IF LASTKEY NE -1 THEN DO:
     RUN valid-blank-no NO-ERROR.
@@ -824,8 +833,6 @@ PROCEDURE finish-assign :
   DEF VAR lv-frm LIKE eb.form-no INIT 0 NO-UNDO.
   DEF VAR lv-blk LIKE eb.blank-no INIT 0 NO-UNDO.
 
-  DEF BUFFER multbl FOR reftable.
-
 
   FIND CURRENT eb.
   FIND CURRENT est.
@@ -842,7 +849,7 @@ PROCEDURE finish-assign :
   FIND FIRST xef
       WHERE xef.company EQ eb.company
         AND xef.est-no  EQ eb.est-no
-        AND xef.form-no EQ reftable.val[1]
+        AND xef.form-no EQ multbl.form-no
       NO-LOCK NO-ERROR.
 
   IF AVAIL xef THEN DO:
@@ -905,36 +912,34 @@ PROCEDURE finish-assign :
   IF ll-die-changed THEN RUN est/updefdie.p (ROWID(ef)).
 
   FOR EACH multbl
-      WHERE multbl.reftable EQ "est\d-multbl.w"
-        AND multbl.company  EQ est.company
+      WHERE multbl.company  EQ est.company
         AND multbl.loc      EQ est.loc
-        AND multbl.code     EQ est.est-no
-      BY multbl.val[1] DESC
-      BY multbl.val[2] DESC:
+        AND multbl.est-no     EQ est.est-no
+      BY multbl.form-no DESC
+      BY multbl.blank-no DESC:
 
     ASSIGN
-     multbl.val[1] = (multbl.val[1] * 1000) +
-                     (1 * (IF multbl.val[1] LT v-form-no THEN -1 ELSE 1))
-     multbl.val[2] = (multbl.val[2] * 1000) +
-                     (1 * (IF multbl.val[2] LT v-blank-no THEN -1 ELSE 1)).
+     multbl.form-no = (multbl.form-no * 1000) +
+                     (1 * (IF multbl.form-no LT v-form-no THEN -1 ELSE 1))
+     multbl.blank-no = (multbl.blank-no * 1000) +
+                     (1 * (IF multbl.blank-no LT v-blank-no THEN -1 ELSE 1)).
   END.
 
   FOR EACH multbl
-      WHERE multbl.reftable EQ "est\d-multbl.w"
-        AND multbl.company  EQ est.company
+      WHERE multbl.company  EQ est.company
         AND multbl.loc      EQ est.loc
-        AND multbl.code     EQ est.est-no
-      BREAK BY multbl.val[1]
-            BY multbl.val[2]:
+        AND multbl.est-no     EQ est.est-no
+      BREAK BY multbl.form-no
+            BY multbl.blank-no:
 
-    IF FIRST-OF(multbl.val[1]) THEN lv-frm = lv-frm + 1.
+    IF FIRST-OF(multbl.form-no) THEN lv-frm = lv-frm + 1.
 
     ASSIGN
      lv-blk        = lv-blk + 1
-     multbl.val[1] = lv-frm
-     multbl.val[2] = lv-blk.
+     multbl.form-no = lv-frm
+     multbl.blank-no = lv-blk.
 
-    IF LAST-OF(multbl.val[1]) THEN lv-blk = 0.
+    IF LAST-OF(multbl.form-no) THEN lv-blk = 0.
   END.
 
 END PROCEDURE.
@@ -968,6 +973,7 @@ PROCEDURE local-assign-statement :
   DEF VAR lv-yld-qty LIKE eb.yld-qty NO-UNDO.
   DEF VAR lv-field AS CHAR NO-UNDO.
 
+  DEF BUFFER b-multbl FOR multbl.
 
   /* Code placed here will execute PRIOR to standard behavior. */
   ASSIGN
@@ -1000,16 +1006,15 @@ PROCEDURE local-assign-statement :
        eb.yld-qty = lv-yld-qty.
   END.
 
-  FOR EACH b-ref
-      WHERE b-ref.reftable EQ reftable.reftable
-        AND b-ref.company  EQ reftable.company
-        AND b-ref.loc      EQ reftable.loc
-        AND b-ref.code     EQ reftable.code
-        AND b-ref.val[1]   EQ reftable.val[1]
-        AND b-ref.val[2]   GE reftable.val[2]
-        AND ROWID(b-ref)   NE ROWID(reftable)
-      BY b-ref.val[2] DESC:
-    b-ref.val[2] = b-ref.val[2] + 1.
+  FOR EACH b-multbl
+      WHERE b-multbl.company  EQ multbl.company
+        AND b-multbl.loc      EQ multbl.loc
+        AND b-multbl.est-no   EQ multbl.est-no
+        AND b-multbl.form-no  EQ multbl.form-no
+        AND b-multbl.blank-no GE multbl.blank-no
+        AND b-multbl.eb-recid   NE multbl.eb-recid
+      BY b-multbl.blank-no DESC:
+    b-multbl.blank-no = b-multbl.blank-no + 1.
   END.
 
 END PROCEDURE.
@@ -1053,7 +1058,7 @@ PROCEDURE local-enable-fields :
 
   /* Code placed here will execute AFTER standard behavior.    */
   DO WITH FRAME {&FRAME-NAME}:
-    APPLY "entry" TO reftable.val[1] IN BROWSE {&browse-name}.
+   APPLY "entry" TO multbl.form-no IN BROWSE {&browse-name}.
     ll-new-form = NO.
 
     ASSIGN
@@ -1252,7 +1257,7 @@ PROCEDURE send-records :
   {src/adm/template/snd-list.i "est"}
   {src/adm/template/snd-list.i "eb"}
   {src/adm/template/snd-list.i "ef"}
-  {src/adm/template/snd-list.i "reftable"}
+  {src/adm/template/snd-list.i "multbl"}
 
   /* Deal with any unexpected table requests before closing.           */
   {src/adm/template/snd-end.i}
@@ -1293,18 +1298,17 @@ PROCEDURE valid-bl-yld-up :
   DEF VAR ll-one-bl-per-form AS LOG NO-UNDO.
   DEF VAR li-first-bl AS INT NO-UNDO.
   DEF VAR li-cnt AS INT NO-UNDO.
-  DEF BUFFER b-ref FOR reftable.
+  DEF BUFFER b-multbl FOR multbl.
     
   ll-one-bl-per-form = YES.
 
   /* Check if one board per form */
-  FOR EACH b-ref NO-LOCK
-        WHERE b-ref.reftable EQ "est\d-multbl.w"
-          AND b-ref.company  EQ est.company
-          AND b-ref.loc      EQ est.loc
-          AND b-ref.code     EQ est.est-no:  
+  FOR EACH b-multbl NO-LOCK
+        WHERE b-multbl.company  EQ est.company
+          AND b-multbl.loc      EQ est.loc
+          AND b-multbl.est-no     EQ est.est-no:  
 
-        IF b-ref.val[2] GT 1 THEN DO:
+        IF b-multbl.blank-no GT 1 THEN DO:
             ll-one-bl-per-form = NO.
             LEAVE.
         END.
@@ -1393,10 +1397,10 @@ PROCEDURE valid-blank-no :
 ------------------------------------------------------------------------------*/
 
   DO WITH FRAME {&FRAME-NAME}:
-    IF INT(reftable.val[2]:SCREEN-VALUE IN BROWSE {&browse-name}) EQ 0 THEN DO:
+    IF INT(multbl.blank-no:SCREEN-VALUE IN BROWSE {&browse-name}) EQ 0 THEN DO:
       MESSAGE "Blank Number may not be zero..."
           VIEW-AS ALERT-BOX ERROR.
-      APPLY "entry" TO reftable.val[2] IN BROWSE {&browse-name}.
+      APPLY "entry" TO multbl.blank-no IN BROWSE {&browse-name}.
       RETURN ERROR.
     END.
   END.
@@ -1413,16 +1417,15 @@ PROCEDURE valid-form-no :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-
+DEF BUFFER b-multbl FOR multbl.
   DO WITH FRAME {&FRAME-NAME}:
-    FIND FIRST b-ref NO-LOCK
-        WHERE b-ref.reftable EQ "est\d-multbl.w"
-          AND b-ref.company  EQ est.company
-          AND b-ref.loc      EQ est.loc
-          AND b-ref.code     EQ est.est-no
-          AND b-ref.val[1]   EQ INT(reftable.val[1]:SCREEN-VALUE IN BROWSE {&browse-name})
+    FIND FIRST b-multbl NO-LOCK
+        WHERE b-multbl.company  EQ est.company
+          AND b-multbl.loc      EQ est.loc
+          AND b-multbl.est-no     EQ est.est-no
+          AND b-multbl.form-no   EQ INT(multbl.form-no:SCREEN-VALUE IN BROWSE {&browse-name})
         NO-ERROR.
-    IF NOT AVAIL b-ref THEN DO:
+    IF NOT AVAIL b-multbl THEN DO:
       IF NOT ll-new-form THEN
         MESSAGE "Form# does not exist on this estimate, add a new one?"
                 VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
@@ -1430,34 +1433,32 @@ PROCEDURE valid-form-no :
 
       IF ll-new-form THEN
         ASSIGN
-         reftable.val[2]:SCREEN-VALUE IN BROWSE {&browse-name} = "1"
-         /*reftable.val[1]:SCREEN-VALUE IN BROWSE {&browse-name}  = STRING(est.form-qty + 1)*/.
-
+         multbl.blank-no:SCREEN-VALUE IN BROWSE {&browse-name} = "1".
+         
       ELSE DO:
-        APPLY "entry" TO reftable.val[1] IN BROWSE {&browse-name}.
+        APPLY "entry" TO multbl.form-no IN BROWSE {&browse-name}.
         RETURN ERROR.
       END.
     END.
 
     ELSE
-    IF INT(reftable.val[1]:SCREEN-VALUE IN BROWSE {&browse-name}) NE
+    IF INT(multbl.form-no:SCREEN-VALUE IN BROWSE {&browse-name}) NE
        INT(lv-prev-val-1) THEN DO:
-      FOR EACH b-ref NO-LOCK
-          WHERE b-ref.reftable EQ "est\d-multbl.w"
-            AND b-ref.company  EQ est.company
-            AND b-ref.loc      EQ est.loc
-            AND b-ref.code     EQ est.est-no
-            AND b-ref.val[1]   EQ INT(reftable.val[1]:SCREEN-VALUE IN BROWSE {&browse-name})
-            AND ROWID(b-ref)   NE ROWID(reftable)  
-          BY b-ref.val[2] DESC:
+      FOR EACH b-multbl NO-LOCK
+          WHERE b-multbl.company  EQ est.company
+            AND b-multbl.loc      EQ est.loc
+            AND b-multbl.est-no     EQ est.est-no
+            AND b-multbl.form-no   EQ INT(multbl.form-no:SCREEN-VALUE IN BROWSE {&browse-name})
+            AND b-multbl.eb-recid   NE multbl.eb-recid  
+          BY b-multbl.blank-no DESC:
         LEAVE.
       END.
 
-      reftable.val[2]:SCREEN-VALUE IN BROWSE {&browse-name} =
-                            STRING((IF AVAIL b-ref THEN b-ref.val[2] ELSE 0) + 1).
+      multbl.blank-no:SCREEN-VALUE IN BROWSE {&browse-name} =
+                            STRING((IF AVAIL b-multbl THEN b-multbl.blank-no ELSE 0) + 1).
     END.  
 
-    lv-prev-val-1 = reftable.val[1]:SCREEN-VALUE IN BROWSE {&browse-name}.
+    lv-prev-val-1 = multbl.form-no:SCREEN-VALUE IN BROWSE {&browse-name}.
   END.
 
 END PROCEDURE.
