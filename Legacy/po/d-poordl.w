@@ -240,7 +240,7 @@ po-ordl.item-type
 &Scoped-Define DISPLAYED-OBJECTS fiCount fi_c-a-hdr fi_uom scr-cons-uom ~
 v-tot-msf v-po-dep v-po-wid-frac v-po-len-frac v-po-dep-frac v-gl-desc ~
 fi_pb-qty fi_pb-cst fi_q-onh fi_q-ono fi_q-comm fi_q-back fi_q-avail ~
-fi_m-onh fi_m-ono fi_m-comm fi_m-back fi_m-avail fi_msf 
+fi_m-onh fi_m-ono fi_m-comm fi_m-back fi_m-avail fi_msf cFirstMach
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -282,6 +282,11 @@ DEFINE VARIABLE adders        AS CHARACTER
     VIEW-AS EDITOR SCROLLBAR-VERTICAL
     SIZE 56 BY 6.19
     BGCOLOR 15 FONT 2 NO-UNDO.
+
+DEFINE VARIABLE cFirstMach AS CHARACTER FORMAT "X(25)":U 
+     LABEL "First Resource" 
+     VIEW-AS FILL-IN 
+     SIZE 58 BY 1 NO-UNDO.
 
 DEFINE VARIABLE fiCount       AS INTEGER   FORMAT "->,>>>,>>9":U INITIAL 0 
     LABEL "Count" 
@@ -500,29 +505,29 @@ DEFINE FRAME Dialog-Frame
     VIEW-AS FILL-IN 
     SIZE 38 BY 1
     v-gl-desc AT ROW 9.86 COL 18 COLON-ALIGNED
-    po-ordl.vend-i-no AT ROW 11.29 COL 18 COLON-ALIGNED
+    po-ordl.vend-i-no AT ROW 10.81 COL 18 COLON-ALIGNED
     VIEW-AS FILL-IN 
     SIZE 25 BY 1
-    po-ordl.tax AT ROW 11.52 COL 64 COLON-ALIGNED
+    po-ordl.tax AT ROW 11 COL 64 COLON-ALIGNED
     LABEL "Tax"
     VIEW-AS FILL-IN 
     SIZE 3.2 BY 1
-    po-ordl.over-pct AT ROW 12.29 COL 18 COLON-ALIGNED
+    po-ordl.over-pct AT ROW 11.88 COL 18 COLON-ALIGNED
     VIEW-AS FILL-IN 
     SIZE 10.4 BY 1
-    po-ordl.under-pct AT ROW 13.24 COL 18 COLON-ALIGNED
+    po-ordl.under-pct AT ROW 12.76 COL 18 COLON-ALIGNED
     VIEW-AS FILL-IN 
     SIZE 10.4 BY 1
     fi_pb-qty AT ROW 13.91 COL 104 COLON-ALIGNED
-    po-ordl.cust-no AT ROW 14.19 COL 18 COLON-ALIGNED
+    po-ordl.cust-no AT ROW 13.71 COL 18 COLON-ALIGNED
     LABEL "Customer#" FORMAT "x(8)"
     VIEW-AS FILL-IN 
     SIZE 16 BY 1
-    po-ordl.ord-no AT ROW 15.19 COL 18 COLON-ALIGNED
+    po-ordl.ord-no AT ROW 14.62 COL 18 COLON-ALIGNED
     LABEL "Order Number" FORMAT ">>>>>9"
     VIEW-AS FILL-IN 
     SIZE 12 BY 1
-    po-ordl.t-cost AT ROW 15.1 COL 49 COLON-ALIGNED
+    po-ordl.t-cost AT ROW 14.62 COL 49 COLON-ALIGNED
     LABEL "Total Cost" FORMAT "->,>>>,>>9.99<<"
     VIEW-AS FILL-IN 
     SIZE 27 BY 1
@@ -546,6 +551,7 @@ DEFINE FRAME Dialog-Frame
     fi_m-back AT ROW 18.91 COL 78 COLON-ALIGNED NO-LABELS
     fi_m-avail AT ROW 18.91 COL 98 COLON-ALIGNED NO-LABELS
     fi_msf AT ROW 18.91 COL 11 COLON-ALIGNED NO-LABELS
+    cFirstMach AT ROW 15.57 COL 18 COLON-ALIGNED WIDGET-ID 6
     "MSF" VIEW-AS TEXT
     SIZE 6 BY .62 AT ROW 5.52 COL 127
     "Width" VIEW-AS TEXT
@@ -614,6 +620,8 @@ ASSIGN
 ASSIGN 
        Btn_Done:HIDDEN IN FRAME Dialog-Frame = TRUE.
 
+/* SETTINGS FOR FILL-IN cFirstMach IN FRAME Dialog-Frame
+   NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN po-ordl.cons-cost IN FRAME Dialog-Frame
    NO-ENABLE EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN po-ordl.cons-qty IN FRAME Dialog-Frame
@@ -1376,7 +1384,9 @@ ON LEAVE OF po-ordl.i-no IN FRAME Dialog-Frame /* Item# */
 
             IF ip-type EQ "add" AND (v-poscreen-char = "Job-Item" ) THEN 
             DO:
-                APPLY "entry" TO po-ordl.s-num /* po-ordl.due-date*/ .                         
+                IF po-ordl.s-num:SENSITIVE EQ YES  THEN
+                 APPLY "entry" TO po-ordl.s-num /* po-ordl.due-date*/ . 
+                 ELSE  APPLY "entry" TO po-ordl.due-date  .                          
                 RETURN NO-APPLY.
             END.
 
@@ -1487,6 +1497,7 @@ ON LEAVE OF po-ordl.job-no IN FRAME Dialog-Frame /* Job # */
                     IF v-dep EQ 0 THEN 
                         v-dep                      = IF AVAILABLE b-item AND CAN-DO("C,5,6,D",b-item.mat-type) THEN b-item.case-d ELSE IF AVAILABLE b-item THEN b-item.s-dep ELSE 0
                        .
+                     
                    ASSIGN 
                         {po/calc16.i v-len}
                         {po/calc16.i v-wid}
@@ -1542,6 +1553,16 @@ ON LEAVE OF po-ordl.job-no IN FRAME Dialog-Frame /* Job # */
         
                     RELEASE b-job-hdr.
                 END.
+                cFirstMach = "" .
+                IF AVAILABLE po-ordl THEN
+                    FOR EACH job-mch WHERE job-mch.company EQ cocode
+                    AND job-mch.job-no EQ po-ordl.job-no:SCREEN-VALUE
+                    AND job-mch.job-no2 EQ integer(po-ordl.job-no2:SCREEN-VALUE)
+                    AND job-mch.frm EQ integer(po-ordl.s-num:SCREEN-VALUE) use-index line-idx NO-LOCK:
+                    
+                    ASSIGN cFirstMach:SCREEN-VALUE = job-mch.m-code . 
+                    LEAVE.
+                 END.
             END. /* else do */
 
         END.
@@ -3082,7 +3103,7 @@ PROCEDURE display-item :
             po-ordl.s-len po-ordl.actnum po-ordl.vend-i-no po-ordl.tax 
             po-ordl.under-pct po-ordl.over-pct po-ordl.stat po-ordl.cust-no 
             po-ordl.ord-no po-ordl.item-type po-ordl.setup po-ordl.s-num
-            po-ordl.b-num
+            po-ordl.b-num cFirstMach
             WITH FRAME Dialog-Frame.
 
         ASSIGN 
@@ -3124,6 +3145,17 @@ PROCEDURE display-item :
             FIND itemfg WHERE itemfg.company = g_company AND
                 itemfg.i-no = po-ordl.i-no:SCREEN-VALUE NO-LOCK NO-ERROR.
             IF AVAILABLE itemfg THEN RUN fg-qtys (ROWID(itemfg)).
+        END.
+
+        cFirstMach = "" .
+        IF AVAILABLE po-ordl THEN
+        FOR EACH job-mch WHERE job-mch.company EQ cocode
+            AND job-mch.job-no EQ po-ordl.job-no
+            AND job-mch.job-no2 EQ po-ordl.job-no2
+            AND job-mch.frm EQ po-ordl.s-num use-index line-idx NO-LOCK:
+
+            ASSIGN cFirstMach:SCREEN-VALUE = job-mch.m-code . 
+            LEAVE.
         END.
 
     DO WITH FRAME {&FRAME-NAME}:
@@ -3870,7 +3902,7 @@ PROCEDURE enable_UI :
     DISPLAY fiCount fi_c-a-hdr fi_uom scr-cons-uom v-tot-msf v-po-dep 
         v-po-wid-frac v-po-len-frac v-po-dep-frac v-gl-desc fi_pb-qty 
         fi_pb-cst fi_q-onh fi_q-ono fi_q-comm fi_q-back fi_q-avail fi_m-onh 
-        fi_m-ono fi_m-comm fi_m-back fi_m-avail fi_msf 
+        fi_m-ono fi_m-comm fi_m-back fi_m-avail fi_msf cFirstMach
         WITH FRAME Dialog-Frame.
     IF AVAILABLE po-ordl THEN 
         DISPLAY po-ordl.i-no po-ordl.job-no po-ordl.job-no2 po-ordl.s-num 
