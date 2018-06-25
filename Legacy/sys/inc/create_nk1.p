@@ -30,7 +30,7 @@ v-std-list = "LoadTagSSCC,IR12,OEDateChange,FGRecptPassWord,InvStatus,BOLQtyPopu
             + "KiwiT,BusinessFormModal,LoadTagXprintImage,AsiHelpClientID,CEGotoCalc,FGKEEPZEROBIN,RMKEEPZEROBIN,PrePressHotFolderIn,"
             + "PrePressHotFolderOut,METRIC,CEImportForm,CEImportFormFolder,BusinessFormLogo,CalcBtnImage,CalcBtnLink,DCClosedJobs,"
             + "ImportFolder,ImportLog,TagFormat,FgItemHideCalcFields,VendCostMatrix,RelSkipRecalc,RMAllowAdd,CECostSave,RMOverrunCostProtection,"
-            + "SSBOLPassword,BOLImageFooter,InvAddDate,POFGDims,OEPriceHold,POConfigDir,EDILogs,AutoLogout,AutoLogoutLocal,RMTagValidation" .
+            + "SSBOLPassword,BOLImageFooter,InvAddDate,POFGDims,OEPriceHold,POConfigDir,EDILogs,userControl,RMTagValidation" .
 
 IF CAN-DO(v-std-list,ip-nk1-value) THEN
 CASE ip-nk1-value:
@@ -436,14 +436,9 @@ CASE ip-nk1-value:
         INPUT "C:\tmp",
         INPUT "C:\tmp" /* Char Value */, INPUT 0 /* Int value */,
         INPUT NO /* Logical value */).
-    WHEN " AutoLogout" THEN   
+     WHEN "UserControl" THEN   
     RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
-        INPUT "Folder to monitor disconnect instructions on Server",
-        INPUT "C:\asigui\Environments\Prod\custfiles\userControl" /* Char Value */, INPUT 0 /* Int value */,
-        INPUT NO /* Logical value */).
-     WHEN "AutoLogoutLocal" THEN   
-    RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
-        INPUT "Folder to write disconnect instructions from local client",
+        INPUT "Folder to write disconnect instructions",
         INPUT "custfiles\userControl" /* Char Value */, INPUT 0 /* Int value */,
         INPUT NO /* Logical value */).       
     WHEN "RMTagValidation" THEN   
