@@ -1,6 +1,8 @@
 
 DEF VAR li-rels AS INT NO-UNDO.
 DEF VAR lv-time AS INT NO-UNDO.
+DEFINE VARIABLE cCEBrowseSubDir AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lCEBrowse AS LOGICAL NO-UNDO.
 
 DEF BUFFER probe-board FOR reftable.
 DEF BUFFER bff-probe for probe .
@@ -69,11 +71,30 @@ DO TRANSACTION:
      probe.freight      = li-rels
      probe.probe-user   = USERID("nosweat").
   END.
-
+  
   ASSIGN
    probe.probe-time = lv-time
    probe.set-chg    = {2}.
 
+    RUN sys/ref/nk1Look.p(INPUT probe.company,
+                          INPUT "CEBrowse",
+                          INPUT "D",
+                          INPUT NO,
+                          INPUT NO,
+                          INPUT "",
+                          INPUT "",
+                          OUTPUT cCEBrowseSubDir,
+                          OUTPUT lCEBrowse).
+    IF DEC(cCEBrowseSubDir) GT 0 THEN DO:
+        probe.spare-char-1 = tmp-dir + cCEBrowseSubDir + "\".
+        FILE-INFO:FILE-NAME = probe.spare-char-1.
+        IF FILE-INFO:FULL-PATHNAME = ? THEN
+            OS-CREATE-DIR VALUE(probe.spare-char-1).    
+        ASSIGN 
+            tmp-dir = probe.spare-char-1
+            lv-cebrowse-dir = tmp-dir.    
+    END.
+    
   FIND CURRENT probe NO-LOCK NO-ERROR.
 
   FIND FIRST probe-board
@@ -99,6 +120,7 @@ END.
 
 IF vprint AND xest.est-type GE 5 AND xest.est-type LE 6 THEN
   RUN est/upestqty.p (ROWID(xest)).
-  
+
+
 RUN est/CostBuildHeaders.p (ROWID(xest), {1}, riJob). 
 
