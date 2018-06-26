@@ -6662,6 +6662,7 @@ PROCEDURE OnSaveButton:
     SESSION:SET-WAIT-STATE ("general").
 
     DO TRANSACTION :
+        
         FIND CURRENT oe-ordl EXCLUSIVE.
 
         IF ll-reopen THEN oe-ordl.stat = "".
@@ -6670,6 +6671,8 @@ PROCEDURE OnSaveButton:
         DO:
             RUN oe/upinvqty.p (RECID(oe-ordl)).
         END.
+    END. /* Transaction */
+    DO TRANSACTION:
 
         DO WITH FRAME {&FRAME-NAME}:
             ASSIGN {&FIELDS-IN-QUERY-{&FRAME-NAME}}
@@ -6690,7 +6693,7 @@ PROCEDURE OnSaveButton:
                                               YES, /*Set oe-ord hold fields*/
                                               OUTPUT lPriceHold, 
                                               OUTPUT cPriceHoldMessage).
-                                              
+                        
         FIND xoe-ord WHERE RECID(xoe-ord) = recid(oe-ord) EXCLUSIVE.
         FIND FIRST itemfg WHERE itemfg.company EQ cocode
             AND itemfg.i-no EQ oe-ordl.i-no NO-LOCK NO-ERROR.
@@ -6754,7 +6757,7 @@ PROCEDURE OnSaveButton:
                     xoe-ordl.prom-date = oe-ordl.prom-date.
             END.
         END.
-  
+
         IF oeDateAuto-log AND OeDateAuto-Char = "Colonial" THEN 
         DO:
       
@@ -6790,7 +6793,7 @@ PROCEDURE OnSaveButton:
                 INPUT (IF lv-change-cst-po THEN "" ELSE oe-ordl.i-no)).
         END.
         RELEASE xoe-ordl.
-  
+
         RUN update-itemfg.
 
         ASSIGN {&list-2} .  /* job-no job-no2 */
@@ -7537,7 +7540,7 @@ END. /* not avail sys-ctrl */
 FIND FIRST itemfg
     WHERE itemfg.company EQ cocode
       AND itemfg.i-no    EQ oe-ordl.i-no
-    EXCLUSIVE-LOCK NO-ERROR.
+    NO-LOCK NO-ERROR.
     
 IF AVAIL itemfg THEN DO:    
   FIND oe-ord OF oe-ordl NO-LOCK.
@@ -7564,7 +7567,9 @@ IF AVAIL itemfg THEN DO:
          v-flag[9] = SUBSTRING(ls-flag,9,1) = "Y"
          v-flag[10] = SUBSTRING(ls-flag,10,1) = "Y"
          .
-
+   
+  FIND CURRENT itemfg EXCLUSIVE-LOCK.
+  
   IF v-flag[1] OR ll-new-fg-created THEN 
                     itemfg.sell-price  = oe-ordl.price.
   IF v-flag[2] THEN itemfg.sell-uom    = oe-ordl.pr-uom. 
@@ -7776,7 +7781,7 @@ IF AVAIL itemfg THEN DO:
               RELEASE b-e-itemfg-vend.
      END.
   END.
-END.
+END. /* If avail itemfg */
 
 RELEASE itemfg.
 
