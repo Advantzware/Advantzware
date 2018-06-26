@@ -485,7 +485,7 @@ PROCEDURE GetPriceMatrixPrice:
     
     /*Set the default starting level to the customer specific starting level*/
     IF AVAILABLE bf-cust THEN 
-        iLevelStart = MINIMUM(1, bf-cust.cust-level).
+        iLevelStart = MAXIMUM(1, bf-cust.cust-level).
     ELSE 
         iLevelStart = 1.
     
