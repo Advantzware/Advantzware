@@ -1553,16 +1553,11 @@ ON LEAVE OF po-ordl.job-no IN FRAME Dialog-Frame /* Job # */
         
                     RELEASE b-job-hdr.
                 END.
+                
                 cFirstMach = "" .
-                IF AVAILABLE po-ordl THEN
-                    FOR EACH job-mch WHERE job-mch.company EQ cocode
-                    AND job-mch.job-no EQ po-ordl.job-no:SCREEN-VALUE
-                    AND job-mch.job-no2 EQ integer(po-ordl.job-no2:SCREEN-VALUE)
-                    AND job-mch.frm EQ integer(po-ordl.s-num:SCREEN-VALUE) use-index line-idx NO-LOCK:
-                    
-                    ASSIGN cFirstMach:SCREEN-VALUE = job-mch.m-code . 
-                    LEAVE.
-                 END.
+                RUN GetFirstMach(OUTPUT cFirstMach) .
+                ASSIGN cFirstMach:SCREEN-VALUE = cFirstMach . 
+                
             END. /* else do */
 
         END.
@@ -3148,15 +3143,8 @@ PROCEDURE display-item :
         END.
 
         cFirstMach = "" .
-        IF AVAILABLE po-ordl THEN
-        FOR EACH job-mch WHERE job-mch.company EQ cocode
-            AND job-mch.job-no EQ po-ordl.job-no
-            AND job-mch.job-no2 EQ po-ordl.job-no2
-            AND job-mch.frm EQ po-ordl.s-num use-index line-idx NO-LOCK:
-
-            ASSIGN cFirstMach:SCREEN-VALUE = job-mch.m-code . 
-            LEAVE.
-        END.
+        RUN GetFirstMach(OUTPUT cFirstMach) .
+        ASSIGN cFirstMach:SCREEN-VALUE = cFirstMach .
 
     DO WITH FRAME {&FRAME-NAME}:
         ASSIGN
@@ -6826,3 +6814,30 @@ PROCEDURE check-job-bnum :
 END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME    
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE GetFirstMach Dialog-Frame 
+PROCEDURE GetFirstMach :
+    /*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER opMachine AS CHAR NO-UNDO.
+    
+ DO WITH FRAME {&FRAME-NAME}:
+      IF AVAILABLE po-ordl THEN
+        FOR EACH job-mch NO-LOCK
+          WHERE job-mch.company EQ cocode
+            AND job-mch.job-no EQ po-ordl.job-no:SCREEN-VALUE
+            AND job-mch.job-no2 EQ integer(po-ordl.job-no2:SCREEN-VALUE)
+            AND job-mch.frm EQ integer(po-ordl.s-num:SCREEN-VALUE) use-index line-idx :
+             ASSIGN opMachine = job-mch.m-code . 
+             LEAVE.
+        END.
+ END.
+
+
+END PROCEDURE.
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME 
