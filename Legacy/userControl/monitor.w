@@ -55,8 +55,8 @@ ASSIGN
      IF SEARCH(cMonitorFolder) EQ ? THEN 
        OS-CREATE-DIR VALUE(cMonitorFolder).
     IF SEARCH(cProcessedFolder) EQ ? THEN 
-        OS-CREATE-DIR VALUE(cMonitorFolder).       
-     INPUT FROM OS-DIR(cProcessedFolder) NO-ECHO.
+        OS-CREATE-DIR VALUE(cProcessedFolder).       
+     INPUT FROM OS-DIR(cMonitorFolder) NO-ECHO.
     REPEAT:
 
         IMPORT monitorFile ^ attrList.
