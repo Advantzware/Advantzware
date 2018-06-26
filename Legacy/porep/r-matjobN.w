@@ -101,12 +101,12 @@ ASSIGN cTextListToDefault  = "Job No,Item No,UOM,Required,Ordered,Received,Vendo
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-6 RECT-7 begin_job-no begin_job-no2 ~
-end_job-no end_job-no2 tb_sort tb_show begin_due-date end_due-date ~
-select-mat rd-dest lv-ornt lines-per-page lv-font-no td-show-parm tb_excel ~
+end_job-no end_job-no2 tb_sort tb_show begin_job-date end_job-date begin_due-date  ~
+end_due-date select-mat rd-dest lv-ornt lines-per-page lv-font-no td-show-parm tb_excel ~
 tb_runExcel fi_file btn-ok btn-cancel btn_SelectColumns
 &Scoped-Define DISPLAYED-OBJECTS begin_job-no begin_job-no2 end_job-no ~
-end_job-no2 tb_sort tb_show begin_due-date end_due-date select-mat rd-dest ~
-lv-ornt lines-per-page lv-font-no lv-font-name td-show-parm tb_excel ~
+end_job-no2 tb_sort tb_show begin_job-date end_job-date begin_due-date end_due-date  ~
+select-mat rd-dest lv-ornt lines-per-page lv-font-no lv-font-name td-show-parm tb_excel ~
 tb_runExcel fi_file 
 
 /* Custom List Definitions                                              */
@@ -156,6 +156,11 @@ DEFINE VARIABLE begin_due-date AS DATE FORMAT "99/99/9999":U INITIAL 01/01/001
      VIEW-AS FILL-IN 
      SIZE 18 BY 1 NO-UNDO.
 
+DEFINE VARIABLE begin_job-date AS DATE FORMAT "99/99/9999":U INITIAL 01/01/001 
+     LABEL "Beginning Job Due Date" 
+     VIEW-AS FILL-IN 
+     SIZE 18 BY 1 NO-UNDO.
+
 DEFINE VARIABLE begin_job-no AS CHARACTER FORMAT "X(6)":U 
      LABEL "Beginning Job#" 
      VIEW-AS FILL-IN 
@@ -168,6 +173,11 @@ DEFINE VARIABLE begin_job-no2 AS INTEGER FORMAT "99":U INITIAL 0
 
 DEFINE VARIABLE end_due-date AS DATE FORMAT "99/99/9999":U INITIAL 12/31/9999 
      LABEL "Ending PO Due Date" 
+     VIEW-AS FILL-IN 
+     SIZE 17 BY 1 NO-UNDO.
+
+DEFINE VARIABLE end_job-date AS DATE FORMAT "99/99/9999":U INITIAL 12/31/9999 
+     LABEL "Ending Job Due Date" 
      VIEW-AS FILL-IN 
      SIZE 17 BY 1 NO-UNDO.
 
@@ -284,7 +294,11 @@ DEFINE FRAME FRAME-A
      end_job-no2 AT ROW 2.43 COL 84 COLON-ALIGNED HELP
           "Enter Ending Job Number"
      tb_sort AT ROW 3.86 COL 31
-     tb_show AT ROW 5.05 COL 31
+     tb_show AT ROW 3.86 COL 58.2
+     begin_job-date AT ROW 5.29 COL 29 COLON-ALIGNED HELP
+          "Enter Beginning Job Due Date" WIDGET-ID 30
+     end_job-date AT ROW 5.38 COL 72 COLON-ALIGNED HELP
+          "Enter Ending Job Due Date" WIDGET-ID 32
      begin_due-date AT ROW 6.24 COL 29 COLON-ALIGNED HELP
           "Enter Beginning PO Due Date"
      end_due-date AT ROW 6.24 COL 72 COLON-ALIGNED HELP
@@ -389,6 +403,10 @@ ASSIGN
                 "parm".
 
 ASSIGN 
+       begin_job-date:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
+
+ASSIGN 
        begin_job-no:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
@@ -398,6 +416,9 @@ ASSIGN
 
 ASSIGN 
        end_due-date:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
+ASSIGN 
+       end_job-date:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
 ASSIGN 
@@ -497,9 +518,30 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME begin_job-date
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_job-date C-Win
+ON LEAVE OF begin_job-date IN FRAME FRAME-A /* Beginning Job Due Date */
+DO:
+  assign {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME begin_job-no
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_job-no C-Win
 ON LEAVE OF begin_job-no IN FRAME FRAME-A /* Beginning Job# */
+DO:
+  assign {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME end_job-date
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_job-date C-Win
+ON LEAVE OF end_job-date IN FRAME FRAME-A /* Ending Job Due Date */
 DO:
   assign {&self-name}.
 END.
@@ -1063,12 +1105,13 @@ PROCEDURE enable_UI :
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
   DISPLAY begin_job-no begin_job-no2 end_job-no end_job-no2 tb_sort tb_show 
-          begin_due-date end_due-date select-mat rd-dest lv-ornt lines-per-page 
-          lv-font-no lv-font-name td-show-parm tb_excel tb_runExcel fi_file 
+          begin_job-date end_job-date begin_due-date end_due-date select-mat rd-dest  
+          lv-ornt lines-per-page lv-font-no lv-font-name td-show-parm tb_excel 
+          tb_runExcel fi_file 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   ENABLE RECT-6 RECT-7 begin_job-no begin_job-no2 end_job-no end_job-no2 
-         tb_sort tb_show begin_due-date end_due-date select-mat rd-dest lv-ornt 
-         lines-per-page lv-font-no td-show-parm tb_excel tb_runExcel fi_file 
+         tb_sort tb_show begin_job-date end_job-date begin_due-date end_due-date select-mat  
+         rd-dest lv-ornt lines-per-page lv-font-no td-show-parm tb_excel tb_runExcel fi_file 
          btn-ok btn-cancel btn_SelectColumns
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
