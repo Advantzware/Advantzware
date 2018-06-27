@@ -2099,9 +2099,8 @@ DEF VAR lContinue AS LOG INITIAL TRUE NO-UNDO.
 
 INPUT FROM VALUE(cAdminDir + "\advantzware.usr").
 REPEAT:
-    IMPORT cLine.
+    IMPORT UNFORMATTED cLine.
     IF ENTRY(2,cLine,"|") EQ "*" THEN DO:
-        RUN ipStatus ("Conversion already done").
         ASSIGN
             lContinue = FALSE.
         RETURN.
@@ -2129,10 +2128,8 @@ FOR EACH ttUsers:
         IF INDEX(cenvlist,ENTRY(i,ttfenvlist)) EQ 0 THEN ASSIGN
             cenvlist = cenvlist + ENTRY(i,ttfenvlist) + ",".
     END.
-    DO i = 1 TO NUM-ENTRIES(ttfdblist):
-        IF INDEX(cdblist,ENTRY(i,ttfdblist)) EQ 0 THEN ASSIGN
-            cdblist = cdblist + ENTRY(i,ttfdblist) + ",".
-    END.  
+    IF INDEX(cdblist,ttfDbName) EQ 0 THEN ASSIGN
+        cdblist = cdblist + ttfDbName + ",".
 END.
 
 ASSIGN
@@ -2198,7 +2195,6 @@ DO j = 1 TO NUM-ENTRIES(cdblist):
     END.
 END.
 OUTPUT CLOSE.  
- 
  
 END PROCEDURE.
 
