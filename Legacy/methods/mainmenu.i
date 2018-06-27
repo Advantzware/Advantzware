@@ -24,14 +24,14 @@ ASSIGN
     m_menu-lst[1] = "{&addon}menu"
     m_menu-lst[2] = "lst".
 
-FIND FIRST sys-ctrl NO-LOCK
-     WHERE sys-ctrl.company EQ g_company
-       AND sys-ctrl.name    EQ "cemenu"
-     NO-ERROR.
-IF AVAILABLE sys-ctrl THEN
-    IF sys-ctrl.char-fld EQ "Corrware" THEN m_menu-lst[2] = "cor".
+RUN sys/ref/nk1look.p (
+    g_company,"CEMenu","C",NO,NO,"","",
+    OUTPUT cCEMenu,OUTPUT lFound
+    ).
+IF lFound THEN
+    IF cCEMenu EQ "CorrWare" THEN m_menu-lst[2] = "cor".
     ELSE
-        IF sys-ctrl.char-fld EQ "Foldware" THEN m_menu-lst[2] = "fol".
+        IF cCEMenu EQ "Foldware" THEN m_menu-lst[2] = "fol".
 
 m_menu-lst[1] = TRIM(m_menu-lst[1]) + "." + TRIM(m_menu-lst[2]).
 

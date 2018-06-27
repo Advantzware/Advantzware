@@ -485,7 +485,7 @@ PROCEDURE GetPriceMatrixPrice:
     
     /*Set the default starting level to the customer specific starting level*/
     IF AVAILABLE bf-cust THEN 
-        iLevelStart = MINIMUM(1, bf-cust.cust-level).
+        iLevelStart = MAXIMUM(1, bf-cust.cust-level).
     ELSE 
         iLevelStart = 1.
     
@@ -1027,6 +1027,9 @@ PROCEDURE pGetPriceMatrix PRIVATE:
         AND (opbf-oe-prmtx.eff-date LE TODAY)
         /*must not be expired*/
         AND (opbf-oe-prmtx.exp-date GE TODAY OR opbf-oe-prmtx.exp-date EQ ? OR opbf-oe-prmtx.exp-date EQ 01/01/0001)
+        /* Can't be all blank */
+        AND NOT (opbf-oe-prmtx.cust-no EQ "" AND opbf-oe-prmtx.i-no EQ "" AND opbf-oe-prmtx.procat EQ "" AND opbf-oe-prmtx.custype EQ "" 
+        AND opbf-oe-prmtx.custShipID EQ "")
     /*Sort the resulting data set so that actual matches take priority over blank matches*/
         BY opbf-oe-prmtx.eff-date DESCENDING 
         BY opbf-oe-prmtx.i-no DESCENDING
