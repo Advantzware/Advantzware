@@ -25,6 +25,7 @@ DEFINE VARIABLE iover-run AS DECIMAL NO-UNDO.
 DEFINE VARIABLE lv-part-name AS cha FORM "x(30)" NO-UNDO.
 DEFINE VARIABLE lv-fg-name AS cha NO-UNDO.
 DEFINE VARIABLE tb_app-unprinted AS LOG NO-UNDO.
+DEFINE VARIABLE iset-qty AS INTEGER NO-UNDO.
 
 {jcrep/r-ticket.i "shared"}
 
@@ -109,6 +110,7 @@ END.
        END.
 
   v-job-cust = sys-ctrl.log-fld.
+  s-prt-set-header = NO .
 
 ASSIGN
  v-line[1] = CHR(95) + fill(CHR(95),40) + chr(95) + "  " +
@@ -276,16 +278,23 @@ DO v-local-loop = 1 TO v-local-copies:
             "<=BoardStart><R+9><#BoardBL>"
             "<=BoardStart><C+32><R+9><#BoardEnd>"
             "<=BoardTR><FROM><LINE#BoardEnd><|1>"
-            "<=BoardBL><#BoxImageStart>"
+           /* "<=BoardBL><#BoxImageStart>"*/
+             "<=BoardBL><#RoutingStart>"
             "<=BoardTR><#DieStart>"
             "<=DieStart><C+29><#DieTR>"
             "<=DieStart><R+9><#DieBL>"
             "<=DieStart><C+29><R+9><#DieEnd>"
+            
+            "<=RoutingStart><C+61><#RoutingTR>"
+            "<=RoutingStart><R+9><#RoutingBL>"
+            "<=RoutingStart><C+61><R+9><#RoutingEnd>"
+            "<=RoutingBL><#BoxImageStart>"
+        
             "<=BoxImageStart><C+61><#BoxImageTR>"
-            "<=BoxImageStart><R+29><#BoxImageBL>"
-            "<=BoxImageStart><C+61><R+28><#BoxImageEnd>"
-            "<=BoxImageStart><C+.5><R+.5><#BoxImage><R50><C62><IMAGE#BoxImage=C:\Users\brad.vigrass\SharePoint\Product Management - Documents\Business Forms\SampleDesign2.jpg ><=BoxImage>"
-            "<=BoxImageStart><FROM><LINE#BoxImageTR><|1>"
+            "<=BoxImageStart><R+20><#BoxImageBL>"
+            "<=BoxImageStart><C+61><R+20><#BoxImageEnd>"
+            "<=BoxImageStart><C+.5><R+.5><#BoxImage>" /*<R50><C62><IMAGEBoxImage><=BoxImage>"*/
+            /*"<=BoxImageStart><FROM><LINE#BoxImageTR><|1>"*/
             "<=DieTR><FROM><LINE#BoxImageEnd>"
             "<=QuantityTR><#ItemStart>"
             "<=ItemStart><C+44><#ItemTR>"
@@ -348,6 +357,7 @@ DO v-local-loop = 1 TO v-local-copies:
               "<=DieStart><R+7><RIGHT=C+6>Blank: "
               "<=DieStart><R+7><RIGHT=C+8>W: <#BlankWidth> "
               "<=DieStart><R+7><RIGHT=C+13>L: <#BlankLength>"
+              "<=DieStart><R+7><RIGHT=C+21>Sq Ft: <#SqFeet>"
               "<=DieTR><#PrintStart>"
               "<=PrintStart><R+1><RIGHT=C+10>Plate#: <#Plate>"
               "<=PrintStart><R+2><RIGHT=C+10>Plate Loc.: <#PlateLocation>"
@@ -412,6 +422,11 @@ DO v-local-loop = 1 TO v-local-copies:
          FIND FIRST bf-itemfg NO-LOCK
              WHERE bf-itemfg.company EQ xeb.company
                AND bf-itemfg.i-no EQ xeb.stock NO-ERROR .
+
+              iset-qty = IF AVAILABLE xeb AND xeb.est-type EQ 6 THEN
+                          IF AVAILABLE xoe-ordl THEN xoe-ordl.qty ELSE job-hdr.qty
+                           ELSE 0 .
+
           
          PUT "<FGColor=Blue><B>"
               "<=JobQuantity>" job-hdr.qty FORMAT "->>,>>>,>>9"
@@ -420,17 +435,17 @@ DO v-local-loop = 1 TO v-local-copies:
               "<=Underrun>" STRING( (job-hdr.qty * iunder-run) / 100,"->>>>>>9")  /*FORMAT "->>,>>>,>>9"*/
               "<=OverrunPct>" lv-over-run /*FORMAT "99.9%"*/
               "<=UnderrunPct>" lv-under-run /*FORMAT "99.9%"*/
-              "<=SetQuantity>"
-              "<=QtyPerSet>"
+              "<=SetQuantity>" iset-qty 
+              "<=QtyPerSet>" IF AVAILABLE xeb THEN xeb.quantityPerSet ELSE  0
               "<=FGItemID>" IF AVAILABLE xeb THEN xeb.stock ELSE job-hdr.i-no FORMAT "x(15)" 
               "<FGColor=Blue><B>"
-              "<=FGItemName>" IF AVAILABLE xeb AND AVAILABLE bf-itemfg THEN  bf-itemfg.i-name ELSE "" FORMAT "x(30)" 
+              "<=FGItemName>" IF AVAILABLE xeb THEN  xeb.part-dscr1 ELSE "" FORMAT "x(30)" 
               "</B><FGColor=Black>"
-              "<=FGItemDesc1>" IF AVAILABLE xeb AND AVAILABLE bf-itemfg THEN  itemfg.part-dscr1 ELSE "" FORMAT "x(30)" 
+              "<=FGItemDesc1>" IF AVAILABLE xeb THEN  xeb.part-dscr2 ELSE "" FORMAT "x(30)" 
               "<=FGItemDesc2>" IF AVAILABLE xeb AND AVAILABLE bf-itemfg THEN  itemfg.part-dscr2 ELSE "" FORMAT "x(30)" 
               "<B>"
               "<=Style>" IF AVAILABLE xstyle THEN xstyle.style ELSE "" FORMAT "x(15)"
-              "<=TabInOut>"
+              "<=TabInOut>" IF AVAIL xeb AND xeb.tab-in EQ YES THEN "In" ELSE IF AVAIL xeb AND xeb.tab-in EQ NO THEN "Out" ELSE "" FORMAT "x(10)"
               "<=Estimate>" IF AVAILABLE xeb THEN xeb.est-no ELSE "" FORMAT "x(10)"
               "</B>"
               "<=Size>" IF AVAILABLE xeb THEN (TRIM(STRING({sys/inc/k16v.i xeb.len},">,>>9.99")) + " x " +
@@ -456,10 +471,10 @@ DO v-local-loop = 1 TO v-local-copies:
                               "L:" + TRIM(STRING({sys/inc/k16v.i xeb.t-len},">,>>9.99")) ELSE "" FORMAT "X(30)"
               "<=SheetsMSF>" TRIM(STRING(v-sht-qty * v-form-sqft / 1000,">>>9.9<")) FORMAT "x(11)"
               "<=Scores>" SUBSTRING(v-len-score,1,30) FORMAT "x(30)" 
-              "<=Adders1>" xef.adder[1] FORMAT "x(10)"
-              "<=Adders2>" xef.adder[2] FORMAT "x(10)"
-              "<=Adders3>" xef.adder[3] FORMAT "x(10)"
-              "<=Adders4>" xef.adder[4] FORMAT "x(10)"
+              "<=Adders1>" IF LENGTH(xef.adder[7]) GT 10 THEN  string(string(xef.adder[7],"x(17)") + "...") ELSE xef.adder[7]  FORMAT "x(20)"
+              "<=Adders2>"IF LENGTH(xef.adder[8]) GT 10 THEN  string(string(xef.adder[8],"x(17)") + "...") ELSE xef.adder[8]  FORMAT "x(20)"
+              "<=Adders3>" IF LENGTH(xef.adder[9]) GT 10 THEN  string(string(xef.adder[9],"x(17)") + "...") ELSE xef.adder[9]  FORMAT "x(20)"
+              "<=Adders4>" IF LENGTH(xef.adder[10]) GT 10 THEN  string(string(xef.adder[10],"x(17)") + "...") ELSE xef.adder[10]  FORMAT "x(20)"
               "<=VendorPO>" STRING(v-po-no)  FORMAT "x(10)" 
               "<=VendorCode>" STRING(v-vend-no ) FORMAT "x(15)"
               "<B>"
@@ -479,12 +494,79 @@ DO v-local-loop = 1 TO v-local-copies:
               "<=UpW>" STRING(v-upl) FORMAT "x(8)"
               "<=BlankWidth>" TRIM(STRING({sys/inc/k16v.i xeb.t-wid},">>>9.99")) FORMAT "x(8)"
               "<=BlankLength>" TRIM(STRING({sys/inc/k16v.i xeb.t-len},">>>9.99")) FORMAT "x(8)"
+              "<=SqFeet>"  if v-corr then string(xeb.t-sqin * .007,">>9.9999")
+                                  else string(xeb.t-sqin / 144,">>9.9999") FORMAT "x(8)"
+                                  
               "<B>"
               "<=Plate>" IF AVAILABLE xeb THEN xeb.plate-no ELSE "" FORMAT "x(15)" 
               "</B>"
               "<=PlateLocation>" v-plate-loc FORMAT "x(20)" 
               "<=InkDescription>" IF AVAILABLE xeb THEN xeb.i-coldscr ELSE "" FORMAT "x(30)"
                 .
+
+               i = 0.
+                FOR EACH w-m:
+                  i = i + 1.
+                END.
+                IF i LT 3 THEN DO i = i + 1 TO 3:
+                  CREATE w-m.
+                  w-m.dseq = 999999999.
+                END.
+                    /* box for route */
+                   PUT 
+                      "<=RoutingStart><FROM><C62><LINE><|1>"
+                      "<B><=RoutingStart><R+1><C+1>Routing"
+                      "<=RoutingStart><R+1><C+30>MR"
+                      "<=RoutingStart><R+1><C+35>Run"
+                      "<=RoutingStart><R+1><C+40>Speed"
+                      "</B>" SKIP .
+               
+                i = 0.
+        
+                FOR EACH w-m BREAK BY w-m.dseq:
+                 IF w-m.dscr NE "" THEN DO:
+                  ASSIGN
+                     i = i + 1
+                     v-letter = substr("UTE",i,1).
+                  
+                  PUT 
+                  "<=RoutingStart><R+" + STRING( 1 + i) + "><C+1><#Mach" + STRING(1 + i) + ">"  FORMAT "x(90)"
+                      "<=RoutingStart><R+" + STRING(1 + i) + "><C+30><#MRHours" + STRING(1 + i ) + ">" FORMAT "x(90)"
+                      "<=RoutingStart><R+" + STRING(1 + i) + "><C+35><#RunHours" + STRING(1 + i) + ">"  FORMAT "x(90)"
+                      "<=RoutingStart><R+" + STRING(1 + i) + "><C+40><#Speed" +  STRING(1 + i) + ">"    FORMAT "x(90)"
+            
+                      "<=Mach" + STRING(1 + i) + ">" + string(w-m.m-code,"x(8)") + "  " + w-m.dscr FORMAT "x(60)" .
+                     IF s-prt-mstandard THEN
+                         PUT
+                         "<=MRHours" + STRING(1 + i) + ">" +  string(w-m.s-hr) FORMAT "x(200)"
+                         "<=RunHours" + STRING(1 + i) + ">" +  string(w-m.r-hr) FORMAT "x(200)"
+                         "<=Speed" + STRING(1 + i) + ">" + string(w-m.r-sp) FORMAT "x(200)" .
+                     IF i GE 7 THEN LEAVE .
+                  END.
+                          
+                  v-lines = v-lines + 1.
+                END.
+                 PUT "<=RoutingStart><R+" + STRING(2 + i) + "><C1><FROM><C62><LINE><|1>" FORMAT "x(200)" . /*"<=RoutingStart><C+61><R+" + STRING(1 + i) + "><#RoutingEnd>" FORMAT "x(200)" .*/
+                  /* PUT  "<=RoutingStart><R+" + string(2 + i) + "><#NotesStart>"  FORMAT "x(100)" .*/
+              
+                FIND LAST b-ef USE-INDEX est-qty WHERE b-ef.company = est.company
+                                                   AND b-ef.est-no = est.est-no NO-LOCK NO-ERROR.
+                
+                IF AVAILABLE b-ef AND b-ef.form-no = w-ef.frm THEN 
+                   FOR EACH w-m:
+                       CREATE tt-wm.
+                       BUFFER-COPY w-m TO tt-wm.
+                END.
+
+                IF print-box AND AVAILABLE xest THEN DO:
+                    PUT SKIP(2)
+                     "<=BoxImage>"   .
+                    RUN cec/desprntL20.p (RECID(xef),
+                                         INPUT-OUTPUT v-lines,
+                                         RECID(xest),
+                                         IF AVAILABLE xeb THEN ROWID(xeb) ELSE ?).
+                    PUT "<P8>" .
+                   END.
 
            
              FOR EACH wrk-ink:
@@ -567,62 +649,8 @@ DO v-local-loop = 1 TO v-local-copies:
                    
                 END.
 
-                PUT "<=PrintStart><R+" + STRING( 4 + j) + "><#RoutingStart>" FORMAT "x(100)" .
-
-        
-        i = 0.
-        FOR EACH w-m:
-          i = i + 1.
-        END.
-        IF i LT 3 THEN DO i = i + 1 TO 3:
-          CREATE w-m.
-          w-m.dseq = 999999999.
-        END.
-            /* box for route */
-           PUT 
-              "<=RoutingStart><FROM><C108><LINE><|1>"
-              "<B><=RoutingStart><R+1><C+1>Routing"
-              "<=RoutingStart><R+1><C+30>MR"
-              "<=RoutingStart><R+1><C+35>Run"
-              "<=RoutingStart><R+1><C+40>Speed"
-              "</B>" SKIP .
+                PUT "<=PrintStart><R+" + STRING( 4 + j) + "><#NotesStart>" FORMAT "x(100)" .
        
-        i = 0.
-
-        FOR EACH w-m BREAK BY w-m.dseq:
-         IF w-m.dscr NE "" THEN DO:
-          ASSIGN
-             i = i + 1
-             v-letter = substr("UTE",i,1).
-          
-          PUT 
-          "<=RoutingStart><R+" + STRING( 1 + i) + "><C+1><#Mach" + STRING(1 + i) + ">"  FORMAT "x(90)"
-              "<=RoutingStart><R+" + STRING(1 + i) + "><C+30><#MRHours" + STRING(1 + i ) + ">" FORMAT "x(90)"
-              "<=RoutingStart><R+" + STRING(1 + i) + "><C+35><#RunHours" + STRING(1 + i) + ">"  FORMAT "x(90)"
-              "<=RoutingStart><R+" + STRING(1 + i) + "><C+40><#Speed" +  STRING(1 + i) + ">"    FORMAT "x(90)"
-    
-              "<=Mach" + STRING(1 + i) + ">" +  w-m.dscr FORMAT "x(60)" .
-             IF s-prt-mstandard THEN
-                 PUT
-                 "<=MRHours" + STRING(1 + i) + ">" +  string(w-m.s-hr) FORMAT "x(200)"
-                 "<=RunHours" + STRING(1 + i) + ">" +  string(w-m.r-hr) FORMAT "x(200)"
-                 "<=Speed" + STRING(1 + i) + ">" + string(w-m.r-sp) FORMAT "x(200)" .
-           
-          END.
-           PUT  "<=RoutingStart><R+" + string(2 + i) + "><#NotesStart>"  FORMAT "x(100)" .
-          
-                  
-          v-lines = v-lines + 1.
-        END.
-      
-        FIND LAST b-ef USE-INDEX est-qty WHERE b-ef.company = est.company
-                                           AND b-ef.est-no = est.est-no NO-LOCK NO-ERROR.
-        
-        IF AVAILABLE b-ef AND b-ef.form-no = w-ef.frm THEN 
-           FOR EACH w-m:
-               CREATE tt-wm.
-               BUFFER-COPY w-m TO tt-wm.
-        END.
 
        
          /* dept notes */
@@ -815,7 +843,7 @@ DO v-local-loop = 1 TO v-local-copies:
               "<=PatternImageStart><C+22><#PatternImageTR>"
               "<=PatternImageStart><R+10><#PatternImageBL>"
               "<=PatternImageStart><C+22><R+10><#PatternImageEnd>"
-              "<=PatternImageStart><R+.3><C+.3><#PatternImage><=PatternImageEnd><IMAGE#PatternImage=C:\Users\brad.vigrass\SharePoint\Product Management - Documents\Business Forms\SampleDesign.jpg ><=PatternImage>"
+              "<=PatternImageStart><R+.3><C+.3><#PatternImage><=PatternImageEnd><IMAGE#PatternImage=" + (IF AVAIL stackPattern THEN stackPattern.stackImage ELSE "") + "><=PatternImage>" FORMAT "x(300)" 
               "<=PatternImageTR><FROM><LINE#PatternImageEnd><|1>"
               "<=PatternImageTR><#ShippingStart>"
               "<=ShippingStart><C108><#ShippingTR>"
@@ -828,7 +856,9 @@ DO v-local-loop = 1 TO v-local-copies:
               "<=ShippingStart><R+3><C+1><#ShipAdd1>"
               "<=ShippingStart><R+3><C85><#ShipPhone>"
               "<=ShippingStart><R+4><C+1><#ShipAdd2>"
+              "<=ShippingStart><R+4><C85>Dock Hours: <#DockHours>"
               "<=ShippingStart><R+5><C+1><#ShipCityStateZip>"
+              "<=ShippingStart><R+5><C85>Dock#: <#Dock>"
               "<=ShippingStart><R+6><C+1><#ShipNotes1>"
               "<=ShippingStart><R+7><C+1><#ShipNotes2>"
               "<=ShippingStart><R+8><C+1><#ShipNotes3>"
@@ -860,7 +890,9 @@ DO v-local-loop = 1 TO v-local-copies:
               "<=ShipCityStateZip>" IF AVAILABLE shipto THEN TRIM(shipto.ship-city) + ", " +
                                    shipto.ship-state + "  " + shipto.ship-zip ELSE "" FORMAT "x(30)"
               "<=ShipContact>" IF AVAILABLE shipto THEN shipto.contact ELSE "" FORMAT "x(20)"
-              "<=ShipPhone>" IF AVAILABLE shipto THEN STRING(shipto.phone,"(999) 999-9999") ELSE "" FORMAT "x(20)"
+              "<=DockHours>" IF AVAILABLE shipto THEN shipto.dock-hour ELSE "" FORMAT "x(20)"
+              "<=Dock>" IF AVAILABLE shipto THEN shipto.dock-loc ELSE "" FORMAT "x(20)"
+              "<=ShipPhone>" IF AVAILABLE shipto THEN "(" + shipto.area-code + ")" + string(shipto.phone,"xxx-xxxx") ELSE "" FORMAT "x(20)"
               "<=ShipNotes1>" IF AVAILABLE shipto THEN shipto.notes[1] ELSE "" FORMAT "x(90)"
               "<=ShipNotes2>" IF AVAILABLE shipto THEN shipto.notes[2] ELSE "" FORMAT "x(90)"
               "<=ShipNotes3>" IF AVAILABLE shipto THEN shipto.notes[3] ELSE "" FORMAT "x(90)"
@@ -868,7 +900,7 @@ DO v-local-loop = 1 TO v-local-copies:
 
          
        
-        IF print-box AND AVAILABLE xest THEN DO:
+       /* IF print-box AND AVAILABLE xest THEN DO:
             PUT SKIP(2) .
            RUN cec/desprntLa.p (RECID(xef),
                                 INPUT-OUTPUT v-lines,
@@ -876,15 +908,15 @@ DO v-local-loop = 1 TO v-local-copies:
                                 IF AVAILABLE xeb THEN ROWID(xeb) ELSE ?).
            PAGE.
         END.
-        ELSE PAGE.
+        ELSE PAGE.*/
         /* print fgitem's image */
         IF s-prt-fgimage THEN DO:        
             ls-fgitem-img = itemfg.box-image.
 
-            PUT UNFORMATTED "<#12><C1><FROM><C106><R+47><RECT><||3><C80>" /*v-qa-text*/ SKIP
+            PUT UNFORMATTED SKIP(2) "<#12><C2><FROM><C106><R+30><RECT><||3><C80>" /*v-qa-text*/ SKIP
                 "<=12><R+1><C5>FG Item: " itemfg.i-no " " itemfg.i-name
-                "<=12><R+3><C1><FROM><C106><LINE><||3>"
-                "<=12><R+5><C5><#21><R+40><C+90><IMAGE#21=" ls-fgitem-img ">" SKIP. 
+                "<=12><R+3><C2><FROM><C106><LINE><||3>"
+                "<=12><R+5><C5><#21><R+24><C+90><IMAGE#21=" ls-fgitem-img ">" SKIP. 
             PAGE.
          END.
       END.  /* for each w-ef */
