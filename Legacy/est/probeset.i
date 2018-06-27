@@ -69,31 +69,14 @@ DO TRANSACTION:
      probe.est-qty      = {1}
      probe.line         = v-line
      probe.freight      = li-rels
-     probe.probe-user   = USERID("nosweat").
+     probe.probe-user   = USERID("nosweat")
+     probe.spare-char-1 = tmp-dir.
   END.
   
   ASSIGN
    probe.probe-time = lv-time
    probe.set-chg    = {2}.
 
-    RUN sys/ref/nk1Look.p(INPUT probe.company,
-                          INPUT "CEBrowse",
-                          INPUT "D",
-                          INPUT NO,
-                          INPUT NO,
-                          INPUT "",
-                          INPUT "",
-                          OUTPUT cCEBrowseSubDir,
-                          OUTPUT lCEBrowse).
-    IF DEC(cCEBrowseSubDir) GT 0 THEN DO:
-        probe.spare-char-1 = tmp-dir + cCEBrowseSubDir + "\".
-        FILE-INFO:FILE-NAME = probe.spare-char-1.
-        IF FILE-INFO:FULL-PATHNAME = ? THEN
-            OS-CREATE-DIR VALUE(probe.spare-char-1).    
-        ASSIGN 
-            tmp-dir = probe.spare-char-1
-            lv-cebrowse-dir = tmp-dir.    
-    END.
     
   FIND CURRENT probe NO-LOCK NO-ERROR.
 
