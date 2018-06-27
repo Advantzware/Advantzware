@@ -10,3 +10,5 @@
 &GLOBAL-DEFINE checkUserCount YES
    
 {nosweat.i}
+
+/* This is a test */
