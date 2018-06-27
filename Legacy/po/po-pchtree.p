@@ -581,6 +581,14 @@ v-printline = 0.
               v-line-number = v-line-number + 1
               v-printline = v-printline + 1.
         END.
+
+        IF cMachCode NE "" then do:
+          PUT cMachCode FORMAT "x(6)" AT 24 SKIP.
+
+          ASSIGN
+          v-line-number = v-line-number + 1
+          v-printline = v-printline + 1.
+        END.
     
         IF avail item and item.mat-type NE "B" then
           v-disp-adder = "".
@@ -620,8 +628,7 @@ v-printline = 0.
             v-vend-i-no = po-ordl.vend-i-no.
 
         IF v-vend-i-no <> "" OR cMachCode NE ""  THEN DO:
-            put  v-vend-i-no  FORM "x(20)" AT 24
-                 cMachCode FORMAT "x(6)" AT 45  skip.
+            put  v-vend-i-no  FORM "x(20)" AT 24 skip.
             ASSIGN
             v-line-number = v-line-number + 1
             v-printline = v-printline + 1.
