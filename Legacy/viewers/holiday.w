@@ -140,7 +140,7 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 18 BY 1
           FONT 4
-     btnCalendar-1 AT ROW 1.71 COL 81
+     btnCalendar-1 AT ROW 1.71 COL 84.2
      RECT-1 AT ROW 1.24 COL 3
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -234,16 +234,13 @@ ASSIGN
 ON LEAVE OF reftable.loc IN FRAME F-Main /* Date */
 DO:
   {&methods/lValidateError.i YES}
-  DEF VAR dTempDate AS DATE INIT ?.
-  dTempDate = DATE(SELF:SCREEN-VALUE) NO-ERROR.
-  IF dTempDate EQ ? THEN DO:
-    MESSAGE "Please enter a date in the format MM/DD/YYYY"
-      VIEW-AS ALERT-BOX INFO BUTTONS OK.
-    RETURN NO-APPLY.
+   IF LASTKEY NE -1 THEN DO:
+    RUN valid-date NO-ERROR.
+    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
   END.
   {&methods/lValidateError.i NO}
+  
 END.
-
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -382,6 +379,9 @@ DEF VAR ll-ans AS LOG NO-UNDO.
 
   /* Code placed here will execute PRIOR to standard behavior. */
 
+  RUN valid-date NO-ERROR.
+  IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
@@ -453,3 +453,30 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-date V-table-Win 
+PROCEDURE valid-date :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEF VAR dTempDate AS DATE INIT ?.
+
+  {methods/lValidateError.i YES}
+  DO WITH FRAME {&FRAME-NAME}:
+      IF reftable.loc:SCREEN-VALUE NE "" THEN DO:
+          dTempDate = DATE(reftable.loc:SCREEN-VALUE) NO-ERROR.
+          IF dTempDate EQ ? THEN DO:
+              MESSAGE "Please enter a date in the format MM/DD/YYYY"
+                  VIEW-AS ALERT-BOX INFO BUTTONS OK.
+              APPLY "entry" TO reftable.loc.
+              RETURN ERROR.
+          END.
+      END.
+  END.
+
+  {methods/lValidateError.i NO}
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
