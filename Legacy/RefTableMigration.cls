@@ -2772,6 +2772,43 @@ CLASS RefTableMigration:
         END.  /*FOR EACH reftable*/  
         RETURN iCnt.
     END METHOD. /*ar-cash*/
+    METHOD PUBLIC INTEGER EitemvendAdders (INPUT ipCount AS INTEGER):
+        DEFINE VARIABLE iCnt AS INTEGER NO-UNDO.
+        DEFINE VARIABLE i AS INTEGER NO-UNDO.
+        DEFINE BUFFER reftable1 FOR reftable1.
+        DEFINE BUFFER Breftable FOR reftable. 
+        DEFINE BUFFER e-item-vend  FOR e-item-vend.
+        
+        DISABLE TRIGGERS FOR LOAD OF reftable.        
+        DISABLE TRIGGERS FOR LOAD OF e-item-vend.
+        ASSIGN iProcessCount = 0.        
+        FOR EACH reftable WHERE reftable.reftable = "e-item-vend.adders"
+            NO-LOCK:
+            DO TRANSACTION:    
+                FIND FIRST e-item-vend WHERE e-item-vend.rec_key = reftable.rec_key
+                    EXCLUSIVE-LOCK NO-ERROR.
+                IF AVAILABLE e-item-vend THEN DO:
+                        IF e-item-vend.underWidth EQ 0 THEN ASSIGN e-item-vend.underWidth = reftable.val[1].
+                        IF e-item-vend.underLength EQ 0 THEN ASSIGN e-item-vend.underWidth = reftable.val[2].
+                        IF e-item-vend.underWidthCost EQ 0 THEN ASSIGN e-item-vend.underWidth = reftable.val[3].
+                        IF e-item-vend.underLengthCost EQ 0 THEN ASSIGN e-item-vend.underWidth = reftable.val[4]. 
+                    ASSIGN iProcessCount = iProcessCount + 1.  
+                END.
+                FIND CURRENT e-item-vend NO-LOCK NO-ERROR.    
+                RELEASE e-item-vend.      
+                CREATE reftable1.
+                BUFFER-COPY reftable TO reftable1.
+                RELEASE reftable1.
+                FIND Breftable WHERE ROWID(Breftable) = ROWID(reftable)
+                    EXCLUSIVE-LOCK NO-ERROR.
+                IF AVAILABLE Breftable THEN DELETE Breftable. 
+                RELEASE Breftable.   
+                iCnt = iCnt + 1.
+                IF iCnt >= ipCount THEN LEAVE.   
+            END.              
+        END.  /*FOR EACH reftable*/  
+        RETURN iCnt.
+    END METHOD. /*EitemvendAdders*/
 END CLASS.
 
 
