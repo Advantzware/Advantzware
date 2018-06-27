@@ -588,6 +588,7 @@ v-printline = 0.
 
                    IF po-ordl.s-len GT 0 THEN
                     PUT "L: " AT 25 v-len-frac FORMAT "x(10)" SPACE(1).
+                   IF po-ordl.s-wid GT 0 THEN
                     PUT "W: "  v-wid-frac FORMAT "x(10)" SPACE(1).
                 IF lv-dep GT 0 THEN
                     PUT "D: "  v-dep-frac FORMAT "x(10)" SPACE(1).
@@ -693,10 +694,11 @@ v-printline = 0.
                   RUN sys\inc\decfrac2.p(INPUT DEC(itemfg.d-score[50]), INPUT 32, OUTPUT v-dep-frac).
 
                   IF itemfg.l-score[50] GT 0 THEN
-                      PUT "L: " AT 25   v-len-frac FORMAT "x(10)" SPACE(1).
-                  PUT "W: " AT 25  v-wid-frac FORMAT "x(10)" SPACE(1).
+                      PUT "L: " AT 25  v-len-frac FORMAT "x(10)" SPACE(1).
+                  IF itemfg.w-score[50] GT 0 THEN 
+                  PUT "W: "  v-wid-frac FORMAT "x(10)" SPACE(1).
                   IF itemfg.d-score[50] GT 0 THEN
-                      PUT "D: "   v-dep-frac FORMAT "x(10)" SPACE(1).
+                      PUT "D: "  v-dep-frac FORMAT "x(10)" SPACE(1).
 
                   PUT SKIP .
                   ASSIGN
