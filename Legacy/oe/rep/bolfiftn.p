@@ -434,7 +434,7 @@ FOR EACH xxreport WHERE xxreport.term-id EQ v-term-id,
      END.
          
 
-     PUT "<FArial><P7><R46><C25><b>  Unit:"  STRING(v-tot-cases,"->>>>>9")   "            PALLETS:" v-tot-palls FORMAT "->>>>>9" 
+     PUT "<FArial><P10><R46><C25><b>  Unit:"  STRING(v-tot-cases,"->>>>>9")   "                   PALLETS:" v-tot-palls FORMAT "->>>>>9" 
          "</b><P7><R47><C13> SHORTAGES OR DAMAGE SHOULD BE NOTED ON RECEIPT OF SHIPMENT, OTHERWISE CLAIMS WILL NOT BE ALLOWED." SKIP
          "<|10><R48><C1><#6><FROM><R54><C81><RECT>" 
          "<R48><C1>" v-txt1[1]    
