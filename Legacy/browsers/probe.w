@@ -139,6 +139,7 @@ DEFINE VARIABLE lv-valid-profit AS CHARACTER NO-UNDO
     INITIAL "market-price,gross-profit,net-profit".
 
 DEFINE NEW SHARED VARIABLE lv-cebrowse-dir AS CHARACTER NO-UNDO.
+DEFINE NEW SHARED VARIABLE cCeBrowseBaseDir AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cerunc-dec AS DECIMAL NO-UNDO.
 DEFINE VARIABLE v-dir AS CHARACTER FORMAT "X(80)" NO-UNDO.
 DEFINE VARIABLE v-cestcalc AS CHARACTER NO-UNDO.
@@ -183,33 +184,10 @@ END.
   v-cestcalc = sys-ctrl.char-fld.
 
 
-FIND FIRST sys-ctrl NO-LOCK WHERE
-    sys-ctrl.company EQ cocode AND
-    sys-ctrl.name    EQ "CEBROWSE"
-     NO-ERROR.
+RUN pGetEstimateDir(cocode, OUTPUT cCEBrowseBaseDir, OUTPUT tmp-dir ).
 
-IF NOT AVAILABLE sys-ctrl THEN DO TRANSACTION:
-  CREATE sys-ctrl.
-  ASSIGN
-   sys-ctrl.company = cocode
-   sys-ctrl.name    = "CEBROWSE"
-   sys-ctrl.descrip = "# of Records to be displayed in browser"
-   sys-ctrl.log-fld = YES
-   sys-ctrl.char-fld = "CE"
-   sys-ctrl.int-fld = 30.
-END.
+lv-cebrowse-dir = tmp-dir.
 
-IF sys-ctrl.char-fld NE "" THEN
-   tmp-dir = sys-ctrl.char-fld.
-ELSE
-   tmp-dir = "users\".
-
-IF LOOKUP(SUBSTRING(tmp-dir,LENGTH(tmp-dir)),"\,/") EQ 0 THEN
-   tmp-dir = tmp-dir + "\".
-
-ASSIGN
-  tmp-dir = REPLACE(tmp-dir,"/","\").
-  lv-cebrowse-dir = tmp-dir.
 
 FIND FIRST users NO-LOCK WHERE
      users.user_id EQ USERID("NOSWEAT")
@@ -2658,6 +2636,62 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetEstimateDir B-table-Win
+PROCEDURE pGetEstimateDir:
+/*------------------------------------------------------------------------------
+ Purpose:  Returns the directory for CEBrowse, including the sub dir if configured 
+ Notes:  Returns both the base dir (for when probe.spare-char-1 is empty).
+------------------------------------------------------------------------------*/
+
+DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+DEFINE OUTPUT PARAMETER opcBaseDir AS CHARACTER NO-UNDO.
+DEFINE OUTPUT PARAMETER opcSubDir AS CHARACTER NO-UNDO.
+
+DEFINE VARIABLE lFound AS LOGICAL NO-UNDO.
+
+RUN sys/ref/nk1Look.p(INPUT ipcCompany,
+                      INPUT "CEBrowse",
+                      INPUT "C",
+                      INPUT NO,
+                      INPUT NO,
+                      INPUT "",
+                      INPUT "",
+                      OUTPUT opcBaseDir,
+                      OUTPUT lFound).
+RUN sys/ref/nk1Look.p(INPUT ipcCompany,
+                      INPUT "CEBrowse",
+                      INPUT "D",
+                      INPUT NO,
+                      INPUT NO,
+                      INPUT "",
+                      INPUT "",
+                      OUTPUT opcSubDir,
+                      OUTPUT lFound).
+
+IF opcBaseDir EQ "" THEN
+   opcBaseDir = "users\".
+
+ASSIGN 
+      opcBaseDir = REPLACE(opcBaseDir,"/","\")  /*replace slashes in wrong direction*/
+      opcBaseDir = TRIM(opcBaseDir,"\") + "\"  /*ensure there is a slash on the end*/
+      .
+
+IF DEC(opcSubDir) GT 0 THEN DO:
+    opcSubDir = opcBaseDir + opcSubDir + "\".
+    FILE-INFO:FILE-NAME = opcSubDir.
+    IF FILE-INFO:FULL-PATHNAME = ? THEN
+        OS-CREATE-DIR VALUE(opcSubDir).        
+END.
+
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE resort-query B-table-Win 
 PROCEDURE resort-query :
 /*------------------------------------------------------------------------------
@@ -3344,6 +3378,11 @@ PROCEDURE printProbe :
     lv-ornt = 'P'
     lv-lines = 63.
 
+    IF probe.spare-char-1 NE "" THEN 
+        lv-cebrowse-dir = probe.spare-char-1.
+    ELSE 
+        lv-cebrowse-dir = cCEBrowseBaseDir.
+        
   ASSIGN
      v-probe-fmt = IF probe.LINE LT 100 THEN "99" ELSE "999"
      ls-outfile = lv-cebrowse-dir + TRIM(est.est-no) + ".p" + STRING(probe.line,v-probe-fmt).
@@ -3690,7 +3729,8 @@ PROCEDURE run-whatif :
     RETURN.
    END.
   END.
-  
+  RUN pGetEstimateDir(est.company, OUTPUT cCeBrowseBaseDir, OUTPUT tmp-dir).
+  lv-cebrowse-dir = tmp-dir.
   RUN est\CostResetHeaders.p(?,?).
   IF est.est-type EQ 8 THEN
     RUN cec/com/print4.p NO-ERROR.
