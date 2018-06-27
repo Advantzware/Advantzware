@@ -66,6 +66,7 @@ DEFINE BUFFER bf-job-mch FOR job-mch.
 DEFINE VARIABLE OEJobHold-log AS LOG NO-UNDO.
 DEFINE VARIABLE lcReturn AS CHARACTER NO-UNDO.
 DEFINE VARIABLE llRecFound AS LOG NO-UNDO.
+DEFINE VARIABLE lCheckStartDate AS LOGICAL NO-UNDO .
 RUN sys/ref/nk1look.p (cocode, "OEJobHold", "L", NO, NO, "", "", 
                           OUTPUT lcReturn, OUTPUT llRecFound).
 
@@ -475,11 +476,25 @@ END.
 
 &Scoped-define SELF-NAME job.start-date
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL job.start-date V-table-Win
+ON ENTRY OF job.start-date IN FRAME F-Main /* Start */
+DO:
+    lCheckStartDate = NO .
+    IF job.start-date EQ ? THEN
+        ASSIGN lCheckStartDate = YES .
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME job.start-date
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL job.start-date V-table-Win
 ON LEAVE OF job.start-date IN FRAME F-Main /* Start */
 DO:
   IF LASTKEY NE -1 THEN DO:
-    RUN validate-start-date.
-    IF NOT ll-valid THEN RETURN NO-APPLY.
+    IF lCheckStartDate THEN do:
+        RUN validate-start-date.
+        IF NOT ll-valid THEN RETURN NO-APPLY.
+    END.
   END.
 END.
 
@@ -1289,8 +1304,10 @@ PROCEDURE local-update-record :
   DEFINE VARIABLE rEbRow AS ROWID NO-UNDO.
   DEFINE VARIABLE cNewItem AS CHARACTER NO-UNDO.
   /* Code placed here will execute PRIOR to standard behavior. */
-  RUN validate-start-date.
-  IF NOT ll-valid THEN RETURN NO-APPLY.
+  IF lCheckStartDate THEN do:
+      RUN validate-start-date.
+      IF NOT ll-valid THEN RETURN NO-APPLY.
+  END.
 
   /* per task #11280506
   RUN valid-due-date NO-ERROR.
@@ -1479,7 +1496,8 @@ PROCEDURE local-update-record :
 
   ASSIGN
     ll-sch-updated = NO
-    copyJob = NO.
+    copyJob = NO
+    lCheckStartDate = NO .
 
   /*needed for immediately pushing print button after adding new job*/
   IF ll-new THEN
