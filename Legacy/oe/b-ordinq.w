@@ -2682,7 +2682,7 @@ FUNCTION getMI RETURNS CHARACTER
     lc-result = "".
         IF oe-ordl.managed = true THEN
             lc-result = "X".
-        RETURN loc-result.   /* Function return value. */
+        RETURN lc-result.   /* Function return value. */
 
 
 END FUNCTION.
