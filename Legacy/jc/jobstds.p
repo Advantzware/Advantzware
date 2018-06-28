@@ -48,7 +48,7 @@ if choice then do:
 end.
 
 choice = no.
-message "Recalculate Job Standards for Job# " +
+message "Rebuild Materials and Routing tab and recalculate job costs from estimate standards for Job# " +
         TRIM(job.job-no) + "-" + STRING(job.job-no2,"99") +
         "?"
     view-as alert-box question button yes-no update choice.  
