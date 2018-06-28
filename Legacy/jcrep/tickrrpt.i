@@ -306,7 +306,7 @@ DO:
                   and job.job     eq job-hdr.job
                   and job.job-no  eq job-hdr.job-no
                   and job.job-no2 eq job-hdr.job-no2
-                  /*and job.stat    ne "H"*/),
+        /*and job.stat    ne "H"*/),
        first est
         where est.company = job.company
           AND est.est-no                    eq job-hdr.est-no
@@ -560,6 +560,7 @@ IF ip-industry EQ "Fold" THEN DO:
       PUT UNFORMATTED "<OLANDSCAPE><P10></PROGRESS>".
       RUN cerep/jobtick.p (lv-format-f).
    END.
+   
 
 
 END.
@@ -752,3 +753,5 @@ ELSE IF ip-industry EQ "Corr" THEN DO:
       RUN cecrep/jobtickL.p (lv-format-c).
   END.
 END.
+IF lv-format-f NE "xml" AND   lExportXML THEN 
+    RUN cerep/job_xml.p.
