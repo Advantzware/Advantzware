@@ -959,7 +959,7 @@ PROCEDURE crt-transfer :
                       AND fg-bin.job-no = fg-rctd.job-no
                       AND fg-bin.job-no2 = fg-rctd.job-no2 
                       AND fg-bin.tag     EQ fg-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name}
-                      /*AND fg-bin.qty > 0*/  NO-LOCK:
+        /*AND fg-bin.qty > 0*/  NO-LOCK:
 
      IF fg-bin.loc NE fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}
         OR  fg-bin.loc-bin NE fg-rctd.loc-bin:SCREEN-VALUE IN BROWSE {&browse-name}
@@ -1421,9 +1421,12 @@ PROCEDURE local-update-record :
   RUN valid-loc NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
-  RUN valid-loc-bin NO-ERROR.
-  IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+    RUN valid-loc-bin NO-ERROR.
+    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
+  RUN validTagForItem NO-ERROR.
+  IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+  
  /*
   RUN valid-tag NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
@@ -1514,7 +1517,7 @@ PROCEDURE new-bin :
        fg-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name}      = CAPS(fg-bin.tag)
        lv-org-loc = fg-rctd.loc:SCREEN-VALUE
        lv-org-loc-bin = fg-rctd.loc-bin:SCREEN-VALUE 
-       /*ld-cost                                                = fg-bin.std-tot-cost*/.
+                /*ld-cost                                                = fg-bin.std-tot-cost*/.
   END.
 END PROCEDURE.
 
@@ -2199,6 +2202,35 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE validTagForItem B-table-Win
+PROCEDURE validTagForItem:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    IF {&BROWSE-NAME}:NUM-SELECTED-ROWS   IN FRAME {&FRAME-NAME} = 0 THEN 
+        RETURN.
+    DO WITH FRAME {&FRAME-NAME}:
+        /* If there is already a loadtag for this tag# but a different i-no, don't allow to save tag */
+        /* under a new i-no */
+        FIND FIRST loadtag WHERE loadtag.company = g_company
+            AND loadtag.ITEM-type = NO
+            AND loadtag.tag-no = fg-rctd.tag:SCREEN-VALUE  IN BROWSE {&browse-name} NO-LOCK NO-ERROR.
+        IF AVAIL loadtag AND loadtag.i-no NE fg-rctd.i-no:SCREEN-VALUE  IN BROWSE {&browse-name}
+            AND fg-rctd.i-no:SCREEN-VALUE GT "" THEN 
+        DO:
+            MESSAGE "Invalid Loadtag# for this item. " VIEW-AS ALERT-BOX ERROR.
+            APPLY "entry" TO fg-rctd.tag.
+            RETURN error.
+        END.
+    END.
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 /* ************************  Function Implementations ***************** */
 
