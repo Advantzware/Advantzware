@@ -85,6 +85,12 @@ DEFINE TEMP-TABLE ttRelQtys
     FIELD ord-no LIKE oe-rell.ord-no
     FIELD qty-rel LIKE oe-rell.qty
     .
+DEFINE TEMP-TABLE ttNewlyEntered
+FIELD ttRelRowid AS ROWID
+FIELD release# AS INTEGER 
+INDEX i1 ttRelRowid
+INDEX i2 release#
+.
 {addon/bol/tt-email.i NEW}
 
 DEF TEMP-TABLE tt-report NO-UNDO LIKE report.
@@ -626,9 +632,12 @@ DO:
        DO:
           RUN addon/bol/find-ssrelbol.p(INPUT cocode,
                                         INPUT INT(SELF:SCREEN-VALUE),
-                                        OUTPUT v-release-in-process).
-
-          IF v-release-in-process AND ssupdrelpmpt-log THEN
+               OUTPUT v-release-in-process).
+          FIND FIRST  ttNewlyEntered
+              WHERE ttNewlyEntered.release# EQ INTEGER(SELF:SCREEN-VALUE)
+              NO-ERROR. 
+          /* If record was created within this session, don't prompt user that ssrelbol already exists */
+          IF v-release-in-process AND ssupdrelpmpt-log AND NOT AVAILABLE(ttNewlyEntered) THEN
           DO:
              IF NOT g-sharpshooter THEN
                 MESSAGE "Release In Process. Please Exit and Use Update Release Button."
@@ -2284,7 +2293,10 @@ PROCEDURE local-create-record :
 
   ASSIGN
    tt-relbol.release# = v-release#
-   tt-relbol.seq      = li + 1.
+        tt-relbol.seq      = li + 1.
+ CREATE  ttNewlyEntered.
+ ASSIGN ttNewlyEntered.ttRelRowid = ROWID(tt-relbol)
+              .
 
 END PROCEDURE.
 
@@ -2360,7 +2372,11 @@ PROCEDURE local-update-record :
     RUN addon/bol/saverelbol.p(INPUT cocode, INPUT ?).
     
   v-prev-rowid = ROWID(tt-relbol).
-
+    FIND FIRST  ttNewlyEntered
+      WHERE   ttNewlyEntered.ttRelRowid EQ ROWID(tt-relbol) NO-ERROR.
+    IF AVAILABLE ttNewlyEntered THEN 
+      ttNewlyEntered.release# = tt-relbol.release#.
+      
   RUN display-qtys.
 
   RUN need-scroll.
