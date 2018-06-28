@@ -2709,11 +2709,13 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
     END.
  
+ IF ip-type NE "view" THEN DO:
     IF llOEPrcChg-sec THEN  
        oe-ordl.price:SENSITIVE  IN FRAME {&FRAME-NAME} = YES.
     ELSE DO:        
        oe-ordl.price:SENSITIVE  IN FRAME {&FRAME-NAME} = NO.
     END.
+ END.
 
   IF fgsecurity-log THEN
   DO:
