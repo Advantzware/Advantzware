@@ -92,6 +92,9 @@ DEF VAR v-freezenote-log AS LOG NO-UNDO.
 DEF VAR v-freezenotes-pass AS CHAR NO-UNDO.
 DEF VAR lFreezeNoteVal AS LOG NO-UNDO.
 DEF VAR v-oe-ctrl AS LOG INIT  YES.
+DEFINE VARIABLE lExportXML AS LOGICAL INIT NO NO-UNDO.
+DEFINE VARIABLE cReturnChar      AS CHARACTER NO-UNDO.
+DEFINE VARIABLE XMLJobTicket-log AS LOGICAL   NO-UNDO.
 
 {cerep/jc-keyst.i "NEW"}
 {cerep/jc-keys2.i "NEW"}
@@ -128,8 +131,13 @@ DEFINE VARIABLE    chExcel     AS COM-HANDLE NO-UNDO.
 DEFINE VARIABLE    chWorksheet AS COM-HANDLE NO-UNDO.
 DEFINE VARIABLE    chWorksheet2 AS COM-HANDLE NO-UNDO.
 DEFINE VARIABLE    chWorkbook  AS COM-HANDLE NO-UNDO.
+
 DEF VAR cExcelOutput AS cha NO-UNDO.
 
+RUN sys/ref/nk1look.p (INPUT cocode, "XMLJobTicket", "L" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+    OUTPUT cReturnChar, OUTPUT lRecfound).
+    XMLJobTicket-log = LOGICAL(cReturnChar) NO-ERROR.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -149,21 +157,21 @@ DEF VAR cExcelOutput AS cha NO-UNDO.
 end_job2 tb_fold tb_show-rel tb_RS tb_corr tb_PR tb_reprint tb_DC tb_box ~
 tb_GL tb_SW tb_approve spec_codes revsn_no tb_prt-label tb_committed ~
 tb_prt-set-header tb_prompt-ship dept_codes TB_sample_req tb_freeze-note ~
-tb_dept-note rd-dest lines-per-page lv-ornt lv-font-no td-show-parm btn-ok ~
-btn-cancel 
+tb_dept-note rd-dest lines-per-page lv-ornt lv-font-no td-show-parm ~
+tb_ExportXML btn-ok btn-cancel 
 &Scoped-Define DISPLAYED-OBJECTS begin_job1 begin_job2 end_job1 end_job2 ~
 tb_fold tb_show-rel tb_RS tb_corr tb_PR tb_reprint tb_DC tb_box tb_GL ~
 tb_fgimage tb_SW spec_codes tb_prt-rev revsn_no tb_prt-mch rd_print-speed ~
 tb_prt-shipto tb_prt-sellprc tb_prt-label tb_committed tb_prt-set-header ~
 tb_prompt-ship dept_codes TB_sample_req tb_freeze-note tb_dept-note rd-dest ~
-lines-per-page lv-ornt lv-font-no lv-font-name td-show-parm 
+lines-per-page lv-ornt lv-font-no lv-font-name td-show-parm tb_ExportXML 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
 &Scoped-define List-1 begin_job1 begin_job2 end_job1 end_job2 tb_reprint ~
-tb_box tb_fgimage tb_approve tb_tray-2 tb_make_hold tb_app-unprinted ~
-tb_draft tb_prt-rev tb_prt-mch tb_prt-shipto tb_prt-sellprc tb_prt-label ~
-td-show-parm 
+tb_box tb_fgimage tb_approve tb_tray-2 tb_make_hold tb_draft ~
+tb_app-unprinted tb_prt-rev tb_prt-mch tb_prt-shipto tb_prt-sellprc ~
+tb_prt-label td-show-parm 
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
@@ -342,6 +350,11 @@ DEFINE VARIABLE tb_draft AS LOGICAL INITIAL no
      VIEW-AS TOGGLE-BOX
      SIZE 36 BY .81.
 
+DEFINE VARIABLE tb_ExportXML AS LOGICAL INITIAL no 
+     LABEL "Export XML" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 16.2 BY .81 NO-UNDO.
+
 DEFINE VARIABLE tb_fgimage AS LOGICAL INITIAL no 
      LABEL "Print FG Item Image?" 
      VIEW-AS TOGGLE-BOX
@@ -491,7 +504,8 @@ DEFINE FRAME FRAME-A
      lv-ornt AT ROW 19.52 COL 56.6 NO-LABEL
      lv-font-no AT ROW 21.86 COL 54.6 COLON-ALIGNED
      lv-font-name AT ROW 21.86 COL 58.6 COLON-ALIGNED NO-LABEL
-     td-show-parm AT ROW 23.52 COL 56.6
+     td-show-parm AT ROW 23.14 COL 56.6
+     tb_ExportXML AT ROW 23.86 COL 56.6 WIDGET-ID 20
      btn-ok AT ROW 25.14 COL 26
      btn-cancel AT ROW 25.14 COL 57
      "Print Machine's Speed or Run Hour ?" VIEW-AS TEXT
@@ -733,7 +747,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -878,8 +892,8 @@ DO:
             IF cust.cr-hold THEN */
         FIND FIRST oe-ord WHERE oe-ord.company EQ cocode 
             AND oe-ord.ord-no EQ job-hdr.ord-no
-            /*AND oe-ord.job-no EQ job-hdr.job-no 
-            AND oe-ord.job-no2 EQ job-hdr.job-no2*/ NO-LOCK NO-ERROR.
+                    /*AND oe-ord.job-no EQ job-hdr.job-no 
+                    AND oe-ord.job-no2 EQ job-hdr.job-no2*/ NO-LOCK NO-ERROR.
         IF AVAIL oe-ord THEN DO:
             IF oe-ord.stat EQ "H" THEN
                 IF NOT v-oe-ctrl THEN DO:
@@ -1668,7 +1682,12 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
       dept_codes:HIDDEN IN FRAME FRAME-A = NO.
   ELSE
       dept_codes:HIDDEN IN FRAME FRAME-A = YES.
-
+ 
+  IF  XMLJobTicket-log  THEN 
+      tb_ExportXML:HIDDEN  IN FRAME FRAME-A = NO.
+  ELSE 
+      tb_ExportXML:HIDDEN  IN FRAME FRAME-A = YES.
+      
    IF LOOKUP(lv-format-c,"Artios,Protagon,VINELAND,CapCity,Trilakes2,Suthrlnd,RFC2,Peachtree,jobcardc 1,jobcardc 2,xprint,Valley,jobcardf 1,jobcardf 2") > 0 THEN
      ASSIGN tb_fgimage:SENSITIVE = YES.
     IF LOOKUP(lv-format-f,"jobcardf 1,jobcardf 2") > 0 THEN
@@ -1725,7 +1744,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
       ASSIGN
         tb_draft:HIDDEN = NO
         tb_draft:SENSITIVE = YES
-       /* tb_draft:SCREEN-VALUE = "NO"*/.
+        /* tb_draft:SCREEN-VALUE = "NO"*/.
 
          revsn_no:HIDDEN IN FRAME FRAME-A           = TRUE.
      IF LOOKUP(lv-format-c,"Protagon") > 0 THEN
@@ -1989,7 +2008,7 @@ PROCEDURE AddWorkSheet :
   chExcel:Selection:Font:Name = "Arial".
   chExcel:SELECTION():FONT:SIZE = 18.
 
-  /*chExcel:SELECTION():HorizontalAlignment = -4108 /* center */ */.
+    /*chExcel:SELECTION():HorizontalAlignment = -4108 /* center */ */.
 
   /*ASSIGN my-range = "A1:O28"*/
          /*chWorksheet:Range(my-range):COLUMNS:SELECT()*/
@@ -2578,13 +2597,14 @@ PROCEDURE enable_UI :
           tb_prt-sellprc tb_prt-label tb_committed tb_prt-set-header 
           tb_prompt-ship dept_codes TB_sample_req tb_freeze-note tb_dept-note 
           rd-dest lines-per-page lv-ornt lv-font-no lv-font-name td-show-parm 
+          tb_ExportXML 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   ENABLE RECT-6 RECT-7 begin_job1 begin_job2 end_job1 end_job2 tb_fold 
          tb_show-rel tb_RS tb_corr tb_PR tb_reprint tb_DC tb_box tb_GL tb_SW 
          tb_approve spec_codes revsn_no tb_prt-label tb_committed 
          tb_prt-set-header tb_prompt-ship dept_codes TB_sample_req 
          tb_freeze-note tb_dept-note rd-dest lines-per-page lv-ornt lv-font-no 
-         td-show-parm btn-ok btn-cancel 
+         td-show-parm tb_ExportXML btn-ok btn-cancel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.
@@ -3025,9 +3045,11 @@ PROCEDURE run-report :
     s-prt-ship-split        = tb_prompt-ship
     approve                 = tb_approve    
     s-prt-revno             = tb_prt-rev 
-    v-dept-log             = tb_dept-note
+    v-dept-log              = tb_dept-note
     v-dept-codes            = dept_codes
-    lDraft                  = tb_draft. 
+    lDraft                  = tb_draft
+    lExportXML              = tb_ExportXML
+    . 
 
   IF s-prt-revno THEN
       ASSIGN revision-no             = string(revsn_no).
