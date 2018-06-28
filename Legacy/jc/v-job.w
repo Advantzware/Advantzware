@@ -1613,7 +1613,7 @@ PROCEDURE recalc-costs :
   DEF BUFFER bf-job-hdr FOR job-hdr .
 
   IF AVAILABLE job AND job.est-no NE "" THEN DO:
-    MESSAGE "Recalculate Job Cost?"
+    MESSAGE "Recalculate Job Cost from estimate standards without updating Materials and Routing?"
         VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
         UPDATE ll.  
 
