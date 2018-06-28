@@ -93,6 +93,7 @@ DEFINE TEMP-TABLE w-ord
     FIELD sman AS CHARACTER
     FIELD upd-user AS CHARACTER
     FIELD due-date AS DATE
+    FIELD csrUser_id AS CHARACTER
     .
 DEFINE WORKFILE tt-fg-set LIKE fg-set
     FIELD isaset     LIKE itemfg.isaset
@@ -141,7 +142,9 @@ FOR EACH oe-ordl NO-LOCK
       WHERE oe-ord.company   EQ oe-ordl.company
         AND oe-ord.ord-no    EQ oe-ordl.ord-no
         AND oe-ord.cust-no   GE cStartCustNo
-        AND oe-ord.cust-no   LE cEndCustNo,
+        AND oe-ord.cust-no   LE cEndCustNo
+        AND oe-ord.csrUser_id GE cStartCSR
+        AND oe-ord.csrUser_id LE cEndCSR,
       FIRST cust NO-LOCK
       WHERE cust.company     EQ oe-ord.company
         AND cust.cust-no     EQ oe-ord.cust-no
@@ -400,6 +403,7 @@ FOR EACH tt-report
             dPallets             = w-ord.rel-qty / 
                                  ((IF oe-ordl.cas-cnt    EQ 0 THEN 1 ELSE oe-ordl.cas-cnt) *
                                   (IF oe-ordl.cases-unit EQ 0 THEN 1 ELSE oe-ordl.cases-unit))
+            w-ord.csrUser_id     = oe-ord.csrUser_id
             .
         {sys/inc/roundup.i dPallets}
         IF dPallets LT 0 THEN dPallets = dPallets * -1.
@@ -587,6 +591,7 @@ FOR EACH tt-report
             ttScheduledReleases.xxSort02        = tt-report.key-02
             ttScheduledReleases.xxSort03        = tt-report.key-03
             ttScheduledReleases.xxSort04        = tt-report.key-04
+            ttScheduledReleases.csrUserID       = w-ord.csrUser_id
             . 
     END. /* each w-ord */
     EMPTY TEMP-TABLE w-ord.
@@ -613,15 +618,6 @@ PROCEDURE jobRouting:
     RELEASE reftable.
     
     IF TRIM(w-ord.job-no) EQ "" THEN DO:
-/*        FOR EACH job-hdr NO-LOCK                  */
-/*            WHERE job-hdr.company EQ ipcCompany   */
-/*              AND job-hdr.ord-no  EQ w-ord.ord-no */
-/*              AND job-hdr.cust-no EQ w-ord.cust-no*/
-/*              AND job-hdr.i-no    EQ w-ord.i-no   */
-/*              AND job-hdr.opened  EQ YES          */
-/*            BY ROWID(job-hdr) DESCENDING:         */
-/*            LEAVE.                                */
-/*        END. /* each job-hdr */                   */
         IF AVAIL itemfg AND itemfg.est-no NE "" THEN
         FOR EACH est-op NO-LOCK
             WHERE est-op.company EQ itemfg.company 
@@ -678,7 +674,7 @@ PROCEDURE jobRouting:
                 CREATE tt-fg-set.
                 ASSIGN
                     tt-fg-set.part-no      = reftable.code2
-                    tt-fg-set.qtyPerSet     = reftable.val[12]
+                    tt-fg-set.qtyPerSet    = reftable.val[12]
                     tt-fg-set.part-qty-dec = reftable.val[13]
                     .
             END. /* each reftable */
@@ -686,7 +682,7 @@ PROCEDURE jobRouting:
             CREATE tt-fg-set.
             ASSIGN
                 tt-fg-set.part-no      = job-hdr.i-no
-                tt-fg-set.qtyPerSet     = job-hdr.frm
+                tt-fg-set.qtyPerSet    = job-hdr.frm
                 tt-fg-set.part-qty-dec = job-hdr.blank-no
                 .
         END. /* else */

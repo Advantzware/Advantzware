@@ -98,7 +98,7 @@ PROCEDURE pBuildList:
              AND bf-oe-ord.po-no EQ oe-ord.po-no    
               AND ROWID(bf-oe-ord) NE ROWID(oe-ord)
               AND NOT CAN-FIND(FIRST oe-ordl OF bf-oe-ord)        
-             USE-INDEX po-no  
+             USE-INDEX pono  
     :          
         CREATE ttOrdersToDelete.
         ASSIGN 

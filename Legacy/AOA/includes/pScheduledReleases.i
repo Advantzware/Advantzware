@@ -1,4 +1,4 @@
-/* pScheduledReleases.i - auto generated 09.28.2017 @ 11:49:02 pm from aoa/aoaParam.w */
+/* pScheduledReleases.i - auto generated 06.18.2018 @  9:23:40 pm from aoa/aoaParam.w */
 
     {aoa/includes/aoaInputDefParams.i}
 
@@ -36,6 +36,9 @@
     DEFINE VARIABLE lSubRpt_PrintSpecNotes AS LOGICAL NO-UNDO.
     DEFINE VARIABLE cStartSpecNote AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cEndSpecNote AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lAllCSR AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE cStartCSR AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cEndCSR AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cPrintOHQty AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cSort AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lSubTotalByCustomerNo AS LOGICAL NO-UNDO.
@@ -94,6 +97,9 @@
         lSubRpt_PrintSpecNotes = DYNAMIC-FUNCTION("fGetParamValue","svSubRpt_PrintSpecNotes") EQ "yes"
         cStartSpecNote = DYNAMIC-FUNCTION("fGetParamValue","svStartSpecNote")
         cEndSpecNote = DYNAMIC-FUNCTION("fGetParamValue","svEndSpecNote")
+        lAllCSR = DYNAMIC-FUNCTION("fGetParamValue","svAllCSR") EQ "yes"
+        cStartCSR = DYNAMIC-FUNCTION("fGetParamValue","svStartCSR")
+        cEndCSR = DYNAMIC-FUNCTION("fGetParamValue","svEndCSR")
         cPrintOHQty = DYNAMIC-FUNCTION("fGetParamValue","svPrintOHQty")
         cSort = DYNAMIC-FUNCTION("fGetParamValue","svSort")
         lSubTotalByCustomerNo = DYNAMIC-FUNCTION("fGetParamValue","svSubTotalByCustomerNo") EQ "yes"
@@ -161,6 +167,12 @@
     ASSIGN
         cStartShipFrom = CHR(32)
         cEndShipFrom   = CHR(254)
+        .
+
+    IF lAllCSR THEN
+    ASSIGN
+        cStartCSR = CHR(32)
+        cEndCSR   = CHR(254)
         .
 
     IF lCustList THEN

@@ -171,7 +171,7 @@ IF FIRST-OF(tt-boll.LINE) THEN DO:
     
    
     IF j >= 30 THEN do:
-        IF v-printline >= 55 THEN DO:
+        IF v-printline >= 62 THEN DO: 
            v-printline = 0.
            j = j - 30.
            PAGE {1}.
@@ -179,7 +179,7 @@ IF FIRST-OF(tt-boll.LINE) THEN DO:
         END.
     END.
     ELSE do: 
-         IF v-printline >= 38 THEN DO:
+         IF v-printline >= 50 THEN DO: 
           v-printline = 0.
           PAGE {1}.
           {oe/rep/bolprem2.i}
@@ -237,15 +237,15 @@ IF FIRST-OF(tt-boll.LINE) THEN DO:
       {sys/inc/part-qty.i v-part-qty fg-set}
   
     IF j >= 30 THEN do:
-        IF v-printline >= 55 THEN DO:
+        IF v-printline >= 62 THEN DO: 
            v-printline = 0.
            j = j - 30.
            PAGE {1}.
            {oe/rep/bolprem2.i}
         END.
     END.
-    ELSE do: 
-         IF v-printline >= 38 THEN DO:
+    ELSE do:  
+         IF v-printline >= 50 THEN DO: 
           v-printline = 0.
           PAGE {1}.
           {oe/rep/bolprem2.i}
