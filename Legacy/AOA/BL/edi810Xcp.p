@@ -67,26 +67,7 @@ FOR EACH company NO-LOCK,
     WHERE cust.company EQ company.company
       AND cust.cust-no EQ edmast.cust
     :              
-    FOR EACH inv-head NO-LOCK
-        WHERE inv-head.company EQ company.company
-          AND inv-head.inv-date GE dtStartInvoiceDate
-          AND inv-head.inv-date LE dtEndInvoiceDate
-          AND inv-head.cust-no EQ edmast.cust       
-          AND inv-head.multi-inv-no EQ 0
-        :              
-        cStatus = fCheckStatus(inv-head.inv-no, edmast.partner).
-        IF cStatus NE "SNT" OR NOT lExceptionOnly THEN DO:
-            cStatusDesc = fGetStatDesc(cStatus).     
-            RUN writeRecord (
-                inv-head.cust-no,
-                cust.name,
-                inv-head.inv-no,
-                inv-head.inv-date,
-                cStatusDesc
-                ). 
-        END. /* if not snt */
-    END. /* each inv-head */
-    
+
     FOR EACH ar-inv NO-LOCK
         WHERE ar-inv.company EQ company.company
           AND ar-inv.inv-date GE dtStartInvoiceDate
