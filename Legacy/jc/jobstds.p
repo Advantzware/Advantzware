@@ -48,10 +48,11 @@ if choice then do:
 end.
 
 choice = no.
-message "Rebuild Materials and Routing tab and recalculate job costs from estimate standards for Job# " +
-        TRIM(job.job-no) + "-" + STRING(job.job-no2,"99") +
-        "?"
-    view-as alert-box question button yes-no update choice.  
+MESSGAE 
+  "Rebuild Materials and Routing tab and" SKIP
+  "Recalculate job costs from estimate standards" SKIP
+  "for Job# " + TRIM(job.job-no) + "-" + STRING(job.job-no2,"99") + "?"
+  view-as alert-box question button yes-no update choice.  
 FIND FIRST job-hdr where job-hdr.company EQ job.company
       and job-hdr.job     EQ job.job
       and job-hdr.job-no  EQ job.job-no
