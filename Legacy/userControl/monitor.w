@@ -12,7 +12,8 @@ FUNCTION fnGetDLC RETURNS CHARACTER
 
 FUNCTION fnGetPhysicalDb RETURNS CHARACTER 
     (ipcDbName AS CHARACTER) FORWARD.
-    
+DEFINE VARIABLE lIsAnAdmin AS LOGICAL NO-UNDO.
+
 PROCEDURE postMonitor:
 /*------------------------------------------------------------------------------
   Purpose:     import montiored files, process files, post files
@@ -129,8 +130,10 @@ ASSIGN
             FIND FIRST users NO-LOCK WHERE users.user_id EQ  userLog.user_id NO-ERROR.
             IF NOT AVAILABLE users THEN 
                NEXT.
+            RUN epCanAccessUser IN hPgmSecurity ("browsers/userlog.w", "", userLog.user_id, OUTPUT lIsAnAdmin).               
+                      
             /* Don't log someone out who is an admin */
-            IF users.securityLevel GT 900 OR users.user_id EQ "ASI" THEN 
+            IF lIsAnAdmin OR users.user_id EQ "ASI" THEN 
                NEXT.
                
             /* Add logout hours to the users login time to get time when they should get logged out */ 
