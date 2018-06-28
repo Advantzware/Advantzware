@@ -52,6 +52,7 @@ def var v-frt-terms as char format "x(10)" no-undo.
 def var v-zone like carr-mtx.del-zone no-undo.
 DEF VAR v-lines AS INT NO-UNDO.
 def var v-job-po            as   CHAR NO-UNDO.
+DEFINE VARIABLE lv-tot-pg AS INT NO-UNDO.
 def TEMP-TABLE w2 no-undo
     field cases            as   int format ">9"
     field cas-cnt          as   int format ">>>>9"
