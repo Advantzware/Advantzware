@@ -143,6 +143,7 @@ ASSIGN
     {refTableConv.i "relcredconv" 'relcredconv'}
     {refTableConv.i "Arcashhold" 'ARCASHHOLD'}
     {refTableConv.i "EitemvendAdders" 'e-item-vend.adders'}
+    {refTableConv.i "Batchrpt" 'Batchrpt'}
 
 /* Deferred for 16.7.0                                              */
 /*    {refTableConv.i "STYFLU" 'STYFLU'}                            */
