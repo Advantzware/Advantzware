@@ -1356,14 +1356,16 @@ PROCEDURE pInit :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    DEFINE VARIABLE cMenuExt     AS CHARACTER NO-UNDO INITIAL "lst".
-    DEFINE VARIABLE cNK1Value    AS CHARACTER NO-UNDO EXTENT 4.
-    DEFINE VARIABLE idx          AS INTEGER   NO-UNDO.
-    DEFINE VARIABLE lFound       AS LOGICAL   NO-UNDO.
-    DEFINE VARIABLE hWebService  AS HANDLE    NO-UNDO.
-    DEFINE VARIABLE hSalesSoap   AS HANDLE    NO-UNDO.
-    DEFINE VARIABLE cVersion     AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cHelpService AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cMenuExt      AS CHARACTER NO-UNDO INITIAL "lst".
+    DEFINE VARIABLE cNK1Value     AS CHARACTER NO-UNDO EXTENT 4.
+    DEFINE VARIABLE idx           AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE lFound        AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE hWebService   AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE hSalesSoap    AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE cVersion      AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cHelpService  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE hPgmMstrSecur AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE lAdmin        AS LOGICAL   NO-UNDO.
     
     RUN sys/ref/nk1look.p (
         g_company,"CEMenu","C",NO,NO,"","",
@@ -1488,10 +1490,18 @@ PROCEDURE pInit :
                     hMenuLink[idx]:TRANSPARENT    = cNK1Value[3] EQ "1"
                     .
                 hMenuLink[idx]:LOAD-IMAGE(SEARCH(cNK1Value[1])).
-            END. /* if avail */
+            END. /* if search */
         END. /* do idx */
         /* check if upgrade available */
-        IF AVAILABLE users AND users.securityLevel GT 900 THEN DO:
+        IF NOT VALID-HANDLE(hPgmMstrSecur) THEN
+        RUN system/PgmMstrSecur.p PERSISTENT SET hPgmMstrSecur.
+        IF VALID-HANDLE(hPgmMstrSecur) THEN
+        RUN epCanAccess IN hPgmMstrSecur (
+            "system/mainMenu.w",
+            "",
+            OUTPUT lAdmin 
+            ).
+        IF lAdmin THEN DO:
             RUN sys/ref/nk1look.p (
                 g_company,"AsiHelpService","C",NO,NO,"","",
                 OUTPUT cHelpService,OUTPUT lFound
@@ -1528,10 +1538,6 @@ PROCEDURE pInit :
                             menuLinkZoHo:TRANSPARENT    = cNK1Value[3] EQ "1"
                             menuLinkZoHo:TOOLTIP        = "Version " + cVersion + " Upgrade Available"
                             .
-                        MESSAGE 
-                            "Current Version: {&awversion}." SKIP(1) 
-                            menuLinkZoHo:TOOLTIP
-                        VIEW-AS ALERT-BOX TITLE "Upgrade Alert".
                         menuLinkZoHo:LOAD-IMAGE(SEARCH(cNK1Value[1])).
                     END. /* if avail */
                 END. /* different version */
@@ -1757,21 +1763,11 @@ PROCEDURE Set-comp_loc :
             g_loc                     = ipcLoc
             .
     END.
-    FIND FIRST sys-ctrl
-         WHERE sys-ctrl.company EQ g_company
-           AND sys-ctrl.NAME    EQ "bitmap"
-         NO-ERROR.
-    IF NOT AVAILABLE sys-ctrl THEN
-    DO TRANSACTION:
-        CREATE sys-ctrl.
-        ASSIGN
-            sys-ctrl.company = g_company
-            sys-ctrl.name    = "bitmap"
-            sys-ctrl.descrip = "Graphics\bigboxes"
-            .
-    END.
-    IF AVAILABLE sys-ctrl AND sys-ctrl.descrip<> "" THEN
-    boxes:LOAD-IMAGE(sys-ctrl.descrip).
+    RUN sys/ref/nk1look.p (
+        g_company,"BitMap","DS",NO,NO,"","",
+        OUTPUT cBitMap,OUTPUT lFound
+        ).
+    IF lFound AND cBitMap NE "" THEN boxes:LOAD-IMAGE(cBitMap).
 
 END PROCEDURE.
 
