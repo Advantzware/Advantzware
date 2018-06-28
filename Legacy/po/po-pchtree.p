@@ -627,7 +627,7 @@ v-printline = 0.
         ELSE
             v-vend-i-no = po-ordl.vend-i-no.
 
-        IF v-vend-i-no <> "" OR cMachCode NE ""  THEN DO:
+        IF v-vend-i-no <> "" THEN DO:
             put  v-vend-i-no  FORM "x(20)" AT 24 skip.
             ASSIGN
             v-line-number = v-line-number + 1
