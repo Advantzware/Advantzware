@@ -126,6 +126,13 @@ ASSIGN
  
         cdb = fnGetPhysicalDb("ASI").
         FOR EACH userLog NO-LOCK WHERE userLog.logoutDateTime EQ ? :
+            FIND FIRST users NO-LOCK WHERE users.user_id EQ  userLog.user_id NO-ERROR.
+            IF NOT AVAILABLE users THEN 
+               NEXT.
+            /* Don't log someone out who is an admin */
+            IF users.securityLevel GT 900 THEN 
+               NEXT.
+               
             /* Add logout hours to the users login time to get time when they should get logged out */ 
             dtNextLogoutTime =  ADD-INTERVAL (userLog.loginDateTime,  iAutoLogoutHours , "Hours") .
             IF DATETIME(TODAY, MTIME) GT dtNextLogoutTime THEN 
