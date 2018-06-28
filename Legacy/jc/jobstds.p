@@ -48,7 +48,7 @@ if choice then do:
 end.
 
 choice = no.
-MESSGAE 
+MESSAGE 
   "Rebuild Materials and Routing tab and" SKIP
   "Recalculate job costs from estimate standards" SKIP
   "for Job# " + TRIM(job.job-no) + "-" + STRING(job.job-no2,"99") + "?"
