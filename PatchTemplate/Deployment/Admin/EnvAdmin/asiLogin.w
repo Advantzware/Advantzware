@@ -95,6 +95,7 @@ DEF VAR cUsrFileName AS CHAR NO-UNDO.
 DEF VAR cEnvironmentList AS CHAR NO-UNDO.
 DEF VAR cDatabaseList AS CHAR NO-UNDO.
 DEF VAR cModeScrList AS CHAR NO-UNDO.
+DEF VAR lUserOK AS LOG NO-UNDO.
 
 DEF VAR cVarName AS CHAR EXTENT 100 NO-UNDO.
 DEF VAR cVarValue AS CHAR EXTENT 100 NO-UNDO.
@@ -992,10 +993,8 @@ PROCEDURE ipClickOk :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    DEF VAR lUserOK AS LOG NO-UNDO.
     DEF VAR lError AS LOG NO-UNDO.
     DEF VAR cMessage AS CHAR NO-UNDO.
-    DEF VAR cCmdString AS CHAR NO-UNDO.
  
     ASSIGN
         iPos = LOOKUP(cbEnvironment,cEnvironmentList)
@@ -1009,31 +1008,9 @@ PROCEDURE ipClickOk :
     /* Here the format for both is 16070400 */
 
     IF connectStatement <> "" THEN DO:
-        IF VALID-HANDLE(hPreRun) THEN DO:
-            RUN epDisconnectDB IN hPreRun.
-            RUN epConnectDB IN hPreRun (connectStatement,
-                                        ttUsers.ttfUserID,
-                                        fiPassword,
-                                        OUTPUT lError).
-        END.
-        ELSE DO:
-            RUN ipDisconnectDB IN THIS-PROCEDURE.
-            RUN ipConnectDB in THIS-PROCEDURE (connectStatement,
-                                               OUTPUT lError).
-
-            IF CONNECTED(LDBNAME(1)) THEN DO:
-                IF SEARCH("preRun" + STRING(iTruncLevel,"9999") + ".r") NE ? THEN
-                    RUN VALUE("preRun" + STRING(iTruncLevel,"9999") + ".p") PERSISTENT SET hPreRun.
-                ELSE RUN VALUE("prerun.p") PERSISTENT SET hPreRun.
-            END.
-            ELSE DO:
-                MESSAGE 
-                    "Unable to connect to that database with the" SKIP
-                    "credentials supplied.  Please try again."
-                    VIEW-AS ALERT-BOX ERROR.
-                RETURN NO-APPLY.
-            END.
-        END.
+        RUN ipDisconnectDB IN THIS-PROCEDURE.
+        RUN ipConnectDB in THIS-PROCEDURE (connectStatement,
+                                           OUTPUT lError).
     END.
 
     IF iEnvLevel LT 16070800 THEN DO:
@@ -1044,9 +1021,51 @@ PROCEDURE ipClickOk :
             cUsrLoc = replace(cUsrLoc,".usr",".nul").
     END.
     
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipConnectDb C-Win 
+PROCEDURE ipConnectDb :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEF INPUT PARAMETER cStatement AS CHAR NO-UNDO.
+    DEF OUTPUT PARAMETER lError AS LOG NO-UNDO.
+
+    DEF VAR iLookup AS INT NO-UNDO.
+    DEF VAR xdbName AS CHAR NO-UNDO.
+    DEF VAR xdbPort AS CHAR NO-UNDO.
+    DEF VAR cCmdSTring AS CHAR NO-UNDO.
+    DEF VAR cMessString AS CHAR NO-UNDO.
+    DEF VAR iPos AS INT NO-UNDO.
+
     ASSIGN
-        lUserOK = SETUSERID(cUserID,fiPassword,LDBNAME(1)).
-    IF lUserOK = TRUE THEN DO:
+        cStatement = cStatement + " -U " + cUserID + " -P " + fiPassword.
+    CONNECT VALUE(cStatement) NO-ERROR.
+    
+    IF ERROR-STATUS:ERROR THEN DO:
+        DO iCtr = 1 TO ERROR-STATUS:NUM-MESSAGES:
+            ASSIGN
+                cMessString = SUBSTRING(ERROR-STATUS:GET-MESSAGE(iCtr),3)
+                iPos = INDEX(cMessString,"(")
+                cMessString = "   " + SUBSTRING(cMessString,1,iPos - 1).
+            MESSAGE
+                "The database was unable to connect due to the following error:" skip
+                cMessString
+                VIEW-AS ALERT-BOX ERROR.
+        END.
+        RETURN ERROR.
+    END.
+    ELSE DO:
+        IF CONNECTED(LDBNAME(1)) THEN DO:
+            IF SEARCH("preRun" + STRING(iTruncLevel,"9999") + ".r") NE ? THEN
+                RUN VALUE("preRun" + STRING(iTruncLevel,"9999") + ".p") PERSISTENT SET hPreRun.
+            ELSE RUN VALUE("prerun.p") PERSISTENT SET hPreRun.
+        END.
         RUN ipPreRun.
         ASSIGN
             c-Win:VISIBLE = FALSE.
@@ -1066,53 +1085,6 @@ PROCEDURE ipClickOk :
                              cDrive + "\" + cTopDir + "\" + cDbDir + "\" + xDbDir + "\" + PDBNAME(1).
             OS-COMMAND VALUE(cCmdString).
         END.
-    END.
-    ELSE MESSAGE
-        "Unable to login with that User ID and Password."
-        VIEW-AS ALERT-BOX ERROR.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipConnectDb C-Win 
-PROCEDURE ipConnectDb :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-    DEF INPUT PARAMETER cStatement AS CHAR NO-UNDO.
-    DEF OUTPUT PARAMETER lError AS LOG NO-UNDO.
-
-    DEF VAR iLookup AS INT NO-UNDO.
-    DEF VAR xdbName AS CHAR NO-UNDO.
-    DEF VAR xdbPort AS CHAR NO-UNDO.
-    
-    CONNECT VALUE(cStatement) NO-ERROR.
-
-    IF CONNECTED(LDBNAME(1))
-    AND LDBNAME(1) = "ASI" THEN DO:
-        CREATE ALIAS nosweat FOR DATABASE VALUE(LDBNAME(1)).
-        CREATE ALIAS emptrack FOR DATABASE VALUE(LDBNAME(1)).
-        CREATE ALIAS jobs FOR DATABASE VALUE(LDBNAME(1)).
-        CREATE ALIAS rfq FOR DATABASE VALUE(LDBNAME(1)).
-        CREATE ALIAS asihelp FOR DATABASE VALUE(LDBNAME(1)).
-        CREATE ALIAS asihlp FOR DATABASE VALUE(LDBNAME(1)).
-        CREATE ALIAS asinos FOR DATABASE VALUE(LDBNAME(1)).
-    END.
-    ELSE DO:
-        ASSIGN
-            iTries = iTries + 1.
-        IF iLockoutTries > 0 AND iTries > iLockoutTries THEN DO:
-            MESSAGE
-                "You have exceeded the allowed login attempts." SKIP
-                "Exiting..."
-                VIEW-AS ALERT-BOX ERROR.
-            QUIT.
-        END.
-        RETURN ERROR.
     END.
 
     ASSIGN
