@@ -130,7 +130,7 @@ ASSIGN
             IF NOT AVAILABLE users THEN 
                NEXT.
             /* Don't log someone out who is an admin */
-            IF users.securityLevel GT 900 THEN 
+            IF users.securityLevel GT 900 OR users.user_id EQ "ASI" THEN 
                NEXT.
                
             /* Add logout hours to the users login time to get time when they should get logged out */ 
