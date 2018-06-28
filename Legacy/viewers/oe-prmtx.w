@@ -995,6 +995,7 @@ PROCEDURE enable-oe-prmtx-field :
 
     IF AVAIL oe-prmtx AND oe-prmtx.i-no NE "" THEN DISABLE oe-prmtx.procat.
   END.
+  RUN set-panel (0).
 
 END PROCEDURE.
 
@@ -1040,6 +1041,7 @@ PROCEDURE local-cancel-record :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'cancel-record':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
+  RUN set-panel (1).
 
 END PROCEDURE.
 
@@ -1093,6 +1095,46 @@ DEF VAR cAccessList AS CHAR NO-UNDO.
                            OUTPUT lAccessClose,
                            OUTPUT cAccessList).
   /* Code placed here will execute PRIOR to standard behavior. */
+    IF NOT adm-new-record THEN DO:
+    {custom/askdel.i}
+    END.
+    IF lAccess THEN DO:
+        RUN dispatch IN THIS-PROCEDURE ( INPUT 'delete-record':U ) .
+   /* Code placed here will execute AFTER standard behavior.    */
+   /* task 10301314  */
+        FIND CURRENT oe-prmtx NO-LOCK NO-ERROR .
+        IF NOT AVAIL oe-prmtx THEN
+            FIND FIRST oe-prmtx WHERE oe-prmtx.company = cocode NO-LOCK NO-ERROR.
+        RUN local-display-fields.
+        {methods/template/local/deleteAfter.i}       /* task 10301314  */
+    END.
+    ELSE
+        MESSAGE "You do not have access to delete a Sales Price Matrix."
+            VIEW-AS ALERT-BOX INFO BUTTONS OK.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE mass-delete V-table-Win 
+PROCEDURE mass-delete :
+/*------------------------------------------------------------------------------
+  Purpose:     Override standard ADM method
+  Notes:       
+------------------------------------------------------------------------------*/
+DEF VAR lAccess AS LOG NO-UNDO.
+DEF VAR lAccessClose AS LOG NO-UNDO.
+DEF VAR cAccessList AS CHAR NO-UNDO.
+
+    RUN methods/prgsecur.p(INPUT "oe-prmtx.",
+                           INPUT "delete",
+                           INPUT NO,
+                           INPUT NO,
+                           INPUT NO,
+                           OUTPUT lAccess,
+                           OUTPUT lAccessClose,
+                           OUTPUT cAccessList).
+  /* Code placed here will execute PRIOR to standard behavior. */
     IF lAccess THEN DO:
         IF AVAIL oe-prmtx AND NOT adm-new-record THEN
             RUN cerep/del-prmtx.w (oe-prmtx.eff-date,oe-prmtx.cust-no, oe-prmtx.custype, oe-prmtx.procat, oe-prmtx.i-no).  /* task 10301314  */ 
@@ -1110,6 +1152,29 @@ DEF VAR cAccessList AS CHAR NO-UNDO.
     ELSE
         MESSAGE "You do not have access to delete a Sales Price Matrix."
             VIEW-AS ALERT-BOX INFO BUTTONS OK.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE set-panel V-table-Win 
+PROCEDURE set-panel :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEF INPUT PARAM ip-switch AS INT NO-UNDO.
+
+  DEF VAR char-hdl AS CHAR NO-UNDO.
+
+
+  RUN get-link-handle IN adm-broker-hdl  (THIS-PROCEDURE,'disable-button-target':U,OUTPUT char-hdl).
+  IF ip-switch EQ 0 THEN 
+    RUN disable-all IN WIDGET-HANDLE(char-hdl).
+  ELSE
+    RUN enable-all IN WIDGET-HANDLE(char-hdl) .
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1212,6 +1277,7 @@ PROCEDURE local-update-record :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
+  RUN set-panel (1).
 
 END PROCEDURE.
 

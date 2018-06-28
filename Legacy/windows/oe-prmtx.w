@@ -91,6 +91,7 @@ DEFINE VARIABLE h_p-updsav AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_smartmsg AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_export AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_v-impcom AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_p-massdel AS HANDLE NO-UNDO.
 
 /* ************************  Frame Definitions  *********************** */
 
@@ -415,8 +416,16 @@ PROCEDURE adm-create-objects :
                      SmartPanelType = Update,
                      AddFunction = One-Record':U ,
              OUTPUT h_p-updsav ).
-       RUN set-position IN h_p-updsav ( 21.48 , 91.00 ) NO-ERROR.
+       RUN set-position IN h_p-updsav ( 21.48 , 70 ) NO-ERROR.
        RUN set-size IN h_p-updsav ( 2.14 , 56.00 ) NO-ERROR.
+
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'panels/p-massdel.w':U ,
+             INPUT  FRAME F-Main:HANDLE ,
+             INPUT  'Layout = ':U ,
+             OUTPUT h_p-massdel ).
+       RUN set-position IN h_p-massdel ( 21.48 , 127.00 ) NO-ERROR.
+       RUN set-size IN h_p-massdel ( 2.14 , 56.00 ) NO-ERROR.
 
        /* Initialize other pages that this page requires. */
        RUN init-pages IN THIS-PROCEDURE ('1':U) NO-ERROR.
@@ -426,6 +435,10 @@ PROCEDURE adm-create-objects :
        RUN add-link IN adm-broker-hdl ( h_p-updsav , 'TableIO':U , h_oe-prmtx-2 ).
        RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'add-item':U , h_oe-prmtx-2 ).
 
+       /* Links to SmartViewer h_p-massdel. */
+       RUN add-link IN adm-broker-hdl ( h_oe-prmtx-2 , 'Record':U , h_p-massdel ).
+       RUN add-link IN adm-broker-hdl ( h_oe-prmtx-2 , 'disable-button':U , h_p-massdel ).
+
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_oe-prmtx-2 ,
              h_folder , 'AFTER':U ).
@@ -433,6 +446,8 @@ PROCEDURE adm-create-objects :
              h_oe-prmtx-2 , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_p-updsav ,
              h_p-navico , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_p-massdel ,
+             h_p-updsav , 'AFTER':U ).
     END. /* Page 2 */
 
   END CASE.
