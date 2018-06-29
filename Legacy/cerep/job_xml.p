@@ -301,7 +301,14 @@ DEFINE VARIABLE iCountLine AS INTEGER INITIAL 0 NO-UNDO.
 DEFINE BUFFER b-ef FOR ef.
 DEF VAR lv-cad-image AS cha NO-UNDO.
 DEF VAR lv-cad-image-list AS cha NO-UNDO.
-
+DEFINE VARIABLE lRecFound AS LOG NO-UNDO.
+DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cXMlFinalDest AS CHARACTER NO-UNDO.
+RUN sys/ref/nk1look.p (INPUT cocode, "XMLJobTicket", "C" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+    OUTPUT cRtnChar, OUTPUT lRecFound).
+IF lRecFound THEN
+   cXMLFinalDest  = cRtnChar NO-ERROR.
 {XMLOutput/XMLOutput.i &XMLOutput=XMLJobTicket &Company=cocode} /* rstark 05181205 */
 
 ASSIGN
@@ -1089,7 +1096,7 @@ FOR EACH job-hdr NO-LOCK
             x = 2.
              
             FOR EACH wrk-sheet WHERE wrk-sheet.form-no = ef.form-no  
-            /*break by wrk-sheet.form-no*/ :  
+                        /*break by wrk-sheet.form-no*/ :  
                 FIND FIRST ITEM WHERE item.company EQ cocode
                     AND item.i-no    EQ wrk-sheet.i-no NO-LOCK NO-ERROR.
                 FIND FIRST job-mat NO-LOCK 
@@ -1130,7 +1137,7 @@ FOR EACH job-hdr NO-LOCK
             END. /* each wrk-sheet */  
 
             FOR EACH wrk-film NO-LOCK WHERE wrk-film.form-no EQ ef.form-no
-            /*break by wrk-sheet.form-no*/ BREAK BY wrk-film.leaf :
+                        /*break by wrk-sheet.form-no*/ BREAK BY wrk-film.leaf :
                 FIND FIRST ITEM NO-LOCK WHERE item.company EQ cocode
                                           AND item.i-no    EQ wrk-film.leaf NO-ERROR.
                 FIND FIRST job-mch NO-LOCK
@@ -1630,6 +1637,9 @@ v-first = NO.
 END. /* for first job-hdr */  
 
 {XMLOutput/XMLOutput.i &XMLClose} /* rstark 05181205 */
- os-command silent value(XMLTemp).
+
+OS-RENAME VALUE(XMLTemp) VALUE(cXMlFinalDest).
+/* Don't show user view xml file */
+/*  os-command silent value(XMLTemp). */
   /* READ-XML( XMLTemp).*/
  
