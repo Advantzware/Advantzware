@@ -2978,7 +2978,7 @@ PROCEDURE output-to-screen :
    OS-COPY VALUE(lv-file) VALUE(lv-xpfile).
    OS-COMMAND VALUE(lv-cmd + " " + lv-xpfile) .
 */ 
-IF tb_fold AND lv-format-f EQ "xml" THEN
+IF ( tb_fold AND lv-format-f EQ "xml")  OR tb_exportXML THEN
     RETURN.
  IF tb_corr THEN DO:
     FILE-INFO:FILE-NAME = list-name.
