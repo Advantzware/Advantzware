@@ -248,7 +248,7 @@ FOR EACH tt-boll,
                ASSIGN v-printline = v-printline + 1.
           END. /* ELSE DO */
 
-        IF v-printline >= 34 THEN DO:
+        IF v-printline >= 41 THEN DO:
 
           ASSIGN v-printline = 0.
           PAGE {1}.
@@ -278,7 +278,7 @@ FOR EACH tt-boll,
 
             {sys/inc/part-qty.i v-part-qty fg-set}
 
-            IF v-printline >= 34 THEN DO: 
+            IF v-printline >= 41 THEN DO: 
               ASSIGN v-printline = 0.
               PAGE {1}.
               {oe/rep/bolfiftn.i}
@@ -327,7 +327,7 @@ FOR EACH tt-boll,
      WHERE oe-ord.company EQ cocode
        AND oe-ord.ord-no  EQ tt-boll.ord-no NO-ERROR.
 
-   IF v-printline >= 34 THEN DO:
+   IF v-printline >= 41 THEN DO:
       ASSIGN v-printline = 0.
       PAGE {1}.
       {oe/rep/bolfiftn.i}
@@ -461,7 +461,7 @@ FOR EACH tt-boll,
 
      ASSIGN v-printline = v-printline + 1.
 
-     IF v-printline >= 34 THEN DO:
+     IF v-printline >= 41 THEN DO:
        v-printline = 0.
        PAGE {1}.
        {oe/rep/bolfiftn.i}
@@ -572,7 +572,7 @@ FOR EACH tt-boll,
 
          {sys/inc/part-qty.i v-part-qty fg-set}
 
-         IF v-printline >= 34 THEN DO:
+         IF v-printline >= 41 THEN DO:
            v-printline = 0.
            PAGE {1}.
            {oe/rep/bolfiftn.i}
@@ -606,40 +606,10 @@ END. /* FOR EACH tt-boll */
 
 ASSIGN v-tot-wt = oe-bolh.tot-wt.
 
-
-IF oe-bolh.ship-i[1] NE "" OR
-   oe-bolh.ship-i[2] NE "" OR
-   oe-bolh.ship-i[3] NE "" OR
-   oe-bolh.ship-i[4] NE "" 
-  THEN DO:
-
-   IF v-printline >= 30 THEN DO:
-     ASSIGN v-printline = 0.
-     PAGE {1}.
-     {oe/rep/bolfiftn.i}
-   END.
-
-   PUT "<FArial><P12><B>Notes:</P12><P10></B>" SKIP.
-
-   DO v-i = 1 TO 4:
-     IF v-printline >= 34 THEN DO:
-       ASSIGN v-printline = 0.
-       PAGE {1}.
-       {oe/rep/bolfiftn.i}
-     END.
-
-     IF oe-bolh.ship-i[v-i] NE "" THEN DO:
-        PUT oe-bolh.ship-i[v-i] SKIP.
-        ASSIGN v-printline = v-printline + 1.
-     END.
-   END.
-
-END.
-
 IF AVAILABLE tt-bolx THEN DO:
 
   IF tt-bolx.note-1 NE "" THEN DO:
-    IF v-printline >= 34 THEN DO:
+    IF v-printline >= 41 THEN DO:
       ASSIGN v-printline = 0.
       PAGE {1}.
       {oe/rep/bolfiftn.i}
@@ -651,7 +621,7 @@ IF AVAILABLE tt-bolx THEN DO:
   END.
 
   IF tt-bolx.note-2 NE "" THEN DO:
-    IF v-printline >= 34 THEN DO:
+    IF v-printline >= 41 THEN DO:
       ASSIGN v-printline = 0.
       PAGE {1}.
       {oe/rep/bolfiftn.i}
