@@ -88,6 +88,7 @@ DEFINE VARIABLE lInquery AS LOGICAL INIT NO NO-UNDO .
 
 /* gdm - 01310801 */
 DEF VAR v-paidflg AS LOG NO-UNDO.
+DEFINE VARIABLE cPoStatus AS CHARACTER NO-UNDO .
 
 &SCOPED-DEFINE key-phrase po-ordl.company EQ cocode
 
@@ -168,7 +169,7 @@ DEF VAR v-paidflg AS LOG NO-UNDO.
     IF lv-sort-by EQ "i-name"    THEN po-ordl.i-name                                                                              ELSE ~
     IF lv-sort-by EQ "vend-i-no" THEN po-ordl.vend-i-no                                                                           ELSE ~
     IF lv-sort-by EQ "buyer"     THEN po-ord.buyer                                                                                ELSE ~
-    IF lv-sort-by EQ "stat"      THEN po-ord.stat                                                                                 ELSE ~
+    IF lv-sort-by EQ "cPoStatus" THEN po-ord.stat                                                                                 ELSE ~
     IF lv-sort-by EQ "cust-no"      THEN po-ordl.cust-no                                                                                 ELSE ~
     IF lv-sort-by EQ "statl"       THEN STRING(po-ordl.stat)                                                         ELSE ~
                                       STRING(YEAR(po-ordl.due-date),"9999") + STRING(MONTH(po-ordl.due-date),"99") + STRING(DAY(po-ordl.due-date),"99")
@@ -223,13 +224,13 @@ dim-in-16 (po-ordl.s-wid) @ po-ordl.s-wid po-ordl.s-wid ~
 dim-in-16 (po-ordl.s-len) @ po-ordl.s-len po-ordl.s-len po-ordl.vend-i-no ~
 po-ordl.ord-qty qty-in-ord-uom () @ lv-t-rec-qty po-ordl.pr-qty-uom ~
 po-ordl.t-rec-qty po-ordl.cons-uom po-ordl.cost po-ordl.pr-uom po-ord.buyer ~
-po-ordl.stat po-ord.stat is-it-paid() @ v-paidflg po-ordl.cust-no 
+po-ordl.stat is-it-postat() @ cPoStatus is-it-paid() @ v-paidflg po-ordl.cust-no 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table po-ordl.po-no ~
 po-ord.vend-no po-ordl.due-date po-ord.ship-id po-ord.ship-name ~
 po-ordl.job-no po-ordl.job-no2 po-ordl.s-num po-ordl.i-no po-ordl.i-name ~
 po-ordl.s-wid po-ordl.s-len po-ordl.vend-i-no po-ordl.ord-qty ~
 po-ordl.pr-qty-uom po-ordl.t-rec-qty po-ordl.cons-uom po-ordl.cost ~
-po-ordl.pr-uom po-ord.buyer po-ordl.stat po-ord.stat po-ordl.cust-no 
+po-ordl.pr-uom po-ord.buyer po-ordl.stat po-ordl.cust-no 
 &Scoped-define ENABLED-TABLES-IN-QUERY-Browser-Table po-ordl po-ord
 &Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-Browser-Table po-ordl
 &Scoped-define SECOND-ENABLED-TABLE-IN-QUERY-Browser-Table po-ord
@@ -310,6 +311,13 @@ FUNCTION getcurrentpo RETURNS INTEGER
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD is-it-paid B-table-Win 
 FUNCTION is-it-paid RETURNS LOGICAL
+  (  /* parameter-definitions */  )  FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD is-it-postat B-table-Win 
+FUNCTION is-it-postat RETURNS CHARACTER
   (  /* parameter-definitions */  )  FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
@@ -506,7 +514,7 @@ DEFINE BROWSE Browser-Table
       po-ordl.pr-uom COLUMN-LABEL "UOM" FORMAT "x(4)":U LABEL-BGCOLOR 14
       po-ord.buyer FORMAT "x(10)":U LABEL-BGCOLOR 14
       po-ordl.stat COLUMN-LABEL "Line Status" FORMAT "x":U LABEL-BGCOLOR 14
-      po-ord.stat COLUMN-LABEL "PO Status" FORMAT "x":U LABEL-BGCOLOR 14
+      is-it-postat() @ cPoStatus COLUMN-LABEL "PO Status" FORMAT "x":U LABEL-BGCOLOR 14
       is-it-paid() @ v-paidflg COLUMN-LABEL "Paid" FORMAT "YES / NO":U
       po-ordl.cust-no COLUMN-LABEL "Customer#" FORMAT "x(8)":U
             LABEL-BGCOLOR 14
@@ -532,7 +540,6 @@ DEFINE BROWSE Browser-Table
       po-ordl.pr-uom
       po-ord.buyer
       po-ordl.stat HELP "Line Status: (C)lose,(F)ill,(N)ew,(O)pen,(R)elease,(U)pdate"
-      po-ord.stat
       po-ordl.cust-no
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -736,8 +743,8 @@ po-ord.po-no eq po-ordl.po-no"
 "po-ord.buyer" ? ? "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[24]   > ASI.po-ordl.stat
 "po-ordl.stat" "Line Status" ? "character" ? ? ? 14 ? ? yes "Line Status: (C)lose,(F)ill,(N)ew,(O)pen,(R)elease,(U)pdate" no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[25]   > ASI.po-ord.stat
-"po-ord.stat" "PO Status" ? "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[25]   > "_<CALC>"
+"is-it-postat() @ cPoStatus" "PO Status" ? "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[26]   > "_<CALC>"
 "is-it-paid() @ v-paidflg" "Paid" "YES / NO" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[27]   > ASI.po-ordl.cust-no
@@ -1509,7 +1516,6 @@ PROCEDURE local-initialize :
    po-ord.ship-id:READ-ONLY IN BROWSE {&browse-name} = YES
    po-ord.ship-name:READ-ONLY IN BROWSE {&browse-name} = YES
    po-ordl.stat:READ-ONLY IN BROWSE {&browse-name} = YES
-   po-ord.stat:READ-ONLY IN BROWSE {&browse-name} = YES
    po-ordl.s-wid:READ-ONLY IN BROWSE {&browse-name} = YES
    po-ordl.s-len:READ-ONLY IN BROWSE {&browse-name} = YES
    po-ordl.cost:READ-ONLY IN BROWSE {&browse-name} = YES
@@ -2756,6 +2762,22 @@ FUNCTION getcurrentpo RETURNS INTEGER
   IF AVAIL po-ordl THEN
     RETURN po-ordl.po-no.
   ELSE RETURN -1.  /* Function return value. */
+
+END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME  
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION is-it-postat B-table-Win 
+FUNCTION is-it-postat RETURNS CHARACTER
+  (  /* parameter-definitions */  ) :
+/*------------------------------------------------------------------------------
+  Purpose:  
+    Notes:  
+------------------------------------------------------------------------------*/
+  
+  RETURN po-ord.stat .   /* Function return value. */
 
 END FUNCTION.
 

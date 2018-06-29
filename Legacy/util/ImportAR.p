@@ -565,7 +565,7 @@ PROCEDURE pCreateNewInvoiceLineAR:
         ar-invl.po-no      = ar-inv.po-no
         ar-invl.pr-qty-uom = "EA"
         ar-invl.cons-uom   = "EA"
-        ar-invl.dscr[1]    = "EA"
+        ar-invl.dscr[1]    = "M"
         ar-invl.actnum     = IF AVAILABLE ar-ctrl THEN ar-ctrl.sales ELSE ""
         ar-invl.sman[1]    = IF AVAILABLE cust THEN cust.sman ELSE ""
         ar-invl.s-pct[1]   = IF ar-invl.sman[1] NE "" THEN 100 ELSE 0             

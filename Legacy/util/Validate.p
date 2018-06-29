@@ -284,3 +284,16 @@ PROCEDURE pIsValidFromList:
         opcMessage = CHR(34) + ipcInputValue + CHR(34) + " for " + CHR(34) + ipcField + CHR(34) + " is not in one of " + CHR(34) + ipcValidList + CHR(34) .
 
 END PROCEDURE.
+
+PROCEDURE pIsValidUserId:
+    /*------------------------------------------------------------------------------
+     Purpose:  Validates User ID
+     Notes: Input 1 = User id
+    ------------------------------------------------------------------------------*/
+    {util\ValidateWithNoCompany.i 
+        &ValidateTable = "users" 
+        &ValidateField = "user_id" 
+        &ValidateMessage = "User ID"}
+    
+
+END PROCEDURE. 

@@ -262,7 +262,9 @@ DO:
        RUN system/userLogOut.p.
   /* This event will close the window and terminate the procedure.  */
   APPLY "CLOSE":U TO THIS-PROCEDURE.
-  RETURN NO-APPLY.
+ 
+  /* Must not go to the editor when started from the command line */
+  QUIT.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -289,8 +291,11 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnClose C-Win
 ON CHOOSE OF btnClose IN FRAME DEFAULT-FRAME /* Close */
 DO:
-       RUN system/userLogOut.p.
+  RUN system/userLogOut.p.
   APPLY 'CLOSE' TO THIS-PROCEDURE.
+   
+  /* Must not go to the editor when started from the command line */
+  QUIT.
 END.
 
 /* _UIB-CODE-BLOCK-END */

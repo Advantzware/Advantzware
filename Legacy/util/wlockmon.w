@@ -143,20 +143,20 @@ DEFINE FRAME DEFAULT-FRAME
      fiInterval AT ROW 17.67 COL 58 COLON-ALIGNED
      bQuit AT ROW 17.67 COL 151
      RADIO-SET-1 AT ROW 17.76 COL 70 NO-LABEL WIDGET-ID 6
-     "Phone" VIEW-AS TEXT
-          SIZE 11 BY .62 AT ROW 1.24 COL 43 WIDGET-ID 12
-     "Terminal" VIEW-AS TEXT
-          SIZE 11 BY .62 AT ROW 1.24 COL 62 WIDGET-ID 10
-     "Duration" VIEW-AS TEXT
-          SIZE 11 BY .67 AT ROW 1.24 COL 149 WIDGET-ID 4
-     "Table" VIEW-AS TEXT
-          SIZE 11 BY .67 AT ROW 1.24 COL 76
-     "Rec Key" VIEW-AS TEXT
-          SIZE 12 BY .67 AT ROW 1.24 COL 108
-     "Lock Type" VIEW-AS TEXT
-          SIZE 11 BY .67 AT ROW 1.24 COL 136
      "User ID/Name" VIEW-AS TEXT
           SIZE 16 BY .67 AT ROW 1.24 COL 4
+     "Lock Type" VIEW-AS TEXT
+          SIZE 11 BY .67 AT ROW 1.24 COL 136
+     "Rec Key" VIEW-AS TEXT
+          SIZE 12 BY .67 AT ROW 1.24 COL 108
+     "Table" VIEW-AS TEXT
+          SIZE 11 BY .67 AT ROW 1.24 COL 76
+     "Duration" VIEW-AS TEXT
+          SIZE 11 BY .67 AT ROW 1.24 COL 149 WIDGET-ID 4
+     "Terminal" VIEW-AS TEXT
+          SIZE 11 BY .62 AT ROW 1.24 COL 62 WIDGET-ID 10
+     "Phone" VIEW-AS TEXT
+          SIZE 11 BY .62 AT ROW 1.24 COL 43 WIDGET-ID 12
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
@@ -169,7 +169,6 @@ DEFINE FRAME DEFAULT-FRAME
 /* Settings for THIS-PROCEDURE
    Type: Window
    Allow: Basic,Browse,DB-Fields,Window,Query
-   Other Settings: COMPILE
  */
 &ANALYZE-RESUME _END-PROCEDURE-SETTINGS
 
@@ -487,6 +486,7 @@ PROCEDURE ipMonitor :
                 _lock._lock-ID EQ ttLocks2.ttfLock-ID
                 NO-LOCK NO-ERROR.
             IF AVAIL _lock THEN DO:
+                
                 FIND users NO-LOCK WHERE
                     users.user_id EQ _lock._lock-name
                     NO-ERROR.
@@ -494,33 +494,37 @@ PROCEDURE ipMonitor :
                     cName = users.user_id + " - " + users.user_name.
                 ELSE ASSIGN
                     cName = users.user_id.
+                
                 FIND FIRST _file WHERE
                     _file._file-number = _lock._lock-table
                     USE-INDEX _file-number
                     NO-LOCK NO-ERROR.
-                FIND FIRST _index OF _file WHERE 
+                IF AVAIL _file THEN FIND FIRST _index OF _file WHERE 
                     RECID(_index) = _file._prime-index
                     NO-LOCK NO-ERROR.
-                FIND FIRST _index-field OF _index NO-LOCK NO-ERROR.
-                IF AVAIL _index-field THEN DO:
-                    FIND FIRST _field OF _index-field NO-LOCK NO-ERROR.
-                    IF AVAIL _field THEN ASSIGN
-                       hbhRecKey1 = hbRecKey:BUFFER-FIELD(_field._field-physpos).
-                END.
-                FIND NEXT _index-field OF _index NO-LOCK NO-ERROR.
-                IF AVAIL _index-field THEN DO:
-                    FIND FIRST _field OF _index-field NO-LOCK NO-ERROR.
-                    IF AVAIL _field THEN ASSIGN
-                        hbhRecKey2 = hbRecKey:BUFFER-FIELD(_field._field-physpos).
-                END.
+                
+                IF AVAIL _index THEN DO:
+                    FIND FIRST _index-field OF _index NO-LOCK NO-ERROR.
+                    IF AVAIL _index-field THEN DO:
+                        FIND FIRST _field OF _index-field NO-LOCK NO-ERROR.
+                        IF AVAIL _field THEN ASSIGN
+                           hbhRecKey1 = hbRecKey:BUFFER-FIELD(_field._field-physpos) NO-ERROR.
+                        FIND NEXT _index-field OF _index NO-LOCK NO-ERROR.
+                        IF AVAIL _index-field THEN DO:
+                            FIND FIRST _field OF _index-field NO-LOCK NO-ERROR.
+                            IF AVAIL _field THEN ASSIGN
+                                hbhRecKey2 = hbRecKey:BUFFER-FIELD(_field._field-physpos) NO-ERROR.
+                        END.
+                    END.
+                END.                
                 IF AVAIL (_file) THEN ASSIGN
                     cDisp = FILL(" ",124)
                     SUBSTRING(cDisp,1,26) = SUBSTRING(cName,1,26)
                     SUBSTRING(cDisp,28,12) = IF AVAIL users THEN STRING(users.phone,"999-999-9999") ELSE ""
                     SUBSTRING(cDisp,42,8) = SUBSTRING(_lock._lock-Tty,1,8)
                     SUBSTRING(cDisp,52,20) = SUBSTRING(_file._file-name,1,20)
-                    SUBSTRING(cDisp,74,22) = (IF VALID-HANDLE(hbhRecKey1) THEN TRIM(hbhRecKey1:STRING-VALUE) ELSE "") + "|" + 
-                                             (IF VALID-HANDLE(hbhRecKey2) THEN TRIM(hbhRecKey2:STRING-VALUE) ELSE "")
+                    SUBSTRING(cDisp,74,22) = (IF VALID-HANDLE(hbhRecKey1) AND hbhRecKey1:STRING-VALUE NE ? THEN TRIM(hbhRecKey1:STRING-VALUE) ELSE "") + "|" + 
+                                             (IF VALID-HANDLE(hbhRecKey2) AND hbhRecKey2:STRING-VALUE NE ? THEN TRIM(hbhRecKey2:STRING-VALUE) ELSE "")
                     SUBSTRING(cDisp,98,4) = IF INDEX(_lock._lock-flags,"X") > 0 THEN "EXCL" ELSE
                                             IF INDEX(_lock._lock-flags,"S") > 0 THEN "SHRD" ELSE
                                             IF INDEX(_lock._lock-flags,"U") > 0 THEN "UPGR" ELSE

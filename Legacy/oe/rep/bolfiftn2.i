@@ -446,20 +446,18 @@ FOR EACH tt-boll,
 
                  ASSIGN v-part-dscr = v-lot#  /* gdm 06120902 */.
                 END. /* IF i EQ 5 */
-     ASSIGN icountpallet = w2.cas-cnt *  w2.cases .
-     DISPLAY TRIM(STRING(oe-ordl.qty,"->>,>>>,>>>")
-                  )                        WHEN i EQ 1          @ oe-ordl.i-no
-             oe-ordl.i-no                  WHEN i EQ 2
-             v-job-po
-             v-part-dscr
-             1 @ w2.cases
-             icountpallet 
-             tt-boll.qty /*+ tt-boll.partial*/ WHEN LAST(w2.cases)  @ tt-boll.qty
-             tt-boll.p-c                   WHEN LAST(w2.cases)                
-             1  WHEN i = 2 AND tt-boll.partial > 0  @ w2.cases
-             tt-boll.partial WHEN i = 2 AND tt-boll.partial > 0 @ w2.cas-cnt
-      WITH FRAME bol-mid2.
-      DOWN  WITH FRAME bol-mid2.
+     ASSIGN icountpallet = w2.cas-cnt  .
+     DISPLAY trim(string(oe-ordl.qty,"->>,>>>,>>>")) when i eq 1
+                                                    @ oe-ordl.i-no
+            oe-ordl.i-no                            when i eq 2
+            v-job-po
+            v-part-dscr
+            w2.cases
+            icountpallet
+            tt-boll.qty                             when last(w2.cases)
+            tt-boll.p-c                             when last(w2.cases)         
+        with frame bol-mid2.
+    down  with frame bol-mid2. 
 
      ASSIGN v-printline = v-printline + 1.
 
@@ -538,6 +536,7 @@ FOR EACH tt-boll,
         i LE 2
        THEN DO:
 
+         
         DISPLAY {1}
                 oe-ordl.i-no    WHEN i EQ 2
                 v-job-po
@@ -545,7 +544,7 @@ FOR EACH tt-boll,
                 1               WHEN tt-boll.partial > 0 AND 
                                 i = 2                    @ w2.cases
                 tt-boll.partial WHEN tt-boll.partial > 0 AND 
-                                i = 2                    @ w2.cas-cnt
+                                i = 2                    @ icountpallet
          WITH FRAME bol-mid2.
          DOWN {1} WITH FRAME bol-mid2.
 

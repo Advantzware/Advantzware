@@ -1,27 +1,29 @@
 
-DEF INPUT PARAMETER v-rowid AS ROWID NO-UNDO.
+DEFINE INPUT PARAMETER ipriOeOrd AS ROWID NO-UNDO.
 
 {sys/inc/var.i SHARED}
 
-DEF BUFFER b-oe-ordl FOR oe-ordl.
+DEFINE BUFFER bf-oe-ordl FOR oe-ordl.
+DEFINE BUFFER bf-oe-ord FOR oe-ord.
 
-DEF VAR v-tax-rate AS DEC NO-UNDO.
-DEF VAR v-frt-tax-rate AS DEC NO-UNDO.
-DEF VAR v-fr-tax LIKE oe-ctrl.f-tax INIT NO NO-UNDO.
-DEF VAR v-call-from-jc AS LOG NO-UNDO.
-DEF VAR v-lock-first AS LOG INIT TRUE NO-UNDO.
-DEF VAR v-preptax-rate AS DEC NO-UNDO.
-DEF VAR v-frt-preptax-rate AS DEC NO-UNDO.
-DEF VAR v-tax-amt AS DEC NO-UNDO INIT 0.
-DEF VAR lvdT-cost LIKE oe-ord.t-cost NO-UNDO.
-DEF VAR lvdT-Revenue LIKE oe-ord.t-revenue NO-UNDO.
-DEF VAR lvdTax LIKE oe-ord.tax NO-UNDO.
-DEF VAR lvdT-Weight LIKE oe-ord.t-weight NO-UNDO.
-DEF VAR lvdT-Freight LIKE oe-ord.t-freight NO-UNDO.
+DEFINE VARIABLE dTaxRate            AS DECIMAL NO-UNDO.
+DEFINE VARIABLE dTaxRateFreight     AS DECIMAL NO-UNDO.
+DEFINE VARIABLE lTaxOnFreight       LIKE oe-ctrl.f-tax INIT NO NO-UNDO.
+DEFINE VARIABLE lCalledFromJC       AS LOG     NO-UNDO.
+DEFINE VARIABLE lLockFirst          AS LOG     INIT TRUE NO-UNDO.
+DEFINE VARIABLE dTaxRatePrep        AS DECIMAL NO-UNDO.
+DEFINE VARIABLE dTaxRatePrepFreight AS DECIMAL NO-UNDO.
+DEFINE VARIABLE dTaxCalculated      AS DECIMAL NO-UNDO INIT 0.
+DEFINE VARIABLE dOrderCostNew       LIKE oe-ord.t-cost NO-UNDO.
+DEFINE VARIABLE dOrderRevenueNew    LIKE oe-ord.t-revenue NO-UNDO.
+DEFINE VARIABLE dOrderTaxNew        LIKE oe-ord.tax NO-UNDO.
+DEFINE VARIABLE dOrderWeightNew     LIKE oe-ord.t-weight NO-UNDO.
+DEFINE VARIABLE dOrderFreightNew    LIKE oe-ord.t-freight NO-UNDO.
+DEFINE VARIABLE dOrderRevenueOld    LIKE dOrderRevenueNew NO-UNDO.
+DEFINE VARIABLE dOrderTaxOld        LIKE dOrderTaxNew NO-UNDO.
+DEFINE VARIABLE dOrderBalanceChange AS DECIMAL NO-UNDO.
 
-DEF BUFFER bf-oe-ord FOR oe-ord.
-
-FIND oe-ord WHERE ROWID(oe-ord) EQ v-rowid NO-LOCK NO-ERROR.
+FIND oe-ord WHERE ROWID(oe-ord) EQ ipriOeOrd NO-LOCK NO-ERROR.
 
 /*so cust is not locked when it does not need to be since
   jc-calc only updates cost*/
@@ -30,143 +32,149 @@ IF INDEX(PROGRAM-NAME(1),"jc-calc") > 0 OR
    INDEX(PROGRAM-NAME(3),"jc-calc") > 0 OR
    INDEX(PROGRAM-NAME(4),"jc-calc") > 0 OR
    INDEX(PROGRAM-NAME(5),"jc-calc") > 0 THEN
-   v-call-from-jc = YES.
+    lCalledFromJC = YES.
 
-IF AVAIL oe-ord THEN DO:
+IF AVAILABLE oe-ord THEN 
+DO:
 
-  v-lock-first = YES.
+    lLockFirst = YES.
 
-  FIND FIRST oe-ctrl WHERE oe-ctrl.company EQ oe-ord.company NO-LOCK NO-ERROR.
-  IF AVAIL oe-ctrl THEN v-fr-tax = oe-ctrl.f-tax.
+    FIND FIRST oe-ctrl NO-LOCK 
+        WHERE oe-ctrl.company EQ oe-ord.company 
+        NO-ERROR.
+    IF AVAILABLE oe-ctrl THEN 
+        lTaxOnFreight = oe-ctrl.f-tax.  
 
-  RUN ar/cctaxrt.p (oe-ord.company, oe-ord.tax-gr,
-                    OUTPUT v-tax-rate, OUTPUT v-frt-tax-rate).
+    RUN ar/cctaxrt.p (oe-ord.company, oe-ord.tax-gr, OUTPUT dTaxRate, OUTPUT dTaxRateFreight).
 
-  ASSIGN
-    lvdT-Cost    = 0
-    lvdT-revenue = 0
-    lvdTax       = 0
-    lvdT-Weight  = 0
-    lvdT-Freight = 0.
+    ASSIGN
+        dOrderCostNew    = 0
+        dOrderRevenueNew = 0
+        dOrderTaxNew     = 0
+        dOrderWeightNew  = 0
+        dOrderFreightNew = 0
+        dOrderRevenueOld = 0
+        dOrderTaxOld     = 0
+        dOrderBalanceChange = 0.
 
-  FOR EACH b-oe-ordl OF oe-ord NO-LOCK:
+    /*Recalculate Order line cost*/
+    FOR EACH bf-oe-ordl OF oe-ord NO-LOCK:
 
-    IF b-oe-ordl.t-cost NE b-oe-ordl.cost * (b-oe-ordl.qty / 1000) THEN DO:    
-      FIND oe-ordl WHERE ROWID(oe-ordl) EQ ROWID(b-oe-ordl)
-          EXCLUSIVE NO-ERROR NO-WAIT.
+        IF bf-oe-ordl.t-cost NE bf-oe-ordl.cost * (bf-oe-ordl.qty / 1000) THEN  /*Order Line Cost needs recalculated*/ 
+        DO:    
+            FIND oe-ordl EXCLUSIVE-LOCK 
+                WHERE ROWID(oe-ordl) EQ ROWID(bf-oe-ordl)
+            NO-ERROR NO-WAIT.
       
-      IF NOT AVAIL oe-ordl THEN NEXT.
+            IF NOT AVAILABLE oe-ordl OR LOCKED oe-ordl THEN NEXT.
   
-      oe-ordl.t-cost = oe-ordl.cost * (oe-ordl.qty / 1000).
-    END.
-  END.
+            oe-ordl.t-cost = oe-ordl.cost * (oe-ordl.qty / 1000).
+        END.
+    END.  /*Each bf-oe-ordl for cost recalculation*/
 
-  FOR EACH oe-ordl OF oe-ord NO-LOCK:
-    ASSIGN
-     lvdT-Cost    = lvdT-Cost    + oe-ordl.t-cost
-     lvdT-Revenue = lvdT-Revenue + oe-ordl.t-price
-     lvdT-Weight  = lvdT-Weight  + oe-ordl.t-weight
-     lvdT-Freight = lvdT-Freight + oe-ordl.t-freight.
+    /*Calculate new order totals from standard order lines*/
+    FOR EACH oe-ordl OF oe-ord NO-LOCK:
+        ASSIGN
+            dOrderCostNew    = dOrderCostNew    + oe-ordl.t-cost
+            dOrderRevenueNew = dOrderRevenueNew + oe-ordl.t-price
+            dOrderWeightNew  = dOrderWeightNew  + oe-ordl.t-weight
+            dOrderFreightNew = dOrderFreightNew + oe-ordl.t-freight.
 
-    IF oe-ordl.tax AND v-tax-rate GT 0 THEN DO:
+        IF oe-ordl.tax AND dTaxRate GT 0 THEN 
+        DO:
 
-        RUN ar/calctax2.p (oe-ord.tax-gr,
-                           NO,
-                           oe-ordl.t-price,
-                           oe-ord.company,
-                           oe-ordl.i-no,
-                           OUTPUT v-tax-amt).
+            RUN ar/calctax2.p (oe-ord.tax-gr,
+                NO,
+                oe-ordl.t-price,
+                oe-ord.company,
+                oe-ordl.i-no,
+                OUTPUT dTaxCalculated).
 
-        ASSIGN lvdTax = lvdTax + v-tax-amt.
-/*             ROUND((oe-ordl.t-price * v-tax-rate) / 100,2). */
-    END.
+            ASSIGN 
+                dOrderTaxNew = dOrderTaxNew + dTaxCalculated.
+        END.
       
-  END.
+    END.  /*Each oe-ordl for Order Totals Recalculation*/
 
-  FOR EACH oe-ordm OF oe-ord NO-LOCK
-      WHERE oe-ordm.bill NE "N":
+    /*Add billable misc charges to new order totals*/
+    FOR EACH oe-ordm OF oe-ord NO-LOCK
+        WHERE oe-ordm.bill NE "N":
 
+        ASSIGN
+            dOrderRevenueNew = dOrderRevenueNew + oe-ordm.amt
+            dOrderCostNew    = dOrderCostNew + oe-ordm.cost.
+
+        RUN ar/cctaxrt.p (oe-ord.company, oe-ordm.spare-char-1,
+            OUTPUT dTaxRatePrep, OUTPUT dTaxRatePrepFreight).
+
+        IF oe-ordm.tax AND (dTaxRate > 0 OR dTaxRatePrep > 0) THEN 
+        DO:
+
+            RUN ar/calctax2.p (oe-ord.tax-gr,
+                NO,
+                oe-ordm.amt,
+                oe-ord.company,
+                oe-ordm.ord-i-no,
+                OUTPUT dTaxCalculated).
+
+            ASSIGN 
+                dOrderTaxNew = dOrderTaxNew + dTaxCalculated.
+        END.
+    END.  /*Each oe-ordm that are billable*/
+
+    /*Add commission and freight to new order cost*/
     ASSIGN
-     lvdT-Revenue = lvdT-Revenue + oe-ordm.amt
-     lvdT-Cost    = lvdT-Cost + oe-ordm.cost.
-
-    RUN ar/cctaxrt.p (oe-ord.company, oe-ordm.spare-char-1,
-                    OUTPUT v-preptax-rate, OUTPUT v-frt-preptax-rate).
-
-    IF oe-ordm.tax AND (v-tax-rate > 0 OR v-preptax-rate > 0) THEN DO:
-
-        RUN ar/calctax2.p (oe-ord.tax-gr,
-                           NO,
-                           oe-ordm.amt,
-                           oe-ord.company,
-                           oe-ordm.ord-i-no,
-                           OUTPUT v-tax-amt).
-
-        ASSIGN lvdTax = lvdTax + v-tax-amt.
-    END.
-  END.
-
-  ASSIGN
-   lvdT-Cost = lvdT-Cost + oe-ord.t-comm.
-   lvdT-Cost = lvdT-Cost + lvdT-Freight.
-
-  IF oe-ord.f-bill THEN DO:
-    lvdT-Revenue = lvdT-Revenue + lvdT-Freight.
-
-    IF v-fr-tax THEN
-      lvdTax = lvdTax +
-          ROUND((lvdT-Freight * v-frt-tax-rate) / 100,2).
-  END.
-
-  IF  oe-ord.t-cost     NE lvdT-cost      OR
-      oe-ord.t-revenue  NE lvdT-Revenue   OR
-      oe-ord.tax        NE lvdTax         OR
-      oe-ord.t-weight   NE lvdT-Weight    OR
-      oe-ord.t-freight  NE lvdT-Freight  THEN DO:
+        dOrderCostNew = dOrderCostNew + oe-ord.t-comm
+        dOrderCostNew = dOrderCostNew + dOrderFreightNew
+        .
     
-    FIND bf-oe-ord WHERE ROWID(bf-oe-ord) EQ ROWID(oe-ord)
-      EXCLUSIVE-LOCK.
-    ASSIGN
-       bf-oe-ord.t-cost    = lvdT-cost  
-       bf-oe-ord.t-revenue = lvdT-Revenue  
-       bf-oe-ord.tax       = lvdTax  
-       bf-oe-ord.t-weight  = lvdT-Weight  
-       bf-oe-ord.t-freight = lvdT-Freight  .
-    RELEASE bf-oe-ord.
-  END.
+    /*Add billable freight and corresponding tax to New Order Totals*/
+    IF oe-ord.f-bill THEN 
+    DO:
+        dOrderRevenueNew = dOrderRevenueNew + dOrderFreightNew.
 
+        IF lTaxOnFreight THEN
+            dOrderTaxNew = dOrderTaxNew +
+                ROUND((dOrderFreightNew * dTaxRateFreight) / 100,2).
+    END.
 
-
-  IF oe-ord.cust-no NE "" AND
-     v-call-from-jc EQ NO AND
-     AVAIL cust AND 
-     (oe-ord.t-revenue NE lvdT-Revenue OR oe-ord.tax NE lvdTax) THEN
-     DO:
-        REPEAT:
-       
-           FIND FIRST cust
-                {sys/ref/custW.i}
-                AND cust.cust-no EQ oe-ord.cust-no
-                EXCLUSIVE-LOCK NO-ERROR NO-WAIT.
-       
-           IF AVAIL cust THEN
-           DO:
-              cust.ord-bal = cust.ord-bal - oe-ord.t-revenue - oe-ord.tax.
-              cust.ord-bal = cust.ord-bal + lvdT-Revenue + lvdTax.
-              FIND CURRENT cust NO-LOCK.
-              LEAVE.
-           END.
-       
-           IF v-lock-first THEN
-           DO:
-              /*MESSAGE "Customer record in use, waiting for release..."
-                  VIEW-AS ALERT-BOX ERROR BUTTONS OK.*/
-       
-              session:set-wait-state("General").
-              v-lock-first = NO.
-           END.
-        END. /* Repeat */
-
-        session:set-wait-state("").
-     END. /* avail cust */
+    /*Assign new order totals*/    
+    IF  oe-ord.t-cost     NE dOrderCostNew      OR
+        oe-ord.t-revenue  NE dOrderRevenueNew   OR
+        oe-ord.tax        NE dOrderTaxNew         OR
+        oe-ord.t-weight   NE dOrderWeightNew    OR
+        oe-ord.t-freight  NE dOrderFreightNew  THEN 
+    DO:
+        ASSIGN 
+            dOrderRevenueOld = oe-ord.t-revenue
+            dOrderTaxOld = oe-ord.tax
+            .
+        FIND bf-oe-ord WHERE ROWID(bf-oe-ord) EQ ROWID(oe-ord)
+            EXCLUSIVE-LOCK.
+        ASSIGN
+            bf-oe-ord.t-cost    = dOrderCostNew  
+            bf-oe-ord.t-revenue = dOrderRevenueNew  
+            bf-oe-ord.tax       = dOrderTaxNew  
+            bf-oe-ord.t-weight  = dOrderWeightNew  
+            bf-oe-ord.t-freight = dOrderFreightNew  .
+        RELEASE bf-oe-ord.
+         dOrderBalanceChange = dOrderRevenueNew - dOrderRevenueOld + dOrderTaxNew - dOrderTaxOld.
+    END.
+    
+    /*Update customer order balance*/
+    IF oe-ord.cust-no NE "" 
+        AND lCalledFromJC EQ NO 
+        AND dOrderBalanceChange NE 0 THEN
+    DO:
+        FIND FIRST cust EXCLUSIVE-LOCK 
+            WHERE cust.company EQ oe-ord.company
+            AND cust.cust-no EQ oe-ord.cust-no
+            NO-ERROR.
+   
+        IF AVAILABLE cust THEN
+        DO:
+            cust.ord-bal = cust.ord-bal + dOrderBalanceChange.
+            FIND CURRENT cust NO-LOCK.
+        END.
+    END. /* avail cust */
 END. /* if avail oe-ord */

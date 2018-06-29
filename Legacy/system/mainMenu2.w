@@ -131,6 +131,9 @@ DEFINE VARIABLE iFrameBGColor     AS INTEGER   NO-UNDO INITIAL {&BGColor}.
 DEFINE VARIABLE iFrameFGColor     AS INTEGER   NO-UNDO INITIAL {&FGColor}.
 DEFINE VARIABLE iRectangleBGColor AS INTEGER   NO-UNDO INITIAL {&BGColor}.
 DEFINE VARIABLE iRectangleFGColor AS INTEGER   NO-UNDO INITIAL {&FGColor}.
+DEFINE VARIABLE cCEMenu           AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cBitMap           AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lFound            AS LOGICAL   NO-UNDO.
 
 ASSIGN
     g_company = ""
@@ -316,12 +319,12 @@ DEFINE FRAME FRAME-USER
      loc_loc AT ROW 1.71 COL 76 COLON-ALIGNED NO-LABEL
      users_user_id AT ROW 1.71 COL 117 COLON-ALIGNED NO-LABEL
      Mnemonic AT ROW 1.71 COL 141 COLON-ALIGNED NO-LABEL WIDGET-ID 2
+     "Company:" VIEW-AS TEXT
+          SIZE 10 BY .62 AT ROW 1.71 COL 4
      "Location:" VIEW-AS TEXT
           SIZE 9 BY .62 AT ROW 1.71 COL 68
      "User ID:" VIEW-AS TEXT
           SIZE 8 BY .62 AT ROW 1.71 COL 110
-     "Company:" VIEW-AS TEXT
-          SIZE 10 BY .62 AT ROW 1.71 COL 4
      boxes AT ROW 8.86 COL 52
      menu-image AT ROW 3.86 COL 53
      RECT-2 AT ROW 1 COL 1
@@ -727,21 +730,11 @@ MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
     RUN pGetUserSettings.
-    FIND FIRST sys-ctrl NO-LOCK
-         WHERE sys-ctrl.company EQ g_company
-           AND sys-ctrl.name    EQ "bitmap"
-         NO-ERROR.
-    IF NOT AVAILABLE sys-ctrl THEN
-    DO TRANSACTION:
-        CREATE sys-ctrl.
-        ASSIGN
-            sys-ctrl.company = g_company
-            sys-ctrl.name    = "bitmap"
-            sys-ctrl.descrip = "Graphics\bigboxes"
-            .
-    END.
-    IF AVAILABLE sys-ctrl AND sys-ctrl.descrip NE "" THEN
-        boxes:LOAD-IMAGE(sys-ctrl.descrip).
+    RUN sys/ref/nk1look.p (
+        g_company,"BitMap","DS",NO,NO,"","",
+        OUTPUT cBitMap,OUTPUT lFound
+        ).
+    IF lFound AND cBitMap NE "" THEN boxes:LOAD-IMAGE(cBitMap).
     {methods/mainmenu.i}
     hFocus = svFocus:HANDLE.
     RUN pInit.
@@ -888,7 +881,6 @@ PROCEDURE pCreateEditor :
             HEIGHT = ipdHeight - .34
             FGCOLOR = ipiFGColor
             BGCOLOR = ipiBGColor
-            FONT = ipiFont
             SCROLLBAR-HORIZONTAL = NO
             SCROLLBAR-VERTICAL = NO
             WORD-WRAP = YES
@@ -1024,7 +1016,7 @@ PROCEDURE pCreateMenuObjects :
         dObjectRow = dObjectRow + dObjectHeight + {&objectGap}.       
     END. /* each ttblItem */
     FRAME {&FRAME-NAME}:HIDDEN = NO.
-    
+
     RUN LockWindowUpdate (0,OUTPUT i).
     SESSION:SET-WAIT-STATE("").
 
@@ -1289,7 +1281,7 @@ PROCEDURE pGetUserSettings :
     IF iLanguage LT 1 THEN iLanguage = 1.
     IF iMenuSize LT 1 THEN iMenuSize = 1.
     cLabelLanguage = ENTRY(iLanguage,cLanguageList).
-    
+
     FIND FIRST prgrms NO-LOCK
          WHERE prgrms.prgmname EQ "mainmenu2."
          NO-ERROR.
@@ -1364,17 +1356,25 @@ PROCEDURE pInit :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    DEFINE VARIABLE cMenuExt AS CHARACTER NO-UNDO INITIAL "lst".
-    DEFINE VARIABLE idx      AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE cMenuExt      AS CHARACTER NO-UNDO INITIAL "lst".
+    DEFINE VARIABLE cNK1Value     AS CHARACTER NO-UNDO EXTENT 4.
+    DEFINE VARIABLE idx           AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE lFound        AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE hWebService   AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE hSalesSoap    AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE cVersion      AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cHelpService  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE hPgmMstrSecur AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE lAdmin        AS LOGICAL   NO-UNDO.
     
-    FIND FIRST sys-ctrl NO-LOCK
-        WHERE sys-ctrl.company EQ g_company
-          AND sys-ctrl.name    EQ "CEMENU"
-        NO-ERROR.
-    IF AVAILABLE sys-ctrl THEN
-        IF sys-ctrl.char-fld EQ "Corrware" THEN cMenuExt = "cor".
+    RUN sys/ref/nk1look.p (
+        g_company,"CEMenu","C",NO,NO,"","",
+        OUTPUT cCEMenu,OUTPUT lFound
+        ).
+    IF lFound THEN
+        IF cCEMenu EQ "CorrWare" THEN cMenuExt = "cor".
         ELSE
-        IF sys-ctrl.char-fld EQ "Foldware" THEN cMenuExt = "fol".
+            IF cCEMenu EQ "Foldware" THEN cMenuExt = "fol".
 
     CASE iMenuSize:
         WHEN 1 THEN
@@ -1397,54 +1397,61 @@ PROCEDURE pInit :
     RUN pImages.
     
     DO WITH FRAME {&FRAME-NAME}:
-        FIND FIRST sys-ctrl NO-LOCK
-             WHERE sys-ctrl.company EQ g_company
-               AND sys-ctrl.name    EQ "MENULINKASI"
-             NO-ERROR.
-        IF NOT AVAILABLE sys-ctrl THEN DO TRANSACTION:
-            CREATE sys-ctrl.
+        RUN sys/ref/nk1look.p (
+            g_company,"MENULINKASI","C",NO,NO,"","",
+            OUTPUT cNK1Value[1],OUTPUT lFound
+            ).
+        RUN sys/ref/nk1look.p (
+            g_company,"MENULINKASI","DS",NO,NO,"","",
+            OUTPUT cNK1Value[2],OUTPUT lFound
+            ).
+        RUN sys/ref/nk1look.p (
+            g_company,"MENULINKASI","I",NO,NO,"","",
+            OUTPUT cNK1Value[3],OUTPUT lFound
+            ).
+        RUN sys/ref/nk1look.p (
+            g_company,"MENULINKASI","L",NO,NO,"","",
+            OUTPUT cNK1Value[4],OUTPUT lFound
+            ).
+        IF SEARCH(cNK1Value[1]) NE ? AND
+           cNK1Value[2] NE "" THEN DO:
             ASSIGN
-                sys-ctrl.company = g_company
-                sys-ctrl.name = "MENULINKASI"
-                sys-ctrl.descrip = "http://www.advantzware.com"
-                sys-ctrl.char-fld = "Graphics\asiicon.ico"
-                .
-        END. /* not avail */
-        IF SEARCH(sys-ctrl.char-fld) NE ? AND
-           sys-ctrl.descrip NE "" THEN DO:
-            ASSIGN
-                menuLinkASI:PRIVATE-DATA   = sys-ctrl.descrip
+                menuLinkASI:PRIVATE-DATA   = cNK1Value[2]
                 menuLinkASI:HIDDEN         = NO
                 menuLinkASI:SENSITIVE      = YES
-                menuLinkASI:STRETCH-TO-FIT = sys-ctrl.log-fld
-                menuLinkASI:TRANSPARENT    = sys-ctrl.int-fld EQ 1
+                menuLinkASI:STRETCH-TO-FIT = cNK1Value[4] EQ "YES"
+                menuLinkASI:TRANSPARENT    = cNK1Value[3] EQ "1"
                 .
-            menuLinkASI:LOAD-IMAGE(SEARCH(sys-ctrl.char-fld)).
+            menuLinkASI:LOAD-IMAGE(SEARCH(cNK1Value[1])).
         END. /* if avail */
-        FIND FIRST sys-ctrl NO-LOCK
-             WHERE sys-ctrl.company EQ g_company
-               AND sys-ctrl.name    EQ "MENULINKZOHO"
-             NO-ERROR.
-        IF NOT AVAILABLE sys-ctrl THEN DO TRANSACTION:
-            CREATE sys-ctrl.
+        RUN sys/ref/nk1look.p (
+            g_company,"MENULINKZOHO","C",NO,NO,"","",
+            OUTPUT cNK1Value[1],OUTPUT lFound
+            ).
+        RUN sys/ref/nk1look.p (
+            g_company,"MENULINKZOHO","DS",NO,NO,"","",
+            OUTPUT cNK1Value[2],OUTPUT lFound
+            ).
+        RUN sys/ref/nk1look.p (
+            g_company,"MENULINKZOHO","I",NO,NO,"","",
+            OUTPUT cNK1Value[3],OUTPUT lFound
+            ).
+        RUN sys/ref/nk1look.p (
+            g_company,"MENULINKZOHO","L",NO,NO,"","",
+            OUTPUT cNK1Value[4],OUTPUT lFound
+            ).
+        IF SEARCH(cNK1Value[1]) NE ? AND
+           cNK1Value[2] NE "" THEN DO:
             ASSIGN
-                sys-ctrl.company = g_company
-                sys-ctrl.name = "MENULINKZOHO"
-                sys-ctrl.descrip = "https://support.zoho.com/portal/advantzware/kb"
-                sys-ctrl.char-fld = "Graphics\32x32\question.ico"
-                .
-        END. /* not avail */
-        IF SEARCH(sys-ctrl.char-fld) NE ? AND
-           sys-ctrl.descrip NE "" THEN DO:
-            ASSIGN
-                menuLinkZoHo:PRIVATE-DATA   = sys-ctrl.descrip
+                menuLinkZoHo:PRIVATE-DATA   = cNK1Value[2]
                 menuLinkZoHo:HIDDEN         = NO
                 menuLinkZoHo:SENSITIVE      = YES
-                menuLinkZoHo:STRETCH-TO-FIT = sys-ctrl.log-fld
-                menuLinkZoHo:TRANSPARENT    = sys-ctrl.int-fld EQ 1
+                menuLinkZoHo:STRETCH-TO-FIT = cNK1Value[4] EQ "YES"
+                menuLinkZoHo:TRANSPARENT    = cNK1Value[3] EQ "1"
                 .
-            menuLinkZoHo:LOAD-IMAGE(SEARCH(sys-ctrl.char-fld)).
+            menuLinkZoHo:LOAD-IMAGE(SEARCH(cNK1Value[1])).
         END. /* if avail */
+
         ASSIGN
             hMenuLink[1] = menuLink-1:HANDLE IN FRAME {&FRAME-NAME}
             hMenuLink[2] = menuLink-2:HANDLE
@@ -1456,30 +1463,86 @@ PROCEDURE pInit :
             hMenuLink[8] = menuLink-8:HANDLE
             .
         DO idx = 1 TO EXTENT(hMenuLink):
-            FIND FIRST sys-ctrl NO-LOCK
-                 WHERE sys-ctrl.company EQ g_company
-                   AND sys-ctrl.name    EQ "MENULINK" + STRING(idx)
-                 NO-ERROR.
-            IF NOT AVAILABLE sys-ctrl THEN DO TRANSACTION:
-                CREATE sys-ctrl.
-                ASSIGN 
-                    sys-ctrl.company = g_company
-                    sys-ctrl.name    = "MENULINK" + STRING(idx)
-                    .
-            END. /* not avail */
-            IF SEARCH(sys-ctrl.char-fld) NE ? AND
-               sys-ctrl.descrip NE "" THEN DO:
+            RUN sys/ref/nk1look.p (
+                g_company,"MENULINK" + STRING(idx),"C",NO,NO,"","",
+                OUTPUT cNK1Value[1],OUTPUT lFound
+                ).
+            RUN sys/ref/nk1look.p (
+                g_company,"MENULINK" + STRING(idx),"DS",NO,NO,"","",
+                OUTPUT cNK1Value[2],OUTPUT lFound
+                ).
+            RUN sys/ref/nk1look.p (
+                g_company,"MENULINK" + STRING(idx),"I",NO,NO,"","",
+                OUTPUT cNK1Value[3],OUTPUT lFound
+                ).
+            RUN sys/ref/nk1look.p (
+                g_company,"MENULINK" + STRING(idx),"L",NO,NO,"","",
+                OUTPUT cNK1Value[4],OUTPUT lFound
+                ).
+            IF SEARCH(cNK1Value[1]) NE ? AND
+               cNK1Value[2] NE "" THEN DO:
                 ASSIGN
-                    hMenuLink[idx]:PRIVATE-DATA   = sys-ctrl.descrip
+                    hMenuLink[idx]:PRIVATE-DATA   = cNK1Value[2]
                     hMenuLink[idx]:HIDDEN         = NO
                     hMenuLink[idx]:SENSITIVE      = YES
-                    hMenuLink[idx]:STRETCH-TO-FIT = sys-ctrl.log-fld
-                    hMenuLink[idx]:TOOLTIP        = sys-ctrl.descrip
-                    hMenuLink[idx]:TRANSPARENT    = sys-ctrl.int-fld EQ 1
+                    hMenuLink[idx]:STRETCH-TO-FIT = cNK1Value[4] EQ "YES"
+                    hMenuLink[idx]:TOOLTIP        = cNK1Value[2]
+                    hMenuLink[idx]:TRANSPARENT    = cNK1Value[3] EQ "1"
                     .
-                hMenuLink[idx]:LOAD-IMAGE(SEARCH(sys-ctrl.char-fld)).                
-            END. /* if avail */
+                hMenuLink[idx]:LOAD-IMAGE(SEARCH(cNK1Value[1])).
+            END. /* if search */
         END. /* do idx */
+        /* check if upgrade available */
+        IF NOT VALID-HANDLE(hPgmMstrSecur) THEN
+        RUN system/PgmMstrSecur.p PERSISTENT SET hPgmMstrSecur.
+        IF VALID-HANDLE(hPgmMstrSecur) THEN
+        RUN epCanAccess IN hPgmMstrSecur (
+            "system/mainMenu.w",
+            "",
+            OUTPUT lAdmin 
+            ).
+        IF lAdmin THEN DO:
+            RUN sys/ref/nk1look.p (
+                g_company,"AsiHelpService","C",NO,NO,"","",
+                OUTPUT cHelpService,OUTPUT lFound
+                ).
+            CREATE SERVER hWebService.
+            hWebService:CONNECT(cHelpService) NO-ERROR.
+            IF hWebService:CONNECTED() THEN DO:
+                RUN Service1Soap SET hSalesSoap ON hWebService .
+                RUN HelpVersion IN hSalesSoap (OUTPUT cVersion).
+                IF "{&awversion}" NE cVersion THEN DO:
+                    RUN sys/ref/nk1look.p (
+                        g_company,"MENULINKUPGRADE","C",NO,NO,"","",
+                        OUTPUT cNK1Value[1],OUTPUT lFound
+                        ).
+                    RUN sys/ref/nk1look.p (
+                        g_company,"MENULINKUPGRADE","DS",NO,NO,"","",
+                        OUTPUT cNK1Value[2],OUTPUT lFound
+                        ).
+                    RUN sys/ref/nk1look.p (
+                        g_company,"MENULINKUPGRADE","I",NO,NO,"","",
+                        OUTPUT cNK1Value[3],OUTPUT lFound
+                        ).
+                    RUN sys/ref/nk1look.p (
+                        g_company,"MENULINKUPGRADE","L",NO,NO,"","",
+                        OUTPUT cNK1Value[4],OUTPUT lFound
+                        ).
+                    IF SEARCH(cNK1Value[1]) NE ? AND
+                       cNK1Value[2] NE "" THEN DO:
+                        ASSIGN
+                            menuLinkZoHo:PRIVATE-DATA   = cNK1Value[2]
+                            menuLinkZoHo:HIDDEN         = NO
+                            menuLinkZoHo:SENSITIVE      = YES
+                            menuLinkZoHo:STRETCH-TO-FIT = cNK1Value[4] EQ "YES"
+                            menuLinkZoHo:TRANSPARENT    = cNK1Value[3] EQ "1"
+                            menuLinkZoHo:TOOLTIP        = "Version " + cVersion + " Upgrade Available"
+                            .
+                        menuLinkZoHo:LOAD-IMAGE(SEARCH(cNK1Value[1])).
+                    END. /* if avail */
+                END. /* different version */
+            END. /* if connected */
+        END. /* if user admin */
     END. /* with frame */
     
     DO WITH FRAME {&FRAME-NAME}:
@@ -1700,21 +1763,11 @@ PROCEDURE Set-comp_loc :
             g_loc                     = ipcLoc
             .
     END.
-    FIND FIRST sys-ctrl
-         WHERE sys-ctrl.company EQ g_company
-           AND sys-ctrl.NAME    EQ "bitmap"
-         NO-ERROR.
-    IF NOT AVAILABLE sys-ctrl THEN
-    DO TRANSACTION:
-        CREATE sys-ctrl.
-        ASSIGN
-            sys-ctrl.company = g_company
-            sys-ctrl.name    = "bitmap"
-            sys-ctrl.descrip = "Graphics\bigboxes"
-            .
-    END.
-    IF AVAILABLE sys-ctrl AND sys-ctrl.descrip<> "" THEN
-    boxes:LOAD-IMAGE(sys-ctrl.descrip).
+    RUN sys/ref/nk1look.p (
+        g_company,"BitMap","DS",NO,NO,"","",
+        OUTPUT cBitMap,OUTPUT lFound
+        ).
+    IF lFound AND cBitMap NE "" THEN boxes:LOAD-IMAGE(cBitMap).
 
 END PROCEDURE.
 

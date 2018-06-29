@@ -55,13 +55,13 @@ DEF VAR cTextListToDefault AS cha NO-UNDO.
 ASSIGN cTextListToSelect = "CUSTOMER,JOB#,S,B,DIE#,Plate#,DUE DATE,COMPLETION DATE,STYLE," +
                            "QTY GLUING,SHEETED,PRINTED,DIE CUT,GLUED,GLUE HRS,ORD MFG DATE,RELEASE DATE," +
                            "ORDER #,ORDER DATE,FG ITEM#,PO#,PRIMARY CONTACT,CSR,SALES REP,SALES REP NAME,CONTACT NAME," +            
-                           "FG CATEGORY,SHIP TO"
+                           "FG CATEGORY,SHIP TO,WAREHOUSE"
        cFieldListToSelect = "cust,job,frm,blnk,die,palt,due-dt,comp-dt,styl," +
                             "qty-glu,sht,prntd,die-cut,glue,glu-hrs,mfg-date,rel-date," +
                             "order-no,ord-date,fg-item,po-no,pri-contact,csr,sales-rep,rep-name,contact-name," +
-                            "fg-cat,shipto"
-       cFieldLength = "8,10,1,1,20,15,10,15,7," + "13,7,7,7,5,14,11,12," + "7,10,15,15,25,8,9,20,30," + "11,8" 
-       cFieldType = "c,c,c,c,c,c,c,c,c," + "i,i,i,i,i,i,c,c," + "c,c,c,c,c,c,c,c,c," + "c,c"
+                            "fg-cat,shipto,loc"
+       cFieldLength = "8,10,1,1,20,15,10,15,7," + "13,7,7,7,5,14,11,12," + "7,10,15,15,25,8,9,20,30," + "11,8,9" 
+       cFieldType = "c,c,c,c,c,c,c,c,c," + "i,i,i,i,i,i,c,c," + "c,c,c,c,c,c,c,c,c," + "c,c,c"
     .
 
 {sys/inc/ttRptSel.i}
@@ -1665,6 +1665,7 @@ SESSION:SET-WAIT-STATE ("general").
                          WHEN "rep-name"     THEN cVarValue =   STRING(cSalesRep,"x(20)")   .
                          WHEN "contact-name" THEN cVarValue =   IF AVAILABLE cust THEN STRING(cust.contact,"x(30)") ELSE ""   .
                          WHEN "fg-cat"       THEN cVarValue =   IF AVAIL oe-ordl AND avail itemfg THEN STRING(itemfg.procat,"x(11)") ELSE ""    .
+                         WHEN "loc"       THEN cVarValue =   IF AVAIL oe-ordl AND avail itemfg THEN STRING(itemfg.def-loc,"x(9)") ELSE ""    .
                          WHEN "shipto"       THEN cVarValue =    STRING(cShipTo,"x(8)")   .
 
                     END CASE.  

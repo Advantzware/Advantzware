@@ -45,6 +45,7 @@ DEFINE TEMP-TABLE ttImportCust
     FIELD ShipZip      AS CHARACTER FORMAT "X(10)" COLUMN-LABEL "ShipTo Zip" HELP "Optional - Size:10"  
     FIELD Contact      AS CHARACTER FORMAT "X(25)" COLUMN-LABEL "Contact Name" HELP "Optional - Size:25"  
     FIELD DateAdded    AS CHARACTER FORMAT "X(8)" COLUMN-LABEL "Date Added" HELP "Optional - Date"  
+    FIELD CSRUser      AS CHARACTER FORMAT "X(10)" COLUMN-LABEL "CSR" HELP "Optional - Size:10"  
     .
 
 DEFINE VARIABLE giIndexOffset AS INTEGER NO-UNDO INIT 2. /*Set to 1 if there is a Company field in temp-table since this will not be part of the mport data*/
@@ -152,7 +153,9 @@ PROCEDURE pValidate PRIVATE:
         IF oplValid AND ipbf-ttImportCust.Terms NE "" THEN 
             RUN pIsValidTerms IN hdValidator (ipbf-ttImportCust.Terms, NO, ipbf-ttImportCust.Company, OUTPUT oplValid, OUTPUT cValidNote).
         IF oplValid AND ipbf-ttImportCust.ShipState NE "" THEN 
-            RUN pIsValidState IN hdValidator (ipbf-ttImportCust.ShipState, NO, OUTPUT oplValid, OUTPUT cValidNote).    
+            RUN pIsValidState IN hdValidator (ipbf-ttImportCust.ShipState, NO, OUTPUT oplValid, OUTPUT cValidNote).  
+        IF oplValid AND ipbf-ttImportCust.CSRUser NE "" THEN 
+            RUN pIsValidUserId IN hdValidator (ipbf-ttImportCust.CSRUser, NO, OUTPUT oplValid, OUTPUT cValidNote).    
     END.
     IF NOT oplValid AND cValidNote NE "" THEN opcNote = cValidNote.
     
@@ -195,13 +198,14 @@ PROCEDURE pProcessRecord PRIVATE:
     RUN pAssignValueC (ipbf-ttImportCust.CustFax, iplIgnoreBlanks, INPUT-OUTPUT cust.fax).
     RUN pAssignValueD (ipbf-ttImportCust.CreditLimit, iplIgnoreBlanks, INPUT-OUTPUT cust.cr-lim).
     RUN pAssignValueC (ipbf-ttImportCust.CustStatus, YES, INPUT-OUTPUT cust.active).
-    RUN pAssignValueCToL (ipbf-ttImportCust.CreditHold, iplIgnoreBlanks, INPUT-OUTPUT cust.cr-hold).
+    RUN pAssignValueCToL (ipbf-ttImportCust.CreditHold, iplIgnoreBlanks,YES, INPUT-OUTPUT cust.cr-hold).
     RUN pAssignValueC (ipbf-ttImportCust.CustType, YES, INPUT-OUTPUT cust.type).
     RUN pAssignValueC (ipbf-ttImportCust.Terms, YES, INPUT-OUTPUT cust.terms).
     RUN pAssignValueC (ipbf-ttImportCust.FedID, iplIgnoreBlanks, INPUT-OUTPUT cust.tax-id).
-    RUN pAssignValueC (ipbf-ttImportCust.Contact, iplIgnoreBlanks, INPUT-OUTPUT cust.contact).
-    RUN pAssignValueDate (ipbf-ttImportCust.DateAdded, YES, INPUT-OUTPUT cust.date-field).
-        
+    RUN pAssignValueC (ipbf-ttImportCust.Contact, iplIgnoreBlanks, INPUT-OUTPUT cust.contact). 
+    /*RUN pAssignValueDate (DATETIME(ipbf-ttImportCust.DateAdded), YES, INPUT-OUTPUT datetime(cust.date-field)).*/
+    RUN pAssignValueC (ipbf-ttImportCust.CSRUser, YES, INPUT-OUTPUT cust.csrUser_id).
+     ASSIGN cust.date-field =  DATE(ipbf-ttImportCust.DateAdded) .  
     FIND FIRST shipto EXCLUSIVE-LOCK 
         WHERE shipto.company EQ cust.company
         AND shipto.cust-no EQ cust.cust-no
