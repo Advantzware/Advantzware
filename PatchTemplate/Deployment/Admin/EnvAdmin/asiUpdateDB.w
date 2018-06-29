@@ -471,31 +471,31 @@ DEFINE FRAME DEFAULT-FRAME
      bProcess AT ROW 12.43 COL 111 WIDGET-ID 404
      "This program will automatically close when completed." VIEW-AS TEXT
           SIZE 52 BY .62 AT ROW 14.57 COL 65 WIDGET-ID 576
-     "~"not responding~" message in the title bar~;" VIEW-AS TEXT
-          SIZE 41 BY .62 AT ROW 13.14 COL 65 WIDGET-ID 572
      "Because of the age of your database, we" VIEW-AS TEXT
           SIZE 41 BY .62 AT ROW 8.86 COL 65 WIDGET-ID 560
-     "changes to the database.  You may see a" VIEW-AS TEXT
-          SIZE 41 BY .62 AT ROW 12.43 COL 65 WIDGET-ID 570
-     " General Variables" VIEW-AS TEXT
-          SIZE 22 BY .62 AT ROW 1.48 COL 8 WIDGET-ID 356
+     "This is expected, and can be ignored." VIEW-AS TEXT
+          SIZE 41 BY .62 AT ROW 13.86 COL 65 WIDGET-ID 574
+     "have to make some changes ~"under the" VIEW-AS TEXT
+          SIZE 41 BY .62 AT ROW 9.57 COL 65 WIDGET-ID 562
+     "hood.~"  We're going to back up the DB" VIEW-AS TEXT
+          SIZE 41 BY .62 AT ROW 10.29 COL 65 WIDGET-ID 564
+     "before we start, just to be sure nothing goes" VIEW-AS TEXT
+          SIZE 43 BY .62 AT ROW 11 COL 65 WIDGET-ID 566
+     "unexpectedly.  Then, we will apply some" VIEW-AS TEXT
+          SIZE 41 BY .62 AT ROW 11.71 COL 65 WIDGET-ID 568
+     " Databases" VIEW-AS TEXT
+          SIZE 15 BY .62 AT ROW 9.1 COL 9 WIDGET-ID 482
           FONT 6
      " Your Directory Structure" VIEW-AS TEXT
           SIZE 30 BY .62 AT ROW 1.48 COL 107 WIDGET-ID 558
           FONT 6
-     " Databases" VIEW-AS TEXT
-          SIZE 15 BY .62 AT ROW 9.1 COL 9 WIDGET-ID 482
+     " General Variables" VIEW-AS TEXT
+          SIZE 22 BY .62 AT ROW 1.48 COL 8 WIDGET-ID 356
           FONT 6
-     "unexpectedly.  Then, we will apply some" VIEW-AS TEXT
-          SIZE 41 BY .62 AT ROW 11.71 COL 65 WIDGET-ID 568
-     "before we start, just to be sure nothing goes" VIEW-AS TEXT
-          SIZE 43 BY .62 AT ROW 11 COL 65 WIDGET-ID 566
-     "hood.~"  We're going to back up the DB" VIEW-AS TEXT
-          SIZE 41 BY .62 AT ROW 10.29 COL 65 WIDGET-ID 564
-     "have to make some changes ~"under the" VIEW-AS TEXT
-          SIZE 41 BY .62 AT ROW 9.57 COL 65 WIDGET-ID 562
-     "This is expected, and can be ignored." VIEW-AS TEXT
-          SIZE 41 BY .62 AT ROW 13.86 COL 65 WIDGET-ID 574
+     "changes to the database.  You may see a" VIEW-AS TEXT
+          SIZE 41 BY .62 AT ROW 12.43 COL 65 WIDGET-ID 570
+     "~"not responding~" message in the title bar~;" VIEW-AS TEXT
+          SIZE 41 BY .62 AT ROW 13.14 COL 65 WIDGET-ID 572
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
@@ -1565,6 +1565,8 @@ PROCEDURE ipUpdateTTIniFile :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+    RUN ipStatus ("Update ttIniFile").
+
     FOR EACH ttIniFile:
         CASE ttIniFile.cVarName:
             WHEN "siteName" THEN ASSIGN ttIniFile.cVarValue = fiSiteName:{&SV}.
@@ -1589,6 +1591,119 @@ PROCEDURE ipUpdateTTIniFile :
             WHEN "deltaFileName" THEN ASSIGN ttIniFile.cVarValue = fiDeltaFileName:{&SV}.
         END CASE.
     END.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipUpgradeAudit C-Win 
+PROCEDURE ipUpgradeAudit :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEF VAR cStopString AS CHAR NO-UNDO.
+    DEF VAR cStartString AS CHAR NO-UNDO.
+    DEF VAR cStatement AS CHAR NO-UNDO.
+    DEF VAR cDeltaDf AS CHAR NO-UNDO.
+    DEF VAR cLockFile AS CHAR NO-UNDO.
+    DEF VAR cNewList AS CHAR NO-UNDO.
+    DEF VAR cNewSel AS CHAR NO-UNDO.
+    DEF VAR cThisEntry AS CHAR NO-UNDO.
+    DEF VAR cReplEntry AS CHAR NO-UNDO.
+
+    RUN ipStatus ("Upgrade audit database").
+
+        ASSIGN
+            cThisEntry = ENTRY(iCtr,slDatabases:{&SV})
+            iListEntry = LOOKUP(cThisEntry,slDatabases:LIST-ITEMS).          
+
+        IF DECIMAL(ENTRY(4,ENTRY(iCtr,slDatabases:{&SV}),"-")) * 10 LT iDbTgtVer THEN DO:
+            /*
+            MESSAGE 
+                "Database " + ENTRY(2,ENTRY(iCtr,slDatabases:{&SV}),"-") + " is currently at version " +
+                STRING(DECIMAL(ENTRY(4,ENTRY(iCtr,slDatabases:{&SV}),"-"))) + "." SKIP
+                "You are about to upgrade it to version " + STRING(iDbTgtVer / 10) + "." SKIP
+                "Is this correct?" VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO UPDATE lUpdNow AS LOG.
+            IF lUpdNow THEN */
+            DO:
+                RUN ipBackupDBs (ENTRY(iCtr,slDatabases:{&SV})).
+                RUN ipStatus ("Upgrading " + ENTRY(2,ENTRY(iCtr,slDatabases:{&SV}),"-")).
+                ASSIGN
+                    /* This results in a value similar to 'asi166_167.df' */
+                    cDeltaDf = "asi" + 
+                               STRING(DECIMAL(ENTRY(4,ENTRY(iCtr,slDatabases:{&SV}),"-")) * 10) +
+                               "_" + STRING(iDbTgtVer) + ".df"
+                    /* This fully qualifies the path name to the delta */
+                    cDeltaDf = fiDrive:{&SV} + "\" + fiTopDir:{&SV} + "\" +
+                               fiUpdatesDir:{&SV} + "\" + fiPatchDir:{&SV} + "\" +
+                               "StructureUpdate\DFFiles\" + cDeltaDf
+                    cStopString = fiDlcDir:{&SV} + "\bin\dbman" + 
+                                 " -host " + fiHostName:{&SV} + 
+                                 " -port " + cAdminPort + 
+                                 " -database " + ENTRY(2,ENTRY(iCtr,slDatabases:{&SV}),"-") + 
+                                 " -stop"
+                    cStartString = fiDlcDir:{&SV} + "\bin\dbman" + 
+                                 " -host " + fiHostName:{&SV} + 
+                                 " -port " + cAdminPort + 
+                                 " -database " + ENTRY(2,ENTRY(iCtr,slDatabases:{&SV}),"-") + 
+                                 " -start"
+                    /* Single user connect statment */
+                    cStatement = "-db " + fiDbDrive:{&SV} + "\" +
+                                 fiTopDir:{&SV} + "\" + fiDbDir:{&SV} + "\" + 
+                                 ENTRY(1,ENTRY(iCtr,slDatabases:{&SV}),"-") + "\" +
+                                 ENTRY(2,ENTRY(iCtr,slDatabases:{&SV}),"-") + 
+                                 " -1 -ld updDB" + STRING(iCtr)
+                    cLockFile = fiDbDrive:{&SV} + "\" +
+                                 fiTopDir:{&SV} + "\" + fiDbDir:{&SV} + "\" + 
+                                 ENTRY(1,ENTRY(iCtr,slDatabases:{&SV}),"-") + "\" +
+                                 ENTRY(2,ENTRY(iCtr,slDatabases:{&SV}),"-") + ".lk".
+                
+                /* Unserve the database */
+                RUN ipStatus ("  Stopping database service").
+                OS-COMMAND SILENT VALUE(cStopString).
+                /* May have to wait for DB to shut down */
+                DO WHILE SEARCH(cLockFile) NE ?:
+                    RUN ipStatus ("  Waiting for removal of lock file").
+                    PAUSE 2 NO-MESSAGE.
+                END.
+                /* Connect to the database single user */
+                RUN ipStatus ("  Connecting single-user mode").
+                CONNECT VALUE(cStatement).
+                RUN ipStatus ("  Creating DICTDB alias").
+                CREATE ALIAS DICTDB FOR DATABASE VALUE("updDB" + STRING(iCtr)).
+                /* Load the delta */
+                RUN ipStatus ("  Loading delta " + STRING(cDeltaDf)).
+                RUN prodict/load_df.p (cDeltaDf). 
+                
+                /* Disconnect it */
+                RUN ipStatus ("  Disconnecting").
+                DISCONNECT VALUE("updDB" + STRING(iCtr)).
+                
+                /* Re-Serve it */
+                RUN ipStatus ("  Serving " + ENTRY(2,ENTRY(iCtr,slDatabases:{&SV}),"-")).
+                OS-COMMAND SILENT VALUE(cStartString).
+                ASSIGN
+                    lSuccess = TRUE
+                    cThisEntry = ENTRY(iCtr,slDatabases:{&SV})
+                    cReplEntry = REPLACE(cThisEntry,
+                                     ("-" + STRING(DECIMAL(ENTRY(4,ENTRY(iCtr,slDatabases:{&SV}),"-")))),
+                                     "-" + STRING(DECIMAL(iDbTgtVer / 10)))
+                    cNewList = REPLACE(slDatabases:LIST-ITEMS,cThisEntry,cReplEntry)
+                    cNewSel = REPLACE(slDatabases:{&SV},cThisEntry,cReplEntry)
+                    slDatabases:list-items = cNewList
+                    slDatabases:{&SV} = cNewSel
+                    cNewList = ""
+                    cNewSel = "".
+            END.
+        END.
+        ELSE MESSAGE
+            "Database " + ENTRY(2,ENTRY(iCtr,slDatabases:{&SV}),"-") + " is already at the current" SKIP
+            "version level.  It should not be updated again"
+            VIEW-AS ALERT-BOX INFO.
+
+                    
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
