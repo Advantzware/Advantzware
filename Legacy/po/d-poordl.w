@@ -3851,7 +3851,7 @@ PROCEDURE enable-disable-size :
         DO:
             FIND item WHERE item.company = g_company AND
                 item.i-no = po-ordl.i-no:SCREEN-VALUE NO-LOCK NO-ERROR.
-            IF AVAILABLE item AND item.i-code = "R" THEN 
+            IF AVAILABLE item AND item.i-code = "R" AND po-ordl.i-no:SCREEN-VALUE NE "" THEN 
             DO:
                 /*IF ITEM.r-wid > 0 AND ITEM.s-len = 0 THEN DISABLE po-ordl.s-wid.
                 ELSE*/ 
