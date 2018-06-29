@@ -2685,7 +2685,8 @@ PROCEDURE create-multi-line :
                 DO:
                     ASSIGN
                         v-wid = b2-job-mat.wid
-                        v-len = b2-job-mat.len.
+                        v-len = b2-job-mat.len
+                        v-dep = b2-job-mat.dep.
       
                     IF v-corr THEN
                     DO:
@@ -3496,9 +3497,9 @@ PROCEDURE display-job-mat :
                     lv-save-b-num                = po-ordl.b-num:SCREEN-VALUE
                     v-len                        = tt-job-mat.len
                     v-wid                        = tt-job-mat.wid
-                    v-dep                        = item.s-dep
+                    v-dep                        = tt-job-mat.dep
                     ld-line-cst                  = tt-job-mat.std-cost.
-          
+                IF v-dep EQ 0 THEN v-dep = item.s-dep.
                 IF tt-job-mat.qty-uom NE po-ordl.pr-qty-uom:SCREEN-VALUE THEN
                     RUN sys/ref/convquom.p (tt-job-mat.qty-uom, po-ordl.pr-qty-uom:SCREEN-VALUE,
                         tt-job-mat.basis-w, v-len, v-wid, v-dep,
