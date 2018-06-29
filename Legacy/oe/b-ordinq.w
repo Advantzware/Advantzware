@@ -208,21 +208,21 @@ ll-initial = browser-log.
 
 /* Definitions for BROWSE Browser-Table                                 */
 &Scoped-define FIELDS-IN-QUERY-Browser-Table oe-ordl.ord-no oe-ordl.cust-no ~
-getRS() @ lc-rs getMI() @ lc-mi getStat() @ cStatus oe-ord.ord-date ~
-oe-ordl.req-date oe-ord.cust-name oe-ordl.i-no oe-ordl.part-no ~
-oe-ordl.po-no oe-ordl.lot-no oe-ordl.est-no oe-ordl.job-no oe-ordl.job-no2 ~
-itemfg.cad-no oe-ordl.qty get-prod(li-bal) @ li-prod oe-ordl.ship-qty ~
-get-xfer-qty () @ ld-xfer-qty oe-ordl.inv-qty get-bal(li-qoh) @ li-bal ~
-get-act-rel-qty() @ li-act-rel-qty get-wip() @ li-wip ~
-get-pct(li-bal) @ li-pct get-fgitem() @ lc-fgitem oe-ordl.i-name ~
-oe-ordl.line oe-ordl.po-no-po oe-ordl.e-num oe-ordl.whsed ~
+getRS() @ lc-rs getMI() @ lc-mi getstat() @ cstatus oe-ord.ord-date oe-ordl.req-date ~
+oe-ord.cust-name oe-ordl.i-no oe-ordl.part-no oe-ordl.po-no oe-ordl.lot-no ~
+oe-ordl.est-no oe-ordl.job-no oe-ordl.job-no2 itemfg.cad-no oe-ordl.qty ~
+get-prod(li-bal) @ li-prod oe-ordl.ship-qty get-xfer-qty () @ ld-xfer-qty ~
+oe-ordl.inv-qty get-bal(li-qoh) @ li-bal get-act-rel-qty() @ li-act-rel-qty ~
+get-wip() @ li-wip get-pct(li-bal) @ li-pct get-fgitem() @ lc-fgitem ~
+oe-ordl.i-name oe-ordl.line oe-ordl.po-no-po oe-ordl.e-num oe-ordl.whsed ~
 get-act-bol-qty() @ li-act-bol-qty getTotalReturned() @ dTotQtyRet ~
 getReturnedInv() @ dTotRetInv oe-ordl.s-man[1] ~
-fget-qty-nothand(get-act-rel-qty() + get-act-bol-qty(),li-qoh) @ iHandQtyNoalloc
+fget-qty-nothand(get-act-rel-qty() + get-act-bol-qty(),li-qoh) @ iHandQtyNoalloc ~
+oe-ordl.managed 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table oe-ordl.ord-no ~
-oe-ordl.cust-no oe-ord.ord-date oe-ordl.req-date ~
-oe-ord.cust-name oe-ordl.i-no oe-ordl.part-no oe-ordl.po-no oe-ordl.est-no ~
-oe-ordl.job-no oe-ordl.job-no2 
+oe-ordl.cust-no oe-ord.ord-date oe-ordl.req-date oe-ord.cust-name ~
+oe-ordl.i-no oe-ordl.part-no oe-ordl.po-no oe-ordl.est-no oe-ordl.job-no ~
+oe-ordl.job-no2 
 &Scoped-define ENABLED-TABLES-IN-QUERY-Browser-Table oe-ordl oe-ord
 &Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-Browser-Table oe-ordl
 &Scoped-define SECOND-ENABLED-TABLE-IN-QUERY-Browser-Table oe-ord
@@ -358,7 +358,6 @@ FUNCTION getRS RETURNS CHARACTER
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD getstat B-table-Win 
 FUNCTION getstat RETURNS CHARACTER
   ( /* parameter-definitions */ )  FORWARD.
@@ -373,13 +372,12 @@ FUNCTION getTotalReturned RETURNS DECIMAL
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD isFilterBlank B-table-Win
-FUNCTION isFilterBlank RETURNS LOGICAL 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD isFilterBlank B-table-Win 
+FUNCTION isFilterBlank RETURNS LOGICAL
   (  ) FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 
 
 /* ***********************  Control Definitions  ********************** */
@@ -497,7 +495,8 @@ DEFINE QUERY Browser-Table FOR
       oe-ordl.po-no-po
       oe-ordl.e-num
       oe-ordl.whsed
-      oe-ordl.s-man[1]), 
+      oe-ordl.s-man[1]
+      oe-ordl.managed), 
       oe-ord, 
       itemfg SCROLLING.
 &ANALYZE-RESUME
@@ -550,6 +549,7 @@ DEFINE BROWSE Browser-Table
       getReturnedInv() @ dTotRetInv COLUMN-LABEL "Qty Returned Inv" FORMAT ">>>,>>9":U
       oe-ordl.s-man[1] COLUMN-LABEL "Rep" FORMAT "x(3)":U LABEL-BGCOLOR 14
       fget-qty-nothand(get-act-rel-qty() + get-act-bol-qty(),li-qoh) @ iHandQtyNoalloc COLUMN-LABEL "On Hand Qty not Allocated" FORMAT "->>>>>>>>":U
+      oe-ordl.managed FORMAT "yes/no":U
   ENABLE
       oe-ordl.ord-no
       oe-ordl.cust-no
@@ -593,6 +593,12 @@ DEFINE FRAME F-Main
      "Job#" VIEW-AS TEXT
           SIZE 8 BY .71 AT ROW 1.24 COL 104
           FGCOLOR 9 FONT 6
+     "REP#" VIEW-AS TEXT
+          SIZE 6.6 BY .71 AT ROW 1.24 COL 140.2 WIDGET-ID 12
+          FGCOLOR 9 FONT 6
+     "Cust PO#" VIEW-AS TEXT
+          SIZE 18 BY .71 AT ROW 1.24 COL 70
+          FGCOLOR 9 FONT 6
      "Estimate#" VIEW-AS TEXT
           SIZE 12 BY .71 AT ROW 1.24 COL 90
           FGCOLOR 9 FONT 6
@@ -616,12 +622,6 @@ DEFINE FRAME F-Main
           FGCOLOR 9 FONT 6
      "Cust Part#" VIEW-AS TEXT
           SIZE 13 BY .71 AT ROW 1.24 COL 50
-          FGCOLOR 9 FONT 6
-     "REP#" VIEW-AS TEXT
-          SIZE 6.6 BY .71 AT ROW 1.24 COL 140.2 WIDGET-ID 12
-          FGCOLOR 9 FONT 6
-     "Cust PO#" VIEW-AS TEXT
-          SIZE 18 BY .71 AT ROW 1.24 COL 70
           FGCOLOR 9 FONT 6
      RECT-1 AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
@@ -692,7 +692,8 @@ ASSIGN
 ASSIGN 
        oe-ordl.line:VISIBLE IN BROWSE Browser-Table = FALSE
        oe-ordl.po-no-po:VISIBLE IN BROWSE Browser-Table = FALSE
-       oe-ordl.whsed:VISIBLE IN BROWSE Browser-Table = FALSE.
+       oe-ordl.whsed:VISIBLE IN BROWSE Browser-Table = FALSE
+       oe-ordl.managed:VISIBLE IN BROWSE Browser-Table = FALSE.
 
 /* SETTINGS FOR BUTTON btn_next IN FRAME F-Main
    NO-ENABLE                                                            */
@@ -788,6 +789,8 @@ AND itemfg.i-no EQ oe-ordl.i-no"
 "oe-ordl.s-man[1]" "Rep" ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[36]   > "_<CALC>"
 "fget-qty-nothand(get-act-rel-qty() + get-act-bol-qty(),li-qoh) @ iHandQtyNoalloc" "On Hand Qty not Allocated" "->>>>>>>>" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[37]   > ASI.oe-ordl.managed
+"oe-ordl.managed" ? ? "logical" ? ? ? ? ? ? no ? no no ? no no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */
 &ANALYZE-RESUME
@@ -799,7 +802,7 @@ AND itemfg.i-no EQ oe-ordl.i-no"
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -2786,7 +2789,6 @@ END FUNCTION.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION getstat B-table-Win 
 FUNCTION getstat RETURNS CHARACTER
   ( /* parameter-definitions */ ) :
@@ -2831,16 +2833,16 @@ END FUNCTION.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION isFilterBlank B-table-Win
-FUNCTION isFilterBlank RETURNS LOGICAL 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION isFilterBlank B-table-Win 
+FUNCTION isFilterBlank RETURNS LOGICAL
   (  ):
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-		DEFINE VARIABLE lResult AS LOGICAL NO-UNDO.
-		/* Determine if first-query can be used since no filters are applied */
-		DO WITH FRAME {&frame-name}:
+                DEFINE VARIABLE lResult AS LOGICAL NO-UNDO.
+                /* Determine if first-query can be used since no filters are applied */
+                DO WITH FRAME {&frame-name}:
             IF  fi_cad-no:SCREEN-VALUE EQ "" AND
                 fi_cust-no:SCREEN-VALUE EQ "" AND
                 fi_est-no:SCREEN-VALUE EQ "" AND
@@ -2856,11 +2858,10 @@ FUNCTION isFilterBlank RETURNS LOGICAL
              ELSE 
                lResult = FALSE. 
          END.
-		RETURN lResult.
+                RETURN lResult.
 
 END FUNCTION.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 
