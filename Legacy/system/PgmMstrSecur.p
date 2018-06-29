@@ -76,6 +76,7 @@ PROCEDURE epCanAccessUser:
             /* Second group - programs/functions ONLY available to Administrators */
             /* Note: logic is 'if secLevel less than 900, then disable' */
             ELSE IF users.securityLevel LT 900 AND
+
                     (
                     (ipProgName EQ "browsers/rm-ibin.w" AND ipFunction EQ "") OR  /*MF1/MF2 Bins Tab - Update Cost/Unit/Count - No Password*/
                     (ipProgName EQ "windows/prgrms.w" AND ipFunction EQ "") OR /*NS8 Program Master*/
@@ -94,9 +95,8 @@ PROCEDURE epCanAccessUser:
                     (ipProgName EQ "sys/ref/hlp.w" AND ipFunction EQ "LockMon") OR /*Lock Monitor Button*/
                     (ipProgName EQ "system/mainmenu.w" AND ipFunction EQ "Access1") OR /*Main menu load Run Custom Utility Program access*/
                     (ipProgName EQ "viewers/p-fg-bj-l.w" AND ipFunction EQ "") OR /*IF1 Bin/Jobs tab */
-                    (ipProgName EQ "viewers/sys-ctrl.w" AND ipFunction EQ "") OR /*NK1 view control tab value security */
-                
-                    (ipProgName EQ "" AND ipFunction = "")
+                (ipProgName EQ "viewers/sys-ctrl.w" AND ipFunction EQ "") OR /*NK1 view control tab value security */                
+                (ipProgName EQ "" AND ipFunction = "")
                     ) THEN ASSIGN
                         opCanAccess = FALSE.
         END. /* list-based exclusions */
