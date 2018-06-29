@@ -1498,7 +1498,7 @@ PROCEDURE pInit :
         IF VALID-HANDLE(hPgmMstrSecur) THEN
         RUN epCanAccess IN hPgmMstrSecur (
             "system/mainMenu.w",
-            "",
+            "CanUpgrade",
             OUTPUT lAdmin 
             ).
         IF lAdmin THEN DO:
