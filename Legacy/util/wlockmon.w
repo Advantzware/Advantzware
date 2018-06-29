@@ -1,7 +1,7 @@
 &ANALYZE-SUSPEND _VERSION-NUMBER UIB_v9r12 GUI
 &ANALYZE-RESUME
-&Scoped-define WINDOW-NAME C-Win
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS C-Win 
+&Scoped-define WINDOW-NAME ouC-Win
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS ouC-Win 
 /*------------------------------------------------------------------------
 
   File: 
@@ -101,7 +101,7 @@ DEF TEMP-TABLE ttLocks2
 /* ***********************  Control Definitions  ********************** */
 
 /* Define the widget handle for the window                              */
-DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
+DEFINE VAR ouC-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON bQuit 
@@ -143,20 +143,20 @@ DEFINE FRAME DEFAULT-FRAME
      fiInterval AT ROW 17.67 COL 58 COLON-ALIGNED
      bQuit AT ROW 17.67 COL 151
      RADIO-SET-1 AT ROW 17.76 COL 70 NO-LABEL WIDGET-ID 6
-     "User ID/Name" VIEW-AS TEXT
-          SIZE 16 BY .67 AT ROW 1.24 COL 4
-     "Lock Type" VIEW-AS TEXT
-          SIZE 11 BY .67 AT ROW 1.24 COL 136
-     "Rec Key" VIEW-AS TEXT
-          SIZE 12 BY .67 AT ROW 1.24 COL 108
-     "Table" VIEW-AS TEXT
-          SIZE 11 BY .67 AT ROW 1.24 COL 76
-     "Duration" VIEW-AS TEXT
-          SIZE 11 BY .67 AT ROW 1.24 COL 149 WIDGET-ID 4
-     "Terminal" VIEW-AS TEXT
-          SIZE 11 BY .62 AT ROW 1.24 COL 62 WIDGET-ID 10
      "Phone" VIEW-AS TEXT
           SIZE 11 BY .62 AT ROW 1.24 COL 43 WIDGET-ID 12
+     "Terminal" VIEW-AS TEXT
+          SIZE 11 BY .62 AT ROW 1.24 COL 62 WIDGET-ID 10
+     "Duration" VIEW-AS TEXT
+          SIZE 11 BY .67 AT ROW 1.24 COL 149 WIDGET-ID 4
+     "Table" VIEW-AS TEXT
+          SIZE 11 BY .67 AT ROW 1.24 COL 76
+     "Rec Key" VIEW-AS TEXT
+          SIZE 12 BY .67 AT ROW 1.24 COL 108
+     "Lock Type" VIEW-AS TEXT
+          SIZE 11 BY .67 AT ROW 1.24 COL 136
+     "User ID/Name" VIEW-AS TEXT
+          SIZE 16 BY .67 AT ROW 1.24 COL 4
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
@@ -176,7 +176,7 @@ DEFINE FRAME DEFAULT-FRAME
 
 &ANALYZE-SUSPEND _CREATE-WINDOW
 IF SESSION:DISPLAY-TYPE = "GUI":U THEN
-  CREATE WINDOW C-Win ASSIGN
+  CREATE WINDOW ouC-Win ASSIGN
          HIDDEN             = YES
          TITLE              = "Record Lock Viewer"
          HEIGHT             = 18.62
@@ -203,7 +203,7 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 /* ***********  Runtime Attributes and AppBuilder Settings  *********** */
 
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
-/* SETTINGS FOR WINDOW C-Win
+/* SETTINGS FOR WINDOW ouC-Win
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME DEFAULT-FRAME
    FRAME-NAME                                                           */
@@ -211,8 +211,8 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
    NO-ENABLE                                                            */
 /* SETTINGS FOR RADIO-SET RADIO-SET-1 IN FRAME DEFAULT-FRAME
    NO-ENABLE                                                            */
-IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
-THEN C-Win:HIDDEN = no.
+IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(ouC-Win)
+THEN ouC-Win:HIDDEN = no.
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -223,9 +223,9 @@ THEN C-Win:HIDDEN = no.
 
 /* ************************  Control Triggers  ************************ */
 
-&Scoped-define SELF-NAME C-Win
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
-ON END-ERROR OF C-Win /* Record Lock Viewer */
+&Scoped-define SELF-NAME ouC-Win
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ouC-Win ouC-Win
+ON END-ERROR OF ouC-Win /* Record Lock Viewer */
 OR ENDKEY OF {&WINDOW-NAME} ANYWHERE DO:
   /* This case occurs when the user presses the "Esc" key.
      In a persistently run window, just ignore this.  If we did not, the
@@ -237,8 +237,8 @@ END.
 &ANALYZE-RESUME
 
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
-ON WINDOW-CLOSE OF C-Win /* Record Lock Viewer */
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ouC-Win ouC-Win
+ON WINDOW-CLOSE OF ouC-Win /* Record Lock Viewer */
 DO:
   /* This event will close the window and terminate the procedure.  */
     APPLY 'choose' TO bStop IN FRAME default-frame.
@@ -252,7 +252,7 @@ END.
 
 
 &Scoped-define SELF-NAME bQuit
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL bQuit C-Win
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL bQuit ouC-Win
 ON CHOOSE OF bQuit IN FRAME DEFAULT-FRAME /* Leave */
 DO:
     APPLY 'choose' TO bStop.
@@ -264,7 +264,7 @@ END.
 
 
 &Scoped-define SELF-NAME bStart
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL bStart C-Win
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL bStart ouC-Win
 ON CHOOSE OF bStart IN FRAME DEFAULT-FRAME /* Start Monitor */
 DO:
     STATUS INPUT ("Monitor is running").
@@ -288,7 +288,7 @@ END.
 
 
 &Scoped-define SELF-NAME bStop
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL bStop C-Win
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL bStop ouC-Win
 ON CHOOSE OF bStop IN FRAME DEFAULT-FRAME /* Stop Monitor */
 DO:
     ASSIGN
@@ -307,7 +307,7 @@ END.
 
 
 &Scoped-define SELF-NAME fiInterval
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiInterval C-Win
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiInterval ouC-Win
 ON LEAVE OF fiInterval IN FRAME DEFAULT-FRAME /* Refresh Interval (secs) */
 DO:
     IF INTEGER(SELF:SCREEN-VALUE) GT 600 THEN DO:
@@ -333,7 +333,7 @@ END.
 
 &UNDEFINE SELF-NAME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK C-Win 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK ouC-Win 
 
 
 /* ***************************  Main Block  *************************** */
@@ -367,7 +367,7 @@ END.
 
 /* **********************  Internal Procedures  *********************** */
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI C-Win  _DEFAULT-DISABLE
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI ouC-Win  _DEFAULT-DISABLE
 PROCEDURE disable_UI :
 /*------------------------------------------------------------------------------
   Purpose:     DISABLE the User Interface
@@ -378,15 +378,15 @@ PROCEDURE disable_UI :
                we are ready to "clean-up" after running.
 ------------------------------------------------------------------------------*/
   /* Delete the WINDOW we created */
-  IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
-  THEN DELETE WIDGET C-Win.
+  IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(ouC-Win)
+  THEN DELETE WIDGET ouC-Win.
   IF THIS-PROCEDURE:PERSISTENT THEN DELETE PROCEDURE THIS-PROCEDURE.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE enable_UI C-Win  _DEFAULT-ENABLE
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE enable_UI ouC-Win  _DEFAULT-ENABLE
 PROCEDURE enable_UI :
 /*------------------------------------------------------------------------------
   Purpose:     ENABLE the User Interface
@@ -398,17 +398,17 @@ PROCEDURE enable_UI :
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
   DISPLAY slLockList fiInterval RADIO-SET-1 
-      WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
+      WITH FRAME DEFAULT-FRAME IN WINDOW ouC-Win.
   ENABLE slLockList bStart fiInterval bQuit 
-      WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
+      WITH FRAME DEFAULT-FRAME IN WINDOW ouC-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
-  VIEW C-Win.
+  VIEW ouC-Win.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipMonitor C-Win 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipMonitor ouC-Win 
 PROCEDURE ipMonitor :
 /*------------------------------------------------------------------------------
   Purpose:     
@@ -493,7 +493,7 @@ PROCEDURE ipMonitor :
                 IF AVAIL users THEN ASSIGN
                     cName = users.user_id + " - " + users.user_name.
                 ELSE ASSIGN
-                    cName = users.user_id.
+                    cName = _lock._lock-name.
                 
                 FIND FIRST _file WHERE
                     _file._file-number = _lock._lock-table
