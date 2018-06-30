@@ -252,7 +252,7 @@ DEF VAR cDbPortList AS CHAR INITIAL "2826" NO-UNDO.
 DEF VAR cAudDirList AS CHAR INITIAL "Audit" NO-UNDO.
 DEF VAR cAudDBList AS CHAR INITIAL "audProd" NO-UNDO.
 DEF VAR cAudPortList AS CHAR INITIAL "2836" NO-UNDO.
-DEF VAR cEnvVerList AS CHAR INITIAL "16.7.8" NO-UNDO.
+DEF VAR cEnvVerList AS CHAR INITIAL "16.7.12" NO-UNDO.
 DEF VAR cDbVerList AS CHAR INITIAL "16.7" NO-UNDO.
 /* # Basic DB Elements */
 DEF VAR cAudDbName AS CHAR INITIAL "audProd" NO-UNDO.
@@ -513,7 +513,7 @@ DEFINE VARIABLE fiMapDir AS CHARACTER FORMAT "X(256)":U INITIAL "N:"
      VIEW-AS FILL-IN 
      SIZE 5 BY 1 NO-UNDO.
 
-DEFINE VARIABLE fiNewVer AS CHARACTER FORMAT "X(256)":U INITIAL "16.7.8" 
+DEFINE VARIABLE fiNewVer AS CHARACTER FORMAT "X(256)":U INITIAL "16.7.12" 
      LABEL "New Version" 
      VIEW-AS FILL-IN 
      SIZE 14 BY 1
@@ -3194,9 +3194,11 @@ PROCEDURE ipFixPoEdiDirs :
     /* Is it in /Customers folder? */
     ASSIGN
         cTestLoc = cEnvDir + "\" + ENTRY(1,slEnvironments:{&SV},"-") + "\Customer\PO\poexport.dat".
-    IF SEARCH(cTestLoc) NE ? THEN 
+    IF SEARCH(cTestLoc) NE ? THEN DO:
         RUN ipCopyDirs (cEnvDir + "\" + ENTRY(1,slEnvironments:{&SV},"-") + "\Customer\PO",
                         cEnvDir + "\" + ENTRY(1,slEnvironments:{&SV},"-") + "\CustFiles\EDIfiles\POs").
+        RETURN.
+    END.
     
     /* Is it in /PO? */
     ASSIGN
@@ -4182,7 +4184,7 @@ PROCEDURE ipRefTableConv :
     DEF VAR cNewPropath AS CHAR NO-UNDO.
     DEF VAR cThisElement AS CHAR NO-UNDO.
     
-    IF ipiLevel GT 10 THEN DO:
+    IF ipiLevel LT 10 THEN DO:
         MESSAGE
             "WARNING - RefTable Conversion Time:" SKIP(1)
             "This operation can potentially take several hours to complete," SKIP

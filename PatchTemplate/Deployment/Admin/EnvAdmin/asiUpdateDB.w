@@ -218,7 +218,7 @@ DEF VAR cDbPortList AS CHAR INITIAL "2826" NO-UNDO.
 DEF VAR cAudDirList AS CHAR INITIAL "Audit" NO-UNDO.
 DEF VAR cAudDBList AS CHAR INITIAL "audProd" NO-UNDO.
 DEF VAR cAudPortList AS CHAR INITIAL "2836" NO-UNDO.
-DEF VAR cEnvVerList AS CHAR INITIAL "16.7.8" NO-UNDO.
+DEF VAR cEnvVerList AS CHAR INITIAL "16.7.12" NO-UNDO.
 DEF VAR cDbVerList AS CHAR INITIAL "16.7" NO-UNDO.
 /* # Basic DB Elements */
 DEF VAR cAudDbName AS CHAR INITIAL "audProd" NO-UNDO.
@@ -379,7 +379,7 @@ DEFINE VARIABLE fiMapDir AS CHARACTER FORMAT "X(256)":U INITIAL "N:"
      VIEW-AS FILL-IN 
      SIZE 5 BY 1 NO-UNDO.
 
-DEFINE VARIABLE fiNewVer AS CHARACTER FORMAT "X(256)":U INITIAL "16.7.8" 
+DEFINE VARIABLE fiNewVer AS CHARACTER FORMAT "X(256)":U INITIAL "16.7.12" 
      LABEL "New Version" 
      VIEW-AS FILL-IN 
      SIZE 14 BY 1
@@ -1000,7 +1000,7 @@ PROCEDURE ipCreateAudit :
     PAUSE 10 NO-MESSAGE.
     
     RUN ipStatus ("  Serving " + cAudName).
-message cStartString view-as alert-box.
+
     OS-COMMAND VALUE(cStartString).
     pause 10 no-message.
     
@@ -1053,7 +1053,6 @@ message cStartString view-as alert-box.
         ENTRY(iListEntry,cAudDbList) = cAudName
         ENTRY(iListEntry,cAudPortList) = cAudPort.
     RUN ipSetCurrentDir (cCurrDir). 
-        
     
 END PROCEDURE.
 
@@ -1634,8 +1633,7 @@ PROCEDURE ipUpgradeAudit :
                       " -database " + cAudName + 
                       " -start"
         cLockFile = fiDbDrive:{&SV} + "\" +
-                      fiTopDir:{&SV} + "\" + fiDbDir:{&SV} + "\" + 
-                      ENTRY(1,ENTRY(iCtr,slDatabases:{&SV}),"-") + "\" +
+                      fiTopDir:{&SV} + "\" + fiDbDir:{&SV} + "\Audit\" + 
                       cAudName + ".lk".
                 
     /* Unserve the database */
@@ -1649,7 +1647,10 @@ PROCEDURE ipUpgradeAudit :
      
     /* Move to Audit dir and delete old audit files */
     RUN ipSetCurrentDir (cDbDrive + "\" + cTopDir + "\databases\audit"). 
-    OS-DELETE VALUE(cAudName + ".*").
+
+    RUN ipStatus ("  Removing old audit files").
+    OS-COMMAND SILENT VALUE("DEL /Q " + cDbDrive + "\" + cTopDir + "\databases\audit\" + cAudName + ".*").
+    OS-COMMAND SILENT VALUE("DEL /Q " + cDbDrive + "\" + cTopDir + "\databases\audit\" + cAudName + "*.*").
 
     ASSIGN
         iEntry = LOOKUP(slDatabases:{&SV},slDatabases:LIST-ITEMS)
@@ -1662,6 +1663,7 @@ PROCEDURE ipUpgradeAudit :
         cAudPort = ENTRY(iEntry,cAudPortList).
 
     /* Create empty DB */
+    RUN ipStatus ("  Creating empty DB").
     IF fiDbDrive:{&SV} EQ fiDrive:{&SV} THEN ASSIGN
         cCmdLine = fiDlcDir:{&SV} + '\bin\prostrct create ' + 
                    cAudName + ' ' + 
@@ -1687,25 +1689,30 @@ PROCEDURE ipUpgradeAudit :
     ASSIGN
         /* Single user connect statment */
         cStatement = "-db " + 
-                     cAudName +
+                     cDbDrive + "\" + cTopDir + "\databases\audit\" + cAudName +
                      " -1 -ld audit".
+
     /* Connect to the database single user */
+    RUN ipStatus ("  Connecting audit DB single-user...").
     CONNECT VALUE(cStatement).
-    CREATE ALIAS DICTDB FOR DATABASE VALUE(cAudName).
+    CREATE ALIAS DICTDB FOR DATABASE audit.
 
     /* Load the .df file */
     RUN ipStatus ("  Loading schema...").
     RUN prodict/load_df.p (cAuditDf). 
-    /* Remember to load the table contents in upgradeENV */
+    /* Table contents are loaded in upgradeENV */
                 
     /* Disconnect it */
     RUN ipStatus ("  Disconnecting.").
-    DISCONNECT VALUE(cAudName).
+    DISCONNECT audit.
 
     /* Re-Serve it */
     RUN ipStatus ("  Serving " + cAudName).
     OS-COMMAND SILENT VALUE(cStartString).
-                    
+    
+    /* Return current dir to starting */
+    RUN ipSetCurrentDir (cCurrDir). 
+    
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1814,11 +1821,13 @@ PROCEDURE ipUpgradeDBs :
                     cNewSel = "".
             END.
         END.
+        /*
         ELSE MESSAGE
             "Database " + ENTRY(2,ENTRY(iCtr,slDatabases:{&SV}),"-") + " is already at the current" SKIP
             "version level.  It should not be updated again"
             VIEW-AS ALERT-BOX INFO.
-
+        */
+        
         IF ENTRY(iListEntry,cAudDbList) = "x" 
         OR ENTRY(iListEntry,cAudDbList) = "" THEN DO:
             /*
@@ -1843,6 +1852,8 @@ PROCEDURE ipUpgradeDBs :
             RUN ipUpgradeAudit.
         END.
     END.
+    ASSIGN
+        lSuccess = TRUE.
 
 END PROCEDURE.
 
