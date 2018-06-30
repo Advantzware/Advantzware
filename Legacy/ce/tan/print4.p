@@ -23,6 +23,8 @@ DEF NEW SHARED VAR CALL_id AS RECID NO-UNDO.
 DEF NEW SHARED VAR DAY_str AS cha FORM "x(8)" NO-UNDO.
 DEF NEW SHARED VAR tim_str AS cha FORM "x(8)" NO-UNDO.
 DEF NEW SHARED VAR tmp-dir AS cha NO-UNDO.
+DEFINE NEW SHARED VARIABLE cCEBrowseBaseDir AS CHARACTER NO-UNDO.    
+
 DEF SHARED VAR qty AS INT NO-UNDO.
 DEF VAR lv-error AS LOG NO-UNDO.
 DEF VAR ls-outfile AS cha NO-UNDO.
@@ -57,31 +59,8 @@ END.
 {cec/get-vend.i}  /* get vendor number */
 {sys/inc/ceprepprice.i}
 
-find first sys-ctrl where
-    sys-ctrl.company eq cocode AND
-    sys-ctrl.name    eq "CEBROWSE"
-    no-lock no-error.
 
-  if not avail sys-ctrl then DO TRANSACTION:
-        create sys-ctrl.
-        assign sys-ctrl.company = cocode
-               sys-ctrl.name    = "CEBROWSE"
-               sys-ctrl.descrip = "# of Records to be displayed in browser"
-               sys-ctrl.log-fld = YES
-               sys-ctrl.char-fld = "CE"
-               sys-ctrl.int-fld = 30.
-        
-  end.
-
-IF sys-ctrl.char-fld NE "" THEN
-   tmp-dir = sys-ctrl.char-fld.
-ELSE
-   tmp-dir = "users\".
-
-IF LOOKUP(SUBSTRING(tmp-dir,LENGTH(tmp-dir)),"\,/") EQ 0 THEN
-   tmp-dir = tmp-dir + "\".
-
-tmp-dir = REPLACE(tmp-dir,"/","\").
+RUN est/EstimateProcs.p (cocode, OUTPUT cCeBrowseBaseDir, OUTPUT tmp-dir).
 
 find first ce-ctrl {sys/look/ce-ctrlW.i} no-lock no-error.
 assign

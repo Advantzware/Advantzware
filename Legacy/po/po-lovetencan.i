@@ -361,6 +361,10 @@ FOR EACH po-ordl
         put {1} v-inst[i] skip.
     end.
   end.
+  IF lCustCode THEN DO:
+   put {1} SKIP.
+   PUT {1} po-ordl.cust-no FORM "x(8)"  SKIP.
+  END.
   
   put {1} skip "<C1><R+.5><FROM><C82><LINE><||3>" SKIP. 
 end. /* for each po-ordl record */

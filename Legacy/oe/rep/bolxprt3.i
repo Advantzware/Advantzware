@@ -33,7 +33,8 @@ ELSE DO:
         and oe-ord.ord-no  eq tt-boll.ord-no
       no-lock no-error.
 
-  IF v-printline >= 40 THEN DO:
+  IF v-printline >= 48 THEN DO:
+      
         v-printline = 0.
         PAGE {1}.
         {oe/rep/bolxpr22.i}
@@ -124,7 +125,9 @@ ELSE DO:
         with frame bol-mid2.
     down  with frame bol-mid2.    
     v-printline = v-printline + 1.
-    IF v-printline >= 40 THEN DO:
+    
+    IF v-printline >= 48 THEN DO:
+        
        v-printline = 0.
        PAGE {1}.
        {oe/rep/bolxpr22.i}
@@ -165,11 +168,13 @@ ELSE DO:
                 (trim(tt-boll.job-no) + "-" + string(tt-boll.job-no2,"99"))                 .
 
     if v-part-dscr ne "" or v-job-po ne "" or i le 2 then do:
-      IF v-printline >= 40 THEN DO:
+        
+      IF v-printline >= 48 THEN DO:
+          
         v-printline = 0.
         PAGE {1}.
         {oe/rep/bolxpr22.i}
-      END.
+      END. 
       display {1}
               oe-ordl.i-no                            when i eq 2
               v-job-po
@@ -199,7 +204,8 @@ ELSE DO:
       
     {sys/inc/part-qty.i v-part-qty fg-set}
 
-    IF v-printline >= 40 THEN DO:
+    IF v-printline >= 48 THEN DO:
+        
         v-printline = 0.
         PAGE {1}.
         {oe/rep/bolxpr22.i}

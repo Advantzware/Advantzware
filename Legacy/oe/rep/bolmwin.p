@@ -175,12 +175,12 @@ for each xxreport where xxreport.term-id eq v-term-id,
      
             
     assign
-       v-comp-name    = cust.name
-       v-comp-addr[1] = cust.addr[1]
-       v-comp-addr[2] = cust.addr[2]
-       v-comp-addr3   = cust.city + ", " +
-                        cust.state + "  " +
-                        cust.zip.
+       v-comp-name    = company.name
+       v-comp-addr[1] = company.addr[1]
+       v-comp-addr[2] = company.addr[2]
+       v-comp-addr3   = company.city + ", " +
+                        company.state + "  " +
+                        company.zip.
 
     if trim(v-comp-addr3) eq "," then v-comp-addr3 = "".
               
@@ -445,7 +445,7 @@ for each xxreport where xxreport.term-id eq v-term-id,
                 "<=11><R58><C54><p4>emergency response information was made available and/or carrier has the DOT "
                 "<=11><R58.5><C54><p4>emergency response guidebook or equivalent documentation in the vehicle, property "
                  "<=11><R59><C54><p4>            described above is received in good order,except as noted. "
-                "<R60><C25><#1><R+6><C+52><IMAGE#1=" ls-full-img1  SKIP
+                "<R60><C18><#1><R+6><C+52><IMAGE#1=" ls-full-img1  SKIP
                .
 
 
