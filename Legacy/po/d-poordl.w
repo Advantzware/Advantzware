@@ -3499,7 +3499,8 @@ PROCEDURE display-job-mat :
                     v-wid                        = tt-job-mat.wid
                     v-dep                        = tt-job-mat.dep
                     ld-line-cst                  = tt-job-mat.std-cost.
-                IF v-dep EQ 0 THEN v-dep = item.s-dep.
+                IF v-dep EQ 0 THEN 
+                    v-dep = item.s-dep.
                 IF tt-job-mat.qty-uom NE po-ordl.pr-qty-uom:SCREEN-VALUE THEN
                     RUN sys/ref/convquom.p (tt-job-mat.qty-uom, po-ordl.pr-qty-uom:SCREEN-VALUE,
                         tt-job-mat.basis-w, v-len, v-wid, v-dep,
@@ -5186,8 +5187,10 @@ PROCEDURE set-dims :
         ASSIGN
             v-len = DEC(po-ordl.s-len:SCREEN-VALUE)
             v-wid = DEC(po-ordl.s-wid:SCREEN-VALUE)
+            v-dep = DEC(v-po-dep:SCREEN-VALUE)
             {po/calc10.i v-len}
-            {po/calc10.i v-wid}.
+            {po/calc10.i v-wid}
+            {po/calc10.i v-dep}.
 
         FIND FIRST ITEM NO-LOCK 
             WHERE item.company EQ cocode
@@ -5196,7 +5199,7 @@ PROCEDURE set-dims :
 
         ASSIGN
             v-basis-w = IF AVAILABLE ITEM THEN item.basis-w ELSE 0
-            v-dep     = IF AVAILABLE ITEM THEN item.s-dep ELSE 0.
+            .
     END.
 
 END PROCEDURE.
