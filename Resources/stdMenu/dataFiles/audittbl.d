@@ -344,14 +344,3 @@
 "wiptag" yes yes no no
 "wiptag-mch" yes yes no no
 "zipcode" yes yes no no
-.
-PSC
-filename=AuditTbl
-records=0000000000346
-ldbname=Audit
-timestamp=2018/04/08-17:35:47
-numformat=44,46
-dateformat=mdy-1950
-map=NO-MAP
-cpstream=ISO8859-1
-.
