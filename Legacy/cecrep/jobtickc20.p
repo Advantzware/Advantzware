@@ -459,7 +459,7 @@ DO v-local-loop = 1 TO v-local-copies:
          IF AVAILABLE xeb THEN
          FIND FIRST bf-itemfg NO-LOCK
              WHERE bf-itemfg.company EQ xeb.company
-               AND bf-itemfg.i-no EQ xeb.stock NO-ERROR .
+               AND bf-itemfg.i-no EQ xeb.stock-no NO-ERROR .
 
               iset-qty = IF AVAILABLE xeb AND xeb.est-type EQ 6 THEN
                           IF AVAILABLE xoe-ordl THEN xoe-ordl.qty ELSE job-hdr.qty
@@ -480,7 +480,7 @@ DO v-local-loop = 1 TO v-local-copies:
               "<=FGItemName>" IF AVAILABLE xeb THEN  xeb.part-dscr1 ELSE "" FORMAT "x(30)" 
               "</B><FGColor=Black>"
               "<=FGItemDesc1>" IF AVAILABLE xeb THEN  xeb.part-dscr2 ELSE "" FORMAT "x(30)" 
-              "<=FGItemDesc2>" IF AVAILABLE xeb AND AVAILABLE bf-itemfg THEN  itemfg.part-dscr2 ELSE "" FORMAT "x(30)" 
+              "<=FGItemDesc2>" IF AVAILABLE xeb AND AVAILABLE bf-itemfg THEN  bf-itemfg.part-dscr2 ELSE "" FORMAT "x(30)" 
               "<B>"
               "<=Style>" IF AVAILABLE xstyle THEN xstyle.style ELSE "" FORMAT "x(15)"
               "<=TabInOut>" IF AVAIL xeb AND xeb.tab-in EQ YES THEN "In" ELSE IF AVAIL xeb AND xeb.tab-in EQ NO THEN "Out" ELSE "" FORMAT "x(10)"
@@ -731,7 +731,7 @@ DO v-local-loop = 1 TO v-local-copies:
         K             = 0
         lv-got-return = 0.
 
-        FOR EACH notes WHERE notes.rec_key = itemfg.rec_key 
+        FOR EACH notes WHERE notes.rec_key = bf-itemfg.rec_key 
                         AND lookup(notes.note_code,spec-list) NE 0 NO-LOCK.
          
             DO i = 1 TO LENGTH(notes.note_text) :        
@@ -924,7 +924,7 @@ DO v-local-loop = 1 TO v-local-copies:
               "<=ShipNotes3>" IF AVAILABLE shipto THEN shipto.notes[3] ELSE "" FORMAT "x(90)"
               "<=ShipNotes4>" IF AVAILABLE shipto THEN shipto.notes[4] ELSE "" FORMAT "x(90)" .
   
-            ls-fgitem-img = itemfg.box-image.
+            ls-fgitem-img = bf-itemfg.box-image.
 
             PUT UNFORMATTED "<=ItemImageStart><R+.3><C+.3><#ItemImage><=ItemImageEnd><IMAGE#ItemImage=" ls-fgitem-img "><=ItemImage>".
             PAGE.
