@@ -113,6 +113,7 @@ DEF VAR cTo AS CHAR.
 DEF VAR iDBCurrVer AS INT NO-UNDO.
 DEF VAR iDBTgtVer AS INT NO-UNDO.
 DEF VAR iInstance AS INT NO-UNDO.
+DEF VAR cEnvVer AS CHAR NO-UNDO.
 
 /* Ensure that these lists always match, 'c' is always the prefix */
 ASSIGN cIniVarList = 
@@ -471,10 +472,10 @@ DEFINE FRAME DEFAULT-FRAME
      bProcess AT ROW 12.43 COL 111 WIDGET-ID 404
      "This program will automatically close when completed." VIEW-AS TEXT
           SIZE 52 BY .62 AT ROW 14.57 COL 65 WIDGET-ID 576
+     "This is expected, and can be ignored." VIEW-AS TEXT
+          SIZE 41 BY .62 AT ROW 13.86 COL 65 WIDGET-ID 574
      "~"not responding~" message in the title bar~;" VIEW-AS TEXT
           SIZE 41 BY .62 AT ROW 13.14 COL 65 WIDGET-ID 572
-     "Because of the age of your database, we" VIEW-AS TEXT
-          SIZE 41 BY .62 AT ROW 8.86 COL 65 WIDGET-ID 560
      "changes to the database.  You may see a" VIEW-AS TEXT
           SIZE 41 BY .62 AT ROW 12.43 COL 65 WIDGET-ID 570
      " General Variables" VIEW-AS TEXT
@@ -494,8 +495,8 @@ DEFINE FRAME DEFAULT-FRAME
           SIZE 41 BY .62 AT ROW 10.29 COL 65 WIDGET-ID 564
      "have to make some changes ~"under the" VIEW-AS TEXT
           SIZE 41 BY .62 AT ROW 9.57 COL 65 WIDGET-ID 562
-     "This is expected, and can be ignored." VIEW-AS TEXT
-          SIZE 41 BY .62 AT ROW 13.86 COL 65 WIDGET-ID 574
+     "Because of the age of your database, we" VIEW-AS TEXT
+          SIZE 41 BY .62 AT ROW 8.86 COL 65 WIDGET-ID 560
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
@@ -1271,7 +1272,6 @@ PROCEDURE ipProcessRequest :
         RUN ipUpgradeDBs.
     END.
     
-    
     RUN ipStatus ("Database Schema Update Complete").
     RUN ipWriteIniFile.
 
@@ -1565,6 +1565,8 @@ PROCEDURE ipUpdateTTIniFile :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+    RUN ipStatus ("Update ttIniFile").
+
     FOR EACH ttIniFile:
         CASE ttIniFile.cVarName:
             WHEN "siteName" THEN ASSIGN ttIniFile.cVarValue = fiSiteName:{&SV}.
@@ -1594,6 +1596,121 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipUpgradeAudit C-Win 
+PROCEDURE ipUpgradeAudit :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEF VAR cStopString AS CHAR NO-UNDO.
+    DEF VAR cStartString AS CHAR NO-UNDO.
+    DEF VAR cStatement AS CHAR NO-UNDO.
+    DEF VAR cDeltaDf AS CHAR NO-UNDO.
+    DEF VAR cLockFile AS CHAR NO-UNDO.
+    DEF VAR cNewList AS CHAR NO-UNDO.
+    DEF VAR cNewSel AS CHAR NO-UNDO.
+    DEF VAR cThisEntry AS CHAR NO-UNDO.
+    DEF VAR cReplEntry AS CHAR NO-UNDO.
+    DEF VAR cAudName AS CHAR NO-UNDO.
+    DEF VAR iEntry AS INT NO-UNDO.
+    DEF VAR cStructureST AS CHAR NO-UNDO.    
+    DEF VAR cAuditDF AS CHAR NO-UNDO.
+    DEF VAR cAudPort AS CHAR NO-UNDO.
+    DEF VAR cCmdLine AS CHAR NO-UNDO.
+
+    RUN ipStatus ("Upgrade audit database").
+
+    ASSIGN
+        cAudName = REPLACE(ENTRY(2,ENTRY(iCtr,slDatabases:{&SV}),"-"),"asi","aud")
+        cStopString = fiDlcDir:{&SV} + "\bin\dbman" + 
+                      " -host " + fiHostName:{&SV} + 
+                      " -port " + cAdminPort + 
+                      " -database " + cAudName + 
+                      " -stop"
+        cStartString = fiDlcDir:{&SV} + "\bin\dbman" + 
+                      " -host " + fiHostName:{&SV} + 
+                      " -port " + cAdminPort + 
+                      " -database " + cAudName + 
+                      " -start"
+        cLockFile = fiDbDrive:{&SV} + "\" +
+                      fiTopDir:{&SV} + "\" + fiDbDir:{&SV} + "\" + 
+                      ENTRY(1,ENTRY(iCtr,slDatabases:{&SV}),"-") + "\" +
+                      cAudName + ".lk".
+                
+    /* Unserve the database */
+    RUN ipStatus ("  Stopping database service").
+    OS-COMMAND SILENT VALUE(cStopString).
+    /* May have to wait for DB to shut down */
+    DO WHILE SEARCH(cLockFile) NE ?:
+        RUN ipStatus ("  Waiting for removal of lock file").
+        PAUSE 2 NO-MESSAGE.
+    END.
+     
+    /* Move to Audit dir and delete old audit files */
+    RUN ipSetCurrentDir (cDbDrive + "\" + cTopDir + "\databases\audit"). 
+    OS-DELETE VALUE(cAudName + ".*").
+
+    ASSIGN
+        iEntry = LOOKUP(slDatabases:{&SV},slDatabases:LIST-ITEMS)
+        cStructureST = fiDrive:{&SV} + "\" + fiTopDir:{&SV} + "\" +
+                   fiUpdatesDir:{&SV} + "\" + fiPatchDir:{&SV} + "\" +
+                   "StructureUpdate\STFiles\audit.st"
+        cAuditDf = fiDrive:{&SV} + "\" + fiTopDir:{&SV} + "\" +
+                   fiUpdatesDir:{&SV} + "\" + fiPatchDir:{&SV} + "\" +
+                   "StructureUpdate\DFFiles\asiAudit.df"
+        cAudPort = ENTRY(iEntry,cAudPortList).
+
+    /* Create empty DB */
+    IF fiDbDrive:{&SV} EQ fiDrive:{&SV} THEN ASSIGN
+        cCmdLine = fiDlcDir:{&SV} + '\bin\prostrct create ' + 
+                   cAudName + ' ' + 
+                   cStructureST.
+    ELSE ASSIGN
+        cCmdLine = fiDlcDir:{&SV} + '\bin\prostrct create ' + 
+                   cAudName + ' ' + 
+                   cStructureST.
+    OS-COMMAND SILENT VALUE(cCmdLine).
+    
+    /* Copy metadata from Progress dir to DB */
+    IF fiDbDrive:{&SV} EQ fiDrive:{&SV} THEN ASSIGN
+        cCmdLine = fiDlcDir:{&SV} + "\bin\procopy " + 
+                   fiDlcDir:{&SV} + "\empty4 " + 
+                   cAudName.
+    ELSE ASSIGN
+        cCmdLine = fiDlcDir:{&SV} + "\bin\procopy " + 
+                   fiDlcDir:{&SV} + "\empty4 " + 
+                   cAudName.
+    RUN ipStatus ("  Copying metaschema data...").
+    OS-COMMAND SILENT VALUE(cCmdLine).
+
+    ASSIGN
+        /* Single user connect statment */
+        cStatement = "-db " + 
+                     cAudName +
+                     " -1 -ld audit".
+    /* Connect to the database single user */
+    CONNECT VALUE(cStatement).
+    CREATE ALIAS DICTDB FOR DATABASE VALUE(cAudName).
+
+    /* Load the .df file */
+    RUN ipStatus ("  Loading schema...").
+    RUN prodict/load_df.p (cAuditDf). 
+    /* Remember to load the table contents in upgradeENV */
+                
+    /* Disconnect it */
+    RUN ipStatus ("  Disconnecting.").
+    DISCONNECT VALUE(cAudName).
+
+    /* Re-Serve it */
+    RUN ipStatus ("  Serving " + cAudName).
+    OS-COMMAND SILENT VALUE(cStartString).
+                    
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipUpgradeDBs C-Win 
 PROCEDURE ipUpgradeDBs :
 /*------------------------------------------------------------------------------
@@ -1613,6 +1730,7 @@ PROCEDURE ipUpgradeDBs :
 
     DO iCtr = 1 TO NUM-ENTRIES(slDatabases:{&SV}):
         ASSIGN
+            cEnvVer = ENTRY(iCtr,cEnvVerList)
             cThisEntry = ENTRY(iCtr,slDatabases:{&SV})
             iListEntry = LOOKUP(cThisEntry,slDatabases:LIST-ITEMS).          
 
@@ -1670,6 +1788,7 @@ PROCEDURE ipUpgradeDBs :
                 CONNECT VALUE(cStatement).
                 RUN ipStatus ("  Creating DICTDB alias").
                 CREATE ALIAS DICTDB FOR DATABASE VALUE("updDB" + STRING(iCtr)).
+                
                 /* Load the delta */
                 RUN ipStatus ("  Loading delta " + STRING(cDeltaDf)).
                 RUN prodict/load_df.p (cDeltaDf). 
@@ -1720,7 +1839,9 @@ PROCEDURE ipUpgradeDBs :
             END.
             */
         END.
-                    
+        ELSE IF cEnvVer = "16.7.0" THEN DO:
+            RUN ipUpgradeAudit.
+        END.
     END.
 
 END PROCEDURE.
