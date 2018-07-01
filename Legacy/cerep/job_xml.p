@@ -1096,7 +1096,7 @@ FOR EACH job-hdr NO-LOCK
             x = 2.
              
             FOR EACH wrk-sheet WHERE wrk-sheet.form-no = ef.form-no  
-                        /*break by wrk-sheet.form-no*/ :  
+            /*break by wrk-sheet.form-no*/ :  
                 FIND FIRST ITEM WHERE item.company EQ cocode
                     AND item.i-no    EQ wrk-sheet.i-no NO-LOCK NO-ERROR.
                 FIND FIRST job-mat NO-LOCK 
@@ -1132,6 +1132,7 @@ FOR EACH job-hdr NO-LOCK
                   RUN XMLOutput (lXMLOutput,'Spoilage',dWstPrct,'Col').
                   RUN XMLOutput (lXMLOutput,'Number_Out',ef.n-out,'Col').
                   RUN XMLOutput (lXMLOutput,'Caliper',ef.cal,'Col').
+                  RUN XMLOutput (lXMLOutput,'/Printing','','Row').
 
                 x = 1.
             END. /* each wrk-sheet */  
@@ -1320,7 +1321,7 @@ FOR EACH job-hdr NO-LOCK
             
             iCountLine = iCountLine + 1.
             iCountLine = iCountLine + 8.
-            RUN XMLOutput (lXMLOutput,'/Printing','','Row').
+      /*      RUN XMLOutput (lXMLOutput,'/Printing','','Row'). */
 
             RUN XMLOutput (lXMLOutput,'DieCutting','','Row').
             RUN XMLOutput (lXMLOutput,'MR_Waste',iMrWaste,'Col').
