@@ -1750,6 +1750,7 @@ PROCEDURE display-qtys :
      v-job-qty   = 0
      v-qoh       = 0
      lv-release# = INT(tt-relbol.release#:SCREEN-VALUE IN BROWSE {&browse-name})
+     v-release# = lv-release#  /* Set in case something was entered after printing & clearing value */
      lv-i-no     = tt-relbol.i-no:SCREEN-VALUE IN BROWSE {&browse-name}.
 
     IF lv-release# NE 0 AND TRIM(lv-i-no) NE "" THEN DO:
@@ -2191,6 +2192,33 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-add-record B-table-Win
+PROCEDURE local-add-record:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+/* Nothing to add to if there is no release# entered */
+  IF v-release# EQ 0 THEN 
+    RETURN NO-APPLY.
+
+  /* Code placed here will execute PRIOR to standard behavior. */
+
+  /* Dispatch standard ADM method.                             */
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'add-record':U ) .
+
+  /* Code placed here will execute AFTER standard behavior.    */
+
+
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-assign-record B-table-Win 
 PROCEDURE local-assign-record :
 /*------------------------------------------------------------------------------
@@ -2335,7 +2363,8 @@ PROCEDURE local-create-record :
 
 
   /* Code placed here will execute PRIOR to standard behavior. */
-
+  IF v-release# EQ 0 THEN 
+   RETURN NO-APPLY.
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'create-record':U ) .
 
@@ -2386,12 +2415,15 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-enable-fields B-table-Win 
 PROCEDURE local-enable-fields :
-/*------------------------------------------------------------------------------
-  Purpose:     Override standard ADM method
-  Notes:       
-------------------------------------------------------------------------------*/
+    /*------------------------------------------------------------------------------
+      Purpose:     Override standard ADM method
+      Notes:       
+    ------------------------------------------------------------------------------*/
 
-  /* Code placed here will execute PRIOR to standard behavior. */
+    /* Code placed here will execute PRIOR to standard behavior. */
+    /* Nothiong to add to if there is no release# */
+    IF v-release# EQ 0 THEN 
+     RETURN NO-APPLY.
   IF is-bol-printed THEN DO:
      MESSAGE "BOL is already printed!" VIEW-AS ALERT-BOX ERROR.
      RETURN.
@@ -2821,6 +2853,7 @@ PROCEDURE print-bol :
 
   ASSIGN
      scr-rel# = 0
+     v-release# = 0
      v-rel-qty = 0
      v-scan-qty = 0.
 
@@ -2978,7 +3011,8 @@ PROCEDURE release#-value-changed :
    ASSIGN
      v-release# = INT(scr-rel#:SCREEN-VALUE IN FRAME {&FRAME-NAME})
      lv-scan-next = YES.
-
+    /* Reset to no since starting with a new release# */
+    is-bol-printed  = NO.
      RUN dispatch IN THIS-PROCEDURE ( INPUT 'open-query':U ) .
    
 END PROCEDURE.
