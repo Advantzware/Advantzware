@@ -424,8 +424,8 @@ for each xxreport where xxreport.term-id eq v-term-id,
 
      END.
          
-
-     PUT "<FArial><P7><R47><C13> SHORTAGES OR DAMAGE SHOULD BE NOTED ON RECEIPT OF SHIPMENT, OTHERWISE CLAIMS WILL NOT BE ALLOWED." SKIP
+     PUT "<FArial><P10><R46><C25><b> Total Unit:"  STRING(v-tot-cases,"->>>>>9")   "                  Total Pallets:" v-tot-palls FORMAT "->>>>>9" 
+         "</b><P7><R47><C13> SHORTAGES OR DAMAGE SHOULD BE NOTED ON RECEIPT OF SHIPMENT, OTHERWISE CLAIMS WILL NOT BE ALLOWED." SKIP
          "<|10><R48><C1><#6><FROM><R54><C81><RECT>" 
          "<R48><C1>" v-txt1[1]    
          "<R48.5><C1>" v-txt1[2]  
