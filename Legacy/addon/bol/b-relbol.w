@@ -656,7 +656,8 @@ DO:
     v-rel-qty = 0
     v-job-qty = 0
     v-qoh     = 0.
-
+    /* Reset to no since starting with a new release# */
+    is-bol-printed  = NO.
     RUN ordStatCheck (OUTPUT lOrderOnHold).
         
     IF lOrderOnHold THEN DO:
@@ -2731,7 +2732,8 @@ PROCEDURE print-bol :
   RUN post-release.
 
   EMPTY TEMP-TABLE tt-relbol.
-
+  /* If tt-relbol is empty, printed flag should be reset for blank browser */
+    is-bol-printed = NO.
   RUN dispatch ('open-query').
  
   SESSION:SET-WAIT-STATE(""). 
