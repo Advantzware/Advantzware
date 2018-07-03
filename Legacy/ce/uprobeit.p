@@ -14,7 +14,6 @@ DEFINE SHARED BUFFER xeb  FOR eb.
 {ce/print42.i SHARED}
 
 DEFINE BUFFER b-blk     FOR blk.
-DEFINE BUFFER b-probemk FOR reftable.
 DEFINE BUFFER probe-ref FOR reftable.
 
 DEFINE VARIABLE qm                 AS DECIMAL   NO-UNDO.
@@ -306,26 +305,10 @@ FOR EACH probeit
         IF AVAILABLE tt-rel THEN v-rel = v-rel + tt-rel.val[1].
     END.
 
-    FIND FIRST b-probemk
-        WHERE b-probemk.reftable EQ "ce/com/probemk.p"
-        AND b-probemk.company  EQ probeit.company
-        AND b-probemk.loc      EQ probeit.est-no
-        AND b-probemk.code     EQ STRING(probeit.line,"9999999999")
-        AND b-probemk.code2    EQ probeit.part-no
-        NO-ERROR.
-    IF NOT AVAILABLE b-probemk THEN 
-    DO:
-        CREATE b-probemk.
-        ASSIGN
-            b-probemk.reftable = "ce/com/probemk.p"
-            b-probemk.company  = probeit.company
-            b-probemk.loc      = probeit.est-no
-            b-probemk.code     = STRING(probeit.line,"9999999999")
-            b-probemk.code2    = probeit.part-no.
-    END.
-    b-probemk.val[1] = b-probemk.val[1] + (IF v-rel EQ 0 THEN 1 ELSE v-rel).
+    ASSIGN probeit.releaseCount  = probeit.releaseCount  + (IF v-rel EQ 0 THEN 1 ELSE v-rel).
 
-    IF b-probemk.val[1] GT probe.freight THEN probe.freight = b-probemk.val[1].
+    IF probeit.releaseCount  GT probe.freight THEN probe.freight = probeit.releaseCount.
+
 
     v-pct[5] = v-pct[2].
 
@@ -462,21 +445,23 @@ FOR EACH probeit
             v-ware = 0
             v-cust = 0.
 
-    ASSIGN
+   ASSIGN
         probeit.full-cost  = probeit.full-cost + v-nman
         probeit.sell-price = probeit.sell-price / (1 - (v-match-up / 100))
-        b-probemk.val[2]   = probe.comm
-        b-probemk.val[3]   = ctrl2[18]
-        b-probemk.val[4]   = ctrl[1] * 100
-        b-probemk.val[5]   = v-pct[5]
-        b-probemk.val[6]   = v-comm * (v-qty / 1000)
-        b-probemk.val[7]   = v-royl * (v-qty / 1000)
-        b-probemk.val[8]   = v-ware * (v-qty / 1000)
-        b-probemk.val[9]   = v-cust * (v-qty / 1000)
-        probe-ref.val[6]   = probe-ref.val[6] + b-probemk.val[6]
-        probe-ref.val[7]   = probe-ref.val[7] + b-probemk.val[7]
-        probe-ref.val[8]   = probe-ref.val[8] + b-probemk.val[8]
-        probe-ref.val[9]   = probe-ref.val[9] + b-probemk.val[9].
+        probeit.pctCommission   = probe.comm
+        probeit.pctRoyalty   = ctrl2[18]
+        probeit.pctWarehouse   = ctrl[1] * 100
+        probeit.pctCustMargin   = v-pct[5]
+        probeit.totCostCommission   = v-comm * (v-qty / 1000)
+        probeit.totCostRoyalty   = v-royl * (v-qty / 1000)
+        probeit.totCostWarehousr   = v-ware * (v-qty / 1000)
+        probeit.totCostCustMargin   = v-cust * (v-qty / 1000)
+        probe-ref.val[6]   = probe-ref.val[6] + probeit.totCostCommission
+        probe-ref.val[7]   = probe-ref.val[7] + probeit.totCostRoyalty
+        probe-ref.val[8]   = probe-ref.val[8] + probeit.totCostWarehousr
+        probe-ref.val[9]   = probe-ref.val[9] + probeit.totCostCustMargin.
+
+
 END.
 
 ASSIGN

@@ -2844,6 +2844,51 @@ CLASS RefTableMigration:
         END.  /*FOR EACH reftable*/  
         RETURN iCnt.
     END METHOD. /*Batchrpt*/
+    METHOD PUBLIC INTEGER CeComProbemk (INPUT ipCount AS INTEGER):
+        DEFINE VARIABLE iCnt AS INTEGER NO-UNDO.
+        DEFINE VARIABLE i AS INTEGER NO-UNDO.
+        DEFINE BUFFER reftable1 FOR reftable1.
+        DEFINE BUFFER Breftable FOR reftable. 
+        DEFINE BUFFER probeit   FOR probeit.
+        
+        DISABLE TRIGGERS FOR LOAD OF reftable.        
+        DISABLE TRIGGERS FOR LOAD OF probeit.
+        ASSIGN iProcessCount = 0.        
+        FOR EACH reftable WHERE reftable.reftable = "ce/com/probemk.p"
+            NO-LOCK:
+            DO TRANSACTION:    
+                FIND FIRST probeit WHERE probeit.company = reftable.company
+                                     AND probeit.est-no = reftable.loc
+                                     AND probeit.line = int(reftable.code)
+                                     AND probeit.part-no = reftable.code2
+                    EXCLUSIVE-LOCK NO-ERROR.
+                IF AVAILABLE probeit THEN DO:
+                        IF probeit.releaseCount EQ 0 THEN ASSIGN probeit.releaseCount = reftable.val[1].
+                        IF probeit.pctCommission EQ 0 THEN ASSIGN probeit.pctCommission = reftable.val[2].
+                        IF probeit.pctRoyalty EQ 0 THEN ASSIGN probeit.pctRoyalty = reftable.val[3].
+                        IF probeit.pctWarehouse EQ 0 THEN ASSIGN probeit.pctWarehouse = reftable.val[4].
+                        IF probeit.pctCustMargin EQ 0 THEN ASSIGN probeit.pctCustMargin = reftable.val[5].
+                        IF probeit.totCostCommission EQ 0 THEN ASSIGN probeit.totCostCommission = reftable.val[6].
+                        IF probeit.totCostRoyalty EQ 0 THEN ASSIGN probeit.totCostRoyalty = reftable.val[7].
+                        IF probeit.totCostWarehousr EQ 0 THEN ASSIGN probeit.totCostWarehousr = reftable.val[8]. 
+                        IF probeit.totCostCustMargin EQ 0 THEN ASSIGN probeit.totCostCustMargin = reftable.val[9].
+                    ASSIGN iProcessCount = iProcessCount + 1.  
+                END.
+                FIND CURRENT probeit NO-LOCK NO-ERROR.    
+                RELEASE probeit.      
+                CREATE reftable1.
+                BUFFER-COPY reftable TO reftable1.
+                RELEASE reftable1.
+                FIND Breftable WHERE ROWID(Breftable) = ROWID(reftable)
+                    EXCLUSIVE-LOCK NO-ERROR.
+                IF AVAILABLE Breftable THEN DELETE Breftable. 
+                RELEASE Breftable.   
+                iCnt = iCnt + 1.
+                IF iCnt >= ipCount THEN LEAVE.   
+            END.              
+        END.  /*FOR EACH reftable*/  
+        RETURN iCnt.
+    END METHOD. /*CeComProbemk*/
 END CLASS.
 
 

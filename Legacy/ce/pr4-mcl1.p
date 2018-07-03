@@ -16,7 +16,6 @@ def shared buffer xeb  for eb.
 {ce/print4.i shared shared}
 {ce/print42.i shared}
 
-DEF BUFFER b-probemk FOR reftable.
 DEF BUFFER probe-ref FOR reftable.
 
 def var qm as de.
@@ -83,21 +82,15 @@ if vmclean and avail probe then do:
        v-comm  = 0
        v-royl  = 0
        v-ware  = 0
-       v-cust  = 0.
+       v-cust  = 0
+       .
 
-      FIND FIRST b-probemk NO-LOCK
-          WHERE b-probemk.reftable EQ "ce/com/probemk.p"
-            AND b-probemk.company  EQ probeit.company
-            AND b-probemk.loc      EQ probeit.est-no
-            AND b-probemk.code     EQ STRING(probeit.line,"9999999999")
-            AND b-probemk.code2    EQ probeit.part-no
-          NO-ERROR.
-      IF AVAIL b-probemk THEN
-        ASSIGN
-         v-comm = b-probemk.val[6]
-         v-royl = b-probemk.val[7]
-         v-ware = b-probemk.val[8]
-         v-cust = b-probemk.val[9].
+    ASSIGN
+         v-comm = probeit.totCostCommission
+         v-royl = probeit.totCostRoyalty
+         v-ware = probeit.totCostWarehousr
+         v-cust = probeit.totCostCustMargin.
+
 
       {ce/pr4-mcl1.i "probeit" "first-of(eb.form-no)"}
 

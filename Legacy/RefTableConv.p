@@ -144,6 +144,7 @@ ASSIGN
     {refTableConv.i "Arcashhold" 'ARCASHHOLD'}
     {refTableConv.i "EitemvendAdders" 'e-item-vend.adders'}
     {refTableConv.i "Batchrpt" 'Batchrpt'}
+    {refTableConv.i "CeComProbemk" 'ce/com/probemk.p'}
 
 /* Deferred for 16.7.0                                              */
 /*    {refTableConv.i "STYFLU" 'STYFLU'}                            */
