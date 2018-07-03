@@ -7592,8 +7592,8 @@ PROCEDURE write-loadtag-line :
         w-ord.pcs  "," /*39  Number per bundle   5 characters    numberperbndl                                                                                       */
         "," /*40  Broker number   5 characters    brokernumber                                                                                            */
           loadtag.tag-no "," /*41  Order entry message line 7  64 characters   msg7                                                                                        */
-        removeChars(w-ord.i-name) FORMAT "X(30)" "," /*42  Order entry message line 8  64 characters   msg8                                                                                        */
-        caps(removeChars(w-ord.i-no))  FORMAT "x(15)" "," /*43  Order entry message line 9  64 characters   msg9                                                                                        */
+        "," /*42  Order entry message line 8  64 characters   msg8                                                                                        */
+        '"' + removeChars(w-ord.ord-desc1) + '"' FORMAT "X(30)" "," /*43  Order entry message line 9  64 characters   msg9                                                                                        */
         '"' +  removeChars(w-ord.style-desc) + '"' "," /*44  Style description   15 characters   styledesc                                                                                           */
           w-ord.box-len FORMAT ">>>9.99<<<" "," /*45  Box length  9 characters    boxlen                                                                                                      */
           w-ord.box-wid FORMAT ">>>9.99<<<" "," /*46  Box width   9 characters    boxwid                                                                                                      */
@@ -7637,8 +7637,7 @@ PROCEDURE write-loadtag-line :
         "," /*84  Critical Operation 5 text   5 characters    LC05                                                                                        */
         "," /*85  Critical Operation 6 text   5 characters    LC06                                                                                        */
         "," /*86  1st Miscellaneous Billing Message   18 characters   MiscMsg1                                                                            */
-        "," /*87  2nd Miscellaneous Billing Message   18 characters   MiscMsg2                                                                             */
-        removeChars(w-ord.part-dscr2) FORMAT "X(30)"  /* 88 Part Description 2                                                                                                         */
+        "" /*87  2nd Miscellaneous Billing Message   18 characters   MiscMsg2                                                                             */
          .
  END.
  ELSE DO:
