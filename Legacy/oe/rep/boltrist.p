@@ -79,9 +79,9 @@ format header
        "TO SHIP"                        at 59
 */
        "QTY ORDERED"                    at 58
-       "SHIPPED"                        at 72
-       "------------"                   at 58
-       "---------"                      at 71
+       "SHIPPED"                        at 74
+       "--------------"                   at 58
+       "-----------"                      at 74
 
     with frame bol-top page-top no-box no-underline stream-io width 85.
 
@@ -94,7 +94,7 @@ form oe-boll.loc-bin                at 1  format "x(6)"
 /*
      v-to-ship                      to 66 format ">>>,>>>"
 */
-     oe-ordl.qty                    to 66 format ">>>,>>>"
+     oe-ordl.qty                    to 70 format ">>>>>>>>>"
 /*
      "_______"                      at 71
 */

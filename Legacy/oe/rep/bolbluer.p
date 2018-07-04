@@ -56,7 +56,7 @@ format header
        page-number - v-last-page        to 69   format "99"
        "OF"                             at 71
        v-page-tot                       to 75   format "99"
-       tmpstore                         at 1    format "x(79)"
+       tmpstore                         at 1    format "x(82)"
        "P.O.#"                          at 17
        "PER"                            at 67
        "ITEM NUMBER"                    at 1
@@ -70,7 +70,7 @@ format header
        "----------------------------"   at 33
        "----"                           at 62
        "------"                         at 67
-       "------"                         at 74
+       "---------"                         at 74
 
     with frame bol-top page-top no-box no-underline stream-io width 85.
 
@@ -82,7 +82,7 @@ form /*
      v-part-dscr                    at 33 format "x(28)"
      w2.cases                       to 65 format ">>>9"
      w2.cas-cnt                     to 72 format ">>>>>9"
-     oe-boll.qty                    to 79 format ">>>>>9"
+     oe-boll.qty                    to 82 format ">>>>>>>>9"
 
     with frame bol-mid down no-box no-labels stream-io width 85.
 
@@ -104,7 +104,7 @@ form header
 def stream last-page.
 
 
-tmpstore = fill("-",79).
+tmpstore = fill("-",82).
 
 output stream last-page to value(tmp-dir + "bolbluer.txt") page-size VALUE(v-lines-per-page).
 

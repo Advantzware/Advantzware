@@ -38,8 +38,8 @@ find first company where company.company eq cocode no-lock no-error.
 find first oe-ctrl where oe-ctrl.company eq cocode no-lock no-error.
 
 FORM
-  oe-ordl.qty                   format "->>>>>>"
-  tt-boll.qty                   format "->>>>>>"
+  oe-ordl.qty                   format "->>>>>>>>"
+  tt-boll.qty                   format "->>>>>>>>"
   space(0)
   tt-boll.cases                 format "->>>"
   space(0)
@@ -56,8 +56,8 @@ FORM
   with frame ln-1 down no-box no-labels stream-io width 90.
 
 FORM
-  oe-ordl.qty                   format "->>>>>>"
-  tt-boll.qty                   format "->>>>>>"
+  oe-ordl.qty                   format "->>>>>>>>"
+  tt-boll.qty                   format "->>>>>>>>"
   space(0)
   tt-boll.cases                 format "->>>"
   space(0)
@@ -188,10 +188,10 @@ for each report   where report.term-id eq v-term-id,
              oe-bolh.ship-i[3] at 16 format "x(60)" skip
              oe-bolh.ship-i[4] at 16 format "x(60)"
              skip(4)
-             "Qty Ord Qty Ship Cs Pcs/Cs      "
+             "  Qty Ord   Qty Ship Cs Pcs/Cs      "
              "P.O. No. / Item / Description  "
              "Order# P/C  Wt." skip
-             "------- -------- -- ------"
+             "--------- ---------- -- ------"
              "-------------------------------------"
              "------ --- ----" skip
           with frame hd-top-comp no-box no-labels page-top stream-io width 90.
