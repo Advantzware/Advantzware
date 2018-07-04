@@ -186,7 +186,7 @@ ASSIGN
  str-init[103] = "Item,Vendor,All,NoTax"   /* aptax */ 
  str-init[104] = "None,Overrun,Receipts"  /* rmemails */     
  str-init[105] = ",loadtag"
- str-init[106] = "Fibrex"
+ str-init[106] = "Fibrex,BOLFMTX15"
  str-init[107] = ",Indiana,Dee"
  str-init[108] = "Workstation,Server"  
  str-init[109] = "Reorder Point"   
