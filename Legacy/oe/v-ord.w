@@ -3485,9 +3485,16 @@ PROCEDURE display-cust-detail :
                                                                soldto.sold-zip)
              .
 
-    FIND FIRST shipto WHERE shipto.company EQ cocode
-                        AND shipto.cust-no EQ cust.cust-no
-        NO-LOCK NO-ERROR.
+    FIND FIRST shipto NO-LOCK
+        WHERE shipto.company EQ cocode
+          AND shipto.cust-no EQ cust.cust-no
+          AND shipto.ship-id EQ cust.cust-no NO-ERROR.  
+
+    IF NOT AVAIL shipto THEN
+        FIND FIRST shipto NO-LOCK
+          WHERE shipto.company EQ cocode
+           AND shipto.cust-no EQ cust.cust-no NO-ERROR.
+
     IF AVAIL shipto THEN
        ASSIGN 
             oe-ord.ship-id:SCREEN-VALUE = shipto.ship-id
