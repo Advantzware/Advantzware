@@ -177,7 +177,7 @@ CLASS RefTableMigration:
         FOR EACH reftable WHERE reftable.reftable = "oe-rel.lot-no"
             NO-LOCK:
             DO TRANSACTION:    
-                FIND FIRST oe-rel WHERE oe-rel.rec_key = reftable.rec_key
+                FIND FIRST oe-rel WHERE oe-rel.r-no = int(reftable.company)
                     EXCLUSIVE-LOCK NO-ERROR.
                 IF AVAILABLE oe-rel THEN    
                 DO: 
