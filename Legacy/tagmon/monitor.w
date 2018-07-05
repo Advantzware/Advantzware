@@ -168,7 +168,9 @@ PROCEDURE postMonitor:
         
     
     cPathIn  = AsnHotFolderIn-char.   
-
+    
+    /* Execute ftp to download files */
+    RUN custom/InboundFTP.p (INPUT "TagMon", INPUT cPathIn, INPUT  "*" /* filespec */).
    
     RUN monitorActivity ('Check New Tag Files ' + monitorImportDir,YES,'').
     
