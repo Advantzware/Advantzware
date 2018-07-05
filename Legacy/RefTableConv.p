@@ -143,6 +143,7 @@ ASSIGN
     {refTableConv.i "StdUom" 'e-itemfg-vend.std-uom'}
     {refTableConv.i "relcredconv" 'relcredconv'}
     {refTableConv.i "Arcashhold" 'ARCASHHOLD'}
+    {refTableConv.i "Machcrew" 'MACH-CREW'}
 
 /* Deferred for 16.7.0                                              */
 /*    {refTableConv.i "STYFLU" 'STYFLU'}                            */
