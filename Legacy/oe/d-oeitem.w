@@ -1166,7 +1166,7 @@ DO:
           IF ip-type NE 'Update' THEN
             ASSIGN oe-ordl.i-no:SCREEN-VALUE = b-oe-ordl.i-no
             
-                      /* oe-ordl.i-no = b-oe-ordl.i-no */.
+                                /* oe-ordl.i-no = b-oe-ordl.i-no */.
           
           FIND FIRST itemfg NO-LOCK
                             WHERE itemfg.company EQ cocode
@@ -1350,608 +1350,8 @@ END. /* do: */
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_OK d-oeitem
 ON CHOOSE OF Btn_OK IN FRAME d-oeitem /* Save */
 DO:
-  DEF VAR ll-price-mod      AS   LOG  NO-UNDO.
-  DEF VAR lv-price          AS   CHAR NO-UNDO.
-  DEF VAR ll-pruom-mod      AS   LOG  NO-UNDO.
-  DEF VAR lv-pruom          AS   CHAR NO-UNDO.
-  DEF VAR lv-prev-req-date  AS   DATE NO-UNDO.
-  DEF VAR lv-stat           AS   CHAR NO-UNDO.
-  DEF VAR ll                AS   LOG  NO-UNDO.
-  DEF VAR ld                AS   DEC  NO-UNDO.
-  DEF VAR ll-reopen         AS   LOG  NO-UNDO.
-  DEF VAR ll-runship        AS   LOG  NO-UNDO.
-  DEF VAR lInvoiceFound     AS   LOG  NO-UNDO.
-  DEF VAR v-job-rec_key     AS   CHAR NO-UNDO.
-  DEF VAR v-runsh           AS   INT  NO-UNDO.
-  DEF VAR v-xfer-ord        AS   INT  NO-UNDO.
-  DEF VAR createSetorder    AS   LOG  NO-UNDO.
-  DEF VAR v-date-change-reason AS CHAR NO-UNDO.
-  DEF VAR dCalcDueDate AS DATE NO-UNDO.
-  DEF VAR dCalcPromDate AS DATE NO-UNDO.
-  DEFINE VARIABLE cDueDateChgReason AS CHARACTER NO-UNDO.
-  DEF VAR v-added-rowid AS ROWID      NO-UNDO.
-  DEFINE VARIABLE lPMPrompt AS LOGICAL.
-  DEFINE VARIABLE cPMMessage AS CHARACTER.
-  DEFINE VARIABLE lPMBlock AS LOGICAL.
-  DEFINE VARIABLE lPricehold AS LOGICAL.
-  DEFINE VARIABLE cPriceHoldMessage AS CHARACTER.
-
-  DEF BUFFER b-oe-ordl FOR oe-ordl.
-  DEF BUFFER b-oe-ord FOR oe-ord.
-
-
-  DISABLE TRIGGERS FOR LOAD OF xoe-ord.
-
-  IF ip-type EQ "WebUpdate" THEN DO:
-    FIND CURRENT oe-ordl EXCLUSIVE-LOCK.
-    ASSIGN oe-ordl.qty.
-    FIND CURRENT oe-ordl NO-LOCK.
-    APPLY "go" TO FRAME {&FRAME-NAME}.
-    RETURN.
-  END.
-
-  /* display spec notes for the item */   
-  RUN windows/d-spnote.w (oe-ordl.i-no:SCREEN-VALUE).
-
-  IF ip-type EQ "view" THEN DO:
-    APPLY "go" TO FRAME {&FRAME-NAME}.
-    RETURN.
-  END.
-
-  RUN custom/framechk.p (2, FRAME {&FRAME-NAME}:HANDLE).
-
-  ll-reopen = framechk-i-changed AND oe-ordl.stat EQ "C".
-
-  /* gdm - 10220907 */
-  IF TRIM(oe-ordl.pr-uom:SCREEN-VALUE) EQ "" THEN DO:
-
-    MESSAGE "UOM can't be blank. Please enter a valid UOM"
-        VIEW-AS ALERT-BOX INFO BUTTONS OK.
-
-    APPLY "entry" TO oe-ordl.pr-uom.
-    RETURN.
-
-  END.
-  /* gdm - 10220907 end */
-
-  DO WITH FRAME {&FRAME-NAME}:
-    ASSIGN
-     v-qty-mod       = oe-ordl.qty NE li-prev-ord-qty
-     li-prev-qty     = oe-ordl.qty
-     li-prev-ord-qty = oe-ordl.qty
-     ll-price-mod    = oe-ordl.price:MODIFIED
-     lv-price        = oe-ordl.price:SCREEN-VALUE
-     ll-pruom-mod    = oe-ordl.pr-uom:MODIFIED
-     lv-pruom        = oe-ordl.pr-uom:SCREEN-VALUE.
-     
-    IF oe-ordl.vend-no:SCREEN-VALUE = "0"  THEN
-        ASSIGN oe-ordl.vend-no:SCREEN-VALUE = "".
-
-  END.
-
-  lv-prev-req-date = oe-ordl.req-date.
-  
-  RUN itemfg-cost.
-  
-
-  IF oe-ordl.est-no:SCREEN-VALUE <> "" THEN DO:
-     RUN check-quote-qty NO-ERROR.
-     IF ERROR-STATUS:ERROR THEN DO:
-        APPLY 'entry' TO oe-ordl.qty.
-        RETURN . 
-     END.
-  END.
-
-  RUN validate-all NO-ERROR.
-  IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-
-  IF runship-char EQ "RUN&SHIP Prompt" AND ip-type = "ADD" THEN DO:
-    IF oe-ordl.est-no:SCREEN-VALUE GT ""  THEN 
-      asi.oe-ordl.whsed:SCREEN-VALUE = "YES".
-    ELSE DO:
-        ll-runship = LOGICAL(asi.oe-ordl.whsed:SCREEN-VALUE).
-  
-        RUN oe/d-runsh.w (INPUT ll-runship, OUTPUT v-runsh).
-        
-        IF v-runsh = 1 THEN
-           ASSIGN asi.oe-ordl.whsed:SCREEN-VALUE = "YES".
-        IF v-runsh = 2 THEN DO:
-           ASSIGN oe-ordl.managed:SCREEN-VALUE = "YES" oe-ordl.managed = YES.
-        END.        
-    END.
-  END.
-  ELSE
-    IF (runship-char EQ "" OR  runship-char EQ "DefaultOnly" ) AND runship-log EQ YES AND oe-ordl.est-no:SCREEN-VALUE NE "" THEN
-       ASSIGN asi.oe-ordl.whsed:SCREEN-VALUE = "YES".
-
-
-  IF oe-ordl.est-no:SCREEN-VALUE EQ "" THEN
-   ASSIGN 
-        lPMPrompt = NO 
-        lPMBlock = NO.
-        
-   RUN CheckPriceMatrix IN hdPriceProcs ( cocode, oe-ordl.i-no:SCREEN-VALUE,  oe-ord.cust-no, oe-ord.ship-id, DEC(oe-ordl.qty:SCREEN-VALUE),DEC(oe-ordl.price:SCREEN-VALUE),
-                        OUTPUT lPMPrompt, OUTPUT cPMMessage, OUTPUT lPMBlock).
-   IF lPMPrompt THEN DO: 
-        MESSAGE cPMMessage VIEW-AS ALERT-BOX.
-        IF lPMBlock THEN RETURN NO-APPLY.
-   END.
-    
-  IF oepricecheck-log AND oe-ordl.est-no:SCREEN-VALUE EQ "" AND
-     ll-new-record THEN
-     RUN prev-quote-proc(INPUT-OUTPUT lv-price,
-                         INPUT-OUTPUT lv-pruom).
-
-  DO WITH FRAME {&frame-name}:
-    IF ll-price-mod THEN oe-ordl.price:SCREEN-VALUE = lv-price.
-    IF ll-pruom-mod THEN oe-ordl.pr-uom:SCREEN-VALUE = lv-pruom.
-
-    {oe/ordltot.i oe-ordl qty oe-ordl}
-  END.
-
-  IF ll-reopen THEN DO:
-    ll-reopen = NO.
-    MESSAGE "This line item is closed, REOPEN?"
-        VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO
-        UPDATE ll-reopen.
-  END.
-
-  SESSION:SET-WAIT-STATE ("general").
-
-  DO TRANSACTION:
-  FIND CURRENT oe-ordl EXCLUSIVE.
-
-  IF ll-reopen THEN oe-ordl.stat = "".
-
-  IF NOT ll-new-record THEN DO:
-      RUN oe/upinvqty.p (RECID(oe-ordl)).
-  END.
-
-  DO WITH FRAME {&FRAME-NAME}:
-    ASSIGN {&FIELDS-IN-QUERY-{&FRAME-NAME}}
-          fi_jobStartDate.
-    IF asi.oe-ordl.whsed:HIDDEN = FALSE THEN
-        ASSIGN oe-ordl.whsed.
-    IF STRING(DATE(oe-ordl.spare-int-2)) NE fi_jobStartDate:SCREEN-VALUE THEN DO:
-        ASSIGN oe-ordl.spare-int-2 = INT(DATE(fi_jobStartDate:SCREEN-VALUE)).
-        RUN updateStartDate.
-    END.
-
-  END.
-  RUN CheckPriceHoldForOrder IN hdPriceProcs(ROWID(oe-ord),
-                                              YES, /*Prompt*/
-                                              YES, /*Set oe-ord hold fields*/
-                                              OUTPUT lPriceHold, 
-                                              OUTPUT cPriceHoldMessage).
-                                              
-  FIND xoe-ord WHERE RECID(xoe-ord) = recid(oe-ord) EXCLUSIVE.
-  FIND FIRST itemfg WHERE itemfg.company EQ cocode
-                      AND itemfg.i-no EQ oe-ordl.i-no NO-LOCK NO-ERROR.
-  IF AVAIL itemfg THEN DO:
-       ASSIGN 
-        xoe-ord.t-weight = xoe-ord.t-weight - oe-ordl.t-weight
-        oe-ordl.t-weight = ( oe-ordl.qty / 100 ) * itemfg.weight-100
-        xoe-ord.t-weight = xoe-ord.t-weight + oe-ordl.t-weight.
-
-    /*IF TRIM(oe-ordl.est-no) NE "" AND
-       TRIM(xoe-ord.est-no) EQ "" AND
-       ll-new-record              THEN
-      RUN fg/makenote.p (BUFFER oe-ordl, ?, itemfg.rec_key).*/
-  END.
-  FIND CURRENT xoe-ord NO-LOCK.
-
-  IF oeDateChange-log 
-       AND  NOT ll-new-record
-       AND  LOOKUP("promise Date", oeDateChange-chr) GT 0
-       AND  oe-ordl.prom-date NE ld-prev-prom-date 
-       AND  ld-prev-prom-date NE ?
-       AND  gcLastDateChange EQ "prom-date" THEN DO:
-    
-
-        RUN oe/d-rsnnot.w /* PERSISTENT SET h_reasonWin */
-      (INPUT oe-ordl.rec_key, INPUT "P", INPUT "", INPUT "", INPUT 0, INPUT "PDC", INPUT "",
-       OUTPUT v-date-change-reason, OUTPUT v-added-rowid)  .
-
-    IF v-date-change-reason GT "" THEN
-        ASSIGN oe-ordl.spare-char-3 = v-date-change-reason               
-               oe-ordl.spare-char-4 = USERID("NOSWEAT").
-   
-  END.
-  
-  IF oeDateChange-log 
-       AND  NOT ll-new-record
-       AND  LOOKUP("Order Line Due Date", oeDateChange-chr) GT 0
-       AND  oe-ordl.req-date NE dtPrevDueDate 
-       AND  dtPrevDueDate NE ? 
-       AND  gcLastDateChange EQ "req-date" THEN DO:
-    
-
-        RUN oe/d-pdcnot.w /* PERSISTENT SET h_reasonWin */
-      (INPUT oe-ordl.rec_key, INPUT "D", INPUT "", INPUT "", INPUT 0, INPUT "DDC", INPUT "",
-       OUTPUT v-date-change-reason, OUTPUT v-added-rowid)  .
-
-    IF v-date-change-reason GT "" THEN
-        ASSIGN oe-ordl.spare-char-5 = USERID("NOSWEAT") + "," + v-date-change-reason.                              
-   
-  END.
-  
-      IF lv-change-prom-date THEN 
-      DO:  
-          FOR EACH xoe-ordl WHERE xoe-ordl.company EQ g_company
-              AND xoe-ordl.ord-no EQ oe-ord.ord-no
-              AND recid(xoe-ordl) NE recid(oe-ordl):
-              ASSIGN 
-                  xoe-ordl.prom-date = oe-ordl.prom-date.
-          END.
-      END.
-  
-  IF oeDateAuto-log AND OeDateAuto-Char = "Colonial" THEN 
-  DO:
-      
-      RUN oe/dueDateCalc.p (INPUT oe-ord.cust-no,
-          INPUT oe-ordl.req-date,
-          INPUT oe-ordl.prom-date,
-          INPUT "DueDate",
-          INPUT ROWID(oe-ordl),
-          OUTPUT dCalcDueDate,
-          OUTPUT dCalcPromDate).
-      
-      oe-ordl.prom-date = dCalcPromDate.
-
-
-
-  END.
-  
-  
-  IF lv-change-cst-po THEN DO:  
-     FOR EACH xoe-ordl WHERE xoe-ordl.company EQ g_company
-                         AND xoe-ordl.ord-no EQ oe-ord.ord-no
-                        AND recid(xoe-ordl) NE recid(oe-ordl):
-         ASSIGN xoe-ordl.po-no = oe-ordl.po-no.
-     END.
-  END.
-  IF lv-change-inv-po THEN DO:    
-    RUN oe/poNoChange.p (INPUT g_company,
-                         INPUT oe-ord.ord-no,
-                         INPUT oe-ordl.po-no,
-                         INPUT (IF lv-change-cst-po THEN "" ELSE oe-ordl.i-no)).
-  END.
-  RELEASE xoe-ordl.
-  
-  RUN update-itemfg.
-
-  ASSIGN {&list-2} .  /* job-no job-no2 */
-
-  FIND CURRENT oe-ordl NO-LOCK.
-  END. /* trans */
-
-  IF ip-type NE "update" AND oe-ordl.est-no NE "" THEN
-    RUN oe/ordlmisc.p (ROWID(oe-ordl), oe-ordl.qty).
-  
-  
-  IF oereleas-log THEN 
-    IF ll-new-record THEN RUN create-release.
-                     ELSE RUN update-release.
-  
-  DO TRANSACTION:
-      FIND CURRENT oe-ordl EXCLUSIVE.
-      FIND CURRENT oe-ord EXCLUSIVE.
-    
-      RUN final-steps.
-  END. /* Transaction */
-  IF ll-new-record AND oe-ordl.s-man[1]:screen-value IN FRAME {&frame-name} = "" THEN DO TRANSACTION: 
-    RUN itemfg-sman.
-    ASSIGN oe-ordl.s-man[1].
-  END.
-   
-  
-  DO TRANSACTION:
-  
-  
-      IF ll-new-record THEN DO:
-        RUN oe/ordlfrat.p (ROWID(oe-ordl), OUTPUT oe-ordl.t-freight).
-        xoe-ord.t-freight = xoe-ord.t-freight + oe-ordl.t-freight.
-      END. /* ll-new-record */
-      
-      /* Update Item Cust Part if Required */
-        IF v-oeCustPartInt EQ 1 THEN DO:
-          FIND FIRST itemfg 
-            WHERE itemfg.company EQ cocode
-              AND itemfg.i-no EQ oe-ordl.i-no 
-            NO-LOCK NO-ERROR.
-          
-          IF avail(itemfg) AND itemfg.part-no NE oe-ordl.part-no:screen-value THEN DO:
-              FIND CURRENT itemfg EXCLUSIVE-LOCK.
-              itemfg.part-no    = oe-ordl.part-no:screen-value.
-              FIND CURRENT itemfg NO-LOCK.
-          END. /* part # changed */
-        END. /* oecustpartint = 1 */
-      
-      RUN oe/ordfrate.p (ROWID(oe-ord)).  
-    
-      RUN oe/oe-comm.p.  
-    
-      RUN oe/calcordt.p (ROWID(oe-ord)).
-      FIND FIRST cust NO-LOCK 
-          WHERE cust.company EQ cocode
-          AND cust.cust-no EQ oe-ord.cust-no NO-ERROR.
-      IF (ld-prev-t-price NE oe-ordl.t-price OR ip-type BEGINS "update-")
-           AND AVAIL cust AND cust.active NE "X" AND AVAIL oe-ord AND oe-ord.TYPE NE "T" THEN DO:
-         RUN oe/creditck.p (ROWID(oe-ord), YES).  
-      END.
-    
-      IF oe-ordl.job-no NE "" THEN
-         RUN oe/palchk.p(ROWID(oe-ord), oe-ordl.i-no).
-    
-      ld-prev-t-price = oe-ordl.t-price.
-    
-      /* gdm - 11090905 */
-      IF ip-type EQ "Update" AND
-         v-ponoUp THEN DO:
-    
-         IF lv-change-cst-po THEN
-           FOR EACH job-hdr WHERE
-               job-hdr.company EQ oe-ordl.company AND
-               job-hdr.job-no  EQ oe-ordl.job-no AND
-               job-hdr.job-no2 EQ oe-ordl.job-no2 AND
-               job-hdr.ord-no  EQ oe-ordl.ord-no:
-             ASSIGN job-hdr.po-no = oe-ordl.po-no.
-           END.
-         
-         ELSE
-          FOR EACH job-hdr WHERE
-              job-hdr.company EQ oe-ordl.company AND
-              job-hdr.job-no  EQ oe-ordl.job-no AND
-              job-hdr.job-no2 EQ oe-ordl.job-no2 AND
-              job-hdr.ord-no EQ oe-ordl.ord-no AND
-              job-hdr.i-no EQ oe-ordl.i-no:
-          
-              ASSIGN job-hdr.po-no = oe-ordl.po-no.
-          END.
-          
-          RELEASE job-hdr.
-      END.
-      /* gdm - 11090905 end */
-    
-      IF ip-type EQ "Update" AND
-         TRIM(oe-ordl.job-no) EQ "" AND
-         TRIM(oe-ord.est-no) NE "" THEN
-         DO:
-            FIND FIRST job-hdr WHERE
-                 job-hdr.company EQ oe-ordl.company AND
-                 job-hdr.ord-no EQ oe-ordl.ord-no AND
-                 job-hdr.i-no EQ oe-ordl.i-no
-                 NO-LOCK NO-ERROR.
-    
-            IF AVAIL job-hdr THEN
-            DO:
-               ASSIGN
-                  oe-ordl.job-no = job-hdr.job-no
-                  oe-ordl.job-no2 = job-hdr.job-no2.
-    
-               IF TRIM(oe-ord.job-no) EQ "" THEN
-                  ASSIGN
-                     oe-ord.job-no = job-hdr.job-no
-                     oe-ord.job-no2 = job-hdr.job-no2.
-    
-               RELEASE job-hdr.
-            END.
-         END.
-    
-      /* end of job update */
-      FIND CURRENT oe-ord NO-LOCK.
-      FIND CURRENT oe-ordl NO-LOCK.
-    
-      IF ll-new-record AND TRIM(v-duplicateFGDayClient) = "DuplicateFGDayClient" THEN DO:
-        RUN check-duplicateFGDayClient.
-      END.
-
-  END. /* Transaction */
-  
-  RUN sys/inc/ordlcomp.p (ROWID(oe-ordl)).
-  
-  RUN final-steps2.
-
-  /* need to assign oe-ordl.est-type = eb.est-type  
-     job */
-
-  ASSIGN
-   v-qty-mod         = NO
-   lv-add-mode       = NO
-   ll-new-fg-created = NO.
-
-  DO WITH FRAME {&frame-name}:
-    DISPLAY {&DISPLAYED-FIELDS}.
-  END.
-      
-  DO TRANSACTION:
-  FIND CURRENT oe-ordl EXCLUSIVE.
-  FIND CURRENT oe-ord EXCLUSIVE.
-
-  /* assign rec_key to oe-ord for notes */
-
-  IF oe-ord.est-no <> "" THEN
-  DO:
-     /*if notes frozen from jc/jobnotes.p, don't update rec_key*/
-
-     FIND FIRST job-hdr WHERE
-          job-hdr.company EQ cocode AND
-          job-hdr.job-no  EQ oe-ordl.job-no AND
-          job-hdr.job-no2 EQ oe-ordl.job-no2
-          NO-LOCK NO-ERROR.
-
-     IF AVAIL job-hdr THEN
-     DO:
-        FIND FIRST job WHERE
-             job.company EQ cocode AND
-             job.job EQ job-hdr.job AND
-             job.job-no EQ job-hdr.job-no AND
-             job.job-no2 EQ job-hdr.job-no2
-             NO-LOCK NO-ERROR.
-
-        IF AVAIL job THEN
-        DO:
-           v-job-rec_key = job.rec_key.
-           RELEASE job.
-        END.
-
-        RELEASE job-hdr.
-     END.
-
-     IF oe-ordl.rec_key EQ "" OR
-        (v-job-rec_key NE oe-ordl.rec_key) THEN
-        oe-ordl.rec_key = est.rec_key.
-  END.
-    
-  
-  FIND FIRST b-oe-ordl WHERE  b-oe-ordl.company EQ oe-ordl.company
-          AND b-oe-ordl.ord-no  EQ oe-ordl.ord-no
-          AND RECID(b-oe-ordl) <> RECID(oe-ordl) NO-LOCK NO-ERROR.
-  IF NOT AVAIL b-oe-ordl AND oe-ordl.est-no <> "" THEN DO:
-    FIND b-oe-ord WHERE RECID(b-oe-ord) = RECID(oe-ord) EXCLUSIVE.
-    b-oe-ord.rec_key = oe-ordl.rec_key.
-    RELEASE b-oe-ord.
-  END.
-  ELSE DO:
-     FIND FIRST b-oe-ordl WHERE  b-oe-ordl.company EQ oe-ordl.company
-            AND b-oe-ordl.ord-no  EQ oe-ordl.ord-no
-            AND RECID(b-oe-ordl) <> RECID(oe-ordl)
-            AND b-oe-ordl.est-no <> oe-ordl.est-no
-            NO-LOCK NO-ERROR.
-     IF NOT AVAIL b-oe-ordl AND oe-ordl.est-no <> "" THEN DO:
-         FIND b-oe-ord WHERE RECID(b-oe-ord) = RECID(oe-ord) EXCLUSIVE.
-             b-oe-ord.rec_key = oe-ordl.rec_key.
-             RELEASE b-oe-ord.
-     END.
-  END.
-
-  /* end of job update */
-  FIND CURRENT oe-ord NO-LOCK.
-  FIND CURRENT oe-ordl NO-LOCK.
-  END. /* trans */
-
-
-
-  IF (oe-ordl.req-date NE lv-prev-req-date OR ip-type EQ "ADD"
-            /*OR ip-type = "UPdate-2" doen in v-ord.w order-from-est proc */)
-    /* update job's start-date when req-date is changed */
-     AND oe-ordl.est-no:SCREEN-VALUE NE "" /*AND lv-update-job-stdate */ 
-     AND (v-run-schedule OR schedule-log)
-  THEN RUN update-start-date.
-
-  IF oe-ordl.job-no NE '' THEN RUN update-due-date.
-
-  
-  IF gcLastDateChange GT "" THEN DO:
-    FIND CURRENT oe-ord.
-    IF gcLastDateChange EQ "prom-date" THEN
-      oe-ord.due-date = oe-ordl.req-date.
-           
-    IF gcLastDateChange EQ "req-date" THEN
-      oe-ord.due-date = oe-ordl.prom-date.    
-   
-    FIND CURRENT oe-ord NO-LOCK NO-ERROR.
-  END.
-  DO TRANSACTION:
-    FIND CURRENT oe-ord.    
-
-    RUN oe/ordfrate.p (ROWID(oe-ord)). /* strange problem with freight */
-
-    ll = NO.
-    IF AVAIL oe-ord AND (oe-ord.due-date GT oe-ordl.req-date 
-                         OR oeDateAuto-log AND OeDateAuto-Char = "Colonial") THEN DO:
-      IF oeDateAuto-log AND OeDateAuto-Char = "Colonial" THEN 
-        ll = YES.
-      ELSE
-        MESSAGE "Change order header due date to " + TRIM(STRING(oe-ordl.req-date)) "?"
-          VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
-          UPDATE ll.
-    END.
-    IF ll THEN oe-ord.due-date = oe-ordl.req-date.
-
-    FIND CURRENT oe-ord NO-LOCK NO-ERROR.
-  END.
-   /* Done after oe-ord.due-date is updated */
-   IF oeDateAuto-log AND OeDateAuto-Char = "Colonial" THEN DO:
-   
-      FOR EACH oe-rel 
-      WHERE oe-rel.company EQ oe-ordl.company
-        AND oe-rel.ord-no  EQ oe-ordl.ord-no
-        AND oe-rel.i-no    EQ oe-ordl.i-no
-      NO-LOCK
-      BY oe-rel.rel-date:
-          
-      IF LOOKUP(oe-rel.stat, 'A,C,P,Z' ) EQ 0 THEN DO:
-        
-      
-        FIND bf-oe-rel WHERE ROWID(bf-oe-rel) EQ rowid(oe-rel) EXCLUSIVE-LOCK.
-        
-        bf-oe-rel.spare-char-4 = STRING(oe-ord.due-date) + ",,".
-
-        bf-oe-rel.rel-date = get-colonial-rel-date(ROWID(bf-oe-rel)).
-        FIND CURRENT bf-oe-rel NO-LOCK.
-        RELEASE bf-oe-rel.
-      END.
-    
-      /* Only consider first one */
-      LEAVE.
-    END. /* each oe-rel */
-  END. 
-  SESSION:SET-WAIT-STATE ("").
-
-  IF oesetxfer-log AND (ip-type EQ "ADD" OR (oe-ord.est-no GT "" AND ip-type BEGINS "UPDATE-")) THEN DO:
-    FIND itemfg WHERE itemfg.company = oe-ordl.company
-                  AND itemfg.i-no    = oe-ordl.i-no
-                  AND itemfg.isaset
-                NO-LOCK NO-ERROR.    
-
-    IF AVAIL itemfg AND itemfg.alloc = NO THEN
-      RUN oe/d-oexfer.w (INPUT ROWID(oe-ord), OUTPUT v-xfer-ord).
-    IF v-xfer-ord GT 0 THEN DO TRANSACTION:
-      FIND CURRENT oe-ordl EXCLUSIVE-LOCK.
-      oe-ordl.spare-int-1 = v-xfer-ord.
-      FIND CURRENT oe-ordl NO-LOCK.
-    END.
-  END.
-  
-  /*RUN oe/sman-upd.p (ROWID(oe-ordl)).*/  
-    lInvoiceFound = FALSE.
-    IF OESellPriceXfer-log AND  (ll-price-mod OR ll-pruom-mod) THEN DO:
-      FOR EACH oe-boll 
-         WHERE oe-boll.company EQ oe-ordl.company
-           AND oe-boll.ord-no EQ oe-ordl.ord-no
-           AND oe-boll.i-no   EQ oe-ordl.i-no
-           AND oe-boll.LINE   EQ oe-ordl.LINE
-         NO-LOCK,
-         EACH inv-head WHERE inv-head.company EQ oe-boll.company
-          AND inv-head.bol-no EQ oe-boll.bol-no
-          NO-LOCK,
-         
-         FIRST inv-line 
-              WHERE inv-line.r-no   EQ inv-head.r-no 
-               AND inv-line.ord-no  EQ oe-boll.ord-no 
-               AND inv-line.b-no    EQ oe-boll.b-no
-               AND inv-line.i-no    EQ oe-boll.i-no
-               AND inv-line.line    EQ oe-boll.line
-               AND inv-line.po-no   EQ oe-boll.po-no
-              NO-LOCK .
-          lInvoiceFound = TRUE.
-          LEAVE.
-      END.
-      
-      IF lInvoiceFound THEN DO:
-         MESSAGE "Unposted invoices were found for this order line." SKIP
-                 "Would you like to update the price on them?" VIEW-AS ALERT-BOX QUESTION
-            BUTTON YES-NO UPDATE ll-ans AS LOG.
-        IF  ll-ans THEN DO:
-          RUN updateInvoicePrice (INPUT ROWID(oe-ordl), INPUT lv-price, INPUT lv-pruom).
-
-
-        END. /* if ll-ans */
-      END. /* If invoice was found */
-    END. /* If Price was modified */
   APPLY "go" TO FRAME {&FRAME-NAME}.
-
+  RUN OnSaveButton.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -3309,11 +2709,13 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
     END.
  
+ IF ip-type NE "view" THEN DO:
     IF llOEPrcChg-sec THEN  
        oe-ordl.price:SENSITIVE  IN FRAME {&FRAME-NAME} = YES.
     ELSE DO:        
        oe-ordl.price:SENSITIVE  IN FRAME {&FRAME-NAME} = NO.
     END.
+ END.
 
   IF fgsecurity-log THEN
   DO:
@@ -7082,15 +6484,677 @@ IF AVAIL oe-ordl THEN DO:
     IF AVAIL oe-ordl THEN
         RUN sys/ref/nk1look.p (INPUT cocode, "OESCREEN", "L" /* Logical */, YES /* check by cust */, 
                                INPUT YES /* use cust not vendor */, oe-ordl.cust-no, "" /* ship-to*/,
-                               OUTPUT v-rtn-char, OUTPUT v-rec-found).
-    oescreen-log = LOGICAL(v-rtn-char) NO-ERROR.
+                OUTPUT v-rtn-char, OUTPUT v-rec-found).
+        oescreen-log = LOGICAL(v-rtn-char) NO-ERROR.
 
-END.
+    END.
 
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE OnSaveButton d-oeitem
+PROCEDURE OnSaveButton:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEF    VAR      ll-price-mod         AS LOG       NO-UNDO.
+    DEF    VAR      lv-price             AS CHAR      NO-UNDO.
+    DEF    VAR      ll-pruom-mod         AS LOG       NO-UNDO.
+    DEF    VAR      lv-pruom             AS CHAR      NO-UNDO.
+    DEF    VAR      lv-prev-req-date     AS DATE      NO-UNDO.
+    DEF    VAR      lv-stat              AS CHAR      NO-UNDO.
+    DEF    VAR      ll                   AS LOG       NO-UNDO.
+    DEF    VAR      ld                   AS DEC       NO-UNDO.
+    DEF    VAR      ll-reopen            AS LOG       NO-UNDO.
+    DEF    VAR      ll-runship           AS LOG       NO-UNDO.
+    DEF    VAR      lInvoiceFound        AS LOG       NO-UNDO.
+    DEF    VAR      v-job-rec_key        AS CHAR      NO-UNDO.
+    DEF    VAR      v-runsh              AS INT       NO-UNDO.
+    DEF    VAR      v-xfer-ord           AS INT       NO-UNDO.
+    DEF    VAR      createSetorder       AS LOG       NO-UNDO.
+    DEF    VAR      v-date-change-reason AS CHAR      NO-UNDO.
+    DEF    VAR      dCalcDueDate         AS DATE      NO-UNDO.
+    DEF    VAR      dCalcPromDate        AS DATE      NO-UNDO.
+    DEFINE VARIABLE cDueDateChgReason    AS CHARACTER NO-UNDO.
+    DEF    VAR      v-added-rowid        AS ROWID     NO-UNDO.
+    DEFINE VARIABLE lPMPrompt            AS LOGICAL.
+    DEFINE VARIABLE cPMMessage           AS CHARACTER.
+    DEFINE VARIABLE lPMBlock             AS LOGICAL.
+    DEFINE VARIABLE lPricehold           AS LOGICAL.
+    DEFINE VARIABLE cPriceHoldMessage    AS CHARACTER.
+
+    DEF BUFFER b-oe-ordl FOR oe-ordl.
+    DEF BUFFER b-oe-ord  FOR oe-ord.
+
+
+    DISABLE TRIGGERS FOR LOAD OF xoe-ord.
+
+    IF ip-type EQ "WebUpdate" THEN 
+    DO TRANSACTION WITH FRAME {&frame-name}:
+        FIND CURRENT oe-ordl EXCLUSIVE-LOCK.
+        ASSIGN oe-ordl.qty.
+        FIND CURRENT oe-ordl NO-LOCK.
+        APPLY "go" TO FRAME {&FRAME-NAME}.
+        RETURN.
+    END.
+
+    /* display spec notes for the item */   
+    DO WITH FRAME {&frame-name}:
+    RUN windows/d-spnote.w (oe-ordl.i-no:SCREEN-VALUE).
+    END.
+
+    IF ip-type EQ "view" THEN 
+    DO:
+        APPLY "go" TO FRAME {&FRAME-NAME}.
+        RETURN.
+    END.
+
+    RUN custom/framechk.p (2, FRAME {&FRAME-NAME}:HANDLE).
+
+    ll-reopen = framechk-i-changed AND oe-ordl.stat EQ "C".
+
+    /* gdm - 10220907 */
+    IF TRIM(oe-ordl.pr-uom:SCREEN-VALUE) EQ "" THEN 
+    DO:
+
+        MESSAGE "UOM can't be blank. Please enter a valid UOM"
+            VIEW-AS ALERT-BOX INFO BUTTONS OK.
+
+        APPLY "entry" TO oe-ordl.pr-uom.
+        RETURN.
+
+    END.
+    /* gdm - 10220907 end */
+
+    DO WITH FRAME {&FRAME-NAME}:
+        ASSIGN
+            v-qty-mod       = oe-ordl.qty NE li-prev-ord-qty
+            li-prev-qty     = oe-ordl.qty
+            li-prev-ord-qty = oe-ordl.qty
+            ll-price-mod    = oe-ordl.price:MODIFIED
+            lv-price        = oe-ordl.price:SCREEN-VALUE
+            ll-pruom-mod    = oe-ordl.pr-uom:MODIFIED
+            lv-pruom        = oe-ordl.pr-uom:SCREEN-VALUE.
+     
+        IF oe-ordl.vend-no:SCREEN-VALUE = "0"  THEN
+            ASSIGN oe-ordl.vend-no:SCREEN-VALUE = "".
+
+    END.
+
+    lv-prev-req-date = oe-ordl.req-date.
+  
+    RUN itemfg-cost.
+  
+
+    IF oe-ordl.est-no:SCREEN-VALUE <> "" THEN 
+    DO:
+        RUN check-quote-qty NO-ERROR.
+        IF ERROR-STATUS:ERROR THEN 
+        DO:
+            APPLY 'entry' TO oe-ordl.qty.
+            RETURN . 
+        END.
+    END.
+
+    RUN validate-all NO-ERROR.
+    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+ 
+    IF runship-char EQ "RUN&SHIP Prompt" AND ip-type = "ADD" THEN 
+    DO TRANSACTION:
+        IF oe-ordl.est-no:SCREEN-VALUE GT ""  THEN 
+            asi.oe-ordl.whsed:SCREEN-VALUE = "YES".
+        ELSE 
+        DO:
+            ll-runship = LOGICAL(asi.oe-ordl.whsed:SCREEN-VALUE).
+  
+            RUN oe/d-runsh.w (INPUT ll-runship, OUTPUT v-runsh).
+        
+            IF v-runsh = 1 THEN
+                ASSIGN asi.oe-ordl.whsed:SCREEN-VALUE = "YES".
+            IF v-runsh = 2 THEN 
+            DO:
+                ASSIGN 
+                    oe-ordl.managed:SCREEN-VALUE = "YES" 
+                    oe-ordl.managed              = YES.
+            END.        
+        END.
+    END.
+    ELSE
+        IF (runship-char EQ "" OR  runship-char EQ "DefaultOnly" ) AND runship-log EQ YES AND oe-ordl.est-no:SCREEN-VALUE NE "" THEN
+            ASSIGN asi.oe-ordl.whsed:SCREEN-VALUE = "YES".
+
+
+    IF oe-ordl.est-no:SCREEN-VALUE EQ "" THEN
+        ASSIGN 
+            lPMPrompt = NO 
+            lPMBlock  = NO.
+      
+    RUN CheckPriceMatrix IN hdPriceProcs ( cocode, oe-ordl.i-no:SCREEN-VALUE,  oe-ord.cust-no, oe-ord.ship-id, DEC(oe-ordl.qty:SCREEN-VALUE),DEC(oe-ordl.price:SCREEN-VALUE),
+        OUTPUT lPMPrompt, OUTPUT cPMMessage, OUTPUT lPMBlock).
+    IF lPMPrompt THEN 
+    DO: 
+        MESSAGE cPMMessage VIEW-AS ALERT-BOX.
+        IF lPMBlock THEN RETURN NO-APPLY.
+    END.
+    
+    IF oepricecheck-log AND oe-ordl.est-no:SCREEN-VALUE EQ "" AND
+        ll-new-record THEN
+        RUN prev-quote-proc(INPUT-OUTPUT lv-price,
+            INPUT-OUTPUT lv-pruom).
+
+    DO WITH FRAME {&frame-name}:
+        IF ll-price-mod THEN oe-ordl.price:SCREEN-VALUE = lv-price.
+        IF ll-pruom-mod THEN oe-ordl.pr-uom:SCREEN-VALUE = lv-pruom.
+
+    {oe/ordltot.i oe-ordl qty oe-ordl}
+    END.
+
+    IF ll-reopen THEN 
+    DO:
+        ll-reopen = NO.
+        MESSAGE "This line item is closed, REOPEN?"
+            VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO
+            UPDATE ll-reopen.
+    END.
+
+    SESSION:SET-WAIT-STATE ("general").
+
+    DO TRANSACTION :
+        
+        FIND CURRENT oe-ordl EXCLUSIVE.
+
+        IF ll-reopen THEN oe-ordl.stat = "".
+
+        IF NOT ll-new-record THEN 
+        DO:
+            RUN oe/upinvqty.p (RECID(oe-ordl)).
+        END.
+    END. /* Transaction */
+    DO TRANSACTION:
+
+        DO WITH FRAME {&FRAME-NAME}:
+            ASSIGN {&FIELDS-IN-QUERY-{&FRAME-NAME}}
+                fi_jobStartDate.
+            IF asi.oe-ordl.whsed:HIDDEN = FALSE THEN
+                ASSIGN oe-ordl.whsed.
+            IF STRING(DATE(oe-ordl.spare-int-2)) NE fi_jobStartDate:SCREEN-VALUE THEN 
+            DO:
+                ASSIGN 
+                    oe-ordl.spare-int-2 = INT(DATE(fi_jobStartDate:SCREEN-VALUE)).
+                RUN updateStartDate.
+            END.
+
+        END.
+
+        RUN CheckPriceHoldForOrder IN hdPriceProcs(ROWID(oe-ord),
+                                              YES, /*Prompt*/
+                                              YES, /*Set oe-ord hold fields*/
+                                              OUTPUT lPriceHold, 
+                                              OUTPUT cPriceHoldMessage).
+                        
+        FIND xoe-ord WHERE RECID(xoe-ord) = recid(oe-ord) EXCLUSIVE.
+        FIND FIRST itemfg WHERE itemfg.company EQ cocode
+            AND itemfg.i-no EQ oe-ordl.i-no NO-LOCK NO-ERROR.
+        IF AVAIL itemfg THEN 
+        DO:
+            ASSIGN 
+                xoe-ord.t-weight = xoe-ord.t-weight - oe-ordl.t-weight
+                oe-ordl.t-weight = ( oe-ordl.qty / 100 ) * itemfg.weight-100
+                xoe-ord.t-weight = xoe-ord.t-weight + oe-ordl.t-weight.
+
+        /*IF TRIM(oe-ordl.est-no) NE "" AND
+           TRIM(xoe-ord.est-no) EQ "" AND
+           ll-new-record              THEN
+          RUN fg/makenote.p (BUFFER oe-ordl, ?, itemfg.rec_key).*/
+        END.
+        FIND CURRENT xoe-ord NO-LOCK.
+
+        IF oeDateChange-log 
+            AND  NOT ll-new-record
+            AND  LOOKUP("promise Date", oeDateChange-chr) GT 0
+            AND  oe-ordl.prom-date NE ld-prev-prom-date 
+            AND  ld-prev-prom-date NE ?
+            AND  gcLastDateChange EQ "prom-date" THEN 
+        DO:
+    
+
+            RUN oe/d-rsnnot.w /* PERSISTENT SET h_reasonWin */
+                (INPUT oe-ordl.rec_key, INPUT "P", INPUT "", INPUT "", INPUT 0, INPUT "PDC", INPUT "",
+                OUTPUT v-date-change-reason, OUTPUT v-added-rowid)  .
+
+            IF v-date-change-reason GT "" THEN
+                ASSIGN oe-ordl.spare-char-3 = v-date-change-reason               
+                    oe-ordl.spare-char-4 = USERID("NOSWEAT").
+   
+        END.
+  
+        IF oeDateChange-log 
+            AND  NOT ll-new-record
+            AND  LOOKUP("Order Line Due Date", oeDateChange-chr) GT 0
+            AND  oe-ordl.req-date NE dtPrevDueDate 
+            AND  dtPrevDueDate NE ? 
+            AND  gcLastDateChange EQ "req-date" THEN 
+        DO:
+    
+
+            RUN oe/d-pdcnot.w /* PERSISTENT SET h_reasonWin */
+                (INPUT oe-ordl.rec_key, INPUT "D", INPUT "", INPUT "", INPUT 0, INPUT "DDC", INPUT "",
+                OUTPUT v-date-change-reason, OUTPUT v-added-rowid)  .
+
+            IF v-date-change-reason GT "" THEN
+                ASSIGN oe-ordl.spare-char-5 = USERID("NOSWEAT") + "," + v-date-change-reason.                              
+   
+        END.
+  
+        IF lv-change-prom-date THEN 
+        DO:  
+            FOR EACH xoe-ordl WHERE xoe-ordl.company EQ g_company
+                AND xoe-ordl.ord-no EQ oe-ord.ord-no
+                AND recid(xoe-ordl) NE recid(oe-ordl):
+                ASSIGN 
+                    xoe-ordl.prom-date = oe-ordl.prom-date.
+            END.
+        END.
+
+        IF oeDateAuto-log AND OeDateAuto-Char = "Colonial" THEN 
+        DO:
+      
+            RUN oe/dueDateCalc.p (INPUT oe-ord.cust-no,
+                INPUT oe-ordl.req-date,
+                INPUT oe-ordl.prom-date,
+                INPUT "DueDate",
+                INPUT ROWID(oe-ordl),
+                OUTPUT dCalcDueDate,
+                OUTPUT dCalcPromDate).
+      
+            oe-ordl.prom-date = dCalcPromDate.
+
+
+
+        END.
+  
+  
+        IF lv-change-cst-po THEN 
+        DO:  
+            FOR EACH xoe-ordl WHERE xoe-ordl.company EQ g_company
+                AND xoe-ordl.ord-no EQ oe-ord.ord-no
+                AND recid(xoe-ordl) NE recid(oe-ordl):
+                ASSIGN 
+                    xoe-ordl.po-no = oe-ordl.po-no.
+            END.
+        END.
+        IF lv-change-inv-po THEN 
+        DO:    
+            RUN oe/poNoChange.p (INPUT g_company,
+                INPUT oe-ord.ord-no,
+                INPUT oe-ordl.po-no,
+                INPUT (IF lv-change-cst-po THEN "" ELSE oe-ordl.i-no)).
+        END.
+        RELEASE xoe-ordl.
+
+        RUN update-itemfg.
+
+        ASSIGN {&list-2} .  /* job-no job-no2 */
+
+        FIND CURRENT oe-ordl NO-LOCK.
+    END. /* trans */
+
+    IF ip-type NE "update" AND oe-ordl.est-no NE "" THEN
+        RUN oe/ordlmisc.p (ROWID(oe-ordl), oe-ordl.qty).
+  
+
+    IF oereleas-log THEN 
+        IF ll-new-record THEN RUN create-release.
+        ELSE RUN update-release.
+  
+    DO  TRANSACTION :
+        FIND CURRENT oe-ordl EXCLUSIVE.
+        FIND CURRENT oe-ord EXCLUSIVE.
+    
+        RUN final-steps.
+    END. /* Transaction */
+    IF ll-new-record AND oe-ordl.s-man[1]:screen-value IN FRAME {&frame-name} = "" THEN 
+    DO  TRANSACTION : 
+        RUN itemfg-sman.
+        ASSIGN oe-ordl.s-man[1].
+    END.
+     
+  
+    DO  TRANSACTION :
+  
+  
+        IF ll-new-record THEN 
+        DO:
+            RUN oe/ordlfrat.p (ROWID(oe-ordl), OUTPUT oe-ordl.t-freight).
+            xoe-ord.t-freight = xoe-ord.t-freight + oe-ordl.t-freight.
+        END. /* ll-new-record */
+      
+        /* Update Item Cust Part if Required */
+        IF v-oeCustPartInt EQ 1 THEN 
+        DO:
+            FIND FIRST itemfg 
+                WHERE itemfg.company EQ cocode
+                AND itemfg.i-no EQ oe-ordl.i-no 
+                NO-LOCK NO-ERROR.
+          
+            IF avail(itemfg) AND itemfg.part-no NE oe-ordl.part-no:screen-value THEN 
+            DO:
+                FIND CURRENT itemfg EXCLUSIVE-LOCK.
+                itemfg.part-no    = oe-ordl.part-no:screen-value.
+                FIND CURRENT itemfg NO-LOCK.
+            END. /* part # changed */
+        END. /* oecustpartint = 1 */
+      
+        RUN oe/ordfrate.p (ROWID(oe-ord)).  
+    
+        RUN oe/oe-comm.p.  
+    
+        RUN oe/calcordt.p (ROWID(oe-ord)).
+        FIND FIRST cust NO-LOCK 
+            WHERE cust.company EQ cocode
+            AND cust.cust-no EQ oe-ord.cust-no NO-ERROR.
+        IF (ld-prev-t-price NE oe-ordl.t-price OR ip-type BEGINS "update-")
+            AND AVAIL cust AND cust.active NE "X" AND AVAIL oe-ord AND oe-ord.TYPE NE "T" THEN 
+        DO:
+            RUN oe/creditck.p (ROWID(oe-ord), YES).  
+        END.
+    
+        IF oe-ordl.job-no NE "" THEN
+            RUN oe/palchk.p(ROWID(oe-ord), oe-ordl.i-no).
+    
+        ld-prev-t-price = oe-ordl.t-price.
+    
+        /* gdm - 11090905 */
+        IF ip-type EQ "Update" AND
+            v-ponoUp THEN 
+        DO:
+    
+            IF lv-change-cst-po THEN
+                FOR EACH job-hdr WHERE
+                    job-hdr.company EQ oe-ordl.company AND
+                    job-hdr.job-no  EQ oe-ordl.job-no AND
+                    job-hdr.job-no2 EQ oe-ordl.job-no2 AND
+                    job-hdr.ord-no  EQ oe-ordl.ord-no:
+                    ASSIGN 
+                        job-hdr.po-no = oe-ordl.po-no.
+                END.
+         
+            ELSE
+                FOR EACH job-hdr WHERE
+                    job-hdr.company EQ oe-ordl.company AND
+                    job-hdr.job-no  EQ oe-ordl.job-no AND
+                    job-hdr.job-no2 EQ oe-ordl.job-no2 AND
+                    job-hdr.ord-no EQ oe-ordl.ord-no AND
+                    job-hdr.i-no EQ oe-ordl.i-no:
+          
+                    ASSIGN 
+                        job-hdr.po-no = oe-ordl.po-no.
+                END.
+          
+            RELEASE job-hdr.
+        END.
+        /* gdm - 11090905 end */
+    
+        IF ip-type EQ "Update" AND
+            TRIM(oe-ordl.job-no) EQ "" AND
+            TRIM(oe-ord.est-no) NE "" THEN
+        DO:
+            FIND FIRST job-hdr WHERE
+                job-hdr.company EQ oe-ordl.company AND
+                job-hdr.ord-no EQ oe-ordl.ord-no AND
+                job-hdr.i-no EQ oe-ordl.i-no
+                NO-LOCK NO-ERROR.
+    
+            IF AVAIL job-hdr THEN
+            DO:
+                ASSIGN
+                    oe-ordl.job-no  = job-hdr.job-no
+                    oe-ordl.job-no2 = job-hdr.job-no2.
+    
+                IF TRIM(oe-ord.job-no) EQ "" THEN
+                    ASSIGN
+                        oe-ord.job-no  = job-hdr.job-no
+                        oe-ord.job-no2 = job-hdr.job-no2.
+    
+                RELEASE job-hdr.
+            END.
+        END.
+    
+        /* end of job update */
+        FIND CURRENT oe-ord NO-LOCK.
+        FIND CURRENT oe-ordl NO-LOCK.
+    
+        IF ll-new-record AND TRIM(v-duplicateFGDayClient) = "DuplicateFGDayClient" THEN 
+        DO:
+            RUN check-duplicateFGDayClient.
+        END.
+
+    END. /* Transaction */
+  
+    RUN sys/inc/ordlcomp.p (ROWID(oe-ordl)).
+  
+    RUN final-steps2.
+ 
+    /* need to assign oe-ordl.est-type = eb.est-type  
+       job */
+
+    ASSIGN
+        v-qty-mod         = NO
+        lv-add-mode       = NO
+        ll-new-fg-created = NO.
+
+    DO WITH FRAME {&frame-name}:
+        DISPLAY {&DISPLAYED-FIELDS}.
+    END.
+      
+    DO TRANSACTION :
+        FIND CURRENT oe-ordl EXCLUSIVE.
+        FIND CURRENT oe-ord EXCLUSIVE.
+
+        /* assign rec_key to oe-ord for notes */
+
+        IF oe-ord.est-no <> "" THEN
+        DO:
+            /*if notes frozen from jc/jobnotes.p, don't update rec_key*/
+
+            FIND FIRST job-hdr WHERE
+                job-hdr.company EQ cocode AND
+                job-hdr.job-no  EQ oe-ordl.job-no AND
+                job-hdr.job-no2 EQ oe-ordl.job-no2
+                NO-LOCK NO-ERROR.
+
+            IF AVAIL job-hdr THEN
+            DO:
+                FIND FIRST job WHERE
+                    job.company EQ cocode AND
+                    job.job EQ job-hdr.job AND
+                    job.job-no EQ job-hdr.job-no AND
+                    job.job-no2 EQ job-hdr.job-no2
+                    NO-LOCK NO-ERROR.
+
+                IF AVAIL job THEN
+                DO:
+                    v-job-rec_key = job.rec_key.
+                    RELEASE job.
+                END.
+
+                RELEASE job-hdr.
+            END.
+
+            IF oe-ordl.rec_key EQ "" OR
+                (v-job-rec_key NE oe-ordl.rec_key) THEN
+                oe-ordl.rec_key = est.rec_key.
+        END.
+    
+  
+        FIND FIRST b-oe-ordl WHERE  b-oe-ordl.company EQ oe-ordl.company
+            AND b-oe-ordl.ord-no  EQ oe-ordl.ord-no
+            AND RECID(b-oe-ordl) <> RECID(oe-ordl) NO-LOCK NO-ERROR.
+        IF NOT AVAIL b-oe-ordl AND oe-ordl.est-no <> "" THEN 
+        DO:
+            FIND b-oe-ord WHERE RECID(b-oe-ord) = RECID(oe-ord) EXCLUSIVE.
+            b-oe-ord.rec_key = oe-ordl.rec_key.
+            RELEASE b-oe-ord.
+        END.
+        ELSE 
+        DO:
+            FIND FIRST b-oe-ordl WHERE  b-oe-ordl.company EQ oe-ordl.company
+                AND b-oe-ordl.ord-no  EQ oe-ordl.ord-no
+                AND RECID(b-oe-ordl) <> RECID(oe-ordl)
+                AND b-oe-ordl.est-no <> oe-ordl.est-no
+                NO-LOCK NO-ERROR.
+            IF NOT AVAIL b-oe-ordl AND oe-ordl.est-no <> "" THEN 
+            DO:
+                FIND b-oe-ord WHERE RECID(b-oe-ord) = RECID(oe-ord) EXCLUSIVE.
+                b-oe-ord.rec_key = oe-ordl.rec_key.
+                RELEASE b-oe-ord.
+            END.
+        END.
+
+        /* end of job update */
+        FIND CURRENT oe-ord NO-LOCK.
+        FIND CURRENT oe-ordl NO-LOCK.
+    END. /* trans */
+
+
+
+    IF (oe-ordl.req-date NE lv-prev-req-date OR ip-type EQ "ADD"
+        /*OR ip-type = "UPdate-2" doen in v-ord.w order-from-est proc */)
+        /* update job's start-date when req-date is changed */
+        AND oe-ordl.est-no:SCREEN-VALUE NE "" /*AND lv-update-job-stdate */ 
+        AND (v-run-schedule OR schedule-log)
+        THEN RUN update-start-date.
+
+    IF oe-ordl.job-no NE '' THEN RUN update-due-date.
+
+  
+    IF gcLastDateChange GT "" THEN 
+    DO TRANSACTION:
+        FIND CURRENT oe-ord.
+        IF gcLastDateChange EQ "prom-date" THEN
+            oe-ord.due-date = oe-ordl.req-date.
+           
+        IF gcLastDateChange EQ "req-date" THEN
+            oe-ord.due-date = oe-ordl.prom-date.    
+   
+        FIND CURRENT oe-ord NO-LOCK NO-ERROR.
+    END.
+    DO  TRANSACTION :
+        FIND CURRENT oe-ord.    
+
+        RUN oe/ordfrate.p (ROWID(oe-ord)). /* strange problem with freight */
+
+        ll = NO.
+        IF AVAIL oe-ord AND (oe-ord.due-date GT oe-ordl.req-date 
+            OR oeDateAuto-log AND OeDateAuto-Char = "Colonial") THEN 
+        DO:
+            IF oeDateAuto-log AND OeDateAuto-Char = "Colonial" THEN 
+                ll = YES.
+            ELSE
+                MESSAGE "Change order header due date to " + TRIM(STRING(oe-ordl.req-date)) "?"
+                    VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
+                    UPDATE ll.
+        END.
+        IF ll THEN oe-ord.due-date = oe-ordl.req-date.
+
+        FIND CURRENT oe-ord NO-LOCK NO-ERROR.
+    END.
+   
+    /* Done after oe-ord.due-date is updated */
+    IF oeDateAuto-log AND OeDateAuto-Char = "Colonial" THEN 
+    DO TRANSACTION:
+   
+        FOR EACH oe-rel 
+            WHERE oe-rel.company EQ oe-ordl.company
+            AND oe-rel.ord-no  EQ oe-ordl.ord-no
+            AND oe-rel.i-no    EQ oe-ordl.i-no
+            NO-LOCK
+            BY oe-rel.rel-date:
+          
+            IF LOOKUP(oe-rel.stat, 'A,C,P,Z' ) EQ 0 THEN 
+            DO:
+        
+      
+                FIND bf-oe-rel WHERE ROWID(bf-oe-rel) EQ rowid(oe-rel) EXCLUSIVE-LOCK.
+        
+                bf-oe-rel.spare-char-4 = STRING(oe-ord.due-date) + ",,".
+
+                bf-oe-rel.rel-date = get-colonial-rel-date(ROWID(bf-oe-rel)).
+                FIND CURRENT bf-oe-rel NO-LOCK.
+                RELEASE bf-oe-rel.
+            END.
+    
+            /* Only consider first one */
+            LEAVE.
+        END. /* each oe-rel */
+    END. 
+    SESSION:SET-WAIT-STATE ("").
+
+    IF oesetxfer-log AND (ip-type EQ "ADD" OR (oe-ord.est-no GT "" AND ip-type BEGINS "UPDATE-")) THEN 
+    DO TRANSACTION:
+        FIND itemfg WHERE itemfg.company = oe-ordl.company
+            AND itemfg.i-no    = oe-ordl.i-no
+            AND itemfg.isaset
+            NO-LOCK NO-ERROR.    
+
+        IF AVAIL itemfg AND itemfg.alloc = NO THEN
+            RUN oe/d-oexfer.w (INPUT ROWID(oe-ord), OUTPUT v-xfer-ord).
+        IF v-xfer-ord GT 0 THEN 
+        DO  :
+            FIND CURRENT oe-ordl EXCLUSIVE-LOCK.
+            oe-ordl.spare-int-1 = v-xfer-ord.
+            FIND CURRENT oe-ordl NO-LOCK.
+        END.
+    END.
+  
+    /*RUN oe/sman-upd.p (ROWID(oe-ordl)).*/  
+    lInvoiceFound = FALSE.
+    IF OESellPriceXfer-log AND  (ll-price-mod OR ll-pruom-mod) THEN 
+    DO:
+        FOR EACH oe-boll 
+            WHERE oe-boll.company EQ oe-ordl.company
+            AND oe-boll.ord-no EQ oe-ordl.ord-no
+            AND oe-boll.i-no   EQ oe-ordl.i-no
+            AND oe-boll.LINE   EQ oe-ordl.LINE
+            NO-LOCK,
+            EACH inv-head WHERE inv-head.company EQ oe-boll.company
+            AND inv-head.bol-no EQ oe-boll.bol-no
+            NO-LOCK,
+         
+            FIRST inv-line 
+            WHERE inv-line.r-no   EQ inv-head.r-no 
+            AND inv-line.ord-no  EQ oe-boll.ord-no 
+            AND inv-line.b-no    EQ oe-boll.b-no
+            AND inv-line.i-no    EQ oe-boll.i-no
+            AND inv-line.line    EQ oe-boll.line
+            AND inv-line.po-no   EQ oe-boll.po-no
+            NO-LOCK .
+            lInvoiceFound = TRUE.
+            LEAVE.
+        END.
+      
+      IF lInvoiceFound THEN DO:
+         MESSAGE "Unposted invoices were found for this order line." SKIP
+                 "Would you like to update the price on them?" VIEW-AS ALERT-BOX QUESTION
+            BUTTON YES-NO UPDATE ll-ans AS LOG.
+        IF  ll-ans THEN DO:
+          RUN updateInvoicePrice (INPUT ROWID(oe-ordl), INPUT lv-price, INPUT lv-pruom).
+
+
+        END. /* if ll-ans */
+      END. /* If invoice was found */
+    END. /* If Price was modified */
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE prev-quote-proc d-oeitem 
 PROCEDURE prev-quote-proc :
@@ -7478,7 +7542,7 @@ END. /* not avail sys-ctrl */
 FIND FIRST itemfg
     WHERE itemfg.company EQ cocode
       AND itemfg.i-no    EQ oe-ordl.i-no
-    EXCLUSIVE-LOCK NO-ERROR.
+    NO-LOCK NO-ERROR.
     
 IF AVAIL itemfg THEN DO:    
   FIND oe-ord OF oe-ordl NO-LOCK.
@@ -7505,7 +7569,9 @@ IF AVAIL itemfg THEN DO:
          v-flag[9] = SUBSTRING(ls-flag,9,1) = "Y"
          v-flag[10] = SUBSTRING(ls-flag,10,1) = "Y"
          .
-
+   
+  FIND CURRENT itemfg EXCLUSIVE-LOCK.
+  
   IF v-flag[1] OR ll-new-fg-created THEN 
                     itemfg.sell-price  = oe-ordl.price.
   IF v-flag[2] THEN itemfg.sell-uom    = oe-ordl.pr-uom. 
@@ -7717,7 +7783,7 @@ IF AVAIL itemfg THEN DO:
               RELEASE b-e-itemfg-vend.
      END.
   END.
-END.
+END. /* If avail itemfg */
 
 RELEASE itemfg.
 

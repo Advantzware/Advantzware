@@ -139,6 +139,7 @@ DEFINE VARIABLE lv-valid-profit AS CHARACTER NO-UNDO
     INITIAL "market-price,gross-profit,net-profit".
 
 DEFINE NEW SHARED VARIABLE lv-cebrowse-dir AS CHARACTER NO-UNDO.
+DEFINE NEW SHARED VARIABLE cCeBrowseBaseDir AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cerunc-dec AS DECIMAL NO-UNDO.
 DEFINE VARIABLE v-dir AS CHARACTER FORMAT "X(80)" NO-UNDO.
 DEFINE VARIABLE v-cestcalc AS CHARACTER NO-UNDO.
@@ -183,33 +184,10 @@ END.
   v-cestcalc = sys-ctrl.char-fld.
 
 
-FIND FIRST sys-ctrl NO-LOCK WHERE
-    sys-ctrl.company EQ cocode AND
-    sys-ctrl.name    EQ "CEBROWSE"
-     NO-ERROR.
+RUN est/EstimateProcs.p (cocode, OUTPUT cCEBrowseBaseDir, OUTPUT tmp-dir ).
 
-IF NOT AVAILABLE sys-ctrl THEN DO TRANSACTION:
-  CREATE sys-ctrl.
-  ASSIGN
-   sys-ctrl.company = cocode
-   sys-ctrl.name    = "CEBROWSE"
-   sys-ctrl.descrip = "# of Records to be displayed in browser"
-   sys-ctrl.log-fld = YES
-   sys-ctrl.char-fld = "CE"
-   sys-ctrl.int-fld = 30.
-END.
+lv-cebrowse-dir = tmp-dir.
 
-IF sys-ctrl.char-fld NE "" THEN
-   tmp-dir = sys-ctrl.char-fld.
-ELSE
-   tmp-dir = "users\".
-
-IF LOOKUP(SUBSTRING(tmp-dir,LENGTH(tmp-dir)),"\,/") EQ 0 THEN
-   tmp-dir = tmp-dir + "\".
-
-ASSIGN
-  tmp-dir = REPLACE(tmp-dir,"/","\").
-  lv-cebrowse-dir = tmp-dir.
 
 FIND FIRST users NO-LOCK WHERE
      users.user_id EQ USERID("NOSWEAT")
@@ -260,7 +238,6 @@ END.
     IF lv-sort-by EQ "est-qty"         THEN STRING(9999999999.99 + probe.est-qty,"-9999999999.99")         ELSE ~
     IF lv-sort-by EQ "fact-cost"       THEN STRING(probe.fact-cost,"-9999999999.99999")                    ELSE ~
     IF lv-sort-by EQ "full-cost"       THEN STRING(probe.full-cost,"-9999999999.99999")                    ELSE ~
-    IF lv-sort-by EQ "market-price"    THEN string(probe.market-price)                                     ELSE ~
     IF lv-sort-by EQ "gross-profit"    THEN string(probe.gross-profit)                                     ELSE ~
     IF lv-sort-by EQ "val[11]"         THEN string(reftable.val[11])                                       ELSE ~
     IF lv-sort-by EQ "comm"            THEN string(probe.comm)                                             ELSE ~
@@ -327,7 +304,7 @@ DEFINE QUERY external_tables FOR est, ef, eb.
 
 /* Definitions for BROWSE br_table                                      */
 &Scoped-define FIELDS-IN-QUERY-br_table probe.est-qty probe.fact-cost ~
-probe.full-cost probe.market-price display-gp (1) @ probe.gross-profit ~
+probe.full-cost display-gp (1) @ probe.gross-profit ~
 display-gp (1) @ probe.gross-profit probe.gross-profit reftable.val[11] ~
 probe.comm probe.net-profit probe.sell-price probe.gsh-qty probe.do-quote ~
 voverall(1) @ voverall probe.probe-date reftable.val[2] reftable.val[3] ~
@@ -336,7 +313,7 @@ cvt-time(probe.probe-time) @ ls-probetime reftable.val[8] reftable.val[9] ~
 reftable.val[10] probe.line probe.spare-dec-1 ~
 fDirectMatPctSellPrice(1) @ dMatPctSellPrice 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-br_table probe.full-cost ~
-probe.market-price probe.gross-profit reftable.val[11] probe.net-profit ~
+probe.gross-profit reftable.val[11] probe.net-profit ~
 probe.sell-price probe.do-quote reftable.val[3] reftable.val[4] ~
 reftable.val[5] reftable.val[8] reftable.val[9] reftable.val[10] 
 &Scoped-define ENABLED-TABLES-IN-QUERY-br_table probe reftable
@@ -524,7 +501,6 @@ DEFINE BROWSE br_table
       probe.fact-cost COLUMN-LABEL "Tot.Fact!Cost" FORMAT ">>,>>>,>>9.99":U
             WIDTH 19 COLUMN-FONT 0
       probe.full-cost FORMAT ">>,>>>,>>9.99":U WIDTH 19 COLUMN-FONT 0
-      probe.market-price COLUMN-LABEL "Margin%" FORMAT "->>9.99":U
       display-gp (1) @ probe.gross-profit
       display-gp (1) @ probe.gross-profit
       probe.gross-profit COLUMN-LABEL "Gross%" FORMAT "->>9.99":U
@@ -562,7 +538,6 @@ DEFINE BROWSE br_table
       fDirectMatPctSellPrice(1) @ dMatPctSellPrice COLUMN-LABEL "Dir. Mat%"
   ENABLE
       probe.full-cost
-      probe.market-price
       probe.gross-profit
       reftable.val[11]
       probe.net-profit
@@ -659,6 +634,7 @@ ASSIGN
        probe.comm:VISIBLE IN BROWSE br_table = FALSE
        probe.sell-price:AUTO-RESIZE IN BROWSE br_table = TRUE.
 
+
 /* SETTINGS FOR FILL-IN FI_moveCol IN FRAME F-Main
    NO-ENABLE                                                            */
 
@@ -692,54 +668,52 @@ reftable.code2    EQ STRING(probe.line,""9999999999"")"
 "probe.fact-cost" "Tot.Fact!Cost" ">>,>>>,>>9.99" "decimal" ? ? 0 ? ? ? no ? no no "19" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   > ASI.probe.full-cost
 "probe.full-cost" ? ">>,>>>,>>9.99" "decimal" ? ? 0 ? ? ? yes ? no no "19" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[4]   > ASI.probe.market-price
-"probe.market-price" "Margin%" "->>9.99" "decimal" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[4]   > "_<CALC>"
+"display-gp (1) @ probe.gross-profit" ? ? ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[5]   > "_<CALC>"
 "display-gp (1) @ probe.gross-profit" ? ? ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[6]   > "_<CALC>"
-"display-gp (1) @ probe.gross-profit" ? ? ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[7]   > ASI.probe.gross-profit
+     _FldNameList[6]   > ASI.probe.gross-profit
 "probe.gross-profit" "Gross%" "->>9.99" "decimal" ? ? 0 ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[8]   > ASI.reftable.val[11]
+     _FldNameList[7]   > ASI.reftable.val[11]
 "reftable.val[11]" "CM%" ? "decimal" ? ? ? ? ? ? yes ? no no "9.6" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[9]   > ASI.probe.comm
+     _FldNameList[8]   > ASI.probe.comm
 "probe.comm" ? ? "decimal" ? ? ? ? ? ? no ? no no ? no no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[10]   > ASI.probe.net-profit
+     _FldNameList[9]   > ASI.probe.net-profit
 "probe.net-profit" "Net%" "->>9.99" "decimal" ? ? 0 ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[11]   > ASI.probe.sell-price
+     _FldNameList[10]   > ASI.probe.sell-price
 "probe.sell-price" ? ">>,>>>,>>9.99" "decimal" ? ? 0 ? ? ? yes ? no no "19" yes yes no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[12]   > ASI.probe.gsh-qty
+     _FldNameList[11]   > ASI.probe.gsh-qty
 "probe.gsh-qty" "Total!Sheets" ">>>>>>9" "integer" ? ? 0 ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[13]   > ASI.probe.do-quote
+     _FldNameList[12]   > ASI.probe.do-quote
 "probe.do-quote" "Q" ? "logical" ? ? 0 ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[14]   > "_<CALC>"
+     _FldNameList[13]   > "_<CALC>"
 "voverall(1) @ voverall" "Price!/BSF" ? ? ? ? 0 ? ? ? no ? no no "19" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[15]   = ASI.probe.probe-date
-     _FldNameList[16]   > ASI.reftable.val[2]
+     _FldNameList[14]   = ASI.probe.probe-date
+     _FldNameList[15]   > ASI.reftable.val[2]
 "reftable.val[2]" "Board/M" "->,>>>,>>9.99" "decimal" ? ? ? ? ? ? no ? no no "17" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[17]   > ASI.reftable.val[3]
+     _FldNameList[16]   > ASI.reftable.val[3]
 "reftable.val[3]" "Board%" "->>9.99" "decimal" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[18]   > ASI.reftable.val[4]
+     _FldNameList[17]   > ASI.reftable.val[4]
 "reftable.val[4]" "Board!Contrib/M" "->,>>>,>>9.99" "decimal" ? ? ? ? ? ? yes ? no no "17" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[19]   > ASI.reftable.val[5]
+     _FldNameList[18]   > ASI.reftable.val[5]
 "reftable.val[5]" "Board!Contrib$" "->>>,>>>,>>9.99" "decimal" ? ? ? ? ? ? yes ? no no "19" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[20]   > ASI.probe.probe-user
+     _FldNameList[19]   > ASI.probe.probe-user
 "probe.probe-user" "Probe By" ? "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[21]   > "_<CALC>"
+     _FldNameList[20]   > "_<CALC>"
 "vtot-msf() @ vtot-msf" "Total!MSF" ? ? ? ? 0 ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[22]   > "_<CALC>"
+     _FldNameList[21]   > "_<CALC>"
 "cvt-time(probe.probe-time) @ ls-probetime" "Time" "x(8)" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[23]   > ASI.reftable.val[8]
+     _FldNameList[22]   > ASI.reftable.val[8]
 "reftable.val[8]" "CM$" "->>,>>>,>>9.99" "decimal" ? ? ? ? ? ? yes ? no no "19" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[24]   > ASI.reftable.val[9]
+     _FldNameList[23]   > ASI.reftable.val[9]
 "reftable.val[9]" "CMAH" "->>,>>>,>>9.99" "decimal" ? ? ? ? ? ? yes ? no no "19" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[25]   > ASI.reftable.val[10]
+     _FldNameList[24]   > ASI.reftable.val[10]
 "reftable.val[10]" "CMOH" "->>,>>>,>>9.99" "decimal" ? ? ? ? ? ? yes ? no no "19" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[26]   > ASI.probe.line
+     _FldNameList[25]   > ASI.probe.line
 "probe.line" ? ">>9" "integer" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[27]   > ASI.probe.spare-dec-1
+     _FldNameList[26]   > ASI.probe.spare-dec-1
 "probe.spare-dec-1" "Direct!Material" "->>>,>>9.99" "decimal" ? ? ? ? ? ? no ? no no "15" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[28]   > "_<CALC>"
+     _FldNameList[27]   > "_<CALC>"
 "fDirectMatPctSellPrice(1) @ dMatPctSellPrice" "Dir. Mat%" ? ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE br_table */
@@ -875,46 +849,6 @@ ON ENTRY OF probe.full-cost IN BROWSE br_table /* Full!Cost */
 DO:
   APPLY "tab" TO {&self-name} IN BROWSE {&browse-name}.
   RETURN NO-APPLY.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME probe.market-price
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL probe.market-price br_table _BROWSE-COLUMN B-table-Win
-ON ENTRY OF probe.market-price IN BROWSE br_table /* Margin% */
-DO:
-  IF NOT ll-use-margin THEN DO:
-    APPLY "tab" TO {&self-name} IN BROWSE {&browse-name}.
-    RETURN NO-APPLY.
-  END.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL probe.market-price br_table _BROWSE-COLUMN B-table-Win
-ON LEAVE OF probe.market-price IN BROWSE br_table /* Margin% */
-DO:
-  IF LASTKEY NE -1 THEN DO:
-    RUN valid-profit (FOCUS) NO-ERROR.
-    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-
-    RUN calc-fields NO-ERROR.
-    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-  END.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL probe.market-price br_table _BROWSE-COLUMN B-table-Win
-ON VALUE-CHANGED OF probe.market-price IN BROWSE br_table /* Margin% */
-DO:
-  lv-changed = "M".
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1322,7 +1256,6 @@ PROCEDURE calc-fields :
      v-com = probe.comm
      lv-changed2 = lv-changed
      ld-price    = DECIMAL(lv-price)
-     ld-marg%    = DECIMAL(probe.market-price:SCREEN-VALUE IN BROWSE {&browse-name})
      ld-factc    = DECIMAL(probe.fact-cost:SCREEN-VALUE IN BROWSE {&browse-name})
      ld-commc    = (ld-price - (IF v-basis EQ "G" THEN ld-factc ELSE 0)) *
                    (v-com / 100)   
@@ -1380,7 +1313,7 @@ PROCEDURE calc-fields :
           ASSIGN
            v-com       = 0
            lv-changed2 = "N"
-           v-pct       = IF lv-changed EQ "M" THEN ld-marg% ELSE (v-pct + v-com).
+           v-pct       = IF lv-changed EQ "M" THEN ld-marg% ELSE (v-pct + v-com) .
         RUN custom/sellpric.p ("",
                                lv-changed2,
                                v-basis,
@@ -1438,10 +1371,7 @@ PROCEDURE calc-fields :
       reftable.val[3]:SCREEN-VALUE IN BROWSE {&browse-name} =
           STRING(ld-brd-%,reftable.val[3]:FORMAT IN BROWSE {&browse-name}) NO-ERROR.
 
-    IF lv-changed NE "M" AND lv-orig-changed NE "M" AND NOT ERROR-STATUS:ERROR THEN
-      probe.market-price:SCREEN-VALUE IN BROWSE {&browse-name} =
-          STRING(ld-marg%,probe.market-price:FORMAT IN BROWSE {&browse-name}) NO-ERROR.
-
+    
     IF lv-changed NE "S" AND NOT ERROR-STATUS:ERROR THEN
       probe.sell-price:SCREEN-VALUE IN BROWSE {&browse-name} =
           STRING(ld-price,probe.sell-price:FORMAT IN BROWSE {&browse-name}) NO-ERROR.
@@ -1495,9 +1425,6 @@ PROCEDURE calc-fields :
       ELSE
       IF lv-changed EQ "B" THEN
         APPLY "entry" TO reftable.val[3] IN BROWSE {&browse-name}.
-      ELSE
-      IF lv-changed EQ "M" THEN
-        APPLY "entry" TO probe.market-price IN BROWSE {&browse-name}.
       ELSE
       IF lv-changed EQ "S" THEN
         APPLY "entry" TO probe.sell-price IN BROWSE {&browse-name}.
@@ -2613,7 +2540,7 @@ PROCEDURE local-enable-fields :
 
   DO WITH FRAME {&FRAME-NAME}:
     probe.do-quote:SCREEN-VALUE IN BROWSE {&browse-name} = "Y".
-    APPLY "entry" TO probe.market-price IN BROWSE {&browse-name} .
+    APPLY "entry" TO probe.full-cost IN BROWSE {&browse-name} .
   END.
   ll-no-valid = NO.
 
@@ -2709,6 +2636,9 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE resort-query B-table-Win 
 PROCEDURE resort-query :
 /*------------------------------------------------------------------------------
@@ -2765,9 +2695,7 @@ PROCEDURE local-update-record :
 
   /* Code placed here will execute PRIOR to standard behavior. */
   DO WITH FRAME {&FRAME-NAME}:
-    RUN valid-profit (probe.market-price:HANDLE IN BROWSE {&browse-name}) NO-ERROR.
-    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-
+    
     RUN valid-profit (probe.gross-profit:HANDLE IN BROWSE {&browse-name}) NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
   
@@ -3397,6 +3325,11 @@ PROCEDURE printProbe :
     lv-ornt = 'P'
     lv-lines = 63.
 
+    IF probe.spare-char-1 NE "" THEN 
+        lv-cebrowse-dir = probe.spare-char-1.
+    ELSE 
+        lv-cebrowse-dir = cCEBrowseBaseDir.
+        
   ASSIGN
      v-probe-fmt = IF probe.LINE LT 100 THEN "99" ELSE "999"
      ls-outfile = lv-cebrowse-dir + TRIM(est.est-no) + ".p" + STRING(probe.line,v-probe-fmt).
@@ -3743,7 +3676,8 @@ PROCEDURE run-whatif :
     RETURN.
    END.
   END.
-  
+  RUN est/EstimateProcs.p (est.company, OUTPUT cCeBrowseBaseDir, OUTPUT tmp-dir).
+  lv-cebrowse-dir = tmp-dir.
   RUN est\CostResetHeaders.p(?,?).
   IF est.est-type EQ 8 THEN
     RUN cec/com/print4.p NO-ERROR.
@@ -4030,7 +3964,7 @@ PROCEDURE update-item :
                ld-commc = (v-old-price - (IF v-basis EQ "G" THEN probe.fact-cost ELSE 0))
                         * (v-com / 100)
                ld-fullc = v-old-full-cost - ld-commc
-               ld-marg% = ROUND((probe.sell-price - ld-fullc) / probe.sell-price * 100,2).
+               ld-marg% = ROUND((probe.sell-price - ld-fullc) / probe.sell-price * 100,2) .
 
             RUN est/getsmanmtrx.p (ROWID(est), "C",
                                    INPUT-OUTPUT v-com,

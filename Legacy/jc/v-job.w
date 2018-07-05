@@ -66,6 +66,7 @@ DEFINE BUFFER bf-job-mch FOR job-mch.
 DEFINE VARIABLE OEJobHold-log AS LOG NO-UNDO.
 DEFINE VARIABLE lcReturn AS CHARACTER NO-UNDO.
 DEFINE VARIABLE llRecFound AS LOG NO-UNDO.
+DEFINE VARIABLE lCheckStartDate AS LOGICAL NO-UNDO .
 RUN sys/ref/nk1look.p (cocode, "OEJobHold", "L", NO, NO, "", "", 
                           OUTPUT lcReturn, OUTPUT llRecFound).
 
@@ -136,7 +137,7 @@ DEFINE QUERY external_tables FOR job.
 &Scoped-Define ENABLED-FIELDS job.start-date job.loc job.due-date 
 &Scoped-define ENABLED-TABLES job
 &Scoped-define FIRST-ENABLED-TABLE job
-&Scoped-Define ENABLED-OBJECTS RECT-1 
+&Scoped-Define ENABLED-OBJECTS btnCalendar-1 btnCalendar-2 RECT-1 
 &Scoped-Define DISPLAYED-FIELDS job.job-no job.job-no2 job.est-no job.stat ~
 job.start-date job.close-date job.user-id job.loc job.due-date job.csrUser_id job.create-date
 &Scoped-define DISPLAYED-TABLES job
@@ -148,6 +149,7 @@ job.start-date job.close-date job.user-id job.loc job.due-date job.csrUser_id jo
 &Scoped-define ADM-ASSIGN-FIELDS job.job-no job.job-no2 job.est-no ~
 job.start-date job.close-date job.due-date job.create-date 
 &Scoped-define DISPLAY-FIELD job.start-date job.close-date job.due-date job.create-date 
+&Scoped-define calendarPopup btnCalendar-1 btnCalendar-2
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
@@ -179,6 +181,16 @@ RUN set-attribute-list (
 
 
 /* Definitions of the field level widgets                               */
+DEFINE BUTTON btnCalendar-1 
+     IMAGE-UP FILE "Graphics/16x16/calendar.bmp":U
+     LABEL "" 
+     SIZE 4.6 BY 1.05 TOOLTIP "PopUp Calendar".
+
+DEFINE BUTTON btnCalendar-2 
+     IMAGE-UP FILE "Graphics/16x16/calendar.bmp":U
+     LABEL "" 
+     SIZE 4.6 BY 1.05 TOOLTIP "PopUp Calendar".
+
 DEFINE VARIABLE vHoldReason AS CHARACTER FORMAT "x(50)" 
      LABEL "Hold Reason" 
      VIEW-AS FILL-IN 
@@ -205,7 +217,7 @@ DEFINE FRAME F-Main
      job.stat AT ROW 1.24 COL 101 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 11 BY 1
-     job.start-date AT ROW 1.24 COL 127 COLON-ALIGNED
+     job.start-date AT ROW 1.24 COL 126 COLON-ALIGNED
           LABEL "Start"
           VIEW-AS FILL-IN 
           SIZE 16 BY 1
@@ -219,7 +231,7 @@ DEFINE FRAME F-Main
           LABEL "CSR"
           VIEW-AS FILL-IN 
           SIZE 11.6 BY 1
-     job.close-date AT ROW 2.43 COL 127 COLON-ALIGNED
+     job.close-date AT ROW 2.43 COL 126 COLON-ALIGNED
           LABEL "Close"
           VIEW-AS FILL-IN 
           SIZE 16 BY 1
@@ -230,10 +242,12 @@ DEFINE FRAME F-Main
      job.loc AT ROW 3.62 COL 101 COLON-ALIGNED WIDGET-ID 2
           VIEW-AS FILL-IN 
           SIZE 8 BY 1
-     job.due-date AT ROW 3.62 COL 127 COLON-ALIGNED
+     job.due-date AT ROW 3.62 COL 126 COLON-ALIGNED
           LABEL "Due Date"
           VIEW-AS FILL-IN 
           SIZE 16 BY 1
+     btnCalendar-1 AT ROW 1.24 COL 143.5
+     btnCalendar-2 AT ROW 3.62 COL 143.5
      RECT-1 AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -300,6 +314,10 @@ ASSIGN
    NO-ENABLE 2 4 EXP-LABEL                                              */
 /* SETTINGS FOR FILL-IN job.due-date IN FRAME F-Main
    2 4 EXP-LABEL                                                        */
+/* SETTINGS FOR BUTTON btnCalendar-1 IN FRAME F-Main
+   3                                                                    */
+/* SETTINGS FOR BUTTON btnCalendar-2 IN FRAME F-Main
+   3                                                                    */
 /* SETTINGS FOR FILL-IN job.est-no IN FRAME F-Main
    NO-ENABLE 2 EXP-FORMAT                                               */
 /* SETTINGS FOR FILL-IN job.job-no IN FRAME F-Main
@@ -456,15 +474,70 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&Scoped-define SELF-NAME job.start-date
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL job.start-date V-table-Win
+ON ENTRY OF job.start-date IN FRAME F-Main /* Start */
+DO:
+    lCheckStartDate = NO .
+    IF job.start-date EQ ? THEN
+        ASSIGN lCheckStartDate = YES .
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 &Scoped-define SELF-NAME job.start-date
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL job.start-date V-table-Win
 ON LEAVE OF job.start-date IN FRAME F-Main /* Start */
 DO:
   IF LASTKEY NE -1 THEN DO:
-    RUN validate-start-date.
-    IF NOT ll-valid THEN RETURN NO-APPLY.
+    IF lCheckStartDate THEN do:
+        RUN validate-start-date.
+        IF NOT ll-valid THEN RETURN NO-APPLY.
+    END.
   END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME job.start-date
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL job.start-date V-table-Win
+ON HELP OF job.start-date IN FRAME F-Main /* Ack. Date */
+DO:
+  {methods/calendar.i}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME job.due-date
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL job.due-date V-table-Win
+ON HELP OF job.due-date IN FRAME F-Main /* Hold/Appr Date */
+DO:
+  {methods/calendar.i}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME btnCalendar-1
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnCalendar-1 V-table-Win
+ON CHOOSE OF btnCalendar-1 IN FRAME F-Main
+DO:
+  {methods/btnCalendar.i job.start-date}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnCalendar-2
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnCalendar-2 V-table-Win
+ON CHOOSE OF btnCalendar-2 IN FRAME F-Main
+DO:
+  {methods/btnCalendar.i job.due-date}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1149,7 +1222,7 @@ PROCEDURE local-enable-fields :
     DISABLE job.due-date.
 
     IF adm-new-record                 OR
-       job.due-date LT job.start-date THEN ENABLE job.due-date.
+       job.due-date LT job.start-date THEN ENABLE job.due-date btnCalendar-1 btnCalendar-2.
 
     ELSE
     FOR EACH job-hdr
@@ -1163,7 +1236,7 @@ PROCEDURE local-enable-fields :
       IF FIRST(job-hdr.job) AND LAST(job-hdr.job) THEN LEAVE.
     END.
 
-    IF AVAILABLE job-hdr THEN ENABLE job.due-date.
+    IF AVAILABLE job-hdr THEN ENABLE job.due-date btnCalendar-1 btnCalendar-2.
   END.
 
 END PROCEDURE.
@@ -1231,8 +1304,10 @@ PROCEDURE local-update-record :
   DEFINE VARIABLE rEbRow AS ROWID NO-UNDO.
   DEFINE VARIABLE cNewItem AS CHARACTER NO-UNDO.
   /* Code placed here will execute PRIOR to standard behavior. */
-  RUN validate-start-date.
-  IF NOT ll-valid THEN RETURN NO-APPLY.
+  IF lCheckStartDate THEN do:
+      RUN validate-start-date.
+      IF NOT ll-valid THEN RETURN NO-APPLY.
+  END.
 
   /* per task #11280506
   RUN valid-due-date NO-ERROR.
@@ -1421,7 +1496,8 @@ PROCEDURE local-update-record :
 
   ASSIGN
     ll-sch-updated = NO
-    copyJob = NO.
+    copyJob = NO
+    lCheckStartDate = NO .
 
   /*needed for immediately pushing print button after adding new job*/
   IF ll-new THEN
@@ -1537,7 +1613,7 @@ PROCEDURE recalc-costs :
   DEF BUFFER bf-job-hdr FOR job-hdr .
 
   IF AVAILABLE job AND job.est-no NE "" THEN DO:
-    MESSAGE "Recalculate Job Cost?"
+    MESSAGE "Recalculate Job Cost from estimate standards without updating Materials and Routing?"
         VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
         UPDATE ll.  
 
@@ -2311,7 +2387,7 @@ PROCEDURE validate-est :
     DISABLE ALL.
 
     IF ip-lastevent EQ "" THEN DO:   /* except update button clicked */
-      ENABLE job.job-no job.job-no2 job.start-date job.due-date.
+      ENABLE job.job-no job.job-no2 job.start-date job.due-date btnCalendar-1 btnCalendar-2 .
       APPLY "entry" TO job.job-no.
       RETURN NO-APPLY.
     END.

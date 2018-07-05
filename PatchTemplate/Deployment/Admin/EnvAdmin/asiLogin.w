@@ -95,6 +95,7 @@ DEF VAR cUsrFileName AS CHAR NO-UNDO.
 DEF VAR cEnvironmentList AS CHAR NO-UNDO.
 DEF VAR cDatabaseList AS CHAR NO-UNDO.
 DEF VAR cModeScrList AS CHAR NO-UNDO.
+DEF VAR lUserOK AS LOG NO-UNDO.
 
 DEF VAR cVarName AS CHAR EXTENT 100 NO-UNDO.
 DEF VAR cVarValue AS CHAR EXTENT 100 NO-UNDO.
@@ -751,12 +752,12 @@ PROCEDURE ipAssignSV :
     ASSIGN
       fiUserID 
       fiPassword 
-      cbEnvironment
-      cbMode       
-      cbDatabase   
-      cEnvironmentList = cbEnvironment:{&SV}
-      cDatabaseList = cbDatabase:{&SV}
-      cModeScrList = cbMode:{&SV}
+      cbEnvironment = cbEnvironment:{&SV}
+      cbMode = cbMode:{&SV}      
+      cbDatabase = cbDatabase:{&SV}  
+      cEnvironmentList = cbEnvironment:LIST-ITEMS
+      cDatabaseList = cbDatabase:LIST-ITEMS
+      cModeScrList = cbMode:LIST-ITEMS
       .
  END.
 END PROCEDURE.
@@ -992,7 +993,6 @@ PROCEDURE ipClickOk :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    DEF VAR lUserOK AS LOG NO-UNDO.
     DEF VAR lError AS LOG NO-UNDO.
     DEF VAR cMessage AS CHAR NO-UNDO.
     DEF VAR cCmdString AS CHAR NO-UNDO.
@@ -1005,37 +1005,13 @@ PROCEDURE ipClickOk :
         iTruncLevel = iDbLevel / 10000
          no-error.
          
-        
-    /* Here the format for both is 16070400 */
-
     IF connectStatement <> "" THEN DO:
-        IF VALID-HANDLE(hPreRun) THEN DO:
-            RUN epDisconnectDB IN hPreRun.
-            RUN epConnectDB IN hPreRun (connectStatement,
-                                        ttUsers.ttfUserID,
-                                        fiPassword,
-                                        OUTPUT lError).
-        END.
-        ELSE DO:
-            RUN ipDisconnectDB IN THIS-PROCEDURE.
-            RUN ipConnectDB in THIS-PROCEDURE (connectStatement,
-                                               OUTPUT lError).
-
-            IF CONNECTED(LDBNAME(1)) THEN DO:
-                IF SEARCH("preRun" + STRING(iTruncLevel,"9999") + ".r") NE ? THEN
-                    RUN VALUE("preRun" + STRING(iTruncLevel,"9999") + ".p") PERSISTENT SET hPreRun.
-                ELSE RUN VALUE("prerun.p") PERSISTENT SET hPreRun.
-            END.
-            ELSE DO:
-                MESSAGE 
-                    "Unable to connect to that database with the" SKIP
-                    "credentials supplied.  Please try again."
-                    VIEW-AS ALERT-BOX ERROR.
-                RETURN NO-APPLY.
-            END.
-        END.
+        RUN ipDisconnectDB IN THIS-PROCEDURE.
+        RUN ipConnectDB in THIS-PROCEDURE (connectStatement,
+                                           OUTPUT lError).
     END.
 
+    /* Advise that code at lower levels will not be able to update user properties correctly */
     IF iEnvLevel LT 16070800 THEN DO:
         MESSAGE
             "Changes to user aliases, mode, environments and databases will not be saved with this version."
@@ -1044,33 +1020,25 @@ PROCEDURE ipClickOk :
             cUsrLoc = replace(cUsrLoc,".usr",".nul").
     END.
     
-    ASSIGN
-        lUserOK = SETUSERID(cUserID,fiPassword,LDBNAME(1)).
-    IF lUserOK = TRUE THEN DO:
-        RUN ipPreRun.
-        ASSIGN
-            c-Win:VISIBLE = FALSE.
-        IF NOT cbMode = "Monitor Users" THEN DO:
-            /* Set current dir */
-            RUN ipSetCurrentDir (cMapDir + "\" + cEnvDir + "\" + cbEnvironment). 
-
-            IF INDEX(cRunPgm,"mainmenu") <> 0
-            AND SEARCH("system/mainmenu2.r") NE ? THEN ASSIGN
-                cRunPgm = "system/mainmenu2.w".
-
-            RUN VALUE(cRunPgm).
-        END.
-        ELSE DO:
-            ASSIGN 
-                cCmdString = cDLCDir + "\bin\proshut.bat" + " -db " +
-                             cDrive + "\" + cTopDir + "\" + cDbDir + "\" + xDbDir + "\" + PDBNAME(1).
-            OS-COMMAND VALUE(cCmdString).
-        END.
+    /* This is the normal operation for Mode choices */
+    IF NOT cbMode = "Monitor Users" THEN DO: 
+        /* Set current dir */
+        RUN ipSetCurrentDir (cMapDir + "\" + cEnvDir + "\" + cbEnvironment). 
+        IF INDEX(cRunPgm,"mainmenu") <> 0
+        AND SEARCH("system/mainmenu2.r") NE ? THEN ASSIGN
+            cRunPgm = "system/mainmenu2.w".
+        RUN VALUE(cRunPgm).
     END.
-    ELSE MESSAGE
-        "Unable to login with that User ID and Password."
-        VIEW-AS ALERT-BOX ERROR.
-
+    /* This is only used to monitor users */
+    ELSE DO: 
+        ASSIGN 
+            cCmdString = cDLCDir + "\bin\proshut.bat" + " -db " +
+                         cDrive + "\" + cTopDir + "\" + cDbDir + "\" + xDbDir + "\" + PDBNAME(1).
+        OS-COMMAND VALUE(cCmdString).
+    END.
+    
+    QUIT.
+    
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1089,11 +1057,41 @@ PROCEDURE ipConnectDb :
     DEF VAR iLookup AS INT NO-UNDO.
     DEF VAR xdbName AS CHAR NO-UNDO.
     DEF VAR xdbPort AS CHAR NO-UNDO.
-    
+    DEF VAR cCmdSTring AS CHAR NO-UNDO.
+    DEF VAR cMessString AS CHAR NO-UNDO.
+    DEF VAR iPos AS INT NO-UNDO.
+
+    /* Force user id and password from screen values, trap errors in ERROR-STATUS */
+    ASSIGN
+        cStatement = cStatement + " -U " + cUserID + " -P " + fiPassword.
     CONNECT VALUE(cStatement) NO-ERROR.
 
-    IF CONNECTED(LDBNAME(1))
-    AND LDBNAME(1) = "ASI" THEN DO:
+    IF ERROR-STATUS:ERROR THEN DO:
+        DO iCtr = 1 TO ERROR-STATUS:NUM-MESSAGES:
+            /* Strip off the "Progress-y" elements of the error */
+            ASSIGN
+                cMessString = SUBSTRING(ERROR-STATUS:GET-MESSAGE(iCtr),3)
+                iPos = INDEX(cMessString,"(")
+                cMessString = "   " + SUBSTRING(cMessString,1,iPos - 1).
+            MESSAGE
+                "Unable to connect to the ASI database due to the following error:" skip
+                cMessString
+                VIEW-AS ALERT-BOX ERROR.
+        END.
+        /* Quit after lockout tries exceeded */
+        ASSIGN
+            iTries = iTries + 1.
+        IF iLockoutTries > 0 AND iTries > iLockoutTries THEN DO:
+            MESSAGE
+                "You have exceeded the maximum allowed login attempts." SKIP
+                "Exiting..."
+                 VIEW-AS ALERT-BOX ERROR.
+            QUIT.
+        END.
+        RETURN ERROR.
+    END.
+
+    IF CONNECTED(LDBNAME(1)) THEN DO:
         CREATE ALIAS nosweat FOR DATABASE VALUE(LDBNAME(1)).
         CREATE ALIAS emptrack FOR DATABASE VALUE(LDBNAME(1)).
         CREATE ALIAS jobs FOR DATABASE VALUE(LDBNAME(1)).
@@ -1101,20 +1099,14 @@ PROCEDURE ipConnectDb :
         CREATE ALIAS asihelp FOR DATABASE VALUE(LDBNAME(1)).
         CREATE ALIAS asihlp FOR DATABASE VALUE(LDBNAME(1)).
         CREATE ALIAS asinos FOR DATABASE VALUE(LDBNAME(1)).
+        
+        IF SEARCH("preRun" + STRING(iTruncLevel,"9999") + ".r") NE ? THEN
+            RUN VALUE("preRun" + STRING(iTruncLevel,"9999") + ".p") PERSISTENT SET hPreRun.
+        ELSE RUN VALUE("prerun.p") PERSISTENT SET hPreRun.
     END.
-    ELSE DO:
-        ASSIGN
-            iTries = iTries + 1.
-        IF iLockoutTries > 0 AND iTries > iLockoutTries THEN DO:
-            MESSAGE
-                "You have exceeded the allowed login attempts." SKIP
-                "Exiting..."
-                VIEW-AS ALERT-BOX ERROR.
-            QUIT.
-        END.
-        RETURN ERROR.
-    END.
+    RUN ipPreRun IN THIS-PROCEDURE.
 
+    /* Connect AUDIT database */
     ASSIGN
         lConnectAudit = IF INDEX(cConnectAudit,"Y") NE 0 OR INDEX(cConnectAudit,"T") NE 0 THEN TRUE ELSE FALSE
         iPos = LOOKUP(cbEnvironment,cEnvironmentList)
@@ -1129,18 +1121,15 @@ PROCEDURE ipConnectDb :
             xDbName = ENTRY(iLookup,cAudDbList)
             xdbPort = ENTRY(iLookup,cAudPortList)
             connectStatement = "".
-    
         IF iEnvLEvel EQ 16070000 THEN ASSIGN
             xDBName = "audTest166"
             xdbPort = "2837".
-            
         IF xDbName NE "" THEN DO:
             ASSIGN
                 connectStatement = "-db " + xDbName + 
                                    " -H " + chostName +
                                    " -S " + xdbPort + 
                                    " -N tcp -ld AUDIT".
-
             CONNECT VALUE(connectStatement).
             IF NOT CONNECTED(LDBNAME(2)) THEN DO:
                 MESSAGE
@@ -1151,6 +1140,9 @@ PROCEDURE ipConnectDb :
             END.
         END.
     END.
+
+    ASSIGN
+        c-Win:VISIBLE = FALSE.
     
 END PROCEDURE.
 
@@ -1603,7 +1595,7 @@ PROCEDURE ipPreRun :
 
     RUN epGetUserGroups IN hPreRun (OUTPUT g_groups).
 
-    IF iDbLevel GT 16050000 THEN 
+    IF iDbLevel GT 16061200 THEN 
         RUN epSetUpEDI IN hPreRun.
 
     IF fiUserID = "ASI" THEN 
@@ -1678,7 +1670,8 @@ PROCEDURE ipReadIniFile :
             WHEN "verDate" THEN ASSIGN cVerDate = ttIniFile.cVarValue.
             WHEN "connectAudit" THEN ASSIGN cConnectAudit = ttIniFile.cVarValue.
             WHEN "makeBackup" THEN ASSIGN cMakeBackup = ttIniFile.cVarValue.
-            WHEN "lockoutTries" THEN ASSIGN cLockoutTries = ttIniFile.cVarValue.
+            WHEN "lockoutTries" THEN ASSIGN cLockoutTries = ttIniFile.cVarValue
+                                            iLockoutTries = INT(ttIniFile.cVarValue).
             WHEN "adminDir" THEN ASSIGN cAdminDir = ttIniFile.cVarValue.
             WHEN "backupDir" THEN ASSIGN cBackupDir = ttIniFile.cVarValue.
             WHEN "dbDir" THEN ASSIGN cDbDir = ttIniFile.cVarValue.

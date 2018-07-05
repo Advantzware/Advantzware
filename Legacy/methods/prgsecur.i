@@ -1,5 +1,6 @@
 /* prgsecur.i {1} - WIN or blank */
 
+{system/sysconst.i}
 {methods/defines/globdefs.i}
 
 DEFINE BUFFER b-prgrms FOR prgrms.

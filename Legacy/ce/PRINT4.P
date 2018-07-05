@@ -28,6 +28,8 @@ def TEMP-TABLE q-sort2 no-undo field qty as dec field rel as int.
 def new shared temp-table tt-qtty field qtty like qtty
                                   field rel like rels.
 def new shared var tmp-dir as cha no-undo.
+DEFINE NEW SHARED VARIABLE cCEBrowseBaseDir AS CHARACTER NO-UNDO.    
+
 DEF VAR CALL_id AS RECID NO-UNDO.
 DEF NEW SHARED VAR maxpage AS INT NO-UNDO.
 def new shared var day_str as cha form "x(10)" no-undo.
@@ -40,31 +42,7 @@ DEF VAR lv-override AS LOG NO-UNDO.
 
 DEF SHARED VAR qty AS INT NO-UNDO.
 
-find first sys-ctrl where
-    sys-ctrl.company eq cocode AND
-    sys-ctrl.name    eq "CEBROWSE"
-    no-lock no-error.
-
-  if not avail sys-ctrl then DO TRANSACTION:
-        create sys-ctrl.
-        assign sys-ctrl.company = cocode
-               sys-ctrl.name    = "CEBROWSE"
-               sys-ctrl.descrip = "# of Records to be displayed in browser"
-               sys-ctrl.log-fld = YES
-               sys-ctrl.char-fld = "CE"
-               sys-ctrl.int-fld = 30.
-        
-  end.
-
-IF sys-ctrl.char-fld NE "" THEN
-   tmp-dir = sys-ctrl.char-fld.
-ELSE
-   tmp-dir = "users\".
-
-IF LOOKUP(SUBSTRING(tmp-dir,LENGTH(tmp-dir)),"\,/") EQ 0 THEN
-   tmp-dir = tmp-dir + "\".
-
-tmp-dir = REPLACE(tmp-dir,"/","\").
+RUN est/EstimateProcs.p (cocode, OUTPUT cCeBrowseBaseDir, OUTPUT tmp-dir).
 
 {ce/print4p.i}
 

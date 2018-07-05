@@ -2016,7 +2016,7 @@ PROCEDURE get-rel-info :
       ASSIGN
        op-pono = oe-rell.po-no
        op-date = oe-relh.rel-date
-       op-lot# = oe-rel.lot-no .
+       op-lot# = oe-rell.lot-no.
       LEAVE.
     END.
 

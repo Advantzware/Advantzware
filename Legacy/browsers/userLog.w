@@ -47,7 +47,7 @@ DEFINE VARIABLE cReturnChar     AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lRecFound       AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cLogoutFolder   AS CHARACTER NO-UNDO.
 DEFINE STREAM sLogOut.
-RUN sys/ref/nk1look.p (INPUT g_company, "AutoLogoutLocal", "C" /* Character*/, 
+RUN sys/ref/nk1look.p (INPUT g_company, "UserControl", "C" /* Character*/, 
     INPUT NO /* check by cust */, 
     INPUT YES /* use cust not vendor */,
     INPUT "" /* cust */, 
@@ -56,7 +56,8 @@ RUN sys/ref/nk1look.p (INPUT g_company, "AutoLogoutLocal", "C" /* Character*/,
     OUTPUT lRecFound).
 IF lRecFound THEN 
     cLogoutFolder = cReturnChar  .
-
+IF SEARCH( cLogoutFolder) EQ ? THEN 
+    OS-CREATE-DIR VALUE( cLogoutFolder).    
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 

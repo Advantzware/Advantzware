@@ -333,6 +333,9 @@ PROCEDURE adm-create-objects :
        RUN set-position IN h_b-rcrinq ( 4.81 , 3.00 ) NO-ERROR.
        /* Size in UIB:  ( 19.52 , 145.00 ) */
 
+       /* Initialize other pages that this page requires. */
+       RUN init-pages IN THIS-PROCEDURE ('2':U) NO-ERROR.
+
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_b-rcrinq ,
              h_folder , 'AFTER':U ).
@@ -393,6 +396,8 @@ PROCEDURE adm-create-objects :
 
        /* Links to SmartViewer h_v-nav2. */
        RUN add-link IN adm-broker-hdl ( h_b-rcrinq , 'nav-itm':U , h_v-nav2 ).
+
+       RUN add-link IN adm-broker-hdl ( h_b-rcrinq , 'inquiryaq':U , h_b-cashl ).
 
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_v-cash ,

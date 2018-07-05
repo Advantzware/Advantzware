@@ -62,7 +62,7 @@ SESSION:ADD-SUPER-PROCEDURE (hProc).
 RUN aoa\appServer\aoaTS.p PERSISTENT SET hProc.
 SESSION:ADD-SUPER-PROCEDURE (hProc).
 
-RUN aoa\appServer\autoLogout.p PERSISTENT SET hProc.
+/*RUN aoa\appServer\autoLogout.p PERSISTENT SET hProc.*/
 
 OUTPUT TO 'aoaStart.log' APPEND.
 PUT UNFORMATTED '[' REPLACE(STRING(NOW),' ','@') '] AdvantzwareOA' SKIP.
