@@ -78,7 +78,8 @@ def temp-table w-ord
   FIELD upd-user AS CHAR
   FIELD due-date AS CHAR
   FIELD ord-date AS CHARACTER
-  FIELD prom-date like oe-ordl.prom-date.
+  FIELD prom-date like oe-ordl.prom-date
+  FIELD csrUser_id as CHARACTER .
 
 def buffer b-w-ord for w-ord.
 

@@ -1031,8 +1031,9 @@ PROCEDURE import-data :
     DO:
         RUN util/CheckModule.p ("ASI","impShipTo.", NO, OUTPUT lAccess).
         IF lAccess THEN 
-            RUN util/Importer.w (INPUT shipto.company, 
-                INPUT "ShipTo", 
+            RUN util/Importer.w (INPUT shipto.company,
+                INPUT locode, 
+                INPUT "ttImportShipTo", 
                 INPUT ROWID(shipto)).
         ELSE 
             RUN util/xlship2.w (INPUT shipto.company,

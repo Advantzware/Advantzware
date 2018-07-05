@@ -22,15 +22,18 @@ ASSIGN
 
 /*add new NK1 to v-std-list first, then add it to the "When" clause below */
 v-std-list = "LoadTagSSCC,IR12,OEDateChange,FGRecptPassWord,InvStatus,BOLQtyPopup,AgeDays,OEFGADD,HighBalDays,"
-            + "oeShipFrom,SSFGSCAN,Paperless,FGSetAssembly,AutoFGIssue,CustomerList,SSLoadtag,ChkFmtACH,"
-            + "OESellPriceXfer,OEPO#Xfer,SSBolEmail,OEDateAuto,QuoteNotes,OEPriceMatrixCheck,GLJournalPost,"
-            + "FGRecptUnit,OeDateWarn,PREPMASTER,POFarmOutScores,OEQtyPerUnitWarn,APMatTypeExceptions," 
-            + "OEJobHold,lmLock,CESAMPLE,DefaultDir,JobHoldReason,ASIHelpService,CRMAuthToken,TSAMPMWarn,SSScanVendor," 
-            + "OEBOLPrompt,SHTCALCWarn,BOLFMTTran,BOLMaster,SalesBudget,CEMarkupMatrixInterpolate,CEMarkupMatrixLookup,"
-            + "KiwiT,BusinessFormModal,LoadTagXprintImage,AsiHelpClientID,CEGotoCalc,FGKEEPZEROBIN,RMKEEPZEROBIN,PrePressHotFolderIn,"
-            + "PrePressHotFolderOut,METRIC,CEImportForm,CEImportFormFolder,BusinessFormLogo,CalcBtnImage,CalcBtnLink,DCClosedJobs,"
-            + "ImportFolder,ImportLog,TagFormat,FgItemHideCalcFields,VendCostMatrix,RelSkipRecalc,RMAllowAdd,CECostSave,RMOverrunCostProtection,"
-            + "SSBOLPassword,BOLImageFooter,InvAddDate,POFGDims,OEPriceHold,POConfigDir,EDILogs" .
+           + "oeShipFrom,SSFGSCAN,Paperless,FGSetAssembly,AutoFGIssue,CustomerList,SSLoadtag,ChkFmtACH,"
+           + "OESellPriceXfer,OEPO#Xfer,SSBolEmail,OEDateAuto,QuoteNotes,OEPriceMatrixCheck,GLJournalPost,"
+           + "FGRecptUnit,OeDateWarn,PREPMASTER,POFarmOutScores,OEQtyPerUnitWarn,APMatTypeExceptions," 
+           + "OEJobHold,lmLock,CESAMPLE,DefaultDir,JobHoldReason,ASIHelpService,CRMAuthToken,TSAMPMWarn,SSScanVendor," 
+           + "OEBOLPrompt,SHTCALCWarn,BOLFMTTran,BOLMaster,SalesBudget,CEMarkupMatrixInterpolate,CEMarkupMatrixLookup,"
+           + "KiwiT,BusinessFormModal,LoadTagXprintImage,AsiHelpClientID,CEGotoCalc,FGKEEPZEROBIN,RMKEEPZEROBIN,PrePressHotFolderIn,"
+           + "PrePressHotFolderOut,METRIC,CEImportForm,CEImportFormFolder,BusinessFormLogo,CalcBtnImage,CalcBtnLink,DCClosedJobs,"
+           + "ImportFolder,ImportLog,TagFormat,FgItemHideCalcFields,VendCostMatrix,RelSkipRecalc,RMAllowAdd,CECostSave,RMOverrunCostProtection,"
+           + "SSBOLPassword,BOLImageFooter,InvAddDate,POFGDims,OEPriceHold,POConfigDir,EDILogs,AutoLogout,AutoLogoutLocal,RMTagValidation,"
+           + "MenuLink1,MenuLink2,MenuLink3,MenuLink4,MenuLink5,MenuLink6,MenuLink7,MenuLink8,MenuLinkASI,MenuLinkZoHo,MenuLinkUpgrade,"
+           + "BitMap,CEMenu"
+           .
 
 IF CAN-DO(v-std-list,ip-nk1-value) THEN
 CASE ip-nk1-value:
@@ -214,8 +217,8 @@ CASE ip-nk1-value:
                           INPUT "Prompt for Reason when Job Placed on Hold",
                           INPUT "" /* Char Value */, INPUT 0 /* Int value */,
                           INPUT NO /* Logical value */).
-    WHEN "ASIHelpService" THEN 
-    RUN sys/inc/addnk1.p (INPUT "", INPUT ip-nk1-value, INPUT NO /* Prompt? */,
+    WHEN "ASIHelpService" THEN
+    RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
                           INPUT "ASI Help Services",
                           INPUT "-WSDL 'http:\\34.203.15.64/asihelpServices/helpmaintenance.asmx?WSDL'" /* Char Value */, INPUT 0 /* Int value */,
                           INPUT NO /* Logical value */).
@@ -435,6 +438,47 @@ CASE ip-nk1-value:
     RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
         INPUT "C:\tmp",
         INPUT "C:\tmp" /* Char Value */, INPUT 0 /* Int value */,
+        INPUT NO /* Logical value */).
+     WHEN "UserControl" THEN   
+    RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
+        INPUT "Folder to write disconnect instructions",
+        INPUT "custfiles\userControl" /* Char Value */, INPUT 0 /* Int value */,
+        INPUT NO /* Logical value */).       
+    WHEN "RMTagValidation" THEN   
+    RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
+        INPUT "Validates the tag number upon issue Material Posting",
+        INPUT "" /* Char Value */, INPUT 0 /* Int value */,
+        INPUT NO /* Logical value */).
+    WHEN "MenuLink1" OR WHEN "MenuLink2" OR WHEN "MenuLink3" OR WHEN "MenuLink4" OR
+    WHEN "MenuLink5" OR WHEN "MenuLink6" OR WHEN "MenuLink7" OR WHEN "MenuLink8" THEN
+    RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
+        INPUT "",
+        INPUT "" /* Char Value */, INPUT 0 /* Int value */,
+        INPUT NO /* Logical value */).
+    WHEN "MenuLinkASI" THEN
+    RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
+        INPUT "http://www.advantzware.com",
+        INPUT "Graphics\asiicon.ico" /* Char Value */, INPUT 0 /* Int value */,
+        INPUT YES /* Logical value */).
+    WHEN "MenuLinkZoHo" THEN
+    RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
+        INPUT "https://support.zoho.com/portal/advantzware/kb",
+        INPUT "Graphics\32x32\question.ico" /* Char Value */, INPUT 0 /* Int value */,
+        INPUT YES /* Logical value */).
+    WHEN "MenuLinkUpgrade" THEN
+    RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
+        INPUT "https://desk.zoho.com/support/advantzware/ShowHomePage.do#Solutions",
+        INPUT "Graphics\32x32\question_and_answer.ico" /* Char Value */, INPUT 0 /* Int value */,
+        INPUT YES /* Logical value */).
+    WHEN "BitMap" THEN
+    RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
+        INPUT "Graphics\bigboxes",
+        INPUT "" /* Char Value */, INPUT 0 /* Int value */,
+        INPUT NO /* Logical value */).
+    WHEN "CEMenu" THEN
+    RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
+        INPUT "Graphics\bigboxes",
+        INPUT "" /* Char Value */, INPUT 0 /* Int value */,
         INPUT NO /* Logical value */).
 END CASE.
 ELSE

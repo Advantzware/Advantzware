@@ -86,6 +86,7 @@ DEF VAR v-source-handle AS HANDLE NO-UNDO.
 DEFINE VARIABLE cRtnChar          AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lRecFound         AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE RmKeepZeroBin-log AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE lRmTagValidate AS LOGICAL NO-UNDO .
 {jc/jcgl-sh.i NEW}
 
 DEF TEMP-TABLE tt-rctd NO-UNDO LIKE rm-rctd FIELD tt-row-id AS ROWID
@@ -170,6 +171,12 @@ RUN sys/ref/nk1look.p (INPUT cocode, "RMKEEPZEROBIN", "L" /* Logical */, NO /* c
     OUTPUT cRtnChar, OUTPUT lRecFound).
 IF lRecFound THEN
     RmKeepZeroBin-log = LOGICAL(cRtnChar) NO-ERROR.
+
+RUN sys/ref/nk1look.p (INPUT cocode, "RMTagValidation", "L" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+    OUTPUT cRtnChar, OUTPUT lRecFound).
+IF lRecFound THEN
+    lRmTagValidate = LOGICAL(cRtnChar) NO-ERROR.
     
 DEF VAR v-pr-tots AS LOG FORMAT "Y/N" NO-UNDO.
 DEF {1} SHARED VAR v-print-fmt  AS CHAR NO-UNDO.
@@ -724,6 +731,31 @@ DO:
 
     ELSE MESSAGE "Sorry, nothing is available for posting..."
              VIEW-AS ALERT-BOX.
+
+    /* Check Tag Valid or not*/
+    IF lRmTagValidate THEN DO:
+        FOR EACH tt-rctd,
+            FIRST rm-rctd WHERE ROWID(rm-rctd) EQ tt-rctd.rm-row-id
+            AND rm-rctd.rita-code = "I"
+            AND rm-rctd.tag NE ""
+            NO-LOCK
+            BREAK BY rm-rctd.i-no
+            BY rm-rctd.loc
+            BY rm-rctd.loc-bin
+            BY rm-rctd.tag:
+
+            FIND FIRST loadtag NO-LOCK
+                 WHERE loadtag.company = cocode
+                   AND loadtag.item-type = YES
+                   AND loadtag.tag-no = rm-rctd.tag  NO-ERROR.
+            IF NOT AVAIL loadtag THEN DO:
+                MESSAGE "Sorry, RM Issue Transactions cannot be processed because 1 or " +
+                "more have invalid tag# : " VIEW-AS ALERT-BOX INFO.
+                lv-post = NO.
+                LEAVE .
+           END.
+        END.
+    END.  /* lRmTagValidate */
 
     IF lv-post THEN DO:
       FOR EACH tt-rctd

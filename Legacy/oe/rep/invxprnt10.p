@@ -71,6 +71,7 @@ def var v as int.
 def var v-bo-qty as int format "99999" no-undo.
 def var v-inv-qty as int format "99999" no-undo.
 def var v-ship-qty as int format "99999" no-undo.
+DEFINE VARIABLE v-ord-qty as int format "99999" no-undo.
 def var v-i-no as char format "x(15)" no-undo.
 def var v-i-dscr as char format "x(18)" no-undo.
 def var v-price as dec format ">>>>9.9999" no-undo.
@@ -468,11 +469,13 @@ find first company where company.company eq cocode NO-LOCK.
              lv-inv-list = ""
              v-ship-qty  = IF inv-line.ord-no EQ 0 THEN inv-line.inv-qty
                                                    ELSE inv-line.ship-qty.
+             
 
             find first oe-ordl where oe-ordl.company = cocode and
                                      oe-ordl.ord-no = inv-line.ord-no and
                                      oe-ordl.i-no = inv-line.i-no
                                      no-lock no-error.
+
             if avail oe-ordl then DO:
               v-bo-qty = if (inv-line.qty - v-ship-qty -
                              oe-ordl.t-ship-qty) < 0 then 0 else
@@ -541,7 +544,11 @@ find first company where company.company eq cocode NO-LOCK.
                    v-i-dscr = inv-line.i-name
                    v-price = inv-line.price * (1 - (inv-line.disc / 100))
                    v-t-price = inv-line.t-price
-                   v-subtot-lines = v-subtot-lines + inv-line.t-price.
+                   v-subtot-lines = v-subtot-lines + inv-line.t-price
+                   v-ord-qty = inv-line.qty .
+            
+            IF lPrintQtyAll THEN
+                   v-inv-qty = inv-line.inv-qty .
 
             if inv-line.tax and avail stax then
             do i = 1 to 5:
@@ -567,7 +574,8 @@ find first company where company.company eq cocode NO-LOCK.
             end.
             
             v-price-head = inv-line.pr-uom.
-
+  
+          IF NOT lPrintQtyAll THEN do:
             PUT space(1) v-inv-qty format "->>>>>9" SPACE(1)
                 v-ship-qty  format "->>>>>9" SPACE(1)
                 inv-line.ord-no FORMAT ">>>>>>9" SPACE(1)
@@ -577,6 +585,19 @@ find first company where company.company eq cocode NO-LOCK.
                 v-price-head 
                 inv-line.t-price  format "->>>,>>9.99"                     
                 SKIP.
+          END.
+          ELSE DO:
+              PUT space(1)v-ord-qty  format "->>>>>9" SPACE(1)
+                v-inv-qty  format "->>>>>9" SPACE(1)
+                inv-line.ord-no FORMAT ">>>>>>9" SPACE(1)
+                v-i-no  format "x(15)" SPACE(1)
+                v-i-dscr  format "x(25)" SPACE(1)
+                v-price  format "->>,>>9.99<<" SPACE(1)
+                v-price-head 
+                inv-line.t-price  format "->>>,>>9.99"                     
+                SKIP.
+
+          END.
 
             v-printline = v-printline + 1.
       
@@ -588,13 +609,23 @@ find first company where company.company eq cocode NO-LOCK.
                             else           trim(lv-inv-list).
               if v-part-info ne "" OR  (v = 1 AND inv-line.part-no <> "") then do:
                  IF v = 1 THEN DO:
-                     
+                   IF lPrintQtyAll THEN do:
+                      PUT SPACE(1) v-ship-qty FORMAT ">>>>>>9" .
                      IF LENGTH(inv-line.po-no) LE 8 THEN DO:
+                         PUT  SPACE(8) inv-line.po-no FORMAT "x(8)" SPACE(1)   inv-line.part-no SPACE v-part-info SKIP.
+                     END.
+                     ELSE DO: 
+                         PUT  SPACE(1) inv-line.po-no FORMAT "x(15)" SPACE(1)   inv-line.part-no SPACE v-part-info SKIP.
+                     END.
+                   END.
+                   ELSE DO:
+                        IF LENGTH(inv-line.po-no) LE 8 THEN DO:
                          PUT  SPACE(16) inv-line.po-no FORMAT "x(8)" SPACE(1)   inv-line.part-no SPACE v-part-info SKIP.
                      END.
                      ELSE DO: 
                          PUT  SPACE(9) inv-line.po-no FORMAT "x(15)" SPACE(1)   inv-line.part-no SPACE v-part-info SKIP.
                      END.
+                   END. /* else do*/
 
                  END.
                  ELSE

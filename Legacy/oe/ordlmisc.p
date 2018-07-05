@@ -148,7 +148,7 @@ for each ef OF xeb no-lock:
              oe-ordm.estPrepEqty   = ef.eqty
              oe-ordm.estPrepLine   = ef.form-no
              oe-ordm.miscInd       = string(i)
-             oe-ordm.est-no        = est-prep.est-no. 
+             oe-ordm.est-no        = ef.est-no. 
       
       
 

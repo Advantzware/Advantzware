@@ -122,9 +122,9 @@ FUNCTION buildHeader RETURNS CHARACTER
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD getValue-itemfg rd-fgexp 
-FUNCTION getValue-itemfg RETURNS CHARACTER
-  ( BUFFER ipb-itemfg FOR account, ipc-field AS CHAR )  FORWARD.
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD getValue-account rd-fgexp 
+FUNCTION getValue-account RETURNS CHARACTER
+  ( BUFFER ipbf-account FOR account, ipc-field AS CHAR )  FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -840,7 +840,7 @@ FOR EACH b-account WHERE b-account.company = cocode
 
     FOR EACH ttRptSelected:
         v-excel-detail-lines = v-excel-detail-lines + 
-            appendXLLine(getValue-itemfg(BUFFER b-account,ttRptSelected.FieldList)).
+            appendXLLine(getValue-account(BUFFER b-account,ttRptSelected.FieldList)).
 
 
     END.
@@ -958,9 +958,9 @@ END FUNCTION.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION getValue-itemfg rd-fgexp 
-FUNCTION getValue-itemfg RETURNS CHARACTER
-  ( BUFFER ipb-itemfg FOR account, ipc-field AS CHAR ) :
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION getValue-account rd-fgexp 
+FUNCTION getValue-account RETURNS CHARACTER
+  ( BUFFER ipbf-account FOR account, ipc-field AS CHAR ) :
 /*------------------------------------------------------------------------------
   Purpose:  Take a buffer and field name as string and return the value
     Notes:  
@@ -971,34 +971,34 @@ FUNCTION getValue-itemfg RETURNS CHARACTER
 
     CASE ipc-field :
         WHEN "vTYPE"  THEN DO:
-               IF ipb-itemfg.TYPE EQ "A" THEN 
+               IF ipbf-account.TYPE EQ "A" THEN 
                     lc-return = "Asset".
-                ELSE if ipb-itemfg.TYPE EQ "C" THEN 
+                ELSE if ipbf-account.TYPE EQ "C" THEN 
                     lc-return = "Capital".
-                ELSE if ipb-itemfg.TYPE EQ "E" THEN 
+                ELSE if ipbf-account.TYPE EQ "E" THEN 
                     lc-return = "Expense".
-                ELSE if ipb-itemfg.TYPE EQ "L" THEN 
+                ELSE if ipbf-account.TYPE EQ "L" THEN 
                     lc-return = "Liability".
-                ELSE if ipb-itemfg.TYPE EQ "R" THEN 
+                ELSE if ipbf-account.TYPE EQ "R" THEN 
                     lc-return = "Revenue".
                 ELSE
                     lc-return = "Title".
         END.
         WHEN "term-disc"  THEN DO:
-            IF account.terms-discount EQ YES THEN
+            IF ipbf-account.terms-discount EQ YES THEN
                 lc-return = "Yes".
             ELSE
                 lc-return = "No".
         END.
         WHEN "dfuncTotMSFPTD"  THEN DO:
-            /*IF g_period NE 0 THEN lc-return = STRING(ipb-itemfg.ptd-msf[g_period]).*/
+            /*IF g_period NE 0 THEN lc-return = STRING(ipbf-account.ptd-msf[g_period]).*/
         END.
         OTHERWISE DO:
             IF INDEX(ipc-field,"[") > 0 THEN DO:
                 li-extent = INT(SUBSTRING(ipc-field,INDEX(ipc-field,"[") + 1, LENGTH(TRIM(ipc-field)) - INDEX(ipc-field,"[") - 1)).
                 ipc-field = SUBSTRING(ipc-field,1,INDEX(ipc-field,"[") - 1).
             END.
-            h-field = BUFFER ipb-itemfg:BUFFER-FIELD(ipc-field).
+            h-field = BUFFER ipbf-account:BUFFER-FIELD(ipc-field).
             IF h-field:EXTENT = 0 THEN
                 lc-return = STRING(h-field:BUFFER-VALUE /*, h-field:FORMAT*/ ).
             ELSE

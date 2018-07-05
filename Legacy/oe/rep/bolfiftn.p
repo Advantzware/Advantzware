@@ -130,6 +130,7 @@ DEFINE VARIABLE v-cusx-add5 AS cha NO-UNDO.
 DEFINE VARIABLE v-cusx-name AS cha NO-UNDO.
 DEFINE VARIABLE icountpallet AS INTEGER NO-UNDO .
 DEFINE VARIABLE v-tot-unit          AS   INTEGER FORMAT "->,>>>,>>9".
+DEF VAR v-ship-i AS CHARACTER EXTENT 4 FORM "x(60)" NO-UNDO.
 
 DEFINE BUFFER b-itemfg     FOR itemfg.
 DEFINE BUFFER bf-ttboll FOR tt-boll.
@@ -394,124 +395,33 @@ FOR EACH xxreport WHERE xxreport.term-id EQ v-term-id,
 
      IF oe-bolh.tot-pallets NE 0 THEN v-tot-palls = oe-bolh.tot-pallets.
 
-     /* gdm - 03060901 */
-     ASSIGN        
-         /*v-txt1[1] = " The property described below in apparent good order, except as noted (contents and condition of contents of packages unknown), marked consigned               If charges are to be pre-" */
-         /*v-txt1[2] = " and destined as indicated below, which said carrier (the word carrier being understood throughout this contract as meaning any person or corporation              paid,write or stamp here" */
-         /*v-txt1[3] = " in possession of the property under the contract) agrees to carry to its usual place of delivery at said destination, if on its route, otherwise to deliver                  To be Prepaid" */
+   
+     PUT "<R55><C50><#8><FROM><R+4><C+30><RECT> " 
+         "<=8><R+1> Total Units       :" v-tot-cases
+         "<=8><R+2> Total Pallets     :" v-tot-palls
+         "<=8><R+3> Total Weight      :" v-tot-wt .
 
-         v-txt1[1] = " The property described below, in apparent good order, except as noted (contents and condition of contents of packages unknown), marked, consigned" 
-         v-txt1[2] = " and destined as indicated below, which said carrier (the word carrier being understood throughout this contract as meaning any person or corporation              Prepaid, Collect,"  
-         v-txt1[3] = " in possession of the property under the contract) agrees to carry to its usual place of delivery at said destination, if on its route, otherwise to deliver                    or 3rd Party "
-         v-txt1[4] = " to another carrier on the route to said destination.  It is mutually agreed, as to each carrier of all or any of said property over all or any portion of said" 
-         v-txt1[5] = " route to destination, and as to each party at any time interested in all or any of said property, that every service to be performed hereunder shall" 
-         v-txt1[6] = " be subjected to all terms and conditions of the Uniform Domestic Straight Bill of Lading set forth (I) in Uniform Freight Classification in effect on the"
-         v-txt1[7] = " date hereof, if this is a rail or rail-water shipment, (2) in the applicable motor carrier classification or tariff if this is a motor carrier shipment." 
-         v-txt1[8] = " Shipper hereby certifies that he is familiar with all the terms and conditions of the said bill of lading, including those on the back therof, set forth in the"
-         v-txt1[9] = " classification or tariff which governs the transportation of this shipment, and the said terms and conditions are hereby agreed to by the shipper and "
-         v-txt1[10] = " accepted for himself and his assigns."
-         v-txt1[11] = "      NO. OF               KINDS OF PACKAGES,DESCRIPTION OF               WEIGHT                  CLASS                  NO. OF                KINDS OF PACKAGES,DESCRIPTION OF                WEIGHT               CLASS"
-         v-txt1[12] = "      UNITS              ARTICLES SPECIAL MARKS & EXCEPTIONS        (SUB TO CORR)       OR RATE                UNITS                ARTICLES SPECIAL MARKS & EXCEPTIONS         (SUB TO CORR)      OR RATE"
-         v-txt1[13] = " If the shipping moves between two port by a carrier by water, the law requires that the bill of lading shall state whether it is 'carrier' or shipper's weight."
-         v-txt1[14] = " Note:  Where the rate is dependent on value, the shippers are required to state specifically in writing the agreed to declared value of the property."
-         v-txt1[15] = " The agreed or declared value is hereby specifically stated by the shipper to be not exceeding   _________________  per   ______________."       
-         v-txt1[16] = "   Shipper                                                                                          Carrier / Driver                                                                                          Customer"
-         v-txt1[17] = "Subject TO SECTION 7 of Condition of applicable"
-         v-txt1[18] = "bill of lading if this shipment is to be delivered to the"
-         v-txt1[19] = "consignor without recourse on the consignor,the"
-         v-txt1[20] = "consignor shall sign the following statement. The"
-         v-txt1[21] = "carrier shall not make delivery of this shipment"
-         v-txt1[22] = "without payment of freight and all other lawful" 
-         v-txt1[23] = "charges."
-         v-txt1[24] = "   X                                                                                                X                                                                                                         X       "
-         .
+      ASSIGN v-ship-i = "".
+      IF v-print-shipnotes THEN
+     ASSIGN v-ship-i[1] = oe-bolh.ship-i[1]
+            v-ship-i[2] = oe-bolh.ship-i[2]
+            v-ship-i[3] = oe-bolh.ship-i[3]
+            v-ship-i[4] = oe-bolh.ship-i[4].
 
-     IF v-printline >= 34 THEN DO:
-        ASSIGN v-printline = 0.
-        PAGE {1}.
-        {oe/rep/bolfiftn.i}
-
-     END.
-         
-
-     PUT "<FArial><P7><R46><C25><b>  Unit:"  STRING(v-tot-cases,"->>>>>9")   "            PALLETS:" v-tot-palls FORMAT "->>>>>9" 
-         "</b><P7><R47><C13> SHORTAGES OR DAMAGE SHOULD BE NOTED ON RECEIPT OF SHIPMENT, OTHERWISE CLAIMS WILL NOT BE ALLOWED." SKIP
-         "<|10><R48><C1><#6><FROM><R54><C81><RECT>" 
-         "<R48><C1>" v-txt1[1]    
-         "<R48.5><C1>" v-txt1[2]  
-         "<R49><C1>" v-txt1[3]    
-         "<R49.5><C1>" v-txt1[4]  
-         "<R50><C1>" v-txt1[5]    
-         "<R50.5><C1>" v-txt1[6]  
-         "<R51><C1>" v-txt1[7]    
-         "<R51.5><C1>"            
-         "<R52><C1>" v-txt1[8]    
-         "<R52.5><C1>" v-txt1[9]  
-         "<R53><C1>" v-txt1[10]   
-         "<R48><C65.5><FROM><R54><C65.5><LINE>"  
-
-         "<|10><R54><C1><#7><FROM><R59><C81><RECT>" 
-         "<P6><R54><C1>" v-txt1[11]     
-         "<P6><R54.5><C1>" v-txt1[12]   
-/*
-         "<P7><R56><C1>"  v-tot-palls      /* # UNITS */
-         "<P7><R56><C8>"  " DESCRIPTION"   /* DESCRPT */
-         "<P7><R56><C28>" v-tot-wt         /* WEIGHT  */
-         "<P7><R56><C35>" v-tot-palls      /* CLASS   */
-         "<P7><R56><C42>" v-tot-palls      /* # UNITS */
-         "<P7><R56><C49>" v-tot-palls      /* DESCRPT */
-         "<P7><R56><C69>" v-tot-palls      /* WEIGHT  */
-         "<P7><R56><C76>" v-tot-palls      /* CLASS   */
-*/
-
-         "<R54><C7><FROM><R59><C7><LINE>"         
-         "<R54><C27><FROM><R59><C27><LINE>"         
-         "<R54><C34><FROM><R59><C34><LINE>"         
-         "<R54><C41><FROM><R59><C41><LINE>"         
-         "<R54><C48><FROM><R59><C48><LINE>"         
-         "<R54><C68><FROM><R59><C68><LINE>"         
-         "<R54><C75><FROM><R59><C75><LINE>"         
-         "<R55><C1><FROM><R55><C81><LINE>"
-         "<R57><C1><FROM><R57><C81><LINE>"
-
-         "<|10><R59><C1><#8><FROM><R65><C81><RECT>" 
-         "<R59><C64><FROM><R65><C64><LINE>"
-         "<R61><C1><FROM><R61><C64><LINE>"
-         "<R62.5><C1><FROM><R62.5><C64><LINE>"
-         
-
-         "<R59><C1>"   v-txt1[13] 
-         "<R59.5><C1>" v-txt1[14] 
-         "<R60><C1>"   v-txt1[15] 
-         "<P6><R61.5><C1>"   v-txt1[16]
-
-         "<P5><R59.5><C65>"  v-txt1[17]          
-         "<R60><C65>"    v-txt1[18]  
-         "<R60.5><C65>"  v-txt1[19]           
-         "<R61><C65>"    v-txt1[20]  
-         "<R61.5><C65>"  v-txt1[21] 
-         "<R62><C65>"    v-txt1[22] 
-         "<R62.5><C65>"  v-txt1[23] 
-         "<R63.5><C66> _______________________________" 
-         "<R64><C68>  (Signature of Consignor)"
-         "<R63.5><C1>"  v-txt1[24]   
-         .
-         
-                        
-
-/*
-     PUT "<R54><C50><#8><FROM><R+4><C+30><RECT> " 
-         "<=8><R+1> Total Units       :" v-tot-palls
-         "<=8><R+3> Total Weight      :" v-tot-wt
-         "<P9><R58><C1>"
-         "__________________________________________________________________________________________________________________" 
-         "<R59><C1>" "<B>  Signature of Receipt </B>" 
-         "<R60><C1>" "Customer ________________________________________                       Carrier _______________________________________" 
-         "<R62><C1>" "Date ____________________________________________                       Date _________________________________________".
-
+        PUT "<FArial><R53><C1><P12><B>     Shipping Instructions: </B> <P9> " 
+            "<R54><C1>" v-ship-i[1] AT 7 
+            "<R55><C1>" v-ship-i[2] AT 7 
+            "<R56><C1>" v-ship-i[3] AT 7 
+            "<R57><C1>" v-ship-i[4] AT 7 
+            "<R59><C1>"
+            "__________________________________________________________________________________________________________________" 
+            "<R60><C1>" "<B>  Signature of Receipt </B>" 
+            "<R61><C7>" "Customer ________________________________________                       Carrier _______________________________________" 
+            "<R63><C7>" "Date ____________________________________________                       Date _________________________________________"     
+            .
    
      v-printline = v-printline + 14.
-*/   
+   
      PAGE.
      v-printline = 0.
    

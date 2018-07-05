@@ -33,20 +33,14 @@ FOR EACH e-itemfg-vend NO-LOCK
     BREAK BY e-itemfg-vend.vend-no:
 
   IF FIRST(e-itemfg-vend.vend-no) THEN DO:
-    FIND FIRST reftable
-        WHERE reftable.reftable EQ "e-itemfg-vend.std-uom"
-          AND reftable.company  EQ e-itemfg-vend.company
-          AND reftable.loc      EQ ""
-          AND reftable.code     EQ e-itemfg-vend.est-no
-          AND reftable.val[1]   EQ e-itemfg-vend.form-no
-          AND reftable.val[2]   EQ e-itemfg-vend.blank-no
-        NO-LOCK NO-ERROR.
 
     CREATE tt-ei.
     ASSIGN
-     tt-ei.std-uom = IF AVAIL reftable THEN reftable.code2 ELSE "EA"
+     tt-ei.std-uom = IF e-itemfg-vend.std-uom <> "" THEN e-itemfg-vend.std-uom ELSE "EA"
      tt-ei.i-no    = eb.stock-no
      tt-ei.company = e-itemfg-vend.company.
+
+
 
     DO li = 1 TO 10:
        ASSIGN

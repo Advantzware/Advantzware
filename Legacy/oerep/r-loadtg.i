@@ -84,4 +84,5 @@ DEF {1} SHARED TEMP-TABLE w-ord
   FIELD ship-notes LIKE oe-rel.ship-i
   /* rstark - zoho13731 */
   FIELD SSCC AS CHARACTER FORMAT "x(20)"
+  FIELD job-qty as INTEGER 
   .
