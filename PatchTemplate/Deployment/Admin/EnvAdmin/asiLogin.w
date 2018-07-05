@@ -1063,7 +1063,7 @@ PROCEDURE ipConnectDb :
 
     /* Force user id and password from screen values, trap errors in ERROR-STATUS */
     ASSIGN
-        cStatement = cStatement + " -U " + cUserID + " -P " + fiPassword.
+        cStatement = cStatement + " -U " + cUserID + " -P '" + fiPassword + "'".
     CONNECT VALUE(cStatement) NO-ERROR.
 
     IF ERROR-STATUS:ERROR THEN DO:
