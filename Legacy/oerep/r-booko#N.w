@@ -1791,10 +1791,9 @@ for each oe-ord
                                        oe-ordl.price,
                                        oe-ordl.pr-uom,
                                        itemfg.case-count,
-                                       ( IF AVAIL itemfg THEN itemfg.case-count ELSE 0),
+                                       oe-ordl.disc,
                                        OUTPUT v-ext-price).
        
-
        /** CALCULATE FREIGHT CHARGES **/
         v-tot-freight = v-tot-freight +
                     (round(oe-ordl.t-freight / oe-ordl.qty, 2) * v-qty-lft).

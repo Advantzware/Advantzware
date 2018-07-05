@@ -1,25 +1,50 @@
+
+
+/* **********************  Internal Procedures  *********************** */
+
+
 PROCEDURE epCanAccess:
     DEF INPUT PARAMETER ipProgName AS CHAR.
     DEF INPUT PARAMETER ipFunction AS CHAR.
     DEF OUTPUT PARAMETER opCanAccess AS LOG.
   
+  RUN epCanAccessUser (INPUT ipProgName,
+                                            INPUT ipFunction,
+                                            INPUT USERID(LDBNAME(1)),
+                                            OUTPUT opCanAccess).
+        
+END PROCEDURE.
+
+PROCEDURE epCanAccessUser:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEF INPUT PARAMETER ipProgName AS CHAR.
+    DEF INPUT PARAMETER ipFunction AS CHAR.
+    DEFINE INPUT PARAMETER ipUser AS CHARACTER.
+    DEF OUTPUT PARAMETER opCanAccess AS LOG.
+  
     FIND FIRST users NO-LOCK WHERE
-        users.user_id EQ USERID(LDBNAME(1))
+        users.user_id EQ ipUser
         NO-ERROR.
-    IF AVAIL users THEN DO:
+    IF AVAIL users THEN 
+    DO:
         ASSIGN
             opCanAccess = TRUE.
         
         /* Use this construct when the prgrms table has security definitions */
-        IF /* is this a prgrms file? */ 0 EQ 1 THEN DO: 
+        IF /* is this a prgrms file? */ 0 EQ 1 THEN 
+        DO: 
         END. /* program master exclusions */
     
         /* Otherwise, depend on hard-coded lists */
-        ELSE DO: 
+        ELSE 
+        DO: 
             /* First group - programs/functions ONLY available to ASI user */
             /* Note: logic is 'if secLevel less than 1000, then disable' */
             IF users.securityLevel LT 1000 AND
-            (
+                (
                 
                 (ipProgName EQ "methods/template/viewer4.i" AND ipFunction EQ "") OR  /*NK2 Help Editor - No Password*/
                 (ipProgName EQ "sys/ref/hlp-ctrl.w" AND ipFunction EQ "EnableHelpUpdate") OR  /*Update Help Button*/
@@ -43,10 +68,11 @@ PROCEDURE epCanAccess:
                 (ipProgName EQ "util/module.w" AND ipFunction EQ "") OR /*run util module*/
                 (ipProgName EQ "viewers/file-seq.w" AND ipFunction EQ "") OR /*NZ1 System ref Files */
                 (ipProgName EQ "viewers/vend.w" AND ipFunction EQ "") OR /*NK1 view control tab */
+                (ipProgName EQ "sys/ref/hlp.w" AND ipFunction EQ "ProTools") OR /*ProTools Button*/
                 
                 (ipProgName EQ "" AND ipFunction EQ "")
-            ) THEN ASSIGN
-                opCanAccess = FALSE.
+                ) THEN ASSIGN
+                    opCanAccess = FALSE.
             /* Second group - programs/functions ONLY available to Administrators */
             /* Note: logic is 'if secLevel less than 900, then disable' */
             ELSE IF users.securityLevel LT 900 AND
@@ -65,20 +91,19 @@ PROCEDURE epCanAccess:
                 (ipProgName EQ "jcinq/b-updmac.w" AND ipFunction EQ "") OR /* JQ1 Mach hrs Tab  */
                 (ipProgName EQ "jcinq/b-updmat.w" AND ipFunction EQ "") OR /* JQ1 MAterial Tab   */
                 (ipProgName EQ "rminq/b-rmiinq.w" AND ipFunction EQ "") OR /*MF1 or MF2 Hostory tab   */
-                (ipProgName EQ "sys/ref/hlp.w" AND ipFunction EQ "ProTools") OR /*ProTools Button*/
                 (ipProgName EQ "sys/ref/hlp.w" AND ipFunction EQ "LockMon") OR /*Lock Monitor Button*/
                 (ipProgName EQ "system/mainmenu.w" AND ipFunction EQ "Access1") OR /*Main menu load Run Custom Utility Program access*/
+                (ipProgName EQ "system/mainmenu.w" AND ipFunction EQ "CanUpgrade") OR /*Main menu upgrade notification*/
                 (ipProgName EQ "viewers/p-fg-bj-l.w" AND ipFunction EQ "") OR /*IF1 Bin/Jobs tab */
                 (ipProgName EQ "viewers/sys-ctrl.w" AND ipFunction EQ "") OR /*NK1 view control tab value security */
-                
                 (ipProgName EQ "" AND ipFunction = "")
-            ) THEN ASSIGN
-                opCanAccess = FALSE.
+                    ) THEN ASSIGN
+                        opCanAccess = FALSE.
         END. /* list-based exclusions */
        
     END.
     ELSE ASSIGN
-        opCanAccess = FALSE.
-        
+            opCanAccess = FALSE.
+
 END PROCEDURE.
     

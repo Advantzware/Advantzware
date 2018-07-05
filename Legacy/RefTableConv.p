@@ -144,6 +144,7 @@ ASSIGN
     {refTableConv.i "relcredconv" 'relcredconv'}
     {refTableConv.i "Arcashhold" 'ARCASHHOLD'}
     {refTableConv.i "ColorAudit" 'COLOR AUDIT'}
+    {refTableConv.i "Machcrew" 'MACH-CREW'}
 
 /* Deferred for 16.7.0                                              */
 /*    {refTableConv.i "STYFLU" 'STYFLU'}                            */

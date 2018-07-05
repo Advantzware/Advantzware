@@ -819,7 +819,13 @@ PROCEDURE ipProcess :
     DEF VAR cConnect AS CHAR NO-UNDO.
     DEF VAR cAudDB AS CHAR NO-UNDO.
     DEF VAR cPort AS CHAR NO-UNDO.
-    
+    DEF VAR iListItem AS INT NO-UNDO.
+    DEF VAR cEnvVer AS CHAR NO-UNDO.
+        
+    ASSIGN
+        iListItem = LOOKUP(slDBName:{&SV},slDBName:LIST-ITEMS)
+        cEnvVer = ENTRY(iListItem,cEnvVerList).
+        
     IF fiUserID:{&SV} EQ "asi" 
     AND fiPassword:{&SV} EQ "Package99" THEN ASSIGN
         iUserLevel = 10.
@@ -835,7 +841,8 @@ PROCEDURE ipProcess :
         cAudDb = ttDatabases.cAudName
         cPort = ttDatabases.cAudPort.
 
-    IF DECIMAL(fiVersion:{&SV}) LT deMinLevel THEN DO:
+    IF DECIMAL(fiVersion:{&SV}) LT deMinLevel 
+    OR cEnvVer = "16.7.0" THEN DO:
         ASSIGN
             c-Win:visible = false.
         RUN asiUpdateDB.w (ttDatabases.cName,

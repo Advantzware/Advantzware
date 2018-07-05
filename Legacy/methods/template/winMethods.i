@@ -90,6 +90,8 @@ hTable = BUFFER {&FIRST-EXTERNAL-TABLE}:HANDLE.
 {custom/resizmx.i}
 {custom/resizrs.i}
 
+{&WINDOW-NAME}:TITLE = {&WINDOW-NAME}:TITLE + " - {&awversion}".
+ 
 ON WINDOW-MAXIMIZED OF {&WINDOW-NAME} DO:
   RUN winReSize.
 END.

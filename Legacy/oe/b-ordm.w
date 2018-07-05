@@ -39,8 +39,12 @@ assign cocode = g_company
 
 {oe/d-selmis.i NEW}
 {sys/inc/ceprepprice.i}
+
+DO TRANSACTION:
 {sys/inc/OEPrepTaxCode.i}
+END.
  
+
 DEFINE VARIABLE lv-new-recid AS RECID NO-UNDO.
 DEFINE VARIABLE lv-valid-charge AS LOGICAL NO-UNDO.
 DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.
@@ -2262,4 +2266,3 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-

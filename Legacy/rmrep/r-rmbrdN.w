@@ -98,7 +98,7 @@ ASSIGN cTextListToSelect = "Whse,Item,Item Name,Description,Product Category,UOM
                            "PO - Due Date,Quantity Available,Value,Order type" 
        cFieldListToSelect = "whse,item,item-name,desc,cat,uom,cost,qty-hand,qty-ord," +
                             "po-due-date,qty-abl,val,ord-type"
-       cFieldLength = "5,10,28,30,16,3,11,15,15," + "100,17,14,10"
+       cFieldLength = "5,10,28,30,16,3,11,15,15," + "100,18,14,10"
        cFieldType = "c,c,c,c,c,c,i,i,i," + "c,i,i,c" 
     .
 
@@ -123,14 +123,14 @@ ASSIGN cTextListToDefault  = "Whse,Item,Item Name,Description,Product Category,U
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-6 RECT-7 as-of-date begin_date end_date ~
 begin_rm-no end_rm-no begin_procat end_procat begin_mach end_mach rd_qty ~
-rd_item select-mat tb_zero-bal tb_qty-ord tb_neg tb_allocated ~
+rd_item select-mat tb_zero-bal tb_qty-ord tb_neg tb_neg-hc tb_allocated ~
 btn_SelectColumns rd-dest lv-ornt lines-per-page lv-font-no td-show-parm ~
 tb_excel tb_runExcel fi_file btn-ok btn-cancel 
 &Scoped-Define DISPLAYED-OBJECTS as-of-date begin_date end_date begin_rm-no ~
 end_rm-no begin_procat end_procat begin_mach end_mach lbl_grnd-tot rd_qty ~
-lbl_itm-code rd_item select-mat tb_zero-bal tb_qty-ord tb_neg tb_allocated ~
-rd-dest lv-ornt lines-per-page lv-font-no lv-font-name td-show-parm ~
-tb_excel tb_runExcel fi_file 
+lbl_itm-code rd_item select-mat tb_zero-bal tb_qty-ord tb_neg tb_neg-hc ~
+tb_allocated rd-dest lv-ornt lines-per-page lv-font-no lv-font-name ~
+td-show-parm tb_excel tb_runExcel fi_file 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -279,7 +279,7 @@ DEFINE RECTANGLE RECT-6
 
 DEFINE RECTANGLE RECT-7
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 96 BY 13.81.
+     SIZE 96 BY 14.76.
 
 DEFINE VARIABLE select-mat AS CHARACTER 
      VIEW-AS SELECTION-LIST MULTIPLE SCROLLBAR-VERTICAL 
@@ -305,9 +305,14 @@ DEFINE VARIABLE tb_excel AS LOGICAL INITIAL yes
      BGCOLOR 3  NO-UNDO.
 
 DEFINE VARIABLE tb_neg AS LOGICAL INITIAL no 
-     LABEL "Negative Balances Only?" 
+     LABEL "Negative Balances (On Hand < 0)?" 
      VIEW-AS TOGGLE-BOX
-     SIZE 35 BY .95 NO-UNDO.
+     SIZE 40 BY .95 NO-UNDO.
+
+DEFINE VARIABLE tb_neg-hc AS LOGICAL INITIAL no 
+     LABEL "Negative Bal (On Hand-Committed < 0)?" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 42 BY .95 NO-UNDO.
 
 DEFINE VARIABLE tb_qty-ord AS LOGICAL INITIAL yes 
      LABEL "Inc Qty On Order with Qty Avail?" 
@@ -361,34 +366,35 @@ DEFINE FRAME FRAME-A
      tb_zero-bal AT ROW 9.24 COL 54 WIDGET-ID 24
      tb_qty-ord AT ROW 10.19 COL 54 WIDGET-ID 22
      tb_neg AT ROW 11.14 COL 54 WIDGET-ID 20
-     tb_allocated AT ROW 12.14 COL 54 WIDGET-ID 38
-     btn_SelectColumns AT ROW 13.29 COL 54.4 WIDGET-ID 10
-     rd-dest AT ROW 15.95 COL 6 NO-LABEL
-     lv-ornt AT ROW 16.14 COL 31 NO-LABEL
-     lines-per-page AT ROW 16.14 COL 84 COLON-ALIGNED
-     lv-font-no AT ROW 18.29 COL 35 COLON-ALIGNED
-     lv-font-name AT ROW 19.24 COL 29 COLON-ALIGNED NO-LABEL
-     td-show-parm AT ROW 20.29 COL 31
-     tb_excel AT ROW 21.62 COL 68 RIGHT-ALIGNED
-     tb_runExcel AT ROW 21.62 COL 89 RIGHT-ALIGNED
-     fi_file AT ROW 22.43 COL 46 COLON-ALIGNED HELP
+     tb_neg-hc AT ROW 12.1 COL 54 WIDGET-ID 40
+     tb_allocated AT ROW 13.05 COL 54 WIDGET-ID 38
+     btn_SelectColumns AT ROW 14.19 COL 54.4 WIDGET-ID 10
+     rd-dest AT ROW 17.05 COL 6 NO-LABEL
+     lv-ornt AT ROW 17.24 COL 31 NO-LABEL
+     lines-per-page AT ROW 17.24 COL 84 COLON-ALIGNED
+     lv-font-no AT ROW 19.38 COL 35 COLON-ALIGNED
+     lv-font-name AT ROW 20.33 COL 29 COLON-ALIGNED NO-LABEL
+     td-show-parm AT ROW 21.38 COL 31
+     tb_excel AT ROW 22.71 COL 68 RIGHT-ALIGNED
+     tb_runExcel AT ROW 22.71 COL 89 RIGHT-ALIGNED
+     fi_file AT ROW 23.52 COL 46 COLON-ALIGNED HELP
           "Enter File Name"
-     btn-ok AT ROW 24.05 COL 18
-     btn-cancel AT ROW 24.05 COL 57
+     btn-ok AT ROW 25.14 COL 18
+     btn-cancel AT ROW 25.14 COL 57
      "Select/Deselect Material Types" VIEW-AS TEXT
           SIZE 37 BY .62 AT ROW 8.14 COL 3 WIDGET-ID 26
           FONT 6
+     "Output Destination" VIEW-AS TEXT
+          SIZE 18 BY .62 AT ROW 16.14 COL 3
      "Selection Parameters" VIEW-AS TEXT
           SIZE 21 BY .71 AT ROW 1.24 COL 5
           BGCOLOR 2 
-     "Output Destination" VIEW-AS TEXT
-          SIZE 18 BY .62 AT ROW 15.05 COL 3
-     RECT-6 AT ROW 14.81 COL 1
+     RECT-6 AT ROW 15.91 COL 1
      RECT-7 AT ROW 1 COL 1
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 96.4 BY 24.57.
+         SIZE 96.4 BY 25.81.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -408,7 +414,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW C-Win ASSIGN
          HIDDEN             = YES
          TITLE              = "Job Material/Machine Report"
-         HEIGHT             = 24.52
+         HEIGHT             = 25.95
          WIDTH              = 96.2
          MAX-HEIGHT         = 53.71
          MAX-WIDTH          = 384
@@ -442,16 +448,6 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME                                                           */
-ASSIGN
-       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "ribbon-button".
-
-
-ASSIGN
-       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "ribbon-button".
-
-
 ASSIGN 
        as-of-date:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
@@ -471,6 +467,14 @@ ASSIGN
 ASSIGN 
        begin_rm-no:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
+
+ASSIGN 
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+ASSIGN 
+       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
 
 ASSIGN 
        end_date:PRIVATE-DATA IN FRAME FRAME-A     = 
@@ -539,6 +543,10 @@ ASSIGN
                 "parm".
 
 ASSIGN 
+       tb_neg-hc:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
+
+ASSIGN 
        tb_qty-ord:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
@@ -558,7 +566,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -725,6 +733,7 @@ END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
 
 &Scoped-define SELF-NAME end_date
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_date C-Win
@@ -970,9 +979,24 @@ END.
 
 &Scoped-define SELF-NAME tb_neg
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_neg C-Win
-ON VALUE-CHANGED OF tb_neg IN FRAME FRAME-A /* Negative Balances Only? */
+ON VALUE-CHANGED OF tb_neg IN FRAME FRAME-A /* Negative Balances (On Hand < 0)? */
 DO:
   assign {&self-name}.
+  IF tb_neg:SCREEN-VALUE EQ "Yes" THEN
+      tb_neg-hc:SCREEN-VALUE = "No " .
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME tb_neg-hc
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_neg-hc C-Win
+ON VALUE-CHANGED OF tb_neg-hc IN FRAME FRAME-A /* Negative Bal (On Hand-Committed < 0)? */
+DO:
+  assign {&self-name}.
+  IF tb_neg-hc:SCREEN-VALUE EQ "Yes" THEN
+      tb_neg:SCREEN-VALUE = "No " .
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1239,15 +1263,15 @@ PROCEDURE enable_UI :
 ------------------------------------------------------------------------------*/
   DISPLAY as-of-date begin_date end_date begin_rm-no end_rm-no begin_procat 
           end_procat begin_mach end_mach lbl_grnd-tot rd_qty lbl_itm-code 
-          rd_item select-mat tb_zero-bal tb_qty-ord tb_neg tb_allocated rd-dest 
-          lv-ornt lines-per-page lv-font-no lv-font-name td-show-parm tb_excel 
-          tb_runExcel fi_file 
+          rd_item select-mat tb_zero-bal tb_qty-ord tb_neg tb_neg-hc 
+          tb_allocated rd-dest lv-ornt lines-per-page lv-font-no lv-font-name 
+          td-show-parm tb_excel tb_runExcel fi_file 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   ENABLE RECT-6 RECT-7 as-of-date begin_date end_date begin_rm-no end_rm-no 
          begin_procat end_procat begin_mach end_mach rd_qty rd_item select-mat 
-         tb_zero-bal tb_qty-ord tb_neg tb_allocated btn_SelectColumns rd-dest 
-         lv-ornt lines-per-page lv-font-no td-show-parm tb_excel tb_runExcel 
-         fi_file btn-ok btn-cancel 
+         tb_zero-bal tb_qty-ord tb_neg tb_neg-hc tb_allocated btn_SelectColumns 
+         rd-dest lv-ornt lines-per-page lv-font-no td-show-parm tb_excel 
+         tb_runExcel fi_file btn-ok btn-cancel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.
@@ -1830,7 +1854,7 @@ assign
         FIND FIRST tt-job WHERE tt-job.i-no = ITEM.i-no
             AND tt-job.resource NE "" NO-LOCK NO-ERROR.
         if (tb_zero-bal or v-qty ne 0)     and
-           (NOT tb_neg OR v-qty LT 0) AND 
+           ((NOT tb_neg OR lv-q-onh LT 0) AND (NOT tb_neg-hc OR v-qty LT 0)) AND 
            (NOT tb_allocated OR AVAIL tt-job) then do:
 
            FIND FIRST tt-po WHERE

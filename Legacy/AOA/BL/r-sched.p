@@ -591,8 +591,8 @@ FOR EACH tt-report
             ttScheduledReleases.xxSort02        = tt-report.key-02
             ttScheduledReleases.xxSort03        = tt-report.key-03
             ttScheduledReleases.xxSort04        = tt-report.key-04
-            ttScheduledReleases.csrUser_id      = w-ord.csrUser_id
-                            . 
+            ttScheduledReleases.csrUserID       = w-ord.csrUser_id
+            . 
     END. /* each w-ord */
     EMPTY TEMP-TABLE w-ord.
 END. /* each tt-report */
@@ -618,15 +618,6 @@ PROCEDURE jobRouting:
     RELEASE reftable.
     
     IF TRIM(w-ord.job-no) EQ "" THEN DO:
-/*        FOR EACH job-hdr NO-LOCK                  */
-/*            WHERE job-hdr.company EQ ipcCompany   */
-/*              AND job-hdr.ord-no  EQ w-ord.ord-no */
-/*              AND job-hdr.cust-no EQ w-ord.cust-no*/
-/*              AND job-hdr.i-no    EQ w-ord.i-no   */
-/*              AND job-hdr.opened  EQ YES          */
-/*            BY ROWID(job-hdr) DESCENDING:         */
-/*            LEAVE.                                */
-/*        END. /* each job-hdr */                   */
         IF AVAIL itemfg AND itemfg.est-no NE "" THEN
         FOR EACH est-op NO-LOCK
             WHERE est-op.company EQ itemfg.company 
@@ -683,7 +674,7 @@ PROCEDURE jobRouting:
                 CREATE tt-fg-set.
                 ASSIGN
                     tt-fg-set.part-no      = reftable.code2
-                    tt-fg-set.qtyPerSet     = reftable.val[12]
+                    tt-fg-set.qtyPerSet    = reftable.val[12]
                     tt-fg-set.part-qty-dec = reftable.val[13]
                     .
             END. /* each reftable */
@@ -691,7 +682,7 @@ PROCEDURE jobRouting:
             CREATE tt-fg-set.
             ASSIGN
                 tt-fg-set.part-no      = job-hdr.i-no
-                tt-fg-set.qtyPerSet     = job-hdr.frm
+                tt-fg-set.qtyPerSet    = job-hdr.frm
                 tt-fg-set.part-qty-dec = job-hdr.blank-no
                 .
         END. /* else */
