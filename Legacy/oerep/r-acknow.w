@@ -82,6 +82,7 @@ DEF NEW SHARED VAR v-UntCnt AS LOG NO-UNDO.
 DEF NEW SHARED VAR v-Shpnot AS LOG NO-UNDO.
 DEF NEW SHARED VAR v-print-due AS LOG NO-UNDO.
 DEF NEW SHARED VAR v-print-tot AS LOG NO-UNDO.
+DEFINE VARIABLE d-print-fmt-dec  AS DECIMAL NO-UNDO.
 
 DEF BUFFER b-oe-ord FOR oe-ord.
 DEF BUFFER b1-oe-ord FOR oe-ord.
@@ -821,6 +822,7 @@ DO:
                   DO:
                      RUN SetAckMstForm (sys-ctrl-shipto.char-fld).
                      v-print-fmt = sys-ctrl-shipto.char-fld.
+                     d-print-fmt-dec = sys-ctrl-shipto.dec-fld.
                   END.
                   ELSE
                   DO:
@@ -891,6 +893,7 @@ DO:
                   DO:
                      RUN SetOEAckForm (sys-ctrl-shipto.char-fld).
                      v-print-fmt = sys-ctrl-shipto.char-fld.
+                     d-print-fmt-dec = sys-ctrl-shipto.dec-fld.
                   END.
                   ELSE
                   DO:
@@ -1148,6 +1151,7 @@ DO:
              IF AVAIL sys-ctrl THEN
                  ASSIGN
                  v-print-fmt  = sys-ctrl.char-fld
+                 d-print-fmt-dec = sys-ctrl.dec-fld
                  v-print-head = sys-ctrl.log-fld
                  vcDefaultForm = v-print-fmt
                  v-fmt-int = sys-ctrl.int-fld
@@ -1183,6 +1187,7 @@ DO:
              IF AVAIL sys-ctrl THEN
                  ASSIGN
                  v-print-fmt  = sys-ctrl.char-fld
+                 d-print-fmt-dec = sys-ctrl.dec-fld
                  v-print-head = sys-ctrl.log-fld
                  vcDefaultForm = v-print-fmt
                  v-fmt-int = sys-ctrl.int-fld
@@ -1792,6 +1797,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
   ASSIGN
    v-print-fmt  = sys-ctrl.char-fld
+   d-print-fmt-dec = sys-ctrl.dec-fld
    v-print-head = sys-ctrl.log-fld
    vcDefaultForm = v-print-fmt
    v-fmt-int = sys-ctrl.int-fld .
@@ -2012,6 +2018,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
              IF AVAIL sys-ctrl THEN
                  ASSIGN
                  v-print-fmt  = sys-ctrl.char-fld
+                 d-print-fmt-dec = sys-ctrl.dec-fld
                  v-print-head = sys-ctrl.log-fld
                  vcDefaultForm = v-print-fmt
                  v-fmt-int = sys-ctrl.int-fld .
@@ -2119,6 +2126,7 @@ PROCEDURE BatchMail:
                   DO:
                      RUN SetAckMstForm (sys-ctrl-shipto.char-fld).
                      v-print-fmt = sys-ctrl-shipto.char-fld.
+                     d-print-fmt-dec = sys-ctrl-shipto.dec-fld.
                   END.
                   ELSE
                   DO:
@@ -2188,6 +2196,7 @@ PROCEDURE BatchMail:
                   DO:
                      RUN SetOEAckForm (sys-ctrl-shipto.char-fld).
                      v-print-fmt = sys-ctrl-shipto.char-fld.
+                     d-print-fmt-dec = sys-ctrl-shipto.dec-fld.
                   END.
                   ELSE
                   DO:
@@ -2702,6 +2711,7 @@ IF v-ack-master = YES THEN DO:
                   DO:
                      RUN SetAckMstForm (sys-ctrl-shipto.char-fld).
                      v-print-fmt = sys-ctrl-shipto.char-fld.
+                     d-print-fmt-dec = sys-ctrl-shipto.dec-fld.
                   END.
                   ELSE
                   DO:
@@ -2764,6 +2774,7 @@ IF v-ack-master = YES THEN DO:
                   DO:
                      RUN SetOEAckForm (sys-ctrl-shipto.char-fld).
                      v-print-fmt = sys-ctrl-shipto.char-fld.
+                     d-print-fmt-dec = sys-ctrl-shipto.dec-fld.
                   END.
                   ELSE
                   DO:
@@ -2941,27 +2952,53 @@ IF td-show-parm THEN RUN show-param.
 ASSIGN
  v-lines-per-page = lines-per-page
  v-term-id        = v-term.
-
 IF IS-xprint-form THEN DO:
    CASE rd-dest:
-       WHEN 1 THEN PUT  "<PRINTER?>".
-       WHEN 2 THEN do:
-           IF NOT lBussFormModle THEN
-            PUT "<PREVIEW><MODAL=NO>". 
+       WHEN 1 THEN DO:
+           IF d-print-fmt-dec > 0 THEN
+              PUT "<PRINTER?><LEFT=" + trim(STRING(d-print-fmt-dec)) + "mm>" FORMAT "x(120)".
            ELSE
-            PUT "<PREVIEW>".        
+              PUT  "<PRINTER?>".
+       END.
+       WHEN 2 THEN do:
+           IF NOT lBussFormModle THEN DO:
+               IF d-print-fmt-dec > 0 THEN
+                   PUT "<PREVIEW><LEFT=" + trim(string(d-print-fmt-dec)) + "mm><MODAL=NO>" FORMAT "x(120)".
+               ELSE
+                   PUT "<PREVIEW><MODAL=NO>". 
+           END.
+           ELSE DO:
+               IF d-print-fmt-dec > 0 THEN
+                   PUT "<PREVIEW><LEFT=" + trim(STRING(d-print-fmt-dec)) + "mm>" FORMAT "x(120)".
+               ELSE
+                   PUT "<PREVIEW>".
+           END.
        END.
        WHEN 4 THEN DO:
              ls-fax-file = "c:\tmp\fx" + STRING(TIME) + ".tif".
-             PUT UNFORMATTED "<PRINT=NO><EXPORT=" Ls-fax-file ",BW></PROGRESS>".
+             IF d-print-fmt-dec > 0 THEN
+                  PUT UNFORMATTED "<PRINT=NO><LEFT=" + trim(STRING(d-print-fmt-dec)) + "mm><EXPORT=" Ls-fax-file ",BW></PROGRESS>" FORMAT "x(120)".
+                ELSE
+                  PUT UNFORMATTED "<PRINT=NO><EXPORT=" Ls-fax-file ",BW></PROGRESS>".
        END.        
        WHEN 5 THEN DO:
-           IF TG_preview THEN PUT "<PREVIEW>". ELSE PUT "<PRINT=NO>".
+           IF TG_preview THEN DO: 
+               IF d-print-fmt-dec > 0 THEN
+                   PUT "<PREVIEW><LEFT=" + trim(STRING(d-print-fmt-dec)) + "mm>" FORMAT "x(120)".
+               ELSE
+                   PUT "<PREVIEW>".
+           END.
+           ELSE DO:
+               IF d-print-fmt-dec > 0 THEN
+                   PUT "<PRINT=NO><LEFT=" + trim(STRING(d-print-fmt-dec)) + "mm>" FORMAT "x(120)".
+               ELSE
+                   PUT "<PRINT=NO>".
+           END.
             IF LOOKUP(v-print-fmt,"Century,Unipak,Axis,Soule,SouleUOM,APC,Perform,Fibrex,Allwest,Simkins,HOPX,Carded") > 0 THEN
-                PUT "<FORMAT=LETTER><PDF-EXCLUDE=MS Mincho><PDF-LEFT=2mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
+                PUT "<FORMAT=LETTER><PDF-EXCLUDE=MS Mincho><PDF-LEFT=" + trim(STRING(2 + d-print-fmt-dec)) + "mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
             ELSE IF LOOKUP(v-print-fmt,"Frankstn,3CPack,3CPackSD") > 0 THEN /* task 07211402 */
-                 PUT "<PDF-LEFT=2mm><PDF-TOP=5mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
-            ELSE PUT "<PDF-LEFT=5mm><PDF-TOP=10mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
+                 PUT "<PDF-LEFT=" + trim(STRING(2 + d-print-fmt-dec)) + "mm><PDF-TOP=5mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
+            ELSE PUT "<PDF-LEFT=" + trim(STRING(5 + d-print-fmt-dec)) + "mm><PDF-TOP=10mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
        END.
    END CASE.
    PUT "</PROGRESS>".

@@ -1567,8 +1567,7 @@ DEF OUTPUT PARAM vlWarning AS LOG NO-UNDO.
                      oe-rel.ord-no  eq oe-ordl.ord-no
                      NO-LOCK NO-ERROR.
 
-            ASSIGN w-ord.rel-lot# = oe-rel.lot-no.    
-
+           
                 RELEASE oe-ordl.
                 RELEASE oe-ord.
              END.
@@ -1847,10 +1846,8 @@ PROCEDURE from-ord :
             w-ord.ship-city  = shipto.ship-city
             w-ord.ship-state = shipto.ship-state
             w-ord.ship-zip   = shipto.ship-zip
-            w-ord.ship-ctry  = shipto.country.          
-
-          ASSIGN w-ord.rel-lot# = oe-rel.lot-no.
-
+            w-ord.ship-ctry  = shipto.country.        
+         
           IF NOT AVAIL eb AND AVAIL itemfg AND itemfg.est-no NE "" THEN
           FIND FIRST eb
               WHERE eb.company  EQ itemfg.company
@@ -2018,7 +2015,8 @@ PROCEDURE get-rel-info :
 
       ASSIGN
        op-pono = oe-rell.po-no
-       op-date = oe-relh.rel-date.
+       op-date = oe-relh.rel-date
+       op-lot# = oe-rell.lot-no.
       LEAVE.
     END.
 
@@ -2039,7 +2037,8 @@ PROCEDURE get-rel-info :
 
       ASSIGN
        op-pono = oe-rel.po-no
-       op-date = oe-rel.rel-date.
+       op-date = oe-rel.rel-date
+       op-lot# = oe-rel.lot-no.
       LEAVE.
     END.
   END.
@@ -2055,11 +2054,10 @@ PROCEDURE get-rel-info :
 
     ASSIGN
     op-pono = oe-rel.po-no
-    op-date = oe-rel.rel-date.
+    op-date = oe-rel.rel-date
+    op-lot# = oe-rel.lot-no.
     LEAVE.
   END.
-
-  ASSIGN w-ord.rel-lot# = oe-rel.lot-no.
 
   IF v-po-no-source NE "R"                    OR
      (NOT AVAIL oe-rel AND NOT AVAIL oe-rell) THEN

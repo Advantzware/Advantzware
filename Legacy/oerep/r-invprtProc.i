@@ -196,6 +196,7 @@ DEFINE VARIABLE tb_reprint        AS LOGICAL   INITIAL NO               .
 DEFINE VARIABLE tb_setcomp        AS LOGICAL   INITIAL NO               .
 DEFINE VARIABLE tb_sman-copy      AS LOGICAL   INITIAL NO               .
 DEFINE VARIABLE td-show-parm      AS LOGICAL   INITIAL NO               .
+DEFINE VARIABLE tb_qty-all        AS LOGICAL   INITIAL YES              .
 
 
 PROCEDURE assignSelections:
@@ -237,6 +238,7 @@ PROCEDURE assignSelections:
     DEFINE INPUT PARAMETER iptbPostedAR         AS LOGICAL INITIAL NO               .
 
     DEFINE INPUT PARAMETER iptbSplitPDF         AS LOGICAL INITIAL NO               .
+    DEFINE INPUT PARAMETER iptbQtyAll           AS LOGICAL INITIAL NO               .
     
     ASSIGN
         begin_bol         = ipbegin_bol        
@@ -275,6 +277,7 @@ PROCEDURE assignSelections:
         tb_sman-copy      = iptb_sman-copy     
         td-show-parm      = iptd-show-parm  
         tbPostedAR        = iptbPostedAR
+        tb_qty-all        = iptbQtyAll 
 
         tb_splitPDF       = iptbSplitPDF
         s-print-zero-qty = tb_prt-zero-qty
@@ -392,7 +395,8 @@ PROCEDURE BatchMail :
         v-reprint    = tb_reprint
         v-sort       = rd_sort BEGINS "Customer"
         v-prntinst   = tb_prt-inst
-        v-print-dept = tb_print-dept.
+        v-print-dept = tb_print-dept
+        lPrintQtyAll = tb_qty-all.
 
     IF fi_depts-HIDDEN  = NO THEN
         ASSIGN
@@ -1116,7 +1120,8 @@ PROCEDURE build-list1:
         v-sort         = rd_sort BEGINS "Customer"
         v-prntinst     = tb_prt-inst
         v-print-dept   = tb_print-dept
-        ll-consolidate = rd_sort EQ "Customer2".
+        ll-consolidate = rd_sort EQ "Customer2"
+        lPrintQtyAll   = tb_qty-all.
       
     /* gdm - 12080807 */
     ASSIGN 
@@ -1231,7 +1236,8 @@ PROCEDURE run-report :
         v-sort         = rd_sort BEGINS "Customer"
         v-prntinst     = tb_prt-inst
         v-print-dept   = tb_print-dept
-        ll-consolidate = rd_sort EQ "Customer2".
+        ll-consolidate = rd_sort EQ "Customer2"
+        lPrintQtyAll   = tb_qty-all.
 
     /* gdm - 12080807 */
     ASSIGN 

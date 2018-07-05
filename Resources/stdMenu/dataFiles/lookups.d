@@ -239,6 +239,7 @@
 "" "" "m_user_id" "users." "0724199800000037"
 "" "" "svEndBOL" "bolh." "0728201700400093"
 "" "" "svEndCompany" "company." "0728201700400032"
+"" "" "svEndCSR" "users." "0621201802234933"
 "" "" "svEndCurrency" "currency." "0728201700400065"
 "" "" "svEndCustNo" "cust." "0728201700400045"
 "" "" "svEndCustPart" "cpart." "0728201700400148"
@@ -259,8 +260,10 @@
 "" "" "svEndStyle" "style." "0728201700400180"
 "" "" "svEndTerms" "terms." "0728201700400072"
 "" "" "svEndUserID" "users." "0728201700400334"
+"" "" "svEndVendNo" "vend." "0521201802189573"
 "" "" "svStartBOL" "bolh." "0728201700400089"
 "" "" "svStartCompany" "company." "0728201700400022"
+"" "" "svStartCSR" "users." "0621201802234930"
 "" "" "svStartCurrency" "currency." "0728201700400055"
 "" "" "svStartCustNo" "cust." "0728201700400035"
 "" "" "svStartCustPart" "cpart." "0728201700400144"
@@ -281,6 +284,7 @@
 "" "" "svStartStyle" "style." "0728201700400176"
 "" "" "svStartTerms" "terms." "0728201700400068"
 "" "" "svStartUserID" "users." "0728201700400330"
+"" "" "svStartVendNo" "vend." "0521201802189570"
 "" "" "to_company" "company." "0808200200034547"
 "" "" "v-bill-item-1" "" "0509200200007339"
 "" "" "v-from-job" "lrmrcpd." "0805200200033927"
@@ -446,12 +450,12 @@
 .
 PSC
 filename=lookups
-records=0000000000445
+records=0000000000449
 ldbname=ASI
-timestamp=2018/03/18-08:08:54
+timestamp=2018/06/30-12:37:52
 numformat=44,46
 dateformat=mdy-1950
 map=NO-MAP
 cpstream=ISO8859-1
 .
-0000023133
+0000023325

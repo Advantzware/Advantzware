@@ -506,7 +506,7 @@ do v-local-loop = 1 to v-local-copies:
 
         PUT SKIP(2).
         run cecrep/jobtick3.p (recid(job-hdr),v-format,cust.terms).
-        RUN stackImage.
+        /*RUN stackImage.*/ /* ticket 30769 */
         ASSIGN v-tmp-lines = 0
                j = 0
                K = 0

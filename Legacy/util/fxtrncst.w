@@ -373,7 +373,8 @@ DEF VAR v-bwt LIKE po-ordl.s-len NO-UNDO.
 DEF VAR li AS INT NO-UNDO.
 
 DEF BUFFER b-fg-bin FOR fg-bin.
-
+DEFINE BUFFER bf-fg-rcpth FOR fg-rcpth.
+DEFINE BUFFER bf-fg-rdtlh FOR fg-rdtlh.
 
 SESSION:SET-WAIT-STATE("General").
 
@@ -566,7 +567,27 @@ FOR EACH itemfg NO-LOCK
          lv-cost[3] = reftable.val[3]
          lv-cost[4] = reftable.val[4].
     END.
-
+    ELSE DO:
+        IF INDEX("CRTS", fg-rdtlh.rita-code) GT 0
+            AND fg-rdtlh.tag NE "" THEN DO:
+                FIND FIRST bf-fg-rdtlh NO-LOCK 
+                    WHERE bf-fg-rdtlh.company EQ fg-rcpth.company
+                      AND bf-fg-rdtlh.i-no EQ fg-rcpth.i-no
+                      AND bf-fg-rdtlh.rita-code EQ "R"
+                      AND bf-fg-rdtlh.tag EQ fg-rdtlh.tag
+                      NO-ERROR.
+                IF AVAILABLE bf-fg-rdtlh THEN 
+                    ASSIGN 
+                        lv-cost[5] = bf-fg-rdtlh.cost
+                        lv-cost[1] = bf-fg-rdtlh.std-lab-cost
+                        lv-cost[2] = bf-fg-rdtlh.std-mat-cost
+                        lv-cost[3] = bf-fg-rdtlh.std-var-cost
+                        lv-cost[4] = bf-fg-rdtlh.std-fix-cost
+                        lv-uom = fg-rcpth.pur-uom
+                        .
+        END.  /*transactions is CRT or S and there is a tag#*/
+    END. /*else (not a purchased receipt and no job)*/
+    
     IF lv-uom NE itemfg.prod-uom THEN DO li = 1 TO 5:
       RUN custom/convcuom.p(fg-rcpth.company,
                             lv-uom, itemfg.prod-uom,                   

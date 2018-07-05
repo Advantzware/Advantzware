@@ -64,7 +64,7 @@ DEF VAR tmp-dir AS CHAR NO-UNDO.
 &Scoped-Define ENABLED-OBJECTS ed-text btProTools btLockMon btDataDigger ~
 btUpdateHelp btPrint BtOK 
 &Scoped-Define DISPLAYED-OBJECTS lv-help-title lv-program lv-frame-name ~
-ed-text 
+ed-text lv-version
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -123,6 +123,10 @@ DEFINE VARIABLE lv-program AS CHARACTER FORMAT "X(256)":U
      VIEW-AS FILL-IN 
      SIZE 47 BY 1 NO-UNDO.
 
+DEFINE VARIABLE lv-version AS CHARACTER FORMAT "x(100)":U
+    VIEW-AS FILL-IN
+    SIZE 40 BY 1 NO-UNDO .
+
 
 /* ************************  Frame Definitions  *********************** */
 
@@ -130,6 +134,7 @@ DEFINE FRAME DEFAULT-FRAME
      lv-help-title AT ROW 1.24 COL 2 NO-LABEL WIDGET-ID 14
      lv-program AT ROW 1.24 COL 68 COLON-ALIGNED NO-LABEL WIDGET-ID 16
      lv-frame-name AT ROW 2.43 COL 2 NO-LABEL WIDGET-ID 12
+     lv-version AT ROW 2.43 COL 68 NO-LABEL 
      ed-text AT ROW 3.62 COL 2 NO-LABEL WIDGET-ID 10
      btProTools AT ROW 22.43 COL 2 WIDGET-ID 2
      btLockMon AT ROW 22.43 COL 17 WIDGET-ID 18
@@ -197,6 +202,8 @@ ASSIGN
 /* SETTINGS FOR FILL-IN lv-help-title IN FRAME DEFAULT-FRAME
    NO-ENABLE ALIGN-L                                                    */
 /* SETTINGS FOR FILL-IN lv-program IN FRAME DEFAULT-FRAME
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN lv-version IN FRAME DEFAULT-FRAME
    NO-ENABLE                                                            */
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
 THEN C-Win:HIDDEN = no.
@@ -329,45 +336,19 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     DEF VAR cRtnChar AS CHARACTER NO-UNDO.
     DEF VAR lRecFound AS LOGICAL NO-UNDO.
 
-    FIND FIRST sys-ctrl NO-LOCK WHERE 
-        sys-ctrl.name EQ "AsiHelpClientID" AND 
-        sys-ctrl.company EQ g_company NO-ERROR.
-    IF AVAIL sys-ctrl THEN ASSIGN
-        vclint = sys-ctrl.char-fld.
-    ELSE DO:
-        RUN sys/ref/nk1look.p (INPUT g_company, 
-                               "AsiHelpClientID", 
-                               "C" /* Logical */, 
-                               NO /* check by cust */, 
-                               YES /* use cust not vendor */, 
-                               "" /* cust */, 
-                               "" /* ship-to*/,
-                               OUTPUT cRtnChar, 
-                               OUTPUT lRecFound).
-    END.
-    RELEASE sys-ctrl .
-
-    FIND FIRST sys-ctrl NO-LOCK WHERE 
-        sys-ctrl.name EQ "AsiHelpService" AND 
-        sys-ctrl.company EQ g_company 
-        NO-ERROR.
-    IF AVAIL sys-ctrl THEN ASSIGN 
-        vconn = sys-ctrl.char-fld .
-    ELSE DO:
-        ASSIGN 
-            vconn = "".
-        RUN sys/ref/nk1look.p (INPUT g_company, 
-                                "AsiHelpService", 
-                                "C" /* Logical */, 
-                                NO /* check by cust */, 
-                                YES /* use cust not vendor */, 
-                                "" /* cust */, 
-                                "" /* ship-to*/,
-                                OUTPUT cRtnChar, 
-                                OUTPUT lRecFound).
-    END.
-    RELEASE sys-ctrl .
-
+   
+        RUN sys/ref/nk1look.p (INPUT g_company, "AsiHelpClientID", "C" /* Logical */, 
+                               NO /* check by cust */, YES /* use cust not vendor */, 
+                               "" /* cust */, "" /* ship-to*/,
+                               OUTPUT cRtnChar, OUTPUT lRecFound).
+        vclint = cRtnChar .
+    
+        RUN sys/ref/nk1look.p (INPUT g_company, "AsiHelpService", "C" /* Logical */, 
+                               NO /* check by cust */, YES /* use cust not vendor */, 
+                               "" /* cust */, "" /* ship-to*/,
+                               OUTPUT cRtnChar, OUTPUT lRecFound).
+        vconn = cRtnChar .
+     
     CREATE SERVER vhWebService.
     vhWebService:CONNECT(vconn) NO-ERROR.
 
@@ -479,6 +460,11 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         ASSIGN
             lv-frame-name = "Frame Name: " + ip-frame
             lv-program = "Procedure: " + substring(program-name(2),index(program-name(2)," ")).
+
+         
+         RUN HelpVersion IN vhSalesSoap( OUTPUT parameters1).
+         ASSIGN lv-version = "Current Version available: " +  parameters1. 
+
     END.  /* WebService is conn*/     /*mod-sewa  */
           
   RUN enable_UI.
@@ -541,7 +527,7 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY lv-help-title lv-program lv-frame-name ed-text 
+  DISPLAY lv-help-title lv-program lv-frame-name lv-version ed-text 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   ENABLE ed-text btProTools btLockMon btDataDigger btUpdateHelp btPrint BtOK 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.

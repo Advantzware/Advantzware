@@ -87,18 +87,18 @@ DEFINE FRAME F-Main
          SIZE 150 BY 24
          BGCOLOR 15  WIDGET-ID 100.
 
-DEFINE FRAME message-frame
-    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 68 ROW 2.91
-         SIZE 83 BY 1.43
-         BGCOLOR 15  WIDGET-ID 100.
-
 DEFINE FRAME OPTIONS-FRAME
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 2 ROW 1
          SIZE 148 BY 1.91
+         BGCOLOR 15  WIDGET-ID 100.
+
+DEFINE FRAME message-frame
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 68 ROW 2.91
+         SIZE 83 BY 1.43
          BGCOLOR 15  WIDGET-ID 100.
 
 
@@ -108,7 +108,7 @@ DEFINE FRAME OPTIONS-FRAME
 /* Settings for THIS-PROCEDURE
    Type: SmartWindow
    Allow: Basic,Browse,DB-Fields,Query,Smart,Window
-   Design Page: 4
+   Design Page: 2
    Other Settings: COMPILE
  */
 &ANALYZE-RESUME _END-PROCEDURE-SETTINGS
@@ -334,8 +334,8 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_usercontrol ).
-       RUN set-position IN h_usercontrol ( 5.05 , 26.00 ) NO-ERROR.
-       /* Size in UIB:  ( 17.14 , 80.00 ) */
+       RUN set-position IN h_usercontrol ( 5.76 , 6.00 ) NO-ERROR.
+       /* Size in UIB:  ( 13.57 , 111.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'p-updcan.w':U ,
@@ -385,7 +385,7 @@ PROCEDURE adm-create-objects :
              INPUT  'Layout = ':U ,
              OUTPUT h_password ).
        RUN set-position IN h_password ( 5.05 , 26.00 ) NO-ERROR.
-       /* Size in UIB:  ( 11.48 , 56.40 ) */
+       /* Size in UIB:  ( 11.48 , 48.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'p-updcan.w':U ,

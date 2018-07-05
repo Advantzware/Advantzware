@@ -12,9 +12,7 @@ IF SEARCH("sys/convert/stax-10.r") <> ?
 OR SEARCH("sys/convert/stax-10.p") <> ? THEN 
    RUN sys/convert/stax-10.p NO-ERROR.
 
-IF SEARCH("sys/convert/relcred.r") <> ?
-OR SEARCH("sys/convert/relcred.p") <> ? THEN 
-   RUN sys/convert/relcred.p NO-ERROR.
+
 /* END MAIN BLOCK operative instantiation code */
 
 
@@ -75,7 +73,7 @@ PROCEDURE Enhance :
   DEFINE VARIABLE w-font AS INTEGER EXTENT 13 NO-UNDO.
   DEFINE VARIABLE widget-list AS CHARACTER INITIAL
 "BROWSE,BUTTON,COMBO-BOX,DIALOG-BOX,EDITOR,FILL-IN,FRAME,~
-LITERAL,RADIO-SET,SELECTION-LIST,SLIDER,TEXT,TOGGLE-BOX" NO-UNDO.
+LITERAL,RADIO-SET,SELECTION-LIST,RECTANGLE,TEXT,TOGGLE-BOX" NO-UNDO.
 
   FIND users WHERE users.user_id = USERID("NOSWEAT") NO-LOCK NO-ERROR.
   IF AVAILABLE users THEN
@@ -127,7 +125,7 @@ LITERAL,RADIO-SET,SELECTION-LIST,SLIDER,TEXT,TOGGLE-BOX" NO-UNDO.
     .
   DO WHILE current-widget NE ?:
     IF CAN-DO(widget-list,current-widget:TYPE) THEN DO:
-      IF use_fonts AND current-widget:TYPE NE "BROWSE" THEN
+      IF use_fonts AND NOT CAN-DO("BROWSE,RECTANGLE",current-widget:TYPE) THEN
       current-widget:FONT = w-font[LOOKUP(current-widget:TYPE,widget-list)].
       IF use_colors THEN
       ASSIGN

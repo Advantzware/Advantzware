@@ -174,6 +174,7 @@ ASSIGN
     IF lv-sort-by EQ "job-no"    THEN STRING(oe-ordl.job-no,"x(6)") + STRING(oe-ordl.job-no2,"99")                                                     ELSE ~
     IF lv-sort-by EQ "e-num"     THEN string(oe-ordl.e-num)                                                                                            ELSE ~
     IF lv-sort-by EQ "v-last-shipto" THEN  get-last-shipto()                                                                                          ELSE ~
+    IF lv-sort-by EQ "cost" THEN  STRING(oe-ordl.cost,"-9999999999.99")                                                                               ELSE ~
     IF lv-sort-by EQ "i-name"    THEN oe-ordl.i-name                                                                                                   ELSE ~
                                       STRING(YEAR(oe-ordl.req-date),"9999") + STRING(MONTH(oe-ordl.req-date),"99") + STRING(DAY(oe-ordl.req-date),"99")
 
@@ -238,8 +239,8 @@ oe-ord.stat get-ord-qty () @ lv-ord-qty get-ship-qty() @ li-ship-qty ~
 oe-ordl.inv-qty get-prod (li-bal) @ li-prod get-bal (li-qoh) @ li-bal ~
 get-act-rel-qty() @ li-act-rel-qty get-wip() @ li-wip ~
 get-pct(li-bal) @ li-pct get-fgitem() @ lc-fgitem oe-ordl.i-name ~
-oe-ordl.line get-cost() @ ld-cost get-cost-uom() @ ld-cost-uom ~
-oe-ordl.po-no-po ~
+oe-ordl.line oe-ordl.cost get-cost-uom() @ ld-cost-uom ~
+oe-ordl.po-no-po get-cost() @ ld-cost ~
 get-last-shipto() @ v-last-shipto ~
 get-act-bol-qty() @ li-act-bol-qty  ~
 oe-ordl.cust-no oe-ord.cust-name oe-ordl.qty oe-ordl.ship-qty ~
@@ -630,7 +631,7 @@ DEFINE BROWSE Browser-Table
       oe-ordl.i-name COLUMN-LABEL "Item Name" FORMAT "x(30)":U
             LABEL-BGCOLOR 14
       oe-ordl.line FORMAT ">>99":U
-      get-cost() @ ld-cost COLUMN-LABEL "Cost" WIDTH 20
+      get-cost() @ ld-cost COLUMN-LABEL "Invoice Line Cost" WIDTH 24 
       get-cost-uom() @ ld-cost-uom COLUMN-LABEL "Cost!UOM"
       oe-ordl.po-no-po FORMAT ">>>>>9":U
       get-last-shipto() @ v-last-shipto COLUMN-LABEL "Last!ShipTo" FORMAT "x(8)":U
@@ -639,6 +640,7 @@ DEFINE BROWSE Browser-Table
       getTotalReturned() @ dTotQtyRet COLUMN-LABEL "Total Qty Returned" FORMAT ">>>,>>9":U
       getReturnedInv() @ dTotRetInv COLUMN-LABEL "Qty Ret. Inventory" FORMAT ">>>,>>9":U
       fget-qty-nothand(get-act-rel-qty() + get-act-bol-qty(),li-qoh) @ iHandQtyNoalloc COLUMN-LABEL "On Hand Qty not Allocated" FORMAT "->>>>>>>>":U
+      oe-ordl.cost COLUMN-LABEL "Order Line Cost" WIDTH 23 LABEL-BGCOLOR 14
 
   ENABLE
       oe-ordl.ord-no
@@ -872,7 +874,7 @@ oe-ordl.ord-no eq 999999999"
      _FldNameList[29]   > ASI.oe-ordl.line
 "oe-ordl.line" ? ">>99" "integer" ? ? ? ? ? ? no ? no no ? no no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[30]   > "_<CALC>"
-"get-cost() @ ld-cost" "Cost" ? ? ? ? ? ? ? ? no ? no no "20" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"get-cost() @ ld-cost" "Invoice Line Cost" ? ? ? ? ? ? ? ? no ? no no "20" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[31]   > "_<CALC>"
 "get-cost-uom() @ ld-cost-uom" "Cost!UOM" ? ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[32]   > ASI.oe-ordl.po-no-po
@@ -887,6 +889,8 @@ oe-ordl.ord-no eq 999999999"
 "getReturnedInv() @ dTotRetInv" "Qty Ret. Inventory" ">>>,>>9" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
     _FldNameList[35]   > "_<CALC>"
 "fget-qty-nothand(get-act-rel-qty() + get-act-bol-qty(),li-qoh) @ iHandQtyNoalloc" "On Hand Qty not Allocated" "->>>>>>>>" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[36]   > ASI.oe-ordl.cost
+"oe-ordl.cost" "Order Line Cost" ? ? ? ? ? 14 ? ? no ? no no "20" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */
 &ANALYZE-RESUME
@@ -3386,7 +3390,7 @@ FUNCTION get-cost RETURNS DECIMAL
   FIND FIRST ar-invl NO-LOCK WHERE ar-invl.company EQ oe-ord.company
                                AND ar-invl.ord-no EQ oe-ord.ord-no
                                AND ar-invl.i-no EQ oe-ordl.i-no NO-ERROR.
-  RETURN IF AVAILABLE ar-invl THEN ar-invl.cost ELSE oe-ordl.cost.
+  RETURN IF AVAILABLE ar-invl THEN ar-invl.cost ELSE 0.
 
 END FUNCTION.
 

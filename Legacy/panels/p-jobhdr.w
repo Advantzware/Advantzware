@@ -103,7 +103,7 @@ DEFINE BUTTON Btn-Delete
      FONT 4.
 
 DEFINE BUTTON btn-rebuild 
-     LABEL "Re&build Job Qty" 
+     LABEL "Re&build Job" 
      SIZE 18 BY 1.29.
 
 DEFINE BUTTON Btn-Save 
@@ -236,7 +236,7 @@ END.
 
 &Scoped-define SELF-NAME btn-rebuild
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-rebuild C-WIn
-ON CHOOSE OF btn-rebuild IN FRAME Panel-Frame /* Rebuild Job Qty */
+ON CHOOSE OF btn-rebuild IN FRAME Panel-Frame /* Rebuild Job */
 DO:
     def var char-hdl as cha no-undo.
     run get-link-handle in adm-broker-hdl (this-procedure,"tableio-target",output char-hdl).

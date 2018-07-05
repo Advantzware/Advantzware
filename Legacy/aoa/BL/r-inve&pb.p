@@ -25,7 +25,8 @@ DEFINE OUTPUT PARAMETER TABLE FOR ttInvoicePostUpdateGL.
 {sys/inc/var.i NEW SHARED}
 {methods/defines/globdefs.i &NEW=NEW}
 {methods/defines/hndldefs.i &NEW="NEW"}
-
+/* Shared Vars needed for 810 invoices */
+RUN rc/genrcvar.p.
 DEFINE VARIABLE cListName   AS cha       NO-UNDO.
 DEFINE VARIABLE cInitDir    AS CHA       NO-UNDO.
 DEFINE VARIABLE cCompCurr   AS cha       NO-UNDO.

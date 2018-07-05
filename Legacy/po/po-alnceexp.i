@@ -42,6 +42,8 @@ DEF VAR v-rtn-char  AS CHAR NO-UNDO.
 DEF VAR v-rec-found AS LOG  NO-UNDO.
 DEF VAR AlliFlutes-dir LIKE sys-ctrl.descrip NO-UNDO.
 DEF VAR AlliFlutes-log LIKE sys-ctrl.log-fld NO-UNDO.
+DEFINE VARIABLE   iUseItemDesc AS INTEGER NO-UNDO.
+
 
 RUN sys/ref/nk1look.p (cocode, "AlliFlutes", "L", NO, NO, "", "", 
     OUTPUT v-rtn-char, OUTPUT v-rec-found).
@@ -54,6 +56,12 @@ RUN sys/ref/nk1look.p (cocode, "AlliFlutes", "DS", NO, NO, "", "",
     
 IF v-rec-found THEN
     AlliFlutes-dir = v-rtn-char NO-ERROR.
+    
+RUN sys/ref/nk1look.p (cocode, "AlliFlutes", "I", NO, NO, "", "", 
+    OUTPUT v-rtn-char, OUTPUT v-rec-found).
+/* Integer 1 means to use the item description in the notes field */
+IF v-rec-found THEN
+    iUseItemDesc = INTEGER(v-rtn-char)  NO-ERROR.    
     
 {sys/inc/poexport.i}
 
@@ -622,8 +630,12 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
     /* D6 */
 
     /* SPECIAL INSTRUCTIONS */
-    v-instr = "".
-
+    v-instr = " ".
+    
+    /* Nk1 alliflutes integer EQ 1  indicates using the po line item descriptions here */
+   IF   iUseItemDesc EQ 1 THEN 
+      v-instr = v-instr + po-ordl.dscr[1] + " "  + po-ordl.dscr[2].
+     
     FOR EACH notes WHERE notes.rec_key EQ po-ordl.rec_key NO-LOCK:
       v-instr = v-instr + " " + trim(notes.note_text).
     END.

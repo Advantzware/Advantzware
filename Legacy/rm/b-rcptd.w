@@ -2009,9 +2009,12 @@ PROCEDURE display-item :
     DO WITH FRAME {&FRAME-NAME}:
         IF AVAILABLE item THEN 
         DO:
-            ASSIGN
-                rm-rctd.i-name:SCREEN-VALUE IN BROWSE {&browse-name}  = item.i-name
+            ASSIGN                
                 rm-rctd.pur-uom:SCREEN-VALUE IN BROWSE {&browse-name} = item.cons-uom.
+                
+           /* Description may be overridden on PO */
+           IF  rm-rctd.i-name:SCREEN-VALUE IN BROWSE {&browse-name}  = "" THEN 
+              rm-rctd.i-name:SCREEN-VALUE IN BROWSE {&browse-name}  = item.i-name       .         
             IF v-bin NE "user entered" THEN
             ASSIGN
                 rm-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}     = item.loc
@@ -2292,6 +2295,19 @@ PROCEDURE find-exact-po :
     ------------------------------------------------------------------------------*/
 
     DO WITH FRAME {&FRAME-NAME}:
+        /* A specific item name may have been selected so find with it first */
+        FIND FIRST po-ordl NO-LOCK
+            WHERE po-ordl.company   EQ rm-rctd.company
+            AND po-ordl.po-no     EQ INT(rm-rctd.po-no:SCREEN-VALUE IN BROWSE {&browse-name})
+            AND po-ordl.job-no    EQ FILL(" ",6 - LENGTH(TRIM(rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}))) + TRIM(rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name})
+            AND po-ordl.job-no2   EQ INT(rm-rctd.job-no2:SCREEN-VALUE IN BROWSE {&browse-name})
+            AND po-ordl.s-num     EQ INT(rm-rctd.s-num:SCREEN-VALUE IN BROWSE {&browse-name})
+            AND po-ordl.b-num     EQ INT(rm-rctd.b-num:SCREEN-VALUE IN BROWSE {&browse-name})
+            AND po-ordl.i-no      EQ rm-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name}
+            AND po-ordl.i-name      EQ rm-rctd.i-name:SCREEN-VALUE IN BROWSE {&browse-name}
+            AND po-ordl.item-type EQ YES
+            USE-INDEX item-ordno NO-ERROR.
+        IF NOT AVAILABLE po-ordl THEN 
         FIND FIRST po-ordl NO-LOCK
             WHERE po-ordl.company   EQ rm-rctd.company
             AND po-ordl.po-no     EQ INT(rm-rctd.po-no:SCREEN-VALUE IN BROWSE {&browse-name})
@@ -2301,7 +2317,7 @@ PROCEDURE find-exact-po :
             AND po-ordl.b-num     EQ INT(rm-rctd.b-num:SCREEN-VALUE IN BROWSE {&browse-name})
             AND po-ordl.i-no      EQ rm-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name}
             AND po-ordl.item-type EQ YES
-            USE-INDEX item-ordno NO-ERROR.
+            USE-INDEX item-ordno NO-ERROR.            
         lv-rowid = IF AVAILABLE po-ordl THEN ROWID(po-ordl) ELSE ?.
     END.
 

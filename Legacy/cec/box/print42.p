@@ -38,6 +38,8 @@ def new shared var day_str as cha form "x(8)" no-undo.
 def new shared var tim_str as cha form "x(8)" no-undo.
 def new shared var maxpage as int form ">9" no-undo.
 def new shared var tmp-dir as cha no-undo.
+DEFINE NEW SHARED VARIABLE cCeBrowseBaseDir AS CHARACTER NO-UNDO.
+
 def new shared var col-norm as cha init "White/Blue" no-undo.
 def new shared var v-prep-mat like tprep-mat no-undo.  /* for probemk cost */
 def new shared var v-prep-lab like tprep-lab no-undo.
@@ -62,31 +64,7 @@ find first xeb where xeb.company = xest.company
                  AND xeb.est-no   eq xest.est-no and
                      xeb.form-no eq xef.form-no no-lock.
 
-find first sys-ctrl where
-    sys-ctrl.company eq cocode AND
-    sys-ctrl.name    eq "CEBROWSE"
-    no-lock no-error.
-
-  if not avail sys-ctrl then DO TRANSACTION:
-        create sys-ctrl.
-        assign sys-ctrl.company = cocode
-               sys-ctrl.name    = "CEBROWSE"
-               sys-ctrl.descrip = "# of Records to be displayed in browser"
-               sys-ctrl.log-fld = YES
-               sys-ctrl.char-fld = "CE"
-               sys-ctrl.int-fld = 30.
-        
-  end.
-
-IF sys-ctrl.char-fld NE "" THEN
-   tmp-dir = sys-ctrl.char-fld.
-ELSE
-   tmp-dir = "users\".
-
-IF LOOKUP(SUBSTRING(tmp-dir,LENGTH(tmp-dir)),"\,/") EQ 0 THEN
-   tmp-dir = tmp-dir + "\".
-
-tmp-dir = REPLACE(tmp-dir,"/","\").
+RUN est/EstimateProcs.p (xest.company, OUTPUT cCeBrowseBaseDir, OUTPUT tmp-dir).
     
 {sys/inc/f16to32.i}
 {cec/print42p.i }

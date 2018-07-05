@@ -4,7 +4,7 @@ PUT "<FArial>".
      PUT "" /*"<C1><#1><R+5><C+25><IMAGE#1=" ls-full-img1 */ SKIP. /* pacific package */ 
            
 PUT "<=1>" SKIP.
-PUT "<C1><#2>" /*<R+10><C+35><IMAGE#2=" ls-full-img2 SKIP  /* company image */ */
+/*PUT "<C1><#2>" /*<R+10><C+35><IMAGE#2=" ls-full-img2 SKIP  /* company image */ */
     "<=2><R+1>" "<FGCOLOR=" + trim(lv-comp-color) + ">" FORM "x(15)"     
    "<P10><=2><R+2>"
      v-comp-add1 AT 8 SKIP
@@ -12,7 +12,8 @@ PUT "<C1><#2>" /*<R+10><C+35><IMAGE#2=" ls-full-img2 SKIP  /* company image */ *
      v-comp-add3  AT 8 SKIP
      v-comp-add4  AT 8 skip
      v-comp-add5 AT 8 "<FGCOLOR=" + trim(lv-other-color) + ">" FORM "x(15)" SKIP
-     lv-email AT 8 SKIP(1)
+     lv-email AT 8 SKIP(1)*/
+   PUT "<C2><R2><#1><R+9><C+43><IMAGE#1=" ls-full-img1  SKIP
    "<FCourier New>"
    "Bill To:" SPACE(30) "Ship To:"  SKIP
    SPACE(5) oe-ord.cust-name 

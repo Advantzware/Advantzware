@@ -45,6 +45,8 @@ DEFINE VARIABLE init-dir AS CHARACTER NO-UNDO.
 DEFINE {&NEW} SHARED VARIABLE g_batch AS LOGICAL NO-UNDO.
 DEFINE {&NEW} SHARED VARIABLE g_batch-rowid AS rowid NO-UNDO.
 DEFINE VARIABLE v-prgmname LIKE prgrms.prgmname NO-UNDO.
+DEFINE VARIABLE lActive AS LOGICAL NO-UNDO .
+DEFINE VARIABLE ou-log AS LOGICAL NO-UNDO .
 {sys/inc/var.i new shared}
 
  v-prgmname = SUBSTRING(PROGRAM-NAME(1), R-INDEX(PROGRAM-NAME(1), "/") + 1).
@@ -53,6 +55,10 @@ DEFINE VARIABLE v-prgmname LIKE prgrms.prgmname NO-UNDO.
 assign
  cocode = g_company
  /*locode = gloc*/ .
+
+DO TRANSACTION:
+     {sys/ref/CustList.i NEW}
+END.
 
 DEFINE STREAM excel.
 
@@ -69,7 +75,7 @@ ASSIGN cTextListToSelect = "Customer,Name,Status,Address1,Address2,City,State,Zi
                            "Delivery Zone,Delivery Dscr,Territory,Territory Dscr,Pallet ID,Underrun%,Pallet,Overrun%,Case/Bundle,Mark-up,No Load Tags,Whse Days," +
                            "PO# Mandatory,Pallet Positions,Show Set Parts,Sales PTD,Sales YDT,Sales LYear,Cost PTD,Cost YDT,Cost LYear,Profits PTD,Profits YDT,Profits LYear," +
                            "Profit Percent PTD,Profit Percent YDT,Profit Percent LYear,Commissions PTD,Commissions YDT,Commissions LYear,MSF PTD,MSF YDT,MSF LYear," +
-                           "High Balance,On,Last Payment,On Date,Total# of Inv Paid,Avg# Days to Pay,Open Orders Balance,Account Balance,On Account,Title,CPhone,Ext"
+                           "High Balance,On,Last Payment,On Date,Total# of Inv Paid,Avg# Days to Pay,Open Orders Balance,Account Balance,On Account,Title,CPhone,Ext,CSR"
 
       cFieldListToSelect = "cust-no,name,active,addr[1],addr[2],city,state,zip,email,spare-char-2,date-field[1],type,custype-dscr,contact,sman,sname," +
                            "flat-comm,area-code,phone,scomm,fax,fax-prefix,fax-country,terms,terms-dscr,cr-use,cr-hold-invdays,cr-hold-invdue,cr-rating," +
@@ -78,7 +84,7 @@ ASSIGN cTextListToSelect = "Customer,Name,Status,Address1,Address2,City,State,Zi
                            "del-zone,del-dscr,terr,terr-dscr,spare-int-1,under-pct,pallet,over-pct,case-bundle,markup,int-field[1],ship-days," +
                            "po-mand,manf-day,show-set,ptd-sales,ytd-sales,lyr-sales,cost[1],cost[5],cost[6],ptd-profit,ytd-profit,lyr-profit," +
                            "ptd-profit-pct,ytd-profit-pct,lyr-profit-pct,comm[1],comm[5],comm[6],total-msf,ytd-msf,lyytd-msf," +
-                           "hibal,hibal-date,lpay,lpay-date,num-inv,avg-pay,ord-bal,acc-bal,on-account,title,cphone,ext" .
+                           "hibal,hibal-date,lpay,lpay-date,num-inv,avg-pay,ord-bal,acc-bal,on-account,title,cphone,ext,csrUser_id" .
 {sys/inc/ttRptSel.i}
 
     ASSIGN cTextListToDefault  = "Customer,Name,Status,Address1,Address2,City,State,Zip,Email,Group,Date Added,Type,Type Dscr,Contact,Salesman,Salesman Name," +
@@ -662,7 +668,14 @@ THEN FRAME {&FRAME-NAME}:PARENT = ACTIVE-WINDOW.
 MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
-    
+
+ 
+RUN sys/ref/CustList.p (INPUT cocode,
+                            INPUT 'AF1',
+                            INPUT YES,
+                            OUTPUT lActive).
+{sys/inc/chblankcust.i ""AF1""} 
+
   RUN DisplaySelectionList.
   RUN enable_UI.
    {methods/nowait.i}
@@ -930,6 +943,7 @@ IF v-excelheader NE "" THEN PUT STREAM excel UNFORMATTED v-excelheader SKIP.
 FOR EACH b-cust WHERE b-cust.company = cocode
         AND b-cust.cust-no GE begin_cust-type
         AND b-cust.cust-no LE end_cust-type
+        AND ( lookup(b-cust.cust-no,custcount) <> 0 OR custcount = "")
         NO-LOCK:
 
     v-excel-detail-lines = "".

@@ -706,13 +706,13 @@ ON LEAVE OF ar-invl.i-no IN FRAME Dialog-Frame /* Item No */
 DO:
       IF LASTKEY = -1 THEN RETURN.
 
-    IF ar-invl.i-no:MODIFIED THEN DO:
+    IF ar-invl.i-no:SCREEN-VALUE NE "" THEN DO:
        FIND FIRST itemfg NO-LOCK
              WHERE itemfg.company = g_company 
                AND itemfg.i-no = ar-invl.i-no:SCREEN-VALUE
              NO-ERROR.
        IF NOT AVAIL itemfg THEN DO:
-          MESSAGE "Invalid FG Item Number." VIEW-AS ALERT-BOX ERROR.
+          MESSAGE "Invalid FG Item Number." VIEW-AS ALERT-BOX INFO.
           RETURN.
        END.
        ASSIGN
@@ -735,10 +735,11 @@ DO:
              NO-ERROR.
        IF AVAIL itemfg THEN DO:
            ASSIGN
-         ar-invl.i-dscr:SCREEN-VALUE  = itemfg.part-dscr1
-         ar-invl.i-name:SCREEN-VALUE  = itemfg.i-name 
-         ar-invl.unit-pr:SCREEN-VALUE  = string(itemfg.sell-price)
-         ar-invl.cost:screen-value   = STRING(get-itemfg-cost(itemfg.i-no)).
+             ar-invl.i-dscr:SCREEN-VALUE  = itemfg.part-dscr1
+             ar-invl.i-name:SCREEN-VALUE  = itemfg.i-name 
+             ar-invl.unit-pr:SCREEN-VALUE  = STRING(itemfg.sell-price)
+             ar-invl.cost:SCREEN-VALUE   = STRING(get-itemfg-cost(itemfg.i-no))
+             ar-invl.dscr[1]:SCREEN-VALUE = itemfg.prod-uom.
            FIND FIRST fgcat NO-LOCK 
                WHERE fgcat.company EQ itemfg.company 
                  AND fgcat.procat EQ  itemfg.procat NO-ERROR .
@@ -1046,10 +1047,19 @@ PROCEDURE create-item :
             ar-invl.po-no = ar-inv.po-no
             ar-invl.pr-qty-uom = "EA"
             ar-invl.cons-uom = "EA"
-            ar-invl.dscr[1] = "EA"
+            ar-invl.dscr[1] = "M"
             /*ar-invl.actnum = IF AVAIL ar-ctrl THEN ar-ctrl.sales ELSE ""*/
             ar-invl.sman[1] = IF AVAIL cust THEN cust.sman ELSE ""
-            ar-invl.s-pct[1] = IF ar-invl.sman[1] NE "" THEN 100 ELSE 0.
+            ar-invl.s-pct[1] = IF ar-invl.sman[1] NE "" THEN 100 ELSE 0
+            ar-invl.actnum =  ar-ctrl.sales
+                .
+
+         FIND FIRST account WHERE account.company = g_company
+             AND account.actnum = ar-invl.actnum NO-LOCK NO-ERROR.
+     
+        IF AVAILABLE account THEN
+            ASSIGN fi_acc-desc = account.dscr .
+
 
         ASSIGN lv-item-recid = RECID(ar-invl).
             ll-new-record = YES.
@@ -1174,10 +1184,11 @@ PROCEDURE get-iteminfo :
              NO-ERROR.
        IF AVAIL itemfg THEN DO:
            ASSIGN
-         ar-invl.i-dscr:SCREEN-VALUE  = itemfg.part-dscr1
-         ar-invl.i-name:SCREEN-VALUE  = itemfg.i-name 
-         ar-invl.unit-pr:SCREEN-VALUE  = string(itemfg.sell-price)
-         ar-invl.cost:screen-value   = STRING(get-itemfg-cost(itemfg.i-no)).
+             ar-invl.i-dscr:SCREEN-VALUE  = itemfg.part-dscr1
+             ar-invl.i-name:SCREEN-VALUE  = itemfg.i-name 
+             ar-invl.unit-pr:SCREEN-VALUE  = STRING(itemfg.sell-price)
+             ar-invl.cost:SCREEN-VALUE    = STRING(get-itemfg-cost(itemfg.i-no))
+             ar-invl.dscr[1]:SCREEN-VALUE = itemfg.prod-uom.
            FIND FIRST fgcat NO-LOCK 
                WHERE fgcat.company EQ itemfg.company 
                  AND fgcat.procat EQ  itemfg.procat NO-ERROR .

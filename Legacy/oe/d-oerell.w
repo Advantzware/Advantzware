@@ -220,10 +220,14 @@ DEFINE FRAME Dialog-Frame
      oe-rell.b-ord-no AT ROW 7.19 COL 94.6 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 5 BY 1
-     oe-rell.s-code AT ROW 7.19 COL 106 COLON-ALIGNED
-          LABEL "S/I"
-          VIEW-AS FILL-IN 
-          SIZE 12 BY 1
+     oe-rell.s-code AT ROW 7.19 COL 109 COLON-ALIGNED
+          LABEL "Type"
+          VIEW-AS COMBO-BOX INNER-LINES 4 
+          LIST-ITEM-PAIRS "B-Both","B",
+                     "S-Ship","S",
+                     "I-Invoice","I",
+                     "T-Transfer","T"
+          DROP-DOWN-LIST
      oe-rell.link-no AT ROW 9.62 COL 85.4 COLON-ALIGNED
           LABEL "Rel. Seq. #" FORMAT ">>>>>>>9"
           VIEW-AS FILL-IN 

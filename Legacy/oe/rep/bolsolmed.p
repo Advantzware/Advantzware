@@ -349,7 +349,7 @@ for each xxreport where xxreport.term-id eq v-term-id,
     "<=8><R+3> " /*v-tot-wt*/ /*fORM ">>,>>9.99"*/ .
     
   ASSIGN v-ship-i = "".
- /* IF v-print-shipnotes THEN */
+  IF v-print-shipnotes THEN 
      ASSIGN v-ship-i[1] = oe-bolh.ship-i[1]
             v-ship-i[2] = oe-bolh.ship-i[2]
             v-ship-i[3] = oe-bolh.ship-i[3]

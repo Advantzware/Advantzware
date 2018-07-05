@@ -48,31 +48,8 @@ DEF TEMP-TABLE tt-ei NO-UNDO
     FIELD run-qty AS DECIMAL DECIMALS 3 EXTENT 20
     FIELD run-cost AS DECIMAL DECIMALS 4 EXTENT 20.
 
-find first sys-ctrl where
-    sys-ctrl.company eq cocode AND
-    sys-ctrl.name    eq "CEBROWSE"
-    no-lock no-error.
-
-  if not avail sys-ctrl then DO TRANSACTION:
-        create sys-ctrl.
-        assign sys-ctrl.company = cocode
-               sys-ctrl.name    = "CEBROWSE"
-               sys-ctrl.descrip = "# of Records to be displayed in browser"
-               sys-ctrl.log-fld = YES
-               sys-ctrl.char-fld = "CE"
-               sys-ctrl.int-fld = 30.
-        
-  end.
-
-IF sys-ctrl.char-fld NE "" THEN
-   tmp-dir = sys-ctrl.char-fld.
-ELSE
-   tmp-dir = "users\".
-
-IF LOOKUP(SUBSTRING(tmp-dir,LENGTH(tmp-dir)),"\,/") EQ 0 THEN
-   tmp-dir = tmp-dir + "\".
-
-tmp-dir = REPLACE(tmp-dir,"/","\").
+DEFINE NEW SHARED VARIABLE cCEBrowseBaseDir AS CHARACTER NO-UNDO.    
+RUN est/EstimateProcs.p (cocode, OUTPUT cCeBrowseBaseDir, OUTPUT tmp-dir).
 
 {ce/print42p.i}
 

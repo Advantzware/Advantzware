@@ -67,10 +67,10 @@ PROCEDURE CheckPriceHold:
      Purpose: Checks Price Hold for passed criteria.  Adds record to ttPriceHold table.
      Notes:
     ------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcCompany  AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcFGItemID AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipcCustID AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipcShipID AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcCustID   AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcShipID   AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipdQuantity AS DECIMAL NO-UNDO.
     DEFINE OUTPUT PARAMETER oplPriceHold AS LOGICAL NO-UNDO.
     DEFINE OUTPUT PARAMETER opcPriceHoldReason AS CHARACTER NO-UNDO.
@@ -145,7 +145,8 @@ PROCEDURE CheckPriceHoldForOrder:
     IF AVAILABLE bf-oe-ord THEN 
     DO:
         EMPTY TEMP-TABLE ttPriceHold.
-        FOR EACH bf-oe-ordl OF bf-oe-ord NO-LOCK:
+        FOR EACH bf-oe-ordl OF bf-oe-ord WHERE bf-oe-ordl.i-no NE "" NO-LOCK:
+
             RUN pAddPriceHold(ROWID(bf-oe-ordl), bf-oe-ordl.company, bf-oe-ordl.i-no, bf-oe-ordl.cust-no, bf-oe-ordl.ship-id, bf-oe-ordl.qty,
                 lQtyMatch, lQtyInRange, lEffectiveDateAge, iEffectiveDateAgeDays).
         END.
@@ -484,7 +485,7 @@ PROCEDURE GetPriceMatrixPrice:
     
     /*Set the default starting level to the customer specific starting level*/
     IF AVAILABLE bf-cust THEN 
-        iLevelStart = MINIMUM(1, bf-cust.cust-level).
+        iLevelStart = MAXIMUM(1, bf-cust.cust-level).
     ELSE 
         iLevelStart = 1.
     
@@ -673,7 +674,7 @@ PROCEDURE pAddPriceHold PRIVATE:
                         
     RUN pSetBuffers(ipcCompany, ipcFGItemID, ipcCustID, BUFFER bf-itemfg, BUFFER bf-cust).            
     /*use internal procedure to find the matching matrix*/
-    IF bf-itemfg.i-code EQ "S" THEN  
+    IF AVAIL bf-itemfg AND bf-itemfg.i-code EQ "S" THEN  
         RUN pGetPriceMatrix(BUFFER bf-itemfg, BUFFER bf-cust, BUFFER bf-oe-prmtx, ipcShipID, 
             OUTPUT ttPriceHold.lMatrixMatch, OUTPUT ttPriceHold.cMatrixMatch).
     ELSE 
@@ -1026,6 +1027,9 @@ PROCEDURE pGetPriceMatrix PRIVATE:
         AND (opbf-oe-prmtx.eff-date LE TODAY)
         /*must not be expired*/
         AND (opbf-oe-prmtx.exp-date GE TODAY OR opbf-oe-prmtx.exp-date EQ ? OR opbf-oe-prmtx.exp-date EQ 01/01/0001)
+        /* Can't be all blank */
+        AND NOT (opbf-oe-prmtx.cust-no EQ "" AND opbf-oe-prmtx.i-no EQ "" AND opbf-oe-prmtx.procat EQ "" AND opbf-oe-prmtx.custype EQ "" 
+        AND opbf-oe-prmtx.custShipID EQ "")
     /*Sort the resulting data set so that actual matches take priority over blank matches*/
         BY opbf-oe-prmtx.eff-date DESCENDING 
         BY opbf-oe-prmtx.i-no DESCENDING
