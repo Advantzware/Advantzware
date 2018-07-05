@@ -342,7 +342,12 @@
              lines-per-page = 66.
        WHEN "BOLfmt15" THEN
           ASSIGN
-             v-program      = "oe/rep/bolfiftn.p"
+             v-program      = "oe/rep/bolfiftnx.p"
+             is-xprint-form = YES
+             lines-per-page = 66.
+      WHEN "BOLFMTX15" THEN
+          ASSIGN
+             v-program      = "oe/rep/bolfrftn.p"
              is-xprint-form = YES
              lines-per-page = 66.
        WHEN "Michcor" THEN
