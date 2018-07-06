@@ -66,7 +66,7 @@ DEF VAR v-2desc AS LOG NO-UNDO.
 DEF VAR v-i-no LIKE xeb.stock-no.
 DEF BUFFER bf-oe-ord FOR oe-ord.
 DEF BUFFER bf-oe-ordl FOR oe-ordl.
-DEF NEW SHARED TEMP-TABLE tt-rel NO-UNDO LIKE reftable.
+DEF NEW SHARED TEMP-TABLE tt-rel NO-UNDO LIKE eb.
 DEF SHARED VAR gEstSummaryOnly AS LOG NO-UNDO.
 DEF VAR vofor2 AS cha NO-UNDO.
 DEF VAR dBoardTotalQty AS INT NO-UNDO.
@@ -191,18 +191,14 @@ if vprint then do:
 
   if lv-error then return error.
 
+
   FOR EACH eb NO-LOCK
       WHERE eb.company EQ xest.company
-        AND eb.est-no  EQ xest.est-no,
-      FIRST reftable NO-LOCK
-      WHERE reftable.reftable EQ "ce/com/selwhif1.w"
-        AND reftable.company  EQ eb.company
-        AND reftable.loc      EQ eb.est-no
-        AND reftable.code     EQ STRING(eb.form-no,"9999999999")
-        AND reftable.code2    EQ STRING(eb.blank-no,"9999999999"):
+        AND eb.est-no  EQ xest.est-no:
     CREATE tt-rel. 
-    BUFFER-COPY reftable TO tt-rel.
+    BUFFER-COPY eb TO tt-rel.
   END.
+
 
   IF lv-override THEN
   for each probe where probe.company = xest.company and
@@ -1098,20 +1094,22 @@ for each car break by car.id:
    z       = 0
    li-rels = 0.
 
+
   FOR EACH bf-eb NO-LOCK
       WHERE bf-eb.company EQ xest.company
         AND bf-eb.est-no  EQ xest.est-no
-        AND bf-eb.part-no EQ car.id:
-    z = z + bf-eb.bl-qty.
+        AND bf-eb.part-no EQ car.id:            
+    z = z + bf-eb.bl-qty.  
     FIND FIRST tt-rel
-        WHERE tt-rel.reftable EQ "ce/com/selwhif1.w"
-          AND tt-rel.company  EQ bf-eb.company
-          AND tt-rel.loc      EQ bf-eb.est-no
-          AND tt-rel.code     EQ STRING(bf-eb.form-no,"9999999999")
-          AND tt-rel.code2    EQ STRING(bf-eb.blank-no,"9999999999")
-        NO-ERROR.
-    li-rels = li-rels + (IF AVAIL tt-rel THEN tt-rel.val[1] ELSE 1).
+         WHERE tt-rel.company     EQ bf-eb.company                      
+           AND tt-rel.est-no      EQ bf-eb.est-no                       
+           AND tt-rel.form-no     EQ bf-eb.form-no 
+           AND tt-rel.blank-no    EQ bf-eb.blank-no
+         NO-ERROR.
+      li-rels = li-rels + (IF AVAIL tt-rel THEN tt-rel.releaseCount ELSE 1).   
   END.
+
+
   
   find first xeb
       where xeb.company = xest.company

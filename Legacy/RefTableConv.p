@@ -145,6 +145,7 @@ ASSIGN
     {refTableConv.i "EitemvendAdders" 'e-item-vend.adders'}
     {refTableConv.i "Batchrpt" 'Batchrpt'}
     {refTableConv.i "CeComProbemk" 'ce/com/probemk.p'}
+    {refTableConv.i "CeComSelwhif1" 'ce/com/selwhif1.w'}
 
 /* Deferred for 16.7.0                                              */
 /*    {refTableConv.i "STYFLU" 'STYFLU'}                            */

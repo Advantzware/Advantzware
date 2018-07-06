@@ -41,8 +41,7 @@ DEFINE VARIABLE dBoardCst          AS DECIMAL   NO-UNDO.
 DEFINE VARIABLE dBoardPct          AS DECIMAL   NO-UNDO.
 DEFINE        VARIABLE dMarginCostG       AS DECIMAL  NO-UNDO.
 DEFINE        VARIABLE dMarginCostN       AS DECIMAL  NO-UNDO.
-DEFINE SHARED TEMP-TABLE tt-rel NO-UNDO LIKE reftable.
-                              
+DEFINE SHARED TEMP-TABLE tt-rel NO-UNDO LIKE eb.                              
 
 IF xest.est-type LT 6 THEN LEAVE.
 
@@ -259,12 +258,12 @@ FOR EACH probeit
         AND eb.est-no  EQ probeit.est-no
         AND eb.part-no EQ probeit.part-no,
         FIRST tt-rel NO-LOCK
-        WHERE tt-rel.reftable EQ "ce/com/selwhif1.w"
-        AND tt-rel.company  EQ eb.company
-        AND tt-rel.loc      EQ eb.est-no
-        AND tt-rel.code     EQ STRING(eb.form-no,"9999999999")
-        AND tt-rel.code2    EQ STRING(eb.blank-no,"9999999999"):
-        v-rel = v-rel + tt-rel.val[1].
+        WHERE tt-rel.company     EQ eb.company                      
+          AND tt-rel.est-no      EQ eb.est-no                       
+          AND tt-rel.form-no     EQ eb.form-no 
+          AND tt-rel.blank-no    EQ eb.blank-no:
+
+        v-rel = v-rel + tt-rel.releaseCount.
     END.
 
     probeit.releaseCount = probeit.releaseCount + (IF v-rel EQ 0 THEN 1 ELSE v-rel).
