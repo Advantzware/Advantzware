@@ -57,6 +57,18 @@ PROCEDURE pIsValidCarrier:
 
 END PROCEDURE. 
 
+PROCEDURE pIsValidTerr:
+    /*------------------------------------------------------------------------------
+     Purpose:  Validates carrier
+     Notes: Input 1 = carrier
+    ------------------------------------------------------------------------------*/
+    {util\Validate.i 
+        &ValidateTable = "terr" 
+        &ValidateField = "terr" 
+        &ValidateMessage = "terr"}
+
+END PROCEDURE. 
+
 PROCEDURE pIsValidDeliveryZone:
     /*------------------------------------------------------------------------------
      Purpose:  Validates shipto ID
