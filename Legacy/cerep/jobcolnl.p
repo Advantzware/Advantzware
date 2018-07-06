@@ -253,12 +253,12 @@ cDraftImageFull = IF lDraft
                     ELSE "".
 
 FORMAT HEADER
-        cDraftImageFull FORMAT "x(100)" SKIP 
+        cDraftImageFull FORMAT "x(200)" SKIP 
        "<C1><R2>JOB NUMBER:<B>" v-job-no SPACE(0) "-" SPACE(0) v-job-no2 FORMAT "99" "</B>" SPACE(1)
        "CSR:" v-pricnt-id
        "<B><P12>F A C T O R Y  T I C K E T</B><P10>" AT 54  "JOB START DATE:" AT 124 v-start-date SKIP
        v-fill
-    WITH NO-BOX FRAME head NO-LABELS STREAM-IO WIDTH 155.
+    WITH NO-BOX FRAME head NO-LABELS STREAM-IO WIDTH 200.
 
 FORMAT "Customer:" oe-ord.cust-name "Sold To:" oe-ord.sold-id
        "Salesman:" AT 68 oe-ord.sname[1] "Order#:" AT 113 oe-ord.ord-no

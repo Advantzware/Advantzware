@@ -248,11 +248,11 @@ FOR EACH tt-boll,
                ASSIGN v-printline = v-printline + 1.
           END. /* ELSE DO */
 
-        IF v-printline >= 41 THEN DO:
+        IF v-printline >= 34 THEN DO:
 
           ASSIGN v-printline = 0.
           PAGE {1}.
-          {oe/rep/bolfiftn.i}
+          {oe/rep/bolfrftn.i}
         END.
 
         ASSIGN v-tot-cases = v-tot-cases + w2.cases.
@@ -278,10 +278,10 @@ FOR EACH tt-boll,
 
             {sys/inc/part-qty.i v-part-qty fg-set}
 
-            IF v-printline >= 41 THEN DO: 
+            IF v-printline >= 34 THEN DO: 
               ASSIGN v-printline = 0.
               PAGE {1}.
-              {oe/rep/bolfiftn.i}
+              {oe/rep/bolfrftn.i}
             END.
 
             DISPLAY {1}
@@ -327,10 +327,10 @@ FOR EACH tt-boll,
      WHERE oe-ord.company EQ cocode
        AND oe-ord.ord-no  EQ tt-boll.ord-no NO-ERROR.
 
-   IF v-printline >= 41 THEN DO:
+   IF v-printline >= 34 THEN DO:
       ASSIGN v-printline = 0.
       PAGE {1}.
-      {oe/rep/bolfiftn.i}
+      {oe/rep/bolfrftn.i}
    END.
 
    IF tt-boll.qty-case NE 0 AND 
@@ -446,25 +446,27 @@ FOR EACH tt-boll,
 
                  ASSIGN v-part-dscr = v-lot#  /* gdm 06120902 */.
                 END. /* IF i EQ 5 */
-     ASSIGN icountpallet = w2.cas-cnt  .
-     DISPLAY trim(string(oe-ordl.qty,"->>,>>>,>>>")) when i eq 1
-                                                    @ oe-ordl.i-no
-            oe-ordl.i-no                            when i eq 2
-            v-job-po
-            v-part-dscr
-            w2.cases
-            icountpallet
-            tt-boll.qty                             when last(w2.cases)
-            tt-boll.p-c                             when last(w2.cases)         
-        with frame bol-mid2.
-    down  with frame bol-mid2. 
+     ASSIGN icountpallet = w2.cas-cnt *  w2.cases .
+     DISPLAY TRIM(STRING(oe-ordl.qty,"->>,>>>,>>>")
+                  )                        WHEN i EQ 1          @ oe-ordl.i-no
+             oe-ordl.i-no                  WHEN i EQ 2
+             v-job-po
+             v-part-dscr
+             1 @ w2.cases
+             icountpallet 
+             tt-boll.qty /*+ tt-boll.partial*/ WHEN LAST(w2.cases)  @ tt-boll.qty
+             tt-boll.p-c                   WHEN LAST(w2.cases)                
+             1  WHEN i = 2 AND tt-boll.partial > 0  @ w2.cases
+             tt-boll.partial WHEN i = 2 AND tt-boll.partial > 0 @ w2.cas-cnt
+      WITH FRAME bol-mid2.
+      DOWN  WITH FRAME bol-mid2.
 
      ASSIGN v-printline = v-printline + 1.
 
-     IF v-printline >= 41 THEN DO:
+     IF v-printline >= 34 THEN DO:
        v-printline = 0.
        PAGE {1}.
-       {oe/rep/bolfiftn.i}
+       {oe/rep/bolfrftn.i}
      END.
 
      ASSIGN v-tot-cases = v-tot-cases + w2.cases.
@@ -536,7 +538,6 @@ FOR EACH tt-boll,
         i LE 2
        THEN DO:
 
-         
         DISPLAY {1}
                 oe-ordl.i-no    WHEN i EQ 2
                 v-job-po
@@ -544,7 +545,7 @@ FOR EACH tt-boll,
                 1               WHEN tt-boll.partial > 0 AND 
                                 i = 2                    @ w2.cases
                 tt-boll.partial WHEN tt-boll.partial > 0 AND 
-                                i = 2                    @ icountpallet
+                                i = 2                    @ w2.cas-cnt
          WITH FRAME bol-mid2.
          DOWN {1} WITH FRAME bol-mid2.
 
@@ -572,10 +573,10 @@ FOR EACH tt-boll,
 
          {sys/inc/part-qty.i v-part-qty fg-set}
 
-         IF v-printline >= 41 THEN DO:
+         IF v-printline >= 34 THEN DO:
            v-printline = 0.
            PAGE {1}.
-           {oe/rep/bolfiftn.i}
+           {oe/rep/bolfrftn.i}
          END.
 
          DISPLAY {1}
@@ -606,13 +607,43 @@ END. /* FOR EACH tt-boll */
 
 ASSIGN v-tot-wt = oe-bolh.tot-wt.
 
+
+IF oe-bolh.ship-i[1] NE "" OR
+   oe-bolh.ship-i[2] NE "" OR
+   oe-bolh.ship-i[3] NE "" OR
+   oe-bolh.ship-i[4] NE "" 
+  THEN DO:
+
+   IF v-printline >= 30 THEN DO:
+     ASSIGN v-printline = 0.
+     PAGE {1}.
+     {oe/rep/bolfrftn.i}
+   END.
+
+   PUT "<FArial><P12><B>Notes:</P12><P10></B>" SKIP.
+
+   DO v-i = 1 TO 4:
+     IF v-printline >= 34 THEN DO:
+       ASSIGN v-printline = 0.
+       PAGE {1}.
+       {oe/rep/bolfrftn.i}
+     END.
+
+     IF oe-bolh.ship-i[v-i] NE "" THEN DO:
+        PUT oe-bolh.ship-i[v-i] SKIP.
+        ASSIGN v-printline = v-printline + 1.
+     END.
+   END.
+
+END.
+
 IF AVAILABLE tt-bolx THEN DO:
 
   IF tt-bolx.note-1 NE "" THEN DO:
-    IF v-printline >= 41 THEN DO:
+    IF v-printline >= 34 THEN DO:
       ASSIGN v-printline = 0.
       PAGE {1}.
-      {oe/rep/bolfiftn.i}
+      {oe/rep/bolfrftn.i}
     END.
 
     PUT tt-bolx.note-1 FORMAT "X(60)" SKIP.
@@ -621,10 +652,10 @@ IF AVAILABLE tt-bolx THEN DO:
   END.
 
   IF tt-bolx.note-2 NE "" THEN DO:
-    IF v-printline >= 41 THEN DO:
+    IF v-printline >= 34 THEN DO:
       ASSIGN v-printline = 0.
       PAGE {1}.
-      {oe/rep/bolfiftn.i}
+      {oe/rep/bolfrftn.i}
     END.
 
     PUT tt-bolx.note-2 FORMAT "X(60)" SKIP.

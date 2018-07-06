@@ -184,7 +184,7 @@ END.
   v-cestcalc = sys-ctrl.char-fld.
 
 
-RUN pGetEstimateDir(cocode, OUTPUT cCEBrowseBaseDir, OUTPUT tmp-dir ).
+RUN est/EstimateProcs.p (cocode, OUTPUT cCEBrowseBaseDir, OUTPUT tmp-dir ).
 
 lv-cebrowse-dir = tmp-dir.
 
@@ -2637,59 +2637,6 @@ END PROCEDURE.
 &ANALYZE-RESUME
 
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetEstimateDir B-table-Win
-PROCEDURE pGetEstimateDir:
-/*------------------------------------------------------------------------------
- Purpose:  Returns the directory for CEBrowse, including the sub dir if configured 
- Notes:  Returns both the base dir (for when probe.spare-char-1 is empty).
-------------------------------------------------------------------------------*/
-
-DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
-DEFINE OUTPUT PARAMETER opcBaseDir AS CHARACTER NO-UNDO.
-DEFINE OUTPUT PARAMETER opcSubDir AS CHARACTER NO-UNDO.
-
-DEFINE VARIABLE lFound AS LOGICAL NO-UNDO.
-
-RUN sys/ref/nk1Look.p(INPUT ipcCompany,
-                      INPUT "CEBrowse",
-                      INPUT "C",
-                      INPUT NO,
-                      INPUT NO,
-                      INPUT "",
-                      INPUT "",
-                      OUTPUT opcBaseDir,
-                      OUTPUT lFound).
-RUN sys/ref/nk1Look.p(INPUT ipcCompany,
-                      INPUT "CEBrowse",
-                      INPUT "D",
-                      INPUT NO,
-                      INPUT NO,
-                      INPUT "",
-                      INPUT "",
-                      OUTPUT opcSubDir,
-                      OUTPUT lFound).
-
-IF opcBaseDir EQ "" THEN
-   opcBaseDir = "users\".
-
-ASSIGN 
-      opcBaseDir = REPLACE(opcBaseDir,"/","\")  /*replace slashes in wrong direction*/
-      opcBaseDir = TRIM(opcBaseDir,"\") + "\"  /*ensure there is a slash on the end*/
-      .
-
-IF DEC(opcSubDir) GT 0 THEN DO:
-    opcSubDir = opcBaseDir + opcSubDir + "\".
-    FILE-INFO:FILE-NAME = opcSubDir.
-    IF FILE-INFO:FULL-PATHNAME = ? THEN
-        OS-CREATE-DIR VALUE(opcSubDir).        
-END.
-
-
-END PROCEDURE.
-	
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE resort-query B-table-Win 
@@ -3729,7 +3676,7 @@ PROCEDURE run-whatif :
     RETURN.
    END.
   END.
-  RUN pGetEstimateDir(est.company, OUTPUT cCeBrowseBaseDir, OUTPUT tmp-dir).
+  RUN est/EstimateProcs.p (est.company, OUTPUT cCeBrowseBaseDir, OUTPUT tmp-dir).
   lv-cebrowse-dir = tmp-dir.
   RUN est\CostResetHeaders.p(?,?).
   IF est.est-type EQ 8 THEN

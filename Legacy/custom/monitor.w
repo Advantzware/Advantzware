@@ -44,6 +44,7 @@ ASSIGN
 
 DEFINE VARIABLE labelLine AS CHARACTER NO-UNDO.
 DEFINE VARIABLE dataLine AS CHARACTER NO-UNDO.
+DEFINE VARIABLE hPgmSecurity AS HANDLE NO-UNDO.
 
 DEFINE STREAM monitorStrm.
 
@@ -340,6 +341,7 @@ END PROCEDURE.
 ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME} 
        THIS-PROCEDURE:CURRENT-WINDOW = {&WINDOW-NAME}.
 
+RUN "system/PgmMstrSecur.p" PERSISTENT SET hPgmSecurity.    
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
 ON CLOSE OF THIS-PROCEDURE 
@@ -350,6 +352,7 @@ DO:
             VALUE(monitorImportDir + '/monitor/monitor.log').
        RUN system/userLogOut.p.
   RUN disable_UI.
+    DELETE OBJECT hPgmSecurity.
 END.
 
 /* Best default for GUI applications is...                              */

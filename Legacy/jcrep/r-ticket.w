@@ -916,7 +916,8 @@ DO:
         /* gdm - 11030807 */  
         v-newdie   = NO
         v-newfilm  = NO
-        v-newcombo = NO.
+        v-newcombo = NO
+        lDraft     = logical(tb_draft:SCREEN-VALUE IN FRAME {&FRAME-NAME}).
 
   IF tb_fold THEN DO:
     /*lines-per-page = IF lv-format-f EQ "HOP" THEN 64 ELSE 58. */
@@ -2978,7 +2979,7 @@ PROCEDURE output-to-screen :
    OS-COPY VALUE(lv-file) VALUE(lv-xpfile).
    OS-COMMAND VALUE(lv-cmd + " " + lv-xpfile) .
 */ 
-IF tb_fold AND lv-format-f EQ "xml" THEN
+IF ( tb_fold AND lv-format-f EQ "xml")   THEN
     RETURN.
  IF tb_corr THEN DO:
     FILE-INFO:FILE-NAME = list-name.
@@ -3047,7 +3048,7 @@ PROCEDURE run-report :
     s-prt-revno             = tb_prt-rev 
     v-dept-log              = tb_dept-note
     v-dept-codes            = dept_codes
-    lDraft                  = tb_draft
+    lDraft                  = logical(tb_draft:SCREEN-VALUE IN FRAME {&FRAME-NAME})
     lExportXML              = tb_ExportXML
     . 
 

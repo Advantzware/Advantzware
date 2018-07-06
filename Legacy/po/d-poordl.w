@@ -2685,7 +2685,8 @@ PROCEDURE create-multi-line :
                 DO:
                     ASSIGN
                         v-wid = b2-job-mat.wid
-                        v-len = b2-job-mat.len.
+                        v-len = b2-job-mat.len
+                        v-dep = b2-job-mat.dep.
       
                     IF v-corr THEN
                     DO:
@@ -3496,9 +3497,10 @@ PROCEDURE display-job-mat :
                     lv-save-b-num                = po-ordl.b-num:SCREEN-VALUE
                     v-len                        = tt-job-mat.len
                     v-wid                        = tt-job-mat.wid
-                    v-dep                        = item.s-dep
+                    v-dep                        = tt-job-mat.dep
                     ld-line-cst                  = tt-job-mat.std-cost.
-          
+                IF v-dep EQ 0 THEN 
+                    v-dep = item.s-dep.
                 IF tt-job-mat.qty-uom NE po-ordl.pr-qty-uom:SCREEN-VALUE THEN
                     RUN sys/ref/convquom.p (tt-job-mat.qty-uom, po-ordl.pr-qty-uom:SCREEN-VALUE,
                         tt-job-mat.basis-w, v-len, v-wid, v-dep,
@@ -3851,7 +3853,7 @@ PROCEDURE enable-disable-size :
         DO:
             FIND item WHERE item.company = g_company AND
                 item.i-no = po-ordl.i-no:SCREEN-VALUE NO-LOCK NO-ERROR.
-            IF AVAILABLE item AND item.i-code = "R" THEN 
+            IF AVAILABLE item AND item.i-code = "R" AND po-ordl.i-no:SCREEN-VALUE NE "" THEN 
             DO:
                 /*IF ITEM.r-wid > 0 AND ITEM.s-len = 0 THEN DISABLE po-ordl.s-wid.
                 ELSE*/ 
@@ -5185,8 +5187,10 @@ PROCEDURE set-dims :
         ASSIGN
             v-len = DEC(po-ordl.s-len:SCREEN-VALUE)
             v-wid = DEC(po-ordl.s-wid:SCREEN-VALUE)
+            v-dep = DEC(v-po-dep:SCREEN-VALUE)
             {po/calc10.i v-len}
-            {po/calc10.i v-wid}.
+            {po/calc10.i v-wid}
+            {po/calc10.i v-dep}.
 
         FIND FIRST ITEM NO-LOCK 
             WHERE item.company EQ cocode
@@ -5195,7 +5199,7 @@ PROCEDURE set-dims :
 
         ASSIGN
             v-basis-w = IF AVAILABLE ITEM THEN item.basis-w ELSE 0
-            v-dep     = IF AVAILABLE ITEM THEN item.s-dep ELSE 0.
+            .
     END.
 
 END PROCEDURE.

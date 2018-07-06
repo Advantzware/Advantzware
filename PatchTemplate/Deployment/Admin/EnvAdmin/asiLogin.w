@@ -995,6 +995,7 @@ PROCEDURE ipClickOk :
 ------------------------------------------------------------------------------*/
     DEF VAR lError AS LOG NO-UNDO.
     DEF VAR cMessage AS CHAR NO-UNDO.
+    DEF VAR cCmdString AS CHAR NO-UNDO.
  
     ASSIGN
         iPos = LOOKUP(cbEnvironment,cEnvironmentList)
@@ -1010,7 +1011,7 @@ PROCEDURE ipClickOk :
                                            OUTPUT lError).
     END.
 
-    /* Here the format for both is 16070400 */
+    /* Advise that code at lower levels will not be able to update user properties correctly */
     IF iEnvLevel LT 16070800 THEN DO:
         MESSAGE
             "Changes to user aliases, mode, environments and databases will not be saved with this version."
@@ -1018,6 +1019,25 @@ PROCEDURE ipClickOk :
         ASSIGN
             cUsrLoc = replace(cUsrLoc,".usr",".nul").
     END.
+    
+    /* This is the normal operation for Mode choices */
+    IF NOT cbMode = "Monitor Users" THEN DO: 
+        /* Set current dir */
+        RUN ipSetCurrentDir (cMapDir + "\" + cEnvDir + "\" + cbEnvironment). 
+        IF INDEX(cRunPgm,"mainmenu") <> 0
+        AND SEARCH("system/mainmenu2.r") NE ? THEN ASSIGN
+            cRunPgm = "system/mainmenu2.w".
+        RUN VALUE(cRunPgm).
+    END.
+    /* This is only used to monitor users */
+    ELSE DO: 
+        ASSIGN 
+            cCmdString = cDLCDir + "\bin\proshut.bat" + " -db " +
+                         cDrive + "\" + cTopDir + "\" + cDbDir + "\" + xDbDir + "\" + PDBNAME(1).
+        OS-COMMAND VALUE(cCmdString).
+    END.
+    
+    QUIT.
     
 END PROCEDURE.
 
@@ -1043,7 +1063,7 @@ PROCEDURE ipConnectDb :
 
     /* Force user id and password from screen values, trap errors in ERROR-STATUS */
     ASSIGN
-        cStatement = cStatement + " -U " + cUserID + " -P " + fiPassword.
+        cStatement = cStatement + " -U " + cUserID + " -P '" + fiPassword + "'".
     CONNECT VALUE(cStatement) NO-ERROR.
 
     IF ERROR-STATUS:ERROR THEN DO:
@@ -1123,23 +1143,6 @@ PROCEDURE ipConnectDb :
 
     ASSIGN
         c-Win:VISIBLE = FALSE.
-    
-    /* This is the normal operation */
-    IF NOT cbMode = "Monitor Users" THEN DO: 
-        /* Set current dir */
-        RUN ipSetCurrentDir (cMapDir + "\" + cEnvDir + "\" + cbEnvironment). 
-        IF INDEX(cRunPgm,"mainmenu") <> 0
-        AND SEARCH("system/mainmenu2.r") NE ? THEN ASSIGN
-            cRunPgm = "system/mainmenu2.w".
-        RUN VALUE(cRunPgm).
-    END.
-    /* This is only used to monitor users */
-    ELSE DO: 
-        ASSIGN 
-            cCmdString = cDLCDir + "\bin\proshut.bat" + " -db " +
-                         cDrive + "\" + cTopDir + "\" + cDbDir + "\" + xDbDir + "\" + PDBNAME(1).
-        OS-COMMAND VALUE(cCmdString).
-    END.
     
 END PROCEDURE.
 

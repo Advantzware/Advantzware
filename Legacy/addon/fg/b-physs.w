@@ -1457,6 +1457,8 @@ PROCEDURE local-update-record :
   RUN valid-loc-bin NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
+  RUN validTagForItem NO-ERROR.
+  IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
  /*
   RUN valid-tag NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
@@ -2245,6 +2247,34 @@ PROCEDURE validate-record :
   END.
 
 
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE validTagForItem B-table-Win 
+PROCEDURE validTagForItem :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  IF {&BROWSE-NAME}:NUM-SELECTED-ROWS   IN FRAME {&FRAME-NAME} = 0 THEN 
+      RETURN.
+  DO WITH FRAME {&FRAME-NAME}:
+     /* If there is already a loadtag for this tag# but a different i-no, don't allow to save tag */
+     /* under a new i-no */
+     FIND FIRST loadtag WHERE loadtag.company = g_company
+                    AND loadtag.ITEM-type = NO
+                    AND loadtag.tag-no = fg-rctd.tag:SCREEN-VALUE NO-LOCK NO-ERROR.
+     IF AVAIL loadtag AND loadtag.i-no NE fg-rctd.i-no:SCREEN-VALUE 
+            AND fg-rctd.i-no:SCREEN-VALUE GT "" THEN DO:
+            MESSAGE "Invalid Loadtag# for this item. " VIEW-AS ALERT-BOX ERROR.
+            APPLY "entry" TO fg-rctd.tag.
+            RETURN error.
+     END.
+  END.
+  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
