@@ -269,7 +269,15 @@ FORMAT wkrecap.procat
         WHERE itemfg.company EQ cocode
           AND itemfg.i-no    EQ oe-ordl.i-no
           AND itemfg.procat  GE begin_fg-cat
-          AND itemfg.procat  LE end_fg-cat
+          AND itemfg.procat  LE end_fg-cat,
+
+        FIRST oe-rel
+        where oe-rel.company   eq cocode
+          and oe-rel.ord-no    eq oe-ordl.ord-no
+          and oe-rel.i-no      eq oe-ordl.i-no
+          and oe-rel.line      eq oe-ordl.line
+          and oe-rel.spare-char-1   ge begin_shipfrom
+          and oe-rel.spare-char-1   le end_shipfrom
 
         BREAK BY oe-ordl.line:
         
@@ -315,7 +323,9 @@ FORMAT wkrecap.procat
            tt-report.key-02 = IF tb_sortby THEN
                                  STRING(oe-ord.ord-no,">>>>>>>>>>") ELSE ""
            tt-report.key-03  = STRING(i,"9")
-           tt-report.rec-id  = RECID(oe-ordl).           
+           tt-report.key-04  = STRING(oe-rel.spare-char-1)
+           tt-report.rec-id  = RECID(oe-ordl)
+                                     .           
         END.    /* date in selected period */
         
         RUN fg/GetFGArea.p (ROWID(itemfg), "SF", OUTPUT v-sqft).
@@ -413,6 +423,7 @@ FORMAT wkrecap.procat
            tt-report.key-02  = IF tb_sortby THEN
                                  STRING(oe-ord.ord-no,">>>>>>>>>>") ELSE ""
            tt-report.key-03  = STRING(i,"9")
+           tt-report.key-04  = STRING(oe-rel.spare-char-1)
            tt-report.rec-id  = RECID(oe-ordm).
         END.
         
@@ -668,6 +679,7 @@ FORMAT wkrecap.procat
                  WHEN "v-net-prct" THEN cVarValue = STRING(dNetprct,"->>9.99"). 
                  WHEN "csrUser_id" THEN cVarValue = STRING(cUsers-id,"X(8)").
                  WHEN "ack-date" THEN cVarValue = IF AVAIL oe-ord AND oe-ord.ack-prnt-date NE ? THEN STRING(oe-ord.ack-prnt-date) ELSE "".
+                 WHEN "ship-from" THEN cVarValue = STRING(w-data.cShip-from,"X(9)").
             END CASE.
             IF cTmpField = "v-profit" AND NOT prt-profit THEN NEXT.
             cExcelVarValue = cVarValue.
@@ -746,6 +758,7 @@ FORMAT wkrecap.procat
                    WHEN "csrUser_id" THEN cVarValue = "" .
                    WHEN "ack-date" THEN cVarValue = "".
                    WHEN "oe-ordl.pr-uom" THEN cVarValue = "".
+                   WHEN "Ship-from" THEN cVarValue = "".
               END CASE.
               IF cTmpField = "v-profit" AND NOT prt-profit THEN NEXT.
               cExcelVarValue = cVarValue.
@@ -816,7 +829,8 @@ FORMAT wkrecap.procat
                    WHEN "w-data.shp-qty" THEN cVarValue = "" .
                    WHEN "csrUser_id" THEN cVarValue = "" .
                    WHEN "ack-date" THEN cVarValue = "".
-	           WHEN "oe-ordl.pr-uom" THEN cVarValue = "".
+	               WHEN "oe-ordl.pr-uom" THEN cVarValue = "".
+                   WHEN "Ship-from" THEN cVarValue = "".
 		
               END CASE.
               IF cTmpField = "v-profit" AND NOT prt-profit THEN NEXT.
@@ -888,6 +902,7 @@ FORMAT wkrecap.procat
                 WHEN "v-net-prct" THEN cVarValue = STRING(dNetprct,"->>9.99").
                 WHEN "csrUser_id" THEN cVarValue = STRING(cUsers-id,"X(8)").
                 WHEN "ack-date" THEN cVarValue = IF AVAIL oe-ord AND oe-ord.ack-prnt-date NE ? THEN STRING(oe-ord.ack-prnt-date) ELSE "".
+                WHEN "Ship-from" THEN cVarValue = STRING(w-data.cShip-from,"X(9)").
             END CASE.
             IF cTmpField = "v-profit" AND NOT prt-profit THEN NEXT.  
             cExcelVarValue = cVarValue.
@@ -963,6 +978,7 @@ FORMAT wkrecap.procat
                    WHEN "csrUser_id" THEN cVarValue = "" .
                    WHEN "ack-date" THEN cVarValue = "".
                    WHEN "oe-ordl.pr-uom" THEN cVarValue = "".
+                   WHEN "Ship-from" THEN cVarValue = "".
               END CASE.
               IF cTmpField = "v-profit" AND NOT prt-profit THEN NEXT.
               cExcelVarValue = cVarValue.
@@ -1033,6 +1049,7 @@ FORMAT wkrecap.procat
                    WHEN "csrUser_id" THEN cVarValue = "" .
                    WHEN "ack-date" THEN cVarValue = "".
                    WHEN "oe-ordl.pr-uom" THEN cVarValue = "".
+                   WHEN "Ship-from" THEN cVarValue = "".
               END CASE.
               IF cTmpField = "v-profit" AND NOT prt-profit THEN NEXT.
               cExcelVarValue = cVarValue.
