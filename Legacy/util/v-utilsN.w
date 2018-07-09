@@ -1,7 +1,7 @@
 &ANALYZE-SUSPEND _VERSION-NUMBER UIB_v8r12 GUI ADM1
 &ANALYZE-RESUME
 /* Connected Databases 
-          asi              PROGRESS
+          asi       PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
@@ -61,13 +61,15 @@ CREATE WIDGET-POOL.
 /* Need to scope the external tables to this procedure                  */
 DEFINE QUERY external_tables FOR utilities.
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-FIELDS utilities.module utilities.hotkey ~
-utilities.DESCRIPTION utilities.securityLevel utilities.notes
+&Scoped-Define ENABLED-FIELDS utilities.module ~
+utilities.hotkey utilities.description utilities.securityLevel ~
+utilities.notes 
 &Scoped-define ENABLED-TABLES utilities
 &Scoped-define FIRST-ENABLED-TABLE utilities
 &Scoped-Define ENABLED-OBJECTS btnRun RECT-1 
-&Scoped-Define DISPLAYED-FIELDS utilities.programName utilities.module utilities.hotkey ~
-utilities.description utilities.securityLevel utilities.notes
+&Scoped-Define DISPLAYED-FIELDS utilities.programName utilities.module ~
+utilities.hotkey utilities.description utilities.securityLevel ~
+utilities.notes 
 &Scoped-define DISPLAYED-TABLES utilities
 &Scoped-define FIRST-DISPLAYED-TABLE utilities
 
@@ -115,13 +117,13 @@ DEFINE BUTTON btnRun
 
 DEFINE RECTANGLE RECT-1
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 100 BY 5.90.
+     SIZE 100 BY 5.91.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     btnRun AT ROW 4.90 COL 17
+     btnRun AT ROW 4.91 COL 17
      utilities.programName AT ROW 1.24 COL 18 COLON-ALIGNED HELP
           "Enter Utility Name"
           LABEL "Program Name" FORMAT "x(16)"
@@ -139,16 +141,19 @@ DEFINE FRAME F-Main
      utilities.description AT ROW 2.43 COL 18 COLON-ALIGNED FORMAT "x(48)"
           VIEW-AS FILL-IN 
           SIZE 45 BY 1
-          BGCOLOR 15  
-     utilities.securityLevel AT ROW 2.43 COL 82 COLON-ALIGNED FORMAT ">>>9"
+          BGCOLOR 15 
+     utilities.securityLevel AT ROW 2.43 COL 82 COLON-ALIGNED HELP
+          ""
+          LABEL "Security Level" FORMAT ">>>9"
           VIEW-AS FILL-IN 
           SIZE 12 BY 1
-          BGCOLOR 15
-     utilities.notes AT ROW 3.74 COL 18 COLON-ALIGNED 
+          BGCOLOR 15 
+     utilities.notes AT ROW 3.76 COL 18 COLON-ALIGNED HELP
+          ""
           LABEL "Notes" FORMAT "x(1000)"
           VIEW-AS FILL-IN 
           SIZE 76 BY 1
-          BGCOLOR 15
+          BGCOLOR 15 
      RECT-1 AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -183,8 +188,8 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW V-table-Win ASSIGN
-         HEIGHT             = 4.52
-         WIDTH              = 93.
+         HEIGHT             = 5.91
+         WIDTH              = 100.2.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -212,13 +217,17 @@ ASSIGN
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
 
-/* SETTINGS FOR FILL-IN utilities.module IN FRAME F-Main
-   EXP-LABEL EXP-FORMAT EXP-HELP                                        */
-/* SETTINGS FOR FILL-IN utilities.hotkey IN FRAME F-Main
-   EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN utilities.description IN FRAME F-Main
    EXP-FORMAT                                                           */
+/* SETTINGS FOR FILL-IN utilities.hotkey IN FRAME F-Main
+   EXP-LABEL EXP-FORMAT                                                 */
+/* SETTINGS FOR FILL-IN utilities.module IN FRAME F-Main
+   EXP-LABEL EXP-FORMAT EXP-HELP                                        */
+/* SETTINGS FOR FILL-IN utilities.notes IN FRAME F-Main
+   EXP-LABEL EXP-FORMAT EXP-HELP                                        */
 /* SETTINGS FOR FILL-IN utilities.programName IN FRAME F-Main
+   EXP-LABEL EXP-FORMAT EXP-HELP                                        */
+/* SETTINGS FOR FILL-IN utilities.securityLevel IN FRAME F-Main
    EXP-LABEL EXP-FORMAT EXP-HELP                                        */
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -254,18 +263,6 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME utilities.module
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL utilities.module V-table-Win
-ON LEAVE OF utilities.module IN FRAME F-Main /* Module */
-DO:
-  IF LASTKEY NE -1 THEN
-  SELF:SCREEN-VALUE = CAPS(SELF:SCREEN-VALUE).
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
 &Scoped-define SELF-NAME utilities.hotkey
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL utilities.hotkey V-table-Win
 ON LEAVE OF utilities.hotkey IN FRAME F-Main /* Hot Keys */
@@ -278,9 +275,21 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME utilities.module
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL utilities.module V-table-Win
+ON LEAVE OF utilities.module IN FRAME F-Main /* Module */
+DO:
+  IF LASTKEY NE -1 THEN
+  SELF:SCREEN-VALUE = CAPS(SELF:SCREEN-VALUE).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME utilities.programName
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL utilities.programName V-table-Win
-ON LEAVE OF utilities.programName IN FRAME F-Main /* Utility */
+ON LEAVE OF utilities.programName IN FRAME F-Main /* Program Name */
 DO:
   IF LASTKEY NE -1 AND INDEX(SELF:SCREEN-VALUE,'util/') NE 0 THEN
   SELF:SCREEN-VALUE = REPLACE(SELF:SCREEN-VALUE,'util/','').
@@ -358,6 +367,28 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-add-record V-table-Win 
+PROCEDURE local-add-record :
+/*------------------------------------------------------------------------------
+  Purpose:     Override standard ADM method
+  Notes:       
+------------------------------------------------------------------------------*/
+
+  /* Code placed here will execute PRIOR to standard behavior. */
+
+  /* Dispatch standard ADM method.                             */
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'add-record':U ) .
+
+  /* Code placed here will execute AFTER standard behavior.    */
+DO WITH FRAME {&FRAME-NAME}:
+  ASSIGN 
+         utilities.securityLevel:SCREEN-VALUE in frame {&frame-name} = "900"  .
+  
+END.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-assign-record V-table-Win 
 PROCEDURE local-assign-record :
@@ -419,31 +450,6 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-add-record V-table-Win 
-PROCEDURE local-add-record :
-/*------------------------------------------------------------------------------
-  Purpose:     Override standard ADM method
-  Notes:       
-------------------------------------------------------------------------------*/
-
-  /* Code placed here will execute PRIOR to standard behavior. */
-
-  /* Dispatch standard ADM method.                             */
-  RUN dispatch IN THIS-PROCEDURE ( INPUT 'add-record':U ) .
-
-  /* Code placed here will execute AFTER standard behavior.    */
-DO WITH FRAME {&FRAME-NAME}:
-  ASSIGN 
-         utilities.securityLevel:SCREEN-VALUE in frame {&frame-name} = "900"  .
-  
-END.
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-delete-record V-table-Win 
 PROCEDURE local-delete-record :
@@ -511,7 +517,6 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE send-records V-table-Win  _ADM-SEND-RECORDS
 PROCEDURE send-records :
