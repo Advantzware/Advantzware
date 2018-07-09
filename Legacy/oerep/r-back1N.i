@@ -271,6 +271,8 @@
                      WHEN "uom"      THEN cVarValue = STRING(v-uom) .
                      WHEN "cus-name" THEN cVarValue = STRING(v-name)  .
                      WHEN "rep-name" THEN cVarValue = STRING(v-name-rep) .
+                     WHEN "rel-type" THEN cVarValue = STRING(w-ord.rel-type,"x(12)") .
+                         
                      
                 END CASE.
                   
@@ -344,6 +346,7 @@
                        WHEN "uom"      THEN cVarValue = "" .
                        WHEN "cus-name" THEN cVarValue = ""  .
                        WHEN "rep-name" THEN cVarValue = "" .
+                       WHEN "rel-type" THEN cVarValue = "" .
                   END CASE.
                     
                   cExcelVarValue = cVarValue.
@@ -420,6 +423,7 @@
                        WHEN "uom"      THEN cVarValue = "" .
                        WHEN "cus-name" THEN cVarValue = ""  .
                        WHEN "rep-name" THEN cVarValue = "" .
+                       WHEN "rel-type" THEN cVarValue = "".
                        
                   END CASE.
                     
@@ -495,6 +499,7 @@
                        WHEN "uom"      THEN cVarValue = "" .  
                        WHEN "cus-name" THEN cVarValue = ""  .
                        WHEN "rep-name" THEN cVarValue = "" .
+                       WHEN "rel-type" THEN cVarValue = "" .
                        
                   END CASE.
                     
