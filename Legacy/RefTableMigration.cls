@@ -2906,6 +2906,9 @@ CLASS RefTableMigration:
                 END.             
                 FIND CURRENT e-itemfg-vend NO-LOCK NO-ERROR.    
                 RELEASE e-itemfg-vend.      
+                iCnt = iCnt + 1.
+                IF iCnt >= ipCount THEN LEAVE.   
+            END.              
         END.  /*FOR EACH reftable*/          
         RETURN iCnt.
     END METHOD. /*e-itemfg-vend*/ 
