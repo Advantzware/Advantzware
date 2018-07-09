@@ -58,8 +58,9 @@ def TEMP-TABLE w-data no-undo
   field cost as dec
   field comm as dec label "Comm %"
   FIELD margin AS DEC
-  FIELD shp-qty LIKE oe-ordl.ship-qty .
-
+  FIELD shp-qty LIKE oe-ordl.ship-qty
+  FIELD cShip-from LIKE oe-rel.spare-char-1  .
+  
 def TEMP-TABLE wkrecap no-undo    /* recap by product category */
   field procat like itemfg.procat column-label "Cat"
   field t-sqft like itemfg.t-sqft  extent 2 column-label "Sq Ft" format ">>,>>>.999"
