@@ -85,7 +85,8 @@ IF FIRST-OF(tt-boll.LINE) THEN DO:
        ELSE if i eq 4 then ASSIGN w2.dscr = oe-ordl.part-dscr2.
     END.
     IF w2.qty = 0 and w2.i-no = "" AND w2.dscr = "" AND NOT last(w2.cases) THEN .
-    ELSE DO:    
+    ELSE DO: 
+    RUN  pGetP-C(OUTPUT cPc).   
         DISPLAY w2.i-no                       
            trim(string(w2.qty,"->>,>>>,>>>")) WHEN i = 1 @ w2.i-no
             w2.job-po
@@ -93,7 +94,7 @@ IF FIRST-OF(tt-boll.LINE) THEN DO:
             w2.cases
             w2.cas-cnt
             v-tot-case-qty when first (w2.cases) @ tt-boll.qty
-            bf-ttboll.p-c  WHEN AVAIL bf-ttboll AND FIRST (w2.cases) @ bf-ttboll.p-c                         
+            /*bf-ttboll.p-c*/ cPc FORMAT "X(1)"  WHEN AVAIL bf-ttboll AND FIRST (w2.cases) @ bf-ttboll.p-c                         
            /* 1  WHEN i = 2 AND bf-ttboll.partial > 0  @ w2.cases
             tt-boll.partial WHEN i = 2 AND tt-boll.partial > 0 @ w2.cas-cnt */
            with frame bol-mid.

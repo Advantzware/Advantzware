@@ -108,6 +108,7 @@ DEF VAR ls-full-img2 AS cha FORM "x(200)" NO-UNDO.
 DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
 DEFINE SHARED VAR v-print-unassembled AS LOG NO-UNDO.
+DEF VAR cPc AS CHARACTER  NO-UNDO.
 /*ASSIGN
    ls-image1 = "images\Lovepac_logo.jpg"
    FILE-INFO:FILE-NAME = ls-image1

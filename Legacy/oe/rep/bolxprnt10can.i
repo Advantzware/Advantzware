@@ -180,12 +180,12 @@ for each report where report.term-id eq v-term-id,
                 SKIP.
             v-printline = v-printline + 1.
           END.
-
+          RUN  pGetP-C(OUTPUT cPc).
           PUT {1} cRefnum FORMAT "x(20)"
               "====================" AT 68 SKIP
               v-tot-pkgs AT 71 FORM "->>>9"  " ="
               v-ship-qty FORM "->>>>>z" SPACE(2)
-              oe-boll.p-c SPACE(1)
+              /*oe-boll.p-c*/ cPc FORMAT "x(1)" SPACE(1)
               v-weight  FORM "->>>,>>9" SKIP.
 
           ASSIGN
@@ -239,12 +239,12 @@ for each report where report.term-id eq v-term-id,
           oe-boll.partial   when oe-boll.partial gt 0 FORM "->>>>>z"  SKIP
      with frame bol-mid1 NO-BOX NO-LABELS STREAM-IO NO-ATTR-SPACE WIDTH 130.
      down {1} with frame bol-mid1.
-
+     RUN  pGetP-C(OUTPUT cPc).
      DISPLAY cRefnum FORMAT "x(20)"
          "====================" AT 69 SKIP
          v-tot-pkgs AT 69 FORM "->>,>>9"  "=" SPACE(0)
          oe-boll.qty FORM "->>>>>z" SPACE(2)
-         oe-boll.p-c SPACE(1)
+         /*oe-boll.p-c*/ cPc FORMAT "x(1)" SPACE(1)
          oe-boll.weight FORM "->>>,>>9"  SKIP
          with frame bol-mid2 NO-BOX NO-LABELS STREAM-IO NO-ATTR-SPACE WIDTH 130.
      down {1} with frame bol-mid2.
@@ -313,5 +313,62 @@ for each report where report.term-id eq v-term-id,
   if oe-boll.weight eq 0 then
     v-tot-wt = v-tot-wt + (oe-boll.qty / 100 * itemfg.weight-100).
 end. /* for each report */
+
+
+PROCEDURE pGetP-C:
+  DEFINE OUTPUT parameter opcP-c AS CHARACTER .
+  DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
+  DEF VAR bolPartial-char AS CHAR NO-UNDO.
+  DEF VAR v-sum-qty LIKE oe-boll.qty NO-UNDO.
+  DEF BUFFER bf-oe-ordl FOR oe-ordl.
+  DEF BUFFER tmp-oe-boll FOR oe-boll.
+  DEF VAR v-p-c LIKE oe-boll.p-c NO-UNDO.
+
+  RUN sys/ref/nk1look.p (INPUT cocode, "BOLPartial", "C" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+ OUTPUT cRtnChar, OUTPUT lRecFound).
+
+IF lRecFound THEN
+    bolPartial-char = cRtnChar NO-ERROR. 
+
+
+    FIND FIRST bf-oe-ordl NO-LOCK
+        WHERE bf-oe-ordl.company EQ oe-boll.company
+          AND bf-oe-ordl.ord-no  EQ oe-boll.ord-no
+          AND bf-oe-ordl.i-no    EQ oe-boll.i-no
+        NO-ERROR.
+
+  find first oe-rell no-lock
+      where oe-rell.company eq oe-boll.company
+        and oe-rell.ord-no  eq oe-boll.ord-no
+        and oe-rell.i-no    eq oe-boll.i-no
+        and oe-rell.line    eq oe-boll.line no-error.
+
+  v-sum-qty = 0.
+  FOR EACH tmp-oe-boll FIELDS(qty) NO-LOCK
+      WHERE tmp-oe-boll.company EQ bf-oe-ordl.company
+      AND tmp-oe-boll.ord-no  EQ bf-oe-ordl.ord-no
+      AND tmp-oe-boll.i-no    EQ bf-oe-ordl.i-no 
+      AND tmp-oe-boll.line    EQ bf-oe-ordl.line
+      AND (tmp-oe-boll.rel-no LT oe-boll.rel-no      OR
+           (tmp-oe-boll.rel-no EQ oe-boll.rel-no AND
+            tmp-oe-boll.b-ord-no LE oe-boll.b-ord-no))
+      AND ROWID(tmp-oe-boll)  NE ROWID(oe-boll)
+      USE-INDEX ord-no:
+      v-sum-qty = v-sum-qty + tmp-oe-boll.qty.
+  END.
+
+  IF bolPartial-char eq "Order Quantity" THEN DO:
+      v-p-c = oe-boll.p-c.
+  END.
+  ELSE IF bolPartial-char eq "Release Quantity" and avail oe-rell THEN DO:
+      v-p-c = oe-boll.qty + v-sum-qty GE
+          (oe-rell.qty * (1 - (bf-oe-ordl.under-pct / 100))).
+  END.
+
+  opcP-c = IF v-p-c EQ YES THEN "C" ELSE "P".
+
+END PROCEDURE.
 
 /* end ---------------------------------- copr. 1998  Advanced Software, Inc. */
