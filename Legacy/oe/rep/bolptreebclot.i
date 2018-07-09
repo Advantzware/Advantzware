@@ -70,6 +70,7 @@ DEF VAR v-pg-num AS INT NO-UNDO.
 DEF VAR v-count AS INT NO-UNDO.
 DEF VAR v-count2 AS INT NO-UNDO.
 DEF VAR v-par-comp LIKE oe-boll.p-c NO-UNDO.
+DEF VARIABLE cPc AS CHARACTER NO-UNDO .
 {fg/fullset.i NEW}
 
 def TEMP-TABLE w2 no-undo
@@ -149,7 +150,7 @@ form
      w2.cases                        format "->>>>>9"
      w2.cas-cnt                      format "->>>>,>>Z"
      v-case-tot                      FORMAT "->>,>>>,>>z"
-     v-par-comp                       
+     cPc                             FORMAT "x(1)"
     with frame bol-mid down no-box no-labels stream-io width 120.
 form 
      v-item-part-no                       format "x(15)"
@@ -158,7 +159,7 @@ form
      w2.cases                             format "->>>>>9"
      w2.cas-cnt                           format "->>>>,>>Z"
      v-case-tot                           FORMAT "->>,>>>,>>z"
-     v-par-comp                            
+     cPc                             FORMAT "x(1)"
     with frame bol-mid2 down no-box no-labels stream-io width 120.
 
 ASSIGN tmpstore = fill("-",130).
@@ -494,6 +495,65 @@ PROCEDURE create-tt-boll.  /* btr */
   IF oe-boll.p-c THEN tt-boll.p-c = YES.
 
 END PROCEDURE.
+
+PROCEDURE pGetP-C:
+  DEFINE OUTPUT parameter opcP-c AS CHARACTER .
+  DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
+  DEF VAR bolPartial-char AS CHAR NO-UNDO.
+  DEF VAR v-sum-qty LIKE oe-boll.qty NO-UNDO.
+  DEF BUFFER bf-oe-ordl FOR oe-ordl.
+  DEF BUFFER tmp-oe-boll FOR oe-boll.
+  DEF VAR v-p-c LIKE oe-boll.p-c NO-UNDO.
+
+  RUN sys/ref/nk1look.p (INPUT cocode, "BOLPartial", "C" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+ OUTPUT cRtnChar, OUTPUT lRecFound).
+
+IF lRecFound THEN
+    bolPartial-char = cRtnChar NO-ERROR. 
+
+
+    FIND FIRST bf-oe-ordl NO-LOCK
+        WHERE bf-oe-ordl.company EQ tt-boll.company
+          AND bf-oe-ordl.ord-no  EQ tt-boll.ord-no
+          AND bf-oe-ordl.i-no    EQ tt-boll.i-no
+        NO-ERROR.
+
+  find first oe-rell no-lock
+      where oe-rell.company eq tt-boll.company
+        and oe-rell.ord-no  eq tt-boll.ord-no
+        and oe-rell.i-no    eq tt-boll.i-no
+        and oe-rell.line    eq tt-boll.line no-error.
+
+  v-sum-qty = 0.
+  FOR EACH tmp-oe-boll FIELDS(qty) NO-LOCK
+      WHERE tmp-oe-boll.company EQ bf-oe-ordl.company
+      AND tmp-oe-boll.ord-no  EQ bf-oe-ordl.ord-no
+      AND tmp-oe-boll.i-no    EQ bf-oe-ordl.i-no 
+      AND tmp-oe-boll.line    EQ bf-oe-ordl.line
+      AND (tmp-oe-boll.rel-no LT tt-boll.rel-no      OR
+           (tmp-oe-boll.rel-no EQ tt-boll.rel-no AND
+            tmp-oe-boll.b-ord-no LE tt-boll.b-ord-no))
+      AND ROWID(tmp-oe-boll)  NE ROWID(tt-boll)
+      USE-INDEX ord-no:
+      v-sum-qty = v-sum-qty + tmp-oe-boll.qty.
+  END.
+
+  IF bolPartial-char eq "Order Quantity" THEN DO:
+      v-p-c = tt-boll.p-c.
+  END.
+  ELSE IF bolPartial-char eq "Release Quantity" and avail oe-rell THEN DO:
+      v-p-c = tt-boll.qty + v-sum-qty GE
+          (oe-rell.qty * (1 - (bf-oe-ordl.under-pct / 100))).
+  END.
+
+  opcP-c = IF v-p-c EQ YES THEN "C" ELSE "P".
+
+END PROCEDURE.
+
+
+
 
 /* END ---------------------------------- copr. 1998  Advanced Software, Inc. */
 
