@@ -2699,6 +2699,7 @@ PROCEDURE ipDataFix160708 :
 
     RUN ipConvertUsrFile.
     
+    
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2711,12 +2712,42 @@ PROCEDURE ipDataFix160712 :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+    DISABLE TRIGGERS FOR LOAD OF reftable1.
+    DISABLE TRIGGERS FOR LOAD OF oe-rel.
 
     RUN ipStatus ("  Data Fix 160712...").
 
     RUN ipTurnOffUserColors.
     RUN ipFixPoEdiDirs.
     
+    /* Ticket 32053 - oe-rel customer lot number */
+    OUTPUT TO c:\tmp\reftable-oe-rel.txt.
+    FOR EACH reftable1 EXCLUSIVE WHERE 
+        reftable1.reftable = "oe-rel.lot-no" AND
+        reftable1.spare-char-1 NE "1" AND
+        reftable1.spare-char-2 NE "1" AND
+        reftable1.spare-char-3 NE "1":
+        FIND FIRST oe-rel EXCLUSIVE WHERE
+            oe-rel.r-no = INT(reftable1.company)
+            NO-ERROR.
+        IF AVAILABLE oe-rel THEN DO: 
+            EXPORT oe-rel.
+            IF oe-rel.lot-no EQ "" 
+            AND reftable1.code NE "" THEN ASSIGN 
+                oe-rel.lot-no = reftable1.code
+                reftable1.spare-char-1 = "1".
+            IF oe-rel.frt-pay EQ "" 
+            AND reftable1.code2 NE "" THEN ASSIGN 
+                oe-rel.frt-pay = reftable1.code2
+                reftable1.spare-char-2 = "1".
+            IF oe-rel.fob-code EQ "" 
+            AND reftable1.dscr NE "" THEN ASSIGN 
+                oe-rel.fob-code = reftable1.dscr
+                reftable1.spare-char-3 = "1".
+            EXPORT oe-rel.
+        END.   
+    END.  /*FOR EACH reftable1*/  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
