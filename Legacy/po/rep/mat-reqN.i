@@ -215,7 +215,7 @@ for each {1}report where {1}report.term-id eq v-term,
         and item.i-no    eq v-itm
       no-lock no-error.
 
-  if first-of({1}report.key-02) then do:
+  if first-of({1}report.key-02) OR v-sort-by-size then do:
     v-qty[1] = 0.
     ASSIGN
         v-job-all = 0
@@ -324,6 +324,7 @@ for each {1}report where {1}report.term-id eq v-term,
                      WHEN "wid"   THEN cVarValue = STRING(v-wid,">>9.9999")  .
                      WHEN "len"   THEN cVarValue = STRING(v-len,">>9.9999") .
                      WHEN "scr"   THEN cVarValue = STRING(len-score) .
+                     WHEN "bal"   THEN cVarValue = IF v-itm NE "" THEN STRING(v-qty[4],"->>,>>>,>>9.999") ELSE "" .
                      WHEN "dt"    THEN cVarValue = IF AVAIL po-ord AND po-ord.due-date NE ? THEN STRING(po-ord.due-date,"99/99/9999") ELSE ""  .
                      WHEN "cmtd"   THEN cVarValue = IF v-itm ne "" THEN STRING(v-cmtd)  ELSE "" .
                      WHEN "po"    THEN cVarValue = IF AVAIL po-ord THEN STRING(po-ord.po-no) ELSE "" .
@@ -348,48 +349,7 @@ for each {1}report where {1}report.term-id eq v-term,
   end.
   
   else do:
-   /* display v-job                             when first-of({1}report.key-01)
-                                                or v-sort-by-size
-            v-itm                             /*when first-of({1}report.key-02)*/
-            "PendingJob"                      when v-itm eq "" @ v-itm
-            v-uom                             when /*first-of({1}report.key-02)
-                                               and */v-itm ne ""
-            v-qty[1]                          when /*first-of({1}report.key-02)
-                                               and*/ v-itm ne ""
-            v-qty[2]                          when avail po-ordl
-            v-qty[3]                          when avail po-ordl
-            v-qty[4]                          when last-of({1}report.key-02)
-                                               and v-itm ne ""
-            po-ord.vend-no                    when avail po-ord
-            po-ord.po-no                      when avail po-ord
-            vend.name                         when avail vend
-            po-ord.due-date                   when avail po-ord
-
-        with frame detail2.
-
-    down with frame detail2.
-
-    IF tb_excel THEN
-       PUT STREAM excel UNFORMATTED
-          '"' (IF first-of({1}report.key-01) THEN v-job ELSE "")          '",'
-          '"' (IF v-itm EQ "" THEN "PendingJob"
-               ELSE IF first-of({1}report.key-02) THEN v-itm ELSE "")     '",'
-          '"' (IF first-of({1}report.key-02) and v-itm ne "" THEN v-uom
-               ELSE "")                                                   '",'
-          '"' (IF first-of({1}report.key-02) and v-itm ne "" THEN
-                 STRING(v-qty[1],"->>,>>>,>>9.999") ELSE "")              '",'
-          '"' (IF AVAIL po-ordl THEN STRING(v-qty[2],"->>,>>>,>>9.999")
-               ELSE "")                                                   '",'
-          '"' (IF AVAIL po-ordl THEN STRING(v-qty[3],"->>,>>>,>>9.999")
-               ELSE "")                                                   '",'
-          '"' (IF LAST-OF({1}report.key-02) AND v-itm NE "" THEN
-                  STRING(v-qty[4],"->>,>>>,>>9.999") ELSE "")             '",'
-          '"' (IF AVAIL po-ord THEN po-ord.vend-no ELSE "")               '",'
-          '"' (IF AVAIL po-ord THEN STRING(po-ord.po-no) ELSE "")         '",'
-          '"' (IF AVAIL vend THEN vend.NAME ELSE "")                      '",'
-          '"' (IF AVAIL po-ord AND po-ord.due-date NE ? THEN
-                  STRING(po-ord.due-date,"99/99/9999") ELSE "")           '",'
-          SKIP. */
+   
       ASSIGN cDisplay = ""
                cTmpField = ""
                cVarValue = ""
