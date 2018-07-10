@@ -1479,10 +1479,7 @@ PROCEDURE local-create-record :
   if hld-code EQ "" AND prep.code EQ "" THEN DO:
 
       repeat:
-         MESSAGE TRIM(IF addprep-chr EQ "" THEN
-                        "Enter 'R'otary Die, 'F'lat Die, 'P'rinting Die/Plate, 'M'=Foam, " +
-                        "or leave blank"
-                      ELSE addprep-chr) + ":" UPDATE v-code.
+          RUN est/d-preptype.w (OUTPUT v-code) .
          if index("RFPM",v-code) eq 0 and v-code ne "" then undo, retry.
          v-code = caps(v-code).
          leave.
