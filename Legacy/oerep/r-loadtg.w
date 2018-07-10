@@ -7139,7 +7139,12 @@ PROCEDURE reprint-tag :
       MESSAGE "Invalid Loadtag. Try Help." VIEW-AS ALERT-BOX ERROR.
       APPLY "entry" TO fi_cas-lab.
       RETURN ERROR.
-  END.          
+  END.  
+
+  ASSIGN
+      cBarCodeProgram = IF scr-label-file MATCHES "*.xpr*" THEN "xprint" 
+                        ELSE IF scr-label-file MATCHES "*.lwl" THEN "loftware" 
+                        ELSE "".
   RUN create-w-ord.
 
   SESSION:SET-WAIT-STATE ("general").
