@@ -65,11 +65,15 @@ RUN Get_Procedure IN Persistent-Handle ('about.',OUTPUT run-proc,yes).
 &Scoped-define LABEL11 Util_frac
 &Scoped-define PROC11 RUN Select_frac.
 &Scoped-define ITEM12 Audit_Hist
-&Scoped-define LABEL12 Audit Query History
+&Scoped-define LABEL12 Audit History
 &Scoped-define PROC12 ~
 RUN Get_Procedure IN Persistent-Handle ('AuditHist.',OUTPUT run-proc,no). ~
 IF run-proc NE '' THEN ~
 RUN VALUE(run-proc) ('{&FIRST-EXTERNAL-TABLE}',hTable,'Window',PROGRAM-NAME(1)).
+&Scoped-define ITEM13 SysCtrlUsage
+&Scoped-define LABEL13 Sys Ctrl Usage
+&Scoped-define PROC13 ~
+RUN Get_Procedure IN Persistent-Handle ('sysCtrlU.',OUTPUT run-proc,yes).
 
 DEFINE SUB-MENU m_File
        {methods/menus/menuitem.i 1 m}
@@ -92,7 +96,8 @@ DEFINE SUB-MENU m_Help
        {methods/menus/menuitem.i 8 m}  
        {methods/menus/menuitem.i 9 m}
        RULE
-       {methods/menus/menuitem.i 12 m} 
+       {methods/menus/menuitem.i 12 m}
+       {methods/menus/menuitem.i 13 m}  
        RULE
        {methods/menus/menuitem.i 10 m}
        .
@@ -101,7 +106,8 @@ DEFINE SUB-MENU p_Help
        {methods/menus/menuitem.i 8 p} 
        {methods/menus/menuitem.i 9 p}
        RULE
-       {methods/menus/menuitem.i 12 p} 
+       {methods/menus/menuitem.i 12 p}
+       {methods/menus/menuitem.i 13 p}  
        RULE
        {methods/menus/menuitem.i 10 p}
        .
@@ -145,7 +151,8 @@ ASSIGN {&WINDOW-NAME}:MENUBAR    = MENU MENU-BAR-W-Win:HANDLE
 {methods/menus/menutrig2.i 9}
 {methods/menus/menutrig2.i 10}
 {methods/menus/menutrig2.i 11}
-{methods/menus/menutrig.i 12}
+{methods/menus/menutrig2.i 12}
+{methods/menus/menutrig2.i 13}
 
 &IF INDEX("{&OPTIONS}","{&FIRST-EXTERNAL-TABLE}") NE 0 &THEN
 &Scoped-define ITEMS no
