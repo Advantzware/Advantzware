@@ -131,7 +131,7 @@ DEFINE FRAME OPTIONS-FRAME
 IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW W-Win ASSIGN
          HIDDEN             = YES
-         TITLE              = "Preparation Codes"
+         TITLE              = "Prep and Die File"
          HEIGHT             = 24
          WIDTH              = 150
          MAX-HEIGHT         = 320
