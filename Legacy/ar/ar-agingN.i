@@ -84,6 +84,7 @@ DEF VAR v-tr-dscr AS CHAR NO-UNDO.
 DEF VAR v-check-date AS DATE NO-UNDO.
 DEF VAR v-gltrans-desc AS CHAR FORMAT "X(60)" NO-UNDO.
 DEF VAR cPoNo LIKE ar-inv.po-no NO-UNDO.
+DEFINE VARIABLE cBolNo AS CHARACTER NO-UNDO.
 DEF VAR cJobStr AS CHAR FORMAT "x(9)" NO-UNDO.
 DEF VAR iLinePerPage AS INTEGER NO-UNDO .
 DEF TEMP-TABLE tt-cust NO-UNDO FIELD curr-code LIKE cust.curr-code
@@ -401,13 +402,18 @@ END.
         ASSIGN amt = amt - ar-invl.amt.
       END.
 
-      cPoNo = "". cJobStr = "".
+      cPoNo = "".
+      cJobStr = "".
+      cBolNo = "".
       FOR EACH ar-invl NO-LOCK 
          WHERE ar-invl.x-no EQ ar-inv.x-no:
           IF ar-invl.po-no GT "" THEN
              ASSIGN cPoNo   = ar-invl.po-no.
           IF ar-invl.job-no GT "" THEN
               cJobStr = ar-invl.job-no + "-" + STRING(ar-invl.job-no2, "99").
+          IF ar-invl.bol-no NE 0 THEN
+              cBolNo = string(ar-invl.bol-no,">>>>>>>>").
+
       END.
 
   
@@ -617,7 +623,7 @@ END.
                cVarValue = ""
                cExcelDisplay = ""
                cExcelVarValue = "".
-              
+           
         DO i = 1 TO NUM-ENTRIES(cSelectedlist):                             
            cTmpField = entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
                 CASE cTmpField:             
@@ -648,6 +654,7 @@ END.
                      WHEN "per-3"     THEN cVarValue = STRING(v-dec[4],"->>>>>>>>9.99") .
                      WHEN "cust-po"   THEN cVarValue = STRING(cPoNo,"x(15)") .
                      WHEN "job"       THEN cVarValue = STRING(cJobStr,"x(9)")  .
+                     WHEN "bol"       THEN cVarValue = string(cBolNo,"X(8)").
                      WHEN "inv-note"  THEN  NEXT  .
                      WHEN "coll-note" THEN  NEXT  .
                     
@@ -826,6 +833,7 @@ END.
                          WHEN "per-3"     THEN cVarValue = /*STRING(v-dec[4],"->>>>>>>>9.99")*/ "" .
                          WHEN "cust-po"   THEN cVarValue = STRING(cPoNo,"x(15)") .
                          WHEN "job"       THEN cVarValue = STRING(cJobStr,"x(10)")  .
+                         WHEN "bol"       THEN cVarValue = string(cBolNo,"X(8)").
                          WHEN "inv-note"  THEN NEXT .
                          WHEN "coll-note" THEN NEXT .
                      END CASE.
@@ -898,6 +906,7 @@ END.
                          WHEN "per-3"     THEN cVarValue = /*STRING(v-dec[4],"->>>>>>>>9.99")*/ "" .
                          WHEN "cust-po"   THEN cVarValue = STRING(cPoNo,"x(15)") .
                          WHEN "job"       THEN cVarValue = STRING(cJobStr,"x(10)")  .
+                         WHEN "bol"       THEN cVarValue = string(cBolNo,"X(8)").
                          WHEN "inv-note"  THEN NEXT .
                          WHEN "coll-note" THEN NEXT .
                      END CASE.
@@ -1008,6 +1017,7 @@ END.
                          WHEN "per-3"     THEN cVarValue = /*STRING(v-dec[4],"->>>>>>>>9.99")*/ "" .
                          WHEN "cust-po"   THEN cVarValue = STRING(cPoNo,"x(15)") .
                          WHEN "job"       THEN cVarValue = STRING(cJobStr,"x(10)")  .
+                         WHEN "bol"       THEN cVarValue = string(cBolNo,"X(8)").
                          WHEN "inv-note"  THEN NEXT .
                          WHEN "coll-note" THEN NEXT .
                      END CASE.
@@ -1266,6 +1276,7 @@ END.
                      WHEN "per-3"     THEN cVarValue = STRING(unapp[4],"->>>>>>>>9.99") .
                      WHEN "cust-po"   THEN cVarValue = STRING(cPoNo,"x(15)") .
                      WHEN "job"       THEN cVarValue = STRING(cJobStr,"x(10)")  .
+                     WHEN "bol"       THEN cVarValue = string(cBolNo,"X(8)").
                      WHEN "inv-note"  THEN NEXT .
                      WHEN "coll-note" THEN NEXT .
                     
@@ -1391,6 +1402,7 @@ END.
                      WHEN "per-3"     THEN cVarValue = /*STRING(unapp[4],"->>>>>>>>9.99")*/ "" .
                      WHEN "cust-po"   THEN cVarValue = STRING(cPoNo,"x(15)") .
                      WHEN "job"       THEN cVarValue = STRING(cJobStr,"x(10)")  .
+                     WHEN "bol"       THEN cVarValue = string(cBolNo,"X(8)").
                      WHEN "inv-note"  THEN NEXT .
                      WHEN "coll-note" THEN NEXT .
                     
@@ -2077,6 +2089,7 @@ END.
                      WHEN "per-3"     THEN cVarValue = STRING(per-day3,"->>>>>>>>9.99")  .
                      WHEN "cust-po"   THEN cVarValue = "" .
                      WHEN "job"       THEN cVarValue = ""  .
+                     WHEN "bol"       THEN cVarValue = "" .
                      WHEN "inv-note"  THEN cVarValue = "".
                      WHEN "coll-note" THEN cVarValue = "".
                     

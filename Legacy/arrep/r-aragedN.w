@@ -95,14 +95,14 @@ DEFINE NEW SHARED VARIABLE iline AS INTEGER NO-UNDO .
 
 ASSIGN cTextListToSelect = "CUSTOMER,CUST NAME,CONTACT,SALES REP,TERMS,ADDRESS1,ADDRESS2,CITY,STATE,ZIP,CREDIT LIM,PHONE,FAX,CHECK/MEMO," +
                            "DAYS OLD,TYPE,INV#,INV DATE,AMOUNT,CURRENT,ADTP,TD,"
-                         + "PERIOD DAY1,PERIOD DAY2,PERIOD DAY3,CUSTOMER PO#,JOB#,INVOICE NOTE,COLLECTION NOTE"
+                         + "PERIOD DAY1,PERIOD DAY2,PERIOD DAY3,CUSTOMER PO#,JOB#,BOL#,INVOICE NOTE,COLLECTION NOTE"
 
        cFieldListToSelect = "cust,cust-name,cont,sman,term,add1,add2,city,stat,zip,cre-lim,phone,fax,chk-memo," +
                             "day-old,type,inv,inv-date,amount,current,adtp,td," +
-                            "per-1,per-2,per-3,cust-po,job,inv-note,coll-note" 
+                            "per-1,per-2,per-3,cust-po,job,bol,inv-note,coll-note" 
 
-       cFieldLength = "8,30,15,25,15,25,25,10,5,10,12,13,12,10," + "8,4,8,8,13,13,4,4," + "13,13,13,15,9,30,30" 
-       cFieldType = "c,c,c,c,c,c,c,c,c,c,c,c,c,c," + "i,c,i,c,i,i,i,i," + "i,i,i,c,c,c,c," 
+       cFieldLength = "8,30,15,25,15,25,25,10,5,10,12,13,12,10," + "8,4,8,8,13,13,4,4," + "13,13,13,15,9,8,30,30" 
+       cFieldType = "c,c,c,c,c,c,c,c,c,c,c,c,c,c," + "i,c,i,c,i,i,i,i," + "i,i,i,c,c,c,c,c," 
     .
 
 {sys/inc/ttRptSel.i}
