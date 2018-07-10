@@ -539,14 +539,14 @@ IF lRecFound THEN
       v-sum-qty = v-sum-qty + tmp-oe-boll.qty.
   END.
 
-  IF bolPartial-char eq "Order Quantity" THEN DO:
-      v-p-c = tt-boll.p-c.
-  END.
-  ELSE IF bolPartial-char eq "Release Quantity" and avail oe-rell THEN DO:
+  IF bolPartial-char eq "Release Quantity" and avail oe-rell THEN DO:
       v-p-c = tt-boll.qty + v-sum-qty GE
           (oe-rell.qty * (1 - (bf-oe-ordl.under-pct / 100))).
   END.
-
+  ELSE DO:
+      v-p-c = tt-boll.p-c.
+  END.
+  
   opcP-c = IF v-p-c EQ YES THEN "C" ELSE "P".
 
 END PROCEDURE.
