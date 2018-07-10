@@ -83,7 +83,7 @@ ASSIGN
 &Scoped-define KEY-PHRASE TRUE
 
 /* Definitions for BROWSE BROWSE-1                                      */
-&Scoped-define FIELDS-IN-QUERY-BROWSE-1 prep.code prep.dscr prep.mat-type 
+&Scoped-define FIELDS-IN-QUERY-BROWSE-1 prep.code prep.dscr prep.cost prep.mkup prep.spare-dec-1
 &Scoped-define ENABLED-FIELDS-IN-QUERY-BROWSE-1 
 &Scoped-define QUERY-STRING-BROWSE-1 FOR EACH prep WHERE ~{&KEY-PHRASE} ~
       AND prep.company = ip-company NO-LOCK ~
@@ -157,10 +157,12 @@ DEFINE BROWSE BROWSE-1
   QUERY BROWSE-1 NO-LOCK DISPLAY
       prep.code FORMAT "x(20)":U
       prep.dscr FORMAT "x(20)":U
-      prep.mat-type FORMAT "X":U
+      prep.cost FORMAT "->>,>>9.99":U
+      prep.mkup FORMAT "->>9.99":U
+      prep.spare-dec-1 COLUMN-LABEL "Price" FORMAT "->>>,>>>9.99<<":U
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ROW-MARKERS SEPARATORS SIZE 92 BY 11.19
+    WITH NO-ROW-MARKERS SEPARATORS SIZE 112 BY 11.19
          BGCOLOR 8 FONT 0.
 
 
@@ -179,7 +181,7 @@ DEFINE FRAME Dialog-Frame
      SPACE(81.39) SKIP(1.84)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
-         TITLE "Prep Code Information".
+         TITLE "Prep and Die File".
 
 
 /* *********************** Procedure Settings ************************ */
@@ -218,7 +220,10 @@ ASSIGN
      _FldNameList[1]   > ASI.prep.code
 "prep.code" ? "x(20)" "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" ""
      _FldNameList[2]   = ASI.prep.dscr
-     _FldNameList[3]   = ASI.prep.mat-type
+     _FldNameList[3]   = ASI.prep.cost
+     _FldNameList[4]   = ASI.prep.mkup
+     _FldNameList[5]   > ASI.prep.spare-dec-1
+"prep.spare-dec-1" "Price" "->>>,>>>9.99<<" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" ""
      _Query            is OPENED
 */  /* BROWSE BROWSE-1 */
 &ANALYZE-RESUME
