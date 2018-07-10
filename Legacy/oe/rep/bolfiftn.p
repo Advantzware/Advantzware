@@ -141,8 +141,8 @@ FORM w2.i-no                         FORMAT "x(15)"
      w2.dscr                         AT 33 FORMAT "x(30)"
      w2.cases                        TO 70 FORMAT "->>>>"
      icountpallet                      TO 77 FORMAT "->>>>>>"
-     tt-boll.qty                     TO 85 FORMAT "->>>>>>"
-     bf-ttboll.p-c                   AT 92
+     tt-boll.qty                     TO 89 FORMAT "->>>>>>>>>"
+     bf-ttboll.p-c                   AT 95
     WITH FRAME bol-mid DOWN NO-BOX NO-LABELS STREAM-IO WIDTH 110.
 
 FORM oe-ordl.i-no                         FORMAT "x(15)"
@@ -150,8 +150,8 @@ FORM oe-ordl.i-no                         FORMAT "x(15)"
      v-part-dscr                    AT 33 FORMAT "x(30)"
      w2.cases                       TO 70 FORMAT "->>>9"
      icountpallet                    TO 77 FORMAT "->>>>>9"
-     tt-boll.qty                    TO 85 FORMAT "->>>>>9"
-     tt-boll.p-c                    AT 92
+     tt-boll.qty                    TO 89 FORMAT "->>>>>>>>9"
+     tt-boll.p-c                    AT 95
     WITH FRAME bol-mid2 DOWN NO-BOX NO-LABELS STREAM-IO WIDTH 100.
 
 /* gdm - 04160923 

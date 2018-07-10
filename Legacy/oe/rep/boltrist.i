@@ -111,14 +111,14 @@ for each oe-boll where oe-boll.company eq oe-bolh.company and oe-boll.b-no eq oe
     put {1} oe-boll.cases format ">>9" to 47 "x" to 49 
   	    oe-boll.qty-case format ">>>>9" to 56
   	    "1 x" to 62 oe-boll.partial format ">>>>9" to 68 
-	    "=" to 70 v-to-ship format ">>>,>>9" to 78 skip.
+	    "=" to 70 v-to-ship format ">>>>>>>>9" to 82 skip.
   end.
   else
   do:
     put {1} "SQFT:" at 26 v-tot-sqft skip.
     put {1} oe-boll.cases format ">>9" to 47 "x" to 49 
   	    oe-boll.qty-case format ">>>>9" to 56
-	    "=" to 70 v-to-ship format ">>>,>>9" to 78 skip.
+	    "=" to 70 v-to-ship format ">>>>>>>>9" to 82 skip.
   end.
 
   if v-print-pal and avail fg-bin then

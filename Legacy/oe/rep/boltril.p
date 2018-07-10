@@ -47,8 +47,8 @@ DEF TEMP-TABLE tt-oe-boll LIKE oe-boll
 DEF BUFFER b-tt-oe-boll FOR tt-oe-boll.
 
 FORM
-  tt-oe-boll.ord-qty format ">>>>>>>"
-  space(1) tt-oe-boll.qty  format ">>>>>>>"
+  tt-oe-boll.ord-qty format ">>>>>>>>>"
+  space(1) tt-oe-boll.qty  format ">>>>>>>>>"
   space(0) tt-oe-boll.cases format ">>>>"
   space(0) tt-oe-boll.qty-case format ">>>>>>"
   space(2) tt-oe-boll.po-no format "x(36)"
@@ -206,10 +206,10 @@ do:     /* production mode */
                  oe-bolh.ship-i[3] at 16 format "x(60)" skip
                  oe-bolh.ship-i[4] at 16 format "x(60)"
                  skip(2)
-                 "Qty Ord Qty Ship Pk Qty/Pk      "
+                 "  Qty Ord   Qty Ship Pk Qty/Pk      "
                  "P.O. No. / Item / Description  "
                  "Order# P/C  Wt." skip
-                 "------- -------- -- ------"
+                 "--------- ---------- -- ------"
                  "-------------------------------------"
                  "------ --- ----" skip
               with frame hd-top-comp no-box no-labels page-top stream-io width 90.

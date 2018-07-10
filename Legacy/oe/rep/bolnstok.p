@@ -115,7 +115,7 @@ form w2.job-po                          format "x(15)"
      w2.relqty                  AT 63 FORMAT ">>>>>>>>" 
      w2.cases                       TO 75 format "->>>>"
      w2.cas-cnt                     TO 84 format "->>>>>>"
-     tt-boll.qty                    to 91 format "->>>>>>"
+     tt-boll.qty                    to 92 format "->>>>>>>"
      bf-ttboll.p-c                    at 95
     with frame bol-mid down no-box no-labels stream-io width 110.
 
@@ -126,7 +126,7 @@ form v-job-po                         format "x(15)"
      w2.relqty                  AT 63 FORMAT ">>>>>>>>" 
      w2.cases                       to 75 format "->>>9"
      w2.cas-cnt                     to 84 format "->>>>>9"
-     tt-boll.qty                    to 91 format "->>>>>9"
+     tt-boll.qty                    to 92 format "->>>>>>9"
      tt-boll.p-c                    at 95
     with frame bol-mid2 down no-box no-labels stream-io width 100.
 

@@ -198,7 +198,7 @@ for each report where report.term-id eq v-term,
 end. /* for each report */
 
 for each w3:
-  put {1} w3.ship-i at 11 skip.
+  put {1} w3.ship-i at 13 skip.
 end.
 
 /* end ---------------------------------- copr. 2001  Advanced Software, Inc. */

@@ -86,8 +86,8 @@ form header
      
     with frame bol-top page-top no-box no-underline stream-io width 85.
 
-form v-ord-qty                      to 13 format ">,>>>,>>9"
-     v-bol-qty                      to 23 format ">,>>>,>>9"
+form v-ord-qty                      to 13 format ">>>>>>>>9"
+     v-bol-qty                      to 23 format ">>>>>>>>9"
      v-part-dscr[1]                 at 25
      v-part                         to 70 format ">>>>>>>9"
      v-comp                         to 78 format ">>>>>>>9"
