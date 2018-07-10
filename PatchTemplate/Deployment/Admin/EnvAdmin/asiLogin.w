@@ -1554,8 +1554,9 @@ PROCEDURE ipPreRun :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    DEF VAR lOK AS LOG INITIAL TRUE NO-UNDO.
-    DEF VAR lExit AS LOG INITIAL TRUE NO-UNDO.
+    DEFINE VARIABLE lOK      AS LOGICAL INITIAL TRUE NO-UNDO.
+    DEFINE VARIABLE lExit    AS LOGICAL INITIAL TRUE NO-UNDO.
+    DEFINE VARIABLE hSession AS HANDLE               NO-UNDO.
 
     ASSIGN
         iPos = LOOKUP(cbEnvironment,cEnvironmentList)
@@ -1573,6 +1574,10 @@ PROCEDURE ipPreRun :
         RUN epCheckUserLocked IN hPreRun (INPUT-OUTPUT lOK).
         IF NOT lOK THEN QUIT.
     END.
+
+    RUN system\session.p PERSISTENT SET hSession.
+    SESSION:ADD-SUPER-PROCEDURE (hSession).
+
     IF NOT VALID-HANDLE(persistent-handle) THEN
         RUN nosweat/persist.p PERSISTENT SET persistent-handle.
     IF NOT VALID-HANDLE(listlogic-handle) THEN

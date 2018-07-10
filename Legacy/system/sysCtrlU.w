@@ -6,7 +6,7 @@
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS C-Win 
 /*------------------------------------------------------------------------
 
-  File: sysCtrlUsage.w
+  File: sysCtrlU.w
 
   Description: Show User sys-ctrl Usage
 
@@ -16,7 +16,7 @@
 
   Author: Ron Stark
 
-  Created: 3.27.2018
+  Created: 7.7.2018
 
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress AppBuilder.      */
@@ -36,23 +36,11 @@ CREATE WIDGET-POOL.
 
 /* Local Variable Definitions ---                                       */
 
-DEFINE TEMP-TABLE ttSysCtrlUsage NO-UNDO
-    FIELD prgmName AS CHARACTER LABEL "Program" FORMAT "x(22)"
-    FIELD company  LIKE sys-ctrl.company
-    FIELD module   LIKE sys-ctrl.module LABEL "Module"
-    FIELD name     LIKE sys-ctrl.name FORMAT "x(20)"
-    FIELD char-fld LIKE sys-ctrl.char-fld FORMAT "x(30)" LABEL "Character Value"
-    FIELD date-fld LIKE sys-ctrl.date-fld LABEL "Date"
-    FIELD dec-fld  LIKE sys-ctrl.dec-fld LABEL "Decimal"
-    FIELD int-fld  LIKE sys-ctrl.int-fld LABEL "Integer"
-    FIELD log-fld  LIKE sys-ctrl.log-fld LABEL "Logical"
-    FIELD descrip  LIKE sys-ctrl.descrip FORMAT "x(80)"
-    FIELD user-id  AS CHARACTER LABEL "User ID" FORMAT "x(15)"
-    FIELD usageNow AS DATETIME LABEL "Date/Time"
-        INDEX ttSysCtrlUsage IS PRIMARY
-            prgmName company module name
-            .
+{system/ttSysCtrlUsage.i}
+
 DEFINE TEMP-TABLE bttSysCtrlUsage NO-UNDO LIKE ttSysCtrlUsage.
+
+SESSION:SET-WAIT-STATE ("").
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -87,7 +75,8 @@ DEFINE TEMP-TABLE bttSysCtrlUsage NO-UNDO LIKE ttSysCtrlUsage.
     ~{&OPEN-QUERY-sysCtrlUsage}
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS sysCtrlUsage 
+&Scoped-Define ENABLED-OBJECTS btnClearSysCtrlUsage btnStackTrace ~
+sysCtrlUsage 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -103,6 +92,14 @@ DEFINE TEMP-TABLE bttSysCtrlUsage NO-UNDO LIKE ttSysCtrlUsage.
 DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
+DEFINE BUTTON btnClearSysCtrlUsage 
+     LABEL "Clear SysCtrl Usage" 
+     SIZE 24 BY 1.
+
+DEFINE BUTTON btnStackTrace 
+     LABEL "View Stack Trace" 
+     SIZE 24 BY 1.
+
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
 DEFINE QUERY sysCtrlUsage FOR 
@@ -116,13 +113,15 @@ DEFINE BROWSE sysCtrlUsage
       ttSysCtrlUsage
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ROW-MARKERS SEPARATORS SIZE 160 BY 28.57.
+    WITH NO-ROW-MARKERS SEPARATORS SIZE 160 BY 27.62.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME DEFAULT-FRAME
-     sysCtrlUsage AT ROW 1 COL 1 WIDGET-ID 200
+     btnClearSysCtrlUsage AT ROW 1 COL 1 WIDGET-ID 2
+     btnStackTrace AT ROW 1 COL 26 WIDGET-ID 4
+     sysCtrlUsage AT ROW 1.95 COL 1 WIDGET-ID 200
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
@@ -149,9 +148,9 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          HEIGHT             = 28.57
          WIDTH              = 160
          MAX-HEIGHT         = 320
-         MAX-WIDTH          = 261
+         MAX-WIDTH          = 320
          VIRTUAL-HEIGHT     = 320
-         VIRTUAL-WIDTH      = 261
+         VIRTUAL-WIDTH      = 320
          RESIZE             = yes
          SCROLL-BARS        = no
          STATUS-AREA        = no
@@ -174,7 +173,7 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME DEFAULT-FRAME
    FRAME-NAME                                                           */
-/* BROWSE-TAB sysCtrlUsage 1 DEFAULT-FRAME */
+/* BROWSE-TAB sysCtrlUsage btnStackTrace DEFAULT-FRAME */
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
 THEN C-Win:HIDDEN = no.
 
@@ -235,6 +234,31 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME btnClearSysCtrlUsage
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnClearSysCtrlUsage C-Win
+ON CHOOSE OF btnClearSysCtrlUsage IN FRAME DEFAULT-FRAME /* Clear SysCtrl Usage */
+DO:
+    DYNAMIC-FUNCTION("sfClearTtSysCtrlUsage").
+    RUN pGetSysCtrlUsage.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnStackTrace
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnStackTrace C-Win
+ON CHOOSE OF btnStackTrace IN FRAME DEFAULT-FRAME /* View Stack Trace */
+DO:
+    IF AVAILABLE ttSysCtrlUsage THEN
+    RUN system/stackTrace.w (ttSysCtrlUsage.stackTrace).
+    RETURN NO-APPLY.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define BROWSE-NAME sysCtrlUsage
 &UNDEFINE SELF-NAME
 
@@ -260,6 +284,7 @@ PAUSE 0 BEFORE-HIDE.
 MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
+  DYNAMIC-FUNCTION("sfSetSysCtrlUsageHandle", THIS-PROCEDURE).
   RUN pGetSysCtrlUsage.
   RUN enable_UI.
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
@@ -302,7 +327,7 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  ENABLE sysCtrlUsage 
+  ENABLE btnClearSysCtrlUsage btnStackTrace sysCtrlUsage 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
   VIEW C-Win.
@@ -318,21 +343,39 @@ PROCEDURE pGetSysCtrlUsage :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    CREATE bttSysCtrlUsage.
-    INPUT FROM VALUE("users\" + USERID(LDBNAME(1)) + "\sysCtrlFind.dat") NO-ECHO.
+    DEFINE VARIABLE hSysCtrlUsage AS HANDLE  NO-UNDO EXTENT 2.
+    DEFINE VARIABLE hQuery        AS HANDLE  NO-UNDO EXTENT 2.
+    DEFINE VARIABLE idx           AS INTEGER NO-UNDO.
+    
+    EMPTY TEMP-TABLE ttSysCtrlUsage.
+    
+    ASSIGN
+        hSysCtrlUsage[1] = DYNAMIC-FUNCTION("sfGetTtSysCtrlUsageHandle")
+        hSysCtrlUsage[1] = hSysCtrlUsage[1]:DEFAULT-BUFFER-HANDLE
+        hSysCtrlUsage[2] = TEMP-TABLE ttSysCtrlUsage:HANDLE
+        hSysCtrlUsage[2] = hSysCtrlUsage[2]:DEFAULT-BUFFER-HANDLE
+        .    
+    /* scroll returned temp-table records */
+    CREATE QUERY hQuery[1].
+    hQuery[1]:SET-BUFFERS(hSysCtrlUsage[1]:HANDLE).
+    hQuery[1]:QUERY-PREPARE("FOR EACH " + hSysCtrlUsage[1]:NAME).
+    hQuery[1]:QUERY-OPEN.
+
+    CREATE QUERY hQuery[2].
+    hQuery[2]:SET-BUFFERS(hSysCtrlUsage[2]:HANDLE).
+
     REPEAT:
-        IMPORT bttSysCtrlUsage.
-        FIND FIRST ttSysCtrlUsage
-             WHERE ttSysCtrlUsage.prgmName EQ bttSysCtrlUsage.prgmName
-               AND ttSysCtrlUsage.company  EQ bttSysCtrlUsage.company
-               AND ttSysCtrlUsage.module   EQ bttSysCtrlUsage.module
-               AND ttSysCtrlUsage.name     EQ bttSysCtrlUsage.name
-             NO-ERROR.
-        IF NOT AVAILABLE ttSysCtrlUsage THEN
+        hQuery[1]:GET-NEXT().
+        IF hQuery[1]:QUERY-OFF-END THEN LEAVE.
         CREATE ttSysCtrlUsage.
-        BUFFER-COPY bttSysCtrlUsage TO ttSysCtrlUsage.
+        DO idx = 1 TO hSysCtrlUsage[1]:NUM-FIELDS:
+            hSysCtrlUsage[2]:BUFFER-FIELD(idx):BUFFER-VALUE() = hSysCtrlUsage[1]:BUFFER-FIELD(idx):BUFFER-VALUE(). 
+        END. /* do idx */
     END. /* repeat */
-    INPUT CLOSE.
+    hQuery[1]:QUERY-CLOSE().
+    DELETE OBJECT hQuery[1].
+    
+    {&OPEN-QUERY-{&BROWSE-NAME}}
 
 END PROCEDURE.
 
@@ -353,7 +396,7 @@ PROCEDURE pReSize :
         FRAME {&FRAME-NAME}:WIDTH = {&WINDOW-NAME}:WIDTH
         FRAME {&FRAME-NAME}:HEIGHT = {&WINDOW-NAME}:HEIGHT
         BROWSE {&BROWSE-NAME}:WIDTH = FRAME {&FRAME-NAME}:WIDTH
-        BROWSE {&BROWSE-NAME}:HEIGHT = FRAME {&FRAME-NAME}:HEIGHT
+        BROWSE {&BROWSE-NAME}:HEIGHT = FRAME {&FRAME-NAME}:HEIGHT - FRAME {&FRAME-NAME}:ROW
         .
     FRAME {&FRAME-NAME}:HIDDEN = NO.
 
