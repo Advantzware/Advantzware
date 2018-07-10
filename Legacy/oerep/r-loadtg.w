@@ -7597,8 +7597,8 @@ PROCEDURE write-loadtag-line :
         w-ord.pcs  "," /*39  Number per bundle   5 characters    numberperbndl                                                                                       */
         "," /*40  Broker number   5 characters    brokernumber                                                                                            */
           loadtag.tag-no "," /*41  Order entry message line 7  64 characters   msg7                                                                                        */
-        "," /*42  Order entry message line 8  64 characters   msg8                                                                                        */
-        '"' + removeChars(w-ord.ord-desc1) + '"' FORMAT "X(30)" "," /*43  Order entry message line 9  64 characters   msg9                                                                                        */
+        '"' + removeChars(w-ord.ord-desc1) + '"' FORMAT "X(30)" "," /*42  Order entry message line 8  64 characters   msg8                                                                                        */
+        "," /*43  Order entry message line 9  64 characters   msg9                                                                                        */
         '"' +  removeChars(w-ord.style-desc) + '"' "," /*44  Style description   15 characters   styledesc                                                                                           */
           w-ord.box-len FORMAT ">>>9.99<<<" "," /*45  Box length  9 characters    boxlen                                                                                                      */
           w-ord.box-wid FORMAT ">>>9.99<<<" "," /*46  Box width   9 characters    boxwid                                                                                                      */
