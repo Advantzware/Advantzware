@@ -1062,8 +1062,10 @@ PROCEDURE ipConnectDb :
     DEF VAR iPos AS INT NO-UNDO.
 
     /* Force user id and password from screen values, trap errors in ERROR-STATUS */
-    ASSIGN
+    IF fiPassword NE "" THEN ASSIGN
         cStatement = cStatement + " -U " + cUserID + " -P '" + fiPassword + "'".
+    ELSE ASSIGN
+        cStatement = cStatement + " -U " + cUserID.
     CONNECT VALUE(cStatement) NO-ERROR.
 
     IF ERROR-STATUS:ERROR THEN DO:
