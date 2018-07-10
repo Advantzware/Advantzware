@@ -1441,6 +1441,7 @@ PROCEDURE valid-entry :
 
    FIND FIRST bf-oe-prmtx NO-LOCK 
       WHERE bf-oe-prmtx.company EQ g_company
+        AND bf-oe-prmtx.custShipID EQ oe-prmtx.custShipID:SCREEN-VALUE IN FRAME {&FRAME-NAME}
         AND bf-oe-prmtx.cust-no EQ oe-prmtx.cust-no:SCREEN-VALUE IN FRAME {&FRAME-NAME}
         AND bf-oe-prmtx.i-no EQ oe-prmtx.i-no:SCREEN-VALUE IN FRAME {&FRAME-NAME}
         AND bf-oe-prmtx.procat EQ oe-prmtx.procat:SCREEN-VALUE IN FRAME {&FRAME-NAME}
