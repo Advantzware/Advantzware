@@ -683,7 +683,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
             cbEnvironment:SCREEN-VALUE = ENTRY(1,cbEnvironment:LIST-ITEMS)
             cbMode:SCREEN-VALUE = ENTRY(1,cModeScrList)
             fiUserID:SCREEN-VALUE = OS-GETENV("USERNAME").
-            
+
         APPLY 'entry' TO fiUserID.
     
         IF NOT THIS-PROCEDURE:PERSISTENT THEN
@@ -1019,7 +1019,7 @@ PROCEDURE ipClickOk :
         ASSIGN
             cUsrLoc = replace(cUsrLoc,".usr",".nul").
     END.
-    
+
     /* This is the normal operation for Mode choices */
     IF NOT cbMode = "Monitor Users" THEN DO: 
         /* Set current dir */
@@ -1106,7 +1106,6 @@ PROCEDURE ipConnectDb :
             RUN VALUE("preRun" + STRING(iTruncLevel,"9999") + ".p") PERSISTENT SET hPreRun.
         ELSE RUN VALUE("prerun.p") PERSISTENT SET hPreRun.
     END.
-    RUN ipPreRun IN THIS-PROCEDURE.
 
     /* Connect AUDIT database */
     ASSIGN
@@ -1142,6 +1141,8 @@ PROCEDURE ipConnectDb :
             END.
         END.
     END.
+    
+    RUN ipPreRun IN THIS-PROCEDURE.
 
     ASSIGN
         c-Win:VISIBLE = FALSE.
