@@ -60,7 +60,7 @@ FORM v-qty             to 9    format ">>>,>>9"
      tt-boll.i-no      at 23   format "x(10)"
      v-part-info       at 35   format "x(26)"
      v-unit-qty        to 71   format "x(10)"
-     tt-boll.qty       to 85   format ">>>,>>>,>>9"
+     tt-boll.qty       to 84   format ">>>,>>>,>>9"
     with frame detail no-attr-space no-labels no-box no-underline down STREAM-IO width 84.
 
 
