@@ -87,7 +87,7 @@ form v-tot-pkgs                     to 3
      w2.cas-cnt                     to 69 format ">>,>>9"
      v-bol-qty                      to 77 format ">>>>>>>9"
      oe-boll.p-c                    at 79
-     v-bol-wt                       to 86 format ">>>>>9"
+     v-bol-wt                       to 85 format ">>>>>9"
      
     with frame bol-mid1 down no-box no-labels stream-io width 85.
 

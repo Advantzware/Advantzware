@@ -67,7 +67,7 @@ format header
        "---------------" at 1 "---------------" at 17
        "----------------------------" at 33
        "----" at 62 "------" at 67 "---------" at 78 skip
-    with frame hd-top-comp no-box no-labels page-top stream-io width 82.
+    with frame hd-top-comp no-box no-labels page-top stream-io width 86.
 
 form
   oe-boll.i-no format "x(15)" at 1
