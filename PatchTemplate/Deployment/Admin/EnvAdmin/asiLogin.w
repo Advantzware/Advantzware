@@ -1575,8 +1575,10 @@ PROCEDURE ipPreRun :
         IF NOT lOK THEN QUIT.
     END.
 
-    RUN system\session.p PERSISTENT SET hSession.
-    SESSION:ADD-SUPER-PROCEDURE (hSession).
+    IF SEARCH("system\session.r") NE ? THEN DO:
+        RUN system\session.p PERSISTENT SET hSession.
+        SESSION:ADD-SUPER-PROCEDURE (hSession).
+    END.
 
     IF NOT VALID-HANDLE(persistent-handle) THEN
         RUN nosweat/persist.p PERSISTENT SET persistent-handle.
