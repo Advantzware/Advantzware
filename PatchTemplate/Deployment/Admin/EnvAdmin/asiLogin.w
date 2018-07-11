@@ -1067,7 +1067,9 @@ PROCEDURE ipConnectDb :
         cStatement = cStatement + " -U " + cUserID + " -P '" + fiPassword + "'".
     ELSE ASSIGN
         cStatement = cStatement + " -U " + cUserID.
-    CONNECT VALUE(cStatement).
+    
+    CONNECT VALUE(cStatement) NO-ERROR.
+    
     IF ERROR-STATUS:ERROR THEN DO:
         DO iCtr = 1 TO ERROR-STATUS:NUM-MESSAGES:
             /* Strip off the "Progress-y" elements of the error */
@@ -1122,22 +1124,28 @@ PROCEDURE ipConnectDb :
             xDbName = ENTRY(iLookup,cAudDbList)
             xdbPort = ENTRY(iLookup,cAudPortList)
             connectStatement = "".
-/*        IF iEnvLEvel EQ 16070000 THEN ASSIGN
-            xDBName = "audTest166"
-            xdbPort = "2837".
-*/        IF xDbName NE "" THEN DO:
+        IF xDbName NE "" THEN DO:
             ASSIGN
                 connectStatement = "-db " + xDbName + 
                                    " -H " + chostName +
                                    " -S " + xdbPort + 
                                    " -N tcp -ld AUDIT".
-            CONNECT VALUE(connectStatement).
-            IF NOT CONNECTED(LDBNAME(2)) THEN DO:
-                MESSAGE
-                    "The Audit database failed to connect.  Please" SKIP
-                    "contact your system administrator for assistance."
-                    VIEW-AS ALERT-BOX ERROR.
-                QUIT.
+
+            CONNECT VALUE(connectStatement) NO-ERROR.
+
+            IF ERROR-STATUS:ERROR 
+            AND NOT CONNECTED(LDBNAME(2)) THEN DO:
+                DO iCtr = 1 TO ERROR-STATUS:NUM-MESSAGES:
+                    /* Strip off the "Progress-y" elements of the error */
+                    ASSIGN
+                        cMessString = SUBSTRING(ERROR-STATUS:GET-MESSAGE(iCtr),3)
+                        iPos = INDEX(cMessString,"(")
+                        cMessString = "   " + SUBSTRING(cMessString,1,iPos - 1).
+                    MESSAGE
+                        "Unable to connect to the AUDIT database due to the following error:" skip
+                        cMessString
+                        VIEW-AS ALERT-BOX ERROR.
+                END.
             END.
         END.
     END.
