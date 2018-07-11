@@ -327,7 +327,7 @@ DEFINE VARIABLE tb_print-component AS LOGICAL INITIAL no
      VIEW-AS TOGGLE-BOX
      SIZE 41 BY 1 NO-UNDO.
 
-DEFINE VARIABLE tb_print-qty-uom AS LOGICAL INITIAL no 
+DEFINE VARIABLE tb_print-qty-uom AS LOGICAL INITIAL YES 
      LABEL "Print Order Qty/UOM?" 
      VIEW-AS TOGGLE-BOX
      SIZE 24.2 BY 1 NO-UNDO.
@@ -800,6 +800,7 @@ DO:
 
   DO WITH FRAME {&FRAME-NAME}:
     ASSIGN {&displayed-objects}.
+    
   END.
 
   IF tgMultipleReleases:SCREEN-VALUE NE "YES" THEN
@@ -845,6 +846,8 @@ DO:
   v-print-components = tb_print-component.
   s-print-part-no = tb_prt-part-no.
   v-num-custs = 0.
+  lPrintQtyUom  = logical(tb_print-qty-uom:SCREEN-VALUE IN FRAME {&FRAME-NAME}).
+  
   FOR EACH b-oe-relh FIELDS(company cust-no ship-id r-no release#) WHERE
                b-oe-relh.company EQ cocode AND
                b-oe-relh.release# GE begin_relnum AND
@@ -1679,8 +1682,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
     IF v-relprint = "Relprint 10" THEN
       ASSIGN 
-        tb_print-qty-uom:HIDDEN = NO
-        tb_print-qty-uom:SCREEN-VALUE = "YES".
+        tb_print-qty-uom:HIDDEN = NO.
     ELSE
       ASSIGN 
         tb_print-qty-uom:HIDDEN = YES.
@@ -2172,7 +2174,7 @@ ASSIGN
  lv-spec-list  = fi_specs
  s-print-spec  = tb_print-spec 
  lSortRelSeq   = tb_sort-rel
- lPrintQtyUom  = tb_print-qty-uom.
+ lPrintQtyUom  = logical(tb_print-qty-uom:SCREEN-VALUE IN FRAME {&FRAME-NAME}).
 
 IF LOOKUP(v-relprint,"Hopx,ACPI,Fibrex,Accord,Metro,Carded,Loylang,PremierX,Relprint 10,Lakeside,Distributor,Frank,NSTOCK,Axis,CSC-GA,Protagon,CardedX,Peachtree,Multicell,CCC,Soule,StClair,Midwest") > 0 AND
    LOOKUP(s-print-what-item,"I,S") > 0 THEN 
