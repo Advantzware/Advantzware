@@ -106,6 +106,7 @@ DEF VAR lv-item-rec AS cha NO-UNDO.
 DEF VAR v-tot-msf AS DEC FORM ">>>>,>>9.999" NO-UNDO.
 DEF VAR v-out-qty AS DEC NO-UNDO.
 DEF VAR lv-add-line AS LOG NO-UNDO.
+DEFINE SHARED VARIABLE s-print-prices AS LOGICAL NO-UNDO.
 
 def var v-dec-fld as decimal no-undo.
 
@@ -402,11 +403,15 @@ v-printline = 0.
             "<C16>" po-ordl.pr-qty-uom 
             "<C21>" po-ordl.i-no FORM "x(20)"
             v-adder[1] 
-            "<C52>" v-job-no FORM "x(12)" SPACE(1)
+            "<C52>" v-job-no FORM "x(12)" SPACE(1).
+
+        IF s-print-prices THEN
+           PUT
             "<C61.5>" po-ordl.cost FORM "->>>9.99"
             "<C69>" po-ordl.pr-uom
-            "<C70>" po-ordl.t-cost FORM ">,>>>,>>9.99"  
-            SKIP.
+            "<C70>" po-ordl.t-cost FORM ">,>>>,>>9.99". 
+
+           PUT  SKIP.
 
         v-printline = v-printline + 1.
 
@@ -842,13 +847,14 @@ FOR EACH notes WHERE notes.rec_key = po-ord.rec_key NO-LOCK:
       PUT "<R53><C1>" v-inst[1] 
           "<R54><C1>" v-inst[2]
           "<R55><C1>" v-inst[3]
-          "<R56><C1>" v-inst[4]
-          "<R58><C59><#8><FROM><R+5><C+21><RECT> " 
-    "<=8><R+1> Sub Total  :" po-ord.t-cost - po-ord.tax FORM ">,>>>,>>9.99"
-    "<=8><R+2> "  v-bot-lab[1] 
-    "<=8><R+3> "  " " /*PST        :" inv-head.t-inv-tax FORM "->>,>>9.99"*/
+          "<R56><C1>" v-inst[4].
+        PUT "<R58><C59><#8><FROM><R+5><C+21><RECT> " 
+          "<=8><R+1> Sub Total  :" po-ord.t-cost - po-ord.tax FORM ">,>>>,>>9.99"
+          "<=8><R+2> "  v-bot-lab[1] 
+          "<=8><R+3> "  " " /*PST        :" inv-head.t-inv-tax FORM "->>,>>9.99"*/
                 /*v-bot-lab[2] */
     "<=8><R+4> Grand Total:" po-ord.t-cost FORM ">,>>>,>>9.99" .
+
 /*Please acknowledge receipt and that pricing is correct on this P.O." */ 
 IF v-print-terms THEN
 PUT "<FArial><R58><C1><P12><B> Terms and Conditions </B> <P9> " SKIP

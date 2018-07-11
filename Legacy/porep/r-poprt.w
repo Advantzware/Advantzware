@@ -1056,9 +1056,10 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     IF LOOKUP(v-print-fmt,"xprint,poprint 1,poprint 10,LancoYork,StClair,Boss,Hughes,PeachTree,Protagon,ppi,Packrite") = 0 THEN 
        DISABLE tb_metric.
 
-    IF v-print-fmt NE "Indiana" THEN
-     ASSIGN tb_print-prices:SCREEN-VALUE = "NO"
-            tb_print-prices:SENSITIVE = NO.
+   /* IF v-print-fmt NE "Indiana" OR v-print-fmt NE "Indiana" THEN*/
+        IF LOOKUP(v-print-fmt,"Indiana,Premierx,PremierCX,PremierXFGItems") = 0 THEN
+            ASSIGN tb_print-prices:SCREEN-VALUE = "NO"
+                   tb_print-prices:SENSITIVE = NO.
    
     IF LOOKUP(v-print-fmt,"poprint 10,poprint 20,POPrint10-CAN") = 0 THEN 
        DISABLE tb_cust-code.
@@ -1275,7 +1276,7 @@ PROCEDURE GenerateReport :
         AND TRIM(v-outfile) NE "" 
          THEN ASSIGN lv-pdf-file = v-outfile + lv-pdf-file. 
 
-      IF LOOKUP(v-print-fmt,"PremierX,PremierCX,PremierXFGItems") > 0  THEN DO: 
+      IF LOOKUP(v-print-fmt,"PremierX,PremierCX,PremierXFGItems,Centbox") > 0  THEN DO: 
           IF v-start-po EQ v-end-po  THEN
             lcSubject = "Purchase Order: " + STRING(v-start-po).
           ELSE
@@ -1292,7 +1293,7 @@ PROCEDURE GenerateReport :
                               OUTPUT  vcErrorMsg).
     END.
 
-    ELSE DO:
+    ELSE DO:  
 
       IF NOT AttachmentExists() THEN RETURN.
 
