@@ -239,9 +239,9 @@ FOR EACH tt-boll,
                  TRIM(STRING(w2.qty,"->>,>>>,>>>")) WHEN i = 1 @ w2.i-no
                  w2.job-po
                  w2.dscr
-                 w2.unitcount @ w2.cases
-                 w2.qty-sum @ icountpallet
-                 icountpallet + w2.partial /*v-tot-case-qty + w2.partial WHEN FIRST (w2.cases)*/ @ tt-boll.qty
+                 w2.cases
+                 w2.cas-cnt @ icountpallet
+                 v-tot-case-qty when first (w2.cases) @ tt-boll.qty
                  /*bf-ttboll.p-c*/ cPc FORMAT "x(1)"  WHEN AVAILABLE bf-ttboll AND FIRST(w2.cases) @ bf-ttboll.p-c
                WITH FRAME bol-mid.
                DOWN WITH FRAME bol-mid.       
