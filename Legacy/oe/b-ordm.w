@@ -1291,7 +1291,7 @@ END.
 
   /* Code placed here will execute AFTER standard behavior.    */
   FIND CURRENT oe-ordm EXCLUSIVE.
-  IF adm-new-record AND oe-ordm.cost EQ 0 THEN oe-ordm.cost = oe-ordm.amt.
+  
 
   FIND CURRENT oe-ord EXCLUSIVE.
 
