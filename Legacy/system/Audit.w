@@ -57,6 +57,8 @@ DEFINE VARIABLE lBeforeValueFilter AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cBeforeValueFilter AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lAfterValueFilter  AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cAfterValueFilter  AS CHARACTER NO-UNDO.
+DEFINE VARIABLE hPgmMstrSecur      AS HANDLE    NO-UNDO.
+DEFINE VARIABLE lAdmin             AS LOGICAL   NO-UNDO.
 
 {AOA/tempTable/ttAudit.i}
 
@@ -186,7 +188,7 @@ AuditDtl.AuditAfterValue
     ~{&OPEN-QUERY-AuditHeader}
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS btnStack AuditHeader AuditDetail btnPrint ~
+&Scoped-Define ENABLED-OBJECTS AuditHeader AuditDetail btnStack btnPrint ~
 svSortByHdr svSortByDtl 
 &Scoped-Define DISPLAYED-OBJECTS svSortByHdr svSortByDtl 
 
@@ -298,8 +300,8 @@ DEFINE VARIABLE svTable AS CHARACTER FORMAT "X(256)":U INITIAL "All"
 
 DEFINE VARIABLE svType AS CHARACTER FORMAT "X(256)":U INITIAL "All" 
      LABEL "Type" 
-     VIEW-AS COMBO-BOX INNER-LINES 5
-     LIST-ITEMS "All","CREATE","DELETE","UPDATE","TRACK" 
+     VIEW-AS COMBO-BOX INNER-LINES 6
+     LIST-ITEMS "All","CREATE","DELETE","UPDATE","RESTORED","TRACK" 
      DROP-DOWN-LIST
      SIZE 16 BY 1 TOOLTIP "Select Audit Type Filter" NO-UNDO.
 
@@ -339,6 +341,12 @@ DEFINE BUTTON btnPrint
      IMAGE-UP FILE "Graphics/32x32/printer.ico":U NO-FOCUS FLAT-BUTTON
      LABEL "" 
      SIZE 8.4 BY 2 TOOLTIP "Print"
+     FONT 4.
+
+DEFINE BUTTON btnRestore 
+     IMAGE-UP FILE "Graphics/32x32/undo_32.ico":U NO-FOCUS FLAT-BUTTON
+     LABEL "" 
+     SIZE 8.4 BY 2 TOOLTIP "Restore"
      FONT 4.
 
 DEFINE BUTTON btnStack 
@@ -395,7 +403,7 @@ DEFINE BROWSE AuditHeader
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS AuditHeader C-Win _STRUCTURED
   QUERY AuditHeader NO-LOCK DISPLAY
       AuditHdr.AuditID FORMAT ">,>>>,>>>,>>9":U LABEL-BGCOLOR 14
-      AuditHdr.AuditType FORMAT "x(8)":U WIDTH 9 LABEL-BGCOLOR 14
+      AuditHdr.AuditType FORMAT "x(8)":U WIDTH 11 LABEL-BGCOLOR 14
       AuditHdr.AuditDateTime COLUMN-LABEL "Date / Time" FORMAT "99/99/9999 HH:MM:SS.SSS":U
             LABEL-BGCOLOR 14
       AuditHdr.AuditDB COLUMN-LABEL "DB" FORMAT "x(6)":U LABEL-BGCOLOR 14
@@ -414,10 +422,12 @@ DEFINE BROWSE AuditHeader
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME DEFAULT-FRAME
-     btnStack AT ROW 6.24 COL 106 HELP
-          "Click to View Program Stack Trace" WIDGET-ID 282
+     btnRestore AT ROW 9.33 COL 102 HELP
+          "Print" WIDGET-ID 284
      AuditHeader AT ROW 6.48 COL 1 WIDGET-ID 200
      AuditDetail AT ROW 6.48 COL 115 WIDGET-ID 300
+     btnStack AT ROW 6.24 COL 106 HELP
+          "Click to View Program Stack Trace" WIDGET-ID 282
      btnPrint AT ROW 6.24 COL 97 HELP
           "Print" WIDGET-ID 280
      svSortByHdr AT ROW 5.76 COL 68 COLON-ALIGNED WIDGET-ID 2
@@ -712,6 +722,11 @@ ASSIGN
        AuditHeader:MAX-DATA-GUESS IN FRAME DEFAULT-FRAME         = 2500
        AuditHeader:ALLOW-COLUMN-SEARCHING IN FRAME DEFAULT-FRAME = TRUE.
 
+/* SETTINGS FOR BUTTON btnRestore IN FRAME DEFAULT-FRAME
+   NO-ENABLE                                                            */
+ASSIGN 
+       btnRestore:HIDDEN IN FRAME DEFAULT-FRAME           = TRUE.
+
 ASSIGN 
        svSortByDtl:READ-ONLY IN FRAME DEFAULT-FRAME        = TRUE.
 
@@ -775,7 +790,7 @@ OR cAfterValueFilter EQ """")"
      _FldNameList[1]   > audit.AuditHdr.AuditID
 "AuditHdr.AuditID" ? ? "integer" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > audit.AuditHdr.AuditType
-"AuditHdr.AuditType" ? ? "character" ? ? ? 14 ? ? no ? no no "9" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"AuditHdr.AuditType" ? ? "character" ? ? ? 14 ? ? no ? no no "11" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   > audit.AuditHdr.AuditDateTime
 "AuditHdr.AuditDateTime" "Date / Time" ? "datetime" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[4]   > audit.AuditHdr.AuditDB
@@ -937,6 +952,11 @@ END.
 ON VALUE-CHANGED OF AuditHeader IN FRAME DEFAULT-FRAME /* Audit Header */
 DO:
     svSortByDtl:SCREEN-VALUE = "".
+    IF lAdmin AND AVAILABLE AuditHdr THEN /* admin security level */
+    ASSIGN
+        btnRestore:HIDDEN    = AuditHdr.AuditType NE "DELETE"
+        btnRestore:SENSITIVE = AuditHdr.AuditType EQ "DELETE"
+        .
     {&OPEN-QUERY-AuditDetail}
     APPLY 'VALUE-CHANGED':U TO BROWSE AuditDetail.
 END.
@@ -1122,6 +1142,17 @@ ON CHOOSE OF btnPrint IN FRAME DEFAULT-FRAME
 DO:
     RUN pUserPrint.
     RUN AOA/AuditHist.w.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnRestore
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnRestore C-Win
+ON CHOOSE OF btnRestore IN FRAME DEFAULT-FRAME
+DO:
+    RUN pRestore.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1375,6 +1406,14 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
   IF lContinue THEN DO:
     RUN enable_UI.
+    IF NOT VALID-HANDLE(hPgmMstrSecur) THEN
+    RUN system/PgmMstrSecur.p PERSISTENT SET hPgmMstrSecur.
+    IF VALID-HANDLE(hPgmMstrSecur) THEN
+    RUN epCanAccess IN hPgmMstrSecur (
+        "system/audit.w",
+        "Restore",
+        OUTPUT lAdmin 
+        ).
     fDateOptions (svStartDateOption:HANDLE).
     fDateOptions (svEndDateOption:HANDLE).
     RUN pGetFilterValues ("INIT").
@@ -1463,7 +1502,7 @@ PROCEDURE enable_UI :
   {&OPEN-BROWSERS-IN-QUERY-AuditSearch}
   DISPLAY svSortByHdr svSortByDtl 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
-  ENABLE btnStack AuditHeader AuditDetail btnPrint svSortByHdr svSortByDtl 
+  ENABLE AuditHeader AuditDetail btnStack btnPrint svSortByHdr svSortByDtl 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
   IF AVAILABLE AuditDtl THEN 
@@ -1905,6 +1944,7 @@ PROCEDURE pReopenBrowse :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+    SESSION:SET-WAIT-STATE("General").
     CASE cColumnLabel:
         WHEN "AuditType" THEN
         RUN pByAuditType.
@@ -1931,9 +1971,40 @@ PROCEDURE pReopenBrowse :
         OTHERWISE
         RUN pByAuditID.
     END CASE.
+    SESSION:SET-WAIT-STATE("").
     IF lHeaderSorting THEN
     APPLY 'VALUE-CHANGED':U TO BROWSE AuditHeader.
 
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pRestore C-Win 
+PROCEDURE pRestore :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE hTable AS HANDLE NO-UNDO.
+    
+    DEFINE BUFFER bAuditDtl FOR AuditDtl.
+    
+    CREATE BUFFER hTable FOR TABLE AuditHdr.AuditTable.
+    
+    hTable:BUFFER-CREATE().
+    FOR EACH bAuditDtl OF AuditHdr NO-LOCK:
+        hTable:BUFFER-FIELD(bAuditDtl.AuditField):BUFFER-VALUE(bAuditDtl.AuditExtent) = bAuditDtl.AuditBeforeValue.
+    END. /* each auditdtl */
+    FIND CURRENT AuditHdr EXCLUSIVE-LOCK.
+    AuditHdr.AuditType = "RESTORED".
+    FIND CURRENT AuditHdr NO-LOCK.
+    BROWSE AuditHeader:REFRESH().
+    MESSAGE
+        "Deleted Record Restored"
+    VIEW-AS ALERT-BOX INFORMATION.
+    
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
