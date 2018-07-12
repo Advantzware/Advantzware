@@ -2266,8 +2266,9 @@ PROCEDURE validTagForItem :
      /* under a new i-no */
      FIND FIRST loadtag WHERE loadtag.company = g_company
                     AND loadtag.ITEM-type = NO
-                    AND loadtag.tag-no = fg-rctd.tag:SCREEN-VALUE NO-LOCK NO-ERROR.
-     IF AVAIL loadtag AND loadtag.i-no NE fg-rctd.i-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}
+                    AND loadtag.tag-no = fg-rctd.tag:SCREEN-VALUE IN BROWSE {&BROWSE-NAME} 
+                    NO-LOCK NO-ERROR.
+     IF AVAIL loadtag AND loadtag.i-no NE fg-rctd.i-no:SCREEN-VALUE 
             AND fg-rctd.i-no:SCREEN-VALUE GT "" THEN DO:
             MESSAGE "Invalid Loadtag# for this item. " VIEW-AS ALERT-BOX ERROR.
             APPLY "entry" TO fg-rctd.tag.
