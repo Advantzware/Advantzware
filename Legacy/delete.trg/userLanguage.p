@@ -5,3 +5,5 @@
 TRIGGER PROCEDURE FOR DELETE OF {&TABLENAME}.
 
 {methods/triggers/delete.i}
+
+// Test Gilles2
