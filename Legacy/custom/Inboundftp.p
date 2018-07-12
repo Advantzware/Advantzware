@@ -1,5 +1,5 @@
 /* cXMLftp.p */
-
+DEFINE INPUT PARAMETER ipcFormat AS CHARACTER NO-UNDO.
 DEFINE INPUT PARAMETER ipcFtpSite AS CHARACTER NO-UNDO.
 DEFINE INPUT  PARAMETER ipcFolder AS CHARACTER NO-UNDO.
 DEFINE INPUT PARAMETER ipcFileSpec AS CHARACTER NO-UNDO.
@@ -194,8 +194,15 @@ END PROCEDURE. /* load-config */
 
 PROCEDURE set-config-based:
     DEFINE PARAMETER BUFFER ipbf-ttConfig FOR ttConfig.
-    FIND FIRST ttConfig WHERE
-         ttConfig.destName EQ  ipcFtpSite
+
+    FIND FIRST ttConfig 
+        WHERE ttConfig.importFormat EQ ipcFormat
+          AND ttConfig.destName EQ  ipcFtpSite
+        NO-LOCK NO-ERROR.
+    /* IF format not specified */
+    IF NOT AVAILABLE ttConfig THEN
+    FIND FIRST ttConfig 
+        WHERE ttConfig.destName EQ  ipcFtpSite
         NO-LOCK NO-ERROR.
   
 

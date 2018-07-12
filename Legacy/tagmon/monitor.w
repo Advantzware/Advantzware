@@ -17,6 +17,7 @@ DEFINE STREAM sInputStream.
 def var scr-vend-tag as char.
 def var begin_po-no as int.
 def var scr-po-line as int.
+DEFINE VARIABLE iPos AS INTEGER NO-UNDO.
 DEFINE VARIABLE scr-uom AS CHARACTER.
 DEFINE VARIABLE scr-item-no AS CHARACTER NO-UNDO.
 DEFINE VARIABLE scr-qty AS INTEGER NO-UNDO.
@@ -28,6 +29,7 @@ find first loc where
 
 DEF VAR v-bin AS CHAR NO-UNDO.
 DEF VAR v-loadtag AS CHAR NO-UNDO INIT "ASI". /* sys ctrl option */
+DEFINE VARIABLE cFormat AS CHARACTER NO-UNDO. /* Keyed off of monitor folder name */
 
 FIND FIRST sys-ctrl NO-LOCK
      WHERE sys-ctrl.company EQ g_company
@@ -167,10 +169,15 @@ PROCEDURE postMonitor:
       OS-CREATE-DIR VALUE(AsnhotFolderOut-char).
         
     
-    cPathIn  = AsnHotFolderIn-char.   
-    
+    cPathIn  = AsnHotFolderIn-char.
+    iPos = R-INDEX(cPathIn, "\").
+    /* format taken to be name of incoming folder to allow for more than 1 */
+    IF iPos GT 0 THEN 
+      cFormat = SUBSTRING(cPathIn, iPos + 1).
+    ELSE    
+      cFormat = cPathIn.
     /* Execute ftp to download files */
-    RUN custom/InboundFTP.p (INPUT "TagMon", INPUT cPathIn, INPUT  "*.dat" /* filespec */).
+    RUN custom/InboundFTP.p (INPUT cFormat, INPUT "TagMon", INPUT cPathIn, INPUT  "*.dat" /* filespec */).
    
     RUN monitorActivity ('Check New Tag Files ' + monitorImportDir,YES,'').
     
