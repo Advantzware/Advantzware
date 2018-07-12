@@ -274,9 +274,13 @@ FOR EACH report
                     WHERE bf-item.company EQ bf-job-mat.company
                       AND bf-item.i-no EQ bf-job-mat.rm-i-no
                       AND bf-item.mat-type EQ "B"
-                    NO-LOCK:
+                    NO-LOCK:   
                     IF cBolcert-char EQ "CCC2" THEN DO:
-                       IF AVAIL bf-item AND bf-item.i-code EQ "R" THEN DO:
+                       IF AVAIL bf-item THEN DO:
+                           ASSIGN  cBoard =(IF bf-item.cal NE 0 THEN STRING(bf-item.cal,"9.99999") ELSE "") + " - " + STRING(bf-item.procat,"X(5)").
+                       END.
+
+                     /*  IF AVAIL bf-item AND bf-item.i-code EQ "R" THEN DO:
                         ASSIGN  cBoard =(IF bf-item.cal NE 0 THEN STRING(bf-item.cal,"9.99999") ELSE "") + " - " + STRING(bf-item.i-no,"X(10)").
                         IF  bf-item.s-len NE 0 OR bf-item.r-wid NE 0 OR  bf-item.s-wid NE 0 THEN 
                             cBoard = cBoard + " - " + STRING(bf-item.s-len,"9999.9999") + " X " +
@@ -288,7 +292,7 @@ FOR EACH report
                         IF bf-job-mat.len NE 0 OR bf-job-mat.wid NE 0 THEN 
                                 cBoard = cBoard + " - " + string(bf-job-mat.len,"9999.9999") + " X " + STRING(bf-job-mat.wid,"9999.9999").
                                                 
-                       END.
+                       END.*/
 
                     END.
                     ELSE DO:
