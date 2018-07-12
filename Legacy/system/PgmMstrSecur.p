@@ -69,6 +69,7 @@ PROCEDURE epCanAccessUser:
                 (ipProgName EQ "viewers/file-seq.w" AND ipFunction EQ "") OR /*NZ1 System ref Files */
                 (ipProgName EQ "viewers/vend.w" AND ipFunction EQ "") OR /*NK1 view control tab */
                 (ipProgName EQ "sys/ref/hlp.w" AND ipFunction EQ "ProTools") OR /*ProTools Button*/
+                (ipProgName EQ "util/utilsN.w" AND ipFunction EQ "") OR /*Utils Button*/
                 
                 (ipProgName EQ "" AND ipFunction EQ "")
                 ) THEN ASSIGN
