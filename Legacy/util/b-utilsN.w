@@ -64,7 +64,8 @@ DEFINE    VARIABLE      lv-cust-no              AS cha     NO-UNDO.
 
 DEFINE    VARIABLE      lActive                 AS LOG     NO-UNDO.
 DEFINE VARIABLE iSecurtyLvl             AS INTEGER NO-UNDO.
-
+DEFINE VARIABLE ilogic AS LOG NO-UNDO.
+DEFINE BUFFER bf-utilities FOR utilities.
 ASSIGN 
     cocode = g_company
     locode = g_loc.
@@ -90,8 +91,10 @@ DEFINE {&NEW} SHARED VARIABLE g_lookup-var AS CHARACTER NO-UNDO.
           AND utilities.securityLevel LE iSecurtyLvl   ~
           AND utilities.programName      BEGINS fi_pro-name     ~
           AND utilities.module           BEGINS fi_module       ~
-          AND utilities.hotkey           BEGINS fi_hotkey       ~
-          AND utilities.description      BEGINS fi_desc  
+          AND (utilities.hotkey           BEGINS fi_hotkey OR fi_hotkey EQ "ALL"   )   ~
+          AND utilities.description      BEGINS fi_desc         ~
+          AND utilities.notes            BEGINS fi_notes        ~
+          AND utilities.securityLevel    GE  fi_seclevel 
 
 
 &SCOPED-DEFINE for-eachblank                      ~
@@ -157,9 +160,9 @@ utilities.securityLevel
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS fi_pro-name fi_module fi_hotkey fi_desc ~
-btn_go btn_show Browser-Table 
+fi_notes fi_seclevel btn_go btn_show btnRun Browser-Table 
 &Scoped-Define DISPLAYED-OBJECTS fi_pro-name fi_module fi_hotkey fi_desc ~
-fi_sort-by FI_moveCol 
+fi_notes fi_seclevel fi_sort-by FI_moveCol 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -215,6 +218,11 @@ RUN set-attribute-list (
 
 
 /* Definitions of the field level widgets                               */
+DEFINE BUTTON btnRun 
+     IMAGE-UP FILE "Graphics/32x32/media_play.ico":U NO-FOCUS FLAT-BUTTON
+     LABEL "&Run" 
+     SIZE 7 BY 1.48.
+
 DEFINE BUTTON btn_go 
     LABEL "&Go" 
     SIZE 12 BY 1
@@ -225,15 +233,28 @@ DEFINE BUTTON btn_show
     SIZE 12 BY 1
     FONT 6.
 
-DEFINE VARIABLE fi_desc     AS CHARACTER FORMAT "X(20)":U 
+DEFINE VARIABLE fi_desc     AS CHARACTER FORMAT "X(48)":U 
     VIEW-AS FILL-IN 
-    SIZE 30 BY 1
+    SIZE 35 BY 1
     BGCOLOR 15 NO-UNDO.
 
-DEFINE VARIABLE fi_hotkey   AS CHARACTER FORMAT "X(13)":U 
+DEFINE VARIABLE fi_notes     AS CHARACTER FORMAT "X(256)":U 
     VIEW-AS FILL-IN 
-    SIZE 20 BY 1
+    SIZE 35 BY 1
     BGCOLOR 15 NO-UNDO.
+
+DEFINE VARIABLE fi_seclevel     AS INTEGER FORMAT ">>>>":U 
+    VIEW-AS FILL-IN 
+    SIZE 15 BY 1
+    BGCOLOR 15 NO-UNDO.
+
+
+DEFINE VARIABLE fi_hotkey AS CHARACTER FORMAT "X(256)":U INITIAL "All" 
+     LABEL "Hot Key" 
+     VIEW-AS COMBO-BOX INNER-LINES 5
+     LIST-ITEMS "All" 
+     DROP-DOWN-LIST
+     SIZE 10 BY 1 TOOLTIP "Select Hot Key Filter" NO-UNDO.
 
 DEFINE VARIABLE fi_module   AS CHARACTER FORMAT "X(3)":U 
     VIEW-AS FILL-IN 
@@ -282,28 +303,37 @@ DEFINE BROWSE Browser-Table
 
 DEFINE FRAME F-Main
     fi_pro-name AT ROW 2.19 COL 1 COLON-ALIGNED NO-LABELS WIDGET-ID 48
-    fi_module AT ROW 2.19 COL 27.6 COLON-ALIGNED NO-LABELS WIDGET-ID 2
-    fi_hotkey AT ROW 2.19 COL 43.6 COLON-ALIGNED NO-LABELS WIDGET-ID 40
-    fi_desc AT ROW 2.19 COL 70.2 COLON-ALIGNED NO-LABELS WIDGET-ID 16
+    fi_module AT ROW 2.19 COL 22.6 COLON-ALIGNED NO-LABELS WIDGET-ID 2
+    fi_hotkey AT ROW 2.19 COL 33.9 COLON-ALIGNED NO-LABELS WIDGET-ID 40
+    fi_desc AT ROW 2.19 COL 45.2 COLON-ALIGNED NO-LABELS WIDGET-ID 16
+    fi_notes AT ROW 2.19 COL 81.2 COLON-ALIGNED NO-LABELS 
+    fi_seclevel AT ROW 2.19 COL 117 COLON-ALIGNED NO-LABELS 
     btn_go AT ROW 3.62 COL 1.8 WIDGET-ID 4
     btn_show AT ROW 3.62 COL 15.2 WIDGET-ID 10
+    btnRun AT ROW 3.62 COL 40
     fi_sort-by AT ROW 3.62 COL 54 COLON-ALIGNED NO-LABELS WIDGET-ID 12
     FI_moveCol AT ROW 3.62 COL 120 COLON-ALIGNED NO-LABELS WIDGET-ID 46
     Browser-Table AT ROW 5.29 COL 2.4 HELP
     "Use Home, End, Page-Up, Page-Down, & Arrow Keys to Navigate"
-    "Pro Name" VIEW-AS TEXT
+    "Program Name" VIEW-AS TEXT
     SIZE 18 BY .71 AT ROW 1.24 COL 3 WIDGET-ID 42
     FGCOLOR 9 FONT 6
     "Description" VIEW-AS TEXT
-    SIZE 20 BY .71 AT ROW 1.24 COL 72.2 WIDGET-ID 38
+    SIZE 20 BY .71 AT ROW 1.24 COL 47.2 WIDGET-ID 38
+    FGCOLOR 9 FONT 6
+    "Notes" VIEW-AS TEXT
+    SIZE 20 BY .71 AT ROW 1.24 COL 83.2
+    FGCOLOR 9 FONT 6
+    "Security Lavel" VIEW-AS TEXT
+    SIZE 20 BY .71 AT ROW 1.24 COL 119.2
     FGCOLOR 9 FONT 6
     "Hot Key" VIEW-AS TEXT
-    SIZE 12 BY .71 AT ROW 1.24 COL 45.8 WIDGET-ID 34
+    SIZE 10 BY .71 AT ROW 1.24 COL 36.8 WIDGET-ID 34
     FGCOLOR 9 FONT 6
     "Click on Yellow Field to Sort" VIEW-AS TEXT
     SIZE 28 BY .95 AT ROW 3.62 COL 94 WIDGET-ID 14
     "Module" VIEW-AS TEXT
-    SIZE 13 BY .71 AT ROW 1.24 COL 29.8 WIDGET-ID 24
+    SIZE 11 BY .71 AT ROW 1.24 COL 24.8 WIDGET-ID 24
     FGCOLOR 9 FONT 6
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
     SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -546,7 +576,9 @@ ON CHOOSE OF btn_go IN FRAME F-Main /* Go */
                 fi_pro-name
                 fi_module                                               
                 fi_hotkey                                                 
-                fi_desc     
+                fi_desc  
+                fi_notes
+                fi_seclevel 
                 ll-first = NO 
                 .                                             
      
@@ -571,6 +603,21 @@ ON CHOOSE OF btn_show IN FRAME F-Main /* Show All */
             APPLY "choose" TO btn_go.
         END.
     END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnRun
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnRun B-table-Win
+ON CHOOSE OF btnRun IN FRAME F-Main /* Run */
+DO:
+  IF NOT AVAILABLE utilities THEN RETURN NO-APPLY.
+  IF SEARCH('util/' + utilities.programName) NE ? THEN
+  RUN VALUE('util/' + utilities.programName).
+  ELSE
+  MESSAGE 'Program: util/' + utilities.programName 'does not exist!' VIEW-AS ALERT-BOX.
+END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -736,6 +783,8 @@ PROCEDURE local-display-fields :
         fi_sort-by:SCREEN-VALUE = TRIM(lv-sort-by-lab)               + " " +
             TRIM(STRING(ll-sort-asc,"As/Des")) + "cending".
     END.
+                    
+ 
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -835,6 +884,14 @@ PROCEDURE local-initialize :
     FI_moveCol = "Sort".
   
     DISPLAY FI_moveCol WITH FRAME {&FRAME-NAME}.
+
+
+    fi_hotkey:LIST-ITEMS IN FRAME {&FRAME-NAME} = "All".
+    FOR EACH bf-utilities WHERE utilities.securityLevel LE iSecurtyLvl :
+        ilogic = fi_hotkey:ADD-LAST (bf-utilities.hotkey) IN FRAME {&frame-name}.
+    END. /* each bf-utilities */
+        
+    fi_hotkey:SCREEN-VALUE = fi_hotkey:ENTRY(1) .
 
     APPLY 'ENTRY':U TO fi_pro-name IN FRAME {&FRAME-NAME}.
 
@@ -1120,13 +1177,18 @@ PROCEDURE set-defaults :
     
             fi_pro-name:SCREEN-VALUE = ""
             fi_module:SCREEN-VALUE   = ""
-            fi_hotkey:SCREEN-VALUE   = ""
+            fi_hotkey:SCREEN-VALUE   = "ALL"
             fi_desc:SCREEN-VALUE     = ""
+            fi_notes:SCREEN-VALUE    = ""
+            fi_seclevel:SCREEN-VALUE = "0"
             fi_pro-name              = ""
             fi_module                = ""
             fi_hotkey                = ""
             fi_desc                  = ""
-            .                         
+            fi_notes                 = ""
+            fi_seclevel              = 0
+            .     
+        
     END.
 
 END PROCEDURE.
