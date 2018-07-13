@@ -277,20 +277,20 @@ FOR EACH report
                     NO-LOCK:   
                     IF cBolcert-char EQ "CCC2" THEN DO:
                        IF AVAIL bf-item THEN DO:
-                           ASSIGN  cBoard =(IF bf-item.cal NE 0 THEN STRING(bf-item.cal,"9.99999") ELSE "") + " - " + STRING(bf-item.procat,"X(5)").
+                           ASSIGN  cBoard =(IF bf-item.cal NE 0 THEN STRING(bf-item.cal,"9.99<<<") ELSE "") + " - " + STRING(bf-item.procat,"X(5)").
                        END.
 
                      /*  IF AVAIL bf-item AND bf-item.i-code EQ "R" THEN DO:
-                        ASSIGN  cBoard =(IF bf-item.cal NE 0 THEN STRING(bf-item.cal,"9.99999") ELSE "") + " - " + STRING(bf-item.i-no,"X(10)").
+                        ASSIGN  cBoard =(IF bf-item.cal NE 0 THEN STRING(bf-item.cal,"9.99<<<") ELSE "") + " - " + STRING(bf-item.i-no,"X(10)").
                         IF  bf-item.s-len NE 0 OR bf-item.r-wid NE 0 OR  bf-item.s-wid NE 0 THEN 
-                            cBoard = cBoard + " - " + STRING(bf-item.s-len,"9999.9999") + " X " +
-                            (if bf-item.r-wid ne 0 then STRING(bf-item.r-wid,"9999.9999") ELSE STRING(bf-item.s-wid,"9999.9999")).
+                            cBoard = cBoard + " - " + STRING(bf-item.s-len,"9999.99<<") + " X " +
+                            (if bf-item.r-wid ne 0 then STRING(bf-item.r-wid,"9999.99<<") ELSE STRING(bf-item.s-wid,"9999.99<<")).
                         
                        END.
                        ELSE DO:
-                        ASSIGN  cBoard = (IF bf-item.cal NE 0 THEN STRING(bf-item.cal,"9.99999") ELSE "") + " - " + STRING(bf-item.i-no,"X(15)").
+                        ASSIGN  cBoard = (IF bf-item.cal NE 0 THEN STRING(bf-item.cal,"9.99<<<") ELSE "") + " - " + STRING(bf-item.i-no,"X(15)").
                         IF bf-job-mat.len NE 0 OR bf-job-mat.wid NE 0 THEN 
-                                cBoard = cBoard + " - " + string(bf-job-mat.len,"9999.9999") + " X " + STRING(bf-job-mat.wid,"9999.9999").
+                                cBoard = cBoard + " - " + string(bf-job-mat.len,"9999.99<<") + " X " + STRING(bf-job-mat.wid,"9999.99<<").
                                                 
                        END.*/
 
