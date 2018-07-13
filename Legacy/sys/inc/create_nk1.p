@@ -487,7 +487,7 @@ CASE ip-nk1-value:
         INPUT NO /* Logical value */).
     WHEN "OEAutoDateUpdate" THEN   
     RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
-        INPUT "Updates orders and releases with any change to transit days or dock appointment days are changed",
+        INPUT "Updates orders and releases with any change to transit days or dock appointment days",
         INPUT "Transit&Dock" /* Char Value */, INPUT 0 /* Int value */,
         INPUT NO /* Logical value */).
 END CASE.
