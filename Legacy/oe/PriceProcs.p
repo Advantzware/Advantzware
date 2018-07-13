@@ -506,7 +506,7 @@ PROCEDURE GetPriceMatrixPrice:
         ELSE 
             iLevel = iLevelStart.
     END.
-            
+    IF oplQtyDistinctMatch THEN
     RUN pGetPriceAtLevel(BUFFER bf-oe-prmtx, iLevel, dItemSellPrice, cItemSellPriceUom, OUTPUT iopdPrice, OUTPUT iopcUom).
 
 
