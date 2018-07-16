@@ -1247,6 +1247,7 @@ PROCEDURE pGetMenu :
     
     RUN pCreateMenuObjects ("file").
     
+    /* Removing as described
     /* temporary section, will be removed before release of 16.8.0 */
     OUTPUT TO c:\tmp\ttblItem.txt.
     FOR EACH ttblItem:
@@ -1259,6 +1260,7 @@ PROCEDURE pGetMenu :
     END.
     OUTPUT CLOSE.
     /* temporary section, will be removed before release of 16.8.0 */
+    */
 
 END PROCEDURE.
 
