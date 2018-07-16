@@ -677,15 +677,14 @@ DO:
       END.
 
       IF v-cust-no NE "" THEN
-         FIND FIRST reftable WHERE
-              reftable.reftable = "cp-lab-p" AND
-              reftable.company = cocode AND
-              reftable.loc     = begin_i-no:SCREEN-VALUE AND
-              reftable.CODE    = v-cust-no
+        FIND FIRST cust-part WHERE
+              cust-part.company = cocode AND
+              cust-part.i-no    = begin_i-no:SCREEN-VALUE AND
+              cust-part.cust-no = v-cust-no
               NO-LOCK NO-ERROR.
 
-      IF AVAIL reftable AND reftable.code2 NE "" THEN
-         scr-label-file:SCREEN-VALUE = reftable.code2.
+      IF AVAIL cust-part AND cust-part.labelCase EQ YES THEN
+         scr-label-file:SCREEN-VALUE = cust-part.sman.
       ELSE
       IF INT(begin_ord-no:SCREEN-VALUE) NE 0 THEN DO:
 
@@ -868,15 +867,14 @@ DO:
          v-cust-no = IF AVAIL oe-ord THEN oe-ord.cust-no ELSE "".
 
          IF AVAIL oe-ord THEN
-            FIND FIRST reftable WHERE
-                 reftable.reftable = "cp-lab-p" AND
-                 reftable.company = cocode AND
-                 reftable.loc     = begin_i-no:SCREEN-VALUE AND
-                 reftable.CODE    = oe-ord.cust-no
-                 NO-LOCK NO-ERROR.
+          FIND FIRST cust-part WHERE
+              cust-part.company = cocode AND
+              cust-part.i-no     = begin_i-no:SCREEN-VALUE AND
+              cust-part.cust-no    = oe-ord.cust-no
+              NO-LOCK NO-ERROR.
 
-         IF AVAIL reftable AND reftable.code2 NE "" THEN
-            scr-label-file:SCREEN-VALUE = reftable.code2.
+        IF AVAIL cust-part AND cust-part.labelCase EQ YES THEN
+         scr-label-file:SCREEN-VALUE = cust-part.sman.        
          ELSE
          DO:
             IF begin_i-no:SCREEN-VALUE NE "" THEN
@@ -1062,15 +1060,14 @@ DO:
        END.
 
        IF v-cust-no NE "" THEN
-          FIND FIRST reftable WHERE
-               reftable.reftable = "cp-lab-p" AND
-               reftable.company = cocode AND
-               reftable.loc     = begin_i-no:SCREEN-VALUE AND
-               reftable.CODE    = v-cust-no
-               NO-LOCK NO-ERROR.
+       FIND FIRST cust-part WHERE
+              cust-part.company = cocode AND
+              cust-part.i-no     = begin_i-no:SCREEN-VALUE AND
+              cust-part.cust-no    = v-cust-no
+              NO-LOCK NO-ERROR.
 
-       IF AVAIL reftable AND reftable.code2 NE "" THEN
-          scr-label-file:SCREEN-VALUE = reftable.code2.
+      IF AVAIL cust-part AND cust-part.labelCase EQ YES THEN
+         scr-label-file:SCREEN-VALUE = cust-part.sman.
        ELSE
        IF INT(begin_ord-no:SCREEN-VALUE) NE 0 THEN DO:
 
@@ -2135,15 +2132,14 @@ PROCEDURE new-job :
 
        IF v-auto-print AND LOGICAL(scr-freeze-label:SCREEN-VALUE) = NO THEN
        DO:
-          FIND FIRST reftable WHERE
-               reftable.reftable = "cp-lab-p" AND
-               reftable.company = cocode AND
-               reftable.loc     = begin_i-no:SCREEN-VALUE AND
-               reftable.CODE    = job-hdr.cust-no
-               NO-LOCK NO-ERROR.
+          FIND FIRST cust-part WHERE
+              cust-part.company  = cocode AND
+              cust-part.i-no     = begin_i-no:SCREEN-VALUE AND
+              cust-part.cust-no  = job-hdr.cust-no
+              NO-LOCK NO-ERROR.
 
-          IF AVAIL reftable AND reftable.code2 NE "" THEN
-             scr-label-file:SCREEN-VALUE = reftable.code2.
+          IF AVAIL cust-part AND cust-part.labelCase EQ YES THEN
+             scr-label-file:SCREEN-VALUE = cust-part.sman.
           ELSE
           DO:
 

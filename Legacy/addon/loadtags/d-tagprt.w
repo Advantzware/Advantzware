@@ -142,7 +142,6 @@ DEF WORKFILE w-shipto LIKE shipto
                       FIELD row-id AS ROWID.
 
 DEF BUFFER b-oe-rel FOR oe-rel.
-DEF BUFFER ref-lot-no FOR reftable.
 
 DEFINE TEMP-TABLE ttblJob NO-UNDO
   FIELD company AS CHARACTER
@@ -1423,16 +1422,14 @@ PROCEDURE get-label-file :
     END.
 
      IF v-cust-no NE "" THEN
-        FIND FIRST reftable WHERE
-             reftable.reftable EQ "cp-lab-p" AND
-             reftable.company  EQ cocode AND
-             reftable.loc      GE bf-tag.i-no AND
-             reftable.loc      LE bf-tag.i-no AND
-             reftable.CODE     EQ v-cust-no
+      FIND FIRST cust-part WHERE
+             cust-part.company   EQ cocode AND
+             cust-part.i-no      EQ bf-tag.i-no AND
+             cust-part.cust-no   EQ v-cust-no
              NO-LOCK NO-ERROR.
 
-     IF AVAIL reftable AND reftable.dscr NE "" THEN
-        scr-label-file = (IF reftable.dscr <> "" THEN reftable.dscr ELSE v-bardir-chr).
+     IF AVAIL cust-part AND cust-part.labelPallet EQ YES THEN
+        scr-label-file = (IF cust-part.sman <> "" THEN cust-part.sman ELSE v-bardir-chr).
      ELSE
         IF INT(bf-tag.ord-no) NE 0 AND
            INT(bf-tag.ord-no) NE 0 THEN
