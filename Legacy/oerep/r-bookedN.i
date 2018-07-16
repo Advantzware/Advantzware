@@ -231,6 +231,8 @@ FORMAT wkrecap.procat
       WHERE oe-ord.company  EQ cocode
         AND oe-ord.cust-no  GE begin_cust-no
         AND oe-ord.cust-no  LE end_cust-no
+        AND (if lselected then can-find(first ttCustList where ttCustList.cust-no eq oe-ord.cust-no
+        AND ttCustList.log-fld no-lock) else true)
         AND oe-ord.ord-date GE lo_trANDate
         AND oe-ord.ord-date LE tdate
         AND oe-ord.stat     NE "D"
