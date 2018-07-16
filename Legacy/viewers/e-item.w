@@ -1236,6 +1236,8 @@ PROCEDURE local-create-record :
         e-item-vend.i-no = e-item.i-no    
         e-item-vend.setup = bf-item.min-sqft
         e-item-vend.item-type = YES
+        e-item-vend.roll-w[28] = 999.000
+        e-item-vend.roll-w[30] = 999.000
         e-item-vend.vend-no = FILL(" ",100) + STRING(TIME,">>>>>>>>>>")
         bf-item.min-sqft = 0.
 
@@ -1412,6 +1414,18 @@ PROCEDURE local-update-record :
   DO WITH FRAME {&FRAME-NAME}:
     RUN valid-vend-no (e-item-vend.vend-no:HANDLE) NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+  END.
+  
+  DO WITH FRAME {&FRAME-NAME}:
+    
+  IF e-item-vend.roll-w[28]:SCREEN-VALUE EQ "0.0000" THEN
+      ASSIGN 
+      e-item-vend.roll-w[28]:SCREEN-VALUE = "999.000" .
+
+  IF e-item-vend.roll-w[30]:screen-value EQ "0.0000" THEN
+      ASSIGN 
+      e-item-vend.roll-w[30]:SCREEN-VALUE = "999.000" .
+
   END.
 
   RUN valid-roll-w-27 NO-ERROR.
