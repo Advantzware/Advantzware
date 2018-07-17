@@ -89,6 +89,8 @@ DEFINE VARIABLE lInquery AS LOGICAL INIT NO NO-UNDO .
 /* gdm - 01310801 */
 DEF VAR v-paidflg AS LOG NO-UNDO.
 DEFINE VARIABLE cPoStatus AS CHARACTER NO-UNDO .
+DEFINE VARIABLE cPoLineStatus AS CHARACTER NO-UNDO .
+
 
 &SCOPED-DEFINE key-phrase po-ordl.company EQ cocode
 
@@ -171,10 +173,11 @@ DEFINE VARIABLE cPoStatus AS CHARACTER NO-UNDO .
     IF lv-sort-by EQ "buyer"     THEN po-ord.buyer                                                                                ELSE ~
     IF lv-sort-by EQ "cPoStatus" THEN po-ord.stat                                                                                 ELSE ~
     IF lv-sort-by EQ "cust-no"      THEN po-ordl.cust-no                                                                                 ELSE ~
-    IF lv-sort-by EQ "statl"       THEN STRING(po-ordl.stat)                                                         ELSE ~
+    IF lv-sort-by EQ "cPolineStatus"       THEN STRING(po-ordl.stat)                                                         ELSE ~
+    IF lv-sort-by EQ "line"     THEN (STRING(po-ordl.po-no,"9999999999") + STRING(po-ordl.LINE,"9999"))                           ELSE ~
                                       STRING(YEAR(po-ordl.due-date),"9999") + STRING(MONTH(po-ordl.due-date),"99") + STRING(DAY(po-ordl.due-date),"99")
 
-&SCOPED-DEFINE sortby BY po-ordl.po-no BY po-ordl.i-no BY po-ordl.LINE
+&SCOPED-DEFINE sortby BY po-ordl.po-no BY po-ordl.LINE BY po-ordl.i-no 
 
 &SCOPED-DEFINE sortby-phrase-asc1  ~
     BY ({&sortby-log1})            ~
@@ -224,13 +227,13 @@ dim-in-16 (po-ordl.s-wid) @ po-ordl.s-wid po-ordl.s-wid ~
 dim-in-16 (po-ordl.s-len) @ po-ordl.s-len po-ordl.s-len po-ordl.vend-i-no ~
 po-ordl.ord-qty qty-in-ord-uom () @ lv-t-rec-qty po-ordl.pr-qty-uom ~
 po-ordl.t-rec-qty po-ordl.cons-uom po-ordl.cost po-ordl.pr-uom po-ord.buyer ~
-po-ordl.stat is-it-postat() @ cPoStatus is-it-paid() @ v-paidflg po-ordl.cust-no 
+is-it-polinestat() @ cPoLineStatus is-it-postat() @ cPoStatus is-it-paid() @ v-paidflg po-ordl.cust-no po-ordl.LINE
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table po-ordl.po-no ~
 po-ord.vend-no po-ordl.due-date po-ord.ship-id po-ord.ship-name ~
 po-ordl.job-no po-ordl.job-no2 po-ordl.s-num po-ordl.i-no po-ordl.i-name ~
 po-ordl.s-wid po-ordl.s-len po-ordl.vend-i-no po-ordl.ord-qty ~
 po-ordl.pr-qty-uom po-ordl.t-rec-qty po-ordl.cons-uom po-ordl.cost ~
-po-ordl.pr-uom po-ord.buyer po-ordl.stat po-ordl.cust-no 
+po-ordl.pr-uom po-ord.buyer po-ordl.cust-no 
 &Scoped-define ENABLED-TABLES-IN-QUERY-Browser-Table po-ordl po-ord
 &Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-Browser-Table po-ordl
 &Scoped-define SECOND-ENABLED-TABLE-IN-QUERY-Browser-Table po-ord
@@ -318,6 +321,13 @@ FUNCTION is-it-paid RETURNS LOGICAL
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD is-it-postat B-table-Win 
 FUNCTION is-it-postat RETURNS CHARACTER
+  (  /* parameter-definitions */  )  FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD is-it-polinestat B-table-Win 
+FUNCTION is-it-poLinestat RETURNS CHARACTER
   (  /* parameter-definitions */  )  FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
@@ -468,7 +478,6 @@ DEFINE QUERY Browser-Table FOR
       po-ordl.cons-uom
       po-ordl.cost
       po-ordl.pr-uom
-      po-ordl.stat
       po-ordl.cust-no), 
       po-ord, 
       reftable, 
@@ -513,11 +522,13 @@ DEFINE BROWSE Browser-Table
       po-ordl.cost FORMAT "->,>>>,>>9.99<<<<":U LABEL-BGCOLOR 14
       po-ordl.pr-uom COLUMN-LABEL "UOM" FORMAT "x(4)":U LABEL-BGCOLOR 14
       po-ord.buyer FORMAT "x(10)":U LABEL-BGCOLOR 14
-      po-ordl.stat COLUMN-LABEL "Line Status" FORMAT "x":U LABEL-BGCOLOR 14
-      is-it-postat() @ cPoStatus COLUMN-LABEL "PO Status" FORMAT "x":U LABEL-BGCOLOR 14
+      is-it-polinestat() @ cPoLineStatus COLUMN-LABEL "Line Status" FORMAT "x(20)":U LABEL-BGCOLOR 14
+      is-it-postat() @ cPoStatus COLUMN-LABEL "PO Status" FORMAT "x(20)":U LABEL-BGCOLOR 14
       is-it-paid() @ v-paidflg COLUMN-LABEL "Paid" FORMAT "YES / NO":U
       po-ordl.cust-no COLUMN-LABEL "Customer#" FORMAT "x(8)":U
             LABEL-BGCOLOR 14
+      po-ordl.LINE COLUMN-LABEL "Line #" FORMAT ">>>9":U LABEL-BGCOLOR 14
+    
   ENABLE
       po-ordl.po-no
       po-ord.vend-no
@@ -539,7 +550,6 @@ DEFINE BROWSE Browser-Table
       po-ordl.cost
       po-ordl.pr-uom
       po-ord.buyer
-      po-ordl.stat HELP "Line Status: (C)lose,(F)ill,(N)ew,(O)pen,(R)elease,(U)pdate"
       po-ordl.cust-no
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -741,14 +751,16 @@ po-ord.po-no eq po-ordl.po-no"
 "po-ordl.pr-uom" "UOM" ? "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[23]   > ASI.po-ord.buyer
 "po-ord.buyer" ? ? "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[24]   > ASI.po-ordl.stat
-"po-ordl.stat" "Line Status" ? "character" ? ? ? 14 ? ? yes "Line Status: (C)lose,(F)ill,(N)ew,(O)pen,(R)elease,(U)pdate" no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[24]   > "_<CALC>"
+"is-it-polinestat() @ cPoLineStatus" "Line Status" ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[25]   > "_<CALC>"
-"is-it-postat() @ cPoStatus" "PO Status" ? "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"is-it-postat() @ cPoStatus" "PO Status" ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[26]   > "_<CALC>"
 "is-it-paid() @ v-paidflg" "Paid" "YES / NO" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[27]   > ASI.po-ordl.cust-no
 "po-ordl.cust-no" "Customer#" ? "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[28]   > ASI.po-ordl.line
+"po-ordl.line" "Line #" ">>>>>>>" "integer" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */
 &ANALYZE-RESUME
@@ -1515,7 +1527,6 @@ PROCEDURE local-initialize :
    po-ordl.due-date:READ-ONLY IN BROWSE {&browse-name} = YES
    po-ord.ship-id:READ-ONLY IN BROWSE {&browse-name} = YES
    po-ord.ship-name:READ-ONLY IN BROWSE {&browse-name} = YES
-   po-ordl.stat:READ-ONLY IN BROWSE {&browse-name} = YES
    po-ordl.s-wid:READ-ONLY IN BROWSE {&browse-name} = YES
    po-ordl.s-len:READ-ONLY IN BROWSE {&browse-name} = YES
    po-ordl.cost:READ-ONLY IN BROWSE {&browse-name} = YES
@@ -2776,8 +2787,39 @@ FUNCTION is-it-postat RETURNS CHARACTER
   Purpose:  
     Notes:  
 ------------------------------------------------------------------------------*/
-  
-  RETURN po-ord.stat .   /* Function return value. */
+    DEFINE VARIABLE lc-result AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cResult AS CHARACTER NO-UNDO.
+    
+    IF AVAILABLE po-ord THEN DO: 
+        lc-result = po-ord.stat .
+        RUN oe/getStatusDesc.p( INPUT po-ord.stat, OUTPUT cResult) .
+        IF cResult NE "" THEN
+            lc-result  = cResult .
+    END.
+    RETURN lc-result.   /* Function return value. */
+
+END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION is-it-polinestat B-table-Win 
+FUNCTION is-it-polinestat RETURNS CHARACTER
+  (  /* parameter-definitions */  ) :
+/*------------------------------------------------------------------------------
+  Purpose:  
+    Notes:  
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE lc-result AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cResult AS CHARACTER NO-UNDO.
+    
+    IF AVAILABLE po-ordl THEN DO: 
+        lc-result = po-ordl.stat .
+        RUN oe/getStatusDesc.p( INPUT po-ordl.stat, OUTPUT cResult) .
+        IF cResult NE "" THEN
+            lc-result  = cResult .
+    END.
+    RETURN lc-result.   /* Function return value. */
 
 END FUNCTION.
 
