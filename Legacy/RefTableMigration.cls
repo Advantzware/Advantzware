@@ -2912,6 +2912,41 @@ CLASS RefTableMigration:
         END.  /*FOR EACH reftable*/          
         RETURN iCnt.
     END METHOD. /*e-itemfg-vend*/ 
+    METHOD PUBLIC INTEGER PrepCadFile(INPUT ipCount AS INTEGER):
+        DEFINE VARIABLE iCnt AS INTEGER NO-UNDO.
+        DEFINE BUFFER reftable1 FOR reftable1.
+        DEFINE BUFFER Breftable FOR reftable. 
+        DEFINE BUFFER prep      FOR prep.
+        
+        DISABLE TRIGGERS FOR LOAD OF reftable.        
+        DISABLE TRIGGERS FOR LOAD OF prep.
+        ASSIGN iProcessCount = 0.
+        FOR EACH reftable WHERE reftable.reftable = "PREPCADFILE"
+            NO-LOCK:
+            DO TRANSACTION:    
+                FIND FIRST prep WHERE prep.rec_key = reftable.rec_key
+                    EXCLUSIVE-LOCK NO-ERROR.
+                IF AVAILABLE prep THEN    
+                DO: 
+                    IF prep.cadNo EQ "" THEN ASSIGN prep.cadNo = reftable.code.
+                    IF prep.fileNo EQ "" THEN ASSIGN prep.fileNo = reftable.code2.
+                    ASSIGN iProcessCount = iProcessCount + 1.
+                END. 
+                FIND CURRENT prep NO-LOCK NO-ERROR.    
+                RELEASE prep.      
+                CREATE reftable1.
+                BUFFER-COPY reftable TO reftable1.
+                RELEASE reftable1.
+                FIND Breftable WHERE ROWID(Breftable) = ROWID(reftable)
+                    EXCLUSIVE-LOCK NO-ERROR.
+                IF AVAILABLE Breftable THEN DELETE Breftable. 
+                RELEASE Breftable.   
+                iCnt = iCnt + 1.
+                IF iCnt >= ipCount THEN LEAVE.   
+            END.              
+        END.  /*FOR EACH reftable*/  
+        RETURN iCnt.
+    END METHOD. /*PrepCadFile*/
 END CLASS.
 
 

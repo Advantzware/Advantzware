@@ -787,10 +787,6 @@ FOR EACH prep WHERE prep.company = g_company
                  AND prep.CODE >= begin_prep
                  AND prep.CODE <= END_prep NO-LOCK BY prep.CODE:
 
-   FIND FIRST reftable NO-LOCK
-        WHERE reftable.reftable EQ "PREPCADFILE"
-          AND reftable.rec_key  EQ prep.rec_key
-         USE-INDEX rec_key NO-ERROR.
 
     ASSIGN v_ML     = IF prep.ml = TRUE THEN "M" ELSE "L"
            v_dfault = IF prep.dfault = TRUE THEN "Y" ELSE "N".
@@ -814,8 +810,8 @@ FOR EACH prep WHERE prep.company = g_company
                prep.simon
                prep.cost-type COLUMN-LABEL 'C!Type'
                prep.actnum 
-               reftable.code  WHEN AVAIL reftable COLUMN-LABEL 'Cad #' FORMAT "x(15)"
-               reftable.code2 WHEN AVAIL reftable COLUMN-LABEL 'File #' FORMAT "x(15)"              
+               prep.cadNo  COLUMN-LABEL 'Cad #' FORMAT "x(15)"
+               prep.fileNo COLUMN-LABEL 'File #' FORMAT "x(15)" 
            WITH STREAM-IO FRAME prep-det DOWN WIDTH 230 NO-BOX.
 
        /* gdm - 10130803 */
@@ -838,8 +834,8 @@ FOR EACH prep WHERE prep.company = g_company
               '"' prep.simon         '",'    
               '"' prep.cost-type     '",'
               '"' prep.actnum        '",'
-              '"' IF AVAIL reftable THEN reftable.CODE ELSE ""      '",'
-              '"' IF AVAIL reftable THEN reftable.code2 ELSE ""     '"'
+              '"' prep.cadNo         '",'
+              '"' prep.fileNo        '"'
              SKIP.
 
 

@@ -1172,7 +1172,6 @@ DEFINE VARIABLE str-tit5 AS cha FORM "x(200)" NO-UNDO.
 DEFINE VARIABLE str-line AS cha FORM "x(300)" NO-UNDO.
 DEFINE VARIABLE v-lst-job    AS CHARACTER NO-UNDO.
 
-DEFINE BUFFER bf-reftable FOR reftable .
 DEFINE BUFFER bfprep FOR prep .
 
 {sys/form/r-topsw.f}
@@ -1235,10 +1234,6 @@ FOR EACH prep WHERE prep.company = g_company
 
    FIND FIRST notes WHERE notes.rec_key EQ prep.rec_key NO-LOCK NO-ERROR .
 
-   FIND FIRST reftable NO-LOCK
-        WHERE reftable.reftable EQ "PREPCADFILE"
-          AND reftable.rec_key  EQ prep.rec_key
-         USE-INDEX rec_key NO-ERROR.
 
     ASSIGN v_ML     = IF prep.ml = TRUE THEN "M" ELSE "L"
            v_dfault = IF prep.dfault = TRUE THEN "Y" ELSE "N" .
@@ -1295,8 +1290,8 @@ FOR EACH prep WHERE prep.company = g_company
                          WHEN "simon"                 THEN cVarValue =  STRING(prep.simon) .
                          WHEN "c-typ"                  THEN cVarValue =  STRING(prep.cost-type) .
                          WHEN "act-no"                THEN cVarValue = STRING(prep.actnum) .
-                         WHEN "cad-no"               THEN cVarValue =   IF AVAILABLE reftable THEN reftable.CODE ELSE ""    .
-                         WHEN "file-no"                 THEN cVarValue =   IF AVAILABLE reftable THEN reftable.code2 ELSE ""  .
+                         WHEN "cad-no"               THEN cVarValue =   prep.cadNo.
+                         WHEN "file-no"                 THEN cVarValue =  prep.fileNo.
                          WHEN "cust"      THEN cVarValue = prep.cust-no   .
                          WHEN "lst-est"   THEN cVarValue = prep.last-est-no  .
                          WHEN "lst-job"   THEN cVarValue = IF v-lst-job NE "-00" AND v-lst-job NE "" THEN  v-lst-job ELSE "" .

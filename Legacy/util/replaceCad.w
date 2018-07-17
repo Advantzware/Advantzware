@@ -422,27 +422,18 @@ status default "Processing ...".
 
 ASSIGN i = 0 j = 0.
 IF fi_from_cad <> "" THEN
-FOR EACH reftable WHERE reftable.reftable EQ "PREPCADFILE"
-                    AND reftable.CODE BEGINS fi_from_cad:
-    FIND FIRST prep NO-LOCK WHERE prep.company = cocode
-                              AND prep.rec_key = reftable.rec_key
-        USE-INDEX rec_key NO-ERROR.
-    IF AVAIL prep THEN 
-        ASSIGN i = i + 1 
-               reftable.CODE = fi_to_cad.
-END.
+FOR EACH prep WHERE prep.company = cocode
+                AND prep.cadNo BEGINS fi_from_cad:
+    ASSIGN prep.cadNo = fi_to_cad
+            i = i + 1 .
+END.            
 
 IF fi_from_fil <> "" THEN
-FOR EACH reftable WHERE reftable.reftable EQ "PREPCADFILE"
-                    AND reftable.CODE2 BEGINS fi_from_fil:
-    FIND FIRST prep NO-LOCK WHERE prep.company = cocode
-                              AND prep.rec_key = reftable.rec_key
-        USE-INDEX rec_key NO-ERROR.
-    IF AVAIL prep THEN 
-        ASSIGN j = j + 1
-               reftable.CODE2 = fi_to_fil.
-END.
-
+FOR EACH prep WHERE prep.company = cocode
+                AND prep.cadNo BEGINS fi_from_fil:
+    ASSIGN prep.fileNo = fi_to_fil
+            j = j + 1 .
+END. 
 
 STATUS DEFAULT "".
 

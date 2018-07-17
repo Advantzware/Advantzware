@@ -1847,22 +1847,15 @@ PROCEDURE reftable-values :
   DEF INPUT PARAM ip-display AS LOG NO-UNDO.
 
   /* gdm - */
-  DEF BUFFER bf-reftable FOR reftable.
  IF AVAIL prep THEN DO:
 
     IF ip-display THEN DO:
       ASSIGN
         fi_job-no = prep.last-job-no
         fi_job-no2 = prep.last-job-no2
+        fi_cad# =  prep.cadNo
+        fi_fil# = prep.fileNo.
          .
-        FIND FIRST bf-reftable NO-LOCK
-               WHERE bf-reftable.reftable EQ "PREPCADFILE"
-                 AND bf-reftable.rec_key  EQ prep.rec_key NO-ERROR.  
-        IF AVAIL bf-reftable THEN DO:
-           ASSIGN fi_cad# =  bf-reftable.CODE
-                  fi_fil# = bf-reftable.code2.
-        END.
-        RELEASE bf-reftable.
     END.
     ELSE
     DO:
@@ -1882,19 +1875,10 @@ PROCEDURE reftable-values :
        /* should be able to save blank cad# and fil# */
        /*IF fi_cad# NE "" OR fi_fil# NE "" THEN DO:*/
 
-          FIND FIRST bf-reftable EXCLUSIVE-LOCK
-               WHERE bf-reftable.reftable EQ "PREPCADFILE"
-                 AND bf-reftable.rec_key  EQ prep.rec_key NO-ERROR.  
-          IF NOT AVAIL bf-reftable THEN DO:
-             CREATE bf-reftable.
-             ASSIGN bf-reftable.reftable = "PREPCADFILE"
-                    bf-reftable.rec_key  = prep.rec_key.
-          END.
+       ASSIGN prep.cadNo  = fi_cad#
+              prep.fileNo = fi_fil#.
 
-          ASSIGN bf-reftable.code  = fi_cad#
-                 bf-reftable.code2 = fi_fil#.
 
-          RELEASE bf-reftable.
        /*END.*/
     END. /* else */
   END.

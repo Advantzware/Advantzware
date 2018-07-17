@@ -146,6 +146,7 @@ ASSIGN
     {refTableConv.i "print42" 'print42'}
     {refTableConv.i "ColorAudit" 'COLOR' + chr(32) + 'AUDIT'}
     {refTableConv.i "Machcrew" 'MACH-CREW'}
+    {refTableConv.i "PrepCadFile" 'PREPCADFILE'}
 
 /* Deferred for 16.7.0                                              */
 /*    {refTableConv.i "STYFLU" 'STYFLU'}                            */
