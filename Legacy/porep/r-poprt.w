@@ -107,6 +107,8 @@ IF llRecFound THEN
 DEFINE VARIABLE retcode AS INTEGER   NO-UNDO.
 DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
 DEFINE VARIABLE lBussFormModle AS LOGICAL NO-UNDO.
+DEFINE VARIABLE cPdfFilesAttach AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cPoMailList AS CHARACTER NO-UNDO .
 
  RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormModal", "L" /* Logical */, NO /* check by cust */, 
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
@@ -606,7 +608,7 @@ DO:
     v-print-terms       = tb_print-terms
     lv-attachments      = tb_attachments
     lCustCode           =  tb_cust-code.
-
+ IF rd-dest NE 5 THEN do:
   IF CAN-FIND(FIRST sys-ctrl-shipto WHERE
      sys-ctrl-shipto.company = cocode AND
      sys-ctrl-shipto.NAME = "POPRINT") THEN
@@ -660,7 +662,7 @@ DO:
 
                  RUN SetGlobalVariables(INPUT b1-po-ord.po-no).
 
-                 RUN run-report(b1-po-ord.vend-no, TRUE) . 
+                 RUN run-report(0,b1-po-ord.vend-no, TRUE) . 
 
                  RUN GenerateReport(b1-po-ord.vend-no, b1-po-ord.vend-no) .
                END.
@@ -673,9 +675,81 @@ DO:
      DO:
         v-print-fmt = vcDefaultForm.
         RUN SetGlobalVariables(INPUT begin_po-no).
-        RUN run-report("", FALSE) .
+        RUN run-report(0,"", FALSE) .
         RUN GenerateReport(INPUT begin_vend-no, end_vend-no) .
      END.
+
+ END. /* rd-dest ne 5*/
+ IF rd-dest EQ 5 THEN DO:
+     IF CAN-FIND(FIRST b1-po-ord
+            WHERE  b1-po-ord.company EQ cocode
+              AND (b1-po-ord.stat    EQ "N" OR 
+                   b1-po-ord.stat    EQ "O" OR 
+                   b1-po-ord.stat    EQ "U" OR
+                  (tb_reprint-closed AND b1-po-ord.stat EQ "C"))
+              AND  b1-po-ord.printed EQ v-reprint-po
+              AND  b1-po-ord.po-no   GE v-start-po
+              AND  b1-po-ord.po-no   LE v-end-po
+              AND  b1-po-ord.vend-no GE begin_vend-no
+              AND  b1-po-ord.vend-no LE end_vend-no) THEN
+            FOR EACH  b1-po-ord /* FIELDS(vend-no company) */
+                WHERE  b1-po-ord.company EQ cocode
+                  AND (b1-po-ord.stat    EQ "N" OR 
+                       b1-po-ord.stat    EQ "O" OR 
+                       b1-po-ord.stat    EQ "U" OR
+                      (tb_reprint-closed AND b1-po-ord.stat EQ "C"))
+                  AND  b1-po-ord.printed EQ v-reprint-po
+                  AND  b1-po-ord.po-no   GE v-start-po
+                  AND  b1-po-ord.po-no   LE v-end-po
+                  AND  b1-po-ord.vend-no GE begin_vend-no
+                  AND  b1-po-ord.vend-no LE end_vend-no
+              NO-LOCK
+             BREAK BY b1-po-ord.company
+                   BY b1-po-ord.vend-no
+                   BY b1-po-ord.po-no :
+
+               IF FIRST-OF(b1-po-ord.vend-no) THEN 
+                ASSIGN
+                   cPdfFilesAttach = "" 
+                   cPoMailList     = "" .
+               IF FIRST-OF (b1-po-ord.po-no) THEN DO:
+               
+                 FIND FIRST sys-ctrl-shipto
+                      WHERE sys-ctrl-shipto.company      = cocode
+                        AND sys-ctrl-shipto.NAME         = "POPRINT"
+                        AND sys-ctrl-shipto.cust-vend    = NO
+                        AND sys-ctrl-shipto.cust-vend-no = b1-po-ord.vend-no 
+                        AND sys-ctrl-shipto.char-fld > '' 
+                      NO-LOCK NO-ERROR.
+
+                 IF AVAILABLE sys-ctrl-shipto THEN
+                 DO:
+                    RUN SetPOPrintForm (sys-ctrl-shipto.char-fld) .
+                    v-print-fmt = sys-ctrl-shipto.char-fld.
+                 END.
+                 ELSE
+                 DO:
+                    RUN SetPOPrintForm (vcDefaultForm).
+                    v-print-fmt = vcDefaultForm.
+                 END.
+
+                 RUN SetGlobalVariables(INPUT b1-po-ord.po-no).
+
+                 RUN run-report(b1-po-ord.po-no,b1-po-ord.vend-no, TRUE) . 
+
+                 RUN GenerateReport(b1-po-ord.vend-no, b1-po-ord.vend-no) .
+                 IF NOT LAST-OF(b1-po-ord.vend) THEN
+                     ASSIGN cPoMailList = cPoMailList + "," .
+               END.
+               IF LAST-OF (b1-po-ord.vend-no) THEN
+                   RUN GenerateMail .
+            END. /*FOR EACH*/
+         ELSE
+            MESSAGE "No Purchase Orders Were Printed."
+                VIEW-AS ALERT-BOX INFORMATION BUTTONS OK.
+
+
+ END. /* rd-dest eq 5*/
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1201,6 +1275,57 @@ PROCEDURE GenerateReport :
   END.
 
   IF rd-dest = 5 THEN DO:      
+   
+    IF is-xprint-form OR v-print-fmt = "southpak-xl" THEN DO:
+
+      IF v-print-fmt <> "southpak-xl" THEN DO:
+
+        RUN printPDF (list-name, "ADVANCED SOFTWARE","A1g9f84aaq7479de4m22").
+
+        IF NOT AttachmentExists() THEN RETURN.
+      END.
+
+      ELSE 
+        ASSIGN lv-pdf-file = init-dir + "\PO.pdf".
+         
+        cPdfFilesAttach = cPdfFilesAttach + lv-pdf-file + "," .
+      
+    END.
+
+    ELSE DO:  
+      IF NOT AttachmentExists() THEN RETURN.
+      
+    END.
+  END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE GenerateMail C-Win 
+PROCEDURE GenerateMail :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+
+/*  DEFINE INPUT PARAMETER ip-begin-vend-no AS CHARACTER NO-UNDO.*/
+  /*DEFINE INPUT PARAMETER ip-end-vend-no AS CHARACTER NO-UNDO.*/
+
+  /* gdm - 11190804 */
+  DEFINE VARIABLE v-outfile AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE lcSubject AS CHARACTER   NO-UNDO.
+  DEFINE BUFFER bf-po-ord FOR po-ord.
+  DEFINE VARIABLE llAttachExists AS LOG NO-UNDO.
+  SESSION:SET-WAIT-STATE ("").
+  llAttachExists = NO.
+
+  
+
+  IF rd-dest = 5 THEN DO:      
 
     /* gdm - 11190804 */
     IF LOOKUP(v-print-fmt,"Xprint,poprint 1,poprint 10,LancoYork,StClair,Boss,Hughes,PeachTree,FibreX,Lovepac,POPrint10-CAN,Protagon") > 0 
@@ -1258,29 +1383,19 @@ PROCEDURE GenerateReport :
     END.
 
     IF is-xprint-form OR v-print-fmt = "southpak-xl" THEN DO:
-
-      IF v-print-fmt <> "southpak-xl" THEN DO:
-
-        RUN printPDF (list-name, "ADVANCED SOFTWARE","A1g9f84aaq7479de4m22").
-
-        IF NOT AttachmentExists() THEN RETURN.
-      END.
-
-      ELSE 
-        ASSIGN lv-pdf-file = init-dir + "\PO.pdf".
-
+      
       /* gdm - 11190804 */
       IF (LOOKUP(v-print-fmt,"Xprint,poprint 1,poprint 10,LancoYork,StClair,Boss,Hughes,PeachTree,FibreX,Lovepac,POPrint10-CAN,Protagon") > 0 
            OR 
           lv-attachments)
         AND TRIM(v-outfile) NE "" 
-         THEN ASSIGN lv-pdf-file = v-outfile + lv-pdf-file. 
-
-      IF LOOKUP(v-print-fmt,"PremierX,PremierCX,PremierXFGItems,Centbox") > 0  THEN DO: 
+         THEN ASSIGN cPdfFilesAttach = v-outfile + cPdfFilesAttach  /*lv-pdf-file = v-outfile + lv-pdf-file*/.
+         
+      IF LOOKUP(v-print-fmt,"PremierX,PremierCX,PremierXFGItems,Centbox,poprint 1,poprint 2,poprint 10,poprint 20,POPrint10-CAN,xprint,xprint2") > 0  THEN DO: 
           IF v-start-po EQ v-end-po  THEN
             lcSubject = "Purchase Order: " + STRING(v-start-po).
           ELSE
-            lcSubject = "Purchase Orders: " + STRING(v-start-po) + " - " + STRING(v-end-po).
+            lcSubject = "Purchase Orders: " + STRING(cPoMailList) /*+ " - " + STRING(v-end-po)*/ .
       END.
       ELSE lcSubject = "Purchase Orders".
 
@@ -1488,7 +1603,7 @@ PROCEDURE run-report :
 /* --------------------------------------------------- po/po-print.p 10/94 rd */
 /* Purchase Order Print Program - P/O Module                                  */
 /* -------------------------------------------------------------------------- */
-
+  DEFINE INPUT PARAMETER icPoNo AS INTEGER NO-UNDO.
   DEFINE INPUT PARAMETER icVendNo AS CHARACTER NO-UNDO.
   DEFINE INPUT PARAMETER ip-sys-ctrl-shipto AS LOG NO-UNDO.
 
@@ -1522,6 +1637,11 @@ PROCEDURE run-report :
      ASSIGN
         v-start-vend = begin_vend-no
         v-end-vend   = end_vend-no.
+
+    IF ip-sys-ctrl-shipto AND rd-dest EQ 5 THEN
+     ASSIGN
+        v-start-po = icPoNo
+        v-end-po   = icPoNo.
 
   IF rd-dest EQ 4 THEN DO:
 
@@ -1564,7 +1684,7 @@ PROCEDURE run-report :
     IF NOT(po-ord.stat EQ "N" OR po-ord.stat EQ "O" OR po-ord.stat EQ "U" OR
        (tb_reprint-closed AND po-ord.stat EQ "C")) THEN
        NEXT.
-
+    cPoMailList = cPoMailList + string(po-ord.po-no)  .
     CREATE report.
     ASSIGN
      report.term-id = v-term
