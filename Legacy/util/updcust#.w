@@ -699,7 +699,7 @@ for each cust-markup
 
   DISPLAY cust-markup.style cust-markup.procat WITH DOWN.
 
-  itemfg.cust-no = v-new-cust.
+  cust-markup.cust-no = v-new-cust.
 end.
 
 for each oe-bolh
