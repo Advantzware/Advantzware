@@ -1249,14 +1249,14 @@ do transaction:
         notes.rec_key = b-cust.rec_key.
       end.
       delete cust.
-      IF b-cust.ACTIVE EQ "I" THEN do:
+      IF b-cust.ACTIVE EQ "" THEN do:
           FIND CURRENT b-cust EXCLUSIVE-LOCK NO-ERROR.
           ASSIGN b-cust.ACTIVE = "A" .
       END.
     end. /* avail b-cust*/
     ELSE do:
          cust.cust-no = v-new-cust.
-         IF cust.ACTIVE EQ "I" THEN
+         IF cust.ACTIVE EQ "" THEN
           ASSIGN cust.ACTIVE = "A" .
     END. /* else do */
   end.
