@@ -977,7 +977,6 @@ IF ip-sort-by = "JOB" THEN
   end.
 
   for each tt-job BY tt-job.sortKey:
-      EXPORT tt-job.
       itemlist = itemlist + tt-job.job-no + '-' + STRING(tt-job.job-no2) + '@'.
   end.
   itemlist = TRIM(itemlist,'@').
