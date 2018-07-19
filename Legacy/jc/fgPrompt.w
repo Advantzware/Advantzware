@@ -563,6 +563,8 @@ PROCEDURE set-auto-add-item :
   DEF VAR lv-num-created AS INT NO-UNDO.
   DEF VAR lvr-eb AS ROWID NO-UNDO.
   DEF BUFFER bf-est FOR est.
+  DEFINE BUFFER bf-setheader-eb FOR eb.
+  
   DEF VAR l-est-type AS INT NO-UNDO.
 
  IF AVAIL eb THEN DO:
@@ -590,14 +592,21 @@ PROCEDURE set-auto-add-item :
           NO-LOCK NO-ERROR.
       IF AVAIL bf-est THEN
           l-est-type = bf-est.est-type.
-
+      
       FIND xeb WHERE ROWID(xeb) = ROWID(eb) EXCLUSIVE-LOCK.
       FIND FIRST xest WHERE xest.company = xeb.company
           AND xest.est-no  = xeb.est-no
           NO-LOCK NO-ERROR.
-  
-      IF xeb.stock-no = "" THEN do:
-          RUN fg/GetFGItemID.p (ROWID(xeb), "", OUTPUT lv-i-no). 
+      
+       IF xeb.stock-no = "" THEN do:
+            IF l-est-type EQ 2 OR l-est-type EQ 6 THEN 
+                FIND FIRST bf-setheader-eb NO-LOCK 
+                    WHERE bf-setheader-eb.company EQ xeb.company
+                    AND bf-setheader-eb.est-no EQ xeb.est-no
+                    AND bf-setheader-eb.form-no EQ 0
+                    AND ROWID(bf-setheader-eb) NE ROWID(xeb)
+                    NO-ERROR.
+          RUN fg/GetFGItemID.p (ROWID(xeb), (IF AVAILABLE bf-setheader-eb THEN bf-setheader-eb.stock-no ELSE ""), OUTPUT lv-i-no). 
           ASSIGN xeb.stock-no = lv-i-no .
                 /*RUN fg/ce-addfg.p (xeb.stock-no).*/
       END.
