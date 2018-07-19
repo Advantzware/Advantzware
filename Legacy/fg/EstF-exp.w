@@ -810,6 +810,10 @@ FOR EACH b-est WHERE b-est.company = gcompany
     AND b-est.est-type >= 1 and b-est.est-type <= 4 NO-LOCK,
     EACH bf-eb WHERE bf-eb.company = gcompany
     AND bf-eb.est-no = b-est.est-no NO-LOCK BY bf-eb.form-no :
+    
+    IF INT(b-est.est-no) GT INT(end_est)
+    OR INT(b-est.est-no) LT INT(begin_est) THEN 
+        NEXT.
   
     v-excel-detail-lines = "".
 
