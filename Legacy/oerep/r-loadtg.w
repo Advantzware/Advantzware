@@ -7657,7 +7657,7 @@ PROCEDURE write-loadtag-line :
         ENTRY(4,cLoftString) = '"' + STRING(REPLACE(w-ord.cust-po-no,'"',""),"x(15)") + '"'
         ENTRY(5,cLoftString) = '"' + STRING(REPLACE(w-ord.ship-city,'"',"") + " " + REPLACE(w-ord.ship-state,'"',""),"x(30)") + '"'
         ENTRY(6,cLoftString) = '"' + STRING(w-ord.est-no,"9999999") + '"'
-        ENTRY(7,cLoftString) = STRING(w-ord.gross-wt,"x(6)")
+        ENTRY(7,cLoftString) = STRING(w-ord.gross-wt,">>>>9.99")
         ENTRY(9,cLoftString) = "- -"
         ENTRY(10,cLoftString) = "1"
         ENTRY(11,cLoftString) = "1"
