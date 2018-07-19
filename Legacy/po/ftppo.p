@@ -112,7 +112,6 @@ DO:
 END.
 
 cWinScpXmlLog =ENTRY(1, ip-exp-file) + ".xml".
- 
 RUN load-config.
 
 IF poexport-int EQ 0 THEN
@@ -552,7 +551,7 @@ IF AVAIL sys-ctrl THEN DO:
           DO:
               cExec = getWinScpFile().
               IF cWinScpIniFile GT "" THEN 
-                  cExec = cExec + " " + "/ini=" + cWinScpIniFile + " " + "/xmllog=" + cWinScpXmlLog.  
+                  cExec = cExec + " " + cWinScpIniFile + " " + "/xmllog=" + cWinScpXmlLog.  
                 
               OS-COMMAND NO-WAIT VALUE(cExec + " /script="+ cPoConfigDir + "\" + ttConfig.ftp-script).
                
@@ -573,7 +572,7 @@ IF AVAIL sys-ctrl THEN DO:
                 
                 cExec = getWinScpFile().
                 IF cWinScpIniFile GT "" THEN 
-                    cExec = cExec + " " + "/ini=" + cWinScpIniFile + " " + "/xmllog=" + cWinScpXmlLog.  
+                    cExec = cExec + " " + cWinScpIniFile + " " + "/xmllog=" + cWinScpXmlLog.  
                 
                 OS-COMMAND VALUE(cExec + " /script="+ cPoConfigDir + "\ftphrms.txt").
             END.
@@ -597,7 +596,7 @@ IF AVAIL sys-ctrl THEN DO:
             DO:
                 cExec = getWinScpFile().
                 IF cWinScpIniFile GT "" THEN 
-                  cExec = cExec + " " + "/ini=" + cWinScpIniFile + " " + "/xmllog=" + cWinScpXmlLog.  
+                  cExec = cExec + " " + cWinScpIniFile + " " + "/xmllog=" + cWinScpXmlLog.  
                 
                 OS-COMMAND VALUE(cExec + " /script="+ cPoConfigDir + "\ftpcmdgp.txt").
             END.
@@ -608,7 +607,7 @@ IF AVAIL sys-ctrl THEN DO:
             IF sys-ctrl.char-fld EQ "PremierPkg" AND cExec NE ? AND cExec NE "" THEN DO:      
               cExec = getWinScpFile().
               IF cWinScpIniFile GT "" THEN 
-                  cExec = cExec + " " + "/ini=" + cWinScpIniFile + " " + "/xmllog=" + cWinScpXmlLog.          
+                  cExec = cExec + " " + cWinScpIniFile + " " + "/xmllog=" + cWinScpXmlLog.          
               OS-COMMAND SILENT VALUE(cExec + " /script="+ cPoConfigDir + "\ftpcc.txt").
             END.
             ELSE
@@ -622,7 +621,7 @@ IF AVAIL sys-ctrl THEN DO:
                     cExec = getWinScpFile().
                     
                     IF cWinScpIniFile GT "" THEN 
-                        cExec = cExec + " " + "/ini=" + cWinScpIniFile + " " + "/xmllog=" + cWinScpXmlLog.          
+                        cExec = cExec + " " + cWinScpIniFile + " " + "/xmllog=" + cWinScpXmlLog.          
                     OS-COMMAND SILENT VALUE(cExec + " /script="+ cPoConfigDir + "\ftpaf.txt").
                 END.
                 ELSE
@@ -635,7 +634,7 @@ IF AVAIL sys-ctrl THEN DO:
             DO:
                 cExec = getWinScpFile().
                 IF cWinScpIniFile GT "" THEN 
-                  cExec = cExec + " " + "/ini=" + cWinScpIniFile + " " + "/xmllog=" + cWinScpXmlLog.  
+                  cExec = cExec + " " + cWinScpIniFile + " " + "/xmllog=" + cWinScpXmlLog.  
                 
                 OS-COMMAND VALUE(cExec + " /script="+ cPoConfigDir + "\ftpip.txt").
             END.
@@ -647,7 +646,7 @@ IF AVAIL sys-ctrl THEN DO:
             IF cExec NE ? AND cExec NE "" THEN DO:      
               cExec = getWinScpFile().
               IF cWinScpIniFile GT "" THEN 
-                  cExec = cExec + " " + "/ini=" + cWinScpIniFile + " " + "/xmllog=" + cWinScpXmlLog.    
+                  cExec = cExec + " " + cWinScpIniFile + " " + "/xmllog=" + cWinScpXmlLog.    
                  
               OS-COMMAND SILENT VALUE(cExec + " /script="+ cPoConfigDir + "\ftpct.txt").
             END.
