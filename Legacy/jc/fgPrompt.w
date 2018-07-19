@@ -491,33 +491,8 @@ PROCEDURE auto-create-item :
                        EXCLUSIVE-LOCK NO-ERROR.
       
       IF AVAIL bf-eb AND xeb.stock-no = "" THEN DO:
-         IF v-est-fg1 EQ "Hughes" THEN DO:
-             RUN fg/hughesfg.p (ROWID(bf-eb), OUTPUT lv-i-no).
-             
-             FIND CURRENT bf-eb EXCLUSIVE-LOCK.         
-             i = LENGTH(lv-i-no).
-             IF i GT 2 THEN
-             SUBSTRING(lv-i-no, i - 1, 2) = "00".
-    
-         END.
-         ELSE DO:
-           IF v-est-fg1 EQ "Fibre"  THEN RUN fg/fibre-fg.p (ROWID(xeb), OUTPUT lv-i-no).
-           ELSE IF can-do("Manual,None,Hold",v-est-fg1)  THEN.
-           ELSE do:
-              RUN fg/autofg.p ( ROWID(xeb),
-                                  v-est-fg1, 
-                                  xeb.procat,
-                                  IF xest.est-type LE 4 THEN "F" ELSE "C",
-                                  xeb.cust-no,
-                                  OUTPUT lv-i-no).             
-           END.
-
-           FIND CURRENT bf-eb EXCLUSIVE-LOCK.        
-           i = LENGTH(lv-i-no).
-           IF i GT 2 THEN
-           SUBSTRING(lv-i-no, i - 1, 2) = "00".
-         END.
-         
+         RUN fg/GetFGItemID.p (ROWID(bf-eb), "", OUTPUT lv-i-no). 
+                  
          xeb.stock-no = lv-i-no.
          
         FIND xeb WHERE ROWID(xeb) = ROWID(bf-eb) NO-LOCK.
@@ -622,23 +597,8 @@ PROCEDURE set-auto-add-item :
           NO-LOCK NO-ERROR.
   
       IF xeb.stock-no = "" THEN do:
-          /*RUN auto-create-item (INPUT lv-i-no).      */
-          IF v-est-fg1 EQ "Hughes" THEN DO:
-              RUN fg/hughesfg.p (ROWID(xeb), OUTPUT lv-i-no).
-          END.
-          ELSE
-              IF v-est-fg1 EQ "Fibre"  THEN RUN fg/fibre-fg.p (ROWID(xeb), OUTPUT lv-i-no).
-
-          ELSE IF can-do("Manual,None,Hold",v-est-fg1)  THEN.
-          ELSE do:
-              RUN fg/autofg.p ( ROWID(xeb),
-                                  v-est-fg1, 
-                                  xeb.procat,
-                                  IF xest.est-type LE 4 THEN "F" ELSE "C",
-                                  xeb.cust-no,
-                                  OUTPUT lv-i-no).             
-          END.
-              ASSIGN xeb.stock-no = lv-i-no .
+          RUN fg/GetFGItemID.p (ROWID(xeb), "", OUTPUT lv-i-no). 
+          ASSIGN xeb.stock-no = lv-i-no .
                 /*RUN fg/ce-addfg.p (xeb.stock-no).*/
       END.
   END.
