@@ -2155,6 +2155,7 @@ DO:
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
     IF NOT fi_qty-uom:SENSITIVE THEN RUN leave-qty.
+    ELSE RUN new-qty.
     IF  oescreen-log AND integer(oe-ordl.spare-dec-1:SCREEN-VALUE) EQ 0 
       AND asi.oe-ordl.est-no:SCREEN-VALUE EQ "" THEN DO:
         ASSIGN
@@ -2193,7 +2194,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-ordl.qty d-oeitem
 ON VALUE-CHANGED OF oe-ordl.qty IN FRAME d-oeitem /* Quantity */
 DO:
-  RUN new-qty.
+/*  RUN new-qty. - Removed for performance purposses 31625 - GetPrice already run on LEAVE*/
   IF  oescreen-log AND asi.oe-ordl.est-no:SCREEN-VALUE EQ "" THEN DO:
     ASSIGN
       asi.oe-ordl.spare-dec-1:SENSITIVE = YES
