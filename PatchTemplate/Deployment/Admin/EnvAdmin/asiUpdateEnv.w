@@ -2319,7 +2319,7 @@ PROCEDURE ipCopyDirs :
         END.
         ELSE DO:
             OS-CREATE-DIR VALUE(ipcTgtDir + "\" + cFileStream).
-            RUN ipCopyDirs IN THIS-PROCEDURE (FILE-INFO:FILE-NAME,ipcTgtDir + "\" + FILE-INFO:FILE-NAME).
+            RUN ipCopyDirs IN THIS-PROCEDURE (FILE-INFO:FILE-NAME,ipcTgtDir + "\" + cFileStream).
         END.
     END.
 
@@ -2646,7 +2646,6 @@ PROCEDURE ipDataFix160704 :
   Notes:       
 ------------------------------------------------------------------------------*/
     DISABLE TRIGGERS FOR LOAD OF job-code.
-    DISABLE TRIGGERS FOR LOAD OF reftable1.
     DISABLE TRIGGERS FOR LOAD OF oe-rel.
        
     RUN ipStatus ("  Data Fix 160704...").
@@ -2668,18 +2667,6 @@ PROCEDURE ipDataFix160704 :
             job-code.dmiID = job-code.dmiID + 100.
     END.
     
-    /* Ticket 27898 */
-    FOR EACH reftable1 EXCLUSIVE WHERE
-        reftable1.reftable EQ 'oe-rel.s-code' AND 
-        reftable1.val[1] NE 1,
-        FIRST oe-rel EXCLUSIVE WHERE
-            oe-rel.r-no EQ integer(reftable1.company) AND 
-            oe-rel.s-code NE reftable1.code:
-        ASSIGN 
-            reftable1.val[1] = 1
-            oe-rel.s-code = reftable1.code.
-    END.
-    
     RUN ipConvQtyPerSet.
     
 END PROCEDURE.
@@ -2697,8 +2684,6 @@ PROCEDURE ipDataFix160708 :
 
     RUN ipStatus ("  Data Fix 160708...").
 
-    RUN ipConvertUsrFile.
-    
     
 END PROCEDURE.
 
@@ -2712,42 +2697,14 @@ PROCEDURE ipDataFix160712 :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    DISABLE TRIGGERS FOR LOAD OF reftable1.
     DISABLE TRIGGERS FOR LOAD OF oe-rel.
 
     RUN ipStatus ("  Data Fix 160712...").
 
+    RUN ipConvertUsrFile.
     RUN ipTurnOffUserColors.
     RUN ipFixPoEdiDirs.
     
-    /* Ticket 32053 - oe-rel customer lot number */
-    OUTPUT TO c:\tmp\reftable-oe-rel.txt.
-    FOR EACH reftable1 EXCLUSIVE WHERE 
-        reftable1.reftable = "oe-rel.lot-no" AND
-        reftable1.spare-char-1 NE "1" AND
-        reftable1.spare-char-2 NE "1" AND
-        reftable1.spare-char-3 NE "1":
-        FIND FIRST oe-rel EXCLUSIVE WHERE
-            oe-rel.r-no = INT(reftable1.company)
-            NO-ERROR.
-        IF AVAILABLE oe-rel THEN DO: 
-            EXPORT oe-rel.
-            IF oe-rel.lot-no EQ "" 
-            AND reftable1.code NE "" THEN ASSIGN 
-                oe-rel.lot-no = reftable1.code
-                reftable1.spare-char-1 = "1".
-            IF oe-rel.frt-pay EQ "" 
-            AND reftable1.code2 NE "" THEN ASSIGN 
-                oe-rel.frt-pay = reftable1.code2
-                reftable1.spare-char-2 = "1".
-            IF oe-rel.fob-code EQ "" 
-            AND reftable1.dscr NE "" THEN ASSIGN 
-                oe-rel.fob-code = reftable1.dscr
-                reftable1.spare-char-3 = "1".
-            EXPORT oe-rel.
-        END.   
-    END.  /*FOR EACH reftable1*/  
-
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -4214,6 +4171,8 @@ PROCEDURE ipRefTableConv :
     DEF VAR cOrigPropath AS CHAR NO-UNDO.
     DEF VAR cNewPropath AS CHAR NO-UNDO.
     DEF VAR cThisElement AS CHAR NO-UNDO.
+    DISABLE TRIGGERS FOR LOAD OF reftable1.
+    DISABLE TRIGGERS FOR LOAD OF oe-rel.
     
     IF ipiLevel LT 10 THEN DO:
         MESSAGE
@@ -4248,6 +4207,55 @@ PROCEDURE ipRefTableConv :
         ASSIGN
             PROPATH = cOrigPropath.
     END.
+
+    /* Ticket 27898 */
+    RUN ipStatus ("   Ticket 27898 oe-rel.s-code").
+    FOR EACH reftable1 EXCLUSIVE WHERE
+        reftable1.reftable EQ 'oe-rel.s-code' AND 
+        reftable1.val[1] NE 1,
+        FIRST oe-rel EXCLUSIVE WHERE
+            oe-rel.r-no EQ integer(reftable1.company) AND 
+            oe-rel.s-code NE reftable1.code:
+        ASSIGN 
+            reftable1.val[1] = 1
+            oe-rel.s-code = reftable1.code.
+    END.
+
+    /* Ticket 32053 - oe-rel customer lot number */
+    RUN ipStatus ("   Ticket 32053 oe-rel.lot-no").
+    OUTPUT TO c:\tmp\reftable-oe-rel.txt.
+    FOR EACH reftable1 EXCLUSIVE WHERE 
+        reftable1.reftable = "oe-rel.lot-no" AND
+        reftable1.spare-char-1 NE "1" AND
+        reftable1.spare-char-2 NE "1" AND
+        reftable1.spare-char-3 NE "1":
+        FIND FIRST oe-rel EXCLUSIVE WHERE
+            oe-rel.r-no = INT(reftable1.company)
+            NO-ERROR.
+        IF AVAILABLE oe-rel THEN DO: 
+            IF oe-rel.lot-no EQ "" 
+            AND reftable1.code NE "" THEN DO:
+                EXPORT oe-rel.
+                ASSIGN 
+                    oe-rel.lot-no = reftable1.code
+                    reftable1.spare-char-1 = "1".
+            END.
+            IF oe-rel.frt-pay EQ "" 
+            AND reftable1.code2 NE "" THEN DO:
+                EXPORT oe-rel.
+                ASSIGN 
+                    oe-rel.frt-pay = reftable1.code2
+                    reftable1.spare-char-2 = "1".
+            END.
+            IF oe-rel.fob-code EQ "" 
+            AND reftable1.dscr NE "" THEN DO:
+                EXPORT oe-rel.
+                ASSIGN 
+                    oe-rel.fob-code = reftable1.dscr
+                    reftable1.spare-char-3 = "1".
+            END.
+        END.   
+    END.  /*FOR EACH reftable1*/  
 
 END PROCEDURE.
 
@@ -5291,6 +5299,11 @@ PROCEDURE ipUpdateNK1s :
         NO-ERROR.
     IF AVAIL sys-ctrl THEN ASSIGN
         sys-ctrl.char-fld = "-WSDL 'http:\\34.203.15.64/asihelpServices/helpmaintenance.asmx?WSDL'".
+    FIND FIRST sys-ctrl WHERE
+        sys-ctrl.name EQ "AsiHelpService"
+        NO-ERROR.
+    IF AVAIL sys-ctrl THEN ASSIGN
+        sys-ctrl.char-fld = "-WSDL 'http:\\34.203.15.64/asihelpServices/helpmaintenance.asmx?WSDL'".
     
     FIND FIRST sys-ctrl WHERE
         sys-ctrl.name EQ "UpdateService"
@@ -5313,6 +5326,15 @@ PROCEDURE ipUpdateNK1s :
     AND sys-ctrl.char-fld EQ "" THEN ASSIGN
         sys-ctrl.char-fld = "Bill and Ship".
 
+    /* Zoho Support Button */
+    FIND FIRST sys-ctrl WHERE
+        sys-ctrl.name EQ "MenuLinkZoho"
+        NO-ERROR.
+    IF AVAIL sys-ctrl 
+    AND sys-ctrl.descrip EQ "" THEN ASSIGN
+        sys-ctrl.descrip = "https://desk.zoho.com/portal/advantzware/kb"
+        sys-ctrl.char-fld = "Graphics\32x32\question.ico"
+        sys-ctrl.log-fld = TRUE.
         
     /* - future: update CustFile locations
     FOR EACH sys-ctrl WHERE
