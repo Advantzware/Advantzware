@@ -5295,11 +5295,6 @@ PROCEDURE ipUpdateNK1s :
     
     /* Verify system help WSDL NK1 */
     FIND FIRST sys-ctrl WHERE
-        sys-ctrl.name EQ "AsiHelpServices"
-        NO-ERROR.
-    IF AVAIL sys-ctrl THEN ASSIGN
-        sys-ctrl.char-fld = "-WSDL 'http:\\34.203.15.64/asihelpServices/helpmaintenance.asmx?WSDL'".
-    FIND FIRST sys-ctrl WHERE
         sys-ctrl.name EQ "AsiHelpService"
         NO-ERROR.
     IF AVAIL sys-ctrl THEN ASSIGN
