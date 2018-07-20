@@ -198,7 +198,7 @@ DEFINE VARIABLE begin_reldt AS DATE FORMAT "99/99/9999"
      SIZE 17 BY 1.
 
 DEFINE VARIABLE begin_shipfrom AS CHARACTER FORMAT "X(5)":U 
-     LABEL "Beginning Ship From" 
+     LABEL "Beginning Ship From WH" 
      VIEW-AS FILL-IN 
      SIZE 17 BY 1 NO-UNDO.
 
@@ -233,7 +233,7 @@ DEFINE VARIABLE end_reldt AS DATE FORMAT "99/99/9999"
      SIZE 17 BY 1.
 
 DEFINE VARIABLE end_shipfrom AS CHARACTER FORMAT "X(5)":U INITIAL "zzzz" 
-     LABEL "ending Ship From" 
+     LABEL "ending Ship From WH" 
      VIEW-AS FILL-IN 
      SIZE 17 BY 1 NO-UNDO.
 
@@ -505,6 +505,22 @@ DEF VAR char-val AS CHAR NO-UNDO.
            end.
            return no-apply.
        end.  /* cust-no*/
+       when "begin_shipfrom" then do:
+           ls-cur-val = lw-focus:screen-value.
+           run windows/l-loc.w  (cocode,ls-cur-val, output char-val). 
+           if char-val <> "" then do:
+              lw-focus:screen-value =  ENTRY(1,char-val).
+           end.
+           return no-apply.
+       end.  /* Ship From*/
+       when "end_shipfrom" then do:
+           ls-cur-val = lw-focus:screen-value.
+           run windows/l-loc.w  (cocode,ls-cur-val, output char-val). 
+           if char-val <> "" then do:
+              lw-focus:screen-value =  ENTRY(1,char-val).
+           end.
+           return no-apply.
+       end.  /* Ship From*/
    END CASE.
 END.
 
