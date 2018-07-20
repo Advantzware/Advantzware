@@ -76,6 +76,7 @@ DEFINE SHARED VARIABLE v-dept-codes  AS CHARACTER NO-UNDO.
 DEFINE SHARED VARIABLE v-dept-log    AS LOG       NO-UNDO.
 DEFINE        VARIABLE cBarCodeVal   AS CHARACTER NO-UNDO .
 DEFINE        VARIABLE v-shipto      AS cha       NO-UNDO.
+DEFINE        VARIABLE dJobQty       AS DECIMAL   NO-UNDO .   
 
 DEFINE BUFFER bf-itemfg         FOR itemfg .
 
@@ -464,10 +465,10 @@ DO v-local-loop = 1 TO v-local-copies:
               iset-qty = IF AVAILABLE xeb AND xeb.est-type EQ 6 THEN
                           IF AVAILABLE xoe-ordl THEN xoe-ordl.qty ELSE job-hdr.qty
                            ELSE 0 .
-
+              dJobQty  = job-hdr.qty * (IF xeb.est-type EQ 6 AND xeb.quantityPerSet GT 0 THEN xeb.quantityPerSet ELSE 1) .
           
          PUT "<FGColor=Blue><B>"
-              "<=JobQuantity>" job-hdr.qty FORMAT "->>,>>>,>>9"
+              "<=JobQuantity>" dJobQty FORMAT "->>,>>>,>>9"
               "</B><FGColor=Black>"
               "<=Overrun>" STRING( (job-hdr.qty * iover-run) / 100,"->>>>>>9") /*FORMAT "->>,>>>,>>9"*/
               "<=Underrun>" STRING( (job-hdr.qty * iunder-run) / 100,"->>>>>>9")  /*FORMAT "->>,>>>,>>9"*/
