@@ -84,20 +84,7 @@ do on error undo:
 
     release itemfg.
     if bf-eb.stock-no eq "" then do:
-      v-item-no = bf-eb.part-no.
-      IF v-est-fg1 EQ "Hughes" THEN DO:
-
-        RUN fg/hughesfg.p (ROWID(bf-eb), OUTPUT v-item-no).
-        
-        SUBSTR(v-item-no,1,12) = SUBSTR(eb.stock-no,1,12).
-      END.
-      ELSE
-      IF v-est-fg1 EQ "Fibre" THEN DO:
-        RUN fg/fibre-fg.p (ROWID(bf-eb), OUTPUT v-item-no).
-        SUBSTR(v-item-no,1,LENGTH(TRIM(eb.stock-no)) - 1) =
-            SUBSTR(eb.stock-no,1,LENGTH(TRIM(eb.stock-no)) - 1).
-        
-      END.
+        RUN fg/GetFGItemID.p (ROWID(bf-eb), eb.stock-no, OUTPUT v-item-no). 
     END.
     else do:
       find first itemfg

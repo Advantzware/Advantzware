@@ -4250,20 +4250,9 @@ PROCEDURE display-est-detail :
             oe-ordl.part-dscr2:SCREEN-VALUE = itemfg.part-dscr2 
             oe-ordl.part-dscr3:SCREEN-VALUE = itemfg.part-dscr3.
        END.
-
-       IF v-est-fg1 EQ "Hughes" THEN RUN fg/hughesfg.p (ROWID(eb), OUTPUT lv-i-no).
-       ELSE
-       IF v-est-fg1 EQ "Fibre"  THEN RUN fg/fibre-fg.p (ROWID(eb), OUTPUT lv-i-no).
-       ELSE IF can-do("Manual,None,Hold",v-est-fg1)  THEN.
-       ELSE do:              
-            RUN fg/autofg.p ( ROWID(eb),
-                                  v-est-fg1, 
-                                  eb.procat,
-                                  IF est.est-type LE 4 THEN "F" ELSE "C",
-                                  eb.cust-no,
-                                  OUTPUT lv-i-no).              
-      END.
-
+       
+       RUN fg/GetFGItemID.p (ROWID(eb), "", OUTPUT lv-i-no).          
+       
        IF lv-i-no NE "" THEN oe-ordl.i-no:SCREEN-VALUE = lv-i-no.
      END. /* oe-ordl.i-no:SCREEN-VALUE EQ "" */
     

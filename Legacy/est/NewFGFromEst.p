@@ -145,21 +145,7 @@ PROCEDURE pGetFGITem:
     DEFINE INPUT PARAMETER ipiEstType AS INTEGER NO-UNDO.
     DEFINE OUTPUT PARAMETER opcFGItem AS CHARACTER NO-UNDO.
 
-    DEFINE VARIABLE cFGFormat AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE i         AS INTEGER   NO-UNDO.
-    DEFINE BUFFER bf-eb FOR eb.
-
-    cFGFormat = fGetFGNameFormat(ipbf-eb.company).
-    IF cFGFormat = "Hughes" THEN 
-        cFGFormat = "".
-    ELSE IF cFGFormat = "Fibre" THEN 
-            cFGFormat = "". 
-    RUN fg/autofg.p (ROWID(ipbf-eb),
-        cFGFormat, 
-        ipbf-eb.procat,
-        IF ipiEstType LE 4 THEN "F" ELSE "C",
-        ipbf-eb.cust-no,
-        OUTPUT opcFGItem).
+    RUN fg/GetFGItemID.p (ROWID(ipbf-eb), "", OUTPUT opcFGItem). 
 
 END PROCEDURE.
 

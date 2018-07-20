@@ -2380,24 +2380,8 @@ PROCEDURE auto-create-item :
                        NO-LOCK NO-ERROR.
       
       IF AVAIL bf-eb AND bf-eb.stock-no = "" THEN DO:
-         IF v-est-fg1 EQ "Hughes" THEN DO:
-             RUN fg/hughesfg.p (ROWID(bf-eb), OUTPUT lv-i-no).
-             
-             FIND CURRENT bf-eb EXCLUSIVE-LOCK.         
-             i = LENGTH(lv-i-no).
-             IF i GT 2 THEN
-             SUBSTRING(lv-i-no, i - 1, 2) = "00".
-    
-         END.
-         ELSE DO:
-           IF  v-est-fg1 EQ "Fibre"  THEN RUN fg/fibre-fg.p (ROWID(xeb), OUTPUT lv-i-no).
-             FIND CURRENT bf-eb EXCLUSIVE-LOCK.        
-             i = LENGTH(lv-i-no).
-             IF i GT 2 THEN
-             SUBSTRING(lv-i-no, i - 1, 2) = "00".
-         END.
-        
-
+         RUN fg/GetFGItemID.p (ROWID(bf-eb), "", OUTPUT lv-i-no). 
+         FIND CURRENT bf-eb EXCLUSIVE-LOCK.
          bf-eb.stock-no = lv-i-no.
          
         FIND xeb WHERE ROWID(xeb) = ROWID(bf-eb) NO-LOCK.
@@ -2420,17 +2404,7 @@ PROCEDURE auto-create-item :
        RUN est/fgadd2.p.   /** 2pc box fg create/update routine **/
   END.
   ELSE DO:      
-      IF v-est-fg1 EQ "Hughes" THEN DO:
-          RUN fg/hughesfg.p (ROWID(xeb), OUTPUT lv-i-no).
-      END.
-      ELSE DO:
-          RUN fg/autofg.p ( ROWID(xeb),
-              v-est-fg1, 
-              xeb.procat,
-              IF xest.est-type LE 4 THEN "F" ELSE "C",
-              xeb.cust-no,
-              OUTPUT lv-i-no).
-      END.
+      RUN fg/GetFGItemID.p (ROWID(xeb), "", OUTPUT lv-i-no). 
   END.
 
   FIND FIRST tt-stock-no WHERE tt-stock-no.eb-row-id = ROWID(xeb)
