@@ -194,7 +194,7 @@ PROCEDURE checkset :
 
 
 
-          IF fg-rctd.SetHeaderRno GT 0 THEN
+          IF AVAIL fg-rctd AND fg-rctd.SetHeaderRno GT 0 THEN
           DO:
 
            IF NOT CAN-FIND(FIRST b2-fg-rctd WHERE
