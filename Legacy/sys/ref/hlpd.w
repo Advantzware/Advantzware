@@ -45,6 +45,9 @@ DEF VAR ll-secure AS LOG NO-UNDO.
 DEF VAR list-name AS CHAR NO-UNDO.
 DEF VAR init-dir AS CHARACTER NO-UNDO.
 DEF VAR tmp-dir AS CHAR NO-UNDO.
+DEFINE VARIABLE idx AS INTEGER NO-UNDO.
+
+SESSION:SET-WAIT-STATE("").
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -410,8 +413,9 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
                             else lv-help-title = "Help On " + hlp-head.frm-title +  " For " +
                             ip-db + "." + ip-table + "." + ip-field.
         ASSIGN 
+            idx = IF INDEX(PROGRAM-NAME(2)," ") LT 1 THEN 1 ELSE INDEX(PROGRAM-NAME(2)," ")
             lv-frame-name = "Frame Name: " + ip-frame
-            lv-program = "Procedure: " + substring(program-name(2),index(program-name(2)," "))
+            lv-program = "Procedure: " + substring(program-name(2),idx)
             ed-text = hlp-head.help-txt.
 
     END. /* WebService no conn*/
@@ -458,8 +462,9 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
             lv-help-title = "Help On " + fr-title +  " For " + ip-db + "." + ip-table + "." + ip-field .
                       
         ASSIGN
+            idx = IF INDEX(PROGRAM-NAME(2)," ") LT 1 THEN 1 ELSE INDEX(PROGRAM-NAME(2)," ")
             lv-frame-name = "Frame Name: " + ip-frame
-            lv-program = "Procedure: " + substring(program-name(2),index(program-name(2)," ")).
+            lv-program = "Procedure: " + substring(program-name(2),idx).
 
          
          RUN HelpVersion IN vhSalesSoap( OUTPUT parameters1).
