@@ -273,11 +273,11 @@ FOR EACH report
                 FIRST bf-item
                     WHERE bf-item.company EQ bf-job-mat.company
                       AND bf-item.i-no EQ bf-job-mat.rm-i-no
-                      AND bf-item.mat-type EQ "B"
-                    NO-LOCK:   
+                      AND LOOKUP(bf-item.mat-type,"B,P") GT 0    /*Ticket - 28664 */
+                    NO-LOCK:    
                     IF cBolcert-char EQ "CCC2" THEN DO:
-                       IF AVAIL bf-item THEN DO:
-                           ASSIGN  cBoard =(IF bf-item.cal NE 0 THEN STRING(bf-item.cal,"9.99<<<") ELSE "") + " - " + STRING(bf-item.procat,"X(5)").
+                       IF AVAIL bf-item THEN DO: 
+                            cBoard = STRING(bf-item.cal)  + " - " + STRING(bf-item.procat,"X(5)").
                        END.
 
                      /*  IF AVAIL bf-item AND bf-item.i-code EQ "R" THEN DO:
@@ -398,7 +398,7 @@ FOR EACH report
             gchWorkSheet:Range("B15"):VALUE = IF AVAIL style THEN style.dscr ELSE ""
             gchWorkSheet:Range("B16"):VALUE = cCoating
             gchWorkSheet:Range("B17"):VALUE = IF AVAIL eb THEN eb.part-dscr1 ELSE ""
-            gchWorkSheet:Range("B18"):VALUE = cBoard
+            gchWorkSheet:Range("B18"):VALUE = string(cBoard,"x(30)")
             gchWorkSheet:Range("B19"):VALUE = STRING(dWeight)
             gchWorkSheet:Range("B20"):VALUE = cInks
             gchWorkSheet:Range("B21"):VALUE = IF AVAIL eb THEN eb.adhesive ELSE ""
