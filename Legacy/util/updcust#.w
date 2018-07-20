@@ -699,7 +699,7 @@ for each cust-markup
 
   DISPLAY cust-markup.style cust-markup.procat WITH DOWN.
 
-  itemfg.cust-no = v-new-cust.
+  cust-markup.cust-no = v-new-cust.
 end.
 
 for each oe-bolh
@@ -1014,7 +1014,7 @@ for each shipto
 
   for each oe-relh
       where oe-relh.company eq cocode
-        and oe-relh.posted  eq no
+        /*and oe-relh.posted  eq no*/
         and oe-relh.cust-no eq v-new-cust
         and oe-relh.ship-id eq shipto.ship-id
       use-index post
@@ -1029,7 +1029,7 @@ for each shipto
 
   for each oe-bolh
       where oe-bolh.company eq cocode
-        and oe-bolh.posted  eq no
+        /*and oe-bolh.posted  eq no*/
         and oe-bolh.cust-no eq v-new-cust
         and oe-bolh.ship-id eq shipto.ship-id
       use-index post
@@ -1055,6 +1055,19 @@ for each shipto
     if avail b-ship then ar-inv.ship-id = trim(string(i,">>>>>>>9")).
     else
     if shipto.ship-id eq v-cust then ar-inv.ship-id = v-new-cust.
+  end.
+
+  for each oe-ord
+      where oe-ord.company eq cocode
+        and oe-ord.cust-no eq v-new-cust
+        and oe-ord.ship-id eq shipto.ship-id
+      
+      transaction:
+   
+     if avail b-ship then oe-ord.ship-id = trim(string(i,">>>>>>>9")).
+     else
+     if shipto.ship-id eq v-cust then oe-ord.ship-id = v-new-cust.
+                                      
   end.
 
   do transaction:
@@ -1170,7 +1183,7 @@ for each soldto
 
   for each oe-bolh
       where oe-bolh.company eq cocode
-        and oe-bolh.posted  eq no
+        /*and oe-bolh.posted  eq no*/
         and oe-bolh.cust-no eq v-new-cust
         and oe-bolh.sold-id eq soldto.sold-id
       use-index post
@@ -1236,8 +1249,16 @@ do transaction:
         notes.rec_key = b-cust.rec_key.
       end.
       delete cust.
-    end.
-    else cust.cust-no = v-new-cust.
+      IF b-cust.ACTIVE EQ "" THEN do:
+          FIND CURRENT b-cust EXCLUSIVE-LOCK NO-ERROR.
+          ASSIGN b-cust.ACTIVE = "A" .
+      END.
+    end. /* avail b-cust*/
+    ELSE do:
+         cust.cust-no = v-new-cust.
+         IF cust.ACTIVE EQ "" THEN
+          ASSIGN cust.ACTIVE = "A" .
+    END. /* else do */
   end.
 end.
 
