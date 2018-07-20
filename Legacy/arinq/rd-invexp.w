@@ -1182,6 +1182,8 @@ IF tb_excel THEN
            cVarValue = ""
            cExcelDisplay = ""
            cExcelVarValue = "".
+
+       distot[1]    = 0 .
      
        ASSIGN
        distot[1] = distot[1] + ar-inv.disc-taken 
