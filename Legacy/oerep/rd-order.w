@@ -233,7 +233,7 @@ DEFINE VARIABLE end_reldt AS DATE FORMAT "99/99/9999"
      SIZE 17 BY 1.
 
 DEFINE VARIABLE end_shipfrom AS CHARACTER FORMAT "X(5)":U INITIAL "zzzz" 
-     LABEL "ending Ship From WH" 
+     LABEL "Ending Ship From WH" 
      VIEW-AS FILL-IN 
      SIZE 17 BY 1 NO-UNDO.
 
