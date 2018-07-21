@@ -1701,11 +1701,14 @@ FORM HEADER SKIP(1) WITH FRAME r-top.
             AND cust.cust-no EQ oe-bolh.cust-no 
           NO-LOCK NO-ERROR.
                
-        IF AVAIL(cust) AND cust.ACTIVE EQ "X"
+        IF AVAIL(cust) /*AND cust.ACTIVE EQ "X"*/
             AND oe-bolh.ship-id = oe-boll.loc THEN DO:
+            MESSAGE "'BOL # - " + STRING(oe-bolh.bol-no) + " cannot be posted since the transfer location is already the current location."
+                    VIEW-AS ALERT-BOX WARNING BUTTONS OK.
             run create-nopost ("Cannot transfer to the same location").
             next mainblok.
         END.
+
         find first oe-ordl where oe-ordl.company = oe-boll.company  and
               oe-ordl.ord-no = oe-boll.ord-no  and
               oe-ordl.line   = oe-boll.line no-lock no-error.
@@ -1808,8 +1811,8 @@ FORM HEADER SKIP(1) WITH FRAME r-top.
             w-nopost.po-no      COLUMN-LABEL "PO#"
             w-nopost.i-no       COLUMN-LABEL "Item"
             w-nopost.i-name     COLUMN-LABEL "Name"         format "x(20)"
-            w-nopost.reason     COLUMN-LABEL "Reason"       skip
-        with down STREAM-IO width 132 frame nopost2.
+            w-nopost.reason     COLUMN-LABEL "Reason"   FORMAT "x(36)"      skip
+        with down STREAM-IO width 136 frame nopost2.
     down with frame nopost2.
 
     v-no-post = v-no-post + 1.
