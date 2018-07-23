@@ -1086,7 +1086,7 @@ DO:
     ASSIGN
         ls-vend-name = "".
     FIND FIRST vend NO-LOCK WHERE 
-        vend.company = e-itemfg.company AND 
+        vend.company = e-itemfg-vend.company AND 
         vend.vend-no = e-itemfg-vend.vend-no:SCREEN-VALUE 
         NO-ERROR.
     IF AVAIL vend THEN ASSIGN
@@ -1288,11 +1288,18 @@ PROCEDURE local-assign-record :
     IF AVAIL e-itemfg THEN ASSIGN 
         lv-recid = RECID(e-itemfg).
     ELSE DO:
-        CREATE e-itemfg.
-        ASSIGN 
-            e-itemfg.company = g_company
-            e-itemfg.i-no = ""
-            lv-recid = RECID(e-itemfg).
+        FIND FIRST e-itemfg NO-LOCK 
+            WHERE e-itemfg.company EQ g_company
+            AND e-itemfg.i-no EQ ""
+            NO-ERROR.
+        IF NOT AVAILABLE e-itemfg THEN DO:    
+            CREATE e-itemfg.
+            ASSIGN 
+                e-itemfg.company = g_company
+                e-itemfg.i-no = ""
+                .
+        END.    
+        lv-recid = RECID(e-itemfg).
     END.
 
     FIND FIRST e-itemfg WHERE 
@@ -2076,13 +2083,13 @@ PROCEDURE valid-vend-no :
     lv-msg = "".
     DO WITH FRAME {&FRAME-NAME}:
         IF ip-focus:SCREEN-VALUE NE "" THEN
-            IF e-itemfg-vend.vend-no EQ "" AND NOT adm-new-record THEN ASSIGN
+            IF e-itemfg-vend.vend-no EQ "" AND NOT adm-new-record THEN
                 lv-msg = "Sorry, you cannot change the 'Blank Vendor', please use copy button".
             ELSE IF NOT CAN-FIND(FIRST vend WHERE 
-                            vend.company EQ e-itemfg.company AND 
-                            vend.vend-no EQ ip-focus:SCREEN-VALUE) THEN ASSIGN
+                            vend.company EQ e-itemfg-vend.company AND 
+                            vend.vend-no EQ ip-focus:SCREEN-VALUE) THEN 
                 lv-msg = TRIM(ip-focus:LABEL) + " " + ip-focus:SCREEN-VALUE +  " is invalid, try help".
-
+        
         IF lv-msg NE "" THEN DO:
             MESSAGE 
                 TRIM(lv-msg)
