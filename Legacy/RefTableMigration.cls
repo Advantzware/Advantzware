@@ -2933,6 +2933,55 @@ CLASS RefTableMigration:
         END.  /*FOR EACH reftable*/          
         RETURN iCnt.
     END METHOD. /*e-itemfg-vend*/ 
+    METHOD PUBLIC INTEGER Orderpo(INPUT ipCount AS INTEGER):
+        DEFINE VARIABLE iCnt AS INTEGER NO-UNDO.
+        DEFINE BUFFER reftable1 FOR reftable1.
+        DEFINE BUFFER Breftable FOR reftable. 
+        DEFINE BUFFER Bjob-mat   FOR job-mat.
+        
+        
+        DISABLE TRIGGERS FOR LOAD OF reftable.        
+        DISABLE TRIGGERS FOR LOAD OF job-mat.
+        ASSIGN iProcessCount = 0.
+        FOR EACH reftable WHERE reftable.reftable = "ORDERPO"
+            NO-LOCK:
+            DO TRANSACTION:    
+                FOR EACH po-ordl WHERE po-ordl.company = reftable.company
+                                   AND po-ordl.ord-no  = INT(reftable.loc) NO-LOCK,
+                   EACH job NO-LOCK
+                    WHERE job.company  EQ po-ordl.company
+                      AND job.job-no   EQ po-ordl.job-no
+                      AND job.job-no2  EQ po-ordl.job-no2,
+                    EACH job-mat NO-LOCK
+                    WHERE job-mat.company  EQ job.company
+                      AND job-mat.job      EQ job.job
+                      AND job-mat.job-no   EQ job.job-no
+                      AND job-mat.job-no2  EQ job.job-no2
+                      AND job-mat.rm-i-no  EQ po-ordl.i-no
+                      AND job-mat.frm      EQ po-ordl.s-num
+                    USE-INDEX job:                
+                FIND FIRST Bjob-mat WHERE ROWID(Bjob-mat) = ROWID(job-mat) EXCLUSIVE-LOCK NO-ERROR.
+                IF AVAILABLE Bjob-mat THEN    
+                DO: 
+                    IF Bjob-mat.po-no EQ 0 THEN ASSIGN Bjob-mat.po-no = reftable.val[1]. 
+                    ASSIGN iProcessCount = iProcessCount + 1.               
+                END    . 
+                FIND CURRENT Bjob-mat NO-LOCK NO-ERROR.    
+                RELEASE Bjob-mat.      
+                END.
+                CREATE reftable1.
+                BUFFER-COPY reftable TO reftable1.
+                RELEASE reftable1.
+                FIND Breftable WHERE ROWID(Breftable) = ROWID(reftable)
+                    EXCLUSIVE-LOCK NO-ERROR.
+                IF AVAILABLE Breftable THEN DELETE Breftable. 
+                RELEASE Breftable.   
+                iCnt = iCnt + 1.
+                IF iCnt >= ipCount THEN LEAVE.   
+            END.              
+        END.  /*FOR EACH reftable*/  
+        RETURN iCnt.
+    END METHOD. /*job*/
 END CLASS.
 
 

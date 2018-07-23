@@ -44,21 +44,12 @@ FOR EACH job-mat
       AND INDEX("1234BPR",item.mat-type) GT 0
     NO-LOCK,
 
-    FIRST job-hdr OF job NO-LOCK,
-
-    FIRST reftable
-    WHERE reftable.reftable EQ "ORDERPO"
-      AND reftable.company  EQ job.company
-      AND reftable.loc      EQ STRING(v-ord-no,"9999999999")
-      AND reftable.code     EQ STRING(job-mat.job,"9999999999") +
-                               STRING(job-mat.frm,"9999999999")
-      AND reftable.code2    EQ job-mat.rm-i-no
-    NO-LOCK
+    FIRST job-hdr OF job NO-LOCK
     
     BY job-mat.blank-no
     BY job-mat.rm-i-no:
 
-  op-po-no = reftable.val[1].
+  op-po-no = job-mat.po-no.
   LEAVE.
 END.
 

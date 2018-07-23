@@ -80,17 +80,8 @@ FOR EACH job NO-LOCK
       AND job-mat.job-no2  EQ job.job-no2
       AND job-mat.rm-i-no  EQ io-po-ordl.i-no
       AND job-mat.frm      EQ io-po-ordl.s-num
+      AND job-mat.po-no    EQ io-po-ordl.po-no
     USE-INDEX job:
-
-  FOR EACH reftable
-      WHERE reftable.reftable EQ "ORDERPO"
-        AND reftable.company  EQ job-mat.company
-        AND reftable.loc      EQ STRING(io-po-ordl.ord-no,"9999999999")
-        AND reftable.code     EQ STRING(job-mat.job,"9999999999") +
-                                 STRING(job-mat.frm,"9999999999")
-        AND reftable.code2    EQ job-mat.rm-i-no
-        AND reftable.val[1]   EQ io-po-ordl.po-no
-      EXCLUSIVE:
 
     FIND FIRST job-hdr
         WHERE job-hdr.company   EQ job-mat.company
@@ -121,8 +112,8 @@ FOR EACH job NO-LOCK
        oe-ordl.vend-no  = "".
     END.
 
-    DELETE reftable.
-  END.
+/*    DELETE reftable.*/
+/*  END.              */
 END.
 
 IF trim(io-po-ordl.job-no) = "" THEN DO:
@@ -134,15 +125,6 @@ IF trim(io-po-ordl.job-no) = "" THEN DO:
      oe-ordl.vend-no  = ""
      oe-ordl.po-no-po = 0.
 
-    FOR EACH reftable
-        WHERE reftable.reftable EQ "ORDERPO"
-          AND reftable.company  EQ io-po-ordl.company
-          AND reftable.code2    EQ io-po-ordl.i-no
-          AND reftable.val[1]   EQ io-po-ordl.po-no
-        EXCLUSIVE-LOCK:
-
-        DELETE reftable.
-    END.
   END.
 END.
 
