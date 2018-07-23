@@ -348,7 +348,8 @@ DEFINE OUTPUT PARAMETER oplValid AS LOGICAL NO-UNDO.
 DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
 
 DEFINE VARIABLE iLengthLimit AS INTEGER NO-UNDO INIT 15.
-
+oplValid = YES.
+IF LOOKUP(ipcFormatMask, "Manual,None") GT 0 OR ipcFormatMask EQ "" THEN RETURN.
 IF LENGTH(ipcFormatMask) GT iLengthLimit THEN DO:
     ASSIGN
         oplValid = NO
