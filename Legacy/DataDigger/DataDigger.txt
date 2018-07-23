@@ -5,6 +5,68 @@
       
 =====================================================================================
 
+DataDigger version 24 - dd MMM 2018 
+
+BetaDigger 20180627
+
+- Solved: Auto-connect list gives error on duplicate tables (Peter Frederick)
+- Solved: Double-click on hidden field does not show the field
+- Solved: Setting for 'Show Column For Recid/Rowid' was ignored (Mike Raschendörfer)
+- Solved: Extra filter refused to hide normal tables (Edwin Schutten)
+- Solved: Query fails when search condition contains pipe symbol (Mike Raschendörfer)
+- Solved: Even when set to manual update check updates, remote version was fetched (Germ Rekker)
+- Solved: Table browse shows normal tables when disabled in filter #8 (Edwin Schutten)
+- Solved: Backups not saved with default myDataDigger code #11
+- Solved: Setting for backup-on-delete is always set to TRUE #12
+- Solved: Cannot filter field name with "name" #10
+- Solved: Invalid-handle error on tables with lots of fields #15 (Johan Heling)
+- Solved: Clone button active when more than one record is selected #16
+- Solved: Character fields limited to current width on editing #17
+- Solved: Debug Messages from DataDigger interfere with DWP (Jeroen Beugels)
+- Solved: Right click in field browse gives DLL error #22
+- Solved: Error when exporting data that does not fit in format #24 (Martin Verstegen)
+- Solved: When clearing filter-by-field, colors remain in field browse #25
+- Solved: Jumping to/from filter fields jumps to wrong field #27
+- Solved: Field names for extents do not sort intuitive #28 (Johan Geerts)
+- Solved: Change table + immediate RETURN did not open the query
+- Solved: Error on opening list editor #29 (Hans Kaman)
+- Solved: Error on initializing backup folder #30 (Hans Kaman)
+- Solved: Wrong layout for large font in connections screen
+- Solved: 'Value 3786382987984 does not fit in long DLL datatype. (13712)' on right-click
+- Solved: Error on about-screen when PSTimer does not work
+- Solved: ICO file corrupt (Arno van der Ende)
+- Solved: Resizing window takes up to 2 seconds
+- Solved: Hiding 'Delete record' question prevents deletion of records (Hans Kaman)
+- Solved: Recid does not show in large databases (René Postma)
+- Solved: Last field in update was not assigned (Steven Peeters)
+
+- Change: Setting for 'Show Column For Recid/Rowid' removed
+- Change: Layout fixes for larger fonts on settings screen
+- Change: Export to csv now uses field names instead of labels #13
+- Change: Tabs on settings page now react to CTRL+PgUp/PgDn #14
+- Change: Query Tester can now also handle INDEXED-REPOSITION queries
+- Change: Minimum Progress version for DD changed to 10.1C #19
+- Change: Removed SHIFT-HOME shortcut in record editor
+- Change: On v11, try to compile strict
+- Change: Detect when data is changed by other user
+- Change: Improved startup time 
+- Change: Cleaned up context menu on table browse
+- Change: Clear table filter now works in two steps
+- Change: Option menu is now (an optional) sidebar
+- Change: Shortcut keys in option menu changed
+- Change: DataDigger phone home now via bit.ly instead of goo.gl
+
+- New   : Option to set table name as first element in window title #26 (Johan Geerts)
+- New   : Option to generate an include file with tt definitions
+- New   : Option to generate a class for active record pattern
+- New   : Option to generate a dump/load procedure
+- New   : Option to dump df of all connected databases #23
+- New   : Option to reset answers to DataDigger questions
+- New   : Option to reset to factory settings
+- New   : Option to generate assign statement
+
+=====================================================================================
+
 DataDigger version 23 - 15 apr 2017 (Easter Egg)
 
 - Solved: Query-open errors were not shown in tooltip of query fill-in
