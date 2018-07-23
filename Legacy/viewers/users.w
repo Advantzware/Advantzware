@@ -35,13 +35,15 @@ CREATE WIDGET-POOL.
 
 /* Local Variable Definitions ---                                       */
 {custom/globdefs.i}
-{sys/inc/VAR.i NEW SHARED}
+{sys/inc/var.i NEW SHARED}
 {methods/defines/hndlset.i}
 {methods/defines/noreckey.i}
 {custom/resizdef.i}
 
-ASSIGN cocode = g_company
-       locode = g_loc.
+ASSIGN
+    cocode = g_company
+    locode = g_loc
+    .
 
 &SCOPED-DEFINE proc-enable proc-enable
 &SCOPED-DEFINE users-rowavail proc-rowavail
@@ -51,37 +53,42 @@ DEFINE SHARED VAR cUsrLoc AS CHAR NO-UNDO.
 
 DEFINE SHARED VARIABLE h_users AS HANDLE NO-UNDO.
 
-DEF BUFFER zUsers FOR users.
-DEF BUFFER lUsers FOR users.
-DEF VAR createLabelPath AS LOG NO-UNDO.
-DEF VAR cOldUserID AS CHAR NO-UNDO.
-DEF VAR cEnvList AS CHAR NO-UNDO.
-DEF VAR cDbList AS CHAR NO-UNDO.
-DEF VAR cModeList AS CHAR NO-UNDO.
-DEF VAR cEnvSelList AS CHAR NO-UNDO.
-DEF VAR cDbSelList AS CHAR NO-UNDO.
-DEF VAR cModeSelList AS CHAR NO-UNDO.
-DEF VAR cAliasFromFile AS CHAR NO-UNDO.
-DEF VAR correct-error AS LOG no-undo.
-DEF VAR copy-record AS LOG NO-UNDO.
-DEF VAR rThisUser AS ROWID NO-UNDO.
-DEF VAR lAdd AS LOG NO-UNDO.
-DEF VAR lCopy AS LOG NO-UNDO.
-DEF VAR lPwdChanged AS LOG NO-UNDO.
-DEF VAR cOldPwd AS CHAR NO-UNDO.
+DEFINE BUFFER zUsers FOR users.
+DEFINE BUFFER lUsers FOR users.
 
-DEF TEMP-TABLE tempUser NO-UNDO LIKE _User.
+DEFINE VARIABLE createLabelPath AS LOG       NO-UNDO.
+DEFINE VARIABLE cOldUserID      AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cEnvList        AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cDbList         AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cModeList       AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cEnvSelList     AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cDbSelList      AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cModeSelList    AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cAliasFromFile  AS CHARACTER NO-UNDO.
+DEFINE VARIABLE correct-error   AS LOG       NO-UNDO.
+DEFINE VARIABLE copy-record     AS LOG       NO-UNDO.
+DEFINE VARIABLE rThisUser       AS ROWID     NO-UNDO.
+DEFINE VARIABLE lAdd            AS LOG       NO-UNDO.
+DEFINE VARIABLE lCopy           AS LOG       NO-UNDO.
+DEFINE VARIABLE lPwdChanged     AS LOG       NO-UNDO.
+DEFINE VARIABLE cOldPwd         AS CHARACTER NO-UNDO.
+DEFINE VARIABLE hPgmMstrSecur   AS HANDLE    NO-UNDO.
+DEFINE VARIABLE lSuperAdmin     AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE lAdmin          AS LOGICAL   NO-UNDO.
+    
+DEFINE TEMP-TABLE tempUser NO-UNDO LIKE _User.
 
-DEF TEMP-TABLE ttUsers
+DEFINE TEMP-TABLE ttUsers
     FIELD ttfPdbname AS CHAR
     FIELD ttfUserID AS CHAR
     FIELD ttfUserAlias AS CHAR
     FIELD ttfEnvList AS CHAR
     FIELD ttfDbList AS CHAR
     FIELD ttfModeList AS CHAR
-    INDEX iUserID IS UNIQUE ttfUserID ttfPdbName
-    INDEX iDatabase IS UNIQUE ttfPdbName ttfUserID.
-DEF BUFFER bttUsers FOR ttUsers.
+        INDEX iUserID   IS UNIQUE ttfUserID  ttfPdbName
+        INDEX iDatabase IS UNIQUE ttfPdbName ttfUserID
+        .
+DEFINE BUFFER bttUsers FOR ttUsers.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -826,6 +833,21 @@ END.
     RUN ipReadIniFile.
     RUN ipReadUsrFile.
     
+    IF NOT VALID-HANDLE(hPgmMstrSecur) THEN
+    RUN system/PgmMstrSecur.p PERSISTENT SET hPgmMstrSecur.
+    IF VALID-HANDLE(hPgmMstrSecur) THEN DO:
+        RUN epCanAccess IN hPgmMstrSecur (
+            "viewers/users.w",
+            "SuperAdmin",
+            OUTPUT lSuperAdmin 
+            ).
+        RUN epCanAccess IN hPgmMstrSecur (
+            "viewers/users.w",
+            "Admin",
+            OUTPUT lAdmin 
+            ).
+    END. /* if valid-handle */
+
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF       
@@ -1846,33 +1868,30 @@ PROCEDURE proc-enable :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    DEFINE VARIABLE lSecurityLevel AS LOGICAL NO-UNDO.
-    
     ASSIGN 
-        lSecurityLevel = zUsers.securityLevel GE 900
-        users.track_usage:SENSITIVE IN FRAME {&FRAME-NAME} = lSecurityLevel
-        users.use_colors:SENSITIVE = lSecurityLevel
-        users.use_fonts:SENSITIVE = lSecurityLevel
-        users.developer:SENSITIVE = zUsers.securityLevel GT 999
-        users.developer:SENSITIVE = FALSE 
-        users.userAlias:SENSITIVE = lSecurityLevel
-        users.securityLevel:SENSITIVE = lSecurityLevel
-        users.isLocked:SENSITIVE = lSecurityLevel
-        cbUserType:SENSITIVE = lSecurityLevel
-        slEnvironments:SENSITIVE = lSecurityLevel
-        slDatabases:SENSITIVE = lSecurityLevel
-        slModes:SENSITIVE = lSecurityLevel
-        bAll1:SENSITIVE = lSecurityLevel
-        bNone1:SENSITIVE = lSecurityLevel
-        bAll2:SENSITIVE = lSecurityLevel
-        bNone2:SENSITIVE = lSecurityLevel
-        bAll3:SENSITIVE = lSecurityLevel
-        bNone3:SENSITIVE = lSecurityLevel
-        bDefaults:SENSITIVE = lSecurityLevel
-        cbUserType:screen-value = users.userType
-        slEnvironments:screen-value = IF ttUsers.ttfEnvList NE "" THEN ttUsers.ttfEnvList ELSE slEnvironments:list-items
-        slDatabases:screen-value = IF ttUsers.ttfDbList NE "" THEN ttUsers.ttfDbList ELSE slDatabases:list-items
-        slModes:screen-value = IF ttUsers.ttfModeList NE "" THEN ttUsers.ttfModeList ELSE slModes:list-items
+        users.track_usage:SENSITIVE IN FRAME {&FRAME-NAME} = lAdmin
+        users.use_colors:SENSITIVE    = lAdmin
+        users.use_fonts:SENSITIVE     = lAdmin
+        users.developer:SENSITIVE     = lAdmin
+        users.developer:SENSITIVE     = lSuperAdmin 
+        users.userAlias:SENSITIVE     = lAdmin
+        users.securityLevel:SENSITIVE = lAdmin
+        users.isLocked:SENSITIVE      = lAdmin
+        cbUserType:SENSITIVE          = lAdmin
+        slEnvironments:SENSITIVE      = lAdmin
+        slDatabases:SENSITIVE         = lAdmin
+        slModes:SENSITIVE             = lAdmin
+        bAll1:SENSITIVE               = lAdmin
+        bNone1:SENSITIVE              = lAdmin
+        bAll2:SENSITIVE               = lAdmin
+        bNone2:SENSITIVE              = lAdmin
+        bAll3:SENSITIVE               = lAdmin
+        bNone3:SENSITIVE              = lAdmin
+        bDefaults:SENSITIVE           = lAdmin
+        cbUserType:SCREEN-VALUE       = users.userType
+        slEnvironments:SCREEN-VALUE   = IF ttUsers.ttfEnvList NE "" THEN ttUsers.ttfEnvList ELSE slEnvironments:LIST-ITEMS 
+        slDatabases:SCREEN-VALUE      = IF ttUsers.ttfDbList NE "" THEN ttUsers.ttfDbList ELSE slDatabases:LIST-ITEMS 
+        slModes:SCREEN-VALUE          = IF ttUsers.ttfModeList NE "" THEN ttUsers.ttfModeList ELSE slModes:LIST-ITEMS 
         .
     ENABLE 
         bChgPwd
