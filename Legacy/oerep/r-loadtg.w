@@ -7693,7 +7693,7 @@ PROCEDURE write-loadtag-line :
         ENTRY(32,cLoftString) = '"' + STRING(REPLACE(w-ord.i-name,'"',""),"x(30)") + '"'
         ENTRY(37,cLoftString) = '"' + STRING(REPLACE(w-ord.ship-add1,'"',"") + " " + REPLACE(w-ord.ship-add2,'"',""),"x(30)") + '"'
         ENTRY(38,cLoftString) = "1"
-        ENTRY(39,cLoftString) = STRING(w-ord.pcs,"x(5)")
+        ENTRY(39,cLoftString) = STRING(w-ord.pcs,">>>>9")
         ENTRY(41,cLoftString) = STRING(loadtag.tag-no,"x(64)")
         ENTRY(42,cLoftString) = '"' + STRING(REPLACE(w-ord.ord-desc1,'"',""),"x(64)") + '"'
         ENTRY(44,cLoftString) = '"' + STRING(REPLACE(w-ord.style-desc,'"',""),"x(15)") + '"'
