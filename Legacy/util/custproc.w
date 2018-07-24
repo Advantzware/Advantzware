@@ -222,8 +222,7 @@ END.
 &Scoped-define SELF-NAME Btn_OK
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_OK W-Win
 ON CHOOSE OF Btn_OK IN FRAME F-Main /* Run */
-DO:
-   IF iSecurtyLvl LE 999 THEN do:
+DO:   
      FIND FIRST utilities NO-LOCK
             WHERE  utilities.programName EQ substring(ls-proc,6,50) 
               AND  utilities.securityLevel LE iSecurtyLvl NO-ERROR .
@@ -233,7 +232,7 @@ DO:
               VIEW-AS ALERT-BOX ERROR.
         RETURN.
      END.
-   END.
+  
 
     IF SEARCH(ls-proc) <> ? THEN DO WITH FRAME {&FRAME-NAME}:
         fi_please-wait:SCREEN-VALUE = "Processing, please wait...".
