@@ -1417,7 +1417,10 @@ PROCEDURE local-update-record :
   END.
   
   DO WITH FRAME {&FRAME-NAME}:
-    
+
+  IF e-item-vend.vend-item:SCREEN-VALUE EQ "?" THEN
+      ASSIGN e-item-vend.vend-item:SCREEN-VALUE = "" .
+
   IF e-item-vend.roll-w[28]:SCREEN-VALUE EQ "0.0000" THEN
       ASSIGN 
       e-item-vend.roll-w[28]:SCREEN-VALUE = "999.000" .

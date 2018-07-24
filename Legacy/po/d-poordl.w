@@ -1066,6 +1066,8 @@ DO:
   lv-save-ord-no = po-ordl.ord-no.
 
   DO WITH FRAME {&FRAME-NAME}:
+    IF po-ordl.vend-i-no:SCREEN-VALUE EQ "?" THEN
+        ASSIGN po-ordl.vend-i-no:SCREEN-VALUE = "" .
     FIND CURRENT po-ordl EXCLUSIVE-LOCK NO-ERROR.
 
     IF (po-ordl.vend-i-no:MODIFIED OR po-ordl.ord-qty:MODIFIED OR

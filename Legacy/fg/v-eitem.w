@@ -1697,6 +1697,9 @@ PROCEDURE local-update-record :
     DEF VAR char-hdl AS cha NO-UNDO.
 
     DO WITH FRAME {&FRAME-NAME}:
+        IF e-itemfg-vend.vend-item:SCREEN-VALUE EQ "?" THEN
+            ASSIGN e-itemfg-vend.vend-item:SCREEN-VALUE = "" .
+
         RUN valid-vend-no (e-itemfg-vend.vend-no:HANDLE) NO-ERROR.
         IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
