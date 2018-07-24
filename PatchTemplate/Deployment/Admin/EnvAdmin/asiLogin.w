@@ -945,16 +945,16 @@ PROCEDURE ipChangeEnvironment :
     ASSIGN
         iLookup = LOOKUP(cbEnvironment,cEnvList)
         cTop = cMapDir + "\" + cEnvDir + "\" + cbEnvironment + "\"
-        preProPath = cMapDir + "\" + cEnvDir + "\" + cbEnvironment + "," +
-                     cTop + cEnvCustomerDir + "," +
+        preProPath = cTop + cEnvCustomerDir + "," +
                      cTop + cEnvOverrideDir + "," +
                      cTop + cEnvProgramsDir + "," +
+                     cTop + cEnvResourceDir + "," +
                      cTop + cEnvCustomerDir + "\Addon," +
                      cTop + cEnvOverrideDir + "\Addon," +
                      cTop + cEnvProgramsDir + "\Addon" + "," +
-                     cTop + cEnvCustFiles + "," +
-                     cTop + cEnvResourceDir + "," +
                      cTop + cEnvResourceDir + "\Addon" + "," +
+                     cTop + cEnvCustFiles + "," +
+                     cMapDir + "\" + cEnvDir + "\" + cbEnvironment + "," +
                      cMapDir + "\" + cAdminDir + "\" + cEnvAdmin + ",".
         PROPATH = preProPath + origPropath.
 END PROCEDURE.
