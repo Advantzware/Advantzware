@@ -127,6 +127,9 @@ DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
 DEFINE BUFFER bf-item FOR ITEM.
 DEFINE VARIABLE cTabInOut AS CHARACTER NO-UNDO.
+DEFINE BUFFER bf-eb FOR eb.
+DEFINE VARIABLE dLength AS DECIMAL   NO-UNDO.
+DEFINE VARIABLE dWidth AS DECIMAL   NO-UNDO.
 
 RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormLogo", "C" /* Logical */, NO /* check by cust */, 
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
@@ -585,9 +588,10 @@ v-printline = 0.
                   RUN sys\inc\decfrac2.p(INPUT DEC(po-ordl.s-len), INPUT 32, OUTPUT v-len-frac).
                   RUN sys\inc\decfrac2.p(INPUT DEC(IF AVAILABLE item AND CAN-DO("C,5,6,D",item.mat-type) THEN item.case-d
                        ELSE IF AVAILABLE item THEN item.s-dep ELSE 0), INPUT 32, OUTPUT v-dep-frac).
-
+                  IF po-ordl.s-len GT 0 OR po-ordl.s-len GT 0 OR lv-dep GT 0 THEN  
+                   PUT "Blank:" AT 25.
                    IF po-ordl.s-len GT 0 THEN
-                    PUT "L: " AT 25 v-len-frac FORMAT "x(10)" SPACE(1).
+                    PUT "L: " AT 32 v-len-frac FORMAT "x(10)" SPACE(1).
                    IF po-ordl.s-wid GT 0 THEN
                     PUT "W: "  v-wid-frac FORMAT "x(10)" SPACE(1).
                 IF lv-dep GT 0 THEN
@@ -686,7 +690,6 @@ v-printline = 0.
             end.
         END.
         ELSE DO:
-
             IF AVAIL itemfg AND itemfg.l-score[50] GT 0 THEN DO:
                
                   RUN sys\inc\decfrac2.p(INPUT DEC(itemfg.w-score[50]), INPUT 32, OUTPUT v-wid-frac).
@@ -705,8 +708,34 @@ v-printline = 0.
               v-line-number = v-line-number + 1
               v-printline = v-printline + 1.
 
-               END.
-               
+            END.
+            ASSIGN dWidth = 0
+                   dLength = 0.
+
+            IF AVAIL itemfg AND itemfg.est-no NE "" THEN DO:
+                FIND FIRST bf-eb NO-LOCK
+                    WHERE bf-eb.company EQ itemfg.company
+                    AND bf-eb.est-no EQ itemfg.est-no
+                    AND bf-eb.stock-no EQ itemfg.i-no NO-ERROR.
+
+                ASSIGN 
+                    dWidth = IF AVAIL bf-eb THEN bf-eb.t-wid ELSE itemfg.t-wid
+                    dLength = IF AVAIL bf-eb THEN bf-eb.t-len ELSE itemfg.t-len.
+
+                  RUN sys\inc\decfrac2.p(INPUT dWidth, INPUT 32, OUTPUT v-wid-frac).
+                  RUN sys\inc\decfrac2.p(INPUT dLength, INPUT 32, OUTPUT v-len-frac).
+                 IF dWidth GT 0 OR dLength GT 0 THEN  
+                  PUT "Blank:" AT 25.
+                  IF dWidth GT 0 THEN
+                      PUT "W: " AT 33  v-wid-frac FORMAT "x(10)" SPACE(1).
+                  IF dLength GT 0 THEN 
+                  PUT "L: "  v-len-frac FORMAT "x(10)" SPACE(1).
+
+                  PUT SKIP .
+                  ASSIGN
+                      v-line-number = v-line-number + 1
+                      v-printline = v-printline + 1.
+            END.
         END.
 
         IF po-ordl.pr-qty-uom EQ "MSF" THEN v-qty = po-ordl.ord-qty.
