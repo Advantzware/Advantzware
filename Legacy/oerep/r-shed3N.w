@@ -2077,7 +2077,7 @@ SESSION:SET-WAIT-STATE ("general").
         and cust.cust-no eq oe-ord.cust-no
       no-lock
       break by tt-report.key-01
-            by tt-report.key-02 DESC
+            by tt-report.key-02 
             by tt-report.key-03 DESC
             by tt-report.key-04:
 
