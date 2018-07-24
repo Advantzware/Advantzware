@@ -168,7 +168,7 @@ RUN ShellExecute{&A} IN hpApi(0,
   "open",
   cPath,
   cFileName,
-  "",
+  "-z",
   1,
   OUTPUT iResult).
 
