@@ -890,9 +890,7 @@ put skip(1)
   output close.
 
   DO TRANSACTION:
-    {est/calcpcts.i xest}
-    calcpcts.val[2] = v-brd-cost.
-    FIND CURRENT calcpcts NO-LOCK NO-ERROR.
+    xest.costBoard = v-brd-cost.
   END.
 
   v-do-gsa = (vprint and do-gsa).

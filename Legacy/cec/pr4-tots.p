@@ -56,29 +56,27 @@ FIND FIRST xeb
    find first style where style.company = cocode and style.style = xeb.style
    no-lock no-error.
 
-   {est/calcpcts.i xest}
-   IF calcpcts.val[1] EQ 0 THEN calcpcts.val[2] = 0.
+   IF xest.gsa-mat EQ 0 THEN xest.costBoard = 0.
 
    assign
-   xxx       = dm-tot[5] - calcpcts.val[2] + tprep-mat + mis-tot[1]
+   xxx       = dm-tot[5] - xest.costBoard + tprep-mat + mis-tot[1]
    ctrl2[9]  = xxx * ctrl[9]
    xxx       = op-tot[5] + tprep-lab + mis-tot[3]
    ctrl2[10] = xxx * ctrl[10]
    fac-tot   = dm-tot[5] + op-tot[5] +
                tprep-mat + tprep-lab + mis-tot[1] + mis-tot[3].
 
-   calcpcts.val[2] = calcpcts.val[2] * calcpcts.val[1] / 100.
-   FIND CURRENT calcpcts NO-LOCK NO-ERROR.
+   xest.costBoard = xest.costBoard * xest.gsa-mat / 100.
 
    IF v-cewhspct THEN
-     ctrl2[1] = (fac-tot + calcpcts.val[2] + ctrl2[9] + ctrl2[10]) * ctrl[1].
+     ctrl2[1] = (fac-tot + xest.costBoard + ctrl2[9] + ctrl2[10]) * ctrl[1].
 
    assign
-   ctrl2[13] = (fac-tot + calcpcts.val[2] + ctrl2[9] + ctrl2[10]) * ctrl[19]
+   ctrl2[13] = (fac-tot + xest.costBoard + ctrl2[9] + ctrl2[10]) * ctrl[19]
 
    tt-tot    = dm-tot[5] + op-tot[5] + ctrl2[1] + ctrl2[19] +
                tprep-mat + tprep-lab + mis-tot[1] + mis-tot[3] +
-               calcpcts.val[2] + ctrl2[9] + ctrl2[10]
+               xest.costBoard + ctrl2[9] + ctrl2[10]
    ctrl2[4]  = 0
    ctrl2[5]  = 0
    ctrl2[11] = 0
@@ -197,11 +195,11 @@ FIND FIRST xeb
       end.
 
       IF ctrl[16] NE 0 THEN DO:
-        IF calcpcts.val[2] NE 0 THEN DO:
+        IF xest.costBoard NE 0 THEN DO:
           PUT "GS&A Board".
           IF ll-gsa-pct THEN
-            PUT STRING(calcpcts.val[1],"->>9.99") + "%" TO 30.
-          PUT calcpcts.val[2] / qm TO 48 calcpcts.val[2] TO 80 SKIP.
+            PUT STRING(xest.gsa-mat,"->>9.99") + "%" TO 30.
+          PUT xest.costBoard / qm TO 48 xest.costBoard TO 80 SKIP.
         END.
 
         IF ctrl2[9] NE 0 THEN DO:
@@ -218,7 +216,7 @@ FIND FIRST xeb
           PUT ctrl2[10] / qm TO 48 ctrl2[10] TO 80 SKIP.
         END.
 
-        fac-tot = fac-tot + calcpcts.val[2] + ctrl2[9] + ctrl2[10].
+        fac-tot = fac-tot + xest.costBoard + ctrl2[9] + ctrl2[10].
       END.
 
       if ctrl[18] gt 0 and ctrl2[18] ne 0 and
@@ -291,11 +289,11 @@ FIND FIRST xeb
       end.
 
       IF ctrl[16] EQ 0 THEN DO:
-        IF calcpcts.val[2] NE 0 THEN DO:
+        IF xest.costBoard NE 0 THEN DO:
           PUT "GS&A Board".
           IF ll-gsa-pct THEN
-            PUT STRING(calcpcts.val[1],"->>9.99") + "%" TO 30.
-          PUT calcpcts.val[2] / qm TO 48 calcpcts.val[2] TO 80 SKIP.
+            PUT STRING(xest.gsa-mat,"->>9.99") + "%" TO 30.
+          PUT xest.costBoard / qm TO 48 xest.costBoard TO 80 SKIP.
         END.
 
         IF ctrl2[9] NE 0 THEN DO:
@@ -312,7 +310,7 @@ FIND FIRST xeb
           PUT ctrl2[10] / qm TO 48 ctrl2[10] TO 80 SKIP.
         END.
 
-        tt-tot = tt-tot + calcpcts.val[2] + ctrl2[9] + ctrl2[10].
+        tt-tot = tt-tot + xest.costBoard + ctrl2[9] + ctrl2[10].
       END.
 
       if (ctrl[18] eq 0 or ce-ctrl.sell-by eq "B") and
@@ -450,17 +448,17 @@ FIND FIRST xeb
      IF ctrl[16] NE 0 THEN DO:
        ASSIGN
         vmcl-desc = "GS&A Board"
-        vmcl-cost = calcpcts.val[2] / qm
-        fac-tot2  = fac-tot2 + calcpcts.val[2].
+        vmcl-cost = xest.costBoard / qm
+        fac-tot2  = fac-tot2 + xest.costBoard.
 
        {cec/pr4-mcln.i vmcl-desc vmcl vmcl-cost 13}
 
-       IF ll-gsa-pct AND calcpcts.val[2] NE 0 THEN DO:
+       IF ll-gsa-pct AND xest.costBoard NE 0 THEN DO:
          mclean.rec-type = "gsabrd".
 
          ASSIGN
           vmcl-desc = "    GS&A Board %"
-          vmcl-cost = calcpcts.val[1].
+          vmcl-cost = xest.gsa-mat.
 
          {cec/pr4-mcln.i vmcl-desc vmcl vmcl-cost 14}
          mclean.rec-type = "gsabrd".
@@ -629,17 +627,17 @@ FIND FIRST xeb
      IF ctrl[16] EQ 0 THEN DO:
        ASSIGN
         vmcl-desc = "GS&A Board"
-        vmcl-cost = calcpcts.val[2] / qm
-        tt-tot    = tt-tot + calcpcts.val[2].
+        vmcl-cost = xest.costBoard / qm
+        tt-tot    = tt-tot + xest.costBoard.
 
        {cec/pr4-mcln.i vmcl-desc vmcl vmcl-cost 29}
 
-       IF ll-gsa-pct AND calcpcts.val[2] NE 0 THEN DO:
+       IF ll-gsa-pct AND xest.costBoard NE 0 THEN DO:
          mclean.rec-type = "gsabrd".
 
          ASSIGN
           vmcl-desc = "    GS&A Board %"
-          vmcl-cost = calcpcts.val[1].
+          vmcl-cost = xest.gsa-mat.
 
          {cec/pr4-mcln.i vmcl-desc vmcl vmcl-cost 30}
          mclean.rec-type = "gsabrd".
@@ -756,7 +754,7 @@ FIND FIRST xeb
             ttCostHeader.stdCostSpecial2 = ctrl2[11]
             ttCostHeader.stdCostSpecial3 = ctrl2[12]
             ttCostHeader.stdCostRoyalty = ctrl2[18]
-            ttCostHeader.stdCostGSABoard = calcpcts.val[2] 
+            ttCostHeader.stdCostGSABoard = xest.costBoard 
             ttCostHeader.stdCostTotalGSA = ttCostHeader.stdCostGSABoard + ttCostHeader.stdCostGSALabor + ttCostHeader.stdCostGSAMaterial
             ttCostHeader.stdCostTotalOther = ttCostHeader.stdCostFreight +  
                                       ttCostHeader.stdCostWarehousing +

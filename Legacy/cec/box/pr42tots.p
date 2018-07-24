@@ -276,7 +276,6 @@ PUT "TOTAL  OPERATIONS        " op-tot[3] FORMAT ">>>>9.99" TO 59
 
 IF vmclean THEN op-tot[4] = op-tot[4] * (v-qty / 1000).
 
-{est/calcpcts.i xest}  
 
 IF INDEX("SB",ce-ctrl.sell-by) EQ 0 THEN 
 DO:
@@ -290,7 +289,7 @@ DO:
         ctrl[10] = ce-ctrl.lab-pct[i] / 100.
         IF ce-ctrl.lab-cost[i] > op-tot[5]  THEN LEAVE.
     END.
-    calcpcts.val[1] = ctrl[9] * 100.
+    xest.gsa-mat = ctrl[9] * 100.
 END.
 
 ASSIGN
@@ -394,27 +393,23 @@ DO:
     v-markup[2] = (fac-tot - op-tot[7]) * v-pct / 100.
 END.
 
-FIND CURRENT calcpcts.
-
-IF calcpcts.val[1] EQ 0 THEN calcpcts.val[2] = 0.
+IF xest.gsa-mat EQ 0 THEN xest.costBoard = 0.
 
 ASSIGN
-    xxx             = dm-tot[5] - calcpcts.val[2] + tprep-mat + mis-tot[1] 
+    xxx             = dm-tot[5] - xest.costBoard + tprep-mat + mis-tot[1] 
     ctrl2[9]        = xxx * ctrl[9]
     xxx             = op-tot[5] + tprep-lab + mis-tot[3]
     ctrl2[10]       = xxx * ctrl[10]
-    calcpcts.val[2] = calcpcts.val[2] * calcpcts.val[1] / 100.
-
-FIND CURRENT calcpcts NO-LOCK NO-ERROR.
+    xest.costBoard  = xest.costBoard * xest.gsa-mat / 100.
 
 IF v-cewhspct THEN
-    ctrl2[1] = (fac-tot + calcpcts.val[2] + ctrl2[9] + ctrl2[10]) * ctrl[1].
+    ctrl2[1] = (fac-tot + xest.costBoard + ctrl2[9] + ctrl2[10]) * ctrl[1].
 
 ASSIGN
-    ctrl2[13] = (fac-tot + calcpcts.val[2] + ctrl2[9] + ctrl2[10]) * ctrl[19]
+    ctrl2[13] = (fac-tot + xest.costBoard + ctrl2[9] + ctrl2[10]) * ctrl[19]
     tt-tot    = dm-tot[5] + op-tot[5] + ctrl2[1] + ctrl2[13] +
             tprep-mat + tprep-lab + mis-tot[1] + mis-tot[3] +
-            calcpcts.val[2] + ctrl2[9] + ctrl2[10]
+            xest.costBoard + ctrl2[9] + ctrl2[10]
     ctrl2[4]  = 0
     ctrl2[5]  = 0.
 
@@ -547,14 +542,14 @@ DO:
     IF ctrl[16] NE 0 THEN 
     DO:
 
-        IF calcpcts.val[2] NE 0 THEN 
+        IF xest.costBoard NE 0 THEN 
         DO:
 
             PUT "GS&A Board".
             IF ll-gsa-pct THEN
-                PUT STRING(calcpcts.val[1]) + "%" TO 30.
-            PUT calcpcts.val[2] / qm TO 50
-                calcpcts.val[2]      TO 80 SKIP.
+                PUT STRING(xest.gsa-mat) + "%" TO 30.
+            PUT xest.costBoard / qm TO 50
+                xest.costBoard      TO 80 SKIP.
         END.
 
         IF ctrl2[9] NE 0 THEN 
@@ -575,7 +570,7 @@ DO:
                 ctrl2[10]      TO 80 SKIP.
         END.
 
-        fac-tot = fac-tot + calcpcts.val[2] + ctrl2[9] + ctrl2[10].
+        fac-tot = fac-tot + xest.costBoard + ctrl2[9] + ctrl2[10].
     END.
 
     PUT "TOTAL FACTORY COST"
@@ -621,14 +616,14 @@ DO:
 
     IF ctrl[16] NE 0 THEN 
     DO:
-        IF calcpcts.val[2] NE 0 THEN 
+        IF xest.costBoard NE 0 THEN 
         DO:
 
             PUT "GS&A Board".
             IF ll-gsa-pct THEN
-                PUT STRING(calcpcts.val[1]) + "%" TO 30.
-            PUT calcpcts.val[2] / qm TO 50
-                calcpcts.val[2]      TO 80 SKIP.
+                PUT STRING(xest.gsa-mat) + "%" TO 30.
+            PUT xest.costBoard / qm TO 50
+                xest.costBoard      TO 80 SKIP.
         END.
 
         IF ctrl2[9] NE 0 THEN 
@@ -649,7 +644,7 @@ DO:
                 ctrl2[10]      TO 80 SKIP.
         END.
 
-        tt-tot = tt-tot + calcpcts.val[2] + ctrl2[9] + ctrl2[10].
+        tt-tot = tt-tot + xest.costBoard + ctrl2[9] + ctrl2[10].
     END.
       
     IF v-markup[1] NE 0 THEN 
@@ -782,18 +777,18 @@ DO:
 
         ASSIGN
             vmcl-desc = "GS&A Board"
-            vmcl-cost = calcpcts.val[2] / qm
-            fac-tot2  = fac-tot2 + calcpcts.val[2].
+            vmcl-cost = xest.costBoard / qm
+            fac-tot2  = fac-tot2 + xest.costBoard.
 
         {cec/pr4-mcln.i vmcl-desc vmcl vmcl-cost 13}
 
-        IF ll-gsa-pct AND calcpcts.val[2] NE 0 THEN 
+        IF ll-gsa-pct AND xest.costBoard NE 0 THEN 
         DO:
             mclean.rec-type = "gsabrd".
 
             ASSIGN
                 vmcl-desc = "    GS&A Board %"
-                vmcl-cost = calcpcts.val[1].
+                vmcl-cost = xest.gsa-mat.
 
             {cec/pr4-mcln.i vmcl-desc vmcl vmcl-cost 14}
             mclean.rec-type = "gsabrd".
@@ -975,17 +970,17 @@ DO:
 
         ASSIGN
             vmcl-desc = "GS&A Board"
-            vmcl-cost = calcpcts.val[2] / qm
-            tt-tot    = tt-tot + calcpcts.val[2].
+            vmcl-cost = xest.costBoard / qm
+            tt-tot    = tt-tot + xest.costBoard.
 
         {cec/pr4-mcln.i vmcl-desc vmcl vmcl-cost 29}
 
-        IF ll-gsa-pct AND calcpcts.val[2] NE 0 THEN 
+        IF ll-gsa-pct AND xest.costBoard NE 0 THEN 
         DO:
             ASSIGN
                 mclean.rec-type = "gsabrd"
                 vmcl-desc       = "    GS&A Board %"
-                vmcl-cost       = calcpcts.val[1].
+                vmcl-cost       = xest.gsa-mat.
 
             {cec/pr4-mcln.i vmcl-desc vmcl vmcl-cost 30}
             mclean.rec-type = "gsabrd".
@@ -1123,7 +1118,7 @@ IF NOT AVAILABLE ttCostHeader THEN
             ttCostHeader.stdCostSpecial1 = ctrl2[4]
             ttCostHeader.stdCostSpecial2 = ctrl2[11]
             ttCostHeader.stdCostSpecial3 = ctrl2[12]
-            ttCostHeader.stdCostGSABoard = calcpcts.val[2] 
+            ttCostHeader.stdCostGSABoard = xest.costBoard 
             ttCostHeader.stdCostTotalGSA = ttCostHeader.stdCostGSABoard + ttCostHeader.stdCostGSALabor + ttCostHeader.stdCostGSAMaterial
             ttCostHeader.stdCostTotalOther = ttCostHeader.stdCostFreight +  
                                       ttCostHeader.stdCostWarehousing +

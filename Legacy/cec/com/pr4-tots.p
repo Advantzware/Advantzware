@@ -36,11 +36,10 @@ find first ce-ctrl
       and ce-ctrl.loc     eq locode
     no-lock no-error.
 
-{est/calcpcts.i xest}
-IF calcpcts.val[1] EQ 0 THEN calcpcts.val[2] = 0.
+IF xest.gsa-mat EQ 0 THEN xest.costBoard = 0.
 
 assign
- xxx       = dm-tot[5] - calcpcts.val[2] + tprep-mat + mis-tot[1]
+ xxx       = dm-tot[5] - xest.costBoard + tprep-mat + mis-tot[1]
  ctrl2[9]  = xxx * ctrl[9]
  xxx       = op-tot[5] + tprep-lab + mis-tot[3]
  ctrl2[10] = xxx * ctrl[10]
@@ -48,19 +47,18 @@ assign
 	         tprep-mat + tprep-lab + mis-tot[1] + mis-tot[3]
  tt-tot    = dm-tot[5] + op-tot[5] + ctrl2[1] +
 	         tprep-mat + tprep-lab + mis-tot[1] + mis-tot[3] +
-	         calcpcts.val[2] + ctrl2[9] + ctrl2[10]
+	         xest.costBoard + ctrl2[9] + ctrl2[10]
  ctrl2[4]  = 0
  ctrl2[5]  = 0
  ctrl2[11] = 0
  ctrl2[12] = 0.
 
-calcpcts.val[2] = calcpcts.val[2] * calcpcts.val[1] / 100.
-FIND CURRENT calcpcts NO-LOCK NO-ERROR.
+xest.costBoard = xest.costBoard * xest.gsa-mat / 100.
 
 IF v-cewhspct THEN
-  ctrl2[1] = (fac-tot + calcpcts.val[2] + ctrl2[9] + ctrl2[10] ) * ctrl[1].
+  ctrl2[1] = (fac-tot + xest.costBoard + ctrl2[9] + ctrl2[10] ) * ctrl[1].
 
-ctrl2[13] = (fac-tot + calcpcts.val[2] + ctrl2[9] + ctrl2[10] ) * ctrl[19].
+ctrl2[13] = (fac-tot + xest.costBoard + ctrl2[9] + ctrl2[10] ) * ctrl[19].
 
 for each blk,
     first xeb FIELDS(t-sqin)
@@ -299,8 +297,8 @@ end.
 IF ctrl[16] NE 0 THEN DO:
   PUT "GS&A Board".
   IF ll-gsa-pct THEN
-    PUT STRING(calcpcts.val[1],">>9.99") + "%" TO 30.
-  PUT calcpcts.val[2] / qm TO 48 calcpcts.val[2] TO 80 SKIP.
+    PUT STRING(xest.gsa-mat,">>9.99") + "%" TO 30.
+  PUT xest.costBoard / qm TO 48 xest.costBoard TO 80 SKIP.
 
   PUT "GS&A Material".
   IF ll-gsa-pct THEN
@@ -312,7 +310,7 @@ IF ctrl[16] NE 0 THEN DO:
     PUT STRING(ctrl[10] * 100,">>9.99") + "%" TO 30.
   PUT ctrl2[10] / qm TO 48 ctrl2[10] TO 80 SKIP.
 
-  fac-tot2 = fac-tot2 + calcpcts.val[2] + ctrl2[9] + ctrl2[10].
+  fac-tot2 = fac-tot2 + xest.costBoard + ctrl2[9] + ctrl2[10].
 END.
 
 if ctrl[18] gt 0 and ctrl2[18] ne 0 then                         /* Royalty */
@@ -447,8 +445,8 @@ end.
 IF ctrl[16] EQ 0 THEN DO:
   PUT "GS&A Board".
   IF ll-gsa-pct THEN
-    PUT STRING(calcpcts.val[1],">>9.99") + "%" TO 30.
-  PUT calcpcts.val[2] / qm TO 48 calcpcts.val[2] TO 80 SKIP.
+    PUT STRING(xest.gsa-mat,">>9.99") + "%" TO 30.
+  PUT xest.costBoard / qm TO 48 xest.costBoard TO 80 SKIP.
 
   PUT "GS&A Material".
   IF ll-gsa-pct THEN
@@ -460,7 +458,7 @@ IF ctrl[16] EQ 0 THEN DO:
     PUT STRING(ctrl[10] * 100,">>9.99") + "%" TO 30.
   PUT ctrl2[10] / qm TO 48 ctrl2[10] TO 80 SKIP.
 
-  tt-tot = tt-tot + calcpcts.val[2] + ctrl2[9] + ctrl2[10].
+  tt-tot = tt-tot + xest.costBoard + ctrl2[9] + ctrl2[10].
      
 END.
 

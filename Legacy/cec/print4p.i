@@ -663,12 +663,10 @@
        end.
     end.
     DO TRANSACTION:
-      {est/calcpcts.i xest}
       IF v-gsa THEN
         ASSIGN
-         calcpcts.val[1] = ctrl[9] * 100
-         calcpcts.val[2] = v-brd-cost.
-      FIND CURRENT calcpcts NO-LOCK NO-ERROR.
+         xest.gsa-mat = ctrl[9] * 100
+         xest.costBoard = v-brd-cost.
     END.
 
     assign  gsa-mat = ctrl[9]  * 100

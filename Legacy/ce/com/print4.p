@@ -1207,11 +1207,9 @@ END.
       if ce-ctrl.lab-cost[i] > op-tot[5]  then leave.
    end.
    DO TRANSACTION:
-     {est/calcpcts.i xest}
      ASSIGN
-      calcpcts.val[1] = ctrl[9] * 100
-      calcpcts.val[2] = v-brd-cost.
-     FIND CURRENT calcpcts NO-LOCK NO-ERROR.
+      xest.gsa-mat = ctrl[9] * 100
+      xest.costBoard = v-brd-cost.
    END.
 
 assign

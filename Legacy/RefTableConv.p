@@ -147,6 +147,7 @@ ASSIGN
     {refTableConv.i "ColorAudit" 'COLOR' + chr(32) + 'AUDIT'}
     {refTableConv.i "Machcrew" 'MACH-CREW'}
     {refTableConv.i "VendorMaxValue" 'VendorMaxValue'}
+    {refTableConv.i "EstCalcpcts" 'est.calcpcts'}
 
 /* Deferred for 16.7.0                                              */
 /*    {refTableConv.i "STYFLU" 'STYFLU'}                            */

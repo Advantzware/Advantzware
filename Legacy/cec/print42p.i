@@ -914,11 +914,8 @@ do vmcl = 1 to 28:   /* ??? 28 not 4*/
 
       output close.
 
-      DO TRANSACTION:
-        {est/calcpcts.i xest}
-
-        IF do-gsa THEN calcpcts.val[2] = ld-board.
-        FIND CURRENT calcpcts NO-LOCK NO-ERROR.
+      DO TRANSACTION:        
+        IF do-gsa THEN xest.costBoard = ld-board.
       END.
 
       v-do-gsa = do-gsa.

@@ -27,13 +27,12 @@ DEF VAR ld-pmrkp AS DEC EXTENT 3 NO-UNDO.
    no-lock no-error.
    if avail style then ctrl2[18] = style.royalty.
 
-   {est/calcpcts.i xest}
-   IF calcpcts.val[1] EQ 0 THEN calcpcts.val[2] = 0.
+   IF xest.gsa-mat EQ 0 THEN xest.costBoard = 0.
 
    IF cematl-log THEN ld-dm-mrkp = dm-tot[5] * cematl-dec / 100.
 
    ASSIGN
-     xxx = dm-tot[5] - calcpcts.val[2] + tprep-mat + mis-tot[1]
+     xxx = dm-tot[5] - xest.costBoard + tprep-mat + mis-tot[1]
      ctrl2[9] = xxx * ctrl[9]
      xxx = op-tot[5] + tprep-lab + mis-tot[3]
      ctrl2[10] = xxx * ctrl[10].
@@ -65,14 +64,13 @@ DEF VAR ld-pmrkp AS DEC EXTENT 3 NO-UNDO.
    ASSIGN
      fac-tot = dm-tot[5] + op-tot[5] +
                tprep-mat + tprep-lab + mis-tot[1] + mis-tot[3]
-     calcpcts.val[2] = calcpcts.val[2] * calcpcts.val[1] / 100.
+     xest.costBoard = xest.costBoard * xest.gsa-mat / 100.
 
-   FIND CURRENT calcpcts NO-LOCK NO-ERROR.
 
    ASSIGN
-    ctrl2[1] = (fac-tot + calcpcts.val[2] + ctrl2[9] + ctrl2[10] + ld-dm-mrkp) *
+    ctrl2[1] = (fac-tot + xest.costBoard + ctrl2[9] + ctrl2[10] + ld-dm-mrkp) *
                ctrl[1]
-    ctrl2[13] = (fac-tot + calcpcts.val[2] + ctrl2[9] + ctrl2[10] + ld-dm-mrkp) *
+    ctrl2[13] = (fac-tot + xest.costBoard + ctrl2[9] + ctrl2[10] + ld-dm-mrkp) *
                 ctrl[19].
 
    find first xeb where xeb.company = xest.company
@@ -228,9 +226,9 @@ DEF VAR ld-pmrkp AS DEC EXTENT 3 NO-UNDO.
 
       IF ctrl[16] NE 0 OR cerunf EQ "Dee" THEN DO:
         PUT "GS&A Board"
-            STRING(calcpcts.val[1],">>9.99") + "%"                  TO 30
-            calcpcts.val[2] / qm                                    TO 48
-            calcpcts.val[2]                                         TO 80 SKIP
+            STRING(xest.gsa-mat,">>9.99") + "%"                  TO 30
+            xest.costBoard / qm                                    TO 48
+            xest.costBoard                                         TO 80 SKIP
 
             "GS&A Material" STRING(ctrl[9] * 100,">>9.99")  + "%"   TO 30
             ctrl2[9]  / qm                                          TO 48
@@ -246,7 +244,7 @@ DEF VAR ld-pmrkp AS DEC EXTENT 3 NO-UNDO.
               ld-dm-mrkp / qm                                       TO 48
               ld-dm-mrkp                                            TO 80 SKIP.
 
-        fac-tot2 = fac-tot2 + calcpcts.val[2] + ctrl2[9] + ctrl2[10] +
+        fac-tot2 = fac-tot2 + xest.costBoard + ctrl2[9] + ctrl2[10] +
                               ld-dm-mrkp.
       END.
 
@@ -324,9 +322,9 @@ DEF VAR ld-pmrkp AS DEC EXTENT 3 NO-UNDO.
 
         IF ctrl[16] EQ 0 THEN DO:
           PUT "GS&A Board"
-              STRING(calcpcts.val[1],">>9.99") + "%"                  TO 30
-              calcpcts.val[2] / qm                                    TO 48
-              calcpcts.val[2]                                         TO 80 SKIP
+              STRING(xest.gsa-mat,">>9.99") + "%"                  TO 30
+              xest.costBoard / qm                                    TO 48
+              xest.costBoard                                         TO 80 SKIP
 
               "GS&A Material" STRING(ctrl[9] * 100,">>9.99")  + "%"   TO 30
               ctrl2[9]  / qm                                          TO 48
@@ -342,7 +340,7 @@ DEF VAR ld-pmrkp AS DEC EXTENT 3 NO-UNDO.
                 ld-dm-mrkp / qm                                       TO 48
                 ld-dm-mrkp                                            TO 80 SKIP.
 
-          tt-tot = tt-tot + calcpcts.val[2] + ctrl2[9] + ctrl2[10] + ld-dm-mrkp.
+          tt-tot = tt-tot + xest.costBoard + ctrl2[9] + ctrl2[10] + ld-dm-mrkp.
         END.
 
         if ctrl[18] eq 0 and ctrl2[18] ne 0 then do:   /* Royalty */
@@ -464,15 +462,15 @@ DEF VAR ld-pmrkp AS DEC EXTENT 3 NO-UNDO.
      IF ctrl[16] NE 0 THEN DO:
        ASSIGN
         vmcl-desc = "GS&A Board"
-        vmcl-cost = calcpcts.val[2] / qm
-        fac-tot2  = fac-tot2 + calcpcts.val[2].
+        vmcl-cost = xest.costBoard / qm
+        fac-tot2  = fac-tot2 + xest.costBoard.
 
        {ce/pr4-mcln.i vmcl-desc vmcl vmcl-cost}
        mclean.rec-type = "gsabrd".
 
        ASSIGN
         vmcl-desc = "    GS&A Board %"
-        vmcl-cost = calcpcts.val[1].
+        vmcl-cost = xest.gsa-mat.
 
        {ce/pr4-mcln.i vmcl-desc vmcl vmcl-cost}
        mclean.rec-type = "gsabrd".
@@ -645,15 +643,15 @@ DEF VAR ld-pmrkp AS DEC EXTENT 3 NO-UNDO.
      IF ctrl[16] EQ 0 THEN DO:
        ASSIGN
         vmcl-desc = "GS&A Board"
-        vmcl-cost = calcpcts.val[2] / qm
-        tt-tot    = tt-tot + calcpcts.val[2].
+        vmcl-cost = xest.costBoard / qm
+        tt-tot    = tt-tot + xest.costBoard.
 
        {ce/pr4-mcln.i vmcl-desc vmcl vmcl-cost}
        mclean.rec-type = "gsabrd".
 
        ASSIGN
         vmcl-desc = "    GS&A Board %"
-        vmcl-cost = calcpcts.val[1].
+        vmcl-cost = xest.gsa-mat.
 
        {ce/pr4-mcln.i vmcl-desc vmcl vmcl-cost}
        mclean.rec-type = "gsabrd".

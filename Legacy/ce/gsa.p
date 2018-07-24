@@ -39,10 +39,6 @@ ASSIGN
  cocode = g_company
  locode = g_loc.
 
-DO TRANSACTION:
-  {est/calcpcts.i xest}
-  FIND CURRENT calcpcts NO-LOCK NO-ERROR.
-END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -476,7 +472,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         NO-ERROR.
                            
     ASSIGN
-     ld-gsa-brd = calcpcts.val[1]
+     ld-gsa-brd = xest.gsa-mat
      ld-gsa-mat = gsa-mat
      ld-gsa-lab = gsa-lab
      ld-gsa-war = gsa-war
@@ -605,9 +601,7 @@ PROCEDURE update-pcts :
    gsa-fm  = ld-gsa-fm.
 
   DO TRANSACTION:
-    FIND CURRENT calcpcts NO-ERROR.
-    calcpcts.val[1] = ld-gsa-brd.
-    FIND CURRENT calcpcts NO-LOCK NO-ERROR.
+    xest.gsa-mat = ld-gsa-brd.
   END.
 
 END PROCEDURE.

@@ -2933,6 +2933,35 @@ CLASS RefTableMigration:
         END.  /*FOR EACH reftable*/          
         RETURN iCnt.
     END METHOD. /*e-itemfg-vend*/ 
+    METHOD PUBLIC INTEGER EstCalcpcts(INPUT ipCount AS INTEGER):
+        DEFINE VARIABLE iCnt AS INTEGER NO-UNDO.
+        DEFINE BUFFER reftable1 FOR reftable1.
+        DEFINE BUFFER Breftable FOR reftable. 
+        DEFINE BUFFER est       FOR est.
+        
+        DISABLE TRIGGERS FOR LOAD OF reftable.        
+        DISABLE TRIGGERS FOR LOAD OF est.
+        ASSIGN iProcessCount = 0.        
+        FOR EACH reftable WHERE reftable.reftable = "est.calcpcts"
+            NO-LOCK:
+            DO TRANSACTION:    
+                FIND FIRST est WHERE est.company = reftable.company
+                                 AND est.loc     = reftable.loc
+                                 AND est.est-no  = reftable.code
+                EXCLUSIVE-LOCK NO-ERROR.
+                IF AVAILABLE est THEN DO:
+                    IF est.gsa-mat EQ 0 THEN ASSIGN est.gsa-mat = reftable.val[1].
+                    IF est.costBoard EQ 0 THEN ASSIGN est.costBoard = reftable.val[2].                    
+                  ASSIGN iProcessCount = iProcessCount + 1. 
+                END.             
+                FIND CURRENT est NO-LOCK NO-ERROR.    
+                RELEASE est.      
+                iCnt = iCnt + 1.
+                IF iCnt >= ipCount THEN LEAVE.   
+            END.              
+        END.  /*FOR EACH reftable*/          
+        RETURN iCnt.
+    END METHOD. /*e-itemfg-vend*/ 
 END CLASS.
 
 

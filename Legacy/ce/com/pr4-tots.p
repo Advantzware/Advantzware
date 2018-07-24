@@ -29,13 +29,12 @@ find first ce-ctrl
       and ce-ctrl.loc     eq locode
     no-lock no-error.
 
-{est/calcpcts.i xest}
-IF calcpcts.val[1] EQ 0 THEN calcpcts.val[2] = 0.
+IF xest.gsa-mat EQ 0 THEN xest.costBoard = 0.
 
 IF cematl-log THEN ld-dm-mrkp = dm-tot[5] * cematl-dec / 100.
 
 ASSIGN
- xxx       = dm-tot[5] - calcpcts.val[2] + tprep-mat + mis-tot[1]
+ xxx       = dm-tot[5] - xest.costBoard + tprep-mat + mis-tot[1]
  ctrl2[9]  = xxx * ctrl[9]
  xxx       = op-tot[5] + tprep-lab + mis-tot[3]
  ctrl2[10] = xxx * ctrl[10].
@@ -67,20 +66,18 @@ END.
 ASSIGN
  fac-tot   = dm-tot[5] + op-tot[5] +
 	         tprep-mat + tprep-lab + mis-tot[1] + mis-tot[3]
- calcpcts.val[2] = calcpcts.val[2] * calcpcts.val[1] / 100
- ctrl2[1]  = (fac-tot + calcpcts.val[2] + ctrl2[9] + ctrl2[10] + ld-dm-mrkp) *
+ xest.costBoard = xest.costBoard * xest.gsa-mat / 100
+ ctrl2[1]  = (fac-tot + xest.costBoard + ctrl2[9] + ctrl2[10] + ld-dm-mrkp) *
              ctrl[1]
- ctrl2[13]  = (fac-tot + calcpcts.val[2] + ctrl2[9] + ctrl2[10] + ld-dm-mrkp) *
+ ctrl2[13]  = (fac-tot + xest.costBoard + ctrl2[9] + ctrl2[10] + ld-dm-mrkp) *
               ctrl[19]
  tt-tot    = dm-tot[5] + op-tot[5] + ctrl2[1] + ctrl2[13] +
 	         tprep-mat + tprep-lab + mis-tot[1] + mis-tot[3] +
-	         calcpcts.val[2] + ctrl2[9] + ctrl2[10] + ld-dm-mrkp
+	         xest.costBoard + ctrl2[9] + ctrl2[10] + ld-dm-mrkp
  ctrl2[4]  = 0
  ctrl2[5]  = 0
  ctrl2[11] = 0
  ctrl2[12] = 0.
-
-FIND CURRENT calcpcts NO-LOCK NO-ERROR.
 
 for each blk,
     first xeb
@@ -114,7 +111,7 @@ for each blk,
    blk.fact = blk.fact + blk.cost  /* Freight already in fact if ctrl[6] gt 0 */
    xxx      = blk.sell              /* sell eq 0 if freight already included! */
    blk.sell = (blk.cost - blk.lab) * ctrl[9]
-   blk.sell = blk.sell + (calcpcts.val[2] * blk-pct)
+   blk.sell = blk.sell + (xest.costBoard * blk-pct)
 					/* add material gsa amount to blk.lab */
    blk.lab  = blk.lab * ctrl[10]           /* set blk.lab to labor gsa amount */
    blk.cost = blk.fact + blk.lab + blk.sell          /* add gsa's to blk.cost */
@@ -166,7 +163,7 @@ for each blk,
   IF ctrl[16] NE 0 OR cerunf EQ "Dee" THEN
     ASSIGN
      blk.cost = blk.cost +
-                ((calcpcts.val[2] + ctrl2[9] + ctrl2[10] + ld-dm-mrkp) *
+                ((xest.costBoard + ctrl2[9] + ctrl2[10] + ld-dm-mrkp) *
                  blk-pct).
 
   /* Royalties */
@@ -324,9 +321,9 @@ end.
 
 IF ctrl[16] NE 0 OR cerunf EQ "Dee" THEN DO:
   PUT "GS&A Board"
-      STRING(calcpcts.val[1],">>9.99") + "%"        TO 30
-      calcpcts.val[2] / qm                          TO 48
-      calcpcts.val[2]                               TO 80 SKIP
+      STRING(xest.gsa-mat,">>9.99") + "%"        TO 30
+      xest.costBoard / qm                          TO 48
+      xest.costBoard                               TO 80 SKIP
 
       "GS&A Material"
       STRING(ctrl[9] * 100,">>9.99")  + "%"         TO 30
@@ -344,7 +341,7 @@ IF ctrl[16] NE 0 OR cerunf EQ "Dee" THEN DO:
         ld-dm-mrkp / qm                             TO 48
         ld-dm-mrkp                                  TO 80 SKIP.
 
-  fac-tot2 = fac-tot2 + calcpcts.val[2] + ctrl2[9] + ctrl2[10] + ld-dm-mrkp.
+  fac-tot2 = fac-tot2 + xest.costBoard + ctrl2[9] + ctrl2[10] + ld-dm-mrkp.
 END.
 
 if cerunf NE "Dee" AND ctrl[18] gt 0 and ctrl2[18] ne 0 then                         /* Royalty */
@@ -406,7 +403,7 @@ for each blk,
   IF ctrl[16] EQ 0 THEN
     ASSIGN
      blk.cost = blk.cost +
-                ((calcpcts.val[2] + ctrl2[9] + ctrl2[10] + ld-dm-mrkp) *
+                ((xest.costBoard + ctrl2[9] + ctrl2[10] + ld-dm-mrkp) *
                  blk-pct).
 
   /* Royalties */
@@ -472,9 +469,9 @@ IF cerunf NE "Dee" THEN DO:
 
   IF ctrl[16] EQ 0 THEN DO:
     PUT "GS&A Board"
-        STRING(calcpcts.val[1],">>9.99") + "%"        TO 30
-        calcpcts.val[2] / qm                          TO 48
-        calcpcts.val[2]                               TO 80 SKIP
+        STRING(xest.gsa-mat,">>9.99") + "%"        TO 30
+        xest.costBoard / qm                          TO 48
+        xest.costBoard                               TO 80 SKIP
 
         "GS&A Material"
         STRING(ctrl[9] * 100,">>9.99")  + "%"         TO 30
@@ -492,7 +489,7 @@ IF cerunf NE "Dee" THEN DO:
           ld-dm-mrkp / qm                             TO 48
           ld-dm-mrkp                                  TO 80 SKIP.
 
-    tt-tot = tt-tot + calcpcts.val[2] + ctrl2[9] + ctrl2[10] + ld-dm-mrkp.
+    tt-tot = tt-tot + xest.costBoard + ctrl2[9] + ctrl2[10] + ld-dm-mrkp.
   END.
 
   if ctrl[18] eq 0 and ctrl2[18] ne 0 then       /* Royalty */

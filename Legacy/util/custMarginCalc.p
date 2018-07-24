@@ -657,11 +657,9 @@ DEF BUFFER bf-est FOR est.
             END.
    
             DO:
-                {est/calcpcts.i xest}
                 ASSIGN
-                    calcpcts.val[1] = ctrl[9] * 100
-                    calcpcts.val[2] = v-brd-cost.
-                FIND CURRENT calcpcts NO-LOCK NO-ERROR.
+                    xest.gsa-mat = ctrl[9] * 100
+                    xest.costBoard = v-brd-cost.
             END.
    
             ASSIGN
@@ -697,9 +695,7 @@ DEF BUFFER bf-est FOR est.
                 NO-ERROR.
             IF AVAILABLE probe-ref THEN 
             DO:
-                FIND CURRENT calcpcts NO-ERROR.
-                calcpcts.val[1] = probe-ref.val[1] .
-                FIND CURRENT calcpcts NO-LOCK NO-ERROR.
+                xest.gsa-mat = probe-ref.val[1] .
             END.
 
             FIND FIRST probe-fm NO-LOCK
@@ -779,7 +775,7 @@ DEF BUFFER bf-est FOR est.
                 opcSellPrice    = STRING(probe.sell-price * qm, "->>>>>>>9.99") 
                 opcTons         = STRING(v-tons, "->>9.99999") 
                 opcTonCost      = STRING(dTonCost, "->>>>>>>9.99")
-                opdCalcPctsVal2 = calcpcts.val[2]  
+                opdCalcPctsVal2 = xest.costBoard  
                 opdCtrl2-9      = ctrl2[9] 
                 opdCtrl2-10     = ctrl2[10]  
                 opdCtrl2-1      = ctrl2[1] 

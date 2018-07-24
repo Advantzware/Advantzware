@@ -152,8 +152,7 @@ END.
    end.
 
    DO TRANSACTION:
-     {est/calcpcts.i xest}
-     calcpcts.val[1] = ctrl[9] * 100.
+     xest.gsa-mat = ctrl[9] * 100.
    END.
 
    assign gsa-mat = ctrl[9]  * 100     
@@ -221,29 +220,26 @@ END.
              tprep-mat + tprep-lab + mis-tot[1] + mis-tot[3].
 
    DO TRANSACTION:
-   FIND CURRENT calcpcts.
-   IF calcpcts.val[1] EQ 0 THEN calcpcts.val[2] = 0.
-
+   IF xest.gsa-mat EQ 0 THEN xest.costBoard = 0.
    IF cematl-log THEN ld-dm-mrkp = dm-tot[5] * cematl-dec / 100.
 
    ASSIGN
-      xxx = dm-tot[5] - calcpcts.val[2] + tprep-mat + mis-tot[1]
+      xxx = dm-tot[5] - xest.costBoard + tprep-mat + mis-tot[1]
       ctrl2[9] = xxx * ctrl[9]
       xxx = op-tot[5] + tprep-lab + mis-tot[3]
       ctrl2[10] = xxx * ctrl[10]
-      calcpcts.val[2] = calcpcts.val[2] * calcpcts.val[1] / 100.
+      xest.costBoard = xest.costBoard * xest.gsa-mat / 100.
 
-   FIND CURRENT calcpcts NO-LOCK NO-ERROR.
    END.
 
    ASSIGN
-     ctrl2[1] = (fac-tot + calcpcts.val[2] + ctrl2[9] + ctrl2[10] + ld-dm-mrkp) *
+     ctrl2[1] = (fac-tot + xest.costBoard + ctrl2[9] + ctrl2[10] + ld-dm-mrkp) *
                 ctrl[1]
-     ctrl2[13] = (fac-tot + calcpcts.val[2] + ctrl2[9] + ctrl2[10] + ld-dm-mrkp) *
+     ctrl2[13] = (fac-tot + xest.costBoard + ctrl2[9] + ctrl2[10] + ld-dm-mrkp) *
                 ctrl[19]
      tt-tot = dm-tot[5] + op-tot[5] + ctrl2[1] + ctrl2[13] +
               tprep-mat + tprep-lab + mis-tot[1] + mis-tot[3] +
-              calcpcts.val[2] + ctrl2[9] + ctrl2[10] + ld-dm-mrkp.
+              xest.costBoard + ctrl2[9] + ctrl2[10] + ld-dm-mrkp.
 
    if xeb.chg-method eq "P" and ctrl[6] ne 0 then fac-tot = fac-tot + fr-tot.
 
@@ -252,7 +248,7 @@ END.
       ctrl2[5] = 0.
 
    if ctrl[4] gt 0 then 
-     ctrl2[4] = (fac-tot + calcpcts.val[2] + ctrl2[9] + ctrl2[10] + ld-dm-mrkp) *
+      ctrl2[4] = (fac-tot + xest.costBoard + ctrl2[9] + ctrl2[10] + ld-dm-mrkp) * 
                 ctrl[4].
    tt-tot = tt-tot + ctrl2[4].
 
@@ -421,11 +417,11 @@ END.
       end.
 
       IF ctrl[16] NE 0 OR cerunf EQ "Dee" THEN DO:
-        IF calcpcts.val[2] NE 0 THEN
+        IF xest.costBoard NE 0 THEN
           PUT "GS&A Board"
-              STRING(calcpcts.val[1],">>9.99") + "%" TO 30
-              calcpcts.val[2] / qm                   TO 50
-              calcpcts.val[2]                        TO 80 SKIP.
+              STRING(xest.gsa-mat,">>9.99") + "%" TO 30
+              xest.costBoard / qm                   TO 50
+              xest.costBoard                        TO 80 SKIP.
 
         IF ctrl2[9] NE 0 THEN
           PUT "GS&A Material"
@@ -445,7 +441,7 @@ END.
               ld-dm-mrkp / qm                        TO 50
               ld-dm-mrkp                             TO 80 SKIP.
 
-        fac-tot2 = fac-tot2 + calcpcts.val[2] + ctrl2[9] + ctrl2[10] + ld-dm-mrkp. 
+        fac-tot2 = fac-tot2 + xest.costBoard + ctrl2[9] + ctrl2[10] + ld-dm-mrkp.
       END.
      
       if cerunf NE "Dee" AND ctrl[18] gt 0 and ctrl2[18] ne 0 then do:   /* Royalty */
@@ -521,11 +517,11 @@ END.
         end.
 
         IF ctrl[16] EQ 0 THEN DO:
-          IF calcpcts.val[2] NE 0 THEN
+           IF xest.costBoard NE 0 THEN
             PUT "GS&A Board"
-                STRING(calcpcts.val[1],">>9.99") + "%" TO 30
-                calcpcts.val[2] / qm                   TO 50
-                calcpcts.val[2]                        TO 80 SKIP.
+                STRING(xest.gsa-mat,">>9.99") + "%" TO 30
+                xest.costBoard / qm                   TO 50
+                xest.costBoard                        TO 80 SKIP.
  
           IF ctrl2[9] NE 0 THEN
             PUT "GS&A Material"
@@ -545,7 +541,7 @@ END.
                 ld-dm-mrkp / qm                        TO 50
                 ld-dm-mrkp                             TO 80 SKIP.
 
-          tt-tot = tt-tot + calcpcts.val[2] + ctrl2[9] + ctrl2[10] + ld-dm-mrkp. 
+          tt-tot = tt-tot + xest.costBoard + ctrl2[9] + ctrl2[10] + ld-dm-mrkp. 
         END.
           
         if ctrl[18] eq 0 and ctrl2[18] ne 0 then do:   /* Royalty */
@@ -667,15 +663,15 @@ END.
      IF ctrl[16] NE 0 THEN DO:
        ASSIGN
         vmcl-desc = "GS&A Board"
-        vmcl-cost = calcpcts.val[2] / qm
-        fac-tot2  = fac-tot2 + calcpcts.val[2].
+        vmcl-cost = xest.costBoard / qm
+        fac-tot2  = fac-tot2 + xest.costBoard.
 
        {ce/pr4-mcln.i vmcl-desc vmcl vmcl-cost}
        mclean.rec-type = "gsabrd".
 
        ASSIGN
         vmcl-desc = "    GS&A Board %"
-        vmcl-cost = calcpcts.val[1].
+        vmcl-cost = xest.gsa-mat.
 
        {ce/pr4-mcln.i vmcl-desc vmcl vmcl-cost}
        mclean.rec-type = "gsabrd".
@@ -848,15 +844,15 @@ END.
      IF ctrl[16] EQ 0 THEN DO:
        ASSIGN
         vmcl-desc = "GS&A Board"
-        vmcl-cost = calcpcts.val[2] / qm
-        tt-tot    = tt-tot + calcpcts.val[2].
+        vmcl-cost = xest.costBoard / qm
+        tt-tot    = tt-tot + xest.costBoard.
 
        {ce/pr4-mcln.i vmcl-desc vmcl vmcl-cost}
        mclean.rec-type = "gsabrd".
 
        ASSIGN
         vmcl-desc = "    GS&A Board %"
-        vmcl-cost = calcpcts.val[1].
+        vmcl-cost = xest.gsa-mat.
 
        {ce/pr4-mcln.i vmcl-desc vmcl vmcl-cost}
        mclean.rec-type = "gsabrd".

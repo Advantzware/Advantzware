@@ -61,8 +61,6 @@ ASSIGN
 DO TRANSACTION:
   {sys/inc/cewhschg.i}
   {cec/msfcalc.i}
-  {est/calcpcts.i xest}
-  FIND CURRENT calcpcts NO-LOCK NO-ERROR.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -748,7 +746,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         NO-ERROR.
 
     ASSIGN
-     ld-gsa-brd     = calcpcts.val[1]
+     ld-gsa-brd     = xest.gsa-mat
      ld-gsa-mat     = gsa-mat
      ld-gsa-lab     = gsa-lab
      ld-gsa-war     = gsa-war
@@ -906,10 +904,8 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
                 gsa-fm   = v-orig-ld-gsa-fm
                 ctrl2[1] = v-orig-ld-gsa-war-tot.
 
-             FIND CURRENT calcpcts NO-ERROR.
-             calcpcts.val[1] = iop-gsa-brd.
-             FIND CURRENT calcpcts NO-LOCK NO-ERROR.
-  
+             xest.gsa-mat = iop-gsa-brd.
+               
              FIND CURRENT probe NO-ERROR.
 
              IF AVAIL probe THEN DO:
@@ -1159,9 +1155,7 @@ PROCEDURE update-pcts :
    ctrl2[1] = ld-gsa-war-tot.
 
  DO TRANSACTION:
-    FIND CURRENT calcpcts NO-ERROR.
-    calcpcts.val[1] = ld-gsa-brd.
-    FIND CURRENT calcpcts NO-LOCK NO-ERROR.
+    xest.gsa-mat = ld-gsa-brd.
   END.
 
 END PROCEDURE.
