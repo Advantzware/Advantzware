@@ -11,6 +11,9 @@ DEF STREAM st-fax.
 {sys/inc/var.i shared}
 {sys/form/s-top.f}
 
+DEFINE VARIABLE K_FRAC AS DECIMAL INIT 6.25 NO-UNDO.
+{sys/inc/f16to32.i}
+
 def buffer b-ref1  for reftable.
 def buffer b-ref2  for reftable.
 
@@ -615,16 +618,16 @@ v-printline = 0.
 
                 IF AVAIL b-ref1 THEN
                 DO x = 1 TO 12:
-                    ASSIGN
-                        lv-val[x] = b-ref1.val[x]
-                        lv-typ[x] = SUBSTR(b-ref1.dscr,x,1).
+                    lv-val[x] = b-ref1.val[x].
+                    {sys/inc/k16bb.i "lv-val[x]"}
+                    lv-typ[x] = SUBSTR(b-ref1.dscr,x,1).
                 END.
 
                 IF AVAIL b-ref2 THEN
                 DO x = 1 TO 8:
-                    ASSIGN
-                        lv-val[x + 12] = b-ref2.val[x]
-                        lv-typ[x + 12] = SUBSTR(b-ref2.dscr,x,1).
+                    lv-val[x + 12] = b-ref2.val[x].
+                    {sys/inc/k16bb.i "lv-val[x + 12]"}
+                    lv-typ[x + 12] = SUBSTR(b-ref2.dscr,x,1).
                 END.
 
                 DO lv-int = 0 TO 1:
@@ -639,7 +642,7 @@ v-printline = 0.
                             IF lv-val[(lv-int * 10) + x] GT 999 THEN
                                 RUN sys\inc\decfrac2.p(INPUT DEC(STRING(lv-val[(lv-int * 10) + x],">>>>")), INPUT 32, OUTPUT len-score).
                             ELSE
-                                RUN sys\inc\decfrac2.p(INPUT DEC(STRING(lv-val[(lv-int * 10) + x],">>>.99")), INPUT 32, OUTPUT len-score).
+                                RUN sys\inc\decfrac2.p(INPUT lv-val[(lv-int * 10) + x], INPUT 32, OUTPUT len-score).
                         
                          IF lv-val[(lv-int * 10) + x] NE 0 THEN 
                               v-lscore-c = v-lscore-c + len-score + "   " .
