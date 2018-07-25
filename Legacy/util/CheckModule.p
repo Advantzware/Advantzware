@@ -41,7 +41,7 @@ IF NOT VALID-HANDLE(hPgmMstrSecur) THEN
 RUN system/PgmMstrSecur.p PERSISTENT SET hPgmMstrSecur.
 IF VALID-HANDLE(hPgmMstrSecur) THEN
 RUN epCanAccess IN hPgmMstrSecur (
-    "util/CheckModule.p",
+    "util/module.w",
     "SuperAdmin",
     OUTPUT lAdmin 
     ).
