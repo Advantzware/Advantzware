@@ -1163,22 +1163,6 @@ if v-process then do:
     END.
 
     FOR EACH reftable WHERE
-        reftable.reftable EQ "est/getqty.w2"
-        AND reftable.company  EQ est.company
-        AND reftable.loc      EQ ""
-        AND reftable.code     EQ est.est-no
-        EXCLUSIVE WITH FRAME f-getqty2:
-
-        if archive then do:
-           output to value(v-file-path + "reftable" + STRING(est.est-no,"X(8)") + ".d") APPEND.
-           export reftable.
-           output close.
-        end.
-
-        delete reftable.
-    END.
-
-    FOR EACH reftable WHERE
         reftable.reftable EQ "PLATE/FOUNTAIN" AND
         reftable.company  EQ est.company AND
         reftable.loc      EQ est.est-no
