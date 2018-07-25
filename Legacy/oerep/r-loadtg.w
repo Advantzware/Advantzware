@@ -7700,7 +7700,7 @@ PROCEDURE write-loadtag-line :
         ENTRY(45,cLoftString) = STRING(w-ord.box-len,">>>9.99<<<")
         ENTRY(46,cLoftString) = STRING(w-ord.box-wid,">>>9.99<<<")
         ENTRY(47,cLoftString) = STRING(w-ord.box-dep,">>>9.99<<<")
-        ENTRY(68,cLoftString) = STRING(w-ord.bundle,"x(4)")
+        ENTRY(68,cLoftString) = STRING(w-ord.bundle,">>>9")
          .
     
     PUT UNFORMATTED  
