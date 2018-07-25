@@ -512,8 +512,8 @@ DO v-local-loop = 1 TO v-local-copies:
               "</B>"
               "<=SheetsRequired>" TRIM(STRING(v-sht-qty))   FORMAT "x(9)"
 /*              "<=SheetsReceived>"*/
-              "<=SheetsSize>" IF AVAILABLE xeb THEN "W:" + TRIM(STRING({sys/inc/k16v.i xeb.wid},">>9.99"))  + "  " +
-                              "L:" + TRIM(STRING({sys/inc/k16v.i xeb.len},">>9.99")) ELSE "" FORMAT "X(30)"
+              "<=SheetsSize>" "W:" + trim(string({sys/inc/k16v.i v-form-wid},">,>>9.99")) + "  " +
+                              "L:" + trim(string({sys/inc/k16v.i v-form-len},">,>>9.99"))  format "x(30)"
 
               "<=SheetsMSF>" TRIM(STRING(v-sht-qty * v-form-sqft / 1000,">>>9.9<")) FORMAT "x(11)"
               "<=Scores>" SUBSTRING(v-len-score,1,30) FORMAT "x(30)" 
