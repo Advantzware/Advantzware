@@ -90,7 +90,7 @@ for each oe-boll where oe-boll.company eq oe-bolh.company and oe-boll.b-no eq oe
 /*
 	  v-to-ship
 */
-	  oe-ordl.qty
+	  oe-ordl.qty format ">>>>>>>>9"
        with frame bol-mid.
   down {1} with frame bol-mid.
 
@@ -107,7 +107,7 @@ for each oe-boll where oe-boll.company eq oe-bolh.company and oe-boll.b-no eq oe
 
   if oe-boll.partial gt 0 then
   do:
-    put {1} "SQFT:" at 26 v-tot-sqft skip.
+    put {1} "SQFT:" at 26 v-tot-sqft format ">>>>>>>9.99" skip.
     put {1} oe-boll.cases format ">>9" to 47 "x" to 49 
   	    oe-boll.qty-case format ">>>>9" to 56
   	    "1 x" to 62 oe-boll.partial format ">>>>9" to 68 
@@ -115,7 +115,7 @@ for each oe-boll where oe-boll.company eq oe-bolh.company and oe-boll.b-no eq oe
   end.
   else
   do:
-    put {1} "SQFT:" at 26 v-tot-sqft skip.
+    put {1} "SQFT:" at 26 v-tot-sqft format ">>>>>>>9.99" skip.
     put {1} oe-boll.cases format ">>9" to 47 "x" to 49 
   	    oe-boll.qty-case format ">>>>9" to 56
 	    "=" to 70 v-to-ship format ">>>>>>>>9" to 82 skip.
