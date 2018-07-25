@@ -531,9 +531,37 @@ ASSIGN
 
 /* ************************  Control Triggers  ************************ */
 
-
-
 &Scoped-define SELF-NAME Dialog-Frame
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Dialog-Frame Dialog-Frame
+ON HELP OF FRAME Dialog-Frame /* Panel Sizes */
+DO:
+  DEF VAR char-val AS CHAR NO-UNDO.
+  DEF VAR lw-focus AS WIDGET-HANDLE NO-UNDO.
+
+
+  lw-focus = FOCUS.
+
+  IF lw-focus:NAME BEGINS "type-" THEN DO:
+    RUN windows/l-scores.p (cocode, lw-focus:SCREEN-VALUE, OUTPUT char-val).
+    IF char-val NE "" AND ENTRY(1,char-val) NE lw-focus:SCREEN-VALUE THEN DO:
+      lw-focus:SCREEN-VALUE = ENTRY(1,char-val).
+      APPLY "value-changed" TO lw-focus.
+    END.
+  END.
+
+  ELSE
+  CASE lw-focus:NAME:
+    WHEN "" THEN DO:        
+    END.
+  END.
+
+  RETURN NO-APPLY. 
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Dialog-Frame Dialog-Frame
 ON WINDOW-CLOSE OF FRAME Dialog-Frame /* Panel Sizes */
 DO:
