@@ -1039,12 +1039,12 @@ PROCEDURE pGetPriceMatrix PRIVATE:
         AND NOT (opbf-oe-prmtx.cust-no EQ "" AND opbf-oe-prmtx.i-no EQ "" AND opbf-oe-prmtx.procat EQ "" AND opbf-oe-prmtx.custype EQ "" 
         AND opbf-oe-prmtx.custShipID EQ "")
     /*Sort the resulting data set so that actual matches take priority over blank matches*/
-        BY opbf-oe-prmtx.eff-date DESCENDING 
         BY opbf-oe-prmtx.i-no DESCENDING
         BY opbf-oe-prmtx.cust-no DESCENDING 
         BY opbf-oe-prmtx.procat DESCENDING 
         BY opbf-oe-prmtx.custype DESCENDING 
         BY opbf-oe-prmtx.custShipID DESCENDING
+        BY opbf-oe-prmtx.eff-date DESCENDING 
         :
         LEAVE.  /*After first/best match, leave*/
     END.
