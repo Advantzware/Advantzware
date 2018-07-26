@@ -732,6 +732,7 @@ end.
 
 DISABLE TRIGGERS FOR LOAD OF oe-ord.
 DISABLE TRIGGERS FOR LOAD OF oe-ordl.
+DISABLE TRIGGERS FOR LOAD OF oe-rel.
 
 for each oe-ord
     where oe-ord.company eq cocode
