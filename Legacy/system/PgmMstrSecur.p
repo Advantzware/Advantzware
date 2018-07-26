@@ -63,7 +63,7 @@ PROCEDURE epCanAccessUser:
                 (ipProgName EQ "windows/xref.w" AND ipFunction EQ "") OR /*NZ11 (NZ10) Cross References*/
                 (ipProgName EQ "browsers/fgijob.w" AND ipFunction EQ "Access1") OR /*IF1 Bon/Job tab  allow edit only super  admin */
                 (ipProgName EQ "system/mainmenu.w" AND ipFunction EQ "") OR /*Main menu load NZ1 System Reference Files Access*/
-                (ipProgName EQ "util/module.w" AND ipFunction EQ "") OR /*run util module*/
+                (ipProgName EQ "util/module.w" AND ipFunction EQ "SuperAdmin") OR /*run util module*/
                 (ipProgName EQ "viewers/file-seq.w" AND ipFunction EQ "") OR /*NZ1 System ref Files */
                 (ipProgName EQ "viewers/users.w" AND ipFunction EQ "SuperAdmin") OR /*users superadmin*/
                 (ipProgName EQ "viewers/vend.w" AND ipFunction EQ "") OR /*NK1 view control tab */
