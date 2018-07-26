@@ -137,7 +137,7 @@ FOR EACH tt-boll,
                 END.
                 PUT {1} "====================" AT 68 SKIP
                     lv-qty-sum AT 69 FORM "->>>9"  " = "
-                    lv-qty-tot FORM "->>>>>z" SPACE(11)
+                    lv-qty-tot FORM "->>>>>>>z" SPACE(11)
                     tt-boll.p-c .
                 IF lv-partial-tot > 0 THEN
                     PUT {1} tt-boll.p-c SKIP .         
