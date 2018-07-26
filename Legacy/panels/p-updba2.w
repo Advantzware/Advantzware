@@ -52,8 +52,13 @@ CREATE WIDGET-POOL.
 
 /* Local Variable Definitions ---                                       */
 &Scoped-define adm-attribute-dlg adm/support/u-paneld.w
+/* Local Variable Definitions ---                                       */
+{custom/gcompany.i} 
 
-
+{custom/gloc.i}
+/*  {custom/globdefs.i}  */
+DEF VAR cocode AS CHAR NO-UNDO.
+DEF VAR locode AS CHAR NO-UNDO.
 DEFINE VARIABLE trans-commit AS LOGICAL NO-UNDO.  
 DEFINE VARIABLE panel-type   AS CHARACTER NO-UNDO INIT 'SAVE':U.
 DEFINE VARIABLE add-active   AS LOGICAL NO-UNDO INIT no.
@@ -62,6 +67,10 @@ DEF VAR v-post-sec AS LOG NO-UNDO.
 DEF VAR v-access-close AS LOG NO-UNDO.
 DEF VAR v-access-list AS CHAR NO-UNDO.
 DEF VAR v-source-handle AS HANDLE NO-UNDO.
+DEFINE VARIABLE lPostAuto-log AS LOGICAL NO-UNDO .
+DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO .
+DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO .
+DEF VAR ll-auto-add-active AS LOG NO-UNDO.
 
 /* Check if authorized to create PO's */
 RUN methods/prgsecur.p
@@ -78,6 +87,17 @@ RUN methods/prgsecur.p
    
    {methods/defines/hndldefs.i}
 {methods/prgsecdt.i}
+
+
+cocode = g_company.
+locode = g_loc.
+
+RUN sys/ref/nk1look.p (INPUT cocode, "SSPostFGTransfer", "L" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+OUTPUT cRtnChar, OUTPUT lRecFound).
+IF lRecFound THEN
+    lPostAuto-log = LOGICAL(cRtnChar) NO-ERROR.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -315,12 +335,18 @@ DO:
         END.
         ELSE 
         DO: /* Save */
-           RUN notify ('update-record':U).
+            IF ll-auto-add-active THEN DO:
+               RUN notify ('update-record':U).
+RUN notify ('update-record':U). 
+               RUN auto-add.
+               RETURN.
+           END.
+           RUN notify ('update-record':U). 
         END.                              
      END.
      ELSE 
      DO: /* Normal 'Save'-style SmartPanel */
-        RUN notify ('update-record':U).
+        RUN notify ('update-record':U). 
      END.
   END.
 END.
@@ -374,9 +400,47 @@ PROCEDURE auto-add :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  
+DEF VAR char-hdl AS CHAR NO-UNDO.
+DEF VAR wid-hdl AS HANDLE NO-UNDO.
+DEF VAR lv-got-error AS LOG NO-UNDO.
+ll-auto-add-active = TRUE.
+/* Allow previous update to complete */
+APPLY "choose" TO BTn-add IN FRAME {&FRAME-NAME} . 
+APPLY "choose" TO btn-cancel IN FRAME {&FRAME-NAME} .
+APPLY "choose" TO btn-cancel IN FRAME {&FRAME-NAME} .
 
-  APPLY "choose" TO BTn-add IN FRAME {&FRAME-NAME} .
+ 
+IF lPostAuto-log THEN DO:
+  RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"tableio-target",OUTPUT char-hdl).
+  wid-hdl = WIDGET-HANDLE(char-hdl) NO-ERROR. lv-got-error = ERROR-STATUS:ERROR.
+ 
+  /* auto-post does not exist in b-rcptd.w */ 
+  IF VALID-HANDLE(wid-hdl) AND NOT INDEX(wid-hdl:NAME, "b-phyi2") GT 0 
+      AND NOT INDEX(wid-hdl:NAME, "b-physs") GT 0 
+      AND NOT INDEX(wid-hdl:NAME, "b-rcptds") GT 0
+      AND NOT INDEX(wid-hdl:NAME, "b-rcptds") GT 0 
+      AND NOT INDEX(wid-hdl:NAME, "b-ucptds") GT 0 THEN DO:
+       RUN GET-FIRST IN WIDGET-HANDLE(char-hdl) NO-ERROR.
+      RUN auto-post IN WIDGET-HANDLE(char-hdl). lv-got-error = ERROR-STATUS:ERROR.
+        
+  END.
+    
+  lv-got-error = ERROR-STATUS:ERROR.  
+  IF lv-got-error THEN
+      lPostAuto-log = FALSE.
+END.        
+
+IF NOT lv-got-error  THEN DO:
+    APPLY "choose" TO BTn-add IN FRAME {&FRAME-NAME} . 
+    APPLY "choose" TO btn-cancel IN FRAME {&FRAME-NAME} .
+    APPLY "choose" TO BTn-add IN FRAME {&FRAME-NAME} . 
+END.
+ELSE DO:
+  MESSAGE "Could not post transfer automatically. Please post manually."
+      VIEW-AS ALERT-BOX INFO BUTTONS OK.
+END.
+
+/* APPLY "choose" TO Btn-Reset IN FRAME {&FRAME-NAME} . */
 
 END PROCEDURE.
 
