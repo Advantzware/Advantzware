@@ -1348,17 +1348,15 @@ PROCEDURE GenerateMail :
         AND TRIM(v-outfile) NE "" 
          THEN ASSIGN cPdfFilesAttach = v-outfile + cPdfFilesAttach  /*lv-pdf-file = v-outfile + lv-pdf-file*/.
          
-      IF LOOKUP(v-print-fmt,"PremierX,PremierCX,PremierXFGItems,Centbox,poprint 1,poprint 2,poprint 10,poprint 20,POPrint10-CAN,xprint,xprint2") > 0  THEN DO: 
-          IF v-start-po EQ v-end-po  THEN
+       IF v-start-po EQ v-end-po  THEN
             lcSubject = "Purchase Order: " + STRING(v-start-po).
           ELSE
-            lcSubject = "Purchase Orders: " + STRING(cPoMailList) /*+ " - " + STRING(v-end-po)*/ .
-      END.
-      ELSE lcSubject = "Purchase Orders".
+            lcSubject = "Purchase Orders: " + STRING(cPoMailList) /*+ " - " + STRING(v-end-po)*/ . 
+      
 
       RUN custom/xpmail2.p   (INPUT   "Vendor",
                               INPUT   'R-POPRT.',
-                              INPUT   lv-pdf-file,
+                              INPUT   cPdfFilesAttach,
                               INPUT   begin_vend-no,
                               INPUT   lcSubject,
                               INPUT   "Purchase Orders",
@@ -1374,11 +1372,11 @@ PROCEDURE GenerateMail :
            OR
           lv-attachments)
         AND TRIM(v-outfile) NE "" 
-         THEN ASSIGN lv-pdf-file = v-outfile + lv-pdf-file. 
+         THEN ASSIGN cPdfFilesAttach = v-outfile + cPdfFilesAttach. 
 
       RUN custom/xpmail2.p   (INPUT   "Vendor",
                               INPUT   'R-POPRT.',
-                              INPUT   lv-pdf-file,
+                              INPUT   cPdfFilesAttach,
                               INPUT   begin_vend-no,
                               INPUT   "Purchase Orders",
                               INPUT   "Purchase Orders",
