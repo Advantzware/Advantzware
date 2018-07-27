@@ -2933,6 +2933,41 @@ CLASS RefTableMigration:
         END.  /*FOR EACH reftable*/          
         RETURN iCnt.
     END METHOD. /*e-itemfg-vend*/ 
+    METHOD PUBLIC INTEGER ShiftDays(INPUT ipCount AS INTEGER):
+        DEFINE VARIABLE iCnt AS INTEGER NO-UNDO.
+        DEFINE BUFFER reftable1 FOR reftable1.
+        DEFINE BUFFER Breftable FOR reftable. 
+        DEFINE BUFFER shifts    FOR shifts.
+        
+        DISABLE TRIGGERS FOR LOAD OF reftable.        
+        DISABLE TRIGGERS FOR LOAD OF shifts.
+        ASSIGN iProcessCount = 0.
+        FOR EACH reftable WHERE reftable.reftable = "ShiftDays"
+            NO-LOCK:
+            DO TRANSACTION:    
+                FIND FIRST shifts WHERE shifts.rec_key = reftable.code
+                    EXCLUSIVE-LOCK NO-ERROR.
+                IF AVAILABLE shifts THEN    
+                DO: 
+                    shifts.useSpecificDays = YES.
+                    IF shifts.dayList EQ "" THEN ASSIGN shifts.dayList = reftable.code2.
+                    ASSIGN iProcessCount = iProcessCount + 1.
+                END    .                 
+                FIND CURRENT shifts NO-LOCK NO-ERROR.    
+                RELEASE shifts.      
+                CREATE reftable1.
+                BUFFER-COPY reftable TO reftable1.
+                RELEASE reftable1.
+                FIND Breftable WHERE ROWID(Breftable) = ROWID(reftable)
+                    EXCLUSIVE-LOCK NO-ERROR.
+                IF AVAILABLE Breftable THEN DELETE Breftable. 
+                RELEASE Breftable.   
+                iCnt = iCnt + 1.
+                IF iCnt >= ipCount THEN LEAVE.   
+            END.              
+        END.  /*FOR EACH reftable*/  
+        RETURN iCnt.
+    END METHOD. /*ShiftDays*/
 END CLASS.
 
 
