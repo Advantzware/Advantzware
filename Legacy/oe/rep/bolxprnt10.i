@@ -288,6 +288,8 @@ PROCEDURE pGetP-C:
   DEF BUFFER bf-oe-ordl FOR oe-ordl.
   DEF BUFFER tmp-oe-boll FOR oe-boll.
   DEF VAR v-p-c LIKE oe-boll.p-c NO-UNDO.
+  DEF VAR iSumRelQty LIKE oe-rell.qty NO-UNDO.
+  DEFINE BUFFER bf-oe-rell FOR oe-rell.
 
   RUN sys/ref/nk1look.p (INPUT cocode, "BOLPartial", "C" /* Logical */, NO /* check by cust */, 
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
@@ -309,27 +311,43 @@ IF lRecFound THEN
         and oe-rell.i-no    eq oe-boll.i-no
         and oe-rell.line    eq oe-boll.line no-error.
 
+  IF lv-bolfmt-int = 0 THEN DO:
+  IF bolPartial-char eq "Release Quantity" and avail oe-rell THEN DO:
+        v-p-c = oe-boll.qty ge oe-rell.qty.  
+  END.
+  ELSE DO:
+      v-p-c = oe-boll.p-c.
+  END.
+END.
+ELSE DO:
+  iSumRelQty = 0.
+  FOR EACH bf-oe-rell no-lock
+      where bf-oe-rell.company eq oe-boll.company
+        and bf-oe-rell.ord-no  eq oe-boll.ord-no
+        and bf-oe-rell.i-no    eq oe-boll.i-no :
+       iSumRelQty = iSumRelQty + bf-oe-rell.qty.
+  END.
   v-sum-qty = 0.
   FOR EACH tmp-oe-boll FIELDS(qty) NO-LOCK
       WHERE tmp-oe-boll.company EQ bf-oe-ordl.company
       AND tmp-oe-boll.ord-no  EQ bf-oe-ordl.ord-no
       AND tmp-oe-boll.i-no    EQ bf-oe-ordl.i-no 
-      AND tmp-oe-boll.line    EQ bf-oe-ordl.line
+     /* AND tmp-oe-boll.line    EQ bf-oe-ordl.line
       AND (tmp-oe-boll.rel-no LT oe-boll.rel-no      OR
            (tmp-oe-boll.rel-no EQ oe-boll.rel-no AND
             tmp-oe-boll.b-ord-no LE oe-boll.b-ord-no))
-      AND ROWID(tmp-oe-boll)  NE ROWID(oe-boll)
+      AND ROWID(tmp-oe-boll)  NE ROWID(oe-boll)*/
       USE-INDEX ord-no:
       v-sum-qty = v-sum-qty + tmp-oe-boll.qty.
-  END.
 
+  END.
   IF bolPartial-char eq "Release Quantity" and avail oe-rell THEN DO:
-      v-p-c = oe-boll.qty + v-sum-qty GE
-          (oe-rell.qty * (1 - (bf-oe-ordl.under-pct / 100))).
+        v-p-c = v-sum-qty ge iSumRelQty.  
   END.
   ELSE DO:
       v-p-c = oe-boll.p-c.
   END.
+END.
  
   opcP-c = IF v-p-c EQ YES THEN "C" ELSE "P".
 
