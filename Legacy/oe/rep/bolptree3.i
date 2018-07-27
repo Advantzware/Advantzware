@@ -128,7 +128,7 @@ FOR EACH tt-boll,
          ASSIGN
             v-case-tot = v-case-tot + (w2.cases * w2.cas-cnt)
             v-printline = v-printline + 1.
-         RUN  pGetP-C(OUTPUT cPc).  
+
          DISPLAY 
             v-item-part-no
             v-ord-po-no
@@ -136,7 +136,7 @@ FOR EACH tt-boll,
             w2.cases
             w2.cas-cnt
             v-case-tot  WHEN LAST(w2.cases) 
-            /*w2.partl*/ cPc format "x(1)"
+            w2.partl
          WITH FRAME bol-mid2.
          DOWN WITH FRAME bol-mid2. 
 

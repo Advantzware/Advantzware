@@ -136,7 +136,7 @@ IF FIRST-OF(tt-boll.LINE) THEN DO:
      DO:    
         ASSIGN v-case-tot = v-case-tot + (w2.cases * w2.cas-cnt).
         
-     RUN  pGetP-C(OUTPUT cPc).
+     
         
         DISPLAY 
              w2.i-no 
@@ -146,7 +146,7 @@ IF FIRST-OF(tt-boll.LINE) THEN DO:
              w2.cases    WHEN w2.cases > 0   
              w2.cas-cnt  WHEN w2.cases > 0
              v-case-tot  /*WHEN i = comp-ctr */ WHEN LAST(w2.cases)
-             /*v-par-comp*/ cPc format "x(1)"    /*WHEN i = comp-ctr */ WHEN LAST(w2.cases)
+             v-par-comp    /*WHEN i = comp-ctr */ WHEN LAST(w2.cases)
             with frame bol-mid.
         DOWN WITH FRAME bol-mid.         
     
