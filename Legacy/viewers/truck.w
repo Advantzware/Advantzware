@@ -384,22 +384,7 @@ PROCEDURE local-assign-record :
 
   /* Code placed here will execute AFTER standard behavior.    */
 
-  FIND FIRST reftable WHERE reftable.reftable EQ "msf-limit"
-                        AND reftable.company  EQ truck.company
-                        AND reftable.loc      EQ truck.loc
-                        AND reftable.code     EQ truck.carrier
-                        AND reftable.code2    EQ truck.truck-code
-              NO-ERROR.
-  IF NOT AVAIL reftable THEN DO:
-     CREATE reftable.
-     ASSIGN reftable.reftable = "msf-limit"
-            reftable.company  = truck.company
-            reftable.loc      = truck.loc
-            reftable.code     = truck.carrier
-            reftable.CODE2    = truck.truck-code.
-  END.
-  
-  ASSIGN reftable.val[1] = inte(fi_msf-limit:SCREEN-VALUE IN FRAME {&FRAME-NAME}).
+ASSIGN truck.msfLimit = inte(fi_msf-limit:SCREEN-VALUE IN FRAME {&FRAME-NAME}).
 
 END PROCEDURE.
 
@@ -465,20 +450,13 @@ PROCEDURE local-display-fields :
   /* Code placed here will execute AFTER standard behavior.    */
   IF NOT adm-new-record THEN
   DO:
-    FIND FIRST reftable WHERE
-         reftable.reftable EQ "msf-limit" AND
-         reftable.company  EQ truck.company AND
-         reftable.loc      EQ truck.loc AND 
-         reftable.CODE     EQ truck.carrier AND
-         reftable.code2    EQ truck.truck-code
-         NO-LOCK NO-ERROR.
-   
-    IF AVAIL reftable THEN
+    IF AVAIL truck THEN
        ASSIGN
-          fi_msf-limit  = reftable.val[1].
+          fi_msf-limit  = truck.msfLimit.
     ELSE
        ASSIGN
           fi_msf-limit = 0.
+
   END.
   ELSE
        ASSIGN

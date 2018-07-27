@@ -1144,17 +1144,10 @@ PROCEDURE update-record :
 
   IF v-warn = NO THEN
   DO:
-    FIND FIRST reftable WHERE
-         reftable.reftable EQ "msf-limit" AND
-         reftable.company  EQ tt-report.company AND
-         reftable.loc      EQ locode AND 
-         reftable.CODE     EQ tt-report.carrier AND
-         reftable.code2    EQ tt-report.truck-code
-         NO-LOCK NO-ERROR.
-     
-    IF AVAIL reftable AND reftable.val[1] < tt-report.tot-msf THEN
-       MESSAGE "Total MSF is greater than Truck MSF Limit of " + STRING(reftable.val[1]) + "."
+     IF AVAIL truck AND truck.msfLimit < tt-report.tot-msf THEN
+       MESSAGE "Total MSF is greater than Truck MSF Limit of " + STRING(truck.msfLimit) + "."
           VIEW-AS ALERT-BOX WARNING.
+
   END.
   IF AVAIL truck AND truck.max-units < tt-report.tot-units THEN
      MESSAGE "Total Units is greater than Truck Max Units of " + STRING(truck.max-units) + "."
