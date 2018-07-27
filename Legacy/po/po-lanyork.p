@@ -593,10 +593,10 @@ v-printline = 0.
                        ELSE IF AVAILABLE item THEN item.s-dep ELSE 0), INPUT 32, OUTPUT v-dep-frac).
                   IF po-ordl.s-len GT 0 OR po-ordl.s-len GT 0 OR lv-dep GT 0 THEN  
                    PUT "Blank:" AT 25.
-                   IF po-ordl.s-len GT 0 THEN
-                    PUT "L: " AT 32 v-len-frac FORMAT "x(10)" SPACE(1).
                    IF po-ordl.s-wid GT 0 THEN
-                    PUT "W: "  v-wid-frac FORMAT "x(10)" SPACE(1).
+                    PUT "W: " AT 32 v-wid-frac FORMAT "x(10)" SPACE(1).
+                  IF po-ordl.s-len GT 0 THEN
+                    PUT "L: "  v-len-frac FORMAT "x(10)" SPACE(1).
                 IF lv-dep GT 0 THEN
                     PUT "D: "  v-dep-frac FORMAT "x(10)" SPACE(1).
              END.
