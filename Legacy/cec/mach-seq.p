@@ -33,6 +33,9 @@ DEFINE TEMP-TABLE w-routing NO-UNDO
 
 {sys/inc/ceroute1a.i}
 
+DEFINE VARIABLE K_FRAC AS DECIMAL INIT 6.25 NO-UNDO.
+{sys/inc/f16to32.i}
+
 DEFINE VARIABLE iIndex                AS INTEGER   NO-UNDO.
 DEFINE VARIABLE iIndexAlt               AS INTEGER   NO-UNDO.
 DEFINE VARIABLE dMSF            AS DECIMAL   NO-UNDO.
@@ -293,9 +296,9 @@ FOR EACH xef
                                         tt-mach-exc.m-code   = mach.m-code
                                         tt-mach-exc.dept     = mach.dept[1]
                                         tt-mach-exc.reason   = IF (xef.n-out LE 1 AND xef.gsh-wid LE xef.nsh-wid AND i EQ 1) THEN
-                                             "Net Sheet Width(" + STRING(xef.nsh-wid) + ") Larger Than Or Equal To Gross Sheet Width(" + STRING(xef.gsh-wid) + ")"
+                                             "Net Sheet Width(" + string({sys/inc/k16.i xef.nsh-wid  } ) + ") Larger Than Or Equal To Gross Sheet Width(" + string({sys/inc/k16.i xef.gsh-wid } ) + ")"
                                           ELSE
-                                             "Net Sheet Length(" + STRING(xef.nsh-len) + ") Larger Than Or Equal To Gross Sheet Length(" + STRING(xef.gsh-len) + ")".
+                                             "Net Sheet Length(" + string({sys/inc/k16.i xef.nsh-len   } ) + ") Larger Than Or Equal To Gross Sheet Length(" +  string({sys/inc/k16.i xef.gsh-len } ) + ")".
                                     RELEASE tt-mach-exc.
                                 END.
 
@@ -310,7 +313,7 @@ FOR EACH xef
                                         tt-mach-exc.form-no  = xef.form-no AND
                                         tt-mach-exc.blank-no = (IF xest.est-type EQ 5 THEN 1 ELSE
                                         IF AVAILABLE xeb AND mach.p-type EQ "B" THEN xeb.blank-no ELSE 0) AND
-                                        tt-mach-exc.reason EQ "Net Sheet Width(" + STRING(xef.nsh-wid) + ") Larger Than Or Equal To Gross Sheet Width(" + STRING(xef.gsh-wid) + ")"
+                                        tt-mach-exc.reason EQ "Net Sheet Width(" + string({sys/inc/k16.i xef.nsh-wid  } ) + ") Larger Than Or Equal To Gross Sheet Width(" +  string({sys/inc/k16.i xef.gsh-wid} ) + ")"
                                         NO-ERROR.
 
                                     IF AVAILABLE tt-mach-exc THEN

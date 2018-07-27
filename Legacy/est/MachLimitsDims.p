@@ -31,7 +31,10 @@ DEFINE BUFFER bf-style FOR style.
 DEFINE BUFFER bf-eb-set FOR eb.
 
 DEFINE VARIABLE dDimensionToTest AS DECIMAL NO-UNDO.
+{sys/inc/var.i shared}
 
+DEFINE VARIABLE K_FRAC AS DECIMAL INIT 6.25 NO-UNDO.
+{sys/inc/f16to32.i}
 
 /* ********************  Preprocessor Definitions  ******************** */
 
@@ -69,13 +72,13 @@ DO:
     END.
 
     IF bf-mach.min-len GT ipdL THEN 
-        opcReason = opcReason + STRING(ipdL) + ' Under Min Front-To-Back of ' + STRING(bf-mach.min-len) + ', '.
+        opcReason = opcReason +  STRING({sys/inc/k16.i ipdL}) + ' Under Min Front-To-Back of ' + STRING(bf-mach.min-len) + ', '.
     IF bf-mach.max-len LT ipdL AND bf-mach.max-len GT 0 THEN 
-        opcReason = opcReason + STRING(ipdL) + ' Over Max Front-To-Back of ' + STRING(bf-mach.max-len) + ', '.
+        opcReason = opcReason + STRING({sys/inc/k16.i ipdL}) + ' Over Max Front-To-Back of ' + STRING(bf-mach.max-len) + ', '.
     IF bf-mach.min-wid GT ipdW THEN
-        opcReason = opcReason + STRING(ipdW) + ' Under Min Side-To-Side of ' + STRING(bf-mach.min-wid) + ', '. 
+        opcReason = opcReason + STRING({sys/inc/k16.i ipdW}) + ' Under Min Side-To-Side of ' + STRING(bf-mach.min-wid) + ', '. 
     IF bf-mach.max-wid LT ipdW AND bf-mach.max-wid GT 0 THEN 
-        opcReason = opcReason + STRING(ipdW) + ' Over Max Side-To-Side of ' + STRING(bf-mach.max-wid) + ', '.
+        opcReason = opcReason + STRING({sys/inc/k16.i ipdW}) + ' Over Max Side-To-Side of ' + STRING(bf-mach.max-wid) + ', '.
     IF bf-mach.min-cal GT ipdD THEN 
         opcReason = opcReason + STRING(ipdD) + ' Under Min Caliper/Depth of ' + STRING(bf-mach.min-cal) + ', '.
     IF bf-mach.max-cal LT ipdD AND bf-mach.max-cal GT 0 THEN 

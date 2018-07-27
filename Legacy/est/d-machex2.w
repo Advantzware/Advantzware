@@ -119,7 +119,7 @@ tt-mach-route.reason   LABEL "Reason" FORMAT "x(80)"
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ROW-MARKERS SEPARATORS SIZE 134 BY 12.38
-         BGCOLOR 8  FIT-LAST-COLUMN.
+         BGCOLOR 8  /*FIT-LAST-COLUMN*/.
 
 
 /* ************************  Frame Definitions  *********************** */
