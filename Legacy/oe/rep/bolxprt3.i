@@ -244,6 +244,8 @@ PROCEDURE pGetP-C:
   DEF BUFFER bf-oe-ordl FOR oe-ordl.
   DEF BUFFER tmp-oe-boll FOR oe-boll.
   DEF VAR v-p-c LIKE oe-boll.p-c NO-UNDO.
+  DEF VAR iSumRelQty LIKE oe-rell.qty NO-UNDO.
+  DEFINE BUFFER bf-oe-rell FOR oe-rell.
 
   RUN sys/ref/nk1look.p (INPUT cocode, "BOLPartial", "C" /* Logical */, NO /* check by cust */, 
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
@@ -265,27 +267,39 @@ IF lRecFound THEN
         and oe-rell.i-no    eq tt-boll.i-no
         and oe-rell.line    eq tt-boll.line no-error.
 
+
+IF ll-consol-bolls = YES THEN DO:   
+  iSumRelQty = 0.
+  FOR EACH bf-oe-rell no-lock
+      where bf-oe-rell.company eq tt-boll.company
+        and bf-oe-rell.ord-no  eq tt-boll.ord-no
+        and bf-oe-rell.i-no    eq tt-boll.i-no :
+       iSumRelQty = iSumRelQty + bf-oe-rell.qty.
+  END.
   v-sum-qty = 0.
   FOR EACH tmp-oe-boll FIELDS(qty) NO-LOCK
       WHERE tmp-oe-boll.company EQ bf-oe-ordl.company
       AND tmp-oe-boll.ord-no  EQ bf-oe-ordl.ord-no
       AND tmp-oe-boll.i-no    EQ bf-oe-ordl.i-no 
-      AND tmp-oe-boll.line    EQ bf-oe-ordl.line
-      AND (tmp-oe-boll.rel-no LT tt-boll.rel-no      OR
-           (tmp-oe-boll.rel-no EQ tt-boll.rel-no AND
-            tmp-oe-boll.b-ord-no LE tt-boll.b-ord-no))
-      AND ROWID(tmp-oe-boll)  NE ROWID(tt-boll)
       USE-INDEX ord-no:
       v-sum-qty = v-sum-qty + tmp-oe-boll.qty.
-  END.
 
+  END.
   IF bolPartial-char eq "Release Quantity" and avail oe-rell THEN DO:
-      v-p-c = tt-boll.qty + v-sum-qty GE
-          (oe-rell.qty * (1 - (bf-oe-ordl.under-pct / 100))).
+        v-p-c = v-sum-qty ge iSumRelQty.  
   END.
   ELSE DO:
       v-p-c = tt-boll.p-c.
   END.
+END.
+ELSE DO:
+  IF bolPartial-char eq "Release Quantity" and avail oe-rell THEN DO:
+        v-p-c = tt-boll.qty ge oe-rell.qty.  
+  END.
+  ELSE DO:
+      v-p-c = tt-boll.p-c.
+  END.
+END.
  
   opcP-c = IF v-p-c EQ YES THEN "C" ELSE "P".
 
