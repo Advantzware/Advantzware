@@ -507,7 +507,10 @@ v-printline = 0.
         /* gdm - 11040905 end */
 
         PUT "<C21>" lv-cust-part FORM "x(30)" 
-            "<C63>" v-change-dscr  "<C70>" v-tot-msf SKIP.
+            "<C63>" v-change-dscr .
+        IF s-print-prices THEN
+            PUT "<C70>" v-tot-msf.
+        PUT SKIP.
         v-printline = v-printline + 1.
         assign v-line-number = v-line-number + 3.
 
@@ -877,8 +880,9 @@ FOR EACH notes WHERE notes.rec_key = po-ord.rec_key NO-LOCK:
       PUT "<R53><C1>" v-inst[1] 
           "<R54><C1>" v-inst[2]
           "<R55><C1>" v-inst[3]
-          "<R56><C1>" v-inst[4]
-          "<R58><C59><#8><FROM><R+5><C+21><RECT> " 
+          "<R56><C1>" v-inst[4].
+      IF s-print-prices THEN
+        PUT  "<R58><C59><#8><FROM><R+5><C+21><RECT> " 
     "<=8><R+1> Sub Total  :" po-ord.t-cost - po-ord.tax FORM ">,>>>,>>9.99"
     "<=8><R+2> "  v-bot-lab[1] 
     "<=8><R+3> "  " " /*PST        :" inv-head.t-inv-tax FORM "->>,>>9.99"*/

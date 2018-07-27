@@ -5295,7 +5295,12 @@ PROCEDURE ipUpdateNK1s :
     
     /* Verify system help WSDL NK1 */
     FIND FIRST sys-ctrl WHERE
-        sys-ctrl.name EQ "AsiHelpServices"
+        sys-ctrl.name EQ "AsiHelpService"
+        NO-ERROR.
+    IF AVAIL sys-ctrl THEN ASSIGN
+        sys-ctrl.char-fld = "-WSDL 'http:\\34.203.15.64/asihelpServices/helpmaintenance.asmx?WSDL'".
+    FIND FIRST sys-ctrl WHERE
+        sys-ctrl.name EQ "AsiHelpService"
         NO-ERROR.
     IF AVAIL sys-ctrl THEN ASSIGN
         sys-ctrl.char-fld = "-WSDL 'http:\\34.203.15.64/asihelpServices/helpmaintenance.asmx?WSDL'".
@@ -5326,6 +5331,15 @@ PROCEDURE ipUpdateNK1s :
     AND sys-ctrl.char-fld EQ "" THEN ASSIGN
         sys-ctrl.char-fld = "Bill and Ship".
 
+    /* Zoho Support Button */
+    FIND FIRST sys-ctrl WHERE
+        sys-ctrl.name EQ "MenuLinkZoho"
+        NO-ERROR.
+    IF AVAIL sys-ctrl 
+    AND sys-ctrl.descrip EQ "" THEN ASSIGN
+        sys-ctrl.descrip = "https://desk.zoho.com/portal/advantzware/kb"
+        sys-ctrl.char-fld = "Graphics\32x32\question.ico"
+        sys-ctrl.log-fld = TRUE.
         
     /* - future: update CustFile locations
     FOR EACH sys-ctrl WHERE

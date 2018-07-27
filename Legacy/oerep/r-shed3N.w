@@ -2027,18 +2027,20 @@ SESSION:SET-WAIT-STATE ("general").
       no-lock
       break 
             by tt-report.i-no
+            BY oe-ord.ord-no 
             BY tt-report.rel-date
             :
        
-      IF FIRST-OF(tt-report.i-no) THEN
+      IF FIRST-OF(oe-ord.ord-no) THEN
              iRelqty = 0.
   
       tt-report.pro-qty  = tt-report.onh - iRelqty  .
 
-      IF FIRST-OF(tt-report.i-no) THEN
+      IF FIRST-OF(oe-ord.ord-no) THEN
                 iRelqty = tt-report.qty  .
       ELSE iRelqty = iRelqty + tt-report.qty .
 
+       
      IF tt-report.rel-date LT v-fdate[1] 
          OR tt-report.rel-date GT v-fdate[2]  THEN
          DELETE tt-report .
@@ -2077,7 +2079,7 @@ SESSION:SET-WAIT-STATE ("general").
         and cust.cust-no eq oe-ord.cust-no
       no-lock
       break by tt-report.key-01
-            by tt-report.key-02 DESC
+            by tt-report.key-02 
             by tt-report.key-03 DESC
             by tt-report.key-04:
 

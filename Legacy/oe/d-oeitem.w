@@ -2155,6 +2155,7 @@ DO:
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
     IF NOT fi_qty-uom:SENSITIVE THEN RUN leave-qty.
+    ELSE RUN new-qty.
     IF  oescreen-log AND integer(oe-ordl.spare-dec-1:SCREEN-VALUE) EQ 0 
       AND asi.oe-ordl.est-no:SCREEN-VALUE EQ "" THEN DO:
         ASSIGN
@@ -2193,7 +2194,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-ordl.qty d-oeitem
 ON VALUE-CHANGED OF oe-ordl.qty IN FRAME d-oeitem /* Quantity */
 DO:
-  RUN new-qty.
+/*  RUN new-qty. - Removed for performance purposses 31625 - GetPrice already run on LEAVE*/
   IF  oescreen-log AND asi.oe-ordl.est-no:SCREEN-VALUE EQ "" THEN DO:
     ASSIGN
       asi.oe-ordl.spare-dec-1:SENSITIVE = YES
@@ -4250,20 +4251,9 @@ PROCEDURE display-est-detail :
             oe-ordl.part-dscr2:SCREEN-VALUE = itemfg.part-dscr2 
             oe-ordl.part-dscr3:SCREEN-VALUE = itemfg.part-dscr3.
        END.
-
-       IF v-est-fg1 EQ "Hughes" THEN RUN fg/hughesfg.p (ROWID(eb), OUTPUT lv-i-no).
-       ELSE
-       IF v-est-fg1 EQ "Fibre"  THEN RUN fg/fibre-fg.p (ROWID(eb), OUTPUT lv-i-no).
-       ELSE IF can-do("Manual,None,Hold",v-est-fg1)  THEN.
-       ELSE do:              
-            RUN fg/autofg.p ( ROWID(eb),
-                                  v-est-fg1, 
-                                  eb.procat,
-                                  IF est.est-type LE 4 THEN "F" ELSE "C",
-                                  eb.cust-no,
-                                  OUTPUT lv-i-no).              
-      END.
-
+       
+       RUN fg/GetFGItemID.p (ROWID(eb), "", OUTPUT lv-i-no).          
+       
        IF lv-i-no NE "" THEN oe-ordl.i-no:SCREEN-VALUE = lv-i-no.
      END. /* oe-ordl.i-no:SCREEN-VALUE EQ "" */
     

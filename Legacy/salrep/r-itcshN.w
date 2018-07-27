@@ -186,7 +186,7 @@ DEFINE VARIABLE begin_ship AS CHARACTER FORMAT "X(8)":U
      SIZE 17 BY 1 NO-UNDO.
 
 DEFINE VARIABLE begin_shipfrom AS CHARACTER FORMAT "X(5)":U 
-     LABEL "Beginning Ship From" 
+     LABEL "Beginning Ship From WH" 
      VIEW-AS FILL-IN 
      SIZE 17 BY 1 NO-UNDO.
 
@@ -216,7 +216,7 @@ DEFINE VARIABLE end_ship AS CHARACTER FORMAT "X(8)":U INITIAL "zzzzzzzz"
      SIZE 17 BY 1 NO-UNDO.
 
 DEFINE VARIABLE end_shipfrom AS CHARACTER FORMAT "X(5)":U INITIAL "zzzz" 
-     LABEL "Ending Ship From" 
+     LABEL "Ending Ship From WH" 
      VIEW-AS FILL-IN 
      SIZE 17 BY 1 NO-UNDO.
 
@@ -646,12 +646,42 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&Scoped-define SELF-NAME begin_shipfrom
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_shipfrom C-Win
+ON HELP OF begin_shipfrom IN FRAME FRAME-A /* Beginning Customer# */
+DO:
+    DEF VAR char-val AS cha NO-UNDO.
+
+    run windows/l-loc.w  (cocode,{&SELF-NAME}:SCREEN-VALUE, output char-val). 
+    IF char-val <> "" THEN ASSIGN {&SELF-NAME}:SCREEN-VALUE = ENTRY(1,char-val)
+                                  .
+
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 &Scoped-define SELF-NAME begin_shipfrom
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_shipfrom C-Win
 ON LEAVE OF begin_shipfrom IN FRAME FRAME-A /* Beginning Ship From */
 DO:
   assign {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME end_shipfrom
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_shipfrom C-Win
+ON HELP OF end_shipfrom IN FRAME FRAME-A /* Beginning Customer# */
+DO:
+    DEF VAR char-val AS cha NO-UNDO.
+
+    run windows/l-loc.w  (cocode,{&SELF-NAME}:SCREEN-VALUE, output char-val). 
+    IF char-val <> "" THEN ASSIGN {&SELF-NAME}:SCREEN-VALUE = ENTRY(1,char-val)
+                                  .
+
 END.
 
 /* _UIB-CODE-BLOCK-END */

@@ -43,9 +43,7 @@ PROCEDURE epCanAccessUser:
         DO: 
             /* First group - programs/functions ONLY available to ASI user */
             /* Note: logic is 'if secLevel less than 1000, then disable' */
-            IF users.securityLevel LT 1000 AND
-                (
-                
+            IF users.securityLevel LT 1000 AND (                
                 (ipProgName EQ "methods/template/viewer4.i" AND ipFunction EQ "") OR  /*NK2 Help Editor - No Password*/
                 (ipProgName EQ "sys/ref/hlp-ctrl.w" AND ipFunction EQ "EnableHelpUpdate") OR  /*Update Help Button*/
                 (ipProgName EQ "sys/ref/hlp.w" AND ipFunction EQ "Access2") OR /*Update Help Button*/
@@ -65,18 +63,17 @@ PROCEDURE epCanAccessUser:
                 (ipProgName EQ "windows/xref.w" AND ipFunction EQ "") OR /*NZ11 (NZ10) Cross References*/
                 (ipProgName EQ "browsers/fgijob.w" AND ipFunction EQ "Access1") OR /*IF1 Bon/Job tab  allow edit only super  admin */
                 (ipProgName EQ "system/mainmenu.w" AND ipFunction EQ "") OR /*Main menu load NZ1 System Reference Files Access*/
+                (ipProgName EQ "util/CheckModule.p" AND ipFunction EQ "SuperAdmin") OR /*run util module*/
                 (ipProgName EQ "util/module.w" AND ipFunction EQ "") OR /*run util module*/
                 (ipProgName EQ "viewers/file-seq.w" AND ipFunction EQ "") OR /*NZ1 System ref Files */
+                (ipProgName EQ "viewers/users.w" AND ipFunction EQ "SuperAdmin") OR /*users superadmin*/
                 (ipProgName EQ "viewers/vend.w" AND ipFunction EQ "") OR /*NK1 view control tab */
-                (ipProgName EQ "sys/ref/hlp.w" AND ipFunction EQ "ProTools") OR /*ProTools Button*/
-                
+                (ipProgName EQ "sys/ref/hlp.w" AND ipFunction EQ "ProTools") OR /*ProTools Button*/                
                 (ipProgName EQ "" AND ipFunction EQ "")
-                ) THEN ASSIGN
-                    opCanAccess = FALSE.
+                ) THEN ASSIGN opCanAccess = FALSE.
             /* Second group - programs/functions ONLY available to Administrators */
             /* Note: logic is 'if secLevel less than 900, then disable' */
-            ELSE IF users.securityLevel LT 900 AND
-            (
+            ELSE IF users.securityLevel LT 900 AND (
                 (ipProgName EQ "browsers/rm-ibin.w" AND ipFunction EQ "") OR  /*MF1/MF2 Bins Tab - Update Cost/Unit/Count - No Password*/
                 (ipProgName EQ "windows/prgrms.w" AND ipFunction EQ "") OR /*NS8 Program Master*/
                 (ipProgName EQ "jcinq/b-updmat.w" AND ipFunction EQ "") OR /*IF1 History Tab - Enable Edit Buttons*/
@@ -97,11 +94,10 @@ PROCEDURE epCanAccessUser:
                 (ipProgName EQ "system/mainmenu.w" AND ipFunction EQ "CanUpgrade") OR /*Main menu upgrade notification*/
                 (ipProgName EQ "viewers/p-fg-bj-l.w" AND ipFunction EQ "") OR /*IF1 Bin/Jobs tab */
                 (ipProgName EQ "viewers/sys-ctrl.w" AND ipFunction EQ "") OR /*NK1 view control tab value security */
+                (ipProgName EQ "viewers/users.w" AND ipFunction EQ "Admin") OR /*users admin*/
                 (ipProgName EQ "" AND ipFunction = "")
-                    ) THEN ASSIGN
-                        opCanAccess = FALSE.
-        END. /* list-based exclusions */
-       
+                ) THEN ASSIGN opCanAccess = FALSE.
+        END. /* list-based exclusions */       
     END.
     ELSE ASSIGN
             opCanAccess = FALSE.

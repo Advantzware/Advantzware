@@ -3909,7 +3909,13 @@ PROCEDURE create-w-ord :
             w-ord.pcs = loadtag.qty-case
             w-ord.bundle = loadtag.case-bundle
             w-ord.partial =loadtag.partial
-            w-ord.total-unit = w-ord.pcs * w-ord.bundle + w-ord.partial .      
+            w-ord.total-unit = w-ord.pcs * w-ord.bundle + w-ord.partial .    
+
+            IF AVAIL b-job AND AVAIL eb AND eb.est-type EQ 2 AND AVAIL b-job-hdr THEN
+             w-ord.job-qty =  b-job-hdr.qty * (IF eb.cust-% GT 0 THEN eb.cust-% ELSE 1)  .
+            ELSE IF AVAIL b-job AND AVAIL eb AND eb.est-type EQ 6 AND AVAIL b-job-hdr THEN
+             w-ord.job-qty =  b-job-hdr.qty * (IF eb.quantityPerSet GT 0 THEN eb.quantityPerSet ELSE 1)  .
+
    END.  /* avail oe-ord*/
    ELSE IF loadtag.job-no <> "" THEN DO:
       FIND FIRST job NO-LOCK WHERE job.company = loadtag.company
@@ -4032,7 +4038,13 @@ PROCEDURE create-w-ord :
             w-ord.pcs = loadtag.qty-case
             w-ord.bundle = loadtag.case-bundle
             w-ord.partial =loadtag.partial
-            w-ord.total-unit = w-ord.pcs * w-ord.bundle  .      
+            w-ord.total-unit = w-ord.pcs * w-ord.bundle  .   
+
+            IF AVAIL eb AND eb.est-type EQ 2 THEN
+             w-ord.job-qty =  job-hdr.qty * (IF eb.cust-% GT 0 THEN eb.cust-% ELSE 1)  .
+            ELSE IF AVAIL eb AND eb.est-type EQ 6 THEN
+             w-ord.job-qty =  job-hdr.qty * (IF eb.quantityPerSet GT 0 THEN eb.quantityPerSet ELSE 1)  .
+
 
        END.  /* avail job*/
    END. /* job-no <> "" */
@@ -4700,13 +4712,19 @@ PROCEDURE from-job :
              w-ord.pallt-no   = eb.tr-no
              w-ord.part-dscr2 = eb.part-dscr2.
 
+             IF AVAIL eb AND eb.est-type EQ 2 THEN
+               w-ord.job-qty =  job-hdr.qty * (IF eb.cust-% GT 0 THEN eb.cust-% ELSE 1)  .
+             ELSE IF  AVAIL eb AND eb.est-type EQ 6  THEN
+               w-ord.job-qty =  job-hdr.qty * (IF eb.quantityPerSet GT 0 THEN eb.quantityPerSet ELSE 1)  .
+
+
           IF NOT v-oecount THEN
             ASSIGN
              w-ord.pcs    = w-ord.total-unit
              w-ord.bundle = 1.
 
           /* Add .49 to round up and add 1 for extra tag   */
-          w-ord.total-tags = ((job-hdr.qty / w-ord.total-unit) + .49) +  IF lookup(v-loadtag,"SSLABEL,CentBox") > 0 THEN 0 ELSE 1.
+          w-ord.total-tags = ((w-ord.job-qty / w-ord.total-unit) + .49) +  IF lookup(v-loadtag,"SSLABEL,CentBox") > 0 THEN 0 ELSE 1.
     END.
 
 END PROCEDURE.
@@ -4884,9 +4902,14 @@ DEF INPUT PARAM ip-rowid AS ROWID NO-UNDO.
 
             num-rec            = num-rec + 1.
 
-          IF AVAIL b-job-hdr THEN
+          IF AVAIL b-job-hdr THEN do:
               w-ord.due-date-jobhdr = IF b-job-hdr.due-date <> ? THEN STRING(b-job-hdr.due-date, "99/99/9999") ELSE "".
               w-ord.job-qty = IF AVAIL b-job AND AVAIL b-job-hdr THEN b-job-hdr.qty ELSE 0 .
+               IF  AVAIL b-job AND AVAIL eb AND eb.est-type EQ 2 THEN
+                   w-ord.job-qty =  b-job-hdr.qty * (IF eb.cust-% GT 0 THEN eb.cust-% ELSE 1)  .
+               ELSE IF  AVAIL b-job AND AVAIL eb AND eb.est-type EQ 6 THEN
+                    w-ord.job-qty =  b-job-hdr.qty * (IF eb.quantityPerSet GT 0 THEN eb.quantityPerSet ELSE 1)  .
+          END.
           IF AVAIL b-job THEN
              w-ord.due-date-job = IF b-job.due-date <> ? THEN STRING(b-job.due-date, "99/99/9999") ELSE "".
           IF w-ord.job-no EQ "" AND fi_cas-lab:SCREEN-VALUE IN FRAME {&FRAME-NAME} NE "" THEN
@@ -7657,7 +7680,7 @@ PROCEDURE write-loadtag-line :
         ENTRY(4,cLoftString) = '"' + STRING(REPLACE(w-ord.cust-po-no,'"',""),"x(15)") + '"'
         ENTRY(5,cLoftString) = '"' + STRING(REPLACE(w-ord.ship-city,'"',"") + " " + REPLACE(w-ord.ship-state,'"',""),"x(30)") + '"'
         ENTRY(6,cLoftString) = '"' + STRING(w-ord.est-no,"9999999") + '"'
-        ENTRY(7,cLoftString) = STRING(w-ord.gross-wt,"x(6)")
+        ENTRY(7,cLoftString) = STRING(w-ord.gross-wt,">>>>9.99")
         ENTRY(9,cLoftString) = "- -"
         ENTRY(10,cLoftString) = "1"
         ENTRY(11,cLoftString) = "1"
@@ -7670,14 +7693,14 @@ PROCEDURE write-loadtag-line :
         ENTRY(32,cLoftString) = '"' + STRING(REPLACE(w-ord.i-name,'"',""),"x(30)") + '"'
         ENTRY(37,cLoftString) = '"' + STRING(REPLACE(w-ord.ship-add1,'"',"") + " " + REPLACE(w-ord.ship-add2,'"',""),"x(30)") + '"'
         ENTRY(38,cLoftString) = "1"
-        ENTRY(39,cLoftString) = STRING(w-ord.pcs,"x(5)")
+        ENTRY(39,cLoftString) = STRING(w-ord.pcs,">>>>9")
         ENTRY(41,cLoftString) = STRING(loadtag.tag-no,"x(64)")
         ENTRY(42,cLoftString) = '"' + STRING(REPLACE(w-ord.ord-desc1,'"',""),"x(64)") + '"'
         ENTRY(44,cLoftString) = '"' + STRING(REPLACE(w-ord.style-desc,'"',""),"x(15)") + '"'
         ENTRY(45,cLoftString) = STRING(w-ord.box-len,">>>9.99<<<")
         ENTRY(46,cLoftString) = STRING(w-ord.box-wid,">>>9.99<<<")
         ENTRY(47,cLoftString) = STRING(w-ord.box-dep,">>>9.99<<<")
-        ENTRY(68,cLoftString) = STRING(w-ord.bundle,"x(4)")
+        ENTRY(68,cLoftString) = STRING(w-ord.bundle,">>>9")
          .
     
     PUT UNFORMATTED  
