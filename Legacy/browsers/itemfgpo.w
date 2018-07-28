@@ -39,11 +39,7 @@ CREATE WIDGET-POOL.
 
 /* Local Variable Definitions ---                                       */
 {custom/globdefs.i}
-/* should be NEW GLOBAL SHARED, out of order for backward compatibility */
-{sys/inc/var.i NEW SHARED GLOBAL}
-
-MESSAGE 0
-VIEW-AS ALERT-BOX.
+{sys/inc/var.i "NEW" "GLOBAL SHARED"}
 
 ASSIGN cocode = g_company
        locode = g_loc.
