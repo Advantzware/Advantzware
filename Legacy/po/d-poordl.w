@@ -3027,7 +3027,8 @@ PROCEDURE display-fgitem :
                    ROWID(itemfg),
                    INPUT-OUTPUT cAccount,
                    INPUT-OUTPUT cAccountDesc).
-       ASSIGN 
+       IF cAccount NE "" THEN
+        ASSIGN 
             po-ordl.actnum:SCREEN-VALUE = cAccount
             v-gl-desc:SCREEN-VALUE = cAccountDesc
             .
