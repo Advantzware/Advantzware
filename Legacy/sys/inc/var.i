@@ -4,12 +4,14 @@
 /*                                                                            */
 /* -------------------------------------------------------------------------- */
 
-def {1} {2} var cocode     as   char  format "x(3)"  no-undo.
-def {1} {2} var locode     as   char  format "x(5)"  no-undo.
+/* should be {1} {2} {3}, out of order for backward compatibility */
 
-def {1} {2} var  x  as   int no-undo.
-def {1} {2} var  y  as   int no-undo.
-DEF {1} {2} VAR  k  as   int no-undo.
+def {1} {3} {2} var cocode     as   char  format "x(3)"  no-undo.
+def {1} {3} {2} var locode     as   char  format "x(5)"  no-undo.
+
+def {1} {3} {2} var  x  as   int no-undo.
+def {1} {3} {2} var  y  as   int no-undo.
+DEF {1} {3} {2} VAR  k  as   int no-undo.
 
 def var i          as   int no-undo.
 def var j          as   int no-undo.
