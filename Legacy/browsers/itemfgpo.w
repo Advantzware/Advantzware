@@ -40,6 +40,7 @@ CREATE WIDGET-POOL.
 /* Local Variable Definitions ---                                       */
 {custom/globdefs.i}
 {sys/inc/var.i "NEW" "GLOBAL SHARED"}
+
 ASSIGN cocode = g_company
        locode = g_loc.
 
