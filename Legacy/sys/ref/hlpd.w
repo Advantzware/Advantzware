@@ -437,13 +437,13 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
             fr-fram  = STRING(entry(2,parameters1))
             fr-txt = parameters2 NO-ERROR.
 
-        IF fr-flags EQ "No" 
-        OR fr-flags EQ "" THEN DO:
-            MESSAGE 
-                "Support money not paid, can't access help." 
-                VIEW-AS ALERT-BOX ERROR.
-            RETURN.
-        END.
+/*        IF fr-flags EQ "No"                                 */
+/*        OR fr-flags EQ "" THEN DO:                          */
+/*            MESSAGE                                         */
+/*                "Support money not paid, can't access help."*/
+/*                VIEW-AS ALERT-BOX ERROR.                    */
+/*            RETURN.                                         */
+/*        END.                                                */
 
         IF ip-field NE "" 
         AND ip-table NE "" 
