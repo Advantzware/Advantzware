@@ -426,8 +426,8 @@ IF lPostAuto-log THEN DO:
   END.
     
   lv-got-error = ERROR-STATUS:ERROR.  
-  IF lv-got-error THEN
-      lPostAuto-log = FALSE.
+  /*IF lv-got-error THEN
+      lPostAuto-log = FALSE.*/
 END.        
 
 IF NOT lv-got-error  THEN DO:
