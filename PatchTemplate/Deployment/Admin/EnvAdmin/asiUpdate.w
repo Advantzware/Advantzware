@@ -1239,6 +1239,7 @@ PROCEDURE ipProcess :
     DEF VAR cPort AS CHAR NO-UNDO.
     DEF VAR iListItem AS INT NO-UNDO.
     DEF VAR cEnvVer AS CHAR NO-UNDO.
+    DEF VAR iEnv AS INT NO-UNDO.
         
     IF fiUserID:{&SV} EQ "asi" 
     AND fiPassword:{&SV} EQ "Package99" THEN ASSIGN
@@ -1250,14 +1251,16 @@ PROCEDURE ipProcess :
     IF iCurrDbVer LT iPatchDbVer
     OR iCurrEnvVer = 16070000 THEN DO:
         ASSIGN
-            c-Win:visible = false.
-        RUN asiUpdateDB.w (ttDatabases.cName,
-                        ttDatabases.cPort,
-                        ttDatabases.cDir,
-                        ttDatabases.cVer,
-                        iUserLevel,
-                        OUTPUT lSuccess)
-                        .
+            iEnv = LOOKUP (slEnvList:{&SV},slEnvList:list-items)
+            c-Win:visible = false
+            .
+        RUN asiUpdateDB.w (ENTRY(iEnv,cDBList),
+                           ENTRY(iEnv,cDBPortList),
+                           ENTRY(iEnv,cDbDirList),
+                           ENTRY(iEnv,cDBVerList),
+                           iUserLevel,
+                           OUTPUT lSuccess)
+                           .
 
         IF lSuccess THEN DO:
             /* asiUpdateDB could change audit variables in ini file; must reread */
@@ -1274,19 +1277,19 @@ PROCEDURE ipProcess :
                     ttDatabases.cAudName = ENTRY(iCtr,cAudDbList)
                     ttDatabases.cAudPort = ENTRY(iCtr,cAudPortList).
             END.
-            /*
+            
             FIND ttDatabases WHERE
-                ttDatabases.cName EQ slDBName:{&SV} AND
-                ttDatabases.cPort EQ fiPort:{&SV}
+                ttDatabases.cName EQ ENTRY(iEnv,cDBList) AND
+                ttDatabases.cPort EQ ENTRY(iEnv,cDBPortList)
                 NO-ERROR.
             IF AVAIL ttDatabases THEN ASSIGN
                 cAudDb = ttDatabases.cAudName
                 cPort = ttDatabases.cAudPort.
 
             ASSIGN
-                cConnect = "-db " + slDBName:{&SV} + 
+                cConnect = "-db " + ENTRY(iEnv,cDBList) + 
                            " -H " + chostName +
-                           " -S " + fiPort:{&SV} +
+                           " -S " + ENTRY(iEnv,cDBPortList) +
                            " -N tcp -ld ASI".
             CONNECT VALUE(cConnect).
             IF cAudName NE "" THEN DO:
@@ -1304,17 +1307,26 @@ PROCEDURE ipProcess :
                             iUserLevel,
                             OUTPUT lSuccess)
                             .
-            */                            
         END.                        
     END.
-    /*
     ELSE DO:
         ASSIGN
-            c-Win:visible = false.
+            iEnv = LOOKUP (slEnvList:{&SV},slEnvList:list-items)
+            c-Win:visible = false
+            .
+
+        FIND ttDatabases WHERE
+            ttDatabases.cName EQ ENTRY(iEnv,cDBList) AND
+            ttDatabases.cPort EQ ENTRY(iEnv,cDBPortList)
+            NO-ERROR.
+        IF AVAIL ttDatabases THEN ASSIGN
+            cAudDb = ttDatabases.cAudName
+            cPort = ttDatabases.cAudPort.
+
         ASSIGN
-            cConnect = "-db " + slDBName:{&SV} + 
+            cConnect = "-db " + ENTRY(iEnv,cDBList) + 
                        " -H " + chostName +
-                       " -S " + fiPort:{&SV} +
+                       " -S " + ENTRY(iEnv,cDBPortList) +
                        " -N tcp -ld ASI".
         CONNECT VALUE(cConnect).
         IF cAudName NE "" THEN DO:
@@ -1333,7 +1345,7 @@ PROCEDURE ipProcess :
                         OUTPUT lSuccess)
                         .
     END.
-    */    
+   
     APPLY 'close' TO THIS-PROCEDURE.
     QUIT.
 
