@@ -110,7 +110,6 @@ comp_loc. user
 usermenu. user
 users. user
 users_. user
-track_. user
 usergrps. user
 usergrp_. user
 codes s
@@ -133,5 +132,7 @@ prgrms. system
 prgrms_. system
 parmfile. system
 parmfil_. system
+langTrans. system
 help mainmenu
+sysCtrlU. help
 about. help

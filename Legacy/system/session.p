@@ -93,6 +93,19 @@ FUNCTION sfSetSysCtrlUsageHandle RETURNS LOGICAL
 &ENDIF
 
 
+&IF DEFINED(EXCLUDE-sfUserSecurityLevel) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD sfUserSecurityLevel Procedure
+FUNCTION sfUserSecurityLevel RETURNS INTEGER 
+  (  ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
+
 /* *********************** Procedure Settings ************************ */
 
 &ANALYZE-SUSPEND _PROCEDURE-SETTINGS
@@ -124,6 +137,10 @@ FUNCTION sfSetSysCtrlUsageHandle RETURNS LOGICAL
 
 /* ***************************  Main Block  *************************** */
 
+FIND FIRST users NO-LOCK
+     WHERE users.user_id EQ USERID("ASI")
+     NO-ERROR.
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -138,26 +155,39 @@ PROCEDURE spCreateSysCtrlUsage:
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER ipcCompany     AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipcModule      AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipcName        AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipcCharFld     AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipdtDateFld    AS DATE      NO-UNDO.
-    DEFINE INPUT PARAMETER ipdDecFld      AS DECIMAL   NO-UNDO.
-    DEFINE INPUT PARAMETER ipiIntFld      AS INTEGER   NO-UNDO.
-    DEFINE INPUT PARAMETER iplLogFld      AS LOGICAL   NO-UNDO.
-    DEFINE INPUT PARAMETER ipcDescrip     AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipdtUsageNow   AS DATETIME  NO-UNDO.
-    DEFINE INPUT PARAMETER ipcCategory    AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER iplCustVend    AS LOGICAL   NO-UNDO.
-    DEFINE INPUT PARAMETER ipcCustVendNo  AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipiSeqNo       AS INTEGER   NO-UNDO.
-    DEFINE INPUT PARAMETER ipcShipId      AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipcSubCategory AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipiSysCtrlID   AS INTEGER   NO-UNDO.
-    DEFINE INPUT PARAMETER ipcTypeCode    AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipcStackTrace  AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcCompany       AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcModule        AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcName          AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcCharFld       AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipdtDateFld      AS DATE      NO-UNDO.
+    DEFINE INPUT PARAMETER ipdDecFld        AS DECIMAL   NO-UNDO.
+    DEFINE INPUT PARAMETER ipiIntFld        AS INTEGER   NO-UNDO.
+    DEFINE INPUT PARAMETER iplLogFld        AS LOGICAL   NO-UNDO.
+    DEFINE INPUT PARAMETER ipcDescrip       AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipdtUsageNow     AS DATETIME  NO-UNDO.
+    DEFINE INPUT PARAMETER ipcCategory      AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER iplCustVend      AS LOGICAL   NO-UNDO.
+    DEFINE INPUT PARAMETER ipcCustVendNo    AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiSeqNo         AS INTEGER   NO-UNDO.
+    DEFINE INPUT PARAMETER ipcShipId        AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcSubCategory   AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiSysCtrlID     AS INTEGER   NO-UNDO.
+    DEFINE INPUT PARAMETER ipcTypeCode      AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcStackTrace    AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiSecurityLevel AS INTEGER   NO-UNDO.
 
+    IF sfUserSecurityLevel() LT ipiSecurityLevel THEN 
+    ASSIGN 
+        ipcCharFld    = ?
+        ipdtDateFld   = ?
+        ipdDecFld     = ?
+        ipiIntFld     = ?
+        iplLogFld     = ?
+        ipcDescrip    = "Administratively Blocked from View"
+        iplCustVend   = ?
+        ipcCustVendNo = ?
+        ipcShipID     = ?
+        .
     FIND FIRST ttSysCtrlUsage
          WHERE ttSysCtrlUsage.company  EQ ipcCompany
            AND ttSysCtrlUsage.module   EQ ipcModule
@@ -268,6 +298,25 @@ FUNCTION sfSetSysCtrlUsageHandle RETURNS LOGICAL
     hSysCtrlUsageHandle = iphSysCtrlUsageHandle.
 
     RETURN TRUE.
+
+END FUNCTION.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
+&IF DEFINED(EXCLUDE-sfUserSecurityLevel) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION sfUserSecurityLevel Procedure
+FUNCTION sfUserSecurityLevel RETURNS INTEGER 
+  (  ):
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    RETURN IF AVAILABLE users THEN users.securityLevel ELSE 0.
 
 END FUNCTION.
 	
