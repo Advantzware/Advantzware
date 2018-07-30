@@ -23,8 +23,11 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
+
+{methods/defines/hndldefs.i}
+{methods/prgsecdt.i}
 DEF VAR v-status AS CHAR NO-UNDO.
-DEF VAR char-hdl AS CHAR NO-UNDO.
+/*DEF VAR char-hdl AS CHAR NO-UNDO.*/
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -280,6 +283,33 @@ PROCEDURE set-status-btn-lbl :
       btn_hold:LABEL = IF ip-status = "H" OR ip-status = "W" THEN "&Approve" 
                        ELSE "&Hold".
    END.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-initialize V-table-Win 
+PROCEDURE local-initialize :
+/*--------------------------------------------------------------------------
+  Purpose     : If the SmartPanel is type COMMIT, enable all the fields of
+                the TABLEIO-TARGETS since they are defaulted to disabled.
+  Notes       :
+  ------------------------------------------------------------------------*/
+
+  DEFINE VARIABLE query-position AS CHARACTER NO-UNDO.
+ 
+  IF access-close THEN  do:  /* YSK  not leave window on after closed */
+     APPLY 'CLOSE' TO THIS-PROCEDURE.
+     RETURN.
+  END.
+
+  RUN dispatch IN THIS-PROCEDURE ( INPUT "adm-initialize":U ) .
+
+  DO WITH FRAME {&FRAME-NAME}:
+    IF NOT v-can-update THEN ASSIGN  btn_hold:SENSITIVE = NO .
+  END.
+
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
