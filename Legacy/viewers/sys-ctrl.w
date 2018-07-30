@@ -36,10 +36,10 @@ CREATE WIDGET-POOL.
 
 {sys/ref/sys-ctrl.i}
 
-DEF VAR v-secure AS LOG INIT NO NO-UNDO.
-DEF VAR v-secur  AS LOG INIT NO NO-UNDO.
-DEF VAR v-valid  AS LOG INIT NO NO-UNDO.
-DEF VAR v-msg    AS CHAR FORMAT  "x(100)" NO-UNDO.
+DEF VAR v-secure AS LOGICAL INIT NO NO-UNDO.
+DEF VAR v-secur  AS LOGICAL INIT NO NO-UNDO.
+DEF VAR v-valid  AS LOGICAL INIT NO NO-UNDO.
+DEF VAR v-msg    AS CHARACTER  FORMAT  "x(100)" NO-UNDO.
 
 /* User can select multiple values for these, and validation is on */
 /* each value they select                                          */
