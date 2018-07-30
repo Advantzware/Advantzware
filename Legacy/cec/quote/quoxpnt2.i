@@ -1,16 +1,16 @@
  /* cec/quote/quoxpnt2.i */
  
-  PUT "<R4><C3><#89><R+14><C+43><IMAGE#89=" ls-full-img1 FORMAT "x(200)" SKIP(1). /* Abox logo */ 
-  PUT "<=1>" SKIP. 
-  PUT "<C1><#2><Farial>"
-      "<=2>" "<FGCOLOR=" + trim(lv-comp-color) + ">" FORM "x(15)"
-      "<P10><=2><R+14>" SKIP
-      /* v-comp-add1 AT 8 SKIP
+  PUT "<C+25><#1>"
+      "<=1>" SKIP 
+      "<C1><#2><Farial>"
+      "<=2><R+4>" "<FGCOLOR=" + trim(lv-comp-color) + ">" FORM "x(15)"
+      "<P10><=2><R+5>"
+       v-comp-add1 AT 8 SKIP
        v-comp-add2 AT 8 SKIP
        v-comp-add3 AT 8 SKIP
        v-comp-add4 AT 8 SKIP
        v-comp-add5 AT 8 "<FGCOLOR=" + trim(lv-other-color) + ">" FORM "x(15)" SKIP
-       lv-email AT 8 SKIP(3)*/
+       lv-email AT 8 SKIP(3)
       "<FCourier New>"
       "Bill To:"  space(40) "Ship To:"  xquo.shipto[5] SKIP
       SPACE(5) bill[1]  xquo.shipto[1] AT 55 skip
@@ -18,9 +18,9 @@
       SPACE(5) bill[3]  xquo.shipto[3] AT 55 SKIP
       SPACE(5) bill[4]  xquo.shipto[4] AT 55 SKIP.
 
- /* IF lv-display-comp THEN
+  IF lv-display-comp THEN
      PUT "<=2><C3><R+2><FGCOLOR=" trim(lv-comp-color) + ">"
-         "<=2><C3><R+3><P20><B>" lv-comp-name "</B><FGCOLOR=" trim(lv-other-color) + ">" FORM "x(6)". */
+         "<=2><C3><R+3><P20><B>" lv-comp-name "</B><FGCOLOR=" trim(lv-other-color) + ">" FORM "x(6)". 
 
   v-printline = v-printline + 15.
   PUT "<|10><R4><C50><#3><FROM><R8><C80><RECT>" SKIP
