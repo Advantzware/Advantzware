@@ -98,10 +98,21 @@ DEFINE VARIABLE chrX           AS CHARACTER  NO-UNDO.
 DEFINE VARIABLE logPrint       AS LOGICAL    NO-UNDO.
 DEFINE VARIABLE intPageNum     AS INTEGER    NO-UNDO.
 
+DEF VAR ls-image1 AS CHAR NO-UNDO.
+DEF VAR ls-full-img1 AS CHAR NO-UNDO.
+DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
+
 {sys/inc/f16to32.i}
 {cecrep/jobtick2.i "new shared"}
 
 ASSIGN tmpstore = fill("-",130).
+
+RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormLogo", "C" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+OUTPUT cRtnChar, OUTPUT lRecFound).
+
+ASSIGN ls-full-img1 = cRtnChar + ">" .
 
 find first sys-ctrl where sys-ctrl.company eq cocode
                       and sys-ctrl.name    eq "QUOPRINT" no-lock no-error.

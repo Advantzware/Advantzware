@@ -107,6 +107,9 @@ DEF VAR lv-char AS cha NO-UNDO.
 DEF VAR lv-char-list AS cha NO-UNDO.
 DEFINE VARIABLE dCoreDia AS DECIMAL FORMAT ">,>>9.99<<" NO-UNDO.
 DEFINE VARIABLE cFlueTest AS CHARACTER FORMAT "x(25)" NO-UNDO.
+DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
+DEFINE VARIABLE ls-full-img1 AS CHAR FORMAT "x(200)" NO-UNDO.
 DEF TEMP-TABLE tt-text NO-UNDO
     FIELD TYPE AS cha
     FIELD tt-line AS INT
@@ -132,6 +135,12 @@ END.
 {po/po-print.f}
 
 assign v-hdr = "VEND ITEM".
+
+RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormLogo", "C" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+OUTPUT cRtnChar, OUTPUT lRecFound).
+
+ASSIGN ls-full-img1 = cRtnChar + ">" .
        
 find first sys-ctrl where sys-ctrl.company eq cocode
                       and sys-ctrl.name    eq "POPRINT" no-lock no-error.

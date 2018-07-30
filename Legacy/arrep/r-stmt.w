@@ -1664,6 +1664,10 @@ form
 DEF VAR ls-image1 AS cha NO-UNDO.
 DEF VAR ls-full-img1 AS cha FORM "x(200)" NO-UNDO.
 
+RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormLogo", "C" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+OUTPUT cRtnChar, OUTPUT lRecFound).
+
 find first company where company.company eq cocode no-lock no-error.
 
 IF v-stmt-char = "Badger" THEN do:
@@ -1681,7 +1685,7 @@ ASSIGN ls-image1 = IF v-stmt-char = "Premier" THEN "images\premierinv.jpg"
                    ELSE IF v-stmt-char = "LoyLang" THEN "images\loystmt.jpg"
                    ELSE IF v-stmt-char = "Printers" THEN "images\loyprinters.jpg"
                  /*  ELSE IF v-stmt-char = "Badger" THEN "images\badger statement.JPG" */
-                   ELSE IF v-stmt-char = "RFC" THEN "images\RFC.JPG"
+                   ELSE IF v-stmt-char = "RFC" THEN cRtnChar  
                    ELSE "images\asilogo.jpg"
        FILE-INFO:FILE-NAME = ls-image1
        ls-full-img1 = FILE-INFO:FULL-PATHNAME + ">".
@@ -2153,7 +2157,7 @@ FOR EACH ttCustList
            . 
 
        ELSE IF v-stmt-char = "RFC" THEN          /* task 12231305 */
-       PUT "<C1><#1><R+11><C+45><IMAGE#1=" ls-full-img1 SKIP
+       PUT "<R2><C1><#1><R+12><C+25><IMAGE#1=" ls-full-img1 SKIP
            "<=1><R+3><C+26> 2066 S. East Avenue" 
            "<=1><R+4><C+26> Vineland, NJ 08360" 
            "<=1><R+5><C+26> Phone: 856-692-0404" 
@@ -2388,6 +2392,11 @@ do xx = 1 to v-inv-type-max:
     + v-inv-type-array[xx] + ' '.
 end.
 
+
+RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormLogo", "C" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+OUTPUT cRtnChar, OUTPUT lRecFound).
+
 form
   ws_letterhead[1]    skip
   ws_letterhead[2]    skip
@@ -2500,7 +2509,7 @@ form
                          ELSE IF v-stmt-char = "LoyLang" THEN "images\loystmt.jpg"
                          ELSE IF v-stmt-char = "Printers" THEN "images\loyprinters.jpg"
                      /*    ELSE IF v-stmt-char = "Badger" THEN "images\badger statement.JPG" */
-                         ELSE IF v-stmt-char = "RFC" THEN "images\RFC.JPG"
+                         ELSE IF v-stmt-char = "RFC" THEN cRtnChar
                          ELSE "images\asilogo.jpg" .
       END.
 
@@ -2937,7 +2946,7 @@ FIRST cust no-lock
            . 
 
        ELSE IF v-stmt-char = "RFC" THEN          /* task 12231305 */
-       PUT "<C1><#1><R+11><C+45><IMAGE#1=" ls-full-img1 SKIP
+       PUT "<R2><C1><#1><R+12><C+25><IMAGE#1=" ls-full-img1 SKIP
            "<=1><R+3><C+26> 2066 S. East Avenue" 
            "<=1><R+4><C+26> Vineland, NJ 08360" 
            "<=1><R+5><C+26> Phone: 856-692-0404" 

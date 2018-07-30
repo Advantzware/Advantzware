@@ -2,8 +2,9 @@
 
 PUT 
      "<FArial>"   SKIP
-       "<P14><C+48> <B>Purchase Order</B> <P10>" v-change-ord SKIP       
-   "<C1><#1><R+5><C+25>" SKIP 
+       "<P14><C+48> <B>Purchase Order</B> <P10>" v-change-ord SKIP 
+       "<C2><R2><#1><R+11><C+40><IMAGE#1=" ls-full-img1  SKIP    
+  /* "<C1><#1><R+5><C+25>" SKIP 
       "<=1><R+2>" "<FGCOLOR=" + trim(lv-comp-color) + ">" FORM "x(15)"
       "<P10><=1><R+3>"
       v-comp-add1  AT 8 SKIP
@@ -11,7 +12,7 @@ PUT
       v-comp-add3  AT 8 SKIP
       v-comp-add4  AT 8 SKIP
       v-comp-add5  AT 8 "<FGCOLOR=" + trim(lv-other-color) + ">" FORM "x(15)" skip
-      lv-email AT 8 SKIP(1)
+      lv-email AT 8 SKIP(1)*/
      "<FCourier New>"
      "Purchase Order To:" AT 4 SPACE(43) "Ship To:"  SKIP.
 
@@ -33,9 +34,9 @@ PUT
           "<=#3><R+3>Changed Date: " po-ord.po-change-date SKIP
           "<=3><R+4>Date Required: " po-ord.due-date SKIP
        .
-    IF lv-display-comp THEN 
+   /* IF lv-display-comp THEN 
         PUT "<=1><C3><FGCOLOR=" trim(lv-comp-color) + ">"
-            "<=1><C3><R+1><P20><B>" lv-comp-name "</B><P10><FGCOLOR=" trim(lv-other-color) + ">" FORM "x(6)" . 
+            "<=1><C3><R+1><P20><B>" lv-comp-name "</B><P10><FGCOLOR=" trim(lv-other-color) + ">" FORM "x(6)" . */
       v-printline = v-printline + 10.    
 
       PUT "<|10><R20><C1><#4><FROM><R24><C80><RECT>" SKIP
