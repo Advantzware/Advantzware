@@ -100,6 +100,7 @@ DEF VAR lSuccess AS LOG NO-UNDO.
 DEF VAR lSysError AS LOG NO-UNDO.
 DEF VAR lMakeBackup AS LOG NO-UNDO.
 DEF VAR lValidDB AS LOG NO-UNDO.
+DEF VAR lHeader AS LOG NO-UNDO.
 DEF VAR origPropath AS CHAR NO-UNDO.
 DEF VAR connectStatement AS CHAR NO-UNDO.
 DEF VAR cRunPgm AS CHAR NO-UNDO.
@@ -856,26 +857,31 @@ PROCEDURE ipBuildVerification :
     DEF INPUT PARAMETER ipiPhase AS INT NO-UNDO.
     DEF VAR cLine AS CHAR NO-UNDO.
     
+    IF NOT lHeader THEN DO:
+        OUTPUT STREAM outFile TO VALUE(cOutFile).
+        PUT STREAM outFile UNFORMATTED "SITE: " + cSiteName + CHR(10).
+        PUT STREAM outFile UNFORMATTED "HOST: " + cHostName + CHR(10).
+        PUT STREAM outFile UNFORMATTED "UserID: " + fiUserID:{&SV} + CHR(10).
+        PUT STREAM outFile UNFORMATTED "Environments: " + cEnvList + CHR(10).
+        PUT STREAM outFile UNFORMATTED "CurrVer: " + cEnvVerList + CHR(10).   
+        OUTPUT STREAM outFile CLOSE.
+        ASSIGN
+            lHeader = TRUE.
+    END.
+    
     CASE ipiPhase:
         WHEN 1 THEN DO:
             RUN ipStatus("  Building FTP Verification file").
             OUTPUT STREAM outFile TO VALUE(cOutFile).
-            PUT STREAM outFile UNFORMATTED "Download attempted " + STRING(TODAY) + CHR(10).
-            PUT STREAM outFile UNFORMATTED "SITE: " + cSiteName + CHR(10).
-            PUT STREAM outFile UNFORMATTED "HOST: " + cHostName + CHR(10).
-            PUT STREAM outFile UNFORMATTED "UserID: " + fiUserID:{&SV} + CHR(10).
-            PUT STREAM outFile UNFORMATTED "Environments: " + cEnvList + CHR(10).
-            PUT STREAM outFile UNFORMATTED "CurrVer: " + cEnvVerList + CHR(10).   
+            PUT STREAM outFile UNFORMATTED "Download started " + STRING(TODAY) + " at " + STRING(TIME,"HH:MM:SS") + CHR(10).
             OUTPUT STREAM outFile CLOSE.
         END.
         WHEN 2 THEN DO:
-            RUN ipStatus("  Updating FTP Verification file - 1").
             OUTPUT STREAM outFile TO VALUE(cOutFile) APPEND.
             PUT STREAM outFile UNFORMATTED "Downloads: " + cDLList + CHR(10).
             OUTPUT STREAM outFile CLOSE.
         END.
         WHEN 3 THEN DO:
-            RUN ipStatus("  Updating FTP Verification file - 2").
             OUTPUT STREAM outFile TO VALUE(cOutFile) APPEND.
             PUT STREAM outFile UNFORMATTED "Update Log File: " + CHR(10).
             INPUT STREAM logFile FROM VALUE(cLogFile).
@@ -1594,6 +1600,17 @@ PROCEDURE ipSendVerification :
 
     RUN ipStatus("  Starting 2d FTP session").
     OS-COMMAND SILENT VALUE("FTP -n -s:" + cFTPxmit + " >> " + cFtpOutputFile + " 2>> " + cFtpErrFile).
+
+    /* File cleanup */
+    RUN ipStatus("  Cleaning work files").
+    OS-DELETE VALUE(cFTPInstrFile).
+    OS-DELETE VALUE(cFTPOutputFile).
+    OS-DELETE VALUE(cFTPErrFile).
+    OS-DELETE VALUE(c7zOutputFile).
+    OS-DELETE VALUE(c7zErrFile).
+    OS-DELETE VALUE(cEnvAdmin + "\" + cOutFile).
+    OS-DELETE VALUE(cFTPxmit).
+    OS-DELETE VALUE(cEnvAdmin + "\cOutputFile").
    
 END PROCEDURE.
 
