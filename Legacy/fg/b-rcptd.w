@@ -2329,6 +2329,8 @@ IF AVAIL fg-rctd AND fg-rctd.i-no:SCREEN-VALUE <> "" THEN DO: /* in update mode 
       OUTPUT lvCalcFrtCost,
       OUTPUT lvSetupPerCostUom).
       
+    IF lvCalcStdCost LE -1 THEN ASSIGN lvCalcStdCost = -1 * lvCalcStdCost.
+    IF lvCalcExtCost LE -1 THEN ASSIGN lvCalcExtCost = -1 * lvCalcExtCost.
     ASSIGN
       lvlTotalCostCalculated = TRUE
       fg-rctd.cost-uom:screen-value IN BROWSE {&browse-name} = lvCalcCostUom
@@ -2492,6 +2494,8 @@ IF LOOKUP(lv-cost-uom,fg-uom-list) EQ 0 THEN
    
  END.
 
+ IF lv-out-cost LE -1 THEN ASSIGN lv-out-cost = -1 * lv-out-cost.
+ IF lv-ext-cost LE -1 THEN ASSIGN lv-ext-cost = -1 * lv-ext-cost.
 ASSIGN
  lv-ext-cost = lv-out-qty * lv-out-cost
  fg-rctd.cost-uom:SCREEN-VALUE IN BROWSE {&browse-name} = lv-cost-uom
@@ -2578,6 +2582,8 @@ IF AVAIL fg-rctd AND fg-rctd.i-no:SCREEN-VALUE <> "" THEN DO: /* in update mode 
       OUTPUT lvCalcFrtCost,
       OUTPUT lvSetupPerCostUom).
     
+    IF lvCalcStdCost LE -1 THEN ASSIGN lvCalcStdCost = -1 * lvCalcStdCost.
+    IF lvCalcExtCost LE -1 THEN ASSIGN lvCalcExtCost = -1 * lvCalcExtCost.
     ASSIGN
       fg-rctd.cost-uom:screen-value IN BROWSE {&browse-name} = lvCalcCostUom
       fg-rctd.std-cost:screen-value IN BROWSE {&browse-name} = STRING(lvCalcStdCost)
@@ -2638,12 +2644,13 @@ IF LOOKUP(lv-cost-uom,fg-uom-list) EQ 0 THEN
   RUN rm/convquom.p("EA", lv-cost-uom,                   
                     v-bwt, v-len, v-wid, v-dep,
                     lv-out-qty, OUTPUT lv-out-qty).
+IF lv-out-cost LE -1 THEN ASSIGN lv-out-cost = -1 * lv-out-cost.
 
 ASSIGN
  fg-rctd.cost-uom:SCREEN-VALUE IN BROWSE {&browse-name} = lv-cost-uom
  fg-rctd.std-cost:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(lv-out-cost)
  fg-rctd.ext-cost:SCREEN-VALUE IN BROWSE {&browse-name} =
-       STRING((lv-out-qty * lv-out-cost) +
+       STRING(((IF lv-out-qty LE -1 THEN (-1 * lv-out-qty) else lv-out-qty) * lv-out-cost) +
            dec(fg-rctd.frt-cost:screen-value IN BROWSE {&browse-name})).
 
 
@@ -3719,15 +3726,16 @@ PROCEDURE local-update-record :
           fg-rctd.partial:SCREEN-VALUE = "0"
           .
   END.
-
+  RUN valid-blank-qty NO-ERROR.
+  IF ERROR-STATUS:ERROR THEN RETURN ERROR.
 
 
   RUN validate-record NO-ERROR.
 
-  IF ERROR-STATUS:ERROR THEN DO:
+  IF ERROR-STATUS:ERROR THEN DO:   
     RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"tableio-source",OUTPUT char-hdl).
      
-    IF VALID-HANDLE(HANDLE(char-hdl)) THEN DO:
+    IF VALID-HANDLE(HANDLE(char-hdl)) THEN DO:   
    
       hPanel = HANDLE(char-hdl).
       RUN notify IN hPanel (INPUT 'cancel-record':U).
@@ -4949,6 +4957,35 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-blank-qty B-table-Win 
+PROCEDURE valid-blank-qty :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+
+  DO WITH FRAME {&FRAME-NAME}:
+    IF dec(fg-rctd.t-qty:SCREEN-VALUE IN BROWSE {&browse-name}) EQ 0 THEN DO:
+        /* In case user pressed save before tab out of tag field */
+        fg-rctd.t-qty:SCREEN-VALUE IN BROWSE {&browse-name} =
+        STRING(INT(fg-rctd.cases:SCREEN-VALUE) *
+               INT(fg-rctd.qty-case:SCREEN-VALUE) +
+               INT(fg-rctd.partial:SCREEN-VALUE)).
+        IF dec(fg-rctd.t-qty:SCREEN-VALUE IN BROWSE {&browse-name}) EQ 0 THEN DO:   
+          MESSAGE "Receipt quantity cannot be 0."
+              VIEW-AS ALERT-BOX.
+          APPLY "entry" TO fg-rctd.cases.
+          RETURN ERROR.
+        END.
+    END.
+  END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-tag B-table-Win 
 PROCEDURE valid-tag :
 /*------------------------------------------------------------------------------
@@ -5143,20 +5180,7 @@ PROCEDURE validate-record :
 ------------------------------------------------------------------------------*/
   DEF VAR li-max-qty AS INT NO-UNDO.
   DEF VAR ll AS LOG NO-UNDO.
-
-  IF dec(fg-rctd.t-qty:SCREEN-VALUE IN BROWSE {&browse-name}) EQ 0 THEN DO:
-        /* In case user pressed save before tab out of tag field */
-        fg-rctd.t-qty:SCREEN-VALUE IN BROWSE {&browse-name} =
-        STRING(INT(fg-rctd.cases:SCREEN-VALUE) *
-               INT(fg-rctd.qty-case:SCREEN-VALUE) +
-               INT(fg-rctd.partial:SCREEN-VALUE)).
-        IF dec(fg-rctd.t-qty:SCREEN-VALUE IN BROWSE {&browse-name}) EQ 0 THEN DO:
-          MESSAGE "Receipt quantity cannot be 0."
-              VIEW-AS ALERT-BOX.
-          APPLY "entry" TO fg-rctd.cases.
-          RETURN ERROR.
-        END.
-    END.
+  
   FIND itemfg WHERE itemfg.company = cocode
                 AND itemfg.i-no = fg-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name}
                 NO-LOCK NO-ERROR.
