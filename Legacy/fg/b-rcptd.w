@@ -2329,8 +2329,8 @@ IF AVAIL fg-rctd AND fg-rctd.i-no:SCREEN-VALUE <> "" THEN DO: /* in update mode 
       OUTPUT lvCalcFrtCost,
       OUTPUT lvSetupPerCostUom).
       
-    IF lvCalcStdCost LE -1 THEN ASSIGN lvCalcStdCost = -1 * lvCalcStdCost.
-    IF lvCalcExtCost LE -1 THEN ASSIGN lvCalcExtCost = -1 * lvCalcExtCost.
+    IF lvCalcStdCost LT 0 THEN ASSIGN lvCalcStdCost = -1 * lvCalcStdCost.
+    IF lvCalcExtCost  LT 0 THEN ASSIGN lvCalcExtCost = -1 * lvCalcExtCost.
     ASSIGN
       lvlTotalCostCalculated = TRUE
       fg-rctd.cost-uom:screen-value IN BROWSE {&browse-name} = lvCalcCostUom
@@ -2494,8 +2494,8 @@ IF LOOKUP(lv-cost-uom,fg-uom-list) EQ 0 THEN
    
  END.
 
- IF lv-out-cost LE -1 THEN ASSIGN lv-out-cost = -1 * lv-out-cost.
- IF lv-ext-cost LE -1 THEN ASSIGN lv-ext-cost = -1 * lv-ext-cost.
+ IF lv-out-cost LT 0 THEN ASSIGN lv-out-cost = -1 * lv-out-cost.
+ IF lv-ext-cost LT 0 THEN ASSIGN lv-ext-cost = -1 * lv-ext-cost.
 ASSIGN
  lv-ext-cost = lv-out-qty * lv-out-cost
  fg-rctd.cost-uom:SCREEN-VALUE IN BROWSE {&browse-name} = lv-cost-uom
@@ -2582,8 +2582,8 @@ IF AVAIL fg-rctd AND fg-rctd.i-no:SCREEN-VALUE <> "" THEN DO: /* in update mode 
       OUTPUT lvCalcFrtCost,
       OUTPUT lvSetupPerCostUom).
     
-    IF lvCalcStdCost LE -1 THEN ASSIGN lvCalcStdCost = -1 * lvCalcStdCost.
-    IF lvCalcExtCost LE -1 THEN ASSIGN lvCalcExtCost = -1 * lvCalcExtCost.
+    IF lvCalcStdCost LT 0 THEN ASSIGN lvCalcStdCost = -1 * lvCalcStdCost.
+    IF lvCalcExtCost LT 0 THEN ASSIGN lvCalcExtCost = -1 * lvCalcExtCost.
     ASSIGN
       fg-rctd.cost-uom:screen-value IN BROWSE {&browse-name} = lvCalcCostUom
       fg-rctd.std-cost:screen-value IN BROWSE {&browse-name} = STRING(lvCalcStdCost)
@@ -2644,7 +2644,7 @@ IF LOOKUP(lv-cost-uom,fg-uom-list) EQ 0 THEN
   RUN rm/convquom.p("EA", lv-cost-uom,                   
                     v-bwt, v-len, v-wid, v-dep,
                     lv-out-qty, OUTPUT lv-out-qty).
-IF lv-out-cost LE -1 THEN ASSIGN lv-out-cost = -1 * lv-out-cost.
+IF lv-out-cost LT 0 THEN ASSIGN lv-out-cost = -1 * lv-out-cost.
 
 ASSIGN
  fg-rctd.cost-uom:SCREEN-VALUE IN BROWSE {&browse-name} = lv-cost-uom
