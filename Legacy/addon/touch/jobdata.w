@@ -1268,6 +1268,8 @@ PROCEDURE Job_Data_Collection :
                     DO WHILE TRUE:
                         RUN Shift-Data (cCompany,cMachine,cShift[1],OUTPUT iSTime,OUTPUT iETime).
                         IF ftsDockSec(iETime) THEN iETime = iEtime + 1.
+                        /* shift spans midnight, if before midnight then done */
+                        IF iSTime GT iETime AND 86400 GE iTime[2] THEN LEAVE.
                         /* if shift end time ge end time then done */
                         IF iETime GE iTime[2] THEN LEAVE.            
                         CREATE ttTrans.
