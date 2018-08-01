@@ -35,6 +35,7 @@ DEF INPUT PARAMETER ipcPort AS CHAR NO-UNDO.
 DEF INPUT PARAMETER ipcDir AS CHAR NO-UNDO.
 DEF INPUT PARAMETER ipcVer AS CHAR NO-UNDO.
 DEF INPUT PARAMETER ipiLevel AS INT NO-UNDO.
+DEF INPUT PARAMETER iplNeedBackup AS LOG NO-UNDO.
 DEF OUTPUT PARAMETER oplSuccess AS LOG NO-UNDO.
 /*
 /* FOR TEST PURPOSES ONLY */
@@ -43,6 +44,7 @@ DEF VAR ipcPort AS CHAR NO-UNDO.
 DEF VAR ipcDir AS CHAR NO-UNDO.
 DEF VAR ipcVer AS CHAR NO-UNDO.
 DEF VAR ipiLevel AS INT NO-UNDO.
+DEF VAR iplNeedBackup AS LOG NO-UNDO.
 DEF VAR oplSuccess AS LOG NO-UNDO.
 ASSIGN
     ipcName = "asiTest167"
@@ -888,134 +890,134 @@ DEFINE FRAME DEFAULT-FRAME
      fiUpdRelNotesDir AT ROW 30.29 COL 116 COLON-ALIGNED NO-LABEL WIDGET-ID 160
      fiUpdSqlDir AT ROW 31 COL 116 COLON-ALIGNED NO-LABEL WIDGET-ID 158
      fiUpdStructureDir AT ROW 31.71 COL 116 COLON-ALIGNED NO-LABEL WIDGET-ID 164
-     "<EnvName>" VIEW-AS TEXT
-          SIZE 16 BY .76 AT ROW 14.57 COL 145 WIDGET-ID 242
-     "Programs" VIEW-AS TEXT
-          SIZE 16 BY .76 AT ROW 6 COL 145 WIDGET-ID 280
-     "PO" VIEW-AS TEXT
-          SIZE 16 BY .76 AT ROW 18.14 COL 147 WIDGET-ID 202
-     "Select one or more to upgrade." VIEW-AS TEXT
-          SIZE 32 BY .62 AT ROW 14.57 COL 10 WIDGET-ID 490
-    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1
-         SIZE 166.2 BY 32.57 WIDGET-ID 100.
-
-/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
-DEFINE FRAME DEFAULT-FRAME
-     " General Variables" VIEW-AS TEXT
-          SIZE 22 BY .62 AT ROW 1.48 COL 8 WIDGET-ID 356
-          FONT 6
-     "StructureUpdate" VIEW-AS TEXT
-          SIZE 16 BY .76 AT ROW 31.71 COL 148 WIDGET-ID 296
-     " (Defaults)" VIEW-AS TEXT
-          SIZE 13 BY .62 AT ROW 1.48 COL 144 WIDGET-ID 300
-          FONT 6
-     "Database tasks - will be performed once for each DATABASE selected above" VIEW-AS TEXT
-          SIZE 86 BY .62 AT ROW 16.95 COL 11 WIDGET-ID 498
-     "Environments" VIEW-AS TEXT
-          SIZE 16 BY .76 AT ROW 13.86 COL 141 WIDGET-ID 240
-     "ReleaseNotes" VIEW-AS TEXT
-          SIZE 16 BY .76 AT ROW 30.29 COL 148 WIDGET-ID 182
-     "Test" VIEW-AS TEXT
-          SIZE 16 BY .76 AT ROW 11.71 COL 145 WIDGET-ID 244
-     "Updates" VIEW-AS TEXT
-          SIZE 16 BY .76 AT ROW 23.86 COL 141 WIDGET-ID 194
-     "Desktop" VIEW-AS TEXT
-          SIZE 16 BY .76 AT ROW 12.43 COL 141 WIDGET-ID 246
-     "Schedule" VIEW-AS TEXT
-          SIZE 16 BY .76 AT ROW 20.29 COL 147 WIDGET-ID 208
-     " Environments" VIEW-AS TEXT
-          SIZE 17 BY .62 AT ROW 10.05 COL 8 WIDGET-ID 360
-          FONT 6
-     "Structure" VIEW-AS TEXT
-          SIZE 16 BY .76 AT ROW 11 COL 145 WIDGET-ID 254
-     "Backups" VIEW-AS TEXT
-          SIZE 16 BY .76 AT ROW 4.57 COL 141 WIDGET-ID 278
-     "EnvAdmin" VIEW-AS TEXT
-          SIZE 16 BY .76 AT ROW 3.86 COL 145 WIDGET-ID 270
-     "Resources" VIEW-AS TEXT
-          SIZE 16 BY .76 AT ROW 6.71 COL 145 WIDGET-ID 266
-     "MenuFiles" VIEW-AS TEXT
-          SIZE 16 BY .76 AT ROW 28.86 COL 148 WIDGET-ID 184
-     "CustFiles" VIEW-AS TEXT
-          SIZE 16 BY .76 AT ROW 16 COL 147 WIDGET-ID 210
-     "Customer" VIEW-AS TEXT
-          SIZE 16 BY .76 AT ROW 16.71 COL 147 WIDGET-ID 212
-     "Select ONE and ONLY ONE to upgrade~\back up." VIEW-AS TEXT
-          SIZE 49 BY .62 AT ROW 14.57 COL 55 WIDGET-ID 492
-     "Resources" VIEW-AS TEXT
-          SIZE 16 BY .76 AT ROW 19.57 COL 147 WIDGET-ID 206
-     "Database" VIEW-AS TEXT
-          SIZE 16 BY .76 AT ROW 5.29 COL 145 WIDGET-ID 264
-     " Your Directory Structure" VIEW-AS TEXT
-          SIZE 30 BY .62 AT ROW 1.48 COL 111 WIDGET-ID 140
-          FONT 6
-     "Install" VIEW-AS TEXT
-          SIZE 16 BY .76 AT ROW 23.14 COL 141 WIDGET-ID 178
-     "Compress" VIEW-AS TEXT
-          SIZE 16 BY .76 AT ROW 26 COL 148 WIDGET-ID 186
-     "Admin" VIEW-AS TEXT
-          SIZE 16 BY .76 AT ROW 2.19 COL 141 WIDGET-ID 172
-     "Admin" VIEW-AS TEXT
-          SIZE 7 BY .76 AT ROW 2.19 COL 141 WIDGET-ID 170
-     "Template" VIEW-AS TEXT
-          SIZE 16 BY .76 AT ROW 21 COL 147 WIDGET-ID 288
-     "DbAdmin" VIEW-AS TEXT
-          SIZE 10 BY .76 AT ROW 2.91 COL 145 WIDGET-ID 284
-     "DataFiles" VIEW-AS TEXT
-          SIZE 16 BY .76 AT ROW 26.71 COL 148 WIDGET-ID 188
-     "ProgramFiles" VIEW-AS TEXT
-          SIZE 16 BY .76 AT ROW 29.57 COL 148 WIDGET-ID 180
-     "DataUpdate" VIEW-AS TEXT
-          SIZE 16 BY .76 AT ROW 27.43 COL 148 WIDGET-ID 190
-     "Desktop" VIEW-AS TEXT
-          SIZE 16 BY .76 AT ROW 28.14 COL 148 WIDGET-ID 192
-    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1
-         SIZE 166.2 BY 32.57 WIDGET-ID 100.
-
-/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
-DEFINE FRAME DEFAULT-FRAME
-     "Prod" VIEW-AS TEXT
-          SIZE 16 BY .76 AT ROW 9.57 COL 145 WIDGET-ID 250
-     "Override" VIEW-AS TEXT
-          SIZE 16 BY .76 AT ROW 17.43 COL 147 WIDGET-ID 214
-     "Data" VIEW-AS TEXT
-          SIZE 16 BY .76 AT ROW 8.86 COL 145 WIDGET-ID 256
-     "Documentation" VIEW-AS TEXT
-          SIZE 16 BY .76 AT ROW 13.14 COL 141 WIDGET-ID 248
-     "Audit" VIEW-AS TEXT
-          SIZE 16 BY .76 AT ROW 8.14 COL 145 WIDGET-ID 488
      " Databases" VIEW-AS TEXT
           SIZE 15 BY .62 AT ROW 10.05 COL 56 WIDGET-ID 482
           FONT 6
-     "Ship" VIEW-AS TEXT
-          SIZE 16 BY .76 AT ROW 10.29 COL 145 WIDGET-ID 252
-     "Admin" VIEW-AS TEXT
-          SIZE 16 BY .76 AT ROW 25.29 COL 148 WIDGET-ID 198
      "Users" VIEW-AS TEXT
           SIZE 16 BY .76 AT ROW 22.43 COL 147 WIDGET-ID 218
      "SQLAccess" VIEW-AS TEXT
           SIZE 16 BY .76 AT ROW 31 COL 148 WIDGET-ID 292
+     " Your Directory Structure" VIEW-AS TEXT
+          SIZE 30 BY .62 AT ROW 1.48 COL 111 WIDGET-ID 140
+          FONT 6
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 1
+         SIZE 166.2 BY 32.57 WIDGET-ID 100.
+
+/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
+DEFINE FRAME DEFAULT-FRAME
+     "Ship" VIEW-AS TEXT
+          SIZE 16 BY .76 AT ROW 10.29 COL 145 WIDGET-ID 252
      "UserMenu" VIEW-AS TEXT
           SIZE 16 BY .76 AT ROW 21.71 COL 147 WIDGET-ID 200
+     "StructureUpdate" VIEW-AS TEXT
+          SIZE 16 BY .76 AT ROW 31.71 COL 148 WIDGET-ID 296
+     " General Variables" VIEW-AS TEXT
+          SIZE 22 BY .62 AT ROW 1.48 COL 8 WIDGET-ID 356
+          FONT 6
+     "Select one or more to upgrade." VIEW-AS TEXT
+          SIZE 32 BY .62 AT ROW 14.57 COL 10 WIDGET-ID 490
+     "PO" VIEW-AS TEXT
+          SIZE 16 BY .76 AT ROW 18.14 COL 147 WIDGET-ID 202
+     "Programs" VIEW-AS TEXT
+          SIZE 16 BY .76 AT ROW 6 COL 145 WIDGET-ID 280
+     "<EnvName>" VIEW-AS TEXT
+          SIZE 16 BY .76 AT ROW 14.57 COL 145 WIDGET-ID 242
+     "ReleaseNotes" VIEW-AS TEXT
+          SIZE 16 BY .76 AT ROW 30.29 COL 148 WIDGET-ID 182
+     "Test" VIEW-AS TEXT
+          SIZE 16 BY .76 AT ROW 11.71 COL 145 WIDGET-ID 244
+     "Environment tasks - will be performed once for each ENVIRONMENT selected above" VIEW-AS TEXT
+          SIZE 86 BY .62 AT ROW 23.38 COL 11 WIDGET-ID 500
+     "Patch<n>" VIEW-AS TEXT
+          SIZE 16 BY .76 AT ROW 24.57 COL 145 WIDGET-ID 196
      "Databases" VIEW-AS TEXT
           SIZE 16 BY .76 AT ROW 7.43 COL 141 WIDGET-ID 282
-     "Addon" VIEW-AS TEXT
-          SIZE 16 BY .76 AT ROW 15.29 COL 147 WIDGET-ID 216
+     "Resources" VIEW-AS TEXT
+          SIZE 16 BY .76 AT ROW 19.57 COL 147 WIDGET-ID 206
+     "Select ONE and ONLY ONE to upgrade~\back up." VIEW-AS TEXT
+          SIZE 49 BY .62 AT ROW 14.57 COL 55 WIDGET-ID 492
+     "Customer" VIEW-AS TEXT
+          SIZE 16 BY .76 AT ROW 16.71 COL 147 WIDGET-ID 212
+     "CustFiles" VIEW-AS TEXT
+          SIZE 16 BY .76 AT ROW 16 COL 147 WIDGET-ID 210
+     "MenuFiles" VIEW-AS TEXT
+          SIZE 16 BY .76 AT ROW 28.86 COL 148 WIDGET-ID 184
+     "Resources" VIEW-AS TEXT
+          SIZE 16 BY .76 AT ROW 6.71 COL 145 WIDGET-ID 266
+     "EnvAdmin" VIEW-AS TEXT
+          SIZE 16 BY .76 AT ROW 3.86 COL 145 WIDGET-ID 270
+     "Backups" VIEW-AS TEXT
+          SIZE 16 BY .76 AT ROW 4.57 COL 141 WIDGET-ID 278
+     "Structure" VIEW-AS TEXT
+          SIZE 16 BY .76 AT ROW 11 COL 145 WIDGET-ID 254
+     " Environments" VIEW-AS TEXT
+          SIZE 17 BY .62 AT ROW 10.05 COL 8 WIDGET-ID 360
+          FONT 6
+     "Schedule" VIEW-AS TEXT
+          SIZE 16 BY .76 AT ROW 20.29 COL 147 WIDGET-ID 208
+     "DataUpdate" VIEW-AS TEXT
+          SIZE 16 BY .76 AT ROW 27.43 COL 148 WIDGET-ID 190
+     "DataFiles" VIEW-AS TEXT
+          SIZE 16 BY .76 AT ROW 26.71 COL 148 WIDGET-ID 188
+     "DbAdmin" VIEW-AS TEXT
+          SIZE 10 BY .76 AT ROW 2.91 COL 145 WIDGET-ID 284
+     "Template" VIEW-AS TEXT
+          SIZE 16 BY .76 AT ROW 21 COL 147 WIDGET-ID 288
+     "Environments" VIEW-AS TEXT
+          SIZE 16 BY .76 AT ROW 13.86 COL 141 WIDGET-ID 240
+     " (Defaults)" VIEW-AS TEXT
+          SIZE 13 BY .62 AT ROW 1.48 COL 144 WIDGET-ID 300
+          FONT 6
+     "Programs" VIEW-AS TEXT
+          SIZE 16 BY .76 AT ROW 18.86 COL 147 WIDGET-ID 204
+     "Admin" VIEW-AS TEXT
+          SIZE 16 BY .76 AT ROW 2.19 COL 141 WIDGET-ID 174
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 1
+         SIZE 166.2 BY 32.57 WIDGET-ID 100.
+
+/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
+DEFINE FRAME DEFAULT-FRAME
      " Patch Processing" VIEW-AS TEXT
           SIZE 23 BY .62 AT ROW 15.76 COL 8 WIDGET-ID 456
           FONT 6
+     "Addon" VIEW-AS TEXT
+          SIZE 16 BY .76 AT ROW 15.29 COL 147 WIDGET-ID 216
+     "Database tasks - will be performed once for each DATABASE selected above" VIEW-AS TEXT
+          SIZE 86 BY .62 AT ROW 16.95 COL 11 WIDGET-ID 498
+     "Updates" VIEW-AS TEXT
+          SIZE 16 BY .76 AT ROW 23.86 COL 141 WIDGET-ID 194
+     "Desktop" VIEW-AS TEXT
+          SIZE 16 BY .76 AT ROW 12.43 COL 141 WIDGET-ID 246
+     "Audit" VIEW-AS TEXT
+          SIZE 16 BY .76 AT ROW 8.14 COL 145 WIDGET-ID 488
+     "Documentation" VIEW-AS TEXT
+          SIZE 16 BY .76 AT ROW 13.14 COL 141 WIDGET-ID 248
+     "Data" VIEW-AS TEXT
+          SIZE 16 BY .76 AT ROW 8.86 COL 145 WIDGET-ID 256
+     "Override" VIEW-AS TEXT
+          SIZE 16 BY .76 AT ROW 17.43 COL 147 WIDGET-ID 214
+     "Prod" VIEW-AS TEXT
+          SIZE 16 BY .76 AT ROW 9.57 COL 145 WIDGET-ID 250
+     "Desktop" VIEW-AS TEXT
+          SIZE 16 BY .76 AT ROW 28.14 COL 148 WIDGET-ID 192
+     "ProgramFiles" VIEW-AS TEXT
+          SIZE 16 BY .76 AT ROW 29.57 COL 148 WIDGET-ID 180
+     "Database" VIEW-AS TEXT
+          SIZE 16 BY .76 AT ROW 5.29 COL 145 WIDGET-ID 264
      "Admin" VIEW-AS TEXT
-          SIZE 16 BY .76 AT ROW 2.19 COL 141 WIDGET-ID 174
-     "Programs" VIEW-AS TEXT
-          SIZE 16 BY .76 AT ROW 18.86 COL 147 WIDGET-ID 204
-     "Patch<n>" VIEW-AS TEXT
-          SIZE 16 BY .76 AT ROW 24.57 COL 145 WIDGET-ID 196
-     "Environment tasks - will be performed once for each ENVIRONMENT selected above" VIEW-AS TEXT
-          SIZE 86 BY .62 AT ROW 23.38 COL 11 WIDGET-ID 500
+          SIZE 7 BY .76 AT ROW 2.19 COL 141 WIDGET-ID 170
+     "Admin" VIEW-AS TEXT
+          SIZE 16 BY .76 AT ROW 2.19 COL 141 WIDGET-ID 172
+     "Compress" VIEW-AS TEXT
+          SIZE 16 BY .76 AT ROW 26 COL 148 WIDGET-ID 186
+     "Install" VIEW-AS TEXT
+          SIZE 16 BY .76 AT ROW 23.14 COL 141 WIDGET-ID 178
+     "Admin" VIEW-AS TEXT
+          SIZE 16 BY .76 AT ROW 25.29 COL 148 WIDGET-ID 198
      RECT-1 AT ROW 1.71 COL 109 WIDGET-ID 354
      RECT-2 AT ROW 1.71 COL 5 WIDGET-ID 358
      RECT-3 AT ROW 10.29 COL 5 WIDGET-ID 362
@@ -1131,7 +1133,7 @@ OR ENDKEY OF {&WINDOW-NAME} ANYWHERE DO:
   /* This case occurs when the user presses the "Esc" key.
      In a persistently run window, just ignore this.  If we did not, the
      application would exit. */
-    IF USERID(LDBNAME(1)) EQ "" THEN QUIT.
+    IF USERID(LDBNAME(1)) EQ "" THEN RETURN.
   IF THIS-PROCEDURE:PERSISTENT THEN RETURN NO-APPLY.
 END.
 
@@ -1144,7 +1146,6 @@ ON WINDOW-CLOSE OF C-Win /* ASI Install/Update Processor */
 DO:
   /* This event will close the window and terminate the procedure.  */
   APPLY "CLOSE":U TO THIS-PROCEDURE.
-    QUIT.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1167,6 +1168,7 @@ END.
 ON CHOOSE OF bProcess IN FRAME DEFAULT-FRAME /* Start  Update */
 DO:
     RUN ipProcessAll.
+    APPLY "CLOSE":U TO THIS-PROCEDURE.
     RETURN NO-APPLY.
 END.
 
@@ -1233,7 +1235,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE
     RUN ipSetDispVars.
 
     RUN ipValidateDB (OUTPUT lValidDB).
-    IF NOT lValidDB THEN QUIT.
+    IF NOT lValidDB THEN RETURN.
 
     IF ipiLevel GT 10 THEN ASSIGN
         fiLicensedUsers:SENSITIVE = TRUE
@@ -1262,7 +1264,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE
     APPLY 'value-changed' TO slEnvironments.
     
     ASSIGN
-        tbBackupDBs:CHECKED = TRUE
+        tbBackupDBs:CHECKED = iplNeedBackup
         tbUserControl:CHECKED = TRUE
         tbUserCleanup:CHECKED = TRUE
         tbDelBadData:CHECKED = TRUE
@@ -1294,7 +1296,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE
         WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
     
-IF KEYFUNCTION(LASTKEY) = "END-ERROR" THEN QUIT.
+IF KEYFUNCTION(LASTKEY) = "END-ERROR" THEN RETURN.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1684,7 +1686,8 @@ PROCEDURE ipBackupDBs :
                        cDbBackup + "\" + cLocName + 
                        STRING(YEAR(TODAY)) +
                        STRING(MONTH(TODAY),"99") +
-                       STRING(DAY(TODAY),"99") + ".bak".
+                       STRING(DAY(TODAY),"99") + 
+                       STRING(TIME) + ".bak".
         ELSE ASSIGN
             cCmdLine = fiDlcDir:{&SV} + "\bin\probkup online " + 
                        fiDBDrive:{&SV} + "\" + 
@@ -1694,7 +1697,8 @@ PROCEDURE ipBackupDBs :
                        cDbBackup + "\" + cLocName + 
                        STRING(YEAR(TODAY)) +
                        STRING(MONTH(TODAY),"99") +
-                       STRING(DAY(TODAY),"99") + ".bak".
+                       STRING(DAY(TODAY),"99") + 
+                       STRING(TIME) + ".bak".
     
         RUN ipStatus ("  Backing Up " + ENTRY(iCtr,slDatabases:{&SV})).
         OS-COMMAND SILENT VALUE(cCmdLine).
@@ -4174,6 +4178,7 @@ PROCEDURE ipRefTableConv :
     DISABLE TRIGGERS FOR LOAD OF reftable1.
     DISABLE TRIGGERS FOR LOAD OF oe-rel.
     
+    /*
     IF ipiLevel LT 10 THEN DO:
         MESSAGE
             "WARNING - RefTable Conversion Time:" SKIP(1)
@@ -4191,7 +4196,8 @@ PROCEDURE ipRefTableConv :
             RETURN.
         END.
     END.
-
+    */
+    
     RUN ipStatus ("Converting Reftable records...").
 
     DO iCtr = 1 TO NUM-ENTRIES(slEnvironments:{&SV}):
@@ -4480,6 +4486,8 @@ PROCEDURE ipSetDispVars :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+    DEF VAR cCheck AS CHAR NO-UNDO.
+    
     DO:
         ASSIGN
             slEnvironments:LIST-ITEMS IN FRAME {&FRAME-NAME}= ""
@@ -4592,8 +4600,19 @@ PROCEDURE ipSetDispVars :
 
     ASSIGN
         slDatabases:{&SV} = ENTRY(1,slDatabases:LIST-ITEMS)
-        slEnvironments:{&SV} = ENTRY(1,slEnvironments:LIST-ITEMS)
+        slEnvironments:{&SV} = ?
         fiPatchDir:{&SV} = "PATCH" + fiNewVer:{&SV}.
+
+    IF INDEX(slDatabases:{&SV},"Test") NE 0 THEN ASSIGN
+        cCheck = "Test".
+    ELSE IF INDEX(slDatabases:{&SV},"Prod") NE 0 THEN ASSIGN
+        cCheck = "Prod".
+    
+    DO iCtr = 1 to NUM-ENTRIES(slEnvironments:LIST-ITEMS):
+        IF INDEX(ENTRY(iCtr,slEnvironments:LIST-ITEMS),cCheck) NE 0 THEN ASSIGN
+            slEnvironments:{&SV} = ENTRY(iCtr,slEnvironments:LIST-ITEMS).
+    END.
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -4613,7 +4632,7 @@ PROCEDURE ipStatus :
 
     IF INDEX(ipcStatus,"duplicate") EQ 0 THEN DO:
         ASSIGN
-            cLogFile = cUpdatesDir + "\" + "Patch" + fiNewVer:{&SV} + "\installLog.txt"
+            cLogFile = cEnvAdmin + "\UpdateLog.txt"
             iMsgCtr = iMsgCtr + 1
             cMsgStr[iMsgCtr] = ipcStatus + "...".
         

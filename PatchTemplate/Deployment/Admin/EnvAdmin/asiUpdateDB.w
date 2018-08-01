@@ -849,7 +849,8 @@ PROCEDURE ipBackupDBs :
                        cDbBackup + "\" + cLocName + 
                        STRING(YEAR(TODAY)) +
                        STRING(MONTH(TODAY),"99") +
-                       STRING(DAY(TODAY),"99") + ".bak".
+                       STRING(DAY(TODAY),"99") + 
+                       STRING(TIME) + ".bak".
         ELSE ASSIGN
             cCmdLine = fiDlcDir:{&SV} + "\bin\probkup online " + 
                        fiDBDrive:{&SV} + "\" + 
@@ -859,7 +860,8 @@ PROCEDURE ipBackupDBs :
                        cDbBackup + "\" + cLocName + 
                        STRING(YEAR(TODAY)) +
                        STRING(MONTH(TODAY),"99") +
-                       STRING(DAY(TODAY),"99") + ".bak".
+                       STRING(DAY(TODAY),"99") + 
+                       STRING(TIME) + ".bak".
     
         OS-COMMAND SILENT VALUE(cCmdLine).
         
@@ -1537,7 +1539,7 @@ PROCEDURE ipStatus :
     IF cUpdatesDir <> "Updates" THEN DO:
         IF INDEX(ipcStatus,"duplicate") EQ 0 THEN DO:
             ASSIGN
-                cLogFile = cUpdatesDir + "\" + "Patch" + fiNewVer:{&SV} + "\installLog.txt"
+                cLogFile = cEnvAdmin + "\UpdateLog.txt"
                 iMsgCtr = iMsgCtr + 1
                 cMsgStr[iMsgCtr] = ipcStatus + "...".
             OUTPUT STREAM logStream TO VALUE(cLogFile) APPEND.
