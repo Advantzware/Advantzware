@@ -287,10 +287,10 @@ ON HELP OF fcFileName IN FRAME FRAME-A /* Import File: */
         
         cDefault = fGetDefaultImportFolder(ipcCompany).
         SYSTEM-DIALOG GET-FILE cFileName 
-            TITLE "Select Image File to insert"
-            FILTERS "Excel Comma delimited Files  (*.csv)" "*.csv",
-            "Excel Files (*.xls,*.xlsx)" "*.xls,*.xlsx",
-            "All Files    (*.*) " "*.*"
+            TITLE "Select File for Import"
+            FILTERS 
+            "Excel Files (*.xls,*.xlsx,*.csv)" "*.xls,*.xlsx,*.csv",
+            "All Files (*.*) " "*.*"
             INITIAL-DIR  cDefault
             MUST-EXIST
             USE-FILENAME
