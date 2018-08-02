@@ -25,26 +25,23 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
-DEF VAR list-name AS CAHR NO-UNDO.
+DEF VAR list-name AS CHAR NO-UNDO.
 DEF VAR init-dir AS CHARACTER NO-UNDO.
 DEF VAR ou-log LIKE sys-ctrl.log-fld NO-UNDO INITIAL NO.
 DEF VAR ou-cust-int LIKE sys-ctrl.int-fld NO-UNDO.
 
 {methods/defines/hndldefs.i}
 {methods/prgsecur.i}
-
 {custom/gcompany.i}
 {custom/gloc.i}
 {custom/getcmpny.i}
 {custom/getloc.i}
+{sys/inc/var.i new shared}
+{sys/ref/CustList.i NEW}
 
 ASSIGN
     cocode = gcompany
     locode = gloc.
-
-{sys/inc/var.i new shared}
-/*{sys/inc/custlistform.i ""HR1"" }*/
-{sys/ref/CustList.i NEW}
 
 
 DEF TEMP-TABLE tt-report NO-UNDO LIKE report
@@ -129,7 +126,7 @@ FUNCTION GEtFieldValue RETURNS CHARACTER
 
 /* ***********************  Control Definitions  ********************** */
 
-/* Define the widget HANDLE for the window                              */
+/* Define the widget handle for the window                              */
 DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
@@ -165,73 +162,73 @@ DEFINE BUTTON btn_Up
      LABEL "Move Up" 
      SIZE 16 BY 1.
 
-DEF VAR begin_cust AS CHARACTER FORMAT "X(8)":U 
+DEFINE VARIABLE begin_cust AS CHARACTER FORMAT "X(8)":U 
      LABEL "Beginning Cust#" 
      VIEW-AS FILL-IN 
      SIZE 20 BY 1 NO-UNDO.
 
-DEF VAR begin_date AS DATE FORMAT "99/99/9999":U INITIAL 01/01/001 
+DEFINE VARIABLE begin_date AS DATE FORMAT "99/99/9999":U INITIAL 01/01/001 
      LABEL "Start Date" 
      VIEW-AS FILL-IN 
      SIZE 17 BY .95 NO-UNDO.
 
-DEF VAR begin_slsmn AS CHARACTER FORMAT "XXX" 
+DEFINE VARIABLE begin_slsmn AS CHARACTER FORMAT "XXX" 
      LABEL "Beginning Salesrep#" 
      VIEW-AS FILL-IN 
      SIZE 11 BY 1.
 
-DEF VAR end_cust AS CHARACTER FORMAT "X(8)":U INITIAL "zzzzzzzz" 
+DEFINE VARIABLE end_cust AS CHARACTER FORMAT "X(8)":U INITIAL "zzzzzzzz" 
      LABEL "Ending Cust#" 
      VIEW-AS FILL-IN 
      SIZE 20 BY 1 NO-UNDO.
 
-DEF VAR end_date AS DATE FORMAT "99/99/9999":U INITIAL 01/01/001 
+DEFINE VARIABLE end_date AS DATE FORMAT "99/99/9999":U INITIAL 01/01/001 
      LABEL "End Date" 
      VIEW-AS FILL-IN 
      SIZE 17 BY .95 NO-UNDO.
 
-DEF VAR end_slsmn AS CHARACTER FORMAT "XXX" INITIAL "zzz" 
+DEFINE VARIABLE end_slsmn AS CHARACTER FORMAT "XXX" INITIAL "zzz" 
      LABEL "Ending Salesrep#" 
      VIEW-AS FILL-IN 
      SIZE 10 BY 1.
 
-DEF VAR fi_file AS CHARACTER FORMAT "X(30)" INITIAL "c:~\tmp~\r-hisatk.csv" 
+DEFINE VARIABLE fi_file AS CHARACTER FORMAT "X(30)" INITIAL "c:~\tmp~\r-hisatk.csv" 
      LABEL "If Yes, File Name" 
      VIEW-AS FILL-IN 
      SIZE 43 BY 1
      FGCOLOR 9 .
 
-DEF VAR lbl_sort AS CHARACTER FORMAT "X(256)":U INITIAL "Sort By?" 
+DEFINE VARIABLE lbl_sort AS CHARACTER FORMAT "X(256)":U INITIAL "Sort By?" 
      VIEW-AS FILL-IN 
      SIZE 10 BY 1 NO-UNDO.
 
-DEF VAR lines-per-page AS INTEGER FORMAT ">>":U INITIAL 99 
+DEFINE VARIABLE lines-per-page AS INTEGER FORMAT ">>":U INITIAL 99 
      LABEL "Lines Per Page" 
      VIEW-AS FILL-IN 
      SIZE 4 BY 1 NO-UNDO.
 
-DEF VAR lv-font-name AS CHARACTER FORMAT "X(256)":U INITIAL "Courier New Size=7 (17 cpi for 132 column Report)" 
+DEFINE VARIABLE lv-font-name AS CHARACTER FORMAT "X(256)":U INITIAL "Courier New Size=7 (17 cpi for 132 column Report)" 
      VIEW-AS FILL-IN 
      SIZE 62 BY 1 NO-UNDO.
 
-DEF VAR lv-font-no AS CHARACTER FORMAT "X(256)":U INITIAL "11" 
+DEFINE VARIABLE lv-font-no AS CHARACTER FORMAT "X(256)":U INITIAL "11" 
      LABEL "Font" 
      VIEW-AS FILL-IN 
      SIZE 7 BY 1 NO-UNDO.
 
-DEF VAR srt-period AS INTEGER FORMAT "->9" INITIAL 0 
+DEFINE VARIABLE srt-period AS INTEGER FORMAT "->9" INITIAL 0 
      LABEL "Sort By Period" 
      VIEW-AS FILL-IN 
      SIZE 11 BY 1.
 
-DEF VAR lv-ornt AS CHARACTER INITIAL "P" 
+DEFINE VARIABLE lv-ornt AS CHARACTER INITIAL "P" 
      VIEW-AS RADIO-SET HORIZONTAL
      RADIO-BUTTONS 
           "Portrait", "P",
 "Landscape", "L"
      SIZE 30 BY .95 NO-UNDO.
 
-DEF VAR rd-dest AS INTEGER INITIAL 2 
+DEFINE VARIABLE rd-dest AS INTEGER INITIAL 2 
      VIEW-AS RADIO-SET VERTICAL
      RADIO-BUTTONS 
           "To Printer", 1,
@@ -242,7 +239,7 @@ DEF VAR rd-dest AS INTEGER INITIAL 2
 "To Port Directly", 6
      SIZE 19 BY 6.67 NO-UNDO.
 
-DEF VAR rd_print AS CHARACTER INITIAL "Customer" 
+DEFINE VARIABLE rd_print AS CHARACTER INITIAL "Customer" 
      VIEW-AS RADIO-SET HORIZONTAL
      RADIO-BUTTONS 
           "Customer", "Customer",
@@ -257,37 +254,37 @@ DEFINE RECTANGLE RECT-7
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 94 BY 9.76.
 
-DEF VAR sl_avail AS CHARACTER 
+DEFINE VARIABLE sl_avail AS CHARACTER 
      VIEW-AS SELECTION-LIST MULTIPLE SCROLLBAR-VERTICAL 
      SIZE 33 BY 5.19 NO-UNDO.
 
-DEF VAR sl_selected AS CHARACTER 
+DEFINE VARIABLE sl_selected AS CHARACTER 
      VIEW-AS SELECTION-LIST MULTIPLE SCROLLBAR-VERTICAL 
      SIZE 33 BY 5.19 NO-UNDO.
 
-DEF VAR tb_cust-list AS LOGICAL INITIAL no 
+DEFINE VARIABLE tb_cust-list AS LOGICAL INITIAL no 
      LABEL "Use Defined Customer List" 
      VIEW-AS TOGGLE-BOX
      SIZE 41 BY .95 NO-UNDO.
 
-DEF VAR tb_excel AS LOGICAL INITIAL yes 
+DEFINE VARIABLE tb_excel AS LOGICAL INITIAL yes 
      LABEL "Export To Excel?" 
      VIEW-AS TOGGLE-BOX
      SIZE 21 BY .81
      BGCOLOR 3  NO-UNDO.
 
-DEF VAR tb_prt-cust AS LOGICAL INITIAL yes 
+DEFINE VARIABLE tb_prt-cust AS LOGICAL INITIAL yes 
      LABEL "Print Customers w/Zero Balance?" 
      VIEW-AS TOGGLE-BOX
      SIZE 36 BY 1 NO-UNDO.
 
-DEF VAR tb_runExcel AS LOGICAL INITIAL no 
+DEFINE VARIABLE tb_runExcel AS LOGICAL INITIAL no 
      LABEL "Auto Run Excel?" 
      VIEW-AS TOGGLE-BOX
      SIZE 21 BY .81
      BGCOLOR 3  NO-UNDO.
 
-DEF VAR td-show-parm AS LOGICAL INITIAL no 
+DEFINE VARIABLE td-show-parm AS LOGICAL INITIAL no 
      LABEL "Show Parameters?" 
      VIEW-AS TOGGLE-BOX
      SIZE 24 BY .81 NO-UNDO.
@@ -339,16 +336,16 @@ DEFINE FRAME FRAME-A
      btn-cancel AT ROW 26.05 COL 57
      "Selected Columns(In Display Order)" VIEW-AS TEXT
           SIZE 34 BY .62 AT ROW 10.91 COL 59.6 WIDGET-ID 44
-     "(Enter 99 For YTD)" VIEW-AS TEXT
-          SIZE 22 BY 1 AT ROW 3.57 COL 51
-          FGCOLOR 9 
-     "Output Destination" VIEW-AS TEXT
-          SIZE 18 BY .62 AT ROW 17 COL 3
+     "Available Columns" VIEW-AS TEXT
+          SIZE 29 BY .62 AT ROW 10.91 COL 5 WIDGET-ID 38
      "Selection Parameters" VIEW-AS TEXT
           SIZE 21 BY .71 AT ROW 1.24 COL 5
           BGCOLOR 2 
-     "Available Columns" VIEW-AS TEXT
-          SIZE 29 BY .62 AT ROW 10.91 COL 5 WIDGET-ID 38
+     "Output Destination" VIEW-AS TEXT
+          SIZE 18 BY .62 AT ROW 17 COL 3
+     "(Enter 99 For YTD)" VIEW-AS TEXT
+          SIZE 22 BY 1 AT ROW 3.57 COL 51
+          FGCOLOR 9 
      RECT-6 AT ROW 17.43 COL 1
      RECT-7 AT ROW 1 COL 1
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
@@ -521,7 +518,7 @@ DO:
     DEF VAR char-val AS cha NO-UNDO.
 
     RUN WINDOWS/l-cust.w (cocode,{&SELF-NAME}:SCREEN-VALUE, OUTPUT char-val).
-    IF char-val <> "" THEN ASSIGN {&SELF-NAME}:SCREEN-VALUE = ENTRY(1,char-val)
+    IF char-val <> "" THEN ASSIGN {&SELF-NAME}:SCREEN-VALUE = ENTRY(1,char-val).
 
 END.
 
@@ -543,7 +540,14 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_date C-Win
 ON LEAVE OF begin_date IN FRAME FRAME-A /* Start Date */
 DO:
-    ASSIGN {&self-name}.
+    DEF VAR daTest AS DATE.
+    ASSIGN 
+        {&self-name}
+        daTest = DATE(SELF:SCREEN-VALUE)
+        daTest = daTest + 364
+        end_date:SCREEN-VALUE = STRING(MONTH(daTest),"99") + "/" +
+                                STRING(DAY(daTest) - 1,"99") + "/" + 
+                                STRING(YEAR(daTest),"9999").
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -596,7 +600,7 @@ DO:
     STATUS DEFAULT "Processing Complete".
   
     CASE rd-dest:
-        WHEN 1 nk output-to-printer.
+        WHEN 1 THEN RUN output-to-printer.
         WHEN 2 THEN RUN output-to-screen.
         WHEN 3 THEN RUN output-to-file.
         WHEN 4 THEN DO:
@@ -756,7 +760,7 @@ END.
 
 &Scoped-define SELF-NAME fi_file
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_file C-Win
-ON LEAVE OF fi_file IN FRAME FRAME-A /* IF Yes, File Name */
+ON LEAVE OF fi_file IN FRAME FRAME-A /* If Yes, File Name */
 DO:
     ASSIGN {&self-name}.
 END.
@@ -1513,7 +1517,7 @@ PROCEDURE run-report :
         ASSIGN
             cSlist = cSlist + ttRptSelected.FieldList + ",".
 
-        IF LOOKUP(ttRptSelected.TextList, "January,February,March,April,May,June,July,August,September,October,November,December,YTD Amt") <> 0 THEN ASSIGN
+        IF LOOKUP(ttRptSelected.TextList, "Prd 1,Prd 2,Prd 3,Prd 4,Prd 5,Prd 6,Prd 7,Prd 8,Prd 9,Prd 10,Prd 11,Prd 12,YTD Amt") <> 0 THEN ASSIGN
             str-line = str-line + FILL("-",ttRptSelected.FieldLength) + " " .
         ELSE ASSIGN
             str-line = str-line + FILL(" ",ttRptSelected.FieldLength) + " " . 
