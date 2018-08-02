@@ -570,7 +570,7 @@ PROCEDURE GetPriceTotal:
     IF ipdQuantity EQ 0 THEN
         opdPriceTotal = 0.
     CASE ipcPriceUOM:
-        WHEN "LOT" THEN 
+        WHEN "LOT" OR WHEN "L" THEN 
             opdPriceTotal = ipdPrice * IF ipdQuantity LT 0 THEN -1 ELSE 1.
         WHEN "CS" THEN 
             DO:
