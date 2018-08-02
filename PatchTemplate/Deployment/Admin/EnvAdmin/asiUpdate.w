@@ -401,18 +401,18 @@ DEFINE FRAME DEFAULT-FRAME
      fiLogFile AT ROW 26.71 COL 5 COLON-ALIGNED NO-LABEL WIDGET-ID 56
      "selected choice" VIEW-AS TEXT
           SIZE 16 BY .62 AT ROW 10.76 COL 60 WIDGET-ID 64
-     "Current version of" VIEW-AS TEXT
-          SIZE 18 BY .62 AT ROW 10.05 COL 59 WIDGET-ID 62
-     " Step 4 - Choose the Upgrade/Patch to apply" VIEW-AS TEXT
-          SIZE 45 BY .62 AT ROW 13.38 COL 3 WIDGET-ID 40
-     " Step 2 - Download and uncompress the latest ASI upgrade files" VIEW-AS TEXT
-          SIZE 62 BY .62 AT ROW 5.29 COL 3 WIDGET-ID 30
-     " Step 3 - Choose the environment to upgrade" VIEW-AS TEXT
-          SIZE 44 BY .62 AT ROW 9.33 COL 3 WIDGET-ID 24
-     " Step 1 - Enter a valid user id and password" VIEW-AS TEXT
-          SIZE 43 BY .62 AT ROW 1.24 COL 3 WIDGET-ID 22
      "Status:" VIEW-AS TEXT
           SIZE 8 BY .62 AT ROW 20.05 COL 3 WIDGET-ID 54
+     " Step 1 - Enter a valid user id and password" VIEW-AS TEXT
+          SIZE 43 BY .62 AT ROW 1.24 COL 3 WIDGET-ID 22
+     " Step 3 - Choose the environment to upgrade" VIEW-AS TEXT
+          SIZE 44 BY .62 AT ROW 9.33 COL 3 WIDGET-ID 24
+     " Step 2 - Download and uncompress the latest ASI upgrade files" VIEW-AS TEXT
+          SIZE 62 BY .62 AT ROW 5.29 COL 3 WIDGET-ID 30
+     " Step 4 - Choose the Upgrade/Patch to apply" VIEW-AS TEXT
+          SIZE 45 BY .62 AT ROW 13.38 COL 3 WIDGET-ID 40
+     "Current version of" VIEW-AS TEXT
+          SIZE 18 BY .62 AT ROW 10.05 COL 59 WIDGET-ID 62
      RECT-2 AT ROW 1.48 COL 2 WIDGET-ID 44
      RECT-3 AT ROW 5.52 COL 2 WIDGET-ID 46
      RECT-4 AT ROW 9.57 COL 2 WIDGET-ID 48
@@ -676,7 +676,6 @@ DO:
     IF NOT lValidUser THEN DO:
         ASSIGN
             SELF:{&SV} = "".
-        APPLY 'entry' TO SELF.
         RETURN NO-APPLY.
     END.
     ELSE DO:
@@ -1730,7 +1729,16 @@ PROCEDURE ipValidUser :
     INPUT FROM VALUE(cUsrLoc).
     REPEAT:
         IMPORT UNFORMATTED cInpString.
-        IF ENTRY(2,cInpString,"|") NE "*" THEN NEXT.
+        IF ENTRY(2,cInpString,"|") NE "*" THEN DO:
+            RUN ipStatus("  User name NOT validated. Usr file problem.").
+            MESSAGE
+                "Can't validate user with this version" SKIP
+                "of the system. Continuing..."
+                VIEW-AS ALERT-BOX.
+            ASSIGN
+                oplValidUser = TRUE.
+            RETURN.
+        END.
         IF ENTRY(1,cInpString,"|") EQ fiUserID:{&SV} THEN DO:
             RUN ipStatus("  User name validated.").
             ASSIGN
