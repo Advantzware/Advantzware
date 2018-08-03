@@ -981,44 +981,36 @@ DEF VAR i AS INT NO-UNDO.
             tgFri = NO
             tgSat = NO
             .
-    FIND FIRST reftable WHERE reftable.reftable EQ "ShiftDays"
-       AND reftable.CODE EQ shifts.rec_key
-    NO-LOCK NO-ERROR.
-
-    IF AVAIL reftable THEN DO:
 
   ENABLE tgSun tgMon tgTues tgWeds tgThur tgFri tgSat
   WITH FRAME {&FRAME-NAME}.
-      DO i = 1 TO NUM-ENTRIES(reftable.code2):
+      DO i = 1 TO NUM-ENTRIES(shifts.dayList):
         CASE i:
           WHEN 1 THEN
-            ASSIGN tgSun:SCREEN-VALUE = ENTRY(i, reftable.code2)
-                   tgSun = LOGICAL(ENTRY(i, reftable.code2)).
+            ASSIGN tgSun:SCREEN-VALUE = ENTRY(i, shifts.dayList)
+                   tgSun = LOGICAL(ENTRY(i, shifts.dayList)).
           WHEN 2 THEN
-            ASSIGN tgMon:SCREEN-VALUE = ENTRY(i, reftable.code2)
-                   tgMon = LOGICAL(ENTRY(i, reftable.code2)).
+            ASSIGN tgMon:SCREEN-VALUE = ENTRY(i, shifts.dayList)
+                   tgMon = LOGICAL(ENTRY(i, shifts.dayList)).
           WHEN 3 THEN
-            ASSIGN tgTues:SCREEN-VALUE = ENTRY(i, reftable.code2)
-                   tgTues = LOGICAL(ENTRY(i, reftable.code2)).
+            ASSIGN tgTues:SCREEN-VALUE = ENTRY(i, shifts.dayList)
+                   tgTues = LOGICAL(ENTRY(i, shifts.dayList)).
           WHEN 4 THEN
-            ASSIGN tgWeds:SCREEN-VALUE = ENTRY(i, reftable.code2)
-                   tgWeds = LOGICAL(ENTRY(i, reftable.code2)).
+            ASSIGN tgWeds:SCREEN-VALUE = ENTRY(i, shifts.dayList)
+                   tgWeds = LOGICAL(ENTRY(i, shifts.dayList)).
           WHEN 5 THEN
-            ASSIGN tgThur:SCREEN-VALUE = ENTRY(i, reftable.code2)
-                   tgThur = LOGICAL(ENTRY(i, reftable.code2)).
+            ASSIGN tgThur:SCREEN-VALUE = ENTRY(i, shifts.dayList)
+                   tgThur = LOGICAL(ENTRY(i, shifts.dayList)).
           WHEN 6 THEN
-            ASSIGN tgFri:SCREEN-VALUE = ENTRY(i, reftable.code2)
-                   tgFri = LOGICAL(ENTRY(i, reftable.code2)).
+            ASSIGN tgFri:SCREEN-VALUE = ENTRY(i, shifts.dayList)
+                   tgFri = LOGICAL(ENTRY(i, shifts.dayList)).
           WHEN 7 THEN
-            ASSIGN tgSat:SCREEN-VALUE = ENTRY(i, reftable.code2)
-                   tgSat = LOGICAL(ENTRY(i, reftable.code2)).
+            ASSIGN tgSat:SCREEN-VALUE = ENTRY(i, shifts.dayList)
+                   tgSat = LOGICAL(ENTRY(i, shifts.dayList)).
         END CASE.
       END.
 
-      rsAllOrSpecificDays = IF reftable.loc EQ "1" THEN "Specific" ELSE "All".
-    END. /* avail reftable */
-    ELSE 
-      rsAllOrSpecificDays = "All".
+      rsAllOrSpecificDays = IF shifts.useSpecificDays EQ TRUE THEN "Specific" ELSE "All".
   disABLE tgSun tgMon tgTues tgWeds tgThur tgFri tgSat
   WITH FRAME {&FRAME-NAME}.
     IF rsAllOrSpecificDays:SCREEN-VALUE EQ "ALL" THEN
