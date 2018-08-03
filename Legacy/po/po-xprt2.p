@@ -519,7 +519,7 @@ v-printline = 0.
                                   lv-reg-no = " Test: " + ITEM.reg-no.
        ELSE assign lv-flute = ""
                    lv-reg-no = "".
-        ASSIGN cFlueTest = string(lv-flute,"x(11)") + string(lv-reg-no,"x(10)").
+        ASSIGN cFlueTest = string(lv-flute,"x(11)") + string(lv-reg-no,"x(12)").
        IF lv-flute EQ "" AND lv-reg-no EQ "" THEN
               ASSIGN cFlueTest = IF dCoreDia GT 0 THEN " Core Dia: " + string(dCoreDia,">,>>9.99<<") ELSE ""
                      dCoreDia = 0.
