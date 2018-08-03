@@ -404,15 +404,15 @@ DO:
             FIND FIRST itemfg WHERE
                  itemfg.company EQ eb.company AND
                  itemfg.i-no    EQ eb.stock-no
-                 NO-ERROR.
+                 EXCLUSIVE-LOCK  NO-ERROR.
 
-         IF AVAIL itemfg THEN
-         DO:
+         IF AVAIL itemfg AND eb.stock-no NE "" THEN
+         DO: 
             ASSIGN
                itemfg.alloc = rd_alloc
                itemfg.procat = eb.procat.
 
-            FIND CURRENT itemfg NO-LOCK NO-ERROR.
+           FIND CURRENT itemfg NO-LOCK NO-ERROR.
          END.
          FIND CURRENT eb NO-LOCK.
 
