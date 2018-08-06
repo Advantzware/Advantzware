@@ -888,9 +888,11 @@ IF ip-sort-by = "JOB" THEN
            BREAK BY job.job-no BY job.job-no2:
          
         IF FIRST-OF(job.job-no2) THEN DO:
-           FOR each job-mch of job  NO-LOCK where (job-mch.m-code eq machine_code OR 
-                                                   LOOKUP(job-mch.m-code,machine_list) > 0)
-                  BREAK BY job-mch.frm BY job-mch.blank-no:
+           FOR EACH job-mch OF job NO-LOCK
+               WHERE (job-mch.m-code EQ machine_code
+                  OR LOOKUP(job-mch.m-code,machine_list) GT 0)
+                 AND job-mch.run-complete EQ NO
+               BREAK BY job-mch.frm BY job-mch.blank-no:
 
               IF FIRST-OF(job-mch.blank-no) THEN DO:
                  lv-form-completed = YES.
@@ -938,8 +940,10 @@ IF ip-sort-by = "JOB" THEN
            BREAK BY job.start-date BY job.job-no BY job.job-no2:
          
         IF FIRST-OF(job.job-no2) THEN DO:
-           FOR each job-mch of job  where job-mch.m-code eq machine_code NO-LOCK
-                  BREAK BY job-mch.frm BY job-mch.blank-no:
+           FOR EACH job-mch OF job NO-LOCK
+               WHERE job-mch.m-code EQ machine_code
+                 AND job-mch.run-complete EQ NO
+               BREAK BY job-mch.frm BY job-mch.blank-no:
               IF FIRST-OF(job-mch.blank-no) THEN DO:
                  lv-form-completed = YES.
                  FOR EACH bf-jobmch OF job NO-LOCK where (bf-jobmch.m-code eq machine_code OR 
