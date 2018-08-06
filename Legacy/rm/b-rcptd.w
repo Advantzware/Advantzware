@@ -2639,7 +2639,7 @@ PROCEDURE get-matrix :
                 END.   
    
                 IF lv-out-cost LT 0 THEN
-                    ASSIGN lv-out-cost = -1 *  lv-out-cost .
+                    ASSIGN lv-out-cost = ABSOLUTE(-1 *  lv-out-cost) .
                 ASSIGN
                     rm-rctd.cost:SCREEN-VALUE     = STRING(lv-out-cost)
                     rm-rctd.cost-uom:SCREEN-VALUE = lv-cost-uom
@@ -3254,7 +3254,7 @@ PROCEDURE po-cost :
             INPUT-OUTPUT lv-cost).
 
         RUN convert-vend-comp-curr(INPUT-OUTPUT lv-cost).
-        IF lv-cost LT 0 THEN lv-cost = -1 * lv-cost .
+        IF lv-cost LT 0 THEN lv-cost = ABSOLUTE(-1 * lv-cost) .
         rm-rctd.cost:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(lv-cost).
     END.
 
