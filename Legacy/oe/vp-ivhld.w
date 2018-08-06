@@ -295,14 +295,7 @@ PROCEDURE local-initialize :
                 the TABLEIO-TARGETS since they are defaulted to disabled.
   Notes       :
   ------------------------------------------------------------------------*/
-
-  DEFINE VARIABLE query-position AS CHARACTER NO-UNDO.
  
-  IF access-close THEN  do:  /* YSK  not leave window on after closed */
-     APPLY 'CLOSE' TO THIS-PROCEDURE.
-     RETURN.
-  END.
-
   RUN dispatch IN THIS-PROCEDURE ( INPUT "adm-initialize":U ) .
 
   DO WITH FRAME {&FRAME-NAME}:
