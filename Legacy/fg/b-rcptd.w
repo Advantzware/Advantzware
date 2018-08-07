@@ -2329,8 +2329,8 @@ IF AVAIL fg-rctd AND fg-rctd.i-no:SCREEN-VALUE <> "" THEN DO: /* in update mode 
       OUTPUT lvCalcFrtCost,
       OUTPUT lvSetupPerCostUom).
       
-    IF lvCalcStdCost LT 0 THEN ASSIGN lvCalcStdCost = ABSOLUTE(-1 * lvCalcStdCost).
-    IF lvCalcExtCost  LT 0 THEN ASSIGN lvCalcExtCost = ABSOLUTE(-1 * lvCalcExtCost).
+    ASSIGN lvCalcStdCost = ABSOLUTE(lvCalcStdCost)
+           lvCalcExtCost = ABSOLUTE(lvCalcExtCost).
     ASSIGN
       lvlTotalCostCalculated = TRUE
       fg-rctd.cost-uom:screen-value IN BROWSE {&browse-name} = lvCalcCostUom
@@ -2497,7 +2497,7 @@ IF LOOKUP(lv-cost-uom,fg-uom-list) EQ 0 THEN
  IF lv-out-cost LT 0 THEN ASSIGN lv-out-cost = ABSOLUTE(-1 * lv-out-cost).
  IF lv-ext-cost LT 0 THEN ASSIGN lv-ext-cost = ABSOLUTE(-1 * lv-ext-cost).
 ASSIGN
- lv-ext-cost = lv-out-qty * lv-out-cost
+ lv-ext-cost = absolute(lv-out-qty * lv-out-cost)
  fg-rctd.cost-uom:SCREEN-VALUE IN BROWSE {&browse-name} = lv-cost-uom
  fg-rctd.std-cost:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(lv-out-cost)
  fg-rctd.ext-cost:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(lv-ext-cost +
@@ -2582,8 +2582,8 @@ IF AVAIL fg-rctd AND fg-rctd.i-no:SCREEN-VALUE <> "" THEN DO: /* in update mode 
       OUTPUT lvCalcFrtCost,
       OUTPUT lvSetupPerCostUom).
     
-    IF lvCalcStdCost LT 0 THEN ASSIGN lvCalcStdCost = ABSOLUTE( -1 * lvCalcStdCost).
-    IF lvCalcExtCost LT 0 THEN ASSIGN lvCalcExtCost = ABSOLUTE(-1 * lvCalcExtCost).
+    ASSIGN lvCalcStdCost = ABSOLUTE( lvCalcStdCost)
+           lvCalcExtCost = ABSOLUTE( lvCalcExtCost).
     ASSIGN
       fg-rctd.cost-uom:screen-value IN BROWSE {&browse-name} = lvCalcCostUom
       fg-rctd.std-cost:screen-value IN BROWSE {&browse-name} = STRING(lvCalcStdCost)
@@ -2650,8 +2650,8 @@ ASSIGN
  fg-rctd.cost-uom:SCREEN-VALUE IN BROWSE {&browse-name} = lv-cost-uom
  fg-rctd.std-cost:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(lv-out-cost)
  fg-rctd.ext-cost:SCREEN-VALUE IN BROWSE {&browse-name} =
-       STRING(((IF lv-out-qty LE -1 THEN (-1 * lv-out-qty) else lv-out-qty) * lv-out-cost) +
-           dec(fg-rctd.frt-cost:screen-value IN BROWSE {&browse-name})).
+       STRING(ABSOLUTE((lv-out-qty * lv-out-cost) +
+           dec(fg-rctd.frt-cost:screen-value IN BROWSE {&browse-name}))).
 
 
 END.
@@ -2892,7 +2892,7 @@ FOR EACH b-fg-rctd WHERE b-fg-rctd.company EQ g_company
       b1-fg-rctd.std-cost = lv-recalc-cost.
       ASSIGN
       lv-ext-cost = b1-fg-rctd.t-qty * b1-fg-rctd.std-cost
-      b1-fg-rctd.ext-cost = lv-ext-cost + b1-fg-rctd.frt-cost.
+      b1-fg-rctd.ext-cost = absolute(lv-ext-cost + b1-fg-rctd.frt-cost).
     END.
     
   END.
@@ -3003,7 +3003,7 @@ PROCEDURE get-set-full-qty :
             b1-fg-rctd.std-cost = lv-recalc-cost.
             ASSIGN
              lv-ext-cost = b1-fg-rctd.t-qty * b1-fg-rctd.std-cost                          
-             b1-fg-rctd.ext-cost = lv-ext-cost + b1-fg-rctd.frt-cost.
+             b1-fg-rctd.ext-cost = ABSOLUTE(lv-ext-cost + b1-fg-rctd.frt-cost).
           END.
 
       END.
@@ -3259,8 +3259,8 @@ PROCEDURE local-assign-record :
    fg-rctd.t-qty    = DEC(ls-tmp-qty)
    fg-rctd.pur-uom  = ls-tmp-uom
    fg-rctd.cost-uom = ls-tmp-uom
-   fg-rctd.ext-cost = fg-rctd.std-cost * fg-rctd.t-qty /
-                      (IF fg-rctd.cost-uom EQ "M" THEN 1000 ELSE 1).
+   fg-rctd.ext-cost = absolute(fg-rctd.std-cost * fg-rctd.t-qty /
+                      (IF fg-rctd.cost-uom EQ "M" THEN 1000 ELSE 1)). MESSAGE "fg-rctd.ext-cost" STRING(fg-rctd.ext-cost) VIEW-AS ALERT-BOX ERROR .
   IF fg-rctd.po-no GT "" THEN DO:
       FIND FIRST po-ord WHERE po-ord.company EQ fg-rctd.company
           AND po-ord.po-no EQ INTEGER(fg-rctd.po-no)
@@ -4361,7 +4361,7 @@ PROCEDURE show-freight :
     ASSIGN
      ld = DEC(fg-rctd.frt-cost:SCREEN-VALUE IN BROWSE {&browse-name})
      fg-rctd.ext-cost:SCREEN-VALUE IN BROWSE {&browse-name} =
-         STRING(DEC(fg-rctd.ext-cost:SCREEN-VALUE IN BROWSE {&browse-name}) - ld).
+         STRING(DEC(fg-rctd.ext-cost:SCREEN-VALUE IN BROWSE {&browse-name}) - ld) .
 
     RUN get-freight-cost (OUTPUT ld).
 
