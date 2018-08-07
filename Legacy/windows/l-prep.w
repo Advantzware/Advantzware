@@ -83,7 +83,7 @@ ASSIGN
 &Scoped-define KEY-PHRASE TRUE
 
 /* Definitions for BROWSE BROWSE-1                                      */
-&Scoped-define FIELDS-IN-QUERY-BROWSE-1 prep.code prep.dscr prep.cost prep.mkup prep.spare-dec-1
+&Scoped-define FIELDS-IN-QUERY-BROWSE-1 prep.code prep.dscr prep.cost prep.mkup prep.spare-dec-1 prep.loc
 &Scoped-define ENABLED-FIELDS-IN-QUERY-BROWSE-1 
 &Scoped-define QUERY-STRING-BROWSE-1 FOR EACH prep WHERE ~{&KEY-PHRASE} ~
       AND prep.company = ip-company NO-LOCK ~
@@ -160,6 +160,7 @@ DEFINE BROWSE BROWSE-1
       prep.cost FORMAT "->>,>>9.99":U
       prep.mkup FORMAT "->>9.99":U
       prep.spare-dec-1 COLUMN-LABEL "Price" FORMAT "->>>,>>>9.99<<":U
+      prep.loc FORMAT "x(6)":U
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ROW-MARKERS SEPARATORS SIZE 112 BY 11.19
@@ -224,6 +225,7 @@ ASSIGN
      _FldNameList[4]   = ASI.prep.mkup
      _FldNameList[5]   > ASI.prep.spare-dec-1
 "prep.spare-dec-1" "Price" "->>>,>>>9.99<<" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" ""
+     _FldNameList[6]   > ASI.prep.loc
      _Query            is OPENED
 */  /* BROWSE BROWSE-1 */
 &ANALYZE-RESUME

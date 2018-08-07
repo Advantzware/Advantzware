@@ -325,6 +325,21 @@ END.
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table B-table-Win
+ON DEFAULT-ACTION OF br_table IN FRAME F-Main
+    DO:
+        DEFINE VARIABLE phandle  AS WIDGET-HANDLE NO-UNDO.
+        DEFINE VARIABLE char-hdl AS cha           NO-UNDO.   
+
+        RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"buttons-target",OUTPUT char-hdl).
+        IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) 
+            THEN RUN browser-dbclicked IN WIDGET-HANDLE(char-hdl).
+    END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table B-table-Win
 ON ROW-ENTRY OF br_table IN FRAME F-Main /* Preparation */
 DO:
   /* This code displays initial values for newly added or copied rows. */

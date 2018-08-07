@@ -732,7 +732,8 @@ PROCEDURE adm-create-objects :
        RUN set-size IN h_b-estqty ( 3.57 , 28.00 ) NO-ERROR.
 
        RUN init-object IN THIS-PROCEDURE (
-             INPUT  'panels/p-estprp.w':U ,
+             /*INPUT  'panels/p-estprp.w':U ,*/
+             INPUT  'est/vp-estprp.w':U ,
              INPUT  FRAME est:HANDLE ,
              INPUT  'Edge-Pixels = 2,
                      SmartPanelType = Update,
@@ -742,7 +743,8 @@ PROCEDURE adm-create-objects :
        RUN set-size IN h_p-estprp ( 6.19 , 16.00 ) NO-ERROR.
 
        RUN init-object IN THIS-PROCEDURE (
-             INPUT  'p-estop.w':U ,
+             /*INPUT  'p-estop.w':U ,*/
+             INPUT  'est/vp-estop.w':U ,
              INPUT  FRAME est:HANDLE ,
              INPUT  'Edge-Pixels = 2,
                      SmartPanelType = Update,
@@ -758,13 +760,19 @@ PROCEDURE adm-create-objects :
        RUN add-link IN adm-broker-hdl ( h_b-estitm , 'route':U , h_b-estop ).
        RUN add-link IN adm-broker-hdl ( h_b-estqty , 'Record':U , h_b-estop ).
        RUN add-link IN adm-broker-hdl ( h_p-estop , 'TableIO':U , h_b-estop ).
-
+       
+       RUN add-link IN adm-broker-hdl ( h_b-estop , 'buttons':U , h_p-estop ).
+       RUN add-link IN adm-broker-hdl ( h_b-estop , 'Record':U , h_p-estop ).
+       
        /* Links to SmartViewer h_vi-est-4. */
        RUN add-link IN adm-broker-hdl ( h_b-estq , 'Record':U , h_vi-est-4 ).
 
        /* Links to SmartBrowser h_b-estprp. */
        RUN add-link IN adm-broker-hdl ( h_b-estitm , 'Record':U , h_b-estprp ).
        RUN add-link IN adm-broker-hdl ( h_p-estprp , 'TableIO':U , h_b-estprp ).
+       RUN add-link IN adm-broker-hdl ( h_b-estprp , 'buttons':U , h_p-estprp ).
+       RUN add-link IN adm-broker-hdl ( h_b-estprp  , 'Record':U , h_p-estprp ).
+
 
        /* Links to SmartBrowser h_b-estqty. */
        RUN add-link IN adm-broker-hdl ( h_b-estitm , 'Record':U , h_b-estqty ).
