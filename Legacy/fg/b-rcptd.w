@@ -2291,8 +2291,8 @@ IF AVAIL fg-rctd AND fg-rctd.i-no:SCREEN-VALUE <> "" THEN DO: /* in update mode 
       OUTPUT lvCalcFrtCost,
       OUTPUT lvSetupPerCostUom).
       
-    IF lvCalcStdCost LT 0 THEN ASSIGN lvCalcStdCost = ABSOLUTE(-1 * lvCalcStdCost).
-    IF lvCalcExtCost  LT 0 THEN ASSIGN lvCalcExtCost = ABSOLUTE(-1 * lvCalcExtCost).
+    ASSIGN lvCalcStdCost = ABSOLUTE( lvCalcStdCost)
+           lvCalcExtCost = ABSOLUTE( lvCalcExtCost).
     ASSIGN
       lvlTotalCostCalculated = TRUE
       fg-rctd.cost-uom:screen-value IN BROWSE {&browse-name} = lvCalcCostUom
@@ -2456,10 +2456,10 @@ IF LOOKUP(lv-cost-uom,fg-uom-list) EQ 0 THEN
    
  END.
 
- IF lv-out-cost LT 0 THEN ASSIGN lv-out-cost = ABSOLUTE(-1 * lv-out-cost).
- IF lv-ext-cost LT 0 THEN ASSIGN lv-ext-cost = ABSOLUTE(-1 * lv-ext-cost).
+ ASSIGN lv-out-cost = ABSOLUTE( lv-out-cost)
+        lv-ext-cost = ABSOLUTE( lv-ext-cost).
 ASSIGN
- lv-ext-cost = lv-out-qty * lv-out-cost
+ lv-ext-cost = ABSOLUTE(lv-out-qty * lv-out-cost)
  fg-rctd.cost-uom:SCREEN-VALUE IN BROWSE {&browse-name} = lv-cost-uom
  fg-rctd.std-cost:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(lv-out-cost)
  fg-rctd.ext-cost:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(lv-ext-cost +
@@ -2544,8 +2544,8 @@ IF AVAIL fg-rctd AND fg-rctd.i-no:SCREEN-VALUE <> "" THEN DO: /* in update mode 
       OUTPUT lvCalcFrtCost,
       OUTPUT lvSetupPerCostUom).
     
-    IF lvCalcStdCost LT 0 THEN ASSIGN lvCalcStdCost = ABSOLUTE( -1 * lvCalcStdCost).
-    IF lvCalcExtCost LT 0 THEN ASSIGN lvCalcExtCost = ABSOLUTE(-1 * lvCalcExtCost).
+    ASSIGN lvCalcStdCost = ABSOLUTE( lvCalcStdCost)
+           lvCalcExtCost = ABSOLUTE( lvCalcExtCost).
     ASSIGN
       fg-rctd.cost-uom:screen-value IN BROWSE {&browse-name} = lvCalcCostUom
       fg-rctd.std-cost:screen-value IN BROWSE {&browse-name} = STRING(lvCalcStdCost)
@@ -2612,8 +2612,8 @@ ASSIGN
  fg-rctd.cost-uom:SCREEN-VALUE IN BROWSE {&browse-name} = lv-cost-uom
  fg-rctd.std-cost:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(lv-out-cost)
  fg-rctd.ext-cost:SCREEN-VALUE IN BROWSE {&browse-name} =
-       STRING(((IF lv-out-qty LE -1 THEN (-1 * lv-out-qty) else lv-out-qty) * lv-out-cost) +
-           dec(fg-rctd.frt-cost:screen-value IN BROWSE {&browse-name})).
+       STRING(ABSOLUTE((lv-out-qty * lv-out-cost) +
+           dec(fg-rctd.frt-cost:screen-value IN BROWSE {&browse-name}))).
 
 
 END.
