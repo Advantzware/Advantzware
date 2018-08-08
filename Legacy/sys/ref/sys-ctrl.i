@@ -242,7 +242,6 @@ ASSIGN str-init[125] = "Ship Only,Invoice Only,Bill and Ship,Transfer Only"
        str-init[157] = ",Block Entry"
        str-init[158] = "Order Quantity,Release Quantity"
        str-init[159] = "Transit Days,Dock Appt Days,Transit&Dock"
-       
        .
 	
 IF PROGRAM-NAME(1) MATCHES "*windows/l-syschr.w*" THEN DO:

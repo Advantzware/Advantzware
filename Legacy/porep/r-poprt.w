@@ -686,8 +686,6 @@ DO:
 
                        RUN GenerateReport(b1-po-ord.vend-no, b1-po-ord.vend-no) .
 
-                       IF NOT LAST-OF(b1-po-ord.vend) THEN
-                           ASSIGN cPoMailList = cPoMailList + "," .
                    END. /* first-of(po-no) */
 
                    IF LAST-OF (b1-po-ord.vend-no) THEN
@@ -1348,17 +1346,17 @@ PROCEDURE GenerateMail :
         AND TRIM(v-outfile) NE "" 
          THEN ASSIGN cPdfFilesAttach = v-outfile + cPdfFilesAttach  /*lv-pdf-file = v-outfile + lv-pdf-file*/.
          
-      IF LOOKUP(v-print-fmt,"PremierX,PremierCX,PremierXFGItems,Centbox,poprint 1,poprint 2,poprint 10,poprint 20,POPrint10-CAN,xprint,xprint2") > 0  THEN DO: 
-          IF v-start-po EQ v-end-po  THEN
-            lcSubject = "Purchase Order: " + STRING(v-start-po).
-          ELSE
-            lcSubject = "Purchase Orders: " + STRING(cPoMailList) /*+ " - " + STRING(v-end-po)*/ .
-      END.
-      ELSE lcSubject = "Purchase Orders".
+      IF begin_po-no EQ end_po-no  THEN
+          lcSubject = "Purchase Order: " + STRING(begin_po-no).
+      ELSE
+          ASSIGN 
+              cPoMailList = TRIM(cPoMailList,",")
+              lcSubject = "Purchase Orders: " + STRING(cPoMailList) 
+              . 
 
       RUN custom/xpmail2.p   (INPUT   "Vendor",
                               INPUT   'R-POPRT.',
-                              INPUT   lv-pdf-file,
+                              INPUT   cPdfFilesAttach,
                               INPUT   begin_vend-no,
                               INPUT   lcSubject,
                               INPUT   "Purchase Orders",
@@ -1374,11 +1372,11 @@ PROCEDURE GenerateMail :
            OR
           lv-attachments)
         AND TRIM(v-outfile) NE "" 
-         THEN ASSIGN lv-pdf-file = v-outfile + lv-pdf-file. 
+         THEN ASSIGN cPdfFilesAttach = v-outfile + cPdfFilesAttach. 
 
       RUN custom/xpmail2.p   (INPUT   "Vendor",
                               INPUT   'R-POPRT.',
-                              INPUT   lv-pdf-file,
+                              INPUT   cPdfFilesAttach,
                               INPUT   begin_vend-no,
                               INPUT   "Purchase Orders",
                               INPUT   "Purchase Orders",
@@ -1641,9 +1639,9 @@ PROCEDURE run-report :
     IF NOT(po-ord.stat EQ "N" OR po-ord.stat EQ "O" OR po-ord.stat EQ "U" OR
        (tb_reprint-closed AND po-ord.stat EQ "C")) THEN
        NEXT.
-    cPoMailList = cPoMailList + string(po-ord.po-no)  .
     CREATE report.
     ASSIGN
+     cPoMailList = cPoMailList + STRING(po-ord.po-no) + ","
      report.term-id = v-term
      report.key-01  = po-ord.vend-no
      report.key-02  = STRING(po-ord.po-no,"9999999999")

@@ -1,6 +1,7 @@
 DEFINE VARIABLE iCommited AS INTEGER.
 DEFINE VARIABLE cLotNum AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cCustLotNum AS CHARACTER NO-UNDO.
+DEFINE VARIABLE iOrderNo AS INTEGER NO-UNDO .
 EMPTY TEMP-TABLE tt-cust.
 
 FOR EACH cust
@@ -110,7 +111,7 @@ FOR EACH tt-cust,
 
                   IF itemfg.sell-uom = "L" THEN
                     v-ext = itemfg.sell-price.
-
+                   bin-block:
                   FOR EACH xbin WHERE xbin.company = cocode AND
                                     xbin.i-no    = itemfg.i-no AND
                                     xbin.loc     = fg-bin.loc
@@ -211,10 +212,20 @@ FOR EACH tt-cust,
 
                      IF AVAIL oe-ordl THEN
                        v-ext-job = (oe-ordl.t-price / oe-ordl.qty) * v-qty-job.
-                   IF AVAIL oe-ordl THEN
-                     FIND FIRST oe-ord NO-LOCK 
-                         WHERE oe-ord.company EQ oe-ordl.company
-                         AND oe-ord.ord-no EQ oe-ordl.ord-no NO-ERROR.
+
+                     IF AVAIL oe-ordl THEN
+                           ASSIGN iOrderNo = oe-ordl.ord-no .
+                       ELSE iOrderNo = 0.
+
+                   FIND FIRST oe-ord NO-LOCK 
+                             WHERE oe-ord.company EQ cocode
+                             AND oe-ord.ord-no EQ iOrderNo
+                             AND oe-ord.csrUser_id GE begin_csr
+                             AND oe-ord.csrUser_id LE end_csr
+                             AND oe-ord.ord-no NE 0
+                             NO-ERROR.
+
+                           IF NOT AVAIL oe-ord THEN NEXT bin-block . 
 
                    IF AVAIL oe-ordl THEN
                      FIND FIRST job NO-LOCK
@@ -277,6 +288,7 @@ FOR EACH tt-cust,
                           WHEN "cust-lot"   THEN cVarValue = cCustLotNum .
                           WHEN "due-date"    THEN cVarValue = IF AVAIL oe-ord AND oe-ord.due-date NE ? THEN STRING(oe-ord.due-date,"99/99/9999") ELSE "" . 
                           WHEN "job-due-date"    THEN cVarValue = IF AVAIL job AND job.due-date NE ? THEN STRING(job.due-date,"99/99/9999") ELSE "" .                                       
+                          WHEN "csr"    THEN cVarValue = IF AVAIL oe-ord AND oe-ord.csrUser_id NE "" THEN STRING(oe-ord.csrUser_id,"x(8)") ELSE "" .                                       
 
                      END CASE.
                        
@@ -350,7 +362,8 @@ FOR EACH tt-cust,
                           WHEN "FG-lot"   THEN cVarValue = "" . 
                           WHEN "cust-lot"   THEN cVarValue = "" .
                           WHEN "due-date"    THEN cVarValue = "" .
-                          WHEN "job-due-date"    THEN cVarValue = "" .                                       
+                          WHEN "job-due-date"    THEN cVarValue = "" .
+                          WHEN "csr"    THEN cVarValue =  "" .
                      END CASE.
                        
                      cExcelVarValue = cVarValue.
@@ -391,7 +404,8 @@ FOR EACH tt-cust,
                           WHEN "FG-lot"   THEN cVarValue = "" . 
                           WHEN "cust-lot"   THEN cVarValue = "" . 
                           WHEN "due-date" THEN cVarValue = "" .
-                          WHEN "job-due-date"    THEN cVarValue = "" .    
+                          WHEN "job-due-date"    THEN cVarValue = "" . 
+                          WHEN "csr"    THEN cVarValue =  "" .
                      END CASE.
                        
                      cExcelVarValue = cVarValue.
