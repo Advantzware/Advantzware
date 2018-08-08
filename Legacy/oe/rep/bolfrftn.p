@@ -366,7 +366,7 @@ FOR EACH xxreport WHERE xxreport.term-id EQ v-term-id,
       BUFFER-COPY oe-boll EXCEPT rec_key TO tt-boll
          /* ASSIGN tt-boll.rec_id = STRING(RECID(oe-boll))*/.
     END.
-  ASSIGN v-tot-cases = v-tot-cases + oe-boll.cases.
+    ASSIGN v-tot-cases = v-tot-cases + oe-boll.cases + (if oe-boll.partial GT 0 THEN 1 else 0).
     oe-boll.printed = YES.
   END.
 
