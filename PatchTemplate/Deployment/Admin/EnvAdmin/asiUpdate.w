@@ -100,6 +100,7 @@ DEF VAR lSuccess AS LOG NO-UNDO.
 DEF VAR lSysError AS LOG NO-UNDO.
 DEF VAR lMakeBackup AS LOG NO-UNDO.
 DEF VAR lValidDB AS LOG NO-UNDO.
+DEF VAR lHeader AS LOG NO-UNDO.
 DEF VAR origPropath AS CHAR NO-UNDO.
 DEF VAR connectStatement AS CHAR NO-UNDO.
 DEF VAR cRunPgm AS CHAR NO-UNDO.
@@ -536,7 +537,8 @@ ON CHOOSE OF bCancel IN FRAME DEFAULT-FRAME /* Exit */
 OR CHOOSE of bGetFiles
 OR CHOOSE of bUpdate
 DO:
-    DEF VAR lOKtoProceed AS LOG.
+    DEF VAR lOKtoProceed AS LOG NO-UNDO.
+    DEF VAR cCmdLine AS CHAR NO-UNDO.
     
     CASE SELF:NAME:
         WHEN "bCancel" THEN DO:
@@ -546,10 +548,11 @@ DO:
         END.
         WHEN "bGetFiles" THEN DO:
             RUN ipStatus("User chose Download button").
+            RUN ipGetPatchList (1).
             RUN ipBuildVerification (1).
             RUN ipDownload.
             RUN ipExpand.
-            RUN ipGetPatchList.
+            RUN ipGetPatchList (2).
             RUN ipBuildVerification (2).
             ASSIGN
                 slEnvList:SENSITIVE = TRUE
@@ -567,11 +570,20 @@ DO:
                 RUN ipStatus("User made invalid choices for application").
                 RETURN.
             END.
-            /*
+            ASSIGN
+                cCmdLine = "XCOPY " + cUpdatesDir + "\" + slPatchList:{&SV} + "\Deployment\Admin\*.* " + cMapDir + "\Admin\" + " /C /E /Q /Y".
+            OS-COMMAND SILENT VALUE(cCmdLine).
+            ASSIGN
+                cCmdLine = "XCOPY " + cUpdatesDir + "\" + slPatchList:{&SV} + "\Deployment\Databases " + cMapDir + "\Databases"+ " /C /E /Q /Y".
+            OS-COMMAND SILENT VALUE(cCmdLine).
+            ASSIGN
+                cCmdLine = "XCOPY " + cUpdatesDir + "\" + slPatchList:{&SV} + "\Deployment\Desktop " + cMapDir + "\Desktop" + " /C /E /Q /Y".
+            OS-COMMAND SILENT VALUE(cCmdLine).
             RUN ipProcess.
-            */
+            RUN ipStatus("Sending report to ASI").
             RUN ipBuildVerification (3).
             RUN ipSendVerification.
+            RUN ipStatus("Upgrade Complete.").
         END.
     END CASE.
 END.
@@ -664,7 +676,6 @@ DO:
     IF NOT lValidUser THEN DO:
         ASSIGN
             SELF:{&SV} = "".
-        APPLY 'entry' TO SELF.
         RETURN NO-APPLY.
     END.
     ELSE DO:
@@ -691,12 +702,16 @@ DO:
                 iCurrEnvVer = fIntVer(fiVersion:{&SV})
                 iCurrDbVer = iCurrEnvVer - (iCurrEnvVer MODULO 10000)
                 .
+            IF NOT lFirstRun THEN
+                RUN ipStatus("Environment chosen: " + SELF:{&SV}).
         END.
         WHEN "slPatchList" THEN DO:
             ASSIGN
                 iPatchEnvVer = fIntVer(REPLACE(SELF:{&SV},"PATCH",""))
                 iPatchDbVer = iPatchEnvVer - (iPatchEnvVer MODULO 10000)
                 .
+            IF NOT lFirstRun THEN
+                RUN ipStatus("Patch chosen: " + SELF:{&SV}).
         END.
     END CASE.
 END.
@@ -747,7 +762,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         slEnvList:SCREEN-VALUE = ENTRY(1,cEnvList).
     APPLY 'value-changed' TO slEnvList.
         
-    RUN ipGetPatchList.
+    RUN ipGetPatchList (0).
     
     ASSIGN
         bGetFiles:SENSITIVE = FALSE
@@ -841,26 +856,31 @@ PROCEDURE ipBuildVerification :
     DEF INPUT PARAMETER ipiPhase AS INT NO-UNDO.
     DEF VAR cLine AS CHAR NO-UNDO.
     
+    IF NOT lHeader THEN DO:
+        OUTPUT STREAM outFile TO VALUE(cOutFile).
+        PUT STREAM outFile UNFORMATTED "SITE: " + cSiteName + CHR(10).
+        PUT STREAM outFile UNFORMATTED "HOST: " + cHostName + CHR(10).
+        PUT STREAM outFile UNFORMATTED "UserID: " + fiUserID:{&SV} + CHR(10).
+        PUT STREAM outFile UNFORMATTED "Environments: " + cEnvList + CHR(10).
+        PUT STREAM outFile UNFORMATTED "CurrVer: " + cEnvVerList + CHR(10).   
+        OUTPUT STREAM outFile CLOSE.
+        ASSIGN
+            lHeader = TRUE.
+    END.
+    
     CASE ipiPhase:
         WHEN 1 THEN DO:
             RUN ipStatus("  Building FTP Verification file").
             OUTPUT STREAM outFile TO VALUE(cOutFile).
-            PUT STREAM outFile UNFORMATTED "Download attempted " + STRING(TODAY) + CHR(10).
-            PUT STREAM outFile UNFORMATTED "SITE: " + cSiteName + CHR(10).
-            PUT STREAM outFile UNFORMATTED "HOST: " + cHostName + CHR(10).
-            PUT STREAM outFile UNFORMATTED "UserID: " + fiUserID:{&SV} + CHR(10).
-            PUT STREAM outFile UNFORMATTED "Environments: " + cEnvList + CHR(10).
-            PUT STREAM outFile UNFORMATTED "CurrVer: " + cEnvVerList + CHR(10).   
+            PUT STREAM outFile UNFORMATTED "Download started " + STRING(TODAY) + " at " + STRING(TIME,"HH:MM:SS") + CHR(10).
             OUTPUT STREAM outFile CLOSE.
         END.
         WHEN 2 THEN DO:
-            RUN ipStatus("  Updating FTP Verification file - 1").
             OUTPUT STREAM outFile TO VALUE(cOutFile) APPEND.
             PUT STREAM outFile UNFORMATTED "Downloads: " + cDLList + CHR(10).
             OUTPUT STREAM outFile CLOSE.
         END.
         WHEN 3 THEN DO:
-            RUN ipStatus("  Updating FTP Verification file - 2").
             OUTPUT STREAM outFile TO VALUE(cOutFile) APPEND.
             PUT STREAM outFile UNFORMATTED "Update Log File: " + CHR(10).
             INPUT STREAM logFile FROM VALUE(cLogFile).
@@ -973,7 +993,12 @@ PROCEDURE ipExpand :
     DEF VAR cCmdLine1 AS CHAR NO-UNDO.
     DEF VAR cFileName AS CHAR NO-UNDO.
     DEF VAR cDirName AS CHAR NO-UNDO.
-
+    DEF VAR cCmdLine AS CHAR NO-UNDO.
+    
+    /* Make sure that 7z executables are in place to expand */
+    OS-COPY VALUE(cUpdatesDir + "\" + "Patch" + cPatchNo + "\Deployment\Admin\EnvAdmin\7z.*")
+            VALUE(cEnvAdmin).
+    
     ASSIGN
         bGetFiles:SENSITIVE IN FRAME {&FRAME-NAME} = FALSE
         bGetFiles:LABEL = "Extracting...".
@@ -1194,6 +1219,8 @@ PROCEDURE ipGetPatchList :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+    DEF INPUT PARAMETER ipiCallNo AS INT NO-UNDO.
+    
     DEF VAR cTestName AS CHAR.
     DEF VAR cLongName AS CHAR.
     DEF VAR cAttribs AS CHAR.
@@ -1206,21 +1233,42 @@ PROCEDURE ipGetPatchList :
             cTestName
             cLongName
             cAttribs.
+
+        /* Per Jay - ticket 32839 */
+        IF ipiCallNo EQ 1 THEN DO:
+            RUN ipStatus("Removing old patches").
+            IF INDEX(cAttribs,"D") <> 0 
+            AND cTestName BEGINS "PATCH" THEN
+                OS-DELETE VALUE(cLongName) RECURSIVE.
+            /* This removes all old .zip files from the patch directory */
+            IF INDEX(cAttribs,"F") <> 0 
+            AND cTestName BEGINS "PATCH"
+            AND INDEX(cTestName,".7z") <> 0 THEN
+                OS-DELETE VALUE(cLongName).
+        END.
+        
         IF INDEX(cAttribs,"D") <> 0 
         AND cTestName BEGINS "PATCH" THEN ASSIGN
             cPatchList = cPatchList + cTestName + ",".
         /* This removes all old .zip files from the patch directory */
-        /* REMOVE FOR TESTING
         IF INDEX(cAttribs,"F") <> 0 
         AND cTestName BEGINS "PATCH"
         AND INDEX(cTestName,".7z") <> 0 THEN
             OS-DELETE VALUE(cLongName).
-        */
+        
     END.
+
     ASSIGN
         cPatchList = TRIM(cPatchList,",")
-        slPatchList:LIST-ITEMS IN FRAME {&FRAME-NAME} = cPatchList
-        slPatchList:{&SV} = ENTRY(slPatchList:NUM-ITEMS,slPatchList:LIST-ITEMS).
+        slPatchList:LIST-ITEMS IN FRAME {&FRAME-NAME} = "".
+    IF cPatchList NE "" THEN DO:
+        IF ipiCallNo NE 0 THEN 
+            RUN ipStatus("Building Patch List").
+        ASSIGN
+            slPatchList:LIST-ITEMS IN FRAME {&FRAME-NAME} = cPatchList
+            slPatchList:{&SV} = ENTRY(slPatchList:NUM-ITEMS,slPatchList:LIST-ITEMS).
+        APPLY 'value-changed' TO slPatchList.
+    END.
         
 END PROCEDURE.
 
@@ -1250,6 +1298,12 @@ PROCEDURE ipProcess :
         
     IF iCurrDbVer LT iPatchDbVer
     OR iCurrEnvVer = 16070000 THEN DO:
+        RUN ipStatus("Database requires upgrade...").
+        RUN ipStatus("  Switching progress.cfg").
+        OS-RENAME VALUE(cDLCDir + "\progress.cfg")
+                  VALUE(cDLCDir + "\progress.run").
+        OS-RENAME VALUE(cUpdStructureDir + "\STFiles\progress.dev")
+                  VALUE(cDLCDir + "\progress.cfg").
         ASSIGN
             iEnv = LOOKUP (slEnvList:{&SV},slEnvList:list-items)
             c-Win:visible = false
@@ -1261,6 +1315,12 @@ PROCEDURE ipProcess :
                            iUserLevel,
                            OUTPUT lSuccess)
                            .
+        RUN ipStatus("  Database upgrade complete").
+        RUN ipStatus("  Restoring original progress.cfg").
+        OS-RENAME VALUE(cDLCDir + "\progress.cfg")
+                  VALUE(cDLCDir + "\progress.dev").
+        OS-RENAME VALUE(cDLCDir + "\progress.run")
+                  VALUE(cDLCDir + "\progress.cfg").
 
         IF lSuccess THEN DO:
             /* asiUpdateDB could change audit variables in ini file; must reread */
@@ -1286,27 +1346,35 @@ PROCEDURE ipProcess :
                 cAudDb = ttDatabases.cAudName
                 cPort = ttDatabases.cAudPort.
 
+            RUN ipStatus("Connecting ASI DB with statement...").
             ASSIGN
                 cConnect = "-db " + ENTRY(iEnv,cDBList) + 
                            " -H " + chostName +
                            " -S " + ENTRY(iEnv,cDBPortList) +
                            " -N tcp -ld ASI".
+            RUN ipStatus(cConnect).
             CONNECT VALUE(cConnect).
+
             IF cAudName NE "" THEN DO:
+                RUN ipStatus("Connecting Audit DB with statement...").
                 ASSIGN
                     cConnect = "-db " + cAudDb + 
                                " -H " + chostName +
                                " -S " + cPort +
                                " -N tcp -ld Audit".
+                RUN ipStatus(cConnect).
                 CONNECT VALUE(cConnect).
             END.
+            RUN ipStatus("Initiating asiUpdateENV.w").
             RUN asiUpdateENV.w (ttDatabases.cName,
                             ttDatabases.cPort,
                             ttDatabases.cDir,
                             ttDatabases.cVer,
                             iUserLevel,
+                            FALSE, /* Need backup? */
                             OUTPUT lSuccess)
                             .
+            RUN ipStatus("  Return from asiUpdateENV.w").
         END.                        
     END.
     ELSE DO:
@@ -1315,6 +1383,17 @@ PROCEDURE ipProcess :
             c-Win:visible = false
             .
 
+        DO iCtr = 1 to NUM-ENTRIES(cDbList):
+            CREATE ttDatabases.
+            ASSIGN
+                ttDatabases.cName = ENTRY(iCtr,cDBList)
+                ttDatabases.cDir = ENTRY(iCtr,cDbDirList)
+                ttDatabases.cPort = ENTRY(iCtr,cDBPortList)
+                ttDatabases.cVer = ENTRY(iCtr,cDBVerList)
+                ttDatabases.cAudName = ENTRY(iCtr,cAudDbList)
+                ttDatabases.cAudPort = ENTRY(iCtr,cAudPortList).
+        END.
+            
         FIND ttDatabases WHERE
             ttDatabases.cName EQ ENTRY(iEnv,cDBList) AND
             ttDatabases.cPort EQ ENTRY(iEnv,cDBPortList)
@@ -1323,32 +1402,41 @@ PROCEDURE ipProcess :
             cAudDb = ttDatabases.cAudName
             cPort = ttDatabases.cAudPort.
 
+        RUN ipStatus("Connecting ASI DB with statement...").
         ASSIGN
             cConnect = "-db " + ENTRY(iEnv,cDBList) + 
                        " -H " + chostName +
                        " -S " + ENTRY(iEnv,cDBPortList) +
                        " -N tcp -ld ASI".
+        RUN ipStatus(cConnect).
         CONNECT VALUE(cConnect).
+
         IF cAudName NE "" THEN DO:
+            RUN ipStatus("Connecting Audit DB with statement...").
             ASSIGN
                 cConnect = "-db " + cAudName + 
                            " -H " + chostName +
                            " -S " + cPort +
                            " -N tcp -ld Audit".
             CONNECT VALUE(cConnect).
+            RUN ipStatus(cConnect).
         END.
+
+        RUN ipStatus("Initiating asiUpdateENV.w").
         RUN asiUpdateENV.w (ttDatabases.cName,
                         ttDatabases.cPort,
                         ttDatabases.cDir,
                         ttDatabases.cVer,
                         iUserLevel,
+                        TRUE, /* Need backup? */
                         OUTPUT lSuccess)
                         .
+        RUN ipStatus("  Return from asiUpdateENV.w").
     END.
-   
-    APPLY 'close' TO THIS-PROCEDURE.
-    QUIT.
 
+    ASSIGN
+        c-Win:visible = TRUE.
+   
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1511,6 +1599,17 @@ PROCEDURE ipSendVerification :
 
     RUN ipStatus("  Starting 2d FTP session").
     OS-COMMAND SILENT VALUE("FTP -n -s:" + cFTPxmit + " >> " + cFtpOutputFile + " 2>> " + cFtpErrFile).
+
+    /* File cleanup */
+    RUN ipStatus("  Cleaning work files").
+    OS-DELETE VALUE(cFTPInstrFile).
+    OS-DELETE VALUE(cFTPOutputFile).
+    OS-DELETE VALUE(cFTPErrFile).
+    OS-DELETE VALUE(c7zOutputFile).
+    OS-DELETE VALUE(c7zErrFile).
+    OS-DELETE VALUE(cEnvAdmin + "\" + cOutFile).
+    OS-DELETE VALUE(cFTPxmit).
+    OS-DELETE VALUE(cEnvAdmin + "\cOutputFile").
    
 END PROCEDURE.
 
@@ -1630,7 +1729,16 @@ PROCEDURE ipValidUser :
     INPUT FROM VALUE(cUsrLoc).
     REPEAT:
         IMPORT UNFORMATTED cInpString.
-        IF ENTRY(2,cInpString,"|") NE "*" THEN NEXT.
+        IF ENTRY(2,cInpString,"|") NE "*" THEN DO:
+            RUN ipStatus("  User name NOT validated. Usr file problem.").
+            MESSAGE
+                "Can't validate user with this version" SKIP
+                "of the system. Continuing..."
+                VIEW-AS ALERT-BOX.
+            ASSIGN
+                oplValidUser = TRUE.
+            RETURN.
+        END.
         IF ENTRY(1,cInpString,"|") EQ fiUserID:{&SV} THEN DO:
             RUN ipStatus("  User name validated.").
             ASSIGN
