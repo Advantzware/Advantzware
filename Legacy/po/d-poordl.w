@@ -2932,6 +2932,8 @@ PROCEDURE display-fgitem :
     DEFINE VARIABLE v-dep     AS DECIMAL NO-UNDO.
     DEFINE VARIABLE v-op-type AS LOG     NO-UNDO.
     DEFINE VARIABLE lv-cost   LIKE po-ordl.cost NO-UNDO.
+    DEFINE VARIABLE cAccount AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cAccountDesc AS CHARACTER NO-UNDO.
 
     FIND FIRST itemfg NO-LOCK WHERE /*itemfg.company eq cocode and
                   itemfg.i-no eq po-ordl.i-no use-index i-no */
@@ -3021,41 +3023,15 @@ PROCEDURE display-fgitem :
             v-po-len-frac:SCREEN-VALUE IN FRAME {&FRAME-NAME} = v-len-frac
             v-po-dep-frac:SCREEN-VALUE IN FRAME {&FRAME-NAME} = v-dep-frac.
 
-        /* populate GL# from reftable if it exists using itemfg AH 02-23-10*/
+        RUN pGetGL("FG",
+                   ROWID(itemfg),
+                   INPUT-OUTPUT cAccount,
+                   INPUT-OUTPUT cAccountDesc).
+       IF cAccount NE "" THEN
         ASSIGN 
-            v-charge = "".
-        FIND FIRST surcharge NO-LOCK WHERE surcharge.company = g_company
-            AND surcharge.charge <> "" NO-ERROR.
-        IF AVAILABLE surcharge THEN
-            ASSIGN v-charge = surcharge.charge.
-        FIND FIRST reftable NO-LOCK WHERE reftable.reftable EQ "chargecode"
-            AND reftable.company  EQ itemfg.company
-            AND reftable.loc      EQ itemfg.procat
-            /*AND reftable.code     EQ v-charge*/
-            /* AND reftable.code2 = "" */
-            NO-ERROR.
-        IF AVAILABLE reftable AND reftable.dscr <> "" THEN 
-            ASSIGN po-ordl.actnum:SCREEN-VALUE = reftable.dscr.
-        /* AH */
-        ELSE 
-            FOR EACH prodl NO-LOCK
-                WHERE prodl.company EQ cocode
-                AND prodl.procat  EQ itemfg.procat
-                ,
-                FIRST prod NO-LOCK
-                WHERE prod.company EQ cocode
-                AND prod.prolin  EQ prodl.prolin
-                :
-
-                po-ordl.actnum:SCREEN-VALUE = prod.fg-mat.
-                LEAVE.
-            END.
-
-        RELEASE reftable.
-
-        FIND FIRST account NO-LOCK WHERE account.company EQ cocode AND
-            account.actnum EQ po-ordl.actnum:SCREEN-VALUE NO-ERROR.
-        v-gl-desc:SCREEN-VALUE = IF AVAILABLE account THEN account.dscr ELSE ''.
+            po-ordl.actnum:SCREEN-VALUE = cAccount
+            v-gl-desc:SCREEN-VALUE = cAccountDesc
+            .
 
         IF AVAILABLE e-itemfg THEN
             FIND FIRST e-itemfg-vend OF e-itemfg NO-LOCK
@@ -3068,9 +3044,7 @@ PROCEDURE display-fgitem :
 
         RUN fg-qtys (ROWID(itemfg)).
     END.
-    FIND FIRST account WHERE account.company EQ cocode AND
-        account.actnum EQ po-ordl.actnum:SCREEN-VALUE NO-LOCK NO-ERROR.
-    v-gl-desc:SCREEN-VALUE = IF AVAILABLE account THEN account.dscr ELSE ''.
+    
 
     RUN vend-cost (YES).
 
@@ -4531,6 +4505,86 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetGL Dialog-Frame
+PROCEDURE pGetGL PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcType AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipriBaseRecord AS ROWID NO-UNDO.
+    DEFINE INPUT-OUTPUT PARAMETER iopcAccount AS CHARACTER NO-UNDO.
+    DEFINE INPUT-OUTPUT PARAMETER iopcAccountDesc AS CHARACTER NO-UNDO.
+
+    DEFINE VARIABLE cCompany AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cAccount AS CHARACTER NO-UNDO.
+
+    CASE ipcType:
+        WHEN "FG" OR 
+        WHEN "RMJob" THEN 
+            DO:
+                FIND FIRST bf-itemfg NO-LOCK 
+                    WHERE ROWID(bf-itemfg) EQ ipriBaseRecord
+                    NO-ERROR.
+                IF AVAILABLE bf-itemfg THEN 
+                DO:
+                    cCompany = bf-itemfg.company.
+                    IF ipcType EQ "FG" THEN 
+                    DO:
+                        FOR EACH prodl NO-LOCK
+                            WHERE prodl.company EQ bf-itemfg.company
+                            AND prodl.procat  EQ bf-itemfg.procat
+                            ,
+                            FIRST prod NO-LOCK
+                            WHERE prod.company EQ prodl.company
+                            AND prod.prolin  EQ prodl.prolin
+                            :
+                            cAccount = prod.fg-mat.
+                            LEAVE.
+                        END.
+                    END.
+                    IF cAccount EQ "" THEN 
+                    DO:
+                        FIND FIRST reftable NO-LOCK 
+                            WHERE reftable.reftable EQ "chargecode"
+                            AND reftable.company  EQ bf-itemfg.company
+                            AND reftable.loc      EQ bf-itemfg.procat
+                            NO-ERROR.
+                        IF AVAILABLE reftable AND reftable.dscr NE "" AND ipcType EQ "FG" THEN 
+                            cAccount = reftable.dscr.
+                        IF AVAILABLE reftable AND reftable.code2 NE "" AND ipcType EQ "RMJob" THEN 
+                            cAccount = reftable.code2.
+                        RELEASE reftable.       
+                    END. 
+                END.
+            END.  /*End FG or RMJob*/
+        WHEN "RMNoJob" THEN 
+            DO:
+                /*Default for RMs without jobs*/
+            END.
+        WHEN "Vend" THEN 
+            DO:
+                /*Meta default for Vendor*/
+            END.
+    END CASE.
+    IF cAccount NE "" AND cCompany NE "" THEN  
+    DO:
+        FIND FIRST account NO-LOCK 
+            WHERE account.company EQ cCompany 
+            AND account.actnum EQ cAccount 
+            NO-ERROR.
+        ASSIGN 
+            iopcAccount     = cAccount
+            iopcAccountDesc = IF AVAILABLE account THEN account.dscr ELSE ''.
+    END.
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE po-adder2 Dialog-Frame 
 PROCEDURE po-adder2 :

@@ -1554,14 +1554,6 @@ FOR EACH est
       AND est.est-date    LE tdate
       AND est.mod-date    GE begin_date-2
       AND est.mod-date    LE end_date-2
-      AND ((tb_booked AND
-            CAN-FIND(FIRST oe-ordl
-                     WHERE oe-ordl.company EQ est.company
-                       AND oe-ordl.est-no  EQ est.est-no)) OR
-           (tb_not-booked AND
-            NOT CAN-FIND(FIRST oe-ordl
-                         WHERE oe-ordl.company EQ est.company
-                           AND oe-ordl.est-no  EQ est.est-no)))
     NO-LOCK,
 
     FIRST est-qty
@@ -1576,6 +1568,14 @@ FOR EACH est
       AND eb.cust-no LE tcust
       AND eb.sman    GE fsman
       AND eb.sman    LE tsman
+      AND ((tb_booked AND
+            CAN-FIND(FIRST oe-ordl
+                     WHERE oe-ordl.company EQ est.company
+                       AND (oe-ordl.est-no  EQ est.est-no OR  oe-ordl.i-no  EQ eb.stock-no )  )) OR
+           (tb_not-booked AND
+            NOT CAN-FIND(FIRST oe-ordl
+                         WHERE oe-ordl.company EQ est.company
+                           AND oe-ordl.est-no  EQ est.est-no OR  oe-ordl.i-no  EQ eb.stock-no)))
     NO-LOCK,
 
     FIRST ef

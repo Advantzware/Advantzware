@@ -100,7 +100,6 @@ DEF VAR ln-cnt AS INT NO-UNDO.
 def buffer b-itemfg     for itemfg.
 DEF BUFFER bf-ttboll FOR tt-boll.
 DEF VAR v-tot-case-qty AS INT NO-UNDO.
-DEF VAR cPc AS CHARACTER  NO-UNDO.
 
 /* === with xprint ====*/
 DEF VAR ls-image1 AS cha NO-UNDO.

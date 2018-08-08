@@ -139,7 +139,7 @@ FORM oe-ordl.i-no                         FORMAT "x(15)"
      v-job-po                       AT 17 FORMAT "x(15)"
      v-part-dscr                    AT 33 FORMAT "x(30)"
      w2.cases                       TO 70 FORMAT "->>>9"
-     icountpallet                    TO 77 FORMAT "->>>>>9"
+     w2.cas-cnt                    TO 77 FORMAT "->>>>>9"
      tt-boll.qty                    TO 85 FORMAT "->>>>>9"
      tt-boll.p-c                    AT 92
     WITH FRAME bol-mid2 DOWN NO-BOX NO-LABELS STREAM-IO WIDTH 100.
@@ -350,14 +350,14 @@ FOR EACH xxreport WHERE xxreport.term-id EQ v-term-id,
       w3.ship-i = oe-bolh.ship-i[i].
     END.
   END.
-
+  ASSIGN v-tot-cases = 0 .
   FOR EACH oe-boll WHERE oe-boll.company EQ oe-bolh.company AND oe-boll.b-no EQ oe-bolh.b-no:
     IF ll-consol-bolls THEN DO:
       IF (oe-boll.qty-case * oe-boll.cases) NE 0 THEN
         RUN create-tt-boll (oe-boll.qty-case, oe-boll.cases).
     
-     /* IF oe-boll.qty - (oe-boll.qty-case * oe-boll.cases) NE 0 THEN
-        RUN create-tt-boll (oe-boll.qty - (oe-boll.qty-case * oe-boll.cases), 1).*/
+      IF oe-boll.qty - (oe-boll.qty-case * oe-boll.cases) NE 0 THEN
+        RUN create-tt-boll (oe-boll.qty - (oe-boll.qty-case * oe-boll.cases), 1).
         
     END.
 
@@ -366,7 +366,7 @@ FOR EACH xxreport WHERE xxreport.term-id EQ v-term-id,
       BUFFER-COPY oe-boll EXCEPT rec_key TO tt-boll
          /* ASSIGN tt-boll.rec_id = STRING(RECID(oe-boll))*/.
     END.
-
+  ASSIGN v-tot-cases = v-tot-cases + oe-boll.cases.
     oe-boll.printed = YES.
   END.
 

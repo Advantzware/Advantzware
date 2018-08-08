@@ -649,15 +649,15 @@ v-printline = 0.
                                 RUN sys\inc\decfrac2.p(INPUT lv-val[(lv-int * 10) + x], INPUT 32, OUTPUT len-score).
                         
                          IF lv-val[(lv-int * 10) + x] NE 0 THEN 
-                              v-lscore-c = v-lscore-c + len-score + "   " .
+                              v-lscore-c = v-lscore-c + len-score + " " .
 
                         /* print score type for Premier */
                         IF v-score-types AND lv-typ[(lv-int * 10) + x] NE "" THEN DO:
-                            RUN sys\inc\decfrac2.p(INPUT DEC(lv-typ[(lv-int * 10) + x]), INPUT 32, OUTPUT len-score).
-                            v-lscore-c = v-lscore-c + len-score + " ". 
+/*                            RUN sys\inc\decfrac2.p(INPUT DEC(lv-typ[(lv-int * 10) + x]), INPUT 32, OUTPUT len-score).*/
+                            v-lscore-c = v-lscore-c + lv-typ[(lv-int * 10) + x] + "  ". 
                         END.
                         ELSE DO:
-                            v-lscore-c = v-lscore-c + " ".
+                            v-lscore-c = v-lscore-c + "  ".
                         END.
                     END.
  

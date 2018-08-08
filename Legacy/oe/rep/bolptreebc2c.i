@@ -11,27 +11,20 @@
       "<C50><B>STRAIGHT BILL OF LADING"  SKIP
       "<=1><R+1><C25></B>"            SKIP
       "<=1><R+5.5><C25><B><C50>Bill of Lading #: " oe-bolh.bol-no   "</B>".
-   IF v-pg-num = 1 THEN
+      
     PUT  
      "<UNITS=INCHES><AT=.62,6><FROM><AT=+.4,+2><BARCODE,TYPE=39,CHECKSUM=NONE,VALUE=" +
                     string(oe-bolh.bol-no) + "*" + ">" FORM "x(100)" "</B><P10>"
        
        "<C1><R2><FROM><R12><C15><#89><AT=0.01,0.01>"
       .   
-
-   IF (AVAIL shipto AND shipto.broker EQ NO) OR NOT AVAIL shipto THEN
-      PUT "<IMAGE#89=" ls-full-img1 SKIP
-          "<=1><C15><FGCOLOR=" trim(lv-comp-color) + ">"
-          "<=1><C15><R+2><P16><B>" lv-comp-name "</B><FGCOLOR=" trim(lv-other-color) + ">" FORM "x(6)"
-          "<P10></B>"
-          "<=1><R+2>" "<FGCOLOR=" + trim(lv-comp-color) + ">" FORM "x(15)"
-          "<P10><=1><R+4>"
-          "<C15>" v-comp-add1 SKIP
-          "<C15>" v-comp-add2 SKIP
-          "<C15>" v-comp-add3 SKIP
-          "<C15>" v-comp-add4 SKIP
-          "<C15>" v-comp-add5 "<FGCOLOR=" + trim(lv-other-color) + ">" FORM "x(15)" SKIP
-          "<C15>" lv-email SKIP.
+ 
+   if PROGRAM-NAME(1) matches "*oe/rep/bolptree.p*" then do: 
+     PUT "<C2><R4><#1><R+7><C40><IMAGE#1=" ls-full-img1 skip.
+   end.
+else do:
+  IF (AVAIL shipto AND shipto.broker EQ NO) OR NOT AVAIL shipto THEN
+      PUT "<C2><R4><#1><R+7><C40><IMAGE#1=" ls-full-img1 skip.         
    ELSE
       PUT SKIP
           "<=1><C1><FGCOLOR=" trim(lv-comp-color) + ">"
@@ -45,6 +38,7 @@
           "<C1>" v-comp-add4 SKIP
           "<C1>" v-comp-add5 "<FGCOLOR=" + trim(lv-other-color) + ">" FORM "x(15)" SKIP
           "<C1>" lv-email SKIP.
+end.
 
    PUT "<FCourier New>" SKIP(1)
       "Bill To: " v-phone SPACE(35) "Ship To: " v-ship-phone SKIP

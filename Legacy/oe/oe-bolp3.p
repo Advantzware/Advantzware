@@ -20,7 +20,7 @@ DEF BUFFER b-bolh FOR oe-bolh.
 DEF BUFFER b-invl FOR inv-line.
 DEF BUFFER b-itemfg FOR itemfg.
 DEF BUFFER b-reftable2 FOR reftable.
-
+DEFINE BUFFER bf-report FOR report.
 DEF NEW SHARED VAR v-tax-rate AS DEC FORMAT ">,>>9.99<<<".
 DEF NEW SHARED VAR v-frt-tax-rate LIKE v-tax-rate.
 DEF NEW SHARED VAR v-u-inv LIKE oe-ctrl.u-inv INIT NO.
@@ -84,6 +84,7 @@ DEF VAR ld-Inv AS DEC NO-UNDO.
 DEF VAR cRelSCode AS CHAR NO-UNDO.
 DEF VAR iTotalIScode AS INT NO-UNDO.
 DEF VAR iTotalSScode AS INT NO-UNDO.
+DEFINE VARIABLE cTermPrefix AS CHARACTER NO-UNDO.
 DEFINE VARIABLE rCurrentInvHeadRow AS ROWID  NO-UNDO.
 DEF BUFFER bf-oe-ordl FOR oe-ordl.
 DEF BUFFER bf-oe-boll FOR oe-boll.
@@ -116,6 +117,10 @@ IF lUseLogs THEN
 IF ERROR-STATUS:ERROR THEN 
     lUseLogs = FALSE.
 
+/* First part of the term value */
+cTermPrefix = string(year(today),"9999")      +
+              string(month(today),"99")       +
+              string(day(today),"99").
 /* ************************  Function Implementations ***************** */
 FUNCTION fLogMsg RETURNS CHARACTER 
     (INPUT ipcMessage AS CHARACTER  ):
@@ -359,7 +364,38 @@ STATUS DEFAULT "Processing BOL Posting 1........ BOL#: " + STRING(oe-bolh.bol-no
       END. /* IF AVAIL b-oe-ordl */
     END. /* LAST-OF(oe-ordl.set-hdr-line) */
   END. /* Each report */
-
+  FOR EACH report NO-LOCK WHERE report.term-id BEGINS cTermPrefix
+                            AND report.term-id NE v-term,
+      FIRST oe-boll NO-LOCK WHERE RECID(oe-boll) EQ report.rec-id:
+      /* Check that someone else isn't posting the same BOL */
+      
+      FOR EACH bf-oe-boll NO-LOCK WHERE bf-oe-boll.b-no EQ oe-boll.b-no,
+          FIRST bf-report NO-LOCK WHERE bf-report.term-id NE v-term  
+            AND bf-report.rec-id EQ RECID(bf-oe-boll):
+          /* Found overlap with another user */
+          fLogMsg("Collision with other user oe-bolp3.p " + " BOL# " + STRING(oe-bolh.bol-no) + " Key03: " + report.key-03).          
+      END.
+  END. 
+  
+  FOR EACH report NO-LOCK WHERE report.term-id EQ v-term,
+      FIRST oe-boll NO-LOCK WHERE RECID(oe-boll) EQ report.rec-id,
+      FIRST oe-bolh NO-LOCK WHERE oe-bolh.b-no EQ oe-boll.b-no:
+      /* Check that there is a valid shipto for this invoice */
+      FIND FIRST shipto NO-LOCK
+          WHERE shipto.company EQ oe-bolh.company
+          AND shipto.ship-id EQ oe-bolh.ship-id
+          AND shipto.cust-no EQ oe-bolh.cust-no
+          AND shipto.ship-no NE 1
+          USE-INDEX ship-id NO-ERROR.      
+      IF NOT AVAILABLE shipto THEN DO: 
+        FOR EACH bf-oe-boll NO-LOCK WHERE bf-oe-boll.b-no EQ oe-boll.b-no,
+            FIRST bf-report EXCLUSIVE-LOCK WHERE bf-report.term-id NE v-term  
+            AND bf-report.rec-id EQ RECID(bf-oe-boll):
+            DELETE bf-report.
+        END.
+      END.
+  END.   
+  
   RUN check-posted.
   
   rCurrentInvHeadRow = ?.
