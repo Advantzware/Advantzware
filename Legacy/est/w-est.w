@@ -709,8 +709,8 @@ PROCEDURE adm-create-objects :
        RUN set-size IN h_b-estprp ( 6.19 , 134.00 ) NO-ERROR.
 
        RUN init-object IN THIS-PROCEDURE (
-             /*INPUT  'panels/p-estprp.w':U ,*/
-             INPUT  'est/vp-estprp.w':U ,
+             INPUT  'panels/p-estprp.w':U ,
+            /* INPUT  'est/vp-estprp.w':U ,*/
              INPUT  FRAME est:HANDLE ,
              INPUT  'Edge-Pixels = 2,
                      SmartPanelType = Update,
@@ -754,8 +754,8 @@ PROCEDURE adm-create-objects :
        RUN set-size IN h_b-estop ( 8.24 , 128.00 ) NO-ERROR.
 
        RUN init-object IN THIS-PROCEDURE (
-             /*INPUT  'p-estop.w':U ,*/
-             INPUT  'est/vp-estop.w':U ,
+             INPUT  'p-estop.w':U ,
+             /*INPUT  'est/vp-estop.w':U ,*/
              INPUT  FRAME est:HANDLE ,
              INPUT  'Edge-Pixels = 2,
                      SmartPanelType = Update,

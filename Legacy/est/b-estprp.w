@@ -388,208 +388,6 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME est-prep.s-num
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL est-prep.s-num br_table _BROWSE-COLUMN B-table-Win
-ON ENTRY OF est-prep.s-num IN BROWSE br_table /* Sht # */
-DO:
- /*single item est*/
-  IF est.est-type EQ 1 OR est.est-type EQ 5 THEN
-  DO:
-     IF AVAIL est-prep THEN
-        est-prep.s-num:SCREEN-VALUE IN BROWSE {&browse-name} = "1".
-
-     apply "tab" to SELF /*{&self-name}*/ IN BROWSE {&browse-name}.
-     RETURN NO-APPLY.
-  
-  END.
-  ELSE                                            
-  if est.form-qty <= 1 then DO WITH FRAME {&FRAME-NAME}  :
-    IF adm-adding-record AND AVAIL est-prep THEN
-         est-prep.s-num:SCREEN-VALUE IN BROWSE {&browse-name} = "1".
-
-    apply "tab" to self /*{&self-name}*/ IN BROWSE {&browse-name}.     
-    RETURN NO-APPLY.
-  end.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL est-prep.s-num br_table _BROWSE-COLUMN B-table-Win
-ON LEAVE OF est-prep.s-num IN BROWSE br_table /* Sht # */
-DO:
-  IF LASTKEY NE -1 THEN DO:
-    RUN valid-s-num NO-ERROR.
-    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-  END.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME est-prep.b-num
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL est-prep.b-num br_table _BROWSE-COLUMN B-table-Win
-ON ENTRY OF est-prep.b-num IN BROWSE br_table /* B # */
-DO:
-   /*single item estimate*/
-   IF est.est-type EQ 1 OR est.est-type EQ 5 THEN
-   DO:
-      apply "tab" to {&self-name} IN BROWSE {&browse-name}.
-      RETURN NO-APPLY.
-   END.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL est-prep.b-num br_table _BROWSE-COLUMN B-table-Win
-ON LEAVE OF est-prep.b-num IN BROWSE br_table /* B # */
-DO:
-  IF LASTKEY NE -1 THEN DO:
-    RUN valid-b-num NO-ERROR.
-    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-  END.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME est-prep.code
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL est-prep.code br_table _BROWSE-COLUMN B-table-Win
-ON HELP OF est-prep.code IN BROWSE br_table /* Code */
-DO:
-    def var char-val as cha no-undo.
-    
-       
-    run windows/l-prep.w (est.company, self:screen-value in browse {&browse-name} , output char-val).
-    if char-val <> "" AND self:screen-value in browse {&browse-name} NE entry(1,char-val) then DO:
-       SELF:screen-value in browse {&browse-name} = entry(1,char-val).
-       APPLY "value-changed" TO SELF in browse {&browse-name}. 
-    end.
-    return no-apply.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL est-prep.code br_table _BROWSE-COLUMN B-table-Win
-ON LEAVE OF est-prep.code IN BROWSE br_table /* Code */
-DO:
-  IF LASTKEY NE -1 THEN DO:
-    RUN valid-code(1) NO-ERROR.
-    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-  END.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL est-prep.code br_table _BROWSE-COLUMN B-table-Win
-ON VALUE-CHANGED OF est-prep.code IN BROWSE br_table /* Code */
-DO:
-  def var v-qty as dec no-undo.
-
-  find FIRST prep
-      where prep.company eq est.company
-        and prep.code    eq {&self-name}:screen-value in browse {&browse-name}
-      no-lock no-error.
-  if avail prep then DO WITH FRAME {&FRAME-NAME}:
-    assign /*focus:screen-value in browse {&browse-name} = caps(prep.code)*/
-           est-prep.dscr:screen-value in browse {&browse-name} = prep.dscr
-           est-prep.cost:screen-value in browse {&browse-name} = string(prep.cost)
-           est-prep.ml:screen-value in browse {&browse-name} = string(prep.ml)
-           est-prep.simon:screen-value in browse {&browse-name} = string(prep.simon)
-           est-prep.mkup:screen-value in browse {&browse-name} = string(prep.mkup)
-           est-prep.spare-dec-1:screen-value in browse {&browse-name} = string(prep.spare-dec-1)
-           est-prep.amtz:screen-value in browse {&browse-name} = string(prep.amtz)
-           .
-    v-qty = dec(est-prep.qty:screen-value).
-    RUN est/GetPrepQty.p(INPUT ROWID(est),
-                         INPUT prep.mat-type,
-                         INPUT int(est-prep.s-num:SCREEN-VALUE IN BROWSE {&browse-name}),
-                         OUTPUT v-qty).
-/*     find first ef where ef.company = est.company and                                                            */
-/*                         ef.est-no  eq est.est-no                                                                */
-/*                        and ef.form-no eq int(est-prep.s-num:screen-value in browse {&browse-name})              */
-/*                     no-lock no-error.                                                                           */
-/*                                                                                                                 */
-/*     if (prep.mat-type eq "F" or prep.mat-type eq "P") then                                                      */
-/*       run sys/inc/flm-prep.p(recid(est), (int(est-prep.s-num:screen-value)),                                    */
-/*                              output v-qty).                                                                     */
-/*     else                                                                                                        */
-/*     if avail ef then                                                                                            */
-/*       v-qty = if prep.mat-type eq "R" then ef.die-in                                                            */
-/*                    else if prep.mat-type eq "B" then ef.nsh-wid * ef.nsh-len /* ef.adh-sqin is 0 in corrware */ */
-/*               else v-qty.                                                                                       */
-    est-prep.qty:screen-value = string(v-qty).
-  end.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME est-prep.simon
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL est-prep.simon br_table _BROWSE-COLUMN B-table-Win
-ON LEAVE OF est-prep.simon IN BROWSE br_table /* SIMON */
-DO:
-  IF LASTKEY NE -1 THEN DO:
-    RUN valid-simon NO-ERROR.
-    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-  END.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME est-prep.cost
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL est-prep.cost br_table _BROWSE-COLUMN B-table-Win
-ON LEAVE OF est-prep.cost IN BROWSE br_table /* Cost */
-DO:
-  RUN UpdatePrice.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME est-prep.mkup
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL est-prep.mkup br_table _BROWSE-COLUMN B-table-Win
-ON LEAVE OF est-prep.mkup IN BROWSE br_table /* Markup */
-DO:
-   IF LASTKEY NE -1 AND ceprepprice-chr EQ "Profit" AND
-      DEC(est-prep.mkup:SCREEN-VALUE IN BROWSE {&browse-name}) GE 100 THEN
-      DO:
-         MESSAGE "Invalid Markup."
-             VIEW-AS ALERT-BOX ERROR BUTTONS OK.
-         APPLY "entry" TO est-prep.mkup.
-         RETURN NO-APPLY.
-      END.
-    RUN UpdatePrice.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME est-prep.spare-dec-1
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL est-prep.spare-dec-1 br_table _BROWSE-COLUMN B-table-Win
-ON VALUE-CHANGED OF est-prep.spare-dec-1 IN BROWSE br_table /* Price */
-DO:
-    RUN UpdateMarkup.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
 &UNDEFINE SELF-NAME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK B-table-Win 
@@ -715,35 +513,40 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-assign-record B-table-Win 
-PROCEDURE local-assign-record :
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-initialize B-table-Win 
+PROCEDURE local-initialize :
 /*------------------------------------------------------------------------------
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-
+ 
   /* Code placed here will execute PRIOR to standard behavior. */
-  
+
   /* Dispatch standard ADM method.                             */
-  RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-record':U ) .
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'initialize':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-  find first prep
-      where prep.company eq est.company
-        and prep.loc     eq est.loc
-        and prep.code    eq est-prep.code
-      no-lock no-error.
-  IF AVAIL prep THEN est-prep.mat-type = prep.mat-type.
 
-  /* check order whether plate's existing. if exist, create reftalbe for link*/
-  IF est-prep.mat-type = "P" AND est.ord-no <> 0 AND est-prep.simon   EQ "S"
-     AND est-prep.amtz    EQ 100 
-  THEN  RUN create-reft4plate.
+  ASSIGN 
+      est-prep.s-num:READ-ONLY IN BROWSE {&browse-name} = YES
+      est-prep.b-num:READ-ONLY IN BROWSE {&browse-name} = YES
+      est-prep.code:READ-ONLY IN BROWSE {&browse-name} = YES
+      est-prep.qty:READ-ONLY IN BROWSE {&browse-name} = YES
+      est-prep.dscr:READ-ONLY IN BROWSE {&browse-name} = YES
+      est-prep.simon:READ-ONLY IN BROWSE {&browse-name} = YES
+      est-prep.cost:READ-ONLY IN BROWSE {&browse-name} = YES
+      est-prep.mkup:READ-ONLY IN BROWSE {&browse-name} = YES
+      est-prep.spare-dec-1:READ-ONLY IN BROWSE {&browse-name} = YES
+      est-prep.ml:READ-ONLY IN BROWSE {&browse-name} = YES
+      est-prep.amtz:READ-ONLY IN BROWSE {&browse-name} = YES
+      .
 
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-copy-record B-table-Win 
 PROCEDURE local-copy-record :
@@ -844,43 +647,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-create-record B-table-Win 
-PROCEDURE local-create-record :
-/*------------------------------------------------------------------------------
-  Purpose:     Override standard ADM method
-  Notes:       
-------------------------------------------------------------------------------*/
-  def buffer bf-prep for est-prep.
-  def var li-next as int no-undo.
-  
-
-  /* Code placed here will execute PRIOR to standard behavior. */
-  FOR EACH bf-prep
-      WHERE bf-prep.company EQ est.company 
-        AND bf-prep.est-no  EQ est.est-no                      
-      USE-INDEX est-qty NO-LOCK
-      BY bf-prep.line DESC:
-    LEAVE.
-  END.
-  li-next = (IF AVAIL bf-prep THEN bf-prep.line ELSE 0) + 1.
-                    
-  /* Dispatch standard ADM method.                             */
-  RUN dispatch IN THIS-PROCEDURE ( INPUT 'create-record':U ) .
-
-  /* Code placed here will execute AFTER standard behavior.    */
-  ASSIGN
-   est-prep.e-num   = est.e-num
-   est-prep.company = est.company
-   est-prep.est-no  = est.est-no
-   est-prep.line    = li-next
-   est-prep.s-num   = 1
-   est-prep.b-num   = 0
-   est-prep.qty     = 1.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-delete-record B-table-Win 
 PROCEDURE local-delete-record :
@@ -964,44 +730,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-update-record B-table-Win 
-PROCEDURE local-update-record :
-/*------------------------------------------------------------------------------
-  Purpose:     Override standard ADM method
-  Notes:       
-------------------------------------------------------------------------------*/
-
-  /* Code placed here will execute PRIOR to standard behavior. */
-  RUN valid-s-num NO-ERROR.
-  IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-
-  RUN valid-b-num NO-ERROR.
-  IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.  
-
-  RUN valid-code(0) NO-ERROR.
-  IF ERROR-STATUS:ERROR THEN RETURN error.
-  
-  RUN valid-simon NO-ERROR.
-  IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-  
-  IF ceprepprice-chr EQ "Profit" AND
-     DEC(est-prep.mkup:SCREEN-VALUE IN BROWSE {&browse-name}) GE 100 THEN
-     DO:
-        MESSAGE "Invalid Markup."
-            VIEW-AS ALERT-BOX ERROR BUTTONS OK.
-        APPLY "entry" TO est-prep.mkup.
-        RETURN NO-APPLY.
-     END.
-
-  /* Dispatch standard ADM method.                             */
-  RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
-
-  /* Code placed here will execute AFTER standard behavior.    */
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-view B-table-Win 
 PROCEDURE local-view :
@@ -1172,141 +900,6 @@ DO WITH FRAME {&FRAME-NAME}:
         dPrice = dCost * (1 + (dMkup / 100)).
     est-prep.spare-dec-1:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(dPrice).
 END.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-b-num B-table-Win 
-PROCEDURE valid-b-num :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  DEF BUFFER b-eb FOR eb.
-
-
-  DO WITH FRAME {&FRAME-NAME}:
-    IF INT(est-prep.b-num:SCREEN-VALUE IN BROWSE {&browse-name}) NE 0 AND
-       NOT CAN-FIND(FIRST b-eb OF est
-                    WHERE b-eb.form-no EQ INT(est-prep.s-num:SCREEN-VALUE IN BROWSE {&browse-name})
-                      AND b-eb.blank-no EQ INT(est-prep.b-num:SCREEN-VALUE IN BROWSE {&browse-name}))
-    THEN DO:
-      MESSAGE "Invalid " + TRIM(STRING(est-prep.b-num:LABEL IN BROWSE {&browse-name})) +
-              ", please re-enter..." VIEW-AS ALERT-BOX.
-      APPLY "entry" TO est-prep.b-num.
-      RETURN ERROR.
-    END.
-  END.
-  
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-code B-table-Win 
-PROCEDURE valid-code :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-DEFINE INPUT PARAMETER ip-count AS INTEGER NO-UNDO.
-  DO WITH FRAME {&FRAME-NAME}:
-    IF NOT CAN-FIND(FIRST prep
-                    WHERE prep.company EQ est.company
-                      AND prep.code    EQ est-prep.code:SCREEN-VALUE IN BROWSE {&browse-name})
-    THEN DO:
-      MESSAGE "Code not found - Reenter valid code" VIEW-AS ALERT-BOX.
-      APPLY "entry" TO est-prep.code.
-      RETURN ERROR.
-    END.
-    IF ip-count EQ 1 THEN DO:
-        IF NOT CAN-FIND(FIRST prep
-                        WHERE prep.company EQ est.company
-                          AND prep.loc     EQ est.loc
-                          AND prep.code    EQ est-prep.code:SCREEN-VALUE IN BROWSE {&browse-name})
-        THEN DO:
-          MESSAGE "Code is at a different location than the estimate" VIEW-AS ALERT-BOX WARNING.
-          APPLY "entry" TO est-prep.code.
-        END.
-    END.
-    /* validate # inks and coat for Plate*/
-    IF CAN-FIND(FIRST prep WHERE prep.company EQ est.company
-                             AND prep.loc     EQ est.loc
-                             AND prep.code    EQ est-prep.code:SCREEN-VALUE IN BROWSE {&browse-name}
-                             AND prep.mat-type = "P")
-        THEN DO:
-           DEF BUFFER b-eb FOR eb.
-           IF NOT CAN-FIND(FIRST b-eb OF est
-                    WHERE b-eb.form-no EQ INT(est-prep.s-num:SCREEN-VALUE IN BROWSE {&browse-name})
-                      AND b-eb.blank-no EQ INT(est-prep.b-num:SCREEN-VALUE IN BROWSE {&browse-name})
-                      AND b-eb.i-col + b-eb.i-coat > 0)
-           THEN DO:
-                IF NOT CAN-FIND(FIRST b-eb OF est
-                    WHERE b-eb.form-no EQ INT(est-prep.s-num:SCREEN-VALUE IN BROWSE {&browse-name})
-                      AND b-eb.i-col + b-eb.i-coat > 0)
-                THEN DO:
-                    MESSAGE "No Inks or Coats are defineded for this estimate's form.  "
-                          " Enter Inks or Coats first before entering plates. "
-                    VIEW-AS ALERT-BOX ERROR.
-                    APPLY "entry" TO est-prep.CODE.                    
-                    RETURN ERROR.
-                END.                                 
-           END.           
-    END.    
-  END.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-s-num B-table-Win 
-PROCEDURE valid-s-num :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  DEF BUFFER b-ef FOR ef.
-
-
-  DO WITH FRAME {&FRAME-NAME}:
-    IF NOT CAN-FIND(FIRST b-ef OF est
-                    WHERE b-ef.form-no EQ INT(est-prep.s-num:SCREEN-VALUE IN BROWSE {&browse-name}))
-    THEN DO:
-      MESSAGE "Invalid " + TRIM(STRING(est-prep.s-num:LABEL IN BROWSE {&browse-name})) +
-              ", please re-enter..." VIEW-AS ALERT-BOX.
-      APPLY "entry" TO est-prep.s-num.
-      RETURN ERROR.
-    END.
-  END.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-simon B-table-Win 
-PROCEDURE valid-simon :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-                              
-  DO WITH FRAME {&FRAME-NAME}:
-    IF INDEX("SIMON",est-prep.simon:SCREEN-VALUE IN BROWSE {&browse-name}) LE 0
-    THEN DO:
-      MESSAGE "Simon code must be 'S', 'I', 'M', 'O', or 'N'..."
-          VIEW-AS ALERT-BOX ERROR.
-      APPLY "entry" TO est-prep.simon.
-      RETURN ERROR.
-    END.
-  END.
 
 END PROCEDURE.
 

@@ -1,38 +1,12 @@
 &ANALYZE-SUSPEND _VERSION-NUMBER UIB_v8r12 GUI ADM1
-/* Procedure Description
-"This SmartPanel sends update, add, 
-copy, reset, delete, and cancel messages 
-to its TABLEIO-TARGET. "
-*/
 &ANALYZE-RESUME
+/* Connected Databases 
+*/
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS C-WIn 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
 
-  File: p-updsav.w
-
-        This is the standard version of the database
-        update SmartPanel. It uses the TABLEIO link
-        to communicate with SmartViewers and Smart-
-        Browsers.
-
-        There are two styles of this SmartPanel
-        (instance attribute SmartPanelType):
-
-          1). Save - the fields of the TABLEIO-TARGET
-                       are always enabled and editable.
-
-          2). Update - the fields of the TABLEIO-TARGET
-                       are enabled and editable once the
-                       Update push button is pressed.
-                       The SmartPanel then functions like
-                       the Save style
-
-  Input Parameters:
-      <none>
-
-  Output Parameters:
-      <none>
+  File: panel\p-estprp.w
 
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
@@ -48,20 +22,37 @@ CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
 
-&SCOPED-DEFINE NoWinKit 
-
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
-&Scoped-define adm-attribute-dlg adm/support/u-paneld.w
 
-DEFINE VARIABLE hUpdateButton AS HANDLE NO-UNDO.
-DEFINE VARIABLE trans-commit AS LOGICAL NO-UNDO.  
-DEFINE VARIABLE panel-type   AS CHARACTER NO-UNDO INIT 'SAVE':U.
-DEFINE VARIABLE add-active   AS LOGICAL NO-UNDO INIT no.
+DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.
+/* === vars for d-poordl.w ====*/
+/*{methods/prgsecdt.i}*/
+{methods/defines/globdefs.i}
 
-{methods/defines/hndldefs.i}
-{methods/prgsecdt.i}
+{sys/inc/VAR.i "new shared"}
+ASSIGN 
+    cocode = g_company.
+ASSIGN 
+    locode = g_loc.
+
+{est/d-selblk.i NEW}
+
+DEFINE TEMP-TABLE tt-est-prep NO-UNDO LIKE est-prep.
+DEFINE VARIABLE llOEPrcChg-sec AS LOG       NO-UNDO.
+DEFINE VARIABLE v-access-close AS LOG       NO-UNDO.
+DEFINE VARIABLE v-access-list  AS CHARACTER NO-UNDO.
+
+RUN methods/prgsecur.p
+    (INPUT "p-estprp.",
+    INPUT "ALL", /* based on run, create, update, delete or all */
+    INPUT NO,    /* use the directory in addition to the program */
+    INPUT NO,    /* Show a message if not authorized */
+    INPUT NO,    /* Group overrides user security? */
+    OUTPUT llOEPrcChg-sec, /* Allowed? Yes/NO */
+    OUTPUT v-access-close, /* used in template/windows.i  */
+    OUTPUT v-access-list). /* list 1's and 0's indicating yes or no to run, create, update, delete */
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -71,25 +62,53 @@ DEFINE VARIABLE add-active   AS LOGICAL NO-UNDO INIT no.
 
 /* ********************  Preprocessor Definitions  ******************** */
 
-&Scoped-define PROCEDURE-TYPE SmartPanel
+&Scoped-define PROCEDURE-TYPE SmartViewer
 &Scoped-define DB-AWARE no
 
-&Scoped-define ADM-SUPPORTED-LINKS TableIO-Source
+&Scoped-define ADM-SUPPORTED-LINKS Record-Source,Record-Target,TableIO-Target
 
-/* Name of first Frame and/or Browse and/or first Query                 */
-&Scoped-define FRAME-NAME Panel-Frame
+/* Name of designated FRAME-NAME and/or first browse and/or first query */
+&Scoped-define FRAME-NAME F-Main
 
+/* External Tables                                                      */
+&Scoped-define EXTERNAL-TABLES est est-prep
+&Scoped-define FIRST-EXTERNAL-TABLE est
+
+
+/* Need to scope the external tables to this procedure                  */
+DEFINE QUERY external_tables FOR est, est-prep.
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS Btn-Save Btn-Reset Btn-Add Btn-Copy ~
-Btn-Delete Btn-Cancel btn-stds 
+&Scoped-Define ENABLED-OBJECTS Btn-View Btn-Save Btn-Add Btn-copy ~
+Btn-Delete btn-stds 
 
 /* Custom List Definitions                                              */
-/* Box-Rectangle,List-2,List-3,List-4,List-5,List-6                     */
-&Scoped-define Box-Rectangle RECT-1 
+/* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,List-3,List-4,List-5,List-6      */
+&Scoped-define ADM-CREATE-FIELDS RECT-1 
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _XFTR "Foreign Keys" V-table-Win _INLINE
+/* Actions: ? adm/support/keyedit.w ? ? ? */
+/* STRUCTURED-DATA
+<KEY-OBJECT>
+THIS-PROCEDURE
+</KEY-OBJECT>
+<FOREIGN-KEYS>
+</FOREIGN-KEYS> 
+<EXECUTING-CODE>
+**************************
+* Set attributes related to FOREIGN KEYS
+*/
+RUN set-attribute-list (
+    'Keys-Accepted = "",
+     Keys-Supplied = ""':U).
+/**************************
+</EXECUTING-CODE> */   
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 
 /* ***********************  Control Definitions  ********************** */
@@ -97,78 +116,75 @@ Btn-Delete Btn-Cancel btn-stds
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON Btn-Add 
-     LABEL "&Add" 
-     SIZE 9 BY 1.29
-     FONT 4.
+    LABEL "&Add" 
+    SIZE 13 BY .91
+    FONT 4.
 
-DEFINE BUTTON Btn-Cancel 
-     LABEL "Ca&ncel" 
-     SIZE 9 BY 1.29
-     FONT 4.
-
-DEFINE BUTTON Btn-Copy 
-     LABEL "&Copy" 
-     SIZE 9 BY 1.29
-     FONT 4.
+DEFINE BUTTON Btn-copy 
+    LABEL "&Copy" 
+    SIZE 13 BY .91
+    FONT 4.
 
 DEFINE BUTTON Btn-Delete 
-     LABEL "&Delete" 
-     SIZE 9 BY 1.29
-     FONT 4.
-
-DEFINE BUTTON Btn-Reset 
-     LABEL "&Reset" 
-     SIZE 9 BY 1.29
-     FONT 4.
+    LABEL "&Delete" 
+    SIZE 13 BY .91
+    FONT 4.
 
 DEFINE BUTTON Btn-Save 
-     LABEL "&Save" 
-     SIZE 9 BY 1.29
-     FONT 4.
+    LABEL "&Update" 
+    SIZE 13 BY .91
+    FONT 4.
 
 DEFINE BUTTON btn-stds 
-     LABEL "&Job Stds" 
-     SIZE 11 BY 1.14.
+    LABEL "&Job Stds" 
+    SIZE 13 BY .91
+    FONT 4.
+
+DEFINE BUTTON Btn-View 
+    LABEL "&View" 
+    SIZE 13 BY .91
+    FONT 4.
 
 DEFINE RECTANGLE RECT-1
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL 
-     SIZE 82 BY 1.76.
+    EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
+    SIZE 14 BY 5.7.
 
 
 /* ************************  Frame Definitions  *********************** */
 
-DEFINE FRAME Panel-Frame
-     Btn-Save AT ROW 1.29 COL 2
-     Btn-Reset AT ROW 1.29 COL 11
-     Btn-Add AT ROW 1.29 COL 20
-     Btn-Copy AT ROW 1.29 COL 29
-     Btn-Delete AT ROW 1.29 COL 38
-     Btn-Cancel AT ROW 1.29 COL 47
-     btn-stds AT ROW 1.38 COL 56
-     RECT-1 AT ROW 1 COL 1
-    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY NO-HELP 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1 SCROLLABLE 
-         BGCOLOR 8 FGCOLOR 0 .
+DEFINE FRAME F-Main
+    Btn-View AT ROW 1.14 COL 1.6
+    Btn-Save AT ROW 2.05 COL 1.6
+    Btn-Add AT ROW 2.95 COL 1.6
+    Btn-copy AT ROW 3.86 COL 1.6
+    Btn-Delete AT ROW 4.76 COL 1.6
+    btn-stds AT ROW 5.67 COL 1.6 WIDGET-ID 2
+    RECT-1 AT ROW 1.05 COL 1.2
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
+    SIDE-LABELS NO-UNDERLINE THREE-D 
+    AT COL 1 ROW 1 SCROLLABLE 
+    BGCOLOR 8 FGCOLOR 0 .
 
 
 /* *********************** Procedure Settings ************************ */
 
 &ANALYZE-SUSPEND _PROCEDURE-SETTINGS
 /* Settings for THIS-PROCEDURE
-   Type: SmartPanel
-   Allow: Basic
+   Type: SmartViewer
+   External Tables: ASI.est,ASI.est-prep
+   Allow: Basic,DB-Fields
    Frames: 1
-   Add Fields to: NEITHER
+   Add Fields to: EXTERNAL-TABLES
    Other Settings: PERSISTENT-ONLY COMPILE
  */
 
 /* This procedure should always be RUN PERSISTENT.  Report the error,  */
 /* then cleanup and return.                                            */
-IF NOT THIS-PROCEDURE:PERSISTENT THEN DO:
-  MESSAGE "{&FILE-NAME} should only be RUN PERSISTENT.":U
-          VIEW-AS ALERT-BOX ERROR BUTTONS OK.
-  RETURN.
+IF NOT THIS-PROCEDURE:PERSISTENT THEN 
+DO:
+    MESSAGE "{&FILE-NAME} should only be RUN PERSISTENT.":U
+        VIEW-AS ALERT-BOX ERROR BUTTONS OK.
+    RETURN.
 END.
 
 &ANALYZE-RESUME _END-PROCEDURE-SETTINGS
@@ -177,17 +193,17 @@ END.
 
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
-  CREATE WINDOW C-WIn ASSIGN
-         HEIGHT             = 3.05
-         WIDTH              = 92.8.
+  CREATE WINDOW V-table-Win ASSIGN
+         HEIGHT             = 7.33
+         WIDTH              = 50.4.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-WIn 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB V-table-Win 
 /* ************************* Included-Libraries *********************** */
 
-{src/adm/method/panel.i}
+{src/adm/method/viewer.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -198,15 +214,33 @@ END.
 /* ***********  Runtime Attributes and AppBuilder Settings  *********** */
 
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
-/* SETTINGS FOR WINDOW C-WIn
+/* SETTINGS FOR WINDOW V-table-Win
   VISIBLE,,RUN-PERSISTENT                                               */
-/* SETTINGS FOR FRAME Panel-Frame
-   NOT-VISIBLE Size-to-Fit                                              */
+/* SETTINGS FOR FRAME F-Main
+   NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
 ASSIGN 
-       FRAME Panel-Frame:SCROLLABLE       = FALSE
-       FRAME Panel-Frame:HIDDEN           = TRUE.
+    FRAME F-Main:SCROLLABLE = FALSE
+    FRAME F-Main:HIDDEN     = TRUE.
 
-/* SETTINGS FOR RECTANGLE RECT-1 IN FRAME Panel-Frame
+ASSIGN 
+    Btn-Add:PRIVATE-DATA IN FRAME F-Main = "panel-image".
+
+ASSIGN 
+    Btn-copy:PRIVATE-DATA IN FRAME F-Main = "panel-image".
+
+ASSIGN 
+    Btn-Delete:PRIVATE-DATA IN FRAME F-Main = "panel-image".
+
+ASSIGN 
+    Btn-Save:PRIVATE-DATA IN FRAME F-Main = "panel-image".
+
+ASSIGN 
+    btn-stds:PRIVATE-DATA IN FRAME F-Main = "panel-image".
+
+ASSIGN 
+    Btn-View:PRIVATE-DATA IN FRAME F-Main = "panel-image".
+
+/* SETTINGS FOR RECTANGLE RECT-1 IN FRAME F-Main
    NO-ENABLE 1                                                          */
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -214,11 +248,11 @@ ASSIGN
 
 /* Setting information for Queries and Browse Widgets fields            */
 
-&ANALYZE-SUSPEND _QUERY-BLOCK FRAME Panel-Frame
-/* Query rebuild information for FRAME Panel-Frame
+&ANALYZE-SUSPEND _QUERY-BLOCK FRAME F-Main
+/* Query rebuild information for FRAME F-Main
      _Options          = "NO-LOCK"
      _Query            is NOT OPENED
-*/  /* FRAME Panel-Frame */
+*/  /* FRAME F-Main */
 &ANALYZE-RESUME
 
  
@@ -228,130 +262,248 @@ ASSIGN
 /* ************************  Control Triggers  ************************ */
 
 &Scoped-define SELF-NAME Btn-Add
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn-Add C-WIn
-ON CHOOSE OF Btn-Add IN FRAME Panel-Frame /* Add */
-DO:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn-Add V-table-Win
+ON CHOOSE OF Btn-Add IN FRAME F-Main /* Add */
+    DO:
+        DEFINE BUFFER bf-est-prep FOR est-prep.
+        DEFINE VARIABLE lv-rowid AS ROWID   NO-UNDO.
+        DEFINE VARIABLE iL       AS INTEGER INITIAL 0 EXTENT 2 NO-UNDO.
 
-    IF NOT v-can-create THEN RETURN no-apply.
+        IF AVAILABLE est THEN
+        DO:
+            FOR EACH bf-est-prep NO-LOCK 
+                WHERE bf-est-prep.company EQ est.company
+                AND bf-est-prep.est-no EQ est.est-no 
+                BY bf-est-prep.s-num BY bf-est-prep.b-num BY bf-est-prep.CODE:
+                iL[1] = iL[1] + 1.
+            END.
 
-   add-active = yes.
+            RUN est/d-estprp.w (?, RECID(est), "add",OUTPUT lv-rowid).
+     
+            FOR EACH bf-est-prep NO-LOCK
+                WHERE bf-est-prep.company EQ est.company
+                AND bf-est-prep.est-no EQ est.est-no
+                BY bf-est-prep.s-num BY bf-est-prep.b-num BY bf-est-prep.CODE:
+                ASSIGN
+                    iL[2] = iL[2] + 1.
+            /*lv-rowid = ROWID(bf-oe-rell)*/ 
+            END.
 
-  RUN notify ('add-record':U).
-  
-END.
+            IF iL[2] GT 0 AND (iL[1] NE iL[2] OR iL[2] EQ 1) THEN 
+            DO:
+                RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"record-source", OUTPUT char-hdl).
+                /*RUN local-open-query IN WIDGET-HANDLE(char-hdl).
+                RUN reopen-query IN WIDGET-HANDLE(char-hdl)("add") .*/
+                RUN repo-query IN WIDGET-HANDLE(char-hdl) (lv-rowid).
+            END.
+        END.
+    END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME Btn-Cancel
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn-Cancel C-WIn
-ON CHOOSE OF Btn-Cancel IN FRAME Panel-Frame /* Cancel */
-DO:
-  DO WITH FRAME Panel-Frame:
-      add-active = no.
-      RUN notify ('cancel-record':U).
-      btn-stds:SENSITIVE = YES.
-   END.
-END.
+&Scoped-define SELF-NAME Btn-copy
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn-copy V-table-Win
+ON CHOOSE OF Btn-copy IN FRAME F-Main /* Copy */
+    DO:
+        DEFINE BUFFER bf-est-prep FOR est-prep.
+        DEFINE VARIABLE lv-rowid AS ROWID   NO-UNDO.
+        DEFINE VARIABLE iL       AS INTEGER INITIAL 0 EXTENT 2 NO-UNDO.
+        DEFINE VARIABLE op-prep  AS LOG     NO-UNDO .
+        DEFINE VARIABLE lv-b-num LIKE est-prep.b-num NO-UNDO.
+        DEFINE BUFFER b-est-prep FOR est-prep.
+        DEFINE VARIABLE li-line AS INTEGER NO-UNDO.
 
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
+        /* Code placed here will execute PRIOR to standard behavior. */
+        /*{custom/checkuse.i}*/
+
+        IF AVAILABLE est-prep THEN
+        DO:
+    
+            ASSIGN
+                lv-rowid = ROWID(est-prep)
+                lv-b-num = INT(est-prep.b-num).
+
+            RELEASE eb.
+
+            IF NOT CAN-FIND(eb WHERE eb.company EQ est.company
+                AND eb.est-no  EQ est.est-no
+                AND eb.form-no NE 0) THEN
+                FIND FIRST eb
+                    WHERE eb.company   EQ est.company
+                    AND eb.est-no    EQ est.est-no
+                    AND eb.form-no   EQ INT(est-prep.s-num)
+                    AND (eb.blank-no EQ lv-b-num OR lv-b-num EQ 0)
+                    NO-LOCK NO-ERROR.
+
+            IF AVAILABLE eb THEN 
+            DO:
+                RUN est/d-selblkp.w (ROWID(eb), "Copy " + TRIM("Preparation"),OUTPUT op-prep).
+      
+      
+                FOR EACH tt-select WHERE tt-selected,
+                    FIRST eb WHERE ROWID(eb) EQ tt-rowid
+                    BREAK BY eb.form-no
+                    BY eb.blank-no:
+
+                    /* IF FIRST-OF(eb.form-no) OR lv-b-num NE 0 THEN DO:*/ /* task 4231527 */
+                    FIND FIRST b-est-prep
+                        WHERE b-est-prep.company EQ est-prep.company
+                        AND b-est-prep.est-no  EQ est-prep.est-no
+                        AND b-est-prep.code    EQ est-prep.code
+                        AND b-est-prep.s-num   EQ eb.form-no
+                        AND b-est-prep.b-num   EQ eb.blank-no
+                        NO-ERROR.
+
+                    IF AVAILABLE b-est-prep AND op-prep THEN
+                        ASSIGN
+                            b-est-prep.qty         = est-prep.qty
+                            b-est-prep.dscr        = est-prep.dscr
+                            b-est-prep.cost        = est-prep.cost
+                            b-est-prep.ml          = est-prep.ml
+                            b-est-prep.simon       = est-prep.simon
+                            b-est-prep.mkup        = est-prep.mkup
+                            b-est-prep.amtz        = est-prep.amtz 
+                            b-est-prep.spare-dec-1 = est-prep.spare-dec-1 .
+
+                    ELSE 
+                    DO:
+                        FIND LAST b-est-prep NO-LOCK
+                            WHERE b-est-prep.company EQ est-prep.company
+                            AND b-est-prep.est-no  EQ est-prep.est-no
+                            AND b-est-prep.eqty    EQ est-prep.eqty
+                            USE-INDEX est-qty NO-ERROR.
+                        li-line = IF AVAILABLE b-est-prep THEN b-est-prep.LINE + 1 ELSE 1.
+
+                        CREATE b-est-prep.
+
+                        BUFFER-COPY est-prep EXCEPT rec_key TO b-est-prep
+                            ASSIGN
+                            b-est-prep.line  = li-line
+                            b-est-prep.s-num = eb.form-no
+                            b-est-prep.b-num = eb.blank-no.
+                    END.
+
+                    lv-rowid = ROWID(b-est-prep).
+                /*END.*/
+                END.
+
+                /*RUN repo-query (lv-rowid).*/
+                RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"record-source", OUTPUT char-hdl).
+                RUN repo-query IN WIDGET-HANDLE(char-hdl) (lv-rowid).
+            END.
+
+            ELSE 
+            DO:
 
 
-&Scoped-define SELF-NAME Btn-Copy
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn-Copy C-WIn
-ON CHOOSE OF Btn-Copy IN FRAME Panel-Frame /* Copy */
-DO:
-   IF NOT v-can-create THEN RETURN no-apply.
+                FOR EACH bf-est-prep NO-LOCK 
+                    WHERE bf-est-prep.company EQ est.company
+                    AND bf-est-prep.est-no EQ est.est-no 
+                    BY bf-est-prep.s-num BY bf-est-prep.b-num BY bf-est-prep.CODE:
+                    iL[1] = iL[1] + 1.
+                END.
+      
+                CREATE bf-est-prep.
+                BUFFER-COPY est-prep EXCEPT rec_key line TO bf-est-prep.
+                /*bf-oe-rell.LINE = z.*/
+     
+                RUN est/d-estprp.w (RECID(bf-est-prep), RECID(est), "Copy",OUTPUT lv-rowid).
+     
+                FOR EACH bf-est-prep NO-LOCK 
+                    WHERE bf-est-prep.company EQ est.company
+                    AND bf-est-prep.est-no EQ est.est-no 
+                    BY bf-est-prep.s-num BY bf-est-prep.b-num BY bf-est-prep.CODE:
+                    ASSIGN
+                        iL[2] = iL[2] + 1.
+                END.
+     
+                IF iL[2] GT 0 AND (iL[1] NE iL[2] OR iL[2] EQ 1) THEN 
+                DO:
+          
+                    RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"record-source", OUTPUT char-hdl).
+                    RUN repo-query IN WIDGET-HANDLE(char-hdl) (lv-rowid).
+      
+                END.
+            END.
 
-   RUN notify ('copy-record':U).
-END.
+        END.  /* avail est-prep */ 
+
+
+    END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
 &Scoped-define SELF-NAME Btn-Delete
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn-Delete C-WIn
-ON CHOOSE OF Btn-Delete IN FRAME Panel-Frame /* Delete */
-DO:
-   IF NOT v-can-delete THEN RETURN no-apply.
-
-   RUN notify ('delete-record':U).  
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME Btn-Reset
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn-Reset C-WIn
-ON CHOOSE OF Btn-Reset IN FRAME Panel-Frame /* Reset */
-DO:
-  RUN notify ('reset-record':U).
-END.
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn-Delete V-table-Win
+ON CHOOSE OF Btn-Delete IN FRAME F-Main /* Delete */
+    DO:
+        IF AVAILABLE est-prep THEN 
+        DO: 
+            RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"record-source", OUTPUT char-hdl).
+            RUN local-delete-record IN WIDGET-HANDLE(char-hdl).
+        END.
+    END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
 &Scoped-define SELF-NAME Btn-Save
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn-Save C-WIn
-ON CHOOSE OF Btn-Save IN FRAME Panel-Frame /* Save */
-DO:
-&IF LOOKUP("Btn-Add":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
-  /* If we're in a persistent add-mode then don't change any labels. Just make */
-  /* a call to update the last record and then add another record.             */
-  RUN get-attribute IN THIS-PROCEDURE ('AddFunction':U).
-  IF (RETURN-VALUE = 'Multiple-Records':U) AND add-active THEN 
-  DO:
-     RUN notify ('update-record':U).
-     IF RETURN-VALUE NE "ADM-ERROR":U THEN
-         RUN notify ('add-record':U). 
-  END.
-  ELSE 
-&ENDIF
-  DO:
-     IF panel-type = 'UPDATE':U THEN
-     DO WITH FRAME Panel-Frame:
-        IF Btn-Save:LABEL = '&Update' THEN 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn-Save V-table-Win
+ON CHOOSE OF Btn-Save IN FRAME F-Main /* Update */
+    DO:
+        DEFINE VARIABLE ll       AS LOGICAL NO-UNDO.
+        DEFINE VARIABLE lv-rowid AS ROWID   NO-UNDO. 
+        IF AVAILABLE est AND AVAILABLE est-prep THEN
         DO:
-           RUN new-state('update-begin':U).
-           ASSIGN add-active = no
-                  btn-stds:SENSITIVE = NO.
+     
+            EMPTY TEMP-TABLE tt-est-prep.
+      
+            CREATE tt-est-prep.
+            BUFFER-COPY est-prep TO tt-est-prep.
+      
+            RUN est/d-estprp.w (RECID(est-prep),RECID(est), "update", OUTPUT lv-rowid) . 
+       
+            BUFFER-COMPARE tt-est-prep TO est-prep SAVE RESULT IN ll.
+       
+            RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"record-source", OUTPUT char-hdl).
+            RUN repo-query IN WIDGET-HANDLE(char-hdl) (lv-rowid).
+      
         END.
-        ELSE 
-        DO: /* Save */
-           RUN notify ('update-record':U).
-           btn-stds:SENSITIVE = YES.
-        END.                              
-     END.
-     ELSE 
-     DO: /* Normal 'Save'-style SmartPanel */
-        RUN notify ('update-record':U).
-        btn-stds:SENSITIVE = YES.
-     END.
-  END.
-END.
+    END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
 &Scoped-define SELF-NAME btn-stds
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-stds C-WIn
-ON CHOOSE OF btn-stds IN FRAME Panel-Frame /* Job Stds */
-DO:
-   DO WITH FRAME Panel-Frame:
-      def var source-str as cha no-undo.
-      RUN get-link-handle IN adm-broker-hdl 
-          (THIS-PROCEDURE, 'Tableio-Target':U, OUTPUT source-str).
-     
-      IF VALID-HANDLE(widget-handle(source-str)) THEN 
-          run run-job-stds in widget-handle(source-str). 
-   END.
-END.
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-stds V-table-Win
+ON CHOOSE OF btn-stds IN FRAME F-Main /* Job Stds */
+    DO:
+        DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.
+    
+        RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"tableio-target", OUTPUT char-hdl).
+        IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN 
+            RUN run-job-stds IN WIDGET-HANDLE(char-hdl). 
+    
+    END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME Btn-View
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn-View V-table-Win
+ON CHOOSE OF Btn-View IN FRAME F-Main /* View */
+    DO:
+        DEFINE VARIABLE lv-rowid AS ROWID NO-UNDO.
+        IF AVAILABLE est-prep THEN
+            RUN est/d-estprp.w (RECID(est-prep), RECID(est), "view",OUTPUT lv-rowid). 
+    END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -359,30 +511,14 @@ END.
 
 &UNDEFINE SELF-NAME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK C-WIn 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK V-table-Win 
 
 
-/* ***************************  Main Block  *************************** */
-
-  /* Set the default SmartPanel to the one that has the Commit push */
-  /* button displayed (the TABLEIO-TARGETS are not enabled/disabled */
-  /* automatically with this type of SmartPanel).                   */
+&IF DEFINED(UIB_IS_RUNNING) NE 0 &THEN          
+RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
+  &ENDIF         
   
-  RUN set-attribute-list ("SmartPanelType=Save, 
-                           Edge-Pixels=2,
-                           AddFunction=One-Record":U). 
-                           
-  /* If the application hasn't enabled the behavior that a RETURN in a frame = GO,
-     then enable the usage of the Save button as the default button. (Note that in
-     8.0, the Save button was *always* the default button.) */
-  IF SESSION:DATA-ENTRY-RETURN NE yes THEN 
-  ASSIGN
-      Btn-Save:DEFAULT IN FRAME {&FRAME-NAME} = yes
-      FRAME {&FRAME-NAME}:DEFAULT-BUTTON = Btn-Save:HANDLE.
-  
-  &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
-    RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
-  &ENDIF
+  /************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -390,323 +526,242 @@ END.
 
 /* **********************  Internal Procedures  *********************** */
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI C-WIn  _DEFAULT-DISABLE
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE add-line V-table-Win 
+PROCEDURE add-line :
+    /*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+    APPLY "choose" TO btn-add IN FRAME {&FRAME-NAME}.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE adm-row-available V-table-Win  _ADM-ROW-AVAILABLE
+PROCEDURE adm-row-available :
+    /*------------------------------------------------------------------------------
+      Purpose:     Dispatched to this procedure when the Record-
+                   Source has a new row available.  This procedure
+                   tries to get the new row (or foriegn keys) from
+                   the Record-Source and process it.
+      Parameters:  <none>
+    ------------------------------------------------------------------------------*/
+
+    /* Define variables needed by this internal procedure.             */
+    {src/adm/template/row-head.i}
+
+    /* Create a list of all the tables that we need to get.            */
+    {src/adm/template/row-list.i "est"}
+    {src/adm/template/row-list.i "est-prep"}
+
+    /* Get the record ROWID's from the RECORD-SOURCE.                  */
+    {src/adm/template/row-get.i}
+
+    /* FIND each record specified by the RECORD-SOURCE.                */
+    {src/adm/template/row-find.i "est"}
+    {src/adm/template/row-find.i "est-prep"}
+
+    /* Process the newly available records (i.e. display fields,
+       open queries, and/or pass records on to any RECORD-TARGETS).    */
+    {src/adm/template/row-end.i}
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE browser-dbclicked V-table-Win 
+PROCEDURE browser-dbclicked :
+    /*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+    APPLY "choose" TO Btn-Save IN FRAME {&FRAME-NAME}.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI V-table-Win  _DEFAULT-DISABLE
 PROCEDURE disable_UI :
-/*------------------------------------------------------------------------------
-  Purpose:     DISABLE the User Interface
-  Parameters:  <none>
-  Notes:       Here we clean-up the user-interface by deleting
-               dynamic widgets we have created and/or hide 
-               frames.  This procedure is usually called when
-               we are ready to "clean-up" after running.
-------------------------------------------------------------------------------*/
-  /* Hide all frames. */
-  HIDE FRAME Panel-Frame.
-  IF THIS-PROCEDURE:PERSISTENT THEN DELETE PROCEDURE THIS-PROCEDURE.
+    /*------------------------------------------------------------------------------
+      Purpose:     DISABLE the User Interface
+      Parameters:  <none>
+      Notes:       Here we clean-up the user-interface by deleting
+                   dynamic widgets we have created and/or hide 
+                   frames.  This procedure is usually called when
+                   we are ready to "clean-up" after running.
+    ------------------------------------------------------------------------------*/
+    /* Hide all frames. */
+    HIDE FRAME F-Main.
+    IF THIS-PROCEDURE:PERSISTENT THEN DELETE PROCEDURE THIS-PROCEDURE.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-enable C-WIn 
-PROCEDURE local-enable :
-/*------------------------------------------------------------------------------
-  Purpose: The SmartPanel's buttons sensitivities are re-set to whatever
-           state they were in when they were disabled. This state is de-
-           termined from the variable adm-panel-state.
-  Notes:       
-------------------------------------------------------------------------------*/
-
-  RUN dispatch ('enable':U).      /* Get all objects enabled to start. */
-  RUN set-buttons (adm-panel-state).
-  
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-initialize C-WIn 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-initialize V-table-Win 
 PROCEDURE local-initialize :
-/*--------------------------------------------------------------------------
-  Purpose     : If the SmartPanel is type COMMIT, enable all the fields of
-                the TABLEIO-TARGETS since they are defaulted to disabled.
-  Notes       :
-  ------------------------------------------------------------------------*/
+    /*------------------------------------------------------------------------------
+      Purpose:     Override standard ADM method
+      Notes:       
+    ------------------------------------------------------------------------------*/
 
-  DEFINE VARIABLE query-position AS CHARACTER NO-UNDO.
-  
-  /* Insert pre-dispatch code here. */ 
-  IF access-close THEN  do:  /* YSK  not leave window on after closed */
-     APPLY 'CLOSE' TO THIS-PROCEDURE.
-     RETURN.
-  END.
+    /* Code placed here will execute PRIOR to standard behavior. */
 
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'initialize':U ) .
 
-  RUN dispatch IN THIS-PROCEDURE ( INPUT "adm-initialize":U ) .
-
-  /* Insert post-dispatch code here. */
-
-  RUN get-attribute IN THIS-PROCEDURE ('UIB-MODE':U).
-  IF RETURN-VALUE <> 'DESIGN':U THEN DO:
-     IF VALID-HANDLE (adm-broker-hdl) THEN DO:
-       DEFINE VAR tab-target-link AS CHARACTER NO-UNDO.
-       RUN get-link-handle IN adm-broker-hdl
-           (INPUT THIS-PROCEDURE, 'TABLEIO-TARGET':U, OUTPUT tab-target-link).
-       IF (tab-target-link EQ "":U) THEN
-         adm-panel-state = 'disable-all':U.
-       ELSE DO:
-         RUN request-attribute IN adm-broker-hdl
-            (INPUT THIS-PROCEDURE, INPUT 'TABLEIO-TARGET':U,
-             INPUT 'Query-Position':U).
-         query-position = RETURN-VALUE.
-         IF query-position = 'no-record-available':U THEN 
-           adm-panel-state = 'add-only':U.
-         ELSE IF query-position = 'no-external-record-available':U THEN 
-           adm-panel-state = 'disable-all':U.
-         ELSE adm-panel-state = 'initial':U.
-       END.
-     END.
-     RUN set-buttons (adm-panel-state).
-/*
-message "local-init query-pos:" query-position " panel:" adm-panel-state skip 
-         "table-link:" tab-target-link  "end".
-*/
-  END.
- 
-  IF panel-type = 'SAVE':U AND /* Only enable a Save panel if there's a record */
-    LOOKUP(query-position,'no-record-available,no-external-record-available':U) = 0
-     THEN RUN notify ('enable-fields, TABLEIO-TARGET':U).
-  /* otherwise disable in case they were already enabled during initialization*/
-  ELSE RUN notify('disable-fields, TABLEIO-TARGET':U). 
+/* Code placed here will execute AFTER standard behavior.    */
+/*RUN po/po-sysct.p .  /* for vars factor#.... need for d-poordl.w  */*/
 
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE set-buttons C-WIn 
-PROCEDURE set-buttons :
-/*------------------------------------------------------------------------------
-  Purpose: Sets the sensitivity of the panel's buttons depending upon what
-           sort of action is occuring to the TABLEIO-TARGET(s) of the panel.
-  Parameters:  Character string that denotes which action to set the button
-               sensitivities.
-               
-               The values are: initial - the panel is in a state where no record
-                                         changes are occuring; i.e. it is possible
-                                         to  Update, Add, Copy, or Delete a record.
-                               action-chosen - the panel is in the state where
-                                               Update/Save, Add, or Copy has
-                                               been pressed.
-                               disable-all - the panel has all its buttons 
-                                             disabled, in the case a link is
-                                             deactivated.
-                               add-only - for the time that there are no records
-                                          in the query, and the action that can be
-                                          taken is an add.
-  Notes:       
-------------------------------------------------------------------------------*/
-DEFINE INPUT PARAMETER panel-state AS CHARACTER NO-UNDO.
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-row-available V-table-Win 
+PROCEDURE local-row-available :
+    /*------------------------------------------------------------------------------
+      Purpose:     Override standard ADM method
+      Notes:       
+    ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE l-can-update AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE l-can-create AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE l-can-delete AS LOGICAL NO-UNDO.
+    /* Code placed here will execute PRIOR to standard behavior. */
 
-DO WITH FRAME Panel-Frame:
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'row-available':U ) .
 
-  IF panel-state = 'disable-all':U THEN DO:
+    DO WITH FRAME {&FRAME-NAME}: 
+        IF NOT AVAILABLE est-prep THEN 
+        DO:
+            ASSIGN 
+                Btn-View:SENSITIVE = NO.                                                          
+            Btn-Save:SENSITIVE = NO.
+        
+            Btn-copy:SENSITIVE = NO.
+            Btn-Delete:SENSITIVE = NO.
+        
+        END.
+        ELSE 
+        DO:
+            ASSIGN 
+                Btn-View:SENSITIVE = YES.                                                          
+            Btn-Save:SENSITIVE = YES.
+            Btn-copy:SENSITIVE = YES.
+            Btn-Delete:SENSITIVE = YES.
+       
+        END.
 
-    /* All buttons are set to insensitive. This only should happen when */
-    /* the link to the smartpanel is deactivated, but not destroyed.    */
+        ASSIGN
+            l-can-update = IF SUBSTRING(v-access-list, 2, 1) EQ "1" THEN TRUE ELSE FALSE
+            l-can-create = IF SUBSTRING(v-access-list, 3, 1) EQ "1" THEN TRUE ELSE FALSE
+            l-can-delete = IF SUBSTRING(v-access-list, 4, 1) EQ "1" THEN TRUE ELSE FALSE.
 
-&IF LOOKUP("Btn-Save":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
-             Btn-Save:SENSITIVE = NO.
-&ENDIF
-&IF LOOKUP("Btn-Delete":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
-             Btn-Delete:SENSITIVE = NO.
-&ENDIF
-&IF LOOKUP("Btn-Add":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
-             Btn-Add:SENSITIVE = NO.
-&ENDIF
-&IF LOOKUP("Btn-Copy":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
-             Btn-Copy:SENSITIVE = NO.
-&ENDIF
-&IF LOOKUP("Btn-Reset":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
-             Btn-Reset:SENSITIVE = NO.
-&ENDIF
-&IF LOOKUP("Btn-Cancel":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
-             Btn-Cancel:SENSITIVE = NO.
-&ENDIF
 
-  END. /* panel-state = 'disable-all' */
-  
-  ELSE IF panel-state = 'initial':U THEN DO:
-  
-    /* The panel is not actively changing any of its TABLEIO-TARGET(s). */
+        IF NOT l-can-create THEN ASSIGN btn-add:SENSITIVE  = NO
+                btn-copy:SENSITIVE = NO.
 
-&IF LOOKUP("Btn-Save":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
-             Btn-Save:SENSITIVE = YES.
-             IF panel-type = 'UPDATE':U THEN
-                 Btn-Save:LABEL = "&Update".
-&ENDIF
-&IF LOOKUP("Btn-Delete":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
-             Btn-Delete:SENSITIVE = YES.
-&ENDIF
-&IF LOOKUP("Btn-Add":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
-             Btn-Add:SENSITIVE = YES.
-&ENDIF
-&IF LOOKUP("Btn-Copy":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
-             Btn-Copy:SENSITIVE = YES.
-&ENDIF
-&IF LOOKUP("Btn-Reset":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
-       IF panel-type = 'Update':U THEN
-             Btn-Reset:SENSITIVE = NO.
-       ELSE
-             Btn-Reset:SENSITIVE = YES.
-&ENDIF
-&IF LOOKUP("Btn-Cancel":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
-             Btn-Cancel:SENSITIVE = NO.
-&ENDIF
+        IF NOT l-can-update THEN ASSIGN Btn-Save:SENSITIVE = NO
+                btn-stds:SENSITIVE = NO.
+                                   
+        IF NOT l-can-delete THEN Btn-Delete:SENSITIVE = NO.
+    END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE reopen-po-ord-query V-table-Win 
+PROCEDURE reopen-po-ord-query :
+    /*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lv-rowid AS ROWID     NO-UNDO.
+
+
+/*IF AVAIL oe-rell THEN DO:
+  lv-rowid = ROWID(oe-rell).
       
-  END. /* panel-state = 'initial' */
+  run get-link-handle in adm-broker-hdl(this-procedure,"record-source", output char-hdl).
+  run get-link-handle in adm-broker-hdl(widget-handle(char-hdl),"record-source", output char-hdl).
 
-  ELSE IF panel-state = 'add-only':U THEN DO:
+  run reopen-query1 in widget-handle(char-hdl) (lv-rowid).
 
-    /* All buttons are set to insensitive, except add. This only should */
-    /* happen only when there are no records in the query and the only  */
-    /* thing that can be done to it is add-record.                      */
-
-&IF LOOKUP("Btn-Save":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
-             Btn-Save:SENSITIVE = NO.
-&ENDIF
-&IF LOOKUP("Btn-Delete":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
-             Btn-Delete:SENSITIVE = NO.
-&ENDIF
-&IF LOOKUP("Btn-Add":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
-             Btn-Add:SENSITIVE = YES.
-&ENDIF
-&IF LOOKUP("Btn-Copy":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
-             Btn-Copy:SENSITIVE = NO.
-&ENDIF
-&IF LOOKUP("Btn-Reset":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
-             Btn-Reset:SENSITIVE = NO.
-&ENDIF
-&IF LOOKUP("Btn-Cancel":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
-             Btn-Cancel:SENSITIVE = NO.
-&ENDIF
-
-  END. /* panel-state = 'add-only' */
- 
-  ELSE DO: /* panel-state = action-chosen */ 
-  
-    /* The panel had one of the buttons capable of changing/adding a record */
-    /* pressed. Always force the SAVE/UPDATE button to be sensitive in the  */
-    /* the event that the smartpanel is disabled and later enabled prior to */
-    /* the action being completed.                                          */
-
-&IF LOOKUP("Btn-Save":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
-             Btn-Save:SENSITIVE = YES.
-             IF panel-type = 'UPDATE':U THEN
-               Btn-Save:LABEL = "&Save".
-&ENDIF    
-&IF LOOKUP("Btn-Delete":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
-             Btn-Delete:SENSITIVE = NO.
-&ENDIF
-&IF LOOKUP("Btn-Add":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
-             Btn-Add:SENSITIVE = NO.
-&ENDIF
-&IF LOOKUP("Btn-Copy":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
-             Btn-Copy:SENSITIVE = NO.
-&ENDIF
-&IF LOOKUP("Btn-Reset":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
-             Btn-Reset:SENSITIVE = YES.
-&ENDIF
-&IF LOOKUP("Btn-Cancel":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
-             Btn-Cancel:SENSITIVE = YES.
-&ENDIF
-
-  END. /* panel-state = action-chosen */
-
-  DO WITH FRAME {&FRAME-NAME}:
-    IF NOT v-can-create THEN ASSIGN btn-add:SENSITIVE = NO
-                                    btn-copy:SENSITIVE = NO.
-
-    IF NOT v-can-update THEN btn-save:SENSITIVE = NO.
-    IF NOT v-can-delete THEN btn-delete:SENSITIVE = NO.
-  END.
-
-END. /* DO WITH FRAME */
+  RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"record-source",OUTPUT char-hdl).
+  RUN reopen-query IN WIDGET-HANDLE(char-hdl) (lv-rowid).
+END.*/
 
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE set-label C-WIn 
-PROCEDURE set-label :
-/*------------------------------------------------------------------------------
-  Purpose: To change the label of the first button in the smartpanel when the
-           smartpaneltype is changed from save to update, or vice versa,
-           from outside the panel (e.g., from the Instance Attribute dialog. 
-  Parameters: label-string - either "Save" or "Update".
-  Notes:       
-------------------------------------------------------------------------------*/
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE send-records V-table-Win  _ADM-SEND-RECORDS
+PROCEDURE send-records :
+    /*------------------------------------------------------------------------------
+      Purpose:     Send record ROWID's for all tables used by
+                   this file.
+      Parameters:  see template/snd-head.i
+    ------------------------------------------------------------------------------*/
 
-DEFINE INPUT PARAMETER label-string as CHARACTER NO-UNDO.
+    /* Define variables needed by this internal procedure.               */
+    {src/adm/template/snd-head.i}
 
-DO WITH FRAME panel-frame: 
-  Btn-Save:LABEL = label-string.
-END.
+    /* For each requested table, put it's ROWID in the output list.      */
+    {src/adm/template/snd-list.i "est"}
+    {src/adm/template/snd-list.i "est-prep"}
+
+    /* Deal with any unexpected table requests before closing.           */
+    {src/adm/template/snd-end.i}
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE state-changed C-WIn 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE state-changed V-table-Win 
 PROCEDURE state-changed :
-/* -----------------------------------------------------------
+    /* -----------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    -------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER p-issuer-hdl AS HANDLE    NO-UNDO.
+    DEFINE INPUT PARAMETER cP-state      AS CHARACTER NO-UNDO.
+
+    CASE cP-state:
+        /* Object instance CASEs can go here to replace standard behavior
+           or add new cases. */
+        {src/adm/template/vstates.i}
+    END CASE.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE update-item V-table-Win 
+PROCEDURE update-item :
+/*------------------------------------------------------------------------------
   Purpose:     
   Parameters:  <none>
   Notes:       
--------------------------------------------------------------*/
-  DEFINE INPUT PARAMETER p-issuer-hdl AS HANDLE NO-UNDO.
-  DEFINE INPUT PARAMETER p-state AS CHARACTER NO-UNDO.
-
-
-
-  CASE p-state:
-      /* Object instance CASEs can go here to replace standard behavior
-         or add new cases. */
-      {src/adm/template/pustates.i}
-  END CASE.
-  
-  /* change to force buttons after delete style record */
-  run get-attribute in adm-broker-hdl ('IS-DELETED').
-  if return-value = "yes" and p-state begins "link" then do: 
-    /* message "force to enable button ".
-     run set-attribute-list in adm-broker-hdl ("IS-DELETED=no").  
-    */
-     run set-buttons ('initial'). 
-  end.
-  /* =========== end of mods ========*/
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE use-smartpaneltype C-WIn 
-PROCEDURE use-smartpaneltype :
-/*------------------------------------------------------------------------------
-  Purpose:     This procedure sets the value of the panel-type variable 
-               whenever the SmartPanelType ADM attribute is set. This is
-               used internally within this object to know whether the
-               SmartPanel is in "Save" or "Update" mode.
-  Parameters:  new attribute value.
-  Notes:       This replaces code in local-initialize which set panel-type,
-               but which did not always get executed early enough.
 ------------------------------------------------------------------------------*/
-  define input parameter inval as character.
-  panel-type = inval.
-  
+/*run oe/d-oeitem.w (recid(oe-ordl), oe-ordl.ord-no,INPUT TABLE tt-item-qty-price,
+                   "Update").*/
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
 
