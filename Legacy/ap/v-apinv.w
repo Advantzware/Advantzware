@@ -1203,6 +1203,14 @@ PROCEDURE valid-inv-date :
   {methods/lValidateError.i YES}
   IF NOT ll-recur THEN
   DO WITH FRAME {&FRAME-NAME}:
+    IF DATE(ap-inv.inv-date:SCREEN-VALUE) LT (TODAY - 365) OR DATE(ap-inv.inv-date:SCREEN-VALUE) GT (TODAY + 547) THEN DO:
+           MESSAGE "Dates over 1 year in the past or 18 months in the future are not allowed."
+            VIEW-AS ALERT-BOX INFO.
+          ap-inv.inv-date:HELP = "Please Enter a Valid Date.".
+        APPLY "entry" TO ap-inv.inv-date.
+        RETURN ERROR.
+    END.
+
     IF DATE(ap-inv.inv-date:SCREEN-VALUE) LT (TODAY - 90) THEN DO:
       IF NOT ll-date-warning THEN
         MESSAGE "Date is more than 90 days away - are you sure?"
@@ -1215,12 +1223,7 @@ PROCEDURE valid-inv-date :
       END.
     END.
 
-    IF DATE(ap-inv.inv-date:SCREEN-VALUE) LT (TODAY - 365) OR DATE(ap-inv.inv-date:SCREEN-VALUE) GT (TODAY + 547) THEN DO:
-      IF NOT ll-date-warning THEN
-          ap-inv.inv-date:HELP = "Please Enter a Valid Date.".
-        APPLY "entry" TO ap-inv.inv-date.
-        RETURN ERROR.
-    END.
+    
   END.
 
   {methods/lValidateError.i NO}
