@@ -375,6 +375,14 @@ STATUS DEFAULT "Processing BOL Posting 1........ BOL#: " + STRING(oe-bolh.bol-no
           /* Found overlap with another user */
           fLogMsg("Collision with other user oe-bolp3.p " + " BOL# " + STRING(oe-bolh.bol-no) + " Key03: " + report.key-03).          
       END.
+      
+      /* delete all lines related to this BOL as it is being posted by someone else */
+      FOR EACH bf-oe-boll NO-LOCK WHERE bf-oe-boll.b-no EQ oe-boll.b-no,
+          FIRST bf-report EXCLUSIVE-LOCK WHERE bf-report.term-id NE v-term  
+          AND bf-report.rec-id EQ RECID(bf-oe-boll):
+          /* Found overlap with another user */
+          DELETE bf-report.           
+      END.
   END. 
   
   FOR EACH report NO-LOCK WHERE report.term-id EQ v-term,
