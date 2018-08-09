@@ -993,7 +993,8 @@ PROCEDURE job-start :
 ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER v-today AS DATE NO-UNDO.
     
-    DEFINE VARIABLE ampm AS INTEGER NO-UNDO.
+    DEFINE VARIABLE ampm      AS INTEGER NO-UNDO.
+    DEFINE VARIABLE iTimeHour AS INTEGER NO-UNDO.
   
     DO WITH FRAME {&FRAME-NAME}:
         {methods/run_link.i "CONTAINER" "Get_Value" "('company_code',OUTPUT company_code)"}
@@ -1008,6 +1009,7 @@ PROCEDURE job-start :
         CREATE machtran.
         ASSIGN
             ampm                   = IF Btn_AMPM:LABEL EQ 'PM' AND time-hour NE 12 THEN 43200 ELSE 0
+            iTimeHour              = IF Btn_AMPM:LABEL EQ 'AM' AND time-hour EQ 12 THEN 0 ELSE time-hour
             machtran.company       = company_code
             machtran.machine       = machine_code
             machtran.job_number    = job_number
@@ -1016,7 +1018,7 @@ PROCEDURE job-start :
             machtran.blank_number  = INTEGER(blank_number)
             machtran.pass_sequence = INTEGER(pass_sequence)
             machtran.start_date    = v-today
-            machtran.start_time    = time-hour * 3600 + time-minute * 60 + ampm
+            machtran.start_time    = iTimeHour * 3600 + time-minute * 60 + ampm
             machtran.jobseq        = IF AVAILABLE jobseq THEN jobseq.jobseq ELSE 0
             machtran.charge_code   = charge_code
             machtran.posted        = NO        

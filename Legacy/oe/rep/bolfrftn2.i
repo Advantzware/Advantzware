@@ -117,7 +117,10 @@ FOR EACH tt-boll,
           THEN .
           ELSE DO:
               ASSIGN icountpallet  = w2.cas-cnt * w2.cases .
-              
+
+                if w2.cases ne 0 
+                or i = 2 then do:
+
                DISPLAY 
                  w2.i-no                       
                  TRIM(STRING(w2.qty,"->>,>>>,>>>")) WHEN i = 1 @ w2.i-no
@@ -131,7 +134,7 @@ FOR EACH tt-boll,
                DOWN WITH FRAME bol-mid.       
 
                ASSIGN v-printline = v-printline + 1.
-             
+                end.
           END. /* ELSE DO */
 
         IF v-printline >= 34 THEN DO:

@@ -32,6 +32,7 @@ CREATE WIDGET-POOL.
 /* ***************************  Definitions  ************************** */
 
 &SCOPED-DEFINE winReSize
+&SCOPED-DEFINE sizeOption HEIGHT
 {methods/defines/winReSize.i}
 
 /* Parameters Definitions ---                                           */
@@ -141,7 +142,7 @@ DEFINE BROWSE Browser-Table
              stackPattern.strapCount stackPattern.strapCode stackPattern.strapFormula stackPattern.stackImage
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ASSIGN SEPARATORS SIZE 146 BY 18.1
+    WITH NO-ASSIGN SEPARATORS SIZE 196 BY 18.1
          FONT 2.
 
 
@@ -192,7 +193,7 @@ END.
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW B-table-Win ASSIGN
          HEIGHT             = 19.57
-         WIDTH              = 148.
+         WIDTH              = 195.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
