@@ -754,7 +754,7 @@ DO:
                    AND loadtag.item-type = YES
                    AND loadtag.tag-no = rm-rctd.tag  NO-ERROR.
             IF NOT AVAIL loadtag THEN DO:
-                MESSAGE "Sorry, RM Issue Transactions cannot be process because  " SKIP
+                MESSAGE "Sorry, RM Issue Transactions cannot be processed because  " SKIP
                 "Item#("  STRING(rm-rctd.i-no)  ") has invalid tag# : "  STRING(rm-rctd.tag)   VIEW-AS ALERT-BOX INFO.
                 lv-post = NO.
                 LEAVE .
