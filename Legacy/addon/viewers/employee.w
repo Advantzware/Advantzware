@@ -203,6 +203,7 @@ DEFINE FRAME F-Main
           SIZE 26 BY 1
           BGCOLOR 15 FONT 4
      employee.actnum AT ROW 9.33 COL 23 COLON-ALIGNED
+          LABEL " Note"
           VIEW-AS FILL-IN 
           SIZE 32 BY 1
           BGCOLOR 15 FONT 4
