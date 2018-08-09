@@ -55,6 +55,7 @@ DEFINE VARIABLE correct-error  AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE gcompany       AS CHARACTER NO-UNDO.
 DEFINE VARIABLE gvcMultiSelect AS CHARACTER NO-UNDO INITIAL "OEDATECHANGE,SSBOLEMAIL".
 DEFINE VARIABLE cValidateList  AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lValid         AS LOGICAL   NO-UNDO.
 
 cValidateList = "QUOPRINT,BOLFMT,ACKHEAD,RELPRINT,POPRINT,"
               + "INVPRINT,BOLCERT,JOBCARDF,JOBCARDC,QUOPRICE"
@@ -622,7 +623,7 @@ DEFINE FRAME DEFAULT-FRAME
 DEFINE FRAME searchFrame
      btnClear AT ROW 10.76 COL 64 HELP
           "Clear Search Filters" WIDGET-ID 42
-     cNameFilter AT ROW 1.24 COL 15.4 HELP
+     cNameFilter AT ROW 1.24 COL 21 COLON-ALIGNED HELP
           "Name Search" WIDGET-ID 2
      cFieldDescripFilter AT ROW 2.19 COL 21 COLON-ALIGNED HELP
           "Description Search" WIDGET-ID 44
@@ -634,15 +635,15 @@ DEFINE FRAME searchFrame
           "Module Search" WIDGET-ID 12
      cTypeCodeFilter AT ROW 6 COL 21 COLON-ALIGNED HELP
           "Type Search" WIDGET-ID 10
-     cCategoryFilter AT ROW 6.95 COL 11.4 HELP
+     cCategoryFilter AT ROW 6.95 COL 21 COLON-ALIGNED HELP
           "Category Search" WIDGET-ID 14
-     cSubCategoryFilter AT ROW 7.91 COL 6.6 HELP
+     cSubCategoryFilter AT ROW 7.91 COL 21 COLON-ALIGNED HELP
           "Sub Category Search" WIDGET-ID 16
-     cTableSourceFilter AT ROW 8.86 COL 7.2 HELP
+     cTableSourceFilter AT ROW 8.86 COL 21 COLON-ALIGNED HELP
           "Table Source Search" WIDGET-ID 46
-     cFieldSourceFilter AT ROW 9.81 COL 8.2 HELP
+     cFieldSourceFilter AT ROW 9.81 COL 21 COLON-ALIGNED HELP
           "Field Source Search" WIDGET-ID 48
-     cDataTypeFilter AT ROW 10.76 COL 10.2 HELP
+     cDataTypeFilter AT ROW 10.76 COL 21 COLON-ALIGNED HELP
           "Data Type Search" WIDGET-ID 50
      btnSearch AT ROW 1 COL 1 HELP
           "Search" WIDGET-ID 40
@@ -651,6 +652,14 @@ DEFINE FRAME searchFrame
          AT COL 39 ROW 6.48
          SIZE 72 BY 10.95
          BGCOLOR 1 FGCOLOR 15 FONT 6 WIDGET-ID 600.
+
+DEFINE FRAME filterFrame
+    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 1
+         SIZE 38 BY 28.57
+         BGCOLOR 15 FGCOLOR 1 
+         TITLE BGCOLOR 8 "Cateogry / SubCategory" WIDGET-ID 200.
 
 DEFINE FRAME formsFrame
      cSysCtrlName AT ROW 1.24 COL 11 COLON-ALIGNED WIDGET-ID 4
@@ -669,24 +678,6 @@ DEFINE FRAME viewFormFrame
           "Add" WIDGET-ID 20
      btnCancel-2 AT ROW 9.57 COL 98 HELP
           "Cancel" WIDGET-ID 28
-     btnCopy-2 AT ROW 9.57 COL 74 HELP
-          "Copy" WIDGET-ID 24
-     btnDelete-2 AT ROW 9.57 COL 82 HELP
-          "Delete" WIDGET-ID 26
-     btnFirst AT ROW 9.57 COL 109 HELP
-          "First" WIDGET-ID 62
-     btnForms-2 AT ROW 1.48 COL 133 HELP
-          "Parameters" WIDGET-ID 72
-     btnLast AT ROW 9.57 COL 133 HELP
-          "Last" WIDGET-ID 68
-     btnNext AT ROW 9.57 COL 125 HELP
-          "Next" WIDGET-ID 66
-     btnPrev AT ROW 9.57 COL 117 HELP
-          "Previous" WIDGET-ID 64
-     btnReset-2 AT ROW 9.57 COL 90 HELP
-          "Reset" WIDGET-ID 22
-     btnUpdate-2 AT ROW 9.57 COL 58 HELP
-          "Update/Save" WIDGET-ID 18
      sys-ctrl-shipto.cust-vend AT ROW 1.24 COL 24 NO-LABEL WIDGET-ID 48
           VIEW-AS RADIO-SET HORIZONTAL
           RADIO-BUTTONS 
@@ -727,6 +718,8 @@ DEFINE FRAME viewFormFrame
           VIEW-AS FILL-IN 
           SIZE 16 BY 1
           BGCOLOR 15 
+     btnCopy-2 AT ROW 9.57 COL 74 HELP
+          "Copy" WIDGET-ID 24
      cLogLabel AT ROW 10.76 COL 15.2 WIDGET-ID 78
      sys-ctrl-shipto.log-fld AT ROW 10.76 COL 24 NO-LABEL WIDGET-ID 52
           VIEW-AS RADIO-SET HORIZONTAL
@@ -735,6 +728,22 @@ DEFINE FRAME viewFormFrame
 "No", no,
 "Unknown", ?
           SIZE 28 BY 1
+     btnDelete-2 AT ROW 9.57 COL 82 HELP
+          "Delete" WIDGET-ID 26
+     btnFirst AT ROW 9.57 COL 109 HELP
+          "First" WIDGET-ID 62
+     btnForms-2 AT ROW 1.48 COL 133 HELP
+          "Parameters" WIDGET-ID 72
+     btnLast AT ROW 9.57 COL 133 HELP
+          "Last" WIDGET-ID 68
+     btnNext AT ROW 9.57 COL 125 HELP
+          "Next" WIDGET-ID 66
+     btnPrev AT ROW 9.57 COL 117 HELP
+          "Previous" WIDGET-ID 64
+     btnReset-2 AT ROW 9.57 COL 90 HELP
+          "Reset" WIDGET-ID 22
+     btnUpdate-2 AT ROW 9.57 COL 58 HELP
+          "Update/Save" WIDGET-ID 18
      btnCalendar-2 AT ROW 7.19 COL 39 WIDGET-ID 272
      "Type:" VIEW-AS TEXT
           SIZE 6 BY 1 AT ROW 1.24 COL 17 WIDGET-ID 58
@@ -751,8 +760,23 @@ DEFINE FRAME viewFormFrame
 DEFINE FRAME viewFrame
      btnAdd AT ROW 9.81 COL 28 HELP
           "Add" WIDGET-ID 20
+     cCategory AT ROW 1.24 COL 18 COLON-ALIGNED WIDGET-ID 2
+     cSubcategory AT ROW 1.24 COL 58 COLON-ALIGNED WIDGET-ID 12
+     iSecurityLevelUser AT ROW 1.24 COL 92 COLON-ALIGNED WIDGET-ID 10
+     iSecurityLevelDefault AT ROW 1.24 COL 102 COLON-ALIGNED WIDGET-ID 44
+     cName AT ROW 2.43 COL 18 COLON-ALIGNED WIDGET-ID 8
+     cTypeCode AT ROW 2.43 COL 58 COLON-ALIGNED WIDGET-ID 14
+     cModule AT ROW 2.43 COL 99 COLON-ALIGNED WIDGET-ID 6
+     cDescrip AT ROW 3.62 COL 18 COLON-ALIGNED WIDGET-ID 4
+     cFieldDescrip AT ROW 4.81 COL 18 COLON-ALIGNED WIDGET-ID 40
+     cFieldValue AT ROW 6 COL 18 COLON-ALIGNED WIDGET-ID 30
+     cFieldDefault AT ROW 7.19 COL 18 COLON-ALIGNED WIDGET-ID 42
      btnCancel AT ROW 9.81 COL 60 HELP
           "Cancel" WIDGET-ID 28
+     ctableSource AT ROW 8.38 COL 18 COLON-ALIGNED WIDGET-ID 46
+     cfieldSource AT ROW 8.38 COL 54 COLON-ALIGNED WIDGET-ID 48
+     cDataType AT ROW 8.38 COL 94 COLON-ALIGNED HELP
+          "Select Data Type" WIDGET-ID 52
      btnCopy AT ROW 9.81 COL 36 HELP
           "Copy" WIDGET-ID 24
      btnDefaults AT ROW 9.81 COL 88 HELP
@@ -769,21 +793,6 @@ DEFINE FRAME viewFrame
           "Reset" WIDGET-ID 22
      btnUpdate AT ROW 9.81 COL 20 HELP
           "Update/Save" WIDGET-ID 18
-     cCategory AT ROW 1.24 COL 18 COLON-ALIGNED WIDGET-ID 2
-     cSubcategory AT ROW 1.24 COL 58 COLON-ALIGNED WIDGET-ID 12
-     iSecurityLevelUser AT ROW 1.24 COL 92 COLON-ALIGNED WIDGET-ID 10
-     iSecurityLevelDefault AT ROW 1.24 COL 102 COLON-ALIGNED WIDGET-ID 44
-     cName AT ROW 2.43 COL 18 COLON-ALIGNED WIDGET-ID 8
-     cTypeCode AT ROW 2.43 COL 58 COLON-ALIGNED WIDGET-ID 14
-     cModule AT ROW 2.43 COL 99 COLON-ALIGNED WIDGET-ID 6
-     cDescrip AT ROW 3.62 COL 18 COLON-ALIGNED WIDGET-ID 4
-     cFieldDescrip AT ROW 4.81 COL 18 COLON-ALIGNED WIDGET-ID 40
-     cFieldValue AT ROW 6 COL 18 COLON-ALIGNED WIDGET-ID 30
-     cFieldDefault AT ROW 7.19 COL 18 COLON-ALIGNED WIDGET-ID 42
-     ctableSource AT ROW 8.38 COL 18 COLON-ALIGNED WIDGET-ID 46
-     cfieldSource AT ROW 8.38 COL 54 COLON-ALIGNED WIDGET-ID 48
-     cDataType AT ROW 8.38 COL 94 COLON-ALIGNED HELP
-          "Select Data Type" WIDGET-ID 52
      transPanel AT ROW 9.57 COL 19 WIDGET-ID 16
      transPanel-2 AT ROW 9.57 COL 87 WIDGET-ID 32
      transPanel-5 AT ROW 9.57 COL 73 WIDGET-ID 56
@@ -792,14 +801,6 @@ DEFINE FRAME viewFrame
          AT COL 39 ROW 17.43
          SIZE 122 BY 12.14
          TITLE "View" WIDGET-ID 400.
-
-DEFINE FRAME filterFrame
-    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1
-         SIZE 38 BY 28.57
-         BGCOLOR 15 FGCOLOR 1 
-         TITLE BGCOLOR 8 "Cateogry / SubCategory" WIDGET-ID 200.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -857,11 +858,11 @@ ASSIGN FRAME filterFrame:FRAME = FRAME DEFAULT-FRAME:HANDLE
 
 DEFINE VARIABLE XXTABVALXX AS LOGICAL NO-UNDO.
 
-ASSIGN XXTABVALXX = FRAME formsFrame:MOVE-AFTER-TAB-ITEM (svFocus:HANDLE IN FRAME DEFAULT-FRAME)
+ASSIGN XXTABVALXX = FRAME formsFrame:MOVE-BEFORE-TAB-ITEM (svFocus:HANDLE IN FRAME DEFAULT-FRAME)
+       XXTABVALXX = FRAME filterFrame:MOVE-AFTER-TAB-ITEM (svFocus:HANDLE IN FRAME DEFAULT-FRAME)
        XXTABVALXX = FRAME filterFrame:MOVE-BEFORE-TAB-ITEM (sysCtrlBrowse:HANDLE IN FRAME DEFAULT-FRAME)
        XXTABVALXX = FRAME searchFrame:MOVE-AFTER-TAB-ITEM (sysCtrlBrowse:HANDLE IN FRAME DEFAULT-FRAME)
        XXTABVALXX = FRAME searchFrame:MOVE-BEFORE-TAB-ITEM (FRAME viewFrame:HANDLE)
-       XXTABVALXX = FRAME formsFrame:MOVE-BEFORE-TAB-ITEM (FRAME filterFrame:HANDLE)
 /* END-ASSIGN-TABS */.
 
 /* BROWSE-TAB sysCtrlBrowse filterFrame DEFAULT-FRAME */
@@ -908,23 +909,23 @@ ASSIGN
 /* SETTINGS FOR BUTTON btnClear IN FRAME searchFrame
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN cCategoryFilter IN FRAME searchFrame
-   ALIGN-L 6                                                            */
+   6                                                                    */
 /* SETTINGS FOR FILL-IN cDataTypeFilter IN FRAME searchFrame
-   ALIGN-L 6                                                            */
+   6                                                                    */
 /* SETTINGS FOR FILL-IN cDescripFilter IN FRAME searchFrame
    6                                                                    */
 /* SETTINGS FOR FILL-IN cFieldDescripFilter IN FRAME searchFrame
    6                                                                    */
 /* SETTINGS FOR FILL-IN cFieldSourceFilter IN FRAME searchFrame
-   ALIGN-L 6                                                            */
+   6                                                                    */
 /* SETTINGS FOR FILL-IN cModuleFilter IN FRAME searchFrame
    6                                                                    */
 /* SETTINGS FOR FILL-IN cNameFilter IN FRAME searchFrame
-   ALIGN-L 6                                                            */
+   6                                                                    */
 /* SETTINGS FOR FILL-IN cSubCategoryFilter IN FRAME searchFrame
-   ALIGN-L 6                                                            */
+   6                                                                    */
 /* SETTINGS FOR FILL-IN cTableSourceFilter IN FRAME searchFrame
-   ALIGN-L 6                                                            */
+   6                                                                    */
 /* SETTINGS FOR FILL-IN cTypeCodeFilter IN FRAME searchFrame
    6                                                                    */
 /* SETTINGS FOR FILL-IN cValueFilter IN FRAME searchFrame
@@ -1583,6 +1584,195 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define FRAME-NAME viewFrame
+&Scoped-define SELF-NAME cFieldValue
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cFieldValue C-Win
+ON ENTRY OF cFieldValue IN FRAME viewFrame /* Value */
+DO:
+    DEFINE VARIABLE ls-name-value AS CHARACTER FORMAT "x(100)" NO-UNDO. 
+
+    STATUS INPUT "".
+    IF cDataType:SCREEN-VALUE EQ "Character" THEN DO:
+        IF CAN-DO(name-fld-list,ttSysCtrl.name) THEN DO:
+            ls-name-value = str-init[LOOKUP(ttSysCtrl.name, name-fld-list)].
+            STATUS INPUT ls-name-value.
+        END.
+    END. /* if character */
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cFieldValue C-Win
+ON HELP OF cFieldValue IN FRAME viewFrame /* Value */
+DO:
+    DEFINE VARIABLE cNameValue AS CHARACTER      NO-UNDO.
+    DEFINE VARIABLE cCharValue AS CHARACTER      NO-UNDO.
+    DEFINE VARIABLE cLoc     LIKE fg-bin.loc     NO-UNDO.
+    DEFINE VARIABLE cLocBin  LIKE fg-bin.loc-bin NO-UNDO.
+    DEFINE VARIABLE cCharFld   AS CHARACTER      NO-UNDO.
+    DEFINE VARIABLE cRtnValue  AS CHARACTER      NO-UNDO.
+
+    IF cDataType:SCREEN-VALUE EQ "Character" THEN DO:
+        cNameValue = ttSysCtrl.name.
+        IF LOOKUP(cNameValue, gvcMultiSelect) GT 0 AND
+           LOOKUP(cNameValue,name-fld-list)   GT 0 THEN DO:
+            RUN windows/w-syschr.w (
+                cNameValue,
+                cFieldValue:SCREEN-VALUE,
+                str-init[LOOKUP(cNameValue,name-fld-list)],
+                OUTPUT cCharValue
+                ) .
+            cFieldValue:SCREEN-VALUE = cCharValue.
+            RETURN NO-APPLY.
+        END.
+        ELSE
+        CASE cNameValue:
+            WHEN "FGWHSBIN" THEN DO:
+                IF cFieldValue:SCREEN-VALUE EQ "AUTOPOST" THEN
+                ASSIGN
+                    cLoc    = ""
+                    cLocBin = ""
+                    .
+                ELSE
+                ASSIGN
+                    cLoc    = SUBSTR(cFieldValue:SCREEN-VALUE,1,5)
+                    cLocBin = SUBSTR(cFieldValue:SCREEN-VALUE,6,8)
+                    .
+                RUN windows/l-fgbin.w (gcompany, cLoc, cLocBin, OUTPUT cCharValue).
+                IF cCharValue NE "" THEN
+                cFieldValue:SCREEN-VALUE = STRING(ENTRY(2,cCharValue),"x(5)") + TRIM(ENTRY(1,cCharValue)).
+            END. /* fgwhsbin */
+            WHEN "TSPOSTFG" THEN DO:
+                RUN windows/l-mach2.w (gcompany,g_loc,"",OUTPUT cCharValue).
+                IF cCharValue NE "" THEN
+                cFieldValue:SCREEN-VALUE = cCharValue.
+                RETURN NO-APPLY.
+            END. /* tspostfg */
+            WHEN "RMWHSBIN" THEN DO:
+                IF cFieldValue:SCREEN-VALUE EQ "RMITEM" THEN
+                ASSIGN
+                    cLoc    = ""
+                    cLocBin = ""
+                    .
+                ELSE
+                ASSIGN
+                    cLoc    = SUBSTR(cFieldValue:SCREEN-VALUE,1,5)
+                    cLocBin = SUBSTR(cFieldValue:SCREEN-VALUE,6,8)
+                    .
+                RUN windows/l-rmbin.w (gcompany,cLoc,cLocBin,OUTPUT cCharValue).
+                IF cCharValue NE "" THEN
+                cFieldValue:SCREEN-VALUE = STRING(ENTRY(2,cCharValue),"x(5)") + TRIM(ENTRY(1,cCharValue)).
+            END. /* rmwhsbin */
+            WHEN "FGMASTER" THEN DO:
+                RUN windows/l-itemfg.w (gcompany,g_loc,"",OUTPUT cCharValue).
+                IF cCharValue NE "" THEN
+                cFieldValue:SCREEN-VALUE = ENTRY(1,cCharValue).
+                RETURN NO-APPLY.
+            END. /* fgmaster */
+            WHEN "CASLABEL" THEN DO:
+                cCharFld = cFieldValue:SCREEN-VALUE.
+                RUN sys\ref\char-fld-help.w (gcompany, cCharFld, OUTPUT cRtnValue).
+                IF TRIM(cRtnValue) NE "" THEN
+                cFieldValue:SCREEN-VALUE = cRtnValue.
+            END. /* caslabel */
+            WHEN "GRAPHIC" THEN DO:
+                ASSIGN 
+                    cCharFld = cFieldValue:SCREEN-VALUE
+                    cCharFld = IF TRIM(cCharFld) EQ "" THEN "GRAPHIC"
+                               ELSE TRIM(cCharFld)
+                                . 
+                RUN sys\ref\char-fld-help.w (gcompany, cCharFld, OUTPUT cRtnValue).
+                IF TRIM(cRtnValue) NE "" THEN
+                cFieldValue:SCREEN-VALUE = cRtnValue.      
+            END. /* graphic */
+            WHEN "BARDIR" THEN DO:
+                MESSAGE
+                    "Do you want to display Xprint Values.... "
+                VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO TITLE ""
+                UPDATE lChoice AS LOGICAL.
+                IF NOT lChoice THEN DO:
+                    cCharFld = cFieldDescrip:SCREEN-VALUE.
+                    RUN sys\ref\char-fld-help.w (gcompany, cCharFld, OUTPUT cRtnValue).
+                    IF TRIM(cRtnValue) NE "" THEN
+                    cFieldValue:SCREEN-VALUE = cRtnValue. 
+                END. /* if not lchoice */
+                ELSE DO:
+                    RUN windows/l-typxpr.w (OUTPUT cCharValue).
+                    IF cCharValue NE "" THEN
+                    cFieldValue:SCREEN-VALUE = cCharValue.
+                    RETURN NO-APPLY.    
+                END. /* else */
+            END. /* bardir */
+            WHEN "SALESREP" THEN DO:
+                RUN windows/l-sman.w (gcompany,OUTPUT cCharValue).
+                IF cCharValue NE "" THEN
+                cFieldValue:SCREEN-VALUE = ENTRY(1,cCharValue).
+                RETURN NO-APPLY.
+            END. /* salesrep */
+            WHEN "BolPrint" THEN DO:
+                RUN windows/l-fgbin2.w (gcompany,"","",OUTPUT cCharValue).
+                IF cCharValue NE "" THEN
+                cFieldValue:SCREEN-VALUE = ENTRY(1,cCharValue).
+                RETURN NO-APPLY.
+            END. /* bolprint */
+            OTHERWISE DO:
+                RUN windows/l-syschr.w (gcompany, cNameValue,FOCUS:SCREEN-VALUE, OUTPUT cCharValue).
+                IF cCharValue NE "" THEN
+                cFieldValue:SCREEN-VALUE = ENTRY(1,cCharValue).
+            END. /* otherwise */
+        END CASE.
+        RETURN NO-APPLY.
+    END. /* if character */
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cFieldValue C-Win
+ON LEAVE OF cFieldValue IN FRAME viewFrame /* Value */
+DO:
+    DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
+    
+    CASE ttSysCtrl.dataType:
+        WHEN "Character" THEN DO:
+            STATUS INPUT "".
+            IF LASTKEY NE -1 THEN DO:
+                RUN valid-char-fld NO-ERROR.
+                IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+            END.
+        END. /* character */
+        WHEN "Logical" THEN DO:
+            CASE ttSysCtrl.name:
+                WHEN "RELCREDT" THEN
+                cMessage = "Credit Checks for Past Due Invoices must be purchased, please call ASI."  .
+                WHEN "SalesBudget" THEN
+                cMessage = "Budget Report are available for purchase, please call ASI."  .     
+            END CASE.
+            IF LASTKEY NE -1 THEN DO:
+                RUN valid-log-fld (SELF) NO-ERROR.
+                IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+            END. /* if lastkey */
+            IF ttSysCtrl.name EQ "RELCREDT" OR
+               ttSysCtrl.name EQ "SalesBudget" THEN DO:       
+                RUN check-flg.
+                IF NOT lValid AND cFieldValue:SCREEN-VALUE EQ "NO" THEN DO:
+                    MESSAGE 
+                        cMessage
+                    VIEW-AS ALERT-BOX INFO BUTTONS OK.
+                    RETURN.
+                END. /* if not valid */
+            END. /* if relcredt slaesbudget */
+        END. /* logical */
+    END CASE.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define FRAME-NAME viewFormFrame
 &Scoped-define SELF-NAME sys-ctrl-shipto.char-fld
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL sys-ctrl-shipto.char-fld C-Win
@@ -1918,7 +2108,7 @@ END.
 ON VALUE-CHANGED OF sys-ctrl-shipto.log-fld IN FRAME viewFormFrame /* log-fld */
 DO:
     IF LASTKEY NE -1 THEN DO:
-        RUN valid-log-fld-2 NO-ERROR.
+        RUN valid-log-fld (SELF) NO-ERROR.
         IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
     END.
 END.
@@ -2098,7 +2288,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   RUN system/PgmMstrSecur.p PERSISTENT SET hPgmMstrSecur.
   IF VALID-HANDLE(hPgmMstrSecur) THEN
   RUN epCanAccess IN hPgmMstrSecur (
-      "system/sysCtrl.w",
+      "system/sys-ctrl.w",
       "SuperAdmin",
       OUTPUT lSuperAdmin
       ).
@@ -2116,41 +2306,38 @@ END.
 
 /* **********************  Internal Procedures  *********************** */
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE check-flg C-Win
-PROCEDURE check-flg:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE check-flg C-Win 
+PROCEDURE check-flg :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-/*    DEFINE VARIABLE hPgmSecurity AS HANDLE  NO-UNDO.                             */
-/*    DEFINE VARIABLE lSecure      AS LOGICAL NO-UNDO.                             */
-/*                                                                                 */
-/*    RUN "system/PgmMstrSecur.p" PERSISTENT SET hPgmSecurity.                     */
-/*    RUN epCanAccess IN hPgmSecurity ("viewers/sys-ctrl.w", "", OUTPUT lSecure).  */
-/*    DELETE OBJECT hPgmSecurity.                                                  */
-/*                                                                                 */
-/*    DO WITH FRAME viewFrame:                                                     */
-/*        IF NOT lSecure AND cFieldValue:MODIFIED THEN DO:                         */
-/*            IF ttSysCtrl.name EQ "RELCREDT" AND                                  */
-/*               cFieldValue:SCREEN-VALUE EQ "YES" THEN                            */
-/*            lSecur = YES.                                                        */
-/*            ELSE                                                                 */
-/*            RUN sys/ref/d-ASIpwd.w (OUTPUT lSecure).                             */
-/*            IF NOT lSecure THEN                                                  */
-/*            ASSIGN                                                               */
-/*                v-valid                   = NO                                   */
-/*                sys-ctrl.log-fld:SCREEN-VALUE = STRING(sys-ctrl.log-fld,"yes/no")*/
-/*                .                                                                */
-/*        END. /* if not lsecure */                                                */
-/*    END. /* with frame */                                                        */
+    DEFINE VARIABLE hPgmSecurity AS HANDLE  NO-UNDO.
+    DEFINE VARIABLE lSecure      AS LOGICAL NO-UNDO.
+
+    RUN "system/PgmMstrSecur.p" PERSISTENT SET hPgmSecurity.
+    RUN epCanAccess IN hPgmSecurity ("system/sys-ctrl.w", "", OUTPUT lSecure).
+    DELETE OBJECT hPgmSecurity.
+    lValid = YES.
+    DO WITH FRAME viewFrame:
+        IF NOT lSecure AND cFieldValue:MODIFIED THEN DO:
+            IF ttSysCtrl.name EQ "RELCREDT" AND
+               cFieldValue:SCREEN-VALUE EQ "YES" THEN
+            lSecure = YES.
+            ELSE
+            RUN sys/ref/d-ASIpwd.w (OUTPUT lSecure).
+            IF NOT lSecure THEN
+            ASSIGN
+                lValid = NO
+                cFieldValue:SCREEN-VALUE = cFieldValue
+                .
+        END. /* if not lsecure */
+    END. /* with frame */
 
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI C-Win  _DEFAULT-DISABLE
 PROCEDURE disable_UI :
@@ -2811,11 +2998,15 @@ PROCEDURE pCRUD :
                             APPLY "ENTRY":U TO cName.
                             RETURN.
                         END. /* if can-find */
-                        CREATE ttSysCtrl.
                         CREATE sys-ctrl.
                         ASSIGN
                             sys-ctrl.company      = g_company
                             sys-ctrl.name         = cName:SCREEN-VALUE
+                            sys-ctrl.rec_key      = STRING(TODAY,"99999999")
+                                                  + STRING(NEXT-VALUE(rec_key_seq,ASI),"99999999")
+                                                  .
+                        CREATE ttSysCtrl.
+                        ASSIGN
                             ttSysCtrl.tableSource = "sys-ctrl"
                             ttSysCtrl.fieldSource = IF cDataType:SCREEN-VALUE EQ "Character" THEN "char-fld"
                                                ELSE IF cDataType:SCREEN-VALUE EQ "Date"      THEN "date-fld"
@@ -2823,10 +3014,39 @@ PROCEDURE pCRUD :
                                                ELSE IF cDataType:SCREEN-VALUE EQ "Integer"   THEN "int-fld"
                                                ELSE IF cDataType:SCREEN-VALUE EQ "Logical"   THEN "log-fld"
                                                ELSE ""
+                                               .
+                        CREATE rec_key.
+                        ASSIGN
+                            rec_key.rec_key    = sys-ctrl.rec_key
+                            rec_key.table_name = "sys-ctrl"
                             .
                     END. /* if add/copy */
                     RUN pAssign.
                     RUN pUpdateTable (BUFFER ttSysCtrl).
+                    
+                    /* custom logic for individual parameters */
+                    CASE ttSysCtrl.name:
+                        WHEN "SSRMISSUE" THEN DO: 
+                            IF ttSysCtrl.fieldValue EQ "ScanTagOnly" THEN DO:
+                                FIND FIRST bttSysCtrl
+                                     WHERE bttSysCtrl.name     EQ ttSysCtrl.name
+                                       AND bttSysCtrl.dataType EQ "Logical"
+                                     NO-ERROR.
+                                IF AVAILABLE bttSysCtrl THEN DO:
+                                    bttSysCtrl.fieldValue = "NO".
+                                    FIND FIRST sys-ctrl EXCLUSIVE-LOCK
+                                         WHERE sys-ctrl.company EQ g_company
+                                           AND sys-ctrl.name    EQ bttSysCtrl.name
+                                         NO-ERROR.
+                                    IF AVAILABLE sys-ctrl THEN
+                                    sys-ctrl.log-fld = NO.
+                                    RELEASE sys-ctrl.
+                                END. /* if avail */ 
+                            END. /* if cfieldvalue */
+                        END. /* ssrmissue */
+                    END CASE.
+                    /* custom logic for individual parameters */
+                    
                     IF cMode EQ "Add"     OR
                        cMode EQ "Copy"    OR
                        cCategory:MODIFIED OR
@@ -3124,7 +3344,7 @@ PROCEDURE pDisplay :
                             .
                         WHEN "Date" THEN
                         ASSIGN
-                            hWidget:WIDTH  = 13
+                            hWidget:WIDTH  = 16
                             .
                         WHEN "Decimal" THEN
                         ASSIGN
@@ -3583,42 +3803,42 @@ PROCEDURE pUpdateTable :
              NO-ERROR.
         IF AVAILABLE sys-ctrl THEN DO:
             ASSIGN
-                sys-ctrl.category = ttSysCtrl.category
-                sys-ctrl.subCategory = ttSysCtrl.subCategory
-                sys-ctrl.name = ttSysCtrl.name
-                sys-ctrl.typeCode = ttSysCtrl.typeCode
-                sys-ctrl.module = ttSysCtrl.module
-                sys-ctrl.descrip = ttSysCtrl.descrip
+                sys-ctrl.category          = ttSysCtrl.category
+                sys-ctrl.subCategory       = ttSysCtrl.subCategory
+                sys-ctrl.name              = ttSysCtrl.name
+                sys-ctrl.typeCode          = ttSysCtrl.typeCode
+                sys-ctrl.module            = ttSysCtrl.module
+                sys-ctrl.descrip           = ttSysCtrl.descrip
                 sys-ctrl.securityLevelUser = ttSysCtrl.securityLevelUser
                 .
             CASE ttSysCtrl.dataType:
                 WHEN "Character" THEN
                 ASSIGN
-                    sys-ctrl.char-fld = ttSysCtrl.fieldValue
-                    sys-ctrl.char-fld_descrip = ttSysCtrl.fieldDescrip
+                    sys-ctrl.char-fld           = ttSysCtrl.fieldValue
+                    sys-ctrl.char-fld_descrip   = ttSysCtrl.fieldDescrip
                     sys-ctrl.char_field_default = ttSysCtrl.fieldDefault
                     .
                 WHEN "Date" THEN
                 ASSIGN
-                    sys-ctrl.date-fld = DATE(ttSysCtrl.fieldValue)
+                    sys-ctrl.date-fld         = DATE(ttSysCtrl.fieldValue)
                     sys-ctrl.date-fld_descrip = ttSysCtrl.fieldDescrip
                     sys-ctrl.date-fld_default = DATE(ttSysCtrl.fieldDefault)
                     .
                 WHEN "Decimal" THEN
                 ASSIGN
-                    sys-ctrl.dec-fld = DECIMAL(ttSysCtrl.fieldValue)
+                    sys-ctrl.dec-fld         = DECIMAL(ttSysCtrl.fieldValue)
                     sys-ctrl.dec-fld_descrip = ttSysCtrl.fieldDescrip
                     sys-ctrl.dec-fld_default = DECIMAL(ttSysCtrl.fieldDefault)
                     .
                 WHEN "Integer" THEN
                 ASSIGN
-                    sys-ctrl.int-fld = INTEGER(ttSysCtrl.fieldValue)
+                    sys-ctrl.int-fld         = INTEGER(ttSysCtrl.fieldValue)
                     sys-ctrl.int-fld_descrip = ttSysCtrl.fieldDescrip
                     sys-ctrl.int-fld_default = INTEGER(ttSysCtrl.fieldDefault)
                     .
                 WHEN "Logical" THEN
                 ASSIGN
-                    sys-ctrl.log-fld = ttSysCtrl.fieldValue EQ "YES"
+                    sys-ctrl.log-fld         = ttSysCtrl.fieldValue EQ "YES"
                     sys-ctrl.log-fld_descrip = ttSysCtrl.fieldDescrip
                     sys-ctrl.log-fld_default = ttSysCtrl.fieldDefault EQ "YES"
                     .
@@ -3720,9 +3940,8 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-char-fld C-Win
-PROCEDURE valid-char-fld:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-char-fld C-Win 
+PROCEDURE valid-char-fld :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -3810,11 +4029,9 @@ PROCEDURE valid-char-fld:
     END. /* do with frame */
 
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-char-fld-2 C-Win 
 PROCEDURE valid-char-fld-2 :
@@ -3909,47 +4126,21 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-log-fld C-Win
-PROCEDURE valid-log-fld:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-log-fld C-Win 
+PROCEDURE valid-log-fld :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-    DO WITH FRAME viewFrame:
-        IF ttSysCtrl.name EQ "POEXPORT" AND
-           cFieldValue:SCREEN-VALUE EQ "yes" THEN DO:
-            RUN util/chk-mod2.p ("POEXPORT","NK1","PO Export Module.") NO-ERROR.
-            IF ERROR-STATUS:ERROR THEN DO:
-                cFieldValue:SCREEN-VALUE = "no".
-                APPLY "ENTRY":U TO cFieldValue.
-            RETURN ERROR.
-            END.
-        END.
-    END.
-
-END PROCEDURE.
-	
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-log-fld-2 C-Win 
-PROCEDURE valid-log-fld-2 :
-/*------------------------------------------------------------------------------
- Purpose:
- Notes:
-------------------------------------------------------------------------------*/
-    DO WITH FRAME viewFormFrame:
-        IF ttSysCtrl.name EQ "POEXPORT" AND
-           sys-ctrl-shipto.log-fld:SCREEN-VALUE EQ "yes" THEN DO:
-            RUN util/chk-mod2.p ("POEXPORT","NK1","PO Export Module.") NO-ERROR.
-            IF ERROR-STATUS:ERROR THEN DO:
-                sys-ctrl-shipto.log-fld:SCREEN-VALUE = "no".
-                APPLY "ENTRY":U TO sys-ctrl-shipto.log-fld.
-            RETURN ERROR.
-            END.
+    DEFINE INPUT PARAMETER iphWidget AS HANDLE NO-UNDO.
+    
+    IF ttSysCtrl.name EQ "POEXPORT" AND
+       iphWidget:SCREEN-VALUE EQ "yes" THEN DO:
+        RUN util/chk-mod2.p ("POEXPORT","NK1","PO Export Module.") NO-ERROR.
+        IF ERROR-STATUS:ERROR THEN DO:
+            iphWidget:SCREEN-VALUE = "no".
+            APPLY "ENTRY":U TO iphWidget.
+        RETURN ERROR.
         END.
     END.
 
