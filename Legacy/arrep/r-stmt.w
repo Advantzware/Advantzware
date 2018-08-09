@@ -2157,13 +2157,13 @@ FOR EACH ttCustList
            . 
 
        ELSE IF v-stmt-char = "RFC" THEN          /* task 12231305 */
-       PUT "<R2><C1><#1><R+12><C+25><IMAGE#1=" ls-full-img1 SKIP
+       PUT "<FMS Sans Serif><R2><C1><#1><R+12><C+25><IMAGE#1=" ls-full-img1 SKIP
            "<=1><R+3><C+26> 2066 S. East Avenue" 
            "<=1><R+4><C+26> Vineland, NJ 08360" 
            "<=1><R+5><C+26> Phone: 856-692-0404" 
            "<=1><R+6><C+26> Fax: (856) 692-2085" 
            "<=1><R+10><C+54><B><P22>Statement</B><P12>" SKIP
-           "<=1><R+12>" "<C53>Statement Date  Account #" SKIP
+           "<=1><R+12>" "<C53>Statement Date           Account #" SKIP
            "<=1><R+13><C+52><FROM><C+13><LINE>" SKIP
            "<=1><R+13><C+68><FROM><C+10><LINE>" 
            "<=1><R+13><C+52>" v-stmt-date
@@ -2174,7 +2174,7 @@ FOR EACH ttCustList
            "<=1><R+15><C18>" ws_addr[3] v-remitto[2] skip
            "<=1><R+16><C18>" ws_addr[4] v-remitto[3] skip
            "<=1><R+17><C18>" ws_addr[5] v-remitto[4] skip
-           "<=1><R+20>Date     Code  Ref#  Description   <C56>Amount        Balance" SKIP
+           "<=1><R+20><C1>Date        <C9>Code      <C16>Ref#     <C25>Description   <C57>Amount       <C71>Balance" SKIP(1)
            "<=1><R+21><FROM><C+80><LINE>"
            . 
        ELSE
@@ -2225,6 +2225,19 @@ FOR EACH ttCustList
              v-balance 
              with frame stmt-line .
            down 1 with frame stmt-line.
+       end.
+       ELSE if v-stmt-char = "RFC" then do:
+            PUT
+            "<C1>" tt-inv.trans-date
+            "<C9>" tt-inv.type
+            "<C15>" tt-inv.inv-no  /*when tt-inv.inv-no gt 0*/
+             /*tt-inv.description*/
+            "<C25>" tt-inv.description
+             /*(IF v-stmt-char = "LoyLang" THEN string(tt-inv.po-no) ELSE tt-inv.description)*/
+            "<C54>" tt-inv.amount
+            "<C68>" v-balance  SKIP.
+             /*with frame no-stmt-line.
+           down 1 with frame no-stmt-line.*/
        end.
        else do:
            display
@@ -2952,7 +2965,7 @@ FIRST cust no-lock
            "<=1><R+5><C+26> Phone: 856-692-0404" 
            "<=1><R+6><C+26> Fax: (856) 692-2085" 
            "<=1><R+10><C+54><B><P22>Statement</B><P12>" SKIP
-           "<=1><R+12>" "<C53>Statement Date  Account #" SKIP
+           "<=1><R+12>" "<C53>Statement Date           Account #" SKIP
            "<=1><R+13><C+52><FROM><C+13><LINE>" SKIP
            "<=1><R+13><C+68><FROM><C+10><LINE>" 
            "<=1><R+13><C+52>" v-stmt-date
@@ -2963,7 +2976,7 @@ FIRST cust no-lock
            "<=1><R+15><C18>" ws_addr[3] v-remitto[2] skip
            "<=1><R+16><C18>" ws_addr[4] v-remitto[3] skip
            "<=1><R+17><C18>" ws_addr[5] v-remitto[4] skip
-           "<=1><R+20>Date     Code  Ref#  Description   <C56>Amount        Balance" SKIP
+           "<=1><R+20><C1>Date        <C9>Code      <C16>Ref#     <C25>Description   <C57>Amount       <C71>Balance" SKIP(1)
            "<=1><R+21><FROM><C+80><LINE>"
            . 
 
@@ -3012,6 +3025,19 @@ FIRST cust no-lock
           v-balance 
           with frame stmt-line-badger .
         down 1 with frame stmt-line-badger.
+    end.
+    ELSE if v-stmt-char = "RFC" then do:
+            PUT
+            "<C1>" tt-inv.trans-date
+            "<C9>" tt-inv.type
+            "<C15>" tt-inv.inv-no  /*when tt-inv.inv-no gt 0*/
+             /*tt-inv.description*/
+            "<C25>" tt-inv.description
+             /*(IF v-stmt-char = "LoyLang" THEN string(tt-inv.po-no) ELSE tt-inv.description)*/
+            "<C54>" tt-inv.amount
+            "<C68>" v-balance  SKIP.
+             /*with frame no-stmt-line.
+           down 1 with frame no-stmt-line.*/
     end.
     else do:
         display

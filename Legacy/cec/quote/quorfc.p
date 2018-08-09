@@ -198,7 +198,7 @@ ASSIGN
     v-line-total = 0
     v-printline  = 0.
 
-PUT "<Farial>". 
+PUT "<FMS Sans Serif>". 
 
 ln-cnt = 0.
 
@@ -261,7 +261,7 @@ do:
         {cec/quote/quorfc2.i}
     END.
 
-    PUT "<FArial><R58><C1><P12><B> Comments </B> <P9> " .
+    PUT "<FMS Sans Serif><R58><C1><P12><B> Comments </B> <P9> " .
       
     ASSIGN
         v-tmp-lines = 0
@@ -288,7 +288,7 @@ do:
         if available est then 
         do:
             PAGE.
-            PUT "<FCouriar New>" SKIP.
+            PUT "<FMS Sans Serif>" SKIP.
             FIND FIRST xest WHERE RECID(xest) = RECID(est) NO-LOCK NO-ERROR.
             run cec/desprnt2.p (?,
                 input-output v-lines,
@@ -459,7 +459,7 @@ do:
 
         IF (ch-multi and (v-last OR s-sep-page)) then 
         do:
-            PUT "<FArial><R58><C1><P12><B> Comments </B> <P9> " .
+            PUT "<FMS Sans Serif><R58><C1><P12><B> Comments </B> <P9> " .
 
             FIND bf-quo WHERE RECID(bf-quo) = lv-first-qrecid NO-LOCK NO-ERROR. 
             li-cline = 0.
@@ -487,7 +487,7 @@ do:
                 do:
        
                     PAGE.
-                    PUT "<FCouriar New>" SKIP.
+                    PUT "<FMS Sans Serif>" SKIP.
                     FIND FIRST xest WHERE RECID(xest) = RECID(est) NO-LOCK NO-ERROR.
                     run cec/desprnt2.p (?,
                         input-output v-lines,
