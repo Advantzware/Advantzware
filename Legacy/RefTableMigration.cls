@@ -2932,6 +2932,36 @@ CLASS RefTableMigration:
             END.              
         END.  /*FOR EACH reftable*/          
         RETURN iCnt.
+    END METHOD. /*e-itemfg-vend*/ 
+    METHOD PUBLIC INTEGER Ar-cash(INPUT ipCount AS INTEGER):
+        DEFINE VARIABLE iCnt AS INTEGER NO-UNDO.
+        DEFINE BUFFER reftable1 FOR reftable1.
+        DEFINE BUFFER Breftable FOR reftable. 
+        DEFINE BUFFER ar-cash    FOR ar-cash.
+        
+        DISABLE TRIGGERS FOR LOAD OF reftable.        
+        DISABLE TRIGGERS FOR LOAD OF ar-cash.
+        ASSIGN iProcessCount = 0.
+        FOR EACH reftable WHERE reftable.reftable = "AR-CASH"
+            NO-LOCK:
+            DO TRANSACTION:    
+                FIND FIRST ar-cash WHERE ar-cash.c-no = int(reftable.code)         
+                    EXCLUSIVE-LOCK NO-ERROR.
+                IF AVAILABLE ar-cash THEN    
+                DO: 
+                    ASSIGN ar-cash.printed = YES .                
+                    ASSIGN iProcessCount = iProcessCount + 1.
+                END    . 
+                FIND CURRENT ar-cash NO-LOCK NO-ERROR.    
+                RELEASE ar-cash.      
+                FIND Breftable WHERE ROWID(Breftable) = ROWID(reftable)
+                    EXCLUSIVE-LOCK NO-ERROR.
+                IF AVAILABLE Breftable THEN DELETE Breftable. 
+                RELEASE Breftable.   
+                iCnt = iCnt + 1.
+                IF iCnt >= ipCount THEN LEAVE.   
+            END.              
+        END.  /*FOR EACH reftable*/  
     END METHOD. /*Itemfgmarkup*/ 
     METHOD PUBLIC INTEGER ShiftDays(INPUT ipCount AS INTEGER):
         DEFINE VARIABLE iCnt AS INTEGER NO-UNDO.
@@ -2967,7 +2997,7 @@ CLASS RefTableMigration:
             END.              
         END.  /*FOR EACH reftable*/  
         RETURN iCnt.
-    END METHOD. /*ShiftDays*/
+    END METHOD. /*Ar-cash*/
     METHOD PUBLIC INTEGER EstGetqtyw2(INPUT ipCount AS INTEGER):
         DEFINE VARIABLE iCnt AS INTEGER NO-UNDO.
         DEFINE BUFFER reftable1 FOR reftable1.
