@@ -2945,14 +2945,14 @@ CLASS RefTableMigration:
         FOR EACH reftable WHERE reftable.reftable = "ShiftDays"
             NO-LOCK:
             DO TRANSACTION:    
-                FIND FIRST shifts WHERE shifts.rec_key = reftable.code
+                FIND FIRST shifts WHERE shifts.rec_key = reftable.code              
                     EXCLUSIVE-LOCK NO-ERROR.
                 IF AVAILABLE shifts THEN    
                 DO: 
-                    shifts.useSpecificDays = YES.
-                    IF shifts.dayList EQ "" THEN ASSIGN shifts.dayList = reftable.code2.
+                    IF shifts.useSpecificDays EQ NO THEN ASSIGN shifts.useSpecificDays = IF reftable.loc = "1" THEN YES ELSE NO.
+                    IF shifts.dayList EQ "" THEN ASSIGN shifts.dayList = reftable.code2.                
                     ASSIGN iProcessCount = iProcessCount + 1.
-                END    .                 
+                END    . 
                 FIND CURRENT shifts NO-LOCK NO-ERROR.    
                 RELEASE shifts.      
                 CREATE reftable1.

@@ -1007,7 +1007,6 @@ DEF VAR i AS INT NO-UNDO.
           WHEN 7 THEN
             ASSIGN tgSat:SCREEN-VALUE = ENTRY(i, shifts.dayList)
                    tgSat = LOGICAL(ENTRY(i, shifts.dayList)).
-
         END CASE.
       END.
 
