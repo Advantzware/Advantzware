@@ -106,10 +106,10 @@ FOR EACH ar-cash
       AND ar-cash.check-date LE v-enddt
       AND CAN-FIND(FIRST ar-cashl WHERE ar-cashl.c-no EQ ar-cash.c-no)
       AND ((v-reprint AND 
-            ar-cash.printed EQ YES
+             ar-cash.printed    EQ YES
            ) or
            (NOT v-reprint AND
-            ar-cash.printed EQ NO
+             ar-cash.printed    EQ NO
            ))
     USE-INDEX posted        
     BREAK BY ar-cash.cust-no

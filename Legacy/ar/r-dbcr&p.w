@@ -967,15 +967,14 @@ postit:
           AND ar-cash.cust-no    LE end_cust
           AND ar-cash.check-date GE begin_date
           AND ar-cash.check-date LE end_date
-        /* gdm - 07130905 end */
+          AND ar-cash.printed    EQ YES
+          AND ar-cash.stat       NE "H"
           and can-find(first ar-cashl where ar-cashl.c-no eq ar-cash.c-no)
         use-index posted on error undo postit, leave postit:
 
       IF ar-cash.printed NE YES THEN NEXT.
       IF ar-cash.stat EQ "H" THEN
         NEXT.
-
-
 
       {ar/ar-dreg.i}
 
@@ -1056,7 +1055,7 @@ FORMAT HEADER
         AND ar-cash.check-date LE end_date
       /* gdm - 07130905 end */
         and can-find(first ar-cashl where ar-cashl.c-no eq ar-cash.c-no)
-        and ar-cash.printed EQ YES
+        AND ar-cash.printed    EQ YES
       use-index posted
 
       break by ar-cash.cust-no
