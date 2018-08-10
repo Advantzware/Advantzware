@@ -1164,11 +1164,8 @@ DEF BUFFER bfCust FOR Cust.
 
   FOR EACH cust-part NO-LOCK
      WHERE cust-part.company = cocode
-       AND cust-part.cust-no = cust.cust-no, 
-           FIRST reftable WHERE reftable.reftable = "cp-lab-p"   
-                     AND reftable.company = cust-part.company
-                     AND reftable.loc = cust-part.i-no   
-                     AND reftable.code = cust-part.cust-no NO-LOCK :
+       AND cust-part.cust-no = cust.cust-no
+                      :
          FIND FIRST ASI.itemfg NO-LOCK
               WHERE itemfg.company = cocode 
                 AND itemfg.i-no EQ cust-part.i-no  

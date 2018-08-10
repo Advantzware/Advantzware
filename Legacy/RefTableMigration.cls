@@ -2933,6 +2933,43 @@ CLASS RefTableMigration:
         END.  /*FOR EACH reftable*/          
         RETURN iCnt.
     END METHOD. /*e-itemfg-vend*/ 
+    METHOD PUBLIC INTEGER CpLabP(INPUT ipCount AS INTEGER):
+        DEFINE VARIABLE iCnt AS INTEGER NO-UNDO.
+        DEFINE BUFFER reftable1 FOR reftable1.
+        DEFINE BUFFER Breftable FOR reftable. 
+        DEFINE BUFFER cust-part FOR cust-part.
+        
+        DISABLE TRIGGERS FOR LOAD OF reftable.        
+        DISABLE TRIGGERS FOR LOAD OF cust-part.
+        ASSIGN iProcessCount = 0.
+        FOR EACH reftable WHERE reftable.reftable = "cp-lab-p"
+            NO-LOCK:
+            DO TRANSACTION:    
+                FIND FIRST cust-part WHERE cust-part.company = reftable.company
+                                       AND cust-part.i-no    = reftable.loc
+                                       AND cust-part.cust-no = reftable.code
+                    EXCLUSIVE-LOCK NO-ERROR.
+                IF AVAILABLE cust-part THEN    
+                DO: 
+                    IF cust-part.labelCase EQ "" THEN ASSIGN cust-part.labelCase = reftable.code2.
+                    IF cust-part.labelPallet EQ "" THEN ASSIGN cust-part.labelPallet = reftable.dscr.
+                    ASSIGN iProcessCount = iProcessCount + 1.                 
+                END    . 
+                FIND CURRENT cust-part NO-LOCK NO-ERROR.    
+                RELEASE cust-part.      
+                CREATE reftable1.
+                BUFFER-COPY reftable TO reftable1.
+                RELEASE reftable1.
+                FIND Breftable WHERE ROWID(Breftable) = ROWID(reftable)
+                    EXCLUSIVE-LOCK NO-ERROR.
+                IF AVAILABLE Breftable THEN DELETE Breftable. 
+                RELEASE Breftable.   
+                iCnt = iCnt + 1.
+                IF iCnt >= ipCount THEN LEAVE.   
+            END.              
+        END.  /*FOR EACH reftable*/  
+        RETURN iCnt.
+    END METHOD. /*CpLabP*/
 END CLASS.
 
 
