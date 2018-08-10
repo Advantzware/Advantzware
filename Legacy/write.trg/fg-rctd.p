@@ -77,20 +77,20 @@ IF {&TABLENAME}.job-no NE ""                   AND
 END.
 
 IF {&TABLENAME}.std-cost NE 0 THEN DO:
-  {&TABLENAME}.ext-cost = {&TABLENAME}.std-cost *
-                          ({&TABLENAME}.t-qty / IF {&TABLENAME}.cost-uom EQ "M" THEN 1000 ELSE 1).
+  {&TABLENAME}.ext-cost = ABSOLUTE( {&TABLENAME}.std-cost *
+                          ({&TABLENAME}.t-qty / IF {&TABLENAME}.cost-uom EQ "M" THEN 1000 ELSE 1)).
   IF fgpofrt-log THEN 
   DO:
 
-     {&TABLENAME}.ext-cost = {&TABLENAME}.ext-cost + {&TABLENAME}.frt-cost.
+     {&TABLENAME}.ext-cost = ABSOLUTE({&TABLENAME}.ext-cost + {&TABLENAME}.frt-cost).
 
 
   END.
 END.
 ELSE
 IF {&TABLENAME}.ext-cost NE 0 THEN
-  {&TABLENAME}.std-cost = {&TABLENAME}.ext-cost /
-                          ({&TABLENAME}.t-qty / IF {&TABLENAME}.cost-uom EQ "M" THEN 1000 ELSE 1).
+  {&TABLENAME}.std-cost = ABSOLUTE({&TABLENAME}.ext-cost /
+                          ({&TABLENAME}.t-qty / IF {&TABLENAME}.cost-uom EQ "M" THEN 1000 ELSE 1)).
 
 IF {&TABLENAME}.company NE "" AND {&TABLENAME}.r-no NE 0 THEN DO:
   FOR EACH b-{&TABLENAME}

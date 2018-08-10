@@ -981,7 +981,7 @@ DEF VAR i AS INT NO-UNDO.
             tgFri = NO
             tgSat = NO
             .
-
+  IF AVAIL shifts THEN DO:
   ENABLE tgSun tgMon tgTues tgWeds tgThur tgFri tgSat
   WITH FRAME {&FRAME-NAME}.
       DO i = 1 TO NUM-ENTRIES(shifts.dayList):
@@ -1011,6 +1011,9 @@ DEF VAR i AS INT NO-UNDO.
       END.
 
       rsAllOrSpecificDays = IF shifts.useSpecificDays EQ TRUE THEN "Specific" ELSE "All".
+    END.
+    ELSE 
+      rsAllOrSpecificDays = "All".
   disABLE tgSun tgMon tgTues tgWeds tgThur tgFri tgSat
   WITH FRAME {&FRAME-NAME}.
     IF rsAllOrSpecificDays:SCREEN-VALUE EQ "ALL" THEN
@@ -1077,20 +1080,10 @@ DEF VAR char-hdl AS CHAR NO-UNDO.
   END.
 
 
-  FIND FIRST reftable WHERE reftable.reftable EQ "ShiftDays"
-     AND reftable.CODE EQ shifts.rec_key
-  EXCLUSIVE-LOCK NO-ERROR.
-  IF NOT AVAIL reftable THEN DO:
-    CREATE reftable.
-    ASSIGN 
-        reftable.reftable = "ShiftDays"
-        reftable.CODE = shifts.rec_key.
-  END.
-
-
   IF adm-new-record THEN DO WITH FRAME {&FRAME-NAME}:
-      ASSIGN reftable.code2 =  cDaysList
-             reftable.loc = STRING(IF cUseDayListScreenValue EQ "Specific" THEN 1 ELSE 0).
+      ASSIGN shifts.dayList =  cDaysList
+             shifts.useSpecificDays = (IF cUseDayListScreenValue EQ "Specific" THEN TRUE ELSE FALSE).
+      
      ASSIGN
        rsAllOrSpecificDays:SCREEN-VALUE = cUseDayListScreenValue
        tgSun:SCREEN-VALUE = ENTRY(1, cDaysList)
@@ -1115,14 +1108,14 @@ DEF VAR char-hdl AS CHAR NO-UNDO.
   END.
   ELSE DO:
 
-    reftable.code2 =  STRING(tgSun) + "," +
+    shifts.dayList =  STRING(tgSun) + "," +
                       STRING(tgMon) + "," +
                       STRING(tgTues) + "," +
                       STRING(tgWeds) + "," +
                       STRING(tgThur) + "," +
                       STRING(tgFri) + "," +
                       STRING(tgSat).
-    reftable.loc = STRING(IF rsAllOrSpecificDays EQ "Specific" THEN 1 ELSE 0).
+    shifts.useSpecificDays = (IF rsAllOrSpecificDays EQ "Specific" THEN TRUE ELSE FALSE).
   END.                   
 
 
