@@ -205,9 +205,8 @@ for each ef
   
   /* ===== end of mods ==========*/
   ASSIGN
-    v-hdr = 
-          "                  " + 
-          "Design #: " +
+    v-hdr =           
+          "     Design #: " +
           trim(string(if avail style and box-design-hdr.design-no eq 0 then
                         style.design-no else box-design-hdr.design-no,">>>")) +
           "   " + box-design-hdr.DESCRIPTION + "    CorrDir:"  +

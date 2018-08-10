@@ -104,7 +104,7 @@ IF FIRST-OF(tt-boll.LINE) THEN DO:
      v-pg-num = v-pg-num + 1
      v-printline = 0.
      PAGE {1}.
-     {oe/rep/bolptree2c.i}
+     {oe/rep/bolptreebc2c.i}
   END.
 
   FOR EACH w2 BREAK BY w2.cases DESC:
@@ -136,7 +136,7 @@ IF FIRST-OF(tt-boll.LINE) THEN DO:
      DO:    
         ASSIGN v-case-tot = v-case-tot + (w2.cases * w2.cas-cnt).
         
-     RUN  pGetP-C(OUTPUT cPc).
+     
         
         DISPLAY 
              w2.i-no 
@@ -146,7 +146,7 @@ IF FIRST-OF(tt-boll.LINE) THEN DO:
              w2.cases    WHEN w2.cases > 0   
              w2.cas-cnt  WHEN w2.cases > 0
              v-case-tot  /*WHEN i = comp-ctr */ WHEN LAST(w2.cases)
-             /*v-par-comp*/ cPc format "x(1)"    /*WHEN i = comp-ctr */ WHEN LAST(w2.cases)
+             v-par-comp    /*WHEN i = comp-ctr */ WHEN LAST(w2.cases)
             with frame bol-mid.
         DOWN WITH FRAME bol-mid.         
     
@@ -160,7 +160,7 @@ IF FIRST-OF(tt-boll.LINE) THEN DO:
         v-pg-num = v-pg-num + 1
         v-printline = 0.
         PAGE {1}.
-        {oe/rep/bolptree2c.i}
+        {oe/rep/bolptreebc2c.i}
      END.
           
   end. /* each w2 */
@@ -191,7 +191,7 @@ IF FIRST-OF(tt-boll.LINE) THEN DO:
        v-pg-num = v-pg-num + 1
        v-printline = 0.
        PAGE {1}.
-       {oe/rep/bolptree2.i}
+       {oe/rep/bolptreebc2c.i}
     END.
 
     display {1}
@@ -228,7 +228,7 @@ IF FIRST-OF(tt-boll.LINE) THEN DO:
             v-pg-num = v-pg-num + 1
             v-printline = 0.
             PAGE {1}.
-            {oe/rep/bolptree2.i}
+            {oe/rep/bolptreebc2c.i}
          END.
 
          DISPLAY {1}

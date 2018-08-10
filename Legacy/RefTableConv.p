@@ -148,6 +148,8 @@ ASSIGN
     {refTableConv.i "Machcrew" 'MACH-CREW'}
     {refTableConv.i "VendorMaxValue" 'VendorMaxValue'}
     {refTableConv.i "TruckRunPrint" 'trp-car'}
+    {refTableConv.i "ShiftDays" 'ShiftDays'}
+    {refTableConv.i "EstGetqtyw2" 'est/getqty.w2'}
 
 /* Deferred for 16.7.0                                              */
 /*    {refTableConv.i "STYFLU" 'STYFLU'}                            */

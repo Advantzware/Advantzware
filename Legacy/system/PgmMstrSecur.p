@@ -63,6 +63,8 @@ PROCEDURE epCanAccessUser:
                 (ipProgName EQ "windows/xref.w" AND ipFunction EQ "") OR /*NZ11 (NZ10) Cross References*/
                 (ipProgName EQ "browsers/fgijob.w" AND ipFunction EQ "Access1") OR /*IF1 Bon/Job tab  allow edit only super  admin */
                 (ipProgName EQ "system/mainmenu.w" AND ipFunction EQ "") OR /*Main menu load NZ1 System Reference Files Access*/
+                (ipProgName EQ "system/sys-ctrl.w" AND ipFunction EQ "SuperAdmin") OR /*system controls, sys-ctrl*/
+                (ipProgName EQ "util/CheckModule.p" AND ipFunction EQ "SuperAdmin") OR /*run util module*/
                 (ipProgName EQ "util/module.w" AND ipFunction EQ "") OR /*run util module*/
                 (ipProgName EQ "viewers/file-seq.w" AND ipFunction EQ "") OR /*NZ1 System ref Files */
                 (ipProgName EQ "viewers/users.w" AND ipFunction EQ "SuperAdmin") OR /*users superadmin*/
@@ -91,6 +93,7 @@ PROCEDURE epCanAccessUser:
                 (ipProgName EQ "system/audit.w") AND ipFunction EQ "Restore" OR /*restore deleted audit record*/
                 (ipProgName EQ "system/mainmenu.w" AND ipFunction EQ "Access1") OR /*Main menu load Run Custom Utility Program access*/
                 (ipProgName EQ "system/mainmenu.w" AND ipFunction EQ "CanUpgrade") OR /*Main menu upgrade notification*/
+                (ipProgName EQ "system/sys-ctrl.w" AND ipFunction EQ "") OR /*NK1 view control tab value security */
                 (ipProgName EQ "viewers/p-fg-bj-l.w" AND ipFunction EQ "") OR /*IF1 Bin/Jobs tab */
                 (ipProgName EQ "viewers/sys-ctrl.w" AND ipFunction EQ "") OR /*NK1 view control tab value security */
                 (ipProgName EQ "viewers/users.w" AND ipFunction EQ "Admin") OR /*users admin*/

@@ -526,7 +526,7 @@ v-printline = 0.
                                   lv-reg-no = "Test: " + ITEM.reg-no.
        ELSE assign lv-flute = ""
                    lv-reg-no = "".
-       ASSIGN cFlueTest = string(lv-flute,"x(11)") + string(lv-reg-no,"x(10)").
+       ASSIGN cFlueTest = string(lv-flute,"x(11)") + string(lv-reg-no,"x(12)").
        IF lv-flute EQ "" AND lv-reg-no EQ "" THEN
               ASSIGN cFlueTest = IF dCoreDia GT 0 AND ITEM.mat-type EQ "P" THEN " Core Dia: " + STRING(dCoreDia,">,>>9.99<<") ELSE ""
                      dCoreDia = 0.
@@ -696,9 +696,9 @@ v-printline = 0.
          END.
     END.
 
-   /* PUT skip(1).
+    PUT skip(1).
     assign v-line-number = v-line-number + 1.
-    v-printline = v-printline + 1.*/
+    v-printline = v-printline + 1.
   
      IF v-printline > 46 THEN DO:
           PAGE.

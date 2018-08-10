@@ -2105,9 +2105,9 @@ END.
         IF vname = "cust.cust-no" THEN do:
             PUT UNFORMATTED   cust.cust-no FORMAT "x(8)" space(1)  cust.name  FORMAT "x(25)"   substring(cDisplay,35,400) SKIP.
             iLinePerPage = iLinePerPage + 1.
-            IF v-export THEN DO:
+            IF v-export THEN DO: 
                 PUT STREAM s-temp UNFORMATTED   
-                   cust.cust-no FORMAT "x(8)" space(1)  cust.name  FORMAT "x(25)" ','  substring(cExcelDisplay,4,400) SKIP(1).
+                   cust.cust-no FORMAT "x(8)" ','  cust.name  FORMAT "x(25)" ','  substring(cExcelDisplay,7,400) SKIP(1).
             END.
         END.
         ELSE DO:

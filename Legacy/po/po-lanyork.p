@@ -593,10 +593,10 @@ v-printline = 0.
                        ELSE IF AVAILABLE item THEN item.s-dep ELSE 0), INPUT 32, OUTPUT v-dep-frac).
                   IF po-ordl.s-len GT 0 OR po-ordl.s-len GT 0 OR lv-dep GT 0 THEN  
                    PUT "Blank:" AT 25.
-                   IF po-ordl.s-len GT 0 THEN
-                    PUT "L: " AT 32 v-len-frac FORMAT "x(10)" SPACE(1).
                    IF po-ordl.s-wid GT 0 THEN
-                    PUT "W: "  v-wid-frac FORMAT "x(10)" SPACE(1).
+                    PUT "W: " AT 32 v-wid-frac FORMAT "x(10)" SPACE(1).
+                  IF po-ordl.s-len GT 0 THEN
+                    PUT "L: "  v-len-frac FORMAT "x(10)" SPACE(1).
                 IF lv-dep GT 0 THEN
                     PUT "D: "  v-dep-frac FORMAT "x(10)" SPACE(1).
              END.
@@ -649,15 +649,15 @@ v-printline = 0.
                                 RUN sys\inc\decfrac2.p(INPUT lv-val[(lv-int * 10) + x], INPUT 32, OUTPUT len-score).
                         
                          IF lv-val[(lv-int * 10) + x] NE 0 THEN 
-                              v-lscore-c = v-lscore-c + len-score + "   " .
+                              v-lscore-c = v-lscore-c + len-score + " " .
 
                         /* print score type for Premier */
                         IF v-score-types AND lv-typ[(lv-int * 10) + x] NE "" THEN DO:
-                            RUN sys\inc\decfrac2.p(INPUT DEC(lv-typ[(lv-int * 10) + x]), INPUT 32, OUTPUT len-score).
-                            v-lscore-c = v-lscore-c + len-score + " ". 
+/*                            RUN sys\inc\decfrac2.p(INPUT DEC(lv-typ[(lv-int * 10) + x]), INPUT 32, OUTPUT len-score).*/
+                            v-lscore-c = v-lscore-c + lv-typ[(lv-int * 10) + x] + "  ". 
                         END.
                         ELSE DO:
-                            v-lscore-c = v-lscore-c + " ".
+                            v-lscore-c = v-lscore-c + "  ".
                         END.
                     END.
  
