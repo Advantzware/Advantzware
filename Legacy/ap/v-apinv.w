@@ -257,7 +257,7 @@ END.
 /* ************************* Included-Libraries *********************** */
 
 {src/adm/method/viewer.i}
-{methods/template/viewer.i}
+{methods/template/viewer4.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -823,6 +823,37 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-delete-record V-table-Win 
+PROCEDURE local-delete-record :
+/*------------------------------------------------------------------------------
+  Purpose:     Override standard ADM method
+  Notes:       
+------------------------------------------------------------------------------*/
+  
+  /* Code placed here will execute PRIOR to standard behavior. */
+
+    message "Delete Currently Selected Record(s)?" view-as alert-box question
+        button yes-no update ll-ans as log.
+
+    /*if not ll-ans then return error.*/
+    IF NOT ll-ans THEN
+        FIND FIRST ap-invl NO-LOCK
+        WHERE ap-invl.company EQ ap-inv.company
+        AND ap-invl.i-no = ap-inv.i-no NO-ERROR.
+    IF NOT ll-ans AND NOT AVAIL ap-invl  THEN DO:
+        MESSAGE "You cannot have an invoice with no line items -" SKIP " either add line item or delete the invoice." VIEW-AS ALERT-BOX info.
+     END.
+
+     if not ll-ans then return error.
+
+     /* Dispatch standard ADM method.                             */
+     RUN dispatch IN THIS-PROCEDURE ( INPUT 'delete-record':U ) .
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-display-fields V-table-Win 
 PROCEDURE local-display-fields :
 /*------------------------------------------------------------------------------
@@ -1172,9 +1203,17 @@ PROCEDURE valid-inv-date :
   {methods/lValidateError.i YES}
   IF NOT ll-recur THEN
   DO WITH FRAME {&FRAME-NAME}:
-    IF DATE(ap-inv.inv-date:SCREEN-VALUE) GT TODAY THEN DO:
+    IF DATE(ap-inv.inv-date:SCREEN-VALUE) LT (TODAY - 365) OR DATE(ap-inv.inv-date:SCREEN-VALUE) GT (TODAY + 547) THEN DO:
+           MESSAGE "Dates over 1 year in the past or 18 months in the future are not allowed."
+            VIEW-AS ALERT-BOX INFO.
+          ap-inv.inv-date:HELP = "Please Enter a Valid Date.".
+        APPLY "entry" TO ap-inv.inv-date.
+        RETURN ERROR.
+    END.
+
+    IF DATE(ap-inv.inv-date:SCREEN-VALUE) LT (TODAY - 90) THEN DO:
       IF NOT ll-date-warning THEN
-        MESSAGE "Invoice date greater than todays date, continue?"
+        MESSAGE "Date is more than 90 days away - are you sure?"
             VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
             UPDATE ll-date-warning.
 
@@ -1183,6 +1222,8 @@ PROCEDURE valid-inv-date :
         RETURN ERROR.
       END.
     END.
+
+    
   END.
 
   {methods/lValidateError.i NO}

@@ -92,7 +92,10 @@ PROCEDURE pBuildIDComponents PRIVATE:
     DEFINE BUFFER bf-eb           FOR eb.
     DEFINE BUFFER bf-est          FOR est.
     
-    FIND FIRST bf-est NO-LOCK OF ipbf-eb NO-ERROR.
+    FIND FIRST bf-est NO-LOCK 
+        WHERE bf-est.company EQ ipbf-eb.company
+        AND bf-est.est-no EQ ipbf-eb.est-no
+        NO-ERROR.
     IF NOT AVAILABLE bf-est THEN LEAVE.
     
     IF bf-est.est-type EQ 2 OR bf-est.est-type EQ 6 THEN 

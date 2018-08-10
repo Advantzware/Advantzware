@@ -101,7 +101,7 @@ ASSIGN cTextListToSelect = "CUSTOMER,CUST NAME,CONTACT,SALES REP,TERMS,ADDRESS1,
                             "day-old,type,inv,inv-date,amount,current,adtp,td," +
                             "per-1,per-2,per-3,cust-po,job,bol,inv-note,coll-note" 
 
-       cFieldLength = "8,30,15,25,15,25,25,10,5,10,12,13,12,10," + "8,4,8,8,13,13,4,4," + "13,13,13,15,9,8,30,30" 
+       cFieldLength = "8,30,25,25,15,25,25,10,5,10,12,13,12,10," + "8,4,8,8,13,13,4,4," + "13,13,13,15,9,8,30,30" 
        cFieldType = "c,c,c,c,c,c,c,c,c,c,c,c,c,c," + "i,c,i,c,i,i,i,i," + "i,i,i,c,c,c,c,c," 
     .
 
@@ -1922,23 +1922,13 @@ ASSIGN grand-t = 0
   IF tb_excel THEN DO:
     OUTPUT stream s-temp to value(v-exp-name).
 
-    IF det-rpt = 1 THEN DO:
+    IF det-rpt = 1 OR det-rpt = 2 THEN DO:
       v-hdr = v-hdr + trim(STRING(v-days[1],">,>>>")) + "," +
                       trim(STRING(v-days[2],">,>>>")) + "," +
                       trim(STRING(v-days[3],">,>>>")) + "+". 
-      /*IF tb_cust-po THEN do:
-            v-hdr = v-hdr + "," + trim(string("Customer PO#")) .                /*Task# 02071402*/
-            put stream s-temp unformatted v-hdr skip.
-      END.
-      ELSE*/
+      
           PUT STREAM s-temp UNFORMATTED excelheader SKIP.
-    /*END.*/
-    /*ELSE DO:
-       v-hdr2 = v-hdr2 + trim(string(v-days[1],">,>>>")) + "," +
-                         trim(string(v-days[2],">,>>>")) + "," +
-                         trim(string(v-days[3],">,>>>")) + "+".
-           put stream s-temp unformatted v-hdr2 skip.
-    END.*/
+    
     END.
   END.
 

@@ -218,7 +218,7 @@ DEF VAR cDbPortList AS CHAR INITIAL "2826" NO-UNDO.
 DEF VAR cAudDirList AS CHAR INITIAL "Audit" NO-UNDO.
 DEF VAR cAudDBList AS CHAR INITIAL "audProd" NO-UNDO.
 DEF VAR cAudPortList AS CHAR INITIAL "2836" NO-UNDO.
-DEF VAR cEnvVerList AS CHAR INITIAL "16.7.12" NO-UNDO.
+DEF VAR cEnvVerList AS CHAR INITIAL "16.7.16" NO-UNDO.
 DEF VAR cDbVerList AS CHAR INITIAL "16.7" NO-UNDO.
 /* # Basic DB Elements */
 DEF VAR cAudDbName AS CHAR INITIAL "audProd" NO-UNDO.
@@ -379,7 +379,7 @@ DEFINE VARIABLE fiMapDir AS CHARACTER FORMAT "X(256)":U INITIAL "N:"
      VIEW-AS FILL-IN 
      SIZE 5 BY 1 NO-UNDO.
 
-DEFINE VARIABLE fiNewVer AS CHARACTER FORMAT "X(256)":U INITIAL "16.7.12" 
+DEFINE VARIABLE fiNewVer AS CHARACTER FORMAT "X(256)":U INITIAL "16.7.16" 
      LABEL "New Version" 
      VIEW-AS FILL-IN 
      SIZE 14 BY 1
@@ -849,7 +849,8 @@ PROCEDURE ipBackupDBs :
                        cDbBackup + "\" + cLocName + 
                        STRING(YEAR(TODAY)) +
                        STRING(MONTH(TODAY),"99") +
-                       STRING(DAY(TODAY),"99") + ".bak".
+                       STRING(DAY(TODAY),"99") + 
+                       STRING(TIME) + ".bak".
         ELSE ASSIGN
             cCmdLine = fiDlcDir:{&SV} + "\bin\probkup online " + 
                        fiDBDrive:{&SV} + "\" + 
@@ -859,7 +860,8 @@ PROCEDURE ipBackupDBs :
                        cDbBackup + "\" + cLocName + 
                        STRING(YEAR(TODAY)) +
                        STRING(MONTH(TODAY),"99") +
-                       STRING(DAY(TODAY),"99") + ".bak".
+                       STRING(DAY(TODAY),"99") + 
+                       STRING(TIME) + ".bak".
     
         OS-COMMAND SILENT VALUE(cCmdLine).
         
@@ -1537,7 +1539,7 @@ PROCEDURE ipStatus :
     IF cUpdatesDir <> "Updates" THEN DO:
         IF INDEX(ipcStatus,"duplicate") EQ 0 THEN DO:
             ASSIGN
-                cLogFile = cUpdatesDir + "\" + "Patch" + fiNewVer:{&SV} + "\installLog.txt"
+                cLogFile = cEnvAdmin + "\UpdateLog.txt"
                 iMsgCtr = iMsgCtr + 1
                 cMsgStr[iMsgCtr] = ipcStatus + "...".
             OUTPUT STREAM logStream TO VALUE(cLogFile) APPEND.

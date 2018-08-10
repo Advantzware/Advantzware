@@ -109,7 +109,7 @@ DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
 DEFINE VARIABLE ls-full-img1 AS CHAR FORMAT "x(200)" NO-UNDO.
 DEFINE VARIABLE dCoreDia AS DECIMAL FORMAT ">,>>9.99<<" NO-UNDO.
-DEFINE VARIABLE cFlueTest AS CHARACTER FORMAT "x(25)" NO-UNDO.
+DEFINE VARIABLE cFlueTest AS CHARACTER FORMAT "x(30)" NO-UNDO.
 DEF TEMP-TABLE tt-text NO-UNDO
     FIELD TYPE AS cha
     FIELD tt-line AS INT
@@ -595,7 +595,7 @@ v-printline = 0.
                  lv-reg-no = "".
 
           IF AVAIL ITEM AND ITEM.mat-type EQ "B" AND ITEM.industry = "2" AND  ITEM.flute NE "" AND ITEM.reg-no NE "" THEN
-          ASSIGN cFlueTest = string(lv-flute,"x(13)") + string(lv-reg-no,"x(10)").
+          ASSIGN cFlueTest = string(lv-flute,"x(13)") + string(lv-reg-no,"x(12)").
           ELSE
               ASSIGN cFlueTest = IF dCoreDia GT 0 AND ITEM.mat-type EQ "P" THEN "Core Dia: " + string(dCoreDia,">,>>9.99<<") ELSE ""
                      dCoreDia = 0.
@@ -717,6 +717,10 @@ v-printline = 0.
                {po/po-xprnt10.i}
             END.
          END.
+         PUT skip(1).
+        assign
+        v-line-number = v-line-number + 1
+        v-printline = v-printline + 1.
   
      IF v-printline > 46 THEN DO:
           PAGE.
