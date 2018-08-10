@@ -56,6 +56,7 @@ DEFINE VARIABLE gcompany       AS CHARACTER NO-UNDO.
 DEFINE VARIABLE gvcMultiSelect AS CHARACTER NO-UNDO INITIAL "OEDATECHANGE,SSBOLEMAIL".
 DEFINE VARIABLE cValidateList  AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lValid         AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE hFieldValue    AS HANDLE    NO-UNDO.
 
 cValidateList = "QUOPRINT,BOLFMT,ACKHEAD,RELPRINT,POPRINT,"
               + "INVPRINT,BOLCERT,JOBCARDF,JOBCARDC,QUOPRICE"
@@ -330,8 +331,8 @@ DEFINE BUTTON btnFirst
 DEFINE BUTTON btnForms-2 
      IMAGE-UP FILE "Graphics/32x32/delete.ico":U
      IMAGE-INSENSITIVE FILE "Graphics/32x32/delete_disabled.ico":U NO-FOCUS FLAT-BUTTON
-     LABEL "Parameters" 
-     SIZE 8 BY 1.91 TOOLTIP "Parameters".
+     LABEL "Close" 
+     SIZE 8 BY 1.9 TOOLTIP "Close".
 
 DEFINE BUTTON btnLast 
      IMAGE-UP FILE "Graphics/32x32/navigate_end.ico":U
@@ -398,6 +399,11 @@ DEFINE BUTTON btnAdd
      IMAGE-INSENSITIVE FILE "Graphics/32x32/navigate_plus_disabled.ico":U NO-FOCUS FLAT-BUTTON
      LABEL "Add" 
      SIZE 8 BY 1.91 TOOLTIP "Add".
+
+DEFINE BUTTON btnCalendar-1 
+     IMAGE-UP FILE "Graphics/16x16/calendar.bmp":U NO-FOCUS
+     LABEL "" 
+     SIZE 4.2 BY 1 TOOLTIP "PopUp Calendar".
 
 DEFINE BUTTON btnCancel 
      IMAGE-UP FILE "Graphics/32x32/navigate_cross.ico":U
@@ -527,6 +533,18 @@ DEFINE VARIABLE cTypeCode AS CHARACTER FORMAT "x(8)"
      SIZE 18 BY 1
      BGCOLOR 15 FGCOLOR 1 .
 
+DEFINE VARIABLE hDate AS DATE FORMAT "99/99/9999":U INITIAL ? 
+     VIEW-AS FILL-IN 
+     SIZE 16 BY 1 TOOLTIP "Date Value" NO-UNDO.
+
+DEFINE VARIABLE hDecimal AS DECIMAL FORMAT "->>,>>9.99":U INITIAL 0.00 
+     VIEW-AS FILL-IN 
+     SIZE 16 BY 1 TOOLTIP "Decimal Value" NO-UNDO.
+
+DEFINE VARIABLE hInteger AS INTEGER FORMAT "->,>>>,>>9":U INITIAL 0 
+     VIEW-AS FILL-IN 
+     SIZE 16 BY 1 TOOLTIP "Integer Value" NO-UNDO.
+
 DEFINE VARIABLE iSecurityLevelDefault AS INTEGER FORMAT ">>>9" INITIAL 0 
      LABEL "/" 
      VIEW-AS FILL-IN 
@@ -538,6 +556,14 @@ DEFINE VARIABLE iSecurityLevelUser AS INTEGER FORMAT ">>>9" INITIAL 0
      VIEW-AS FILL-IN 
      SIZE 7.2 BY 1
      BGCOLOR 15 FGCOLOR 1 .
+
+DEFINE VARIABLE hLogical AS LOGICAL 
+     VIEW-AS RADIO-SET HORIZONTAL
+     RADIO-BUTTONS 
+          "Yes", Yes,
+"No", No,
+"Unknown", ?
+     SIZE 27 BY 1 NO-UNDO.
 
 DEFINE RECTANGLE transPanel
      EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
@@ -620,6 +646,59 @@ DEFINE FRAME DEFAULT-FRAME
          AT COL 1 ROW 1
          SIZE 160 BY 28.57 WIDGET-ID 100.
 
+DEFINE FRAME viewFrame
+     btnCalendar-1 AT ROW 6 COL 36 WIDGET-ID 272
+     btnAdd AT ROW 9.81 COL 28 HELP
+          "Add" WIDGET-ID 20
+     cCategory AT ROW 1.24 COL 18 COLON-ALIGNED WIDGET-ID 2
+     cSubcategory AT ROW 1.24 COL 58 COLON-ALIGNED WIDGET-ID 12
+     iSecurityLevelUser AT ROW 1.24 COL 92 COLON-ALIGNED WIDGET-ID 10
+     iSecurityLevelDefault AT ROW 1.24 COL 102 COLON-ALIGNED WIDGET-ID 44
+     cName AT ROW 2.43 COL 18 COLON-ALIGNED WIDGET-ID 8
+     cTypeCode AT ROW 2.43 COL 58 COLON-ALIGNED WIDGET-ID 14
+     cModule AT ROW 2.43 COL 99 COLON-ALIGNED WIDGET-ID 6
+     cDescrip AT ROW 3.62 COL 18 COLON-ALIGNED WIDGET-ID 4
+     cFieldDescrip AT ROW 4.81 COL 18 COLON-ALIGNED WIDGET-ID 40
+     cFieldValue AT ROW 6 COL 18 COLON-ALIGNED WIDGET-ID 30
+     hLogical AT ROW 6 COL 20 NO-LABEL WIDGET-ID 64
+     hDate AT ROW 6 COL 18 COLON-ALIGNED HELP
+          "Enter Date Value" NO-LABEL WIDGET-ID 58
+     hDecimal AT ROW 6 COL 18 COLON-ALIGNED HELP
+          "Enter Decimal Value" NO-LABEL WIDGET-ID 60
+     hInteger AT ROW 6 COL 18 COLON-ALIGNED HELP
+          "Enter Integer Value" NO-LABEL WIDGET-ID 62
+     cFieldDefault AT ROW 7.19 COL 18 COLON-ALIGNED WIDGET-ID 42
+     ctableSource AT ROW 8.38 COL 18 COLON-ALIGNED WIDGET-ID 46
+     cfieldSource AT ROW 8.38 COL 54 COLON-ALIGNED WIDGET-ID 48
+     cDataType AT ROW 8.38 COL 94 COLON-ALIGNED HELP
+          "Select Data Type" WIDGET-ID 52
+     btnCancel AT ROW 9.81 COL 60 HELP
+          "Cancel" WIDGET-ID 28
+     btnCopy AT ROW 9.81 COL 36 HELP
+          "Copy" WIDGET-ID 24
+     btnDefaults AT ROW 9.81 COL 88 HELP
+          "Restore Defaults" WIDGET-ID 34
+     btnDelete AT ROW 9.81 COL 44 HELP
+          "Delete" WIDGET-ID 26
+     btnExport AT ROW 9.81 COL 96 HELP
+          "Export" WIDGET-ID 36
+     btnForms AT ROW 9.81 COL 74 HELP
+          "Forms" WIDGET-ID 54
+     btnImport AT ROW 9.81 COL 104 HELP
+          "Import" WIDGET-ID 38
+     btnReset AT ROW 9.81 COL 52 HELP
+          "Reset" WIDGET-ID 22
+     btnUpdate AT ROW 9.81 COL 20 HELP
+          "Update/Save" WIDGET-ID 18
+     transPanel AT ROW 9.57 COL 19 WIDGET-ID 16
+     transPanel-2 AT ROW 9.57 COL 87 WIDGET-ID 32
+     transPanel-5 AT ROW 9.57 COL 73 WIDGET-ID 56
+    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 39 ROW 17.43
+         SIZE 122 BY 12.14
+         TITLE "View" WIDGET-ID 400.
+
 DEFINE FRAME searchFrame
      btnClear AT ROW 10.76 COL 64 HELP
           "Clear Search Filters" WIDGET-ID 42
@@ -674,10 +753,10 @@ DEFINE FRAME formsFrame
          TITLE "System Control Parameter Forms" WIDGET-ID 700.
 
 DEFINE FRAME viewFormFrame
+     btnForms-2 AT ROW 1.48 COL 133 HELP
+          "Close" WIDGET-ID 72
      btnAdd-2 AT ROW 9.57 COL 66 HELP
           "Add" WIDGET-ID 20
-     btnCancel-2 AT ROW 9.57 COL 98 HELP
-          "Cancel" WIDGET-ID 28
      sys-ctrl-shipto.cust-vend AT ROW 1.24 COL 24 NO-LABEL WIDGET-ID 48
           VIEW-AS RADIO-SET HORIZONTAL
           RADIO-BUTTONS 
@@ -718,8 +797,6 @@ DEFINE FRAME viewFormFrame
           VIEW-AS FILL-IN 
           SIZE 16 BY 1
           BGCOLOR 15 
-     btnCopy-2 AT ROW 9.57 COL 74 HELP
-          "Copy" WIDGET-ID 24
      cLogLabel AT ROW 10.76 COL 15.2 WIDGET-ID 78
      sys-ctrl-shipto.log-fld AT ROW 10.76 COL 24 NO-LABEL WIDGET-ID 52
           VIEW-AS RADIO-SET HORIZONTAL
@@ -728,12 +805,14 @@ DEFINE FRAME viewFormFrame
 "No", no,
 "Unknown", ?
           SIZE 28 BY 1
+     btnCancel-2 AT ROW 9.57 COL 98 HELP
+          "Cancel" WIDGET-ID 28
+     btnCopy-2 AT ROW 9.57 COL 74 HELP
+          "Copy" WIDGET-ID 24
      btnDelete-2 AT ROW 9.57 COL 82 HELP
           "Delete" WIDGET-ID 26
      btnFirst AT ROW 9.57 COL 109 HELP
           "First" WIDGET-ID 62
-     btnForms-2 AT ROW 1.48 COL 133 HELP
-          "Parameters" WIDGET-ID 72
      btnLast AT ROW 9.57 COL 133 HELP
           "Last" WIDGET-ID 68
      btnNext AT ROW 9.57 COL 125 HELP
@@ -756,51 +835,6 @@ DEFINE FRAME viewFormFrame
          SIZE 142 BY 11.86
          FGCOLOR 1 
          TITLE "View" WIDGET-ID 900.
-
-DEFINE FRAME viewFrame
-     btnAdd AT ROW 9.81 COL 28 HELP
-          "Add" WIDGET-ID 20
-     cCategory AT ROW 1.24 COL 18 COLON-ALIGNED WIDGET-ID 2
-     cSubcategory AT ROW 1.24 COL 58 COLON-ALIGNED WIDGET-ID 12
-     iSecurityLevelUser AT ROW 1.24 COL 92 COLON-ALIGNED WIDGET-ID 10
-     iSecurityLevelDefault AT ROW 1.24 COL 102 COLON-ALIGNED WIDGET-ID 44
-     cName AT ROW 2.43 COL 18 COLON-ALIGNED WIDGET-ID 8
-     cTypeCode AT ROW 2.43 COL 58 COLON-ALIGNED WIDGET-ID 14
-     cModule AT ROW 2.43 COL 99 COLON-ALIGNED WIDGET-ID 6
-     cDescrip AT ROW 3.62 COL 18 COLON-ALIGNED WIDGET-ID 4
-     cFieldDescrip AT ROW 4.81 COL 18 COLON-ALIGNED WIDGET-ID 40
-     cFieldValue AT ROW 6 COL 18 COLON-ALIGNED WIDGET-ID 30
-     cFieldDefault AT ROW 7.19 COL 18 COLON-ALIGNED WIDGET-ID 42
-     btnCancel AT ROW 9.81 COL 60 HELP
-          "Cancel" WIDGET-ID 28
-     ctableSource AT ROW 8.38 COL 18 COLON-ALIGNED WIDGET-ID 46
-     cfieldSource AT ROW 8.38 COL 54 COLON-ALIGNED WIDGET-ID 48
-     cDataType AT ROW 8.38 COL 94 COLON-ALIGNED HELP
-          "Select Data Type" WIDGET-ID 52
-     btnCopy AT ROW 9.81 COL 36 HELP
-          "Copy" WIDGET-ID 24
-     btnDefaults AT ROW 9.81 COL 88 HELP
-          "Restore Defaults" WIDGET-ID 34
-     btnDelete AT ROW 9.81 COL 44 HELP
-          "Delete" WIDGET-ID 26
-     btnExport AT ROW 9.81 COL 96 HELP
-          "Export" WIDGET-ID 36
-     btnForms AT ROW 9.81 COL 74 HELP
-          "Forms" WIDGET-ID 54
-     btnImport AT ROW 9.81 COL 104 HELP
-          "Import" WIDGET-ID 38
-     btnReset AT ROW 9.81 COL 52 HELP
-          "Reset" WIDGET-ID 22
-     btnUpdate AT ROW 9.81 COL 20 HELP
-          "Update/Save" WIDGET-ID 18
-     transPanel AT ROW 9.57 COL 19 WIDGET-ID 16
-     transPanel-2 AT ROW 9.57 COL 87 WIDGET-ID 32
-     transPanel-5 AT ROW 9.57 COL 73 WIDGET-ID 56
-    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 39 ROW 17.43
-         SIZE 122 BY 12.14
-         TITLE "View" WIDGET-ID 400.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -859,13 +893,12 @@ ASSIGN FRAME filterFrame:FRAME = FRAME DEFAULT-FRAME:HANDLE
 DEFINE VARIABLE XXTABVALXX AS LOGICAL NO-UNDO.
 
 ASSIGN XXTABVALXX = FRAME formsFrame:MOVE-BEFORE-TAB-ITEM (svFocus:HANDLE IN FRAME DEFAULT-FRAME)
-       XXTABVALXX = FRAME filterFrame:MOVE-AFTER-TAB-ITEM (svFocus:HANDLE IN FRAME DEFAULT-FRAME)
-       XXTABVALXX = FRAME filterFrame:MOVE-BEFORE-TAB-ITEM (sysCtrlBrowse:HANDLE IN FRAME DEFAULT-FRAME)
        XXTABVALXX = FRAME searchFrame:MOVE-AFTER-TAB-ITEM (sysCtrlBrowse:HANDLE IN FRAME DEFAULT-FRAME)
        XXTABVALXX = FRAME searchFrame:MOVE-BEFORE-TAB-ITEM (FRAME viewFrame:HANDLE)
+       XXTABVALXX = FRAME filterFrame:MOVE-BEFORE-TAB-ITEM (FRAME formsFrame:HANDLE)
 /* END-ASSIGN-TABS */.
 
-/* BROWSE-TAB sysCtrlBrowse filterFrame DEFAULT-FRAME */
+/* BROWSE-TAB sysCtrlBrowse svFocus DEFAULT-FRAME */
 /* SETTINGS FOR FILL-IN svFocus IN FRAME DEFAULT-FRAME
    ALIGN-L                                                              */
 ASSIGN 
@@ -975,6 +1008,11 @@ ASSIGN
                                                                         */
 /* SETTINGS FOR BUTTON btnAdd IN FRAME viewFrame
    1 2                                                                  */
+/* SETTINGS FOR BUTTON btnCalendar-1 IN FRAME viewFrame
+   NO-ENABLE                                                            */
+ASSIGN 
+       btnCalendar-1:HIDDEN IN FRAME viewFrame           = TRUE.
+
 /* SETTINGS FOR BUTTON btnCancel IN FRAME viewFrame
    NO-ENABLE 1 3                                                        */
 /* SETTINGS FOR BUTTON btnCopy IN FRAME viewFrame
@@ -1017,6 +1055,26 @@ ASSIGN
    NO-ENABLE 4                                                          */
 /* SETTINGS FOR FILL-IN cTypeCode IN FRAME viewFrame
    NO-ENABLE 4 5                                                        */
+/* SETTINGS FOR FILL-IN hDate IN FRAME viewFrame
+   NO-DISPLAY NO-ENABLE                                                 */
+ASSIGN 
+       hDate:HIDDEN IN FRAME viewFrame           = TRUE.
+
+/* SETTINGS FOR FILL-IN hDecimal IN FRAME viewFrame
+   NO-DISPLAY NO-ENABLE                                                 */
+ASSIGN 
+       hDecimal:HIDDEN IN FRAME viewFrame           = TRUE.
+
+/* SETTINGS FOR FILL-IN hInteger IN FRAME viewFrame
+   NO-DISPLAY NO-ENABLE                                                 */
+ASSIGN 
+       hInteger:HIDDEN IN FRAME viewFrame           = TRUE.
+
+/* SETTINGS FOR RADIO-SET hLogical IN FRAME viewFrame
+   NO-DISPLAY NO-ENABLE                                                 */
+ASSIGN 
+       hLogical:HIDDEN IN FRAME viewFrame           = TRUE.
+
 /* SETTINGS FOR FILL-IN iSecurityLevelDefault IN FRAME viewFrame
    NO-ENABLE 4 5                                                        */
 /* SETTINGS FOR FILL-IN iSecurityLevelUser IN FRAME viewFrame
@@ -1190,6 +1248,20 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define FRAME-NAME viewFrame
+&Scoped-define SELF-NAME btnCalendar-1
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnCalendar-1 C-Win
+ON CHOOSE OF btnCalendar-1 IN FRAME viewFrame
+DO:
+    {methods/btnCalendar.i hDate}
+    APPLY "LEAVE":U TO hDate.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define FRAME-NAME viewFormFrame
 &Scoped-define SELF-NAME btnCalendar-2
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnCalendar-2 C-Win
 ON CHOOSE OF btnCalendar-2 IN FRAME viewFormFrame
@@ -1352,7 +1424,7 @@ END.
 &Scoped-define FRAME-NAME viewFormFrame
 &Scoped-define SELF-NAME btnForms-2
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnForms-2 C-Win
-ON CHOOSE OF btnForms-2 IN FRAME viewFormFrame /* Parameters */
+ON CHOOSE OF btnForms-2 IN FRAME viewFormFrame /* Close */
 DO:
     SELF:MOVE-TO-BOTTOM().
     HIDE FRAME formsFrame.
@@ -2103,6 +2175,74 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define FRAME-NAME viewFrame
+&Scoped-define SELF-NAME hDate
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL hDate C-Win
+ON HELP OF hDate IN FRAME viewFrame
+DO:
+    {methods/calendar.i}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL hDate C-Win
+ON LEAVE OF hDate IN FRAME viewFrame
+DO:
+    ASSIGN
+        {&SELF-NAME}
+        cFieldValue:SCREEN-VALUE = STRING({&SELF-NAME},"99/99/9999")
+        .
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME hDecimal
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL hDecimal C-Win
+ON VALUE-CHANGED OF hDecimal IN FRAME viewFrame
+DO:
+    ASSIGN
+        {&SELF-NAME}
+        cFieldValue:SCREEN-VALUE = LEFT-TRIM(STRING({&SELF-NAME},"->>,>>9.99"))
+        .
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME hInteger
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL hInteger C-Win
+ON VALUE-CHANGED OF hInteger IN FRAME viewFrame
+DO:
+    ASSIGN
+        {&SELF-NAME}
+        cFieldValue:SCREEN-VALUE = LEFT-TRIM(STRING({&SELF-NAME},"->,>>>,>>9"))
+        .
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME hLogical
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL hLogical C-Win
+ON VALUE-CHANGED OF hLogical IN FRAME viewFrame
+DO:
+    ASSIGN
+        {&SELF-NAME}
+        cFieldValue:SCREEN-VALUE = STRING({&SELF-NAME})
+        .
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define FRAME-NAME viewFormFrame
 &Scoped-define SELF-NAME sys-ctrl-shipto.log-fld
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL sys-ctrl-shipto.log-fld C-Win
 ON VALUE-CHANGED OF sys-ctrl-shipto.log-fld IN FRAME viewFormFrame /* log-fld */
@@ -2424,7 +2564,7 @@ PROCEDURE enable_UI :
           sys-ctrl-shipto.dec-fld sys-ctrl-shipto.int-fld 
           sys-ctrl-shipto.log-fld 
       WITH FRAME viewFormFrame IN WINDOW C-Win.
-  ENABLE btnAdd-2 btnCopy-2 btnDelete-2 btnFirst btnForms-2 btnLast btnNext 
+  ENABLE btnForms-2 btnAdd-2 btnCopy-2 btnDelete-2 btnFirst btnLast btnNext 
          btnPrev btnUpdate-2 
       WITH FRAME viewFormFrame IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-viewFormFrame}
@@ -2823,8 +2963,8 @@ PROCEDURE pCreatettSysCtrl :
         WHEN "Date" THEN
         ASSIGN
             ttSysCtrl.fieldDescrip = sys-ctrl.date-fld_descrip
-            ttSysCtrl.fieldDefault = IF sys-ctrl.date-fld NE ? THEN 
-                                     STRING(sys-ctrl.date-fld,"99/99/9999")
+            ttSysCtrl.fieldDefault = IF sys-ctrl.date-fld_default NE ? THEN 
+                                     STRING(sys-ctrl.date-fld_default,"99/99/9999")
                                      ELSE ""
             ttSysCtrl.fieldSource  = "date-fld"
             ttSysCtrl.fieldValue   = IF sys-ctrl.date-fld NE ? THEN 
@@ -2934,16 +3074,23 @@ PROCEDURE pCRUD :
 ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER iphMode AS HANDLE NO-UNDO.
     
-    DEFINE VARIABLE lContinue AS LOGICAL   NO-UNDO.
-    DEFINE VARIABLE lRemove   AS LOGICAL   NO-UNDO.
-    DEFINE VARIABLE hWidget   AS HANDLE    NO-UNDO.
-    DEFINE VARIABLE cSaveName AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE rRowID    AS ROWID     NO-UNDO.
-    DEFINE VARIABLE idx       AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE lContinue      AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE lRemove        AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE hWidget        AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE cSaveName      AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE rRowID         AS ROWID     NO-UNDO.
+    DEFINE VARIABLE idx            AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE cOldFieldValue AS CHARACTER NO-UNDO.
     
     DEFINE BUFFER bttSysCtrl FOR ttSysCtrl.
     
     DO WITH FRAME viewFrame:
+        ASSIGN
+            hDate:HIDDEN    = YES
+            hDecimal:HIDDEN = YES
+            hInteger:HIDDEN = YES
+            hLogical:HIDDEN = YES
+            .
         CASE iphMode:LABEL:
             WHEN "Add" OR WHEN "Copy" OR WHEN "Update" THEN DO:
                 DISABLE {&transPanel}.
@@ -2960,6 +3107,30 @@ PROCEDURE pCRUD :
                     IF NOT lSuperAdmin THEN
                     DISABLE iSecurityLevelDefault cFieldDefault.
                 END. /* else */
+                CASE cDataType:SCREEN-VALUE:
+                    WHEN "Character" THEN
+                    hFieldValue = cFieldValue:HANDLE.
+                    WHEN "Date" THEN
+                    ASSIGN
+                        hFieldValue = hDate:HANDLE
+                        btnCalendar-1:HIDDEN = NO
+                        btnCalendar-1:SENSITIVE = YES
+                        .
+                    WHEN "Decimal" THEN
+                    hFieldValue = hDecimal:HANDLE.
+                    WHEN "Integer" THEN
+                    hFieldValue = hInteger:HANDLE.
+                    WHEN "Logical" THEN
+                    hFieldValue = hLogical:HANDLE.
+                END CASE. /* cdatatype */
+                IF cDataType:SCREEN-VALUE NE "Character" THEN
+                ASSIGN
+                    hFieldValue:HIDDEN       = NO
+                    hFieldValue:SENSITIVE    = YES
+                    hFieldValue:SCREEN-VALUE = cFieldValue:SCREEN-VALUE
+                    cFieldValue:SENSITIVE    = NO
+                    .
+                hFieldValue:MOVE-TO-TOP().
                 btnUpdate:LOAD-IMAGE("Graphics\32x32\Save_As.ico").
                 IF iphMode:LABEL EQ "Add" THEN DO:
                     ASSIGN
@@ -2998,6 +3169,29 @@ PROCEDURE pCRUD :
                             APPLY "ENTRY":U TO cName.
                             RETURN.
                         END. /* if can-find */
+
+                        /* custom logic for individual parameters */
+                        IF cDataType:SCREEN-VALUE EQ "Character" THEN DO:
+                            CASE cName:SCREEN-VALUE:
+                                WHEN "APTAX" THEN
+                                    cOldFieldValue = ttSysCtrl.fieldValue.
+                                WHEN "OEFGUPDT" THEN DO:
+                                    SUBSTRING(cFieldValue:SCREEN-VALUE,8,1) = "N".
+                                END. /* oefgupdt */
+                                WHEN "RELCREDT"    OR
+                                WHEN "SalesBudget" THEN DO: 
+                                   RUN check-flg.
+                                   IF NOT lValid THEN DO:
+                                       MESSAGE 
+                                          "Please call ASI, to purchase this functionality."
+                                           VIEW-AS ALERT-BOX INFO BUTTONS OK.
+                                       RETURN.
+                                   END. /* if lvalid */
+                                END. /* relcrdt or salesbudget */
+                            END CASE.
+                        END. /* if character */
+                        /* custom logic for individual parameters */
+
                         CREATE sys-ctrl.
                         ASSIGN
                             sys-ctrl.company      = g_company
@@ -3021,30 +3215,77 @@ PROCEDURE pCRUD :
                             rec_key.table_name = "sys-ctrl"
                             .
                     END. /* if add/copy */
+                    
                     RUN pAssign.
                     RUN pUpdateTable (BUFFER ttSysCtrl).
                     
                     /* custom logic for individual parameters */
-                    CASE ttSysCtrl.name:
-                        WHEN "SSRMISSUE" THEN DO: 
-                            IF ttSysCtrl.fieldValue EQ "ScanTagOnly" THEN DO:
-                                FIND FIRST bttSysCtrl
-                                     WHERE bttSysCtrl.name     EQ ttSysCtrl.name
-                                       AND bttSysCtrl.dataType EQ "Logical"
-                                     NO-ERROR.
-                                IF AVAILABLE bttSysCtrl THEN DO:
-                                    bttSysCtrl.fieldValue = "NO".
-                                    FIND FIRST sys-ctrl EXCLUSIVE-LOCK
-                                         WHERE sys-ctrl.company EQ g_company
-                                           AND sys-ctrl.name    EQ bttSysCtrl.name
-                                         NO-ERROR.
-                                    IF AVAILABLE sys-ctrl THEN
-                                    sys-ctrl.log-fld = NO.
-                                    RELEASE sys-ctrl.
-                                END. /* if avail */ 
-                            END. /* if cfieldvalue */
-                        END. /* ssrmissue */
-                    END CASE.
+                    CASE ttSysCtrl.dataType:
+                        WHEN "Character" THEN DO:
+                            CASE ttSysCtrl.name:
+                                WHEN "APTAX" THEN DO:
+                                    IF ttSysCtrl.fieldValue EQ "NoTax" AND
+                                       ttSysCtrl.fieldValue NE cOldFieldValue THEN DO:
+                                        FOR EACH po-ord NO-LOCK
+                                            WHERE po-ord.company EQ g_company
+                                              AND po-ord.opened  EQ YES,
+                                             EACH po-ordl EXCLUSIVE-LOCK
+                                            WHERE po-ordl.company EQ po-ord.company
+                                              AND po-ordl.po-no   EQ po-ord.po-no
+                                            :
+                                            po-ordl.tax = NO.
+                                        END. /* for each */
+                                    END. /* if notax */
+                                END. /* aptax */
+                                WHEN "FGRECPT" THEN DO:
+                                    idx = LOOKUP(ttSysCtrl.fieldValue,str-init[66]).
+                                    RUN update-other-record ("AUTOPOST", idx EQ 1).
+                                    /* TSPOSTFG or TSPARTS */
+                                    RUN update-other-record ("TSPOSTFG", idx EQ 2 OR idx EQ 5).
+                                END. /* fgrecpt */
+                                WHEN "SSRMISSUE" THEN DO: 
+                                    IF ttSysCtrl.fieldValue EQ "ScanTagOnly" THEN DO:
+                                        FIND FIRST bttSysCtrl
+                                             WHERE bttSysCtrl.name     EQ ttSysCtrl.name
+                                               AND bttSysCtrl.dataType EQ "Logical"
+                                             NO-ERROR.
+                                        IF AVAILABLE bttSysCtrl THEN DO:
+                                            bttSysCtrl.fieldValue = "NO".
+                                            FIND FIRST sys-ctrl EXCLUSIVE-LOCK
+                                                 WHERE sys-ctrl.company EQ g_company
+                                                   AND sys-ctrl.name    EQ bttSysCtrl.name
+                                                 NO-ERROR.
+                                            IF AVAILABLE sys-ctrl THEN
+                                            sys-ctrl.log-fld = NO.
+                                            RELEASE sys-ctrl.
+                                        END. /* if avail */ 
+                                    END. /* if cfieldvalue */
+                                END. /* ssrmissue */
+                            END CASE. /* name */
+                        END. /* character */
+                        WHEN "Logical" THEN DO:
+                            CASE ttSysCtrl.name:
+                                WHEN "RELCREDT" THEN DO:
+                                    IF ttSysCtrl.fieldValue EQ "NO" THEN DO:
+                                        FIND FIRST bttSysCtrl
+                                             WHERE bttSysCtrl.name     EQ ttSysCtrl.name
+                                               AND bttSysCtrl.dataType EQ "Character"
+                                             NO-ERROR.
+                                        IF AVAILABLE bttSysCtrl THEN DO:
+                                            bttSysCtrl.fieldValue = "".
+                                            FIND FIRST sys-ctrl EXCLUSIVE-LOCK
+                                                 WHERE sys-ctrl.company EQ g_company
+                                                   AND sys-ctrl.name    EQ bttSysCtrl.name
+                                                 NO-ERROR.
+                                            IF AVAILABLE sys-ctrl THEN
+                                            sys-ctrl.char-fld = "".
+                                            RELEASE sys-ctrl.
+                                        END. /* if avail */ 
+                                    END. /* if logical */
+                                END. /* relcredt */
+                            END CASE. /* name */
+                        END. /* logical */
+                    END CASE. /* datatype */
                     /* custom logic for individual parameters */
                     
                     IF cMode EQ "Add"     OR
@@ -3077,6 +3318,13 @@ PROCEDURE pCRUD :
                     btnUpdate:LABEL                = "Update"
                     FRAME filterFrame:SENSITIVE    = YES
                     BROWSE sysCtrlBrowse:SENSITIVE = YES
+                    btnCalendar-1:HIDDEN           = YES
+                    btnCalendar-1:SENSITIVE        = NO
+                    .
+                IF hFieldValue:NAME NE "cFieldValue" THEN
+                ASSIGN
+                    hFieldValue:SENSITIVE = NO
+                    hFieldValue:HIDDEN    = YES
                     .
                 APPLY "VALUE-CHANGED":U TO BROWSE sysCtrlBrowse.
             END. /* cancel save */
@@ -3148,11 +3396,13 @@ PROCEDURE pCRUD :
             END. /* import */
             WHEN "Reset" THEN
                 RUN pDisplay.
-        END CASE.
+        END CASE. /* ipcmode:label */
         IF iphMode:LABEL EQ "Add" AND cCategory:SENSITIVE THEN
         APPLY "ENTRY":U TO cCategory.
-        ELSE IF cFieldValue:SENSITIVE THEN
-        APPLY "ENTRY":U TO cFieldValue.
+        ELSE IF hFieldValue:SENSITIVE THEN
+        APPLY "ENTRY":U TO hFieldValue.
+        ELSE
+        APPLY "ENTRY":U TO BROWSE sysCtrlBrowse.
         /* save the mode for when logic returns to this procedure */
         cMode = iphMode:LABEL.
     END. /* do frame */
@@ -3343,21 +3593,13 @@ PROCEDURE pDisplay :
                             hWidget:FORMAT = "x(256)"
                             .
                         WHEN "Date" THEN
-                        ASSIGN
-                            hWidget:WIDTH  = 16
-                            .
+                        hWidget:WIDTH  = 16.
                         WHEN "Decimal" THEN
-                        ASSIGN
-                            hWidget:WIDTH  = 12
-                            .
+                        hWidget:WIDTH  = 16.
                         WHEN "Integer" THEN
-                        ASSIGN
-                            hWidget:WIDTH  = 15
-                            .
+                        hWidget:WIDTH  = 16.
                         WHEN "Logical" THEN
-                        ASSIGN
-                            hWidget:WIDTH  = 5
-                            .
+                        hWidget:WIDTH  = 5.
                     END CASE.
                 END. /* if cfield* */
                 ASSIGN
@@ -3367,6 +3609,31 @@ PROCEDURE pDisplay :
             END. /* if */
             hWidget = hWidget:NEXT-SIBLING.
         END. /* do while */
+        ASSIGN
+            cFieldValue:LABEL = "Value"
+            cDescrip:LABEL    = "Description"
+            .
+        IF ttSysCtrl.dataType EQ "Character" THEN DO:
+            CASE ttSysCtrl.name:
+                WHEN "CHKFMT"   OR
+                WHEN "RelPrint" OR
+                WHEN "BolFmt"   OR
+                WHEN "Ackhead"  OR
+                WHEN "POPrint"  OR
+                WHEN "InvPrint" OR
+                WHEN "QuoPrint" OR
+                WHEN "BolFmtX"  THEN
+                    cFieldValue:LABEL = "Business Form".
+                WHEN "CasLabel" OR
+                WHEN "BarDir"   OR
+                WHEN "RMTags"   THEN
+                    cFieldValue:LABEL = "Label Location".
+                WHEN "PushPin" THEN
+                    cFieldValue:LABEL = "File Directory".
+            END CASE.
+            IF ttSysCtrl.name EQ "BarDir" THEN
+            cDescrip:LABEL = "File Directory".
+        END. /* if character */
         ASSIGN {&displayFields}.
     END. /* if avail */
 
@@ -3460,7 +3727,7 @@ PROCEDURE pGetSettings :
            AND user-print.program-id EQ "SysCtrl."
            AND user-print.user-id    EQ USERID("ASI")
          NO-ERROR.
-    IF NOT AVAILABLE user-print THEN RETURN.
+    IF AVAILABLE user-print THEN
     DO idx = 1 TO EXTENT(user-print.field-name):
         IF user-print.field-name[idx] EQ "" THEN
         CASE user-print.field-label[idx]:
@@ -3934,6 +4201,29 @@ PROCEDURE pWinReSize :
 
     RUN LockWindowUpdate (0,OUTPUT i).
     SESSION:SET-WAIT-STATE("").
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE update-other-record C-Win 
+PROCEDURE update-other-record :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcName AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER iplLog  AS LOGICAL   NO-UNDO.
+    
+    DEFINE BUFFER bSysCtrl FOR sys-ctrl.
+
+    FIND FIRST bSysCtrl EXCLUSIVE-LOCK 
+         WHERE bSysCtrl.company EQ g_company
+           AND bSysCtrl.name    EQ ipcName
+         NO-ERROR.
+    IF AVAILABLE bSysCtrl THEN
+    bSysCtrl.log-fld = iplLog.
 
 END PROCEDURE.
 
