@@ -401,7 +401,7 @@ FOR EACH ar-cash
     
     /* gdm 07010903 */
     ASSIGN ar-cash.ret-memo = YES
-           ar-cash.printed.
+           ar-cash.printed = YES.
 
 END. /* each ar-cash */
 
