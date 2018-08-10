@@ -969,7 +969,12 @@ postit:
           AND ar-cash.check-date LE end_date
           AND ar-cash.printed    EQ YES
           AND ar-cash.stat       NE "H"
-          use-index posted on error undo postit, leave postit:
+          and can-find(first ar-cashl where ar-cashl.c-no eq ar-cash.c-no)
+        use-index posted on error undo postit, leave postit:
+
+      IF ar-cash.printed NE YES THEN NEXT.
+      IF ar-cash.stat EQ "H" THEN
+        NEXT.
 
       {ar/ar-dreg.i}
 
@@ -1136,7 +1141,7 @@ FORMAT HEADER
   for each ar-cashl
       where ar-cashl.company eq cocode
         and ar-cashl.posted  eq no
-        and ar-cash.printed  eq YES
+        and ar-cash.printed EQ YES
       use-index inv-no
       NO-LOCK
       break by ar-cashl.actnum

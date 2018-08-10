@@ -396,12 +396,12 @@ FOR EACH ar-cash
           v-tdebamt = 0
           v-creamt = 0
           v-debamt = 0.
-    END. 
-    
+    END.     
 
+    
     /* gdm 07010903 */
     ASSIGN ar-cash.ret-memo = YES
-           ar-cash.printed  = YES.
+           ar-cash.printed.
 
 END. /* each ar-cash */
 
