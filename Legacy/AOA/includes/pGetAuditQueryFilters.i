@@ -27,6 +27,14 @@ PROCEDURE pGetFilterValues:
                             .
                     END. /* each _field */
                 END. /* each _file */
+                FOR EACH prgrms NO-LOCK:
+                    IF CAN-FIND(FIRST AuditHdr
+                                WHERE AuditHdr.AuditDB    EQ "ASI"
+                                  AND AuditHdr.AuditTable EQ prgrms.prgmname) THEN DO:
+                        CREATE ttAudit.
+                        ttAudit.AuditTable = prgrms.prgmname.
+                    END. /* if can-find */
+                END. /* each prgrms */
                 FOR EACH users NO-LOCK:
                     IF CAN-FIND(FIRST AuditHdr
                                 WHERE AuditHdr.AuditUser EQ users.user_id) THEN DO:  
