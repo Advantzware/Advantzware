@@ -748,21 +748,8 @@ DEF BUFFER bf-tt-report FOR tt-report.
 
       END.
       
-      FIND FIRST reftable WHERE
-           reftable.reftable = "trp-car" AND
-           reftable.rec_key  = truck-run-print.rec_key
-           USE-INDEX rec_key
-           NO-ERROR.
-
-      IF NOT AVAIL reftable THEN
-      DO:
-         CREATE reftable.
-         ASSIGN reftable.reftable = "trp-car"
-                reftable.rec_key  = truck-run-print.rec_key.
-      END.
-
       ASSIGN
-         reftable.CODE = bf-tt-report.carrier
+         truck-run-print.carrier = bf-tt-report.carrier
          truck-run-print.truck-code  = bf-tt-report.truck-code
          truck-run-print.load-no = bf-tt-report.load-no
          truck-run-print.stop-no = bf-tt-report.stop-no

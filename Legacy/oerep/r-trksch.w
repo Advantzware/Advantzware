@@ -812,19 +812,9 @@ FOR EACH tt-report:
      ASSIGN
        bf-tt-report.is-orig   = NO
        bf-tt-report.unique-no = v-last-unique.
-     FIND FIRST reftable WHERE
-          reftable.reftable = "trp-car" AND
-          reftable.rec_key  = truck-run-print.rec_key
-          USE-INDEX rec_key
-          NO-LOCK NO-ERROR.
 
-     IF AVAIL reftable THEN
-     DO:
-        tt-report.carrier = reftable.CODE.
-        RELEASE reftable.
-     END.
-
-     ASSIGN vcTruckCode = truck-run-print.truck-code
+     ASSIGN tt-report.carrier = truck-run-print.carrier
+            vcTruckCode = truck-run-print.truck-code
             vcLoadNo    = truck-run-print.load-no
             viStop      = truck-run-print.stop-no
             v-saved-pallets = truck-run-print.spare-int-1
@@ -945,19 +935,9 @@ PROCEDURE assign-tt-report-fields :
    IF AVAIL truck-run-print THEN
    DO:
       v-first-truck = ROWID(truck-run-print).
-      FIND FIRST reftable WHERE
-           reftable.reftable = "trp-car" AND
-           reftable.rec_key  = truck-run-print.rec_key
-           USE-INDEX rec_key
-           NO-LOCK NO-ERROR.
 
-      IF AVAIL reftable THEN
-      DO:
-         tt-report.carrier = reftable.CODE.
-         RELEASE reftable.
-      END.
-
-      ASSIGN vcTruckCode = truck-run-print.truck-code
+      ASSIGN tt-report.carrier = truck-run-print.carrier
+             vcTruckCode = truck-run-print.truck-code
              vcLoadNo    = truck-run-print.load-no
              viStop      = truck-run-print.stop-no
              vdShipDate  = truck-run-print.ship-date

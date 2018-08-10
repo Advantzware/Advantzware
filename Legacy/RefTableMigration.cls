@@ -2932,6 +2932,36 @@ CLASS RefTableMigration:
             END.              
         END.  /*FOR EACH reftable*/          
         RETURN iCnt.
+    END METHOD. /*e-itemfg-vend*/
+    METHOD PUBLIC INTEGER TruckRunPrint(INPUT ipCount AS INTEGER):
+        DEFINE VARIABLE iCnt AS INTEGER NO-UNDO.
+        DEFINE BUFFER reftable1 FOR reftable1.
+        DEFINE BUFFER Breftable FOR reftable. 
+        DEFINE BUFFER truck-run-print    FOR truck-run-print.
+        
+        DISABLE TRIGGERS FOR LOAD OF reftable.        
+        DISABLE TRIGGERS FOR LOAD OF truck-run-print.
+        ASSIGN iProcessCount = 0.
+        FOR EACH reftable WHERE reftable.reftable = "trp-car"
+            NO-LOCK:
+            DO TRANSACTION:    
+                FIND FIRST truck-run-print WHERE truck-run-print.rec_key = reftable.rec_key            
+                    EXCLUSIVE-LOCK NO-ERROR.
+                IF AVAILABLE truck-run-print THEN    
+                DO: 
+                    IF truck-run-print.carrier EQ "" THEN ASSIGN truck-run-print.carrier = reftable.code.                
+                    ASSIGN iProcessCount = iProcessCount + 1.
+                END    . 
+                FIND CURRENT truck-run-print NO-LOCK NO-ERROR.    
+                RELEASE truck-run-print.      
+                FIND Breftable WHERE ROWID(Breftable) = ROWID(reftable)
+                    EXCLUSIVE-LOCK NO-ERROR.
+                IF AVAILABLE Breftable THEN DELETE Breftable. 
+                RELEASE Breftable.   
+                iCnt = iCnt + 1.
+                IF iCnt >= ipCount THEN LEAVE.   
+            END.              
+        END.  /*FOR EACH reftable*/  
     END METHOD. /*e-itemfg-vend*/ 
     METHOD PUBLIC INTEGER Ar-cash(INPUT ipCount AS INTEGER):
         DEFINE VARIABLE iCnt AS INTEGER NO-UNDO.
@@ -3031,7 +3061,7 @@ CLASS RefTableMigration:
             END.              
         END.  /*FOR EACH reftable*/  
         RETURN iCnt.
-    END METHOD. /*ShiftDays*/
+    END METHOD. /*TruckRunPrint*/ 
 END CLASS.
 
 
