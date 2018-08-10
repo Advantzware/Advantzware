@@ -12,7 +12,7 @@
 "" "arch-est." "Archive/Delete Estimates" yes 12/31/2099 "ASI"
 "" "asiver." "ASI Version" yes 12/31/2099 "ASI"
 "" "asset" "Fixed Assets" yes 12/31/2099 "ASI"
-"" "audit_." "Audit Trail List" yes 12/31/2099 "ASI"
+"" "Audit" "Audit History" no 12/31/2099 "ASI"
 "" "b" "Order Processing" yes 12/31/2099 "ASI"
 "" "b1" "Update / Add Orders" yes 12/31/2099 "ASI"
 "" "b2" "Tickets for Releases" yes 12/31/2099 "ASI"
@@ -647,10 +647,10 @@ PSC
 filename=module
 records=0000000000644
 ldbname=ASI
-timestamp=2018/06/30-12:37:52
+timestamp=2018/07/29-13:46:13
 numformat=44,46
 dateformat=mdy-1950
 map=NO-MAP
-cpstream=ISO8859-1
+cpstream=ibm850
 .
-0000037160
+0000037154

@@ -88,7 +88,7 @@ DEFINE QUERY external_tables FOR po-ord.
 /* Definitions for BROWSE Browser-Table                                 */
 &Scoped-define FIELDS-IN-QUERY-Browser-Table po-ordl.i-no po-ordl.i-name ~
 po-ordl.job-no po-ordl.job-no2 po-ordl.s-num po-ordl.ord-qty po-ordl.cost ~
-po-ordl.cust-no po-ordl.due-date po-ordl.item-type ~
+po-ordl.cust-no po-ordl.due-date po-ordl.item-type po-ordl.LINE ~
 getOrdQty() @ po-ordl.ord-qty getCost() @ po-ordl.cost po-ordl.spare-int-1 ~
 po-ordl.spare-int-2 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table 
@@ -178,7 +178,8 @@ DEFINE QUERY Browser-Table FOR
       po-ordl.ord-qty
       po-ordl.cost
       po-ordl.spare-int-1
-      po-ordl.spare-int-2) SCROLLING.
+      po-ordl.spare-int-2
+      po-ordl.LINE) SCROLLING.
 &ANALYZE-RESUME
 
 /* Browse definitions                                                   */
@@ -200,6 +201,7 @@ DEFINE BROWSE Browser-Table
       getCost() @ po-ordl.cost COLUMN-LABEL "Unit Cost" FORMAT "->,>>>,>>9.99<<<<":U
       po-ordl.spare-int-1 FORMAT "->,>>>,>>9":U
       po-ordl.spare-int-2 FORMAT "->,>>>,>>9":U
+      po-ordl.LINE  COLUMN-LABEL "Line #" FORMAT ">>>9":U
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ASSIGN SEPARATORS SIZE 145 BY 13.33
@@ -326,6 +328,8 @@ ASI.po-ordl.line LT 99999999"
 "po-ordl.spare-int-1" ? ? "integer" ? ? ? ? ? ? no ? no no ? no no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[14]   > ASI.po-ordl.spare-int-2
 "po-ordl.spare-int-2" ? ? "integer" ? ? ? ? ? ? no ? no no ? no no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[15]   > ASI.po-ordl.line
+"po-ordl.line" "Line #" ? "integer" ? ? ? ? ? ? no ? no no ? no no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */
 &ANALYZE-RESUME

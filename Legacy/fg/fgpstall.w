@@ -62,6 +62,7 @@ DEFINE VARIABLE lFGSetAssembly AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cFGSetAssembly AS CHARACTER NO-UNDO.
 DEF VAR v-autobin AS cha NO-UNDO.  
 DEFINE VARIABLE gv-fgemail AS LOGICAL NO-UNDO INIT ?.
+DEFINE  VARIABLE lInvalid AS LOGICAL NO-UNDO.
 
 FIND FIRST sys-ctrl  WHERE sys-ctrl.company EQ gcompany
     AND sys-ctrl.name    EQ "AUTOPOST"
@@ -879,6 +880,9 @@ DO:
   DO WITH FRAME {&FRAME-NAME}:
     ASSIGN {&DISPLAYED-OBJECTS}.
   END.
+  run check-Period.
+  if lInvalid then return no-apply. 
+
   FIND FIRST period
       WHERE period.company EQ cocode
         AND period.pst     LE v-post-date
@@ -1103,6 +1107,11 @@ END.
 ON LEAVE OF v-post-date IN FRAME FRAME-A /* Post Date */
 DO:
      ASSIGN {&self-name}.
+     if lastkey ne -1 then do:    
+    run check-Period.
+    if lInvalid then return no-apply.
+    
+  end.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1186,6 +1195,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     DO:
       v-post-date:SCREEN-VALUE = STRING(TODAY).
       APPLY "ENTRY" TO begin_fg-r-no.
+      RUN check-Period.
     END.
     ELSE
     DO:
@@ -1265,6 +1275,28 @@ END.
 
 
 /* **********************  Internal Procedures  *********************** */
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE check-Period C-Win 
+PROCEDURE check-Period :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEF VAR lv-period LIKE period.pnum NO-UNDO.
+
+  DO WITH FRAME {&FRAME-NAME}:   
+    RUN sys/inc/valtrndt.p (cocode,
+                            DATE(v-post-date:SCREEN-VALUE),
+                            OUTPUT lv-period) NO-ERROR.
+    lInvalid = ERROR-STATUS:ERROR.
+    IF lInvalid THEN APPLY "entry" TO v-post-date.
+  END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE build-comp-tables C-Win 
 PROCEDURE build-comp-tables :

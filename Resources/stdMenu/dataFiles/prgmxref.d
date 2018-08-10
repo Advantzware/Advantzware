@@ -59,10 +59,10 @@ PSC
 filename=prgmxref
 records=0000000000056
 ldbname=ASI
-timestamp=2018/06/30-12:37:52
+timestamp=2018/07/29-13:46:13
 numformat=44,46
 dateformat=mdy-1950
 map=NO-MAP
-cpstream=ISO8859-1
+cpstream=ibm850
 .
 0000001234

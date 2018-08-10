@@ -87,6 +87,7 @@ DEFINE VARIABLE cRtnChar          AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lRecFound         AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE RmKeepZeroBin-log AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lRmTagValidate AS LOGICAL NO-UNDO .
+DEF VAR lInvalid AS LOG NO-UNDO.
 {jc/jcgl-sh.i NEW}
 
 DEF TEMP-TABLE tt-rctd NO-UNDO LIKE rm-rctd FIELD tt-row-id AS ROWID
@@ -627,6 +628,7 @@ DO:
   DEF VAR lv-r-no LIKE rm-rctd.r-no NO-UNDO.
   DEF VAR lValidQty AS LOG NO-UNDO.
 
+  
   DO WITH FRAME {&FRAME-NAME}:
     IF begin_job-no2:SCREEN-VALUE EQ "??" THEN
     begin_job-no2:SCREEN-VALUE = "0".
@@ -635,6 +637,9 @@ DO:
     ASSIGN {&DISPLAYED-OBJECTS}.    
   END.
 
+  run check-Period.
+  if lInvalid then return no-apply. 
+ 
   IF ip-post THEN DO:
      FIND FIRST period
          WHERE period.company EQ cocode
@@ -988,6 +993,10 @@ END.
 ON LEAVE OF v-post-date IN FRAME FRAME-F /* Post Date */
 DO:
      ASSIGN {&self-name}.
+  if lastkey ne -1 then do:    
+    run check-Period.
+    if lInvalid then return no-apply.
+  end.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1141,10 +1150,11 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   {methods/nowait.i}
 
   IF v-post-date:HIDDEN IN FRAME {&FRAME-NAME} = NO THEN
-  DO:
+  DO:  
      IF postdate-log THEN DO:
         v-post-date:SCREEN-VALUE IN FRAME {&FRAME-NAME} = STRING(TODAY).
         APPLY "ENTRY" TO v-from-job IN FRAME {&FRAME-NAME}.
+        RUN check-Period.
      END.
      ELSE DO:
         v-post-date:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "".    
@@ -1161,6 +1171,29 @@ END.
 
 
 /* **********************  Internal Procedures  *********************** */
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE check-Period C-Win 
+PROCEDURE check-Period :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEF VAR lv-period LIKE period.pnum NO-UNDO.
+
+  DO WITH FRAME {&FRAME-NAME}:   
+    RUN sys/inc/valtrndt.p (cocode,
+                            DATE(v-post-date:SCREEN-VALUE),
+                            OUTPUT lv-period) NO-ERROR.
+    lInvalid = ERROR-STATUS:ERROR.
+    IF lInvalid THEN APPLY "entry" TO v-post-date.
+  END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE assign-prep-info C-Win 
 PROCEDURE assign-prep-info :

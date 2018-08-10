@@ -506,7 +506,10 @@ v-printline = 0.
         PUT "<C21>" lv-cust-part FORM "x(30)"
             " "/*v-adder[2]*/ FORM "x(8)" SPACE(1)
             "<C53>" po-ordl.due-date
-            "<C63>" v-change-dscr "<C70>" v-tot-msf SKIP.
+            "<C63>" v-change-dscr.
+          IF s-print-prices THEN
+            PUT "<C70>" v-tot-msf.
+          PUT SKIP.
         v-printline = v-printline + 1.
         assign v-line-number = v-line-number + 3.
         
@@ -586,10 +589,11 @@ v-printline = 0.
 
         put "W: " at 25 v-wid space(2) "L: " v-len  
                  /*"                   "*/
-              /*  "  Flute:"*/  lv-flute FORM "x(13)" /*"Test:" */ lv-reg-no FORM "x(10)"
-                "<C61.5>" STRING(v-cost,"->>,>>9.99<<") + po-ordl.pr-uom + " $" +
-                STRING(v-setup) + "SETUP" FORM "x(25)"   
-                SKIP
+              /*  "  Flute:"*/  lv-flute FORM "x(13)" /*"Test:" */ lv-reg-no FORM "x(10)".
+             IF s-print-prices THEN
+               PUT  "<C61.5>" STRING(v-cost,"->>,>>9.99<<") + po-ordl.pr-uom + " $" +
+                STRING(v-setup) + "SETUP" FORM "x(25)" .
+             PUT SKIP.
                /* space(2) v-vend-item FORM "x(20)" */  .
      
         assign v-line-number = v-line-number + 1
@@ -807,10 +811,10 @@ FOR EACH notes WHERE notes.rec_key = po-ord.rec_key NO-LOCK:
   END.
 
   /*v-printline 46*/
-
+IF s-print-prices THEN
       PUT "Grand Total MSF: " +
-          TRIM(STRING(v-tot-sqft / 1000,">>>,>>9.9<<")) AT 50 FORMAT "x(30)"
-          SKIP.
+          TRIM(STRING(v-tot-sqft / 1000,">>>,>>9.9<<")) AT 50 FORMAT "x(30)".
+        PUT SKIP.
   IF po-ord.TYPE = "D" THEN do:
     
   FIND FIRST shipto WHERE shipto.company = cocode AND 
@@ -848,6 +852,7 @@ FOR EACH notes WHERE notes.rec_key = po-ord.rec_key NO-LOCK:
           "<R54><C1>" v-inst[2]
           "<R55><C1>" v-inst[3]
           "<R56><C1>" v-inst[4].
+     IF s-print-prices THEN
         PUT "<R58><C59><#8><FROM><R+5><C+21><RECT> " 
           "<=8><R+1> Sub Total  :" po-ord.t-cost - po-ord.tax FORM ">,>>>,>>9.99"
           "<=8><R+2> "  v-bot-lab[1] 

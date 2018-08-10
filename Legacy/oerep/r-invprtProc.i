@@ -112,6 +112,8 @@ DO WITH TRANSACTION:
     {sys\inc\invpass.i}
 END.
 
+{sys/ref/CustList.i}
+
 RUN sys/ref/nk1look.p (cocode, "BOLSign", "C", NO, NO, "", "", 
     OUTPUT vcBOLSignDir, OUTPUT v-rec-found).
 
@@ -197,6 +199,7 @@ DEFINE VARIABLE tb_setcomp        AS LOGICAL   INITIAL NO               .
 DEFINE VARIABLE tb_sman-copy      AS LOGICAL   INITIAL NO               .
 DEFINE VARIABLE td-show-parm      AS LOGICAL   INITIAL NO               .
 DEFINE VARIABLE tb_qty-all        AS LOGICAL   INITIAL YES              .
+DEFINE VARIABLE tb_cust-list      AS LOGICAL   INITIAL NO               .
 
 
 PROCEDURE assignSelections:
@@ -239,6 +242,7 @@ PROCEDURE assignSelections:
 
     DEFINE INPUT PARAMETER iptbSplitPDF         AS LOGICAL INITIAL NO               .
     DEFINE INPUT PARAMETER iptbQtyAll           AS LOGICAL INITIAL NO               .
+    DEFINE INPUT PARAMETER iptbCustList         AS LOGICAL INITIAL NO               .
     
     ASSIGN
         begin_bol         = ipbegin_bol        
@@ -278,6 +282,7 @@ PROCEDURE assignSelections:
         td-show-parm      = iptd-show-parm  
         tbPostedAR        = iptbPostedAR
         tb_qty-all        = iptbQtyAll 
+        tb_cust-list      = iptbCustList
 
         tb_splitPDF       = iptbSplitPDF
         s-print-zero-qty = tb_prt-zero-qty
@@ -384,7 +389,7 @@ PROCEDURE BatchMail :
     DEFINE BUFFER b2-cust      FOR cust.
     DEFINE BUFFER b1-ar-inv    FOR ar-inv.
     DEFINE VARIABLE lEmailed AS LOG NO-UNDO.
-
+    
     ASSIGN                   
         finv         = begin_inv
         tinv         = end_inv
@@ -396,7 +401,8 @@ PROCEDURE BatchMail :
         v-sort       = rd_sort BEGINS "Customer"
         v-prntinst   = tb_prt-inst
         v-print-dept = tb_print-dept
-        lPrintQtyAll = tb_qty-all.
+        lPrintQtyAll = tb_qty-all
+         .
 
     IF fi_depts-HIDDEN  = NO THEN
         ASSIGN
@@ -404,12 +410,14 @@ PROCEDURE BatchMail :
             v-depts      = fi_depts-SCREEN-VALUE.
             
     DO:  /* not tb_post */
-            
+   
              
     FOR EACH b1-{&head}2 NO-LOCK
         WHERE b1-{&head}2.company         EQ cocode
         AND b1-{&head}2.cust-no         GE icBegCustNo
-        AND b1-{&head}2.cust-no         LE icEndCustNo  
+        AND b1-{&head}2.cust-no         LE icEndCustNo 
+        AND (if tb_cust-list then can-find(first ttCustList where ttCustList.cust-no eq b1-{&head}2.cust-no
+        AND ttCustList.log-fld no-lock) else true)
         AND b1-{&head}2.inv-no GE finv
         AND b1-{&head}2.inv-no LE tinv 
         
@@ -508,6 +516,8 @@ PROCEDURE bolValidate:
         buf-{&head}.company EQ cocode AND
         buf-{&head}.cust-no GE begin_cust AND
         buf-{&head}.cust-no LE end_cust AND
+       (if tb_cust-list then can-find(first ttCustList where ttCustList.cust-no eq buf-{&head}.cust-no
+           AND ttCustList.log-fld no-lock) else true) AND
                       INDEX(vcHoldStats, buf-{&head}.stat) EQ 0 AND
         ((NOT tb_reprint AND buf-{&head}.inv-no EQ 0) OR
         (tb_reprint AND buf-{&head}.inv-no NE 0 AND
@@ -526,6 +536,8 @@ PROCEDURE bolValidate:
             buf-{&head}.company EQ cocode AND
             buf-{&head}.cust-no GE begin_cust AND
             buf-{&head}.cust-no LE end_cust AND
+            (if tb_cust-list then can-find(first ttCustList where ttCustList.cust-no eq buf-{&head}.cust-no
+             AND ttCustList.log-fld no-lock) else true) AND
                       INDEX(vcHoldStats, buf-{&head}.stat) <> 0 AND
             ((NOT tb_reprint AND buf-{&head}.inv-no EQ 0) OR
             (tb_reprint AND buf-{&head}.inv-no NE 0 AND
@@ -705,7 +717,9 @@ PROCEDURE runReport5:
         sys-ctrl-shipto.NAME = "INVPRINT" AND
         sys-ctrl-shipto.cust-vend = YES AND
         sys-ctrl-shipto.cust-vend-no GE begin_cust AND
-        sys-ctrl-shipto.cust-vend-no LE end_cust 
+        sys-ctrl-shipto.cust-vend-no LE end_cust AND
+        (if tb_cust-list then can-find(first ttCustList where ttCustList.cust-no eq sys-ctrl-shipto.cust-vend-no
+         AND ttCustList.log-fld no-lock) else true)
         ) THEN
     DO:
        
@@ -713,6 +727,8 @@ PROCEDURE runReport5:
             buf-{&head}.company EQ cocode AND
             buf-{&head}.cust-no GE begin_cust AND
             buf-{&head}.cust-no LE end_cust AND
+            (if tb_cust-list then can-find(first ttCustList where ttCustList.cust-no eq buf-{&head}.cust-no
+             AND ttCustList.log-fld no-lock) else true) AND
             ("{&head}" NE "ar-inv" OR buf-{&head}.posted = tb_posted) AND 
             (INDEX(vcHoldStats, buf-{&head}.stat) EQ 0 OR "{&head}" EQ "ar-inv") AND
             ((NOT tb_reprint AND buf-{&head}.inv-no EQ 0) OR
@@ -811,6 +827,8 @@ PROCEDURE runReport1:
         buf-{&head}.company EQ cocode AND
         buf-{&head}.cust-no GE begin_cust AND
         buf-{&head}.cust-no LE end_cust AND
+        (if tb_cust-list then can-find(first ttCustList where ttCustList.cust-no eq buf-{&head}.cust-no
+           AND ttCustList.log-fld no-lock) else true) AND
              INDEX(vcHoldStats, buf-{&head}.stat) EQ 0 AND
         ("{&head}" NE "ar-inv" OR buf-{&head}.posted = tb_posted) AND 
         ((NOT tb_reprint AND buf-{&head}.inv-no EQ 0) OR
@@ -884,6 +902,8 @@ PROCEDURE output-to-mail :
                 ((buf-{&head}.cust-no GE begin_cust AND buf-{&head}.cust-no LE end_cust AND NOT tb_BatchMail)
                 OR
                 (buf-{&head}.cust-no EQ icCustNo AND tb_BatchMail)) 
+                AND (if tb_cust-list then can-find(first ttCustList where ttCustList.cust-no eq buf-{&head}.cust-no
+                AND ttCustList.log-fld no-lock) else true)
                 AND  INDEX(vcHoldStats, buf-{&head}.stat) EQ 0 
                 AND  (((NOT tb_reprint) AND buf-{&head}.inv-no EQ 0) OR
                 (tb_reprint AND buf-{&head}.inv-no NE 0 AND
@@ -1151,10 +1171,12 @@ PROCEDURE build-list1:
         ASSIGN
             v-print-dept = LOGICAL(tb_print-dept-screen-value)
             v-depts      = fi_depts-screen-value.
-    FOR EACH {&head} NO-LOCK
+        FOR EACH {&head} NO-LOCK
         WHERE {&head}.company         EQ cocode
         AND {&head}.cust-no         GE fcust
         AND {&head}.cust-no         LE tcust 
+        AND (if tb_cust-list then can-find(first ttCustList where ttCustList.cust-no eq {&head}.cust-no
+           AND ttCustList.log-fld no-lock) else true)
         AND {&head}.inv-no GE finv
         AND {&head}.inv-no LE tinv 
         AND (STRING({&head}.sold-no)         EQ ip-sold-no OR ip-sold-no = "")
@@ -1477,7 +1499,6 @@ ASSIGN
     vcInvNums      = vcInvNums + '-' + STRING ({&head}.inv-no)
     vcInvNums      = LEFT-TRIM (vcInvNums, '-')  
     report.key-03  = IF v-sort THEN STRING({&head}.inv-no,"9999999999") ELSE ""  .
-
 IF vcInvNums MATCHES '*-*' THEN
     vcInvNums = RIGHT-TRIM (SUBSTRING (vcInvNums, 1, INDEX (vcInvNums,'-')), '-') + SUBSTRING (vcInvNums, R-INDEX (vcInvNums, '-')).
 
@@ -3234,6 +3255,8 @@ PROCEDURE validateCustPaper:
         buf-{&head}.company EQ cocode AND
         buf-{&head}.cust-no GE begin_cust AND
         buf-{&head}.cust-no LE end_cust AND
+        (if tb_cust-list then can-find(first ttCustList where ttCustList.cust-no eq buf-{&head}.cust-no
+           AND ttCustList.log-fld no-lock) else true) AND
         ("{&head}" NE "ar-inv" OR buf-{&head}.posted = tb_posted) AND 
                   INDEX(vcHoldStats, buf-{&head}.stat) EQ 0 AND
         ((NOT tb_reprint AND buf-{&head}.inv-no EQ 0) OR

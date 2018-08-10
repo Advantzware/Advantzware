@@ -139,7 +139,7 @@ ASSIGN
      lv-setup-per-cost-uom = 0.
  ELSE 
     lv-setup-per-cost-uom = b-po-ordl.setup / lv-out-qty .
-
+    IF lv-out-cost EQ ? THEN lv-out-cost = 0.
  /* wfk - 09261318 - take out update to make this a read-only procedure */    
  ASSIGN
     opd-cost-uom = lv-cost-uom

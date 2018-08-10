@@ -393,6 +393,7 @@
             AND tt-fg-bin.qty     GT 0
             AND (tt-fg-bin.ord-no EQ oe-ord.ord-no OR
                  SUBSTR(tt-report.key-04,1,6) EQ "")
+            AND tt-fg-bin.cust EQ ""
           NO-LOCK
           BREAK BY tt-fg-bin.job-no
                 BY tt-fg-bin.job-no2

@@ -146,6 +146,9 @@ ASSIGN
     {refTableConv.i "print42" 'print42'}
     {refTableConv.i "ColorAudit" 'COLOR' + chr(32) + 'AUDIT'}
     {refTableConv.i "Machcrew" 'MACH-CREW'}
+    {refTableConv.i "VendorMaxValue" 'VendorMaxValue'}
+    {refTableConv.i "ShiftDays" 'ShiftDays'}
+    {refTableConv.i "EstGetqtyw2" 'est/getqty.w2'}
 
 /* Deferred for 16.7.0                                              */
 /*    {refTableConv.i "STYFLU" 'STYFLU'}                            */

@@ -95,10 +95,10 @@ form v-tot-pkgs                     to 3                    /* pkgs */
      report.key-03                  at 45 format "x(15)"    /* cust PO */
      w2.cases                       to 63 format "->9"      /* # units */
      w2.cas-cnt                     to 69 format "->,>>9"   /* # / unit */
-     v-bol-qty                      to 75 format "->>>>9"   /* quan ship */
-     v-part-comp                    at 77                   /* PC */
-     v-bol-wt                       to 83 format ">>>>9"    /* wgt */
-    with frame bol-mid1 down no-box no-labels stream-io width 85.
+     v-bol-qty                      to 78 format "->>>>>>>9"   /* quan ship */
+     v-part-comp                    at 81                   /* PC */
+     v-bol-wt                       to 90 format ">>>>>>9"    /* wgt */
+    with frame bol-mid1 down no-box no-labels stream-io width 90.
 
 form header
      " "

@@ -69,11 +69,11 @@ DEF TEMP-TABLE tt-cust
     INDEX i2 cust-row.
 
 ASSIGN cTextListToSelect = "Customer,Po #,Rep,Item #,Cust Part #,Description,Job," +
-                           "Qty Onhand,Rect. Date,Sell Price,Total Value,Committed,Qty/Case,FG Lot #,Customer Lot #,Order Due Date,Job Due Date"
+                           "Qty Onhand,Rect. Date,Sell Price,Total Value,Committed,Qty/Case,FG Lot #,Customer Lot #,Order Due Date,Job Due Date,CSR"
        cFieldListToSelect = "cust,po,sman,itm,cust-prt,dscr,job," +
-                            "qty-oh,rcpt-dt,sel-prc,ttl-val,commtd,qty-case,fg-lot,cust-lot,due-date,job-due-date"
-       cFieldLength = "8,15,4,15,15,15,10," + "12,10,13,15,12,7,20,15,14,12"  
-       cFieldType = "c,c,c,c,c,c,c," + "i,c,i,i,i,i,c,c,c,c" 
+                            "qty-oh,rcpt-dt,sel-prc,ttl-val,commtd,qty-case,fg-lot,cust-lot,due-date,job-due-date,csr"
+       cFieldLength = "8,15,4,15,15,15,10," + "12,10,13,15,12,7,20,15,14,12,8"  
+       cFieldType = "c,c,c,c,c,c,c," + "i,c,i,i,i,i,c,c,c,c,c" 
     .
 
 {sys/inc/ttRptSel.i}
@@ -96,14 +96,15 @@ ASSIGN cTextListToDefault  = "Customer,Po #,Rep,Item #,Cust Part #,Description,J
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-16 RECT-6 btnCustList tb_cust-list ~
-begin_cust end_cust begin_cust-po end_cust-po begin_slm end_slm rd_itm-code ~
-tb_inc-zer tb_inc-cust sl_avail Btn_Def sl_selected Btn_Add Btn_Remove ~
-btn_Up btn_down lv-ornt lines-per-page rd-dest lv-font-no td-show-parm ~
-tb_excel tb_runExcel fi_file btn-cancel btn-ok 
+begin_cust end_cust begin_cust-po end_cust-po begin_slm end_slm begin_csr ~
+end_csr rd_itm-code tb_inc-zer tb_inc-cust sl_avail Btn_Def sl_selected ~
+Btn_Add Btn_Remove btn_Up btn_down lv-ornt lines-per-page rd-dest ~
+lv-font-no td-show-parm tb_excel tb_runExcel fi_file btn-cancel btn-ok 
 &Scoped-Define DISPLAYED-OBJECTS tb_cust-list begin_cust end_cust ~
-begin_cust-po end_cust-po begin_slm end_slm lbl_itm-code rd_itm-code ~
-tb_inc-zer tb_inc-cust sl_avail sl_selected lv-ornt lines-per-page rd-dest ~
-lv-font-no lv-font-name td-show-parm tb_excel tb_runExcel fi_file 
+begin_cust-po end_cust-po begin_slm end_slm begin_csr end_csr lbl_itm-code ~
+rd_itm-code tb_inc-zer tb_inc-cust sl_avail sl_selected lv-ornt ~
+lines-per-page rd-dest lv-font-no lv-font-name td-show-parm tb_excel ~
+tb_runExcel fi_file 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -128,7 +129,7 @@ FUNCTION GEtFieldValue RETURNS CHARACTER
 DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON btn-cancel /*AUTO-END-KEY */
+DEFINE BUTTON btn-cancel 
      LABEL "&Cancel" 
      SIZE 15 BY 1.14.
 
@@ -160,6 +161,11 @@ DEFINE BUTTON btn_Up
      LABEL "Move Up" 
      SIZE 16 BY 1.
 
+DEFINE VARIABLE begin_csr AS CHARACTER FORMAT "X(10)":U 
+     LABEL "Beginning CSR" 
+     VIEW-AS FILL-IN 
+     SIZE 17 BY 1 NO-UNDO.
+
 DEFINE VARIABLE begin_cust AS CHARACTER FORMAT "X(8)" 
      LABEL "Beginning Customer#" 
      VIEW-AS FILL-IN 
@@ -172,6 +178,11 @@ DEFINE VARIABLE begin_cust-po AS CHARACTER FORMAT "X(15)":U
 
 DEFINE VARIABLE begin_slm AS CHARACTER FORMAT "XXX":U 
      LABEL "Beginning Sales Rep#" 
+     VIEW-AS FILL-IN 
+     SIZE 17 BY 1 NO-UNDO.
+
+DEFINE VARIABLE end_csr AS CHARACTER FORMAT "X(8)":U INITIAL "zzzzzzzz" 
+     LABEL "Ending CSR" 
      VIEW-AS FILL-IN 
      SIZE 17 BY 1 NO-UNDO.
 
@@ -241,7 +252,7 @@ DEFINE VARIABLE rd_itm-code AS CHARACTER INITIAL "All"
 
 DEFINE RECTANGLE RECT-16
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 93 BY 9.05.
+     SIZE 93 BY 9.52.
 
 DEFINE RECTANGLE RECT-6
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
@@ -305,43 +316,47 @@ DEFINE FRAME FRAME-A
           "Enter Beginning Sales Rep Number"
      end_slm AT ROW 4.67 COL 71 COLON-ALIGNED HELP
           "Enter Ending Sales Rep Number"
-     lbl_itm-code AT ROW 6.43 COL 28 COLON-ALIGNED NO-LABEL
-     rd_itm-code AT ROW 6.43 COL 44 NO-LABEL
-     tb_inc-zer AT ROW 7.67 COL 39
-     tb_inc-cust AT ROW 8.76 COL 84 RIGHT-ALIGNED
-     sl_avail AT ROW 11.14 COL 4 NO-LABEL WIDGET-ID 26
-     Btn_Def AT ROW 11.14 COL 40.2 HELP
+     begin_csr AT ROW 5.52 COL 28 COLON-ALIGNED HELP
+          "Enter starting CSR." WIDGET-ID 164
+     end_csr AT ROW 5.52 COL 71 COLON-ALIGNED HELP
+          "Enter ending CSR." WIDGET-ID 166
+     lbl_itm-code AT ROW 6.95 COL 28 COLON-ALIGNED NO-LABEL
+     rd_itm-code AT ROW 6.95 COL 44 NO-LABEL
+     tb_inc-zer AT ROW 8.19 COL 39
+     tb_inc-cust AT ROW 9.29 COL 84 RIGHT-ALIGNED
+     sl_avail AT ROW 11.52 COL 4 NO-LABEL WIDGET-ID 26
+     Btn_Def AT ROW 11.52 COL 40.2 HELP
           "Add Selected Table to Tables to Audit" WIDGET-ID 56
-     sl_selected AT ROW 11.14 COL 59.4 NO-LABEL WIDGET-ID 28
-     Btn_Add AT ROW 12.14 COL 40.2 HELP
+     sl_selected AT ROW 11.52 COL 59.4 NO-LABEL WIDGET-ID 28
+     Btn_Add AT ROW 12.52 COL 40.2 HELP
           "Add Selected Table to Tables to Audit" WIDGET-ID 32
-     Btn_Remove AT ROW 13.14 COL 40.2 HELP
+     Btn_Remove AT ROW 13.52 COL 40.2 HELP
           "Remove Selected Table from Tables to Audit" WIDGET-ID 34
-     btn_Up AT ROW 14.19 COL 40.2 WIDGET-ID 40
-     btn_down AT ROW 15.19 COL 40.2 WIDGET-ID 42
-     lv-ornt AT ROW 17 COL 32 NO-LABEL
-     lines-per-page AT ROW 17 COL 85 COLON-ALIGNED
-     rd-dest AT ROW 17.48 COL 6 NO-LABEL
-     lv-font-no AT ROW 18.67 COL 35 COLON-ALIGNED
-     lv-font-name AT ROW 19.62 COL 29 COLON-ALIGNED NO-LABEL
-     td-show-parm AT ROW 21.05 COL 31
-     tb_excel AT ROW 22 COL 67.2 RIGHT-ALIGNED
-     tb_runExcel AT ROW 22 COL 91 RIGHT-ALIGNED
-     fi_file AT ROW 23.1 COL 45 COLON-ALIGNED HELP
+     btn_Up AT ROW 14.57 COL 40.2 WIDGET-ID 40
+     btn_down AT ROW 15.57 COL 40.2 WIDGET-ID 42
+     lv-ornt AT ROW 17.38 COL 32 NO-LABEL
+     lines-per-page AT ROW 17.38 COL 85 COLON-ALIGNED
+     rd-dest AT ROW 17.86 COL 6 NO-LABEL
+     lv-font-no AT ROW 19.05 COL 35 COLON-ALIGNED
+     lv-font-name AT ROW 20 COL 29 COLON-ALIGNED NO-LABEL
+     td-show-parm AT ROW 21.43 COL 31
+     tb_excel AT ROW 22.38 COL 67.2 RIGHT-ALIGNED
+     tb_runExcel AT ROW 22.38 COL 91 RIGHT-ALIGNED
+     fi_file AT ROW 23.48 COL 45 COLON-ALIGNED HELP
           "Enter File Name"
-     btn-cancel AT ROW 24.71 COL 56
-     btn-ok AT ROW 24.76 COL 19
+     btn-cancel AT ROW 25.1 COL 56
+     btn-ok AT ROW 25.14 COL 19
      "Available Columns" VIEW-AS TEXT
-          SIZE 29 BY .62 AT ROW 10.43 COL 4.8 WIDGET-ID 38
-     "Output Destination" VIEW-AS TEXT
-          SIZE 18 BY .62 AT ROW 16.76 COL 3
+          SIZE 29 BY .62 AT ROW 10.81 COL 4.8 WIDGET-ID 38
+     "Selected Columns(In Display Order)" VIEW-AS TEXT
+          SIZE 34 BY .62 AT ROW 10.76 COL 59 WIDGET-ID 44
      "Selection Parameters" VIEW-AS TEXT
           SIZE 21 BY .71 AT ROW 1.24 COL 5
           BGCOLOR 2 
-     "Selected Columns(In Display Order)" VIEW-AS TEXT
-          SIZE 34 BY .62 AT ROW 10.38 COL 59 WIDGET-ID 44
+     "Output Destination" VIEW-AS TEXT
+          SIZE 18 BY .62 AT ROW 17.14 COL 3
      RECT-16 AT ROW 1 COL 2
-     RECT-6 AT ROW 16.52 COL 2
+     RECT-6 AT ROW 16.91 COL 2
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1.6 ROW 1.24
@@ -365,7 +380,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW C-Win ASSIGN
          HIDDEN             = YES
          TITLE              = "Finished Goods Inventory Status By Customer Orders"
-         HEIGHT             = 25.95
+         HEIGHT             = 26.29
          WIDTH              = 95.8
          MAX-HEIGHT         = 53.57
          MAX-WIDTH          = 384
@@ -399,15 +414,9 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME                                                           */
-ASSIGN
-       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "ribbon-button".
-
-
-ASSIGN
-       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "ribbon-button".
-
+ASSIGN 
+       begin_csr:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
 
 ASSIGN 
        begin_cust:PRIVATE-DATA IN FRAME FRAME-A     = 
@@ -419,6 +428,18 @@ ASSIGN
 
 ASSIGN 
        begin_slm:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
+
+ASSIGN 
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+ASSIGN 
+       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+ASSIGN 
+       end_csr:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
 ASSIGN 
@@ -481,7 +502,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -507,6 +528,31 @@ DO:
   /* This event will close the window and terminate the procedure.  */
   APPLY "CLOSE":U TO THIS-PROCEDURE.
   RETURN NO-APPLY.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME begin_csr
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_csr C-Win
+ON HELP OF begin_csr IN FRAME FRAME-A /* Beginning CSR */
+DO:
+    DEF VAR char-val AS cha NO-UNDO.
+
+    run windows/l-users.w ("", output char-val).
+    IF char-val <> "" THEN ASSIGN begin_csr:SCREEN-VALUE = ENTRY(1,char-val) .
+
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_csr C-Win
+ON LEAVE OF begin_csr IN FRAME FRAME-A /* Beginning CSR */
+DO:
+  assign {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -706,6 +752,31 @@ END.
 ON CHOOSE OF btn_Up IN FRAME FRAME-A /* Move Up */
 DO:
   RUN Move-Field ("Up").
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME end_csr
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_csr C-Win
+ON HELP OF end_csr IN FRAME FRAME-A /* Ending CSR */
+DO:
+    DEF VAR char-val AS cha NO-UNDO.
+
+    run windows/l-users.w ("", output char-val).
+    IF char-val <> "" THEN ASSIGN end_csr:SCREEN-VALUE = ENTRY(1,char-val) .
+
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_csr C-Win
+ON LEAVE OF end_csr IN FRAME FRAME-A /* Ending CSR */
+DO:
+  assign {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1261,15 +1332,15 @@ PROCEDURE enable_UI :
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
   DISPLAY tb_cust-list begin_cust end_cust begin_cust-po end_cust-po begin_slm 
-          end_slm lbl_itm-code rd_itm-code tb_inc-zer tb_inc-cust sl_avail 
-          sl_selected lv-ornt lines-per-page rd-dest lv-font-no lv-font-name 
-          td-show-parm tb_excel tb_runExcel fi_file 
+          end_slm begin_csr end_csr lbl_itm-code rd_itm-code tb_inc-zer 
+          tb_inc-cust sl_avail sl_selected lv-ornt lines-per-page rd-dest 
+          lv-font-no lv-font-name td-show-parm tb_excel tb_runExcel fi_file 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   ENABLE RECT-16 RECT-6 btnCustList tb_cust-list begin_cust end_cust 
-         begin_cust-po end_cust-po begin_slm end_slm rd_itm-code tb_inc-zer 
-         tb_inc-cust sl_avail Btn_Def sl_selected Btn_Add Btn_Remove btn_Up 
-         btn_down lv-ornt lines-per-page rd-dest lv-font-no td-show-parm 
-         tb_excel tb_runExcel fi_file btn-cancel btn-ok 
+         begin_cust-po end_cust-po begin_slm end_slm begin_csr end_csr 
+         rd_itm-code tb_inc-zer tb_inc-cust sl_avail Btn_Def sl_selected 
+         Btn_Add Btn_Remove btn_Up btn_down lv-ornt lines-per-page rd-dest 
+         lv-font-no td-show-parm tb_excel tb_runExcel fi_file btn-cancel btn-ok 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.

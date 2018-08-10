@@ -1474,7 +1474,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     DISABLE lines-per-page.
     IF NOT AVAIL est OR est.est-type LE 4 THEN DISABLE tb_note tb_comm.
     IF NOT AVAIL est OR est.est-type LE 4 OR 
-      (v-print-fmt NE "XPrint" AND v-print-fmt NE "quoprint 1" AND v-print-fmt NE "quoprint 2" AND v-print-fmt NE "quoprint 10" AND v-print-fmt NE "quoprint 11" AND v-print-fmt NE "quoprint 20" AND v-print-fmt NE "Printers"  AND v-print-fmt NE "Hughes" AND v-print-fmt NE "Simkins" AND v-print-fmt NE "Oklahoma")
+      (v-print-fmt NE "XPrint" AND v-print-fmt NE "quoprint 1" AND v-print-fmt NE "quoprint 2" AND v-print-fmt NE "quoprint 10" AND v-print-fmt NE "quoprint 11" AND v-print-fmt NE "quoprint 20" AND v-print-fmt NE "Chattanooga"  AND v-print-fmt NE "Printers"  AND v-print-fmt NE "Hughes" AND v-print-fmt NE "Simkins" AND v-print-fmt NE "Oklahoma")
       THEN DO:
       ASSIGN
         tb_boardDescription:SCREEN-VALUE = 'Est'
@@ -2631,7 +2631,7 @@ PROCEDURE SetQuoForm :
   Notes:       
 ------------------------------------------------------------------------------*/
    DEFINE INPUT PARAM icPrintFormat AS CHAR NO-UNDO.
-   IF INDEX("Pacific,Xprint,quoprint 1,quoprint 2,quoprint 10,quoprint 11,quoprint 20,Printers,Hughes,SouthPak,ABox,Midwest,Axis,MWFIBRE,century,Concepts,oracle,Harwell,quoprint10-CAN,PremierX,Elite,Unipak,Ottpkg,Frankstn,Mirpkg,APC,Perform,FibreX,Boss,Protagon,Loylang,LoylangBSF,PPI,Packrite,Xprint30,StClair,AllWest,Soule,Sultana,SouleMed,Simkins,CCC,Peachtree,Oklahoma,Accord",icPrintFormat) > 0 THEN
+   IF INDEX("Pacific,Xprint,quoprint 1,quoprint 2,quoprint 10,quoprint 11,quoprint 20,Chattanooga,Printers,Hughes,SouthPak,ABox,Midwest,Axis,MWFIBRE,century,Concepts,oracle,Harwell,quoprint10-CAN,PremierX,Elite,Unipak,Ottpkg,Frankstn,Mirpkg,APC,Perform,FibreX,Boss,Protagon,Loylang,LoylangBSF,PPI,Packrite,Xprint30,StClair,AllWest,Soule,Sultana,SouleMed,Simkins,CCC,Peachtree,Oklahoma,Accord",icPrintFormat) > 0 THEN
       is-xprint-form = YES.     
    ELSE is-xprint-form = NO.
 
@@ -2695,7 +2695,8 @@ PROCEDURE SetQuoForm :
        WHEN "SouleMed" THEN ASSIGN v-program = "cec/quote/quosoulemed.p" lines-per-page = 66.    
        WHEN "Simkins" THEN ASSIGN v-program = "cec/quote/quosmkct.p" lines-per-page = 66.
        WHEN "CCC" THEN ASSIGN v-program = "cec/quote/quoccc.p" lines-per-page = 66.
-       WHEN "Peachtree" THEN ASSIGN v-program = "cec/quote/quoxptree.p" lines-per-page = 66.     
+       WHEN "Peachtree" THEN ASSIGN v-program = "cec/quote/quoxptree.p" lines-per-page = 66.
+       WHEN "Chattanooga" THEN ASSIGN v-program = "cec/quote/quochatt.p" lines-per-page = 66.
        OTHERWISE DO:
           IF AVAIL est AND est.est-type GT 4 THEN
              ASSIGN
