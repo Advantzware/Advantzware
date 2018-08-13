@@ -404,7 +404,7 @@ FOR  EACH job-hdr NO-LOCK
             cJobNo    = v-job-no + "-" + STRING(v-job-no2,"99").
 
         IF AVAILABLE oe-ord THEN
-            IF NOT oe-ctrl.p-fact AND oe-ord.stat EQ "H" THEN NEXT.
+            IF NOT oe-ctrl.p-fact AND (oe-ord.stat EQ "H" OR oe-ord.priceHold) THEN NEXT.
 
         FIND FIRST cust NO-LOCK WHERE cust.company EQ job-hdr.company AND
                                       cust.cust-no EQ job-hdr.cust-no NO-ERROR.
