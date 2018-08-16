@@ -18,7 +18,7 @@ FOR EACH tt-boll,
           BY tt-boll.line
           BY tt-boll.cases DESC:
 IF ll-consol-bolls THEN DO:
-     {oe/rep/bolxpr23.i}
+     {oe/rep/bolxpr20con.i}
 END.
 ELSE DO:
   find first oe-ordl
