@@ -405,6 +405,7 @@ for each xxreport where xxreport.term-id eq v-term-id,
 
   PAGE.
   v-printline = 0.
+  v-tot-cases = 0.
 
   for each report where report.term-id eq v-term-id,
       first oe-boll where recid(oe-boll) eq report.rec-id no-lock:

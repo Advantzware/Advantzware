@@ -424,6 +424,7 @@ FOR EACH xxreport WHERE xxreport.term-id EQ v-term-id,
    
      PAGE.
      v-printline = 0.
+     v-tot-cases = 0.
    
      FOR EACH report WHERE report.term-id EQ v-term-id,
          FIRST oe-boll WHERE RECID(oe-boll) EQ report.rec-id NO-LOCK:
