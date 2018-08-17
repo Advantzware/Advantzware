@@ -101,8 +101,8 @@ if v-auto then do on endkey undo, return:
   */
 end.
 
-if v-auto and xoe-ord.stat eq "H" and oe-ctrl.p-pick eq no then do:
-   message "Can not release items for customers on Credit Hold." view-as alert-box
+if v-auto and (xoe-ord.stat eq "H" OR xoe-ord.priceHold) and oe-ctrl.p-pick eq no then do:
+   message "Can not release items for customers on Credit Hold or Price Hold." view-as alert-box
            error.
    v-auto = no.
 end.

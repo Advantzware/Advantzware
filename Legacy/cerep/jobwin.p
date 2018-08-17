@@ -368,7 +368,7 @@ ASSIGN
 
 
         if avail oe-ord then
-          if not oe-ctrl.p-fact and oe-ord.stat eq "H" then next.
+          if not oe-ctrl.p-fact and (oe-ord.stat eq "H" OR oe-ord.priceHold) then next.
 
         v-due-date = if avail oe-ord then oe-ord.due-date else ?.
         v-start-date = IF AVAIL oe-ord THEN oe-ord.ord-date ELSE job-hdr.start-date.

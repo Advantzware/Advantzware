@@ -1978,7 +1978,8 @@ PROCEDURE valid-ord-no :
 
     IF lv-msg EQ "" THEN
       IF oe-ord.stat EQ "H" THEN "on hold".
-
+    IF lv-msg EQ "" THEN 
+      IF oe-ord.priceHold THEN "on price hold".
     IF lv-msg EQ "" THEN
       IF LOOKUP(oe-ord.stat,ord-ok) LE 0 THEN lv-msg = "not available for release".
 
