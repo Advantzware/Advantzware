@@ -149,7 +149,7 @@ DEFINE BROWSE Browser-Table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS Browser-Table B-table-Win _STRUCTURED
   QUERY Browser-Table NO-LOCK DISPLAY
       quoteqty.qty FORMAT ">>>,>>>,>>9":U
-      quoteqty.price FORMAT ">>,>>9.9999":U
+      quoteqty.price FORMAT ">>>,>>9.9999":U
       quoteqty.uom FORMAT "x(3)":U
       quoteqty.profit FORMAT "->>9.99%":U
       quoteqty.rels COLUMN-LABEL "Rel" FORMAT ">>9":U
@@ -262,7 +262,7 @@ ASSIGN
      _FldNameList[1]   > ASI.quoteqty.qty
 "quoteqty.qty" ? ">>>,>>>,>>9" "decimal" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > ASI.quoteqty.price
-"quoteqty.price" ? ">>,>>9.9999" "decimal" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"quoteqty.price" ? ">>>,>>9.9999" "decimal" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   > ASI.quoteqty.uom
 "quoteqty.uom" ? ? "character" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[4]   > ASI.quoteqty.profit
