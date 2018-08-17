@@ -5,6 +5,8 @@
         WHERE oe-ord.company  EQ cocode
           AND oe-ord.cust-no  GE v-cust[1]
           AND oe-ord.cust-no  LE v-cust[2]
+          AND (if lselected then can-find(first ttCustList where ttCustList.cust-no eq oe-ord.cust-no
+          AND ttCustList.log-fld no-lock) else true)
           AND oe-ord.ord-date GE v-date[1]
           AND oe-ord.ord-date LE v-date[2]
           AND oe-ord.user-id  GE begin_userid
@@ -391,6 +393,7 @@
             AND tt-fg-bin.qty     GT 0
             AND (tt-fg-bin.ord-no EQ oe-ord.ord-no OR
                  SUBSTR(tt-report.key-04,1,6) EQ "")
+            AND tt-fg-bin.cust EQ ""
           NO-LOCK
           BREAK BY tt-fg-bin.job-no
                 BY tt-fg-bin.job-no2

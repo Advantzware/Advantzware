@@ -138,8 +138,9 @@ ASSIGN
     {refTableConv.i "VendSetup" 'vend-setup'}
     {refTableConv.i "DArtios" 'cecrep/d-artios.w'}
     {refTableConv.i "Flute" 'Flute'}
-    {refTableConv.i "ItemfgMarkup" 'e-itemfg-vend.markup'}
     {refTableConv.i "aoaReport" 'aoaReport'}
+    {refTableConv.i "ItemfgMarkup" 'e-itemfg-vend.markup'}
+    {refTableConv.i "StdUom" 'e-itemfg-vend.std-uom'}
     {refTableConv.i "relcredconv" 'relcredconv'}
     {refTableConv.i "Arcashhold" 'ARCASHHOLD'}
     {refTableConv.i "EitemvendAdders" 'e-item-vend.adders'}
@@ -147,6 +148,13 @@ ASSIGN
     {refTableConv.i "CeComProbemk" 'ce/com/probemk.p'}
     {refTableConv.i "CeComSelwhif1" 'ce/com/selwhif1.w'}
     {refTableConv.i "Arcashlvdate" 'ARCASHLVDDATE'}
+    {refTableConv.i "print42" 'print42'}
+    {refTableConv.i "ColorAudit" 'COLOR' + chr(32) + 'AUDIT'}
+    {refTableConv.i "Machcrew" 'MACH-CREW'}
+    {refTableConv.i "VendorMaxValue" 'VendorMaxValue'}
+    {refTableConv.i "TruckRunPrint" 'trp-car'}
+    {refTableConv.i "ShiftDays" 'ShiftDays'}
+    {refTableConv.i "EstGetqtyw2" 'est/getqty.w2'}
 
 /* Deferred for 16.7.0                                              */
 /*    {refTableConv.i "STYFLU" 'STYFLU'}                            */

@@ -1568,6 +1568,8 @@ PROCEDURE clearFilterValues :
 ------------------------------------------------------------------------------*/
     {methods/clearFilterValues.i}
 
+    RUN local-open-query.
+    RUN dispatch ('row-changed').
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2067,6 +2069,7 @@ PROCEDURE local-initialize :
    eb.die-no:READ-ONLY IN BROWSE {&browse-name} = YES
    eb.cad-no:READ-ONLY IN BROWSE {&browse-name} = YES
    eb.plate-no:READ-ONLY IN BROWSE {&browse-name} = YES
+   eb.quantityPerSet:READ-ONLY IN BROWSE {&browse-name} = YES 
    vi_die-no:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "*"
    FI_moveCol = "Sort".
 

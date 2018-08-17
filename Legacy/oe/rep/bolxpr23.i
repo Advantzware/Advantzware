@@ -86,8 +86,7 @@ IF FIRST-OF(tt-boll.LINE) THEN DO:
     END.
     IF w2.qty = 0 and w2.i-no = "" AND w2.dscr = "" AND NOT last(w2.cases) THEN .
     ELSE DO:    
-        /*MESSAGE w2.i-no "," w2.qty "," w2.dscr VIEW-AS ALERT-BOX.*/
-       DISPLAY w2.i-no                       
+        DISPLAY w2.i-no                       
            trim(string(w2.qty,"->>,>>>,>>>")) WHEN i = 1 @ w2.i-no
             w2.job-po
             w2.dscr
@@ -101,7 +100,8 @@ IF FIRST-OF(tt-boll.LINE) THEN DO:
        DOWN WITH FRAME bol-mid.       
        v-printline = v-printline + 1.
     END.
-    IF v-printline >= 40 THEN DO:
+    
+    IF v-printline >= 48 THEN DO:
        v-printline = 0.
        PAGE {1}.
        {oe/rep/bolxpr22.i}
@@ -130,7 +130,7 @@ IF FIRST-OF(tt-boll.LINE) THEN DO:
       
     {sys/inc/part-qty.i v-part-qty fg-set}
 
-    IF v-printline >= 40 THEN DO:
+    IF v-printline >= 48 THEN DO:
         v-printline = 0.
         PAGE {1}.
         {oe/rep/bolxpr22.i}

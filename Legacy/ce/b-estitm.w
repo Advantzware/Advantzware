@@ -898,7 +898,7 @@ DO:
        eb.cust-no:SCREEN-VALUE IN BROWSE {&browse-name} NE eb.cust-no AND
        eb.cust-no NE "" THEN
     DO:
-      MESSAGE "Cannot Change Customer."
+      MESSAGE "This estimate has order # - " + string(eb.ord-no) + " . Cannot Change Customer."
           VIEW-AS ALERT-BOX ERROR BUTTONS OK.
       RETURN NO-APPLY.
     END.
@@ -2331,14 +2331,7 @@ PROCEDURE create-e-itemfg-vend :
                  e-itemfg-vend.form-no = eb.form-no
                  e-itemfg-vend.blank-no = eb.blank-no.
 
-            CREATE reftable.
-            ASSIGN
-               reftable.reftable = "e-itemfg-vend.std-uom"
-               reftable.company  = e-itemfg-vend.company
-               reftable.loc      = ""
-               reftable.code     = e-itemfg-vend.est-no
-               reftable.val[1]   = e-itemfg-vend.form-no
-               reftable.val[2]   = e-itemfg-vend.blank-no.
+
 
             FIND FIRST bf-e-itemfg WHERE
                  bf-e-itemfg.company EQ bf-e-itemfg-vend.company AND
@@ -2347,11 +2340,9 @@ PROCEDURE create-e-itemfg-vend :
 
             IF AVAIL bf-e-itemfg THEN
             DO:
-               reftable.code2 = bf-e-itemfg.std-uom.
+               e-itemfg-vend.std-uom = bf-e-itemfg.std-uom.
                RELEASE bf-e-itemfg.
             END.
-
-            RELEASE e-itemfg-vend.
           END.
       END.
    END.
@@ -5295,15 +5286,7 @@ PROCEDURE update-e-itemfg-vend :
                    WHERE e-itemfg-vend.company EQ eb.company
                      AND e-itemfg-vend.est-no = eb.est-no
                      AND e-itemfg-vend.eqty = eb.eqty.
-           FIND FIRST reftable WHERE reftable.reftable EQ "e-itemfg-vend.std-uom" 
-              AND reftable.company  EQ e-itemfg-vend.company   
-              AND reftable.loc      EQ ""                      
-              AND reftable.code     EQ e-itemfg-vend.est-no    
-              AND reftable.val[1]   EQ e-itemfg-vend.form-no   
-              AND reftable.val[2]   EQ e-itemfg-vend.blank-no
-              NO-ERROR.
 
-           IF AVAIL reftable THEN DELETE reftable.
            DELETE e-itemfg-vend.
        END.
 
@@ -5319,38 +5302,10 @@ PROCEDURE update-e-itemfg-vend :
        CREATE bf-e-itemfg-vend.
        BUFFER-COPY e-itemfg-vend TO bf-e-itemfg-vend.
        ASSIGN bf-e-itemfg-vend.eqty = eb.eqty.
-
-
-       FIND FIRST reftable WHERE reftable.reftable EQ "e-itemfg-vend.std-uom" 
-              AND reftable.company  EQ e-itemfg-vend.company   
-              AND reftable.loc      EQ ""                      
-              AND reftable.code     EQ e-itemfg-vend.est-no    
-              AND reftable.val[1]   EQ e-itemfg-vend.form-no   
-              AND reftable.val[2]   EQ e-itemfg-vend.blank-no
-              NO-ERROR.
-
-       IF AVAIL reftable THEN vcUOM = reftable.code2.
-
+      
        DELETE e-itemfg-vend.
 
-       FIND FIRST reftable WHERE reftable.reftable EQ "e-itemfg-vend.std-uom" 
-              AND reftable.company  EQ bf-e-itemfg-vend.company   
-              AND reftable.loc      EQ ""                      
-              AND reftable.code     EQ bf-e-itemfg-vend.est-no    
-              AND reftable.val[1]   EQ bf-e-itemfg-vend.form-no   
-              AND reftable.val[2]   EQ bf-e-itemfg-vend.blank-no
-              NO-ERROR.
-              
-       IF NOT AVAIL reftable THEN DO:
-          CREATE reftable.
-          ASSIGN
-               reftable.reftable = "e-itemfg-vend.std-uom"
-               reftable.company  = bf-e-itemfg-vend.company
-               reftable.loc      = ""
-               reftable.code     = bf-e-itemfg-vend.est-no
-               reftable.val[1]   = bf-e-itemfg-vend.form-no
-               reftable.val[2]   = bf-e-itemfg-vend.blank-no.
-       END.
+       
 
        /*FIND FIRST bf-e-itemfg WHERE
                  bf-e-itemfg.company EQ bf-e-itemfg-vend.company AND
@@ -5358,8 +5313,7 @@ PROCEDURE update-e-itemfg-vend :
                  NO-LOCK NO-ERROR.
 
        IF AVAIL bf-e-itemfg THEN reftable.code2 = bf-e-itemfg.std-uom.*/
-       reftable.code2 = vcUOM.
-
+     
       END.
    END.   /* end of set est */
    ELSE FOR EACH e-itemfg-vend
@@ -5374,38 +5328,11 @@ PROCEDURE update-e-itemfg-vend :
        CREATE bf-e-itemfg-vend.
        BUFFER-COPY e-itemfg-vend TO bf-e-itemfg-vend.
        ASSIGN bf-e-itemfg-vend.eqty = eb.eqty.
-
-
-       FIND FIRST reftable WHERE reftable.reftable EQ "e-itemfg-vend.std-uom" 
-              AND reftable.company  EQ e-itemfg-vend.company   
-              AND reftable.loc      EQ ""                      
-              AND reftable.code     EQ e-itemfg-vend.est-no    
-              AND reftable.val[1]   EQ e-itemfg-vend.form-no   
-              AND reftable.val[2]   EQ e-itemfg-vend.blank-no
-              NO-ERROR.
-
-       IF AVAIL reftable THEN vcUOM = reftable.code2.
+       
 
        DELETE e-itemfg-vend.
 
-       FIND FIRST reftable WHERE reftable.reftable EQ "e-itemfg-vend.std-uom" 
-              AND reftable.company  EQ bf-e-itemfg-vend.company   
-              AND reftable.loc      EQ ""                      
-              AND reftable.code     EQ bf-e-itemfg-vend.est-no    
-              AND reftable.val[1]   EQ bf-e-itemfg-vend.form-no   
-              AND reftable.val[2]   EQ bf-e-itemfg-vend.blank-no
-              NO-ERROR.
-              
-       IF NOT AVAIL reftable THEN DO:
-          CREATE reftable.
-          ASSIGN
-               reftable.reftable = "e-itemfg-vend.std-uom"
-               reftable.company  = bf-e-itemfg-vend.company
-               reftable.loc      = ""
-               reftable.code     = bf-e-itemfg-vend.est-no
-               reftable.val[1]   = bf-e-itemfg-vend.form-no
-               reftable.val[2]   = bf-e-itemfg-vend.blank-no.
-       END.
+       
 
        /*FIND FIRST bf-e-itemfg WHERE
                  bf-e-itemfg.company EQ bf-e-itemfg-vend.company AND
@@ -5413,8 +5340,7 @@ PROCEDURE update-e-itemfg-vend :
                  NO-LOCK NO-ERROR.
 
        IF AVAIL bf-e-itemfg THEN reftable.code2 = bf-e-itemfg.std-uom.*/
-       reftable.code2 = vcUOM.
-
+       
    END.
 
 END PROCEDURE.
@@ -5626,13 +5552,12 @@ PROCEDURE valid-part-no :
   DEF VAR lv-part-no LIKE eb.part-no NO-UNDO.
   DEF VAR lv-msg AS CHAR NO-UNDO.
 
-
   DO WITH FRAME {&FRAME-NAME}:
     ASSIGN
      lv-part-no = eb.part-no:SCREEN-VALUE IN BROWSE {&browse-name}
      lv-msg     = "".
     
-    IF est.est-type EQ 5 OR est.est-type EQ 8  THEN do: 
+    
         IF lv-part-no EQ ""                                                     OR
            (CAN-FIND(FIRST b-eb OF ef
                      WHERE b-eb.part-no EQ lv-part-no
@@ -5641,19 +5566,6 @@ PROCEDURE valid-part-no :
           lv-msg = IF lv-part-no EQ "" THEN "may not be blank"
                                        ELSE "already exists on Form #" +
                                             TRIM(STRING(ef.form-no,">>>")).
-    END.
-    ELSE DO:
-       FIND FIRST b-eb NO-LOCK 
-           WHERE  b-eb.est-no EQ eb.est-no 
-             AND  b-eb.company EQ eb.company
-             AND  b-eb.part-no EQ lv-part-no
-             AND  b-eb.form-no EQ eb.form-no
-             AND (ROWID(b-eb) NE ROWID(eb) OR ll-is-copy-record) NO-ERROR  . 
-       IF lv-part-no EQ "" OR AVAIL b-eb THEN
-           lv-msg = IF lv-part-no EQ "" THEN "may not be blank"
-                                   ELSE "already exists on Form #" +
-                                        TRIM(STRING(b-eb.form-no,">>>")).
-    END. 
 
     IF lv-msg NE "" THEN DO:
       MESSAGE TRIM(eb.part-no:LABEL IN BROWSE {&browse-name}) + " " +

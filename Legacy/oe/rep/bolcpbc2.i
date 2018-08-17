@@ -94,7 +94,7 @@ FOR EACH tt-boll,
                     lv-pal-tot SPACE(1)
                     w2.cases    FORM "->>>9" " @ " 
                     w2.cas-cnt    FORM "->>>>>9" 
-                    lv-qty-tot FORM "->>>>>z" SPACE(2)
+                    lv-qty-tot FORM "->>>>>>>z" SPACE(2)
                     tt-boll.p-c                    
                     SKIP.
                  lv-qty-sum2 = lv-qty-sum2 + lv-qty-tot.
@@ -112,7 +112,7 @@ FOR EACH tt-boll,
 
                 PUT w2.cases   AT 69  FORM "->>>9" " @ "
                     w2.cas-cnt FORM "->>>>>9" 
-                    SPACE(9)
+                    SPACE(11)
                     tt-boll.p-c
                     SKIP.
              END.
@@ -137,7 +137,7 @@ FOR EACH tt-boll,
                 END.
                 PUT {1} "====================" AT 68 SKIP
                     lv-qty-sum AT 69 FORM "->>>9"  " = "
-                    lv-qty-tot FORM "->>>>>z" SPACE(9)
+                    lv-qty-tot FORM "->>>>>>>z" SPACE(11)
                     tt-boll.p-c .
                 IF lv-partial-tot > 0 THEN
                     PUT {1} tt-boll.p-c SKIP .         
@@ -168,21 +168,21 @@ ELSE DO:
       lv-cases-tot FORM ">>>>" "@" 
       lv-qcase-tot FORM ">>>>>Z"           
     SPACE(1)
-     lv-qty-tot FORM "->>>>>z"  WHEN lv-partial-tot = 0 SPACE(2)
+     lv-qty-tot FORM "->>>>>>>z"  WHEN lv-partial-tot = 0 SPACE(2)
      tt-boll.p-c
     with frame bol-mid1 NO-BOX NO-LABELS STREAM-IO NO-ATTR-SPACE WIDTH 130.
    down {1} with frame bol-mid1.
 
    v-unit-qty = IF lv-partial-tot > 0 
                 THEN STRING(v-1,">>>>9") + " @ " + STRING(lv-partial-tot,">>>>>z") + " " 
-                     + string(lv-qty-tot,"->>>>>z")
+                     + string(lv-qty-tot,"->>>>>>>z")
              ELSE "".
    
    PUT {1}
       oe-ordl.part-no   SPACE(1)
       tt-boll.po-no FORM "x(15)"
       oe-ordl.part-dscr1 AT 32 
-      v-unit-qty AT 68  FORM "x(24)".
+      v-unit-qty AT 68  FORM "x(26)".
 
    v-printline = v-printline + 2.
    IF lv-partial-tot > 0 THEN

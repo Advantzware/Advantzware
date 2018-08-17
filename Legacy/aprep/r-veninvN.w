@@ -1365,11 +1365,9 @@ END.
           IF FIRST-OF(tt-ap-inv.inv-no) THEN
           lv-gtotal[1] = lv-gtotal[1] + tt-ap-inv.net.
 
-          IF NOT FIRST-OF(tt-ap-inv.vend-no) THEN ll-total[1] = YES.
-
+          
           IF LAST-OF(tt-ap-inv.vend-no) THEN DO:
-            IF ll-total[1] THEN DO:
-
+            
                 PUT SKIP str-line SKIP .
                 ASSIGN cDisplay = ""
                    cTmpField = ""
@@ -1403,7 +1401,7 @@ END.
                         "Vendor Total " + substring(cExcelDisplay,3,300) SKIP.
                 END.
             END.
-            END.
+           
             PUT SKIP(2).
 
             IF LAST-OF(tt-ap-inv.inv-no) THEN
@@ -1414,7 +1412,7 @@ END.
              
              lv-total[1] = 0
              lv-gtotal[1] = 0
-             ll-total[1] = NO.
+             .
 
             IF NOT LAST(tt-ap-inv.vend-no) THEN ll-total[2] = YES.
           END.

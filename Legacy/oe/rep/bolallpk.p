@@ -73,8 +73,8 @@ form
   oe-boll.loc-bin format "x(6)" at 1
   oe-boll.i-no format "x(15)" at 8
   itemfg.i-name format "x(30)" at 24
-  v-to-ship format ">>>,>>>" at 55
-  "__________" at 63 skip
+  v-to-ship format ">>,>>>,>>>" at 58
+  "__________" at 69 skip
   itemfg.part-dscr1 format "x(30)" at 24 
   with frame ln-s down no-box no-labels STREAM-IO width 90.
 
@@ -99,13 +99,13 @@ form
     with frame instructions no-box no-labels STREAM-IO width 90.
 
 form
-   "LOC" at 1 "Item Number" at 8 "Item Name" at 24 "Qty To Ship" at 51 "Qty Shipped" at 63 skip
+   "LOC" at 1 "Item Number" at 8 "Item Name" at 24 "Qty To Ship" at 57 "Qty Shipped" at 69 skip
    "Description" at 24
-   "--------------------------------------------------------------------------" at 1 skip
+   "-------------------------------------------------------------------------------" at 1 skip
 with frame instructions2 no-box no-labels STREAM-IO width 90.
 
 form header
-  "Received By:______________________________" at 1 " Date Rec'd:____________________"
+  "Received By:______________________________" at 1 " Date Rec'd:________________________"
   with frame hd-bottom-comp no-box no-labels page-bottom STREAM-IO width 80.
 
 

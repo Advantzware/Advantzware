@@ -59,8 +59,8 @@ format header
        "UNIT" at 62 "UNIT" at 67 "TOTAL" at 74 skip
        "---------------" at 4 "---------------" at 21
        "-----------------------" at 37
-       "----" at 62 "------" at 67 "------" at 74 skip
-    with frame hd-top-comp no-box no-labels page-top stream-io width 80.
+       "----" at 62 "------" at 67 "---------" at 77 skip
+    with frame hd-top-comp no-box no-labels page-top stream-io width 86.
 
 form
   oe-boll.i-no format "x(15)" at 4
@@ -68,7 +68,7 @@ form
   oe-ordl.i-name format "x(24)" at 37
   oe-boll.cases format ">>>9" to 65
   oe-boll.qty-case format ">>>>>9" to 72
-  v-line-tot format ">>>>>9" to 79
+  v-line-tot format ">>>>>>>>9" to 82
   with frame ln-s down no-box no-labels stream-io width 90.
 
 form
@@ -76,10 +76,10 @@ form
   oe-ordl.part-dscr1 format "x(28)" at 37
   v-partial format "x" at 65
   oe-boll.partial format ">>>>>>" to 72
-  v-line-tot format ">>>>>9" to 79
+  v-line-tot format ">>>>>>>>9" to 82
   oe-ordl.part-dscr2 format "x(28)" at 37
   skip(1)
-  with frame ln-s2 down no-box no-labels stream-io width 80.
+  with frame ln-s2 down no-box no-labels stream-io width 82.
 
 
 tmpstore = fill(" ",80). /* was a hyphen */

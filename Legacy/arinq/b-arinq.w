@@ -54,6 +54,14 @@ DEF VAR lv-sort-by AS CHAR INIT "inv-no" NO-UNDO.
 DEF VAR lv-sort-by-lab AS CHAR INIT "Inv# " NO-UNDO.
 DEF VAR ll-sort-asc AS LOG NO-UNDO.
 DEF VAR v-col-move AS LOG INIT TRUE NO-UNDO.
+DEFINE VARIABLE ou-log      LIKE sys-ctrl.log-fld NO-UNDO INITIAL NO.
+DEFINE VARIABLE ou-cust-int LIKE sys-ctrl.int-fld NO-UNDO.
+DEF VAR lActive AS LOG NO-UNDO.
+
+DO TRANSACTION:
+     {sys/ref/CustList.i NEW}
+    RUN sys/inc/custlistform.p ("AQ1",cocode,OUTPUT ou-log, OUTPUT ou-cust-int ) .
+ END.
 
 &SCOPED-DEFINE key-phrase ar-invl.company EQ cocode AND ar-invl.posted EQ YES
 
@@ -66,13 +74,15 @@ DEF VAR v-col-move AS LOG INIT TRUE NO-UNDO.
           AND ar-invl.part-no   BEGINS fi_part-no   ~
           AND ar-invl.po-no     BEGINS fi_po-no     ~
           AND ar-invl.actnum    BEGINS fi_actnum    ~
+          AND ((lookup(ar-invl.cust-no,custcount) <> 0 AND ar-invl.cust-no <> "") OR custcount = "") ~
           AND (ar-invl.inv-no   EQ     fi_inv-no OR fi_inv-no EQ 0) ~
           AND (ar-invl.bol-no   EQ     fi_bol-no OR fi_bol-no EQ 0) ~
           AND (ar-invl.ord-no   EQ     fi_ord-no OR fi_ord-no EQ 0)
 
 &SCOPED-DEFINE for-each11                           ~
     FOR EACH ar-invl                                ~
-        WHERE {&key-phrase}
+        WHERE ((lookup(ar-invl.cust-no,custcount) <> 0 AND ar-invl.cust-no <> "") OR custcount = "") AND ~
+        {&key-phrase}
 
 &SCOPED-DEFINE for-each2                     ~
     FIRST ar-inv                             ~
@@ -582,6 +592,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn_go B-table-Win
 ON CHOOSE OF btn_go IN FRAME F-Main /* Go */
 DO:
+  DEF VAR v-cust-no AS CHAR NO-UNDO .
+  DEF BUFFER bf-ar-invl  FOR ar-invl .
   DO WITH FRAME {&FRAME-NAME}:
     ASSIGN
      tb_open
@@ -601,7 +613,40 @@ DO:
         fi_inv-no:SCREEN-VALUE EQ "" AND fi_ord-no:SCREEN-VALUE EQ "" AND fi_bol-no:SCREEN-VALUE EQ "" AND 
         fi_est-no:SCREEN-VALUE EQ "" AND fi_actnum:SCREEN-VALUE EQ "" AND fi_part-no EQ "" AND
         fi_date:SCREEN-VALUE  EQ "" THEN ll-first = YES.
+
+
     RUN dispatch ('open-query').
+
+    GET FIRST Browser-Table .
+     IF NOT AVAIL ar-invl THEN do:
+         IF fi_cust-no <> "" THEN DO:
+             v-cust-no = fi_cust-no .
+         END.
+         ELSE do:
+             
+             FIND FIRST bf-ar-invl WHERE bf-ar-invl.company = cocode
+                 AND (bf-ar-invl.cust-no BEGINS fi_cust-no OR fi_cust-no = "")
+                 AND (bf-ar-invl.i-no BEGINS fi_i-no OR fi_i-no = "")
+                 AND (bf-ar-invl.est-no BEGINS fi_est-no OR fi_est-no = "")
+                 AND (bf-ar-invl.part-no BEGINS fi_part-no OR fi_part-no = "")
+                 AND (bf-ar-invl.po-no BEGINS fi_po-no OR fi_po-no = "")
+                 AND (bf-ar-invl.actnum BEGINS fi_actnum OR fi_actnum = "")
+                 AND (bf-ar-invl.inv-no   EQ     fi_inv-no OR fi_inv-no EQ 0) 
+                 AND (bf-ar-invl.bol-no   EQ     fi_bol-no OR fi_bol-no EQ 0) 
+                 AND (bf-ar-invl.ord-no   EQ     fi_ord-no OR fi_ord-no EQ 0) NO-LOCK NO-ERROR.
+
+             IF AVAIL bf-ar-invl THEN
+                 v-cust-no = bf-ar-invl.cust-no .
+             ELSE v-cust-no = "".
+         END.
+
+         FIND FIRST cust WHERE cust.company = cocode 
+             AND cust.cust-no = v-cust-no NO-LOCK NO-ERROR.
+         IF AVAIL cust AND ou-log AND LOOKUP(cust.cust-no,custcount) = 0 THEN
+             MESSAGE "Customer is not on Users Customer List.  "  SKIP
+              "Please add customer to Network Admin - Users Customer List."  VIEW-AS ALERT-BOX WARNING BUTTONS OK.
+     END.
+
     APPLY "VALUE-CHANGED" TO BROWSE {&browse-name}.
   END.
 END.
@@ -858,6 +903,12 @@ END.
 &SCOPED-DEFINE cellColumnDat arinqb-arinq
 
 {methods/browsers/setCellColumns.i}
+
+RUN sys/ref/CustList.p (INPUT cocode,
+                            INPUT 'AQ1',
+                            INPUT YES,
+                            OUTPUT lActive).
+{sys/inc/chblankcust.i ""AQ1""}
 
 SESSION:DATA-ENTRY-RETURN = YES.
 

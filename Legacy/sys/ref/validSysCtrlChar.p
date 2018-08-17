@@ -22,13 +22,19 @@ DEFINE OUTPUT PARAMETER oplResult AS LOGICAL     NO-UNDO.
     DEF VAR ls-name-value AS cha NO-UNDO.
     DEF VAR lv-msg AS CHAR NO-UNDO.
     DEF VAR i AS INT NO-UNDO.
+    
     oplResult = YES.
     DO WITH FRAME F-Main:
       ls-name = ipcSVName.  
      
       IF CAN-DO(ipcNameFldList,ls-name) THEN DO:
         ls-name-value = ipcValidList /* str-init[LOOKUP(ls-name,ipcNameFldList)]*/.
-         
+        IF  ipcSVName = "FGITEM#" THEN DO:
+            DEFINE VARIABLE hdFGItemIDProcs AS HANDLE.
+            RUN fg/FGItemIDProcs.p PERSISTENT SET hdFGItemIDProcs.
+            RUN pValidateFormatMask IN hdFGItemIDProcs (ipcSVCharFld, OUTPUT oplResult, OUTPUT lv-msg).
+        END.
+        ELSE
         IF NOT CAN-DO(ls-name-value,ipcSVCharFld) THEN
           lv-msg = TRIM(ipcSVCharFld) + " is not on lookup".
       END.

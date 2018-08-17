@@ -228,6 +228,9 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
       svResource:SCREEN-VALUE      = ENTRY(2,ipcResourceList)
       svResource
       .
+  IF svResourceList:NUM-BUTTONS EQ 1 THEN
+  APPLY "CHOOSE":U TO btnOK.
+  ELSE
   WAIT-FOR GO OF FRAME {&FRAME-NAME}.
 END.
 RUN disable_UI.

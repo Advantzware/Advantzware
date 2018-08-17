@@ -935,7 +935,7 @@ MESSAGE "lv-test22 " + STRING(lv-text) + "    " + STRING(tt-formtext.tt-text) VI
                  xeb.est-no = est.est-no AND
                  xeb.form-no > 0
                  NO-LOCK:
-                 PUT xeb.stock-no AT 3 space(14) xeb.part-dscr1 space(5) xeb.quantityPerSet SKIP.
+                 PUT xeb.stock-no AT 3 space(14) xeb.part-dscr1 space(5) xeb.quantityPerSet format ">>>>9.9<<<" SKIP.
                  v-tmp-line = v-tmp-line + 1.
              END.
              v-tmp-line = v-tmp-line + 1.

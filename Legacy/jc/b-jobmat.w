@@ -224,7 +224,7 @@ DEFINE BROWSE br_table
       getItemName() @ cItemName COLUMN-LABEL "Item Name" FORMAT "X(30)":U
       job-mat.std-cost FORMAT ">>>,>>9.99<<":U
       job-mat.sc-uom COLUMN-LABEL "Cost!UOM" FORMAT "x(4)":U WIDTH 7
-      job-mat.cost-m FORMAT "->>>,>>9.9999":U
+      job-mat.cost-m COLUMN-LABEL "FG Cost/M" FORMAT "->>>,>>9.9999":U
       job-mat.qty FORMAT "->>>,>>>,>>9.9<<<<<":U
       job-mat.qty-uom COLUMN-LABEL "Qty!UOM" FORMAT "x(4)":U WIDTH 7
       job-mat.wid FORMAT ">>9.99<<":U LABEL-BGCOLOR 14
@@ -240,7 +240,7 @@ DEFINE BROWSE br_table
       job-mat.rm-i-no
       job-mat.std-cost
       job-mat.sc-uom
-      job-mat.cost-m
+      job-mat.cost-m HELP "Cost per Thousand Finished Goods"
       job-mat.qty
       job-mat.qty-uom
       job-mat.wid
@@ -353,7 +353,7 @@ use-index seq-idx"
      _FldNameList[6]   > ASI.job-mat.sc-uom
 "job-mat.sc-uom" "Cost!UOM" "x(4)" "character" ? ? ? ? ? ? yes ? no no "7" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[7]   > ASI.job-mat.cost-m
-"job-mat.cost-m" ? "->>>,>>9.9999" "decimal" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"job-mat.cost-m" "FG Cost/M" "->>>,>>9.9999" "decimal" ? ? ? ? ? ? yes "Cost per Thousand Finished Goods" no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[8]   > ASI.job-mat.qty
 "job-mat.qty" ? "->>>,>>>,>>9.9<<<<<" "decimal" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[9]   > ASI.job-mat.qty-uom

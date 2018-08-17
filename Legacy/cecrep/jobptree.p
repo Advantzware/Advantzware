@@ -1119,7 +1119,7 @@ ASSIGN
                  xeb.company = est.company AND
                  xeb.est-no = est.est-no AND
                  xeb.form-no > 0 NO-LOCK:
-                 PUT xeb.stock-no AT 3 SPACE(14) xeb.part-dscr1 SPACE(5) xeb.quantityPerSet FORMAT "->>>>>9" SKIP.
+                 PUT xeb.stock-no AT 3 SPACE(14) xeb.part-dscr1 SPACE(5) xeb.quantityPerSet FORMAT "->>>>>9.9<<<" SKIP.
                  v-tmp-line = v-tmp-line + 1.
              END.
              v-tmp-line = v-tmp-line + 1.

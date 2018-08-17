@@ -3552,7 +3552,7 @@ PROCEDURE create-text-file :
 
       PUT UNFORMATTED ",DUEDATEJOBLINE,DUEDATEJOB,LINE#,UnitWt,PalletWt,FGdesc1,FGdesc2,FGdesc3,FG Lot#,"
                        "PalletCode,PalletID,TagCounter,TagCountTotal,"
-                       "RN1,RN2,RN3,RN4,WareHouse,Bin".
+                       "RN1,RN2,RN3,RN4,WareHouse,Bin,JobQty".
 
       /* rstark - */
       IF lSSCC THEN PUT UNFORMATTED ",SSCC".
@@ -3840,6 +3840,7 @@ PROCEDURE create-w-ord :
          w-ord.due-date-jobhdr = IF b-job-hdr.due-date <> ? THEN STRING(b-job-hdr.due-date, "99/99/9999") ELSE "".
       IF AVAIL b-job THEN
          w-ord.due-date-job = IF b-job.due-date <> ? THEN STRING(b-job.due-date, "99/99/9999") ELSE "".
+        w-ord.job-qty = IF AVAIL b-job AND AVAIL b-job-hdr THEN b-job-hdr.qty ELSE 0 . 
 
       RUN get-rel-info (OUTPUT w-ord.cust-po-no,
                         OUTPUT w-ord.rel-date,
@@ -3900,14 +3901,21 @@ PROCEDURE create-w-ord :
              w-ord.pcs    = eb.cas-cnt
              w-ord.bundle = eb.cas-pal
              w-ord.cas-no = eb.cas-no
-             w-ord.pallt-no = eb.tr-no.
+             w-ord.pallt-no = eb.tr-no
+             w-ord.part-dscr2 = eb.part-dscr2.
 
           ASSIGN w-ord.total-tags = 1
             w-ord.ord-qty = loadtag.qty 
             w-ord.pcs = loadtag.qty-case
             w-ord.bundle = loadtag.case-bundle
             w-ord.partial =loadtag.partial
-            w-ord.total-unit = w-ord.pcs * w-ord.bundle + w-ord.partial .      
+            w-ord.total-unit = w-ord.pcs * w-ord.bundle + w-ord.partial .    
+
+            IF AVAIL b-job AND AVAIL eb AND eb.est-type EQ 2 AND AVAIL b-job-hdr THEN
+             w-ord.job-qty =  b-job-hdr.qty * (IF eb.cust-% GT 0 THEN eb.cust-% ELSE 1)  .
+            ELSE IF AVAIL b-job AND AVAIL eb AND eb.est-type EQ 6 AND AVAIL b-job-hdr THEN
+             w-ord.job-qty =  b-job-hdr.qty * (IF eb.quantityPerSet GT 0 THEN eb.quantityPerSet ELSE 1)  .
+
    END.  /* avail oe-ord*/
    ELSE IF loadtag.job-no <> "" THEN DO:
       FIND FIRST job NO-LOCK WHERE job.company = loadtag.company
@@ -3951,6 +3959,7 @@ PROCEDURE create-w-ord :
             w-ord.mult         = IF AVAIL cust AND cust.int-field[1] ne 0 AND NOT glOverrideMult THEN
                                    cust.int-field[1] else v-mult
             w-ord.lot          = loadtag.misc-char[2].
+            w-ord.job-qty      = job-hdr.qty   .
 
           IF AVAIL itemfg THEN
              ASSIGN
@@ -4021,14 +4030,21 @@ PROCEDURE create-w-ord :
              w-ord.total-unit = w-ord.pcs * w-ord.bundle
              w-ord.partial    = 0 /* w-ord.ord-qty - w-ord.total-unit*/
              w-ord.cas-no     = eb.cas-no
-             w-ord.pallt-no   = eb.tr-no.
+             w-ord.pallt-no   = eb.tr-no
+             w-ord.part-dscr2 = eb.part-dscr2.
 
           ASSIGN w-ord.total-tags = 1
             w-ord.ord-qty = loadtag.qty 
             w-ord.pcs = loadtag.qty-case
             w-ord.bundle = loadtag.case-bundle
             w-ord.partial =loadtag.partial
-            w-ord.total-unit = w-ord.pcs * w-ord.bundle  .      
+            w-ord.total-unit = w-ord.pcs * w-ord.bundle  .   
+
+            IF AVAIL eb AND eb.est-type EQ 2 THEN
+             w-ord.job-qty =  job-hdr.qty * (IF eb.cust-% GT 0 THEN eb.cust-% ELSE 1)  .
+            ELSE IF AVAIL eb AND eb.est-type EQ 6 THEN
+             w-ord.job-qty =  job-hdr.qty * (IF eb.quantityPerSet GT 0 THEN eb.quantityPerSet ELSE 1)  .
+
 
        END.  /* avail job*/
    END. /* job-no <> "" */
@@ -4110,7 +4126,8 @@ PROCEDURE create-w-ord :
                     w-ord.pcs = eb.cas-cnt
                     w-ord.bundle = eb.cas-pal
                     w-ord.cas-no = eb.cas-no
-                    w-ord.pallt-no = eb.tr-no.
+                    w-ord.pallt-no = eb.tr-no
+                    w-ord.part-dscr2 = eb.part-dscr2.
          IF v-ship-id EQ "" THEN v-ship-id = po-ord.cust-no.
          FIND FIRST shipto NO-LOCK WHERE shipto.company EQ cocode
                                   AND shipto.cust-no EQ po-ord.cust-no
@@ -4584,6 +4601,7 @@ PROCEDURE from-job :
             num-rec            = num-rec + 1
             w-ord.due-date-job = IF job.due-date <> ? THEN STRING(job.due-date, "99/99/9999") ELSE "".
             w-ord.due-date-jobhdr = IF job-hdr.due-date <> ? THEN STRING(job-hdr.due-date, "99/99/9999") ELSE "".
+            w-ord.job-qty      = job-hdr.qty  .
             FOR EACH cust-part NO-LOCK 
              WHERE cust-part.company EQ cocode   
                AND cust-part.i-no EQ itemfg.i-no 
@@ -4691,7 +4709,14 @@ PROCEDURE from-job :
              w-ord.total-unit = w-ord.pcs * w-ord.bundle
              w-ord.partial    = 0 /* w-ord.ord-qty - w-ord.total-unit*/
              w-ord.cas-no     = eb.cas-no
-             w-ord.pallt-no   = eb.tr-no.
+             w-ord.pallt-no   = eb.tr-no
+             w-ord.part-dscr2 = eb.part-dscr2.
+
+             IF AVAIL eb AND eb.est-type EQ 2 THEN
+               w-ord.job-qty =  job-hdr.qty * (IF eb.cust-% GT 0 THEN eb.cust-% ELSE 1)  .
+             ELSE IF  AVAIL eb AND eb.est-type EQ 6  THEN
+               w-ord.job-qty =  job-hdr.qty * (IF eb.quantityPerSet GT 0 THEN eb.quantityPerSet ELSE 1)  .
+
 
           IF NOT v-oecount THEN
             ASSIGN
@@ -4699,7 +4724,7 @@ PROCEDURE from-job :
              w-ord.bundle = 1.
 
           /* Add .49 to round up and add 1 for extra tag   */
-          w-ord.total-tags = ((job-hdr.qty / w-ord.total-unit) + .49) +  IF lookup(v-loadtag,"SSLABEL,CentBox") > 0 THEN 0 ELSE 1.
+          w-ord.total-tags = ((w-ord.job-qty / w-ord.total-unit) + .49) +  IF lookup(v-loadtag,"SSLABEL,CentBox") > 0 THEN 0 ELSE 1.
     END.
 
 END PROCEDURE.
@@ -4877,8 +4902,14 @@ DEF INPUT PARAM ip-rowid AS ROWID NO-UNDO.
 
             num-rec            = num-rec + 1.
 
-          IF AVAIL b-job-hdr THEN
-             w-ord.due-date-jobhdr = IF b-job-hdr.due-date <> ? THEN STRING(b-job-hdr.due-date, "99/99/9999") ELSE "".
+          IF AVAIL b-job-hdr THEN do:
+              w-ord.due-date-jobhdr = IF b-job-hdr.due-date <> ? THEN STRING(b-job-hdr.due-date, "99/99/9999") ELSE "".
+              w-ord.job-qty = IF AVAIL b-job AND AVAIL b-job-hdr THEN b-job-hdr.qty ELSE 0 .
+               IF  AVAIL b-job AND AVAIL eb AND eb.est-type EQ 2 THEN
+                   w-ord.job-qty =  b-job-hdr.qty * (IF eb.cust-% GT 0 THEN eb.cust-% ELSE 1)  .
+               ELSE IF  AVAIL b-job AND AVAIL eb AND eb.est-type EQ 6 THEN
+                    w-ord.job-qty =  b-job-hdr.qty * (IF eb.quantityPerSet GT 0 THEN eb.quantityPerSet ELSE 1)  .
+          END.
           IF AVAIL b-job THEN
              w-ord.due-date-job = IF b-job.due-date <> ? THEN STRING(b-job.due-date, "99/99/9999") ELSE "".
           IF w-ord.job-no EQ "" AND fi_cas-lab:SCREEN-VALUE IN FRAME {&FRAME-NAME} NE "" THEN
@@ -4948,7 +4979,8 @@ DEF INPUT PARAM ip-rowid AS ROWID NO-UNDO.
              w-ord.bundle = eb.cas-pal
              w-ord.cas-no = eb.cas-no
              w-ord.form-no = eb.form-no
-             w-ord.pallt-no = eb.tr-no.
+             w-ord.pallt-no = eb.tr-no
+             w-ord.part-dscr2 = eb.part-dscr2.
 
           /* get it from order    task# 04120602 */
           ASSIGN w-ord.pcs    = oe-ordl.cas-cnt
@@ -5155,7 +5187,8 @@ DEF INPUT PARAM ip-rowid AS ROWID NO-UNDO.
            w-ord.flute  = eb.flute
            w-ord.test   = eb.test
            w-ord.cas-no = eb.cas-no
-           w-ord.pallt-no = eb.tr-no. 
+           w-ord.pallt-no = eb.tr-no
+           w-ord.part-dscr2 = eb.part-dscr2 . 
 
         RUN oe/custxship.p (oe-rel.company,
                             oe-rel.cust-no,
@@ -5308,7 +5341,8 @@ PROCEDURE from-po :
         w-ord.pcs = eb.cas-cnt
         w-ord.bundle = eb.cas-pal
         w-ord.cas-no = eb.cas-no
-        w-ord.pallt-no = eb.tr-no.
+        w-ord.pallt-no = eb.tr-no
+        w-ord.part-dscr2 = eb.part-dscr2.
       IF NOT tb_ship-id THEN v-ship-id = po-ord.ship-id.
       FIND FIRST shipto NO-LOCK
           WHERE shipto.company EQ cocode
@@ -7128,7 +7162,12 @@ PROCEDURE reprint-tag :
       MESSAGE "Invalid Loadtag. Try Help." VIEW-AS ALERT-BOX ERROR.
       APPLY "entry" TO fi_cas-lab.
       RETURN ERROR.
-  END.          
+  END.  
+
+  ASSIGN
+      cBarCodeProgram = IF scr-label-file MATCHES "*.xpr*" THEN "xprint" 
+                        ELSE IF scr-label-file MATCHES "*.lwl" THEN "loftware" 
+                        ELSE "".
   RUN create-w-ord.
 
   SESSION:SET-WAIT-STATE ("general").
@@ -7537,218 +7576,251 @@ PROCEDURE write-loadtag-line :
  DEF INPUT PARAMETER ipc-totalUnit AS CHAR NO-UNDO.
  DEF INPUT PARAMETER ipi-pallet-id AS INT NO-UNDO.
  DEF INPUT PARAMETER ipi-counter AS INT NO-UNDO.
+ DEF VAR cLoftString AS CHAR NO-UNDO.
+ DEF VAR iCtr AS INT NO-UNDO.
 
   IF cBarCodeProgram EQ "Loftware" THEN DO:
       
-    PUT UNFORMATTED  "!" removeChars(scr-label-file)  ","  /*01  00000000.lwl = tag template*/
-        '"' +  removeChars(w-ord.cust-name) + '"'  ","  /*02  Customer Name   30 characters   Customername                                                                                            */
-        '"' +  removeChars(w-ord.cust-part-no) + '"' "," /*03  Customer Part ID or Number  30 characters   custpartid                                                                                  */
-        '"' +   removeChars(w-ord.cust-po-no) + '"'  "," /*04  Customer PO Number  15 characters   Custpo                                                                                              */
-        '"' +   removeChars(w-ord.ship-city + " " + w-ord.ship-state) + '"'  "," /*05  Customer Ship To City & State   30 characters   custshiptocityst                                                                        */
-        '"' +   removeChars(w-ord.est-no) + '"' "," /*06  File (Estimate) number  7 characters    filenumber                                                                                      */
-        w-ord.gross-wt  "," /*??07  Lbs/M Pieces  - cust waste  6 characters    LbsperM                                                                                     */
-        "," /*08  Plant Number    2 characters    plantnumber                                                                                             */
-        "- -,"/*09  this field contains - -   3 characters    Text0098                                                                                    */
-        1 /* w-ord.total-tags */ "," /*10  Number of tags per unit 1 character **QUANTITY                                                                                          */
-        1 "," /*11  Number of tags to print 5 characters    tagstoprint                                                                                     */
-        w-ord.ord-no  ","/*12  Order Number    7 characters    ordernumber                                                                                             */
-        w-ord.total-unit  ","/*13  Quantity per pallet 6 characters    qtypallet                                                                                           */
-          w-ord.due-date  "," /*14  Due date in format MM/DD/YY 8 characters    DueDate                                                                                     */
-        "," /*15  Order Quantity  9 characters    Orderqty                                                                                                */
-        "," /*16  Overrun Percent (% )    2 characters    Overrun                                                                                         */
-        "," /*17  Underrun Percent (%)    2 characters    underrun                                                                                        */
-        "," /*18  Critical Operation #1   2 characters    C01                                                                                             */
-        "," /*19  Critical Operation #2   2 characters    C02                                                                                             */
-        "," /*20  Critical Operation #3   2 characters    C03                                                                                             */
-        "," /*21  Critical Operation #4   2 characters    C04                                                                                             */
-        "," /*22  Critical Operation #5   2 characters    C05                                                                                             */
-        "," /*23  Critical Operation #6   2 characters    C06                                                                                             */
-        '"' +  removeChars(STRING(w-ord.cust-no,"x(5)") + STRING(w-ord.ship-code,"x(3)")) + '"' "," /*24  Customer and ShipTo Number in the format NNNNNSSS where NNNNN = Customer Number and SSS = ShipTo Number 8 characters    custshiptonumber*/
-        "," /*25  B/L instructions        B/L                                                                                                             */
-        "," /*26  RECORD      Record                                                                                                                      */
-        "," /*27  Load (Unit) Number  use only when Unitized Inventory is not active 5 characters    loadnumber                                          */
-        "," /*28  Number of bands (strap pattern) 6 characters    Straps                                                                                  */
-        "," /*29  Unit type   1 character unittype                                                                                                        */
-        '"' +  removeChars(w-ord.ship-name)  + '"' "," /*30  Customer ShipTo Name    60 characters   custshiptoname                                                                                  */
-        '"' +  caps(removeChars(w-ord.i-no)) + '"'  FORM "x(17)" "," /*31  Unit ID (Serial number) 23 characters   UnitID                                                                                          */
-        '"' +   removeChars(w-ord.i-name) + '"' FORMAT "X(30)"  "," /*32  Material description    30 characters   matldesc                                                                                        */
-        "," /*33  Sheet width 9 characters    shtwdth                                                                                                     */
-        "," /*34  Sheet length    9 characters    shtleng.                                                                                                */
-        "," /*35  Load Number (Use only when Unitized Inventory is active)    5 characters    Loadnumber                                                  */
-        "," /*36  Brokers Customer Name  30 characters   brokercust                                                                                      */
-          '"' +  removeChars(w-ord.ship-add1) " "  removeChars(w-ord.ship-add2) + '"'  ","/*37  Customer ShipTo Address 30 characters   custshiptoadd                                                                                   */
-         1 "," /*38  Number of tags to print 3 characters    numbertagstoprint                                                                               */
-        w-ord.pcs  "," /*39  Number per bundle   5 characters    numberperbndl                                                                                       */
-        "," /*40  Broker number   5 characters    brokernumber                                                                                            */
-          loadtag.tag-no "," /*41  Order entry message line 7  64 characters   msg7                                                                                        */
-        "," /*42  Order entry message line 8  64 characters   msg8                                                                                        */
-        "," /*43  Order entry message line 9  64 characters   msg9                                                                                        */
-        '"' +  removeChars(w-ord.style-desc) + '"' "," /*44  Style description   15 characters   styledesc                                                                                           */
-          w-ord.box-len FORMAT ">>>9.99<<<" "," /*45  Box length  9 characters    boxlen                                                                                                      */
-          w-ord.box-wid FORMAT ">>>9.99<<<" "," /*46  Box width   9 characters    boxwid                                                                                                      */
-          w-ord.box-dep FORMAT ">>>9.99<<<" ","/*47  Box depth   9 characters    boxdep                                                                                                      */
-        "," /*48  Corrugator Scoring 1    6 characters    corrscore1                                                                                      */
-        "," /*49  Corrugator Scoring 2    6 characters    corrscore2                                                                                      */
-        "," /*50  Corrugator Scoring 3    6 characters    corrscore3                                                                                      */
-        "," /*51  Corrugator Scoring 4    6 characters    corrscore4                                                                                      */
-        "," /*52  Corrugator Scoring 5    6 characters    corrscore5                                                                                      */
-        "," /*53  Corrugator Scoring 6    6 characters    corrscore6                                                                                      */
-        "," /*54  Corrugator Scoring 7    6 characters    corrscore7                                                                                      */
-        "," /*55  Corrugator Scoring 8    6 characters    corrscore8                                                                                      */
-        "," /*56  Corrugator Scoring 9    6 characters    corrscore9                                                                                      */
-        "," /*57  Cutoff Scoring 1    6 characters    cutscore1                                                                                           */
-        "," /*58  Cutoff Scoring 2    6 characters    cutscore2                                                                                           */
-        "," /*59  Cutoff Scoring 3    6 characters    cutscore3                                                                                           */
-        "," /*60  Cutoff Scoring 4    6 characters    cutscore4                                                                                           */
-        "," /*61  Cutoff Scoring 5    6 characters    cutscore5                                                                                           */
-        "," /*62  Cutoff Scoring 6    6 characters    cutscore6                                                                                           */
-        "," /*63  Cutoff Scoring 7    6 characters    cutscore7                                                                                           */
-        "," /*64  Cutoff Scoring 8    6 characters    cutscore8                                                                                           */
-        "," /*65  Cutoff Scoring 9    6 characters    cutscore9                                                                                           */
-        "," /*66  Not used at this time   1 character Unused1                                                                                             */
-        "," /*67  Number of ties  4 characters    numties                                                                                                 */
-         w-ord.bundle  "," /*68  Number of bundles per layer 4 characters    numbdllyr                                                                                   */
-        "," /*69  Stacking pattern    10 characters   stackptn                                                                                            */
-        "," /*70  Number of layers    4 characters    Numlayers                                                                                           */
-        "," /*71  Dimensions  15 characters   dimensions                                                                                                  */
-        "," /*72  Cutting die number  10 characters   cuttingdie                                                                                          */
-        "," /*73  Cutting die location    10 characters   cuttingdielocn                                                                                  */
-        "," /*74  Printing die number 10 characters   printingdie                                                                                         */
-        "," /*75  Printing die location   10 characters   printdielocn                                                                                    */
-        "," /*76  1st down color  10 characters   color1                                                                                                  */
-        "," /*77  2nd down color  10 characters   color2                                                                                                  */
-        "," /*78  3rd down color  10 characters   color3                                                                                                  */
-        "," /*79  4th down color  10 characters   color4                                                                                                  */
-        "," /*80  Critical Operation 1 text   5 characters    LC01                                                                                        */
-        "," /*81  Critical Operation 2 text   5 characters    LC02                                                                                        */
-        "," /*82  Critical Operation 3 text   5 characters    LC03                                                                                        */
-        "," /*83  Critical Operation 4 text   5 characters    LC04                                                                                        */
-        "," /*84  Critical Operation 5 text   5 characters    LC05                                                                                        */
-        "," /*85  Critical Operation 6 text   5 characters    LC06                                                                                        */
-        "," /*86  1st Miscellaneous Billing Message   18 characters   MiscMsg1                                                                            */
-        "" /*87  2nd Miscellaneous Billing Message   18 characters   MiscMsg2                                                                            */
+    /* HRMS Loftware Map */
+        /*01  00000000.lwl = tag template   */
+        /*02  Customer Name   30 characters   Customername                        */
+        /*03  Customer Part ID or Number  30 characters   custpartid              */
+        /*04  Customer PO Number  15 characters   Custpo                          */
+        /*05  Customer Ship To City & State   30 characters   custshiptocityst    */
+        /*06  File (Estimate) number  7 characters    filenumber                  */
+        /*07  Lbs/M Pieces  - cust waste  6 characters    LbsperM                 */
+        /*08  Plant Number    2 characters    plantnumber                         */
+        /*09  this field contains “- -“   3 characters    Text0098                */
+        /*10  Number of tags per unit 1 character **QUANTITY                      */
+        /*11  Number of tags to print 5 characters    tagstoprint                 */
+        /*12  Order Number    7 characters    ordernumber                         */
+        /*13  Quantity per pallet 6 characters    qtypallet                       */
+        /*14  Due date in format MM/DD/YY 8 characters    DueDate                 */
+        /*15  Order Quantity  9 characters    Orderqty                            */
+        /*16  Overrun Percent (% )    2 characters    Overrun                     */
+        /*17  Underrun Percent (%)    2 characters    underrun                    */
+        /*18  Critical Operation #1   2 characters    C01                         */
+        /*19  Critical Operation #2   2 characters    C02                         */
+        /*20  Critical Operation #3   2 characters    C03                         */
+        /*21  Critical Operation #4   2 characters    C04                         */
+        /*22  Critical Operation #5   2 characters    C05                         */
+        /*23  Critical Operation #6   2 characters    C06                         */
+        /*24  Customer and ShipTo Number in the format NNNNNSSS where 
+                NNNNN = Customer Number and SSS = ShipTo Number 8 characters    
+                custshiptonumber                                                  */
+        /*25  B/L instructions        B/L                                         */
+        /*26  RECORD      Record                                                  */
+        /*27  Load(Unit)Number – Unitized Inventory not active 5 chars loadnumber */
+        /*28  Number of bands (strap pattern) 6 characters    Straps              */
+        /*29  Unit type   1 character unittype                                    */
+        /*30  Customer ShipTo Name    60 characters   custshiptoname              */
+        /*31  Unit ID (Serial number) 23 characters   UnitID                      */
+        /*32  Material description    30 characters   matldesc                    */
+        /*33  Sheet width 9 characters    shtwdth                                 */
+        /*34  Sheet length    9 characters    shtleng.                            */
+        /*35  Load Number - Unitized Inventory active   5 characters  Loadnumber  */
+        /*36  Broker’s Customer Name  30 characters   brokercust                  */
+        /*37  Customer ShipTo Address 30 characters   custshiptoadd               */
+        /*38  Number of tags to print 3 characters    numbertagstoprint           */
+        /*39  Number per bundle   5 characters    numberperbndl                   */
+        /*40  Broker number   5 characters    brokernumber                        */
+        /*41  Order entry message line 7  64 characters   msg7                    */
+        /*42  Order entry message line 8  64 characters   msg8                    */
+        /*43  Order entry message line 9  64 characters   msg9                    */
+        /*44  Style description   15 characters   styledesc                       */
+        /*45  Box length  9 characters    boxlen                                  */
+        /*46  Box width   9 characters    boxwid                                  */
+        /*47  Box depth   9 characters    boxdep                                  */
+        /*48  Corrugator Scoring 1    6 characters    corrscore1                  */
+        /*49  Corrugator Scoring 2    6 characters    corrscore2                  */
+        /*50  Corrugator Scoring 3    6 characters    corrscore3                  */
+        /*51  Corrugator Scoring 4    6 characters    corrscore4                  */
+        /*52  Corrugator Scoring 5    6 characters    corrscore5                  */
+        /*53  Corrugator Scoring 6    6 characters    corrscore6                  */
+        /*54  Corrugator Scoring 7    6 characters    corrscore7                  */
+        /*55  Corrugator Scoring 8    6 characters    corrscore8                  */
+        /*56  Corrugator Scoring 9    6 characters    corrscore9                  */
+        /*57  Cutoff Scoring 1    6 characters    cutscore1                       */
+        /*58  Cutoff Scoring 2    6 characters    cutscore2                       */
+        /*59  Cutoff Scoring 3    6 characters    cutscore3                       */
+        /*60  Cutoff Scoring 4    6 characters    cutscore4                       */
+        /*61  Cutoff Scoring 5    6 characters    cutscore5                       */
+        /*62  Cutoff Scoring 6    6 characters    cutscore6                       */
+        /*63  Cutoff Scoring 7    6 characters    cutscore7                       */
+        /*64  Cutoff Scoring 8    6 characters    cutscore8                       */
+        /*65  Cutoff Scoring 9    6 characters    cutscore9                       */
+        /*66  Not used at this time   1 character Unused1                         */
+        /*67  Number of ties  4 characters    numties                             */
+        /*68  Number of bundles per layer 4 characters    numbdllyr               */
+        /*69  Stacking pattern    10 characters   stackptn                        */
+        /*70  Number of layers    4 characters    Numlayers                       */
+        /*71  Dimensions  15 characters   dimensions                              */
+        /*72  Cutting die number  10 characters   cuttingdie                      */
+        /*73  Cutting die location    10 characters   cuttingdielocn              */
+        /*74  Printing die number 10 characters   printingdie                     */
+        /*75  Printing die location   10 characters   printdielocn                */
+        /*76  1st down color  10 characters   color1                              */
+        /*77  2nd down color  10 characters   color2                              */
+        /*78  3rd down color  10 characters   color3                              */
+        /*79  4th down color  10 characters   color4                              */
+        /*80  Critical Operation 1 text   5 characters    LC01                    */
+        /*81  Critical Operation 2 text   5 characters    LC02                    */
+        /*82  Critical Operation 3 text   5 characters    LC03                    */
+        /*83  Critical Operation 4 text   5 characters    LC04                    */
+        /*84  Critical Operation 5 text   5 characters    LC05                    */
+        /*85  Critical Operation 6 text   5 characters    LC06                    */
+        /*86  1st Miscellaneous Billing Message   18 characters   MiscMsg1        */
+        /*87  2nd Miscellaneous Billing Message   18 characters   MiscMsg2        */
+    
+    ASSIGN
+        cLoftString = FILL(",",86)
+        ENTRY(1,cLoftString) = "!" + scr-label-file
+        ENTRY(2,cLoftString) = '"' + STRING(REPLACE(w-ord.cust-name,'"',""),"x(30)") + '"'
+        ENTRY(3,cLoftString) = '"' + STRING(REPLACE(w-ord.cust-part-no,'"',""),"x(30)") + '"'
+        ENTRY(4,cLoftString) = '"' + STRING(REPLACE(w-ord.cust-po-no,'"',""),"x(15)") + '"'
+        ENTRY(5,cLoftString) = '"' + STRING(REPLACE(w-ord.ship-city,'"',"") + " " + REPLACE(w-ord.ship-state,'"',""),"x(30)") + '"'
+        ENTRY(6,cLoftString) = '"' + STRING(w-ord.est-no,"9999999") + '"'
+        ENTRY(7,cLoftString) = STRING(w-ord.gross-wt,">>>>9.99")
+        ENTRY(9,cLoftString) = "- -"
+        ENTRY(10,cLoftString) = "1"
+        ENTRY(11,cLoftString) = "1"
+        ENTRY(12,cLoftString) = STRING(w-ord.ord-no,">>>>>>9")
+        ENTRY(13,cLoftString) = STRING(w-ord.total-unit,">>>>>9")
+        ENTRY(14,cLoftString) = STRING(w-ord.due-date,"99/99/99")
+        ENTRY(24,cLoftString) = '"' + STRING(REPLACE(w-ord.cust-no,'"',""),"x(5)") + STRING(REPLACE(w-ord.ship-code,'"',""),"x(3)") + '"'
+        ENTRY(30,cLoftString) = '"' + STRING(REPLACE(w-ord.ship-name,'"',""),"x(60)") + '"'
+        ENTRY(31,cLoftString) = '"' + STRING(REPLACE(w-ord.i-no,'"',""),"x(23)") + '"'
+        ENTRY(32,cLoftString) = '"' + STRING(REPLACE(w-ord.i-name,'"',""),"x(30)") + '"'
+        ENTRY(37,cLoftString) = '"' + STRING(REPLACE(w-ord.ship-add1,'"',"") + " " + REPLACE(w-ord.ship-add2,'"',""),"x(30)") + '"'
+        ENTRY(38,cLoftString) = "1"
+        ENTRY(39,cLoftString) = STRING(w-ord.pcs,">>>>9")
+        ENTRY(41,cLoftString) = STRING(loadtag.tag-no,"x(64)")
+        ENTRY(42,cLoftString) = '"' + STRING(REPLACE(w-ord.ord-desc1,'"',""),"x(64)") + '"'
+        ENTRY(44,cLoftString) = '"' + STRING(REPLACE(w-ord.style-desc,'"',""),"x(15)") + '"'
+        ENTRY(45,cLoftString) = STRING(w-ord.box-len,">>>9.99<<<")
+        ENTRY(46,cLoftString) = STRING(w-ord.box-wid,">>>9.99<<<")
+        ENTRY(47,cLoftString) = STRING(w-ord.box-dep,">>>9.99<<<")
+        ENTRY(68,cLoftString) = STRING(w-ord.bundle,">>>9")
          .
+    
+    PUT UNFORMATTED  
+        cLoftString.
  END.
  ELSE DO:
- PUT UNFORMATTED "~""  removeChars(w-ord.cust-name)  "~","
-  w-ord.ord-no  ","
-  "~""  v-job  "~","
-  "~""  caps(removeChars(w-ord.i-no))  FORM "x(15)" "~","
-  "~""  removeChars(w-ord.cust-part-no) "~","
-  "~""  removeChars(w-ord.cust-po-no)  "~","
-  w-ord.pcs  ","
-  w-ord.bundle  ","
-  trim(ipc-totalUnit) ","
-  "~""  removeChars(w-ord.ship-code)  "~","
-  "~""  removeChars(w-ord.ship-name)  "~","
-  "~""  removeChars(w-ord.ship-add1)  "~","
-  "~""  removeChars(w-ord.ship-add2)  "~","
-  "~""  removeChars(w-ord.ship-city)  "~","
-  "~""  removeChars(w-ord.ship-state) "~","
-  "~""  removeChars(w-ord.ship-ctry)  "~","
-  "~""  removeChars(w-ord.ship-zip)   "~","
-  "~""  removeChars(w-ord.sold-code)  "~","
-  "~""  removeChars(w-ord.sold-name)  "~","
-  "~""  removeChars(w-ord.sold-add1)  "~","
-  "~""  removeChars(w-ord.sold-add2)  "~","
-  "~""  removeChars(w-ord.sold-city)  "~","
-  "~""  removeChars(w-ord.sold-state) "~","
-  "~""  removeChars(w-ord.sold-ctry)  "~","
-  "~""  removeChars(w-ord.sold-zip)   "~","
-  "~""  removeChars(w-ord.i-name) FORMAT "X(30)"  "~","
-  "~""  w-ord.due-date  "~","
-  "~""  w-ord.rel-date  "~","
-  "~""  w-ord.upc-no FORMAT "x(20)" "~","
-  "~""  w-ord.box-len FORMAT ">>>9.99<<<" "~","
-  "~""  w-ord.box-wid FORMAT ">>>9.99<<<" "~","
-  "~""  w-ord.box-dep FORMAT ">>>9.99<<<" "~","
-  "~""  w-ord.flute  "~","
-  "~""  w-ord.test  "~","
-  "~""  w-ord.vendor  "~","
-  w-ord.gross-wt  ","
-  w-ord.tare-wt  ","
-  w-ord.net-wt  ","
-  w-ord.sheet-wt  ","
-  "~""  w-ord.uom  "~","
-  "~""  removeChars(w-ord.style) "~","
-  "~""  removeChars(w-ord.style-desc) "~","
-  "~""  removeChars(w-ord.rel-lot#) "~","
-  "~""  lv-middlesex-job  "~","
-  "~""  lv-middlesex-po  "~","
-  "~""  loadtag.tag-no "~"," 
-  "~""  loadtag.partial "~","
-  "~""  w-ord.cas-no  "~","
-  "~""  removeChars(v-dept-note[1]) "~","
-  "~""  removeChars(v-dept-note[2]) "~","
-  "~""  removeChars(v-dept-note[3]) "~","
-  "~""  removeChars(v-dept-note[4]) "~","
-  "~""  removeChars(v-dept-note[5]) "~","
-  "~""  removeChars(v-dept-note[6]) "~","
-  "~""  removeChars(v-dept-note[7]) "~","
-  "~""  removeChars(v-dept-note[8]) "~","
-  w-ord.po-no ","
-  "~""  removeChars(v-dept-note[9]) "~","
-  "~""  removeChars(v-dept-note[10]) "~","
-  "~""  removeChars(v-dept-note[11]) "~","
-  "~""  removeChars(v-dept-note[12]) "~","
-  "~""  removeChars(v-dept-note[13]) "~","
-  "~""  removeChars(v-dept-note[14]) "~","
-  "~""  removeChars(v-dept-note[15]) "~","
-  "~""  removeChars(v-dept-note[16]) "~","   
-  "~""  removeChars(v-dept-note[17]) "~","
-  "~""  removeChars(v-dept-note[18]) "~","
-  "~""  removeChars(w-ord.est-no) "~","
-  "~""  removeChars(w-ord.ord-desc1)    "~","
-  "~""  removeChars(w-ord.ord-desc2)    "~","
-  .
- IF CAN-DO("ASI,SSLABEL",v-loadtag) THEN DO:
 
-/*    FIND FIRST rfidtag OF loadtag NO-LOCK NO-ERROR.
-    cRFIDTag = IF AVAIL rfidtag THEN rfidtag.rfidtag ELSE "".  */
+    PUT UNFORMATTED 
+        "~""  removeChars(w-ord.cust-name)  "~","
+        w-ord.ord-no  ","
+        "~""  v-job  "~","
+        "~""  caps(removeChars(w-ord.i-no))  FORM "x(15)" "~","
+        "~""  removeChars(w-ord.cust-part-no) "~","
+        "~""  removeChars(w-ord.cust-po-no)  "~","
+        w-ord.pcs  ","
+        w-ord.bundle  ","
+        trim(ipc-totalUnit) ","
+        "~""  removeChars(w-ord.ship-code)  "~","
+        "~""  removeChars(w-ord.ship-name)  "~","
+        "~""  removeChars(w-ord.ship-add1)  "~","
+        "~""  removeChars(w-ord.ship-add2)  "~","
+        "~""  removeChars(w-ord.ship-city)  "~","
+        "~""  removeChars(w-ord.ship-state) "~","
+        "~""  removeChars(w-ord.ship-ctry)  "~","
+        "~""  removeChars(w-ord.ship-zip)   "~","
+        "~""  removeChars(w-ord.sold-code)  "~","
+        "~""  removeChars(w-ord.sold-name)  "~","
+        "~""  removeChars(w-ord.sold-add1)  "~","
+        "~""  removeChars(w-ord.sold-add2)  "~","
+        "~""  removeChars(w-ord.sold-city)  "~","
+        "~""  removeChars(w-ord.sold-state) "~","
+        "~""  removeChars(w-ord.sold-ctry)  "~","
+        "~""  removeChars(w-ord.sold-zip)   "~","
+		"~""  removeChars(w-ord.i-name) FORMAT "X(30)"  "~","
+		"~""  w-ord.due-date  "~","
+		"~""  w-ord.rel-date  "~","
+		"~""  w-ord.upc-no FORMAT "x(20)" "~","
+        "~""  w-ord.box-len FORMAT ">>>9.99<<<" "~","
+		"~""  w-ord.box-wid FORMAT ">>>9.99<<<" "~","
+        "~""  w-ord.box-dep FORMAT ">>>9.99<<<" "~","
+		"~""  w-ord.flute  "~","
+		"~""  w-ord.test  "~","
+		"~""  w-ord.vendor  "~","
+        w-ord.gross-wt  ","
+        w-ord.tare-wt  ","
+        w-ord.net-wt  ","
+        w-ord.sheet-wt  ","
+		"~""  w-ord.uom  "~","
+		"~""  removeChars(w-ord.style) "~","
+		"~""  removeChars(w-ord.style-desc) "~","
+		"~""  removeChars(w-ord.rel-lot#) "~","
+		"~""  lv-middlesex-job  "~","
+		"~""  lv-middlesex-po  "~","
+		"~""  loadtag.tag-no "~"," 
+		"~""  loadtag.partial "~","
+		"~""  w-ord.cas-no  "~","
+		"~""  removeChars(v-dept-note[1]) "~","
+		"~""  removeChars(v-dept-note[2]) "~","
+		"~""  removeChars(v-dept-note[3]) "~","
+		"~""  removeChars(v-dept-note[4]) "~","
+		"~""  removeChars(v-dept-note[5]) "~","
+		"~""  removeChars(v-dept-note[6]) "~","
+		"~""  removeChars(v-dept-note[7]) "~","
+		"~""  removeChars(v-dept-note[8]) "~","
+        w-ord.po-no ","
+		"~""  removeChars(v-dept-note[9]) "~","
+		"~""  removeChars(v-dept-note[10]) "~","
+		"~""  removeChars(v-dept-note[11]) "~","
+		"~""  removeChars(v-dept-note[12]) "~","
+		"~""  removeChars(v-dept-note[13]) "~","
+		"~""  removeChars(v-dept-note[14]) "~","
+		"~""  removeChars(v-dept-note[15]) "~","
+		"~""  removeChars(v-dept-note[16]) "~","   
+		"~""  removeChars(v-dept-note[17]) "~","
+		"~""  removeChars(v-dept-note[18]) "~","
+		"~""  removeChars(w-ord.est-no) "~","
+		"~""  removeChars(w-ord.ord-desc1)    "~","
+		"~""  removeChars(w-ord.ord-desc2)    "~","
+        .
+ 
+    IF CAN-DO("ASI,SSLABEL",v-loadtag) THEN DO:
+        PUT UNFORMATTED 
+            "~"" SUBSTR(loadtag.tag-no,16,5) "~"," 
+            "~"" ipc-rfid "~"," .
+    END.
 
-    PUT UNFORMATTED "~"" SUBSTR(loadtag.tag-no,16,5) "~"," 
-                   "~"" ipc-rfid "~"," .
- END.
- PUT UNFORMATTED 
-    "~"" w-ord.due-date-jobhdr "~"," 
-    "~"" w-ord.due-date-job "~","
- /* gdm - 08130804 */
-    "~"" w-ord.linenum "~","
- /* gdm - 07170905 */
-    "~"" w-ord.unit-wt  "~","
-    "~"" w-ord.pallt-wt  "~","          
-
- /* gdm - 10160905 */
-    "~"" removeChars(v-fgdsc1) "~","
-    "~"" removeChars(v-fgdsc2) "~","
-    "~"" removeChars(v-fgdsc3) "~","
-    "~"" removeChars(w-ord.lot) "~","
- /*bpv 05231205 */   
-    "~"" w-ord.pallt-no "~"," 
-    "~"" ipi-pallet-id "~","
-     "~"" ipi-counter "~","
-     "~"" w-ord.total-tags "~","
-     "~"" replace(w-ord.ship-notes[1],'"', '') "~","
-     "~"" replace(w-ord.ship-notes[2],'"', '') "~","
-     "~"" replace(w-ord.ship-notes[3],'"', '') "~","
-     "~"" replace(w-ord.ship-notes[4],'"', '') "~","
-     "~"" loadtag.loc "~","
-     "~"" loadtag.loc-bin "~""
-      .
- /* rstark - zoho13731 */
- IF lSSCC THEN PUT UNFORMATTED ",~"" w-ord.sscc "~"".
+    PUT UNFORMATTED 
+        "~"" w-ord.due-date-jobhdr "~"," 
+        "~"" w-ord.due-date-job "~","
+        "~"" w-ord.linenum "~","
+        "~"" w-ord.unit-wt  "~","
+        "~"" w-ord.pallt-wt  "~","          
+        "~"" removeChars(v-fgdsc1) "~","
+        "~"" removeChars(v-fgdsc2) "~","
+        "~"" removeChars(v-fgdsc3) "~","
+        "~"" removeChars(w-ord.lot) "~","
+        "~"" w-ord.pallt-no "~"," 
+        "~"" ipi-pallet-id "~","
+        "~"" ipi-counter "~","
+        "~"" w-ord.total-tags "~","
+        "~"" replace(w-ord.ship-notes[1],'"', '') "~","
+        "~"" replace(w-ord.ship-notes[2],'"', '') "~","
+        "~"" replace(w-ord.ship-notes[3],'"', '') "~","
+        "~"" replace(w-ord.ship-notes[4],'"', '') "~","
+        "~"" loadtag.loc "~","
+        "~"" loadtag.loc-bin "~""
+        .
+    
+    IF lSSCC THEN PUT UNFORMATTED ",~"" w-ord.sscc "~"".
 END.
 
- PUT UNFORMATTED SKIP.
+PUT UNFORMATTED SKIP.
 
- /* temp table for xprint */
- IF cBarCodeProgram EQ "xprint" THEN do:
-     CREATE tt-word-print .
-     BUFFER-COPY w-ord TO tt-word-print .
-     ASSIGN 
-         tt-word-print.tag-no = loadtag.tag-no .
- END.
-
+/* temp table for xprint */
+IF cBarCodeProgram EQ "xprint" THEN do:
+    CREATE tt-word-print .
+    BUFFER-COPY w-ord TO tt-word-print .
+    ASSIGN 
+        tt-word-print.tag-no = loadtag.tag-no .
+END.
 
 
 END PROCEDURE.

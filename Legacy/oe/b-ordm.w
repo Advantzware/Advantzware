@@ -39,8 +39,12 @@ assign cocode = g_company
 
 {oe/d-selmis.i NEW}
 {sys/inc/ceprepprice.i}
+
+DO TRANSACTION:
 {sys/inc/OEPrepTaxCode.i}
+END.
  
+
 DEFINE VARIABLE lv-new-recid AS RECID NO-UNDO.
 DEFINE VARIABLE lv-valid-charge AS LOGICAL NO-UNDO.
 DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.
@@ -1287,7 +1291,7 @@ END.
 
   /* Code placed here will execute AFTER standard behavior.    */
   FIND CURRENT oe-ordm EXCLUSIVE.
-  IF adm-new-record AND oe-ordm.cost EQ 0 THEN oe-ordm.cost = oe-ordm.amt.
+  
 
   FIND CURRENT oe-ord EXCLUSIVE.
 
@@ -2262,4 +2266,3 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-

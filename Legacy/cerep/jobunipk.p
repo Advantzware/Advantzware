@@ -918,7 +918,7 @@ for each job-hdr NO-LOCK
              v-po-duedate = IF AVAIL po-ordl THEN po-ordl.due-date ELSE ?.
 
              PUT "<P11>" v-fill SKIP                       /*REQ'D*/                 
-                 "<B>BOARD CODE<C17>DUE DATE<C25>SHEETS<C34>SHEET SIZE<C47>CALIPER<C54.5>DIE SIZE<C67>BOARD PO#<C77>VENDOR#<C85>DIE#<C92.5>PRE-PRESS<C102>CAD#</B>"
+                 "<B>BOARD CODE<C17>DUE DATE<C25>SHEETS<C34>SHEET SIZE<C47>CALIPER<C54.5>DIE SIZE<C67>DIE#<C78.5>PRE-PRESS<C89>CAD#</B>"
                  SKIP.
             /** PRINT SHEET **/
              x = 2.
@@ -937,11 +937,11 @@ for each job-hdr NO-LOCK
                     format "x(16)"
                     "<C47>" wrk-sheet.cal
                     "<C53.5>" string(ef.trim-w) + "x" + string(ef.trim-l) FORM "x(16)"
-                    "<C67>" v-board-po 
-                    "<C77>" v-vend  
-                    "<C85>" eb.die-no  FORM "x(8)"
-                    "<C92.5>" eb.plate-no FORM "x(8)" SPACE(2)
-                    "<C102>" eb.cad-no FORM "x(6)" SKIP
+                    /*"<C67>" v-board-po 
+                    "<C77>" v-vend */ /* Ticket 29878*/ 
+                    "<C67>" eb.die-no  FORM "x(8)"
+                    "<C78.5>" eb.plate-no FORM "x(8)" SPACE(2)
+                    "<C89>" eb.cad-no FORM "x(6)" SKIP
                    .
                x = 1.
              end. /* each wrk-sheet */
@@ -1176,6 +1176,21 @@ for each job-hdr NO-LOCK
          else
             PUT "<B>MACHINE                            MR WASTE     MR HRS      RUN HOUR      SPOIL%            INPUT        OUTPUT</B>"
                 SKIP.
+          j = 0.
+          z = 0.
+         FOR EACH wrk-op NO-LOCK BREAK by wrk-op.d-seq by wrk-op.b-num:
+             j = j + 1 .
+             IF LAST(wrk-op.d-seq) THEN
+                 ASSIGN z = wrk-op.d-seq .
+         END.
+         IF j LT 4 THEN DO:
+           DO i = j + 1 TO 4:
+               CREATE wrk-op .
+               z = z + 1 .
+              wrk-op.d-seq = z .
+           END.
+         END.
+         i = 0 .
          FOR EACH wrk-op WHERE wrk-op.s-num = tt-reftable.val[12] BREAK by wrk-op.d-seq by wrk-op.b-num:
              v-mat-for-mach = "".
              IF lookup(wrk-op.dept,lv-mat-dept-list) > 0 THEN DO:
@@ -1215,38 +1230,44 @@ for each job-hdr NO-LOCK
              v-spoil = ROUND( ((wrk-op.num-sh[reftable-frm-int] - wrk-op.mr-waste[reftable-frm-int])
                        * wrk-op.spoil[reftable-frm-int] / 100),0).
              v-output = wrk-op.num-sh[reftable-frm-int] - wrk-op.mr-waste[reftable-frm-int] - v-spoil.
-             IF s-prt-mstandard THEN DO:
-                IF s-run-speed THEN
-                   PUT wrk-op.m-dscr   SPACE(5)
-                       "<C25>" wrk-op.mr-waste[reftable-frm-int]   SPACE(5)
-                       "<C33>" wrk-op.mr[reftable-frm-int]         SPACE(5)
-                       "<C44>" wrk-op.speed[reftable-frm-int]      SPACE(5)
-                       "<C52>" /*wrk-op.spoil[job-hdr.frm]*/ v-spoil FORM ">>,>>9"     SPACE(5)
-                       "<C60>" wrk-op.num-sh[reftable-frm-int] SPACE(3)
-                       /* v-mat-for-mach FORM "x(60)"*/
-                       "<C70>" v-output 
-                       . 
-               ELSE
-                   PUT wrk-op.m-dscr   SPACE(5)
-                      "<C25>" wrk-op.mr-waste[reftable-frm-int]   SPACE(5)
-                      "<C33>" wrk-op.mr[reftable-frm-int]         SPACE(5)
-                      "<C44>"  wrk-op.run-hr[reftable-frm-int]     SPACE(5)
-                      "<C52>" /*wrk-op.spoil[job-hdr.frm]*/ v-spoil   FORM ">>,>>9"   SPACE(5)
-                      "<C60>" wrk-op.num-sh[reftable-frm-int] SPACE(3)
-                      "<C70>" v-output 
-                       /*v-mat-for-mach FORM "x(60)"    */
-                       .
+             IF wrk-op.m-dscr NE "" THEN do:
+                 IF s-prt-mstandard THEN DO:
+                    IF s-run-speed THEN
+                       PUT wrk-op.m-dscr   SPACE(5)
+                           "<C25>" wrk-op.mr-waste[reftable-frm-int]   SPACE(5)
+                           "<C33>" wrk-op.mr[reftable-frm-int]         SPACE(5)
+                           "<C44>" wrk-op.speed[reftable-frm-int]      SPACE(5)
+                           "<C52>" /*wrk-op.spoil[job-hdr.frm]*/ v-spoil FORM ">>,>>9"     SPACE(5)
+                           "<C60>" wrk-op.num-sh[reftable-frm-int] SPACE(3)
+                           /* v-mat-for-mach FORM "x(60)"*/
+                           "<C70>" v-output 
+                           . 
+                   ELSE
+                       PUT wrk-op.m-dscr   SPACE(5)
+                          "<C25>" wrk-op.mr-waste[reftable-frm-int]   SPACE(5)
+                          "<C33>" wrk-op.mr[reftable-frm-int]         SPACE(5)
+                          "<C44>"  wrk-op.run-hr[reftable-frm-int]     SPACE(5)
+                          "<C52>" /*wrk-op.spoil[job-hdr.frm]*/ v-spoil   FORM ">>,>>9"   SPACE(5)
+                          "<C60>" wrk-op.num-sh[reftable-frm-int] SPACE(3)
+                          "<C70>" v-output 
+                           /*v-mat-for-mach FORM "x(60)"    */
+                           .
+                 END.
+                 ELSE PUT wrk-op.m-dscr   SPACE(5)
+                         /* wrk-op.mr-waste[job-hdr.frm]   */ SPACE(10)
+                          /*wrk-op.mr[job-hdr.frm] >>9.99 */   SPACE(11)
+                          /*wrk-op.speed[job-hdr.frm] >>>>9*/      SPACE(10)
+                          /*wrk-op.spoil[job-hdr.frm]   >>9.99*/   SPACE(12)
+                         /* v-mat-for-mach FORM "x(60)" */
+                          .
              END.
-             ELSE PUT wrk-op.m-dscr   SPACE(5)
-                     /* wrk-op.mr-waste[job-hdr.frm]   */ SPACE(10)
-                      /*wrk-op.mr[job-hdr.frm] >>9.99 */   SPACE(11)
-                      /*wrk-op.speed[job-hdr.frm] >>>>9*/      SPACE(10)
-                      /*wrk-op.spoil[job-hdr.frm]   >>9.99*/   SPACE(12)
-                     /* v-mat-for-mach FORM "x(60)" */
-                      .
-             IF first(wrk-op.d-seq) AND  s-prt-mstandard THEN PUT "<C76>   Copy approval _____________________" SKIP.
-             ELSE IF first(wrk-op.d-seq)  THEN PUT "<C60>   Copy approval _______________________" SKIP.
-             ELSE PUT SKIP.
+             i = i + 1.
+             IF i EQ 1 THEN PUT "<C76>   Board PO#:__________________" SKIP.
+             ELSE IF i EQ 2 THEN PUT "<C76>             Corr:__________________" SKIP. 
+             ELSE IF i EQ 3 THEN PUT "<C76>       New Die:__________________" SKIP.
+             ELSE IF i EQ 4 THEN PUT "<C76>                Ink:__________________" SKIP.
+             ELSE PUT SKIP .
+                    
         end. /* each wrk-op*/
 
         PUT v-fill AT 1 SKIP.

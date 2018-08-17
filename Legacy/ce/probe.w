@@ -141,6 +141,7 @@ DEF VAR lv-valid-profit AS CHAR NO-UNDO
 
 
 DEF NEW SHARED VAR lv-cebrowse-dir AS CHAR NO-UNDO.
+DEFINE NEW SHARED VARIABLE cCEBrowseBaseDir AS CHARACTER NO-UNDO.
 DEF VAR v-dir AS CHAR FORMAT "X(80)" NO-UNDO.
 DEF VAR v-tmp-int AS INT NO-UNDO.
 DEF VAR v-can-update AS LOG NO-UNDO.
@@ -164,33 +165,9 @@ DEFINE VARIABLE lBussFormModle AS LOGICAL NO-UNDO.
 OUTPUT cRtnChar, OUTPUT lRecFound).
 IF lRecFound THEN
     lBussFormModle = LOGICAL(cRtnChar) NO-ERROR. 
-    
-find first sys-ctrl where
-    sys-ctrl.company eq cocode AND
-    sys-ctrl.name    eq "CEBROWSE"
-    no-lock no-error.
+  
+RUN est/EstimateProcs.p (cocode, OUTPUT cCeBrowseBaseDir, OUTPUT tmp-dir).
 
-if not avail sys-ctrl then DO TRANSACTION:
-  create sys-ctrl.
-  assign
-   sys-ctrl.company = cocode
-   sys-ctrl.name    = "CEBROWSE"
-   sys-ctrl.descrip = "# of Records to be displayed in browser"
-   sys-ctrl.log-fld = YES
-   sys-ctrl.char-fld = "CE"
-   sys-ctrl.int-fld = 30.
-end.
-
-IF sys-ctrl.char-fld NE "" THEN
-   tmp-dir = sys-ctrl.char-fld.
-ELSE
-   tmp-dir = "users\".
-
-IF LOOKUP(SUBSTRING(tmp-dir,LENGTH(tmp-dir)),"\,/") EQ 0 THEN
-   tmp-dir = tmp-dir + "\".
-
-ASSIGN
-  tmp-dir = REPLACE(tmp-dir,"/","\").
   lv-cebrowse-dir = tmp-dir.
 
 FIND FIRST users WHERE
@@ -3069,7 +3046,12 @@ PROCEDURE printProbe :
     lv-font = 15
     lv-ornt = 'P'
     lv-lines = 100.
-
+    
+    IF probe.spare-char-1 NE "" THEN 
+        lv-cebrowse-dir = probe.spare-char-1.
+    ELSE 
+        lv-cebrowse-dir = cCEBrowseBaseDir.
+        
   find first sys-ctrl where sys-ctrl.company eq cocode
                       and sys-ctrl.name eq "CEPrint" no-lock no-error.
   ASSIGN
@@ -3349,7 +3331,7 @@ PROCEDURE run-whatif :
   FOR EACH mclean:
     DELETE mclean.
   END.
-
+  
   FOR EACH est-op NO-LOCK
       WHERE est-op.company EQ est.company
         AND est-op.est-no  EQ est.est-no
@@ -3364,6 +3346,9 @@ PROCEDURE run-whatif :
     RETURN.
    END.
   END.
+  RUN est/EstimateProcs.p (est.company, OUTPUT cCeBrowseBaseDir, OUTPUT tmp-dir).
+  lv-cebrowse-dir = tmp-dir.
+  
   IF est.est-type >= 3 AND est.est-type <= 4 AND cerunf = "HOP" THEN RUN ce/dAskSum.w (OUTPUT gEstSummaryOnly).
   IF est.est-type EQ 4 THEN RUN ce/com/print4.p NO-ERROR.
 

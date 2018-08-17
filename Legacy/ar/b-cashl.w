@@ -1165,6 +1165,11 @@ PROCEDURE local-open-query :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'open-query':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
+  RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"inquiryaq-source",OUTPUT char-hdl).
+
+  IF AVAIL ar-cashl AND VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN DO WITH FRAME {&FRAME-NAME}:
+        ar-cashl.amt-due:LABEL IN  BROWSE {&browse-name} = "Original Balance" .
+  END.
 
   IF AVAIL ar-cashl THEN
   DO:
@@ -1469,20 +1474,23 @@ FUNCTION calc-inv-bal RETURNS DECIMAL
 ------------------------------------------------------------------------------*/
   DEF VAR v-amt-due  LIKE ar-cashl.amt-due  NO-UNDO.
   DEF VAR v-amt-paid LIKE ar-cashl.amt-paid NO-UNDO.
+  DEFINE VARIABLE d-amt-disc LIKE ar-cashl.amt-disc NO-UNDO.
   
 
   IF ip-browser AND AVAIL ar-cashl THEN
     ASSIGN
      v-amt-due  = ar-cashl.amt-due
-     v-amt-paid = ar-cashl.amt-paid.
+     v-amt-paid = ar-cashl.amt-paid
+     d-amt-disc = ar-cashl.amt-disc.
   ELSE
     ASSIGN
      v-amt-due  =  DEC(ar-cashl.amt-due:SCREEN-VALUE IN BROWSE {&browse-name})
-     v-amt-paid =  DEC(ar-cashl.amt-paid:SCREEN-VALUE IN BROWSE {&browse-name}).  
+     v-amt-paid =  DEC(ar-cashl.amt-paid:SCREEN-VALUE IN BROWSE {&browse-name})
+     d-amt-disc = DEC(ar-cashl.amt-disc:SCREEN-VALUE IN BROWSE {&browse-name}).  
 
   /* Function return value. */
   RETURN IF AVAIL ar-cashl AND ar-cashl.inv-no NE 0 
-           THEN v-amt-due - (IF ar-cash.posted THEN 0 ELSE v-amt-paid)
+           THEN v-amt-due - v-amt-paid - (IF ar-cash.posted THEN d-amt-disc ELSE 0)
            ELSE 0.
 
 END FUNCTION.

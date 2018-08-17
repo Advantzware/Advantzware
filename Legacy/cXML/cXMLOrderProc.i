@@ -264,6 +264,7 @@ PROCEDURE assignOrderHeader:
                          ELSE ""
         shipto.dest-code = IF AVAIL(bf-shipto) THEN bf-shipto.dest-code 
                          ELSE ""
+        oe-ord.ship-id   = shipto.ship-id  /*31899 - apply oe-ord.ship-id after prefix is trimmed*/
         .
 /* 10061401 */
 /*         FIND FIRST stax                          */

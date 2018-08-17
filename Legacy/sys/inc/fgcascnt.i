@@ -21,20 +21,15 @@ FOR EACH e-itemfg-vend NO-LOCK
     BREAK BY e-itemfg-vend.vend-no:
 
   IF FIRST(e-itemfg-vend.vend-no) THEN DO:
-    FIND FIRST reftable
-        WHERE reftable.reftable EQ "e-itemfg-vend.std-uom"
-          AND reftable.company  EQ e-itemfg-vend.company
-          AND reftable.loc      EQ ""
-          AND reftable.code     EQ e-itemfg-vend.est-no
-          AND reftable.val[1]   EQ e-itemfg-vend.form-no
-          AND reftable.val[2]   EQ e-itemfg-vend.blank-no
-        NO-LOCK NO-ERROR.
-
     CREATE e-itemfg.
     BUFFER-COPY e-itemfg-vend EXCEPT rec_key TO e-itemfg
     ASSIGN
-     e-itemfg.i-no    = {1}.i-no
-     e-itemfg.std-uom = IF AVAIL reftable THEN reftable.code2 ELSE "EA".
+        e-itemfg.i-no    = {1}.i-no
+        .
+    IF e-itemfg.std-uom = "" THEN
+        ASSIGN e-itemfg.std-uom = "EA".
+
+
   END.
 
   CREATE b-eiv.

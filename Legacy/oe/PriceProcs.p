@@ -67,10 +67,10 @@ PROCEDURE CheckPriceHold:
      Purpose: Checks Price Hold for passed criteria.  Adds record to ttPriceHold table.
      Notes:
     ------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcCompany  AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcFGItemID AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipcCustID AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipcShipID AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcCustID   AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcShipID   AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipdQuantity AS DECIMAL NO-UNDO.
     DEFINE OUTPUT PARAMETER oplPriceHold AS LOGICAL NO-UNDO.
     DEFINE OUTPUT PARAMETER opcPriceHoldReason AS CHARACTER NO-UNDO.
@@ -145,7 +145,8 @@ PROCEDURE CheckPriceHoldForOrder:
     IF AVAILABLE bf-oe-ord THEN 
     DO:
         EMPTY TEMP-TABLE ttPriceHold.
-        FOR EACH bf-oe-ordl OF bf-oe-ord NO-LOCK:
+        FOR EACH bf-oe-ordl OF bf-oe-ord WHERE bf-oe-ordl.i-no NE "" NO-LOCK:
+
             RUN pAddPriceHold(ROWID(bf-oe-ordl), bf-oe-ordl.company, bf-oe-ordl.i-no, bf-oe-ordl.cust-no, bf-oe-ordl.ship-id, bf-oe-ordl.qty,
                 lQtyMatch, lQtyInRange, lEffectiveDateAge, iEffectiveDateAgeDays).
         END.
@@ -484,7 +485,7 @@ PROCEDURE GetPriceMatrixPrice:
     
     /*Set the default starting level to the customer specific starting level*/
     IF AVAILABLE bf-cust THEN 
-        iLevelStart = MINIMUM(1, bf-cust.cust-level).
+        iLevelStart = MAXIMUM(1, bf-cust.cust-level).
     ELSE 
         iLevelStart = 1.
     
@@ -505,9 +506,13 @@ PROCEDURE GetPriceMatrixPrice:
         ELSE 
             iLevel = iLevelStart.
     END.
-            
-    RUN pGetPriceAtLevel(BUFFER bf-oe-prmtx, iLevel, dItemSellPrice, cItemSellPriceUom, OUTPUT iopdPrice, OUTPUT iopcUom).
-
+    IF oplQtyWithinRange THEN
+        RUN pGetPriceAtLevel(BUFFER bf-oe-prmtx, iLevel, dItemSellPrice, cItemSellPriceUom, OUTPUT iopdPrice, OUTPUT iopcUom).
+    ELSE 
+        ASSIGN 
+            oplMatrixMatchFound = NO
+            opcMatrixMatchDetail = opcMatrixMatchDetail + " but price level " + STRING(iLevel) + " not valid."
+            .
 
 END PROCEDURE.
 
@@ -565,7 +570,7 @@ PROCEDURE GetPriceTotal:
     IF ipdQuantity EQ 0 THEN
         opdPriceTotal = 0.
     CASE ipcPriceUOM:
-        WHEN "LOT" THEN 
+        WHEN "LOT" OR WHEN "L" THEN 
             opdPriceTotal = ipdPrice * IF ipdQuantity LT 0 THEN -1 ELSE 1.
         WHEN "CS" THEN 
             DO:
@@ -673,7 +678,7 @@ PROCEDURE pAddPriceHold PRIVATE:
                         
     RUN pSetBuffers(ipcCompany, ipcFGItemID, ipcCustID, BUFFER bf-itemfg, BUFFER bf-cust).            
     /*use internal procedure to find the matching matrix*/
-    IF bf-itemfg.i-code EQ "S" THEN  
+    IF AVAIL bf-itemfg AND bf-itemfg.i-code EQ "S" THEN  
         RUN pGetPriceMatrix(BUFFER bf-itemfg, BUFFER bf-cust, BUFFER bf-oe-prmtx, ipcShipID, 
             OUTPUT ttPriceHold.lMatrixMatch, OUTPUT ttPriceHold.cMatrixMatch).
     ELSE 
@@ -932,15 +937,19 @@ PROCEDURE pGetPriceAtLevel PRIVATE:
     DEFINE OUTPUT PARAMETER opdPrice AS DECIMAL NO-UNDO.
     DEFINE OUTPUT PARAMETER opcUom AS CHARACTER NO-UNDO.
 
-    IF ipbf-oe-prmtx.meth THEN
-        ASSIGN 
-            opdPrice = ipbf-oe-prmtx.price[ipiLevel]
-            opcUom   = ipbf-oe-prmtx.uom[ipiLevel].
-    ELSE /*discount method - discount off of item price*/
-        ASSIGN 
-            opdPrice = ipdItemSellPrice - 
-            ROUND((ipdItemSellPrice * ipbf-oe-prmtx.discount[ipiLevel]) / 100, 2)
-            opcUom   = ipcItemSellPriceUom.
+    IF ipiLevel GT 0 AND ipiLevel LE EXTENT(ipbf-oe-prmtx.price) THEN DO:  /*31620 - protect against a level request out of range of the array*/
+           
+        IF ipbf-oe-prmtx.meth THEN
+            ASSIGN 
+                opdPrice = ipbf-oe-prmtx.price[ipiLevel]
+                opcUom   = ipbf-oe-prmtx.uom[ipiLevel].
+        ELSE /*discount method - discount off of item price*/
+            ASSIGN 
+                opdPrice = ipdItemSellPrice - 
+                ROUND((ipdItemSellPrice * ipbf-oe-prmtx.discount[ipiLevel]) / 100, 2)
+                opcUom   = ipcItemSellPriceUom.
+            
+    END.
 
 END PROCEDURE.
 
@@ -1026,13 +1035,16 @@ PROCEDURE pGetPriceMatrix PRIVATE:
         AND (opbf-oe-prmtx.eff-date LE TODAY)
         /*must not be expired*/
         AND (opbf-oe-prmtx.exp-date GE TODAY OR opbf-oe-prmtx.exp-date EQ ? OR opbf-oe-prmtx.exp-date EQ 01/01/0001)
+        /* Can't be all blank */
+        AND NOT (opbf-oe-prmtx.cust-no EQ "" AND opbf-oe-prmtx.i-no EQ "" AND opbf-oe-prmtx.procat EQ "" AND opbf-oe-prmtx.custype EQ "" 
+        AND opbf-oe-prmtx.custShipID EQ "")
     /*Sort the resulting data set so that actual matches take priority over blank matches*/
-        BY opbf-oe-prmtx.eff-date DESCENDING 
         BY opbf-oe-prmtx.i-no DESCENDING
         BY opbf-oe-prmtx.cust-no DESCENDING 
         BY opbf-oe-prmtx.procat DESCENDING 
         BY opbf-oe-prmtx.custype DESCENDING 
         BY opbf-oe-prmtx.custShipID DESCENDING
+        BY opbf-oe-prmtx.eff-date DESCENDING 
         :
         LEAVE.  /*After first/best match, leave*/
     END.
@@ -1105,7 +1117,7 @@ PROCEDURE pGetQtyMatchInfo PRIVATE:
        IF NOT AVAIL ipbf-oe-prmtx THEN RETURN .
  
     /*process matrix array completely, one time*/
-    DO iLevel = ipiLevelStart TO 10: /* IF customer has higher starting level set otherwise start with 1st level*/
+    DO iLevel = ipiLevelStart TO EXTENT(ipbf-oe-prmtx.qty): /* IF customer has higher starting level set otherwise start with 1st level*/
         IF ipdQuantityTarget LE ipbf-oe-prmtx.qty[iLevel] THEN /*As soon as a qty level is found, greater than qty, all set*/
         DO:
             IF ipdQuantityTarget EQ ipbf-oe-prmtx.qty[iLevel] AND ipbf-oe-prmtx.qty[iLevel] NE 0 THEN 

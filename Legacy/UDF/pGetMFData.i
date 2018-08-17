@@ -5,7 +5,7 @@ PROCEDURE pGetMFData:
 
     OUTPUT TO VALUE("users/" + USERID("NOSWEAT") + "/miscflds.dat").
     FOR EACH mfdata NO-LOCK
-        WHERE mfdata.mfgroup_data EQ ipcMFGroup
+        WHERE ENTRY(1,mfdata.mfgroup_data,"|") EQ ipcMFGroup
         :
       PUT UNFORMATTED mfdata.miscflds_data SKIP.
     END.

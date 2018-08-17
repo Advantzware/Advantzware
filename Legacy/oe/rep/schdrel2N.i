@@ -31,6 +31,7 @@ DEF VAR v-ship-stat AS CHAR NO-UNDO .
 DEF VAR v-ship-zip AS CHAR NO-UNDO .
 DEF VAR v-ship-name AS CHAR NO-UNDO .
 DEF VAR v-fg-cat AS CHAR INIT "" NO-UNDO .
+DEFINE VARIABLE lSelected AS LOGICAL INIT YES NO-UNDO.
 
 cSelectedList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
 
@@ -102,6 +103,7 @@ form header
    v-fcarr[1]   = begin_carr
    v-fcarr[2]   = end_carr
    v-ponum      = tb_po-no
+   lSelected  = tb_cust-list 
    v-sort       = if rd_sort eq "Customer#"     then "C"  else
                   if rd_sort eq "Release Date"  then "R"  else
                   if rd_sort eq "Item#"         then "I"  else
@@ -139,6 +141,14 @@ form header
             str-tit5 = str-tit5 + FILL("-",ttRptSelected.FieldLength) + " "
             excelheader = excelHeader + ttRptSelected.TextList + ",".  
   END.
+
+  IF lselected THEN DO:
+    FIND FIRST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no  NO-LOCK NO-ERROR  .
+    IF AVAIL ttCustList THEN ASSIGN v-fcust[1] = ttCustList.cust-no .
+    FIND LAST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no NO-LOCK NO-ERROR .
+    IF AVAIL ttCustList THEN ASSIGN v-fcust[2] = ttCustList.cust-no .
+ END.
+
   
   {sys/inc/print1.i}
 
@@ -282,6 +292,8 @@ form header
         AND oe-ord.ord-no  EQ oe-ordl.ord-no
         AND oe-ord.cust-no GE v-fcust[1]
         AND oe-ord.cust-no LE v-fcust[2]
+        AND (if lselected then can-find(first ttCustList where ttCustList.cust-no eq oe-ord.cust-no
+        AND ttCustList.log-fld no-lock) else true)
         AND oe-ord.csrUser_id GE begin_csr
         AND oe-ord.csrUser_id LE end_csr
       NO-LOCK,
@@ -582,7 +594,8 @@ form header
                               ((IF oe-ordl.cas-cnt    EQ 0 THEN 1 ELSE oe-ordl.cas-cnt) *
                               (IF oe-ordl.cases-unit EQ 0 THEN 1 ELSE oe-ordl.cases-unit))
        w-ord.ord-date     = string(oe-ord.ord-date)
-       w-ord.prom-date         = oe-ordl.prom-date  .
+       w-ord.prom-date         = oe-ordl.prom-date
+       w-ord.csrUser_id        = oe-ord.csrUser_id  .
 
       {sys/inc/roundup.i ld-palls}
 

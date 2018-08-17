@@ -171,7 +171,7 @@ for each report where report.term-id eq v-term,
          /* rdb 02150702
 	      v-bol-qty * v-part-qty to 73 format ">>>>9"
           */
-          v-bol-qty * v-part-qty to 72 format "->>>>9"
+          v-bol-qty * v-part-qty to 72 format "->>>>>>>9"
 	      skip.
     end.
 
@@ -193,7 +193,7 @@ for each report where report.term-id eq v-term,
 end. /* for each report */
 
 for each w3:
-  put {1} w3.ship-i at 11 skip.
+  put {1} w3.ship-i at 14 skip.
 end.
 
 /* end ---------------------------------- copr. 1998  Advanced Software, Inc. */

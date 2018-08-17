@@ -804,6 +804,7 @@ PROCEDURE pProcessRecord PRIVATE:
      Notes:
     ------------------------------------------------------------------------------*/
     DEFINE PARAMETER BUFFER ipbf-ttImportEstimate FOR ttImportEstimate.
+    DEFINE INPUT PARAMETER iplIgnoreBlanks AS LOGICAL NO-UNDO.
     DEFINE INPUT-OUTPUT PARAMETER iopiAdded AS INTEGER NO-UNDO.
 
 
@@ -921,7 +922,10 @@ PROCEDURE pProcessRecord PRIVATE:
     END.
     IF ipbf-ttImportEstimate.SalesManID NE '' THEN 
         eb.sman = ipbf-ttImportEstimate.SalesManID.
-            
+    
+    IF ipbf-ttImportEstimate.GlueID NE '' THEN 
+        eb.adhesive = ipbf-ttIMportEstimate.GlueID.
+                
     IF ipbf-ttImportEstimate.TabInOut EQ '' THEN 
         eb.tab-in = YES.
     ELSE 

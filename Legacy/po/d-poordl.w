@@ -240,7 +240,7 @@ po-ordl.item-type
 &Scoped-Define DISPLAYED-OBJECTS fiCount fi_c-a-hdr fi_uom scr-cons-uom ~
 v-tot-msf v-po-dep v-po-wid-frac v-po-len-frac v-po-dep-frac v-gl-desc ~
 fi_pb-qty fi_pb-cst fi_q-onh fi_q-ono fi_q-comm fi_q-back fi_q-avail ~
-fi_m-onh fi_m-ono fi_m-comm fi_m-back fi_m-avail fi_msf 
+fi_m-onh fi_m-ono fi_m-comm fi_m-back fi_m-avail fi_msf cFirstMach
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -282,6 +282,11 @@ DEFINE VARIABLE adders        AS CHARACTER
     VIEW-AS EDITOR SCROLLBAR-VERTICAL
     SIZE 56 BY 6.19
     BGCOLOR 15 FONT 2 NO-UNDO.
+
+DEFINE VARIABLE cFirstMach AS CHARACTER FORMAT "X(25)":U 
+     LABEL "First Resource" 
+     VIEW-AS FILL-IN 
+     SIZE 58 BY 1 NO-UNDO.
 
 DEFINE VARIABLE fiCount       AS INTEGER   FORMAT "->,>>>,>>9":U INITIAL 0 
     LABEL "Count" 
@@ -500,29 +505,29 @@ DEFINE FRAME Dialog-Frame
     VIEW-AS FILL-IN 
     SIZE 38 BY 1
     v-gl-desc AT ROW 9.86 COL 18 COLON-ALIGNED
-    po-ordl.vend-i-no AT ROW 11.29 COL 18 COLON-ALIGNED
+    po-ordl.vend-i-no AT ROW 10.81 COL 18 COLON-ALIGNED
     VIEW-AS FILL-IN 
     SIZE 25 BY 1
-    po-ordl.tax AT ROW 11.52 COL 64 COLON-ALIGNED
+    po-ordl.tax AT ROW 11 COL 64 COLON-ALIGNED
     LABEL "Tax"
     VIEW-AS FILL-IN 
     SIZE 3.2 BY 1
-    po-ordl.over-pct AT ROW 12.29 COL 18 COLON-ALIGNED
+    po-ordl.over-pct AT ROW 11.88 COL 18 COLON-ALIGNED
     VIEW-AS FILL-IN 
     SIZE 10.4 BY 1
-    po-ordl.under-pct AT ROW 13.24 COL 18 COLON-ALIGNED
+    po-ordl.under-pct AT ROW 12.76 COL 18 COLON-ALIGNED
     VIEW-AS FILL-IN 
     SIZE 10.4 BY 1
     fi_pb-qty AT ROW 13.91 COL 104 COLON-ALIGNED
-    po-ordl.cust-no AT ROW 14.19 COL 18 COLON-ALIGNED
+    po-ordl.cust-no AT ROW 13.71 COL 18 COLON-ALIGNED
     LABEL "Customer#" FORMAT "x(8)"
     VIEW-AS FILL-IN 
     SIZE 16 BY 1
-    po-ordl.ord-no AT ROW 15.19 COL 18 COLON-ALIGNED
+    po-ordl.ord-no AT ROW 14.62 COL 18 COLON-ALIGNED
     LABEL "Order Number" FORMAT ">>>>>9"
     VIEW-AS FILL-IN 
     SIZE 12 BY 1
-    po-ordl.t-cost AT ROW 15.1 COL 49 COLON-ALIGNED
+    po-ordl.t-cost AT ROW 14.62 COL 49 COLON-ALIGNED
     LABEL "Total Cost" FORMAT "->,>>>,>>9.99<<"
     VIEW-AS FILL-IN 
     SIZE 27 BY 1
@@ -546,6 +551,7 @@ DEFINE FRAME Dialog-Frame
     fi_m-back AT ROW 18.91 COL 78 COLON-ALIGNED NO-LABELS
     fi_m-avail AT ROW 18.91 COL 98 COLON-ALIGNED NO-LABELS
     fi_msf AT ROW 18.91 COL 11 COLON-ALIGNED NO-LABELS
+    cFirstMach AT ROW 15.57 COL 18 COLON-ALIGNED WIDGET-ID 6
     "MSF" VIEW-AS TEXT
     SIZE 6 BY .62 AT ROW 5.52 COL 127
     "Width" VIEW-AS TEXT
@@ -614,6 +620,8 @@ ASSIGN
 ASSIGN 
        Btn_Done:HIDDEN IN FRAME Dialog-Frame = TRUE.
 
+/* SETTINGS FOR FILL-IN cFirstMach IN FRAME Dialog-Frame
+   NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN po-ordl.cons-cost IN FRAME Dialog-Frame
    NO-ENABLE EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN po-ordl.cons-qty IN FRAME Dialog-Frame
@@ -1058,6 +1066,8 @@ DO:
   lv-save-ord-no = po-ordl.ord-no.
 
   DO WITH FRAME {&FRAME-NAME}:
+    IF po-ordl.vend-i-no:SCREEN-VALUE EQ "?" THEN
+        ASSIGN po-ordl.vend-i-no:SCREEN-VALUE = "" .
     FIND CURRENT po-ordl EXCLUSIVE-LOCK NO-ERROR.
 
     IF (po-ordl.vend-i-no:MODIFIED OR po-ordl.ord-qty:MODIFIED OR
@@ -1376,7 +1386,9 @@ ON LEAVE OF po-ordl.i-no IN FRAME Dialog-Frame /* Item# */
 
             IF ip-type EQ "add" AND (v-poscreen-char = "Job-Item" ) THEN 
             DO:
-                APPLY "entry" TO po-ordl.s-num /* po-ordl.due-date*/ .                         
+                IF po-ordl.s-num:SENSITIVE EQ YES  THEN
+                 APPLY "entry" TO po-ordl.s-num /* po-ordl.due-date*/ . 
+                 ELSE  APPLY "entry" TO po-ordl.due-date  .                          
                 RETURN NO-APPLY.
             END.
 
@@ -1483,8 +1495,12 @@ ON LEAVE OF po-ordl.job-no IN FRAME Dialog-Frame /* Job # */
                     ASSIGN 
                         v-len                      = b-job-mat.len
                         v-wid                      = b-job-mat.wid
-                        v-dep                      = IF AVAILABLE b-item AND CAN-DO("C,5,6,D",b-item.mat-type) THEN b-item.case-d
-                       ELSE IF AVAILABLE b-item THEN b-item.s-dep ELSE 0
+                        v-dep                      = b-job-mat.dep.
+                    IF v-dep EQ 0 THEN 
+                        v-dep                      = IF AVAILABLE b-item AND CAN-DO("C,5,6,D",b-item.mat-type) THEN b-item.case-d ELSE IF AVAILABLE b-item THEN b-item.s-dep ELSE 0
+                       .
+                     
+                   ASSIGN 
                         {po/calc16.i v-len}
                         {po/calc16.i v-wid}
                         {po/calc16.i v-dep}
@@ -1539,6 +1555,11 @@ ON LEAVE OF po-ordl.job-no IN FRAME Dialog-Frame /* Job # */
         
                     RELEASE b-job-hdr.
                 END.
+                
+                cFirstMach = "" .
+                RUN GetFirstMach(OUTPUT cFirstMach) .
+                ASSIGN cFirstMach:SCREEN-VALUE = cFirstMach . 
+                
             END. /* else do */
 
         END.
@@ -2666,7 +2687,8 @@ PROCEDURE create-multi-line :
                 DO:
                     ASSIGN
                         v-wid = b2-job-mat.wid
-                        v-len = b2-job-mat.len.
+                        v-len = b2-job-mat.len
+                        v-dep = b2-job-mat.dep.
       
                     IF v-corr THEN
                     DO:
@@ -2910,6 +2932,8 @@ PROCEDURE display-fgitem :
     DEFINE VARIABLE v-dep     AS DECIMAL NO-UNDO.
     DEFINE VARIABLE v-op-type AS LOG     NO-UNDO.
     DEFINE VARIABLE lv-cost   LIKE po-ordl.cost NO-UNDO.
+    DEFINE VARIABLE cAccount AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cAccountDesc AS CHARACTER NO-UNDO.
 
     FIND FIRST itemfg NO-LOCK WHERE /*itemfg.company eq cocode and
                   itemfg.i-no eq po-ordl.i-no use-index i-no */
@@ -2999,41 +3023,15 @@ PROCEDURE display-fgitem :
             v-po-len-frac:SCREEN-VALUE IN FRAME {&FRAME-NAME} = v-len-frac
             v-po-dep-frac:SCREEN-VALUE IN FRAME {&FRAME-NAME} = v-dep-frac.
 
-        /* populate GL# from reftable if it exists using itemfg AH 02-23-10*/
+        RUN pGetGL("FG",
+                   ROWID(itemfg),
+                   INPUT-OUTPUT cAccount,
+                   INPUT-OUTPUT cAccountDesc).
+       IF cAccount NE "" THEN
         ASSIGN 
-            v-charge = "".
-        FIND FIRST surcharge NO-LOCK WHERE surcharge.company = g_company
-            AND surcharge.charge <> "" NO-ERROR.
-        IF AVAILABLE surcharge THEN
-            ASSIGN v-charge = surcharge.charge.
-        FIND FIRST reftable NO-LOCK WHERE reftable.reftable EQ "chargecode"
-            AND reftable.company  EQ itemfg.company
-            AND reftable.loc      EQ itemfg.procat
-            /*AND reftable.code     EQ v-charge*/
-            /* AND reftable.code2 = "" */
-            NO-ERROR.
-        IF AVAILABLE reftable AND reftable.dscr <> "" THEN 
-            ASSIGN po-ordl.actnum:SCREEN-VALUE = reftable.dscr.
-        /* AH */
-        ELSE 
-            FOR EACH prodl NO-LOCK
-                WHERE prodl.company EQ cocode
-                AND prodl.procat  EQ itemfg.procat
-                ,
-                FIRST prod NO-LOCK
-                WHERE prod.company EQ cocode
-                AND prod.prolin  EQ prodl.prolin
-                :
-
-                po-ordl.actnum:SCREEN-VALUE = prod.fg-mat.
-                LEAVE.
-            END.
-
-        RELEASE reftable.
-
-        FIND FIRST account NO-LOCK WHERE account.company EQ cocode AND
-            account.actnum EQ po-ordl.actnum:SCREEN-VALUE NO-ERROR.
-        v-gl-desc:SCREEN-VALUE = IF AVAILABLE account THEN account.dscr ELSE ''.
+            po-ordl.actnum:SCREEN-VALUE = cAccount
+            v-gl-desc:SCREEN-VALUE = cAccountDesc
+            .
 
         IF AVAILABLE e-itemfg THEN
             FIND FIRST e-itemfg-vend OF e-itemfg NO-LOCK
@@ -3046,9 +3044,7 @@ PROCEDURE display-fgitem :
 
         RUN fg-qtys (ROWID(itemfg)).
     END.
-    FIND FIRST account WHERE account.company EQ cocode AND
-        account.actnum EQ po-ordl.actnum:SCREEN-VALUE NO-LOCK NO-ERROR.
-    v-gl-desc:SCREEN-VALUE = IF AVAILABLE account THEN account.dscr ELSE ''.
+    
 
     RUN vend-cost (YES).
 
@@ -3079,7 +3075,7 @@ PROCEDURE display-item :
             po-ordl.s-len po-ordl.actnum po-ordl.vend-i-no po-ordl.tax 
             po-ordl.under-pct po-ordl.over-pct po-ordl.stat po-ordl.cust-no 
             po-ordl.ord-no po-ordl.item-type po-ordl.setup po-ordl.s-num
-            po-ordl.b-num
+            po-ordl.b-num cFirstMach
             WITH FRAME Dialog-Frame.
 
         ASSIGN 
@@ -3122,6 +3118,10 @@ PROCEDURE display-item :
                 itemfg.i-no = po-ordl.i-no:SCREEN-VALUE NO-LOCK NO-ERROR.
             IF AVAILABLE itemfg THEN RUN fg-qtys (ROWID(itemfg)).
         END.
+
+        cFirstMach = "" .
+        RUN GetFirstMach(OUTPUT cFirstMach) .
+        ASSIGN cFirstMach:SCREEN-VALUE = cFirstMach .
 
     DO WITH FRAME {&FRAME-NAME}:
         ASSIGN
@@ -3473,9 +3473,10 @@ PROCEDURE display-job-mat :
                     lv-save-b-num                = po-ordl.b-num:SCREEN-VALUE
                     v-len                        = tt-job-mat.len
                     v-wid                        = tt-job-mat.wid
-                    v-dep                        = item.s-dep
+                    v-dep                        = tt-job-mat.dep
                     ld-line-cst                  = tt-job-mat.std-cost.
-          
+                IF v-dep EQ 0 THEN 
+                    v-dep = item.s-dep.
                 IF tt-job-mat.qty-uom NE po-ordl.pr-qty-uom:SCREEN-VALUE THEN
                     RUN sys/ref/convquom.p (tt-job-mat.qty-uom, po-ordl.pr-qty-uom:SCREEN-VALUE,
                         tt-job-mat.basis-w, v-len, v-wid, v-dep,
@@ -3828,7 +3829,7 @@ PROCEDURE enable-disable-size :
         DO:
             FIND item WHERE item.company = g_company AND
                 item.i-no = po-ordl.i-no:SCREEN-VALUE NO-LOCK NO-ERROR.
-            IF AVAILABLE item AND item.i-code = "R" THEN 
+            IF AVAILABLE item AND item.i-code = "R" AND po-ordl.i-no:SCREEN-VALUE NE "" THEN 
             DO:
                 /*IF ITEM.r-wid > 0 AND ITEM.s-len = 0 THEN DISABLE po-ordl.s-wid.
                 ELSE*/ 
@@ -3867,7 +3868,7 @@ PROCEDURE enable_UI :
     DISPLAY fiCount fi_c-a-hdr fi_uom scr-cons-uom v-tot-msf v-po-dep 
         v-po-wid-frac v-po-len-frac v-po-dep-frac v-gl-desc fi_pb-qty 
         fi_pb-cst fi_q-onh fi_q-ono fi_q-comm fi_q-back fi_q-avail fi_m-onh 
-        fi_m-ono fi_m-comm fi_m-back fi_m-avail fi_msf 
+        fi_m-ono fi_m-comm fi_m-back fi_m-avail fi_msf cFirstMach
         WITH FRAME Dialog-Frame.
     IF AVAILABLE po-ordl THEN 
         DISPLAY po-ordl.i-no po-ordl.job-no po-ordl.job-no2 po-ordl.s-num 
@@ -4504,6 +4505,86 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetGL Dialog-Frame
+PROCEDURE pGetGL PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcType AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipriBaseRecord AS ROWID NO-UNDO.
+    DEFINE INPUT-OUTPUT PARAMETER iopcAccount AS CHARACTER NO-UNDO.
+    DEFINE INPUT-OUTPUT PARAMETER iopcAccountDesc AS CHARACTER NO-UNDO.
+
+    DEFINE VARIABLE cCompany AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cAccount AS CHARACTER NO-UNDO.
+
+    CASE ipcType:
+        WHEN "FG" OR 
+        WHEN "RMJob" THEN 
+            DO:
+                FIND FIRST bf-itemfg NO-LOCK 
+                    WHERE ROWID(bf-itemfg) EQ ipriBaseRecord
+                    NO-ERROR.
+                IF AVAILABLE bf-itemfg THEN 
+                DO:
+                    cCompany = bf-itemfg.company.
+                    IF ipcType EQ "FG" THEN 
+                    DO:
+                        FOR EACH prodl NO-LOCK
+                            WHERE prodl.company EQ bf-itemfg.company
+                            AND prodl.procat  EQ bf-itemfg.procat
+                            ,
+                            FIRST prod NO-LOCK
+                            WHERE prod.company EQ prodl.company
+                            AND prod.prolin  EQ prodl.prolin
+                            :
+                            cAccount = prod.fg-mat.
+                            LEAVE.
+                        END.
+                    END.
+                    IF cAccount EQ "" THEN 
+                    DO:
+                        FIND FIRST reftable NO-LOCK 
+                            WHERE reftable.reftable EQ "chargecode"
+                            AND reftable.company  EQ bf-itemfg.company
+                            AND reftable.loc      EQ bf-itemfg.procat
+                            NO-ERROR.
+                        IF AVAILABLE reftable AND reftable.dscr NE "" AND ipcType EQ "FG" THEN 
+                            cAccount = reftable.dscr.
+                        IF AVAILABLE reftable AND reftable.code2 NE "" AND ipcType EQ "RMJob" THEN 
+                            cAccount = reftable.code2.
+                        RELEASE reftable.       
+                    END. 
+                END.
+            END.  /*End FG or RMJob*/
+        WHEN "RMNoJob" THEN 
+            DO:
+                /*Default for RMs without jobs*/
+            END.
+        WHEN "Vend" THEN 
+            DO:
+                /*Meta default for Vendor*/
+            END.
+    END CASE.
+    IF cAccount NE "" AND cCompany NE "" THEN  
+    DO:
+        FIND FIRST account NO-LOCK 
+            WHERE account.company EQ cCompany 
+            AND account.actnum EQ cAccount 
+            NO-ERROR.
+        ASSIGN 
+            iopcAccount     = cAccount
+            iopcAccountDesc = IF AVAILABLE account THEN account.dscr ELSE ''.
+    END.
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE po-adder2 Dialog-Frame 
 PROCEDURE po-adder2 :
@@ -5162,8 +5243,10 @@ PROCEDURE set-dims :
         ASSIGN
             v-len = DEC(po-ordl.s-len:SCREEN-VALUE)
             v-wid = DEC(po-ordl.s-wid:SCREEN-VALUE)
+            v-dep = DEC(v-po-dep:SCREEN-VALUE)
             {po/calc10.i v-len}
-            {po/calc10.i v-wid}.
+            {po/calc10.i v-wid}
+            {po/calc10.i v-dep}.
 
         FIND FIRST ITEM NO-LOCK 
             WHERE item.company EQ cocode
@@ -5172,7 +5255,7 @@ PROCEDURE set-dims :
 
         ASSIGN
             v-basis-w = IF AVAILABLE ITEM THEN item.basis-w ELSE 0
-            v-dep     = IF AVAILABLE ITEM THEN item.s-dep ELSE 0.
+            .
     END.
 
 END PROCEDURE.
@@ -6791,3 +6874,30 @@ PROCEDURE check-job-bnum :
 END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME    
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE GetFirstMach Dialog-Frame 
+PROCEDURE GetFirstMach :
+    /*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER opMachine AS CHAR NO-UNDO.
+    
+ DO WITH FRAME {&FRAME-NAME}:
+      IF AVAILABLE po-ordl THEN
+        FOR EACH job-mch NO-LOCK
+          WHERE job-mch.company EQ cocode
+            AND job-mch.job-no EQ po-ordl.job-no:SCREEN-VALUE
+            AND job-mch.job-no2 EQ integer(po-ordl.job-no2:SCREEN-VALUE)
+            AND job-mch.frm EQ integer(po-ordl.s-num:SCREEN-VALUE) use-index line-idx :
+             ASSIGN opMachine = job-mch.m-code . 
+             LEAVE.
+        END.
+ END.
+
+
+END PROCEDURE.
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME 

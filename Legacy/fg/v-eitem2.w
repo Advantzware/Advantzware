@@ -50,13 +50,7 @@ DEFINE VARIABLE lAddRecord AS LOGICAL NO-UNDO.
 {custom/gcompany.i}
 {custom/persist.i}
 
-&SCOPED-DEFINE where-std-uom                           ~
-    WHERE reftable.reftable EQ "e-itemfg-vend.std-uom" ~
-      AND reftable.company  EQ e-itemfg-vend.company   ~
-      AND reftable.loc      EQ ""                      ~
-      AND reftable.code     EQ e-itemfg-vend.est-no    ~
-      AND reftable.val[1]   EQ e-itemfg-vend.form-no   ~
-      AND reftable.val[2]   EQ e-itemfg-vend.blank-no
+
 
 DEF BUFFER bfEVend FOR e-itemfg-vend.
 
@@ -1951,24 +1945,11 @@ PROCEDURE reftable-values :
 
 
   IF AVAIL e-itemfg-vend THEN DO:
-    FIND FIRST reftable {&where-std-uom} NO-ERROR.
-    IF NOT AVAIL reftable THEN DO:
-      CREATE reftable.
-      ASSIGN
-       reftable.reftable = "e-itemfg-vend.std-uom"
-       reftable.company  = e-itemfg-vend.company
-       reftable.loc      = ""
-       reftable.code     = e-itemfg-vend.est-no
-       reftable.val[1]   = e-itemfg-vend.form-no
-       reftable.val[2]   = e-itemfg-vend.blank-no. 
-    END.
 
     IF ip-display THEN
-      fi_std-uom = reftable.code2.
+      fi_std-uom = e-itemfg-vend.std-uom.
     ELSE
-      reftable.code2 = fi_std-uom.
-
-    FIND CURRENT reftable NO-LOCK NO-ERROR.
+      e-itemfg-vend.std-uom = fi_std-uom.
   END.
 
 END PROCEDURE.
@@ -2027,7 +2008,6 @@ PROCEDURE UpdateFGItemVendCost :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEF BUFFER bfRef FOR reftable.
   DEF BUFFER bfEItemfg FOR e-itemfg.
 
   FIND FIRST bfEVend WHERE bfEVend.company = eb.company
@@ -2050,19 +2030,12 @@ PROCEDURE UpdateFGItemVendCost :
             bfEItemfg.i-no = eb.stock-no.
   END.
   FIND FIRST bfEItemfg OF bfEVend NO-LOCK NO-ERROR.
-  FIND bfRef WHERE bfRef.reftable = "e-itemfg-vend.std-uom"
-                  AND bfRef.company  = e-itemfg-vend.company
-                  AND bfRef.loc      = ""
-                  AND bfRef.code     = e-itemfg-vend.est-no
-                  AND bfRef.val[1]   = e-itemfg-vend.form-no
-                  AND bfRef.val[2]   = e-itemfg-vend.blank-no
-                NO-LOCK NO-ERROR. 
+
   DO WITH FRAME {&FRAME-NAME}:
     bfEvend.std-uom = fi_std-uom:SCREEN-VALUE.
   END.
 
-  IF AVAIL bfRef AND bfRef.code2 NE "" AND bfEvend.std-uom EQ "" THEN
-    bfEVend.std-uom = bfRef.code2.
+
 
   IF AVAIL bfEItemfg AND bfEItemfg.std-uom EQ "" THEN DO:
     FIND CURRENT bfEItemfg EXCLUSIVE-LOCK.

@@ -1,7 +1,7 @@
 /* ---------------------------------------------- oe/rep/bolfibrex2.i         */
 /* PRINT detail                                                               */
 /* -------------------------------------------------------------------------- */
-ASSIGN v-tot-cases = 0.
+
 
 FOR EACH tt-boll, 
   FIRST itemfg NO-LOCK
@@ -39,13 +39,12 @@ FOR EACH tt-boll,
              AND oe-ordl.line    EQ tt-boll.LINE NO-LOCK NO-ERROR.
 
          ASSIGN v-tot-case-qty = v-tot-case-qty + bf-ttboll.qty.
-         IF bf-ttboll.partial GT 0 THEN
-            v-tot-case-qty = v-tot-case-qty +   bf-ttboll.partial .
+        
          FIND FIRST oe-ord 
            WHERE oe-ord.company EQ cocode 
              AND oe-ord.ord-no  EQ tt-boll.ord-no NO-LOCK NO-ERROR.
          i = i + 1.
-         FIND FIRST w2 WHERE (w2.cas-cnt * w2.cases) EQ (bf-ttboll.qty-case * bf-ttboll.cases) NO-ERROR.
+         find first w2 where w2.cas-cnt eq bf-ttboll.qty-case no-error.
           IF NOT AVAILABLE w2 THEN CREATE w2.
 
          ASSIGN 
@@ -58,7 +57,32 @@ FOR EACH tt-boll,
            w2.unitCount = bf-ttboll.unitCount
            w2.qty-sum   = bf-ttboll.qty-sum .
 
-         IF i = 1 
+         
+      END. /* FOR EACH bf-ttboll  */   
+
+      IF i < 5 THEN DO i = i TO 5:
+         CREATE w2.
+      END.
+   
+      ASSIGN i = 0.  
+
+      RUN get_lot_no. 
+
+      FOR EACH w2 BREAK BY w2.cases  * w2.cas-cnt DESCENDING:
+
+        FIND FIRST bf-ttboll 
+          WHERE RECID(bf-ttboll) = w2.rec-id NO-LOCK NO-ERROR.
+
+        ASSIGN i = i + 1.
+
+        FIND FIRST oe-ordl 
+              WHERE oe-ordl.company EQ cocode
+                AND oe-ordl.ord-no  EQ tt-boll.ord-no
+                AND oe-ordl.i-no    EQ tt-boll.i-no
+                AND oe-ordl.line    EQ tt-boll.LINE NO-LOCK NO-ERROR.
+
+      
+        IF i = 1 
            THEN ASSIGN w2.job-po = bf-ttboll.po-no
                        w2.dscr = oe-ordl.part-no
                        w2.qty = oe-ordl.qty.
@@ -80,151 +104,8 @@ FOR EACH tt-boll,
                     THEN ASSIGN w2.dscr = oe-ordl.part-dscr2.
                     ELSE 
                      IF i EQ 5 THEN DO:
-                       /*FIND FIRST reftable NO-LOCK
-                         WHERE reftable.reftable EQ "oe-boll.lot-no" 
-                           AND reftable.rec_key  EQ bf-ttboll.rec_id NO-ERROR.
-                       IF AVAIL reftable THEN DO:
-                         IF reftable.code NE "" 
-                           THEN ASSIGN w2.dscr = reftable.code.
-                         RELEASE reftable.
-                       END.*/
-
                        ASSIGN w2.dscr = v-lot#  /* gdm 06120902 */.
-                     END. /* ELSE IF i EQ 5*/
-      END. /* FOR EACH bf-ttboll  */   
-
-      IF i < 5 THEN DO i = i TO 5:
-         CREATE w2.
-      END.
-
-      ASSIGN i = 0.
-
-      RUN get_lot_no. 
-
-      FOR EACH w2 BREAK BY w2.cases DESCENDING:
-
-       FIND FIRST bf-ttboll 
-         WHERE RECID(bf-ttboll) = w2.rec-id NO-LOCK NO-ERROR.
-
-       ASSIGN i = i + 1.
-
-       IF w2.rec-id = ? THEN DO:
-
-         FIND FIRST oe-ordl 
-           WHERE oe-ordl.company EQ cocode
-             AND oe-ordl.ord-no  EQ tt-boll.ord-no
-             AND oe-ordl.i-no    EQ tt-boll.i-no
-             AND oe-ordl.line    EQ tt-boll.LINE NO-LOCK NO-ERROR.
-
-         ASSIGN w2.i-no = "".
-
-         IF i = 2 
-          THEN ASSIGN w2.job-po = IF oe-ordl.job-no EQ "" 
-                                    THEN "" 
-                                    ELSE (TRIM(oe-ordl.job-no) + "-" + 
-                                          STRING(oe-ordl.job-no2,"99"))
-                      w2.dscr = oe-ordl.i-name
-                      w2.i-no = oe-ordl.i-no.
-          ELSE 
-           IF i EQ 3 
-             THEN ASSIGN w2.dscr = IF TRIM(oe-ordl.part-dscr1) NE ""
-                                     THEN oe-ordl.part-dscr1
-                                     ELSE v-lot#
-                         v-lot#  = IF TRIM(oe-ordl.part-dscr1) EQ "" 
-                                     THEN ""
-                                     ELSE v-lot#           /*
-                         w2.job-po = v-lot#   gdm 04160923 */.
-             ELSE 
-              IF i EQ 4 
-                THEN ASSIGN w2.dscr = IF TRIM(oe-ordl.part-dscr2) NE ""
-                                        THEN oe-ordl.part-dscr2
-                                        ELSE v-lot#
-                            v-lot#  = IF TRIM(oe-ordl.part-dscr2) EQ "" 
-                                        THEN ""
-                                        ELSE v-lot#.                
-                ELSE 
-                 IF i EQ 5 THEN DO:
-                   /*FIND FIRST reftable NO-LOCK
-                         WHERE reftable.reftable EQ "oe-boll.lot-no" 
-                           AND reftable.rec_key  EQ bf-ttboll.rec_id NO-ERROR.
-                       IF AVAIL reftable THEN DO:
-                         IF reftable.code NE "" 
-                           THEN ASSIGN w2.dscr = reftable.code.
-                         RELEASE reftable.
-                       END.*/
-
-                       ASSIGN w2.dscr = v-lot#  /* gdm 06120902 */.
-                 END. /* ELSE IF i EQ 5 */
-
-       END. /* IF w2.rec-id = ? */      
-
-       IF w2.qty     EQ 0  AND 
-          trim(w2.i-no)    EQ "" AND 
-          trim(w2.dscr)    EQ "" AND 
-          w2.cas-cnt EQ 0 
-         THEN DELETE w2.
-
-      END. /* FOR EACH w2 */
-
-      ASSIGN i = 0.  
-
-      RUN get_lot_no. 
-
-      FOR EACH w2 BREAK BY w2.cases DESCENDING:
-
-        FIND FIRST bf-ttboll 
-          WHERE RECID(bf-ttboll) = w2.rec-id NO-LOCK NO-ERROR.
-
-        ASSIGN i = i + 1.
-
-        IF w2.rec-id = ? THEN DO:
-
-            FIND FIRST oe-ordl 
-              WHERE oe-ordl.company EQ cocode
-                AND oe-ordl.ord-no  EQ tt-boll.ord-no
-                AND oe-ordl.i-no    EQ tt-boll.i-no
-                AND oe-ordl.line    EQ tt-boll.LINE NO-LOCK NO-ERROR.
-             
-            ASSIGN w2.i-no = "".
-
-            IF i = 2 
-              THEN ASSIGN w2.job-po = IF oe-ordl.job-no EQ "" 
-                                       THEN "" 
-                                       ELSE (TRIM(oe-ordl.job-no) + "-" + 
-                                             STRING(oe-ordl.job-no2,"99"))
-                          w2.dscr = oe-ordl.i-name
-                          w2.i-no = oe-ordl.i-no.
-              ELSE 
-               IF i EQ 3 
-                 THEN  ASSIGN w2.dscr = IF TRIM(oe-ordl.part-dscr1) NE ""
-                                          THEN oe-ordl.part-dscr1
-                                          ELSE v-lot#
-                              v-lot#  = IF TRIM(oe-ordl.part-dscr1) EQ "" 
-                                          THEN ""
-                                          ELSE v-lot#           /*
-                              w2.job-po = v-lot#   gdm 04160923 */.                 
-                 ELSE 
-                  IF i EQ 4 
-                   THEN ASSIGN w2.dscr = IF TRIM(oe-ordl.part-dscr2) NE ""
-                                           THEN oe-ordl.part-dscr2
-                                           ELSE v-lot#
-                               v-lot#  = IF TRIM(oe-ordl.part-dscr2) EQ "" 
-                                           THEN ""
-                                           ELSE v-lot#.                        
-                   ELSE 
-                    IF i EQ 5 THEN DO:
-                      /*FIND FIRST reftable NO-LOCK
-                         WHERE reftable.reftable EQ "oe-boll.lot-no" 
-                           AND reftable.rec_key  EQ bf-ttboll.rec_id NO-ERROR.
-                       IF AVAIL reftable THEN DO:
-                         IF reftable.code NE "" 
-                           THEN ASSIGN w2.dscr = reftable.code.
-                         RELEASE reftable.
-                       END.*/
-
-                       ASSIGN w2.dscr = v-lot#  /* gdm 06120902 */.
-                    END. /* ELSE IF i EQ 5 */
-        END. /* IF w2.rec-id = ? */                        
+                     END. /* ELSE IF i EQ 5*/ 
 
         IF w2.qty  EQ 0  AND 
            w2.i-no EQ "" AND 
@@ -233,30 +114,34 @@ FOR EACH tt-boll,
           THEN .
           ELSE DO:
               ASSIGN icountpallet  = w2.cas-cnt * w2.cases .
+
+                if w2.cases ne 0 
+                or i = 2 then do:
+
                DISPLAY 
                  w2.i-no                       
                  TRIM(STRING(w2.qty,"->>,>>>,>>>")) WHEN i = 1 @ w2.i-no
                  w2.job-po
                  w2.dscr
-                 w2.unitcount @ w2.cases
-                 w2.qty-sum @ icountpallet
-                 icountpallet + w2.partial /*v-tot-case-qty + w2.partial WHEN FIRST (w2.cases)*/ @ tt-boll.qty
-                 bf-ttboll.p-c  WHEN AVAILABLE bf-ttboll AND FIRST(w2.cases) @ bf-ttboll.p-c
+                  w2.cases
+                  w2.cas-cnt @ icountpallet
+                  v-tot-case-qty when first (w2.cases * w2.cas-cnt) @ tt-boll.qty
+                 bf-ttboll.p-c  WHEN AVAILABLE bf-ttboll AND FIRST(w2.cases * w2.cas-cnt) @ bf-ttboll.p-c
                WITH FRAME bol-mid.
                DOWN WITH FRAME bol-mid.       
 
                ASSIGN v-printline = v-printline + 1.
+                end.
           END. /* ELSE DO */
 
-        IF v-printline >= 34 THEN DO:
+        IF v-printline >= 41 THEN DO:
 
           ASSIGN v-printline = 0.
           PAGE {1}.
           {oe/rep/bolfiftn.i}
         END.
 
-        ASSIGN v-tot-cases = v-tot-cases + w2.cases.
-
+        
       END. /* FOR EACH w2 */
 
       PUT {1} SKIP(1).
@@ -278,7 +163,7 @@ FOR EACH tt-boll,
 
             {sys/inc/part-qty.i v-part-qty fg-set}
 
-            IF v-printline >= 34 THEN DO: 
+            IF v-printline >= 41 THEN DO: 
               ASSIGN v-printline = 0.
               PAGE {1}.
               {oe/rep/bolfiftn.i}
@@ -327,7 +212,7 @@ FOR EACH tt-boll,
      WHERE oe-ord.company EQ cocode
        AND oe-ord.ord-no  EQ tt-boll.ord-no NO-ERROR.
 
-   IF v-printline >= 34 THEN DO:
+   IF v-printline >= 41 THEN DO:
       ASSIGN v-printline = 0.
       PAGE {1}.
       {oe/rep/bolfiftn.i}
@@ -377,14 +262,6 @@ FOR EACH tt-boll,
               THEN v-part-dscr = oe-ordl.part-dscr2.
               ELSE
                IF i EQ 5 THEN DO:
-                 /*FIND FIRST reftable NO-LOCK
-                   WHERE reftable.reftable EQ "oe-boll.lot-no" 
-                     AND reftable.rec_key  EQ tt-boll.rec_id NO-ERROR.
-                 IF AVAIL reftable THEN DO:
-                   IF reftable.code NE "" 
-                     THEN ASSIGN v-part-dscr = reftable.code.
-                   RELEASE reftable.
-                 END.*/
 
                  ASSIGN v-part-dscr = v-lot#  /* gdm 06120902 */.
                END.  /* IF i EQ 5 */
@@ -446,31 +323,28 @@ FOR EACH tt-boll,
 
                  ASSIGN v-part-dscr = v-lot#  /* gdm 06120902 */.
                 END. /* IF i EQ 5 */
-     ASSIGN icountpallet = w2.cas-cnt *  w2.cases .
-     DISPLAY TRIM(STRING(oe-ordl.qty,"->>,>>>,>>>")
-                  )                        WHEN i EQ 1          @ oe-ordl.i-no
-             oe-ordl.i-no                  WHEN i EQ 2
-             v-job-po
-             v-part-dscr
-             1 @ w2.cases
-             icountpallet 
-             tt-boll.qty /*+ tt-boll.partial*/ WHEN LAST(w2.cases)  @ tt-boll.qty
-             tt-boll.p-c                   WHEN LAST(w2.cases)                
-             1  WHEN i = 2 AND tt-boll.partial > 0  @ w2.cases
-             tt-boll.partial WHEN i = 2 AND tt-boll.partial > 0 @ w2.cas-cnt
-      WITH FRAME bol-mid2.
-      DOWN  WITH FRAME bol-mid2.
+     ASSIGN icountpallet = w2.cas-cnt  .
+     DISPLAY trim(string(oe-ordl.qty,"->>,>>>,>>>")) when i eq 1
+                                                    @ oe-ordl.i-no
+            oe-ordl.i-no                            when i eq 2
+            v-job-po
+            v-part-dscr
+            w2.cases
+            icountpallet
+            tt-boll.qty                             when last(w2.cases)
+            tt-boll.p-c                             when last(w2.cases)         
+        with frame bol-mid2.
+    down  with frame bol-mid2. 
 
      ASSIGN v-printline = v-printline + 1.
 
-     IF v-printline >= 34 THEN DO:
+     IF v-printline >= 41 THEN DO:
        v-printline = 0.
        PAGE {1}.
        {oe/rep/bolfiftn.i}
      END.
 
-     ASSIGN v-tot-cases = v-tot-cases + w2.cases.
-
+     
      DELETE w2.
    END. /* each w2 */
 
@@ -538,6 +412,7 @@ FOR EACH tt-boll,
         i LE 2
        THEN DO:
 
+         
         DISPLAY {1}
                 oe-ordl.i-no    WHEN i EQ 2
                 v-job-po
@@ -545,7 +420,7 @@ FOR EACH tt-boll,
                 1               WHEN tt-boll.partial > 0 AND 
                                 i = 2                    @ w2.cases
                 tt-boll.partial WHEN tt-boll.partial > 0 AND 
-                                i = 2                    @ w2.cas-cnt
+                                i = 2                    @ icountpallet
          WITH FRAME bol-mid2.
          DOWN {1} WITH FRAME bol-mid2.
 
@@ -573,7 +448,7 @@ FOR EACH tt-boll,
 
          {sys/inc/part-qty.i v-part-qty fg-set}
 
-         IF v-printline >= 34 THEN DO:
+         IF v-printline >= 41 THEN DO:
            v-printline = 0.
            PAGE {1}.
            {oe/rep/bolfiftn.i}
@@ -607,40 +482,10 @@ END. /* FOR EACH tt-boll */
 
 ASSIGN v-tot-wt = oe-bolh.tot-wt.
 
-
-IF oe-bolh.ship-i[1] NE "" OR
-   oe-bolh.ship-i[2] NE "" OR
-   oe-bolh.ship-i[3] NE "" OR
-   oe-bolh.ship-i[4] NE "" 
-  THEN DO:
-
-   IF v-printline >= 30 THEN DO:
-     ASSIGN v-printline = 0.
-     PAGE {1}.
-     {oe/rep/bolfiftn.i}
-   END.
-
-   PUT "<FArial><P12><B>Notes:</P12><P10></B>" SKIP.
-
-   DO v-i = 1 TO 4:
-     IF v-printline >= 34 THEN DO:
-       ASSIGN v-printline = 0.
-       PAGE {1}.
-       {oe/rep/bolfiftn.i}
-     END.
-
-     IF oe-bolh.ship-i[v-i] NE "" THEN DO:
-        PUT oe-bolh.ship-i[v-i] SKIP.
-        ASSIGN v-printline = v-printline + 1.
-     END.
-   END.
-
-END.
-
 IF AVAILABLE tt-bolx THEN DO:
 
   IF tt-bolx.note-1 NE "" THEN DO:
-    IF v-printline >= 34 THEN DO:
+    IF v-printline >= 41 THEN DO:
       ASSIGN v-printline = 0.
       PAGE {1}.
       {oe/rep/bolfiftn.i}
@@ -652,7 +497,7 @@ IF AVAILABLE tt-bolx THEN DO:
   END.
 
   IF tt-bolx.note-2 NE "" THEN DO:
-    IF v-printline >= 34 THEN DO:
+    IF v-printline >= 41 THEN DO:
       ASSIGN v-printline = 0.
       PAGE {1}.
       {oe/rep/bolfiftn.i}

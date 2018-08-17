@@ -57,6 +57,8 @@ DEFINE VARIABLE lBeforeValueFilter AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cBeforeValueFilter AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lAfterValueFilter  AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cAfterValueFilter  AS CHARACTER NO-UNDO.
+DEFINE VARIABLE hPgmMstrSecur      AS HANDLE    NO-UNDO.
+DEFINE VARIABLE lAdmin             AS LOGICAL   NO-UNDO.
 
 {AOA/tempTable/ttAudit.i}
 
@@ -186,7 +188,7 @@ AuditDtl.AuditAfterValue
     ~{&OPEN-QUERY-AuditHeader}
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS btnStack AuditHeader AuditDetail btnPrint ~
+&Scoped-Define ENABLED-OBJECTS AuditHeader btnStack AuditDetail btnPrint ~
 svSortByHdr svSortByDtl 
 &Scoped-Define DISPLAYED-OBJECTS svSortByHdr svSortByDtl 
 
@@ -298,8 +300,8 @@ DEFINE VARIABLE svTable AS CHARACTER FORMAT "X(256)":U INITIAL "All"
 
 DEFINE VARIABLE svType AS CHARACTER FORMAT "X(256)":U INITIAL "All" 
      LABEL "Type" 
-     VIEW-AS COMBO-BOX INNER-LINES 4
-     LIST-ITEMS "All","CREATE","DELETE","UPDATE" 
+     VIEW-AS COMBO-BOX INNER-LINES 6
+     LIST-ITEMS "All","CREATE","DELETE","UPDATE","RESTORED","TRACK" 
      DROP-DOWN-LIST
      SIZE 16 BY 1 TOOLTIP "Select Audit Type Filter" NO-UNDO.
 
@@ -339,6 +341,12 @@ DEFINE BUTTON btnPrint
      IMAGE-UP FILE "Graphics/32x32/printer.ico":U NO-FOCUS FLAT-BUTTON
      LABEL "" 
      SIZE 8.4 BY 2 TOOLTIP "Print"
+     FONT 4.
+
+DEFINE BUTTON btnRestore 
+     IMAGE-UP FILE "Graphics/32x32/undo_32.ico":U NO-FOCUS FLAT-BUTTON
+     LABEL "" 
+     SIZE 8.4 BY 2 TOOLTIP "Restore"
      FONT 4.
 
 DEFINE BUTTON btnStack 
@@ -395,11 +403,12 @@ DEFINE BROWSE AuditHeader
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS AuditHeader C-Win _STRUCTURED
   QUERY AuditHeader NO-LOCK DISPLAY
       AuditHdr.AuditID FORMAT ">,>>>,>>>,>>9":U LABEL-BGCOLOR 14
-      AuditHdr.AuditType FORMAT "x(8)":U WIDTH 9 LABEL-BGCOLOR 14
+      AuditHdr.AuditType FORMAT "x(8)":U WIDTH 11 LABEL-BGCOLOR 14
       AuditHdr.AuditDateTime COLUMN-LABEL "Date / Time" FORMAT "99/99/9999 HH:MM:SS.SSS":U
             LABEL-BGCOLOR 14
       AuditHdr.AuditDB COLUMN-LABEL "DB" FORMAT "x(6)":U LABEL-BGCOLOR 14
-      AuditHdr.AuditTable FORMAT "x(16)":U LABEL-BGCOLOR 14
+      AuditHdr.AuditTable COLUMN-LABEL "Table / Prgm" FORMAT "x(16)":U
+            LABEL-BGCOLOR 14
       AuditHdr.AuditUser FORMAT "x(16)":U LABEL-BGCOLOR 14
       AuditHdr.AuditKey FORMAT "x(40)":U LABEL-BGCOLOR 14
       AuditHdr.AuditStackID FORMAT "->,>>>,>>9":U
@@ -413,9 +422,11 @@ DEFINE BROWSE AuditHeader
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME DEFAULT-FRAME
+     btnRestore AT ROW 9.33 COL 102 HELP
+          "Print" WIDGET-ID 284
+     AuditHeader AT ROW 6.48 COL 1 WIDGET-ID 200
      btnStack AT ROW 6.24 COL 106 HELP
           "Click to View Program Stack Trace" WIDGET-ID 282
-     AuditHeader AT ROW 6.48 COL 1 WIDGET-ID 200
      AuditDetail AT ROW 6.48 COL 115 WIDGET-ID 300
      btnPrint AT ROW 6.24 COL 97 HELP
           "Print" WIDGET-ID 280
@@ -425,6 +436,61 @@ DEFINE FRAME DEFAULT-FRAME
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
          SIZE 238.2 BY 28.57 WIDGET-ID 100.
+
+DEFINE FRAME AuditSearch
+     svType AT ROW 1.24 COL 8 COLON-ALIGNED HELP
+          "Select Audit Type Filter" WIDGET-ID 6
+     svStartDate AT ROW 1.24 COL 36 COLON-ALIGNED HELP
+          "Enter From Date" WIDGET-ID 20
+     btnCalendar-1 AT ROW 1.24 COL 54 WIDGET-ID 272
+     btnAuditTables AT ROW 2.67 COL 118 HELP
+          "Click to Access Tables to Audit" WIDGET-ID 288
+     svStartDateOption AT ROW 1.24 COL 59 HELP
+          "Select Start Date Option" NO-LABEL WIDGET-ID 74
+     svDB AT ROW 1.24 COL 89 COLON-ALIGNED HELP
+          "Select Audit DB Filter" WIDGET-ID 14
+     maxRows AT ROW 1.24 COL 128 COLON-ALIGNED WIDGET-ID 290
+     AuditHdr.AuditKey AT ROW 1.24 COL 161.6 COLON-ALIGNED WIDGET-ID 26
+          LABEL "Audit Key" FORMAT "x(256)"
+          VIEW-AS FILL-IN 
+          SIZE 70.4 BY 1
+          BGCOLOR 15 
+     svUser AT ROW 2.43 COL 8 COLON-ALIGNED HELP
+          "Select User Filter" WIDGET-ID 12
+     svEndDate AT ROW 2.43 COL 36 COLON-ALIGNED HELP
+          "Enter To Date" WIDGET-ID 22
+     btnCalendar-2 AT ROW 2.43 COL 54 WIDGET-ID 274
+     svEndDateOption AT ROW 2.43 COL 59 HELP
+          "Select End Date Option" NO-LABEL WIDGET-ID 70
+     svTable AT ROW 2.43 COL 89 COLON-ALIGNED HELP
+          "Select Audit Table Filter" WIDGET-ID 16
+     svBeforeValueFilter AT ROW 2.43 COL 161.6 COLON-ALIGNED HELP
+          "Enter Before Value to Filter" WIDGET-ID 36
+     svField AT ROW 3.62 COL 89 COLON-ALIGNED HELP
+          "Select Audit Field Filter" WIDGET-ID 18
+     svAfterValueFilter AT ROW 3.62 COL 161.6 COLON-ALIGNED HELP
+          "Enter After Value to Filter" WIDGET-ID 38
+     btnAfterValueFilterClear AT ROW 3.62 COL 234 HELP
+          "Click to Clear After Value Filter" WIDGET-ID 42
+     btnBeforeValueFilterClear AT ROW 2.43 COL 234 HELP
+          "Click to Clear Before Value Filter" WIDGET-ID 40
+     btnClear AT ROW 2.67 COL 127 HELP
+          "Click to Clear Filters" WIDGET-ID 284
+     btnSearch AT ROW 2.67 COL 136 HELP
+          "Click to Apply Filter Selections" WIDGET-ID 286
+     btnFilterAfterValue AT ROW 3.62 COL 145 HELP
+          "Select to Filter by After Value" WIDGET-ID 34
+     btnFilterAuditKey AT ROW 1.24 COL 145 HELP
+          "Select to Filter by Audit Key" WIDGET-ID 28
+     btnFilterBeforeValue AT ROW 2.43 COL 145 HELP
+          "Select to Filter by Before Value" WIDGET-ID 32
+     btnHistory AT ROW 1.24 COL 234 HELP
+          "Click to View History" WIDGET-ID 30
+    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 1
+         SIZE 238 BY 4.76
+         TITLE "Search Filters" WIDGET-ID 500.
 
 DEFINE FRAME AuditView
      AuditHdr.AuditDB AT ROW 1.24 COL 6 COLON-ALIGNED WIDGET-ID 16
@@ -485,61 +551,6 @@ DEFINE FRAME AuditView
          AT COL 97 ROW 24.57
          SIZE 142 BY 4.81
          TITLE BGCOLOR 15 "Audit Detail View" WIDGET-ID 400.
-
-DEFINE FRAME AuditSearch
-     svType AT ROW 1.24 COL 8 COLON-ALIGNED HELP
-          "Select Audit Type Filter" WIDGET-ID 6
-     svStartDate AT ROW 1.24 COL 36 COLON-ALIGNED HELP
-          "Enter From Date" WIDGET-ID 20
-     btnCalendar-1 AT ROW 1.24 COL 54 WIDGET-ID 272
-     btnAuditTables AT ROW 2.67 COL 118 HELP
-          "Click to Access Tables to Audit" WIDGET-ID 288
-     svStartDateOption AT ROW 1.24 COL 59 HELP
-          "Select Start Date Option" NO-LABEL WIDGET-ID 74
-     svDB AT ROW 1.24 COL 89 COLON-ALIGNED HELP
-          "Select Audit DB Filter" WIDGET-ID 14
-     maxRows AT ROW 1.24 COL 128 COLON-ALIGNED WIDGET-ID 290
-     AuditHdr.AuditKey AT ROW 1.24 COL 161.6 COLON-ALIGNED WIDGET-ID 26
-          LABEL "Audit Key" FORMAT "x(256)"
-          VIEW-AS FILL-IN 
-          SIZE 70.4 BY 1
-          BGCOLOR 15 
-     svUser AT ROW 2.43 COL 8 COLON-ALIGNED HELP
-          "Select User Filter" WIDGET-ID 12
-     svEndDate AT ROW 2.43 COL 36 COLON-ALIGNED HELP
-          "Enter To Date" WIDGET-ID 22
-     btnCalendar-2 AT ROW 2.43 COL 54 WIDGET-ID 274
-     svEndDateOption AT ROW 2.43 COL 59 HELP
-          "Select End Date Option" NO-LABEL WIDGET-ID 70
-     svTable AT ROW 2.43 COL 89 COLON-ALIGNED HELP
-          "Select Audit Table Filter" WIDGET-ID 16
-     svBeforeValueFilter AT ROW 2.43 COL 161.6 COLON-ALIGNED HELP
-          "Enter Before Value to Filter" WIDGET-ID 36
-     svField AT ROW 3.62 COL 89 COLON-ALIGNED HELP
-          "Select Audit Field Filter" WIDGET-ID 18
-     svAfterValueFilter AT ROW 3.62 COL 161.6 COLON-ALIGNED HELP
-          "Enter After Value to Filter" WIDGET-ID 38
-     btnAfterValueFilterClear AT ROW 3.62 COL 234 HELP
-          "Click to Clear After Value Filter" WIDGET-ID 42
-     btnBeforeValueFilterClear AT ROW 2.43 COL 234 HELP
-          "Click to Clear Before Value Filter" WIDGET-ID 40
-     btnClear AT ROW 2.67 COL 127 HELP
-          "Click to Clear Filters" WIDGET-ID 284
-     btnSearch AT ROW 2.67 COL 136 HELP
-          "Click to Apply Filter Selections" WIDGET-ID 286
-     btnFilterAfterValue AT ROW 3.62 COL 145 HELP
-          "Select to Filter by After Value" WIDGET-ID 34
-     btnFilterAuditKey AT ROW 1.24 COL 145 HELP
-          "Select to Filter by Audit Key" WIDGET-ID 28
-     btnFilterBeforeValue AT ROW 2.43 COL 145 HELP
-          "Select to Filter by Before Value" WIDGET-ID 32
-     btnHistory AT ROW 1.24 COL 234 HELP
-          "Click to View History" WIDGET-ID 30
-    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1
-         SIZE 238 BY 4.76
-         TITLE "Search Filters" WIDGET-ID 500.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -702,7 +713,7 @@ ASSIGN XXTABVALXX = FRAME AuditSearch:MOVE-BEFORE-TAB-ITEM (AuditHeader:HANDLE I
 /* END-ASSIGN-TABS */.
 
 /* BROWSE-TAB AuditHeader AuditSearch DEFAULT-FRAME */
-/* BROWSE-TAB AuditDetail AuditHeader DEFAULT-FRAME */
+/* BROWSE-TAB AuditDetail btnStack DEFAULT-FRAME */
 ASSIGN 
        AuditDetail:ALLOW-COLUMN-SEARCHING IN FRAME DEFAULT-FRAME = TRUE.
 
@@ -710,6 +721,11 @@ ASSIGN
        AuditHeader:NUM-LOCKED-COLUMNS IN FRAME DEFAULT-FRAME     = 3
        AuditHeader:MAX-DATA-GUESS IN FRAME DEFAULT-FRAME         = 2500
        AuditHeader:ALLOW-COLUMN-SEARCHING IN FRAME DEFAULT-FRAME = TRUE.
+
+/* SETTINGS FOR BUTTON btnRestore IN FRAME DEFAULT-FRAME
+   NO-ENABLE                                                            */
+ASSIGN 
+       btnRestore:HIDDEN IN FRAME DEFAULT-FRAME           = TRUE.
 
 ASSIGN 
        svSortByDtl:READ-ONLY IN FRAME DEFAULT-FRAME        = TRUE.
@@ -774,13 +790,13 @@ OR cAfterValueFilter EQ """")"
      _FldNameList[1]   > audit.AuditHdr.AuditID
 "AuditHdr.AuditID" ? ? "integer" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > audit.AuditHdr.AuditType
-"AuditHdr.AuditType" ? ? "character" ? ? ? 14 ? ? no ? no no "9" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"AuditHdr.AuditType" ? ? "character" ? ? ? 14 ? ? no ? no no "11" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   > audit.AuditHdr.AuditDateTime
 "AuditHdr.AuditDateTime" "Date / Time" ? "datetime" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[4]   > audit.AuditHdr.AuditDB
 "AuditHdr.AuditDB" "DB" "x(6)" "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[5]   > audit.AuditHdr.AuditTable
-"AuditHdr.AuditTable" ? ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"AuditHdr.AuditTable" "Table / Prgm" ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[6]   > audit.AuditHdr.AuditUser
 "AuditHdr.AuditUser" ? ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[7]   > audit.AuditHdr.AuditKey
@@ -936,6 +952,11 @@ END.
 ON VALUE-CHANGED OF AuditHeader IN FRAME DEFAULT-FRAME /* Audit Header */
 DO:
     svSortByDtl:SCREEN-VALUE = "".
+    IF lAdmin AND AVAILABLE AuditHdr THEN /* admin security level */
+    ASSIGN
+        btnRestore:HIDDEN    = AuditHdr.AuditType NE "DELETE"
+        btnRestore:SENSITIVE = AuditHdr.AuditType EQ "DELETE"
+        .
     {&OPEN-QUERY-AuditDetail}
     APPLY 'VALUE-CHANGED':U TO BROWSE AuditDetail.
 END.
@@ -997,6 +1018,7 @@ END.
 ON CHOOSE OF btnCalendar-1 IN FRAME AuditSearch
 DO:
     {methods/btnCalendar.i svStartDate}
+    APPLY "LEAVE":U TO svStartDate.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1008,6 +1030,7 @@ END.
 ON CHOOSE OF btnCalendar-2 IN FRAME AuditSearch
 DO:
     {methods/btnCalendar.i svEndDate}
+    APPLY "LEAVE":U TO svEndDate.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1119,6 +1142,17 @@ ON CHOOSE OF btnPrint IN FRAME DEFAULT-FRAME
 DO:
     RUN pUserPrint.
     RUN AOA/AuditHist.w.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnRestore
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnRestore C-Win
+ON CHOOSE OF btnRestore IN FRAME DEFAULT-FRAME
+DO:
+    RUN pRestore.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1372,6 +1406,14 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
   IF lContinue THEN DO:
     RUN enable_UI.
+    IF NOT VALID-HANDLE(hPgmMstrSecur) THEN
+    RUN system/PgmMstrSecur.p PERSISTENT SET hPgmMstrSecur.
+    IF VALID-HANDLE(hPgmMstrSecur) THEN
+    RUN epCanAccess IN hPgmMstrSecur (
+        "system/audit.w",
+        "Restore",
+        OUTPUT lAdmin 
+        ).
     fDateOptions (svStartDateOption:HANDLE).
     fDateOptions (svEndDateOption:HANDLE).
     RUN pGetFilterValues ("INIT").
@@ -1395,9 +1437,9 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     &ELSE
     RUN pGetSettings.
     &ENDIF
-    {&OPEN-QUERY-AuditHeader}
     APPLY 'VALUE-CHANGED':U TO svStartDateOption.
     APPLY 'VALUE-CHANGED':U TO svEndDateOption.
+    {&OPEN-QUERY-AuditHeader}
     APPLY 'VALUE-CHANGED':U TO BROWSE AuditHeader.
   END. /* if lcontinue */
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
@@ -1460,7 +1502,7 @@ PROCEDURE enable_UI :
   {&OPEN-BROWSERS-IN-QUERY-AuditSearch}
   DISPLAY svSortByHdr svSortByDtl 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
-  ENABLE btnStack AuditHeader AuditDetail btnPrint svSortByHdr svSortByDtl 
+  ENABLE AuditHeader btnStack AuditDetail btnPrint svSortByHdr svSortByDtl 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
   IF AVAILABLE AuditDtl THEN 
@@ -1902,6 +1944,7 @@ PROCEDURE pReopenBrowse :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+    SESSION:SET-WAIT-STATE("General").
     CASE cColumnLabel:
         WHEN "AuditType" THEN
         RUN pByAuditType.
@@ -1928,9 +1971,40 @@ PROCEDURE pReopenBrowse :
         OTHERWISE
         RUN pByAuditID.
     END CASE.
+    SESSION:SET-WAIT-STATE("").
     IF lHeaderSorting THEN
     APPLY 'VALUE-CHANGED':U TO BROWSE AuditHeader.
 
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pRestore C-Win 
+PROCEDURE pRestore :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE hTable AS HANDLE NO-UNDO.
+    
+    DEFINE BUFFER bAuditDtl FOR AuditDtl.
+    
+    CREATE BUFFER hTable FOR TABLE AuditHdr.AuditTable.
+    
+    hTable:BUFFER-CREATE().
+    FOR EACH bAuditDtl OF AuditHdr NO-LOCK:
+        hTable:BUFFER-FIELD(bAuditDtl.AuditField):BUFFER-VALUE(bAuditDtl.AuditExtent) = bAuditDtl.AuditBeforeValue.
+    END. /* each auditdtl */
+    FIND CURRENT AuditHdr EXCLUSIVE-LOCK.
+    AuditHdr.AuditType = "RESTORED".
+    FIND CURRENT AuditHdr NO-LOCK.
+    BROWSE AuditHeader:REFRESH().
+    MESSAGE
+        "Deleted Record Restored"
+    VIEW-AS ALERT-BOX INFORMATION.
+    
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

@@ -268,7 +268,7 @@ DEFINE BROWSE br_table
       est-op.att-qty[2]
       est-op.att-type[3]
       est-op.att-qty[3]
-      est-op.spare-char-1
+      est-op.spare-char-1 HELP "Blank for regular Straight Feed, 'R' for Reverse Feed"
       est-op.n_out_div HELP "Enter Divisor for Run Quantity Reduction"
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -897,6 +897,24 @@ END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+&Scoped-define SELF-NAME est-op.spare-char-1    
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL est-op.spare-char-1 br_table _BROWSE-COLUMN B-table-Win
+ON LEAVE OF est-op.spare-char-1 IN BROWSE br_table /* Spare char 1 Changes */
+DO:
+    
+  DO WITH FRAME {&FRAME-NAME}:
+   IF est-op.spare-char-1:SCREEN-VALUE IN  BROWSE {&browse-name} NE "" AND 
+        est-op.spare-char-1:SCREEN-VALUE IN  BROWSE {&browse-name} NE "R" THEN DO:
+       APPLY "Entry" TO est-op.spare-char-1 IN BROWSE {&browse-name}.
+        RETURN NO-APPLY.
+   END.
+  END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 
 &UNDEFINE SELF-NAME

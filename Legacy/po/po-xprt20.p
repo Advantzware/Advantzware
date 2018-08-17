@@ -526,7 +526,7 @@ v-printline = 0.
                                   lv-reg-no = "Test: " + ITEM.reg-no.
        ELSE assign lv-flute = ""
                    lv-reg-no = "".
-       ASSIGN cFlueTest = string(lv-flute,"x(11)") + string(lv-reg-no,"x(10)").
+       ASSIGN cFlueTest = string(lv-flute,"x(11)") + string(lv-reg-no,"x(12)").
        IF lv-flute EQ "" AND lv-reg-no EQ "" THEN
               ASSIGN cFlueTest = IF dCoreDia GT 0 AND ITEM.mat-type EQ "P" THEN " Core Dia: " + STRING(dCoreDia,">,>>9.99<<") ELSE ""
                      dCoreDia = 0.
@@ -685,8 +685,10 @@ v-printline = 0.
        {po/po-xprnt.i}
     END.
     DO i = 1 TO li:
-         PUT v-dept-note[i] SKIP.
-         v-printline = v-printline + 1.
+        IF v-dept-note[i] NE "" THEN DO:
+          PUT v-dept-note[i] SKIP.
+          v-printline = v-printline + 1.
+        END.
          IF v-printline > 46 THEN DO:                  
             PAGE.
             v-printline = 0.
@@ -750,14 +752,26 @@ v-printline = 0.
            {po/po-xprt20.i}
         END.
         DO i = 1 TO li:
+            IF v-spec-note[i] NE "" THEN DO:
              PUT v-spec-note[i] SKIP.
              v-printline = v-printline + 1.
+            END.
              IF v-printline > 46 THEN DO:                  
                 PAGE.
                 v-printline = 0.
                 {po/po-xprt20.i}
              END.
         END.
+        IF lCustCode THEN DO:
+          PUT po-ordl.cust-no FORM "x(8)"  SKIP.
+          v-printline = v-printline + 1.
+          IF v-printline > 46 THEN DO:                  
+            PAGE.
+            v-printline = 0.
+            {po/po-xprt20.i}
+          END.
+        END.
+
     /*
         FIND FIRST itemfg WHERE itemfg.company = po-ordl.company
                             AND itemfg.i-no = po-ordl.i-no NO-LOCK NO-ERROR.

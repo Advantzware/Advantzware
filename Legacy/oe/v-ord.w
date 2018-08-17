@@ -3485,9 +3485,16 @@ PROCEDURE display-cust-detail :
                                                                soldto.sold-zip)
              .
 
-    FIND FIRST shipto WHERE shipto.company EQ cocode
-                        AND shipto.cust-no EQ cust.cust-no
-        NO-LOCK NO-ERROR.
+    FIND FIRST shipto NO-LOCK
+        WHERE shipto.company EQ cocode
+          AND shipto.cust-no EQ cust.cust-no
+          AND shipto.ship-id EQ cust.cust-no NO-ERROR.  
+
+    IF NOT AVAIL shipto THEN
+        FIND FIRST shipto NO-LOCK
+          WHERE shipto.company EQ cocode
+           AND shipto.cust-no EQ cust.cust-no NO-ERROR.
+
     IF AVAIL shipto THEN
        ASSIGN 
             oe-ord.ship-id:SCREEN-VALUE = shipto.ship-id
@@ -3784,6 +3791,30 @@ IF AVAIL xest THEN DO:
              oe-ord.tax-gr:screen-value    = cust.tax-gr
              oe-ord.csrUser_id:SCREEN-VALUE = IF xest.csrUser_id NE "" THEN xest.csrUser_id ELSE cust.csrUser_id
              v-custype         = cust.type.
+
+    FIND FIRST shipto NO-LOCK
+        WHERE shipto.company EQ cocode
+          AND shipto.cust-no EQ cust.cust-no
+          AND shipto.ship-id EQ eb.ship-id NO-ERROR.  
+
+    IF NOT AVAIL shipto THEN
+        FIND FIRST shipto NO-LOCK
+          WHERE shipto.company EQ cocode
+           AND shipto.cust-no EQ cust.cust-no NO-ERROR.
+
+    IF AVAIL shipto THEN
+       ASSIGN 
+            oe-ord.ship-id:SCREEN-VALUE = shipto.ship-id
+            fiShipName:SCREEN-VALUE = shipto.ship-name
+            fiShipAddress:SCREEN-VALUE = fBuildAddress(shipto.ship-addr[1],
+                                                       shipto.ship-addr[2],
+                                                       shipto.ship-city,
+                                                       shipto.ship-state,
+                                                       shipto.ship-zip)
+              ls-ship-i[1] = shipto.notes[1]
+              ls-ship-i[2] = shipto.notes[2]
+              ls-ship-i[3] = shipto.notes[3]
+              ls-ship-i[4] = shipto.notes[4].
 
       IF lastship-cha = "Stock/Custom" THEN DO:
           /* If order has no estimate. */

@@ -109,7 +109,7 @@ DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
 DEFINE VARIABLE ls-full-img1 AS CHAR FORMAT "x(200)" NO-UNDO.
 DEFINE VARIABLE dCoreDia AS DECIMAL FORMAT ">,>>9.99<<" NO-UNDO.
-DEFINE VARIABLE cFlueTest AS CHARACTER FORMAT "x(25)" NO-UNDO.
+DEFINE VARIABLE cFlueTest AS CHARACTER FORMAT "x(30)" NO-UNDO.
 DEF TEMP-TABLE tt-text NO-UNDO
     FIELD TYPE AS cha
     FIELD tt-line AS INT
@@ -595,7 +595,7 @@ v-printline = 0.
                  lv-reg-no = "".
 
           IF AVAIL ITEM AND ITEM.mat-type EQ "B" AND ITEM.industry = "2" AND  ITEM.flute NE "" AND ITEM.reg-no NE "" THEN
-          ASSIGN cFlueTest = string(lv-flute,"x(13)") + string(lv-reg-no,"x(10)").
+          ASSIGN cFlueTest = string(lv-flute,"x(13)") + string(lv-reg-no,"x(12)").
           ELSE
               ASSIGN cFlueTest = IF dCoreDia GT 0 AND ITEM.mat-type EQ "P" THEN "Core Dia: " + string(dCoreDia,">,>>9.99<<") ELSE ""
                      dCoreDia = 0.
@@ -706,18 +706,19 @@ v-printline = 0.
            {po/po-xprnt10.i}
          END.
 
-         DO i = 1 TO li:
+         DO i = 1 TO li: 
+         IF v-dept-note[i] NE "" THEN DO:
             PUT v-dept-note[i] SKIP.
             v-printline = v-printline + 1.
+         END.
             IF v-printline > 46 THEN DO:                  
                PAGE.
                v-printline = 0.
                {po/po-xprnt10.i}
             END.
          END.
-
-     PUT skip(1).
-     assign
+         PUT skip(1).
+        assign
         v-line-number = v-line-number + 1
         v-printline = v-printline + 1.
   
@@ -765,16 +766,33 @@ v-printline = 0.
                       lv-char-list = "".
            END.
         END.
-        FOR EACH tt-text WHERE tt-text.TYPE = "specnote" AND tt-text.tt-recid = recid(po-ordl) BY tt-text.tt-line:
+        FOR EACH tt-text WHERE tt-text.TYPE = "specnote" AND tt-text.tt-recid = recid(po-ordl) BREAK BY tt-text.tt-line:
             IF v-printline > 46 THEN DO:         
               PAGE.
               v-printline = 0.
               {po/po-xprnt10.i}
-            END.     
+            END. 
+              IF FIRST(tt-text.tt-line) THEN DO:
+                  PUT skip(1).
+                  assign
+                      v-line-number = v-line-number + 1
+                      v-printline = v-printline + 1.
+              END.
+              
             PUT tt-text.tt-text FORM "x(80)"  SKIP.
                 v-printline = v-printline + 1.
         END.
      END.  /* v-print-sn */
+
+     IF lCustCode THEN DO:
+         PUT po-ordl.cust-no FORM "x(8)"  SKIP.
+         v-printline = v-printline + 1.
+         IF v-printline > 46 THEN DO:         
+              PAGE.
+              v-printline = 0.
+              {po/po-xprnt10.i}
+         END.
+     END.
     
   end. /* for each po-ordl record */
 

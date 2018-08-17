@@ -51,9 +51,9 @@ DEFINE TEMP-TABLE ttImportShipTo
     FIELD DaysDockAppt        AS INTEGER   FORMAT ">>9" COLUMN-LABEL "Days Dock Appointment" HELP "Optional - Integer"
     FIELD DaysEarliestAllowed AS INTEGER   FORMAT ">>9" COLUMN-LABEL "Days Earliest Allowed" HELP "Optional - Integer"
     FIELD DaysLatestAllowed   AS INTEGER   FORMAT ">>9" COLUMN-LABEL "Days Latest Allowed" HELP "Optional - Integer"
-    FIELD ShipByCaseAllowed   AS LOGICAL   FORMAT "Yes/No" COLUMN-LABEL "Ship By Case Allowed" HELP "Optional - Logical"
-    FIELD Broker              AS LOGICAL   FORMAT "Yes/No" COLUMN-LABEL "Broker" HELP "Optional - Logical"
-    FIELD Billable            AS LOGICAL   FORMAT "Yes/No" COLUMN-LABEL "Billable" HELP "Optional - Logical"
+    FIELD ShipByCaseAllowed   AS CHARACTER FORMAT "X" COLUMN-LABEL "Ship By Case Allowed" HELP "Optional - Y or N"
+    FIELD Broker              AS CHARACTER FORMAT "X" COLUMN-LABEL "Broker" HELP "Optional - Y or N"
+    FIELD Billable            AS CHARACTER FORMAT "X" COLUMN-LABEL "Billable" HELP "Optional - Y or N"
     .
 
 DEFINE VARIABLE giIndexOffset AS INTEGER NO-UNDO INIT 2. /*Set to 1 if there is a Company field in temp-table since this will not be part of the import data*/
@@ -175,97 +175,29 @@ PROCEDURE pValidate PRIVATE:
     END.
     IF oplValid AND iplFieldValidation THEN 
     DO:
-        FIND FIRST carrier NO-LOCK 
-            WHERE carrier.company EQ ipbf-ttImportShipTo.Company
-            AND carrier.carrier EQ ipbf-ttImportShipTo.Carrier
-            NO-ERROR.
-        IF NOT AVAILABLE carrier THEN 
-            ASSIGN 
-                oplValid = NO 
-                opcNote  = "Invalid Carrier"
-                .
-        IF oplValid THEN 
-        DO:
-            FIND FIRST carr-mtx NO-LOCK 
-                WHERE carr-mtx.company EQ ipbf-ttImportShipTo.Company
-                AND carr-mtx.carrier EQ ipbf-ttImportShipTo.Carrier
-                AND carr-mtx.del-zone EQ ipbf-ttImportShipTo.Zone
-                NO-ERROR.
-            IF NOT AVAILABLE carr-mtx THEN 
-                ASSIGN 
-                    oplValid = NO 
-                    opcNote  = "Invalid Zone for Carrier"
-                    . 
-        END.
-        IF oplValid THEN 
-        DO:
-            FIND FIRST loc NO-LOCK 
-                WHERE loc.company EQ ipbf-ttImportShipTo.Company
-                AND loc.loc EQ ipbf-ttImportShipTo.Warehouse
-                NO-ERROR.
-            IF NOT AVAILABLE carrier THEN 
-                ASSIGN 
-                    oplValid = NO 
-                    opcNote  = "Invalid Warehouse"
-                    .
-                    
-        END.
-        IF oplValid THEN 
-        DO:
-            FIND FIRST fg-bin NO-LOCK 
-                WHERE fg-bin.company EQ ipbf-ttImportShipTo.Company
-                AND fg-bin.loc EQ ipbf-ttImportShipTo.Warehouse
-                AND fg-bin.loc-bin EQ ipbf-ttImportShipTo.Bin
-                AND fg-bin.i-no EQ ""
-                NO-ERROR.
-            IF NOT AVAILABLE fg-bin THEN 
-                ASSIGN 
-                    oplValid = NO 
-                    opcNote  = "Invalid Bin for Warehouse"
-                    .
-                    
-        END.
+        IF oplValid AND ipbf-ttImportShipTo.Carrier NE "" THEN 
+            RUN pIsValidCarrier IN hdValidator (ipbf-ttImportShipTo.Carrier, NO, ipbf-ttImportShipTo.Company, OUTPUT oplValid, OUTPUT cValidNote).
+       
+        IF oplValid AND ipbf-ttImportShipTo.Carrier NE "" AND ipbf-ttImportShipTo.Zone NE "" THEN 
+            RUN pIsValidDeliveryZone IN hdValidator (ipbf-ttImportShipTo.Carrier, ipbf-ttImportShipTo.Zone, NO, ipbf-ttImportShipTo.Company, OUTPUT oplValid, OUTPUT cValidNote).
+       
+        IF oplValid AND ipbf-ttImportShipTo.Warehouse NE "" THEN 
+            RUN pIsValidWarehouse IN hdValidator (ipbf-ttImportShipTo.Warehouse, NO, ipbf-ttImportShipTo.Company, OUTPUT oplValid, OUTPUT cValidNote).
+
+        IF oplValid AND ipbf-ttImportShipTo.Bin NE "" THEN 
+            RUN pIsValidFGBin IN hdValidator (ipbf-ttImportShipTo.Bin, "", NO, ipbf-ttImportShipTo.Company, OUTPUT oplValid, OUTPUT cValidNote).
+                                
         IF oplValid AND ipbf-ttImportShipTo.SalesRep NE "" THEN 
-        DO:
-            FIND FIRST sman NO-LOCK 
-                WHERE sman.company EQ ipbf-ttImportShipTo.Company
-                AND sman.sman EQ ipbf-ttImportShipTo.SalesRep
-                NO-ERROR.
-            IF NOT AVAILABLE sman THEN 
-                ASSIGN 
-                    oplValid = NO 
-                    opcNote  = "Invalid Sales Rep Code"
-                    .
-                
-        END.
+            RUN pIsValidSalesRep IN hdValidator (ipbf-ttImportShipTo.SalesRep, NO, ipbf-ttImportShipTo.Company, OUTPUT oplValid, OUTPUT cValidNote).
+        
         IF oplValid AND ipbf-ttImportShipTo.TaxCode NE "" THEN 
-        DO:
-            FIND FIRST stax NO-LOCK 
-                WHERE stax.company EQ ipbf-ttImportShipTo.Company
-                AND stax.tax-group EQ ipbf-ttImportShipTo.TaxCode
-                NO-ERROR.
-            IF NOT AVAILABLE stax THEN 
-                ASSIGN 
-                    oplValid = NO 
-                    opcNote  = "Invalid TaxGroup"
-                    .
-                    
-        END.
+            RUN pIsValidTaxGroup IN hdValidator (ipbf-ttImportShipTo.TaxCode, NO, ipbf-ttImportShipTo.Company, OUTPUT oplValid, OUTPUT cValidNote).
+            
         IF oplValid AND ipbf-ttImportShipTo.Pallet NE "" THEN 
-        DO:
-            FIND FIRST item NO-LOCK 
-                WHERE item.company EQ ipbf-ttImportShipTo.Company
-                AND item.i-no EQ ipbf-ttImportShipTo.Pallet
-                AND item.mat-type EQ "D"
-                NO-ERROR.
-            IF NOT AVAILABLE item THEN 
-                ASSIGN 
-                    oplValid = NO 
-                    opcNote  = "Invalid Pallet Code"
-                    .
-                    
-        END.
+            RUN pIsValidItemForType IN hdValidator (ipbf-ttImportShipTo.Pallet, "D", NO, ipbf-ttImportShipTo.Company, OUTPUT oplValid, OUTPUT cValidNote).
+
     END.
+    IF NOT oplValid AND cValidNote NE "" THEN opcNote = cValidNote.
     
 END PROCEDURE.
 
@@ -275,6 +207,7 @@ PROCEDURE pProcessRecord PRIVATE:
      Notes:
     ------------------------------------------------------------------------------*/
     DEFINE PARAMETER BUFFER ipbf-ttImportShipto FOR ttImportShipTo.
+    DEFINE INPUT PARAMETER iplIgnoreBlanks AS LOGICAL NO-UNDO.
     DEFINE INPUT-OUTPUT PARAMETER iopiAdded AS INTEGER NO-UNDO.
 
     FIND FIRST shipto EXCLUSIVE-LOCK 
@@ -293,42 +226,41 @@ PROCEDURE pProcessRecord PRIVATE:
             shipto.ship-no = fGetNextShipNo(shipto.company,shipto.cust-no)
             . 
     END.
-    ASSIGN 
-        shipto.ship-name    = ipbf-ttImportShipTo.ShipName
-        shipto.ship-addr[1] = ipbf-ttImportShipTo.ShipAddress1
-        shipto.ship-addr[2] = ipbf-ttImportShipTo.ShipAddress2
-        shipto.ship-city    = ipbf-ttImportShipTo.ShipCity
-        shipto.ship-state   = ipbf-ttImportShipTo.ShipState
-        shipto.ship-zip     = ipbf-ttImportShipTo.ShipCode
-        shipto.contact      = ipbf-ttImportShipTo.Contact        
-        shipto.area-code    = ipbf-ttImportShipTo.PhoneArea
-        shipto.phone        = ipbf-ttImportShipTo.Phone
-        shipto.fax          = ipbf-ttImportShipTo.Fax
-        shipto.spare-char-1 = ipbf-ttImportShipTo.SalesRep
-        shipto.tax-code     = ipbf-ttImportShipTo.TaxCode
-        shipto.loc          = ipbf-ttImportShipTo.Warehouse
-        shipto.loc-bin      = ipbf-ttImportShipTo.Bin
-        shipto.carrier      = ipbf-ttImportShipTo.Carrier
-        shipto.dest-code    = ipbf-ttImportShipTo.Zone
-        shipto.pallet       = ipbf-ttImportShipTo.Pallet
-        shipto.spare-char-4 = ipbf-ttImportShipTo.ShipperID
-        shipto.spare-char-5 = ipbf-ttImportShipTo.MemberID
-        shipto.dock-loc     = ipbf-ttImportShipTo.DockID
-        shipto.dock-hour    = ipbf-ttImportShipTo.DockHours
-        shipto.del-chg      = ipbf-ttImportShipTo.Charge
-        shipto.del-time     = ipbf-ttImportShipTo.DaysTransit
-        shipto.spare-int-1  = ipbf-ttImportShipTo.DaysSamples
-        shipto.spare-int-2  = ipbf-ttImportShipTo.DaysDockAppt
-        shipto.spare-int-3  = ipbf-ttImportShipTo.DaysEarliestAllowed
-        shipto.spare-int-4  = ipbf-ttImportShipTo.DaysLatestAllowed
-        shipto.ship-meth    = ipbf-ttImportShipTo.ShipByCaseAllowed
-        shipto.bill         = ipbf-ttImportShipTo.Billable
-        shipto.broker       = ipbf-ttImportShipTo.Broker
-        shipto.notes[1]     = ipbf-ttImportShipTo.Note1
-        shipto.notes[2]     = ipbf-ttImportShipTo.Note2
-        shipto.notes[3]     = ipbf-ttImportShipTo.Note3
-        shipto.notes[4]     = ipbf-ttImportShipTo.Note4
-        .
+    RUN pAssignValueC (ipbf-ttImportShipTo.ShipName, iplIgnoreBlanks, INPUT-OUTPUT shipto.ship-name).
+    RUN pAssignValueC (ipbf-ttImportShipTo.ShipAddress1, iplIgnoreBlanks, INPUT-OUTPUT shipto.ship-addr[1]).
+    RUN pAssignValueC (ipbf-ttImportShipTo.ShipAddress2, iplIgnoreBlanks, INPUT-OUTPUT shipto.ship-addr[2]).
+    RUN pAssignValueC (ipbf-ttImportShipTo.ShipCity, iplIgnoreBlanks, INPUT-OUTPUT shipto.ship-city).
+    RUN pAssignValueC (ipbf-ttImportShipTo.ShipState, iplIgnoreBlanks, INPUT-OUTPUT shipto.ship-state).
+    RUN pAssignValueC (ipbf-ttImportShipTo.ShipCode, iplIgnoreBlanks, INPUT-OUTPUT shipto.ship-zip).
+    RUN pAssignValueC (ipbf-ttImportShipTo.Contact, iplIgnoreBlanks, INPUT-OUTPUT shipto.contact).
+    RUN pAssignValueC (ipbf-ttImportShipTo.PhoneArea, iplIgnoreBlanks, INPUT-OUTPUT shipto.area-code).
+    RUN pAssignValueC (ipbf-ttImportShipTo.Phone, iplIgnoreBlanks, INPUT-OUTPUT shipto.phone).
+    RUN pAssignValueC (ipbf-ttImportShipTo.Fax, iplIgnoreBlanks, INPUT-OUTPUT shipto.fax).
+    RUN pAssignValueC (ipbf-ttImportShipTo.SalesRep, iplIgnoreBlanks, INPUT-OUTPUT shipto.spare-char-1).
+    RUN pAssignValueC (ipbf-ttImportShipTo.TaxCode, iplIgnoreBlanks, INPUT-OUTPUT shipto.tax-code).
+    RUN pAssignValueC (ipbf-ttImportShipTo.Warehouse, iplIgnoreBlanks, INPUT-OUTPUT shipto.loc).
+    RUN pAssignValueC (ipbf-ttImportShipTo.Bin, iplIgnoreBlanks, INPUT-OUTPUT shipto.loc-bin).
+    RUN pAssignValueC (ipbf-ttImportShipTo.Carrier, YES, INPUT-OUTPUT shipto.carrier).
+    RUN pAssignValueC (ipbf-ttImportShipTo.Zone, YES, INPUT-OUTPUT shipto.dest-code).
+    RUN pAssignValueC (ipbf-ttImportShipTo.Pallet, iplIgnoreBlanks, INPUT-OUTPUT shipto.pallet).
+    RUN pAssignValueC (ipbf-ttImportShipTo.ShipperID, iplIgnoreBlanks, INPUT-OUTPUT shipto.spare-char-4).
+    RUN pAssignValueC (ipbf-ttImportShipTo.MemberID, iplIgnoreBlanks, INPUT-OUTPUT shipto.spare-char-5).
+    RUN pAssignValueC (ipbf-ttImportShipTo.DockID, iplIgnoreBlanks, INPUT-OUTPUT shipto.dock-loc).
+    RUN pAssignValueC (ipbf-ttImportShipTo.DockHours, iplIgnoreBlanks, INPUT-OUTPUT shipto.dock-hour).
+    RUN pAssignValueC (ipbf-ttImportShipTo.Charge, iplIgnoreBlanks, INPUT-OUTPUT shipto.del-chg).
+    RUN pAssignValueC (ipbf-ttImportShipTo.DaysTransit, iplIgnoreBlanks, INPUT-OUTPUT shipto.del-time).
+    RUN pAssignValueI (ipbf-ttImportShipTo.DaysSamples, iplIgnoreBlanks, INPUT-OUTPUT shipto.spare-int-1).
+    RUN pAssignValueI (ipbf-ttImportShipTo.DaysDockAppt, iplIgnoreBlanks, INPUT-OUTPUT shipto.spare-int-2).
+    RUN pAssignValueI (ipbf-ttImportShipTo.DaysEarliestAllowed, iplIgnoreBlanks, INPUT-OUTPUT shipto.spare-int-3).
+    RUN pAssignValueI (ipbf-ttImportShipTo.DaysLatestAllowed, iplIgnoreBlanks, INPUT-OUTPUT shipto.spare-int-4).
+    RUN pAssignValueCToL (ipbf-ttImportShipTo.ShipByCaseAllowed,"Y",iplIgnoreBlanks, INPUT-OUTPUT shipto.ship-meth).
+    RUN pAssignValueCToL (ipbf-ttImportShipTo.Billable,"Y",iplIgnoreBlanks, INPUT-OUTPUT shipto.bill).
+    RUN pAssignValueCToL (ipbf-ttImportShipTo.Broker,"Y",iplIgnoreBlanks, INPUT-OUTPUT shipto.broker).
+    RUN pAssignValueC (ipbf-ttImportShipTo.Note1, iplIgnoreBlanks, INPUT-OUTPUT shipto.notes[1]).
+    RUN pAssignValueC (ipbf-ttImportShipTo.Note2, iplIgnoreBlanks, INPUT-OUTPUT shipto.notes[2]).
+    RUN pAssignValueC (ipbf-ttImportShipTo.Note3, iplIgnoreBlanks, INPUT-OUTPUT shipto.notes[3]).
+    RUN pAssignValueC (ipbf-ttImportShipTo.Note4, iplIgnoreBlanks, INPUT-OUTPUT shipto.notes[4]).
+    
     RELEASE shipto.
 END PROCEDURE.
 

@@ -38,6 +38,8 @@ DEF {1} SHARED VAR v-itemDescription AS LOG NO-UNDO.
 DEF {1} SHARED VAR v-score-types AS LOG NO-UNDO.
 DEF {1} SHARED VAR v-metric AS LOG NO-UNDO.
 DEF {1} SHARED VAR v-print-terms AS LOG NO-UNDO.
+DEF {1} SHARED VAR lCustCode AS LOG NO-UNDO.
+
 
 DEF VAR lv-val LIKE reftable.val EXTENT 20 NO-UNDO.
 DEF VAR lv-typ LIKE reftable.dscr EXTENT 20 NO-UNDO.

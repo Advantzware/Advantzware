@@ -4,29 +4,12 @@
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS C-Win 
 /*------------------------------------------------------------------------
 
-  File: 
-
-  Description: 
-
-  Input Parameters:
-      <none>
-
-  Output Parameters:
-      <none>
-
-  Author: 
-
-  Created: 
+  Name: wSettingsTab2.w
+  Desc: Settings tab for Appearance
 
 ------------------------------------------------------------------------*/
-/*          This .W file was created with the Progress AppBuilder.      */
+/*          This .W file was created with the Progress AppBuilder.       */
 /*----------------------------------------------------------------------*/
-
-/* Create an unnamed pool to store all the widgets created 
-     by this procedure. This is a good default which assures
-     that this procedure's triggers and internal procedures 
-     will execute in this procedure's storage, and that proper
-     cleanup will occur on deletion of the procedure. */
 
 CREATE WIDGET-POOL.
 
@@ -39,7 +22,7 @@ DEFINE INPUT  PARAMETER phRectangle AS HANDLE      NO-UNDO.
 
 /* Local Variable Definitions ---                                       */
 
-{ datadigger.i }
+{ DataDigger.i }
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -69,31 +52,22 @@ DEFINE INPUT  PARAMETER phRectangle AS HANDLE      NO-UNDO.
 DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
-DEFINE RECTANGLE RECT-21
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE-PIXELS 400 BY 32.
-
-DEFINE VARIABLE tgAddDataColumnForRecid AS LOGICAL INITIAL no 
-     LABEL "&Recid" 
-     VIEW-AS TOGGLE-BOX
-     SIZE-PIXELS 55 BY 15 NO-UNDO.
-
-DEFINE VARIABLE tgAddDataColumnForRowid AS LOGICAL INITIAL no 
-     LABEL "R&owid" 
-     VIEW-AS TOGGLE-BOX
-     SIZE-PIXELS 60 BY 17 NO-UNDO.
-
 DEFINE VARIABLE rsTitleBarDbName AS CHARACTER 
      VIEW-AS RADIO-SET VERTICAL
      RADIO-BUTTONS 
           "No Name", "none",
 "Logical Name", "ldbname",
 "Physical Name", "pdbname"
-     SIZE-PIXELS 175 BY 55 TOOLTIP "which database name to use in title bar" NO-UNDO.
+     SIZE-PIXELS 155 BY 55 TOOLTIP "which database name to use in title bar" NO-UNDO.
 
 DEFINE RECTANGLE RECT-22
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE-PIXELS 400 BY 85.
+     SIZE-PIXELS 400 BY 120.
+
+DEFINE VARIABLE tgTitleStartsWithTableName AS LOGICAL INITIAL no 
+     LABEL "Start Title With Table Name" 
+     VIEW-AS TOGGLE-BOX
+     SIZE-PIXELS 275 BY 17 TOOLTIP "use table name as first element in the title" NO-UNDO.
 
 DEFINE BUTTON btnRecordCountComplete 
      LABEL "Set" 
@@ -327,97 +301,29 @@ DEFINE FRAME DEFAULT-FRAME
          AT COL 1 ROW 1
          SIZE 222 BY 39.81 WIDGET-ID 100.
 
-DEFINE FRAME FRAME-J
-     tgAutoFont AT Y 13 X 90 WIDGET-ID 122
-     btnDefaultFont AT Y 34 X 90 WIDGET-ID 98
-     btnFixedFont AT Y 34 X 220 WIDGET-ID 100
-     "Set fonts:" VIEW-AS TEXT
-          SIZE-PIXELS 73 BY 13 AT Y 39 X 12 WIDGET-ID 102
-     RECT-20 AT Y 5 X 5 WIDGET-ID 124
+DEFINE FRAME FRAME-AB
+     rsTitleBarDbName AT Y 28 X 85 NO-LABEL WIDGET-ID 186
+     tgTitleStartsWithTableName AT Y 95 X 85 WIDGET-ID 190
+     "Database Name in Title Bar" VIEW-AS TEXT
+          SIZE-PIXELS 180 BY 17 AT Y 0 X 15 WIDGET-ID 180
+     RECT-22 AT Y 5 X 5 WIDGET-ID 176
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT X 10 Y 70
-         SIZE-PIXELS 440 BY 102
-         TITLE "2" WIDGET-ID 1200.
+         AT X 470 Y 150
+         SIZE-PIXELS 440 BY 150
+         TITLE "2" WIDGET-ID 3000.
 
-DEFINE FRAME FRAME-A
-     tgAddDataColumnForRowid AT Y 12 X 232 WIDGET-ID 60
-     tgAddDataColumnForRecid AT Y 13 X 163 WIDGET-ID 58
-     "Show Data Column For:" VIEW-AS TEXT
-          SIZE-PIXELS 146 BY 13 AT Y 13 X 14 WIDGET-ID 62
-     RECT-21 AT Y 5 X 5 WIDGET-ID 64
+DEFINE FRAME FRAME-Z
+     rsColumnLabelTemplate AT Y 25 X 85 NO-LABEL WIDGET-ID 186
+     fiExample AT Y 111 X 75 COLON-ALIGNED WIDGET-ID 192
+     "Data Browse Column Label Template" VIEW-AS TEXT
+          SIZE-PIXELS 240 BY 17 AT Y 0 X 15 WIDGET-ID 180
+     RECT-19 AT Y 5 X 5 WIDGET-ID 176
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT X 10 Y 0
-         SIZE-PIXELS 440 BY 65
-         TITLE "2" WIDGET-ID 300.
-
-DEFINE FRAME FRAME-AF
-     fiRecordCountComplete AT Y 16 X 160 COLON-ALIGNED WIDGET-ID 168 NO-TAB-STOP 
-     btnRecordCountComplete AT Y 16 X 344 WIDGET-ID 116
-     fiRecordCountIncomplete AT Y 42 X 160 COLON-ALIGNED WIDGET-ID 172 NO-TAB-STOP 
-     btnRecordCountIncomplete AT Y 42 X 344 WIDGET-ID 170
-     fiRecordCountSelected AT Y 68 X 160 COLON-ALIGNED WIDGET-ID 176 NO-TAB-STOP 
-     btnRecordCountSelected AT Y 68 X 344 WIDGET-ID 174
-     "Nr of Records color" VIEW-AS TEXT
-          SIZE 32 BY .81 AT ROW 1 COL 4 WIDGET-ID 180
-     RECT-18 AT Y 5 X 5 WIDGET-ID 178
-    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT X 10 Y 650
-         SIZE-PIXELS 440 BY 130
-         TITLE "2" WIDGET-ID 2800.
-
-DEFINE FRAME FRAME-W
-     fiIndexInactive AT Y 18 X 160 COLON-ALIGNED WIDGET-ID 168 NO-TAB-STOP 
-     btnIndexInactive AT Y 18 X 344 WIDGET-ID 116
-     fiPrimIndex AT Y 44 X 160 COLON-ALIGNED WIDGET-ID 172 NO-TAB-STOP 
-     btnPrimIndex AT Y 44 X 344 WIDGET-ID 170
-     "Index colors" VIEW-AS TEXT
-          SIZE 20 BY .81 AT ROW 1 COL 4 WIDGET-ID 180
-     RECT-15 AT Y 5 X 5 WIDGET-ID 176
-    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT X 10 Y 540
-         SIZE-PIXELS 440 BY 100
-         TITLE "2" WIDGET-ID 2200.
-
-DEFINE FRAME FRAME-T
-     tgUseSystemColors AT Y 16 X 170 WIDGET-ID 122
-     fiOddRow AT Y 39 X 160 COLON-ALIGNED WIDGET-ID 110 NO-TAB-STOP 
-     btnOddFg AT Y 39 X 344 WIDGET-ID 114
-     btnOddBg AT Y 39 X 369 WIDGET-ID 118
-     fiEvenRow AT Y 64 X 160 COLON-ALIGNED WIDGET-ID 112 NO-TAB-STOP 
-     btnEvenFg AT Y 64 X 344 WIDGET-ID 170
-     btnEvenBg AT Y 64 X 369 WIDGET-ID 120
-     fiFieldFilter AT Y 104 X 160 COLON-ALIGNED WIDGET-ID 186 NO-TAB-STOP 
-     btnFieldFilterFG AT Y 104 X 344 WIDGET-ID 184
-     btnFieldFilterBG AT Y 104 X 369 WIDGET-ID 182
-     "Data Row colors" VIEW-AS TEXT
-          SIZE 25 BY .81 AT ROW 1 COL 4 WIDGET-ID 180
-     RECT-14 AT Y 5 X 5 WIDGET-ID 176
-    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT X 10 Y 355
-         SIZE-PIXELS 440 BY 165
-         TITLE "2" WIDGET-ID 2000.
-
-DEFINE FRAME FRAME-Y
-     fiQueryCounter AT Y 15 X 160 COLON-ALIGNED WIDGET-ID 168 NO-TAB-STOP 
-     btnQueryCounter AT Y 15 X 344 WIDGET-ID 116
-     fiQueryInfo AT Y 41 X 160 COLON-ALIGNED WIDGET-ID 172 NO-TAB-STOP 
-     btnQueryInfo AT Y 41 X 344 WIDGET-ID 170
-     fiQueryError AT Y 67 X 160 COLON-ALIGNED WIDGET-ID 174 NO-TAB-STOP 
-     btnQueryErrorFg AT Y 67 X 344 WIDGET-ID 114
-     btnQueryErrorBg AT Y 67 X 369 WIDGET-ID 118
-     "Query Info colors" VIEW-AS TEXT
-          SIZE 25 BY .81 AT ROW 1 COL 4 WIDGET-ID 178
-     RECT-16 AT Y 5 X 5 WIDGET-ID 176
-    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT X 470 Y 365
-         SIZE-PIXELS 440 BY 140
-         TITLE "2" WIDGET-ID 2400.
+         AT X 10 Y 175
+         SIZE-PIXELS 440 BY 170
+         TITLE "2" WIDGET-ID 2900.
 
 DEFINE FRAME FRAME-V
      fiFilterBox AT Y 16 X 160 COLON-ALIGNED WIDGET-ID 168 NO-TAB-STOP 
@@ -440,28 +346,85 @@ DEFINE FRAME FRAME-V
          SIZE-PIXELS 440 BY 155
          TITLE "2" WIDGET-ID 2100.
 
-DEFINE FRAME FRAME-Z
-     rsColumnLabelTemplate AT Y 25 X 85 NO-LABEL WIDGET-ID 186
-     fiExample AT Y 111 X 75 COLON-ALIGNED WIDGET-ID 192
-     "Data Browse Column Label Template" VIEW-AS TEXT
-          SIZE-PIXELS 240 BY 17 AT Y 0 X 15 WIDGET-ID 180
-     RECT-19 AT Y 5 X 5 WIDGET-ID 176
+DEFINE FRAME FRAME-Y
+     fiQueryCounter AT Y 15 X 160 COLON-ALIGNED WIDGET-ID 168 NO-TAB-STOP 
+     btnQueryCounter AT Y 15 X 344 WIDGET-ID 116
+     fiQueryInfo AT Y 41 X 160 COLON-ALIGNED WIDGET-ID 172 NO-TAB-STOP 
+     btnQueryInfo AT Y 41 X 344 WIDGET-ID 170
+     fiQueryError AT Y 67 X 160 COLON-ALIGNED WIDGET-ID 174 NO-TAB-STOP 
+     btnQueryErrorFg AT Y 67 X 344 WIDGET-ID 114
+     btnQueryErrorBg AT Y 67 X 369 WIDGET-ID 118
+     "Query Info colors" VIEW-AS TEXT
+          SIZE 25 BY .81 AT ROW 1 COL 4 WIDGET-ID 178
+     RECT-16 AT Y 5 X 5 WIDGET-ID 176
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT X 10 Y 175
-         SIZE-PIXELS 440 BY 170
-         TITLE "2" WIDGET-ID 2900.
+         AT X 470 Y 365
+         SIZE-PIXELS 440 BY 140
+         TITLE "2" WIDGET-ID 2400.
 
-DEFINE FRAME FRAME-AB
-     rsTitleBarDbName AT Y 25 X 85 NO-LABEL WIDGET-ID 186
-     "Database Name in Title Bar" VIEW-AS TEXT
-          SIZE-PIXELS 180 BY 17 AT Y 0 X 15 WIDGET-ID 180
-     RECT-22 AT Y 5 X 5 WIDGET-ID 176
+DEFINE FRAME FRAME-T
+     tgUseSystemColors AT Y 16 X 170 WIDGET-ID 122
+     fiOddRow AT Y 39 X 160 COLON-ALIGNED WIDGET-ID 110 NO-TAB-STOP 
+     btnOddFg AT Y 39 X 344 WIDGET-ID 114
+     btnOddBg AT Y 39 X 369 WIDGET-ID 118
+     fiEvenRow AT Y 64 X 160 COLON-ALIGNED WIDGET-ID 112 NO-TAB-STOP 
+     btnEvenFg AT Y 64 X 344 WIDGET-ID 170
+     btnEvenBg AT Y 64 X 369 WIDGET-ID 120
+     fiFieldFilter AT Y 104 X 160 COLON-ALIGNED WIDGET-ID 186 NO-TAB-STOP 
+     btnFieldFilterFG AT Y 104 X 344 WIDGET-ID 184
+     btnFieldFilterBG AT Y 104 X 369 WIDGET-ID 182
+     "Data Row colors" VIEW-AS TEXT
+          SIZE 25 BY .81 AT ROW 1 COL 4 WIDGET-ID 180
+     RECT-14 AT Y 5 X 5 WIDGET-ID 176
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT X 455 Y 140
-         SIZE-PIXELS 440 BY 120
-         TITLE "2" WIDGET-ID 3000.
+         AT X 10 Y 355
+         SIZE-PIXELS 440 BY 165
+         TITLE "2" WIDGET-ID 2000.
+
+DEFINE FRAME FRAME-W
+     fiIndexInactive AT Y 18 X 160 COLON-ALIGNED WIDGET-ID 168 NO-TAB-STOP 
+     btnIndexInactive AT Y 18 X 344 WIDGET-ID 116
+     fiPrimIndex AT Y 44 X 160 COLON-ALIGNED WIDGET-ID 172 NO-TAB-STOP 
+     btnPrimIndex AT Y 44 X 344 WIDGET-ID 170
+     "Index colors" VIEW-AS TEXT
+          SIZE 20 BY .81 AT ROW 1 COL 4 WIDGET-ID 180
+     RECT-15 AT Y 5 X 5 WIDGET-ID 176
+    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT X 10 Y 540
+         SIZE-PIXELS 440 BY 100
+         TITLE "2" WIDGET-ID 2200.
+
+DEFINE FRAME FRAME-AF
+     fiRecordCountComplete AT Y 16 X 160 COLON-ALIGNED WIDGET-ID 168 NO-TAB-STOP 
+     btnRecordCountComplete AT Y 16 X 344 WIDGET-ID 116
+     fiRecordCountIncomplete AT Y 42 X 160 COLON-ALIGNED WIDGET-ID 172 NO-TAB-STOP 
+     btnRecordCountIncomplete AT Y 42 X 344 WIDGET-ID 170
+     fiRecordCountSelected AT Y 68 X 160 COLON-ALIGNED WIDGET-ID 176 NO-TAB-STOP 
+     btnRecordCountSelected AT Y 68 X 344 WIDGET-ID 174
+     "Nr of Records color" VIEW-AS TEXT
+          SIZE 32 BY .81 AT ROW 1 COL 4 WIDGET-ID 180
+     RECT-18 AT Y 5 X 5 WIDGET-ID 178
+    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT X 10 Y 650
+         SIZE-PIXELS 440 BY 130
+         TITLE "2" WIDGET-ID 2800.
+
+DEFINE FRAME FRAME-J
+     tgAutoFont AT Y 13 X 90 WIDGET-ID 122
+     btnDefaultFont AT Y 34 X 90 WIDGET-ID 98
+     btnFixedFont AT Y 34 X 220 WIDGET-ID 100
+     "Set fonts:" VIEW-AS TEXT
+          SIZE-PIXELS 73 BY 13 AT Y 39 X 12 WIDGET-ID 102
+     RECT-20 AT Y 5 X 5 WIDGET-ID 124
+    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT X 10 Y 70
+         SIZE-PIXELS 440 BY 102
+         TITLE "2" WIDGET-ID 1200.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -508,8 +471,7 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 /* SETTINGS FOR WINDOW C-Win
   NOT-VISIBLE,,RUN-PERSISTENT                                           */
 /* REPARENT FRAME */
-ASSIGN FRAME FRAME-A:FRAME = FRAME DEFAULT-FRAME:HANDLE
-       FRAME FRAME-AB:FRAME = FRAME DEFAULT-FRAME:HANDLE
+ASSIGN FRAME FRAME-AB:FRAME = FRAME DEFAULT-FRAME:HANDLE
        FRAME FRAME-AF:FRAME = FRAME DEFAULT-FRAME:HANDLE
        FRAME FRAME-J:FRAME = FRAME DEFAULT-FRAME:HANDLE
        FRAME FRAME-T:FRAME = FRAME DEFAULT-FRAME:HANDLE
@@ -530,24 +492,10 @@ ASSIGN XXTABVALXX = FRAME FRAME-W:MOVE-BEFORE-TAB-ITEM (FRAME FRAME-AF:HANDLE)
        XXTABVALXX = FRAME FRAME-Z:MOVE-BEFORE-TAB-ITEM (FRAME FRAME-T:HANDLE)
        XXTABVALXX = FRAME FRAME-AB:MOVE-BEFORE-TAB-ITEM (FRAME FRAME-Z:HANDLE)
        XXTABVALXX = FRAME FRAME-J:MOVE-BEFORE-TAB-ITEM (FRAME FRAME-AB:HANDLE)
-       XXTABVALXX = FRAME FRAME-A:MOVE-BEFORE-TAB-ITEM (FRAME FRAME-J:HANDLE)
 /* END-ASSIGN-TABS */.
 
 ASSIGN 
        FRAME DEFAULT-FRAME:HIDDEN           = TRUE.
-
-/* SETTINGS FOR FRAME FRAME-A
-   NOT-VISIBLE                                                          */
-ASSIGN 
-       FRAME FRAME-A:HIDDEN           = TRUE.
-
-ASSIGN 
-       tgAddDataColumnForRecid:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "DataDigger,AddDataColumnForRecid".
-
-ASSIGN 
-       tgAddDataColumnForRowid:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "DataDigger,AddDataColumnForRowid".
 
 /* SETTINGS FOR FRAME FRAME-AB
    NOT-VISIBLE                                                          */
@@ -557,6 +505,10 @@ ASSIGN
 ASSIGN 
        rsTitleBarDbName:PRIVATE-DATA IN FRAME FRAME-AB     = 
                 "DataDigger,TitleBarDbName".
+
+ASSIGN 
+       tgTitleStartsWithTableName:PRIVATE-DATA IN FRAME FRAME-AB     = 
+                "DataDigger,TitleStartsWithTableName".
 
 /* SETTINGS FOR FRAME FRAME-AF
    NOT-VISIBLE                                                          */
@@ -734,14 +686,14 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnDefaultFont C-Win
 ON CHOOSE OF btnDefaultFont IN FRAME FRAME-J /* Default Font */
 DO:
-  define variable iFontNr as integer no-undo. 
+  DEFINE VARIABLE iFontNr AS INTEGER NO-UNDO.
 
-  run value(getProgramDir() + 'dChooseFont.w') 
-     ( input self:font
-     , output iFontNr
+  RUN value(getProgramDir() + 'dChooseFont.w')
+     ( INPUT SELF:font
+     , OUTPUT iFontNr
      ).
 
-  if iFontNr <> -1 then self:font = iFontNr.
+  IF iFontNr <> -1 THEN SELF:font = iFontNr.
 
 END.
 
@@ -753,19 +705,19 @@ END.
 &Scoped-define SELF-NAME btnEvenBg
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnEvenBg C-Win
 ON CHOOSE OF btnEvenBg IN FRAME FRAME-T /* BG */
-or mouse-menu-click of fiEvenRow
-do:
-  define variable iColorNr as integer no-undo. 
+OR MOUSE-MENU-CLICK OF fiEvenRow
+DO:
+  DEFINE VARIABLE iColorNr AS INTEGER NO-UNDO.
 
-  run value(getProgramDir() + 'dChooseColor.w') 
-     ( input fiEvenRow:bgcolor
-     , output iColorNr
+  RUN value(getProgramDir() + 'dChooseColor.w')
+     ( INPUT fiEvenRow:bgcolor
+     , OUTPUT iColorNr
      ).
 
-  if iColorNr <> -1 then 
+  IF iColorNr <> -1 THEN
     fiEvenRow:bgcolor = iColorNr.
 
-end.
+END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -774,19 +726,19 @@ end.
 &Scoped-define SELF-NAME btnEvenFg
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnEvenFg C-Win
 ON CHOOSE OF btnEvenFg IN FRAME FRAME-T /* FG */
-or mouse-select-click of fiEvenRow
-do:
-  define variable iColorNr as integer no-undo. 
+OR MOUSE-SELECT-CLICK OF fiEvenRow
+DO:
+  DEFINE VARIABLE iColorNr AS INTEGER NO-UNDO.
 
-  run value(getProgramDir() + 'dChooseColor.w') 
-     ( input fiEvenRow:fgcolor
-     , output iColorNr
+  RUN value(getProgramDir() + 'dChooseColor.w')
+     ( INPUT fiEvenRow:fgcolor
+     , OUTPUT iColorNr
      ).
 
-  if iColorNr <> -1 then 
+  IF iColorNr <> -1 THEN
     fiEvenRow:fgcolor = iColorNr.
 
-end.
+END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -796,19 +748,19 @@ end.
 &Scoped-define SELF-NAME btnfiCustomFormatBg
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnfiCustomFormatBg C-Win
 ON CHOOSE OF btnfiCustomFormatBg IN FRAME FRAME-V /* BG */
-or mouse-menu-click of fiCustomFormat
-do:
-  define variable iColorNr as integer no-undo. 
+OR MOUSE-MENU-CLICK OF fiCustomFormat
+DO:
+  DEFINE VARIABLE iColorNr AS INTEGER NO-UNDO.
 
-  run value(getProgramDir() + 'dChooseColor.w') 
-     ( input fiCustomFormat:bgcolor
-     , output iColorNr
+  RUN value(getProgramDir() + 'dChooseColor.w')
+     ( INPUT fiCustomFormat:bgcolor
+     , OUTPUT iColorNr
      ).
 
-  if iColorNr <> -1 then 
+  IF iColorNr <> -1 THEN
     fiCustomFormat:bgcolor = iColorNr.
 
-end.
+END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -817,18 +769,18 @@ end.
 &Scoped-define SELF-NAME btnfiCustomFormatFg
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnfiCustomFormatFg C-Win
 ON CHOOSE OF btnfiCustomFormatFg IN FRAME FRAME-V /* FG */
-or mouse-select-click of fiCustomFormat
-do:
-  define variable iColorNr as integer no-undo. 
+OR MOUSE-SELECT-CLICK OF fiCustomFormat
+DO:
+  DEFINE VARIABLE iColorNr AS INTEGER NO-UNDO.
 
-  run value(getProgramDir() + 'dChooseColor.w') 
-     ( input fiCustomFormat:fgcolor
-     , output iColorNr
+  RUN value(getProgramDir() + 'dChooseColor.w')
+     ( INPUT fiCustomFormat:fgcolor
+     , OUTPUT iColorNr
      ).
 
-  if iColorNr <> -1 then 
+  IF iColorNr <> -1 THEN
     fiCustomFormat:fgcolor = iColorNr.
-end.
+END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -837,19 +789,19 @@ end.
 &Scoped-define SELF-NAME btnfiCustomOrderBg
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnfiCustomOrderBg C-Win
 ON CHOOSE OF btnfiCustomOrderBg IN FRAME FRAME-V /* BG */
-or mouse-menu-click of fiCustomOrder
-do:
-  define variable iColorNr as integer no-undo. 
+OR MOUSE-MENU-CLICK OF fiCustomOrder
+DO:
+  DEFINE VARIABLE iColorNr AS INTEGER NO-UNDO.
 
-  run value(getProgramDir() + 'dChooseColor.w') 
-     ( input fiCustomOrder:bgcolor
-     , output iColorNr
+  RUN value(getProgramDir() + 'dChooseColor.w')
+     ( INPUT fiCustomOrder:bgcolor
+     , OUTPUT iColorNr
      ).
 
-  if iColorNr <> -1 then 
+  IF iColorNr <> -1 THEN
     fiCustomOrder:bgcolor = iColorNr.
 
-end.
+END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -858,18 +810,18 @@ end.
 &Scoped-define SELF-NAME btnfiCustomOrderFg
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnfiCustomOrderFg C-Win
 ON CHOOSE OF btnfiCustomOrderFg IN FRAME FRAME-V /* FG */
-or mouse-select-click of fiCustomOrder
-do:
-  define variable iColorNr as integer no-undo. 
+OR MOUSE-SELECT-CLICK OF fiCustomOrder
+DO:
+  DEFINE VARIABLE iColorNr AS INTEGER NO-UNDO.
 
-  run value(getProgramDir() + 'dChooseColor.w') 
-     ( input fiCustomOrder:fgcolor
-     , output iColorNr
+  RUN value(getProgramDir() + 'dChooseColor.w')
+     ( INPUT fiCustomOrder:fgcolor
+     , OUTPUT iColorNr
      ).
 
-  if iColorNr <> -1 then 
+  IF iColorNr <> -1 THEN
     fiCustomOrder:fgcolor = iColorNr.
-end.
+END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -879,19 +831,19 @@ end.
 &Scoped-define SELF-NAME btnFieldFilterBG
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnFieldFilterBG C-Win
 ON CHOOSE OF btnFieldFilterBG IN FRAME FRAME-T /* BG */
-or mouse-menu-click of fiEvenRow
-do:
-  define variable iColorNr as integer no-undo. 
+OR MOUSE-MENU-CLICK OF fiEvenRow
+DO:
+  DEFINE VARIABLE iColorNr AS INTEGER NO-UNDO.
 
-  run value(getProgramDir() + 'dChooseColor.w') 
-     ( input fiFieldFilter:bgcolor
-     , output iColorNr
+  RUN value(getProgramDir() + 'dChooseColor.w')
+     ( INPUT fiFieldFilter:bgcolor
+     , OUTPUT iColorNr
      ).
 
-  if iColorNr <> -1 then 
+  IF iColorNr <> -1 THEN
     fiFieldFilter:bgcolor = iColorNr.
 
-end.
+END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -900,19 +852,19 @@ end.
 &Scoped-define SELF-NAME btnFieldFilterFG
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnFieldFilterFG C-Win
 ON CHOOSE OF btnFieldFilterFG IN FRAME FRAME-T /* FG */
-or mouse-select-click of fiEvenRow
-do:
-  define variable iColorNr as integer no-undo. 
+OR MOUSE-SELECT-CLICK OF fiEvenRow
+DO:
+  DEFINE VARIABLE iColorNr AS INTEGER NO-UNDO.
 
-  run value(getProgramDir() + 'dChooseColor.w') 
-     ( input fiFieldFilter:fgcolor
-     , output iColorNr
+  RUN value(getProgramDir() + 'dChooseColor.w')
+     ( INPUT fiFieldFilter:fgcolor
+     , OUTPUT iColorNr
      ).
 
-  if iColorNr <> -1 then 
+  IF iColorNr <> -1 THEN
     fiFieldFilter:fgcolor = iColorNr.
 
-end.
+END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -922,19 +874,19 @@ end.
 &Scoped-define SELF-NAME btnFilterBox
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnFilterBox C-Win
 ON CHOOSE OF btnFilterBox IN FRAME FRAME-V /* Set */
-or mouse-select-click of fiFilterBox
-do:
-  define variable iColorNr as integer no-undo. 
+OR MOUSE-SELECT-CLICK OF fiFilterBox
+DO:
+  DEFINE VARIABLE iColorNr AS INTEGER NO-UNDO.
 
-  run value(getProgramDir() + 'dChooseColor.w') 
-     ( input fiFilterBox:bgcolor
-     , output iColorNr
+  RUN value(getProgramDir() + 'dChooseColor.w')
+     ( INPUT fiFilterBox:bgcolor
+     , OUTPUT iColorNr
      ).
 
-  if iColorNr <> -1 then 
+  IF iColorNr <> -1 THEN
     fiFilterBox:bgcolor = iColorNr.
-  
-end.
+
+END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -944,17 +896,17 @@ end.
 &Scoped-define SELF-NAME btnFixedFont
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnFixedFont C-Win
 ON CHOOSE OF btnFixedFont IN FRAME FRAME-J /* Fixed Font */
-do:
-  define variable iFontNr as integer no-undo. 
+DO:
+  DEFINE VARIABLE iFontNr AS INTEGER NO-UNDO.
 
-  run value(getProgramDir() + 'dChooseFont.w') 
-     ( input self:font
-     , output iFontNr
+  RUN VALUE(getProgramDir() + 'dChooseFont.w')
+     ( INPUT SELF:FONT 
+     , OUTPUT iFontNr
      ).
 
-  if iFontNr <> -1 then self:font = iFontNr.
-    
-end.
+  IF iFontNr <> -1 THEN SELF:FONT = iFontNr.
+
+END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -964,19 +916,19 @@ end.
 &Scoped-define SELF-NAME btnIndexInactive
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnIndexInactive C-Win
 ON CHOOSE OF btnIndexInactive IN FRAME FRAME-W /* Set */
-or mouse-select-click of fiIndexInactive
-do:
-  define variable iColorNr as integer no-undo. 
+OR MOUSE-SELECT-CLICK OF fiIndexInactive
+DO:
+  DEFINE VARIABLE iColorNr AS INTEGER NO-UNDO.
 
-  run value(getProgramDir() + 'dChooseColor.w') 
-     ( input fiIndexInactive:fgcolor
-     , output iColorNr
+  RUN value(getProgramDir() + 'dChooseColor.w')
+     ( INPUT fiIndexInactive:fgcolor
+     , OUTPUT iColorNr
      ).
 
-  if iColorNr <> -1 then 
+  IF iColorNr <> -1 THEN
     fiIndexInactive:fgcolor = iColorNr.
-  
-end.
+
+END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -986,19 +938,19 @@ end.
 &Scoped-define SELF-NAME btnOddBg
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnOddBg C-Win
 ON CHOOSE OF btnOddBg IN FRAME FRAME-T /* BG */
-or mouse-menu-click of fiOddRow
-do:
-  define variable iColorNr as integer no-undo. 
+OR MOUSE-MENU-CLICK OF fiOddRow
+DO:
+  DEFINE VARIABLE iColorNr AS INTEGER NO-UNDO.
 
-  run value(getProgramDir() + 'dChooseColor.w') 
-     ( input fiOddRow:bgcolor
-     , output iColorNr
+  RUN value(getProgramDir() + 'dChooseColor.w')
+     ( INPUT fiOddRow:bgcolor
+     , OUTPUT iColorNr
      ).
 
-  if iColorNr <> -1 then 
+  IF iColorNr <> -1 THEN
     fiOddRow:bgcolor = iColorNr.
 
-end.
+END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1007,18 +959,18 @@ end.
 &Scoped-define SELF-NAME btnOddFg
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnOddFg C-Win
 ON CHOOSE OF btnOddFg IN FRAME FRAME-T /* FG */
-or mouse-select-click of fiOddRow
-do:
-  define variable iColorNr as integer no-undo. 
+OR MOUSE-SELECT-CLICK OF fiOddRow
+DO:
+  DEFINE VARIABLE iColorNr AS INTEGER NO-UNDO.
 
-  run value(getProgramDir() + 'dChooseColor.w') 
-     ( input fiOddRow:fgcolor
-     , output iColorNr
+  RUN value(getProgramDir() + 'dChooseColor.w')
+     ( INPUT fiOddRow:fgcolor
+     , OUTPUT iColorNr
      ).
 
-  if iColorNr <> -1 then 
+  IF iColorNr <> -1 THEN
     fiOddRow:fgcolor = iColorNr.
-end.
+END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1028,19 +980,19 @@ end.
 &Scoped-define SELF-NAME btnPrimIndex
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnPrimIndex C-Win
 ON CHOOSE OF btnPrimIndex IN FRAME FRAME-W /* Set */
-or mouse-select-click of fiPrimIndex
-do:
-  define variable iColorNr as integer no-undo. 
+OR MOUSE-SELECT-CLICK OF fiPrimIndex
+DO:
+  DEFINE VARIABLE iColorNr AS INTEGER NO-UNDO.
 
-  run value(getProgramDir() + 'dChooseColor.w') 
-     ( input fiPrimIndex:bgcolor
-     , output iColorNr
+  RUN value(getProgramDir() + 'dChooseColor.w')
+     ( INPUT fiPrimIndex:bgcolor
+     , OUTPUT iColorNr
      ).
 
-  if iColorNr <> -1 then 
+  IF iColorNr <> -1 THEN
     fiPrimIndex:bgcolor = iColorNr.
-  
-end.
+
+END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1050,19 +1002,19 @@ end.
 &Scoped-define SELF-NAME btnQueryCounter
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnQueryCounter C-Win
 ON CHOOSE OF btnQueryCounter IN FRAME FRAME-Y /* Set */
-or mouse-select-click of fiQueryCounter
-do:
-  define variable iColorNr as integer no-undo. 
+OR MOUSE-SELECT-CLICK OF fiQueryCounter
+DO:
+  DEFINE VARIABLE iColorNr AS INTEGER NO-UNDO.
 
-  run value(getProgramDir() + 'dChooseColor.w') 
-     ( input fiQueryCounter:fgcolor
-     , output iColorNr
+  RUN value(getProgramDir() + 'dChooseColor.w')
+     ( INPUT fiQueryCounter:fgcolor
+     , OUTPUT iColorNr
      ).
 
-  if iColorNr <> -1 then 
+  IF iColorNr <> -1 THEN
     fiQueryCounter:fgcolor = iColorNr.
-  
-end.
+
+END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1071,19 +1023,19 @@ end.
 &Scoped-define SELF-NAME btnQueryErrorBg
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnQueryErrorBg C-Win
 ON CHOOSE OF btnQueryErrorBg IN FRAME FRAME-Y /* BG */
-or mouse-menu-click of fiQueryError
-do:
-  define variable iColorNr as integer no-undo. 
+OR MOUSE-MENU-CLICK OF fiQueryError
+DO:
+  DEFINE VARIABLE iColorNr AS INTEGER NO-UNDO.
 
-  run value(getProgramDir() + 'dChooseColor.w') 
-     ( input fiQueryError:bgcolor
-     , output iColorNr
+  RUN value(getProgramDir() + 'dChooseColor.w')
+     ( INPUT fiQueryError:bgcolor
+     , OUTPUT iColorNr
      ).
 
-  if iColorNr <> -1 then 
+  IF iColorNr <> -1 THEN
     fiQueryError:bgcolor = iColorNr.
 
-end.
+END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1092,18 +1044,18 @@ end.
 &Scoped-define SELF-NAME btnQueryErrorFg
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnQueryErrorFg C-Win
 ON CHOOSE OF btnQueryErrorFg IN FRAME FRAME-Y /* FG */
-or mouse-select-click of fiQueryError
-do:
-  define variable iColorNr as integer no-undo. 
+OR MOUSE-SELECT-CLICK OF fiQueryError
+DO:
+  DEFINE VARIABLE iColorNr AS INTEGER NO-UNDO.
 
-  run value(getProgramDir() + 'dChooseColor.w') 
-     ( input fiQueryError:fgcolor
-     , output iColorNr
+  RUN value(getProgramDir() + 'dChooseColor.w')
+     ( INPUT fiQueryError:fgcolor
+     , OUTPUT iColorNr
      ).
 
-  if iColorNr <> -1 then 
+  IF iColorNr <> -1 THEN
     fiQueryError:fgcolor = iColorNr.
-end.
+END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1112,19 +1064,19 @@ end.
 &Scoped-define SELF-NAME btnQueryInfo
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnQueryInfo C-Win
 ON CHOOSE OF btnQueryInfo IN FRAME FRAME-Y /* Set */
-or mouse-select-click of fiQueryInfo
-do:
-  define variable iColorNr as integer no-undo. 
+OR MOUSE-SELECT-CLICK OF fiQueryInfo
+DO:
+  DEFINE VARIABLE iColorNr AS INTEGER NO-UNDO.
 
-  run value(getProgramDir() + 'dChooseColor.w') 
-     ( input fiQueryInfo:fgcolor
-     , output iColorNr
+  RUN value(getProgramDir() + 'dChooseColor.w')
+     ( INPUT fiQueryInfo:fgcolor
+     , OUTPUT iColorNr
      ).
 
-  if iColorNr <> -1 then 
+  IF iColorNr <> -1 THEN
     fiQueryInfo:fgcolor = iColorNr.
-  
-end.
+
+END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1134,19 +1086,19 @@ end.
 &Scoped-define SELF-NAME btnRecordCountComplete
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnRecordCountComplete C-Win
 ON CHOOSE OF btnRecordCountComplete IN FRAME FRAME-AF /* Set */
-or mouse-select-click of fiRecordCountComplete
-do:
-  define variable iColorNr as integer no-undo. 
+OR MOUSE-SELECT-CLICK OF fiRecordCountComplete
+DO:
+  DEFINE VARIABLE iColorNr AS INTEGER NO-UNDO.
 
-  run value(getProgramDir() + 'dChooseColor.w') 
-     ( input fiRecordCountComplete:fgcolor
-     , output iColorNr
+  RUN value(getProgramDir() + 'dChooseColor.w')
+     ( INPUT fiRecordCountComplete:fgcolor
+     , OUTPUT iColorNr
      ).
 
-  if iColorNr <> -1 then 
+  IF iColorNr <> -1 THEN
     fiRecordCountComplete:fgcolor = iColorNr.
-  
-end.
+
+END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1155,19 +1107,19 @@ end.
 &Scoped-define SELF-NAME btnRecordCountIncomplete
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnRecordCountIncomplete C-Win
 ON CHOOSE OF btnRecordCountIncomplete IN FRAME FRAME-AF /* Set */
-or mouse-select-click of fiRecordCountIncomplete
-do:
-  define variable iColorNr as integer no-undo. 
+OR MOUSE-SELECT-CLICK OF fiRecordCountIncomplete
+DO:
+  DEFINE VARIABLE iColorNr AS INTEGER NO-UNDO.
 
-  run value(getProgramDir() + 'dChooseColor.w') 
-     ( input fiRecordCountIncomplete:fgcolor
-     , output iColorNr
+  RUN value(getProgramDir() + 'dChooseColor.w')
+     ( INPUT fiRecordCountIncomplete:fgcolor
+     , OUTPUT iColorNr
      ).
 
-  if iColorNr <> -1 then 
+  IF iColorNr <> -1 THEN
     fiRecordCountIncomplete:fgcolor = iColorNr.
-  
-end.
+
+END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1176,19 +1128,19 @@ end.
 &Scoped-define SELF-NAME btnRecordCountSelected
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnRecordCountSelected C-Win
 ON CHOOSE OF btnRecordCountSelected IN FRAME FRAME-AF /* Set */
-or mouse-select-click of fiRecordCountSelected
-do:
-  define variable iColorNr as integer no-undo. 
+OR MOUSE-SELECT-CLICK OF fiRecordCountSelected
+DO:
+  DEFINE VARIABLE iColorNr AS INTEGER NO-UNDO.
 
-  run value(getProgramDir() + 'dChooseColor.w') 
-     ( input fiRecordCountSelected:fgcolor
-     , output iColorNr
+  RUN value(getProgramDir() + 'dChooseColor.w')
+     ( INPUT fiRecordCountSelected:fgcolor
+     , OUTPUT iColorNr
      ).
 
-  if iColorNr <> -1 then 
+  IF iColorNr <> -1 THEN
     fiRecordCountSelected:fgcolor = iColorNr.
-  
-end.
+
+END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1198,19 +1150,19 @@ end.
 &Scoped-define SELF-NAME btnWarningBoxBg
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnWarningBoxBg C-Win
 ON CHOOSE OF btnWarningBoxBg IN FRAME FRAME-V /* BG */
-or mouse-menu-click of fiWarningBox
-do:
-  define variable iColorNr as integer no-undo. 
+OR MOUSE-MENU-CLICK OF fiWarningBox
+DO:
+  DEFINE VARIABLE iColorNr AS INTEGER NO-UNDO.
 
-  run value(getProgramDir() + 'dChooseColor.w') 
-     ( input fiWarningBox:bgcolor
-     , output iColorNr
+  RUN value(getProgramDir() + 'dChooseColor.w')
+     ( INPUT fiWarningBox:bgcolor
+     , OUTPUT iColorNr
      ).
 
-  if iColorNr <> -1 then 
+  IF iColorNr <> -1 THEN
     fiWarningBox:bgcolor = iColorNr.
 
-end.
+END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1219,18 +1171,18 @@ end.
 &Scoped-define SELF-NAME btnWarningBoxFg
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnWarningBoxFg C-Win
 ON CHOOSE OF btnWarningBoxFg IN FRAME FRAME-V /* FG */
-or mouse-select-click of fiWarningBox
-do:
-  define variable iColorNr as integer no-undo. 
+OR MOUSE-SELECT-CLICK OF fiWarningBox
+DO:
+  DEFINE VARIABLE iColorNr AS INTEGER NO-UNDO.
 
-  run value(getProgramDir() + 'dChooseColor.w') 
-     ( input fiWarningBox:fgcolor
-     , output iColorNr
+  RUN value(getProgramDir() + 'dChooseColor.w')
+     ( INPUT fiWarningBox:fgcolor
+     , OUTPUT iColorNr
      ).
 
-  if iColorNr <> -1 then 
+  IF iColorNr <> -1 THEN
     fiWarningBox:fgcolor = iColorNr.
-end.
+END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1240,16 +1192,16 @@ end.
 &Scoped-define SELF-NAME rsColumnLabelTemplate
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rsColumnLabelTemplate C-Win
 ON VALUE-CHANGED OF rsColumnLabelTemplate IN FRAME FRAME-Z
-do:
+DO:
 
-  fiExample:screen-value = 
-    substitute(self:screen-value
+  fiExample:screen-value =
+    SUBSTITUTE(SELF:screen-value
               , "cust-num"
               , "1"
               , "Customer Number"
               ).
 
-end.
+END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1260,9 +1212,9 @@ end.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tgAutoFont C-Win
 ON VALUE-CHANGED OF tgAutoFont IN FRAME FRAME-J /* Automatically set fonts */
 DO:
-  
-  btnDefaultFont:sensitive = not self:checked.
-  btnFixedFont  :sensitive = not self:checked.
+
+  btnDefaultFont:sensitive = NOT SELF:checked.
+  btnFixedFont  :sensitive = NOT SELF:checked.
 
 END.
 
@@ -1275,13 +1227,13 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tgUseSystemColors C-Win
 ON VALUE-CHANGED OF tgUseSystemColors IN FRAME FRAME-T /* Use System Colors */
 DO:
-  
-  fiOddRow :sensitive = not self:checked.
-  fiEvenRow:sensitive = not self:checked.
-  btnOddFg :sensitive = not self:checked.
-  btnOddBg :sensitive = not self:checked.
-  btnEvenFg:sensitive = not self:checked.
-  btnEvenBg:sensitive = not self:checked.
+
+  fiOddRow :sensitive = NOT SELF:checked.
+  fiEvenRow:sensitive = NOT SELF:checked.
+  btnOddFg :sensitive = NOT SELF:checked.
+  btnOddBg :sensitive = NOT SELF:checked.
+  btnEvenFg:sensitive = NOT SELF:checked.
+  btnEvenBg:sensitive = NOT SELF:checked.
 
 END.
 
@@ -1299,7 +1251,7 @@ END.
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE
    RUN disable_UI.
 
 /* Best default for GUI applications is...                              */
@@ -1358,19 +1310,14 @@ PROCEDURE enable_UI :
 ------------------------------------------------------------------------------*/
   VIEW FRAME DEFAULT-FRAME IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
-  DISPLAY tgAddDataColumnForRowid tgAddDataColumnForRecid 
-      WITH FRAME FRAME-A IN WINDOW C-Win.
-  ENABLE RECT-21 tgAddDataColumnForRowid tgAddDataColumnForRecid 
-      WITH FRAME FRAME-A IN WINDOW C-Win.
-  {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   DISPLAY tgAutoFont 
       WITH FRAME FRAME-J IN WINDOW C-Win.
   ENABLE RECT-20 tgAutoFont btnDefaultFont btnFixedFont 
       WITH FRAME FRAME-J IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-J}
-  DISPLAY rsTitleBarDbName 
+  DISPLAY rsTitleBarDbName tgTitleStartsWithTableName 
       WITH FRAME FRAME-AB IN WINDOW C-Win.
-  ENABLE RECT-22 rsTitleBarDbName 
+  ENABLE RECT-22 rsTitleBarDbName tgTitleStartsWithTableName 
       WITH FRAME FRAME-AB IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-AB}
   DISPLAY rsColumnLabelTemplate fiExample 
@@ -1413,3 +1360,4 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+

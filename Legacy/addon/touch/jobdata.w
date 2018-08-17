@@ -65,25 +65,39 @@ RUN sys/ref/nk1look.p (INPUT cocode, "TSAMPMWarn", "L" /* Logical */, NO /* chec
 
 DEF VAR v-time-clock-off AS LOG  NO-UNDO.
 
-DEF NEW SHARED TEMP-TABLE tt-comp FIELD i-no AS cha 
-                              FIELD rcv-qty AS INT
-                              FIELD est-no AS cha 
-                              FIELD form-no AS INT 
-                              FIELD set-qty AS INT.
-
-DEF TEMP-TABLE tt-mach NO-UNDO
-    FIELD machine AS CHAR
-    INDEX machine machine.
-
-DEF TEMP-TABLE tt-machtran-reckey NO-UNDO
-    FIELD rec_key AS CHAR
-    FIELD START_date AS DATE
-    FIELD START_time AS INT
-    FIELD end_date AS DATE
-    FIELD end_time AS INT
-    FIELD shift AS CHAR.
-
-DEF BUFFER b-tt-machtran-reckey FOR tt-machtran-reckey.
+DEFINE NEW SHARED TEMP-TABLE tt-comp NO-UNDO 
+    FIELD i-no AS CHARACTER 
+    FIELD rcv-qty AS INTEGER 
+    FIELD est-no AS CHARACTER 
+    FIELD form-no AS INTEGER 
+    FIELD set-qty AS INTEGER 
+    .
+DEFINE TEMP-TABLE tt-mach NO-UNDO
+    FIELD machine AS CHARACTER 
+        INDEX machine machine
+        .
+DEFINE TEMP-TABLE ttTrans NO-UNDO
+    FIELD chargeCode AS CHARACTER
+    FIELD shift      AS CHARACTER
+    FIELD startDate  AS DATE
+    FIELD startTime  AS INTEGER
+    FIELD endDate    AS DATE
+    FIELD endTime    AS INTEGER
+    FIELD totalTime  AS INTEGER
+    FIELD pct        AS DECIMAL
+    FIELD machemp    AS LOGICAL
+    FIELD loginTime  AS INTEGER 
+    FIELD logoutTime AS INTEGER 
+    FIELD done       AS LOGICAL
+    FIELD runQty     AS INTEGER
+    FIELD wasteQty   AS INTEGER
+    FIELD completed  AS LOGICAL 
+    FIELD rRowID     AS ROWID 
+        INDEX ttTrans IS PRIMARY
+            startDate startTime
+            .
+DEFINE BUFFER bttTrans  FOR ttTrans.
+DEFINE BUFFER bMachTran FOR machtran.
 
 /*{methods/defines/hndldefs.i}            */
 {methods/prgsecd3.i "p-tchupd."}
@@ -121,6 +135,19 @@ Btn_Waste Btn_complete
 
 /* ************************  Function Prototypes ********************** */
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fTotalTime s-object
+FUNCTION fTotalTime RETURNS INTEGER 
+  (ipdtStartDate AS DATE,
+    ipdtEndDate AS DATE,
+    ipiStartTime AS INTEGER,
+    ipiEndTime AS INTEGER) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD getNumForms s-object 
 FUNCTION getNumForms RETURNS INTEGER
   (  ) FORWARD.
@@ -134,6 +161,14 @@ FUNCTION setTimerStatus RETURNS CHARACTER
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD ftsDockSec s-object
+FUNCTION ftsDockSec RETURNS LOGICAL 
+  (ipiTime AS INTEGER) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 
 /* ***********************  Control Definitions  ********************** */
@@ -703,7 +738,7 @@ FOR EACH bf-machtran NO-LOCK WHERE bf-machtran.company = company_code AND
         FIND FIRST est-op
             WHERE est-op.company EQ est.company
               AND est-op.est-no  EQ est.est-no
-              AND est-op.s-num   EQ int(FORM_number)
+              AND est-op.s-num   EQ int(form_number)
               AND (est-op.b-num  EQ int(blank_number) OR int(blank_number) EQ 0)
               AND est-op.m-code  EQ machine_code
               AND est-op.op-pass EQ INT(pass_sequence)
@@ -793,23 +828,25 @@ PROCEDURE completeJobMch :
                segment size
 ------------------------------------------------------------------------------*/
   DEFINE INPUT PARAMETER ipCompany AS CHARACTER NO-UNDO.
-  DEFINE INPUT PARAMETER ipMCode AS CHARACTER NO-UNDO.
-  DEFINE INPUT PARAMETER ipJobNo AS CHARACTER NO-UNDO.
-  DEFINE INPUT PARAMETER ipJobNo2 AS INTEGER NO-UNDO.
-  DEFINE INPUT PARAMETER ipFrm AS INTEGER NO-UNDO.
-  DEFINE INPUT PARAMETER ipBlankNo AS INTEGER NO-UNDO.
+  DEFINE INPUT PARAMETER ipMCode   AS CHARACTER NO-UNDO.
+  DEFINE INPUT PARAMETER ipJobNo   AS CHARACTER NO-UNDO.
+  DEFINE INPUT PARAMETER ipJobNo2  AS INTEGER   NO-UNDO.
+  DEFINE INPUT PARAMETER ipFrm     AS INTEGER   NO-UNDO.
+  DEFINE INPUT PARAMETER ipBlankNo AS INTEGER   NO-UNDO.
 
   FIND FIRST job-mch EXCLUSIVE-LOCK
-       WHERE job-mch.company EQ ipCompany
-         AND job-mch.m-code EQ ipMCode
-         AND job-mch.job-no EQ ipJobNo
-         AND job-mch.job-no2 EQ ipJobNo2
-         AND job-mch.frm EQ ipFrm
-         AND job-mch.blank-no EQ ipBlankNo NO-ERROR.
-  IF AVAIL job-mch THEN
-  DO:
-     ASSIGN job-mch.run-complete = YES
-            job-mch.mr-complete = YES.
+       WHERE job-mch.company  EQ ipCompany
+         AND job-mch.m-code   EQ ipMCode
+         AND job-mch.job-no   EQ ipJobNo
+         AND job-mch.job-no2  EQ ipJobNo2
+         AND job-mch.frm      EQ ipFrm
+         AND job-mch.blank-no EQ ipBlankNo
+       NO-ERROR.
+  IF AVAILABLE job-mch THEN DO:
+     ASSIGN
+        job-mch.run-complete = YES
+        job-mch.mr-complete  = YES
+        .
      FIND CURRENT job-mch NO-LOCK.
   END.
 
@@ -855,19 +892,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE create-break s-object 
-PROCEDURE create-break :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI s-object  _DEFAULT-DISABLE
 PROCEDURE disable_UI :
 /*------------------------------------------------------------------------------
@@ -881,857 +905,6 @@ PROCEDURE disable_UI :
   /* Hide all frames. */
   HIDE FRAME F-Main.
   IF THIS-PROCEDURE:PERSISTENT THEN DELETE PROCEDURE THIS-PROCEDURE.
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE done-in-2days s-object 
-PROCEDURE done-in-2days :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/      
-  DEFINE INPUT-OUTPUT PARAM machtran_rec_id AS RECID NO-UNDO.
-  DEFINE INPUT PARAM v-today AS DATE NO-UNDO.
-
-  DEF VAR lv-brk-st-time AS INT NO-UNDO.
-  DEF VAR lv-brk-end-time AS INT NO-UNDO.
-  DEF VAR lv-prev-brk-end-time AS INT NO-UNDO.
-  DEF VAR lv-got-break AS LOG NO-UNDO.
-  DEF VAR lv-shift_break_start_time AS INT NO-UNDO.
-  DEF VAR lv-shift_break_end_time AS INT NO-UNDO.
-  DEF VAR lv-org-shift AS cha NO-UNDO.
-  DEF VAR lv-next-shift-avail AS LOG NO-UNDO.
-  DEF VAR lv-sht-charge AS cha NO-UNDO.
-  DEF VAR lv-num-shift AS INT NO-UNDO.
-  DEF VAR v-is-this-last-machine AS LOG NO-UNDO.
-  DEF VAR v-components-rcv-qty AS INT NO-UNDO.
-  DEF VAR v-jobqty AS INT NO-UNDO.
-  DEF VAR v-runqty AS INT NO-UNDO.
-  DEF VAR v-form-complete AS LOG NO-UNDO.
-  DEF BUFFER bf-machtran FOR machtran.
-  DEF VAR v-start-date AS DATE NO-UNDO.
-  DEF BUFFER bf-machemp FOR machemp.
-  DEF BUFFER buf-machemp FOR machemp.
-  DEF BUFFER buf-mach FOR mach.
-  DEF BUFFER b2-machtran FOR machtran.
-  DEF VAR lv-mach-list AS cha NO-UNDO.
-  DEF VAR v-date-time-1 AS CHAR NO-UNDO.
-  DEF VAR v-date-time-2 AS CHAR NO-UNDO.
-  DEF VAR v-date-time-3 AS CHAR NO-UNDO.
-
-  FIND FIRST machtran WHERE RECID(machtran) = machtran_rec_id.
-  RUN Get-Shift(machtran.company,machtran.machine,stoptime,job_sequence,OUTPUT shiftvar).
-
-  IF shiftvar = machtran.shift THEN DO:
-     
-     /*RUN addon\touch\do-date.p (INPUT-OUTPUT machtran_rec_id,v-completed).*/
-     ASSIGN machtran.end_date = machtran.start_date
-            machtran.run_qty = 0
-            machtran.waste_qty = 0
-            machtran.end_time = 86399
-            machtran.completed = v-completed.
-     {custom/calctime.i &file="machtran"}
-
-     CREATE bf-machtran.
-     ASSIGN
-        bf-machtran.company = machtran.company
-        bf-machtran.machine = machtran.machine
-        bf-machtran.job_number = machtran.job_number
-        bf-machtran.job_sub = machtran.job_sub
-        bf-machtran.form_number = machtran.form_number
-        bf-machtran.blank_number = machtran.blank_number
-        bf-machtran.pass_sequence = machtran.pass_sequence
-        bf-machtran.start_date = v-today
-        bf-machtran.start_time = 0
-        bf-machtran.jobseq = machtran.jobseq
-        bf-machtran.charge_code = machtran.charge_code        
-        bf-machtran.shift = machtran.shift
-        bf-machtran.end_date = v-today
-        bf-machtran.run_qty = run-qty
-        bf-machtran.waste_qty = waste-qty        
-        bf-machtran.completed = v-completed
-        bf-machtran.end_time = stoptime /* no shift change, close out current */
-        bf-machtran.posted = NO
-        machtran_rec_id = RECID(bf-machtran).
-     {custom/calctime.i &file="bf-machtran"}
-
-     /* update machemp and create new machemp for 2nd day for employees logged in*/
-     
-     FIND FIRST mach WHERE
-          mach.company = machtran.company AND
-          mach.m-code = machtran.machine
-          NO-LOCK NO-ERROR.
-
-     IF AVAIL mach AND mach.sch-m-code <> "" THEN DO:
-        FOR EACH buf-mach FIELDS(m-code) WHERE
-            buf-mach.company EQ mach.company AND
-            buf-mach.loc     EQ mach.loc AND
-            buf-mach.sch-m-code = mach.sch-m-code
-            NO-LOCK:
-            lv-mach-list = lv-mach-list + buf-mach.m-code + ",".
-        END.
-     END.
-
-     EMPTY TEMP-TABLE tt-machtran-reckey.
-
-     FOR EACH b2-machtran FIELDS(rec_key START_date END_date START_time
-         END_time shift) WHERE
-         b2-machtran.company EQ machtran.company AND
-         b2-machtran.machine EQ machtran.machine AND
-         b2-machtran.job_number EQ machtran.job_number AND
-         b2-machtran.job_sub EQ machtran.job_sub AND
-         b2-machtran.FORM_number EQ machtran.FORM_number AND
-         b2-machtran.BLANK_number EQ  machtran.BLANK_number AND
-         b2-machtran.pass_sequence EQ machtran.pass_sequence AND
-         b2-machtran.jobseq EQ machtran.jobseq AND
-         b2-machtran.charge_code EQ machtran.charge_code AND
-         b2-machtran.posted = NO
-         NO-LOCK:
-    
-         CREATE tt-machtran-reckey.
-         ASSIGN tt-machtran-reckey.rec_key = b2-machtran.rec_key
-                tt-machtran-reckey.start_date = b2-machtran.start_date
-                tt-machtran-reckey.end_date = b2-machtran.end_date
-                tt-machtran-reckey.start_time = b2-machtran.start_time
-                tt-machtran-reckey.end_time = b2-machtran.end_time
-                tt-machtran-reckey.shift    = b2-machtran.shift.
-         RELEASE tt-machtran-reckey.
-     END.
-    
-     FOR EACH tt-machtran-reckey,
-         EACH machemp WHERE
-              machemp.TABLE_rec_key = tt-machtran-reckey.rec_key,
-         EACH b-tt-machtran-reckey WHERE
-              b-tt-machtran-reckey.shift EQ machemp.shift AND
-              b-tt-machtran-reckey.rec_key NE machemp.TABLE_rec_key:
-    
-             ASSIGN
-                v-date-time-1 = STRING(YEAR(b-tt-machtran-reckey.START_date),"9999")
-                              + STRING(MONTH(b-tt-machtran-reckey.START_date),"99")
-                              + STRING(DAY(b-tt-machtran-reckey.START_date),"99")
-                              + STRING(b-tt-machtran-reckey.START_time,"9999999")
-                v-date-time-2 = STRING(YEAR(b-tt-machtran-reckey.end_date),"9999")
-                              + STRING(MONTH(b-tt-machtran-reckey.end_date),"99")
-                              + STRING(DAY(b-tt-machtran-reckey.end_date),"99")
-                              + STRING(b-tt-machtran-reckey.end_time,"9999999").
-                v-date-time-3 = STRING(YEAR(machemp.start_date),"9999")
-                              + STRING(MONTH(machemp.start_date),"99")
-                              + STRING(DAY(machemp.start_date),"99")
-                              + STRING(machemp.start_time,"9999999").
-
-             IF v-date-time-3 GE v-date-time-1 AND v-date-time-3 LE v-date-time-2 THEN
-                machemp.TABLE_rec_key = b-tt-machtran-reckey.rec_key.
-         
-     END.
-
-     RELEASE machemp.
-
-     FOR EACH machemp WHERE machemp.TABLE_rec_key = bf-machtran.rec_key,
-         FIRST emplogin WHERE
-               emplogin.company = machtran.company AND
-               emplogin.employee = machemp.employee AND
-               (emplogin.machine = machtran.machine OR LOOKUP(emplogin.machine,lv-mach-list) > 0) AND
-               emplogin.end_date = ? AND
-               emplogin.end_time = 0 AND
-               emplogin.total_time = 0
-               NO-LOCK:
-
-         ASSIGN machemp.END_date = bf-machtran.END_date
-                machemp.END_time = bf-machtran.END_time.
-     END.
-
-     RELEASE machemp.
-
-     FOR EACH machemp WHERE
-         machemp.TABLE_rec_key = bf-machtran.rec_key AND
-         machemp.end_date NE ?:
-
-         ASSIGN
-            v-date-time-1 = STRING(YEAR(machemp.end_date),"9999") +
-                            STRING(MONTH(machemp.end_date),"99")  +
-                            STRING(DAY(machemp.end_date),"99")    +
-                            STRING(machemp.end_time,"9999999")
-            v-date-time-2 = STRING(YEAR(bf-machtran.end_date),"9999") +
-                            STRING(MONTH(bf-machtran.end_date),"99")  +
-                            STRING(DAY(bf-machtran.end_date),"99")    +
-                            STRING(bf-machtran.end_time,"9999999").
-
-         IF v-date-time-1 GT v-date-time-2 THEN
-         DO:
-            ASSIGN machemp.END_date = bf-machtran.end_date
-                   machemp.END_time = bf-machtran.END_time.
-
-            {custom/calctime.i &file="machemp"}
-
-            ASSIGN
-               v-date-time-1 = STRING(YEAR(machemp.end_date),"9999") +
-                               STRING(MONTH(machemp.end_date),"99")  +
-                               STRING(DAY(machemp.end_date),"99")    +
-                               STRING(machemp.end_time,"9999999")
-               v-date-time-2 = STRING(YEAR(machemp.start_date),"9999") +
-                               STRING(MONTH(machemp.start_date),"99")  +
-                               STRING(DAY(machemp.start_date),"99")    +
-                               STRING(machemp.start_time,"9999999").
-
-            IF v-date-time-1 LT v-date-time-2 THEN
-               DELETE machemp.
-         END.
-     END.
-
-     RELEASE machemp.
-
-     FOR EACH machemp WHERE machemp.TABLE_rec_key = machtran.rec_key,
-         FIRST emplogin WHERE
-               emplogin.company = machtran.company AND
-               emplogin.employee = machemp.employee AND
-               (emplogin.machine = machtran.machine OR LOOKUP(emplogin.machine,lv-mach-list) > 0) AND
-               emplogin.end_date = ? AND
-               emplogin.end_time = 0 AND
-               emplogin.total_time = 0
-               NO-LOCK,
-         FIRST employee FIELDS(rate_usage) WHERE
-               employee.company = machtran.company AND
-               employee.employee = machemp.employee
-               NO-LOCK:
-
-         ASSIGN
-            v-date-time-1 = STRING(YEAR(emplogin.START_date),"9999") +
-                            STRING(MONTH(emplogin.START_date),"99")  +
-                            STRING(DAY(emplogin.START_date),"99")    +
-                            STRING(emplogin.START_time,"9999999")
-            v-date-time-2 = STRING(YEAR(bf-machtran.START_date),"9999") +
-                            STRING(MONTH(bf-machtran.START_date),"99")  +
-                            STRING(DAY(bf-machtran.START_date),"99")    +
-                            STRING(bf-machtran.START_time,"9999999")
-            v-date-time-3 = STRING(YEAR(bf-machtran.end_date),"9999") +
-                            STRING(MONTH(bf-machtran.end_date),"99") +
-                            STRING(DAY(bf-machtran.end_date),"99") +
-                            STRING(bf-machtran.end_time,"9999999").
-
-         IF v-date-time-1 GT v-date-time-3 THEN
-         DO:
-            DELETE machemp.
-            NEXT.
-         END.
-
-         IF v-date-time-1 GT v-date-time-2 THEN
-            NEXT.
-
-         IF NOT CAN-FIND(FIRST bf-machemp WHERE
-            bf-machemp.table_rec_key = bf-machtran.rec_key AND
-            bf-machemp.employee   = machemp.employee AND
-            bf-machemp.start_date = bf-machtran.start_date AND
-            bf-machemp.start_time = bf-machtran.start_time) THEN
-            DO:
-               CREATE bf-machemp.
-               BUFFER-COPY machemp EXCEPT machemp.table_rec_key machemp.rec_key TO bf-machemp.
-               ASSIGN bf-machemp.table_rec_key = bf-machtran.rec_key
-                      bf-machemp.start_date = bf-machtran.start_date
-                      bf-machemp.start_time = bf-machtran.start_time /* 0 */
-                      bf-machemp.end_date = bf-machtran.end_date
-                      bf-machemp.end_time = bf-machtran.end_time
-                      bf-machemp.ratetype = 'Standard'
-                      bf-machemp.rate_usage = employee.rate_usage.
-               {custom/calctime.i &file="bf-machemp"}
-               RUN Employee-Rate(company_code,bf-machemp.employee,bf-machemp.shift,machine_code,
-                                 bf-machemp.rate_usage,bf-machemp.ratetype,OUTPUT bf-machemp.rate).
-
-               RELEASE bf-machemp.
-            END.
-
-         ASSIGN machemp.END_date = machtran.END_date
-                machemp.END_time = machtran.END_time.
-         
-         {custom/calctime.i &file="machemp"}
-     END.
-
-     RELEASE machemp.
-     
-     FOR EACH machemp WHERE machemp.TABLE_rec_key EQ machtran.rec_key AND
-         machemp.end_date NE ?:
-         ASSIGN
-            v-date-time-1 = STRING(YEAR(machemp.end_date),"9999") +
-                            STRING(MONTH(machemp.end_date),"99")  +
-                            STRING(DAY(machemp.end_date),"99")    +
-                            STRING(machemp.end_time,"9999999")
-            v-date-time-2 = STRING(YEAR(machtran.end_date),"9999") +
-                            STRING(MONTH(machtran.end_date),"99")  +
-                            STRING(DAY(machtran.end_date),"99")    +
-                            STRING(machtran.end_time,"9999999").
-
-         IF v-date-time-1 GT v-date-time-2 THEN
-         DO:
-            ASSIGN machemp.END_date = machtran.end_date
-                   machemp.END_time = machtran.END_time.
-
-            {custom/calctime.i &file="machemp"}
-
-            ASSIGN
-               v-date-time-1 = STRING(YEAR(machemp.end_date),"9999") +
-                               STRING(MONTH(machemp.end_date),"99")  +
-                               STRING(DAY(machemp.end_date),"99")    +
-                               STRING(machemp.end_time,"9999999")
-               v-date-time-2 = STRING(YEAR(machemp.start_date),"9999") +
-                               STRING(MONTH(machemp.start_date),"99")  +
-                               STRING(DAY(machemp.start_date),"99")    +
-                               STRING(machemp.start_time,"9999999").
-
-            IF v-date-time-1 LT v-date-time-2 THEN
-               DELETE machemp.
-         END.
-     END.
-
-     RELEASE machtran.
-
-     FIND FIRST machtran WHERE RECID(machtran) EQ machtran_rec_id.
-     
-     /*=== CHECK BREAK TIME FOR the shift ==== */
-     {addon/touch/do-break.i}
-     
-  END.
-  ELSE DO: /* shift change, close out current */        
-     RUN Shift-Data(company_code,machine_code,machtran.shift,
-                          OUTPUT starttime,OUTPUT endtime).
-
-     IF tsdocksec-log AND
-        SUBSTRING(STRING(endtime,"HH:MM:SS"),7,2) EQ "59" THEN
-        endtime = endtime + 1.
-
-     IF machtran.start_time <= endtime  THEN DO: /* multi shift in start_date*/
-        
-        ASSIGN machtran.end_date = machtran.START_date
-               machtran.run_qty = 0
-               machtran.waste_qty = 0
-               machtran.completed = v-completed
-               v-start-date = machtran.START_date
-               machtran.end_time = endtime.
-        {custom/calctime.i &file="machtran"} 
-        RUN touch/upd-memp2.p (ROWID(machtran)).
-        {addon/touch/do-break.i}
-    
-        RUN Missing-Shift(company_code,machine_code,machtran.shift,shiftvar,
-                          OUTPUT missingshift).
-        IF missingshift NE '' THEN /* skipped a shift */
-        DO: /* create record for skipped shift */
-          RUN Shift-Data(company_code,machine_code,missingshift,
-                         OUTPUT starttime,OUTPUT endtime).
-
-          IF tsdocksec-log AND
-             SUBSTRING(STRING(endtime,"HH:MM:SS"),7,2) EQ "59" THEN
-             endtime = endtime + 1.
-
-          IF starttime NE endtime THEN
-          DO:
-            CREATE machtran.
-            ASSIGN
-              machtran.company = company_code
-              machtran.machine = machine_code
-              machtran.job_number = job_number
-              machtran.job_sub = INTEGER(job_sub)
-              machtran.form_number = INTEGER(form_number)
-              machtran.blank_number = INTEGER(blank_number)
-              machtran.pass_sequence = INTEGER(pass_sequence)
-              machtran.start_date = v-today
-              machtran.start_time = starttime
-              machtran.end_date = v-today
-              machtran.end_time = endtime
-              machtran.shift = missingshift
-              machtran.jobseq = IF AVAILABLE jobseq THEN jobseq.jobseq ELSE 0
-              machtran.charge_code = charge_code
-              machtran.completed = v-completed
-              machtran.posted = NO
-              .
-             RUN touch/crt-memp.p (company_code,machine_code, ROWID(machtran)).
-             {custom/calctime.i &file="machtran"}
-             {addon/touch/do-break.i}
-             {custom/calctime.i &file="machtran"}
-          END.
-        END.  /*missing shift */
-        /* create record for current shift */
-        RUN Shift-Data(company_code,machine_code,shiftvar,
-                       OUTPUT starttime,OUTPUT endtime).
-
-        IF tsdocksec-log AND
-           SUBSTRING(STRING(endtime,"HH:MM:SS"),7,2) EQ "59" THEN
-           endtime = endtime + 1.
-
-        IF starttime NE stoptime THEN
-        DO:
-          CREATE machtran.
-          ASSIGN
-            machtran.company = company_code
-            machtran.machine = machine_code
-            machtran.job_number = job_number
-            machtran.job_sub = INTEGER(job_sub)
-            machtran.form_number = INTEGER(form_number)
-            machtran.blank_number = INTEGER(blank_number)
-            machtran.pass_sequence = INTEGER(pass_sequence)
-            machtran.start_date = v-start-date
-            machtran.start_time = starttime
-            machtran.end_date = v-today
-            machtran.end_time = stoptime
-            machtran.shift = shiftvar
-            machtran.jobseq = IF AVAILABLE jobseq THEN jobseq.jobseq ELSE 0
-            machtran.charge_code = charge_code
-            machtran.completed = v-completed
-            machtran.posted = NO
-            machtran-rowid = ROWID(machtran)
-            .
-            RUN touch/crt-memp.p (company_code,machine_code, ROWID(machtran)).
-            {custom/calctime.i &file="machtran"}
-            {addon/touch/do-break.i}
-
-        END. /* if starttime ne endtime */      
-        {custom/calctime.i &file="machtran"}
-
-        /*RUN addon\touch\do-date.p (INPUT-OUTPUT machtran_rec_id,v-completed).*/
-
-        ASSIGN
-            machtran.end_date = machtran.start_date
-            machtran.run_qty = 0
-            machtran.waste_qty = 0
-            machtran.end_time = 86399
-            machtran.completed = v-completed.
-        {custom/calctime.i &file="machtran"}
-
-        /*FIND FIRST machtran WHERE RECID(machtran) = machtran_rec_id EXCLUSIVE-LOCK.*/
-        CREATE bf-machtran.
-        ASSIGN
-           bf-machtran.company = machtran.company
-           bf-machtran.machine = machtran.machine
-           bf-machtran.job_number = machtran.job_number
-           bf-machtran.job_sub = machtran.job_sub
-           bf-machtran.form_number = machtran.form_number
-           bf-machtran.blank_number = machtran.blank_number
-           bf-machtran.pass_sequence = machtran.pass_sequence
-           bf-machtran.start_date = v-today
-           bf-machtran.start_time = 0
-           bf-machtran.jobseq = machtran.jobseq
-           bf-machtran.charge_code = machtran.charge_code        
-           bf-machtran.shift = machtran.shift
-           bf-machtran.end_date = v-today
-           bf-machtran.run_qty = run-qty
-           bf-machtran.waste_qty = waste-qty        
-           bf-machtran.completed = v-completed
-           bf-machtran.end_time = stoptime /* no shift change, close out current */
-           bf-machtran.posted = NO
-           machtran_rec_id = RECID(bf-machtran).
-
-        /* update machemp and create new machemp for 2nd day*/
-        FOR EACH machemp WHERE machemp.TABLE_rec_key = machtran.rec_key:
-           FIND FIRST employee WHERE employee.company = machtran.company
-                                 AND employee.employee = machemp.employee NO-LOCK.
-
-           IF NOT CAN-FIND(FIRST bf-machemp WHERE
-              bf-machemp.table_rec_key = bf-machtran.rec_key AND
-              bf-machemp.employee   = machemp.employee AND
-              bf-machemp.start_date = bf-machtran.start_date AND
-              bf-machemp.start_time = bf-machtran.start_time) THEN
-              DO:
-                 CREATE bf-machemp.
-                 BUFFER-COPY machemp EXCEPT machemp.table_rec_key machemp.rec_key TO bf-machemp.
-                 ASSIGN bf-machemp.table_rec_key = bf-machtran.rec_key
-                      bf-machemp.start_date = bf-machtran.start_date
-                      bf-machemp.start_time = bf-machtran.start_time
-                      bf-machemp.end_date = bf-machtran.end_date
-                      bf-machemp.end_time = bf-machtran.end_time
-                      bf-machemp.ratetype = 'Standard'
-                      bf-machemp.rate_usage = employee.rate_usage.
-                 {custom/calctime.i &file="bf-machemp"}
-                 RUN Employee-Rate(company_code,bf-machemp.employee,bf-machemp.shift,machine_code,
-                                   bf-machemp.rate_usage,bf-machemp.ratetype,OUTPUT bf-machemp.rate).
-                 RELEASE bf-machemp.
-              END.
-
-           ASSIGN machemp.END_date = machtran.END_date
-                  machemp.END_time = machtran.END_time.
-           
-           {custom/calctime.i &file="machemp"}
-        END.
-        /* end of mods*/
-
-        RELEASE machemp.
-        RELEASE machtran.
-
-        FIND FIRST machtran WHERE RECID(machtran) EQ machtran_rec_id.
-
-        {custom/calctime.i &file="machtran"} 
-        /*=== CHECK BREAK TIME FOR the shift ==== */
-        {addon/touch/do-break.i}
-     END.
-     ELSE /* multi shift in end_date*/
-        RUN done-in-2days2 (INPUT-OUTPUT machtran_rec_id, INPUT v-today).
-  END.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE done-in-2days2 s-object 
-PROCEDURE done-in-2days2 :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  DEFINE INPUT-OUTPUT PARAM machtran_rec_id AS RECID NO-UNDO.
-  DEFINE INPUT PARAM v-today AS DATE NO-UNDO.
-
-  DEF VAR lv-brk-st-time AS INT NO-UNDO.
-  DEF VAR lv-brk-end-time AS INT NO-UNDO.
-  DEF VAR lv-prev-brk-end-time AS INT NO-UNDO.
-  DEF VAR lv-got-break AS LOG NO-UNDO.
-  DEF VAR lv-shift_break_start_time AS INT NO-UNDO.
-  DEF VAR lv-shift_break_end_time AS INT NO-UNDO.
-  DEF VAR lv-org-shift AS cha NO-UNDO.
-  DEF VAR lv-next-shift-avail AS LOG NO-UNDO.
-  DEF VAR lv-sht-charge AS cha NO-UNDO.
-  DEF VAR lv-num-shift AS INT NO-UNDO.
-  
-  DEF VAR v-jobqty AS INT NO-UNDO.
-  DEF VAR v-runqty AS INT NO-UNDO.
-  DEF VAR v-form-complete AS LOG NO-UNDO.
-  DEF BUFFER bf-machtran FOR machtran.
-  DEF BUFFER bf-machemp FOR machemp.
-  DEF BUFFER b2-machtran FOR machtran.
-  DEF VAR v-start-date AS DATE NO-UNDO.
-  DEF VAR starttime-2 AS INT NO-UNDO.
-  DEF VAR endtime-2 AS INT NO-UNDO.
-  DEF BUFFER b-emplogin FOR emplogin.
-
-  /*RUN addon\touch\do-date.p (INPUT-OUTPUT machtran_rec_id,v-completed).*/
-  FIND machtran WHERE RECID(machtran) = machtran_rec_id.
-
-  ASSIGN machtran.end_date = machtran.start_date
-        machtran.run_qty = 0
-        machtran.waste_qty = 0
-        machtran.end_time = 86399
-        machtran.completed = v-completed.
-  {custom/calctime.i &file="machtran"}
-
-  CREATE bf-machtran.
-  ASSIGN bf-machtran.company = machtran.company
-        bf-machtran.machine = machtran.machine
-        bf-machtran.job_number = machtran.job_number
-        bf-machtran.job_sub = machtran.job_sub
-        bf-machtran.form_number = machtran.form_number
-        bf-machtran.blank_number = machtran.blank_number
-        bf-machtran.pass_sequence = machtran.pass_sequence
-        bf-machtran.start_date = v-today
-        bf-machtran.start_time = 0
-        bf-machtran.jobseq = machtran.jobseq
-        bf-machtran.charge_code = machtran.charge_code        
-        bf-machtran.completed = v-completed
-        bf-machtran.shift = machtran.shift
-        bf-machtran.posted = NO
-        machtran_rec_id = RECID(bf-machtran).
-
-  /* update machemp and create new machemp for 2nd day*/
-
-  DEF VAR v-date-time-1 AS CHAR NO-UNDO.
-  DEF VAR v-date-time-2 AS CHAR NO-UNDO.
-  DEF VAR v-date-time-3 AS CHAR NO-UNDO.
-
-  FOR EACH machemp WHERE
-      machemp.table_rec_key = machtran.rec_key AND
-      machemp.end_date = ? AND
-      machemp.end_time = 0 AND
-      machemp.total_time = 0,
-      FIRST employee FIELDS(rate_usage) WHERE
-            employee.company = machtran.company AND
-            employee.employee = machemp.employee
-            NO-LOCK:
-
-         ASSIGN
-         v-date-time-1 = STRING(YEAR(machemp.START_date),"9999") +
-                         STRING(MONTH(machemp.START_date),"99")  +
-                         STRING(DAY(machemp.START_date),"99")    +
-                         STRING(machemp.START_time,"9999999").
-         v-date-time-2 = STRING(YEAR(bf-machtran.START_date),"9999") +
-                         STRING(MONTH(bf-machtran.START_date),"99")  +
-                         STRING(DAY(bf-machtran.START_date),"99")    +
-                         STRING(bf-machtran.START_time,"9999999").
-
-         IF v-date-time-1 GT v-date-time-2 THEN NEXT.
-
-         IF NOT CAN-FIND(FIRST bf-machemp WHERE
-            bf-machemp.table_rec_key = bf-machtran.rec_key AND
-            bf-machemp.employee   = machemp.employee AND
-            bf-machemp.start_date = bf-machtran.start_date AND
-            bf-machemp.start_time = bf-machtran.start_time) THEN
-            DO:
-               CREATE bf-machemp.
-               BUFFER-COPY machemp EXCEPT machemp.table_rec_key machemp.rec_key TO bf-machemp.
-               ASSIGN bf-machemp.table_rec_key = bf-machtran.rec_key
-                      bf-machemp.start_date = bf-machtran.start_date
-                      bf-machemp.start_time = bf-machtran.start_time
-                      bf-machemp.end_date = bf-machtran.end_date
-                      bf-machemp.end_time = bf-machtran.end_time
-                      bf-machemp.ratetype = 'Standard'
-                      bf-machemp.rate_usage = employee.rate_usage.
-               {custom/calctime.i &file="bf-machemp"}
-               RUN Employee-Rate(company_code,bf-machemp.employee,bf-machemp.shift,machine_code,
-                                 bf-machemp.rate_usage,bf-machemp.ratetype,OUTPUT bf-machemp.rate).
-               RELEASE bf-machemp.
-            END.
-
-         ASSIGN machemp.END_date = machtran.END_date
-                machemp.END_time = machtran.END_time.
-         {custom/calctime.i &file="machemp"}
-  END.
-
-  RELEASE machemp.
-  /* end of mods*/
-
-  RELEASE bf-machtran.
-
-  FIND FIRST machtran WHERE RECID(machtran) = machtran_rec_id.
-
-  RUN Missing-Shift(company_code,machine_code,machtran.shift,shiftvar,
-                    OUTPUT missingshift).
-
-  IF missingshift NE '' THEN /* skipped a shift */
-  DO: /* create record for skipped shift */
-     RUN Shift-Data(company_code,machine_code,missingshift,
-                    OUTPUT starttime,OUTPUT endtime).
-    
-     IF tsdocksec-log AND
-        SUBSTRING(STRING(endtime,"HH:MM:SS"),7,2) EQ "59" THEN
-        endtime = endtime + 1.
-    
-     IF starttime NE endtime THEN
-     DO:
-       CREATE machtran.
-       ASSIGN
-         machtran.company = company_code
-         machtran.machine = machine_code
-         machtran.job_number = job_number
-         machtran.job_sub = INTEGER(job_sub)
-         machtran.form_number = INTEGER(form_number)
-         machtran.blank_number = INTEGER(blank_number)
-         machtran.pass_sequence = INTEGER(pass_sequence)
-         machtran.start_date = v-today
-         machtran.start_time = starttime
-         machtran.end_date = v-today
-         machtran.end_time = endtime
-         machtran.shift = missingshift
-         machtran.jobseq = IF AVAILABLE jobseq THEN jobseq.jobseq ELSE 0
-         machtran.charge_code = charge_code
-         machtran.completed = v-completed
-         machtran.posted = NO
-         .    
-        {custom/calctime.i &file="machtran"}
-    
-        RUN touch/crt-memp.p (company_code,machine_code, ROWID(machtran)).
-        {addon/touch/do-break.i}
-        {custom/calctime.i &file="machtran"}
-
-        RELEASE machtran.
-     END.
-  END.  /*missing shift */
-
-  /* create record for current shift */
-  RUN Shift-Data(company_code,machine_code,shiftvar,
-                 OUTPUT starttime,OUTPUT endtime).
-
-  IF tsdocksec-log AND
-     SUBSTRING(STRING(endtime,"HH:MM:SS"),7,2) EQ "59" THEN
-     endtime = endtime + 1.
-
-  IF starttime NE stoptime THEN
-  DO:
-    CREATE machtran.
-    ASSIGN
-      machtran.company = company_code
-      machtran.machine = machine_code
-      machtran.job_number = job_number
-      machtran.job_sub = INTEGER(job_sub)
-      machtran.form_number = INTEGER(form_number)
-      machtran.blank_number = INTEGER(blank_number)
-      machtran.pass_sequence = INTEGER(pass_sequence)
-      machtran.start_date = v-today
-      machtran.start_time = starttime
-      machtran.end_date = v-today
-      machtran.end_time = stoptime
-      machtran.shift = shiftvar
-      machtran.jobseq = IF AVAILABLE jobseq THEN jobseq.jobseq ELSE 0
-      machtran.charge_code = charge_code
-      machtran.completed = v-completed
-      machtran.posted = NO
-      machtran-rowid = ROWID(machtran)
-      .
-      {custom/calctime.i &file="machtran"}
-
-    RUN touch/crt-memp.p (company_code,machine_code, ROWID(machtran)).
-    {addon/touch/do-break.i}
-    {custom/calctime.i &file="machtran"}
-     RELEASE machtran.
-  END. /* if starttime ne endtime */
-
-  RELEASE machtran.
-
-  FIND FIRST machtran WHERE RECID(machtran) = machtran_rec_id.
-
-  RUN Shift-Data(company_code,machine_code,machtran.shift,
-                 OUTPUT starttime-2,OUTPUT endtime-2).
-
-  IF tsdocksec-log AND
-     SUBSTRING(STRING(endtime-2,"HH:MM:SS"),7,2) EQ "59" THEN
-     endtime-2 = endtime-2 + 1.
-
-  ASSIGN machtran.end_date = v-today
-         machtran.run_qty = run-qty
-         machtran.waste_qty = waste-qty        
-         machtran.completed = v-completed
-         machtran.end_time = endtime-2. /* no shift change, close out current */
-
-  /*update machemp so they match to the correct machtrans
-    machemps can be created within touchfrm.w before the proper corresponding
-    machtran is created when finishing a process*/
-
-  EMPTY TEMP-TABLE tt-machtran-reckey.
-
-  FOR EACH b2-machtran FIELDS(rec_key START_date END_date START_time
-      END_time shift) WHERE
-      b2-machtran.company EQ machtran.company AND
-      b2-machtran.machine EQ machtran.machine AND
-      b2-machtran.job_number EQ machtran.job_number AND
-      b2-machtran.job_sub EQ machtran.job_sub AND
-      b2-machtran.FORM_number EQ machtran.FORM_number AND
-      b2-machtran.BLANK_number EQ  machtran.BLANK_number AND
-      b2-machtran.pass_sequence EQ machtran.pass_sequence AND
-      b2-machtran.jobseq EQ machtran.jobseq AND
-      b2-machtran.charge_code EQ machtran.charge_code AND
-      b2-machtran.posted = NO
-      NO-LOCK:
-
-      CREATE tt-machtran-reckey.
-      ASSIGN tt-machtran-reckey.rec_key = b2-machtran.rec_key
-             tt-machtran-reckey.start_date = b2-machtran.start_date
-             tt-machtran-reckey.end_date = b2-machtran.end_date
-             tt-machtran-reckey.start_time = b2-machtran.start_time
-             tt-machtran-reckey.end_time = b2-machtran.end_time
-             tt-machtran-reckey.shift    = b2-machtran.shift.
-      RELEASE tt-machtran-reckey.
-  END.
-
-  FOR EACH tt-machtran-reckey,
-      EACH machemp WHERE
-           machemp.TABLE_rec_key = tt-machtran-reckey.rec_key,
-      EACH b-tt-machtran-reckey WHERE
-           b-tt-machtran-reckey.shift EQ machemp.shift AND
-           b-tt-machtran-reckey.rec_key NE machemp.TABLE_rec_key:
-
-          ASSIGN
-          v-date-time-1 = STRING(YEAR(b-tt-machtran-reckey.START_date),"9999") +
-                          STRING(MONTH(b-tt-machtran-reckey.START_date),"99")  +
-                          STRING(DAY(b-tt-machtran-reckey.START_date),"99")    +
-                          STRING(b-tt-machtran-reckey.START_time,"9999999")
-          v-date-time-2 = STRING(YEAR(b-tt-machtran-reckey.end_date),"9999") +
-                          STRING(MONTH(b-tt-machtran-reckey.end_date),"99")  +
-                          STRING(DAY(b-tt-machtran-reckey.end_date),"99")    +
-                          STRING(b-tt-machtran-reckey.end_time,"9999999")
-          v-date-time-3 = STRING(YEAR(machemp.start_date),"9999") +
-                          STRING(MONTH(machemp.start_date),"99")  +
-                          STRING(DAY(machemp.start_date),"99")    +
-                          STRING(machemp.start_time,"9999999").
-         
-          IF v-date-time-3 GE v-date-time-1 AND v-date-time-3 LE v-date-time-2 THEN
-             machemp.TABLE_rec_key = b-tt-machtran-reckey.rec_key.
-  END.
-
-  RELEASE machemp.
-
-  /* update machemp and create new machemp for 2nd day*/
-
- FOR EACH tt-machtran-reckey,
-     EACH machemp WHERE
-     machemp.TABLE_rec_key = tt-machtran-reckey.rec_key AND
-     machemp.END_date = ? AND
-     machemp.end_time = 0 AND
-     machemp.total_time = 0:
-
-     FIND FIRST b-emplogin WHERE
-          b-emplogin.company = machtran.company AND
-          b-emplogin.employee = machemp.employee AND
-          b-emplogin.end_date = ? AND
-          b-emplogin.end_time = 0 AND
-          b-emplogin.total_time = 0
-          NO-LOCK NO-ERROR.
-
-     IF AVAIL b-emplogin THEN
-     DO:
-        ASSIGN
-           v-date-time-1 = STRING(YEAR(b-emplogin.START_date),"9999") +
-                           STRING(MONTH(b-emplogin.START_date),"99")  +
-                           STRING(DAY(b-emplogin.START_date),"99")    +
-                           STRING(b-emplogin.START_time,"9999999")
-           v-date-time-2 = STRING(YEAR(tt-machtran-reckey.end_date),"9999") +
-                           STRING(MONTH(tt-machtran-reckey.end_date),"99")  +
-                           STRING(DAY(tt-machtran-reckey.end_date),"99")    +
-                           STRING(tt-machtran-reckey.end_time,"9999999").
-
-        IF v-date-time-1 GT v-date-time-2 THEN
-        DO:
-           DELETE machemp.
-           NEXT.
-        END.
-     END.
-
-     ASSIGN machemp.END_date = tt-machtran-reckey.END_date
-            machemp.END_time = tt-machtran-reckey.END_time.
-    
-     {custom/calctime.i &file="machemp"}
-  END.
-
-  RELEASE machemp.
-  /* end of mods*/
-
-  FOR EACH tt-machtran-reckey,
-      EACH machemp WHERE machemp.TABLE_rec_key EQ tt-machtran-reckey.rec_key AND
-      machemp.end_date NE ?:
-      ASSIGN
-         v-date-time-1 = STRING(YEAR(machemp.end_date),"9999") +
-                         STRING(MONTH(machemp.end_date),"99")  +
-                         STRING(DAY(machemp.end_date),"99")    +
-                         STRING(machemp.end_time,"9999999")
-         v-date-time-2 = STRING(YEAR(tt-machtran-reckey.end_date),"9999") +
-                         STRING(MONTH(tt-machtran-reckey.end_date),"99")  +
-                         STRING(DAY(tt-machtran-reckey.end_date),"99")    +
-                         STRING(tt-machtran-reckey.end_time,"9999999").
-
-      IF v-date-time-1 GT v-date-time-2 THEN
-      DO:
-         ASSIGN machemp.END_date = tt-machtran-reckey.end_date
-                machemp.END_time = tt-machtran-reckey.END_time.
-
-         {custom/calctime.i &file="machemp"}
-
-         ASSIGN
-            v-date-time-1 = STRING(YEAR(machemp.end_date),"9999") +
-                            STRING(MONTH(machemp.end_date),"99")  +
-                            STRING(DAY(machemp.end_date),"99")    +
-                            STRING(machemp.end_time,"9999999")
-            v-date-time-2 = STRING(YEAR(machemp.start_date),"9999") +
-                            STRING(MONTH(machemp.start_date),"99")  +
-                            STRING(DAY(machemp.start_date),"99")    +
-                            STRING(machemp.start_time,"9999999").
-
-         IF v-date-time-1 LT v-date-time-2 THEN
-            DELETE machemp.
-      END.
-  END.
-
-  RELEASE machemp.
-
-  {custom/calctime.i &file="machtran"} 
-  {addon/touch/do-break.i}
-
-  RELEASE machtran.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1818,100 +991,89 @@ PROCEDURE job-start :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEFINE INPUT PARAMETER v-today AS DATE NO-UNDO.
+    DEFINE INPUT PARAMETER v-today AS DATE NO-UNDO.
     
-  DEFINE VARIABLE ampm AS INTEGER NO-UNDO.
-  DEFINE VARIABLE machtran_rec_key AS CHARACTER NO-UNDO.
-  DEFINE VARIABLE machtran_rec_id AS RECID NO-UNDO.
-
-  DEF VAR v-jobqty AS INT NO-UNDO.
-  DEF VAR v-runqty AS INT NO-UNDO.
-  DEF VAR v-form-complete AS LOG NO-UNDO.
-  DEF BUFFER bf-machtran FOR machtran.
-
-  DEF VAR lv-brk-st-time AS INT NO-UNDO.
-  DEF VAR lv-brk-end-time AS INT NO-UNDO.
-  DEF VAR lv-prev-brk-end-time AS INT NO-UNDO.
-  DEF VAR lv-got-break AS LOG NO-UNDO.
-  DEF VAR lv-shift_break_start_time AS INT NO-UNDO.
-  DEF VAR lv-shift_break_end_time AS INT NO-UNDO.
-  DEF VAR lv-org-shift AS cha NO-UNDO.
-  DEF VAR lv-next-shift-avail AS LOG NO-UNDO.
-  DEF VAR lv-sht-charge AS cha NO-UNDO.
-  DEF VAR lv-num-shift AS INT NO-UNDO.
-  DEF VAR v-is-this-last-machine AS LOG NO-UNDO.
-  DEF VAR v-components-rcv-qty AS INT NO-UNDO.
+    DEFINE VARIABLE ampm      AS INTEGER NO-UNDO.
+    DEFINE VARIABLE iTimeHour AS INTEGER NO-UNDO.
   
-  DO WITH FRAME {&FRAME-NAME}:
-    {methods/run_link.i "CONTAINER" "Get_Value" "('company_code',OUTPUT company_code)"}
-    {methods/run_link.i "CONTAINER" "Get_Value" "('machine_code',OUTPUT machine_code)"}
-    {methods/run_link.i "CONTAINER" "Get_Value" "('job_number',OUTPUT job_number)"}
-    {methods/run_link.i "CONTAINER" "Get_Value" "('job_sub',OUTPUT job_sub)"}
-    {methods/run_link.i "CONTAINER" "Get_Value" "('form_number',OUTPUT form_number)"}
-    {methods/run_link.i "CONTAINER" "Get_Value" "('blank_number',OUTPUT blank_number)"}
-    {methods/run_link.i "CONTAINER" "Get_Value" "('pass_sequence',OUTPUT pass_sequence)"}
-    {methods/run_link.i "CONTAINER" "Get_Value" "('charge_code',OUTPUT charge_code)"}    
+    DO WITH FRAME {&FRAME-NAME}:
+        {methods/run_link.i "CONTAINER" "Get_Value" "('company_code',OUTPUT company_code)"}
+        {methods/run_link.i "CONTAINER" "Get_Value" "('machine_code',OUTPUT machine_code)"}
+        {methods/run_link.i "CONTAINER" "Get_Value" "('job_number',OUTPUT job_number)"}
+        {methods/run_link.i "CONTAINER" "Get_Value" "('job_sub',OUTPUT job_sub)"}
+        {methods/run_link.i "CONTAINER" "Get_Value" "('form_number',OUTPUT form_number)"}
+        {methods/run_link.i "CONTAINER" "Get_Value" "('blank_number',OUTPUT blank_number)"}
+        {methods/run_link.i "CONTAINER" "Get_Value" "('pass_sequence',OUTPUT pass_sequence)"}
+        {methods/run_link.i "CONTAINER" "Get_Value" "('charge_code',OUTPUT charge_code)"}    
 
-     ampm = IF Btn_AMPM:LABEL = 'PM' AND time-hour NE 12 THEN 43200 ELSE 0.
+        CREATE machtran.
+        ASSIGN
+            ampm                   = IF Btn_AMPM:LABEL EQ 'PM' AND time-hour NE 12 THEN 43200 ELSE 0
+            iTimeHour              = IF Btn_AMPM:LABEL EQ 'AM' AND time-hour EQ 12 THEN 0 ELSE time-hour
+            machtran.company       = company_code
+            machtran.machine       = machine_code
+            machtran.job_number    = job_number
+            machtran.job_sub       = INTEGER(job_sub)
+            machtran.form_number   = INTEGER(form_number)
+            machtran.blank_number  = INTEGER(blank_number)
+            machtran.pass_sequence = INTEGER(pass_sequence)
+            machtran.start_date    = v-today
+            machtran.start_time    = iTimeHour * 3600 + time-minute * 60 + ampm
+            machtran.jobseq        = IF AVAILABLE jobseq THEN jobseq.jobseq ELSE 0
+            machtran.charge_code   = charge_code
+            machtran.posted        = NO        
+            machtran-rowid         = ROWID(machtran)
+            .      
+        RUN Get-Shift (company_code,machine_code,machtran.start_time,job_sequence,OUTPUT machtran.shift).
+        FIND FIRST shift_break NO-LOCK USE-INDEX shift
+             WHERE shift_break.company    EQ machtran.company
+               AND shift_break.shift      EQ machtran.shift
+               AND shift_break.start_time LE machtran.start_time
+               AND shift_break.end_time   GE machtran.start_time
+             NO-ERROR.
+        IF AVAILABLE shift_break THEN 
+            machtran.start_time = shift_break.end_time + 1.
+  
+        {methods/run_link.i "CONTAINER" "Set_MachTran_Rowid" "(machtran-rowid)"}
+        /* get active employees logged into this machine */
+        FOR EACH emplogin NO-LOCK
+            WHERE emplogin.company    EQ company_code
+              AND (emplogin.machine   EQ machine_code
+               OR LOOKUP(emplogin.machine,machine_list) GT 0)
+              AND emplogin.end_date   EQ ?
+              AND emplogin.end_time   EQ 0
+              AND emplogin.total_time EQ 0,
+            FIRST employee OF emplogin NO-LOCK:
 
-      CREATE machtran.
-      ASSIGN
-        machtran.company = company_code
-        machtran.machine = machine_code
-        machtran.job_number = job_number
-        machtran.job_sub = INTEGER(job_sub)
-        machtran.form_number = INTEGER(form_number)
-        machtran.blank_number = INTEGER(blank_number)
-        machtran.pass_sequence = INTEGER(pass_sequence)
-        machtran.start_date = v-today
-        machtran.start_time = time-hour * 3600 + time-minute * 60 + ampm
-        machtran.jobseq = IF AVAILABLE jobseq THEN jobseq.jobseq ELSE 0
-        machtran.charge_code = charge_code
-        machtran.posted = NO        
-        machtran-rowid = ROWID(machtran)
-        .      
-      RUN Get-Shift (company_code,machine_code,machtran.start_time,job_sequence,
-                     OUTPUT machtran.shift).
-      FIND FIRST shift_break NO-LOCK USE-INDEX shift
-           WHERE shift_break.company    EQ machtran.company
-             AND shift_break.shift      EQ machtran.shift
-             AND shift_break.start_time LE machtran.start_time
-             AND shift_break.end_time   GE machtran.start_time
-           NO-ERROR.
-      IF AVAILABLE shift_break THEN 
-      machtran.start_time = shift_break.end_time + 1.
-      
-      {methods/run_link.i "CONTAINER" "Set_MachTran_Rowid" "(machtran-rowid)"}
-      /* get active employees logged into this machine */
-      FOR EACH emplogin NO-LOCK
-          WHERE emplogin.company = company_code
-            AND (emplogin.machine = machine_code OR LOOKUP(emplogin.machine,machine_list) > 0)
-            AND emplogin.END_date = ?
-            AND emplogin.end_time = 0
-            AND emplogin.total_time = 0,
-          FIRST employee OF emplogin NO-LOCK:
-
-        IF NOT CAN-FIND(FIRST machemp WHERE
-           machemp.table_rec_key = machtran.rec_key AND
-           machemp.employee = emplogin.employee AND
-           machemp.start_date = machtran.start_date AND
-           machemp.start_time = machtran.start_time) THEN
-           DO:
-              CREATE machemp.
-              ASSIGN
-                machemp.table_rec_key = machtran.rec_key
-                machemp.employee = emplogin.employee
-                machemp.start_date = machtran.start_date
-                machemp.start_time = machtran.start_time
-                machemp.shift = machtran.shift
-                machemp.ratetype = 'Standard'
-                machemp.rate_usage = employee.rate_usage.
-              RUN Employee-Rate(company_code,machemp.employee,machemp.shift,machine_code,
-                                machemp.rate_usage,machemp.ratetype,OUTPUT machemp.rate).
-              RELEASE machemp.
-           END.
-      END. /* each emplogin */
-  END. 
+            IF NOT CAN-FIND(FIRST machemp
+                            WHERE machemp.table_rec_key = machtran.rec_key
+                            AND machemp.employee = emplogin.employee
+                            AND machemp.start_date = machtran.start_date
+                            AND machemp.start_time = machtran.start_time) THEN DO:
+                CREATE machemp.
+                ASSIGN
+                    machemp.table_rec_key = machtran.rec_key
+                    machemp.employee      = emplogin.employee
+                    machemp.start_date    = machtran.start_date
+                    machemp.start_time    = machtran.start_time
+                    machemp.shift         = machtran.shift
+                    machemp.ratetype      = 'Standard'
+                    machemp.rate_usage    = employee.rate_usage
+                    .
+                RUN Employee-Rate (
+                    company_code,
+                    machemp.employee,
+                    machemp.shift,
+                    machine_code,
+                    machemp.rate_usage,
+                    machemp.ratetype,
+                    OUTPUT machemp.rate
+                    ).
+                RELEASE machemp.
+            END. /* not can-find */
+        END. /* each emplogin */
+    END. /* with frame */
+  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1924,513 +1086,686 @@ PROCEDURE Job_Data_Collection :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEFINE INPUT PARAMETER v-today AS DATE NO-UNDO.
+    &Scoped-define log1 no
+    &Scoped-define log2 no
+    &Scoped-define log3 no
+    
+    DEFINE INPUT PARAMETER ipdtToday AS DATE NO-UNDO.
 
-  DEFINE VARIABLE ampm AS INTEGER NO-UNDO.
-  DEFINE VARIABLE machtran_rec_key AS CHARACTER NO-UNDO.
-  DEFINE VARIABLE machtran_rec_id AS RECID NO-UNDO.
-  DEFINE BUFFER buf-machemp FOR machemp.
-  DEFINE BUFFER tmp-machemp FOR machemp.
+    DEFINE VARIABLE iAMPM         AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iTimeHour     AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iTimeMinute   AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iStopTime     AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE dtToday       AS DATE      NO-UNDO.    
+    DEFINE VARIABLE dtDate        AS DATE      NO-UNDO.
+    DEFINE VARIABLE dtStartDate   AS DATE      NO-UNDO.
+    DEFINE VARIABLE dtEndDate     AS DATE      NO-UNDO.
+    DEFINE VARIABLE iTime         AS INTEGER   NO-UNDO EXTENT 2.
+    DEFINE VARIABLE iStartTime    AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iEndTime      AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iSTime        AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iETime        AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE cShift        AS CHARACTER NO-UNDO EXTENT 2.
+    DEFINE VARIABLE cMissingShift AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cCompany      AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cMachine      AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cType         AS CHARACTER NO-UNDO EXTENT 2 INIT ["Start","End"].
+    DEFINE VARIABLE cChargeCode   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iRunQty       AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iRQty         AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iWasteQty     AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iWQty         AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iJobQty       AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iTotalTime    AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE lCompleted    AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE lLastMachine  AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMachines     AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE rRecKey       AS CHARACTER NO-UNDO.
+    
+    DEFINE BUFFER bMach FOR mach.
 
-  DEF VAR v-jobqty AS INT NO-UNDO.
-  DEF VAR v-runqty AS INT NO-UNDO.
-  DEF VAR v-form-complete AS LOG NO-UNDO.
-  DEF BUFFER bf-machtran FOR machtran.
+    DO WITH FRAME {&FRAME-NAME}:
+        {methods/run_link.i "CONTAINER" "Get_Value" "('company_code',OUTPUT company_code)"}
+        {methods/run_link.i "CONTAINER" "Get_Value" "('machine_code',OUTPUT machine_code)"}
+        {methods/run_link.i "CONTAINER" "Get_Value" "('job_number',OUTPUT job_number)"}
+        {methods/run_link.i "CONTAINER" "Get_Value" "('job_sub',OUTPUT job_sub)"}
+        {methods/run_link.i "CONTAINER" "Get_Value" "('form_number',OUTPUT form_number)"}
+        {methods/run_link.i "CONTAINER" "Get_Value" "('blank_number',OUTPUT blank_number)"}
+        {methods/run_link.i "CONTAINER" "Get_Value" "('pass_sequence',OUTPUT pass_sequence)"}
+        {methods/run_link.i "CONTAINER" "Get_Value" "('charge_code',OUTPUT charge_code)"}
+        
+        FIND FIRST jobseq NO-LOCK
+             WHERE jobseq.charge_code EQ charge_code
+             NO-ERROR.
+        ASSIGN
+            {&JOB-DATA-FIELDS}
+            dtToday   = ipdtToday
+            iAMPM     = IF Btn_AMPM:LABEL EQ 'PM' AND time-hour NE 12 THEN 43200 ELSE 0
+            iTimeHour = IF Btn_AMPM:LABEL EQ 'AM' AND time-hour EQ 12 THEN 0 ELSE time-hour
+            iStopTime = iTimeHour * 3600 + time-minute * 60 + iAMPM
+            .
+        IF job_sequence BEGINS 'START' THEN
+            RUN job-start(INPUT dtToday).
+        ELSE DO: /* close out current operation */
+            {methods/run_link.i "CONTAINER" "Get_MachTran_Rowid" "(OUTPUT machtran-rowid)"}
+            FIND machtran EXCLUSIVE-LOCK WHERE ROWID(machtran) EQ machtran-rowid.
+            IF CAN-FIND(FIRST sys-ctrl
+                        WHERE sys-ctrl.company EQ cCompany
+                          AND sys-ctrl.name    EQ "TSBREAKS"
+                          AND sys-ctrl.log-fld EQ YES) THEN DO:
+                FIND FIRST shift_break NO-LOCK
+                     WHERE shift_break.company   EQ machtran.company
+                       AND shift_break.shift      EQ machtran.shift
+                       AND shift_break.start_time LE iStopTime
+                       AND shift_break.end_time   GE iStopTime
+                     NO-ERROR.
+                IF AVAILABLE shift_break THEN 
+                iStopTime= shift_break.start_time.                                      
+            END. /* if can-find */
+            IF ((machtran.start_date EQ dtToday AND 
+                 machtran.start_time GT iStopTime) OR
+                (machtran.start_date GT dtToday)) THEN DO:
+                MESSAGE
+                    "WARNING: End Time is Earlier then Start Time." SKIP(1)
+                    "Please ReEnter End Time." SKIP(1)
+                    "Start Time:" STRING(machtran.start_date, "99/99/99") 
+                                  STRING(machtran.start_time, "HH:MM AM") SKIP
+                    "End Time:"   STRING(dtToday, "99/99/99")
+                                  STRING(iStopTime, "HH:MM AM")
+                VIEW-AS ALERT-BOX ERROR.
+                RETURN.
+            END. /* if date/time check */
+            
+            EMPTY TEMP-TABLE ttTrans.
 
-  DEF VAR lv-brk-st-time AS INT NO-UNDO.
-  DEF VAR lv-brk-end-time AS INT NO-UNDO.
-  DEF VAR lv-prev-brk-end-time AS INT NO-UNDO.
-  DEF VAR lv-got-break AS LOG NO-UNDO.
-  DEF VAR lv-shift_break_start_time AS INT NO-UNDO.
-  DEF VAR lv-shift_break_end_time AS INT NO-UNDO.
-  DEF VAR lv-org-shift AS cha NO-UNDO.
-  DEF VAR lv-next-shift-avail AS LOG NO-UNDO.
-  DEF VAR lv-sht-charge AS cha NO-UNDO.
-  DEF VAR lv-num-shift AS INT NO-UNDO.
-  DEF VAR v-is-this-last-machine AS LOG NO-UNDO.
-  DEF VAR v-components-rcv-qty AS INT NO-UNDO.
-  
-  DEF VAR v-date-1 AS CHAR NO-UNDO.
-  DEF VAR v-date-2 AS CHAR NO-UNDO.
-
-  DEF BUFFER b-emplogin FOR emplogin.
-
-  DO WITH FRAME {&FRAME-NAME}:
-    {methods/run_link.i "CONTAINER" "Get_Value" "('company_code',OUTPUT company_code)"}
-    {methods/run_link.i "CONTAINER" "Get_Value" "('machine_code',OUTPUT machine_code)"}
-    {methods/run_link.i "CONTAINER" "Get_Value" "('job_number',OUTPUT job_number)"}
-    {methods/run_link.i "CONTAINER" "Get_Value" "('job_sub',OUTPUT job_sub)"}
-    {methods/run_link.i "CONTAINER" "Get_Value" "('form_number',OUTPUT form_number)"}
-    {methods/run_link.i "CONTAINER" "Get_Value" "('blank_number',OUTPUT blank_number)"}
-    {methods/run_link.i "CONTAINER" "Get_Value" "('pass_sequence',OUTPUT pass_sequence)"}
-    {methods/run_link.i "CONTAINER" "Get_Value" "('charge_code',OUTPUT charge_code)"}    
-    FIND FIRST jobseq WHERE jobseq.charge_code = charge_code NO-LOCK NO-ERROR.
-    ASSIGN
-      {&JOB-DATA-FIELDS}
-      ampm = IF Btn_AMPM:LABEL = 'PM' AND time-hour NE 12 THEN 43200 ELSE 0
-      time-hour = IF Btn_AMPM:LABEL = 'AM' AND time-hour = 12 THEN 0 ELSE time-hour
-      stoptime = time-hour * 3600 + time-minute * 60 + ampm
-      .
-    IF job_sequence BEGINS 'START' THEN
-    DO:     
-        RUN job-start(INPUT v-today).
-    END. /* job_sequence begins */
-    ELSE
-    DO: /* close out current operation */
-      {methods/run_link.i "CONTAINER" "Get_MachTran_Rowid" "(OUTPUT machtran-rowid)"}
-      FIND machtran WHERE ROWID(machtran) = machtran-rowid EXCLUSIVE-LOCK.
-      IF CAN-FIND(FIRST sys-ctrl
-                  WHERE sys-ctrl.company EQ machtran.company
-                    AND sys-ctrl.name    EQ "TSBREAKS"
-                    AND sys-ctrl.log-fld EQ YES) THEN DO:
-          FIND FIRST shift_break NO-LOCK USE-INDEX shift
-               WHERE shift_break.company    EQ machtran.company
-                 AND shift_break.shift      EQ machtran.shift
-                 AND shift_break.start_time LE stoptime
-                 AND shift_break.end_time   GE stoptime
-               NO-ERROR.
-          IF AVAILABLE shift_break THEN
-          ASSIGN 
-              machtran.end_time = shift_break.start_time
-              stoptime = machtran.end_time
-              .
-      END. /* if tsbreak */
-      IF ((machtran.start_date EQ v-today AND 
-          stoptime LT machtran.start_time) OR
-          (machtran.start_date GT v-today)) THEN
-      DO:
-        MESSAGE "WARNING: End Time is Earlier then Start Time." SKIP(1)
-                "Please ReEnter End Time." SKIP(1)
-                "Start Time: " STRING(machtran.start_date, "99/99/99") 
-                               STRING(machtran.start_time, "HH:MM AM") SKIP
-                " End Time: " STRING(v-today, "99/99/99")
-                               STRING(stoptime, "HH:MM AM")  
-             VIEW-AS ALERT-BOX ERROR BUTTONS OK.
-         UNDO, RETRY.
-      END.
-      /* task 02020616 */
-      IF LOOKUP(charge_code,"MR,RUN") > 0 AND
-         (LOOKUP(machine_code,tspostfg-char) > 0 OR
-          CAN-FIND(FIRST mach WHERE mach.company = company_code 
-                                AND mach.m-code = machine_code 
-                                AND lookup(mach.p-type,"A,P") > 0) )
-      THEN DO:
-          RUN addon/touch/chkrecpt.p (company_code,machine_code,job_number,job_sub,charge_code,run-qty) NO-ERROR.          
-      END.
-      /* task 02020616 */                     
-      machtran_rec_id = RECID(machtran).     
-      IF machtran.START_date <> v-today THEN
-         RUN done-in-2days (INPUT-OUTPUT machtran_rec_id, INPUT v-today).
-      ELSE DO:
-         ASSIGN machtran.end_date = v-today
-                machtran.run_qty = run-qty
-                machtran.waste_qty = waste-qty        
-                machtran_rec_key = machtran.rec_key
-                machtran.completed = v-completed.
-         RUN Get-Shift(machtran.company,machtran.machine,stoptime,job_sequence,OUTPUT shiftvar).
-         IF shiftvar = machtran.shift THEN DO:
-            machtran.end_time = stoptime. /* no shift change, close out current */
-            {custom/calctime.i &file="machtran"}
-            /*=== CHECK BREAK TIME FOR the shift ==== */
-            {addon/touch/do-break.i}
-         END.
-         ELSE
-         DO: /* shift change, close out current */        
-            RUN Shift-Data(company_code,machine_code,machtran.shift,
-                           OUTPUT starttime,OUTPUT endtime).
-
-            IF tsdocksec-log AND
-               SUBSTRING(STRING(endtime,"HH:MM:SS"),7,2) EQ "59" THEN
-            endtime = endtime + 1.
-
-            machtran.end_time = endtime.
-            {custom/calctime.i &file="machtran"} 
-            RUN touch/upd-memp2.p (ROWID(machtran)).
-            {addon/touch/do-break.i}
-           
-            RUN Missing-Shift(company_code,machine_code,machtran.shift,shiftvar,
-                              OUTPUT missingshift).
-            IF missingshift NE '' THEN /* skipped a shift */
-            DO: /* create record for skipped shift */
-              RUN Shift-Data(company_code,machine_code,missingshift,
-                             OUTPUT starttime,OUTPUT endtime).
-
-              IF tsdocksec-log AND
-                 SUBSTRING(STRING(endtime,"HH:MM:SS"),7,2) EQ "59" THEN
-                 endtime = endtime + 1.
-
-              IF starttime NE endtime THEN
-              DO:
-                CREATE machtran.
-                ASSIGN
-                  machtran.company = company_code
-                  machtran.machine = machine_code
-                  machtran.job_number = job_number
-                  machtran.job_sub = INTEGER(job_sub)
-                  machtran.form_number = INTEGER(form_number)
-                  machtran.blank_number = INTEGER(blank_number)
-                  machtran.pass_sequence = INTEGER(pass_sequence)
-                  machtran.start_date = v-today
-                  machtran.start_time = starttime
-                  machtran.end_date = v-today
-                  machtran.end_time = endtime
-                  machtran.shift = missingshift
-                  machtran.jobseq = IF AVAILABLE jobseq THEN jobseq.jobseq ELSE 0
-                  machtran.charge_code = charge_code
-                  machtran.completed = v-completed
-                  machtran.posted = NO
-                  .
-                 {custom/calctime.i &file="machtran"}
-
-                 RUN touch/crt-memp.p (company_code,machine_code, ROWID(machtran)).
-                 {addon/touch/do-break.i}
-                 {custom/calctime.i &file="machtran"}
-              END.
-            END.  /*missing shift */
-            /* create record for current shift */
-            RUN Shift-Data(company_code,machine_code,shiftvar,
-                           OUTPUT starttime,OUTPUT endtime).
-
-            IF tsdocksec-log AND
-               SUBSTRING(STRING(endtime,"HH:MM:SS"),7,2) EQ "59" THEN
-               endtime = endtime + 1.
-
-            IF starttime NE stoptime THEN
-            DO:
-              CREATE machtran.
-              ASSIGN
-                machtran.company = company_code
-                machtran.machine = machine_code
-                machtran.job_number = job_number
-                machtran.job_sub = INTEGER(job_sub)
-                machtran.form_number = INTEGER(form_number)
-                machtran.blank_number = INTEGER(blank_number)
-                machtran.pass_sequence = INTEGER(pass_sequence)
-                machtran.start_date = v-today
-                machtran.start_time = starttime
-                machtran.end_date = v-today
-                machtran.end_time = stoptime
-                machtran.shift = shiftvar
-                machtran.jobseq = IF AVAILABLE jobseq THEN jobseq.jobseq ELSE 0
-                machtran.charge_code = charge_code
-                machtran.completed = v-completed
-                machtran.posted = NO
-                machtran-rowid = ROWID(machtran)
+            IF LOOKUP(charge_code,"MR,RUN")       GT 0 AND
+              (LOOKUP(machine_code,tspostfg-char) GT 0 OR
+               CAN-FIND(FIRST mach
+                        WHERE mach.company EQ company_code
+                          AND mach.m-code  EQ machine_code
+                          AND LOOKUP(mach.p-type,"A,P") GT 0)) THEN                          
+            RUN touch/chkrecpt.p (company_code,machine_code,job_number,job_sub,charge_code,run-qty) NO-ERROR.
+            
+            ASSIGN 
+                dtStartDate = machtran.start_date
+                dtEndDate   = dtToday
+                iStartTime  = machtran.start_time
+                iEndTime    = iStopTime
+                cCompany    = machtran.company
+                cMachine    = machtran.machine
+                cChargeCode = machtran.charge_code
+                iRunQty     = run-qty
+                iWasteQty   = waste-qty
+                lCompleted  = v-completed
                 .
-              {custom/calctime.i &file="machtran"}
-
-              RUN touch/crt-memp.p (company_code,machine_code, ROWID(machtran)).
-              {addon/touch/do-break.i}
-            END. /* if starttime ne endtime */
-         END. /* else */
-         {custom/calctime.i &file="machtran"}
-      END. /* start_date <> end_date*/
-
-      /* get all active employees tied to this machine and log them out */
-      FOR EACH tmp-machemp NO-LOCK /* EXCLUSIVE-LOCK  */
-          WHERE tmp-machemp.table_rec_key = machtran_rec_key
-            AND tmp-machemp.END_date = ?
-            AND tmp-machemp.end_time = 0
-            AND tmp-machemp.total_time = 0,
-          FIRST employee WHERE employee.company = company_code
-                           AND employee.employee = tmp-machemp.employee NO-LOCK:
-                           
-         FIND FIRST machemp WHERE RECID(machemp) EQ recid(tmp-machemp)
-                            EXCLUSIVE-LOCK NO-WAIT NO-ERROR.
-         IF NOT AVAIL machemp THEN 
-         DO:
-           MESSAGE "Machine Employee Record Locked.  Please Advise Supervisor." SKIP(1)
-                   "Employee: " tmp-machemp.employee SKIP
-                   "Machine: " machtran.machine SKIP
-                   "Job: " machtran.job_number "-" STRING(machtran.job_sub) SKIP
-                   "Code: " machtran.charge_code
-                    VIEW-AS ALERT-BOX WARNING.
-           NEXT.
-         END.
-        
-         /*if login of employee was after end of machtran because end of machtran was entered after the fact later
-         in another shift, delete machemp*/
-         FIND FIRST b-emplogin WHERE
-              b-emplogin.company EQ company_code AND
-              b-emplogin.employee EQ machemp.employee AND
-              b-emplogin.END_date EQ ? AND
-              b-emplogin.END_time EQ 0 AND
-              b-emplogin.TOTAL_time EQ 0
-              NO-LOCK NO-ERROR.
-        
-         IF AVAIL b-emplogin THEN
-         DO:
+            DO dtDate = dtStartDate TO dtEndDate:
+                ASSIGN
+                    iTime[1]      = iStartTime
+                    iTime[2]      = iEndTime
+                    cMissingShift = ""
+                    .
+                IF dtDate NE dtStartDate THEN
+                    iTime[1] = 0.
+                IF dtDate NE dtEndDate THEN
+                    iTime[2] = 86399.
+            
+                RUN Get-Shift (cCompany,cMachine,iTime[1],cType[1],OUTPUT cShift[1]).
+                RUN Get-Shift (cCompany,cMachine,iTime[2],cType[2],OUTPUT cShift[2]).
+            
+                IF cShift[1] NE cShift[2] THEN DO:
+                    RUN Shift-Data (cCompany,cMachine,cShift[1],OUTPUT iSTime,OUTPUT iETime).
+                    IF ftsDockSec(iETime) THEN iETime = iEtime + 1.
+                    
+                    CREATE ttTrans.
+                    ASSIGN
+                        ttTrans.chargeCode = cChargeCode
+                        ttTrans.shift      = cShift[1]
+                        ttTrans.startDate  = dtDate
+                        ttTrans.startTime  = iTime[1]
+                        ttTrans.endDate    = dtDate
+                        ttTrans.endTime    = iETime
+                        ttTrans.totalTime  = fTotalTime(ttTrans.startDate,ttTrans.endDate,ttTrans.startTime,ttTrans.endTime)
+                        ttTrans.machEmp    = YES
+                        ttTrans.loginTime  = ttTrans.startTime
+                        ttTrans.logoutTime = ttTrans.endTime
+                        .
+                    
+                    RUN Shift-Data (cCompany,cMachine,cShift[2],OUTPUT iSTime,OUTPUT iETime).
+                    IF ftsDockSec(iETime) THEN iETime = iEtime + 1.
+                    
+                    CREATE ttTrans.
+                    ASSIGN
+                        ttTrans.chargeCode = cChargeCode
+                        ttTrans.shift      = cShift[2]
+                        ttTrans.startDate  = dtDate
+                        ttTrans.startTime  = iSTime
+                        ttTrans.endDate    = dtDate
+                        ttTrans.endTime    = iTime[2]
+                        ttTrans.totalTime  = fTotalTime(ttTrans.startDate,ttTrans.endDate,ttTrans.startTime,ttTrans.endTime)
+                        ttTrans.machEmp    = YES
+                        ttTrans.loginTime  = ttTrans.startTime
+                        ttTrans.logoutTime = ttTrans.endTime
+                        .
+                    RUN Missing-Shift(cCompany,cMachine,cShift[1],cShift[2],OUTPUT cMissingShift).
+                    IF cMissingShift NE "" THEN DO:
+                        RUN Shift-Data (cCompany,cMachine,cMissingShift,OUTPUT iSTime,OUTPUT iETime).
+                        IF ftsDockSec(iETime) THEN iETime = iEtime + 1.                        
+                        CREATE ttTrans.
+                        ASSIGN
+                            ttTrans.chargeCode = cChargeCode
+                            ttTrans.shift      = cMissingShift
+                            ttTrans.startDate  = dtDate
+                            ttTrans.startTime  = iSTime
+                            ttTrans.endDate    = dtDate
+                            ttTrans.endTime    = iETime
+                            ttTrans.totalTime  = fTotalTime(ttTrans.startDate,ttTrans.endDate,ttTrans.startTime,ttTrans.endTime)
+                            ttTrans.machEmp    = YES
+                            ttTrans.loginTime  = ttTrans.startTime
+                            ttTrans.logoutTime = ttTrans.endTime
+                            .
+                    END. /* if missing shift */
+                END. /* if span multi shifts */
+                ELSE DO: /* single shift */
+                    /* check if shift spans multiple shifts */
+                    DO WHILE TRUE:
+                        RUN Shift-Data (cCompany,cMachine,cShift[1],OUTPUT iSTime,OUTPUT iETime).
+                        IF ftsDockSec(iETime) THEN iETime = iEtime + 1.
+                        /* shift spans midnight, if before midnight then done */
+                        IF iSTime GT iETime AND 86400 GE iTime[2] THEN LEAVE.
+                        /* if shift end time ge end time then done */
+                        IF iETime GE iTime[2] THEN LEAVE.            
+                        CREATE ttTrans.
+                        ASSIGN
+                            ttTrans.chargeCode = cChargeCode
+                            ttTrans.shift      = cShift[1]
+                            ttTrans.startDate  = dtDate
+                            ttTrans.startTime  = iTime[1]
+                            ttTrans.endDate    = dtDate
+                            ttTrans.endTime    = iETime
+                            ttTrans.totalTime  = fTotalTime(ttTrans.startDate,ttTrans.endDate,ttTrans.startTime,ttTrans.endTime)
+                            ttTrans.machEmp    = YES
+                            ttTrans.loginTime  = ttTrans.startTime
+                            ttTrans.logoutTime = ttTrans.endTime
+                            /* set the start time to shift end time plus 1 second */
+                            iTime[1]           = ttTrans.endTime + 1
+                            .
+                        /* check if crossing over midnight */
+                        IF iTime[1] GE 86400 THEN iTime[1] = 0.
+                        RUN Get-Shift (cCompany,cMachine,iTime[1],cType[1],OUTPUT cShift[1]).
+                        /* if start and end shift the same, we've come full circle, done */
+                        IF cShift[1] EQ cShift[2] THEN LEAVE.            
+                    END. /* do while */
+                    CREATE ttTrans.
+                    ASSIGN
+                        ttTrans.chargeCode = cChargeCode
+                        ttTrans.shift      = cShift[1]
+                        ttTrans.startDate  = dtDate
+                        ttTrans.startTime  = iTime[1]
+                        ttTrans.endDate    = dtDate
+                        ttTrans.endTime    = iTime[2]
+                        ttTrans.totalTime  = fTotalTime(ttTrans.startDate,ttTrans.endDate,ttTrans.startTime,ttTrans.endTime)
+                        ttTrans.machEmp    = YES
+                        ttTrans.loginTime  = ttTrans.startTime
+                        ttTrans.logoutTime = ttTrans.endTime
+                        .
+                END. /* else */
+            END. /* do dtDate */
+            
+            &if "{&log1}" EQ "yes" &then
+            OUTPUT TO c:\tmp\jobdata1.txt.
+            FOR EACH ttTrans:
+                DISPLAY 
+                    ttTrans.chargeCode
+                    ttTrans.shift     
+                    ttTrans.startDate 
+                    STRING(ttTrans.startTime,"hh:mm:ss am") FORMAT "x(11)" LABEL "startTime"
+                    ttTrans.endDate   
+                    STRING(ttTrans.endTime,"hh:mm:ss am") FORMAT "x(11)" LABEL "endTime"   
+                    STRING(ttTrans.totalTime,"hh:mm:ss am") FORMAT "x(11)" LABEL "totalTime"
+                    ttTrans.pct       
+                    ttTrans.machemp   
+                    STRING(ttTrans.loginTime,"hh:mm:ss am") FORMAT "x(11)" LABEL "loginTime"  
+                    STRING(ttTrans.logoutTime,"hh:mm:ss am") FORMAT "x(11)" LABEL "logoutTime"
+                    ttTrans.done      
+                    ttTrans.runQty    
+                    ttTrans.wasteQty  
+                    ttTrans.completed
+                    STRING(ttTrans.rRowID) FORMAT "x(20)"
+                        WITH STREAM-IO WIDTH 200.  
+            END.
+            OUTPUT CLOSE.
+            OS-COMMAND NO-WAIT notepad.exe c:\tmp\jobdata1.txt.
+            &endif
+            
+            /* create breaks if tsbreaks turned on */
+            IF CAN-FIND(FIRST sys-ctrl
+                        WHERE sys-ctrl.company EQ cCompany
+                          AND sys-ctrl.name    EQ "TSBREAKS"
+                          AND sys-ctrl.log-fld EQ YES) THEN DO:
+                FOR EACH ttTrans
+                    WHERE ttTrans.chargeCode EQ cChargeCode
+                      AND ttTrans.done       EQ NO
+                    :
+                    FOR EACH shift_break NO-LOCK
+                        WHERE shift_break.company      EQ cCompany
+                          AND shift_break.shift        EQ ttTrans.shift
+                          AND ((shift_break.start_time LE ttTrans.startTime
+                          AND   shift_break.end_time   GT ttTrans.startTime)                                        
+                           OR  (shift_break.start_time LT ttTrans.endTime
+                          AND   shift_break.end_time   GE ttTrans.endTime)                                      
+                           OR  (shift_break.start_time GE ttTrans.startTime
+                          AND   shift_break.end_time   LE ttTrans.endTime))
+                        :
+                        CREATE bttTrans.
+                        ASSIGN
+                            bttTrans.chargeCode = shift_break.charge_code
+                            bttTrans.shift      = shift_break.shift
+                            bttTrans.startDate  = ttTrans.startDate
+                            bttTrans.startTime  = shift_break.start_time
+                            bttTrans.endDate    = ttTrans.endDate
+                            bttTrans.endTime    = shift_break.end_time
+                            bttTrans.totalTime  = fTotalTime(bttTrans.startDate,bttTrans.endDate,bttTrans.startTime,bttTrans.endTime)
+                            .
+                        CREATE bttTrans.
+                        BUFFER-COPY ttTrans EXCEPT machemp loginTime logoutTime TO bttTrans
+                            ASSIGN
+                                bttTrans.endTime   = shift_break.start_time
+                                bttTrans.totalTime = fTotalTime(bttTrans.startDate,bttTrans.endDate,bttTrans.startTime,bttTrans.endTime)
+                                bttTrans.done      = YES
+                                .
+                        ASSIGN
+                            ttTrans.startTime = shift_break.end_time
+                            ttTrans.totalTime = fTotalTime(ttTrans.startDate,ttTrans.endDate,ttTrans.startTime,ttTrans.endTime)
+                            .
+                    END. /* each shift_break */
+                END. /* each ttTrans */
+            END. /* if tsbreaks */
+            
+            /* calculate total run time */
+            FOR EACH ttTrans
+                WHERE ttTrans.chargeCode EQ cChargeCode
+                :
+                iTotalTime = iTotalTime + ttTrans.totalTime.
+            END. /* each ttTrans */
+            
+            /* set qty values based on pct of total time */
+            FOR EACH ttTrans
+                WHERE ttTrans.chargeCode EQ cChargeCode
+                :
+                ASSIGN
+                    ttTrans.pct      = ttTrans.totalTime / iTotalTime
+                    ttTrans.runQty   = iRunQty * ttTrans.pct
+                    ttTrans.wasteQty = iWasteQty * ttTrans.pct
+                    iRQty            = iRQty + ttTrans.runQty
+                    iWQty            = iWQty + ttTrans.wasteQty
+                    .
+            END. /* each ttTrans */
+            
+            /* calculate if any over/under after distributing qty values */
             ASSIGN
-               v-date-1 = STRING(YEAR(v-today),"9999") +
-                          STRING(MONTH(v-today),"99")  +
-                          STRING(DAY(v-today),"99")    +
-                          STRING(stoptime,"9999999")
-               v-date-2 = STRING(YEAR(b-emplogin.START_date),"9999") +
-                          STRING(MONTH(b-emplogin.START_date),"99")  +
-                          STRING(DAY(b-emplogin.START_date),"99")    +
-                          STRING(b-emplogin.START_time,"9999999").
-        
-            IF v-date-2 GT v-date-1 THEN
-            DO:
-               DELETE machemp.
-               NEXT.
+                iRqty = iRQty - iRunQty
+                iWQty = iWQty - iWasteQty
+                .
+            /* adjust qty values in case of rounding errors */
+            /* set run complete value on last transaction */
+            FIND LAST ttTrans
+                WHERE ttTrans.chargeCode EQ cChargeCode
+                NO-ERROR.
+            IF AVAILABLE ttTrans THEN
+            ASSIGN
+                ttTrans.runQty    = ttTrans.runQty + iRQty
+                ttTrans.wasteQty  = ttTrans.wasteQty + iWQty
+                ttTrans.completed = lCompleted
+                .
+            FIND FIRST ttTrans
+                 WHERE ttTrans.chargeCode EQ cChargeCode
+                 NO-ERROR.
+            IF AVAILABLE ttTrans THEN 
+            ttTrans.rRowID = machtran-rowid.
+
+            FOR EACH ttTrans:
+                /* no machtran record, create it */
+                IF ttTrans.rRowID EQ ? THEN DO:
+                    CREATE bMachTran.
+                    BUFFER-COPY machtran EXCEPT rec_key TO bMachTran
+                        ASSIGN
+                            bMachTran.charge_code = ttTrans.chargeCode
+                            bMachTran.shift       = ttTrans.shift
+                            bMachTran.end_date    = ttTrans.endDate
+                            bMachTran.end_time    = ttTrans.endTime
+                            bMachTran.run_qty     = ttTrans.runQty
+                            bMachTran.start_date  = ttTrans.startDate
+                            bMachTran.start_time  = ttTrans.startTime
+                            bMachTran.waste_qty   = ttTrans.wasteQty
+                            bMachTran.total_time  = ttTrans.totalTime
+                            bMachTran.completed   = ttTrans.completed
+                            dtStartDate           = ttTrans.startDate
+                            iStartTime            = ttTrans.loginTime
+                            dtEndDate             = ttTrans.endDate
+                            iEndTime              = ttTrans.logoutTime
+                            rRecKey               = bMachTran.rec_key
+                            .
+                END. /* if rrowid eq ? */
+                ELSE /* update the already created start machtran */
+                ASSIGN 
+                    machtran.end_date   = ttTrans.endDate
+                    machtran.end_time   = ttTrans.endTime
+                    machtran.run_qty    = ttTrans.runQty
+                    machtran.start_date = ttTrans.startDate
+                    machtran.start_time = ttTrans.startTime
+                    machtran.waste_qty  = ttTrans.wasteQty
+                    machtran.total_time = ttTrans.totalTime
+                    machtran.completed  = ttTrans.completed
+                    dtStartDate         = ttTrans.startDate
+                    iStartTime          = ttTrans.loginTime
+                    dtEndDate           = ttTrans.endDate
+                    iEndTime            = ttTrans.logoutTime
+                    rRecKey             = machtran.rec_key
+                    .
+                
+                /* create machaine employee transactions */
+                IF ttTrans.machemp THEN DO:
+                    FIND FIRST mach NO-LOCK
+                         WHERE mach.company EQ cCompany
+                           AND mach.m-code  EQ machine_code
+                         NO-ERROR.
+                    IF NOT AVAILABLE mach THEN NEXT.
+                    IF mach.sch-m-code NE "" THEN
+                    FOR EACH bMach NO-LOCK 
+                        WHERE bMach.company    EQ mach.company
+                          AND bMach.loc        EQ mach.loc
+                          AND bMach.sch-m-code EQ mach.sch-m-code
+                        :
+                        cMachines = cMachines + bMach.m-code + ",".
+                    END. /* if sch-m-code */
+                    cMachines = TRIM(cMachines,",").
+                    FOR EACH emplogin NO-LOCK
+                        WHERE emplogin.company    EQ machtran.company
+                          AND (emplogin.machine   EQ machtran.machine
+                           OR LOOKUP(emplogin.machine,cMachines) GT 0)
+                          AND emplogin.end_date   EQ ?
+                          AND emplogin.end_time   EQ 0
+                          AND emplogin.total_time EQ 0
+                        :                        
+                        IF STRING(YEAR(emplogin.start_date),"9999") +
+                           STRING(MONTH(emplogin.start_date),"99")  +
+                           STRING(DAY(emplogin.start_date),"99")    +
+                           STRING(emplogin.start_time,"99999")     GT
+                           STRING(YEAR(dtStartDate),"9999")         +
+                           STRING(MONTH(dtStartDate),"99")          +
+                           STRING(DAY(dtStartDate),"99")            +
+                           STRING(iStartTime,"99999") THEN NEXT.                        
+                        FIND FIRST machemp EXCLUSIVE-LOCK
+                             WHERE machemp.table_rec_key EQ rRecKey
+                               AND machemp.employee      EQ emplogin.employee
+                               AND machemp.start_date    EQ dtStartDate
+                               AND machemp.start_time    EQ iStartTime
+                             NO-ERROR.
+                        IF NOT AVAILABLE machemp THEN DO:
+                            FIND FIRST employee NO-LOCK
+                                 WHERE employee.company  EQ emplogin.company
+                                   AND employee.employee EQ emplogin.employee
+                                 NO-ERROR.                        
+                            CREATE machemp.                            
+                            ASSIGN
+                                machemp.table_rec_key = rRecKey
+                                machemp.employee      = emplogin.employee
+                                machemp.start_date    = dtStartDate
+                                machemp.start_time    = iStartTime
+                                machemp.shift         = ttTrans.shift
+                                machemp.ratetype      = "Standard"
+                                machemp.rate_usage    = employee.rate_usage WHEN AVAILABLE(employee)
+                                .
+                            RUN Employee-Rate (
+                                company_code,
+                                machemp.employee,
+                                machemp.shift,
+                                machine_code,
+                                machemp.rate_usage,
+                                machemp.ratetype,
+                                OUTPUT machemp.rate
+                                ).                            
+                        END. /* not avail */
+                        ASSIGN
+                            machemp.end_date = dtEndDate
+                            machemp.end_time = iEndTime
+                            machemp.total_time = fTotalTime(machemp.start_date,machemp.end_date,machemp.start_time,machemp.end_time)
+                            .
+                        RELEASE machemp.
+                    END. /* each emplogin */
+                END. /* if machemp */
+            END. /* each tttrans */
+
+            &if "{&log2}" EQ "yes" &then
+            OUTPUT TO c:\tmp\jobdata2.txt.
+            FOR EACH ttTrans:
+                DISPLAY 
+                    ttTrans.chargeCode
+                    ttTrans.shift     
+                    ttTrans.startDate 
+                    STRING(ttTrans.startTime,"hh:mm:ss am") FORMAT "x(11)" LABEL "startTime"
+                    ttTrans.endDate   
+                    STRING(ttTrans.endTime,"hh:mm:ss am") FORMAT "x(11)" LABEL "endTime"   
+                    STRING(ttTrans.totalTime,"hh:mm:ss am") FORMAT "x(11)" LABEL "totalTime"
+                    ttTrans.pct       
+                    ttTrans.machemp   
+                    STRING(ttTrans.loginTime,"hh:mm:ss am") FORMAT "x(11)" LABEL "loginTime"  
+                    STRING(ttTrans.logoutTime,"hh:mm:ss am") FORMAT "x(11)" LABEL "logoutTime"
+                    ttTrans.done      
+                    ttTrans.runQty    
+                    ttTrans.wasteQty  
+                    ttTrans.completed
+                    STRING(ttTrans.rRowID) FORMAT "x(20)"
+                        WITH STREAM-IO WIDTH 200.  
             END.
-         END.
-        
-         ASSIGN
-           machemp.end_date = v-today
-           stoptime = machtran.end_time.
-         RUN Get-Shift(company_code,machine_code,stoptime,job_sequence,OUTPUT shiftvar).
-         IF shiftvar = machemp.shift THEN
-         DO: /* no shift change, close out current */
-           machemp.end_time = stoptime.
-        
-           {custom/calctime.i &file="machemp"}
-         END.
-         ELSE
-         DO: /* shift change, close out current */
-           RUN Shift-Data(company_code,machine_code,machemp.shift,
-                          OUTPUT starttime,OUTPUT endtime).
-        
-           IF tsdocksec-log AND
-              SUBSTRING(STRING(endtime,"HH:MM:SS"),7,2) EQ "59" THEN
-              endtime = endtime + 1.
-        
-           ASSIGN
-             machemp.table_rec_key = machtran.rec_key
-             machemp.end_time = endtime.
-        
-           {custom/calctime.i &file="machemp"}
-           RUN Missing-Shift(company_code,machine_code,machemp.shift,shiftvar,
-                             OUTPUT missingshift).
-           IF missingshift NE '' THEN /* skipped a shift */
-           DO: /* create record for skipped shift */
-        
-             RUN Shift-Data(company_code,machine_code,missingshift,
-                            OUTPUT starttime,OUTPUT endtime).
-        
-             IF tsdocksec-log AND
-                SUBSTRING(STRING(endtime,"HH:MM:SS"),7,2) EQ "59" THEN
-                endtime = endtime + 1.
-        
-             IF NOT CAN-FIND(FIRST buf-machemp WHERE
-                buf-machemp.table_rec_key = machtran.rec_key AND
-                buf-machemp.employee = employee.employee AND
-                buf-machemp.start_date = v-today AND
-                buf-machemp.start_time = starttime) THEN
-                DO:
-                   CREATE buf-machemp.
-                   ASSIGN
-                     buf-machemp.table_rec_key = machtran.rec_key
-                     buf-machemp.employee = employee.employee
-                     buf-machemp.start_date = v-today
-                     buf-machemp.start_time = starttime
-                     buf-machemp.end_date = v-today
-                     buf-machemp.end_time = endtime
-                     buf-machemp.shift = missingshift
-                     buf-machemp.ratetype = 'Standard'
-                     buf-machemp.rate_usage = employee.rate_usage.
-                   RUN Employee-Rate(employee.company,employee.employee,missingshift,machtran.machine,
-                                     buf-machemp.rate_usage,buf-machemp.ratetype,OUTPUT buf-machemp.rate).
-                   {custom/calctime.i &file="buf-machemp"}
-                   RELEASE buf-machemp.
-                END.
-           END.
-           /* create record for current shift */
-           RUN Shift-Data(company_code,machine_code,shiftvar,
-                          OUTPUT starttime,OUTPUT endtime).
-        
-           IF tsdocksec-log AND
-              SUBSTRING(STRING(endtime,"HH:MM:SS"),7,2) EQ "59" THEN
-              endtime = endtime + 1.
-        
-           IF NOT CAN-FIND(FIRST buf-machemp WHERE
-              buf-machemp.table_rec_key = machtran.rec_key AND
-              buf-machemp.employee = employee.employee AND
-              buf-machemp.start_date = v-today AND
-              buf-machemp.start_time = starttime) THEN
-              DO:
-                 CREATE buf-machemp.
-                 ASSIGN
-                   buf-machemp.table_rec_key = machtran.rec_key
-                   buf-machemp.employee = employee.employee
-                   buf-machemp.start_date = v-today
-                   buf-machemp.start_time = starttime
-                   buf-machemp.end_date = v-today
-                   buf-machemp.end_time = stoptime
-                   buf-machemp.shift = shiftvar
-                   buf-machemp.ratetype = 'Standard'
-                   buf-machemp.rate_usage = employee.rate_usage.
-                 RUN Employee-Rate(employee.company,employee.employee,shiftvar,machtran.machine,
-                                   buf-machemp.rate_usage,buf-machemp.ratetype,OUTPUT buf-machemp.rate).
-                 {custom/calctime.i &file="buf-machemp"}
-                 RELEASE buf-machemp.
-              END.
-         END.
-      END. /* each machemp */
+            OUTPUT CLOSE.
+            OS-COMMAND NO-WAIT notepad.exe c:\tmp\jobdata2.txt.
+            &endif
+            
+            &if "{&log3}" EQ "yes" &then
+            OUTPUT TO c:\tmp\jobdata3.txt.
+            FOR EACH bMachTran NO-LOCK
+                WHERE bMachTran.company       EQ company_code
+                  AND bMachTran.machine       EQ machine_code
+                  AND bMachTran.job_number    EQ job_number
+                  AND bMachTran.job_sub       EQ INTEGER(job_sub)
+                  AND bMachTran.form_number   EQ INTEGER(form_number)
+                  AND bMachTran.blank_number  EQ INTEGER(blank_number)
+                  AND bMachTran.pass_sequence EQ INTEGER(pass_sequence)
+                :        
+                DISPLAY 
+                    bMachTran.charge_Code
+                    bMachTran.shift     
+                    bMachTran.start_Date 
+                    STRING(bMachTran.start_Time,"hh:mm:ss am") FORMAT "x(11)" LABEL "startTime"
+                    bMachTran.end_Date   
+                    STRING(bMachTran.end_Time,"hh:mm:ss am") FORMAT "x(11)" LABEL "endTime"   
+                    STRING(bMachTran.total_Time,"hh:mm:ss am") FORMAT "x(11)" LABEL "totalTime"
+                    bMachTran.run_Qty    
+                    bMachTran.waste_Qty  
+                    bMachTran.complete
+                    STRING(RowID(bMachTran)) FORMAT "x(20)"
+                        WITH STREAM-IO WIDTH 200.
+            END. /* each bmachtran */
+            OUTPUT CLOSE.
+            OS-COMMAND NO-WAIT notepad.exe c:\tmp\jobdata3.txt.
+            &endif
 
-      RELEASE machemp.
-
-      FOR EACH machemp WHERE machemp.TABLE_rec_key EQ machtran_rec_key AND
-          machemp.end_date NE ?:
-          ASSIGN
-             v-date-1 = STRING(YEAR(machemp.end_date),"9999") +
-                        STRING(MONTH(machemp.end_date),"99")  +
-                        STRING(DAY(machemp.end_date),"99")    +
-                        STRING(machemp.end_time,"9999999")
-             v-date-2 = STRING(YEAR(v-today),"9999") +
-                        STRING(MONTH(v-today),"99")  +
-                        STRING(DAY(v-today),"99")    +
-                        STRING(stoptime,"9999999").
-         
-          IF v-date-1 GT v-date-2 THEN
-          DO:
-             ASSIGN machemp.END_date = machtran.end_date
-                    machemp.END_time = machtran.END_time.
-         
-             {custom/calctime.i &file="machemp"}
-
-             ASSIGN
-               v-date-1 = STRING(YEAR(machemp.end_date),"9999") +
-                          STRING(MONTH(machemp.end_date),"99")  +
-                          STRING(DAY(machemp.end_date),"99")    +
-                          STRING(machemp.end_time,"9999999")
-               v-date-2 = STRING(YEAR(machemp.start_date),"9999") +
-                          STRING(MONTH(machemp.start_date),"99")  +
-                          STRING(DAY(machemp.start_date),"99")    +
-                          STRING(machemp.start_time,"9999999").
-
-            IF v-date-1 LT v-date-2 THEN
-               DELETE machemp.
-          END.
-      END.
-
-      RELEASE machemp.
-
-      /*=== change for display job qty & run qty */
-      FIND FIRST job-hdr WHERE job-hdr.company = company_code
-                                AND job-hdr.job-no = job_number
-                                AND job-hdr.job-no2 = INTEGER(job_sub)
-                                NO-LOCK NO-ERROR.
-      ASSIGN
-         v-jobqty = IF AVAIL job-hdr THEN job-hdr.qty ELSE 0
-         v-form-complete = YES
-         v-runqty = 0.
-      {addon/touch/runqty.i}
-      IF charge_code = "RUN" THEN DO:
-       IF fgrecpt-char = "TSPARTS" /* task# 10110515
-          AND CAN-FIND(FIRST est WHERE est.company = company_code
-                                                AND est.est-no = job-hdr.est-no AND est.est-type > 5)*/
-       THEN DO:  /* task# 09080506*/
-          RUN proc-tsparts(INPUT v-today).
-       END.
-       ELSE DO:
-         FIND LAST job-mch WHERE job-mch.company EQ company_code
-                                /*AND job-mch.job     EQ pc-prdd.job*/
-                                AND job-mch.job-no  EQ job_number
-                                AND job-mch.job-no2 EQ INTEGER(job_sub)
-                                AND job-mch.frm    EQ integer(FORM_number)                                 
-                 USE-INDEX line-idx NO-LOCK NO-ERROR.
-         IF AVAIL job-mch AND lookup(job-mch.m-code,tspostfg-char) > 0 AND tspostfg-int = 1 
-         THEN DO:  /* task for setheader receipt */
-            FIND PREV job-mch WHERE job-mch.company EQ company_code
-                                /*AND job-mch.job     EQ pc-prdd.job*/
-                                AND job-mch.job-no  EQ job_number
-                                AND job-mch.job-no2 EQ INTEGER(job_sub)
-                                AND job-mch.frm    EQ integer(FORM_number)                                 
-                    USE-INDEX line-idx NO-LOCK NO-ERROR.
-            IF AVAIL job-mch AND job-mch.m-code = machine_code THEN DO:
-               IF tspostfg-log THEN RUN proc-form-cmplt(INPUT v-today).
-            END.
-         END.
-
-         /* form closing procedure only for last machine */
-         FIND LAST job-mch WHERE job-mch.company EQ company_code
-                                /*AND job-mch.job     EQ pc-prdd.job*/
-                                AND job-mch.job-no  EQ job_number
-                                AND job-mch.job-no2 EQ INTEGER(job_sub)
-                                AND job-mch.frm    EQ integer(FORM_number)                                 
-                 USE-INDEX line-idx NO-LOCK NO-ERROR.
-         IF AVAIL job-mch AND job-mch.m-code = machine_code THEN DO:
-            IF LOOKUP(machine_code,tspostfg-char) > 0 AND tspostfg-int = 1 THEN DO:  /* mods for set header receipts */
-                 /* {touch/tspostfg.i "run proc-set-cmplt."}*/
-                 IF tspostfg-log THEN RUN proc-set-cmplt(INPUT v-today).
-            END.
-            ELSE DO:
-                 IF tspostfg-log THEN RUN proc-form-cmplt(INPUT v-today).
-            END.  /* components receoipt */
-         END.          
-       END. /* else,  no TSPARTS*/
-      END.  /* run */
-
-      FIND LAST jobseq NO-LOCK NO-ERROR.
-      IF AVAILABLE jobseq AND jobseq.charge_code = charge_code THEN DO:
-         IF v-tsfinish-char-val = "Last Machine" AND v-completed THEN
-            RUN touch-finish.
-
-         FOR EACH bf-machtran FIELDS(COMPLETE) WHERE
-             bf-machtran.company = company_code AND
-             bf-machtran.machine = machine_code AND
-             bf-machtran.job_number = job_number AND
-             bf-machtran.job_sub = INTEGER(job_sub) AND
-             bf-machtran.form_number = INTEGER(form_number) AND
-             bf-machtran.blank_number = INTEGER(blank_number) AND
-             bf-machtran.pass_sequence = INTEGER(pass_sequence) NO-LOCK:
-             v-form-complete = IF NOT v-form-complete THEN v-form-complete
-                               ELSE bf-machtran.COMPLETE.
-         END.
-     
-         IF NOT v-form-complete AND tscomplete-log THEN
-            MESSAGE 'IS OPERATION FOR MACHINE ' + CAPS(machine_code) + ' COMPLETE?' SKIP
-                "Job Qty: " v-jobqty "  Total Run Qty: " v-runqty  
-                VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO UPDATE v-form-complete .
-         IF v-form-complete THEN DO:
-            CREATE cmpltjob.
-            ASSIGN cmpltjob.company = company_code
-               cmpltjob.machine = machine_code
-               cmpltjob.job_number = job_number
-               cmpltjob.job_sub = INTEGER(job_sub)
-               cmpltjob.form_number = INTEGER(FORM_number)
-               cmpltjob.blank_number = INTEGER(BLANK_number)
-               cmpltjob.pass_sequence = INTEGER(pass_sequence).
-            RELEASE cmpltjob.
-
-            /* update job-mch.run-complete , mr-complete for scheduling */
-            /* completeJobMch created b/c this procedure exceeded action code
-               seqment size of 63k */
-            RUN completeJobMch (company_code,machine_code,job_number,INTEGER(job_sub),
-                                INTEGER(form_number),INTEGER(blank_number)).
-            RUN updateRouting (company_code,machine_code,job_number,INTEGER(job_sub),
-                               INTEGER(form_number),INTEGER(blank_number)).
-            /* task# 06200526*/
-            FIND LAST job-mch WHERE job-mch.company EQ company_code
-                               /*AND job-mch.job     EQ pc-prdd.job*/
-                               AND job-mch.job-no  EQ job_number
-                               AND job-mch.job-no2 EQ INTEGER(job_sub)
-                               AND job-mch.frm    EQ integer(FORM_number)                                 
-                 USE-INDEX line-idx NO-LOCK NO-ERROR.
-            v-is-this-last-machine = AVAIL job-mch AND job-mch.m-code = machine_code .
-            IF fgrecpt-char = "TSPARTS"  
-               AND CAN-FIND(FIRST est WHERE est.company = company_code
-                              AND est.est-no = job-hdr.est-no AND est.est-type > 5)
-               /*AND lookup(machine_code,tspostfg-char) > 0 */
-            THEN .
-            ELSE IF v-is-this-last-machine THEN RUN close-job (company_code,job_number,job_sub).
-            RELEASE machtran.
-            RETURN 'COMPLETED'.
-         END.
-      END.  /* last seq */
-    END.  /* job_sequence "end" */
-    RUN updateRouting (company_code,machine_code,job_number,INTEGER(job_sub),
-                       INTEGER(form_number),INTEGER(blank_number)).
-    RELEASE machtran.
-  END. /* frame {&frame-name} */
-  RETURN ''.
+            /* logic that existed before rewrite above */
+            RUN Job_Data_Collection_2 (dtToday).
+        END. /* else */
+        RUN updateRouting (
+            company_code,
+            machine_code,
+            job_number,
+            INTEGER(job_sub),
+            INTEGER(form_number),
+            INTEGER(blank_number)
+            ).
+        RELEASE machtran.
+    END. /* frame {&frame-name} */
 
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Job_Data_Collection_2 s-object
+PROCEDURE Job_Data_Collection_2:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipdtToday AS DATE NO-UNDO.
+    
+    DEFINE VARIABLE iJobQty      AS INTEGER NO-UNDO.
+    DEFINE VARIABLE iRunQty      AS INTEGER NO-UNDO.
+    DEFINE VARIABLE lCompleted   AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lLastMachine AS LOGICAL NO-UNDO.
+    
+            FIND FIRST job-hdr NO-LOCK
+                WHERE job-hdr.company EQ company_code
+                  AND job-hdr.job-no  EQ job_number
+                  AND job-hdr.job-no2 EQ INTEGER(job_sub)
+                NO-ERROR.
+            ASSIGN
+                iJobQty    = IF AVAILABLE job-hdr THEN job-hdr.qty ELSE 0
+                lCompleted = YES
+                iRunQty    = 0
+                .
+            FOR EACH bMachTran NO-LOCK
+                WHERE bMachTran.company       EQ company_code
+                  AND bMachTran.machine       EQ machine_code
+                  AND bMachTran.job_number    EQ job_number
+                  AND bMachTran.job_sub       EQ INTEGER(job_sub)
+                  AND bMachTran.form_number   EQ INTEGER(form_number)
+                  AND bMachTran.blank_number  EQ INTEGER(blank_number)
+                  AND bMachTran.pass_sequence EQ INTEGER(pass_sequence)
+                :        
+                iRunQty = iRunQty + bMachTran.RUN_qty.
+            END. /* each bmachtran */
+            IF charge_code EQ "RUN" THEN DO:
+                IF fgrecpt-char EQ "TSPARTS" THEN
+                    RUN proc-tsparts (ipdtToday).
+                ELSE DO:
+                    FIND LAST job-mch NO-LOCK
+                        WHERE job-mch.company EQ company_code
+                          AND job-mch.job-no  EQ job_number
+                          AND job-mch.job-no2 EQ INTEGER(job_sub)
+                          AND job-mch.frm     EQ integer(form_number)                                 
+                        USE-INDEX line-idx NO-ERROR.
+                    IF AVAILABLE job-mch AND
+                        LOOKUP(job-mch.m-code,tspostfg-char) GT 0 AND
+                        tspostfg-int EQ 1 THEN DO:
+                        FIND PREV job-mch NO-LOCK
+                            WHERE job-mch.company EQ company_code
+                              AND job-mch.job-no  EQ job_number
+                              AND job-mch.job-no2 EQ INTEGER(job_sub)
+                              AND job-mch.frm     EQ INTEGER(form_number)                                 
+                            USE-INDEX line-idx NO-ERROR.
+                        IF AVAILABLE job-mch AND job-mch.m-code EQ machine_code THEN DO:
+                            IF tspostfg-log THEN RUN proc-form-cmplt (ipdtToday).
+                        END. /* avail job-mch */
+                    END. /* avail / lookup */
+    
+                    /* form closing procedure only for last machine */
+                    FIND LAST job-mch NO-LOCK
+                        WHERE job-mch.company EQ company_code
+                          AND job-mch.job-no  EQ job_number
+                          AND job-mch.job-no2 EQ INTEGER(job_sub)
+                          AND job-mch.frm     EQ integer(form_number)                                 
+                        USE-INDEX line-idx NO-ERROR.
+                    IF AVAILABLE job-mch AND job-mch.m-code EQ machine_code THEN DO:
+                        IF LOOKUP(machine_code,tspostfg-char) GT 0 AND tspostfg-int EQ 1 THEN DO:
+                            IF tspostfg-log THEN RUN proc-set-cmplt (ipdtToday).
+                        END. /* if lookup */
+                        ELSE DO:
+                            IF tspostfg-log THEN RUN proc-form-cmplt (ipdtToday).
+                        END. /* components receoipt */
+                    END. /* avail job-mch */
+                END. /* else,  no TSPARTS*/
+            END. /* charge code run */
+    
+            FIND LAST jobseq NO-LOCK NO-ERROR.
+            IF AVAILABLE jobseq AND jobseq.charge_code EQ charge_code THEN DO:
+                IF v-tsfinish-char-val EQ "Last Machine" AND lCompleted THEN
+                RUN touch-finish.
+    
+                FOR EACH bMachTran FIELDS(complete) NO-LOCK
+                    WHERE bMachTran.company       EQ company_code
+                      AND bMachTran.machine       EQ machine_code
+                      AND bMachTran.job_number    EQ job_number
+                      AND bMachTran.job_sub       EQ INTEGER(job_sub)
+                      AND bMachTran.form_number   EQ INTEGER(form_number)
+                      AND bMachTran.blank_number  EQ INTEGER(blank_number)
+                      AND bMachTran.pass_sequence EQ INTEGER(pass_sequence)
+                    :
+                    lCompleted = IF NOT lCompleted THEN lCompleted
+                                 ELSE bMachTran.complete.
+                END. /* for each */
+         
+                IF NOT lCompleted AND tscomplete-log THEN
+                    MESSAGE "IS OPERATION FOR MACHINE" CAPS(machine_code) "COMPLETE?" SKIP
+                        "Job Qty:" iJobQty "  Total Run Qty:" iRunQty  
+                        VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO
+                        UPDATE lCompleted.
+                IF lCompleted THEN DO:
+                    CREATE cmpltjob.
+                    ASSIGN 
+                        cmpltjob.company       = company_code
+                        cmpltjob.machine       = machine_code
+                        cmpltjob.job_number    = job_number
+                        cmpltjob.job_sub       = INTEGER(job_sub)
+                        cmpltjob.form_number   = INTEGER(form_number)
+                        cmpltjob.blank_number  = INTEGER(blank_number)
+                        cmpltjob.pass_sequence = INTEGER(pass_sequence)
+                        .
+                    RELEASE cmpltjob.
+    
+                    /* update job-mch.run-complete , mr-complete for scheduling */
+                    /* completeJobMch created b/c this procedure exceeded action code
+                       seqment size of 63k */
+                    RUN completeJobMch (
+                        company_code,
+                        machine_code,
+                        job_number,
+                        INTEGER(job_sub),
+                        INTEGER(form_number),
+                        INTEGER(blank_number)
+                        ).
+                    RUN updateRouting (
+                        company_code,
+                        machine_code,
+                        job_number,
+                        INTEGER(job_sub),
+                        INTEGER(form_number),
+                        INTEGER(blank_number)
+                        ).
+                    /* task# 06200526*/
+                    FIND LAST job-mch NO-LOCK
+                        WHERE job-mch.company EQ company_code
+                          AND job-mch.job-no  EQ job_number
+                          AND job-mch.job-no2 EQ INTEGER(job_sub)
+                          AND job-mch.frm     EQ integer(form_number)                                 
+                        USE-INDEX line-idx NO-ERROR.
+                    lLastMachine = AVAILABLE job-mch AND job-mch.m-code EQ machine_code.
+                    IF fgrecpt-char = "TSPARTS" AND
+                        CAN-FIND(FIRST est
+                                 WHERE est.company  EQ company_code
+                                   AND est.est-no   EQ job-hdr.est-no
+                                   AND est.est-type GT 5) THEN .
+                    ELSE IF lLastMachine THEN RUN close-job (company_code,job_number,job_sub).
+                    RELEASE machtran.
+                END. /* if lcompleted */
+            END.  /* last seq */
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Key_Stroke s-object 
 PROCEDURE Key_Stroke :
@@ -2610,7 +1945,7 @@ PROCEDURE pClick :
                   FIND FIRST bf-machtran WHERE
                        bf-machtran.company EQ company_code AND
                        bf-machtran.machine EQ machine_code AND
-                       bf-machtran.END_date   EQ ? AND
+                       bf-machtran.end_date   EQ ? AND
                        bf-machtran.end_time   EQ 0 AND
                        bf-machtran.TOTAL_time EQ 0
                        NO-LOCK NO-ERROR.
@@ -2666,12 +2001,12 @@ PROCEDURE pClick :
                END.
                
                FOR EACH tt-mach,
-                   EACH bf-machtran FIELDS(START_date START_time END_date END_time
-                        charge_code job_number job_sub FORM_number BLANK_number ) NO-LOCK
+                   EACH bf-machtran FIELDS(start_date start_time end_date end_time
+                        charge_code job_number job_sub form_number blank_number ) NO-LOCK
                    WHERE bf-machtran.company  EQ company_code
                      AND bf-machtran.machine EQ tt-mach.machine
                      AND bf-machtran.end_date NE ?
-                     AND bf-machtran.END_date GE v-entered-start-date
+                     AND bf-machtran.end_date GE v-entered-start-date
                      AND (NOT AVAIL bf2-machtran OR
                           ROWID(bf-machtran)  NE ROWID(bf2-machtran))
                    USE-INDEX menddate:
@@ -2708,11 +2043,11 @@ PROCEDURE pClick :
                       MESSAGE "Machine transaction " + TRIM(bf-machtran.charge_code) +
                               " exists for Job#: " + TRIM(bf-machtran.job_number) + "-" +
                               TRIM(STRING(bf-machtran.job_sub,"99")) +
-                              " Form#: " + STRING(bf-machtran.FORM_number) +
-                              " Blank#: " + STRING(bf-machtran.BLANK_number) +
-                              " From " + STRING(bf-machtran.START_date,"99/99/99") + "@" +
-                                         STRING(bf-machtran.START_time,"hh:mm") +
-                              " To " + STRING(bf-machtran.END_date,"99/99/99") + "@" +
+                              " Form#: " + STRING(bf-machtran.form_number) +
+                              " Blank#: " + STRING(bf-machtran.blank_number) +
+                              " From " + STRING(bf-machtran.start_date,"99/99/99") + "@" +
+                                         STRING(bf-machtran.start_time,"hh:mm") +
+                              " To " + STRING(bf-machtran.end_date,"99/99/99") + "@" +
                                        STRING(bf-machtran.end_time,"hh:mm")
                               SKIP
                               "Validate operation's start date and time."
@@ -2748,6 +2083,9 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE proc-form-cmplt s-object 
 PROCEDURE proc-form-cmplt :
@@ -3595,7 +2933,7 @@ PROCEDURE proc-tsparts :
                                     /*AND job-mch.job     EQ pc-prdd.job*/
                                     AND job-mch.job-no  EQ job_number
                                     AND job-mch.job-no2 EQ INTEGER(job_sub)
-                                    AND job-mch.frm    EQ integer(FORM_number)                                 
+                                    AND job-mch.frm    EQ integer(form_number)                                 
                      USE-INDEX line-idx NO-LOCK NO-ERROR.
              IF AVAIL job-mch AND lookup(job-mch.m-code,tspostfg-char) > 0 /*AND tspostfg-int = 1 */
              THEN DO:  /* task for setheader receipt */
@@ -3603,7 +2941,7 @@ PROCEDURE proc-tsparts :
                                     /*AND job-mch.job     EQ pc-prdd.job*/
                                     AND job-mch.job-no  EQ job_number
                                     AND job-mch.job-no2 EQ INTEGER(job_sub)
-                                    AND job-mch.frm    EQ integer(FORM_number)                                 
+                                    AND job-mch.frm    EQ integer(form_number)                                 
                         USE-INDEX line-idx NO-LOCK NO-ERROR.
                 IF AVAIL job-mch AND job-mch.m-code = machine_code THEN DO:
                    IF tspostfg-log THEN RUN proc-form-cmplt(INPUT v-today).
@@ -3615,7 +2953,7 @@ PROCEDURE proc-tsparts :
                                     /*AND job-mch.job     EQ pc-prdd.job*/
                                     AND job-mch.job-no  EQ job_number
                                     AND job-mch.job-no2 EQ INTEGER(job_sub)
-                                    AND job-mch.frm    EQ integer(FORM_number)                                 
+                                    AND job-mch.frm    EQ integer(form_number)                                 
                      USE-INDEX line-idx NO-LOCK NO-ERROR.
              IF AVAIL job-mch AND job-mch.m-code = machine_code THEN DO:
                 IF LOOKUP(machine_code,tspostfg-char) > 0 /*AND tspostfg-int = 1*/ THEN DO:  /* mods for set header receipts */
@@ -3733,14 +3071,16 @@ PROCEDURE touch-finish :
     {methods/run_link.i "CONTAINER" "Get_Value" "('pass_sequence',OUTPUT pass_sequence)"}
     {methods/run_link.i "CONTAINER" "Get_Value" "('charge_code',OUTPUT charge_code)"}    
 
-    FOR EACH bf-machtran WHERE bf-machtran.company = company_code AND
-                           bf-machtran.machine = machine_code AND
-                           bf-machtran.job_number = job_number AND
-                           bf-machtran.job_sub = INTEGER(job_sub) AND
-                           bf-machtran.form_number = INTEGER(form_number) AND
-                           bf-machtran.blank_number = INTEGER(blank_number) AND
-                           bf-machtran.pass_sequence = INTEGER(pass_sequence) :
-        bf-machtran.COMPLETE = v-completed.
+    FOR EACH bf-machtran
+        WHERE bf-machtran.company       EQ company_code
+          AND bf-machtran.machine       EQ machine_code
+          AND bf-machtran.job_number    EQ job_number
+          AND bf-machtran.job_sub       EQ INTEGER(job_sub)
+          AND bf-machtran.form_number   EQ INTEGER(form_number)
+          AND bf-machtran.blank_number  EQ INTEGER(blank_number)
+          AND bf-machtran.pass_sequence EQ INTEGER(pass_sequence)
+        :
+        bf-machtran.complete = v-completed.
     END.
 
 END PROCEDURE.
@@ -3852,6 +3192,39 @@ END PROCEDURE.
 
 /* ************************  Function Implementations ***************** */
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fTotalTime s-object
+FUNCTION fTotalTime RETURNS INTEGER 
+  (ipdtStartDate AS DATE,
+    ipdtEndDate AS DATE,
+    ipiStartTime AS INTEGER,
+    ipiEndTime AS INTEGER):
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE iTotalTime AS INTEGER NO-UNDO.
+    
+    IF ipdtStartDate EQ ipdtEndDate THEN
+        iTotalTime = ipiEndTime - ipiStartTime.
+    ELSE
+        iTotalTime = (86400 - ipiStartTime)
+                   + (ipdtEndDate - ipdtStartDate - 1) * 86400
+                   +  ipiEndTime
+                   .
+    /*if end_date is blank, set total_time to 0*/
+    IF iTotalTime LT 0 OR iTotalTime EQ ? THEN
+        iTotalTime = 0.
+    
+    RETURN iTotalTime.
+
+END FUNCTION.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION getNumForms s-object 
 FUNCTION getNumForms RETURNS INTEGER
   (  ):
@@ -3886,7 +3259,7 @@ FUNCTION getNumForms RETURNS INTEGER
                                   AND cmpltjob.machine = machine_code
                                   AND cmpltjob.job_number = job-mch.job-no
                                   AND cmpltjob.job_sub = job-mch.job-no2
-                                  AND cmpltjob.FORM_number = job-mch.frm
+                                  AND cmpltjob.form_number = job-mch.frm
                                   AND cmpltjob.blank_number = job-mch.blank-no)
                  THEN DO:
                     IF INDEX(itemlist,STRING(job-mch.frm)) = 0 THEN 
@@ -3917,4 +3290,19 @@ END FUNCTION.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION ftsDockSec s-object
+FUNCTION ftsDockSec RETURNS LOGICAL 
+  (ipiTime AS INTEGER):
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    RETURN tsdocksec-log AND SUBSTRING(STRING(ipiTime,"HH:MM:SS"),7,2) EQ "59".
+
+END FUNCTION.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
