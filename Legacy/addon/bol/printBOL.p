@@ -253,7 +253,7 @@ PROCEDURE build-work:
                         AND (oe-ord.stat    EQ "H" OR oe-ord.priceHold))
         NO-LOCK:
 
-      MESSAGE "Order on BOL is on hold (or Price Hold), and BOL will not print."
+      MESSAGE "Order on BOL is on " + (IF oe-ord.stat = "H" THEN "hold" ELSE "Price hold") + ", and BOL will not print."
            VIEW-AS ALERT-BOX INFO BUTTONS OK.
 
       NEXT build-work.
