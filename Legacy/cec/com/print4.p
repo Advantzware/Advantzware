@@ -102,7 +102,7 @@ def new shared workfile w-form
     field form-no like xef.form-no
     field min-msf as   log init no.
 
-DEF NEW SHARED TEMP-TABLE tt-rel NO-UNDO LIKE reftable.
+DEF NEW SHARED TEMP-TABLE tt-rel NO-UNDO LIKE eb.
 
 FIND FIRST company WHERE company.company EQ cocode NO-LOCK NO-ERROR.
 FIND FIRST loc WHERE loc.loc EQ locode NO-LOCK NO-ERROR.
@@ -277,18 +277,15 @@ ELSE DO:
   v-brd-only = sys-ctrl.log-fld.
 END.
 
-FOR EACH eb fields(company est-no form-no blank-no) NO-LOCK
+
+  FOR EACH eb fields(company est-no form-no blank-no) NO-LOCK
       WHERE eb.company EQ xest.company
-        AND eb.est-no  EQ xest.est-no,
-      FIRST reftable NO-LOCK
-      WHERE reftable.reftable EQ "ce/com/selwhif1.w"
-        AND reftable.company  EQ eb.company
-        AND reftable.loc      EQ eb.est-no
-        AND reftable.code     EQ STRING(eb.form-no,"9999999999")
-        AND reftable.code2    EQ STRING(eb.blank-no,"9999999999"):
+        AND eb.est-no  EQ xest.est-no:
     CREATE tt-rel. 
-    BUFFER-COPY reftable TO tt-rel.
-  END.
+    BUFFER-COPY eb TO tt-rel.
+  END.  
+
+
 
 DO TRANSACTION:
   {est/op-lock.i xest}
@@ -1026,14 +1023,15 @@ for each car break by car.id:
         AND bf-eb.est-no  EQ xest.est-no
         AND bf-eb.part-no EQ car.id:
     z = z + bf-eb.bl-qty.
-    FIND FIRST tt-rel
-        WHERE tt-rel.reftable EQ "ce/com/selwhif1.w"
-          AND tt-rel.company  EQ bf-eb.company
-          AND tt-rel.loc      EQ bf-eb.est-no
-          AND tt-rel.code     EQ STRING(bf-eb.form-no,"9999999999")
-          AND tt-rel.code2    EQ STRING(bf-eb.blank-no,"9999999999")
-        NO-ERROR.
-    li-rels = li-rels + (IF AVAIL tt-rel THEN tt-rel.val[1] ELSE 1).
+
+   FIND FIRST tt-rel
+         WHERE tt-rel.company     EQ bf-eb.company                      
+           AND tt-rel.est-no      EQ bf-eb.est-no                       
+           AND tt-rel.form-no     EQ bf-eb.form-no 
+           AND tt-rel.blank-no    EQ bf-eb.blank-no
+         NO-ERROR.
+                  
+    li-rels = li-rels + (IF AVAIL tt-rel THEN tt-rel.releaseCount ELSE 1).
   END.
 
   find first xeb

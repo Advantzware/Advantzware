@@ -1099,20 +1099,7 @@ if v-process then do:
         delete reftable.
     END.
 
-    FOR EACH reftable WHERE
-        reftable.reftable EQ "ce/com/selwhif1.w" AND
-        reftable.company  EQ est.company AND
-        reftable.loc      EQ est.est-no
-        EXCLUSIVE WITH FRAME f-selwhif:
-
-        if archive then do:
-           output to value(v-file-path + "reftable" + STRING(est.est-no,"X(8)") + ".d") APPEND.
-           export reftable.
-           output close.
-        end.
-
-        delete reftable.
-    END.
+    
     
     FOR EACH reftable WHERE
         reftable.reftable EQ "est/getqty.w" AND

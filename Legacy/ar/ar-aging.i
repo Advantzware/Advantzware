@@ -107,13 +107,9 @@ DEF TEMP-TABLE tt-inv NO-UNDO  FIELD sorter    LIKE ar-inv.inv-no
         IF NOT AVAIL ar-inv THEN NEXT.                   ~
       END.                                               ~
       IF ar-cashl.amt-paid GT 0 THEN DO:                 ~
-      FIND FIRST reftable WHERE                          ~
-           reftable.reftable EQ "ARCASHLVDDATE" AND      ~
-           reftable.rec_key EQ ar-cashl.rec_key          ~
-           USE-INDEX rec_key                             ~
-           NO-LOCK NO-ERROR.                             ~
-      IF AVAIL reftable THEN                             ~
-         v-check-date = DATE(reftable.CODE).             ~
+                 NO-LOCK NO-ERROR.                             ~
+      IF ar-cashl.voided THEN                             ~
+         v-check-date = ar-cashl.voidDate.             ~
       ELSE                                               ~
       DO:                                                ~
          v-gltrans-desc = "VOID " + cust.cust-no + " " + ~
@@ -365,14 +361,9 @@ END.
           BY ar-cashl.rec_key:
 
         IF ar-cashl.amt-paid GT 0 THEN
-        DO:
-           FIND FIRST reftable WHERE                        
-                reftable.reftable EQ "ARCASHLVDDATE" AND      
-                reftable.rec_key EQ ar-cashl.rec_key          
-                USE-INDEX rec_key
-                NO-LOCK NO-ERROR.                             
-           IF AVAIL reftable THEN                             
-              v-check-date = DATE(reftable.CODE).             
+        DO:                         
+           IF ar-cashl.voided THEN  
+                   v-check-date = ar-cashl.voidDate.               
            ELSE                                               
            DO:                                                
               v-gltrans-desc = "VOID " + cust.cust-no + " " + 
@@ -555,13 +546,8 @@ END.
 
         IF ar-cashl.amt-paid GT 0 THEN
         DO:
-           FIND FIRST reftable WHERE                        
-                reftable.reftable EQ "ARCASHLVDDATE" AND      
-                reftable.rec_key EQ ar-cashl.rec_key
-                USE-INDEX rec_key
-                NO-LOCK NO-ERROR.                             
-           IF AVAIL reftable THEN                             
-              v-check-date = DATE(reftable.CODE).             
+           IF ar-cashl.voided THEN                             
+              v-check-date = ar-cashl.voidDate.             
            ELSE                                               
            DO:                                                
               v-gltrans-desc = "VOID " + cust.cust-no + " " + 
@@ -609,10 +595,7 @@ END.
                      + " Inv# " + STRING(ar-cashl.inv-no).
 
            IF ar-cashl.amt-paid GT 0 AND
-              (CAN-FIND(FIRST reftable WHERE
-              reftable.reftable = "ARCASHLVDDATE" AND
-              reftable.rec_key = ar-cashl.rec_key
-              USE-INDEX rec_key) OR
+              (ar-cashl.voided = YES OR
               CAN-FIND(FIRST gltrans WHERE
               gltrans.company EQ cust.company AND
               gltrans.jrnl EQ "CASHRVD" AND
@@ -674,15 +657,9 @@ END.
         if det-rpt = 1 then do:
 
            IF v-type EQ "VD" THEN
-           DO:
-              FIND FIRST reftable WHERE
-                   reftable.reftable EQ "ARCASHLVDDATE" AND
-                   reftable.rec_key EQ ar-cashl.rec_key
-                   USE-INDEX rec_key
-                   NO-LOCK NO-ERROR.
-
-              IF AVAIL reftable THEN
-                 v-check-date = DATE(reftable.CODE).
+           DO:              
+              IF ar-cashl.voided THEN
+                 v-check-date = ar-cashl.voidDate.
               ELSE
               DO:
                  v-gltrans-desc = "VOID " + cust.cust-no + " " +
@@ -830,10 +807,7 @@ END.
                    + STRING(ar-cash.check-no,"9999999999")
                    + " Inv# " + STRING(ar-cashl.inv-no).
 
-         IF CAN-FIND(FIRST reftable WHERE
-            reftable.reftable = "ARCASHLVDDATE" AND
-            reftable.rec_key = ar-cashl.rec_key
-            USE-INDEX rec_key) OR
+         IF ar-cashl.voided = YES OR
             CAN-FIND(FIRST gltrans WHERE
             gltrans.company EQ cust.company AND
             gltrans.jrnl EQ "CASHRVD" AND
@@ -842,7 +816,6 @@ END.
               ASSIGN
                  v-type = "VD"
                  v-neg-text = "VOID".
-              RELEASE reftable.
             END.
          ELSE
             v-type = "PY".
@@ -861,14 +834,8 @@ END.
       if first-unapp then do:
          IF v-type EQ "VD" THEN
          DO:
-            FIND FIRST reftable WHERE
-                 reftable.reftable EQ "ARCASHLVDDATE" AND
-                 reftable.rec_key EQ ar-cashl.rec_key
-                 USE-INDEX rec_key
-                 NO-LOCK NO-ERROR.
-           
-            IF AVAIL reftable THEN
-               v-check-date = DATE(reftable.CODE).
+            IF ar-cashl.voided THEN
+               v-check-date = ar-cashl.voidDate.
             ELSE
             DO:
                v-gltrans-desc = "VOID " + cust.cust-no + " " +
@@ -931,14 +898,8 @@ END.
 
         IF v-type EQ "VD" THEN
         DO:
-           FIND FIRST reftable WHERE
-                reftable.reftable EQ "ARCASHLVDDATE" AND
-                reftable.rec_key EQ ar-cashl.rec_key
-                USE-INDEX rec_key
-                NO-LOCK NO-ERROR.
-          
-           IF AVAIL reftable THEN
-              v-check-date = DATE(reftable.CODE).
+           IF ar-cashl.voided THEN
+              v-check-date = ar-cashl.voidDate.
            ELSE
            DO:
               v-gltrans-desc = "VOID " + cust.cust-no + " " +

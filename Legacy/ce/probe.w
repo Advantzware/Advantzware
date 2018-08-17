@@ -47,7 +47,6 @@ def new shared buffer xeb for eb.
 {custom/globdefs.i}
     
 DEF BUFFER probe-ref FOR reftable.
-DEF BUFFER b-probemk FOR reftable.
 
 def new shared var k_frac as dec init "6.25" no-undo.
 def new shared var day_str as cha form "x(10)" no-undo.
@@ -1305,17 +1304,6 @@ PROCEDURE copy-item :
        BUFFER-COPY probeit EXCEPT probeit.LINE TO bf-probeit.
        ASSIGN bf-probeit.LINE = probe.LINE.
 
-       FOR EACH reftable NO-LOCK
-           WHERE reftable.reftable EQ "ce/com/probemk.p"
-             AND reftable.company  EQ probeit.company
-             AND reftable.loc      EQ probeit.est-no
-             AND reftable.code     EQ STRING(probeit.line,"9999999999")
-             AND reftable.code2    EQ probeit.part-no:
-         CREATE bf-reftable.
-         BUFFER-COPY reftable EXCEPT rec_key TO bf-reftable
-         ASSIGN
-          reftable.code = STRING(probe.line,"9999999999").
-       END.
      END.     
 
      v-est-eqty = 0.
@@ -1385,17 +1373,6 @@ PROCEDURE copy-item :
        BUFFER-COPY reftable EXCEPT rec_key TO bf-reftable
        ASSIGN
         reftable.code2 = STRING(probe.line,"9999999999").
-     END.
-
-     FOR EACH reftable
-        WHERE reftable.reftable EQ "ce/com/probemk.p"
-          AND reftable.company  EQ bf-probe.company
-          AND reftable.loc      EQ bf-probe.est-no
-          AND reftable.code     EQ STRING(bf-probe.line,"9999999999"):
-       CREATE bf-reftable.
-       BUFFER-COPY reftable EXCEPT rec_key TO bf-reftable
-       ASSIGN
-        reftable.code = STRING(probe.line,"9999999999").
      END.
      
      IF bf-probe.LINE LT 100 THEN
@@ -1625,15 +1602,9 @@ IF CAN-FIND(FIRST xprobe
      w-probeit.tot-lbs    = xprobe.tot-lbs 
      w-probeit.probe-date = xprobe.probe-date.
 
-    FIND FIRST reftable NO-LOCK
-        WHERE reftable.reftable EQ "ce/com/probemk.p"
-          AND reftable.company  EQ probeit.company
-          AND reftable.loc      EQ probeit.est-no
-          AND reftable.code     EQ STRING(probeit.line,"9999999999")
-          AND reftable.code2    EQ probeit.part-no
-        NO-ERROR.
-     w-probeit.freight = IF AVAIL reftable THEN reftable.val[1]
+  ASSIGN w-probeit.freight = IF AVAIL probeit THEN probeit.releaseCount
                                            ELSE xprobe.freight.
+  
   END.
 
   ELSE

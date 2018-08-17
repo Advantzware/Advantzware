@@ -143,6 +143,11 @@ ASSIGN
     {refTableConv.i "StdUom" 'e-itemfg-vend.std-uom'}
     {refTableConv.i "relcredconv" 'relcredconv'}
     {refTableConv.i "Arcashhold" 'ARCASHHOLD'}
+    {refTableConv.i "EitemvendAdders" 'e-item-vend.adders'}
+    {refTableConv.i "Batchrpt" 'Batchrpt'}
+    {refTableConv.i "CeComProbemk" 'ce/com/probemk.p'}
+    {refTableConv.i "CeComSelwhif1" 'ce/com/selwhif1.w'}
+    {refTableConv.i "Arcashlvdate" 'ARCASHLVDDATE'}
     {refTableConv.i "print42" 'print42'}
     {refTableConv.i "ColorAudit" 'COLOR' + chr(32) + 'AUDIT'}
     {refTableConv.i "Machcrew" 'MACH-CREW'}
