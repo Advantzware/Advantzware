@@ -2483,9 +2483,23 @@ PROCEDURE valid-cust-no :
 
   {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
-    IF (itemfg.cust-no:SCREEN-VALUE EQ "" /* AND
-        itemfg.i-code:SCREEN-VALUE  EQ "C"*/)                              OR
-       (itemfg.cust-no:SCREEN-VALUE NE "" AND
+     IF itemfg.cust-no:SCREEN-VALUE EQ "" THEN DO:
+         MESSAGE "Customer ID is required. Use Customer X?"
+         VIEW-AS ALERT-BOX QUESTION
+            BUTTON YES-NO UPDATE ll-ans AS LOG.
+        IF ll-ans THEN DO:
+            FIND FIRST cust NO-LOCK
+            WHERE cust.company EQ gcompany
+             AND cust.active  EQ "X" NO-ERROR.
+            IF AVAIL cust THEN 
+                itemfg.cust-no:SCREEN-VALUE = cust.cust-no.
+        END.
+        ELSE DO:
+            APPLY "entry" TO itemfg.cust-no.
+            RETURN ERROR.
+        END.
+     END.
+    IF (itemfg.cust-no:SCREEN-VALUE NE "" AND
         NOT CAN-FIND(FIRST cust
                      WHERE cust.company EQ gcompany
                        AND cust.cust-no EQ itemfg.cust-no:SCREEN-VALUE)) THEN DO:
