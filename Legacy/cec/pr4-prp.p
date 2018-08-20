@@ -112,14 +112,14 @@ DEF VAR v-prep-lab-orig LIKE prep-lab NO-UNDO.
                 xprep.simon    = est-prep.simon
                 xprep.code     = est-prep.code.
 
-         display est-prep.dscr format "x(19)"
-                 v-prep-mat-orig format "->>9.99"
+         display est-prep.dscr format "x(17)"
+                 v-prep-mat-orig format "->>>>9.99"
                  v-prep-lab-orig format "->>9.99"
-                 est-prep.mkup format ">>9.99" to 42 space(0) "%"
-                 est-prep.amtz to 50 format ">>9.99" space(0) "%"
+                 est-prep.mkup format "->>9.99" to 43 space(0) "%"
+                 est-prep.amtz to 51 format ">>9.99" space(0) "%"
                  est-prep.simon format "X" to 58
                  prep-tot / (qty / 1000) / v-sqft-fac to 69
-                 prep-tot to 80 format ">>>,>>9.99" skip with stream-io.
+                 prep-tot to 82 format ">>>,>>9.99" skip with stream-io.
 
       end.
    end.
