@@ -192,7 +192,7 @@ DEFINE BROWSE Browser-Table
       quoteitm.style COLUMN-LABEL "Style" FORMAT "x(4)":U
       display-qty() @ quoteitm.qty
       quoteitm.qty FORMAT ">>>,>>>,>>9":U
-      quoteitm.price FORMAT ">>>,>>9.9999":U WIDTH 15.2
+      quoteitm.price FORMAT ">>,>>>,>>9.9999":U WIDTH 19.2
       display-price() @ quoteitm.price
       quoteitm.uom FORMAT "x(3)":U
       quoteitm.size FORMAT "x(30)":U
@@ -320,7 +320,7 @@ ASSIGN
      _FldNameList[7]   > ASI.quoteitm.qty
 "quoteitm.qty" ? ">>>,>>>,>>9" "decimal" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[8]   > ASI.quoteitm.price
-"quoteitm.price" ? ">>>,>>9.9999" "decimal" ? ? ? ? ? ? yes ? no no "15.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"quoteitm.price" ? ">>,>>>,>>9.9999" "decimal" ? ? ? ? ? ? yes ? no no "19.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[9]   > "_<CALC>"
 "display-price() @ quoteitm.price" ? ? ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[10]   > ASI.quoteitm.uom
