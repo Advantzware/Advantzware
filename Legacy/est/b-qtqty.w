@@ -149,7 +149,7 @@ DEFINE BROWSE Browser-Table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS Browser-Table B-table-Win _STRUCTURED
   QUERY Browser-Table NO-LOCK DISPLAY
       quoteqty.qty FORMAT ">>>,>>>,>>9":U
-      quoteqty.price FORMAT ">>>,>>9.9999":U WIDTH 12
+      quoteqty.price FORMAT ">>>,>>9.9999":U WIDTH 19
       quoteqty.uom FORMAT "x(3)":U
       quoteqty.profit FORMAT "->>9.99%":U
       quoteqty.rels COLUMN-LABEL "Rel" FORMAT ">>9":U
