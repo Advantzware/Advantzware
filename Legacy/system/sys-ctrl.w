@@ -33,6 +33,8 @@ CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
 
+&Scoped-define program-id sys-ctrl.
+
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
@@ -41,22 +43,24 @@ CREATE WIDGET-POOL.
 {methods/prgsecur.i}
 {sys/ref/sys-ctrl.i}
 
-DEFINE VARIABLE hCurrentFilter AS HANDLE    NO-UNDO.
-DEFINE VARIABLE cFilter        AS CHARACTER NO-UNDO INITIAL "ALL".
-DEFINE VARIABLE cSubFilter     AS CHARACTER NO-UNDO INITIAL "ALL".
-DEFINE VARIABLE cColumnLabel   AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cSaveLabel     AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cMode          AS CHARACTER NO-UNDO.
-DEFINE VARIABLE lAscending     AS LOGICAL   NO-UNDO INITIAL YES.
-DEFINE VARIABLE lSearchOpen    AS LOGICAL   NO-UNDO INITIAL YES.
-DEFINE VARIABLE lSuperAdmin    AS LOGICAL   NO-UNDO.
-DEFINE VARIABLE hPgmMstrSecur  AS HANDLE    NO-UNDO.
-DEFINE VARIABLE correct-error  AS LOGICAL   NO-UNDO.
-DEFINE VARIABLE gcompany       AS CHARACTER NO-UNDO.
-DEFINE VARIABLE gvcMultiSelect AS CHARACTER NO-UNDO INITIAL "OEDATECHANGE,SSBOLEMAIL".
-DEFINE VARIABLE cValidateList  AS CHARACTER NO-UNDO.
-DEFINE VARIABLE lValid         AS LOGICAL   NO-UNDO.
-DEFINE VARIABLE hFieldValue    AS HANDLE    NO-UNDO.
+DEFINE VARIABLE hCurrentFilter   AS HANDLE    NO-UNDO.
+DEFINE VARIABLE cFilter          AS CHARACTER NO-UNDO INITIAL "ALL".
+DEFINE VARIABLE cSubFilter       AS CHARACTER NO-UNDO INITIAL "ALL".
+DEFINE VARIABLE cColumnLabel     AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cSaveLabel       AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cMode            AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lAscending       AS LOGICAL   NO-UNDO INITIAL YES.
+DEFINE VARIABLE lSearchOpen      AS LOGICAL   NO-UNDO INITIAL YES.
+DEFINE VARIABLE lSuperAdmin      AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE hPgmMstrSecur    AS HANDLE    NO-UNDO.
+DEFINE VARIABLE correct-error    AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE gcompany         AS CHARACTER NO-UNDO.
+DEFINE VARIABLE gvcMultiSelect   AS CHARACTER NO-UNDO INITIAL "OEDATECHANGE,SSBOLEMAIL".
+DEFINE VARIABLE cValidateList    AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lValid           AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE hFieldValue      AS HANDLE    NO-UNDO.
+DEFINE VARIABLE iUserPrintOffSet AS INTEGER   NO-UNDO INITIAL 5.
+DEFINE VARIABLE lSortMove        AS LOGICAL   NO-UNDO INITIAL YES.
 
 cValidateList = "QUOPRINT,BOLFMT,ACKHEAD,RELPRINT,POPRINT,"
               + "INVPRINT,BOLCERT,JOBCARDF,JOBCARDC,QUOPRICE"
@@ -79,6 +83,7 @@ DEFINE TEMP-TABLE ttSysCtrl NO-UNDO
     FIELD fieldSource            AS CHARACTER FORMAT "x(20)" LABEL "Field Source"
     FIELD fieldExtent            AS INTEGER   FORMAT ">>9"   LABEL "Ext"
     FIELD tableSource            AS CHARACTER FORMAT "x(20)" LABEL "Table Source"
+    FIELD allData                AS CHARACTER
     FIELD allowAdd               AS LOGICAL   INITIAL YES
     FIELD allowDelete            AS LOGICAL   INITIAL YES
         INDEX ttSysCtrl IS PRIMARY
@@ -111,8 +116,8 @@ DEFINE TEMP-TABLE ttSysCtrl NO-UNDO
 &Scoped-define FIELDS-IN-QUERY-sysCtrlBrowse ttSysCtrl.name ttSysCtrl.fieldDescrip ttSysCtrl.fieldValue ttSysCtrl.descrip ttSysCtrl.module ttSysCtrl.typeCode ttSysCtrl.category ttSysCtrl.subCategory ttSysCtrl.securityLevelUser ttSysCtrl.tableSource ttSysCtrl.fieldSource ttSysCtrl.fieldExtent ttSysCtrl.dataType   
 &Scoped-define ENABLED-FIELDS-IN-QUERY-sysCtrlBrowse   
 &Scoped-define SELF-NAME sysCtrlBrowse
-&Scoped-define QUERY-STRING-sysCtrlBrowse FOR EACH ttSysCtrl WHERE (ttSysCtrl.category EQ cFilter    OR  cFilter EQ "ALL")   AND (ttSysCtrl.subCategory EQ cSubFilter    OR  cSubFilter EQ "ALL")   AND ttSysCtrl.name         MATCHES "*" + cNameFilter         + "*"   AND ttSysCtrl.fieldDescrip MATCHES "*" + cFieldDescripFilter + "*"   AND ttSysCtrl.fieldValue   MATCHES "*" + cValueFilter        + "*"   AND ttSysCtrl.descrip      MATCHES "*" + cDescripFilter      + "*"   AND ttSysCtrl.module       MATCHES "*" + cModuleFilter       + "*"   AND ttSysCtrl.typeCode     MATCHES "*" + cTypeCodeFilter     + "*"   AND ttSysCtrl.category     MATCHES "*" + cCategoryFilter     + "*"   AND ttSysCtrl.subCategory  MATCHES "*" + cSubCategoryFilter  + "*"   AND ttSysCtrl.tableSource  MATCHES "*" + cTableSourceFilter  + "*"   AND ttSysCtrl.fieldSource  MATCHES "*" + cFieldSourceFilter  + "*"   AND ttSysCtrl.dataType     MATCHES "*" + cDataTypeFilter     + "*"   ~{&SORTBY-PHRASE}
-&Scoped-define OPEN-QUERY-sysCtrlBrowse OPEN QUERY {&SELF-NAME} FOR EACH ttSysCtrl WHERE (ttSysCtrl.category EQ cFilter    OR  cFilter EQ "ALL")   AND (ttSysCtrl.subCategory EQ cSubFilter    OR  cSubFilter EQ "ALL")   AND ttSysCtrl.name         MATCHES "*" + cNameFilter         + "*"   AND ttSysCtrl.fieldDescrip MATCHES "*" + cFieldDescripFilter + "*"   AND ttSysCtrl.fieldValue   MATCHES "*" + cValueFilter        + "*"   AND ttSysCtrl.descrip      MATCHES "*" + cDescripFilter      + "*"   AND ttSysCtrl.module       MATCHES "*" + cModuleFilter       + "*"   AND ttSysCtrl.typeCode     MATCHES "*" + cTypeCodeFilter     + "*"   AND ttSysCtrl.category     MATCHES "*" + cCategoryFilter     + "*"   AND ttSysCtrl.subCategory  MATCHES "*" + cSubCategoryFilter  + "*"   AND ttSysCtrl.tableSource  MATCHES "*" + cTableSourceFilter  + "*"   AND ttSysCtrl.fieldSource  MATCHES "*" + cFieldSourceFilter  + "*"   AND ttSysCtrl.dataType     MATCHES "*" + cDataTypeFilter     + "*"   ~{&SORTBY-PHRASE}.
+&Scoped-define QUERY-STRING-sysCtrlBrowse FOR EACH ttSysCtrl WHERE (ttSysCtrl.category EQ cFilter    OR  cFilter EQ "ALL")   AND (ttSysCtrl.subCategory EQ cSubFilter    OR  cSubFilter EQ "ALL")   AND ttSysCtrl.name         MATCHES "*" + cNameFilter         + "*"   AND ttSysCtrl.fieldDescrip MATCHES "*" + cFieldDescripFilter + "*"   AND ttSysCtrl.fieldValue   MATCHES "*" + cValueFilter        + "*"   AND ttSysCtrl.descrip      MATCHES "*" + cDescripFilter      + "*"   AND ttSysCtrl.module       MATCHES "*" + cModuleFilter       + "*"   AND ttSysCtrl.typeCode     MATCHES "*" + cTypeCodeFilter     + "*"   AND ttSysCtrl.category     MATCHES "*" + cCategoryFilter     + "*"   AND ttSysCtrl.subCategory  MATCHES "*" + cSubCategoryFilter  + "*"   AND ttSysCtrl.tableSource  MATCHES "*" + cTableSourceFilter  + "*"   AND ttSysCtrl.fieldSource  MATCHES "*" + cFieldSourceFilter  + "*"   AND ttSysCtrl.dataType     MATCHES "*" + cDataTypeFilter     + "*"   AND ttSysCtrl.allData      MATCHES "*" + searchBar           + "*"   ~{&SORTBY-PHRASE}
+&Scoped-define OPEN-QUERY-sysCtrlBrowse OPEN QUERY {&SELF-NAME} FOR EACH ttSysCtrl WHERE (ttSysCtrl.category EQ cFilter    OR  cFilter EQ "ALL")   AND (ttSysCtrl.subCategory EQ cSubFilter    OR  cSubFilter EQ "ALL")   AND ttSysCtrl.name         MATCHES "*" + cNameFilter         + "*"   AND ttSysCtrl.fieldDescrip MATCHES "*" + cFieldDescripFilter + "*"   AND ttSysCtrl.fieldValue   MATCHES "*" + cValueFilter        + "*"   AND ttSysCtrl.descrip      MATCHES "*" + cDescripFilter      + "*"   AND ttSysCtrl.module       MATCHES "*" + cModuleFilter       + "*"   AND ttSysCtrl.typeCode     MATCHES "*" + cTypeCodeFilter     + "*"   AND ttSysCtrl.category     MATCHES "*" + cCategoryFilter     + "*"   AND ttSysCtrl.subCategory  MATCHES "*" + cSubCategoryFilter  + "*"   AND ttSysCtrl.tableSource  MATCHES "*" + cTableSourceFilter  + "*"   AND ttSysCtrl.fieldSource  MATCHES "*" + cFieldSourceFilter  + "*"   AND ttSysCtrl.dataType     MATCHES "*" + cDataTypeFilter     + "*"   AND ttSysCtrl.allData      MATCHES "*" + searchBar           + "*"   ~{&SORTBY-PHRASE}.
 &Scoped-define TABLES-IN-QUERY-sysCtrlBrowse ttSysCtrl
 &Scoped-define FIRST-TABLE-IN-QUERY-sysCtrlBrowse ttSysCtrl
 
@@ -159,15 +164,16 @@ sys-ctrl-shipto.dec-fld sys-ctrl-shipto.int-fld sys-ctrl-shipto.log-fld
 
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS svFocus sysCtrlBrowse 
-&Scoped-Define DISPLAYED-OBJECTS svFocus 
+&Scoped-Define ENABLED-OBJECTS btnRestoreDefaults btnSortMove svFocus ~
+searchBar sysCtrlBrowse 
+&Scoped-Define DISPLAYED-OBJECTS svFocus searchBar 
 
 /* Custom List Definitions                                              */
 /* transPanel,transInit,transUpdate,displayFields,enabledFields,searchFilters */
-&Scoped-define transPanel btnAdd btnCancel btnCopy btnDefaults btnDelete ~
-btnExport btnForms btnImport btnReset btnUpdate 
-&Scoped-define transInit btnAdd btnCopy btnDefaults btnDelete btnExport ~
-btnForms btnImport btnUpdate 
+&Scoped-define transPanel btnClose btnAdd btnCancel btnCopy btnDefaults ~
+btnDelete btnForms btnReset btnUpdate 
+&Scoped-define transInit btnClose btnAdd btnCopy btnDefaults btnDelete ~
+btnForms btnUpdate 
 &Scoped-define transUpdate btnCancel btnReset btnUpdate 
 &Scoped-define displayFields cCategory cSubcategory iSecurityLevelUser ~
 iSecurityLevelDefault cName cTypeCode cModule cDescrip cFieldDescrip ~
@@ -190,10 +196,41 @@ cSubCategoryFilter cTableSourceFilter cFieldSourceFilter cDataTypeFilter
 DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
+DEFINE BUTTON btnExport 
+     IMAGE-UP FILE "Graphics/32x32/export.ico":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/export_disabled.ico":U NO-FOCUS FLAT-BUTTON
+     LABEL "Export" 
+     SIZE 8 BY 1.91 TOOLTIP "Export".
+
+DEFINE BUTTON btnImport 
+     IMAGE-UP FILE "Graphics/32x32/import.ico":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/import_disabled.ico":U NO-FOCUS FLAT-BUTTON
+     LABEL "Import" 
+     SIZE 8 BY 1.91 TOOLTIP "Import".
+
+DEFINE BUTTON btnRestoreDefaults 
+     IMAGE-UP FILE "Graphics/16x16/rename.jpg":U NO-FOCUS FLAT-BUTTON
+     LABEL "Defaults" 
+     SIZE 4 BY .95 TOOLTIP "Restore Defaults".
+
+DEFINE BUTTON btnSortMove 
+     IMAGE-UP FILE "Graphics/16x16/sort_up_down2.gif":U NO-FOCUS FLAT-BUTTON
+     LABEL "Sort/Move" 
+     SIZE 4 BY .95 TOOLTIP "Toggle Sort/Move Columns".
+
+DEFINE VARIABLE searchBar AS CHARACTER FORMAT "X(256)":U 
+     LABEL "Search" 
+     VIEW-AS FILL-IN 
+     SIZE 105 BY 1 TOOLTIP "Search Bar" NO-UNDO.
+
 DEFINE VARIABLE svFocus AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS FILL-IN 
      SIZE .2 BY 1
      BGCOLOR 8  NO-UNDO.
+
+DEFINE RECTANGLE RECT-1
+     EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
+     SIZE 19 BY 2.38.
 
 DEFINE VARIABLE cSysCtrFieldlDescrip AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS FILL-IN 
@@ -223,9 +260,9 @@ DEFINE BUTTON btnClear  NO-FOCUS
      FONT 1.
 
 DEFINE BUTTON btnSearch 
-     IMAGE-UP FILE "Graphics/16x16/magnifying_glass.gif":U NO-FOCUS
+     IMAGE-UP FILE "Graphics/16x16/filterwindow.bmp":U NO-FOCUS FLAT-BUTTON
      LABEL "" 
-     SIZE 4.8 BY 1.14 TOOLTIP "Search".
+     SIZE 4 BY .95 TOOLTIP "Advanced Search".
 
 DEFINE VARIABLE cCategoryFilter AS CHARACTER FORMAT "X(256)":U 
      LABEL "Category" 
@@ -322,31 +359,30 @@ DEFINE BUTTON btnDelete-2
      LABEL "Delete" 
      SIZE 8 BY 1.91 TOOLTIP "Delete".
 
-DEFINE BUTTON btnFirst 
+DEFINE BUTTON btnFirst-2 
      IMAGE-UP FILE "Graphics/32x32/navigate_beginning.ico":U
      IMAGE-INSENSITIVE FILE "Graphics/32x32/navigate_beginning_disabled.ico":U NO-FOCUS FLAT-BUTTON
      LABEL "First" 
      SIZE 8 BY 1.91 TOOLTIP "First".
 
 DEFINE BUTTON btnForms-2 
-     IMAGE-UP FILE "Graphics/32x32/delete.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/delete_disabled.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/16x16/delete.jpg":U NO-FOCUS FLAT-BUTTON
      LABEL "Close" 
-     SIZE 8 BY 1.9 TOOLTIP "Close".
+     SIZE 4.4 BY 1.05 TOOLTIP "Close".
 
-DEFINE BUTTON btnLast 
+DEFINE BUTTON btnLast-2 
      IMAGE-UP FILE "Graphics/32x32/navigate_end.ico":U
      IMAGE-INSENSITIVE FILE "Graphics/32x32/navigate_end_disabled.ico":U NO-FOCUS FLAT-BUTTON
      LABEL "Last" 
      SIZE 8 BY 1.91 TOOLTIP "Last".
 
-DEFINE BUTTON btnNext 
+DEFINE BUTTON btnNext-2 
      IMAGE-UP FILE "Graphics/32x32/navigate_right.ico":U
      IMAGE-INSENSITIVE FILE "Graphics/32x32/navigate_right_disabled.ico":U NO-FOCUS FLAT-BUTTON
      LABEL "Next" 
      SIZE 8 BY 1.91 TOOLTIP "Next".
 
-DEFINE BUTTON btnPrev 
+DEFINE BUTTON btnPrev-2 
      IMAGE-UP FILE "Graphics/32x32/navigate_left.ico":U
      IMAGE-INSENSITIVE FILE "Graphics/32x32/navigate_left_disabled.ico":U NO-FOCUS FLAT-BUTTON
      LABEL "Previous" 
@@ -389,11 +425,6 @@ DEFINE RECTANGLE transPanel-4
      SIZE 34 BY 2.38
      BGCOLOR 15 .
 
-DEFINE RECTANGLE transPanel-6
-     EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
-     SIZE 10 BY 2.38
-     BGCOLOR 15 .
-
 DEFINE BUTTON btnAdd 
      IMAGE-UP FILE "Graphics/32x32/navigate_plus.ico":U
      IMAGE-INSENSITIVE FILE "Graphics/32x32/navigate_plus_disabled.ico":U NO-FOCUS FLAT-BUTTON
@@ -410,6 +441,11 @@ DEFINE BUTTON btnCancel
      IMAGE-INSENSITIVE FILE "Graphics/32x32/navigate_cross_disabled.ico":U NO-FOCUS FLAT-BUTTON
      LABEL "Cancel" 
      SIZE 8 BY 1.91 TOOLTIP "Cancel".
+
+DEFINE BUTTON btnClose 
+     IMAGE-UP FILE "Graphics/16x16/delete.jpg":U NO-FOCUS FLAT-BUTTON
+     LABEL "Close" 
+     SIZE 4.2 BY 1 TOOLTIP "Close".
 
 DEFINE BUTTON btnCopy 
      IMAGE-UP FILE "Graphics/32x32/element_copy.ico":U
@@ -429,11 +465,11 @@ DEFINE BUTTON btnDelete
      LABEL "Delete" 
      SIZE 8 BY 1.91 TOOLTIP "Delete".
 
-DEFINE BUTTON btnExport 
-     IMAGE-UP FILE "Graphics/32x32/export.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/export_disabled.ico":U NO-FOCUS FLAT-BUTTON
-     LABEL "Export" 
-     SIZE 8 BY 1.91 TOOLTIP "Export".
+DEFINE BUTTON btnFirst-1 
+     IMAGE-UP FILE "Graphics/32x32/navigate_beginning.ico":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/navigate_beginning_disabled.ico":U NO-FOCUS FLAT-BUTTON
+     LABEL "First" 
+     SIZE 8 BY 1.91 TOOLTIP "First".
 
 DEFINE BUTTON btnForms 
      IMAGE-UP FILE "Graphics/32x32/form.ico":U
@@ -441,11 +477,23 @@ DEFINE BUTTON btnForms
      LABEL "Forms" 
      SIZE 8 BY 1.91 TOOLTIP "Forms".
 
-DEFINE BUTTON btnImport 
-     IMAGE-UP FILE "Graphics/32x32/import.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/import_disabled.ico":U NO-FOCUS FLAT-BUTTON
-     LABEL "Import" 
-     SIZE 8 BY 1.91 TOOLTIP "Import".
+DEFINE BUTTON btnLast-1 
+     IMAGE-UP FILE "Graphics/32x32/navigate_end.ico":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/navigate_end_disabled.ico":U NO-FOCUS FLAT-BUTTON
+     LABEL "Last" 
+     SIZE 8 BY 1.91 TOOLTIP "Last".
+
+DEFINE BUTTON btnNext-1 
+     IMAGE-UP FILE "Graphics/32x32/navigate_right.ico":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/navigate_right_disabled.ico":U NO-FOCUS FLAT-BUTTON
+     LABEL "Next" 
+     SIZE 8 BY 1.91 TOOLTIP "Next".
+
+DEFINE BUTTON btnPrev-1 
+     IMAGE-UP FILE "Graphics/32x32/navigate_left.ico":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/navigate_left_disabled.ico":U NO-FOCUS FLAT-BUTTON
+     LABEL "Previous" 
+     SIZE 8 BY 1.91 TOOLTIP "Previous".
 
 DEFINE BUTTON btnReset 
      IMAGE-UP FILE "Graphics/32x32/undo_32.ico":U
@@ -533,11 +581,11 @@ DEFINE VARIABLE cTypeCode AS CHARACTER FORMAT "x(8)"
      SIZE 18 BY 1
      BGCOLOR 15 FGCOLOR 1 .
 
-DEFINE VARIABLE hDate AS DATE FORMAT "99/99/9999":U INITIAL ? 
+DEFINE VARIABLE hDate AS DATE FORMAT "99/99/9999":U 
      VIEW-AS FILL-IN 
      SIZE 16 BY 1 TOOLTIP "Date Value" NO-UNDO.
 
-DEFINE VARIABLE hDecimal AS DECIMAL FORMAT "->>,>>9.99":U INITIAL 0.00 
+DEFINE VARIABLE hDecimal AS DECIMAL FORMAT "->>,>>9.99":U INITIAL 0 
      VIEW-AS FILL-IN 
      SIZE 16 BY 1 TOOLTIP "Decimal Value" NO-UNDO.
 
@@ -560,8 +608,8 @@ DEFINE VARIABLE iSecurityLevelUser AS INTEGER FORMAT ">>>9" INITIAL 0
 DEFINE VARIABLE hLogical AS LOGICAL 
      VIEW-AS RADIO-SET HORIZONTAL
      RADIO-BUTTONS 
-          "Yes", Yes,
-"No", No,
+          "Yes", yes,
+"No", no,
 "Unknown", ?
      SIZE 27 BY 1 NO-UNDO.
 
@@ -572,12 +620,17 @@ DEFINE RECTANGLE transPanel
 
 DEFINE RECTANGLE transPanel-2
      EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
-     SIZE 26 BY 2.38
+     SIZE 10 BY 2.38
      BGCOLOR 15 .
 
 DEFINE RECTANGLE transPanel-5
      EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
      SIZE 10 BY 2.38
+     BGCOLOR 15 .
+
+DEFINE RECTANGLE transPanel-8
+     EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
+     SIZE 34 BY 2.38
      BGCOLOR 15 .
 
 /* Query definitions                                                    */
@@ -614,7 +667,7 @@ ttSysCtrl.fieldExtent
 ttSysCtrl.dataType LABEL-BGCOLOR 14
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ROW-MARKERS SEPARATORS SIZE 122 BY 5.48
+    WITH NO-ROW-MARKERS SEPARATORS SIZE 122 BY 27.57
          FGCOLOR 1 .
 
 DEFINE BROWSE sysCtrlShipToBrowse
@@ -633,23 +686,34 @@ DEFINE BROWSE sysCtrlShipToBrowse
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ROW-MARKERS SEPARATORS SIZE 142 BY 12.62
-         BGCOLOR 15 FGCOLOR 1 .
+         BGCOLOR 15 FGCOLOR 1  ROW-HEIGHT-CHARS .9.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME DEFAULT-FRAME
+     btnRestoreDefaults AT ROW 1 COL 39 HELP
+          "Restore Defaults" WIDGET-ID 42
+     btnSortMove AT ROW 1 COL 43 HELP
+          "Toggle Sort/Move Columns" WIDGET-ID 44
+     btnExport AT ROW 27.43 COL 11 HELP
+          "Export" WIDGET-ID 36
      svFocus AT ROW 1 COL 1 NO-LABEL WIDGET-ID 4
-     sysCtrlBrowse AT ROW 1 COL 39 WIDGET-ID 300
+     searchBar AT ROW 1 COL 54 COLON-ALIGNED HELP
+          "Search" WIDGET-ID 6
+     sysCtrlBrowse AT ROW 2 COL 39 WIDGET-ID 300
+     btnImport AT ROW 27.43 COL 20 HELP
+          "Import" WIDGET-ID 38
+     RECT-1 AT ROW 27.19 COL 10 WIDGET-ID 40
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 160 BY 28.57 WIDGET-ID 100.
+         SIZE 160 BY 28.57
+         FGCOLOR 1  WIDGET-ID 100.
 
 DEFINE FRAME viewFrame
-     btnCalendar-1 AT ROW 6 COL 36 WIDGET-ID 272
-     btnAdd AT ROW 9.81 COL 28 HELP
-          "Add" WIDGET-ID 20
+     btnClose AT ROW 1.24 COL 113 HELP
+          "Close" WIDGET-ID 72
      cCategory AT ROW 1.24 COL 18 COLON-ALIGNED WIDGET-ID 2
      cSubcategory AT ROW 1.24 COL 58 COLON-ALIGNED WIDGET-ID 12
      iSecurityLevelUser AT ROW 1.24 COL 92 COLON-ALIGNED WIDGET-ID 10
@@ -659,86 +723,54 @@ DEFINE FRAME viewFrame
      cModule AT ROW 2.43 COL 99 COLON-ALIGNED WIDGET-ID 6
      cDescrip AT ROW 3.62 COL 18 COLON-ALIGNED WIDGET-ID 4
      cFieldDescrip AT ROW 4.81 COL 18 COLON-ALIGNED WIDGET-ID 40
-     cFieldValue AT ROW 6 COL 18 COLON-ALIGNED WIDGET-ID 30
-     hLogical AT ROW 6 COL 20 NO-LABEL WIDGET-ID 64
-     hDate AT ROW 6 COL 18 COLON-ALIGNED HELP
-          "Enter Date Value" NO-LABEL WIDGET-ID 58
      hDecimal AT ROW 6 COL 18 COLON-ALIGNED HELP
           "Enter Decimal Value" NO-LABEL WIDGET-ID 60
+     hLogical AT ROW 6 COL 20 NO-LABEL WIDGET-ID 64
      hInteger AT ROW 6 COL 18 COLON-ALIGNED HELP
           "Enter Integer Value" NO-LABEL WIDGET-ID 62
+     hDate AT ROW 6 COL 18 COLON-ALIGNED HELP
+          "Enter Date Value" NO-LABEL WIDGET-ID 58
+     cFieldValue AT ROW 6 COL 18 COLON-ALIGNED WIDGET-ID 30
      cFieldDefault AT ROW 7.19 COL 18 COLON-ALIGNED WIDGET-ID 42
      ctableSource AT ROW 8.38 COL 18 COLON-ALIGNED WIDGET-ID 46
      cfieldSource AT ROW 8.38 COL 54 COLON-ALIGNED WIDGET-ID 48
      cDataType AT ROW 8.38 COL 94 COLON-ALIGNED HELP
           "Select Data Type" WIDGET-ID 52
-     btnCancel AT ROW 9.81 COL 60 HELP
+     btnCalendar-1 AT ROW 6 COL 36 WIDGET-ID 272
+     btnFirst-1 AT ROW 9.81 COL 69 HELP
+          "First" WIDGET-ID 274
+     btnLast-1 AT ROW 9.81 COL 93 HELP
+          "Last" WIDGET-ID 68
+     btnNext-1 AT ROW 9.81 COL 85 HELP
+          "Next" WIDGET-ID 276
+     btnPrev-1 AT ROW 9.81 COL 77 HELP
+          "Previous" WIDGET-ID 278
+     btnAdd AT ROW 9.81 COL 15 HELP
+          "Add" WIDGET-ID 20
+     btnCancel AT ROW 9.81 COL 47 HELP
           "Cancel" WIDGET-ID 28
-     btnCopy AT ROW 9.81 COL 36 HELP
+     btnCopy AT ROW 9.81 COL 23 HELP
           "Copy" WIDGET-ID 24
-     btnDefaults AT ROW 9.81 COL 88 HELP
+     btnDefaults AT ROW 9.81 COL 58 HELP
           "Restore Defaults" WIDGET-ID 34
-     btnDelete AT ROW 9.81 COL 44 HELP
+     btnDelete AT ROW 9.81 COL 31 HELP
           "Delete" WIDGET-ID 26
-     btnExport AT ROW 9.81 COL 96 HELP
-          "Export" WIDGET-ID 36
-     btnForms AT ROW 9.81 COL 74 HELP
+     btnForms AT ROW 9.81 COL 104 HELP
           "Forms" WIDGET-ID 54
-     btnImport AT ROW 9.81 COL 104 HELP
-          "Import" WIDGET-ID 38
-     btnReset AT ROW 9.81 COL 52 HELP
+     btnReset AT ROW 9.81 COL 39 HELP
           "Reset" WIDGET-ID 22
-     btnUpdate AT ROW 9.81 COL 20 HELP
+     btnUpdate AT ROW 9.81 COL 7 HELP
           "Update/Save" WIDGET-ID 18
-     transPanel AT ROW 9.57 COL 19 WIDGET-ID 16
-     transPanel-2 AT ROW 9.57 COL 87 WIDGET-ID 32
-     transPanel-5 AT ROW 9.57 COL 73 WIDGET-ID 56
+     transPanel AT ROW 9.57 COL 6 WIDGET-ID 16
+     transPanel-2 AT ROW 9.57 COL 57 WIDGET-ID 32
+     transPanel-5 AT ROW 9.57 COL 103 WIDGET-ID 56
+     transPanel-8 AT ROW 9.57 COL 68 WIDGET-ID 280
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 39 ROW 17.43
-         SIZE 122 BY 12.14
+         AT COL 40 ROW 10.52
+         SIZE 117 BY 12.14
+         FGCOLOR 1 
          TITLE "View" WIDGET-ID 400.
-
-DEFINE FRAME searchFrame
-     btnClear AT ROW 10.76 COL 64 HELP
-          "Clear Search Filters" WIDGET-ID 42
-     cNameFilter AT ROW 1.24 COL 21 COLON-ALIGNED HELP
-          "Name Search" WIDGET-ID 2
-     cFieldDescripFilter AT ROW 2.19 COL 21 COLON-ALIGNED HELP
-          "Description Search" WIDGET-ID 44
-     cValueFilter AT ROW 3.14 COL 21 COLON-ALIGNED HELP
-          "Value Search" WIDGET-ID 8
-     cDescripFilter AT ROW 4.1 COL 21 COLON-ALIGNED HELP
-          "Description Search" WIDGET-ID 6
-     cModuleFilter AT ROW 5.05 COL 21 COLON-ALIGNED HELP
-          "Module Search" WIDGET-ID 12
-     cTypeCodeFilter AT ROW 6 COL 21 COLON-ALIGNED HELP
-          "Type Search" WIDGET-ID 10
-     cCategoryFilter AT ROW 6.95 COL 21 COLON-ALIGNED HELP
-          "Category Search" WIDGET-ID 14
-     cSubCategoryFilter AT ROW 7.91 COL 21 COLON-ALIGNED HELP
-          "Sub Category Search" WIDGET-ID 16
-     cTableSourceFilter AT ROW 8.86 COL 21 COLON-ALIGNED HELP
-          "Table Source Search" WIDGET-ID 46
-     cFieldSourceFilter AT ROW 9.81 COL 21 COLON-ALIGNED HELP
-          "Field Source Search" WIDGET-ID 48
-     cDataTypeFilter AT ROW 10.76 COL 21 COLON-ALIGNED HELP
-          "Data Type Search" WIDGET-ID 50
-     btnSearch AT ROW 1 COL 1 HELP
-          "Search" WIDGET-ID 40
-    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS TOP-ONLY NO-UNDERLINE THREE-D 
-         AT COL 39 ROW 6.48
-         SIZE 72 BY 10.95
-         BGCOLOR 1 FGCOLOR 15 FONT 6 WIDGET-ID 600.
-
-DEFINE FRAME filterFrame
-    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1
-         SIZE 38 BY 28.57
-         BGCOLOR 15 FGCOLOR 1 
-         TITLE BGCOLOR 8 "Cateogry / SubCategory" WIDGET-ID 200.
 
 DEFINE FRAME formsFrame
      cSysCtrlName AT ROW 1.24 COL 11 COLON-ALIGNED WIDGET-ID 4
@@ -748,21 +780,20 @@ DEFINE FRAME formsFrame
      sysCtrlShipToBrowse AT ROW 3.62 COL 2 WIDGET-ID 800
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1
+         AT COL 17 ROW 1
          SIZE 144 BY 28.57
+         FGCOLOR 1 
          TITLE "System Control Parameter Forms" WIDGET-ID 700.
 
 DEFINE FRAME viewFormFrame
-     btnForms-2 AT ROW 1.48 COL 133 HELP
-          "Close" WIDGET-ID 72
-     btnAdd-2 AT ROW 9.57 COL 66 HELP
-          "Add" WIDGET-ID 20
      sys-ctrl-shipto.cust-vend AT ROW 1.24 COL 24 NO-LABEL WIDGET-ID 48
           VIEW-AS RADIO-SET HORIZONTAL
           RADIO-BUTTONS 
                     "Customer", yes,
 "Vendor", no
           SIZE 26 BY 1
+     btnFirst-2 AT ROW 9.57 COL 109 HELP
+          "First" WIDGET-ID 62
      sys-ctrl-shipto.cust-vend-no AT ROW 2.43 COL 21 COLON-ALIGNED WIDGET-ID 34
           VIEW-AS FILL-IN 
           SIZE 14.2 BY 1
@@ -805,20 +836,22 @@ DEFINE FRAME viewFormFrame
 "No", no,
 "Unknown", ?
           SIZE 28 BY 1
+     btnForms-2 AT ROW 1 COL 138 HELP
+          "Close" WIDGET-ID 72
+     btnLast-2 AT ROW 9.57 COL 133 HELP
+          "Last" WIDGET-ID 68
+     btnNext-2 AT ROW 9.57 COL 125 HELP
+          "Next" WIDGET-ID 66
+     btnPrev-2 AT ROW 9.57 COL 117 HELP
+          "Previous" WIDGET-ID 64
+     btnAdd-2 AT ROW 9.57 COL 66 HELP
+          "Add" WIDGET-ID 20
      btnCancel-2 AT ROW 9.57 COL 98 HELP
           "Cancel" WIDGET-ID 28
      btnCopy-2 AT ROW 9.57 COL 74 HELP
           "Copy" WIDGET-ID 24
      btnDelete-2 AT ROW 9.57 COL 82 HELP
           "Delete" WIDGET-ID 26
-     btnFirst AT ROW 9.57 COL 109 HELP
-          "First" WIDGET-ID 62
-     btnLast AT ROW 9.57 COL 133 HELP
-          "Last" WIDGET-ID 68
-     btnNext AT ROW 9.57 COL 125 HELP
-          "Next" WIDGET-ID 66
-     btnPrev AT ROW 9.57 COL 117 HELP
-          "Previous" WIDGET-ID 64
      btnReset-2 AT ROW 9.57 COL 90 HELP
           "Reset" WIDGET-ID 22
      btnUpdate-2 AT ROW 9.57 COL 58 HELP
@@ -828,13 +861,53 @@ DEFINE FRAME viewFormFrame
           SIZE 6 BY 1 AT ROW 1.24 COL 17 WIDGET-ID 58
      transPanel-3 AT ROW 9.33 COL 57 WIDGET-ID 16
      transPanel-4 AT ROW 9.33 COL 108 WIDGET-ID 60
-     transPanel-6 AT ROW 1.24 COL 132 WIDGET-ID 70
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 2 ROW 16.48
          SIZE 142 BY 11.86
          FGCOLOR 1 
          TITLE "View" WIDGET-ID 900.
+
+DEFINE FRAME searchFrame
+     btnSearch AT ROW 1 COL 1 HELP
+          "Advanced Search" WIDGET-ID 40
+     cNameFilter AT ROW 1.24 COL 21 COLON-ALIGNED HELP
+          "Name Search" WIDGET-ID 2
+     cFieldDescripFilter AT ROW 2.19 COL 21 COLON-ALIGNED HELP
+          "Description Search" WIDGET-ID 44
+     cValueFilter AT ROW 3.14 COL 21 COLON-ALIGNED HELP
+          "Value Search" WIDGET-ID 8
+     cDescripFilter AT ROW 4.1 COL 21 COLON-ALIGNED HELP
+          "Description Search" WIDGET-ID 6
+     cModuleFilter AT ROW 5.05 COL 21 COLON-ALIGNED HELP
+          "Module Search" WIDGET-ID 12
+     cTypeCodeFilter AT ROW 6 COL 21 COLON-ALIGNED HELP
+          "Type Search" WIDGET-ID 10
+     cCategoryFilter AT ROW 6.95 COL 21 COLON-ALIGNED HELP
+          "Category Search" WIDGET-ID 14
+     cSubCategoryFilter AT ROW 7.91 COL 21 COLON-ALIGNED HELP
+          "Sub Category Search" WIDGET-ID 16
+     cTableSourceFilter AT ROW 8.86 COL 21 COLON-ALIGNED HELP
+          "Table Source Search" WIDGET-ID 46
+     cFieldSourceFilter AT ROW 9.81 COL 21 COLON-ALIGNED HELP
+          "Field Source Search" WIDGET-ID 48
+     cDataTypeFilter AT ROW 10.76 COL 21 COLON-ALIGNED HELP
+          "Data Type Search" WIDGET-ID 50
+     btnClear AT ROW 10.76 COL 64 HELP
+          "Clear Search Filters" WIDGET-ID 42
+    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS TOP-ONLY NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 1
+         SIZE 72 BY 10.95
+         FGCOLOR 1 FONT 6 WIDGET-ID 600.
+
+DEFINE FRAME filterFrame
+    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 1
+         SIZE 38 BY 26
+         BGCOLOR 15 FGCOLOR 1 
+         TITLE BGCOLOR 8 "Category / SubCategory" WIDGET-ID 200.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -853,7 +926,7 @@ DEFINE FRAME viewFormFrame
 IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW C-Win ASSIGN
          HIDDEN             = YES
-         TITLE              = "System Control Pamaeters"
+         TITLE              = "System Control Parameters"
          HEIGHT             = 28.57
          WIDTH              = 160
          MAX-HEIGHT         = 320
@@ -892,17 +965,23 @@ ASSIGN FRAME filterFrame:FRAME = FRAME DEFAULT-FRAME:HANDLE
 
 DEFINE VARIABLE XXTABVALXX AS LOGICAL NO-UNDO.
 
-ASSIGN XXTABVALXX = FRAME formsFrame:MOVE-BEFORE-TAB-ITEM (svFocus:HANDLE IN FRAME DEFAULT-FRAME)
-       XXTABVALXX = FRAME searchFrame:MOVE-AFTER-TAB-ITEM (sysCtrlBrowse:HANDLE IN FRAME DEFAULT-FRAME)
-       XXTABVALXX = FRAME searchFrame:MOVE-BEFORE-TAB-ITEM (FRAME viewFrame:HANDLE)
-       XXTABVALXX = FRAME filterFrame:MOVE-BEFORE-TAB-ITEM (FRAME formsFrame:HANDLE)
+ASSIGN XXTABVALXX = FRAME filterFrame:MOVE-AFTER-TAB-ITEM (svFocus:HANDLE IN FRAME DEFAULT-FRAME)
+       XXTABVALXX = FRAME filterFrame:MOVE-BEFORE-TAB-ITEM (FRAME searchFrame:HANDLE)
 /* END-ASSIGN-TABS */.
 
-/* BROWSE-TAB sysCtrlBrowse svFocus DEFAULT-FRAME */
+/* BROWSE-TAB sysCtrlBrowse searchBar DEFAULT-FRAME */
+/* SETTINGS FOR BUTTON btnExport IN FRAME DEFAULT-FRAME
+   NO-ENABLE                                                            */
+/* SETTINGS FOR BUTTON btnImport IN FRAME DEFAULT-FRAME
+   NO-ENABLE                                                            */
+/* SETTINGS FOR RECTANGLE RECT-1 IN FRAME DEFAULT-FRAME
+   NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN svFocus IN FRAME DEFAULT-FRAME
    ALIGN-L                                                              */
 ASSIGN 
        sysCtrlBrowse:ALLOW-COLUMN-SEARCHING IN FRAME DEFAULT-FRAME = TRUE
+       sysCtrlBrowse:COLUMN-RESIZABLE IN FRAME DEFAULT-FRAME       = TRUE
+       sysCtrlBrowse:ROW-RESIZABLE IN FRAME DEFAULT-FRAME          = TRUE
        sysCtrlBrowse:SEPARATOR-FGCOLOR IN FRAME DEFAULT-FRAME      = 1.
 
 /* SETTINGS FOR FRAME filterFrame
@@ -1000,12 +1079,14 @@ ASSIGN
    NO-ENABLE                                                            */
 /* SETTINGS FOR RECTANGLE transPanel-4 IN FRAME viewFormFrame
    NO-ENABLE                                                            */
-/* SETTINGS FOR RECTANGLE transPanel-6 IN FRAME viewFormFrame
-   NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN type_name IN FRAME viewFormFrame
    NO-ENABLE                                                            */
 /* SETTINGS FOR FRAME viewFrame
-                                                                        */
+   NOT-VISIBLE                                                          */
+ASSIGN 
+       FRAME viewFrame:HIDDEN           = TRUE
+       FRAME viewFrame:MOVABLE          = TRUE.
+
 /* SETTINGS FOR BUTTON btnAdd IN FRAME viewFrame
    1 2                                                                  */
 /* SETTINGS FOR BUTTON btnCalendar-1 IN FRAME viewFrame
@@ -1015,17 +1096,15 @@ ASSIGN
 
 /* SETTINGS FOR BUTTON btnCancel IN FRAME viewFrame
    NO-ENABLE 1 3                                                        */
+/* SETTINGS FOR BUTTON btnClose IN FRAME viewFrame
+   1 2                                                                  */
 /* SETTINGS FOR BUTTON btnCopy IN FRAME viewFrame
    1 2                                                                  */
 /* SETTINGS FOR BUTTON btnDefaults IN FRAME viewFrame
    1 2                                                                  */
 /* SETTINGS FOR BUTTON btnDelete IN FRAME viewFrame
    1 2                                                                  */
-/* SETTINGS FOR BUTTON btnExport IN FRAME viewFrame
-   1 2                                                                  */
 /* SETTINGS FOR BUTTON btnForms IN FRAME viewFrame
-   1 2                                                                  */
-/* SETTINGS FOR BUTTON btnImport IN FRAME viewFrame
    1 2                                                                  */
 /* SETTINGS FOR BUTTON btnReset IN FRAME viewFrame
    NO-ENABLE 1 3                                                        */
@@ -1085,6 +1164,8 @@ ASSIGN
    NO-ENABLE                                                            */
 /* SETTINGS FOR RECTANGLE transPanel-5 IN FRAME viewFrame
    NO-ENABLE                                                            */
+/* SETTINGS FOR RECTANGLE transPanel-8 IN FRAME viewFrame
+   NO-ENABLE                                                            */
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
 THEN C-Win:HIDDEN = no.
 
@@ -1137,6 +1218,7 @@ WHERE (ttSysCtrl.category EQ cFilter
   AND ttSysCtrl.tableSource  MATCHES "*" + cTableSourceFilter  + "*"
   AND ttSysCtrl.fieldSource  MATCHES "*" + cFieldSourceFilter  + "*"
   AND ttSysCtrl.dataType     MATCHES "*" + cDataTypeFilter     + "*"
+  AND ttSysCtrl.allData      MATCHES "*" + searchBar           + "*"
   ~{&SORTBY-PHRASE}.
      _END_FREEFORM
      _Query            is NOT OPENED
@@ -1189,7 +1271,7 @@ AND sys-ctrl-shipto.name EQ ttSysCtrl.name"
 
 &Scoped-define SELF-NAME C-Win
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
-ON END-ERROR OF C-Win /* System Control Pamaeters */
+ON END-ERROR OF C-Win /* System Control Parameters */
 OR ENDKEY OF {&WINDOW-NAME} ANYWHERE DO:
   /* This case occurs when the user presses the "Esc" key.
      In a persistently run window, just ignore this.  If we did not, the
@@ -1202,10 +1284,10 @@ END.
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
-ON WINDOW-CLOSE OF C-Win /* System Control Pamaeters */
+ON WINDOW-CLOSE OF C-Win /* System Control Parameters */
 DO:
   /* This event will close the window and terminate the procedure.  */
-  RUN pSaveSettings.
+  RUN pSaveSettings (USERID("ASI")).
   APPLY "CLOSE":U TO THIS-PROCEDURE.
   RETURN NO-APPLY.
 END.
@@ -1215,7 +1297,7 @@ END.
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
-ON WINDOW-RESIZED OF C-Win /* System Control Pamaeters */
+ON WINDOW-RESIZED OF C-Win /* System Control Parameters */
 DO:
     RUN pWinReSize.
 END.
@@ -1312,6 +1394,20 @@ END.
 
 
 &Scoped-define FRAME-NAME viewFrame
+&Scoped-define SELF-NAME btnClose
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnClose C-Win
+ON CHOOSE OF btnClose IN FRAME viewFrame /* Close */
+DO:
+    SELF:MOVE-TO-BOTTOM().
+    HIDE FRAME viewFrame.
+    VIEW FRAME searchFrame.
+    FRAME searchFrame:MOVE-TO-TOP().
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME btnCopy
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnCopy C-Win
 ON CHOOSE OF btnCopy IN FRAME viewFrame /* Copy */
@@ -1370,12 +1466,26 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define FRAME-NAME viewFrame
+&Scoped-define FRAME-NAME DEFAULT-FRAME
 &Scoped-define SELF-NAME btnExport
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnExport C-Win
-ON CHOOSE OF btnExport IN FRAME viewFrame /* Export */
+ON CHOOSE OF btnExport IN FRAME DEFAULT-FRAME /* Export */
 DO:
-    RUN pCRUD (SELF).
+    MESSAGE
+        "Export Function Not Yet Implemented"
+    VIEW-AS ALERT-BOX.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define FRAME-NAME viewFrame
+&Scoped-define SELF-NAME btnFirst-1
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnFirst-1 C-Win
+ON CHOOSE OF btnFirst-1 IN FRAME viewFrame /* First */
+DO:
+    RUN pNavPanel (SELF).
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1383,9 +1493,9 @@ END.
 
 
 &Scoped-define FRAME-NAME viewFormFrame
-&Scoped-define SELF-NAME btnFirst
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnFirst C-Win
-ON CHOOSE OF btnFirst IN FRAME viewFormFrame /* First */
+&Scoped-define SELF-NAME btnFirst-2
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnFirst-2 C-Win
+ON CHOOSE OF btnFirst-2 IN FRAME viewFormFrame /* First */
 DO:
     RUN pNavPanel (SELF).
 END.
@@ -1403,10 +1513,10 @@ DO:
     DEFINE VARIABLE dRow AS DECIMAL NO-UNDO.
     
     ASSIGN
-        dCol = ({&WINDOW-NAME}:WIDTH
-             -  FRAME formsFrame:WIDTH) / 2
-        dRow = ({&WINDOW-NAME}:HEIGHT
-             -  FRAME formsFrame:HEIGHT) / 2
+        dCol = {&WINDOW-NAME}:WIDTH
+             - FRAME formsFrame:WIDTH + 1
+        dRow = {&WINDOW-NAME}:HEIGHT
+             - FRAME formsFrame:HEIGHT + 1
              .
     IF dCol LT 1 THEN dCol = 1.
     IF dRow LT 1 THEN dRow = 1.
@@ -1415,6 +1525,7 @@ DO:
         FRAME formsFrame:ROW = dRow
         .
     RUN pForms.
+    VIEW FRAME searchFrame.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1440,12 +1551,26 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define FRAME-NAME viewFrame
+&Scoped-define FRAME-NAME DEFAULT-FRAME
 &Scoped-define SELF-NAME btnImport
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnImport C-Win
-ON CHOOSE OF btnImport IN FRAME viewFrame /* Import */
+ON CHOOSE OF btnImport IN FRAME DEFAULT-FRAME /* Import */
 DO:
-    RUN pCRUD (SELF).
+    MESSAGE
+        "Import Function Not Yet Implemented"
+    VIEW-AS ALERT-BOX.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define FRAME-NAME viewFrame
+&Scoped-define SELF-NAME btnLast-1
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnLast-1 C-Win
+ON CHOOSE OF btnLast-1 IN FRAME viewFrame /* Last */
+DO:
+    RUN pNavPanel (SELF).
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1453,9 +1578,9 @@ END.
 
 
 &Scoped-define FRAME-NAME viewFormFrame
-&Scoped-define SELF-NAME btnLast
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnLast C-Win
-ON CHOOSE OF btnLast IN FRAME viewFormFrame /* Last */
+&Scoped-define SELF-NAME btnLast-2
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnLast-2 C-Win
+ON CHOOSE OF btnLast-2 IN FRAME viewFormFrame /* Last */
 DO:
     RUN pNavPanel (SELF).
 END.
@@ -1464,9 +1589,10 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME btnNext
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnNext C-Win
-ON CHOOSE OF btnNext IN FRAME viewFormFrame /* Next */
+&Scoped-define FRAME-NAME viewFrame
+&Scoped-define SELF-NAME btnNext-1
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnNext-1 C-Win
+ON CHOOSE OF btnNext-1 IN FRAME viewFrame /* Next */
 DO:
     RUN pNavPanel (SELF).
 END.
@@ -1475,9 +1601,34 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME btnPrev
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnPrev C-Win
-ON CHOOSE OF btnPrev IN FRAME viewFormFrame /* Previous */
+&Scoped-define FRAME-NAME viewFormFrame
+&Scoped-define SELF-NAME btnNext-2
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnNext-2 C-Win
+ON CHOOSE OF btnNext-2 IN FRAME viewFormFrame /* Next */
+DO:
+    RUN pNavPanel (SELF).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define FRAME-NAME viewFrame
+&Scoped-define SELF-NAME btnPrev-1
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnPrev-1 C-Win
+ON CHOOSE OF btnPrev-1 IN FRAME viewFrame /* Previous */
+DO:
+    RUN pNavPanel (SELF).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define FRAME-NAME viewFormFrame
+&Scoped-define SELF-NAME btnPrev-2
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnPrev-2 C-Win
+ON CHOOSE OF btnPrev-2 IN FRAME viewFormFrame /* Previous */
 DO:
     RUN pNavPanel (SELF).
 END.
@@ -1504,6 +1655,18 @@ END.
 ON CHOOSE OF btnReset-2 IN FRAME viewFormFrame /* Reset */
 DO:
     RUN pCRUD-2 (SELF).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define FRAME-NAME DEFAULT-FRAME
+&Scoped-define SELF-NAME btnRestoreDefaults
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnRestoreDefaults C-Win
+ON CHOOSE OF btnRestoreDefaults IN FRAME DEFAULT-FRAME /* Defaults */
+DO:
+    RUN pGetSettings ("_default").
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1543,6 +1706,25 @@ DO:
         END. /* else */
     END. /* with frame */
     FRAME searchFrame:HIDDEN = NO.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define FRAME-NAME DEFAULT-FRAME
+&Scoped-define SELF-NAME btnSortMove
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnSortMove C-Win
+ON CHOOSE OF btnSortMove IN FRAME DEFAULT-FRAME /* Sort/Move */
+DO:
+    ASSIGN
+        BROWSE sysCtrlBrowse:COLUMN-MOVABLE = lSortMove
+        lSortMove = NOT lSortMove
+        .
+    SELF:LOAD-IMAGE("Graphics/16x16/"
+        + IF lSortMove THEN "sort_up_down2.gif"
+          ELSE "left_right_arrows.gif")
+        .
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2257,6 +2439,20 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define FRAME-NAME DEFAULT-FRAME
+&Scoped-define SELF-NAME searchBar
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL searchBar C-Win
+ON VALUE-CHANGED OF searchBar IN FRAME DEFAULT-FRAME /* Search */
+DO:
+    ASSIGN {&SELF-NAME}.
+    RUN pReopenBrowse.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define FRAME-NAME viewFormFrame
 &Scoped-define SELF-NAME sys-ctrl-shipto.ship-id
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL sys-ctrl-shipto.ship-id C-Win
 ON HELP OF sys-ctrl-shipto.ship-id IN FRAME viewFormFrame /* Ship To ID */
@@ -2307,7 +2503,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL sysCtrlBrowse C-Win
 ON DEFAULT-ACTION OF sysCtrlBrowse IN FRAME DEFAULT-FRAME
 DO:
-    APPLY "CHOOSE":U TO btnUpdate IN FRAME viewFrame.
+    VIEW FRAME viewFrame.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2336,11 +2532,8 @@ ON VALUE-CHANGED OF sysCtrlBrowse IN FRAME DEFAULT-FRAME
 DO:
     DO WITH FRAME viewFrame:
         RUN pDisplay.
-        IF users.securityLevel LT ttSysCtrl.securityLevelDefault THEN DO:
-            DISABLE {&transPanel}.
-            IF lSuperAdmin THEN
-            ENABLE btnExport btnImport.
-        END. /* if security too low */
+        IF users.securityLevel LT ttSysCtrl.securityLevelDefault THEN
+        DISABLE {&transPanel}.
         ELSE DO:
             ENABLE {&transInit}.
             IF NOT ttSysCtrl.allowAdd THEN
@@ -2434,7 +2627,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
       ).
   APPLY "CHOOSE":U TO btnSearch.
   hFocus = svFocus:HANDLE.
-  RUN pGetSettings.
+  RUN pGetSettings (USERID("ASI")).
   RUN pInit.
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
@@ -2531,13 +2724,23 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY svFocus 
+  DISPLAY svFocus searchBar 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
-  ENABLE svFocus sysCtrlBrowse 
+  ENABLE btnRestoreDefaults btnSortMove svFocus searchBar sysCtrlBrowse 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
   VIEW FRAME filterFrame IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-filterFrame}
+  DISPLAY cNameFilter cFieldDescripFilter cValueFilter cDescripFilter 
+          cModuleFilter cTypeCodeFilter cCategoryFilter cSubCategoryFilter 
+          cTableSourceFilter cFieldSourceFilter cDataTypeFilter 
+      WITH FRAME searchFrame IN WINDOW C-Win.
+  ENABLE btnSearch cNameFilter cFieldDescripFilter cValueFilter cDescripFilter 
+         cModuleFilter cTypeCodeFilter cCategoryFilter cSubCategoryFilter 
+         cTableSourceFilter cFieldSourceFilter cDataTypeFilter 
+      WITH FRAME searchFrame IN WINDOW C-Win.
+  VIEW FRAME searchFrame IN WINDOW C-Win.
+  {&OPEN-BROWSERS-IN-QUERY-searchFrame}
   DISPLAY cSysCtrlName cSysCtrlDescrip cSysCtrlDataType cSysCtrFieldlDescrip 
       WITH FRAME formsFrame IN WINDOW C-Win.
   ENABLE cSysCtrlName cSysCtrlDescrip cSysCtrlDataType cSysCtrFieldlDescrip 
@@ -2545,16 +2748,14 @@ PROCEDURE enable_UI :
       WITH FRAME formsFrame IN WINDOW C-Win.
   VIEW FRAME formsFrame IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-formsFrame}
-  DISPLAY cNameFilter cFieldDescripFilter cValueFilter cDescripFilter 
-          cModuleFilter cTypeCodeFilter cCategoryFilter cSubCategoryFilter 
-          cTableSourceFilter cFieldSourceFilter cDataTypeFilter 
-      WITH FRAME searchFrame IN WINDOW C-Win.
-  ENABLE cNameFilter cFieldDescripFilter cValueFilter cDescripFilter 
-         cModuleFilter cTypeCodeFilter cCategoryFilter cSubCategoryFilter 
-         cTableSourceFilter cFieldSourceFilter cDataTypeFilter btnSearch 
-      WITH FRAME searchFrame IN WINDOW C-Win.
-  VIEW FRAME searchFrame IN WINDOW C-Win.
-  {&OPEN-BROWSERS-IN-QUERY-searchFrame}
+  DISPLAY cCategory cSubcategory iSecurityLevelUser iSecurityLevelDefault cName 
+          cTypeCode cModule cDescrip cFieldDescrip cFieldValue cFieldDefault 
+          ctableSource cfieldSource cDataType 
+      WITH FRAME viewFrame IN WINDOW C-Win.
+  ENABLE btnClose btnFirst-1 btnLast-1 btnNext-1 btnPrev-1 btnAdd btnCopy 
+         btnDefaults btnDelete btnForms btnUpdate 
+      WITH FRAME viewFrame IN WINDOW C-Win.
+  {&OPEN-BROWSERS-IN-QUERY-viewFrame}
   DISPLAY type_name ship_name cLogLabel 
       WITH FRAME viewFormFrame IN WINDOW C-Win.
   IF AVAILABLE sys-ctrl-shipto THEN 
@@ -2564,18 +2765,10 @@ PROCEDURE enable_UI :
           sys-ctrl-shipto.dec-fld sys-ctrl-shipto.int-fld 
           sys-ctrl-shipto.log-fld 
       WITH FRAME viewFormFrame IN WINDOW C-Win.
-  ENABLE btnForms-2 btnAdd-2 btnCopy-2 btnDelete-2 btnFirst btnLast btnNext 
-         btnPrev btnUpdate-2 
+  ENABLE btnFirst-2 btnForms-2 btnLast-2 btnNext-2 btnPrev-2 btnAdd-2 btnCopy-2 
+         btnDelete-2 btnUpdate-2 
       WITH FRAME viewFormFrame IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-viewFormFrame}
-  DISPLAY cCategory cSubcategory iSecurityLevelUser iSecurityLevelDefault cName 
-          cTypeCode cModule cDescrip cFieldDescrip cFieldValue cFieldDefault 
-          ctableSource cfieldSource cDataType 
-      WITH FRAME viewFrame IN WINDOW C-Win.
-  ENABLE btnAdd btnCopy btnDefaults btnDelete btnExport btnForms btnImport 
-         btnUpdate 
-      WITH FRAME viewFrame IN WINDOW C-Win.
-  {&OPEN-BROWSERS-IN-QUERY-viewFrame}
   VIEW C-Win.
 END PROCEDURE.
 
@@ -2637,7 +2830,9 @@ PROCEDURE pBuildMenuTree :
         "",
         "ALL",
         "ALL",
-        "Graphics\16x16\tab_pane.png"
+        "tab_pane.png",
+        "",
+        YES
         ).
     FOR EACH ttSysCtrl
         BREAK BY ttSysCtrl.subCategory
@@ -2652,7 +2847,9 @@ PROCEDURE pBuildMenuTree :
                 "ALL",
                 ttSysCtrl.subCategory,
                 ttSysCtrl.subCategory,
-                "Graphics\16x16\hand_point_right2.png"
+                "hand_point_right2.png",
+                "",
+                YES
                 ).
         END. /* if first-of */
     END. /* each ttsysctrl */
@@ -2670,7 +2867,9 @@ PROCEDURE pBuildMenuTree :
                 "",
                 ttSysCtrl.category,
                 ttSysCtrl.category,
-                "Graphics\16x16\tab_pane.png"
+                "tab_pane.png",
+                "",
+                YES
                 ).
         END. /* if first-of category */
         IF FIRST-OF(ttSysCtrl.subCategory) THEN DO:
@@ -2683,10 +2882,25 @@ PROCEDURE pBuildMenuTree :
                 ttSysCtrl.category,
                 ttSysCtrl.subCategory,
                 ttSysCtrl.subCategory,
-                "Graphics\16x16\hand_point_right2.png"
+                "hand_point_right2.png",
+                "",
+                YES
                 ).
         END. /* if first-of category */
     END. /* each ttsysctrl */
+    iOrder = iOrder + 1.
+    RUN pCreatettMenuTree (
+        FRAME filterFrame:HANDLE,
+        iOrder,
+        1,
+        NO,
+        "",
+        "Exit",
+        "Exit",
+        "navigate_cross.png",
+        "",
+        YES
+        ).
 
 END PROCEDURE.
 
@@ -2993,12 +3207,23 @@ PROCEDURE pCreatettSysCtrl :
             ttSysCtrl.fieldValue   = STRING(sys-ctrl.log-fld)
             .
     END CASE.
-    /*
+    ttSysCtrl.allData = ttSysCtrl.category + "|"
+                      + ttSysCtrl.subCategory + "|"
+                      + ttSysCtrl.name + "|"
+                      + ttSysCtrl.descrip + "|"
+                      + ttSysCtrl.typeCode + "|"
+                      + ttSysCtrl.module + "|"
+                      + ttSysCtrl.dataType + "|"
+                      + ttSysCtrl.tableSource + "|"
+                      + ttSysCtrl.fieldDescrip + "|"
+                      + ttSysCtrl.fieldDefault + "|"
+                      + ttSysCtrl.fieldSource + "|"
+                      + ttSysCtrl.fieldValue
+                      .
     IF ttSysCtrl.category EQ "" THEN
-    ttSysCtrl.category = "<BLANK>".
+    ttSysCtrl.category = "Category".
     IF ttSysCtrl.subCategory EQ "" THEN
-    ttSysCtrl.subCategory = "<BLANK>".
-    */
+    ttSysCtrl.subCategory = "SubCategory".
 
 END PROCEDURE.
 
@@ -3056,7 +3281,19 @@ PROCEDURE pCreatettSysCtrlTable :
                                          ELSE LEFT-TRIM(STRING(hField:BUFFER-VALUE(iExtent),cFormat))
                 ttSysCtrl.fieldValue   = ttSysCtrl.fieldDefault
                 ttSysCtrl.allowAdd     = NO
-                .
+                ttSysCtrl.allData = ttSysCtrl.category + "|"
+                                  + ttSysCtrl.subCategory + "|"
+                                  + ttSysCtrl.name + "|"
+                                  + ttSysCtrl.descrip + "|"
+                                  + ttSysCtrl.typeCode + "|"
+                                  + ttSysCtrl.module + "|"
+                                  + ttSysCtrl.dataType + "|"
+                                  + ttSysCtrl.tableSource + "|"
+                                  + ttSysCtrl.fieldDescrip + "|"
+                                  + ttSysCtrl.fieldDefault + "|"
+                                  + ttSysCtrl.fieldSource + "|"
+                                  + ttSysCtrl.fieldValue
+                                  .
         END. /* do iextent */
     END. /* do idx */
 
@@ -3336,8 +3573,8 @@ PROCEDURE pCRUD :
                     UPDATE lContinue.
                     IF lContinue THEN DO:
                         ASSIGN
-                            ttSysCtrl.securityLevelUser = ttSysCtrl.securityLevelDefault
-                            ttSysCtrl.fieldValue        = ttSysCtrl.fieldDefault
+                            iSecurityLevelUser:SCREEN-VALUE = STRING(ttSysCtrl.securityLevelDefault)
+                            cFieldValue:SCREEN-VALUE        = ttSysCtrl.fieldDefault
                             .
                         RUN pAssign.
                         RUN pUpdateTable (BUFFER ttSysCtrl).
@@ -3384,22 +3621,12 @@ PROCEDURE pCRUD :
                     END. /* if lcontinue */
                 END. /* if avail */
             END. /* delete */
-            WHEN "Export" THEN DO:
-                MESSAGE
-                    "Export Function Not Yet Implemented"
-                VIEW-AS ALERT-BOX.
-            END. /* import */
-            WHEN "Import" THEN DO:
-                MESSAGE
-                    "Import Function Not Yet Implemented"
-                VIEW-AS ALERT-BOX.
-            END. /* import */
             WHEN "Reset" THEN
                 RUN pDisplay.
         END CASE. /* ipcmode:label */
         IF iphMode:LABEL EQ "Add" AND cCategory:SENSITIVE THEN
         APPLY "ENTRY":U TO cCategory.
-        ELSE IF hFieldValue:SENSITIVE THEN
+        ELSE IF iphMode:LABEL NE "Defaults" AND hFieldValue:SENSITIVE THEN
         APPLY "ENTRY":U TO hFieldValue.
         ELSE
         APPLY "ENTRY":U TO BROWSE sysCtrlBrowse.
@@ -3420,11 +3647,11 @@ PROCEDURE pCRUD-2 :
   Notes:       
 ------------------------------------------------------------------------------*/
 &Scoped-define transPanel-2 btnUpdate-2 btnAdd-2 btnCopy-2 btnDelete-2 btnReset-2 ~
-btnCancel-2 btnForms-2 btnFirst btnPrev btnNext btnLast btnCalendar-2
+btnCancel-2 btnForms-2 btnFirst-2 btnPrev-2 btnNext-2 btnLast-2 btnCalendar-2
 &Scoped-define transInit-2 btnUpdate-2 btnAdd-2 btnCopy-2 btnDelete-2 btnForms-2 ~
- btnFirst btnPrev btnNext btnLast
+ btnFirst-2 btnPrev-2 btnNext-2 btnLast-2
 &Scoped-define transUpdate-2 btnUpdate-2 btnCancel-2 btnReset-2 btnCalendar-2
-&Scoped-define navPanel btnFirst btnPrev btnNext btnLast
+&Scoped-define navPanel btnFirst-2 btnPrev-2 btnNext-2 btnLast-2
 
     DEFINE INPUT PARAMETER iphMode AS HANDLE NO-UNDO.
     
@@ -3715,42 +3942,62 @@ PROCEDURE pGetSettings :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    DEFINE VARIABLE idx AS INTEGER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcUserID AS CHARACTER NO-UNDO.
     
-    /* search frame */
-    ASSIGN
-        FRAME searchFrame:COL = FRAME viewFrame:COL
-        FRAME searchFrame:ROW = FRAME viewFrame:ROW
-        .
+    DEFINE VARIABLE hColumn AS HANDLE  NO-UNDO.
+    DEFINE VARIABLE idx     AS INTEGER NO-UNDO.
+    DEFINE VARIABLE jdx     AS INTEGER NO-UNDO.
+    DEFINE VARIABLE kdx     AS INTEGER NO-UNDO.
+    
+    IF NOT CAN-FIND(FIRST user-print
+                    WHERE user-print.company    EQ g_company
+                      AND user-print.program-id EQ "{&program-id}"
+                      AND user-print.user-id    EQ "_default") THEN
+    RUN pSaveSettings ("_default").
     FIND FIRST user-print NO-LOCK
          WHERE user-print.company    EQ g_company
-           AND user-print.program-id EQ "SysCtrl."
-           AND user-print.user-id    EQ USERID("ASI")
+           AND user-print.program-id EQ "{&program-id}"
+           AND user-print.user-id    EQ ipcUserID
          NO-ERROR.
-    IF AVAILABLE user-print THEN
-    DO idx = 1 TO EXTENT(user-print.field-name):
-        IF user-print.field-name[idx] EQ "" THEN
-        CASE user-print.field-label[idx]:
-            WHEN "Column" THEN
-            {&WINDOW-NAME}:COLUMN = INTEGER(user-print.field-value[idx]).
-            WHEN "Row" THEN
-            {&WINDOW-NAME}:ROW = INTEGER(user-print.field-value[idx]).
-            WHEN "Width" THEN
-            ASSIGN
-                {&WINDOW-NAME}:WIDTH = INTEGER(user-print.field-value[idx])
-                FRAME {&FRAME-NAME}:VIRTUAL-WIDTH = {&WINDOW-NAME}:WIDTH
-                .
-            WHEN "Height" THEN
-            ASSIGN
-                {&WINDOW-NAME}:HEIGHT = INTEGER(user-print.field-value[idx])
-                FRAME {&FRAME-NAME}:VIRTUAL-HEIGHT = {&WINDOW-NAME}:HEIGHT
-                .
-            WHEN "SearchColumn" THEN
-            FRAME searchFrame:COLUMN = INTEGER(user-print.field-value[idx]).
-            WHEN "SearchRow" THEN
-            FRAME searchFrame:ROW = INTEGER(user-print.field-value[idx]).
-        END CASE.
-    END. /* do idx */
+    IF AVAILABLE user-print THEN DO:
+        DO idx = 1 TO iUserPrintOffSet:
+            IF user-print.field-name[idx] EQ "" THEN LEAVE.
+            CASE user-print.field-name[idx]:
+                WHEN "WindowColumn" THEN
+                {&WINDOW-NAME}:COLUMN = DECIMAL(user-print.field-value[idx]).
+                WHEN "WindowRow" THEN
+                {&WINDOW-NAME}:ROW = DECIMAL(user-print.field-value[idx]).
+                WHEN "WindowWidth" THEN
+                ASSIGN
+                    {&WINDOW-NAME}:WIDTH = DECIMAL(user-print.field-value[idx])
+                    FRAME {&FRAME-NAME}:VIRTUAL-WIDTH = {&WINDOW-NAME}:WIDTH
+                    .
+                WHEN "WindowHeight" THEN
+                ASSIGN
+                    {&WINDOW-NAME}:HEIGHT = DECIMAL(user-print.field-value[idx])
+                    FRAME {&FRAME-NAME}:VIRTUAL-HEIGHT = {&WINDOW-NAME}:HEIGHT
+                    .
+                WHEN "BrowseRowHeight" THEN
+                ASSIGN
+                    BROWSE sysCtrlBrowse:ROW-HEIGHT = DECIMAL(user-print.field-value[idx])
+                    .
+            END CASE.
+        END. /* do idx */
+        DO idx = iUserPrintOffSet + 1 TO EXTENT(user-print.field-name):
+            IF user-print.field-name[idx] EQ "" THEN LEAVE.
+            /* set browse column width, hidden & order */
+            DO kdx = 1 TO BROWSE sysCtrlBrowse:NUM-COLUMNS:
+                IF user-print.field-name[idx] EQ BROWSE sysCtrlBrowse:GET-BROWSE-COLUMN(kdx):NAME THEN DO:
+                    ASSIGN
+                        jdx = idx - iUserPrintOffSet
+                        hColumn = BROWSE sysCtrlBrowse:GET-BROWSE-COLUMN(jdx)
+                        hColumn:WIDTH = DECIMAL(user-print.field-value[idx])
+                        .
+                    BROWSE sysCtrlBrowse:MOVE-COLUMN(kdx,jdx).
+                END. /* if name */
+            END. /* do kdx */
+        END. /* do idx */
+    END. /* if avail */
     RUN pWinReSize.
 
 END PROCEDURE.
@@ -3767,7 +4014,25 @@ PROCEDURE pInit :
 ------------------------------------------------------------------------------*/
     RUN pParseTables.  
     RUN pDisplayMenuTree (FRAME filterFrame:HANDLE, "", YES, 1).
+    FIND FIRST ttMenuTree.
+    IF AVAILABLE ttMenuTree AND VALID-HANDLE(ttMenuTree.hEditor) THEN
+    RUN pClickMenuTree (ttMenuTree.hEditor).
     RUN pSetFocus.
+    IF lSuperAdmin THEN
+    ENABLE btnExport btnImport WITH FRAME {&FRAME-NAME}.
+    searchBar:TOOLTIP = "Search Columns:" + CHR(10) + CHR(10)
+                      + "Name" + CHR(10)
+                      + "Value Description" + CHR(10)
+                      + "Value" + CHR(10)
+                      + "Description" + CHR(10)
+                      + "Module" + CHR(10)
+                      + "Type" + CHR(10)
+                      + "Category" + CHR(10)
+                      + "SubCategory" + CHR(10)
+                      + "Table Source" + CHR(10)
+                      + "Field Source" + CHR(10)
+                      + "Data Type"
+                      .
 
 END PROCEDURE.
 
@@ -3795,9 +4060,11 @@ PROCEDURE pNavPanel :
     END CASE.
     IF AVAILABLE ttSysCtrl THEN DO:
         APPLY "VALUE-CHANGED":U TO BROWSE sysCtrlBrowse.
-        RUN pForms.
-        IF ttSysCtrl.tableSource NE "sys-ctrl" THEN
-        APPLY "CHOOSE":U TO btnForms-2 IN FRAME viewFormFrame.
+        IF NOT FRAME formsFrame:HIDDEN THEN DO:
+            RUN pForms.
+            IF ttSysCtrl.tableSource NE "sys-ctrl" THEN
+            APPLY "CHOOSE":U TO btnForms-2 IN FRAME viewFormFrame.
+        END. /* if viewformframe open */
     END. /* if avail */
 
 END PROCEDURE.
@@ -3853,31 +4120,33 @@ PROCEDURE pParseTables :
     /* table sys-ctrl */
     RUN pParseSysCtrl.
     /* all other tables */
-    ASSIGN
-        cTableName[1]  = "ap-ctrl"  cFieldList[1]  = "rec_key"
-        cTableName[2]  = "ar-ctrl"  cFieldList[2]  = "rec_key"
-        cTableName[3]  = "ce-ctrl"  cFieldList[3]  = "rec_key"
-        cTableName[4]  = "config"   cFieldList[4]  = "audit_tables"
-        cTableName[5]  = "db-ctrl"  cFieldList[5]  = "rec_key"
-        cTableName[6]  = "fg-ctrl"  cFieldList[6]  = "rec_key"
-        cTableName[7]  = "gl-ctrl"  cFieldList[7]  = "rec_key"
-        cTableName[8]  = "jc-ctrl"  cFieldList[8]  = "rec_key"
-        cTableName[9]  = "oe-ctrl"  cFieldList[9]  = "rec_key"
-        cTableName[10] = "po-ctrl"  cFieldList[10] = "rec_key"
-        cTableName[11] = "rfq-ctrl" cFieldList[11] = "rec_key"
-        cTableName[12] = "rm-ctrl"  cFieldList[12] = "rec_key"
-        .
-    DO idx = 1 TO EXTENT(cTableName):
-        IF cTableName[idx] EQ "" THEN LEAVE.
-        CREATE BUFFER hTable FOR TABLE cTableName[idx].
-        CREATE QUERY hQuery.
-        hQuery:SET-BUFFERS(hTable).
-        hQuery:QUERY-PREPARE("FOR EACH " + hTable:NAME + " NO-LOCK").
-        hQuery:QUERY-OPEN().
-        hQuery:GET-FIRST().
-        IF hQuery:QUERY-OFF-END THEN NEXT.        
-        RUN pCreatettSysCtrlTable (hTable:HANDLE, cFieldList[idx]).
-    END. /* do idx */
+    IF lSuperAdmin THEN DO:
+        ASSIGN
+            cTableName[1]  = "ap-ctrl"  cFieldList[1]  = "rec_key"
+            cTableName[2]  = "ar-ctrl"  cFieldList[2]  = "rec_key"
+            cTableName[3]  = "ce-ctrl"  cFieldList[3]  = "rec_key"
+            cTableName[4]  = "config"   cFieldList[4]  = "audit_tables"
+            cTableName[5]  = "db-ctrl"  cFieldList[5]  = "rec_key"
+            cTableName[6]  = "fg-ctrl"  cFieldList[6]  = "rec_key"
+            cTableName[7]  = "gl-ctrl"  cFieldList[7]  = "rec_key"
+            cTableName[8]  = "jc-ctrl"  cFieldList[8]  = "rec_key"
+            cTableName[9]  = "oe-ctrl"  cFieldList[9]  = "rec_key"
+            cTableName[10] = "po-ctrl"  cFieldList[10] = "rec_key"
+            cTableName[11] = "rfq-ctrl" cFieldList[11] = "rec_key"
+            cTableName[12] = "rm-ctrl"  cFieldList[12] = "rec_key"
+            .
+        DO idx = 1 TO EXTENT(cTableName):
+            IF cTableName[idx] EQ "" THEN LEAVE.
+            CREATE BUFFER hTable FOR TABLE cTableName[idx].
+            CREATE QUERY hQuery.
+            hQuery:SET-BUFFERS(hTable).
+            hQuery:QUERY-PREPARE("FOR EACH " + hTable:NAME + " NO-LOCK").
+            hQuery:QUERY-OPEN().
+            hQuery:GET-FIRST().
+            IF hQuery:QUERY-OFF-END THEN NEXT.        
+            RUN pCreatettSysCtrlTable (hTable:HANDLE, cFieldList[idx]).
+        END. /* do idx */
+    END. /* if lsuperadmin */
     RUN pBuildMenuTree.
     ASSIGN
         cFilter    = ""
@@ -3997,19 +4266,23 @@ PROCEDURE pSaveSettings :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    DEFINE VARIABLE idx AS INTEGER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcUserID AS CHARACTER NO-UNDO.
+    
+    DEFINE VARIABLE hColumn AS HANDLE  NO-UNDO.
+    DEFINE VARIABLE idx     AS INTEGER NO-UNDO.
+    DEFINE VARIABLE jdx     AS INTEGER NO-UNDO.
     
     FIND FIRST user-print EXCLUSIVE-LOCK
          WHERE user-print.company    EQ g_company
-           AND user-print.program-id EQ "SysCtrl."
-           AND user-print.user-id    EQ USERID("ASI")
+           AND user-print.program-id EQ "{&program-id}"
+           AND user-print.user-id    EQ ipcUserID
          NO-ERROR.
     IF NOT AVAILABLE user-print THEN DO:
         CREATE user-print.
         ASSIGN
             user-print.company    = g_company
-            user-print.program-id = "SysCtrl."
-            user-print.user-id    = USERID("ASI")
+            user-print.program-id = "{&program-id}"
+            user-print.user-id    = ipcUserID
             .
     END. /* not avail */
     ASSIGN
@@ -4019,30 +4292,39 @@ PROCEDURE pSaveSettings :
         .
     ASSIGN
         idx = idx + 1
-        user-print.field-name[idx]  = ""
-        user-print.field-label[idx] = "Column"
+        user-print.field-name[idx]  = "WindowColumn"
+        user-print.field-label[idx] = "WindowColumn"
         user-print.field-value[idx] = STRING({&WINDOW-NAME}:COLUMN)
         idx = idx + 1
-        user-print.field-name[idx]  = ""
-        user-print.field-label[idx] = "Row"
+        user-print.field-name[idx]  = "WindowRow"
+        user-print.field-label[idx] = "WindowRow"
         user-print.field-value[idx] = STRING({&WINDOW-NAME}:ROW)
         idx = idx + 1
-        user-print.field-name[idx]  = ""
-        user-print.field-label[idx] = "Width"
+        user-print.field-name[idx]  = "WindowWidth"
+        user-print.field-label[idx] = "WindowWidth"
         user-print.field-value[idx] = STRING({&WINDOW-NAME}:WIDTH)
         idx = idx + 1
-        user-print.field-name[idx]  = ""
-        user-print.field-label[idx] = "Height"
+        user-print.field-name[idx]  = "WindowHeight"
+        user-print.field-label[idx] = "WindowHeight"
         user-print.field-value[idx] = STRING({&WINDOW-NAME}:HEIGHT)
         idx = idx + 1
-        user-print.field-name[idx]  = ""
-        user-print.field-label[idx] = "SearchColumn"
-        user-print.field-value[idx] = STRING(FRAME searchFrame:COLUMN)
-        idx = idx + 1
-        user-print.field-name[idx]  = ""
-        user-print.field-label[idx] = "SearchRow"
-        user-print.field-value[idx] = STRING(FRAME searchFrame:ROW)
+        user-print.field-name[idx]  = "BrowseRowHeight"
+        user-print.field-label[idx] = "BrowseRowHeight"
+        user-print.field-value[idx] = STRING(BROWSE sysCtrlBrowse:ROW-HEIGHT)
         .
+    /* save browse column order and width */
+    DO jdx = 1 TO BROWSE sysCtrlBrowse:NUM-COLUMNS:
+        ASSIGN
+            idx = idx + 1
+            hColumn = BROWSE sysCtrlBrowse:GET-BROWSE-COLUMN(jdx)
+            user-print.field-label[idx] = "BrowseColumn"
+            user-print.field-name[idx]  = hColumn:NAME
+            user-print.field-value[idx] = STRING(
+                                          MAX(hColumn:WIDTH,
+                                              BROWSE sysCtrlBrowse:MIN-COLUMN-WIDTH-CHARS)
+                                                )
+            .
+    END. /* do jdx */
 
 END PROCEDURE.
 
@@ -4165,36 +4447,40 @@ PROCEDURE pWinReSize :
         IF {&WINDOW-NAME}:WIDTH  LT 160   THEN
         {&WINDOW-NAME}:WIDTH  = 160.
         ASSIGN
+            /* import/export objects */
+            RECT-1:HIDDEN    = YES
+            btnImport:HIDDEN = YES
+            btnExport:HIDDEN = YES
+            /* search frame */
+            FRAME searchFrame:COL = 1
+            FRAME searchFrame:ROW = 1
             /* default frame */
             FRAME {&FRAME-NAME}:VIRTUAL-HEIGHT = {&WINDOW-NAME}:HEIGHT
             FRAME {&FRAME-NAME}:VIRTUAL-WIDTH  = {&WINDOW-NAME}:WIDTH
             FRAME {&FRAME-NAME}:HEIGHT = {&WINDOW-NAME}:HEIGHT
             FRAME {&FRAME-NAME}:WIDTH  = {&WINDOW-NAME}:WIDTH
-            /*
-            /* forms frame */
-            FRAME formsFrame:VIRTUAL-HEIGHT = {&WINDOW-NAME}:HEIGHT
-            FRAME formsFrame:VIRTUAL-WIDTH  = {&WINDOW-NAME}:WIDTH
-            FRAME formsFrame:HEIGHT = {&WINDOW-NAME}:HEIGHT
-            FRAME formsFrame:WIDTH  = {&WINDOW-NAME}:WIDTH
-            */
+            /* search bar */
+            searchBar:WIDTH = FRAME {&FRAME-NAME}:WIDTH
+                            - searchBar:COL + 1
             /* filter frame */
             FRAME filterFrame:VIRTUAL-HEIGHT = {&WINDOW-NAME}:VIRTUAL-HEIGHT
-            FRAME filterFrame:HEIGHT = FRAME {&FRAME-NAME}:HEIGHT
-            /* view frame */
-            FRAME viewFrame:VIRTUAL-WIDTH = FRAME {&FRAME-NAME}:WIDTH
-                                          - FRAME filterFrame:WIDTH
-            FRAME viewFrame:WIDTH = FRAME viewFrame:VIRTUAL-WIDTH
-            FRAME viewFrame:ROW   = FRAME {&FRAME-NAME}:VIRTUAL-HEIGHT
-                                  - FRAME viewFrame:HEIGHT + 1
+            FRAME filterFrame:HEIGHT = FRAME {&FRAME-NAME}:HEIGHT - 3
+            /* import/export objects */
+            RECT-1:ROW       = FRAME filterFrame:HEIGHT + 1.19
+            btnImport:ROW    = RECT-1:ROW + .24
+            btnExport:ROW    = RECT-1:ROW + .24
+            RECT-1:HIDDEN    = NO
+            btnImport:HIDDEN = NO
+            btnExport:HIDDEN = NO
             /* browse frame */
             BROWSE sysCtrlBrowse:HEIGHT = FRAME {&FRAME-NAME}:HEIGHT
-                                        - FRAME viewFrame:HEIGHT
-            BROWSE sysCtrlBrowse:WIDTH  = FRAME viewFrame:WIDTH
+                                        - BROWSE sysCtrlBrowse:ROW + 1
+            BROWSE sysCtrlBrowse:WIDTH  = FRAME {&FRAME-NAME}:WIDTH
+                                        - FRAME filterFrame:WIDTH
             .
         VIEW FRAME {&FRAME-NAME}.
         VIEW FRAME filterFrame.
         VIEW BROWSE sysCtrlBrowse.
-        VIEW FRAME viewFrame.
         VIEW FRAME searchFrame.
         FRAME searchFrame:MOVE-TO-TOP().
     END. /* do with */
