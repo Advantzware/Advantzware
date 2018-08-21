@@ -119,7 +119,8 @@ DEF VAR v-prep-lab-orig LIKE prep-lab NO-UNDO.
                  est-prep.amtz to 51 format ">>9.99" space(0) "%"
                  est-prep.simon format "X" to 58
                  prep-tot / (qty / 1000) / v-sqft-fac to 69
-                 prep-tot to 82 format ">>>,>>9.99" skip with stream-io.
+                 prep-tot to 82 format ">>>,>>9.99" skip 
+                 with stream-io width 82.
 
       end.
    end.

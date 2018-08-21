@@ -199,7 +199,8 @@ for each est-prep where est-prep.company = xest.company
               est-prep.amtz to 50 format ">>9" space(0) "%"
               est-prep.simon format "X" to 58
               prep-tot / (qty / 1000) to 70
-              prep-tot to 82 format ">>>>>9.99" skip with stream-io.
+              prep-tot to 82 format ">>>>>9.99" skip 
+              with stream-io width 82.
    end.
 end.
 
