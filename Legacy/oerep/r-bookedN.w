@@ -181,6 +181,22 @@ FUNCTION GEtFieldValue RETURNS CHARACTER
 &ANALYZE-RESUME
 
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fGetRoutingForJob B-table-Win
+FUNCTION fGetRoutingForJob RETURNS CHARACTER 
+  ( /*ipcValueNeeded AS CHAR*/  ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fGetInksForJob B-table-Win
+FUNCTION fGetInksForJob RETURNS CHARACTER 
+  ( /*ipcValueNeeded AS CHAR*/  ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 /* ***********************  Control Definitions  ********************** */
 
 /* Define the widget handle for the window                              */
@@ -2151,3 +2167,75 @@ END FUNCTION.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fGetRoutingForJob B-table-Win 
+FUNCTION fGetRoutingForJob RETURNS CHARACTER
+  (  ):
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE dResult    AS CHARACTER NO-UNDO.
+
+    IF AVAIL job THEN DO:
+        FOR EACH job-mch WHERE job-mch.company = job.company 
+            AND job-mch.job = job.job 
+            AND job-mch.job-no = job.job-no 
+            AND job-mch.job-no2 = job.job-no2 
+            use-index line-idx NO-LOCK BREAK BY job-mch.job :
+            IF NOT LAST(job-mch.job) THEN
+                dResult = dResult + job-mch.m-code + "," .
+            ELSE dResult = dResult + job-mch.m-code .
+        END.
+    END.                
+
+    RETURN dResult.
+
+END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fGetInksForJob B-table-Win 
+FUNCTION fGetInksForJob RETURNS CHARACTER
+  (  ):
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    
+    DEFINE VARIABLE dResult    AS CHARACTER NO-UNDO.
+    IF AVAIL job THEN DO:
+        IF AVAIL eb THEN
+            for each job-mat where job-mat.company eq cocode
+                and job-mat.job     eq job.job  
+                and job-mat.frm     eq eb.form-no
+                NO-LOCK ,
+                first item
+                {sys/look/itemivW.i}
+                and item.i-no eq job-mat.i-no:
+                    IF eb.est-type LE 4 THEN do:
+                        do i = 1 to 20:
+                            if eb.i-code2[i] eq job-mat.i-no then do:
+                                IF LOOKUP(job-mat.i-no,dResult) EQ 0 THEN
+                                 dResult = dResult + job-mat.i-no + "," .
+                            end.
+                        end. /* loop i */
+                    END.
+                    ELSE do:
+                        do i = 1 to 10:
+                            if eb.i-code[i] eq job-mat.i-no then do:
+                                IF LOOKUP(job-mat.i-no,dResult) EQ 0 THEN
+                                 dResult = dResult + job-mat.i-no + "," . 
+                            end.
+                        end. /* loop i */
+                    END.
+            END.
+    END.                
+
+    RETURN dResult.
+
+END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME

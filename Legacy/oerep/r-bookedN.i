@@ -616,42 +616,8 @@ FORMAT wkrecap.procat
             AND eb.stock-no EQ oe-ordl.i-no NO-ERROR .
     END. /* avail oe-ordl  */
 
-     IF AVAIL job THEN DO:
-        FOR EACH job-mch WHERE job-mch.company = job.company 
-            AND job-mch.job = job.job 
-            AND job-mch.job-no = job.job-no 
-            AND job-mch.job-no2 = job.job-no2 
-            use-index line-idx NO-LOCK BREAK BY job-mch.job :
-            IF NOT LAST(job-mch.job) THEN
-                cMachine = cMachine + job-mch.m-code + "," .
-            ELSE cMachine = cMachine + job-mch.m-code .
-        END.
-
-            IF AVAIL eb THEN
-            for each job-mat where job-mat.company eq cocode
-                and job-mat.job     eq job.job  
-                and job-mat.frm     eq eb.form-no
-                NO-LOCK ,
-                first item
-                {sys/look/itemivW.i}
-                and item.i-no eq job-mat.i-no:
-                    IF eb.est-type LE 4 THEN do:
-                        do i = 1 to 20:
-                            if eb.i-code2[i] eq job-mat.i-no then do:
-                                 cInks = cInks + job-mat.i-no + "," .
-                            end.
-                        end. /* loop i */
-                    END.
-                    ELSE do:
-                        do i = 1 to 10:
-                            if eb.i-code[i] eq job-mat.i-no then do:
-                                 cInks = cInks + job-mat.i-no + "," . 
-                            end.
-                        end. /* loop i */
-                    END.
-            END.
-
-    END.   /* if job avail */
+    cMachine = fGetRoutingForJob() .
+    cInks    = fGetInksForJob(). 
 
     IF prt-sqft THEN do:       
        /*==== new with selectable columns ====*/
