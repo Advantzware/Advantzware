@@ -1615,7 +1615,7 @@ DO:
             FIRST oe-ord
             WHERE oe-ord.company EQ job-hdr.company
             AND oe-ord.ord-no  EQ job-hdr.ord-no
-            AND oe-ord.stat    EQ "H"
+            AND (oe-ord.stat    EQ "H" OR oe-ord.priceHold)
             NO-LOCK:
             LEAVE.
         END.

@@ -1548,6 +1548,9 @@ PROCEDURE valid-ord-no :
       IF oe-ord.stat EQ "H" THEN cv-msg = "on hold".
 
     IF cv-msg EQ "" THEN
+      IF oe-ord.priceHold THEN cv-msg = "on price hold".
+    
+    IF cv-msg EQ "" THEN
       IF LOOKUP(oe-ord.stat,cOrd-ok) LE 0 THEN cv-msg = "not available for release".
 
     IF cv-msg NE "" THEN DO:

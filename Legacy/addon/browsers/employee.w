@@ -147,7 +147,7 @@ DEFINE BROWSE Browser-Table
       employee.first_name FORMAT "x(10)":U LABEL-BGCOLOR 14
       employee.soc_sec FORMAT "XXX-XX-XXXX":U LABEL-BGCOLOR 14
       employee.start_date FORMAT "99/99/9999":U LABEL-BGCOLOR 14
-      employee.actnum FORMAT "x(25)":U LABEL-BGCOLOR 14
+      employee.actnum COLUMN-LABEL "Note" FORMAT "x(25)":U LABEL-BGCOLOR 14
       employee.rate_usage FORMAT "Shift/Machine":U LABEL-BGCOLOR 14
       employee.emp_type COLUMN-LABEL "Type" FORMAT "x(5)":U LABEL-BGCOLOR 14
 /* _UIB-CODE-BLOCK-END */
@@ -269,7 +269,7 @@ AND ~{&KEY-PHRASE}"
      _FldNameList[5]   > employee.start_date
 "start_date" ? ? "date" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[6]   > employee.actnum
-"actnum" ? ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"actnum" "Note" ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[7]   > employee.rate_usage
 "rate_usage" ? ? "logical" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[8]   > employee.emp_type
@@ -434,7 +434,7 @@ IF employee.employee NE "" THEN
     FromEmp = employee.employee
     ToEmp   = employee.employee . 
 
-RUN windows/emp-expe.w (FromEmp,ToEmp).
+RUN windows/emp-expe.w (INPUT FromEmp, INPUT ToEmp).
 
 
 END PROCEDURE.

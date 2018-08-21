@@ -376,6 +376,7 @@ for each xxreport where xxreport.term-id eq v-term-id,
 /*  IF v-printline < 45 THEN PUT SKIP(60 - v-printline). */
   PAGE.
   v-printline = 0.
+  v-tot-unit = 0.
 
   IF v-Print-BarTag THEN RUN PrintBarTag.
 

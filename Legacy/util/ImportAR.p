@@ -18,7 +18,7 @@
 
 DEFINE TEMP-TABLE ttImportAR
     FIELD Company                  AS CHARACTER FORMAT "x(3)"
-    FIELD Location        AS CHARACTER
+    FIELD Location                 AS CHARACTER
     FIELD cCustNo                  AS CHARACTER FORMAT "x(8)" COLUMN-LABEL "Customer"
     FIELD cShipTo                  AS CHARACTER FORMAT "x(8)" COLUMN-LABEL "Ship-To#"
     FIELD cInvNo                   AS CHARACTER FORMAT ">>>>>9" COLUMN-LABEL "Invoice#"  
@@ -57,7 +57,7 @@ DEFINE TEMP-TABLE ttImportAR
     FIELD cLineTax                 AS CHARACTER FORMAT "yes/no" COLUMN-LABEL "Tax"  
     .
 
-DEFINE VARIABLE giIndexOffset AS INTEGER   NO-UNDO INIT 1. /*Set to 1 if there is a Company field in temp-table since this will not be part of the import data*/
+DEFINE VARIABLE giIndexOffset AS INTEGER NO-UNDO INIT 2. /*Set to 1 if there is a Company field in temp-table since this will not be part of the import data*/
 /* ********************  Preprocessor Definitions  ******************** */
 
 
@@ -178,10 +178,10 @@ PROCEDURE pValidate PRIVATE:
     DO:
 
         IF oplValid AND ipbf-ttImportAR.cCustNo NE "" THEN 
-            DO:
+        DO:
             FIND FIRST cust NO-LOCK
                 WHERE cust.company EQ ipbf-ttImportAR.Company
-                 AND cust.cust-no EQ ipbf-ttImportAR.cCustNo
+                AND cust.cust-no EQ ipbf-ttImportAR.cCustNo
                 AND lookup(cust.active,"A,E") > 0  NO-ERROR.
             IF NOT AVAILABLE cust THEN 
                 ASSIGN 
@@ -190,7 +190,7 @@ PROCEDURE pValidate PRIVATE:
                     .
         END.
         IF oplValid AND ipbf-ttImportAR.cShipTo NE "" THEN 
-            DO:
+        DO:
             FIND FIRST shipto NO-LOCK
                 WHERE shipto.company = ipbf-ttImportAR.Company
                 AND shipto.cust-no = ipbf-ttImportAR.cCustNo
@@ -202,7 +202,7 @@ PROCEDURE pValidate PRIVATE:
                     .
         END.
         IF oplValid AND ipbf-ttImportAR.cTaxCode NE "" THEN 
-            DO:
+        DO:
             FIND FIRST stax NO-LOCK
                 WHERE stax.company = ipbf-ttImportAR.Company
                 AND stax.tax-group = ipbf-ttImportAR.cTaxCode
@@ -214,7 +214,7 @@ PROCEDURE pValidate PRIVATE:
                     .
         END.
         IF oplValid AND ipbf-ttImportAR.cTermsCode NE "" THEN 
-            DO:
+        DO:
             FIND FIRST terms NO-LOCK 
                 WHERE terms.company = ipbf-ttImportAR.Company
                 AND terms.t-code EQ ipbf-ttImportAR.cTermsCode NO-ERROR.
@@ -225,7 +225,7 @@ PROCEDURE pValidate PRIVATE:
                     .
         END.
         IF oplValid AND ipbf-ttImportAR.cLineAccount NE "" THEN 
-            DO:
+        DO:
             FIND FIRST account NO-LOCK 
                 WHERE account.company = ipbf-ttImportAR.Company
                 AND account.TYPE <> "T"
@@ -237,14 +237,14 @@ PROCEDURE pValidate PRIVATE:
         END.
 
         IF oplValid AND ipbf-ttImportAR.cLinePriceUom NE "" THEN 
-            DO:
+        DO:
             IF LOOKUP(ipbf-ttImportAR.cLinePriceUom,"EA,MSF,M") LE 0 THEN
                 ASSIGN 
                     oplValid = NO
                     opcNote  = "Invalid UOM".
         END.
         IF oplValid AND ipbf-ttImportAR.cLineCostUom NE "" THEN 
-            DO:
+        DO:
             IF LOOKUP(ipbf-ttImportAR.cLineCostUom,"EA,M") LE 0 THEN
                 ASSIGN 
                     oplValid = NO
@@ -252,7 +252,7 @@ PROCEDURE pValidate PRIVATE:
         END. 
 
         IF oplValid AND ipbf-ttImportAR.cLineSalesman1 NE "" THEN 
-            DO:
+        DO:
             FIND FIRST sman NO-LOCK WHERE
                 sman.company EQ ipbf-ttImportAR.Company 
                 AND sman.sman EQ ipbf-ttImportAR.cLineSalesman1 NO-ERROR.
@@ -261,8 +261,8 @@ PROCEDURE pValidate PRIVATE:
                     oplValid = NO
                     opcNote  = "Invalid Sales Rep1".
         END.
-            IF oplValid AND ipbf-ttImportAR.cLineSalesman2 NE "" THEN 
-            DO:
+        IF oplValid AND ipbf-ttImportAR.cLineSalesman2 NE "" THEN 
+        DO:
             FIND FIRST sman NO-LOCK WHERE
                 sman.company EQ ipbf-ttImportAR.Company 
                 AND sman.sman EQ ipbf-ttImportAR.cLineSalesman2 NO-ERROR.
@@ -272,8 +272,8 @@ PROCEDURE pValidate PRIVATE:
                     oplValid = NO
                     opcNote  = "Invalid Sales Rep2".
         END.
-            IF oplValid AND ipbf-ttImportAR.cLineSalesman3 NE "" THEN 
-            DO:
+        IF oplValid AND ipbf-ttImportAR.cLineSalesman3 NE "" THEN 
+        DO:
             FIND FIRST sman NO-LOCK WHERE
                 sman.company EQ ipbf-ttImportAR.Company 
                 AND sman.sman EQ ipbf-ttImportAR.cLineSalesman3 NO-ERROR.
@@ -300,121 +300,118 @@ PROCEDURE pProcessRecord PRIVATE:
 
     DEFINE VARIABLE riARInv  AS ROWID .
     DEFINE VARIABLE riARInvl AS ROWID.
-    
+       
+    IF ipbf-ttImportAR.cCustNo EQ "" THEN NEXT.
+    IF ipbf-ttImportAR.cInvNo EQ "" THEN NEXT.
 
-    FOR EACH ipbf-ttImportAR NO-LOCK:
-        IF ipbf-ttImportAR.cCustNo EQ "" THEN NEXT.
-        IF ipbf-ttImportAR.cInvNo EQ "" THEN NEXT.
-
-        FIND FIRST ar-inv NO-LOCK
-                    WHERE ar-inv.company EQ ipbf-ttImportAR.Company
-                    AND ar-inv.inv-no EQ INT(ipbf-ttImportAR.cInvNo)
-                    NO-ERROR.
-                IF NOT AVAILABLE ar-inv THEN 
-                DO:
-                    iopiAdded = iopiAdded + 1.
-                    RUN pCreateNewInvoiceAR (ipbf-ttImportAR.Company,ipbf-ttImportAR.cCustNo, ipbf-ttImportAR.cInvDate, OUTPUT riARInv).
-                    FIND ar-inv EXCLUSIVE-LOCK 
-                        WHERE ROWID(ar-inv) EQ riARInv
-                        NO-ERROR.
-                    IF NOT AVAILABLE ar-inv THEN NEXT.
-                    /*Override defaults with values from import*/
-                    IF ipbf-ttImportAR.cInvNo NE "" THEN 
-                        ar-inv.inv-no = INTEGER(ipbf-ttImportAR.cInvNo).
-                    IF ipbf-ttImportAR.cInvDate NE "" THEN 
-                        ar-inv.inv-date = DATE(ipbf-ttImportAR.cInvDate).
-                    IF ipbf-ttImportAR.cDueDate NE "" THEN 
-                        ar-inv.due-date = DATE(ipbf-ttImportAR.cDueDate).
-                    IF ipbf-ttImportAR.cShipto NE "" THEN 
-                        ar-inv.ship-id = ipbf-ttImportAR.cShipTo.
-                    IF ipbf-ttImportAR.cPONum NE "" THEN 
-                        ar-inv.po-no = ipbf-ttImportAR.cPONum.
-                    IF ipbf-ttImportAR.cTaxCode NE "" THEN
-                    DO:
-                        FIND FIRST stax NO-LOCK 
-                            WHERE stax.company EQ ipbf-ttImportAR.Company
-                            AND stax.tax-group EQ ipbf-ttImportAR.cTaxCode
-                            NO-ERROR.
-                        IF AVAILABLE stax THEN 
-                            ar-inv.tax-code = ipbf-ttImportAR.cTaxCode.
-                    END.
-                    IF ipbf-ttImportAR.cTermsCode NE "" THEN 
-                        ar-inv.terms = ipbf-ttImportAR.cTermsCode.
-                    IF ipbf-ttImportAR.cDiscount NE "" THEN 
-                        ar-inv.disc-% = DECIMAL(ipbf-ttImportAR.cDiscount).               
-                    IF ipbf-ttImportAR.cDiscountDays NE "" THEN 
-                        ar-inv.disc-days = DECIMAL(ipbf-ttImportAR.cDiscountDays).
-                    IF ipbf-ttImportAR.cCarrier NE "" THEN 
-                        ar-inv.carrier = ipbf-ttImportAR.cCarrier.
-                    IF ipbf-ttImportAR.cFreight NE "" THEN 
-                        ar-inv.freight = DECIMAL(ipbf-ttImportAR.cFreight).                                     
-                END. /*Not avail ar-inv*/
-                RUN pCreateNewInvoiceLineAR (ROWID(ar-inv),ipbf-ttImportAR.cLine,ipbf-ttImportAR.cLineItemNo, OUTPUT riARInvl).
-                FIND ar-invl EXCLUSIVE-LOCK 
-                    WHERE ROWID(ar-invl) EQ riARInvl
-                    NO-ERROR.
-                IF NOT AVAILABLE ar-invl THEN NEXT.
-                /*Override defaults with values from import*/
-                ASSIGN 
-                    ar-invl.tax = ipbf-ttImportAR.cLineTax EQ 'Y'
-                    ar-invl.amt = DECIMAL(ipbf-ttImportAR.cLineAmount)
-                    .
-                IF TRIM(ipbf-ttImportAR.cLineQuantity) NE "" THEN 
-                    ar-invl.qty = DECIMAL(ipbf-ttImportAR.cLineQuantity).
-                ELSE 
-                    ar-invl.qty = 1.
-                ar-invl.inv-qty = ar-invl.qty.
-                IF ipbf-ttImportAR.cLineQuantityUom NE "" THEN 
-                    ar-invl.cons-uom = ipbf-ttImportAR.cLineQuantityUOM.
-                ELSE 
-                    ar-invl.cons-uom = "EA".
-                IF ipbf-ttImportAR.cLinePrice NE "" THEN 
-                    ar-invl.unit-pr = DECIMAL(ipbf-ttImportAR.cLinePrice).
-                ELSE 
-                    ar-invl.unit-pr = ar-invl.amt.
-                IF ipbf-ttImportAR.cLinePriceUom NE "" THEN 
-                    ar-invl.pr-qty-uom = ipbf-ttImportAR.cLinePriceUom.
-                ELSE 
-                    ar-invl.pr-qty-uom = "EA".
-                IF ipbf-ttImportAR.cLineAccount NE "" THEN 
-                    ar-invl.actnum = ipbf-ttImportAR.cLineAccount.
-                IF ipbf-ttImportAR.cLine NE "" THEN 
-                    ar-invl.line = INTEGER(ipbf-ttImportAR.cLine).
-                IF ipbf-ttImportAR.cLineItemNo NE "" THEN 
-                    ar-invl.i-no = ipbf-ttImportAR.cLineItemNo.
-                IF ipbf-ttImportAR.cLineItemName NE "" THEN 
-                    ar-invl.i-name = ipbf-ttImportAR.cLineItemName.
-                IF ipbf-ttImportAR.cLineItemDescription NE "" THEN                                 
-                    ar-invl.i-dscr = ipbf-ttImportAR.cLineItemDescription.     
-                IF ipbf-ttImportAR.cLineCustomerLotNo NE "" THEN 
-                    ar-invl.lot-no = ipbf-ttImportAR.cLineCustomerLotNo.
-                IF ipbf-ttImportAR.cLineDiscount NE "" THEN                            
-                    ar-invl.disc = DECIMAL(ipbf-ttImportAR.cLineDiscount).            
-                IF ipbf-ttImportAR.cLineCost NE "" THEN 
-                    ar-invl.cost = DECIMAL(ipbf-ttImportAR.cLineCost).                
-                IF ipbf-ttImportAR.cLineCostUom NE "" THEN 
-                    ar-invl.cons-uom = ipbf-ttImportAR.cLineCostUom.             
-                IF ipbf-ttImportAR.cLineSalesman1 NE "" THEN 
-                    ar-invl.sman[1] = ipbf-ttImportAR.cLineSalesman1.
-                IF ipbf-ttImportAR.cLineSalesman1Percent NE "" THEN 
-                    ar-invl.s-pct[1] = DECIMAL(ipbf-ttImportAR.cLineSalesman1Percent).
-                IF ipbf-ttImportAR.cLineSalesman1Commission NE "" THEN 
-                    ar-invl.s-comm[1] = DECIMAL(ipbf-ttImportAR.cLineSalesman1Commission).
-                IF ipbf-ttImportAR.cLineSalesman2 NE "" THEN 
-                    ar-invl.sman[2] = ipbf-ttImportAR.cLineSalesman2.
-                IF ipbf-ttImportAR.cLineSalesman2Percent NE "" THEN 
-                    ar-invl.s-pct[2] = DECIMAL(ipbf-ttImportAR.cLineSalesman2Percent).
-                IF ipbf-ttImportAR.cLineSalesman2Commission NE "" THEN 
-                    ar-invl.s-comm[3] = DECIMAL(ipbf-ttImportAR.cLineSalesman3Commission).
-                IF ipbf-ttImportAR.cLineSalesman3 NE "" THEN 
-                    ar-invl.sman[3] = ipbf-ttImportAR.cLineSalesman3.
-                IF ipbf-ttImportAR.cLineSalesman3Percent NE "" THEN 
-                    ar-invl.s-pct[3] = DECIMAL(ipbf-ttImportAR.cLineSalesman3Percent).
-                IF ipbf-ttImportAR.cLineSalesman3Commission NE "" THEN 
-                    ar-invl.s-comm[3] = DECIMAL(ipbf-ttImportAR.cLineSalesman3Commission).
+    FIND FIRST ar-inv NO-LOCK
+        WHERE ar-inv.company EQ ipbf-ttImportAR.Company
+        AND ar-inv.inv-no EQ INT(ipbf-ttImportAR.cInvNo)
+        NO-ERROR.
+    IF NOT AVAILABLE ar-inv THEN 
+    DO:
+        iopiAdded = iopiAdded + 1.
+        RUN pCreateNewInvoiceAR (ipbf-ttImportAR.Company,ipbf-ttImportAR.cCustNo, ipbf-ttImportAR.cInvDate, OUTPUT riARInv).
+        FIND ar-inv EXCLUSIVE-LOCK 
+            WHERE ROWID(ar-inv) EQ riARInv
+            NO-ERROR.
+        IF NOT AVAILABLE ar-inv THEN NEXT.
+        /*Override defaults with values from import*/
+        IF ipbf-ttImportAR.cInvNo NE "" THEN 
+            ar-inv.inv-no = INTEGER(ipbf-ttImportAR.cInvNo).
+        IF ipbf-ttImportAR.cInvDate NE "" THEN 
+            ar-inv.inv-date = DATE(ipbf-ttImportAR.cInvDate).
+        IF ipbf-ttImportAR.cDueDate NE "" THEN 
+            ar-inv.due-date = DATE(ipbf-ttImportAR.cDueDate).
+        IF ipbf-ttImportAR.cShipto NE "" THEN 
+            ar-inv.ship-id = ipbf-ttImportAR.cShipTo.
+        IF ipbf-ttImportAR.cPONum NE "" THEN 
+            ar-inv.po-no = ipbf-ttImportAR.cPONum.
+        IF ipbf-ttImportAR.cTaxCode NE "" THEN
+        DO:
+            FIND FIRST stax NO-LOCK 
+                WHERE stax.company EQ ipbf-ttImportAR.Company
+                AND stax.tax-group EQ ipbf-ttImportAR.cTaxCode
+                NO-ERROR.
+            IF AVAILABLE stax THEN 
+                ar-inv.tax-code = ipbf-ttImportAR.cTaxCode.
+        END.
+        IF ipbf-ttImportAR.cTermsCode NE "" THEN 
+            ar-inv.terms = ipbf-ttImportAR.cTermsCode.
+        IF ipbf-ttImportAR.cDiscount NE "" THEN 
+            ar-inv.disc-% = DECIMAL(ipbf-ttImportAR.cDiscount).               
+        IF ipbf-ttImportAR.cDiscountDays NE "" THEN 
+            ar-inv.disc-days = DECIMAL(ipbf-ttImportAR.cDiscountDays).
+        IF ipbf-ttImportAR.cCarrier NE "" THEN 
+            ar-inv.carrier = ipbf-ttImportAR.cCarrier.
+        IF ipbf-ttImportAR.cFreight NE "" THEN 
+            ar-inv.freight = DECIMAL(ipbf-ttImportAR.cFreight).                                     
+    END. /*Not avail ar-inv*/
+    RUN pCreateNewInvoiceLineAR (ROWID(ar-inv),ipbf-ttImportAR.cLine,ipbf-ttImportAR.cLineItemNo, OUTPUT riARInvl).
+    FIND ar-invl EXCLUSIVE-LOCK 
+        WHERE ROWID(ar-invl) EQ riARInvl
+        NO-ERROR.
+    IF NOT AVAILABLE ar-invl THEN NEXT.
+    /*Override defaults with values from import*/
+    ASSIGN 
+        ar-invl.tax = ipbf-ttImportAR.cLineTax EQ 'Y'
+        ar-invl.amt = DECIMAL(ipbf-ttImportAR.cLineAmount)
+        .
+    IF TRIM(ipbf-ttImportAR.cLineQuantity) NE "" THEN 
+        ar-invl.qty = DECIMAL(ipbf-ttImportAR.cLineQuantity).
+    ELSE 
+        ar-invl.qty = 1.
+    ar-invl.inv-qty = ar-invl.qty.
+    IF ipbf-ttImportAR.cLineQuantityUom NE "" THEN 
+        ar-invl.cons-uom = ipbf-ttImportAR.cLineQuantityUOM.
+    ELSE 
+        ar-invl.cons-uom = "EA".
+    IF ipbf-ttImportAR.cLinePrice NE "" THEN 
+        ar-invl.unit-pr = DECIMAL(ipbf-ttImportAR.cLinePrice).
+    ELSE 
+        ar-invl.unit-pr = ar-invl.amt.
+    IF ipbf-ttImportAR.cLinePriceUom NE "" THEN 
+        ar-invl.pr-qty-uom = ipbf-ttImportAR.cLinePriceUom.
+    ELSE 
+        ar-invl.pr-qty-uom = "EA".
+    IF ipbf-ttImportAR.cLineAccount NE "" THEN 
+        ar-invl.actnum = ipbf-ttImportAR.cLineAccount.
+    IF ipbf-ttImportAR.cLine NE "" THEN 
+        ar-invl.line = INTEGER(ipbf-ttImportAR.cLine).
+    IF ipbf-ttImportAR.cLineItemNo NE "" THEN 
+        ar-invl.i-no = ipbf-ttImportAR.cLineItemNo.
+    IF ipbf-ttImportAR.cLineItemName NE "" THEN 
+        ar-invl.i-name = ipbf-ttImportAR.cLineItemName.
+    IF ipbf-ttImportAR.cLineItemDescription NE "" THEN                                 
+        ar-invl.i-dscr = ipbf-ttImportAR.cLineItemDescription.     
+    IF ipbf-ttImportAR.cLineCustomerLotNo NE "" THEN 
+        ar-invl.lot-no = ipbf-ttImportAR.cLineCustomerLotNo.
+    IF ipbf-ttImportAR.cLineDiscount NE "" THEN                            
+        ar-invl.disc = DECIMAL(ipbf-ttImportAR.cLineDiscount).            
+    IF ipbf-ttImportAR.cLineCost NE "" THEN 
+        ar-invl.cost = DECIMAL(ipbf-ttImportAR.cLineCost).                
+    IF ipbf-ttImportAR.cLineCostUom NE "" THEN 
+        ar-invl.cons-uom = ipbf-ttImportAR.cLineCostUom.             
+    IF ipbf-ttImportAR.cLineSalesman1 NE "" THEN 
+        ar-invl.sman[1] = ipbf-ttImportAR.cLineSalesman1.
+    IF ipbf-ttImportAR.cLineSalesman1Percent NE "" THEN 
+        ar-invl.s-pct[1] = DECIMAL(ipbf-ttImportAR.cLineSalesman1Percent).
+    IF ipbf-ttImportAR.cLineSalesman1Commission NE "" THEN 
+        ar-invl.s-comm[1] = DECIMAL(ipbf-ttImportAR.cLineSalesman1Commission).
+    IF ipbf-ttImportAR.cLineSalesman2 NE "" THEN 
+        ar-invl.sman[2] = ipbf-ttImportAR.cLineSalesman2.
+    IF ipbf-ttImportAR.cLineSalesman2Percent NE "" THEN 
+        ar-invl.s-pct[2] = DECIMAL(ipbf-ttImportAR.cLineSalesman2Percent).
+    IF ipbf-ttImportAR.cLineSalesman2Commission NE "" THEN 
+        ar-invl.s-comm[3] = DECIMAL(ipbf-ttImportAR.cLineSalesman3Commission).
+    IF ipbf-ttImportAR.cLineSalesman3 NE "" THEN 
+        ar-invl.sman[3] = ipbf-ttImportAR.cLineSalesman3.
+    IF ipbf-ttImportAR.cLineSalesman3Percent NE "" THEN 
+        ar-invl.s-pct[3] = DECIMAL(ipbf-ttImportAR.cLineSalesman3Percent).
+    IF ipbf-ttImportAR.cLineSalesman3Commission NE "" THEN 
+        ar-invl.s-comm[3] = DECIMAL(ipbf-ttImportAR.cLineSalesman3Commission).
                                 
-                RUN pRecalculateARInvoiceHeader(ROWID(ar-inv), ar-invl.amt).
-    END.
+    RUN pRecalculateARInvoiceHeader(ROWID(ar-inv), ar-invl.amt).
 
 END PROCEDURE.
 
@@ -552,9 +549,10 @@ PROCEDURE pCreateNewInvoiceLineAR:
         AND trim(string(ar-invl.LINE)) EQ ipLine
         AND ar-invl.i-no EQ ipLineItem NO-ERROR.
 
-    IF NOT AVAIL ar-invl THEN DO:
-    CREATE ar-invl.
-    ar-invl.LINE       = iNextLineNumber.
+    IF NOT AVAIL ar-invl THEN 
+    DO:
+        CREATE ar-invl.
+        ar-invl.LINE       = iNextLineNumber.
     END.
 
     ASSIGN       

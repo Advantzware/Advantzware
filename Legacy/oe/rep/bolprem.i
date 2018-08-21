@@ -512,8 +512,8 @@ for each xxreport where xxreport.term-id eq v-term-id,
  END.
 
   PUT "<R52><C53><#8><FROM><R+4><C+27><RECT> " 
-      "<=8><R+1> Total Units       :" v-grand-total-cases
-      "<=8><R+3> Total Weight      :" v-tot-wt FORM ">>,>>9.99".
+      "<=8><R+1> Total Units       :" v-grand-total-cases format ">>,>>>,>>9"
+      "<=8><R+3> Total Weight      :" v-tot-wt format ">>,>>>,>>9".
   
   PUT "<FArial><R51><C1><P12><B>     Shipping Instructions: <P10> " SKIP(1)
       oe-bolh.ship-i[1] AT 7 SKIP
@@ -574,7 +574,8 @@ for each xxreport where xxreport.term-id eq v-term-id,
 
   ASSIGN
   v-printline = 0
-  oe-bolh.printed = yes.
+  oe-bolh.printed = yes
+  v-grand-total-cases = 0.
 
   /* BOLCERT block*/
   if last-of(oe-bolh.bol-no) THEN DO:
