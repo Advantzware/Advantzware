@@ -110,13 +110,7 @@ FOR EACH po-ordl
 
   v-tot-sqft[v-bottom] = v-tot-sqft[v-bottom] + v-sqft.
      
-  FIND FIRST reftable WHERE
-       reftable.reftable EQ "POORDLDEPTH" AND
-       reftable.company  EQ cocode AND
-       reftable.loc      EQ STRING(po-ordl.po-no) AND
-       reftable.code     EQ STRING(po-ordl.LINE)
-       NO-LOCK NO-ERROR.
-
+  
   assign
   /* v-wid     = po-ordl.s-wid - trunc(po-ordl.s-wid,0)
    v-wid     = ( v-wid * 16 ) / 100
@@ -128,7 +122,7 @@ FOR EACH po-ordl
    v-adder   = ""
    xg-flag   = no
    v-basis-w = 0
-   v-dep = IF AVAIL reftable THEN DEC(reftable.code2)
+   v-dep = IF AVAIL po-ordl THEN po-ordl.s-dep
            ELSE IF AVAIL ITEM AND item.mat-type = "C" THEN ITEM.case-d
            ELSE IF AVAIL ITEM THEN item.s-dep
            ELSE 0
@@ -143,8 +137,6 @@ FOR EACH po-ordl
            v-dep = (v-dep * 16 ) / 100
            v-dep = TRUNC(v-dep2,0) + v-dep.*/
 
-
-  RELEASE reftable NO-ERROR.
 
   IF AVAIL item THEN
     ASSIGN

@@ -424,23 +424,15 @@ v-printline = 0.
         v-size = TRIM(STRING(v-wid,"-Z,ZZ9.99")) + " x "
                + TRIM(STRING(v-len,"-Z,ZZ9.99")).
 
-        FIND FIRST reftable WHERE
-             reftable.reftable EQ "POORDLDEPTH" AND
-             reftable.company  EQ cocode AND
-             reftable.loc      EQ STRING(po-ordl.po-no) AND
-             reftable.code     EQ STRING(po-ordl.LINE)
-             NO-LOCK NO-ERROR.
-
-        v-dep2 = IF AVAIL reftable THEN DEC(reftable.code2)
+        
+        v-dep2 = IF AVAIL po-ordl THEN po-ordl.s-dep
                  ELSE IF AVAIL ITEM AND ITEM.mat-type = "C" THEN item.case-d
                  ELSE IF AVAIL ITEM THEN ITEM.s-dep
                  ELSE 0.
 
         IF v-dep2 NE 0 THEN
            v-size = v-size + " x " + TRIM(STRING(v-dep2,"-Z,ZZ9.99")).
-
-        RELEASE reftable.
-
+        
         IF v-printline + 4 > 46 THEN DO:         
            PAGE.
            v-printline = 0.

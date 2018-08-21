@@ -317,16 +317,9 @@ v-printline = 0.
             END.
         END.
 
-        FIND FIRST reftable WHERE
-             reftable.reftable EQ "POORDLDEPTH" AND
-             reftable.company  EQ cocode AND
-             reftable.loc      EQ STRING(po-ordl.po-no) AND
-             reftable.code     EQ STRING(po-ordl.LINE)
-             NO-LOCK NO-ERROR.
-
         ASSIGN v-wid = po-ordl.s-wid
                v-len = po-ordl.s-len
-               lv-dep = IF AVAIL reftable THEN DEC(reftable.code2)
+               lv-dep = IF AVAIL po-ordl THEN po-ordl.s-dep
                         ELSE IF AVAIL ITEM AND ITEM.mat-type = "C" THEN item.case-d
                         ELSE IF AVAIL ITEM THEN ITEM.s-dep
                         ELSE 0
@@ -334,7 +327,6 @@ v-printline = 0.
                v-len2 = po-ordl.s-len
                lv-dep2 = lv-dep.
 
-        RELEASE reftable.
         
         if avail item and item.mat-type eq "B" then do:
             

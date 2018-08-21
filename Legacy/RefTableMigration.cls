@@ -2933,6 +2933,34 @@ CLASS RefTableMigration:
         END.  /*FOR EACH reftable*/          
         RETURN iCnt.
     END METHOD. /*e-itemfg-vend*/ 
+    METHOD PUBLIC INTEGER PoordlDepth(INPUT ipCount AS INTEGER):
+        DEFINE VARIABLE iCnt AS INTEGER NO-UNDO.
+        DEFINE BUFFER reftable1 FOR reftable1.
+        DEFINE BUFFER Breftable FOR reftable. 
+        DEFINE BUFFER po-ordl   FOR po-ordl.
+        
+        DISABLE TRIGGERS FOR LOAD OF reftable.        
+        DISABLE TRIGGERS FOR LOAD OF po-ordl.
+        ASSIGN iProcessCount = 0.        
+        FOR EACH reftable WHERE reftable.reftable = "POORDLDEPTH"
+            NO-LOCK:
+            DO TRANSACTION:    
+                FIND FIRST po-ordl WHERE po-ordl.company = reftable.company
+                                     AND po-ordl.i-no    = reftable.loc
+                                     AND po-ordl.vend-no = reftable.code
+                EXCLUSIVE-LOCK NO-ERROR.
+                IF AVAILABLE po-ordl THEN DO:
+                    IF po-ordl.s-dep EQ 0 THEN ASSIGN po-ordl.s-dep = int(reftable.code2).                    
+                  ASSIGN iProcessCount = iProcessCount + 1. 
+                END.             
+                FIND CURRENT po-ordl NO-LOCK NO-ERROR.    
+                RELEASE po-ordl.      
+                iCnt = iCnt + 1.
+                IF iCnt >= ipCount THEN LEAVE.   
+            END.              
+        END.  /*FOR EACH reftable*/          
+        RETURN iCnt.
+    END METHOD. /*PoordlDepth*/ 
 END CLASS.
 
 

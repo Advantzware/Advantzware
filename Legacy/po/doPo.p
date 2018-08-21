@@ -1422,25 +1422,8 @@ PROCEDURE calcMSF :
     ASSIGN
         bf-po-ordl.s-len = v-len
         bf-po-ordl.s-wid = v-wid.
-    IF v-dep GT 0 THEN DO:
-        FIND FIRST reftable WHERE
-            reftable.reftable EQ "POORDLDEPTH" AND
-            reftable.company  EQ cocode AND
-            reftable.loc      EQ STRING(bf-po-ordl.po-no) AND
-            reftable.code     EQ STRING(bf-po-ordl.LINE)
-            EXCLUSIVE-LOCK NO-ERROR.   
-        IF NOT AVAILABLE reftable THEN 
-        DO:
-            CREATE reftable.
-            ASSIGN
-                reftable.reftable = "POORDLDEPTH"
-                reftable.company  = cocode 
-                reftable.loc      = STRING(bf-po-ordl.po-no)
-                reftable.code     = STRING(po-ordl.LINE).
-        END.
-        reftable.code2 = STRING(v-dep).
-        FIND CURRENT reftable NO-LOCK NO-ERROR.
-        RELEASE reftable.
+    IF v-dep GT 0 THEN DO:        
+        bf-po-ordl.s-dep = v-dep.
     END.
     RELEASE bf-po-ordl.
 END PROCEDURE.
