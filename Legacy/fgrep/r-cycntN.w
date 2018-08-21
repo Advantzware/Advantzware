@@ -108,18 +108,21 @@ DEF VAR iColumnLength AS INT NO-UNDO.
 DEF VAR cFieldType AS cha NO-UNDO.
 DEF VAR v-costM AS DEC FORMAT ">>>,>>9.99<<" NO-UNDO.
 DEF VAR v-sellValue LIKE itemfg.sell-price NO-UNDO.
+DEF VAR cSellUom LIKE itemfg.sell-uom NO-UNDO.
 DEF VAR v-counted-date AS DATE NO-UNDO.
 DEF VAR v-cust-no LIKE itemfg.cust-no NO-UNDO.
 DEF VAR cTextListToDefault AS cha NO-UNDO.
 
 ASSIGN cTextListToSelect = "ITEM,DESCRIPTION,CUSTOMER," +
                       "JOB#,WHSE,BIN,TAG," +
-                      "RCT DATE,ON HAND QTY,PALLETS,QUANTITY COUNTED,COUNTED DATE,COST/M,SELL VALUE,CUSTOMER PART #"
+                      "RCT DATE,ON HAND QTY,PALLETS,QUANTITY COUNTED,COUNTED DATE,COST/M,SELL VALUE,CUSTOMER PART #," +
+                      "SELL UOM"
        cFieldListToSelect = "fg-bin.i-no,itemfg.i-name,v-cust-no," +
                             "lv-job-no,fg-bin.loc,fg-bin.loc-bin,v-tag," +
-                            "lv-date,fg-bin.qty,li-palls,v-writein,v-counted-date,v-costM,v-sellValue,itemfg.part-no"        
-       cFieldLength = "15,25,8," + "9,5,8,20," + "8,11,7,21,12,10,10,15"
-       cFieldType   = "c,c,c," + "c,c,c,c," + "c,i,i,i,c,i,i,c"
+                            "lv-date,fg-bin.qty,li-palls,v-writein,v-counted-date,v-costM,v-sellValue,itemfg.part-no," +
+                            "v-sellUom" 
+       cFieldLength = "15,25,8," + "9,5,8,20," + "8,11,7,21,12,10,10,15," + "8"
+       cFieldType   = "c,c,c," + "c,c,c,c," + "c,i,i,i,c,i,i,c," + "c" 
        .
 ASSIGN cTextListToDefault  = "ITEM,DESCRIPTION,CUSTOMER," + "WHSE,BIN,TAG,JOB#," +
                              "RCT DATE,ON HAND QTY,PALLETS,QUANTITY COUNTED" .
@@ -1887,7 +1890,8 @@ ELSE DO:
           cExcelVarValue = ""
           v-costM =       0
           v-sellValue =  0
-          v-counted-date = ?.
+          v-counted-date = ?
+          cSellUom = "" .
    IF lCountedDateSelected THEN
        RUN get-first-counted-date(OUTPUT v-counted-date).
   /* FIND LAST oe-ordl WHERE
@@ -1900,6 +1904,8 @@ ELSE DO:
    */
    v-sellValue = IF AVAIL oe-ordl THEN oe-ordl.price * (1 - (oe-ordl.disc / 100)) 
                  ELSE itemfg.sell-price.
+
+  cSellUom = IF AVAIL oe-ordl THEN oe-ordl.pr-uom ELSE itemfg.sell-uom .
 
    IF fg-bin.pur-uom NE "" THEN
    DO:
@@ -1954,6 +1960,7 @@ ELSE DO:
                  WHEN "v-counted-date" THEN cVarValue = IF v-counted-date <> ? THEN STRING(v-counted-date) ELSE "".
                  WHEN "v-costM" THEN cVarValue = STRING(v-CostM,">>>,>>9.99<<").
                  WHEN "v-sellValue" THEN cVarValue = STRING(v-sellValue,">>>,>>9.99").
+                 WHEN "v-sellUom" THEN cVarValue = STRING(cSellUom).
             END CASE.
             cExcelVarValue = cVarValue.  
             cDisplay = cDisplay + cVarValue +
@@ -2159,7 +2166,8 @@ FOR EACH tt-report
           cExcelDisplay = ""
           cExcelVarValue = ""
           v-costM =       0
-          v-sellValue =  0.
+          v-sellValue =  0
+          cSellUom = "" .
 
    RUN get-first-counted-date(OUTPUT v-counted-date).
    FIND LAST oe-ordl WHERE
@@ -2171,6 +2179,7 @@ FOR EACH tt-report
                  NO-LOCK NO-ERROR.
    v-sellValue = IF AVAIL oe-ordl THEN oe-ordl.price * (1 - (oe-ordl.disc / 100)) 
                  ELSE itemfg.sell-price.
+   cSellUom = IF AVAIL oe-ordl THEN oe-ordl.pr-uom ELSE itemfg.sell-uom .
 
    IF fg-bin.pur-uom NE "" THEN
    DO:
@@ -2226,6 +2235,7 @@ FOR EACH tt-report
                  WHEN "v-counted-date" THEN cVarValue = IF v-counted-date <> ? THEN STRING(v-counted-date) ELSE "".
                  WHEN "v-costM" THEN cVarValue = STRING(v-CostM,">>>,>>9.99<<").
                  WHEN "v-sellValue" THEN cVarValue = STRING(v-sellValue,">>>,>>9.99").
+                 WHEN "v-sellUom" THEN cVarValue = STRING(cSellUom).
             END CASE.
             cExcelVarValue = cVarValue.  
             cDisplay = cDisplay + cVarValue +
