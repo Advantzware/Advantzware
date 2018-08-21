@@ -33,6 +33,13 @@ DO TRANSACTION:
     IF {&TABLENAME}.i-code EQ "C" THEN {&TABLENAME}.prod-uom = "M".
     
     {&TABLENAME}.cust-name = "".
+    IF {&TABLENAME}.cust-no EQ "" THEN DO:
+        FIND FIRST cust no-lock
+            WHERE cust.company EQ {&TABLENAME}.company
+             AND cust.active  EQ "X" NO-ERROR.
+        IF AVAIL cust THEN 
+           {&TABLENAME}.cust-no = cust.cust-no.
+    END.
     IF {&TABLENAME}.cust-no NE "" THEN
     FOR EACH cust FIELDS(NAME)
         WHERE cust.company EQ {&TABLENAME}.company

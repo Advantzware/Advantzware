@@ -1743,12 +1743,6 @@ PROCEDURE local-create-record :
     IF itemfg.prod-uom:VISIBLE EQ FALSE THEN 
        itemfg.prod-uom = cDefaultProdUom.
 
-     FIND FIRST cust NO-LOCK
-            WHERE cust.company EQ gcompany
-             AND cust.active  EQ "X" NO-ERROR.
-        IF AVAIL cust THEN 
-           itemfg.cust-no = cust.cust-no.
-
   END.
 
   /* Create an itemfg-loc for the default warehouse */
