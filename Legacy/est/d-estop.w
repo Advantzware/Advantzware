@@ -653,6 +653,9 @@ ON CHOOSE OF Btn_Cancel IN FRAME Dialog-Frame /* Cancel */
   
             IF AVAILABLE est-op THEN DELETE est-op .
         END.
+
+        IF AVAIL est-op THEN
+            ip-rowid = ROWID(est-op).
         APPLY 'GO':U TO FRAME {&FRAME-NAME}.
     END.
 
