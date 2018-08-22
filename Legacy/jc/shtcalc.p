@@ -125,8 +125,8 @@ IF AVAIL job THEN DO:
             UPDATE lInsufficientQty.
 
       IF lInsufficientQty AND iplCheckInventory THEN DO:
-        IF b-item.i-code EQ "E" THEN
-        FIND b-job-mat WHERE ROWID(b-job-mat) EQ ROWID(job-mat) NO-ERROR.
+        /*IF b-item.i-code EQ "E" THEN*/  /* Ticket - 34285 */
+        FIND b-job-mat EXCLUSIVE-LOCK WHERE ROWID(b-job-mat) EQ ROWID(job-mat) NO-ERROR.
 
         IF job-mat.qty-uom NE "EA" THEN
           RUN sys/ref/convquom.p("EA",
@@ -154,8 +154,7 @@ IF AVAIL job THEN DO:
       END.
 
 
-      FIND CURRENT job-mat.
-
+      FIND CURRENT job-mat .
       IF job-mat.sc-uom EQ job-mat.qty-uom THEN
         ld = job-mat.std-cost.
       ELSE
