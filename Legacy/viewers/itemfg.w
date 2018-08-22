@@ -2502,20 +2502,7 @@ PROCEDURE valid-cust-no :
       APPLY "entry" TO itemfg.cust-no.
       RETURN ERROR.
     END.
-    IF itemfg.i-code:SCREEN-VALUE  EQ "S" THEN DO:
-        FIND FIRST cust NO-LOCK
-            WHERE cust.company EQ gcompany
-            AND cust.cust-no EQ itemfg.cust-no:SCREEN-VALUE
-            AND cust.active  EQ "X" NO-ERROR.
-        IF NOT AVAIL cust THEN DO:
-            MESSAGE "Customer will be the 'X' customer for Stock Item , try help..."
-                VIEW-AS ALERT-BOX ERROR.
-            APPLY "entry" TO itemfg.cust-no.
-            RETURN ERROR.
-        END.
-
-    END.
-
+    
     FIND cust WHERE cust.company EQ gcompany
                 AND cust.cust-no EQ itemfg.cust-no:SCREEN-VALUE
                 NO-LOCK NO-ERROR.
