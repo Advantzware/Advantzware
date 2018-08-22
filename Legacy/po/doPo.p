@@ -1248,6 +1248,11 @@ PROCEDURE calcEstValues :
 
         END. /* NOT v-po-qty OR bf-w-job-mat.n-up EQ 0 OR ... */
 
+        IF bf-item.mat-type EQ "B" AND bf-po-ordl.pr-qty-uom NE "EA" THEN
+            RUN sys/ref/convquom.p (bf-w-job-mat.qty-uom,bf-po-ordl.pr-qty-uom,
+                                bf-w-job-mat.basis-w, bf-w-job-mat.len, bf-w-job-mat.wid, bf-w-job-mat.dep,
+                                ld-line-qty, OUTPUT ld-line-qty).
+
         bf-po-ordl.ord-qty = ld-line-qty.
     END. /* If po-ordl.item-type */
     RELEASE bf-po-ordl.
@@ -3988,6 +3993,11 @@ PROCEDURE setPoOrdRm :
         v-part-dscr1          = b-item.i-dscr
         v-part-dscr2          = b-item.est-dscr
         v-op-type             = YES.
+   
+    IF AVAIL b-item AND b-item.mat-type EQ "B" THEN 
+        ASSIGN bf-po-ordl.pr-qty-uom = IF pouom-chr EQ "Purchase" THEN b-item.pur-uom
+                                                                      ELSE b-item.cons-uom .
+   
     bf-po-ordl.ord-no = IF AVAILABLE bf-ordl THEN bf-ordl.ord-no ELSE 0.
     FIND CURRENT bf-po-ordl NO-LOCK.
     RELEASE bf-po-ordl.
