@@ -77,6 +77,21 @@ IF FIRST-OF(tt-boll.LINE) THEN DO:
     FIND FIRST bf-ttboll WHERE recid(bf-ttboll) = w2.rec-id NO-LOCK NO-ERROR.    
     i = i + 1.
 
+    IF cBolFormat = "bolfmt 20" THEN do:
+        IF v-printline >= 48 THEN DO:
+           v-printline = 0.
+           PAGE {1}.
+           {oe/rep/bolxpr220.i}
+        END.
+    END. /* bolfmt20*/
+    ELSE DO:
+        IF v-printline >= 48 THEN DO:
+           v-printline = 0.
+           PAGE {1}.
+           {oe/rep/bolxpr22.i}
+        END.
+    END.
+
     IF w2.rec-id = ? THEN DO:
         find first oe-ordl where oe-ordl.company eq cocode
          and oe-ordl.ord-no  eq tt-boll.ord-no
@@ -107,20 +122,7 @@ IF FIRST-OF(tt-boll.LINE) THEN DO:
        DOWN WITH FRAME bol-mid.       
        v-printline = v-printline + 1.
     END.
-    IF cBolFormat = "bolfmt 20" THEN do:
-        IF v-printline >= 48 THEN DO:
-           v-printline = 0.
-           PAGE {1}.
-           {oe/rep/bolxpr220.i}
-        END.
-    END. /* bolfmt20*/
-    ELSE DO:
-        IF v-printline >= 48 THEN DO:
-           v-printline = 0.
-           PAGE {1}.
-           {oe/rep/bolxpr22.i}
-        END.
-    END.
+    
     v-tot-cases = v-tot-cases + w2.cases.
 
     /*delete w2. */
