@@ -563,12 +563,7 @@ FORMAT wkrecap.procat
          FOR EACH probe NO-LOCK WHERE probe.company EQ oe-ordl.company
          AND probe.est-no EQ oe-ordl.est-no
             AND probe.probe-date NE ?
-            AND INT(probe.est-qty) EQ INT(oe-ordl.qty) ,
-            FIRST reftable NO-LOCK WHERE reftable.reftable EQ "probe.board" AND ~
-            reftable.company  EQ probe.company AND 
-            reftable.loc      EQ ""            AND 
-            reftable.code     EQ probe.est-no  AND 
-            reftable.code2    EQ STRING(probe.line,"9999999999")  
+            AND INT(probe.est-qty) EQ INT(oe-ordl.qty)
             BY probe.company 
             BY probe.est-no 
             BY probe.probe-date 
