@@ -360,22 +360,23 @@ DO:
               FIND FIRST asi._connect NO-LOCK WHERE asi._connect._connect-id EQ iLoginUserNum + 1 NO-ERROR.
               
               IF AVAILABLE asi._connect AND asi._connect._connect-name EQ userLog.user_id THEN DO:
-                iAsiConnectPid = asi._connect._connect-pid.
-        
-                FIND FIRST bf-userLog EXCLUSIVE-LOCK WHERE ROWID(bf-userLog) EQ ROWID(userLog)
-                  NO-ERROR.
-                IF AVAIL bf-userLog THEN DO:
-                  cUserKillFile = bf-userLog.user_id 
+                iAsiConnectPid = asi._connect._connect-pid.        
+
+                  cUserKillFile = userlog.user_id 
                                  + STRING(iLoginUserNum)
                                  + STRING(TODAY, "99999999") + STRING(TIME) + ".TXT".
                   OUTPUT STREAM sLogOut TO VALUE(cLogoutFolder + "\" + cUserkillFile).
-                  EXPORT STREAM sLogOut "ASI" bf-userlog.user_id iLoginUserNum iAsiConnectPid.
+                  EXPORT STREAM sLogOut "ASI" userlog.user_id iLoginUserNum iAsiConnectPid.
                   OUTPUT STREAM sLogOut CLOSE.
-                  DELETE bf-userlog.
-                END. /* Avail bf-user log */
+                                  
               END. /* If avail _connect */
             END. /* If no error converting to integer */
           END. /* iF Devicename contains a dash */
+          FIND FIRST bf-userLog EXCLUSIVE-LOCK WHERE ROWID(bf-userLog) EQ ROWID(userLog)
+                  NO-ERROR.
+          IF AVAIL bf-userLog THEN
+            DELETE bf-userlog.
+             
         END. /* if avail userlog */
       END. /* do li ... */
       RUN dispatch ('open-query').
