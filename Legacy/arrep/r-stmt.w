@@ -2158,17 +2158,17 @@ FOR EACH ttCustList
 
        ELSE IF v-stmt-char = "RFC" THEN          /* task 12231305 */
        PUT "<FMS Sans Serif><R2><C1><#1><R+12><C+25><IMAGE#1=" ls-full-img1 SKIP
-           "<=1><R+3><C+26> 2066 S. East Avenue" 
+           /*"<=1><R+3><C+26> 2066 S. East Avenue" 
            "<=1><R+4><C+26> Vineland, NJ 08360" 
            "<=1><R+5><C+26> Phone: 856-692-0404" 
-           "<=1><R+6><C+26> Fax: (856) 692-2085" 
+           "<=1><R+6><C+26> Fax: (856) 692-2085" */
            "<=1><R+10><C+54><B><P22>Statement</B><P12>" SKIP
            "<=1><R+12>" "<C53>Statement Date           Account #" SKIP
            "<=1><R+13><C+52><FROM><C+13><LINE>" SKIP
            "<=1><R+13><C+68><FROM><C+10><LINE>" 
            "<=1><R+13><C+52>" v-stmt-date
            "<=1><R+13><C+68>" cust.cust-no SKIP
-           "<=1><R+11><C18>Attn:" cust.contact SKIP
+           "<=1><R+12><C18>Attn:" cust.contact SKIP
            "<=1><R+13><C18>" ws_addr[1] skip                    /*Task# 01031416*/
            "<=1><R+14><C18>" ws_addr[2] v-remitto[1] skip 
            "<=1><R+15><C18>" ws_addr[3] v-remitto[2] skip
@@ -2960,17 +2960,17 @@ FIRST cust no-lock
 
        ELSE IF v-stmt-char = "RFC" THEN          /* task 12231305 */
        PUT "<R2><C1><#1><R+12><C+25><IMAGE#1=" ls-full-img1 SKIP
-           "<=1><R+3><C+26> 2066 S. East Avenue" 
+           /*"<=1><R+3><C+26> 2066 S. East Avenue" 
            "<=1><R+4><C+26> Vineland, NJ 08360" 
            "<=1><R+5><C+26> Phone: 856-692-0404" 
-           "<=1><R+6><C+26> Fax: (856) 692-2085" 
+           "<=1><R+6><C+26> Fax: (856) 692-2085" */
            "<=1><R+10><C+54><B><P22>Statement</B><P12>" SKIP
            "<=1><R+12>" "<C53>Statement Date           Account #" SKIP
            "<=1><R+13><C+52><FROM><C+13><LINE>" SKIP
            "<=1><R+13><C+68><FROM><C+10><LINE>" 
            "<=1><R+13><C+52>" v-stmt-date
            "<=1><R+13><C+68>" cust.cust-no SKIP
-           "<=1><R+11><C18>Attn:" cust.contact SKIP
+           "<=1><R+12><C18>Attn:" cust.contact SKIP
            "<=1><R+13><C18>" ws_addr[1] skip                        /*Task# 01031416*/
            "<=1><R+14><C18>" ws_addr[2] v-remitto[1] skip 
            "<=1><R+15><C18>" ws_addr[3] v-remitto[2] skip
