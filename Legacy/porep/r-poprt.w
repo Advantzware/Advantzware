@@ -614,7 +614,6 @@ DO:
         sys-ctrl-shipto.company = cocode AND
         sys-ctrl-shipto.NAME = "POPRINT") THEN
         DO:
-        
         IF CAN-FIND(FIRST b1-po-ord WHERE  
                 b1-po-ord.company EQ cocode AND 
                     (b1-po-ord.stat    EQ "N" OR 
@@ -681,7 +680,7 @@ DO:
             MESSAGE "No Purchase Orders Were Printed."
                 VIEW-AS ALERT-BOX INFORMATION BUTTONS OK.
     END. /* Vendor-specific forms */
-    ELSE DO:
+    ELSE DO: /* NOT vendor-specific formst */
         FOR EACH  b1-po-ord /* FIELDS(vend-no company) */
                 WHERE  b1-po-ord.company EQ cocode
                   AND (b1-po-ord.stat    EQ "N" OR 
@@ -697,28 +696,26 @@ DO:
              BREAK BY b1-po-ord.company
                    BY b1-po-ord.vend-no
                    BY b1-po-ord.po-no :
-
             IF FIRST-OF (b1-po-ord.vend-no) THEN DO:
-                RUN SetPOPrintForm (vcDefaultForm).
                 ASSIGN
                     v-print-fmt = vcDefaultForm
                     cPdfFilesAttach = "" 
                     cPoMailList     = "" .
-                IF rd-dest NE 5 THEN DO: /* rd-dest ne 5*/
-                       RUN SetGlobalVariables(INPUT b1-po-ord.po-no).
-                       RUN run-report(0,b1-po-ord.vend-no, TRUE) . 
-                       RUN GenerateReport(b1-po-ord.vend-no, b1-po-ord.vend-no) .
-                END.    /* rd-dest ne 5*/
-                IF rd-dest EQ 5 THEN do:
-                    IF FIRST-OF (b1-po-ord.po-no) THEN DO:
-                           RUN SetGlobalVariables(INPUT b1-po-ord.po-no).
-                           RUN run-report(b1-po-ord.po-no,b1-po-ord.vend-no, TRUE) . 
-                           RUN GenerateReport(b1-po-ord.vend-no, b1-po-ord.vend-no) .
-                    END. /* first-of(po-no) */
-                    IF LAST-OF (b1-po-ord.vend-no) THEN
-                       RUN GenerateMail .
-                END.  /* rd-dest EQ 5 */
             END. /* FIRST-OF (b1-po-ord.vend-no) */
+            IF rd-dest NE 5 THEN DO: /* rd-dest ne 5*/
+                RUN SetGlobalVariables(INPUT b1-po-ord.po-no).
+                RUN run-report(0,b1-po-ord.vend-no, TRUE) . 
+                RUN GenerateReport(b1-po-ord.vend-no, b1-po-ord.vend-no) .
+            END.    /* rd-dest ne 5*/
+            IF rd-dest EQ 5 THEN do:
+                IF FIRST-OF (b1-po-ord.po-no) THEN DO:
+                    RUN SetGlobalVariables(INPUT b1-po-ord.po-no).
+                    RUN run-report(b1-po-ord.po-no,b1-po-ord.vend-no, TRUE) . 
+                    RUN GenerateReport(b1-po-ord.vend-no, b1-po-ord.vend-no) .
+                END. /* first-of(po-no) */
+                IF LAST-OF (b1-po-ord.vend-no) THEN
+                   RUN GenerateMail .
+            END.  /* rd-dest EQ 5 */
         END. /* FOR EACH b1-po-ord */
     END.
 END.
