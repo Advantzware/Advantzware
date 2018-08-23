@@ -1321,9 +1321,8 @@ FOR EACH ar-inv
 
       create tt-report.
       assign
-       tt-report.key-01  = if v-sort then cust.cust-no else v-slsm[1]
+       tt-report.key-01  = if v-sort then "" else v-slsm[1]
        tt-report.key-02  = cust.cust-no
-       tt-report.key-03  = v-slsm[1]
        tt-report.dec1    = v-amt[1]
        tt-report.dec2    = v-amt[2]
        tt-report.key-10  = "ar-invl"
@@ -1397,9 +1396,8 @@ FOR each cust where cust.company eq cocode
 
      create tt-report.
      assign
-      tt-report.key-01  = if v-sort then cust.cust-no else v-slsm[1]
+      tt-report.key-01  = if v-sort then "" else v-slsm[1]
       tt-report.key-02  = cust.cust-no
-      tt-report.key-03  = v-slsm[1]
       tt-report.dec1    = v-amt[1]
       tt-report.dec2    = v-amt[2]
       tt-report.key-10  = "ar-cashl"
@@ -1422,9 +1420,8 @@ IF v-inc THEN
 
        CREATE tt-report.
        ASSIGN
-          tt-report.key-01  = if v-sort then cust.cust-no else cust.sman
-          tt-report.key-02  = cust.cust-no
-          tt-report.key-03  = cust.sman .
+          tt-report.key-01  = if v-sort then "" else cust.sman
+          tt-report.key-02  = cust.cust-no.
        RELEASE tt-report.
    END.
 
@@ -1433,8 +1430,8 @@ v-amt = 0.
 
 for each tt-report no-lock
 
-    break by tt-report.key-02
-          by tt-report.key-03:
+    break by tt-report.key-01
+          by tt-report.key-02:
 
   assign
    v-amt[1] = v-amt[1] + tt-report.dec1
@@ -1446,7 +1443,6 @@ for each tt-report no-lock
        assign
         tt-report2.key-01 = tt-report.key-01
         tt-report2.key-02 = tt-report.key-02
-        tt-report2.key-03 = tt-report.key-03 
         tt-report2.dec1   = if v-ytd then 0 else v-amt[1]
         tt-report2.dec2   = v-amt[2].
      end.
