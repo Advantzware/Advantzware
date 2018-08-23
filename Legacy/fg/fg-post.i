@@ -491,7 +491,7 @@
           ELSE DO:
               itemfg.std-mat-cost = {2}.ext-cost / {2}.t-qty.
               IF itemfg.prod-uom EQ "M" THEN 
-                itemfg.std-mat-cost =  itemfg.std-mat-cost * 1000
+                itemfg.std-mat-cost =  itemfg.std-mat-cost * 1000.
             itemfg.std-tot-cost = itemfg.std-mat-cost.
             .
           END.
