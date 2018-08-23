@@ -43,6 +43,8 @@ DO bo-try = 1 TO 2:
       FIND oe-rel NO-LOCK
           WHERE oe-rel.r-no EQ oe-rell.link-no
             AND oe-rel.ord-no EQ oe-rell.ord-no
+            AND oe-rel.line EQ oe-rell.line
+            AND oe-rel.i-no EQ oe-rell.i-no
           USE-INDEX seq-no NO-ERROR.
 
       IF AVAIL oe-rel AND oe-rel.tot-qty NE 0 THEN v-rel-qty = oe-rel.tot-qty.
@@ -209,6 +211,8 @@ DO bo-try = 1 TO 2:
     FIND FIRST oe-rel
         WHERE oe-rel.r-no EQ oe-rell.link-no
           AND oe-rel.ord-no EQ oe-rell.ord-no
+          AND oe-rel.line EQ oe-rell.line
+          AND oe-rel.i-no EQ oe-rell.i-no          
         USE-INDEX seq-no NO-ERROR.
 
     IF AVAIL oe-rel THEN oe-rel.qty = v-bol-qty.
