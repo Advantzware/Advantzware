@@ -611,7 +611,6 @@ PROCEDURE run-process :
     
     END.
 
-
     /* output to "clipboard". */
     FOR EACH bf-inv-head NO-LOCK WHERE bf-inv-head.multi-invoice = TRUE
         AND bf-inv-head.inv-no GT 0 ,
@@ -647,9 +646,35 @@ PROCEDURE run-process :
                     .                        
             END.                     
             t-inv = 0.
-    
         END.
     END.
+
+    FOR EACH company NO-LOCK,
+      EACH oe-bolh NO-LOCK 
+        WHERE oe-bolh.company EQ company.company
+          AND oe-bolh.posted EQ NO,
+      EACH oe-boll no-lock 
+        WHERE oe-boll.b-no EQ oe-bolh.b-no:
+        FIND FIRST ar-invl NO-LOCK
+            WHERE ar-invl.company EQ oe-bolh.company
+              AND ar-invl.bol-no EQ oe-boll.bol-no 
+            NO-ERROR .
+        IF AVAILABLE ar-invl THEN 
+        DO: 
+            CREATE ttBOLLineProblems.
+            ASSIGN 
+                ttBOLLineProblems.BolNo           = oe-bolh.bol-no
+                ttBOLLineProblems.ItemNo          = ""
+                ttBOLLineProblems.CustNo          = oe-bolh.cust-no
+                ttBOLLineProblems.InvDate         = ar-invl.inv-date
+                ttBOLLineProblems.company         = ar-invl.company                
+                ttBOLLineProblems.errorType       = "BOL Posted"
+                ttBOLLineProblems.CalcQty         = 0
+                ttBOLLineProblems.ActQty          = 0                             
+                ttBOLLineProblems.UnPostedInvoice = ar-invl.inv-no                               
+                .   
+        END.
+    END.    
     FOR EACH ttBOLLineProblems:
         DISPLAY STREAM sReport ttBOLLineProblems.company ttBOLLineProblems.CustNo 
             ttBOLLineProblems.BolNo ttBOLLineProblems.ord-no ttBOLLineProblems.ItemNo 
