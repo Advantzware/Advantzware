@@ -1,5 +1,6 @@
 /* oe/rep/bolxpr23.i*/
 DEFINE VARIABLE cBolFormat AS CHARACTER NO-UNDO .
+
 IF FIRST-OF(tt-boll.LINE) THEN DO:
     
     RUN sys/ref/nk1look.p (INPUT cocode, "BOLFMT", "C" /* Logical */, YES /* check by cust */, 
