@@ -425,7 +425,7 @@ v-printline = 0.
                + TRIM(STRING(v-len,"-Z,ZZ9.99")).
 
         
-        v-dep2 = IF AVAIL po-ordl THEN po-ordl.s-dep
+        v-dep2 = IF po-ordl.s-dep GT 0 THEN po-ordl.s-dep
                  ELSE IF AVAIL ITEM AND ITEM.mat-type = "C" THEN item.case-d
                  ELSE IF AVAIL ITEM THEN ITEM.s-dep
                  ELSE 0.

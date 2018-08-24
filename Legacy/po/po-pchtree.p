@@ -319,7 +319,7 @@ v-printline = 0.
 
         ASSIGN v-wid = po-ordl.s-wid
                v-len = po-ordl.s-len
-               lv-dep = IF AVAIL po-ordl THEN po-ordl.s-dep
+               lv-dep = IF po-ordl.s-dep GT 0 THEN po-ordl.s-dep
                         ELSE IF AVAIL ITEM AND ITEM.mat-type = "C" THEN item.case-d
                         ELSE IF AVAIL ITEM THEN ITEM.s-dep
                         ELSE 0

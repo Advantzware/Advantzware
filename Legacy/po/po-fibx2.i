@@ -122,7 +122,7 @@ FOR EACH po-ordl
    v-adder   = ""
    xg-flag   = no
    v-basis-w = 0
-   v-dep = IF AVAIL po-ordl THEN po-ordl.s-dep
+   v-dep = IF po-ordl.s-dep GT 0 THEN po-ordl.s-dep
            ELSE IF AVAIL ITEM AND item.mat-type = "C" THEN ITEM.case-d
            ELSE IF AVAIL ITEM THEN item.s-dep
            ELSE 0
