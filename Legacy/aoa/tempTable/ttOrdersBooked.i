@@ -30,5 +30,8 @@ DEFINE TEMP-TABLE ttOrdersBooked NO-UNDO
     FIELD prUOM        AS CHARACTER LABEL "UOM"            FORMAT "x(6)" 
     FIELD xxCost       AS DECIMAL   LABEL "Cost"           FORMAT "->>,>>9.99"
     FIELD xxSort       AS CHARACTER LABEL "Sort"           FORMAT "x(100)"
+    FIELD MachineCode  AS CHARACTER LABEL "MACHINE"        FORMAT "x(30)"
+    FIELD InksCode     AS CHARACTER LABEL "INKS"           FORMAT "x(40)"
+    FIELD PrintSheet   AS CHARACTER LABEL "PRINTS SHEET"   FORMAT "x(20)"
         INDEX ttOrdersBooked IS PRIMARY rowType xxSort
         .

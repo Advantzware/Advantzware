@@ -337,11 +337,11 @@ DEFINE BROWSE Browser-Table
       ar-invl.po-no COLUMN-LABEL "Cust PO#" FORMAT "x(15)":U WIDTH 20 LABEL-BGCOLOR 14
       ar-invl.est-no COLUMN-LABEL "Est#" FORMAT "x(8)":U WIDTH 12 LABEL-BGCOLOR 14
       get-price-disc() @ ld-price FORMAT ">>,>>>,>>9.99<<<<":U
-	ar-invl.inv-qty COLUMN-LABEL "Qty" FORMAT ">>>>>>>>":U WIDTH 9 LABEL-BGCOLOR 14
+	ar-invl.inv-qty COLUMN-LABEL "Qty" FORMAT "->>>>>>>>":U WIDTH 9 LABEL-BGCOLOR 14
       ar-invl.pr-qty-uom FORMAT "x(4)":U WIDTH 7
-      getCost() @ ld-cost COLUMN-LABEL "Invoice Cost"
+      getCost() @ ld-cost COLUMN-LABEL "Invoice Cost" FORMAT "->>>,>>>,>>9.99":U
       getCostUOM() @ ld-cost-uom COLUMN-LABEL "Cost!UOM" WIDTH 6
-      getOrdCost() @ d-ord-cost COLUMN-LABEL "Order Cost"
+      getOrdCost() @ d-ord-cost COLUMN-LABEL "Order Cost" FORMAT "->>>,>>>,>>9.99":U
   ENABLE
       ar-invl.inv-no
       ar-invl.bol-no
@@ -505,11 +505,11 @@ ASSIGN
      _FldNameList[12]   > asi.ar-invl.pr-qty-uom
 "ar-invl.pr-qty-uom" ? ? "character" ? ? ? ? ? ? yes ? no no "7" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[13]   > "_<CALC>"
-"getCost() @ ld-cost" "Invoice Cost" ? ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"getCost() @ ld-cost" "Invoice Cost" "->>>,>>>,>>9.99" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[14]   > "_<CALC>"
 "getCostUOM() @ ld-cost-uom" "Cost!UOM" ? ? ? ? ? ? ? ? no ? no no "6" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
   _FldNameList[13]   > "_<CALC>"
-"getOrdCost() @ d-ord-cost" "Order Cost" ? ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"getOrdCost() @ d-ord-cost" "Order Cost" "->>>,>>>,>>9.99" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */
 &ANALYZE-RESUME

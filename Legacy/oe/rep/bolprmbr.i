@@ -369,8 +369,8 @@ for each xxreport where xxreport.term-id eq v-term-id,
       cSignatureFile = cSignatureFile + ">".
 
 PUT "<R52><C53><#8><FROM><R+4><C+27><RECT> " 
-    "<=8><R+1> Total Units       :" v-grand-total-cases
-    "<=8><R+3> Total Weight      :" v-tot-wt FORM ">>,>>9.99".
+    "<=8><R+1> Total Units       :" v-grand-total-cases format ">>,>>>,>>9"
+    "<=8><R+3> Total Weight      :" v-tot-wt .
 
 PUT "<FArial><R51><C1><P12><B>     Shipping Instructions: <P10> " SKIP(1)
     oe-bolh.ship-i[1] AT 7 SKIP
@@ -431,6 +431,7 @@ PUT "<R57><C26><P10>ALL CLAIMS ON SHIPMENT MUST BE MADE WITHIN 10 DAYS</B>"
 
   ASSIGN
   v-printline = 0
+  v-grand-total-cases = 0
   oe-bolh.printed = yes.
 
   /* BOLCERT block*/

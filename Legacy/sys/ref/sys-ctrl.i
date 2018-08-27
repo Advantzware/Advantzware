@@ -26,7 +26,7 @@ ASSIGN
                 "Frankstn,Mirpkg,APC,FibreX,PPI,Fibre-Excel,Packrite,Nosco-Excel," + 
                 "MSPACK-Excel,AllWest,Simkins,CCC,Soule,SouleMed,MWFIBRE,Loylang,Protagon," +
                 "PeachTree,LoylangBSF,Premier-Excel,Oklahoma,Accord,Hughes,Sultana,CCC-Excel,Axis,Boss,Bell-Excel,Perform," +
-                "Printers,quoprint 1,quoprint 2,quoprint 10,quoprint 20,quoprint10-CAN,Premier-excel-mci,quoprint 11,Chattanooga"
+                "Printers,quoprint 1,quoprint 2,quoprint 10,quoprint 20,quoprint10-CAN,Premier-excel-mci,quoprint 11,RFC,Chattanooga"
  str-init[2]  = "Capitol,ASI,Beeler,Argrov,ILWalker,1/2 Page,Phoenix,Color,Interpac,Royal,Keystone," +
                 "Livngstn,ContSrvc,Rudd,Premier,MultiWll,Imperial,PAC 1/2," +
                 "Colonial,Clev 1/2,Triad,Danbury,TriState,Blueridg,Sonoco," +  
@@ -57,7 +57,7 @@ ASSIGN
                 "Premier,Pacific,Xprint,CentBox,HOPX,Xprint2,Frankstn,APC,FibreX,Indiana,PPI," +
                 "HPB,Keystone,Hughes,Allwest,Rosmar,Loylang,Carded,PremierX,CSC-GA,CardedX," +
                 "Protagon,Peachtree,ACPI,Soule,NStock,Multicell,Prystup,Metro,StClair," +
-                "Frank,Axis,Distributor,Accord,Lakeside,relprint 1,relprint 2,relprint 10,Midwest"
+                "Frank,Axis,Distributor,Accord,Lakeside,relprint 1,relprint 2,relprint 10,Midwest,RFC"
  str-init[10] = "ASI,1/2 Page,Royal,ContSrvc,Superior,Premier,Warren,PAC 1/2," +
                 "Imperial,P&P,Triad,TriState,BlueRidg,BlueRidg2,Sonoco,HOP,CCC," +
                 "Boxtech,Empire,Brick,AllPkg,Fibre,Maxpak,Oracle,Harwell,Century," +

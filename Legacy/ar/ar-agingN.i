@@ -619,7 +619,7 @@ END.
                 CASE cTmpField:             
                      WHEN "cust"      THEN cVarValue = string(cust.cust-no,"x(8)")  .
                      WHEN "cust-name" THEN cVarValue = string(cust.NAME,"x(30)")  .
-                     WHEN "cont"      THEN cVarValue = string(cust.contact,"x(15)") .
+                     WHEN "cont"      THEN cVarValue = string(cust.contact,"x(25)") .
                      WHEN "sman"      THEN cVarValue = STRING(v-sman,"x(25)") .
                      WHEN "term"      THEN cVarValue = if avail terms then string(terms.dscr,"x(15)") else ""  .
                      WHEN "add1"      THEN cVarValue = STRING(cust.addr[1],"x(25)").
@@ -790,7 +790,7 @@ END.
                      CASE cTmpField:             
                          WHEN "cust"      THEN cVarValue = string(cust.cust-no,"x(8)")  .
                          WHEN "cust-name" THEN cVarValue = string(cust.NAME,"x(30)")  .
-                         WHEN "cont"      THEN cVarValue = string(cust.contact,"x(15)") .
+                         WHEN "cont"      THEN cVarValue = string(cust.contact,"x(25)") .
                          WHEN "sman"      THEN cVarValue = STRING(v-sman,"x(25)") .
                          WHEN "term"      THEN cVarValue = if avail terms then string(terms.dscr,"x(15)") else ""  .
                          WHEN "add1"      THEN cVarValue = STRING(cust.addr[1],"x(25)").
@@ -863,7 +863,7 @@ END.
                      CASE cTmpField:             
                          WHEN "cust"      THEN cVarValue = string(cust.cust-no,"x(8)")  .
                          WHEN "cust-name" THEN cVarValue = string(cust.NAME,"x(30)")  .
-                         WHEN "cont"      THEN cVarValue = string(cust.contact,"x(15)") .
+                         WHEN "cont"      THEN cVarValue = string(cust.contact,"x(25)") .
                          WHEN "sman"      THEN cVarValue = STRING(v-sman,"x(25)") .
                          WHEN "term"      THEN cVarValue = if avail terms then string(terms.dscr,"x(15)") else ""  .
                          WHEN "add1"      THEN cVarValue = STRING(cust.addr[1],"x(25)").
@@ -968,7 +968,7 @@ END.
                      CASE cTmpField:             
                          WHEN "cust"      THEN cVarValue = string(cust.cust-no,"x(8)")  .
                          WHEN "cust-name" THEN cVarValue = string(cust.NAME,"x(30)")  .
-                         WHEN "cont"      THEN cVarValue = string(cust.contact,"x(15)") .
+                         WHEN "cont"      THEN cVarValue = string(cust.contact,"x(25)") .
                          WHEN "sman"      THEN cVarValue = STRING(v-sman,"x(25)") .
                          WHEN "term"      THEN cVarValue = if avail terms then string(terms.dscr,"x(15)") else ""  .
                          WHEN "add1"      THEN cVarValue = STRING(cust.addr[1],"x(25)").
@@ -1217,7 +1217,7 @@ END.
                 CASE cTmpField:             
                      WHEN "cust"      THEN cVarValue = string(cust.cust-no,"x(8)")  .
                      WHEN "cust-name" THEN cVarValue = string(cust.NAME,"x(30)")  .
-                     WHEN "cont"      THEN cVarValue = string(cust.contact,"x(15)") .
+                     WHEN "cont"      THEN cVarValue = string(cust.contact,"x(25)") .
                      WHEN "sman"      THEN cVarValue = STRING(v-sman,"x(25)") .
                      WHEN "term"      THEN cVarValue = if avail terms then string(terms.dscr,"x(15)") else ""  .
                      WHEN "add1"      THEN cVarValue = STRING(cust.addr[1],"x(25)").
@@ -1337,7 +1337,7 @@ END.
                 CASE cTmpField:             
                      WHEN "cust"      THEN cVarValue = string(cust.cust-no,"x(8)")  .
                      WHEN "cust-name" THEN cVarValue = string(cust.NAME,"x(30)")  .
-                     WHEN "cont"      THEN cVarValue = string(cust.contact,"x(15)") .
+                     WHEN "cont"      THEN cVarValue = string(cust.contact,"x(25)") .
                      WHEN "sman"      THEN cVarValue = STRING(v-sman,"x(25)") .
                      WHEN "term"      THEN cVarValue = if avail terms then string(terms.dscr,"x(15)") else ""  .
                      WHEN "add1"      THEN cVarValue = STRING(cust.addr[1],"x(25)").
@@ -2024,7 +2024,11 @@ END.
                 CASE cTmpField:             
                      WHEN "cust"      THEN cVarValue = ""  .
                      WHEN "cust-name" THEN cVarValue = ""  .
-                     WHEN "cont"      THEN cVarValue = "" .
+                     WHEN "cont"      THEN do:
+                          IF vname = "cust.cust-no" THEN
+                              cVarValue = string(cust.contact,"x(25)") .
+                          ELSE cVarValue = "" .
+                     END.
                      WHEN "sman"      THEN cVarValue = "" .
                      WHEN "term"      THEN cVarValue = ""  .
                      WHEN "add1"      THEN cVarValue = "".

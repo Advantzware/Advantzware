@@ -119,14 +119,14 @@ ASSIGN cTextListToSelect  = "DUE DATE,ORDER#,CUSTOMER,CUSTOMER NAME,PROD CODE," 
                             "FG ITEM NAME,QTY ORDERED/EA,SQ FT,TOTAL Sq Ft/M," +
                             "$/MSF,PRICE,ORDER AMOUNT,% PROFIT,TOTAL TONS,$/TON," +
                             "FG ITEM#,ID,CUSTOMER PART#,CUSTOMER PO#,DIE#,ORDER DATE,COMM %,SHIPPED QTY,CSR,ACK. DATE," +
-                            "UOM,SHIP FROM"
+                            "UOM,SHIP FROM,MACHINE,INKS,PRINT SHEET#"
        cFieldListToSelect = "oe-ord.due-date,w-data.ord-no,cust.cust-no,cust.name,w-data.procat," +
                             "w-data.item-n,w-data.qty,w-data.sqft,t-sqft," +
                             "v-price-per-m,price,v-revenue,v-profit,t-tons,v-price-per-t," +
                             "oe-ordl.i-no,oe-ord.user-id,oe-ordl.part-no,cust-po,die-no,oe-ord.ord-date,v-net-prct,w-data.shp-qty,csrUser_id,ack-date," +
-                            "oe-ordl.pr-uom,Ship-from"
+                            "oe-ordl.pr-uom,Ship-from,v-mach,v-ink,print-sheet"
 
-       cFieldLength = "8,14,8,13,9," + "16,14,10,13," + "10,10,13,9,10,14," + "15,8,15,15,15,10,7,14,8,10," + "6,9"
+       cFieldLength = "8,14,8,13,9," + "16,14,10,13," + "10,10,13,9,10,14," + "15,8,15,15,15,10,7,14,8,10," + "6,9,30,40,20"
        .
 
 {sys/inc/ttRptSel.i}
@@ -176,6 +176,22 @@ lv-font-no lv-font-name td-show-parm tb_excel tb_runExcel fi_file tb_batch
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD GEtFieldValue C-Win 
 FUNCTION GEtFieldValue RETURNS CHARACTER
   ( hipField AS HANDLE )  FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fGetRoutingForJob B-table-Win
+FUNCTION fGetRoutingForJob RETURNS CHARACTER 
+  ( /*ipcValueNeeded AS CHAR*/  ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fGetInksForJob B-table-Win
+FUNCTION fGetInksForJob RETURNS CHARACTER 
+  ( /*ipcValueNeeded AS CHAR*/  ) FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -2151,3 +2167,75 @@ END FUNCTION.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fGetRoutingForJob B-table-Win 
+FUNCTION fGetRoutingForJob RETURNS CHARACTER
+  (  ):
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE dResult    AS CHARACTER NO-UNDO.
+
+    IF AVAIL job THEN DO:
+        FOR EACH job-mch WHERE job-mch.company = job.company 
+            AND job-mch.job = job.job 
+            AND job-mch.job-no = job.job-no 
+            AND job-mch.job-no2 = job.job-no2 
+            use-index line-idx NO-LOCK BREAK BY job-mch.job :
+            IF NOT LAST(job-mch.job) THEN
+                dResult = dResult + job-mch.m-code + "," .
+            ELSE dResult = dResult + job-mch.m-code .
+        END.
+    END.                
+
+    RETURN dResult.
+
+END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fGetInksForJob B-table-Win 
+FUNCTION fGetInksForJob RETURNS CHARACTER
+  (  ):
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    
+    DEFINE VARIABLE dResult    AS CHARACTER NO-UNDO.
+    IF AVAIL job THEN DO:
+        IF AVAIL eb THEN
+            for each job-mat where job-mat.company eq cocode
+                and job-mat.job     eq job.job  
+                and job-mat.frm     eq eb.form-no
+                NO-LOCK ,
+                first item
+                {sys/look/itemivW.i}
+                and item.i-no eq job-mat.i-no:
+                    IF eb.est-type LE 4 THEN do:
+                        do i = 1 to 20:
+                            if eb.i-code2[i] eq job-mat.i-no then do:
+                                IF LOOKUP(job-mat.i-no,dResult) EQ 0 THEN
+                                 dResult = dResult + job-mat.i-no + "," .
+                            end.
+                        end. /* loop i */
+                    END.
+                    ELSE do:
+                        do i = 1 to 10:
+                            if eb.i-code[i] eq job-mat.i-no then do:
+                                IF LOOKUP(job-mat.i-no,dResult) EQ 0 THEN
+                                 dResult = dResult + job-mat.i-no + "," . 
+                            end.
+                        end. /* loop i */
+                    END.
+            END.
+    END.                
+
+    RETURN dResult.
+
+END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME

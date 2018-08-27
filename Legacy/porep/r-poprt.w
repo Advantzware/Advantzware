@@ -574,48 +574,49 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-ok C-Win
 ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
 DO:
-  SESSION:SET-WAIT-STATE ("general").
+    SESSION:SET-WAIT-STATE ("general").
 
-  DO WITH FRAME {&FRAME-NAME}:
-    ASSIGN {&displayed-objects}.
-  END.
+    DO WITH FRAME {&FRAME-NAME}:
+        ASSIGN {&displayed-objects}.
+    END.
 
-  /* SKB - 1/24/07 - Changes for XL printing */
-
-  IF      rd-dest = 1  THEN ASSIGN LvOutputSelection = "Printer".
-  ELSE IF rd-dest = 2  THEN ASSIGN LvOutputSelection = "Screen". 
-  ELSE IF rd-dest = 3  THEN ASSIGN LvOutputSelection = "File". 
-  ELSE IF rd-dest = 4  THEN ASSIGN LvOutputSelection = "Fax". 
-  ELSE IF rd-dest = 5  THEN ASSIGN LvOutputSelection = "Email".
-  ELSE IF rd-dest = 6  THEN ASSIGN LvOutputSelection = "Port".
-
-  ASSIGN
-    v-start-po          = begin_po-no
-    v-end-po            = end_po-no 
-    v-reprint-po        = tb_reprint
-    v-printde-po        = tb_delete
-    v-print-sn          = tb_spec
-    v-corrugator        = tb_corr
-    v-sendfax           = NO
-    v-faxprog           = ""
-    v-tmp-fax           = ""
-    s-group-notes       = tb_group-notes
-    v-summarize-by-item = tb_summarize-by-item
-    v-itemDescription   = tb_itemDescription
-    v-score-types       = tb_score-types
-    v-metric            = tb_metric
-    s-print-prices      = tb_print-prices
-    v-print-terms       = tb_print-terms
-    lv-attachments      = tb_attachments
-    lCustCode           =  tb_cust-code.
+    CASE rd-dest:
+        WHEN 1 THEN ASSIGN LvOutputSelection = "Printer".
+        WHEN 2 THEN ASSIGN LvOutputSelection = "Screen".
+        WHEN 3 THEN ASSIGN LvOutputSelection = "File".
+        WHEN 4 THEN ASSIGN LvOutputSelection = "Fax".
+        WHEN 5 THEN ASSIGN LvOutputSelection = "Email".
+        WHEN 6 THEN ASSIGN LvOutputSelection = "Port".
+    END CASE.    
+  
+    ASSIGN
+        v-start-po          = begin_po-no
+        v-end-po            = end_po-no 
+        v-reprint-po        = tb_reprint
+        v-printde-po        = tb_delete
+        v-print-sn          = tb_spec
+        v-corrugator        = tb_corr
+        v-sendfax           = NO
+        v-faxprog           = ""
+        v-tmp-fax           = ""
+        s-group-notes       = tb_group-notes
+        v-summarize-by-item = tb_summarize-by-item
+        v-itemDescription   = tb_itemDescription
+        v-score-types       = tb_score-types
+        v-metric            = tb_metric
+        s-print-prices      = tb_print-prices
+        v-print-terms       = tb_print-terms
+        lv-attachments      = tb_attachments
+        lCustCode           =  tb_cust-code.
  
-  IF CAN-FIND(FIRST sys-ctrl-shipto WHERE
-     sys-ctrl-shipto.company = cocode AND
-     sys-ctrl-shipto.NAME = "POPRINT") THEN
-     DO:
-        IF CAN-FIND(FIRST b1-po-ord
-            WHERE  b1-po-ord.company EQ cocode
-              AND (b1-po-ord.stat    EQ "N" OR 
+    /* If there is are vendor-specific forms, run this way */
+    IF CAN-FIND(FIRST sys-ctrl-shipto WHERE
+        sys-ctrl-shipto.company = cocode AND
+        sys-ctrl-shipto.NAME = "POPRINT") THEN
+        DO:
+        IF CAN-FIND(FIRST b1-po-ord WHERE  
+                b1-po-ord.company EQ cocode AND 
+                    (b1-po-ord.stat    EQ "N" OR 
                    b1-po-ord.stat    EQ "O" OR 
                    b1-po-ord.stat    EQ "U" OR
                   (tb_reprint-closed AND b1-po-ord.stat EQ "C"))
@@ -624,7 +625,7 @@ DO:
               AND  b1-po-ord.po-no   LE v-end-po
               AND  b1-po-ord.vend-no GE begin_vend-no
               AND  b1-po-ord.vend-no LE end_vend-no) THEN
-            FOR EACH  b1-po-ord /* FIELDS(vend-no company) */
+        FOR EACH  b1-po-ord /* FIELDS(vend-no company) */
                 WHERE  b1-po-ord.company EQ cocode
                   AND (b1-po-ord.stat    EQ "N" OR 
                        b1-po-ord.stat    EQ "O" OR 
@@ -640,71 +641,83 @@ DO:
                    BY b1-po-ord.vend-no
                    BY b1-po-ord.po-no :
 
-               IF FIRST-OF (b1-po-ord.vend-no) THEN DO:
-                 
-                 FIND FIRST sys-ctrl-shipto
+            IF FIRST-OF (b1-po-ord.vend-no) THEN DO:
+                FIND FIRST sys-ctrl-shipto
                       WHERE sys-ctrl-shipto.company      = cocode
                         AND sys-ctrl-shipto.NAME         = "POPRINT"
                         AND sys-ctrl-shipto.cust-vend    = NO
                         AND sys-ctrl-shipto.cust-vend-no = b1-po-ord.vend-no 
                         AND sys-ctrl-shipto.char-fld > '' 
                       NO-LOCK NO-ERROR.
-
-                 IF AVAILABLE sys-ctrl-shipto THEN
-                 DO:
+                IF AVAILABLE sys-ctrl-shipto THEN DO:
                     RUN SetPOPrintForm (sys-ctrl-shipto.char-fld) .
                     v-print-fmt = sys-ctrl-shipto.char-fld.
-                 END.
-                 ELSE
-                 DO:
+                END.
+                ELSE DO:
                     RUN SetPOPrintForm (vcDefaultForm).
                     v-print-fmt = vcDefaultForm.
-                 END.
-                
-                 ASSIGN
+                END.
+                ASSIGN
                      cPdfFilesAttach = "" 
                      cPoMailList     = "" .
-                 
-                   IF rd-dest NE 5 THEN DO: /* rd-dest ne 5*/
-                    
+                IF rd-dest NE 5 THEN DO: /* rd-dest ne 5*/
                        RUN SetGlobalVariables(INPUT b1-po-ord.po-no).
-    
                        RUN run-report(0,b1-po-ord.vend-no, TRUE) . 
-                         
                        RUN GenerateReport(b1-po-ord.vend-no, b1-po-ord.vend-no) .
-
-                   END.    /* rd-dest ne 5*/
-
-               END. /* FIRST-OF (b1-po-ord.vend-no) */
-
-               IF rd-dest EQ 5 THEN do:
-                   IF FIRST-OF (b1-po-ord.po-no) THEN DO:
-                       
-                       RUN SetGlobalVariables(INPUT b1-po-ord.po-no).
-                       
-                       RUN run-report(b1-po-ord.po-no,b1-po-ord.vend-no, TRUE) . 
-
-                       RUN GenerateReport(b1-po-ord.vend-no, b1-po-ord.vend-no) .
-
-                   END. /* first-of(po-no) */
-
-                   IF LAST-OF (b1-po-ord.vend-no) THEN
+                END.    /* rd-dest ne 5*/
+                IF rd-dest EQ 5 THEN do:
+                    IF FIRST-OF (b1-po-ord.po-no) THEN DO:
+                           RUN SetGlobalVariables(INPUT b1-po-ord.po-no).
+                           RUN run-report(b1-po-ord.po-no,b1-po-ord.vend-no, TRUE) . 
+                           RUN GenerateReport(b1-po-ord.vend-no, b1-po-ord.vend-no) .
+                    END. /* first-of(po-no) */
+                    IF LAST-OF (b1-po-ord.vend-no) THEN
                        RUN GenerateMail .
-               END.  /* rd-dest EQ 5 */
-
-
-            END. /*FOR EACH*/
-         ELSE
+                END.  /* rd-dest EQ 5 */
+            END. /* FIRST-OF (b1-po-ord.vend-no) */
+        END. /* FOR EACH b1-po-ord */
+        ELSE
             MESSAGE "No Purchase Orders Were Printed."
                 VIEW-AS ALERT-BOX INFORMATION BUTTONS OK.
-     END.
-  ELSE
-     DO:
-        v-print-fmt = vcDefaultForm.
-        RUN SetGlobalVariables(INPUT begin_po-no).
-        RUN run-report(0,"", FALSE) .
-        RUN GenerateReport(INPUT begin_vend-no, end_vend-no) .
-     END.
+    END. /* Vendor-specific forms */
+    ELSE DO: /* NOT vendor-specific formst */
+        FOR EACH  b1-po-ord /* FIELDS(vend-no company) */
+                WHERE  b1-po-ord.company EQ cocode
+                  AND (b1-po-ord.stat    EQ "N" OR 
+                       b1-po-ord.stat    EQ "O" OR 
+                       b1-po-ord.stat    EQ "U" OR
+                      (tb_reprint-closed AND b1-po-ord.stat EQ "C"))
+                  AND  b1-po-ord.printed EQ v-reprint-po
+                  AND  b1-po-ord.po-no   GE v-start-po
+                  AND  b1-po-ord.po-no   LE v-end-po
+                  AND  b1-po-ord.vend-no GE begin_vend-no
+                  AND  b1-po-ord.vend-no LE end_vend-no
+              NO-LOCK
+             BREAK BY b1-po-ord.company
+                   BY b1-po-ord.vend-no
+                   BY b1-po-ord.po-no :
+            IF FIRST-OF (b1-po-ord.vend-no) THEN DO:
+                ASSIGN
+                    v-print-fmt = vcDefaultForm
+                    cPdfFilesAttach = "" 
+                    cPoMailList     = "" .
+            END. /* FIRST-OF (b1-po-ord.vend-no) */
+            IF rd-dest NE 5 THEN DO: /* rd-dest ne 5*/
+                RUN SetGlobalVariables(INPUT b1-po-ord.po-no).
+                RUN run-report(0,b1-po-ord.vend-no, TRUE) . 
+                RUN GenerateReport(b1-po-ord.vend-no, b1-po-ord.vend-no) .
+            END.    /* rd-dest ne 5*/
+            IF rd-dest EQ 5 THEN do:
+                IF FIRST-OF (b1-po-ord.po-no) THEN DO:
+                    RUN SetGlobalVariables(INPUT b1-po-ord.po-no).
+                    RUN run-report(b1-po-ord.po-no,b1-po-ord.vend-no, TRUE) . 
+                    RUN GenerateReport(b1-po-ord.vend-no, b1-po-ord.vend-no) .
+                END. /* first-of(po-no) */
+                IF LAST-OF (b1-po-ord.vend-no) THEN
+                   RUN GenerateMail .
+            END.  /* rd-dest EQ 5 */
+        END. /* FOR EACH b1-po-ord */
+    END.
 END.
 
 /* _UIB-CODE-BLOCK-END */

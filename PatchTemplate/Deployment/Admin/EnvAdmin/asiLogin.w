@@ -102,6 +102,7 @@ DEF VAR cVarValue AS CHAR EXTENT 100 NO-UNDO.
 DEF VAR cUserID AS CHAR NO-UNDO.
 DEF VAR cValidDBs AS CHAR NO-UNDO.
 DEF VAR cValidEnvs AS CHAR NO-UNDO.
+DEF VAR cValidModes AS CHAR NO-UNDO.
 DEF VAR iCtr AS INT NO-UNDO.
 DEF VAR jCtr AS INT NO-UNDO.
 DEF VAR iNumUsers AS INT NO-UNDO.
@@ -629,12 +630,15 @@ DO:
         ASSIGN
             cbEnvironment:LIST-ITEMS = IF cValidEnvs <> "" THEN cValidEnvs ELSE IF ttUsers.ttfEnvList <> "" THEN ttUsers.ttfEnvList ELSE cEnvList
             cbDatabase:LIST-ITEMS = IF cValidDbs <> "" THEN cValidDbs ELSE IF ttUsers.ttfDbList <> "" THEN ttUsers.ttfDbList ELSE cDbList
-            cbMode:LIST-ITEMS = IF ttUsers.ttfModeList <> "" THEN ttUsers.ttfModeList ELSE cModeList
             cbEnvironment:SCREEN-VALUE = ENTRY(1,cbEnvironment:LIST-ITEMS)
-            cbDatabase:SCREEN-VALUE = ENTRY(1,cbDatabase:LIST-ITEMS)
-            cbMode:SCREEN-VALUE = ENTRY(1, cbMode:LIST-ITEMS).
+            cbDatabase:SCREEN-VALUE = ENTRY(1,cbDatabase:LIST-ITEMS).
         APPLY 'value-changed' TO cbEnvironment.
         APPLY 'value-changed' to cbDatabase.
+
+        RUN ipFindUser IN THIS-PROCEDURE.
+        ASSIGN
+            cbMode:LIST-ITEMS = IF cValidModes <> "" THEN cValidModes ELSE cModeList
+            cbMode:SCREEN-VALUE = ENTRY(1, cbMode:LIST-ITEMS).
         APPLY 'value-changed' TO cbMode.
     END.
         
@@ -842,6 +846,8 @@ PROCEDURE ipChangeDatabase :
         APPLY 'choose' to btn_Cancel IN FRAME {&FRAME-NAME}.
         RETURN NO-APPLY.
     END.
+    
+    APPLY 'value-changed' TO cbMode.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1407,7 +1413,7 @@ PROCEDURE ipFindUser :
             
     FIND FIRST ttUsers NO-LOCK WHERE
         ttUsers.ttfUserID = cUserID AND
-        ttUsers.ttfPdbName = cbDatabase 
+        ttUsers.ttfPdbName = cbDatabase:{&SV}
         NO-ERROR.
 
     /* Can't find by DB, is there a generic one? (db = '*') */
@@ -1438,13 +1444,14 @@ PROCEDURE ipFindUser :
         IF NOT AVAIL ttUsers THEN FIND FIRST ttUsers NO-LOCK WHERE
             ttUsers.ttfUserAlias = fiUserID
             NO-ERROR.
-    END.    
+    END.
     IF AVAIL ttUsers THEN ASSIGN
         cUserID = IF cUserID EQ "" THEN ttUsers.ttfUserID ELSE cUserID
         cValidDbs = IF cValidDbs EQ "" THEN ttUsers.ttfDbList ELSE cValidDbs
-        cValidEnvs = IF cValidEnvs EQ "" THEN ttUsers.ttfEnvList ELSE cValidEnvs.
-
-END PROCEDURE.
+        cValidEnvs = IF cValidEnvs EQ "" THEN ttUsers.ttfEnvList ELSE cValidEnvs
+        cValidModes = IF cValidModes EQ "" THEN ttUsers.ttfModeList ELSE cValidModes.
+        
+ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
