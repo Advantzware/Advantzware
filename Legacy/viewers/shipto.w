@@ -1519,7 +1519,7 @@ DEFINE BUFFER buff-shipto FOR shipto .
      ASSIGN thisOne = ENTRY(i,v-cust-fmt).
      CREATE buff-shipto .
      ASSIGN buff-shipto.company = thisone.
-     BUFFER-COPY shipto EXCEPT company  TO buff-shipto.
+     BUFFER-COPY shipto EXCEPT company rec_key TO buff-shipto.
  END.
 END PROCEDURE.
 
@@ -1545,12 +1545,12 @@ DEFINE BUFFER buff-shipto FOR shipto .
                           AND buff-shipto.ship-id = shipto.ship-id 
                           AND buff-shipto.company = thisOne EXCLUSIVE-LOCK NO-ERROR.
      IF AVAIL buff-shipto THEN do:
-     BUFFER-COPY shipto EXCEPT cust-no company ship-id TO buff-shipto.
+     BUFFER-COPY shipto EXCEPT cust-no company ship-id rec_key TO buff-shipto.
      END.
      ELSE DO:
         CREATE buff-shipto .
         ASSIGN buff-shipto.company = thisone.
-        BUFFER-COPY shipto EXCEPT company  TO buff-shipto.
+        BUFFER-COPY shipto EXCEPT company rec_key TO buff-shipto.
      END.
     END.
 
