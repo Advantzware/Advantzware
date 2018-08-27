@@ -3582,7 +3582,7 @@ PROCEDURE est-from-tandem :
 
       RELEASE xeb.
 
-      RUN est/oeselest.p.
+      /*RUN est/oeselest.p.*/ /* Ticket - 33756 */
 
       SESSION:SET-WAIT-STATE ("general").
       RUN get-from-est.

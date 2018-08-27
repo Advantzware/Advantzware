@@ -5,6 +5,7 @@ DEF BUFFER xef-nsh     FOR ef-nsh.
 DEF BUFFER bf-notes    FOR notes.
 DEF BUFFER blankcp2-eb FOR eb.
 DEF BUFFER xest-prep FOR est-prep.
+DEF BUFFER bf-est-op FOR est-op.
 
 DEF VAR j AS INT NO-UNDO.
 DEF VAR ll-copied-from-eb AS LOG INIT NO NO-UNDO.
@@ -260,6 +261,40 @@ IF lv-copied NE ? THEN DO:
               END.
 
               RELEASE xest-prep.
+           END.
+    END.
+
+    IF program-name(3) MATCHES "*oe/v-ord*" THEN
+    FOR EACH est-op WHERE
+        est-op.company EQ bf-eb.company AND
+        est-op.est-no EQ bf-eb.est-no AND
+        est-op.s-num EQ bf-eb.form-no AND
+        est-op.line LT 500
+        NO-LOCK:
+ 
+        IF est-op.b-num EQ bf-eb.blank-no THEN
+           DO:
+              v-next = 1 .
+              FOR EACH bf-est-op NO-LOCK
+                  WHERE bf-est-op.company EQ est.company
+                  AND bf-est-op.est-no  EQ est.est-no
+                  AND bf-est-op.line    LT 500
+                  BY bf-est-op.line DESCENDING:
+                  v-next = bf-est-op.line + 1.
+                  LEAVE.
+              END.
+              
+              CREATE bf-est-op.
+              BUFFER-COPY est-op EXCEPT s-num LINE company est-no qty rec_key TO
+                          bf-est-op
+                  ASSIGN
+                     bf-est-op.company = eb.company
+                     bf-est-op.est-no  = eb.est-no
+                     bf-est-op.qty    = eb.eqty
+                     bf-est-op.s-num = eb.form-no
+                     bf-est-op.LINE  = v-next.
+              
+              RELEASE bf-est-op.
            END.
     END.
 
