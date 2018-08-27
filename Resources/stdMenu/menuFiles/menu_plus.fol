@@ -536,7 +536,6 @@ comp_loc. user est
 usermenu. user est
 users. user est
 users_. user est
-track_. user est
 usergrps. user est
 usergrp_. user est
 codes s est
@@ -606,7 +605,9 @@ prgrms. system est
 prgrms_. system est
 parmfile. system est
 parmfil_. system est
+langTrans. system
 help mainmenu est
+sysCtrlU. help
 about. help est
 m file
 m1. m

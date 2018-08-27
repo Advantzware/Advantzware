@@ -73,13 +73,13 @@ DEFINE QUERY external_tables FOR sys-ctrl.
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-FIELDS sys-ctrl.descrip sys-ctrl.module ~
 sys-ctrl.char-fld sys-ctrl.date-fld sys-ctrl.dec-fld sys-ctrl.int-fld ~
-sys-ctrl.log-fld 
+sys-ctrl.log-fld sys-ctrl.adminOnly 
 &Scoped-define ENABLED-TABLES sys-ctrl
 &Scoped-define FIRST-ENABLED-TABLE sys-ctrl
 &Scoped-Define ENABLED-OBJECTS RECT-1 
 &Scoped-Define DISPLAYED-FIELDS sys-ctrl.name sys-ctrl.descrip ~
 sys-ctrl.module sys-ctrl.char-fld sys-ctrl.date-fld sys-ctrl.dec-fld ~
-sys-ctrl.int-fld sys-ctrl.log-fld 
+sys-ctrl.int-fld sys-ctrl.log-fld sys-ctrl.adminOnly 
 &Scoped-define DISPLAYED-TABLES sys-ctrl
 &Scoped-define FIRST-DISPLAYED-TABLE sys-ctrl
 
@@ -156,6 +156,9 @@ DEFINE FRAME F-Main
           LABEL "Logical Value"
           VIEW-AS FILL-IN 
           SIZE 5.6 BY 1
+     sys-ctrl.adminOnly AT ROW 9.57 COL 121 WIDGET-ID 4
+          VIEW-AS TOGGLE-BOX
+          SIZE 17 BY 1
      RECT-1 AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -248,7 +251,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -337,7 +340,6 @@ DO:
    END.
     {&methods/lValidateError.i NO}
 END.
-
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -461,6 +463,23 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE get-sys-ctrl-value V-table-Win 
+PROCEDURE get-sys-ctrl-value :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEFINE OUTPUT PARAMETER opSysName AS CHARACTER NO-UNDO.
+    IF AVAIL sys-ctrl THEN
+        opSysName = sys-ctrl.NAME.
+    ELSE opSysName = "".
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-assign-record V-table-Win 
 PROCEDURE local-assign-record :
 /*------------------------------------------------------------------------------
@@ -499,7 +518,6 @@ PROCEDURE local-assign-record :
    END.
     {&methods/lValidateError.i NO}
 END PROCEDURE.
-
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -867,23 +885,6 @@ PROCEDURE valid-log-fld :
   {sys/ref/valid-log-fld.i}
 
   {methods/lValidateError.i NO}
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE get-sys-ctrl-value V-table-Win 
-PROCEDURE get-sys-ctrl-value :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  DEFINE OUTPUT PARAMETER opSysName AS CHARACTER NO-UNDO.
-    IF AVAIL sys-ctrl THEN
-        opSysName = sys-ctrl.NAME.
-    ELSE opSysName = "".
-
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
