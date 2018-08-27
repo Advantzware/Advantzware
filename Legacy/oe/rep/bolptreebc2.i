@@ -9,11 +9,19 @@
       "<FArial>"  SKIP
       "<#1><P10><ADJUST=LPI><C+35><B><P18>" vlc-transfer  "</B><P10>"
       "<C50><B>Bill Of Lading"  SKIP
-      "<=1><R+1><C25></B>"            SKIP
+      "<=1><R+1><C25></B>"            SKIP.
+
+      if not lLot and v-pg-num eq 1 THEN
+       put 
        "<UNITS=INCHES><AT=.60,6><FROM><AT=+.5,+2><BARCODE,TYPE=39,CHECKSUM=NONE,VALUE=" +
                     "*" + string(oe-bolh.bol-no) + "*" + ">" FORM "x(100)" "</B><P10>"
-       "<C1><R2><FROM><R12><C15><#89><AT=0.01,0.01>"
-      .   
+       "<C1><R2><FROM><R12><C15><#89><AT=0.01,0.01>"       . 
+      else if  lLot then 
+	put 
+       "<UNITS=INCHES><AT=.60,6><FROM><AT=+.5,+2><BARCODE,TYPE=39,CHECKSUM=NONE,VALUE=" +
+                    "*" + string(oe-bolh.bol-no) + "*" + ">" FORM "x(100)" "</B><P10>"
+       "<C1><R2><FROM><R12><C15><#89><AT=0.01,0.01>"       . 
+	
 
    IF (AVAIL shipto AND shipto.broker EQ NO) OR NOT AVAIL shipto THEN
       PUT "<C2><R4><#1><R+7><C40><IMAGE#1=" ls-full-img1 skip.
