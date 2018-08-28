@@ -59,10 +59,12 @@ DEF VAR lv-sort-by AS CHAR INIT "po-no" NO-UNDO.
 DEF VAR lv-sort-by-lab AS CHAR INIT "PO#" NO-UNDO.
 DEF VAR ll-sort-asc AS LOG NO-UNDO.
 DEF VAR lv-sort-list1 AS CHAR NO-UNDO
-  INIT "s-wid,s-len,cons-qty,cons-uom,t-rec-qty,cost,pr-uom,cons-uom".
+  INIT "s-wid,s-len,cons-qty,ccons-uom,dt-rec-qty,cost,pr-uom,cons-uom".
 DEF VAR char-hdl AS CHAR NO-UNDO.
 DEF VAR phandle AS HANDLE NO-UNDO.
 DEF VAR lv-t-rec-qty LIKE po-ordl.t-rec-qty NO-UNDO.
+DEFINE VARIABLE dt-rec-qty LIKE po-ordl.t-rec-qty NO-UNDO.
+DEFINE VARIABLE ccons-uom AS CHARACTER NO-UNDO .
 DEF VAR lv-show-prev AS LOG NO-UNDO.
 DEF VAR lv-show-next AS LOG NO-UNDO.
 DEF VAR lv-last-show-po-no AS INT NO-UNDO.
@@ -156,8 +158,8 @@ DEFINE VARIABLE cPoLineStatus AS CHARACTER NO-UNDO .
     IF lv-sort-by EQ "ord-qty"    THEN STRING(9999999999.99999 + po-ordl.ord-qty,"-9999999999.99999")                             ELSE ~
     IF lv-sort-by EQ "pr-qty-uom" THEN po-ordl.pr-qty-uom                                                                         ELSE ~
     IF lv-sort-by EQ "pr-uom"     THEN po-ordl.pr-uom                                                                             ELSE ~
-    IF lv-sort-by EQ "t-rec-qty"  THEN STRING(9999999999.99999 + po-ordl.t-rec-qty,"-9999999999.99999")                           ELSE ~
-    IF lv-sort-by EQ "cons-uom"   THEN po-ordl.cons-uom                                                                           ELSE ~
+    IF lv-sort-by EQ "dt-rec-qty"  THEN STRING( 9999999999.99999 + fRecQty(),"-9999999999.99999")                                 ELSE ~
+    IF lv-sort-by EQ "ccons-uom"   THEN string(fConsUom())                                                                        ELSE ~
     IF lv-sort-by EQ "cost"       THEN STRING(po-ordl.cost,"99999.99999")                                                         ELSE ~
     IF lv-sort-by EQ "s-wid"      THEN STRING(po-ordl.s-wid,"99999.99999")                                                        ELSE ~
                                        STRING(po-ordl.s-len,"99999.99999")
@@ -226,13 +228,13 @@ po-ordl.job-no2 po-ordl.s-num po-ordl.i-no po-ordl.i-name ~
 dim-in-16 (po-ordl.s-wid) @ po-ordl.s-wid po-ordl.s-wid ~
 dim-in-16 (po-ordl.s-len) @ po-ordl.s-len po-ordl.s-len po-ordl.vend-i-no ~
 po-ordl.ord-qty qty-in-ord-uom () @ lv-t-rec-qty po-ordl.pr-qty-uom ~
-po-ordl.t-rec-qty po-ordl.cons-uom po-ordl.cost po-ordl.pr-uom po-ord.buyer ~
+fRecQty() @ dt-rec-qty fConsUom() @ ccons-uom po-ordl.cost po-ordl.pr-uom po-ord.buyer ~
 is-it-polinestat() @ cPoLineStatus is-it-postat() @ cPoStatus is-it-paid() @ v-paidflg po-ordl.cust-no po-ordl.LINE
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table po-ordl.po-no ~
 po-ord.vend-no po-ordl.due-date po-ord.ship-id po-ord.ship-name ~
 po-ordl.job-no po-ordl.job-no2 po-ordl.s-num po-ordl.i-no po-ordl.i-name ~
 po-ordl.s-wid po-ordl.s-len po-ordl.vend-i-no po-ordl.ord-qty ~
-po-ordl.pr-qty-uom po-ordl.t-rec-qty po-ordl.cons-uom po-ordl.cost ~
+po-ordl.pr-qty-uom  po-ordl.cost ~
 po-ordl.pr-uom po-ord.buyer po-ordl.cust-no 
 &Scoped-define ENABLED-TABLES-IN-QUERY-Browser-Table po-ordl po-ord
 &Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-Browser-Table po-ordl
@@ -346,6 +348,21 @@ FUNCTION qty-in-ord-uom RETURNS DECIMAL
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fRecQty B-table-Win 
+FUNCTION fRecQty RETURNS DECIMAL
+  ( /* parameter-definitions */ )  FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fConsUom B-table-Win 
+FUNCTION fConsUom RETURNS CHARACTER
+  ( /* parameter-definitions */ )  FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 
 /* ***********************  Control Definitions  ********************** */
@@ -515,9 +532,9 @@ DEFINE BROWSE Browser-Table
             WIDTH 21.2
       po-ordl.pr-qty-uom COLUMN-LABEL "Ord UOM" FORMAT "x(4)":U
             WIDTH 10 LABEL-BGCOLOR 14
-      po-ordl.t-rec-qty COLUMN-LABEL "Qty Received" FORMAT "->>>,>>>,>>9.9<<<<<":U
+      fRecQty() @ dt-rec-qty COLUMN-LABEL "Qty Received" FORMAT "->>>,>>>,>>9.9<<<<<":U
             WIDTH 23.8 LABEL-BGCOLOR 14
-      po-ordl.cons-uom COLUMN-LABEL "Rec. UOM" FORMAT "x(4)":U
+      fConsUom() @ ccons-uom  COLUMN-LABEL "Rec. UOM" FORMAT "x(4)":U
             LABEL-BGCOLOR 14
       po-ordl.cost FORMAT "->,>>>,>>9.99<<<<":U LABEL-BGCOLOR 14
       po-ordl.pr-uom COLUMN-LABEL "UOM" FORMAT "x(4)":U LABEL-BGCOLOR 14
@@ -545,8 +562,6 @@ DEFINE BROWSE Browser-Table
       po-ordl.vend-i-no
       po-ordl.ord-qty
       po-ordl.pr-qty-uom
-      po-ordl.t-rec-qty
-      po-ordl.cons-uom
       po-ordl.cost
       po-ordl.pr-uom
       po-ord.buyer
@@ -741,10 +756,10 @@ po-ord.po-no eq po-ordl.po-no"
 "qty-in-ord-uom () @ lv-t-rec-qty" "PO Qty Received" "->>>,>>>,>>9.9<<" ? ? ? ? ? ? ? no ? no no "21.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[18]   > ASI.po-ordl.pr-qty-uom
 "po-ordl.pr-qty-uom" "Ord UOM" ? "character" ? ? ? 14 ? ? yes ? no no "10" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[19]   > ASI.po-ordl.t-rec-qty
-"po-ordl.t-rec-qty" "Qty Received" ? "decimal" ? ? ? 14 ? ? yes ? no no "23.8" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[20]   > ASI.po-ordl.cons-uom
-"po-ordl.cons-uom" "Rec. UOM" ? "character" ? ? ? 14 ? ? yes "" no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[19]   > "_<CALC>"  
+"fRecQty() @ dt-rec-qty" "Qty Received" ? "decimal" ? ? ? 14 ? ? yes ? no no "23.8" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[20]   > "_<CALC>"
+"fConsUom() @ ccons-uom" "Rec. UOM" ? "character" ? ? ? 14 ? ? yes "" no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[21]   > ASI.po-ordl.cost
 "po-ordl.cost" ? ? "decimal" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[22]   > ASI.po-ordl.pr-uom
@@ -1521,8 +1536,6 @@ PROCEDURE local-initialize :
    po-ordl.vend-i-no:READ-ONLY IN BROWSE {&browse-name} = YES
    po-ordl.ord-qty:READ-ONLY IN BROWSE {&browse-name} = YES
    po-ordl.pr-qty-uom:READ-ONLY IN BROWSE {&browse-name} = YES
-   po-ordl.t-rec-qty:READ-ONLY IN BROWSE {&browse-name} = YES
-   po-ordl.cons-uom:READ-ONLY IN BROWSE {&browse-name} = YES
    po-ord.buyer:READ-ONLY IN BROWSE {&browse-name} = YES 
    po-ordl.due-date:READ-ONLY IN BROWSE {&browse-name} = YES
    po-ord.ship-id:READ-ONLY IN BROWSE {&browse-name} = YES
@@ -2961,6 +2974,80 @@ FUNCTION qty-in-ord-uom RETURNS DECIMAL
   END.
 
   RETURN ld[2].   /* Function return value. */
+
+END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fRecQty B-table-Win 
+FUNCTION fRecQty RETURNS DECIMAL
+  ( /* parameter-definitions */ ) :
+/*------------------------------------------------------------------------------
+  Purpose:  
+    Notes:  
+------------------------------------------------------------------------------*/
+  DEF VAR ld AS DEC DECIMALS 10 EXTENT 2 NO-UNDO.
+  DEF BUFFER b-po-ordl FOR po-ordl.
+
+    FIND b-po-ordl WHERE ROWID(b-po-ordl) EQ ROWID(po-ordl) NO-LOCK NO-ERROR.
+
+    ld[2] = b-po-ordl.t-rec-qty.
+
+    FIND FIRST ITEM NO-LOCK
+         WHERE item.company EQ b-po-ordl.company
+         AND item.i-no    EQ b-po-ordl.i-no
+         NO-ERROR.
+
+    IF AVAIL ITEM AND b-po-ordl.item-type EQ YES AND
+        item.cons-uom NE "EA" THEN DO:
+
+        ld[1] = b-po-ordl.t-rec-qty .
+
+        RUN custom/convquom.p(cocode, b-po-ordl.cons-uom, item.cons-uom,
+                                (IF AVAIL item THEN item.basis-w ELSE 0),
+                                (IF b-po-ordl.pr-qty-uom EQ "ROLL" THEN 12
+                                 ELSE b-po-ordl.s-len), b-po-ordl.s-wid,
+                                (IF AVAIL item THEN item.s-dep ELSE 0),
+                                ld[1], OUTPUT ld[1]).
+        ld[2] =  ld[1].
+    END.
+   
+  RETURN ld[2]  .   /* Function return value. */
+
+END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fConsUom B-table-Win 
+FUNCTION fConsUom RETURNS CHARACTER
+  ( /* parameter-definitions */ ) :
+/*------------------------------------------------------------------------------
+  Purpose:  
+    Notes:  
+------------------------------------------------------------------------------*/
+  DEF VAR cUom AS CHARACTER NO-UNDO.
+  DEF BUFFER b-po-ordl FOR po-ordl.
+
+    FIND b-po-ordl WHERE ROWID(b-po-ordl) EQ ROWID(po-ordl) NO-LOCK NO-ERROR.
+
+    cUom = b-po-ordl.cons-uom .
+
+    FIND FIRST ITEM NO-LOCK
+         WHERE item.company EQ b-po-ordl.company
+         AND item.i-no    EQ b-po-ordl.i-no
+         NO-ERROR.
+
+    IF AVAIL ITEM AND b-po-ordl.item-type EQ YES AND
+        item.cons-uom NE "EA" THEN DO:
+
+        cUom = item.cons-uom .
+    END.
+
+  RETURN cUom .   /* Function return value. */
 
 END FUNCTION.
 
