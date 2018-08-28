@@ -2231,6 +2231,14 @@ PROCEDURE local-update-record :
   ELSE
       asi.item.spare-char-1:ENABLED = TRUE.
       */
+
+    /* 33482 - Ensure blank record is not saved - MYT - 08/28/18 */
+    IF adm-new-record 
+    AND item.i-no:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ "" THEN DO:
+        RUN dispatch IN THIS-PROCEDURE ( INPUT 'cancel-record':U ) .
+        RETURN NO-APPLY.
+    END.
+
   /* ========== validate all inputs =============*/
   RUN valid-i-no NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
