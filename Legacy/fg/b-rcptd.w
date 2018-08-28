@@ -114,6 +114,8 @@ END.
 
 DEF VAR lvReturnChar AS CHAR NO-UNDO.
 DEF VAR lvFound AS LOG NO-UNDO.
+DEFINE VARIABLE lfgunderover-log AS LOGICAL NO-UNDO .
+DEFINE VARIABLE cfgunderover-cha AS CHARACTER NO-UNDO .
 
 DEFINE VARIABLE lFound AS LOGICAL     NO-UNDO.
 DEFINE VARIABLE lFGSetAssembly AS LOGICAL     NO-UNDO.
@@ -139,6 +141,28 @@ RUN sys/ref/nk1look.p (INPUT cocode,
                        INPUT "",
                        OUTPUT cFGSetAssembly,
                        OUTPUT lFound).
+
+RUN sys/ref/nk1look.p (INPUT cocode,
+                       INPUT "FGUnderOver",
+                       INPUT "L",
+                       INPUT NO,
+                       INPUT NO,
+                       INPUT "",
+                       INPUT "",
+                       OUTPUT lvReturnChar,
+                       OUTPUT lFound).
+
+    lfgunderover-log = lvReturnChar EQ "YES".
+RUN sys/ref/nk1look.p (INPUT cocode,
+                       INPUT "FGUnderOver",
+                       INPUT "C",
+                       INPUT NO,
+                       INPUT NO,
+                       INPUT "",
+                       INPUT "",
+                       OUTPUT lvReturnChar,
+                       OUTPUT lFound).
+        ASSIGN cfgunderover-cha = lvReturnChar .
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -2261,14 +2285,7 @@ IF AVAIL fg-rctd AND fg-rctd.i-no:SCREEN-VALUE <> "" THEN DO: /* in update mode 
                               v-rec-qty, OUTPUT v-rec-qty).
 
     END.
-    IF v-rec-qty GT (po-ordl.ord-qty * (1 + (po-ordl.over-pct / 100))) AND
-       NOT lv-overrun-checked                                          THEN DO:
-       MESSAGE "The PO Qty + overrun has been exceeded..."
-                  VIEW-AS ALERT-BOX WARNING .
-       lv-overrun-checked = YES.
-       /*APPLY "entry" TO fg-rctd.cases.
-       RETURN ERROR.  */
-    END.
+    RUN valid-porec-qty(INPUT v-rec-qty).
     DEF VAR lv-use-full-qty AS LOG.
     DEF VAR lv-full-qty AS DEC NO-UNDO.
     /* Created task 09261318 to be used by receiving screens in addition */            
@@ -2512,17 +2529,8 @@ IF AVAIL fg-rctd AND fg-rctd.i-no:SCREEN-VALUE <> "" THEN DO: /* in update mode 
     IF LOOKUP(po-ordl.pr-qty-uom,fg-uom-list) EQ 0 THEN
        RUN sys/ref/convquom.p("EA", po-ordl.pr-qty-uom, 0, 0, 0, 0,
                               v-rec-qty, OUTPUT v-rec-qty).
-    IF v-rec-qty GT (po-ordl.ord-qty * 
-                    (1 + (po-ordl.over-pct / 100)))
-       AND NOT lv-overrun-checked
-    THEN DO:
-       MESSAGE "The PO Qty + overrun has been exceeded. "
-                  VIEW-AS ALERT-BOX WARNING .
-       lv-overrun-checked = YES.
-    END.
-
     
-
+    RUN valid-porec-qty(INPUT v-rec-qty).
 
     /* Created task 09261318 to be used by receiving screens in addition */            
     RUN fg/calcRcptCostFromPO.p 
@@ -2678,14 +2686,7 @@ PROCEDURE get-matrix-all :
           IF NOT ll-ea THEN
             RUN sys/ref/convquom.p("EA", po-ordl.pr-qty-uom, 0, 0, 0, 0,
                                    v-rec-qty, OUTPUT v-rec-qty).
-         IF v-rec-qty GT (po-ordl.ord-qty * 
-                    (1 + (po-ordl.over-pct / 100)))
-            AND NOT lv-overrun-checked
-          THEN DO:
-             MESSAGE "The PO Qty + overrun has been exceeded. "
-                     VIEW-AS ALERT-BOX WARNING .
-             lv-overrun-checked = YES.
-          END.
+          RUN valid-porec-qty(INPUT v-rec-qty).
        END.
        ELSE IF fg-rctd.job-no:SCREEN-VALUE <> "" THEN DO:
          FIND FIRST job-hdr WHERE job-hdr.company = cocode                       
@@ -5296,4 +5297,34 @@ END FUNCTION.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-porec-qty B-table-Win 
+PROCEDURE valid-porec-qty :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+DEFINE INPUT PARAMETER ipRecQty AS INTEGER NO-UNDO.
+if lfgunderover-log AND (cfgunderover-cha EQ "OverRuns Only" OR cfgunderover-cha EQ "UnderRuns and OverRun")
+     AND ipRecQty gt po-ordl.ord-qty * (1 + (po-ordl.over-pct / 100)) AND NOT lv-overrun-checked  THEN
+do:          
+    MESSAGE "The PO Qty + overrun has been exceeded..."
+                  VIEW-AS ALERT-BOX WARNING .
+       lv-overrun-checked = YES.
+END.
+ELSE IF lfgunderover-log AND (cfgunderover-cha EQ "UnderRuns Only" OR cfgunderover-cha EQ "UnderRuns and OverRun")
+     AND ipRecQty LT po-ordl.ord-qty - (po-ordl.ord-qty * po-ordl.under-pct / 100) AND NOT lv-overrun-checked THEN
+DO:
+    MESSAGE "The PO qty is less than the underrun......"
+                  VIEW-AS ALERT-BOX WARNING .
+       lv-overrun-checked = YES.
+END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
