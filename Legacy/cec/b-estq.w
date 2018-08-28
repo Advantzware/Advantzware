@@ -1104,7 +1104,7 @@ DO:
             
      IF NOT AVAIL est THEN DO:
          IF begin_cust-no <> "" THEN DO:
-             v-cust-no =begin_cust-no  .
+             v-cust-no = begin_cust-no  .
          END.
          ELSE DO:
              FIND FIRST bf-eb WHERE bf-eb.company = cocode 
@@ -1125,9 +1125,14 @@ DO:
          IF AVAIL cust AND ou-log AND LOOKUP(cust.cust-no,custcount) = 0 THEN
              MESSAGE "Customer is not on Users Customer List.  "  SKIP
               "Please add customer to Network Admin - Users Customer List."  VIEW-AS ALERT-BOX WARNING BUTTONS OK.
-         ELSE
-         MESSAGE "No Estimate Found, please update your Search Criteria."
+         ELSE DO:
+            MESSAGE 
+                "No Estimate Found, reverting to initial setup."
                 VIEW-AS ALERT-BOX ERROR.
+            assign
+                lv-first-run = true.
+            RUN local-open-query.
+         END.
      END.
   END.
 

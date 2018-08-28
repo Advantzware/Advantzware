@@ -369,13 +369,16 @@ STATUS DEFAULT "Processing BOL Posting 1........ BOL#: " + STRING(oe-bolh.bol-no
       FIRST oe-boll NO-LOCK WHERE RECID(oe-boll) EQ report.rec-id:
       /* Check that someone else isn't posting the same BOL */
       
-      FOR EACH bf-oe-boll NO-LOCK WHERE bf-oe-boll.b-no EQ oe-boll.b-no,
-          FIRST bf-report NO-LOCK WHERE bf-report.term-id NE report.term-id  
-            AND TRIM(bf-report.term-id) NE TRIM(report.term-id)
-            AND bf-report.rec-id EQ RECID(bf-oe-boll):
+      FOR EACH bf-oe-boll NO-LOCK WHERE bf-oe-boll.b-no EQ oe-boll.b-no:
+        FIND FIRST bf-report NO-LOCK 
+            WHERE bf-report.term-id BEGINS cTermPrefix
+              AND bf-report.rec-id  EQ report.rec-id
+              AND bf-report.rec_key NE report.rec_key
+            NO-ERROR.
           /* Found overlap with another user */
-          fLogMsg("Collision with other user oe-bolp3.p " + " BOL# " + STRING(oe-boll.bol-no) + " Key03: " + report.key-03
-             + " term-id: " + bf-report.term-id + " rpt.term-id: " + report.term-id).          
+          IF AVAILABLE bf-report THEN 
+            fLogMsg("Collision with other user oe-bolp3.p " + " BOL# " + STRING(oe-boll.bol-no) + " Key03: " + report.key-03
+               + " term-id: " + bf-report.term-id + " rpt.term-id: " + report.term-id).          
       END.
       
       /* delete all lines related to this BOL as it is being posted by someone else */
