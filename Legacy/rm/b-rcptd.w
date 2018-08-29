@@ -2586,14 +2586,22 @@ PROCEDURE get-matrix :
                                          input v-dep,
                                          DEC(rm-rctd.qty:screen-value in browse {&browse-name}),
                                          output lv-out-qty).*/
-                 
+              
                 /* convert cost */
                 IF rm-rctd.cost-uom:SCREEN-VALUE IN BROWSE {&browse-name} EQ "L" THEN
                     lv-out-cost = DEC(rm-rctd.cost:SCREEN-VALUE IN BROWSE {&browse-name}) / lv-out-qty .
                 ELSE
                     /* gdm - 07210901 */
-                    IF v-po-cuom EQ "L" THEN
+                    IF v-po-cuom EQ "L" THEN do:
                         lv-out-cost = DEC(v-po-cost) / lv-out-qty .
+                        IF lv-cost-uom NE "EA" THEN
+                            RUN custom/convcuom.p (cocode,
+                                  "EA",
+                                  lv-cost-uom,
+                                  v-bwt, v-len, v-wid, v-dep,
+                                  lv-out-cost,
+                                  OUTPUT lv-out-cost).
+                    END.
                     ELSE
                         IF rm-rctd.cost-uom:SCREEN-VALUE IN BROWSE {&browse-name} EQ lv-cost-uom THEN
                             lv-out-cost = DEC(rm-rctd.cost:SCREEN-VALUE IN BROWSE {&browse-name}).
@@ -2614,7 +2622,7 @@ PROCEDURE get-matrix :
               
                   lv-out-cost = lv-out-cost + (lv-setup / lv-out-qty).
                 END. */
-
+     
                 IF lv-out-qty  EQ ? THEN lv-out-qty  = 0.
                 IF lv-out-cost EQ ? THEN lv-out-cost = 0.
 
