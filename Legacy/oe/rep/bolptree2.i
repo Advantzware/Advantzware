@@ -6,12 +6,13 @@
 
  PUT "<FArial>"  SKIP
      "<P18>" 
-     "<C+35><B>" vlc-transfer "</B>" "<C60><P14><B>" "Bill Of Lading"  "</B>" 
-"<UNITS=INCHES><AT=.60,6><FROM><AT=+.5,+2><BARCODE,TYPE=39,CHECKSUM=NONE,VALUE=" +
+     "<C+35><B>" vlc-transfer "</B>" "<C60><P14><B>" "Bill Of Lading"  "</B>" .
+     if v-pg-num EQ 1 THEN   
+     put  "<UNITS=INCHES><AT=.60,6><FROM><AT=+.5,+2><BARCODE,TYPE=39,CHECKSUM=NONE,VALUE=" +
                     "*" + string(oe-bolh.bol-no) + "*" + ">" FORM "x(100)" "</B><P10>"
-      "<=1><R+1><C25></B>"            SKIP
+      "<=1><R+1><C25></B>"            SKIP .
 
-     SKIP.
+    put SKIP.
  PUT "<C2><R4><#1><R+8><C40><IMAGE#1=" ls-full-img1 SKIP.
      
  PUT "<FCourier New>"
