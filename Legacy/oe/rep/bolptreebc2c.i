@@ -12,21 +12,14 @@
       "<=1><R+1><C25></B>"            SKIP
       "<=1><R+5.5><C25><B><C50>Bill of Lading #: " oe-bolh.bol-no   "</B>".
     
-    if not lLot and v-pg-num EQ 1 THEN  
+    if v-pg-num EQ 1 THEN  
     PUT  
      "<UNITS=INCHES><AT=.62,6><FROM><AT=+.4,+2><BARCODE,TYPE=39,CHECKSUM=NONE,VALUE=" +
                     string(oe-bolh.bol-no) + "*" + ">" FORM "x(100)" "</B><P10>"
        
        "<C1><R2><FROM><R12><C15><#89><AT=0.01,0.01>"
       .  
-   else if  lLot THEN
-	PUT  
-     "<UNITS=INCHES><AT=.62,6><FROM><AT=+.4,+2><BARCODE,TYPE=39,CHECKSUM=NONE,VALUE=" +
-                    string(oe-bolh.bol-no) + "*" + ">" FORM "x(100)" "</B><P10>"
-       
-       "<C1><R2><FROM><R12><C15><#89><AT=0.01,0.01>" .
-	
- 
+   
    if PROGRAM-NAME(1) matches "*oe/rep/bolptree.p*" then do: 
      PUT "<C2><R4><#1><R+7><C40><IMAGE#1=" ls-full-img1 skip.
    end.
