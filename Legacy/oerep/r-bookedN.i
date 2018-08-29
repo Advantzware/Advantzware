@@ -228,8 +228,7 @@ FORMAT wkrecap.procat
          NO-ERROR.
 
   lo_trandate = IF AVAILABLE period THEN MINIMUM(fdate,period.pst) ELSE fdate.
-
-  FOR EACH oe-ord NO-LOCK
+ FOR EACH oe-ord NO-LOCK
       WHERE oe-ord.company  EQ cocode
         AND oe-ord.cust-no  GE begin_cust-no
         AND oe-ord.cust-no  LE end_cust-no
@@ -237,6 +236,8 @@ FORMAT wkrecap.procat
         AND ttCustList.log-fld no-lock) else true)
         AND oe-ord.ord-date GE lo_trANDate
         AND oe-ord.ord-date LE tdate
+        AND oe-ord.due-date GE dSDueDate
+        AND oe-ord.due-date LE dEDueDate
         AND oe-ord.stat     NE "D"
       BY oe-ord.company BY oe-ord.ord-date BY oe-ord.ord-no:
 

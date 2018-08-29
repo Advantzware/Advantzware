@@ -44,6 +44,8 @@ FOR EACH oe-ord NO-LOCK
       AND oe-ord.cust-no  LE cEndCustNo
       AND oe-ord.ord-date GE dtTrandate
       AND oe-ord.ord-date LE dtEndOrderDate
+      AND oe-ord.due-date GE dtStartDueDate
+      AND oe-ord.due-date LE dtEndDueDate
       AND oe-ord.type     NE "T"
       AND oe-ord.stat     NE "D"
     BY oe-ord.company 

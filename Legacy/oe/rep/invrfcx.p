@@ -109,10 +109,13 @@ FIND FIRST inv-head NO-LOCK NO-ERROR.
 /* === with xprint ====*/
 DEF VAR ls-image1    AS CHAR NO-UNDO.
 DEF VAR ls-full-img1 AS CHAR FORMAT "x(200)" NO-UNDO.
+DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
 
-ASSIGN ls-image1 = "images\RFC.JPG"
+
+/*ASSIGN ls-image1 = "images\RFC.JPG"
        FILE-INFO:FILE-NAME = ls-image1
-       ls-full-img1 = FILE-INFO:FULL-PATHNAME + ">".
+       ls-full-img1 = FILE-INFO:FULL-PATHNAME + ">".*/
 
 DEF VAR v-tel     AS CHAR FORMAT "x(30)" NO-UNDO.
 DEF VAR v-fax     AS CHAR FORMAT "x(30)" NO-UNDO.
@@ -135,6 +138,13 @@ FIND FIRST sys-ctrl where sys-ctrl.company = cocode
                       and sys-ctrl.NAME = "INVPRINT" NO-LOCK NO-ERROR.
 IF AVAIL sys-ctrl AND sys-ctrl.char-fld = "LoylangBSF" THEN lv-print-bsf = YES.
     ELSE lv-print-bsf = NO.  /* controls the switch between Loylang and LoylangBSF at main level*/
+
+RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormLogo", "C" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+OUTPUT cRtnChar, OUTPUT lRecFound).
+
+ASSIGN ls-full-img1 = cRtnChar + ">" .
+
 FIND FIRST company WHERE company.company = cocode NO-LOCK NO-ERROR.
 
 FIND FIRST oe-ctrl WHERE oe-ctrl.company = cocode NO-LOCK NO-ERROR.
