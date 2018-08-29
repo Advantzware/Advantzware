@@ -33,14 +33,14 @@ CREATE WIDGET-POOL.
 
 /* Parameters Definitions ---                                           */
 &IF DEFINED(UIB_IS_RUNNING) NE 0 &THEN
-DEF VAR ip-post AS LOG INIT NO NO-UNDO.
+DEFINE VARIABLE ip-post AS LOG INIT NO NO-UNDO.
 &ELSE
-DEF INPUT PARAMETER ip-post AS LOG NO-UNDO.
+DEFINE INPUT PARAMETER ip-post AS LOG NO-UNDO.
 &ENDIF
 
 /* Local Variable Definitions ---                                       */
-DEF VAR list-name as cha no-undo.
-DEF VAR init-dir AS CHA NO-UNDO.
+DEFINE VARIABLE list-name AS cha NO-UNDO.
+DEFINE VARIABLE init-dir  AS CHA NO-UNDO.
 
 {methods/defines/hndldefs.i}
 {methods/prgsecur.i}
@@ -52,91 +52,91 @@ DEF VAR init-dir AS CHA NO-UNDO.
 
 {sys/inc/VAR.i new shared}
 
-assign
- cocode = gcompany
- locode = gloc.
+ASSIGN
+    cocode = gcompany
+    locode = gloc.
 
 {oe/oe-bolp1.i NEW}
 
-def buffer xfg-bin for fg-bin.
+DEFINE BUFFER xfg-bin FOR fg-bin.
 
-def var v-back like itemfg.q-back NO-UNDO.
-def var v-prt  as log init YES NO-UNDO.
-def var v-bol-bal like oe-boll.qty NO-UNDO.
-def var v-ref-no as INT NO-UNDO.
-def var v-rcpth-no as INT NO-UNDO.
-def var v-frst as log init NO NO-UNDO.
-def var v-ext-price like inv-line.t-price NO-UNDO.
-def var olinecnt as int init 0 NO-UNDO.
-def var frtcnt as log init NO NO-UNDO.
-def var v-create as LOG NO-UNDO.
-def var v-bo-ch as log no-undo.
-def var v-close-qty like oe-ordl.qty NO-UNDO.
+DEFINE VARIABLE v-back        LIKE itemfg.q-back NO-UNDO.
+DEFINE VARIABLE v-prt         AS LOG       INIT YES NO-UNDO.
+DEFINE VARIABLE v-bol-bal     LIKE oe-boll.qty NO-UNDO.
+DEFINE VARIABLE v-ref-no      AS INTEGER   NO-UNDO.
+DEFINE VARIABLE v-rcpth-no    AS INTEGER   NO-UNDO.
+DEFINE VARIABLE v-frst        AS LOG       INIT NO NO-UNDO.
+DEFINE VARIABLE v-ext-price   LIKE inv-line.t-price NO-UNDO.
+DEFINE VARIABLE olinecnt      AS INTEGER   INIT 0 NO-UNDO.
+DEFINE VARIABLE frtcnt        AS LOG       INIT NO NO-UNDO.
+DEFINE VARIABLE v-create      AS LOG       NO-UNDO.
+DEFINE VARIABLE v-bo-ch       AS LOG       NO-UNDO.
+DEFINE VARIABLE v-close-qty   LIKE oe-ordl.qty NO-UNDO.
 
-def var f as int no-undo.
-def var v-assign-comm as log init no no-undo.
-def var exist-amt as dec no-undo.
-def var exist-flag as log init no no-undo.
-def var exist-comm as dec extent 3 init 0 no-undo.
-def var temp-tax as dec init 0 no-undo.
-def var v-fg-qty like oe-boll.qty NO-UNDO.
-def var v-po-no like oe-rel.po-no NO-UNDO.
-def var v-rcpt-no as INT NO-UNDO.
-def var v-ship-inst as char extent 2 NO-UNDO.
-def var v-check-qty as log no-undo.
-DEF VAR v-fg-rctd-t AS LOG NO-UNDO.
+DEFINE VARIABLE f             AS INTEGER   NO-UNDO.
+DEFINE VARIABLE v-assign-comm AS LOG       INIT NO NO-UNDO.
+DEFINE VARIABLE exist-amt     AS DECIMAL   NO-UNDO.
+DEFINE VARIABLE exist-flag    AS LOG       INIT NO NO-UNDO.
+DEFINE VARIABLE exist-comm    AS DECIMAL   EXTENT 3 INIT 0 NO-UNDO.
+DEFINE VARIABLE temp-tax      AS DECIMAL   INIT 0 NO-UNDO.
+DEFINE VARIABLE v-fg-qty      LIKE oe-boll.qty NO-UNDO.
+DEFINE VARIABLE v-po-no       LIKE oe-rel.po-no NO-UNDO.
+DEFINE VARIABLE v-rcpt-no     AS INTEGER   NO-UNDO.
+DEFINE VARIABLE v-ship-inst   AS CHARACTER EXTENT 2 NO-UNDO.
+DEFINE VARIABLE v-check-qty   AS LOG       NO-UNDO.
+DEFINE VARIABLE v-fg-rctd-t   AS LOG       NO-UNDO.
 
-def TEMP-TABLE w-fg-bin NO-UNDO like fg-bin.
+DEFINE TEMP-TABLE w-fg-bin NO-UNDO LIKE fg-bin.
 
-DEF VAR v-invalid AS LOG NO-UNDO.
+DEFINE VARIABLE v-invalid AS LOG NO-UNDO.
 
 FORMAT
-  oe-bolh.bol-date
-  space(2)
-  oe-bolh.bol-no   format ">>>>>>>>"
-  space(2)
-  oe-bolh.carrier
-  space(4)
-  oe-bolh.trailer
-  space(2)
-  oe-bolh.freight  format "->>>,>>9"
-  space(2)
-  oe-bolh.cwt
-  space(3)
-  oe-bolh.tot-wt   format "->>>,>>9"
-  space(2)
-  oe-bolh.cust-no
-  space(4)
-  oe-bolh.ship-id
-  space(2)
-  oe-bolh.deleted AT 106 format "*DELETED*/ "
-  skip(1)
+    oe-bolh.bol-date
+    SPACE(2)
+    oe-bolh.bol-no   FORMAT ">>>>>>>>"
+    SPACE(2)
+    oe-bolh.carrier
+    SPACE(4)
+    oe-bolh.trailer
+    SPACE(2)
+    oe-bolh.freight  FORMAT "->>>,>>9"
+    SPACE(2)
+    oe-bolh.cwt
+    SPACE(3)
+    oe-bolh.tot-wt   FORMAT "->>>,>>9"
+    SPACE(2)
+    oe-bolh.cust-no
+    SPACE(4)
+    oe-bolh.ship-id
+    SPACE(2)
+    oe-bolh.deleted AT 106 FORMAT "*DELETED*/ "
+    SKIP(1)
 
-  header "Date           BOL.#  Carrier  Trailer    Freight    Rate     Tot WT  Cust#       Ship#   "
-         "----------  --------  -------  --------  --------  ------  ---------  --------    --------"
+    HEADER "Date           BOL.#  Carrier  Trailer    Freight    Rate     Tot WT  Cust#       Ship#   "
+    "----------  --------  -------  --------  --------  ------  ---------  --------    --------"
 
-  with stream-io width 132 no-labels no-box no-underline frame bolh.
+    WITH STREAM-IO WIDTH 132 NO-LABELS NO-BOX NO-UNDERLINE FRAME bolh.
 
-format
-  space(5)
-  oe-boll.i-no
-  itemfg.i-name    format "x(20)"
-  oe-boll.po-no
-  oe-boll.ord-no
-  oe-boll.rel-no   format ">>9" space(0) "-" space(0)
-  oe-boll.b-ord-no format "99"
-  oe-boll.loc
-  oe-boll.loc-bin
-  oe-boll.tag
-  oe-boll.cases    format "->>>,>>9"
-  oe-boll.qty-case format "->>>,>>9"
-  oe-boll.partial  format "->>>,>>9"
-  oe-boll.weight   format "->>>,>>9"
+FORMAT
+    SPACE(5)
+    oe-boll.i-no
+    itemfg.i-name    FORMAT "x(20)"
+    oe-boll.po-no
+    oe-boll.ord-no
+    oe-boll.rel-no   FORMAT ">>9" SPACE(0) "-" SPACE(0)
+    oe-boll.b-ord-no FORMAT "99"
+    oe-boll.loc
+    oe-boll.loc-bin
+    oe-boll.tag
+    oe-boll.cases    FORMAT "->>>,>>9"
+    oe-boll.qty-case FORMAT "->>>,>>9"
+    oe-boll.partial  FORMAT "->>>,>>9"
+    oe-boll.weight   FORMAT "->>>,>>9"
 
-  header
-  space(5) "Item#           Item Name            P.O. #            Ord#  Rel.# Whse. Bin Loc  Tag         Cases Qty/Case  Partial   Weight" skip
-  space(5) "--------------- -------------------- --------------- ------ ------ ----- -------- -------- -------- -------- -------- --------"
-  with stream-io width 132 DOWN no-labels no-box no-underline frame boll.
+    HEADER
+    SPACE(5) "Item#           Item Name            P.O. #            Ord#  Rel.# Whse. Bin Loc  Tag         Cases Qty/Case  Partial   Weight" SKIP
+    SPACE(5) "--------------- -------------------- --------------- ------ ------ ----- -------- -------- -------- -------- -------- --------"
+    WITH STREAM-IO WIDTH 132 DOWN NO-LABELS NO-BOX NO-UNDERLINE FRAME boll.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -171,155 +171,155 @@ lines-per-page rd-dest lv-font-no lv-font-name td-show-parm
 /* ***********************  Control Definitions  ********************** */
 
 /* Define the widget handle for the window                              */
-DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
+DEFINE VARIABLE C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btn-cancel AUTO-END-KEY 
-     LABEL "&Cancel" 
-     SIZE 15 BY 1.14.
+    LABEL "&Cancel" 
+    SIZE 15 BY 1.14.
 
 DEFINE BUTTON btn-ok 
-     LABEL "&OK" 
-     SIZE 15 BY 1.14.
+    LABEL "&OK" 
+    SIZE 15 BY 1.14.
 
-DEFINE VARIABLE begin_bolnum AS INTEGER FORMAT ">>>>>>>>":U INITIAL 0 
-     LABEL "Beginning BOL#" 
-     VIEW-AS FILL-IN 
-     SIZE 16 BY 1 NO-UNDO.
+DEFINE VARIABLE begin_bolnum   AS INTEGER   FORMAT ">>>>>>>>":U INITIAL 0 
+    LABEL "Beginning BOL#" 
+    VIEW-AS FILL-IN 
+    SIZE 16 BY 1 NO-UNDO.
 
-DEFINE VARIABLE begin_cust AS CHARACTER FORMAT "X(8)":U 
-     LABEL "Beginning Customer#" 
-     VIEW-AS FILL-IN 
-     SIZE 16 BY 1 NO-UNDO.
+DEFINE VARIABLE begin_cust     AS CHARACTER FORMAT "X(8)":U 
+    LABEL "Beginning Customer#" 
+    VIEW-AS FILL-IN 
+    SIZE 16 BY 1 NO-UNDO.
 
-DEFINE VARIABLE begin_date AS DATE FORMAT "99/99/9999":U INITIAL 01/01/001 
-     LABEL "Beginning BOL Date" 
-     VIEW-AS FILL-IN 
-     SIZE 16 BY 1 NO-UNDO.
+DEFINE VARIABLE begin_date     AS DATE      FORMAT "99/99/9999":U INITIAL 01/01/001 
+    LABEL "Beginning BOL Date" 
+    VIEW-AS FILL-IN 
+    SIZE 16 BY 1 NO-UNDO.
 
-DEFINE VARIABLE end_bolnum AS INTEGER FORMAT ">>>>>>>>":U INITIAL 99999999 
-     LABEL "Ending BOL#" 
-     VIEW-AS FILL-IN 
-     SIZE 16 BY 1 NO-UNDO.
+DEFINE VARIABLE end_bolnum     AS INTEGER   FORMAT ">>>>>>>>":U INITIAL 99999999 
+    LABEL "Ending BOL#" 
+    VIEW-AS FILL-IN 
+    SIZE 16 BY 1 NO-UNDO.
 
-DEFINE VARIABLE end_cust AS CHARACTER FORMAT "X(8)":U INITIAL "zzzzzzzz" 
-     LABEL "Ending Customer#" 
-     VIEW-AS FILL-IN 
-     SIZE 16 BY 1 NO-UNDO.
+DEFINE VARIABLE end_cust       AS CHARACTER FORMAT "X(8)":U INITIAL "zzzzzzzz" 
+    LABEL "Ending Customer#" 
+    VIEW-AS FILL-IN 
+    SIZE 16 BY 1 NO-UNDO.
 
-DEFINE VARIABLE end_date AS DATE FORMAT "99/99/9999":U INITIAL 12/31/9999 
-     LABEL "Ending BOL Date" 
-     VIEW-AS FILL-IN 
-     SIZE 16 BY 1 NO-UNDO.
+DEFINE VARIABLE end_date       AS DATE      FORMAT "99/99/9999":U INITIAL 12/31/9999 
+    LABEL "Ending BOL Date" 
+    VIEW-AS FILL-IN 
+    SIZE 16 BY 1 NO-UNDO.
 
-DEFINE VARIABLE fi_text-1 AS CHARACTER FORMAT "X(256)":U INITIAL "Selection Parameters" 
-     VIEW-AS FILL-IN 
-     SIZE 21.6 BY .71
-     BGCOLOR 2  NO-UNDO.
+DEFINE VARIABLE fi_text-1      AS CHARACTER FORMAT "X(256)":U INITIAL "Selection Parameters" 
+    VIEW-AS FILL-IN 
+    SIZE 21.6 BY .71
+    BGCOLOR 2 NO-UNDO.
 
-DEFINE VARIABLE lines-per-page AS INTEGER FORMAT ">>":U INITIAL 99 
-     LABEL "Lines Per Page" 
-     VIEW-AS FILL-IN 
-     SIZE 4 BY 1 NO-UNDO.
+DEFINE VARIABLE lines-per-page AS INTEGER   FORMAT ">>":U INITIAL 99 
+    LABEL "Lines Per Page" 
+    VIEW-AS FILL-IN 
+    SIZE 4 BY 1 NO-UNDO.
 
-DEFINE VARIABLE lv-font-name AS CHARACTER FORMAT "X(256)":U INITIAL "Courier New Size=7 (17 cpi for 132 column Report)" 
-     VIEW-AS FILL-IN 
-     SIZE 62 BY 1 NO-UNDO.
+DEFINE VARIABLE lv-font-name   AS CHARACTER FORMAT "X(256)":U INITIAL "Courier New Size=7 (17 cpi for 132 column Report)" 
+    VIEW-AS FILL-IN 
+    SIZE 62 BY 1 NO-UNDO.
 
-DEFINE VARIABLE lv-font-no AS CHARACTER FORMAT "X(256)":U INITIAL "11" 
-     LABEL "Font" 
-     VIEW-AS FILL-IN 
-     SIZE 7 BY 1 NO-UNDO.
+DEFINE VARIABLE lv-font-no     AS CHARACTER FORMAT "X(256)":U INITIAL "11" 
+    LABEL "Font" 
+    VIEW-AS FILL-IN 
+    SIZE 7 BY 1 NO-UNDO.
 
-DEFINE VARIABLE tran-date AS DATE FORMAT "99/99/9999":U INITIAL 01/01/001 
-     LABEL "Transaction Date" 
-     VIEW-AS FILL-IN 
-     SIZE 16 BY 1 NO-UNDO.
+DEFINE VARIABLE tran-date      AS DATE      FORMAT "99/99/9999":U INITIAL 01/01/001 
+    LABEL "Transaction Date" 
+    VIEW-AS FILL-IN 
+    SIZE 16 BY 1 NO-UNDO.
 
-DEFINE VARIABLE tran-period AS INTEGER FORMAT ">>":U INITIAL 99 
-     LABEL "Period" 
-     VIEW-AS FILL-IN 
-     SIZE 5 BY 1 NO-UNDO.
+DEFINE VARIABLE tran-period    AS INTEGER   FORMAT ">>":U INITIAL 99 
+    LABEL "Period" 
+    VIEW-AS FILL-IN 
+    SIZE 5 BY 1 NO-UNDO.
 
-DEFINE VARIABLE lv-ornt AS CHARACTER INITIAL "P" 
-     VIEW-AS RADIO-SET HORIZONTAL
-     RADIO-BUTTONS 
-          "Portrait", "P",
-"Landscape", "L"
-     SIZE 30 BY .95 NO-UNDO.
+DEFINE VARIABLE lv-ornt        AS CHARACTER INITIAL "P" 
+    VIEW-AS RADIO-SET HORIZONTAL
+    RADIO-BUTTONS 
+    "Portrait", "P",
+    "Landscape", "L"
+    SIZE 30 BY .95 NO-UNDO.
 
-DEFINE VARIABLE rd-dest AS INTEGER INITIAL 2 
-     VIEW-AS RADIO-SET VERTICAL
-     RADIO-BUTTONS 
-          "To Printer", 1,
-"To Screen", 2,
-"To File", 3
-     SIZE 21 BY 3.81 NO-UNDO.
+DEFINE VARIABLE rd-dest        AS INTEGER   INITIAL 2 
+    VIEW-AS RADIO-SET VERTICAL
+    RADIO-BUTTONS 
+    "To Printer", 1,
+    "To Screen", 2,
+    "To File", 3
+    SIZE 21 BY 3.81 NO-UNDO.
 
 DEFINE RECTANGLE RECT-6
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL 
-     SIZE 94 BY 7.14.
+    EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL 
+    SIZE 94 BY 7.14.
 
 DEFINE RECTANGLE RECT-7
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL 
-     SIZE 94 BY 10.24.
+    EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL 
+    SIZE 94 BY 10.24.
 
-DEFINE VARIABLE td-show-parm AS LOGICAL INITIAL no 
-     LABEL "Show Parameters?" 
-     VIEW-AS TOGGLE-BOX
-     SIZE 24 BY .81 NO-UNDO.
+DEFINE VARIABLE td-show-parm AS LOGICAL INITIAL NO 
+    LABEL "Show Parameters?" 
+    VIEW-AS TOGGLE-BOX
+    SIZE 24 BY .81 NO-UNDO.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME FRAME-A
-     fi_text-1 AT ROW 1.24 COL 3 COLON-ALIGNED NO-LABEL
-     tran-date AT ROW 2.43 COL 36 COLON-ALIGNED
-     tran-period AT ROW 2.43 COL 64 COLON-ALIGNED
-     begin_bolnum AT ROW 3.86 COL 28 COLON-ALIGNED HELP
-          "Enter the beginning BOL number"
-     end_bolnum AT ROW 3.86 COL 73 COLON-ALIGNED HELP
-          "Enter the ending BOL number"
-     begin_date AT ROW 4.81 COL 28 COLON-ALIGNED HELP
-          "Enter the beginning BOL date"
-     end_date AT ROW 4.81 COL 73 COLON-ALIGNED HELP
-          "Enter the ending BOL date"
-     begin_cust AT ROW 5.76 COL 28 COLON-ALIGNED HELP
-          "Enter the beginning customer number"
-     end_cust AT ROW 5.76 COL 73 COLON-ALIGNED HELP
-          "Enter the ending customer number"
-     lv-ornt AT ROW 12.91 COL 30 NO-LABEL
-     lines-per-page AT ROW 12.91 COL 83 COLON-ALIGNED
-     rd-dest AT ROW 13.14 COL 6 NO-LABEL
-     lv-font-no AT ROW 15.29 COL 34 COLON-ALIGNED
-     lv-font-name AT ROW 16.24 COL 28 COLON-ALIGNED NO-LABEL
-     td-show-parm AT ROW 17.19 COL 6
-     btn-ok AT ROW 19.33 COL 23
-     btn-cancel AT ROW 19.33 COL 58
-     "Output Destination" VIEW-AS TEXT
-          SIZE 18 BY .62 AT ROW 11.71 COL 4
-     RECT-6 AT ROW 11.48 COL 1
-     RECT-7 AT ROW 1 COL 1
+    fi_text-1 AT ROW 1.24 COL 3 COLON-ALIGNED NO-LABELS
+    tran-date AT ROW 2.43 COL 36 COLON-ALIGNED
+    tran-period AT ROW 2.43 COL 64 COLON-ALIGNED
+    begin_bolnum AT ROW 3.86 COL 28 COLON-ALIGNED HELP
+    "Enter the beginning BOL number"
+    end_bolnum AT ROW 3.86 COL 73 COLON-ALIGNED HELP
+    "Enter the ending BOL number"
+    begin_date AT ROW 4.81 COL 28 COLON-ALIGNED HELP
+    "Enter the beginning BOL date"
+    end_date AT ROW 4.81 COL 73 COLON-ALIGNED HELP
+    "Enter the ending BOL date"
+    begin_cust AT ROW 5.76 COL 28 COLON-ALIGNED HELP
+    "Enter the beginning customer number"
+    end_cust AT ROW 5.76 COL 73 COLON-ALIGNED HELP
+    "Enter the ending customer number"
+    lv-ornt AT ROW 12.91 COL 30 NO-LABELS
+    lines-per-page AT ROW 12.91 COL 83 COLON-ALIGNED
+    rd-dest AT ROW 13.14 COL 6 NO-LABELS
+    lv-font-no AT ROW 15.29 COL 34 COLON-ALIGNED
+    lv-font-name AT ROW 16.24 COL 28 COLON-ALIGNED NO-LABELS
+    td-show-parm AT ROW 17.19 COL 6
+    btn-ok AT ROW 19.33 COL 23
+    btn-cancel AT ROW 19.33 COL 58
+    "Output Destination" VIEW-AS TEXT
+    SIZE 18 BY .62 AT ROW 11.71 COL 4
+    RECT-6 AT ROW 11.48 COL 1
+    RECT-7 AT ROW 1 COL 1
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1.6 ROW 1.24
-         SIZE 95 BY 21.29.
+    SIDE-LABELS NO-UNDERLINE THREE-D 
+    AT COL 1.6 ROW 1.24
+    SIZE 95 BY 21.29.
 
 DEFINE FRAME FRAME-E
-     "posted to all orders." VIEW-AS TEXT
-          SIZE 26 BY 1.19 AT ROW 2.43 COL 15
-          BGCOLOR 11 FGCOLOR 12 FONT 5
-     "The Edit List will show all available bills of lading to be" VIEW-AS TEXT
-          SIZE 65 BY 1.19 AT ROW 1.24 COL 15
-          BGCOLOR 11 FGCOLOR 12 FONT 5
-     "Bills of Lading MUST BE printed prior to posting!" VIEW-AS TEXT
-          SIZE 61 BY .95 AT ROW 3.86 COL 15
-          BGCOLOR 11 FONT 5
+    "posted to all orders." VIEW-AS TEXT
+    SIZE 26 BY 1.19 AT ROW 2.43 COL 15
+    BGCOLOR 11 FGCOLOR 12 FONT 5
+    "The Edit List will show all available bills of lading to be" VIEW-AS TEXT
+    SIZE 65 BY 1.19 AT ROW 1.24 COL 15
+    BGCOLOR 11 FGCOLOR 12 FONT 5
+    "Bills of Lading MUST BE printed prior to posting!" VIEW-AS TEXT
+    SIZE 61 BY .95 AT ROW 3.86 COL 15
+    BGCOLOR 11 FONT 5
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 7.19
-         SIZE 94 BY 4.29
-         BGCOLOR 11 .
+    SIDE-LABELS NO-UNDERLINE THREE-D 
+    AT COL 1 ROW 7.19
+    SIZE 94 BY 4.29
+    BGCOLOR 11 .
 
 
 /* *********************** Procedure Settings ************************ */
@@ -336,30 +336,30 @@ DEFINE FRAME FRAME-E
 
 &ANALYZE-SUSPEND _CREATE-WINDOW
 IF SESSION:DISPLAY-TYPE = "GUI":U THEN
-  CREATE WINDOW C-Win ASSIGN
-         HIDDEN             = YES
-         TITLE              = "BOL Edit List & Posting"
-         HEIGHT             = 21.86
-         WIDTH              = 95.8
-         MAX-HEIGHT         = 33.29
-         MAX-WIDTH          = 204.8
-         VIRTUAL-HEIGHT     = 33.29
-         VIRTUAL-WIDTH      = 204.8
-         RESIZE             = yes
-         SCROLL-BARS        = no
-         STATUS-AREA        = yes
-         BGCOLOR            = ?
-         FGCOLOR            = ?
-         KEEP-FRAME-Z-ORDER = yes
-         THREE-D            = yes
-         MESSAGE-AREA       = no
-         SENSITIVE          = yes.
+    CREATE WINDOW C-Win ASSIGN
+        HIDDEN             = YES
+        TITLE              = "BOL Edit List & Posting"
+        HEIGHT             = 21.86
+        WIDTH              = 95.8
+        MAX-HEIGHT         = 33.29
+        MAX-WIDTH          = 204.8
+        VIRTUAL-HEIGHT     = 33.29
+        VIRTUAL-WIDTH      = 204.8
+        RESIZE             = YES
+        SCROLL-BARS        = NO
+        STATUS-AREA        = YES
+        BGCOLOR            = ?
+        FGCOLOR            = ?
+        KEEP-FRAME-Z-ORDER = YES
+        THREE-D            = YES
+        MESSAGE-AREA       = NO
+        SENSITIVE          = YES.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 &IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
 IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
     MESSAGE "Unable to load icon: Graphics\asiicon.ico"
-            VIEW-AS ALERT-BOX WARNING BUTTONS OK.
+        VIEW-AS ALERT-BOX WARNING BUTTONS OK.
 &ENDIF
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
@@ -372,58 +372,50 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
 /* SETTINGS FOR WINDOW C-Win
   VISIBLE,,RUN-PERSISTENT                                               */
 /* REPARENT FRAME */
-ASSIGN FRAME FRAME-E:FRAME = FRAME FRAME-A:HANDLE.
+ASSIGN 
+    FRAME FRAME-E:FRAME = FRAME FRAME-A:HANDLE.
 
 /* SETTINGS FOR FRAME FRAME-A
                                                                         */
 ASSIGN
-       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "ribbon-button".
+    btn-cancel:PRIVATE-DATA IN FRAME FRAME-A = "ribbon-button".
 
 
 ASSIGN
-       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "ribbon-button".
+    btn-ok:PRIVATE-DATA IN FRAME FRAME-A = "ribbon-button".
 
 
 ASSIGN 
-       begin_bolnum:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "parm".
+    begin_bolnum:PRIVATE-DATA IN FRAME FRAME-A = "parm".
 
 ASSIGN 
-       begin_cust:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "parm".
+    begin_cust:PRIVATE-DATA IN FRAME FRAME-A = "parm".
 
 ASSIGN 
-       begin_date:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "parm".
+    begin_date:PRIVATE-DATA IN FRAME FRAME-A = "parm".
 
 ASSIGN 
-       end_bolnum:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "parm".
+    end_bolnum:PRIVATE-DATA IN FRAME FRAME-A = "parm".
 
 ASSIGN 
-       end_cust:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "parm".
+    end_cust:PRIVATE-DATA IN FRAME FRAME-A = "parm".
 
 ASSIGN 
-       end_date:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "parm".
+    end_date:PRIVATE-DATA IN FRAME FRAME-A = "parm".
 
 /* SETTINGS FOR FILL-IN fi_text-1 IN FRAME FRAME-A
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN lv-font-name IN FRAME FRAME-A
    NO-ENABLE                                                            */
 ASSIGN 
-       tran-date:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "parm".
+    tran-date:PRIVATE-DATA IN FRAME FRAME-A = "parm".
 
 /* SETTINGS FOR FILL-IN tran-period IN FRAME FRAME-A
    NO-ENABLE                                                            */
 /* SETTINGS FOR FRAME FRAME-E
                                                                         */
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
-THEN C-Win:HIDDEN = no.
+    THEN C-Win:HIDDEN = NO.
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -446,12 +438,13 @@ THEN C-Win:HIDDEN = no.
 &Scoped-define SELF-NAME C-Win
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
 ON END-ERROR OF C-Win /* BOL Edit List  Posting */
-OR ENDKEY OF {&WINDOW-NAME} ANYWHERE DO:
-  /* This case occurs when the user presses the "Esc" key.
-     In a persistently run window, just ignore this.  If we did not, the
-     application would exit. */
-  IF THIS-PROCEDURE:PERSISTENT THEN RETURN NO-APPLY.
-END.
+    OR ENDKEY OF {&WINDOW-NAME} ANYWHERE 
+    DO:
+        /* This case occurs when the user presses the "Esc" key.
+           In a persistently run window, just ignore this.  If we did not, the
+           application would exit. */
+        IF THIS-PROCEDURE:PERSISTENT THEN RETURN NO-APPLY.
+    END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -459,11 +452,11 @@ END.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
 ON WINDOW-CLOSE OF C-Win /* BOL Edit List  Posting */
-DO:
-  /* This event will close the window and terminate the procedure.  */
-  APPLY "CLOSE":U TO THIS-PROCEDURE.
-  RETURN NO-APPLY.
-END.
+    DO:
+        /* This event will close the window and terminate the procedure.  */
+        APPLY "CLOSE":U TO THIS-PROCEDURE.
+        RETURN NO-APPLY.
+    END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -472,9 +465,9 @@ END.
 &Scoped-define SELF-NAME begin_bolnum
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_bolnum C-Win
 ON LEAVE OF begin_bolnum IN FRAME FRAME-A /* Beginning BOL# */
-DO:
-  ASSIGN {&self-name}.
-END.
+    DO:
+        ASSIGN {&self-name}.
+    END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -483,9 +476,9 @@ END.
 &Scoped-define SELF-NAME begin_cust
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_cust C-Win
 ON LEAVE OF begin_cust IN FRAME FRAME-A /* Beginning Customer# */
-DO:
-  ASSIGN {&self-name}.
-END.
+    DO:
+        ASSIGN {&self-name}.
+    END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -494,9 +487,9 @@ END.
 &Scoped-define SELF-NAME begin_date
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_date C-Win
 ON LEAVE OF begin_date IN FRAME FRAME-A /* Beginning BOL Date */
-DO:
-  ASSIGN {&self-name}.
-END.
+    DO:
+        ASSIGN {&self-name}.
+    END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -505,9 +498,9 @@ END.
 &Scoped-define SELF-NAME btn-cancel
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-cancel C-Win
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
-DO:
-   apply "close" to this-procedure.
-END.
+    DO:
+        APPLY "close" TO THIS-PROCEDURE.
+    END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -516,53 +509,56 @@ END.
 &Scoped-define SELF-NAME btn-ok
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-ok C-Win
 ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
-DO:
-  DEF VAR lv-post AS LOG NO-UNDO.
+    DO:
+        DEFINE VARIABLE lv-post AS LOG NO-UNDO.
 
 
-  run check-date.
-  if v-invalid then return no-apply.
+        RUN check-date.
+        IF v-invalid THEN RETURN NO-APPLY.
 
-  DO WITH FRAME {&FRAME-NAME}:
-    ASSIGN {&displayed-objects}.
-  END.
+        DO WITH FRAME {&FRAME-NAME}:
+            ASSIGN {&displayed-objects}.
+        END.
 
-  ASSIGN
-   v-s-bol    = begin_bolnum
-   v-e-bol    = end_bolnum
-   v-s-date   = begin_date
-   v-e-date   = end_date
-   v-s-cust   = begin_cust
-   v-e-cust   = end_cust
-   v-no-post  = 0
-   v-tot-post = 0
-   v-tried    = no.
+        ASSIGN
+            v-s-bol    = begin_bolnum
+            v-e-bol    = end_bolnum
+            v-s-date   = begin_date
+            v-e-date   = end_date
+            v-s-cust   = begin_cust
+            v-e-cust   = end_cust
+            v-no-post  = 0
+            v-tot-post = 0
+            v-tried    = NO.
 
-  run run-report. 
+        RUN run-report. 
 
-  case rd-dest:
-       when 1 then run output-to-printer.
-       when 2 then run output-to-screen.
-       when 3 then run output-to-file.
-  end case.
+        CASE rd-dest:
+            WHEN 1 THEN RUN output-to-printer.
+            WHEN 2 THEN RUN output-to-screen.
+            WHEN 3 THEN RUN output-to-file.
+        END CASE.
 
-  IF ip-post THEN DO:
-    IF v-tot-post GT 0 THEN DO:
-      lv-post = NO.
+        IF ip-post THEN 
+        DO:
+            IF v-tot-post GT 0 THEN 
+            DO:
+                lv-post = NO.
 
-      MESSAGE "Post BOLs?"
-              VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
-              UPDATE lv-post.
+                MESSAGE "Post BOLs?"
+                    VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
+                    UPDATE lv-post.
 
-      IF lv-post THEN DO:
-        RUN post-bols.      
-        MESSAGE "Posting Complete" VIEW-AS ALERT-BOX.
-      END.
+                IF lv-post THEN 
+                DO:
+                    RUN post-bols.      
+                    MESSAGE "Posting Complete" VIEW-AS ALERT-BOX.
+                END.
+            END.
+
+            ELSE MESSAGE "No BOLs available for posting..." VIEW-AS ALERT-BOX ERROR.
+        END.
     END.
-
-    ELSE MESSAGE "No BOLs available for posting..." VIEW-AS ALERT-BOX ERROR.
-  END.
-END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -571,9 +567,9 @@ END.
 &Scoped-define SELF-NAME end_bolnum
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_bolnum C-Win
 ON LEAVE OF end_bolnum IN FRAME FRAME-A /* Ending BOL# */
-DO:
-  ASSIGN {&self-name}.
-END.
+    DO:
+        ASSIGN {&self-name}.
+    END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -582,9 +578,9 @@ END.
 &Scoped-define SELF-NAME end_cust
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_cust C-Win
 ON LEAVE OF end_cust IN FRAME FRAME-A /* Ending Customer# */
-DO:
-  ASSIGN {&self-name}.
-END.
+    DO:
+        ASSIGN {&self-name}.
+    END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -593,9 +589,9 @@ END.
 &Scoped-define SELF-NAME end_date
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_date C-Win
 ON LEAVE OF end_date IN FRAME FRAME-A /* Ending BOL Date */
-DO:
-  ASSIGN {&self-name}.
-END.
+    DO:
+        ASSIGN {&self-name}.
+    END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -604,9 +600,9 @@ END.
 &Scoped-define SELF-NAME lines-per-page
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lines-per-page C-Win
 ON LEAVE OF lines-per-page IN FRAME FRAME-A /* Lines Per Page */
-DO:
-  assign {&self-name}.
-END.
+    DO:
+        ASSIGN {&self-name}.
+    END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -615,14 +611,14 @@ END.
 &Scoped-define SELF-NAME lv-font-no
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lv-font-no C-Win
 ON HELP OF lv-font-no IN FRAME FRAME-A /* Font */
-DO:
-    DEF VAR char-val AS cha NO-UNDO.
+    DO:
+        DEFINE VARIABLE char-val AS cha NO-UNDO.
 
-    RUN WINDOWS/l-fonts.w (FOCUS:SCREEN-VALUE, OUTPUT char-val).
-    IF char-val <> "" THEN ASSIGN FOCUS:SCREEN-VALUE = ENTRY(1,char-val)
-                                  LV-FONT-NAME:SCREEN-VALUE = ENTRY(2,char-val).
+        RUN WINDOWS/l-fonts.w (FOCUS:SCREEN-VALUE, OUTPUT char-val).
+        IF char-val <> "" THEN ASSIGN FOCUS:SCREEN-VALUE        = ENTRY(1,char-val)
+                LV-FONT-NAME:SCREEN-VALUE = ENTRY(2,char-val).
 
-END.
+    END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -630,9 +626,9 @@ END.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lv-font-no C-Win
 ON LEAVE OF lv-font-no IN FRAME FRAME-A /* Font */
-DO:
-   ASSIGN lv-font-no.
-END.
+    DO:
+        ASSIGN lv-font-no.
+    END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -641,9 +637,9 @@ END.
 &Scoped-define SELF-NAME lv-ornt
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lv-ornt C-Win
 ON LEAVE OF lv-ornt IN FRAME FRAME-A
-DO:
-  ASSIGN lv-ornt.
-END.
+    DO:
+        ASSIGN lv-ornt.
+    END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -651,9 +647,9 @@ END.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lv-ornt C-Win
 ON VALUE-CHANGED OF lv-ornt IN FRAME FRAME-A
-DO:
-  {custom/chgfont.i}
-END.
+    DO:
+    {custom/chgfont.i}
+    END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -662,9 +658,9 @@ END.
 &Scoped-define SELF-NAME rd-dest
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rd-dest C-Win
 ON VALUE-CHANGED OF rd-dest IN FRAME FRAME-A
-DO:
-  assign {&self-name}.
-END.
+    DO:
+        ASSIGN {&self-name}.
+    END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -673,9 +669,9 @@ END.
 &Scoped-define SELF-NAME td-show-parm
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL td-show-parm C-Win
 ON VALUE-CHANGED OF td-show-parm IN FRAME FRAME-A /* Show Parameters? */
-DO:
-    assign {&self-name}.
-END.
+    DO:
+        ASSIGN {&self-name}.
+    END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -684,14 +680,15 @@ END.
 &Scoped-define SELF-NAME tran-date
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tran-date C-Win
 ON LEAVE OF tran-date IN FRAME FRAME-A /* Transaction Date */
-DO:
-  assign {&self-name}.
+    DO:
+        ASSIGN {&self-name}.
 
-  if lastkey ne -1 then do:
-    run check-date.
-    if v-invalid then return no-apply.
-  end.
-END.
+        IF LASTKEY NE -1 THEN 
+        DO:
+            RUN check-date.
+            IF v-invalid THEN RETURN NO-APPLY.
+        END.
+    END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -700,9 +697,9 @@ END.
 &Scoped-define SELF-NAME tran-period
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tran-period C-Win
 ON LEAVE OF tran-period IN FRAME FRAME-A /* Period */
-DO:
-  assign {&self-name}.
-END.
+    DO:
+        ASSIGN {&self-name}.
+    END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -715,7 +712,7 @@ END.
 
 /* ***************************  Main Block  *************************** */    
 {sys/inc/f3helpw.i}
-DEF VAR choice AS LOG NO-UNDO.
+DEFINE VARIABLE choice AS LOG NO-UNDO.
 
 /* Set CURRENT-WINDOW: this will parent dialog-boxes and frames.        */
 ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME} 
@@ -724,7 +721,7 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
 ON CLOSE OF THIS-PROCEDURE 
-   RUN disable_UI.
+    RUN disable_UI.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -733,64 +730,68 @@ PAUSE 0 BEFORE-HIDE.
 /* (NOTE: handle ERROR and END-KEY so cleanup code will always fire.    */
 MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
-   ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
+    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
 
-/* security check need {methods/prgsecur.i} in definition section */
-  IF access-close THEN DO:
-     APPLY "close" TO THIS-PROCEDURE.
-     RETURN .
-  END.
+    /* security check need {methods/prgsecur.i} in definition section */
+    IF access-close THEN 
+    DO:
+        APPLY "close" TO THIS-PROCEDURE.
+        RETURN .
+    END.
 
-  assign
-   tran-date   = today
-   begin_date  = TODAY
-   end_date    = TODAY
-   c-win:TITLE = IF ip-post THEN "BOL Posting/Create Invoice"
+    ASSIGN
+        tran-date   = TODAY
+        begin_date  = TODAY
+        end_date    = TODAY
+        c-win:TITLE = IF ip-post THEN "BOL Posting/Create Invoice"
                             ELSE "BOL Edit List".
 
-  find first oe-ctrl where oe-ctrl.company eq cocode no-lock no-error.
-  v-u-inv = oe-ctrl.u-inv.
+    FIND FIRST oe-ctrl WHERE oe-ctrl.company EQ cocode NO-LOCK NO-ERROR.
+    v-u-inv = oe-ctrl.u-inv.
 
-  find first sys-ctrl
-      where sys-ctrl.company eq cocode
-        and sys-ctrl.name    eq "BOLPOST"
-      no-lock no-error.
-  if not avail sys-ctrl then do transaction:
-    create sys-ctrl.
-    assign
-     sys-ctrl.company = cocode
-     sys-ctrl.name    = "BOLPOST"
-     sys-ctrl.descrip = "Post BOL if BOL Qty > Bin Qty"
-     choice           = yes.
+    FIND FIRST sys-ctrl
+        WHERE sys-ctrl.company EQ cocode
+        AND sys-ctrl.name    EQ "BOLPOST"
+        NO-LOCK NO-ERROR.
+    IF NOT AVAILABLE sys-ctrl THEN 
+    DO TRANSACTION:
+        CREATE sys-ctrl.
+        ASSIGN
+            sys-ctrl.company = cocode
+            sys-ctrl.name    = "BOLPOST"
+            sys-ctrl.descrip = "Post BOL if BOL Qty > Bin Qty"
+            choice           = YES.
 
-    MESSAGE sys-ctrl.descrip
-        VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
-        UPDATE choice.
+        MESSAGE sys-ctrl.descrip
+            VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
+            UPDATE choice.
 
-    if not choice then sys-ctrl.char-fld eq "Bin>Qty".
-  end.
-  ASSIGN
-     v-check-qty = sys-ctrl.char-fld eq "Bin>Qty"
-     v-fg-rctd-t = sys-ctrl.int-fld EQ 0.
+        IF NOT choice THEN sys-ctrl.char-fld EQ "Bin>Qty".
+    END.
+    ASSIGN
+        v-check-qty = sys-ctrl.char-fld EQ "Bin>Qty"
+        v-fg-rctd-t = sys-ctrl.int-fld EQ 0.
 
-  RUN enable_UI.
+    RUN enable_UI.
 
-  RUN check-date.
+    RUN check-date.
 
-  IF ip-post THEN DO:
-    fi_text-1:BGCOLOR = ?.
-    DISPLAY fi_text-1.
-  END.
+    IF ip-post THEN 
+    DO:
+        fi_text-1:BGCOLOR = ?.
+        DISPLAY fi_text-1.
+    END.
 
-  {methods/nowait.i}
+    {methods/nowait.i}
 
-  IF NOT ip-post THEN DO WITH FRAME {&FRAME-NAME}:
-    {custom/usrprint.i}
-    APPLY "entry" TO begin_bolnum.  
-    DISABLE tran-date tran-period.
-  END.
+    IF NOT ip-post THEN 
+    DO WITH FRAME {&FRAME-NAME}:
+        {custom/usrprint.i}
+APPLY "entry" TO begin_bolnum.  
+DISABLE tran-date tran-period.
+END.
 
-  IF NOT THIS-PROCEDURE:PERSISTENT THEN
+IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
 
@@ -802,27 +803,28 @@ END.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE check-date C-Win 
 PROCEDURE check-date :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  DO with frame {&frame-name}:
-    v-invalid = no.
+    /*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+    DO WITH FRAME {&frame-name}:
+        v-invalid = NO.
 
-    find first period                   
-        where period.company eq cocode
-          and period.pst     le tran-date
-          and period.pend    ge tran-date
-        no-lock no-error.
-    if avail period then tran-period:SCREEN-VALUE = string(period.pnum).
+        FIND FIRST period                   
+            WHERE period.company EQ cocode
+            AND period.pst     LE tran-date
+            AND period.pend    GE tran-date
+            NO-LOCK NO-ERROR.
+        IF AVAILABLE period THEN tran-period:SCREEN-VALUE = STRING(period.pnum).
 
-    else
-    IF ip-post THEN DO:
-      message "No Defined Period Exists for" tran-date view-as alert-box error.
-      v-invalid = yes.
-    end.
-  END.
+        ELSE
+            IF ip-post THEN 
+            DO:
+                MESSAGE "No Defined Period Exists for" tran-date VIEW-AS ALERT-BOX ERROR.
+                v-invalid = YES.
+            END.
+    END.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -830,24 +832,24 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE create-nopost C-Win 
 PROCEDURE create-nopost :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  DEF INPUT PARAMETER ip-reason LIKE w-nopost.reason NO-UNDO.
+    /*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ip-reason LIKE w-nopost.reason NO-UNDO.
 
 
-  create w-nopost.
-  assign
-   w-nopost.ord-no   = oe-boll.ord-no
-   w-nopost.bol-date = oe-bolh.BOL-date
-   w-nopost.bol-no   = oe-bolh.BOL-no
-   w-nopost.rel-no   = oe-boll.REL-no
-   w-nopost.b-ord-no = oe-boll.b-ord-no
-   w-nopost.cust-no  = oe-bolh.cust-no
-   w-nopost.po-no    = oe-boll.PO-NO
-   w-nopost.reason   = ip-reason.
+    CREATE w-nopost.
+    ASSIGN
+        w-nopost.ord-no   = oe-boll.ord-no
+        w-nopost.bol-date = oe-bolh.BOL-date
+        w-nopost.bol-no   = oe-bolh.BOL-no
+        w-nopost.rel-no   = oe-boll.REL-no
+        w-nopost.b-ord-no = oe-boll.b-ord-no
+        w-nopost.cust-no  = oe-bolh.cust-no
+        w-nopost.po-no    = oe-boll.PO-NO
+        w-nopost.reason   = ip-reason.
 
 END PROCEDURE.
 
@@ -856,18 +858,18 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI C-Win  _DEFAULT-DISABLE
 PROCEDURE disable_UI :
-/*------------------------------------------------------------------------------
-  Purpose:     DISABLE the User Interface
-  Parameters:  <none>
-  Notes:       Here we clean-up the user-interface by deleting
-               dynamic widgets we have created and/or hide 
-               frames.  This procedure is usually called when
-               we are ready to "clean-up" after running.
-------------------------------------------------------------------------------*/
-  /* Delete the WINDOW we created */
-  IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
-  THEN DELETE WIDGET C-Win.
-  IF THIS-PROCEDURE:PERSISTENT THEN DELETE PROCEDURE THIS-PROCEDURE.
+    /*------------------------------------------------------------------------------
+      Purpose:     DISABLE the User Interface
+      Parameters:  <none>
+      Notes:       Here we clean-up the user-interface by deleting
+                   dynamic widgets we have created and/or hide 
+                   frames.  This procedure is usually called when
+                   we are ready to "clean-up" after running.
+    ------------------------------------------------------------------------------*/
+    /* Delete the WINDOW we created */
+    IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
+        THEN DELETE WIDGET C-Win.
+    IF THIS-PROCEDURE:PERSISTENT THEN DELETE PROCEDURE THIS-PROCEDURE.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -875,27 +877,27 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE enable_UI C-Win  _DEFAULT-ENABLE
 PROCEDURE enable_UI :
-/*------------------------------------------------------------------------------
-  Purpose:     ENABLE the User Interface
-  Parameters:  <none>
-  Notes:       Here we display/view/enable the widgets in the
-               user-interface.  In addition, OPEN all queries
-               associated with each FRAME and BROWSE.
-               These statements here are based on the "Other 
-               Settings" section of the widget Property Sheets.
-------------------------------------------------------------------------------*/
-  DISPLAY fi_text-1 tran-date tran-period begin_bolnum end_bolnum begin_date 
-          end_date begin_cust end_cust lv-ornt lines-per-page rd-dest lv-font-no 
-          lv-font-name td-show-parm 
-      WITH FRAME FRAME-A IN WINDOW C-Win.
-  ENABLE RECT-6 RECT-7 tran-date begin_bolnum end_bolnum begin_date end_date 
-         begin_cust end_cust lv-ornt lines-per-page rd-dest lv-font-no 
-         td-show-parm btn-ok btn-cancel 
-      WITH FRAME FRAME-A IN WINDOW C-Win.
-  {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
-  VIEW FRAME FRAME-E IN WINDOW C-Win.
-  {&OPEN-BROWSERS-IN-QUERY-FRAME-E}
-  VIEW C-Win.
+    /*------------------------------------------------------------------------------
+      Purpose:     ENABLE the User Interface
+      Parameters:  <none>
+      Notes:       Here we display/view/enable the widgets in the
+                   user-interface.  In addition, OPEN all queries
+                   associated with each FRAME and BROWSE.
+                   These statements here are based on the "Other 
+                   Settings" section of the widget Property Sheets.
+    ------------------------------------------------------------------------------*/
+    DISPLAY fi_text-1 tran-date tran-period begin_bolnum end_bolnum begin_date 
+        end_date begin_cust end_cust lv-ornt lines-per-page rd-dest lv-font-no 
+        lv-font-name td-show-parm 
+        WITH FRAME FRAME-A IN WINDOW C-Win.
+    ENABLE RECT-6 RECT-7 tran-date begin_bolnum end_bolnum begin_date end_date 
+        begin_cust end_cust lv-ornt lines-per-page rd-dest lv-font-no 
+        td-show-parm btn-ok btn-cancel 
+        WITH FRAME FRAME-A IN WINDOW C-Win.
+    {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
+    VIEW FRAME FRAME-E IN WINDOW C-Win.
+    {&OPEN-BROWSERS-IN-QUERY-FRAME-E}
+    VIEW C-Win.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -907,66 +909,68 @@ PROCEDURE exception-rpt :
 /* BOL posting Exception Report                                               */
 /* -------------------------------------------------------------------------- */
 
-{sys/form/r-top3w.f}
+    {sys/form/r-top3w.f}
 
-FORM HEADER SKIP(1) WITH FRAME r-top.
+    FORM HEADER SKIP(1) WITH FRAME r-top.
 
 
-  FIND first period                   
-      where period.company eq gcompany
-        and period.pst     le tran-date
-        and period.pend    ge tran-date
-      no-lock no-error.
+    FIND FIRST period                   
+        WHERE period.company EQ gcompany
+        AND period.pst     LE tran-date
+        AND period.pend    GE tran-date
+        NO-LOCK NO-ERROR.
 
-  assign
-   str-tit2 = "BOL - Insufficient Inventory Report"
-   {sys/inc/ctrtext.i str-tit2 112}
+    ASSIGN
+        str-tit2 = "BOL - Insufficient Inventory Report"
+        {sys/inc/ctrtext.i str-tit2 112}
 
-   str-tit3 = "Period " + STRING(tran-period,"99") + " - " +
-              IF AVAIL period THEN
+        str-tit3 = "Period " + STRING(tran-period,"99") + " - " +
+              IF AVAILABLE period THEN
                 (STRING(period.pst) + " to " + STRING(period.pend)) ELSE ""
-   {sys/inc/ctrtext.i str-tit3 132}.
+        {sys/inc/ctrtext.i str-tit3 132}.
 
-  {sys/inc/print1.i}
+    {sys/inc/print1.i}
 
-  {sys/inc/outprint.i value(lines-per-page)}
+    {sys/inc/outprint.i value(lines-per-page)}
 
-  display with frame r-top.
+    DISPLAY WITH FRAME r-top.
 
-  for each w-except,
+    FOR EACH w-except,
 
-      first oe-bolh
-      where oe-bolh.company eq cocode
-        and oe-bolh.bol-no  eq w-except.bol-no
-      no-lock
+        FIRST oe-bolh
+        WHERE oe-bolh.company EQ cocode
+        AND oe-bolh.bol-no  EQ w-except.bol-no
+        NO-LOCK
 
-     break by w-except.bol-no
-           by w-except.ord-no
-           by w-except.rel-no
-           by w-except.b-ord-no:
+        BREAK BY w-except.bol-no
+        BY w-except.ord-no
+        BY w-except.rel-no
+        BY w-except.b-ord-no:
 
-    if first-of(w-except.bol-no) then do:
-      display oe-bolh.bol-date
-              oe-bolh.bol-no
-              oe-bolh.carrier
-              oe-bolh.trailer
-              oe-bolh.freight
-              oe-bolh.cwt
-              oe-bolh.tot-wt
-              oe-bolh.cust-no
-              oe-bolh.ship-id
-              oe-bolh.deleted
-          with frame bolh.
-      down with frame bolh.
-    end.
+        IF FIRST-OF(w-except.bol-no) THEN 
+        DO:
+            DISPLAY oe-bolh.bol-date
+                oe-bolh.bol-no
+                oe-bolh.carrier
+                oe-bolh.trailer
+                oe-bolh.freight
+                oe-bolh.cwt
+                oe-bolh.tot-wt
+                oe-bolh.cust-no
+                oe-bolh.ship-id
+                oe-bolh.deleted
+                WITH FRAME bolh.
+            DOWN WITH FRAME bolh.
+        END.
 
-    find first itemfg
-        where itemfg.company eq cocode
-          and itemfg.i-no    eq w-except.i-no
-        no-lock no-error.
+        FIND FIRST itemfg
+            WHERE itemfg.company EQ cocode
+            AND itemfg.i-no    EQ w-except.i-no
+            NO-LOCK NO-ERROR.
 
-    display w-except.i-no       @ oe-boll.i-no
-            itemfg.i-name       when avail itemfg
+        DISPLAY w-except.i-no       @ oe-boll.i-no
+            itemfg.i-name       
+            WHEN AVAILABLE itemfg
             w-except.po-no      @ oe-boll.po-no
             w-except.ord-no     @ oe-boll.ord-no
             w-except.rel-no     @ oe-boll.rel-no
@@ -978,11 +982,11 @@ FORM HEADER SKIP(1) WITH FRAME r-top.
             w-except.qty-case   @ oe-boll.qty-case
             w-except.partial    @ oe-boll.partial
             w-except.weight     @ oe-boll.weight
-        with frame boll.
-    down with frame boll.
+            WITH FRAME boll.
+        DOWN WITH FRAME boll.
 
-    put skip(1).
-  END.
+        PUT SKIP(1).
+    END.
 
 END PROCEDURE.
 
@@ -991,27 +995,27 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE output-to-file C-Win 
 PROCEDURE output-to-file :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-     DEFINE VARIABLE OKpressed AS LOGICAL NO-UNDO.
+    /*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE OKpressed AS LOGICAL NO-UNDO.
 
-     if init-dir = "" then init-dir = "c:\temp" .
-     SYSTEM-DIALOG GET-FILE list-name
-         TITLE      "Enter Listing Name to SAVE AS ..."
-         FILTERS    "Listing Files (*.rpt)" "*.rpt",
-                    "All Files (*.*)" "*.*"
-         INITIAL-DIR init-dir
-         ASK-OVERWRITE
-    /*     CREATE-TEST-FILE*/
-         SAVE-AS
-         USE-FILENAME
+    IF init-dir = "" THEN init-dir = "c:\temp" .
+    SYSTEM-DIALOG GET-FILE list-name
+        TITLE      "Enter Listing Name to SAVE AS ..."
+        FILTERS    "Listing Files (*.rpt)" "*.rpt",
+        "All Files (*.*)" "*.*"
+        INITIAL-DIR init-dir
+        ASK-OVERWRITE
+        /*     CREATE-TEST-FILE*/
+        SAVE-AS
+        USE-FILENAME
 
-         UPDATE OKpressed.
+        UPDATE OKpressed.
 
-     IF NOT OKpressed THEN  RETURN NO-APPLY.
+    IF NOT OKpressed THEN  RETURN NO-APPLY.
 
 
 END PROCEDURE.
@@ -1021,26 +1025,26 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE output-to-printer C-Win 
 PROCEDURE output-to-printer :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-/*     DEFINE VARIABLE printok AS LOGICAL NO-UNDO.
-     DEFINE VARIABLE list-text AS CHARACTER FORMAT "x(176)" NO-UNDO.
-     DEFINE VARIABLE result AS LOGICAL NO-UNDO.
-
-/*     SYSTEM-DIALOG PRINTER-SETUP UPDATE printok.
-     IF NOT printok THEN
-     RETURN NO-APPLY.
-*/
-
-  /* Use Progress Print. Always use Font#9 in Registry (set above) */
-     RUN 'adecomm/_osprint.p' (INPUT ?, INPUT list-name,
-                            INPUT 3, INPUT 3, INPUT 0, INPUT 0, OUTPUT result).
-                                    /* use-dialog(1) and landscape(2) */
-  */
-RUN custom/prntproc.p (list-name,INT(lv-font-no),lv-ornt).
+    /*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+    /*     DEFINE VARIABLE printok AS LOGICAL NO-UNDO.
+         DEFINE VARIABLE list-text AS CHARACTER FORMAT "x(176)" NO-UNDO.
+         DEFINE VARIABLE result AS LOGICAL NO-UNDO.
+    
+    /*     SYSTEM-DIALOG PRINTER-SETUP UPDATE printok.
+         IF NOT printok THEN
+         RETURN NO-APPLY.
+    */
+    
+      /* Use Progress Print. Always use Font#9 in Registry (set above) */
+         RUN 'adecomm/_osprint.p' (INPUT ?, INPUT list-name,
+                                INPUT 3, INPUT 3, INPUT 0, INPUT 0, OUTPUT result).
+                                        /* use-dialog(1) and landscape(2) */
+      */
+    RUN custom/prntproc.p (list-name,INT(lv-font-no),lv-ornt).
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1048,12 +1052,12 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE output-to-screen C-Win 
 PROCEDURE output-to-screen :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-run scr-rpt.w (list-name,c-win:title,int(lv-font-no),lv-ornt). /* open file-name, title */ 
+    /*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+    RUN scr-rpt.w (list-name,c-win:TITLE,int(lv-font-no),lv-ornt). /* open file-name, title */ 
 
 END PROCEDURE.
 
@@ -1062,320 +1066,331 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE post-bols C-Win 
 PROCEDURE post-bols :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-DEF VAR lv-exception AS LOG NO-UNDO.
+    /*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE lv-exception AS LOG NO-UNDO.
 
-{sa/sa-sls01.i}
+    {sa/sa-sls01.i}
 
-/**********************  POSTING BLOCK  ****************************/
-post-blok:
-do TRANSACTION.
-  bolh:
-  for each oe-bolh
-      where oe-bolh.company  eq cocode
-        and oe-bolh.posted   eq no
-        and oe-bolh.printed  eq YES
-        AND oe-bolh.deleted  EQ NO
-        and oe-bolh.bol-no   ge v-s-bol
-        and oe-bolh.bol-no   le v-e-bol
-        and oe-bolh.bol-date ge v-s-date
-        and oe-bolh.bol-date le v-e-date
+    /**********************  POSTING BLOCK  ****************************/
+    post-blok:
+    DO TRANSACTION.
+        bolh:
+        FOR EACH oe-bolh
+            WHERE oe-bolh.company  EQ cocode
+            AND oe-bolh.posted   EQ NO
+            AND oe-bolh.printed  EQ YES
+            AND oe-bolh.deleted  EQ NO
+            AND oe-bolh.bol-no   GE v-s-bol
+            AND oe-bolh.bol-no   LE v-e-bol
+            AND oe-bolh.bol-date GE v-s-date
+            AND oe-bolh.bol-date LE v-e-date
+            AND oe-bolh.cust-no  GE v-s-cust
+            AND oe-bolh.cust-no  LE v-e-cust
+            AND oe-bolh.trailer  NE "HOLD"
+            AND oe-bolh.stat     EQ "R"
+            AND NOT CAN-FIND(FIRST oe-boll
+            WHERE oe-boll.company  EQ oe-bolh.company
+            AND oe-boll.b-no     EQ oe-bolh.b-no
+            AND (oe-boll.loc     EQ "" OR
+            oe-boll.loc-bin EQ ""))
+            USE-INDEX post,
+
+            FIRST cust
+            WHERE cust.company EQ cocode
+            AND cust.cust-no EQ oe-bolh.cust-no
+            NO-LOCK
+
+            BREAK BY oe-bolh.bol-no
+            BY oe-bolh.ord-no
+            BY oe-bolh.rel-no.
+
+            IF FIRST-OF(oe-bolh.bol-no) AND v-u-inv AND v-check-qty THEN
+                FOR EACH oe-boll
+                    WHERE oe-boll.company EQ oe-bolh.company
+                    AND oe-boll.b-no    EQ oe-bolh.b-no
+                    AND oe-boll.qty     GT 0
+                    NO-LOCK,
+
+                    FIRST oe-ord
+                    WHERE oe-ord.company EQ cocode
+                    AND oe-ord.ord-no  EQ oe-boll.ord-no
+                    AND oe-ord.TYPE    NE "T"
+                    NO-LOCK
+
+                    BREAK BY oe-boll.i-no
+                    BY oe-boll.job-no
+                    BY oe-boll.job-no2
+                    BY oe-boll.loc
+                    BY oe-boll.loc-bin
+                    BY oe-boll.tag:
+
+                    FIND FIRST w-fg-bin
+                        WHERE w-fg-bin.company EQ cocode
+                        AND w-fg-bin.i-no    EQ oe-boll.i-no
+                        AND w-fg-bin.job-no  EQ oe-boll.job-no
+                        AND w-fg-bin.job-no2 EQ oe-boll.job-no2
+                        AND w-fg-bin.loc     EQ oe-boll.loc
+                        AND w-fg-bin.loc-bin EQ oe-boll.loc-bin
+                        AND w-fg-bin.tag     EQ oe-boll.tag
+                        NO-ERROR.
+                    IF NOT AVAILABLE w-fg-bin THEN 
+                    DO:
+                        CREATE w-fg-bin.
+                        ASSIGN
+                            w-fg-bin.company = cocode
+                            w-fg-bin.i-no    = oe-boll.i-no
+                            w-fg-bin.job-no  = oe-boll.job-no
+                            w-fg-bin.job-no2 = oe-boll.job-no2
+                            w-fg-bin.loc     = oe-boll.loc
+                            w-fg-bin.loc-bin = oe-boll.loc-bin
+                            w-fg-bin.tag     = oe-boll.tag.
+                    END.
+                    w-fg-bin.qty = w-fg-bin.qty + oe-boll.qty.
+
+                    IF LAST-OF(oe-boll.tag) THEN 
+                    DO:
+                        FOR EACH fg-bin NO-LOCK
+                            WHERE fg-bin.company EQ cocode
+                            AND fg-bin.i-no    EQ oe-boll.i-no
+                            AND fg-bin.job-no  EQ oe-boll.job-no
+                            AND fg-bin.job-no2 EQ oe-boll.job-no2
+                            AND fg-bin.loc     EQ oe-boll.loc
+                            AND fg-bin.loc-bin EQ oe-boll.loc-bin
+                            AND fg-bin.tag     EQ oe-boll.tag
+                            AND fg-bin.cust-no EQ oe-boll.cust-no:
+                            ACCUMULATE oe-boll.qty (TOTAL).
+                        END.
+
+                        IF (ACCUM TOTAL oe-boll.qty) LT w-fg-bin.qty THEN 
+                        DO:
+                            CREATE w-except.
+                            BUFFER-COPY oe-boll TO w-except.
+                        END.
+                    END.
+                END.
+
+            FIND FIRST w-except WHERE w-except.bol-no EQ oe-bolh.bol-no NO-ERROR.
+            IF AVAILABLE w-except THEN NEXT bolh.
+
+            FIND FIRST shipto
+                WHERE shipto.company EQ cocode
+                AND shipto.cust-no EQ oe-bolh.cust-no
+                AND shipto.ship-id EQ oe-bolh.ship-id
+                AND CAN-FIND(FIRST fg-bin WHERE fg-bin.company EQ cocode
+                AND fg-bin.i-no    EQ ""
+                AND fg-bin.loc     EQ shipto.loc
+                AND fg-bin.loc-bin EQ shipto.loc-bin)
+                NO-LOCK NO-ERROR.
+
+            olinecnt = olinecnt + 1.
+
+            FOR EACH oe-boll
+                WHERE oe-boll.company EQ oe-bolh.company
+                AND oe-boll.b-no    EQ oe-bolh.b-no,
+
+                FIRST oe-ord
+                WHERE oe-ord.company EQ cocode
+                AND oe-ord.ord-no  EQ oe-boll.ord-no
+                NO-LOCK,
+
+                FIRST oe-ordl
+                WHERE oe-ordl.company EQ cocode
+                AND oe-ordl.ord-no  EQ oe-boll.ord-no
+                AND oe-ordl.line    EQ oe-boll.line
+                AND oe-ordl.i-no    EQ oe-boll.i-no
+                USE-INDEX ord-no NO-LOCK,
+
+                FIRST itemfg
+                WHERE itemfg.company EQ cocode
+                AND itemfg.i-no    EQ oe-boll.i-no
+                NO-LOCK:
+
+                IF oe-ord.type EQ "T" THEN 
+                DO:            /* Process in-house transfer */        
+                    IF AVAILABLE shipto THEN 
+                    DO:
+
+                        IF v-fg-rctd-t THEN
+                        DO:
+                            v-rcpt-no = 0.
+
+                            FOR EACH fg-rctd NO-LOCK BY fg-rctd.r-no DESCENDING:
+                                LEAVE.
+                            END.
+                            IF AVAILABLE fg-rctd THEN v-rcpt-no = fg-rctd.r-no.
+
+                            FIND LAST fg-rcpth USE-INDEX r-no NO-LOCK NO-ERROR.
+                            IF AVAILABLE fg-rcpth AND fg-rcpth.r-no GT v-rcpt-no THEN v-rcpt-no = fg-rcpth.r-no.
+
+                            CREATE fg-rctd.
+                            ASSIGN
+                                fg-rctd.r-no       = v-rcpt-no + 1
+                                fg-rctd.company    = cocode
+                                fg-rctd.rct-date   = oe-bolh.bol-date
+                                fg-rctd.trans-time = TIME
+                                fg-rctd.i-no       = oe-boll.i-no
+                                fg-rctd.rita-code  = "T"
+                                fg-rctd.job-no     = oe-boll.job-no
+                                fg-rctd.job-no2    = oe-boll.job-no2
+                                fg-rctd.loc        = oe-boll.loc
+                                fg-rctd.loc-bin    = oe-boll.loc-bin
+                                fg-rctd.tag        = oe-boll.tag
+                                fg-rctd.partial    = oe-boll.partial
+                                fg-rctd.cases      = oe-boll.cases
+                                fg-rctd.qty-case   = oe-boll.qty-case
+                                fg-rctd.t-qty      = oe-boll.qty
+                                fg-rctd.loc2       = shipto.loc
+                                fg-rctd.loc-bin2   = shipto.loc-bin
+                                fg-rctd.tag2       = fg-rctd.tag.
+                        END.
+
+                        FIND FIRST fg-bin         /* Make sure we have a bin to relieve */
+                            WHERE fg-bin.company EQ cocode
+                            AND fg-bin.i-no    EQ oe-boll.i-no
+                            AND fg-bin.job-no  EQ oe-boll.job-no
+                            AND fg-bin.job-no2 EQ oe-boll.job-no2
+                            AND fg-bin.loc     EQ oe-boll.loc
+                            AND fg-bin.loc-bin EQ oe-boll.loc-bin
+                            AND fg-bin.tag     EQ oe-boll.tag
+                            NO-LOCK NO-ERROR.
+
+                        IF NOT AVAILABLE fg-bin THEN 
+                        DO:
+                            CREATE fg-bin.
+                            ASSIGN
+                                fg-bin.company      = cocode
+                                fg-bin.i-no         = oe-boll.i-no
+                                fg-bin.job-no       = oe-boll.job-no
+                                fg-bin.job-no2      = oe-boll.job-no2
+                                fg-bin.loc          = oe-boll.loc
+                                fg-bin.loc-bin      = oe-boll.loc-bin
+                                fg-bin.tag          = oe-boll.tag
+                                fg-bin.case-count   = oe-boll.qty-case
+                                fg-bin.pur-uom      = itemfg.prod-uom
+                                fg-bin.std-tot-cost = itemfg.std-tot-cost
+                                fg-bin.std-mat-cost = itemfg.std-mat-cost
+                                fg-bin.std-lab-cost = itemfg.std-lab-cost
+                                fg-bin.std-var-cost = itemfg.std-var-cost
+                                fg-bin.std-fix-cost = itemfg.std-fix-cost.
+                        END.
+
+                        FIND FIRST xfg-bin        /* Make sure we have a bin to receive */
+                            WHERE xfg-bin.company EQ cocode
+                            AND xfg-bin.i-no    EQ oe-boll.i-no
+                            AND xfg-bin.job-no  EQ oe-boll.job-no
+                            AND xfg-bin.job-no2 EQ oe-boll.job-no2
+                            AND xfg-bin.loc     EQ shipto.loc
+                            AND xfg-bin.loc-bin EQ shipto.loc-bin
+                            AND xfg-bin.tag     EQ oe-boll.tag
+                            NO-LOCK NO-ERROR.
+
+                        IF NOT AVAILABLE xfg-bin THEN 
+                        DO:
+                            CREATE xfg-bin.
+                            ASSIGN
+                                xfg-bin.company      = cocode
+                                xfg-bin.i-no         = oe-boll.i-no
+                                xfg-bin.job-no       = oe-boll.job-no
+                                xfg-bin.job-no2      = oe-boll.job-no2
+                                xfg-bin.loc          = shipto.loc
+                                xfg-bin.loc-bin      = shipto.loc-bin
+                                xfg-bin.tag          = oe-boll.tag
+                                xfg-bin.case-count   = oe-boll.qty-case
+                                xfg-bin.pur-uom      = fg-bin.pur-uom
+                                xfg-bin.std-tot-cost = fg-bin.std-tot-cost
+                                xfg-bin.std-mat-cost = fg-bin.std-mat-cost
+                                xfg-bin.std-lab-cost = fg-bin.std-lab-cost
+                                xfg-bin.std-var-cost = fg-bin.std-var-cost
+                                xfg-bin.std-fix-cost = fg-bin.std-fix-cost.
+                        END.
+
+                        IF AVAILABLE fg-rctd THEN
+                        DO:
+                            ASSIGN 
+                                fg-rctd.cost-uom = itemfg.prod-uom /* 29642 - IU2 Transfers with incorrect cost - MYT - 08/29/18 */
+                                fg-rctd.pur-uom  = fg-bin.pur-uom
+                                fg-rctd.std-cost = fg-bin.std-tot-cost.
+
+                            IF fg-rctd.pur-uom EQ "EA" THEN
+                                fg-rctd.ext-cost = fg-rctd.std-cost.
+                            ELSE
+                                RUN sys/ref/convcuom.p(fg-rctd.pur-uom, "EA", 0, 0, 0, 0,
+                                    fg-rctd.std-cost, OUTPUT fg-rctd.ext-cost).
+
+                            fg-rctd.ext-cost = fg-rctd.ext-cost * fg-rctd.t-qty.
+
+                            RELEASE fg-rctd.
+                        END.
+
+                        ASSIGN
+                            oe-bolh.posted = YES
+                            oe-boll.posted = YES.
+                    END.          
+                END.  /* oe-ord.type = "T" */      
+                ELSE 
+                DO:
+                {oe/seq-bolh.i}
+                END.
+            END.      
+        END. /* for each oe-bolh */
+
+        FOR EACH w-fg-bin:
+            DELETE w-fg-bin.
+        END.
+
+        RUN oe/oe-bolp3.p (v-term).
+
+        HIDE FRAME post NO-PAUSE.
+    END. /* post-blok*/
+
+    delete-blok:
+    FOR EACH oe-bolh
+        WHERE oe-bolh.company  EQ cocode
+        AND oe-bolh.deleted  EQ YES
+        AND oe-bolh.bol-no   GE v-s-bol
+        AND oe-bolh.bol-no  LE v-e-bol
+        AND oe-bolh.bol-date GE v-s-date
+        AND oe-bolh.bol-date LE v-e-date
         AND oe-bolh.cust-no  GE v-s-cust
         AND oe-bolh.cust-no  LE v-e-cust
-        and oe-bolh.trailer  ne "HOLD"
-        and oe-bolh.stat     eq "R"
-        and not can-find(FIRST oe-boll
-                         WHERE oe-boll.company  EQ oe-bolh.company
-                           AND oe-boll.b-no     EQ oe-bolh.b-no
-                           AND (oe-boll.loc     EQ "" OR
-                                oe-boll.loc-bin EQ ""))
-      use-index post,
+        AND oe-bolh.trailer  NE "HOLD"
+        AND oe-bolh.stat     EQ "R"
+        USE-INDEX deleted:
 
-      first cust
-      where cust.company eq cocode
-        and cust.cust-no eq oe-bolh.cust-no
-      no-lock
+        FOR EACH oe-boll
+            WHERE oe-boll.company EQ oe-bolh.company
+            AND oe-boll.b-no    EQ oe-bolh.b-no:
+            DELETE oe-boll.
+        END. /* each oe-boll */
 
-      break by oe-bolh.bol-no
-            by oe-bolh.ord-no
-            by oe-bolh.rel-no.
+        DELETE oe-bolh.
+    END. /* each oe-bolh */
 
-    if first-of(oe-bolh.bol-no) and v-u-inv AND v-check-qty then
-    FOR EACH oe-boll
-        WHERE oe-boll.company EQ oe-bolh.company
-          AND oe-boll.b-no    EQ oe-bolh.b-no
-          AND oe-boll.qty     GT 0
-        NO-LOCK,
+    FIND FIRST w-except NO-ERROR.
+    IF AVAILABLE w-except THEN 
+    DO:
+        lv-exception = YES.
+        MESSAGE "  Bill(s) of Lading have been found that do not have  "     SKIP
+            "  sufficient inventory for posting to be completed.   "     SKIP
+            "  Do you wish to print the exception report?          "
+            VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
+            UPDATE lv-exception.
 
-        first oe-ord
-        where oe-ord.company eq cocode
-          and oe-ord.ord-no  eq oe-boll.ord-no
-          AND oe-ord.TYPE    NE "T"
-        NO-LOCK
+        IF lv-exception THEN 
+        DO:
+            RUN exception-rpt.
 
-        break by oe-boll.i-no
-              by oe-boll.job-no
-              by oe-boll.job-no2
-              by oe-boll.loc
-              by oe-boll.loc-bin
-              by oe-boll.tag:
-
-      find first w-fg-bin
-          where w-fg-bin.company eq cocode
-            and w-fg-bin.i-no    eq oe-boll.i-no
-            and w-fg-bin.job-no  eq oe-boll.job-no
-            and w-fg-bin.job-no2 eq oe-boll.job-no2
-            and w-fg-bin.loc     eq oe-boll.loc
-            and w-fg-bin.loc-bin eq oe-boll.loc-bin
-            and w-fg-bin.tag     eq oe-boll.tag
-          no-error.
-      if not avail w-fg-bin then do:
-        create w-fg-bin.
-        assign
-         w-fg-bin.company = cocode
-         w-fg-bin.i-no    = oe-boll.i-no
-         w-fg-bin.job-no  = oe-boll.job-no
-         w-fg-bin.job-no2 = oe-boll.job-no2
-         w-fg-bin.loc     = oe-boll.loc
-         w-fg-bin.loc-bin = oe-boll.loc-bin
-         w-fg-bin.tag     = oe-boll.tag.
-      end.
-      w-fg-bin.qty = w-fg-bin.qty + oe-boll.qty.
-
-      IF LAST-OF(oe-boll.tag) THEN DO:
-        FOR EACH fg-bin NO-LOCK
-            WHERE fg-bin.company EQ cocode
-              AND fg-bin.i-no    EQ oe-boll.i-no
-              AND fg-bin.job-no  EQ oe-boll.job-no
-              AND fg-bin.job-no2 EQ oe-boll.job-no2
-              AND fg-bin.loc     EQ oe-boll.loc
-              AND fg-bin.loc-bin EQ oe-boll.loc-bin
-              AND fg-bin.tag     EQ oe-boll.tag
-              AND fg-bin.cust-no EQ oe-boll.cust-no:
-          ACCUMULATE oe-boll.qty (TOTAL).
+            CASE rd-dest:
+                WHEN 1 THEN RUN output-to-printer.
+                WHEN 2 THEN RUN output-to-screen.
+                WHEN 3 THEN RUN output-to-file.
+            END CASE.
         END.
-
-        IF (ACCUM TOTAL oe-boll.qty) LT w-fg-bin.qty THEN DO:
-          CREATE w-except.
-          BUFFER-COPY oe-boll to w-except.
-        END.
-      END.
-    end.
-
-    find first w-except where w-except.bol-no eq oe-bolh.bol-no no-error.
-    if avail w-except then next bolh.
-
-    find first shipto
-        where shipto.company eq cocode
-          and shipto.cust-no eq oe-bolh.cust-no
-          and shipto.ship-id eq oe-bolh.ship-id
-          and can-find(first fg-bin where fg-bin.company eq cocode
-                                      and fg-bin.i-no    eq ""
-                                      and fg-bin.loc     eq shipto.loc
-                                      and fg-bin.loc-bin eq shipto.loc-bin)
-        no-lock no-error.
-
-    olinecnt = olinecnt + 1.
-
-    FOR EACH oe-boll
-        WHERE oe-boll.company EQ oe-bolh.company
-          AND oe-boll.b-no    EQ oe-bolh.b-no,
-
-        first oe-ord
-        where oe-ord.company eq cocode
-          and oe-ord.ord-no  eq oe-boll.ord-no
-        no-lock,
-
-        first oe-ordl
-        where oe-ordl.company eq cocode
-          and oe-ordl.ord-no  eq oe-boll.ord-no
-          and oe-ordl.line    eq oe-boll.line
-          and oe-ordl.i-no    eq oe-boll.i-no
-        use-index ord-no no-lock,
-
-        first itemfg
-        where itemfg.company eq cocode
-          and itemfg.i-no    eq oe-boll.i-no
-        no-lock:
-
-      if oe-ord.type eq "T" then do:            /* Process in-house transfer */        
-        if avail shipto then do:
-
-          IF v-fg-rctd-t THEN
-          DO:
-             v-rcpt-no = 0.
-
-             FOR EACH fg-rctd no-lock BY fg-rctd.r-no DESC:
-                 LEAVE.
-             END.
-             if avail fg-rctd then v-rcpt-no = fg-rctd.r-no.
-
-             find last fg-rcpth use-index r-no no-lock no-error.
-             if avail fg-rcpth and fg-rcpth.r-no gt v-rcpt-no THEN v-rcpt-no = fg-rcpth.r-no.
-
-             create fg-rctd.
-             assign
-              fg-rctd.r-no      = v-rcpt-no + 1
-              fg-rctd.company   = cocode
-              fg-rctd.rct-date  = oe-bolh.bol-date
-              fg-rctd.trans-time = TIME
-              fg-rctd.i-no      = oe-boll.i-no
-              fg-rctd.rita-code = "T"
-              fg-rctd.job-no    = oe-boll.job-no
-              fg-rctd.job-no2   = oe-boll.job-no2
-              fg-rctd.loc       = oe-boll.loc
-              fg-rctd.loc-bin   = oe-boll.loc-bin
-              fg-rctd.tag       = oe-boll.tag
-              fg-rctd.partial   = oe-boll.partial
-              fg-rctd.cases     = oe-boll.cases
-              fg-rctd.qty-case  = oe-boll.qty-case
-              fg-rctd.t-qty     = oe-boll.qty
-              fg-rctd.loc2      = shipto.loc
-              fg-rctd.loc-bin2  = shipto.loc-bin
-              fg-rctd.tag2      = fg-rctd.tag.
-          END.
-
-          find first fg-bin         /* Make sure we have a bin to relieve */
-              where fg-bin.company eq cocode
-                and fg-bin.i-no    eq oe-boll.i-no
-                and fg-bin.job-no  eq oe-boll.job-no
-                and fg-bin.job-no2 eq oe-boll.job-no2
-                and fg-bin.loc     eq oe-boll.loc
-                and fg-bin.loc-bin eq oe-boll.loc-bin
-                and fg-bin.tag     eq oe-boll.tag
-              no-lock no-error.
-
-          if not avail fg-bin then do:
-            create fg-bin.
-            assign
-             fg-bin.company      = cocode
-             fg-bin.i-no         = oe-boll.i-no
-             fg-bin.job-no       = oe-boll.job-no
-             fg-bin.job-no2      = oe-boll.job-no2
-             fg-bin.loc          = oe-boll.loc
-             fg-bin.loc-bin      = oe-boll.loc-bin
-             fg-bin.tag          = oe-boll.tag
-             fg-bin.case-count   = oe-boll.qty-case
-             fg-bin.pur-uom      = itemfg.prod-uom
-             fg-bin.std-tot-cost = itemfg.std-tot-cost
-             fg-bin.std-mat-cost = itemfg.std-mat-cost
-             fg-bin.std-lab-cost = itemfg.std-lab-cost
-             fg-bin.std-var-cost = itemfg.std-var-cost
-             fg-bin.std-fix-cost = itemfg.std-fix-cost.
-          end.
-
-          find first xfg-bin        /* Make sure we have a bin to receive */
-              where xfg-bin.company eq cocode
-                and xfg-bin.i-no    eq oe-boll.i-no
-                and xfg-bin.job-no  eq oe-boll.job-no
-                and xfg-bin.job-no2 eq oe-boll.job-no2
-                and xfg-bin.loc     eq shipto.loc
-                and xfg-bin.loc-bin eq shipto.loc-bin
-                and xfg-bin.tag     eq oe-boll.tag
-              no-lock no-error.
-
-          if not avail xfg-bin then do:
-            create xfg-bin.
-            assign
-             xfg-bin.company      = cocode
-             xfg-bin.i-no         = oe-boll.i-no
-             xfg-bin.job-no       = oe-boll.job-no
-             xfg-bin.job-no2      = oe-boll.job-no2
-             xfg-bin.loc          = shipto.loc
-             xfg-bin.loc-bin      = shipto.loc-bin
-             xfg-bin.tag          = oe-boll.tag
-             xfg-bin.case-count   = oe-boll.qty-case
-             xfg-bin.pur-uom      = fg-bin.pur-uom
-             xfg-bin.std-tot-cost = fg-bin.std-tot-cost
-             xfg-bin.std-mat-cost = fg-bin.std-mat-cost
-             xfg-bin.std-lab-cost = fg-bin.std-lab-cost
-             xfg-bin.std-var-cost = fg-bin.std-var-cost
-             xfg-bin.std-fix-cost = fg-bin.std-fix-cost.
-          end.
-
-          IF AVAIL fg-rctd THEN
-          DO:
-             ASSIGN 
-                fg-rctd.pur-uom  = fg-bin.pur-uom
-                fg-rctd.std-cost = fg-bin.std-tot-cost.
-
-             if fg-rctd.pur-uom eq "EA" then
-                fg-rctd.ext-cost = fg-rctd.std-cost.
-             else
-                run sys/ref/convcuom.p(fg-rctd.pur-uom, "EA", 0, 0, 0, 0,
-                                       fg-rctd.std-cost, output fg-rctd.ext-cost).
-
-             fg-rctd.ext-cost = fg-rctd.ext-cost * fg-rctd.t-qty.
-
-             RELEASE fg-rctd.
-          END.
-
-          ASSIGN
-             oe-bolh.posted = yes
-             oe-boll.posted = yes.
-        end.          
-      end.  /* oe-ord.type = "T" */      
-      else do:
-         {oe/seq-bolh.i}
-      end.
-    end.      
-  end. /* for each oe-bolh */
-
-  for each w-fg-bin:
-    delete w-fg-bin.
-  end.
-
-  run oe/oe-bolp3.p (v-term).
-
-  hide frame post no-pause.
-end. /* post-blok*/
-
-delete-blok:
-for each oe-bolh
-    where oe-bolh.company  eq cocode
-      and oe-bolh.deleted  eq YES
-      and oe-bolh.bol-no   ge v-s-bol
-      and oe-bolh.bol-no  le v-e-bol
-      and oe-bolh.bol-date ge v-s-date
-      and oe-bolh.bol-date le v-e-date
-      AND oe-bolh.cust-no  GE v-s-cust
-      AND oe-bolh.cust-no  LE v-e-cust
-      and oe-bolh.trailer  ne "HOLD"
-      and oe-bolh.stat     eq "R"
-    use-index deleted:
-
-  FOR EACH oe-boll
-      WHERE oe-boll.company EQ oe-bolh.company
-        AND oe-boll.b-no    EQ oe-bolh.b-no:
-    DELETE oe-boll.
-  END. /* each oe-boll */
-
-  delete oe-bolh.
-end. /* each oe-bolh */
-
-find first w-except no-error.
-if avail w-except then do:
-  lv-exception = YES.
-  MESSAGE "  Bill(s) of Lading have been found that do not have  "     skip
-          "  sufficient inventory for posting to be completed.   "     skip
-          "  Do you wish to print the exception report?          "
-      VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
-      UPDATE lv-exception.
-
-  IF lv-exception THEN do:
-    run exception-rpt.
-
-    case rd-dest:
-         when 1 then run output-to-printer.
-         when 2 then run output-to-screen.
-         when 3 then run output-to-file.
-    end case.
-  END.
-END.
+    END.
 
 END PROCEDURE.
 
@@ -1390,20 +1405,20 @@ PROCEDURE run-report :
 
 {sys/form/r-top3w.f}
 
-FORM HEADER SKIP(1) WITH FRAME r-top.
+    FORM HEADER SKIP(1) WITH FRAME r-top.
 
-FIND first period                   
-      where period.company eq gcompany
-        and period.pst     le tran-date
-        and period.pend    ge tran-date
-      no-lock no-error.
+    FIND FIRST period                   
+        WHERE period.company EQ gcompany
+        AND period.pst     LE tran-date
+        AND period.pend    GE tran-date
+        NO-LOCK NO-ERROR.
 
-  assign
-   str-tit2 = c-win:TITLE
+    ASSIGN
+        str-tit2 = c-win:TITLE
    {sys/inc/ctrtext.i str-tit2 112}
 
-   str-tit3 = "Period " + STRING(tran-period,"99") + " - " +
-              IF AVAIL period THEN
+        str-tit3 = "Period " + STRING(tran-period,"99") + " - " +
+              IF AVAILABLE period THEN
                 (STRING(period.pst) + " to " + STRING(period.pend)) ELSE ""
    {sys/inc/ctrtext.i str-tit3 132}.
 
@@ -1411,189 +1426,197 @@ FIND first period
 
   {sys/inc/outprint.i value(lines-per-page)}
 
-  if td-show-parm then run show-param.
+    IF td-show-parm THEN RUN show-param.
 
-SESSION:SET-WAIT-STATE ("general").
+    SESSION:SET-WAIT-STATE ("general").
 
-  display with frame r-top.
+    DISPLAY WITH FRAME r-top.
 
-  for each w-bolh:
-    delete w-bolh.
-  end.
+    FOR EACH w-bolh:
+        DELETE w-bolh.
+    END.
 
-  for each w-nopost:
-    delete w-nopost.
-  end.
+    FOR EACH w-nopost:
+        DELETE w-nopost.
+    END.
 
-  for each oe-bolh
-      where oe-bolh.company  eq cocode
-        and oe-bolh.posted   eq no
-        and (oe-bolh.printed eq YES OR NOT ip-post)
-        and oe-bolh.bol-no   ge v-s-bol
-        and oe-bolh.bol-no   le v-e-bol
-        and oe-bolh.bol-date ge v-s-date
-        and oe-bolh.bol-date le v-e-date
-        and oe-bolh.cust-no  ge v-s-cust
-        and oe-bolh.cust-no  le v-e-cust
-        and oe-bolh.trailer  ne "HOLD"
-        and oe-bolh.stat     eq "R"
-      use-index post no-lock:
+    FOR EACH oe-bolh
+        WHERE oe-bolh.company  EQ cocode
+        AND oe-bolh.posted   EQ NO
+        AND (oe-bolh.printed EQ YES OR NOT ip-post)
+        AND oe-bolh.bol-no   GE v-s-bol
+        AND oe-bolh.bol-no   LE v-e-bol
+        AND oe-bolh.bol-date GE v-s-date
+        AND oe-bolh.bol-date LE v-e-date
+        AND oe-bolh.cust-no  GE v-s-cust
+        AND oe-bolh.cust-no  LE v-e-cust
+        AND oe-bolh.trailer  NE "HOLD"
+        AND oe-bolh.stat     EQ "R"
+        USE-INDEX post NO-LOCK:
 
-    create w-bolh.
-    assign
-     w-bolh.bol-no   = oe-bolh.bol-no
-     w-bolh.ord-no   = oe-bolh.ord-no
-     w-bolh.w-recid  = recid(oe-bolh)
-     w-bolh.rel-no   = oe-bolh.rel-no
-     w-bolh.b-ord-no = oe-bolh.b-ord-no
-     w-bolh.cust-no  = oe-bolh.cust-no.
-  end.
+        CREATE w-bolh.
+        ASSIGN
+            w-bolh.bol-no   = oe-bolh.bol-no
+            w-bolh.ord-no   = oe-bolh.ord-no
+            w-bolh.w-recid  = RECID(oe-bolh)
+            w-bolh.rel-no   = oe-bolh.rel-no
+            w-bolh.b-ord-no = oe-bolh.b-ord-no
+            w-bolh.cust-no  = oe-bolh.cust-no.
+    END.
 
-  for each oe-bolh
-      where oe-bolh.company  eq cocode
-        and oe-bolh.deleted  eq yes
-        and oe-bolh.posted   eq yes
-        and oe-bolh.bol-no   ge v-s-bol
-        and oe-bolh.bol-no   le v-e-bol
-        and oe-bolh.bol-date ge v-s-date
-        and oe-bolh.bol-date le v-e-date
-        and oe-bolh.trailer  ne "HOLD"
-      use-index deleted no-lock:
+    FOR EACH oe-bolh
+        WHERE oe-bolh.company  EQ cocode
+        AND oe-bolh.deleted  EQ YES
+        AND oe-bolh.posted   EQ YES
+        AND oe-bolh.bol-no   GE v-s-bol
+        AND oe-bolh.bol-no   LE v-e-bol
+        AND oe-bolh.bol-date GE v-s-date
+        AND oe-bolh.bol-date LE v-e-date
+        AND oe-bolh.trailer  NE "HOLD"
+        USE-INDEX deleted NO-LOCK:
 
-    create w-bolh.
-    assign
-     w-bolh.bol-no   = oe-bolh.bol-no
-     w-bolh.ord-no   = oe-bolh.ord-no
-     w-bolh.w-recid  = recid(oe-bolh)
-     w-bolh.rel-no   = oe-bolh.rel-no
-     w-bolh.b-ord-no = oe-bolh.b-ord-no
-     w-bolh.cust-no  = oe-bolh.cust-no.
-  end.
+        CREATE w-bolh.
+        ASSIGN
+            w-bolh.bol-no   = oe-bolh.bol-no
+            w-bolh.ord-no   = oe-bolh.ord-no
+            w-bolh.w-recid  = RECID(oe-bolh)
+            w-bolh.rel-no   = oe-bolh.rel-no
+            w-bolh.b-ord-no = oe-bolh.b-ord-no
+            w-bolh.cust-no  = oe-bolh.cust-no.
+    END.
 
-  MAINBLOK:
-  for each w-bolh by w-bolh.bol-no by w-bolh.ord-no
-                  by w-bolh.rel-no by w-bolh.b-ord-no:
-    find oe-bolh where recid(oe-bolh) = w-bolh.w-recid no-lock.
+    MAINBLOK:
+    FOR EACH w-bolh BY w-bolh.bol-no BY w-bolh.ord-no
+        BY w-bolh.rel-no BY w-bolh.b-ord-no:
+        FIND oe-bolh WHERE RECID(oe-bolh) = w-bolh.w-recid NO-LOCK.
 
-    v-tot-post = v-tot-post + 1.
+        v-tot-post = v-tot-post + 1.
 
-    FOR EACH oe-boll
-        WHERE oe-boll.company EQ oe-bolh.company
-          AND oe-boll.b-no    EQ oe-bolh.b-no
-        NO-LOCK
-        break by oe-boll.company
-              by oe-boll.b-no
-              by oe-boll.ord-no
-              by oe-boll.rel-no
-              by oe-boll.b-ord-no:
+        FOR EACH oe-boll
+            WHERE oe-boll.company EQ oe-bolh.company
+            AND oe-boll.b-no    EQ oe-bolh.b-no
+            NO-LOCK
+            BREAK BY oe-boll.company
+            BY oe-boll.b-no
+            BY oe-boll.ord-no
+            BY oe-boll.rel-no
+            BY oe-boll.b-ord-no:
 
-      if not oe-bolh.deleted then do:
-        find first oe-ord where oe-ord.company = oe-bolh.company and
-             oe-ord.ord-no = oe-boll.ord-no no-lock no-error.
-        if not avail oe-ord then do:
-          RUN create-nopost ("Order Was Not Found").
-          next mainblok.
-        end.
+            IF NOT oe-bolh.deleted THEN 
+            DO:
+                FIND FIRST oe-ord WHERE oe-ord.company = oe-bolh.company AND
+                    oe-ord.ord-no = oe-boll.ord-no NO-LOCK NO-ERROR.
+                IF NOT AVAILABLE oe-ord THEN 
+                DO:
+                    RUN create-nopost ("Order Was Not Found").
+                    NEXT mainblok.
+                END.
 
-        find first oe-ordl where oe-ordl.company = cocode  and
-              oe-ordl.ord-no = oe-boll.ord-no  and
-              oe-ordl.line   = oe-boll.line no-lock no-error.
-        if not avail oe-ordl then do:
-          run create-nopost ("Order Lines Were Not Found").
-          next mainblok.
-        end.
+                FIND FIRST oe-ordl WHERE oe-ordl.company = cocode  AND
+                    oe-ordl.ord-no = oe-boll.ord-no  AND
+                    oe-ordl.line   = oe-boll.line NO-LOCK NO-ERROR.
+                IF NOT AVAILABLE oe-ordl THEN 
+                DO:
+                    RUN create-nopost ("Order Lines Were Not Found").
+                    NEXT mainblok.
+                END.
 
-        FIND FIRST oe-rell
-            WHERE oe-rell.company  EQ oe-boll.company
-              AND oe-rell.ord-no   EQ oe-boll.ord-no
-              AND oe-rell.line     EQ oe-boll.line
-              AND oe-rell.i-no     EQ oe-boll.i-no
-              AND oe-rell.r-no     EQ oe-boll.r-no
-              AND oe-rell.rel-no   EQ oe-boll.rel-no
-              AND oe-rell.b-ord-no EQ oe-boll.b-ord-no
-            NO-LOCK NO-ERROR.
-        if not avail oe-rell then do:
-          run create-nopost ("Release Lines Were Not Found").
-          next mainblok.
-        end.
+                FIND FIRST oe-rell
+                    WHERE oe-rell.company  EQ oe-boll.company
+                    AND oe-rell.ord-no   EQ oe-boll.ord-no
+                    AND oe-rell.line     EQ oe-boll.line
+                    AND oe-rell.i-no     EQ oe-boll.i-no
+                    AND oe-rell.r-no     EQ oe-boll.r-no
+                    AND oe-rell.rel-no   EQ oe-boll.rel-no
+                    AND oe-rell.b-ord-no EQ oe-boll.b-ord-no
+                    NO-LOCK NO-ERROR.
+                IF NOT AVAILABLE oe-rell THEN 
+                DO:
+                    RUN create-nopost ("Release Lines Were Not Found").
+                    NEXT mainblok.
+                END.
 
-        find first itemfg where itemfg.company = cocode and
-                itemfg.i-no = oe-boll.i-no no-lock no-error.
-        if not avail itemfg then do:
-          run create-nopost ("Finish Good Item Was Not Found").
-          NEXT mainblok.
-        end.
+                FIND FIRST itemfg WHERE itemfg.company = cocode AND
+                    itemfg.i-no = oe-boll.i-no NO-LOCK NO-ERROR.
+                IF NOT AVAILABLE itemfg THEN 
+                DO:
+                    RUN create-nopost ("Finish Good Item Was Not Found").
+                    NEXT mainblok.
+                END.
 
-        if oe-boll.loc eq "" or oe-boll.loc-bin eq "" THEN do:
-          run create-nopost ("Warehouse or Bin is Blank").
-          NEXT mainblok.
-        end.
-      end.
+                IF oe-boll.loc EQ "" OR oe-boll.loc-bin EQ "" THEN 
+                DO:
+                    RUN create-nopost ("Warehouse or Bin is Blank").
+                    NEXT mainblok.
+                END.
+            END.
 
-      if first-of(oe-boll.b-no) then do:
-        DISPLAY oe-bolh.BOL-date
-                oe-bolh.BOL-no 
-                oe-bolh.CARRIER
-                oe-bolh.TRAILER
-                oe-bolh.FREIGHT
-                oe-bolh.CWT
-                oe-bolh.TOT-WT
-                oe-bolh.cust-no
-                oe-bolh.ship-id
-                oe-bolh.deleted
-            with frame bolh.
-        down with frame bolh.
-      end.
+            IF FIRST-OF(oe-boll.b-no) THEN 
+            DO:
+                DISPLAY oe-bolh.BOL-date
+                    oe-bolh.BOL-no 
+                    oe-bolh.CARRIER
+                    oe-bolh.TRAILER
+                    oe-bolh.FREIGHT
+                    oe-bolh.CWT
+                    oe-bolh.TOT-WT
+                    oe-bolh.cust-no
+                    oe-bolh.ship-id
+                    oe-bolh.deleted
+                    WITH FRAME bolh.
+                DOWN WITH FRAME bolh.
+            END.
 
-      DISPLAY oe-boll.i-no
-              itemfg.i-name when avail itemfg
-              oe-boll.po-no
-              oe-boll.ord-no
-              oe-boll.rel-no
-              oe-boll.b-ord-no
-              oe-boll.loc
-              oe-boll.loc-bin
-              oe-boll.tag
-              oe-boll.CASES
-              oe-boll.qty-CASE
-              oe-boll.PARTIAL
-              oe-boll.WEIGHT
-          with frame boll.
-      down with frame boll.
-    end. /* each oe-boll */
+            DISPLAY oe-boll.i-no
+                itemfg.i-name 
+                WHEN AVAILABLE itemfg
+                oe-boll.po-no
+                oe-boll.ord-no
+                oe-boll.rel-no
+                oe-boll.b-ord-no
+                oe-boll.loc
+                oe-boll.loc-bin
+                oe-boll.tag
+                oe-boll.CASES
+                oe-boll.qty-CASE
+                oe-boll.PARTIAL
+                oe-boll.WEIGHT
+                WITH FRAME boll.
+            DOWN WITH FRAME boll.
+        END. /* each oe-boll */
 
-    put skip(1).
-  end. /* each oe-bolh */
+        PUT SKIP(1).
+    END. /* each oe-bolh */
 
-  v-no-post = 0.
+    v-no-post = 0.
 
-  for each w-nopost break by w-nopost.bol-no:
-    if first(w-nopost.bol-no) then
-      put skip(1)
-          "** Bills Of Lading Unable To Be Posted. **" skip.
+    FOR EACH w-nopost BREAK BY w-nopost.bol-no:
+        IF FIRST(w-nopost.bol-no) THEN
+            PUT SKIP(1)
+                "** Bills Of Lading Unable To Be Posted. **" SKIP.
 
-    DISPLAY w-nopost.bol-no     COLUMN-LABEL "BOL.#"
+        DISPLAY w-nopost.bol-no     COLUMN-LABEL "BOL.#"
             w-nopost.bol-date   COLUMN-LABEL "Date"
             w-nopost.ord-no     COLUMN-LABEL "Order#"
-            string(w-nopost.rel-no,">>>9") + "-" +
+            STRING(w-nopost.rel-no,">>>9") + "-" +
             string(w-nopost.b-ord-no,"99")
-                                COLUMN-LABEL "Rel#-BO#"    FORMAT "x(7)"
+            COLUMN-LABEL "Rel#-BO#"    FORMAT "x(7)"
             w-nopost.cust-no    COLUMN-LABEL "Cust.#"
             w-nopost.po-no      COLUMN-LABEL "PO#"
             w-nopost.i-no       COLUMN-LABEL "Item"
-            w-nopost.i-name     COLUMN-LABEL "Name"         format "x(20)"
-            w-nopost.reason     COLUMN-LABEL "Reason"       skip
-        with down STREAM-IO width 132 frame nopost2.
-    down with frame nopost2.
+            w-nopost.i-name     COLUMN-LABEL "Name"         FORMAT "x(20)"
+            w-nopost.reason     COLUMN-LABEL "Reason"       SKIP
+            WITH DOWN STREAM-IO WIDTH 132 FRAME nopost2.
+        DOWN WITH FRAME nopost2.
 
-    v-no-post = v-no-post + 1.
+        v-no-post = v-no-post + 1.
 
-    delete w-nopost.
-  end.
+        DELETE w-nopost.
+    END.
 
-IF NOT ip-post THEN RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
+    IF NOT ip-post THEN RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
 
-SESSION:SET-WAIT-STATE ("").
+    SESSION:SET-WAIT-STATE ("").
 
 END PROCEDURE.
 
@@ -1602,66 +1625,70 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE show-param C-Win 
 PROCEDURE show-param :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  def var lv-frame-hdl as handle no-undo.
-  def var lv-group-hdl as handle no-undo.
-  def var lv-field-hdl as handle no-undo.
-  def var lv-field2-hdl as handle no-undo.
-  def var parm-fld-list as cha no-undo.
-  def var parm-lbl-list as cha no-undo.
-  def var i as int no-undo.
-  def var lv-label as cha.
+    /*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE lv-frame-hdl  AS HANDLE  NO-UNDO.
+    DEFINE VARIABLE lv-group-hdl  AS HANDLE  NO-UNDO.
+    DEFINE VARIABLE lv-field-hdl  AS HANDLE  NO-UNDO.
+    DEFINE VARIABLE lv-field2-hdl AS HANDLE  NO-UNDO.
+    DEFINE VARIABLE parm-fld-list AS cha     NO-UNDO.
+    DEFINE VARIABLE parm-lbl-list AS cha     NO-UNDO.
+    DEFINE VARIABLE i             AS INTEGER NO-UNDO.
+    DEFINE VARIABLE lv-label      AS cha.
 
-  ASSIGN
-  lv-frame-hdl = frame {&frame-name}:HANDLE
-  lv-group-hdl = lv-frame-hdl:first-child
-  lv-field-hdl = lv-group-hdl:first-child.
+    ASSIGN
+        lv-frame-hdl = FRAME {&frame-name}:HANDLE
+        lv-group-hdl = lv-frame-hdl:FIRST-CHILD
+        lv-field-hdl = lv-group-hdl:FIRST-CHILD.
 
-  do while true:
-     if not valid-handle(lv-field-hdl) then leave.
-     if lookup(lv-field-hdl:private-data,"parm") > 0
-        then do:
-           if lv-field-hdl:label <> ? then 
-              assign parm-fld-list = parm-fld-list + lv-field-hdl:screen-value + ","
-                     parm-lbl-list = parm-lbl-list + lv-field-hdl:label + "," 
-                     .
-           else do:  /* radio set */
-              assign parm-fld-list = parm-fld-list + lv-field-hdl:screen-value + ","
-                     lv-field2-hdl = lv-group-hdl:first-child.
-              repeat:
-                  if not valid-handle(lv-field2-hdl) then leave. 
-                  if lv-field2-hdl:private-data = lv-field-hdl:name THEN
-                     parm-lbl-list = parm-lbl-list + lv-field2-hdl:screen-value + ",".
-                  lv-field2-hdl = lv-field2-hdl:next-sibling.                 
-              end.       
-           end.                 
-        end.            
-     lv-field-hdl = lv-field-hdl:next-sibling.   
-  end.
+    DO WHILE TRUE:
+        IF NOT VALID-HANDLE(lv-field-hdl) THEN LEAVE.
+        IF LOOKUP(lv-field-hdl:PRIVATE-DATA,"parm") > 0
+            THEN 
+        DO:
+            IF lv-field-hdl:LABEL <> ? THEN 
+                ASSIGN parm-fld-list = parm-fld-list + lv-field-hdl:SCREEN-VALUE + ","
+                    parm-lbl-list = parm-lbl-list + lv-field-hdl:LABEL + "," 
+                    .
+            ELSE 
+            DO:  /* radio set */
+                ASSIGN 
+                    parm-fld-list = parm-fld-list + lv-field-hdl:SCREEN-VALUE + ","
+                    lv-field2-hdl = lv-group-hdl:FIRST-CHILD.
+                REPEAT:
+                    IF NOT VALID-HANDLE(lv-field2-hdl) THEN LEAVE. 
+                    IF lv-field2-hdl:PRIVATE-DATA = lv-field-hdl:NAME THEN
+                        parm-lbl-list = parm-lbl-list + lv-field2-hdl:SCREEN-VALUE + ",".
+                    lv-field2-hdl = lv-field2-hdl:NEXT-SIBLING.                 
+                END.       
+            END.                 
+        END.            
+        lv-field-hdl = lv-field-hdl:NEXT-SIBLING.   
+    END.
 
-  put space(28)
-      "< Selection Parameters >"
-      skip(1).
+    PUT SPACE(28)
+        "< Selection Parameters >"
+        SKIP(1).
 
-  do i = 1 to num-entries(parm-fld-list,","):
-    if entry(i,parm-fld-list) ne "" or
-       entry(i,parm-lbl-list) ne "" then do:
+    DO i = 1 TO NUM-ENTRIES(parm-fld-list,","):
+        IF ENTRY(i,parm-fld-list) NE "" OR
+            entry(i,parm-lbl-list) NE "" THEN 
+        DO:
 
-      lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
-                 trim(entry(i,parm-lbl-list)) + ":".
+            lv-label = FILL(" ",34 - length(TRIM(ENTRY(i,parm-lbl-list)))) +
+                trim(ENTRY(i,parm-lbl-list)) + ":".
 
-      put lv-label format "x(35)" at 5
-          space(1)
-          trim(entry(i,parm-fld-list)) format "x(40)"
-          skip.              
-    end.
-  end.
+            PUT lv-label FORMAT "x(35)" AT 5
+                SPACE(1)
+                TRIM(ENTRY(i,parm-fld-list)) FORMAT "x(40)"
+                SKIP.              
+        END.
+    END.
 
-  put fill("-",80) format "x(80)" skip.
+    PUT FILL("-",80) FORMAT "x(80)" SKIP.
 
 END PROCEDURE.
 
