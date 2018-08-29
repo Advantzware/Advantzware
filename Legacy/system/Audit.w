@@ -1017,6 +1017,7 @@ END.
 ON CHOOSE OF btnCalendar-1 IN FRAME AuditSearch
 DO:
     {methods/btnCalendar.i svStartDate}
+    APPLY "LEAVE":U TO svStartDate.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1028,6 +1029,7 @@ END.
 ON CHOOSE OF btnCalendar-2 IN FRAME AuditSearch
 DO:
     {methods/btnCalendar.i svEndDate}
+    APPLY "LEAVE":U TO svEndDate.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1434,9 +1436,9 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     &ELSE
     RUN pGetSettings.
     &ENDIF
-    {&OPEN-QUERY-AuditHeader}
     APPLY 'VALUE-CHANGED':U TO svStartDateOption.
     APPLY 'VALUE-CHANGED':U TO svEndDateOption.
+    {&OPEN-QUERY-AuditHeader}
     APPLY 'VALUE-CHANGED':U TO BROWSE AuditHeader.
   END. /* if lcontinue */
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
