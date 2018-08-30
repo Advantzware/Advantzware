@@ -1344,6 +1344,7 @@ do TRANSACTION.
           DO:
              ASSIGN 
                fg-rctd.pur-uom  = fg-bin.pur-uom
+               fg-rctd.cost-uom = fg-bin.pur-uom /*#29642 - Lack of this being filled in causing problems with ext-cost calc downstream (fg-bin.pur-uom is actually itemfg.prod-uom at time of create)*/
                fg-rctd.std-cost = fg-bin.std-tot-cost.
             
              if fg-rctd.pur-uom eq "EA" then

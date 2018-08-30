@@ -898,7 +898,7 @@ DO:
        eb.cust-no:SCREEN-VALUE IN BROWSE {&browse-name} NE eb.cust-no AND
        eb.cust-no NE "" THEN
     DO:
-      MESSAGE "Cannot Change Customer."
+      MESSAGE "This estimate has order # - " + string(eb.ord-no) + " . Cannot Change Customer."
           VIEW-AS ALERT-BOX ERROR BUTTONS OK.
       RETURN NO-APPLY.
     END.

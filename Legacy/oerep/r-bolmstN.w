@@ -598,7 +598,7 @@ build-work:
          AND CAN-FIND(FIRST oe-ord
                       WHERE oe-ord.company EQ oe-boll.company
                         AND oe-ord.ord-no  EQ oe-boll.ord-no
-                        AND oe-ord.stat    EQ "H")
+                        AND (oe-ord.stat    EQ "H" OR oe-ord.priceHold))
         NO-LOCK:
 
       /*IF begin_bol# EQ END_bol# THEN

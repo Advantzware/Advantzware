@@ -175,7 +175,8 @@ FOR EACH oe-boll WHERE ROWID(oe-boll) EQ ip-rowid,
          IF AVAIL fg-rctd THEN
          DO:
             ASSIGN 
-             fg-rctd.pur-uom  = itemfg.prod-uom
+             fg-rctd.pur-uom  = b-fg-bin.pur-uom
+             fg-rctd.cost-uom = b-fg-bin.pur-uom /*#29642 - Lack of this being filled in causing problems with ext-cost calc downstream (fg-bin.pur-uom is actually itemfg.prod-uom at time of create)*/
              fg-rctd.std-cost = b-fg-bin.std-tot-cost.
            
             IF fg-rctd.pur-uom EQ "EA" THEN

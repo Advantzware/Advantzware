@@ -264,6 +264,7 @@ PROCEDURE assignOrderHeader:
                          ELSE ""
         shipto.dest-code = IF AVAIL(bf-shipto) THEN bf-shipto.dest-code 
                          ELSE ""
+        oe-ord.ship-id   = shipto.ship-id  /*31899 - apply oe-ord.ship-id after prefix is trimmed*/
         .
 /* 10061401 */
 /*         FIND FIRST stax                          */
@@ -483,7 +484,16 @@ PROCEDURE gencXMLOrder:
     opcReturnValue = 'Customer: ' + custNo + ' not found'.
     RETURN.
   END.
-
+  FIND FIRST ttNodes NO-LOCK 
+         WHERE ttNodes.parentName EQ 'itemDetail' 
+           AND ttNodes.nodeName EQ 'ManufacturerPartID'
+         NO-ERROR.
+  IF NOT AVAILABLE ttNodes THEN DO:
+      opcReturnValue = 'Part Number is missing from XML file' .
+      RETURN.
+  END. 
+    
+    
   iNextOrderNumber = GetNextOrder#().
   RUN genOrderHeader (INPUT iNextOrderNumber, INPUT orderDate, OUTPUT rOrdRec).
   RUN assignOrderHeader (INPUT rOrdRec, OUTPUT cShipToID, OUTPUT cReturn).  

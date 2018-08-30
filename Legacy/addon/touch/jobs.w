@@ -49,9 +49,12 @@ RUN methods/prgsecur.p
 
 &Scoped-define BUTTON-INCLUDE JOBS
 
-def temp-table tt-job field job-no like job.job-no
-                      field job-no2 like job.job-no2
-                      /*index job is primary job-no*/ .
+DEFINE TEMP-TABLE tt-job NO-UNDO
+    FIELD job-no  LIKE job.job-no
+    FIELD job-no2 LIKE job.job-no2
+    FIELD sortKey   AS CHARACTER 
+    INDEX sortKey IS PRIMARY sortKey
+    .
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -850,8 +853,8 @@ PROCEDURE Get_Jobs :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
- DEF INPUT PARAM ip-sort-by AS cha NO-UNDO.
-
+  DEF INPUT PARAM ip-sort-by AS cha NO-UNDO.
+  
   {methods/run_link.i "CONTAINER" "Get_Value" "('company_code',OUTPUT company_code)"}
   {methods/run_link.i "CONTAINER" "Get_Value" "('machine_code',OUTPUT machine_code)"}
   {methods/run_link.i "CONTAINER" "Get_Value" "('machine_list',OUTPUT machine_list)"}
@@ -864,10 +867,9 @@ PROCEDURE Get_Jobs :
   def var b as int no-undo.
   DEF VAR lv-form-completed AS LOG NO-UNDO.
   DEF BUFFER bf-jobmch FOR job-mch.
+  DEFINE VARIABLE cSortKey AS CHARACTER NO-UNDO.
 
-  for each tt-job:
-      delete tt-job.
-  end.
+  EMPTY TEMP-TABLE tt-job.
 
 IF ip-sort-by = "JOB" THEN
   do i = 1 to 2:
@@ -886,27 +888,11 @@ IF ip-sort-by = "JOB" THEN
            BREAK BY job.job-no BY job.job-no2:
          
         IF FIRST-OF(job.job-no2) THEN DO:
-           /* schedule machine task# 08030510*/
-           /*DEF VAR lv-sch-mach AS cha NO-UNDO.
-           DEF VAR lv-mach-list AS cha NO-UNDO.
-           FIND FIRST mach NO-LOCK WHERE mach.company = company_code
-                                     AND mach.m-code = machine_code NO-ERROR.
-           FIND FIRST reftable {&where-sch-m-code} NO-LOCK NO-ERROR.
-           lv-sch-mach = IF AVAIL reftable THEN reftable.code2 ELSE "".
-           IF lv-sch-mach <> "" THEN DO:
-              lv-mach-list = "".
-              FOR EACH reftable NO-LOCK WHERE reftable.reftable = "mach.sch-m-code"
-                                       AND reftable.company  = mach.company
-                                       AND reftable.loc      = mach.loc
-                                       AND reftable.code2     = lv-sch-mach:
-                  lv-mach-list = lv-mach-list + reftable.CODE + ",".
-              END.
-           END.
-           */
-           /* end of task 08030510*/
-           FOR each job-mch of job  NO-LOCK where (job-mch.m-code eq machine_code OR 
-                                                   LOOKUP(job-mch.m-code,machine_list) > 0)
-                  BREAK BY job-mch.frm BY job-mch.blank-no:
+           FOR EACH job-mch OF job NO-LOCK
+               WHERE (job-mch.m-code EQ machine_code
+                  OR LOOKUP(job-mch.m-code,machine_list) GT 0)
+                 AND job-mch.run-complete EQ NO
+               BREAK BY job-mch.frm BY job-mch.blank-no:
 
               IF FIRST-OF(job-mch.blank-no) THEN DO:
                  lv-form-completed = YES.
@@ -922,12 +908,14 @@ IF ip-sort-by = "JOB" THEN
                                   AND cmpltjob.blank_number = job-mch.blank-no)                    
                     AND NOT lv-form-completed
                  THEN DO:
-                      FIND FIRST tt-job WHERE tt-job.job-no = job.job-no
-                                          AND tt-job.job-no2 = job.job-no2 NO-ERROR.
-                      IF NOT AVAIL tt-job THEN DO: 
+                      IF NOT CAN-FIND(FIRST tt-job
+                                      WHERE tt-job.job-no  EQ job.job-no
+                                        AND tt-job.job-no2 EQ job.job-no2) THEN DO: 
                          create tt-job.
-                         assign tt-job.job-no = job.job-no
-                                tt-job.job-no2 = job.job-no2.
+                         assign tt-job.job-no  = job.job-no
+                                tt-job.job-no2 = job.job-no2
+                                tt-job.sortKey = job.job-no + STRING(job.job-no2,"99")
+                                .
                       END.
                  END.
               END.
@@ -952,8 +940,10 @@ IF ip-sort-by = "JOB" THEN
            BREAK BY job.start-date BY job.job-no BY job.job-no2:
          
         IF FIRST-OF(job.job-no2) THEN DO:
-           FOR each job-mch of job  where job-mch.m-code eq machine_code NO-LOCK
-                  BREAK BY job-mch.frm BY job-mch.blank-no:
+           FOR EACH job-mch OF job NO-LOCK
+               WHERE job-mch.m-code EQ machine_code
+                 AND job-mch.run-complete EQ NO
+               BREAK BY job-mch.frm BY job-mch.blank-no:
               IF FIRST-OF(job-mch.blank-no) THEN DO:
                  lv-form-completed = YES.
                  FOR EACH bf-jobmch OF job NO-LOCK where (bf-jobmch.m-code eq machine_code OR 
@@ -966,14 +956,22 @@ IF ip-sort-by = "JOB" THEN
                                   AND cmpltjob.job_sub = job-mch.job-no2
                                   AND cmpltjob.FORM_number = job-mch.frm
                                   AND cmpltjob.blank_number = job-mch.blank-no)
-                    AND NOT lv-form-completed
+/*                    AND NOT lv-form-completed*/
                  THEN DO:
-                      FIND FIRST tt-job WHERE tt-job.job-no = job.job-no
-                                          AND tt-job.job-no2 = job.job-no2 NO-ERROR.
-                      IF NOT AVAIL tt-job THEN DO: 
+                      IF NOT CAN-FIND(FIRST tt-job
+                                      WHERE tt-job.job-no  EQ job.job-no
+                                        AND tt-job.job-no2 EQ job.job-no2) THEN DO: 
                          create tt-job.
-                         assign tt-job.job-no = job.job-no
-                                tt-job.job-no2 = job.job-no2.
+                         assign tt-job.job-no  = job.job-no
+                                tt-job.job-no2 = job.job-no2
+                                tt-job.sortKey = IF job-mch.start-date NE ? AND
+                                                    job-mch.start-date GE TODAY - 365 THEN
+                                                 STRING(YEAR(job-mch.start-date),"9999")
+                                               + STRING(MONTH(job-mch.start-date),"99")
+                                               + STRING(DAY(job-mch.start-date),"99")
+                                               + STRING(job-mch.start-time,"99999")
+                                                 ELSE "9999999999999" + job.job-no + STRING(job.job-no2,"99")
+                                .
                       END.
                  END.
               END.
@@ -982,10 +980,10 @@ IF ip-sort-by = "JOB" THEN
      end.  /* for each job */
   end.
 
-  for each tt-job:
-      itemlist = IF itemlist = '' THEN tt-job.job-no + '-' + STRING(tt-job.job-no2)
-                 ELSE itemlist + '@' + tt-job.job-no + '-' + STRING(tt-job.job-no2).
+  for each tt-job BY tt-job.sortKey:
+      itemlist = itemlist + tt-job.job-no + '-' + STRING(tt-job.job-no2) + '@'.
   end.
+  itemlist = TRIM(itemlist,'@').
 
   RUN Button_Labels (INPUT-OUTPUT button_item).
   

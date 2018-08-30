@@ -102,6 +102,7 @@ DEF VAR cVarValue AS CHAR EXTENT 100 NO-UNDO.
 DEF VAR cUserID AS CHAR NO-UNDO.
 DEF VAR cValidDBs AS CHAR NO-UNDO.
 DEF VAR cValidEnvs AS CHAR NO-UNDO.
+DEF VAR cValidModes AS CHAR NO-UNDO.
 DEF VAR iCtr AS INT NO-UNDO.
 DEF VAR jCtr AS INT NO-UNDO.
 DEF VAR iNumUsers AS INT NO-UNDO.
@@ -629,12 +630,15 @@ DO:
         ASSIGN
             cbEnvironment:LIST-ITEMS = IF cValidEnvs <> "" THEN cValidEnvs ELSE IF ttUsers.ttfEnvList <> "" THEN ttUsers.ttfEnvList ELSE cEnvList
             cbDatabase:LIST-ITEMS = IF cValidDbs <> "" THEN cValidDbs ELSE IF ttUsers.ttfDbList <> "" THEN ttUsers.ttfDbList ELSE cDbList
-            cbMode:LIST-ITEMS = IF ttUsers.ttfModeList <> "" THEN ttUsers.ttfModeList ELSE cModeList
             cbEnvironment:SCREEN-VALUE = ENTRY(1,cbEnvironment:LIST-ITEMS)
-            cbDatabase:SCREEN-VALUE = ENTRY(1,cbDatabase:LIST-ITEMS)
-            cbMode:SCREEN-VALUE = ENTRY(1, cbMode:LIST-ITEMS).
+            cbDatabase:SCREEN-VALUE = ENTRY(1,cbDatabase:LIST-ITEMS).
         APPLY 'value-changed' TO cbEnvironment.
         APPLY 'value-changed' to cbDatabase.
+
+        RUN ipFindUser IN THIS-PROCEDURE.
+        ASSIGN
+            cbMode:LIST-ITEMS = IF cValidModes <> "" THEN cValidModes ELSE cModeList
+            cbMode:SCREEN-VALUE = ENTRY(1, cbMode:LIST-ITEMS).
         APPLY 'value-changed' TO cbMode.
     END.
         
@@ -683,7 +687,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
             cbEnvironment:SCREEN-VALUE = ENTRY(1,cbEnvironment:LIST-ITEMS)
             cbMode:SCREEN-VALUE = ENTRY(1,cModeScrList)
             fiUserID:SCREEN-VALUE = OS-GETENV("USERNAME").
-            
+
         APPLY 'entry' TO fiUserID.
     
         IF NOT THIS-PROCEDURE:PERSISTENT THEN
@@ -842,6 +846,8 @@ PROCEDURE ipChangeDatabase :
         APPLY 'choose' to btn_Cancel IN FRAME {&FRAME-NAME}.
         RETURN NO-APPLY.
     END.
+    
+    APPLY 'value-changed' TO cbMode.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1012,14 +1018,15 @@ PROCEDURE ipClickOk :
     END.
 
     /* Advise that code at lower levels will not be able to update user properties correctly */
-    IF iEnvLevel LT 16070800 THEN DO:
+    IF iEnvLevel LT 16070800 
+    AND fiUserid:{&SV} = "admin" THEN DO:
         MESSAGE
             "Changes to user aliases, mode, environments and databases will not be saved with this version."
             VIEW-AS ALERT-BOX INFO.
         ASSIGN
             cUsrLoc = replace(cUsrLoc,".usr",".nul").
     END.
-    
+
     /* This is the normal operation for Mode choices */
     IF NOT cbMode = "Monitor Users" THEN DO: 
         /* Set current dir */
@@ -1062,10 +1069,13 @@ PROCEDURE ipConnectDb :
     DEF VAR iPos AS INT NO-UNDO.
 
     /* Force user id and password from screen values, trap errors in ERROR-STATUS */
-    ASSIGN
-        cStatement = cStatement + " -U " + cUserID + " -P " + fiPassword.
+    IF fiPassword NE "" THEN ASSIGN
+        cStatement = cStatement + " -U " + cUserID + " -P '" + fiPassword + "'".
+    ELSE ASSIGN
+        cStatement = cStatement + " -U " + cUserID.
+    
     CONNECT VALUE(cStatement) NO-ERROR.
-
+    
     IF ERROR-STATUS:ERROR THEN DO:
         DO iCtr = 1 TO ERROR-STATUS:NUM-MESSAGES:
             /* Strip off the "Progress-y" elements of the error */
@@ -1104,7 +1114,6 @@ PROCEDURE ipConnectDb :
             RUN VALUE("preRun" + STRING(iTruncLevel,"9999") + ".p") PERSISTENT SET hPreRun.
         ELSE RUN VALUE("prerun.p") PERSISTENT SET hPreRun.
     END.
-    RUN ipPreRun IN THIS-PROCEDURE.
 
     /* Connect AUDIT database */
     ASSIGN
@@ -1121,25 +1130,33 @@ PROCEDURE ipConnectDb :
             xDbName = ENTRY(iLookup,cAudDbList)
             xdbPort = ENTRY(iLookup,cAudPortList)
             connectStatement = "".
-        IF iEnvLEvel EQ 16070000 THEN ASSIGN
-            xDBName = "audTest166"
-            xdbPort = "2837".
         IF xDbName NE "" THEN DO:
             ASSIGN
                 connectStatement = "-db " + xDbName + 
                                    " -H " + chostName +
                                    " -S " + xdbPort + 
                                    " -N tcp -ld AUDIT".
-            CONNECT VALUE(connectStatement).
-            IF NOT CONNECTED(LDBNAME(2)) THEN DO:
-                MESSAGE
-                    "The Audit database failed to connect.  Please" SKIP
-                    "contact your system administrator for assistance."
-                    VIEW-AS ALERT-BOX ERROR.
-                QUIT.
+
+            CONNECT VALUE(connectStatement) NO-ERROR.
+
+            IF ERROR-STATUS:ERROR 
+            AND NOT CONNECTED(LDBNAME(2)) THEN DO:
+                DO iCtr = 1 TO ERROR-STATUS:NUM-MESSAGES:
+                    /* Strip off the "Progress-y" elements of the error */
+                    ASSIGN
+                        cMessString = SUBSTRING(ERROR-STATUS:GET-MESSAGE(iCtr),3)
+                        iPos = INDEX(cMessString,"(")
+                        cMessString = "   " + SUBSTRING(cMessString,1,iPos - 1).
+                    MESSAGE
+                        "Unable to connect to the AUDIT database due to the following error:" skip
+                        cMessString
+                        VIEW-AS ALERT-BOX ERROR.
+                END.
             END.
         END.
     END.
+    
+    RUN ipPreRun IN THIS-PROCEDURE.
 
     ASSIGN
         c-Win:VISIBLE = FALSE.
@@ -1396,7 +1413,7 @@ PROCEDURE ipFindUser :
             
     FIND FIRST ttUsers NO-LOCK WHERE
         ttUsers.ttfUserID = cUserID AND
-        ttUsers.ttfPdbName = cbDatabase 
+        ttUsers.ttfPdbName = cbDatabase:{&SV}
         NO-ERROR.
 
     /* Can't find by DB, is there a generic one? (db = '*') */
@@ -1427,13 +1444,14 @@ PROCEDURE ipFindUser :
         IF NOT AVAIL ttUsers THEN FIND FIRST ttUsers NO-LOCK WHERE
             ttUsers.ttfUserAlias = fiUserID
             NO-ERROR.
-    END.    
+    END.
     IF AVAIL ttUsers THEN ASSIGN
         cUserID = IF cUserID EQ "" THEN ttUsers.ttfUserID ELSE cUserID
         cValidDbs = IF cValidDbs EQ "" THEN ttUsers.ttfDbList ELSE cValidDbs
-        cValidEnvs = IF cValidEnvs EQ "" THEN ttUsers.ttfEnvList ELSE cValidEnvs.
-
-END PROCEDURE.
+        cValidEnvs = IF cValidEnvs EQ "" THEN ttUsers.ttfEnvList ELSE cValidEnvs
+        cValidModes = IF cValidModes EQ "" THEN ttUsers.ttfModeList ELSE cValidModes.
+        
+ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1552,8 +1570,9 @@ PROCEDURE ipPreRun :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    DEF VAR lOK AS LOG INITIAL TRUE NO-UNDO.
-    DEF VAR lExit AS LOG INITIAL TRUE NO-UNDO.
+    DEFINE VARIABLE lOK      AS LOGICAL INITIAL TRUE NO-UNDO.
+    DEFINE VARIABLE lExit    AS LOGICAL INITIAL TRUE NO-UNDO.
+    DEFINE VARIABLE hSession AS HANDLE               NO-UNDO.
 
     ASSIGN
         iPos = LOOKUP(cbEnvironment,cEnvironmentList)
@@ -1571,6 +1590,12 @@ PROCEDURE ipPreRun :
         RUN epCheckUserLocked IN hPreRun (INPUT-OUTPUT lOK).
         IF NOT lOK THEN QUIT.
     END.
+
+    IF SEARCH("system\session.r") NE ? THEN DO:
+        RUN system\session.p PERSISTENT SET hSession.
+        SESSION:ADD-SUPER-PROCEDURE (hSession).
+    END.
+
     IF NOT VALID-HANDLE(persistent-handle) THEN
         RUN nosweat/persist.p PERSISTENT SET persistent-handle.
     IF NOT VALID-HANDLE(listlogic-handle) THEN

@@ -304,6 +304,8 @@ DEF BUFFER io-oe-retl FOR oe-retl.
            where ar-invl.x-no    eq ar-inv.x-no
              and ar-invl.i-no    ge fitem
              and ar-invl.i-no    le titem
+             AND ar-invl.loc GE begin_shipfrom
+             AND ar-invl.loc LE end_shipfrom
            no-lock:
          
          IF NOT(ar-invl.billable or not ar-invl.misc) THEN NEXT.
@@ -428,6 +430,8 @@ DEF BUFFER io-oe-retl FOR oe-retl.
                       ar-invl.i-no  GE fitem AND
                       ar-invl.i-no  LE titem))
                 and (ar-invl.billable or not ar-invl.misc)
+                AND ar-invl.loc GE begin_shipfrom
+                AND ar-invl.loc LE end_shipfrom
               no-lock
               BREAK BY ar-invl.i-no:
             do i = 1 to 3:
@@ -741,6 +745,7 @@ if v-det then do:
                  WHEN "rep" THEN cVarValue = string(tt-report.key-05,"X(3)").
                  WHEN "rep-name" THEN cVarValue = IF AVAIL sman THEN string(sman.sname,"X(25)") ELSE "".
                  WHEN "v-po" THEN cVarValue = IF AVAIL ar-invl THEN string(ar-invl.po-no,"X(15)") ELSE "".
+                 WHEN "loc" THEN cVarValue = IF AVAIL ar-invl THEN string(ar-invl.loc,"X(9)") ELSE "".
             END CASE.
               
             cExcelVarValue = cVarValue.
@@ -782,6 +787,7 @@ ELSE if (LAST-OF(tt-report.key-01) and v-sort1)     or
                  WHEN "rep" THEN cVarValue = "".
                  WHEN "rep-name" THEN cVarValue = "".
                  WHEN "v-po" THEN cVarValue =  "".
+                 WHEN "loc" THEN cVarValue = "".
             END CASE.  /* Task 11221304  */
               
             cExcelVarValue = cVarValue.
@@ -839,6 +845,7 @@ END.
                                WHEN "rep" THEN cVarValue = "".
                                WHEN "rep-name" THEN cVarValue = "".
                                WHEN "v-po" THEN cVarValue =  "".
+                               WHEN "loc" THEN cVarValue = "".
                          END CASE.
                            
                          cExcelVarValue = cVarValue.
@@ -908,6 +915,7 @@ END.
                                WHEN "rep" THEN cVarValue = "".
                                WHEN "rep-name" THEN cVarValue = "".
                                WHEN "v-po" THEN cVarValue =  "".
+                               WHEN "loc" THEN cVarValue = "".
                          END CASE.
                            
                          cExcelVarValue = cVarValue.
@@ -979,6 +987,7 @@ END.
                                WHEN "rep" THEN cVarValue = "".
                                WHEN "rep-name" THEN cVarValue = "".
                                WHEN "v-po" THEN cVarValue =  "".
+                               WHEN "loc" THEN cVarValue = "".
                          END CASE.
                            
                          cExcelVarValue = cVarValue.
@@ -1050,6 +1059,7 @@ END.
                                WHEN "rep" THEN cVarValue = "".
                                WHEN "rep-name" THEN cVarValue = "".
                                WHEN "v-po" THEN cVarValue =  "".
+                               WHEN "loc" THEN cVarValue = "".
                          END CASE.
                            
                          cExcelVarValue = cVarValue.

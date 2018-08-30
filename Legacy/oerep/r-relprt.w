@@ -69,6 +69,7 @@ DEF NEW SHARED VAR s-print-bin-to AS cha NO-UNDO.
 DEF NEW SHARED VAR s-print-pricing AS LOG NO-UNDO.
 DEF NEW SHARED VAR lv-spec-list AS CHAR NO-UNDO.
 DEF NEW SHARED VAR s-print-spec AS LOG NO-UNDO .
+DEFINE NEW SHARED VARIABLE lPrintQtyUom AS LOGICAL NO-UNDO .
 DEFINE NEW SHARED VARIABLE lSortRelSeq AS LOGICAL NO-UNDO .
 DEF VAR ls-fax-file AS CHAR NO-UNDO.
 DEF VAR vcDefaultForm AS CHAR NO-UNDO.
@@ -116,19 +117,19 @@ END.
 &Scoped-Define ENABLED-OBJECTS RECT-6 RECT-7 RECT-9 begin_cust-no ~
 end_cust-no tb_excl_cust begin_relnum end_relnum begin_ord-no end_ord-no ~
 begin_date end_date begin_del-zone end_del-zone begin_whse end_whse ~
-tb_printed tb_print-spec tb_sort-rel fi_specs tb_posted tb_more ~
-rd-print-what tb_p-bin tb_zone-s tb_zone-p tb_print-component begin_loc ~
-end_loc begin_loc-bin end_loc-bin tb_whs-bin-sort rd-dest lv-ornt ~
+tb_printed tb_print-qty-uom tb_print-spec tb_sort-rel fi_specs tb_posted ~
+tb_more rd-print-what tb_p-bin tb_zone-s tb_zone-p tb_print-component ~
+begin_loc end_loc begin_loc-bin end_loc-bin tb_whs-bin-sort rd-dest lv-ornt ~
 lines-per-page lv-font-no tgMultipleReleases td-show-parm tb_post-rel ~
 btn-ok btn-cancel 
 &Scoped-Define DISPLAYED-OBJECTS begin_cust-no end_cust-no tb_excl_cust ~
 begin_relnum end_relnum begin_ord-no end_ord-no begin_date end_date ~
 begin_del-zone end_del-zone begin_whse end_whse tb_printed tb_exl-tg-bin ~
-tb_print-spec tb_sort-rel fi_specs tb_posted tb_more rd-print-what tb_p-bin ~
-tb_zone-s tb_zone-p tb_print-component begin_loc end_loc tb_prt-part-no ~
-tb_pricing begin_loc-bin end_loc-bin tb_whs-bin-sort rd-dest lv-ornt ~
-lines-per-page lv-font-no lv-font-name tgMultipleReleases td-show-parm ~
-tb_post-rel 
+tb_print-qty-uom tb_print-spec tb_sort-rel fi_specs tb_posted tb_more ~
+rd-print-what tb_p-bin tb_zone-s tb_zone-p tb_print-component begin_loc ~
+end_loc tb_prt-part-no tb_pricing begin_loc-bin end_loc-bin tb_whs-bin-sort ~
+rd-dest lv-ornt lines-per-page lv-font-no lv-font-name tgMultipleReleases ~
+td-show-parm tb_post-rel 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -326,6 +327,11 @@ DEFINE VARIABLE tb_print-component AS LOGICAL INITIAL no
      VIEW-AS TOGGLE-BOX
      SIZE 41 BY 1 NO-UNDO.
 
+DEFINE VARIABLE tb_print-qty-uom AS LOGICAL INITIAL YES 
+     LABEL "Print Order Qty/UOM?" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 24.2 BY 1 NO-UNDO.
+
 DEFINE VARIABLE tb_print-spec AS LOGICAL INITIAL no 
      LABEL "Print Spec Notes?" 
      VIEW-AS TOGGLE-BOX
@@ -402,6 +408,7 @@ DEFINE FRAME FRAME-A
           "Enter Ending Warehouse Number" WIDGET-ID 6
      tb_printed AT ROW 8.33 COL 6
      tb_exl-tg-bin AT ROW 8.33 COL 53
+     tb_print-qty-uom AT ROW 8.50 COL 48.8 WIDGET-ID 16
      tb_print-spec AT ROW 8.86 COL 46.6 WIDGET-ID 10
      tb_sort-rel AT ROW 8.86 COL 52.8 WIDGET-ID 14
      fi_specs AT ROW 8.86 COL 70 COLON-ALIGNED HELP
@@ -433,13 +440,13 @@ DEFINE FRAME FRAME-A
      btn-cancel AT ROW 25.29 COL 59
      "Output Destination" VIEW-AS TEXT
           SIZE 18 BY .62 AT ROW 17.33 COL 4
-     "To" VIEW-AS TEXT
-          SIZE 5 BY .62 AT ROW 13.48 COL 85
-     "From" VIEW-AS TEXT
-          SIZE 6 BY .62 AT ROW 13.48 COL 67
      "Selection Parameters" VIEW-AS TEXT
           SIZE 21 BY .71 AT ROW 1.1 COL 4.2
           BGCOLOR 2 
+     "From" VIEW-AS TEXT
+          SIZE 6 BY .62 AT ROW 13.48 COL 67
+     "To" VIEW-AS TEXT
+          SIZE 5 BY .62 AT ROW 13.48 COL 85
      RECT-6 AT ROW 17.19 COL 1
      RECT-7 AT ROW 1.19 COL 1
      RECT-9 AT ROW 10.14 COL 48
@@ -599,6 +606,11 @@ ASSIGN
    NO-ENABLE                                                            */
 ASSIGN 
        tb_print-component:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
+
+ASSIGN 
+       tb_print-qty-uom:HIDDEN IN FRAME FRAME-A           = TRUE
+       tb_print-qty-uom:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
 ASSIGN 
@@ -788,6 +800,7 @@ DO:
 
   DO WITH FRAME {&FRAME-NAME}:
     ASSIGN {&displayed-objects}.
+    
   END.
 
   IF tgMultipleReleases:SCREEN-VALUE NE "YES" THEN
@@ -833,6 +846,8 @@ DO:
   v-print-components = tb_print-component.
   s-print-part-no = tb_prt-part-no.
   v-num-custs = 0.
+  lPrintQtyUom  = logical(tb_print-qty-uom:SCREEN-VALUE IN FRAME {&FRAME-NAME}).
+  
   FOR EACH b-oe-relh FIELDS(company cust-no ship-id r-no release#) WHERE
                b-oe-relh.company EQ cocode AND
                b-oe-relh.release# GE begin_relnum AND
@@ -1256,7 +1271,7 @@ END.
 ON VALUE-CHANGED OF tb_p-bin IN FRAME FRAME-A /* Print Bin Locations? */
 DO:
   ASSIGN {&self-name}.
-  IF LOOKUP(v-relprint,"HOPX,ACPI,Fibrex,Accord,Carded,Loylang,PremierX,Relprint 10,Lakeside,Distributor,Frank,CSC-GA,Protagon,CardedX,Peachtree,Multicell,CCC,Soule,StClair,Midwest") > 0 THEN DO:
+  IF LOOKUP(v-relprint,"HOPX,ACPI,RFC,Fibrex,Accord,Carded,Loylang,PremierX,Relprint 10,Lakeside,Distributor,Frank,CSC-GA,Protagon,CardedX,Peachtree,Multicell,CCC,Soule,StClair,Midwest") > 0 THEN DO:
      IF tb_p-bin THEN
      DO:
         IF v-relprint = "PremierX" OR v-relprint = "Relprint 10" OR v-relprint = "Lakeside" OR v-relprint = "Distributor" OR v-relprint = "Frank" OR v-relprint = "NSTOCK" OR v-relprint = "Axis"
@@ -1305,6 +1320,17 @@ DO:
     END.
     ASSIGN {&self-name}.
   END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME tb_print-qty-uom
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_print-qty-uom C-Win
+ON VALUE-CHANGED OF tb_print-qty-uom IN FRAME FRAME-A /* Print Order Qty/UOM? */
+DO:
+  ASSIGN {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1617,7 +1643,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
               begin_loc-bin:SENSITIVE = begin_loc:SENSITIVE
               END_loc-bin:SENSITIVE = begin_loc:SENSITIVE.
     ELSE
-    IF LOOKUP(v-relprint,"HOPX,ACPI,Fibrex,Accord,Loylang,PremierX,Relprint 10,Lakeside,Distributor,Frank,Axis,CSC-GA,Protagon,CardedX,Peachtree,Multicell,CCC,Soule,StClair,Midwest") > 0 THEN   /* NSTOCK,*/
+    IF LOOKUP(v-relprint,"HOPX,ACPI,RFC,Fibrex,Accord,Loylang,PremierX,Relprint 10,Lakeside,Distributor,Frank,Axis,CSC-GA,Protagon,CardedX,Peachtree,Multicell,CCC,Soule,StClair,Midwest") > 0 THEN   /* NSTOCK,*/
        ASSIGN rd-print-what:sensitive = YES
               begin_loc:SENSITIVE = IF LOOKUP(rd-print-what:SCREEN-VALUE,"I,S") > 0 THEN YES ELSE NO
               END_loc:SENSITIVE = begin_loc:SENSITIVE
@@ -1653,6 +1679,14 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
     IF v-relprint EQ "Indiana" THEN
        tb_pricing:SENSITIVE = YES.
+
+    IF v-relprint = "Relprint 10" THEN
+      ASSIGN 
+        tb_print-qty-uom:HIDDEN = NO.
+    ELSE
+      ASSIGN 
+        tb_print-qty-uom:HIDDEN = YES.
+    
 
     RUN new-relnum. 
 
@@ -1927,20 +1961,20 @@ PROCEDURE enable_UI :
   DISPLAY begin_cust-no end_cust-no tb_excl_cust begin_relnum end_relnum 
           begin_ord-no end_ord-no begin_date end_date begin_del-zone 
           end_del-zone begin_whse end_whse tb_printed tb_exl-tg-bin 
-          tb_print-spec tb_sort-rel fi_specs tb_posted tb_more rd-print-what 
-          tb_p-bin tb_zone-s tb_zone-p tb_print-component begin_loc end_loc 
-          tb_prt-part-no tb_pricing begin_loc-bin end_loc-bin tb_whs-bin-sort 
-          rd-dest lv-ornt lines-per-page lv-font-no lv-font-name 
+          tb_print-qty-uom tb_print-spec tb_sort-rel fi_specs tb_posted tb_more 
+          rd-print-what tb_p-bin tb_zone-s tb_zone-p tb_print-component 
+          begin_loc end_loc tb_prt-part-no tb_pricing begin_loc-bin end_loc-bin 
+          tb_whs-bin-sort rd-dest lv-ornt lines-per-page lv-font-no lv-font-name 
           tgMultipleReleases td-show-parm tb_post-rel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   ENABLE RECT-6 RECT-7 RECT-9 begin_cust-no end_cust-no tb_excl_cust 
          begin_relnum end_relnum begin_ord-no end_ord-no begin_date end_date 
          begin_del-zone end_del-zone begin_whse end_whse tb_printed 
-         tb_print-spec tb_sort-rel fi_specs tb_posted tb_more rd-print-what 
-         tb_p-bin tb_zone-s tb_zone-p tb_print-component begin_loc end_loc 
-         begin_loc-bin end_loc-bin tb_whs-bin-sort rd-dest lv-ornt 
-         lines-per-page lv-font-no tgMultipleReleases td-show-parm tb_post-rel 
-         btn-ok btn-cancel 
+         tb_print-qty-uom tb_print-spec tb_sort-rel fi_specs tb_posted tb_more 
+         rd-print-what tb_p-bin tb_zone-s tb_zone-p tb_print-component 
+         begin_loc end_loc begin_loc-bin end_loc-bin tb_whs-bin-sort rd-dest 
+         lv-ornt lines-per-page lv-font-no tgMultipleReleases td-show-parm 
+         tb_post-rel btn-ok btn-cancel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.
@@ -2139,9 +2173,10 @@ ASSIGN
  cLocEnd      = end_whse
  lv-spec-list  = fi_specs
  s-print-spec  = tb_print-spec 
- lSortRelSeq   = tb_sort-rel.
+ lSortRelSeq   = tb_sort-rel
+ lPrintQtyUom  = logical(tb_print-qty-uom:SCREEN-VALUE IN FRAME {&FRAME-NAME}).
 
-IF LOOKUP(v-relprint,"Hopx,ACPI,Fibrex,Accord,Metro,Carded,Loylang,PremierX,Relprint 10,Lakeside,Distributor,Frank,NSTOCK,Axis,CSC-GA,Protagon,CardedX,Peachtree,Multicell,CCC,Soule,StClair,Midwest") > 0 AND
+IF LOOKUP(v-relprint,"Hopx,ACPI,RFC,Fibrex,Accord,Metro,Carded,Loylang,PremierX,Relprint 10,Lakeside,Distributor,Frank,NSTOCK,Axis,CSC-GA,Protagon,CardedX,Peachtree,Multicell,CCC,Soule,StClair,Midwest") > 0 AND
    LOOKUP(s-print-what-item,"I,S") > 0 THEN 
    ASSIGN s-print-loc-from = begin_loc
           s-print-loc-to = END_loc
@@ -2369,6 +2404,12 @@ PROCEDURE set-report :
   ELSE IF v-relprint EQ "ACPI" THEN
    ASSIGN
     lv-program     = "oe/rep/relacpi.p"
+    lines-per-page = 75
+    is-xprint-form = YES  . /*60*/
+
+  ELSE IF v-relprint EQ "RFC" THEN
+   ASSIGN
+    lv-program     = "oe/rep/relrfc.p"
     lines-per-page = 75
     is-xprint-form = YES  . /*60*/
 

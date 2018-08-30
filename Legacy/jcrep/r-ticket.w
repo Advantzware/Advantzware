@@ -62,6 +62,7 @@ DEFINE VARIABLE retcode AS INTEGER   NO-UNDO.
 DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
 DEFINE VARIABLE lBussFormModle AS LOGICAL NO-UNDO.
+DEFINE VARIABLE cHoldMessage AS CHARACTER NO-UNDO.
 
  RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormModal", "L" /* Logical */, NO /* check by cust */, 
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
@@ -895,9 +896,11 @@ DO:
                     /*AND oe-ord.job-no EQ job-hdr.job-no 
                     AND oe-ord.job-no2 EQ job-hdr.job-no2*/ NO-LOCK NO-ERROR.
         IF AVAIL oe-ord THEN DO:
-            IF oe-ord.stat EQ "H" THEN
+            IF oe-ord.stat EQ "H" OR oe-ord.priceHold THEN
                 IF NOT v-oe-ctrl THEN DO:
-                    MESSAGE "Order " + string(job-hdr.ord-no) + " is on HOLD, can not Print Job Card.." VIEW-AS ALERT-BOX ERROR.
+                    IF oe-ord.stat EQ "H" THEN cHoldMessage = "Hold".
+                    ELSE cHoldMessage = "Price Hold". 
+                    MESSAGE "Order " + string(job-hdr.ord-no) + " is on " + cHoldMessage + ".  Can not Print Job Card." VIEW-AS ALERT-BOX ERROR.
                     RETURN no-apply.  /* task 03201401 */
                 END.
         END.
@@ -916,7 +919,8 @@ DO:
         /* gdm - 11030807 */  
         v-newdie   = NO
         v-newfilm  = NO
-        v-newcombo = NO.
+        v-newcombo = NO
+        lDraft     = logical(tb_draft:SCREEN-VALUE IN FRAME {&FRAME-NAME}).
 
   IF tb_fold THEN DO:
     /*lines-per-page = IF lv-format-f EQ "HOP" THEN 64 ELSE 58. */
@@ -3047,7 +3051,7 @@ PROCEDURE run-report :
     s-prt-revno             = tb_prt-rev 
     v-dept-log              = tb_dept-note
     v-dept-codes            = dept_codes
-    lDraft                  = tb_draft
+    lDraft                  = logical(tb_draft:SCREEN-VALUE IN FRAME {&FRAME-NAME})
     lExportXML              = tb_ExportXML
     . 
 

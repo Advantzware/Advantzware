@@ -8,5 +8,10 @@
 &SCOPED-DEFINE execProgram mainMenu2.    
 &SCOPED-DEFINE checkExpiredLicense YES
 &GLOBAL-DEFINE checkUserCount YES
-   
+
+DEFINE VARIABLE hSession AS HANDLE NO-UNDO.
+
+RUN system\session.p PERSISTENT SET hSession.
+SESSION:ADD-SUPER-PROCEDURE (hSession).
+
 {nosweat.i}

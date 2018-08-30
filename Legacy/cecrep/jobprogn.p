@@ -1188,9 +1188,9 @@ do v-local-loop = 1 to v-local-copies:
                      /*v-sampreq      AT 44*/.
 
                  IF xeb.quantityPerSet LT 0 THEN
-                   PUT -1 / xeb.quantityPerSet FORMAT ">>>>9" AT 60.
+                   PUT -1 / xeb.quantityPerSet FORMAT ">>>>9.9<<<" AT 58.
                  ELSE
-                   PUT xeb.quantityPerSet FORMAT ">>>>>>>9" AT 60.
+                   PUT xeb.quantityPerSet FORMAT ">>>>>>>9.9<<<" AT 58.
 
                  FIND FIRST xstyle NO-LOCK
                     WHERE xstyle.company  EQ xeb.company

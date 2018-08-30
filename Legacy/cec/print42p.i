@@ -672,7 +672,7 @@ do vmcl = 1 to 28:   /* ??? 28 not 4*/
                      brd-l[4]                           format ">>>9.99<<<" 
                      xeb.t-dep WHEN xeb.t-dep NE 0      format ">>>9.99<<<"
                      xeb.num-up                         format ">>>,>>>" 
-                     v-yld                              FORMAT ">>>,>>>"
+                     v-yld                              FORMAT ">>>>>.9<<<"
                      brd-sf[4]                              
                      "Sf/BL"
                      brd-wu[4]

@@ -121,8 +121,8 @@ form w2.i-no                              format "x(15)"
      w2.dscr                        at 33 format "x(30)"
      w2.cases                       to 70 format "->>>>"
      w2.cas-cnt                     to 77 format "->>>>>>"
-     tt-boll.qty                    to 85 format "->>>>>>"
-     bf-ttboll.p-c                  at 86
+     tt-boll.qty                    to 87 format "->>>>>>>>"
+     bf-ttboll.p-c                  at 89
     with frame bol-mid down no-box no-labels stream-io width 110.
 
 form oe-ordl.i-no                         format "x(15)"
@@ -130,8 +130,8 @@ form oe-ordl.i-no                         format "x(15)"
      v-part-dscr                    at 33 format "x(30)"
      w2.cases                       to 70 format "->>>9"
      w2.cas-cnt                     to 77 format "->>>>>9"
-     tt-boll.qty                    to 85 format "->>>>>9"
-     tt-boll.p-c                    at 86
+     tt-boll.qty                    to 87 format "->>>>>>>9"
+     tt-boll.p-c                    at 89
     with frame bol-mid2 down no-box no-labels stream-io width 100.
 
 ASSIGN tmpstore = fill("-",130).

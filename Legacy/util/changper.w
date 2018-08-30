@@ -965,9 +965,9 @@ DO TRANSACTION:
   FOR EACH gltrans NO-LOCK
       WHERE gltrans.company EQ cocode
         AND gltrans.trnum   EQ begin_run-no
-        AND gltrans.jrnl    EQ "GENERAL"
-        AND gltrans.tr-dscr MATCHES "*JRN#"
-      USE-INDEX tr-num:
+        AND gltrans.jrnl    EQ "GENERAL":
+        
+    IF gltrans.tr-dscr MATCHES "*JRN#" THEN NEXT.
 
     CREATE tt-journal.
     tt-journal = INT(SUBSTR(gltrans.tr-dscr,INDEX(gltrans.tr-dscr,"JRN#") + 4,7)).
@@ -976,9 +976,9 @@ DO TRANSACTION:
   FOR EACH glhist NO-LOCK
       WHERE glhist.company EQ cocode
         AND glhist.tr-num  EQ begin_run-no
-        AND glhist.jrnl    EQ "GENERAL"
-        AND glhist.tr-dscr MATCHES "*JRN#"
-      USE-INDEX tr-num:
+        AND glhist.jrnl    EQ "GENERAL":
+        
+    IF glhist.tr-dscr MATCHES "*JRN#" THEN NEXT.
 
     CREATE tt-journal.
     tt-journal = INT(SUBSTR(glhist.tr-dscr,INDEX(glhist.tr-dscr,"JRN#") + 4,7)).

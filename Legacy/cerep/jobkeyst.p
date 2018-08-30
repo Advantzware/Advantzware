@@ -421,7 +421,7 @@ END.
            IF TRIM(v-last-order) EQ "0" THEN
               v-last-order = "     0".
 
-          if not oe-ctrl.p-fact and oe-ord.stat eq "H" then next.
+          if not oe-ctrl.p-fact and (oe-ord.stat eq "H" OR oe-ord.priceHold) then next.
         END.
 
         ASSIGN

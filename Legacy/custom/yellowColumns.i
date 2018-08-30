@@ -1221,7 +1221,7 @@ PROCEDURE openQuery:
   &SCOPED-DEFINE SORTBY-PHRASE BY ~
      IF sortColumn EQ 'Estimate #'      THEN eb.est-no                  ELSE ~
      IF sortColumn EQ 'Customer#'       THEN STRING(eb.cust-no)          ELSE ~
-     IF sortColumn EQ 'Cust. Name'      THEN STRING(eb.ship-name)        ELSE ~
+     IF sortColumn EQ 'Cust Name'      THEN STRING(cust.name)            ELSE ~
      IF sortColumn EQ 'Item Description'THEN STRING(eb.part-dscr1)       ELSE ~
      IF sortColumn EQ 'Item Name'       THEN STRING(eb.part-dscr1)       ELSE ~
      IF sortColumn EQ 'Cust Part #'     THEN STRING(eb.part-no)          ELSE ~

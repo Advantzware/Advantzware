@@ -78,11 +78,11 @@ DEF VAR cSlsList AS CHAR NO-UNDO.
 /*DEF VAR cSelectedList AS cha NO-UNDO.*/
 
 ASSIGN cTextListToSelect = "Fg Item,Item Name,Customer#,Customer Name,Customer Part,Ship To,Inv Number,Inv Date,Order#,Est#," +  /*10*/
-                               "Bol #,Qty Shipped,Unit Price,Uom,Invoice Amt.,Rep,Rep Name,PO#" /*5*/
+                               "Bol #,Qty Shipped,Unit Price,Uom,Invoice Amt.,Rep,Rep Name,PO#,Ship From" /*5*/
            cFieldListToSelect = "w-data.i-no,v-name,cust.cust-no,cust.name,v-part-no,tt-report.key-03,w-data.inv-no,v-date,v-ord,v-est," +
-                                "v-bol,v-qty[1],v-pric,v-uom,v-amt[1],rep,rep-name,v-po"
-           cFieldLength = "15,20,9,20,20,8,10,10,8,8," + "8,12,15,3,17,3,25,15"
-           cFieldType = "c,c,c,c,c,c,i,c,i,c," + "i,i,i,c,i,c,c,c"
+                                "v-bol,v-qty[1],v-pric,v-uom,v-amt[1],rep,rep-name,v-po,loc"
+           cFieldLength = "15,20,9,20,20,8,10,10,8,8," + "8,12,15,3,17,3,25,15,9"
+           cFieldType = "c,c,c,c,c,c,i,c,i,c," + "i,i,i,c,i,c,c,c,c"
            .
         ASSIGN cTextListToDefault  = "Fg Item,Customer#,Item Name,Customer Part,Customer Name,Ship To,Inv Number,Inv Date,Order#,Bol #,Est#," +  /*10*/
                                      "Qty Shipped,Unit Price,Uom,Invoice Amt." .
@@ -108,14 +108,16 @@ ASSIGN cTextListToSelect = "Fg Item,Item Name,Customer#,Customer Name,Customer P
 &Scoped-Define ENABLED-OBJECTS RECT-6 RECT-7 RECT-8 tb_cust-list ~
 btnCustList begin_cust-no end_cust-no begin_ship end_ship begin_slmn ~
 end_slmn tgChooseSalesReps begin_i-no end_i-no begin_inv-date end_inv-date ~
-tb_detailed tb_fin-chg rd_sort sl_avail Btn_Def sl_selected Btn_Add ~
-Btn_Remove btn_Up btn_down rd-dest lv-ornt lines-per-page lv-font-no ~
-td-show-parm tb_excel tb_runExcel fi_file btn-ok btn-cancel 
+begin_shipfrom end_shipfrom tb_detailed tb_fin-chg rd_sort sl_avail Btn_Def ~
+sl_selected Btn_Add Btn_Remove btn_Up btn_down rd-dest lv-ornt ~
+lines-per-page lv-font-no td-show-parm tb_excel tb_runExcel fi_file btn-ok ~
+btn-cancel 
 &Scoped-Define DISPLAYED-OBJECTS tb_cust-list begin_cust-no end_cust-no ~
 begin_ship end_ship begin_slmn end_slmn tgChooseSalesReps begin_i-no ~
-end_i-no begin_inv-date end_inv-date tb_detailed tb_fin-chg lbl_sort ~
-rd_sort sl_avail sl_selected rd-dest lv-ornt lines-per-page lv-font-no ~
-lv-font-name td-show-parm tb_excel tb_runExcel fi_file 
+end_i-no begin_inv-date end_inv-date begin_shipfrom end_shipfrom ~
+tb_detailed tb_fin-chg lbl_sort rd_sort sl_avail sl_selected rd-dest ~
+lv-ornt lines-per-page lv-font-no lv-font-name td-show-parm tb_excel ~
+tb_runExcel fi_file 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -131,7 +133,7 @@ lv-font-name td-show-parm tb_excel tb_runExcel fi_file
 DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON btn-cancel /*AUTO-END-KEY */
+DEFINE BUTTON btn-cancel 
      LABEL "&Cancel" 
      SIZE 15 BY 1.14.
 
@@ -183,6 +185,11 @@ DEFINE VARIABLE begin_ship AS CHARACTER FORMAT "X(8)":U
      VIEW-AS FILL-IN 
      SIZE 17 BY 1 NO-UNDO.
 
+DEFINE VARIABLE begin_shipfrom AS CHARACTER FORMAT "X(5)":U 
+     LABEL "Beginning Ship From WH" 
+     VIEW-AS FILL-IN 
+     SIZE 17 BY 1 NO-UNDO.
+
 DEFINE VARIABLE begin_slmn AS CHARACTER FORMAT "XXX":U 
      LABEL "Beginning Salesrep#" 
      VIEW-AS FILL-IN 
@@ -205,6 +212,11 @@ DEFINE VARIABLE end_inv-date AS DATE FORMAT "99/99/9999":U INITIAL 12/31/9999
 
 DEFINE VARIABLE end_ship AS CHARACTER FORMAT "X(8)":U INITIAL "zzzzzzzz" 
      LABEL "Ending Ship-To#" 
+     VIEW-AS FILL-IN 
+     SIZE 17 BY 1 NO-UNDO.
+
+DEFINE VARIABLE end_shipfrom AS CHARACTER FORMAT "X(5)":U INITIAL "zzzz" 
+     LABEL "Ending Ship From WH" 
      VIEW-AS FILL-IN 
      SIZE 17 BY 1 NO-UNDO.
 
@@ -267,7 +279,7 @@ DEFINE RECTANGLE RECT-6
 
 DEFINE RECTANGLE RECT-7
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 104 BY 18.05.
+     SIZE 104 BY 19.71.
 
 DEFINE RECTANGLE RECT-8
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
@@ -345,48 +357,52 @@ DEFINE FRAME FRAME-A
           "Enter Beginning Invoice Date"
      end_inv-date AT ROW 7.62 COL 69 COLON-ALIGNED HELP
           "Enter Ending Invoice Date"
-     tb_detailed AT ROW 9.05 COL 50 RIGHT-ALIGNED
-     tb_fin-chg AT ROW 9.05 COL 56.2
-     lbl_sort AT ROW 10.24 COL 26 COLON-ALIGNED NO-LABEL
-     rd_sort AT ROW 10.24 COL 35 NO-LABEL
-     sl_avail AT ROW 12.43 COL 27.2 NO-LABEL WIDGET-ID 146
-     Btn_Def AT ROW 12.43 COL 55.6 HELP
+     begin_shipfrom AT ROW 8.52 COL 28 COLON-ALIGNED HELP
+          "Enter starting ship from location." WIDGET-ID 158
+     end_shipfrom AT ROW 8.57 COL 69 COLON-ALIGNED HELP
+          "Enter ending ship from location." WIDGET-ID 160
+     tb_detailed AT ROW 10.43 COL 50 RIGHT-ALIGNED
+     tb_fin-chg AT ROW 10.43 COL 56.2
+     lbl_sort AT ROW 11.62 COL 26 COLON-ALIGNED NO-LABEL
+     rd_sort AT ROW 11.62 COL 35 NO-LABEL
+     sl_avail AT ROW 13.81 COL 27.2 NO-LABEL WIDGET-ID 146
+     Btn_Def AT ROW 13.81 COL 55.6 HELP
           "Default Selected Table to Tables to Audit" WIDGET-ID 56
-     sl_selected AT ROW 12.43 COL 70.8 NO-LABEL WIDGET-ID 148
-     Btn_Add AT ROW 13.62 COL 55.6 HELP
+     sl_selected AT ROW 13.81 COL 70.8 NO-LABEL WIDGET-ID 148
+     Btn_Add AT ROW 15 COL 55.6 HELP
           "Add Selected Table to Tables to Audit" WIDGET-ID 138
-     Btn_Remove AT ROW 14.76 COL 55.6 HELP
+     Btn_Remove AT ROW 16.14 COL 55.6 HELP
           "Remove Selected Table from Tables to Audit" WIDGET-ID 142
-     btn_Up AT ROW 16 COL 55.6 WIDGET-ID 144
-     btn_down AT ROW 17.19 COL 55.6 WIDGET-ID 140
-     rd-dest AT ROW 20 COL 7 NO-LABEL
-     lv-ornt AT ROW 20.24 COL 31 NO-LABEL
-     lines-per-page AT ROW 20.24 COL 84 COLON-ALIGNED
-     lv-font-no AT ROW 22.14 COL 34 COLON-ALIGNED
-     lv-font-name AT ROW 23.1 COL 28 COLON-ALIGNED NO-LABEL
-     td-show-parm AT ROW 24.29 COL 30
-     tb_excel AT ROW 25.86 COL 50.4 RIGHT-ALIGNED
-     tb_runExcel AT ROW 25.86 COL 71.4 RIGHT-ALIGNED
-     fi_file AT ROW 26.67 COL 28.4 COLON-ALIGNED HELP
+     btn_Up AT ROW 17.38 COL 55.6 WIDGET-ID 144
+     btn_down AT ROW 18.57 COL 55.6 WIDGET-ID 140
+     rd-dest AT ROW 21.62 COL 7 NO-LABEL
+     lv-ornt AT ROW 21.86 COL 31 NO-LABEL
+     lines-per-page AT ROW 21.86 COL 84 COLON-ALIGNED
+     lv-font-no AT ROW 23.76 COL 34 COLON-ALIGNED
+     lv-font-name AT ROW 24.71 COL 28 COLON-ALIGNED NO-LABEL
+     td-show-parm AT ROW 25.91 COL 30
+     tb_excel AT ROW 27.48 COL 50.4 RIGHT-ALIGNED
+     tb_runExcel AT ROW 27.48 COL 71.4 RIGHT-ALIGNED
+     fi_file AT ROW 28.29 COL 28.4 COLON-ALIGNED HELP
           "Enter File Name"
-     btn-ok AT ROW 28.43 COL 23
-     btn-cancel AT ROW 28.43 COL 59
+     btn-ok AT ROW 30.05 COL 23
+     btn-cancel AT ROW 30.05 COL 59
      "Available Columns" VIEW-AS TEXT
-          SIZE 20 BY .62 AT ROW 11.48 COL 28.2 WIDGET-ID 150
+          SIZE 20 BY .62 AT ROW 12.86 COL 28.2 WIDGET-ID 150
+     "Selected Columns(In Display Order)" VIEW-AS TEXT
+          SIZE 34 BY .62 AT ROW 12.86 COL 61.8 WIDGET-ID 152
+     "Output Destination" VIEW-AS TEXT
+          SIZE 18 BY .62 AT ROW 20.81 COL 5
      "Selection Parameters" VIEW-AS TEXT
           SIZE 21 BY .71 AT ROW 1.29 COL 5
           BGCOLOR 2 
-     "Output Destination" VIEW-AS TEXT
-          SIZE 18 BY .62 AT ROW 19.19 COL 5
-     "Selected Columns(In Display Order)" VIEW-AS TEXT
-          SIZE 34 BY .62 AT ROW 11.48 COL 61.8 WIDGET-ID 152
-     RECT-6 AT ROW 19.57 COL 2
+     RECT-6 AT ROW 21.19 COL 2
      RECT-7 AT ROW 1.05 COL 2
-     RECT-8 AT ROW 10.24 COL 26.6 WIDGET-ID 154
+     RECT-8 AT ROW 11.62 COL 26.6 WIDGET-ID 154
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1.6 ROW 1.24
-         SIZE 106.4 BY 28.86.
+         SIZE 106.4 BY 30.57.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -406,7 +422,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW C-Win ASSIGN
          HIDDEN             = YES
          TITLE              = "Sales Analysis By Item/Cust/Ship"
-         HEIGHT             = 29.1
+         HEIGHT             = 30.86
          WIDTH              = 108.4
          MAX-HEIGHT         = 33.29
          MAX-WIDTH          = 204.8
@@ -440,16 +456,6 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME                                                           */
-ASSIGN
-       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "ribbon-button".
-
-
-ASSIGN
-       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "ribbon-button".
-
-
 ASSIGN 
        begin_cust-no:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
@@ -467,8 +473,20 @@ ASSIGN
                 "parm".
 
 ASSIGN 
+       begin_shipfrom:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
+
+ASSIGN 
        begin_slmn:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
+
+ASSIGN 
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+ASSIGN 
+       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
 
 ASSIGN 
        end_cust-no:PRIVATE-DATA IN FRAME FRAME-A     = 
@@ -484,6 +502,10 @@ ASSIGN
 
 ASSIGN 
        end_ship:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
+
+ASSIGN 
+       end_shipfrom:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
 ASSIGN 
@@ -534,7 +556,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -619,6 +641,47 @@ END.
 ON LEAVE OF begin_ship IN FRAME FRAME-A /* Beginning Ship-To# */
 DO:
   assign {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME begin_shipfrom
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_shipfrom C-Win
+ON HELP OF begin_shipfrom IN FRAME FRAME-A /* Beginning Customer# */
+DO:
+    DEF VAR char-val AS cha NO-UNDO.
+
+    run windows/l-loc.w  (cocode,{&SELF-NAME}:SCREEN-VALUE, output char-val). 
+    IF char-val <> "" THEN ASSIGN {&SELF-NAME}:SCREEN-VALUE = ENTRY(1,char-val)
+                                  .
+
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME begin_shipfrom
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_shipfrom C-Win
+ON LEAVE OF begin_shipfrom IN FRAME FRAME-A /* Beginning Ship From */
+DO:
+  assign {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME end_shipfrom
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_shipfrom C-Win
+ON HELP OF end_shipfrom IN FRAME FRAME-A /* Beginning Customer# */
+DO:
+    DEF VAR char-val AS cha NO-UNDO.
+
+    run windows/l-loc.w  (cocode,{&SELF-NAME}:SCREEN-VALUE, output char-val). 
+    IF char-val <> "" THEN ASSIGN {&SELF-NAME}:SCREEN-VALUE = ENTRY(1,char-val)
+                                  .
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -866,6 +929,17 @@ END.
 &Scoped-define SELF-NAME end_ship
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_ship C-Win
 ON LEAVE OF end_ship IN FRAME FRAME-A /* Ending Ship-To# */
+DO:
+  assign {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME end_shipfrom
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_shipfrom C-Win
+ON LEAVE OF end_shipfrom IN FRAME FRAME-A /* Ending Ship From */
 DO:
   assign {&self-name}.
 END.
@@ -1433,16 +1507,17 @@ PROCEDURE enable_UI :
 ------------------------------------------------------------------------------*/
   DISPLAY tb_cust-list begin_cust-no end_cust-no begin_ship end_ship begin_slmn 
           end_slmn tgChooseSalesReps begin_i-no end_i-no begin_inv-date 
-          end_inv-date tb_detailed tb_fin-chg lbl_sort rd_sort sl_avail 
-          sl_selected rd-dest lv-ornt lines-per-page lv-font-no lv-font-name 
-          td-show-parm tb_excel tb_runExcel fi_file 
+          end_inv-date begin_shipfrom end_shipfrom tb_detailed tb_fin-chg 
+          lbl_sort rd_sort sl_avail sl_selected rd-dest lv-ornt lines-per-page 
+          lv-font-no lv-font-name td-show-parm tb_excel tb_runExcel fi_file 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   ENABLE RECT-6 RECT-7 RECT-8 tb_cust-list btnCustList begin_cust-no 
          end_cust-no begin_ship end_ship begin_slmn end_slmn tgChooseSalesReps 
-         begin_i-no end_i-no begin_inv-date end_inv-date tb_detailed tb_fin-chg 
-         rd_sort sl_avail Btn_Def sl_selected Btn_Add Btn_Remove btn_Up 
-         btn_down rd-dest lv-ornt lines-per-page lv-font-no td-show-parm 
-         tb_excel tb_runExcel fi_file btn-ok btn-cancel 
+         begin_i-no end_i-no begin_inv-date end_inv-date begin_shipfrom 
+         end_shipfrom tb_detailed tb_fin-chg rd_sort sl_avail Btn_Def 
+         sl_selected Btn_Add Btn_Remove btn_Up btn_down rd-dest lv-ornt 
+         lines-per-page lv-font-no td-show-parm tb_excel tb_runExcel fi_file 
+         btn-ok btn-cancel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.
@@ -1905,5 +1980,4 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 

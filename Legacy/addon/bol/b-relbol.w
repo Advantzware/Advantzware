@@ -2426,6 +2426,7 @@ PROCEDURE ordStatCheck :
 ------------------------------------------------------------------------------*/
 DEFINE OUTPUT PARAMETER oplOnHold AS LOGICAL     NO-UNDO.
 DEFINE VARIABLE lIsOnHold AS LOGICAL     NO-UNDO.
+DEFINE VARIABLE cHoldMessage AS CHARACTER NO-UNDO.
 
 lIsOnHold = FALSE.
 IF gvlCheckOrdStat THEN DO:
@@ -2441,13 +2442,16 @@ IF gvlCheckOrdStat THEN DO:
         AND oe-ord.ord-no  EQ oe-rell.ord-no
       NO-LOCK NO-ERROR.
    
-    IF AVAIL oe-ord AND INDEX(oe-ord.stat, "H") GT 0 THEN
-      lIsOnHold = TRUE.
+    IF AVAIL oe-ord AND INDEX(oe-ord.stat, "H") GT 0 OR oe-ord.priceHold THEN
+      ASSIGN
+        cHoldMessage = "Order " + STRING(oe-ord.ord-no) + " is on ". 
+        cHoldMessage = cHoldMessage + (IF oe-ord.stat EQ "H" THEN "hold." ELSE "price hold. "). 
+        lIsOnHold = TRUE.
   END.
 END.
  
 IF lIsOnHold THEN
-  MESSAGE "Sorry Order/Release is on Hold, Bill of Lading cannot be created!" VIEW-AS ALERT-BOX
+  MESSAGE cHoldMessage SKIP "Bill of Lading cannot be created!" VIEW-AS ALERT-BOX
    WARNING .
 oplOnHold = lIsOnHold.
 

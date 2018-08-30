@@ -41,8 +41,8 @@
                 "<R24><C51.5><FROM><R26><C51.5><LINE>" SKIP 
                 "<R24><C58><FROM><R26><C58><LINE>" 
                 "<R24><C70.5><FROM><R26><C70.5><LINE>" SKIP            
-                "<R24><C76><FROM><R26><C76><LINE>"
+                "<R24><C77.5><FROM><R26><C77.5><LINE>"
             "<=5> Our Part#     Our Order#"
-            "<=5><R+1> Your Part#    Your PO#             Description              Pallets Units-Quantity  Total P/C" SKIP(1)
+            "<=5><R+1> Your Part#    Your PO#             Description              Pallets Units-Quantity    Total P/C" SKIP(1)
             .
             v-printline = v-printline + 16.

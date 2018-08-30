@@ -29,12 +29,12 @@ if avail oe-ordl then do:
 
   create w-ord.
   assign
-   w-ord.ord-no    = trim(string(oe-ord.ord-no,">>>>>9"))
+   w-ord.ord-no    = if avail oe-ord then trim(string(oe-ord.ord-no,">>>>>9")) else ""
    w-ord.est-no    = oe-ordl.est-no
    w-ord.due-date  = oe-ordl.req-date
-   w-ord.ord-date  = oe-ord.ord-date
-   w-ord.cust-no   = oe-ord.cust-no
-   w-ord.cust-name = oe-ord.cust-name
+   w-ord.ord-date  = if avail oe-ord then oe-ord.ord-date else ?
+   w-ord.cust-no   = if avail oe-ord then oe-ord.cust-no else ""
+   w-ord.cust-name = if avail oe-ord then oe-ord.cust-name else ""
    w-ord.i-no      = oe-ordl.i-no
    w-ord.i-name    = oe-ordl.i-name
    w-ord.part-no   = oe-ordl.part-no
@@ -44,7 +44,7 @@ if avail oe-ordl then do:
    w-ord.price     = oe-ordl.price
    w-ord.uom       = oe-ordl.pr-uom 
    w-ord.disc      = oe-ordl.disc
-   w-ord.sman      = oe-ord.sman[1]
+   w-ord.sman      = if avail oe-ord then oe-ord.sman[1] else "" 
    w-ord.po-num    = oe-ordl.po-no
    w-ord.job-no    = oe-ordl.job-no
    w-ord.job-no2   = oe-ordl.job-no2
@@ -76,7 +76,7 @@ if avail oe-ordl then do:
   if avail oe-rell then
     assign
      w-ord.rel-date = oe-relh.rel-date
-     w-ord.rel-stat = "A".
+     w-ord.rel-stat = "A" .
   
   else
   for each oe-rel
@@ -93,7 +93,7 @@ if avail oe-ordl then do:
        (oe-rel.rel-date lt w-ord.rel-date or w-ord.rel-date eq ?) then
       assign
        w-ord.rel-date = oe-rel.rel-date
-       w-ord.rel-stat = v-stat.
+       w-ord.rel-stat = v-stat .
   end.
 
   IF oe-ordl.po-no-po NE 0 THEN
@@ -309,6 +309,21 @@ if avail w-ord then do:
   END.
   IF w-ord.t-price < 0  THEN
       ASSIGN w-ord.t-price = 0.
+
+for each oe-rel
+      where oe-rel.company eq cocode
+        and oe-rel.ord-no  eq oe-ordl.ord-no
+        and oe-rel.i-no    eq oe-ordl.i-no
+        and oe-rel.line    eq oe-ordl.line        
+      no-lock:
+
+      IF AVAILABLE oe-rel THEN
+      w-ord.rel-type = if oe-rel.s-code eq "B" then oe-rel.s-code + " - Both"
+                        else if oe-rel.s-code eq "S" then oe-rel.s-code + " - Ship"
+                        else if oe-rel.s-code eq "I" then oe-rel.s-code + " - Invoice"
+                        else oe-rel.s-code + " - Transfer".
+end.
+
 end.
 
 /* end ---------------------------------- copr. 1997  Advanced Software, Inc. */

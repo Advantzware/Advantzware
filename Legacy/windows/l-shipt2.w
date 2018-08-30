@@ -139,7 +139,7 @@ DEFINE BUTTON bt-ok
 DEFINE VARIABLE lv-search AS CHARACTER FORMAT "X(256)":U 
      LABEL "Search" 
      VIEW-AS FILL-IN 
-     SIZE 43 BY 1 NO-UNDO.
+     SIZE 60 BY 1 NO-UNDO.
 
 DEFINE VARIABLE rd-sort AS INTEGER 
      VIEW-AS RADIO-SET HORIZONTAL
@@ -147,11 +147,11 @@ DEFINE VARIABLE rd-sort AS INTEGER
           "Ship To", 1,
 "Name", 2,
     "City", 3
-     SIZE 45 BY .95 NO-UNDO.
+     SIZE 60 BY .95 NO-UNDO.
 
 DEFINE RECTANGLE RECT-1
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 91 BY 1.43.
+     SIZE 133 BY 1.43.
 
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
@@ -173,7 +173,7 @@ DEFINE BROWSE BROWSE-1
       shipto.loc FORMAT "x(5)":U
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ROW-MARKERS SEPARATORS SIZE 92 BY 11.19
+    WITH NO-ROW-MARKERS SEPARATORS SIZE 133 BY 11.19
          BGCOLOR 8 .
 
 
@@ -184,8 +184,8 @@ DEFINE FRAME Dialog-Frame
      rd-sort AT ROW 12.67 COL 14 NO-LABEL
      bt-clear AT ROW 14.1 COL 2
      lv-search AT ROW 14.1 COL 21 COLON-ALIGNED
-     bt-ok AT ROW 14.1 COL 69
-     bt-cancel AT ROW 14.1 COL 81
+     bt-ok AT ROW 14.1 COL 90
+     bt-cancel AT ROW 14.1 COL 105
      "Sort By:" VIEW-AS TEXT
           SIZE 8 BY .62 AT ROW 12.91 COL 4
      RECT-1 AT ROW 12.43 COL 1

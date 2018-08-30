@@ -396,7 +396,6 @@ assign
         IF v-rel-po-no EQ "" THEN DO:
             FIND FIRST ar-invl NO-LOCK
                 WHERE ar-invl.x-no  EQ ar-inv.x-no
-                AND ar-invl.misc EQ YES
                 AND ar-invl.po-no NE "" NO-ERROR.
             IF AVAIL ar-invl THEN 
                 ASSIGN v-rel-po-no = ar-invl.po-no.

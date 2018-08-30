@@ -5,6 +5,8 @@
         where oe-ord.company  eq cocode
           and oe-ord.cust-no  ge v-cust[1]
           and oe-ord.cust-no  le v-cust[2]
+          AND (if lselected then can-find(first ttCustList where ttCustList.cust-no eq oe-ord.cust-no
+          AND ttCustList.log-fld no-lock) else true)
           and oe-ord.ord-date ge v-date[1]
           and oe-ord.ord-date le v-date[2]
           AND ((oe-ord.po-no  GE v-po[1] AND

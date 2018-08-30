@@ -253,12 +253,12 @@ cDraftImageFull = IF lDraft
                     ELSE "".
 
 FORMAT HEADER
-        cDraftImageFull FORMAT "x(100)" SKIP 
+        cDraftImageFull FORMAT "x(200)" SKIP 
        "<C1><R2>JOB NUMBER:<B>" v-job-no SPACE(0) "-" SPACE(0) v-job-no2 FORMAT "99" "</B>" SPACE(1)
        "CSR:" v-pricnt-id
        "<B><P12>F A C T O R Y  T I C K E T</B><P10>" AT 54  "JOB START DATE:" AT 124 v-start-date SKIP
        v-fill
-    WITH NO-BOX FRAME head NO-LABELS STREAM-IO WIDTH 155.
+    WITH NO-BOX FRAME head NO-LABELS STREAM-IO WIDTH 200.
 
 FORMAT "Customer:" oe-ord.cust-name "Sold To:" oe-ord.sold-id
        "Salesman:" AT 68 oe-ord.sname[1] "Order#:" AT 113 oe-ord.ord-no
@@ -401,7 +401,7 @@ FOR EACH job-hdr NO-LOCK
         
 
         IF AVAILABLE oe-ord THEN
-          IF NOT oe-ctrl.p-fact AND oe-ord.stat EQ "H" THEN NEXT.
+          IF NOT oe-ctrl.p-fact AND (oe-ord.stat EQ "H" OR oe-ord.priceHold) THEN NEXT.
 
           FIND FIRST cust NO-LOCK WHERE cust.company EQ job-hdr.company AND
                                         cust.cust-no EQ job-hdr.cust-no NO-ERROR.
@@ -969,7 +969,7 @@ FOR EACH job-hdr NO-LOCK
                                               notes.note_form_no EQ wrk-sheet.form-no NO-ERROR.
                v-dept-title = IF AVAILABLE notes THEN notes.note_title ELSE "".
 
-               DISPLAY ITEM.i-name FORMAT "x(28)" SPACE(2)
+               DISPLAY ITEM.i-no FORMAT "x(10)" SPACE(20)
                     TRIM(wrk-sheet.i-no) FORMAT "X(10)" SPACE(2)
                     ef.xgrain FORMAT "x(2)"
                     wrk-sheet.gsh-qty 
@@ -983,6 +983,7 @@ FOR EACH job-hdr NO-LOCK
                   /*  v-case-qty-ext[1]  @ v-case-qty  FORM ">>>>9"    /* #01240503*/
                     v-up-ext[1]        @ v-up*/
                     WITH STREAM-IO WIDTH 170 NO-LABELS NO-BOX FRAME sheet.
+               PUT ITEM.i-name FORMAT "x(28)" SKIP.
                x = 1.
              END. /* each wrk-sheet */
              DO ij = 2 TO 10:

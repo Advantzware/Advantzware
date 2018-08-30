@@ -96,7 +96,7 @@ FOR EACH tt-boll,
                    lv-pal-tot FORM ">>>9" SPACE(1)
                    w2.cases    FORM "->>>9" " @ "
                    w2.cas-cnt  FORM "->,>>>,>>Z" SPACE(1)
-                   lv-qty-tot FORM "->,>>>,>>z" SPACE(2)
+                   lv-qty-tot FORM "->>>>>>>>z" SPACE(2)
                    tt-boll.p-c                   
                    SKIP.
                v-tot-pcs = v-tot-pcs + lv-qty-tot.
@@ -139,7 +139,7 @@ FOR EACH tt-boll,
 
                 PUT {1} "====================" AT 63 SKIP
                      lv-qty-sum AT 63 FORM "->>>9"  " = "
-                     lv-qty-tot FORM "->,>>>,>>Z" SPACE(13)
+                     lv-qty-tot FORM "->>>>>>>>Z" SPACE(13)
                      tt-boll.p-c .
                  IF lv-partial-tot > 0 THEN /*PUT {1} "====================" AT 77 SKIP  . */
                      PUT {1} tt-boll.p-c SKIP .         
@@ -179,7 +179,7 @@ FOR EACH tt-boll,
           lv-cases-tot FORM ">>>>" "@" 
           lv-qcase-tot FORM "->,>>>,>>Z"
         SPACE(1)
-         lv-qty-tot FORM "->,>>>,>>z"  WHEN lv-partial-tot = 0 SPACE(2)
+         lv-qty-tot FORM "->>>>>>>>z"  WHEN lv-partial-tot = 0 SPACE(2)
          tt-boll.p-c
          with frame bol-mid1 NO-BOX NO-LABELS STREAM-IO NO-ATTR-SPACE WIDTH 130.
     down {1} with frame bol-mid1.
@@ -187,7 +187,7 @@ FOR EACH tt-boll,
       
     v-unit-qty = IF lv-partial-tot > 0 THEN
                     STRING(v-1,">>>>9") + " @ " + STRING(lv-partial-tot,"->,>>>,>>z") + " " +
-                    string(lv-qty-tot,"->,>>>,>>z")
+                    string(lv-qty-tot,"->>>>>>>>z")
                  ELSE "" /*===================="*/ .
    
     PUT {1}

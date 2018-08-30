@@ -36,6 +36,12 @@ FIND FIRST fgcat
     WHERE fgcat.company EQ g_company
     USE-INDEX fgcat NO-LOCK NO-ERROR.
 
+FIND FIRST cust no-lock
+             WHERE cust.company EQ g_company
+              AND cust.active  EQ "X" NO-ERROR.
+         IF AVAIL cust THEN 
+            {&TABLENAME}.cust-no = cust.cust-no.
+
 ASSIGN
  {&TABLENAME}.company      = g_company
  {&TABLENAME}.loc          = g_loc
@@ -99,6 +105,9 @@ IF AVAIL b-{&TABLENAME} THEN DO:
    {&TABLENAME}.ord-policy     = b-{&TABLENAME}.ord-policy
    {&TABLENAME}.alloc          = b-{&TABLENAME}.alloc
    {&TABLENAME}.stat           = b-{&TABLENAME}.stat.
+
+  IF b-{&TABLENAME}.cust-no NE "" THEN
+      {&TABLENAME}.cust-no = b-{&TABLENAME}.cust-no.
 
  
 END.

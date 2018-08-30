@@ -3910,7 +3910,7 @@ PROCEDURE local-update-record :
     IF eb.ord-no NE 0 AND eb.cust-no:SCREEN-VALUE NE eb.cust-no AND
        eb.cust-no NE "" THEN
     DO:
-      MESSAGE "Cannot Change Customer."
+      MESSAGE "This estimate has order # - " + string(eb.ord-no) + " . Cannot Change Customer."
          VIEW-AS ALERT-BOX ERROR BUTTONS OK.
       APPLY "entry" TO eb.cust-no.
       RETURN NO-APPLY.

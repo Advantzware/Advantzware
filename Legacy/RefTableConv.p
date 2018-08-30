@@ -143,7 +143,11 @@ ASSIGN
     {refTableConv.i "StdUom" 'e-itemfg-vend.std-uom'}
     {refTableConv.i "relcredconv" 'relcredconv'}
     {refTableConv.i "Arcashhold" 'ARCASHHOLD'}
+    {refTableConv.i "print42" 'print42'}
+    {refTableConv.i "ColorAudit" 'COLOR' + chr(32) + 'AUDIT'}
     {refTableConv.i "Machcrew" 'MACH-CREW'}
+    {refTableConv.i "VendorMaxValue" 'VendorMaxValue'}
+    {refTableConv.i "EstGlobquot" 'est/globquot.w'}
 
 /* Deferred for 16.7.0                                              */
 /*    {refTableConv.i "STYFLU" 'STYFLU'}                            */

@@ -10,6 +10,9 @@ IF AVAIL oe-ctrl THEN
 IF lv-msg EQ '' AND xoe-ord.stat eq 'H' AND NOT lHoldOK THEN
 lv-msg = 'orders on Hold'.
 
+IF lv-msg EQ '' AND xoe-ord.priceHold AND NOT lHoldOK THEN
+lv-msg = 'orders on Price Hold'.
+
 IF lv-msg EQ '' AND xoe-ord.stat EQ 'W' THEN
 lv-msg = 'unapproved web orders'.
 

@@ -180,7 +180,7 @@ view frame head.
 
         if avail oe-ord         and
            (not oe-ctrl.p-fact) and
-           oe-ord.stat eq "h"   then do:
+           (oe-ord.stat eq "h" OR oe-ord.priceHold)  then do:
           if first-of(job-hdr.frm) then v-break = yes.
           next.
         end.

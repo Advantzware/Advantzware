@@ -2387,6 +2387,8 @@ PROCEDURE get-matrix :
                     v-len = po-ordl.s-len
                     v-wid = po-ordl.s-wid
                     v-bwt = 0
+                    v-po-cuom = po-ordl.pr-uom
+                    v-po-cost = po-ordl.cost
                     dOverPer = po-ordl.over-pct
                     dPoQty = po-ordl.ord-qty  . 
                     dConsumQty =  dPoQty +  (dPoQty  * ( dOverPer / 100) ) .
@@ -2470,17 +2472,19 @@ PROCEDURE get-matrix :
 
                  IF ll-add-setup AND lv-out-qty NE 0 THEN
                            lv-out-cost = lv-out-cost + (lv-setup / lv-out-qty).
-           
-                IF lRMOverrunCost THEN do:
+                 
+                 IF v-po-cuom EQ "L" THEN
+                    ext-cost = ABSOLUTE(v-po-cost) .
+                ELSE IF lRMOverrunCost THEN do:
                    IF lv-out-qty GT dConsumQty   THEN DO:
-                       ext-cost = ROUND(dConsumQty * lv-out-cost,2).
+                       ext-cost = ABSOLUTE(ROUND(dConsumQty * lv-out-cost,2)).
                    END.
                    ELSE DO:
-                    ext-cost = ROUND(lv-out-qty * lv-out-cost,2).
+                    ext-cost = ABSOLUTE(ROUND(lv-out-qty * lv-out-cost,2)).
                    END.
                 END.
                 ELSE do:
-                     ext-cost = ROUND(lv-out-qty * lv-out-cost,2).
+                     ext-cost = ABSOLUTE(ROUND(lv-out-qty * lv-out-cost,2)).
                 END.   
         END.
 
@@ -2586,14 +2590,15 @@ PROCEDURE get-matrix :
                                          input v-dep,
                                          DEC(rm-rctd.qty:screen-value in browse {&browse-name}),
                                          output lv-out-qty).*/
-                 
+              
                 /* convert cost */
                 IF rm-rctd.cost-uom:SCREEN-VALUE IN BROWSE {&browse-name} EQ "L" THEN
                     lv-out-cost = DEC(rm-rctd.cost:SCREEN-VALUE IN BROWSE {&browse-name}) / lv-out-qty .
                 ELSE
                     /* gdm - 07210901 */
-                    IF v-po-cuom EQ "L" THEN
+                    IF v-po-cuom EQ "L" THEN do:
                         lv-out-cost = DEC(v-po-cost) / lv-out-qty .
+                    END.
                     ELSE
                         IF rm-rctd.cost-uom:SCREEN-VALUE IN BROWSE {&browse-name} EQ lv-cost-uom THEN
                             lv-out-cost = DEC(rm-rctd.cost:SCREEN-VALUE IN BROWSE {&browse-name}).
@@ -2614,7 +2619,7 @@ PROCEDURE get-matrix :
               
                   lv-out-cost = lv-out-cost + (lv-setup / lv-out-qty).
                 END. */
-
+     
                 IF lv-out-qty  EQ ? THEN lv-out-qty  = 0.
                 IF lv-out-cost EQ ? THEN lv-out-cost = 0.
 
@@ -2624,20 +2629,22 @@ PROCEDURE get-matrix :
                  IF ll-add-setup AND lv-out-qty NE 0 THEN
                            lv-out-cost = lv-out-cost + (lv-setup / lv-out-qty).
                
-                
-                IF lRMOverrunCost THEN do:
+                IF v-po-cuom EQ "L" THEN
+                    ext-cost = ABSOLUTE(v-po-cost) .
+                ELSE IF lRMOverrunCost THEN do:
                    IF lv-out-qty GT dConsumQty   THEN DO:
                       
-                       ext-cost = ROUND(dConsumQty * lv-out-cost,2).
+                       ext-cost = ABSOLUTE(ROUND(dConsumQty * lv-out-cost,2)).
                    END.
                    ELSE DO:
-                    ext-cost = ROUND(lv-out-qty * lv-out-cost,2).
+                    ext-cost = ABSOLUTE(ROUND(lv-out-qty * lv-out-cost,2)).
                    END.
                 END.
                 ELSE do:
-                     ext-cost = ROUND(lv-out-qty * lv-out-cost,2).
+                     ext-cost = ABSOLUTE(ROUND(lv-out-qty * lv-out-cost,2)).
                 END.   
-
+   
+                  ASSIGN lv-out-cost = ABSOLUTE(lv-out-cost) .
                 ASSIGN
                     rm-rctd.cost:SCREEN-VALUE     = STRING(lv-out-cost)
                     rm-rctd.cost-uom:SCREEN-VALUE = lv-cost-uom
@@ -3252,7 +3259,7 @@ PROCEDURE po-cost :
             INPUT-OUTPUT lv-cost).
 
         RUN convert-vend-comp-curr(INPUT-OUTPUT lv-cost).
-
+        ASSIGN lv-cost = ABSOLUTE(lv-cost) .
         rm-rctd.cost:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(lv-cost).
     END.
 
