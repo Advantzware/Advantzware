@@ -5309,14 +5309,16 @@ DEFINE INPUT PARAMETER ipRecQty AS INTEGER NO-UNDO.
 if lfgunderover-log AND (cfgunderover-cha EQ "OverRuns Only" OR cfgunderover-cha EQ "UnderRuns and OverRun")
      AND ipRecQty gt po-ordl.ord-qty * (1 + (po-ordl.over-pct / 100)) AND NOT lv-overrun-checked  THEN
 do:          
-    MESSAGE "The PO Qty + overrun has been exceeded..."
+    MESSAGE "The PO Quantity entered is more than the" STRING(po-ordl.over-pct,">>9.99%") SKIP 
+            "Overrun allowed for this PO line Item..."
                   VIEW-AS ALERT-BOX WARNING .
        lv-overrun-checked = YES.
 END.
 ELSE IF lfgunderover-log AND (cfgunderover-cha EQ "UnderRuns Only" OR cfgunderover-cha EQ "UnderRuns and OverRun")
      AND ipRecQty LT po-ordl.ord-qty - (po-ordl.ord-qty * po-ordl.under-pct / 100) AND NOT lv-overrun-checked THEN
 DO:
-    MESSAGE "The PO qty is less than the underrun......"
+    MESSAGE "The PO Quantity entered is less than the" STRING(po-ordl.under-pct,">>9.99%") SKIP 
+            "Underrun allowed for this PO line Item..."
                   VIEW-AS ALERT-BOX WARNING .
        lv-overrun-checked = YES.
 END.
