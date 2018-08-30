@@ -2956,6 +2956,49 @@ CLASS RefTableMigration:
         END.  /*FOR EACH reftable*/  
         RETURN iCnt.
     END METHOD. /*EstGlobquot*/
+    METHOD PUBLIC INTEGER ArcashlInvline(INPUT ipCount AS INTEGER):
+        DEFINE VARIABLE iCnt AS INTEGER NO-UNDO.
+        DEFINE BUFFER reftable1 FOR reftable1.
+        DEFINE BUFFER Breftable FOR reftable. 
+        DEFINE BUFFER ar-cashl  FOR ar-cashl.
+        
+        DISABLE TRIGGERS FOR LOAD OF reftable.        
+        DISABLE TRIGGERS FOR LOAD OF ar-cashl.
+        ASSIGN iProcessCount = 0.        
+        FOR EACH reftable WHERE reftable.reftable = "ar-cashl.inv-line"
+            NO-LOCK:
+            DO TRANSACTION:    
+                 FIND FIRST ar-invl WHERE ar-invl.company = reftable.company
+                                AND ar-invl.x-no = int(SUBSTRING(reftable.code2,1,10)) 
+                                AND ar-invl.line = int(SUBSTRING(reftable.code2,11,20)) 
+                                EXCLUSIVE-LOCK NO-ERROR.
+ 
+                            FIND FIRST ar-cashl WHERE ar-cashl.company = reftable.company
+                                AND ar-cashl.c-no = int(SUBSTRING(reftable.code,1,10)) 
+                                AND ar-cashl.LINE = int(SUBSTRING(reftable.code,11,20)) 
+                                EXCLUSIVE-LOCK NO-ERROR.
+                            IF AVAILABLE  ar-cashl AND AVAIL ar-invl THEN  
+                                DO: 
+                                    ASSIGN ar-cashl.invoiceXNo = ar-invl.x-no
+                                           ar-cashl.invoiceLine = ar-invl.LINE.  
+                                                          
+                  ASSIGN iProcessCount = iProcessCount + 1. 
+                END.             
+                FIND CURRENT ar-cashl NO-LOCK NO-ERROR.    
+                RELEASE ar-cashl.      
+                CREATE reftable1.
+                BUFFER-COPY reftable TO reftable1.
+                RELEASE reftable1.
+                FIND Breftable WHERE ROWID(Breftable) = ROWID(reftable)
+                    EXCLUSIVE-LOCK NO-ERROR.
+                IF AVAILABLE Breftable THEN DELETE Breftable. 
+                RELEASE Breftable.   
+                iCnt = iCnt + 1.
+                IF iCnt >= ipCount THEN LEAVE.   
+            END.              
+        END.  /*FOR EACH reftable*/  
+        RETURN iCnt.
+    END METHOD. /*ArcashlInvline*/ 
 END CLASS.
 
 
