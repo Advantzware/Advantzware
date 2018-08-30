@@ -537,7 +537,7 @@ PROCEDURE pOrdersBooked2:
             ttOrdersBooked.xxSort       = ttOrdersBooked.salesRep
                                         + STRING(ttOrdersBooked.dueDate,"99/99/9999")
                                         + STRING(ttOrdersBooked.orderNo)  
-	    ttOrdersBooked.MachineCode  = fGetRoutingForJob()
+	        ttOrdersBooked.MachineCode  = fGetRoutingForJob()
             ttOrdersBooked.InksCode     = fGetInksForJob()
             ttOrdersBooked.PrintSheet   = IF AVAILABLE itemfg THEN itemfg.plate-no ELSE ""           
             . 
