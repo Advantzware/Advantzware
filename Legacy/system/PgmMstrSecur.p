@@ -53,7 +53,6 @@ PROCEDURE epCanAccessUser:
                 (ipProgName EQ "viewers/usercontrol.w" AND ipFunction EQ "Access1") OR  /*NK5 User Control - Num Concurrent/Over limit*/
                 (ipProgName EQ "viewers/vp-rmov.w" AND ipFunction EQ "") OR /*MF1 Override Button (Inventory)*/
                 (ipProgName EQ "windows/company.w" AND ipFunction EQ "") OR /*GF1 Add/Copy Company*/
-                (ipProgName EQ "windows/dept.w" AND ipFunction EQ "") OR  /*NZ4 (NZ3) Departments - Edits*/
                 (ipProgName EQ "windows/file.w" AND ipFunction EQ "") OR  /*NZ1 System Reference Files*/
                 (ipProgName EQ "windows/job-cat.w" AND ipFunction EQ "") OR  /*NZ2 (NZ1) Job Categories: MR, Run, DT,NC */
                 (ipProgName EQ "windows/mat.w" AND ipFunction EQ "") OR  /*NZ3 (NZ2) Material Types*/
@@ -94,6 +93,7 @@ PROCEDURE epCanAccessUser:
                 (ipProgName EQ "system/mainmenu.w" AND ipFunction EQ "Access1") OR /*Main menu load Run Custom Utility Program access*/
                 (ipProgName EQ "system/mainmenu.w" AND ipFunction EQ "CanUpgrade") OR /*Main menu upgrade notification*/
                 (ipProgName EQ "system/sys-ctrl.w" AND ipFunction EQ "") OR /*NK1 view control tab value security */
+                (ipProgName EQ "windows/dept.w" AND ipFunction EQ "") OR  /*NZ4 (NZ3) Departments - Edits*/
                 (ipProgName EQ "viewers/p-fg-bj-l.w" AND ipFunction EQ "") OR /*IF1 Bin/Jobs tab */
                 (ipProgName EQ "viewers/sys-ctrl.w" AND ipFunction EQ "") OR /*NK1 view control tab value security */
                 (ipProgName EQ "viewers/users.w" AND ipFunction EQ "Admin") OR /*users admin*/
