@@ -148,6 +148,7 @@ ASSIGN
     {refTableConv.i "Machcrew" 'MACH-CREW'}
     {refTableConv.i "VendorMaxValue" 'VendorMaxValue'}
     {refTableConv.i "EstGlobquot" 'est/globquot.w'}
+    {refTableConv.i "GsaFm" 'gsa-fm'}
 
 /* Deferred for 16.7.0                                              */
 /*    {refTableConv.i "STYFLU" 'STYFLU'}                            */

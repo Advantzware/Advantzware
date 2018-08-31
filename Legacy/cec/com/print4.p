@@ -10,7 +10,6 @@ def shared buffer xeb  for eb.
 DEF BUFFER bf-est FOR est.
 DEF BUFFER bf-eb FOR eb.
 DEF BUFFER bf-ef FOR ef.
-DEF BUFFER reftable-fm FOR reftable.
 DEF BUFFER reftable-broker-pct FOR reftable.
 def new shared buffer xop for est-op.
 def new shared var k_frac as dec init "6.25" no-undo.
@@ -1153,20 +1152,16 @@ assign
  gsa-war = ce-ctrl.whse-mrkup
  qty     = tt-blk.
 
-FIND FIRST reftable-fm NO-LOCK
-     WHERE reftable-fm.reftable EQ "gsa-fm"
-       AND reftable-fm.company  EQ xest.company
-       AND reftable-fm.loc      EQ ""
-       AND reftable-fm.code     EQ xest.est-no
-     NO-ERROR.
-
 FIND FIRST cust WHERE
      cust.company EQ xest.company AND
      cust.cust-no EQ v-cust-no
      NO-LOCK NO-ERROR.
 
-IF AVAIL reftable-fm THEN
-   gsa-fm = reftable-fm.val[1].
+FIND FIRST probe    
+      WHERE probe.company    EQ xest.company
+        AND probe.est-no     EQ xest.est-no NO-LOCK NO-ERROR.
+   IF AVAIL probe THEN
+      gsa-fm = int(probe.gsa-fm).
 ELSE
    IF AVAIL cust AND cust.scomm NE 0 THEN
       gsa-fm = cust.scomm.
