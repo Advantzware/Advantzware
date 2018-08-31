@@ -490,7 +490,7 @@ DO:
     ASSIGN {&displayed-objects}.
   END.
 
-  post-manual = rd_sort EQ "Manual".
+  post-manual = rd_sort EQ "Automatic".  /* Ticket - 34810 */
 
   DO TRANSACTION:       /** GET next G/L TRANS. POSTING # **/
     /* gdm - 11050906 */
