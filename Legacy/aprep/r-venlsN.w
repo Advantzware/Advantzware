@@ -1312,17 +1312,6 @@ DEF VAR cslist AS cha NO-UNDO.
   PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
  END.
 
-/*IF tb_excel THEN DO:
-  OUTPUT STREAM excel TO VALUE(fi_file).
-  excelheader = "Vendor,Name,Type,Active,Contact,Address 1,Address 2,City,State,"
-              + "Zip,Country,Postal Code,Telephone,Fax,Default GL#,".
-  IF detailed THEN
-     excelheader = excelheader
-                 + "Buyer Code,Company Code,Buyer Name,Carrier,FOB Code,"
-                 + "Terms Code,Terms Description,Discount %,1099 Code,Discount Days,Date Last Paid".
-  PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
-END. */
-
 ASSIGN
     tel-phone = "" .
     fax-no = "" .   
@@ -1340,119 +1329,8 @@ if td-show-parm then run show-param.
                           break by vend.vend-no with frame vend2:
 
       {custom/statusMsg.i " 'Processing Vendor#  '  + string(vend.vend-no) "}
-
-       /*  if detailed then do with frame vend:
-
-            find first terms where terms.t-code = vend.terms no-lock no-error.
-
-            display
-                  vend.vend-no
-                  vend.name
-                  vend.add1
-                  vend.add2
-                  vend.city + ", " + vend.state + " " + vend.zip
-                       format "x(30)" @ vend.city
-                  vend.type
-                  vend.active
-                  vend.contact
-                  vend.area-code
-                  vend.phone
-                  vend.fax-area
-                  vend.fax
-                  vend.country
-                  vend.postal
-                  vend.actnum
-                  vend.buyer
-                  vend.company
-                  vend.buyer-n
-                  vend.carrier
-                  vend.fob-code
-                  vend.terms
-                  "" @ terms.dscr
-                  terms.dscr when available terms
-                  vend.code-1099
-                  vend.disc-%
-                  vend.lpay-date
-                  vend.disc-days
-                  vend.actnum.
-            down.
-
-            IF tb_excel THEN
-              PUT STREAM excel UNFORMATTED
-                  '"' vend.vend-no                        '",'
-                  '"' vend.NAME                           '",'
-                  '"' vend.TYPE                           '",'
-                  '"' vend.active                         '",'              
-                  '"' vend.contact                        '",'
-                  '"' vend.add1                           '",'
-                  '"' vend.add2                           '",'
-                  '"' vend.city                           '",'
-                  '"' vend.state                          '",'
-                  '"' vend.zip                            '",'
-                  '"' vend.country                        '",'
-                  '"' vend.postal                         '",'
-                  '"' STRING(vend.area-code,"(999)") +
-                      " " + STRING(vend.phone,"999-9999") '",'
-                  '"' STRING(vend.fax-area,"(999)") +
-                      " " STRING(vend.fax,"999-9999")     '",'
-                  '"' vend.actnum                         '",'
-                  '"' vend.buyer                          '",'
-                  '"' vend.company                        '",'
-                  '"' vend.buyer-n                        '",'
-                  '"' vend.carrier                        '",'
-                  '"' vend.fob-code                       '",'
-                  '"' vend.terms                          '",'
-                  '"' IF AVAIL terms THEN terms.dscr
-                      ELSE ""                             '",'
-                   '"' STRING(vend.disc-%,">>9.99%")       '",'
-                   '"' vend.code-1099                      '",'
-                   '"' vend.disc-days                      '",'
-                   '"' IF vend.lpay-date NE ? THEN
-                          STRING(vend.lpay-date) ELSE ""   '",'
-                   SKIP.
-         end. */
-       /*  else
-         DO:
-            display 
-                    vend.vend-no
-                    vend.name
-                    vend.type
-                    vend.active
-                    vend.add1
-                    vend.contact
-                    vend.add2
-                    vend.area-code
-                    vend.phone
-                    vend.city + ", " + vend.state + " " + vend.zip
-                       format "x(30)" @ vend.city
-                    vend.fax-area
-                    vend.fax
-                    vend.country
-                    vend.postal
-                    vend.actnum.
-
-            IF tb_excel THEN
-               PUT STREAM excel UNFORMATTED
-                   '"' vend.vend-no                        '",'
-                   '"' vend.NAME                           '",'
-                   '"' vend.TYPE                           '",'
-                   '"' vend.active                         '",'
-                   '"' vend.contact                        '",'
-                   '"' vend.add1                           '",'
-                   '"' vend.add2                           '",'
-                   '"' vend.city                           '",'
-                   '"' vend.state                          '",'
-                   '"' vend.zip                            '",'
-                   '"' vend.country                        '",'
-                   '"' vend.postal                         '",'
-                   '"' STRING(vend.area-code,"(999)") +
-                       " " + STRING(vend.phone,"999-9999") '",'
-                   '"' STRING(vend.fax-area,"(999)") +
-                       " " + STRING(vend.fax,"999-9999")   '",'
-                   '"' vend.actnum                         '",'
-                   SKIP.
-         END.
-         down. */
+       
+      FIND FIRST terms no-lock WHERE terms.t-code = vend.terms  NO-ERROR.
 
       tel-phone = STRING(vend.area-code,"(999)") + " " + STRING(vend.phone,"999-9999") .
       fax-no = STRING(vend.fax-area,"(999)") + " " + STRING(vend.fax,"999-9999") .
