@@ -56,7 +56,7 @@ DEFINE VARIABLE scanAgain AS LOGICAL NO-UNDO.
 {custom/getloc.i}
 
 {sys/inc/var.i new shared}
-
+{custom/xprint.i}
 assign
  cocode = gcompany
  locode = gloc.
@@ -192,6 +192,33 @@ DO TRANSACTION:
    {sys/inc/fgrecpt.i} /* gdm - 12010901*/
    {sys/inc/rfidtag.i}
 END.
+DEFINE VARIABLE lFound AS LOGICAL     NO-UNDO.
+DEFINE VARIABLE ls-image1 AS CHARACTER NO-UNDO.
+DEFINE VARIABLE ls-full-img1 AS CHARACTER FORM "x(200)" NO-UNDO.
+DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
+DEFINE VARIABLE lBussFormModle AS LOGICAL NO-UNDO.
+DEFINE VARIABLE cBarCodeProgram AS CHARACTER NO-UNDO .
+
+RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormModal", "L" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+OUTPUT cRtnChar, OUTPUT lRecFound).
+IF lRecFound THEN
+    lBussFormModle = LOGICAL(cRtnChar) NO-ERROR.  
+
+RUN sys/ref/nk1look.p (INPUT cocode,
+                       INPUT "LoadTagXprintImage",
+                       INPUT "C",
+                       INPUT NO,
+                       INPUT NO,
+                       INPUT "",
+                       INPUT "",
+                       OUTPUT ls-image1,
+                       OUTPUT lFound).
+
+FILE-INFO:FILE-NAME = ls-image1.
+ls-full-img1 = FILE-INFO:FULL-PATHNAME + ">".
+
 
 /* gdm - 09210907 */
 DEF VAR v-bardir AS LOG NO-UNDO.
@@ -204,6 +231,8 @@ DEF BUFFER bf-po-ord  FOR po-ord.
 DEF BUFFER bf-po-ordl FOR po-ordl.
 
 DEF BUFFER bf-jobhdr FOR job-hdr.
+DEFINE TEMP-TABLE tt-word-print LIKE w-ord 
+    FIELD tag-no AS CHARACTER .
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -417,6 +446,9 @@ DO:
     scr-auto-print = tgAutoPrint.
   /*  RUN print-loadtag. */
 
+  FOR EACH tt-word-print:
+       DELETE tt-word-print .
+   END.
 
   ASSIGN {&displayed-objects}.
   
@@ -2154,14 +2186,21 @@ PROCEDURE reprint-tag :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  FIND FIRST loadtag WHERE loadtag.company     EQ cocode
+    DEFINE VARIABLE cLoadtagFile AS CHARACTER NO-UNDO.
+    
+    FIND FIRST loadtag WHERE loadtag.company     EQ cocode
                  AND loadtag.item-type   EQ NO
                  AND loadtag.tag-no  eq TRIM(begin_tag:SCREEN-VALUE IN FRAME {&FRAME-NAME}) NO-LOCK NO-ERROR.
   IF NOT AVAIL loadtag THEN DO:
       MESSAGE "Invalid Loadtag. Try Help." VIEW-AS ALERT-BOX ERROR.
       APPLY "entry" TO scr-label-file.
       RETURN ERROR.
-  END.       
+  END.      
+
+  ASSIGN
+      cBarCodeProgram = IF scr-label-file MATCHES "*.xpr*" THEN "xprint" 
+                        ELSE IF scr-label-file MATCHES "*.lwl" THEN "loftware" 
+                        ELSE "".
   
   RUN create-w-ord.
 
@@ -2170,21 +2209,36 @@ PROCEDURE reprint-tag :
   {sys/inc/outprint.i value(lines-per-page)} 
       VIEW FRAME r-top.
       VIEW FRAME top.
-  IF v-out = "" THEN v-out = "c:~\ba~\label~\loadtag.txt".
+
+  IF cBarCodeProgram EQ 'Loftware' then 
+    cLoadtagFile = STRING(YEAR(TODAY),"9999") + STRING(MONTH(TODAY),"99") + STRING(DAY(TODAY),"99") + STRING(TIME) + SUBSTRING(STRING(NOW),21,3) + '.csv'.
+  ELSE cLoadtagFile = 'loadtag.txt'.
+
+  IF v-out = "" THEN v-out = "c:~\ba~\label~\" + cLoadtagFile. 
   ELSE do:
      IF SUBSTRING(v-out,LENGTH(v-out),1) = "/" OR
         SUBSTRING(v-out,LENGTH(v-out),1) = "\" THEN .
      ELSE v-out = v-out + "/".
-     v-out = v-out + "loadtag.txt".
+     v-out = v-out + cLoadtagFile.
   END.
   IF begin_filename:SCREEN-VALUE = "" THEN 
        begin_filename:SCREEN-VALUE = v-out.
   
   RUN create-text-file.
+ 
   IF NOT is-from-addon() THEN
   MESSAGE "Loadtag reprint is completed." VIEW-AS ALERT-BOX INFORMATION.
   SESSION:SET-WAIT-STATE ("").
-  RUN AutoPrint.
+  
+  IF cBarCodeProgram EQ "" THEN do:    
+     RUN AutoPrint.
+ END.
+ ELSE IF cBarCodeProgram EQ "xprint" AND scr-auto-print THEN do:
+     PAUSE 1.
+     RUN print-loadtg  .
+ END.
+
+
 
 END PROCEDURE.
 
@@ -2333,6 +2387,106 @@ PROCEDURE write-loadtag-line :
  PUT SKIP.
 
 
+ /* temp table for xprint */
+IF cBarCodeProgram EQ "xprint" THEN do:
+    CREATE tt-word-print .
+    BUFFER-COPY w-ord TO tt-word-print .
+    ASSIGN 
+        tt-word-print.tag-no = loadtag.tag-no .
+END.
+
+
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE print-loadtg D-Dialog 
+PROCEDURE print-loadtg :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+
+DEFINE VARIABLE cEmail AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cPhone AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cFax   AS CHARACTER NO-UNDO.
+DEFINE VARIABLE tb_print-view AS LOGICAL INIT YES NO-UNDO .
+    {sys/inc/print1.i}
+    {sys/inc/outprint.i value(85)}
+
+    SESSION:SET-WAIT-STATE ("general").
+   
+    /*IF tb_print-view THEN DO:*/
+        IF NOT lBussFormModle THEN
+           PUT "<PREVIEW><MODAL=NO></PROGRESS>" FORM "x(50)".
+         ELSE
+           PUT "<PREVIEW></PROGRESS>" FORM "x(50)".
+   /* END.*/
+    /*ELSE DO:
+       PUT "<PRINTER?><FORMAT=LEGAL></PROGRESS>" FORM "x(50)".
+    END.*/
+
+    DO WITH FRAME {&FRAME-NAME}:
+        FOR EACH tt-word-print NO-LOCK BREAK
+                                BY tt-word-print.ord-no 
+                                BY tt-word-print.i-no:
+                                
+           IF scr-label-file:SCREEN-VALUE EQ "loadtag.xpr" THEN DO:
+               {oe/rep/lodxprntstd.i}
+           END.
+           ELSE IF scr-label-file:SCREEN-VALUE EQ "loadtag1.xpr" THEN DO:
+               {oe/rep/lodxprnt.i}
+           END.
+           ELSE IF scr-label-file:SCREEN-VALUE EQ "loadtag2.xpr" THEN DO:
+               {oe/rep/schcardstd.i}
+           END.
+           ELSE IF scr-label-file:SCREEN-VALUE EQ "loadtag3.xpr" THEN DO:
+               {oe/rep/lodxprnt3.i}
+           END.
+           ELSE IF scr-label-file:SCREEN-VALUE EQ "loadtag4.xpr" THEN DO:
+               {oe/rep/lodxprnt4.i}
+           END.
+           ELSE IF scr-label-file:SCREEN-VALUE EQ "loadtag5.xpr" THEN DO:
+               {oe/rep/lodxprnt5.i}
+           END.
+           ELSE IF scr-label-file:SCREEN-VALUE EQ "loadtag6.xpr" THEN DO:
+               {oe/rep/lodxprnt6.i}
+           END.
+           ELSE IF scr-label-file:SCREEN-VALUE EQ "loadtag7.xpr" THEN DO:
+               {oe/rep/lodxprnt7.i}
+           END.
+           ELSE IF scr-label-file:SCREEN-VALUE EQ "loadtag8.xpr" THEN DO:
+               {oe/rep/lodxprnt8.i}
+           END.
+           ELSE IF scr-label-file:SCREEN-VALUE EQ "loadtag9.xpr" THEN DO:
+               {oe/rep/lodxprnt9.i}
+           END.
+           ELSE IF scr-label-file:SCREEN-VALUE EQ "loadtag10.xpr" THEN DO:
+               {oe/rep/lodxprnt10.i}
+           END.
+           ELSE IF scr-label-file:SCREEN-VALUE EQ "loadtag11.xpr" THEN DO:
+               {oe/rep/lodxprnt11.i}
+           END.
+           ELSE IF scr-label-file:SCREEN-VALUE EQ "loadtag12.xpr" THEN DO:
+               {oe/rep/lodxprnt12.i}
+           END.
+           ELSE IF scr-label-file:SCREEN-VALUE EQ "loadtag13.xpr" THEN DO:
+               {oe/rep/lodxprnt13.i}
+           END.
+    
+         IF NOT LAST(tt-word-print.i-no) THEN PAGE .
+        END.
+    END.
+
+
+    OUTPUT CLOSE.
+    SESSION:SET-WAIT-STATE ("").
+
+    FILE-INFO:FILE-NAME = list-name.
+    RUN printfile (FILE-INFO:FILE-NAME).
 
 END PROCEDURE.
 
