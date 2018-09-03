@@ -55,15 +55,25 @@ ASSIGN cTextListToSelect = "Vendor,Name,Type,Active,Contact,Address 1,Address 2,
                          + "Zip,Country,Postal Code,Telephone,Fax,Default GL#," 
                          + "Byr Cd,Comp,Buyer Name,Carr,FOB,"
                          + "Terms,Terms Description,Disc %,1099 Cd,Disc Dys,"
-                         + "Dt Lst Pd"
+                         + "Dt Lst Pd,Tax ID#,Type Name,Fax prefix,Fax Country,"
+                         + "Overrun Pct,Underrun Pct,G/L Dscr,Remit to,Remit Address1,Remit Address2,Remit City,"
+                         + "Remit State,Remit Zip,Remit Country,Remit Postal Code,Check Memo,Currency Code,Currency Dscr,"
+                         + "Tax,EDI,Credit Card/ACH,POEXPORT,Whs,Max PO Cost,Freight Pay,Carrier Dscr,Pay Type,"
+                         + "Account#,Swift Code,Routing"
        cFieldListToSelect = "vend,name,type,active,contact,add1,add2,city,stat,"
                           + "zip,contry,pstl,phone,fax,def-gl,"
                           + "byr,copm-cd,byr-nam,carr,fob,"
                           + "trm-cd,trm-dscr,disc,1099-cd,dis-dy,"
-                          + "dat-lst"
+                          + "dat-lst,tax-id,type-name,fax-prefix,fax-country,"
+                          + "over-pct,under-pct,actdscr,remit,remit-add1,remit-add2,remit-city,"
+                          + "remit-st,remit-zip,r-country,r-postal,check-memo,curr-code,curr-dscr,"
+                          + "tax-gr,an-edi-vend,tb-cc,po-export,loc,rebate-%,frt-pay,carrier-dscr,pay-type,"
+                          + "Bank-Acct,SwiftBIC,Bank-RTN"
        cFieldLength = "8,30,5,6,15,30,30,16,5," + "10,10,11,14,14,25," + "6,4,30,5,5,"
-                    + "5,30,7,7,8," + "10"
-       cFieldType = "c,c,c,c,c,c,c,c,c," + "i,c,c,i,i,c," + "c,c,c,c,c," + "c,c,i,c,i," + "c" 
+                    + "5,30,7,7,8," + "10,15,30,10,12," + "12,12,30,40,30,30,16,"
+                    + "11,10,13,17,20,13,30," + "4,3,15,8,5,14,11,30,20," + "18,11,9"
+       cFieldType = "c,c,c,c,c,c,c,c,c," + "i,c,c,i,i,c," + "c,c,c,c,c," + "c,c,i,c,i," + "c,c,c,c,c,"
+                    + "c,c,c,c,c,c,c," + "c,c,c,c,c,c,c," + "c,c,c,c,c,c,c,c,c," + "c,c,i"     
     .
 
 {sys/inc/ttRptSel.i}
@@ -1335,6 +1345,18 @@ if td-show-parm then run show-param.
       tel-phone = STRING(vend.area-code,"(999)") + " " + STRING(vend.phone,"999-9999") .
       fax-no = STRING(vend.fax-area,"(999)") + " " + STRING(vend.fax,"999-9999") .
 
+      FIND FIRST ventype WHERE ventype.company EQ vend.company
+                AND ventype.TYPE EQ vend.TYPE NO-LOCK NO-ERROR.
+
+      FIND FIRST buyer WHERE buyer.company EQ vend.company
+                AND buyer.buyer EQ  vend.buyer NO-LOCK NO-ERROR.
+
+      FIND FIRST currency WHERE currency.company EQ vend.company
+                AND currency.c-code EQ  vend.curr-code NO-LOCK NO-ERROR.
+
+      FIND FIRST carrier WHERE carrier.company EQ vend.company
+                AND carrier.carrier EQ  vend.carrier  NO-LOCK NO-ERROR.
+
       ASSIGN cDisplay = ""
             cTmpField = ""
             cVarValue = ""
@@ -1361,7 +1383,7 @@ if td-show-parm then run show-param.
                   WHEN "def-gl"     THEN cVarValue = STRING(vend.actnum) .           
                   WHEN "byr"        THEN cVarValue = STRING(vend.buyer) .           
                   WHEN "copm-cd"    THEN cVarValue = STRING(vend.company) .           
-                  WHEN "byr-nam"    THEN cVarValue = STRING(vend.buyer-n) .          
+                  WHEN "byr-nam"    THEN cVarValue = STRING(buyer.buyer-n) .          
                   WHEN "carr"       THEN cVarValue = STRING(vend.carrier) . 
                   WHEN "fob"        THEN cVarValue = STRING(vend.fob-code) .   
                   WHEN "trm-cd"     THEN cVarValue = STRING(vend.terms) .    
@@ -1370,7 +1392,36 @@ if td-show-parm then run show-param.
                   WHEN "1099-cd"    THEN cVarValue = STRING(vend.code-1099) .           
                   WHEN "dis-dy"     THEN cVarValue = STRING(vend.disc-days) .           
                   WHEN "dat-lst"    THEN cVarValue = IF vend.lpay-date NE ? THEN STRING(vend.lpay-date) ELSE "" .           
-
+                  WHEN "tax-id"       THEN cVarValue = STRING(vend.tax-id,"x(15)") .
+                  WHEN "type-name"    THEN cVarValue = IF AVAIL ventype AND ventype.Dscr NE "" THEN STRING(ventype.Dscr,"X(30)") ELSE "" .
+                  WHEN "fax-prefix"   THEN cVarValue = IF vend.fax-prefix NE "" THEN STRING(vend.fax-prefix,"X(3)") ELSE "" .
+                  WHEN "fax-country"  THEN cVarValue =  IF vend.fax-country NE "" THEN STRING(vend.fax-country,"X(8)") ELSE "" .
+                  WHEN "over-pct"     THEN cVarValue = IF vend.over-pct NE 0 THEN STRING(vend.over-pct,">>9.99%") ELSE "" .                                                                                                                            
+                  WHEN "under-pct"    THEN cVarValue = IF vend.under-pct NE 0 THEN STRING(vend.under-pct,">>9.99%") ELSE "" .
+                  WHEN "actdscr"     THEN cVarValue = IF vend.actdscr NE "" THEN STRING(vend.actdscr,"X(30)") ELSE "" .
+                  WHEN "remit"        THEN cVarValue = STRING(vend.remit,"X(40)") .
+                  WHEN "remit-add1"   THEN cVarValue = STRING(vend.r-add1,"X(30)") .
+                  WHEN "remit-add2"   THEN cVarValue = STRING(vend.r-add2,"X(30)") .                                                                                                     
+                  WHEN "remit-city"   THEN cVarValue = STRING(vend.r-city,"X(16)") .                                                                                                     
+                  WHEN "remit-st"     THEN cVarValue =   STRING(vend.r-state,"X(2)")  .                                                                                                
+                  WHEN "remit-zip"    THEN cVarValue =  STRING(vend.r-zip,"xxxxx-xxxx") .
+                  WHEN "r-country"    THEN cVarValue =   STRING(vend.r-country,"X(10)")  .                                                                                                
+                  WHEN "r-postal"     THEN cVarValue =  STRING(vend.r-postal,"X(11)") .
+                  WHEN "check-memo"   THEN cVarValue =  STRING(vend.check-memo,"X(20)") .
+                  WHEN "curr-code"    THEN cVarValue =  STRING(vend.curr-code,"X(3)") .
+                  WHEN "curr-dscr"    THEN cVarValue =  IF AVAIL currency AND currency.c-desc NE "" THEN STRING(currency.c-desc,"X(30)") ELSE "" .
+                  WHEN "tax-gr"       THEN cVarValue = STRING(vend.tax-gr,"x(4)") .
+                  WHEN "an-edi-vend"  THEN cVarValue =  STRING(vend.an-edi-vend,"yes/no")  .
+                  WHEN "tb-cc"        THEN cVarValue = IF vend.payment-type EQ "ACH" THEN "Yes" ELSE "No".
+                  WHEN "po-export"    THEN cVarValue =  STRING(vend.po-export,"X(8)") .
+                  WHEN "loc"          THEN cVarValue = STRING(vend.loc,"X(5)") .
+                  WHEN "rebate-%"     THEN cVarValue = IF vend.rebate-% NE 0 THEN STRING(vend.rebate-%,">>>,>>>,>>9.99") ELSE "" .
+                  WHEN "frt-pay"      THEN cVarValue = STRING(vend.frt-pay,"X(1)") .
+                  WHEN "carrier-dscr" THEN cVarValue = IF AVAIL carrier AND carrier.dscr NE " " THEN STRING(carrier.dscr,"X(30)") ELSE "" .
+                  WHEN "pay-type"     THEN cVarValue = STRING(vend.payment-type,"X(20)") .                                                                                                     
+                  WHEN "Bank-Acct"    THEN cVarValue = STRING(vend.Bank-Acct,"X(18)") .                                                                                                     
+                  WHEN "SwiftBIC"     THEN cVarValue =   STRING(vend.SwiftBIC,"X(11)")  .                                                                                                
+                  WHEN "Bank-RTN"     THEN cVarValue =  IF vend.Bank-RTN NE 0 THEN STRING(vend.Bank-RTN,">>>>>>>>9") ELSE "" .
 
              END CASE.
 
