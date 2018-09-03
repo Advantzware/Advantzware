@@ -107,8 +107,8 @@ IF FIRST-OF(tt-boll.LINE) THEN DO:
        else if i eq 3 then ASSIGN w2.dscr = oe-ordl.part-dscr1.
        ELSE if i eq 4 then ASSIGN w2.dscr = oe-ordl.part-dscr2.
     END.
-    IF w2.qty = 0 and w2.i-no = "" AND w2.dscr = "" AND NOT last(w2.cases) THEN .
-    ELSE DO:    
+    IF w2.qty = 0 and w2.i-no = "" AND w2.dscr = "" AND NOT last(w2.cases) AND w2.cas-cnt EQ 0 THEN .
+    ELSE DO:      
         DISPLAY w2.i-no                       
            trim(string(w2.qty,"->>,>>>,>>>")) WHEN i = 1 @ w2.i-no
             w2.job-po
