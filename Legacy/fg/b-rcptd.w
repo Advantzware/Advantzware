@@ -114,8 +114,15 @@ END.
 
 DEF VAR lvReturnChar AS CHAR NO-UNDO.
 DEF VAR lvFound AS LOG NO-UNDO.
-DEFINE VARIABLE lfgunderover-log AS LOGICAL NO-UNDO .
+DEFINE VARIABLE lfgunderover-log AS LOGICAL   NO-UNDO .
 DEFINE VARIABLE cfgunderover-cha AS CHARACTER NO-UNDO .
+DEF VAR fgRecptPassWord-log AS LOGICAL NO-UNDO.
+DEF VAR fgRecptPassWord-char AS CHARACTER NO-UNDO.
+
+RUN sys/ref/nk1look.p (cocode, "FGRecptPassWord", "L", NO, NO, "", "", 
+    OUTPUT lvReturnChar, OUTPUT lvFound).
+IF lvFound THEN
+    fgRecptPassWord-log = LOGICAL(lvReturnChar).
 
 DEFINE VARIABLE lFound AS LOGICAL     NO-UNDO.
 DEFINE VARIABLE lFGSetAssembly AS LOGICAL     NO-UNDO.
@@ -997,8 +1004,14 @@ DO:
     RETURN.
 
   IF LASTKEY NE -1 THEN DO:
-      RUN valid-job-no NO-ERROR.
-    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+    IF fgRecpt AND NOT fgRecptPassWord-log THEN
+      RUN non-blank-job-po.
+    IF ERROR-STATUS:ERROR THEN
+      RETURN.
+          
+    RUN valid-job-no NO-ERROR.
+    IF ERROR-STATUS:ERROR THEN 
+      RETURN NO-APPLY.
   END.  
 END.
 
@@ -1923,8 +1936,8 @@ PROCEDURE display-po :
        ASSIGN fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name} =  itemfg.def-loc
               fg-rctd.loc-bin:SCREEN-VALUE IN BROWSE {&browse-name} =  itemfg.def-loc-bin
               fg-rctd.qty-case:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(itemfg.case-count)
-            /*  fg-rctd.cost-uom = if itemfg.pur-man = itemfg.pur-uom
-                            else itemfg.prod-uom  */.
+                /*  fg-rctd.cost-uom = if itemfg.pur-man = itemfg.pur-uom
+                                else itemfg.prod-uom  */.
 
   END.
 
@@ -2090,7 +2103,7 @@ PROCEDURE get-job-no :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  
+  DEF INPUT PARAMETER iplAskPasswd AS LOG NO-UNDO.
   DEF VAR lvPasswordEntered AS LOG NO-UNDO.
   DEF VAR lcRitaCode AS CHAR NO-UNDO.
   IF AVAIL(fg-rctd) THEN
@@ -2105,7 +2118,7 @@ PROCEDURE get-job-no :
     IF TRIM(fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}) NE TRIM(lv-job-no)  OR
        DEC(fg-rctd.job-no2:SCREEN-VALUE IN BROWSE {&browse-name}) NE DEC(lv-job-no2) THEN
       RUN new-job-no.
-    
+
   END.
 
 END PROCEDURE.
@@ -3670,8 +3683,15 @@ PROCEDURE local-update-record :
   
 
   /* Run with check on password, if relevant */
+  RUN non-blank-job-po NO-ERROR.
+    IF ERROR-STATUS:ERROR THEN DO: 
+         RETURN ERROR.
+    END.
+    
   RUN valid-job-no NO-ERROR.
-  IF ERROR-STATUS:ERROR THEN RETURN ERROR.
+  IF ERROR-STATUS:ERROR THEN         
+      RETURN ERROR.
+   
 
   RUN valid-job-no2 NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN ERROR.
@@ -3903,9 +3923,11 @@ DO WITH FRAME {&FRAME-NAME}:
                     fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name} = loadtag.job-no
                     fg-rctd.job-no2:SCREEN-VALUE IN BROWSE {&browse-name} = FILL(" ",6 - LENGTH(TRIM(STRING(loadtag.job-no2)))) +
                                                                            TRIM(STRING(loadtag.job-no2)).
-                
+                IF NOT fgRecptPassWord-log THEN
+                    RUN get-job-no (INPUT YES) NO-ERROR.
+                ELSE
                     /* run with 'no' so no message until save */
-                    RUN get-job-no NO-ERROR.
+                    RUN get-job-no (INPUT NO) NO-ERROR.
                 IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
             END.  /* Task 12061305 */
             IF adm-new-record THEN
@@ -3965,6 +3987,53 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE non-blank-job-po B-table-Win
+PROCEDURE non-blank-job-po:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEF    VAR      lvPasswordEntered AS LOG NO-UNDO.
+    DEF    VAR      lcRitaCode        AS CHAR      NO-UNDO.    
+      
+    IF AVAIL(fg-rctd) THEN
+        lcRitaCode = fg-rctd.rita-code.
+    ELSE
+        lcRitaCode = "R".
+        
+    
+    IF NOT ll-set-parts THEN DO WITH FRAME {&frame-name}:
+      IF fgrecpt
+           AND fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name} EQ ""                                                                
+           AND fg-rctd.po-no:SCREEN-VALUE IN BROWSE {&browse-name} EQ "" 
+           AND lcRitaCode NE "E"                                  THEN 
+      DO:
+            /* Job Number and PO # are blank */
+            /* Check password for override */
+            lvPasswordEntered = NO.           
+            IF fgRecptPassWord-log THEN DO:
+                RUN sys/ref/d-psswrd.w (INPUT "FGRecptPassWord", INPUT "FGRecptPassWord",
+                    OUTPUT lvPasswordEntered).
+              END.
+            IF NOT lvPasswordEntered OR NOT fgRecptPassWord-log THEN 
+            DO:
+                MESSAGE "You must enter a Job or a PO..." VIEW-AS ALERT-BOX ERROR.
+                APPLY "entry" TO fg-rctd.job-no IN BROWSE {&browse-name}.
+                RETURN ERROR.
+            END.
+                
+      END. /* If checking for blank job and PO */                                               
+      
+    END. /* Do with frame ... */
+    RETURN. 
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE repo-query B-table-Win 
 PROCEDURE repo-query :
@@ -4580,10 +4649,10 @@ PROCEDURE valid-i-no :
   DO WITH FRAME {&FRAME-NAME}:
     IF oeship-log                   AND
        CAN-FIND(FIRST itemfg
-                WHERE itemfg.company EQ cocode
-                  AND itemfg.i-no    EQ ip-focus:SCREEN-VALUE
-                  AND itemfg.isaset
-                  AND itemfg.alloc) THEN DO:
+       WHERE itemfg.company EQ cocode
+       AND itemfg.i-no    EQ fg-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name}
+       AND itemfg.isaset
+       AND itemfg.alloc) THEN DO:
       MESSAGE TRIM(ip-focus:LABEL) + " may not be an unassembled set header...".
       APPLY "entry" TO ip-focus.
       RETURN ERROR.
@@ -4607,7 +4676,7 @@ PROCEDURE valid-i-no :
 
     IF NOT CAN-FIND(FIRST itemfg
                 WHERE itemfg.company EQ cocode
-                  AND itemfg.i-no    EQ ip-focus:SCREEN-VALUE
+                  AND itemfg.i-no    EQ fg-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name}
                   AND itemfg.prod-uom NE "") THEN DO:
     
        MESSAGE fg-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name} + " has no cost UOM. Please correct the item master and try again."
@@ -4630,47 +4699,32 @@ PROCEDURE valid-job-no :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  
-  DEF VAR lvPasswordEntered AS LOG NO-UNDO.
-  DEF VAR lcRitaCode AS CHAR NO-UNDO.
-  IF AVAIL(fg-rctd) THEN
-      lcRitaCode = fg-rctd.rita-code.
-  ELSE
-      lcRitaCode = "R".
-  DO WITH FRAME {&frame-name}:
+
+  IF fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name} GT "" THEN DO WITH FRAME {&frame-name}:
     fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name} =
         FILL(" ",6 - LENGTH(TRIM(fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}))) +
         TRIM(fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}).
 
     IF TRIM(fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}) NE TRIM(lv-job-no)  OR
        DEC(fg-rctd.job-no2:SCREEN-VALUE IN BROWSE {&browse-name}) NE DEC(lv-job-no2) THEN
-      RUN new-job-no.
+        RUN new-job-no.
 
-    IF fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name} EQ "" THEN DO:
-        IF fgrecpt AND fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name} EQ "" 
-            AND fg-rctd.po-no:SCREEN-VALUE IN BROWSE {&browse-name} EQ "" 
-            AND lcRitaCode NE "E"                               THEN DO:
-
-            MESSAGE "You must enter a Job or a PO..." VIEW-AS ALERT-BOX ERROR.
-            APPLY "entry" TO fg-rctd.po-no IN BROWSE {&browse-name}.
-            RETURN ERROR.
-        END. /* If job# blank */
+    IF fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name} = "" 
+       AND INT(fg-rctd.po-no:SCREEN-VALUE IN BROWSE {&browse-name}) NE 0 THEN 
+    DO:
+        fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name} = "".
+        MESSAGE "You may only enter a Job or a PO, Job No will be erased..."
+            VIEW-AS ALERT-BOX ERROR.
     END.
-    ELSE DO:
-        IF INT(fg-rctd.po-no:SCREEN-VALUE IN BROWSE {&browse-name}) NE 0 THEN DO:
-            fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name} = "".
-            MESSAGE "You may only enter a Job or a PO, Job No will be erased..."
-                VIEW-AS ALERT-BOX ERROR.
-        END.
-        FIND FIRST job-hdr
-            WHERE job-hdr.company EQ cocode
-            AND job-hdr.job-no  EQ fg-rctd.job-no:SCREEN-VALUE
-            NO-LOCK NO-ERROR.
-        IF NOT AVAIL job-hdr THEN DO:
-            MESSAGE "Invalid Job#. Try Help..." VIEW-AS ALERT-BOX ERROR.
-            RETURN ERROR.
-        END.
-    END.  /* else do*/
+    FIND FIRST job-hdr
+        WHERE job-hdr.company EQ cocode
+          AND job-hdr.job-no  EQ fg-rctd.job-no:SCREEN-VALUE
+        NO-LOCK NO-ERROR.
+    IF NOT AVAIL job-hdr THEN 
+    DO:
+        MESSAGE "Invalid Job#. Try Help..." VIEW-AS ALERT-BOX ERROR.
+        RETURN ERROR.
+    END.
   END.
 
 END PROCEDURE.

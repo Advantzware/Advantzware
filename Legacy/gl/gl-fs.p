@@ -300,7 +300,7 @@ ASSIGN
 
   for each tt-rpt break by tt-rpt.line by tt-rpt.seq with frame glinc:
     
-      if tt-rpt.type ge 100 and not first(tt-rpt.line) THEN page.
+      if tt-rpt.type ge 100 and not first(tt-rpt.line) AND tt-rpt.main EQ YES THEN page.
         
 
  if tt-rpt.type ge 100 THEN tt-rpt.TYPE = tt-rpt.TYPE / 10 .

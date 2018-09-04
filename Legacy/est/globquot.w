@@ -870,16 +870,6 @@ session:set-wait-state("General").
 EMPTY TEMP-TABLE tt-rowid.
 EMPTY TEMP-TABLE tt-quoteqty .
 
-lv-reft = "est/globquot.w"              + " " +
-          STRING(cocode,"x(10)")        + " " +
-          STRING(YEAR(TODAY),"9999")    +
-          STRING(MONTH(TODAY),"99")     +
-          STRING(DAY(TODAY),"99")       + " " +
-          STRING(TIME,"99999")          + " " +
-          USERID("nosweat")             + " " +
-          STRING(cocode,"x(10)")        + " " +
-          STRING(locode,"x(10)").
-
 RUN get-params (OUTPUT lv-dscr).
 
 v = index("DP",v-round).
@@ -1133,18 +1123,6 @@ for each quotehd
     CREATE tt-rowid.
     tt-rowid.row-id = ROWID(quoteqty).
 
-    CREATE reftable.
-    ASSIGN
-     reftable.reftable = lv-reft
-     reftable.company  = STRING(quoteqty.q-no,"9999999999")
-     reftable.loc      = STRING(quoteqty.line,"9999999999")
-     reftable.code     = STRING(quoteqty.qty,"9999999999")
-     reftable.code2    = STRING(quoteqty.rels,"9999999999")
-     reftable.dscr     = lv-dscr
-     reftable.val[1]   = quoteqty.price * 1000
-     reftable.val[2]   = v-pct
-     reftable.val[3]   = v.
-
     v-orig-price = quoteqty.price.
     if v-undo then
       quoteqty.price = quoteqty.price / (1 - (v-pct / 100)).
@@ -1163,9 +1141,7 @@ for each quotehd
         IF quoteqty.price LT v-orig-price THEN
           RUN round-up (INPUT v-orig-price, INPUT quoteqty.price, INPUT v-round-EA, OUTPUT quoteqty.price).
     END.
-
-
-     reftable.val[4]   = quoteqty.price * 1000.
+     
   end.
 
   for each quoteqty
