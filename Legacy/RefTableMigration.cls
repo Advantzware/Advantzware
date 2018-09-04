@@ -2956,6 +2956,43 @@ CLASS RefTableMigration:
         END.  /*FOR EACH reftable*/  
         RETURN iCnt.
     END METHOD. /*EstGlobquot*/
+    METHOD PUBLIC INTEGER ChargeCode(INPUT ipCount AS INTEGER):
+        DEFINE VARIABLE iCnt AS INTEGER NO-UNDO.
+        DEFINE BUFFER reftable1 FOR reftable1.
+        DEFINE BUFFER Breftable FOR reftable. 
+        DEFINE BUFFER fgcat   FOR fgcat.
+        
+        DISABLE TRIGGERS FOR LOAD OF reftable.        
+        DISABLE TRIGGERS FOR LOAD OF fgcat.
+        ASSIGN iProcessCount = 0.
+        FOR EACH reftable WHERE reftable.reftable = "chargecode"
+            NO-LOCK:
+            DO TRANSACTION:    
+                FIND FIRST fgcat WHERE fgcat.company = reftable.company
+                                   AND fgcat.procat  = reftable.loc
+                    EXCLUSIVE-LOCK NO-ERROR.
+                IF AVAILABLE fgcat THEN    
+                DO: 
+                    IF fgcat.miscCharge EQ "" THEN ASSIGN fgcat.miscCharge = reftable.code.
+                    IF fgcat.brdExpAcct EQ "" THEN ASSIGN fgcat.brdExpAcct = reftable.code2.
+                    IF fgcat.cogsExpAcct EQ "" THEN ASSIGN fgcat.cogsExpAcct = reftable.dscr.
+                    ASSIGN iProcessCount = iProcessCount + 1.
+                END. 
+                FIND CURRENT fgcat NO-LOCK NO-ERROR.    
+                RELEASE fgcat.      
+                CREATE reftable1.
+                BUFFER-COPY reftable TO reftable1.
+                RELEASE reftable1.
+                FIND Breftable WHERE ROWID(Breftable) = ROWID(reftable)
+                    EXCLUSIVE-LOCK NO-ERROR.
+                IF AVAILABLE Breftable THEN DELETE Breftable. 
+                RELEASE Breftable.   
+                iCnt = iCnt + 1.
+                IF iCnt >= ipCount THEN LEAVE.   
+            END.              
+        END.  /*FOR EACH reftable*/  
+        RETURN iCnt.
+    END METHOD. /*ChargeCode*/
 END CLASS.
 
 

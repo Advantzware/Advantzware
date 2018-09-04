@@ -2503,17 +2503,16 @@ PROCEDURE getItemfgGL :
             AND surcharge.charge <> "" NO-ERROR.
         IF AVAILABLE surcharge THEN
             ASSIGN v-charge = surcharge.charge.
-        FIND FIRST reftable NO-LOCK WHERE reftable.reftable EQ "chargecode"
-            AND reftable.company  EQ itemfg.company
-            AND reftable.loc      EQ itemfg.procat
-            AND reftable.code     EQ v-charge
-            /* AND reftable.code2 = "" */
+        FIND FIRST fgcat NO-LOCK WHERE fgcat.company  EQ itemfg.company
+            AND fgcat.procat      EQ itemfg.procat
             NO-ERROR.
 
-        IF AVAILABLE reftable AND reftable.code2 <> "" THEN 
-            ASSIGN out-actnum = reftable.code2.
+        IF AVAILABLE fgcat 
+        AND fgcat.miscCharge  EQ v-charge 
+        AND fgcat.brdExpAcct <> "" THEN 
+            ASSIGN out-actnum = fgcat.brdExpAcct.
 
-        RELEASE reftable.
+
     END. /* avail itemfg */
     RELEASE itemfg.
 
@@ -3881,14 +3880,16 @@ PROCEDURE setPoOrdlFg :
             AND surcharge.charge <> "" NO-LOCK NO-ERROR.
         IF AVAILABLE surcharge THEN
             ASSIGN v-charge = surcharge.charge.
-        FIND FIRST reftable NO-LOCK WHERE reftable.reftable EQ "chargecode"
-            AND reftable.company  EQ bf-itemfg.company
-            AND reftable.loc      EQ bf-itemfg.procat
-            AND reftable.code     EQ v-charge
-            /* AND reftable.code2 = "" */
+        FIND FIRST fgcat NO-LOCK WHERE fgcat.company  EQ bf-itemfg.company
+            AND fgcat.procat      EQ bf-itemfg.procat
             NO-ERROR.
-        IF AVAILABLE reftable AND reftable.dscr <> "" THEN 
-            ASSIGN bf-po-ordl.actnum = reftable.dscr.
+
+        IF AVAILABLE fgcat 
+        AND fgcat.miscCharge  EQ v-charge 
+        AND fgcat.brdExpAcct <> "" THEN 
+            ASSIGN out-actnum = fgcat.brdExpAcct.
+
+
     END. /* avail bf-itemfg */
 
     FIND CURRENT bf-po-ordl NO-LOCK NO-ERROR.

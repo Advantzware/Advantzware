@@ -569,21 +569,14 @@ PROCEDURE local-assign-record :
     end.
   end.
 
-  FIND FIRST reftable WHERE reftable.reftable EQ "chargecode"
-           AND reftable.company  EQ fgcat.company
-           AND reftable.loc      EQ fgcat.procat
-           /*AND reftable.code     EQ */
-           NO-ERROR.
-  IF NOT AVAIL reftable THEN DO:
-     CREATE reftable.
-     ASSIGN reftable.reftable = "ChargeCode"
-            reftable.company = fgcat.company
-            reftable.loc = fgcat.procat.
-  END.
-  ASSIGN
-  reftable.CODE = v-charge
-  reftable.code2 = v-gl-rm
-  reftable.dscr = v-gl-fg.
+
+FIND CURRENT fgcat EXCLUSIVE-LOCK NO-ERROR.
+ASSIGN
+  fgcat.miscCharge = v-charge
+  fgcat.brdExpAcct = v-gl-rm
+  fgcat.cogsExpAcct = v-gl-fg.
+FIND CURRENT fgcat NO-LOCK NO-ERROR.  
+
 
 
 END PROCEDURE.
@@ -652,22 +645,10 @@ PROCEDURE local-display-fields :
 
   IF NOT adm-new-record THEN
   DO:
-    FIND FIRST reftable WHERE
-         reftable.reftable EQ "chargecode" AND
-         reftable.company  EQ fgcat.company AND
-         reftable.loc      EQ fgcat.procat
-         NO-LOCK NO-ERROR.
-
-    IF AVAIL reftable THEN
-       ASSIGN
-          v-charge = reftable.CODE
-          v-gl-rm  = reftable.code2
-          v-gl-fg  = reftable.dscr.
-    ELSE
-       ASSIGN
-          v-charge = ""
-          v-gl-rm = ""
-          v-gl-fg = "".
+    ASSIGN
+          v-charge = fgcat.miscCharge
+          v-gl-rm  = fgcat.brdExpAcct
+          v-gl-fg  = fgcat.cogsExpAcct.
   END.
 
   DISPLAY v-charge v-gl-rm v-gl-fg WITH FRAME {&FRAME-NAME}.
