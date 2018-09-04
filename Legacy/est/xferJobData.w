@@ -36,7 +36,9 @@ CREATE WIDGET-POOL.
 &SCOPED-DEFINE estOpWhere est-op.company EQ ipCompany ~
 AND est-op.est-no EQ ipEstNo ~
 AND est-op.line LT 500 ~
-AND est-op.qty EQ estQty
+AND ((est-op.qty eq estQty and (iEstType eq 1 OR iEstType EQ 5 OR iEstType EQ 6 )) or ~
+ (est-op.qty eq iv-eqty and (iEstType EQ 2 OR iEstType EQ 4 OR iEstType EQ 8)))
+
 
 /* Parameters Definitions ---                                           */
 
@@ -62,6 +64,8 @@ DEFINE VARIABLE ipQuery AS HANDLE NO-UNDO.
 
 DEFINE VARIABLE jobhdrRowID AS ROWID NO-UNDO.
 DEFINE VARIABLE estQty AS INTEGER NO-UNDO.
+DEFINE VARIABLE iv-eqty LIKE est-qty.eqty NO-UNDO.
+DEFINE VARIABLE iEstType AS INTEGER NO-UNDO.
 DEFINE VARIABLE mCodeCol AS LOGICAL NO-UNDO.
 DEFINE VARIABLE opSpeedCol AS LOGICAL NO-UNDO.
 DEFINE VARIABLE mrHRCol AS LOGICAL NO-UNDO.
@@ -913,8 +917,10 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
        WHERE est.company EQ ipCompany
          AND est.est-no EQ ipEstNo
        NO-ERROR.
-  IF AVAILABLE est THEN
-  RUN getQty.
+  IF AVAILABLE est THEN do:
+      ASSIGN iEstType = est.est-type .
+      RUN getQty.
+  END.
   
   RUN createTtblEstOp.
   RUN enable_UI.
@@ -1346,7 +1352,9 @@ PROCEDURE getQty :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEFINE VARIABLE radioButtons AS CHARACTER NO-UNDO.
-
+  DEFINE BUFFER xop FOR est-op.
+  iv-eqty = 0.
+  
   FOR EACH est-qty NO-LOCK
       WHERE est-qty.company EQ ipCompany
         AND est-qty.est-no EQ ipEstNo
@@ -1355,6 +1363,20 @@ PROCEDURE getQty :
                  + STRING(est-qty.eqty) + ','
                  + STRING(est-qty.eqty) + ','.
   END. /* each est-qty */
+  
+  
+    IF iEstType EQ 1 THEN iv-eqty = INT(ENTRY(1,radioButtons)) .
+
+    ELSE
+    FOR EACH xop NO-LOCK
+        WHERE xop.company EQ ipCompany
+          AND xop.est-no  EQ ipEstNo
+          AND xop.line    LT 500
+        BY xop.qty:
+      iv-eqty = xop.qty.
+      LEAVE.
+    END.
+
   ASSIGN
     radioButtons = TRIM(radioButtons,',')
     radioQty:RADIO-BUTTONS IN FRAME {&FRAME-NAME} = radioButtons
