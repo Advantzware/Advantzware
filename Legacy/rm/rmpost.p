@@ -393,13 +393,16 @@ DEF BUFFER b-tt-rctd FOR tt-rctd.
           and item.i-no     eq tt-rctd.i-no
           and item.mat-type eq "B"
         no-lock:
-
-      {rm/rm-addcr.i E b-tt-rctd b-tt-rctd b-}
-        ASSIGN
-         b-tt-rctd.tt-row-id = ROWID(tt-rctd)
-         b-tt-rctd.seq-no    = 3.
-
-      END.
+        
+        FIND FIRST b-tt-rctd NO-LOCK 
+           WHERE b-tt-rctd.tt-row-id EQ ROWID(tt-rctd) NO-ERROR.
+        IF AVAIL b-tt-rctd THEN DO:
+            {rm/rm-addcr.i E b-tt-rctd b-tt-rctd b-}
+                ASSIGN
+                b-tt-rctd.tt-row-id = ROWID(tt-rctd)
+                b-tt-rctd.seq-no    = 3.
+        END.
+      END. /*  for each tt-rctd  */
     end.
 
     assign
