@@ -248,13 +248,12 @@ WORK1 = ORDERS.ORDER-NUMBER + "          ".
 DOWNLOAD-ORDER-ID = SUBSTRING(WORK1,1,10).
 */
 
-/* Delete order message */
 ASSIGN
 jobNumber = (if length(trim(job-hdr.job-no)) < 6 then fill(" ", 6 - length(job-hdr.job-no))
            else "") +   trim(job-hdr.job-no) + "-" + string(job-hdr.job-no2,"99") + " "
 download-record2 = ""
 substring(DOWNLOAD-RECORD2,1,1) = "D"
-SUBSTRING(download-record2,43,15) = jobNumber.
+SUBSTRING(download-record2,30,10) = jobNumber.
 
 /*==== data :  D                            M9227-24  ===*/
 
@@ -292,32 +291,28 @@ DO:
            NO-LOCK NO-ERROR.
 END.
 
-/* Add order message */
 ASSIGN
 download-record1 = ""
 substring(download-record1,1,1) = "A"  /* download type */ 
 substring(download-record1,2,4) = "86  " /* Corr-ID*/
-SUBSTRING(download-record1,6,25) = ef.TEST + ef.Flute /* Grade name */
-SUBSTRING(download-record1,31,6) = "      "
-SUBSTRING(download-record1,37,6) = if job-hdr.due-date <> ? then (SUBSTRING(STRING(YEAR(job-hdr.due-date)),3,2)
+SUBSTRING(download-record1,6,12) = ef.TEST + ef.Flute
+SUBSTRING(download-record1,18,6) = "      "
+SUBSTRING(download-record1,18,6) = "      "
+SUBSTRING(download-record1,24,6) = if job-hdr.due-date <> ? then (SUBSTRING(STRING(YEAR(job-hdr.due-date)),3,2)
                                  + STRING(MONTH(job-hdr.due-date),"99")
                                  + STRING(DAY(job-hdr.due-date),"99"))
                                  else "      "
 v-len = {sys/inc/k16.i ef.nsh-len} * 100                                 
 v-wid = {sys/inc/k16.i ef.nsh-wid} * 100
-SUBSTRING(download-record1,43,15) = /*string(jobNumber,"x(10)")*/
+SUBSTRING(download-record1,30,10) = /*string(jobNumber,"x(10)")*/
    (if length(trim(job-hdr.job-no)) < 6 then fill(" ", 6 - length(job-hdr.job-no))
            else "") + trim(job-hdr.job-no) + string(job-hdr.job-no2,"99") + string(ef.form-no,"99")
-SUBSTRING(download-record1,58,6) = string(v-wid) /*BLANK WIDTH. 16ths*/ 
-SUBSTRING(download-record1,64,6) = string(v-len)/* BLANK LENGTH*/
-
-
-/*
+SUBSTRING(download-record1,40,6) = string(v-wid) /*BLANK WIDTH. 16ths*/ 
+SUBSTRING(download-record1,46,6) = string(v-len)/* BLANK LENGTH*/
 SUBSTRING(download-record1,52,20) = cust.NAME
 SUBSTRING(download-record1,72,10) = job-hdr.cust-no
 SUBSTRING(download-record1,82,10) = job-hdr.po-no  /*cust-po*/
 SUBSTRING(download-record1,92,10) = "          "   /* download-item*/
-*/
 v-sheets = 0.
 
 /*SUBSTRING(download-record1,102,6) = string(job-hdr.qty)  /*download-quantity*/ */
@@ -336,33 +331,21 @@ DO:
    v-sheets = job-mch.run-qty * ef.n-out * ef.n-out-l.
    RELEASE job-mch.
 END.
-ASSIGN 
-    SUBSTRING(download-record1,70,6) = string(v-sheets) /* Quantity - Number of blanks */
-    SUBSTRING(download-record1,76,3) = IF AVAIL oe-ordl THEN STRING(100 + INT(oe-ordl.over-pct),"999")
-                                            ELSE IF AVAIL oe-ord THEN STRING(100 + INT(oe-ord.over-pct),"999")  /* absolute max over*/
-                                            ELSE STRING(100 + INT(cust.over-pct),"999")
-    SUBSTRING(download-record1,79,3) = IF AVAIL oe-ordl THEN STRING(100 + INT(oe-ordl.over-pct),"999")
-                                            ELSE IF AVAIL oe-ord THEN STRING(100 + INT(oe-ord.over-pct),"999")  /* std max over*/
-                                            ELSE STRING(100 + INT(cust.over-pct),"999")
-    SUBSTRING(download-record1,82,3) = IF AVAIL oe-ordl THEN STRING(100 - INT(oe-ordl.under-pct),"999")
-                                            ELSE IF AVAIL oe-ord THEN STRING(100 - INT(oe-ord.under-pct),"999")  /* max under */
-                                            ELSE STRING(100 - INT(cust.under-pct),"999") /* under*/
-    SUBSTRING(download-record1,85,1) = " " /* Shyable */
-    SUBSTRING(download-record1,86,2) = "  " /* Max shy units */
-    SUBSTRING(download-record1,88,10)  = string(0) /* 2 char special instructions */
-    SUBSTRING(download-record1,98,4)   = "    " /* Pieces per pallet */
-    SUBSTRING(download-record1,102,2)  = " " /* Number of scores */
-    SUBSTRING(download-record1,104,1)  = " " /* Trim priority */
-    SUBSTRING(download-record1,105,2)  = "  " /* Min # out */
-    SUBSTRING(download-record1,107,2)  = "  " /* Max # out */
-    SUBSTRING(download-record1,109,6)  = "      " /* Min lineaal ft */
-    SUBSTRING(download-record1,115,2)  = string(0) /* Splitting */
-    SUBSTRING(download-record1,117,1)  = " " /* Order assigned */
-    SUBSTRING(download-record1,118,1)  = " " /* Order requies close to a slitter */
-    SUBSTRING(download-record1,119,2)  = "  " /* type of score 2 digit code*/
-    SUBSTRING(download-record1,121,25) = "                 " /* Customer name */
-    SUBSTRING(download-record1,146,25) = job-hdr.cust-no /* Cust code */
-    .
+
+ASSIGN
+SUBSTRING(download-record1,102,6) = string(v-sheets)  /*download-quantity*/
+SUBSTRING(download-record1,111,3) = "   " /* std-over-pct*/
+SUBSTRING(download-record1,117,1) =  " " /* shy control - Y/N*/
+SUBSTRING(download-record1,118,2) =  "  " /* max shy */
+SUBSTRING(download-record1,120,10) =  "          " /* process code (blank code)*/
+SUBSTRING(download-record1,151,2) = "26"  /* score type*/
+SUBSTRING(download-record1,108,3) = IF AVAIL oe-ordl THEN STRING(100 + INT(oe-ordl.over-pct),"999")
+                                    ELSE IF AVAIL oe-ord THEN STRING(100 + INT(oe-ord.over-pct),"999")  /* max over*/
+                                    ELSE STRING(100 + INT(cust.over-pct),"999")
+SUBSTRING(download-record1,114,3) = IF AVAIL oe-ordl THEN STRING(100 - INT(oe-ordl.under-pct),"999")
+                                    ELSE IF AVAIL oe-ord THEN STRING(100 - INT(oe-ord.under-pct),"999")  /* max over*/
+                                    ELSE STRING(100 - INT(cust.under-pct),"999"). /* under*/
+
 PUT UNFORMATTED download-record1 SKIP.  
 
 
@@ -486,7 +469,7 @@ ORIGINAL CODE END*/
 
 /*END RECORD2*/
 
-DOWNLOAD-TYPE-EXIT = "X".   /* Extension Record */
+DOWNLOAD-TYPE-EXIT = "X".
                                                           
 
 /***START 051900 - CORRECT SHEET WIDTH FROM BECOMMING A SCORE
