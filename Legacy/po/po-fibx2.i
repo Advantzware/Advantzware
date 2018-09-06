@@ -295,6 +295,16 @@ FOR EACH po-ordl
   ELSE
      v-line-2 = po-ordl.i-name.
 
+     cMachCode = "" .
+     FOR EACH job-mch WHERE job-mch.company EQ cocode
+         AND job-mch.job-no EQ po-ordl.job-no
+         AND job-mch.job-no2 EQ po-ordl.job-no2
+         AND job-mch.frm EQ po-ordl.s-num use-index line-idx NO-LOCK:
+
+         ASSIGN cMachCode = job-mch.m-code .
+         LEAVE.
+     END.
+
   PUT {1} v-ord-qty FORMAT "X(6)" TO 6
           v-line-2 FORMAT "X(28)" AT 8
           v-adder[1] FORMAT "X(9)" AT 37
@@ -307,7 +317,8 @@ FOR EACH po-ordl
           v-mach[2] FORMAT "X(1)" AT 57
           po-ordl.due-date FORMAT "99/99/99" AT 60
           v-cost FORMAT "->,>>>,>>9.99<<<" TO 80
-          po-ordl.dscr[2] format "x(28)" at 8.
+          po-ordl.dscr[2] format "x(28)" at 8
+          (IF cMachCode NE "" THEN cMachCode ELSE "") FORMAT "X(6)" AT 50.
 
   DO v-count = 3 TO 6:
      IF v-adder[v-count] <> "" THEN
