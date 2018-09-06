@@ -1477,6 +1477,7 @@ SESSION:SET-WAIT-STATE ("general").
     find oe-bolh where recid(oe-bolh) = w-bolh.w-recid no-lock.
 
     v-tot-post = v-tot-post + 1.
+    
     /* shipto required in oe/oe-bolp3 */
     FIND FIRST shipto NO-LOCK
         WHERE shipto.company EQ oe-bolh.company
@@ -1489,11 +1490,12 @@ SESSION:SET-WAIT-STATE ("general").
             WHERE shipto.company EQ oe-bolh.company
               AND shipto.cust-no EQ oe-bolh.cust-no
             USE-INDEX ship-no NO-ERROR.
-      if not avail shipto then 
-      do:
+     
+      IF NOT AVAILABLE shipto THEN 
+      DO:
           RUN create-nopost ("Ship to Was Not Found").
-          next mainblok.
-      end.
+          NEXT mainblok.
+      END.
             
     FOR EACH oe-boll
         WHERE oe-boll.company EQ oe-bolh.company
