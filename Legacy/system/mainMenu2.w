@@ -1378,6 +1378,9 @@ PROCEDURE pInit :
     DEFINE VARIABLE cHelpService  AS CHARACTER NO-UNDO.
     DEFINE VARIABLE hPgmMstrSecur AS HANDLE    NO-UNDO.
     DEFINE VARIABLE lAdmin        AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cThisVersion  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iThisVersion  AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iLastVersion  AS INTEGER   NO-UNDO.
     
     RUN sys/ref/nk1look.p (
         g_company,"CEMenu","C",NO,NO,"","",
@@ -1523,7 +1526,17 @@ PROCEDURE pInit :
             IF hWebService:CONNECTED() THEN DO:
                 RUN Service1Soap SET hSalesSoap ON hWebService .
                 RUN HelpVersion IN hSalesSoap (OUTPUT cVersion).
-                IF "{&awversion}" NE cVersion THEN DO:
+
+                ASSIGN
+                    cThisVer     = "{&awversion}"
+                    iLastVersion = ((ENTRY(1,cVersion,".") * 10000) +
+                                    (ENTRY(2,cVersion,".") * 100) +
+                                    (ENTRY(3,cVersion,"."))
+                    iThisVersion = ((ENTRY(1,cThisVer,".") * 10000) +
+                                    (ENTRY(2,cThisVer,".") * 100) +
+                                    (ENTRY(3,cThisVer,".")).
+                    
+                IF iLastVersion GT iThisVersion THEN DO:
                     RUN sys/ref/nk1look.p (
                         g_company,"MENULINKUPGRADE","C",NO,NO,"","",
                         OUTPUT cNK1Value[1],OUTPUT lFound
