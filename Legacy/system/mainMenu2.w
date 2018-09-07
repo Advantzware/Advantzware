@@ -1378,7 +1378,7 @@ PROCEDURE pInit :
     DEFINE VARIABLE cHelpService  AS CHARACTER NO-UNDO.
     DEFINE VARIABLE hPgmMstrSecur AS HANDLE    NO-UNDO.
     DEFINE VARIABLE lAdmin        AS LOGICAL   NO-UNDO.
-    DEFINE VARIABLE cThisVersion  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cThisVer      AS CHARACTER NO-UNDO.
     DEFINE VARIABLE iThisVersion  AS INTEGER   NO-UNDO.
     DEFINE VARIABLE iLastVersion  AS INTEGER   NO-UNDO.
     
@@ -1529,12 +1529,12 @@ PROCEDURE pInit :
 
                 ASSIGN
                     cThisVer     = "{&awversion}"
-                    iLastVersion = ((ENTRY(1,cVersion,".") * 10000) +
-                                    (ENTRY(2,cVersion,".") * 100) +
-                                    (ENTRY(3,cVersion,"."))
-                    iThisVersion = ((ENTRY(1,cThisVer,".") * 10000) +
-                                    (ENTRY(2,cThisVer,".") * 100) +
-                                    (ENTRY(3,cThisVer,".")).
+                    iLastVersion = (INT(ENTRY(1,cVersion,".")) * 10000) +
+                                   (INT(ENTRY(2,cVersion,".")) * 100) +
+                                   (INT(ENTRY(3,cVersion,".")))
+                    iThisVersion = (INT(ENTRY(1,cThisVer,".")) * 10000) +
+                                   (INT(ENTRY(2,cThisVer,".")) * 100) +
+                                   (INT(ENTRY(3,cThisVer,"."))).
                     
                 IF iLastVersion GT iThisVersion THEN DO:
                     RUN sys/ref/nk1look.p (
