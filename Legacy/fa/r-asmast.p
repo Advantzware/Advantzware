@@ -878,7 +878,6 @@ FOR EACH FA-MAST WHERE
         if not available fa-mast# then next.
     end.
 
-    find address1 of fa-mast no-lock no-error.
     if fa-mast.asset-status ne "R":U then do:
         acc-book = fa-mast.acc-dep-book + fa-mast.cy-dep-book.
         acc-tax1 = fa-mast.acc-dep-tax1 + fa-mast.cy-dep-tax-1.
@@ -965,7 +964,6 @@ FOR EACH FA-MAST WHERE
                 acc-tax2 = fa-mast#.acc-dep-tax2 .
             end.
   
-            find address1 of fa-mast# no-lock no-error.
 
             DISPLAY
                 SKIP
