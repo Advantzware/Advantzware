@@ -393,6 +393,10 @@
      dm-tot   = 0
      ctrl2    = 0.
 
+    IF vprint THEN DO:
+	{custom/statusMsg.i " 'Calculating... Est#  '  + xest.est-no  + ' Qty - ' + string(qtty[k]) "}
+    END.
+
     FOR EACH w-form: 
       DELETE w-form.
     END.
@@ -792,3 +796,7 @@
   release xef.
   release xeb.
   session:set-wait-state("").
+
+IF vprint THEN DO:
+{custom/statusMsg.i " 'Calculating Complete....  '  "}
+END.
