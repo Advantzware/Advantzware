@@ -2716,6 +2716,49 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipDataFix160712 C-Win 
+PROCEDURE ipDataFix160712 :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DISABLE TRIGGERS FOR LOAD OF reftable1.
+    DISABLE TRIGGERS FOR LOAD OF oe-rel.
+       
+    RUN ipStatus ("  Data Fix 160712...").
+
+       
+    /* Ticket 32053 */
+    FOR EACH reftable1 WHERE reftable1.reftable = "oe-rel.lot-no"
+            NO-LOCK:
+            DO TRANSACTION:    
+                FIND FIRST oe-rel WHERE oe-rel.r-no = int(reftable1.company)
+                    EXCLUSIVE-LOCK NO-ERROR.
+                IF AVAILABLE oe-rel THEN    
+                DO: 
+                    IF oe-rel.lot-no EQ "" THEN ASSIGN oe-rel.lot-no = reftable1.code.
+                    IF oe-rel.frt-pay EQ "" THEN ASSIGN oe-rel.frt-pay = reftable1.code2.
+                    IF oe-rel.fob-code EQ "" THEN ASSIGN oe-rel.fob-code = reftable1.dscr.
+                    ASSIGN iProcessCount = iProcessCount + 1.
+                    EXPORT DELIMITER ","
+                       oe-rel.r-no
+                       oe-rel.lot-no
+                       oe-rel.frt-pay
+                       oe-rel.fob-code.
+                END.   
+                FIND CURRENT oe-rel NO-LOCK NO-ERROR.    
+                RELEASE oe-rel. 
+              END.  
+    END.             
+    
+    RUN ipConvQtyPerSet.
+    
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipDataFixConfig C-Win 
 PROCEDURE ipDataFixConfig :
 /*------------------------------------------------------------------------------
@@ -5318,6 +5361,11 @@ PROCEDURE ipUpdateNK1s :
     DISABLE TRIGGERS FOR LOAD OF sys-ctrl-shipto.
     
     /* Verify system help WSDL NK1 */
+    FIND FIRST sys-ctrl WHERE
+        sys-ctrl.name EQ "AsiHelpService"
+        NO-ERROR.
+    IF AVAIL sys-ctrl THEN ASSIGN
+        sys-ctrl.char-fld = "-WSDL 'http:\\34.203.15.64/asihelpServices/helpmaintenance.asmx?WSDL'".
     FIND FIRST sys-ctrl WHERE
         sys-ctrl.name EQ "AsiHelpService"
         NO-ERROR.

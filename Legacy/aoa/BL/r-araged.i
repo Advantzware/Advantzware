@@ -87,12 +87,8 @@ FOR EACH ar-cash ~
         IF NOT AVAILABLE ar-inv THEN NEXT. ~
     END. ~
     IF ar-cashl.amt-paid GT 0 THEN DO: ~
-        FIND FIRST reftable NO-LOCK ~
-             WHERE reftable.reftable EQ "ARCASHLVDDATE" ~
-               AND reftable.rec_key  EQ ar-cashl.rec_key ~
-             USE-INDEX rec_key NO-ERROR. ~
-        IF AVAILABLE reftable THEN ~
-        dtInvoiceDate = DATE(reftable.CODE). ~
+        IF ar-cashl.voided THEN ~
+        dtInvoiceDate = ar-cashl.voidDate. ~
         ELSE DO: ~
             cGltransDesc = "VOID " + cust.cust-no + " " ~
                          + STRING(ar-cash.check-no,"9999999999") ~
@@ -107,7 +103,7 @@ FOR EACH ar-cash ~
         END. ~
     END. ~
     ELSE dtInvoiceDate = ar-cash.check-date. ~
-    IF dtInvoiceDate NE ? AND dtInvoiceDate GT dtAsofDate THEN NEXT.
+    IF dtInvoiceDate NE ? AND dtInvoiceDate GT dtAsofDate THEN NEXT. 
 
 &SCOPED-DEFINE valid-factored ~
 IF NOT lIncludeFactoredFGItems AND ~
@@ -290,13 +286,9 @@ FOR EACH tt-cust,
               AND ar-cash.check-date LE dtAsofDate
             USE-INDEX c-no BY ar-cashl.rec_key
             :
-            IF ar-cashl.amt-paid GT 0 THEN DO:
-                FIND FIRST reftable NO-LOCK
-                    WHERE reftable.reftable EQ "ARCASHLVDDATE"
-                      AND reftable.rec_key  EQ ar-cashl.rec_key
-                    USE-INDEX rec_key NO-ERROR.
-                IF AVAILABLE reftable THEN
-                dtInvoiceDate = DATE(reftable.code).
+            IF ar-cashl.amt-paid GT 0 THEN DO:                
+                IF ar-cashl.voided THEN  
+                   dtInvoiceDate = ar-cashl.voidDate.
                 ELSE DO:
                     cGltransDesc = "VOID " + cust.cust-no + " "
                                  + STRING(ar-cash.check-no,"9999999999")
@@ -435,12 +427,9 @@ FOR EACH tt-cust,
                 USE-INDEX c-no
                 :
                 IF ar-cashl.amt-paid GT 0 THEN DO:
-                    FIND FIRST reftable NO-LOCK
-                        WHERE reftable.reftable EQ "ARCASHLVDDATE"
-                          AND reftable.rec_key  EQ ar-cashl.rec_key
-                        USE-INDEX rec_key NO-ERROR.
-                    IF AVAILABLE reftable THEN                             
-                    dtInvoiceDate = DATE(reftable.code).
+
+                    IF ar-cashl.voided THEN  
+                       dtInvoiceDate = ar-cashl.voidDate.
                     ELSE DO:
                         cGltransDesc = "VOID " + cust.cust-no + " "
                                      + STRING(ar-cash.check-no,"9999999999")
@@ -476,10 +465,7 @@ FOR EACH tt-cust,
                             + STRING(ar-cash.check-no,"9999999999")
                             + " Inv# " + STRING(ar-cashl.inv-no).
                     IF ar-cashl.amt-paid GT 0 AND
-                        (CAN-FIND(FIRST reftable
-                                  WHERE reftable.reftable EQ "ARCASHLVDDATE"
-                                    AND reftable.rec_key  EQ ar-cashl.rec_key
-                                  USE-INDEX rec_key) OR
+                         (ar-cashl.voided EQ YES or
                          CAN-FIND(FIRST gltrans
                                   WHERE gltrans.company EQ cust.company
                                     AND gltrans.jrnl    EQ "CASHRVD"
@@ -592,12 +578,8 @@ FOR EACH tt-cust,
                 END. /* IF v-disc-amt NE 0*/
                 ELSE IF cType EQ "Detail" THEN DO:
                     IF cvType EQ "VD" THEN DO:
-                        FIND FIRST reftable NO-LOCK
-                            WHERE reftable.reftable EQ "ARCASHLVDDATE"
-                              AND reftable.rec_key  EQ ar-cashl.rec_key
-                            USE-INDEX rec_key NO-ERROR.
-                        IF AVAILABLE reftable THEN
-                        dtInvoiceDate = DATE(reftable.code).
+                        IF ar-cashl.voided THEN  
+                           dtInvoiceDate = ar-cashl.voidDate.
                         ELSE DO:
                             cGltransDesc = "VOID " + cust.cust-no + " "
                                          + STRING(ar-cash.check-no,"9999999999")
@@ -741,10 +723,7 @@ FOR EACH tt-cust,
             cTrDscr = "VOID " + cust.cust-no + " "
                 + STRING(ar-cash.check-no,"9999999999")
                 + " Inv# " + STRING(ar-cashl.inv-no).
-            IF CAN-FIND(FIRST reftable
-                        WHERE reftable.reftable EQ "ARCASHLVDDATE"
-                          AND reftable.rec_key  EQ ar-cashl.rec_key
-                        USE-INDEX rec_key) OR
+            IF ar-cashl.voided EQ YES OR   
                CAN-FIND(FIRST gltrans
                         WHERE gltrans.company EQ cust.company
                           AND gltrans.jrnl    EQ "CASHRVD"
@@ -753,7 +732,6 @@ FOR EACH tt-cust,
                     cvType       = "VD"
                     cInvoiceNote = "VOID"
                     .
-                RELEASE reftable.
             END. /* do */
             ELSE cvType = "PY".
         
@@ -768,12 +746,8 @@ FOR EACH tt-cust,
     
         IF lFirstUnapp THEN DO:
             IF cvType EQ "VD" THEN DO:
-                FIND FIRST reftable NO-LOCK
-                     WHERE reftable.reftable EQ "ARCASHLVDDATE"
-                       AND reftable.rec_key  EQ ar-cashl.rec_key
-                     USE-INDEX rec_key NO-ERROR.
-                IF AVAILABLE reftable THEN
-                dtInvoiceDate = DATE(reftable.code).
+                IF ar-cashl.voided THEN  
+                   dtInvoiceDate = ar-cashl.voidDate.
                 ELSE DO:
                     cGltransDesc = "VOID " + cust.cust-no + " "
                                  + STRING(ar-cash.check-no,"9999999999")
@@ -845,13 +819,8 @@ FOR EACH tt-cust,
         IF lFirstUnapp THEN lFirstUnapp = NO.
         ELSE DO:
             IF cvType EQ "VD" THEN DO:
-                FIND FIRST reftable NO-LOCK
-                     WHERE reftable.reftable EQ "ARCASHLVDDATE"
-                       AND reftable.rec_key  EQ ar-cashl.rec_key
-                     USE-INDEX rec_key NO-ERROR.
-                  
-                IF AVAILABLE reftable THEN
-                dtInvoiceDate = DATE(reftable.CODE).
+                IF ar-cashl.voided THEN  
+                   dtInvoiceDate = ar-cashl.voidDate.
                 ELSE DO:
                     cGltransDesc = "VOID " + cust.cust-no + " "
                                  + STRING(ar-cash.check-no,"9999999999")

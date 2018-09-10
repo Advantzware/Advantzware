@@ -721,23 +721,6 @@ PROCEDURE replace-est-proc :
 
        reftable.CODE = NEW_est.
    END.
-
-   FOR EACH reftable WHERE
-       reftable.reftable EQ "ce/com/selwhif1.w" AND
-       reftable.company  EQ cocode AND
-       reftable.loc      EQ new_est:
-
-       DELETE reftable.
-   END.
-
-   FOR EACH reftable WHERE
-       reftable.reftable EQ "ce/com/selwhif1.w" AND
-       reftable.company  EQ cocode AND
-       reftable.loc      EQ begin_est:
-
-       reftable.loc = NEW_est.
-   END.
-
   
    FOR EACH reftable WHERE
        reftable.reftable EQ "est/getqty.w" AND
@@ -788,24 +771,6 @@ PROCEDURE replace-est-proc :
        reftable.reftable EQ "est/d-grpcst.w" AND
        reftable.company  EQ cocode AND
        reftable.loc      EQ locode AND
-       reftable.code     EQ begin_est:
-
-       reftable.CODE = NEW_est.
-   END.
-
-   FOR EACH reftable WHERE
-       reftable.reftable EQ "est/getqty.w2" AND
-       reftable.company  EQ cocode AND
-       reftable.loc      EQ "" AND
-       reftable.code     EQ new_est:
-
-       DELETE reftable.
-   END.
-
-   FOR EACH reftable WHERE
-       reftable.reftable EQ "est/getqty.w2" AND
-       reftable.company  EQ cocode AND
-       reftable.loc      EQ "" AND
        reftable.code     EQ begin_est:
 
        reftable.CODE = NEW_est.

@@ -788,13 +788,10 @@ PROCEDURE update-batch :
   DEF VAR i AS INT NO-UNDO.
 
 
-  FIND FIRST reftable WHERE reftable.reftable = "Batchrpt"
-                        AND reftable.CODE = user-print.program-id NO-LOCK NO-ERROR.
-  IF AVAIL reftable THEN DO:
     g_batch-rowid = ROWID(user-print).
     /*RUN VALUE(prgrms.DIR_group + "\" + prgrms.prgmname + "r"). */
     RUN nosweat/persist.p PERSISTENT SET Persist-Hd.
-    RUN Get_Procedure IN Persist-Hd (reftable.code2, OUTPUT RUN-PROC, NO).
+    RUN Get_Procedure IN Persist-Hd (user-print.prgmName, OUTPUT RUN-PROC, NO).
 
     IF run-proc NE "" THEN RUN VALUE(run-proc).
 
@@ -805,7 +802,7 @@ PROCEDURE update-batch :
       ELSE ed-values = ed-values + user-print.field-value[i] + ",".
     END.
     DISPLAY ed-values WITH FRAME {&FRAME-NAME}.
-  END.
+ 
 
 
 END PROCEDURE.

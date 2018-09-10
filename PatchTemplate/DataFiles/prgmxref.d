@@ -54,15 +54,3 @@
 "vend" "vend." 1
 "ventype" "ventype." 1
 "zipcode" "zipcode." 1
-.
-PSC
-filename=prgmxref
-records=0000000000056
-ldbname=asi
-timestamp=2018/04/28-22:57:39
-numformat=44,46
-dateformat=mdy-1950
-map=NO-MAP
-cpstream=ISO8859-1
-.
-0000001234
