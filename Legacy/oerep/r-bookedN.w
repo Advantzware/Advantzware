@@ -119,14 +119,14 @@ ASSIGN cTextListToSelect  = "DUE DATE,ORDER#,CUSTOMER,CUSTOMER NAME,PROD CODE," 
                             "FG ITEM NAME,QTY ORDERED/EA,SQ FT,TOTAL Sq Ft/M," +
                             "$/MSF,PRICE,ORDER AMOUNT,% PROFIT,TOTAL TONS,$/TON," +
                             "FG ITEM#,ID,CUSTOMER PART#,CUSTOMER PO#,DIE#,ORDER DATE,COMM %,SHIPPED QTY,CSR,ACK. DATE," +
-                            "UOM,SHIP FROM,MACHINE,INKS,PRINT SHEET#"
+                            "UOM,SHIP FROM,MACHINE,INKS,PRINT SHEET#,COST/$M,TOTAL STD COST"
        cFieldListToSelect = "oe-ord.due-date,w-data.ord-no,cust.cust-no,cust.name,w-data.procat," +
                             "w-data.item-n,w-data.qty,w-data.sqft,t-sqft," +
                             "v-price-per-m,price,v-revenue,v-profit,t-tons,v-price-per-t," +
                             "oe-ordl.i-no,oe-ord.user-id,oe-ordl.part-no,cust-po,die-no,oe-ord.ord-date,v-net-prct,w-data.shp-qty,csrUser_id,ack-date," +
-                            "oe-ordl.pr-uom,Ship-from,v-mach,v-ink,print-sheet"
+                            "oe-ordl.pr-uom,Ship-from,v-mach,v-ink,print-sheet,oe-ordl.cost,tot-std-cost"
 
-       cFieldLength = "8,14,8,13,9," + "16,14,10,13," + "10,10,13,9,10,14," + "15,8,15,15,15,10,7,14,8,10," + "6,9,30,40,20"
+       cFieldLength = "8,14,8,13,9," + "16,14,10,13," + "10,10,13,9,10,14," + "15,8,15,15,15,10,7,14,8,10," + "6,9,30,40,20,14,14"
        .
 
 {sys/inc/ttRptSel.i}
