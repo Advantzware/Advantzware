@@ -1970,14 +1970,14 @@ SESSION:SET-WAIT-STATE ("general").
                              IF v-sort EQ "A" THEN oe-relh.carrier
                              ELSE
                              IF v-sort EQ "CR" THEN cust.cr-rating
-                             ELSE
-                              IF v-sort EQ "R" THEN  string(oe-relh.release#,"9999999999")
+                             /*ELSE
+                              IF v-sort EQ "R" THEN  string(oe-relh.release#,"9999999999")*/
                              ELSE oe-relh.cust-no
          tt-report.key-03  = IF v-sort NE "R" THEN
                                (STRING(YEAR(oe-relh.rel-date),"9999") +
                                 STRING(MONTH(oe-relh.rel-date),"99")  +
                                 STRING(DAY(oe-relh.rel-date),"99"))
-                             ELSE STRING(oe-ord.ord-no,"9999999999")
+                             ELSE STRING(oe-relh.release#,"9999999999")
          tt-report.key-04  = STRING(IF v-sort EQ "A" THEN oe-relh.cust-no
                                                      ELSE " ","x(10)") +
                              STRING(oe-ord.ord-no,"9999999999")
@@ -2080,8 +2080,8 @@ SESSION:SET-WAIT-STATE ("general").
       no-lock
       break by tt-report.key-01
             by tt-report.key-02 
-            by tt-report.key-03 DESC
-            by tt-report.key-04:
+            by tt-report.key-03 
+            by tt-report.key-04 DESC :
 
     IF v-sort EQ "CR" AND FIRST-OF(tt-report.key-02) THEN DO:
       lv-cr-rating = tt-report.key-02.

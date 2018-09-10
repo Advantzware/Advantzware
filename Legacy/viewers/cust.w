@@ -134,38 +134,40 @@ DEF VAR v-zipflg AS LOG NO-UNDO.
 /* Need to scope the external tables to this procedure                  */
 DEFINE QUERY external_tables FOR cust.
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-FIELDS cust.active cust.NAME  ~
+&Scoped-Define ENABLED-FIELDS cust.active cust.name cust.addr[1] ~
+cust.addr[2] cust.city cust.state cust.zip cust.terms cust.cr-use ~
+cust.cr-rating cust.cr-lim cust.ord-lim cust.disc cust.curr-code ~
+cust.cr-hold-invdays cust.cr-hold-invdue cust.cust-level cust.cr-hold ~
+cust.fin-chg cust.auto-reprice cust.an-edi-cust cust.factored cust.sort ~
+cust.spare-char-1 cust.tax-gr cust.tax-id cust.date-field[2] ~
+cust.spare-char-2 cust.date-field[1] cust.type cust.csrUser_id cust.contact ~
+cust.sman cust.area-code cust.phone cust.scomm cust.fax-prefix ~
+cust.fax-country cust.frt-pay cust.fob-code cust.ship-part cust.loc ~
+cust.carrier cust.del-zone cust.terr cust.under-pct cust.over-pct ~
+cust.markup cust.ship-days cust.manf-day cust.spare-int-1 cust.pallet ~
+cust.case-bundle cust.int-field[1] cust.po-mandatory cust.show-set ~
+cust.log-field[1] 
+&Scoped-define ENABLED-TABLES cust
+&Scoped-define FIRST-ENABLED-TABLE cust
+&Scoped-Define ENABLED-OBJECTS btn_bank-info RECT-2 RECT-3 RECT-4 
+&Scoped-Define DISPLAYED-FIELDS cust.cust-no cust.active cust.name ~
 cust.addr[1] cust.addr[2] cust.city cust.state cust.zip cust.terms ~
 cust.cr-use cust.cr-rating cust.cr-lim cust.ord-lim cust.disc ~
 cust.curr-code cust.cr-hold-invdays cust.cr-hold-invdue cust.cust-level ~
 cust.cr-hold cust.fin-chg cust.auto-reprice cust.an-edi-cust cust.factored ~
 cust.sort cust.spare-char-1 cust.tax-gr cust.tax-id cust.date-field[2] ~
-cust.spare-char-2 cust.date-field[1] cust.TYPE cust.csrUser_id cust.contact cust.sman ~
-cust.area-code cust.phone cust.scomm cust.fax-prefix cust.fax-country ~
-cust.frt-pay cust.fob-code cust.ship-part cust.loc cust.carrier ~
-cust.del-zone cust.terr cust.under-pct cust.over-pct cust.markup ~
-cust.ship-days cust.manf-day cust.spare-int-1 cust.pallet cust.case-bundle ~
-cust.int-field[1] cust.po-mandatory cust.show-set cust.log-field[1] 
-&Scoped-define ENABLED-TABLES cust
-&Scoped-define FIRST-ENABLED-TABLE cust
-&Scoped-Define ENABLED-OBJECTS RECT-2 RECT-3 RECT-4 btn_bank-info
-&Scoped-Define DISPLAYED-FIELDS cust.cust-no cust.active ~
-cust.name cust.addr[1] cust.addr[2] cust.city cust.state cust.zip ~
-cust.terms cust.cr-use cust.cr-rating cust.cr-lim cust.ord-lim cust.disc ~
-cust.curr-code cust.cr-hold-invdays cust.cr-hold-invdue cust.cust-level ~
-cust.cr-hold cust.fin-chg cust.auto-reprice cust.an-edi-cust cust.factored ~
-cust.sort cust.spare-char-1 cust.tax-gr cust.tax-id cust.date-field[2] ~
-cust.spare-char-2 cust.date-field[1] cust.TYPE cust.csrUser_id cust.contact cust.sman ~
-cust.area-code cust.phone cust.scomm cust.fax-prefix cust.fax-country ~
-cust.frt-pay cust.fob-code cust.ship-part cust.loc cust.carrier ~
-cust.del-zone cust.terr cust.under-pct cust.over-pct cust.markup ~
-cust.ship-days cust.manf-day cust.spare-int-1 cust.pallet cust.case-bundle ~
-cust.int-field[1] cust.po-mandatory cust.show-set cust.log-field[1] 
+cust.spare-char-2 cust.date-field[1] cust.type cust.csrUser_id cust.contact ~
+cust.sman cust.area-code cust.phone cust.scomm cust.fax-prefix ~
+cust.fax-country cust.frt-pay cust.fob-code cust.ship-part cust.loc ~
+cust.carrier cust.del-zone cust.terr cust.under-pct cust.over-pct ~
+cust.markup cust.ship-days cust.manf-day cust.spare-int-1 cust.pallet ~
+cust.case-bundle cust.int-field[1] cust.po-mandatory cust.show-set ~
+cust.log-field[1] 
 &Scoped-define DISPLAYED-TABLES cust
 &Scoped-define FIRST-DISPLAYED-TABLE cust
 &Scoped-Define DISPLAYED-OBJECTS fl_custemail terms_dscr rd_inv-meth ~
 stax_tax-dscr custype_dscr sman_sname fi_flat-comm faxAreaCode faxNumber ~
-loc_dscr carrier_dscr carr-mtx_del-dscr terr_dscr btn_bank-info
+loc_dscr carrier_dscr carr-mtx_del-dscr terr_dscr 
 
 /* Custom List Definitions                                              */
 /* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,ROW-AVAILABLE,DISPLAY-FIELD,faxFields,F1 */
@@ -173,8 +175,8 @@ loc_dscr carrier_dscr carr-mtx_del-dscr terr_dscr btn_bank-info
 &Scoped-define ADM-ASSIGN-FIELDS fl_custemail rd_inv-meth fi_flat-comm ~
 cust.po-mandatory cust.show-set 
 &Scoped-define DISPLAY-FIELD cust.state fl_custemail cust.terms cust.tax-gr ~
-cust.type cust.csrUser_id cust.sman cust.loc cust.carrier cust.del-zone cust.terr ~
-cust.po-mandatory cust.show-set 
+cust.type cust.csrUser_id cust.sman cust.loc cust.carrier cust.del-zone ~
+cust.terr cust.po-mandatory cust.show-set 
 &Scoped-define faxFields faxAreaCode faxNumber 
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
@@ -207,6 +209,11 @@ RUN set-attribute-list (
 
 
 /* Definitions of the field level widgets                               */
+DEFINE BUTTON btn_bank-info 
+     LABEL "Bank Info" 
+     SIZE 16.4 BY 1
+     BGCOLOR 15 FONT 4.
+
 DEFINE VARIABLE carr-mtx_del-dscr AS CHARACTER FORMAT "x(30)" 
      VIEW-AS FILL-IN 
      SIZE 41 BY 1
@@ -277,11 +284,6 @@ DEFINE VARIABLE rd_inv-meth AS LOGICAL
 "Group by Date", ?
      SIZE 46 BY .81 NO-UNDO.
 
-DEFINE BUTTON btn_bank-info 
-     LABEL "Bank Info" 
-     SIZE 16.4 BY 1.00 
-      BGCOLOR 15 FONT 4.
-
 DEFINE RECTANGLE RECT-2
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 71 BY 8.57.
@@ -298,7 +300,6 @@ DEFINE RECTANGLE RECT-4
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     
      cust.cust-no AT ROW 1 COL 12 COLON-ALIGNED
           LABEL "Customer"
           VIEW-AS FILL-IN 
@@ -389,6 +390,12 @@ DEFINE FRAME F-Main
           LABEL "Credit Hold"
           VIEW-AS TOGGLE-BOX
           SIZE 21 BY .81
+     cust.fin-chg AT ROW 11.48 COL 47
+          VIEW-AS TOGGLE-BOX
+          SIZE 23 BY .81
+     cust.auto-reprice AT ROW 12.29 COL 47
+          VIEW-AS TOGGLE-BOX
+          SIZE 23.2 BY .81
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -396,12 +403,6 @@ DEFINE FRAME F-Main
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME F-Main
-     cust.fin-chg AT ROW 11.48 COL 47
-          VIEW-AS TOGGLE-BOX
-          SIZE 23 BY .81
-     cust.auto-reprice AT ROW 12.29 COL 47
-          VIEW-AS TOGGLE-BOX
-          SIZE 23.2 BY .81
      cust.an-edi-cust AT ROW 13 COL 47
           LABEL "EDI"
           VIEW-AS TOGGLE-BOX
@@ -462,7 +463,7 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 44 BY 1
           BGCOLOR 15 FONT 4
-     btn_bank-info AT ROW 2.95 COL 127.2 COLON-ALIGNED
+     btn_bank-info AT ROW 2.95 COL 129.2
      cust.sman AT ROW 3.86 COL 73 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 8 BY 1
@@ -709,6 +710,8 @@ ASSIGN
    EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN cust.cr-use IN FRAME F-Main
    EXP-LABEL                                                            */
+/* SETTINGS FOR FILL-IN cust.csrUser_id IN FRAME F-Main
+   4 EXP-LABEL                                                          */
 /* SETTINGS FOR FILL-IN cust.curr-code IN FRAME F-Main
    EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN cust.cust-level IN FRAME F-Main
@@ -798,8 +801,6 @@ ASSIGN
 /* SETTINGS FOR FILL-IN terr_dscr IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN cust.type IN FRAME F-Main
-   4 EXP-LABEL                                                          */
-/* SETTINGS FOR FILL-IN cust.csrUser_id IN FRAME F-Main
    4 EXP-LABEL                                                          */
 /* SETTINGS FOR FILL-IN cust.zip IN FRAME F-Main
    EXP-LABEL                                                            */
@@ -938,6 +939,26 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME btn_bank-info
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn_bank-info V-table-Win
+ON CHOOSE OF btn_bank-info IN FRAME F-Main /* Bank Info */
+DO:
+   IF AVAIL cust THEN
+    ASSIGN cAccount = cust.bank-acct
+           cShift   = cust.SwiftBIC
+           cRouting = cust.Bank-RTN .
+
+    IF cust.NAME:SENSITIVE IN FRAME {&FRAME-NAME} EQ NO THEN
+     RUN custom/d-bankinfo.w ("View" ,INPUT-OUTPUT cAccount, INPUT-OUTPUT cShift, INPUT-OUTPUT cRouting).
+    ELSE
+     RUN custom/d-bankinfo.w ("update" ,INPUT-OUTPUT cAccount, INPUT-OUTPUT cShift, INPUT-OUTPUT cRouting).
+
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME cust.carrier
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cust.carrier V-table-Win
 ON ENTRY OF cust.carrier IN FRAME F-Main /* Carrier */
@@ -1068,6 +1089,22 @@ DO:
     RUN valid-cr-lim.
     IF NOT v-valid THEN RETURN NO-APPLY.
   END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME cust.csrUser_id
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cust.csrUser_id V-table-Win
+ON LEAVE OF cust.csrUser_id IN FRAME F-Main /* CSR */
+DO:
+  
+  IF LASTKEY <> -1 THEN DO:
+     RUN valid-custcsr NO-ERROR.
+     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+  END.
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1341,7 +1378,7 @@ END.
 
 &Scoped-define SELF-NAME cust.sman
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cust.sman V-table-Win
-ON LEAVE OF cust.sman IN FRAME F-Main /* Sales Rep */
+ON LEAVE OF cust.sman IN FRAME F-Main /* Salesman */
 DO:
  IF LASTKEY = -1 THEN RETURN.
   RUN valid-sman NO-ERROR. 
@@ -1489,21 +1526,6 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&Scoped-define SELF-NAME cust.csrUser_id
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cust.csrUser_id V-table-Win
-ON LEAVE OF cust.csrUser_id IN FRAME F-Main /* Type */
-DO:
-  
-  IF LASTKEY <> -1 THEN DO:
-     RUN valid-custcsr NO-ERROR.
-     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-  END.
-
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 
 &Scoped-define SELF-NAME cust.zip
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cust.zip V-table-Win
@@ -1545,26 +1567,6 @@ DO:
         RUN zip-carrier.
 
   END.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME btn_bank-info
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn_bank-info C-Win
-ON CHOOSE OF btn_bank-info IN FRAME F-Main /* button bank info */
-DO:
-   IF AVAIL cust THEN
-    ASSIGN cAccount = cust.bank-acct
-           cShift   = cust.SwiftBIC
-           cRouting = cust.Bank-RTN .
-
-    IF cust.NAME:SENSITIVE IN FRAME {&FRAME-NAME} EQ NO THEN
-     RUN custom/d-bankinfo.w ("View" ,INPUT-OUTPUT cAccount, INPUT-OUTPUT cShift, INPUT-OUTPUT cRouting).
-    ELSE
-     RUN custom/d-bankinfo.w ("update" ,INPUT-OUTPUT cAccount, INPUT-OUTPUT cShift, INPUT-OUTPUT cRouting).
-
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1760,13 +1762,13 @@ PROCEDURE cust-city :
 
   DO WITH FRAME {&FRAME-NAME}:
     IF cust.city:SCREEN-VALUE NE "" THEN
-    FIND FIRST nosweat.zipcode
-        WHERE nosweat.zipcode.city EQ cust.city:SCREEN-VALUE
+    FIND FIRST zipcode
+        WHERE zipcode.city EQ cust.city:SCREEN-VALUE
         NO-LOCK NO-ERROR.
-    IF AVAIL nosweat.zipcode THEN do:
+    IF AVAIL zipcode THEN do:
       ASSIGN
-        cust.state:SCREEN-VALUE = nosweat.zipcode.state
-        cust.zip:SCREEN-VALUE = nosweat.zipcode.zipcode  .      
+        cust.state:SCREEN-VALUE = zipcode.state
+        cust.zip:SCREEN-VALUE = zipcode.zipcode  .      
     END.   
   END.
 END PROCEDURE.
@@ -1791,16 +1793,16 @@ DEF VAR thisOne AS CHAR NO-UNDO.
      ASSIGN thisOne = ENTRY(i,v-cust-fmt).
      CREATE buff-cust .
      ASSIGN buff-cust.company = thisone.
-     BUFFER-COPY cust EXCEPT company  TO buff-cust.
+     BUFFER-COPY cust EXCEPT company rec_key  TO buff-cust.
      for each shipto of cust NO-LOCK BY shipto.ship-no:
         create buff-shipto.
         ASSIGN buff-shipto.company = thisOne .
-        buffer-copy shipto except shipto.company to buff-shipto.
+        buffer-copy shipto except shipto.company shipto.rec_key to buff-shipto.
      END.
      for each soldto of cust NO-LOCK BY soldto.sold-no:
         create buff-soldto.
         assign buff-soldto.company = thisOne .
-        buffer-copy soldto except soldto.company to buff-soldto.
+        buffer-copy soldto except soldto.company soldto.rec_key to buff-soldto.
      END.
  END.
 END PROCEDURE.
@@ -1828,22 +1830,22 @@ PROCEDURE cust-update-log :
                           AND buff-cust.company = thisOne EXCLUSIVE-LOCK NO-ERROR.
      IF AVAIL buff-cust THEN do:
      BUFFER-COPY cust EXCEPT cust-no company ytd-sales lyr-sales cost comm ytd-msf lyytd-msf hibal hibal-date num-inv 
-         lpay lpay-date avg-pay ord-bal acc-bal on-account TO buff-cust.
+         lpay lpay-date avg-pay ord-bal acc-bal on-account rec_key TO buff-cust.
      END.
      ELSE DO:
          CREATE buff-cust .
          ASSIGN buff-cust.company = thisone.
          BUFFER-COPY cust EXCEPT company ytd-sales lyr-sales cost comm ytd-msf lyytd-msf hibal hibal-date num-inv 
-         lpay lpay-date avg-pay ord-bal acc-bal on-account TO buff-cust.
+         lpay lpay-date avg-pay ord-bal acc-bal on-account rec_key TO buff-cust.
         for each shipto of cust NO-LOCK BY shipto.ship-no:
             create buff-shipto.
             ASSIGN buff-shipto.company = thisOne .
-            buffer-copy shipto except shipto.company to buff-shipto.
+            buffer-copy shipto except shipto.company shipto.rec_key to buff-shipto.
          END.
          for each soldto of cust NO-LOCK BY soldto.sold-no:
              create buff-soldto.
              assign buff-soldto.company = thisOne .
-             buffer-copy soldto except soldto.company to buff-soldto.
+             buffer-copy soldto except soldto.company soldto.rec_key to buff-soldto.
           END.
       END.
     END.
@@ -1863,23 +1865,23 @@ PROCEDURE cust-zip :
 
   DO WITH FRAME {&FRAME-NAME}:
     IF cust.zip:SCREEN-VALUE NE "" THEN
-    FIND FIRST nosweat.zipcode
-        WHERE nosweat.zipcode.zipcode EQ cust.zip:SCREEN-VALUE 
-        AND (nosweat.zipcode.city EQ cust.city:SCREEN-VALUE OR cust.city:SCREEN-VALUE = "" )
+    FIND FIRST zipcode
+        WHERE zipcode.zipcode EQ cust.zip:SCREEN-VALUE 
+        AND (zipcode.city EQ cust.city:SCREEN-VALUE OR cust.city:SCREEN-VALUE = "" )
         NO-LOCK NO-ERROR.
-    IF AVAIL nosweat.zipcode THEN do:
+    IF AVAIL zipcode THEN do:
       ASSIGN
-        cust.state:SCREEN-VALUE = nosweat.zipcode.state
-        cust.city:SCREEN-VALUE = nosweat.zipcode.city.    
+        cust.state:SCREEN-VALUE = zipcode.state
+        cust.city:SCREEN-VALUE = zipcode.city.    
     END.
-    ELSE IF NOT AVAIL nosweat.zipcode  THEN DO:
-        FIND FIRST nosweat.zipcode
-            WHERE nosweat.zipcode.zipcode EQ cust.zip:SCREEN-VALUE 
+    ELSE IF NOT AVAIL zipcode  THEN DO:
+        FIND FIRST zipcode
+            WHERE zipcode.zipcode EQ cust.zip:SCREEN-VALUE 
             NO-LOCK NO-ERROR.
-        IF AVAIL nosweat.zipcode THEN do:
+        IF AVAIL zipcode THEN do:
             ASSIGN
-                cust.state:SCREEN-VALUE = nosweat.zipcode.state
-                cust.city:SCREEN-VALUE = nosweat.zipcode.city.    
+                cust.state:SCREEN-VALUE = zipcode.state
+                cust.city:SCREEN-VALUE = zipcode.city.    
         END.
     END.
    /* gdm - 11190903 */
@@ -2006,23 +2008,23 @@ PROCEDURE local-assign-record :
   IF v-zipflg THEN DO:
     IF cust.zip:SCREEN-VALUE NE "" THEN
     DO:
-       FIND FIRST nosweat.zipcode NO-LOCK 
-           WHERE nosweat.zipcode.zipcode EQ cust.zip NO-ERROR.
+       FIND FIRST zipcode NO-LOCK 
+           WHERE zipcode.zipcode EQ cust.zip NO-ERROR.
        IF NOT AVAIL zipcode THEN DO:
-         CREATE nosweat.zipcode.
-         ASSIGN nosweat.zipcode.zipcode   = cust.zip
-                nosweat.zipcode.pref_type = "P"
-                nosweat.zipcode.pref#     = 01
-                nosweat.zipcode.city      = cust.city
-                nosweat.zipcode.state     = cust.state
-                nosweat.zipcode.area_code = IF cust.area-code EQ "" 
+         CREATE zipcode.
+         ASSIGN zipcode.zipcode   = cust.zip
+                zipcode.pref_type = "P"
+                zipcode.pref#     = 01
+                zipcode.city      = cust.city
+                zipcode.state     = cust.state
+                zipcode.area_code = IF cust.area-code EQ "" 
                                               THEN 000 
                                               ELSE INT(cust.area-code) 
-                nosweat.zipcode.carrier   = cust.carrier
-                nosweat.zipcode.del-zone  = cust.del-zone.
+                zipcode.carrier   = cust.carrier
+                zipcode.del-zone  = cust.del-zone.
        END.
        v-zipflg = FALSE.
-       RELEASE nosweat.zipcode.
+       RELEASE zipcode.
     END.
   END.
   /* gdm - 11190903 end */
@@ -2033,7 +2035,7 @@ PROCEDURE local-assign-record :
 
     for each bf-shipto of bf-cust NO-LOCK BY bf-shipto.ship-no:
         create shipto.
-        buffer-copy bf-shipto except bf-shipto.cust-no to shipto.
+        buffer-copy bf-shipto except bf-shipto.rec_key bf-shipto.cust-no to shipto.
         assign shipto.cust-no = cust.cust-no
                 shipto.company = cust.company
                 shipto.ship-addr[1] = cust.addr[1]
@@ -2051,7 +2053,7 @@ PROCEDURE local-assign-record :
     end.
     for each bf-soldto of bf-cust NO-LOCK BY bf-soldto.sold-no:
         create soldto.
-        buffer-copy bf-soldto except bf-soldto.cust-no to soldto.
+        buffer-copy bf-soldto EXCEPT bf-soldto.rec_key bf-soldto.cust-no to soldto.
         assign soldto.cust-no = cust.cust-no
                 soldto.company = cust.company
                 soldto.sold-addr[1] = cust.addr[1]
@@ -2304,6 +2306,13 @@ PROCEDURE local-update-record :
    ll-prev-cr-hold = cust.cr-hold
    ls-prev-sman = cust.sman  
    ll-new-record = FALSE .
+
+    /* 33482 - Ensure blank record is not saved - MYT - 08/28/18 */
+    IF adm-new-record 
+    AND cust.cust-no:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ "" THEN DO:
+        RUN dispatch IN THIS-PROCEDURE ( INPUT 'cancel-record':U ) .
+        RETURN NO-APPLY.
+    END.
 
   RUN cust-zip.
   {&methods/lValidateError.i YES}
@@ -2787,27 +2796,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-custtype V-table-Win 
-PROCEDURE valid-custtype :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  {methods/lValidateError.i YES}
-  IF NOT CAN-FIND(FIRST custype WHERE custype.company = cocode
-                       AND custype.custype = cust.TYPE:SCREEN-VALUE IN FRAME {&FRAME-NAME}
-                        )
-  THEN DO:
-     MESSAGE "Invalid customer type. Try help." VIEW-AS ALERT-BOX ERROR.
-     RETURN ERROR.
-  END.
-  {methods/lValidateError.i NO}
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-custcsr V-table-Win 
 PROCEDURE valid-custcsr :
 /*------------------------------------------------------------------------------
@@ -2825,6 +2813,27 @@ PROCEDURE valid-custcsr :
        END.
    END.
 
+  {methods/lValidateError.i NO}
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-custtype V-table-Win 
+PROCEDURE valid-custtype :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  {methods/lValidateError.i YES}
+  IF NOT CAN-FIND(FIRST custype WHERE custype.company = cocode
+                       AND custype.custype = cust.TYPE:SCREEN-VALUE IN FRAME {&FRAME-NAME}
+                        )
+  THEN DO:
+     MESSAGE "Invalid customer type. Try help." VIEW-AS ALERT-BOX ERROR.
+     RETURN ERROR.
+  END.
   {methods/lValidateError.i NO}
 END PROCEDURE.
 
@@ -3122,18 +3131,18 @@ PROCEDURE zip-carrier :
    DO WITH FRAME {&FRAME-NAME}:
 
    /* gdm - 10010913 */
-   FIND FIRST nosweat.zipcode
-        WHERE nosweat.zipcode.zipcode EQ cust.zip:SCREEN-VALUE
+   FIND FIRST zipcode
+        WHERE zipcode.zipcode EQ cust.zip:SCREEN-VALUE
         NO-LOCK NO-ERROR.
 
    ASSIGN
       cust.carrier:SCREEN-VALUE = IF AVAIL zipcode AND 
-                                     TRIM(nosweat.zipcode.carrier) NE "" 
-                                    THEN nosweat.zipcode.carrier 
+                                     TRIM(zipcode.carrier) NE "" 
+                                    THEN zipcode.carrier 
                                     ELSE cust.carrier:SCREEN-VALUE
       cust.del-zone:SCREEN-VALUE = IF AVAIL zipcode AND 
-                                      TRIM(nosweat.zipcode.del-zone) NE "" 
-                                     THEN nosweat.zipcode.del-zone            
+                                      TRIM(zipcode.del-zone) NE "" 
+                                     THEN zipcode.del-zone            
                                      ELSE cust.del-zone:SCREEN-VALUE.
       /* gdm - 10010913 end*/
    END.

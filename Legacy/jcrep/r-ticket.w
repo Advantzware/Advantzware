@@ -2811,11 +2811,7 @@ PROCEDURE new-job-no :
             lv-format-f NE "Carded2" OR 
             lv-format-f NE "Coburn" OR 
             lv-format-f NE "Knight***") AND AVAIL job-hdr AND
-          can-find(FIRST b-reftable-freeze WHERE
-            b-reftable-freeze.reftable EQ "FREEZENOTE" AND
-            b-reftable-freeze.company  EQ cocode AND
-            b-reftable-freeze.loc      EQ job-hdr.job-no AND
-            b-reftable-freeze.CODE     EQ STRING(job-hdr.job-no2,"99")) THEN ASSIGN
+            job-hdr.freezeNote EQ TRUE THEN ASSIGN
             tb_freeze-note:CHECKED = TRUE
             lFreezeNoteVal = TRUE.
         ELSE ASSIGN

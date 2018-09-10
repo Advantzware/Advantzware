@@ -488,7 +488,7 @@ PROCEDURE local-change-page :
 
     IF il-cur-page = 2 THEN DO:
         RUN "system/PgmMstrSecur.p" PERSISTENT SET hPgmSecurity.
-        RUN epCanAccess IN hPgmSecurity ("windows/company.w", "", OUTPUT lResult).
+        RUN epCanAccess IN hPgmSecurity ("windows/dept.w", "", OUTPUT lResult).
         DELETE OBJECT hPgmSecurity.
         IF NOT lResult THEN 
             RUN set-buttons IN h_p-updsav ('disable-all').

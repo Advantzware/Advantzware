@@ -1394,7 +1394,7 @@ PROCEDURE ipProcess :
                 ttDatabases.cAudPort = ENTRY(iCtr,cAudPortList).
         END.
             
-        FIND ttDatabases WHERE
+        FIND FIRST ttDatabases WHERE
             ttDatabases.cName EQ ENTRY(iEnv,cDBList) AND
             ttDatabases.cPort EQ ENTRY(iEnv,cDBPortList)
             NO-ERROR.

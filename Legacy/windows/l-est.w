@@ -44,9 +44,10 @@
 &endif
 def var lv-first-time as log init yes no-undo.
 def var lv-type-dscr as cha no-undo.
+
 &scoped-define fld-name-1 eb.est-no
 &scoped-define fld-name-2 eb.cust-no
-&scoped-define fld-name-3 eb.ship-name
+&scoped-define fld-name-3 cust.NAME
 &scoped-define fld-name-4 eb.part-no
 /*
 &scoped-define SORTBY-1 BY eb.est-no DESCENDING
@@ -57,7 +58,7 @@ def var lv-type-dscr as cha no-undo.
 
 &scoped-define SORTBY-1 BY eb.est-no BY eb.form-no BY eb.blank-no
 &scoped-define SORTBY-2 BY eb.cust-no {&SORTBY-1}
-&scoped-define SORTBY-3 BY eb.ship-name {&SORTBY-1}
+&scoped-define SORTBY-3 BY cust.NAME {&SORTBY-1}
 &scoped-define SORTBY-4 BY eb.part-no {&SORTBY-1}
 
 &global-define IAMWHAT LOOKUP
@@ -97,21 +98,24 @@ ASSIGN
 &Scoped-define BROWSE-NAME BROWSE-1
 
 /* Internal Tables (found by Frame, Query & Browse Queries)             */
-&Scoped-define INTERNAL-TABLES eb
+&Scoped-define INTERNAL-TABLES eb cust
 
 /* Define KEY-PHRASE in case it is used by any query. */
 &Scoped-define KEY-PHRASE TRUE
 
 /* Definitions for BROWSE BROWSE-1                                      */
-&Scoped-define FIELDS-IN-QUERY-BROWSE-1 eb.est-no eb.cust-no eb.ship-name ~
+&Scoped-define FIELDS-IN-QUERY-BROWSE-1 eb.est-no eb.cust-no cust.NAME ~
 eb.part-dscr1 eb.part-no eb.style eb.len eb.wid eb.dep 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-BROWSE-1 
-&Scoped-define QUERY-STRING-BROWSE-1 FOR EACH eb WHERE ~{&KEY-PHRASE} NO-LOCK ~
+&Scoped-define QUERY-STRING-BROWSE-1 FOR EACH eb WHERE ~{&KEY-PHRASE} NO-LOCK, ~
+           FIRST cust OF eb OUTER-JOIN NO-LOCK ~
     ~{&SORTBY-PHRASE}
-&Scoped-define OPEN-QUERY-BROWSE-1 OPEN QUERY BROWSE-1 FOR EACH eb WHERE ~{&KEY-PHRASE} NO-LOCK ~
+&Scoped-define OPEN-QUERY-BROWSE-1 OPEN QUERY BROWSE-1 FOR EACH eb WHERE ~{&KEY-PHRASE} NO-LOCK, ~
+           FIRST cust OF eb OUTER-JOIN NO-LOCK ~
     ~{&SORTBY-PHRASE}.
-&Scoped-define TABLES-IN-QUERY-BROWSE-1 eb
+&Scoped-define TABLES-IN-QUERY-BROWSE-1 eb cust
 &Scoped-define FIRST-TABLE-IN-QUERY-BROWSE-1 eb
+&Scoped-define second-TABLE-IN-QUERY-BROWSE-1 cust
 
 
 /* Definitions for DIALOG-BOX Dialog-Frame                              */
@@ -174,7 +178,8 @@ DEFINE RECTANGLE RECT-1
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
 DEFINE QUERY BROWSE-1 FOR 
-      eb SCROLLING.
+      eb,
+      cust SCROLLING.
 &ANALYZE-RESUME
 
 /* Browse definitions                                                   */
@@ -184,7 +189,8 @@ DEFINE BROWSE BROWSE-1
       eb.est-no FORMAT "x(8)":U WIDTH 14 COLUMN-FONT 2 LABEL-BGCOLOR 14
       eb.cust-no COLUMN-LABEL "Customer#" FORMAT "x(8)":U COLUMN-FONT 2
             LABEL-BGCOLOR 14
-      eb.ship-name FORMAT "x(30)":U COLUMN-FONT 2 LABEL-BGCOLOR 14
+      cust.NAME COLUMN-LABEL "Cust Name" FORMAT "x(30)":U COLUMN-FONT 2
+            LABEL-BGCOLOR 14
       eb.part-dscr1 FORMAT "x(30)":U COLUMN-FONT 2 LABEL-BGCOLOR 14
       eb.part-no FORMAT "x(15)":U COLUMN-FONT 2 LABEL-BGCOLOR 14
       eb.style FORMAT "x(6)":U LABEL-BGCOLOR 14
@@ -253,14 +259,14 @@ ASSIGN
 
 &ANALYZE-SUSPEND _QUERY-BLOCK BROWSE BROWSE-1
 /* Query rebuild information for BROWSE BROWSE-1
-     _TblList          = "ASI.eb"
+     _TblList          = "ASI.eb,ASI.cust OF ASI.eb"
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
      _FldNameList[1]   > ASI.eb.est-no
 "est-no" ? "x(8)" "character" ? ? 2 14 ? ? no ? no no "14" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > ASI.eb.cust-no
 "cust-no" "Customer#" ? "character" ? ? 2 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[3]   > ASI.eb.ship-name
-"ship-name" ? ? "character" ? ? 2 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[3]   > ASI.cust.name
+"name" "Cust Name" "x(30)" ? ? ? ? ? ? ? no ? no no "10" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[4]   > ASI.eb.part-dscr1
 "part-dscr1" ? ? "character" ? ? 2 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[5]   > ASI.eb.part-no
@@ -478,7 +484,8 @@ DO WITH FRAME {&FRAME-NAME}:
       OPEN QUERY {&browse-name} FOR EACH ASI.eb WHERE 
                                 ASI.eb.company = ip-company 
                                 and eb.loc = ip-loc 
-                               AND eb.est-no GE lv-search NO-LOCK
+                               AND eb.est-no GE lv-search NO-LOCK,
+                              FIRST cust OF eb OUTER-JOIN NO-LOCK
                                {&SORTBY-1}.
 
       IF ROWID({&FIRST-TABLE-IN-QUERY-{&BROWSE-NAME}}) = ? THEN
@@ -562,4 +569,5 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
 
