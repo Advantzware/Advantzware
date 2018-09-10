@@ -3247,7 +3247,42 @@ CLASS RefTableMigration:
             END.              
         END.  /*FOR EACH reftable*/  
         RETURN iCnt.
-    END METHOD. /* EstGetqtyw2 */
+    END METHOD. /*EstGetQty*/
+    METHOD PUBLIC INTEGER GsaFm(INPUT ipCount AS INTEGER):
+        DEFINE VARIABLE iCnt AS INTEGER NO-UNDO.
+        DEFINE VARIABLE i AS INTEGER NO-UNDO.
+        DEFINE BUFFER reftable1 FOR reftable1.
+        DEFINE BUFFER Breftable FOR reftable. 
+
+        DEFINE BUFFER probe  FOR probe.
+        
+        DISABLE TRIGGERS FOR LOAD OF reftable.        
+        DISABLE TRIGGERS FOR LOAD OF probe.
+        ASSIGN iProcessCount = 0.        
+        FOR EACH reftable WHERE reftable.reftable = "gsa-fm"
+            NO-LOCK:
+            DO TRANSACTION:    
+                FOR EACH probe WHERE probe.company = reftable.company
+                                 AND probe.est-no  = reftable.code
+                    EXCLUSIVE-LOCK:
+                        IF probe.gsa-fm EQ "" THEN ASSIGN probe.gsa-fm = string(reftable.val[1]). 
+                    ASSIGN iProcessCount = iProcessCount + 1.  
+                END.
+                FIND CURRENT probe NO-LOCK NO-ERROR.    
+                RELEASE probe.      
+                CREATE reftable1.
+                BUFFER-COPY reftable TO reftable1.
+                RELEASE reftable1.
+                FIND Breftable WHERE ROWID(Breftable) = ROWID(reftable)
+                    EXCLUSIVE-LOCK NO-ERROR.
+                IF AVAILABLE Breftable THEN DELETE Breftable. 
+                RELEASE Breftable.   
+                iCnt = iCnt + 1.
+                IF iCnt >= ipCount THEN LEAVE.   
+            END.              
+        END.  /*FOR EACH reftable*/  
+        RETURN iCnt.
+    END METHOD. /*GsaFm*/
 END CLASS.
 
 

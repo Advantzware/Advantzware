@@ -160,21 +160,18 @@ END.
           gsa-lab = ctrl[10] * 100
           gsa-com = ce-ctrl.comm-mrkup
           gsa-war = ce-ctrl.whse-mrkup.
-
-   FIND FIRST reftable-fm NO-LOCK
-       WHERE reftable-fm.reftable EQ "gsa-fm"
-         AND reftable-fm.company  EQ xest.company
-         AND reftable-fm.loc      EQ ""
-         AND reftable-fm.code     EQ xest.est-no
-       NO-ERROR.
-
-  IF AVAIL reftable-fm THEN
-     gsa-fm = reftable-fm.val[1].
-  ELSE
-  DO:
+     
+   FIND FIRST probe    
+      WHERE probe.company    EQ xest.company
+        AND probe.est-no     EQ xest.est-no NO-LOCK NO-ERROR.
+   IF AVAIL probe THEN
+      gsa-fm = int(probe.gsa-fm).    
+     
+    ELSE
+    DO:
         gsa-fm = ce-ctrl.fold-pct.
-  END.
-
+    END.
+  
    output close.
    run ce/gsa.p (ip-rowid, qtty[vmcl], rels[vmcl]).
    session:set-wait-state("general").
