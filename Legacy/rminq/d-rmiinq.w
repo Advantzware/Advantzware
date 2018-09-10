@@ -42,6 +42,7 @@ DEFINE VARIABLE lv-rowid           AS ROWID NO-UNDO.
 DEFINE VARIABLE cv-s-codes         AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cv-s-dscrs         AS CHARACTER NO-UNDO.
 DEFINE NEW SHARED VARIABLE cOrd-ok AS CHARACTER INITIAL ["R,I,S,P,A,N,U"].
+DEFINE VARIABLE cComboList AS CHARACTER NO-UNDO .
 
 DO TRANSACTION:
   {sys/inc/relmerge.i}
@@ -77,12 +78,12 @@ DEFINE BUFFER bf-ordl FOR oe-ordl.
 rm-rcpth.job-no rm-rcpth.job-no2 rm-rdtlh.s-num rm-rcpth.trans-date ~
 rm-rcpth.rita-code rm-rdtlh.loc rm-rdtlh.loc-bin rm-rdtlh.tag rm-rdtlh.qty ~
 rm-rcpth.pur-uom rm-rdtlh.cost  ~
-rm-rdtlh.tag2 rm-rdtlh.user-id rm-rdtlh.receiver-no 
+rm-rdtlh.tag2 rm-rdtlh.user-id rm-rdtlh.receiver-no rm-rdtlh.reject-code[1] 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Dialog-Frame rm-rcpth.i-no ~
 rm-rcpth.po-no rm-rcpth.job-no rm-rcpth.job-no2 rm-rdtlh.s-num ~
 rm-rcpth.trans-date rm-rcpth.rita-code rm-rdtlh.loc rm-rdtlh.loc-bin ~
 rm-rdtlh.tag rm-rdtlh.qty rm-rcpth.pur-uom rm-rdtlh.cost rm-rdtlh.tag2 ~
-rm-rdtlh.user-id rm-rdtlh.receiver-no 
+rm-rdtlh.user-id rm-rdtlh.receiver-no rm-rdtlh.reject-code[1] 
 &Scoped-define ENABLED-TABLES-IN-QUERY-Dialog-Frame rm-rcpth rm-rdtlh
 &Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-Dialog-Frame rm-rcpth
 &Scoped-define SECOND-ENABLED-TABLE-IN-QUERY-Dialog-Frame rm-rdtlh
@@ -100,7 +101,7 @@ rm-rdtlh.user-id rm-rdtlh.receiver-no
 rm-rcpth.job-no rm-rcpth.job-no2 rm-rdtlh.s-num rm-rcpth.trans-date ~
 rm-rcpth.rita-code rm-rdtlh.loc rm-rdtlh.loc-bin rm-rdtlh.tag rm-rdtlh.qty ~
 rm-rcpth.pur-uom rm-rdtlh.cost  ~
-rm-rdtlh.tag2 rm-rdtlh.user-id rm-rdtlh.receiver-no 
+rm-rdtlh.tag2 rm-rdtlh.user-id rm-rdtlh.receiver-no rm-rdtlh.reject-code[1] 
 &Scoped-define ENABLED-TABLES rm-rcpth rm-rdtlh
 &Scoped-define FIRST-ENABLED-TABLE rm-rcpth
 &Scoped-define second-ENABLED-TABLE rm-rcpth
@@ -110,7 +111,7 @@ RECT-21 RECT-38
 rm-rcpth.job-no rm-rcpth.job-no2 rm-rdtlh.s-num rm-rcpth.trans-date ~
 rm-rcpth.rita-code rm-rdtlh.loc rm-rdtlh.loc-bin rm-rdtlh.tag rm-rdtlh.qty ~
 rm-rcpth.pur-uom rm-rdtlh.cost  ~
-rm-rdtlh.tag2 rm-rdtlh.user-id rm-rdtlh.receiver-no 
+rm-rdtlh.tag2 rm-rdtlh.user-id rm-rdtlh.receiver-no rm-rdtlh.reject-code[1] 
 &Scoped-define DISPLAYED-TABLES rm-rcpth rm-rdtlh
 &Scoped-define FIRST-DISPLAYED-TABLE rm-rcpth
 &Scoped-define SECOND-DISPLAYED-TABLE rm-rdtlh
@@ -239,6 +240,11 @@ DEFINE FRAME Dialog-Frame
           LABEL "Invoice Link" FORMAT "x(20)"
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
+     rm-rdtlh.reject-code[1] AT ROW 8.38 COL 105 COLON-ALIGNED
+     LABEL "Adjustment Reason" 
+     VIEW-AS COMBO-BOX INNER-LINES 10
+     LIST-ITEM-PAIRS "Item 1","Item 1"
+     DROP-DOWN-LIST SIZE 27 BY 1
      Btn_OK AT ROW 13.29 COL 37
      Btn_Done AT ROW 13.24 COL 57
      Btn_Cancel AT ROW 13.24 COL 77.2
@@ -318,6 +324,8 @@ ASSIGN
 /* SETTINGS FOR FILL-IN rm-rdtlh.user-id IN FRAME Dialog-Frame
    EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN rm-rdtlh.receiver-no IN FRAME Dialog-Frame
+   EXP-LABEL EXP-FORMAT                                                 */
+/* SETTINGS FOR FILL-IN rm-rdtlh.reject-code[1] IN FRAME Dialog-Frame
    EXP-LABEL EXP-FORMAT                                                 */
 
 /* _RUN-TIME-ATTRIBUTES-END */
@@ -749,15 +757,15 @@ PROCEDURE display-item :
       Notes:       
     ------------------------------------------------------------------------------*/
     IF AVAILABLE rm-rcpth  THEN 
-    DO:
-        
+    DO: 
+        RUN pAdjReason.
         fi_ext-cost = DEC(rm-rdtlh.qty ) * DEC(rm-rdtlh.cost ) .
         fi_cost-uom = rm-rcpth.pur-uom .
         DISPLAY  rm-rcpth.i-no rm-rcpth.po-no 
             rm-rcpth.job-no rm-rcpth.job-no2 rm-rdtlh.s-num rm-rcpth.trans-date 
             rm-rcpth.rita-code rm-rdtlh.loc rm-rdtlh.loc-bin rm-rdtlh.tag rm-rdtlh.qty 
             rm-rcpth.pur-uom rm-rdtlh.cost  fi_cost-uom 
-            rm-rdtlh.tag2 rm-rdtlh.user-id rm-rdtlh.receiver-no fi_ext-cost 
+            rm-rdtlh.tag2 rm-rdtlh.user-id rm-rdtlh.receiver-no rm-rdtlh.reject-code[1] fi_ext-cost 
             WITH FRAME Dialog-Frame.
     END.
 
@@ -793,13 +801,13 @@ PROCEDURE enable_UI :
       rm-rcpth.job-no rm-rcpth.job-no2 rm-rdtlh.s-num rm-rcpth.trans-date 
       rm-rcpth.rita-code rm-rdtlh.loc rm-rdtlh.loc-bin rm-rdtlh.tag rm-rdtlh.qty 
       rm-rcpth.pur-uom rm-rdtlh.cost  
-      rm-rdtlh.tag2 rm-rdtlh.user-id rm-rdtlh.receiver-no
+      rm-rdtlh.tag2 rm-rdtlh.user-id rm-rdtlh.receiver-no rm-rdtlh.reject-code[1]
       WITH FRAME Dialog-Frame.
   ENABLE rm-rcpth.i-no rm-rcpth.po-no 
       rm-rcpth.job-no rm-rcpth.job-no2 rm-rdtlh.s-num rm-rcpth.trans-date 
       rm-rcpth.rita-code rm-rdtlh.loc rm-rdtlh.loc-bin rm-rdtlh.tag rm-rdtlh.qty 
       rm-rcpth.pur-uom rm-rdtlh.cost  
-      rm-rdtlh.tag2 rm-rdtlh.user-id rm-rdtlh.receiver-no 
+      rm-rdtlh.tag2 rm-rdtlh.user-id rm-rdtlh.receiver-no rm-rdtlh.reject-code[1] 
       fi_cost-uom fi_ext-cost Btn_OK Btn_Done Btn_Cancel RECT-21 RECT-38 
       WITH FRAME Dialog-Frame.
   VIEW FRAME Dialog-Frame.
@@ -1146,7 +1154,8 @@ PROCEDURE update-record :
      b-rdtlh.job-no     = b-rcpth.job-no
      b-rdtlh.job-no2    = b-rcpth.job-no2
      b-rdtlh.rita-code  = b-rcpth.rita-code
-     b-rcpth.user-id    = b-rdtlh.user-id.
+     b-rcpth.user-id    = b-rdtlh.user-id
+     b-rdtlh.reject-code[1] = rm-rdtlh.reject-code[1]:SCREEN-VALUE .
 
     IF b-rcpth.rita-code EQ "I" THEN
        RUN update-mat-act-cost(BUFFER b-rcpth,
@@ -1378,6 +1387,36 @@ PROCEDURE update-mat-act-cost :
       END.
    END.
 
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pAdjReason Dialog-Frame 
+PROCEDURE pAdjReason :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  cComboList = "".
+  FOR EACH rejct-cd NO-LOCK WHERE rejct-cd.TYPE = "ADJ" BREAK BY rejct-cd.TYPE .
+       IF NOT LAST(rejct-cd.TYPE) THEN
+           ASSIGN cComboList = cComboList
+           + rejct-cd.CODE + " - "
+           + rejct-cd.dscr + ","
+           + rejct-cd.CODE + "," .
+       ELSE
+           ASSIGN cComboList = cComboList
+           + rejct-cd.CODE + " - "
+           + rejct-cd.dscr + ","
+           + rejct-cd.CODE  .
+  END.
+
+  DO WITH FRAME {&FRAME-NAME}:   
+      rm-rdtlh.reject-code[1]:LIST-ITEM-PAIRS IN FRAME {&FRAME-NAME} = cComboList .
+  END.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

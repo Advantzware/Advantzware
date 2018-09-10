@@ -54,6 +54,7 @@ DEF VAR lv-sort-by AS CHAR INIT "trans-date" NO-UNDO.
 DEF VAR lv-sort-by-lab AS CHAR INIT "TR Date" NO-UNDO.
 DEF VAR ll-sort-asc AS LOG NO-UNDO.
 DEF VAR ld-ext-cost AS DEC NO-UNDO.
+DEFINE VARIABLE cComboList AS CHARACTER NO-UNDO .
 
 
 DEF BUFFER rm-rcpth-1 FOR rm-rcpth.
@@ -134,12 +135,12 @@ rm-rcpth.job-no rm-rcpth.job-no2 rm-rdtlh.s-num rm-rcpth.trans-date ~
 rm-rcpth.rita-code rm-rdtlh.loc rm-rdtlh.loc-bin rm-rdtlh.tag rm-rdtlh.qty ~
 rm-rcpth.pur-uom rm-rdtlh.cost disp-uom () @ rm-rcpth.loc rm-rcpth.loc ~
 disp-uom () @ rm-rcpth.loc rm-rdtlh.qty * rm-rdtlh.cost @ ld-ext-cost ~
-rm-rdtlh.tag2 rm-rdtlh.user-id rm-rdtlh.receiver-no 
+rm-rdtlh.tag2 rm-rdtlh.user-id rm-rdtlh.receiver-no rm-rdtlh.reject-code[1]
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table rm-rcpth.i-no ~
 rm-rcpth.po-no rm-rcpth.job-no rm-rcpth.job-no2 rm-rdtlh.s-num ~
 rm-rcpth.trans-date rm-rcpth.rita-code rm-rdtlh.loc rm-rdtlh.loc-bin ~
 rm-rdtlh.tag rm-rdtlh.qty rm-rcpth.pur-uom rm-rdtlh.cost rm-rdtlh.tag2 ~
-rm-rdtlh.user-id rm-rdtlh.receiver-no 
+rm-rdtlh.user-id rm-rdtlh.receiver-no rm-rdtlh.reject-code[1] 
 &Scoped-define ENABLED-TABLES-IN-QUERY-Browser-Table rm-rcpth rm-rdtlh
 &Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-Browser-Table rm-rcpth
 &Scoped-define SECOND-ENABLED-TABLE-IN-QUERY-Browser-Table rm-rdtlh
@@ -336,6 +337,8 @@ DEFINE BROWSE Browser-Table
             WIDTH 40 LABEL-BGCOLOR 14
       rm-rdtlh.user-id COLUMN-LABEL "UserID" FORMAT "x(8)":U WIDTH 12
       rm-rdtlh.receiver-no COLUMN-LABEL "Invoice Link" FORMAT "x(20)":U
+      rm-rdtlh.reject-code[1] COLUMN-LABEL "Adjustment Reason" WIDTH 25
+      VIEW-AS COMBO-BOX INNER-LINES 10
   ENABLE
       rm-rcpth.i-no
       rm-rcpth.po-no
@@ -353,6 +356,7 @@ DEFINE BROWSE Browser-Table
       rm-rdtlh.tag2
       rm-rdtlh.user-id
       rm-rdtlh.receiver-no
+      rm-rdtlh.reject-code[1]
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ASSIGN SEPARATORS SIZE 148 BY 15
@@ -521,6 +525,8 @@ ASSIGN
 "rm-rdtlh.user-id" "UserID" ? "character" ? ? ? ? ? ? yes ? no no "12" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[20]   > ASI.rm-rdtlh.receiver-no
 "rm-rdtlh.receiver-no" "Invoice Link" ? "character" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+    _FldNameList[21]   > ASI.rm-rdtlh.receiver-no
+"rm-rdtlh.reject-code[1]" "Adjustment Reason:" ? "character" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */
 &ANALYZE-RESUME
@@ -1510,6 +1516,27 @@ PROCEDURE local-open-query :
     {rminq/j-rmiinq.i}
   END.
 
+ rm-rdtlh.reject-code[1]:LIST-ITEM-PAIRS IN BROWSE {&browse-name} = "" .
+ cComboList = "".
+ FOR EACH rejct-cd NO-LOCK WHERE rejct-cd.TYPE = "ADJ" BREAK BY rejct-cd.TYPE .
+       IF NOT LAST(rejct-cd.TYPE) THEN
+           ASSIGN cComboList = cComboList
+           + rejct-cd.CODE + " - "
+           + rejct-cd.dscr + ","
+           + rejct-cd.CODE + "," .
+       ELSE
+           ASSIGN cComboList = cComboList
+           + rejct-cd.CODE + " - "
+           + rejct-cd.dscr + ","
+           + rejct-cd.CODE  .
+   END.
+
+  DO WITH FRAME {&FRAME-NAME}:
+      rm-rdtlh.reject-code[1]:LIST-ITEM-PAIRS IN BROWSE {&browse-name} = cComboList .
+    
+  END.
+
+
   RUN dispatch ("display-fields").
 
   RUN dispatch ("row-changed").
@@ -1683,6 +1710,7 @@ PROCEDURE set-read-only :
      rm-rdtlh.tag2:READ-ONLY IN BROWSE {&browse-name}       = ip-log
      rm-rdtlh.receiver-no:READ-ONLY IN BROWSE {&browse-name} = ip-log
      rm-rdtlh.user-id:READ-ONLY IN BROWSE {&browse-name}    = ip-log.
+    rm-rdtlh.reject-code[1]:READ-ONLY IN BROWSE {&browse-name} = ip-log.
   END.
 
 END PROCEDURE.

@@ -60,6 +60,8 @@ DEF VAR vend-no AS CHAR NO-UNDO.
 DEFINE VARIABLE iBinQty AS INTEGER NO-UNDO.
 DEFINE VARIABLE iBinQtyBef AS INTEGER NO-UNDO.
 DEFINE VARIABLE iBinQtyAft AS INTEGER NO-UNDO.
+DEFINE VARIABLE cComboList AS CHARACTER NO-UNDO .
+
 
 RUN methods/prgsecur.p
     (INPUT "FGHstUpd",
@@ -169,13 +171,13 @@ fg-rdtlh.partial li-qty-pal @ li-qty-pal fg-rdtlh.stack-code ~
 fg-rdtlh.tot-wt fg-rdtlh.user-id fg-rcpth.b-no fg-rcpth.pur-uom ~
 display-ship() @ bol-ship fg-rcpth.post-date get-vend-no () @ vend-no ~
 get-vend-info () @ vend-name get-fg-qty (1) @ iBinQtyBef ~
-get-fg-qty (2) @ iBinQty 
+get-fg-qty (2) @ iBinQty fg-rdtlh.reject-code[1]
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table fg-rcpth.i-no ~
 fg-rcpth.po-no fg-rcpth.job-no fg-rcpth.job-no2 fg-rcpth.trans-date ~
 fg-rcpth.rita-code fg-rdtlh.cust-no fg-rdtlh.loc fg-rdtlh.loc-bin ~
 fg-rdtlh.qty fg-rdtlh.tag fg-rdtlh.cost fg-rdtlh.cases fg-rdtlh.qty-case ~
 fg-rdtlh.stacks-unit fg-rdtlh.partial fg-rdtlh.stack-code fg-rdtlh.tot-wt ~
-fg-rcpth.pur-uom fg-rcpth.post-date 
+fg-rcpth.pur-uom fg-rcpth.post-date fg-rdtlh.reject-code[1] 
 &Scoped-define ENABLED-TABLES-IN-QUERY-Browser-Table fg-rcpth fg-rdtlh
 &Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-Browser-Table fg-rcpth
 &Scoped-define SECOND-ENABLED-TABLE-IN-QUERY-Browser-Table fg-rdtlh
@@ -436,6 +438,8 @@ DEFINE BROWSE Browser-Table
       get-vend-info() @ vend-name COLUMN-LABEL "Name" FORMAT "x(25)":U
       get-fg-qty (1) @ iBinQtyBef COLUMN-LABEL "Before Qty" FORMAT "->>>>>>9":U
       get-fg-qty (2) @ iBinQty COLUMN-LABEL "Bin Change" FORMAT "->>>>>>9":U
+      fg-rdtlh.reject-code[1] COLUMN-LABEL "Adjustment Reason" WIDTH 25
+      VIEW-AS COMBO-BOX INNER-LINES 10
 
   ENABLE
       fg-rcpth.i-no
@@ -458,6 +462,7 @@ DEFINE BROWSE Browser-Table
       fg-rdtlh.tot-wt
       fg-rcpth.pur-uom
       fg-rcpth.post-date
+      fg-rdtlh.reject-code[1]
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ASSIGN SEPARATORS SIZE 156 BY 15
@@ -657,6 +662,8 @@ AND fg-rdtlh.rita-code EQ fg-rcpth.rita-code"
 "get-fg-qty (1) @ iBinQtyBef" "Before Qty" "->>>>>>9" ? ? ? ? 14 ? ? no ? no no "9.4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[31]   > "_<CALC>"
 "get-fg-qty (2) @ iBinQty" "Bin Change" "->>>>>>9" ? ? ? ? 14 ? ? no ? no no "9.4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+    _FldNameList[32]   > ASI.fg-rdtlh.reject-code[1]
+"fg-rdtlh.reject-code[1]" "Adjustment Reason:" ? "character" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */
 &ANALYZE-RESUME
@@ -1849,6 +1856,26 @@ PROCEDURE local-open-query :
   {fginq/j-fgiinq.i}
   fi_tag# = SUBSTR(fi_tag#,1,LENGTH(fi_tag#) - 1).
 
+  fg-rdtlh.reject-code[1]:LIST-ITEM-PAIRS IN BROWSE {&browse-name} = "" .
+ cComboList = "".
+ FOR EACH rejct-cd NO-LOCK WHERE rejct-cd.TYPE = "ADJ" BREAK BY rejct-cd.TYPE .
+       IF NOT LAST(rejct-cd.TYPE) THEN
+           ASSIGN cComboList = cComboList
+           + rejct-cd.CODE + " - "
+           + rejct-cd.dscr + ","
+           + rejct-cd.CODE + "," .
+       ELSE
+           ASSIGN cComboList = cComboList
+           + rejct-cd.CODE + " - "
+           + rejct-cd.dscr + ","
+           + rejct-cd.CODE  .
+   END.
+
+  DO WITH FRAME {&FRAME-NAME}:
+      fg-rdtlh.reject-code[1]:LIST-ITEM-PAIRS IN BROWSE {&browse-name} = cComboList .
+    
+  END.
+
   RUN dispatch ("display-fields").
 
   RUN dispatch ("row-changed").
@@ -2029,6 +2056,7 @@ PROCEDURE set-read-only :
      fg-rdtlh.tot-wt:READ-ONLY IN BROWSE {&browse-name} = ip-log
      fg-rcpth.pur-uom:READ-ONLY IN BROWSE {&browse-name}        = ip-log
      fg-rcpth.post-date:READ-ONLY IN BROWSE {&browse-name}  = ip-log
+     fg-rdtlh.reject-code[1]:READ-ONLY IN BROWSE {&browse-name}  = ip-log
      /*fg-rcpth.vend-no:READ-ONLY IN BROWSE {&browse-name}  = ip-log*/
       .
 

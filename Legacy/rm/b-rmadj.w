@@ -54,10 +54,20 @@ def var ls-prev-po as cha no-undo.
 def var hd-post as widget-handle no-undo.
 def var hd-post-child as widget-handle no-undo.
 def var ll-help-run as log no-undo.  /* set on browse help, reset row-entry */
+DEFINE VARIABLE cComboList AS CHARACTER NO-UNDO .
 
 DO TRANSACTION:
   {sys/inc/rmrecpt.i}
 END.
+
+DEF VAR cRtnChar AS CHAR NO-UNDO.
+DEFINE VARIABLE lRecFound AS LOGICAL     NO-UNDO.
+DEFINE VARIABLE lAdjustReason-log AS LOGICAL NO-UNDO .
+RUN sys/ref/nk1look.p (INPUT cocode, "AdjustReason", "L" /* Logical */, NO /* check by cust */, 
+                       INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+                       OUTPUT cRtnChar, OUTPUT lRecFound).
+lAdjustReason-log = LOGICAL(cRtnChar) NO-ERROR.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -85,10 +95,10 @@ END.
 /* Definitions for BROWSE Browser-Table                                 */
 &Scoped-define FIELDS-IN-QUERY-Browser-Table rm-rctd.rct-date rm-rctd.i-no ~
 rm-rctd.i-name rm-rctd.loc rm-rctd.loc-bin rm-rctd.tag rm-rctd.qty ~
-rm-rctd.pur-uom rm-rctd.cost rm-rctd.cost-uom rm-rctd.user-id 
+rm-rctd.pur-uom rm-rctd.cost rm-rctd.cost-uom rm-rctd.USER-ID rm-rctd.reject-code[1] 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table rm-rctd.rct-date ~
 rm-rctd.i-no rm-rctd.loc rm-rctd.loc-bin rm-rctd.tag rm-rctd.qty ~
-rm-rctd.cost 
+rm-rctd.cost rm-rctd.reject-code[1] 
 &Scoped-define ENABLED-TABLES-IN-QUERY-Browser-Table rm-rctd
 &Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-Browser-Table rm-rctd
 &Scoped-define QUERY-STRING-Browser-Table FOR EACH rm-rctd WHERE ~{&KEY-PHRASE} ~
@@ -176,6 +186,8 @@ DEFINE BROWSE Browser-Table
       rm-rctd.cost COLUMN-LABEL "Unit Cost" FORMAT "->>>,>>9.99<<<<":U
       rm-rctd.cost-uom COLUMN-LABEL "UOM" FORMAT "x(4)":U WIDTH 7
       rm-rctd.user-id COLUMN-LABEL "User ID" FORMAT "x(8)":U WIDTH 15
+      rm-rctd.reject-code[1] COLUMN-LABEL "Reason" WIDTH 25
+      VIEW-AS COMBO-BOX INNER-LINES 10
   ENABLE
       rm-rctd.rct-date
       rm-rctd.i-no
@@ -184,6 +196,7 @@ DEFINE BROWSE Browser-Table
       rm-rctd.tag
       rm-rctd.qty
       rm-rctd.cost
+      rm-rctd.reject-code[1]
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ASSIGN SEPARATORS SIZE 144 BY 15.1
@@ -783,6 +796,46 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-open-query B-table-Win 
+PROCEDURE local-open-query :
+/*------------------------------------------------------------------------------
+  Purpose:     Override standard ADM method
+  Notes:       
+------------------------------------------------------------------------------*/
+
+  /* Code placed here will execute PRIOR to standard behavior. */
+
+  /* Dispatch standard ADM method.                             */
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'open-query':U ) .
+
+  /* Code placed here will execute AFTER standard behavior.    */
+ rm-rctd.reject-code[1]:LIST-ITEM-PAIRS IN BROWSE {&browse-name} = "" .
+ cComboList = "".
+ FOR EACH rejct-cd NO-LOCK WHERE rejct-cd.TYPE = "ADJ" BREAK BY rejct-cd.TYPE .
+       IF NOT LAST(rejct-cd.TYPE) THEN
+           ASSIGN cComboList = cComboList
+           + rejct-cd.CODE + " - "
+           + rejct-cd.dscr + ","
+           + rejct-cd.CODE + "," .
+       ELSE
+           ASSIGN cComboList = cComboList
+           + rejct-cd.CODE + " - "
+           + rejct-cd.dscr + ","
+           + rejct-cd.CODE  .
+   END.
+
+  DO WITH FRAME {&FRAME-NAME}:
+      rm-rctd.reject-code[1]:LIST-ITEM-PAIRS IN BROWSE {&browse-name} = cComboList .
+  END.
+
+  GET FIRST {&browse-name}.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-update-record B-table-Win 
 PROCEDURE local-update-record :
 /*------------------------------------------------------------------------------
@@ -796,6 +849,9 @@ PROCEDURE local-update-record :
   if not avail rm-rctd then find rm-rctd where recid(rm-rctd) = lv-recid no-error.
   
   RUN valid-i-no NO-ERROR.
+  IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+
+  RUN valid-reason NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
   RUN valid-loc-bin-tag (3) NO-ERROR.
@@ -916,6 +972,29 @@ PROCEDURE state-changed :
          or add new cases. */
       {src/adm/template/bstates.i}
   END CASE.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-reason B-table-Win 
+PROCEDURE valid-reason :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  
+  DO WITH FRAME {&FRAME-NAME}:
+
+    IF cComboList NE "" AND lAdjustReason-log AND rm-rctd.reject-code[1]:SCREEN-VALUE IN BROWSE {&browse-name} EQ ""
+    THEN DO:
+      MESSAGE "Please Enter , Adjustment Reason code..." VIEW-AS ALERT-BOX INFO.
+      APPLY "entry" TO rm-rctd.reject-code[1] IN BROWSE {&browse-name}.
+      RETURN ERROR.
+    END.
+  END.
+  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

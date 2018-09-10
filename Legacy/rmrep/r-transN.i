@@ -112,24 +112,12 @@
            run sys/ref/convquom.p (rm-rcpth.pur-uom, "TON",
                                    v-bwt, v-len, v-wid, v-dep,
                                    rm-rdtlh.qty, output v-ton).
-         
-
-     /*display rm-rcpth.trans-date when first-of(rm-rcpth.trans-date)
-             rm-rcpth.i-no
-             rm-rcpth.i-name
-             rm-rcpth.po-no
-             rm-rcpth.rita-code
-             rm-rdtlh.tag
-             v-job-no
-             rm-rdtlh.qty
-             rm-rdtlh.loc
-             rm-rdtlh.loc-bin
-             rm-rdtlh.loc2
-             rm-rdtlh.loc-bin2
-             rm-rdtlh.cost
-             v-value
-         with frame itemx.
-     down with frame itemx.*/
+           ASSIGN cReason = "".
+           
+             FIND FIRST rejct-cd NO-LOCK WHERE rejct-cd.CODE EQ rm-rdtlh.reject-code[1] NO-ERROR.
+             IF rm-rdtlh.reject-code[1] NE "" THEN
+               ASSIGN cReason = rm-rdtlh.reject-code[1] + IF AVAIL rejct-cd AND rejct-cd.dscr NE "" THEN ( " - " + rejct-cd.dscr) ELSE "".
+             ELSE cReason = "".
 
           ASSIGN cDisplay = ""
              cTmpField = ""
@@ -168,6 +156,9 @@
                      WHEN "ovrpct" THEN cVarValue = IF AVAIL po-ordl THEN STRING(po-ordl.over-pct,">>9.99%") ELSE "".
                      WHEN "undpct" THEN cVarValue = IF AVAIL po-ordl THEN STRING(po-ordl.under-pct,">>9.99%") ELSE "".
                      WHEN "tons" THEN cVarValue = STRING(v-ton,"->>>>>9.9999").
+                     WHEN "Reason" THEN cVarValue =  string(cReason,"x(30)")      .
+                     WHEN "Reason-cd" THEN cVarValue = IF AVAIL rm-rdtlh AND rm-rdtlh.reject-code[1] NE "" THEN string(rm-rdtlh.reject-code[1],"x(2)") ELSE ""    .
+                     WHEN "Reason-dscr" THEN cVarValue = IF AVAIL rejct-cd AND rejct-cd.dscr NE "" THEN string(rejct-cd.dscr,"x(25)") ELSE ""   .
                  END CASE.
                  
                  cExcelVarValue = cVarValue.  
@@ -238,6 +229,9 @@
                      WHEN "ovrpct" THEN cVarValue = "".
                      WHEN "undpct" THEN cVarValue = "".
                      WHEN "tons" THEN cVarValue = STRING(v-t-ton[1],"->>>>>9.9999").
+                     WHEN "Reason" THEN cVarValue =  ""      .
+                     WHEN "Reason-cd" THEN cVarValue = "".
+                     WHEN "Reason-dscr" THEN cVarValue =  ""   .
                  END CASE.
                  
                  cExcelVarValue = cVarValue.  
@@ -314,6 +308,9 @@
                      WHEN "ovrpct" THEN cVarValue = "".
                      WHEN "undpct" THEN cVarValue = "".
                      WHEN "tons" THEN cVarValue = STRING(v-t-ton[2],"->>>>>9.9999").
+                     WHEN "Reason" THEN cVarValue =  ""      .
+                     WHEN "Reason-cd" THEN cVarValue = "".
+                     WHEN "Reason-dscr" THEN cVarValue =  ""   .
                  END CASE.
                  
                  cExcelVarValue = cVarValue.  
@@ -392,6 +389,9 @@
                      WHEN "ovrpct" THEN cVarValue = "".
                      WHEN "undpct" THEN cVarValue = "".
                      WHEN "tons" THEN cVarValue = STRING(v-t-ton[3],"->>>>>9.9999").
+                     WHEN "Reason" THEN cVarValue =  ""      .
+                     WHEN "Reason-cd" THEN cVarValue = "".
+                     WHEN "Reason-dscr" THEN cVarValue =  ""   .
                  END CASE.
                  
                  cExcelVarValue = cVarValue.  
