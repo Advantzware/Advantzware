@@ -1350,8 +1350,8 @@ END. /* do: */
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_OK d-oeitem
 ON CHOOSE OF Btn_OK IN FRAME d-oeitem /* Save */
 DO:
-  APPLY "go" TO FRAME {&FRAME-NAME}.
   RUN OnSaveButton.
+ 
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -6592,6 +6592,8 @@ PROCEDURE OnSaveButton:
 
     RUN validate-all NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+
+    APPLY "go" TO FRAME {&FRAME-NAME}.
  
     IF runship-char EQ "RUN&SHIP Prompt" AND ip-type = "ADD" THEN 
     DO TRANSACTION:
@@ -8662,6 +8664,7 @@ PROCEDURE valid-qty :
     IF DEC(ip-focus:SCREEN-VALUE) EQ 0 THEN DO:
       MESSAGE TRIM(ip-focus:LABEL) + " may not be 0, please try again..."
           VIEW-AS ALERT-BOX ERROR.
+       APPLY "entry" TO oe-ordl.qty.
       RETURN ERROR.
     END.
   END.

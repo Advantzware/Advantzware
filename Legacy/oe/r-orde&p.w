@@ -1052,6 +1052,9 @@ with down no-box STREAM-IO width 132 frame ordm.
       if xoe-ord.stat EQ "H" then
         put "** THIS ORDER IS ON CREDIT HOLD **" to 39.
       else
+      if xoe-ord.priceHold then
+        put "** THIS ORDER IS ON PRICE HOLD **" to 39.
+      else
       if xoe-ord.stat EQ "D" then
         put "** THIS ORDER IS DELETED **" to 39.
       else

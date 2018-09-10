@@ -15,3 +15,5 @@ RUN system\session.p PERSISTENT SET hSession.
 SESSION:ADD-SUPER-PROCEDURE (hSession).
 
 {nosweat.i}
+
+/* This is a test */

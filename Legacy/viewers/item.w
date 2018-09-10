@@ -63,7 +63,7 @@ DEF VAR ect-format AS CHAR NO-UNDO.
 
 &Scoped-define ADM-SUPPORTED-LINKS Record-Source,Record-Target,TableIO-Target
 
-/* Name of first Frame and/or Browse and/or first Query                 */
+/* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME F-Main
 
 /* External Tables                                                      */
@@ -103,9 +103,8 @@ item.press-type item.linin-lb item.yield item.min-lbs
 &Scoped-define DISPLAYED-TABLES item
 &Scoped-define FIRST-DISPLAYED-TABLE item
 &Scoped-Define DISPLAYED-OBJECTS fi_mat-type mat_dscr u-ptd costtype_descr ~
-u-ytd procat_dscr u-lyr fi_ect fi_cas-pal-w fi_reg-no ~
-group1-text group4-text group3-text group2-text ink-type-label ~
-press-type-label 
+u-ytd procat_dscr u-lyr fi_ect fi_cas-pal-w fi_reg-no group1-text ~
+group4-text group3-text group2-text ink-type-label press-type-label 
 
 /* Custom List Definitions                                              */
 /* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,ROW-AVAILABLE,DISPLAY-FIELD,List-5,F1 */
@@ -113,7 +112,6 @@ press-type-label
 &Scoped-define ADM-ASSIGN-FIELDS fi_cas-pal-w fi_reg-no 
 &Scoped-define DISPLAY-FIELD fi_mat-type item.cost-type item.procat fi_ect ~
 fi_cas-pal-w 
-
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
@@ -240,7 +238,7 @@ DEFINE RECTANGLE RECT-2
 
 DEFINE RECTANGLE RECT-3
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 27 BY 3.33.
+     SIZE 34 BY 5.5.
 
 DEFINE RECTANGLE RECT-4
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
@@ -340,7 +338,7 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 16.4 BY 1
           BGCOLOR 15 FONT 4
-     item.reg-no AT ROW 9.33 COL 17 COLON-ALIGNED FORMAT "x(8)"
+     item.reg-no AT ROW 9.33 COL 17 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 15 BY 1
           BGCOLOR 15 FONT 4
@@ -505,7 +503,7 @@ DEFINE FRAME F-Main
 "Offset", "O":U,
 "Silkscreen", "S":U
           SIZE 76 BY .62
-     item.linin-lb AT ROW 16.24 COL 15 COLON-ALIGNED
+     item.linin-lb AT ROW 17.24 COL 17 COLON-ALIGNED
           LABEL "Lin In/UOM"
           VIEW-AS FILL-IN 
           SIZE 10.4 BY 1
@@ -521,9 +519,6 @@ DEFINE FRAME F-Main
           SIZE 8 BY 1
           BGCOLOR 15 FONT 4
      fi_reg-no AT ROW 16.48 COL 95 COLON-ALIGNED
-     /*F1 AT ROW 2.67 COL 73 NO-LABEL
-     F-2 AT ROW 3.86 COL 73 NO-LABEL
-     F-3 AT ROW 5.05 COL 73 NO-LABEL*/
      group1-text AT ROW 6.24 COL 2 COLON-ALIGNED NO-LABEL
      group4-text AT ROW 6.24 COL 81 COLON-ALIGNED NO-LABEL
      group3-text AT ROW 14.1 COL 1 COLON-ALIGNED NO-LABEL
@@ -532,23 +527,16 @@ DEFINE FRAME F-Main
      press-type-label AT ROW 15.76 COL 28 COLON-ALIGNED NO-LABEL
      "Consumption Qty" VIEW-AS TEXT
           SIZE 20 BY .62 AT ROW 6.24 COL 116
+     "Consumption Cost" VIEW-AS TEXT
+          SIZE 21 BY .62 AT ROW 1.95 COL 116
      "Totals" VIEW-AS TEXT
           SIZE 9 BY .71 AT ROW 1 COL 117
           FONT 6
-     "Consumption Cost" VIEW-AS TEXT
-          SIZE 21 BY .62 AT ROW 1.95 COL 116
      RECT-1 AT ROW 6.48 COL 1
      RECT-2 AT ROW 14.33 COL 29
      RECT-3 AT ROW 14.33 COL 1
      RECT-4 AT ROW 6.48 COL 81
      RECT-5 AT ROW 1.24 COL 1
-    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1 SCROLLABLE 
-         FONT 6.
-
-/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
-DEFINE FRAME F-Main
      RECT-6 AT ROW 1.24 COL 115
      RECT-7 AT ROW 10.76 COL 113
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
@@ -608,7 +596,7 @@ END.
 /* SETTINGS FOR WINDOW V-table-Win
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME F-Main
-   NOT-VISIBLE Size-to-Fit                                              */
+   NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
@@ -696,7 +684,6 @@ ASSIGN
 
 ASSIGN 
        item.dept-name[9]:HIDDEN IN FRAME F-Main           = TRUE.
-
 
 /* SETTINGS FOR FILL-IN fi_cas-pal-w IN FRAME F-Main
    2 4                                                                  */
@@ -912,7 +899,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -1125,7 +1112,6 @@ DO:
   {&methods/lValidateError.i NO}
 END.
 
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -1325,6 +1311,37 @@ PROCEDURE enable-item :
     END.
     END.
   END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE histblnkmsg V-table-Win 
+PROCEDURE histblnkmsg :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+
+DEF VAR char-hdl AS CHAR NO-UNDO.  
+define buffer b-poline for po-ordl.
+{&methods/lValidateError.i YES}
+find first b-poline where b-poline.company = item.company
+                                      and b-poline.i-no    = item.i-no
+                                      and b-poline.opened  = yes no-lock no-error.      
+
+IF not avail b-poline and ITEM.i-no <> "" THEN DO:
+   If can-find(first rm-rdtlh where rm-rdtlh.company = item.company
+                                      and rm-rdtlh.i-no    = item.i-no
+                                      and rm-rdtlh.i-no  NE "") then DO:
+      message 'Sorry, History exists, item and history must be purged via system administrator' view-as alert-box error.
+      return error .                                  
+   END.
+end. 
+{&methods/lValidateError.i NO}
+
 
 END PROCEDURE.
 
@@ -1647,6 +1664,14 @@ PROCEDURE local-update-record :
   /* Code placed here will execute PRIOR to standard behavior. */
   is-new-record = adm-new-record.
   /* ========== validate all inputs =============*/
+
+    /* 33482 - Ensure blank record is not saved - MYT - 08/28/18 */
+    IF adm-new-record 
+    AND item.i-no:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ "" THEN DO:
+        RUN dispatch IN THIS-PROCEDURE ( INPUT 'cancel-record':U ) .
+        RETURN NO-APPLY.
+    END.
+
   RUN valid-i-no NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
      {&methods/lValidateError.i YES}
@@ -1866,7 +1891,6 @@ PROCEDURE local-update-record :
 
 END PROCEDURE.
 
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -2031,39 +2055,6 @@ PROCEDURE valid-test :
 
   {methods/lValidateError.i NO}
 END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE histblnkmsg V-table-Win 
-PROCEDURE histblnkmsg :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-
-DEF VAR char-hdl AS CHAR NO-UNDO.  
-define buffer b-poline for po-ordl.
-{&methods/lValidateError.i YES}
-find first b-poline where b-poline.company = item.company
-                                      and b-poline.i-no    = item.i-no
-                                      and b-poline.opened  = yes no-lock no-error.	
-
-IF not avail b-poline and ITEM.i-no <> "" THEN DO:
-   If can-find(first rm-rdtlh where rm-rdtlh.company = item.company
-                                      and rm-rdtlh.i-no    = item.i-no
-                                      and rm-rdtlh.i-no  NE "") then DO:
-      message 'Sorry, History exists, item and history must be purged via system administrator' view-as alert-box error.
-      return error .                    	      
-   END.
-end. 
-{&methods/lValidateError.i NO}
-
-
-END PROCEDURE.
-
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

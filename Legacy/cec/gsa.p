@@ -36,7 +36,6 @@ DEF INPUT-OUTPUT PARAM iop-gsa-lab AS DEC NO-UNDO.
 
 DEF SHARED BUFFER xest FOR est.
 DEF BUFFER probe-ref FOR reftable.
-DEF BUFFER probe-fm FOR reftable.
 
 DEF SHARED VAR qty AS INT NO-UNDO.
 
@@ -822,7 +821,9 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
        ld-gsa-mat = b-probe.gsa-mat
        ld-gsa-lab = b-probe.gsa-lab
        ld-gsa-war = b-probe.gsa-war
-       v-orig-ld-gsa-war = b-probe.gsa-war.
+       v-orig-ld-gsa-war = b-probe.gsa-war
+       ld-gsa-fm = int(b-probe.gsa-fm)
+       v-orig-ld-gsa-fm = int(b-probe.gsa-fm).
 
       FIND FIRST probe-ref NO-LOCK
           WHERE probe-ref.reftable EQ "probe-ref"
@@ -832,18 +833,6 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
             AND probe-ref.code2    EQ STRING(b-probe.line,"9999999999")
           NO-ERROR.
       IF AVAIL probe-ref THEN ld-gsa-brd = probe-ref.val[1].
-
-      FIND FIRST probe-fm NO-LOCK
-          WHERE probe-fm.reftable EQ "gsa-fm"
-            AND probe-fm.company  EQ b-probe.company
-            AND probe-fm.loc      EQ ""
-            AND probe-fm.code     EQ b-probe.est-no
-          NO-ERROR.
-
-      IF AVAIL probe-fm THEN
-         ASSIGN
-            ld-gsa-fm = probe-fm.val[1]
-            v-orig-ld-gsa-fm = probe-fm.val[1].
 
       IF NOT vprint THEN
         ASSIGN
@@ -925,7 +914,8 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
                  probe.gsa-war-uni  = v-orig-ld-gsa-war-uni
                  probe.gsa-war-pal  = v-orig-ld-gsa-war-pal
                  probe.gsa-war-per  = v-orig-ld-gsa-war-per
-                 probe.gsa-war-u-p  = v-orig-ld-gsa-war-u-p.
+                 probe.gsa-war-u-p  = v-orig-ld-gsa-war-u-p
+                 probe.gsa-fm       = string(v-orig-ld-gsa-fm).
              
                 FIND FIRST probe-ref
                     WHERE probe-ref.reftable EQ "probe-ref"
@@ -944,24 +934,8 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
                    probe-ref.code2    = STRING(probe.line,"9999999999").
                 END.
              
-                probe-ref.val[1] = iop-gsa-brd.
-             
-                FIND FIRST probe-fm
-                     WHERE probe-fm.reftable EQ "gsa-fm"
-                       AND probe-fm.company  EQ probe.company
-                       AND probe-fm.loc      EQ ""
-                       AND probe-fm.code     EQ probe.est-no
-                     NO-ERROR.
-             
-                IF NOT AVAIL probe-fm THEN
-                DO:
-                   CREATE probe-fm.
-                   ASSIGN probe-fm.reftable = "gsa-fm"
-                          probe-fm.company  = probe.company
-                          probe-fm.loc      = ""
-                          probe-fm.code     = probe.est-no.
-                END.
-                probe-fm.val[1] = v-orig-ld-gsa-fm.
+                probe-ref.val[1] = iop-gsa-brd.             
+                
               END.
           END.
        END.
@@ -1192,7 +1166,8 @@ PROCEDURE update-probe :
      probe.gsa-war-uni  = ld-gsa-war-uni
      probe.gsa-war-pal  = ld-gsa-war-pal
      probe.gsa-war-per  = ld-gsa-war-per
-     probe.gsa-war-u-p  = ld-gsa-war-u-p.
+     probe.gsa-war-u-p  = ld-gsa-war-u-p
+     probe.gsa-fm       = string(ld-gsa-fm).
 
     FIND FIRST probe-ref
         WHERE probe-ref.reftable EQ "probe-ref"
@@ -1212,23 +1187,7 @@ PROCEDURE update-probe :
     END.
 
     probe-ref.val[1] = ld-gsa-brd.
-
-    FIND FIRST probe-fm
-         WHERE probe-fm.reftable EQ "gsa-fm"
-           AND probe-fm.company  EQ probe.company
-           AND probe-fm.loc      EQ ""
-           AND probe-fm.code     EQ probe.est-no
-         NO-ERROR.
-
-    IF NOT AVAIL probe-fm THEN
-    DO:
-       CREATE probe-fm.
-       ASSIGN probe-fm.reftable = "gsa-fm"
-              probe-fm.company  = probe.company
-              probe-fm.loc      = ""
-              probe-fm.code     = probe.est-no.
-    END.
-    probe-fm.val[1] = ld-gsa-fm.
+    
   END.
 
 END PROCEDURE.

@@ -1,6 +1,41 @@
-/* menuTree.i */
-
-DEFINE VARIABLE hFocus AS HANDLE NO-UNDO.
+/* menuTree.i - rstark 8.1.2018 */
+/*
+Usage:
+    1. place this include {system/menuTree.i} in definitions section
+    2. create PROCEDURE pBuildttMenuTree to populate TEMP-TABLE ttMenuTree
+        a. populate ttMenuTree using the following
+           RUN pCreatettMenuTree (
+               FRAME {&FRAME-NAME}:HANDLE,
+               iOrder,
+               iLevel,
+               lMenu,
+               cParent,
+               cChild,
+               cText,
+               cImage,
+               cMnemonic,
+               lActive
+               ).
+    3. create PROCEDURE pProcessClick for processing after a menu item click
+    4. to prevent cursor from residing inside the editor object, create a
+       dummy object fill-in in AppBuilder, such as svFocus
+        DEFINE VARIABLE svFocus AS CHARACTER FORMAT "X(256)":U
+             VIEW-AS FILL-IN
+             SIZE .2 BY 1
+             BGCOLOR 8  NO-UNDO.
+        a. in the Main Block section add
+           hFocus = svFocus:HANDLE
+*/
+DEFINE VARIABLE hFocus        AS HANDLE    NO-UNDO.
+DEFINE VARIABLE hWindow       AS HANDLE    NO-UNDO.
+DEFINE VARIABLE lToggle       AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cMnemonic     AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cMenuTreePool AS CHARACTER NO-UNDO INITIAL "MenuTreePool".
+DEFINE VARIABLE cImageFolder  AS CHARACTER NO-UNDO INITIAL "Graphics/16X16/".
+DEFINE VARIABLE dObjectHeight AS DECIMAL   NO-UNDO INITIAL 1.14.
+DEFINE VARIABLE dObjectWidth  AS DECIMAL   NO-UNDO INITIAL 4.8.
+DEFINE VARIABLE iMenuSize     AS INTEGER   NO-UNDO INITIAL 1.
+DEFINE VARIABLE iLanguage     AS INTEGER   NO-UNDO INITIAL 1.
 
 DEFINE TEMP-TABLE ttMenuTree NO-UNDO
     FIELD treeOrder  AS INTEGER
@@ -11,15 +46,37 @@ DEFINE TEMP-TABLE ttMenuTree NO-UNDO
     FIELD treeParent AS CHARACTER
     FIELD treeChild  AS CHARACTER
     FIELD treeText   AS CHARACTER
+    FIELD baseText   AS CHARACTER 
     FIELD treeImage  AS CHARACTER
+    FIELD mnemonic   AS CHARACTER
+    FIELD isActive   AS LOGICAL 
     FIELD hLevel     AS HANDLE
     FIELD hImage     AS HANDLE
     FIELD hEditor    AS HANDLE
+    FIELD hToggle    AS HANDLE 
         INDEX ttMenuTree IS PRIMARY
             treeOrder
+        INDEX ttMnemonic
+            mnemonic
+        INDEX ttActive
+            isActive
             .
-CREATE WIDGET-POOL "MenuTreePool".
+/* ensure widget pool is unique for each instance of a menu tree */
+cMenuTreePool = cMenuTreePool + STRING(TIME,"99999").
+CREATE WIDGET-POOL cMenuTreePool.
 SESSION:SET-WAIT-STATE("").
+
+{system/translations.i}
+
+/* ************************  Function Implementations ***************** */
+
+FUNCTION fMnemonic RETURNS CHARACTER 
+    (ipcMnemonic AS CHARACTER):
+    RETURN IF ipcMnemonic EQ "" THEN "" ELSE  "[" + ipcMnemonic + "] ".
+        
+END FUNCTION.
+
+/* **********************  Internal Procedures  *********************** */
 
 PROCEDURE pClickMenuTree:
     DEFINE INPUT PARAMETER iphWidget AS HANDLE NO-UNDO.
@@ -29,9 +86,12 @@ PROCEDURE pClickMenuTree:
     
     DEFINE BUFFER bttMenuTree FOR ttMenuTree.
     
-    RUN pSetFocus.
-    rRowID = TO-ROWID(iphWidget:PRIVATE-DATA).
+    rRowID = TO-ROWID(ENTRY(2,iphWidget:PRIVATE-DATA)).
     FIND FIRST ttMenuTree WHERE ROWID(ttMenuTree) EQ rRowID.
+    IF ttMenuTree.treeChild EQ "Exit" THEN DO:
+        APPLY 'WINDOW-CLOSE':U TO hWindow.
+        RETURN.
+    END. /* if exit */
     IF ttMenuTree.isMenu THEN DO:
         FOR EACH bttMenuTree
             WHERE ROWID(bttMenuTree) NE rRowID
@@ -39,14 +99,16 @@ PROCEDURE pClickMenuTree:
               AND bttMenuTree.isOpen EQ YES
               AND bttMenuTree.level  GE ttMenuTree.level
             :
-            bttMenuTree.hLevel:LOAD-IMAGE(SEARCH("Graphics\16x16\navigate_right.png")).
+            bttMenuTree.hLevel:LOAD-IMAGE(SEARCH(cImageFolder + "navigate_right.png")).
             bttMenuTree.isOpen = NO.
         END. /* each bttmenutree */
+        IF ttMenuTree.isOpen THEN
+        cMnemonic = SUBSTR(cMnemonic,1,LENGTH(cMnemonic) - 1).
         ASSIGN
             ttMenuTree.isOpen = NOT ttMenuTree.isOpen
-            cImage = "Graphics\16x16\"
+            cImage = SEARCH(cImageFolder
                    + IF ttMenuTree.isOpen THEN "navigate_down.png"
-                     ELSE "navigate_right.png"
+                     ELSE "navigate_right.png")
                    .
         ttMenuTree.hLevel:LOAD-IMAGE(cImage).
         RUN pDisplayMenuTree (
@@ -68,22 +130,27 @@ PROCEDURE pClickMenuTree:
         bttMenuTree.hEditor:FONT = ?.
     END. /* each bttMenuTree */
     ttMenuTree.hEditor:FONT = 6.
+    RUN pSetFocus.
+    IF INDEX(THIS-PROCEDURE:INTERNAL-ENTRIES,"pProcessClick") NE 0 THEN
     RUN pProcessClick NO-ERROR.
 
 END PROCEDURE.
 
 PROCEDURE pCreatettMenuTree:
-    DEFINE INPUT PARAMETER iphFrame  AS HANDLE    NO-UNDO.
-    DEFINE INPUT PARAMETER ipiOrder  AS INTEGER   NO-UNDO.
-    DEFINE INPUT PARAMETER ipiLevel  AS INTEGER   NO-UNDO.
-    DEFINE INPUT PARAMETER iplMenu   AS LOGICAL   NO-UNDO.
-    DEFINE INPUT PARAMETER ipcParent AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipcChild  AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipcText   AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipcImage  AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER iphFrame    AS HANDLE    NO-UNDO.
+    DEFINE INPUT PARAMETER ipiOrder    AS INTEGER   NO-UNDO.
+    DEFINE INPUT PARAMETER ipiLevel    AS INTEGER   NO-UNDO.
+    DEFINE INPUT PARAMETER iplMenu     AS LOGICAL   NO-UNDO.
+    DEFINE INPUT PARAMETER ipcParent   AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcChild    AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcText     AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcImage    AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcMnemonic AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER iplActive   AS LOGICAL   NO-UNDO.
     
-    DEFINE VARIABLE hWidget AS HANDLE  NO-UNDO.
-    DEFINE VARIABLE dWidth  AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE cMnemonic AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE hWidget   AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE dWidth    AS DECIMAL   NO-UNDO.
     
     CREATE ttMenuTree.
     ASSIGN
@@ -93,73 +160,77 @@ PROCEDURE pCreatettMenuTree:
         ttMenuTree.treeParent = ipcParent
         ttMenuTree.treeChild  = ipcChild
         ttMenuTree.treeText   = ipcText
+        ttMenuTree.baseText   = ipcText
         ttMenuTree.treeImage  = ipcImage
-        .
-    
+        ttMenuTree.mnemonic   = ipcMnemonic
+        ttMenuTree.isActive   = iplActive
+        .    
     IF ttMenuTree.isMenu THEN DO:
-        CREATE IMAGE hWidget IN WIDGET-POOL "MenuTreePool"
+        CREATE IMAGE hWidget IN WIDGET-POOL cMenuTreePool
             ASSIGN
                 FRAME = iphFrame
                 NAME = STRING(ipiOrder)
                 COL = 1
                 ROW = 1
                 SENSITIVE = YES
-                WIDTH = 4.8
-                HEIGHT = 1.14
+                WIDTH = dObjectWidth
+                HEIGHT = dObjectHeight
                 TRANSPARENT = YES
-                PRIVATE-DATA = STRING(ROWID(ttMenuTree))                
+                PRIVATE-DATA = "," + STRING(ROWID(ttMenuTree))                
           TRIGGERS:
             ON MOUSE-SELECT-CLICK
               PERSISTENT RUN pClickMenuTree IN THIS-PROCEDURE (hWidget:HANDLE).
           END TRIGGERS.
         IF VALID-HANDLE(hWidget) THEN DO:
             ttMenuTree.hLevel = hWidget. 
-            hWidget:LOAD-IMAGE(SEARCH("Graphics\16x16\navigate_right.png")).
+            hWidget:LOAD-IMAGE(SEARCH(cImageFolder + "navigate_right.png")).
         END.
     END. /* if ismenu */
         
-    CREATE IMAGE hWidget IN WIDGET-POOL "MenuTreePool"
+    CREATE IMAGE hWidget IN WIDGET-POOL cMenuTreePool
         ASSIGN
             FRAME = iphFrame
             NAME = STRING(ipiOrder)
             COL = 1
             ROW = 1
             SENSITIVE = YES
-            WIDTH = 4.8
-            HEIGHT = 1.14
+            HIDDEN = YES
+            WIDTH = dObjectWidth
+            HEIGHT = dObjectHeight
             TRANSPARENT = YES
-            PRIVATE-DATA = STRING(ROWID(ttMenuTree))
+            PRIVATE-DATA = "," + STRING(ROWID(ttMenuTree))
       TRIGGERS:
         ON MOUSE-SELECT-CLICK
           PERSISTENT RUN pClickMenuTree IN THIS-PROCEDURE (hWidget:HANDLE).
       END TRIGGERS.
     IF VALID-HANDLE(hWidget) THEN DO:
         ttMenuTree.hImage = hWidget.            
-        hWidget:LOAD-IMAGE(SEARCH(ttMenuTree.treeImage)).
+        hWidget:LOAD-IMAGE(SEARCH(cImageFolder + ttMenuTree.treeImage)).
     END.
 
-    dWidth = LENGTH(ttMenuTree.treeText) * 1.6.
+    dWidth = LENGTH(fMnemonic(ttMenuTree.mnemonic) + ttMenuTree.treeText) * 1.6.                    .
     IF dWidth LT 6 THEN
     dWidth = 6.
     
-    CREATE EDITOR hWidget IN WIDGET-POOL "MenuTreePool"
+    CREATE EDITOR hWidget IN WIDGET-POOL cMenuTreePool
         ASSIGN
             FRAME = iphFrame
             NAME = STRING(ipiOrder)
             COL = 1
             ROW = 1
             SENSITIVE = YES
+            HIDDEN = YES
             WIDTH = dWidth
-            HEIGHT = 1
-            FGCOLOR = ?
+            HEIGHT = dObjectHeight
+            FGCOLOR = 1
             BGCOLOR = ?
             SCROLLBAR-HORIZONTAL = NO
             SCROLLBAR-VERTICAL = NO
             WORD-WRAP = NO
             READ-ONLY = YES
             BOX = NO
-            SCREEN-VALUE = ttMenuTree.treeText
-            PRIVATE-DATA = STRING(ROWID(ttMenuTree))
+            SCREEN-VALUE = fMnemonic(ttMenuTree.mnemonic) + fTranslate(ttMenuTree.treeText,NO)
+            PRIVATE-DATA = ttMenuTree.treeText + "," + STRING(ROWID(ttMenuTree))
       TRIGGERS:
         ON MOUSE-SELECT-CLICK
           PERSISTENT RUN pClickMenuTree IN THIS-PROCEDURE (hWidget:HANDLE).
@@ -168,6 +239,33 @@ PROCEDURE pCreatettMenuTree:
         ttMenuTRee.hEditor = hWidget.
         hWidget:LOAD-MOUSE-POINTER("ARROW").
     END.
+    
+    &IF "{&isActive}" EQ "YES" &THEN
+    CREATE TOGGLE-BOX hWidget IN WIDGET-POOL cMenuTreePool
+        ASSIGN
+            FRAME = iphFrame
+            NAME = STRING(ipiOrder)
+            COL = 1
+            ROW = 1
+            SENSITIVE = YES
+            HIDDEN = YES
+            HIDDEN = YES
+            WIDTH = 3
+            HEIGHT = dObjectHeight
+            FGCOLOR = 1
+            BGCOLOR = ?
+            SCREEN-VALUE = STRING(ttMenuTree.isActive)
+            PRIVATE-DATA = "," + STRING(ROWID(ttMenuTree))
+      TRIGGERS:
+        ON VALUE-CHANGED
+          PERSISTENT RUN pToggle IN THIS-PROCEDURE (hWidget:HANDLE).
+      END TRIGGERS.
+    IF VALID-HANDLE(hWidget) THEN
+    ttMenuTRee.hToggle = hWidget.
+    &ENDIF
+    
+    IF NOT VALID-HANDLE(hWindow) THEN 
+    hWindow = CURRENT-WINDOW.
 
 END PROCEDURE.
 
@@ -201,6 +299,8 @@ PROCEDURE pDisplayMenuTree:
             .
         IF VALID-HANDLE(bttMenuTree.hLevel) THEN
         bttMenuTree.hLevel:HIDDEN = YES.
+        IF VALID-HANDLE(bttMenuTree.hToggle) THEN
+        bttMenuTree.hToggle:HIDDEN = YES.
     END. /* each bttMenuTree */
     
     FOR EACH bttMenuTree
@@ -210,7 +310,9 @@ PROCEDURE pDisplayMenuTree:
     END. /* each bttMenuTree */
 
     FOR EACH bttMenuTree
-        WHERE bttMenuTree.isVisible EQ YES
+        WHERE  bttMenuTree.isVisible EQ YES
+          AND (bttMenuTree.isActive  EQ YES
+           OR  lToggle               EQ YES)
         :
         dCol = (bttMenuTree.level - 1) * 6 + 3.
         IF bttMenuTree.isMenu THEN DO:
@@ -222,6 +324,17 @@ PROCEDURE pDisplayMenuTree:
                      + bttMenuTree.hLevel:WIDTH
                      .
         END. /* if ismenu */
+        &IF "{&isActive}" EQ "YES" &THEN
+        IF lToggle THEN 
+        ASSIGN
+            bttMenuTree.hToggle:COL = dCol
+            bttMenuTree.hToggle:ROW = dRow
+            bttMenuTree.hToggle:HIDDEN = NO
+            dCol = bttMenuTree.hToggle:COL
+                 + bttMenuTree.hToggle:WIDTH
+                 .
+        ELSE
+        &ENDIF
         ASSIGN
             bttMenuTree.hImage:COL = dCol
             bttMenuTree.hImage:ROW = dRow
@@ -239,17 +352,20 @@ PROCEDURE pDisplayMenuTree:
             bttMenuTree.hEditor:COL = dCol
             bttMenuTree.hEditor:ROW = dRow
             bttMenuTree.hEditor:HIDDEN = NO
-            dRow = dRow + 1.19
+            dRow = dRow + bttMenuTree.hEditor:HEIGHT
             .
     END. /* each bttMenuTree */
-    
+
     /* adjust frame height for what is visible */
     FIND LAST bttMenuTree
-         WHERE bttMenuTree.isVisible EQ YES
+         WHERE  bttMenuTree.isVisible EQ YES
+           AND (bttMenuTree.isActive  EQ YES
+           OR   lToggle               EQ YES)
          NO-ERROR.
     IF AVAILABLE bttMenuTree THEN DO:
         dRow = bttMenuTree.hEditor:ROW
-             + bttMenuTree.hEditor:HEIGHT + 1.    
+             + bttMenuTree.hEditor:HEIGHT + 1
+             .    
         IF dRow LT iphFrame:HEIGHT THEN
         dRow = iphFrame:HEIGHT.
         iphFrame:VIRTUAL-HEIGHT = dRow.
@@ -269,15 +385,102 @@ PROCEDURE pInitMenuTree:
         DELETE OBJECT ttMenuTree.hImage.
         IF VALID-HANDLE(ttMenuTree.hEditor) THEN
         DELETE OBJECT ttMenuTree.hEditor.
+        IF VALID-HANDLE(ttMenuTree.hToggle) THEN
+        DELETE OBJECT ttMenuTree.hToggle.
         DELETE ttMenuTree.
     END. /* each ttsysctrl */
 
 END PROCEDURE.
 
+PROCEDURE pKeyPress:
+&Scoped-define validKeys ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()
+
+    DEFINE INPUT PARAMETER iphFrame   AS HANDLE  NO-UNDO.
+    DEFINE INPUT PARAMETER ipiLastKey AS INTEGER NO-UNDO.
+    
+    DEFINE VARIABLE cSave AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cKey  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE idx   AS INTEGER   NO-UNDO.
+
+    IF ipiLastKey EQ 32 THEN DO:
+        cMnemonic = SUBSTR(cMnemonic,1,1).
+        RELEASE ttMenuTree.
+    END. /* if 32 */
+    ELSE
+    ASSIGN
+        cSave     = SUBSTR(cMnemonic,1,2)
+        cKey      = CAPS(KEYLABEL(ipiLastKey)) WHEN INDEX("{&validKeys}",KEYLABEL(ipiLastKey)) NE 0
+        cMnemonic = IF cKey NE "" THEN cSave + cKey ELSE ""
+        .
+    DO WHILE cMnemonic NE "":
+        idx = idx + 1.
+        /* prevents endless loop */
+        IF idx GT 5 THEN LEAVE.
+        FIND FIRST ttMenuTree
+             WHERE  ttMenuTree.mnemonic EQ cMnemonic
+               AND (ttMenuTree.isActive EQ YES
+                OR  lToggle             EQ YES)
+             NO-ERROR.
+        IF AVAILABLE ttMenuTree THEN DO:
+            RUN pClickMenuTree (ttMenuTree.hEditor).
+            cMnemonic = SUBSTR(cMnemonic,1,2).
+            LEAVE.
+        END.
+        ELSE
+        ASSIGN
+            cSave     = SUBSTR(cSave,1,LENGTH(cSave) - 1)
+            cMnemonic = cSave + cKey
+            .
+    END. /* while true */
+    
+END PROCEDURE.
+
 PROCEDURE pSetFocus:
     IF VALID-HANDLE(hFocus) THEN DO:
+        IF AVAILABLE ttMenuTree THEN DO:
+            /* this forces frame to auto adjust to selection */
+            hFocus:ROW = ttMenuTree.hEditor:ROW.
+            APPLY "ENTRY":U TO ttMenuTree.hEditor. 
+        END.
+        /* prevents cursor from blinking in editor object */
         hFocus:SCREEN-VALUE = "".
         APPLY "ENTRY":U TO hFocus.
     END.
+
+END PROCEDURE.
+
+PROCEDURE pSetisActive:
+    DEFINE INPUT PARAMETER ipcTreeChild AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER iplActive    AS LOGICAL   NO-UNDO.
+    
+    DEFINE BUFFER bttMenuTree FOR ttMenuTree.
+    
+    FOR EACH bttMenuTree
+        WHERE bttMenuTree.treeParent EQ ipcTreeChild
+        :
+        ASSIGN
+            bttMenuTree.isActive = iplActive
+            bttMenuTree.hToggle:SCREEN-VALUE = STRING(iplActive)
+            .
+        IF bttMenuTree.isMenu THEN
+        RUN pSetisActive (bttMenuTree.treeChild, iplActive).
+    END. /* each bttmenutree */   
+
+END PROCEDURE.
+
+PROCEDURE pToggle:
+    DEFINE INPUT PARAMETER iphWidget AS HANDLE NO-UNDO.
+    
+    DEFINE VARIABLE lActive AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE rRowID  AS ROWID   NO-UNDO.
+    
+    ASSIGN
+        lActive = iphWidget:SCREEN-VALUE EQ "yes"
+        rRowID = TO-ROWID(ENTRY(2,iphWidget:PRIVATE-DATA))
+        .
+    FIND FIRST ttMenuTree WHERE ROWID(ttMenuTree) EQ rRowID.
+    ttMenuTree.isActive = lActive.
+    IF ttMenuTree.isMenu THEN
+    RUN pSetisActive (ttMenuTree.treeChild, lActive).
 
 END PROCEDURE.

@@ -25,7 +25,6 @@ DEFINE VARIABLE dShrink AS DECIMAL     NO-UNDO.
 
 DEF BUFFER bf-est FOR est.
 DEF BUFFER bf-probe FOR probe.
-DEF BUFFER reftable-fm FOR reftable.
 DEF BUFFER reftable-fold-pct FOR reftable.
 DEF BUFFER b-item FOR ITEM.
 DEF BUFFER bf-oe-ord FOR oe-ord.
@@ -765,15 +764,11 @@ do k = 1 to 28:
    gsa-com = ce-ctrl.comm-mrkup
    gsa-war = ce-ctrl.whse-mrkup.
 
-  FIND FIRST reftable-fm NO-LOCK
-       WHERE reftable-fm.reftable EQ "gsa-fm"
-         AND reftable-fm.company  EQ xest.company
-         AND reftable-fm.loc      EQ ""
-         AND reftable-fm.code     EQ xest.est-no
-       NO-ERROR.
-
-  IF AVAIL reftable-fm THEN
-     gsa-fm = reftable-fm.val[1].
+  FIND FIRST probe    
+      WHERE probe.company    EQ xest.company
+        AND probe.est-no     EQ xest.est-no NO-LOCK NO-ERROR.
+   IF AVAIL probe THEN
+      gsa-fm = int(probe.gsa-fm).
   ELSE
      gsa-fm  = ctrl[19].
 

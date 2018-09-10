@@ -5,67 +5,73 @@
 {sys/inc/var.i shared}
 {sys/ref/CustList.i}
 {ar/ar-agng2.i}
-
 {sys/form/r-top3w.f}
+{custom/formtext.i NEW}
 
-def var v-cr-db-amt as dec format "->>>,>>>,>>9.99" NO-UNDO.
-def var v-disc-amt  as dec format "->>>,>>>,>>9.99" NO-UNDO.
-def var v-type     as char format "x(2)" NO-UNDO.
-def var v-first-cust as LOGICAL NO-UNDO.
-def var d          as int label "Days" NO-UNDO.
-def var ni         as INT NO-UNDO.
-def var cust-t     as dec extent 6 format "->,>>>,>>>,>>9.99" NO-UNDO.
-DEF VAR cust-t-pri as dec extent 6 format "->,>>>,>>>,>>9.99" NO-UNDO.
-DEF VAR cust-t-fc  as dec extent 6 format "->,>>>,>>>,>>9.99" NO-UNDO.
-def var sman-t     as dec extent 6 format "->,>>>,>>>,>>9.99" NO-UNDO.
-def var sman-t-pri as dec extent 6 format "->,>>>,>>>,>>9.99" NO-UNDO.
-def var sman-t-fc  as dec extent 6 format "->,>>>,>>>,>>9.99" NO-UNDO.
-DEF VAR v-current-trend-days AS INT NO-UNDO FORMAT "->>9".
-def var curr-t     as dec extent 6 format "->,>>>,>>>,>>9.99" NO-UNDO.
-def var curr-t-pri as dec extent 6 format "->,>>>,>>>,>>9.99" NO-UNDO.
-def var curr-t-fc  as dec extent 6 format "->,>>>,>>>,>>9.99" NO-UNDO.
-def var onacc      as DEC NO-UNDO.
-def var s          as INT NO-UNDO.
-DEF VAR cPO        AS CHAR FORMAT "x(20)" NO-UNDO.
-def var ag         as dec format "->>>,>>>,>>9.99" NO-UNDO.
-def var amt        like ag NO-UNDO.
-def var paid-amt   like ag NO-UNDO.
-def var c1         as dec format "->,>>>,>>>,>>9.99" NO-UNDO.
-DEF VAR c1-pri     as dec format "->,>>>,>>>,>>9.99" NO-UNDO.
-DEF VAR c1-fc      as dec format "->,>>>,>>>,>>9.99" NO-UNDO. 
-def var m1         as char format "x(20)" NO-UNDO.
-def var m2         as char format "x(20)" NO-UNDO.
-def var m3         as char format "x(20)" NO-UNDO.
-def var t1         as dec format "->,>>>,>>>,>>9.99" NO-UNDO.
-DEF VAR t1-pri     as dec format "->,>>>,>>>,>>9.99" NO-UNDO.
-DEF VAR t1-fc      as dec format "->,>>>,>>>,>>9.99" NO-UNDO.
-def var save_id    as RECID NO-UNDO.
-def var unapp like cust-t NO-UNDO.
-def var first-unapp as log init YES NO-UNDO.
-def var tmp-var as char format "x(20)" NO-UNDO.
-def var v-disc-type as char format "x(4)" NO-UNDO.
-def var v-sman as char format "x(24)" NO-UNDO.
-def var v-int as int no-undo.
-def var v-dec as dec extent 4 no-undo.
-DEF VAR ll-valid-cust AS LOG NO-UNDO.
-DEF VAR ll-mult-curr AS LOG NO-UNDO.
-DEF VAR lv-page-break AS CHAR NO-UNDO.
-DEF VAR lv-f-bot-hdr AS CHAR FORMAT "x(12)" NO-UNDO.
-DEF VAR v-neg-text AS CHAR NO-UNDO.
-DEF VAR v-tr-dscr AS CHAR NO-UNDO.
-DEF VAR v-check-date AS DATE NO-UNDO.
-DEF VAR v-gltrans-desc AS CHAR FORMAT "X(60)" NO-UNDO.
-DEF VAR cPoNo LIKE ar-inv.po-no NO-UNDO.
-DEF VAR cJobStr AS CHAR FORMAT "x(9)" NO-UNDO.
-DEF TEMP-TABLE tt-cust NO-UNDO FIELD curr-code LIKE cust.curr-code
-                               FIELD sorter    LIKE cust.cust-no
-                               FIELD row-id    AS   ROWID
-                               INDEX tt-cust curr-code sorter.
+DEFINE VARIABLE v-cr-db-amt AS DEC FORMAT "->>>,>>>,>>9.99" NO-UNDO.
+DEFINE VARIABLE v-disc-amt  AS DEC FORMAT "->>>,>>>,>>9.99" NO-UNDO.
+DEFINE VARIABLE v-type     AS CHAR FORMAT "x(2)" NO-UNDO.
+DEFINE VARIABLE v-first-cust AS LOG NO-UNDO.
+DEFINE VARIABLE d          AS INT label "Days" NO-UNDO.
+DEFINE VARIABLE ni         AS INT NO-UNDO.
+DEFINE VARIABLE cust-t     AS DEC EXTENT 6 FORMAT "->,>>>,>>>,>>9.99" NO-UNDO.
+DEFINE VARIABLE cust-t-pri AS DEC EXTENT 6 FORMAT "->,>>>,>>>,>>9.99" NO-UNDO.
+DEFINE VARIABLE cust-t-fc  AS DEC EXTENT 6 FORMAT "->,>>>,>>>,>>9.99" NO-UNDO.
+DEFINE VARIABLE sman-t     AS DEC EXTENT 6 FORMAT "->,>>>,>>>,>>9.99" NO-UNDO.
+DEFINE VARIABLE sman-t-pri AS DEC EXTENT 6 FORMAT "->,>>>,>>>,>>9.99" NO-UNDO.
+DEFINE VARIABLE sman-t-fc  AS DEC EXTENT 6 FORMAT "->,>>>,>>>,>>9.99" NO-UNDO.
+DEFINE VARIABLE v-current-trend-days AS INT NO-UNDO FORMAT "->>9".
+DEFINE VARIABLE curr-t     AS DEC EXTENT 6 FORMAT "->,>>>,>>>,>>9.99" NO-UNDO.
+DEFINE VARIABLE curr-t-pri AS DEC EXTENT 6 FORMAT "->,>>>,>>>,>>9.99" NO-UNDO.
+DEFINE VARIABLE curr-t-fc  AS DEC EXTENT 6 FORMAT "->,>>>,>>>,>>9.99" NO-UNDO.
+DEFINE VARIABLE onacc      AS DEC NO-UNDO.
+DEFINE VARIABLE s          AS INT NO-UNDO.
+DEFINE VARIABLE cPO        AS CHAR FORMAT "x(20)" NO-UNDO.
+DEFINE VARIABLE ag         AS DEC FORMAT "->>>,>>>,>>9.99" NO-UNDO.
+DEFINE VARIABLE amt        LIKE ag NO-UNDO.
+DEFINE VARIABLE paid-amt   LIKE ag NO-UNDO.
+DEFINE VARIABLE c1         AS DEC FORMAT "->,>>>,>>>,>>9.99" NO-UNDO.
+DEFINE VARIABLE c1-pri     AS DEC FORMAT "->,>>>,>>>,>>9.99" NO-UNDO.
+DEFINE VARIABLE c1-fc      AS DEC FORMAT "->,>>>,>>>,>>9.99" NO-UNDO. 
+DEFINE VARIABLE m1         AS CHAR FORMAT "x(20)" NO-UNDO.
+DEFINE VARIABLE m2         AS CHAR FORMAT "x(20)" NO-UNDO.
+DEFINE VARIABLE m3         AS CHAR FORMAT "x(20)" NO-UNDO.
+DEFINE VARIABLE t1         AS DEC FORMAT "->,>>>,>>>,>>9.99" NO-UNDO.
+DEFINE VARIABLE t1-pri     AS DEC FORMAT "->,>>>,>>>,>>9.99" NO-UNDO.
+DEFINE VARIABLE t1-fc      AS DEC FORMAT "->,>>>,>>>,>>9.99" NO-UNDO.
+DEFINE VARIABLE save_id    as RECID NO-UNDO.
+DEFINE VARIABLE unapp LIKE cust-t NO-UNDO.
+DEFINE VARIABLE first-unapp AS LOG INIT YES NO-UNDO.
+DEFINE VARIABLE tmp-var AS CHAR FORMAT "x(20)" NO-UNDO.
+DEFINE VARIABLE v-disc-type AS CHAR FORMAT "x(4)" NO-UNDO.
+DEFINE VARIABLE v-sman AS CHAR FORMAT "x(24)" NO-UNDO.
+DEFINE VARIABLE v-int AS INT NO-UNDO.
+DEFINE VARIABLE v-dec AS DEC EXTENT 4 NO-UNDO.
+DEFINE VARIABLE ll-valid-cust AS LOG NO-UNDO.
+DEFINE VARIABLE ll-mult-curr AS LOG NO-UNDO.
+DEFINE VARIABLE lv-page-break AS CHAR NO-UNDO.
+DEFINE VARIABLE lv-f-bot-hdr AS CHAR FORMAT "x(12)" NO-UNDO.
+DEFINE VARIABLE v-neg-text AS CHAR NO-UNDO.
+DEFINE VARIABLE v-tr-dscr AS CHAR NO-UNDO.
+DEFINE VARIABLE v-check-date AS DATE NO-UNDO.
+DEFINE VARIABLE v-gltrans-desc AS CHAR FORMAT "X(60)" NO-UNDO.
+DEFINE VARIABLE cPoNo LIKE ar-inv.po-no NO-UNDO.
+DEFINE VARIABLE cJobStr AS CHAR FORMAT "x(9)" NO-UNDO.
+DEFINE VARIABLE lv-text AS CHAR NO-UNDO.
+DEFINE VARIABLE v-Inv-note AS CHAR FORM "x(80)" EXTENT 8 NO-UNDO.
+DEFINE VARIABLE v-Collection-note AS CHAR FORM "x(80)" EXTENT 8 NO-UNDO.
 
-DEF TEMP-TABLE tt-inv NO-UNDO  FIELD sorter    LIKE ar-inv.inv-no
-                               FIELD inv-no    LIKE ar-inv.inv-no
-                               FIELD row-id    AS   ROWID
-                               INDEX tt-inv sorter inv-no.
+DEF TEMP-TABLE tt-cust NO-UNDO 
+    FIELD curr-code LIKE cust.curr-code
+    FIELD sorter    LIKE cust.cust-no
+    FIELD row-id    AS   ROWID
+    INDEX tt-cust curr-code sorter.
+
+DEF TEMP-TABLE tt-inv NO-UNDO  
+    FIELD sorter    LIKE ar-inv.inv-no
+    FIELD inv-no    LIKE ar-inv.inv-no
+    FIELD row-id    AS   ROWID
+    INDEX tt-inv sorter inv-no.
 
 &SCOPED-DEFINE for-each-arinv                      ~
     FOR EACH ar-inv                                ~
@@ -98,59 +104,50 @@ DEF TEMP-TABLE tt-inv NO-UNDO  FIELD sorter    LIKE ar-inv.inv-no
           AND ar-cashl.posted     EQ YES                 ~
         USE-INDEX c-no:                                  ~
                                                          ~
-      IF ar-cashl.inv-no NE 0 THEN DO:                   ~
-        FIND FIRST ar-inv NO-LOCK                        ~
-            WHERE ar-inv.company     EQ cust.company     ~
-              AND ar-inv.inv-no      EQ ar-cashl.inv-no  ~
-              AND ar-inv.inv-date    GT v-date           ~
-            USE-INDEX inv-no NO-ERROR.                   ~
-        IF NOT AVAIL ar-inv THEN NEXT.                   ~
-      END.                                               ~
-      IF ar-cashl.amt-paid GT 0 THEN DO:                 ~
-      FIND FIRST reftable WHERE                          ~
-           reftable.reftable EQ "ARCASHLVDDATE" AND      ~
-           reftable.rec_key EQ ar-cashl.rec_key          ~
-           USE-INDEX rec_key                             ~
-           NO-LOCK NO-ERROR.                             ~
-      IF AVAIL reftable THEN                             ~
-         v-check-date = DATE(reftable.CODE).             ~
-      ELSE                                               ~
-      DO:                                                ~
-         v-gltrans-desc = "VOID " + cust.cust-no + " " + ~
+        IF ar-cashl.inv-no NE 0 THEN DO:                   ~
+            FIND FIRST ar-inv NO-LOCK                        ~
+                WHERE ar-inv.company     EQ cust.company     ~
+                AND ar-inv.inv-no      EQ ar-cashl.inv-no  ~
+                AND ar-inv.inv-date    GT v-date           ~
+                USE-INDEX inv-no NO-ERROR.                   ~
+            IF NOT AVAIL ar-inv THEN NEXT.                   ~
+        END.                                               ~
+        IF ar-cashl.amt-paid GT 0 THEN DO:                 ~
+            IF ar-cashl.voided THEN                        ~
+                v-check-date = ar-cashl.voidDate.           ~
+            ELSE DO:                                       ~
+                v-gltrans-desc = "VOID " + cust.cust-no + " " + ~
                           STRING(ar-cash.check-no,"9999999999") + ~
                          " Inv# " + STRING(ar-cashl.inv-no). ~
-         FIND FIRST gltrans WHERE ~
-              gltrans.company EQ cust.company AND ~
-              gltrans.jrnl EQ "CASHRVD" AND ~
-              gltrans.tr-dscr EQ v-gltrans-desc ~
-              NO-LOCK NO-ERROR. ~
-         IF AVAIL gltrans THEN ~
-            v-check-date = gltrans.tr-date. ~
-         ELSE ~
-            v-check-date = ar-cash.check-date. ~
-      END. ~
-      END. ~
-      ELSE v-check-date = ar-cash.check-date. ~
-      IF v-check-date NE ? AND v-check-date GT v-date THEN ~
-         NEXT.
-
+                FIND FIRST gltrans WHERE ~
+                    gltrans.company EQ cust.company AND ~
+                    gltrans.jrnl EQ "CASHRVD" AND ~
+                    gltrans.tr-dscr EQ v-gltrans-desc ~
+                    NO-LOCK NO-ERROR. ~
+                IF AVAIL gltrans THEN ~
+                    v-check-date = gltrans.tr-date. ~
+                ELSE ~
+                    v-check-date = ar-cash.check-date. ~
+            END. ~
+        END. ~
+        ELSE v-check-date = ar-cash.check-date. ~
+      
+        IF v-check-date NE ? AND v-check-date GT v-date THEN ~
+            NEXT.
+/*    END. */
+    
 &SCOPED-DEFINE valid-factored                                       ~
     IF NOT v-include-factored AND                                   ~
-       CAN-FIND(FIRST tt-factored                                   ~
-                  WHERE tt-factored.x-no EQ ar-inv.x-no) THEN       ~
+    CAN-FIND(FIRST tt-factored                                   ~
+             WHERE tt-factored.x-no EQ ar-inv.x-no) THEN       ~
         NEXT.                                                       ~
 
 
 FORM HEADER SKIP(1)
-     lv-page-break FORMAT "x(200)"
-WITH PAGE-TOP FRAME r-top-1 STREAM-IO WIDTH 200 NO-BOX.
+    lv-page-break FORMAT "x(200)"
+    WITH PAGE-TOP FRAME r-top-1 STREAM-IO WIDTH 200 NO-BOX.
 
-{custom/formtext.i NEW}
-DEF VAR lv-text AS cha NO-UNDO.
-DEF VAR v-Inv-note AS cha FORM "x(80)" EXTENT 8 NO-UNDO.
-DEF VAR v-Collection-note AS cha FORM "x(80)" EXTENT 8 NO-UNDO.
-
-FORMAT HEADER
+FORM HEADER
   SKIP(1)
   "Customer/Contact/SalesRep/Terms/Recent Payment Trend" SKIP
   v-chk-day " Type   Inv.#   Inv Date" SPACE(10)
@@ -160,349 +157,336 @@ FORMAT HEADER
 WITH PAGE-TOP FRAME r-top-2 STREAM-IO WIDTH 200 NO-BOX.
 
 DEF TEMP-TABLE tt-factored
-  FIELD company LIKE itemfg.company
-  FIELD i-no    LIKE itemfg.i-no
-  FIELD x-no    LIKE ar-invl.x-no
-  INDEX i1 i-no
-  INDEX i2 x-no.
+    FIELD company LIKE itemfg.company
+    FIELD i-no    LIKE itemfg.i-no
+    FIELD x-no    LIKE ar-invl.x-no
+    INDEX i1 i-no
+    INDEX i2 x-no.
   
-FOR EACH itemfg WHERE itemfg.factored    EQ YES
-                  NO-LOCK:  
-  FIND FIRST tt-factored WHERE tt-factored.i-no EQ itemfg.i-no
-    NO-LOCK NO-ERROR.
-  IF NOT AVAIL tt-factored THEN DO:
-    FOR EACH ar-invl WHERE ar-invl.company EQ cocode
-      AND ar-invl.i-no EQ itemfg.i-no
-      NO-LOCK:
-      CREATE tt-factored.
-      ASSIGN tt-factored.company = itemfg.company
-             tt-factored.i-no    = itemfg.i-no.
-    END.
-  END.
-END.
-
-/* Start processing */
- FOR EACH company WHERE
-       company.company GE b-comp AND
-       company.company LE e-comp
-       NO-LOCK,    
-    EACH cust 
-      FIELDS(company cust-no sman curr-code name area-code
-             phone terms fax cr-lim contact addr city state zip)
-      NO-LOCK
-      WHERE cust.company EQ company.company
-        AND cust.cust-no GE v-s-cust
-        AND cust.cust-no LE v-e-cust
-        AND (if lselected then can-find(first ttCustList where ttCustList.cust-no eq cust.cust-no
-        AND ttCustList.log-fld no-lock) else true)
-	/*         AND cust.cust-no GE v-s-cust */
-	/*         AND cust.cust-no LE v-e-cust */
-        AND cust.sman    GE v-s-sman
-        AND cust.sman    LE v-e-sman
-        AND (cust.ACTIVE NE "I" OR v-inactive-custs)
-        AND ((cust.curr-code GE v-s-curr    AND
-              cust.curr-code LE v-e-curr)       OR
-             (cust.curr-code EQ ""          AND
-              company.curr-code GE v-s-curr AND
-              company.curr-code LE v-e-curr)):
-     
-    STATUS DEFAULT "Checking Customer: " + TRIM(cust.cust-no).
-    PROCESS EVENTS.
-    ll-valid-cust = NO.
-
-    IF NOT ll-valid-cust THEN
-    {&for-each-arinv}:
-      {&valid-factored}
-
-      ll-valid-cust = YES.
-
-      LEAVE.
-    END.
-
-    IF NOT ll-valid-cust THEN
-    {&for-each-arcsh}
-
-      ll-valid-cust = YES.
-
-      LEAVE.
-    END.
-
-    IF ll-valid-cust THEN DO:
-      CREATE tt-cust.
-      ASSIGN
-       tt-cust.curr-code = IF cust.curr-code EQ "" THEN company.curr-code
-                                                   ELSE cust.curr-code
-       tt-cust.sorter    = {&sort-by}
-       tt-cust.row-id    = ROWID(cust).
-
-      IF tt-cust.curr-code NE company.curr-code THEN ll-mult-curr = YES.
-    END.
-  END.
-
-  FOR EACH tt-cust,
-      FIRST cust 
-      FIELDS(company cust-no sman curr-code NAME area-code
-             phone terms fax cr-lim contact addr city state zip)
-      NO-LOCK
-      WHERE ROWID(cust) EQ tt-cust.row-id
-      BREAK BY tt-cust.curr-code
-            BY tt-cust.sorter:
-
-    STATUS DEFAULT "Printing Currency/" + TRIM(v-sort) + ": " +
-                   TRIM(tt-cust.curr-code) + "/" + TRIM(tt-cust.sorter).
-    PROCESS EVENTS.
-    IF FIRST-OF(tt-cust.curr-code) THEN DO:
-      lv-page-break = "Currency: " + TRIM(tt-cust.curr-code).
-
-      IF FIRST(tt-cust.curr-code) THEN DO:
-        IF ll-mult-curr THEN VIEW FRAME r-top-1.
-        VIEW FRAME r-top-2.
-      END.
-
-      IF ll-mult-curr OR FIRST(tt-cust.curr-code) THEN PAGE.
-    END.
-
-    IF FIRST-OF(tt-cust.sorter)     AND
-       NOT FIRST(tt-cust.curr-code) AND
-       "{&sort-by}" EQ "cust.sman"  THEN PAGE.
-
-    FIND FIRST sman NO-LOCK
-        WHERE sman.company eq cust.company
-          AND sman.sman    eq cust.sman
-        NO-ERROR.
-    v-sman = cust.sman + "-" + (IF AVAIL sman THEN sman.sname
-                                ELSE "Slsmn not on file").
-
-    v-first-cust = yes.
-
-    EMPTY TEMP-TABLE tt-inv.
-
-    IF v-inc OR v-date NE TODAY THEN
-    {&for-each-arinv}:
-      {&valid-factored}
-
-      CREATE tt-inv.
-      ASSIGN
-       tt-inv.sorter = INT(ar-inv.{&sort-by2})
-       tt-inv.inv-no = ar-inv.inv-no
-       tt-inv.row-id = ROWID(ar-inv).
-    END.
-
-    ELSE DO:
-      {&for-each-arinv}
-            AND ar-inv.due LT 0
-          USE-INDEX posted-due:
-        {&valid-factored}
-
-        CREATE tt-inv.
-        ASSIGN
-         tt-inv.sorter = INT(ar-inv.{&sort-by2})
-         tt-inv.inv-no = ar-inv.inv-no
-         tt-inv.row-id = ROWID(ar-inv).
-      END.
-
-      {&for-each-arinv}
-            AND ar-inv.due GT 0
-          USE-INDEX posted-due:
-        {&valid-factored}
-
-        CREATE tt-inv.
-        ASSIGN
-         tt-inv.sorter = INT(ar-inv.{&sort-by2})
-         tt-inv.inv-no = ar-inv.inv-no
-         tt-inv.row-id = ROWID(ar-inv).
-      END.
-    END.
-
-    FOR EACH tt-inv,
-        FIRST ar-inv WHERE ROWID(ar-inv) EQ tt-inv.row-id NO-LOCK
-        BY tt-inv.sorter
-        BY tt-inv.inv-no:
-
-/* Inserted because AR stores gross wrong */
-      if ar-inv.net eq ar-inv.gross + ar-inv.freight + ar-inv.tax-amt then
-        amt = ar-inv.net.
-      else
-        amt = ar-inv.gross.
-
-      IF amt EQ ? THEN amt = 0.
-
-      /* if fuel surcharge should not be aged, get it out of 'amt' */
-      IF NOT v-include-fuel THEN FOR EACH ar-invl NO-LOCK 
-         WHERE ar-invl.x-no EQ ar-inv.x-no
-           AND can-find(first itemfg where itemfg.company eq ar-invl.company
-                                       and itemfg.i-no    eq ar-invl.i-no
-                                       and itemfg.procat  eq "FS"):
-        ASSIGN amt = amt - ar-invl.amt.
-      END.
-
-      cPoNo = "". cJobStr = "".
-      FOR EACH ar-invl NO-LOCK 
-         WHERE ar-invl.x-no EQ ar-inv.x-no:
-          IF ar-invl.po-no GT "" THEN
-             ASSIGN cPoNo   = ar-invl.po-no.
-          IF ar-invl.job-no GT "" THEN
-              cJobStr = ar-invl.job-no + "-" + STRING(ar-invl.job-no2, "99").
-      END.
-
-
-      assign
-       ag     = amt
-       d      = v-date - ar-inv.{&date}
-       ni     = ni + 1
-       v-type = IF ar-inv.terms EQ "FCHG" THEN "FC" ELSE "IN".
-       
-      for each ar-cashl
-          where ar-cashl.company  eq ar-inv.company
-            and ar-cashl.posted   eq yes
-            and ar-cashl.cust-no  eq ar-inv.cust-no
-            and ar-cashl.inv-no   eq ar-inv.inv-no
-           USE-INDEX inv-no no-lock,
-          FIRST ar-cash
-          where ar-cash.c-no       eq ar-cashl.c-no
-            and ar-cash.check-date le v-date
-          use-index c-no no-lock
-          BY ar-cashl.rec_key:
-
-        IF ar-cashl.amt-paid GT 0 THEN
-        DO:
-           FIND FIRST reftable WHERE                        
-                reftable.reftable EQ "ARCASHLVDDATE" AND      
-                reftable.rec_key EQ ar-cashl.rec_key          
-                USE-INDEX rec_key
-                NO-LOCK NO-ERROR.                             
-           IF AVAIL reftable THEN                             
-              v-check-date = DATE(reftable.CODE).             
-           ELSE                                               
-           DO:                                                
-              v-gltrans-desc = "VOID " + cust.cust-no + " " + 
-                               STRING(ar-cash.check-no,"9999999999") +
-                              " Inv# " + STRING(ar-cashl.inv-no).
-              FIND FIRST gltrans WHERE 
-                   gltrans.company EQ cust.company AND
-                   gltrans.jrnl EQ "CASHRVD" AND
-                   gltrans.tr-dscr EQ v-gltrans-desc
-                   NO-LOCK NO-ERROR.
-              IF AVAIL gltrans THEN
-                 v-check-date = gltrans.tr-date.
-              ELSE
-                 v-check-date = ar-cash.check-date.
-           END.
+    FOR EACH itemfg NO-LOCK WHERE 
+        itemfg.factored EQ YES:  
+        FIND FIRST tt-factored WHERE 
+            tt-factored.i-no EQ itemfg.i-no
+            NO-LOCK NO-ERROR.
+        IF NOT AVAIL tt-factored THEN DO:
+            FOR EACH ar-invl 
+                WHERE ar-invl.company EQ cocode AND 
+                ar-invl.i-no EQ itemfg.i-no
+                NO-LOCK:
+                CREATE tt-factored.
+                ASSIGN 
+                    tt-factored.company = itemfg.company
+                    tt-factored.i-no    = itemfg.i-no.
+            END.
         END.
-        ELSE
-           v-check-date = ar-cash.check-date.
+    END.
 
-        IF v-check-date NE ? AND v-check-date GT v-date THEN NEXT.
-
-        if ar-cashl.memo then
-
-          if ar-cashl.amt-disc ne 0 and ar-cashl.amt-paid eq 0 then
-            ag = ag - ar-cashl.amt-disc.
-          else 
-          if ar-cashl.amt-paid + ar-cashl.amt-disc gt 0 then
-            ag = ag + (ar-cashl.amt-paid + ar-cashl.amt-disc).
-          else
-            ag = ag + (ar-cashl.amt-paid + (- (ar-cashl.amt-disc))).
-        else
-          ag = ag + ((ar-cashl.amt-paid * -1) + (ar-cashl.amt-disc * -1)).
-      end.
-
-     if ag ne 0                                                     or
-        (v-inc and
-         ar-inv.inv-date ge v-s-dat and ar-inv.inv-date le v-e-dat) then do:
-       if v-first-cust then do:
-         assign paid-amt = 0  m3 = ""  ni = 0.
-         if cust.area-code ne "" then
-            m3 = string(cust.area-code,"(999) ").
-
-         m3 = m3 + string(cust.phone,"999-9999").
-
-         find first terms where terms.company = cust.company and
-                                terms.t-code = cust.terms no-lock no-error.
-
-         /* If input trend days entered, then do the trend days calculation. */
-         IF  v-trend-days > 0 THEN
-             RUN get-trend-days (INPUT v-trend-days,
-                                 OUTPUT v-current-trend-days).
-
-         if det-rpt = 1 THEN DO:
+    /* Start processing */
+    FOR EACH company WHERE 
+        company.company GE b-comp AND
+        company.company LE e-comp
+        NO-LOCK,    
+        EACH cust 
+            FIELDS(company cust-no sman curr-code name area-code
+                 phone terms fax cr-lim contact addr city state zip)
+            NO-LOCK WHERE 
+            cust.company EQ company.company AND 
+            cust.cust-no GE v-s-cust AND 
+            cust.cust-no LE v-e-cust AND 
+            (if lselected then can-find(first ttCustList where ttCustList.cust-no eq cust.cust-no
+                AND ttCustList.log-fld no-lock) else true) AND 
+                cust.sman    GE v-s-sman AND 
+                cust.sman    LE v-e-sman AND 
+                (cust.ACTIVE NE "I" OR v-inactive-custs)AND 
+                ((cust.curr-code GE v-s-curr AND cust.curr-code LE v-e-curr) OR
+                 (cust.curr-code EQ "" AND company.curr-code GE v-s-curr AND company.curr-code LE v-e-curr)):
          
-           display cust.cust-no
-                   space(2)
-                   cust.name
-                   space(2)
-                   cust.area-code                           format "(xxx)"
-                   cust.phone                               format "xxx-xxxx"
-                   "  Fax:"
-                   substr(cust.fax,1,3)                     format "(xxx)"
-                   substr(cust.fax,4,7)                     format "xxx-xxxx"
-                   "  Credit Limit:"
-                   string(cust.cr-lim,">,>>>,>>>,>>9.99")   format "x(17)"
-                   skip
-                   cust.contact
-                   v-sman
-                   space(3)
-                   terms.dscr when avail terms
-                   "ADTP:" cust.avg-pay FORMAT ">>>9"
-                   "TD:" v-current-trend-days WHEN v-trend-days > 0
-               with no-labels no-box frame a1 stream-io width 200.
+        STATUS DEFAULT "Checking Customer: " + TRIM(cust.cust-no).
+        PROCESS EVENTS.
+        ll-valid-cust = NO.
+    
+        IF NOT ll-valid-cust THEN
+            {&for-each-arinv}:
             
-           IF sPrtCollectionNote THEN RUN Display-CollectionNote.
+            {&valid-factored}
+            ll-valid-cust = YES.
+            LEAVE.
+        END.
+    
+        IF NOT ll-valid-cust THEN
+            {&for-each-arcsh}
+            ll-valid-cust = YES.
+            LEAVE.
+        END.
+    
+        IF ll-valid-cust THEN DO:
+            CREATE tt-cust.
+            ASSIGN
+                tt-cust.curr-code = IF cust.curr-code EQ "" THEN company.curr-code ELSE cust.curr-code
+                tt-cust.sorter    = {&sort-by}
+                tt-cust.row-id    = ROWID(cust).
+            IF tt-cust.curr-code NE company.curr-code THEN ll-mult-curr = YES.
+        END.
+    END.
+    
+    FOR EACH tt-cust,
+        FIRST cust 
+        FIELDS(company cust-no sman curr-code NAME area-code
+                 phone terms fax cr-lim contact addr city state zip)
+        NO-LOCK WHERE 
+            ROWID(cust) EQ tt-cust.row-id
+        BREAK BY tt-cust.curr-code
+        BY tt-cust.sorter:
 
-         END. /* if det-rpt = 1 */
-         if v-prt-add then run print-cust-add.
+        STATUS DEFAULT "Printing Currency/" + TRIM(v-sort) + ": " +
+                       TRIM(tt-cust.curr-code) + "/" + TRIM(tt-cust.sorter).
+        PROCESS EVENTS.
+    
+        IF FIRST-OF(tt-cust.curr-code) THEN DO:
+            lv-page-break = "Currency: " + TRIM(tt-cust.curr-code).
 
-         v-first-cust = no.
-       end.
+            IF FIRST(tt-cust.curr-code) THEN DO:
+                IF ll-mult-curr THEN 
+                    VIEW FRAME r-top-1.
+                VIEW FRAME r-top-2.
+            END.
 
-       if d ge v-days[3] then do:
-         if det-rpt = 1 then
-           display d at 4 format "-9999" when v-days-old 
-                   space(7) v-type space(5) ar-inv.inv-no
-                   space(2) ar-inv.inv-date format "99/99/99"
-                   amt  to 54 ag to 131
-                   with frame a no-labels no-box stream-io width 200.
+            IF ll-mult-curr OR FIRST(tt-cust.curr-code) THEN 
+                PAGE.
+        END.
 
-         v-int = 4.
-       end.
+        IF FIRST-OF(tt-cust.sorter)     
+        AND NOT FIRST(tt-cust.curr-code) 
+        AND "{&sort-by}" EQ "cust.sman" THEN 
+            PAGE.
+
+        FIND FIRST sman NO-LOCK WHERE 
+            sman.company eq cust.company AND 
+            sman.sman    eq cust.sman
+            NO-ERROR.
+    
+        v-sman = cust.sman + "-" + (IF AVAIL sman THEN sman.sname ELSE "Slsmn not on file").
+        v-first-cust = yes.
+
+        EMPTY TEMP-TABLE tt-inv.
+
+        IF v-inc OR v-date NE TODAY THEN
+            {&for-each-arinv}:
+            {&valid-factored}
+
+            CREATE tt-inv.
+            ASSIGN
+                tt-inv.sorter = INT(ar-inv.{&sort-by2})
+                tt-inv.inv-no = ar-inv.inv-no
+                tt-inv.row-id = ROWID(ar-inv).
+        END.
+        ELSE DO:
+            {&for-each-arinv}
+            AND ar-inv.due LT 0
+            USE-INDEX posted-due:
+                {&valid-factored}
+                CREATE tt-inv.
+                ASSIGN
+                    tt-inv.sorter = INT(ar-inv.{&sort-by2})
+                    tt-inv.inv-no = ar-inv.inv-no
+                    tt-inv.row-id = ROWID(ar-inv).
+            END.
+            {&for-each-arinv}
+            AND ar-inv.due GT 0
+            USE-INDEX posted-due:
+                {&valid-factored}
+                CREATE tt-inv.
+                ASSIGN
+                    tt-inv.sorter = INT(ar-inv.{&sort-by2})
+                    tt-inv.inv-no = ar-inv.inv-no
+                    tt-inv.row-id = ROWID(ar-inv).
+            END.
+        END.
+
+        FOR EACH tt-inv,
+            FIRST ar-inv WHERE ROWID(ar-inv) EQ tt-inv.row-id NO-LOCK
+            BY tt-inv.sorter
+            BY tt-inv.inv-no:
+
+            /* Inserted because AR stores gross wrong */
+            if ar-inv.net eq ar-inv.gross + ar-inv.freight + ar-inv.tax-amt then
+                amt = ar-inv.net.
+            else
+                amt = ar-inv.gross.
+
+            IF amt EQ ? THEN amt = 0.
+
+            /* if fuel surcharge should not be aged, get it out of 'amt' */
+            IF NOT v-include-fuel THEN FOR EACH ar-invl NO-LOCK WHERE 
+                ar-invl.x-no EQ ar-inv.x-no AND 
+                can-find(first itemfg where 
+                        itemfg.company eq ar-invl.company and 
+                        itemfg.i-no eq ar-invl.i-no and 
+                        itemfg.procat  eq "FS"):
+                ASSIGN amt = amt - ar-invl.amt.
+            END.
+
+            cPoNo = "". 
+            cJobStr = "".
+      
+            FOR EACH ar-invl NO-LOCK WHERE 
+                ar-invl.x-no EQ ar-inv.x-no:
+                IF ar-invl.po-no GT "" THEN ASSIGN 
+                    cPoNo   = ar-invl.po-no.
+                IF ar-invl.job-no GT "" THEN
+                    cJobStr = ar-invl.job-no + "-" + STRING(ar-invl.job-no2, "99").
+            END.
+
+            assign
+                ag     = amt
+                d      = v-date - ar-inv.{&date}
+                ni     = ni + 1
+                v-type = IF ar-inv.terms EQ "FCHG" THEN "FC" ELSE "IN".
        
-       else
-       if d ge v-days[2] then do:
-         if det-rpt = 1 then
-           display d at 4 format "-9999" when v-days-old 
-                   space(7) v-type space(5) ar-inv.inv-no
-                   space(2) ar-inv.inv-date format "99/99/99"
-                   amt to 54  ag to 112
-                   with frame b no-labels no-box stream-io width 200.
+            for each ar-cashl where 
+                ar-cashl.company  eq ar-inv.company and 
+                ar-cashl.posted   eq yes and 
+                ar-cashl.cust-no  eq ar-inv.cust-no and 
+                ar-cashl.inv-no   eq ar-inv.inv-no
+                USE-INDEX inv-no no-lock,
+                FIRST ar-cash where 
+                    ar-cash.c-no       eq ar-cashl.c-no and 
+                    ar-cash.check-date le v-date
+                    use-index c-no no-lock
+                BY ar-cashl.rec_key:
 
-         v-int = 3.
-       end.
-       
-       else
-       if d ge v-days[1] then do:
-         if det-rpt = 1 then
-           display d at 4 format "-9999" when v-days-old 
-                   space(7) v-type space(5) ar-inv.inv-no
-                   space(2) ar-inv.inv-date format "99/99/99"
-                   amt to 54 ag to 94
-                   with frame c no-labels no-box stream-io width 200.
+                IF ar-cashl.amt-paid GT 0 THEN DO:                         
+                    IF ar-cashl.voided THEN  
+                        v-check-date = ar-cashl.voidDate.               
+                    ELSE DO:                                                
+                        v-gltrans-desc = "VOID " + cust.cust-no + " " + 
+                                       STRING(ar-cash.check-no,"9999999999") +
+                                        " Inv# " + STRING(ar-cashl.inv-no).
+                        FIND FIRST gltrans WHERE 
+                            gltrans.company EQ cust.company AND
+                            gltrans.jrnl EQ "CASHRVD" AND
+                            gltrans.tr-dscr EQ v-gltrans-desc
+                            NO-LOCK NO-ERROR.
+                        IF AVAIL gltrans THEN
+                            v-check-date = gltrans.tr-date.
+                        ELSE
+                            v-check-date = ar-cash.check-date.
+                    END.
+                END.
+                ELSE
+                    v-check-date = ar-cash.check-date.
 
-         v-int = 2.
-       end.
-       
-       else do:
-         if det-rpt = 1 then
-           display d at 4 format "-9999" when v-days-old 
-                   space(7) v-type space(5) ar-inv.inv-no
-                   space(2) ar-inv.inv-date format "99/99/99"
-                   amt to 54 ag to 77
-                   with frame d no-labels no-box stream-io width 200.
+                IF v-check-date NE ? 
+                AND v-check-date GT v-date THEN 
+                    NEXT.
 
-         v-int = 1.
-       END.
+                if ar-cashl.memo then
+                if ar-cashl.amt-disc ne 0 and ar-cashl.amt-paid eq 0 then
+                    ag = ag - ar-cashl.amt-disc.
+                else if ar-cashl.amt-paid + ar-cashl.amt-disc gt 0 then
+                    ag = ag + (ar-cashl.amt-paid + ar-cashl.amt-disc).
+                else
+                    ag = ag + (ar-cashl.amt-paid + (- (ar-cashl.amt-disc))).
+                else
+                    ag = ag + ((ar-cashl.amt-paid * -1) + (ar-cashl.amt-disc * -1)).
+            end.
 
-       /* Task 06201206 */
-       IF (v-print-cust-po OR v-print-job) AND 
+            if ag ne 0 
+            or (v-inc and ar-inv.inv-date ge v-s-dat and ar-inv.inv-date le v-e-dat) then do:
+                if v-first-cust then do:
+                    assign 
+                        paid-amt = 0  
+                        m3 = ""  
+                        ni = 0.
+                    if cust.area-code ne "" then
+                        m3 = string(cust.area-code,"(999) ").
+
+                    m3 = m3 + string(cust.phone,"999-9999").
+
+                    find first terms where 
+                        terms.company = cust.company and
+                        terms.t-code = cust.terms 
+                        no-lock no-error.
+
+                    /* If input trend days entered, then do the trend days calculation. */
+                    IF  v-trend-days > 0 THEN
+                        RUN get-trend-days (INPUT v-trend-days,
+                                            OUTPUT v-current-trend-days).
+
+                    if det-rpt = 1 THEN DO:
+                        display 
+                            cust.cust-no space(2)
+                            cust.name space(2)
+                            cust.area-code  FORMAT "(xxx)"
+                            cust.phone      FORMAT "xxx-xxxx"
+                            "  Fax:" 
+                            substr(cust.fax,1,3) FORMAT "(xxx)"
+                            substr(cust.fax,4,7) FORMAT "xxx-xxxx"
+                            "  Credit Limit:"
+                            string(cust.cr-lim,">,>>>,>>>,>>9.99")   FORMAT "x(17)" skip
+                            cust.contact
+                            v-sman
+                            space(3)
+                            terms.dscr when avail terms
+                            "ADTP:" cust.avg-pay FORMAT ">>>9"
+                            "TD:" v-current-trend-days WHEN v-trend-days > 0
+                            with no-labels no-box frame a1 stream-io width 200.
+            
+                        IF sPrtCollectionNote THEN RUN Display-CollectionNote.
+                    END. /* if det-rpt = 1 */
+         
+                    if v-prt-add then run print-cust-add.
+
+                    v-first-cust = no.
+                end.
+
+                if d ge v-days[3] then do:
+                    if det-rpt = 1 then display 
+                        d at 4 FORMAT "-9999" when v-days-old Space(7) 
+                        v-type space(5) 
+                        ar-inv.inv-no space(2) 
+                        ar-inv.inv-date FORMAT "99/99/99"
+                        amt  to 54 
+                        ag to 131
+                        with frame a no-labels no-box stream-io width 200.
+                    v-int = 4.
+                end.
+                else if d ge v-days[2] then do:
+                    if det-rpt = 1 then display 
+                        d at 4 FORMAT "-9999" when v-days-old space(7) 
+                        v-type space(5) 
+                        ar-inv.inv-no space(2) 
+                        ar-inv.inv-date FORMAT "99/99/99"
+                        amt to 54  
+                        ag to 112
+                        with frame b no-labels no-box stream-io width 200.
+                    v-int = 3.
+                end.
+                else if d ge v-days[1] then do:
+                    if det-rpt = 1 then display 
+                        d at 4 FORMAT "-9999" when v-days-old space(7) 
+                        v-type space(5) 
+                        ar-inv.inv-no space(2) 
+                        ar-inv.inv-date FORMAT "99/99/99"
+                        amt to 54 
+                        ag to 94
+                        with frame c no-labels no-box stream-io width 200.
+                    v-int = 2.
+                end.
+                else do:
+                    if det-rpt = 1 then display 
+                        d at 4 FORMAT "-9999" when v-days-old space(7) 
+                        v-type space(5) 
+                        ar-inv.inv-no space(2) 
+                        ar-inv.inv-date FORMAT "99/99/99"
+                        amt to 54 
+                        ag to 77
+                        with frame d no-labels no-box stream-io width 200.
+                    v-int = 1.
+                END.
+
+                /* Task 06201206 */
+                IF (v-print-cust-po OR v-print-job) AND 
             (cPoNo NE "" OR cJobStr NE "") THEN DO:
            IF v-print-cust-po OR v-print-job THEN
                PUT "" AT 23. 
@@ -555,13 +539,8 @@ END.
 
         IF ar-cashl.amt-paid GT 0 THEN
         DO:
-           FIND FIRST reftable WHERE                        
-                reftable.reftable EQ "ARCASHLVDDATE" AND      
-                reftable.rec_key EQ ar-cashl.rec_key
-                USE-INDEX rec_key
-                NO-LOCK NO-ERROR.                             
-           IF AVAIL reftable THEN                             
-              v-check-date = DATE(reftable.CODE).             
+           IF ar-cashl.voided THEN                             
+              v-check-date = ar-cashl.voidDate.             
            ELSE                                               
            DO:                                                
               v-gltrans-desc = "VOID " + cust.cust-no + " " + 
@@ -609,10 +588,7 @@ END.
                      + " Inv# " + STRING(ar-cashl.inv-no).
 
            IF ar-cashl.amt-paid GT 0 AND
-              (CAN-FIND(FIRST reftable WHERE
-              reftable.reftable = "ARCASHLVDDATE" AND
-              reftable.rec_key = ar-cashl.rec_key
-              USE-INDEX rec_key) OR
+              (ar-cashl.voided = YES OR
               CAN-FIND(FIRST gltrans WHERE
               gltrans.company EQ cust.company AND
               gltrans.jrnl EQ "CASHRVD" AND
@@ -643,10 +619,10 @@ END.
 
           if det-rpt = 1 then do:
             if v-disc-type eq "DISC" then do:
-              display ar-cashl.check-no at 4 format "x(10)" when not v-days-old 
+              display ar-cashl.check-no at 4 FORMAT "x(10)" when not v-days-old 
                       v-type at 16
                       ar-cashl.inv-no at 23
-                      ar-cash.check-date at 31 format "99/99/99"
+                      ar-cash.check-date at 31 FORMAT "99/99/99"
                       v-cr-db-amt to 54 skip
                   with frame f-1 no-box no-labels stream-io width 200.
                   
@@ -656,10 +632,10 @@ END.
                                  ar-cash.check-date, v-cr-db-amt, 0, 0, 0, 0).
             end.
             IF det-rpt <> 3 THEN
-            display ar-cashl.check-no at 4 format "x(10)" when not v-days-old 
+            display ar-cashl.check-no at 4 FORMAT "x(10)" when not v-days-old 
                     v-disc-type at 16
                     ar-cashl.inv-no at 23
-                    ar-cash.check-date at 31 format "99/99/99"
+                    ar-cash.check-date at 31 FORMAT "99/99/99"
                     v-disc-amt to 54
                 with frame f-50{&frame} no-box no-labels stream-io width 200.
                 
@@ -674,15 +650,9 @@ END.
         if det-rpt = 1 then do:
 
            IF v-type EQ "VD" THEN
-           DO:
-              FIND FIRST reftable WHERE
-                   reftable.reftable EQ "ARCASHLVDDATE" AND
-                   reftable.rec_key EQ ar-cashl.rec_key
-                   USE-INDEX rec_key
-                   NO-LOCK NO-ERROR.
-
-              IF AVAIL reftable THEN
-                 v-check-date = DATE(reftable.CODE).
+           DO:              
+              IF ar-cashl.voided THEN
+                 v-check-date = ar-cashl.voidDate.
               ELSE
               DO:
                  v-gltrans-desc = "VOID " + cust.cust-no + " " +
@@ -704,10 +674,10 @@ END.
            ELSE
               v-check-date = ar-cash.check-date.
           IF det-rpt = 1 THEN
-          display ar-cashl.check-no at 4 format "x(10)" when not v-days-old 
+          display ar-cashl.check-no at 4 FORMAT "x(10)" when not v-days-old 
                   v-type at 16
                   ar-cashl.inv-no at 23
-                  v-check-date @ ar-cash.check-date at 31 format "99/99/99"
+                  v-check-date @ ar-cash.check-date at 31 FORMAT "99/99/99"
                   v-cr-db-amt to 54
               with frame f-100 no-box no-labels stream-io width 200.
               
@@ -789,13 +759,13 @@ END.
                   space(2)
                   cust.name
                   space(2)
-                  cust.area-code                            format "(xxx)"
-                  cust.phone                                format "xxx-xxxx"
+                  cust.area-code                            FORMAT "(xxx)"
+                  cust.phone                                FORMAT "xxx-xxxx"
                   "  Fax:"
-                  substr(cust.fax,1,3)                      format "(xxx)"
-                  substr(cust.fax,4,7)                      format "xxx-xxxx"
+                  substr(cust.fax,1,3)                      FORMAT "(xxx)"
+                  substr(cust.fax,4,7)                      FORMAT "xxx-xxxx"
                   "  Credit Limit:"
-                  string(cust.cr-lim,">,>>>,>>>,>>9.99")    format "x(17)"
+                  string(cust.cr-lim,">,>>>,>>>,>>9.99")    FORMAT "x(17)"
                   skip
                   cust.contact
                   v-sman
@@ -830,10 +800,7 @@ END.
                    + STRING(ar-cash.check-no,"9999999999")
                    + " Inv# " + STRING(ar-cashl.inv-no).
 
-         IF CAN-FIND(FIRST reftable WHERE
-            reftable.reftable = "ARCASHLVDDATE" AND
-            reftable.rec_key = ar-cashl.rec_key
-            USE-INDEX rec_key) OR
+         IF ar-cashl.voided = YES OR
             CAN-FIND(FIRST gltrans WHERE
             gltrans.company EQ cust.company AND
             gltrans.jrnl EQ "CASHRVD" AND
@@ -842,7 +809,6 @@ END.
               ASSIGN
                  v-type = "VD"
                  v-neg-text = "VOID".
-              RELEASE reftable.
             END.
          ELSE
             v-type = "PY".
@@ -861,14 +827,8 @@ END.
       if first-unapp then do:
          IF v-type EQ "VD" THEN
          DO:
-            FIND FIRST reftable WHERE
-                 reftable.reftable EQ "ARCASHLVDDATE" AND
-                 reftable.rec_key EQ ar-cashl.rec_key
-                 USE-INDEX rec_key
-                 NO-LOCK NO-ERROR.
-           
-            IF AVAIL reftable THEN
-               v-check-date = DATE(reftable.CODE).
+            IF ar-cashl.voided THEN
+               v-check-date = ar-cashl.voidDate.
             ELSE
             DO:
                v-gltrans-desc = "VOID " + cust.cust-no + " " +
@@ -893,12 +853,12 @@ END.
          if det-rpt = 1 then
          
            display skip(1)
-                   ar-cashl.check-no at 4 format "x(10)" when not v-days-old 
+                   ar-cashl.check-no at 4 FORMAT "x(10)" when not v-days-old 
                    v-type at 16
                    v-neg-text at 23
-                   v-check-date @ ar-cash.check-date at 31 format "99/99/99"
+                   v-check-date @ ar-cash.check-date at 31 FORMAT "99/99/99"
                    (v-cr-db-amt + v-disc-amt)
-                         format "->>>,>>>,>>9.99" to 54
+                         FORMAT "->>>,>>>,>>9.99" to 54
                    unapp[1] when unapp[1] ne 0 to 77
                    unapp[2] when unapp[2] ne 0 to 94
                    unapp[3] when unapp[3] ne 0 to 112
@@ -931,14 +891,8 @@ END.
 
         IF v-type EQ "VD" THEN
         DO:
-           FIND FIRST reftable WHERE
-                reftable.reftable EQ "ARCASHLVDDATE" AND
-                reftable.rec_key EQ ar-cashl.rec_key
-                USE-INDEX rec_key
-                NO-LOCK NO-ERROR.
-          
-           IF AVAIL reftable THEN
-              v-check-date = DATE(reftable.CODE).
+           IF ar-cashl.voided THEN
+              v-check-date = ar-cashl.voidDate.
            ELSE
            DO:
               v-gltrans-desc = "VOID " + cust.cust-no + " " +
@@ -961,12 +915,12 @@ END.
            v-check-date = ar-cash.check-date.
 
         if det-rpt = 1 then
-          display ar-cashl.check-no at 4 format "x(10)" when not v-days-old 
+          display ar-cashl.check-no at 4 FORMAT "x(10)" when not v-days-old 
                   v-type at 16
                   v-neg-text at 23
-                  v-check-date @ ar-cash.check-date at 31 format "99/99/99"
+                  v-check-date @ ar-cash.check-date at 31 FORMAT "99/99/99"
                   (v-cr-db-amt + v-disc-amt)
-                           format "->>>,>>>,>>9.99" to 54
+                           FORMAT "->>>,>>>,>>9.99" to 54
               with frame f-2 no-box no-labels stream-io width 200.
         
               
@@ -1005,7 +959,7 @@ END.
           put skip(1).
       end.
       ELSE IF det-rpt = 2 THEN DO:
-        display cust.cust-no space(2) cust.name + "  " + m3 format "x(50)" skip
+        display cust.cust-no space(2) cust.name + "  " + m3 FORMAT "x(50)" skip
                 c1        to 54
                 cust-t[1] to 77
                 cust-t[2] to 94
@@ -1066,7 +1020,7 @@ END.
           
       if "{&sort-by}" eq "cust.sman" THEN DO:
         IF det-rpt <> 3 THEN
-        display v-sman                  at 4    format "x(33)"
+        display v-sman                  at 4    FORMAT "x(33)"
                 "TOTALS: " + v-sman                  @ v-sman
                 "***** SALESREP TOTALS" when det-rpt = 1 @ v-sman
                 c1                      to 54
@@ -1125,7 +1079,7 @@ END.
       IF ll-mult-curr THEN DO:
         c1 = curr-t[1] + curr-t[2] + curr-t[3] + curr-t[4].
         IF NOT det-rpt = 3 THEN
-        display fill("_",132) format "x(131)"
+        display fill("_",132) FORMAT "x(131)"
                 "CURRENCY TOTAL"        at 12
                 c1                      to 54
                 curr-t[1]               to 77
@@ -1205,19 +1159,19 @@ END.
 
   t1 = grand-t[1] + grand-t[2] + grand-t[3] + grand-t[4].
 
-  display fill("_",132) WHEN det-rpt <> 3 format "x(131)"
+  display fill("_",132) WHEN det-rpt <> 3 FORMAT "x(131)"
     "GRAND TOTAL " AT 12  t1 to 54
-    grand-t[1] to 77  format "->,>>>,>>>,>>9.99"
-    grand-t[2] to 94 format "->,>>>,>>>,>>9.99"
-    grand-t[3] to 112 format "->,>>>,>>>,>>9.99"
-    grand-t[4] to 131 format "->,>>>,>>>,>>9.99"
+    grand-t[1] to 77  FORMAT "->,>>>,>>>,>>9.99"
+    grand-t[2] to 94 FORMAT "->,>>>,>>>,>>9.99"
+    grand-t[3] to 112 FORMAT "->,>>>,>>>,>>9.99"
+    grand-t[4] to 131 FORMAT "->,>>>,>>>,>>9.99"
     with frame grand1 no-box no-labels no-attr-space STREAM-IO WIDTH 200.
 
   display SPACE(11) "PERCENTAGE COMPOSITION"
-    (IF t1 NE 0 THEN (grand-t[1] / t1) * 100 ELSE 0) to 77 format "->,>>>,>>>,>>9.99"
-    (IF t1 NE 0 THEN (grand-t[2] / t1) * 100 ELSE 0) to 94 format "->,>>>,>>>,>>9.99"
-    (IF t1 NE 0 THEN (grand-t[3] / t1) * 100 ELSE 0) to 112 format "->,>>>,>>>,>>9.99"
-    (IF t1 NE 0 THEN (grand-t[4] / t1) * 100 ELSE 0) to 131 format "->,>>>,>>>,>>9.99"
+    (IF t1 NE 0 THEN (grand-t[1] / t1) * 100 ELSE 0) to 77 FORMAT "->,>>>,>>>,>>9.99"
+    (IF t1 NE 0 THEN (grand-t[2] / t1) * 100 ELSE 0) to 94 FORMAT "->,>>>,>>>,>>9.99"
+    (IF t1 NE 0 THEN (grand-t[3] / t1) * 100 ELSE 0) to 112 FORMAT "->,>>>,>>>,>>9.99"
+    (IF t1 NE 0 THEN (grand-t[4] / t1) * 100 ELSE 0) to 131 FORMAT "->,>>>,>>>,>>9.99"
     with frame grand2 STREAM-IO WIDTH 200 no-labels no-box no-attr-space.
 
     IF v-export THEN DO:
@@ -1289,18 +1243,18 @@ END.
 
      DISPLAY 
        "PRINCIPAL AMOUNT " AT 12  t1-pri to 54
-       grand-t-pri[1] to 77  format "->,>>>,>>>,>>9.99"
-       grand-t-pri[2] to 94 format "->,>>>,>>>,>>9.99"
-       grand-t-pri[3] to 112 format "->,>>>,>>>,>>9.99"
-       grand-t-pri[4] to 131 format "->,>>>,>>>,>>9.99"
+       grand-t-pri[1] to 77  FORMAT "->,>>>,>>>,>>9.99"
+       grand-t-pri[2] to 94 FORMAT "->,>>>,>>>,>>9.99"
+       grand-t-pri[3] to 112 FORMAT "->,>>>,>>>,>>9.99"
+       grand-t-pri[4] to 131 FORMAT "->,>>>,>>>,>>9.99"
        with frame grand-pri no-box no-labels no-attr-space STREAM-IO WIDTH 200.
 
      DISPLAY
        "FINANCE CHARGES " AT 12  t1-fc to 54
-       grand-t-fc[1] to 77  format "->,>>>,>>>,>>9.99"
-       grand-t-fc[2] to 94 format "->,>>>,>>>,>>9.99"
-       grand-t-fc[3] to 112 format "->,>>>,>>>,>>9.99"
-       grand-t-fc[4] to 131 format "->,>>>,>>>,>>9.99"
+       grand-t-fc[1] to 77  FORMAT "->,>>>,>>>,>>9.99"
+       grand-t-fc[2] to 94 FORMAT "->,>>>,>>>,>>9.99"
+       grand-t-fc[3] to 112 FORMAT "->,>>>,>>>,>>9.99"
+       grand-t-fc[4] to 131 FORMAT "->,>>>,>>>,>>9.99"
        with frame grand-fc no-box no-labels no-attr-space STREAM-IO WIDTH 200.
     IF v-export THEN DO:
        IF NOT det-rpt = 1 THEN DO:
@@ -1374,23 +1328,23 @@ END.
     display cust.addr[1]                                                skip
             cust.addr[2]                                                skip
             trim(cust.city) + ", " +
-            trim(cust.state) + "  " + trim(cust.zip) format "x(50)"
+            trim(cust.state) + "  " + trim(cust.zip) FORMAT "x(50)"
             
         with no-labels no-box frame cust-detail stream-io width 200.
   end.
    /*-----------------------------------------------------------------------------*/
   procedure export-data:
-    def input parameter v-field-01 like ar-cashl.check-no no-undo.
-    def input parameter v-field-02 like d                 no-undo.
-    def input parameter v-field-03 like v-type            no-undo.
-    def input parameter v-field-04 as   char              no-undo.
-    def input parameter v-field-05 like ar-inv.inv-date   no-undo.
-    def input parameter v-field-06 like amt               no-undo.
-    def input parameter v-field-07 like ag                no-undo.
-    def input parameter v-field-08 like ag                no-undo.
-    def input parameter v-field-09 like ag                no-undo.
-    def input parameter v-field-10 like ag                no-undo.
-    DEF VAR v-delimiter AS cha NO-UNDO.       /* 9: tab 44: comma*/
+    def input parameter v-field-01 LIKE ar-cashl.check-no NO-UNDO.
+    def input parameter v-field-02 LIKE d                 NO-UNDO.
+    def input parameter v-field-03 LIKE v-type            NO-UNDO.
+    def input parameter v-field-04 as   char              NO-UNDO.
+    def input parameter v-field-05 LIKE ar-inv.inv-date   NO-UNDO.
+    def input parameter v-field-06 LIKE amt               NO-UNDO.
+    def input parameter v-field-07 LIKE ag                NO-UNDO.
+    def input parameter v-field-08 LIKE ag                NO-UNDO.
+    def input parameter v-field-09 LIKE ag                NO-UNDO.
+    def input parameter v-field-10 LIKE ag                NO-UNDO.
+    DEFINE VARIABLE v-delimiter AS CHAR NO-UNDO.       /* 9: tab 44: comma*/
     v-delimiter = "~t" /*CHR(9)*/ .
     /*put stream s-temp unformatted
         trim(cust.cust-no)                                      + v-delimiter +
@@ -1458,7 +1412,7 @@ END.
   
    /*-----------------------------------------------------------------------------*/
   PROCEDURE Display-InvNote:
-    DEF VAR li AS INT NO-UNDO.
+    DEFINE VARIABLE li AS INT NO-UNDO.
 
     ASSIGN lv-text = ""
            v-Inv-note = ""
@@ -1497,7 +1451,7 @@ END.
   END.
    /*-----------------------------------------------------------------------------*/
   PROCEDURE Display-CollectionNote:
-    DEF VAR li AS INT NO-UNDO.
+    DEFINE VARIABLE li AS INT NO-UNDO.
 
     ASSIGN lv-text = ""
            v-Inv-note = ""
@@ -1541,9 +1495,9 @@ END.
 
     DEFINE BUFFER buf-ar-inv FOR ar-inv.
 
-    DEF VAR v-days AS INT NO-UNDO.
-    DEF VAR v-invs AS INT NO-UNDO.
-    DEF VAR v-avg-days  LIKE cust.avg-pay NO-UNDO INIT 0.
+    DEFINE VARIABLE v-days AS INT NO-UNDO.
+    DEFINE VARIABLE v-invs AS INT NO-UNDO.
+    DEFINE VARIABLE v-avg-days  LIKE cust.avg-pay NO-UNDO INIT 0.
 
     /* If zero trend days, then abort calculation. */
     IF ip-trend-days = 0 THEN RETURN.

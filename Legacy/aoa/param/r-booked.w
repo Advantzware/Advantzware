@@ -50,13 +50,15 @@ CREATE WIDGET-POOL.
 &Scoped-Define ENABLED-OBJECTS svCompany svCustList btnCustList svAllCustNo ~
 svStartCustNo svEndCustNo svStartOrderDate btnCalendar-1 ~
 svStartOrderDateOption svEndOrderDate btnCalendar-2 svEndOrderDateOption ~
-svAllSalesRep svStartSalesRep svEndSalesRep svAllProdCategory ~
-svStartProdCategory svEndProdCategory svIncludePrepMiscChg ~
-svExcludeSetComponents svExcludeTransferReleasesOrders svPrintOrderUnderPct ~
-svUnderValue svPrintOrderOverPct svOverValue 
+svStartDueDate btnCalendar-3 svStartDueDateOption svEndDueDate ~
+btnCalendar-4 svEndDueDateOption svAllSalesRep svStartSalesRep ~
+svEndSalesRep svAllProdCategory svStartProdCategory svEndProdCategory ~
+svIncludePrepMiscChg svExcludeSetComponents svExcludeTransferReleasesOrders ~
+svPrintOrderUnderPct svUnderValue svPrintOrderOverPct svOverValue 
 &Scoped-Define DISPLAYED-OBJECTS svCompany svCustList svAllCustNo ~
 startCustName svStartCustNo endCustName svEndCustNo svStartOrderDate ~
-svStartOrderDateOption svEndOrderDate svEndOrderDateOption svAllSalesRep ~
+svStartOrderDateOption svEndOrderDate svEndOrderDateOption svStartDueDate ~
+svStartDueDateOption svEndDueDate svEndDueDateOption svAllSalesRep ~
 svStartSalesRep startSalesRepName svEndSalesRep endSalesRepName ~
 svAllProdCategory svStartProdCategory startProdCategoryName ~
 svEndProdCategory endProdCategoryName svIncludePrepMiscChg ~
@@ -65,7 +67,8 @@ svUnderValue svPrintOrderOverPct svOverValue
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
-&Scoped-define List-3 btnCalendar-1 btnCalendar-2 
+&Scoped-define List-3 btnCalendar-1 btnCalendar-2 btnCalendar-3 ~
+btnCalendar-4 
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
@@ -86,11 +89,33 @@ DEFINE BUTTON btnCalendar-2
      LABEL "" 
      SIZE 4.6 BY 1.05 TOOLTIP "PopUp Calendar".
 
+DEFINE BUTTON btnCalendar-3 
+     IMAGE-UP FILE "Graphics/16x16/calendar.bmp":U
+     LABEL "" 
+     SIZE 4.6 BY 1.05 TOOLTIP "PopUp Calendar".
+
+DEFINE BUTTON btnCalendar-4 
+     IMAGE-UP FILE "Graphics/16x16/calendar.bmp":U
+     LABEL "" 
+     SIZE 4.6 BY 1.05 TOOLTIP "PopUp Calendar".
+
 DEFINE BUTTON btnCustList 
      LABEL "Preview" 
      SIZE 9.8 BY .95.
 
+DEFINE VARIABLE svEndDueDateOption AS CHARACTER FORMAT "X(256)":U 
+     VIEW-AS COMBO-BOX INNER-LINES 5
+     LIST-ITEMS "Item 1" 
+     DROP-DOWN-LIST
+     SIZE 25 BY 1 NO-UNDO.
+
 DEFINE VARIABLE svEndOrderDateOption AS CHARACTER FORMAT "X(256)":U 
+     VIEW-AS COMBO-BOX INNER-LINES 5
+     LIST-ITEMS "Item 1" 
+     DROP-DOWN-LIST
+     SIZE 25 BY 1 NO-UNDO.
+
+DEFINE VARIABLE svStartDueDateOption AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS COMBO-BOX INNER-LINES 5
      LIST-ITEMS "Item 1" 
      DROP-DOWN-LIST
@@ -136,6 +161,11 @@ DEFINE VARIABLE svEndCustNo AS CHARACTER FORMAT "X(8)"
      VIEW-AS FILL-IN 
      SIZE 15.6 BY 1.
 
+DEFINE VARIABLE svEndDueDate AS DATE FORMAT "99/99/9999" INITIAL 12/31/49 
+     LABEL "End Due Date" 
+     VIEW-AS FILL-IN 
+     SIZE 15.6 BY 1.
+
 DEFINE VARIABLE svEndOrderDate AS DATE FORMAT "99/99/9999" INITIAL 12/31/49 
      LABEL "End Order Date" 
      VIEW-AS FILL-IN 
@@ -157,6 +187,11 @@ DEFINE VARIABLE svOverValue AS INTEGER FORMAT ">9" INITIAL 0
 
 DEFINE VARIABLE svStartCustNo AS CHARACTER FORMAT "X(8)" 
      LABEL "Start Customer" 
+     VIEW-AS FILL-IN 
+     SIZE 15.6 BY 1.
+
+DEFINE VARIABLE svStartDueDate AS DATE FORMAT "99/99/9999" INITIAL 01/01/50 
+     LABEL "Start Due Date" 
      VIEW-AS FILL-IN 
      SIZE 15.6 BY 1.
 
@@ -229,52 +264,69 @@ DEFINE VARIABLE svPrintOrderUnderPct AS LOGICAL INITIAL no
 
 DEFINE FRAME F-Main
      svCompany AT ROW 1.24 COL 21.6 COLON-ALIGNED WIDGET-ID 60
-     svCustList AT ROW 2.91 COL 24 WIDGET-ID 48
-     btnCustList AT ROW 2.91 COL 59 WIDGET-ID 46
-     svAllCustNo AT ROW 4.1 COL 24 HELP
+     svCustList AT ROW 2.62 COL 24 WIDGET-ID 48
+     btnCustList AT ROW 2.62 COL 59 WIDGET-ID 46
+     svAllCustNo AT ROW 3.81 COL 24 HELP
           "All Customers?" WIDGET-ID 56
-     startCustName AT ROW 5.29 COL 38.4 COLON-ALIGNED HELP
+     startCustName AT ROW 4.91 COL 38.4 COLON-ALIGNED HELP
           "Enter Beginning Customer Name" NO-LABEL WIDGET-ID 4
-     svStartCustNo AT ROW 5.33 COL 22 COLON-ALIGNED HELP
+     svStartCustNo AT ROW 4.95 COL 22 COLON-ALIGNED HELP
           "Enter Beginning Customer" WIDGET-ID 2
-     endCustName AT ROW 6.48 COL 38.4 COLON-ALIGNED HELP
+     endCustName AT ROW 6.1 COL 38.4 COLON-ALIGNED HELP
           "Enter Ending Customer Name" NO-LABEL WIDGET-ID 8
-     svEndCustNo AT ROW 6.52 COL 22 COLON-ALIGNED HELP
+     svEndCustNo AT ROW 6.14 COL 22 COLON-ALIGNED HELP
           "Enter Ending Customer" WIDGET-ID 6
-     svStartOrderDate AT ROW 8.38 COL 22 COLON-ALIGNED HELP
+     svStartOrderDate AT ROW 7.57 COL 22 COLON-ALIGNED HELP
           "Enter Start Order Date" WIDGET-ID 84
-     btnCalendar-1 AT ROW 8.38 COL 39 WIDGET-ID 76
-     svStartOrderDateOption AT ROW 8.38 COL 42 COLON-ALIGNED HELP
+     btnCalendar-1 AT ROW 7.57 COL 39 WIDGET-ID 76
+     svStartOrderDateOption AT ROW 7.57 COL 42 COLON-ALIGNED HELP
           "Select Start Receipt Date Option" NO-LABEL WIDGET-ID 86
-     svEndOrderDate AT ROW 9.57 COL 22 COLON-ALIGNED HELP
+     svEndOrderDate AT ROW 8.76 COL 22 COLON-ALIGNED HELP
           "Enter End Order Date" WIDGET-ID 80
-     btnCalendar-2 AT ROW 9.57 COL 39 WIDGET-ID 78
-     svEndOrderDateOption AT ROW 9.57 COL 42 COLON-ALIGNED HELP
+     btnCalendar-2 AT ROW 8.76 COL 39 WIDGET-ID 78
+     svEndOrderDateOption AT ROW 8.76 COL 42 COLON-ALIGNED HELP
           "Select End Order Date Option" NO-LABEL WIDGET-ID 82
-     svAllSalesRep AT ROW 11.48 COL 24 HELP
+     svStartDueDate AT ROW 10.05 COL 22 COLON-ALIGNED HELP
+          "Enter Start Order Date" WIDGET-ID 220
+     btnCalendar-3 AT ROW 10.05 COL 39 WIDGET-ID 212
+     svStartDueDateOption AT ROW 10.05 COL 42 COLON-ALIGNED HELP
+          "Select Start Receipt Date Option" NO-LABEL WIDGET-ID 222
+     svEndDueDate AT ROW 11.24 COL 22 COLON-ALIGNED HELP
+          "Enter End Order Date" WIDGET-ID 216
+     btnCalendar-4 AT ROW 11.24 COL 39 WIDGET-ID 214
+     svEndDueDateOption AT ROW 11.24 COL 42 COLON-ALIGNED HELP
+          "Select End Order Date Option" NO-LABEL WIDGET-ID 218
+     svAllSalesRep AT ROW 12.57 COL 24 HELP
           "All Sales Reps?" WIDGET-ID 58
-     svStartSalesRep AT ROW 12.67 COL 22 COLON-ALIGNED HELP
+     svStartSalesRep AT ROW 13.67 COL 22 COLON-ALIGNED HELP
           "Enter Beginning SalesRep#" WIDGET-ID 22
-     startSalesRepName AT ROW 12.67 COL 39 COLON-ALIGNED HELP
+     startSalesRepName AT ROW 13.67 COL 39 COLON-ALIGNED HELP
           "Enter Beginning Customer Name" NO-LABEL WIDGET-ID 18
-     svEndSalesRep AT ROW 13.86 COL 22 COLON-ALIGNED HELP
+     svEndSalesRep AT ROW 14.86 COL 22 COLON-ALIGNED HELP
           "Enter Ending SalesRep" WIDGET-ID 20
-     endSalesRepName AT ROW 13.86 COL 39 COLON-ALIGNED HELP
+     endSalesRepName AT ROW 14.86 COL 39 COLON-ALIGNED HELP
           "Enter Ending Customer Name" NO-LABEL WIDGET-ID 16
-     svAllProdCategory AT ROW 15.76 COL 24 HELP
+     svAllProdCategory AT ROW 16.19 COL 24 HELP
           "All Sales Reps?" WIDGET-ID 112
-     svStartProdCategory AT ROW 16.95 COL 22 COLON-ALIGNED HELP
+     svStartProdCategory AT ROW 17.29 COL 22 COLON-ALIGNED HELP
           "Enter Start Product Category" WIDGET-ID 90
-     startProdCategoryName AT ROW 16.95 COL 38 COLON-ALIGNED NO-LABEL WIDGET-ID 210
-     svEndProdCategory AT ROW 18.14 COL 22 COLON-ALIGNED HELP
+     startProdCategoryName AT ROW 17.29 COL 38 COLON-ALIGNED NO-LABEL WIDGET-ID 210
+     svEndProdCategory AT ROW 18.48 COL 22 COLON-ALIGNED HELP
           "Enter End Product Category" WIDGET-ID 88
-     endProdCategoryName AT ROW 18.14 COL 38 COLON-ALIGNED NO-LABEL WIDGET-ID 208
+     endProdCategoryName AT ROW 18.48 COL 38 COLON-ALIGNED NO-LABEL WIDGET-ID 208
      svIncludePrepMiscChg AT ROW 19.81 COL 24 WIDGET-ID 42
      svExcludeSetComponents AT ROW 21 COL 24 WIDGET-ID 94
      svExcludeTransferReleasesOrders AT ROW 22.05 COL 24 WIDGET-ID 96
      svPrintOrderUnderPct AT ROW 23.14 COL 24 WIDGET-ID 98
      svUnderValue AT ROW 23.14 COL 48 COLON-ALIGNED HELP
           "Enter Beginning Prod Category#" NO-LABEL WIDGET-ID 104
+    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 1
+         SIZE 89 BY 27.67.
+
+/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
+DEFINE FRAME F-Main
      svPrintOrderOverPct AT ROW 24.33 COL 24 WIDGET-ID 102
      svOverValue AT ROW 24.33 COL 48 COLON-ALIGNED HELP
           "Enter Beginning Prod Category#" NO-LABEL WIDGET-ID 106
@@ -347,6 +399,10 @@ ASSIGN
    3                                                                    */
 /* SETTINGS FOR BUTTON btnCalendar-2 IN FRAME F-Main
    3                                                                    */
+/* SETTINGS FOR BUTTON btnCalendar-3 IN FRAME F-Main
+   3                                                                    */
+/* SETTINGS FOR BUTTON btnCalendar-4 IN FRAME F-Main
+   3                                                                    */
 /* SETTINGS FOR FILL-IN endCustName IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN endProdCategoryName IN FRAME F-Main
@@ -397,6 +453,28 @@ END.
 ON CHOOSE OF btnCalendar-2 IN FRAME F-Main
 DO:
   {methods/btnCalendar.i svEndOrderDate}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnCalendar-3
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnCalendar-3 sObject
+ON CHOOSE OF btnCalendar-3 IN FRAME F-Main
+DO:
+  {methods/btnCalendar.i svStartDueDate}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnCalendar-4
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnCalendar-4 sObject
+ON CHOOSE OF btnCalendar-4 IN FRAME F-Main
+DO:
+  {methods/btnCalendar.i svEndDueDate}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -487,6 +565,28 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME svEndDueDate
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svEndDueDate sObject
+ON HELP OF svEndDueDate IN FRAME F-Main /* End Due Date */
+DO:
+  {methods/calendar.i}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME svEndDueDateOption
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svEndDueDateOption sObject
+ON VALUE-CHANGED OF svEndDueDateOption IN FRAME F-Main
+DO:
+    {aoa/includes/tDateOption.i &dateObject=svEndDueDate &btnCalendar=4}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME svEndOrderDate
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svEndOrderDate sObject
 ON HELP OF svEndOrderDate IN FRAME F-Main /* End Order Date */
@@ -548,6 +648,28 @@ END.
 ON LEAVE OF svStartCustNo IN FRAME F-Main /* Start Customer */
 DO:
     startCustName:SCREEN-VALUE = {aoa/includes/fSetDescription.i}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME svStartDueDate
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svStartDueDate sObject
+ON HELP OF svStartDueDate IN FRAME F-Main /* Start Due Date */
+DO:
+  {methods/calendar.i}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME svStartDueDateOption
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svStartDueDateOption sObject
+ON VALUE-CHANGED OF svStartDueDateOption IN FRAME F-Main
+DO:
+    {aoa/includes/tDateOption.i &dateObject=svStartDueDate &btnCalendar=3}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -668,6 +790,8 @@ PROCEDURE pInitialize :
         
         APPLY "VALUE-CHANGED":U TO svStartOrderDateOption.
         APPLY "VALUE-CHANGED":U TO svEndOrderDateOption.
+        APPLY "VALUE-CHANGED":U TO svStartDueDateOption.
+        APPLY "VALUE-CHANGED":U TO svEndDueDateOption.
 
         APPLY "VALUE-CHANGED":U TO svAllSalesRep.
         APPLY "LEAVE":U TO svStartSalesRep.
@@ -698,6 +822,8 @@ PROCEDURE pPopulateOptions :
             .
         DYNAMIC-FUNCTION('fDateOptions' IN hContainer,svStartOrderDateOption:HANDLE).
         DYNAMIC-FUNCTION('fDateOptions' IN hContainer,svEndOrderDateOption:HANDLE).
+        DYNAMIC-FUNCTION('fDateOptions' IN hContainer,svStartDueDateOption:HANDLE).
+        DYNAMIC-FUNCTION('fDateOptions' IN hContainer,svEndDueDateOption:HANDLE).
         
     END.
 

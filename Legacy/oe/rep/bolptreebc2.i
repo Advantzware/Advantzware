@@ -9,14 +9,17 @@
       "<FArial>"  SKIP
       "<#1><P10><ADJUST=LPI><C+35><B><P18>" vlc-transfer  "</B><P10>"
       "<C50><B>Bill Of Lading"  SKIP
-      "<=1><R+1><C25></B>"            SKIP
+      "<=1><R+1><C25></B>"            SKIP.
+
+      if v-pg-num eq 1 THEN
+       put 
        "<UNITS=INCHES><AT=.60,6><FROM><AT=+.5,+2><BARCODE,TYPE=39,CHECKSUM=NONE,VALUE=" +
                     "*" + string(oe-bolh.bol-no) + "*" + ">" FORM "x(100)" "</B><P10>"
-       "<C1><R2><FROM><R12><C15><#89><AT=0.01,0.01>"
-      .   
+       "<C1><R2><FROM><R12><C15><#89><AT=0.01,0.01>"  skip     . 
+      	
 
    IF (AVAIL shipto AND shipto.broker EQ NO) OR NOT AVAIL shipto THEN
-      PUT "<C2><R4><#1><R+7><C40><IMAGE#1=" ls-full-img1 skip.
+      PUT "<P10><C2><R4><#1><R+7><C40><IMAGE#1=" ls-full-img1 skip.
          /* "<=1><C15><FGCOLOR=" trim(lv-comp-color) + ">"
           "<=1><C15><R+2><P16><B>" lv-comp-name "</B><FGCOLOR=" trim(lv-other-color) + ">" FORM "x(6)"
           "<P10></B>"
@@ -48,7 +51,7 @@
      SPACE(5) v-comp-addr[1] v-ship-addr[1] AT 65 SKIP
      SPACE(5) v-comp-addr[2] v-ship-addr[2] AT 65 SKIP
      SPACE(5) v-comp-addr3 v-ship-addr3 AT 65 SKIP
-    "<R8><C50><#3>" SKIP
+    "<R8.5><C50><#3>" SKIP
     "<FArial><P14><=#3><P10>" SKIP
     "<=#3><B>BOL #: " oe-bolh.bol-no "</B>" SPACE(7).
 

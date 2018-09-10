@@ -192,14 +192,15 @@ for each est-prep where est-prep.company = xest.company
 
       display string(est-prep.s-num,"99") + "-" +
               string(est-prep.b-num,"99") format "x(5)"
-              est-prep.dscr format "x(16)"
-              v-orig-prep-mat      format "->>9.99"
+              est-prep.dscr format "x(15)"
+              v-orig-prep-mat      format "->>>>9.99"
               v-orig-prep-lab      format "->>9.99"
-              est-prep.mkup format ">>9" to 44 space(0) "%"
+              est-prep.mkup format "->>9" to 46 space(0) "%"
               est-prep.amtz to 50 format ">>9" space(0) "%"
               est-prep.simon format "X" to 58
-              prep-tot / (qty / 1000) to 71
-              prep-tot to 80 format ">>>>>9.99" skip with stream-io.
+              prep-tot / (qty / 1000) to 70
+              prep-tot to 82 format ">>>>>9.99" skip 
+              with stream-io width 82.
    end.
 end.
 

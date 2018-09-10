@@ -14,7 +14,6 @@ def shared buffer xeb  for eb.
 {cec/print4.i shared shared}
 {cec/print42.i shared}
 
-DEF BUFFER b-probemk FOR reftable.
 
 def var qm as de.
 def var v-comm   like tt-tot NO-UNDO.
@@ -88,18 +87,11 @@ if avail probeit then do:
         and probeit.est-no  eq probe.est-no
         and probeit.line    eq probe.line:
 
-    v-com = lv-com.
+    v-com = lv-com.  
+    
+      v-com = probeit.pctCommission + probeit.pctRoyalty +
+              probeit.pctWarehouse + probeit.pctCustMargin.
 
-    FIND FIRST b-probemk NO-LOCK
-        WHERE b-probemk.reftable EQ "ce/com/probemk.p"
-          AND b-probemk.company  EQ probeit.company
-          AND b-probemk.loc      EQ probeit.est-no
-          AND b-probemk.code     EQ STRING(probeit.line,"9999999999")
-          AND b-probemk.code2    EQ probeit.part-no
-        NO-ERROR.
-    IF AVAIL b-probemk THEN
-      v-com = b-probemk.val[2] + b-probemk.val[3] +
-              b-probemk.val[4] + b-probemk.val[5].
 
     ASSIGN
      v-comm = (probeit.sell-price - (if v-basis eq "G" then probeit.fact-cost else 0)) *
@@ -169,16 +161,8 @@ for each blk:
 
     v-com = lv-com.
 
-    FIND FIRST b-probemk NO-LOCK
-        WHERE b-probemk.reftable EQ "ce/com/probemk.p"
-          AND b-probemk.company  EQ probeit.company
-          AND b-probemk.loc      EQ probeit.est-no
-          AND b-probemk.code     EQ STRING(probeit.line,"9999999999")
-          AND b-probemk.code2    EQ probeit.part-no
-        NO-ERROR.
-    IF AVAIL b-probemk THEN
-       v-com = b-probemk.val[2] + b-probemk.val[3] +
-               b-probemk.val[4] + b-probemk.val[5].
+    v-com = probeit.pctCommission + probeit.pctRoyalty +
+              probeit.pctWarehouse + probeit.pctCustMargin.
 
     v-comm = (probeit.sell-price - (if v-basis eq "G" then probeit.fact-cost else 0)) *
               (v-com / 100).

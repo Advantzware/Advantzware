@@ -1,6 +1,6 @@
 /* cec/quote/quorfc2.i */
  
-PUT "<R4><C3><#89><R+14><C+43><IMAGE#89=" ls-full-img1 FORMAT "x(200)" SKIP(1). /* Abox logo */ 
+PUT "<R2><C3><#89><R+14><C+43><IMAGE#89=" ls-full-img1 FORMAT "x(200)" SKIP(1). /* Abox logo */ 
 PUT "<=1>" SKIP. 
 PUT "<C1><#2><FMS Sans Serif>"
     "<=2>" "<FGCOLOR=" + trim(lv-comp-color) + ">" FORM "x(15)"
