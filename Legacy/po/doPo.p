@@ -1248,6 +1248,11 @@ PROCEDURE calcEstValues :
 
         END. /* NOT v-po-qty OR bf-w-job-mat.n-up EQ 0 OR ... */
 
+        IF bf-po-ordl.pr-qty-uom NE "EA" THEN
+            RUN sys/ref/convquom.p (bf-w-job-mat.qty-uom,bf-po-ordl.pr-qty-uom,
+                                bf-w-job-mat.basis-w, bf-w-job-mat.len, bf-w-job-mat.wid, bf-w-job-mat.dep,
+                                ld-line-qty, OUTPUT ld-line-qty).
+
         bf-po-ordl.ord-qty = ld-line-qty.
     END. /* If po-ordl.item-type */
     RELEASE bf-po-ordl.
@@ -1422,25 +1427,8 @@ PROCEDURE calcMSF :
     ASSIGN
         bf-po-ordl.s-len = v-len
         bf-po-ordl.s-wid = v-wid.
-    IF v-dep GT 0 THEN DO:
-        FIND FIRST reftable WHERE
-            reftable.reftable EQ "POORDLDEPTH" AND
-            reftable.company  EQ cocode AND
-            reftable.loc      EQ STRING(bf-po-ordl.po-no) AND
-            reftable.code     EQ STRING(bf-po-ordl.LINE)
-            EXCLUSIVE-LOCK NO-ERROR.   
-        IF NOT AVAILABLE reftable THEN 
-        DO:
-            CREATE reftable.
-            ASSIGN
-                reftable.reftable = "POORDLDEPTH"
-                reftable.company  = cocode 
-                reftable.loc      = STRING(bf-po-ordl.po-no)
-                reftable.code     = STRING(po-ordl.LINE).
-        END.
-        reftable.code2 = STRING(v-dep).
-        FIND CURRENT reftable NO-LOCK NO-ERROR.
-        RELEASE reftable.
+    IF v-dep GT 0 THEN DO:        
+        bf-po-ordl.s-dep = v-dep.
     END.
     RELEASE bf-po-ordl.
 END PROCEDURE.
@@ -3988,6 +3976,10 @@ PROCEDURE setPoOrdRm :
         v-part-dscr1          = b-item.i-dscr
         v-part-dscr2          = b-item.est-dscr
         v-op-type             = YES.
+   
+        ASSIGN bf-po-ordl.pr-qty-uom = IF pouom-chr EQ "Purchase" THEN b-item.pur-uom
+                                                                      ELSE b-item.cons-uom .
+   
     bf-po-ordl.ord-no = IF AVAILABLE bf-ordl THEN bf-ordl.ord-no ELSE 0.
     FIND CURRENT bf-po-ordl NO-LOCK.
     RELEASE bf-po-ordl.

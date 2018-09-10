@@ -5085,14 +5085,13 @@ DEFINE BUFFER bf-eb FOR eb .
         WHERE bf-eb.company EQ cocode
           AND bf-eb.est-no  EQ cEstNO
         USE-INDEX ord-no:
-
-        FOR EACH  bf-oe-ord NO-LOCK
-            WHERE bf-oe-ord.company EQ cocode ,
-             EACH bf-oe-ordl NO-LOCK 
-            WHERE bf-oe-ordl.company EQ cocode
-              AND bf-oe-ordl.ord-no  EQ bf-oe-ord.ord-no
+        FOR EACH bf-oe-ordl NO-LOCK 
+            WHERE bf-oe-ordl.company EQ cocode              
               AND bf-oe-ordl.est-no  EQ bf-eb.est-no
-              AND bf-oe-ordl.est-no NE "" 
+              AND bf-oe-ordl.est-no NE "" ,
+            EACH  bf-oe-ord NO-LOCK
+               WHERE bf-oe-ord.company EQ cocode 
+                 AND bf-oe-ord.ord-no  EQ bf-oe-ordl.ord-no            
             BREAK BY bf-oe-ord.ord-date DESC:
             bf-eb.ord-no = bf-oe-ordl.ord-no .
             LEAVE .

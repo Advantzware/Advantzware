@@ -697,22 +697,6 @@ if v-process then do:
        OUTPUT CLOSE.
     END.
 
-    FOR EACH reftable WHERE
-        reftable.reftable EQ "gsa-fm" AND
-        reftable.company  EQ est.company AND
-        reftable.loc      EQ "" AND
-        reftable.code     EQ est.est-no
-        EXCLUSIVE WITH FRAME f-gsa-fm:
-
-        if archive then do:
-           output to value(v-file-path + "reftable" + STRING(est.est-no,"X(8)") + ".d") APPEND.
-           export reftable.
-           output close.
-        end.
-
-        delete reftable.
-    END.
-
     IF archive THEN DO:
        output to value(v-file-path + "ef" + STRING(est.est-no,"X(8)") + ".d").
        OUTPUT close.
@@ -1084,20 +1068,7 @@ if v-process then do:
         delete reftable.
     END.
 
-    FOR EACH reftable WHERE
-        reftable.reftable EQ "ce/com/selwhif1.w" AND
-        reftable.company  EQ est.company AND
-        reftable.loc      EQ est.est-no
-        EXCLUSIVE WITH FRAME f-selwhif:
-
-        if archive then do:
-           output to value(v-file-path + "reftable" + STRING(est.est-no,"X(8)") + ".d") APPEND.
-           export reftable.
-           output close.
-        end.
-
-        delete reftable.
-    END.
+    
     
     FOR EACH reftable WHERE
         reftable.reftable EQ "est/getqty.w" AND
@@ -1137,22 +1108,6 @@ if v-process then do:
         reftable.loc      EQ est.loc AND
         reftable.code     EQ est.est-no
         EXCLUSIVE WITH FRAME f-grpcst:
-
-        if archive then do:
-           output to value(v-file-path + "reftable" + STRING(est.est-no,"X(8)") + ".d") APPEND.
-           export reftable.
-           output close.
-        end.
-
-        delete reftable.
-    END.
-
-    FOR EACH reftable WHERE
-        reftable.reftable EQ "est/getqty.w2"
-        AND reftable.company  EQ est.company
-        AND reftable.loc      EQ ""
-        AND reftable.code     EQ est.est-no
-        EXCLUSIVE WITH FRAME f-getqty2:
 
         if archive then do:
            output to value(v-file-path + "reftable" + STRING(est.est-no,"X(8)") + ".d") APPEND.

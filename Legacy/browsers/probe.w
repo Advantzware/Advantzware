@@ -45,7 +45,6 @@ DEFINE VARIABLE dMatPctSellPrice LIKE probe.net-profit.
 {custom/globdefs.i}
 
 DEFINE BUFFER probe-ref FOR reftable.
-DEFINE BUFFER b-probemk FOR reftable.
 
 DEFINE NEW SHARED VARIABLE k_frac AS DECIMAL INITIAL "6.25" NO-UNDO.
 DEFINE NEW SHARED VARIABLE day_str AS CHARACTER FORMAT "x(10)" NO-UNDO.

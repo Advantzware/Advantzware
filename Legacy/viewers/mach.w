@@ -98,10 +98,10 @@ mach.lab-drate mach.mrk-rate mach.mr-crusiz mach.run-crusiz mach.mr-varoh ~
 mach.mr-fixoh mach.mr-trate mach.run-varoh mach.run-fixoh mach.run-trate ~
 mach.min-len mach.max-len mach.min-trimw mach.min-wid mach.max-wid ~
 mach.min-triml mach.min-cal mach.max-cal mach.min-pan-l mach.max-pan-l ~
-mach.min-pan-w mach.max-pan-w mach.min-dep mach.max-dep mach.min-run ~
-mach.max-run mach.tan-mrp mach.num-wid mach.num-len mach.spare-int-1 ~
-mach.max_hd_hd mach.max_pan_lw mach.max_slot_score mach.min_hd_hd ~
-mach.min_pan_lw mach.min_slot_score 
+mach.min-pan-w mach.max-pan-w mach.min_pan_lw mach.max_pan_lw ~
+mach.min_slot_score mach.max_slot_score mach.min_hd_hd mach.max_hd_hd ~
+mach.min-dep mach.max-dep mach.min-run mach.max-run mach.tan-mrp ~
+mach.num-wid mach.num-len mach.spare-int-1 
 &Scoped-define ENABLED-TABLES mach
 &Scoped-define FIRST-ENABLED-TABLE mach
 &Scoped-Define ENABLED-OBJECTS RECT-10 RECT-11 RECT-12 
@@ -114,12 +114,12 @@ mach.mr-crusiz mach.run-crusiz mach.mr-rate mach.mr-varoh mach.mr-fixoh ~
 mach.mr-trate mach.run-rate mach.run-varoh mach.run-fixoh mach.run-trate ~
 mach.min-len mach.max-len mach.min-trimw mach.min-wid mach.max-wid ~
 mach.min-triml mach.min-cal mach.max-cal mach.min-pan-l mach.max-pan-l ~
-mach.min-pan-w mach.max-pan-w mach.min-dep mach.max-dep mach.min-run ~
-mach.max-run mach.pr-type mach.washup mach.col-pass mach.max-color ~
-mach.coater mach.col-wastesh mach.ink-waste mach.col-wastelb mach.tan-mrp ~
-mach.tan-mrf mach.num-wid mach.num-len mach.spare-int-1 mach.max_hd_hd ~
-mach.max_pan_lw mach.max_slot_score mach.min_hd_hd mach.min_pan_lw ~
-mach.min_slot_score 
+mach.min-pan-w mach.max-pan-w mach.min_pan_lw mach.max_pan_lw ~
+mach.min_slot_score mach.max_slot_score mach.min_hd_hd mach.max_hd_hd ~
+mach.min-dep mach.max-dep mach.min-run mach.max-run mach.pr-type ~
+mach.washup mach.col-pass mach.max-color mach.coater mach.col-wastesh ~
+mach.ink-waste mach.col-wastelb mach.tan-mrp mach.tan-mrf mach.num-wid ~
+mach.num-len mach.spare-int-1 
 &Scoped-define DISPLAYED-TABLES mach
 &Scoped-define FIRST-DISPLAYED-TABLE mach
 &Scoped-Define DISPLAYED-OBJECTS cb_industry tb_plain-jobs tb_obsolete ~
@@ -247,11 +247,11 @@ DEFINE FRAME F-Main
           "Enter (R)oll, (S)heet, (B)lank, (Parts) Fed or (A)ssemble Sets"
           LABEL "Feed"
           VIEW-AS COMBO-BOX INNER-LINES 5
-          LIST-ITEM-PAIRS "R- Roll", "R",
-                          "S- Sheet", "S",
-                          "B- Blank", "B",
-                          "P- Partition", "P",
-                          "A- Assembly", "A" 
+          LIST-ITEM-PAIRS "R- Roll","R",
+                     "S- Sheet","S",
+                     "B- Blank","B",
+                     "P- Partition","P",
+                     "A- Assembly","A"
           DROP-DOWN-LIST
           SIZE 19 BY 1
      mach.run-spoil AT ROW 3.14 COL 60 COLON-ALIGNED
@@ -291,10 +291,6 @@ DEFINE FRAME F-Main
           LIST-ITEMS "1","2","3" 
           DROP-DOWN-LIST
           SIZE 12 BY 1
-     mach.mrk-rate AT ROW 5.52 COL 56 COLON-ALIGNED
-          LABEL "Min Charge" FORMAT ">,>>9.99"
-          VIEW-AS FILL-IN 
-          SIZE 13 BY 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -302,6 +298,10 @@ DEFINE FRAME F-Main
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME F-Main
+     mach.mrk-rate AT ROW 5.52 COL 56 COLON-ALIGNED
+          LABEL "Min Charge" FORMAT ">,>>9.99"
+          VIEW-AS FILL-IN 
+          SIZE 13 BY 1
      mach.mr-crusiz AT ROW 6.48 COL 56 COLON-ALIGNED
           LABEL "Setup Crew"
           VIEW-AS FILL-IN 
@@ -380,6 +380,13 @@ DEFINE FRAME F-Main
           LABEL "Box Width"
           VIEW-AS FILL-IN 
           SIZE 14 BY .81
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 1 SCROLLABLE 
+         FONT 6.
+
+/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
+DEFINE FRAME F-Main
      mach.max-pan-w AT ROW 13.62 COL 40 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 14 BY .81
@@ -397,7 +404,7 @@ DEFINE FRAME F-Main
      mach.max_slot_score AT ROW 15.24 COL 40 COLON-ALIGNED NO-LABEL WIDGET-ID 8
           VIEW-AS FILL-IN 
           SIZE 14 BY .81
-    mach.min_hd_hd AT ROW 16.05 COL 22 COLON-ALIGNED WIDGET-ID 10
+     mach.min_hd_hd AT ROW 16.05 COL 22 COLON-ALIGNED WIDGET-ID 10
           LABEL "Panel (Hd-Hd)"
           VIEW-AS FILL-IN 
           SIZE 14 BY .81
@@ -408,13 +415,6 @@ DEFINE FRAME F-Main
           LABEL "Slot Size"
           VIEW-AS FILL-IN 
           SIZE 14 BY .81
-    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1 SCROLLABLE 
-         FONT 6.
-
-/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
-DEFINE FRAME F-Main
      mach.max-dep AT ROW 16.86 COL 40 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 14 BY .81
@@ -469,6 +469,13 @@ DEFINE FRAME F-Main
           LABEL "Max Num Length"
           VIEW-AS FILL-IN 
           SIZE 4.4 BY 1
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 1 SCROLLABLE 
+         FONT 6.
+
+/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
+DEFINE FRAME F-Main
      mach.spare-int-1 AT ROW 8.38 COL 56 COLON-ALIGNED HELP
           "Enter Kicks Per Hour" WIDGET-ID 2
           LABEL "Kicks/Hr" FORMAT ">>,>>9"
@@ -477,13 +484,6 @@ DEFINE FRAME F-Main
      "Printing Press" VIEW-AS TEXT
           SIZE 17 BY .62 AT ROW 9.81 COL 84
           FGCOLOR 9 
-    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1 SCROLLABLE 
-         FONT 6.
-
-/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
-DEFINE FRAME F-Main
      "R A T E S" VIEW-AS TEXT
           SIZE 12 BY .62 AT ROW 5.05 COL 72
           FGCOLOR 9 
@@ -613,12 +613,6 @@ ASSIGN
    EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN mach.min-pan-w IN FRAME F-Main
    EXP-LABEL                                                            */
-/* SETTINGS FOR FILL-IN mach.min_pan_lw IN FRAME F-Main
-   EXP-LABEL                                                            */
-/* SETTINGS FOR FILL-IN mach.min_slot_score IN FRAME F-Main
-   EXP-LABEL                                                            */
-/* SETTINGS FOR FILL-IN mach.min_hd_hd IN FRAME F-Main
-   EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN mach.min-run IN FRAME F-Main
    EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN mach.min-triml IN FRAME F-Main
@@ -626,6 +620,12 @@ ASSIGN
 /* SETTINGS FOR FILL-IN mach.min-trimw IN FRAME F-Main
    EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN mach.min-wid IN FRAME F-Main
+   EXP-LABEL                                                            */
+/* SETTINGS FOR FILL-IN mach.min_hd_hd IN FRAME F-Main
+   EXP-LABEL                                                            */
+/* SETTINGS FOR FILL-IN mach.min_pan_lw IN FRAME F-Main
+   EXP-LABEL                                                            */
+/* SETTINGS FOR FILL-IN mach.min_slot_score IN FRAME F-Main
    EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN mach.mr-crusiz IN FRAME F-Main
    EXP-LABEL                                                            */
@@ -1927,6 +1927,13 @@ PROCEDURE local-update-record :
 ------------------------------------------------------------------------------*/
 
   /* Code placed here will execute PRIOR to standard behavior. */
+    /* 33482 - Ensure blank record is not saved - MYT - 08/28/18 */
+    IF adm-new-record 
+    AND mach.m-code:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ "" THEN DO:
+        RUN dispatch IN THIS-PROCEDURE ( INPUT 'cancel-record':U ) .
+        RETURN NO-APPLY.
+    END.
+
   RUN valid-m-code NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 

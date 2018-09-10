@@ -529,6 +529,10 @@ ON CHOOSE OF Btn_Cancel IN FRAME Dialog-Frame /* Cancel */
                 WHERE RECID(est-op) EQ lv-item-recid  NO-ERROR.
             IF AVAILABLE est-op THEN DELETE est-op .
         END.
+
+        IF AVAIL est-op THEN
+            ip-rowid = ROWID(est-op).
+
         APPLY 'GO':U TO FRAME {&FRAME-NAME}.
     END.
 
@@ -577,15 +581,6 @@ ON CHOOSE OF Btn_OK IN FRAME Dialog-Frame /* Save */
         IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
         /*IF ll-import-stds THEN RUN get-stds.*/
-
-        ll-import-all = NO.
-        IF ll-import-selected THEN 
-        DO WITH FRAME {&FRAME-NAME}:
-            MESSAGE "NO = Import Standards for Selected Machine" SKIP
-                "YES = Import Standards for All Machines on Routing"
-                VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
-                UPDATE ll-import-all.
-        END.
 
         DO TRANSACTION:
             FIND CURRENT est-op EXCLUSIVE-LOCK NO-ERROR.
@@ -742,6 +737,16 @@ ON LEAVE OF est-op.m-code IN FRAME Dialog-Frame /* Machine */
         DO:
             RUN valid-mach NO-ERROR.
             IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+
+            ll-import-all = NO.
+            IF ll-import-selected THEN 
+            DO WITH FRAME {&FRAME-NAME}:
+                MESSAGE
+                    "NO = Import Standards for Only Machine Imported?" SKIP
+                    "YES = Import Standards for All Machines on Routing?"
+                VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO TITLE "Import Standards"
+                UPDATE ll-import-all.
+            END. /* with frame */
 
             IF ll-import-stds AND NOT CAN-DO("RC,GU",lv-dept) THEN
                 IF CAN-DO("PR,CT",lv-dept) THEN 

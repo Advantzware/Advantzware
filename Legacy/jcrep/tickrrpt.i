@@ -61,9 +61,14 @@ IF tb_freeze-note THEN
         EXCLUSIVE-LOCK:
         RUN jc\jobnotes.p(BUFFER job).
 
+        ASSIGN job.freezeNote = YES 
+               job.freezeNotesDate = TODAY    
+               .
 
         FIND CURRENT job-hdr EXCLUSIVE-LOCK NO-ERROR. 
-        ASSIGN job-hdr.freezeNote = YES .
+        ASSIGN job-hdr.freezeNote = YES 
+               job-hdr.freezeNotesDate = TODAY    
+               .
         FIND CURRENT job-hdr NO-LOCK NO-ERROR.     
   END.
 
