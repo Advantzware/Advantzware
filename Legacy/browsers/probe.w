@@ -252,9 +252,6 @@ END.
     IF lv-sort-by EQ "probe-user"      THEN string(probe.probe-user)                                       ELSE ~
     IF lv-sort-by EQ "vtot-msf"        THEN string(vtot-msf())                                             ELSE ~
     IF lv-sort-by EQ "ls-probetime"    THEN string(cvt-time(probe.probe-time))                             ELSE ~
-    IF lv-sort-by EQ "val[8]"          THEN string(reftable.val[8])                                        ELSE ~
-    IF lv-sort-by EQ "val[9]"          THEN string(reftable.val[9])                                        ELSE ~
-    IF lv-sort-by EQ "val[10]"         THEN string(reftable.val[10])                                       ELSE ~
     IF lv-sort-by EQ "line"            THEN string(probe.LINE)                                             ELSE ~
     IF lv-sort-by EQ "spare-dec-1"      THEN string(probe.spare-dec-1)                                     ELSE ~
     IF lv-sort-by EQ "dMatPctSellPrice"    THEN string(fDirectMatPctSellPrice(1))                          ELSE ~
@@ -308,13 +305,12 @@ display-gp (1) @ probe.gross-profit probe.gross-profit reftable.val[11] ~
 probe.comm probe.net-profit probe.sell-price probe.gsh-qty probe.do-quote ~
 voverall(1) @ voverall probe.probe-date reftable.val[2] reftable.val[3] ~
 reftable.val[4] reftable.val[5] probe.probe-user vtot-msf() @ vtot-msf ~
-cvt-time(probe.probe-time) @ ls-probetime reftable.val[8] reftable.val[9] ~
-reftable.val[10] probe.line probe.spare-dec-1 ~
+cvt-time(probe.probe-time) @ ls-probetime probe.line probe.spare-dec-1 ~
 fDirectMatPctSellPrice(1) @ dMatPctSellPrice 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-br_table probe.full-cost ~
 probe.gross-profit reftable.val[11] probe.net-profit ~
 probe.sell-price probe.do-quote reftable.val[3] reftable.val[4] ~
-reftable.val[5] reftable.val[8] reftable.val[9] reftable.val[10] 
+reftable.val[5] 
 &Scoped-define ENABLED-TABLES-IN-QUERY-br_table probe reftable
 &Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-br_table probe
 &Scoped-define SECOND-ENABLED-TABLE-IN-QUERY-br_table reftable
@@ -400,28 +396,6 @@ RUN set-attribute-list (
 &ANALYZE-RESUME
 
 /* ************************  Function Prototypes ********************** */
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD calc-cm B-table-Win 
-FUNCTION calc-cm RETURNS DECIMAL
-  ( /* parameter-definitions */ )  FORWARD.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD calc-cmah B-table-Win 
-FUNCTION calc-cmah RETURNS DECIMAL
-  ( /* parameter-definitions */ )  FORWARD.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD calc-cmoh B-table-Win 
-FUNCTION calc-cmoh RETURNS DECIMAL
-  ( /* parameter-definitions */ )  FORWARD.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD checkNCBrd B-table-Win 
 FUNCTION checkNCBrd RETURNS LOGICAL
   ( /* parameter-definitions */ )  FORWARD.
@@ -525,12 +499,6 @@ DEFINE BROWSE br_table
       probe.probe-user COLUMN-LABEL "Probe By" FORMAT "X(8)":U
       vtot-msf() @ vtot-msf COLUMN-LABEL "Total!MSF" COLUMN-FONT 0
       cvt-time(probe.probe-time) @ ls-probetime COLUMN-LABEL "Time" FORMAT "x(8)":U
-      reftable.val[8] COLUMN-LABEL "CM$" FORMAT "->>,>>>,>>9.99":U
-            WIDTH 19
-      reftable.val[9] COLUMN-LABEL "CMAH" FORMAT "->>,>>>,>>9.99":U
-            WIDTH 19
-      reftable.val[10] COLUMN-LABEL "CMOH" FORMAT "->>,>>>,>>9.99":U
-            WIDTH 19
       probe.line FORMAT ">>9":U
       probe.spare-dec-1 COLUMN-LABEL "Direct!Material" FORMAT "->>>,>>9.99":U
             WIDTH 15
@@ -545,9 +513,6 @@ DEFINE BROWSE br_table
       reftable.val[3]
       reftable.val[4]
       reftable.val[5]
-      reftable.val[8]
-      reftable.val[9]
-      reftable.val[10]
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ASSIGN SEPARATORS SIZE 143 BY 13.1
@@ -702,17 +667,11 @@ reftable.code2    EQ STRING(probe.line,""9999999999"")"
 "vtot-msf() @ vtot-msf" "Total!MSF" ? ? ? ? 0 ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[21]   > "_<CALC>"
 "cvt-time(probe.probe-time) @ ls-probetime" "Time" "x(8)" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[22]   > ASI.reftable.val[8]
-"reftable.val[8]" "CM$" "->>,>>>,>>9.99" "decimal" ? ? ? ? ? ? yes ? no no "19" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[23]   > ASI.reftable.val[9]
-"reftable.val[9]" "CMAH" "->>,>>>,>>9.99" "decimal" ? ? ? ? ? ? yes ? no no "19" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[24]   > ASI.reftable.val[10]
-"reftable.val[10]" "CMOH" "->>,>>>,>>9.99" "decimal" ? ? ? ? ? ? yes ? no no "19" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[25]   > ASI.probe.line
+     _FldNameList[22]   > ASI.probe.line
 "probe.line" ? ">>9" "integer" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[26]   > ASI.probe.spare-dec-1
+     _FldNameList[23]   > ASI.probe.spare-dec-1
 "probe.spare-dec-1" "Direct!Material" "->>>,>>9.99" "decimal" ? ? ? ? ? ? no ? no no "15" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[27]   > "_<CALC>"
+     _FldNameList[24]   > "_<CALC>"
 "fDirectMatPctSellPrice(1) @ dMatPctSellPrice" "Dir. Mat%" ? ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE br_table */
@@ -1444,8 +1403,6 @@ PROCEDURE calc-fields :
       IF lv-changed2 NE "S" THEN 
         probe.gross-profit:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(display-gp (0)).
     END.
-    RUN recalc-multicell.
-     
     RUN save-fields.
 
   END.
@@ -3454,29 +3411,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE recalc-multicell B-table-Win 
-PROCEDURE recalc-multicell :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-/* Special logic for multicell */
-DEFINE VARIABLE v-mr AS DECIMAL NO-UNDO.
-DEFINE VARIABLE v-cmah AS DECIMAL NO-UNDO.
-DEFINE VARIABLE v-cmoh AS DECIMAL NO-UNDO.
-
-v-mr = calc-cm().
-reftable.val[8]:SCREEN-VALUE IN BROWSE {&BROWSE-NAME} = STRING(v-mr).
-v-cmah = calc-cmah().
-reftable.val[9]:SCREEN-VALUE IN BROWSE {&BROWSE-NAME} = STRING(v-cmah).
-v-cmoh = calc-cmoh().
-reftable.val[10]:SCREEN-VALUE IN BROWSE {&BROWSE-NAME} = STRING(v-cmoh).
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE release-shared-buffers B-table-Win 
 PROCEDURE release-shared-buffers :
 /*------------------------------------------------------------------------------
@@ -4063,94 +3997,6 @@ END PROCEDURE.
 &ANALYZE-RESUME
 
 /* ************************  Function Implementations ***************** */
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION calc-cm B-table-Win 
-FUNCTION calc-cm RETURNS DECIMAL
-  ( /* parameter-definitions */ ) :
-/*------------------------------------------------------------------------------
-  Purpose:  
-    Notes:  
-------------------------------------------------------------------------------*/
-DEFINE VARIABLE v-cm AS DECIMAL NO-UNDO.
-v-cm = DECIMAL(probe.sell-price:SCREEN-VALUE IN BROWSE {&browse-name})
-       - DECIMAL(probe.fact-cost:SCREEN-VALUE IN BROWSE {&browse-name}).
-  RETURN v-cm.   /* Function return value. */
-
-END FUNCTION.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION calc-cmah B-table-Win 
-FUNCTION calc-cmah RETURNS DECIMAL
-  ( /* parameter-definitions */ ) :
-/*------------------------------------------------------------------------------
-  Purpose:  
-    Notes:  
-------------------------------------------------------------------------------*/
-DEFINE VARIABLE v-cmah AS DECIMAL NO-UNDO.
-DEFINE VARIABLE v-mr AS DECIMAL NO-UNDO.
-DEFINE VARIABLE v-run AS DECIMAL NO-UNDO.
-FIND FIRST tt-est-op NO-LOCK NO-ERROR.
-IF NOT AVAILABLE tt-est-op THEN DO:
-    FIND CURRENT est.
-    FIND xef WHERE RECID(xef) EQ RECID(ef).
-    FIND xeb WHERE RECID(xeb) EQ RECID(eb).
-    /* calc-opq is to get the correct num-sh by calculating
-       est-op records where line > 500 and copying them to 
-       tt-est-op */
-    RUN cec/calc-opq.p (INPUT cocode, INPUT locode,
-                        INPUT ROWID(est),
-                        INPUT ROWID(ef),
-                        INPUT ROWID(eb) ).
-END.
-
-/* Get total assembly machine hours */
-RUN est/calc-mr.p (INPUT probe.est-no, INPUT "A", OUTPUT v-mr, OUTPUT v-run).
-
-IF v-mr GT 0 THEN
-  v-cmah = DECIMAL(reftable.val[8]:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}) / 
-     ((v-mr + v-run) / (INTEGER(probe.est-qty:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}) / 1000)).
-ELSE
-  v-cmah = 0.
-/* MESSAGE "probe, calc-cmah, v-mr" v-mr "v-run" v-run           */
-/*    "qty" probe.est-qty:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}  */
-/*    "cm" reftable.val[8]:SCREEN-VALUE IN BROWSE {&BROWSE-NAME} */
-/*     "v-cmah" v-cmah                                           */
-/*     VIEW-AS ALERT-BOX INFO BUTTONS OK.                        */
-RETURN v-cmah.   /* Function return value. */
-
-
-END FUNCTION.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION calc-cmoh B-table-Win 
-FUNCTION calc-cmoh RETURNS DECIMAL
-  ( /* parameter-definitions */ ) :
-/*------------------------------------------------------------------------------
-  Purpose:  
-    Notes:  
-------------------------------------------------------------------------------*/
-DEFINE VARIABLE v-cmoh AS DECIMAL NO-UNDO.
-DEFINE VARIABLE v-mr AS DECIMAL NO-UNDO.
-DEFINE VARIABLE v-run AS DECIMAL NO-UNDO.
-
-RUN est/calc-mr.p (INPUT probe.est-no, INPUT "N", OUTPUT v-mr, OUTPUT v-run).
-IF v-mr GT 0 THEN
-  v-cmoh = DECIMAL(reftable.val[8]:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}) / 
-    ((v-mr + v-run) / (INTEGER(probe.est-qty:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}) / 1000)).
-ELSE
-  v-cmoh = 0.
-
-RETURN v-cmoh.   /* Function return value. */
-
-END FUNCTION.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION checkNCBrd B-table-Win 
 FUNCTION checkNCBrd RETURNS LOGICAL
   ( /* parameter-definitions */ ) :
