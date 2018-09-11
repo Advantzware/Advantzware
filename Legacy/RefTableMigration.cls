@@ -2963,6 +2963,52 @@ CLASS RefTableMigration:
             END.              
         END.  /*FOR EACH reftable*/  
     END METHOD. /*e-itemfg-vend*/ 
+    METHOD PUBLIC INTEGER Proboard(INPUT ipCount AS INTEGER):
+        DEFINE VARIABLE iCnt AS INTEGER NO-UNDO.
+        DEFINE BUFFER reftable1 FOR reftable1.
+        DEFINE BUFFER Breftable FOR reftable. 
+        DEFINE BUFFER probe     FOR probe.
+        
+        DISABLE TRIGGERS FOR LOAD OF reftable.        
+        DISABLE TRIGGERS FOR LOAD OF probe.
+        ASSIGN iProcessCount = 0.
+        FOR EACH reftable WHERE reftable.reftable = "probe.board"
+            NO-LOCK:
+            DO TRANSACTION:    
+                FIND FIRST probe WHERE probe.company = reftable.company
+                                   AND probe.est-no  = reftable.code
+                                   AND probe.line    = int(reftable.code2)
+                    EXCLUSIVE-LOCK NO-ERROR.
+                IF AVAILABLE probe THEN    
+                DO: 
+                    IF probe.boardCostTotal EQ 0 THEN ASSIGN probe.boardCostTotal = reftable.val[1].
+                    IF probe.boardCostPerM EQ 0 THEN ASSIGN probe.boardCostPerM = reftable.val[2].  
+                    IF probe.boardCostPct EQ 0 THEN ASSIGN probe.boardCostPct = reftable.val[3].
+                    IF probe.boardContributionPerM EQ 0 THEN ASSIGN probe.boardContributionPerM = reftable.val[4].
+                    IF probe.boardContributionTotal EQ 0 THEN ASSIGN probe.boardContributionTotal = reftable.val[5].
+                    IF probe.manHoursTotal EQ 0 THEN ASSIGN probe.manHoursTotal = reftable.val[6].
+                    IF probe.directMaterialCost EQ 0 THEN ASSIGN probe.directMaterialCost = reftable.val[7].
+                    IF probe.grossProfitPerM EQ 0 THEN ASSIGN probe.grossProfitPerM = reftable.val[8].
+                    IF probe.grossProfitPerManhourAssemb EQ 0 THEN ASSIGN probe.grossProfitPerManhourAssemb = reftable.val[9].
+                    IF probe.grossProfitPerManHourOther EQ 0 THEN ASSIGN probe.grossProfitPerManHourOther = reftable.val[10].
+                    IF probe.grossProfitPctTemp EQ 0 THEN ASSIGN probe.grossProfitPctTemp = reftable.val[11].
+                    ASSIGN iProcessCount = iProcessCount + 1.
+                END    . 
+                FIND CURRENT probe NO-LOCK NO-ERROR.    
+                RELEASE probe.      
+                CREATE reftable1.
+                BUFFER-COPY reftable TO reftable1.
+                RELEASE reftable1.
+                FIND Breftable WHERE ROWID(Breftable) = ROWID(reftable)
+                    EXCLUSIVE-LOCK NO-ERROR.
+                IF AVAILABLE Breftable THEN DELETE Breftable. 
+                RELEASE Breftable.   
+                iCnt = iCnt + 1.
+                IF iCnt >= ipCount THEN LEAVE.   
+            END.              
+        END.  /*FOR EACH reftable*/  
+        RETURN iCnt.
+    END METHOD. /*ProBoard*/
     METHOD PUBLIC INTEGER CpLabP(INPUT ipCount AS INTEGER):
         DEFINE VARIABLE iCnt AS INTEGER NO-UNDO.
         DEFINE BUFFER reftable1 FOR reftable1.

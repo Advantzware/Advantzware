@@ -152,6 +152,7 @@ ASSIGN
     {refTableConv.i "ColorAudit" 'COLOR' + chr(32) + 'AUDIT'}
     {refTableConv.i "Machcrew" 'MACH-CREW'}
     {refTableConv.i "VendorMaxValue" 'VendorMaxValue'}
+    {refTableConv.i "Proboard" 'probe.board'}
     {refTableConv.i "CpLabP" 'cp-lab-p'}
     {refTableConv.i "PoordlDepth" 'POORDLDEPTH'}
     {refTableConv.i "EstGlobquot" 'est/globquot.w'}
