@@ -248,7 +248,7 @@ END.
     IF lv-sort-by EQ "vtot-msf"        THEN string(vtot-msf())                                             ELSE ~
     IF lv-sort-by EQ "ls-probetime"    THEN string(cvt-time(probe.probe-time))                             ELSE ~
     IF lv-sort-by EQ "grossProfitPerM" THEN string(probe.grossProfitPerM)                                        ELSE ~
-    IF lv-sort-by EQ "grossProfitPerManhourAssemb"          THEN string(probe.grossProfitPerManHourAssmb)                                        ELSE ~
+    IF lv-sort-by EQ "grossProfitPerManhourAssemb"          THEN string(probe.grossProfitPerManHourAssemb)                                        ELSE ~
     IF lv-sort-by EQ "grossProfitPerManHourOther"         THEN string(probe.grossProfitPerManHourOther)                                       ELSE ~
     IF lv-sort-by EQ "line"            THEN string(probe.LINE)                                             ELSE ~
     IF lv-sort-by EQ "spare-dec-1"      THEN string(probe.spare-dec-1)                                     ELSE ~
