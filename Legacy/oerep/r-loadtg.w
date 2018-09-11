@@ -1293,16 +1293,15 @@ DO:
         END.
     END.
      IF v-cust-no NE "" THEN
-        FIND FIRST reftable WHERE
-             reftable.reftable EQ "cp-lab-p" AND
-             reftable.company  EQ cocode AND
-             reftable.loc      GE begin_i-no:SCREEN-VALUE AND
-             reftable.loc      LE end_i-no:SCREEN-VALUE AND
-             reftable.CODE     EQ v-cust-no
+        FIND FIRST cust-part WHERE
+             cust-part.company  EQ cocode AND
+             cust-part.i-no      GE begin_i-no:SCREEN-VALUE AND
+             cust-part.i-no      LE end_i-no:SCREEN-VALUE AND
+             cust-part.cust-no     EQ v-cust-no
              NO-LOCK NO-ERROR.
 
-     IF AVAIL reftable AND reftable.dscr NE "" THEN
-        scr-label-file:SCREEN-VALUE = (IF reftable.dscr <> "" THEN reftable.dscr ELSE v-bardir-chr).
+     IF AVAIL cust-part THEN
+        scr-label-file:SCREEN-VALUE = (IF cust-part.labelPallet <> "" THEN cust-part.labelPallet ELSE v-bardir-chr).
      ELSE
         IF INT(begin_ord-no:SCREEN-VALUE) NE 0 AND
            INT(end_ord-no:SCREEN-VALUE) NE 0 THEN
@@ -1574,15 +1573,14 @@ DO:
           DO:
              v-cust-no = oe-ord.cust-no.
 
-             FIND FIRST reftable NO-LOCK
-               WHERE reftable.reftable EQ "cp-lab-p" 
-                 AND reftable.company  EQ cocode 
-                 AND reftable.loc      EQ begin_i-no:SCREEN-VALUE
-                 AND reftable.loc      EQ end_i-no:SCREEN-VALUE
-                 AND reftable.CODE     EQ oe-ord.cust-no NO-ERROR.
+             FIND FIRST cust-part NO-LOCK 
+               WHERE cust-part.company   EQ cocode 
+                 AND cust-part.i-no      EQ begin_i-no:SCREEN-VALUE
+                 AND cust-part.i-no      EQ end_i-no:SCREEN-VALUE
+                 AND cust-part.cust-no   EQ oe-ord.cust-no NO-ERROR.
 
-             IF AVAIL reftable AND reftable.code2 NE "" THEN
-                scr-label-file:SCREEN-VALUE = (IF reftable.dscr <> "" THEN reftable.dscr ELSE v-bardir-chr).
+             IF AVAIL cust-part AND cust-part.labelCase NE "" THEN
+                scr-label-file:SCREEN-VALUE = (IF cust-part.labelPallet <> "" THEN cust-part.labelPallet ELSE v-bardir-chr).
              ELSE
              DO:
                 IF begin_i-no:SCREEN-VALUE NE "" AND 
@@ -1730,15 +1728,14 @@ DO:
                         end_i-no:SCREEN-VALUE   = bf-po-ordl.i-no
                         v-cust-no = bf-po-ordl.cust-no.
 
-                     FIND FIRST reftable NO-LOCK
-                         WHERE reftable.reftable EQ "cp-lab-p" 
-                         AND reftable.company  EQ cocode 
-                         AND reftable.loc      EQ begin_i-no:SCREEN-VALUE
-                         AND reftable.loc      EQ end_i-no:SCREEN-VALUE
-                         AND reftable.CODE     EQ v-cust-no NO-ERROR.
+                     FIND FIRST cust-part NO-LOCK
+                         WHERE cust-part.company EQ cocode 
+                         AND cust-part.i-no      EQ begin_i-no:SCREEN-VALUE
+                         AND cust-part.i-no      EQ end_i-no:SCREEN-VALUE
+                         AND cust-part.cust-no   EQ v-cust-no NO-ERROR.
 
-                     IF AVAIL reftable  THEN
-                         scr-label-file:SCREEN-VALUE = (IF reftable.dscr <> "" THEN reftable.dscr ELSE v-bardir-chr).
+                     IF AVAIL cust-part  THEN
+                         scr-label-file:SCREEN-VALUE = (IF cust-part.labelPallet <> "" THEN cust-part.labelPallet ELSE v-bardir-chr).
 
 
                 END.
@@ -2754,15 +2751,14 @@ PROCEDURE cas-lab-label-mat-file :
 
         IF AVAIL oe-ord THEN
         DO:
-           FIND FIRST reftable WHERE
-                reftable.reftable EQ "cp-lab-p" AND
-                reftable.company  EQ cocode AND
-                reftable.loc      EQ begin_i-no:SCREEN-VALUE AND
-                reftable.loc      EQ end_i-no:SCREEN-VALUE AND
-                reftable.CODE     EQ oe-ord.cust-no
+           FIND FIRST cust-part WHERE
+                cust-part.company  EQ cocode AND
+                cust-part.i-no     EQ begin_i-no:SCREEN-VALUE AND
+                cust-part.i-no     EQ end_i-no:SCREEN-VALUE AND
+                cust-part.cust-no  EQ oe-ord.cust-no
                 NO-LOCK NO-ERROR.
-           IF AVAIL reftable AND reftable.code2 NE "" THEN
-              scr-label-file:SCREEN-VALUE = (IF reftable.dscr <> "" THEN reftable.dscr ELSE bardir-chr).
+           IF AVAIL cust-part AND cust-part.labelCase NE "" THEN
+              scr-label-file:SCREEN-VALUE = (IF cust-part.labelPallet <> "" THEN cust-part.labelPallet ELSE bardir-chr).
            ELSE DO:
               IF begin_i-no:SCREEN-VALUE NE "" AND 
                  end_i-no:SCREEN-VALUE NE "" THEN
@@ -3271,7 +3267,6 @@ PROCEDURE create-loadtag :
 
 
       RELEASE job.
-      RELEASE reftable.
 
       IF TRIM(fg-rctd.job-no) NE "" THEN
       FIND FIRST job
@@ -5481,17 +5476,6 @@ DO WITH FRAME {&FRAME-NAME}:
         ASSIGN begin_i-no:SCREEN-VALUE = bf-oe-ordl.i-no
                end_i-no:SCREEN-VALUE   = bf-oe-ordl.i-no.           
 
-  /*    
-      FIND FIRST reftable NO-LOCK
-        WHERE reftable.reftable EQ "cp-lab-p" 
-          AND reftable.company  EQ cocode
-          AND reftable.loc      EQ begin_i-no:SCREEN-VALUE
-          AND reftable.loc      EQ end_i-no:SCREEN-VALUE
-          AND reftable.CODE     EQ bf-oe-ord.cust-no NO-ERROR.
-
-      IF AVAIL reftable 
-        THEN ASSIGN scr-label-file:SCREEN-VALUE =  reftable.dscr.
-  */
       APPLY "LEAVE" TO END_i-no.
     END.
     ELSE DO:
@@ -5881,17 +5865,7 @@ IF AVAIL bf-oe-ord THEN DO:
     IF AVAIL bf-oe-ordl THEN
       ASSIGN begin_i-no:SCREEN-VALUE = bf-oe-ordl.i-no
              end_i-no:SCREEN-VALUE   = bf-oe-ordl.i-no.           
-/*    
-    FIND FIRST reftable NO-LOCK
-      WHERE reftable.reftable EQ "cp-lab-p" 
-        AND reftable.company  EQ cocode
-        AND reftable.loc      EQ begin_i-no:SCREEN-VALUE
-        AND reftable.loc      EQ end_i-no:SCREEN-VALUE
-        AND reftable.CODE     EQ bf-oe-ord.cust-no NO-ERROR.
 
-    IF AVAIL reftable 
-      THEN ASSIGN scr-label-file:SCREEN-VALUE =  reftable.dscr.
-*/
     APPLY "LEAVE" TO END_i-no.
   END.
   ELSE DO:
@@ -5998,17 +5972,7 @@ IF AVAIL bf-po-ord THEN DO:
 
     ASSIGN begin_i-no:SCREEN-VALUE = bf-po-ordl.i-no
            end_i-no:SCREEN-VALUE   = bf-po-ordl.i-no.           
-/*    
-    FIND FIRST reftable NO-LOCK
-      WHERE reftable.reftable EQ "cp-lab-p" 
-        AND reftable.company  EQ cocode
-        AND reftable.loc      EQ begin_i-no:SCREEN-VALUE
-        AND reftable.loc      EQ end_i-no:SCREEN-VALUE
-        AND reftable.CODE     EQ bf-po-ord.cust-no NO-ERROR.
 
-    IF AVAIL reftable 
-      THEN ASSIGN scr-label-file:SCREEN-VALUE =  reftable.dscr.
-*/
     APPLY "LEAVE" TO END_i-no.
 
   END.
@@ -6391,16 +6355,15 @@ PROCEDURE leave-job-label :
         IF AVAIL oe-ord THEN
            v-cust-no = oe-ord.cust-no.
 
-        FIND FIRST reftable WHERE
-             reftable.reftable EQ "cp-lab-p" AND
-             reftable.company  EQ cocode AND
-             reftable.loc      EQ job-hdr.i-no AND
-             reftable.CODE     EQ v-cust-no
+        FIND FIRST cust-part WHERE
+             cust-part.company  EQ cocode AND
+             cust-part.i-no     EQ job-hdr.i-no AND
+             cust-part.cust-no  EQ v-cust-no
              NO-LOCK NO-ERROR.
 
-         IF AVAIL reftable AND reftable.code2 NE "" THEN
-            scr-label-file:SCREEN-VALUE = (IF reftable.dscr <> "" THEN
-                                              reftable.dscr
+         IF AVAIL cust-part AND cust-part.labelCase NE "" THEN
+            scr-label-file:SCREEN-VALUE = (IF cust-part.labelPallet <> "" THEN
+                                              cust-part.labelPallet
                                            ELSE bardir-chr).
          ELSE DO:
             IF AVAIL oe-ord THEN
