@@ -2,6 +2,7 @@
 
 &SCOPED-DEFINE sbDB nosweat
 &SCOPED-DEFINE ID ASI/ALL
+&SCOPED-DEFINE DMI ASI/DMI
 &SCOPED-DEFINE HOP ASI/HOP
 &SCOPED-DEFINE Fleetwood ASI/Fleetwood
 /* add new fields to procedures loadUserFieldLabelWidth & setUseFields below */
@@ -333,26 +334,6 @@ FUNCTION fixTime RETURNS INTEGER (ipTime AS INTEGER):
   RETURN INTEGER(ipTime - TRUNCATE(ipTime / 86400,0) * 86400).
 END FUNCTION.
 
-/*FUNCTION getLiveUpdate RETURNS LOGICAL                                                     */
-/*        (ipCompany AS CHARACTER, ipJobNo AS CHARACTER, ipJobNo2 AS INTEGER,                */
-/*         ipForm AS INTEGER, ipMCode AS CHARACTER, ipSBLiveUpdate AS LOGICAL):              */
-/*                                                                                           */
-/*  DEFINE VARIABLE lvCode AS CHARACTER NO-UNDO.                                             */
-/*                                                                                           */
-/*  IF traceON THEN                                                                          */
-/*  PUT UNFORMATTED 'Function getLiveUpdate @ ' AT 15 STRING(TIME,'hh:mm:ss') ' ' ETIME SKIP.*/
-/*  lvCode = ipJobNo + ',' + STRING(ipJobNo2) + ',' + STRING(ipForm) + ',' + ipMCode.        */
-/*  FIND FIRST reftable NO-LOCK                                                              */
-/*       WHERE reftable.reftable EQ 'sbLiveUpdate'                                           */
-/*         AND reftable.company EQ ipCompany                                                 */
-/*         AND reftable.loc EQ ''                                                            */
-/*         AND reftable.code EQ lvCode                                                       */
-/*       NO-ERROR.                                                                           */
-/*  IF AVAILABLE reftable THEN                                                               */
-/*  RETURN reftable.code2 EQ 'Yes'.                                                          */
-/*  ELSE RETURN ipSBLiveUpdate.                                                              */
-/*END FUNCTION.                                                                              */
-
 FUNCTION getEmpAlert RETURNS CHARACTER
         (ipRecKey AS CHARACTER):
     DEFINE VARIABLE cReturn AS CHARACTER NO-UNDO.
@@ -546,19 +527,16 @@ IF AVAILABLE sys-ctrl THEN DO:
 END. /* avail sys-ctrl */
 
 ASSIGN
-  beginEstType = IF CAN-DO('ASI/ALL*,ASI/Folding*,{&HOP}',ID)          THEN 0  ELSE 5
-  endEstType   = IF CAN-DO('ASI/ALL*,ASI/Corrugated*,{&Fleetwood}',ID) THEN 99 ELSE 4
-  cascadeJob   = SEARCH(findProgram('{&data}/',ID,'/noCascade.dat'))   EQ ?
+  beginEstType = IF CAN-DO('ASI/ALL*,{&DMI},ASI/Folding*,{&HOP}',ID)          THEN 0  ELSE 5
+  endEstType   = IF CAN-DO('ASI/ALL*,ASI/Corrugated*,{&DMI},{&Fleetwood}',ID) THEN 99 ELSE 4
+  cascadeJob   = SEARCH(findProgram('{&data}/',ID,'/noCascade.dat')) EQ ?
   .
 IF CONNECTED('emptrack') THEN
 prodQtyProgram = SEARCH(findProgram('{&loads}/',ID,'/prodQty.r')).
-  
+
 FOR EACH job-hdr NO-LOCK
     WHERE job-hdr.company EQ asiCompany
       AND job-hdr.opened EQ YES
-      &IF DEFINED(jobNo) NE 0 &THEN
-      AND job-hdr.job-no GE '{&jobNo}'
-      &ENDIF
    ,EACH job OF job-hdr NO-LOCK
    ,FIRST est NO-LOCK
     WHERE est.company EQ job.company
