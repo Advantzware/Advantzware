@@ -1,13 +1,13 @@
-mainmenu mainmenu est
-file mainmenu est
-a file est
-w-est. a est
-w-estc. a est
-w-quote. a est
-copyest. a est
-w-finest. a est
-globquot. a est
-ar a est
+mainmenu mainmenu
+file mainmenu
+a file
+w-est. a
+w-estc. a
+w-quote. a
+copyest. a
+w-finest. a
+globquot. a
+ar a
 r-ctrl. ar
 r-mach. ar
 r-style. ar
@@ -18,22 +18,22 @@ r-prpmat. ar
 r-estsiz. ar
 r-quolst. ar
 r-estmar. ar
-af a est
-mach. af est
-stylef. af est
-stylec. af est
-boxdes. af est
-st-pattn. af est
-st-size. af est
-flute. af est
-prep. af est
-ce-ctrl. af est
-carrier. af est
-routing. af est
-scoreType. af est
-machatt. af est
-custmkup. af est
-b file est
+af a
+mach. af
+stylef. af
+stylec. af
+boxdes. af
+st-pattn. af
+st-size. af
+flute. af
+prep. af
+ce-ctrl. af
+carrier. af
+routing. af
+scoreType. af
+machatt. af
+custmkup. af
+b file
 b1 b
 w-order. b1
 r-ordedt. b1
@@ -105,17 +105,17 @@ r-hotsII. bz
 r-Opnord. bz
 r-hotsop. bz
 r-ordblj. bz
-bf b est
-cust. bf est
-oe-ctrl. bf est
-oe-prmtx. bf est
-globpric. bf est
-copyord. bf est
-surcharg. bf est
-item-com. bf est
-impord. bf est
-rejctcdr. bf est
-c file est
+bf b
+cust. bf
+oe-ctrl. bf
+oe-prmtx. bf
+globpric. bf
+copyord. bf
+surcharg. bf
+item-com. bf
+impord. bf
+rejctcdr. bf
+c file
 c1 c
 w-rcpt. c1
 w-issue. c1
@@ -149,14 +149,14 @@ r-inkglu. cr
 r-rmroll. cr
 r-rmbrd. cr
 r-anshpN. cr
-cf c est
-item. cf est
-w-item. cf est
-procat. cf est
-costtype. cf est
-rm-ctrl. cf est
-loc. cf est
-d file est
+cf c
+item. cf
+w-item. cf
+procat. cf
+costtype. cf
+rm-ctrl. cf
+loc. cf
+d file
 d1 d
 fg-rcpt. d1
 fg-trans. d1
@@ -208,15 +208,15 @@ r-cusinv. dl
 r-valbsc. dl
 r-fgwaud. dl
 r-agewip. dl
-df d est
-itemfg. df est
-fg-ctrl. df est
-fgcat. df est
-loc. df est
-w-fg-set. df est
-fgglobpr. df est
-frtclass. df est
-e file est
+df d
+itemfg. df
+fg-ctrl. df
+fgcat. df
+loc. df
+w-fg-set. df
+fgglobpr. df
+frtclass. df
+e file
 r-period. e
 r-detjnl. e
 r-saprod. e
@@ -251,7 +251,7 @@ r-inctsh. er
 r-yrtoyr. er
 r-slsper. er
 r-scomsr. er
-g file est
+g file
 w-prdhj. g
 w-prdh. g
 g3 g
@@ -281,7 +281,7 @@ r-ontim2. gr
 gf g
 r-mcheff. gf
 r-prodlys. gf
-h file est
+h file
 h2 h
 w-jobcst. h2
 w-jobapp. h2
@@ -318,19 +318,20 @@ r-macmsf. hl
 r-jobprp. hl
 r-jcost. hl
 r-wipjob. hl
-hf h est
-job-code. hf est
-jc-ctrl. hf est
-prod. hf est
-loc. hf est
-w-wipmt. hf est
-rejctcdj. hf est
-q file est
+r-jcstdN. hl
+hf h
+job-code. hf
+jc-ctrl. hf
+prod. hf
+loc. hf
+w-wipmt. hf
+rejctcdj. hf
+q file
 sbView. q
 sbPro. q
 sbStatus. q
 sbReport. q
-i file est
+i file
 i1 i
 w-purord. i1
 r-poedt. i1
@@ -353,10 +354,10 @@ r-voufgc. ir
 r-bomprt. ir
 r-qbprpt. ir
 r-rschrp. ir
-if i est
-rejct-cd. if est
-po-ctrl. if est
-j file est
+if i
+rejct-cd. if
+po-ctrl. if
+j file
 j1 j
 w-arinv. j1
 r-ariedt. j1
@@ -405,16 +406,16 @@ js j
 r-chist. js
 r-mishst. js
 r-dtlinv. js
-jf j est
-cust. jf est
-custype. jf est
-sman. jf est
-terms. jf est
-terr. jf est
-stax. jf est
-ar-ctrl. jf est
-carrier. jf est
-k file est
+jf j
+cust. jf
+custype. jf
+sman. jf
+terms. jf
+terr. jf
+stax. jf
+ar-ctrl. jf
+carrier. jf
+k file
 k1 k
 w-apinv. k1
 w-apinvr. k1
@@ -462,15 +463,15 @@ r-veninv. kr
 r-venchk. kr
 r-1099m. kr
 r-glachk. kr
-kf k est
-vend. kf est
-terms. kf est
-stax. kf est
-ventype. kf est
-buyer. kf est
-ap-ctrl. kf est
-paytype. kf est
-l file est
+kf k
+vend. kf
+terms. kf
+stax. kf
+ventype. kf
+buyer. kf
+ap-ctrl. kf
+paytype. kf
+l file
 l1 l
 w-gljrn. l1
 r-glpost. l1
@@ -495,126 +496,125 @@ r-postrg. lr
 r-postck. lr
 r-pstchk. lr
 r-glrpt. lr
-lf l est
+lf l
 company. lf
 account. lf
 gl-ctrl. lf
 bank. lf
 w-ccode. lf
 r-impbud. lf
-s file est
-s1 s est
-exp-est. s1 est
-imp-est. s1 est
-s2 s est
-fg-purge. s2 est
-arch-est. s2 est
-fgonhnd0. s2 est
-fgonord0. s2 est
-gl-purge. s2 est
-ar0purge. s2 est
-ordpurge. s2 est
-quopurge. s2 est
-po-purge. s2 est
-fgbinbal. s2 est
-jc-purge. s2 est
-fghispur. s2 est
-purarinv. s2 est
-purapinv. s2 est
-loadest. s2 est
-s3 s est
-updest. s3 est
-clearrep. s3 est
-rm-purge. s3 est
-estlabor. s3 est
-bldstack. s3 est
-w-pricst. s3 est
-rmonhto0. s3 est
-rm-mkbin. s3 est
-prgunrel. s3 est
-custpurg. s3 est
-crtnotes. s3 est
-fxtrncst. s3 est
-fxtrncs2. s3 est
-acctbtob. s3 est
-updvend#. s3 est
-user s est
-comp_loc. user est
-usermenu. user est
-users. user est
-users_. user est
-track_. user est
-usergrps. user est
-usergrp_. user est
-codes s est
-emailcod. codes est
-statecod. codes est
-stateco_. codes est
-titlcode. codes est
-titlcod_. codes est
-zipcode. codes est
-zipcode_. codes est
-access. s est
-s8 s est
-sys-ctrl. s8 est
-w-head. s8 est
-utlookmn. s8 est
-wNewLic. s8 est
-userCtrl. s8 est
-custproc. s est
-s11 s est
-patchhst. s11 est
-updcust#. s11 est
-updfgitm. s11 est
-invdatef. s11 est
-chkdatef. s11 est
-smancomm. s11 est
-updrmitm. s11 est
-updapinv. s11 est
-crtfgrec. s11 est
-oeinvcst. s11 est
-fg-taxed. s11 est
-fxinvcst. s11 est
-bldfgbin. s11 est
-deflocbn. s11 est
-setwhsbn. s11 est
-shipmeth. s11 est
-ss s est
-file. ss est
-job-cat. ss est
-mat. ss est
-dept. ss est
-matprep. ss est
-specitem. ss est
-std-code. ss est
-uom. ss est
-statecod. ss est
-holiday. ss est
-xref. ss est
-sr s est
-w-usrprt. sr est
-w-batch. sr est
-EDIRelBL. sr est
-contexp. sr est
-wedpotr. sr est
-wedpoak. sr est
-wedshtr. sr est
-impspxml. sr est
-wQuery. sr est
-system s est
-spooler. system est
-splchkdn. system est
-config. system est
-setaudit. system est
-audit. system est
-access. system est
-miscflds. system est
-prgrms. system est
-prgrms_. system est
-parmfile. system est
-parmfil_. system est
-help mainmenu est
-about. help est
+s file
+s1 s
+exp-est. s1
+imp-est. s1
+s2 s
+fg-purge. s2
+arch-est. s2
+fgonhnd0. s2
+fgonord0. s2
+gl-purge. s2
+ar0purge. s2
+ordpurge. s2
+quopurge. s2
+po-purge. s2
+fgbinbal. s2
+jc-purge. s2
+fghispur. s2
+purarinv. s2
+purapinv. s2
+loadest. s2
+s3 s
+updest. s3
+clearrep. s3
+rm-purge. s3
+estlabor. s3
+bldstack. s3
+w-pricst. s3
+rmonhto0. s3
+rm-mkbin. s3
+prgunrel. s3
+custpurg. s3
+crtnotes. s3
+fxtrncst. s3
+fxtrncs2. s3
+acctbtob. s3
+updvend#. s3
+user s
+comp_loc. user
+usermenu. user
+users. user
+users_. user
+usergrps. user
+usergrp_. user
+codes s
+emailcod. codes
+statecod. codes
+stateco_. codes
+titlcode. codes
+titlcod_. codes
+zipcode. codes
+zipcode_. codes
+access. s
+s8 s
+sys-ctrl. s8
+w-head. s8
+utlookmn. s8
+wNewLic. s8
+userCtrl. s8
+custproc. s
+s11 s
+patchhst. s11
+updcust#. s11
+updfgitm. s11
+invdatef. s11
+chkdatef. s11
+smancomm. s11
+updrmitm. s11
+updapinv. s11
+crtfgrec. s11
+oeinvcst. s11
+fg-taxed. s11
+fxinvcst. s11
+bldfgbin. s11
+deflocbn. s11
+setwhsbn. s11
+shipmeth. s11
+ss s
+file. ss
+job-cat. ss
+mat. ss
+dept. ss
+matprep. ss
+specitem. ss
+std-code. ss
+uom. ss
+statecod. ss
+holiday. ss
+xref. ss
+sr s
+w-usrprt. sr
+w-batch. sr
+EDIRelBL. sr
+contexp. sr
+wedpotr. sr
+wedpoak. sr
+wedshtr. sr
+impspxml. sr
+wQuery. sr
+system s
+spooler. system
+splchkdn. system
+config. system
+setaudit. system
+audit. system
+access. system
+miscflds. system
+prgrms. system
+prgrms_. system
+parmfile. system
+parmfil_. system
+help mainmenu
+about. help
 m file
 m1. m
 outboundProcess. m
