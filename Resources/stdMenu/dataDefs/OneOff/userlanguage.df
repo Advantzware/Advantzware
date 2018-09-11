@@ -1,0 +1,20 @@
+UPDATE TABLE "userLanguage"
+  TABLE-TRIGGER "CREATE" OVERRIDE PROCEDURE "create.trg/userLanguage.p" CRC "?"
+  TABLE-TRIGGER "DELETE" OVERRIDE PROCEDURE "delete.trg/userLanguage.p" CRC "?"
+  TABLE-TRIGGER "WRITE" OVERRIDE PROCEDURE "write.trg/userLanguage.p" CRC "?"
+
+ADD FIELD "flagImage" OF "userLanguage" AS character 
+  DESCRIPTION "Flag Image"
+  FORMAT "x(40)"
+  INITIAL ""
+  LABEL "Flag Image"
+  POSITION 6
+  MAX-WIDTH 80
+  HELP "Enter Flag Image"
+  ORDER 50
+
+.
+PSC
+cpstream=ISO8859-1
+.
+0000001842
