@@ -41,14 +41,14 @@ DEFINE {1} {2} VARIABLE gcTypePrograms AS CHARACTER.
 DEFINE {1} {2} VARIABLE gcUpdatesAllowedTypes AS CHARACTER.
 DEFINE {1} {2} VARIABLE gcTypeProgramsFolder AS CHARACTER INIT "util\".
  
-ASSIGN          /*     1           2             3             4              5           6          7              8        9           10           11               12                13                14                     15*/
-    gcTypeList = "ttImportAP,ttImportCash,ttImportShipTo,ttImportEstimate,ttImportFG,ttImportVend,ttImportCust,ttImportAR,ttImportGL,ttImportBin,ttImportRelease,ttImportVendCost,ttImportPriceMatrix,ttImportEstimateARD,ttImportEstimateARDP"
-                /*          1                    2                        3                                  4                 5           6                 7               8                  9                              10                       11                                    12                         13                  14                    15*/
-    gcTypeLabels = "Accounts Payable (VU1),Cash Receipts (AC1),Customer ShipTos (AF1 - ShipTo Tab),Estimates (EC/EF),Finished Goods (IF1),Vendor (VF1),Customer (AF1),Customer Invoice (AU1),GL Account (GF2),Whse / bin Location (IF4/MF6),Order Release (OU1 - Release Tab),Finished Goods (IF1 - Vend Cost Tab),Price Matrix (OF3),Estimate - CAD File,Estimate - CAD Project"
-                /*           1       2            3            4             5                 6          7           8           9          10            11                12                13                     14             15*/   
-    gcTypePrograms = "ImportAP.p,ImportCash.p,ImportShipTo.p,ImportEstimate.p,ImportFG.p,ImportVend.p,ImportCust.p,ImportAR.p,ImportGL.p,ImportBin.p,importRelease.p,ImportVendorCost.p,ImportPriceMatrix.p,ImportEstimate.p,ImportEstimate.p "
+ASSIGN          /*     1           2             3             4              5           6          7              8        9           10           11               12                13                14                     15                 16*/
+    gcTypeList = "ttImportAP,ttImportCash,ttImportShipTo,ttImportEstimate,ttImportFG,ttImportVend,ttImportCust,ttImportAR,ttImportGL,ttImportBin,ttImportRelease,ttImportVendCost,ttImportPriceMatrix,ttImportEstimateARD,ttImportEstimateARDP,ttImportConfig"
+                /*          1                    2                        3                                  4                 5           6                 7               8                  9                              10                       11                                    12                         13                  14                    15                          16*/
+    gcTypeLabels = "Accounts Payable (VU1),Cash Receipts (AC1),Customer ShipTos (AF1 - ShipTo Tab),Estimates (EC/EF),Finished Goods (IF1),Vendor (VF1),Customer (AF1),Customer Invoice (AU1),GL Account (GF2),Whse / bin Location (IF4/MF6),Order Release (OU1 - Release Tab),Finished Goods (IF1 - Vend Cost Tab),Price Matrix (OF3),Estimate - CAD File,Estimate - CAD Project,Configuration Settings (NK1)"
+                /*           1       2            3            4             5                 6          7           8           9          10            11                12                13                     14             15             16*/   
+    gcTypePrograms = "ImportAP.p,ImportCash.p,ImportShipTo.p,ImportEstimate.p,ImportFG.p,ImportVend.p,ImportCust.p,ImportAR.p,ImportGL.p,ImportBin.p,importRelease.p,ImportVendorCost.p,ImportPriceMatrix.p,ImportEstimate.p,ImportEstimate.p,ImportConfig.p"
     
-    gcUpdatesAllowedTypes = "ttImportShipTo,ttImportFG,ttImportVend,ttImportCust,ttImportGL,ttImportBin,ttImportVendCost,ttImportPriceMatrix"
+    gcUpdatesAllowedTypes = "ttImportShipTo,ttImportFG,ttImportVend,ttImportCust,ttImportGL,ttImportBin,ttImportVendCost,ttImportPriceMatrix,ttImportConfig"
     .
                           
 /* ********************  Preprocessor Definitions  ******************** */
