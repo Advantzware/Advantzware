@@ -36,8 +36,6 @@ DEFINE VARIABLE cScoreType AS CHARACTER NO-UNDO.
 DEF VAR lv-rowid1 AS ROWID NO-UNDO.
 DEF VAR lv-rowid2 AS ROWID NO-UNDO.
 def var k_frac as dec init "6.25" no-undo.
-DEF BUFFER b-ref1 FOR reftable.
-DEF BUFFER b-ref2 FOR reftable.
 ASSIGN cocode = g_company
        locode = g_loc.
 {sys/inc/f16to32.i}
@@ -452,23 +450,16 @@ DO:
           UPDATE ll.
 
   IF ll THEN DO:
-    {po/po-ordls.i}
   
     {po/poordls2W.i}
 
-    IF AVAIL b-ref1 THEN DELETE b-ref1.
-    IF AVAIL b-ref2 THEN DELETE b-ref2.
     IF fiLenWid:SCREEN-VALUE = "Width" THEN
       RUN po/po-ordlw.p (RECID(po-ordl), "Length").
     ELSE
       RUN po/po-ordls.p (RECID(po-ordl)).
 
-    {po/po-ordls.i}  
     {po/poordls2W.i}
 
-    ASSIGN
-      lv-rowid1 = ROWID(b-ref1)
-      lv-rowid2 = ROWID(b-ref2).
     RUN initial-screen.
 
     IF fiLenWid:SCREEN-VALUE = "Width" THEN
@@ -545,94 +536,76 @@ DO:
   RUN cec/val-type.p (FRAME {&FRAME-NAME}:HANDLE, ?) NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
-  FIND b-ref1 WHERE ROWID(b-ref1) EQ lv-rowid1 NO-ERROR.
-  FIND b-ref2 WHERE ROWID(b-ref2) EQ lv-rowid2 NO-ERROR.
   DO WITH FRAME {&FRAME-NAME}:
     ASSIGN {&displayed-objects}.
   END.
-  IF NOT AVAIL b-ref1 OR NOT AVAIL b-ref2 THEN DO:
-
-    {po/po-ordls.i}  
     {po/poordls2W.i}
-    IF NOT AVAIL b-ref1 OR NOT AVAIL b-ref2 THEN DO:    
        RUN po/poaddscores.p (INPUT ROWID(po-ordl)).
-       {po/po-ordls.i}  
        {po/poordls2W.i}
-    END.
-  END.
     
-
-        
+ FIND CURRENT po-ordl.        
   DO WHILE TRUE:
-    IF AVAIL b-ref1 THEN
-      ASSIGN
-       b-ref1.val[1]  = val-1
-       b-ref1.val[2]  = val-2
-       b-ref1.val[3]  = val-3
-       b-ref1.val[4]  = val-4
-       b-ref1.val[5]  = val-5
-       b-ref1.val[6]  = val-6
-       b-ref1.val[7]  = val-7
-       b-ref1.val[8]  = val-8
-       b-ref1.val[9]  = val-9
-       b-ref1.val[10] = val-10
-       b-ref1.val[11] = val-11
-       b-ref1.val[12] = val-12
+    ASSIGN
+       po-ordl.scorePanels[1]  = val-1
+       po-ordl.scorePanels[2]  = val-2
+       po-ordl.scorePanels[3]  = val-3
+       po-ordl.scorePanels[4]  = val-4
+       po-ordl.scorePanels[5]  = val-5
+       po-ordl.scorePanels[6]  = val-6
+       po-ordl.scorePanels[7]  = val-7
+       po-ordl.scorePanels[8]  = val-8
+       po-ordl.scorePanels[9]  = val-9
+       po-ordl.scorePanels[10] = val-10
+       po-ordl.scorePanels[11] = val-11
+       po-ordl.scorePanels[12] = val-12
+       po-ordl.scorePanels[13] = val-13
+       po-ordl.scorePanels[14] = val-14
+       po-ordl.scorePanels[15] = val-15
+       po-ordl.scorePanels[16] = val-16
+       po-ordl.scorePanels[17] = val-17
+       po-ordl.scorePanels[18] = val-18
+       po-ordl.scorePanels[19] = val-19
+       po-ordl.scorePanels[20] = val-20
 
-       b-ref1.dscr = ""
-       b-ref1.dscr = b-ref1.dscr + STRING(type-1,"X")
-       b-ref1.dscr = b-ref1.dscr + STRING(type-2,"X")
-       b-ref1.dscr = b-ref1.dscr + STRING(type-3,"X")
-       b-ref1.dscr = b-ref1.dscr + STRING(type-4,"X")
-       b-ref1.dscr = b-ref1.dscr + STRING(type-5,"X")
-       b-ref1.dscr = b-ref1.dscr + STRING(type-6,"X")
-       b-ref1.dscr = b-ref1.dscr + STRING(type-7,"X")
-       b-ref1.dscr = b-ref1.dscr + STRING(type-8,"X")
-       b-ref1.dscr = b-ref1.dscr + STRING(type-9,"X")
-       b-ref1.dscr = b-ref1.dscr + STRING(type-10,"X")
-       b-ref1.dscr = b-ref1.dscr + STRING(type-11,"X")
-       b-ref1.dscr = b-ref1.dscr + STRING(type-12,"X").
+       po-ordl.scoreType[1] = STRING(type-1,"X")
+       po-ordl.scoreType[2] = STRING(type-2,"X")
+       po-ordl.scoreType[3] = STRING(type-3,"X")
+       po-ordl.scoreType[4] = STRING(type-4,"X")
+       po-ordl.scoreType[5] = STRING(type-5,"X")
+       po-ordl.scoreType[6] = STRING(type-6,"X")
+       po-ordl.scoreType[7] = STRING(type-7,"X")
+       po-ordl.scoreType[8] = STRING(type-8,"X")
+       po-ordl.scoreType[9] = STRING(type-9,"X")
+       po-ordl.scoreType[10] = STRING(type-10,"X")
+       po-ordl.scoreType[11] = STRING(type-11,"X")
+       po-ordl.scoreType[12] = STRING(type-12,"X")
+       po-ordl.scoreType[13] = STRING(type-11,"X")
+       po-ordl.scoreType[14] = STRING(type-12,"X")
+       po-ordl.scoreType[15] = STRING(type-11,"X")
+       po-ordl.scoreType[16] = STRING(type-12,"X")
+       po-ordl.scoreType[17] = STRING(type-11,"X")
+       po-ordl.scoreType[18] = STRING(type-12,"X")
+       po-ordl.scoreType[19] = STRING(type-11,"X")
+       po-ordl.scoreType[20] = STRING(type-12,"X").
+    
+    
+    
+      
 
-    IF AVAIL b-ref2 THEN
-      ASSIGN
-       b-ref2.val[1]  = val-13
-       b-ref2.val[2]  = val-14
-       b-ref2.val[3]  = val-15
-       b-ref2.val[4]  = val-16
-       b-ref2.val[5]  = val-17
-       b-ref2.val[6]  = val-18
-       b-ref2.val[7]  = val-19
-       b-ref2.val[8]  = val-20
-
-       b-ref2.dscr = ""
-       b-ref2.dscr = b-ref2.dscr + STRING(type-13,"X")
-       b-ref2.dscr = b-ref2.dscr + STRING(type-14,"X")
-       b-ref2.dscr = b-ref2.dscr + STRING(type-15,"X")
-       b-ref2.dscr = b-ref2.dscr + STRING(type-16,"X")
-       b-ref2.dscr = b-ref2.dscr + STRING(type-17,"X")
-       b-ref2.dscr = b-ref2.dscr + STRING(type-18,"X")
-       b-ref2.dscr = b-ref2.dscr + STRING(type-19,"X")
-       b-ref2.dscr = b-ref2.dscr + STRING(type-20,"X").
 
     {po/poordls2W.i}
     {po/poordls3W.i}
     
     v-tot-score = 0.
 
-    IF AVAIL b-ref1 THEN
-    DO i = 1 TO 12:
+
+    DO i = 1 TO 20:
       ASSIGN 
-       v-tot-score[1] = v-tot-score[1] + TRUNC(b-ref1.val[i],0)
+       v-tot-score[1] = v-tot-score[1] + TRUNC(po-ordl.scorePanels[i],0)
        v-tot-score[2] = v-tot-score[2] +
-                        (b-ref1.val[i] - TRUNC(b-ref1.val[i],0)).
+                        (po-ordl.scorePanels[i] - TRUNC(po-ordl.scorePanels[i],0)).
     END.
-    IF AVAIL b-ref2 THEN
-    DO i = 1 TO 8:
-      ASSIGN 
-       v-tot-score[1] = v-tot-score[1] + TRUNC(b-ref2.val[i],0)
-       v-tot-score[2] = v-tot-score[2] +
-                        (b-ref2.val[i] - TRUNC(b-ref2.val[i],0)).
-    END.
+
 
     ASSIGN
      v-tot-score[1] = v-tot-score[1] + (v-tot-score[2] * 100 / li-16-32).
@@ -665,7 +638,7 @@ DO:
         RETURN NO-APPLY.
       END.
 
-      FIND CURRENT po-ordl.
+
               
       /*IF v-xg-flag THEN po-ordl.s-len = v-tot-score[1].
                    ELSE*/ 
@@ -709,10 +682,7 @@ DO:
   IF AVAIL(po-ordl) AND po-ordl.spare-char-1 NE fiLenWid:SCREEN-VALUE THEN
     po-ordl.spare-char-1 = fiLenWid:SCREEN-VALUE.
   FIND CURRENT po-ordl NO-LOCK.
-  IF AVAIL b-ref1 THEN
-    FIND CURRENT b-ref1 NO-LOCK.
-  IF AVAIL b-ref2 THEN
-  FIND CURRENT b-ref2 NO-LOCK.
+
 
   APPLY "go" TO FRAME {&FRAME-NAME}.
 END.
@@ -1092,36 +1062,26 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         val-19:FORMAT = "->>,>>9.999999"
         val-20:FORMAT = "->>,>>9.999999".
 
-    {po/po-ordls.i}
   
     {po/poordls2W.i}
 
     ld = 0.
-    IF AVAIL b-ref1 THEN
-    DO li = 1 TO 12:
-      ld = ld + b-ref1.val[li].
+
+    DO li = 1 TO 20:
+      ld = ld + po-ordl.scorePanels[li].
     END.
-    IF AVAIL b-ref2 THEN
-    DO li = 1 TO 8:
-      ld = ld + b-ref2.val[li].
-    END. 
+
 
     ll = NO.
-    IF (AVAIL b-ref1 OR AVAIL b-ref2) AND ld EQ 0 THEN 
+    IF ld EQ 0 THEN
       MESSAGE "Scores total zero, do you wish to default from estimate?"
           VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
           UPDATE ll.
 
     IF ll THEN DO:
-      IF AVAIL b-ref1 THEN DELETE b-ref1.
-      IF AVAIL b-ref2 THEN DELETE b-ref2.
     END.
 
     RUN po/po-ordls.p (RECID(po-ordl)).
-
-    {po/po-ordls.i}
-
-/*    END. */
   END.
 END.
 RUN enable_UI.
@@ -1189,36 +1149,33 @@ PROCEDURE initial-screen :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    IF AVAIL b-ref1 OR AVAIL b-ref2 THEN DO:
-      IF AVAIL b-ref1 THEN
+
+
+    IF AVAIL po-ordl THEN DO:
         ASSIGN
-         lv-rowid1 = ROWID(b-ref1)
+/*         lv-rowid1 = ROWID(po-ordl)*/
 
-         type-1  = SUBSTR(b-ref1.dscr,1,1)
-         type-2  = SUBSTR(b-ref1.dscr,2,1)
-         type-3  = SUBSTR(b-ref1.dscr,3,1)
-         type-4  = SUBSTR(b-ref1.dscr,4,1)
-         type-5  = SUBSTR(b-ref1.dscr,5,1)
-         type-6  = SUBSTR(b-ref1.dscr,6,1)
-         type-7  = SUBSTR(b-ref1.dscr,7,1)
-         type-8  = SUBSTR(b-ref1.dscr,8,1)
-         type-9  = SUBSTR(b-ref1.dscr,9,1)
-         type-10 = SUBSTR(b-ref1.dscr,10,1)
-         type-11 = SUBSTR(b-ref1.dscr,11,1)
-         type-12 = SUBSTR(b-ref1.dscr,12,1).
+         type-1  = SUBSTR(po-ordl.scoreType[1],1)
+         type-2  = SUBSTR(po-ordl.scoreType[2],1)
+         type-3  = SUBSTR(po-ordl.scoreType[3],1)
+         type-4  = SUBSTR(po-ordl.scoreType[4],1)
+         type-5  = SUBSTR(po-ordl.scoreType[5],1)
+         type-6  = SUBSTR(po-ordl.scoreType[6],1)
+         type-7  = SUBSTR(po-ordl.scoreType[7],1)
+         type-8  = SUBSTR(po-ordl.scoreType[8],1)
+         type-9  = SUBSTR(po-ordl.scoreType[9],1)
+         type-10 = SUBSTR(po-ordl.scoreType[10],1)
+         type-11 = SUBSTR(po-ordl.scoreType[11],1)
+         type-12 = SUBSTR(po-ordl.scoreType[12],1)
+         type-13 = SUBSTR(po-ordl.scoreType[13],1)
+         type-14 = SUBSTR(po-ordl.scoreType[14],1)
+         type-15 = SUBSTR(po-ordl.scoreType[15],1)
+         type-16 = SUBSTR(po-ordl.scoreType[16],1)
+         type-17 = SUBSTR(po-ordl.scoreType[17],1)
+         type-18 = SUBSTR(po-ordl.scoreType[18],1)
+         type-19 = SUBSTR(po-ordl.scoreType[19],1)
+         type-20 = SUBSTR(po-ordl.scoreType[20],1).
 
-      IF AVAIL b-ref2 THEN
-        ASSIGN
-         lv-rowid2 = ROWID(b-ref2)
-
-         type-13 = SUBSTR(b-ref2.dscr,1,1)
-         type-14 = SUBSTR(b-ref2.dscr,2,1)
-         type-15 = SUBSTR(b-ref2.dscr,2,1)
-         type-16 = SUBSTR(b-ref2.dscr,4,1)
-         type-17 = SUBSTR(b-ref2.dscr,5,1)
-         type-18 = SUBSTR(b-ref2.dscr,6,1)
-         type-19 = SUBSTR(b-ref2.dscr,7,1)
-         type-20 = SUBSTR(b-ref2.dscr,8,1).
 
       RUN enable_UI.
 
@@ -1244,35 +1201,30 @@ PROCEDURE initial-screen :
         APPLY "value-changed" TO type-19.
         APPLY "value-changed" TO type-20.
 
-        IF AVAIL b-ref1 THEN
-          ASSIGN
-           val-1:SCREEN-VALUE  = STRING(b-ref1.val[1])
-           val-2:SCREEN-VALUE  = STRING(b-ref1.val[2])
-           val-3:SCREEN-VALUE  = STRING(b-ref1.val[3])
-           val-4:SCREEN-VALUE  = STRING(b-ref1.val[4])
-           val-5:SCREEN-VALUE  = STRING(b-ref1.val[5])
-           val-6:SCREEN-VALUE  = STRING(b-ref1.val[6])
-           val-7:SCREEN-VALUE  = STRING(b-ref1.val[7])
-           val-8:SCREEN-VALUE  = STRING(b-ref1.val[8])
-           val-9:SCREEN-VALUE  = STRING(b-ref1.val[9])
-           val-10:SCREEN-VALUE = STRING(b-ref1.val[10])
-           val-11:SCREEN-VALUE = STRING(b-ref1.val[11])
-           val-12:SCREEN-VALUE = STRING(b-ref1.val[12]).
 
-        IF AVAIL b-ref2 THEN
-          ASSIGN
-           val-13:SCREEN-VALUE = STRING(b-ref2.val[1])
-           val-14:SCREEN-VALUE = STRING(b-ref2.val[2])
-           val-15:SCREEN-VALUE = STRING(b-ref2.val[3])
-           val-16:SCREEN-VALUE = STRING(b-ref2.val[4])
-           val-17:SCREEN-VALUE = STRING(b-ref2.val[5])
-           val-18:SCREEN-VALUE = STRING(b-ref2.val[6])
-           val-19:SCREEN-VALUE = STRING(b-ref2.val[7])
-           val-20:SCREEN-VALUE = STRING(b-ref2.val[8]).
-
+        ASSIGN
+           val-1:SCREEN-VALUE  = STRING(po-ordl.scorePanels[1])
+           val-2:SCREEN-VALUE  = STRING(po-ordl.scorePanels[2])
+           val-3:SCREEN-VALUE  = STRING(po-ordl.scorePanels[3])
+           val-4:SCREEN-VALUE  = STRING(po-ordl.scorePanels[4])
+           val-5:SCREEN-VALUE  = STRING(po-ordl.scorePanels[5])
+           val-6:SCREEN-VALUE  = STRING(po-ordl.scorePanels[6])
+           val-7:SCREEN-VALUE  = STRING(po-ordl.scorePanels[7])
+           val-8:SCREEN-VALUE  = STRING(po-ordl.scorePanels[8])
+           val-9:SCREEN-VALUE  = STRING(po-ordl.scorePanels[9])
+           val-10:SCREEN-VALUE = STRING(po-ordl.scorePanels[10])
+           val-11:SCREEN-VALUE = STRING(po-ordl.scorePanels[11])
+           val-12:SCREEN-VALUE = STRING(po-ordl.scorePanels[12])
+           val-13:SCREEN-VALUE = STRING(po-ordl.scorePanels[13])
+           val-14:SCREEN-VALUE = STRING(po-ordl.scorePanels[14])
+           val-15:SCREEN-VALUE = STRING(po-ordl.scorePanels[15])
+           val-16:SCREEN-VALUE = STRING(po-ordl.scorePanels[16])
+           val-17:SCREEN-VALUE = STRING(po-ordl.scorePanels[17])
+           val-18:SCREEN-VALUE = STRING(po-ordl.scorePanels[18])
+           val-19:SCREEN-VALUE = STRING(po-ordl.scorePanels[19])
+           val-20:SCREEN-VALUE = STRING(po-ordl.scorePanels[20]).
       END.
     END.
-      RELEASE b-ref1.
 
 END PROCEDURE.
 

@@ -162,15 +162,12 @@ DEFINE BUFFER bf-ordl    FOR oe-ordl.
 DEFINE BUFFER bf-ord     FOR oe-ord.
 DEFINE BUFFER b-orderpo  FOR reftable.
 DEFINE BUFFER b-jc-calc  FOR reftable.
-DEFINE BUFFER b-ref1     FOR reftable.
-DEFINE BUFFER b-ref2     FOR reftable.
 DEFINE BUFFER b-job-mat  FOR job-mat.
 DEFINE BUFFER b-job-hdr  FOR job-hdr.
 DEFINE BUFFER xest       FOR est.
 DEFINE BUFFER xeb        FOR eb.
 
-DEFINE TEMP-TABLE tt-ref1 NO-UNDO LIKE reftable.
-DEFINE BUFFER tt-ref2 FOR tt-ref1.
+DEFINE TEMP-TABLE tt-ref1 NO-UNDO LIKE po-ordl.
 DEFINE VARIABLE v-po-best       AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE v-from-po-entry AS LOGICAL   NO-UNDO.
 
@@ -2902,8 +2899,6 @@ PROCEDURE PoOrdlFinal :
 
     EMPTY TEMP-TABLE tt-ref1.
 
-    {po/po-ordls.i bf-}
-
     IF NOT bf-po-ordl.item-type THEN
         RUN jc/writeFarmFromPO.p (ROWID(bf-po-ordl), bf-po-ordl.job-no, STRING(bf-po-ordl.job-no2),
             STRING(bf-po-ordl.ord-no), bf-po-ordl.i-no, STRING(bf-po-ordl.s-num),
@@ -2914,39 +2909,24 @@ PROCEDURE PoOrdlFinal :
     /* Process Scoring Changes ******************/
     /* find on b-ref1 is not in the program     */
     /********************************************/
-    IF AVAILABLE b-ref1 THEN 
     DO:
         CREATE tt-ref1.
-        BUFFER-COPY b-ref1 TO tt-ref1.
-        DELETE b-ref1.
-    END.
-
-    IF AVAILABLE b-ref2 THEN 
-    DO:
-        CREATE tt-ref2.
-        BUFFER-COPY b-ref2 TO tt-ref2.
-        DELETE b-ref2.
+        BUFFER-COPY bf-po-ordl TO tt-ref1.
+        DELETE bf-po-ordl.
     END.
 
     RUN po/po-ordls.p (RECID(bf-po-ordl)).
 
-    IF AVAILABLE tt-ref1 OR AVAILABLE tt-ref2 THEN 
+    IF AVAILABLE tt-ref1 THEN 
     DO:
-        {po/po-ordls.i}
 
         ll = NO.
-        IF AVAILABLE b-ref1 AND AVAILABLE tt-ref1 THEN 
-        DO li = 1 TO EXTENT(b-ref1.val):
-            IF b-ref1.val[li] NE tt-ref1.val[li] THEN ll = YES.
+        IF AVAILABLE tt-ref1 THEN 
+        DO li = 1 TO EXTENT(bf-po-ordl.scorePanels):
+            IF bf-po-ordl.scorePanels[li] NE tt-ref1.scorePanels[li] THEN ll = YES.
             IF ll THEN LEAVE.
         END. /* avail b-ref1 ... */
-        IF NOT ll                         AND
-            AVAILABLE b-ref2 AND AVAILABLE tt-ref2 THEN 
-        DO li = 1 TO EXTENT(b-ref2.val):
-            IF b-ref2.val[li] NE tt-ref2.val[li] THEN ll = YES.
-            IF ll THEN LEAVE.
-        END. /* Not ll */
-
+        
         IF ll THEN 
         DO:
             ll = NO.
@@ -2960,8 +2940,7 @@ PROCEDURE PoOrdlFinal :
 
         IF NOT ll THEN 
         DO:
-            IF AVAILABLE b-ref1 AND AVAILABLE tt-ref1 THEN BUFFER-COPY tt-ref1 TO b-ref1.
-            IF AVAILABLE b-ref2 AND AVAILABLE tt-ref2 THEN BUFFER-COPY tt-ref2 TO b-ref2.
+            IF AVAILABLE bf-po-ordl AND AVAILABLE tt-ref1 THEN BUFFER-COPY tt-ref1 TO bf-po-ordl.
         END. /* not ll */
 
     END. /* AVail tt-ref1 */

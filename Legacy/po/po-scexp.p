@@ -11,8 +11,6 @@ DEF INPUT PARAM v-format AS CHAR NO-UNDO.
 
 DEF BUFFER xjob-mat FOR job-mat.
 DEF BUFFER xitem    FOR item.
-DEF BUFFER b-ref1   FOR reftable.
-DEF BUFFER b-ref2   FOR reftable.
 
 {po/po-print.i}
 
@@ -311,33 +309,17 @@ FOR EACH report NO-LOCK WHERE report.term-id EQ v-term-id,
         "</addoncodes>".
 
     RUN po/po-ordls.p (RECID(po-ordl)).
-    
-    {po/po-ordls.i}
 
     EMPTY TEMP-TABLE tt-score.   
     
-    IF AVAIL b-ref1 THEN
-    DO i = 1 TO 12:
-      IF b-ref1.val[i] NE 0 THEN DO:
+    IF po-ordl.scorePanels[i] NE 0 THEN
+    DO i = 1 TO 20:
         CREATE tt-score.
         ASSIGN
          tt-seq  = i
-         tt-type = SUBSTR(b-ref1.dscr,i,1)
-         tt-scor = TRUNC(b-ref1.val[i],0) +
-                   ((b-ref1.val[i] - TRUNC(b-ref1.val[i],0)) * 6.25).
-      END.
-    END.
-
-    IF AVAIL b-ref2 THEN
-    DO i = 1 TO 8:
-      IF b-ref2.val[i] NE 0 THEN DO:
-        CREATE tt-score.
-        ASSIGN
-         tt-seq  = 12 + i
-         tt-type = SUBSTR(b-ref2.dscr,i,1)
-         tt-scor = TRUNC(b-ref2.val[i],0) +
-                   ((b-ref2.val[i] - TRUNC(b-ref2.val[i],0)) * 6.25).
-      END.
+         tt-type = SUBSTR(po-ordl.scoreType[i],1)
+         tt-scor = TRUNC(po-ordl.scorePanels[i],0) +
+                   ((po-ordl.scorePanels[i] - TRUNC(po-ordl.scorePanels[i],0)) * 6.25).
     END.
 
     i = 0.

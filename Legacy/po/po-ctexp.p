@@ -11,8 +11,6 @@ def input parameter v-format as char no-undo.
 
 def buffer xjob-mat for job-mat.
 def buffer xitem for item.
-def buffer b-ref1  for reftable.
-def buffer b-ref2  for reftable.
 
 {po/po-print.i}
 
@@ -552,39 +550,24 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
     put skip.
     
     run po/po-ordls.p (recid(po-ordl)).
-    
-    {po/po-ordls.i}
             
     /* Order Extension Record */
     
     /* TYPE */
     put "X".
 
-    do i = 1 to 12:
-      if avail b-ref1 then do:
+    do i = 1 to 20:
+      if po-ordl.scorePanels[i] NE 0 then do:
         /* STYPE 1 to extent(b-ref1.val) */
-        put substr(b-ref1.dscr,i,1) format "xx".
+        put substr(po-ordl.scoreType[i],1) format "xx".
     
         /* SCORE 1 to extent(b-ref1.val) */
-        put trunc(b-ref1.val[i],0)                          format "9999"
-            (b-ref1.val[i] - trunc(b-ref1.val[i],0)) * 100  format "99".
+        put trunc(po-ordl.scorePanels[i],0)                          format "9999"
+            (po-ordl.scorePanels[i] - trunc(po-ordl.scorePanels[i],0)) * 100  format "99".
       end.
             
       else put "  000000".
-    end.
-
-    do i = 1 to 5:
-      if avail b-ref2 then do:
-        /* STYPE 1 to extent(b-ref2.val) */
-        put substr(b-ref2.dscr,i,1) format "xx".
-    
-        /* SCORE 1 to extent(b-ref2.val) */
-        put trunc(b-ref2.val[i],0)                          format "9999"
-            (b-ref2.val[i] - trunc(b-ref2.val[i],0)) * 100  format "99".
-      end.
-            
-      else put "  000000".
-    end.
+    end.    
     
     put space(6).
     

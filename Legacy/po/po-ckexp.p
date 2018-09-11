@@ -11,8 +11,6 @@ def input parameter v-format as char no-undo.
 
 def buffer xjob-mat for job-mat.
 def buffer xitem for item.
-def buffer b-ref1  for reftable.
-def buffer b-ref2  for reftable.
 
 {po/po-print.i}
 
@@ -312,23 +310,21 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
     put " " format "x".
 
     run po/po-ordls.p (recid(po-ordl)).
-    
-    {po/po-ordls.i}
 
     do i = 1 to 12:
-      if avail b-ref1 then do:
+      if po-ordl.scorePanels[i] NE 0 then do:
 
         /* RISC[i]W */
-        put trunc(b-ref1.val[i],0) format "999".
+        put trunc(po-ordl.scorePanels[i],0) format "999".
 
         /* RISC[i]N */
-        put (b-ref1.val[i] - trunc(b-ref1.val[i],0)) * 100 format "99".
+        put (po-ordl.scorePanels[i] - trunc(po-ordl.scorePanels[i],0)) * 100 format "99".
 
         /* RISC[i]D */
         put 16 format "99".
 
         /* RISC[i]T */
-        put substr(b-ref1.dscr,i,1) format "x".
+        put substr(po-ordl.scoreType[i],1) format "x".
       end.
             
       else put "0000000 ".

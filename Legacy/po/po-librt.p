@@ -11,8 +11,6 @@ DEFINE INPUT PARAMETER v-format AS CHARACTER NO-UNDO.
 
 DEFINE BUFFER xjob-mat FOR job-mat.
 DEFINE BUFFER xitem    FOR item.
-DEFINE BUFFER b-ref1   FOR reftable.
-DEFINE BUFFER b-ref2   FOR reftable.
 
 {po/po-print.i}
 {po/getPoAdders.i}
@@ -375,28 +373,17 @@ IF AVAILABLE cust AND liberty-log AND liberty-dir NE "" THEN
             END.
 
             RUN po/po-ordls.p (RECID(po-ordl)).
-    
-            {po/po-ordls.i}
-
-
-            IF AVAIL b-ref1 OR AVAIL b-ref2 THEN 
+             
             DO:
                 ASSIGN
                     lv-val = 0
                     lv-typ = "".
 
-                IF AVAIL b-ref1 THEN
-                DO x = 1 TO 12:
+                DO x = 1 TO 20:
+                    IF po-ordl.scorePanels[i] NE 0 or po-ordl.scoreType[i] NE "" THEN
                     ASSIGN
-                        lv-val[x] = b-ref1.val[x]
-                        lv-typ[x] = SUBSTR(b-ref1.dscr,x,1).
-                END.
-
-                IF AVAIL b-ref2 THEN
-                DO x = 1 TO 8:
-                    ASSIGN
-                        lv-val[x + 12] = b-ref2.val[x]
-                        lv-typ[x + 12] = SUBSTR(b-ref2.dscr,x,1).
+                        lv-val[x] = po-ordl.scorePanels[x]
+                        lv-typ[x] = SUBSTR(po-ordl.scoreType[x],1).
                 END.
 
                 DO lv-int = 0 TO 1:
@@ -446,7 +433,13 @@ IF AVAILABLE cust AND liberty-log AND liberty-dir NE "" THEN
                 END.
             END.
 
-            li-style = IF AVAILABLE b-ref1 OR AVAILABLE b-ref2 THEN 1 ELSE 2.
+    DO i = 1 TO 20:
+       IF po-ordl.scorePanels[i] NE 0 or po-ordl.scoreType[i] NE "" THEN DO:
+           li-style = 1 .
+           LEAVE.
+       END.     
+       ELSE li-style = 2.    
+    END.
 
             /* PUT li-style                                    FORMAT "9999". */
     
@@ -470,17 +463,17 @@ IF AVAILABLE cust AND liberty-log AND liberty-dir NE "" THEN
             /* PRICE PER MSF */
             v-ord-cst = po-ordl.cost.
              
-            IF AVAILABLE b-ref1 THEN DO:
+            IF po-ordl.scorePanels[i] NE 0 THEN DO:
                 
-                IF b-ref1.val[3] GT 0 OR b-ref1.val[2] GT 0 OR b-ref1.val[1] GT 0 THEN DO: 
+                IF po-ordl.scorePanels[3] GT 0 OR po-ordl.scorePanels[2] GT 0 OR po-ordl.scorePanels[1] GT 0 THEN DO: 
                     /* cDimensions = TRIM(STRING(b-ref1.val[1], ">>>>.99")) + " x " + TRIM(STRING(b-ref1.val[2], ">>>>.99")) + " x " + TRIM(STRING(b-ref1.val[3], ">>>>.99")). */
                     cDimensions = "".
-                    DO icnt = 1 TO EXTENT(b-ref1.val):
-                        IF b-ref1.val[iCnt] GT 0 THEN DO:
+                    DO icnt = 1 TO EXTENT(po-ordl.scorePanels):
+                        IF po-ordl.scorePanels[iCnt] GT 0 THEN DO:
                             IF cDimensions = "" THEN 
-                              cDimensions = TRIM(STRING(b-ref1.val[iCnt], ">>>>.99")).
+                              cDimensions = TRIM(STRING(po-ordl.scorePanels[iCnt], ">>>>.99")).
                             ELSE
-                                cDimensions = cDimensions + " x " + TRIM(STRING(b-ref1.val[iCnt], ">>>>.99")).
+                                cDimensions = cDimensions + " x " + TRIM(STRING(po-ordl.scorePanels[iCnt], ">>>>.99")).
                         END.
                         ELSE 
                           LEAVE.
@@ -495,20 +488,20 @@ IF AVAILABLE cust AND liberty-log AND liberty-dir NE "" THEN
                     cDimensions = TRIM(STRING({sys/inc/k16.i po-ordl.s-wid}, ">>>>.99")).
                     
                 /* Formatted Scoring */    
-                IF b-ref1.val[2] GT 0 THEN 
+                IF po-ordl.scorePanels[2] GT 0 THEN 
                 DO:
                     cFormattedScore = "".
-                    DO iCnt = 1 TO EXTENT(b-ref1.val):
+                    DO iCnt = 1 TO EXTENT(po-ordl.scorePanels):
                         /* cFormattedScore = fFormScore(b-ref1.val[1]) + fFormScore(b-ref1.val[2]). */
-                        IF b-ref1.val[iCnt] GT 0 THEN 
-                            cFormattedScore =  cFormattedScore + fFormScore(b-ref1.val[iCnt]).
+                        IF po-ordl.scorePanels[iCnt] GT 0 THEN 
+                            cFormattedScore =  cFormattedScore + fFormScore(po-ordl.scorePanels[iCnt]).
                         ELSE 
                             LEAVE. 
                     END.
                 END.
                 ELSE
-                    IF b-ref1.val[1] GT 0 THEN 
-                      cFormattedScore =  fFormScore(b-ref1.val[1]).
+                    IF po-ordl.scorePanels[1] GT 0 THEN 
+                      cFormattedScore =  fFormScore(po-ordl.scorePanels[1]).
                     
                 /* If no score should just be the width */    
                 IF cFormattedScore EQ "" THEN 

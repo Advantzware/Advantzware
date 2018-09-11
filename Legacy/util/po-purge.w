@@ -360,8 +360,6 @@ PROCEDURE run-process :
 /* Purge PO Program                                                           */
 /******************************************************************************/
 
-def buffer b-ref1 for reftable.
-def buffer b-ref2 for reftable.
 
 def var fpo like po-ord.po-no initial 0 no-undo.
 def var tpo like fpo initial 999999 no-undo.
@@ -399,9 +397,6 @@ if v-process then do:
     for each po-ordl WHERE
         po-ordl.company EQ po-ord.company AND
         po-ordl.po-no   EQ po-ord.po-no:
-      {po/po-ordls.i}
-      if avail b-ref1 then delete b-ref1.
-      if avail b-ref2 then delete b-ref2.
 
       delete po-ordl.
     end.

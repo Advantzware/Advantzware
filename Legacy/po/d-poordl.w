@@ -2561,10 +2561,6 @@ PROCEDURE create-multi-line :
       Notes:       
     ------------------------------------------------------------------------------*/
     DEFINE BUFFER b-job-mat  FOR job-mat.
-    DEFINE BUFFER b-ref1     FOR reftable.
-    DEFINE BUFFER b-ref2     FOR reftable.
-    DEFINE BUFFER b-b-ref1   FOR reftable.
-    DEFINE BUFFER b-b-ref2   FOR reftable.
     DEFINE BUFFER b2-job-mat FOR job-mat.
     DEFINE BUFFER b-item     FOR ITEM.
     DEFINE BUFFER b-job-hdr  FOR job-hdr.
@@ -2809,8 +2805,6 @@ PROCEDURE create-multi-line :
 
                 RUN po/po-ordls.p (RECID(job-mat)).
 
-                {po/poordls1W.i}
-
                 FOR EACH b-job-mat
                     WHERE b-job-mat.company EQ job-mat.company
                     AND b-job-mat.job     EQ job-mat.job
@@ -2822,33 +2816,7 @@ PROCEDURE create-multi-line :
                     NO-LOCK:
 
                     RUN po/po-ordls.p (RECID(b-job-mat)).
-
-                    {po/poordls1W.i b-}
-
-                    IF b-job-mat.wid EQ job-mat.wid AND
-                        b-job-mat.len EQ job-mat.len THEN 
-                    DO:
-
-                        IF AVAILABLE b-ref1 THEN 
-                        DO:
-                            ll-multi = AVAILABLE b-b-ref1.
-                            IF ll-multi THEN
-                                BUFFER-COMPARE b-ref1 USING val TO b-b-ref1
-                                    SAVE RESULT IN ll-multi.
-                        END.
-
-                        IF ll-multi AND AVAILABLE b-ref2 THEN 
-                        DO:
-                            ll-multi = AVAILABLE b-b-ref2.
-                            IF ll-multi THEN
-                                BUFFER-COMPARE b-ref2 USING val TO b-b-ref2
-                                    SAVE RESULT IN ll-multi.
-                        END.
-                    END.
-
-                    ELSE ll-multi = NO.
-                    FIND CURRENT b-ref1 NO-LOCK NO-ERROR.
-                    FIND CURRENT b-ref2 NO-LOCK NO-ERROR.
+                    
                     IF NOT ll-multi THEN LEAVE.
                 END.
 

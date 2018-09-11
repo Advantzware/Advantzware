@@ -2,8 +2,7 @@
 DEF PARAM BUFFER io-po-ordl FOR po-ordl.
 
 DEF BUFFER b-po-ordl FOR po-ordl.
-DEF BUFFER b-ref1 FOR reftable.
-DEF BUFFER b-ref2 FOR reftable.
+
 
 DEF NEW SHARED VAR cocode AS CHAR NO-UNDO.
 
@@ -52,10 +51,6 @@ IF ll THEN DO:
       VIEW-AS ALERT-BOX ERROR.
   RETURN ERROR.
 END.
-
-{po/po-ordls.i io-}
-IF AVAIL b-ref1 THEN DELETE b-ref1.
-IF AVAIL b-ref2 THEN DELETE b-ref2.
 
 {po/poordlup.i io-}
     FIND po-ordl WHERE ROWID(po-ordl) EQ ROWID(io-po-ordl) NO-LOCK NO-ERROR.

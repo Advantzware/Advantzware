@@ -178,25 +178,24 @@ DEFINE BUFFER bf-po-ordl FOR po-ordl.
 DEFINE VARIABLE cScore AS CHAR NO-UNDO.
 DEFINE VARIABLE i AS INT NO-UNDO.
 DEFINE VARIABLE lSpace AS LOG NO-UNDO.
+DEF VAR ld AS DEC NO-UNDO.
+
 
 FIND bf-po-ordl WHERE RECID(bf-po-ordl) EQ ipriPOOrdl NO-LOCK.
-{po/po-ordls.i "bf-"} /*finds scores if they exist for the po-ordl*/
-IF NOT AVAIL b-ref1 AND NOT AVAIL b-ref2 THEN DO:
-    RUN po/po-ordls.p (INPUT ipriPOOrdl).  /*build scores reftable*/
-    {po/po-ordls.i "bf-"} /*finds scores again*/
+ld = 0.
+DO i = 1 TO 20:
+ ld = ld + po-ordl.scorePanels[i].
 END.
-IF AVAIL b-ref1 OR AVAIL b-ref2 THEN DO:
+IF ld = 0 THEN DO:     
+    RUN po/po-ordls.p (INPUT ipriPOOrdl).  
+ END.
+
+IF ld <> 0 THEN DO:
     cScore = "".
-    IF AVAIL b-ref1 THEN
-        DO i = 1 TO 12:
-            IF b-ref1.val[i] NE 0 THEN
-                cScore = cScore + TRIM(STRING(b-ref1.val[i],">>>.99")) + " ".
+        DO i = 1 TO 20:
+                cScore = cScore + TRIM(STRING(bf-po-ordl.scorePanels[i],">>>.99")) + " ".
         END.
-    IF AVAIL b-ref2 THEN
-        DO i = 1 TO 8:
-            IF b-ref2.val[i] NE 0 THEN
-                cScore = cScore + TRIM(STRING(b-ref2.val[i],">>>.99")) + " ".
-        END.
+
     IF cScore NE "" THEN DO:
         opcScores = "".
         DO i = 1 TO LENGTH(cScore):

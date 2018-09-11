@@ -12,9 +12,6 @@ DEF STREAM st-fax.
 {sys/inc/var.i shared}
 {sys/form/s-top.f}
 
-def buffer b-ref1  for reftable.
-def buffer b-ref2  for reftable.
-
 {po/po-print.i}
 {custom/notesdef.i}
 {custom/formtext.i NEW}
@@ -523,8 +520,6 @@ assign
         ASSIGN v-cell = "R" + string(inrowcount) + "C2".
         chExcelApplication:Goto(v-cell) NO-ERROR.
         ASSIGN chExcelApplication:ActiveCell:Value = po-ordl.i-name.
-        
-        {po/po-ordls.i}
         
         /*
         len-score = ''.

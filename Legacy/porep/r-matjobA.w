@@ -920,8 +920,6 @@ DEFINE OUTPUT PARAMETER op-valid AS LOG INIT TRUE NO-UNDO.
 
 {sys/form/r-topw.f}
 
-def buffer b-ref1  for reftable.
-def buffer b-ref2  for reftable.
 
 def var v-job-no                like job.job-no extent 2
                                 init ["", "zzzzzz"]                     no-undo.

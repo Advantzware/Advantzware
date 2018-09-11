@@ -11,8 +11,6 @@ DEFINE INPUT PARAMETER v-format AS CHARACTER NO-UNDO.
 
 DEFINE BUFFER xjob-mat FOR job-mat.
 DEFINE BUFFER xitem    FOR item.
-DEFINE BUFFER b-ref1   FOR reftable.
-DEFINE BUFFER b-ref2   FOR reftable.
 
 {po/po-print.i}
 
@@ -392,9 +390,13 @@ IF AVAILABLE cust AND iPaper-log AND iPaper-dir NE "" THEN
             /* STYLE NUMBER */
             RUN po/po-ordls.p (RECID(po-ordl)).
     
-            {po/po-ordls.i}
- 
-            li-style = IF AVAILABLE b-ref1 OR AVAILABLE b-ref2 THEN 1 ELSE 2.
+        DO i = 1 TO 20:
+           IF po-ordl.scorePanels[i] NE 0 or po-ordl.scoreType[i] NE "" THEN DO:
+               li-style = 1 .
+               LEAVE.
+           END.     
+           ELSE li-style = 2.    
+        END.
 
             PUT li-style                                    FORMAT "9999".
     
@@ -548,26 +550,17 @@ IF AVAILABLE cust AND iPaper-log AND iPaper-dir NE "" THEN
             /* D4 */
     
             /* SCORE */
-            DO i = 1 TO 12:
-                IF AVAILABLE b-ref1 AND b-ref1.val[i] NE 0 THEN 
-                    PUT trunc(b-ref1.val[i],0)                  FORMAT ">>>"
+            DO i = 1 TO 20:
+                IF po-ordl.scorePanels[i] NE 0 THEN 
+                    PUT trunc(po-ordl.scorePanels[i],0)                  FORMAT ">>>"
                         ":"                                     FORMAT "x"
-                        (b-ref1.val[i] - trunc(b-ref1.val[i],0)) * 100
+                        (po-ordl.scorePanels[i] - trunc(po-ordl.scorePanels[i],0)) * 100
                         FORMAT "99"
-                        substr(b-ref1.dscr,i,1)                 FORMAT "x".
+                        substr(po-ordl.scoreType[i],1)                 FORMAT "x".
             
                 ELSE PUT "       "                            FORMAT "x(7)".
             END.
-            DO i = 1 TO 12:
-                IF AVAILABLE b-ref2 AND b-ref2.val[i] NE 0 THEN 
-                    PUT trunc(b-ref2.val[i],0)                  FORMAT ">>>"
-                        ":"                                     FORMAT "x"
-                        (b-ref2.val[i] - trunc(b-ref2.val[i],0)) * 100
-                        FORMAT "99"
-                        substr(b-ref2.dscr,i,1)                 FORMAT "x".
             
-                ELSE PUT "       "                            FORMAT "x(7)".
-            END.
             /* NUMBER UP */
             PUT 1                                           FORMAT "999.99".
 

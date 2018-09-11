@@ -9,9 +9,6 @@ SUBSCRIBE TO "CancelIt" ANYWHERE.
 DEF STREAM sSave.
 DEF STREAM sNotes.
 
-def buffer b-ref1 for reftable.
-def buffer b-ref2 for reftable.
-
 
 PROCEDURE Delete-Table:
 
@@ -4997,11 +4994,7 @@ CASE ipcTable:
                   EXCLUSIVE-LOCK: 
                   EXPORT STREAM sNotes notes. 
                   DELETE notes. 
-              END. 
-         
-             {po/po-ordls.i}
-              if avail b-ref1 then delete b-ref1.
-              if avail b-ref2 then delete b-ref2.
+              END.
 
               EXPORT STREAM sSave {&deltable}. 
               DELETE {&deltable}. 

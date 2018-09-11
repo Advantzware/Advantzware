@@ -12,9 +12,6 @@ DEF STREAM st-fax.
 {sys/inc/var.i shared}
 {sys/form/s-top.f}
 
-def buffer b-ref1  for reftable.
-def buffer b-ref2  for reftable.
-
 {po/po-print.i}
 DEF SHARED VAR s-group-notes AS LOG NO-UNDO.
 

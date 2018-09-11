@@ -7,8 +7,6 @@ def input parameter v-format as char no-undo.
 
 def buffer xjob-mat for job-mat.
 def buffer xitem for item.
-def buffer b-ref1  for reftable.
-def buffer b-ref2  for reftable.
 
 {po/po-print.i}
 
@@ -439,9 +437,13 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
     /* STYLE NUMBER */
     run po/po-ordls.p (recid(po-ordl)).
     
-    {po/po-ordls.i}
- 
-    li-style = IF AVAIL b-ref1 OR AVAIL b-ref2 THEN 1 ELSE 2.
+    DO i = 1 TO 20:
+       IF po-ordl.scorePanels[i] NE 0 or po-ordl.scoreType[i] NE "" THEN DO:
+           li-style = 1 .
+           LEAVE.
+       END.     
+       ELSE li-style = 2.    
+    END.
 
     put li-style                                    format "9999".
     
@@ -601,12 +603,12 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
     
     /* SCORE */
     do i = 1 to 9:
-      if avail b-ref1 and b-ref1.val[i] ne 0 then 
-        put trunc(b-ref1.val[i],0)                  format ">>>"
+      if po-ordl.scorePanels[i] NE 0 then 
+        put trunc(po-ordl.scorePanels[i],0)                  format ">>>"
             ":"                                     format "x"
-            (b-ref1.val[i] - trunc(b-ref1.val[i],0)) * 100
+            (po-ordl.scorePanels[i] - trunc(po-ordl.scorePanels[i],0)) * 100
                                                     format "99"
-            substr(b-ref1.dscr,i,1)                 format "x".
+            substr(po-ordl.scoreType[i],1)                 format "x".
             
       else put "       "                            format "x(7)".
     end.

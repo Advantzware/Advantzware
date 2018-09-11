@@ -11,8 +11,6 @@ DEF STREAM st-fax.
 {sys/inc/var.i shared}
 {sys/form/s-top.f}
 
-DEF BUFFER b-ref1 FOR reftable.
-DEF BUFFER b-ref2 FOR reftable.
 
 {po/po-print.i}
 {custom/notesdef.i}

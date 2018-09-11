@@ -11,8 +11,6 @@ DEF INPUT PARAM v-FORMAT AS CHAR NO-UNDO.
 
 DEF BUFFER xjob-mat FOR job-mat.
 DEF BUFFER xitem FOR item.
-DEF BUFFER b-ref1  FOR reftable.
-DEF BUFFER b-ref2  FOR reftable.
 
 {po/po-print.i}
 
@@ -300,9 +298,13 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
     /* STYLE NUMBER */
     RUN po/po-ordls.p (RECID(po-ordl)).
     
-    {po/po-ordls.i}
- 
-    li-style = IF AVAIL b-ref1 OR AVAIL b-ref2 THEN 1 ELSE 2.
+    DO i = 1 TO 20:
+       IF po-ordl.scorePanels[i] NE 0 or po-ordl.scoreType[i] NE "" THEN DO:
+           li-style = 1 .
+           LEAVE.
+       END.     
+       ELSE li-style = 2.    
+    END.
 
     PUT li-style                                    FORMAT "9999".
     
@@ -455,12 +457,12 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
     
     /* SCORE */
     DO i = 1 TO 9:
-      IF AVAIL b-ref1 AND b-ref1.val[i] ne 0 THEN 
-        PUT TRUNC(b-ref1.val[i],0)                  FORMAT ">>>"
+      IF po-ordl.scorePanels[i] NE 0 THEN 
+        PUT TRUNC(po-ordl.scorePanels[i],0)                  FORMAT ">>>"
             ":"                                     FORMAT "x"
-            (b-ref1.val[i] - TRUNC(b-ref1.val[i],0)) * 100
+            (po-ordl.scorePanels[i] - TRUNC(po-ordl.scorePanels[i],0)) * 100
                                                     FORMAT "99"
-            SUBSTR(b-ref1.dscr,i,1)                 FORMAT "x".
+            SUBSTR(po-ordl.scoreType[i],1)                 FORMAT "x".
             
       ELSE PUT "000:00 "                            FORMAT "x(7)".
     END.

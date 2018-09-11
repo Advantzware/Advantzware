@@ -14,8 +14,6 @@ DEF STREAM st-fax.
 DEFINE VARIABLE K_FRAC AS DECIMAL INIT 6.25 NO-UNDO.
 {sys/inc/f16to32.i}
 
-def buffer b-ref1  for reftable.
-def buffer b-ref2  for reftable.
 
 {po/po-print.i}
 DEF SHARED VAR s-group-notes AS LOG NO-UNDO.
@@ -603,28 +601,17 @@ v-printline = 0.
                len-score = "".
        
         IF po-ordl.item-type THEN do:
-                 run po/po-ordls.p (recid(po-ordl)).                          
-                                                                     
-                 {po/po-ordls.i}
+                 run po/po-ordls.p (recid(po-ordl)). 
 
-            IF AVAIL b-ref1 OR AVAIL b-ref2 THEN 
             DO:
                 ASSIGN
                     lv-val = 0
                     lv-typ = "".
-
-                IF AVAIL b-ref1 THEN
-                DO x = 1 TO 12:
-                    lv-val[x] = b-ref1.val[x].
+                    
+                DO x = 1 TO 20:
+                    lv-val[x] = po-ordl.scorePanels[x].
                     {sys/inc/k16bb.i "lv-val[x]"}
-                    lv-typ[x] = SUBSTR(b-ref1.dscr,x,1).
-                END.
-
-                IF AVAIL b-ref2 THEN
-                DO x = 1 TO 8:
-                    lv-val[x + 12] = b-ref2.val[x].
-                    {sys/inc/k16bb.i "lv-val[x + 12]"}
-                    lv-typ[x + 12] = SUBSTR(b-ref2.dscr,x,1).
+                    lv-typ[x] = SUBSTR(po-ordl.scoreType[x],1).
                 END.
 
                 DO lv-int = 0 TO 1:

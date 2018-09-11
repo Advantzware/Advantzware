@@ -74,37 +74,29 @@ DEF VAR ll-no-po AS LOG NO-UNDO.
           END.
           len-score        = "".
 
-          release b-ref1.
-          release b-ref2.
+          
 
           if item.mat-type eq "B" then do:
             /*##PN - This was commented out with no explanation.  */
             /*##PN - Reinstated for task 10081304  */
-             {po/poordls1W.i}                     
-             IF NOT (AVAIL(b-ref1) OR AVAIL(b-ref2)) THEN DO:
+             IF AVAILABLE po-ordl THEN DO:
                  /* ##PN - If reftable recs exist, don't recalc since report */
                  /* ##PN - was too slow                                      */
-                 run po/po-ordls.p (recid(job-mat)). 
-                 {po/poordls1W.i}                            
+                 run po/po-ordls.p (recid(job-mat)).         
              END.
           END.
-          if avail b-ref1 or avail b-ref2 then do:
+          if avail po-ordl then do:
             v-lscore-c = "".
              
-            if avail b-ref1 then
-            do x = 1 to 12:
-              if b-ref1.val[x] ne 0 then
+            
+            
+            do x = 1 to 20:
+              if po-ordl.scorePanels[x] NE 0 then
                 v-lscore-c = v-lscore-c +
-                             trim(string(b-ref1.val[x],">>>.99")) + " ".
+                             trim(string(po-ordl.scorePanels[x],">>>.99")) + " ".
             end.
              
-            if avail b-ref2 then
-            do x = 1 to 8:
-              if b-ref2.val[x] ne 0 then
-                v-lscore-c = v-lscore-c +
-                             trim(string(b-ref2.val[x],">>>.99")) + " ".
-            end.
-            
+                        
             if v-lscore-c ne "" then do:
               len-score = "".
                 

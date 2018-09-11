@@ -6,8 +6,7 @@
 {sys/form/s-top.f}
 
 def buffer xpo-ord for po-ord.
-def buffer b-ref1  for reftable.
-def buffer b-ref2  for reftable.
+
 
 {po/po-print.i}
 
