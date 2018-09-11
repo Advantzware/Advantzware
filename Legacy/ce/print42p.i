@@ -221,6 +221,10 @@ do vmcl = 1 to 28:
    t-blksht   = 0
    t-blkqty   = 0.
 
+   IF vprint THEN DO:
+	{custom/statusMsg.i " 'Calculating... Est#  '  + xest.est-no  + ' Qty - ' + string(qty) "}
+   END.
+
   for each kli:
     delete kli.
   end.
@@ -1006,4 +1010,7 @@ END.
 
 SESSION:SET-WAIT-STATE("").
 
+IF vprint THEN DO:
+{custom/statusMsg.i " 'Calculating Complete....  '  "}
+END.
 /* end ---------------------------------- copr. 1992  advanced software, inc. */

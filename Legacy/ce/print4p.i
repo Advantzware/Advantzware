@@ -365,6 +365,10 @@ do k = 1 to 28:
    qty      = qtty[k]
    ctrl2    = 0.
 
+if vprint then DO:
+{custom/statusMsg.i " 'Calculating... Est#  '  + xest.est-no  + ' Qty - ' + string(qty) "}
+end.
+
   FOR EACH est-op
       WHERE est-op.company EQ xest.company 
         AND est-op.est-no  EQ xest.est-no 
@@ -923,5 +927,8 @@ DO TRANSACTION:
 END.
 
 SESSION:SET-WAIT-STATE("").
+IF vprint THEN DO:
+{custom/statusMsg.i " 'Calculating Complete....  '  "}
+END.
 
 /* end ---------------------------------- copr. 1992  advanced software, inc. */
