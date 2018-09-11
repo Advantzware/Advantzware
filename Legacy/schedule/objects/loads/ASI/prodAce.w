@@ -101,6 +101,9 @@ DEFINE TEMP-TABLE ttblProdAce NO-UNDO
     FIELD prodAceRunComplete AS LOGICAL 
     FIELD deleteFlag AS LOGICAL 
     FIELD prodAceOperator AS CHARACTER EXTENT 10
+    FIELD prodAceSelected AS LOGICAL INITIAL YES
+    FIELD tempSelected AS LOGICAL INITIAL YES
+    FIELD prodAceData AS CHARACTER 
         INDEX ttblProdAceDetail IS PRIMARY
               prodAceResource
               prodAceJob
@@ -113,6 +116,8 @@ DEFINE STREAM sProdAce.
 DEFINE STREAM sHold.
 DEFINE STREAM sProcessed.
 DEFINE STREAM sError.
+
+{AOA/includes/dateOptionDef.i}
 
 SESSION:SET-WAIT-STATE('').
 
@@ -131,19 +136,27 @@ SESSION:SET-WAIT-STATE('').
 &Scoped-define FRAME-NAME DEFAULT-FRAME
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS btnExportMachines setAllResources ~
-selectedShift selectedStartDate selectedEndDate btnPost btnNonPost ~
-btnCancel lvProdAceDir lvImportDir lvProdAceBlankEmployee lvResourceList ~
-btnSave btnReset btnExit btnExportJobs btnExportEmployees btnExportShifts ~
-btnImport 
+&Scoped-Define ENABLED-OBJECTS btnExportShifts btnReset btnSave btnImport ~
+setAllResources selectedShift btnExportEmployees selectedStartDate ~
+btnCalendar-1 selectedStartDateOption selectedEndDate btnCalendar-2 ~
+btnExportJobs selectedEndDateOption selectedStartDueDate btnCalendar-3 ~
+selectedStartDueDateOption selectedEndDueDate btnCalendar-4 ~
+selectedEndDueDateOption svAllJobNo btnExportMachines svStartJobNo ~
+svStartJobNo2 svEndJobNo svEndJobNo2 lvProdAceDir lvImportDir lvProdAceType ~
+lvProdAceBlankEmployee lvResourceList 
 &Scoped-Define DISPLAYED-OBJECTS setAllResources selectedShift ~
-selectedStartDate selectedEndDate lvProdAceDir lvImportDir lvProdAceType ~
+selectedStartDate selectedStartDateOption selectedEndDate ~
+selectedEndDateOption selectedStartDueDate selectedStartDueDateOption ~
+selectedEndDueDate selectedEndDueDateOption svAllJobNo svStartJobNo ~
+svStartJobNo2 svEndJobNo svEndJobNo2 lvProdAceDir lvImportDir lvProdAceType ~
 lvEmpLogin lvProdAceBlankEmployee lvResourceList 
 
 /* Custom List Definitions                                              */
 /* ProdAceDatValues,List-2,List-3,List-4,List-5,List-6                  */
 &Scoped-define ProdAceDatValues lvProdAceDir lvImportDir lvProdAceType ~
 lvEmpLogin lvProdAceBlankEmployee lvResourceList 
+&Scoped-define List-3 btnCalendar-1 btnCalendar-2 btnCalendar-3 ~
+btnCalendar-4 btnTransSelection 
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
@@ -156,66 +169,91 @@ lvEmpLogin lvProdAceBlankEmployee lvResourceList
 DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON btnCancel 
-     IMAGE-UP FILE "schedule/images/cancel.bmp":U
+DEFINE BUTTON btnCalendar-1 
+     IMAGE-UP FILE "Graphics/16x16/calendar.bmp":U
      LABEL "" 
-     SIZE 6 BY 1.43 TOOLTIP "Cancel (Exit)"
-     BGCOLOR 8 .
+     SIZE 4.6 BY 1.05 TOOLTIP "PopUp Calendar".
 
-DEFINE BUTTON btnExit 
-     IMAGE-UP FILE "schedule/images/cancel.bmp":U
+DEFINE BUTTON btnCalendar-2 
+     IMAGE-UP FILE "Graphics/16x16/calendar.bmp":U
      LABEL "" 
-     SIZE 6 BY 1.43 TOOLTIP "Cancel (Exit)"
-     BGCOLOR 8 .
+     SIZE 4.6 BY 1.05 TOOLTIP "PopUp Calendar".
+
+DEFINE BUTTON btnCalendar-3 
+     IMAGE-UP FILE "Graphics/16x16/calendar.bmp":U
+     LABEL "" 
+     SIZE 4.6 BY 1.05 TOOLTIP "PopUp Calendar".
+
+DEFINE BUTTON btnCalendar-4 
+     IMAGE-UP FILE "Graphics/16x16/calendar.bmp":U
+     LABEL "" 
+     SIZE 4.6 BY 1.05 TOOLTIP "PopUp Calendar".
 
 DEFINE BUTTON btnExportEmployees 
-     IMAGE-UP FILE "Graphics/32x32/export.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/users3.ico":U NO-FOCUS FLAT-BUTTON
      LABEL "Export" 
-     SIZE 7.2 BY 1.71 TOOLTIP "Export Employees to ProductionACE".
+     SIZE 7.2 BY 1.71 TOOLTIP "Export Employees to Production ACE".
 
 DEFINE BUTTON btnExportJobs 
-     IMAGE-UP FILE "Graphics/32x32/export.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/tools.ico":U NO-FOCUS FLAT-BUTTON
      LABEL "Export" 
-     SIZE 7.2 BY 1.71 TOOLTIP "Export Jobs to ProductionACE".
+     SIZE 7.2 BY 1.71 TOOLTIP "Export Jobs to Production ACE".
 
 DEFINE BUTTON btnExportMachines 
-     IMAGE-UP FILE "Graphics/32x32/export.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/gearwheels.ico":U NO-FOCUS FLAT-BUTTON
      LABEL "Export" 
-     SIZE 7.2 BY 1.71 TOOLTIP "Export Resources to ProductionACE".
+     SIZE 7.2 BY 1.71 TOOLTIP "Export Resources to Production ACE".
 
 DEFINE BUTTON btnExportShifts 
-     IMAGE-UP FILE "Graphics/32x32/export.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/calendar_clock.ico":U NO-FOCUS FLAT-BUTTON
      LABEL "Export" 
-     SIZE 7.2 BY 1.71 TOOLTIP "Export Shifts to ProductionACE".
+     SIZE 7.2 BY 1.71 TOOLTIP "Export Shifts to Production ACE".
 
 DEFINE BUTTON btnImport 
-     IMAGE-UP FILE "Graphics/32x32/import.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/tools.ico":U NO-FOCUS FLAT-BUTTON
      LABEL "Import" 
-     SIZE 7.2 BY 1.71 TOOLTIP "Import from ProductionACE".
-
-DEFINE BUTTON btnNonPost 
-     IMAGE-UP FILE "schedule/images/moveresource.bmp":U
-     LABEL "" 
-     SIZE 6 BY 1.43 TOOLTIP "Non-Post"
-     BGCOLOR 8 .
-
-DEFINE BUTTON btnPost 
-     IMAGE-UP FILE "schedule/images/commit.bmp":U
-     LABEL "" 
-     SIZE 6 BY 1.43 TOOLTIP "Post"
-     BGCOLOR 8 .
+     SIZE 7.2 BY 1.71 TOOLTIP "Import Job Transactions from Production ACE".
 
 DEFINE BUTTON btnReset 
-     IMAGE-UP FILE "schedule/images/rollback.bmp":U
+     IMAGE-UP FILE "Graphics/32x32/undo_32.ico":U NO-FOCUS FLAT-BUTTON
      LABEL "" 
-     SIZE 6 BY 1.43 TOOLTIP "Reset"
+     SIZE 7.2 BY 1.71 TOOLTIP "Reset"
      BGCOLOR 8 .
 
 DEFINE BUTTON btnSave 
-     IMAGE-UP FILE "schedule/images/save.bmp":U
+     IMAGE-UP FILE "Graphics/32x32/floppy_disk.ico":U NO-FOCUS FLAT-BUTTON
      LABEL "" 
-     SIZE 6 BY 1.43 TOOLTIP "Save"
+     SIZE 7.2 BY 1.71 TOOLTIP "Save"
      BGCOLOR 8 .
+
+DEFINE BUTTON btnTransSelection 
+     IMAGE-UP FILE "AOA/images/aoashowbatch.jpg":U
+     LABEL "Transaction Selection" 
+     SIZE 6 BY 1.14 TOOLTIP "Transaction Selection".
+
+DEFINE VARIABLE selectedEndDateOption AS CHARACTER FORMAT "X(256)":U 
+     VIEW-AS COMBO-BOX INNER-LINES 5
+     LIST-ITEMS "Item 1" 
+     DROP-DOWN-LIST
+     SIZE 25 BY 1 NO-UNDO.
+
+DEFINE VARIABLE selectedEndDueDateOption AS CHARACTER FORMAT "X(256)":U 
+     VIEW-AS COMBO-BOX INNER-LINES 5
+     LIST-ITEMS "Item 1" 
+     DROP-DOWN-LIST
+     SIZE 25 BY 1 NO-UNDO.
+
+DEFINE VARIABLE selectedStartDateOption AS CHARACTER FORMAT "X(256)":U 
+     VIEW-AS COMBO-BOX INNER-LINES 5
+     LIST-ITEMS "Item 1" 
+     DROP-DOWN-LIST
+     SIZE 25 BY 1 NO-UNDO.
+
+DEFINE VARIABLE selectedStartDueDateOption AS CHARACTER FORMAT "X(256)":U 
+     VIEW-AS COMBO-BOX INNER-LINES 5
+     LIST-ITEMS "Item 1" 
+     DROP-DOWN-LIST
+     SIZE 25 BY 1 NO-UNDO.
 
 DEFINE VARIABLE lvImportDir AS CHARACTER FORMAT "X(256)":U 
      LABEL "Import Path" 
@@ -244,12 +282,42 @@ DEFINE VARIABLE lvResourceList AS CHARACTER FORMAT "X(256)":U
 DEFINE VARIABLE selectedEndDate AS DATE FORMAT "99/99/9999":U 
      LABEL "End Date" 
      VIEW-AS FILL-IN 
-     SIZE 18 BY 1 NO-UNDO.
+     SIZE 16 BY 1 NO-UNDO.
+
+DEFINE VARIABLE selectedEndDueDate AS DATE FORMAT "99/99/9999":U INITIAL 12/31/49 
+     LABEL "End Date" 
+     VIEW-AS FILL-IN 
+     SIZE 16 BY 1 NO-UNDO.
 
 DEFINE VARIABLE selectedStartDate AS DATE FORMAT "99/99/9999":U 
      LABEL "Start Date" 
      VIEW-AS FILL-IN 
-     SIZE 18 BY 1 NO-UNDO.
+     SIZE 16 BY 1 NO-UNDO.
+
+DEFINE VARIABLE selectedStartDueDate AS DATE FORMAT "99/99/9999":U INITIAL 01/01/50 
+     LABEL "Start Due Date" 
+     VIEW-AS FILL-IN 
+     SIZE 16 BY 1 NO-UNDO.
+
+DEFINE VARIABLE svEndJobNo AS CHARACTER FORMAT "X(6)" 
+     LABEL "End Job" 
+     VIEW-AS FILL-IN 
+     SIZE 9 BY 1.
+
+DEFINE VARIABLE svEndJobNo2 AS INTEGER FORMAT ">9" INITIAL 0 
+     LABEL "" 
+     VIEW-AS FILL-IN 
+     SIZE 4 BY 1.
+
+DEFINE VARIABLE svStartJobNo AS CHARACTER FORMAT "X(6)" 
+     LABEL "Start Job" 
+     VIEW-AS FILL-IN 
+     SIZE 9 BY 1.
+
+DEFINE VARIABLE svStartJobNo2 AS INTEGER FORMAT ">9" INITIAL 0 
+     LABEL "" 
+     VIEW-AS FILL-IN 
+     SIZE 4 BY 1.
 
 DEFINE VARIABLE lvEmpLogin AS CHARACTER INITIAL "ProdAce" 
      VIEW-AS RADIO-SET HORIZONTAL
@@ -263,7 +331,7 @@ DEFINE VARIABLE lvProdAceType AS CHARACTER INITIAL "Summary"
      RADIO-BUTTONS 
           "Summary", "Summary",
 "Detail", "Detail"
-     SIZE 32 BY 1 NO-UNDO.
+     SIZE 24 BY 1 NO-UNDO.
 
 DEFINE VARIABLE selectedShift AS CHARACTER INITIAL "All" 
      VIEW-AS RADIO-SET VERTICAL
@@ -275,83 +343,143 @@ DEFINE VARIABLE selectedShift AS CHARACTER INITIAL "All"
      SIZE 19 BY 3.81 TOOLTIP "Select Shift" NO-UNDO.
 
 DEFINE RECTANGLE RECT-1
-     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   
-     SIZE 50.8 BY 7.62.
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 79 BY 7.86.
 
 DEFINE RECTANGLE RECT-2
-     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   
-     SIZE 16 BY 14.52.
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 79 BY 6.19.
+
+DEFINE RECTANGLE RECT-3
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 79 BY 6.19.
+
+DEFINE RECTANGLE RECT-4
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 78 BY 21.19.
+
+DEFINE RECTANGLE RECT-5
+     EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
+     SIZE 17 BY 2.14
+     BGCOLOR 15 .
+
+DEFINE RECTANGLE RECT-6
+     EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
+     SIZE 33 BY 2.14
+     BGCOLOR 15 .
+
+DEFINE RECTANGLE RECT-7
+     EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
+     SIZE 9 BY 2.14
+     BGCOLOR 15 .
 
 DEFINE VARIABLE setAllResources AS LOGICAL INITIAL yes 
-     LABEL "Set All Resources (set Resource Current Job)" 
+     LABEL "Toggle (On/Off) Resources Selected" 
      VIEW-AS TOGGLE-BOX
-     SIZE 47 BY .81 NO-UNDO.
+     SIZE 39 BY .81 NO-UNDO.
+
+DEFINE VARIABLE svAllJobNo AS LOGICAL INITIAL yes 
+     LABEL "All Jobs" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 12 BY .81 NO-UNDO.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME DEFAULT-FRAME
-     btnExportMachines AT ROW 4.1 COL 56 HELP
-          "Export Machines to ProductionACE" WIDGET-ID 4
-     setAllResources AT ROW 1.24 COL 70 HELP
-          "Select to Toggle All Resources" WIDGET-ID 30
-     selectedShift AT ROW 1.95 COL 2 HELP
-          "Select Shift" NO-LABEL
-     selectedStartDate AT ROW 1.95 COL 31 COLON-ALIGNED HELP
-          "Enter Starting Date"
-     selectedEndDate AT ROW 3.14 COL 31 COLON-ALIGNED HELP
-          "Enter Ending Date"
-     btnPost AT ROW 4.33 COL 33 HELP
-          "Click to Post"
-     btnNonPost AT ROW 4.33 COL 39 HELP
-          "Click to Reflect Transactions w/o Posting"
-     btnCancel AT ROW 4.33 COL 45 HELP
-          "Click to Cancel and Exit"
-     lvProdAceDir AT ROW 6.71 COL 5.8
-     lvImportDir AT ROW 7.91 COL 16 COLON-ALIGNED
-     lvProdAceType AT ROW 9.1 COL 19 NO-LABEL
-     lvEmpLogin AT ROW 10.29 COL 19 NO-LABEL
-     lvProdAceBlankEmployee AT ROW 11.48 COL 16 COLON-ALIGNED
-     lvResourceList AT ROW 12.67 COL 16 COLON-ALIGNED
-     btnSave AT ROW 14.1 COL 33 HELP
-          "Click to Save"
-     btnReset AT ROW 14.1 COL 39 HELP
+     btnExportShifts AT ROW 12.19 COL 72 HELP
+          "Export Shifts to Production ACE" WIDGET-ID 18
+     btnReset AT ROW 20.52 COL 64 HELP
           "Click to Reset Values"
-     btnExit AT ROW 14.1 COL 45 HELP
-          "Click to Cancel and Exit"
-     btnExportJobs AT ROW 1.24 COL 56 HELP
-          "Export Jobs to ProductionACE" WIDGET-ID 26
-     btnExportEmployees AT ROW 7.67 COL 56 HELP
-          "Export Employees to ProductionACE" WIDGET-ID 14
-     btnExportShifts AT ROW 10.52 COL 56 HELP
-          "Export Shifts to ProductionACE" WIDGET-ID 18
-     btnImport AT ROW 13.14 COL 56 HELP
+     btnSave AT ROW 20.52 COL 72 HELP
+          "Click to Save"
+     btnImport AT ROW 5.52 COL 72 HELP
           "Import from Production Ace" WIDGET-ID 6
-     "Jobs" VIEW-AS TEXT
-          SIZE 5 BY .62 AT ROW 2.91 COL 57 WIDGET-ID 28
-     "Shifts" VIEW-AS TEXT
-          SIZE 6 BY .62 AT ROW 12.19 COL 57 WIDGET-ID 20
-     "Employees" VIEW-AS TEXT
-          SIZE 11 BY .62 AT ROW 9.33 COL 55 WIDGET-ID 16
-     "Charge Codes" VIEW-AS TEXT
-          SIZE 14 BY .62 AT ROW 6.48 COL 53 WIDGET-ID 12
-     "Machines &&" VIEW-AS TEXT
-          SIZE 11 BY .62 AT ROW 5.76 COL 54 WIDGET-ID 8
-     "Type:" VIEW-AS TEXT
-          SIZE 6 BY .81 AT ROW 9.1 COL 12
+     setAllResources AT ROW 2.19 COL 85 HELP
+          "Select to Toggle All Resources (On/Off)" WIDGET-ID 30
+     selectedShift AT ROW 2.91 COL 3 HELP
+          "Select Shift" NO-LABEL
+     btnExportEmployees AT ROW 12.19 COL 64 HELP
+          "Export Employees to Production ACE" WIDGET-ID 14
+     selectedStartDate AT ROW 2.91 COL 32 COLON-ALIGNED HELP
+          "Enter Starting Date"
+     btnCalendar-1 AT ROW 2.91 COL 50 WIDGET-ID 76
+     selectedStartDateOption AT ROW 2.91 COL 53 COLON-ALIGNED HELP
+          "Select Start Receipt Date Option" NO-LABEL WIDGET-ID 74
+     selectedEndDate AT ROW 4.1 COL 32 COLON-ALIGNED HELP
+          "Enter Ending Date"
+     btnCalendar-2 AT ROW 4.1 COL 50 WIDGET-ID 78
+     btnExportJobs AT ROW 12.19 COL 48 HELP
+          "Export Jobs to Production ACE" WIDGET-ID 26
+     selectedEndDateOption AT ROW 4.1 COL 53 COLON-ALIGNED HELP
+          "Select End Receipt Date Option" NO-LABEL WIDGET-ID 70
+     selectedStartDueDate AT ROW 8.62 COL 25 COLON-ALIGNED HELP
+          "Enter Starting Due Date" WIDGET-ID 82
+     btnCalendar-3 AT ROW 8.62 COL 43 WIDGET-ID 86
+     selectedStartDueDateOption AT ROW 8.62 COL 46 COLON-ALIGNED HELP
+          "Select Start Receipt Date Option" NO-LABEL WIDGET-ID 90
+     selectedEndDueDate AT ROW 9.81 COL 25 COLON-ALIGNED HELP
+          "Enter Ending Due Date" WIDGET-ID 84
+     btnCalendar-4 AT ROW 9.81 COL 43 WIDGET-ID 88
+     selectedEndDueDateOption AT ROW 9.81 COL 46 COLON-ALIGNED HELP
+          "Select End Receipt Date Option" NO-LABEL WIDGET-ID 92
+     svAllJobNo AT ROW 11 COL 27 HELP
+          "All Jobs?" WIDGET-ID 174
+     btnExportMachines AT ROW 12.19 COL 56 HELP
+          "Export Machines to Production ACE" WIDGET-ID 4
+     svStartJobNo AT ROW 11.95 COL 25 COLON-ALIGNED HELP
+          "Enter Start Job" WIDGET-ID 178
+     svStartJobNo2 AT ROW 11.95 COL 36 COLON-ALIGNED HELP
+          "Enter Start Job Run" WIDGET-ID 180
+     svEndJobNo AT ROW 13.14 COL 25 COLON-ALIGNED HELP
+          "Enter End Job" WIDGET-ID 176
+     svEndJobNo2 AT ROW 13.14 COL 36 COLON-ALIGNED HELP
+          "Enter End Job Run" WIDGET-ID 182
+     lvProdAceDir AT ROW 15.52 COL 21 COLON-ALIGNED
+     lvImportDir AT ROW 16.71 COL 21 COLON-ALIGNED
+     lvProdAceType AT ROW 17.91 COL 24 NO-LABEL
+     btnTransSelection AT ROW 17.91 COL 50 HELP
+          "Access Transaction Selection" WIDGET-ID 32
+     lvEmpLogin AT ROW 19.1 COL 24 NO-LABEL
+     lvProdAceBlankEmployee AT ROW 20.29 COL 21 COLON-ALIGNED
+     lvResourceList AT ROW 21.48 COL 21 COLON-ALIGNED
      "Employee Login:" VIEW-AS TEXT
-          SIZE 16 BY .81 AT ROW 10.29 COL 2
-     "Select Shift to Post ... Enter Date Range" VIEW-AS TEXT
-          SIZE 49 BY .62 AT ROW 1.24 COL 2
+          SIZE 16 BY .81 AT ROW 19.1 COL 6
+     "Type:" VIEW-AS TEXT
+          SIZE 6 BY .81 AT ROW 17.91 COL 16
+     " Configuration" VIEW-AS TEXT
+          SIZE 17 BY .62 AT ROW 14.57 COL 4 WIDGET-ID 38
           FONT 6
-     "Import" VIEW-AS TEXT
-          SIZE 7 BY .62 AT ROW 14.81 COL 57 WIDGET-ID 24
-     RECT-1 AT ROW 6.24 COL 1
-     RECT-2 AT ROW 1 COL 52 WIDGET-ID 2
+     " Select to Set Current (1st) Job Per Resource" VIEW-AS TEXT
+          SIZE 52 BY .62 AT ROW 1.24 COL 85 WIDGET-ID 190
+          FONT 6
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 160 BY 14.57.
+         SIZE 161 BY 22.
+
+/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
+DEFINE FRAME DEFAULT-FRAME
+     " Export" VIEW-AS TEXT
+          SIZE 9 BY .62 AT ROW 7.91 COL 4 WIDGET-ID 40
+          FONT 6
+     "Select Shift to Post ... Enter Date Range" VIEW-AS TEXT
+          SIZE 49 BY .62 AT ROW 2.19 COL 3
+          FONT 6
+     " Import" VIEW-AS TEXT
+          SIZE 9 BY .62 AT ROW 1.24 COL 4 WIDGET-ID 36
+          FONT 6
+     RECT-1 AT ROW 14.81 COL 2
+     RECT-2 AT ROW 8.14 COL 2 WIDGET-ID 2
+     RECT-3 AT ROW 1.48 COL 2 WIDGET-ID 34
+     RECT-4 AT ROW 1.48 COL 83 WIDGET-ID 80
+     RECT-5 AT ROW 20.29 COL 63 WIDGET-ID 184
+     RECT-6 AT ROW 11.95 COL 47 WIDGET-ID 186
+     RECT-7 AT ROW 5.29 COL 71 WIDGET-ID 188
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 1
+         SIZE 161 BY 22.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -370,13 +498,13 @@ DEFINE FRAME DEFAULT-FRAME
 IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW C-Win ASSIGN
          HIDDEN             = YES
-         TITLE              = "ProductionACE DMI"
-         HEIGHT             = 14.57
-         WIDTH              = 160
-         MAX-HEIGHT         = 14.57
-         MAX-WIDTH          = 160
-         VIRTUAL-HEIGHT     = 14.57
-         VIRTUAL-WIDTH      = 160
+         TITLE              = "Production ACE DMI"
+         HEIGHT             = 22
+         WIDTH              = 161
+         MAX-HEIGHT         = 22
+         MAX-WIDTH          = 161
+         VIRTUAL-HEIGHT     = 22
+         VIRTUAL-WIDTH      = 161
          MIN-BUTTON         = no
          MAX-BUTTON         = no
          ALWAYS-ON-TOP      = yes
@@ -402,6 +530,19 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME DEFAULT-FRAME
    FRAME-NAME                                                           */
+/* SETTINGS FOR BUTTON btnCalendar-1 IN FRAME DEFAULT-FRAME
+   3                                                                    */
+/* SETTINGS FOR BUTTON btnCalendar-2 IN FRAME DEFAULT-FRAME
+   3                                                                    */
+/* SETTINGS FOR BUTTON btnCalendar-3 IN FRAME DEFAULT-FRAME
+   3                                                                    */
+/* SETTINGS FOR BUTTON btnCalendar-4 IN FRAME DEFAULT-FRAME
+   3                                                                    */
+/* SETTINGS FOR BUTTON btnTransSelection IN FRAME DEFAULT-FRAME
+   NO-ENABLE 3                                                          */
+ASSIGN 
+       btnTransSelection:HIDDEN IN FRAME DEFAULT-FRAME           = TRUE.
+
 /* SETTINGS FOR RADIO-SET lvEmpLogin IN FRAME DEFAULT-FRAME
    NO-ENABLE 1                                                          */
 /* SETTINGS FOR FILL-IN lvImportDir IN FRAME DEFAULT-FRAME
@@ -409,14 +550,24 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 /* SETTINGS FOR FILL-IN lvProdAceBlankEmployee IN FRAME DEFAULT-FRAME
    1                                                                    */
 /* SETTINGS FOR FILL-IN lvProdAceDir IN FRAME DEFAULT-FRAME
-   ALIGN-L 1                                                            */
+   1                                                                    */
 /* SETTINGS FOR RADIO-SET lvProdAceType IN FRAME DEFAULT-FRAME
-   NO-ENABLE 1                                                          */
+   1                                                                    */
 /* SETTINGS FOR FILL-IN lvResourceList IN FRAME DEFAULT-FRAME
    1                                                                    */
 /* SETTINGS FOR RECTANGLE RECT-1 IN FRAME DEFAULT-FRAME
    NO-ENABLE                                                            */
 /* SETTINGS FOR RECTANGLE RECT-2 IN FRAME DEFAULT-FRAME
+   NO-ENABLE                                                            */
+/* SETTINGS FOR RECTANGLE RECT-3 IN FRAME DEFAULT-FRAME
+   NO-ENABLE                                                            */
+/* SETTINGS FOR RECTANGLE RECT-4 IN FRAME DEFAULT-FRAME
+   NO-ENABLE                                                            */
+/* SETTINGS FOR RECTANGLE RECT-5 IN FRAME DEFAULT-FRAME
+   NO-ENABLE                                                            */
+/* SETTINGS FOR RECTANGLE RECT-6 IN FRAME DEFAULT-FRAME
+   NO-ENABLE                                                            */
+/* SETTINGS FOR RECTANGLE RECT-7 IN FRAME DEFAULT-FRAME
    NO-ENABLE                                                            */
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
 THEN C-Win:HIDDEN = no.
@@ -432,7 +583,7 @@ THEN C-Win:HIDDEN = no.
 
 &Scoped-define SELF-NAME C-Win
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
-ON END-ERROR OF C-Win /* ProductionACE DMI */
+ON END-ERROR OF C-Win /* Production ACE DMI */
 OR ENDKEY OF {&WINDOW-NAME} ANYWHERE DO:
   /* This case occurs when the user presses the "Esc" key.
      In a persistently run window, just ignore this.  If we did not, the
@@ -445,7 +596,7 @@ END.
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
-ON WINDOW-CLOSE OF C-Win /* ProductionACE DMI */
+ON WINDOW-CLOSE OF C-Win /* Production ACE DMI */
 DO:
   /* This event will close the window and terminate the procedure.  */
   APPLY "CLOSE":U TO THIS-PROCEDURE.
@@ -456,24 +607,44 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME btnCancel
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnCancel C-Win
-ON CHOOSE OF btnCancel IN FRAME DEFAULT-FRAME
+&Scoped-define SELF-NAME btnCalendar-1
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnCalendar-1 C-Win
+ON CHOOSE OF btnCalendar-1 IN FRAME DEFAULT-FRAME
 DO:
-  opContinue = FALSE.
-  APPLY 'CLOSE':U TO THIS-PROCEDURE.
+  {methods/btnCalendar.i selectedStartDate}
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME btnExit
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnExit C-Win
-ON CHOOSE OF btnExit IN FRAME DEFAULT-FRAME
+&Scoped-define SELF-NAME btnCalendar-2
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnCalendar-2 C-Win
+ON CHOOSE OF btnCalendar-2 IN FRAME DEFAULT-FRAME
 DO:
-  opContinue = FALSE.
-  APPLY 'CLOSE':U TO THIS-PROCEDURE.
+  {methods/btnCalendar.i selectedEndDate}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnCalendar-3
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnCalendar-3 C-Win
+ON CHOOSE OF btnCalendar-3 IN FRAME DEFAULT-FRAME
+DO:
+  {methods/btnCalendar.i selectedStartDueDate}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnCalendar-4
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnCalendar-4 C-Win
+ON CHOOSE OF btnCalendar-4 IN FRAME DEFAULT-FRAME
+DO:
+  {methods/btnCalendar.i selectedEndDueDate}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -528,38 +699,6 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnImport C-Win
 ON CHOOSE OF btnImport IN FRAME DEFAULT-FRAME /* Import */
 DO:
-  APPLY 'CHOOSE':U TO btnPost.
-  RETURN NO-APPLY.
-/*  RUN pImport.*/
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME btnNonPost
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnNonPost C-Win
-ON CHOOSE OF btnNonPost IN FRAME DEFAULT-FRAME
-DO:
-  ASSIGN
-    selectedShift
-    selectedStartDate
-    selectedEndDate
-    opContinue = NO
-    lvPostProdAce = NO
-    .
-  RUN postProdAce.
-  APPLY 'CLOSE':U TO THIS-PROCEDURE.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME btnPost
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnPost C-Win
-ON CHOOSE OF btnPost IN FRAME DEFAULT-FRAME
-DO:
   ASSIGN
     selectedShift
     selectedStartDate
@@ -568,7 +707,8 @@ DO:
     lvPostProdAce = YES
     .
   RUN postProdAce.
-  APPLY 'CLOSE':U TO THIS-PROCEDURE.
+  RETURN NO-APPLY.
+/*  RUN pImport.*/
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -599,6 +739,61 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME btnTransSelection
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnTransSelection C-Win
+ON CHOOSE OF btnTransSelection IN FRAME DEFAULT-FRAME /* Transaction Selection */
+DO:
+    RUN pTransSelection.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME selectedEndDate
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL selectedEndDate C-Win
+ON HELP OF selectedEndDate IN FRAME DEFAULT-FRAME /* End Date */
+DO:
+  {methods/calendar.i}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME selectedEndDateOption
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL selectedEndDateOption C-Win
+ON VALUE-CHANGED OF selectedEndDateOption IN FRAME DEFAULT-FRAME
+DO:
+    {AOA/includes/tDateOption.i &dateObject=selectedEndDate &btnCalendar=2}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME selectedEndDueDate
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL selectedEndDueDate C-Win
+ON HELP OF selectedEndDueDate IN FRAME DEFAULT-FRAME /* End Date */
+DO:
+  {methods/calendar.i}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME selectedEndDueDateOption
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL selectedEndDueDateOption C-Win
+ON VALUE-CHANGED OF selectedEndDueDateOption IN FRAME DEFAULT-FRAME
+DO:
+    {AOA/includes/tDateOption.i &dateObject=selectedEndDueDate &btnCalendar=4}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME selectedShift
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL selectedShift C-Win
 ON VALUE-CHANGED OF selectedShift IN FRAME DEFAULT-FRAME
@@ -620,14 +815,70 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME selectedStartDate
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL selectedStartDate C-Win
+ON HELP OF selectedStartDate IN FRAME DEFAULT-FRAME /* Start Date */
+DO:
+  {methods/calendar.i}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME selectedStartDateOption
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL selectedStartDateOption C-Win
+ON VALUE-CHANGED OF selectedStartDateOption IN FRAME DEFAULT-FRAME
+DO:
+    {AOA/includes/tDateOption.i &dateObject=selectedStartDate &btnCalendar=1}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME selectedStartDueDate
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL selectedStartDueDate C-Win
+ON HELP OF selectedStartDueDate IN FRAME DEFAULT-FRAME /* Start Due Date */
+DO:
+  {methods/calendar.i}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME selectedStartDueDateOption
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL selectedStartDueDateOption C-Win
+ON VALUE-CHANGED OF selectedStartDueDateOption IN FRAME DEFAULT-FRAME
+DO:
+    {AOA/includes/tDateOption.i &dateObject=selectedStartDueDate &btnCalendar=3}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME setAllResources
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL setAllResources C-Win
-ON VALUE-CHANGED OF setAllResources IN FRAME DEFAULT-FRAME /* Set All Resources (set Resource Current Job) */
+ON VALUE-CHANGED OF setAllResources IN FRAME DEFAULT-FRAME /* Toggle (On/Off) Resources Selected */
 DO:
     ASSIGN {&SELF-NAME}.
     FOR EACH ttToggleBox:
         ttToggleBox.hToggleBox:CHECKED = {&SELF-NAME}.
     END. /* each tttogglebox */
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME svAllJobNo
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svAllJobNo C-Win
+ON VALUE-CHANGED OF svAllJobNo IN FRAME DEFAULT-FRAME /* All Jobs */
+DO:
+    {AOA/includes/svAllValueChanged.i svStartJobNo svEndJobNo}
+    {AOA/includes/svAllValueChanged.i svStartJobNo2 svEndJobNo2}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -670,11 +921,16 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     selectedEndDate = TODAY
     .
   RUN enable_UI.
+  RUN pPopulateOptions (hContainer).
   RUN createResourceToggleBoxes.
+  IF ID EQ "ASI/DMI" THEN DO:
+      setAllResources:SCREEN-VALUE = "NO".
+      APPLY "VALUE-CHANGED":U TO setAllResources.
+  END. /* if dmi */
   IF iplAutoMonitor THEN DO:
-    APPLY 'CHOOSE':U TO btnPost.
+    APPLY 'CHOOSE':U TO btnImport.
     RETURN.
-  END.
+  END. /* if auto monitor */
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -820,8 +1076,8 @@ PROCEDURE createResourceToggleBoxes :
     DELETE WIDGET-POOL "resourceTogglePool" NO-ERROR.
     CREATE WIDGET-POOL "resourceTogglePool" PERSISTENT.
 
-    DEFINE VARIABLE dCol    AS DECIMAL NO-UNDO INITIAL 74.
-    DEFINE VARIABLE dRow    AS DECIMAL NO-UNDO INITIAL 2.4.
+    DEFINE VARIABLE dCol    AS DECIMAL NO-UNDO INITIAL 89.
+    DEFINE VARIABLE dRow    AS DECIMAL NO-UNDO INITIAL 3.35.
     DEFINE VARIABLE hWidget AS HANDLE  NO-UNDO.
     
     FOR EACH ttblResource
@@ -883,15 +1139,28 @@ PROCEDURE createTtblProdAce :
   DEFINE VARIABLE lvState AS CHARACTER NO-UNDO.
   DEFINE VARIABLE lvChargeCode AS CHARACTER NO-UNDO.
   DEFINE VARIABLE lvFile AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE lvTemp AS CHARACTER NO-UNDO.
 
   EMPTY TEMP-TABLE ttblStatus.
-  lvFile = lvProdAceDir + '/wmsjobs.dat'.
+  ASSIGN 
+    lvFile = lvProdAceDir + '/wmsjobs.dat'
+    lvTemp = REPLACE(lvFile,".dat",".tmp")
+    .
   IF SEARCH(lvFile) NE ? THEN DO:
-    INPUT STREAM sProdAce FROM VALUE(lvFile).
+    OS-RENAME VALUE(lvFile) VALUE(lvTemp).
+    INPUT STREAM sProdAce FROM VALUE(lvTemp).
     REPEAT:
       IMPORT STREAM sProdAce UNFORMATTED lvProdAceData.
+      /* check if valid entry to process */
+      IF INDEX(ENTRY(2,lvProdAceData),"Invalid WO") NE 0 THEN NEXT.
+      /* check if valid entry to process */
+      IF INDEX(ENTRY(2,lvProdAceData),"n/f") NE 0 THEN NEXT.
+      /* make sure job is in long format */
+      IF NUM-ENTRIES(ENTRY(2,lvProdAceData),' ') LT 2 THEN NEXT.
       CREATE ttblStatus.
-      ASSIGN 
+      ASSIGN
+        lvProdAceData = REPLACE(lvProdAceData,', ',',')
+        lvProdAceData = REPLACE(lvProdAceData,'"','')
         ttblStatus.dmiID = INT(ENTRY(1,lvProdAceData))
         ttblStatus.job = ENTRY(2,lvProdAceData)
         ttblStatus.blank-no = INT(ENTRY(2,ttblStatus.job,' '))
@@ -904,7 +1173,7 @@ PROCEDURE createTtblProdAce :
     END. /* repeat */
     OUTPUT STREAM sProdAce CLOSE.
   END. /* if search */
-  
+
   EMPTY TEMP-TABLE ttblProdAce.
   INPUT STREAM sProdAce FROM VALUE(ipProdAceFile).
   IF lvPostProdAce THEN DO:
@@ -913,6 +1182,7 @@ PROCEDURE createTtblProdAce :
   END. /* if lvpostprodAce */
   REPEAT:
     IMPORT STREAM sProdAce UNFORMATTED lvProdAceData.
+    IF ENTRY(2,lvProdAceData) EQ 'n/f' THEN NEXT.
     lvProdAceDMIID = INTEGER(ENTRY(1,lvProdAceData)).
     FIND FIRST ttblResource
          WHERE ttblResource.dmiID EQ lvProdAceDMIID
@@ -951,8 +1221,8 @@ PROCEDURE createTtblProdAce :
     END. /* cannot find job in SB */
     lvProdAceOperator = ''.
     DO idx = 19 TO NUM-ENTRIES(lvProdAceData):
-      lvProdAceOperator[idx] = IF ENTRY(idx,lvProdAceData) EQ '' THEN lvProdAceBlankEmployee
-                             ELSE ENTRY(idx,lvProdAceData).
+      lvProdAceOperator[idx - 18] = IF ENTRY(idx,lvProdAceData) EQ '' THEN lvProdAceBlankEmployee
+                                  ELSE ENTRY(idx,lvProdAceData).
       IF ENTRY(idx,lvProdAceData) EQ '' THEN LEAVE.
     END. /* do idx */
     ASSIGN
@@ -989,6 +1259,7 @@ PROCEDURE createTtblProdAce :
       ttblProdAce.prodAceQtyDue = INT(ENTRY(13,lvProdAceData))
       ttblProdAce.prodAceState = lvState
       ttblProdAce.prodAceChargeCode = lvChargeCode
+      ttblProdAce.prodAceOperator = lvProdAceOperator
       ttblProdAce.prodAceDuration = INT(ENTRY(16,lvProdAceData)) * 60
                                   + INT(ENTRY(18,lvProdAceData)) * 60
       ttblProdAce.prodAceRunComplete = CAN-FIND(FIRST ttblStatus
@@ -998,6 +1269,7 @@ PROCEDURE createTtblProdAce :
                                                   AND ttblStatus.runID EQ ttblProdAce.prodAceSeq
                                                   AND ttblStatus.runComplete EQ YES)
                                                   AND ttblProdAce.prodAceState EQ 'RUN'
+      ttblProdAce.prodAceData = lvProdAceData
       .
     RUN newEnd (ttblProdAce.prodAceDuration, ttblProdAce.prodAceStartDate, ttblProdAce.prodAceStartTime,
                 OUTPUT ttblProdAce.prodAceEndDate, OUTPUT ttblProdAce.prodAceEndTime).
@@ -1009,6 +1281,21 @@ PROCEDURE createTtblProdAce :
     OUTPUT STREAM sProcessed CLOSE.
   END. /* if lvpostprodAce */
   INPUT STREAM sProdAce CLOSE.
+  
+/*  OUTPUT TO c:\tmp\ttblProdAct.txt.                                                                       */
+/*  FOR EACH ttblProdAce:                                                                                   */
+/*      DISPLAY                                                                                             */
+/*          ttblProdAce EXCEPT prodAceOperator                                                              */
+/*            WITH STREAM-IO WIDTH 600.                                                                     */
+/*      DISPLAY                                                                                             */
+/*          ttblProdAce.prodAceJob FORMAT "x(15)"                                                           */
+/*          STRING(ttblProdAce.prodAceStartTime,"hh:mm:ss am") FORMAT "x(11)" @ ttblProdAce.prodAceStartTime*/
+/*          STRING(ttblProdAce.prodAceEndTime,"hh:mm:ss am") FORMAT "x(11)" @ ttblProdAce.prodAceEndTime    */
+/*          STRING(ttblProdAce.prodAceDuration,"hh:mm:ss") @ ttblProdAce.prodAceDuration                    */
+/*          .                                                                                               */
+/*  END.                                                                                                    */
+/*  OUTPUT CLOSE.                                                                                           */
+/*  OS-COMMAND NO-WAIT notepad.exe c:\tmp\ttblProdAct.txt.                                                  */
 
 END PROCEDURE.
 
@@ -1099,14 +1386,21 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY setAllResources selectedShift selectedStartDate selectedEndDate 
-          lvProdAceDir lvImportDir lvProdAceType lvEmpLogin 
-          lvProdAceBlankEmployee lvResourceList 
+  DISPLAY setAllResources selectedShift selectedStartDate 
+          selectedStartDateOption selectedEndDate selectedEndDateOption 
+          selectedStartDueDate selectedStartDueDateOption selectedEndDueDate 
+          selectedEndDueDateOption svAllJobNo svStartJobNo svStartJobNo2 
+          svEndJobNo svEndJobNo2 lvProdAceDir lvImportDir lvProdAceType 
+          lvEmpLogin lvProdAceBlankEmployee lvResourceList 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
-  ENABLE btnExportMachines setAllResources selectedShift selectedStartDate 
-         selectedEndDate btnPost btnNonPost btnCancel lvProdAceDir lvImportDir 
-         lvProdAceBlankEmployee lvResourceList btnSave btnReset btnExit 
-         btnExportJobs btnExportEmployees btnExportShifts btnImport 
+  ENABLE btnExportShifts btnReset btnSave btnImport setAllResources 
+         selectedShift btnExportEmployees selectedStartDate btnCalendar-1 
+         selectedStartDateOption selectedEndDate btnCalendar-2 btnExportJobs 
+         selectedEndDateOption selectedStartDueDate btnCalendar-3 
+         selectedStartDueDateOption selectedEndDueDate btnCalendar-4 
+         selectedEndDueDateOption svAllJobNo btnExportMachines svStartJobNo 
+         svStartJobNo2 svEndJobNo svEndJobNo2 lvProdAceDir lvImportDir 
+         lvProdAceType lvProdAceBlankEmployee lvResourceList 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
   VIEW C-Win.
@@ -1127,7 +1421,7 @@ PROCEDURE getProdAceDatValues :
   IMPORT UNFORMATTED lvProdAceType.          /* Summary or Detail                */
   IMPORT UNFORMATTED lvEmpLogin.             /* ProdAce or TS                    */
   IMPORT UNFORMATTED lvProdAceBlankEmployee. /* default employee if blank        */
-  IMPORT UNFORMATTED lvImportDir.          /* location of processed trans file */
+  IMPORT UNFORMATTED lvImportDir.            /* location of processed trans file */
   IMPORT UNFORMATTED lvResourceList.         /* comma delimited list, or blank   */
   INPUT CLOSE.
 
@@ -1182,20 +1476,48 @@ PROCEDURE pExport :
     DEFINE VARIABLE firstJobsList  AS CHARACTER NO-UNDO.
     DEFINE VARIABLE idx            AS INTEGER   NO-UNDO.
     
-    IF ipcType EQ 'Jobs' THEN DO:
+    IF ipcType EQ 'Jobs' THEN DO WITH FRAME {&FRAME-NAME}:
         EMPTY TEMP-TABLE ttblProductID.
-        cFile = lvProdAceDir + '\mrp2jq.tmp'.
+        ASSIGN
+            cFile = lvProdAceDir + '\mrp2jq.tmp'
+            selectedStartDueDate
+            selectedEndDueDate
+            svAllJobNo
+            svStartJobNo
+            svStartJobNo2
+            svEndJobNo
+            svEndJobNo2
+            .
+        IF svAllJobNo THEN
+        ASSIGN
+            svStartJobNo = CHR(32)
+            svEndJobNo   = CHR(254)
+            .
+        ELSE
+        ASSIGN
+            svStartJobNo = FILL(" ",6 - LENGTH(svStartJobNo))
+                         + svStartJobNo + "-"
+                         + STRING(svStartJobNo2)
+            svEndJobNo   = FILL(" ",6 - LENGTH(svEndJobNo))
+                         + svEndJobNo + "-"
+                         + STRING(svEndJobNo2)
+                         .
         OUTPUT TO VALUE(cFile).
         FOR EACH ttblResource
             WHERE ttblResource.dmiID GT 0,
             EACH ttblJob
             WHERE ttblJob.resource     EQ ttblResource.resource
+              AND ttblJob.jobSort      GE svStartJobNo
+              AND ttblJob.jobSort      LE svEndJobNo
+              AND ttblJob.dueDate      GE selectedStartDueDate
+              AND ttblJob.dueDate      LE selectedEndDueDate
               AND ttblJob.jobCompleted EQ NO
               AND ttblJob.liveUpdate   EQ YES
             BREAK BY ttblResource.dmiID
                   BY ttblJob.jobSequence
             :
             IF FIRST-OF(ttblResource.dmiID) THEN DO:
+                idx = 0.
                 FIND FIRST ttToggleBox
                      WHERE ttToggleBox.rResource EQ ROWID(ttblResource)
                      .
@@ -1215,8 +1537,9 @@ PROCEDURE pExport :
                 .
             IF dStandardCycle EQ ? THEN 
             dStandardCycle = 1.
+            idx = idx + 1.
             PUT UNFORMATTED 
-                ttblJob.jobSequence ','
+                idx ','
                 STRING(ttblResource.dmiID,'999') ',"'
                 ttblJob.job ' '
                 INT(ttblJob.userField19) ' '
@@ -1304,7 +1627,7 @@ PROCEDURE postProdAce :
   lvProdAceFile = lvImportDir + '/adware.dat'.
   IF SEARCH(lvProdAceFile) EQ ? THEN DO:
       MESSAGE 
-        'ProductionACE File' lvProdAceFile 'does not exist'
+        'Production ACE File' lvProdAceFile 'does not exist'
       VIEW-AS ALERT-BOX.
       RETURN.
   END. /* if search */
@@ -1366,6 +1689,31 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pPopulateOptions C-Win 
+PROCEDURE pPopulateOptions :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER iphContainer AS HANDLE NO-UNDO.
+    
+    DO WITH FRAME {&FRAME-NAME}:
+        hContainer = iphContainer.
+
+        DYNAMIC-FUNCTION('fDateOptions' IN hContainer,selectedStartDateOption:HANDLE).
+        DYNAMIC-FUNCTION('fDateOptions' IN hContainer,selectedEndDateOption:HANDLE).
+
+        DYNAMIC-FUNCTION('fDateOptions' IN hContainer,selectedStartDueDateOption:HANDLE).
+        DYNAMIC-FUNCTION('fDateOptions' IN hContainer,selectedEndDueDateOption:HANDLE).
+        
+        APPLY "VALUE-CHANGED":U TO svAllJobNo.
+    END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE prodAceDetail C-Win 
 PROCEDURE prodAceDetail :
 /*------------------------------------------------------------------------------
@@ -1374,7 +1722,9 @@ PROCEDURE prodAceDetail :
   Notes:       
 ------------------------------------------------------------------------------*/
   /* split records that span midnight */
-  FOR EACH ttblProdAce:
+  FOR EACH ttblProdAce
+      WHERE ttblProdAce.prodAceSelected EQ YES
+      :
     IF ttblProdAce.prodAceStartDate NE ttblProdAce.prodAceEndDate THEN DO:
       CREATE buffProdAce.
       BUFFER-COPY ttblProdAce TO buffProdAce.
@@ -1392,6 +1742,7 @@ PROCEDURE prodAceDetail :
   END. /* each ttblprodace */
   
   FOR EACH ttblProdAce
+      WHERE ttblProdAce.prodAceSelected EQ YES
       BREAK BY ttblProdAce.prodAceResource
             BY ttblProdAce.prodAceJob
             BY ttblProdAce.prodAceItem
@@ -1458,7 +1809,7 @@ PROCEDURE prodAceSummary :
   DEFINE VARIABLE empLoginRowID AS ROWID NO-UNDO.
   DEFINE VARIABLE lvState AS CHARACTER NO-UNDO.
   DEFINE VARIABLE lvTime AS INTEGER NO-UNDO.
-
+  
   /* Pass 1: consolidate prodAce transactions */
   FOR EACH ttblProdAce
       BREAK BY ttblProdAce.prodAceResource
@@ -1695,6 +2046,18 @@ PROCEDURE prodAceSummary :
     IF ttblProdAce.prodAceRunComplete THEN
     RUN completeMR.
   END. /* each ttblProdAce */
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pTransSelection C-Win 
+PROCEDURE pTransSelection :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
 
 END PROCEDURE.
 
