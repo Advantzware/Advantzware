@@ -16,7 +16,6 @@ DEFINE SHARED BUFFER xeb  FOR eb.
 {cec/print42.i shared}
 
 DEFINE BUFFER b-blk     FOR blk.
-DEFINE BUFFER b-probemk FOR reftable.
 DEFINE BUFFER probe-ref FOR reftable.
 
 DEFINE VARIABLE qm                 AS DECIMAL   NO-UNDO.
@@ -42,8 +41,7 @@ DEFINE VARIABLE dBoardCst          AS DECIMAL   NO-UNDO.
 DEFINE VARIABLE dBoardPct          AS DECIMAL   NO-UNDO.
 DEFINE        VARIABLE dMarginCostG       AS DECIMAL  NO-UNDO.
 DEFINE        VARIABLE dMarginCostN       AS DECIMAL  NO-UNDO.
-DEFINE SHARED TEMP-TABLE tt-rel NO-UNDO LIKE reftable.
-                              
+DEFINE SHARED TEMP-TABLE tt-rel NO-UNDO LIKE eb.                              
 
 IF xest.est-type LT 6 THEN LEAVE.
 
@@ -260,34 +258,19 @@ FOR EACH probeit
         AND eb.est-no  EQ probeit.est-no
         AND eb.part-no EQ probeit.part-no,
         FIRST tt-rel NO-LOCK
-        WHERE tt-rel.reftable EQ "ce/com/selwhif1.w"
-        AND tt-rel.company  EQ eb.company
-        AND tt-rel.loc      EQ eb.est-no
-        AND tt-rel.code     EQ STRING(eb.form-no,"9999999999")
-        AND tt-rel.code2    EQ STRING(eb.blank-no,"9999999999"):
-        v-rel = v-rel + tt-rel.val[1].
+        WHERE tt-rel.company     EQ eb.company                      
+          AND tt-rel.est-no      EQ eb.est-no                       
+          AND tt-rel.form-no     EQ eb.form-no 
+          AND tt-rel.blank-no    EQ eb.blank-no:
+
+        v-rel = v-rel + tt-rel.releaseCount.
     END.
 
-    FIND FIRST b-probemk
-        WHERE b-probemk.reftable EQ "ce/com/probemk.p"
-        AND b-probemk.company  EQ probeit.company
-        AND b-probemk.loc      EQ probeit.est-no
-        AND b-probemk.code     EQ STRING(probeit.line,"9999999999")
-        AND b-probemk.code2    EQ probeit.part-no
-        NO-ERROR.
-    IF NOT AVAILABLE b-probemk THEN 
-    DO:
-        CREATE b-probemk.
-        ASSIGN
-            b-probemk.reftable = "ce/com/probemk.p"
-            b-probemk.company  = probeit.company
-            b-probemk.loc      = probeit.est-no
-            b-probemk.code     = STRING(probeit.line,"9999999999")
-            b-probemk.code2    = probeit.part-no.
-    END.
-    b-probemk.val[1] = b-probemk.val[1] + (IF v-rel EQ 0 THEN 1 ELSE v-rel).
+    probeit.releaseCount = probeit.releaseCount + (IF v-rel EQ 0 THEN 1 ELSE v-rel).
 
-    IF b-probemk.val[1] GT probe.freight THEN probe.freight = b-probemk.val[1].
+    IF probeit.releaseCount GT probe.freight THEN probe.freight = probeit.releaseCount.
+    
+
 
     board-cst = 0. 
     FOR EACH blk WHERE blk.id EQ probeit.part-no,
@@ -304,13 +287,6 @@ FOR EACH probeit
     
    
     /*For ticket 19263 - storage of total man hours op-tot[8] = tot MR man hours, op-tot[9] = tot Run man hours*/    
-    FIND FIRST reftable
-        WHERE reftable.reftable EQ "probe.board"
-        AND reftable.company  EQ probe.company
-        AND reftable.loc      EQ ""
-        AND reftable.code     EQ probe.est-no
-        AND reftable.code2    EQ STRING(probe.line,"9999999999")
-        NO-ERROR.
             
     dBoardCst = 0.
     IF xest.est-type EQ  6  THEN /*If estimate is a set, calculate per item board cost and total fact cost*/
@@ -333,23 +309,23 @@ FOR EACH probeit
    
         IF probeit.fact-cost GT 0 THEN 
             dBoardPct = (dBoardCst / (v-qty / 1000)) / probeit.fact-cost * 100.
-        IF AVAILABLE reftable THEN 
-        DO:
-            reftable.val[6] = dTotalManHrs.
-            FIND CURRENT reftable NO-LOCK. 
-        END.
+    FIND CURRENT probe EXCLUSIVE-LOCK NO-ERROR. 
+        ASSIGN
+            probe.manHoursTotal = dTotalManHrs.
+    FIND CURRENT probe NO-LOCK NO-ERROR.
+
     END. /*Set calc*/
     ELSE /*Tandems, combos*/
     DO:
          
     
         /*Pull the Total Board Cost from the probe.board (Reftable)*/
-        IF AVAILABLE reftable THEN 
-        DO:
-            reftable.val[6] = op-tot[8] + op-tot[9].
-            dBoardCst = reftable.val[1].
-            FIND CURRENT reftable NO-LOCK.
-        END.    
+    FIND CURRENT probe EXCLUSIVE-LOCK NO-ERROR.
+         ASSIGN
+            probe.manHoursTotal = op-tot[8] + op-tot[9]
+            dBoardCst = probe.boardCostTotal.
+    FIND CURRENT probe NO-LOCK NO-ERROR.     
+         
             
         /*Use the ord-cost which is the Total Factory Cost to determine the reduction lookup pct*/
         IF ord-cost GT 0 THEN 
@@ -512,19 +488,21 @@ FOR EACH probeit
         (lv-sell-by-ce-ctrl NE "B" AND lv-sell-by EQ "B") THEN
         v-comm = probeit.sell-price * probe.comm / 100.
 
-    ASSIGN
+  
+   ASSIGN
         v-price           = v-price + (probeit.sell-price * (v-qty / 1000))
         v-nman            = v-comm
         probeit.full-cost = probeit.full-cost + v-comm
-        b-probemk.val[2]  = probe.comm
-        b-probemk.val[6]  = v-comm * (v-qty / 1000)
-        b-probemk.val[7]  = v-royl * (v-qty / 1000)
-        b-probemk.val[8]  = v-ware * (v-qty / 1000)
-        b-probemk.val[9]  = v-cust * (v-qty / 1000)
-        probe-ref.val[6]  = probe-ref.val[6] + b-probemk.val[6]
-        probe-ref.val[7]  = probe-ref.val[7] + b-probemk.val[7]
-        probe-ref.val[8]  = probe-ref.val[8] + b-probemk.val[8]
-        probe-ref.val[9]  = probe-ref.val[9] + b-probemk.val[9].
+        probeit.pctCommission  = probe.comm
+        probeit.totCostCommission  = v-comm * (v-qty / 1000)
+        probeit.totCostRoyalty  = v-royl * (v-qty / 1000)
+        probeit.totCostWarehousr  = v-ware * (v-qty / 1000)
+        probeit.totCostCustMargin  = v-cust * (v-qty / 1000)
+        probe-ref.val[6]  = probe-ref.val[6] + probeit.totCostCommission
+        probe-ref.val[7]  = probe-ref.val[7] + probeit.totCostRoyalty
+        probe-ref.val[8]  = probe-ref.val[8] + probeit.totCostWarehousr
+        probe-ref.val[9]  = probe-ref.val[9] + probeit.totCostCustMargin.      
+                   
 END.
 
 ASSIGN

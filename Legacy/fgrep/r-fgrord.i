@@ -41,10 +41,7 @@ for each itemfg
    IF AVAIL cust AND cust.ACTIVE NE "X" THEN do:
     FOR EACH cust-part WHERE cust-part.company = itemfg.company   
         AND cust-part.i-no = itemfg.i-no
-        AND cust-part.cust-no EQ itemfg.cust-no NO-LOCK, 
-          FIRST reftable WHERE reftable.reftable = "cp-lab-p" 
-          AND reftable.company = cust-part.company  
-         AND reftable.loc = cust-part.i-no   AND reftable.code = cust-part.cust-no NO-LOCK:
+        AND cust-part.cust-no EQ itemfg.cust-no NO-LOCK:
         
        IF cust-part.spare-char-1 NE "" THEN do:
            FIND FIRST sman WHERE sman.company = itemfg.company
