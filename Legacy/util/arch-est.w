@@ -1019,23 +1019,7 @@ if v-process then do:
 
         delete reftable.
     END.
-
-    FOR EACH reftable WHERE
-        reftable.reftable EQ "probe.per-msf" AND
-        reftable.company  EQ est.company AND
-        reftable.loc      EQ "" AND
-        reftable.code     EQ est.est-no
-        EXCLUSIVE WITH FRAME f-permsf:
-
-        if archive then do:
-           output to value(v-file-path + "reftable" + STRING(est.est-no,"X(8)") + ".d") APPEND.
-           export reftable.
-           output close.
-        end.
-
-        delete reftable.
-    END.
-
+    
     FOR EACH reftable WHERE
         reftable.reftable EQ "probe.per-ref" AND
         reftable.company  EQ est.company AND

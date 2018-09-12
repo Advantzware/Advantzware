@@ -3410,6 +3410,35 @@ CLASS RefTableMigration:
         END.  /*FOR EACH reftable*/  
         RETURN iCnt.
     END METHOD. /*GsaFm*/
+    METHOD PUBLIC INTEGER ProbePerMsf(INPUT ipCount AS INTEGER):
+        DEFINE VARIABLE iCnt AS INTEGER NO-UNDO.
+        DEFINE BUFFER reftable1 FOR reftable1.
+        DEFINE BUFFER Breftable FOR reftable. 
+        DEFINE BUFFER probe     FOR probe.
+        
+        DISABLE TRIGGERS FOR LOAD OF reftable.        
+        DISABLE TRIGGERS FOR LOAD OF probe.
+        ASSIGN iProcessCount = 0.        
+        FOR EACH reftable WHERE reftable.reftable = "probe.per-msf"
+            NO-LOCK:
+            DO TRANSACTION:    
+                FIND FIRST probe WHERE probe.company = reftable.company
+                                   AND probe.est-no  = reftable.code
+                                   AND probe.line    = int(reftable.code2)
+                EXCLUSIVE-LOCK NO-ERROR.
+                IF AVAILABLE probe THEN DO:
+                    IF  probe.per-msf EQ 0 THEN ASSIGN  probe.per-msf = reftable.val[1].
+                    IF  probe.setup EQ 0 THEN ASSIGN   probe.setup = reftable.val[2].                    
+                  ASSIGN iProcessCount = iProcessCount + 1. 
+                END.             
+                FIND CURRENT probe NO-LOCK NO-ERROR.    
+                RELEASE probe.      
+                iCnt = iCnt + 1.
+                IF iCnt >= ipCount THEN LEAVE.   
+            END.              
+        END.  /*FOR EACH reftable*/          
+        RETURN iCnt.
+    END METHOD. /*ProbePerMsf*/
 END CLASS.
 
 

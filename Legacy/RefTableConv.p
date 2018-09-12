@@ -160,6 +160,7 @@ ASSIGN
     {refTableConv.i "TruckRunPrint" 'trp-car'}
     {refTableConv.i "ShiftDays" 'ShiftDays'}
     {refTableConv.i "EstGetqtyw2" 'est/getqty.w2'}
+    {refTableConv.i "ProbePerMsf" 'probe.per-msf'}
 
 /* Deferred for 16.7.0                                              */
 /*    {refTableConv.i "STYFLU" 'STYFLU'}                            */
