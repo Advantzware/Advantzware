@@ -1,3 +1,5 @@
+&SCOPED-DEFINE SVB SCREEN-VALUE IN BROWSE {&browse-name}
+&SCOPED-DEFINE FVB FORMAT IN BROWSE {&browse-name}
 &ANALYZE-SUSPEND _VERSION-NUMBER UIB_v8r12 GUI ADM1
 &ANALYZE-RESUME
 /* Connected Databases 
@@ -282,6 +284,8 @@ END.
 /* Name of designated FRAME-NAME and/or first browse and/or first query */
 &SCOPED-DEFINE FRAME-NAME F-Main
 &SCOPED-DEFINE BROWSE-NAME br_table
+&SCOPED-DEFINE SVB SCREEN-VALUE IN BROWSE {&BROWSE-NAME}
+&SCOPED-DEFINE FVB FORMAT IN BROWSE {&BROWSE-NAME}
 
 /* External Tables                                                      */
 &SCOPED-DEFINE EXTERNAL-TABLES est ef eb
@@ -304,7 +308,7 @@ probe.comm probe.net-profit probe.sell-price probe.gsh-qty probe.do-quote ~
 voverall(1) @ voverall probe.probe-date probe.boardCostPerM probe.boardCostPct ~
 probe.boardContributionPerM probe.boardContributionTotal probe.probe-user vtot-msf() @ vtot-msf ~
 cvt-time(probe.probe-time) @ ls-probetime probe.grossProfitPerM probe.grossProfitPerManhourAssemb ~
-probe.grossProfitPerManHourOther probe.line probe.spare-dec-1 ~
+probe.grossProfitPerManHourOther probe.line probe.spare-dec-1 probe.board-cost ~
 fDirectMatPctSellPrice(1) @ dMatPctSellPrice 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-br_table probe.full-cost ~
 probe.gross-profit probe.grossProfitPctTemp probe.net-profit ~
@@ -515,6 +519,7 @@ DEFINE BROWSE br_table
       probe.grossProfitPerManHourOther COLUMN-LABEL "CMOH" FORMAT "->>,>>>,>>9.99":U
             WIDTH 19
       probe.line FORMAT ">>9":U
+      probe.board-cost FORMAT "->>,>>>,>>9.99":U 
       probe.spare-dec-1 COLUMN-LABEL "Direct!Material" FORMAT "->>>,>>9.99":U
             WIDTH 15
       fDirectMatPctSellPrice(1) @ dMatPctSellPrice COLUMN-LABEL "Dir. Mat%"
@@ -837,7 +842,7 @@ END.
 ON ENTRY OF probe.gross-profit IN BROWSE br_table /* Gross% */
 DO:
 
-  v-orig-gp = probe.gross-profit:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}.
+  v-orig-gp = probe.gross-profit:{&SVB}.
   IF ll-use-margin OR v-ceSellPrice EQ "F" THEN DO:
     APPLY "tab" TO probe.gross-profit IN BROWSE {&browse-name}.
     RETURN NO-APPLY.
@@ -856,10 +861,10 @@ DO:
   IF LASTKEY NE -1 THEN DO:
     RUN valid-profit (FOCUS) NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-  IF v-orig-gp <> probe.gross-profit:SCREEN-VALUE IN BROWSE {&BROWSE-NAME} 
-      OR probe.grossProfitPctTemp:SCREEN-VALUE IN BROWSE {&BROWSE-NAME} = "" THEN
-    ASSIGN probe.grossProfitPctTemp:SCREEN-VALUE IN BROWSE {&BROWSE-NAME} 
-              = probe.gross-profit:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}.
+  IF v-orig-gp <> probe.gross-profit:{&SVB} 
+      OR probe.grossProfitPctTemp:{&SVB} = "" THEN
+    ASSIGN probe.grossProfitPctTemp:{&SVB} 
+              = probe.gross-profit:{&SVB}.
     RUN calc-fields NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
   END.
@@ -888,7 +893,7 @@ DO:
       RETURN NO-APPLY.
     END.
     ELSE
-        v-orig-cm-pct = probe.grossProfitPctTemp:SCREEN-VALUE IN BROWSE {&browse-name}.
+        v-orig-cm-pct = probe.grossProfitPctTemp:{&SVB}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -899,9 +904,9 @@ END.
 ON LEAVE OF probe.grossProfitPctTemp IN BROWSE br_table /* CM% */
 DO:
     /*
-  IF v-orig-cm-pct NE probe.grossProfitPctTemp:SCREEN-VALUE IN BROWSE {&browse-name} THEN
-    probe.gross-profit:SCREEN-VALUE IN BROWSE {&browse-name} = 
-      probe.grossProfitPctTemp:SCREEN-VALUE IN BROWSE {&browse-name}.
+  IF v-orig-cm-pct NE probe.grossProfitPctTemp:{&SVB} THEN
+    probe.gross-profit:{&SVB} = 
+      probe.grossProfitPctTemp:{&SVB}.
       */
 END.
 
@@ -969,7 +974,7 @@ DO:
 
   IF cewhatif-cha EQ "PerMSF" THEN DO:
     ASSIGN
-     hold-value = {&self-name}:SCREEN-VALUE IN BROWSE {&browse-name}
+     hold-value = {&self-name}:{&SVB}
      ld         = DECIMAL(hold-value).
 
     per-msf:
@@ -978,7 +983,7 @@ DO:
 
       IF NOT ERROR-STATUS:ERROR THEN DO:
         IF ROUND(ld,2) NE ROUND(DECIMAL(hold-value),2) THEN DO:
-          {&self-name}:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(ld).
+          {&self-name}:{&SVB} = STRING(ld).
           RUN new-sell-price.
           RUN calc-fields NO-ERROR.
           IF ERROR-STATUS:ERROR THEN UNDO per-msf, RETRY per-msf.
@@ -1227,25 +1232,48 @@ PROCEDURE calc-fields :
 
     IF est.est-type EQ 6 AND probe.set-chg NE 0 AND vmclean2 THEN
        v-tmp-set-markup = probe.set-chg.
+       
+    ASSIGN
+        probe.boardCostPerM:{&SVB} = STRING(
+                                        DEC(probe.board-Cost:{&SVB}) / 
+                                        (DEC(probe.est-qty:{&SVB}) / 1000), 
+                                            probe.boardCostPerM:{&FVB}
+                                            )
+        probe.boardCostPct:{&SVB} = STRING(
+                                        DEC(probe.boardCostPerM:{&SVB}) / 
+                                        (DEC(probe.sell-price:{&SVB}) * 100), 
+                                            probe.boardCostPct:{&FVB}
+                                            )
+        probe.boardContributionPerM:{&SVB} = STRING(
+                                                DEC(probe.sell-price:{&SVB}) - 
+                                                DEC(probe.boardCostPerM:{&SVB}), 
+                                                    probe.boardContributionPerM:{&FVB}
+                                                    )
+        probe.boardContributionTotal:{&SVB} = STRING(
+                                                DEC(probe.boardContributionPerM:{&SVB}) * 
+                                                (DEC(probe.est-qty:{&SVB}) / 1000), 
+                                                    probe.boardContributionTotal:{&FVB}
+                                                    )
+        .
 
     ASSIGN
      lv-orig-changed = lv-changed
      v-com = probe.comm
      lv-changed2 = lv-changed
      ld-price    = DECIMAL(lv-price)
-     ld-factc    = DECIMAL(probe.fact-cost:SCREEN-VALUE IN BROWSE {&browse-name})
+     ld-factc    = DECIMAL(probe.fact-cost:{&SVB})
      ld-commc    = (ld-price - (IF v-basis EQ "G" THEN ld-factc ELSE 0)) *
                    (v-com / 100)   
-     ld-fullc    = DECIMAL(probe.full-cost:SCREEN-VALUE IN BROWSE {&browse-name}) -
+     ld-fullc    = DECIMAL(probe.full-cost:{&SVB}) -
                    ld-commc
-     ld-brd-m    = DECIMAL(probe.boardCostPerM:SCREEN-VALUE IN BROWSE {&browse-name})
-     ld-brd-%    = DECIMAL(probe.boardCostPct:SCREEN-VALUE IN BROWSE {&browse-name})
-     ld-brdcm    = DECIMAL(probe.boardContributionPerM:SCREEN-VALUE IN BROWSE {&browse-name})
-     ld-brdc$    = DECIMAL(probe.boardContributionTotal:SCREEN-VALUE IN BROWSE {&browse-name}).
+     ld-brd-m    = DECIMAL(probe.boardCostPerM:{&SVB})
+     ld-brd-%    = DECIMAL(probe.boardCostPct:{&SVB})
+     ld-brdcm    = DECIMAL(probe.boardContributionPerM:{&SVB})
+     ld-brdc$    = DECIMAL(probe.boardContributionTotal:{&SVB}).
 
     IF lv-changed EQ "S" THEN DO:
       ASSIGN
-       ld-price = DECIMAL(probe.sell-price:SCREEN-VALUE IN BROWSE {&browse-name})
+       ld-price = DECIMAL(probe.sell-price:{&SVB})
        ld-commc = (ld-price - (IF v-basis EQ "G" THEN ld-factc ELSE 0)) *
                   (v-com / 100).
         IF ld-price EQ 0 THEN DO:
@@ -1269,22 +1297,22 @@ PROCEDURE calc-fields :
         IF lv-changed EQ "G" THEN DO:
           IF ce-ctrl.sell-by EQ "F" THEN DO:
           
-            IF  DECIMAL(probe.grossProfitPctTemp:SCREEN-VALUE IN BROWSE {&browse-name}) > 0
+            IF  DECIMAL(probe.grossProfitPctTemp:{&SVB}) > 0
                THEN
-              v-pct = DECIMAL(probe.grossProfitPctTemp:SCREEN-VALUE IN BROWSE {&browse-name}).
+              v-pct = DECIMAL(probe.grossProfitPctTemp:{&SVB}).
             ELSE IF v-pct EQ 0 THEN
-              v-pct = DECIMAL(probe.gross-profit:SCREEN-VALUE IN BROWSE {&browse-name}).
-            IF DECIMAL(probe.grossProfitPctTemp:SCREEN-VALUE IN BROWSE {&browse-name}) = 0 THEN
-                probe.grossProfitPctTemp:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(v-pct).
+              v-pct = DECIMAL(probe.gross-profit:{&SVB}).
+            IF DECIMAL(probe.grossProfitPctTemp:{&SVB}) = 0 THEN
+                probe.grossProfitPctTemp:{&SVB} = STRING(v-pct).
           END.
           ELSE
-            v-pct = DECIMAL(probe.gross-profit:SCREEN-VALUE IN BROWSE {&browse-name}).
+            v-pct = DECIMAL(probe.gross-profit:{&SVB}).
 
           IF ce-ctrl.sell-by EQ "S" THEN lv-changed2 = "S".
           IF ce-ctrl.sell-by EQ "F" THEN lv-changed2 = "F".
         END.
       
-        ELSE v-pct = DECIMAL(probe.net-profit:SCREEN-VALUE IN BROWSE {&browse-name}).
+        ELSE v-pct = DECIMAL(probe.net-profit:{&SVB}).
 
         IF ll-use-margin THEN
           ASSIGN
@@ -1333,66 +1361,66 @@ PROCEDURE calc-fields :
      ld-brdc$ = ld-brdcm * (probe.est-qty / 1000)
      ld-fullc = ld-fullc + ld-commc.
 
-    probe.full-cost:SCREEN-VALUE IN BROWSE {&browse-name} =
-       STRING(ld-fullc,probe.full-cost:FORMAT IN BROWSE {&browse-name}) NO-ERROR.
+    probe.full-cost:{&SVB} =
+       STRING(ld-fullc,probe.full-cost:{&FVB}) NO-ERROR.
 
     IF lv-changed NE "BC$" AND NOT ERROR-STATUS:ERROR THEN
-      probe.boardContributionTotal:SCREEN-VALUE IN BROWSE {&browse-name} =
-          STRING(ld-brdc$,probe.boardContributionTotal:FORMAT IN BROWSE {&browse-name}) NO-ERROR.
+      probe.boardContributionTotal:{&SVB} =
+          STRING(ld-brdc$,probe.boardContributionTotal:{&FVB}) NO-ERROR.
 
     IF lv-changed NE "BCM" AND NOT ERROR-STATUS:ERROR THEN
-      probe.boardContributionPerM:SCREEN-VALUE IN BROWSE {&browse-name} =
-          STRING(ld-brdcm,probe.boardContributionPerM:FORMAT IN BROWSE {&browse-name}) NO-ERROR.
+      probe.boardContributionPerM:{&SVB} =
+          STRING(ld-brdcm,probe.boardContributionPerM:{&FVB}) NO-ERROR.
 
     IF lv-changed NE "B" AND NOT ERROR-STATUS:ERROR THEN
-      probe.boardCostPct:SCREEN-VALUE IN BROWSE {&browse-name} =
-          STRING(ld-brd-%,probe.boardCostPct:FORMAT IN BROWSE {&browse-name}) NO-ERROR.
+      probe.boardCostPct:{&SVB} =
+          STRING(ld-brd-%,probe.boardCostPct:{&FVB}) NO-ERROR.
 
     
     IF lv-changed NE "S" AND NOT ERROR-STATUS:ERROR THEN
-      probe.sell-price:SCREEN-VALUE IN BROWSE {&browse-name} =
-          STRING(ld-price,probe.sell-price:FORMAT IN BROWSE {&browse-name}) NO-ERROR.
+      probe.sell-price:{&SVB} =
+          STRING(ld-price,probe.sell-price:{&FVB}) NO-ERROR.
         
     IF lv-changed NE "N" AND NOT ERROR-STATUS:ERROR THEN
     DO:
       IF probe.set-chg NE 0 AND est.est-type EQ 6 AND vmclean2 THEN
-         probe.net-profit:SCREEN-VALUE IN BROWSE {&browse-name} =
+         probe.net-profit:{&SVB} =
              STRING((1 - (ld-fullc / ld-price)) * 100 - probe.set-chg) NO-ERROR. 
       ELSE
-         probe.net-profit:SCREEN-VALUE IN BROWSE {&browse-name} =
+         probe.net-profit:{&SVB} =
              STRING((1 - (ld-fullc / ld-price)) * 100) NO-ERROR.
     END.
 
     IF lv-changed NE "G" AND NOT ERROR-STATUS:ERROR THEN
-      probe.gross-profit:SCREEN-VALUE IN BROWSE {&browse-name} =
+      probe.gross-profit:{&SVB} =
           STRING((1 - (ld-factc / ld-price)) * 100) NO-ERROR.
 
     ASSIGN
-       probe.comm:SCREEN-VALUE IN BROWSE {&browse-name} =
-                  STRING(v-com,probe.comm:FORMAT IN BROWSE {&browse-name})
+       probe.comm:{&SVB} =
+                  STRING(v-com,probe.comm:{&FVB})
        lv-changed = lv-changed2.
 
     IF ERROR-STATUS:ERROR                                                    OR
-       TRIM(probe.full-cost:SCREEN-VALUE IN BROWSE {&browse-name})    EQ "?" OR
-       TRIM(probe.gross-profit:SCREEN-VALUE IN BROWSE {&browse-name}) EQ "?" OR
-       TRIM(probe.net-profit:SCREEN-VALUE IN BROWSE {&browse-name})   EQ "?" OR
-       TRIM(probe.sell-price:SCREEN-VALUE IN BROWSE {&browse-name})   EQ "?" OR
-       TRIM(probe.boardCostPct:SCREEN-VALUE IN BROWSE {&browse-name})    EQ "?" OR
-       TRIM(probe.boardContributionPerM:SCREEN-VALUE IN BROWSE {&browse-name})    EQ "?" OR
-       TRIM(probe.boardContributionTotal:SCREEN-VALUE IN BROWSE {&browse-name})    EQ "?" OR
+       TRIM(probe.full-cost:{&SVB})    EQ "?" OR
+       TRIM(probe.gross-profit:{&SVB}) EQ "?" OR
+       TRIM(probe.net-profit:{&SVB})   EQ "?" OR
+       TRIM(probe.sell-price:{&SVB})   EQ "?" OR
+       TRIM(probe.boardCostPct:{&SVB})    EQ "?" OR
+       TRIM(probe.boardContributionPerM:{&SVB})    EQ "?" OR
+       TRIM(probe.boardContributionTotal:{&SVB})    EQ "?" OR
        ld-price GT 99999999.99                                              THEN DO:
 
       MESSAGE "Value(s) invalid, please try again" VIEW-AS ALERT-BOX ERROR.
 
       ASSIGN
-       probe.full-cost:SCREEN-VALUE IN BROWSE {&browse-name}    = lv-fullc
-       probe.net-profit:SCREEN-VALUE IN BROWSE {&browse-name}   = lv-nprof
-       probe.gross-profit:SCREEN-VALUE IN BROWSE {&browse-name} = lv-gprof
-       probe.sell-price:SCREEN-VALUE IN BROWSE {&browse-name}   = lv-price
-       probe.boardCostPct:SCREEN-VALUE IN BROWSE {&browse-name}    = lv-brd-%
-       probe.boardContributionPerM:SCREEN-VALUE IN BROWSE {&browse-name}    = lv-brdcm
-       probe.boardContributionTotal:SCREEN-VALUE IN BROWSE {&browse-name}    = lv-brdc$
-       probe.comm:SCREEN-VALUE IN BROWSE {&browse-name} = lv-comm.
+       probe.full-cost:{&SVB}    = lv-fullc
+       probe.net-profit:{&SVB}   = lv-nprof
+       probe.gross-profit:{&SVB} = lv-gprof
+       probe.sell-price:{&SVB}   = lv-price
+       probe.boardCostPct:{&SVB}    = lv-brd-%
+       probe.boardContributionPerM:{&SVB}    = lv-brdcm
+       probe.boardContributionTotal:{&SVB}    = lv-brdc$
+       probe.comm:{&SVB} = lv-comm.
 
       IF lv-changed EQ "BC$" THEN
         APPLY "entry" TO probe.boardContributionTotal IN BROWSE {&browse-name}.
@@ -1417,10 +1445,10 @@ PROCEDURE calc-fields :
     END.
 
     DO WITH FRAME {&FRAME-NAME}:
-      voverall:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(voverall (0)).
-      dMatPctSellPrice:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(fDirectMatPctSellPrice(2)).
+      voverall:{&SVB} = STRING(voverall (0)).
+      dMatPctSellPrice:{&SVB} = STRING(fDirectMatPctSellPrice(2)).
       IF lv-changed2 NE "S" THEN 
-        probe.gross-profit:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(display-gp (0)).
+        probe.gross-profit:{&SVB} = STRING(display-gp (0)).
     END.
     RUN recalc-multicell.
      
@@ -2253,7 +2281,7 @@ PROCEDURE import-price :
                         ELSE
                         IF quoteqty.uom EQ "MSF" THEN (quoteqty.price * ROUND(quoteqty.tot-lbs / 1000,2) / ROUND(quoteqty.qty / 1000,2))
                         ELSE quoteqty.price
-           probe.sell-price:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(lv-price).
+           probe.sell-price:{&SVB} = STRING(lv-price).
          
           RUN calc-fields NO-ERROR.
           IF ERROR-STATUS:ERROR THEN RETURN.
@@ -2293,9 +2321,9 @@ PROCEDURE import-price :
           lv-changed = "S".
 
        IF lv-subquantity NE 0 THEN
-          probe.sell-price:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(ROUND(lv-subprice / lv-subquantity,2)).
+          probe.sell-price:{&SVB} = STRING(ROUND(lv-subprice / lv-subquantity,2)).
        ELSE
-          probe.sell-price:SCREEN-VALUE IN BROWSE {&browse-name} = "0".
+          probe.sell-price:{&SVB} = "0".
          
        RUN calc-fields NO-ERROR.
        IF ERROR-STATUS:ERROR THEN RETURN.
@@ -2335,7 +2363,7 @@ PROCEDURE local-assign-record :
   /* Code placed here will execute AFTER standard behavior.    */
 
   /*since commission column not enabled, below is necessary*/
-  probe.comm = DECIMAL(probe.comm:SCREEN-VALUE IN BROWSE {&browse-name}).
+  probe.comm = DECIMAL(probe.comm:{&SVB}).
 
   IF ll-use-margin THEN DO:         
     /* Get Commission% */
@@ -2424,8 +2452,8 @@ PROCEDURE local-assign-record :
          after it was updated by the db trigger on probe */
       FIND CURRENT probe.
 
-      IF DECIMAL(probe.gross-profit:SCREEN-VALUE IN BROWSE {&BROWSE-NAME})NE probe.gross-profit THEN DO:
-        ASSIGN probe.gross-profit:SCREEN-VALUE IN BROWSE {&BROWSE-NAME} = STRING(probe.gross-profit).
+      IF DECIMAL(probe.gross-profit:{&SVB})NE probe.gross-profit THEN DO:
+        ASSIGN probe.gross-profit:{&SVB} = STRING(probe.gross-profit).
       END.
   END.
               
@@ -2516,7 +2544,7 @@ PROCEDURE local-enable-fields :
   RUN save-fields.
 
   DO WITH FRAME {&FRAME-NAME}:
-    probe.do-quote:SCREEN-VALUE IN BROWSE {&browse-name} = "Y".
+    probe.do-quote:{&SVB} = "Y".
     APPLY "entry" TO probe.full-cost IN BROWSE {&browse-name} .
   END.
   ll-no-valid = NO.
@@ -2548,7 +2576,7 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-open-query B-table-Win 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE lo\n-query B-table-Win 
 PROCEDURE local-open-query :
 /*------------------------------------------------------------------------------
   Purpose:     Override standard ADM method
@@ -2558,16 +2586,6 @@ PROCEDURE local-open-query :
   /* Code placed here will execute PRIOR to standard behavior. */
   IF NOT AVAILABLE est THEN RETURN "adm-error".
 
-  FOR EACH probe NO-LOCK
-      WHERE probe.company EQ est.company
-        AND probe.est-no  EQ est.est-no:
-    ASSIGN
-     probe.boardCostPerM = probe.boardCostTotal / (probe.est-qty / 1000)
-     probe.boardCostPct = probe.boardCostPerM / probe.sell-price * 100
-     probe.boardContributionPerM = probe.sell-price - probe.boardCostPerM
-     probe.boardContributionTotal = probe.boardContributionPerM * (probe.est-qty / 1000).
-  END.
-  
   FIND xest NO-LOCK WHERE RECID(xest) EQ RECID(est) NO-ERROR.
   FIND xef NO-LOCK WHERE RECID(xef) EQ RECID(ef) NO-ERROR.
   FIND xeb NO-LOCK WHERE RECID(xeb) EQ RECID(eb) NO-ERROR.
@@ -2651,7 +2669,6 @@ PROCEDURE local-update-record :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEFINE VARIABLE li AS INTEGER NO-UNDO.
-
 
   /* Code placed here will execute PRIOR to standard behavior. */
   DO WITH FRAME {&FRAME-NAME}:
@@ -3403,8 +3420,8 @@ PROCEDURE recalc-fields :
   
     ASSIGN
        lv-changed = IF ld-price EQ ip-old-price THEN "" ELSE "S"
-       probe.sell-price:SCREEN-VALUE IN BROWSE {&browse-name} =
-           STRING(ld-price,probe.sell-price:FORMAT IN BROWSE {&browse-name})
+       probe.sell-price:{&SVB} =
+           STRING(ld-price,probe.sell-price:{&FVB})
        lv-price = STRING(ip-old-price).
 
     RUN calc-fields.
@@ -3428,11 +3445,11 @@ DEFINE VARIABLE v-cmah AS DECIMAL NO-UNDO.
 DEFINE VARIABLE v-cmoh AS DECIMAL NO-UNDO.
 
 v-mr = calc-cm().
-probe.grossProfitPerM:SCREEN-VALUE IN BROWSE {&BROWSE-NAME} = STRING(v-mr).
+probe.grossProfitPerM:{&SVB} = STRING(v-mr).
 v-cmah = calc-cmah().
-probe.grossProfitPerManhourAssemb:SCREEN-VALUE IN BROWSE {&BROWSE-NAME} = STRING(v-cmah).
+probe.grossProfitPerManhourAssemb:{&SVB} = STRING(v-cmah).
 v-cmoh = calc-cmoh().
-probe.grossProfitPerManHourOther:SCREEN-VALUE IN BROWSE {&BROWSE-NAME} = STRING(v-cmoh).
+probe.grossProfitPerManHourOther:{&SVB} = STRING(v-cmoh).
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -3715,8 +3732,8 @@ PROCEDURE run-whatif :
          after it was updated by the db trigger on probe */
       FIND CURRENT probe.
 
-      IF DECIMAL(probe.gross-profit:SCREEN-VALUE IN BROWSE {&BROWSE-NAME})NE probe.gross-profit THEN DO:
-        ASSIGN probe.gross-profit:SCREEN-VALUE IN BROWSE {&BROWSE-NAME} = STRING(probe.gross-profit).
+      IF DECIMAL(probe.gross-profit:{&SVB})NE probe.gross-profit THEN DO:
+        ASSIGN probe.gross-profit:{&SVB} = STRING(probe.gross-profit).
         RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
       END.
 
@@ -3739,14 +3756,14 @@ PROCEDURE save-fields :
   DO WITH FRAME {&FRAME-NAME}:
     ASSIGN
      lv-changed = ""
-     lv-fullc   = probe.full-cost:SCREEN-VALUE IN BROWSE {&browse-name}
-     lv-nprof   = probe.net-profit:SCREEN-VALUE IN BROWSE {&browse-name}
-     lv-gprof   = probe.gross-profit:SCREEN-VALUE IN BROWSE {&browse-name}
-     lv-price   = probe.sell-price:SCREEN-VALUE IN BROWSE {&browse-name}
-     lv-brd-%   = probe.boardCostPct:SCREEN-VALUE IN BROWSE {&browse-name}
-     lv-brdcm   = probe.boardContributionPerM:SCREEN-VALUE IN BROWSE {&browse-name}
-     lv-brdc$   = probe.boardContributionTotal:SCREEN-VALUE IN BROWSE {&browse-name}
-     lv-comm = probe.comm:SCREEN-VALUE IN BROWSE {&browse-name}.
+     lv-fullc   = probe.full-cost:{&SVB}
+     lv-nprof   = probe.net-profit:{&SVB}
+     lv-gprof   = probe.gross-profit:{&SVB}
+     lv-price   = probe.sell-price:{&SVB}
+     lv-brd-%   = probe.boardCostPct:{&SVB}
+     lv-brdcm   = probe.boardContributionPerM:{&SVB}
+     lv-brdc$   = probe.boardContributionTotal:{&SVB}
+     lv-comm = probe.comm:{&SVB}.
   END.
 
 END PROCEDURE.
@@ -4032,8 +4049,8 @@ FUNCTION calc-cm RETURNS DECIMAL
     Notes:  
 ------------------------------------------------------------------------------*/
 DEFINE VARIABLE v-cm AS DECIMAL NO-UNDO.
-v-cm = DECIMAL(probe.sell-price:SCREEN-VALUE IN BROWSE {&browse-name})
-       - DECIMAL(probe.fact-cost:SCREEN-VALUE IN BROWSE {&browse-name}).
+v-cm = DECIMAL(probe.sell-price:{&SVB})
+       - DECIMAL(probe.fact-cost:{&SVB}).
   RETURN v-cm.   /* Function return value. */
 
 END FUNCTION.
@@ -4069,13 +4086,13 @@ END.
 RUN est/calc-mr.p (INPUT probe.est-no, INPUT "A", OUTPUT v-mr, OUTPUT v-run).
 
 IF v-mr GT 0 THEN
-  v-cmah = DECIMAL(probe.grossProfitPerM:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}) / 
-     ((v-mr + v-run) / (INTEGER(probe.est-qty:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}) / 1000)).
+  v-cmah = DECIMAL(probe.grossProfitPerM:{&SVB}) / 
+     ((v-mr + v-run) / (INTEGER(probe.est-qty:{&SVB}) / 1000)).
 ELSE
   v-cmah = 0.
 /* MESSAGE "probe, calc-cmah, v-mr" v-mr "v-run" v-run           */
-/*    "qty" probe.est-qty:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}  */
-/*    "cm" probe.grossProfitPerM:SCREEN-VALUE IN BROWSE {&BROWSE-NAME} */
+/*    "qty" probe.est-qty:{&SVB}  */
+/*    "cm" probe.grossProfitPerM:{&SVB} */
 /*     "v-cmah" v-cmah                                           */
 /*     VIEW-AS ALERT-BOX INFO BUTTONS OK.                        */
 RETURN v-cmah.   /* Function return value. */
@@ -4099,8 +4116,8 @@ DEFINE VARIABLE v-run AS DECIMAL NO-UNDO.
 
 RUN est/calc-mr.p (INPUT probe.est-no, INPUT "N", OUTPUT v-mr, OUTPUT v-run).
 IF v-mr GT 0 THEN
-  v-cmoh = DECIMAL(probe.grossProfitPerM:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}) / 
-    ((v-mr + v-run) / (INTEGER(probe.est-qty:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}) / 1000)).
+  v-cmoh = DECIMAL(probe.grossProfitPerM:{&SVB}) / 
+    ((v-mr + v-run) / (INTEGER(probe.est-qty:{&SVB}) / 1000)).
 ELSE
   v-cmoh = 0.
 
@@ -4198,14 +4215,14 @@ FUNCTION display-gp RETURNS DECIMAL
               IF ip-type EQ 1 THEN
                 (probe.sell-price - probe.fact-cost) / probe.fact-cost * 100
               ELSE
-                (DECIMAL(probe.sell-price:SCREEN-VALUE IN BROWSE {&browse-name}) -
-                 DECIMAL(probe.fact-cost:SCREEN-VALUE IN BROWSE {&browse-name})) /
-                DECIMAL(probe.fact-cost:SCREEN-VALUE IN BROWSE {&browse-name}) * 100
+                (DECIMAL(probe.sell-price:{&SVB}) -
+                 DECIMAL(probe.fact-cost:{&SVB})) /
+                DECIMAL(probe.fact-cost:{&SVB}) * 100
             ELSE
               IF ip-type EQ 1 THEN
                 probe.gross-profit
               ELSE
-                DECIMAL(gross-profit:SCREEN-VALUE IN BROWSE {&browse-name}).
+                DECIMAL(gross-profit:{&SVB}).
   END.
 
   RETURN lv-gp.   /* Function return value. */
@@ -4230,9 +4247,9 @@ FUNCTION fDirectMatPctSellPrice RETURNS DECIMAL
         dMatPct = 0.
     IF ip-type EQ 2 THEN do:
         IF AVAILABLE probe THEN 
-            dPrice = DEC(probe.sell-price:SCREEN-VALUE IN BROWSE {&browse-name}).
+            dPrice = DEC(probe.sell-price:{&SVB}).
         IF dPrice GT 0 THEN 
-            dMatPct = DECIMAL(probe.spare-dec-1:SCREEN-VALUE IN BROWSE {&browse-name}) / dPrice * 100.
+            dMatPct = DECIMAL(probe.spare-dec-1:{&SVB}) / dPrice * 100.
     END.
     ELSE DO:
         IF AVAILABLE probe THEN 
@@ -4328,7 +4345,7 @@ FUNCTION voverall RETURNS DECIMAL
 
   IF AVAILABLE probe THEN
     lv-overall = ROUND((IF ip-type EQ 1 THEN probe.sell-price
-                                        ELSE DECIMAL(probe.sell-price:SCREEN-VALUE IN BROWSE {&browse-name}))
+                                        ELSE DECIMAL(probe.sell-price:{&SVB}))
                  / probe.bsf,2).
 
   ELSE lv-overall = 0.
