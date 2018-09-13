@@ -1,0 +1,58 @@
+ADD TABLE "xUserMenu"
+  AREA "Data"
+  LABEL "User Menu (unselected)"
+  DESCRIPTION "User's Menu Items not selected as a Menu Option"
+  DUMP-NAME "xusermenu"
+  TABLE-TRIGGER "CREATE" OVERRIDE PROCEDURE "C:\Advantzware\v16\Legacy\create.trg\xUserMenu.p" CRC "?" 
+  TABLE-TRIGGER "DELETE" OVERRIDE PROCEDURE "C:\Advantzware\v16\Legacy\delete.trg\xUserMenu.p" CRC "?" 
+  TABLE-TRIGGER "WRITE" OVERRIDE PROCEDURE "C:\Advantzware\v16\Legacy\write.trg\xUserMenu.p" CRC "?" 
+
+ADD FIELD "user_id" OF "xUserMenu" AS character 
+  FORMAT "X(8)"
+  INITIAL ""
+  LABEL "User ID"
+  POSITION 2
+  MAX-WIDTH 16
+  HELP "Enter User ID"
+  ORDER 10
+
+ADD FIELD "prgmname" OF "xUserMenu" AS character 
+  FORMAT "X(10)"
+  INITIAL ""
+  LABEL "Program"
+  POSITION 3
+  MAX-WIDTH 20
+  HELP "Enter Program Name"
+  ORDER 20
+  MANDATORY
+
+ADD FIELD "rec_key" OF "xUserMenu" AS character 
+  FORMAT "X(20)"
+  INITIAL ""
+  LABEL "Record Key"
+  POSITION 4
+  MAX-WIDTH 40
+  HELP "Enter Record Key Value"
+  ORDER 30
+
+ADD INDEX "user_id" ON "xUserMenu" 
+  AREA "Index"
+  PRIMARY
+  DESCRIPTION "User ID Index"
+  INDEX-FIELD "user_id" ASCENDING 
+
+ADD INDEX "prgrmname" ON "xUserMenu" 
+  AREA "Index"
+  DESCRIPTION "Program Name Index"
+  INDEX-FIELD "prgmname" ASCENDING 
+
+ADD INDEX "si-rec_key" ON "xUserMenu" 
+  AREA "Index"
+  DESCRIPTION "Secondary Index by rec_key"
+  INDEX-FIELD "rec_key" ASCENDING 
+
+.
+PSC
+cpstream=ISO8859-1
+.
+0000001418
