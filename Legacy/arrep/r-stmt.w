@@ -71,6 +71,7 @@ def NEW SHARED temp-table tt-inv no-undo
   FIELD po-no LIKE ar-invl.po-no
   FIELD bol-no AS CHAR 
   FIELD old-day AS INT
+  FIELD check-no AS CHARACTER 
   index tt-inv cust-no inv-date sort-fld trans-date.
 
 DEF NEW SHARED TEMP-TABLE tt-cust-excel NO-UNDO
@@ -1080,7 +1081,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     IF (v-stmt-char EQ "" OR v-stmt-char EQ "ASI") AND
        lookup("PDFCamp Printer",SESSION:GET-PRINTERS()) GT 0 THEN
        v-pdf-camp = YES.
-    IF (v-stmt-char EQ "Protagon" OR v-stmt-char = "Soule" OR v-stmt-char = "StdStatement10" OR v-stmt-char = "SouleMed") THEN DO:
+    IF (v-stmt-char EQ "Protagon" OR v-stmt-char = "Soule" OR v-stmt-char = "StdStatement10" OR v-stmt-char = "Lanco" OR v-stmt-char = "SouleMed") THEN DO:
         fi_contact:HIDDEN = NO.
         RUN setAttentionDefault.
     END.
@@ -3213,12 +3214,22 @@ form
   v-balance COLUMN-LABEL "Balance"
   with frame stmt-line no-box stream-io width 90 DOWN NO-LABEL.
 
+FORM SPACE(1)
+  tt-inv.trans-date FORMAT "99/99/99" COLUMN-LABEL "Date"
+  tt-inv.inv-no FORMAT ">>>>>>9" COLUMN-LABEL "Invoice" SPACE(2)
+  tt-inv.po-no FORMAT "x(12)" COLUMN-LABEL "Description"
+  tt-inv.check-no FORMAT "x(10)" COLUMN-LABEL "Checkes"
+  tt-inv.inv-amt FORMAT "->,>>>,>>9.99" COLUMN-LABEL "Credits"
+  tt-inv.amount format "->>,>>>,>>>.99" COLUMN-LABEL "Amt.Due"
+  v-balance COLUMN-LABEL "Balance"
+  with frame lanco-stmt-line no-box stream-io width 90 DOWN NO-LABEL.
+
 form
   v-msg at 15
   v-balance  at 73
   with frame stmt-total-line no-box no-labels STREAM-IO WIDTH 90.
 
-form
+FORM 
   tt-inv.trans-date COLUMN-LABEL "Date"
   tt-inv.inv-no COLUMN-LABEL "Ref#"
   tt-inv.description FORM "x(12)"  COLUMN-LABEL "Description"
@@ -3227,6 +3238,16 @@ form
   tt-inv.amount COLUMN-LABEL "Invoice!Balance"
   v-balance COLUMN-LABEL "Balance"  
   with frame no-stmt-line no-box no-labels stream-io width 90 down.
+
+FORM SPACE(1)
+  tt-inv.trans-date FORMAT "99/99/99" COLUMN-LABEL "Date" SPACE(1)
+  tt-inv.inv-no FORMAT ">>>>>>9" COLUMN-LABEL "Invoice" SPACE(2)
+  tt-inv.po-no FORM "x(12)"  COLUMN-LABEL "Description"
+  tt-inv.check-no FORMAT "x(10)" COLUMN-LABEL "Checkes"
+  tt-inv.inv-amt FORMAT "->,>>>,>>9.99" COLUMN-LABEL "Credits"
+  tt-inv.amount format "->>,>>>,>>>.99" COLUMN-LABEL "Amt.Due"
+  v-balance COLUMN-LABEL "Balance"  
+  with frame lanco-no-stmt-line no-box no-labels stream-io width 90 down.
 
 form
   v-msg at 15
@@ -3247,6 +3268,7 @@ DEF VAR ls-full-img2 AS cha FORM "x(200)" NO-UNDO.
 ASSIGN ls-image1 = (IF v-stmt-char = "Protagon" THEN "images\protinv.jpg"
                    ELSE IF v-stmt-char = "SouleMed" THEN "images\Soulemedical.jpg" 
                    ELSE IF v-stmt-char =  "StdStatement10" THEN cRtnChar 
+                   ELSE IF v-stmt-char =  "Lanco" THEN cRtnChar
                     ELSE "images\Soule.jpg") . 
 
 
@@ -3483,7 +3505,8 @@ FIRST cust no-lock
          tt-inv.inv-amt     = ar-inv.gross
          tt-inv.description = ar-cashl.dscr
          tt-inv.po-no       = (IF AVAIL ar-invl AND ar-invl.inv-no <> 0 THEN ar-invl.po-no ELSE "")
-         tt-inv.bol-no     = (IF AVAIL ar-invl AND ar-invl.bol-no <> 0 THEN string(ar-invl.bol-no,">>>>>>>>") ELSE "").
+         tt-inv.bol-no     = (IF AVAIL ar-invl AND ar-invl.bol-no <> 0 THEN string(ar-invl.bol-no,">>>>>>>>") ELSE "")
+         tt-inv.check-no   = string(ar-cash.check-no).
 
         IF v-stmt-char = "Printers" THEN
           tt-inv.bol-no = (IF AVAIL ar-invl AND ar-invl.job-no NE "" 
@@ -3554,7 +3577,8 @@ FIRST cust no-lock
      tt-inv.inv-no      = ar-cashl.inv-no
      tt-inv.description = ar-cashl.dscr
      tt-inv.po-no       = (IF AVAIL ar-invl THEN ar-invl.po-no ELSE "")
-     tt-inv.bol-no     = (IF AVAIL ar-invl AND ar-invl.bol-no <> 0 THEN string(ar-invl.bol-no,">>>>>>>>") ELSE "").
+     tt-inv.bol-no     = (IF AVAIL ar-invl AND ar-invl.bol-no <> 0 THEN string(ar-invl.bol-no,">>>>>>>>") ELSE "")
+     tt-inv.check-no   = string(ar-cash.check-no) .
 
     if ar-cashl.memo then
       assign
@@ -3565,7 +3589,7 @@ FIRST cust no-lock
       assign
        tt-inv.amount = (ar-cashl.amt-paid + ar-cashl.amt-disc) * -1
        tt-inv.type   = "P".
-
+      
     end.                                                
 
   /* to get last payment amt, check, date */
@@ -3710,6 +3734,31 @@ FIRST cust no-lock
             .
        END.
 
+       IF v-stmt-char = "Lanco" THEN DO:
+           PUT "<C2><R2><#1><R+8><C+47><IMAGE#1=" ls-full-img1 SKIP
+           "<P11><R4><C50><#3><FROM><R7><C80><RECT><||3>" SKIP
+           "<R5><C50><FROM><R5><C80><LINE><||3>" SKIP
+           "<R6><C50><FROM><R6><C80><LINE><||3>" SKIP
+           "<R4><C65><FROM><R5><C65><LINE><||3>" SKIP
+           "<R5><C65><FROM><R6><C65><LINE><||3>" SKIP
+           "<R6><C65><FROM><R7><C65><LINE><||3>" SKIP.
+           PUT "<P22><=#3><C50><R-2> <B><P22>Statement</B> <P11>" " <B> PAGE: </B>" string(PAGE-NUM,">>9") SKIP
+               "<=#3><R+0>  Customer ID      " cust.cust-no
+               "<=#3><R+1>  Terms            " lv-terms
+               "<=#3><R+2>  Statement Date   " v-stmt-date . 
+          
+          PUT "<=1><R+10><C1>" ws_addr[1] skip
+           "<=1><R+11><C1>" ws_addr[2] v-remitto[1]  skip 
+           "<=1><R+12><C1>" ws_addr[3] v-remitto[2]  skip
+           "<=1><R+13><C1>" ws_addr[4] v-remitto[3]  skip
+           "<=1><R+14><C1>" ws_addr[5] v-remitto[4]  skip
+           /*"<=1><R+15>Attn: " lc-attn FORMAT "x(30)"*/
+           /*"<=1><R+15>                                                Original<C60>Invoice" SKIP*/
+           "<=1><R+15><C2>Date <c10>Invoice <C18> Description <C31>Checkes <c46>Credits <C60>Amt.Due <C74>Balance" SKIP
+           "<=1><R+16><FROM><C+80><LINE>"
+            .
+       END.
+
        v-first = NO.
     end.
 
@@ -3729,30 +3778,61 @@ FIRST cust no-lock
 
     IF NOT v-asi-excel THEN
     DO:
-       if v-print-hdr then do:
-           display
-             tt-inv.trans-date
-             tt-inv.inv-no  when tt-inv.inv-no gt 0  
-             tt-inv.DESCRIPTION
-             tt-inv.po-no
-             tt-inv.inv-amt
-             tt-inv.amount
-             v-balance
-             with frame stmt-line .
-           down 1 with frame stmt-line.
-       end.
-       else do:
-           display
-             tt-inv.trans-date
-             tt-inv.inv-no  when tt-inv.inv-no gt 0
-             tt-inv.DESCRIPTION
-             tt-inv.po-no
-             tt-inv.inv-amt
-             tt-inv.amount
-             v-balance
-             with frame no-stmt-line.
-           down 1 with frame no-stmt-line.
-       end.
+        IF v-stmt-char = "Lanco" THEN DO:
+
+            if v-print-hdr then do:  
+               display
+                 tt-inv.trans-date
+                 tt-inv.inv-no  when tt-inv.inv-no gt 0  
+                 tt-inv.po-no
+                 tt-inv.check-no
+                 tt-inv.inv-amt
+                 tt-inv.amount
+                 v-balance
+                 with frame lanco-stmt-line .
+               down 1 with frame lanco-stmt-line.
+           end.
+           else do:
+               display
+                 tt-inv.trans-date
+                 tt-inv.inv-no  when tt-inv.inv-no gt 0
+                 tt-inv.po-no
+                 tt-inv.check-no
+                 tt-inv.inv-amt
+                 tt-inv.amount
+                 v-balance
+                 with frame lanco-no-stmt-line.
+               down 1 with frame lanco-no-stmt-line.
+           end.
+
+        END.
+
+       ELSE DO:
+           if v-print-hdr then do:
+               display
+                 tt-inv.trans-date
+                 tt-inv.inv-no  when tt-inv.inv-no gt 0  
+                 tt-inv.DESCRIPTION
+                 tt-inv.po-no
+                 tt-inv.inv-amt
+                 tt-inv.amount
+                 v-balance
+                 with frame stmt-line .
+               down 1 with frame stmt-line.
+           end.
+           else do:
+               display
+                 tt-inv.trans-date
+                 tt-inv.inv-no  when tt-inv.inv-no gt 0
+                 tt-inv.DESCRIPTION
+                 tt-inv.po-no
+                 tt-inv.inv-amt
+                 tt-inv.amount
+                 v-balance
+                 with frame no-stmt-line.
+               down 1 with frame no-stmt-line.
+           end.
+       END.
     END.
 
     v-age = v-stmt-date - tt-inv.inv-date.
@@ -3788,7 +3868,7 @@ FIRST cust no-lock
          IF v-stmt-char = "Protagon" THEN
          PUT "<C14><R59.5><#3><R+6><C+53><IMAGE#3=" ls-full-img2 SKIP.
 
-         IF v-stmt-char = "Soule" OR v-stmt-char = "StdStatement10" OR v-stmt-char = "SouleMed" THEN
+         IF v-stmt-char = "Soule" OR v-stmt-char = "StdStatement10" OR v-stmt-char = "Lanco" OR v-stmt-char = "SouleMed" THEN
          PUT "<C14><R59.5><#3><R+4><C+7> <b> THANK YOU - YOUR BUSINESS IS APPRECIATED </b>"  SKIP.
 
          IF v-stmt-char = "LoyLang" OR v-stmt-char = "Printers" THEN 
@@ -3845,7 +3925,7 @@ IF lookup(v-stmt-char,"ASIXprnt,stmtprint 1,stmtprint 2,RFC,Premier,ASIExcel,Loy
    RETURN.
 END.
 
-IF lookup(v-stmt-char,"Protagon,Soule,StdStatement10,SouleMed") > 0 THEN DO:
+IF lookup(v-stmt-char,"Protagon,Soule,StdStatement10,Lanco,SouleMed") > 0 THEN DO:
     RUN run-protagonstmt (ip-cust-no, ip-sys-ctrl-shipto, NO).
     RETURN.
 END.
@@ -4393,7 +4473,7 @@ IF lookup(v-stmt-char,"ASIXprnt,stmtprint 1,stmtprint 2,Loylang,RFC,Premier,Badg
    RUN run-asistmt-mail (icCustNo).
    RETURN.
 END.
-IF lookup(v-stmt-char,"Protagon,Soule,StdStatement10,SouleMed") > 0 THEN DO:
+IF lookup(v-stmt-char,"Protagon,Soule,StdStatement10,Lanco,SouleMed") > 0 THEN DO:
     RUN run-protagonstmt (icCustNo, NO, YES).
     RETURN.
 END.
@@ -4971,7 +5051,7 @@ PROCEDURE setAttentionDefault :
 ------------------------------------------------------------------------------*/
 DEFINE BUFFER lbf-cust FOR cust.
 
-IF (v-stmt-char = "Protagon" OR v-stmt-char = "Soule" OR v-stmt-char = "StdStatement10" OR v-stmt-char = "SouleMed")
+IF (v-stmt-char = "Protagon" OR v-stmt-char = "Soule" OR v-stmt-char = "StdStatement10" OR v-stmt-char = "Lanco" OR v-stmt-char = "SouleMed")
     AND begin_cust-no:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ end_cust-no:SCREEN-VALUE IN FRAME {&FRAME-NAME} 
     AND begin_cust-no:SCREEN-VALUE IN FRAME {&FRAME-NAME} NE "" THEN DO:
     FIND FIRST lbf-cust WHERE lbf-cust.company = cocode
