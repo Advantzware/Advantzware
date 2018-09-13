@@ -1,7 +1,6 @@
 
 DEF PARAM BUFFER io-probe FOR probe.
 
-DEF BUFFER b-probemk FOR reftable.
 DEF BUFFER probe-ref FOR reftable.
     
 
@@ -32,32 +31,30 @@ IF AVAIL io-probe THEN DO:
               WHERE probeit.company EQ io-probe.company
                 AND probeit.est-no  EQ io-probe.est-no
                 AND probeit.line    EQ io-probe.line) THEN
+
+
   FOR EACH probeit
-      WHERE probeit.company EQ io-probe.company
+      EXCLUSIVE-LOCK WHERE probeit.company EQ io-probe.company
         AND probeit.est-no  EQ io-probe.est-no
-        AND probeit.line    EQ io-probe.line,
-      FIRST b-probemk
-      WHERE b-probemk.reftable EQ "ce/com/probemk.p"
-        AND b-probemk.company  EQ probeit.company
-        AND b-probemk.loc      EQ probeit.est-no
-        AND b-probemk.code     EQ STRING(probeit.line,"9999999999")
-        AND b-probemk.code2    EQ probeit.part-no:
+        AND probeit.line    EQ io-probe.line:
 
     ASSIGN
-     b-probemk.val[6] = probeit.sell-price * b-probemk.val[2] / 100 *
+     probeit.totCostCommission = probeit.sell-price * probeit.pctCommission / 100 *
                         (probeit.yld-qty / 1000)
-     b-probemk.val[7] = probeit.sell-price * b-probemk.val[3] / 100 *
+     probeit.totCostRoyalty = probeit.sell-price * probeit.pctRoyalty / 100 *
                         (probeit.yld-qty / 1000)
-     b-probemk.val[8] = probeit.sell-price * b-probemk.val[4] / 100 *
+     probeit.totCostWarehousr = probeit.sell-price * probeit.pctWarehouse / 100 *
                         (probeit.yld-qty / 1000)
-     b-probemk.val[9] = probeit.sell-price * b-probemk.val[5] / 100 *
+     probeit.totCostCustMargin = probeit.sell-price * probeit.pctCustMargin / 100 *
                         (probeit.yld-qty / 1000)
 
-     probe-ref.val[6] = probe-ref.val[6] + b-probemk.val[6]
-     probe-ref.val[7] = probe-ref.val[7] + b-probemk.val[7]
-     probe-ref.val[8] = probe-ref.val[8] + b-probemk.val[8]
-     probe-ref.val[9] = probe-ref.val[9] + b-probemk.val[9].
+     probe-ref.val[6] = probe-ref.val[6] + probeit.totCostCommission
+     probe-ref.val[7] = probe-ref.val[7] + probeit.totCostRoyalty
+     probe-ref.val[8] = probe-ref.val[8] + probeit.totCostWarehousr
+     probe-ref.val[9] = probe-ref.val[9] + probeit.totCostCustMargin.
   END.
+
+
 
   ELSE
     ASSIGN

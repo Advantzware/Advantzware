@@ -1064,23 +1064,10 @@ DO:
      reftable.code2    = STRING(li-seq,"9999999999").
   END.
 
-  FIND FIRST reftable
-      WHERE reftable.reftable EQ "est/getqty.w2"
-        AND reftable.company  EQ xest.company
-        AND reftable.loc      EQ ""
-        AND reftable.code     EQ xest.est-no
-      NO-ERROR.
 
-  IF NOT AVAIL reftable THEN DO:
-    CREATE reftable.
-    ASSIGN
-     reftable.reftable = "est/getqty.w2"
-     reftable.company  = xest.company
-     reftable.loc      = ""
-     reftable.code     = xest.est-no.
-  END.
-  reftable.val[1] = io-v-match-up.
-
+FIND CURRENT xest EXCLUSIVE-LOCK NO-ERROR.  
+ASSIGN xest.markupPct = io-v-match-up.  
+FIND CURRENT xest NO-LOCK NO-ERROR.
   {est/op-lock.i xest}
   ASSIGN
    op-lock.val[1] = INT(io-do-speed)
@@ -1118,13 +1105,7 @@ FIND FIRST est-qty NO-LOCK
       AND est-qty.est-no  EQ xest.est-no
     NO-ERROR.
 
-FIND FIRST reftable
-    WHERE reftable.reftable EQ "est/getqty.w2"
-      AND reftable.company  EQ xest.company
-      AND reftable.loc      EQ ""
-      AND reftable.code     EQ xest.est-no
-    NO-LOCK NO-ERROR.
-IF AVAIL reftable THEN lv-match-up = reftable.val[1].
+ASSIGN lv-match-up = xest.markupPct.
 
 FOR EACH probe
     WHERE probe.company EQ xest.company
