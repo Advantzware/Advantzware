@@ -103,19 +103,11 @@ DO:
 {cec/sqftmrkp.i "v-msf / 1000" v-pct}
 END.
 
-FIND FIRST probe-board 
-    WHERE probe-board.reftable EQ "probe.board"
-    AND probe-board.company  EQ probe.company
-    AND probe-board.loc      EQ ""
-    AND probe-board.code     EQ probe.est-no
-    AND probe-board.code2    EQ STRING(probe.line,"9999999999")
-    NO-ERROR.
-IF AVAILABLE probe-board THEN DO:
-     board-cst = probe-board.val[1].
-     /*For ticket 19263 - storage of total man hours op-tot[8] = tot MR man hours, op-tot[9] = tot Run man hours*/ 
-     probe-board.val[6] = op-tot[8] + op-tot[9].
-     FIND CURRENT probe-board NO-LOCK.
-END.
+FIND CURRENT probe EXCLUSIVE-LOCK NO-ERROR.
+ASSIGN  board-cst = probe.boardCostTotal
+        probe.manHoursTotal = op-tot[8] + op-tot[9].
+FIND CURRENT probe NO-LOCK NO-ERROR.
+
 IF ord-cost GT 0 AND qm GT 0 THEN 
     dBoardPct = board-cst / ord-cost * 100.
     

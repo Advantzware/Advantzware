@@ -255,7 +255,7 @@ DEF VAR cDbPortList AS CHAR INITIAL "2826" NO-UNDO.
 DEF VAR cAudDirList AS CHAR INITIAL "Audit" NO-UNDO.
 DEF VAR cAudDBList AS CHAR INITIAL "audProd" NO-UNDO.
 DEF VAR cAudPortList AS CHAR INITIAL "2836" NO-UNDO.
-DEF VAR cEnvVerList AS CHAR INITIAL "16.7.20" NO-UNDO.
+DEF VAR cEnvVerList AS CHAR INITIAL "16.7.16" NO-UNDO.
 DEF VAR cDbVerList AS CHAR INITIAL "16.7" NO-UNDO.
 /* # Basic DB Elements */
 DEF VAR cAudDbName AS CHAR INITIAL "audProd" NO-UNDO.
@@ -516,7 +516,7 @@ DEFINE VARIABLE fiMapDir AS CHARACTER FORMAT "X(256)":U INITIAL "N:"
      VIEW-AS FILL-IN 
      SIZE 5 BY 1 NO-UNDO.
 
-DEFINE VARIABLE fiNewVer AS CHARACTER FORMAT "X(256)":U INITIAL "16.7.20" 
+DEFINE VARIABLE fiNewVer AS CHARACTER FORMAT "X(256)":U INITIAL "16.7.16" 
      LABEL "New Version" 
      VIEW-AS FILL-IN 
      SIZE 14 BY 1
@@ -891,10 +891,10 @@ DEFINE FRAME DEFAULT-FRAME
      fiUpdRelNotesDir AT ROW 30.29 COL 116 COLON-ALIGNED NO-LABEL WIDGET-ID 160
      fiUpdSqlDir AT ROW 31 COL 116 COLON-ALIGNED NO-LABEL WIDGET-ID 158
      fiUpdStructureDir AT ROW 31.71 COL 116 COLON-ALIGNED NO-LABEL WIDGET-ID 164
-     "v.160720_20180831_155800" VIEW-AS TEXT
-          SIZE 30 BY .62 AT ROW 32.19 COL 73 WIDGET-ID 506
      "Prod" VIEW-AS TEXT
           SIZE 16 BY .76 AT ROW 9.57 COL 145 WIDGET-ID 250
+     "Desktop" VIEW-AS TEXT
+          SIZE 16 BY .76 AT ROW 28.14 COL 148 WIDGET-ID 192
      "ProgramFiles" VIEW-AS TEXT
           SIZE 16 BY .76 AT ROW 29.57 COL 148 WIDGET-ID 180
      "Database" VIEW-AS TEXT
@@ -908,70 +908,73 @@ DEFINE FRAME DEFAULT-FRAME
 DEFINE FRAME DEFAULT-FRAME
      "Admin" VIEW-AS TEXT
           SIZE 7 BY .76 AT ROW 2.19 COL 141 WIDGET-ID 170
-     "Users" VIEW-AS TEXT
-          SIZE 16 BY .76 AT ROW 22.43 COL 147 WIDGET-ID 218
-     " General Variables" VIEW-AS TEXT
-          SIZE 22 BY .62 AT ROW 1.48 COL 8 WIDGET-ID 356
-          FONT 6
-     "StructureUpdate" VIEW-AS TEXT
-          SIZE 16 BY .76 AT ROW 31.71 COL 148 WIDGET-ID 296
-     "UserMenu" VIEW-AS TEXT
-          SIZE 16 BY .76 AT ROW 21.71 COL 147 WIDGET-ID 200
-     "Ship" VIEW-AS TEXT
-          SIZE 16 BY .76 AT ROW 10.29 COL 145 WIDGET-ID 252
-     " Your Directory Structure" VIEW-AS TEXT
-          SIZE 30 BY .62 AT ROW 1.48 COL 111 WIDGET-ID 140
-          FONT 6
-     "SQLAccess" VIEW-AS TEXT
-          SIZE 16 BY .76 AT ROW 31 COL 148 WIDGET-ID 292
+     "Admin" VIEW-AS TEXT
+          SIZE 16 BY .76 AT ROW 2.19 COL 141 WIDGET-ID 172
+     "Compress" VIEW-AS TEXT
+          SIZE 16 BY .76 AT ROW 26 COL 148 WIDGET-ID 186
+     "Install" VIEW-AS TEXT
+          SIZE 16 BY .76 AT ROW 23.14 COL 141 WIDGET-ID 178
+     "Admin" VIEW-AS TEXT
+          SIZE 16 BY .76 AT ROW 25.29 COL 148 WIDGET-ID 198
+     "Programs" VIEW-AS TEXT
+          SIZE 16 BY .76 AT ROW 6 COL 145 WIDGET-ID 280
+     "<EnvName>" VIEW-AS TEXT
+          SIZE 16 BY .76 AT ROW 14.57 COL 145 WIDGET-ID 242
+     "ReleaseNotes" VIEW-AS TEXT
+          SIZE 16 BY .76 AT ROW 30.29 COL 148 WIDGET-ID 182
+     "Test" VIEW-AS TEXT
+          SIZE 16 BY .76 AT ROW 11.71 COL 145 WIDGET-ID 244
      "Resources" VIEW-AS TEXT
-          SIZE 16 BY .76 AT ROW 19.57 COL 147 WIDGET-ID 206
-     "Select ONE and ONLY ONE to upgrade~\back up." VIEW-AS TEXT
-          SIZE 49 BY .62 AT ROW 14.57 COL 55 WIDGET-ID 492
-     "Customer" VIEW-AS TEXT
-          SIZE 16 BY .76 AT ROW 16.71 COL 147 WIDGET-ID 212
-     "CustFiles" VIEW-AS TEXT
-          SIZE 16 BY .76 AT ROW 16 COL 147 WIDGET-ID 210
-     "MenuFiles" VIEW-AS TEXT
-          SIZE 16 BY .76 AT ROW 28.86 COL 148 WIDGET-ID 184
-     "Databases" VIEW-AS TEXT
-          SIZE 16 BY .76 AT ROW 7.43 COL 141 WIDGET-ID 282
-     "Patch<n>" VIEW-AS TEXT
-          SIZE 16 BY .76 AT ROW 24.57 COL 145 WIDGET-ID 196
-     "Environment tasks - will be performed once for each ENVIRONMENT selected above" VIEW-AS TEXT
-          SIZE 86 BY .62 AT ROW 23.38 COL 11 WIDGET-ID 500
-     "PO" VIEW-AS TEXT
-          SIZE 16 BY .76 AT ROW 18.14 COL 147 WIDGET-ID 202
-     "Select one or more to upgrade." VIEW-AS TEXT
-          SIZE 32 BY .62 AT ROW 14.57 COL 10 WIDGET-ID 490
-     " Databases" VIEW-AS TEXT
-          SIZE 15 BY .62 AT ROW 10.05 COL 56 WIDGET-ID 482
+          SIZE 16 BY .76 AT ROW 6.71 COL 145 WIDGET-ID 266
+     "EnvAdmin" VIEW-AS TEXT
+          SIZE 16 BY .76 AT ROW 3.86 COL 145 WIDGET-ID 270
+     "Backups" VIEW-AS TEXT
+          SIZE 16 BY .76 AT ROW 4.57 COL 141 WIDGET-ID 278
+     "Structure" VIEW-AS TEXT
+          SIZE 16 BY .76 AT ROW 11 COL 145 WIDGET-ID 254
+     " Environments" VIEW-AS TEXT
+          SIZE 17 BY .62 AT ROW 10.05 COL 8 WIDGET-ID 360
           FONT 6
-     "Override" VIEW-AS TEXT
-          SIZE 16 BY .76 AT ROW 17.43 COL 147 WIDGET-ID 214
-     "Data" VIEW-AS TEXT
-          SIZE 16 BY .76 AT ROW 8.86 COL 145 WIDGET-ID 256
-     "Documentation" VIEW-AS TEXT
-          SIZE 16 BY .76 AT ROW 13.14 COL 141 WIDGET-ID 248
-     "Audit" VIEW-AS TEXT
-          SIZE 16 BY .76 AT ROW 8.14 COL 145 WIDGET-ID 488
-     "Desktop" VIEW-AS TEXT
-          SIZE 16 BY .76 AT ROW 12.43 COL 141 WIDGET-ID 246
-     "Updates" VIEW-AS TEXT
-          SIZE 16 BY .76 AT ROW 23.86 COL 141 WIDGET-ID 194
-     "Database tasks - will be performed once for each DATABASE selected above" VIEW-AS TEXT
-          SIZE 86 BY .62 AT ROW 16.95 COL 11 WIDGET-ID 498
-     "Addon" VIEW-AS TEXT
-          SIZE 16 BY .76 AT ROW 15.29 COL 147 WIDGET-ID 216
+     "Schedule" VIEW-AS TEXT
+          SIZE 16 BY .76 AT ROW 20.29 COL 147 WIDGET-ID 208
+     "DataUpdate" VIEW-AS TEXT
+          SIZE 16 BY .76 AT ROW 27.43 COL 148 WIDGET-ID 190
+     "DataFiles" VIEW-AS TEXT
+          SIZE 16 BY .76 AT ROW 26.71 COL 148 WIDGET-ID 188
+     "DbAdmin" VIEW-AS TEXT
+          SIZE 10 BY .76 AT ROW 2.91 COL 145 WIDGET-ID 284
+     "Template" VIEW-AS TEXT
+          SIZE 16 BY .76 AT ROW 21 COL 147 WIDGET-ID 288
+     "Environments" VIEW-AS TEXT
+          SIZE 16 BY .76 AT ROW 13.86 COL 141 WIDGET-ID 240
+     " (Defaults)" VIEW-AS TEXT
+          SIZE 13 BY .62 AT ROW 1.48 COL 144 WIDGET-ID 300
+          FONT 6
+     "Programs" VIEW-AS TEXT
+          SIZE 16 BY .76 AT ROW 18.86 COL 147 WIDGET-ID 204
+     "Admin" VIEW-AS TEXT
+          SIZE 16 BY .76 AT ROW 2.19 COL 141 WIDGET-ID 174
      " Patch Processing" VIEW-AS TEXT
           SIZE 23 BY .62 AT ROW 15.76 COL 8 WIDGET-ID 456
           FONT 6
-     "Admin" VIEW-AS TEXT
-          SIZE 16 BY .76 AT ROW 2.19 COL 141 WIDGET-ID 174
-     "Programs" VIEW-AS TEXT
-          SIZE 16 BY .76 AT ROW 18.86 COL 147 WIDGET-ID 204
-     " (Defaults)" VIEW-AS TEXT
-          SIZE 13 BY .62 AT ROW 1.48 COL 144 WIDGET-ID 300
+     "Addon" VIEW-AS TEXT
+          SIZE 16 BY .76 AT ROW 15.29 COL 147 WIDGET-ID 216
+     "Database tasks - will be performed once for each DATABASE selected above" VIEW-AS TEXT
+          SIZE 86 BY .62 AT ROW 16.95 COL 11 WIDGET-ID 498
+     "Updates" VIEW-AS TEXT
+          SIZE 16 BY .76 AT ROW 23.86 COL 141 WIDGET-ID 194
+     "Desktop" VIEW-AS TEXT
+          SIZE 16 BY .76 AT ROW 12.43 COL 141 WIDGET-ID 246
+     "Audit" VIEW-AS TEXT
+          SIZE 16 BY .76 AT ROW 8.14 COL 145 WIDGET-ID 488
+     "Documentation" VIEW-AS TEXT
+          SIZE 16 BY .76 AT ROW 13.14 COL 141 WIDGET-ID 248
+     "Data" VIEW-AS TEXT
+          SIZE 16 BY .76 AT ROW 8.86 COL 145 WIDGET-ID 256
+     "Override" VIEW-AS TEXT
+          SIZE 16 BY .76 AT ROW 17.43 COL 147 WIDGET-ID 214
+     " Databases" VIEW-AS TEXT
+          SIZE 15 BY .62 AT ROW 10.05 COL 56 WIDGET-ID 482
           FONT 6
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -980,47 +983,42 @@ DEFINE FRAME DEFAULT-FRAME
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME DEFAULT-FRAME
-     "Environments" VIEW-AS TEXT
-          SIZE 16 BY .76 AT ROW 13.86 COL 141 WIDGET-ID 240
-     "Template" VIEW-AS TEXT
-          SIZE 16 BY .76 AT ROW 21 COL 147 WIDGET-ID 288
-     "DbAdmin" VIEW-AS TEXT
-          SIZE 10 BY .76 AT ROW 2.91 COL 145 WIDGET-ID 284
-     "DataFiles" VIEW-AS TEXT
-          SIZE 16 BY .76 AT ROW 26.71 COL 148 WIDGET-ID 188
-     "DataUpdate" VIEW-AS TEXT
-          SIZE 16 BY .76 AT ROW 27.43 COL 148 WIDGET-ID 190
-     "Schedule" VIEW-AS TEXT
-          SIZE 16 BY .76 AT ROW 20.29 COL 147 WIDGET-ID 208
-     " Environments" VIEW-AS TEXT
-          SIZE 17 BY .62 AT ROW 10.05 COL 8 WIDGET-ID 360
-          FONT 6
-     "Structure" VIEW-AS TEXT
-          SIZE 16 BY .76 AT ROW 11 COL 145 WIDGET-ID 254
-     "Backups" VIEW-AS TEXT
-          SIZE 16 BY .76 AT ROW 4.57 COL 141 WIDGET-ID 278
-     "EnvAdmin" VIEW-AS TEXT
-          SIZE 16 BY .76 AT ROW 3.86 COL 145 WIDGET-ID 270
+     "Select one or more to upgrade." VIEW-AS TEXT
+          SIZE 32 BY .62 AT ROW 14.57 COL 10 WIDGET-ID 490
+     "PO" VIEW-AS TEXT
+          SIZE 16 BY .76 AT ROW 18.14 COL 147 WIDGET-ID 202
+     "Environment tasks - will be performed once for each ENVIRONMENT selected above" VIEW-AS TEXT
+          SIZE 86 BY .62 AT ROW 23.38 COL 11 WIDGET-ID 500
+     "Patch<n>" VIEW-AS TEXT
+          SIZE 16 BY .76 AT ROW 24.57 COL 145 WIDGET-ID 196
+     "Databases" VIEW-AS TEXT
+          SIZE 16 BY .76 AT ROW 7.43 COL 141 WIDGET-ID 282
+     "MenuFiles" VIEW-AS TEXT
+          SIZE 16 BY .76 AT ROW 28.86 COL 148 WIDGET-ID 184
+     "CustFiles" VIEW-AS TEXT
+          SIZE 16 BY .76 AT ROW 16 COL 147 WIDGET-ID 210
+     "Customer" VIEW-AS TEXT
+          SIZE 16 BY .76 AT ROW 16.71 COL 147 WIDGET-ID 212
+     "Select ONE and ONLY ONE to upgrade~\back up." VIEW-AS TEXT
+          SIZE 49 BY .62 AT ROW 14.57 COL 55 WIDGET-ID 492
      "Resources" VIEW-AS TEXT
-          SIZE 16 BY .76 AT ROW 6.71 COL 145 WIDGET-ID 266
-     "Test" VIEW-AS TEXT
-          SIZE 16 BY .76 AT ROW 11.71 COL 145 WIDGET-ID 244
-     "ReleaseNotes" VIEW-AS TEXT
-          SIZE 16 BY .76 AT ROW 30.29 COL 148 WIDGET-ID 182
-     "<EnvName>" VIEW-AS TEXT
-          SIZE 16 BY .76 AT ROW 14.57 COL 145 WIDGET-ID 242
-     "Programs" VIEW-AS TEXT
-          SIZE 16 BY .76 AT ROW 6 COL 145 WIDGET-ID 280
-     "Admin" VIEW-AS TEXT
-          SIZE 16 BY .76 AT ROW 25.29 COL 148 WIDGET-ID 198
-     "Install" VIEW-AS TEXT
-          SIZE 16 BY .76 AT ROW 23.14 COL 141 WIDGET-ID 178
-     "Compress" VIEW-AS TEXT
-          SIZE 16 BY .76 AT ROW 26 COL 148 WIDGET-ID 186
-     "Admin" VIEW-AS TEXT
-          SIZE 16 BY .76 AT ROW 2.19 COL 141 WIDGET-ID 172
-     "Desktop" VIEW-AS TEXT
-          SIZE 16 BY .76 AT ROW 28.14 COL 148 WIDGET-ID 192
+          SIZE 16 BY .76 AT ROW 19.57 COL 147 WIDGET-ID 206
+     "SQLAccess" VIEW-AS TEXT
+          SIZE 16 BY .76 AT ROW 31 COL 148 WIDGET-ID 292
+     " Your Directory Structure" VIEW-AS TEXT
+          SIZE 30 BY .62 AT ROW 1.48 COL 111 WIDGET-ID 140
+          FONT 6
+     "Ship" VIEW-AS TEXT
+          SIZE 16 BY .76 AT ROW 10.29 COL 145 WIDGET-ID 252
+     "UserMenu" VIEW-AS TEXT
+          SIZE 16 BY .76 AT ROW 21.71 COL 147 WIDGET-ID 200
+     "StructureUpdate" VIEW-AS TEXT
+          SIZE 16 BY .76 AT ROW 31.71 COL 148 WIDGET-ID 296
+     " General Variables" VIEW-AS TEXT
+          SIZE 22 BY .62 AT ROW 1.48 COL 8 WIDGET-ID 356
+          FONT 6
+     "Users" VIEW-AS TEXT
+          SIZE 16 BY .76 AT ROW 22.43 COL 147 WIDGET-ID 218
      RECT-1 AT ROW 1.71 COL 109 WIDGET-ID 354
      RECT-2 AT ROW 1.71 COL 5 WIDGET-ID 358
      RECT-3 AT ROW 10.29 COL 5 WIDGET-ID 362
@@ -1302,7 +1300,6 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE
         WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
 RETURN.
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -2498,8 +2495,6 @@ PROCEDURE ipDataFix :
         RUN ipDataFix160708.
     IF intVer(cThisEntry) LT 160712 THEN
         RUN ipDataFix160712.
-    IF intVer(cThisEntry) LT 160720 THEN
-        RUN ipDataFix160720.
 
     RUN ipStatus ("Completed Data Fixes...").
 
@@ -2721,58 +2716,43 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipDataFix160720 C-Win 
-PROCEDURE ipDataFix160720 :
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipDataFix160712 C-Win 
+PROCEDURE ipDataFix160712 :
 /*------------------------------------------------------------------------------
   Purpose:     
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    DEFINE VARIABLE idx AS INTEGER NO-UNDO.
+    DISABLE TRIGGERS FOR LOAD OF reftable1.
+    DISABLE TRIGGERS FOR LOAD OF oe-rel.
+       
+    RUN ipStatus ("  Data Fix 160712...").
 
-    DISABLE TRIGGERS FOR LOAD OF po-ordl.
-    DISABLE TRIGGERS FOR LOAD OF user-print.
-
-    RUN ipStatus ("  Data Fix 160720...").
-
-    RUN ipStatus ("    Fixing po-ordl with blank vend-no").
-    FOR EACH po-ordl WHERE
-        vend-no = "":
-        FIND FIRST po-ord NO-LOCK WHERE
-            po-ord.company = po-ordl.company and
-            po-ord.po-no = po-ordl.po-no
-            NO-ERROR.
-        IF AVAIL po-ord THEN ASSIGN
-            po-ordl.vend-no = po-ord.vend-no.
-    END.
-
-    /* update user-print for AOA OR5 Orders Booked "r-booked." to version 16.7.20 -RS */
-    RUN ipStatus ("    Fixing user-print for AOA OR5").
-    FOR EACH user-print EXCLUSIVE-LOCK WHERE 
-        user-print.program-id EQ "r-booked.":
-        IF user-print.field-label[10] NE "All Sales Reps" THEN NEXT.
-        DO idx = EXTENT(user-print.field-label) - 4 TO 10 BY -1:
-            ASSIGN
-                user-print.field-label[idx + 4] = user-print.field-label[idx]
-                user-print.field-name[idx + 4]  = user-print.field-name[idx]
-                user-print.field-value[idx + 4] = user-print.field-value[idx]
-                .
-        END. /* if */
-        ASSIGN
-            user-print.field-label[10] = "Start Due Date"
-            user-print.field-label[11] = ?
-            user-print.field-label[12] = "End Due Date"
-            user-print.field-label[13] = ?
-            user-print.field-name[10]  = "svStartDueDate"        
-            user-print.field-name[11]  = "svStartDueDateOption"
-            user-print.field-name[12]  = "svEndDueDate"
-            user-print.field-name[13]  = "svEndDueDateOption"
-            user-print.field-value[10] = "01/01/1950"
-            user-print.field-value[11] = "Fixed Date"
-            user-print.field-value[12] = "12/31/2049"
-            user-print.field-value[13] = "Fixed Date"
-            .
-    END. /* for each */
+       
+    /* Ticket 32053 */
+    FOR EACH reftable1 WHERE reftable1.reftable = "oe-rel.lot-no"
+            NO-LOCK:
+            DO TRANSACTION:    
+                FIND FIRST oe-rel WHERE oe-rel.r-no = int(reftable1.company)
+                    EXCLUSIVE-LOCK NO-ERROR.
+                IF AVAILABLE oe-rel THEN    
+                DO: 
+                    IF oe-rel.lot-no EQ "" THEN ASSIGN oe-rel.lot-no = reftable1.code.
+                    IF oe-rel.frt-pay EQ "" THEN ASSIGN oe-rel.frt-pay = reftable1.code2.
+                    IF oe-rel.fob-code EQ "" THEN ASSIGN oe-rel.fob-code = reftable1.dscr.
+                    ASSIGN iProcessCount = iProcessCount + 1.
+                    EXPORT DELIMITER ","
+                       oe-rel.r-no
+                       oe-rel.lot-no
+                       oe-rel.frt-pay
+                       oe-rel.fob-code.
+                END.   
+                FIND CURRENT oe-rel NO-LOCK NO-ERROR.    
+                RELEASE oe-rel. 
+              END.  
+    END.             
+    
+    RUN ipConvQtyPerSet.
     
 END PROCEDURE.
 
@@ -5381,96 +5361,28 @@ PROCEDURE ipUpdateNK1s :
     DISABLE TRIGGERS FOR LOAD OF sys-ctrl-shipto.
     
     /* Verify system help WSDL NK1 */
-    /* Enhanced in 16.7.20 to ensure record/company */
-    FIND FIRST sys-ctrl EXCLUSIVE WHERE
-        sys-ctrl.company EQ "" AND
+    FIND FIRST sys-ctrl WHERE
         sys-ctrl.name EQ "AsiHelpService"
         NO-ERROR.
-    IF NOT AVAIL sys-ctrl THEN DO:
-        CREATE sys-ctrl.
-        ASSIGN
-            sys-ctrl.company = ""
-            sys-ctrl.descrip = "ASI Help Service"
-            sys-ctrl.name = "AsiHelpService".
-    END.
-    ASSIGN
-        sys-ctrl.char-fld = "-WSDL 'http:\\34.203.15.64/asihelpServices/helpmaintenance.asmx?WSDL'".            
-
-    FIND FIRST sys-ctrl EXCLUSIVE WHERE
-        sys-ctrl.company EQ "" AND
-        sys-ctrl.name EQ "AsiHelpClientID"
+    IF AVAIL sys-ctrl THEN ASSIGN
+        sys-ctrl.char-fld = "-WSDL 'http:\\34.203.15.64/asihelpServices/helpmaintenance.asmx?WSDL'".
+    FIND FIRST sys-ctrl WHERE
+        sys-ctrl.name EQ "AsiHelpService"
         NO-ERROR.
-    IF NOT AVAIL sys-ctrl THEN DO:
-        CREATE sys-ctrl.
-        ASSIGN
-            sys-ctrl.company = ""
-            sys-ctrl.descrip = "ASI Help Client ID"
-            sys-ctrl.name = "AsiHelpClientID".
-    END.
-    ASSIGN
-        sys-ctrl.char-fld = "ASI"
-        sys-ctrl.log-fld = TRUE.            
+    IF AVAIL sys-ctrl THEN ASSIGN
+        sys-ctrl.char-fld = "-WSDL 'http:\\34.203.15.64/asihelpServices/helpmaintenance.asmx?WSDL'".
+    FIND FIRST sys-ctrl WHERE
+        sys-ctrl.name EQ "AsiHelpService"
+        NO-ERROR.
+    IF AVAIL sys-ctrl THEN ASSIGN
+        sys-ctrl.char-fld = "-WSDL 'http:\\34.203.15.64/asihelpServices/helpmaintenance.asmx?WSDL'".
     
-    FIND FIRST sys-ctrl EXCLUSIVE WHERE
-        sys-ctrl.company EQ "" AND
+    FIND FIRST sys-ctrl WHERE
         sys-ctrl.name EQ "UpdateService"
         NO-ERROR.
-    IF NOT AVAIL sys-ctrl THEN DO:
-        CREATE sys-ctrl.
-        ASSIGN
-            sys-ctrl.company = ""
-            sys-ctrl.descrip = "Add or Update Help Maintenance"
-            sys-ctrl.name = "UpdateService".
-    END.
-    ASSIGN
+    IF AVAIL sys-ctrl THEN ASSIGN
         sys-ctrl.char-fld = "-WSDL 'http:\\34.203.15.64/updatehelpServices/helpupdate.asmx?WSDL'".
     
-    /* Now do the same thing for each company */
-    FOR EACH company NO-LOCK:
-        FIND FIRST sys-ctrl EXCLUSIVE WHERE
-            sys-ctrl.company EQ company.company AND
-            sys-ctrl.name EQ "AsiHelpService"
-            NO-ERROR.
-        IF NOT AVAIL sys-ctrl THEN DO:
-            CREATE sys-ctrl.
-            ASSIGN
-                sys-ctrl.company = company.company
-                sys-ctrl.descrip = "ASI Help Service"
-                sys-ctrl.name = "AsiHelpService".
-        END.
-        ASSIGN
-            sys-ctrl.char-fld = "-WSDL 'http:\\34.203.15.64/asihelpServices/helpmaintenance.asmx?WSDL'".            
-    
-        FIND FIRST sys-ctrl EXCLUSIVE WHERE
-            sys-ctrl.company EQ company.company AND
-            sys-ctrl.name EQ "AsiHelpClientID"
-            NO-ERROR.
-        IF NOT AVAIL sys-ctrl THEN DO:
-            CREATE sys-ctrl.
-            ASSIGN
-                sys-ctrl.company = company.company
-                sys-ctrl.descrip = "ASI Help Client ID"
-                sys-ctrl.name = "AsiHelpClientID".
-        END.
-        ASSIGN
-            sys-ctrl.char-fld = "ASI"
-            sys-ctrl.log-fld = TRUE.            
-        
-        FIND FIRST sys-ctrl EXCLUSIVE WHERE
-            sys-ctrl.company EQ company.company AND
-            sys-ctrl.name EQ "UpdateService"
-            NO-ERROR.
-        IF NOT AVAIL sys-ctrl THEN DO:
-            CREATE sys-ctrl.
-            ASSIGN
-                sys-ctrl.company = company.company
-                sys-ctrl.descrip = "Add or Update Help Maintenance"
-                sys-ctrl.name = "UpdateService".
-        END.
-        ASSIGN
-            sys-ctrl.char-fld = "-WSDL 'http:\\34.203.15.64/updatehelpServices/helpupdate.asmx?WSDL'".
-    END.
-        
     /* Reports - set LV = true */
     FIND FIRST sys-ctrl WHERE
         sys-ctrl.name EQ "Reports"
@@ -5498,7 +5410,7 @@ PROCEDURE ipUpdateNK1s :
         
     /* - future: update CustFile locations
     FOR EACH sys-ctrl WHERE
-        INDEX(sys-ctrl.descriprip,".") NE 0 OR
+        INDEX(sys-ctrl.descrip,".") NE 0 OR
         INDEX(sys-ctrl.descrip,":") NE 0 OR
         INDEX(sys-ctrl.descrip,"\") NE 0 OR
         INDEX(sys-ctrl.descrip,"/") NE 0:

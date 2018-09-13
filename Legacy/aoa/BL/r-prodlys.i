@@ -155,6 +155,7 @@ PROCEDURE pProductionAnalysis1:
                     ttProductionAnalysis.opDate     = mch-act.op-date
                     ttProductionAnalysis.opTime     = STRING(mch-act.op-time,"hh:mm:ss am")
                     ttProductionAnalysis.startDate  = ttProductionAnalysis.opDate
+                    ttProductionAnalysis.dDate      = IF mch-act.op-date NE ? THEN STRING(mch-act.op-date,"99/99/9999") ELSE ""
                     .
               RUN pProRateMR.
             END. /* not avail tt */

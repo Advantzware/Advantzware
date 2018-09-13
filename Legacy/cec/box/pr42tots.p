@@ -43,7 +43,6 @@ DEFINE        VARIABLE ll-gsa-pct       AS LOG       NO-UNDO.
 DEFINE        VARIABLE v-cust-no        AS CHARACTER NO-UNDO.
 DEFINE        VARIABLE dFreightTemp     AS DECIMAL   NO-UNDO.
 
-DEFINE BUFFER reftable-fm         FOR reftable.
 DEFINE BUFFER reftable-broker-pct FOR reftable.
 DEFINE BUFFER reftable-pr         FOR reftable.
 
@@ -299,20 +298,16 @@ ASSIGN
     gsa-com = ce-ctrl.comm-mrkup
     gsa-war = ctrl[1] * 100.
 
-FIND FIRST reftable-fm NO-LOCK
-    WHERE reftable-fm.reftable EQ "gsa-fm"
-    AND reftable-fm.company  EQ xest.company
-    AND reftable-fm.loc      EQ ""
-    AND reftable-fm.code     EQ xest.est-no
-    NO-ERROR.
-
 FIND FIRST cust WHERE
     cust.company EQ xest.company AND
     cust.cust-no EQ v-cust-no
     NO-LOCK NO-ERROR.
 
-IF AVAILABLE reftable-fm THEN
-    gsa-fm = reftable-fm.val[1].
+FIND FIRST probe    
+      WHERE probe.company    EQ xest.company
+        AND probe.est-no     EQ xest.est-no NO-LOCK NO-ERROR.
+IF AVAIL probe THEN
+      gsa-fm = int(probe.gsa-fm).
 ELSE
     IF AVAILABLE cust AND cust.scomm NE 0 THEN
         gsa-fm = cust.scomm.

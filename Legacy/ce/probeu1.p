@@ -12,7 +12,6 @@ def shared buffer xef  for ef.
 def shared buffer xeb  for eb.
 
 DEF BUFFER b-probe FOR probe.
-DEF BUFFER b-probemk FOR reftable.
 DEF BUFFER probe-ref FOR reftable.
 
 def shared var tmp-dir as cha no-undo.

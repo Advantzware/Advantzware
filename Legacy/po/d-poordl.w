@@ -1113,30 +1113,12 @@ DO:
      /* wfk - to make sure cons-qty was being updated */
     FIND CURRENT po-ordl EXCLUSIVE-LOCK NO-ERROR.
     {po/podisdet.i}
-    
+   
+   ASSIGN po-ordl.s-dep = v-dep . 
     
 IF TRIM(po-ordl.job-no) EQ "" THEN po-ordl.job-no2 = 0.
 FIND CURRENT po-ordl NO-LOCK NO-ERROR.
-FIND FIRST reftable WHERE
-    reftable.reftable EQ "POORDLDEPTH" AND
-    reftable.company  EQ cocode AND
-    reftable.loc      EQ STRING(ip-ord-no) AND
-    reftable.code     EQ STRING(po-ordl.LINE)
-    EXCLUSIVE-LOCK NO-ERROR.
 
-IF NOT AVAILABLE reftable THEN 
-DO:
-    CREATE reftable.
-    ASSIGN
-        reftable.reftable = "POORDLDEPTH"
-        reftable.company  = cocode 
-        reftable.loc      = STRING(ip-ord-no)
-        reftable.code     = STRING(po-ordl.LINE).
-END.
-
-reftable.code2 = STRING(v-dep).
-FIND CURRENT reftable NO-LOCK NO-ERROR.
-RELEASE reftable.
 END.
 FIND CURRENT po-ord NO-LOCK NO-ERROR.
 FIND CURRENT po-ordl NO-LOCK NO-ERROR.
@@ -3136,21 +3118,10 @@ PROCEDURE display-item :
             lv-save-s-num              = po-ordl.s-num:SCREEN-VALUE
             lv-save-b-num              = po-ordl.b-num:SCREEN-VALUE.
 
-        FIND FIRST reftable NO-LOCK WHERE
-            reftable.reftable EQ "POORDLDEPTH" AND
-            reftable.company  EQ cocode AND
-            reftable.loc      EQ STRING(ip-ord-no) AND
-            reftable.code     EQ STRING(po-ordl.LINE)
-            NO-ERROR.
-
-        IF AVAILABLE reftable THEN 
-        DO:
             ASSIGN
-                v-dep                 = DEC(reftable.code2)
+                v-dep                 = po-ordl.s-dep
         {po/calc16.i v-dep}
                 v-po-dep:SCREEN-VALUE = STRING(v-dep).
-            RELEASE reftable.
-        END.
  
         RUN sys\inc\decfrac2.p(INPUT DEC(po-ordl.s-wid:SCREEN-VALUE), INPUT 32, OUTPUT v-wid-frac).
         RUN sys\inc\decfrac2.p(INPUT DEC(po-ordl.s-len:SCREEN-VALUE), INPUT 32, OUTPUT v-len-frac).

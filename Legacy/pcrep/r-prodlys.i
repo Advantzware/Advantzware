@@ -111,7 +111,8 @@ FOR EACH mch-act NO-LOCK
                 tt-srt.frm        = mch-act.frm
                 tt-srt.blank-no   = mch-act.blank-no
                 tt-srt.pass       = mch-act.pass
-                tt-srt.act-m-code = mch-act.m-code.
+                tt-srt.act-m-code = mch-act.m-code
+                tt-srt.dDate      = IF mch-act.op-date NE ? THEN STRING(mch-act.op-date,"99/99/9999") ELSE "".
             RUN pro-rate-mr.
 
         end.
@@ -418,112 +419,118 @@ for each tt-srt use-index dept-idx
         v-cell = "R" + STRING(inrowcount) + "C1".
     chExcelApplication:Goto(v-cell) NO-ERROR.                                                                    
     ASSIGN 
+        chExcelApplication:ActiveCell:Value = STRING(tt-srt.dDate).
+
+    ASSIGN 
+        v-cell = "R" + STRING(inrowcount) + "C2".
+    chExcelApplication:Goto(v-cell) NO-ERROR.                                                                    
+    ASSIGN 
         chExcelApplication:ActiveCell:Value = STRING(tt-srt.m-code).                                          
                                                                                                                        
     ASSIGN 
-        v-cell = "R" + STRING(inrowcount) + "C2".                                                             
+        v-cell = "R" + STRING(inrowcount) + "C3".                                                             
     chExcelApplication:Goto(v-cell) NO-ERROR.                                                                    
     ASSIGN 
         chExcelApplication:ActiveCell:Value = STRING(tt-srt.job-no) .                                         
                                                                                                                        
     ASSIGN 
-        v-cell = "R" + STRING(inrowcount) + "C3".                                                                                                                   
+        v-cell = "R" + STRING(inrowcount) + "C4".                                                                                                                   
     chExcelApplication:Goto(v-cell) NO-ERROR.                                                            
     ASSIGN 
         chExcelApplication:ActiveCell:Value = STRING(tt-srt.job-no2) .                                
     /* shift*/                                                                                           
     ASSIGN 
-        v-cell = "R" + STRING(inrowcount) + "C4".                                                     
+        v-cell = "R" + STRING(inrowcount) + "C5".                                                     
     chExcelApplication:Goto(v-cell) NO-ERROR.                                                            
     ASSIGN 
         chExcelApplication:ActiveCell:Value = STRING(tt-srt.shift,">>>>").                            
                                                                                                                
     ASSIGN 
-        v-cell = "R" + STRING(inrowcount) + "C5".                                                     
+        v-cell = "R" + STRING(inrowcount) + "C6".                                                     
     chExcelApplication:Goto(v-cell) NO-ERROR.                                                            
     ASSIGN 
         chExcelApplication:ActiveCell:Value = STRING(tt-srt.mr-std-hr,"->>>9.99") .                   
     /* mr-act*/                                                                                           
     ASSIGN 
-        v-cell = "R" + STRING(inrowcount) + "C6".                                                     
+        v-cell = "R" + STRING(inrowcount) + "C7".                                                     
     chExcelApplication:Goto(v-cell) NO-ERROR.                                                            
     ASSIGN 
         chExcelApplication:ActiveCell:Value = STRING(tt-srt.mr-act-hr,"->>>9.99") .                   
                                                                                                                
     ASSIGN 
-        v-cell = "R" + STRING(inrowcount) + "C7".                                                     
+        v-cell = "R" + STRING(inrowcount) + "C8".                                                     
     chExcelApplication:Goto(v-cell) NO-ERROR.
     ASSIGN 
         chExcelApplication:ActiveCell:Value = STRING(mr-eff,"->>>9.99").
     /* run-hrs-std */
     ASSIGN 
-        v-cell = "R" + STRING(inrowcount) + "C8".
+        v-cell = "R" + STRING(inrowcount) + "C9".
     chExcelApplication:Goto(v-cell) NO-ERROR.
     ASSIGN 
         chExcelApplication:ActiveCell:Value = STRING(tt-srt.run-std-hr,"->>>9.99") .
          
     ASSIGN 
-        v-cell = "R" + STRING(inrowcount) + "C9".
+        v-cell = "R" + STRING(inrowcount) + "C10".
     chExcelApplication:Goto(v-cell) NO-ERROR.
     ASSIGN 
         chExcelApplication:ActiveCell:Value = STRING(tt-srt.run-act-hr,"->>>9.99") .
 
     ASSIGN 
-        v-cell = "R" + STRING(inrowcount) + "C10".
+        v-cell = "R" + STRING(inrowcount) + "C11".
     chExcelApplication:Goto(v-cell) NO-ERROR.
     ASSIGN 
         chExcelApplication:ActiveCell:Value = STRING(run-eff,"->>>9.99").
          
     ASSIGN 
-        v-cell = "R" + STRING(inrowcount) + "C11".
+        v-cell = "R" + STRING(inrowcount) + "C12".
     chExcelApplication:Goto(v-cell) NO-ERROR.
     ASSIGN 
         chExcelApplication:ActiveCell:Value = STRING(tt-srt.run-std-hr,"->>,>>9.99") .
          
     ASSIGN 
-        v-cell = "R" + STRING(inrowcount) + "C12".
+        v-cell = "R" + STRING(inrowcount) + "C13".
     chExcelApplication:Goto(v-cell) NO-ERROR.
     ASSIGN 
         chExcelApplication:ActiveCell:Value = STRING(tt-srt.run-act-hr,"->>,>>9.99")  .
 
     ASSIGN 
-        v-cell = "R" + STRING(inrowcount) + "C13".
+        v-cell = "R" + STRING(inrowcount) + "C14".
     chExcelApplication:Goto(v-cell) NO-ERROR.
     ASSIGN 
         chExcelApplication:ActiveCell:Value = STRING(tot-eff,"->>>,>>9.99")  .
 
     ASSIGN 
-        v-cell = "R" + STRING(inrowcount) + "C14".
+        v-cell = "R" + STRING(inrowcount) + "C15".
     chExcelApplication:Goto(v-cell) NO-ERROR.
     ASSIGN 
         chExcelApplication:ActiveCell:Value = STRING(tt-srt.act-dt-hr,"->>9.99") .
 
     ASSIGN 
-        v-cell = "R" + STRING(inrowcount) + "C15".
+        v-cell = "R" + STRING(inrowcount) + "C16".
     chExcelApplication:Goto(v-cell) NO-ERROR.
     ASSIGN 
         chExcelApplication:ActiveCell:Value = STRING(dt-eff,"->>9.99").
          
     ASSIGN 
-        v-cell = "R" + STRING(inrowcount) + "C16".
+        v-cell = "R" + STRING(inrowcount) + "C17".
     chExcelApplication:Goto(v-cell) NO-ERROR.
     ASSIGN 
         chExcelApplication:ActiveCell:Value = STRING(tt-srt.qty-prod,"->,>>>,>>9")  .
 
     ASSIGN 
-        v-cell = "R" + STRING(inrowcount) + "C17".
+        v-cell = "R" + STRING(inrowcount) + "C18".
     chExcelApplication:Goto(v-cell) NO-ERROR.
     ASSIGN 
         chExcelApplication:ActiveCell:Value = STRING(tt-srt.qty-ton,"->>,>>9.99")  .
          
     ASSIGN 
-        v-cell = "R" + STRING(inrowcount) + "C18".
+        v-cell = "R" + STRING(inrowcount) + "C19".
     chExcelApplication:Goto(v-cell) NO-ERROR.
     ASSIGN 
         chExcelApplication:ActiveCell:Value = STRING(tt-srt.qty-msf,"->>,>>9.99")  .
 
     ASSIGN 
-        v-cell = "R" + STRING(inrowcount) + "C19".
+        v-cell = "R" + STRING(inrowcount) + "C20".
     chExcelApplication:Goto(v-cell) NO-ERROR.
     ASSIGN 
         chExcelApplication:ActiveCell:Value = STRING(tt-srt.qty-expect,"->>>,>>>,>>9")  .
@@ -642,130 +649,130 @@ for each tt-srt use-index dept-idx
 
     /* msf per hours  */
     ASSIGN 
-        v-cell = "R" + STRING(inrowcount) + "C20".
+        v-cell = "R" + STRING(inrowcount) + "C21".
     chExcelApplication:Goto(v-cell) NO-ERROR.                                                                    
     ASSIGN 
         chExcelApplication:ActiveCell:Value = IF v-msf-per-hrs NE ? THEN STRING(v-msf-per-hrs,">,>>>,>>9.99") ELSE "".                                         
     /* total machine hours */                                                                                                             
     ASSIGN 
-        v-cell = "R" + STRING(inrowcount) + "C21".                                                             
+        v-cell = "R" + STRING(inrowcount) + "C22".                                                             
     chExcelApplication:Goto(v-cell) NO-ERROR.                                                                    
     ASSIGN 
         chExcelApplication:ActiveCell:Value = STRING((job-mr-act + job-run-act + job-dt-act),"->>,>>>,>>>,>>9.99")  .                                         
     /*Pieces per hours*/                                                                                                   
     ASSIGN 
-        v-cell = "R" + STRING(inrowcount) + "C22".                                                                                                                   
+        v-cell = "R" + STRING(inrowcount) + "C23".                                                                                                                   
     chExcelApplication:Goto(v-cell) NO-ERROR.                                                            
     ASSIGN 
         chExcelApplication:ActiveCell:Value = IF v-pic-per-hrs NE ? THEN STRING(v-pic-per-hrs,"->>>,>>>,>>9.99") ELSE "".                              
     /* Number on */                                                                                           
     ASSIGN 
-        v-cell = "R" + STRING(inrowcount) + "C23".                                                     
+        v-cell = "R" + STRING(inrowcount) + "C24".                                                     
     chExcelApplication:Goto(v-cell) NO-ERROR.                                                            
     ASSIGN 
         chExcelApplication:ActiveCell:Value = STRING(v-num-up,">>,>>>,>>9")  . 
 
     /*Pieces per man hours */                                                                                           
     ASSIGN 
-        v-cell = "R" + STRING(inrowcount) + "C24".                                                     
+        v-cell = "R" + STRING(inrowcount) + "C25".                                                     
     chExcelApplication:Goto(v-cell) NO-ERROR.                                                            
     ASSIGN 
         chExcelApplication:ActiveCell:Value = IF v-per-man-hrs NE ? THEN STRING(v-per-man-hrs,"->>,>>>,>>>,>>9.99") ELSE "" .       
 
     /*Kicks per hours */                                                                                           
     ASSIGN 
-        v-cell = "R" + STRING(inrowcount) + "C25".                                                     
+        v-cell = "R" + STRING(inrowcount) + "C26".                                                     
     chExcelApplication:Goto(v-cell) NO-ERROR.                                                            
     ASSIGN 
         chExcelApplication:ActiveCell:Value = IF v-kik-per-hrs NE ? THEN STRING(v-kik-per-hrs,"->>,>>>,>>9.99") ELSE "".
                
     /* Total Waste */                                                                                           
     ASSIGN 
-        v-cell = "R" + STRING(inrowcount) + "C26".                                                     
+        v-cell = "R" + STRING(inrowcount) + "C27".                                                     
     chExcelApplication:Goto(v-cell) NO-ERROR.                                                            
     ASSIGN 
         chExcelApplication:ActiveCell:Value = STRING(v-mrwaste + v-runwaste,"->>,>>>,>>9.99") .
 
     /* % Waste*/                                                                                           
     ASSIGN 
-        v-cell = "R" + STRING(inrowcount) + "C27".                                                     
+        v-cell = "R" + STRING(inrowcount) + "C28".                                                     
     chExcelApplication:Goto(v-cell) NO-ERROR.                                                            
     ASSIGN 
         chExcelApplication:ActiveCell:Value = IF v-wst NE ? THEN STRING(v-wst,"->,>>9.99") ELSE "".
 
     /* FG Item  */                                                                                           
     ASSIGN 
-        v-cell = "R" + STRING(inrowcount) + "C28".                                                     
+        v-cell = "R" + STRING(inrowcount) + "C29".                                                     
     chExcelApplication:Goto(v-cell) NO-ERROR.                                                            
     ASSIGN 
         chExcelApplication:ActiveCell:Value = string(tt-srt.i-no) .
 
     /* Cust # */                                                                                           
     ASSIGN 
-        v-cell = "R" + STRING(inrowcount) + "C29".                                                     
+        v-cell = "R" + STRING(inrowcount) + "C30".                                                     
     chExcelApplication:Goto(v-cell) NO-ERROR.                                                            
     ASSIGN 
         chExcelApplication:ActiveCell:Value = IF v-cust-no <> ? THEN string(v-cust-no) ELSE "" .
 
     /* MR & run std */                                                                                           
     ASSIGN 
-        v-cell = "R" + STRING(inrowcount) + "C30".                                                     
+        v-cell = "R" + STRING(inrowcount) + "C31".                                                     
     chExcelApplication:Goto(v-cell) NO-ERROR.                                                            
     ASSIGN 
         chExcelApplication:ActiveCell:Value = string(tot-std-hrs,"->>>9.9") . 
 
     /* mr & run acl */                                                                                           
     ASSIGN 
-        v-cell = "R" + STRING(inrowcount) + "C31".                                                     
+        v-cell = "R" + STRING(inrowcount) + "C32".                                                     
     chExcelApplication:Goto(v-cell) NO-ERROR.                                                            
     ASSIGN 
         chExcelApplication:ActiveCell:Value = string(tot-act-hrs,"->>>9.9") . 
 
     /* mr & run eff% */                                                                                           
     ASSIGN 
-        v-cell = "R" + STRING(inrowcount) + "C32".                                                     
+        v-cell = "R" + STRING(inrowcount) + "C33".                                                     
     chExcelApplication:Goto(v-cell) NO-ERROR.                                                            
     ASSIGN 
         chExcelApplication:ActiveCell:Value = string(tot-eff,"->>>>9.9") .    
 
     /* MR / C */                                                                                           
     ASSIGN 
-        v-cell = "R" + STRING(inrowcount) + "C33".                                                     
+        v-cell = "R" + STRING(inrowcount) + "C34".                                                     
     chExcelApplication:Goto(v-cell) NO-ERROR.                                                            
     ASSIGN 
         chExcelApplication:ActiveCell:Value = string(v-mrcomp).
 
     /* Run \ C  */                                                                                           
     ASSIGN 
-        v-cell = "R" + STRING(inrowcount) + "C34".                                                     
+        v-cell = "R" + STRING(inrowcount) + "C35".                                                     
     chExcelApplication:Goto(v-cell) NO-ERROR.                                                            
     ASSIGN 
         chExcelApplication:ActiveCell:Value = string(v-runcomp).
 
     /* Total Labor hours   */                                                                                           
     ASSIGN 
-        v-cell = "R" + STRING(inrowcount) + "C35".                                                     
+        v-cell = "R" + STRING(inrowcount) + "C36".                                                     
     chExcelApplication:Goto(v-cell) NO-ERROR.                                                            
     ASSIGN 
         chExcelApplication:ActiveCell:Value = STRING(v-act-lab-cost,"->,>>>,>>>,>>9.99") .
 
     /* Mr Waste   */                                                                                           
     ASSIGN 
-        v-cell = "R" + STRING(inrowcount) + "C36".                                                     
+        v-cell = "R" + STRING(inrowcount) + "C37".                                                     
     chExcelApplication:Goto(v-cell) NO-ERROR.                                                            
     ASSIGN 
         chExcelApplication:ActiveCell:Value = STRING(v-mrwaste,"->,>>9.99") . 
 
     /* Run Waste   */                                                                                           
     ASSIGN 
-        v-cell = "R" + STRING(inrowcount) + "C37".                                                     
+        v-cell = "R" + STRING(inrowcount) + "C38".                                                     
     chExcelApplication:Goto(v-cell) NO-ERROR.                                                            
     ASSIGN 
         chExcelApplication:ActiveCell:Value = STRING(v-runwaste,"->,>>9.99") .
 
     /* crew   */                                                                                           
     ASSIGN 
-        v-cell = "R" + STRING(inrowcount) + "C38".                                                     
+        v-cell = "R" + STRING(inrowcount) + "C39".                                                     
     chExcelApplication:Goto(v-cell) NO-ERROR.                                                            
     ASSIGN 
         chExcelApplication:ActiveCell:Value = STRING(v-crew-size,"->,>>>,>>9.99") .

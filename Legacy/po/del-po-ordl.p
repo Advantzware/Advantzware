@@ -163,11 +163,3 @@ FOR EACH reftable
   DELETE reftable.
 END.
 
-FIND FIRST reftable WHERE
-     reftable.reftable EQ "POORDLDEPTH" AND
-     reftable.company  EQ io-po-ordl.company AND
-     reftable.loc      EQ STRING(io-po-ordl.po-no) AND
-     reftable.code     EQ STRING(io-po-ordl.LINE)
-     EXCLUSIVE-LOCK NO-ERROR.
-
-IF AVAIL reftable THEN DELETE reftable.
