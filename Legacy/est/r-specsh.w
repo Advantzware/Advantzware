@@ -832,7 +832,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     IF AVAIL eb THEN
         FIND FIRST est WHERE est.est-no = eb.est-no 
                    AND est.company = cocode
-                 NO-LOCK NO-ERROR.
+                  EXCLUSIVE-LOCK NO-ERROR.
     IF AVAIL eb THEN DO:
         ASSIGN
           begin_cust:SCREEN-VALUE = eb.cust-no
@@ -858,12 +858,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
     END.
     ELSE DO:
-          FIND reftable    WHERE reftable.reftable EQ "SPECSAMP"     
-                             AND reftable.company  EQ cocode
-                             AND reftable.loc      EQ ""             
-                             AND reftable.code  EQ est.est-no
-                           NO-LOCK NO-ERROR.
-          IF NOT AVAIL reftable THEN DO TRANSACTION:
+          IF est.sampleNum EQ 0 THEN DO TRANSACTION:
             find first sys-ctrl WHERE sys-ctrl.company eq cocode 
                                   AND sys-ctrl.name    eq "CESample"
                                 EXCLUSIVE-LOCK no-error.      
@@ -871,16 +866,11 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
              v-next-num = sys-ctrl.int-fld + 1.
              sys-ctrl.int-fld = v-next-num.
 
-              CREATE reftable.
-              ASSIGN 
-                  reftable.reftable = "SPECSAMP"     
-                  reftable.company  = cocode
-                  reftable.loc      = ""             
-                  reftable.code     = est.est-no
-                  reftable.code2    = string(v-next-num).
-              RELEASE sys-ctrl.         
+              ASSIGN est.sampleNum = v-next-num.
+              RELEASE sys-ctrl.
+              FIND CURRENT est NO-LOCK NO-ERROR.         
           END.
-          v-next-num = integer(reftable.code2).
+          v-next-num = est.sampleNum.
           fiSampleNum:SCREEN-VALUE = STRING(v-next-num).
 
         END.
