@@ -2091,9 +2091,26 @@ PROCEDURE local-delete-record :
            WHERE rm-rcpth.company EQ ap-inv.company
              AND rm-rcpth.i-no    EQ po-ordl.i-no
              AND rm-rcpth.po-no   EQ trim(string(po-ordl.po-no,">>>>>>>>>>"))
+             AND rm-rcpth.job-no    EQ po-ordl.job-no 
+             AND rm-rcpth.job-no2   EQ po-ordl.job-no2 
              AND rm-rcpth.rita-code EQ "R" ,
-           EACH rm-rdtlh OF rm-rcpth EXCLUSIVE-LOCK :
+           EACH rm-rdtlh OF rm-rcpth WHERE
+           substring(rm-rdtlh.receiver-no,1,10) EQ STRING(ap-inv.i-no,"9999999999") EXCLUSIVE-LOCK :
          ASSIGN rm-rdtlh.receiver-no = "" .
+      END.
+
+      FOR EACH fg-rcpth
+       WHERE fg-rcpth.company   EQ cocode
+        AND fg-rcpth.i-no      EQ po-ordl.i-no
+        AND fg-rcpth.po-no     EQ TRIM(STRING(po-ordl.po-no,">>>>>>>>>>"))
+        AND fg-rcpth.rita-code EQ "R"
+       USE-INDEX item-po NO-LOCK,
+       EACH fg-rdtlh
+       WHERE fg-rdtlh.r-no      EQ fg-rcpth.r-no
+         AND fg-rdtlh.rita-code EQ fg-rcpth.rita-code
+         AND substring(fg-rdtlh.receiver-no,1,10) EQ STRING(ap-inv.i-no,"9999999999")
+       EXCLUSIVE-LOCK:
+        ASSIGN fg-rdtlh.receiver-no = "" .
       END.
    END.
 
