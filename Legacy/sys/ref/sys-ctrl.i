@@ -187,7 +187,7 @@ ASSIGN
  str-init[104] = "None,Overrun,Receipts"  /* rmemails */     
  str-init[105] = ",loadtag"
  str-init[106] = "Fibrex,BOLFMTX15"
- str-init[107] = ",Indiana,Dee"
+ str-init[107] = ",Indiana,Dee,ScheduleCard1"
  str-init[108] = "Workstation,Server"  
  str-init[109] = "Reorder Point"   
  str-init[110] = ",HOP,Xprint,AllWest,PremierPkg,SouleMed,Soule,StdCreditMemo10"  
