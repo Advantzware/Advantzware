@@ -1483,14 +1483,8 @@ SESSION:SET-WAIT-STATE ("general").
         WHERE shipto.company EQ oe-bolh.company
           AND shipto.ship-id EQ oe-bolh.ship-id
           AND shipto.cust-no EQ oe-bolh.cust-no
-          AND shipto.ship-no NE 1
         USE-INDEX ship-id NO-ERROR.
-    IF NOT AVAIL shipto THEN
-        FIND FIRST shipto NO-LOCK
-            WHERE shipto.company EQ oe-bolh.company
-              AND shipto.cust-no EQ oe-bolh.cust-no
-            USE-INDEX ship-no NO-ERROR.
-     
+
       IF NOT AVAILABLE shipto THEN 
       DO:
           RUN create-nopost ("Ship to Was Not Found").
