@@ -64,11 +64,12 @@ for each est-prep
                     
     no-lock:
 
-  find last oe-ordm of oe-ord no-lock no-error.
-  IF AVAIL oe-ordm AND 
-     (oe-ordm.estPrepEqty = est-prep.eqty and
-      oe-ordm.estPrepLine = est-prep.line and
-      oe-ordm.est-no  = est-prep.est-no) then next.   
+  FIND LAST oe-ordm NO-LOCK
+      WHERE oe-ordm.company EQ oe-ord.company
+        AND oe-ordm.ord-no  EQ oe-ord.ord-no
+        AND oe-ordm.charge  EQ est-prep.code
+      NO-ERROR.
+  IF AVAIL oe-ordm THEN NEXT.   
   
   z = (if avail oe-ordm then oe-ordm.line else 0) + 1.
 
@@ -121,13 +122,15 @@ for each ef OF xeb no-lock:
        (ef.mis-bnum[i] eq xeb.blank-no or ef.mis-bnum[i] eq 0) 
                      
                          then do:
-
-      find last oe-ordm of oe-ord no-lock no-error.
-      IF AVAIL oe-ordm AND 
-                 (oe-ordm.estPrepEqty = ef.eqty AND
-                  oe-ordm.estPrepLine = ef.form-no AND
-                  oe-ordm.miscInd = STRING(i) AND
-                  oe-ordm.est-no  = ef.est-no)  THEN NEXT.
+                 
+      FIND LAST oe-ordm NO-LOCK
+          WHERE oe-ordm.company   EQ oe-ord.company
+          AND oe-ordm.ord-no      EQ oe-ord.ord-no            
+          AND oe-ordm.charge      EQ ef.mis-cost[i]
+          NO-ERROR.
+      IF AVAIL oe-ordm THEN NEXT. 
+        
+                          
       z = (if avail oe-ordm then oe-ordm.line else 0) + 1.
 
       create oe-ordm.
