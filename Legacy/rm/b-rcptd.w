@@ -2013,7 +2013,6 @@ PROCEDURE display-item :
                 rm-rctd.pur-uom:SCREEN-VALUE IN BROWSE {&browse-name} = item.cons-uom.
                 
            /* Description may be overridden on PO */
-           IF  rm-rctd.i-name:SCREEN-VALUE IN BROWSE {&browse-name}  = "" THEN 
               rm-rctd.i-name:SCREEN-VALUE IN BROWSE {&browse-name}  = item.i-name       .         
             IF v-bin NE "user entered" THEN
             ASSIGN
