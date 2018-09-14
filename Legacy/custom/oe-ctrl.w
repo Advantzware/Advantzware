@@ -535,7 +535,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   tgCreateSSBol:SCREEN-VALUE = (IF oe-ctrl.spare-int-1 EQ 1 THEN "YES" ELSE "NO").
   DISABLE tgCreateSSBol.
   RUN enable_UI.
-
+  DO WITH FRAME {&FRAME-NAME}:
   ASSIGN fNextRFIDNum:SCREEN-VALUE = IF oe-ctrl.spare-char-1 = "" THEN "111110000000000000000000"
                                      ELSE oe-ctrl.spare-char-1
          tgCreateSSBol:SCREEN-VALUE = (IF oe-ctrl.spare-int-1 EQ 1 THEN "YES" ELSE "NO").
@@ -546,6 +546,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
   n-ord:SCREEN-VALUE = STRING(giCurrOrd  + 1, ">>>>>>").
   n-ord:SENSITIVE = NO.
+  END.
   {methods/nowait.i}
 
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
