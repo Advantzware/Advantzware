@@ -1,11 +1,10 @@
   
   DEF VAR v-line LIKE probe.line no-undo.
-  DEF VAR v-yld-qty AS DEC FORMAT ">>>,>>>" NO-UNDO.
+  DEF VAR v-yld-qty AS DEC FORMAT ">>>>9.9<<<" NO-UNDO.
   DEF VAR v-hdr-depth AS CHAR FORMAT "x(5)" NO-UNDO.
   DEF VAR v-n-out AS INT NO-UNDO.
   DEF VAR v-n-up  AS INT NO-UNDO.
   DEF VAR ll-use-defaults AS LOG NO-UNDO.
-  DEF BUFFER reftable-fm FOR reftable.
   DEF BUFFER reftable-broker-pct FOR reftable.
   DEF BUFFER b-est-qty-2 FOR est-qty.
   DEF VAR v-count-2 AS INT NO-UNDO.
@@ -393,6 +392,10 @@
      dm-tot   = 0
      ctrl2    = 0.
 
+    IF vprint THEN DO:
+	{custom/statusMsg.i " 'Calculating... Est#  '  + xest.est-no  + ' Qty - ' + string(qtty[k]) "}
+    END.
+
     FOR EACH w-form: 
       DELETE w-form.
     END.
@@ -495,7 +498,7 @@
 
     display /*skip(1)*/
             " --Qty---- --- Description ------ -- Size / Color ----- --- Style / Part No ---"
-            qty / xeb.quantityPerSet format ">>,>>>,>>9"
+            qty / xeb.quantityPerSet format "->>>,>>9.9<<<"
             dsc[1] space(1) sizcol[1] space(2) stypart[1] skip
             space(11)
             dsc[2] space(1) sizcol[2] space(2) stypart[2] skip
@@ -510,7 +513,7 @@
                       xef.gsh-dep EQ 0 THEN "" ELSE "Depth".
 
     RUN est/ef-#out.p (ROWID(xef), OUTPUT v-n-out).
-    v-n-up = xeb.num-up.
+    v-n-up = xeb.num-up.  
     display space(13)
             "   Width  Length  "
             v-hdr-depth
@@ -521,7 +524,7 @@
             brd-l[1]                            format ">>>9.99<<<" 
             xeb.t-dep WHEN xeb.t-dep NE 0       format ">>>9.99<<<"
             xeb.num-up                          format ">>>,>>>" 
-            v-yld-qty
+            v-yld-qty                           FORMAT ">>>>9.9<<<"
             brd-sf[1]                              
             "Sf/BL"
             brd-wu[1]
@@ -676,20 +679,16 @@
             gsa-com = ce-ctrl.comm-mrkup
             gsa-war = ctrl[1] * 100.
 
-    FIND FIRST reftable-fm NO-LOCK
-       WHERE reftable-fm.reftable EQ "gsa-fm"
-         AND reftable-fm.company  EQ xest.company
-         AND reftable-fm.loc      EQ ""
-         AND reftable-fm.code     EQ xest.est-no
-       NO-ERROR.
-
     FIND FIRST cust WHERE
          cust.company EQ xeb.company AND
          cust.cust-no EQ xeb.cust-no
          NO-LOCK NO-ERROR.
 
-    IF AVAIL reftable-fm THEN
-       gsa-fm = reftable-fm.val[1].
+    FIND FIRST probe    
+      WHERE probe.company    EQ xest.company
+        AND probe.est-no     EQ xest.est-no NO-LOCK NO-ERROR.
+    IF AVAIL probe THEN
+      gsa-fm = int(probe.gsa-fm).
     ELSE IF AVAIL cust AND cust.scomm NE 0 THEN
        gsa-fm = cust.scomm.
     ELSE
@@ -792,3 +791,7 @@
   release xef.
   release xeb.
   session:set-wait-state("").
+
+IF vprint THEN DO:
+{custom/statusMsg.i " 'Calculating Complete....  '  "}
+END.

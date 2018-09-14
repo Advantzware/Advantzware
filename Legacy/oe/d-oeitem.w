@@ -1350,8 +1350,8 @@ END. /* do: */
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_OK d-oeitem
 ON CHOOSE OF Btn_OK IN FRAME d-oeitem /* Save */
 DO:
-  APPLY "go" TO FRAME {&FRAME-NAME}.
   RUN OnSaveButton.
+ 
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2155,6 +2155,7 @@ DO:
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
     IF NOT fi_qty-uom:SENSITIVE THEN RUN leave-qty.
+    ELSE RUN new-qty.
     IF  oescreen-log AND integer(oe-ordl.spare-dec-1:SCREEN-VALUE) EQ 0 
       AND asi.oe-ordl.est-no:SCREEN-VALUE EQ "" THEN DO:
         ASSIGN
@@ -2193,7 +2194,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-ordl.qty d-oeitem
 ON VALUE-CHANGED OF oe-ordl.qty IN FRAME d-oeitem /* Quantity */
 DO:
-  RUN new-qty.
+/*  RUN new-qty. - Removed for performance purposses 31625 - GetPrice already run on LEAVE*/
   IF  oescreen-log AND asi.oe-ordl.est-no:SCREEN-VALUE EQ "" THEN DO:
     ASSIGN
       asi.oe-ordl.spare-dec-1:SENSITIVE = YES
@@ -2709,11 +2710,13 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
     END.
  
+ IF ip-type NE "view" THEN DO:
     IF llOEPrcChg-sec THEN  
        oe-ordl.price:SENSITIVE  IN FRAME {&FRAME-NAME} = YES.
     ELSE DO:        
        oe-ordl.price:SENSITIVE  IN FRAME {&FRAME-NAME} = NO.
     END.
+ END.
 
   IF fgsecurity-log THEN
   DO:
@@ -4248,20 +4251,9 @@ PROCEDURE display-est-detail :
             oe-ordl.part-dscr2:SCREEN-VALUE = itemfg.part-dscr2 
             oe-ordl.part-dscr3:SCREEN-VALUE = itemfg.part-dscr3.
        END.
-
-       IF v-est-fg1 EQ "Hughes" THEN RUN fg/hughesfg.p (ROWID(eb), OUTPUT lv-i-no).
-       ELSE
-       IF v-est-fg1 EQ "Fibre"  THEN RUN fg/fibre-fg.p (ROWID(eb), OUTPUT lv-i-no).
-       ELSE IF can-do("Manual,None,Hold",v-est-fg1)  THEN.
-       ELSE do:              
-            RUN fg/autofg.p ( ROWID(eb),
-                                  v-est-fg1, 
-                                  eb.procat,
-                                  IF est.est-type LE 4 THEN "F" ELSE "C",
-                                  eb.cust-no,
-                                  OUTPUT lv-i-no).              
-      END.
-
+       
+       RUN fg/GetFGItemID.p (ROWID(eb), "", OUTPUT lv-i-no).          
+       
        IF lv-i-no NE "" THEN oe-ordl.i-no:SCREEN-VALUE = lv-i-no.
      END. /* oe-ordl.i-no:SCREEN-VALUE EQ "" */
     
@@ -6600,6 +6592,8 @@ PROCEDURE OnSaveButton:
 
     RUN validate-all NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+
+    APPLY "go" TO FRAME {&FRAME-NAME}.
  
     IF runship-char EQ "RUN&SHIP Prompt" AND ip-type = "ADD" THEN 
     DO TRANSACTION:
@@ -6662,6 +6656,7 @@ PROCEDURE OnSaveButton:
     SESSION:SET-WAIT-STATE ("general").
 
     DO TRANSACTION :
+        
         FIND CURRENT oe-ordl EXCLUSIVE.
 
         IF ll-reopen THEN oe-ordl.stat = "".
@@ -6670,6 +6665,8 @@ PROCEDURE OnSaveButton:
         DO:
             RUN oe/upinvqty.p (RECID(oe-ordl)).
         END.
+    END. /* Transaction */
+    DO TRANSACTION:
 
         DO WITH FRAME {&FRAME-NAME}:
             ASSIGN {&FIELDS-IN-QUERY-{&FRAME-NAME}}
@@ -6690,7 +6687,7 @@ PROCEDURE OnSaveButton:
                                               YES, /*Set oe-ord hold fields*/
                                               OUTPUT lPriceHold, 
                                               OUTPUT cPriceHoldMessage).
-                                              
+                        
         FIND xoe-ord WHERE RECID(xoe-ord) = recid(oe-ord) EXCLUSIVE.
         FIND FIRST itemfg WHERE itemfg.company EQ cocode
             AND itemfg.i-no EQ oe-ordl.i-no NO-LOCK NO-ERROR.
@@ -6754,7 +6751,7 @@ PROCEDURE OnSaveButton:
                     xoe-ordl.prom-date = oe-ordl.prom-date.
             END.
         END.
-  
+
         IF oeDateAuto-log AND OeDateAuto-Char = "Colonial" THEN 
         DO:
       
@@ -6790,7 +6787,7 @@ PROCEDURE OnSaveButton:
                 INPUT (IF lv-change-cst-po THEN "" ELSE oe-ordl.i-no)).
         END.
         RELEASE xoe-ordl.
-  
+
         RUN update-itemfg.
 
         ASSIGN {&list-2} .  /* job-no job-no2 */
@@ -7537,7 +7534,7 @@ END. /* not avail sys-ctrl */
 FIND FIRST itemfg
     WHERE itemfg.company EQ cocode
       AND itemfg.i-no    EQ oe-ordl.i-no
-    EXCLUSIVE-LOCK NO-ERROR.
+    NO-LOCK NO-ERROR.
     
 IF AVAIL itemfg THEN DO:    
   FIND oe-ord OF oe-ordl NO-LOCK.
@@ -7564,7 +7561,9 @@ IF AVAIL itemfg THEN DO:
          v-flag[9] = SUBSTRING(ls-flag,9,1) = "Y"
          v-flag[10] = SUBSTRING(ls-flag,10,1) = "Y"
          .
-
+   
+  FIND CURRENT itemfg EXCLUSIVE-LOCK.
+  
   IF v-flag[1] OR ll-new-fg-created THEN 
                     itemfg.sell-price  = oe-ordl.price.
   IF v-flag[2] THEN itemfg.sell-uom    = oe-ordl.pr-uom. 
@@ -7776,7 +7775,7 @@ IF AVAIL itemfg THEN DO:
               RELEASE b-e-itemfg-vend.
      END.
   END.
-END.
+END. /* If avail itemfg */
 
 RELEASE itemfg.
 
@@ -8665,6 +8664,7 @@ PROCEDURE valid-qty :
     IF DEC(ip-focus:SCREEN-VALUE) EQ 0 THEN DO:
       MESSAGE TRIM(ip-focus:LABEL) + " may not be 0, please try again..."
           VIEW-AS ALERT-BOX ERROR.
+       APPLY "entry" TO oe-ordl.qty.
       RETURN ERROR.
     END.
   END.

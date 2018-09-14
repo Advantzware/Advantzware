@@ -114,6 +114,8 @@ END.
 
 DEF VAR lvReturnChar AS CHAR NO-UNDO.
 DEF VAR lvFound AS LOG NO-UNDO.
+DEFINE VARIABLE lfgunderover-log AS LOGICAL   NO-UNDO .
+DEFINE VARIABLE cfgunderover-cha AS CHARACTER NO-UNDO .
 DEF VAR fgRecptPassWord-log AS LOGICAL NO-UNDO.
 DEF VAR fgRecptPassWord-char AS CHARACTER NO-UNDO.
 
@@ -121,9 +123,6 @@ RUN sys/ref/nk1look.p (cocode, "FGRecptPassWord", "L", NO, NO, "", "",
     OUTPUT lvReturnChar, OUTPUT lvFound).
 IF lvFound THEN
     fgRecptPassWord-log = LOGICAL(lvReturnChar).
-RUN sys/ref/nk1look.p (cocode, "FGRecptPassWord", "C", NO, NO, "", "", 
-    OUTPUT fgRecptPassWord-char, OUTPUT lvFound).
-
 
 DEFINE VARIABLE lFound AS LOGICAL     NO-UNDO.
 DEFINE VARIABLE lFGSetAssembly AS LOGICAL     NO-UNDO.
@@ -149,6 +148,28 @@ RUN sys/ref/nk1look.p (INPUT cocode,
                        INPUT "",
                        OUTPUT cFGSetAssembly,
                        OUTPUT lFound).
+
+RUN sys/ref/nk1look.p (INPUT cocode,
+                       INPUT "FGUnderOver",
+                       INPUT "L",
+                       INPUT NO,
+                       INPUT NO,
+                       INPUT "",
+                       INPUT "",
+                       OUTPUT lvReturnChar,
+                       OUTPUT lFound).
+
+    lfgunderover-log = lvReturnChar EQ "YES".
+RUN sys/ref/nk1look.p (INPUT cocode,
+                       INPUT "FGUnderOver",
+                       INPUT "C",
+                       INPUT NO,
+                       INPUT NO,
+                       INPUT "",
+                       INPUT "",
+                       OUTPUT lvReturnChar,
+                       OUTPUT lFound).
+        ASSIGN cfgunderover-cha = lvReturnChar .
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -192,14 +213,14 @@ fg-rctd.frt-cost fg-rctd.stack-code
       AND fg-rctd.company eq cocode and ~
 fg-rctd.r-no ge lv-frst-rno and ~
 (fg-rctd.rita-code eq "R" or fg-rctd.rita-code eq "E") ~
-AND (fg-rctd.SetHeaderRno EQ INTEGER(SUBSTRING(lv-linker, 10, 10)) OR (NOT ll-set-parts AND fg-rctd.SetHeaderRno EQ 0)) ~
+AND (fg-rctd.SetHeaderRno GT 0 AND fg-rctd.SetHeaderRno EQ INTEGER(SUBSTRING(lv-linker, 10, 10)) OR (NOT ll-set-parts AND fg-rctd.SetHeaderRno EQ 0)) ~
 use-index fg-rctd NO-LOCK ~
     ~{&SORTBY-PHRASE}
 &Scoped-define OPEN-QUERY-Browser-Table OPEN QUERY Browser-Table FOR EACH fg-rctd WHERE ~{&KEY-PHRASE} ~
       AND fg-rctd.company eq cocode and ~
 fg-rctd.r-no ge lv-frst-rno and ~
 (fg-rctd.rita-code eq "R" or fg-rctd.rita-code eq "E") ~
-AND (fg-rctd.SetHeaderRno EQ INTEGER(SUBSTRING(lv-linker, 10, 10)) OR (NOT ll-set-parts AND fg-rctd.SetHeaderRno EQ 0)) ~
+AND (fg-rctd.SetHeaderRno GT 0 AND fg-rctd.SetHeaderRno EQ INTEGER(SUBSTRING(lv-linker, 10, 10)) OR (NOT ll-set-parts AND fg-rctd.SetHeaderRno EQ 0)) ~
 use-index fg-rctd NO-LOCK ~
     ~{&SORTBY-PHRASE}.
 &Scoped-define TABLES-IN-QUERY-Browser-Table fg-rctd
@@ -436,7 +457,7 @@ ASSIGN
      _Where[1]         = "fg-rctd.company eq cocode and
 fg-rctd.r-no ge lv-frst-rno and
 (fg-rctd.rita-code eq ""R"" or fg-rctd.rita-code eq ""E"")
-AND (fg-rctd.SetHeaderRno EQ INTEGER(SUBSTRING(lv-linker, 10, 10)) OR (NOT ll-set-parts AND fg-rctd.SetHeaderRno EQ 0))
+AND (fg-rctd.SetHeaderRno GT 0 AND fg-rctd.SetHeaderRno EQ INTEGER(SUBSTRING(lv-linker, 10, 10)) OR (NOT ll-set-parts AND fg-rctd.SetHeaderRno EQ 0))
 use-index fg-rctd"
      _FldNameList[1]   > ASI.fg-rctd.r-no
 "fg-rctd.r-no" "Seq#" ">>>>>>>>" "integer" ? ? ? 14 ? ? no ? no no "12" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
@@ -983,12 +1004,14 @@ DO:
     RETURN.
 
   IF LASTKEY NE -1 THEN DO:
-    IF NOT fgRecptPassWord-log THEN
-      RUN valid-job-no (INPUT YES) NO-ERROR.
-    ELSE
-      /* run with 'no' so no message until save */
-      RUN valid-job-no (INPUT NO) NO-ERROR.
-    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+    IF fgRecpt AND NOT fgRecptPassWord-log THEN
+      RUN non-blank-job-po.
+    IF ERROR-STATUS:ERROR THEN
+      RETURN.
+          
+    RUN valid-job-no NO-ERROR.
+    IF ERROR-STATUS:ERROR THEN 
+      RETURN NO-APPLY.
   END.  
 END.
 
@@ -1913,8 +1936,8 @@ PROCEDURE display-po :
        ASSIGN fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name} =  itemfg.def-loc
               fg-rctd.loc-bin:SCREEN-VALUE IN BROWSE {&browse-name} =  itemfg.def-loc-bin
               fg-rctd.qty-case:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(itemfg.case-count)
-            /*  fg-rctd.cost-uom = if itemfg.pur-man = itemfg.pur-uom
-                            else itemfg.prod-uom  */.
+                /*  fg-rctd.cost-uom = if itemfg.pur-man = itemfg.pur-uom
+                                else itemfg.prod-uom  */.
 
   END.
 
@@ -2096,30 +2119,6 @@ PROCEDURE get-job-no :
        DEC(fg-rctd.job-no2:SCREEN-VALUE IN BROWSE {&browse-name}) NE DEC(lv-job-no2) THEN
       RUN new-job-no.
 
-    IF fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name} EQ "" THEN DO:
-      IF fgrecpt                                                AND
-         fg-rctd.po-no:SCREEN-VALUE IN BROWSE {&browse-name} EQ "" AND
-         lcRitaCode NE "E"                                  AND
-         iplAskPasswd THEN DO:
-
-        /* Check password for override */
-        RUN sys/ref/d-psswrd.w (INPUT "FGRecptPassWord", INPUT "FGRecptPassWord",
-                                OUTPUT lvPasswordEntered).
-      END. /* If nk1 is set to validate blank job/po */
-    END. /* If job# blank */
-
-    ELSE DO:
-      IF INT(fg-rctd.po-no:SCREEN-VALUE IN BROWSE {&browse-name}) NE 0 THEN DO:
-       
-      END.
-
-      FIND FIRST job-hdr
-          WHERE job-hdr.company EQ cocode
-            AND job-hdr.job-no  EQ fg-rctd.job-no:SCREEN-VALUE
-          NO-LOCK NO-ERROR.
-      IF NOT AVAIL job-hdr THEN DO:
-      END.
-    END.
   END.
 
 END PROCEDURE.
@@ -2143,7 +2142,7 @@ PROCEDURE get-linker :
                             AND itemfg.i-no    EQ fg-rctd.i-no
                             AND itemfg.isaset) THEN
                 "fg-rctd: " + STRING(fg-rctd.r-no,"9999999999")
-              ELSE "".
+              ELSE string(fg-rctd.r-no).
 
 END PROCEDURE.
 
@@ -2299,14 +2298,7 @@ IF AVAIL fg-rctd AND fg-rctd.i-no:SCREEN-VALUE <> "" THEN DO: /* in update mode 
                               v-rec-qty, OUTPUT v-rec-qty).
 
     END.
-    IF v-rec-qty GT (po-ordl.ord-qty * (1 + (po-ordl.over-pct / 100))) AND
-       NOT lv-overrun-checked                                          THEN DO:
-       MESSAGE "The PO Qty + overrun has been exceeded..."
-                  VIEW-AS ALERT-BOX WARNING .
-       lv-overrun-checked = YES.
-       /*APPLY "entry" TO fg-rctd.cases.
-       RETURN ERROR.  */
-    END.
+    RUN valid-porec-qty(INPUT v-rec-qty).
     DEF VAR lv-use-full-qty AS LOG.
     DEF VAR lv-full-qty AS DEC NO-UNDO.
     /* Created task 09261318 to be used by receiving screens in addition */            
@@ -2329,6 +2321,8 @@ IF AVAIL fg-rctd AND fg-rctd.i-no:SCREEN-VALUE <> "" THEN DO: /* in update mode 
       OUTPUT lvCalcFrtCost,
       OUTPUT lvSetupPerCostUom).
       
+    ASSIGN lvCalcStdCost = ABSOLUTE(lvCalcStdCost)
+           lvCalcExtCost = ABSOLUTE(lvCalcExtCost).
     ASSIGN
       lvlTotalCostCalculated = TRUE
       fg-rctd.cost-uom:screen-value IN BROWSE {&browse-name} = lvCalcCostUom
@@ -2492,8 +2486,10 @@ IF LOOKUP(lv-cost-uom,fg-uom-list) EQ 0 THEN
    
  END.
 
+ ASSIGN lv-out-cost = ABSOLUTE( lv-out-cost)
+        lv-ext-cost = ABSOLUTE( lv-ext-cost).
 ASSIGN
- lv-ext-cost = lv-out-qty * lv-out-cost
+ lv-ext-cost = ABSOLUTE(lv-out-qty * lv-out-cost)
  fg-rctd.cost-uom:SCREEN-VALUE IN BROWSE {&browse-name} = lv-cost-uom
  fg-rctd.std-cost:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(lv-out-cost)
  fg-rctd.ext-cost:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(lv-ext-cost +
@@ -2546,17 +2542,8 @@ IF AVAIL fg-rctd AND fg-rctd.i-no:SCREEN-VALUE <> "" THEN DO: /* in update mode 
     IF LOOKUP(po-ordl.pr-qty-uom,fg-uom-list) EQ 0 THEN
        RUN sys/ref/convquom.p("EA", po-ordl.pr-qty-uom, 0, 0, 0, 0,
                               v-rec-qty, OUTPUT v-rec-qty).
-    IF v-rec-qty GT (po-ordl.ord-qty * 
-                    (1 + (po-ordl.over-pct / 100)))
-       AND NOT lv-overrun-checked
-    THEN DO:
-       MESSAGE "The PO Qty + overrun has been exceeded. "
-                  VIEW-AS ALERT-BOX WARNING .
-       lv-overrun-checked = YES.
-    END.
-
     
-
+    RUN valid-porec-qty(INPUT v-rec-qty).
 
     /* Created task 09261318 to be used by receiving screens in addition */            
     RUN fg/calcRcptCostFromPO.p 
@@ -2578,6 +2565,8 @@ IF AVAIL fg-rctd AND fg-rctd.i-no:SCREEN-VALUE <> "" THEN DO: /* in update mode 
       OUTPUT lvCalcFrtCost,
       OUTPUT lvSetupPerCostUom).
     
+    ASSIGN lvCalcStdCost = ABSOLUTE( lvCalcStdCost)
+           lvCalcExtCost = ABSOLUTE( lvCalcExtCost).
     ASSIGN
       fg-rctd.cost-uom:screen-value IN BROWSE {&browse-name} = lvCalcCostUom
       fg-rctd.std-cost:screen-value IN BROWSE {&browse-name} = STRING(lvCalcStdCost)
@@ -2638,13 +2627,14 @@ IF LOOKUP(lv-cost-uom,fg-uom-list) EQ 0 THEN
   RUN rm/convquom.p("EA", lv-cost-uom,                   
                     v-bwt, v-len, v-wid, v-dep,
                     lv-out-qty, OUTPUT lv-out-qty).
+IF lv-out-cost LT 0 THEN ASSIGN lv-out-cost = ABSOLUTE( -1 * lv-out-cost).
 
 ASSIGN
  fg-rctd.cost-uom:SCREEN-VALUE IN BROWSE {&browse-name} = lv-cost-uom
  fg-rctd.std-cost:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(lv-out-cost)
  fg-rctd.ext-cost:SCREEN-VALUE IN BROWSE {&browse-name} =
-       STRING((lv-out-qty * lv-out-cost) +
-           dec(fg-rctd.frt-cost:screen-value IN BROWSE {&browse-name})).
+       STRING(ABSOLUTE((lv-out-qty * lv-out-cost) +
+           dec(fg-rctd.frt-cost:screen-value IN BROWSE {&browse-name}))).
 
 
 END.
@@ -2709,14 +2699,7 @@ PROCEDURE get-matrix-all :
           IF NOT ll-ea THEN
             RUN sys/ref/convquom.p("EA", po-ordl.pr-qty-uom, 0, 0, 0, 0,
                                    v-rec-qty, OUTPUT v-rec-qty).
-         IF v-rec-qty GT (po-ordl.ord-qty * 
-                    (1 + (po-ordl.over-pct / 100)))
-            AND NOT lv-overrun-checked
-          THEN DO:
-             MESSAGE "The PO Qty + overrun has been exceeded. "
-                     VIEW-AS ALERT-BOX WARNING .
-             lv-overrun-checked = YES.
-          END.
+          RUN valid-porec-qty(INPUT v-rec-qty).
        END.
        ELSE IF fg-rctd.job-no:SCREEN-VALUE <> "" THEN DO:
          FIND FIRST job-hdr WHERE job-hdr.company = cocode                       
@@ -2885,7 +2868,7 @@ FOR EACH b-fg-rctd WHERE b-fg-rctd.company EQ g_company
       b1-fg-rctd.std-cost = lv-recalc-cost.
       ASSIGN
       lv-ext-cost = b1-fg-rctd.t-qty * b1-fg-rctd.std-cost
-      b1-fg-rctd.ext-cost = lv-ext-cost + b1-fg-rctd.frt-cost.
+      b1-fg-rctd.ext-cost = absolute(lv-ext-cost + b1-fg-rctd.frt-cost).
     END.
     
   END.
@@ -2996,7 +2979,7 @@ PROCEDURE get-set-full-qty :
             b1-fg-rctd.std-cost = lv-recalc-cost.
             ASSIGN
              lv-ext-cost = b1-fg-rctd.t-qty * b1-fg-rctd.std-cost                          
-             b1-fg-rctd.ext-cost = lv-ext-cost + b1-fg-rctd.frt-cost.
+             b1-fg-rctd.ext-cost = ABSOLUTE(lv-ext-cost + b1-fg-rctd.frt-cost).
           END.
 
       END.
@@ -3252,8 +3235,8 @@ PROCEDURE local-assign-record :
    fg-rctd.t-qty    = DEC(ls-tmp-qty)
    fg-rctd.pur-uom  = ls-tmp-uom
    fg-rctd.cost-uom = ls-tmp-uom
-   fg-rctd.ext-cost = fg-rctd.std-cost * fg-rctd.t-qty /
-                      (IF fg-rctd.cost-uom EQ "M" THEN 1000 ELSE 1).
+   fg-rctd.ext-cost = absolute(fg-rctd.std-cost * fg-rctd.t-qty /
+                      (IF fg-rctd.cost-uom EQ "M" THEN 1000 ELSE 1)). 
   IF fg-rctd.po-no GT "" THEN DO:
       FIND FIRST po-ord WHERE po-ord.company EQ fg-rctd.company
           AND po-ord.po-no EQ INTEGER(fg-rctd.po-no)
@@ -3576,7 +3559,6 @@ PROCEDURE local-open-query :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-
   /* Code placed here will execute PRIOR to standard behavior. */
   IF ll-set-parts THEN DO:
     lv-linker = "".
@@ -3700,8 +3682,15 @@ PROCEDURE local-update-record :
   
 
   /* Run with check on password, if relevant */
-  RUN valid-job-no (INPUT YES) NO-ERROR.
-  IF ERROR-STATUS:ERROR THEN RETURN ERROR.
+  RUN non-blank-job-po NO-ERROR.
+    IF ERROR-STATUS:ERROR THEN DO: 
+         RETURN ERROR.
+    END.
+    
+  RUN valid-job-no NO-ERROR.
+  IF ERROR-STATUS:ERROR THEN         
+      RETURN ERROR.
+   
 
   RUN valid-job-no2 NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN ERROR.
@@ -3719,15 +3708,16 @@ PROCEDURE local-update-record :
           fg-rctd.partial:SCREEN-VALUE = "0"
           .
   END.
-
+  RUN valid-blank-qty NO-ERROR.
+  IF ERROR-STATUS:ERROR THEN RETURN ERROR.
 
 
   RUN validate-record NO-ERROR.
 
-  IF ERROR-STATUS:ERROR THEN DO:
+  IF ERROR-STATUS:ERROR THEN DO:   
     RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"tableio-source",OUTPUT char-hdl).
      
-    IF VALID-HANDLE(HANDLE(char-hdl)) THEN DO:
+    IF VALID-HANDLE(HANDLE(char-hdl)) THEN DO:   
    
       hPanel = HANDLE(char-hdl).
       RUN notify IN hPanel (INPUT 'cancel-record':U).
@@ -3996,6 +3986,53 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE non-blank-job-po B-table-Win
+PROCEDURE non-blank-job-po:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEF    VAR      lvPasswordEntered AS LOG NO-UNDO.
+    DEF    VAR      lcRitaCode        AS CHAR      NO-UNDO.    
+      
+    IF AVAIL(fg-rctd) THEN
+        lcRitaCode = fg-rctd.rita-code.
+    ELSE
+        lcRitaCode = "R".
+        
+    
+    IF NOT ll-set-parts THEN DO WITH FRAME {&frame-name}:
+      IF fgrecpt
+           AND fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name} EQ ""                                                                
+           AND fg-rctd.po-no:SCREEN-VALUE IN BROWSE {&browse-name} EQ "" 
+           AND lcRitaCode NE "E"                                  THEN 
+      DO:
+            /* Job Number and PO # are blank */
+            /* Check password for override */
+            lvPasswordEntered = NO.           
+            IF fgRecptPassWord-log THEN DO:
+                RUN sys/ref/d-psswrd.w (INPUT "FGRecptPassWord", INPUT "FGRecptPassWord",
+                    OUTPUT lvPasswordEntered).
+              END.
+            IF NOT lvPasswordEntered OR NOT fgRecptPassWord-log THEN 
+            DO:
+                MESSAGE "You must enter a Job or a PO..." VIEW-AS ALERT-BOX ERROR.
+                APPLY "entry" TO fg-rctd.job-no IN BROWSE {&browse-name}.
+                RETURN ERROR.
+            END.
+                
+      END. /* If checking for blank job and PO */                                               
+      
+    END. /* Do with frame ... */
+    RETURN. 
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE repo-query B-table-Win 
 PROCEDURE repo-query :
@@ -4353,7 +4390,7 @@ PROCEDURE show-freight :
     ASSIGN
      ld = DEC(fg-rctd.frt-cost:SCREEN-VALUE IN BROWSE {&browse-name})
      fg-rctd.ext-cost:SCREEN-VALUE IN BROWSE {&browse-name} =
-         STRING(DEC(fg-rctd.ext-cost:SCREEN-VALUE IN BROWSE {&browse-name}) - ld).
+         STRING(DEC(fg-rctd.ext-cost:SCREEN-VALUE IN BROWSE {&browse-name}) - ld) .
 
     RUN get-freight-cost (OUTPUT ld).
 
@@ -4611,10 +4648,10 @@ PROCEDURE valid-i-no :
   DO WITH FRAME {&FRAME-NAME}:
     IF oeship-log                   AND
        CAN-FIND(FIRST itemfg
-                WHERE itemfg.company EQ cocode
-                  AND itemfg.i-no    EQ ip-focus:SCREEN-VALUE
-                  AND itemfg.isaset
-                  AND itemfg.alloc) THEN DO:
+       WHERE itemfg.company EQ cocode
+       AND itemfg.i-no    EQ fg-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name}
+       AND itemfg.isaset
+       AND itemfg.alloc) THEN DO:
       MESSAGE TRIM(ip-focus:LABEL) + " may not be an unassembled set header...".
       APPLY "entry" TO ip-focus.
       RETURN ERROR.
@@ -4638,7 +4675,7 @@ PROCEDURE valid-i-no :
 
     IF NOT CAN-FIND(FIRST itemfg
                 WHERE itemfg.company EQ cocode
-                  AND itemfg.i-no    EQ ip-focus:SCREEN-VALUE
+                  AND itemfg.i-no    EQ fg-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name}
                   AND itemfg.prod-uom NE "") THEN DO:
     
        MESSAGE fg-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name} + " has no cost UOM. Please correct the item master and try again."
@@ -4661,55 +4698,31 @@ PROCEDURE valid-job-no :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEF INPUT PARAMETER iplAskPasswd AS LOG NO-UNDO.
-  DEF VAR lvPasswordEntered AS LOG NO-UNDO.
-  DEF VAR lcRitaCode AS CHAR NO-UNDO.
-  IF AVAIL(fg-rctd) THEN
-      lcRitaCode = fg-rctd.rita-code.
-  ELSE
-      lcRitaCode = "R".
-  DO WITH FRAME {&frame-name}:
+
+  IF fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name} GT "" THEN DO WITH FRAME {&frame-name}:
     fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name} =
         FILL(" ",6 - LENGTH(TRIM(fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}))) +
         TRIM(fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}).
 
     IF TRIM(fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}) NE TRIM(lv-job-no)  OR
        DEC(fg-rctd.job-no2:SCREEN-VALUE IN BROWSE {&browse-name}) NE DEC(lv-job-no2) THEN
-      RUN new-job-no.
+        RUN new-job-no.
 
-    IF fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name} EQ "" THEN DO:
-      IF fgrecpt                                                AND
-         fg-rctd.po-no:SCREEN-VALUE IN BROWSE {&browse-name} EQ "" AND
-         lcRitaCode NE "E"                                  AND
-         iplAskPasswd THEN DO:
-
-        /* Check password for override */
-        RUN sys/ref/d-psswrd.w (INPUT "FGRecptPassWord", INPUT "FGRecptPassWord",
-                                OUTPUT lvPasswordEntered).
-        IF NOT lvPasswordEntered THEN DO:
-            MESSAGE "You must enter a Job or a PO..." VIEW-AS ALERT-BOX ERROR.
-            APPLY "entry" TO fg-rctd.job-no IN BROWSE {&browse-name}.
-            RETURN ERROR.
-        END.
-
-      END. /* If nk1 is set to validate blank job/po */
-    END. /* If job# blank */
-
-    ELSE DO:
-      IF INT(fg-rctd.po-no:SCREEN-VALUE IN BROWSE {&browse-name}) NE 0 THEN DO:
+    IF fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name} = "" 
+       AND INT(fg-rctd.po-no:SCREEN-VALUE IN BROWSE {&browse-name}) NE 0 THEN 
+    DO:
         fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name} = "".
         MESSAGE "You may only enter a Job or a PO, Job No will be erased..."
             VIEW-AS ALERT-BOX ERROR.
-      END.
-
-      FIND FIRST job-hdr
-          WHERE job-hdr.company EQ cocode
-            AND job-hdr.job-no  EQ fg-rctd.job-no:SCREEN-VALUE
-          NO-LOCK NO-ERROR.
-      IF NOT AVAIL job-hdr THEN DO:
+    END.
+    FIND FIRST job-hdr
+        WHERE job-hdr.company EQ cocode
+          AND job-hdr.job-no  EQ fg-rctd.job-no:SCREEN-VALUE
+        NO-LOCK NO-ERROR.
+    IF NOT AVAIL job-hdr THEN 
+    DO:
         MESSAGE "Invalid Job#. Try Help..." VIEW-AS ALERT-BOX ERROR.
         RETURN ERROR.
-      END.
     END.
   END.
 
@@ -4949,6 +4962,35 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-blank-qty B-table-Win 
+PROCEDURE valid-blank-qty :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+
+  DO WITH FRAME {&FRAME-NAME}:
+    IF dec(fg-rctd.t-qty:SCREEN-VALUE IN BROWSE {&browse-name}) EQ 0 THEN DO:
+        /* In case user pressed save before tab out of tag field */
+        fg-rctd.t-qty:SCREEN-VALUE IN BROWSE {&browse-name} =
+        STRING(INT(fg-rctd.cases:SCREEN-VALUE) *
+               INT(fg-rctd.qty-case:SCREEN-VALUE) +
+               INT(fg-rctd.partial:SCREEN-VALUE)).
+        IF dec(fg-rctd.t-qty:SCREEN-VALUE IN BROWSE {&browse-name}) EQ 0 THEN DO:   
+          MESSAGE "Receipt quantity cannot be 0."
+              VIEW-AS ALERT-BOX.
+          APPLY "entry" TO fg-rctd.cases.
+          RETURN ERROR.
+        END.
+    END.
+  END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-tag B-table-Win 
 PROCEDURE valid-tag :
 /*------------------------------------------------------------------------------
@@ -5143,20 +5185,7 @@ PROCEDURE validate-record :
 ------------------------------------------------------------------------------*/
   DEF VAR li-max-qty AS INT NO-UNDO.
   DEF VAR ll AS LOG NO-UNDO.
-
-  IF dec(fg-rctd.t-qty:SCREEN-VALUE IN BROWSE {&browse-name}) EQ 0 THEN DO:
-        /* In case user pressed save before tab out of tag field */
-        fg-rctd.t-qty:SCREEN-VALUE IN BROWSE {&browse-name} =
-        STRING(INT(fg-rctd.cases:SCREEN-VALUE) *
-               INT(fg-rctd.qty-case:SCREEN-VALUE) +
-               INT(fg-rctd.partial:SCREEN-VALUE)).
-        IF dec(fg-rctd.t-qty:SCREEN-VALUE IN BROWSE {&browse-name}) EQ 0 THEN DO:
-          MESSAGE "Receipt quantity cannot be 0."
-              VIEW-AS ALERT-BOX.
-          APPLY "entry" TO fg-rctd.cases.
-          RETURN ERROR.
-        END.
-    END.
+  
   FIND itemfg WHERE itemfg.company = cocode
                 AND itemfg.i-no = fg-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name}
                 NO-LOCK NO-ERROR.
@@ -5321,4 +5350,36 @@ END FUNCTION.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-porec-qty B-table-Win 
+PROCEDURE valid-porec-qty :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+DEFINE INPUT PARAMETER ipRecQty AS INTEGER NO-UNDO.
+if lfgunderover-log AND (cfgunderover-cha EQ "OverRuns Only" OR cfgunderover-cha EQ "UnderRuns and OverRun")
+     AND ipRecQty gt po-ordl.ord-qty * (1 + (po-ordl.over-pct / 100)) AND NOT lv-overrun-checked  THEN
+do:          
+    MESSAGE "The PO Quantity entered is more than the" STRING(po-ordl.over-pct,">>9.99%") SKIP 
+            "Overrun allowed for this PO line Item..."
+                  VIEW-AS ALERT-BOX WARNING .
+       lv-overrun-checked = YES.
+END.
+ELSE IF lfgunderover-log AND (cfgunderover-cha EQ "UnderRuns Only" OR cfgunderover-cha EQ "UnderRuns and OverRun")
+     AND ipRecQty LT po-ordl.ord-qty - (po-ordl.ord-qty * po-ordl.under-pct / 100) AND NOT lv-overrun-checked THEN
+DO:
+    MESSAGE "The PO Quantity entered is less than the" STRING(po-ordl.under-pct,">>9.99%") SKIP 
+            "Underrun allowed for this PO line Item..."
+                  VIEW-AS ALERT-BOX WARNING .
+       lv-overrun-checked = YES.
+END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 

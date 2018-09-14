@@ -157,7 +157,7 @@ ASSIGN  j = 1.
                    v-job-po  AT 17 FORM "x(15)" 
                    /*oe-ordl.e-num AT 34 */
                    oe-ordl.i-name FORM "x(25)" AT 34
-                   w2.cases    AT 68 FORM "->>>9" " @ "
+                   w2.cases    AT 65 FORM "->>>9" " @ "
                    w2.cas-cnt  FORM "->>>>>9"
                   SKIP.   
          ELSE PUT {1} 
@@ -168,7 +168,7 @@ ASSIGN  j = 1.
                   /*oe-boll.i-no  AT 17 FORM "x(15)"*/
                  /* v-job-var AT 34 FORM "x(9)"*/
                   IF avail(oe-ordl) THEN oe-ordl.part-dscr1 ELSE "" FORM "x(25)" AT 34
-                  w2.cases  AT 68 FORM "->>>9" " @ "
+                  w2.cases  AT 65 FORM "->>>9" " @ "
                   w2.cas-cnt FORM "->>>>>9"
                   SKIP.
          v-printline = v-printline + 1.
@@ -205,9 +205,9 @@ ASSIGN  j = 1.
            END. /*LV-PRINT-SPECS*/
 
            PUT {1}
-               "====================" AT 66 SKIP  
-               v-tot-pkgs AT 68 FORM "->>>9"  " = "
-               v-ship-qty FORM "->>>>>z" SPACE(3)
+               "====================" AT 63 SKIP  
+               v-tot-pkgs AT 65 FORM "->>>9"  " = "
+               v-ship-qty FORM "->>>>>>>z" SPACE(3)
                oe-boll.p-c SPACE(1)
                v-weight SKIP .
            
@@ -297,7 +297,7 @@ ASSIGN  j = 1.
           v-job-po AT 17 FORMAT "x(15)"
           /*oe-ordl.e-num  WHEN AVAIL oe-ordl AT 33*/
           oe-ordl.i-name WHEN AVAIL oe-ordl AT 34 FORM "x(25)"
-          oe-boll.cases FORM "->>>>>" AT 68 "@"
+          oe-boll.cases FORM "->>>>>" AT 65 "@"
           oe-boll.qty-case FORM "->>>>>Z" SKIP
           oe-ordl.part-no   WHEN AVAIL oe-ordl 
           oe-ordl.ord-no WHEN AVAIL oe-ordl AT 17
@@ -305,7 +305,7 @@ ASSIGN  j = 1.
          /* (if oe-boll.job-no eq "" then "" else
            (trim(oe-boll.job-no) + "-" + string(oe-boll.job-no2,"99")))  AT 33 */
           oe-ordl.part-dscr1 WHEN AVAIL oe-ordl AT 34 FORM "x(25)"
-          v-1    FORM "->>>>9"  when oe-boll.partial gt 0 AT 68  "@"
+          v-1    FORM "->>>>9"  when oe-boll.partial gt 0 AT 65  "@"
           oe-boll.partial   when oe-boll.partial gt 0 FORM "->>>>>z"  SKIP
      with frame bol-mid1 NO-BOX NO-LABELS STREAM-IO NO-ATTR-SPACE WIDTH 130.
      down {1} with frame bol-mid1.
@@ -330,9 +330,9 @@ ASSIGN  j = 1.
      END. /*LV-PRINT-SPECS*/
 
      DISPLAY 
-         "====================" AT 66 SKIP
-         v-tot-pkgs AT 67 FORM "->>,>>9"  "="
-         oe-boll.qty FORM "->>>>>z" SPACE(2)
+         "====================" AT 62 SKIP
+         v-tot-pkgs AT 64 FORM "->>,>>9"  "="
+         oe-boll.qty FORM "->>>>>>>z" SPACE(2)
          oe-boll.p-c SPACE(1)
          oe-boll.weight  SKIP
          with frame bol-mid2 NO-BOX NO-LABELS STREAM-IO NO-ATTR-SPACE WIDTH 130.

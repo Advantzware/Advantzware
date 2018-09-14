@@ -30,7 +30,7 @@ DISPLAY
   employee.last_name
   employee.soc_sec
   employee.emp_type LABEL 'Type'
-  employee.actnum
+  employee.actnum   LABEL "Note"
   employee.start_date
   employee.ref_no
   employee.rate_usage.

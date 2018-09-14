@@ -1,48 +1,17 @@
- 
-DEF VAR lv-ref-rec-qty AS RECID NO-UNDO.
-DEF VAR lv-ref-rec-cst AS RECID NO-UNDO. 
-
-
-FIND FIRST reftable
-    WHERE reftable.reftable EQ "MACH-CREW"
-	  AND reftable.company  EQ mach.company
-	  AND reftable.loc      EQ mach.loc
-	  AND reftable.code     EQ mach.m-code
-	  AND reftable.code2    EQ "{1}-QTY"
-	NO-LOCK NO-ERROR.
-IF NOT AVAIL reftable THEN DO TRANSACTION:
-  CREATE reftable.
-  ASSIGN
-   reftable.reftable = "MACH-CREW"
-   reftable.company  = mach.company
-   reftable.loc      = mach.loc
-   reftable.code     = mach.m-code
-   reftable.code2    = "{1}-QTY"
-   reftable.val[1]   = 1.
+FIND CURRENT MACH exclusive-lock no-error .
+IF AVAILABLE mach THEN DO:
+    IF "{1}" = "RUN" THEN ASSIGN mach.run-crusiz-qty[1] = 1
+                                 mach.run-crusiz-cst[1] = DEC(SELF:SCREEN-VALUE)
+                                 .
+    ELSE IF "{1}" = "M R" THEN ASSIGN mach.mr-crusiz-qty[1] = 1
+                                      mach.mr-crusiz-cst[1] = DEC(SELF:SCREEN-VALUE)
+                                      .
 END.
-lv-ref-rec-qty = RECID(reftable).
 
-FIND FIRST reftable
-    WHERE reftable.reftable EQ "MACH-CREW"
-	  AND reftable.company  EQ mach.company
-	  AND reftable.loc      EQ mach.loc
-	  AND reftable.code     EQ mach.m-code
-	  AND reftable.code2    EQ "{1}-CST"
-	NO-LOCK NO-ERROR.
-IF NOT AVAIL reftable THEN DO TRANSACTION:
-  CREATE reftable.
-  ASSIGN
-   reftable.reftable = "MACH-CREW"
-   reftable.company  = mach.company
-   reftable.loc      = mach.loc
-   reftable.code     = mach.m-code
-   reftable.code2    = "{1}-CST"
-   reftable.val[1]   = DEC(SELF:SCREEN-VALUE).
-END.
-lv-ref-rec-cst = RECID(reftable).
+RUN cec/d-refestmach.w (RECID(mach), "{1}").
 
-RUN cec/d-refest.w (lv-ref-rec-qty, lv-ref-rec-cst, "{1}").
+FIND CURRENT MACH no-lock no-error .
 
-FIND reftable WHERE RECID(reftable) EQ lv-ref-rec-cst NO-LOCK.
+IF "{1}" = "RUN" THEN ASSIGN SELF:SCREEN-VALUE = STRING(mach.run-crusiz-cst[1]).
+ELSE IF "{1}" = "M R" THEN ASSIGN SELF:SCREEN-VALUE = STRING(mach.mr-crusiz-cst[1]).
 
-SELF:SCREEN-VALUE = STRING(reftable.val[1]).

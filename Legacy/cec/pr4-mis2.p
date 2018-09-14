@@ -120,14 +120,14 @@ DEF VAR v-sep-prep-tot AS DEC NO-UNDO.
                 xprep.simon    = est-prep.simon
                 xprep.code     = est-prep.code.
 
-         DISPLAY est-prep.dscr FORMAT "x(19)"
-                 v-orig-prep-mat FORMAT "->>9.99"
+         DISPLAY est-prep.dscr FORMAT "x(17)"
+                 v-orig-prep-mat FORMAT "->>>>9.99"
                  v-orig-prep-lab FORMAT "->>9.99"
-                 est-prep.mkup FORMAT ">>9.99" TO 42 SPACE(0) "%"
+                 est-prep.mkup FORMAT "->>9.99" TO 43 SPACE(0) "%"
                  est-prep.amtz TO 50 FORMAT ">>9.99" SPACE(0) "%"
                  est-prep.simon FORMAT "X" TO 58
-                 prep-tot / (qty / 1000) / v-sqft-fac TO 69
-                 prep-tot TO 80 FORMAT ">>>,>>9.99" 
+                 prep-tot / (qty / 1000) / v-sqft-fac TO 70
+                 prep-tot TO 82 FORMAT ">>>,>>9.99" 
                     WHEN INDEX("SO",est-prep.simon) > 0
                     "      N/C " WHEN est-prep.simon = "N" @ prep-tot  SKIP WITH STREAM-IO.
 

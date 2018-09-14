@@ -28,14 +28,16 @@
 {ed/sharedv.i "NEW GLOBAL"}
 
 DEFINE NEW SHARED        VARIABLE quit_login      AS LOGICAL   NO-UNDO.
-DEFINE                   VARIABLE m_id            AS CHAR NO-UNDO.
+DEFINE                   VARIABLE m_id            AS CHARACTER NO-UNDO.
 DEFINE                   VARIABLE ldummy          AS LOGICAL   NO-UNDO.
 DEFINE                   VARIABLE i               AS INTEGER   NO-UNDO.
 DEFINE                   VARIABLE lExit           AS LOGICAL   NO-UNDO.
 DEFINE NEW GLOBAL SHARED VARIABLE g-sharpshooter  AS LOG       NO-UNDO.  /* no, it's yes only from sharpsh.p */
-DEFINE                   VARIABLE tslogin-log     AS LOGICAL NO-UNDO.
-DEFINE                   VARIABLE lFound          AS LOGICAL NO-UNDO.
-DEFINE                   VARIABLE cTsLogin        AS CHARACTER   NO-UNDO.
+DEFINE                   VARIABLE tslogin-log     AS LOGICAL   NO-UNDO.
+DEFINE                   VARIABLE lFound          AS LOGICAL   NO-UNDO.
+DEFINE                   VARIABLE cTsLogin        AS CHARACTER NO-UNDO.
+DEFINE NEW GLOBAL SHARED VARIABLE cIniLoc         AS CHARACTER NO-UNDO.
+DEFINE NEW GLOBAL SHARED VARIABLE cUsrLoc         AS CHARACTER NO-UNDO.
 
 &IF "{&sharpshooterFlag}" EQ "YES"  &THEN
   g-sharpshooter = YES.

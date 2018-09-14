@@ -347,6 +347,10 @@ do vmcl = 1 to 28:   /* ??? 28 not 4*/
    t-blkqty     = 0
    v-qtty[vmcl] = qtty[vmcl].
 
+   IF vprint THEN DO:
+	{custom/statusMsg.i " 'Calculating... Est#  '  + xest.est-no  + ' Qty - ' + string(v-qtty[vmcl]) "}
+    END.
+
   for each blk:
       delete blk.
   end.
@@ -672,7 +676,7 @@ do vmcl = 1 to 28:   /* ??? 28 not 4*/
                      brd-l[4]                           format ">>>9.99<<<" 
                      xeb.t-dep WHEN xeb.t-dep NE 0      format ">>>9.99<<<"
                      xeb.num-up                         format ">>>,>>>" 
-                     v-yld                              FORMAT ">>>,>>>"
+                     v-yld                              FORMAT ">>>>>.9<<<"
                      brd-sf[4]                              
                      "Sf/BL"
                      brd-wu[4]
@@ -1018,3 +1022,7 @@ hide frame ask     no-pause.
 hide frame ask1    no-pause.
 
 session:set-wait-state("").
+
+IF vprint THEN DO:
+{custom/statusMsg.i " 'Calculating Complete....  '  "}
+END.

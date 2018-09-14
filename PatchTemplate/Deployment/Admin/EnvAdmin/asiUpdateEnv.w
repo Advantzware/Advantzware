@@ -29,13 +29,31 @@ CREATE WIDGET-POOL.
 /* ***************************  Definitions  ************************** */
 
 /* Parameters Definitions ---                                           */
+
 DEF INPUT PARAMETER ipcName AS CHAR NO-UNDO.
 DEF INPUT PARAMETER ipcPort AS CHAR NO-UNDO.
 DEF INPUT PARAMETER ipcDir AS CHAR NO-UNDO.
 DEF INPUT PARAMETER ipcVer AS CHAR NO-UNDO.
 DEF INPUT PARAMETER ipiLevel AS INT NO-UNDO.
+DEF INPUT PARAMETER iplNeedBackup AS LOG NO-UNDO.
 DEF OUTPUT PARAMETER oplSuccess AS LOG NO-UNDO.
 
+/*
+/* FOR TEST PURPOSES ONLY */
+DEF VAR ipcName AS CHAR NO-UNDO.
+DEF VAR ipcPort AS CHAR NO-UNDO.
+DEF VAR ipcDir AS CHAR NO-UNDO.
+DEF VAR ipcVer AS CHAR NO-UNDO.
+DEF VAR ipiLevel AS INT NO-UNDO.
+DEF VAR iplNeedBackup AS LOG NO-UNDO.
+DEF VAR oplSuccess AS LOG NO-UNDO.
+ASSIGN
+    ipcName = "asiTest167"
+    ipcPort = "2856"
+    ipcDir = "Test"
+    ipcVer = "16.7"
+    ipiLevel = 10.
+*/
 /* Local Variable Definitions ---                                       */
 &SCOPED-DEFINE SV SCREEN-VALUE IN FRAME DEFAULT-FRAME
 
@@ -237,7 +255,7 @@ DEF VAR cDbPortList AS CHAR INITIAL "2826" NO-UNDO.
 DEF VAR cAudDirList AS CHAR INITIAL "Audit" NO-UNDO.
 DEF VAR cAudDBList AS CHAR INITIAL "audProd" NO-UNDO.
 DEF VAR cAudPortList AS CHAR INITIAL "2836" NO-UNDO.
-DEF VAR cEnvVerList AS CHAR INITIAL "16.7.8" NO-UNDO.
+DEF VAR cEnvVerList AS CHAR INITIAL "16.7.16" NO-UNDO.
 DEF VAR cDbVerList AS CHAR INITIAL "16.7" NO-UNDO.
 /* # Basic DB Elements */
 DEF VAR cAudDbName AS CHAR INITIAL "audProd" NO-UNDO.
@@ -498,7 +516,7 @@ DEFINE VARIABLE fiMapDir AS CHARACTER FORMAT "X(256)":U INITIAL "N:"
      VIEW-AS FILL-IN 
      SIZE 5 BY 1 NO-UNDO.
 
-DEFINE VARIABLE fiNewVer AS CHARACTER FORMAT "X(256)":U INITIAL "16.7.8" 
+DEFINE VARIABLE fiNewVer AS CHARACTER FORMAT "X(256)":U INITIAL "16.7.16" 
      LABEL "New Version" 
      VIEW-AS FILL-IN 
      SIZE 14 BY 1
@@ -873,13 +891,14 @@ DEFINE FRAME DEFAULT-FRAME
      fiUpdRelNotesDir AT ROW 30.29 COL 116 COLON-ALIGNED NO-LABEL WIDGET-ID 160
      fiUpdSqlDir AT ROW 31 COL 116 COLON-ALIGNED NO-LABEL WIDGET-ID 158
      fiUpdStructureDir AT ROW 31.71 COL 116 COLON-ALIGNED NO-LABEL WIDGET-ID 164
-     "<EnvName>" VIEW-AS TEXT
-          SIZE 16 BY .76 AT ROW 14.57 COL 145 WIDGET-ID 242
-     " General Variables" VIEW-AS TEXT
-          SIZE 22 BY .62 AT ROW 1.48 COL 8 WIDGET-ID 356
-          FONT 6
-     "Environment tasks - will be performed once for each ENVIRONMENT selected above" VIEW-AS TEXT
-          SIZE 86 BY .62 AT ROW 23.38 COL 11 WIDGET-ID 500
+     "Prod" VIEW-AS TEXT
+          SIZE 16 BY .76 AT ROW 9.57 COL 145 WIDGET-ID 250
+     "Desktop" VIEW-AS TEXT
+          SIZE 16 BY .76 AT ROW 28.14 COL 148 WIDGET-ID 192
+     "ProgramFiles" VIEW-AS TEXT
+          SIZE 16 BY .76 AT ROW 29.57 COL 148 WIDGET-ID 180
+     "Database" VIEW-AS TEXT
+          SIZE 16 BY .76 AT ROW 5.29 COL 145 WIDGET-ID 264
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
@@ -887,40 +906,93 @@ DEFINE FRAME DEFAULT-FRAME
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME DEFAULT-FRAME
+     "Admin" VIEW-AS TEXT
+          SIZE 7 BY .76 AT ROW 2.19 COL 141 WIDGET-ID 170
+     "Admin" VIEW-AS TEXT
+          SIZE 16 BY .76 AT ROW 2.19 COL 141 WIDGET-ID 172
+     "Compress" VIEW-AS TEXT
+          SIZE 16 BY .76 AT ROW 26 COL 148 WIDGET-ID 186
+     "Install" VIEW-AS TEXT
+          SIZE 16 BY .76 AT ROW 23.14 COL 141 WIDGET-ID 178
+     "Admin" VIEW-AS TEXT
+          SIZE 16 BY .76 AT ROW 25.29 COL 148 WIDGET-ID 198
      "Programs" VIEW-AS TEXT
           SIZE 16 BY .76 AT ROW 6 COL 145 WIDGET-ID 280
-     "PO" VIEW-AS TEXT
-          SIZE 16 BY .76 AT ROW 18.14 COL 147 WIDGET-ID 202
-     "StructureUpdate" VIEW-AS TEXT
-          SIZE 16 BY .76 AT ROW 31.71 COL 148 WIDGET-ID 296
-     " (Defaults)" VIEW-AS TEXT
-          SIZE 13 BY .62 AT ROW 1.48 COL 144 WIDGET-ID 300
-          FONT 6
-     "Database tasks - will be performed once for each DATABASE selected above" VIEW-AS TEXT
-          SIZE 86 BY .62 AT ROW 16.95 COL 11 WIDGET-ID 498
-     "Environments" VIEW-AS TEXT
-          SIZE 16 BY .76 AT ROW 13.86 COL 141 WIDGET-ID 240
+     "<EnvName>" VIEW-AS TEXT
+          SIZE 16 BY .76 AT ROW 14.57 COL 145 WIDGET-ID 242
      "ReleaseNotes" VIEW-AS TEXT
           SIZE 16 BY .76 AT ROW 30.29 COL 148 WIDGET-ID 182
      "Test" VIEW-AS TEXT
           SIZE 16 BY .76 AT ROW 11.71 COL 145 WIDGET-ID 244
+     "Resources" VIEW-AS TEXT
+          SIZE 16 BY .76 AT ROW 6.71 COL 145 WIDGET-ID 266
+     "EnvAdmin" VIEW-AS TEXT
+          SIZE 16 BY .76 AT ROW 3.86 COL 145 WIDGET-ID 270
+     "Backups" VIEW-AS TEXT
+          SIZE 16 BY .76 AT ROW 4.57 COL 141 WIDGET-ID 278
+     "Structure" VIEW-AS TEXT
+          SIZE 16 BY .76 AT ROW 11 COL 145 WIDGET-ID 254
+     " Environments" VIEW-AS TEXT
+          SIZE 17 BY .62 AT ROW 10.05 COL 8 WIDGET-ID 360
+          FONT 6
+     "Schedule" VIEW-AS TEXT
+          SIZE 16 BY .76 AT ROW 20.29 COL 147 WIDGET-ID 208
+     "DataUpdate" VIEW-AS TEXT
+          SIZE 16 BY .76 AT ROW 27.43 COL 148 WIDGET-ID 190
+     "DataFiles" VIEW-AS TEXT
+          SIZE 16 BY .76 AT ROW 26.71 COL 148 WIDGET-ID 188
+     "DbAdmin" VIEW-AS TEXT
+          SIZE 10 BY .76 AT ROW 2.91 COL 145 WIDGET-ID 284
+     "Template" VIEW-AS TEXT
+          SIZE 16 BY .76 AT ROW 21 COL 147 WIDGET-ID 288
+     "Environments" VIEW-AS TEXT
+          SIZE 16 BY .76 AT ROW 13.86 COL 141 WIDGET-ID 240
+     " (Defaults)" VIEW-AS TEXT
+          SIZE 13 BY .62 AT ROW 1.48 COL 144 WIDGET-ID 300
+          FONT 6
+     "Programs" VIEW-AS TEXT
+          SIZE 16 BY .76 AT ROW 18.86 COL 147 WIDGET-ID 204
+     "Admin" VIEW-AS TEXT
+          SIZE 16 BY .76 AT ROW 2.19 COL 141 WIDGET-ID 174
+     " Patch Processing" VIEW-AS TEXT
+          SIZE 23 BY .62 AT ROW 15.76 COL 8 WIDGET-ID 456
+          FONT 6
+     "Addon" VIEW-AS TEXT
+          SIZE 16 BY .76 AT ROW 15.29 COL 147 WIDGET-ID 216
+     "Database tasks - will be performed once for each DATABASE selected above" VIEW-AS TEXT
+          SIZE 86 BY .62 AT ROW 16.95 COL 11 WIDGET-ID 498
      "Updates" VIEW-AS TEXT
           SIZE 16 BY .76 AT ROW 23.86 COL 141 WIDGET-ID 194
      "Desktop" VIEW-AS TEXT
           SIZE 16 BY .76 AT ROW 12.43 COL 141 WIDGET-ID 246
-     "Schedule" VIEW-AS TEXT
-          SIZE 16 BY .76 AT ROW 20.29 COL 147 WIDGET-ID 208
-     " Environments" VIEW-AS TEXT
-          SIZE 17 BY .62 AT ROW 10.05 COL 8 WIDGET-ID 360
+     "Audit" VIEW-AS TEXT
+          SIZE 16 BY .76 AT ROW 8.14 COL 145 WIDGET-ID 488
+     "Documentation" VIEW-AS TEXT
+          SIZE 16 BY .76 AT ROW 13.14 COL 141 WIDGET-ID 248
+     "Data" VIEW-AS TEXT
+          SIZE 16 BY .76 AT ROW 8.86 COL 145 WIDGET-ID 256
+     "Override" VIEW-AS TEXT
+          SIZE 16 BY .76 AT ROW 17.43 COL 147 WIDGET-ID 214
+     " Databases" VIEW-AS TEXT
+          SIZE 15 BY .62 AT ROW 10.05 COL 56 WIDGET-ID 482
           FONT 6
-     "Structure" VIEW-AS TEXT
-          SIZE 16 BY .76 AT ROW 11 COL 145 WIDGET-ID 254
-     "Backups" VIEW-AS TEXT
-          SIZE 16 BY .76 AT ROW 4.57 COL 141 WIDGET-ID 278
-     "EnvAdmin" VIEW-AS TEXT
-          SIZE 16 BY .76 AT ROW 3.86 COL 145 WIDGET-ID 270
-     "Resources" VIEW-AS TEXT
-          SIZE 16 BY .76 AT ROW 6.71 COL 145 WIDGET-ID 266
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 1
+         SIZE 166.2 BY 32.57 WIDGET-ID 100.
+
+/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
+DEFINE FRAME DEFAULT-FRAME
+     "Select one or more to upgrade." VIEW-AS TEXT
+          SIZE 32 BY .62 AT ROW 14.57 COL 10 WIDGET-ID 490
+     "PO" VIEW-AS TEXT
+          SIZE 16 BY .76 AT ROW 18.14 COL 147 WIDGET-ID 202
+     "Environment tasks - will be performed once for each ENVIRONMENT selected above" VIEW-AS TEXT
+          SIZE 86 BY .62 AT ROW 23.38 COL 11 WIDGET-ID 500
+     "Patch<n>" VIEW-AS TEXT
+          SIZE 16 BY .76 AT ROW 24.57 COL 145 WIDGET-ID 196
+     "Databases" VIEW-AS TEXT
+          SIZE 16 BY .76 AT ROW 7.43 COL 141 WIDGET-ID 282
      "MenuFiles" VIEW-AS TEXT
           SIZE 16 BY .76 AT ROW 28.86 COL 148 WIDGET-ID 184
      "CustFiles" VIEW-AS TEXT
@@ -931,76 +1003,22 @@ DEFINE FRAME DEFAULT-FRAME
           SIZE 49 BY .62 AT ROW 14.57 COL 55 WIDGET-ID 492
      "Resources" VIEW-AS TEXT
           SIZE 16 BY .76 AT ROW 19.57 COL 147 WIDGET-ID 206
-     "Database" VIEW-AS TEXT
-          SIZE 16 BY .76 AT ROW 5.29 COL 145 WIDGET-ID 264
+     "SQLAccess" VIEW-AS TEXT
+          SIZE 16 BY .76 AT ROW 31 COL 148 WIDGET-ID 292
      " Your Directory Structure" VIEW-AS TEXT
           SIZE 30 BY .62 AT ROW 1.48 COL 111 WIDGET-ID 140
           FONT 6
-     "Install" VIEW-AS TEXT
-          SIZE 16 BY .76 AT ROW 23.14 COL 141 WIDGET-ID 178
-     "Compress" VIEW-AS TEXT
-          SIZE 16 BY .76 AT ROW 26 COL 148 WIDGET-ID 186
-     "Admin" VIEW-AS TEXT
-          SIZE 16 BY .76 AT ROW 2.19 COL 141 WIDGET-ID 172
-     "Admin" VIEW-AS TEXT
-          SIZE 7 BY .76 AT ROW 2.19 COL 141 WIDGET-ID 170
-     "Template" VIEW-AS TEXT
-          SIZE 16 BY .76 AT ROW 21 COL 147 WIDGET-ID 288
-     "DbAdmin" VIEW-AS TEXT
-          SIZE 10 BY .76 AT ROW 2.91 COL 145 WIDGET-ID 284
-     "DataFiles" VIEW-AS TEXT
-          SIZE 16 BY .76 AT ROW 26.71 COL 148 WIDGET-ID 188
-     "ProgramFiles" VIEW-AS TEXT
-          SIZE 16 BY .76 AT ROW 29.57 COL 148 WIDGET-ID 180
-     "DataUpdate" VIEW-AS TEXT
-          SIZE 16 BY .76 AT ROW 27.43 COL 148 WIDGET-ID 190
-    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1
-         SIZE 166.2 BY 32.57 WIDGET-ID 100.
-
-/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
-DEFINE FRAME DEFAULT-FRAME
-     "Desktop" VIEW-AS TEXT
-          SIZE 16 BY .76 AT ROW 28.14 COL 148 WIDGET-ID 192
-     "Prod" VIEW-AS TEXT
-          SIZE 16 BY .76 AT ROW 9.57 COL 145 WIDGET-ID 250
-     "Override" VIEW-AS TEXT
-          SIZE 16 BY .76 AT ROW 17.43 COL 147 WIDGET-ID 214
-     "Data" VIEW-AS TEXT
-          SIZE 16 BY .76 AT ROW 8.86 COL 145 WIDGET-ID 256
-     "Documentation" VIEW-AS TEXT
-          SIZE 16 BY .76 AT ROW 13.14 COL 141 WIDGET-ID 248
-     "Audit" VIEW-AS TEXT
-          SIZE 16 BY .76 AT ROW 8.14 COL 145 WIDGET-ID 488
-     " Databases" VIEW-AS TEXT
-          SIZE 15 BY .62 AT ROW 10.05 COL 56 WIDGET-ID 482
-          FONT 6
      "Ship" VIEW-AS TEXT
           SIZE 16 BY .76 AT ROW 10.29 COL 145 WIDGET-ID 252
-     "Admin" VIEW-AS TEXT
-          SIZE 16 BY .76 AT ROW 25.29 COL 148 WIDGET-ID 198
-     "Users" VIEW-AS TEXT
-          SIZE 16 BY .76 AT ROW 22.43 COL 147 WIDGET-ID 218
-     "SQLAccess" VIEW-AS TEXT
-          SIZE 16 BY .76 AT ROW 31 COL 148 WIDGET-ID 292
      "UserMenu" VIEW-AS TEXT
           SIZE 16 BY .76 AT ROW 21.71 COL 147 WIDGET-ID 200
-     "Databases" VIEW-AS TEXT
-          SIZE 16 BY .76 AT ROW 7.43 COL 141 WIDGET-ID 282
-     "Addon" VIEW-AS TEXT
-          SIZE 16 BY .76 AT ROW 15.29 COL 147 WIDGET-ID 216
-     " Patch Processing" VIEW-AS TEXT
-          SIZE 23 BY .62 AT ROW 15.76 COL 8 WIDGET-ID 456
+     "StructureUpdate" VIEW-AS TEXT
+          SIZE 16 BY .76 AT ROW 31.71 COL 148 WIDGET-ID 296
+     " General Variables" VIEW-AS TEXT
+          SIZE 22 BY .62 AT ROW 1.48 COL 8 WIDGET-ID 356
           FONT 6
-     "Admin" VIEW-AS TEXT
-          SIZE 16 BY .76 AT ROW 2.19 COL 141 WIDGET-ID 174
-     "Programs" VIEW-AS TEXT
-          SIZE 16 BY .76 AT ROW 18.86 COL 147 WIDGET-ID 204
-     "Patch<n>" VIEW-AS TEXT
-          SIZE 16 BY .76 AT ROW 24.57 COL 145 WIDGET-ID 196
-     "Select one or more to upgrade." VIEW-AS TEXT
-          SIZE 32 BY .62 AT ROW 14.57 COL 10 WIDGET-ID 490
+     "Users" VIEW-AS TEXT
+          SIZE 16 BY .76 AT ROW 22.43 COL 147 WIDGET-ID 218
      RECT-1 AT ROW 1.71 COL 109 WIDGET-ID 354
      RECT-2 AT ROW 1.71 COL 5 WIDGET-ID 358
      RECT-3 AT ROW 10.29 COL 5 WIDGET-ID 362
@@ -1017,7 +1035,6 @@ DEFINE FRAME DEFAULT-FRAME
 /* Settings for THIS-PROCEDURE
    Type: Window
    Allow: Basic,Browse,DB-Fields,Window,Query
-   Other Settings: COMPILE
  */
 &ANALYZE-RESUME _END-PROCEDURE-SETTINGS
 
@@ -1117,7 +1134,7 @@ OR ENDKEY OF {&WINDOW-NAME} ANYWHERE DO:
   /* This case occurs when the user presses the "Esc" key.
      In a persistently run window, just ignore this.  If we did not, the
      application would exit. */
-    IF USERID(LDBNAME(1)) EQ "" THEN QUIT.
+    IF USERID(LDBNAME(1)) EQ "" THEN RETURN.
   IF THIS-PROCEDURE:PERSISTENT THEN RETURN NO-APPLY.
 END.
 
@@ -1130,7 +1147,6 @@ ON WINDOW-CLOSE OF C-Win /* ASI Install/Update Processor */
 DO:
   /* This event will close the window and terminate the procedure.  */
   APPLY "CLOSE":U TO THIS-PROCEDURE.
-    QUIT.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1153,7 +1169,11 @@ END.
 ON CHOOSE OF bProcess IN FRAME DEFAULT-FRAME /* Start  Update */
 DO:
     RUN ipProcessAll.
-    RETURN NO-APPLY.
+    IF CONNECTED(LDBNAME(2)) THEN
+        DISCONNECT VALUE(LDBNAME(2)).
+    IF CONNECTED(LDBNAME(1)) THEN
+        DISCONNECT VALUE(LDBNAME(1)).
+    APPLY "CLOSE":U TO THIS-PROCEDURE.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1219,7 +1239,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE
     RUN ipSetDispVars.
 
     RUN ipValidateDB (OUTPUT lValidDB).
-    IF NOT lValidDB THEN QUIT.
+    IF NOT lValidDB THEN RETURN.
 
     IF ipiLevel GT 10 THEN ASSIGN
         fiLicensedUsers:SENSITIVE = TRUE
@@ -1248,7 +1268,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE
     APPLY 'value-changed' TO slEnvironments.
     
     ASSIGN
-        tbBackupDBs:CHECKED = TRUE
+        tbBackupDBs:CHECKED = iplNeedBackup
         tbUserControl:CHECKED = TRUE
         tbUserCleanup:CHECKED = TRUE
         tbDelBadData:CHECKED = TRUE
@@ -1275,13 +1295,11 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE
         DISABLE ALL EXCEPT bProcess WITH FRAME {&FRAME-NAME}.
         APPLY 'choose' to bProcess.
     END.
-    
+    ELSE
     IF NOT THIS-PROCEDURE:PERSISTENT THEN
         WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
-    
-IF KEYFUNCTION(LASTKEY) = "END-ERROR" THEN QUIT.
-
+RETURN.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -1670,7 +1688,8 @@ PROCEDURE ipBackupDBs :
                        cDbBackup + "\" + cLocName + 
                        STRING(YEAR(TODAY)) +
                        STRING(MONTH(TODAY),"99") +
-                       STRING(DAY(TODAY),"99") + ".bak".
+                       STRING(DAY(TODAY),"99") + 
+                       STRING(TIME) + ".bak".
         ELSE ASSIGN
             cCmdLine = fiDlcDir:{&SV} + "\bin\probkup online " + 
                        fiDBDrive:{&SV} + "\" + 
@@ -1680,7 +1699,8 @@ PROCEDURE ipBackupDBs :
                        cDbBackup + "\" + cLocName + 
                        STRING(YEAR(TODAY)) +
                        STRING(MONTH(TODAY),"99") +
-                       STRING(DAY(TODAY),"99") + ".bak".
+                       STRING(DAY(TODAY),"99") + 
+                       STRING(TIME) + ".bak".
     
         RUN ipStatus ("  Backing Up " + ENTRY(iCtr,slDatabases:{&SV})).
         OS-COMMAND SILENT VALUE(cCmdLine).
@@ -2099,9 +2119,8 @@ DEF VAR lContinue AS LOG INITIAL TRUE NO-UNDO.
 
 INPUT FROM VALUE(cAdminDir + "\advantzware.usr").
 REPEAT:
-    IMPORT cLine.
+    IMPORT UNFORMATTED cLine.
     IF ENTRY(2,cLine,"|") EQ "*" THEN DO:
-        RUN ipStatus ("Conversion already done").
         ASSIGN
             lContinue = FALSE.
         RETURN.
@@ -2129,10 +2148,8 @@ FOR EACH ttUsers:
         IF INDEX(cenvlist,ENTRY(i,ttfenvlist)) EQ 0 THEN ASSIGN
             cenvlist = cenvlist + ENTRY(i,ttfenvlist) + ",".
     END.
-    DO i = 1 TO NUM-ENTRIES(ttfdblist):
-        IF INDEX(cdblist,ENTRY(i,ttfdblist)) EQ 0 THEN ASSIGN
-            cdblist = cdblist + ENTRY(i,ttfdblist) + ",".
-    END.  
+    IF INDEX(cdblist,ttfDbName) EQ 0 THEN ASSIGN
+        cdblist = cdblist + ttfDbName + ",".
 END.
 
 ASSIGN
@@ -2198,7 +2215,6 @@ DO j = 1 TO NUM-ENTRIES(cdblist):
     END.
 END.
 OUTPUT CLOSE.  
- 
  
 END PROCEDURE.
 
@@ -2308,8 +2324,8 @@ PROCEDURE ipCopyDirs :
             OS-COPY VALUE(FILE-INFO:FILE-NAME) VALUE(ipcTgtDir).
         END.
         ELSE DO:
-            OS-CREATE-DIR VALUE(cEnvProdDir + "\" + cFileStream).
-            RUN ipCopyDirs IN THIS-PROCEDURE (FILE-INFO:FILE-NAME,ipcTgtDir + FILE-INFO:FILE-NAME).
+            OS-CREATE-DIR VALUE(ipcTgtDir + "\" + cFileStream).
+            RUN ipCopyDirs IN THIS-PROCEDURE (FILE-INFO:FILE-NAME,ipcTgtDir + "\" + cFileStream).
         END.
     END.
 
@@ -2477,6 +2493,8 @@ PROCEDURE ipDataFix :
         RUN ipDataFix160704.
     IF intVer(cThisEntry) LT 160708 THEN
         RUN ipDataFix160708.
+    IF intVer(cThisEntry) LT 160712 THEN
+        RUN ipDataFix160712.
 
     RUN ipStatus ("Completed Data Fixes...").
 
@@ -2634,7 +2652,6 @@ PROCEDURE ipDataFix160704 :
   Notes:       
 ------------------------------------------------------------------------------*/
     DISABLE TRIGGERS FOR LOAD OF job-code.
-    DISABLE TRIGGERS FOR LOAD OF reftable1.
     DISABLE TRIGGERS FOR LOAD OF oe-rel.
        
     RUN ipStatus ("  Data Fix 160704...").
@@ -2656,18 +2673,6 @@ PROCEDURE ipDataFix160704 :
             job-code.dmiID = job-code.dmiID + 100.
     END.
     
-    /* Ticket 27898 */
-    FOR EACH reftable1 EXCLUSIVE WHERE
-        reftable1.reftable EQ 'oe-rel.s-code' AND 
-        reftable1.val[1] NE 1,
-        FIRST oe-rel EXCLUSIVE WHERE
-            oe-rel.r-no EQ integer(reftable1.company) AND 
-            oe-rel.s-code NE reftable1.code:
-        ASSIGN 
-            reftable1.val[1] = 1
-            oe-rel.s-code = reftable1.code.
-    END.
-    
     RUN ipConvQtyPerSet.
     
 END PROCEDURE.
@@ -2685,7 +2690,69 @@ PROCEDURE ipDataFix160708 :
 
     RUN ipStatus ("  Data Fix 160708...").
 
+    
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipDataFix160712 C-Win 
+PROCEDURE ipDataFix160712 :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DISABLE TRIGGERS FOR LOAD OF oe-rel.
+
+    RUN ipStatus ("  Data Fix 160712...").
+
     RUN ipConvertUsrFile.
+    RUN ipTurnOffUserColors.
+    RUN ipFixPoEdiDirs.
+    
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipDataFix160712 C-Win 
+PROCEDURE ipDataFix160712 :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DISABLE TRIGGERS FOR LOAD OF reftable1.
+    DISABLE TRIGGERS FOR LOAD OF oe-rel.
+       
+    RUN ipStatus ("  Data Fix 160712...").
+
+       
+    /* Ticket 32053 */
+    FOR EACH reftable1 WHERE reftable1.reftable = "oe-rel.lot-no"
+            NO-LOCK:
+            DO TRANSACTION:    
+                FIND FIRST oe-rel WHERE oe-rel.r-no = int(reftable1.company)
+                    EXCLUSIVE-LOCK NO-ERROR.
+                IF AVAILABLE oe-rel THEN    
+                DO: 
+                    IF oe-rel.lot-no EQ "" THEN ASSIGN oe-rel.lot-no = reftable1.code.
+                    IF oe-rel.frt-pay EQ "" THEN ASSIGN oe-rel.frt-pay = reftable1.code2.
+                    IF oe-rel.fob-code EQ "" THEN ASSIGN oe-rel.fob-code = reftable1.dscr.
+                    ASSIGN iProcessCount = iProcessCount + 1.
+                    EXPORT DELIMITER ","
+                       oe-rel.r-no
+                       oe-rel.lot-no
+                       oe-rel.frt-pay
+                       oe-rel.fob-code.
+                END.   
+                FIND CURRENT oe-rel NO-LOCK NO-ERROR.    
+                RELEASE oe-rel. 
+              END.  
+    END.             
+    
+    RUN ipConvQtyPerSet.
     
 END PROCEDURE.
 
@@ -3137,6 +3204,45 @@ PROCEDURE ipFindIniFile :
         ASSIGN
             cIniLoc = "".
     END.
+    
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipFixPoEdiDirs C-Win 
+PROCEDURE ipFixPoEdiDirs :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEF VAR cTestLoc AS CHAR NO-UNDO.
+    
+    RUN ipStatus(" Fix file locations for PO EDI").
+    
+    /* The correct target for this dir is <env>\CustFiles\EDIfiles\PO */
+    /* Is it already correct? */
+    ASSIGN
+        cTestLoc = cEnvDir + "\" + ENTRY(1,slEnvironments:{&SV},"-") + "\CustFiles\EDIfiles\POs\poexport.dat".
+    IF SEARCH(cTestLoc) NE ? THEN
+        RETURN.        
+        
+    /* Is it in /Customers folder? */
+    ASSIGN
+        cTestLoc = cEnvDir + "\" + ENTRY(1,slEnvironments:{&SV},"-") + "\Customer\PO\poexport.dat".
+    IF SEARCH(cTestLoc) NE ? THEN DO:
+        RUN ipCopyDirs (cEnvDir + "\" + ENTRY(1,slEnvironments:{&SV},"-") + "\Customer\PO",
+                        cEnvDir + "\" + ENTRY(1,slEnvironments:{&SV},"-") + "\CustFiles\EDIfiles\POs").
+        RETURN.
+    END.
+    
+    /* Is it in /PO? */
+    ASSIGN
+        cTestLoc = cEnvDir + "\" + ENTRY(1,slEnvironments:{&SV},"-") + "\PO\poexport.dat".
+    IF SEARCH(cTestLoc) NE ? THEN 
+        RUN ipCopyDirs (cEnvDir + "\" + ENTRY(1,slEnvironments:{&SV},"-") + "\PO",
+                        cEnvDir + "\" + ENTRY(1,slEnvironments:{&SV},"-") + "\CustFiles\EDIfiles\POs").
     
 END PROCEDURE.
 
@@ -4114,8 +4220,11 @@ PROCEDURE ipRefTableConv :
     DEF VAR cOrigPropath AS CHAR NO-UNDO.
     DEF VAR cNewPropath AS CHAR NO-UNDO.
     DEF VAR cThisElement AS CHAR NO-UNDO.
+    DISABLE TRIGGERS FOR LOAD OF reftable1.
+    DISABLE TRIGGERS FOR LOAD OF oe-rel.
     
-    IF ipiLevel GT 10 THEN DO:
+    /*
+    IF ipiLevel LT 10 THEN DO:
         MESSAGE
             "WARNING - RefTable Conversion Time:" SKIP(1)
             "This operation can potentially take several hours to complete," SKIP
@@ -4132,7 +4241,8 @@ PROCEDURE ipRefTableConv :
             RETURN.
         END.
     END.
-
+    */
+    
     RUN ipStatus ("Converting Reftable records...").
 
     DO iCtr = 1 TO NUM-ENTRIES(slEnvironments:{&SV}):
@@ -4148,6 +4258,55 @@ PROCEDURE ipRefTableConv :
         ASSIGN
             PROPATH = cOrigPropath.
     END.
+
+    /* Ticket 27898 */
+    RUN ipStatus ("   Ticket 27898 oe-rel.s-code").
+    FOR EACH reftable1 EXCLUSIVE WHERE
+        reftable1.reftable EQ 'oe-rel.s-code' AND 
+        reftable1.val[1] NE 1,
+        FIRST oe-rel EXCLUSIVE WHERE
+            oe-rel.r-no EQ integer(reftable1.company) AND 
+            oe-rel.s-code NE reftable1.code:
+        ASSIGN 
+            reftable1.val[1] = 1
+            oe-rel.s-code = reftable1.code.
+    END.
+
+    /* Ticket 32053 - oe-rel customer lot number */
+    RUN ipStatus ("   Ticket 32053 oe-rel.lot-no").
+    OUTPUT TO c:\tmp\reftable-oe-rel.txt.
+    FOR EACH reftable1 EXCLUSIVE WHERE 
+        reftable1.reftable = "oe-rel.lot-no" AND
+        reftable1.spare-char-1 NE "1" AND
+        reftable1.spare-char-2 NE "1" AND
+        reftable1.spare-char-3 NE "1":
+        FIND FIRST oe-rel EXCLUSIVE WHERE
+            oe-rel.r-no = INT(reftable1.company)
+            NO-ERROR.
+        IF AVAILABLE oe-rel THEN DO: 
+            IF oe-rel.lot-no EQ "" 
+            AND reftable1.code NE "" THEN DO:
+                EXPORT oe-rel.
+                ASSIGN 
+                    oe-rel.lot-no = reftable1.code
+                    reftable1.spare-char-1 = "1".
+            END.
+            IF oe-rel.frt-pay EQ "" 
+            AND reftable1.code2 NE "" THEN DO:
+                EXPORT oe-rel.
+                ASSIGN 
+                    oe-rel.frt-pay = reftable1.code2
+                    reftable1.spare-char-2 = "1".
+            END.
+            IF oe-rel.fob-code EQ "" 
+            AND reftable1.dscr NE "" THEN DO:
+                EXPORT oe-rel.
+                ASSIGN 
+                    oe-rel.fob-code = reftable1.dscr
+                    reftable1.spare-char-3 = "1".
+            END.
+        END.   
+    END.  /*FOR EACH reftable1*/  
 
 END PROCEDURE.
 
@@ -4325,6 +4484,8 @@ PROCEDURE ipSetAdminPwd :
             _User._UserId = "ADMIN"
             _User._Password = ENCODE("admin").
     END.
+    
+    RELEASE _user.
 
 END PROCEDURE.
 
@@ -4360,6 +4521,7 @@ PROCEDURE ipSetAsiPwd :
             _User._Password = "ifaOfSAcSdialAkd".
     END.
 
+    RELEASE _user.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -4372,6 +4534,8 @@ PROCEDURE ipSetDispVars :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+    DEF VAR cCheck AS CHAR NO-UNDO.
+    
     DO:
         ASSIGN
             slEnvironments:LIST-ITEMS IN FRAME {&FRAME-NAME}= ""
@@ -4484,8 +4648,19 @@ PROCEDURE ipSetDispVars :
 
     ASSIGN
         slDatabases:{&SV} = ENTRY(1,slDatabases:LIST-ITEMS)
-        slEnvironments:{&SV} = ENTRY(1,slEnvironments:LIST-ITEMS)
+        slEnvironments:{&SV} = ?
         fiPatchDir:{&SV} = "PATCH" + fiNewVer:{&SV}.
+
+    IF INDEX(slDatabases:{&SV},"Test") NE 0 THEN ASSIGN
+        cCheck = "Test".
+    ELSE IF INDEX(slDatabases:{&SV},"Prod") NE 0 THEN ASSIGN
+        cCheck = "Prod".
+    
+    DO iCtr = 1 to NUM-ENTRIES(slEnvironments:LIST-ITEMS):
+        IF INDEX(ENTRY(iCtr,slEnvironments:LIST-ITEMS),cCheck) NE 0 THEN ASSIGN
+            slEnvironments:{&SV} = ENTRY(iCtr,slEnvironments:LIST-ITEMS).
+    END.
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -4505,7 +4680,7 @@ PROCEDURE ipStatus :
 
     IF INDEX(ipcStatus,"duplicate") EQ 0 THEN DO:
         ASSIGN
-            cLogFile = cUpdatesDir + "\" + "Patch" + fiNewVer:{&SV} + "\installLog.txt"
+            cLogFile = cEnvAdmin + "\UpdateLog.txt"
             iMsgCtr = iMsgCtr + 1
             cMsgStr[iMsgCtr] = ipcStatus + "...".
         
@@ -5113,6 +5288,28 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipTurnOffUserColors C-Win 
+PROCEDURE ipTurnOffUserColors :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    RUN ipStatus(" Turn off user colors/fonts").
+    
+    DISABLE TRIGGERS FOR LOAD OF users.
+    
+    FOR EACH users:
+        ASSIGN
+            users.use_colors = FALSE
+            users.use_fonts = FALSE.
+    END.
+    
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipUpdateMaster C-Win 
 PROCEDURE ipUpdateMaster :
 /*------------------------------------------------------------------------------
@@ -5165,7 +5362,17 @@ PROCEDURE ipUpdateNK1s :
     
     /* Verify system help WSDL NK1 */
     FIND FIRST sys-ctrl WHERE
-        sys-ctrl.name EQ "AsiHelpServices"
+        sys-ctrl.name EQ "AsiHelpService"
+        NO-ERROR.
+    IF AVAIL sys-ctrl THEN ASSIGN
+        sys-ctrl.char-fld = "-WSDL 'http:\\34.203.15.64/asihelpServices/helpmaintenance.asmx?WSDL'".
+    FIND FIRST sys-ctrl WHERE
+        sys-ctrl.name EQ "AsiHelpService"
+        NO-ERROR.
+    IF AVAIL sys-ctrl THEN ASSIGN
+        sys-ctrl.char-fld = "-WSDL 'http:\\34.203.15.64/asihelpServices/helpmaintenance.asmx?WSDL'".
+    FIND FIRST sys-ctrl WHERE
+        sys-ctrl.name EQ "AsiHelpService"
         NO-ERROR.
     IF AVAIL sys-ctrl THEN ASSIGN
         sys-ctrl.char-fld = "-WSDL 'http:\\34.203.15.64/asihelpServices/helpmaintenance.asmx?WSDL'".
@@ -5191,6 +5398,15 @@ PROCEDURE ipUpdateNK1s :
     AND sys-ctrl.char-fld EQ "" THEN ASSIGN
         sys-ctrl.char-fld = "Bill and Ship".
 
+    /* Zoho Support Button */
+    FIND FIRST sys-ctrl WHERE
+        sys-ctrl.name EQ "MenuLinkZoho"
+        NO-ERROR.
+    IF AVAIL sys-ctrl 
+    AND sys-ctrl.descrip EQ "" THEN ASSIGN
+        sys-ctrl.descrip = "https://desk.zoho.com/portal/advantzware/kb"
+        sys-ctrl.char-fld = "Graphics\32x32\question.ico"
+        sys-ctrl.log-fld = TRUE.
         
     /* - future: update CustFile locations
     FOR EACH sys-ctrl WHERE
@@ -5364,6 +5580,7 @@ PROCEDURE ipUpdateUserControl :
     END.
     ASSIGN
         tbComp-1:CHECKED = TRUE.
+    RELEASE usercontrol.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

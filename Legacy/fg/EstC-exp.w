@@ -58,14 +58,14 @@ ASSIGN cTextListToSelect = "Estimate#,Est Date,Cust #,Ship To,Cust Part#,Item De
                            "L#Up,# Up,Die Inches,Inks/Form,Passes/Form,Coatings/Form,Coat Passes/Form,Purch/Manuf," +
                            "Case Code,Case Width,Case Length,Case Depth,Blank W,Blank L,Grs Sht W,Grs Sht L,GS W Out,GS L  Out," +
                            "Ink1,Ink2,Ink3,Ink4,Ink5,Ink6,Ink7,Ink8,Ink9,Ink10,Mach1,Mach2,Mach3,Mach4,Mach5,Mach6,March7,Mach8,Mach9,Mach10," +
-                           "1st ID,Last ID,Created Date,Last Updated Date,Unit Count,Units/Pallet,Pallet Count,Sales Rep,Sales Rep Name"
+                           "1st ID,Last ID,Created Date,Last Updated Date,Unit Count,Units/Pallet,Pallet Count,Sales Rep,Sales Rep Name,Yield Qty"
       cFieldListToSelect = "est-no,est-date,cust-no,ship-id,part-no,part-dscr1,stock-no,bl-qty,style,board," +
-                           "cal,procat,len,wid,dep,cust-%,i-col,i-coat,form-no,blank-no,num-wid," +
+                           "cal,procat,len,wid,dep,qty-set,i-col,i-coat,form-no,blank-no,num-wid," +
                            "num-len,num-up,die-in,f-col,f-pass,f-coat,f-coat-p,pur-man," +
                            "cas-no,cas-wid,cas-len,cas-dep,t-wid,t-len,gsh-wid,gsh-len,n-out,n-out-l," +
                            "i-code2[1],i-code2[2],i-code2[3],i-code2[4],i-code2[5],i-code2[6],i-code2[7],i-code2[8],i-code2[9],i-code2[10]," +
                            "m-code2[1],m-code2[2],m-code2[3],m-code2[4],m-code2[5],m-code2[6],m-code2[7],m-code2[8],m-code2[9],m-code2[10]," +
-                           "entered-id,updated-id,create-date,update-date,unt-cnt,unt-plt,plt-cnt,sales-rep,sales-rep-name".
+                           "entered-id,updated-id,create-date,update-date,unt-cnt,unt-plt,plt-cnt,sales-rep,sales-rep-name,yld-qty".
 {sys/inc/ttRptSel.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -811,9 +811,9 @@ FOR EACH b-est WHERE b-est.company = gcompany
     EACH bf-eb WHERE bf-eb.company = gcompany
     AND bf-eb.est-no = b-est.est-no NO-LOCK BY bf-eb.form-no :
     
- 
-
-
+    IF INT(b-est.est-no) GT INT(end_est)
+    OR INT(b-est.est-no) LT INT(begin_est) THEN 
+        NEXT.
   
     v-excel-detail-lines = "".
 
@@ -1042,9 +1042,9 @@ FUNCTION getValue-estf RETURNS CHARACTER
             IF AVAIL eb THEN
             lc-return = string(eb.dep).
         END.
-        WHEN "cust-%"  THEN DO:
+        WHEN "qty-set"  THEN DO:
             IF AVAIL eb THEN
-            lc-return = string(eb.cust-%).
+            lc-return = string(eb.quantityPerSet,">>>>9.9<<<<").
         END.
         WHEN "i-col"  THEN DO:
             IF AVAIL eb THEN
@@ -1247,6 +1247,11 @@ FUNCTION getValue-estf RETURNS CHARACTER
             IF AVAIL sman THEN
             lc-return = sman.sname.
         END.
+        WHEN "yld-qty"  THEN DO:
+            IF AVAIL eb THEN
+            lc-return = STRING(eb.yld-qty).
+        END.
+        
         OTHERWISE DO:
             IF INDEX(ipc-field,"[") > 0 THEN DO:
                 li-extent = INT(SUBSTRING(ipc-field,INDEX(ipc-field,"[") + 1, LENGTH(TRIM(ipc-field)) - INDEX(ipc-field,"[") - 1)).

@@ -41,8 +41,9 @@ CREATE WIDGET-POOL.
 /* Local Variable Definitions ---                                       */
 
 DEFINE VARIABLE resourceValue AS CHARACTER NO-UNDO.
-DEFINE VARIABLE popupHandle AS HANDLE NO-UNDO.
-DEFINE VARIABLE ttblJobRowID AS ROWID NO-UNDO.
+DEFINE VARIABLE popupHandle   AS HANDLE    NO-UNDO.
+DEFINE VARIABLE ttblJobRowID  AS ROWID     NO-UNDO.
+DEFINE VARIABLE checkoffIdx   AS INTEGER   NO-UNDO.
 
 {{&viewers}/includes/browseDef.i}
 
@@ -91,8 +92,9 @@ DEFINE VARIABLE ttblJobRowID AS ROWID NO-UNDO.
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS jobPhrase resources btnUpdatesPending ~
-customCheckoffValue browseJob 
-&Scoped-Define DISPLAYED-OBJECTS jobPhrase resources customCheckoffValue 
+customCheckoffValue browseJob checkoffList btnToggleON btnToggleOFF 
+&Scoped-Define DISPLAYED-OBJECTS jobPhrase resources customCheckoffValue ~
+checkoffList 
 
 /* Custom List Definitions                                              */
 /* ttblResourceFields,phraseFields,List-3,List-4,List-5,List-6          */
@@ -108,9 +110,24 @@ customCheckoffValue browseJob
 
 
 /* Definitions of the field level widgets                               */
+DEFINE BUTTON btnToggleOFF 
+     LABEL "Toggle Status OFF" 
+     SIZE 21 BY 1.
+
+DEFINE BUTTON btnToggleON 
+     LABEL "Toggle Status ON" 
+     SIZE 21 BY 1.
+
 DEFINE BUTTON btnUpdatesPending 
      LABEL "Send Changes to Scheduler" 
      SIZE 31 BY 1.
+
+DEFINE VARIABLE checkoffList AS CHARACTER FORMAT "X(256)":U 
+     LABEL "Status Checkoff" 
+     VIEW-AS COMBO-BOX INNER-LINES 5
+     LIST-ITEMS "Item 1" 
+     DROP-DOWN-LIST
+     SIZE 23 BY 1 NO-UNDO.
 
 DEFINE VARIABLE resources AS CHARACTER FORMAT "X(256)":U INITIAL "<Select ...>" 
      LABEL "&Resource" 
@@ -148,20 +165,20 @@ DEFINE BROWSE browseJob
   ttblJob.job LABEL-BGCOLOR 14
   ttblJob.resource
   ttblJob.jobType FORMAT 'X' LABEL 'T'
-  ttblJob.jobStatus[1]
-  ttblJob.jobStatus[2]
-  ttblJob.jobStatus[3]
-  ttblJob.jobStatus[4]
-  ttblJob.jobStatus[5]
-  ttblJob.jobStatus[6]
-  ttblJob.jobStatus[7]
-  ttblJob.jobStatus[8]
-  ttblJob.jobStatus[9]
-  ttblJob.jobStatus[10]
-  ttblJob.jobStatus[11]
-  ttblJob.jobStatus[12]
-  ttblJob.jobStatus[13]
-  ttblJob.jobStatus[14]
+  ttblJob.jobStatus[1] VIEW-AS TOGGLE-BOX
+  ttblJob.jobStatus[2] VIEW-AS TOGGLE-BOX
+  ttblJob.jobStatus[3] VIEW-AS TOGGLE-BOX
+  ttblJob.jobStatus[4] VIEW-AS TOGGLE-BOX
+  ttblJob.jobStatus[5] VIEW-AS TOGGLE-BOX
+  ttblJob.jobStatus[6] VIEW-AS TOGGLE-BOX
+  ttblJob.jobStatus[7] VIEW-AS TOGGLE-BOX
+  ttblJob.jobStatus[8] VIEW-AS TOGGLE-BOX
+  ttblJob.jobStatus[9] VIEW-AS TOGGLE-BOX
+  ttblJob.jobStatus[10] VIEW-AS TOGGLE-BOX
+  ttblJob.jobStatus[11] VIEW-AS TOGGLE-BOX
+  ttblJob.jobStatus[12] VIEW-AS TOGGLE-BOX
+  ttblJob.jobStatus[13] VIEW-AS TOGGLE-BOX
+  ttblJob.jobStatus[14] VIEW-AS TOGGLE-BOX
 ENABLE
   ttblJob.jobStatus[1]
   ttblJob.jobStatus[2]
@@ -179,19 +196,22 @@ ENABLE
   ttblJob.jobStatus[14]
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ROW-MARKERS SEPARATORS SIZE 149.6 BY 21.19.
+    WITH NO-ROW-MARKERS SEPARATORS SIZE 149.6 BY 20.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
      jobPhrase AT ROW 1.1 COL 4 COLON-ALIGNED
-     resources AT ROW 1.1 COL 27.8 HELP
+     resources AT ROW 1.1 COL 30.2 HELP
           "Select Resource"
      btnUpdatesPending AT ROW 1.1 COL 73
      customCheckoffValue AT ROW 1.1 COL 105 HELP
           "Select to Apply Checkoff to Whole Job vs. Each Resource"
      browseJob AT ROW 2.19 COL 1
+     checkoffList AT ROW 22.29 COL 17 COLON-ALIGNED WIDGET-ID 2
+     btnToggleON AT ROW 22.29 COL 43 WIDGET-ID 6
+     btnToggleOFF AT ROW 22.29 COL 65 WIDGET-ID 8
      RECT-1 AT ROW 1 COL 1
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -347,11 +367,44 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME btnToggleOFF
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnToggleOFF sObject
+ON CHOOSE OF btnToggleOFF IN FRAME F-Main /* Toggle Status OFF */
+DO:
+  RUN toggleStatus (NO).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnToggleON
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnToggleON sObject
+ON CHOOSE OF btnToggleON IN FRAME F-Main /* Toggle Status ON */
+DO:
+  RUN toggleStatus (YES).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME btnUpdatesPending
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnUpdatesPending sObject
 ON CHOOSE OF btnUpdatesPending IN FRAME F-Main /* Send Changes to Scheduler */
 DO:
   RUN updatesPending.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME checkoffList
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL checkoffList sObject
+ON VALUE-CHANGED OF checkoffList IN FRAME F-Main /* Status Checkoff */
+DO:
+  ASSIGN {&SELF-NAME}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -484,12 +537,15 @@ PROCEDURE getSBStatus :
   INPUT FROM VALUE('{&updates}\' + ID + '\updatesPending.dat') APPEND.
   REPEAT:
     IMPORT lvJobSequence lvJob lvResource lvType lvStatus.
-    FIND ttblJob EXCLUSIVE-LOCK WHERE ttblJob.job EQ lvJob
-                                  AND ttblJob.resource EQ lvResource NO-ERROR.
+    FIND ttblJob
+         WHERE ttblJob.job EQ lvJob
+            AND ttblJob.resource EQ lvResource
+         NO-ERROR.
     IF NOT AVAILABLE ttblJob THEN NEXT.
     ASSIGN
       ttblJob.startDate = fromDate
-      ttblJob.endDate = toDate.
+      ttblJob.endDate   = toDate
+      .
     DO i = 1 TO EXTENT(lvStatus):
       ttblJob.jobStatus[i] = lvStatus[i].
     END.
@@ -520,9 +576,10 @@ PROCEDURE local-initialize :
     BUFFER-COPY pendingJob EXCEPT jobType TO ttblJob
       ASSIGN
         ttblJob.jobSequence = 999
-        ttblJob.jobType = 'P'
-        ttblJob.startDate = {{&includes}/firstDate.i}
-        ttblJob.endDate = {{&includes}/lastDate.i}.
+        ttblJob.jobType     = 'P'
+        ttblJob.startDate   = {{&includes}/firstDate.i}
+        ttblJob.endDate     = {{&includes}/lastDate.i}
+        .
   END.
   RUN setColorDynamic.
   RUN getConfiguration.
@@ -543,8 +600,10 @@ PROCEDURE sendChange :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  MESSAGE 'Send Changes to Scheduler before Closing?' VIEW-AS ALERT-BOX
-    QUESTION BUTTONS YES-NO UPDATE sendChange AS LOGICAL.
+  MESSAGE
+    'Send Changes to Scheduler before Closing?'
+  VIEW-AS ALERT-BOX
+  QUESTION BUTTONS YES-NO UPDATE sendChange AS LOGICAL.
   IF sendChange THEN RUN updatesPending.
 
 END PROCEDURE.
@@ -561,15 +620,24 @@ PROCEDURE setCellLabels :
 ------------------------------------------------------------------------------*/
   DEFINE VARIABLE i AS INTEGER NO-UNDO.
 
+  checkoffList:LIST-ITEMS IN FRAME {&FRAME-NAME} = ?.
   DO i = 5 TO {&BROWSE-NAME}:NUM-COLUMNS IN FRAME {&FRAME-NAME}:
     ASSIGN
-      cellColumn[i] = {&BROWSE-NAME}:GET-BROWSE-COLUMN(i)
-      cellColumn[i]:LABEL = customLabel[i - 4]
+      cellColumn[i]               = {&BROWSE-NAME}:GET-BROWSE-COLUMN(i)
+      cellColumn[i]:LABEL         = customLabel[i - 4]
       cellColumn[i]:LABEL-BGCOLOR = customBGColor[i - 4]
       cellColumn[i]:LABEL-FGCOLOR = customFGColor[i - 4]
-      cellColumn[i]:WIDTH-CHARS = IF LENGTH(cellColumn[i]:LABEL) GT 4 THEN
-                                  LENGTH(cellColumn[i]:LABEL) * 1.2 ELSE 4.
-  END.
+      cellColumn[i]:WIDTH-CHARS   = IF LENGTH(cellColumn[i]:LABEL) GT 4 THEN
+                                    LENGTH(cellColumn[i]:LABEL) * 1.2 ELSE 4
+      .
+    IF cellColumn[i]:LABEL NE '' THEN
+    checkoffList:ADD-LAST(cellColumn[i]:LABEL).
+  END. /* do i */
+  ASSIGN
+    checkoffList:INNER-LINES  = checkoffList:NUM-ITEMS
+    checkoffList:SCREEN-VALUE = checkoffList:ENTRY(1)
+    checkoffList
+    .
 
 END PROCEDURE.
 
@@ -602,14 +670,35 @@ PROCEDURE setSendChange :
   DEFINE VARIABLE charHandle AS CHARACTER NO-UNDO.
   DEFINE VARIABLE pHandle AS HANDLE NO-UNDO.
   
-  IF VALID-HANDLE(adm-broker-hdl) THEN
-  DO:
+  IF VALID-HANDLE(adm-broker-hdl) THEN DO:
     RUN get-link-handle IN adm-broker-hdl
         (THIS-PROCEDURE,'CONTAINER-SOURCE':U,OUTPUT charHandle).
     pHandle = WIDGET-HANDLE(charHandle).
     IF VALID-HANDLE(pHandle) THEN
     RUN sendChange IN pHandle (ipSendChange).
   END. /* if valid-handle */
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE toggleStatus sObject 
+PROCEDURE toggleStatus :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEFINE INPUT PARAMETER iplToggle AS LOGICAL NO-UNDO.
+  
+  DO WITH FRAME {&FRAME-NAME}:
+    checkoffIdx = LOOKUP(checkoffList,checkoffList:LIST-ITEMS).
+    FOR EACH buffJob:
+      buffJob.jobStatus[checkoffIdx] = iplToggle.
+    END. /* each buffjob */
+    BROWSE {&BROWSE-NAME}:REFRESH().
+  END. /* with frame */
 
 END PROCEDURE.
 
@@ -633,15 +722,18 @@ PROCEDURE updateJob :
     IF ttblJob.jobStatus[i] NE statusValue[i] THEN
     ASSIGN
       ttblJob.sbStatus = YES
-      sendChange = YES.
+      sendChange = YES
+      .
   END. /* do i */
 
   IF sendChange THEN
   RUN setSendChange (sendChange).
 
   IF ttblJob.sbStatus AND customCheckoff THEN
-  FOR EACH buffJob EXCLUSIVE-LOCK WHERE buffJob.job EQ ttblJob.job
-                                    AND ROWID(buffJob) NE ROWID(ttblJob):
+  FOR EACH buffJob 
+      WHERE buffJob.job EQ ttblJob.job
+        AND ROWID(buffJob) NE ROWID(ttblJob)
+      :
     buffJob.sbStatus = YES.
     DO i = 1 TO 14:
       buffJob.jobStatus[i] = statusValue[i].

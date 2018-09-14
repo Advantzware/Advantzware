@@ -12,7 +12,8 @@ FUNCTION fnGetDLC RETURNS CHARACTER
 
 FUNCTION fnGetPhysicalDb RETURNS CHARACTER 
     (ipcDbName AS CHARACTER) FORWARD.
-    
+DEFINE VARIABLE lIsAnAdmin AS LOGICAL NO-UNDO.
+
 PROCEDURE postMonitor:
 /*------------------------------------------------------------------------------
   Purpose:     import montiored files, process files, post files
@@ -55,8 +56,8 @@ ASSIGN
      IF SEARCH(cMonitorFolder) EQ ? THEN 
        OS-CREATE-DIR VALUE(cMonitorFolder).
     IF SEARCH(cProcessedFolder) EQ ? THEN 
-        OS-CREATE-DIR VALUE(cMonitorFolder).       
-     INPUT FROM OS-DIR(cProcessedFolder) NO-ECHO.
+        OS-CREATE-DIR VALUE(cProcessedFolder).       
+     INPUT FROM OS-DIR(cMonitorFolder) NO-ECHO.
     REPEAT:
 
         IMPORT monitorFile ^ attrList.
@@ -126,6 +127,15 @@ ASSIGN
  
         cdb = fnGetPhysicalDb("ASI").
         FOR EACH userLog NO-LOCK WHERE userLog.logoutDateTime EQ ? :
+            FIND FIRST users NO-LOCK WHERE users.user_id EQ  userLog.user_id NO-ERROR.
+            IF NOT AVAILABLE users THEN 
+               NEXT.
+            RUN epCanAccessUser IN hPgmSecurity ("browsers/userlog.w", "", userLog.user_id, OUTPUT lIsAnAdmin).               
+                      
+            /* Don't log someone out who is an admin */
+            IF lIsAnAdmin  THEN 
+               NEXT.
+               
             /* Add logout hours to the users login time to get time when they should get logged out */ 
             dtNextLogoutTime =  ADD-INTERVAL (userLog.loginDateTime,  iAutoLogoutHours , "Hours") .
             IF DATETIME(TODAY, MTIME) GT dtNextLogoutTime THEN 

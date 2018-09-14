@@ -57,15 +57,14 @@ FOR EACH tt-boll,
         END.
         
          IF NOT LAST(tt-boll.cases) THEN do:
-        IF v-printline >= 62 THEN DO: 
+        IF v-printline >= 60 THEN DO: 
            v-printline = 0.
-           j = j - 30.
            PAGE {1}.
            {oe/rep/bolprem2.i}
         END.
         END.
         ELSE do:  
-             IF v-printline >= 45 THEN DO:
+             IF v-printline >= 48 THEN DO:
               v-printline = 0.
               PAGE {1}.
               {oe/rep/bolprem2.i}
@@ -186,7 +185,7 @@ FOR EACH tt-boll,
          v-grand-total-cases  = v-grand-total-cases + w2.cases
          v-printline = v-printline + 1.
          
-         IF NOT LAST(tt-boll.cases) THEN do:
+      /*   IF NOT LAST(tt-boll.cases) THEN do:
         IF v-printline >= 62 THEN DO: 
            v-printline = 0.
            j = j - 30.
@@ -200,7 +199,7 @@ FOR EACH tt-boll,
               PAGE {1}.
               {oe/rep/bolprem2.i}
           END.
-        END. 
+        END. */
          v-tot-cases = v-tot-cases + (w2.cases * w2.cas-cnt).
          DELETE w2.    
       END. /* each w2 */
@@ -233,22 +232,6 @@ FOR EACH tt-boll,
 
             IF v-part-dscr NE "" OR v-ord-po-no NE "" OR i LE 2 THEN DO:
                 
-              IF NOT LAST(tt-boll.cases) THEN do:
-                IF v-printline >= 62 THEN DO: 
-                   v-printline = 0.
-                   j = j - 30.
-                   PAGE {1}.
-                   {oe/rep/bolprem2.i}
-                END.
-                END.
-                ELSE do:   
-                     IF v-printline >= 45 THEN DO: 
-                      v-printline = 0.
-                      PAGE {1}.
-                      {oe/rep/bolprem2.i}
-                  END.
-                END.
-
               /* rstark 05181205 */
               XMLLineNumber = XMLLineNumber + 1.
               RUN XMLOutput (lXMLOutput,'BOLLine_' + STRING(XMLLineNumber),'','Row').
@@ -277,6 +260,21 @@ FOR EACH tt-boll,
       ASSIGN
          v-printline = v-printline + 1
          tt-boll.printed = yes.
+
+      IF NOT LAST(tt-boll.cases) THEN do:
+                IF v-printline >= 60 THEN DO: 
+                   v-printline = 0.
+                   PAGE {1}.
+                   {oe/rep/bolprem2.i}
+                END.
+                END.
+                ELSE do:   
+                     IF v-printline >= 49 THEN DO: 
+                      v-printline = 0.
+                      PAGE {1}.
+                      {oe/rep/bolprem2.i}
+                  END.
+                END.
   
       IF v-print-components AND itemfg.alloc NE YES THEN DO:
 
@@ -289,15 +287,14 @@ FOR EACH tt-boll,
             {sys/inc/part-qty.i v-part-qty fg-set}
 
             IF NOT LAST(tt-boll.cases) THEN do:
-            IF v-printline >= 62 THEN DO: 
+            IF v-printline >= 60 THEN DO: 
                v-printline = 0.
-               j = j - 30.
                PAGE {1}.
                {oe/rep/bolprem2.i}
             END.
             END.
             ELSE do:                           
-                 IF v-printline >= 45 THEN DO: 
+                 IF v-printline >= 48 THEN DO: 
                   v-printline = 0.
                   PAGE {1}.
                   {oe/rep/bolprem2.i}

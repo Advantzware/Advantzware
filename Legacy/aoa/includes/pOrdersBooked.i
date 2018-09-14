@@ -1,6 +1,6 @@
-/* pOrdersBooked.i - auto generated 11.03.2016 @ 12:47:52 am from aoa/aoaParam.w */
+/* pOrdersBooked.i - auto generated 08.29.2018 @ 10:09:58 am from AOA/aoaParam.w */
 
-    {aoa/includes/aoaInputDefParams.i}
+    {AOA/includes/aoaInputDefParams.i}
 
     /* parameter values loaded into these variables */
     DEFINE VARIABLE lCustList AS LOGICAL NO-UNDO.
@@ -11,6 +11,10 @@
     DEFINE VARIABLE cStartOrderDateOption AS CHARACTER NO-UNDO.
     DEFINE VARIABLE dtEndOrderDate AS DATE NO-UNDO.
     DEFINE VARIABLE cEndOrderDateOption AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE dtStartDueDate AS DATE NO-UNDO.
+    DEFINE VARIABLE cStartDueDateOption AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE dtEndDueDate AS DATE NO-UNDO.
+    DEFINE VARIABLE cEndDueDateOption AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lAllSalesRep AS LOGICAL NO-UNDO.
     DEFINE VARIABLE cStartSalesRep AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cEndSalesRep AS CHARACTER NO-UNDO.
@@ -43,6 +47,12 @@
         dtEndOrderDate = DATE(DYNAMIC-FUNCTION("fGetParamValue","svEndOrderDate"))
         cEndOrderDateOption = DYNAMIC-FUNCTION("fGetParamValue","svEndOrderDateOption")
         dtEndOrderDate = DYNAMIC-FUNCTION("fDateOptionDate",cEndOrderDateOption,dtEndOrderDate)
+        dtStartDueDate = DATE(DYNAMIC-FUNCTION("fGetParamValue","svStartDueDate"))
+        cStartDueDateOption = DYNAMIC-FUNCTION("fGetParamValue","svStartDueDateOption")
+        dtStartDueDate = DYNAMIC-FUNCTION("fDateOptionDate",cStartDueDateOption,dtStartDueDate)
+        dtEndDueDate = DATE(DYNAMIC-FUNCTION("fGetParamValue","svEndDueDate"))
+        cEndDueDateOption = DYNAMIC-FUNCTION("fGetParamValue","svEndDueDateOption")
+        dtEndDueDate = DYNAMIC-FUNCTION("fDateOptionDate",cEndDueDateOption,dtEndDueDate)
         lAllSalesRep = DYNAMIC-FUNCTION("fGetParamValue","svAllSalesRep") EQ "yes"
         cStartSalesRep = DYNAMIC-FUNCTION("fGetParamValue","svStartSalesRep")
         cEndSalesRep = DYNAMIC-FUNCTION("fGetParamValue","svEndSalesRep")

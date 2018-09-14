@@ -667,10 +667,11 @@ PROCEDURE do-ap-ledger :
           FIRST ap-pay
           WHERE ap-pay.company   EQ ap-ledger.company
             AND ap-pay.check-act EQ bank.actnum
-            AND ap-pay.check-no  EQ li
-            AND ap-pay.vend-no   EQ ap-ledger.vend-no
-            AND ap-pay.bank-code EQ bank.bank-code
-            AND CAN-FIND(FIRST ap-payl WHERE ap-payl.c-no EQ ap-pay.c-no):
+            AND ap-pay.check-no  EQ li:
+            
+        IF ap-pay.vend-no NE ap-ledger.vend-no
+        OR ap-pay.bank-code NE bank.bank-code
+        OR NOT CAN-FIND(FIRST ap-payl WHERE ap-payl.c-no EQ ap-pay.c-no) THEN NEXT.
 
         ap-pay.period = fi_to-period.
       END.
@@ -871,8 +872,7 @@ FOR EACH period
   FOR EACH ap-ledger
       WHERE ap-ledger.company EQ period.company
         AND ap-ledger.tr-date GE period.pst
-        AND ap-ledger.tr-date LE period.pend
-      USE-INDEX ap-ledger:
+        AND ap-ledger.tr-date LE period.pend:
 
     RUN do-ap-ledger.
   END.
@@ -881,8 +881,7 @@ FOR EACH period
       WHERE ar-ledger.company EQ period.company
         AND ar-ledger.tr-date GE period.pst
         AND ar-ledger.tr-date LE period.pend
-        AND ar-ledger.ref-num BEGINS "INV# "
-      USE-INDEX ar-ledger:
+        AND ar-ledger.ref-num BEGINS "INV# ":
 
     RUN do-ar-ledger.
   END.
@@ -965,9 +964,9 @@ DO TRANSACTION:
   FOR EACH gltrans NO-LOCK
       WHERE gltrans.company EQ cocode
         AND gltrans.trnum   EQ begin_run-no
-        AND gltrans.jrnl    EQ "GENERAL"
-        AND gltrans.tr-dscr MATCHES "*JRN#"
-      USE-INDEX tr-num:
+        AND gltrans.jrnl    EQ "GENERAL":
+        
+    IF gltrans.tr-dscr MATCHES "*JRN#" THEN NEXT.
 
     CREATE tt-journal.
     tt-journal = INT(SUBSTR(gltrans.tr-dscr,INDEX(gltrans.tr-dscr,"JRN#") + 4,7)).
@@ -976,9 +975,9 @@ DO TRANSACTION:
   FOR EACH glhist NO-LOCK
       WHERE glhist.company EQ cocode
         AND glhist.tr-num  EQ begin_run-no
-        AND glhist.jrnl    EQ "GENERAL"
-        AND glhist.tr-dscr MATCHES "*JRN#"
-      USE-INDEX tr-num:
+        AND glhist.jrnl    EQ "GENERAL":
+        
+    IF glhist.tr-dscr MATCHES "*JRN#" THEN NEXT.
 
     CREATE tt-journal.
     tt-journal = INT(SUBSTR(glhist.tr-dscr,INDEX(glhist.tr-dscr,"JRN#") + 4,7)).

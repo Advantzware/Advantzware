@@ -251,7 +251,7 @@ DEFINE FRAME F-Main
 "Labor", no
           SIZE 25.8 BY 1
      fi_cad-image AT ROW 17.71 COL 18 COLON-ALIGNED
-     prep.cost AT ROW 2.43 COL 48.8 COLON-ALIGNED
+     prep.cost AT ROW 2.43 COL 48.8 COLON-ALIGNED FORMAT "->>,>>9.99<<"
           VIEW-AS FILL-IN 
           SIZE 14 BY 1
           BGCOLOR 15 FONT 4
@@ -276,6 +276,7 @@ DEFINE FRAME F-Main
           BGCOLOR 15 FONT 4
      mat_dscr AT ROW 4.33 COL 26 COLON-ALIGNED NO-LABEL
      prep.dfault AT ROW 3.52 COL 19
+          LABEL "Always Defaults"
           VIEW-AS TOGGLE-BOX
           SIZE 27.4 BY .76
      prep.vend-no AT ROW 3.52 COL 60 COLON-ALIGNED
@@ -1003,6 +1004,16 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&Scoped-define SELF-NAME prep.mat-type
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL prep.mat-type V-table-Win
+ON VALUE-CHANGED OF prep.mat-type IN FRAME F-Main /* Last Estimate */
+DO:
+  prep.mat-type:SCREEN-VALUE = CAPS(prep.mat-type:screen-value) .
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 &Scoped-define SELF-NAME prep.mat-type
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL prep.mat-type V-table-Win
@@ -1468,10 +1479,7 @@ PROCEDURE local-create-record :
   if hld-code EQ "" AND prep.code EQ "" THEN DO:
 
       repeat:
-         MESSAGE TRIM(IF addprep-chr EQ "" THEN
-                        "Enter 'R'otary Die, 'F'lat Die, 'P'rinting Die/Plate, 'M'=Foam, " +
-                        "or leave blank"
-                      ELSE addprep-chr) + ":" UPDATE v-code.
+          RUN est/d-preptype.w (OUTPUT v-code) .
          if index("RFPM",v-code) eq 0 and v-code ne "" then undo, retry.
          v-code = caps(v-code).
          leave.
@@ -2132,7 +2140,7 @@ DO WITH FRAME {&FRAME-NAME}:
         dMkup = (1 - dCost / dPrice) * 100. 
     ELSE
         dMkup = (dPrice / dCost - 1) * 100.
-
+    IF dMkup EQ ?  THEN dMkup = 0 .
     prep.mkup:SCREEN-VALUE = STRING(dMkup).
 END.
 
@@ -2154,6 +2162,8 @@ DEFINE VARIABLE dMkup AS DECIMAL     NO-UNDO.
 DEFINE VARIABLE dPrice AS DECIMAL     NO-UNDO.
 
 DO WITH FRAME {&FRAME-NAME}:
+     IF prep.mkup:SCREEN-VALUE EQ "?" THEN
+         prep.mkup:SCREEN-VALUE EQ "0" .
     ASSIGN 
         dCost =  DEC(prep.cost:SCREEN-VALUE)
         dMkup =  DEC(prep.mkup:SCREEN-VALUE).
@@ -2161,6 +2171,7 @@ DO WITH FRAME {&FRAME-NAME}:
         dPrice = dCost / (1 - (dMkup / 100)).
     ELSE
         dPrice = dCost * (1 + (dMkup / 100)).
+   IF dPrice EQ ? THEN dPrice = 0 .
     prep.spare-dec-1:SCREEN-VALUE = STRING(dPrice).
 END.    
 

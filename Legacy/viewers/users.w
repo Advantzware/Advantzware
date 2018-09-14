@@ -35,13 +35,15 @@ CREATE WIDGET-POOL.
 
 /* Local Variable Definitions ---                                       */
 {custom/globdefs.i}
-{sys/inc/VAR.i NEW SHARED}
+{sys/inc/var.i NEW SHARED}
 {methods/defines/hndlset.i}
 {methods/defines/noreckey.i}
 {custom/resizdef.i}
 
-ASSIGN cocode = g_company
-       locode = g_loc.
+ASSIGN
+    cocode = g_company
+    locode = g_loc
+    .
 
 &SCOPED-DEFINE proc-enable proc-enable
 &SCOPED-DEFINE users-rowavail proc-rowavail
@@ -51,37 +53,42 @@ DEFINE SHARED VAR cUsrLoc AS CHAR NO-UNDO.
 
 DEFINE SHARED VARIABLE h_users AS HANDLE NO-UNDO.
 
-DEF BUFFER zUsers FOR users.
-DEF BUFFER lUsers FOR users.
-DEF VAR createLabelPath AS LOG NO-UNDO.
-DEF VAR cOldUserID AS CHAR NO-UNDO.
-DEF VAR cEnvList AS CHAR NO-UNDO.
-DEF VAR cDbList AS CHAR NO-UNDO.
-DEF VAR cModeList AS CHAR NO-UNDO.
-DEF VAR cEnvSelList AS CHAR NO-UNDO.
-DEF VAR cDbSelList AS CHAR NO-UNDO.
-DEF VAR cModeSelList AS CHAR NO-UNDO.
-DEF VAR cAliasFromFile AS CHAR NO-UNDO.
-DEF VAR correct-error AS LOG no-undo.
-DEF VAR copy-record AS LOG NO-UNDO.
-DEF VAR rThisUser AS ROWID NO-UNDO.
-DEF VAR lAdd AS LOG NO-UNDO.
-DEF VAR lCopy AS LOG NO-UNDO.
-DEF VAR lPwdChanged AS LOG NO-UNDO.
-DEF VAR cOldPwd AS CHAR NO-UNDO.
+DEFINE BUFFER zUsers FOR users.
+DEFINE BUFFER lUsers FOR users.
 
-DEF TEMP-TABLE tempUser NO-UNDO LIKE _User.
+DEFINE VARIABLE createLabelPath AS LOG       NO-UNDO.
+DEFINE VARIABLE cOldUserID      AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cEnvList        AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cDbList         AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cModeList       AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cEnvSelList     AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cDbSelList      AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cModeSelList    AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cAliasFromFile  AS CHARACTER NO-UNDO.
+DEFINE VARIABLE correct-error   AS LOG       NO-UNDO.
+DEFINE VARIABLE copy-record     AS LOG       NO-UNDO.
+DEFINE VARIABLE rThisUser       AS ROWID     NO-UNDO.
+DEFINE VARIABLE lAdd            AS LOG       NO-UNDO.
+DEFINE VARIABLE lCopy           AS LOG       NO-UNDO.
+DEFINE VARIABLE lPwdChanged     AS LOG       NO-UNDO.
+DEFINE VARIABLE cOldPwd         AS CHARACTER NO-UNDO.
+DEFINE VARIABLE hPgmMstrSecur   AS HANDLE    NO-UNDO.
+DEFINE VARIABLE lSuperAdmin     AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE lAdmin          AS LOGICAL   NO-UNDO.
+    
+DEFINE TEMP-TABLE tempUser NO-UNDO LIKE _User.
 
-DEF TEMP-TABLE ttUsers
+DEFINE TEMP-TABLE ttUsers
     FIELD ttfPdbname AS CHAR
     FIELD ttfUserID AS CHAR
     FIELD ttfUserAlias AS CHAR
     FIELD ttfEnvList AS CHAR
     FIELD ttfDbList AS CHAR
     FIELD ttfModeList AS CHAR
-    INDEX iUserID IS UNIQUE ttfUserID ttfPdbName
-    INDEX iDatabase IS UNIQUE ttfPdbName ttfUserID.
-DEF BUFFER bttUsers FOR ttUsers.
+        INDEX iUserID   IS UNIQUE ttfUserID  ttfPdbName
+        INDEX iDatabase IS UNIQUE ttfPdbName ttfUserID
+        .
+DEFINE BUFFER bttUsers FOR ttUsers.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -110,8 +117,7 @@ DEFINE QUERY external_tables FOR users, usr.
 &Scoped-Define ENABLED-FIELDS users.user_name users.phone-cnty ~
 users.fax-cnty users.image_filename users.user_program[1] ~
 users.user_program[2] users.user_program[3] users.track_usage ~
-users.use_colors users.use_fonts users.use_ctrl_keys users.developer ~
-users.isLocked 
+users.use_colors users.use_fonts users.developer users.isLocked 
 &Scoped-define ENABLED-TABLES users
 &Scoped-define FIRST-ENABLED-TABLE users
 &Scoped-Define ENABLED-OBJECTS RECT-5 
@@ -119,9 +125,7 @@ users.isLocked
 users.userAlias users.phone-cnty users.phone users.fax-cnty users.fax ~
 users.image_filename users.user_program[1] users.user_program[2] ~
 users.user_program[3] users.track_usage users.use_colors users.use_fonts ~
-users.use_ctrl_keys users.developer users.showOnQuote users.showOnAck ~
-users.showOnBol users.showOnInv users.showOnPO users.securityLevel ~
-users.isActive users.isLocked 
+users.developer users.securityLevel users.isActive users.isLocked 
 &Scoped-define DISPLAYED-TABLES users
 &Scoped-define FIRST-DISPLAYED-TABLE users
 &Scoped-Define DISPLAYED-OBJECTS fiPassword cbUserType fi_phone-area ~
@@ -131,13 +135,9 @@ lv-phone-num fi_fax-area lv-fax-num slEnvironments slDatabases slModes
 /* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,ROW-AVAILABLE,DISPLAY-FIELDS,List-5,F1 */
 &Scoped-define ADM-CREATE-FIELDS users.user_id 
 &Scoped-define ADM-ASSIGN-FIELDS users.phone-cnty fi_phone-area ~
-lv-phone-num users.fax-cnty fi_fax-area lv-fax-num users.image_filename ~
-users.showOnQuote users.showOnAck users.showOnBol users.showOnInv ~
-users.showOnPO 
+lv-phone-num users.fax-cnty fi_fax-area lv-fax-num users.image_filename 
 &Scoped-define DISPLAY-FIELDS users.phone-cnty fi_phone-area lv-phone-num ~
-users.fax-cnty fi_fax-area lv-fax-num users.image_filename ~
-users.showOnQuote users.showOnAck users.showOnBol users.showOnInv ~
-users.showOnPO 
+users.fax-cnty fi_fax-area lv-fax-num users.image_filename 
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
@@ -262,15 +262,15 @@ DEFINE VARIABLE slModes AS CHARACTER
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     users.user_id AT ROW 1.24 COL 12 COLON-ALIGNED
+     users.user_id AT ROW 1.24 COL 19 COLON-ALIGNED
           LABEL "User ID"
           VIEW-AS FILL-IN 
           SIZE 16 BY 1
           BGCOLOR 15 
-     users.user_name AT ROW 1.24 COL 37 COLON-ALIGNED
+     users.user_name AT ROW 1.24 COL 43 COLON-ALIGNED
           LABEL "Name"
           VIEW-AS FILL-IN 
-          SIZE 40 BY 1
+          SIZE 36 BY 1
           BGCOLOR 15 FONT 4
      users.userAlias AT ROW 1.24 COL 99 COLON-ALIGNED WIDGET-ID 40
           VIEW-AS FILL-IN 
@@ -322,47 +322,18 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 60 BY 1
           FONT 4
-     users.track_usage AT ROW 12.43 COL 10
+     users.track_usage AT ROW 11.48 COL 21
           VIEW-AS TOGGLE-BOX
           SIZE 19.8 BY 1
-     users.use_colors AT ROW 13.38 COL 10
+     users.use_colors AT ROW 12.43 COL 21
           VIEW-AS TOGGLE-BOX
           SIZE 27 BY 1
-     users.use_fonts AT ROW 14.33 COL 10
+     users.use_fonts AT ROW 13.38 COL 21
           VIEW-AS TOGGLE-BOX
           SIZE 26.2 BY 1
-     users.use_ctrl_keys AT ROW 15.29 COL 10
-          VIEW-AS TOGGLE-BOX
-          SIZE 38.4 BY 1
-     users.developer AT ROW 16.24 COL 10
+     users.developer AT ROW 14.33 COL 21
           VIEW-AS TOGGLE-BOX
           SIZE 16.8 BY 1
-     users.showOnQuote AT ROW 12.43 COL 53 WIDGET-ID 34
-          LABEL "Quote"
-          VIEW-AS TOGGLE-BOX
-          SIZE 11 BY .81
-     users.showOnAck AT ROW 13.38 COL 53 WIDGET-ID 26
-          LABEL "Ack"
-          VIEW-AS TOGGLE-BOX
-          SIZE 11 BY .81
-     users.showOnBol AT ROW 14.33 COL 53 WIDGET-ID 28
-          LABEL "BoL"
-          VIEW-AS TOGGLE-BOX
-          SIZE 9 BY .81
-    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1 SCROLLABLE 
-         FONT 6.
-
-/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
-DEFINE FRAME F-Main
-     users.showOnInv AT ROW 15.29 COL 53 WIDGET-ID 30
-          LABEL "Invoice"
-          VIEW-AS TOGGLE-BOX
-          SIZE 13 BY .81
-     users.showOnPO AT ROW 16.24 COL 53 WIDGET-ID 32
-          VIEW-AS TOGGLE-BOX
-          SIZE 9 BY .81
      users.securityLevel AT ROW 3.62 COL 99 COLON-ALIGNED WIDGET-ID 44
           LABEL "Security Level" FORMAT ">999"
           VIEW-AS FILL-IN 
@@ -376,6 +347,13 @@ DEFINE FRAME F-Main
           VIEW-AS TOGGLE-BOX
           SIZE 13.2 BY 1
      bDefaults AT ROW 5.52 COL 118 WIDGET-ID 104
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 1 SCROLLABLE 
+         FONT 6.
+
+/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
+DEFINE FRAME F-Main
      slEnvironments AT ROW 11.71 COL 108 NO-LABEL WIDGET-ID 50
      bAll1 AT ROW 11.95 COL 97 WIDGET-ID 64
      bNone1 AT ROW 12.67 COL 97 WIDGET-ID 66
@@ -388,6 +366,12 @@ DEFINE FRAME F-Main
      "Environments:" VIEW-AS TEXT
           SIZE 16 BY .62 AT ROW 11.24 COL 91 WIDGET-ID 58
           FONT 4
+     "(#)" VIEW-AS TEXT
+          SIZE 4 BY 1 AT ROW 4.1 COL 54 WIDGET-ID 106
+     "(Area)" VIEW-AS TEXT
+          SIZE 8 BY 1 AT ROW 5.29 COL 38 WIDGET-ID 108
+     "(#)" VIEW-AS TEXT
+          SIZE 4 BY 1 AT ROW 5.29 COL 54 WIDGET-ID 110
      "(Use CTRL-click to select multiple items)" VIEW-AS TEXT
           SIZE 39 BY .62 AT ROW 16.48 COL 98 WIDGET-ID 76
           FONT 1
@@ -401,21 +385,13 @@ DEFINE FRAME F-Main
           SIZE 26 BY .62 AT ROW 4.81 COL 91 WIDGET-ID 56
           FONT 4
      "Options:" VIEW-AS TEXT
-          SIZE 11 BY .62 AT ROW 11.71 COL 8 WIDGET-ID 42
+          SIZE 11 BY .62 AT ROW 11.71 COL 10 WIDGET-ID 42
      "Modes:" VIEW-AS TEXT
           SIZE 8 BY .62 AT ROW 6.71 COL 99 WIDGET-ID 62
           FONT 4
      "Databases:" VIEW-AS TEXT
           SIZE 13 BY .62 AT ROW 14.1 COL 94 WIDGET-ID 60
           FONT 4
-     "(#)" VIEW-AS TEXT
-          SIZE 4 BY 1 AT ROW 4.1 COL 54 WIDGET-ID 106
-     "(Area)" VIEW-AS TEXT
-          SIZE 8 BY 1 AT ROW 5.29 COL 38 WIDGET-ID 108
-     "(#)" VIEW-AS TEXT
-          SIZE 4 BY 1 AT ROW 5.29 COL 54 WIDGET-ID 110
-     "Phone/Fax Appear on:" VIEW-AS TEXT
-          SIZE 27 BY .62 AT ROW 11.71 COL 51 WIDGET-ID 24
      RECT-5 AT ROW 5.05 COL 88 WIDGET-ID 78
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -529,16 +505,6 @@ ASSIGN
    2 4 EXP-LABEL                                                        */
 /* SETTINGS FOR FILL-IN users.securityLevel IN FRAME F-Main
    NO-ENABLE EXP-LABEL EXP-FORMAT                                       */
-/* SETTINGS FOR TOGGLE-BOX users.showOnAck IN FRAME F-Main
-   NO-ENABLE 2 4 EXP-LABEL                                              */
-/* SETTINGS FOR TOGGLE-BOX users.showOnBol IN FRAME F-Main
-   NO-ENABLE 2 4 EXP-LABEL                                              */
-/* SETTINGS FOR TOGGLE-BOX users.showOnInv IN FRAME F-Main
-   NO-ENABLE 2 4 EXP-LABEL                                              */
-/* SETTINGS FOR TOGGLE-BOX users.showOnPO IN FRAME F-Main
-   NO-ENABLE 2 4                                                        */
-/* SETTINGS FOR TOGGLE-BOX users.showOnQuote IN FRAME F-Main
-   NO-ENABLE 2 4 EXP-LABEL                                              */
 /* SETTINGS FOR SELECTION-LIST slDatabases IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR SELECTION-LIST slEnvironments IN FRAME F-Main
@@ -867,6 +833,21 @@ END.
     RUN ipReadIniFile.
     RUN ipReadUsrFile.
     
+    IF NOT VALID-HANDLE(hPgmMstrSecur) THEN
+    RUN system/PgmMstrSecur.p PERSISTENT SET hPgmMstrSecur.
+    IF VALID-HANDLE(hPgmMstrSecur) THEN DO:
+        RUN epCanAccess IN hPgmMstrSecur (
+            "viewers/users.w",
+            "SuperAdmin",
+            OUTPUT lSuperAdmin 
+            ).
+        RUN epCanAccess IN hPgmMstrSecur (
+            "viewers/users.w",
+            "Admin",
+            OUTPUT lAdmin 
+            ).
+    END. /* if valid-handle */
+
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF       
@@ -1887,82 +1868,38 @@ PROCEDURE proc-enable :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    IF zUsers.securityLevel > 999 THEN ASSIGN 
-        users.track_usage:SENSITIVE IN FRAME {&FRAME-NAME} = YES 
-        users.use_colors:SENSITIVE = YES
-        users.use_fonts:SENSITIVE = YES
-        users.use_ctrl_keys:SENSITIVE = YES
-        users.developer:SENSITIVE = YES
-        users.userAlias:SENSITIVE = TRUE
-        users.securityLevel:SENSITIVE = TRUE
-        users.isLocked:SENSITIVE = TRUE
-        cbUserType:SENSITIVE = TRUE
-        slEnvironments:SENSITIVE = TRUE
-        slDatabases:SENSITIVE = TRUE
-        slModes:SENSITIVE = TRUE
-        bAll1:SENSITIVE = TRUE
-        bNone1:SENSITIVE = TRUE
-        bAll2:SENSITIVE = TRUE
-        bNone2:SENSITIVE = TRUE
-        bAll3:SENSITIVE = TRUE
-        bNone3:SENSITIVE = TRUE
-        bDefaults:SENSITIVE = TRUE
-        .
-    ELSE IF zUsers.securityLevel > 899 THEN ASSIGN 
-        users.track_usage:SENSITIVE IN FRAME {&FRAME-NAME} = YES 
-        users.use_colors:SENSITIVE = YES
-        users.use_fonts:SENSITIVE = YES
-        users.use_ctrl_keys:SENSITIVE = YES
-        users.developer:SENSITIVE = NO
-        users.userAlias:SENSITIVE = TRUE
-        users.securityLevel:SENSITIVE = TRUE
-        users.isLocked:SENSITIVE = TRUE
-        cbUserType:SENSITIVE = TRUE
-        slEnvironments:SENSITIVE = TRUE
-        slDatabases:SENSITIVE = TRUE
-        slModes:SENSITIVE = TRUE
-        bAll1:SENSITIVE = TRUE
-        bNone1:SENSITIVE = TRUE
-        bAll2:SENSITIVE = TRUE
-        bNone2:SENSITIVE = TRUE
-        bAll3:SENSITIVE = TRUE
-        bNone3:SENSITIVE = TRUE
-        bDefaults:SENSITIVE = TRUE
-        .
-    ELSE ASSIGN 
-        users.track_usage:SENSITIVE = NO 
-        users.use_colors:SENSITIVE = NO
-        users.use_fonts:SENSITIVE = NO
-        users.use_ctrl_keys:SENSITIVE = NO
-        users.developer:SENSITIVE = NO
-        users.userAlias:SENSITIVE = FALSE
-        users.securityLevel:SENSITIVE = FALSE
-        users.isLocked:SENSITIVE = FALSE
-        cbUserType:SENSITIVE = FALSE
-        slEnvironments:SENSITIVE = FALSE
-        slDatabases:SENSITIVE = FALSE
-        slModes:SENSITIVE = FALSE
-        bAll1:SENSITIVE = FALSE
-        bNone1:SENSITIVE = FALSE
-        bAll2:SENSITIVE = FALSE
-        bNone2:SENSITIVE = FALSE
-        bAll3:SENSITIVE = FALSE
-        bNone3:SENSITIVE = FALSE
-        bDefaults:SENSITIVE = FALSE
-        .
     ASSIGN 
-        cbUserType:screen-value = users.userType
-        slEnvironments:screen-value = if ttUsers.ttfEnvList <> "" then ttUsers.ttfEnvList else slEnvironments:list-items
-        slDatabases:screen-value = if ttUsers.ttfDbList <> "" then ttUsers.ttfDbList else slDatabases:list-items
-        slModes:screen-value = if ttUsers.ttfModeList <> "" then ttUsers.ttfModeList else slModes:list-items.
-
+        users.track_usage:SENSITIVE IN FRAME {&FRAME-NAME} = lAdmin
+        users.use_colors:SENSITIVE    = lAdmin
+        users.use_fonts:SENSITIVE     = lAdmin
+        users.developer:SENSITIVE     = lAdmin
+        users.developer:SENSITIVE     = lSuperAdmin 
+        users.userAlias:SENSITIVE     = lAdmin
+        users.securityLevel:SENSITIVE = lAdmin
+        users.isLocked:SENSITIVE      = lAdmin
+        cbUserType:SENSITIVE          = lAdmin
+        slEnvironments:SENSITIVE      = lAdmin
+        slDatabases:SENSITIVE         = lAdmin
+        slModes:SENSITIVE             = lAdmin
+        bAll1:SENSITIVE               = lAdmin
+        bNone1:SENSITIVE              = lAdmin
+        bAll2:SENSITIVE               = lAdmin
+        bNone2:SENSITIVE              = lAdmin
+        bAll3:SENSITIVE               = lAdmin
+        bNone3:SENSITIVE              = lAdmin
+        bDefaults:SENSITIVE           = lAdmin
+        cbUserType:SCREEN-VALUE       = users.userType
+        slEnvironments:SCREEN-VALUE   = IF ttUsers.ttfEnvList NE "" THEN ttUsers.ttfEnvList ELSE slEnvironments:LIST-ITEMS 
+        slDatabases:SCREEN-VALUE      = IF ttUsers.ttfDbList NE "" THEN ttUsers.ttfDbList ELSE slDatabases:LIST-ITEMS 
+        slModes:SCREEN-VALUE          = IF ttUsers.ttfModeList NE "" THEN ttUsers.ttfModeList ELSE slModes:LIST-ITEMS 
+        .
     ENABLE 
         bChgPwd
         fi_phone-area 
         lv-phone-num 
         fi_fax-area 
         lv-fax-num 
-        WITH FRAME {&FRAME-NAME}.
+            WITH FRAME {&FRAME-NAME}.
 
 END PROCEDURE.
 

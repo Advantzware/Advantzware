@@ -1120,7 +1120,7 @@ DO WITH FRAME {&FRAME-NAME}:
        eb.cust-no:SCREEN-VALUE IN BROWSE {&browse-name} NE eb.cust-no AND
        eb.cust-no NE "" THEN
     DO:
-      MESSAGE "Cannot Change Customer."
+      MESSAGE "This estimate has order # - " + string(eb.ord-no) + " . Cannot Change Customer."
           VIEW-AS ALERT-BOX ERROR BUTTONS OK.
       RETURN NO-APPLY.
     END.
@@ -2380,24 +2380,8 @@ PROCEDURE auto-create-item :
                        NO-LOCK NO-ERROR.
       
       IF AVAIL bf-eb AND bf-eb.stock-no = "" THEN DO:
-         IF v-est-fg1 EQ "Hughes" THEN DO:
-             RUN fg/hughesfg.p (ROWID(bf-eb), OUTPUT lv-i-no).
-             
-             FIND CURRENT bf-eb EXCLUSIVE-LOCK.         
-             i = LENGTH(lv-i-no).
-             IF i GT 2 THEN
-             SUBSTRING(lv-i-no, i - 1, 2) = "00".
-    
-         END.
-         ELSE DO:
-           IF  v-est-fg1 EQ "Fibre"  THEN RUN fg/fibre-fg.p (ROWID(xeb), OUTPUT lv-i-no).
-             FIND CURRENT bf-eb EXCLUSIVE-LOCK.        
-             i = LENGTH(lv-i-no).
-             IF i GT 2 THEN
-             SUBSTRING(lv-i-no, i - 1, 2) = "00".
-         END.
-        
-
+         RUN fg/GetFGItemID.p (ROWID(bf-eb), "", OUTPUT lv-i-no). 
+         FIND CURRENT bf-eb EXCLUSIVE-LOCK.
          bf-eb.stock-no = lv-i-no.
          
         FIND xeb WHERE ROWID(xeb) = ROWID(bf-eb) NO-LOCK.
@@ -2420,17 +2404,7 @@ PROCEDURE auto-create-item :
        RUN est/fgadd2.p.   /** 2pc box fg create/update routine **/
   END.
   ELSE DO:      
-      IF v-est-fg1 EQ "Hughes" THEN DO:
-          RUN fg/hughesfg.p (ROWID(xeb), OUTPUT lv-i-no).
-      END.
-      ELSE DO:
-          RUN fg/autofg.p ( ROWID(xeb),
-              v-est-fg1, 
-              xeb.procat,
-              IF xest.est-type LE 4 THEN "F" ELSE "C",
-              xeb.cust-no,
-              OUTPUT lv-i-no).
-      END.
+      RUN fg/GetFGItemID.p (ROWID(xeb), "", OUTPUT lv-i-no). 
   END.
 
   FIND FIRST tt-stock-no WHERE tt-stock-no.eb-row-id = ROWID(xeb)
@@ -5661,8 +5635,8 @@ PROCEDURE local-assign-record :
   ELSE IF eb.pur-man AND eb.eqty <> viEQtyPrev THEN RUN update-e-itemfg-vend.
 
   /* If unitized and form 1, blank 1, copy to form zero record. */
-  IF eb.pur-man = NO AND eb.form-no = 1 AND eb.blank-no = 1 THEN
-      RUN copy-2-form-zero.
+  IF adm-new-record AND eb.pur-man = NO AND eb.form-no = 1 AND eb.blank-no = 1 THEN  /*Ticket - 34158 */
+      RUN copy-2-form-zero.     
 
   IF is2PieceBox THEN DO:
      FIND b-eb WHERE b-eb.company = est.company AND b-eb.est-no = est.est-no AND b-eb.form-no = 0 AND b-eb.blank-no = 0 EXCLUSIVE-LOCK.
@@ -8038,14 +8012,12 @@ PROCEDURE valid-part-no :
 
   DEF VAR lv-part-no LIKE eb.part-no NO-UNDO.
   DEF VAR lv-msg AS CHAR NO-UNDO.
-
-
+  
   DO WITH FRAME {&FRAME-NAME}:
     ASSIGN
      lv-part-no = eb.part-no:SCREEN-VALUE IN BROWSE {&browse-name}
      lv-msg     = "".
-
-    IF est.est-type EQ 5 OR est.est-type EQ 8  THEN do: 
+   
         IF lv-part-no EQ ""                                                     OR
            (CAN-FIND(FIRST b-eb OF ef
                      WHERE b-eb.part-no EQ lv-part-no
@@ -8054,19 +8026,6 @@ PROCEDURE valid-part-no :
           lv-msg = IF lv-part-no EQ "" THEN "may not be blank"
                                        ELSE "already exists on Form #" +
                                             TRIM(STRING(ef.form-no,">>>")).
-    END.
-    ELSE DO: 
-       FIND FIRST b-eb NO-LOCK 
-           WHERE  b-eb.est-no EQ eb.est-no 
-             AND  b-eb.company EQ eb.company
-             AND  b-eb.part-no EQ lv-part-no
-             AND  b-eb.form-no EQ eb.form-no
-             AND (ROWID(b-eb) NE ROWID(eb) OR ll-is-copy-record) NO-ERROR  . 
-       IF lv-part-no EQ "" OR AVAIL b-eb THEN
-           lv-msg = IF lv-part-no EQ "" THEN "may not be blank"
-                                   ELSE "already exists on Form #" +
-                                        TRIM(STRING(b-eb.form-no,">>9")).
-    END. 
 
     IF lv-msg NE "" THEN DO:
       MESSAGE TRIM(eb.part-no:LABEL IN BROWSE {&browse-name}) + " " +

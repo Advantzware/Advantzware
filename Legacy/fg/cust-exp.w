@@ -75,7 +75,8 @@ ASSIGN cTextListToSelect = "Customer,Name,Status,Address1,Address2,City,State,Zi
                            "Delivery Zone,Delivery Dscr,Territory,Territory Dscr,Pallet ID,Underrun%,Pallet,Overrun%,Case/Bundle,Mark-up,No Load Tags,Whse Days," +
                            "PO# Mandatory,Pallet Positions,Show Set Parts,Sales PTD,Sales YDT,Sales LYear,Cost PTD,Cost YDT,Cost LYear,Profits PTD,Profits YDT,Profits LYear," +
                            "Profit Percent PTD,Profit Percent YDT,Profit Percent LYear,Commissions PTD,Commissions YDT,Commissions LYear,MSF PTD,MSF YDT,MSF LYear," +
-                           "High Balance,On,Last Payment,On Date,Total# of Inv Paid,Avg# Days to Pay,Open Orders Balance,Account Balance,On Account,Title,CPhone,Ext,CSR"
+                           "High Balance,On,Last Payment,On Date,Total# of Inv Paid,Avg# Days to Pay,Open Orders Balance,Account Balance,On Account,Title,CPhone,Ext,CSR," +
+                           "Note 1,Note 2,Note 3,Note 4,ShipTo Name,ShipTo Address 1,ShipTo Address 2,ShipTo City,ShipTo State,ShipTo Zip,Paperless Invoice?"
 
       cFieldListToSelect = "cust-no,name,active,addr[1],addr[2],city,state,zip,email,spare-char-2,date-field[1],type,custype-dscr,contact,sman,sname," +
                            "flat-comm,area-code,phone,scomm,fax,fax-prefix,fax-country,terms,terms-dscr,cr-use,cr-hold-invdays,cr-hold-invdue,cr-rating," +
@@ -84,17 +85,18 @@ ASSIGN cTextListToSelect = "Customer,Name,Status,Address1,Address2,City,State,Zi
                            "del-zone,del-dscr,terr,terr-dscr,spare-int-1,under-pct,pallet,over-pct,case-bundle,markup,int-field[1],ship-days," +
                            "po-mand,manf-day,show-set,ptd-sales,ytd-sales,lyr-sales,cost[1],cost[5],cost[6],ptd-profit,ytd-profit,lyr-profit," +
                            "ptd-profit-pct,ytd-profit-pct,lyr-profit-pct,comm[1],comm[5],comm[6],total-msf,ytd-msf,lyytd-msf," +
-                           "hibal,hibal-date,lpay,lpay-date,num-inv,avg-pay,ord-bal,acc-bal,on-account,title,cphone,ext,csrUser_id" .
+                           "hibal,hibal-date,lpay,lpay-date,num-inv,avg-pay,ord-bal,acc-bal,on-account,title,cphone,ext,csrUser_id," +
+                           "note1,note2,note3,note4,ship-name,ship-addr1,ship-addr2,ship-city,ship-state,ship-zip,log-field[1]" .
 {sys/inc/ttRptSel.i}
 
-    ASSIGN cTextListToDefault  = "Customer,Name,Status,Address1,Address2,City,State,Zip,Email,Group,Date Added,Type,Type Dscr,Contact,Salesman,Salesman Name," +
-                           "Flat Comm%,Area Code,Phone#,Broker Comm%,Fax#,Prefix,Country,Terms,Terms Dscr,Cr Acct#,Grace Days,$,Credit Rating," +
-                           "Price Level,Credit Limit,Credit Hold,Order Limit,Finance Charges,Discount%,Auto Reprice,Currency,EDI,Factored,Invoice Per," +
-                           "Taxable,Tax Prep Code,Tax Code,Tax Dscr,Tax Resale#,Exp,Freight Payment,FOB,Partial Ship,Location,Location Dscr,Carrier,Carrier Dscr," +
-                           "Delivery Zone,Delivery Dscr,Territory,Territory Dscr,Pallet ID,Underrun%,Pallet,Overrun%,Case/Bundle,Mark-up,No Load Tags,Whse Days," +
-                           "PO# Mandatory,Pallet Positions,Show Set Parts,Sales PTD,Sales YDT,Sales LYear,Cost PTD,Cost YDT,Cost LYear,Profits PTD,Profits YDT,Profits LYear," +
-                           "Profit Percent PTD,Profit Percent YDT,Profit Percent LYear,Commissions PTD,Commissions YDT,Commissions LYear,MSF PTD,MSF YDT,MSF LYear," +
-                           "High Balance,On,Last Payment,On Date,Total# of Inv Paid,Avg# Days to Pay,Open Orders Balance,Account Balance,On Account,Title,CPhone,Ext" .
+    ASSIGN cTextListToDefault  = "Customer,Name,Address1,Address2,City,State,Country,Zip,Sales Rep,Area Code,Phone#," +
+                                 "Fax#,Credit Limit,Status,Credit Hold,Type,Terms,Tax Resale#,Note 1,Note 2,Note 3,Note 4," +
+                                 "ShipTo Name,ShipTo Address 1,ShipTo Address 2,ShipTo City,ShipTo State,ShipTo Zip," +
+                                 "Contact,Date Added,CSR,Cr Acct#,Credit Rating,Order Limit,Discount%,Currency,Finance Charges," +
+                                 "Auto Reprice,EDI,Factored,Grace Days,$,Invoice Per,Freight Payment,FOB,Location,Carrier,Delivery Zone," + 
+                                 "Territory,Pallet ID,Overrun%,Underrun%,Pallet,Case/Bundle,Mark-up,No Load Tags,Whse Days,Pallet Positions," +
+                                 "PO# Mandatory,Show Set Parts,Paperless Invoice?,Partial Ship,Taxable,Tax Prep Code,Tax Code,Tax Resale#,Exp," +
+                                 "Email,Group,Broker Comm%,Flat Comm%,Prefix" .
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1175,7 +1177,22 @@ FUNCTION getValue-itemfg RETURNS CHARACTER
     DEF VAR ytd-profit1 AS CHAR NO-UNDO.
     DEF VAR lyr-profit1 AS CHAR NO-UNDO.
     DEF VAR ptd-sales1 AS DEC NO-UNDO.
+    DEF VAR cShipNote AS CHARACTER FORMAT "x(80)" EXTENT 4 NO-UNDO.
 
+    FIND FIRST shipto NO-LOCK 
+        WHERE shipto.company EQ ipb-itemfg.company
+        AND shipto.cust-no EQ ipb-itemfg.cust-no
+        AND shipto.ship-id EQ ipb-itemfg.cust-no
+        NO-ERROR.
+    ASSIGN i = 1.
+    FOR EACH notes NO-LOCK
+            WHERE notes.rec_key EQ ipb-itemfg.rec_key 
+              AND notes.note_type <> "o" BREAK BY notes.note_date  :
+            cShipNote[i] = IF notes.note_text <> "" THEN notes.note_text ELSE "" .
+            i = i + 1.
+            IF i EQ 5 THEN LEAVE.
+    END.
+    
     CASE ipc-field :
         WHEN "ptd-profit" THEN DO:
             
@@ -1310,6 +1327,57 @@ FUNCTION getValue-itemfg RETURNS CHARACTER
                 OTHERWISE
                     lc-return = "Group by Date".
             END CASE.
+        END.
+        WHEN "ship-name"  THEN DO:
+            IF AVAIL shipto THEN
+                lc-return = shipto.ship-name .
+            ELSE
+                lc-return = "".
+        END.
+        WHEN "ship-addr1"  THEN DO:
+            IF AVAIL shipto THEN
+                lc-return = shipto.ship-addr[1] .
+            ELSE
+                lc-return = "".
+        END.
+        WHEN "ship-addr2"  THEN DO:
+            IF AVAIL shipto THEN
+                lc-return = shipto.ship-addr[2] .
+            ELSE
+                lc-return = "".
+        END.
+        WHEN "ship-city"  THEN DO:
+            
+            IF AVAIL shipto THEN
+                lc-return = shipto.ship-city .
+            ELSE
+                lc-return = "".
+        END.
+        WHEN "ship-state"  THEN DO:
+            
+            IF AVAIL shipto THEN
+                lc-return = shipto.ship-state .
+            ELSE
+                lc-return = "".
+        END.
+        WHEN "ship-zip"  THEN DO:
+            
+            IF AVAIL shipto THEN
+                lc-return = shipto.ship-zip .
+            ELSE
+                lc-return = "".
+        END.
+        WHEN "note1"  THEN DO:
+            lc-return = cShipNote[1] .
+        END.
+        WHEN "note2"  THEN DO:
+            lc-return = cShipNote[2] .
+        END.
+        WHEN "note3"  THEN DO:
+            lc-return = cShipNote[3] .
+        END.
+        WHEN "note4"  THEN DO:
+                lc-return = cShipNote[4] .
         END.
         WHEN "sort"  THEN DO:
             CASE ipb-itemfg.SORT :

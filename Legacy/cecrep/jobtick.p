@@ -432,7 +432,7 @@ do v-local-loop = 1 to v-local-copies:
             with no-box no-labels frame i8 width 155 no-attr-space STREAM-IO.
         END.
             
-        IF CAN-DO("TriState,RFC,Boxtech,Brick,Corrugat,ASI,Xprint,Pacific,TriLakes",v-format) THEN do:
+        IF CAN-DO("TriState,RFC,Boxtech,Brick,Corrugat,ASI,Xprint,Pacific,TriLakes,jobcardc 1,jobcardc 2",v-format) THEN do:
           RUN sys/ref/getpo#.p (IF AVAIL xoe-ordl AND est.est-type NE 6 THEN ROWID(xoe-ordl) ELSE ROWID(job),
                                 w-ef.frm, OUTPUT v-po-no).
 
@@ -700,7 +700,7 @@ do v-local-loop = 1 to v-local-copies:
            FOR EACH xeb WHERE xeb.company = est.company
                            AND xeb.est-no = est.est-no
                            AND xeb.form-no > 0 NO-LOCK:
-               PUT xeb.stock-no AT 3 space(14) xeb.part-dscr1 space(5) xeb.quantityPerSet SKIP.
+               PUT xeb.stock-no AT 3 space(14) xeb.part-dscr1 space(5) xeb.quantityPerSet FORMAT ">>>>9.9<<<" SKIP.
                v-tmp-line = v-tmp-line + 1.
            END.
            v-tmp-line = v-tmp-line + 1.

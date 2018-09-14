@@ -2,7 +2,7 @@
  
    put 
          "<FArial>"  SKIP
-          "<P14><C+40><B>Bill Of Lading</B>     "/*Page: " string(PAGE-NUM - lv-pg-num,">>9") + " of <#PAGES>"  FORM "x(20)"*/ SKIP .
+          "<P14><C+48.5><B>Bill Of Lading</B>   " SKIP.
           if NOT lBroker THEN DO:
             Put "<C2><R2><#1><R+10><C+37><IMAGE#1=" ls-full-img1  SKIP .
 	   END.
@@ -30,7 +30,7 @@
                SPACE(5) v-comp-addr3 v-ship-addr3 AT 45 SKIP
         "<R5><C50><#3>" SKIP
         "<FArial><P14><=#3>" "<P10>" SKIP
-                "<=#3><B>BOL #: " oe-bolh.bol-no "</B>" SKIP(1)
+                "<=#3><B>BOL #: " oe-bolh.bol-no "</B>" "<c66>Page: " +  string(PAGE-NUM - lv-pg-num,">>9") + " of " +  string(lv-tot-pg,">>9")  FORM "x(40)" SKIP(1)
                 "<=#3><R+2>Date: " oe-bolh.bol-date        SKIP
                 "<=#3><R+3>" SKIP
                  SKIP     
@@ -47,9 +47,9 @@
                 "<R24><C56><FROM><R26><C56><LINE>" SKIP  
                 "<R24><C61><FROM><R26><C61><LINE>" SKIP
                 "<R24><C67><FROM><R26><C67><LINE>" SKIP            
-                "<R24><C74><FROM><R26><C74><LINE>" SKIP 
-            "<FArial><=5><R+1> Order Qty / FG#              PO# / Job#                        Part#/Description                                    Units    Count         Total          P/C" SKIP(1)
+                "<R24><C77><FROM><R26><C77><LINE>" SKIP 
+            "<FArial><=5><R+1> Order Qty / FG#              PO# / Job#                        Part#/Description                                    Units    Count               Total          P/C" SKIP(1)
             "<FCourier New>"                                  
             .
 
-            v-printline = v-printline + 16.
+            v-printline = v-printline + 25.

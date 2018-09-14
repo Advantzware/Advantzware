@@ -85,6 +85,12 @@ DEFINE TEMP-TABLE ttRelQtys
     FIELD ord-no LIKE oe-rell.ord-no
     FIELD qty-rel LIKE oe-rell.qty
     .
+DEFINE TEMP-TABLE ttNewlyEntered
+FIELD ttRelRowid AS ROWID
+FIELD release# AS INTEGER 
+INDEX i1 ttRelRowid
+INDEX i2 release#
+.
 {addon/bol/tt-email.i NEW}
 
 DEF TEMP-TABLE tt-report NO-UNDO LIKE report.
@@ -626,9 +632,12 @@ DO:
        DO:
           RUN addon/bol/find-ssrelbol.p(INPUT cocode,
                                         INPUT INT(SELF:SCREEN-VALUE),
-                                        OUTPUT v-release-in-process).
-
-          IF v-release-in-process AND ssupdrelpmpt-log THEN
+               OUTPUT v-release-in-process).
+          FIND FIRST  ttNewlyEntered
+              WHERE ttNewlyEntered.release# EQ INTEGER(SELF:SCREEN-VALUE)
+              NO-ERROR. 
+          /* If record was created within this session, don't prompt user that ssrelbol already exists */
+          IF v-release-in-process AND ssupdrelpmpt-log AND NOT AVAILABLE(ttNewlyEntered) THEN
           DO:
              IF NOT g-sharpshooter THEN
                 MESSAGE "Release In Process. Please Exit and Use Update Release Button."
@@ -647,7 +656,8 @@ DO:
     v-rel-qty = 0
     v-job-qty = 0
     v-qoh     = 0.
-
+    /* Reset to no since starting with a new release# */
+    is-bol-printed  = NO.
     RUN ordStatCheck (OUTPUT lOrderOnHold).
         
     IF lOrderOnHold THEN DO:
@@ -2284,7 +2294,10 @@ PROCEDURE local-create-record :
 
   ASSIGN
    tt-relbol.release# = v-release#
-   tt-relbol.seq      = li + 1.
+        tt-relbol.seq      = li + 1.
+ CREATE  ttNewlyEntered.
+ ASSIGN ttNewlyEntered.ttRelRowid = ROWID(tt-relbol)
+              .
 
 END PROCEDURE.
 
@@ -2360,7 +2373,11 @@ PROCEDURE local-update-record :
     RUN addon/bol/saverelbol.p(INPUT cocode, INPUT ?).
     
   v-prev-rowid = ROWID(tt-relbol).
-
+    FIND FIRST  ttNewlyEntered
+      WHERE   ttNewlyEntered.ttRelRowid EQ ROWID(tt-relbol) NO-ERROR.
+    IF AVAILABLE ttNewlyEntered THEN 
+      ttNewlyEntered.release# = tt-relbol.release#.
+      
   RUN display-qtys.
 
   RUN need-scroll.
@@ -2409,6 +2426,7 @@ PROCEDURE ordStatCheck :
 ------------------------------------------------------------------------------*/
 DEFINE OUTPUT PARAMETER oplOnHold AS LOGICAL     NO-UNDO.
 DEFINE VARIABLE lIsOnHold AS LOGICAL     NO-UNDO.
+DEFINE VARIABLE cHoldMessage AS CHARACTER NO-UNDO.
 
 lIsOnHold = FALSE.
 IF gvlCheckOrdStat THEN DO:
@@ -2424,13 +2442,16 @@ IF gvlCheckOrdStat THEN DO:
         AND oe-ord.ord-no  EQ oe-rell.ord-no
       NO-LOCK NO-ERROR.
    
-    IF AVAIL oe-ord AND INDEX(oe-ord.stat, "H") GT 0 THEN
-      lIsOnHold = TRUE.
+    IF AVAIL oe-ord AND INDEX(oe-ord.stat, "H") GT 0 OR oe-ord.priceHold THEN
+      ASSIGN
+        cHoldMessage = "Order " + STRING(oe-ord.ord-no) + " is on ". 
+        cHoldMessage = cHoldMessage + (IF oe-ord.stat EQ "H" THEN "hold." ELSE "price hold. "). 
+        lIsOnHold = TRUE.
   END.
 END.
  
 IF lIsOnHold THEN
-  MESSAGE "Sorry Order/Release is on Hold, Bill of Lading cannot be created!" VIEW-AS ALERT-BOX
+  MESSAGE cHoldMessage SKIP "Bill of Lading cannot be created!" VIEW-AS ALERT-BOX
    WARNING .
 oplOnHold = lIsOnHold.
 
@@ -2715,7 +2736,8 @@ PROCEDURE print-bol :
   RUN post-release.
 
   EMPTY TEMP-TABLE tt-relbol.
-
+  /* If tt-relbol is empty, printed flag should be reset for blank browser */
+    is-bol-printed = NO.
   RUN dispatch ('open-query').
  
   SESSION:SET-WAIT-STATE(""). 

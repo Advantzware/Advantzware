@@ -3700,9 +3700,8 @@ PROCEDURE reset-ink1 :
 
   IF NOT ll THEN DO:
     ll = YES.
-    MESSAGE "Use Ink in Style File?  (No will default from CE Control File)" SKIP
-            "(Yes=" + TRIM(style.material[2]) + "    " +
-            "No=" + TRIM(ce-ctrl.def-ink) + ")"
+    MESSAGE "Use Ink in Style File?  (No will default from CE Control File - " + TRIM(ce-ctrl.def-ink) + 
+             " or " "Yes from Style - " + TRIM(style.material[2]) + ")" SKIP
         VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO-CANCEL
         UPDATE ll.
 

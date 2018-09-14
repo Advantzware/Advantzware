@@ -72,12 +72,6 @@ ELSE IF ipcCompany GT "" AND ipcINo GT "" THEN DO:
                 WHERE cust-part.company EQ ipcCompany   
                 AND cust-part.i-no      EQ ipcINo
                 AND cust-part.cust-no   EQ ipcCustNo
-                NO-LOCK, 
-                FIRST reftable 
-                WHERE reftable.reftable EQ "cp-lab-p" 
-                AND reftable.company    EQ cust-part.company  
-                AND reftable.loc        EQ cust-part.i-no   
-                AND reftable.code       EQ cust-part.cust-no 
                 NO-LOCK:
         
                 IF cust-part.spare-char-1 NE "" THEN 

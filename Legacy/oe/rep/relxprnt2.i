@@ -55,7 +55,7 @@
          "<R24><C65><FROM><R26><C65><LINE>" SKIP   
          "<R24><C70><FROM><R26><C70><LINE>" SKIP
          "<FArial><=5><C65.8>Unit<C71.5>Rel Qty/UOM" SKIP
-         "<=5><R+1> Order# <C10>Item / Desc / Lot #<C28>Tag/Whs/Bin/Job# <C54>                   Units<C65.8>Count<C71.5>Ord Qty/UOM" SKIP(1)
+         "<=5><R+1> Order# <C10>Item / Desc / Lot #<C28>Tag/Whs/Bin/Job# <C54>                   Units<C65.8>Count". IF lPrintQtyUom THEN PUT "<C71.5>Ord Qty/UOM". ELSE PUT "". PUT SKIP(1)
          "<FCourier New>".
       v-printline = v-printline + 16.
 

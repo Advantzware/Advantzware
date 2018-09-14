@@ -43,7 +43,6 @@ DEFINE        VARIABLE ll-gsa-pct       AS LOG       NO-UNDO.
 DEFINE        VARIABLE v-cust-no        AS CHARACTER NO-UNDO.
 DEFINE        VARIABLE dFreightTemp     AS DECIMAL   NO-UNDO.
 
-DEFINE BUFFER reftable-fm         FOR reftable.
 DEFINE BUFFER reftable-broker-pct FOR reftable.
 DEFINE BUFFER reftable-pr         FOR reftable.
 
@@ -103,35 +102,7 @@ FOR EACH car WHERE car.snum NE 0:
             mclean2yld = IF eb.quantityPerSet LT 0 THEN -1 / eb.quantityPerSet ELSE eb.quantityPerSet
             mclean2Qty = mclean2Qty + (qtty[vmcl] * mclean2yld).
     END.
-    IF CAN-FIND(FIRST xeb
-        WHERE xeb.company EQ xest.company
-        AND xeb.est-no  EQ xest.est-no
-        AND xeb.form-no EQ 0
-        AND xeb.cas-no  NE "") THEN 
-    DO:
-        IF vmclean2 THEN 
-        DO:
-            FIND FIRST reftable-pr WHERE reftable-pr.reftable EQ "print42"
-                AND reftable-pr.company  EQ xest.company
-                AND reftable-pr.loc      EQ xest.est-no
-                AND reftable-pr.code     EQ STRING(car.snum)
-                NO-ERROR.
-            IF NOT AVAILABLE reftable-pr THEN 
-            DO:
-                CREATE reftable-pr.
-                ASSIGN 
-                    reftable-pr.reftable = "print42"
-                    reftable-pr.company  = xest.company
-                    reftable-pr.loc      = xest.est-no
-                    reftable-pr.CODE     = STRING(car.snum).
-            END.
-            ASSIGN 
-                reftable-pr.val[1] = car.qty
-                reftable-pr.val[2] = car.msf.
 
-        END.
-    /* DELETE car. */      
-    END.
 END.
 
 FOR EACH car
@@ -183,16 +154,7 @@ FOR EACH car
 
     IF vmclean2 THEN 
     DO:
-        /* FOR each reftable-pr NO-LOCK WHERE reftable-pr.reftable EQ "print42"
-                AND reftable-pr.company  EQ xest.company
-                AND reftable-pr.loc      EQ xest.est-no
-                AND int(reftable-pr.CODE) <> v-form-no
-               .
-          IF int(reftable-pr.CODE) <> car.snum THEN
-            ASSIGN vcarqty = vcarqty + reftable-pr.val[1]
-                   vcarmsf = vcarmsf + reftable-pr.val[2] .       
-         END.
-         */
+        
         IF car.snum = 0 AND AVAILABLE carrier AND carrier.chg-method EQ "W" THEN NEXT.
     END.
      
@@ -336,20 +298,16 @@ ASSIGN
     gsa-com = ce-ctrl.comm-mrkup
     gsa-war = ctrl[1] * 100.
 
-FIND FIRST reftable-fm NO-LOCK
-    WHERE reftable-fm.reftable EQ "gsa-fm"
-    AND reftable-fm.company  EQ xest.company
-    AND reftable-fm.loc      EQ ""
-    AND reftable-fm.code     EQ xest.est-no
-    NO-ERROR.
-
 FIND FIRST cust WHERE
     cust.company EQ xest.company AND
     cust.cust-no EQ v-cust-no
     NO-LOCK NO-ERROR.
 
-IF AVAILABLE reftable-fm THEN
-    gsa-fm = reftable-fm.val[1].
+FIND FIRST probe    
+      WHERE probe.company    EQ xest.company
+        AND probe.est-no     EQ xest.est-no NO-LOCK NO-ERROR.
+IF AVAIL probe THEN
+      gsa-fm = int(probe.gsa-fm).
 ELSE
     IF AVAILABLE cust AND cust.scomm NE 0 THEN
         gsa-fm = cust.scomm.

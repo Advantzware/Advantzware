@@ -58,36 +58,36 @@
 "e-item-cust" yes yes no no
 "e-item-vend" yes yes no no
 "e-itemfg" yes yes no no
-"e-itemfg-vend" yes yes no no
+"e-itemfg-vend" yes yes yes no
 "eb" yes yes no no
 "ed" yes yes no no
-"EDAPCheck" yes yes no no
-"EDCat" yes yes no no
-"EDCatline" yes yes no no
-"EDCatPrice" yes yes no no
-"EDCo" yes yes no no
-"EDCode" yes yes no no
-"EDDoc" yes yes no no
-"EDICXref" yes yes no no
-"EdiPartnerSegment" yes yes no no
-"EDIVAddon" yes yes no no
-"EDIVLine" yes yes no no
-"EDIVTran" yes yes no no
-"EdiX12Segment" yes yes no no
-"EDMast" yes yes no no
-"edPartnerGrp" yes yes no no
-"EDPD" yes yes no no
-"EDPOAddon" yes yes no no
-"EDPOLine" yes yes no no
-"EDPOTran" yes yes no no
-"edSetID" yes yes no no
-"EDShipto" yes yes no no
-"EDShipVia" yes yes no no
-"EDSHLine" yes yes no no
-"EDSHOrd" yes yes no no
-"EDSHPack" yes yes no no
-"EDSHTare" yes yes no no
-"EDSHTran" yes yes no no
+"EDAPCheck" yes yes yes no
+"EDCat" yes yes yes no
+"EDCatline" yes yes yes no
+"EDCatPrice" yes yes yes no
+"EDCo" yes yes yes no
+"EDCode" yes yes yes no
+"EDDoc" yes yes yes no
+"EDICXref" yes yes yes no
+"EdiPartnerSegment" yes yes yes no
+"EDIVAddon" yes yes yes no
+"EDIVLine" yes yes yes no
+"EDIVTran" yes yes yes no
+"EdiX12Segment" yes yes yes no
+"EDMast" yes yes yes no
+"edPartnerGrp" yes yes yes no
+"EDPD" yes yes yes no
+"EDPOAddon" yes yes yes no
+"EDPOLine" yes yes yes no
+"EDPOTran" yes yes yes no
+"edSetID" yes yes yes no
+"EDShipto" yes yes yes no
+"EDShipVia" yes yes yes no
+"EDSHLine" yes yes yes no
+"EDSHOrd" yes yes yes no
+"EDSHPack" yes yes yes no
+"EDSHTare" yes yes yes no
+"EDSHTran" yes yes yes no
 "ef" yes yes no no
 "ef-nsh" yes yes no no
 "emailcod" yes yes no no
@@ -141,13 +141,13 @@
 "glhist" yes yes no no
 "gltrans" no no no no
 "inv-head" yes yes no no
-"inv-line" yes yes no no
+"inv-line" yes yes yes yes
 "inv-misc" yes yes no no
 "item" yes yes no no
 "item-bom" yes yes no no
 "item-comm" yes yes no no
 "item-spec" yes yes no no
-"itemfg" yes yes no no
+"itemfg" yes yes yes no
 "itemfg-bom" yes yes no no
 "itemfg-ink" yes yes no no
 "itemfg-loc" yes yes no no
@@ -160,7 +160,7 @@
 "job-code" yes yes no no
 "job-farm" yes yes no no
 "job-farm-rctd" yes yes no no
-"job-hdr" yes yes no no
+"job-hdr" yes yes yes no
 "job-mat" yes yes no no
 "job-mch" yes yes no no
 "job-prep" yes yes no no
@@ -210,7 +210,7 @@
 "notes" yes yes no no
 "nrf-color" yes yes no no
 "nrf-size" yes yes no no
-"oe-bolh" yes yes no no
+"oe-bolh" yes yes yes no
 "oe-boll" yes yes no no
 "oe-boll-qty" yes yes no no
 "oe-ctrl" yes yes no no
@@ -348,10 +348,11 @@
 PSC
 filename=AuditTbl
 records=0000000000346
-ldbname=Audit
-timestamp=2018/04/08-17:35:47
+ldbname=AUDIT
+timestamp=2018/07/29-13:44:57
 numformat=44,46
 dateformat=mdy-1950
 map=NO-MAP
-cpstream=ISO8859-1
+cpstream=ibm850
 .
+0000008877

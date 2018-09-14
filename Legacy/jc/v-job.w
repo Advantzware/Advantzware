@@ -66,6 +66,7 @@ DEFINE BUFFER bf-job-mch FOR job-mch.
 DEFINE VARIABLE OEJobHold-log AS LOG NO-UNDO.
 DEFINE VARIABLE lcReturn AS CHARACTER NO-UNDO.
 DEFINE VARIABLE llRecFound AS LOG NO-UNDO.
+DEFINE VARIABLE lCheckStartDate AS LOGICAL NO-UNDO .
 RUN sys/ref/nk1look.p (cocode, "OEJobHold", "L", NO, NO, "", "", 
                           OUTPUT lcReturn, OUTPUT llRecFound).
 
@@ -475,11 +476,25 @@ END.
 
 &Scoped-define SELF-NAME job.start-date
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL job.start-date V-table-Win
+ON ENTRY OF job.start-date IN FRAME F-Main /* Start */
+DO:
+    lCheckStartDate = NO .
+    IF job.start-date EQ ? THEN
+        ASSIGN lCheckStartDate = YES .
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME job.start-date
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL job.start-date V-table-Win
 ON LEAVE OF job.start-date IN FRAME F-Main /* Start */
 DO:
   IF LASTKEY NE -1 THEN DO:
-    RUN validate-start-date.
-    IF NOT ll-valid THEN RETURN NO-APPLY.
+    IF lCheckStartDate THEN do:
+        RUN validate-start-date.
+        IF NOT ll-valid THEN RETURN NO-APPLY.
+    END.
   END.
 END.
 
@@ -810,7 +825,8 @@ PROCEDURE hold-release :
 ------------------------------------------------------------------------------*/
   DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.  
   DEFINE VARIABLE lOrderOnHold AS LOGICAL NO-UNDO.  
-
+  DEFINE VARIABLE cHoldMessage AS CHARACTER NO-UNDO.
+  
     IF AVAILABLE job AND job.opened THEN 
     DO:
         FIND CURRENT job NO-ERROR.
@@ -827,10 +843,11 @@ PROCEDURE hold-release :
                         WHERE oe-ord.company EQ job-hdr.company
                         AND oe-ord.ord-no EQ job-hdr.ord-no
                         NO-LOCK NO-ERROR.
-                    IF AVAILABLE oe-ord AND oe-ord.stat EQ "H" THEN 
+                    IF AVAILABLE oe-ord AND (oe-ord.stat EQ "H" OR oe-ord.priceHold) THEN 
                     DO:
                         lOrderOnHold= TRUE.
-                        MESSAGE "Order " oe-ord.ord-no "is on hold and must be released before this job can be released."
+                        cHoldMessage = IF oe-ord.stat EQ 'H' THEN "hold" ELSE "price hold".
+                        MESSAGE "Order " oe-ord.ord-no "is on " cHoldMessage " and must be released before this job can be released."
                             VIEW-AS ALERT-BOX.
                     END. /* sales order is on hold */
                 END. /* has a sales order defined */
@@ -1289,8 +1306,10 @@ PROCEDURE local-update-record :
   DEFINE VARIABLE rEbRow AS ROWID NO-UNDO.
   DEFINE VARIABLE cNewItem AS CHARACTER NO-UNDO.
   /* Code placed here will execute PRIOR to standard behavior. */
-  RUN validate-start-date.
-  IF NOT ll-valid THEN RETURN NO-APPLY.
+  IF lCheckStartDate THEN do:
+      RUN validate-start-date.
+      IF NOT ll-valid THEN RETURN NO-APPLY.
+  END.
 
   /* per task #11280506
   RUN valid-due-date NO-ERROR.
@@ -1479,7 +1498,8 @@ PROCEDURE local-update-record :
 
   ASSIGN
     ll-sch-updated = NO
-    copyJob = NO.
+    copyJob = NO
+    lCheckStartDate = NO .
 
   /*needed for immediately pushing print button after adding new job*/
   IF ll-new THEN
@@ -1595,7 +1615,7 @@ PROCEDURE recalc-costs :
   DEF BUFFER bf-job-hdr FOR job-hdr .
 
   IF AVAILABLE job AND job.est-no NE "" THEN DO:
-    MESSAGE "Recalculate Job Cost?"
+    MESSAGE "Recalculate Job Cost from estimate standards without updating Materials and Routing?"
         VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
         UPDATE ll.  
 

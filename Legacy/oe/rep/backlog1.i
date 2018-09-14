@@ -27,5 +27,6 @@ def workfile w-ord
   field rel-date like oe-relh.rel-date
   field rel-stat as char
   FIELD po-received AS INT FORMAT "->>>,>>>,>>>"
-  field inv-qty like oe-ordl.qty     .                          .
+  field inv-qty like oe-ordl.qty 
+  field rel-type  as character   .                          
   

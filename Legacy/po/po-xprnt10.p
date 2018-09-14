@@ -109,7 +109,7 @@ DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
 DEFINE VARIABLE ls-full-img1 AS CHAR FORMAT "x(200)" NO-UNDO.
 DEFINE VARIABLE dCoreDia AS DECIMAL FORMAT ">,>>9.99<<" NO-UNDO.
-DEFINE VARIABLE cFlueTest AS CHARACTER FORMAT "x(25)" NO-UNDO.
+DEFINE VARIABLE cFlueTest AS CHARACTER FORMAT "x(30)" NO-UNDO.
 DEF TEMP-TABLE tt-text NO-UNDO
     FIELD TYPE AS cha
     FIELD tt-line AS INT
@@ -284,16 +284,11 @@ v-printline = 0.
                         +
                       (IF (AVAIL ITEM AND ITEM.vend2-no = po-ord.vend) THEN (" " + ITEM.vend2-item) ELSE "").
 
-        FIND FIRST reftable WHERE
-             reftable.reftable EQ "POORDLDEPTH" AND
-             reftable.company  EQ cocode AND
-             reftable.loc      EQ STRING(po-ordl.po-no) AND
-             reftable.code     EQ STRING(po-ordl.LINE)
-             NO-LOCK NO-ERROR.
+        
 
         ASSIGN v-wid = po-ordl.s-wid
                v-len = po-ordl.s-len
-               lv-dep = IF AVAIL reftable THEN DEC(reftable.code2)
+               lv-dep = IF po-ordl.s-dep GT 0 THEN po-ordl.s-dep
                         ELSE IF AVAIL ITEM AND ITEM.mat-type = "C" THEN item.case-d
                         ELSE IF AVAIL ITEM THEN ITEM.s-dep
                         ELSE 0
@@ -301,7 +296,7 @@ v-printline = 0.
                v-len2 = po-ordl.s-len
                lv-dep2 = lv-dep.
 
-        RELEASE reftable.
+        
         if avail item and item.mat-type eq "B" then do:
           if v-shtsiz then do:
            if v-dec-fld = 0.08 then
@@ -595,7 +590,7 @@ v-printline = 0.
                  lv-reg-no = "".
 
           IF AVAIL ITEM AND ITEM.mat-type EQ "B" AND ITEM.industry = "2" AND  ITEM.flute NE "" AND ITEM.reg-no NE "" THEN
-          ASSIGN cFlueTest = string(lv-flute,"x(13)") + string(lv-reg-no,"x(10)").
+          ASSIGN cFlueTest = string(lv-flute,"x(13)") + string(lv-reg-no,"x(12)").
           ELSE
               ASSIGN cFlueTest = IF dCoreDia GT 0 AND ITEM.mat-type EQ "P" THEN "Core Dia: " + string(dCoreDia,">,>>9.99<<") ELSE ""
                      dCoreDia = 0.
@@ -717,6 +712,10 @@ v-printline = 0.
                {po/po-xprnt10.i}
             END.
          END.
+         PUT skip(1).
+        assign
+        v-line-number = v-line-number + 1
+        v-printline = v-printline + 1.
   
      IF v-printline > 46 THEN DO:
           PAGE.

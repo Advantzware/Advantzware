@@ -10,13 +10,14 @@ def shared buffer xeb  for eb.
 DEF BUFFER bf-est FOR est.
 DEF BUFFER bf-eb FOR eb.
 DEF BUFFER bf-ef FOR ef.
-DEF BUFFER reftable-fm FOR reftable.
 DEF BUFFER reftable-broker-pct FOR reftable.
 def new shared buffer xop for est-op.
 def new shared var k_frac as dec init "6.25" no-undo.
 DEF NEW SHARED VAR DAY_str AS cha FORM "x(10)" NO-UNDO.
 DEF NEW SHARED VAR tim_str AS cha FORM "x(8)" NO-UNDO.
 DEF NEW SHARED VAR tmp-dir AS cha NO-UNDO.
+DEFINE NEW SHARED VARIABLE cCeBrowseBaseDir AS CHARACTER NO-UNDO.
+
 def new shared var v-drop-rc as log no-undo.
 /* TEST */
 def new shared var v-prep-mat AS DEC no-undo.
@@ -100,7 +101,7 @@ def new shared workfile w-form
     field form-no like xef.form-no
     field min-msf as   log init no.
 
-DEF NEW SHARED TEMP-TABLE tt-rel NO-UNDO LIKE reftable.
+DEF NEW SHARED TEMP-TABLE tt-rel NO-UNDO LIKE eb.
 
 FIND FIRST company WHERE company.company EQ cocode NO-LOCK NO-ERROR.
 FIND FIRST loc WHERE loc.loc EQ locode NO-LOCK NO-ERROR.
@@ -129,30 +130,7 @@ END.
 
 {cec/get-vend.i}  /* get vendor number */
 
-find first sys-ctrl where
-  sys-ctrl.company eq cocode AND
-  sys-ctrl.name    eq "CEBROWSE"
-  no-lock no-error.
-
-if not avail sys-ctrl then do transaction:
-   create sys-ctrl.
-   assign sys-ctrl.company = cocode
-          sys-ctrl.name    = "CEBROWSE"
-          sys-ctrl.descrip = "# of Records to be displayed in browser"
-          sys-ctrl.log-fld = YES
-          sys-ctrl.char-fld = "CE"
-          sys-ctrl.int-fld = 30.
-end.
-
-IF sys-ctrl.char-fld NE "" THEN
-   tmp-dir = sys-ctrl.char-fld.
-ELSE
-   tmp-dir = "users\".
-
-IF LOOKUP(SUBSTRING(tmp-dir,LENGTH(tmp-dir)),"\,/") EQ 0 THEN
-   tmp-dir = tmp-dir + "\".
-
-tmp-dir = REPLACE(tmp-dir,"/","\").
+RUN est/EstimateProcs.p (xest.company, OUTPUT cCeBrowseBaseDir, OUTPUT tmp-dir).
 
 find first xef where xef.company = xest.company 
                  AND xef.est-no = xest.est-no.              
@@ -298,18 +276,15 @@ ELSE DO:
   v-brd-only = sys-ctrl.log-fld.
 END.
 
-FOR EACH eb fields(company est-no form-no blank-no) NO-LOCK
+
+  FOR EACH eb fields(company est-no form-no blank-no) NO-LOCK
       WHERE eb.company EQ xest.company
-        AND eb.est-no  EQ xest.est-no,
-      FIRST reftable NO-LOCK
-      WHERE reftable.reftable EQ "ce/com/selwhif1.w"
-        AND reftable.company  EQ eb.company
-        AND reftable.loc      EQ eb.est-no
-        AND reftable.code     EQ STRING(eb.form-no,"9999999999")
-        AND reftable.code2    EQ STRING(eb.blank-no,"9999999999"):
+        AND eb.est-no  EQ xest.est-no:
     CREATE tt-rel. 
-    BUFFER-COPY reftable TO tt-rel.
-  END.
+    BUFFER-COPY eb TO tt-rel.
+  END.  
+
+
 
 DO TRANSACTION:
   {est/op-lock.i xest}
@@ -1047,14 +1022,15 @@ for each car break by car.id:
         AND bf-eb.est-no  EQ xest.est-no
         AND bf-eb.part-no EQ car.id:
     z = z + bf-eb.bl-qty.
-    FIND FIRST tt-rel
-        WHERE tt-rel.reftable EQ "ce/com/selwhif1.w"
-          AND tt-rel.company  EQ bf-eb.company
-          AND tt-rel.loc      EQ bf-eb.est-no
-          AND tt-rel.code     EQ STRING(bf-eb.form-no,"9999999999")
-          AND tt-rel.code2    EQ STRING(bf-eb.blank-no,"9999999999")
-        NO-ERROR.
-    li-rels = li-rels + (IF AVAIL tt-rel THEN tt-rel.val[1] ELSE 1).
+
+   FIND FIRST tt-rel
+         WHERE tt-rel.company     EQ bf-eb.company                      
+           AND tt-rel.est-no      EQ bf-eb.est-no                       
+           AND tt-rel.form-no     EQ bf-eb.form-no 
+           AND tt-rel.blank-no    EQ bf-eb.blank-no
+         NO-ERROR.
+                  
+    li-rels = li-rels + (IF AVAIL tt-rel THEN tt-rel.releaseCount ELSE 1).
   END.
 
   find first xeb
@@ -1174,20 +1150,16 @@ assign
  gsa-war = ce-ctrl.whse-mrkup
  qty     = tt-blk.
 
-FIND FIRST reftable-fm NO-LOCK
-     WHERE reftable-fm.reftable EQ "gsa-fm"
-       AND reftable-fm.company  EQ xest.company
-       AND reftable-fm.loc      EQ ""
-       AND reftable-fm.code     EQ xest.est-no
-     NO-ERROR.
-
 FIND FIRST cust WHERE
      cust.company EQ xest.company AND
      cust.cust-no EQ v-cust-no
      NO-LOCK NO-ERROR.
 
-IF AVAIL reftable-fm THEN
-   gsa-fm = reftable-fm.val[1].
+FIND FIRST probe    
+      WHERE probe.company    EQ xest.company
+        AND probe.est-no     EQ xest.est-no NO-LOCK NO-ERROR.
+   IF AVAIL probe THEN
+      gsa-fm = int(probe.gsa-fm).
 ELSE
    IF AVAIL cust AND cust.scomm NE 0 THEN
       gsa-fm = cust.scomm.

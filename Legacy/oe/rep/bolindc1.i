@@ -27,9 +27,9 @@
                 "<R24><C25><FROM><R26><C25><LINE>" SKIP
                 "<R24><C51><FROM><R26><C51><LINE>" SKIP 
                 "<R24><C62><FROM><R26><C62><LINE>" 
-                "<R24><C67><FROM><R26><C67><LINE>" SKIP            
+                "<R24><C69><FROM><R26><C69><LINE>" SKIP            
                 "<R24><C74><FROM><R26><C74><LINE>"
             "<=5> FG Item#  "
-            "<=5><R+1> Your Part#       PO#               Description              Cases - Pack Total  Class   Weight" SKIP(1)
+            "<=5><R+1> Your Part#       PO#               Description              Cases - Pack   Total Class  Weight" SKIP(1)
             .
             v-printline = v-printline + 16.

@@ -5,19 +5,9 @@
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS Dialog-Frame 
 /*------------------------------------------------------------------------
 
-  File: 
+        Name: dChooseFont.w
+        Desc: Let user choose from a palette of fonts
 
-  Description: 
-
-  Input Parameters:
-      <none>
-
-  Output Parameters:
-      <none>
-
-  Author: 
-
-  Created: 
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress AppBuilder.       */
 /*----------------------------------------------------------------------*/
@@ -25,17 +15,18 @@
 /* ***************************  Definitions  ************************** */
 
 /* Parameters Definitions ---                                           */
-{ datadigger.i }
+{ DataDigger.i }
 
 /* Local Variable Definitions ---                                       */
-define {&invar}  piFontOld as integer no-undo.
-define {&outvar} piFontNew as integer no-undo initial -1.
+DEFINE {&invar}  piFontOld AS INTEGER NO-UNDO.
+DEFINE {&outvar} piFontNew AS INTEGER NO-UNDO INITIAL -1.
 
-define temp-table ttButton no-undo
-  field x as integer
-  field y as integer
-  field h as handle
-  .
+DEFINE TEMP-TABLE ttButton NO-UNDO RCODE-INFORMATION
+        FIELD x AS INTEGER
+        FIELD y AS INTEGER
+        FIELD h AS HANDLE
+        INDEX idxPrim IS PRIMARY x y
+        .
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -216,12 +207,13 @@ DEFINE FRAME Dialog-Frame
      BtnCancel AT Y 325 X 660 WIDGET-ID 54
      Btn_OK AT Y 325 X 740
      "Double click font to edit" VIEW-AS TEXT
-          SIZE-PIXELS 125 BY 13 AT Y 320 X 10 WIDGET-ID 56
+          SIZE-PIXELS 200 BY 20 AT Y 320 X 10 WIDGET-ID 56
      RECT-6 AT Y 5 X 0 WIDGET-ID 50
-     rcFocus AT Y 315 X 150 WIDGET-ID 52
+     rcFocus AT Y 315 X 235 WIDGET-ID 52
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          SIZE-PIXELS 847 BY 388
+         FONT 18
          TITLE "Choose Font"
          DEFAULT-BUTTON Btn_OK CANCEL-BUTTON BtnCancel WIDGET-ID 100.
 
@@ -263,8 +255,8 @@ ASSIGN
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Dialog-Frame Dialog-Frame
 ON WINDOW-CLOSE OF FRAME Dialog-Frame /* Choose Font */
 DO:
-  piFontNew = -1.
-  APPLY "END-ERROR":U TO SELF.
+        piFontNew = -1.
+        APPLY "END-ERROR":U TO SELF.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -277,22 +269,22 @@ ON CURSOR-DOWN OF btn-0 IN FRAME Dialog-Frame /* Font 0 */
 , btn-1, btn-2, btn-3, btn-4, btn-5, btn-6, btn-7, btn-8, btn-9, btn-10, btn-11, btn-12
 , btn-13, btn-14, btn-15, btn-16, btn-17, btn-18, btn-19, btn-20, btn-21, btn-22, btn-23
 DO:
+  DEFINE VARIABLE hTarget AS HANDLE NO-UNDO.
+  DEFINE BUFFER bButton FOR ttButton.
 
-  define variable hTarget as handle no-undo. 
-  define buffer bButton for ttButton.
-
-  for each bButton 
-    where bButton.x = self:x 
-      and bButton.y > self:y 
-       by bButton.y:
+  #Button:
+  FOR EACH bButton
+    WHERE bButton.x = SELF:x
+      AND bButton.y > SELF:y
+       BY bButton.y:
     hTarget = bButton.h.
-    leave.
-  end. 
+    LEAVE #Button.
+  END.
 
-  if valid-handle(hTarget) then
-    apply 'entry' to hTarget.
+  IF VALID-HANDLE(hTarget) THEN
+    APPLY 'entry' TO hTarget.
 
-  return no-apply.
+  RETURN NO-APPLY.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -304,22 +296,22 @@ ON CURSOR-LEFT OF btn-0 IN FRAME Dialog-Frame /* Font 0 */
 , btn-1, btn-2, btn-3, btn-4, btn-5, btn-6, btn-7, btn-8, btn-9, btn-10, btn-11, btn-12
 , btn-13, btn-14, btn-15, btn-16, btn-17, btn-18, btn-19, btn-20, btn-21, btn-22, btn-23
 DO:
+  DEFINE VARIABLE hTarget AS HANDLE NO-UNDO.
+  DEFINE BUFFER bButton FOR ttButton.
 
-  define variable hTarget as handle no-undo. 
-  define buffer bButton for ttButton.
-
-  for each bButton 
-    where bButton.y = self:y 
-      and bButton.x < self:x 
-       by bButton.x descending:
+  #Button:
+  FOR EACH bButton
+    WHERE bButton.y = SELF:y
+      AND bButton.x < SELF:x
+       BY bButton.x DESCENDING:
     hTarget = bButton.h.
-    leave.
-  end. 
+    LEAVE #Button.
+  END.
 
-  if valid-handle(hTarget) then
-    apply 'entry' to hTarget.
+  IF VALID-HANDLE(hTarget) THEN
+    APPLY 'entry' TO hTarget.
 
-  return no-apply.
+  RETURN NO-APPLY.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -331,22 +323,22 @@ ON CURSOR-RIGHT OF btn-0 IN FRAME Dialog-Frame /* Font 0 */
 , btn-1, btn-2, btn-3, btn-4, btn-5, btn-6, btn-7, btn-8, btn-9, btn-10, btn-11, btn-12
 , btn-13, btn-14, btn-15, btn-16, btn-17, btn-18, btn-19, btn-20, btn-21, btn-22, btn-23
 DO:
+  DEFINE VARIABLE hTarget AS HANDLE NO-UNDO.
+  DEFINE BUFFER bButton FOR ttButton.
 
-  define variable hTarget as handle no-undo. 
-  define buffer bButton for ttButton.
-
-  for each bButton 
-    where bButton.y = self:y 
-      and bButton.x > self:x 
-       by bButton.x:
+  #Button:
+  FOR EACH bButton
+    WHERE bButton.y = SELF:y
+      AND bButton.x > SELF:x
+       BY bButton.x:
     hTarget = bButton.h.
-    leave.
-  end. 
+    LEAVE #Button.
+  END.
 
-  if valid-handle(hTarget) then
-    apply 'entry' to hTarget.
+  IF VALID-HANDLE(hTarget) THEN
+    APPLY 'entry' TO hTarget.
 
-  return no-apply.
+  RETURN NO-APPLY.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -358,22 +350,22 @@ ON CURSOR-UP OF btn-0 IN FRAME Dialog-Frame /* Font 0 */
 , btn-1, btn-2, btn-3, btn-4, btn-5, btn-6, btn-7, btn-8, btn-9, btn-10, btn-11, btn-12
 , btn-13, btn-14, btn-15, btn-16, btn-17, btn-18, btn-19, btn-20, btn-21, btn-22, btn-23
 DO:
+  DEFINE VARIABLE hTarget AS HANDLE NO-UNDO.
+  DEFINE BUFFER bButton FOR ttButton.
 
-  define variable hTarget as handle no-undo. 
-  define buffer bButton for ttButton.
-
-  for each bButton 
-    where bButton.x = self:x 
-      and bButton.y < self:y 
-       by bButton.y descending:
+  #Button:
+  FOR EACH bButton
+    WHERE bButton.x = SELF:x
+      AND bButton.y < SELF:y
+       BY bButton.y DESCENDING:
     hTarget = bButton.h.
-    leave.
-  end. 
+    LEAVE #Button.
+  END.
 
-  if valid-handle(hTarget) then
-    apply 'entry' to hTarget.
+  IF VALID-HANDLE(hTarget) THEN
+    APPLY 'entry' TO hTarget.
 
-  return no-apply.
+  RETURN NO-APPLY.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -386,13 +378,13 @@ ON ENTRY OF btn-0 IN FRAME Dialog-Frame /* Font 0 */
 , btn-13, btn-14, btn-15, btn-16, btn-17, btn-18, btn-19, btn-20, btn-21, btn-22, btn-23
 DO:
 
-  rcFocus:x = self:x - 3.
-  rcFocus:y = self:y - 3.
-  rcFocus:width-pixels = self:width-pixels + 6.
-  rcFocus:height-pixels = self:height-pixels + 6.
-  rcFocus:hidden = no.
+        rcFocus:x = SELF:x - 3.
+        rcFocus:y = SELF:y - 3.
+        rcFocus:width-pixels = SELF:width-pixels + 6.
+        rcFocus:height-pixels = SELF:height-pixels + 6.
+        rcFocus:hidden = NO.
 
-  piFontNew = integer(entry(2,self:name,'-')).
+        piFontNew = INTEGER(ENTRY(2,SELF:name,'-')).
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -404,7 +396,7 @@ ON LEAVE OF btn-0 IN FRAME Dialog-Frame /* Font 0 */
 , btn-1, btn-2, btn-3, btn-4, btn-5, btn-6, btn-7, btn-8, btn-9, btn-10, btn-11, btn-12
 , btn-13, btn-14, btn-15, btn-16, btn-17, btn-18, btn-19, btn-20, btn-21, btn-22, btn-23
 DO:
-  rcFocus:hidden = yes.
+        rcFocus:hidden = YES.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -416,15 +408,15 @@ ON MOUSE-SELECT-DBLCLICK OF btn-0 IN FRAME Dialog-Frame /* Font 0 */
 , btn-1, btn-2, btn-3, btn-4, btn-5, btn-6, btn-7, btn-8, btn-9, btn-10, btn-11, btn-12
 , btn-13, btn-14, btn-15, btn-16, btn-17, btn-18, btn-19, btn-20, btn-21, btn-22, btn-23
 
-or 'RETURN' of btn-0, btn-1, btn-2, btn-3, btn-4, btn-5, btn-6, btn-7, btn-8, btn-9, btn-10, btn-11, btn-12
+OR 'RETURN' OF btn-0, btn-1, btn-2, btn-3, btn-4, btn-5, btn-6, btn-7, btn-8, btn-9, btn-10, btn-11, btn-12
 , btn-13, btn-14, btn-15, btn-16, btn-17, btn-18, btn-19, btn-20, btn-21, btn-22, btn-23
 
 DO:
-  define variable iFontNr as integer no-undo. 
+        DEFINE VARIABLE iFontNr AS INTEGER NO-UNDO.
 
-  iFontNr = integer(entry(2,self:name,'-')).
+        iFontNr = INTEGER(ENTRY(2,SELF:name,'-')).
 
-  system-dialog font iFontNr.
+        SYSTEM-DIALOG FONT iFontNr.
 
 END.
 
@@ -436,7 +428,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL BtnCancel Dialog-Frame
 ON CHOOSE OF BtnCancel IN FRAME Dialog-Frame /* Cancel */
 DO:
-  piFontNew = -1.
+        piFontNew = -1.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -451,7 +443,7 @@ END.
 /* ***************************  Main Block  *************************** */
 
 /* Parent the dialog-box to the ACTIVE-WINDOW, if there is no parent.   */
-IF VALID-HANDLE(ACTIVE-WINDOW) AND FRAME {&FRAME-NAME}:PARENT eq ?
+IF VALID-HANDLE(ACTIVE-WINDOW) AND FRAME {&FRAME-NAME}:PARENT EQ ?
 THEN FRAME {&FRAME-NAME}:PARENT = ACTIVE-WINDOW.
 
 
@@ -459,12 +451,12 @@ THEN FRAME {&FRAME-NAME}:PARENT = ACTIVE-WINDOW.
 /* (NOTE: handle ERROR and END-KEY so cleanup code will always fire.    */
 MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
-   ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
+         ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
 
-  run enable_UI.
-  run initializeObjects.
+        RUN enable_UI.
+        RUN initializeObjects.
 
-  WAIT-FOR GO OF FRAME {&FRAME-NAME}.
+        WAIT-FOR GO OF FRAME {&FRAME-NAME}.
 END.
 RUN disable_UI.
 
@@ -515,54 +507,53 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE initializeObjects Dialog-Frame 
 PROCEDURE initializeObjects :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  define variable iButtonNr as integer no-undo. 
-  define variable hButton   as handle  no-undo.
-  define variable cFontName as character no-undo. 
+/* Initialize global vars and create widgets
+        */
+        DEFINE VARIABLE iButtonNr AS INTEGER NO-UNDO.
+        DEFINE VARIABLE hButton   AS HANDLE  NO-UNDO.
+        DEFINE VARIABLE cFontName AS CHARACTER NO-UNDO.
 
-  /* Get fonts */
-  frame {&frame-name}:font = getFont('Default').
+        /* Get fonts */
+        FRAME {&frame-name}:font = getFont('Default').
 
-  hButton = frame {&frame-name}:first-child:first-child. /* rectangle */
-  repeat:
-    hButton = hButton:next-sibling.
-    if not valid-handle(hButton) then leave. 
-    if not valid-handle(hButton) then next.
-    if not hButton:name matches 'btn-*' then next. 
+        hButton = FRAME {&frame-name}:first-child:first-child. /* rectangle */
 
-    iButtonNr = integer(entry(2,hButton:name,'-')).
-    hButton:font = iButtonNr. /* Font is same as name of button */
+        #Button:
+        REPEAT:
+                hButton = hButton:NEXT-SIBLING.
+                IF NOT VALID-HANDLE(hButton) THEN LEAVE #Button.
+                IF NOT VALID-HANDLE(hButton) THEN NEXT #Button.
+                IF NOT hButton:NAME MATCHES 'btn-*' THEN NEXT #Button.
 
-    /* Get the name of the font from the progress.ini */
-    get-key-value section 'fonts'
-      key 'font' + string(iButtonNr)
-      value cFontName.
+                iButtonNr = INTEGER(ENTRY(2,hButton:NAME,'-')).
+                hButton:FONT = iButtonNr. /* Font is same as name of button */
 
-    if cFontName <> ? then 
-      hButton:label = substitute('&1: &2', iButtonNr, cFontName).
+                /* Get the name of the font from the progress.ini */
+                GET-KEY-VALUE SECTION 'fonts'
+                        KEY 'font' + string(iButtonNr)
+                        VALUE cFontName.
 
-    /* If this is the one that is specified in the input param
-     * then set focus on this one by applying ENTRY.
-     */
-    if hButton:name = substitute('btn-&1', piFontOld) then
-      apply 'entry' to hButton.
+                IF cFontName <> ? THEN
+                        hButton:LABEL = SUBSTITUTE('&1: &2', iButtonNr, cFontName).
 
-    /* Save button props */
-    create ttButton.
-    assign ttButton.x = hButton:x
-           ttButton.y = hButton:y
-           ttButton.h = hButton
-           .
-  end.
-  
-  /* For some reasons, these #*$&# scrollbars keep coming back */
-  run showScrollBars(frame {&frame-name}:handle, no, no). /* KILL KILL KILL */
+                /* If this is the one that is specified in the input param
+                 * then set focus on this one by applying ENTRY.
+                 */
+                IF hButton:NAME = substitute('btn-&1', piFontOld) THEN
+                        APPLY 'entry' TO hButton.
 
-end procedure. /* initializeObjects */
+                /* Save button props */
+                CREATE ttButton.
+                ASSIGN ttButton.x = hButton:X
+                                         ttButton.y = hButton:Y
+                                         ttButton.h = hButton
+                                         .
+        END.
+
+        /* For some reasons, these #*$&# scrollbars keep coming back */
+        RUN showScrollBars(FRAME {&frame-name}:handle, NO, NO). /* KILL KILL KILL */
+
+END PROCEDURE. /* initializeObjects */
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

@@ -548,9 +548,6 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL imageSettings MAINMENU
 ON MOUSE-SELECT-CLICK OF imageSettings IN FRAME FRAME-USER
 DO:
-    /*
-    RUN system/sysCtrlUsage.w.
-    */
     RUN system/userSettings.w (
         INPUT-OUTPUT iMenuSize,
         INPUT-OUTPUT iLanguage,
@@ -1178,8 +1175,8 @@ PROCEDURE pGetMenu :
             IF NOT AVAILABLE ttblMenu THEN DO:         
                 CREATE ttblMenu.
                 ASSIGN
-                    ttblMenu.menuName  = cPrgrm
-                    ttblMenu.mnemonic  = cMnemonic 
+                    ttblMenu.menuName = cPrgrm
+                    ttblMenu.mnemonic = cMnemonic 
                    .
             END.
         END.
@@ -1205,18 +1202,18 @@ PROCEDURE pGetMenu :
     END. /* repeat */
     IF AVAILABLE ttblMenu THEN
     ttblMenu.menuCount = ttblMenu.menuCount + 1.
-/*
-    CREATE ttblItem.
-    ASSIGN 
-        idx                = idx + 1
-        ttblItem.menuOrder = idx
-        ttblItem.menu1     = "Exit"
-        ttblItem.menu2     = "file"
-        ttblItem.mnemonic  = "X"
-        ttblItem.mainMenu  = NO
-        ttblItem.imageFile = fItemImage("Exit")
-        .            
-*/
+
+/*    CREATE ttblItem.                           */
+/*    ASSIGN                                     */
+/*        idx                = idx + 1           */
+/*        ttblItem.menuOrder = idx               */
+/*        ttblItem.menu1     = "Exit"            */
+/*        ttblItem.menu2     = "file"            */
+/*        ttblItem.mnemonic  = "X"               */
+/*        ttblItem.mainMenu  = NO                */
+/*        ttblItem.imageFile = fItemImage("Exit")*/
+/*        .                                      */
+
     FOR EACH ttblItem USE-INDEX menu2 BREAK BY ttblItem.menu2:
         IF FIRST-OF(ttblItem.menu2) THEN idx = 0.
         ASSIGN
@@ -1249,6 +1246,21 @@ PROCEDURE pGetMenu :
     END. /* do idx */
     
     RUN pCreateMenuObjects ("file").
+    
+    /* Removing as described
+    /* temporary section, will be removed before release of 16.8.0 */
+    OUTPUT TO c:\tmp\ttblItem.txt.
+    FOR EACH ttblItem:
+        FIND FIRST prgrms
+             WHERE prgrms.prgmname EQ ttblItem.menu1
+             NO-ERROR.
+        IF AVAILABLE prgrms THEN 
+        prgrms.mnemonic = ttblItem.mnemonic.
+        EXPORT ttblItem.menu1 ttblItem.mnemonic.
+    END.
+    OUTPUT CLOSE.
+    /* temporary section, will be removed before release of 16.8.0 */
+    */
 
 END PROCEDURE.
 
@@ -1356,14 +1368,19 @@ PROCEDURE pInit :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    DEFINE VARIABLE cMenuExt     AS CHARACTER NO-UNDO INITIAL "lst".
-    DEFINE VARIABLE cNK1Value    AS CHARACTER NO-UNDO EXTENT 4.
-    DEFINE VARIABLE idx          AS INTEGER   NO-UNDO.
-    DEFINE VARIABLE lFound       AS LOGICAL   NO-UNDO.
-    DEFINE VARIABLE hWebService  AS HANDLE    NO-UNDO.
-    DEFINE VARIABLE hSalesSoap   AS HANDLE    NO-UNDO.
-    DEFINE VARIABLE cVersion     AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cHelpService AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cMenuExt      AS CHARACTER NO-UNDO INITIAL "lst".
+    DEFINE VARIABLE cNK1Value     AS CHARACTER NO-UNDO EXTENT 4.
+    DEFINE VARIABLE idx           AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE lFound        AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE hWebService   AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE hSalesSoap    AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE cVersion      AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cHelpService  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE hPgmMstrSecur AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE lAdmin        AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cThisVer      AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iThisVersion  AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iLastVersion  AS INTEGER   NO-UNDO.
     
     RUN sys/ref/nk1look.p (
         g_company,"CEMenu","C",NO,NO,"","",
@@ -1488,10 +1505,18 @@ PROCEDURE pInit :
                     hMenuLink[idx]:TRANSPARENT    = cNK1Value[3] EQ "1"
                     .
                 hMenuLink[idx]:LOAD-IMAGE(SEARCH(cNK1Value[1])).
-            END. /* if avail */
+            END. /* if search */
         END. /* do idx */
         /* check if upgrade available */
-        IF AVAILABLE users AND users.securityLevel GT 900 THEN DO:
+        IF NOT VALID-HANDLE(hPgmMstrSecur) THEN
+        RUN system/PgmMstrSecur.p PERSISTENT SET hPgmMstrSecur.
+        IF VALID-HANDLE(hPgmMstrSecur) THEN
+        RUN epCanAccess IN hPgmMstrSecur (
+            "system/mainMenu.w",
+            "CanUpgrade",
+            OUTPUT lAdmin 
+            ).
+        IF lAdmin THEN DO:
             RUN sys/ref/nk1look.p (
                 g_company,"AsiHelpService","C",NO,NO,"","",
                 OUTPUT cHelpService,OUTPUT lFound
@@ -1501,7 +1526,17 @@ PROCEDURE pInit :
             IF hWebService:CONNECTED() THEN DO:
                 RUN Service1Soap SET hSalesSoap ON hWebService .
                 RUN HelpVersion IN hSalesSoap (OUTPUT cVersion).
-                IF "{&awversion}" NE cVersion THEN DO:
+
+                ASSIGN
+                    cThisVer     = "{&awversion}"
+                    iLastVersion = (INT(ENTRY(1,cVersion,".")) * 10000) +
+                                   (INT(ENTRY(2,cVersion,".")) * 100) +
+                                   (INT(ENTRY(3,cVersion,".")))
+                    iThisVersion = (INT(ENTRY(1,cThisVer,".")) * 10000) +
+                                   (INT(ENTRY(2,cThisVer,".")) * 100) +
+                                   (INT(ENTRY(3,cThisVer,"."))).
+                    
+                IF iLastVersion GT iThisVersion THEN DO:
                     RUN sys/ref/nk1look.p (
                         g_company,"MENULINKUPGRADE","C",NO,NO,"","",
                         OUTPUT cNK1Value[1],OUTPUT lFound
@@ -1528,10 +1563,6 @@ PROCEDURE pInit :
                             menuLinkZoHo:TRANSPARENT    = cNK1Value[3] EQ "1"
                             menuLinkZoHo:TOOLTIP        = "Version " + cVersion + " Upgrade Available"
                             .
-                        MESSAGE 
-                            "Current Version: {&awversion}." SKIP(1) 
-                            menuLinkZoHo:TOOLTIP
-                        VIEW-AS ALERT-BOX TITLE "Upgrade Alert".
                         menuLinkZoHo:LOAD-IMAGE(SEARCH(cNK1Value[1])).
                     END. /* if avail */
                 END. /* different version */
@@ -1757,21 +1788,11 @@ PROCEDURE Set-comp_loc :
             g_loc                     = ipcLoc
             .
     END.
-    FIND FIRST sys-ctrl
-         WHERE sys-ctrl.company EQ g_company
-           AND sys-ctrl.NAME    EQ "bitmap"
-         NO-ERROR.
-    IF NOT AVAILABLE sys-ctrl THEN
-    DO TRANSACTION:
-        CREATE sys-ctrl.
-        ASSIGN
-            sys-ctrl.company = g_company
-            sys-ctrl.name    = "bitmap"
-            sys-ctrl.descrip = "Graphics\bigboxes"
-            .
-    END.
-    IF AVAILABLE sys-ctrl AND sys-ctrl.descrip<> "" THEN
-    boxes:LOAD-IMAGE(sys-ctrl.descrip).
+    RUN sys/ref/nk1look.p (
+        g_company,"BitMap","DS",NO,NO,"","",
+        OUTPUT cBitMap,OUTPUT lFound
+        ).
+    IF lFound AND cBitMap NE "" THEN boxes:LOAD-IMAGE(cBitMap).
 
 END PROCEDURE.
 

@@ -42,7 +42,11 @@ DEF VAR lv-autopost LIKE sys-ctrl.char-fld NO-UNDO.
 DEF VAR lv-tax-mand AS LOG NO-UNDO.
 DEF VAR v-cust-fmt AS CHAR NO-UNDO.
 DEF VAR v-cust-log AS LOGICAL NO-UNDO.
-
+DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO .
+DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO .
+DEFINE VARIABLE oeDateAuto-char AS CHARACTER NO-UNDO .
+DEFINE VARIABLE oeDateAuto-int AS INTEGER NO-UNDO .
+DEFINE VARIABLE oeDateAuto-log AS LOGICAL NO-UNDO .
 {sys/inc/var.i NEW SHARED}
 
 &scoped-define copy-proc proc-copy
@@ -84,6 +88,24 @@ end.
 {methods/defines/shipto.i &NEW="NEW"}
 
 DEFINE {&NEW} SHARED VARIABLE g_lookup-var AS CHARACTER NO-UNDO.
+
+RUN sys/ref/nk1look.p (INPUT cocode, "OEAutoDateUpdate", "C" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+OUTPUT cRtnChar, OUTPUT lRecFound).
+
+    oeDateAuto-char = cRtnChar NO-ERROR. 
+
+RUN sys/ref/nk1look.p (INPUT cocode, "OEAutoDateUpdate", "I" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+OUTPUT cRtnChar, OUTPUT lRecFound).
+
+    oeDateAuto-int = INTEGER(cRtnChar) NO-ERROR.
+
+RUN sys/ref/nk1look.p (INPUT cocode, "OEAutoDateUpdate", "L" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+OUTPUT cRtnChar, OUTPUT lRecFound).
+
+    oeDateAuto-log = LOGICAL(cRtnChar) NO-ERROR.
 
 &SCOPED-DEFINE enable-shipto enable-shipto
 
@@ -1290,8 +1312,13 @@ PROCEDURE local-update-record :
 ------------------------------------------------------------------------------*/
 DEF VAR ip-shipnotes AS CHAR NO-UNDO.
 
+DEFINE VARIABLE iOldvalueTrans AS INTEGER NO-UNDO .
+DEFINE VARIABLE iOldvalueDock AS INTEGER NO-UNDO .
   /* Code placed here will execute PRIOR to standard behavior. */
 /*   RUN ship-zip. */
+ASSIGN 
+    iOldvalueTrans = integer(shipto.del-time)
+    iOldvalueDock  = spare-int-2  .
 
   RUN valid-ship-id NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
@@ -1345,7 +1372,12 @@ DEF VAR ip-shipnotes AS CHAR NO-UNDO.
                     INPUT shipto.ship-id,
                     INPUT ip-shipnotes).
 
+  ASSIGN 
+      iOldvalueTrans = iOldvalueTrans - integer(shipto.del-time)
+      iOldvalueDock  = iOldvalueDock - shipto.spare-int-2.
 
+  RUN update-date (iOldvalueTrans,iOldvalueDock)  . 
+  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1487,7 +1519,7 @@ DEFINE BUFFER buff-shipto FOR shipto .
      ASSIGN thisOne = ENTRY(i,v-cust-fmt).
      CREATE buff-shipto .
      ASSIGN buff-shipto.company = thisone.
-     BUFFER-COPY shipto EXCEPT company  TO buff-shipto.
+     BUFFER-COPY shipto EXCEPT company rec_key TO buff-shipto.
  END.
 END PROCEDURE.
 
@@ -1513,12 +1545,12 @@ DEFINE BUFFER buff-shipto FOR shipto .
                           AND buff-shipto.ship-id = shipto.ship-id 
                           AND buff-shipto.company = thisOne EXCLUSIVE-LOCK NO-ERROR.
      IF AVAIL buff-shipto THEN do:
-     BUFFER-COPY shipto EXCEPT cust-no company ship-id TO buff-shipto.
+     BUFFER-COPY shipto EXCEPT cust-no company ship-id rec_key TO buff-shipto.
      END.
      ELSE DO:
         CREATE buff-shipto .
         ASSIGN buff-shipto.company = thisone.
-        BUFFER-COPY shipto EXCEPT company  TO buff-shipto.
+        BUFFER-COPY shipto EXCEPT company rec_key TO buff-shipto.
      END.
     END.
 
@@ -1880,6 +1912,107 @@ PROCEDURE valid-tax-code :
   END.
 
   {methods/lValidateError.i NO}
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE update-date V-table-Win 
+PROCEDURE update-date :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipOldvalueTrans AS INTEGER NO-UNDO .
+    DEFINE INPUT PARAMETER ipOldvalueDock AS INTEGER NO-UNDO .
+    DEFINE VARIABLE lCheckUpdate AS LOGICAL NO-UNDO .
+
+    IF oeDateAuto-int EQ 0 THEN DO:
+
+      FIND FIRST sys-ctrl NO-LOCK WHERE 
+          sys-ctrl.company EQ cocode AND 
+          sys-ctrl.name    EQ "OEAutoDateUpdate"
+          NO-ERROR.
+
+      ASSIGN oeDateAuto-log = IF AVAIL sys-ctrl THEN sys-ctrl.log-fld ELSE NO . 
+      
+      IF oeDateAuto-log EQ ? THEN
+          MESSAGE "The Transit or Dock Appt value(s) has changed " + 
+          "- Do you want to update Order date and Release dates for open orders for this ship to?"
+          VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
+         UPDATE lCheckUpdate .
+
+      IF oeDateAuto-log EQ NO  THEN lCheckUpdate = NO .
+      IF oeDateAuto-log EQ YES  THEN lCheckUpdate = YES .
+
+      IF lCheckUpdate THEN do:
+           
+              FOR EACH oe-ordl EXCLUSIVE-LOCK
+                  WHERE oe-ordl.company EQ cocode 
+                    AND oe-ordl.cust-no EQ shipto.cust-no
+                    AND oe-ordl.ship-id EQ shipto.ship-id  
+                    AND oe-ordl.opened EQ YES AND oe-ordl.stat NE "C":
+                     
+                     IF oeDateAuto-char  EQ "Transit Days" THEN
+                         ASSIGN oe-ordl.prom-date  = oe-ordl.prom-date + ipOldvalueTrans .
+                     ELSE IF oeDateAuto-char  EQ "Dock Appt Days" THEN
+                        ASSIGN oe-ordl.prom-date  = oe-ordl.prom-date + ipOldvalueDock .
+                     ELSE IF ipOldvalueTrans GT 0 THEN
+                         ASSIGN oe-ordl.prom-date  = oe-ordl.prom-date + ipOldvalueTrans .
+                     ELSE oe-ordl.prom-date  = oe-ordl.prom-date + ipOldvalueDock .
+
+                   FOR EACH oe-rel WHERE oe-rel.company = oe-ordl.company 
+                       AND oe-rel.ord-no = oe-ordl.ord-no 
+                       AND oe-rel.i-no = oe-ordl.i-no 
+                       AND oe-rel.line = oe-ordl.line
+                       AND oe-rel.ship-id = shipto.ship-id EXCLUSIVE-LOCK:
+
+                       FIND FIRST oe-rell
+                           WHERE oe-rell.company EQ oe-rel.company
+                           AND oe-rell.ord-no  EQ oe-rel.ord-no      
+                           AND oe-rell.i-no    EQ oe-rel.i-no
+                           AND oe-rell.line    EQ oe-rel.line
+                           AND oe-rell.link-no EQ oe-rel.r-no
+                           NO-LOCK NO-ERROR.
+                       IF AVAIL oe-rell THEN
+                           FIND FIRST oe-relh WHERE oe-relh.r-no EQ oe-rell.r-no EXCLUSIVE-LOCK NO-ERROR.
+
+                       IF AVAIL oe-rell AND AVAIL oe-relh THEN do:
+                           IF oeDateAuto-char  EQ "Transit Days" THEN
+                               ASSIGN oe-relh.rel-date  = oe-relh.rel-date + ipOldvalueTrans .
+                           ELSE IF oeDateAuto-char  EQ "Dock Appt Days" THEN
+                               ASSIGN oe-relh.rel-date  = oe-relh.rel-date + ipOldvalueDock .
+                           ELSE IF ipOldvalueTrans GT 0 THEN
+                               ASSIGN oe-relh.rel-date  = oe-relh.rel-date + ipOldvalueTrans .
+                           ELSE oe-relh.rel-date  = oe-relh.rel-date + ipOldvalueDock .
+
+                       END. /* oe-relh */
+                       ELSE DO:
+                           IF oeDateAuto-char  EQ "Transit Days" THEN
+                               ASSIGN oe-rel.rel-date  = oe-rel.rel-date + ipOldvalueTrans .
+                           ELSE IF oeDateAuto-char  EQ "Dock Appt Days" THEN
+                               ASSIGN oe-rel.rel-date  = oe-rel.rel-date + ipOldvalueDock .
+                           ELSE IF ipOldvalueTrans GT 0 THEN
+                               ASSIGN oe-rel.rel-date  = oe-rel.rel-date + ipOldvalueTrans .
+                           ELSE oe-rel.rel-date  = oe-rel.rel-date + ipOldvalueDock .
+
+                       END. /* oe-rel.rel-date */
+
+                       
+                   END. /* for each or-rel*/
+
+           END. /* for each oe-ordl  */
+
+       END. /*  lCheckUpdate  */
+       RELEASE oe-ordl .
+       RELEASE oe-rel.
+       RELEASE oe-relh .
+
+    END.  /* oeDateAuto-int EQ 0 */
+
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

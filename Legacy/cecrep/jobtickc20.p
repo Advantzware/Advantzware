@@ -6,25 +6,28 @@
 
 DEFINE INPUT PARAMETER v-format AS CHARACTER.
 
-DEFINE SHARED VARIABLE s-prt-mstandard AS LOG NO-UNDO.
-DEFINE VARIABLE k_frac AS DECIMAL INIT 6.25 NO-UNDO.
-DEFINE VARIABLE v-ink-1 AS cha FORM "X(30)" NO-UNDO.
-DEFINE VARIABLE v-ink-2 AS cha FORM "X(30)" NO-UNDO.
-DEFINE VARIABLE v-ink-3 AS cha FORM "X(30)" NO-UNDO.
-DEFINE VARIABLE v-ink-4 AS cha FORM "X(30)" NO-UNDO.
-DEFINE VARIABLE v-ink-5 AS cha FORM "X(30)" NO-UNDO.
-DEFINE VARIABLE v-ink-6 AS cha FORM "X(30)" NO-UNDO.
-DEFINE VARIABLE v-dept-note AS cha FORM "x(124)" EXTENT 10 NO-UNDO.
-DEFINE VARIABLE v-spec-note AS cha FORM "x(124)" EXTENT 10 NO-UNDO.
-DEFINE VARIABLE v-deptnote AS cha NO-UNDO.
-DEFINE VARIABLE v-dept-length AS DECIMAL NO-UNDO.
-DEFINE VARIABLE lv-under-run AS cha NO-UNDO.
-DEFINE VARIABLE lv-over-run AS cha NO-UNDO.
-DEFINE VARIABLE iunder-run AS DECIMAL NO-UNDO.
-DEFINE VARIABLE iover-run AS DECIMAL NO-UNDO.
-DEFINE VARIABLE lv-part-name AS cha FORM "x(30)" NO-UNDO.
-DEFINE VARIABLE lv-fg-name AS cha NO-UNDO.
-DEFINE VARIABLE tb_app-unprinted AS LOG NO-UNDO.
+DEFINE SHARED VARIABLE s-prt-mstandard  AS LOG     NO-UNDO.
+DEFINE        VARIABLE k_frac           AS DECIMAL INIT 6.25 NO-UNDO.
+DEFINE        VARIABLE v-ink-1          AS cha     FORM "X(30)" NO-UNDO.
+DEFINE        VARIABLE v-ink-2          AS cha     FORM "X(30)" NO-UNDO.
+DEFINE        VARIABLE v-ink-3          AS cha     FORM "X(30)" NO-UNDO.
+DEFINE        VARIABLE v-ink-4          AS cha     FORM "X(30)" NO-UNDO.
+DEFINE        VARIABLE v-ink-5          AS cha     FORM "X(30)" NO-UNDO.
+DEFINE        VARIABLE v-ink-6          AS cha     FORM "X(30)" NO-UNDO.
+DEFINE        VARIABLE v-dept-note      AS cha     FORM "x(124)" EXTENT 10 NO-UNDO.
+DEFINE        VARIABLE v-spec-note      AS cha     FORM "x(124)" EXTENT 10 NO-UNDO.
+DEFINE        VARIABLE v-deptnote       AS cha     NO-UNDO.
+DEFINE        VARIABLE v-dept-length    AS DECIMAL NO-UNDO.
+DEFINE        VARIABLE lv-under-run     AS cha     NO-UNDO.
+DEFINE        VARIABLE lv-over-run      AS cha     NO-UNDO.
+DEFINE        VARIABLE iunder-run       AS DECIMAL NO-UNDO.
+DEFINE        VARIABLE iover-run        AS DECIMAL NO-UNDO.
+DEFINE        VARIABLE lv-part-name     AS cha     FORM "x(30)" NO-UNDO.
+DEFINE        VARIABLE lv-fg-name       AS cha     NO-UNDO.
+DEFINE        VARIABLE tb_app-unprinted AS LOG     NO-UNDO.
+DEFINE        VARIABLE iset-qty         AS INTEGER NO-UNDO.
+DEFINE        VARIABLE lPrintScores     AS LOGICAL NO-UNDO.
+DEFINE        VARIABLE  cCustName       AS CHARACTER NO-UNDO.
 
 {jcrep/r-ticket.i "shared"}
 
@@ -33,100 +36,105 @@ DEFINE VARIABLE tb_app-unprinted AS LOG NO-UNDO.
 {sys/inc/VAR.i SHARED}
 {cec/msfcalc.i}
 
-DEFINE NEW SHARED VARIABLE v-out1-id       AS   RECID    NO-UNDO.  /* YSK 06/08/01  was~ local var */
-DEFINE NEW SHARED VARIABLE v-out2-id       AS   RECID    NO-UNDO.  /* YSK 06/08/01  was~ local var */
+DEFINE NEW SHARED VARIABLE v-out1-id      AS RECID     NO-UNDO.  /* YSK 06/08/01  was~ local var */
+DEFINE NEW SHARED VARIABLE v-out2-id      AS RECID     NO-UNDO.  /* YSK 06/08/01  was~ local var */
  
-DEFINE VARIABLE v-vend-no       LIKE oe-ordl.vend-no                            NO-UNDO.
-DEFINE VARIABLE v-po-no         LIKE oe-ordl.po-no-po                           NO-UNDO.
-DEFINE VARIABLE v-qty-or-sup    AS   CHARACTER               FORMAT "x(38)"          NO-UNDO.
-DEFINE VARIABLE v-i-line        AS   CHARACTER   EXTENT 4    FORMAT "x(38)"          NO-UNDO.
-DEFINE VARIABLE v-flag          AS   LOG    INIT NO                             NO-UNDO.
-DEFINE VARIABLE v-local-copies  AS   INTEGER                                        NO-UNDO.
-DEFINE VARIABLE v-local-loop    AS   INTEGER    INIT 1                              NO-UNDO.
-DEFINE VARIABLE v-print-score   AS   LOG    INIT YES                            NO-UNDO.
-DEFINE VARIABLE v-pqty          AS   DECIMAL                                        NO-UNDO.
-DEFINE VARIABLE lv-part-no AS cha FORM "x(15)" NO-UNDO.
-DEFINE VARIABLE v-loop-cnt AS INTEGER NO-UNDO.
-DEFINE VARIABLE v-note-cnt AS INTEGER NO-UNDO.
-DEFINE VARIABLE v-note-length AS INTEGER NO-UNDO.
-DEFINE VARIABLE v-die-loc AS cha FORM "x(15)" NO-UNDO.
-DEFINE VARIABLE v-plate-loc AS CHARACTER FORM "X(8)" NO-UNDO.
+DEFINE            VARIABLE v-vend-no      LIKE oe-ordl.vend-no NO-UNDO.
+DEFINE            VARIABLE v-po-no        LIKE oe-ordl.po-no-po NO-UNDO.
+DEFINE            VARIABLE v-qty-or-sup   AS CHARACTER FORMAT "x(38)" NO-UNDO.
+DEFINE            VARIABLE v-i-line       AS CHARACTER EXTENT 4 FORMAT "x(38)" NO-UNDO.
+DEFINE            VARIABLE v-flag         AS LOG       INIT NO NO-UNDO.
+DEFINE            VARIABLE v-local-copies AS INTEGER   NO-UNDO.
+DEFINE            VARIABLE v-local-loop   AS INTEGER   INIT 1 NO-UNDO.
+DEFINE            VARIABLE v-print-score  AS LOG       INIT YES NO-UNDO.
+DEFINE            VARIABLE v-pqty         AS DECIMAL   NO-UNDO.
+DEFINE            VARIABLE lv-part-no     AS cha       FORM "x(15)" NO-UNDO.
+DEFINE            VARIABLE v-loop-cnt     AS INTEGER   NO-UNDO.
+DEFINE            VARIABLE v-note-cnt     AS INTEGER   NO-UNDO.
+DEFINE            VARIABLE v-note-length  AS INTEGER   NO-UNDO.
+DEFINE            VARIABLE v-die-loc      AS cha       FORM "x(15)" NO-UNDO.
+DEFINE            VARIABLE v-plate-loc    AS CHARACTER FORM "X(8)" NO-UNDO.
+DEFINE            VARIABLE cImagePath     AS CHARACTER FORMAT "x(100)" NO-UNDO.
 
 {custom/notesdef.i}
 {cecrep/jc-prem.i}
 DEFINE BUFFER b-ef FOR ef.
 DEFINE WORKFILE tt-wm LIKE w-m.
-DEFINE VARIABLE v-xg-flag AS LOG NO-UNDO.
-DEFINE VARIABLE v-tmp-stype AS cha NO-UNDO.
+DEFINE VARIABLE v-xg-flag    AS LOG NO-UNDO.
+DEFINE VARIABLE v-tmp-stype  AS cha NO-UNDO.
 DEFINE VARIABLE v-len-score2 AS cha EXTENT 13 NO-UNDO.
-DEFINE VARIABLE v-tmp-score AS cha NO-UNDO.
+DEFINE VARIABLE v-tmp-score  AS cha NO-UNDO.
 DEFINE BUFFER bf-eb FOR eb.
-DEFINE VARIABLE lv-spec-qty LIKE ef.spec-qty FORMAT ">>>,>>9.9<<<<" NO-UNDO.
+DEFINE        VARIABLE lv-spec-qty      LIKE ef.spec-qty FORMAT ">>>,>>9.9<<<<" NO-UNDO.
 DEFINE SHARED VARIABLE s-prt-set-header AS LOG NO-UNDO.
-DEFINE VARIABLE v-dept-inst AS cha FORM "x(80)" EXTENT 6 NO-UNDO.
-DEFINE VARIABLE v-inst2 AS cha EXTENT 6 NO-UNDO.    
+DEFINE        VARIABLE v-dept-inst      AS cha FORM "x(80)" EXTENT 6 NO-UNDO.
+DEFINE        VARIABLE v-inst2          AS cha EXTENT 6 NO-UNDO.    
 DEFINE BUFFER b-eb FOR eb.
-DEFINE VARIABLE v-job-cust AS LOG NO-UNDO.
-DEFINE VARIABLE ls-fgitem-img AS CHARACTER FORM "x(150)" NO-UNDO.
-DEFINE  SHARED VARIABLE s-prt-fgimage AS LOG NO-UNDO.
-DEFINE  SHARED VARIABLE v-dept-codes AS CHARACTER NO-UNDO.
-DEFINE  SHARED VARIABLE v-dept-log AS LOG NO-UNDO.
-DEFINE VARIABLE cBarCodeVal AS CHARACTER NO-UNDO .
-DEFINE VARIABLE v-shipto AS cha NO-UNDO.
+DEFINE        VARIABLE v-job-cust    AS LOG       NO-UNDO.
+DEFINE        VARIABLE ls-fgitem-img AS CHARACTER FORM "x(150)" NO-UNDO.
+DEFINE SHARED VARIABLE s-prt-fgimage AS LOG       NO-UNDO.
+DEFINE SHARED VARIABLE v-dept-codes  AS CHARACTER NO-UNDO.
+DEFINE SHARED VARIABLE v-dept-log    AS LOG       NO-UNDO.
+DEFINE        VARIABLE cBarCodeVal   AS CHARACTER NO-UNDO .
+DEFINE        VARIABLE v-shipto      AS cha       NO-UNDO.
+DEFINE        VARIABLE dJobQty       AS DECIMAL   NO-UNDO .   
 
-DEFINE BUFFER bf-itemfg FOR itemfg .
+DEFINE BUFFER bf-itemfg         FOR itemfg .
 
-DEFINE BUFFER b-rt FOR reftable.
+DEFINE BUFFER b-rt              FOR reftable.
+DEFINE BUFFER bf-box-design-hdr FOR box-design-hdr.
+
 DEFINE NEW SHARED WORKFILE wrk-ink
-  FIELD i-code AS CHARACTER FORMAT "x(10)"
-  FIELD form-no LIKE eb.form-no
-  FIELD blank-no LIKE eb.blank-no
-  FIELD i-dscr AS CHARACTER FORMAT "x(20)"
-  FIELD i-qty AS DECIMAL FORMAT ">,>>9.9<"
-  FIELD i-pass AS DECIMAL
-  FIELD i-unit AS INTEGER
-  FIELD side AS CHARACTER .
+    FIELD i-code AS CHARACTER FORMAT "x(10)"
+    FIELD form-no LIKE eb.form-no
+    FIELD blank-no LIKE eb.blank-no
+    FIELD i-dscr AS CHARACTER FORMAT "x(20)"
+    FIELD i-qty AS DECIMAL FORMAT ">,>>9.9<"
+    FIELD i-pass AS DECIMAL
+    FIELD i-unit AS INTEGER
+    FIELD side AS CHARACTER .
 
 
 DO TRANSACTION:
-   {sys/inc/tspostfg.i}
+    {sys/inc/tspostfg.i}
 END.
 
-   FIND FIRST sys-ctrl
-       WHERE sys-ctrl.company EQ cocode
-       AND sys-ctrl.name    EQ "JOBQTYCUST"
-       NO-LOCK NO-ERROR.
+FIND FIRST sys-ctrl
+    WHERE sys-ctrl.company EQ cocode
+    AND sys-ctrl.name    EQ "JOBQTYCUST"
+    NO-LOCK NO-ERROR.
 
-   IF NOT AVAILABLE sys-ctrl THEN
-       DO TRANSACTION:
-       CREATE sys-ctrl.
-       ASSIGN
-           sys-ctrl.company  = cocode
-           sys-ctrl.NAME     = "JOBQTYCUST"
-           sys-ctrl.module   = "JC"
-           sys-ctrl.descrip = "Create Job Quantity with overrun % from customer if no order?"
-           sys-ctrl.log-fld = NO .
-       END.
+IF NOT AVAILABLE sys-ctrl THEN
+DO TRANSACTION:
+    CREATE sys-ctrl.
+    ASSIGN
+        sys-ctrl.company = cocode
+        sys-ctrl.NAME    = "JOBQTYCUST"
+        sys-ctrl.module  = "JC"
+        sys-ctrl.descrip = "Create Job Quantity with overrun % from customer if no order?"
+        sys-ctrl.log-fld = NO .
+END.
 
-  v-job-cust = sys-ctrl.log-fld.
+v-job-cust = sys-ctrl.log-fld.
+s-prt-set-header = NO .
 
 ASSIGN
- v-line[1] = CHR(95) + fill(CHR(95),40) + chr(95) + "  " +
+    v-line[1]      = CHR(95) + fill(CHR(95),40) + chr(95) + "  " +
              chr(95) + fill(CHR(95),40) + chr(95) + "  " +
              chr(95) + fill(CHR(95),40) + chr(95)  
- v-line[2] = v-line[1]
- v-line[3] = CHR(95) + fill(CHR(95),128) + chr(95)
- v-line[4] = v-line[3]
- v-line[5] = CHR(95) + fill(CHR(95),84) + chr(95) + "  " +
+    v-line[2]      = v-line[1]
+    v-line[3]      = CHR(95) + fill(CHR(95),128) + chr(95)
+    v-line[4]      = v-line[3]
+    v-line[5]      = CHR(95) + fill(CHR(95),84) + chr(95) + "  " +
                 chr(95) + fill(CHR(95),40) + chr(95)
- v-line[6] = v-line[5]
- v-line[7] = CHR(95) + fill(CHR(95),25) + chr(95) + "  " +
+    v-line[6]      = v-line[5]
+    v-line[7]      = CHR(95) + fill(CHR(95),25) + chr(95) + "  " +
              chr(95) + fill(CHR(95),99) + chr(95)
- v-line[8] = v-line[7]
- v-qty-or-sup = IF LOOKUP(v-format,"TriState,RFC,Boxtech,Brick,Corrugat") GT 0
+    v-line[8]      = v-line[7]
+    v-qty-or-sup   = IF LOOKUP(v-format,"TriState,RFC,Boxtech,Brick,Corrugat") GT 0
                 THEN ("Supplier:"     + fill("_",28))
                 ELSE ("Qty Received: " + fill("_",24))
- v-local-copies = 1.
+    v-local-copies = 1.
 
 DO v-local-loop = 1 TO v-local-copies:
 {cecrep/jobprem.i}
@@ -159,11 +167,11 @@ DO v-local-loop = 1 TO v-local-copies:
 
         ASSIGN
         v-pqty = 1
-        v-cp = "".
+        v-cp   = "".
         IF AVAILABLE xeb THEN DO:
           IF xeb.stock-no NE "" THEN v-fg = xeb.stock-no.
           ASSIGN
-             v-cp = xeb.part-no
+             v-cp       = xeb.part-no
              lv-fg-name = itemfg.i-name.
 
           {cec/rollfac.i}
@@ -203,26 +211,27 @@ DO v-local-loop = 1 TO v-local-copies:
 
         END. /*brick format*/
 
-        ASSIGN lv-over-run = IF AVAILABLE xoe-ordl THEN TRIM(STRING(xoe-ordl.over-pct,">>9.99%")) ELSE
+        ASSIGN lv-over-run  = IF AVAILABLE xoe-ordl THEN TRIM(STRING(xoe-ordl.over-pct,">>9.99%")) ELSE
                              IF AVAILABLE xoe-ord  THEN TRIM(STRING(xoe-ord.over-pct,">>9.99%"))  ELSE ""
                lv-under-run = IF AVAILABLE xoe-ordl THEN TRIM(STRING(xoe-ordl.under-pct,">>9.99%")) ELSE
                               IF AVAILABLE xoe-ord  THEN TRIM(STRING(xoe-ord.under-pct,">>9.99%"))  ELSE ""
                lv-part-name = xeb.part-dscr1    
-               iunder-run = IF AVAILABLE xoe-ordl THEN DECIMAL(xoe-ordl.under-pct) ELSE
+               iunder-run   = IF AVAILABLE xoe-ordl THEN DECIMAL(xoe-ordl.under-pct) ELSE
                              IF AVAILABLE xoe-ord  THEN DECIMAL(xoe-ord.under-pct)  ELSE 0
-               iover-run  = IF AVAILABLE xoe-ordl THEN DECIMAL(xoe-ordl.over-pct) ELSE
+               iover-run    = IF AVAILABLE xoe-ordl THEN DECIMAL(xoe-ordl.over-pct) ELSE
                              IF AVAILABLE xoe-ord  THEN DECIMAL(xoe-ord.over-pct)  ELSE 0                                 .
            IF v-job-cust AND NOT AVAILABLE xoe-ord AND AVAILABLE cust THEN
                ASSIGN
                     lv-over-run  = TRIM(STRING(cust.over-pct,">>9.99%"))
                     lv-under-run = TRIM(STRING(cust.under-pct,">>9.99%")) 
-                    iunder-run = DECIMAL(cust.under-pct)
-                    iover-run  = DECIMAL(cust.over-pct)
+                    iunder-run   = DECIMAL(cust.under-pct)
+                    iover-run    = DECIMAL(cust.over-pct)
                              .
                ASSIGN cBarCodeVal = job-hdr.job-no + "-" + STRING(job-hdr.job-no2,"99") + "-" + STRING(xeb.form-no,"99") + "-" + STRING(xeb.blank-no,"99") .
-
+             ASSIGN  cCustName = cust.NAME 
+               {sys/inc/ctrtext.i cCustName 30}.
       
-        PUT "<C1><R1><#Start>"
+        PUT "<C1><R1.2><#Start>"
             "<=Start><FROM><C108><R50><RECT><|1>"
             "<=Start><#JobStart>"
             "<=JobStart><C+20><#JobTR>"
@@ -237,18 +246,17 @@ DO v-local-loop = 1 TO v-local-copies:
             "<=HeaderTR><#BarCodeStart>"
             "<=BarCodeStart><C108><R+3><#BarCodeEnd>"
             "<=BarCodeStart><FROM><RECT#BarCodeEnd><|1>"
-            "<=JobStart><C+.5><R+1><#JobLabel>"
+            "<=JobStart><C+.5><R+0.6><#JobLabel>"
             "<=JobLabel><C+8><#JobNum>"
-            "<=HeaderStart><C+1><R+1><#FormLabel>"
-            "<=HeaderStart><C+1><R+2><#BlankLabel>"
+            "<=HeaderStart><C+1><R+0.6><#FormLabel>"
+            "<=HeaderStart><C+1><R+1.6><#BlankLabel>"
             "<=FormLabel><C+4><#Form>"
             "<=BlankLabel><C+4><#Blank>"
-            "<=HeaderStart><C+14><R+1><#PartLabel>"
+            "<=HeaderStart><C+10><R+0.6><#PartLabel>"
             "<=PartLabel><R+1><#Part>"
-            "<=HeaderStart><C+45><R+1><#PrintedLabel>"
-            "<=PrintedLabel><R+1><#Printed> "
-
-            "<=BarCodeStart><C+2><R+.1><FROM><C108><R3.9><BARCODE,TYPE=39,CHECKSUM=TRUE,VALUE=" cBarCodeVal ">"
+            "<=HeaderStart><C+22><R+0.6><#CustomerName>"
+           
+            "<=BarCodeStart><C+2><R+.3><FROM><C108><R3.9><BARCODE,TYPE=39,CHECKSUM=TRUE,VALUE=" cBarCodeVal ">"
             "<P14>                  "
             "<=JobLabel>Job #:"
             "<FGColor=Blue><B>    "
@@ -258,11 +266,15 @@ DO v-local-loop = 1 TO v-local-copies:
             "<=BlankLabel>Blank:"
             "<=FormLabel>Form: "
             "<=PartLabel>Customer Part #"
-            "<=PrintedLabel>Printed"
+            "<P14>"
+            "<FGColor=Blue>"
+            "<=CustomerName><B>" cCustName FORMAT "x(30)" "</B>"
+            "<FGColor=Black>"
+            "<P8> "
             "<=Form><B>" IF AVAILABLE xeb THEN STRING(xeb.form-no,"99") ELSE "" FORMAT "x(2)" "</B>  "
             "<=Blank><B>" IF AVAILABLE xeb THEN STRING(xeb.BLANK-no,"99") ELSE ""  FORMAT "x(2)" "</B>"
             "<=Part><B>" v-cp FORMAT "x(15)" "</B>"
-            "<=Printed><B>" TODAY  "</B>" .
+             .
 
         PUT 
             "<=Start><R+3><#PageStart>"
@@ -281,11 +293,52 @@ DO v-local-loop = 1 TO v-local-copies:
             "<=DieStart><C+29><#DieTR>"
             "<=DieStart><R+9><#DieBL>"
             "<=DieStart><C+29><R+9><#DieEnd>"
+            
+            "<=RoutingStart><C+61><#RoutingTR>"
+            "<=RoutingStart><R+9><#RoutingBL>"
+            "<=RoutingStart><C+61><R+9><#RoutingEnd>"
             "<=BoxImageStart><C+61><#BoxImageTR>"
             "<=BoxImageStart><R+29><#BoxImageBL>"
             "<=BoxImageStart><C+61><R+28><#BoxImageEnd>"
-            "<=BoxImageStart><C+.5><R+.5><#BoxImage><R50><C62><IMAGE#BoxImage=C:\Users\brad.vigrass\SharePoint\Product Management - Documents\Business Forms\SampleDesign2.jpg ><=BoxImage>"
-            "<=BoxImageStart><FROM><LINE#BoxImageTR><|1>"
+            .
+            IF print-box AND AVAILABLE xest THEN 
+          DO:
+              lPrintScores = NO.
+            
+              FIND FIRST box-design-hdr NO-LOCK
+                  WHERE box-design-hdr.company EQ xeb.company
+                  AND box-design-hdr.design-no EQ 0
+                  AND box-design-hdr.est-no    EQ xeb.est-no
+                  AND box-design-hdr.form-no   EQ xeb.form-no
+                  AND box-design-hdr.blank-no  EQ xeb.blank-no
+                  NO-ERROR.
+              IF AVAILABLE xeb AND AVAILABLE xstyle THEN 
+              DO:
+                  FIND FIRST bf-box-design-hdr NO-LOCK
+                      WHERE bf-box-design-hdr.design-no EQ xstyle.design-no
+                      NO-ERROR.
+                  IF AVAILABLE bf-box-design-hdr AND AVAILABLE box-design-hdr
+                      AND bf-box-design-hdr.box-image EQ box-design-hdr.box-image THEN
+                      lPrintScores = YES.
+
+              END.
+              IF lPrintScores THEN 
+              DO:
+                  PUT SKIP(1)
+                      "<=BoxImageStart>"   .
+                  RUN cec/desprntL20.p (RECID(xef),
+                      INPUT-OUTPUT v-lines,
+                      RECID(xest),
+                      IF AVAILABLE xeb THEN ROWID(xeb) ELSE ?).
+              END.
+              ELSE IF AVAILABLE box-design-hdr THEN DO:
+                      cImagePath = box-design-hdr.box-image.
+                      PUT UNFORMATTED "<=BoxImageStart><C+.5><R+.5><#BoxImage><R50><C62><IMAGE#BoxImage=" cImagePath "><=BoxImage>".
+              END.
+              PUT "<P8>" .
+          END. 
+                
+        PUT "<=BoxImageStart><FROM><LINE#BoxImageTR><|1>"
             "<=DieTR><FROM><LINE#BoxImageEnd>"
             "<=QuantityTR><#ItemStart>"
             "<=ItemStart><C+44><#ItemTR>"
@@ -302,9 +355,9 @@ DO v-local-loop = 1 TO v-local-copies:
             "<=OrderStart><C108><#OrderTR>"
             "<=OrderStart><R+8><#OrderBL>"
             "<=OrderStart><C108><R+8><#OrderEnd>"
-            "<=OrderStart><R+1><RIGHT=C+10>Our Order #: <#OrderNum>"
-            "<=OrderStart><R+2><RIGHT=C+10>Customer PO: <#CustomerPO>"
-            "<=OrderStart><R+3><C+1><#CustomerName>"
+            "<=OrderStart><R+0.5><RIGHT=C+10>Job Card printed: <#Printed>"
+            "<=OrderStart><R+2><RIGHT=C+10>Our Order #: <#OrderNum>"
+            "<=OrderStart><R+3><RIGHT=C+10>Customer PO: <#CustomerPO>"
             "<=OrderStart><R+4><RIGHT=C+10>Order Quantity: <#OrderQuantity>"
             "<=OrderStart><R+5><RIGHT=C+10>Order Date: <#OrderDate>"
             "<=OrderStart><R+6><RIGHT=C+10>Due Date: <#OrderDueDate>"
@@ -318,7 +371,7 @@ DO v-local-loop = 1 TO v-local-copies:
             "<=QuantityStart><R+6><RIGHT=C+10>Parts Per Set: <#QtyPerSet>"
             "<=BoardStart><R+1><RIGHT=C+5>Board: <#Board>"
               "<=BoardStart><R+2><RIGHT=C+5>Sheets: <#SheetsRequired>"
-              "<=BoardStart><R+2><RIGHT=C+20>Received: <#SheetsReceived>"
+/*              "<=BoardStart><R+2><RIGHT=C+20>Received: <#SheetsReceived>"*/
               "<=BoardStart><R+3><RIGHT=C+5>Size: <#SheetsSize>"
               "<=BoardStart><R+3><RIGHT=C+20>MSF: <#SheetsMSF>"
               "<=BoardStart><R+4><RIGHT=C+5>Scores: <#Scores>"
@@ -348,6 +401,7 @@ DO v-local-loop = 1 TO v-local-copies:
               "<=DieStart><R+7><RIGHT=C+6>Blank: "
               "<=DieStart><R+7><RIGHT=C+8>W: <#BlankWidth> "
               "<=DieStart><R+7><RIGHT=C+13>L: <#BlankLength>"
+              "<=DieStart><R+7><RIGHT=C+21>Sq Ft: <#SqFeet>"
               "<=DieTR><#PrintStart>"
               "<=PrintStart><R+1><RIGHT=C+10>Plate#: <#Plate>"
               "<=PrintStart><R+2><RIGHT=C+10>Plate Loc.: <#PlateLocation>"
@@ -411,36 +465,42 @@ DO v-local-loop = 1 TO v-local-copies:
          IF AVAILABLE xeb THEN
          FIND FIRST bf-itemfg NO-LOCK
              WHERE bf-itemfg.company EQ xeb.company
-               AND bf-itemfg.i-no EQ xeb.stock NO-ERROR .
+               AND bf-itemfg.i-no EQ xeb.stock-no NO-ERROR .
+
+              iset-qty = IF AVAILABLE xeb AND xeb.est-type EQ 6 THEN
+                          IF AVAILABLE xoe-ordl THEN xoe-ordl.qty ELSE job-hdr.qty
+                           ELSE 0 .
+              dJobQty  = job-hdr.qty * (IF xeb.est-type EQ 6 AND xeb.quantityPerSet GT 0 THEN xeb.quantityPerSet ELSE 1) .
           
          PUT "<FGColor=Blue><B>"
-              "<=JobQuantity>" job-hdr.qty FORMAT "->>,>>>,>>9"
+              "<=JobQuantity>" dJobQty FORMAT "->>,>>>,>>9"
               "</B><FGColor=Black>"
               "<=Overrun>" STRING( (job-hdr.qty * iover-run) / 100,"->>>>>>9") /*FORMAT "->>,>>>,>>9"*/
               "<=Underrun>" STRING( (job-hdr.qty * iunder-run) / 100,"->>>>>>9")  /*FORMAT "->>,>>>,>>9"*/
               "<=OverrunPct>" lv-over-run /*FORMAT "99.9%"*/
               "<=UnderrunPct>" lv-under-run /*FORMAT "99.9%"*/
-              "<=SetQuantity>"
-              "<=QtyPerSet>"
+              "<=SetQuantity>" iset-qty 
+              "<=QtyPerSet>" IF AVAILABLE xeb THEN xeb.quantityPerSet ELSE  0
               "<=FGItemID>" IF AVAILABLE xeb THEN xeb.stock ELSE job-hdr.i-no FORMAT "x(15)" 
               "<FGColor=Blue><B>"
-              "<=FGItemName>" IF AVAILABLE xeb AND AVAILABLE bf-itemfg THEN  bf-itemfg.i-name ELSE "" FORMAT "x(30)" 
+              "<=FGItemName>" IF AVAILABLE xeb THEN  xeb.part-dscr1 ELSE "" FORMAT "x(30)" 
               "</B><FGColor=Black>"
-              "<=FGItemDesc1>" IF AVAILABLE xeb AND AVAILABLE bf-itemfg THEN  itemfg.part-dscr1 ELSE "" FORMAT "x(30)" 
-              "<=FGItemDesc2>" IF AVAILABLE xeb AND AVAILABLE bf-itemfg THEN  itemfg.part-dscr2 ELSE "" FORMAT "x(30)" 
+              "<=FGItemDesc1>" IF AVAILABLE xeb THEN  xeb.part-dscr2 ELSE "" FORMAT "x(30)" 
+              "<=FGItemDesc2>" IF AVAILABLE xeb AND AVAILABLE bf-itemfg THEN  bf-itemfg.part-dscr2 ELSE "" FORMAT "x(30)" 
               "<B>"
               "<=Style>" IF AVAILABLE xstyle THEN xstyle.style ELSE "" FORMAT "x(15)"
-              "<=TabInOut>"
+              "<=TabInOut>" IF AVAIL xeb AND xeb.tab-in EQ YES THEN "In" ELSE IF AVAIL xeb AND xeb.tab-in EQ NO THEN "Out" ELSE "" FORMAT "x(10)"
               "<=Estimate>" IF AVAILABLE xeb THEN xeb.est-no ELSE "" FORMAT "x(10)"
               "</B>"
               "<=Size>" IF AVAILABLE xeb THEN (TRIM(STRING({sys/inc/k16v.i xeb.len},">,>>9.99")) + " x " +
                       trim(STRING({sys/inc/k16v.i xeb.wid},">,>>9.99")) + " x " +
                       trim(STRING({sys/inc/k16v.i xeb.dep},">,>>9.99"))) ELSE ""  FORM "x(30)" 
               "<=CAD>" IF AVAILABLE xeb THEN xeb.cad-no ELSE "" FORMAT "x(15)"
+              "<=Printed><B>" TODAY  "</B>"
               "<=OrderNum>" IF AVAILABLE xoe-ord THEN STRING(xoe-ord.ord-no) ELSE "" 
               "<=CustomerPO>" IF AVAILABLE xoe-ordl AND xoe-ord.po-no NE "" THEN xoe-ordl.po-no ELSE IF AVAILABLE xoe-ord THEN xoe-ord.po-no ELSE "" FORMAT "x(15)"
               "<FGColor=Blue><B>"
-              "<=CustomerName>" cust.NAME FORMAT "x(30)"
+             /* "<=CustomerName>" cust.NAME FORMAT "x(30)"*/
               "</B><FGColor=Black>"
               "<=OrderQuantity>"  IF AVAILABLE xoe-ordl THEN xoe-ordl.qty ELSE 0 
               "<=OrderDate>" IF AVAILABLE xoe-ord THEN STRING(xoe-ord.ord-date) ELSE "" 
@@ -451,15 +511,16 @@ DO v-local-loop = 1 TO v-local-copies:
               "<=Board>" v-form-dscr FORMAT "x(20)" 
               "</B>"
               "<=SheetsRequired>" TRIM(STRING(v-sht-qty))   FORMAT "x(9)"
-              "<=SheetsReceived>0"
-              "<=SheetsSize>" IF AVAILABLE xeb THEN "W:" + TRIM(STRING({sys/inc/k16v.i xeb.t-wid},">,>>9.99"))  + "  " +
-                              "L:" + TRIM(STRING({sys/inc/k16v.i xeb.t-len},">,>>9.99")) ELSE "" FORMAT "X(30)"
+/*              "<=SheetsReceived>"*/
+              "<=SheetsSize>" "W:" + trim(string({sys/inc/k16v.i v-form-wid},">,>>9.99")) + "  " +
+                              "L:" + trim(string({sys/inc/k16v.i v-form-len},">,>>9.99"))  format "x(30)"
+
               "<=SheetsMSF>" TRIM(STRING(v-sht-qty * v-form-sqft / 1000,">>>9.9<")) FORMAT "x(11)"
               "<=Scores>" SUBSTRING(v-len-score,1,30) FORMAT "x(30)" 
-              "<=Adders1>" xef.adder[1] FORMAT "x(10)"
-              "<=Adders2>" xef.adder[2] FORMAT "x(10)"
-              "<=Adders3>" xef.adder[3] FORMAT "x(10)"
-              "<=Adders4>" xef.adder[4] FORMAT "x(10)"
+              "<=Adders1>" IF LENGTH(xef.adder[7]) GT 10 THEN  string(string(xef.adder[7],"x(17)") + "...") ELSE xef.adder[7]  FORMAT "x(20)"
+              "<=Adders2>"IF LENGTH(xef.adder[8]) GT 10 THEN  string(string(xef.adder[8],"x(17)") + "...") ELSE xef.adder[8]  FORMAT "x(20)"
+              "<=Adders3>" IF LENGTH(xef.adder[9]) GT 10 THEN  string(string(xef.adder[9],"x(17)") + "...") ELSE xef.adder[9]  FORMAT "x(20)"
+              "<=Adders4>" IF LENGTH(xef.adder[10]) GT 10 THEN  string(string(xef.adder[10],"x(17)") + "...") ELSE xef.adder[10]  FORMAT "x(20)"
               "<=VendorPO>" STRING(v-po-no)  FORMAT "x(10)" 
               "<=VendorCode>" STRING(v-vend-no ) FORMAT "x(15)"
               "<B>"
@@ -479,6 +540,9 @@ DO v-local-loop = 1 TO v-local-copies:
               "<=UpW>" STRING(v-upl) FORMAT "x(8)"
               "<=BlankWidth>" TRIM(STRING({sys/inc/k16v.i xeb.t-wid},">>>9.99")) FORMAT "x(8)"
               "<=BlankLength>" TRIM(STRING({sys/inc/k16v.i xeb.t-len},">>>9.99")) FORMAT "x(8)"
+              "<=SqFeet>"  if v-corr then string(xeb.t-sqin * .007,">>9.9999")
+                                  else string(xeb.t-sqin / 144,">>9.9999") FORMAT "x(8)"
+                                  
               "<B>"
               "<=Plate>" IF AVAILABLE xeb THEN xeb.plate-no ELSE "" FORMAT "x(15)" 
               "</B>"
@@ -540,7 +604,7 @@ DO v-local-loop = 1 TO v-local-copies:
                           wrk-ink.form-no  = xeb.form-no
                           wrk-ink.blank-no = xeb.blank-no
                           wrk-ink.i-dscr   = item.est-dscr
-                          wrk-ink.i-unit = 0 
+                          wrk-ink.i-unit   = 0 
                           wrk-ink.i-pass   = 1.
                     END.
 
@@ -592,7 +656,7 @@ DO v-local-loop = 1 TO v-local-copies:
         FOR EACH w-m BREAK BY w-m.dseq:
          IF w-m.dscr NE "" THEN DO:
           ASSIGN
-             i = i + 1
+             i        = i + 1
              v-letter = substr("UTE",i,1).
           
           PUT 
@@ -623,16 +687,15 @@ DO v-local-loop = 1 TO v-local-copies:
                CREATE tt-wm.
                BUFFER-COPY w-m TO tt-wm.
         END.
-
-       
+      
          /* dept notes */
         ASSIGN
-           v-note-length = 100
-           v-tmp-lines = 0
-           j = 0
-           K = 0
-           lv-got-return = 0
-           v-dept-note = "" 
+           v-note-length   = 100
+           v-tmp-lines     = 0
+           j               = 0
+           K               = 0
+           lv-got-return   = 0
+           v-dept-note     = "" 
            v-prev-note-rec = ?.
    
         FOR EACH notes WHERE notes.rec_key = job.rec_key AND
@@ -643,7 +706,7 @@ DO v-local-loop = 1 TO v-local-copies:
                v-prev-note-rec <> RECID(notes) THEN v-prev-extent = /*v-prev-extent +*/ k.
 
             DO i = 1 TO LENGTH(notes.note_text):
-               IF i - j >= v-note-length THEN ASSIGN j = i
+               IF i - j >= v-note-length THEN ASSIGN j             = i
                                             lv-got-return = lv-got-return + 1.
 
                v-tmp-lines = ( i - j ) / v-note-length.
@@ -662,25 +725,25 @@ DO v-local-loop = 1 TO v-local-copies:
             END.
             
             ASSIGN v-prev-note-rec = RECID(notes)
-                   j = 0
-                   lv-got-return = 0.
+                   j               = 0
+                   lv-got-return   = 0.
 
 
         END.
         
         ASSIGN
-        v-inst = ""
-        v-spec-note = ""
-        v-tmp-lines = 0
-        j = 0
-        K = 0
+        v-inst        = ""
+        v-spec-note   = ""
+        v-tmp-lines   = 0
+        j             = 0
+        K             = 0
         lv-got-return = 0.
 
-        FOR EACH notes WHERE notes.rec_key = itemfg.rec_key 
+        FOR EACH notes WHERE notes.rec_key = bf-itemfg.rec_key 
                         AND lookup(notes.note_code,spec-list) NE 0 NO-LOCK.
          
             DO i = 1 TO LENGTH(notes.note_text) :        
-               IF i - j >= v-note-length THEN ASSIGN j = i
+               IF i - j >= v-note-length THEN ASSIGN j             = i
                                               lv-got-return = lv-got-return + 1.
                    
                v-tmp-lines = ( i - j ) / v-note-length.
@@ -715,7 +778,7 @@ DO v-local-loop = 1 TO v-local-copies:
               "<=NotesStart><C+1><R+13><#SpecNotes5>"
               "<=NotesStart><C+1><R+17><#SpecNotes6>"
              
-              "<P6><=Notes1>" v-dept-note[1] FORMAT "x(100)" SKIP
+              "<P8><=Notes1>" v-dept-note[1] FORMAT "x(100)" SKIP
               "<=Notes2>" v-dept-note[2] FORMAT "x(100)" SKIP
               "<=Notes3>" v-dept-note[3] FORMAT "x(100)"  SKIP 
               "<=Notes4>" v-dept-note[4] FORMAT "x(100)" SKIP
@@ -746,7 +809,7 @@ DO v-local-loop = 1 TO v-local-copies:
            FIND FIRST stackPattern NO-LOCK 
             WHERE stackPattern.stackcode EQ xeb.stack-code NO-ERROR .
 
-        PUT  "<C1><R1><#Start>"
+        PUT  "<C1><R1.2><#Start>"
               "<=Start><FROM><C108><R50><RECT><|1>  "
               "<=Start><#JobStart>"
               "<=JobStart><C+20><#JobTR>"
@@ -761,17 +824,18 @@ DO v-local-loop = 1 TO v-local-copies:
               "<=HeaderTR><#BarCodeStart>"
               "<=BarCodeStart><C108><R+3><#BarCodeEnd>"
               "<=BarCodeStart><FROM><RECT#BarCodeEnd><|1>"
-              "<=JobStart><C+.5><R+1><#JobLabel>"
+              "<=JobStart><C+.5><R+0.6><#JobLabel>"
               "<=JobLabel><C+8><#JobNum>"
-              "<=HeaderStart><C+1><R+1><#FormLabel>"
-              "<=HeaderStart><C+1><R+2><#BlankLabel>"
+              "<=HeaderStart><C+1><R+0.6><#FormLabel>"
+              "<=HeaderStart><C+1><R+1.6><#BlankLabel>"
               "<=FormLabel><C+4><#Form>"
               "<=BlankLabel><C+4><#Blank>"
-              "<=HeaderStart><C+14><R+1><#PartLabel>"
+              "<=HeaderStart><C+14><R+0.6><#PartLabel>"
               "<=PartLabel><R+1><#Part>"
-              "<=HeaderStart><C+45><R+1><#PrintedLabel>"
-              "<=PrintedLabel><R+1><#Printed>"
-              "<=BarCodeStart><C+2><R+.1><FROM><C108><R3.9><BARCODE,TYPE=39,CHECKSUM=TRUE,VALUE=" cBarCodeVal FORMAT "x(20)" ">"
+              "<=HeaderStart><C+35><R+0.6><#PrintedLabel>"
+              "<=PrintedLabel><R+1><#PrintedDate>"
+              "<=BarCodeStart><C+2><R+.3><FROM><C108><R3.9><BARCODE,TYPE=39,CHECKSUM=TRUE,VALUE=" cBarCodeVal FORMAT "x(20)" ">"
+              
               
               "<P14>"
               "<=JobLabel>Job #:"
@@ -780,13 +844,13 @@ DO v-local-loop = 1 TO v-local-copies:
               "</B><FGColor=Black>"
               "<P8>"
               "<=BlankLabel>Blank:"
+              "<=PrintedLabel>Printed"
               "<=FormLabel>Form:"
               "<=PartLabel>Customer Part #"
-              "<=PrintedLabel>Printed"
               "<=Form><B>" IF AVAILABLE xeb THEN STRING(xeb.form-no,"99") ELSE "" FORMAT "x(2)" "</B>  "
               "<=Blank><B>" IF AVAILABLE xeb THEN STRING(xeb.BLANK-no,"99") ELSE ""  FORMAT "x(2)" "</B>"
               "<=Part><B>" v-cp FORMAT "x(15)" "</B>"
-              " <=Printed><B>"  TODAY  "</B>" 
+              " <=PrintedDate><B>"  TODAY  "</B>"
               
               "<=Start><R+3><#PageStart>"
               "<=PageStart><#PackingStart>"
@@ -815,7 +879,7 @@ DO v-local-loop = 1 TO v-local-copies:
               "<=PatternImageStart><C+22><#PatternImageTR>"
               "<=PatternImageStart><R+10><#PatternImageBL>"
               "<=PatternImageStart><C+22><R+10><#PatternImageEnd>"
-              "<=PatternImageStart><R+.3><C+.3><#PatternImage><=PatternImageEnd><IMAGE#PatternImage=C:\Users\brad.vigrass\SharePoint\Product Management - Documents\Business Forms\SampleDesign.jpg ><=PatternImage>"
+              "<=PatternImageStart><R+.3><C+.3><#PatternImage><=PatternImageEnd><IMAGE#PatternImage=" + (IF AVAIL stackPattern THEN stackPattern.stackImage ELSE "") + "><=PatternImage>" FORMAT "x(300)" 
               "<=PatternImageTR><FROM><LINE#PatternImageEnd><|1>"
               "<=PatternImageTR><#ShippingStart>"
               "<=ShippingStart><C108><#ShippingTR>"
@@ -828,7 +892,9 @@ DO v-local-loop = 1 TO v-local-copies:
               "<=ShippingStart><R+3><C+1><#ShipAdd1>"
               "<=ShippingStart><R+3><C85><#ShipPhone>"
               "<=ShippingStart><R+4><C+1><#ShipAdd2>"
+              "<=ShippingStart><R+4><C85>Dock Hours: <#DockHours>"
               "<=ShippingStart><R+5><C+1><#ShipCityStateZip>"
+              "<=ShippingStart><R+5><C85>Dock#: <#Dock>"
               "<=ShippingStart><R+6><C+1><#ShipNotes1>"
               "<=ShippingStart><R+7><C+1><#ShipNotes2>"
               "<=ShippingStart><R+8><C+1><#ShipNotes3>"
@@ -837,7 +903,6 @@ DO v-local-loop = 1 TO v-local-copies:
               "<=ItemImageStart><C108><#ItemImageTR>"
               "<=ItemImageStart><R50><#ItemImageBL>"
               "<=ItemImageStart><C108><R50><#ItemImageEnd>"
-              "<=ItemImageStart><R+.3><C+.3><#ItemImage><=ItemImageEnd><IMAGE#ItemImage=C:\Users\brad.vigrass\SharePoint\Product Management - Documents\Business Forms\SampleDesign.jpg ><=ItemImage>"
               "<=PackingBL><FROM><R50><C108><RECT><|1> "
              
               "<=Pallet>" IF AVAILABLE xeb THEN xeb.tr-no ELSE "" FORMAT "x(10)" 
@@ -860,206 +925,207 @@ DO v-local-loop = 1 TO v-local-copies:
               "<=ShipCityStateZip>" IF AVAILABLE shipto THEN TRIM(shipto.ship-city) + ", " +
                                    shipto.ship-state + "  " + shipto.ship-zip ELSE "" FORMAT "x(30)"
               "<=ShipContact>" IF AVAILABLE shipto THEN shipto.contact ELSE "" FORMAT "x(20)"
-              "<=ShipPhone>" IF AVAILABLE shipto THEN STRING(shipto.phone,"(999) 999-9999") ELSE "" FORMAT "x(20)"
+              "<=DockHours>" IF AVAILABLE shipto THEN shipto.dock-hour ELSE "" FORMAT "x(20)"
+              "<=Dock>" IF AVAILABLE shipto THEN shipto.dock-loc ELSE "" FORMAT "x(20)"
+              "<=ShipPhone>" IF AVAILABLE shipto THEN "(" + shipto.area-code + ")" + string(shipto.phone,"xxx-xxxx") ELSE "" FORMAT "x(20)"
               "<=ShipNotes1>" IF AVAILABLE shipto THEN shipto.notes[1] ELSE "" FORMAT "x(90)"
               "<=ShipNotes2>" IF AVAILABLE shipto THEN shipto.notes[2] ELSE "" FORMAT "x(90)"
               "<=ShipNotes3>" IF AVAILABLE shipto THEN shipto.notes[3] ELSE "" FORMAT "x(90)"
               "<=ShipNotes4>" IF AVAILABLE shipto THEN shipto.notes[4] ELSE "" FORMAT "x(90)" .
+  
+            ls-fgitem-img = bf-itemfg.box-image.
 
-         
-       
-        IF print-box AND AVAILABLE xest THEN DO:
-            PUT SKIP(2) .
-           RUN cec/desprntLa.p (RECID(xef),
-                                INPUT-OUTPUT v-lines,
-                                RECID(xest),
-                                IF AVAILABLE xeb THEN ROWID(xeb) ELSE ?).
-           PAGE.
-        END.
-        ELSE PAGE.
-        /* print fgitem's image */
-        IF s-prt-fgimage THEN DO:        
-            ls-fgitem-img = itemfg.box-image.
-
-            PUT UNFORMATTED "<#12><C1><FROM><C106><R+47><RECT><||3><C80>" /*v-qa-text*/ SKIP
-                "<=12><R+1><C5>FG Item: " itemfg.i-no " " itemfg.i-name
-                "<=12><R+3><C1><FROM><C106><LINE><||3>"
-                "<=12><R+5><C5><#21><R+40><C+90><IMAGE#21=" ls-fgitem-img ">" SKIP. 
+            PUT UNFORMATTED "<=ItemImageStart><R+.3><C+.3><#ItemImage><=ItemImageEnd><IMAGE#ItemImage=" ls-fgitem-img "><=ItemImage>".
             PAGE.
-         END.
-      END.  /* for each w-ef */
 
-      IF s-prt-set-header AND last-of(job.job-no2) AND est.est-type = 6 THEN DO: /* print set header */
-         i = 0.
-         FOR EACH bf-eb WHERE bf-eb.company = est.company
-                    AND bf-eb.est-no = est.est-no
-                    AND bf-eb.form-no > 0 NO-LOCK:
-             i = i + 1.
-         END.   
-         IF i > 1 THEN DO:
-             DEFINE VARIABLE v-set-qty AS INTEGER NO-UNDO.
-             DEFINE VARIABLE v-ord-qty AS INTEGER NO-UNDO.
-             DEFINE VARIABLE v-over-run AS cha NO-UNDO.
-             DEFINE VARIABLE v-under-run AS cha NO-UNDO.
-             DEFINE VARIABLE v-fg-set AS cha FORM "x(15)" NO-UNDO.
-             ASSIGN
-             v-fg-set = job-hdr.i-no
-             v-set-qty = IF AVAILABLE xeb AND xeb.est-type EQ 6 THEN
+    END.  /* for each w-ef */
+    IF s-prt-set-header AND last-of(job.job-no2) AND est.est-type = 6 THEN 
+    DO: /* print set header */
+        i = 0.
+        FOR EACH bf-eb WHERE bf-eb.company = est.company
+            AND bf-eb.est-no = est.est-no
+            AND bf-eb.form-no > 0 NO-LOCK:
+            i = i + 1.
+        END.   
+        IF i > 1 THEN 
+        DO:
+            DEFINE VARIABLE v-set-qty   AS INTEGER NO-UNDO.
+            DEFINE VARIABLE v-ord-qty   AS INTEGER NO-UNDO.
+            DEFINE VARIABLE v-over-run  AS cha     NO-UNDO.
+            DEFINE VARIABLE v-under-run AS cha     NO-UNDO.
+            DEFINE VARIABLE v-fg-set    AS cha     FORM "x(15)" NO-UNDO.
+            ASSIGN
+                v-fg-set    = job-hdr.i-no
+                v-set-qty   = IF AVAILABLE xeb AND xeb.est-type EQ 6 THEN
                            IF AVAILABLE xoe-ordl THEN xoe-ordl.qty ELSE job-hdr.qty
                          ELSE 0
-             v-ord-qty = (IF AVAILABLE xoe-ordl THEN xoe-ordl.qty ELSE job-hdr.qty) *
+                v-ord-qty   = (IF AVAILABLE xoe-ordl THEN xoe-ordl.qty ELSE job-hdr.qty) *
                          IF est.form-qty LE 1 THEN 1 ELSE v-pqty
-             v-over-run = IF AVAILABLE xoe-ordl THEN TRIM(STRING(xoe-ordl.over-pct,">>9.99%")) ELSE
+                v-over-run  = IF AVAILABLE xoe-ordl THEN TRIM(STRING(xoe-ordl.over-pct,">>9.99%")) ELSE
                           IF AVAILABLE xoe-ord  THEN TRIM(STRING(xoe-ord.over-pct,">>9.99%"))  ELSE ""
-             v-under-run = IF AVAILABLE xoe-ordl THEN TRIM(STRING(xoe-ordl.under-pct,">>9.99%")) ELSE
+                v-under-run = IF AVAILABLE xoe-ordl THEN TRIM(STRING(xoe-ordl.under-pct,">>9.99%")) ELSE
                            IF AVAILABLE xoe-ord  THEN TRIM(STRING(xoe-ord.under-pct,">>9.99%"))  ELSE "".
-              IF v-job-cust AND NOT AVAILABLE xoe-ord AND AVAILABLE cust THEN
-               ASSIGN
+            IF v-job-cust AND NOT AVAILABLE xoe-ord AND AVAILABLE cust THEN
+                ASSIGN
                     v-over-run  = TRIM(STRING(cust.over-pct,">>9.99%"))
                     v-under-run = TRIM(STRING(cust.under-pct,">>9.99%")) .
 
-             PUT "<R3><C1><#15><C30><P16><B> SET HEADER<P7></B>" SKIP(2)
-                 "Job #: " AT 3 v-job-prt "<C25>Our Order #: " v-ord-no 
-                 "<C60>Our Date: " v-ord-date SKIP
-                 "Est #: " AT 3 v-est-no "<C25>FG #: " v-fg-set "<C60>Due Date: " v-due-date SKIP
-                 "<=1><R+6><C2><From><R+5><C78><RECT><||3>" SKIP
-                 "<=1><R+6><C2>CUSTOMER INFORMATION <C25> ORDER INFORMATION <C53>ITEM DESCRIPTION" SKIP
-                 v-cus[1] AT 3 " PO#: " v-po-no " Set Qty: "  v-set-qty
-                 v-i-line[2] AT 90
-                 SKIP
-                 v-cus[2] AT 3 " Job Qty:" TRIM(STRING(job-hdr.qty * v-pqty,">>>,>>9"))    FORMAT "x(7)"
-                 " Order Qty:" STRING(v-ord-qty) FORMAT "x(7)"
-                 v-i-line[3] AT 90 SKIP
-                 v-cus[3] AT 3  " Cust Part #:" lv-part-no 
-                 v-i-line[4] AT 90 SKIP
-                 v-cus[4]  AT 3 " Overrun:"  FORMAT "x(7)"  
-                 " Underrun:" FORMAT "x(7)"  
-                 "Adders:" v-adders FORM "x(33)" AT 90 SKIP
-                 "<=1><R+11><C30><P8><B>Set Components<P7></B> <C50>Set item: " v-fg-set SKIP
-                 "<C2>FINISHED GOOD #                 DESCRIPTION                       RATIO PER SET" SKIP.
-             /* each components */
-             DEFINE VARIABLE v-tmp-line AS INTEGER NO-UNDO.
+            PUT "<R3><C1><#15><C30><P16><B> SET HEADER<P7></B>" SKIP(2)
+                "Job #: " AT 3 v-job-prt "<C25>Our Order #: " v-ord-no 
+                "<C60>Our Date: " v-ord-date SKIP
+                "Est #: " AT 3 v-est-no "<C25>FG #: " v-fg-set "<C60>Due Date: " v-due-date SKIP
+                "<=1><R+6><C2><From><R+5><C78><RECT><||3>" SKIP
+                "<=1><R+6><C2>CUSTOMER INFORMATION <C25> ORDER INFORMATION <C53>ITEM DESCRIPTION" SKIP
+                v-cus[1] AT 3 " PO#: " v-po-no " Set Qty: "  v-set-qty
+                v-i-line[2] AT 90
+                SKIP
+                v-cus[2] AT 3 " Job Qty:" TRIM(STRING(job-hdr.qty * v-pqty,">>>,>>9"))    FORMAT "x(7)"
+                " Order Qty:" STRING(v-ord-qty) FORMAT "x(7)"
+                v-i-line[3] AT 90 SKIP
+                v-cus[3] AT 3  " Cust Part #:" lv-part-no 
+                v-i-line[4] AT 90 SKIP
+                v-cus[4]  AT 3 " Overrun:"  FORMAT "x(7)"  
+                " Underrun:" FORMAT "x(7)"  
+                "Adders:" v-adders FORM "x(33)" AT 90 SKIP
+                "<=1><R+11><C30><P8><B>Set Components<P7></B> <C50>Set item: " v-fg-set SKIP
+                "<C2>FINISHED GOOD #                 DESCRIPTION                       RATIO PER SET" SKIP.
+            /* each components */
+            DEFINE VARIABLE v-tmp-line AS INTEGER NO-UNDO.
         
-             v-tmp-line = 0.
-             FOR EACH xeb WHERE xeb.company = est.company
-                             AND xeb.est-no = est.est-no
-                             AND xeb.form-no > 0 NO-LOCK:
-                 PUT xeb.stock-no AT 3 SPACE(14) xeb.part-dscr1 SPACE(5) xeb.quantityPerSet FORMAT "->>>>>>>9" SKIP.
-                 v-tmp-line = v-tmp-line + 1.
-             END.
-             v-tmp-line = v-tmp-line + 1.
-             /* print raw materials from misc/fram of Est */ 
-             FIND LAST b-ef USE-INDEX est-qty WHERE b-ef.company = est.company
-                                                AND b-ef.est-no = est.est-no NO-LOCK NO-ERROR.
-             DO i = 1 TO 8:
-                IF b-ef.spec-no[i] <> "" THEN DO:
-                   RUN custom/extradec.p (.0001, b-ef.spec-qty[i],
-                                          OUTPUT lv-spec-qty[i]).
-                   PUT b-ef.spec-dscr[i] AT 32 SPACE(16) lv-spec-qty[i] SKIP.
-                   v-tmp-line = v-tmp-line + 1.
+            v-tmp-line = 0.
+            FOR EACH xeb WHERE xeb.company = est.company
+                AND xeb.est-no = est.est-no
+                AND xeb.form-no > 0 NO-LOCK:
+                PUT xeb.stock-no AT 3 SPACE(14) xeb.part-dscr1 SPACE(5) xeb.quantityPerSet FORMAT "->>>>>>>9" SKIP.
+                v-tmp-line = v-tmp-line + 1.
+            END.
+            v-tmp-line = v-tmp-line + 1.
+            /* print raw materials from misc/fram of Est */ 
+            FIND LAST b-ef USE-INDEX est-qty WHERE b-ef.company = est.company
+                AND b-ef.est-no = est.est-no NO-LOCK NO-ERROR.
+            DO i = 1 TO 8:
+                IF b-ef.spec-no[i] <> "" THEN 
+                DO:
+                    RUN custom/extradec.p (.0001, b-ef.spec-qty[i],
+                        OUTPUT lv-spec-qty[i]).
+                    PUT b-ef.spec-dscr[i] AT 32 SPACE(16) lv-spec-qty[i] SKIP.
+                    v-tmp-line = v-tmp-line + 1.
                 END.
-             END.
-             PUT "<=1><R+12><C2><FROM><R+" + string(v-tmp-line) + "><C78><RECT><||3>" FORM "x(150)" SKIP.
-             v-tmp-line = v-tmp-line + 12 .
+            END.
+            PUT "<=1><R+12><C2><FROM><R+" + string(v-tmp-line) + "><C78><RECT><||3>" FORM "x(150)" SKIP.
+            v-tmp-line = v-tmp-line + 12 .
         
-             i = 0.
-             FOR EACH tt-wm WHERE LOOKUP(tt-wm.m-code,tspostfg-char) > 0:
-                  i = i + 1.
-             END.
-             i = i + 2.
-             PUT /*"<C2>Machine Routing:  <C15> SU:    Start    Stop     Total    Run:   Start   Stop    total   qty   in   out  waste  date" SKIP*/
-                 "  Machine Routing        SU:    Start    Stop    Total   RUN:  Start   Stop    Total   QTY:    In     Out     Waste     Date" SKIP
-                 "<=1><R+" + string(v-tmp-line + 1) + "><C2><FROM><R+" + string(i) + "><C78><RECT><||3>" FORM "x(150)" SKIP
-                 "<=1><R+" + string(v-tmp-line + 1) + ">" FORM "x(20)".
-                 .
+            i = 0.
+            FOR EACH tt-wm WHERE LOOKUP(tt-wm.m-code,tspostfg-char) > 0:
+                i = i + 1.
+            END.
+            i = i + 2.
+            PUT /*"<C2>Machine Routing:  <C15> SU:    Start    Stop     Total    Run:   Start   Stop    total   qty   in   out  waste  date" SKIP*/
+                "  Machine Routing        SU:    Start    Stop    Total   RUN:  Start   Stop    Total   QTY:    In     Out     Waste     Date" SKIP
+                "<=1><R+" + string(v-tmp-line + 1) + "><C2><FROM><R+" + string(i) + "><C78><RECT><||3>" FORM "x(150)" SKIP
+                "<=1><R+" + string(v-tmp-line + 1) + ">" FORM "x(20)".
+            .
         
-             i = 0.
-             FOR EACH tt-wm WHERE LOOKUP(tt-wm.m-code,tspostfg-char) > 0  BY tt-wm.dseq:
-               i = i + 1.
-               DISPLAY tt-wm.dscr AT 3
-                    tt-wm.s-hr WHEN tt-wm.s-hr NE 0
-                    FILL("_",7)  FORMAT "x(7)"    TO 38   WHEN tt-wm.dscr NE ""
-                    FILL("_",7)  FORMAT "x(7)"    TO 46   WHEN tt-wm.dscr NE ""
-                    FILL("_",7)  FORMAT "x(7)"    TO 54   WHEN tt-wm.dscr NE ""
+            i = 0.
+            FOR EACH tt-wm WHERE LOOKUP(tt-wm.m-code,tspostfg-char) > 0  BY tt-wm.dseq:
+                i = i + 1.
+                DISPLAY tt-wm.dscr AT 3
+                    tt-wm.s-hr 
+                    WHEN tt-wm.s-hr NE 0
+                    FILL("_",7)  FORMAT "x(7)"    TO 38   
+                    WHEN tt-wm.dscr NE ""
+                    FILL("_",7)  FORMAT "x(7)"    TO 46   
+                    WHEN tt-wm.dscr NE ""
+                    FILL("_",7)  FORMAT "x(7)"    TO 54   
+                    WHEN tt-wm.dscr NE ""
                     SPACE(2)
-                    tt-wm.r-sp WHEN tt-wm.r-sp NE 0
-                    FILL("_",7)  FORMAT "x(7)"    TO 69   WHEN tt-wm.dscr NE ""
-                    FILL("_",7)  FORMAT "x(7)"    TO 77   WHEN tt-wm.dscr NE ""
-                    FILL("_",7)  FORMAT "x(7)"    TO 85   WHEN tt-wm.dscr NE ""
-                    FILL("_",8)  FORMAT "x(8)"    TO 99   WHEN tt-wm.dscr NE ""
-                    FILL("_",8)  FORMAT "x(8)"    TO 108  WHEN tt-wm.dscr NE ""
-                    FILL("_",8)  FORMAT "x(8)"    TO 117  WHEN tt-wm.dscr NE ""
-                    FILL("_",8)  FORMAT "x(8)"    TO 129  WHEN tt-wm.dscr NE ""
+                    tt-wm.r-sp 
+                    WHEN tt-wm.r-sp NE 0
+                    FILL("_",7)  FORMAT "x(7)"    TO 69   
+                    WHEN tt-wm.dscr NE ""
+                    FILL("_",7)  FORMAT "x(7)"    TO 77   
+                    WHEN tt-wm.dscr NE ""
+                    FILL("_",7)  FORMAT "x(7)"    TO 85   
+                    WHEN tt-wm.dscr NE ""
+                    FILL("_",8)  FORMAT "x(8)"    TO 99   
+                    WHEN tt-wm.dscr NE ""
+                    FILL("_",8)  FORMAT "x(8)"    TO 108  
+                    WHEN tt-wm.dscr NE ""
+                    FILL("_",8)  FORMAT "x(8)"    TO 117  
+                    WHEN tt-wm.dscr NE ""
+                    FILL("_",8)  FORMAT "x(8)"    TO 129  
+                    WHEN tt-wm.dscr NE ""
                     /*chr(124) format "x"           at 131   */                  
                     WITH NO-BOX NO-LABELS FRAME o21 WIDTH 132 NO-ATTR-SPACE DOWN STREAM-IO.
         
-             END.
-             FOR EACH tt-wm:
-                 DELETE tt-wm.
-             END.
-             v-tmp-line = v-tmp-line + 3 + i /* 4 and add machine routing lines */.
+            END.
+            FOR EACH tt-wm:
+                DELETE tt-wm.
+            END.
+            v-tmp-line = v-tmp-line + 3 + i /* 4 and add machine routing lines */.
         
-             v-shipto = IF AVAILABLE xoe-rel THEN xoe-rel.ship-id 
-                        ELSE IF AVAILABLE xeb THEN xeb.ship-id
-                        ELSE IF AVAILABLE xoe-ord THEN xoe-ord.sold-id 
-                        ELSE "".
-             FIND FIRST tt-prem WHERE tt-prem.tt-job-no  EQ job-hdr.job-no
-                                   AND tt-prem.tt-job-no2  EQ job-hdr.job-no2 NO-LOCK NO-ERROR.
-             IF NOT AVAILABLE tt-prem THEN CREATE tt-prem.
+            v-shipto = IF AVAILABLE xoe-rel THEN xoe-rel.ship-id 
+            ELSE IF AVAILABLE xeb THEN xeb.ship-id
+            ELSE IF AVAILABLE xoe-ord THEN xoe-ord.sold-id 
+            ELSE "".
+            FIND FIRST tt-prem WHERE tt-prem.tt-job-no  EQ job-hdr.job-no
+                AND tt-prem.tt-job-no2  EQ job-hdr.job-no2 NO-LOCK NO-ERROR.
+            IF NOT AVAILABLE tt-prem THEN CREATE tt-prem.
         
-             ASSIGN v-tmp-lines = 0
-                    j = 0
-                    K = 0
-                    lv-got-return = 0
-                    v-dept-inst = "".
+            ASSIGN 
+                v-tmp-lines   = 0
+                j             = 0
+                K             = 0
+                lv-got-return = 0
+                v-dept-inst   = "".
         
-             {custom/notespr2.i job v-inst2 6 "notes.rec_key = job.rec_key and
+            {custom/notespr2.i job v-inst2 6 "notes.rec_key = job.rec_key and
                               notes.note_form_no = 0" }
-             DO i = 1 TO 6:
-                v-dept-inst[i] = v-inst2[i].
-             END.
-             IF v-ship <> "" THEN v-dept-inst[6] = v-ship.  /* shipto notes */
-             PUT "<=1><R+" + string(v-tmp-line) + ">" FORM "X(20)".
-             v-tmp-line = v-tmp-line + 1.
-             PUT "Unitizing Bale <C24>Date <C44>Units <C62>Complete" AT 3 SKIP
-                               "# Per Bndl: " AT 3 tt-prem.tt-#-bundle "<C20>_____________________ <C40>____________________  <C60>________________" SKIP
-                               "# Per Unit: " AT 3 tt-prem.tt-#-unit "<C20>_____________________ <C40>____________________  <C62>Partial" SKIP
-                               "Pattern: " AT 3 tt-prem.tt-pattern "<C20>_____________________ <C40>____________________  <C60>________________" SKIP
-                               "Pallet: " AT 3 tt-prem.tt-pallet "<C20>_____________________ <C40>____________________ " SKIP
-                               "<=1><R+" + string(v-tmp-line) + "><C2><FROM><R+6><C78><RECT><||3>" FORM "x(150)" SKIP
-                               "<=1><R+" + string(v-tmp-line + 7) + "><C2><FROM><R+7><C78><RECT><||3>" FORM "x(150)" SKIP
+        DO i = 1 TO 6:
+            v-dept-inst[i] = v-inst2[i].
+        END.
+        IF v-ship <> "" THEN v-dept-inst[6] = v-ship.  /* shipto notes */
+        PUT "<=1><R+" + string(v-tmp-line) + ">" FORM "X(20)".
+        v-tmp-line = v-tmp-line + 1.
+        PUT "Unitizing Bale <C24>Date <C44>Units <C62>Complete" AT 3 SKIP
+            "# Per Bndl: " AT 3 tt-prem.tt-#-bundle "<C20>_____________________ <C40>____________________  <C60>________________" SKIP
+            "# Per Unit: " AT 3 tt-prem.tt-#-unit "<C20>_____________________ <C40>____________________  <C62>Partial" SKIP
+            "Pattern: " AT 3 tt-prem.tt-pattern "<C20>_____________________ <C40>____________________  <C60>________________" SKIP
+            "Pallet: " AT 3 tt-prem.tt-pallet "<C20>_____________________ <C40>____________________ " SKIP
+            "<=1><R+" + string(v-tmp-line) + "><C2><FROM><R+6><C78><RECT><||3>" FORM "x(150)" SKIP
+            "<=1><R+" + string(v-tmp-line + 7) + "><C2><FROM><R+7><C78><RECT><||3>" FORM "x(150)" SKIP
         
-                               "<=1><R+" + string(v-tmp-line + 7) + "><C2>Special instructions  <C51>SHIPPING INFO       Ship to: " + v-shipto FORM "x(250)" SKIP
-                               v-dept-inst[1] AT 3 FORM "x(82)" CHR(124) FORMAT "xx" v-shp[1] SKIP
-                               v-dept-inst[2] AT 3 FORM "x(82)" CHR(124) FORMAT "xx" v-shp[2] SKIP
-                               v-dept-inst[3] AT 3 FORM "x(82)" CHR(124) FORMAT "xx" v-shp[3] SKIP
-                               v-dept-inst[4] AT 3 FORM "x(82)" CHR(124) FORMAT "xx" v-shp[4] SKIP
-                               v-dept-inst[5] AT 3 FORM "x(82)" CHR(124) FORMAT "xx" "Item PO #:" v-po-no SKIP
-                               v-dept-inst[6] 
-                               .
+            "<=1><R+" + string(v-tmp-line + 7) + "><C2>Special instructions  <C51>SHIPPING INFO       Ship to: " + v-shipto FORM "x(250)" SKIP
+            v-dept-inst[1] AT 3 FORM "x(82)" CHR(124) FORMAT "xx" v-shp[1] SKIP
+            v-dept-inst[2] AT 3 FORM "x(82)" CHR(124) FORMAT "xx" v-shp[2] SKIP
+            v-dept-inst[3] AT 3 FORM "x(82)" CHR(124) FORMAT "xx" v-shp[3] SKIP
+            v-dept-inst[4] AT 3 FORM "x(82)" CHR(124) FORMAT "xx" v-shp[4] SKIP
+            v-dept-inst[5] AT 3 FORM "x(82)" CHR(124) FORMAT "xx" "Item PO #:" v-po-no SKIP
+            v-dept-inst[6] 
+            .
         
-             PAGE.
-          END. /* set header printing */
-        END. /* est.est-type = 6 */
-        /* end of set header printing */
+        PAGE.
+    END. /* set header printing */
+END. /* est.est-type = 6 */
+/* end of set header printing */
 
-    END.  /* each job */
-    END.  /* end v-local-loop  */
+END.  /* each job */
+END.  /* end v-local-loop  */
  
-        HIDE ALL NO-PAUSE.
+HIDE ALL NO-PAUSE.
 
 
 PROCEDURE stackImage:
-  DEFINE BUFFER pattern FOR reftable.
-  DEFINE BUFFER stackPattern FOR stackPattern.
-  IF v-stackcode EQ '' THEN RETURN.
-  FIND FIRST stackPattern NO-LOCK
-       WHERE stackPattern.stackCode EQ SUBSTR(v-stackcode,9,1) NO-ERROR.
-  IF AVAILABLE stackPattern AND SEARCH(stackPattern.stackImage) NE ? THEN
-  PUT UNFORMATTED
-    "<#71><C27><R+1><FROM><C2><R+12>"
-    "<IMAGE#71=" stackPattern.stackImage ">"
-    "<R-13>".
+    DEFINE BUFFER pattern      FOR reftable.
+    DEFINE BUFFER stackPattern FOR stackPattern.
+    IF v-stackcode EQ '' THEN RETURN.
+    FIND FIRST stackPattern NO-LOCK
+        WHERE stackPattern.stackCode EQ SUBSTR(v-stackcode,9,1) NO-ERROR.
+    IF AVAILABLE stackPattern AND SEARCH(stackPattern.stackImage) NE ? THEN
+        PUT UNFORMATTED
+            "<#71><C27><R+1><FROM><C2><R+12>"
+            "<IMAGE#71=" stackPattern.stackImage ">"
+            "<R-13>".
 END PROCEDURE.
 
 /* end ---------------------------------- copr. 1997  advanced software, inc. */

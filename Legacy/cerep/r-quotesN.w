@@ -86,13 +86,13 @@ ASSIGN cTextListToDefault  = "Quote#,Est#,Customer,Part Description,Date,SalesRe
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-6 RECT-7 begin_cust-no end_cust-no ~
-begin_slsmn end_slsmn begin_date end_date rd_sort rd_print sl_avail ~
-sl_selected Btn_Def Btn_Add Btn_Remove btn_Up btn_down rd-dest lv-ornt ~
-lines-per-page lv-font-no td-show-parm tb_excel tb_runExcel fi_file btn-ok ~
-btn-cancel 
+begin_slsmn end_slsmn begin_date end_date rd_sort rd_print tb_Include-Item ~
+sl_avail sl_selected Btn_Def Btn_Add Btn_Remove btn_Up btn_down rd-dest ~
+lv-ornt lines-per-page lv-font-no td-show-parm tb_excel tb_runExcel fi_file ~
+btn-ok btn-cancel 
 &Scoped-Define DISPLAYED-OBJECTS begin_cust-no end_cust-no begin_slsmn ~
-end_slsmn begin_date end_date lbl-sort rd_sort rd_print sl_avail ~
-sl_selected rd-dest lv-ornt lines-per-page lv-font-no lv-font-name ~
+end_slsmn begin_date end_date lbl-sort rd_sort rd_print tb_Include-Item ~
+sl_avail sl_selected rd-dest lv-ornt lines-per-page lv-font-no lv-font-name ~
 td-show-parm tb_excel tb_runExcel fi_file 
 
 /* Custom List Definitions                                              */
@@ -231,7 +231,7 @@ DEFINE RECTANGLE RECT-6
 
 DEFINE RECTANGLE RECT-7
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 94 BY 6.43.
+     SIZE 94 BY 7.3.
 
 DEFINE VARIABLE sl_avail AS CHARACTER 
      VIEW-AS SELECTION-LIST MULTIPLE SCROLLBAR-VERTICAL 
@@ -251,6 +251,11 @@ DEFINE VARIABLE tb_excel AS LOGICAL INITIAL yes
      VIEW-AS TOGGLE-BOX
      SIZE 21 BY .95
      BGCOLOR 3  NO-UNDO.
+
+DEFINE VARIABLE tb_Include-Item AS LOGICAL INITIAL no 
+     LABEL "Include Inactive Items?" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 28 BY .81 NO-UNDO.
 
 DEFINE VARIABLE tb_runExcel AS LOGICAL INITIAL no 
      LABEL "Auto Run Excel?" 
@@ -282,43 +287,44 @@ DEFINE FRAME FRAME-A
      lbl-sort AT ROW 6.19 COL 23 COLON-ALIGNED NO-LABEL
      rd_sort AT ROW 6.19 COL 35 NO-LABEL
      rd_print AT ROW 6.24 COL 63.8 WIDGET-ID 58
-     sl_avail AT ROW 8.33 COL 4.2 NO-LABEL WIDGET-ID 26
-     sl_selected AT ROW 8.33 COL 59.6 NO-LABEL WIDGET-ID 28
-     Btn_Def AT ROW 8.48 COL 40.2 HELP
+     tb_Include-Item AT ROW 7.24 COL 63.8 WIDGET-ID 60
+     sl_avail AT ROW 9.05 COL 4.2 NO-LABEL WIDGET-ID 26
+     sl_selected AT ROW 9.05 COL 59.6 NO-LABEL WIDGET-ID 28
+     Btn_Def AT ROW 9.19 COL 40.2 HELP
           "Add Selected Table to Tables to Audit" WIDGET-ID 56
-     Btn_Add AT ROW 9.48 COL 40.2 HELP
+     Btn_Add AT ROW 10.19 COL 40.2 HELP
           "Add Selected Table to Tables to Audit" WIDGET-ID 32
-     Btn_Remove AT ROW 10.48 COL 40.2 HELP
+     Btn_Remove AT ROW 11.19 COL 40.2 HELP
           "Remove Selected Table from Tables to Audit" WIDGET-ID 34
-     btn_Up AT ROW 11.52 COL 40.2 WIDGET-ID 40
-     btn_down AT ROW 12.52 COL 40.2 WIDGET-ID 42
-     rd-dest AT ROW 14.67 COL 4 NO-LABEL
-     lv-ornt AT ROW 15.14 COL 31 NO-LABEL
-     lines-per-page AT ROW 15.14 COL 84 COLON-ALIGNED
-     lv-font-no AT ROW 16.57 COL 34 COLON-ALIGNED
-     lv-font-name AT ROW 17.52 COL 28 COLON-ALIGNED NO-LABEL
-     td-show-parm AT ROW 19.1 COL 30
-     tb_excel AT ROW 20.48 COL 50 RIGHT-ALIGNED
-     tb_runExcel AT ROW 20.48 COL 73 RIGHT-ALIGNED
-     fi_file AT ROW 21.67 COL 28 COLON-ALIGNED HELP
+     btn_Up AT ROW 12.24 COL 40.2 WIDGET-ID 40
+     btn_down AT ROW 13.24 COL 40.2 WIDGET-ID 42
+     rd-dest AT ROW 15.38 COL 4 NO-LABEL
+     lv-ornt AT ROW 15.86 COL 31 NO-LABEL
+     lines-per-page AT ROW 15.86 COL 84 COLON-ALIGNED
+     lv-font-no AT ROW 17.29 COL 34 COLON-ALIGNED
+     lv-font-name AT ROW 18.24 COL 28 COLON-ALIGNED NO-LABEL
+     td-show-parm AT ROW 19.81 COL 30
+     tb_excel AT ROW 21.19 COL 50 RIGHT-ALIGNED
+     tb_runExcel AT ROW 21.19 COL 73 RIGHT-ALIGNED
+     fi_file AT ROW 22.38 COL 28 COLON-ALIGNED HELP
           "Enter File Name"
-     btn-ok AT ROW 23.71 COL 19
-     btn-cancel AT ROW 23.71 COL 61
+     btn-ok AT ROW 24.43 COL 19
+     btn-cancel AT ROW 24.43 COL 61
      "Available Columns" VIEW-AS TEXT
-          SIZE 29 BY .62 AT ROW 7.62 COL 5 WIDGET-ID 38
-     "Selected Columns(In Display Order)" VIEW-AS TEXT
-          SIZE 34 BY .62 AT ROW 7.62 COL 59.6 WIDGET-ID 44
+          SIZE 29 BY .62 AT ROW 8.33 COL 5 WIDGET-ID 38
+     "Output Destination" VIEW-AS TEXT
+          SIZE 18 BY .62 AT ROW 14.67 COL 3
      "Selection Parameters" VIEW-AS TEXT
           SIZE 21 BY .71 AT ROW 1.24 COL 5
           BGCOLOR 2 
-     "Output Destination" VIEW-AS TEXT
-          SIZE 18 BY .62 AT ROW 13.95 COL 3
-     RECT-6 AT ROW 13.71 COL 2
+     "Selected Columns(In Display Order)" VIEW-AS TEXT
+          SIZE 34 BY .62 AT ROW 8.33 COL 59.6 WIDGET-ID 44
+     RECT-6 AT ROW 14.43 COL 2
      RECT-7 AT ROW 1 COL 1
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1.6 ROW 1.24
-         SIZE 95.2 BY 24.14.
+         SIZE 95.2 BY 25.1.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -338,7 +344,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW C-Win ASSIGN
          HIDDEN             = YES
          TITLE              = "Quotes List"
-         HEIGHT             = 24.48
+         HEIGHT             = 25.33
          WIDTH              = 95.8
          MAX-HEIGHT         = 33.29
          MAX-WIDTH          = 204.8
@@ -855,6 +861,17 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME tb_Include-Item
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_Include-Item C-Win
+ON VALUE-CHANGED OF tb_Include-Item IN FRAME FRAME-A /* Include Inactive Items */
+DO:
+    assign {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME tb_runExcel
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_runExcel C-Win
 ON VALUE-CHANGED OF tb_runExcel IN FRAME FRAME-A /* Auto Run Excel? */
@@ -1077,14 +1094,15 @@ PROCEDURE enable_UI :
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
   DISPLAY begin_cust-no end_cust-no begin_slsmn end_slsmn begin_date end_date 
-          lbl-sort rd_sort rd_print sl_avail sl_selected rd-dest lv-ornt 
-          lines-per-page lv-font-no lv-font-name td-show-parm tb_excel 
+          lbl-sort rd_sort rd_print tb_Include-Item sl_avail sl_selected rd-dest 
+          lv-ornt lines-per-page lv-font-no lv-font-name td-show-parm tb_excel 
           tb_runExcel fi_file 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   ENABLE RECT-6 RECT-7 begin_cust-no end_cust-no begin_slsmn end_slsmn 
-         begin_date end_date rd_sort rd_print sl_avail sl_selected Btn_Def 
-         Btn_Add Btn_Remove btn_Up btn_down rd-dest lv-ornt lines-per-page 
-         lv-font-no td-show-parm tb_excel tb_runExcel fi_file btn-ok btn-cancel 
+         begin_date end_date rd_sort rd_print tb_Include-Item sl_avail 
+         sl_selected Btn_Def Btn_Add Btn_Remove btn_Up btn_down rd-dest lv-ornt 
+         lines-per-page lv-font-no td-show-parm tb_excel tb_runExcel fi_file 
+         btn-ok btn-cancel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.
@@ -1342,7 +1360,7 @@ IF tb_excel THEN do:
   PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
 END.
 SESSION:SET-WAIT-STATE ("general").
-
+main:
 FOR EACH quotehd
     WHERE quotehd.company  EQ cocode
       AND quotehd.loc      EQ locode
@@ -1359,6 +1377,15 @@ FOR EACH quotehd
     FIRST quoteqty OF quoteitm NO-LOCK:
 
     {custom/statusMsg.i " 'Processing Estimate#:  '  + quotehd.est-no  "}
+
+  IF NOT tb_Include-Item THEN DO:
+       FIND FIRST itemfg NO-LOCK
+        WHERE itemfg.company EQ quoteitm.company
+        AND itemfg.i-no EQ quoteitm.i-no NO-ERROR.
+
+       IF AVAIL itemfg AND itemfg.stat EQ "I" THEN NEXT main.
+  END.
+
 
   CREATE tt-report.
   ASSIGN

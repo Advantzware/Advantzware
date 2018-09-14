@@ -81,14 +81,15 @@ IF v-continue THEN DO:
   IF NOT AVAIL b-prgrms THEN FIND b-prgrms WHERE b-prgrms.prgmname = v-prgmname NO-LOCK NO-ERROR.
   
     
-  FIND FIRST reftable WHERE reftable.reftable = "Batchrpt"
-                          AND reftable.CODE = "{1}" NO-LOCK NO-ERROR.
-  IF NOT AVAIL reftable THEN DO:
-       CREATE reftable.
-       ASSIGN reftable.reftable = "Batchrpt"
-              reftable.CODE = "{1}"
-              reftable.code2 = IF AVAIL b-prgrms THEN b-prgrms.prgmname ELSE "".
-  END.
+
+   FIND FIRST user-print WHERE user-print.program-id = "{1}"
+                           AND user-print.company = cocode
+                           AND user-print.batch = "" NO-LOCK NO-ERROR.
+   IF AVAIL user-print THEN DO:
+       ASSIGN user-print.prgmName = IF AVAIL b-prgrms THEN b-prgrms.prgmname ELSE "". 
+       
+   END.     
+
 
   MESSAGE "Procedure is scheduled..." VIEW-AS ALERT-BOX.
 END. /* if v-continue */

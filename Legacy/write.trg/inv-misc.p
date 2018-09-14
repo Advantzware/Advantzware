@@ -17,9 +17,7 @@ ASSIGN
 FIND FIRST inv-head OF {&TABLENAME} NO-LOCK NO-ERROR.
 IF AVAIL inv-head THEN RUN oe/oeinvup2.p (ROWID(inv-head), INPUT NO).
 
-IF TRIM({&TABLENAME}.rec_key) NE "" THEN DO:
-  {custom/coloraud.i}
-END.
+
 
 /* Clear out any error-status from find with no-error that is false */
 DEF VAR ll-error AS LOG NO-UNDO.

@@ -2441,7 +2441,7 @@ PROCEDURE build-work :
          AND CAN-FIND(FIRST oe-ord
                       WHERE oe-ord.company EQ oe-boll.company
                         AND oe-ord.ord-no  EQ oe-boll.ord-no
-                        AND oe-ord.stat    EQ "H")
+                        AND (oe-ord.stat    EQ "H" OR oe-ord.priceHold))
         NO-LOCK:
 
       IF begin_bol# EQ END_bol# THEN
@@ -2954,7 +2954,9 @@ DEF VAR dis-tag AS CHAR NO-UNDO.
       ELSE ASSIGN dis-tag  = w-except.tag .
 
     display SPACE(5)
-            w-except.i-no  COLUMN-LABEL "Item #"   
+            w-except.i-no  COLUMN-LABEL "Item #"  
+            w-except.qty   COLUMN-LABEL "Qty"
+            w-except.dOnhQty  FORMAT "->>>,>>>,>>9" COLUMN-LABEL "On Hand Qty"
             dis-tag COLUMN-LABEL "Tag" FORMAT "X(22)"
             itemfg.i-name  FORMAT "X(20)" when avail itemfg COLUMN-LABEL "Item Name"
             w-except.po-no COLUMN-LABEL "P.O. #"    
@@ -2967,7 +2969,7 @@ DEF VAR dis-tag AS CHAR NO-UNDO.
             w-except.qty-case format "->>>,>>9" COLUMN-LABEL "Qty/Case" 
             w-except.partial format "->>>,>>9"  COLUMN-LABEL " Partial"
             w-except.weight format "->>>,>>9"   COLUMN-LABEL "  Weight"
-        with frame boll2 DOWN NO-BOX NO-ATTR-SPACE STREAM-IO WIDTH 165.
+        with frame boll2 DOWN NO-BOX NO-ATTR-SPACE STREAM-IO WIDTH 180.
     down with frame boll2.
 
     put skip(1).
@@ -4080,7 +4082,7 @@ FOR EACH oe-bolh
        AND CAN-FIND (FIRST oe-ord
                      WHERE oe-ord.company EQ oe-boll.company
                        AND oe-ord.ord-no  EQ oe-boll.ord-no
-                       AND oe-ord.stat    EQ "H")
+                       AND (oe-ord.stat    EQ "H" OR oe-ord.priceHold))
       NO-LOCK:
     NEXT build-work.
   END.

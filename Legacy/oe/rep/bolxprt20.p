@@ -104,6 +104,8 @@ DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
 DEFINE VARIABLE ls-full-img1 AS CHAR FORMAT "x(200)" NO-UNDO.
 DEFINE VARIABLE lBroker AS LOGICAL NO-UNDO .
+DEFINE VARIABLE lv-tot-pg AS INT NO-UNDO.
+
 RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormLogo", "C" /* Logical */, NO /* check by cust */, 
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
 OUTPUT cRtnChar, OUTPUT lRecFound).
@@ -115,8 +117,8 @@ form w2.i-no                         format "x(15)"
      w2.dscr                    at 33 format "x(30)"
      w2.cases                       to 70 format "->>>>"
      w2.cas-cnt                     to 77 format "->>>>>>"
-     tt-boll.qty                    to 85 format "->>>>>>"
-     bf-ttboll.p-c                    at 92
+     tt-boll.qty                    to 89 format "->>>>>>>>>"
+     bf-ttboll.p-c                    at 95
     with frame bol-mid down no-box no-labels stream-io width 110.
 
 form oe-ordl.i-no                         format "x(15)"
@@ -124,8 +126,8 @@ form oe-ordl.i-no                         format "x(15)"
      v-part-dscr                    at 33 format "x(30)"
      w2.cases                       to 70 format "->>>9"
      w2.cas-cnt                     to 77 format "->>>>>9"
-     tt-boll.qty                    to 85 format "->>>>>9"
-     tt-boll.p-c                    at 92
+     tt-boll.qty                    to 89 format "->>>>>>>>9"
+     tt-boll.p-c                    at 95
     with frame bol-mid2 down no-box no-labels stream-io width 100.
 
 ASSIGN tmpstore = fill("-",130).
@@ -372,19 +374,23 @@ for each xxreport where xxreport.term-id eq v-term-id,
         ASSIGN v-ship-addr[2] = v-ship-addr3
                v-ship-addr3 = "".
 
-     /*
-     ln-cnt = 0.
+     ln-cnt = 1.
      FOR EACH tt-boll,
          first xoe-bolh where xoe-bolh.b-no eq tt-boll.b-no no-lock,
          first itemfg where itemfg.company eq tt-boll.company
                       and itemfg.i-no    eq tt-boll.i-no no-lock
-         BY tt-boll.i-no
+        BREAK BY tt-boll.i-no
          BY tt-boll.po-no
          BY tt-boll.ord-no
          BY tt-boll.line
-         BY tt-boll.cases DESC:                 
-
-          ln-cnt = ln-cnt + 3.
+         BY tt-boll.cases DESC:    
+         IF ll-consol-bolls THEN do:
+             IF FIRST-OF(tt-boll.i-no) THEN
+                 ln-cnt = ln-cnt + 3.
+         END.
+         ELSE
+            ln-cnt = ln-cnt + 3.
+          
           find first oe-ordl where oe-ordl.company eq cocode
                                and oe-ordl.ord-no  eq tt-boll.ord-no
                                and oe-ordl.i-no    eq tt-boll.i-no
@@ -392,16 +398,18 @@ for each xxreport where xxreport.term-id eq v-term-id,
           IF AVAIL oe-ordl AND oe-ordl.part-dscr1 <> "" THEN ln-cnt = ln-cnt + 1.
           IF AVAIL oe-ordl AND oe-ordl.part-dscr2 <> "" THEN ln-cnt = ln-cnt + 1.
 
-          if itemfg.alloc NE YES then
+          IF v-print-components AND itemfg.alloc NE YES then
              for each fg-set where fg-set.company eq cocode
                                and fg-set.set-no  eq tt-boll.i-no no-lock,
                  first b-itemfg where b-itemfg.company eq cocode
                                 and b-itemfg.i-no    eq fg-set.part-no no-lock:
-                 ln-cnt = ln-cnt + 1.
+                 ln-cnt = ln-cnt + 3.
              END.
      END.
      /* end of dup loop */
-     */
+      lv-tot-pg = IF (ln-cnt MOD 25) = 0 THEN TRUNC( ln-cnt / 25,0)
+                  ELSE 1 + TRUNC( ln-cnt / 25,0) .  /* 16->33 18 detail lines */
+      IF lv-tot-pg EQ 0 THEN lv-tot-pg = 1 .
      
      {oe/rep/bolxpr220.i}
      {oe/rep/bolxprt30.i}

@@ -95,6 +95,7 @@ DEF SHARED VAR s-print-loc-to AS cha NO-UNDO.
 DEF SHARED VAR s-print-bin-from AS cha NO-UNDO.
 DEF SHARED VAR s-print-bin-to AS cha NO-UNDO.
 DEFINE SHARED VARIABLE lSortRelSeq AS LOGICAL NO-UNDO .
+DEFINE SHARED VARIABLE lPrintQtyUom AS LOGICAL NO-UNDO .
 
 format w-bin.w-ord-col                  AT 1    FORMAT "x(6)"
        w-bin.w-par                      at 8    format "x(25)"
@@ -729,11 +730,13 @@ if v-zone-p then v-zone-hdr = "Route No.:".
                     INPUT trim(STRING(lv-tot-cust-qty, "->>>>>>>>")),
                     INPUT lv-save-cust-uom,
                     OUTPUT v-cust-value).
-                   
+                  
+                 IF lPrintQtyUom THEN DO:
                   DISPLAY {2}
                      v-cust-value 
                             
                      WITH FRAME rel-mid.
+                 END.
             
                   ASSIGN 
                     lv-tot-cust-qty = 0
