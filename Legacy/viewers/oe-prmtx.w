@@ -1439,8 +1439,9 @@ PROCEDURE valid-entry :
 ------------------------------------------------------------------------------*/
 
   {methods/lValidateError.i YES}
-
-   FIND FIRST bf-oe-prmtx NO-LOCK 
+   
+   IF adm-new-record THEN 
+    FIND FIRST bf-oe-prmtx NO-LOCK 
       WHERE bf-oe-prmtx.company EQ g_company
         AND bf-oe-prmtx.custShipID EQ oe-prmtx.custShipID:SCREEN-VALUE IN FRAME {&FRAME-NAME}
         AND bf-oe-prmtx.cust-no EQ oe-prmtx.cust-no:SCREEN-VALUE IN FRAME {&FRAME-NAME}
@@ -1448,7 +1449,7 @@ PROCEDURE valid-entry :
         AND bf-oe-prmtx.procat EQ oe-prmtx.procat:SCREEN-VALUE IN FRAME {&FRAME-NAME}
         AND bf-oe-prmtx.custype EQ oe-prmtx.custype:SCREEN-VALUE IN FRAME {&FRAME-NAME}
         AND bf-oe-prmtx.eff-date EQ date(oe-prmtx.eff-date:SCREEN-VALUE IN FRAME {&FRAME-NAME})
-      AND rowid(bf-oe-prmtx) NE rowid(oe-prmtx) NO-ERROR .
+        NO-ERROR .
 
   IF AVAIL bf-oe-prmtx THEN DO:
       MESSAGE "This record is a duplicate of a previous entry; please adjust." VIEW-AS ALERT-BOX ERROR.
