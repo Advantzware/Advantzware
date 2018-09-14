@@ -351,9 +351,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     /* Find where the prod DB lives */
     /* I'm sure there's a more efficient way to do this, but in a hurry */
     ASSIGN 
-        cProdDB = "c:\asigui\databases\prod\asiProd.db"
-        cProdDB = "c:\asigui\databases\Test\asiTest168.db"
-        .
+        cProdDB = "c:\asigui\databases\prod\asiProd.db".
     IF SEARCH (cProdDB) EQ ? THEN DO:
         ASSIGN 
             cProdDB = "d:\asigui\databases\prod\asiProd.db".
@@ -376,8 +374,10 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
                                 ASSIGN 
                                     cProdDB = "e:\asi\databases\prod\asiProd.db".
                                 IF SEARCH (cProdDB) EQ ? THEN DO:
+                                    /* This handles local programming and AWS */
+                                    /* Everything in the field should have been found by now */
                                     ASSIGN
-                                        cProdDB = "".
+                                        cProdDB = "c:\asigui\databases\Test\asiTest168.db".
                                 END.
                             END.
                         END.
@@ -404,34 +404,38 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     
     RUN "system/PgmMstrSecur.p" PERSISTENT SET hPgmSecurity.
 
-    RUN epCanAccess IN hPgmSecurity ("sys/ref/hlp.w", "ProTools", OUTPUT lResult).
-    IF NOT lResult THEN ASSIGN btProTools:VISIBLE = FALSE.
+    /* Admin user access */
+    RUN epCanAccess IN hPgmSecurity ("util/wPgmrToolbox.w", "LockMon", OUTPUT lResult).
+    IF NOT lResult THEN ASSIGN btLockMon:SENSITIVE = FALSE.
+    ELSE ASSIGN iNumOK = iNumOK + 1.
+
+    RUN epCanAccess IN hPgmSecurity ("util/wPgmrToolbox.w", "MonitorUsers", OUTPUT lResult).
+    IF NOT lResult THEN ASSIGN 
+            btMonitorUsers:SENSITIVE = FALSE
+            rsDB1:SENSITIVE          = FALSE 
+            rsDB2:SENSITIVE          = FALSE .
+    ELSE ASSIGN iNumOK = iNumOK + 1.
+
+    /* ASI User access */
+    RUN epCanAccess IN hPgmSecurity ("util/wPgmrToolbox.w", "ProTools", OUTPUT lResult).
+    IF NOT lResult THEN ASSIGN btProTools:SENSITIVE = FALSE.
     ELSE ASSIGN iNumOK = iNumOK + 1.
         
-    RUN epCanAccess IN hPgmSecurity ("sys/ref/hlp.w", "LockMon", OUTPUT lResult).
-    IF NOT lResult THEN ASSIGN btLockMon:VISIBLE = FALSE.
+
+    RUN epCanAccess IN hPgmSecurity ("util/wPgmrToolbox.w", "DataDigger", OUTPUT lResult).
+    IF NOT lResult THEN ASSIGN btDataDigger:SENSITIVE = FALSE.
     ELSE ASSIGN iNumOK = iNumOK + 1.
 
-    RUN epCanAccess IN hPgmSecurity ("sys/ref/hlp.w", "DataDigger", OUTPUT lResult).
-    IF NOT lResult THEN ASSIGN btDataDigger:VISIBLE = FALSE.
-    ELSE ASSIGN iNumOK = iNumOK + 1.
-
-    RUN epCanAccess IN hPgmSecurity ("sys/ref/hlp.w", "SwitchMode", OUTPUT lResult).
+    RUN epCanAccess IN hPgmSecurity ("util/wPgmrToolbox.w", "SwitchMode", OUTPUT lResult).
     IF NOT lResult THEN ASSIGN 
-        btSwitchMode:VISIBLE = FALSE
-        fiMode:VISIBLE = FALSE .
+        btSwitchMode:SENSITIVE = FALSE
+        fiMode::SENSITIVE = FALSE.
     ELSE ASSIGN iNumOK = iNumOK + 1.
 
     RUN epCanAccess IN hPgmSecurity ("sys/ref/hlp.w", "RunEditor", OUTPUT lResult).
-    IF NOT lResult THEN ASSIGN btEditor:VISIBLE = FALSE.
+    IF NOT lResult THEN ASSIGN btEditor:SENSITIVE = FALSE.
     ELSE ASSIGN iNumOK = iNumOK + 1.
 
-    RUN epCanAccess IN hPgmSecurity ("sys/ref/hlp.w", "MonitorUsers", OUTPUT lResult).
-    IF NOT lResult THEN ASSIGN 
-        btMonitorUsers:VISIBLE = FALSE
-        rsDB1:VISIBLE = FALSE 
-        rsDB2:VISIBLE = FALSE .
-    ELSE ASSIGN iNumOK = iNumOK + 1.
 
     DELETE OBJECT hPgmSecurity.
     IF iNumOK = 0 THEN DO:
