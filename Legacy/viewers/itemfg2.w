@@ -46,6 +46,11 @@ def var uom-list as cha init "C,CS,EA,L,M" no-undo.
 DEF VAR v-prior-i-no AS CHAR NO-UNDO.
 DEF VAR v-whseadded AS LOG NO-UNDO.
 DEFINE VARIABLE h_w-inqord AS HANDLE      NO-UNDO.
+DEFINE VARIABLE dq-alloc AS DECIMAL NO-UNDO .
+DEFINE VARIABLE dq-back AS DECIMAL NO-UNDO .
+DEFINE VARIABLE dq-ono AS DECIMAL NO-UNDO .
+DEFINE VARIABLE dq-onh AS DECIMAL NO-UNDO .
+DEFINE VARIABLE dq-avail AS DECIMAL NO-UNDO .
 &Scoped-define List-buttons btn_onh btn_ono btn_all
 &Scoped-define List-nonreord itemfg.i-no itemfg.i-name itemfg.i-dscr itemfg.vend-no ~
      itemfg.vend-item itemfg.vend2-no itemfg.vend2-item itemfg.ord-policy ~
@@ -88,18 +93,17 @@ RECT-22 RECT-24 RECT-25
 itemfg.vend-no itemfg.vend-item itemfg.vend2-no itemfg.vend2-item ~
 itemfg.ord-policy itemfg.stocked itemfg.pur-man itemfg.isaset itemfg.alloc ~
 itemfg.ord-level itemfg.ord-min itemfg.ord-max itemfg.lead-days ~
-itemfg.beg-bal itemfg.q-onh itemfg.q-ono itemfg.q-alloc itemfg.q-back ~
-itemfg.q-avail 
+itemfg.beg-bal 
 &Scoped-define DISPLAYED-TABLES itemfg
 &Scoped-define FIRST-DISPLAYED-TABLE itemfg
-&Scoped-Define DISPLAYED-OBJECTS cbLoc 
+&Scoped-Define DISPLAYED-OBJECTS cbLoc dq-onh dq-ono dq-alloc dq-back dq-avail
 
 /* Custom List Definitions                                              */
 /* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,ROW-AVAILABLE,DISPLAY-FIELD,List-5,F1 */
-&Scoped-define ADM-ASSIGN-FIELDS itemfg.beg-bal itemfg.q-onh itemfg.q-ono ~
-itemfg.q-alloc itemfg.q-back itemfg.q-avail 
-&Scoped-define List-5 itemfg.beg-bal itemfg.q-onh itemfg.q-ono ~
-itemfg.q-alloc itemfg.q-back 
+&Scoped-define ADM-ASSIGN-FIELDS itemfg.beg-bal dq-onh  dq-ono  ~
+ dq-alloc dq-back dq-avail
+&Scoped-define List-5 itemfg.beg-bal dq-onh dq-ono ~
+ dq-alloc dq-back
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
@@ -265,13 +269,13 @@ DEFINE FRAME F-Main
      itemfg.beg-bal AT ROW 12.67 COL 14 COLON-ALIGNED NO-LABEL FORMAT "->,>>>,>>9"
           VIEW-AS FILL-IN 
           SIZE 20 BY 1
-     itemfg.q-onh AT ROW 12.67 COL 34 COLON-ALIGNED NO-LABEL FORMAT "->,>>>,>>9"
+     dq-onh AT ROW 12.67 COL 34 COLON-ALIGNED NO-LABEL FORMAT "->,>>>,>>9"
           VIEW-AS FILL-IN 
           SIZE 20 BY 1
-     itemfg.q-ono AT ROW 12.67 COL 54 COLON-ALIGNED NO-LABEL FORMAT "->,>>>,>>9"
+     dq-ono AT ROW 12.67 COL 54 COLON-ALIGNED NO-LABEL FORMAT "->,>>>,>>9"
           VIEW-AS FILL-IN 
           SIZE 20 BY 1
-     itemfg.q-alloc AT ROW 12.67 COL 74 COLON-ALIGNED NO-LABEL FORMAT "->,>>>,>>9"
+     dq-alloc AT ROW 12.67 COL 74 COLON-ALIGNED NO-LABEL FORMAT "->,>>>,>>9"
           VIEW-AS FILL-IN 
           SIZE 20 BY 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
@@ -281,10 +285,10 @@ DEFINE FRAME F-Main
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME F-Main
-     itemfg.q-back AT ROW 12.67 COL 94 COLON-ALIGNED NO-LABEL FORMAT "->,>>>,>>9"
+     dq-back AT ROW 12.67 COL 94 COLON-ALIGNED NO-LABEL FORMAT "->,>>>,>>9"
           VIEW-AS FILL-IN 
           SIZE 20 BY 1
-     itemfg.q-avail AT ROW 12.67 COL 114 COLON-ALIGNED NO-LABEL FORMAT "->,>>>,>>9"
+     dq-avail AT ROW 12.67 COL 114 COLON-ALIGNED NO-LABEL FORMAT "->,>>>,>>9"
           VIEW-AS FILL-IN 
           SIZE 20 BY 1
      "Qty" VIEW-AS TEXT
@@ -390,15 +394,15 @@ ASSIGN
    EXP-HELP                                                             */
 /* SETTINGS FOR FILL-IN itemfg.pur-uom IN FRAME F-Main
    NO-DISPLAY EXP-LABEL                                                 */
-/* SETTINGS FOR FILL-IN itemfg.q-alloc IN FRAME F-Main
+/* SETTINGS FOR FILL-IN dq-alloc IN FRAME F-Main
    NO-ENABLE 2 5 EXP-FORMAT                                             */
-/* SETTINGS FOR FILL-IN itemfg.q-avail IN FRAME F-Main
+/* SETTINGS FOR FILL-IN dq-avail IN FRAME F-Main
    NO-ENABLE 2 EXP-FORMAT                                               */
-/* SETTINGS FOR FILL-IN itemfg.q-back IN FRAME F-Main
+/* SETTINGS FOR FILL-IN dq-back IN FRAME F-Main
    NO-ENABLE 2 5 EXP-FORMAT                                             */
-/* SETTINGS FOR FILL-IN itemfg.q-onh IN FRAME F-Main
+/* SETTINGS FOR FILL-IN dq-onh IN FRAME F-Main
    NO-ENABLE 2 5 EXP-FORMAT                                             */
-/* SETTINGS FOR FILL-IN itemfg.q-ono IN FRAME F-Main
+/* SETTINGS FOR FILL-IN dq-ono IN FRAME F-Main
    NO-ENABLE 2 5 EXP-FORMAT                                             */
 /* SETTINGS FOR TOGGLE-BOX itemfg.stocked IN FRAME F-Main
    EXP-LABEL                                                            */
@@ -607,9 +611,9 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME itemfg.q-alloc
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL itemfg.q-alloc V-table-Win
-ON VALUE-CHANGED OF itemfg.q-alloc IN FRAME F-Main /* Qty Available */
+&Scoped-define SELF-NAME dq-alloc
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL dq-alloc V-table-Win
+ON VALUE-CHANGED OF dq-alloc IN FRAME F-Main /* Qty Available */
 DO:
   RUN calc-q-avail.
 END.
@@ -618,9 +622,9 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME itemfg.q-onh
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL itemfg.q-onh V-table-Win
-ON VALUE-CHANGED OF itemfg.q-onh IN FRAME F-Main /* Qty On-Hand */
+&Scoped-define SELF-NAME dq-onh
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL dq-onh V-table-Win
+ON VALUE-CHANGED OF dq-onh IN FRAME F-Main /* Qty On-Hand */
 DO:
   RUN calc-q-avail.
 END.
@@ -629,9 +633,9 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME itemfg.q-ono
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL itemfg.q-ono V-table-Win
-ON VALUE-CHANGED OF itemfg.q-ono IN FRAME F-Main /* Qty On-Order */
+&Scoped-define SELF-NAME dq-ono
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL dq-ono V-table-Win
+ON VALUE-CHANGED OF dq-ono IN FRAME F-Main /* Qty On-Order */
 DO:
   RUN calc-q-avail.
 END.
@@ -826,12 +830,12 @@ PROCEDURE local-assign-record :
         asi.itemfg-loc.ord-level =  INTEGER(itemfg.ord-level:SCREEN-VALUE)
         asi.itemfg-loc.ord-max   =  INTEGER(itemfg.ord-max:SCREEN-VALUE)
         asi.itemfg-loc.ord-min   =  INTEGER(itemfg.ord-min:SCREEN-VALUE)
-        asi.itemfg-loc.q-alloc   =  INTEGER(itemfg.q-alloc:SCREEN-VALUE)
-        asi.itemfg-loc.q-avail   =  INTEGER(itemfg.q-avail:SCREEN-VALUE)
-        asi.itemfg-loc.q-back    =  INTEGER(itemfg.q-back:SCREEN-VALUE)
-        asi.itemfg-loc.q-onh     =  INTEGER(itemfg.q-onh:SCREEN-VALUE)
-        asi.itemfg-loc.q-ono     =  INTEGER(itemfg.q-ono:SCREEN-VALUE)
-        asi.itemfg-loc.lead-days     =  INTEGER(itemfg.lead-days:SCREEN-VALUE).  
+        asi.itemfg-loc.q-alloc   = INTEGER(dq-alloc:SCREEN-VALUE)
+        asi.itemfg-loc.q-avail   =  INTEGER(dq-avail:SCREEN-VALUE)
+        asi.itemfg-loc.q-back    = INTEGER(dq-back:SCREEN-VALUE)
+        asi.itemfg-loc.q-onh     =  INTEGER(dq-onh:SCREEN-VALUE)
+        asi.itemfg-loc.q-ono     =  INTEGER(dq-ono:SCREEN-VALUE) 
+        asi.itemfg-loc.lead-days =  INTEGER(itemfg.lead-days:SCREEN-VALUE).  
     RELEASE itemfg-loc.
     RETURN.
   END.
@@ -840,6 +844,10 @@ PROCEDURE local-assign-record :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-record':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
+  DO WITH FRAME {&FRAME-NAME}:
+      
+      itemfg.q-onh = int(dq-onh:SCREEN-VALUE) .
+  END.
 
  /*Task# 04121312*/
  FIND FIRST fg-set WHERE fg-set.company = itemfg.company 
@@ -920,10 +928,15 @@ PROCEDURE local-display-fields :
 
   IF AVAIL itemfg THEN DO:
       RUN fg/calcqa&b.p (ROWID(itemfg), OUTPUT v-q-alloc,
-                         OUTPUT v-q-back).
+                         OUTPUT v-q-back). 
       ASSIGN
-          asi.itemfg.q-alloc:SCREEN-VALUE IN FRAME {&FRAME-NAME} =  STRING(v-q-alloc)
-          asi.itemfg.q-back:SCREEN-VALUE IN FRAME {&FRAME-NAME} =  STRING(v-q-back) .
+          dq-back:SCREEN-VALUE IN FRAME {&FRAME-NAME}  =  STRING( v-q-back )
+          dq-alloc:SCREEN-VALUE IN FRAME {&FRAME-NAME} =  STRING(v-q-alloc )
+          itemfg.q-alloc = v-q-alloc
+          itemfg.q-back  = v-q-back .
+          dq-ono:SCREEN-VALUE IN FRAME {&FRAME-NAME} =  STRING( itemfg.q-ono ) .
+          dq-onh:SCREEN-VALUE IN FRAME {&FRAME-NAME} =  STRING( itemfg.q-onh ) .
+          dq-avail:SCREEN-VALUE IN FRAME {&FRAME-NAME} =  STRING(itemfg.q-avail ) .
   END.
 
   IF v-prior-i-no EQ "" OR v-prior-i-no NE asi.itemfg.i-no:SCREEN-VALUE IN FRAME {&FRAME-NAME}  THEN DO:     
@@ -953,15 +966,19 @@ PROCEDURE local-display-fields :
   END.
   v-prior-i-no = asi.itemfg.i-no:SCREEN-VALUE IN FRAME {&FRAME-NAME}.
 
-  IF asi.itemfg.q-alloc:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "0" or
-     asi.itemfg.q-alloc:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "" THEN DO:
-     v-alloc-save = INTEGER(asi.itemfg.q-alloc:SCREEN-VALUE IN FRAME {&FRAME-NAME}).
+  IF dq-alloc:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "0" or
+     dq-alloc:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "" THEN DO:
+     v-alloc-save = INTEGER(dq-alloc:SCREEN-VALUE IN FRAME {&FRAME-NAME}).
      /*asi.itemfg.q-alloc:SCREEN-VALUE IN FRAME {&FRAME-NAME} = string(get-alloc()).*/
-     IF v-alloc-save NE INTEGER(asi.itemfg.q-alloc:SCREEN-VALUE IN FRAME {&FRAME-NAME}) THEN DO:
-        itemfg.q-avail:SCREEN-VALUE = STRING(DEC(itemfg.q-onh:SCREEN-VALUE) +
-                                             DEC(itemfg.q-ono:SCREEN-VALUE) -
-                                             DEC(itemfg.q-alloc:SCREEN-VALUE),
-                                             itemfg.q-avail:FORMAT).
+     IF v-alloc-save NE INTEGER(dq-alloc:SCREEN-VALUE IN FRAME {&FRAME-NAME}) THEN DO:
+        dq-avail:SCREEN-VALUE = STRING(DEC(itemfg.q-onh ) +
+                                             DEC(itemfg.q-ono ) -
+                                             DEC(itemfg.q-alloc ),
+                                             dq-avail:FORMAT).
+        itemfg.q-avail = (DEC(itemfg.q-onh ) +
+                                             DEC(itemfg.q-ono ) -
+                                             DEC(itemfg.q-alloc )).
+
      END.
 
   END.
@@ -979,14 +996,24 @@ PROCEDURE local-display-fields :
         asi.itemfg.ord-max:SCREEN-VALUE =  STRING(itemfg-loc.ord-max)
         asi.itemfg.ord-min:SCREEN-VALUE =  STRING(itemfg-loc.ord-min)
         asi.itemfg.lead-days:SCREEN-VALUE = STRING(itemfg-loc.lead-days)
-        asi.itemfg.q-alloc:SCREEN-VALUE =  STRING(v-q-alloc) /*STRING(get-alloc())*/
-        asi.itemfg.q-back:SCREEN-VALUE =   string(v-q-back) /*STRING(itemfg-loc.q-back)*/
-        asi.itemfg.q-onh:SCREEN-VALUE =  STRING(itemfg-loc.q-onh)
-        asi.itemfg.q-ono:SCREEN-VALUE =  STRING(itemfg-loc.q-ono).
-        itemfg.q-avail:SCREEN-VALUE = STRING(DEC(itemfg.q-onh:SCREEN-VALUE) +
-                                             DEC(itemfg.q-ono:SCREEN-VALUE) -
-                                             DEC(itemfg.q-alloc:SCREEN-VALUE),
-                                                   itemfg.q-avail:FORMAT).
+
+        dq-alloc:SCREEN-VALUE =  STRING(v-q-alloc) /*STRING(get-alloc())*/
+        dq-back:SCREEN-VALUE =   string(v-q-back) /*STRING(itemfg-loc.q-back)*/
+        asi.itemfg.q-alloc =  (v-q-alloc) /*STRING(get-alloc())*/
+        asi.itemfg.q-back =   (v-q-back) /*STRING(itemfg-loc.q-back)*/
+
+        dq-onh:SCREEN-VALUE =  STRING(itemfg-loc.q-onh)
+        asi.itemfg.q-onh =  (itemfg-loc.q-onh)
+         dq-ono:SCREEN-VALUE =  STRING(itemfg-loc.q-ono).
+        asi.itemfg.q-ono =  (itemfg-loc.q-ono).
+       
+        dq-avail:SCREEN-VALUE = STRING(DEC(itemfg.q-onh) +
+                                             DEC(itemfg.q-ono) -
+                                             DEC(itemfg.q-alloc),
+                                                   dq-avail:FORMAT) .
+        itemfg.q-avail = (DEC(itemfg.q-onh) +
+                                             DEC(itemfg.q-ono) -
+                                             DEC(itemfg.q-alloc)) .
     END.
   END.
   ELSE IF AVAIL itemfg THEN DO:
