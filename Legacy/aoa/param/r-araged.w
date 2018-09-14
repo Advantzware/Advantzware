@@ -51,8 +51,8 @@ CREATE WIDGET-POOL.
 svEndCompany svCustList btnCustList svAllCustNo svStartCustNo svEndCustNo ~
 svAllSalesRep svStartSalesRep svEndSalesRep svAllCurrency svStartCurrency ~
 svEndCurrency svAllTerms svStartTerms svEndTerms svAsOfDate btnCalendar-3 ~
-svAsOfDateOption svPeriodDays1 svPeriodDays2 svPeriodDays3 svRecenTrendDays ~
-svType svSort1 svSort2 svIncludePaidInvoices svIncludeFactoredFGItems ~
+svAsOfDateOption svPeriodDays1 svPeriodDays2 svPeriodDays3 svPeriodDays4  ~
+svRecenTrendDays svType svSort1 svSort2 svIncludePaidInvoices svIncludeFactoredFGItems ~
 svIncludeFuelSurchages svSeparateFinanceCharges svStartInvoiceDate ~
 btnCalendar-1 svStartInvoiceDateOption svEndInvoiceDate btnCalendar-2 ~
 svEndInvoiceDateOption svInactiveCustomers 
@@ -63,7 +63,7 @@ svStartSalesRep startSalesRepName svEndSalesRep endSalesRepName ~
 svAllCurrency svStartCurrency startCurrencyName svEndCurrency ~
 endCurrencyName svAllTerms svStartTerms startTermsName svEndTerms ~
 endTermsName svAsOfDate svAsOfDateOption svPeriodDays1 svPeriodDays2 ~
-svPeriodDays3 svRecenTrendDays svType svSort1 svSort2 svIncludePaidInvoices ~
+svPeriodDays3 svPeriodDays4 svRecenTrendDays svType svSort1 svSort2 svIncludePaidInvoices ~
 svIncludeFactoredFGItems svIncludeFuelSurchages svSeparateFinanceCharges ~
 svStartInvoiceDate svStartInvoiceDateOption svEndInvoiceDate ~
 svEndInvoiceDateOption svInactiveCustomers 
@@ -213,6 +213,11 @@ DEFINE VARIABLE svPeriodDays3 AS INTEGER FORMAT ">,>>9":U INITIAL 9999
      VIEW-AS FILL-IN 
      SIZE 8 BY 1 NO-UNDO.
 
+DEFINE VARIABLE svPeriodDays4 AS INTEGER FORMAT ">,>>9":U INITIAL 9999 
+     LABEL "4" 
+     VIEW-AS FILL-IN 
+     SIZE 8 BY 1 NO-UNDO.
+
 DEFINE VARIABLE svRecenTrendDays AS INTEGER FORMAT ">>9":U INITIAL 0 
      LABEL "Days for Recent Trend" 
      VIEW-AS FILL-IN 
@@ -268,7 +273,7 @@ DEFINE VARIABLE svType AS CHARACTER
      VIEW-AS RADIO-SET HORIZONTAL
      RADIO-BUTTONS 
           "Detail", "Detail"
-     SIZE 46 BY 1 NO-UNDO.
+     SIZE 20 BY 1 NO-UNDO.
 
 DEFINE VARIABLE svAllCompany AS LOGICAL INITIAL yes 
      LABEL "All Companies" 
@@ -383,7 +388,9 @@ DEFINE FRAME F-Main
           "Enter Days for Period 2" WIDGET-ID 340
      svPeriodDays3 AT ROW 23.38 COL 41 COLON-ALIGNED HELP
           "Enter Days for Period 3" WIDGET-ID 342
-     svRecenTrendDays AT ROW 23.38 COL 74 COLON-ALIGNED HELP
+     svPeriodDays4 AT ROW 23.38 COL 52 COLON-ALIGNED HELP
+          "Enter Days for Period 4" 
+     svRecenTrendDays AT ROW 24.81 COL 74 COLON-ALIGNED HELP
           "Enter Days for Recent Trend" WIDGET-ID 344
      svType AT ROW 24.81 COL 21 HELP
           "Select Sort Option" NO-LABEL WIDGET-ID 324
