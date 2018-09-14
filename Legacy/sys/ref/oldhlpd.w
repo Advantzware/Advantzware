@@ -1,24 +1,21 @@
-&ANALYZE-SUSPEND _VERSION-NUMBER AB_v10r12 GUI ADM2
+&ANALYZE-SUSPEND _VERSION-NUMBER AB_v10r12 GUI
 &ANALYZE-RESUME
-&Scoped-define WINDOW-NAME CURRENT-WINDOW
-&Scoped-define FRAME-NAME gDialog
-{adecomm/appserv.i}
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS gDialog 
+&Scoped-define WINDOW-NAME C-Win
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS C-Win 
 /*------------------------------------------------------------------------
 
-  File: 
+  File: sys/ref/hlpd.w
 
-  Description: from cntnrdlg.w - ADM2 SmartDialog Template
+  Description: 
 
-  Input Parameters:
-      <none>
+  Input Parameters: <none>
 
-  Output Parameters:
-      <none>
+  Output Parameters: <none>
 
-  Author: 
+  Author: Ron Stark
 
-  Created: 
+  Created: 5.10.2018 (converted from a dialog to a window)
+
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress AppBuilder.      */
 /*----------------------------------------------------------------------*/
@@ -52,8 +49,6 @@ DEFINE VARIABLE idx AS INTEGER NO-UNDO.
 
 SESSION:SET-WAIT-STATE("").
 
-{src/adm2/widgetprto.i}
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -62,18 +57,14 @@ SESSION:SET-WAIT-STATE("").
 
 /* ********************  Preprocessor Definitions  ******************** */
 
-&Scoped-define PROCEDURE-TYPE SmartDialog
+&Scoped-define PROCEDURE-TYPE Window
 &Scoped-define DB-AWARE no
 
-&Scoped-define ADM-CONTAINER DIALOG-BOX
-
-&Scoped-define ADM-SUPPORTED-LINKS Data-Target,Data-Source,Page-Target,Update-Source,Update-Target
-
 /* Name of designated FRAME-NAME and/or first browse and/or first query */
-&Scoped-define FRAME-NAME gDialog
+&Scoped-define FRAME-NAME DEFAULT-FRAME
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS ed-text btUpdateHelp btPrint Btn_OK 
+&Scoped-Define ENABLED-OBJECTS ed-text btUpdateHelp btPrint BtOK 
 &Scoped-Define DISPLAYED-OBJECTS lv-help-title lv-program lv-frame-name ~
 lv-version ed-text 
 
@@ -87,12 +78,14 @@ lv-version ed-text
 
 /* ***********************  Control Definitions  ********************** */
 
-/* Define a dialog box                                                  */
+/* Define the widget handle for the window                              */
+DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON Btn_OK AUTO-END-KEY 
+DEFINE BUTTON BtOK 
      LABEL "OK" 
-     SIZE 15 BY 1.14.
+     SIZE 15 BY 1.14
+     BGCOLOR 8 .
 
 DEFINE BUTTON btPrint 
      LABEL "Print" 
@@ -127,76 +120,82 @@ DEFINE VARIABLE lv-version AS CHARACTER FORMAT "x(100)":U
 
 /* ************************  Frame Definitions  *********************** */
 
-DEFINE FRAME gDialog
+DEFINE FRAME DEFAULT-FRAME
      lv-help-title AT ROW 1.24 COL 2 NO-LABEL WIDGET-ID 14
      lv-program AT ROW 1.24 COL 68 COLON-ALIGNED NO-LABEL WIDGET-ID 16
      lv-frame-name AT ROW 2.43 COL 2 NO-LABEL WIDGET-ID 12
-     lv-version AT ROW 2.43 COL 68 COLON-ALIGNED NO-LABEL WIDGET-ID 18
+     lv-version AT ROW 2.43 COL 66 COLON-ALIGNED NO-LABEL
      ed-text AT ROW 3.62 COL 2 NO-LABEL WIDGET-ID 10
-     btUpdateHelp AT ROW 22.43 COL 67 WIDGET-ID 6
+     btUpdateHelp AT ROW 22.43 COL 63 WIDGET-ID 6
      btPrint AT ROW 22.43 COL 86 WIDGET-ID 4
-     Btn_OK AT ROW 22.43 COL 102
-     SPACE(1.79) SKIP(0.28)
-    WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
-         SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
-         TITLE "Help Information"
-         DEFAULT-BUTTON Btn_OK CANCEL-BUTTON Btn_OK WIDGET-ID 100.
+     BtOK AT ROW 22.43 COL 102 WIDGET-ID 8
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 1
+         SIZE 117.8 BY 22.86 WIDGET-ID 100.
 
 
 /* *********************** Procedure Settings ************************ */
 
 &ANALYZE-SUSPEND _PROCEDURE-SETTINGS
 /* Settings for THIS-PROCEDURE
-   Type: SmartDialog
-   Allow: Basic,Browse,DB-Fields,Query,Smart
-   Container Links: Data-Target,Data-Source,Page-Target,Update-Source,Update-Target
-   Other Settings: APPSERVER
+   Type: Window
+   Allow: Basic,Browse,DB-Fields,Window,Query
+   Other Settings: COMPILE
  */
 &ANALYZE-RESUME _END-PROCEDURE-SETTINGS
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB gDialog 
-/* ************************* Included-Libraries *********************** */
+/* *************************  Create Window  ************************** */
 
-{src/adm2/containr.i}
-
-/* _UIB-CODE-BLOCK-END */
+&ANALYZE-SUSPEND _CREATE-WINDOW
+IF SESSION:DISPLAY-TYPE = "GUI":U THEN
+  CREATE WINDOW C-Win ASSIGN
+         HIDDEN             = YES
+         TITLE              = "Help Information"
+         HEIGHT             = 22.86
+         WIDTH              = 117.8
+         MAX-HEIGHT         = 22.86
+         MAX-WIDTH          = 117.8
+         VIRTUAL-HEIGHT     = 22.86
+         VIRTUAL-WIDTH      = 117.8
+         RESIZE             = yes
+         SCROLL-BARS        = no
+         STATUS-AREA        = no
+         BGCOLOR            = ?
+         FGCOLOR            = ?
+         KEEP-FRAME-Z-ORDER = yes
+         THREE-D            = yes
+         MESSAGE-AREA       = no
+         SENSITIVE          = yes.
+ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
+/* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
-
 
 
 
 /* ***********  Runtime Attributes and AppBuilder Settings  *********** */
 
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
-/* SETTINGS FOR DIALOG-BOX gDialog
+/* SETTINGS FOR WINDOW C-Win
+  VISIBLE,,RUN-PERSISTENT                                               */
+/* SETTINGS FOR FRAME DEFAULT-FRAME
    FRAME-NAME                                                           */
 ASSIGN 
-       FRAME gDialog:SCROLLABLE       = FALSE
-       FRAME gDialog:HIDDEN           = TRUE.
+       ed-text:RETURN-INSERTED IN FRAME DEFAULT-FRAME  = TRUE
+       ed-text:READ-ONLY IN FRAME DEFAULT-FRAME        = TRUE.
 
-ASSIGN 
-       ed-text:RETURN-INSERTED IN FRAME gDialog  = TRUE
-       ed-text:READ-ONLY IN FRAME gDialog        = TRUE.
+/* SETTINGS FOR FILL-IN lv-frame-name IN FRAME DEFAULT-FRAME
+   NO-ENABLE ALIGN-L                                                    */
+/* SETTINGS FOR FILL-IN lv-help-title IN FRAME DEFAULT-FRAME
+   NO-ENABLE ALIGN-L                                                    */
+/* SETTINGS FOR FILL-IN lv-program IN FRAME DEFAULT-FRAME
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN lv-version IN FRAME DEFAULT-FRAME
+   NO-ENABLE                                                            */
+IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
+THEN C-Win:HIDDEN = no.
 
-/* SETTINGS FOR FILL-IN lv-frame-name IN FRAME gDialog
-   NO-ENABLE ALIGN-L                                                    */
-/* SETTINGS FOR FILL-IN lv-help-title IN FRAME gDialog
-   NO-ENABLE ALIGN-L                                                    */
-/* SETTINGS FOR FILL-IN lv-program IN FRAME gDialog
-   NO-ENABLE                                                            */
-/* SETTINGS FOR FILL-IN lv-version IN FRAME gDialog
-   NO-ENABLE                                                            */
 /* _RUN-TIME-ATTRIBUTES-END */
-&ANALYZE-RESUME
-
-
-/* Setting information for Queries and Browse Widgets fields            */
-
-&ANALYZE-SUSPEND _QUERY-BLOCK DIALOG-BOX gDialog
-/* Query rebuild information for DIALOG-BOX gDialog
-     _Options          = "SHARE-LOCK"
-     _Query            is NOT OPENED
-*/  /* DIALOG-BOX gDialog */
 &ANALYZE-RESUME
 
  
@@ -205,36 +204,26 @@ ASSIGN
 
 /* ************************  Control Triggers  ************************ */
 
-&Scoped-define SELF-NAME gDialog
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL gDialog gDialog
-ON WINDOW-CLOSE OF FRAME gDialog /* Help Information */
-DO:  
-  /* Add Trigger to equate WINDOW-CLOSE to END-ERROR. */
-  APPLY "END-ERROR":U TO SELF.
+&Scoped-define SELF-NAME C-Win
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
+ON END-ERROR OF C-Win /* Help Information */
+OR ENDKEY OF {&WINDOW-NAME} ANYWHERE DO:
+  /* This case occurs when the user presses the "Esc" key.
+     In a persistently run window, just ignore this.  If we did not, the
+     application would exit. */
+  IF THIS-PROCEDURE:PERSISTENT THEN RETURN NO-APPLY.
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME btUpdateHelp
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btUpdateHelp gDialog
-ON CHOOSE OF btUpdateHelp IN FRAME gDialog /* Update Help */
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
+ON WINDOW-CLOSE OF C-Win /* Help Information */
 DO:
-
-    DEF VAR op-ed-text AS CHAR NO-UNDO.
-
-    CASE SELF:NAME:
-        WHEN "btUpdateHelp" THEN DO:
-            ASSIGN 
-                op-ed-text = ed-text.
-            RUN sys/ref/hlpupd.w (ip-field,ip-table,ip-db,ip-frame,ip-language,OUTPUT op-ed-text).
-            ASSIGN
-                ed-text = op-ed-text.
-            DISPLAY ed-text WITH FRAME {&frame-name}.
-        END.
-    END CASE.
-  
+  /* This event will close the window and terminate the procedure.  */
+  APPLY "CLOSE":U TO THIS-PROCEDURE.
+  RETURN NO-APPLY.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -243,10 +232,15 @@ END.
 
 &UNDEFINE SELF-NAME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK gDialog 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK C-Win 
 
 
 /* ***************************  Main Block  *************************** */
+
+/* Set CURRENT-WINDOW: this will parent dialog-boxes and frames.        */
+ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME} 
+       THIS-PROCEDURE:CURRENT-WINDOW = {&WINDOW-NAME}.
+
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
 ON CLOSE OF THIS-PROCEDURE 
@@ -422,13 +416,10 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     IF NOT lResult THEN ASSIGN btUpdateHelp:VISIBLE = FALSE.
 
     DELETE OBJECT hPgmSecurity.
-    /*
+    
     IF NOT THIS-PROCEDURE:PERSISTENT THEN
         WAIT-FOR CLOSE OF THIS-PROCEDURE.
-        
-    */
 END.
-{src/adm2/dialogmn.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -436,20 +427,7 @@ END.
 
 /* **********************  Internal Procedures  *********************** */
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE adm-create-objects gDialog  _ADM-CREATE-OBJECTS
-PROCEDURE adm-create-objects :
-/*------------------------------------------------------------------------------
-  Purpose:     Create handles for all SmartObjects used in this procedure.
-               After SmartObjects are initialized, then SmartLinks are added.
-  Parameters:  <none>
-------------------------------------------------------------------------------*/
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI gDialog  _DEFAULT-DISABLE
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI C-Win  _DEFAULT-DISABLE
 PROCEDURE disable_UI :
 /*------------------------------------------------------------------------------
   Purpose:     DISABLE the User Interface
@@ -459,14 +437,16 @@ PROCEDURE disable_UI :
                frames.  This procedure is usually called when
                we are ready to "clean-up" after running.
 ------------------------------------------------------------------------------*/
-  /* Hide all frames. */
-  HIDE FRAME gDialog.
+  /* Delete the WINDOW we created */
+  IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
+  THEN DELETE WIDGET C-Win.
+  IF THIS-PROCEDURE:PERSISTENT THEN DELETE PROCEDURE THIS-PROCEDURE.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE enable_UI gDialog  _DEFAULT-ENABLE
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE enable_UI C-Win  _DEFAULT-ENABLE
 PROCEDURE enable_UI :
 /*------------------------------------------------------------------------------
   Purpose:     ENABLE the User Interface
@@ -478,11 +458,11 @@ PROCEDURE enable_UI :
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
   DISPLAY lv-help-title lv-program lv-frame-name lv-version ed-text 
-      WITH FRAME gDialog.
-  ENABLE ed-text btUpdateHelp btPrint Btn_OK 
-      WITH FRAME gDialog.
-  VIEW FRAME gDialog.
-  {&OPEN-BROWSERS-IN-QUERY-gDialog}
+      WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
+  ENABLE ed-text btUpdateHelp btPrint BtOK 
+      WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
+  {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
+  VIEW C-Win.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

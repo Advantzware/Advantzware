@@ -68,8 +68,8 @@ PROCEDURE epCanAccessUser:
                 (ipProgName EQ "viewers/file-seq.w" AND ipFunction EQ "") OR /*NZ1 System ref Files */
                 (ipProgName EQ "viewers/users.w" AND ipFunction EQ "SuperAdmin") OR /*users superadmin*/
                 (ipProgName EQ "viewers/vend.w" AND ipFunction EQ "") OR /*NK1 view control tab */
-                (ipProgName EQ "sys/ref/hlp.w" AND ipFunction EQ "ProTools") OR /*ProTools Button*/  
-                (ipProgName EQ "windows/dept.w" AND ipFunction EQ "delete") OR /*NZ4 (NZ3) Departments - Delete button*/
+                (ipProgName EQ "sys/ref/hlp.w" AND ipFunction EQ "ProTools") OR /*ProTools Button*/                
+                (ipProgName EQ "sys/ref/hlp.w" AND ipFunction EQ "SwitchMode") OR /*ProTools Button*/                
                 (ipProgName EQ "" AND ipFunction EQ "")
                 ) THEN ASSIGN opCanAccess = FALSE.
             /* Second group - programs/functions ONLY available to Administrators */
@@ -98,7 +98,6 @@ PROCEDURE epCanAccessUser:
                 (ipProgName EQ "viewers/p-fg-bj-l.w" AND ipFunction EQ "") OR /*IF1 Bin/Jobs tab */
                 (ipProgName EQ "viewers/sys-ctrl.w" AND ipFunction EQ "") OR /*NK1 view control tab value security */
                 (ipProgName EQ "viewers/users.w" AND ipFunction EQ "Admin") OR /*users admin*/
-                (ipProgName EQ "windows/dept.w" AND ipFunction EQ "") OR /*NZ4 (NZ3) Departments - Edits*/
                 (ipProgName EQ "" AND ipFunction = "")
                 ) THEN ASSIGN opCanAccess = FALSE.
         END. /* list-based exclusions */       
