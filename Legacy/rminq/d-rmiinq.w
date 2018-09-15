@@ -55,6 +55,7 @@ DEFINE VARIABLE ll-order-warned AS LOGICAL       NO-UNDO.
 DEFINE VARIABLE ll-new-record   AS LOGICAL       NO-UNDO.
 DEFINE BUFFER bf-rell FOR oe-rell.
 DEFINE BUFFER bf-ordl FOR oe-ordl.
+DEFINE VARIABLE hPgmReason AS HANDLE NO-UNDO.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1401,21 +1402,14 @@ PROCEDURE pAdjReason :
   Notes:       
 ------------------------------------------------------------------------------*/
   cComboList = "".
-  FOR EACH rejct-cd NO-LOCK WHERE rejct-cd.TYPE = "ADJ" BREAK BY rejct-cd.TYPE .
-       IF NOT LAST(rejct-cd.TYPE) THEN
-           ASSIGN cComboList = cComboList
-           + rejct-cd.CODE + " - "
-           + rejct-cd.dscr + ","
-           + rejct-cd.CODE + "," .
-       ELSE
-           ASSIGN cComboList = cComboList
-           + rejct-cd.CODE + " - "
-           + rejct-cd.dscr + ","
-           + rejct-cd.CODE  .
-  END.
+  DEFINE VARIABLE cComboList AS CHARACTER NO-UNDO .
+     
+     RUN "fg/ReasonCode.p" PERSISTENT SET hPgmReason.
+             RUN pBuildReasonCode IN hPgmReason ("ADJ",OUTPUT cComboList).
+    DELETE OBJECT hPgmReason.
 
   DO WITH FRAME {&FRAME-NAME}:   
-      rm-rdtlh.reject-code[1]:LIST-ITEM-PAIRS IN FRAME {&FRAME-NAME} = cComboList .
+      rm-rdtlh.reject-code[1]:LIST-ITEM-PAIRS IN FRAME {&FRAME-NAME} = cComboList NO-ERROR .
   END.
 END PROCEDURE.
 

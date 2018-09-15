@@ -68,7 +68,7 @@ def shared temp-table w-job no-undo
   INDEX w-job job-no job-no2 loc loc-bin tag.
   
 def buffer tmp-w-job for w-job.
-
+DEFINE VARIABLE hPgmReason AS HANDLE NO-UNDO.
 
 {sys/ref/fgoecost.i}
 
@@ -735,7 +735,7 @@ RUN build-type-list .
         AND fg-rcpth.po-no        EQ TRIM(STRING(fg-bin.po-no,">>>>>>>>>>")) 
         BY fg-rcpth.trans-date :
 
-        cb_reatype:SCREEN-VALUE IN FRAME {&frame-name} = fg-rdtlh.reject-code[1]. 
+        cb_reatype:SCREEN-VALUE IN FRAME {&frame-name} = fg-rdtlh.reject-code[1] NO-ERROR. 
         LEAVE .
     END.
 
@@ -884,23 +884,11 @@ PROCEDURE build-type-list :
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-   DEFINE VARIABLE ilogic AS LOG NO-UNDO.
-   cb_reatype:LIST-ITEMS IN FRAME {&frame-name} = "".
-   DEFINE VARIABLE cComboList AS CHARACTER NO-UNDO .
-
-  ASSIGN cComboList = "" .
- FOR EACH rejct-cd NO-LOCK WHERE rejct-cd.TYPE = "ADJ" BREAK BY rejct-cd.TYPE .
-       IF NOT LAST(rejct-cd.TYPE) THEN
-           ASSIGN cComboList = cComboList
-           + rejct-cd.CODE + " - "
-           + rejct-cd.dscr + ","
-           + rejct-cd.CODE + "," .
-       ELSE
-           ASSIGN cComboList = cComboList
-           + rejct-cd.CODE + " - "
-           + rejct-cd.dscr + ","
-           + rejct-cd.CODE  .
-   END.
+DEFINE VARIABLE cComboList AS CHARACTER NO-UNDO .
+     
+     RUN "fg/ReasonCode.p" PERSISTENT SET hPgmReason.
+             RUN pBuildReasonCode IN hPgmReason ("ADJ",OUTPUT cComboList).
+    DELETE OBJECT hPgmReason.
 
   DO WITH FRAME {&FRAME-NAME}:
       cb_reatype:LIST-ITEM-PAIRS = cComboList .

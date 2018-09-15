@@ -60,8 +60,7 @@ DEF VAR vend-no AS CHAR NO-UNDO.
 DEFINE VARIABLE iBinQty AS INTEGER NO-UNDO.
 DEFINE VARIABLE iBinQtyBef AS INTEGER NO-UNDO.
 DEFINE VARIABLE iBinQtyAft AS INTEGER NO-UNDO.
-DEFINE VARIABLE cComboList AS CHARACTER NO-UNDO .
-
+DEFINE VARIABLE hPgmReason AS HANDLE NO-UNDO.
 
 RUN methods/prgsecur.p
     (INPUT "FGHstUpd",
@@ -1856,26 +1855,8 @@ PROCEDURE local-open-query :
   {fginq/j-fgiinq.i}
   fi_tag# = SUBSTR(fi_tag#,1,LENGTH(fi_tag#) - 1).
 
-  fg-rdtlh.reject-code[1]:LIST-ITEM-PAIRS IN BROWSE {&browse-name} = "" .
- cComboList = "".
- FOR EACH rejct-cd NO-LOCK WHERE rejct-cd.TYPE = "ADJ" BREAK BY rejct-cd.TYPE .
-       IF NOT LAST(rejct-cd.TYPE) THEN
-           ASSIGN cComboList = cComboList
-           + rejct-cd.CODE + " - "
-           + rejct-cd.dscr + ","
-           + rejct-cd.CODE + "," .
-       ELSE
-           ASSIGN cComboList = cComboList
-           + rejct-cd.CODE + " - "
-           + rejct-cd.dscr + ","
-           + rejct-cd.CODE  .
-   END.
-
-  DO WITH FRAME {&FRAME-NAME}:
-      fg-rdtlh.reject-code[1]:LIST-ITEM-PAIRS IN BROWSE {&browse-name} = cComboList .
-    
-  END.
-
+  RUN build-type-list .
+  
   RUN dispatch ("display-fields").
 
   RUN dispatch ("row-changed").
@@ -2333,6 +2314,29 @@ PROCEDURE valid-tag-no :
     END.
   END.
 
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE build-type-list D-Dialog 
+PROCEDURE build-type-list :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+DEFINE VARIABLE cComboList AS CHARACTER NO-UNDO .
+     
+     RUN "fg/ReasonCode.p" PERSISTENT SET hPgmReason.
+             RUN pBuildReasonCode IN hPgmReason ("ADJ",OUTPUT cComboList).
+    DELETE OBJECT hPgmReason.
+  
+  DO WITH FRAME {&FRAME-NAME}:
+      fg-rdtlh.reject-code[1]:LIST-ITEM-PAIRS IN BROWSE {&browse-name} = cComboList .
+    
+  END.
+    
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

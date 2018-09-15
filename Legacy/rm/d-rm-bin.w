@@ -37,7 +37,7 @@ CREATE WIDGET-POOL.
 
 /* Parameters Definitions ---                                           */
 DEF INPUT PARAM ip-rowid AS ROWID NO-UNDO.
-
+DEFINE VARIABLE hPgmReason AS HANDLE NO-UNDO.
 /* Local Variable Definitions ---                                       */
 
 /* _UIB-CODE-BLOCK-END */
@@ -302,7 +302,7 @@ FOR EACH rm-rdtlh NO-LOCK
         AND rm-rcpth.po-no        EQ TRIM(STRING(rm-bin.po-no,">>>>>>>>>>")) 
       BY rm-rcpth.trans-date :
 
-    cb_reatype:SCREEN-VALUE IN FRAME {&frame-name} = rm-rdtlh.reject-code[1]. 
+    cb_reatype:SCREEN-VALUE IN FRAME {&frame-name} = rm-rdtlh.reject-code[1] NO-ERROR. 
     LEAVE .
 END.
 
@@ -422,23 +422,11 @@ PROCEDURE build-type-list :
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-   DEFINE VARIABLE ilogic AS LOG NO-UNDO.
-   cb_reatype:LIST-ITEMS IN FRAME {&frame-name} = "".
    DEFINE VARIABLE cComboList AS CHARACTER NO-UNDO .
-
-  ASSIGN cComboList = "" .
- FOR EACH rejct-cd NO-LOCK WHERE rejct-cd.TYPE = "ADJ" BREAK BY rejct-cd.TYPE .
-       IF NOT LAST(rejct-cd.TYPE) THEN
-           ASSIGN cComboList = cComboList
-           + rejct-cd.CODE + " - "
-           + rejct-cd.dscr + ","
-           + rejct-cd.CODE + "," .
-       ELSE
-           ASSIGN cComboList = cComboList
-           + rejct-cd.CODE + " - "
-           + rejct-cd.dscr + ","
-           + rejct-cd.CODE  .
-   END.
+     
+     RUN "fg/ReasonCode.p" PERSISTENT SET hPgmReason.
+             RUN pBuildReasonCode IN hPgmReason ("ADJ",OUTPUT cComboList).
+    DELETE OBJECT hPgmReason.
 
   DO WITH FRAME {&FRAME-NAME}:
       cb_reatype:LIST-ITEM-PAIRS = cComboList .

@@ -55,6 +55,7 @@ def var hd-post as widget-handle no-undo.
 def var hd-post-child as widget-handle no-undo.
 def var ll-help-run as log no-undo.  /* set on browse help, reset row-entry */
 DEFINE VARIABLE cComboList AS CHARACTER NO-UNDO .
+DEFINE VARIABLE hPgmReason AS HANDLE NO-UNDO.
 
 DO TRANSACTION:
   {sys/inc/rmrecpt.i}
@@ -810,25 +811,8 @@ PROCEDURE local-open-query :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'open-query':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
- rm-rctd.reject-code[1]:LIST-ITEM-PAIRS IN BROWSE {&browse-name} = "" .
- cComboList = "".
- FOR EACH rejct-cd NO-LOCK WHERE rejct-cd.TYPE = "ADJ" BREAK BY rejct-cd.TYPE .
-       IF NOT LAST(rejct-cd.TYPE) THEN
-           ASSIGN cComboList = cComboList
-           + rejct-cd.CODE + " - "
-           + rejct-cd.dscr + ","
-           + rejct-cd.CODE + "," .
-       ELSE
-           ASSIGN cComboList = cComboList
-           + rejct-cd.CODE + " - "
-           + rejct-cd.dscr + ","
-           + rejct-cd.CODE  .
-   END.
-
-  DO WITH FRAME {&FRAME-NAME}:
-      rm-rctd.reject-code[1]:LIST-ITEM-PAIRS IN BROWSE {&browse-name} = cComboList .
-  END.
-
+ 
+  RUN pAdjReason .
   GET FIRST {&browse-name}.
 
 END PROCEDURE.
@@ -1102,3 +1086,26 @@ END FUNCTION.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pAdjReason B-table-Win 
+PROCEDURE pAdjReason :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  cComboList = "".
+  DEFINE VARIABLE cComboList AS CHARACTER NO-UNDO .
+     
+     RUN "fg/ReasonCode.p" PERSISTENT SET hPgmReason.
+             RUN pBuildReasonCode IN hPgmReason ("ADJ",OUTPUT cComboList).
+    DELETE OBJECT hPgmReason.
+
+  DO WITH FRAME {&FRAME-NAME}:   
+      rm-rctd.reject-code[1]:LIST-ITEM-PAIRS IN BROWSE {&browse-name} = cComboList .
+  END.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME

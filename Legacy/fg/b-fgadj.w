@@ -52,7 +52,6 @@ DEF BUFFER xfg-rdtlh FOR fg-rdtlh. /* for tag validation */
 
 DEF VAR lv-fgrecpt-val AS INT NO-UNDO.
 DEF VAR trans-time AS CHAR NO-UNDO.
-DEFINE VARIABLE cComboList AS CHARACTER NO-UNDO .
 
 ASSIGN
  cocode = g_company
@@ -67,6 +66,9 @@ END.
 DEF VAR cRtnChar AS CHAR NO-UNDO.
 DEFINE VARIABLE lRecFound AS LOGICAL     NO-UNDO.
 DEFINE VARIABLE lAdjustReason-log AS LOGICAL NO-UNDO .
+DEFINE VARIABLE hPgmReason AS HANDLE NO-UNDO.
+DEFINE VARIABLE cComboList AS CHARACTER NO-UNDO .
+
 RUN sys/ref/nk1look.p (INPUT cocode, "AdjustReason", "L" /* Logical */, NO /* check by cust */, 
                        INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
                        OUTPUT cRtnChar, OUTPUT lRecFound).
@@ -205,13 +207,6 @@ DEFINE BROWSE Browser-Table
       VIEW-AS COMBO-BOX INNER-LINES 10
       LIST-ITEM-PAIRS "Item 1","Item 1"
       DROP-DOWN-LIST 
-      
-    /* VIEW-AS COMBO-BOX INNER-LINES 4 
-          LIST-ITEM-PAIRS "B-Both","Bl",
-                     "S-Ship","Sp",
-                     "I-Invoice","Io",
-                     "T-Transfer","Tl"
-          DROP-DOWN-LIST */
      
     ENABLE
       fg-rctd.rct-date
@@ -922,8 +917,7 @@ PROCEDURE local-assign-statement :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-statement':U ) .
 
   ASSIGN fg-rctd.trans-time   = TIME .
-  /*fg-rctd.reject-code = fg-rctd.reject-code[1] .*/
-
+  
   /* Code placed here will execute AFTER standard behavior.    */
   ASSIGN BROWSE {&browse-name} fg-rctd.t-qty fg-rctd.ext-cost.
   fg-rctd.cost-uom = lv-uom.
@@ -1112,26 +1106,8 @@ PROCEDURE local-open-query :
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'open-query':U ) .
-
-  /* Code placed here will execute AFTER standard behavior.    */
- fg-rctd.reject-code[1]:LIST-ITEM-PAIRS IN BROWSE {&browse-name} = "" .
- ASSIGN cComboList = "" .
- FOR EACH rejct-cd NO-LOCK WHERE rejct-cd.TYPE = "ADJ" BREAK BY rejct-cd.TYPE .
-       IF NOT LAST(rejct-cd.TYPE) THEN
-           ASSIGN cComboList = cComboList
-           + rejct-cd.CODE + " - "
-           + rejct-cd.dscr + ","
-           + rejct-cd.CODE + "," .
-       ELSE
-           ASSIGN cComboList = cComboList
-           + rejct-cd.CODE + " - "
-           + rejct-cd.dscr + ","
-           + rejct-cd.CODE  .
-   END.
-
-  DO WITH FRAME {&FRAME-NAME}:
-      fg-rctd.reject-code[1]:LIST-ITEM-PAIRS IN BROWSE {&browse-name} = cComboList .
-  END.
+ 
+  RUN build-type-list .
 
   GET FIRST {&browse-name}.
 
@@ -1500,3 +1476,27 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE build-type-list B-table-Win 
+PROCEDURE build-type-list :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+     ASSIGN cComboList = ""  .
+
+     RUN "fg/ReasonCode.p" PERSISTENT SET hPgmReason.
+             RUN pBuildReasonCode IN hPgmReason ("ADJ",OUTPUT cComboList).
+    DELETE OBJECT hPgmReason.
+
+     DO WITH FRAME {&FRAME-NAME}:
+     ASSIGN
+      fg-rctd.reject-code[1]:LIST-ITEM-PAIRS IN BROWSE {&browse-name} = cComboList .
+     END.
+  
+    
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME

@@ -54,8 +54,7 @@ DEF VAR lv-sort-by AS CHAR INIT "trans-date" NO-UNDO.
 DEF VAR lv-sort-by-lab AS CHAR INIT "TR Date" NO-UNDO.
 DEF VAR ll-sort-asc AS LOG NO-UNDO.
 DEF VAR ld-ext-cost AS DEC NO-UNDO.
-DEFINE VARIABLE cComboList AS CHARACTER NO-UNDO .
-
+DEFINE VARIABLE hPgmReason AS HANDLE NO-UNDO.
 
 DEF BUFFER rm-rcpth-1 FOR rm-rcpth.
 DEF BUFFER rm-rdtlh-1 FOR rm-rdtlh.
@@ -1516,27 +1515,8 @@ PROCEDURE local-open-query :
     {rminq/j-rmiinq.i}
   END.
 
- rm-rdtlh.reject-code[1]:LIST-ITEM-PAIRS IN BROWSE {&browse-name} = "" .
- cComboList = "".
- FOR EACH rejct-cd NO-LOCK WHERE rejct-cd.TYPE = "ADJ" BREAK BY rejct-cd.TYPE .
-       IF NOT LAST(rejct-cd.TYPE) THEN
-           ASSIGN cComboList = cComboList
-           + rejct-cd.CODE + " - "
-           + rejct-cd.dscr + ","
-           + rejct-cd.CODE + "," .
-       ELSE
-           ASSIGN cComboList = cComboList
-           + rejct-cd.CODE + " - "
-           + rejct-cd.dscr + ","
-           + rejct-cd.CODE  .
-   END.
-
-  DO WITH FRAME {&FRAME-NAME}:
-      rm-rdtlh.reject-code[1]:LIST-ITEM-PAIRS IN BROWSE {&browse-name} = cComboList .
-    
-  END.
-
-
+  RUN build-type-list .
+ 
   RUN dispatch ("display-fields").
 
   RUN dispatch ("row-changed").
@@ -2049,6 +2029,29 @@ ASSIGN last-item = rm-rcpth.i-no .
 RUN rminq/rmiinq-exp.w (first-item, last-item).
 
 
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE build-type-list B-table-Win 
+PROCEDURE build-type-list :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+DEFINE VARIABLE cComboList AS CHARACTER NO-UNDO .
+     
+     RUN "fg/ReasonCode.p" PERSISTENT SET hPgmReason.
+             RUN pBuildReasonCode IN hPgmReason ("ADJ",OUTPUT cComboList).
+    DELETE OBJECT hPgmReason.
+  
+  DO WITH FRAME {&FRAME-NAME}:
+      rm-rdtlh.reject-code[1]:LIST-ITEM-PAIRS IN BROWSE {&browse-name} = cComboList .
+    
+  END.
+    
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
