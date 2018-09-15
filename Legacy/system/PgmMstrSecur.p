@@ -70,6 +70,7 @@ PROCEDURE epCanAccessUser:
                 (ipProgName EQ "viewers/vend.w" AND ipFunction EQ "") OR /*NK1 view control tab */
                 (ipProgName EQ "sys/ref/hlp.w" AND ipFunction EQ "ProTools") OR /*ProTools Button*/  
                 (ipProgName EQ "windows/dept.w" AND ipFunction EQ "delete") OR /*NZ4 (NZ3) Departments - Delete button*/
+                (ipProgName EQ "util/utilsN.w" AND ipFunction EQ "") OR /*Utils Button*/
                 (ipProgName EQ "" AND ipFunction EQ "")
                 ) THEN ASSIGN opCanAccess = FALSE.
             /* Second group - programs/functions ONLY available to Administrators */
