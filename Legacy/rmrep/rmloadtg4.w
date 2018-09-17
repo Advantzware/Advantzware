@@ -563,7 +563,7 @@ ON WINDOW-CLOSE OF C-Win /* Raw Material Loadtag Creation */
 DO:
   /* This event will close the window and terminate the procedure.  */
    IF INDEX(program-name(4),"asiLogin") <> 0 THEN
-       RUN system/userLogOut.p.
+       RUN system/userLogOut.p (NO, 0).
   APPLY "CLOSE":U TO THIS-PROCEDURE.
   RETURN NO-APPLY.
 END.
@@ -614,7 +614,7 @@ END.
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
    IF INDEX(program-name(4),"asiLogin") <> 0 THEN
-       RUN system/userLogOut.p.
+       RUN system/userLogOut.p (NO, 0).
    apply "close" to this-procedure.
 END.
 

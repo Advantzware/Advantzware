@@ -705,7 +705,7 @@ DO:
         MESSAGE 'Exit Advantzware?' VIEW-AS ALERT-BOX
             QUESTION BUTTONS YES-NO UPDATE closeMenu.
     IF NOT closeMenu THEN RETURN NO-APPLY.        
-    RUN system/userLogOut.p.        
+    RUN system/userLogOut.p (NO, 0).        
     QUIT. /* kills all processes */
 END.
 
