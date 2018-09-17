@@ -41,8 +41,6 @@ assign
  cocode = g_company
  locode = g_loc.
 
-DEFINE BUFFER ref-lot-no FOR reftable.
-
 DEF VAR lines-per-page AS INT NO-UNDO.
 
 DEF var save_id AS RECID.
@@ -541,7 +539,7 @@ END.
 ON WINDOW-CLOSE OF C-Win /* Case Label Creation */
 DO:
    IF INDEX(program-name(4),"asiLogin") <> 0 THEN
-       RUN system/userLogOut.p.
+       RUN system/userLogOut.p (NO, 0).
   /* This event will close the window and terminate the procedure.  */
   APPLY "CLOSE":U TO THIS-PROCEDURE.
   RETURN NO-APPLY.
@@ -677,15 +675,14 @@ DO:
       END.
 
       IF v-cust-no NE "" THEN
-         FIND FIRST reftable WHERE
-              reftable.reftable = "cp-lab-p" AND
-              reftable.company = cocode AND
-              reftable.loc     = begin_i-no:SCREEN-VALUE AND
-              reftable.CODE    = v-cust-no
+         FIND FIRST cust-part WHERE
+              cust-part.company = cocode AND
+              cust-part.i-no    = begin_i-no:SCREEN-VALUE AND
+              cust-part.cust-no = v-cust-no
               NO-LOCK NO-ERROR.
 
-      IF AVAIL reftable AND reftable.code2 NE "" THEN
-         scr-label-file:SCREEN-VALUE = reftable.code2.
+      IF AVAIL cust-part AND cust-part.labelCase NE "" THEN
+         scr-label-file:SCREEN-VALUE = cust-part.labelCase.
       ELSE
       IF INT(begin_ord-no:SCREEN-VALUE) NE 0 THEN DO:
 
@@ -868,15 +865,14 @@ DO:
          v-cust-no = IF AVAIL oe-ord THEN oe-ord.cust-no ELSE "".
 
          IF AVAIL oe-ord THEN
-            FIND FIRST reftable WHERE
-                 reftable.reftable = "cp-lab-p" AND
-                 reftable.company = cocode AND
-                 reftable.loc     = begin_i-no:SCREEN-VALUE AND
-                 reftable.CODE    = oe-ord.cust-no
+            FIND FIRST cust-part WHERE
+                 cust-part.company = cocode AND
+                 cust-part.i-no    = begin_i-no:SCREEN-VALUE AND
+                 cust-part.cust-no = oe-ord.cust-no
                  NO-LOCK NO-ERROR.
 
-         IF AVAIL reftable AND reftable.code2 NE "" THEN
-            scr-label-file:SCREEN-VALUE = reftable.code2.
+         IF AVAIL cust-part AND cust-part.labelCase NE "" THEN
+            scr-label-file:SCREEN-VALUE = cust-part.labelCase.
          ELSE
          DO:
             IF begin_i-no:SCREEN-VALUE NE "" THEN
@@ -979,7 +975,7 @@ END.
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
    IF INDEX(program-name(4),"asiLogin") <> 0 THEN
-       RUN system/userLogOut.p.
+       RUN system/userLogOut.p (NO, 0).
    apply "close" to this-procedure.
 END.
 
@@ -1062,15 +1058,14 @@ DO:
        END.
 
        IF v-cust-no NE "" THEN
-          FIND FIRST reftable WHERE
-               reftable.reftable = "cp-lab-p" AND
-               reftable.company = cocode AND
-               reftable.loc     = begin_i-no:SCREEN-VALUE AND
-               reftable.CODE    = v-cust-no
+          FIND FIRST cust-part WHERE
+               cust-part.company = cocode AND
+               cust-part.i-no    = begin_i-no:SCREEN-VALUE AND
+               cust-part.cust-no = v-cust-no
                NO-LOCK NO-ERROR.
 
-       IF AVAIL reftable AND reftable.code2 NE "" THEN
-          scr-label-file:SCREEN-VALUE = reftable.code2.
+       IF AVAIL cust-part AND cust-part.labelCase NE "" THEN
+          scr-label-file:SCREEN-VALUE = cust-part.labelCase.
        ELSE
        IF INT(begin_ord-no:SCREEN-VALUE) NE 0 THEN DO:
 
@@ -2135,15 +2130,14 @@ PROCEDURE new-job :
 
        IF v-auto-print AND LOGICAL(scr-freeze-label:SCREEN-VALUE) = NO THEN
        DO:
-          FIND FIRST reftable WHERE
-               reftable.reftable = "cp-lab-p" AND
-               reftable.company = cocode AND
-               reftable.loc     = begin_i-no:SCREEN-VALUE AND
-               reftable.CODE    = job-hdr.cust-no
+          FIND FIRST cust-part WHERE
+               cust-part.company = cocode AND
+               cust-part.i-no    = begin_i-no:SCREEN-VALUE AND
+               cust-part.cust-no = job-hdr.cust-no
                NO-LOCK NO-ERROR.
 
-          IF AVAIL reftable AND reftable.code2 NE "" THEN
-             scr-label-file:SCREEN-VALUE = reftable.code2.
+          IF AVAIL cust-part AND cust-part.labelCase NE "" THEN
+             scr-label-file:SCREEN-VALUE = cust-part.labelCase.
           ELSE
           DO:
 

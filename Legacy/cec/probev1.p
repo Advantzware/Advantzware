@@ -43,20 +43,14 @@ assign
 
 IF sys-ctrl.char-fld NE "PEACHTRE" THEN
 DO:
-   FIND FIRST reftable WHERE
-        reftable.reftable EQ "probe.board" AND
-        reftable.company  EQ probe.company AND
-        reftable.loc      EQ ""            AND
-        reftable.code     EQ probe.est-no  AND
-        reftable.code2    EQ STRING(probe.line,"9999999999")
-        NO-LOCK NO-ERROR.
+   IF ce-ctrl.sell-by EQ "F" THEN
+       ASSIGN cm-disp = "[   CM$: " + STRING(probe.grossProfitPerM)
+              cmah-disp = "CMAH: " + STRING(probe.grossProfitPerManhourAssemb)
+              cmoh-disp = "CMOH: " + STRING(probe.grossProfitPerManHourOther)
+              cm%-disp  = "CM%: " + STRING(probe.grossProfitPctTemp,"->>9.99") + "%"
+                          + "   ]"
+                          .
 
-   IF AVAIL reftable AND ce-ctrl.sell-by EQ "F" THEN
-       ASSIGN cm-disp = "[   CM$: " + STRING(reftable.val[8])
-              cmah-disp = "CMAH: " + STRING(reftable.val[9])
-              cmoh-disp = "CMOH: " + STRING(reftable.val[10]) 
-              cm%-disp  = "CM%: " + STRING(reftable.val[11],"->>9.99") + "%"
-                          + "   ]".
    ELSE
        ASSIGN cm-disp = ""
               cmah-disp = ""
@@ -76,10 +70,10 @@ DO:
              voverall 
              probe.gsh-qty format ">>>>>9"
              vtot-msf
-             cm-disp WHEN AVAIL reftable AND v-print-cm
-             cmah-disp WHEN AVAIL reftable AND v-print-cm
-             cmoh-disp WHEN AVAIL reftable AND v-print-cm
-             cm%-disp WHEN AVAIL reftable AND v-print-cm
+             cm-disp WHEN v-print-cm
+             cmah-disp WHEN v-print-cm
+             cmoh-disp WHEN v-print-cm
+             cm%-disp WHEN v-print-cm
           with frame probe.
    ELSE
       display probe.est-qty
@@ -94,31 +88,26 @@ DO:
              voverall 
              probe.gsh-qty format ">>>>>9"
              vtot-msf
-             cm-disp WHEN AVAIL reftable AND v-print-cm
-             cmah-disp WHEN AVAIL reftable AND v-print-cm
-             cmoh-disp WHEN AVAIL reftable AND v-print-cm
-             cm%-disp WHEN AVAIL reftable AND v-print-cm
+             cm-disp WHEN v-print-cm
+             cmah-disp WHEN v-print-cm
+             cmoh-disp WHEN v-print-cm
+             cm%-disp WHEN v-print-cm
           with frame probe-big.
 END.
 ELSE
 DO:
-   FIND FIRST reftable WHERE
-        reftable.reftable EQ "probe.board" AND
-        reftable.company  EQ probe.company AND
-        reftable.loc      EQ ""            AND
-        reftable.code     EQ probe.est-no  AND
-        reftable.code2    EQ STRING(probe.line,"9999999999")
-        NO-LOCK.
-   IF reftable.val[6] GT 0 THEN 
-        dContPerManHr =  reftable.val[5] / reftable.val[6].
+
+   IF probe.manHoursTotal GT 0 THEN 
+        dContPerManHr =  probe.boardContributionTotal / probe.manHoursTotal.
    ELSE 
-        dContPerManHr = reftable.val[5].
+        dContPerManHr = probe.boardContributionTotal .
+   
    IF cerunc-dec EQ 0 THEN
       display probe.est-qty
               probe.freight
-	          reftable.val[2]
-	          reftable.val[3]
-	          reftable.val[5]
+	          probe.boardCostPerM
+	          probe.boardCostPct
+	          probe.boardContributionTotal 
 	          dContPerManHr
               probe.sell-price
               voverall 
@@ -128,9 +117,9 @@ DO:
    ELSE
       display probe.est-qty
            probe.freight
-	       reftable.val[2]
-	       reftable.val[3]
-	       reftable.val[5]
+	       probe.boardCostPerM
+	       probe.boardCostPct
+	       probe.boardContributionTotal 
 	       dContPerManHr
            probe.sell-price
            voverall 

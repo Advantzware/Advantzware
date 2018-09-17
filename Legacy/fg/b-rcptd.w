@@ -213,14 +213,14 @@ fg-rctd.frt-cost fg-rctd.stack-code
       AND fg-rctd.company eq cocode and ~
 fg-rctd.r-no ge lv-frst-rno and ~
 (fg-rctd.rita-code eq "R" or fg-rctd.rita-code eq "E") ~
-AND (fg-rctd.SetHeaderRno EQ INTEGER(SUBSTRING(lv-linker, 10, 10)) OR (NOT ll-set-parts AND fg-rctd.SetHeaderRno EQ 0)) ~
+AND (fg-rctd.SetHeaderRno GT 0 AND fg-rctd.SetHeaderRno EQ INTEGER(SUBSTRING(lv-linker, 10, 10)) OR (NOT ll-set-parts AND fg-rctd.SetHeaderRno EQ 0)) ~
 use-index fg-rctd NO-LOCK ~
     ~{&SORTBY-PHRASE}
 &Scoped-define OPEN-QUERY-Browser-Table OPEN QUERY Browser-Table FOR EACH fg-rctd WHERE ~{&KEY-PHRASE} ~
       AND fg-rctd.company eq cocode and ~
 fg-rctd.r-no ge lv-frst-rno and ~
 (fg-rctd.rita-code eq "R" or fg-rctd.rita-code eq "E") ~
-AND (fg-rctd.SetHeaderRno EQ INTEGER(SUBSTRING(lv-linker, 10, 10)) OR (NOT ll-set-parts AND fg-rctd.SetHeaderRno EQ 0)) ~
+AND (fg-rctd.SetHeaderRno GT 0 AND fg-rctd.SetHeaderRno EQ INTEGER(SUBSTRING(lv-linker, 10, 10)) OR (NOT ll-set-parts AND fg-rctd.SetHeaderRno EQ 0)) ~
 use-index fg-rctd NO-LOCK ~
     ~{&SORTBY-PHRASE}.
 &Scoped-define TABLES-IN-QUERY-Browser-Table fg-rctd
@@ -457,7 +457,7 @@ ASSIGN
      _Where[1]         = "fg-rctd.company eq cocode and
 fg-rctd.r-no ge lv-frst-rno and
 (fg-rctd.rita-code eq ""R"" or fg-rctd.rita-code eq ""E"")
-AND (fg-rctd.SetHeaderRno EQ INTEGER(SUBSTRING(lv-linker, 10, 10)) OR (NOT ll-set-parts AND fg-rctd.SetHeaderRno EQ 0))
+AND (fg-rctd.SetHeaderRno GT 0 AND fg-rctd.SetHeaderRno EQ INTEGER(SUBSTRING(lv-linker, 10, 10)) OR (NOT ll-set-parts AND fg-rctd.SetHeaderRno EQ 0))
 use-index fg-rctd"
      _FldNameList[1]   > ASI.fg-rctd.r-no
 "fg-rctd.r-no" "Seq#" ">>>>>>>>" "integer" ? ? ? 14 ? ? no ? no no "12" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
@@ -2142,7 +2142,7 @@ PROCEDURE get-linker :
                             AND itemfg.i-no    EQ fg-rctd.i-no
                             AND itemfg.isaset) THEN
                 "fg-rctd: " + STRING(fg-rctd.r-no,"9999999999")
-              ELSE "".
+              ELSE string(fg-rctd.r-no).
 
 END PROCEDURE.
 
@@ -3559,7 +3559,6 @@ PROCEDURE local-open-query :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-
   /* Code placed here will execute PRIOR to standard behavior. */
   IF ll-set-parts THEN DO:
     lv-linker = "".
@@ -5363,14 +5362,16 @@ DEFINE INPUT PARAMETER ipRecQty AS INTEGER NO-UNDO.
 if lfgunderover-log AND (cfgunderover-cha EQ "OverRuns Only" OR cfgunderover-cha EQ "UnderRuns and OverRun")
      AND ipRecQty gt po-ordl.ord-qty * (1 + (po-ordl.over-pct / 100)) AND NOT lv-overrun-checked  THEN
 do:          
-    MESSAGE "The PO Qty + overrun has been exceeded..."
+    MESSAGE "The PO Quantity entered is more than the" STRING(po-ordl.over-pct,">>9.99%") SKIP 
+            "Overrun allowed for this PO line Item..."
                   VIEW-AS ALERT-BOX WARNING .
        lv-overrun-checked = YES.
 END.
 ELSE IF lfgunderover-log AND (cfgunderover-cha EQ "UnderRuns Only" OR cfgunderover-cha EQ "UnderRuns and OverRun")
      AND ipRecQty LT po-ordl.ord-qty - (po-ordl.ord-qty * po-ordl.under-pct / 100) AND NOT lv-overrun-checked THEN
 DO:
-    MESSAGE "The PO qty is less than the underrun......"
+    MESSAGE "The PO Quantity entered is less than the" STRING(po-ordl.under-pct,">>9.99%") SKIP 
+            "Underrun allowed for this PO line Item..."
                   VIEW-AS ALERT-BOX WARNING .
        lv-overrun-checked = YES.
 END.

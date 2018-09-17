@@ -1032,7 +1032,8 @@ PROCEDURE ipClickOk :
         /* Set current dir */
         RUN ipSetCurrentDir (cMapDir + "\" + cEnvDir + "\" + cbEnvironment). 
         IF INDEX(cRunPgm,"mainmenu") <> 0
-        AND SEARCH("system/mainmenu2.r") NE ? THEN ASSIGN
+        AND (SEARCH("system/mainmenu2.r") NE ? 
+            OR SEARCH("system/mainmenu2.w") NE ?) THEN ASSIGN
             cRunPgm = "system/mainmenu2.w".
         RUN VALUE(cRunPgm).
     END.

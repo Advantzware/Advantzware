@@ -36,7 +36,9 @@ CREATE WIDGET-POOL.
 &SCOPED-DEFINE estOpWhere est-op.company EQ ipCompany ~
 AND est-op.est-no EQ ipEstNo ~
 AND est-op.line LT 500 ~
-AND est-op.qty EQ estQty
+AND ((est-op.qty eq estQty and (iEstType eq 1 OR iEstType EQ 5 OR iEstType EQ 6 )) or ~
+ (est-op.qty eq iv-eqty and (iEstType EQ 2 OR iEstType EQ 4 OR iEstType EQ 8)))
+
 
 /* Parameters Definitions ---                                           */
 
@@ -62,6 +64,8 @@ DEFINE VARIABLE ipQuery AS HANDLE NO-UNDO.
 
 DEFINE VARIABLE jobhdrRowID AS ROWID NO-UNDO.
 DEFINE VARIABLE estQty AS INTEGER NO-UNDO.
+DEFINE VARIABLE iv-eqty LIKE est-qty.eqty NO-UNDO.
+DEFINE VARIABLE iEstType AS INTEGER NO-UNDO.
 DEFINE VARIABLE mCodeCol AS LOGICAL NO-UNDO.
 DEFINE VARIABLE opSpeedCol AS LOGICAL NO-UNDO.
 DEFINE VARIABLE mrHRCol AS LOGICAL NO-UNDO.
@@ -147,13 +151,24 @@ job-hdr.qty
 &Scoped-define QUERY-STRING-jobBrowse FOR EACH job-hdr ~
       WHERE job-hdr.company EQ ipCompany ~
 AND job-hdr.est-no EQ ipEstNo ~
-AND job-hdr.opened EQ FALSE NO-LOCK
+AND job-hdr.opened EQ FALSE NO-LOCK , ~
+    FIRST job                                ~
+        WHERE job.company EQ job-hdr.company ~
+          AND job.job     EQ job-hdr.job     ~
+          AND job.job-no  EQ job-hdr.job-no  ~
+          AND job.job-no2 EQ job-hdr.job-no2 NO-LOCK BY job.job-no BY job.close-date DESC
 &Scoped-define OPEN-QUERY-jobBrowse OPEN QUERY jobBrowse FOR EACH job-hdr ~
       WHERE job-hdr.company EQ ipCompany ~
 AND job-hdr.est-no EQ ipEstNo ~
-AND job-hdr.opened EQ FALSE NO-LOCK.
-&Scoped-define TABLES-IN-QUERY-jobBrowse job-hdr
+AND job-hdr.opened EQ FALSE NO-LOCK , ~
+   FIRST job                                ~
+        WHERE job.company EQ job-hdr.company ~
+          AND job.job     EQ job-hdr.job     ~
+          AND job.job-no  EQ job-hdr.job-no  ~
+          AND job.job-no2 EQ job-hdr.job-no2 NO-LOCK BY job.job-no BY job.close-date DESC .
+&Scoped-define TABLES-IN-QUERY-jobBrowse job-hdr job
 &Scoped-define FIRST-TABLE-IN-QUERY-jobBrowse job-hdr
+&SCOPED-DEFINE SECOND-TABLE-IN-QUERY-jobBrowse job
 
 
 /* Definitions for BROWSE ttblEstOp                                     */
@@ -326,7 +341,8 @@ DEFINE QUERY estOpBrowse FOR
       est-op SCROLLING.
 
 DEFINE QUERY jobBrowse FOR 
-      job-hdr SCROLLING.
+      job-hdr,
+      job SCROLLING.
 
 DEFINE QUERY ttblEstOp FOR 
       ttblEstOp SCROLLING.
@@ -578,11 +594,15 @@ THEN C-Win:HIDDEN = no.
 
 &ANALYZE-SUSPEND _QUERY-BLOCK BROWSE jobBrowse
 /* Query rebuild information for BROWSE jobBrowse
-     _TblList          = "asi.job-hdr"
+     _TblList          = "asi.job-hdr,ASI.job WHERE ASI.job-hdr ..."
      _Options          = "NO-LOCK"
      _Where[1]         = "job-hdr.company EQ ipCompany
 AND job-hdr.est-no EQ ipEstNo
 AND job-hdr.opened EQ FALSE"
+  _JoinCode[1]      = "ASI.job.company = ASI.job-hdr.company
+  AND ASI.job.job = ASI.job-hdr.job
+  AND ASI.job.job-no = ASI.job-hdr.job-no 
+  AND job.job-no2 EQ job-hdr.job-no2 NO-LOCK BY job.job-no BY job.close-date DESC"
      _FldNameList[1]   > asi.job-hdr.job-no
 "job-hdr.job-no" "Job" ? "character" ? ? ? ? ? ? no ? no no "8.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > asi.job-hdr.job-no2
@@ -913,8 +933,10 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
        WHERE est.company EQ ipCompany
          AND est.est-no EQ ipEstNo
        NO-ERROR.
-  IF AVAILABLE est THEN
-  RUN getQty.
+  IF AVAILABLE est THEN do:
+      ASSIGN iEstType = est.est-type .
+      RUN getQty.
+  END.
   
   RUN createTtblEstOp.
   RUN enable_UI.
@@ -1346,7 +1368,9 @@ PROCEDURE getQty :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEFINE VARIABLE radioButtons AS CHARACTER NO-UNDO.
-
+  DEFINE BUFFER xop FOR est-op.
+  iv-eqty = 0.
+  
   FOR EACH est-qty NO-LOCK
       WHERE est-qty.company EQ ipCompany
         AND est-qty.est-no EQ ipEstNo
@@ -1355,6 +1379,20 @@ PROCEDURE getQty :
                  + STRING(est-qty.eqty) + ','
                  + STRING(est-qty.eqty) + ','.
   END. /* each est-qty */
+  
+  
+    IF iEstType EQ 1 THEN iv-eqty = INT(ENTRY(1,radioButtons)) .
+
+    ELSE
+    FOR EACH xop NO-LOCK
+        WHERE xop.company EQ ipCompany
+          AND xop.est-no  EQ ipEstNo
+          AND xop.line    LT 500
+        BY xop.qty:
+      iv-eqty = xop.qty.
+      LEAVE.
+    END.
+
   ASSIGN
     radioButtons = TRIM(radioButtons,',')
     radioQty:RADIO-BUTTONS IN FRAME {&FRAME-NAME} = radioButtons

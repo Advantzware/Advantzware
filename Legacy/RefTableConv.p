@@ -152,6 +152,12 @@ ASSIGN
     {refTableConv.i "ColorAudit" 'COLOR' + chr(32) + 'AUDIT'}
     {refTableConv.i "Machcrew" 'MACH-CREW'}
     {refTableConv.i "VendorMaxValue" 'VendorMaxValue'}
+    {refTableConv.i "Proboard" 'probe.board'}
+    {refTableConv.i "CpLabP" 'cp-lab-p'}
+    {refTableConv.i "PoordlDepth" 'POORDLDEPTH'}
+    {refTableConv.i "EstGlobquot" 'est/globquot.w'}
+    {refTableConv.i "OeBollSelected" 'oe-boll.selected'}
+    {refTableConv.i "GsaFm" 'gsa-fm'}
     {refTableConv.i "TruckRunPrint" 'trp-car'}
     {refTableConv.i "ShiftDays" 'ShiftDays'}
     {refTableConv.i "EstGetqtyw2" 'est/getqty.w2'}

@@ -5,7 +5,6 @@
   DEF VAR v-n-out AS INT NO-UNDO.
   DEF VAR v-n-up  AS INT NO-UNDO.
   DEF VAR ll-use-defaults AS LOG NO-UNDO.
-  DEF BUFFER reftable-fm FOR reftable.
   DEF BUFFER reftable-broker-pct FOR reftable.
   DEF BUFFER b-est-qty-2 FOR est-qty.
   DEF VAR v-count-2 AS INT NO-UNDO.
@@ -393,6 +392,10 @@
      dm-tot   = 0
      ctrl2    = 0.
 
+    IF vprint THEN DO:
+	{custom/statusMsg.i " 'Calculating... Est#  '  + xest.est-no  + ' Qty - ' + string(qtty[k]) "}
+    END.
+
     FOR EACH w-form: 
       DELETE w-form.
     END.
@@ -676,20 +679,16 @@
             gsa-com = ce-ctrl.comm-mrkup
             gsa-war = ctrl[1] * 100.
 
-    FIND FIRST reftable-fm NO-LOCK
-       WHERE reftable-fm.reftable EQ "gsa-fm"
-         AND reftable-fm.company  EQ xest.company
-         AND reftable-fm.loc      EQ ""
-         AND reftable-fm.code     EQ xest.est-no
-       NO-ERROR.
-
     FIND FIRST cust WHERE
          cust.company EQ xeb.company AND
          cust.cust-no EQ xeb.cust-no
          NO-LOCK NO-ERROR.
 
-    IF AVAIL reftable-fm THEN
-       gsa-fm = reftable-fm.val[1].
+    FIND FIRST probe    
+      WHERE probe.company    EQ xest.company
+        AND probe.est-no     EQ xest.est-no NO-LOCK NO-ERROR.
+    IF AVAIL probe THEN
+      gsa-fm = int(probe.gsa-fm).
     ELSE IF AVAIL cust AND cust.scomm NE 0 THEN
        gsa-fm = cust.scomm.
     ELSE
@@ -792,3 +791,7 @@
   release xef.
   release xeb.
   session:set-wait-state("").
+
+IF vprint THEN DO:
+{custom/statusMsg.i " 'Calculating Complete....  '  "}
+END.

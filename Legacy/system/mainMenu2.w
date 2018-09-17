@@ -43,6 +43,11 @@ ON 'CTRL-ALT-R':U ANYWHERE
         RUN aoa/aoaLauncher.w PERSISTENT ("Report").
         RETURN.
     END.
+    
+ON 'CTRL-ALT-P':U ANYWHERE 
+    DO: 
+        RUN util/wPgmrToolbox.w.
+END.    
    
 /* ***************************  Definitions  ************************** */
  
@@ -700,7 +705,7 @@ DO:
         MESSAGE 'Exit Advantzware?' VIEW-AS ALERT-BOX
             QUESTION BUTTONS YES-NO UPDATE closeMenu.
     IF NOT closeMenu THEN RETURN NO-APPLY.        
-    RUN system/userLogOut.p.        
+    RUN system/userLogOut.p (NO, 0).        
     QUIT. /* kills all processes */
 END.
 
