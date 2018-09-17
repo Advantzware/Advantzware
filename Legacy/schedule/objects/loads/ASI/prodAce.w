@@ -1190,10 +1190,10 @@ PROCEDURE createTtblProdAce :
     IF NOT AVAILABLE ttblResource THEN NEXT.
     IF lvResourceList NE '' AND NOT CAN-DO(lvResourceList,ttblResource.resource) THEN NEXT.
     ASSIGN
-      lvDate = DATE(ENTRY(7,lvProdAceData))
-      lvTime = INT(SUBSTR(ENTRY(8,lvProdAceData),1,2)) * 3600
-             + INT(SUBSTR(ENTRY(8,lvProdAceData),4,2)) * 60
-             + INT(SUBSTR(ENTRY(8,lvProdAceData),7,2))
+      lvDate = DATE(ENTRY(9,lvProdAceData))
+      lvTime = INT(SUBSTR(ENTRY(10,lvProdAceData),1,2)) * 3600
+             + INT(SUBSTR(ENTRY(10,lvProdAceData),4,2)) * 60
+             + INT(SUBSTR(ENTRY(10,lvProdAceData),7,2))
              .
     IF lvPostProdAce AND
       ((selectedShift NE 'All' AND
@@ -1220,22 +1220,22 @@ PROCEDURE createTtblProdAce :
       NEXT.
     END. /* cannot find job in SB */
     lvProdAceOperator = ''.
-    DO idx = 19 TO NUM-ENTRIES(lvProdAceData):
-      lvProdAceOperator[idx - 18] = IF ENTRY(idx,lvProdAceData) EQ '' THEN lvProdAceBlankEmployee
+    DO idx = 21 TO NUM-ENTRIES(lvProdAceData):
+      lvProdAceOperator[idx - 20] = IF ENTRY(idx,lvProdAceData) EQ '' THEN lvProdAceBlankEmployee
                                   ELSE ENTRY(idx,lvProdAceData).
       IF ENTRY(idx,lvProdAceData) EQ '' THEN LEAVE.
     END. /* do idx */
     ASSIGN
-        lvState = SUBSTR(ENTRY(14,lvProdAceData),1,1)
+        lvState = SUBSTR(ENTRY(16,lvProdAceData),1,1)
         lvState = IF lvState EQ '1' THEN 'RUN'
              ELSE IF lvState EQ '4' THEN 'MR'
              ELSE 'DT'
         lvChargeCode = lvState
              . 
     /* get charge code for non run and mr */
-    IF lvState EQ 'DT' AND INT(ENTRY(15,lvProdAceData)) NE 0 THEN DO: 
+    IF lvState EQ 'DT' AND INT(ENTRY(17,lvProdAceData)) NE 0 THEN DO: 
       FIND FIRST job-code NO-LOCK 
-           WHERE job-code.dmiID EQ INT(ENTRY(15,lvProdAceData))
+           WHERE job-code.dmiID EQ INT(ENTRY(17,lvProdAceData))
            NO-ERROR.
       IF AVAILABLE job-code THEN
       ASSIGN 
@@ -1254,14 +1254,14 @@ PROCEDURE createTtblProdAce :
       ttblProdAce.prodAceShiftDate = DATE(ENTRY(6,lvProdAceData))
       ttblProdAce.prodAceStartDate = DATE(ENTRY(7,lvProdAceData))
       ttblProdAce.prodAceStartTime = lvTime
-      ttblProdAce.prodAceTranRunQty = INT(ENTRY(9,lvProdAceData))
-      ttblProdAce.prodAceTranRejectQty = INT(ENTRY(11,lvProdAceData))
-      ttblProdAce.prodAceQtyDue = INT(ENTRY(13,lvProdAceData))
+      ttblProdAce.prodAceTranRunQty = INT(ENTRY(11,lvProdAceData))
+      ttblProdAce.prodAceTranRejectQty = INT(ENTRY(13,lvProdAceData))
+      ttblProdAce.prodAceQtyDue = INT(ENTRY(15,lvProdAceData))
       ttblProdAce.prodAceState = lvState
       ttblProdAce.prodAceChargeCode = lvChargeCode
       ttblProdAce.prodAceOperator = lvProdAceOperator
-      ttblProdAce.prodAceDuration = INT(ENTRY(16,lvProdAceData)) * 60
-                                  + INT(ENTRY(18,lvProdAceData)) * 60
+      ttblProdAce.prodAceDuration = INT(ENTRY(18,lvProdAceData)) * 60
+                                  + INT(ENTRY(20,lvProdAceData)) * 60
       ttblProdAce.prodAceRunComplete = CAN-FIND(FIRST ttblStatus
                                                 WHERE ttblStatus.dmiID EQ ttblProdAce.prodAceDMIID
                                                   AND ttblStatus.job EQ ttblProdAce.prodAceJob
@@ -1282,21 +1282,6 @@ PROCEDURE createTtblProdAce :
   END. /* if lvpostprodAce */
   INPUT STREAM sProdAce CLOSE.
   
-/*  OUTPUT TO c:\tmp\ttblProdAct.txt.                                                                       */
-/*  FOR EACH ttblProdAce:                                                                                   */
-/*      DISPLAY                                                                                             */
-/*          ttblProdAce EXCEPT prodAceOperator                                                              */
-/*            WITH STREAM-IO WIDTH 600.                                                                     */
-/*      DISPLAY                                                                                             */
-/*          ttblProdAce.prodAceJob FORMAT "x(15)"                                                           */
-/*          STRING(ttblProdAce.prodAceStartTime,"hh:mm:ss am") FORMAT "x(11)" @ ttblProdAce.prodAceStartTime*/
-/*          STRING(ttblProdAce.prodAceEndTime,"hh:mm:ss am") FORMAT "x(11)" @ ttblProdAce.prodAceEndTime    */
-/*          STRING(ttblProdAce.prodAceDuration,"hh:mm:ss") @ ttblProdAce.prodAceDuration                    */
-/*          .                                                                                               */
-/*  END.                                                                                                    */
-/*  OUTPUT CLOSE.                                                                                           */
-/*  OS-COMMAND NO-WAIT notepad.exe c:\tmp\ttblProdAct.txt.                                                  */
-
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2100,12 +2085,7 @@ PROCEDURE setRecKey :
 ------------------------------------------------------------------------------*/
   DEFINE PARAMETER BUFFER machtran FOR machtran.
 
-  CREATE rec_key.
-  ASSIGN
-    machtran.rec_key = STRING(TODAY,"99999999") + STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999")
-    rec_key.rec_key = machtran.rec_key
-    rec_key.table_name = "machtran"
-    .
+  {custom/rec_key.i "machtran"}
 
 END PROCEDURE.
 
