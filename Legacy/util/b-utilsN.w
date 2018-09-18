@@ -1024,32 +1024,9 @@ PROCEDURE query-first :
     ------------------------------------------------------------------------------*/
     DEFINE VARIABLE li AS INTEGER NO-UNDO.
   
-    FIND FIRST sys-ctrl WHERE sys-ctrl.company EQ cocode
-        AND sys-ctrl.name    EQ "custBrowse"
-        NO-LOCK NO-ERROR.
-    IF NOT AVAILABLE sys-ctrl THEN 
-    DO TRANSACTION:
-        CREATE sys-ctrl.
-        ASSIGN 
-            sys-ctrl.company  = cocode
-            sys-ctrl.name     = "custBrowse"
-            sys-ctrl.descrip  = "# of Records to be displayed in custor Item browser"
-            sys-ctrl.log-fld  = YES
-            sys-ctrl.char-fld = "cust"
-            sys-ctrl.int-fld  = 30.
-    END.
-
-    {&for-eachblank} NO-LOCK BY utilities.programName :
-    ASSIGN
-        li         = li + 1
-        lv-cust-no = utilities.programName. 
-    IF li GE sys-ctrl.int-fld THEN LEAVE.
-END.
-  
   &SCOPED-DEFINE open-query                   ~
       OPEN QUERY {&browse-name}               ~
-        {&for-each1}                      ~
-          AND utilities.programName <= lv-cust-no NO-LOCK
+        {&for-each1}                      NO-LOCK
             
 IF ll-sort-asc THEN {&open-query} {&sortby-phrase-asc}.
                  ELSE {&open-query} {&sortby-phrase-desc}.
@@ -1117,21 +1094,7 @@ PROCEDURE repo-query2 :
 
 
     RUN set-defaults.
-
-    /*{&for-eachblank} NO-LOCK
-           BREAK BY utilities.programName :
-           IF FIRST-OF(utilities.programName) THEN li = li + 1.
-           lv-cust-no = utilities.programName.
-           IF li GE sys-ctrl.int-fld THEN LEAVE.
-        END.
     
-        &SCOPED-DEFINE open-query                   ~
-            OPEN QUERY {&browse-name}               ~
-               {&for-eachblank} NO-LOCK
-                
-        IF ll-sort-asc THEN {&open-query} {&sortby-phrase-asc}.
-                       ELSE {&open-query} {&sortby-phrase-desc}.*/
-
     REPOSITION {&browse-name} TO ROWID ip-rowid NO-ERROR.
 
     RUN dispatch IN this-procedure ("row-changed").
