@@ -1349,7 +1349,7 @@ PROCEDURE local-update-record :
 
     FOR EACH xeb WHERE xeb.company = xest.company
                    AND xeb.est-no = xest.est-no
-                 NO-LOCK
+                 EXCLUSIVE-LOCK
         BREAK BY xeb.est-no
               BY xeb.form-no
               BY xeb.blank-no:

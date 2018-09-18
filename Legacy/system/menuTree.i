@@ -50,6 +50,7 @@ DEFINE TEMP-TABLE ttMenuTree NO-UNDO
     FIELD treeImage  AS CHARACTER
     FIELD mnemonic   AS CHARACTER
     FIELD isActive   AS LOGICAL 
+    FIELD favorite   AS LOGICAL
     FIELD hLevel     AS HANDLE
     FIELD hImage     AS HANDLE
     FIELD hEditor    AS HANDLE
@@ -160,7 +161,7 @@ PROCEDURE pCreatettMenuTree:
         ttMenuTree.treeParent = ipcParent
         ttMenuTree.treeChild  = ipcChild
         ttMenuTree.treeText   = ipcText
-        ttMenuTree.baseText   = ipcText
+        ttMenuTree.baseText   = fTranslate(ENTRY(1,ipcText),NO)
         ttMenuTree.treeImage  = ipcImage
         ttMenuTree.mnemonic   = ipcMnemonic
         ttMenuTree.isActive   = iplActive
@@ -236,7 +237,10 @@ PROCEDURE pCreatettMenuTree:
           PERSISTENT RUN pClickMenuTree IN THIS-PROCEDURE (hWidget:HANDLE).
       END TRIGGERS.
     IF VALID-HANDLE(hWidget) THEN DO:
-        ttMenuTRee.hEditor = hWidget.
+        ASSIGN
+            ttMenuTRee.hEditor = hWidget
+            hWidget:TOOLTIP = hWidget:SCREEN-VALUE
+            .
         hWidget:LOAD-MOUSE-POINTER("ARROW").
     END.
     
@@ -436,10 +440,23 @@ PROCEDURE pKeyPress:
 END PROCEDURE.
 
 PROCEDURE pSetFocus:
+    DEFINE VARIABLE dRow AS DECIMAL NO-UNDO.
+    
+    DEFINE BUFFER bttMenuTree FOR ttMenuTree.
+    
+    /* this forces frame to auto adjust to selection */
     IF VALID-HANDLE(hFocus) THEN DO:
         IF AVAILABLE ttMenuTree THEN DO:
-            /* this forces frame to auto adjust to selection */
-            hFocus:ROW = ttMenuTree.hEditor:ROW.
+            FIND LAST bttMenuTree
+                 WHERE bttMenuTree.treeParent EQ ttMenuTree.treeChild
+                 NO-ERROR.
+            /* position to last item in menu so user can see them */
+            dRow = IF AVAILABLE bttMenuTree THEN bttMenuTree.hEditor:ROW
+                   ELSE ttMenuTree.hEditor:ROW.
+            /* prevent position outside of frame */
+            IF dRow GT hFocus:FRAME:VIRTUAL-HEIGHT - 1 THEN
+            dRow = hFocus:FRAME:VIRTUAL-HEIGHT - 1.
+            hFocus:ROW = dRow.
             APPLY "ENTRY":U TO ttMenuTree.hEditor. 
         END.
         /* prevents cursor from blinking in editor object */
@@ -468,6 +485,24 @@ PROCEDURE pSetisActive:
 
 END PROCEDURE.
 
+PROCEDURE pSetParentToggle:
+    DEFINE INPUT PARAMETER ipcParent AS CHARACTER NO-UNDO.
+    
+    DEFINE BUFFER bttMenuTree FOR ttMenuTree.
+    
+    FIND FIRST bttMenuTree
+         WHERE bttMenuTree.treeChild EQ ipcParent
+         NO-ERROR.
+    IF AVAILABLE bttMenuTree THEN DO:
+        ASSIGN 
+            bttMenuTree.isActive = YES
+            bttMenuTree.hToggle:SCREEN-VALUE = "YES"
+            .
+        RUN pSetParentToggle (bttMenuTree.treeParent).
+    END. /* avail ttmenutree */
+
+END PROCEDURE.
+
 PROCEDURE pToggle:
     DEFINE INPUT PARAMETER iphWidget AS HANDLE NO-UNDO.
     
@@ -482,5 +517,8 @@ PROCEDURE pToggle:
     ttMenuTree.isActive = lActive.
     IF ttMenuTree.isMenu THEN
     RUN pSetisActive (ttMenuTree.treeChild, lActive).
+    
+    IF lActive THEN
+    RUN pSetParentToggle (ttMenuTree.treeParent).
 
 END PROCEDURE.
