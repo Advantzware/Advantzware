@@ -43,6 +43,11 @@ ON 'CTRL-ALT-R':U ANYWHERE
         RUN aoa/aoaLauncher.w PERSISTENT ("Report").
         RETURN.
     END.
+
+ON 'CTRL-ALT-P':U ANYWHERE 
+    DO: 
+        RUN util/wPgmrToolbox.w.
+END.    
    
 /* ***************************  Definitions  ************************** */
  
@@ -900,7 +905,7 @@ DO:
             lFavorite = NOT lFavorite
             ttMenuTree.favorite = lFavorite
             .
-        RUN pFavorites.
+        RUN pLoadFavorites.
         RUN pSearchSelections.
     END. /* if avail */
 END.
@@ -1333,7 +1338,7 @@ DO:
             QUESTION BUTTONS YES-NO UPDATE closeMenu.
     IF NOT closeMenu THEN RETURN NO-APPLY.        
     RUN pSetUserSettings.
-    RUN system/userLogOut.p.
+    RUN system/userLogOut.p (NO, 0).
     QUIT. /* kills all processes */
 END.
 
@@ -1387,17 +1392,8 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
       .
     DISPLAY menuTreeMsg WITH FRAME menuTreeFrame.
     RUN pBuildttMenuTree.
-    IF AVAILABLE user-print THEN DO:
-        DO idx = 3 TO EXTENT(user-print.field-value):
-            IF user-print.field-value[idx] EQ "" THEN LEAVE.
-            FIND FIRST ttMenuTree
-                 WHERE ttMenuTree.treeChild EQ user-print.field-value[idx]
-                 NO-ERROR.
-            IF AVAILABLE ttMenuTree THEN
-            ttMenuTree.favorite = YES.
-        END. /* do idx */
-    END. /* if avail */
-    RUN pFavorites.
+    RUN pGetFavorites.
+    RUN pLoadFavorites.
     menuTreeMsg:HIDDEN = YES.
     RUN pDisplayMenuTree (FRAME menuTreeFrame:HANDLE, "file", YES, 1).
     IF NOT THIS-PROCEDURE:PERSISTENT THEN
@@ -1579,8 +1575,8 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pFavorites MAINMENU 
-PROCEDURE pFavorites :
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pLoadFavorites MAINMENU 
+PROCEDURE pLoadFavorites :
 /*------------------------------------------------------------------------------
   Purpose:     
   Parameters:  <none>
@@ -1605,6 +1601,31 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetFavorites MAINMENU
+PROCEDURE pGetFavorites:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    IF AVAILABLE user-print THEN DO:
+        DO idx = 3 TO EXTENT(user-print.field-value):
+            IF user-print.field-value[idx] EQ "" THEN LEAVE.
+            FIND FIRST ttMenuTree
+                 WHERE ttMenuTree.treeChild EQ user-print.field-value[idx]
+                 NO-ERROR.
+            IF AVAILABLE ttMenuTree THEN
+            ttMenuTree.favorite = YES.
+        END. /* do idx */
+    END. /* if avail */
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetUserSettings MAINMENU 
 PROCEDURE pGetUserSettings :
