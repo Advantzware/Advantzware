@@ -4,19 +4,17 @@
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS C-Win 
 /*------------------------------------------------------------------------
 
-  File: 
+  File: wPrgmrToolbox.w
 
-  Description: 
+  Description: Programmer Toolbox Launcher
 
-  Input Parameters:
-      <none>
+  Input Parameters: <none>
 
-  Output Parameters:
-      <none>
+  Output Parameters: <none>
 
-  Author: 
+  Author: Mark Tyndall
 
-  Created: 
+  Created: 9.17.2018
 
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress AppBuilder.      */
@@ -60,9 +58,9 @@ DEF VAR cTestAud AS CHAR NO-UNDO.
 &Scoped-define FRAME-NAME DEFAULT-FRAME
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS btDataDigger btLockMon btEditor btProTools ~
-btMonitorUsers rsDB1 rsDB2 btSwitchMode 
-&Scoped-Define DISPLAYED-OBJECTS rsDB1 rsDB2 fiMode 
+&Scoped-Define ENABLED-OBJECTS btDataDigger btEditor btLockMon ~
+btMonitorUsers rsDB1 btProTools rsDB2 btSwitchMode 
+&Scoped-Define DISPLAYED-OBJECTS fiMode rsDB1 rsDB2 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -79,33 +77,40 @@ DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btDataDigger 
+     IMAGE-UP FILE "Graphics/32x32/industrial_robot.ico":U NO-FOCUS FLAT-BUTTON
      LABEL "Run DataDigger" 
-     SIZE 26 BY 1.14.
+     SIZE 8 BY 1.91 TOOLTIP "Data Digger".
 
 DEFINE BUTTON btEditor 
+     IMAGE-UP FILE "Graphics/32x32/edit.ico":U NO-FOCUS FLAT-BUTTON
      LABEL "Run Editor" 
-     SIZE 26 BY 1.14.
+     SIZE 8 BY 1.91 TOOLTIP "Progress Editor".
 
 DEFINE BUTTON btLockMon 
+     IMAGE-UP FILE "Graphics/32x32/lock.ico":U NO-FOCUS FLAT-BUTTON
      LABEL "Run Lock Monitor" 
-     SIZE 26 BY 1.14.
+     SIZE 8 BY 1.91 TOOLTIP "Lock Monitor".
 
 DEFINE BUTTON btMonitorUsers 
+     IMAGE-UP FILE "Graphics/32x32/users3.ico":U NO-FOCUS FLAT-BUTTON
      LABEL "Monitor Users" 
-     SIZE 26 BY 1.14.
+     SIZE 8 BY 1.91 TOOLTIP "User Monitor".
 
 DEFINE BUTTON btProTools 
+     IMAGE-UP FILE "Graphics/32x32/tools.ico":U NO-FOCUS FLAT-BUTTON
      LABEL "Run ProTools" 
-     SIZE 26 BY 1.14.
+     SIZE 8 BY 1.91 TOOLTIP "Pro Tools".
 
 DEFINE BUTTON btSwitchMode 
+     IMAGE-UP FILE "Graphics/32x32/gearwheels.ico":U NO-FOCUS FLAT-BUTTON
      LABEL "Switch Mode" 
-     SIZE 26 BY 1.14.
+     SIZE 8 BY 1.91 TOOLTIP "Switch Mode (Dev/Run)".
 
 DEFINE VARIABLE fiMode AS CHARACTER FORMAT "X(256)":U INITIAL "RUN" 
      LABEL "Current Mode" 
      VIEW-AS FILL-IN 
-     SIZE 14 BY 1 NO-UNDO.
+     SIZE 14 BY 1
+     BGCOLOR 15  NO-UNDO.
 
 DEFINE VARIABLE rsDB1 AS CHARACTER 
      VIEW-AS RADIO-SET HORIZONTAL
@@ -121,23 +126,34 @@ DEFINE VARIABLE rsDB2 AS CHARACTER
 "AUD", "AUD"
      SIZE 22 BY .95 NO-UNDO.
 
+DEFINE RECTANGLE RECT-1
+     EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
+     SIZE 55 BY 2.38
+     BGCOLOR 15 .
+
+DEFINE RECTANGLE RECT-2
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 86 BY 4.05.
+
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME DEFAULT-FRAME
-     btDataDigger AT ROW 1.71 COL 5 WIDGET-ID 20
-     btLockMon AT ROW 3.38 COL 5 WIDGET-ID 18
-     btEditor AT ROW 5.05 COL 5
-     btProTools AT ROW 6.71 COL 5 WIDGET-ID 2
-     btMonitorUsers AT ROW 8.38 COL 5
-     rsDB1 AT ROW 8.38 COL 34 NO-LABEL
-     rsDB2 AT ROW 8.38 COL 58 NO-LABEL
-     btSwitchMode AT ROW 10.05 COL 5
-     fiMode AT ROW 10.05 COL 49 COLON-ALIGNED
+     btDataDigger AT ROW 1.48 COL 3 WIDGET-ID 20
+     btEditor AT ROW 1.48 COL 21
+     btLockMon AT ROW 1.48 COL 12 WIDGET-ID 18
+     fiMode AT ROW 1.95 COL 70 COLON-ALIGNED
+     btMonitorUsers AT ROW 1.48 COL 39
+     rsDB1 AT ROW 3.86 COL 7 NO-LABEL
+     btProTools AT ROW 1.48 COL 30 WIDGET-ID 2
+     rsDB2 AT ROW 3.86 COL 31 NO-LABEL
+     btSwitchMode AT ROW 1.48 COL 48
+     RECT-1 AT ROW 1.24 COL 2 WIDGET-ID 22
+     RECT-2 AT ROW 1 COL 1 WIDGET-ID 24
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 80 BY 11.76.
+         SIZE 86.2 BY 4.1.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -156,13 +172,13 @@ DEFINE FRAME DEFAULT-FRAME
 IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW C-Win ASSIGN
          HIDDEN             = YES
-         TITLE              = "Programmers' Toolbox"
-         HEIGHT             = 11.76
-         WIDTH              = 80
-         MAX-HEIGHT         = 17.67
-         MAX-WIDTH          = 80
-         VIRTUAL-HEIGHT     = 17.67
-         VIRTUAL-WIDTH      = 80
+         TITLE              = "Programmer's Toolbox"
+         HEIGHT             = 4.1
+         WIDTH              = 86.2
+         MAX-HEIGHT         = 4.1
+         MAX-WIDTH          = 86.2
+         VIRTUAL-HEIGHT     = 4.1
+         VIRTUAL-WIDTH      = 86.2
          RESIZE             = yes
          SCROLL-BARS        = no
          STATUS-AREA        = no
@@ -187,6 +203,10 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
    FRAME-NAME                                                           */
 /* SETTINGS FOR FILL-IN fiMode IN FRAME DEFAULT-FRAME
    NO-ENABLE                                                            */
+/* SETTINGS FOR RECTANGLE RECT-1 IN FRAME DEFAULT-FRAME
+   NO-ENABLE                                                            */
+/* SETTINGS FOR RECTANGLE RECT-2 IN FRAME DEFAULT-FRAME
+   NO-ENABLE                                                            */
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
 THEN C-Win:HIDDEN = no.
 
@@ -201,7 +221,7 @@ THEN C-Win:HIDDEN = no.
 
 &Scoped-define SELF-NAME C-Win
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
-ON END-ERROR OF C-Win /* Programmers' Toolbox */
+ON END-ERROR OF C-Win /* Programmer's Toolbox */
 OR ENDKEY OF {&WINDOW-NAME} ANYWHERE DO:
   /* This case occurs when the user presses the "Esc" key.
      In a persistently run window, just ignore this.  If we did not, the
@@ -214,7 +234,7 @@ END.
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
-ON WINDOW-CLOSE OF C-Win /* Programmers' Toolbox */
+ON WINDOW-CLOSE OF C-Win /* Programmer's Toolbox */
 DO:
   /* This event will close the window and terminate the procedure.  */
   APPLY "CLOSE":U TO THIS-PROCEDURE.
@@ -485,9 +505,9 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY rsDB1 rsDB2 fiMode 
+  DISPLAY fiMode rsDB1 rsDB2 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
-  ENABLE btDataDigger btLockMon btEditor btProTools btMonitorUsers rsDB1 rsDB2 
+  ENABLE btDataDigger btEditor btLockMon btMonitorUsers rsDB1 btProTools rsDB2 
          btSwitchMode 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
