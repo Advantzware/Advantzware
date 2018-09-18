@@ -1,10 +1,8 @@
 FIND CURRENT MACH exclusive-lock no-error .
 IF AVAILABLE mach THEN DO:
-    IF "{1}" = "RUN" THEN ASSIGN mach.run-crusiz-qty[1] = 1
-                                 mach.run-crusiz-cst[1] = DEC(SELF:SCREEN-VALUE)
+    IF "{1}" = "RUN" THEN ASSIGN mach.run-crusiz-cst[1] = DEC(SELF:SCREEN-VALUE)
                                  .
-    ELSE IF "{1}" = "M R" THEN ASSIGN mach.mr-crusiz-qty[1] = 1
-                                      mach.mr-crusiz-cst[1] = DEC(SELF:SCREEN-VALUE)
+    ELSE IF "{1}" = "M R" THEN ASSIGN mach.mr-crusiz-cst[1] = DEC(SELF:SCREEN-VALUE)
                                       .
 END.
 
