@@ -553,6 +553,9 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL imageSettings MAINMENU
 ON MOUSE-SELECT-CLICK OF imageSettings IN FRAME FRAME-USER
 DO:
+    /*
+    RUN system/sysCtrlUsage.w.
+    */
     RUN system/userSettings.w (
         INPUT-OUTPUT iMenuSize,
         INPUT-OUTPUT iLanguage,
@@ -1180,8 +1183,8 @@ PROCEDURE pGetMenu :
             IF NOT AVAILABLE ttblMenu THEN DO:         
                 CREATE ttblMenu.
                 ASSIGN
-                    ttblMenu.menuName = cPrgrm
-                    ttblMenu.mnemonic = cMnemonic 
+                    ttblMenu.menuName  = cPrgrm
+                    ttblMenu.mnemonic  = cMnemonic 
                    .
             END.
         END.
@@ -1207,18 +1210,18 @@ PROCEDURE pGetMenu :
     END. /* repeat */
     IF AVAILABLE ttblMenu THEN
     ttblMenu.menuCount = ttblMenu.menuCount + 1.
-
-/*    CREATE ttblItem.                           */
-/*    ASSIGN                                     */
-/*        idx                = idx + 1           */
-/*        ttblItem.menuOrder = idx               */
-/*        ttblItem.menu1     = "Exit"            */
-/*        ttblItem.menu2     = "file"            */
-/*        ttblItem.mnemonic  = "X"               */
-/*        ttblItem.mainMenu  = NO                */
-/*        ttblItem.imageFile = fItemImage("Exit")*/
-/*        .                                      */
-
+/*
+    CREATE ttblItem.
+    ASSIGN 
+        idx                = idx + 1
+        ttblItem.menuOrder = idx
+        ttblItem.menu1     = "Exit"
+        ttblItem.menu2     = "file"
+        ttblItem.mnemonic  = "X"
+        ttblItem.mainMenu  = NO
+        ttblItem.imageFile = fItemImage("Exit")
+        .            
+*/
     FOR EACH ttblItem USE-INDEX menu2 BREAK BY ttblItem.menu2:
         IF FIRST-OF(ttblItem.menu2) THEN idx = 0.
         ASSIGN
@@ -1250,22 +1253,28 @@ PROCEDURE pGetMenu :
         hMenuLink[idx]:MOVE-TO-TOP().
     END. /* do idx */
     
-    RUN pCreateMenuObjects ("file").
+/*    OUTPUT TO c:\tmp\menutree.dat.                                */
+/*    FOR EACH ttblItem:                                            */
+/*        FIND FIRST prgrms NO-LOCK                                 */
+/*             WHERE prgrms.prgmname EQ ttblItem.menu1.             */
+/*        EXPORT                                                    */
+/*            ttblItem.menuOrder                                    */
+/*            ttblItem.level                                        */
+/*            INDEX(ttblItem.menu1,".") EQ 0                        */
+/*            ttblItem.menu2                                        */
+/*            ttblItem.menu1                                        */
+/*            prgrms.prgtitle                                       */
+/*            ENTRY(3,ttblItem.imageFile,"/")                       */
+/*            ttblItem.mnemonic                                     */
+/*            YES                                                   */
+/*            .                                                     */
+/*        idx = ttblItem.menuOrder + 1.                             */
+/*    END.                                                          */
+/*    EXPORT idx 1 no "file" "exit" "Exit" "navigate_cross.png" "X".*/
+/*    OUTPUT CLOSE.                                                 */
+/*    OS-COMMAND NO-WAIT notepad.exe c:\tmp\menutree.dat.           */
     
-    /* Removing as described
-    /* temporary section, will be removed before release of 16.8.0 */
-    OUTPUT TO c:\tmp\ttblItem.txt.
-    FOR EACH ttblItem:
-        FIND FIRST prgrms
-             WHERE prgrms.prgmname EQ ttblItem.menu1
-             NO-ERROR.
-        IF AVAILABLE prgrms THEN 
-        prgrms.mnemonic = ttblItem.mnemonic.
-        EXPORT ttblItem.menu1 ttblItem.mnemonic.
-    END.
-    OUTPUT CLOSE.
-    /* temporary section, will be removed before release of 16.8.0 */
-    */
+    RUN pCreateMenuObjects ("file").
 
 END PROCEDURE.
 
@@ -1781,11 +1790,11 @@ PROCEDURE Set-comp_loc :
     DEFINE INPUT PARAMETER ipcCompany     AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcCompanyName AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcLoc         AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipcLocDscr    AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcLocDscr     AS CHARACTER NO-UNDO.
 
     DO WITH FRAME {&FRAME-NAME}:
         ASSIGN
-            company_name:SCREEN-VALUE = ipcCompanyName
+            company_name:SCREEN-VALUE = ipcCompanyName + " (" + ipcCompany + ")"
             loc_loc:SCREEN-VALUE      = ipcLoc
             company_name
             loc_loc
