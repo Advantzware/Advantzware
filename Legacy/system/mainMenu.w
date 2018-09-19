@@ -1076,25 +1076,8 @@ DO:
         APPLY "CHOOSE":U TO btnCancel.
         VIEW FRAME searchFrame.
     END. /* if frame */
-    ELSE DO WITH FRAME userSettingsFrame:
-        ASSIGN
-            copyFromUser:LIST-ITEM-PAIRS = ?
-            copyToUser:LIST-ITEM-PAIRS   = ?
-            .
-        FOR EACH users NO-LOCK:
-            copyFromUser:ADD-LAST(users.user_id + " - "
-                + REPLACE(users.user_name,","," "),users.user_id)
-                .
-            copyToUser:ADD-LAST(users.user_id + " - "
-                + REPLACE(users.user_name,","," "),users.user_id)
-                .
-        END. /* each users */
-        ASSIGN
-            copyFromUser:SCREEN-VALUE = USERID("ASI")
-            copyFromUser
-            .
-        VIEW FRAME userSettingsFrame.
-    END. /* else */
+    ELSE
+    RUN pGetCopyUsers.
     btnToggle:LABEL = btnToggle:PRIVATE-DATA.
 END.
 
@@ -1561,6 +1544,7 @@ PROCEDURE pCopyToUser :
             END. /* if is-selected */
         END. /* do idx */
     END. /* with frame */
+    RUN pGetCopyUsers.
     
     /* if current user, need to rebuild menu and redisplay */
     IF lCurrentUser THEN
@@ -1574,6 +1558,49 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetCopyUsers MAINMENU
+PROCEDURE pGetCopyUsers:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DO WITH FRAME userSettingsFrame:
+        ASSIGN
+            copyFromUser:LIST-ITEM-PAIRS = ?
+            copyToUser:LIST-ITEM-PAIRS   = ?
+            .
+        FOR EACH xUserMenu NO-LOCK
+            BREAK BY xUserMenu.user_id
+            :
+            IF FIRST-OF(xUserMenu.user_id) THEN DO:
+                FIND FIRST users OF xUserMenu NO-LOCK NO-ERROR.
+                copyFromUser:ADD-LAST(xUserMenu.user_id
+                    + (IF AVAILABLE users THEN
+                       " - " + REPLACE(users.user_name,","," ") ELSE ""),xUserMenu.user_id)
+                    .
+            END. /* first-of */
+        END. /* each xusermenu */
+        FOR EACH users NO-LOCK:
+            copyToUser:ADD-LAST(users.user_id + " - "
+                + REPLACE(users.user_name,","," "),users.user_id)
+                .
+        END. /* each users */
+        IF copyFromUser:NUM-ITEMS GT 0 THEN 
+        ASSIGN
+            copyFromUser:SCREEN-VALUE = copyFromUser:ENTRY(1)
+            copyFromUser
+            .
+        VIEW FRAME userSettingsFrame.
+    END. /* else */
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pLoadFavorites MAINMENU 
 PROCEDURE pLoadFavorites :
@@ -2419,6 +2446,7 @@ PROCEDURE pWinReSize :
     END. /* do with */
     RUN pKeyPress (FRAME menuTreeFrame:HANDLE, 32).
     RUN pDisplayMenuTree (FRAME menuTreeFrame:HANDLE, "file", YES, 1).
+    VIEW FRAME searchFrame.
 
     RUN LockWindowUpdate (0,OUTPUT i).
     SESSION:SET-WAIT-STATE("").
