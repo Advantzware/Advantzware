@@ -1,0 +1,351 @@
+ADD TABLE "prgrms"
+  AREA "Data"
+  LABEL "Programs Master File"
+  DESCRIPTION "Programs Master File
+"
+  VALEXP "{methods/validate.del/prgrms.i}"
+  VALMSG "Program exists within other related Tables and can not be deleted."
+  DUMP-NAME "prgrms"
+  TABLE-TRIGGER "CREATE" OVERRIDE PROCEDURE "create.trg/prgrms.p" CRC "?" 
+  TABLE-TRIGGER "DELETE" OVERRIDE PROCEDURE "delete.trg/prgrms.p" CRC "?" 
+  TABLE-TRIGGER "WRITE" OVERRIDE PROCEDURE "write.trg/prgrms.p" CRC "?" 
+
+ADD FIELD "prgmname" OF "prgrms" AS character 
+  FORMAT "X(10)"
+  INITIAL ""
+  LABEL "Program"
+  POSITION 2
+  MAX-WIDTH 20
+  HELP "Enter Program Name"
+  ORDER 10
+  MANDATORY
+
+ADD FIELD "prgtitle" OF "prgrms" AS character 
+  FORMAT "X(30)"
+  INITIAL ""
+  LABEL "Title"
+  POSITION 3
+  MAX-WIDTH 60
+  HELP "Enter Program Title"
+  ORDER 20
+
+ADD FIELD "can_run" OF "prgrms" AS character 
+  FORMAT "X(60)"
+  INITIAL "*"
+  LABEL "Run ID's"
+  POSITION 4
+  MAX-WIDTH 120
+  VIEW-AS "VIEW-AS EDITOR INNER-CHARS 60 INNER-LINES 3 SCROLLBAR-VERTICAL"
+  HELP "Enter User ID's which Can Run this Procedure"
+  LENGTH 0
+  ORDER 40
+
+ADD FIELD "can_create" OF "prgrms" AS character 
+  FORMAT "X(60)"
+  INITIAL "*"
+  LABEL "Create ID's"
+  POSITION 5
+  MAX-WIDTH 120
+  VIEW-AS "VIEW-AS EDITOR INNER-CHARS 60 INNER-LINES 3 SCROLLBAR-VERTICAL"
+  HELP "Enter User ID's which Can Create in this Procedure"
+  LENGTH 0
+  ORDER 50
+
+ADD FIELD "can_update" OF "prgrms" AS character 
+  FORMAT "X(60)"
+  INITIAL "*"
+  LABEL "Update ID's"
+  POSITION 6
+  MAX-WIDTH 120
+  VIEW-AS "VIEW-AS EDITOR INNER-CHARS 60 INNER-LINES 3 SCROLLBAR-VERTICAL"
+  HELP "Enter User ID's which Can Update in this Procedure"
+  LENGTH 0
+  ORDER 60
+
+ADD FIELD "can_delete" OF "prgrms" AS character 
+  FORMAT "X(60)"
+  INITIAL "*"
+  LABEL "Delete ID's"
+  POSITION 7
+  MAX-WIDTH 120
+  VIEW-AS "VIEW-AS EDITOR INNER-CHARS 60 INNER-LINES 3 SCROLLBAR-VERTICAL"
+  HELP "Enter User ID's which Can Delete in this Procedure"
+  LENGTH 0
+  ORDER 70
+
+ADD FIELD "dir_group" OF "prgrms" AS character 
+  FORMAT "X(64)"
+  INITIAL ""
+  LABEL "Directory"
+  POSITION 8
+  MAX-WIDTH 16
+  HELP "Enter Directory Group Where Program Stored"
+  LENGTH 0
+  ORDER 80
+
+ADD FIELD "mfgroup" OF "prgrms" AS character 
+  FORMAT "X(20)"
+  INITIAL ""
+  LABEL "Misc. Fields Group"
+  POSITION 9
+  MAX-WIDTH 40
+  HELP "Enter Misc. Fields Group Name"
+  ORDER 180
+
+ADD FIELD "rec_key" OF "prgrms" AS character 
+  FORMAT "X(20)"
+  INITIAL ""
+  LABEL "Record Key"
+  POSITION 10
+  MAX-WIDTH 40
+  HELP "Enter Record Key Value"
+  LENGTH 0
+  ORDER 190
+
+ADD FIELD "popup" OF "prgrms" AS logical 
+  FORMAT "yes/no"
+  INITIAL "no"
+  LABEL "Pop-Up"
+  POSITION 11
+  MAX-WIDTH 1
+  VIEW-AS "VIEW-AS TOGGLE-BOX"
+  HELP "Enter Pop-Up Menu Indicator"
+  ORDER 150
+
+ADD FIELD "track_usage" OF "prgrms" AS logical 
+  FORMAT "yes/no"
+  INITIAL "no"
+  LABEL "Track Usage"
+  POSITION 12
+  MAX-WIDTH 1
+  VIEW-AS "VIEW-AS TOGGLE-BOX"
+  HELP "Enter Track Usage Indicator"
+  ORDER 140
+
+ADD FIELD "prgm_ver" OF "prgrms" AS character 
+  FORMAT "X(10)"
+  INITIAL ""
+  LABEL "Version"
+  POSITION 13
+  MAX-WIDTH 20
+  COLUMN-LABEL "Ver"
+  HELP "Enter Version Number"
+  LENGTH 0
+  ORDER 160
+
+ADD FIELD "use_colors" OF "prgrms" AS logical 
+  FORMAT "yes/no"
+  INITIAL "no"
+  LABEL "Use Defined Colors"
+  POSITION 14
+  MAX-WIDTH 1
+  VIEW-AS "VIEW-AS TOGGLE-BOX"
+  HELP "Use Defined Colors Indicator"
+  ORDER 90
+
+ADD FIELD "use_fonts" OF "prgrms" AS logical 
+  FORMAT "yes/no"
+  INITIAL "no"
+  LABEL "Use Defined Fonts"
+  POSITION 15
+  MAX-WIDTH 1
+  VIEW-AS "VIEW-AS TOGGLE-BOX"
+  HELP "Use Defined Fonts Indicator"
+  ORDER 100
+
+ADD FIELD "widget_bgc" OF "prgrms" AS integer 
+  FORMAT ">>9"
+  INITIAL ?
+  LABEL "Widget Background Color"
+  POSITION 16
+  MAX-WIDTH 104
+  HELP "Enter Widget Background Color Value"
+  EXTENT 13
+  ORDER 110
+
+ADD FIELD "widget_fgc" OF "prgrms" AS integer 
+  FORMAT ">>9"
+  INITIAL ?
+  LABEL "Widget Foreround Color"
+  POSITION 17
+  MAX-WIDTH 104
+  HELP "Enter Widget Foreground Color Value"
+  EXTENT 13
+  ORDER 120
+
+ADD FIELD "widget_font" OF "prgrms" AS integer 
+  FORMAT ">>9"
+  INITIAL ?
+  LABEL "Widget Font"
+  POSITION 18
+  MAX-WIDTH 104
+  HELP "Enter Widget Font Value"
+  EXTENT 13
+  ORDER 130
+
+ADD FIELD "menu_item" OF "prgrms" AS logical 
+  FORMAT "yes/no"
+  INITIAL "no"
+  LABEL "Menu Item"
+  POSITION 19
+  MAX-WIDTH 1
+  VIEW-AS "VIEW-AS TOGGLE-BOX"
+  COLUMN-LABEL "Menu"
+  HELP "Enter Menu Item Indicator"
+  ORDER 170
+
+ADD FIELD "run_persistent" OF "prgrms" AS logical 
+  FORMAT "yes/no"
+  INITIAL "no"
+  LABEL "Run Persistent"
+  POSITION 20
+  MAX-WIDTH 1
+  VIEW-AS "VIEW-AS TOGGLE-BOX"
+  HELP "Run Persistent Indicator"
+  ORDER 30
+
+ADD FIELD "securityLevelDefault" OF "prgrms" AS integer 
+  FORMAT ">>>9"
+  INITIAL "0"
+  LABEL "Sec. Lev. Default"
+  POSITION 21
+  MAX-WIDTH 4
+  ORDER 200
+
+ADD FIELD "securityLevelUser" OF "prgrms" AS integer 
+  FORMAT ">>9"
+  INITIAL "0"
+  LABEL "User Sec. Lev."
+  POSITION 22
+  MAX-WIDTH 4
+  ORDER 210
+
+ADD FIELD "popUpMenu" OF "prgrms" AS character 
+  FORMAT "x(32)"
+  INITIAL ""
+  LABEL "Pop Up Menu"
+  POSITION 23
+  MAX-WIDTH 64
+  ORDER 220
+
+ADD FIELD "itemParent" OF "prgrms" AS character 
+  FORMAT "x(32)"
+  INITIAL ""
+  LABEL "Parent"
+  POSITION 24
+  MAX-WIDTH 64
+  ORDER 230
+
+ADD FIELD "menuImage" OF "prgrms" AS character 
+  DESCRIPTION "Menu Image"
+  FORMAT "x(40)"
+  INITIAL ""
+  LABEL "Menu Image"
+  POSITION 25
+  MAX-WIDTH 246
+  HELP "Enter Menu Image"
+  EXTENT 3
+  ORDER 240
+
+ADD FIELD "translation" OF "prgrms" AS character 
+  DESCRIPTION "Language Translation for Program Title"
+  FORMAT "x(40)"
+  INITIAL ""
+  LABEL "Translation"
+  POSITION 26
+  MAX-WIDTH 820
+  HELP "Enter Translation"
+  EXTENT 10
+  ORDER 250
+
+ADD FIELD "mnemonic" OF "prgrms" AS character 
+  DESCRIPTION "Menu Mnemonic"
+  FORMAT "x(8)"
+  INITIAL ""
+  LABEL "Mnemonic"
+  POSITION 27
+  MAX-WIDTH 16
+  HELP "Enter Mnemonic"
+  ORDER 260
+
+ADD FIELD "module" OF "prgrms" AS character 
+  DESCRIPTION "Module"
+  FORMAT "x(8)"
+  INITIAL ""
+  LABEL "Module"
+  POSITION 28
+  MAX-WIDTH 16
+  HELP "Enter Module"
+  ORDER 270
+
+ADD FIELD "image" OF "prgrms" AS character 
+  FORMAT "x(60)"
+  INITIAL ""
+  LABEL "Image"
+  POSITION 29
+  MAX-WIDTH 120
+  ORDER 280
+
+ADD FIELD "menuOrder" OF "prgrms" AS integer 
+  FORMAT ">>>9"
+  INITIAL "0"
+  LABEL "Menu Order"
+  POSITION 30
+  MAX-WIDTH 4
+  COLUMN-LABEL "Order"
+  HELP "Enter Menu Order"
+  ORDER 290
+
+ADD FIELD "systemType" OF "prgrms" AS character 
+  FORMAT "x(8)"
+  INITIAL "Both"
+  LABEL "System Type"
+  POSITION 31
+  MAX-WIDTH 16
+  COLUMN-LABEL "Type"
+  HELP "Enter System Type"
+  ORDER 300
+
+ADD FIELD "menuLevel" OF "prgrms" AS integer 
+  FORMAT ">>9"
+  INITIAL "0"
+  LABEL "Menu Level"
+  POSITION 32
+  MAX-WIDTH 4
+  COLUMN-LABEL "Level"
+  HELP "Enter Menu Level"
+  ORDER 310
+
+ADD INDEX "pi-prgrms" ON "prgrms" 
+  AREA "Index"
+  UNIQUE
+  PRIMARY
+  DESCRIPTION "Program Master Primary Index"
+  INDEX-FIELD "prgmname" ASCENDING 
+
+ADD INDEX "si-menuOrder" ON "prgrms" 
+  AREA "Index"
+  DESCRIPTION "Secondary Index by Menu Order"
+  INDEX-FIELD "menuOrder" ASCENDING 
+
+ADD INDEX "si-prgtitle" ON "prgrms" 
+  AREA "Index"
+  DESCRIPTION "Program Master Secondary Index by Program Title"
+  INDEX-FIELD "prgtitle" ASCENDING 
+
+ADD INDEX "si-rec_key" ON "prgrms" 
+  AREA "Index"
+  DESCRIPTION "Programs Master File Secondary Index by rec_key"
+  INDEX-FIELD "rec_key" ASCENDING 
+
+ADD INDEX "wi-prgtitle" ON "prgrms" 
+  AREA "Index"
+  WORD
+  DESCRIPTION "Program Master Word Index by Program Title"
+  INDEX-FIELD "prgtitle" ASCENDING 
+
+.
+PSC
+cpstream=ISO8859-1
+.
+0000007801
