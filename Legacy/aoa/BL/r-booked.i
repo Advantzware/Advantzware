@@ -541,7 +541,8 @@ PROCEDURE pOrdersBooked2:
             ttOrdersBooked.InksCode     = fGetInksForJob()
             ttOrdersBooked.PrintSheet   = IF AVAILABLE itemfg THEN itemfg.plate-no ELSE ""
             ttOrdersBooked.dCstPerM     = IF AVAILABLE oe-ordl THEN oe-ordl.cost ELSE 0
-            ttOrdersBooked.dTotStdCost  = IF AVAILABLE itemfg THEN itemfg.spare-dec-1 ELSE 0.
+            ttOrdersBooked.dTotStdCost  = IF AVAILABLE oe-ordl THEN oe-ordl.t-cost ELSE 0
+            ttOrdersBooked.dFullCost  = IF AVAILABLE itemfg THEN itemfg.spare-dec-1 ELSE 0.
             . 
         DELETE w-data.
     END.  /* for each tt-report */
