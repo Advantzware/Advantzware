@@ -67,7 +67,7 @@ PROCEDURE epCanAccessUser:
                 (ipProgName EQ "windows/std-code.w" AND ipFunction EQ "") OR /*NZ7 (NZ6) Standards Matrix*/
                 (ipProgName EQ "windows/uom.w" AND ipFunction EQ "") OR /*NZ8 (NZ7) Units of Measure*/
                 (ipProgName EQ "windows/xref.w" AND ipFunction EQ "") OR /*NZ11 (NZ10) Cross References*/
-                (ipProgName EQ "" AND ipFunction EQ "")
+                (ipProgName EQ "" AND ipFunction EQ "") 
                 ) THEN ASSIGN opCanAccess = FALSE.
             /* Second group - programs/functions ONLY available to Administrators */
             /* Note: logic is 'if secLevel less than 900, then disable' */
@@ -96,6 +96,7 @@ PROCEDURE epCanAccessUser:
                 (ipProgName EQ "windows/dept.w" AND ipFunction EQ "") OR /*NZ4 (NZ3) Departments - Edits*/
                 (ipProgName EQ "windows/prgrms.w" AND ipFunction EQ "") OR /*NS8 Program Master*/
                 (ipProgName EQ "" AND ipFunction = "")
+                ) THEN 
         END. /* list-based exclusions */       
     END.
     ELSE opCanAccess = FALSE.
