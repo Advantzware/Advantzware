@@ -384,8 +384,12 @@ PROCEDURE build-table :
   find est-qty where recid(est-qty) = ip-recid no-lock.
 
   lv-first-quote-date = ?.
-  
-  FOR EACH quoteitm WHERE
+  FOR EACH quotehd NO-LOCK 
+      WHERE quotehd.company EQ est-qty.company AND
+      quotehd.est-no EQ est-qty.est-no AND 
+      quotehd.quo-date LE TODAY AND
+      quotehd.expireDate GE TODAY ,
+  EACH quoteitm WHERE
       quoteitm.company = est-qty.company AND
       quoteitm.est-no = est-qty.est-no AND
       CAN-FIND(FIRST eb WHERE
@@ -414,8 +418,8 @@ PROCEDURE build-table :
              tt-item-qty-price.rels = quoteqty.rels
              tt-item-qty-price.quote-user = quoteqty.quote-user.
      /* Ticket 15599 */
-      FIND FIRST quotehd OF quoteitm WHERE quotehd.company EQ quoteitm.company NO-LOCK NO-ERROR .
-      IF AVAIL quotehd THEN
+     /* FIND FIRST quotehd OF quoteitm WHERE quotehd.company EQ quoteitm.company NO-LOCK NO-ERROR .
+      IF AVAIL quotehd THEN*/
           ASSIGN  tt-item-qty-price.quote-date = quotehd.quo-date .
 
       IF NOT CAN-FIND(FIRST tt-item-qty-price WHERE

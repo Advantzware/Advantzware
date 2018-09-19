@@ -347,6 +347,8 @@ END.
 FOR EACH quotehd FIELDS(q-no est-no company quo-date) NO-LOCK  WHERE
         quotehd.company EQ ipxCompany
         AND quotehd.cust-no EQ ipxCustNo
+        AND quotehd.quo-date LE TODAY 
+        AND quotehd.expireDate GE TODAY
         AND (
              ipxEstNo EQ ""
              OR llAllEstimates
