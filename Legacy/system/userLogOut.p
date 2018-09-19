@@ -17,12 +17,14 @@ DEFINE INPUT  PARAMETER iplDisconnect AS LOGICAL NO-UNDO.
 DEFINE INPUT  PARAMETER ipiUserNum    AS INTEGER NO-UNDO.
 DEFINE VARIABLE cUserKillFile  AS CHARACTER NO-UNDO.
 DEFINE VARIABLE iAsiConnectPid AS INTEGER   NO-UNDO.
+DEFINE VARIABLE iUserToDisconnect    AS INTEGER NO-UNDO.
+DEFINE VARIABLE iSessionToDisconnect AS INTEGER NO-UNDO.
 DEFINE VARIABLE cCurrentUserID AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cResponse      AS CHARACTER NO-UNDO.
 DEFINE VARIABLE iDBUserNum     AS INTEGER   NO-UNDO.
-DEFINE VARIABLE cReturnChar   AS CHARACTER NO-UNDO.
-DEFINE VARIABLE lRecFound     AS LOGICAL   NO-UNDO.
-DEFINE VARIABLE cLogoutFolder AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cReturnChar    AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lRecFound      AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cLogoutFolder  AS CHARACTER NO-UNDO.
 DEFINE STREAM sLogOut.
 {methods/defines/hndldefs.i}
 {custom/gcompany.i}    
@@ -38,8 +40,25 @@ DEFINE STREAM sLogOut.
 ASSIGN
     cocode         = gcompany
     locode         = gloc
-    cCurrentUserID = USERID(LDBNAME(1)).
+    cCurrentUserID = USERID(LDBNAME(1))
+    iSessionToDisconnect = ipiUserNum
+    .
+    
 
+IF ipiUserNum EQ 0 THEN 
+DO:
+    FIND FIRST asi._myconnection NO-LOCK NO-ERROR.
+    IF AVAILABLE asi._myconnection THEN DO: 
+        iUserToDisconnect = asi._myconnection._myconn-userId.
+        FOR EACH userlog NO-LOCK 
+             WHERE userlog.userStatus EQ "Logged In":
+            iDBUserNum = INTEGER(SUBSTRING(userLog.deviceName, R-INDEX(userLog.deviceName,"-") + 1)) NO-ERROR.
+            IF iDBUserNum EQ iUserToDisconnect THEN 
+              iSessionToDisconnect = userLog.sessionID.
+        END.
+                
+    END.
+END. 
 
 RUN sys/ref/nk1look.p (INPUT gcompany, "UserControl", "C" /* Character*/, 
     INPUT NO /* check by cust */, 
@@ -51,12 +70,12 @@ RUN sys/ref/nk1look.p (INPUT gcompany, "UserControl", "C" /* Character*/,
 IF lRecFound THEN 
     cLogoutFolder = cReturnChar  .
    
-IF SEARCH( cLogoutFolder) EQ ? THEN 
+IF cLogoutFolder NE "" AND SEARCH( cLogoutFolder) EQ ? THEN 
     OS-CREATE-DIR VALUE( cLogoutFolder).  
-        
+       
 FIND FIRST userLog NO-LOCK 
            WHERE /*userLog.user_id     = cCurrentUserID       
-           AND */ userLog.sessionID     = ipiUserNum 
+           AND */ userLog.sessionID     = iSessionToDisconnect 
     AND userLog.userStatus EQ "Logged In" 
     USE-INDEX sessionID
     NO-ERROR.
@@ -75,7 +94,7 @@ DO TRANSACTION:
 END.
 
 /* Disconnect from database also */
-IF iplDisconnect THEN DO:
+IF iplDisconnect AND cLogoutFolder NE "" THEN DO:
     /* _connect id is one more than the database user number shown in _myconnection */
     FIND FIRST asi._connect NO-LOCK WHERE asi._connect._connect-id EQ iDbUserNum  NO-ERROR.
                   
