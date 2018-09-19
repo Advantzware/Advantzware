@@ -48,6 +48,7 @@ PROCEDURE epCanAccessUser:
                 (ipProgName EQ "system/sys-ctrl.w" AND ipFunction EQ "SuperAdmin") OR /*system controls, sys-ctrl*/
                 (ipProgName EQ "util/CheckModule.p" AND ipFunction EQ "SuperAdmin") OR /*run util module*/
                 (ipProgName EQ "util/module.w" AND ipFunction EQ "") OR /*Ability to run util module*/
+                (ipProgName EQ "util/utilsN.w" AND ipFunction EQ "") OR /*Utils Button*/
                 (ipProgName EQ "util/wPgmrToolbox.w" AND ipFunction EQ "DataDigger") OR /*DataDigger Button*/
                 (ipProgName EQ "util/wPgmrToolbox.w" AND ipFunction EQ "ProTools") OR /*ProTools Button*/                
                 (ipProgName EQ "util/wPgmrToolbox.w" AND ipFunction EQ "SwitchMode") OR /*SwitchMode Button*/                
