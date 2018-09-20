@@ -518,7 +518,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL prgrms.menuImage[1] V-table-Win
 ON LEAVE OF prgrms.menuImage[1] IN FRAME F-Main /* Menu Image */
 DO:
-    cMenuImage:LOAD-IMAGE(SELF:SCREEN-VALUE).
+    cMenuImage:LOAD-IMAGE("Graphics\32x32\" + SELF:SCREEN-VALUE).
 END.
 
 /* _UIB-CODE-BLOCK-END */
