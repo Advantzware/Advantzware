@@ -92,10 +92,10 @@ userLog.logoutDateTime userLog.EulaVersion userLog.IpAddress
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-4 fiStartingDate fiEndingDate btSearch ~
-Browser-Table browse-order auto_find Btn_Clear_Find 
+Browser-Table browse-order auto_find Btn_Clear_Find btnCalendar-1 btnCalendar-2
 &Scoped-Define DISPLAYED-OBJECTS fiStartingDate fiEndingDate browse-order ~
 auto_find 
-
+&Scoped-define calendarPopup btnCalendar-1 btnCalendar-2
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
 
@@ -144,6 +144,17 @@ DEFINE RECTANGLE RECT-4
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 99 BY 1.43.
 
+DEFINE BUTTON btnCalendar-1 
+     IMAGE-UP FILE "Graphics/16x16/calendar.bmp":U
+     LABEL "" 
+     SIZE 4.6 BY 1.05 TOOLTIP "PopUp Calendar".
+
+DEFINE BUTTON btnCalendar-2 
+     IMAGE-UP FILE "Graphics/16x16/calendar.bmp":U
+     LABEL "" 
+     SIZE 4.6 BY 1.05 TOOLTIP "PopUp Calendar".
+
+
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
 DEFINE QUERY Browser-Table FOR 
@@ -178,8 +189,10 @@ DEFINE BROWSE Browser-Table
 
 DEFINE FRAME F-Main
      fiStartingDate AT ROW 1.14 COL 17 COLON-ALIGNED WIDGET-ID 2
-     fiEndingDate AT ROW 1.14 COL 51 COLON-ALIGNED WIDGET-ID 4
-     btSearch AT ROW 1.14 COL 76 WIDGET-ID 6
+     btnCalendar-1 AT ROW 1.14 COL 35
+     fiEndingDate AT ROW 1.14 COL 55 COLON-ALIGNED WIDGET-ID 4
+     btnCalendar-2 AT ROW 1.14 COL 73
+     btSearch AT ROW 1.14 COL 80 WIDGET-ID 6
      Browser-Table AT ROW 2.43 COL 2 HELP
           "Use Home, End, Page-Up, Page-Down, & Arrow Keys to Navigate"
      browse-order AT ROW 19.33 COL 6 HELP
@@ -374,6 +387,48 @@ END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME fiStartingDate
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiStartingDate B-table-Win
+ON HELP OF fiStartingDate IN FRAME F-Main /*  Date */
+DO:
+  {methods/calendar.i}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME btnCalendar-1
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnCalendar-1 B-table-Win
+ON CHOOSE OF btnCalendar-1 IN FRAME F-Main
+DO:
+  {methods/btnCalendar.i fiStartingDate}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME fiEndingDate
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiEndingDate B-table-Win
+ON HELP OF fiEndingDate IN FRAME F-Main /* Ack. Date */
+DO:
+  {methods/calendar.i}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME btnCalendar-2
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnCalendar-2 B-table-Win
+ON CHOOSE OF btnCalendar-2 IN FRAME F-Main
+DO:
+  {methods/btnCalendar.i fiEndingDate}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME  
 
 
 &UNDEFINE SELF-NAME
