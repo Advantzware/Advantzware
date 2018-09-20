@@ -3,9 +3,9 @@ ADD TABLE "xUserMenu"
   LABEL "User Menu (unselected)"
   DESCRIPTION "User's Menu Items not selected as a Menu Option"
   DUMP-NAME "xusermenu"
-  TABLE-TRIGGER "CREATE" OVERRIDE PROCEDURE "C:\Advantzware\v16\Legacy\create.trg\xUserMenu.p" CRC "?" 
-  TABLE-TRIGGER "DELETE" OVERRIDE PROCEDURE "C:\Advantzware\v16\Legacy\delete.trg\xUserMenu.p" CRC "?" 
-  TABLE-TRIGGER "WRITE" OVERRIDE PROCEDURE "C:\Advantzware\v16\Legacy\write.trg\xUserMenu.p" CRC "?" 
+  TABLE-TRIGGER "CREATE" OVERRIDE PROCEDURE "create.trg\xUserMenu.p" CRC "?" 
+  TABLE-TRIGGER "DELETE" OVERRIDE PROCEDURE "delete.trg\xUserMenu.p" CRC "?" 
+  TABLE-TRIGGER "WRITE" OVERRIDE PROCEDURE "write.trg\xUserMenu.p" CRC "?" 
 
 ADD FIELD "user_id" OF "xUserMenu" AS character 
   FORMAT "X(8)"
