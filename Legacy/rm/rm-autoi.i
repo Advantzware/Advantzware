@@ -432,14 +432,11 @@ PROCEDURE pre-post:
           and item.mat-type eq "B"
         no-lock:
 
-        FIND FIRST b-tt-rctd NO-LOCK 
-           WHERE b-tt-rctd.tt-row-id EQ ROWID(tt-rctd) NO-ERROR.
-        IF AVAIL b-tt-rctd THEN DO:
-            {rm/rm-addcr.i E b-tt-rctd b-tt-rctd b-}
-                ASSIGN
-                b-tt-rctd.tt-row-id = ROWID(tt-rctd)
-                b-tt-rctd.seq-no    = 3.
-        END.
+      {rm/rm-addcr.i E tt-rctd tt-rctd b-}
+        ASSIGN
+	 b-tt-rctd.rita-code = "I"
+         b-tt-rctd.tt-row-id = ROWID(tt-rctd)
+         b-tt-rctd.seq-no    = 3	 .
       END.
     end.
     
