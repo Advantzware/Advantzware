@@ -49,15 +49,65 @@ def var hd-post as widget-handle no-undo.
 def var hd-post-child as widget-handle no-undo.
 def var ll-help-run as log no-undo.  /* set on browse help, reset row-entry */
 DEF VAR lv-new-tag-number-chosen AS LOG NO-UNDO.
+DEF VAR v-post-date AS DATE INITIAL TODAY NO-UNDO.
 DEFINE VARIABLE unitsOH LIKE fg-rctd.t-qty NO-UNDO.
 DEFINE VARIABLE iLineCnt AS INTEGER     NO-UNDO.
 DEFINE VARIABLE lPostAuto-log AS LOGICAL NO-UNDO .
 DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO .
-DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO .
+DEFINE VARIABLE lRecFound AS LOGICAL   NO-UNDO .
+DEFINE VARIABLE cFgEmails AS CHARACTER NO-UNDO.
+DEFINE VARIABLE iFgEmails AS INTEGER   NO-UNDO.
+DEFINE VARIABLE lFgEmails AS LOGICAL   NO-UNDO.
+{pc/pcprdd4u.i NEW}
+{fg/invrecpt.i NEW}
+{jc/jcgl-sh.i  NEW}
+{fg/fullset.i  NEW}
+{fg/fg-post3.i NEW}
 
+DEF TEMP-TABLE w-fg-rctd NO-UNDO LIKE fg-rctd 
+    FIELD row-id   AS ROWID
+    FIELD has-rec  AS LOG   INIT NO
+    FIELD invoiced AS LOG   INIT NO.
+    
 DEF TEMP-TABLE tt-line-cnt NO-UNDO
-  FIELD line-rowid AS ROWID 
-  FIELD line-number AS INT .
+    FIELD line-rowid  AS ROWID 
+    FIELD line-number AS INT .
+DEF TEMP-TABLE tt-inv LIKE w-inv.
+
+/* Existing code */
+DEF TEMP-TABLE tt-email NO-UNDO 
+    FIELD tt-recid AS RECID
+    FIELD job-no   LIKE job-hdr.job-no
+    FIELD job-no2  LIKE job-hdr.job-no2
+    FIELD i-no     LIKE itemfg.i-no
+    FIELD qty      AS INT
+    FIELD cust-no  AS cha
+    INDEX tt-cust IS PRIMARY cust-no DESCENDING .
+
+DEFINE TEMP-TABLE tt-fgemail NO-UNDO
+    FIELD i-no      LIKE itemfg.i-no
+    FIELD po-no     LIKE oe-ordl.po-no
+    FIELD ord-no    LIKE oe-ordl.ord-no
+    FIELD qty-rec   AS DEC
+    FIELD recipient AS CHAR.
+
+DEFINE VARIABLE lFound AS LOGICAL     NO-UNDO.
+DEFINE VARIABLE lFGSetAssembly AS LOGICAL     NO-UNDO.
+DEFINE VARIABLE cFGSetAssembly AS CHARACTER   NO-UNDO.
+DEFINE VARIABLE lGetBin AS LOGICAL     NO-UNDO.
+
+RUN sys/ref/nk1look.p (INPUT cocode,
+    INPUT "FgEmails",
+    INPUT "I",
+                       INPUT NO,
+                       INPUT NO,
+                       INPUT "",
+                       INPUT "",
+                       OUTPUT cFgEmails,
+                       OUTPUT lFound).
+IF lFound THEN
+    iFgEmails = INTEGER(cFgEmails) NO-ERROR.
+lFgEmails = (IF iFgEmails EQ 1 THEN YES ELSE NO).
 
 cocode = g_company.
 locode = g_loc.
@@ -71,9 +121,8 @@ RUN sys/ref/nk1look.p (INPUT cocode, "SSPostFGTransfer", "L" /* Logical */, NO /
 OUTPUT cRtnChar, OUTPUT lRecFound).
 IF lRecFound THEN
     lPostAuto-log = LOGICAL(cRtnChar) NO-ERROR.
-
-DEFINE VARIABLE hdPostProcs AS HANDLE NO-UNDO.
-RUN fg/fgrctd-post.p PERSISTENT SET hdPostProcs.
+MESSAGE "test post auto?" lPostAuto-Log
+VIEW-AS ALERT-BOX.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -965,14 +1014,38 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE auto-post B-table-Win 
 PROCEDURE auto-post :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  /* IF no rows are selected and this is run, it will return an error */
-  IF lPostAuto-log AND BROWSE Browser-Table:NUM-SELECTED-ROWS GT 0 THEN DO:
-      RUN post-finish-goods IN hdPostProcs (cocode ,ROWID(fg-rctd)).
+    /*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+MESSAGE "test in auto post" lPostAuto-log
+VIEW-AS ALERT-BOX.
+    /* IF no rows are selected and this is run, it will return an error */
+    IF lPostAuto-log AND BROWSE Browser-Table:NUM-SELECTED-ROWS GT 0 THEN 
+    DO:
+        FOR EACH w-fg-rctd:
+            DELETE w-fg-rctd.
+        END.
+
+        /* Create a single workfile record for the finished good being posted */
+        CREATE w-fg-rctd.
+        BUFFER-COPY fg-rctd TO w-fg-rctd
+            ASSIGN 
+            w-fg-rctd.row-id  = ROWID(fg-rctd)
+            w-fg-rctd.has-rec = YES.        
+      ASSIGN
+          v-post-date = TODAY
+          .       
+      RUN fg/fgpostBatch.p ( 
+          INPUT v-post-date, /* Post date      */
+          INPUT NO,          /* tg-recalc-cost */
+          INPUT "R",         /* Receipts       */
+          INPUT lFgEmails,   /* Send fg emails */
+          INPUT TABLE w-fg-rctd BY-reference,
+          INPUT TABLE tt-fgemail BY-reference,
+          INPUT TABLE tt-email BY-reference,
+          INPUT TABLE tt-inv BY-reference).
       RUN dispatch ('open-query').
   END.
   ELSE ERROR-STATUS:ERROR = NO .
@@ -1853,6 +1926,8 @@ PROCEDURE scan-next :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+MESSAGE "test scan next"
+VIEW-AS ALERT-BOX.
   RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"tableio-source",OUTPUT char-hdl).
   RUN auto-add IN WIDGET-HANDLE(char-hdl).
 END PROCEDURE.
