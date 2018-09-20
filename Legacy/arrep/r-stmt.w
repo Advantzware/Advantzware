@@ -72,6 +72,8 @@ def NEW SHARED temp-table tt-inv no-undo
   FIELD bol-no AS CHAR 
   FIELD old-day AS INT
   FIELD check-no AS CHARACTER 
+  FIELD charge AS DECIMAL 
+  FIELD credits AS DECIMAL 
   index tt-inv cust-no inv-date sort-fld trans-date.
 
 DEF NEW SHARED TEMP-TABLE tt-cust-excel NO-UNDO
@@ -3167,6 +3169,7 @@ DEF VAR v-asi-excel AS LOG NO-UNDO.
 DEF VAR v-last-amt  AS DECI NO-UNDO.
 DEF VAR v-last-ref# AS CHAR NO-UNDO.
 DEF VAR v-last-paydate AS DATE NO-UNDO.
+DEFINE VARIABLE cCheckPo AS CHARACTER NO-UNDO .
 
 DEF VAR ld-due AS DEC NO-UNDO.
 
@@ -3218,11 +3221,11 @@ FORM SPACE(1)
   tt-inv.trans-date FORMAT "99/99/99" COLUMN-LABEL "Date"
   tt-inv.inv-no FORMAT ">>>>>>9" COLUMN-LABEL "Invoice" SPACE(2)
   tt-inv.po-no FORMAT "x(12)" COLUMN-LABEL "Description"
-  tt-inv.check-no FORMAT "x(10)" COLUMN-LABEL "Checkes"
-  tt-inv.inv-amt FORMAT "->,>>>,>>9.99" COLUMN-LABEL "Credits"
+  tt-inv.charge FORMAT "->>>,>>9.99" COLUMN-LABEL "Charges"
+  tt-inv.credits FORMAT "->,>>>,>>9.99" COLUMN-LABEL "Credits"
   tt-inv.amount format "->>,>>>,>>>.99" COLUMN-LABEL "Amt.Due"
   v-balance COLUMN-LABEL "Balance"
-  with frame lanco-stmt-line no-box stream-io width 90 DOWN NO-LABEL.
+  with frame lanco-stmt-line no-box stream-io width 95 DOWN NO-LABEL.
 
 form
   v-msg at 15
@@ -3243,11 +3246,11 @@ FORM SPACE(1)
   tt-inv.trans-date FORMAT "99/99/99" COLUMN-LABEL "Date" SPACE(1)
   tt-inv.inv-no FORMAT ">>>>>>9" COLUMN-LABEL "Invoice" SPACE(2)
   tt-inv.po-no FORM "x(12)"  COLUMN-LABEL "Description"
-  tt-inv.check-no FORMAT "x(10)" COLUMN-LABEL "Checkes"
-  tt-inv.inv-amt FORMAT "->,>>>,>>9.99" COLUMN-LABEL "Credits"
+  tt-inv.charge FORMAT "->>>,>>9.99" COLUMN-LABEL "Charges"
+  tt-inv.credits FORMAT "->,>>>,>>9.99" COLUMN-LABEL "Credits"
   tt-inv.amount format "->>,>>>,>>>.99" COLUMN-LABEL "Amt.Due"
   v-balance COLUMN-LABEL "Balance"  
-  with frame lanco-no-stmt-line no-box no-labels stream-io width 90 down.
+  with frame lanco-no-stmt-line no-box no-labels stream-io width 95 down.
 
 form
   v-msg at 15
@@ -3474,7 +3477,9 @@ FIRST cust no-lock
                               ar-inv.tax-amt then ar-inv.net else ar-inv.gross
                           else ar-inv.due
        tt-inv.po-no      = (IF AVAIL ar-invl AND ar-invl.inv-no <> 0 THEN ar-invl.po-no ELSE "")
-       tt-inv.bol-no     = (IF AVAIL ar-invl AND ar-invl.bol-no <> 0 THEN string(ar-invl.bol-no,">>>>>>>>") ELSE "").
+       tt-inv.bol-no     = (IF AVAIL ar-invl AND ar-invl.bol-no <> 0 THEN string(ar-invl.bol-no,">>>>>>>>") ELSE "")
+       tt-inv.charge     = ar-inv.paid + ar-inv.due 
+       tt-inv.credits    = ar-inv.paid                              .
 
      IF v-stmt-char = "Printers" THEN
           tt-inv.bol-no = (IF AVAIL ar-invl AND ar-invl.job-no NE "" 
@@ -3506,7 +3511,9 @@ FIRST cust no-lock
          tt-inv.description = ar-cashl.dscr
          tt-inv.po-no       = (IF AVAIL ar-invl AND ar-invl.inv-no <> 0 THEN ar-invl.po-no ELSE "")
          tt-inv.bol-no     = (IF AVAIL ar-invl AND ar-invl.bol-no <> 0 THEN string(ar-invl.bol-no,">>>>>>>>") ELSE "")
-         tt-inv.check-no   = string(ar-cash.check-no).
+         tt-inv.check-no   = string(ar-cash.check-no)
+         tt-inv.charge     = ar-inv.paid + ar-inv.due 
+         tt-inv.credits    = ar-inv.paid .
 
         IF v-stmt-char = "Printers" THEN
           tt-inv.bol-no = (IF AVAIL ar-invl AND ar-invl.job-no NE "" 
@@ -3578,7 +3585,9 @@ FIRST cust no-lock
      tt-inv.description = ar-cashl.dscr
      tt-inv.po-no       = (IF AVAIL ar-invl THEN ar-invl.po-no ELSE "")
      tt-inv.bol-no     = (IF AVAIL ar-invl AND ar-invl.bol-no <> 0 THEN string(ar-invl.bol-no,">>>>>>>>") ELSE "")
-     tt-inv.check-no   = string(ar-cash.check-no) .
+     tt-inv.check-no   = string(ar-cash.check-no) 
+     tt-inv.charge     = ar-cashl.amt-paid + ar-cashl.amt-due 
+     tt-inv.credits    = ar-cashl.amt-paid .
 
     if ar-cashl.memo then
       assign
@@ -3734,7 +3743,7 @@ FIRST cust no-lock
             .
        END.
 
-       IF v-stmt-char = "Lanco" THEN DO:
+       IF v-stmt-char = "Lanco" THEN DO: 
            PUT "<C2><R2><#1><R+8><C+47><IMAGE#1=" ls-full-img1 SKIP
            "<P11><R4><C50><#3><FROM><R7><C80><RECT><||3>" SKIP
            "<R5><C50><FROM><R5><C80><LINE><||3>" SKIP
@@ -3754,7 +3763,7 @@ FIRST cust no-lock
            "<=1><R+14><C1>" ws_addr[5] v-remitto[4]  skip
            /*"<=1><R+15>Attn: " lc-attn FORMAT "x(30)"*/
            /*"<=1><R+15>                                                Original<C60>Invoice" SKIP*/
-           "<=1><R+15><C2>Date <c10>Invoice <C18> Description <C31>Checkes <c46>Credits <C60>Amt.Due <C74>Balance" SKIP
+           "<=1><R+15><C2>Date <c10>Invoice <C18> Description <C33>Cherges <c46>Credits <C60>Amt.Due <C74>Balance" SKIP
            "<=1><R+16><FROM><C+80><LINE>"
             .
        END.
@@ -3779,14 +3788,16 @@ FIRST cust no-lock
     IF NOT v-asi-excel THEN
     DO:
         IF v-stmt-char = "Lanco" THEN DO:
-
+           IF tt-inv.check-no NE "" THEN
+               cCheckPo = tt-inv.check-no.
+           ELSE cCheckPo = tt-inv.po-no .
             if v-print-hdr then do:  
                display
                  tt-inv.trans-date
                  tt-inv.inv-no  when tt-inv.inv-no gt 0  
-                 tt-inv.po-no
-                 tt-inv.check-no
-                 tt-inv.inv-amt
+                 STRING(cCheckPo,"X(12)") @ tt-inv.po-no
+                 tt-inv.charge
+                 tt-inv.credits
                  tt-inv.amount
                  v-balance
                  with frame lanco-stmt-line .
@@ -3796,9 +3807,9 @@ FIRST cust no-lock
                display
                  tt-inv.trans-date
                  tt-inv.inv-no  when tt-inv.inv-no gt 0
-                 tt-inv.po-no
-                 tt-inv.check-no
-                 tt-inv.inv-amt
+                 STRING(cCheckPo,"X(12)") @ tt-inv.po-no
+                 tt-inv.charge
+                 tt-inv.credits
                  tt-inv.amount
                  v-balance
                  with frame lanco-no-stmt-line.
