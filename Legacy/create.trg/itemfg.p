@@ -8,19 +8,10 @@ DEFINE BUFFER b-{&TABLENAME} FOR {&TABLENAME}.
 DEFINE BUFFER fg-status      FOR reftable.
 DEFINE BUFFER b-fg-status    FOR reftable.
 
-DEFINE VARIABLE cPgmStack AS CHARACTER NO-UNDO.
 {custom/globdefs.i}
 
 {sys/inc/var.i NEW SHARED}
 
-cPgmStack = PROGRAM-NAME(1) 
-          + (IF PROGRAM-NAME(2) NE ? THEN "," + PROGRAM-NAME(2) ELSE "")
-          + (IF PROGRAM-NAME(3) NE ? THEN "," + PROGRAM-NAME(3) ELSE "")
-          + (IF PROGRAM-NAME(4) NE ? THEN "," + PROGRAM-NAME(4) ELSE "")
-          + (IF PROGRAM-NAME(5) NE ? THEN "," + PROGRAM-NAME(5) ELSE "")
-          + (IF PROGRAM-NAME(6) NE ? THEN "," + PROGRAM-NAME(6) ELSE "")
-          + (IF PROGRAM-NAME(7) NE ? THEN "," + PROGRAM-NAME(7) ELSE "")
-          .
 cocode = g_company.
 
 FIND FIRST company NO-LOCK
