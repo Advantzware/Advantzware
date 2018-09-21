@@ -643,7 +643,10 @@ PROCEDURE local-assign-record :
   /* Code placed here will execute AFTER standard behavior.    */
   ASSIGN
    rm-rctd.pur-uom  = lv-pur-uom
-   rm-rctd.cost-uom = lv-cst-uom.
+   rm-rctd.cost-uom = lv-cst-uom
+   rm-rctd.enteredBy = USERID("asi")
+   rm-rctd.enteredDT = DATETIME(TODAY, MTIME) 
+   .
 
 END PROCEDURE.
 

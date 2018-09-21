@@ -61,6 +61,8 @@ FOR EACH oe-rell
      oe-boll.lot-no   = oe-rell.lot-no
      oe-boll.sell-price = oe-rell.sell-price
      oe-boll.zeroPrice = oe-rell.zeroPrice
+     oe-boll.enteredBy = oe-rell.enteredBy
+     oe-boll.enteredDT = oe-rell.enteredDT
      .
 
     /*task 01121106 disable trigger oe-bolh preventing this from happening*/

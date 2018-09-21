@@ -1266,7 +1266,10 @@ DEF BUFFER bf-reftable FOR reftable.
     ASSIGN
         fg-rctd.updated-by = USERID("nosweat")
         fg-rctd.upd-date = TODAY 
-        fg-rctd.upd-time = TIME .
+        fg-rctd.upd-time = TIME 
+        fg-rctd.enteredBy = USERID("asi")
+        fg-rctd.enteredDT = DATETIME(TODAY, MTIME) 
+        .
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

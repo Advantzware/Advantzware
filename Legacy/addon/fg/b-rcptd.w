@@ -2071,7 +2071,10 @@ PROCEDURE local-assign-record :
    fg-rctd.po-no = lcPoNo
    fg-rctd.i-no = lcINo
    fg-rctd.i-name = lcIName
-   fg-rctd.std-cost = ldStdCost.
+   fg-rctd.std-cost = ldStdCost
+   fg-rctd.enteredBy = USERID("asi")
+   fg-rctd.enteredDT = DATETIME(TODAY, MTIME) 
+   .
 
   IF fg-rctd.po-no GT "" THEN DO:
       /* 12131305 - Populate job-no so during posting will update */

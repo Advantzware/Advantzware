@@ -2723,7 +2723,10 @@ PROCEDURE local-assign-record :
     /* Code placed here will execute PRIOR to standard behavior. */
     ASSIGN
         v-copy-mode       = NO
-        v-copy-mode-dec-1 = NO.
+        v-copy-mode-dec-1 = NO
+        rm-rctd.enteredBy = USERID("asi")
+        rm-rctd.enteredDT = DATETIME(TODAY, MTIME) 
+        .
 
     /* Dispatch standard ADM method.                             */
     RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-record':U ) .
