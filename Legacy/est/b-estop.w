@@ -232,7 +232,7 @@ DEFINE BROWSE br_table
       est-op.op-crew[2] COLUMN-LABEL "RunCrew" FORMAT ">9.99":U
             WIDTH 10.2
       est-op.op-rate[1] COLUMN-LABEL "MRate" FORMAT ">>>9.99":U
-            WIDTH 7.8
+            WIDTH 9.5
       est-op.op-rate[2] COLUMN-LABEL "RRate" FORMAT ">>>9.99":U
       est-op.plates FORMAT ">>>":U
       est-op.fountains FORMAT ">>>":U
@@ -390,7 +390,7 @@ ASSIGN
      _FldNameList[12]   > ASI.est-op.op-crew[2]
 "est-op.op-crew[2]" "RunCrew" ? "decimal" ? ? ? ? ? ? yes ? no no "10.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[13]   > ASI.est-op.op-rate[1]
-"est-op.op-rate[1]" "MRate" ">>>9.99" "decimal" ? ? ? ? ? ? no ? no no "7.8" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"est-op.op-rate[1]" "MRate" ">>>9.99" "decimal" ? ? ? ? ? ? no ? no no "9.5" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[14]   > ASI.est-op.op-rate[2]
 "est-op.op-rate[2]" "RRate" ">>>9.99" "decimal" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[15]   > ASI.est-op.plates

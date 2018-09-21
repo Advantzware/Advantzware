@@ -80,7 +80,7 @@ DEFINE VARIABLE fi_eff-date AS DATE FORMAT "99/99/9999":U INITIAL TODAY .
 oe-prmtx.custype oe-prmtx.custShipID oe-prmtx.i-no oe-prmtx.procat ~
 oe-prmtx.eff-date oe-prmtx.exp-date oe-prmtx.price[1] oe-prmtx.price[2] ~
 oe-prmtx.price[3] oe-prmtx.price[4] oe-prmtx.price[5] oe-prmtx.price[6] ~
-oe-prmtx.price[7] oe-prmtx.price[8] oe-prmtx.price[9] oe-prmtx.price[10] 
+oe-prmtx.price[7] oe-prmtx.price[8] oe-prmtx.price[9] oe-prmtx.price[10] oe-prmtx.online 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table 
 &Scoped-define QUERY-STRING-Browser-Table FOR EACH oe-prmtx WHERE ~{&KEY-PHRASE} ~
       AND oe-prmtx.company = cocode NO-LOCK ~
@@ -161,7 +161,8 @@ DEFINE QUERY Browser-Table FOR
       oe-prmtx.price[7]
       oe-prmtx.price[8]
       oe-prmtx.price[9]
-      oe-prmtx.price[10]) SCROLLING.
+      oe-prmtx.price[10]
+      oe-prmtx.online) SCROLLING.
 
 DEFINE QUERY F-Main FOR 
       oe-prmtx SCROLLING.
@@ -188,6 +189,7 @@ DEFINE BROWSE Browser-Table
       oe-prmtx.price[8] COLUMN-LABEL "Price08" FORMAT ">>>,>>9.99<<":U
       oe-prmtx.price[9] COLUMN-LABEL "Price09" FORMAT ">>>,>>9.99<<":U
       oe-prmtx.price[10] COLUMN-LABEL "Price10" FORMAT ">>>,>>9.99<<":U
+      oe-prmtx.online COLUMN-LABEL "Online" FORMAT "yes/no":U
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ASSIGN SEPARATORS SIZE 144 BY 18.1
@@ -328,6 +330,8 @@ ASSIGN
 "price[9]" "Price09" ">>>,>>9.99<<" "decimal" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[17]   > ASI.oe-prmtx.price[10]
 "price[10]" "Price10" ">>>,>>9.99<<" "decimal" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[18]   > ASI.oe-prmtx.online
+"online" "Online" ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */
 &ANALYZE-RESUME

@@ -1,7 +1,7 @@
 &ANALYZE-SUSPEND _VERSION-NUMBER UIB_v8r12 GUI ADM1
 &ANALYZE-RESUME
 /* Connected Databases 
-          nosweat          PROGRESS
+          asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
@@ -37,7 +37,23 @@ CREATE WIDGET-POOL.
 
 &Scoped-define ENHANCE no
 
-DEFINE VARIABLE saveParents AS CHARACTER NO-UNDO.
+DEFINE VARIABLE hPgmMstrSecur AS HANDLE    NO-UNDO.
+DEFINE VARIABLE lSuperAdmin   AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE saveParents   AS CHARACTER NO-UNDO.
+
+DEFINE BUFFER bPrgrms FOR prgrms.
+
+/* check if able to set menu fields */
+IF NOT VALID-HANDLE(hPgmMstrSecur) THEN
+RUN system/PgmMstrSecur.p PERSISTENT SET hPgmMstrSecur.
+IF VALID-HANDLE(hPgmMstrSecur) THEN DO:
+    RUN epCanAccess IN hPgmMstrSecur (
+        "viewers/prgrms.w",
+        "SuperAdmin",
+        OUTPUT lSuperAdmin 
+        ).
+    DELETE OBJECT hPgmMstrSecur.
+END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -63,25 +79,32 @@ DEFINE VARIABLE saveParents AS CHARACTER NO-UNDO.
 /* Need to scope the external tables to this procedure                  */
 DEFINE QUERY external_tables FOR prgrms.
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-FIELDS prgrms.prgtitle prgrms.dir_group ~
-prgrms.prgm_ver prgrms.menu_item prgrms.popup prgrms.run_persistent ~
-prgrms.track_usage prgrms.can_run prgrms.can_create prgrms.can_update ~
-prgrms.can_delete prgrms.mfgroup 
+&Scoped-Define ENABLED-FIELDS prgrms.prgtitle prgrms.securityLevelUser ~
+prgrms.dir_group prgrms.run_persistent prgrms.track_usage prgrms.popup ~
+prgrms.can_run prgrms.can_create prgrms.can_update prgrms.can_delete ~
+prgrms.mfgroup prgrms.menu_item prgrms.securityLevelDefault ~
+prgrms.menuOrder prgrms.menuLevel prgrms.menuImage[1] prgrms.mnemonic ~
+prgrms.itemParent prgrms.systemType 
 &Scoped-define ENABLED-TABLES prgrms
 &Scoped-define FIRST-ENABLED-TABLE prgrms
-&Scoped-Define ENABLED-OBJECTS RECT-1 
 &Scoped-Define DISPLAYED-FIELDS prgrms.prgmname prgrms.prgtitle ~
-prgrms.dir_group prgrms.prgm_ver prgrms.menu_item prgrms.popup ~
-prgrms.run_persistent prgrms.track_usage prgrms.can_run prgrms.can_create ~
-prgrms.can_update prgrms.can_delete prgrms.mfgroup 
+prgrms.securityLevelUser prgrms.dir_group prgrms.run_persistent ~
+prgrms.track_usage prgrms.popup prgrms.can_run prgrms.can_create ~
+prgrms.can_update prgrms.can_delete prgrms.mfgroup prgrms.menu_item ~
+prgrms.securityLevelDefault prgrms.menuOrder prgrms.menuLevel ~
+prgrms.menuImage[1] prgrms.mnemonic prgrms.itemParent prgrms.systemType 
 &Scoped-define DISPLAYED-TABLES prgrms
 &Scoped-define FIRST-DISPLAYED-TABLE prgrms
-&Scoped-Define DISPLAYED-OBJECTS F1 
+&Scoped-Define DISPLAYED-OBJECTS parentPrgTitle F1 F-3 F-2 
 
 /* Custom List Definitions                                              */
-/* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,ROW-AVAILABLE,List-4,List-5,F1   */
+/* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,ROW-AVAILABLE,DISPLAY-FIELD,MENU-FIELDS,F1 */
 &Scoped-define ADM-CREATE-FIELDS prgrms.prgmname 
-&Scoped-define F1 F1 
+&Scoped-define DISPLAY-FIELD prgrms.itemParent parentPrgTitle 
+&Scoped-define MENU-FIELDS prgrms.menu_item prgrms.securityLevelDefault ~
+prgrms.menuOrder prgrms.menuLevel prgrms.menuImage[1] prgrms.mnemonic ~
+prgrms.itemParent prgrms.systemType 
+&Scoped-define F1 F1 F-3 F-2 
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
@@ -113,83 +136,142 @@ RUN set-attribute-list (
 
 
 /* Definitions of the field level widgets                               */
+DEFINE VARIABLE F-2 AS CHARACTER FORMAT "X(256)":U INITIAL "F1" 
+      VIEW-AS TEXT 
+     SIZE 2.2 BY .52
+     BGCOLOR 0 FGCOLOR 15 FONT 4 NO-UNDO.
+
+DEFINE VARIABLE F-3 AS CHARACTER FORMAT "X(256)":U INITIAL "F1" 
+      VIEW-AS TEXT 
+     SIZE 2.2 BY .52
+     BGCOLOR 0 FGCOLOR 15 FONT 4 NO-UNDO.
+
 DEFINE VARIABLE F1 AS CHARACTER FORMAT "X(256)":U INITIAL "F1" 
       VIEW-AS TEXT 
      SIZE 2.2 BY .52
      BGCOLOR 0 FGCOLOR 15 FONT 4 NO-UNDO.
 
+DEFINE VARIABLE parentPrgTitle AS CHARACTER FORMAT "X(256)":U INITIAL "Program Not Found" 
+     VIEW-AS FILL-IN 
+     SIZE 63 BY 1
+     BGCOLOR 7 FGCOLOR 15  NO-UNDO.
+
+DEFINE IMAGE cMenuImage
+     FILENAME "adeicon/blank":U TRANSPARENT
+     SIZE 9 BY 2.14.
+
 DEFINE RECTANGLE RECT-1
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 100 BY 14.76.
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 147 BY 15.95.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     prgrms.prgmname AT ROW 1.24 COL 15 COLON-ALIGNED
+     prgrms.prgmname AT ROW 1.24 COL 13 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 16 BY 1
           BGCOLOR 15 FONT 4
-     prgrms.prgtitle AT ROW 1.24 COL 48 COLON-ALIGNED FORMAT "X(60)"
+     prgrms.prgtitle AT ROW 1.24 COL 35 COLON-ALIGNED FORMAT "X(60)"
           VIEW-AS FILL-IN 
-          SIZE 50 BY 1
+          SIZE 61 BY 1
           BGCOLOR 15 FONT 4
-     prgrms.dir_group AT ROW 2.43 COL 15 COLON-ALIGNED
+     prgrms.securityLevelUser AT ROW 1.24 COL 129 COLON-ALIGNED WIDGET-ID 24
+          VIEW-AS FILL-IN 
+          SIZE 6.2 BY 1
+          BGCOLOR 15 
+     prgrms.dir_group AT ROW 2.43 COL 13 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 16 BY 1
           BGCOLOR 15 FONT 4
-     prgrms.prgm_ver AT ROW 2.43 COL 48 COLON-ALIGNED
+     prgrms.run_persistent AT ROW 2.43 COL 37
+          VIEW-AS TOGGLE-BOX
+          SIZE 18 BY 1
+     prgrms.track_usage AT ROW 2.43 COL 63
+          VIEW-AS TOGGLE-BOX
+          SIZE 15 BY 1
+     prgrms.popup AT ROW 2.43 COL 87
+          VIEW-AS TOGGLE-BOX
+          SIZE 11 BY 1
+     prgrms.can_run AT ROW 3.62 COL 15 NO-LABEL
+          VIEW-AS EDITOR SCROLLBAR-VERTICAL
+          SIZE 132 BY 1.91
+          BGCOLOR 15 
+     prgrms.can_create AT ROW 5.52 COL 15 NO-LABEL
+          VIEW-AS EDITOR SCROLLBAR-VERTICAL
+          SIZE 132 BY 1.91
+          BGCOLOR 15 
+     prgrms.can_update AT ROW 7.43 COL 15 NO-LABEL
+          VIEW-AS EDITOR SCROLLBAR-VERTICAL
+          SIZE 132 BY 1.91
+          BGCOLOR 15 
+     prgrms.can_delete AT ROW 9.33 COL 15 NO-LABEL
+          VIEW-AS EDITOR SCROLLBAR-VERTICAL
+          SIZE 132 BY 1.91
+          BGCOLOR 15 
+     prgrms.mfgroup AT ROW 11.24 COL 15 NO-LABEL
+          VIEW-AS EDITOR SCROLLBAR-VERTICAL
+          SIZE 132 BY 1.91
+          BGCOLOR 15 
+     prgrms.menu_item AT ROW 13.38 COL 15
+          VIEW-AS TOGGLE-BOX
+          SIZE 14 BY 1
+     prgrms.securityLevelDefault AT ROW 13.38 COL 129 COLON-ALIGNED WIDGET-ID 22
+          VIEW-AS FILL-IN 
+          SIZE 7.6 BY 1
+          BGCOLOR 15 
+     prgrms.menuOrder AT ROW 14.57 COL 13 COLON-ALIGNED WIDGET-ID 4
+          VIEW-AS FILL-IN 
+          SIZE 6.8 BY 1
+          BGCOLOR 15 
+     prgrms.menuLevel AT ROW 14.57 COL 33 COLON-ALIGNED WIDGET-ID 20
+          VIEW-AS FILL-IN 
+          SIZE 6.2 BY 1
+          BGCOLOR 15 
+     prgrms.menuImage[1] AT ROW 14.57 COL 64 COLON-ALIGNED WIDGET-ID 8
+          LABEL "Menu Image"
+          VIEW-AS FILL-IN 
+          SIZE 32 BY 1
+          BGCOLOR 15 
+     prgrms.mnemonic AT ROW 14.57 COL 129 COLON-ALIGNED WIDGET-ID 6
+          VIEW-AS FILL-IN 
+          SIZE 11.6 BY 1
+          BGCOLOR 15 
+     prgrms.itemParent AT ROW 15.76 COL 13 COLON-ALIGNED WIDGET-ID 10
           VIEW-AS FILL-IN 
           SIZE 16 BY 1
-          BGCOLOR 15 FONT 4
-     prgrms.menu_item AT ROW 3.62 COL 17
-          VIEW-AS TOGGLE-BOX
-          SIZE 17 BY 1
-     prgrms.popup AT ROW 3.62 COL 36
-          VIEW-AS TOGGLE-BOX
-          SIZE 13.6 BY 1
-     prgrms.run_persistent AT ROW 3.62 COL 50
-          VIEW-AS TOGGLE-BOX
-          SIZE 21.8 BY 1
-     prgrms.track_usage AT ROW 3.62 COL 74
-          VIEW-AS TOGGLE-BOX
-          SIZE 19.8 BY 1
-     prgrms.can_run AT ROW 4.81 COL 17 NO-LABEL
-          VIEW-AS EDITOR SCROLLBAR-VERTICAL
-          SIZE 83 BY 1.91
           BGCOLOR 15 
-     prgrms.can_create AT ROW 6.71 COL 17 NO-LABEL
-          VIEW-AS EDITOR SCROLLBAR-VERTICAL
-          SIZE 83 BY 1.91
+     parentPrgTitle AT ROW 15.76 COL 33 COLON-ALIGNED NO-LABEL WIDGET-ID 14
+     prgrms.systemType AT ROW 15.76 COL 129 COLON-ALIGNED WIDGET-ID 2
+          VIEW-AS COMBO-BOX INNER-LINES 4
+          LIST-ITEMS "","Both","Corrware","Foldware" 
+          DROP-DOWN-LIST
+          SIZE 16 BY 1
           BGCOLOR 15 
-     prgrms.can_update AT ROW 8.62 COL 17 NO-LABEL
-          VIEW-AS EDITOR SCROLLBAR-VERTICAL
-          SIZE 83 BY 1.91
-          BGCOLOR 15 
-     prgrms.can_delete AT ROW 10.52 COL 17 NO-LABEL
-          VIEW-AS EDITOR SCROLLBAR-VERTICAL
-          SIZE 83 BY 1.91
-          BGCOLOR 15 
-     prgrms.mfgroup AT ROW 12.67 COL 17 NO-LABEL
-          VIEW-AS EDITOR SCROLLBAR-VERTICAL
-          SIZE 83 BY 2.86
-          BGCOLOR 15 
-     F1 AT ROW 2.43 COL 33 NO-LABEL
+     F1 AT ROW 2.43 COL 31 NO-LABEL
+     F-3 AT ROW 14.57 COL 98 NO-LABEL WIDGET-ID 16
+     F-2 AT ROW 15.76 COL 31 NO-LABEL WIDGET-ID 12
      "Update:" VIEW-AS TEXT
-          SIZE 10 BY .62 AT ROW 8.62 COL 6
+          SIZE 8 BY .62 AT ROW 7.43 COL 7
      "Delete:" VIEW-AS TEXT
-          SIZE 9 BY .62 AT ROW 10.29 COL 7
+          SIZE 7.6 BY .62 AT ROW 9.33 COL 7
      "Parent(s):" VIEW-AS TEXT
-          SIZE 11 BY .62 AT ROW 12.91 COL 5
-     "Add:" VIEW-AS TEXT
-          SIZE 6 BY .62 AT ROW 6.71 COL 9
-     "View:" VIEW-AS TEXT
-          SIZE 7 BY .62 AT ROW 5.05 COL 9
-     RECT-1 AT ROW 1 COL 1
+          SIZE 10 BY .62 AT ROW 11.24 COL 5
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1 SCROLLABLE 
-         FONT 6.
+         AT COL 1 ROW 1 SCROLLABLE .
+
+/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
+DEFINE FRAME F-Main
+     "Add:" VIEW-AS TEXT
+          SIZE 5 BY .62 AT ROW 5.52 COL 10
+     "View:" VIEW-AS TEXT
+          SIZE 6 BY .62 AT ROW 3.62 COL 9
+     RECT-1 AT ROW 1 COL 1
+     cMenuImage AT ROW 14.57 COL 101 WIDGET-ID 18
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 1 SCROLLABLE .
 
 
 /* *********************** Procedure Settings ************************ */
@@ -219,8 +301,8 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW V-table-Win ASSIGN
-         HEIGHT             = 14.76
-         WIDTH              = 100.
+         HEIGHT             = 15.95
+         WIDTH              = 147.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -248,15 +330,47 @@ ASSIGN
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
 
+/* SETTINGS FOR IMAGE cMenuImage IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN F-2 IN FRAME F-Main
+   NO-ENABLE ALIGN-L 6                                                  */
+ASSIGN 
+       F-2:HIDDEN IN FRAME F-Main           = TRUE.
+
+/* SETTINGS FOR FILL-IN F-3 IN FRAME F-Main
+   NO-ENABLE ALIGN-L 6                                                  */
+ASSIGN 
+       F-3:HIDDEN IN FRAME F-Main           = TRUE.
+
 /* SETTINGS FOR FILL-IN F1 IN FRAME F-Main
    NO-ENABLE ALIGN-L 6                                                  */
 ASSIGN 
        F1:HIDDEN IN FRAME F-Main           = TRUE.
 
+/* SETTINGS FOR FILL-IN prgrms.itemParent IN FRAME F-Main
+   4 5                                                                  */
+/* SETTINGS FOR FILL-IN prgrms.menuImage[1] IN FRAME F-Main
+   5 EXP-LABEL                                                          */
+/* SETTINGS FOR FILL-IN prgrms.menuLevel IN FRAME F-Main
+   5                                                                    */
+/* SETTINGS FOR FILL-IN prgrms.menuOrder IN FRAME F-Main
+   5                                                                    */
+/* SETTINGS FOR TOGGLE-BOX prgrms.menu_item IN FRAME F-Main
+   5                                                                    */
+/* SETTINGS FOR FILL-IN prgrms.mnemonic IN FRAME F-Main
+   5                                                                    */
+/* SETTINGS FOR FILL-IN parentPrgTitle IN FRAME F-Main
+   NO-ENABLE 4                                                          */
 /* SETTINGS FOR FILL-IN prgrms.prgmname IN FRAME F-Main
    NO-ENABLE 1                                                          */
 /* SETTINGS FOR FILL-IN prgrms.prgtitle IN FRAME F-Main
    EXP-FORMAT                                                           */
+/* SETTINGS FOR RECTANGLE RECT-1 IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN prgrms.securityLevelDefault IN FRAME F-Main
+   5                                                                    */
+/* SETTINGS FOR COMBO-BOX prgrms.systemType IN FRAME F-Main
+   5                                                                    */
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
@@ -345,9 +459,66 @@ END.
 ON HELP OF prgrms.dir_group IN FRAME F-Main /* Directory */
 DO:
   DEFINE VARIABLE m-lookup-var AS CHARACTER NO-UNDO.
+  
   RUN "lookups/dir_lkup.p" (INPUT-OUTPUT m-lookup-var).
   IF m-lookup-var NE "" THEN
   {&SELF-NAME}:SCREEN-VALUE = m-lookup-var.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME prgrms.itemParent
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL prgrms.itemParent V-table-Win
+ON LEAVE OF prgrms.itemParent IN FRAME F-Main /* Parent */
+DO:
+    {methods/dispflds.i}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME prgrms.menuImage[1]
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL prgrms.menuImage[1] V-table-Win
+ON HELP OF prgrms.menuImage[1] IN FRAME F-Main /* Menu Image */
+DO:
+    DEFINE VARIABLE cImageFile AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cInitDir   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lOK        AS LOGICAL   NO-UNDO.
+
+    ASSIGN
+        cInitDir = SEARCH("Graphics\32x32\add.png")
+        cInitDir = REPLACE(cInitDir,"add.png","")
+        .
+    SYSTEM-DIALOG GET-FILE cImageFile 
+        TITLE "Select Image File"
+        FILTERS "PNG Files    (*.png)" "*.png",
+                "Bitmap files (*.bmp)" "*.bmp",
+                "ICO Files    (*.ico)" "*.ico",
+                "JPG Files    (*.jpg)" "*.jpg",                 
+                "JPEG Files   (*.jpeg)" "*.jpeg",
+                "All Files    (*.*) " "*.*"
+        INITIAL-DIR cInitDir
+        MUST-EXIST
+        USE-FILENAME
+        UPDATE lOK
+        .
+    IF lOK THEN DO:
+        cMenuImage:LOAD-IMAGE(cImageFile).
+        SELF:SCREEN-VALUE = REPLACE(cImageFile,cInitDir,"").
+    END. /* if ok */
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL prgrms.menuImage[1] V-table-Win
+ON LEAVE OF prgrms.menuImage[1] IN FRAME F-Main /* Menu Image */
+DO:
+    cMenuImage:LOAD-IMAGE("Graphics\32x32\" + SELF:SCREEN-VALUE).
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -367,6 +538,18 @@ DO:
      DISABLE {&SELF-NAME} WITH FRAME {&FRAME-NAME}.
      RETURN NO-APPLY.
   END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME prgrms.securityLevelUser
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL prgrms.securityLevelUser V-table-Win
+ON LEAVE OF prgrms.securityLevelUser IN FRAME F-Main /* User Sec. Lev. */
+DO:
+    IF INTEGER(SELF:SCREEN-VALUE) GT INTEGER(prgrms.securityLevelDefault:SCREEN-VALUE) THEN
+    SELF:SCREEN-VALUE = prgrms.securityLevelDefault:SCREEN-VALUE.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -447,6 +630,7 @@ PROCEDURE local-display-fields :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
+  DEFINE VARIABLE cImageFile AS CHARACTER NO-UNDO.
 
   /* Code placed here will execute PRIOR to standard behavior. */
 
@@ -454,12 +638,79 @@ PROCEDURE local-display-fields :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'display-fields':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-  DISABLE prgrms.can_run prgrms.can_create prgrms.can_update
-          prgrms.can_delete prgrms.mfgroup
+  DISABLE
+      prgrms.can_run
+      prgrms.can_create
+      prgrms.can_update
+      prgrms.can_delete
+      prgrms.mfgroup
           WITH FRAME {&FRAME-NAME}.
-  APPLY "entry" TO FRAME {&FRAME-NAME}.
-  
+  cImageFile = SEARCH("Graphics\32x32\" + prgrms.menuImage[1]).
+  IF cImageFile NE ? THEN
+  cMenuImage:LOAD-IMAGE(cImageFile).
+  ELSE
+  cMenuImage:LOAD-IMAGE("Graphics\32x32\sign_forbidden.png").
+  APPLY "entry" TO FRAME {&FRAME-NAME}.  
 
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-update-record V-table-Win 
+PROCEDURE local-update-record :
+/*------------------------------------------------------------------------------
+  Purpose:     Override standard ADM method
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEFINE BUFFER bPrgrms FOR prgrms.
+
+  /* Code placed here will execute PRIOR to standard behavior. */
+
+  /* Dispatch standard ADM method.                             */
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
+
+  /* Code placed here will execute AFTER standard behavior.    */
+  IF lSuperAdmin THEN DO:
+    IF prgrms.menu_item EQ YES AND
+       prgrms.menuOrder GT 0   AND
+       CAN-FIND(FIRST bPrgrms
+                WHERE bPrgrms.menuOrder EQ prgrms.menuOrder
+                  AND ROWID(bPrgrms) NE ROWID(prgrms)) THEN DO:
+      FOR EACH bPrgrms EXCLUSIVE-LOCK
+          WHERE bPrgrms.menuOrder GE prgrms.menuOrder
+            AND ROWID(bPrgrms) NE ROWID(prgrms)
+             BY bPrgrms.prgmname
+          :
+          bPrgrms.menuOrder = bPrgrms.menuOrder + 1.
+      END. /* each bprgrms */
+    END. /* if menu item */
+    RUN pRebuildMenuTree.
+  END. /* if super admin */
+    
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pRebuildMenuTree V-table-Win 
+PROCEDURE pRebuildMenuTree :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE pHandle AS HANDLE NO-UNDO.
+    
+    MESSAGE
+        "Rebuild Menu Tree?"
+    VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO TITLE "Rebuild?"
+    UPDATE lRebuild AS LOGICAL.
+    IF lRebuild THEN DO:
+        pHandle = DYNAMIC-FUNCTION("sfGetMainMenuHandle").
+        IF VALID-HANDLE(pHandle) THEN
+        RUN pRebuildMenuTree IN pHandle.
+    END. /* if rebuild */
 
 END PROCEDURE.
 

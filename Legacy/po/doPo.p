@@ -203,7 +203,7 @@ DEFINE NEW SHARED WORKFILE work-vend NO-UNDO
     FIELD v-cost-num AS INTEGER 
     FIELD v-recid AS RECID.
 
-DEFINE TEMP-TABLE w-job-mat NO-UNDO LIKE job-mat
+DEFINE TEMP-TABLE w-job-mat NO-UNDO like job-mat
     FIELD w-rowid      AS ROWID
     FIELD w-recid      AS RECID
     FIELD this-is-a-rm AS LOG
@@ -212,7 +212,11 @@ DEFINE TEMP-TABLE w-job-mat NO-UNDO LIKE job-mat
     FIELD fg-i-no      LIKE job-hdr.i-no
     FIELD est-no       LIKE eb.est-no
     FIELD eqty         LIKE eb.eqty
-    FIELD prep         AS LOG.
+    FIELD prep         AS LOG
+    field estPrepEQty  AS DEC
+    field estPrepLine  as int
+    field miscType     as int
+    field miscInd      as char.
 
 DEFINE TEMP-TABLE tt-itemfg NO-UNDO 
     FIELD isaset       LIKE itemfg.isaset
@@ -4562,7 +4566,7 @@ PROCEDURE wJobFromOrdm :
         IF gvlDebug THEN             
             PUT STREAM sDebug UNFORMATTED "Create w-job-mat from est-prep " prep.i-no  SKIP.      
         CREATE w-job-mat.
-        BUFFER-COPY oe-ordm TO w-job-mat
+        BUFFER-COPY oe-ordm except po-no TO w-job-mat 
             ASSIGN
             w-job-mat.w-rowid      = ROWID(est-prep)
             w-job-mat.w-recid      = RECID(est-prep)
@@ -4581,7 +4585,8 @@ PROCEDURE wJobFromOrdm :
             w-job-mat.frm          = est-prep.s-num
             w-job-mat.blank-no     = est-prep.b-num
             w-job-mat.std-cost     = oe-ordm.cost
-            w-job-mat.sc-uom       = "EA".
+            w-job-mat.sc-uom       = "EA"
+            w-job-mat.po-no        = integer(oe-ordm.po-no).
     END.
 
 END PROCEDURE.

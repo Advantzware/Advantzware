@@ -1,0 +1,1079 @@
+UPDATE FIELD "rec_key" OF "acclrtrs"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "account"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "address"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "addrPhone"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "ap-buy"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "ap-chk"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "ap-ctrl"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "ap-dis"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "ap-disl"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "ap-inv"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "ap-invl"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "ap-invlr"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "ap-ledger"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "ap-pay"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "ap-payl"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "ap-sel"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "aphist"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "ar-cash"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "ar-cashl"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "ar-ctrl"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "ar-inv"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "ar-invl"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "ar-invm"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "ar-ledger"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "ar-mcash"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "asi"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "asi2corr"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "asinotes"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "attach"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "bank"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "bolh"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "boll"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "box-design-hdr"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "box-design-line"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "buyer"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "carr-mtx"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "carrier"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "ce-ctrl"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "cmpltjob"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "company"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "contact"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "corr2asi"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "costHeader"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "costtype"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "country"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "countrySublevel"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "credit-hold-type"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "crew"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "currency"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "cust"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "cust-itm"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "cust-markup"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "cust-part"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "cust-prod-sales"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "custype"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "db-ctrl"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "dept"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "down-type"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "e-item"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "e-item-cust"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "e-item-vend"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "e-itemfg"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "e-itemfg-vend"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "eb"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "ed"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "EDAPCheck"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "EDCat"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "EDCatline"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "EDCatPrice"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "EDCo"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "EDCode"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "EDDoc"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "EDICXref"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "EdiPartnerSegment"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "EDIVAddon"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "EDIVLine"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "EDIVTran"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "EdiX12Segment"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "EDMast"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "edPartnerGrp"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "EDPD"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "EDPOAddon"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "EDPOLine"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "EDPOTran"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "edSetID"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "EDShipto"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "EDShipVia"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "EDSHLine"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "EDSHOrd"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "EDSHPack"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "EDSHTare"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "EDSHTran"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "ef"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "ef-nsh"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "emailcod"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "emaildtl"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "emailntf"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "emp"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "empalert"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "emplogin"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "employee"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "empmach"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "emp_type"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "er"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "est"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "est-flm"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "est-inst"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "est-op"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "est-prep"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "est-qty"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "est-summ"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "expiration"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "fa-control"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "fa-control-d"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "fa-entry"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "fa-gl-post"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "fa-jrnl"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "fa-mast"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "fa-mast-rep"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "fa-tags"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "fg-act"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "fg-bin"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "fg-ctrl"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "fg-hist"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "fg-rcpth"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "fg-rcpts"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "fg-rctd"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "fg-rdtl"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "fg-rdtlh"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "fg-set"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "fgcat"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "file"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "flute"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "fraction"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "freight-class"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "frt-class-desc-trans"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "gl-ctrl"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "gl-freq"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "gl-jrn"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "gl-jrnl"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "gl-rpt"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "gl-rptd"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "glhist"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "gltrans"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "inv-head"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "inv-line"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "inv-misc"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "item"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "item-bom"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "item-comm"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "item-spec"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "itemfg"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "itemfg-bom"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "itemfg-ink"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "itemfg-loc"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "itemfgdtl"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "jc-ctrl"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "job"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "job-all"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "job-brd"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "job-cat"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "job-code"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "job-farm"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "job-farm-rctd"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "job-hdr"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "job-mat"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "job-mch"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "job-prep"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "job-sch"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "job-set"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "jobcad"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "jobitems"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "jobmach"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "jobmatl"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "jobnotes"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "jobprep"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "jobs"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "jobseq"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "jobsheet"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "jobstack"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "Links"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "loadtag"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "loc"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "location"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "lookups"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "mach"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "mach-adder"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "mach-attach"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "mach-attach-pat"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "mach-calendar"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "mach-panel"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "mach-part"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "machchrg"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "machemp"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "machseq"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "machshft"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "machtran"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "mailcont"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "maillist"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "mat"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "mat-act"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "matprep"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "mch-act"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "mch-srt"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "mfvalues"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "misc-act"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "mmtx"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "mmtx2"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "mmty"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "mnu-item"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "monthly"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "mstd"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "noteLink"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "notes"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "nrf-color"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "nrf-size"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "oe-bolh"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "oe-boll"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "oe-boll-qty"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "oe-ctrl"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "oe-ord"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "oe-ordl"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "oe-ordm"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "oe-prmtx"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "oe-rel"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "oe-relh"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "oe-rell"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "oe-reth"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "oe-retl"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "oe-ship"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "optconfg"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "parmfile"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "payment-type"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "pc-misc"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "pc-prdd"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "pc-prdd-wip"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "pc-prdh"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "pdd"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "pdh"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "period"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "perm"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "permg"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "permx"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "phone"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "po-all"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "po-ctrl"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "po-ord"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "po-ordl"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "po-ordl-add"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "po-rcpts"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "prep"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "prgrms"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "printer"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "probe"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "probeit"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "probeit-price"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "procat"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "prod"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "prodl"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "quote"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "quotechg"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "quotehd"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "quoteit"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "quoteitm"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "quoteqty"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "rate"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "RCErr"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "rec_key"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "reftable"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "reftable1"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "rejct-cd"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "report"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "rfidtag"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "rfq"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "rfq-ctrl"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "rfqitem"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "rm-bin"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "rm-ctrl"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "rm-rcpt"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "rm-rcpth"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "rm-rctd"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "rm-rcth"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "rm-rdtl"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "rm-rdtlh"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "rm-receipts"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "routing"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "routing-mtx"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "sbNote"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "sbStatus"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "scores"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "scoreType"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "shift"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "shifts"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "shift_break"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "shipto"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "sman"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "sman-mtx"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "smanbcat"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "smanbcst"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "smanbugt"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "smanmtrx"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "soldto"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "ssrelbol"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "stack-flute"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "stack-size"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "stackPattern"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "state"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "statecod"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "stax"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "stax-group"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "std-code"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "style"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "style-score"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "styleFluteXref"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "styleScoreXref"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "surcharge"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "susptype"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "sys-ctrl"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "sys-ctrl-shipto"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "systemConfigSetting"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "systemConfigUsage"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "terms"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "terr"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "test-red"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "titlcode"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "translation"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "truck"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "truck-run-print"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "uom"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "user-print"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "usercomp"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "userControl"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "usercust"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "userEula"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "usergrps"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "userLanguage"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "userLog"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "users"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "usersman"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "uservend"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "usr"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "usr-grp"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "usrx"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "vend"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "vend-code-cust-xref"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "vend-plant"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "vend-whse-item"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "vend-whse-trans"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "vend-whse-trans-hist"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "ventype"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "view-dtl"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "view-hdr"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "waste-type"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "wip-bin"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "wiptag"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "wiptag-mch"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "xUserMenu"
+  FORMAT "X(21)"
+
+UPDATE FIELD "rec_key" OF "zipcode"
+  FORMAT "X(21)"
+
+.
+PSC
+cpstream=ISO8859-1
+.
+0000000001

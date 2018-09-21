@@ -74,8 +74,8 @@ DEFINE TEMP-TABLE ttSysCtrl NO-UNDO
     FIELD descrip              LIKE sys-ctrl.descrip
     FIELD typeCode             LIKE sys-ctrl.typeCode        LABEL "Type"
     FIELD module               LIKE sys-ctrl.module          LABEL "Module"
-    FIELD securityLevelUser    LIKE sys-ctrl.securityLevelUser
-    FIELD securityLevelDefault LIKE sys-ctrl.securityLevelDefault
+    FIELD securityLevelUser    LIKE sys-ctrl.securityLevelUser    FORMAT ">>>9"
+    FIELD securityLevelDefault LIKE sys-ctrl.securityLevelDefault FORMAT ">>>9"
     FIELD dataType               AS CHARACTER FORMAT "x(10)" LABEL "Data Type"
     FIELD fieldDescrip           AS CHARACTER FORMAT "x(40)" LABEL "Value Description"
     FIELD fieldDefault           AS CHARACTER FORMAT "x(40)" LABEL "Value Default"
@@ -83,6 +83,7 @@ DEFINE TEMP-TABLE ttSysCtrl NO-UNDO
     FIELD fieldSource            AS CHARACTER FORMAT "x(20)" LABEL "Field Source"
     FIELD fieldExtent            AS INTEGER   FORMAT ">>9"   LABEL "Ext"
     FIELD tableSource            AS CHARACTER FORMAT "x(20)" LABEL "Table Source"
+    FIELD sourceRowID            AS ROWID
     FIELD allData                AS CHARACTER
     FIELD allowAdd               AS LOGICAL   INITIAL YES
     FIELD allowDelete            AS LOGICAL   INITIAL YES
@@ -164,8 +165,8 @@ sys-ctrl-shipto.dec-fld sys-ctrl-shipto.int-fld sys-ctrl-shipto.log-fld
 
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS btnRestoreDefaults btnSortMove svFocus ~
-searchBar sysCtrlBrowse 
+&Scoped-Define ENABLED-OBJECTS svFocus btnRestoreDefaults searchBar ~
+sysCtrlBrowse btnSortMove 
 &Scoped-Define DISPLAYED-OBJECTS svFocus searchBar 
 
 /* Custom List Definitions                                              */
@@ -692,16 +693,16 @@ DEFINE BROWSE sysCtrlShipToBrowse
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME DEFAULT-FRAME
+     svFocus AT ROW 1 COL 1 NO-LABEL WIDGET-ID 4
      btnRestoreDefaults AT ROW 1 COL 39 HELP
           "Restore Defaults" WIDGET-ID 42
+     searchBar AT ROW 1 COL 54 COLON-ALIGNED HELP
+          "Search" WIDGET-ID 6
+     sysCtrlBrowse AT ROW 2 COL 39 WIDGET-ID 300
      btnSortMove AT ROW 1 COL 43 HELP
           "Toggle Sort/Move Columns" WIDGET-ID 44
      btnExport AT ROW 27.43 COL 11 HELP
           "Export" WIDGET-ID 36
-     svFocus AT ROW 1 COL 1 NO-LABEL WIDGET-ID 4
-     searchBar AT ROW 1 COL 54 COLON-ALIGNED HELP
-          "Search" WIDGET-ID 6
-     sysCtrlBrowse AT ROW 2 COL 39 WIDGET-ID 300
      btnImport AT ROW 27.43 COL 20 HELP
           "Import" WIDGET-ID 38
      RECT-1 AT ROW 27.19 COL 10 WIDGET-ID 40
@@ -723,14 +724,14 @@ DEFINE FRAME viewFrame
      cModule AT ROW 2.43 COL 99 COLON-ALIGNED WIDGET-ID 6
      cDescrip AT ROW 3.62 COL 18 COLON-ALIGNED WIDGET-ID 4
      cFieldDescrip AT ROW 4.81 COL 18 COLON-ALIGNED WIDGET-ID 40
+     hInteger AT ROW 6 COL 18 COLON-ALIGNED HELP
+          "Enter Integer Value" NO-LABEL WIDGET-ID 62
+     cFieldValue AT ROW 6 COL 18 COLON-ALIGNED WIDGET-ID 30
      hDecimal AT ROW 6 COL 18 COLON-ALIGNED HELP
           "Enter Decimal Value" NO-LABEL WIDGET-ID 60
      hLogical AT ROW 6 COL 20 NO-LABEL WIDGET-ID 64
-     hInteger AT ROW 6 COL 18 COLON-ALIGNED HELP
-          "Enter Integer Value" NO-LABEL WIDGET-ID 62
      hDate AT ROW 6 COL 18 COLON-ALIGNED HELP
           "Enter Date Value" NO-LABEL WIDGET-ID 58
-     cFieldValue AT ROW 6 COL 18 COLON-ALIGNED WIDGET-ID 30
      cFieldDefault AT ROW 7.19 COL 18 COLON-ALIGNED WIDGET-ID 42
      ctableSource AT ROW 8.38 COL 18 COLON-ALIGNED WIDGET-ID 46
      cfieldSource AT ROW 8.38 COL 54 COLON-ALIGNED WIDGET-ID 48
@@ -786,14 +787,14 @@ DEFINE FRAME formsFrame
          TITLE "System Control Parameter Forms" WIDGET-ID 700.
 
 DEFINE FRAME viewFormFrame
+     btnFirst-2 AT ROW 9.57 COL 109 HELP
+          "First" WIDGET-ID 62
      sys-ctrl-shipto.cust-vend AT ROW 1.24 COL 24 NO-LABEL WIDGET-ID 48
           VIEW-AS RADIO-SET HORIZONTAL
           RADIO-BUTTONS 
                     "Customer", yes,
 "Vendor", no
           SIZE 26 BY 1
-     btnFirst-2 AT ROW 9.57 COL 109 HELP
-          "First" WIDGET-ID 62
      sys-ctrl-shipto.cust-vend-no AT ROW 2.43 COL 21 COLON-ALIGNED WIDGET-ID 34
           VIEW-AS FILL-IN 
           SIZE 14.2 BY 1
@@ -2424,6 +2425,18 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME iSecurityLevelUser
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL iSecurityLevelUser C-Win
+ON LEAVE OF iSecurityLevelUser IN FRAME viewFrame /* User Sec. Lev. */
+DO:
+    IF INTEGER(SELF:SCREEN-VALUE) GT INTEGER(iSecurityLevelDefault) THEN
+    SELF:SCREEN-VALUE = iSecurityLevelDefault:SCREEN-VALUE.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define FRAME-NAME viewFormFrame
 &Scoped-define SELF-NAME sys-ctrl-shipto.log-fld
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL sys-ctrl-shipto.log-fld C-Win
@@ -2726,7 +2739,7 @@ PROCEDURE enable_UI :
 ------------------------------------------------------------------------------*/
   DISPLAY svFocus searchBar 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
-  ENABLE btnRestoreDefaults btnSortMove svFocus searchBar sysCtrlBrowse 
+  ENABLE svFocus btnRestoreDefaults searchBar sysCtrlBrowse btnSortMove 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
   VIEW FRAME filterFrame IN WINDOW C-Win.
@@ -3165,6 +3178,7 @@ PROCEDURE pCreatettSysCtrl :
         ttSysCtrl.securityLevelUser    = sys-ctrl.securityLevelUser
         ttSysCtrl.securityLevelDefault = sys-ctrl.securityLevelDefault
         ttSysCtrl.tableSource          = "sys-ctrl"
+        ttSysCtrl.sourceRowID          = ROWID(sys-ctrl)
         .
     CASE ipcDataType:
         WHEN "Character" THEN
@@ -3280,6 +3294,7 @@ PROCEDURE pCreatettSysCtrlTable :
                 ttSysCtrl.fieldDefault = IF hField:DATA-TYPE EQ "Logical" THEN hField:BUFFER-VALUE(iExtent)
                                          ELSE LEFT-TRIM(STRING(hField:BUFFER-VALUE(iExtent),cFormat))
                 ttSysCtrl.fieldValue   = ttSysCtrl.fieldDefault
+                ttSysCtrl.sourceRowID  = ?
                 ttSysCtrl.allowAdd     = NO
                 ttSysCtrl.allData = ttSysCtrl.category + "|"
                                   + ttSysCtrl.subCategory + "|"
@@ -3341,6 +3356,8 @@ PROCEDURE pCRUD :
                 ENABLE cFieldValue.
                 ELSE DO:
                     ENABLE {&enabledFields}.
+                    IF iphMode:LABEL EQ "Update" THEN
+                    DISABLE cName.
                     IF NOT lSuperAdmin THEN
                     DISABLE iSecurityLevelDefault cFieldDefault.
                 END. /* else */
@@ -4319,10 +4336,7 @@ PROCEDURE pSaveSettings :
             hColumn = BROWSE sysCtrlBrowse:GET-BROWSE-COLUMN(jdx)
             user-print.field-label[idx] = "BrowseColumn"
             user-print.field-name[idx]  = hColumn:NAME
-            user-print.field-value[idx] = STRING(
-                                          MAX(hColumn:WIDTH,
-                                              BROWSE sysCtrlBrowse:MIN-COLUMN-WIDTH-CHARS)
-                                                )
+            user-print.field-value[idx] = STRING(MAX(hColumn:WIDTH, .2 /*BROWSE sysCtrlBrowse:MIN-COLUMN-WIDTH-CHARS*/ ))                                              
             .
     END. /* do jdx */
 
@@ -4344,6 +4358,8 @@ PROCEDURE pUpdateTable :
     DEFINE VARIABLE hField AS HANDLE  NO-UNDO.
     DEFINE VARIABLE hQuery AS HANDLE  NO-UNDO.
     DEFINE VARIABLE idx    AS INTEGER NO-UNDO.
+    
+    DEFINE BUFFER bttSysCtrl FOR ttSysCtrl.
 
     IF ttSysCtrl.tableSource EQ "sys-ctrl" THEN DO:
         FIND FIRST sys-ctrl EXCLUSIVE-LOCK
@@ -4352,13 +4368,14 @@ PROCEDURE pUpdateTable :
              NO-ERROR.
         IF AVAILABLE sys-ctrl THEN DO:
             ASSIGN
-                sys-ctrl.category          = ttSysCtrl.category
-                sys-ctrl.subCategory       = ttSysCtrl.subCategory
-                sys-ctrl.name              = ttSysCtrl.name
-                sys-ctrl.typeCode          = ttSysCtrl.typeCode
-                sys-ctrl.module            = ttSysCtrl.module
-                sys-ctrl.descrip           = ttSysCtrl.descrip
-                sys-ctrl.securityLevelUser = ttSysCtrl.securityLevelUser
+                sys-ctrl.category             = ttSysCtrl.category
+                sys-ctrl.subCategory          = ttSysCtrl.subCategory
+                sys-ctrl.name                 = ttSysCtrl.name
+                sys-ctrl.typeCode             = ttSysCtrl.typeCode
+                sys-ctrl.module               = ttSysCtrl.module
+                sys-ctrl.descrip              = ttSysCtrl.descrip
+                sys-ctrl.securityLevelUser    = ttSysCtrl.securityLevelUser
+                sys-ctrl.securityLevelDefault = ttSysCtrl.securityLevelDefault
                 .
             CASE ttSysCtrl.dataType:
                 WHEN "Character" THEN
@@ -4392,6 +4409,21 @@ PROCEDURE pUpdateTable :
                     sys-ctrl.log-fld_default = ttSysCtrl.fieldDefault EQ "YES"
                     .
             END CASE.
+            FOR EACH bttSysCtrl
+                WHERE bttSysCtrl.sourceRowID EQ ttSysCtrl.sourceRowID
+                  AND ROWID(bttSysCtrl)      NE ROWID(ttSysCtrl)
+                :
+                ASSIGN
+                    bttSysCtrl.category             = ttSysCtrl.category
+                    bttSysCtrl.subCategory          = ttSysCtrl.subCategory
+                    bttSysCtrl.name                 = ttSysCtrl.name
+                    bttSysCtrl.typeCode             = ttSysCtrl.typeCode
+                    bttSysCtrl.module               = ttSysCtrl.module
+                    bttSysCtrl.descrip              = ttSysCtrl.descrip
+                    bttSysCtrl.securityLevelUser    = ttSysCtrl.securityLevelUser
+                    bttSysCtrl.securityLevelDefault = ttSysCtrl.securityLevelDefault
+                    .
+            END. /* each bttsysctrl */
             RELEASE sys-ctrl.
         END. /* if avail */
         ELSE

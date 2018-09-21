@@ -151,13 +151,24 @@ job-hdr.qty
 &Scoped-define QUERY-STRING-jobBrowse FOR EACH job-hdr ~
       WHERE job-hdr.company EQ ipCompany ~
 AND job-hdr.est-no EQ ipEstNo ~
-AND job-hdr.opened EQ FALSE NO-LOCK
+AND job-hdr.opened EQ FALSE NO-LOCK , ~
+    FIRST job                                ~
+        WHERE job.company EQ job-hdr.company ~
+          AND job.job     EQ job-hdr.job     ~
+          AND job.job-no  EQ job-hdr.job-no  ~
+          AND job.job-no2 EQ job-hdr.job-no2 NO-LOCK BY job.job-no BY job.close-date DESC
 &Scoped-define OPEN-QUERY-jobBrowse OPEN QUERY jobBrowse FOR EACH job-hdr ~
       WHERE job-hdr.company EQ ipCompany ~
 AND job-hdr.est-no EQ ipEstNo ~
-AND job-hdr.opened EQ FALSE NO-LOCK.
-&Scoped-define TABLES-IN-QUERY-jobBrowse job-hdr
+AND job-hdr.opened EQ FALSE NO-LOCK , ~
+   FIRST job                                ~
+        WHERE job.company EQ job-hdr.company ~
+          AND job.job     EQ job-hdr.job     ~
+          AND job.job-no  EQ job-hdr.job-no  ~
+          AND job.job-no2 EQ job-hdr.job-no2 NO-LOCK BY job.job-no BY job.close-date DESC .
+&Scoped-define TABLES-IN-QUERY-jobBrowse job-hdr job
 &Scoped-define FIRST-TABLE-IN-QUERY-jobBrowse job-hdr
+&SCOPED-DEFINE SECOND-TABLE-IN-QUERY-jobBrowse job
 
 
 /* Definitions for BROWSE ttblEstOp                                     */
@@ -330,7 +341,8 @@ DEFINE QUERY estOpBrowse FOR
       est-op SCROLLING.
 
 DEFINE QUERY jobBrowse FOR 
-      job-hdr SCROLLING.
+      job-hdr,
+      job SCROLLING.
 
 DEFINE QUERY ttblEstOp FOR 
       ttblEstOp SCROLLING.
@@ -582,11 +594,15 @@ THEN C-Win:HIDDEN = no.
 
 &ANALYZE-SUSPEND _QUERY-BLOCK BROWSE jobBrowse
 /* Query rebuild information for BROWSE jobBrowse
-     _TblList          = "asi.job-hdr"
+     _TblList          = "asi.job-hdr,ASI.job WHERE ASI.job-hdr ..."
      _Options          = "NO-LOCK"
      _Where[1]         = "job-hdr.company EQ ipCompany
 AND job-hdr.est-no EQ ipEstNo
 AND job-hdr.opened EQ FALSE"
+  _JoinCode[1]      = "ASI.job.company = ASI.job-hdr.company
+  AND ASI.job.job = ASI.job-hdr.job
+  AND ASI.job.job-no = ASI.job-hdr.job-no 
+  AND job.job-no2 EQ job-hdr.job-no2 NO-LOCK BY job.job-no BY job.close-date DESC"
      _FldNameList[1]   > asi.job-hdr.job-no
 "job-hdr.job-no" "Job" ? "character" ? ? ? ? ? ? no ? no no "8.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > asi.job-hdr.job-no2

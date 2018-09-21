@@ -185,16 +185,20 @@ for each report where report.term-id eq v-term-id,
          with frame bol-mid1 NO-BOX NO-LABELS STREAM-IO NO-ATTR-SPACE WIDTH 130.
     down {1} with frame bol-mid1.
 
-/*     FIND FIRST reftable WHERE                       */
-/*          reftable.reftable = "oe-boll.lot-no" AND   */
-/*          reftable.rec_key  = STRING(RECID(oe-boll)) */
-/*          USE-INDEX rec_key                          */
-/*          NO-LOCK NO-ERROR.                          */
-/*                                                     */
-/*     IF AVAIL reftable THEN                          */
-/*        v-lot-no = reftable.CODE.                    */
-/*     ELSE                                            */
-/*        v-lot-no = "".                               */
+    IF v-printline >= 33 THEN DO:
+             PUT {1} "<R49><C1>" lv-prt-date "  " lv-prt-time "   "  caps(oe-bolh.USER-ID)  "   " lv-prt-sts
+                     "<C69>Page " /*string(PAGE-NUM - lv-pg-num,">>9")*/ STRING(PAGE-NUMBER) + " of <#PAGES> "  FORM "x(20)" .
+             PAGE {1}.
+             v-printline = 0.  
+             IF cPrintFormat EQ "CCC" THEN do:
+                 {oe/rep/bolccc1.i}
+             END.
+             ELSE DO:
+                 {oe/rep/bolcent2.i}
+             END.
+
+    END.
+
     v-lot-no = oe-boll.lot-no.
 
     v-unit-qty = IF lv-partial-tot > 0 

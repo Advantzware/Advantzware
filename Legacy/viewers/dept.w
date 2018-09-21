@@ -384,3 +384,29 @@ END PROCEDURE.
 &ANALYZE-RESUME
 
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-buttons V-table-Win 
+PROCEDURE valid-buttons :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  
+  DEF OUTPUT PARAM op-add AS LOG INIT YES NO-UNDO.
+  DEF OUTPUT PARAM op-del AS LOG INIT YES NO-UNDO.
+  DEF VAR il-cur-page AS INT NO-UNDO.
+  DEF VAR hPgmSecurity AS HANDLE NO-UNDO.
+  DEF VAR lResult AS LOG NO-UNDO.
+
+  RUN "system/PgmMstrSecur.p" PERSISTENT SET hPgmSecurity.
+        RUN epCanAccess IN hPgmSecurity ("windows/dept.w", "delete", OUTPUT lResult).
+        DELETE OBJECT hPgmSecurity.
+        IF NOT lResult THEN 
+            op-del = NO .
+
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME

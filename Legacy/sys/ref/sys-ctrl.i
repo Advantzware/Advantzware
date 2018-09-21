@@ -169,7 +169,7 @@ ASSIGN
  str-init[86] = ",16th's,32nd's,Decimal" /* cecscrn */
  str-init[87] = "RunOnly,MR+Run" /* ceprice */
  str-init[88] = ",AllOrders,SameOrderOnly,SamePo#Only,AllOrders&ShipFromWhse,SamePO#&ShipFromWhse,SameOrder&SameShipFrom,SameOrder&SameShipFrom&SamePO,AllOrders&NotRunShip"  /* relmerge */       
- str-init[89] = ",ASI,ASIXprnt,Premier,ASIExcel,Loylang,Printers,Protagon,Badger,Soule,RFC,SouleMed,stmtprint 1,stmtprint 2,StdStatement10"  /*stmtprin*/
+ str-init[89] = ",ASI,ASIXprnt,Premier,ASIExcel,Loylang,Printers,Protagon,Badger,Soule,RFC,SouleMed,stmtprint 1,stmtprint 2,StdStatement10,Lanco"  /*stmtprin*/
  str-init[90] = "All Machines,Last Machine,NO"  /*TSFinish*/
  str-init[91] = "MSF,PO UOM"  /*appaper*/
  str-init[92] = "FluteMtx,AUTOCALC"  /*appaper*/
@@ -187,7 +187,7 @@ ASSIGN
  str-init[104] = "None,Overrun,Receipts"  /* rmemails */     
  str-init[105] = ",loadtag"
  str-init[106] = "Fibrex,BOLFMTX15"
- str-init[107] = ",Indiana,Dee"
+ str-init[107] = ",Indiana,Dee,ScheduleCard1"
  str-init[108] = "Workstation,Server"  
  str-init[109] = "Reorder Point"   
  str-init[110] = ",HOP,Xprint,AllWest,PremierPkg,SouleMed,Soule,StdCreditMemo10"  

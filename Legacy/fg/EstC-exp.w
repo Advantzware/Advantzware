@@ -39,14 +39,13 @@ DEFINE VARIABLE init-dir AS CHARACTER NO-UNDO.
 {custom/gcompany.i}
 
 {custom/gloc.i}
-{custom/getcmpny.i}
-{custom/getloc.i}
-
 {sys/inc/var.i new shared}
 
 assign
- cocode = gcompany
- locode = gloc.
+ cocode = g_company
+ locode = g_loc
+ gcompany = g_company
+ gloc = g_loc.
 
 DEFINE STREAM excel.
 
