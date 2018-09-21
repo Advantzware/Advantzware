@@ -2476,6 +2476,7 @@ DEF VAR lv-how-many-tags AS INT NO-UNDO.
 DEF VAR v-b-word-created AS LOG NO-UNDO.
 DEF VAR op-warning AS LOG NO-UNDO.
 DEF VAR var-display-warning AS LOG NO-UNDO.
+DEFINE VARIABLE iPcs AS INTEGER NO-UNDO .
 
 SESSION:SET-WAIT-STATE ("general").
 
@@ -2888,6 +2889,11 @@ ASSIGN
         /*END.*/
         IF cBarCodeProgram EQ "" THEN
         DO i = 1 TO (lv-how-many-tags ):
+
+           IF i EQ lv-how-many-tags AND w-ord.partial NE 0 THEN
+               iPcs = w-ord.partial .
+           ELSE iPcs = w-ord.pcs .
+
            PUT UNFORMATTED
             "~""  removeChars(w-ord.cust-name)  "~","
             w-ord.ord-no ","
@@ -2899,7 +2905,7 @@ ASSIGN
             "~""  removeChars(w-ord.part-dscr2)  "~","
             "~""  removeChars(w-ord.part-dscr3)  "~","
             "~""  removeChars(w-ord.cust-po-no)  "~","
-            w-ord.pcs ","
+            iPcs ","
             w-ord.bundle ","
             w-ord.total-unit ","
             "~""  removeChars(w-ord.cust-name)  "~","
