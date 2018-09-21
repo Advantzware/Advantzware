@@ -3,9 +3,7 @@
 &Scoped-define WINDOW-NAME C-Win
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS C-Win 
 /*------------------------------------------------------------------------
-
   File: jcrep\r-brdreN.w
-
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -1410,10 +1408,10 @@ DEFINE VARIABLE cToTJobQty LIKE dQtyInM NO-UNDO.
 DEFINE VARIABLE cToTStdFac LIKE costHeader.stdCostTotalFactory NO-UNDO.
 DEFINE VARIABLE cToTStdComm LIKE costHeader.stdCostCommission NO-UNDO.
 DEFINE VARIABLE cToTStdFrt LIKE costHeader.stdCostFreight NO-UNDO.
+DEFINE VARIABLE iLineCount AS INTEGER NO-UNDO .
 
+{sys/form/r-topsw.f}
 
-
-{sys/form/r-top5DL3.f} 
 cSelectedList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
 DEF VAR excelheader AS CHAR NO-UNDO.
 
@@ -1476,7 +1474,12 @@ for each tt-report where tt-report.term-id eq "":
 end.
 
 display with frame r-top.
+PUT  str-tit4 FORMAT "x(520)"
+     SKIP
+     str-tit5 FORMAT "x(520)"
+     SKIP .
 
+iLineCount = 0 .
 FOR EACH costHeader NO-LOCK 
         WHERE costHeader.company EQ gcompany
         AND costHeader.calculationTime GE DATETIME(v-fdate)
@@ -1545,6 +1548,15 @@ FOR EACH costHeader NO-LOCK
             RUN sys\ref\convptom.p (itemfg.sell-uom, itemfg.sell-price, INT(dQtyInM * 1000), itemfg.case-count, OUTPUT dOrdPricePerM).
         END.
 
+        IF iLineCount GE (lines-per-page - 10)  THEN do:
+            PAGE.
+            PUT str-tit4 FORMAT "x(520)"
+                SKIP
+                str-tit5 FORMAT "x(520)"
+                SKIP .
+          iLineCount = 0 .
+        END.
+
              ASSIGN cDisplay = ""
            cTmpField = ""
            cVarValue = ""
@@ -1601,6 +1613,7 @@ FOR EACH costHeader NO-LOCK
          PUT STREAM excel UNFORMATTED  
                cExcelDisplay SKIP.
      END.
+     iLineCount = iLineCount + 1 .
 
 ASSIGN
     cToTJobQty  =  cToTJobQty + (dQtyInM * 1000)
@@ -1781,4 +1794,3 @@ END FUNCTION.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
