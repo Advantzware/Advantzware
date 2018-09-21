@@ -431,29 +431,29 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
     RUN epCanAccess IN hPgmSecurity ("util/wPgmrToolbox.w", "MonitorUsers", OUTPUT lResult).
     IF NOT lResult THEN ASSIGN 
-            btMonitorUsers:SENSITIVE = FALSE
+            btMonitorUsers:VISIBLE = FALSE
             rsDB1:SENSITIVE          = FALSE 
             rsDB2:SENSITIVE          = FALSE .
     ELSE ASSIGN iNumOK = iNumOK + 1.
 
     /* ASI User access */
     RUN epCanAccess IN hPgmSecurity ("util/wPgmrToolbox.w", "ProTools", OUTPUT lResult).
-    IF NOT lResult THEN ASSIGN btProTools:SENSITIVE = FALSE.
+    IF NOT lResult THEN ASSIGN btProTools:VISIBLE = FALSE.
     ELSE ASSIGN iNumOK = iNumOK + 1.
         
 
     RUN epCanAccess IN hPgmSecurity ("util/wPgmrToolbox.w", "DataDigger", OUTPUT lResult).
-    IF NOT lResult THEN ASSIGN btDataDigger:SENSITIVE = FALSE.
+    IF NOT lResult THEN ASSIGN btDataDigger:VISIBLE = FALSE.
     ELSE ASSIGN iNumOK = iNumOK + 1.
 
     RUN epCanAccess IN hPgmSecurity ("util/wPgmrToolbox.w", "SwitchMode", OUTPUT lResult).
     IF NOT lResult THEN ASSIGN 
-        btSwitchMode:SENSITIVE = FALSE
-        fiMode::SENSITIVE = FALSE.
+        btSwitchMode:VISIBLE = FALSE
+        fiMode:SENSITIVE = FALSE.
     ELSE ASSIGN iNumOK = iNumOK + 1.
 
-    RUN epCanAccess IN hPgmSecurity ("sys/ref/hlp.w", "RunEditor", OUTPUT lResult).
-    IF NOT lResult THEN ASSIGN btEditor:SENSITIVE = FALSE.
+    RUN epCanAccess IN hPgmSecurity ("util/wPgmrToolbox.w", "RunEditor", OUTPUT lResult).
+    IF NOT lResult THEN ASSIGN btEditor:VISIBLE = FALSE.
     ELSE ASSIGN iNumOK = iNumOK + 1.
 
 
