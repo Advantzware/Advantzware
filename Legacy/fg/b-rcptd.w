@@ -3208,6 +3208,10 @@ PROCEDURE local-assign-record :
   DEF VAR lOK AS LOG NO-UNDO.
   DEFINE VARIABLE iLinker AS INTEGER NO-UNDO. 
   /* Code placed here will execute PRIOR to standard behavior. */
+
+  /* Buttons were made sensitive = no during add, so reverse that here */
+    RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"Container-source",OUTPUT char-hdl).
+    RUN make-buttons-sensitive IN WIDGET-HANDLE(char-hdl).
   
   /* Needed since the newly created row can become unavailable for some reason */
   IF NOT AVAIL fg-rctd AND lrMissingRow NE ? THEN DO:
@@ -3320,6 +3324,10 @@ DEF VAR phandle AS HANDLE NO-UNDO.
 
   /* Code placed here will execute PRIOR to standard behavior. */
 
+ /* Buttons were made not sensitive during add, so reverse that here */
+  RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"Container-source",OUTPUT char-hdl).
+  RUN make-buttons-sensitive IN WIDGET-HANDLE(char-hdl).
+
 /*   IF NOT AVAIL fg-rctd AND NOT adm-new-record THEN DO:             */
 /*       RUN local-open-query.                                        */
 /*       RUN get-link-handle IN adm-broker-hdl                        */
@@ -3383,6 +3391,9 @@ PROCEDURE local-create-record :
   DEF BUFFER b-fg-rctd FOR fg-rctd.
   
   /* Code placed here will execute PRIOR to standard behavior. */
+  RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"Container-source",OUTPUT char-hdl).
+  RUN make-buttons-insensitive IN WIDGET-HANDLE(char-hdl).
+
   lv-cost-basis = "".
   FIND LAST b-fg-rctd USE-INDEX fg-rctd NO-LOCK NO-ERROR.
   IF AVAIL b-fg-rctd AND b-fg-rctd.r-no GT lv-rno THEN lv-rno = b-fg-rctd.r-no.
