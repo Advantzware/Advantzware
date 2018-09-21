@@ -1,10 +1,10 @@
 /*------------------------------------------------------------------------
-    File        : ImportCust.p
+    File        : ImportQuote.p
     Purpose     : 
     Syntax      :
-    Description : Import Program (Persistent) for Configuring and Processing the Import for Customer	
-    Author(s)   : BV
-    Created     : Sun Jan 21:18:38 EST 2018
+    Description : Import Program (Persistent) for Configuring and Processing the Import for Quote	
+    Author(s)   : Sewa
+    Created     : tu sep 21:18:38 EST 2018
     Notes       :
   ----------------------------------------------------------------------*/
 
@@ -125,12 +125,12 @@ PROCEDURE pValidate PRIVATE:
             NO-ERROR.
         IF AVAILABLE quotehd THEN 
         DO:
-           /* IF NOT iplUpdateDuplicates THEN 
+            IF NOT iplUpdateDuplicates THEN 
                 ASSIGN 
                     oplValid = NO
                     opcNote  = "Duplicate Exists:  Will be skipped"
                     .
-            ELSE*/
+            ELSE
                 ASSIGN 
                     opcNote = "Update record - All fields to be overwritten"
                     .        
@@ -225,9 +225,9 @@ PROCEDURE pProcessRecord PRIVATE:
     RUN pAssignValueC (ipbf-ttImportQuote.CustNo, YES, INPUT-OUTPUT quotehd.cust-no).
     RUN pAssignValueC (ipbf-ttImportQuote.ShipTo, iplIgnoreBlanks, INPUT-OUTPUT quotehd.ship-id).
     RUN pAssignValueC (ipbf-ttImportQuote.SoldTo, iplIgnoreBlanks, INPUT-OUTPUT quotehd.sold-id).
-    quotehd.quo-date   = DATE(ipbf-ttImportQuote.QuoteDate) .
-    quotehd.del-date   = DATE(ipbf-ttImportQuote.DeliveryDate) .
-    quotehd.expireDate = DATE(ipbf-ttImportQuote.ExpirationDate) .
+    RUN pAssignValueDate (DATE(ipbf-ttImportQuote.QuoteDate), iplIgnoreBlanks, INPUT-OUTPUT quotehd.quo-date).
+    RUN pAssignValueDate (DATE(ipbf-ttImportQuote.DeliveryDate), iplIgnoreBlanks, INPUT-OUTPUT quotehd.del-date).
+    RUN pAssignValueDate (DATE(ipbf-ttImportQuote.ExpirationDate), iplIgnoreBlanks, INPUT-OUTPUT quotehd.expireDate).
     RUN pAssignValueC (ipbf-ttImportQuote.EstNo, iplIgnoreBlanks, INPUT-OUTPUT quotehd.est-no).
     RUN pAssignValueC (ipbf-ttImportQuote.contact, iplIgnoreBlanks, INPUT-OUTPUT quotehd.contact).
     RUN pAssignValueC (ipbf-ttImportQuote.SalesGroup, iplIgnoreBlanks, INPUT-OUTPUT quotehd.sman).

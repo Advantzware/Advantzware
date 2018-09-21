@@ -388,7 +388,7 @@ PROCEDURE build-table :
       WHERE quotehd.company EQ est-qty.company AND
       quotehd.est-no EQ est-qty.est-no AND 
       quotehd.quo-date LE TODAY AND
-      quotehd.expireDate GE TODAY ,
+      (quotehd.expireDate GE TODAY OR quotehd.expireDate EQ ?) ,
   EACH quoteitm WHERE
       quoteitm.company = est-qty.company AND
       quoteitm.est-no = est-qty.est-no AND

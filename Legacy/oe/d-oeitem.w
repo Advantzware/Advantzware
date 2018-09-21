@@ -3069,7 +3069,7 @@ PROCEDURE check-quote :
                  WHERE quotehd.company EQ oe-ord.company AND
                        quotehd.est-no EQ oe-ordl.est-no:SCREEN-VALUE AND 
                        quotehd.quo-date LE TODAY AND
-                       quotehd.expireDate GE TODAY ,
+                       (quotehd.expireDate GE TODAY OR quotehd.expireDate EQ ?) ,
               EACH quoteitm OF quotehd WHERE quoteitm.company = oe-ord.company AND
                                 quoteitm.est-no = oe-ordl.est-no:SCREEN-VALUE  AND
                                 (quoteitm.part-no = ip-part-no OR ip-part-no <> ""),
