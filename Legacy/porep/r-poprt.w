@@ -133,13 +133,13 @@ IF lRecFound THEN
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-6 RECT-7 begin_po-no end_po-no ~
 begin_vend-no end_vend-no tb_reprint tb_reprint-closed tb_delete ~
-tb_print-terms tb_spec tb_attachments tb_cust-code tb_corr tb_group-notes ~
+tb_print-terms tb_spec tb_attachments tb_cust-code tb_mach tb_corr tb_group-notes ~
 tb_Summarize-by-item tb_itemDescription tb_score-types tb_metric ~
 tb_print-prices rd-dest lv-ornt lines-per-page lv-font-no td-show-parm ~
 btn-ok btn-cancel 
 &Scoped-Define DISPLAYED-OBJECTS begin_po-no end_po-no begin_vend-no ~
 end_vend-no tb_reprint tb_reprint-closed tb_delete tb_print-terms tb_spec ~
-tb_attachments tb_cust-code tb_corr tb_group-notes tb_Summarize-by-item ~
+tb_attachments tb_cust-code tb_mach tb_corr tb_group-notes tb_Summarize-by-item ~
 tb_itemDescription tb_score-types tb_metric tb_print-prices rd-dest lv-ornt ~
 lines-per-page lv-font-no lv-font-name td-show-parm 
 
@@ -249,6 +249,11 @@ DEFINE VARIABLE tb_cust-code AS LOGICAL INITIAL no
      VIEW-AS TOGGLE-BOX
      SIZE 41.8 BY .81 NO-UNDO.
 
+DEFINE VARIABLE tb_mach AS LOGICAL INITIAL no 
+     LABEL "Print First Resource?" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 41.8 BY .81 NO-UNDO.
+
 DEFINE VARIABLE tb_delete AS LOGICAL INITIAL no 
      LABEL "Do you want to print deleted line items?" 
      VIEW-AS TOGGLE-BOX
@@ -330,6 +335,7 @@ DEFINE FRAME FRAME-A
      tb_cust-code AT ROW 7.86 COL 53 WIDGET-ID 4
      tb_corr AT ROW 7.91 COL 10.6
      tb_group-notes AT ROW 8.86 COL 10.6
+     tb_mach AT ROW 8.86 COL 53 WIDGET-ID 4
      tb_Summarize-by-item AT ROW 9.81 COL 10.6
      tb_itemDescription AT ROW 10.76 COL 10.6
      tb_score-types AT ROW 11.71 COL 10.6
@@ -443,6 +449,9 @@ ASSIGN
 
 ASSIGN 
        tb_cust-code:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
+ASSIGN 
+       tb_mach:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
 ASSIGN 
@@ -607,7 +616,8 @@ DO:
         s-print-prices      = tb_print-prices
         v-print-terms       = tb_print-terms
         lv-attachments      = tb_attachments
-        lCustCode           =  tb_cust-code.
+        lCustCode           =  tb_cust-code
+        lPrintMach          =  tb_mach .
  
     /* If there is are vendor-specific forms, run this way */
     IF CAN-FIND(FIRST sys-ctrl-shipto WHERE
@@ -852,6 +862,16 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&Scoped-define SELF-NAME tb_mach
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_mach C-Win
+ON VALUE-CHANGED OF tb_mach IN FRAME FRAME-A /* Print Machine for each PO Line? */
+DO:
+  ASSIGN {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 &Scoped-define SELF-NAME tb_delete
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_delete C-Win
@@ -1044,7 +1064,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   ASSIGN
    v-pre-printed-forms = po-ctrl.pre-printed-forms
    v-company           = po-ctrl.prcom
-   vcDefaultForm = v-print-fmt.
+   vcDefaultForm = v-print-fmt .
 
   FIND FIRST users WHERE
        users.user_id EQ USERID("NOSWEAT")
@@ -1104,8 +1124,8 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
                    tb_print-prices:SENSITIVE = NO.
    
     IF LOOKUP(v-print-fmt,"poprint 10,poprint 20,POPrint10-CAN") = 0 THEN 
-       DISABLE tb_cust-code.
-
+       DISABLE tb_cust-code tb_mach.
+    
     IF NOT poPaperClip-log THEN 
         ASSIGN tb_attachments:SCREEN-VALUE = "NO"
                tb_attachments:SENSITIVE    = NO.
@@ -1173,13 +1193,13 @@ PROCEDURE enable_UI :
 ------------------------------------------------------------------------------*/
   DISPLAY begin_po-no end_po-no begin_vend-no end_vend-no tb_reprint 
           tb_reprint-closed tb_delete tb_print-terms tb_spec tb_attachments 
-          tb_cust-code tb_corr tb_group-notes tb_Summarize-by-item 
+          tb_cust-code tb_mach tb_corr tb_group-notes tb_Summarize-by-item 
           tb_itemDescription tb_score-types tb_metric tb_print-prices rd-dest 
           lv-ornt lines-per-page lv-font-no lv-font-name td-show-parm 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   ENABLE RECT-6 RECT-7 begin_po-no end_po-no begin_vend-no end_vend-no 
          tb_reprint tb_reprint-closed tb_delete tb_print-terms tb_spec 
-         tb_attachments tb_cust-code tb_corr tb_group-notes 
+         tb_attachments tb_cust-code tb_mach tb_corr tb_group-notes 
          tb_Summarize-by-item tb_itemDescription tb_score-types tb_metric 
          tb_print-prices rd-dest lv-ornt lines-per-page lv-font-no td-show-parm 
          btn-ok btn-cancel 
@@ -1595,7 +1615,8 @@ PROCEDURE run-report :
     s-print-prices      = tb_print-prices
     v-print-terms       = tb_print-terms
     lv-attachments      = tb_attachments
-    lCustCode           =  tb_cust-code.
+    lCustCode           =  tb_cust-code
+    lPrintMach          =  tb_mach.
 
   IF ip-sys-ctrl-shipto THEN
      ASSIGN
