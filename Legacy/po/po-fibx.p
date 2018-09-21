@@ -121,6 +121,7 @@ END FUNCTION.
 DEF VAR vsTmp-v-sqft AS CHAR NO-UNDO.
 DEF VAR vsTmpLine AS CHAR FORMAT "X(11)" NO-UNDO.
 DEF VAR v-line-2 AS CHAR FORMAT "X(30)" NO-UNDO.
+DEFINE VARIABLE cMachCode AS CHARACTER NO-UNDO.
 
 FORM "Overrun/Underrun:" AT 8 v-overrun FORM "x(13)"
      v-adder[3]             at 39   format "x(9)"
