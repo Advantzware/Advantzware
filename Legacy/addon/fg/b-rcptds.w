@@ -75,30 +75,7 @@ DEF VAR ll-set-parts AS LOG NO-UNDO.
 {fg/fg-post3.i NEW}
 
 /* For fgpostBatch.p */
-DEF TEMP-TABLE tt-inv LIKE w-inv.
-
-DEF TEMP-TABLE w-fg-rctd NO-UNDO LIKE fg-rctd FIELD row-id   AS ROWID
-                                    FIELD has-rec  AS LOG INIT NO
-                                    FIELD invoiced AS LOG INIT NO
-                                    /* Used for ip-run-what = setup */                                    
-                                    FIELD old-tag     AS CHAR
-                                    FIELD ret-loc     AS CHAR
-                                    FIELD ret-loc-bin AS CHAR
-                                    .
-
-DEF TEMP-TABLE tt-email NO-UNDO FIELD tt-recid AS RECID
-                        FIELD job-no LIKE job-hdr.job-no
-                        FIELD job-no2 LIKE job-hdr.job-no2
-                        FIELD i-no LIKE itemfg.i-no
-                        FIELD qty AS INT
-                        FIELD cust-no AS cha
-                        INDEX tt-cust IS PRIMARY cust-no DESCENDING .
-DEFINE TEMP-TABLE tt-fgemail NO-UNDO
-    FIELD i-no      LIKE itemfg.i-no
-    FIELD po-no     LIKE oe-ordl.po-no
-    FIELD ord-no    LIKE oe-ordl.ord-no
-    FIELD qty-rec   AS DEC
-    FIELD recipient AS CHAR.
+{fg/fgPostBatch.i}
     
 DEF STREAM logFile.
 DEF STREAM st-email.
