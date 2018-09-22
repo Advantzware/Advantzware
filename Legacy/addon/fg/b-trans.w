@@ -64,33 +64,13 @@ DEFINE VARIABLE lFgEmails AS LOGICAL   NO-UNDO.
 {fg/fullset.i  NEW}
 {fg/fg-post3.i NEW}
 
-DEF TEMP-TABLE w-fg-rctd NO-UNDO LIKE fg-rctd 
-    FIELD row-id   AS ROWID
-    FIELD has-rec  AS LOG   INIT NO
-    FIELD invoiced AS LOG   INIT NO.
-    
+{fg/fgPostBatch.i}    
 DEF TEMP-TABLE tt-line-cnt NO-UNDO
     FIELD line-rowid  AS ROWID 
     FIELD line-number AS INT .
-DEF TEMP-TABLE tt-inv LIKE w-inv.
+
 
 /* Existing code */
-DEF TEMP-TABLE tt-email NO-UNDO 
-    FIELD tt-recid AS RECID
-    FIELD job-no   LIKE job-hdr.job-no
-    FIELD job-no2  LIKE job-hdr.job-no2
-    FIELD i-no     LIKE itemfg.i-no
-    FIELD qty      AS INT
-    FIELD cust-no  AS cha
-    INDEX tt-cust IS PRIMARY cust-no DESCENDING .
-
-DEFINE TEMP-TABLE tt-fgemail NO-UNDO
-    FIELD i-no      LIKE itemfg.i-no
-    FIELD po-no     LIKE oe-ordl.po-no
-    FIELD ord-no    LIKE oe-ordl.ord-no
-    FIELD qty-rec   AS DEC
-    FIELD recipient AS CHAR.
-
 DEFINE VARIABLE lFound AS LOGICAL     NO-UNDO.
 DEFINE VARIABLE lFGSetAssembly AS LOGICAL     NO-UNDO.
 DEFINE VARIABLE cFGSetAssembly AS CHARACTER   NO-UNDO.
@@ -1796,11 +1776,13 @@ v-progstack = (IF PROGRAM-NAME(1) NE ? THEN "," + PROGRAM-NAME(1) ELSE "")
      BROWSE {&BROWSE-NAME}:SELECT-ROW(iNumRows - 1) NO-ERROR.    
   END.
 
-  /*
-  FIND loadtag WHERE loadtag.company = g_company
-                 AND loadtag.ITEM-type = NO
-                 AND loadtag.tag-no = fg-rctd.tag2 NO-LOCK NO-ERROR.
-  */
+    /*
+    FIND loadtag WHERE loadtag.company = g_company
+                   AND loadtag.ITEM-type = NO
+                   AND loadtag.tag-no = fg-rctd.tag2 NO-LOCK NO-ERROR.
+    */
+  IF lPostAuto-log THEN
+     RUN auto-post.
   lv-new-tag-number-chosen = ?.
   /* Workaround: if tab through to row-leave, scan-next doesn't get run */
   /* so if we're not here because of p-updbar, then run it              */
