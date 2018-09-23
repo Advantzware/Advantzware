@@ -166,7 +166,7 @@ sys-ctrl-shipto.dec-fld sys-ctrl-shipto.int-fld sys-ctrl-shipto.log-fld
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS svFocus btnRestoreDefaults searchBar ~
-sysCtrlBrowse btnSortMove 
+btnSortMove sysCtrlBrowse 
 &Scoped-Define DISPLAYED-OBJECTS svFocus searchBar 
 
 /* Custom List Definitions                                              */
@@ -698,9 +698,9 @@ DEFINE FRAME DEFAULT-FRAME
           "Restore Defaults" WIDGET-ID 42
      searchBar AT ROW 1 COL 54 COLON-ALIGNED HELP
           "Search" WIDGET-ID 6
-     sysCtrlBrowse AT ROW 2 COL 39 WIDGET-ID 300
      btnSortMove AT ROW 1 COL 43 HELP
           "Toggle Sort/Move Columns" WIDGET-ID 44
+     sysCtrlBrowse AT ROW 2 COL 39 WIDGET-ID 300
      btnExport AT ROW 27.43 COL 11 HELP
           "Export" WIDGET-ID 36
      btnImport AT ROW 27.43 COL 20 HELP
@@ -724,22 +724,22 @@ DEFINE FRAME viewFrame
      cModule AT ROW 2.43 COL 99 COLON-ALIGNED WIDGET-ID 6
      cDescrip AT ROW 3.62 COL 18 COLON-ALIGNED WIDGET-ID 4
      cFieldDescrip AT ROW 4.81 COL 18 COLON-ALIGNED WIDGET-ID 40
-     hInteger AT ROW 6 COL 18 COLON-ALIGNED HELP
-          "Enter Integer Value" NO-LABEL WIDGET-ID 62
      cFieldValue AT ROW 6 COL 18 COLON-ALIGNED WIDGET-ID 30
-     hDecimal AT ROW 6 COL 18 COLON-ALIGNED HELP
-          "Enter Decimal Value" NO-LABEL WIDGET-ID 60
-     hLogical AT ROW 6 COL 20 NO-LABEL WIDGET-ID 64
      hDate AT ROW 6 COL 18 COLON-ALIGNED HELP
           "Enter Date Value" NO-LABEL WIDGET-ID 58
+     hLogical AT ROW 6 COL 20 NO-LABEL WIDGET-ID 64
+     hDecimal AT ROW 6 COL 18 COLON-ALIGNED HELP
+          "Enter Decimal Value" NO-LABEL WIDGET-ID 60
+     hInteger AT ROW 6 COL 18 COLON-ALIGNED HELP
+          "Enter Integer Value" NO-LABEL WIDGET-ID 62
      cFieldDefault AT ROW 7.19 COL 18 COLON-ALIGNED WIDGET-ID 42
      ctableSource AT ROW 8.38 COL 18 COLON-ALIGNED WIDGET-ID 46
-     cfieldSource AT ROW 8.38 COL 54 COLON-ALIGNED WIDGET-ID 48
-     cDataType AT ROW 8.38 COL 94 COLON-ALIGNED HELP
-          "Select Data Type" WIDGET-ID 52
      btnCalendar-1 AT ROW 6 COL 36 WIDGET-ID 272
+     cfieldSource AT ROW 8.38 COL 54 COLON-ALIGNED WIDGET-ID 48
      btnFirst-1 AT ROW 9.81 COL 69 HELP
           "First" WIDGET-ID 274
+     cDataType AT ROW 8.38 COL 94 COLON-ALIGNED HELP
+          "Select Data Type" WIDGET-ID 52
      btnLast-1 AT ROW 9.81 COL 93 HELP
           "Last" WIDGET-ID 68
      btnNext-1 AT ROW 9.81 COL 85 HELP
@@ -772,6 +772,47 @@ DEFINE FRAME viewFrame
          SIZE 117 BY 12.14
          FGCOLOR 1 
          TITLE "View" WIDGET-ID 400.
+
+DEFINE FRAME filterFrame
+    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 1
+         SIZE 38 BY 26
+         BGCOLOR 15 FGCOLOR 1 
+         TITLE BGCOLOR 8 "Category / SubCategory" WIDGET-ID 200.
+
+DEFINE FRAME searchFrame
+     btnSearch AT ROW 1 COL 1 HELP
+          "Advanced Search" WIDGET-ID 40
+     cNameFilter AT ROW 1.24 COL 21 COLON-ALIGNED HELP
+          "Name Search" WIDGET-ID 2
+     cFieldDescripFilter AT ROW 2.19 COL 21 COLON-ALIGNED HELP
+          "Description Search" WIDGET-ID 44
+     cValueFilter AT ROW 3.14 COL 21 COLON-ALIGNED HELP
+          "Value Search" WIDGET-ID 8
+     cDescripFilter AT ROW 4.1 COL 21 COLON-ALIGNED HELP
+          "Description Search" WIDGET-ID 6
+     cModuleFilter AT ROW 5.05 COL 21 COLON-ALIGNED HELP
+          "Module Search" WIDGET-ID 12
+     cTypeCodeFilter AT ROW 6 COL 21 COLON-ALIGNED HELP
+          "Type Search" WIDGET-ID 10
+     cCategoryFilter AT ROW 6.95 COL 21 COLON-ALIGNED HELP
+          "Category Search" WIDGET-ID 14
+     cSubCategoryFilter AT ROW 7.91 COL 21 COLON-ALIGNED HELP
+          "Sub Category Search" WIDGET-ID 16
+     cTableSourceFilter AT ROW 8.86 COL 21 COLON-ALIGNED HELP
+          "Table Source Search" WIDGET-ID 46
+     cFieldSourceFilter AT ROW 9.81 COL 21 COLON-ALIGNED HELP
+          "Field Source Search" WIDGET-ID 48
+     cDataTypeFilter AT ROW 10.76 COL 21 COLON-ALIGNED HELP
+          "Data Type Search" WIDGET-ID 50
+     btnClear AT ROW 10.76 COL 64 HELP
+          "Clear Search Filters" WIDGET-ID 42
+    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS TOP-ONLY NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 1
+         SIZE 72 BY 10.95
+         FGCOLOR 1 FONT 6 WIDGET-ID 600.
 
 DEFINE FRAME formsFrame
      cSysCtrlName AT ROW 1.24 COL 11 COLON-ALIGNED WIDGET-ID 4
@@ -829,6 +870,8 @@ DEFINE FRAME viewFormFrame
           VIEW-AS FILL-IN 
           SIZE 16 BY 1
           BGCOLOR 15 
+     btnForms-2 AT ROW 1 COL 138 HELP
+          "Close" WIDGET-ID 72
      cLogLabel AT ROW 10.76 COL 15.2 WIDGET-ID 78
      sys-ctrl-shipto.log-fld AT ROW 10.76 COL 24 NO-LABEL WIDGET-ID 52
           VIEW-AS RADIO-SET HORIZONTAL
@@ -837,8 +880,6 @@ DEFINE FRAME viewFormFrame
 "No", no,
 "Unknown", ?
           SIZE 28 BY 1
-     btnForms-2 AT ROW 1 COL 138 HELP
-          "Close" WIDGET-ID 72
      btnLast-2 AT ROW 9.57 COL 133 HELP
           "Last" WIDGET-ID 68
      btnNext-2 AT ROW 9.57 COL 125 HELP
@@ -868,47 +909,6 @@ DEFINE FRAME viewFormFrame
          SIZE 142 BY 11.86
          FGCOLOR 1 
          TITLE "View" WIDGET-ID 900.
-
-DEFINE FRAME searchFrame
-     btnSearch AT ROW 1 COL 1 HELP
-          "Advanced Search" WIDGET-ID 40
-     cNameFilter AT ROW 1.24 COL 21 COLON-ALIGNED HELP
-          "Name Search" WIDGET-ID 2
-     cFieldDescripFilter AT ROW 2.19 COL 21 COLON-ALIGNED HELP
-          "Description Search" WIDGET-ID 44
-     cValueFilter AT ROW 3.14 COL 21 COLON-ALIGNED HELP
-          "Value Search" WIDGET-ID 8
-     cDescripFilter AT ROW 4.1 COL 21 COLON-ALIGNED HELP
-          "Description Search" WIDGET-ID 6
-     cModuleFilter AT ROW 5.05 COL 21 COLON-ALIGNED HELP
-          "Module Search" WIDGET-ID 12
-     cTypeCodeFilter AT ROW 6 COL 21 COLON-ALIGNED HELP
-          "Type Search" WIDGET-ID 10
-     cCategoryFilter AT ROW 6.95 COL 21 COLON-ALIGNED HELP
-          "Category Search" WIDGET-ID 14
-     cSubCategoryFilter AT ROW 7.91 COL 21 COLON-ALIGNED HELP
-          "Sub Category Search" WIDGET-ID 16
-     cTableSourceFilter AT ROW 8.86 COL 21 COLON-ALIGNED HELP
-          "Table Source Search" WIDGET-ID 46
-     cFieldSourceFilter AT ROW 9.81 COL 21 COLON-ALIGNED HELP
-          "Field Source Search" WIDGET-ID 48
-     cDataTypeFilter AT ROW 10.76 COL 21 COLON-ALIGNED HELP
-          "Data Type Search" WIDGET-ID 50
-     btnClear AT ROW 10.76 COL 64 HELP
-          "Clear Search Filters" WIDGET-ID 42
-    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS TOP-ONLY NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1
-         SIZE 72 BY 10.95
-         FGCOLOR 1 FONT 6 WIDGET-ID 600.
-
-DEFINE FRAME filterFrame
-    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1
-         SIZE 38 BY 26
-         BGCOLOR 15 FGCOLOR 1 
-         TITLE BGCOLOR 8 "Category / SubCategory" WIDGET-ID 200.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -967,10 +967,12 @@ ASSIGN FRAME filterFrame:FRAME = FRAME DEFAULT-FRAME:HANDLE
 DEFINE VARIABLE XXTABVALXX AS LOGICAL NO-UNDO.
 
 ASSIGN XXTABVALXX = FRAME filterFrame:MOVE-AFTER-TAB-ITEM (svFocus:HANDLE IN FRAME DEFAULT-FRAME)
+       XXTABVALXX = FRAME formsFrame:MOVE-BEFORE-TAB-ITEM (searchBar:HANDLE IN FRAME DEFAULT-FRAME)
+       XXTABVALXX = FRAME searchFrame:MOVE-BEFORE-TAB-ITEM (FRAME formsFrame:HANDLE)
        XXTABVALXX = FRAME filterFrame:MOVE-BEFORE-TAB-ITEM (FRAME searchFrame:HANDLE)
 /* END-ASSIGN-TABS */.
 
-/* BROWSE-TAB sysCtrlBrowse searchBar DEFAULT-FRAME */
+/* BROWSE-TAB sysCtrlBrowse btnSortMove DEFAULT-FRAME */
 /* SETTINGS FOR BUTTON btnExport IN FRAME DEFAULT-FRAME
    NO-ENABLE                                                            */
 /* SETTINGS FOR BUTTON btnImport IN FRAME DEFAULT-FRAME
@@ -2607,6 +2609,9 @@ END.
 
 /* ***************************  Main Block  *************************** */
 
+&scoped-define SysCtrlHelp
+{sys/inc/f3help.i}
+
 /* Set CURRENT-WINDOW: this will parent dialog-boxes and frames.        */
 ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME} 
        THIS-PROCEDURE:CURRENT-WINDOW = {&WINDOW-NAME}.
@@ -2739,7 +2744,7 @@ PROCEDURE enable_UI :
 ------------------------------------------------------------------------------*/
   DISPLAY svFocus searchBar 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
-  ENABLE svFocus btnRestoreDefaults searchBar sysCtrlBrowse btnSortMove 
+  ENABLE svFocus btnRestoreDefaults searchBar btnSortMove sysCtrlBrowse 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
   VIEW FRAME filterFrame IN WINDOW C-Win.
@@ -2845,6 +2850,8 @@ PROCEDURE pBuildMenuTree :
         "ALL",
         "tab_pane.png",
         "",
+        "",
+        "",
         YES
         ).
     FOR EACH ttSysCtrl
@@ -2861,6 +2868,8 @@ PROCEDURE pBuildMenuTree :
                 ttSysCtrl.subCategory,
                 ttSysCtrl.subCategory,
                 "hand_point_right2.png",
+                "",
+                "",
                 "",
                 YES
                 ).
@@ -2882,6 +2891,8 @@ PROCEDURE pBuildMenuTree :
                 ttSysCtrl.category,
                 "tab_pane.png",
                 "",
+                "",
+                "",
                 YES
                 ).
         END. /* if first-of category */
@@ -2897,6 +2908,8 @@ PROCEDURE pBuildMenuTree :
                 ttSysCtrl.subCategory,
                 "hand_point_right2.png",
                 "",
+                "",
+                "",
                 YES
                 ).
         END. /* if first-of category */
@@ -2911,6 +2924,8 @@ PROCEDURE pBuildMenuTree :
         "Exit",
         "Exit",
         "navigate_cross.png",
+        "",
+        "",
         "",
         YES
         ).
