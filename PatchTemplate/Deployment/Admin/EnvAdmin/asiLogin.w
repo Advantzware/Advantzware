@@ -1574,6 +1574,7 @@ PROCEDURE ipPreRun :
     DEFINE VARIABLE lOK      AS LOGICAL INITIAL TRUE NO-UNDO.
     DEFINE VARIABLE lExit    AS LOGICAL INITIAL TRUE NO-UNDO.
     DEFINE VARIABLE hSession AS HANDLE               NO-UNDO.
+    DEFINE VARIABLE hTags    AS HANDLE               NO-UNDO.
 
     ASSIGN
         iPos = LOOKUP(cbEnvironment,cEnvironmentList)
@@ -1596,7 +1597,10 @@ PROCEDURE ipPreRun :
         RUN system\session.p PERSISTENT SET hSession.
         SESSION:ADD-SUPER-PROCEDURE (hSession).
     END.
-
+    
+    RUN system\TagProcs.p PERSISTENT SET hTags.
+    SESSION:ADD-SUPER-PROCEDURE (hTags).
+    
     IF NOT VALID-HANDLE(persistent-handle) THEN
         RUN nosweat/persist.p PERSISTENT SET persistent-handle.
     IF NOT VALID-HANDLE(listlogic-handle) THEN

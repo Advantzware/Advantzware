@@ -92,11 +92,13 @@ shipto.carrier shipto.loc
 &Scoped-define ENABLED-FIELDS-IN-QUERY-BROWSE-1 
 &Scoped-define QUERY-STRING-BROWSE-1 FOR EACH shipto WHERE ~{&KEY-PHRASE} ~
       AND shipto.company = ip-company and ~
-shipto.cust-no = ip-cust-no NO-LOCK ~
+shipto.cust-no = ip-cust-no ~
+and shipto.statusCode NE "I" NO-LOCK ~
     ~{&SORTBY-PHRASE}
 &Scoped-define OPEN-QUERY-BROWSE-1 OPEN QUERY BROWSE-1 FOR EACH shipto WHERE ~{&KEY-PHRASE} ~
       AND shipto.company = ip-company and ~
-shipto.cust-no = ip-cust-no NO-LOCK ~
+shipto.cust-no = ip-cust-no ~
+and shipto.statusCode NE "I" NO-LOCK ~
     ~{&SORTBY-PHRASE}.
 &Scoped-define TABLES-IN-QUERY-BROWSE-1 shipto
 &Scoped-define FIRST-TABLE-IN-QUERY-BROWSE-1 shipto
@@ -146,7 +148,7 @@ DEFINE VARIABLE rd-sort AS INTEGER
      RADIO-BUTTONS 
           "Ship To", 1,
 "Name", 2,
-    "City", 3
+"City", 3
      SIZE 60 BY .95 NO-UNDO.
 
 DEFINE RECTANGLE RECT-1
@@ -211,7 +213,7 @@ DEFINE FRAME Dialog-Frame
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
 /* SETTINGS FOR DIALOG-BOX Dialog-Frame
    FRAME-NAME                                                           */
-/* BROWSE-TAB BROWSE-1 1 Dialog-Frame */
+/* BROWSE-TAB BROWSE-1 TEXT-1 Dialog-Frame */
 ASSIGN 
        FRAME Dialog-Frame:SCROLLABLE       = FALSE
        FRAME Dialog-Frame:HIDDEN           = TRUE.
@@ -227,16 +229,17 @@ ASSIGN
      _TblList          = "ASI.shipto"
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
      _Where[1]         = "ASI.shipto.company = ip-company and
-shipto.cust-no = ip-cust-no"
+shipto.cust-no = ip-cust-no
+and shipto.statusCode NE ""I"""
      _FldNameList[1]   > ASI.shipto.ship-id
-"ship-id" ? ? "character" ? ? ? ? ? ? no ? no no "12.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"shipto.ship-id" ? ? "character" ? ? ? ? ? ? no ? no no "12.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   = ASI.shipto.ship-name
      _FldNameList[3]   = ASI.shipto.ship-addr[1]
      _FldNameList[4]   = ASI.shipto.ship-city
      _FldNameList[5]   = ASI.shipto.ship-state
      _FldNameList[6]   = ASI.shipto.ship-zip
      _FldNameList[7]   > ASI.shipto.carrier
-"carrier" ? ? "character" ? ? ? ? ? ? no ? no no "8" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"shipto.carrier" ? ? "character" ? ? ? ? ? ? no ? no no "8" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[8]   = ASI.shipto.loc
      _Query            is OPENED
 */  /* BROWSE BROWSE-1 */
