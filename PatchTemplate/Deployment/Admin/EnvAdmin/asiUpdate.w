@@ -568,19 +568,26 @@ DO:
         END.
         WHEN "bUpdate" THEN DO:
             RUN ipStatus("User chose Start Update button").
+            
             RUN ipValidateChoices (OUTPUT lOKtoProceed).
             IF NOT lOKtoProceed THEN DO:
                 RUN ipStatus("User made invalid choices for application").
                 RETURN.
             END.
+    
+            RUN ipStatus(" ").
             RUN ipStatus("UPGRADING ENVIRONMENT " + slEnvList:{&SV}).
             RUN ipStatus("  from version " + fiFromVersion:{&SV} + " to version: " + fiToVersion:{&SV}).
+            RUN ipStatus(" ").
+    
             RUN ipCopyDeploy.
             RUN ipProcess.
+            RUN ipStatus("Upgrade Complete.").
+            RUN ipStatus(" ").
+            
             RUN ipStatus("Sending report to ASI").
             RUN ipBuildVerification (3).
             RUN ipSendVerification.
-            RUN ipStatus("Upgrade Complete.").
         END.
     END CASE.
 END.
@@ -1294,6 +1301,7 @@ PROCEDURE ipProcess :
     DEF VAR iListItem AS INT NO-UNDO.
     DEF VAR cEnvVer AS CHAR NO-UNDO.
     DEF VAR iEnv AS INT NO-UNDO.
+    DEF VAR cFileToRun AS CHAR NO-UNDO.
         
     ASSIGN 
         lSuccess = TRUE.
@@ -1330,18 +1338,23 @@ PROCEDURE ipProcess :
             .
 
         RUN ipStatus("Initiating asiUpdateDB.w").
-        RUN N:\Repository\PatchTemplate\Deployment\Admin\EnvAdmin\asiUpdateDB.w (
-                            ENTRY(iEnv,cDBList),
-                            ENTRY(iEnv,cDBPortList),
-                            ENTRY(iEnv,cDbDirList),
-                            fiFromVersion:{&SV},
-                            fiToVersion:{&SV},
-                            iUserLevel,
-                            OUTPUT lSuccess)
-                            .
+        
+        IF SEARCH("asiUpdateDB.r") NE ? 
+        OR SEARCH("asiUpdateDB.w") NE ? THEN DO:
+            ASSIGN 
+                cFileToRun = "asiUpdateDB.w".
+        END.
+        ELSE ASSIGN 
+            cFileToRun = "N:\Repository\PatchTemplate\Deployment\Admin\EnvAdmin\asiUpdateDB.w".
+        
+        RUN  VALUE (cFileToRun) (ENTRY(iEnv,cDBList),
+                                ENTRY(iEnv,cDBPortList),
+                                ENTRY(iEnv,cDbDirList),
+                                fiFromVersion:{&SV},
+                                fiToVersion:{&SV},
+                                iUserLevel,
+                                OUTPUT lSuccess).
         RUN ipStatus("Return from asiUpdateDB.w").
-        ASSIGN
-            c-Win:visible = TRUE. 
 
         IF cState EQ "Dev" THEN 
         DO:
@@ -1380,7 +1393,6 @@ PROCEDURE ipProcess :
   
     ASSIGN
         iEnv = LOOKUP (slEnvList:{&SV},slEnvList:list-items)
-        c-Win:visible = false
         .
 
     DO iCtr = 1 to NUM-ENTRIES(cDbList):
@@ -1410,9 +1422,12 @@ PROCEDURE ipProcess :
                    " -S " + ENTRY(iEnv,cDBPortList) +
                    " -N tcp -ld ASI".
     RUN ipStatus("    " + cConnect).
-    CONNECT VALUE(cConnect).
+    CONNECT VALUE(cConnect) NO-ERROR.
     IF NOT CONNECTED ("asi") THEN DO:
         RUN ipStatus("  DB connection failed.  Cancelling.").
+        DO iCtr = 1 TO ERROR-STATUS:NUM-MESSAGES:
+            RUN ipStatus ("    " + ERROR-STATUS:GET-MESSAGE(iCtr)).
+        END.
         MESSAGE 
             "Unable to connect to the asi database.  Cannot continue." SKIP 
             "Please contact Advantzware Support for assistance."
@@ -1427,11 +1442,14 @@ PROCEDURE ipProcess :
                        " -H " + chostName +
                        " -S " + cPort +
                        " -N tcp -ld Audit".
-        CONNECT VALUE(cConnect).
         RUN ipStatus("    " + cConnect).
+        CONNECT VALUE(cConnect) NO-ERROR.
     END.
     IF NOT CONNECTED ("audit") THEN DO:
         RUN ipStatus("  DB connection failed.  Cancelling.").
+        DO iCtr = 1 TO ERROR-STATUS:NUM-MESSAGES:
+            RUN ipStatus ("    " + ERROR-STATUS:GET-MESSAGE(iCtr)).
+        END.
         MESSAGE 
             "Unable to connect to the audit database.  Cannot continue." SKIP 
             "Please contact Advantzware Support for assistance."
@@ -1439,19 +1457,23 @@ PROCEDURE ipProcess :
         RETURN.
     END.
 
+    IF SEARCH("asiUpdateENV.r") NE ? 
+        OR SEARCH("asiUpdateENV.w") NE ? THEN ASSIGN 
+            cFileToRun = "asiUpdateENV.w".
+    ELSE ASSIGN 
+            cFileToRun = "N:\Repository\PatchTemplate\Deployment\Admin\EnvAdmin\asiUpdateENV.w".
+
     RUN ipStatus("Initiating asiUpdateENV.w").
-    RUN N:\Repository\PatchTemplate\Deployment\Admin\EnvAdmin\asiUpdateENV.w (
-                    ttDatabases.cName,
-                    ttDatabases.cPort,
-                    ttDatabases.cDir,
-                    ttDatabases.cVer,
-                    slEnvList:{&SV},
-                    fiFromVersion:{&SV},
-                    fiToVersion:{&SV},
-                    iUserLevel,
-                    lMakeBackup, /* Need backup? */
-                    OUTPUT lSuccess)
-                    .
+    RUN VALUE(cFileToRun) (ttDatabases.cName,
+                          ttDatabases.cPort,
+                          ttDatabases.cDir,
+                          ttDatabases.cVer,
+                          slEnvList:{&SV},
+                          fiFromVersion:{&SV},
+                          fiToVersion:{&SV},
+                          iUserLevel,
+                          lMakeBackup, /* Need backup? */
+                          OUTPUT lSuccess).
     RUN ipStatus("Return from asiUpdateENV.w").
 
     ASSIGN

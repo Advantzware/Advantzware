@@ -501,7 +501,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL bProcess C-Win
 ON CHOOSE OF bProcess IN FRAME DEFAULT-FRAME /* No User Action Required */
 DO:
-    RUN ipProcessRequest IN THIS-PROCEDURE.              
+    RUN ipProcessRequest IN THIS-PROCEDURE.  
+    APPLY 'close' TO THIS-PROCEDURE.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -582,8 +583,9 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE
     IF NOT THIS-PROCEDURE:PERSISTENT THEN
         WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
-    
-IF KEYFUNCTION(LASTKEY) = "END-ERROR" THEN QUIT.
+
+RETURN.    
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1540,9 +1542,9 @@ PROCEDURE ipUpgradeDBs :
     
     /* Re-Serve it */
     RUN ipStatus ("    Serving " + fiDbName:{&SV}).
-MESSAGE cStartString VIEW-AS ALERT-BOX.    
-    OS-COMMAND /* SILENT */ VALUE(cStartString).
-MESSAGE "" VIEW-AS ALERT-BOX.        
+    
+    OS-COMMAND SILENT VALUE(cStartString).
+        
     IF cPrefix EQ "asi" THEN DO: 
         ASSIGN 
             ENTRY(iListEntry,wDbVerList) = STRING(iToDelta / 10,"99.9").

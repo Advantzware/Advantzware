@@ -1021,8 +1021,11 @@ PROCEDURE ipBackupDataFiles :
   Notes:       
 ------------------------------------------------------------------------------*/
     RUN ipStatus ("  Backing up data files").
-    
+    DISABLE TRIGGERS FOR DUMP OF sys-ctrl.
+    DISABLE TRIGGERS FOR DUMP OF sys-ctrl-shipto.
+
 &SCOPED-DEFINE cFile AuditTbl
+
     OUTPUT TO VALUE(cUpdDataDir + "\" + "{&cFile}" + ".bak") NO-ECHO.
     FOR EACH {&cFile}:
         EXPORT {&cFile}.
@@ -1600,7 +1603,7 @@ PROCEDURE ipConvertUsrFile :
 /*                      06/15/18    MYT             Moved to upgrade process */
 /*---------------------------------------------------------------------------*/
 
-    RUN ipStatus ("Converting advantzware.usr file...").
+    RUN ipStatus ("    Converting advantzware.usr file...").
 
 DEF VAR cLine AS CHAR NO-UNDO.
 DEF VAR cOutline AS CHAR NO-UNDO.
@@ -1728,7 +1731,7 @@ PROCEDURE ipConvQtyPerSet :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    RUN ipStatus ("Converting QtyPerSet records...").
+    RUN ipStatus ("    Converting QtyPerSet records...").
 
     DEF VAR cOrigPropath AS CHAR NO-UNDO.
     DEF VAR cNewPropath AS CHAR NO-UNDO.
@@ -1787,12 +1790,12 @@ PROCEDURE ipConvQtyPerSet :
             fg-set.qtyPerSet = 1.
     END.     
 
-    RUN ipStatus ("   Total Estimates: "  + STRING(iCount)).
-    RUN ipStatus ("   Converted from .yld-qty: " + STRING(iCountProcessed)).
-    RUN ipStatus ("   Initialized to 1: " + STRING(iCountInitialized)).
-    RUN ipStatus ("   Total Sets: " + STRING(iCountFGSets)).
-    RUN ipStatus ("   Sets Converted from .part-qty to .qtyPerSet: " + STRING(iCountFGSetsProcessed)).
-    RUN ipStatus ("   Sets Initialized to 1: " + STRING(iCountFGSetsInitialized )).
+    RUN ipStatus ("       Total Estimates: "  + STRING(iCount)).
+    RUN ipStatus ("       Converted from .yld-qty: " + STRING(iCountProcessed)).
+    RUN ipStatus ("       Initialized to 1: " + STRING(iCountInitialized)).
+    RUN ipStatus ("       Total Sets: " + STRING(iCountFGSets)).
+    RUN ipStatus ("       Sets Converted from .part-qty to .qtyPerSet: " + STRING(iCountFGSetsProcessed)).
+    RUN ipStatus ("       Sets Initialized to 1: " + STRING(iCountFGSetsInitialized )).
     
 END PROCEDURE.
 
@@ -2174,8 +2177,6 @@ PROCEDURE ipDataFix160704 :
             job-code.dmiID = job-code.dmiID + 100.
     END.
     
-    RUN ipConvQtyPerSet.
-    
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2223,11 +2224,6 @@ PROCEDURE ipDataFix160712 :
                 IF oe-rel.lot-no EQ "" THEN ASSIGN oe-rel.lot-no = reftable1.code.
                 IF oe-rel.frt-pay EQ "" THEN ASSIGN oe-rel.frt-pay = reftable1.code2.
                 IF oe-rel.fob-code EQ "" THEN ASSIGN oe-rel.fob-code = reftable1.dscr.
-                EXPORT DELIMITER ","
-                    oe-rel.r-no
-                    oe-rel.lot-no
-                    oe-rel.frt-pay
-                    oe-rel.fob-code.
             END.   
             FIND CURRENT oe-rel NO-LOCK NO-ERROR.    
             RELEASE oe-rel. 
@@ -2241,10 +2237,9 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipDataFix160800 C-Win
-PROCEDURE ipDataFix160800:
-    /*------------------------------------------------------------------------------
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipDataFix160800 C-Win 
+PROCEDURE ipDataFix160800 :
+/*------------------------------------------------------------------------------
      Purpose:
      Notes:
     ------------------------------------------------------------------------------*/
@@ -2254,11 +2249,9 @@ PROCEDURE ipDataFix160800:
     RUN ipMoveUserMenusToDatabase.
 
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipDataFixConfig C-Win 
 PROCEDURE ipDataFixConfig :
@@ -2667,7 +2660,7 @@ PROCEDURE ipFixPoEdiDirs :
 ------------------------------------------------------------------------------*/
     DEF VAR cTestLoc AS CHAR NO-UNDO.
     
-    RUN ipStatus(" Fix file locations for PO EDI").
+    RUN ipStatus("   Fix file locations for PO EDI").
     
     /* The correct target for this dir is <env>\CustFiles\EDIfiles\PO */
     /* Is it already correct? */
@@ -3294,9 +3287,8 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipLoadTranslation C-Win
-PROCEDURE ipLoadTranslation:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipLoadTranslation C-Win 
+PROCEDURE ipLoadTranslation :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -3326,15 +3318,12 @@ PROCEDURE ipLoadTranslation:
 
 
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipLoadUserLanguage C-Win
-PROCEDURE ipLoadUserLanguage:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipLoadUserLanguage C-Win 
+PROCEDURE ipLoadUserLanguage :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -3364,11 +3353,9 @@ PROCEDURE ipLoadUserLanguage:
     EMPTY TEMP-TABLE ttUserLanguage.
 
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipLoadUtilCodes C-Win 
 PROCEDURE ipLoadUtilCodes :
@@ -3409,9 +3396,8 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipLoadUtilitiesTable C-Win
-PROCEDURE ipLoadUtilitiesTable:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipLoadUtilitiesTable C-Win 
+PROCEDURE ipLoadUtilitiesTable :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -3449,11 +3435,9 @@ PROCEDURE ipLoadUtilitiesTable:
 
 
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipLoadUtilNotes C-Win 
 PROCEDURE ipLoadUtilNotes :
@@ -3499,10 +3483,9 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipLoadXuserMenu C-Win
-PROCEDURE ipLoadXuserMenu:
-    /*------------------------------------------------------------------------------
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipLoadXuserMenu C-Win 
+PROCEDURE ipLoadXuserMenu :
+/*------------------------------------------------------------------------------
      Purpose:
      Notes:
     ------------------------------------------------------------------------------*/
@@ -3514,7 +3497,7 @@ PROCEDURE ipLoadXuserMenu:
     REPEAT:
         CREATE ttxUserMenu.
         IMPORT ttxUserMenu.
-        IF ttxUserMenu.user_id NE "AddonUser" THEN DO:
+        IF ttxUserMenu.user_id NE "AddonUsr" THEN DO:
             DELETE ttxUserMenu.
             NEXT.
         END.
@@ -3535,16 +3518,13 @@ PROCEDURE ipLoadXuserMenu:
     EMPTY TEMP-TABLE ttxUserMenu.
 
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipMoveUsermenusToDatabase C-Win
-PROCEDURE ipMoveUsermenusToDatabase:
-    /*------------------------------------------------------------------------------
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipMoveUsermenusToDatabase C-Win 
+PROCEDURE ipMoveUsermenusToDatabase :
+/*------------------------------------------------------------------------------
      Purpose:
      Notes:
     ------------------------------------------------------------------------------*/
@@ -3609,11 +3589,9 @@ PROCEDURE ipMoveUsermenusToDatabase:
 
 
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipProcessAll C-Win 
 PROCEDURE ipProcessAll :
@@ -3626,7 +3604,8 @@ PROCEDURE ipProcessAll :
     RUN ipStatus ("Beginning Patch Application").
     ASSIGN
         SELF:LABEL = IF SELF:SENSITIVE THEN "Processing..." ELSE SELF:LABEL 
-        SELF:SENSITIVE = FALSE.
+        SELF:SENSITIVE = FALSE
+        lSuccess = TRUE.
 
     IF tbBackupDBs:CHECKED IN FRAME {&FRAME-NAME} THEN DO:
         RUN ipBackupDBs.
@@ -4073,15 +4052,14 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipRemoveUserAddon C-Win
-PROCEDURE ipRemoveUserAddon:
-    /*------------------------------------------------------------------------------
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipRemoveUserAddon C-Win 
+PROCEDURE ipRemoveUserAddon :
+/*------------------------------------------------------------------------------
      Purpose:
      Notes:
     ------------------------------------------------------------------------------*/
 
-    RUN ipStatus ("  Removing addon mode from .usr file").
+    RUN ipStatus ("    Removing addon mode from .usr file").
 
     DEF VAR cLine     AS CHAR NO-UNDO.
     DEF VAR cOutline  AS CHAR NO-UNDO.
@@ -4121,11 +4099,9 @@ PROCEDURE ipRemoveUserAddon:
 
 
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipSetAdminPwd C-Win 
 PROCEDURE ipSetAdminPwd :
@@ -4252,7 +4228,7 @@ PROCEDURE ipTurnOffUserColors :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    RUN ipStatus(" Turn off user colors/fonts").
+    RUN ipStatus("   Turn off user colors/fonts").
     
     DISABLE TRIGGERS FOR LOAD OF users.
     
@@ -4327,6 +4303,8 @@ PROCEDURE ipUpdateNK1s :
     
     DISABLE TRIGGERS FOR LOAD OF sys-ctrl.
     DISABLE TRIGGERS FOR LOAD OF sys-ctrl-shipto.
+    DISABLE TRIGGERS FOR DUMP OF sys-ctrl.
+    DISABLE TRIGGERS FOR DUMP OF sys-ctrl-shipto.
     
     /* Verify system help WSDL NK1 */
     RUN ipStatus ("  Help Service entries").
@@ -4499,9 +4477,11 @@ PROCEDURE ipValidateDB :
     
     ASSIGN
         oplValidDB = TRUE.
-        
+    
+    CREATE ALIAS "DICTDB" FOR DATABASE asi.
+
     IF NOT CAN-FIND(FIRST _file WHERE 
-                    _file._file-name EQ "costheader") THEN DO:
+                    _file._file-name EQ "xusermenu") THEN DO:
         ASSIGN
             oplValidDb = FALSE.
         MESSAGE
