@@ -917,10 +917,11 @@ END.
 ON CHOOSE OF Btn_OK IN FRAME D-Dialog /* OK */
 DO:
   DEF VAR lv-est-no LIKE est.est-no NO-UNDO.
-
+  DEFINE VARIABLE lContinue AS LOGICAL NO-UNDO.
+  
   DEF BUFFER b-reft FOR reftable.
   DEF BUFFER op-lock FOR reftable.
-
+  DEFINE BUFFER bf-est-op FOR est-op.
 
   DO WITH FRAME {&FRAME-NAME}:
      ASSIGN {&displayed-objects}
@@ -934,6 +935,21 @@ DO:
 
      DISPLAY v-est-list.
      ASSIGN v-est-list.
+  END.
+  
+  IF AVAILABLE xest AND (v-do-speed OR v-do-mr) THEN DO:
+      FIND FIRST bf-est-op NO-LOCK 
+        WHERE bf-est-op.company EQ xest.company
+        AND bf-est-op.est-no EQ xest.est-no
+        AND bf-est-op.isLocked
+        NO-ERROR. 
+      IF AVAILABLE bf-est-op THEN DO:
+            MESSAGE "You have opted to recalculate machine standards yet the estimate has locked operations." SKIP 
+            "Do you want to continue calculating using standards from machine file?"
+            VIEW-AS ALERT-BOX BUTTONS YES-NO UPDATE lContinue.
+            IF NOT lContinue THEN 
+                APPLY "choose" TO btn_cancel.
+      END.
   END.
 
   ASSIGN io-do-speed = v-do-speed

@@ -109,10 +109,10 @@ DEFINE QUERY external_tables FOR est, est-qty.
 
 /* Definitions for BROWSE br_table                                      */
 &Scoped-define FIELDS-IN-QUERY-br_table est-op.s-num est-op.b-num ~
-est-op.m-code est-op.m-dscr est-op.n-out est-op.op-mr est-op.op-waste ~
-est-op.op-speed est-op.op-spoil est-op.op-crew[1] est-op.op-crew[2] ~
-est-op.op-rate[1] est-op.op-rate[2] est-op.num-col est-op.num-coat ~
-est-op.plates est-op.fountains est-op.n_out_div 
+est-op.m-code est-op.isLocked est-op.m-dscr est-op.n-out est-op.op-mr ~
+est-op.op-waste est-op.op-speed est-op.op-spoil est-op.op-crew[1] ~
+est-op.op-crew[2] est-op.op-rate[1] est-op.op-rate[2] est-op.num-col ~
+est-op.num-coat est-op.plates est-op.fountains est-op.n_out_div 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-br_table est-op.s-num est-op.b-num ~
 est-op.m-code est-op.m-dscr est-op.n-out est-op.op-mr est-op.op-waste ~
 est-op.op-speed est-op.op-spoil est-op.op-crew[1] est-op.op-crew[2] ~
@@ -218,6 +218,8 @@ DEFINE BROWSE br_table
       est-op.b-num COLUMN-LABEL "B" FORMAT ">>>":U
       est-op.m-code COLUMN-LABEL "Machine" FORMAT "x(6)":U COLUMN-FONT 0
             LABEL-BGCOLOR 14
+      est-op.isLocked COLUMN-LABEL "Lock" FORMAT "y/n":U WIDTH 5.6
+            VIEW-AS TOGGLE-BOX
       est-op.m-dscr FORMAT "x(20)":U COLUMN-FONT 0 LABEL-BGCOLOR 14
       est-op.n-out COLUMN-LABEL "Out" FORMAT ">>>9":U
       est-op.op-mr COLUMN-LABEL "MR-Hrs." FORMAT ">>9.99":U
@@ -354,35 +356,37 @@ ASSIGN
 "est-op.b-num" "B" ">>>" "integer" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   > ASI.est-op.m-code
 "est-op.m-code" "Machine" ? "character" ? ? 0 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[4]   > ASI.est-op.m-dscr
+     _FldNameList[4]   > ASI.est-op.isLocked
+"est-op.isLocked" "Lock" "y/n" "logical" ? ? ? ? ? ? no ? no no "5.6" yes no no "U" "" "" "TOGGLE-BOX" "," ? ? 5 no 0 no no
+     _FldNameList[5]   > ASI.est-op.m-dscr
 "est-op.m-dscr" ? ? "character" ? ? 0 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[5]   > ASI.est-op.n-out
+     _FldNameList[6]   > ASI.est-op.n-out
 "est-op.n-out" "Out" ">>>9" "integer" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[6]   > ASI.est-op.op-mr
+     _FldNameList[7]   > ASI.est-op.op-mr
 "est-op.op-mr" "MR-Hrs." ? "decimal" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[7]   > ASI.est-op.op-waste
+     _FldNameList[8]   > ASI.est-op.op-waste
 "est-op.op-waste" ? ? "integer" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[8]   > ASI.est-op.op-speed
+     _FldNameList[9]   > ASI.est-op.op-speed
 "est-op.op-speed" ? ? "integer" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[9]   > ASI.est-op.op-spoil
+     _FldNameList[10]   > ASI.est-op.op-spoil
 "est-op.op-spoil" ? ? "decimal" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[10]   > ASI.est-op.op-crew[1]
+     _FldNameList[11]   > ASI.est-op.op-crew[1]
 "est-op.op-crew[1]" "MRCrew" ? "decimal" ? ? ? ? ? ? yes ? no no "9.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[11]   > ASI.est-op.op-crew[2]
+     _FldNameList[12]   > ASI.est-op.op-crew[2]
 "est-op.op-crew[2]" "RunCrew" ? "decimal" ? ? ? ? ? ? yes ? no no "9.6" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[12]   > ASI.est-op.op-rate[1]
+     _FldNameList[13]   > ASI.est-op.op-rate[1]
 "est-op.op-rate[1]" "MRate" ? "decimal" ? ? ? ? ? ? no ? no no "8.8" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[13]   > ASI.est-op.op-rate[2]
+     _FldNameList[14]   > ASI.est-op.op-rate[2]
 "est-op.op-rate[2]" "RRate" ? "decimal" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[14]   > ASI.est-op.num-col
+     _FldNameList[15]   > ASI.est-op.num-col
 "est-op.num-col" "Inks" ">>>" "integer" ? ? ? ? ? ? yes ? no no "9" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[15]   > ASI.est-op.num-coat
+     _FldNameList[16]   > ASI.est-op.num-coat
 "est-op.num-coat" "Varnish" ">>>" "integer" ? ? ? ? ? ? yes ? no no "12" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[16]   > ASI.est-op.plates
+     _FldNameList[17]   > ASI.est-op.plates
 "est-op.plates" ? ">>>" "integer" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[17]   > ASI.est-op.fountains
+     _FldNameList[18]   > ASI.est-op.fountains
 "est-op.fountains" ? ">>>" "integer" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[18]   > ASI.est-op.n_out_div
+     _FldNameList[19]   > ASI.est-op.n_out_div
 "est-op.n_out_div" "Run Qty Divisor" ? "decimal" ? ? ? ? ? ? yes "Enter Divisor for Out Reduction" no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE br_table */
@@ -404,8 +408,8 @@ ASSIGN
 &Scoped-define BROWSE-NAME br_table
 &Scoped-define SELF-NAME br_table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table B-table-Win
-ON DEFAULT-ACTION OF br_table IN FRAME F-Main
-    DO:
+ON DEFAULT-ACTION OF br_table IN FRAME F-Main /* Operations */
+DO:
         DEFINE VARIABLE phandle  AS WIDGET-HANDLE NO-UNDO.
         DEFINE VARIABLE char-hdl AS cha           NO-UNDO.   
 
@@ -416,7 +420,6 @@ ON DEFAULT-ACTION OF br_table IN FRAME F-Main
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table B-table-Win
@@ -463,7 +466,6 @@ END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 
 
 &UNDEFINE SELF-NAME
@@ -768,7 +770,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-copy-record B-table-Win 
 PROCEDURE local-copy-record :
 /*------------------------------------------------------------------------------
@@ -790,7 +791,6 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-delete-record B-table-Win 
 PROCEDURE local-delete-record :
@@ -838,7 +838,6 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-initialize B-table-Win 
 PROCEDURE local-initialize :
@@ -913,7 +912,6 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-view B-table-Win 
 PROCEDURE local-view :
