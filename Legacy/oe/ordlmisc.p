@@ -68,8 +68,6 @@ for each est-prep
       WHERE oe-ordm.company EQ oe-ord.company
         AND oe-ordm.ord-no  EQ oe-ord.ord-no
         AND oe-ordm.charge  EQ est-prep.code
-        AND oe-ordm.est-no  EQ est-prep.est-no
-        AND oe-ordm.estPrepEqty EQ est-prep.eqty
       NO-ERROR.
   IF AVAIL oe-ordm THEN NEXT.   
   
