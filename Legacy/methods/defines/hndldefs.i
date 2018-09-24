@@ -18,10 +18,14 @@ DEFINE VARIABLE help-page  AS INTEGER   NO-UNDO.
 
 &IF DEFINED(UIB_is_Running) NE 0 &THEN
 DEFINE VARIABLE hSession AS HANDLE NO-UNDO.
+DEFINE VARIABLE hTags AS HANDLE NO-UNDO.
 
 RUN nosweat/persist.p  PERSISTENT SET Persistent-Handle.
 RUN lstlogic/persist.p PERSISTENT SET ListLogic-Handle.
 
 RUN system/session.p   PERSISTENT SET hSession.
 SESSION:ADD-SUPER-PROCEDURE (hSession).
+RUN system/TagProcs.p   PERSISTENT SET hTags.
+SESSION:ADD-SUPER-PROCEDURE (hTags).
+
 &ENDIF
