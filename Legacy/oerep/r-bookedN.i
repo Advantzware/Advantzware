@@ -688,6 +688,7 @@ FORMAT wkrecap.procat
                  WHEN "v-mach" THEN cVarValue = STRING(cMachine,"X(30)").
                  WHEN "v-ink" THEN cVarValue = STRING(cInks,"X(40)").
                  WHEN "print-sheet" THEN cVarValue =  IF AVAIL itemfg THEN STRING(itemfg.plate-no,"X(20)") ELSE "".
+                 WHEN "full-cost" THEN cVarValue = STRING(oe-ordl.spare-dec-1,"->>>>>>>9.99") .                                                                                               
             END CASE.
             IF cTmpField = "v-profit" AND NOT prt-profit THEN NEXT.
             cExcelVarValue = cVarValue.
@@ -770,6 +771,9 @@ FORMAT wkrecap.procat
                    WHEN "v-mach" THEN cVarValue = "".
                    WHEN "v-ink" THEN cVarValue = "" .
                    WHEN "print-sheet" THEN cVarValue =  "".
+                   WHEN "oe-ordl.cost" THEN cVarValue = "" .
+                   WHEN "oe-ordl.t-cost" THEN cVarValue = "".
+                   WHEN "full-cost" THEN cVarValue = "" .
               END CASE.
               IF cTmpField = "v-profit" AND NOT prt-profit THEN NEXT.
               cExcelVarValue = cVarValue.
@@ -845,7 +849,9 @@ FORMAT wkrecap.procat
                    WHEN "v-mach" THEN cVarValue = "".
                    WHEN "v-ink" THEN cVarValue = "" .
                    WHEN "print-sheet" THEN cVarValue =  "".
-		
+		           WHEN "oe-ordl.cost" THEN cVarValue = "" .
+                   WHEN "oe-ordl.t-cost" THEN cVarValue = "".
+                   WHEN "full-cost" THEN cVarValue = "" .
               END CASE.
               IF cTmpField = "v-profit" AND NOT prt-profit THEN NEXT.
               cExcelVarValue = cVarValue.
@@ -920,6 +926,7 @@ FORMAT wkrecap.procat
                 WHEN "v-mach" THEN cVarValue = STRING(cMachine,"X(30)").
                 WHEN "v-ink" THEN cVarValue = STRING(cInks,"X(40)").
                 WHEN "print-sheet" THEN cVarValue =  IF AVAIL itemfg THEN STRING(itemfg.plate-no,"X(20)") ELSE "".
+                WHEN "full-cost" THEN cVarValue = STRING(oe-ordl.spare-dec-1,"->>>>>>>9.99").   
             END CASE.
             IF cTmpField = "v-profit" AND NOT prt-profit THEN NEXT.  
             cExcelVarValue = cVarValue.
@@ -999,6 +1006,9 @@ FORMAT wkrecap.procat
                    WHEN "v-mach" THEN cVarValue = "".
                    WHEN "v-ink" THEN cVarValue = "" .
                    WHEN "print-sheet" THEN cVarValue =  "".
+                   WHEN "oe-ordl.cost" THEN cVarValue = "" .
+                   WHEN "oe-ordl.t-cost" THEN cVarValue = "".
+                   WHEN "full-cost" THEN cVarValue = "" .
               END CASE.
               IF cTmpField = "v-profit" AND NOT prt-profit THEN NEXT.
               cExcelVarValue = cVarValue.
@@ -1073,6 +1083,9 @@ FORMAT wkrecap.procat
                    WHEN "v-mach" THEN cVarValue = "".
                    WHEN "v-ink" THEN cVarValue = "" .
                    WHEN "print-sheet" THEN cVarValue =  "".
+                   WHEN "oe-ordl.cost" THEN cVarValue = "" .
+                   WHEN "oe-ordl.t-cost" THEN cVarValue = "".
+                   WHEN "full-cost" THEN cVarValue = "" .
               END CASE.
               IF cTmpField = "v-profit" AND NOT prt-profit THEN NEXT.
               cExcelVarValue = cVarValue.
