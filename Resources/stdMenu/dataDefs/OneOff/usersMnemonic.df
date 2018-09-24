@@ -1,6 +1,6 @@
 ADD FIELD "positionMnemonic" OF "users" AS character 
   FORMAT "x(8)"
-  INITIAL ""
+  INITIAL "Begin"
   LABEL "Position Mnemonic"
   POSITION 47
   MAX-WIDTH 16
@@ -9,7 +9,7 @@ ADD FIELD "positionMnemonic" OF "users" AS character
 
 ADD FIELD "showMnemonic" OF "users" AS character 
   FORMAT "x(8)"
-  INITIAL ""
+  INITIAL "All"
   LABEL "Show Mnemonic"
   POSITION 48
   MAX-WIDTH 16
