@@ -37,6 +37,7 @@ CREATE WIDGET-POOL.
 
 /* Parameters Definitions ---                                           */
 DEF INPUT PARAM ip-rowid AS ROWID NO-UNDO.
+DEFINE OUTPUT PARAMETER opcReasonCode AS CHARACTER NO-UNDO.
 DEFINE VARIABLE hPgmReason AS HANDLE NO-UNDO.
 /* Local Variable Definitions ---                                       */
 
@@ -114,7 +115,7 @@ DEFINE VARIABLE tb_last-cost AS LOGICAL INITIAL no
 
 DEFINE VARIABLE cb_reatype AS CHARACTER FORMAT "X(256)":U 
      LABEL "Adjustment Reason" 
-     VIEW-AS COMBO-BOX INNER-LINES 5
+     VIEW-AS COMBO-BOX INNER-LINES 10
      DROP-DOWN-LIST
      SIZE 30 BY 1 NO-UNDO.
 
@@ -248,28 +249,7 @@ DO:
   END.
 
   FIND CURRENT rm-bin NO-LOCK.
-
-  IF AVAIL rm-bin THEN
-  FOR EACH rm-rdtlh EXCLUSIVE-LOCK
-     WHERE rm-rdtlh.company = rm-bin.company
-       AND rm-rdtlh.i-no    = rm-bin.i-no
-       AND rm-rdtlh.loc     = rm-bin.loc
-       AND rm-rdtlh.loc-bin = rm-bin.loc-bin
-       AND rm-rdtlh.tag     = rm-bin.tag
-       AND rm-rdtlh.reject-code[1] NE "",
-
-    FIRST rm-rcpth NO-LOCK
-      WHERE rm-rcpth.r-no         EQ rm-rdtlh.r-no
-        AND rm-rcpth.rita-code    EQ rm-rdtlh.rita-code
-        AND rm-rcpth.i-no         EQ rm-bin.i-no
-        AND rm-rcpth.po-no        EQ TRIM(STRING(rm-bin.po-no,">>>>>>>>>>")) 
-      BY rm-rcpth.trans-date :
-
-    rm-rdtlh.reject-code[1] = cb_reatype:SCREEN-VALUE IN FRAME {&frame-name} . 
-    LEAVE .
-END.
- FIND CURRENT rm-rdtlh NO-LOCK NO-ERROR .
-
+  ASSIGN opcReasonCode = cb_reatype:SCREEN-VALUE IN FRAME {&frame-name} .
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -287,7 +267,7 @@ FIND rm-bin NO-LOCK WHERE ROWID(rm-bin) EQ ip-rowid NO-ERROR.
 IF AVAIL rm-bin THEN DO:
 
  RUN build-type-list .
-FOR EACH rm-rdtlh NO-LOCK
+ FOR EACH rm-rdtlh NO-LOCK
      WHERE rm-rdtlh.company = rm-bin.company
        AND rm-rdtlh.i-no    = rm-bin.i-no
        AND rm-rdtlh.loc     = rm-bin.loc

@@ -506,6 +506,7 @@ PROCEDURE calc-cost :
   DEF VAR lv-rowid AS ROWID NO-UNDO.
   DEF VAR lv-qty LIKE rm-bin.qty NO-UNDO.
   DEF VAR lv-cost LIKE rm-bin.cost NO-UNDO.
+  DEFINE VARIABLE cReasonCode AS CHARACTER NO-UNDO .
 
   DEF BUFFER bf-rm-bin FOR rm-bin.
   DEF BUFFER bf-item FOR item.
@@ -543,12 +544,12 @@ PROCEDURE calc-cost :
      lv-qty   = rm-bin.qty
      lv-cost  = rm-bin.cost.
 
-    RUN rm/d-rm-bin.w (lv-rowid).
+    RUN rm/d-rm-bin.w (lv-rowid,OUTPUT cReasonCode ).     
     IF AVAIL rm-bin THEN
     IF lv-qty  NE rm-bin.qty  OR
        lv-cost NE rm-bin.cost THEN DO:
-
-      RUN rm/cre-tran.p (ROWID(rm-bin), "A", rm-bin.qty - lv-qty).
+ 
+      RUN rm/cre-tran.p (ROWID(rm-bin), "A", rm-bin.qty - lv-qty,cReasonCode).
 
       ASSIGN
        lv-cost = 0

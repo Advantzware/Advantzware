@@ -25,7 +25,7 @@ for each itemfg
         AND fg-bin.tag     LE END_tag
       use-index co-ino:
 
-    RUN fg/cre-pchr.p (ROWID(fg-bin), "C", 0, 0).
+    RUN fg/cre-pchr.p (ROWID(fg-bin), "C", 0, 0,"").
 
     assign
      itemfg.q-onh = itemfg.q-onh - fg-bin.qty

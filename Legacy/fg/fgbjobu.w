@@ -339,6 +339,7 @@ DO:
   DEF VAR lv-qty LIKE fg-bin.qty NO-UNDO.
   DEF VAR lv-part LIKE fg-bin.partial-count NO-UNDO.
   DEF VAR ll-changed AS LOG NO-UNDO.
+  DEFINE VARIABLE cReasonCode AS CHARACTER NO-UNDO .
 
   DEF BUFFER b-fg-bin FOR fg-bin.
 
@@ -349,7 +350,7 @@ DO:
     assign ld-v1 ld-v3 ld-v4 ld-v5 ld-v6 ld-v7 ld-v8 ld-v9 ld-v10 ld-v11.
     ld-v2 = (ld-v1 * ld-v4) + ld-v11.
   end.
-  
+  ASSIGN cReasonCode = cb_reatype:SCREEN-VALUE IN FRAME {&frame-name} .
   if not avail w-job then return.
 
   assign
@@ -399,7 +400,7 @@ DO:
      fg-bin.avg-cost     = w-job.std-tot-cost
      fg-bin.last-cost    = w-job.std-tot-cost.
 
-    FOR EACH fg-rdtlh EXCLUSIVE-LOCK
+   /* FOR EACH fg-rdtlh EXCLUSIVE-LOCK
      WHERE fg-rdtlh.company = fg-bin.company
        AND fg-rdtlh.i-no    = fg-bin.i-no
        AND fg-rdtlh.loc     = fg-bin.loc
@@ -416,7 +417,7 @@ DO:
         fg-rdtlh.reject-code[1] = cb_reatype:SCREEN-VALUE IN FRAME {&frame-name} . 
         LEAVE.
     END.
-   FIND CURRENT fg-rdtlh NO-LOCK NO-ERROR .
+   FIND CURRENT fg-rdtlh NO-LOCK NO-ERROR .*/
 
 
     FOR EACH loadtag
@@ -440,7 +441,7 @@ DO:
      fg-bin.partial-count = w-job.partial-count.
 
     IF ll-changed THEN DO:
-      RUN fg/cre-pchr.p (ROWID(fg-bin), "A", lv-qty, lv-part).
+      RUN fg/cre-pchr.p (ROWID(fg-bin), "A", lv-qty, lv-part,cReasonCode).
 
       IF fg-bin.tag NE "" THEN DO:
         FOR EACH loadtag
@@ -479,7 +480,7 @@ DO:
            b-fg-bin.qty           = 0
            b-fg-bin.partial-count = 0.
 
-          RUN fg/cre-pchr.p (ROWID(b-fg-bin), "C", 0, 0).
+          RUN fg/cre-pchr.p (ROWID(b-fg-bin), "C", 0, 0,cReasonCode).
         END.
       END.
 
