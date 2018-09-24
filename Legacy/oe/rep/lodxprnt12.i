@@ -71,7 +71,7 @@ IF v-comp-add2 EQ "" THEN
     v-comp-add5 = lv-email
     lv-email = "".
 
-IF tb_print-view THEN DO:
+IF iplPrintView THEN DO:
         
         PUT  "<FArial>".
         PUT  "<C+25><#1>".
