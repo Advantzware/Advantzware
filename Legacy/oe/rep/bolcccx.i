@@ -155,7 +155,20 @@ for each report where report.term-id eq v-term-id,
     
     lv-cases = lv-cases-tot.
     IF AVAIL oe-ordl THEN FIND oe-ord OF oe-ordl NO-LOCK NO-ERROR.
-    IF v-printline >= 33 THEN DO:
+
+    IF LAST(report.key-03) AND v-printline >= 31  THEN do:
+        PUT {1} "<R49><C1>" lv-prt-date "  " lv-prt-time "   "  caps(oe-bolh.USER-ID)  "   " lv-prt-sts
+                     "<C69>Page " STRING(PAGE-NUMBER) + " of <#PAGES> "  FORM "x(20)" .
+             PAGE {1}.
+             v-printline = 0.  
+             IF cPrintFormat EQ "CCC" THEN do:
+                 {oe/rep/bolccc1.i}
+             END.
+             ELSE DO:
+                 {oe/rep/bolcent2.i}
+             END.
+    END.
+    ELSE IF v-printline >= 33 THEN DO:
              PUT {1} "<R49><C1>" lv-prt-date "  " lv-prt-time "   "  caps(oe-bolh.USER-ID)  "   " lv-prt-sts
                      "<C69>Page " /*string(PAGE-NUM - lv-pg-num,">>9")*/ STRING(PAGE-NUMBER) + " of <#PAGES> "  FORM "x(20)" .
              PAGE {1}.
@@ -166,7 +179,6 @@ for each report where report.term-id eq v-term-id,
              ELSE DO:
                  {oe/rep/bolcent2.i}
              END.
-
     END.
 
     DISPLAY  {1}
@@ -184,6 +196,7 @@ for each report where report.term-id eq v-term-id,
                 
          with frame bol-mid1 NO-BOX NO-LABELS STREAM-IO NO-ATTR-SPACE WIDTH 130.
     down {1} with frame bol-mid1.
+    v-printline = v-printline + 1.
 
     IF v-printline >= 33 THEN DO:
              PUT {1} "<R49><C1>" lv-prt-date "  " lv-prt-time "   "  caps(oe-bolh.USER-ID)  "   " lv-prt-sts
@@ -219,7 +232,7 @@ for each report where report.term-id eq v-term-id,
     PUT {1} SKIP.
 
     put {1} skip(1).
-    v-printline = v-printline + 2.
+    v-printline = v-printline + 1.
    /* display componets of set */
     if itemfg.isaset then
       for each fg-set where fg-set.company eq cocode
