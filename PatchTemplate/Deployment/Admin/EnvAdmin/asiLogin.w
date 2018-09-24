@@ -1031,10 +1031,6 @@ PROCEDURE ipClickOk :
     IF NOT cbMode = "Monitor Users" THEN DO: 
         /* Set current dir */
         RUN ipSetCurrentDir (cMapDir + "\" + cEnvDir + "\" + cbEnvironment). 
-        IF INDEX(cRunPgm,"mainmenu") <> 0
-        AND (SEARCH("system/mainmenu2.r") NE ? 
-            OR SEARCH("system/mainmenu2.w") NE ?) THEN ASSIGN
-            cRunPgm = "system/mainmenu2.w".
         RUN VALUE(cRunPgm).
     END.
     /* This is only used to monitor users */
@@ -1592,7 +1588,7 @@ PROCEDURE ipPreRun :
         IF NOT lOK THEN QUIT.
     END.
 
-    IF SEARCH("system\session.r") NE ? THEN DO:
+    IF NOT VALID-HANDLE(hSession) THEN DO:
         RUN system\session.p PERSISTENT SET hSession.
         SESSION:ADD-SUPER-PROCEDURE (hSession).
     END.
