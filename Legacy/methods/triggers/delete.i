@@ -25,8 +25,7 @@ END. /* each mfvalues */
 IF CAN-FIND(FIRST tag WHERE tag.linkTable EQ "{&TABLENAME}"
 AND tag.linkRecKey EQ {&TABLENAME}.rec_key) THEN
 FOR EACH tag EXCLUSIVE-LOCK
-    WHERE tag.linkTable EQ "{&TABLENAME}" AND
-    tag.linkRecKey EQ {&TABLENAME}.rec_key
+    WHERE tag.linkRecKey EQ {&TABLENAME}.rec_key
     :
     DELETE tag.
 END. /* each tag */
