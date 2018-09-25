@@ -3404,6 +3404,8 @@ PROCEDURE ipLoadUtilitiesTable :
 ------------------------------------------------------------------------------*/
     RUN ipStatus ("  Loading Utilities Records").
 
+    DISABLE TRIGGERS FOR LOAD OF reftable.
+    DISABLE TRIGGERS FOR LOAD OF notes.
     DISABLE TRIGGERS FOR LOAD OF Utilities.
     
     INPUT FROM VALUE(cUpdDataDir + "\Utilities.d") NO-ECHO.
@@ -3432,6 +3434,21 @@ PROCEDURE ipLoadUtilitiesTable :
     INPUT CLOSE.
         
     EMPTY TEMP-TABLE ttUtilities.
+    
+    /* 25458 - Delete utilities reftables */
+    FOR EACH reftable NO-LOCK WHERE 
+        reftable.reftable EQ 'Utilities':
+        FOR EACH notes EXCLUSIVE WHERE 
+            notes.rec_key EQ reftable.rec_key:
+            DELETE notes.
+        END. 
+    END. 
+    FOR EACH reftable WHERE 
+        reftable.reftable EQ 'Utilities':
+        CREATE reftable1.
+        BUFFER-COPY reftable TO reftable1.
+        DELETE reftable.
+    END. 
 
 
 END PROCEDURE.
